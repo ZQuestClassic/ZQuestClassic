@@ -11,7 +11,7 @@
 
 extern bool saved;
 extern zcmodule moduledata;
-extern newcombo *combobuf;
+extern std::vector<newcombo> combobuf;
 extern comboclass *combo_class_buf;
 extern itemdata *itemsbuf;
 extern int32_t CSet;
@@ -832,6 +832,8 @@ void ComboEditorDialog::loadComboType()
 			h_attribyte[4] = "The SFX played when drowning";
 			l_attribyte[5] = "Splash SFX:";
 			h_attribyte[5] = "SFX ID to play when walking on the liquid/shallow liquid portion of this combo. Only plays if walking and not swimming.";
+			l_attribyte[6] = "Ripple Sprite:";
+			h_attribyte[6] = "Sprite ID to show when walking on the liquid/shallow liquid portion of this combo. Only plays if walking and not swimming.";
 			if(FL(cflag2)) //Modify HP
 			{
 				l_flag[4] = "Rings affect HP Mod";
@@ -868,6 +870,8 @@ void ComboEditorDialog::loadComboType()
 				l_attribyte[5] = "Splash Sound";
 				h_attribyte[5] = "SFX ID to play when stepping in the shallow liquid";
 			}
+			l_attribyte[6] = "Ripple Sprite:";
+			h_attribyte[6] = "Sprite ID to show when stepping in the shallow liquid";
 			if(FL(cflag2)) //Modify HP
 			{
 				l_flag[4] = "Rings affect HP Mod";
@@ -994,6 +998,8 @@ void ComboEditorDialog::loadComboType()
 			h_flag[2] = "Specify a custom slash SFX";
 			l_attribyte[3] = "Walking Sound:";
 			h_attribyte[3] = "The SFX to play when the player walks through this combo. If 0, no sound is played.";
+			l_attribyte[6] = "Grass Sprite";
+			h_attribyte[6] = "The sprite to show when the player walks through this combo.";
 			if(FL(cflag2))
 			{
 				l_flag[10] = "Specific Item";
@@ -2283,14 +2289,11 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 						TextField(
 							fitParent = true,
 							type = GUI::TextField::type::TEXT,
-							maxLength = 10,
-							text = std::string(local_comboref.label),
+							maxLength = 255,
+							text = local_comboref.label,
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view text,int32_t)
 							{
-								std::string foo;
-								foo.assign(text);
-								strncpy(local_comboref.label, foo.c_str(), 10);
-								local_comboref.label[10] = 0;
+								local_comboref.label = text;
 							}),
 						Label(text = "CSet 2:", hAlign = 1.0),
 						TextField(
@@ -2709,6 +2712,8 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 								TRIGFLAG(59,"Lens Off->"),
 								INFOBTN("Triggered when the player pushes against the combo"),
 								TRIGFLAG(57,"Push->"),
+								INFOBTN("Triggered when the combo is pushed as a pushblock (after it settles into the new position)."),
+								TRIGFLAG(112,"Pushed->"),
 								INFOBTN("'Proximity:' requires the player to be far away, instead of close"),
 								TRIGFLAG(19,"Invert Proximity Req"),
 								INFOBTN("Triggers when all enemies are defeated"),

@@ -56,7 +56,7 @@ done
 rm -rf zq
 mkdir -p zq
 mkdir -p zq/modules/classic/
-mv zc/modules/classic/classic_qst.dat zq/modules/classic/
+mv zc/modules/classic/default.qst zq/modules/classic/
 cd -
 
 cd build_emscripten

@@ -1,6 +1,8 @@
 #ifndef _FFC_H_
 #define _FFC_H_
 
+#include "base/zdefs.h"
+#include "base/cpos_info.h"
 #include "zfix.h"
 #include "solidobject.h"
 
@@ -33,6 +35,7 @@ public:
 	bool recently_hit;
 	int32_t changer_x = -1000, changer_y = -1000;
 	int32_t prev_changer_x = -10000000, prev_changer_y = -10000000;
+	cpos_info info;
 	
 	ffcdata() = default;
 	ffcdata(ffcdata const& other);

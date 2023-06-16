@@ -2029,23 +2029,23 @@ string ZScript::VarToString(int32_t ID)
 	case HEROHAMMERSTATE: return "HEROHAMMERSTATE";
 	case HEROLIFTFLAGS: return "HEROLIFTFLAGS";
 	case COMBODLIFTWEAPONITEM: return "COMBODLIFTWEAPONITEM";
-	case RESRVD_VAR_EMILY21: return "RESRVD_VAR_EMILY21";
-	case RESRVD_VAR_EMILY22: return "RESRVD_VAR_EMILY22";
-	case RESRVD_VAR_EMILY23: return "RESRVD_VAR_EMILY23";
-	case RESRVD_VAR_EMILY24: return "RESRVD_VAR_EMILY24";
-	case RESRVD_VAR_EMILY25: return "RESRVD_VAR_EMILY25";
-	case RESRVD_VAR_EMILY26: return "RESRVD_VAR_EMILY26";
-	case RESRVD_VAR_EMILY27: return "RESRVD_VAR_EMILY27";
-	case RESRVD_VAR_EMILY28: return "RESRVD_VAR_EMILY28";
-	case RESRVD_VAR_EMILY29: return "RESRVD_VAR_EMILY29";
-	case RESRVD_VAR_EMILY30: return "RESRVD_VAR_EMILY30";
-	case RESRVD_VAR_EMILY31: return "RESRVD_VAR_EMILY31";
-	case RESRVD_VAR_EMILY32: return "RESRVD_VAR_EMILY32";
-	case RESRVD_VAR_EMILY33: return "RESRVD_VAR_EMILY33";
-	case RESRVD_VAR_EMILY34: return "RESRVD_VAR_EMILY34";
-	case RESRVD_VAR_EMILY35: return "RESRVD_VAR_EMILY35";
-	case RESRVD_VAR_EMILY36: return "RESRVD_VAR_EMILY36";
-	case RESRVD_VAR_EMILY37: return "RESRVD_VAR_EMILY37";
+	case LWPNDEATHITEM: return "LWPNDEATHITEM";
+	case LWPNDEATHDROPSET: return "LWPNDEATHDROPSET";
+	case LWPNDEATHIPICKUP: return "LWPNDEATHIPICKUP";
+	case LWPNDEATHSPRITE: return "LWPNDEATHSPRITE";
+	case LWPNDEATHSFX: return "LWPNDEATHSFX";
+	case EWPNDEATHITEM: return "EWPNDEATHITEM";
+	case EWPNDEATHDROPSET: return "EWPNDEATHDROPSET";
+	case EWPNDEATHIPICKUP: return "EWPNDEATHIPICKUP";
+	case EWPNDEATHSPRITE: return "EWPNDEATHSPRITE";
+	case EWPNDEATHSFX: return "EWPNDEATHSFX";
+	case LWPNLIFTLEVEL: return "LWPNLIFTLEVEL";
+	case LWPNLIFTTIME: return "LWPNLIFTTIME";
+	case LWPNLIFTHEIGHT: return "LWPNLIFTHEIGHT";
+	case EWPNLIFTLEVEL: return "EWPNLIFTLEVEL";
+	case EWPNLIFTTIME: return "EWPNLIFTTIME";
+	case EWPNLIFTHEIGHT: return "EWPNLIFTHEIGHT";
+	case HEROSHIELDJINX: return "HEROSHIELDJINX";
 	case RESRVD_VAR_EMILY38: return "RESRVD_VAR_EMILY38";
 	case RESRVD_VAR_EMILY39: return "RESRVD_VAR_EMILY39";
 	case RESRVD_VAR_EMILY40: return "RESRVD_VAR_EMILY40";
@@ -2620,21 +2620,21 @@ string OUseSpritePortal::toString() const
 {
 	return "PORTALUSESPRITE " + getArgument()->toString();
 }
-string OResrvdOpEmily02::toString() const
+string OHeroMoveAtAngle::toString() const
 {
-	return "RESRVD_OP_EMILY_02";
+	return "HEROMOVEATANGLE";
 }
-string OResrvdOpEmily03::toString() const
+string OHeroCanMoveAtAngle::toString() const
 {
-	return "RESRVD_OP_EMILY_03";
+	return "HEROCANMOVEATANGLE";
 }
-string OResrvdOpEmily04::toString() const
+string OHeroMove::toString() const
 {
-	return "RESRVD_OP_EMILY_04";
+	return "HEROMOVE";
 }
-string OResrvdOpEmily05::toString() const
+string OHeroCanMove::toString() const
 {
-	return "RESRVD_OP_EMILY_05";
+	return "HEROCANMOVE";
 }
 string OResrvdOpEmily06::toString() const
 {

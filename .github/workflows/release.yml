@@ -32,6 +32,7 @@ jobs:
     outputs:
       release-tag: ${{ steps.make-vars.outputs.release-tag }}
       release-name: ${{ steps.make-vars.outputs.release-name }}
+      previous-release-tag: ${{ steps.make-vars.outputs.previous-release-tag }}
     steps:
       - name: git clone
         uses: actions/checkout@v3
@@ -104,9 +105,17 @@ jobs:
     if: ${{ always() }}
     runs-on: ubuntu-22.04
     steps:
+      - name: git clone
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
       - uses: actions/download-artifact@v3
         with:
           path: release-packages
+
+      - name: Generate changelog
+        run: python scripts/generate_changelog.py --format markdown --from ${{ needs.create-tag.outputs.previous-release-tag }} > new_changelog.md
 
       - name: Release
         uses: softprops/action-gh-release@v1
@@ -117,9 +126,8 @@ jobs:
           prerelease: ${{ !inputs.full_release }}
           fail_on_unmatched_files: true
           generate_release_notes: true
+          body_path: new_changelog.md
 
-      - name: git clone
-        uses: actions/checkout@v3
       - name: Setup Sentry CLI
         if: inputs.sentry
         uses: mathieu-bour/setup-sentry-cli@v1.3.0

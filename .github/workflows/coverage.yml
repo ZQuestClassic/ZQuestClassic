@@ -44,10 +44,10 @@ jobs:
         env:
           GCOV: llvm-cov-14 gcov
 
-      - name: Install Node.js 16.x
+      - name: Install Node.js 18.x
         uses: actions/setup-node@v3
         with:
-          node-version: 16.x
+          node-version: 18.x
       - run: |
           git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
           mkdir tmp

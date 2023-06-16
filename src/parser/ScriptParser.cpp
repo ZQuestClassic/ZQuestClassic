@@ -931,7 +931,7 @@ ScriptsData::ScriptsData(Program& program)
 				meta.run_idens[ind] = (**it);
 				if(!meta.initd[ind].size())
 					meta.initd[ind] = meta.run_idens[ind];
-				++ind;
+				if (++ind > 7) break; //sanity check
 			}
 			ind = 0;
 			for(vector<DataType const*>::const_iterator it = run->paramTypes.begin();
@@ -955,7 +955,7 @@ ScriptsData::ScriptsData(Program& program)
 				}
 				if(meta.initd_type[ind] < 0)
 					meta.initd_type[ind] = ty;
-				++ind;
+				if (++ind > 7) break; //sanity check
 			}
 		}
 

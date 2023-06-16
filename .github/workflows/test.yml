@@ -165,7 +165,7 @@ jobs:
         name: Test ZQuest File->New
         run: |
           cd ${{ env.BUILD_FOLDER }}
-          bash ${{ github.workspace }}/.github/workflows/run_zquest.sh -s -q 'modules/classic/classic_qst.dat#NESQST_NEW_QST'
+          bash ${{ github.workspace }}/.github/workflows/run_zquest.sh -s -q 'modules/classic/default.qst'
       # Resave classic_1st.qst and assert classic_1st.zplay, to make sure the loading/saving code is not introducing bugs.
       - if: ${{ matrix.shard_index == 1 && inputs.extra-args == '' && runner.os != 'Windows' && inputs.config != 'Coverage' }}
         name: Test saving qst

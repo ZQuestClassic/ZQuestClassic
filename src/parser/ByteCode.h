@@ -1458,16 +1458,16 @@
 #define HEROHAMMERSTATE      1375
 #define HEROLIFTFLAGS      1376
 #define COMBODLIFTWEAPONITEM      1377
-#define RESRVD_VAR_EMILY21      1378
-#define RESRVD_VAR_EMILY22      1379
-#define RESRVD_VAR_EMILY23      1380
-#define RESRVD_VAR_EMILY24      1381
-#define RESRVD_VAR_EMILY25      1382
-#define RESRVD_VAR_EMILY26      1383
-#define RESRVD_VAR_EMILY27      1384
-#define RESRVD_VAR_EMILY28      1385
-#define RESRVD_VAR_EMILY29      1386
-#define RESRVD_VAR_EMILY30      1387
+#define LWPNDEATHITEM      1378
+#define LWPNDEATHDROPSET      1379
+#define LWPNDEATHIPICKUP      1380
+#define LWPNDEATHSPRITE      1381
+#define LWPNDEATHSFX      1382
+#define EWPNDEATHITEM      1383
+#define EWPNDEATHDROPSET      1384
+#define EWPNDEATHIPICKUP      1385
+#define EWPNDEATHSPRITE      1386
+#define EWPNDEATHSFX      1387
 
 #define REFPALDATA              1388
 
@@ -1535,13 +1535,13 @@
 #define RESRVD_VAR_Z3_14        1449
 #define RESRVD_VAR_Z3_15        1450
 #define RESRVD_VAR_Z3_16        1451
-#define RESRVD_VAR_EMILY31      1452
-#define RESRVD_VAR_EMILY32      1453
-#define RESRVD_VAR_EMILY33      1454
-#define RESRVD_VAR_EMILY34      1455
-#define RESRVD_VAR_EMILY35      1456
-#define RESRVD_VAR_EMILY36      1457
-#define RESRVD_VAR_EMILY37      1458
+#define LWPNLIFTLEVEL      1452
+#define LWPNLIFTTIME      1453
+#define LWPNLIFTHEIGHT      1454
+#define EWPNLIFTLEVEL      1455
+#define EWPNLIFTTIME      1456
+#define EWPNLIFTHEIGHT      1457
+#define HEROSHIELDJINX      1458
 #define RESRVD_VAR_EMILY38      1459
 #define RESRVD_VAR_EMILY39      1460
 #define RESRVD_VAR_EMILY40      1461
@@ -2344,40 +2344,40 @@ namespace ZScript
 			return new OUseSpritePortal(a->clone());
 		}
 	};
-	class OResrvdOpEmily02 : public Opcode
+	class OHeroMoveAtAngle : public Opcode
 	{
 	public:
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OResrvdOpEmily02();
+			return new OHeroMoveAtAngle();
 		}
 	};
-	class OResrvdOpEmily03 : public Opcode
+	class OHeroCanMoveAtAngle : public Opcode
 	{
 	public:
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OResrvdOpEmily03();
+			return new OHeroCanMoveAtAngle();
 		}
 	};
-	class OResrvdOpEmily04 : public Opcode
+	class OHeroMove : public Opcode
 	{
 	public:
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OResrvdOpEmily04();
+			return new OHeroMove();
 		}
 	};
-	class OResrvdOpEmily05 : public Opcode
+	class OHeroCanMove : public Opcode
 	{
 	public:
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OResrvdOpEmily05();
+			return new OHeroCanMove();
 		}
 	};
 	class OResrvdOpEmily06 : public Opcode

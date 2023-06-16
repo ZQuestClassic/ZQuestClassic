@@ -63,10 +63,10 @@ jobs:
         with:
           python-version: '3.10' 
       - run: pip install PyGithub requests discord.py Pillow intervaltree
-      - name: Install Node.js 16.x
+      - name: Install Node.js 18.x
         uses: actions/setup-node@v3
         with:
-          node-version: 16.x
+          node-version: 18.x
       - name: git clone
         uses: actions/checkout@v3
 
@@ -128,15 +128,18 @@ jobs:
       - name: git clone
         uses: nschloe/action-cached-lfs-checkout@d6efedcb8fc03d006e1e77743718e26234ed2c97
 
-      - name: Install Node.js 16.x
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16.x
-
       - uses: mymindstorm/setup-emsdk@v12
         with:
           version: "3.1.32"
           actions-cache-folder: "emsdk-cache-${{ runner.os }}-${{ runner.arch }}"
+
+      - name: Install Node.js 18.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+      # puppeteer caches Chrome in ~/.ccache/puppeteer, but only on npm install. Which means
+      # restored caches from actions/setup-node will never install Chrome.
+      - run: npm rm puppeteer && npm add puppeteer@20.5.0
 
       - run: sudo apt-get update && sudo apt-get install ccache ninja-build flex bison
 

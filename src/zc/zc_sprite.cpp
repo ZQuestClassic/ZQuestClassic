@@ -613,6 +613,7 @@ bool movingblock::animate(int32_t)
 	//Click the block into place, the push ended.
 	if(done)
 	{
+		size_t combopos = size_t((int32_t(y)&0xF0)+(int32_t(x)>>4));
 		if(new_block)
 		{
 			clk = 0;
@@ -1080,6 +1081,11 @@ bool movingblock::animate(int32_t)
 			}
 			
 			putcombo(scrollbuf,x,y,bcombo,cs);
+		}
+		newcombo const& blockcmb = combobuf[bcombo];
+		if(blockcmb.triggerflags[3] & combotriggerPUSHEDTRIG)
+		{
+			do_trigger_combo(blockLayer, combopos);
 		}
 	}
 	return false;

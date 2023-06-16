@@ -11,6 +11,7 @@
 
 extern sprite_list guys;
 extern double aspect_ratio;
+extern byte use_save_indicator;
 
 RenderTreeItem rti_root;
 RenderTreeItem rti_game;
@@ -228,7 +229,7 @@ static void configure_render_tree()
 	}
 	
 
-	rti_game.freeze_a4_bitmap_render = rti_menu.visible || rti_gui.visible || rti_dialogs.visible || Saving;
+	rti_game.freeze_a4_bitmap_render = rti_menu.visible || rti_gui.visible || rti_dialogs.visible || is_sys_pal;
 	if (rti_game.freeze_a4_bitmap_render)
 	{
 		static ALLEGRO_COLOR tint = al_premul_rgba_f(0.4, 0.4, 0.8, 0.8);
@@ -338,7 +339,7 @@ void render_zc()
 		lines_left.push_back(replay_get_buttons_string().c_str());
 	if (Paused)
 		lines_right.push_back("PAUSED");
-	if (Saving)
+	if (Saving && use_save_indicator)
 		lines_right.push_back("SAVING ...");
 	if (details && game)
 	{

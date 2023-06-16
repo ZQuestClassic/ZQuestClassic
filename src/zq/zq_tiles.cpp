@@ -59,7 +59,7 @@ int32_t showcolortip = 1;
 int32_t show_quartgrid = 0, hide_grid = 0;
 
 tiledata     *newundotilebuf;
-newcombo     *undocombobuf;
+std::vector<newcombo> undocombobuf;
 
 BITMAP *selection_pattern;
 byte selection_grid[18][18];
@@ -621,11 +621,8 @@ void go_combos()
 		delete last_combo_move;
 		last_combo_move = NULL;
 	}
-	newcombo *si = combobuf;
-	newcombo *di = undocombobuf;
-	
-	for(int32_t i=0; i<MAXCOMBOS; i++)
-		*(di++) = *(si++);
+
+	undocombobuf = combobuf;
 }
 
 void comeback_combos()
@@ -640,11 +637,8 @@ void comeback_combos()
 		delete last_combo_move;
 		last_combo_move = NULL;
 	}
-	newcombo *si = undocombobuf;
-	newcombo *di = combobuf;
-	
-	for(int32_t i=0; i<MAXCOMBOS; i++)
-		*(di++) = *(si++);
+
+	combobuf = undocombobuf;
 }
 
 void little_x(BITMAP *dest, int32_t x, int32_t y, int32_t c, int32_t s)
@@ -17573,8 +17567,7 @@ int32_t advpaste(int32_t tile, int32_t tile2, int32_t copy)
 		
 		if(advpaste_dlg[13].flags & D_SELECTED)   // label
 		{
-			for(int32_t q = 0; q < 11; ++q)
-				combobuf[i].label[q] = combo.label[q];
+			combobuf[i].label = combo.label;
 		}
 		
 		if(advpaste_dlg[14].flags & D_SELECTED)   // triggered by
@@ -18790,10 +18783,10 @@ int32_t d_combo_proc(int32_t msg,DIALOG *d,int32_t c)
 			
 			if(d->d1==-1) // Display curr_combo instead of combobuf
 			{
-				newcombo *hold = combobuf;
-				combobuf = &curr_combo;
+				newcombo hold = combobuf[0];
+				combobuf[0] = curr_combo;
 				putcombo(buf,0,0,0,d->fg);
-				combobuf = hold;
+				combobuf[0] = hold;
 			}
 			else if(d->d1)
 			{
@@ -19470,13 +19463,16 @@ int32_t readcombofile_old(PACKFILE *f, int32_t skip, byte nooverwrite, int32_t z
 				{
 					temp_combo.trigcooldown = 0;
 				}
+				char label[12];
+				label[11] = '\0';
 				for ( int32_t q = 0; q < 11; q++ ) 
 				{
-					if(!p_getc(&temp_combo.label[q],f,true))
+					if(!p_getc(&label[q],f,true))
 					{
 						return 0;
 					}
 				}
+				temp_combo.label = label;
 			}
 			if  ( section_version >= 13 )
 			{
@@ -19495,7 +19491,7 @@ int32_t readcombofile_old(PACKFILE *f, int32_t skip, byte nooverwrite, int32_t z
 		{
 			if ( !nooverwrite || combobuf[index+tilect].is_blank() )
 			{
-				memcpy(&combobuf[index+(tilect)],&temp_combo,sizeof(newcombo));
+				combobuf[index+(tilect)] = temp_combo;
 			}
 		}
 	}
@@ -19578,7 +19574,7 @@ int32_t readcombofile(PACKFILE *f, int32_t skip, byte nooverwrite, int32_t start
 		{
 			if ( !nooverwrite || combobuf[q].is_blank() )
 			{
-				memcpy(&combobuf[q],&temp_combo,sizeof(newcombo));
+				combobuf[q] = temp_combo;
 			}
 		}
 	}

@@ -244,18 +244,7 @@ extern zinitdata           zinit;
 extern char                palnames[MAXLEVELS][17];
 extern quest_template      QuestTemplates[MAXQTS];
 //extern byte              *undotilebuf;
-/*
-extern tiledata *newtilebuf, *grabtilebuf;
-extern newcombo *combobuf;
-extern word animated_combo_table[MAXCOMBOS][2];             //[0]=position in act2, [1]=original tile
-extern word animated_combo_table4[MAXCOMBOS][2];            //[0]=combo, [1]=clock
-extern word animated_combos;
-extern word animated_combo_table2[MAXCOMBOS][2];             //[0]=position in act2, [1]=original tile
-extern word animated_combo_table24[MAXCOMBOS][2];            //[0]=combo, [1]=clock
-extern word animated_combos2;
-extern bool blank_tile_table[NEWMAXTILES];                  //keeps track of blank tiles
-extern bool blank_tile_quarters_table[NEWMAXTILES*4];       //keeps track of blank tiles
-*/
+
 extern char   fontsdat_sig[52];
 
 extern uint8_t console_is_open;
@@ -307,6 +296,7 @@ bool confirmBox(const char *m1, const char *m2 = NULL, const char *m3 = NULL);
 int32_t onSelectSFX();
 int32_t onOptions();
 void fix_drawing_mode_menu();
+void reset_relational_tile_grid();
 int32_t onDrawingMode();
 int32_t onDrawingModeNormal();
 int32_t onDrawingModeRelational();
@@ -447,9 +437,6 @@ void update_combobrush();
 void draw(bool);
 void replace(int32_t c);
 void draw_block(int32_t start,int32_t w,int32_t h);
-static void fill(mapscr* fillscr, int32_t targetcombo, int32_t targetcset, int32_t sx, int32_t sy, int32_t dir, int32_t diagonal, bool only_cset);
-static void fill_flag(mapscr* fillscr, int32_t targetflag, int32_t sx, int32_t sy, int32_t dir, int32_t diagonal);
-static void fill2(mapscr* fillscr, int32_t targetcombo, int32_t targetcset, int32_t sx, int32_t sy, int32_t dir, int32_t diagonal, bool only_cset);
 int32_t d_wflag_proc(int32_t msg,DIALOG *d,int32_t c);
 
 /**************************/

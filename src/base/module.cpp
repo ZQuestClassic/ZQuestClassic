@@ -146,8 +146,6 @@ bool ZModule::init(bool d) //bool default
 		al_trace("Module fonts_dat set to %s\n",moduledata.datafiles[fonts_dat]);
 		strcpy(moduledata.datafiles[sfx_dat],zc_get_config_basic("DATAFILES","sounds_datafile","sfx.dat"));
 		al_trace("Module sfx_dat set to %s\n",moduledata.datafiles[sfx_dat]);
-		strcpy(moduledata.datafiles[qst_dat],zc_get_config_basic("DATAFILES","quest_template_datafile","qst.dat"));
-		al_trace("Module qst_dat set to %s\n",moduledata.datafiles[qst_dat]);
 		
 		
 		strcpy(moduledata.base_NSF_file,zc_get_config_basic("DATAFILES","base_NSF_file","zelda.nsf"));

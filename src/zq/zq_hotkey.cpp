@@ -18,6 +18,7 @@ int32_t onComboColRight();
 int32_t onComboColUp();
 int32_t onComboColDown();
 void cycle_compact_sqr(bool down);
+void call_testqst_dialog();
 
 char const* get_hotkey_name(int hkey)
 {
@@ -115,6 +116,7 @@ char const* get_hotkey_name(int hkey)
 		case ZQKEY_COMBO_PAGEDN: return "Combopane Page Down";
 		case ZQKEY_SQUAREPANEL_UP: return "Compact Squarepanel Up";
 		case ZQKEY_SQUAREPANEL_DOWN: return "Compact Squarepanel Down";
+		case ZQKEY_TESTMODE: return "Test Quest";
 	}
 	return "ZQ_NIL_KEY";
 }
@@ -215,6 +217,7 @@ char const* get_hotkey_cfg_name(int hkey)
 		case ZQKEY_COMBO_PAGEDN: return "ZQKEY_COMBO_PAGEDN";
 		case ZQKEY_SQUAREPANEL_UP: return "ZQKEY_SQUAREPANEL_UP";
 		case ZQKEY_SQUAREPANEL_DOWN: return "ZQKEY_SQUAREPANEL_DOWN";
+		case ZQKEY_TESTMODE: return "ZQKEY_TESTMODE";
 	}
 	return "ZQ_NIL_KEY";
 }
@@ -317,6 +320,7 @@ void default_hotkeys()
 	zq_hotkeys[ZQKEY_COMBO_PAGEDN].setval(KEY_PGDN,0,0,0);
 	zq_hotkeys[ZQKEY_SQUAREPANEL_UP].setval(KEY_PGUP,KB_SHIFT_FLAG,0,0);
 	zq_hotkeys[ZQKEY_SQUAREPANEL_DOWN].setval(KEY_PGDN,KB_SHIFT_FLAG,0,0);
+	zq_hotkeys[ZQKEY_TESTMODE].setval(KEY_T,KB_CTRL_FLAG,0,0);
 }
 
 void load_hotkeys()
@@ -475,6 +479,9 @@ int run_hotkey(int hkey)
 			break;
 		case ZQKEY_SQUAREPANEL_DOWN:
 			cycle_compact_sqr(true);
+			break;
+		case ZQKEY_TESTMODE:
+			call_testqst_dialog();
 			break;
 	}
 	return D_O_K;

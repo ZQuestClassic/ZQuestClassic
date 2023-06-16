@@ -14,7 +14,8 @@ extern byte quest_rules[QUESTRULES_NEW_SIZE];
 #include "base/mapscr.h"
 #include "iter.h"
 
-extern newcombo *combobuf;
+extern std::vector<newcombo> combobuf;
+extern mapscr tmpscr;
 extern int16_t lensclk;
 extern HeroClass Hero;
 void screen_ffc_modify_postroutine(const ffc_handle_t& ffc_handle);
@@ -227,6 +228,25 @@ void ffcdata::doContactDamage(int32_t hdir)
 		return; //Changer or ethereal; has no type
 	newcombo const& cmb = combobuf[data];
 	if(data && isdamage_type(cmb.type))
-		trigger_damage_combo(get_scr(currmap, screen_index), data, hdir, true);
+	{
+		int ffnum = -1;
+		if(loaded)
+		{
+			// TODO z3 !!
+			for (word i = 0; i < MAXFFCS; i++)
+			{
+				if (this == &tmpscr.ffcs[i])
+				{
+					ffnum = i;
+					break;
+				}
+			}
+		}
+		if(ffnum > -1)
+		{
+			trigger_damage_combo(get_scr(currmap, screen_index), data, ZSD_FFC, ffnum, hdir, true);
+		}
+		else trigger_damage_combo(get_scr(currmap, screen_index), data, ZSD_NONE, 0, hdir, true);
+	}
 #endif
 }

@@ -11,7 +11,7 @@
 
 extern bool saved;
 extern zcmodule moduledata;
-extern newcombo *combobuf;
+extern std::vector<newcombo> combobuf;
 extern comboclass *combo_class_buf;
 extern int32_t CSet;
 extern int32_t numericalFlags;
@@ -731,6 +731,26 @@ void ComboWizardDialog::endUpdate()
 			}
 			break;
 		}
+		case cSIGNPOST:
+		{
+			bool prompt = cboxes[1]->getChecked();
+			int32_t& prompt_combo = local_ref.attributes[1];
+			byte& prompt_cset = local_ref.attribytes[4];
+			int16_t& prompt_xoff = local_ref.attrishorts[0];
+			int16_t& prompt_yoff = local_ref.attrishorts[1];
+			prompt_combo = 0;
+			prompt_cset = 0;
+			prompt_xoff = 12;
+			prompt_yoff = -8;
+			if(prompt)
+			{
+				prompt_combo = cmbswatches[0]->getCombo()*10000;
+				prompt_cset = cmbswatches[0]->getCSet();
+				prompt_xoff = tfs[1]->getVal();
+				prompt_yoff = tfs[2]->getVal();
+			}
+			break;
+		}
 		case cCUTSCENETRIG:
 		{
 			bool ending = (local_ref.usrflags & cflag1);
@@ -1402,6 +1422,8 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 			byte& drown_sfx = local_ref.attribytes[4];
 			int32_t& drown_damage = local_ref.attributes[0];
 			
+			byte& ripple_sprite = local_ref.attribytes[6];
+			
 			//Shallow only
 			int shallow_indx = get_bit(quest_rules,qr_OLD_SHALLOW_SFX) ? 0 : 5;
 			byte& splash_sfx = local_ref.attribytes[shallow_indx];
@@ -1493,8 +1515,16 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							{
 								drown_sfx = val;
 							}),
-						INFOBTN("The SFX played when drowning")
+						INFOBTN("The SFX played when drowning"),
 						//
+						Label(text = "Ripple Sprite:", hAlign = 1.0),
+						ddls[2] = DropDownList(data = list_sprites,
+							fitParent = true, selectedValue = ripple_sprite,
+							onSelectFunc = [&](int32_t val)
+							{
+								ripple_sprite = val;
+							}),
+						INFOBTN("The sprite used to display ripples in shallow liquid.")
 					)
 				);
 			}
@@ -1508,7 +1538,16 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						{
 							splash_sfx = val;
 						}),
-					INFOBTN("The SFX played when walking in")
+					INFOBTN("The SFX played when walking in"),
+					//
+					Label(text = "Ripple Sprite:", hAlign = 1.0),
+					ddls[2] = DropDownList(data = list_sprites,
+						fitParent = true, selectedValue = ripple_sprite,
+						onSelectFunc = [&](int32_t val)
+						{
+							ripple_sprite = val;
+						}),
+					INFOBTN("The sprite used to display ripples in shallow liquid.")
 				);
 			}
 			
@@ -2363,6 +2402,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 			byte& dropitem = local_ref.attribytes[1];
 			byte& cutsfx = local_ref.attribytes[2];
 			byte& walksfx = local_ref.attribytes[3];
+			byte& grass_spr = local_ref.attribytes[6];
 			auto radmode = 0;
 			if(local_ref.usrflags&cflag1)
 			{
@@ -2510,7 +2550,16 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							{
 								walksfx = val;
 							}),
-						INFOBTN("The SFX to play when the player walks through this combo. If 0, no sound is played.")
+						INFOBTN("The SFX to play when the player walks through this combo. If 0, no sound is played."),
+						//
+						Label(text = "Grass Sprite:", hAlign = 1.0),
+						ddls[6] = DropDownList(data = list_sprites,
+							fitParent = true, selectedValue = grass_spr,
+							onSelectFunc = [&](int32_t val)
+							{
+								grass_spr = val;
+							}),
+						INFOBTN("The sprite used to display when walking through tall grass.")
 					)
 				)
 			);
@@ -3777,17 +3826,210 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 		case cSIGNPOST:
 		{
 			auto& messagestr = local_ref.attributes[0];
+			
+			byte& openbtn = local_ref.attribytes[2];
+			int32_t& prompt_combo = local_ref.attributes[1];
+			byte& prompt_cset = local_ref.attribytes[4];
+			int16_t& prompt_xoff = local_ref.attrishorts[0];
+			int16_t& prompt_yoff = local_ref.attrishorts[1];
+			
+			int32_t def_prompt_combo = 0;
+			byte def_prompt_cset = 0;
+			int16_t def_prompt_xoff = 12;
+			int16_t def_prompt_yoff = -8;
+			if(local_ref.usrflags&cflag13)
+			{
+				def_prompt_combo = prompt_combo/10000;
+				def_prompt_cset = prompt_cset;
+				def_prompt_xoff = prompt_xoff;
+				def_prompt_yoff = prompt_yoff;
+			}
+			
 			lists[0] = GUI::ZCListData::strings(true);
 			windowRow->add(
-				Rows<3>(
-					Label(text = "String:", hAlign = 1.0),
-					ddls[1] = DropDownList(data = lists[0],
-						fitParent = true, selectedValue = messagestr/10000,
-						onSelectFunc = [&](int32_t val)
-						{
-							messagestr = val*10000;
-						}),
-					INFOBTN("The string to play. Negative values are special, reading the string number from somewhere else.")
+				tpan[0] = TabPanel(
+					TabRef(name = "String", Rows<3>(
+						Label(text = "String:", hAlign = 1.0),
+						ddls[1] = DropDownList(data = lists[0],
+							fitParent = true, selectedValue = messagestr/10000,
+							onSelectFunc = [&](int32_t val)
+							{
+								messagestr = val*10000;
+							}),
+						INFOBTN("The string to play. Negative values are special, reading the string number from somewhere else.")
+					)),
+					TabRef(name = "Reading", Column(
+						Row(
+							Rows<2>(padding = 0_px,
+								Checkbox(
+									text = "Can't use from top", hAlign = 0.0,
+									checked = local_ref.usrflags&cflag9,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_ref.usrflags,cflag9,state);
+									}
+								),
+								INFOBTN("Cannot be activated standing to the top side if checked"),
+								//
+								Checkbox(
+									text = "Can't use from bottom", hAlign = 0.0,
+									checked = local_ref.usrflags&cflag10,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_ref.usrflags,cflag10,state);
+									}
+								),
+								INFOBTN("Cannot be activated standing to the bottom side if checked"),
+								//
+								Checkbox(
+									text = "Can't use from left", hAlign = 0.0,
+									checked = local_ref.usrflags&cflag11,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_ref.usrflags,cflag11,state);
+									}
+								),
+								INFOBTN("Cannot be activated standing to the left side if checked"),
+								//
+								Checkbox(
+									text = "Can't use from right", hAlign = 0.0,
+									checked = local_ref.usrflags&cflag12,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_ref.usrflags,cflag12,state);
+									}
+								),
+								INFOBTN("Cannot be activated standing to the right side if checked")
+							),
+							Column(padding = 0_px,
+								Row(padding = 0_px,
+									Label(text = "Buttons:"),
+									INFOBTN("Which buttons should interact with the chest?"
+										"\nIf no buttons are selected, walking into the chest will interact with it.")
+								),
+								Columns<4>(
+									Checkbox(
+										text = "A", hAlign = 0.0,
+										checked = openbtn&0x1,
+										onToggleFunc = [&](bool state)
+										{
+											SETFLAG(openbtn,0x1,state);
+										}
+									),
+									Checkbox(
+										text = "B", hAlign = 0.0,
+										checked = openbtn&0x2,
+										onToggleFunc = [&](bool state)
+										{
+											SETFLAG(openbtn,0x2,state);
+										}
+									),
+									Checkbox(
+										text = "L", hAlign = 0.0,
+										checked = openbtn&0x4,
+										onToggleFunc = [&](bool state)
+										{
+											SETFLAG(openbtn,0x4,state);
+										}
+									),
+									Checkbox(
+										text = "R", hAlign = 0.0,
+										checked = openbtn&0x8,
+										onToggleFunc = [&](bool state)
+										{
+											SETFLAG(openbtn,0x8,state);
+										}
+									),
+									Checkbox(
+										text = "Ex1", hAlign = 0.0,
+										checked = openbtn&0x10,
+										onToggleFunc = [&](bool state)
+										{
+											SETFLAG(openbtn,0x10,state);
+										}
+									),
+									Checkbox(
+										text = "Ex2", hAlign = 0.0,
+										checked = openbtn&0x20,
+										onToggleFunc = [&](bool state)
+										{
+											SETFLAG(openbtn,0x20,state);
+										}
+									),
+									Checkbox(
+										text = "Ex3", hAlign = 0.0,
+										checked = openbtn&0x40,
+										onToggleFunc = [&](bool state)
+										{
+											SETFLAG(openbtn,0x40,state);
+										}
+									),
+									Checkbox(
+										text = "Ex4", hAlign = 0.0,
+										checked = openbtn&0x80,
+										onToggleFunc = [&](bool state)
+										{
+											SETFLAG(openbtn,0x80,state);
+										}
+									)
+								)
+							)
+						)
+					)),
+					TabRef(name = "Prompts", Row(
+						Columns<2>(padding = 0_px,
+							Row(padding = 0_px,
+								cboxes[1] = Checkbox(
+									text = "Display Prompt", hAlign = 0.0,
+									checked = local_ref.usrflags&cflag13,
+									onToggleFunc = [&](bool state)
+									{
+										SETFLAG(local_ref.usrflags,cflag13,state);
+										update();
+									}
+								),
+								INFOBTN("Displays a prompt combo when able to interact")
+							),
+							frames[0] = Frame(padding = 0_px,vAlign = 0.5,fitParent = true,
+								Rows<3>(
+									Label(text = "Prompt Combo:"),
+									cmbswatches[0] = SelComboSwatch(
+										combo = def_prompt_combo,
+										cset = def_prompt_cset,
+										onSelectFunc = [&](int32_t cmb, int32_t c)
+										{
+											prompt_combo = cmb*10000;
+											prompt_cset = c;
+											cmbswatches[1]->setCSet(prompt_cset);
+										}
+									),
+									INFOBTN("The combo/cset to use for the prompt"),
+									//
+									Label(text = "Prompt XOffset:"),
+									tfs[1] = TextField(
+										fitParent = true, minwidth = 8_em,
+										type = GUI::TextField::type::SWAP_SSHORT,
+										low = -32768, high = 32767, val = def_prompt_xoff,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											prompt_xoff = val;
+										}),
+									INFOBTN("The x-offset in pixels of the prompt"),
+									//
+									Label(text = "Prompt YOffset:"),
+									tfs[2] = TextField(
+										fitParent = true, minwidth = 8_em,
+										type = GUI::TextField::type::SWAP_SSHORT,
+										low = -32768, high = 32767, val = def_prompt_yoff,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											prompt_yoff = val;
+										}),
+									INFOBTN("The y-offset in pixels of the prompt")
+								)
+							)
+						)
+					))
 				)
 			);
 			break;

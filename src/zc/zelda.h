@@ -346,7 +346,7 @@ extern int32_t draw_screen_clip_rect_y2;
 
 /*
 extern tiledata *newtilebuf, *grabtilebuf;
-extern newcombo *combobuf;
+extern std::vector<newcombo> combobuf;
 extern word animated_combo_table[MAXCOMBOS][2];             //[0]=position in act2, [1]=original tile
 extern word animated_combo_table4[MAXCOMBOS][2];            //[0]=combo, [1]=clock
 extern word animated_combos;

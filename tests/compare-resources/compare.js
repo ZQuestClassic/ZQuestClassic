@@ -297,6 +297,8 @@ function renderTracks(options) {
 
     if (options.showOnlyUnexpectedFrames) {
         trackFrames = trackFrames.filter(trackFrame => {
+            if (tracks.length === 1) return trackFrame.snapshots[0].unexpected;
+
             const baselineMissing = !trackFrame.tracks.includes(0);
             return baselineMissing || trackFrame.snapshots.some((snapshot, i) => i > 0 && snapshot.unexpected);
         });
@@ -332,7 +334,9 @@ function renderTracks(options) {
                 el.innerHTML = `<img loading=lazy class='track-frame__image' src='${snapshot.path}'>`;
             }
 
-            const unexpected = j > 0 && (snapshot?.unexpected || (!!snapshot !== trackFrame.tracks.includes(0)))
+            const unexpected = j > 0 ?
+                (snapshot?.unexpected || (!!snapshot !== trackFrame.tracks.includes(0))) :
+                snapshot?.unexpected;
             {
                 const statusEl = document.createElement('div');
                 statusEl.className = 'track-frame ' + (unexpected ? 'track-frame__unexpected' : 'track-frame__ok');

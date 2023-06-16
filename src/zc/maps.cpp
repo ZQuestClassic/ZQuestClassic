@@ -7279,9 +7279,9 @@ void ViewMap()
 	
 	if(!mappic)
 	{
-		system_pal();
+		enter_sys_pal();
 		jwin_alert("View Map","Not enough memory.",NULL,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
-		game_pal();
+		exit_sys_pal();
 		return;
 	}
 	

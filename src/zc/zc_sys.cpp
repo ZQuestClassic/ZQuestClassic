@@ -737,7 +737,7 @@ void recolor_mouse(BITMAP* bmp)
 }
 void load_mouse()
 {
-	system_pal();
+	enter_sys_pal();
 	MouseSprite::set(-1);
 	float scale = vbound(zc_get_config("zeldadx","cursor_scale_large",1.5),1.0,5.0);
 	int32_t sz = 16*scale;
@@ -757,6 +757,7 @@ void load_mouse()
 			blit(tmpbmp, zcmouse[j], 0, 0, 0, 0, 16, 16);
 		destroy_bitmap(tmpbmp);
 	}
+	if(!hw_palette) hw_palette = &RAMpal;
 	zc_set_palette(*hw_palette);
 	
 	BITMAP* blankmouse = create_bitmap_ex(8,16,16);
@@ -772,7 +773,7 @@ void load_mouse()
 	else game_mouse();
 	
 	destroy_bitmap(blankmouse);
-	game_pal();
+	exit_sys_pal();
 }
 
 // sets the video mode and initializes the palette and mouse sprite
@@ -802,8 +803,7 @@ bool game_vid_mode(int32_t mode,int32_t wait)
 void null_quest()
 {
 	char qstdat_string[2048];
-	strcpy(qstdat_string,moduledata.datafiles[qst_dat]);
-	strcat(qstdat_string,"#NESQST_NEW_QST");
+	strcpy(qstdat_string, "modules/classic/default.qst");
 
 #ifdef __EMSCRIPTEN__
     // The quest template data file is not included because it's really big and isn't really needed
@@ -2151,9 +2151,9 @@ bool has_item(int32_t item_type, int32_t it)						//does Hero possess this item?
 			//it=(1<<(it-1));
 			/*if (item_type>=itype_max)
 			{
-			  system_pal();
+			  enter_sys_pal();
 			  jwin_alert("Error","has_item exception",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-			  game_pal();
+			  exit_sys_pal();
 			
 			  return false;
 			}*/
@@ -3916,8 +3916,7 @@ void updatescr(bool allowwavy)
 
 //----------------------------------------------------------------
 
-PALETTE sys_pal;
-
+static PALETTE syspal;
 int32_t onGUISnapshot()
 {
 	char buf[200];
@@ -3933,43 +3932,8 @@ int32_t onGUISnapshot()
 	
 	if(b)
 	{
-		if(MenuOpen)
-	{
-		//Cannot load game's palette while GUI elements are in focus. -Z
-		//If there is a way to do this, then I have missed it.
-		/*
-		game_pal();
-		RAMpal[253] = _RGB(0,0,0);
-		RAMpal[254] = _RGB(63,63,63);
-		zc_set_palette_range(RAMpal,0,255,false);
-		memcpy(RAMpal, snappal, sizeof(snappal));
-		create_rgb_table(&rgb_table, RAMpal, NULL);
-		create_zc_trans_table(&trans_table, RAMpal, 128, 128, 128);
-		memcpy(&trans_table2, &trans_table, sizeof(COLOR_MAP));
-		
-		for(int32_t q=0; q<PAL_SIZE; q++)
-		{
-			trans_table2.data[0][q] = q;
-			trans_table2.data[q][q] = q;
-		}
-		*/
-		//ringcolor(false);
-		//get_palette(RAMpal);
 		blit(screen,b,0,0,0,0,resx,resy);
-		//al_trace("Menu Open\n");
-		//game_pal();
-		//PALETTE temppal;
-		//get_palette(temppal);
-		//system_pal();
-		save_bitmap(buf,b,sys_pal);
-		//save_bitmap(buf,b,RAMpal);
-		//save_bitmap(buf,b,snappal);
-	}	
-	else 
-	{
-		blit(screen,b,0,0,0,0,resx,resy);
-		save_bitmap(buf,b,realpal?sys_pal:RAMpal);
-	}
+		save_bitmap(buf,b,RAMpal);
 		destroy_bitmap(b);
 	}
 	
@@ -4047,9 +4011,9 @@ int32_t onSaveMapPic()
 	
 	if(!mappic)
 	{
-		system_pal();
+		enter_sys_pal();
 		jwin_alert("View Map","Not enough memory.",NULL,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
-		game_pal();
+		exit_sys_pal();
 		return D_O_K;;
 	}
 
@@ -4135,134 +4099,6 @@ int32_t onSaveMapPic()
 	destroy_bitmap(_screen_draw_buffer);
 	return D_O_K;
 }
-
-/*
-int32_t onSaveMapPic()
-{
-	BITMAP* mappic = NULL;
-	BITMAP* _screen_draw_buffer = NULL;
-	_screen_draw_buffer = create_bitmap_ex(8,256,224);
-	int32_t mapres2 = 0;
-	char buf[20];
-	int32_t num=0;
-	set_clip_state(_screen_draw_buffer,1);
-	set_clip_rect(_screen_draw_buffer,0,0,_screen_draw_buffer->w, _screen_draw_buffer->h);
-	
-	do
-	{
-		sprintf(buf, "zelda%03d.png", ++num);
-	}
-	while(num<999 && exists(buf));
-	
-	//  if(!mappic) {
-	mappic = create_bitmap_ex(8,(256*16)>>mapres2,(176*8)>>mapres2);
-	
-	if(!mappic)
-	{
-		system_pal();
-		jwin_alert("Save Map Picture","Not enough memory.",NULL,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
-		game_pal();
-		return D_O_K;
-	}
-	
-	//  }
-	
-	int32_t layermap, layerscreen;
-	int32_t x2=0;
-	
-	// draw the map
-	for(int32_t y=0; y<8; y++)
-	{
-		for(int32_t x=0; x<16; x++)
-		{
-			int32_t s = (y<<4) + x;
-			
-			if(!displayOnMap(x, y))
-			{
-				rectfill(_screen_draw_buffer, 0, 0, 255, 223, WHITE);
-			}
-			else
-			{
-				loadscr(TEMPSCR_FUNCTION_SWAP_SPACE,currdmap,s,-1,false);
-				putscr(_screen_draw_buffer, 0, 0, tmpscr+1);
-				
-				for(int32_t k=0; k<4; k++)
-				{
-					if(k==2)
-					{
-						putscrdoors(_screen_draw_buffer, 0, 0, tmpscr+1);
-					}
-					
-					layermap=TheMaps[currmap*MAPSCRS+s].layermap[k]-1;
-					
-					if(layermap>-1)
-					{
-						layerscreen=layermap*MAPSCRS+TheMaps[currmap*MAPSCRS+s].layerscreen[k];
-						
-						if(TheMaps[currmap*MAPSCRS+s].layeropacity[k]==255)
-						{
-							for(int32_t i=0; i<176; i++)
-							{
-								overcombo(_screen_draw_buffer,((i&15)<<4)+x2,(i&0xF0),TheMaps[layerscreen].data[i],TheMaps[layerscreen].cset[i]);
-							}
-						}
-						else
-						{
-							for(int32_t i=0; i<176; i++)
-							{
-								overcombotranslucent(_screen_draw_buffer,((i&15)<<4)+x2,(i&0xF0),TheMaps[layerscreen].data[i],TheMaps[layerscreen].cset[i],TheMaps[currmap*MAPSCRS+s].layeropacity[k]);
-							}
-						}
-					}
-				}
-				
-				for(int32_t i=0; i<176; i++)
-				{
-//		  if (COMBOTYPE((i&15)<<4,i&0xF0)==cOLD_OVERHEAD)
-					if(combo_class_buf[COMBOTYPE((i&15)<<4,i&0xF0)].overhead)
-					{
-						overcombo(_screen_draw_buffer,((i&15)<<4)+x2,(i&0xF0),MAPCOMBO((i&15)<<4,i&0xF0),MAPCSET((i&15)<<4,i&0xF0));
-					}
-				}
-				
-				for(int32_t k=4; k<6; k++)
-				{
-					layermap=TheMaps[currmap*MAPSCRS+s].layermap[k]-1;
-					
-					if(layermap>-1)
-					{
-						layerscreen=layermap*MAPSCRS+TheMaps[currmap*MAPSCRS+s].layerscreen[k];
-						
-						if(TheMaps[currmap*MAPSCRS+s].layeropacity[k]==255)
-						{
-							for(int32_t i=0; i<176; i++)
-							{
-								overcombo(_screen_draw_buffer,((i&15)<<4)+x2,(i&0xF0),TheMaps[layerscreen].data[i],TheMaps[layerscreen].cset[i]);
-							}
-						}
-						else
-						{
-							for(int32_t i=0; i<176; i++)
-							{
-								overcombotranslucent(_screen_draw_buffer,((i&15)<<4)+x2,(i&0xF0),TheMaps[layerscreen].data[i],TheMaps[layerscreen].cset[i],TheMaps[currmap*MAPSCRS+s].layeropacity[k]);
-							}
-						}
-					}
-				}
-			}
-			
-			stretch_blit(_screen_draw_buffer, mappic, 0, 0, 256, 176,
-						 x<<(8-mapres2), (y*176)>>mapres2, 256>>mapres2, 176>>mapres2);
-		}
-		
-	}
-	
-	save_bitmap(buf,mappic,RAMpal);
-	destroy_bitmap(mappic);
-	destroy_bitmap(_screen_draw_buffer);
-	return D_O_K;
-}
-*/
 
 void f_Quit(int32_t type)
 {
@@ -4788,7 +4624,7 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 	if(Playing && game->get_time()<unsigned(get_bit(quest_rules,qr_GREATER_MAX_TIME) ? MAXTIME : OLDMAXTIME))
 		game->change_time(1);
 	
-	if (!replay_is_active() || replay_get_version() >= 11)
+	if (replay_is_active() && replay_get_version() >= 11 && replay_get_version() < 16)
 		for (int i = 0; i < ZC_CONTROL_STATES; i++)
 			down_control_states[i] = raw_control_state[i];
 	
@@ -6368,17 +6204,15 @@ int32_t onGoToComplete()
 		return D_O_K;
 	}
 	
-	system_pal();
+	enter_sys_pal();
 	music_pause();
 	pause_all_sfx();
-	sys_mouse();
 	onGoTo();
 	eat_buttons();
 	
 	zc_readrawkey(KEY_ESC);
 	
-	game_mouse();
-	game_pal();
+	exit_sys_pal();
 	music_resume();
 	resume_all_sfx();
 	return D_O_K;
@@ -6449,7 +6283,8 @@ int32_t onCredits()
 	}
 
 	screen = old_screen;
-	system_pal();
+	system_pal(true);
+	sys_mouse();
 	
 	shutdown_dialog(p);
 	destroy_bitmap(win);
@@ -7238,7 +7073,7 @@ int32_t onHeartBeep()
 
 int32_t onSaveIndicator()
 {
-	use_save_indicator=!use_save_indicator;
+	use_save_indicator = use_save_indicator ? 0 : 1;
 	zc_set_config(cfg_sect,"save_indicator",use_save_indicator);
 	return D_O_K;
 }
@@ -7534,6 +7369,7 @@ int32_t onScreenSaver()
 		clear_keybuf();
 		Matrix(ss_speed, ss_density, 30);
 		system_pal();
+		sys_mouse();
 	}
 	
 	return D_O_K;
@@ -7938,306 +7774,13 @@ void color_layer(RGB *src,RGB *dest,char r,char g,char b,char pos,int32_t from,i
 	fade_interpolate(src,tmp,dest,pos,from,to);
 }
 
-void system_pal()
+void system_pal(bool force)
 {
+	if(is_sys_pal && !force) return;
 	is_sys_pal = true;
-	static PALETTE pal;
-	copy_pal((RGB*)datafile[PAL_GUI].dat, pal);
-	
-	// set up the grayscale palette
-	for(int32_t i=128; i<192; i++)
-	{
-		pal[i].r = i-128;
-		pal[i].g = i-128;
-		pal[i].b = i-128;
-	}
-	load_colorset(gui_colorset, pal, jwin_a5_colors);
-	
-	color_layer(pal, pal, 24,16,16, 28, 128,191);
-	
-	for(int32_t i=0; i<256; i+=2)
-	{
-		int32_t v = (i>>3)+2;
-		int32_t c = (i>>3)+192;
-		pal[c] = _RGB(v,v,v+(v>>1));
-		/*
-		  if(i<240)
-		  {
-		  _allegro_hline(tmp_scr,0,i,319,c);
-		  _allegro_hline(tmp_scr,0,i+1,319,c);
-		  }
-		  */
-	}
-	
-	// draw the vertical screen gradient
-	for(int32_t i=0; i<240; ++i)
-	{
-		_allegro_hline(tmp_scr,0,i,319,192+(i*31/239));
-	}
-	
-	/*
-	  palrstart= 10*63/255; palrend=166*63/255;
-	  palgstart= 36*63/255; palgend=202*63/255;
-	  palbstart=106*63/255; palbend=240*63/255;
-	  paldivs=32;
-	  for(int32_t i=0; i<paldivs; i++)
-	  {
-	  pal[223-paldivs+1+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
-	  pal[223-paldivs+1+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
-	  pal[223-paldivs+1+i].b = palbstart+((palbend-palbstart)*i/(paldivs-1));
-	  }
-	  */
-	BITMAP *panorama = create_bitmap_ex(8,256,224);
-	int32_t ts_height, ts_start;
-	
-	if(tmpscr.flags3&fNOSUBSCR && !(tmpscr.flags3&fNOSUBSCROFFSET))
-	{
-		clear_to_color(panorama,0);
-		blit(framebuf,panorama,0,playing_field_offset,0,28,256,224-passive_subscreen_height);
-		ts_height=224-passive_subscreen_height;
-		ts_start=28;
-	}
-	else
-	{
-		blit(framebuf,panorama,0,0,0,0,256,224);
-		ts_height=224;
-		ts_start=0;
-	}
-	
-	// gray scale the current frame
-	for(int32_t y=0; y<ts_height; y++)
-	{
-		for(int32_t x=0; x<256; x++)
-		{
-			int32_t c = panorama->line[y+ts_start][x];
-			int32_t gray = zc_min((RAMpal[c].r*42 + RAMpal[c].g*75 + RAMpal[c].b*14) >> 7, 63);
-			tmp_scr->line[y+8+ts_start][x+32] = gray+128;
-		}
-	}
-	
-	destroy_bitmap(panorama);
-	
-	// display everything
-	vsync();
-	hw_palette = &pal;
+	load_colorset(gui_colorset, syspal, jwin_a5_colors);
+	hw_palette = &syspal;
 	update_hw_pal = true;
-		
-	//  sys_pal = pal;
-	memcpy(sys_pal,pal,sizeof(pal));
-}
-
-void system_pal2()
-{
-	is_sys_pal = true;
-	static PALETTE RAMpal2;
-	copy_pal((RGB*)datafile[PAL_GUI].dat, RAMpal2);
-	
-	/* Windows 2000 colors
-	  RAMpal2[dvc(1)] = _RGB(  0*63/255,   0*63/255,   0*63/255);
-	  RAMpal2[dvc(2)] = _RGB( 66*63/255,  65*63/255,  66*63/255);
-	  RAMpal2[dvc(3)] = _RGB(132*63/255, 130*63/255, 132*63/255);
-	  RAMpal2[dvc(4)] = _RGB(212*63/255, 208*63/255, 200*63/255);
-	  RAMpal2[dvc(5)] = _RGB(255*63/255, 255*63/255, 255*63/255);
-	  RAMpal2[dvc(6)] = _RGB(255*63/255, 255*63/255, 225*63/255);
-	  RAMpal2[dvc(7)] = _RGB(255*63/255, 225*63/255, 160*63/255);
-	  RAMpal2[dvc(8)] = _RGB(  0*63/255,   0*63/255,  80*63/255);
-	
-	  byte palrstart= 10*63/255, palrend=166*63/255,
-	  palgstart= 36*63/255, palgend=202*63/255,
-	  palbstart=106*63/255, palbend=240*63/255,
-	  paldivs=7;
-	  for(int32_t i=0; i<paldivs; i++)
-	  {
-	  RAMpal2[dvc(15-paldivs+1)+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
-	  RAMpal2[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
-	  RAMpal2[dvc(15-paldivs+1)+i].b = palbstart+((palbend-palbstart)*i/(paldivs-1));
-	  }
-	  */
-	
-	/* Windows 98 colors
-	  RAMpal2[dvc(1)] = _RGB(  0*63/255,   0*63/255,   0*63/255);
-	  RAMpal2[dvc(2)] = _RGB(128*63/255, 128*63/255, 128*63/255);
-	  RAMpal2[dvc(3)] = _RGB(192*63/255, 192*63/255, 192*63/255);
-	  RAMpal2[dvc(4)] = _RGB(223*63/255, 223*63/255, 223*63/255);
-	  RAMpal2[dvc(5)] = _RGB(255*63/255, 255*63/255, 255*63/255);
-	  RAMpal2[dvc(6)] = _RGB(255*63/255, 255*63/255, 225*63/255);
-	  RAMpal2[dvc(7)] = _RGB(255*63/255, 225*63/255, 160*63/255);
-	  RAMpal2[dvc(8)] = _RGB(  0*63/255,   0*63/255,  80*63/255);
-	
-	  byte palrstart=  0*63/255, palrend=166*63/255,
-	  palgstart=  0*63/255, palgend=202*63/255,
-	  palbstart=128*63/255, palbend=240*63/255,
-	  paldivs=7;
-	  for(int32_t i=0; i<paldivs; i++)
-	  {
-	  RAMpal2[dvc(15-paldivs+1)+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
-	  RAMpal2[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
-	  RAMpal2[dvc(15-paldivs+1)+i].b = palbstart+((palbend-palbstart)*i/(paldivs-1));
-	  }
-	  */
-	
-	/* Windows 99 colors
-	  RAMpal2[dvc(1)] = _RGB(  0*63/255,   0*63/255,   0*63/255);
-	  RAMpal2[dvc(2)] = _RGB( 64*63/255,  64*63/255,  64*63/255);
-	  RAMpal2[dvc(3)] = _RGB(128*63/255, 128*63/255, 128*63/255);
-	  RAMpal2[dvc(4)] = _RGB(192*63/255, 192*63/255, 192*63/255);
-	  RAMpal2[dvc(5)] = _RGB(223*63/255, 223*63/255, 223*63/255);
-	  RAMpal2[dvc(6)] = _RGB(255*63/255, 255*63/255, 255*63/255);
-	  RAMpal2[dvc(7)] = _RGB(255*63/255, 255*63/255, 225*63/255);
-	  RAMpal2[dvc(8)] = _RGB(255*63/255, 225*63/255, 160*63/255);
-	  RAMpal2[dvc(9)] = _RGB(  0*63/255,   0*63/255,  80*63/255);
-	
-	  byte palrstart=  0*63/255, palrend=166*63/255,
-	  palgstart=  0*63/255, palgend=202*63/255,
-	
-	  palbstart=128*63/255, palbend=240*63/255,
-	  paldivs=6;
-	  for(int32_t i=0; i<paldivs; i++)
-	  {
-	  RAMpal2[dvc(15-paldivs+1)+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
-	  RAMpal2[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
-	  RAMpal2[dvc(15-paldivs+1)+i].b = palbstart+((palbend-palbstart)*i/(paldivs-1));
-	  }
-	  */
-	
-	
-	
-	RAMpal2[dvc(1)] = _RGB(0*63/255,   0*63/255,   0*63/255);
-	RAMpal2[dvc(2)] = _RGB(64*63/255,  64*63/255,  64*63/255);
-	RAMpal2[dvc(3)] = _RGB(128*63/255, 128*63/255, 128*63/255);
-	RAMpal2[dvc(4)] = _RGB(192*63/255, 192*63/255, 192*63/255);
-	RAMpal2[dvc(5)] = _RGB(223*63/255, 223*63/255, 223*63/255);
-	RAMpal2[dvc(6)] = _RGB(255*63/255, 255*63/255, 255*63/255);
-	RAMpal2[dvc(7)] = _RGB(255*63/255, 255*63/255, 225*63/255);
-	RAMpal2[dvc(8)] = _RGB(255*63/255, 225*63/255, 160*63/255);
-	RAMpal2[dvc(9)] = _RGB(0*63/255,   0*63/255,  80*63/255);
-	
-	byte palrstart=  0*63/255, palrend=166*63/255,
-		 palgstart=  0*63/255, palgend=202*63/255,
-		 palbstart=128*63/255, palbend=240*63/255,
-		 paldivs=6;
-		 
-	for(int32_t i=0; i<paldivs; i++)
-	{
-		RAMpal2[dvc(15-paldivs+1)+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
-		RAMpal2[dvc(15-paldivs+1)+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
-		RAMpal2[dvc(15-paldivs+1)+i].b = palbstart+((palbend-palbstart)*i/(paldivs-1));
-	}
-	
-	gui_bg_color=jwin_pal[jcBOX];
-	gui_fg_color=jwin_pal[jcBOXFG];
-	
-	jwin_set_colors(jwin_pal);
-	
-	
-	// set up the new palette
-	for(int32_t i=128; i<192; i++)
-	{
-		RAMpal2[i].r = i-128;
-		RAMpal2[i].g = i-128;
-		RAMpal2[i].b = i-128;
-	}
-	
-	/*
-	  for(int32_t i=0; i<64; i++)
-	  {
-	  RAMpal2[128+i] = _RGB(i,i,i)1));
-	  }
-	  */
-	
-	/*
-	
-	  pal[vc(1)]  = _RGB(0x00,0x00,0x14);
-	  pal[vc(4)]  = _RGB(0x36,0x36,0x36);
-	  pal[vc(6)]  = _RGB(0x10,0x10,0x10);
-	  pal[vc(7)]  = _RGB(0x20,0x20,0x20);
-	  pal[vc(9)]  = _RGB(0x20,0x20,0x24);
-	  pal[vc(11)] = _RGB(0x30,0x30,0x30);
-	  pal[vc(14)] = _RGB(0x3F,0x38,0x28);
-	
-	  gui_fg_color=vc(14);
-	  gui_bg_color=vc(1);
-	
-	  jwin_set_colors(jwin_pal);
-	  */
-	
-	//  color_layer(RAMpal2, RAMpal2, 24,16,16, 28, 128,191);
-	
-	// set up the colors for the vertical screen gradient
-	for(int32_t i=0; i<256; i+=2)
-	{
-		int32_t v = (i>>3)+2;
-		int32_t c = (i>>3)+192;
-		RAMpal2[c] = _RGB(v,v,v+(v>>1));
-		
-		/*
-		  if(i<240)
-		  {
-		  _allegro_hline(tmp_scr,0,i,319,c);
-		  _allegro_hline(tmp_scr,0,i+1,319,c);
-		  }
-		  */
-	}
-	
-	// hw_palette = &RAMpal;
-	// update_hw_pal = true;
-	
-	for(int32_t i=0; i<240; ++i)
-	{
-		_allegro_hline(tmp_scr,0,i,319,192+(i*31/239));
-	}
-	
-	/*
-	  byte palrstart= 10*63/255, palrend=166*63/255,
-	  palgstart= 36*63/255, palgend=202*63/255,
-	  palbstart=106*63/255, palbend=240*63/255,
-	  paldivs=32;
-	  for(int32_t i=0; i<paldivs; i++)
-	  {
-	  pal[223-paldivs+1+i].r = palrstart+((palrend-palrstart)*i/(paldivs-1));
-	  pal[223-paldivs+1+i].g = palgstart+((palgend-palgstart)*i/(paldivs-1));
-	  pal[223-paldivs+1+i].b = palbstart+((palbend-palbstart)*i/(paldivs-1));
-	  }
-	  */
-	BITMAP *panorama = create_bitmap_ex(8,256,224);
-	int32_t ts_height, ts_start;
-	
-	if(tmpscr.flags3&fNOSUBSCR && !(tmpscr.flags3&fNOSUBSCROFFSET))
-	{
-		clear_to_color(panorama,0);
-		blit(framebuf,panorama,0,playing_field_offset,0,28,256,224-passive_subscreen_height);
-		ts_height=224-passive_subscreen_height;
-		ts_start=28;
-	}
-	else
-	{
-		blit(framebuf,panorama,0,0,0,0,256,224);
-		ts_height=224;
-		ts_start=0;
-	}
-	
-	// gray scale the current frame
-	for(int32_t y=0; y<ts_height; y++)
-	{
-		for(int32_t x=0; x<256; x++)
-		{
-			int32_t c = panorama->line[y+ts_start][x];
-			int32_t gray = zc_min((RAMpal2[c].r*42 + RAMpal2[c].g*75 + RAMpal2[c].b*14) >> 7, 63);
-			tmp_scr->line[y+8+ts_start][x+32] = gray+128;
-		}
-	}
-	
-	destroy_bitmap(panorama);
-	
-	// display everything
-	vsync();
-	hw_palette = &RAMpal2;
-	update_hw_pal = true;
-	
-	blit(tmp_scr,screen,0,0,scrx,scry,320,240);
-		
-	//  sys_pal = pal;
-	memcpy(sys_pal,RAMpal2,sizeof(RAMpal2));
 }
 
 static uint32_t entered_sys_pal = 0;
@@ -8250,7 +7793,7 @@ void enter_sys_pal()
 		return;
 	}
 	sys_mouse();
-	system_pal();
+	system_pal(true);
 	++entered_sys_pal;
 }
 void exit_sys_pal()
@@ -8308,7 +7851,6 @@ void game_pal()
 {
 	is_sys_pal = false;
 	entered_sys_pal = 0;
-	clear_to_color(screen,BLACK);
 	hw_palette = &RAMpal;
 	update_hw_pal = true;
 }
@@ -8350,7 +7892,7 @@ void System()
 	music_pause();
 	pause_all_sfx();
 	MenuOpen = true;
-	system_pal();
+	enter_sys_pal();
 	//  FONT *oldfont=font;
 	//  font=tfont;
 	
@@ -8365,7 +7907,6 @@ void System()
 		misc_menu[5].flags = Playing ? 0 : D_DISABLED;
 	misc_menu[7].flags = !Playing ? 0 : D_DISABLED;
 	clear_keybuf();
-	sys_mouse();
 	
 	DIALOG_PLAYER *p;
 
@@ -8419,8 +7960,7 @@ void System()
 	
 		misc_menu[12].flags =(zasm_debugger)?D_SELECTED:0;
 		misc_menu[13].flags =(zscript_debugger)?D_SELECTED:0;
-		misc_menu[14].flags =(clearConsoleOnReload)?D_SELECTED:0;
-		misc_menu[15].flags =(clearConsoleOnLoad)?D_SELECTED:0;
+		misc_menu[14].flags =(clearConsoleOnLoad)?D_SELECTED:0;
 		
 		bool nocheat = (replay_is_replaying() || !Playing
 			|| (!zcheats.flags && !get_debug() && DEVLEVEL < 2 && !zqtesting_mode && !devpwd()));
@@ -8489,6 +8029,7 @@ void System()
 			clear_keybuf();
 			Matrix(ss_speed, ss_density, 0);
 			system_pal();
+			sys_mouse();
 			broadcast_dialog_message(MSG_DRAW, 0);
 		}
 		
@@ -8501,7 +8042,6 @@ void System()
 	//  font=oldfont;
 	mouse_down=gui_mouse_b();
 	shutdown_dialog(p);
-	game_mouse();
 	MenuOpen = false;
 	if(Quit)
 	{
@@ -8511,13 +8051,13 @@ void System()
 	}
 	else
 	{
-		game_pal();
 		music_resume();
 		resume_all_sfx();
 		
 		if(rc)
 			ringcolor(false);
 	}
+	exit_sys_pal();
 	
 	eat_buttons();
 	
@@ -9097,10 +8637,10 @@ int32_t next_press_btn()
 	}
 }
 
-static bool rButton(bool &btn, bool &flag, bool* rawbtn = nullptr)
+static bool rButton(bool &btn, bool &flag)
 {
 	bool ret = btn && !flag;
-	flag = rawbtn ? *rawbtn : btn;
+	flag = btn;
 	
 	return ret;
 }
@@ -9270,38 +8810,33 @@ bool zc_key_pressed()
 
 bool getInput(int32_t btn, bool press, bool drunk, bool ignoreDisable, bool eatEntirely, bool peek)
 {
-	bool ret = false, drunkstate = false, rawret = false;
+	bool ret = false, drunkstate = false;
 	bool* flag = &down_control_states[btn];
 	switch(btn)
 	{
 		case btnF12:
 			ret = zc_getkey(KEY_F12, ignoreDisable);
-			rawret = zc_getrawkey(KEY_F12, ignoreDisable);
 			eatEntirely = false;
 			break;
 		case btnF11:
 			ret = zc_getkey(KEY_F11, ignoreDisable);
-			rawret = zc_getrawkey(KEY_F11, ignoreDisable);
 			eatEntirely = false;
 			break;
 		case btnF5:
 			ret = zc_getkey(KEY_F5, ignoreDisable);
-			rawret = zc_getrawkey(KEY_F5, ignoreDisable);
 			eatEntirely = false;
 			break;
 		case btnQ:
 			ret = zc_getkey(KEY_Q, ignoreDisable);
-			rawret = zc_getrawkey(KEY_Q, ignoreDisable);
 			eatEntirely = false;
 			break;
 		case btnI:
 			ret = zc_getkey(KEY_I, ignoreDisable);
-			rawret = zc_getrawkey(KEY_I, ignoreDisable);
 			eatEntirely = false;
 			break;
 		case btnM:
 			if(FFCore.kb_typing_mode) return false;
-			rawret = ret = zc_getrawkey(KEY_ESC, ignoreDisable);
+			ret = zc_getrawkey(KEY_ESC, ignoreDisable);
 			eatEntirely = false;
 			break;
 		default: //control_state[] index
@@ -9309,15 +8844,13 @@ bool getInput(int32_t btn, bool press, bool drunk, bool ignoreDisable, bool eatE
 			if(!ignoreDisable && get_bit(quest_rules, qr_FIXDRUNKINPUTS) && disable_control[btn]) drunk = false;
 			else if(btn<11) drunkstate = drunk_toggle_state[btn];
 			ret = control_state[btn] && (ignoreDisable || !disable_control[btn]);
-			rawret = raw_control_state[btn];
 	}
 	assert(flag);
 	if(press)
 	{
 		if(peek)
 			ret = rButtonPeek(ret, *flag);
-		else if (replay_is_active() && replay_get_version() < 8) ret = rButton(ret, *flag);
-		else ret = rButton(ret, *flag, &rawret);
+		else ret = rButton(ret, *flag);
 	}
 	if(eatEntirely && ret) control_state[btn] = false;
 	if(drunk && drunkstate) ret = !ret;

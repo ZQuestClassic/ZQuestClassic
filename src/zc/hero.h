@@ -225,6 +225,7 @@ public:
 		attackid, //current attack itemid.
 		swordclk, //sword jinx timeout.
 		itemclk,  //item jinx timeout.
+		shieldjinxclk, //shield jinx timeout.
 		didstuff, //played the whistle? used the blue candle?
 		blowcnt,  //number of times whistle blown on this screen.
 		drownclk, //drowning timeout.
@@ -351,11 +352,16 @@ public:
 	void pitfall();
 	void moveheroOld();
 	void mod_steps(std::vector<zfix*>& v);
-	void get_move(int movedir, zfix& dx, zfix& dy);
+	void get_move(int movedir, zfix& dx, zfix& dy, int32_t& facedir);
 	bool scr_walkflag(int dx,int dy,int dir,int mx,int my,bool kb);
 	bool scr_canmove(zfix dx, zfix dy, bool kb, bool ign_sv);
 	bool movexy(zfix dx, zfix dy, bool kb = false, bool ign_sv = false, bool shove = false, bool earlyret = false);
 	bool can_movexy(zfix dx, zfix dy, bool kb = false, bool ign_sv = false, bool shove = false);
+	bool moveAtAngle(zfix degrees, zfix px, bool kb = false, bool ign_sv = false, bool shove = false, bool earlyret = false);
+	bool can_moveAtAngle(zfix degrees, zfix px, bool kb = false, bool ign_sv = false, bool shove = false);
+	bool moveDir(int dir, zfix px, bool kb = false, bool ign_sv = false, bool shove = false, bool earlyret = false);
+	bool can_moveDir(int dir, zfix px, bool kb = false, bool ign_sv = false, bool shove = false);
+	void snap_platform();
 	bool premove();
 	void movehero();
 	bool new_engine_move(zfix dx, zfix dy);

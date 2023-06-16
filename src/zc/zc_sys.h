@@ -52,7 +52,7 @@ void syskeys();
 void checkQuitKeys();
 bool CheatModifierKeys();
 void System();
-void system_pal();
+void system_pal(bool force = false);
 void switch_out_callback();
 void switch_in_callback();
 void game_pal();

@@ -151,7 +151,6 @@ sels_link_cset = 16
 zcplayer_datafile = modules/classic/classic_zelda.dat	
 zquest_datafile = modules/classic/classic_zquest.dat
 fonts_datafile = modules/classic/classic_fonts.dat
-quest_template_datafile = modules/classic/classic_qst.dat 
 base_NSF_file = modules/classic/zelda.nsf
 title_track = 0
 ending_track = 1

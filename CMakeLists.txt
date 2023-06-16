@@ -13,6 +13,7 @@ set(UNITY_BUILD FALSE CACHE BOOL "Unity build")
 set(WANT_SENTRY FALSE CACHE BOOL "Include Sentry for crash dump handling")
 set(WANT_MAC_DEBUG_FILES FALSE CACHE BOOL "Generate .dSYM debug files on Mac")
 set(WANT_ASAN FALSE CACHE BOOL "Compile with ASAN")
+set(WANT_GIT_HOOKS TRUE CACHE BOOL "Install git hooks")
 set(RELEASE_TAG "" CACHE STRING "Release tag")
 
 set(CMAKE_CXX_STANDARD 20)
@@ -27,6 +28,28 @@ if(WANT_ASAN)
 	else()
 		add_compile_options(-fsanitize=address)
 		add_link_options(-fsanitize=address)
+	endif()
+endif()
+
+if(WANT_GIT_HOOKS)
+	if(EXISTS "${CMAKE_SOURCE_DIR}/.git")
+		if(UNIX)
+			configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/commit-msg.in" "${CMAKE_SOURCE_DIR}/.git/commit-msg")
+			configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/prepare-commit-msg.in" "${CMAKE_SOURCE_DIR}/.git/prepare-commit-msg")
+			file(
+				COPY "${CMAKE_SOURCE_DIR}/.git/commit-msg"
+				DESTINATION "${CMAKE_SOURCE_DIR}/.git/hooks"
+				FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+			)
+			file(
+				COPY "${CMAKE_SOURCE_DIR}/.git/prepare-commit-msg"
+				DESTINATION "${CMAKE_SOURCE_DIR}/.git/hooks"
+				FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+			)
+		else()
+			configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/commit-msg.in" "${CMAKE_SOURCE_DIR}/.git/hooks/commit-msg")
+			configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/prepare-commit-msg.in" "${CMAKE_SOURCE_DIR}/.git/hooks/prepare-commit-msg")
+		endif()
 	endif()
 endif()
 
@@ -312,6 +335,9 @@ if(MSVC)
 	# Turn off warnings for all targets that aren't ours (set later in Misc. section)
 	add_compile_options(/W0)
 
+	# Build in parallel - speeds up the build on multicore machines.
+	add_compile_options(/MP)
+
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 	
 	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:LIBCD /SUBSYSTEM:WINDOWS /LARGEADDRESSAWARE /OPT:NOICF")
@@ -409,6 +435,7 @@ target_include_directories(fmt PUBLIC include/fmt)
 
 set(zcbase_sources
 	src/base/colors.cpp
+	src/base/cpos_info.cpp
 	src/base/fonts.cpp
 	src/base/gui.cpp
 	src/base/handles.cpp
@@ -692,15 +719,6 @@ set_property(TARGET zlauncher PROPERTY VS_DPI_AWARE "PerMonitor")
 target_link_libraries(zlauncher PRIVATE allegro_with_legacy zcbase zcgui zconsolelogger ${LAUNCHERLIBSEXTRA})
 
 #############################################################
-# Allegro 5 Example
-#############################################################
-
-add_executable(al5_example EXCLUDE_FROM_ALL src/al5_example/al5_example_main.c)
-target_include_directories(al5_example PUBLIC ${allegro5_SOURCE_DIR}/include)
-target_include_directories(al5_example PUBLIC ${allegro5_BINARY_DIR}/include)
-target_link_libraries(al5_example PRIVATE allegro_with_legacy allegro_font allegro_primitives)
-
-#############################################################
 # Emscripten
 #############################################################
 
@@ -878,7 +896,7 @@ if(CMAKE_GENERATOR MATCHES "Visual Studio")
 	set_target_properties(zelda zquest zscript zlauncher package package_no_archive PROPERTIES FOLDER "")
 	set_target_properties(zcbase zcgui zcsound PROPERTIES FOLDER "Our Libraries")
 	set_target_properties(gme dumb aldmb alogg PROPERTIES FOLDER Sound)
-	set_target_properties(allegro allegro_audio allegro_acodec allegro_image allegro_font allegro_main allegro_primitives allegro_dialog allegro-legacy al5img algif alpng al5_example PROPERTIES FOLDER Allegro)
+	set_target_properties(allegro allegro_audio allegro_acodec allegro_image allegro_font allegro_main allegro_primitives allegro_dialog allegro-legacy al5img algif alpng PROPERTIES FOLDER Allegro)
 	set_target_properties(zconsole zconsolelogger PROPERTIES FOLDER ZConsole)
 	if(WANT_SENTRY)
 		set_target_properties(crashpad_client crashpad_compat crashpad_getopt crashpad_handler crashpad_handler_lib crashpad_minidump crashpad_snapshot crashpad_tools crashpad_util crashpad_zlib mini_chromium sentry PROPERTIES FOLDER Sentry)

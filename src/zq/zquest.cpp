@@ -560,6 +560,7 @@ int32_t ComboBrush = 0;                                             //show the b
 int32_t ComboBrushPause = 0;                                        //temporarily disable the combo brush
 int32_t FloatBrush = 0;                                             //makes the combo brush float a few pixels up and left
 int AutoBrush = 0; //Drag to size the brush on the combo panes
+bool AutoBrushRevert = false; //Revert after placing
 int LinkedScroll = 0;
 //complete with shadow
 int32_t OpenLastQuest = 0;                                          //makes the program reopen the quest that was
@@ -716,7 +717,6 @@ char                palnames[MAXLEVELS][17];
 quest_template      QuestTemplates[MAXQTS];
 char                fontsdat_sig[52];
 char                zquestdat_sig[52];
-char                qstdat_sig[52];
 char                sfxdat_sig[52];
 char		    qstdat_str[2048];
 miscQdata           QMisc;
@@ -1593,8 +1593,7 @@ int32_t onResetTransparency()
 
 int32_t onFullScreen()
 {
-	
-    if(jwin_alert3(
+	if(jwin_alert3(
 			(is_windowed_mode()) ? "Fullscreen Warning" : "Change to Windowed Mode", 
 			(is_windowed_mode()) ? "Some video chipsets/drivers do not support 8-bit native fullscreen" : "Proceeding will drop from Fullscreen to Windowed Mode", 
 			(is_windowed_mode()) ? "We strongly advise saving your quest before shifting from windowed to fullscreen!": "Do you wish to shift from Fullscreen to Windowed mode?",
@@ -1606,29 +1605,29 @@ int32_t onFullScreen()
 		'n', 
 		0, 
 		get_zc_font(font_lfont)) == 1)	
-    {
-	    get_palette(RAMpal);
-	    bool windowed=is_windowed_mode()!=0;
-	    
-	    int32_t ret=set_gfx_mode(windowed?GFX_AUTODETECT_FULLSCREEN:GFX_AUTODETECT_WINDOWED,zq_screen_w,zq_screen_h,0,0);
-	    if(ret!=0)
-	    {
+	{
+		get_palette(RAMpal);
+		bool windowed=is_windowed_mode()!=0;
+		
+		int32_t ret=set_gfx_mode(windowed?GFX_AUTODETECT_FULLSCREEN:GFX_AUTODETECT_WINDOWED,zq_screen_w,zq_screen_h,0,0);
+		if(ret!=0)
+		{
 			Z_error_fatal("Failed to set video mode: %d. allegro_error: %s\n", ret, allegro_error);
-	    }
-	    
-	    gui_mouse_focus=0;
-	    gui_bg_color=jwin_pal[jcBOX];
-	    gui_fg_color=jwin_pal[jcBOXFG];
-	    MouseSprite::set(ZQM_NORMAL);
-	    zc_set_palette(RAMpal);
-	    position_mouse(zq_screen_w/2,zq_screen_h/2);
-	    set_display_switch_mode(SWITCH_BACKGROUND);
-	    set_display_switch_callback(SWITCH_OUT, switch_out);
-	    set_display_switch_callback(SWITCH_IN, switch_in);
+		}
+		
+		gui_mouse_focus=0;
+		gui_bg_color=jwin_pal[jcBOX];
+		gui_fg_color=jwin_pal[jcBOXFG];
+		MouseSprite::set(ZQM_NORMAL);
+		zc_set_palette(RAMpal);
+		position_mouse(zq_screen_w/2,zq_screen_h/2);
+		set_display_switch_mode(SWITCH_BACKGROUND);
+		set_display_switch_callback(SWITCH_OUT, switch_out);
+		set_display_switch_callback(SWITCH_IN, switch_in);
 		zc_set_config("zquest","fullscreen", is_windowed_mode() ? 0 : 1);
-	    return D_REDRAW;
-    }
-    else return D_O_K;
+		return D_REDRAW;
+	}
+	else return D_O_K;
 }
 
 int32_t onEnter()
@@ -3034,10 +3033,15 @@ void fix_drawing_mode_menu()
     drawing_mode_menu[draw_mode].flags=D_SELECTED;
 }
 
+void reset_relational_tile_grid()
+{
+	memset(relational_tile_grid,(draw_mode==dm_relational?1:0),(11+(rtgyo*2))*(16+(rtgxo*2)));
+}
+
 int32_t onDrawingMode()
 {
     draw_mode=(draw_mode+1)%dm_max;
-    memset(relational_tile_grid,(draw_mode==dm_relational?1:0),(11+(rtgyo*2))*(16+(rtgxo*2)));
+    reset_relational_tile_grid();
     fix_drawing_mode_menu();
     restore_mouse();
     return D_O_K;
@@ -3046,7 +3050,7 @@ int32_t onDrawingMode()
 int32_t onDrawingModeNormal()
 {
     draw_mode=dm_normal;
-    memset(relational_tile_grid,(draw_mode==dm_relational?1:0),(11+(rtgyo*2))*(16+(rtgxo*2)));
+    reset_relational_tile_grid();
     fix_drawing_mode_menu();
     restore_mouse();
     return D_O_K;
@@ -3060,7 +3064,7 @@ int32_t onDrawingModeRelational()
     }
     
     draw_mode=dm_relational;
-    memset(relational_tile_grid,(draw_mode==dm_relational?1:0),(11+(rtgyo*2))*(16+(rtgxo*2)));
+    reset_relational_tile_grid();
     fix_drawing_mode_menu();
     restore_mouse();
     return D_O_K;
@@ -3074,7 +3078,7 @@ int32_t onDrawingModeDungeon()
     }
     
     draw_mode=dm_dungeon;
-    memset(relational_tile_grid,(draw_mode==dm_relational?1:0),(11+(rtgyo*2))*(16+(rtgxo*2)));
+    reset_relational_tile_grid();
     fix_drawing_mode_menu();
     restore_mouse();
     return D_O_K;
@@ -3089,7 +3093,7 @@ int32_t onDrawingModeAlias()
     
     draw_mode=dm_alias;
     alias_cset_mod=0;
-    memset(relational_tile_grid,(draw_mode==dm_relational?1:0),(11+(rtgyo*2))*(16+(rtgxo*2)));
+    reset_relational_tile_grid();
     fix_drawing_mode_menu();
     restore_mouse();
     return D_O_K;
@@ -3103,7 +3107,7 @@ int32_t onDrawingModePool()
     }
     
     draw_mode=dm_cpool;
-    memset(relational_tile_grid,(draw_mode==dm_relational?1:0),(11+(rtgyo*2))*(16+(rtgxo*2)));
+    reset_relational_tile_grid();
     fix_drawing_mode_menu();
     restore_mouse();
     return D_O_K;
@@ -3274,7 +3278,7 @@ int32_t onDelete()
         }
     }
     
-    memset(relational_tile_grid,(draw_mode==dm_relational?1:0),(11+(rtgyo*2))*(16+(rtgxo*2)));
+    reset_relational_tile_grid();
     saved=false;
     return D_O_K;
 }
@@ -3308,7 +3312,7 @@ int32_t onIncMap()
     Map.setlayertarget(); //Needed to refresh the screen info. -Z ( 26th March, 2019 )
     if(m!=Map.getCurrMap())
     {
-        memset(relational_tile_grid,(draw_mode==dm_relational?1:0),(11+(rtgyo*2))*(16+(rtgxo*2)));
+        reset_relational_tile_grid();
     }
     
     int32_t newcolor=Map.getcolor();
@@ -3332,7 +3336,7 @@ int32_t onDecMap()
     
     if(m!=Map.getCurrMap())
     {
-        memset(relational_tile_grid,(draw_mode==dm_relational?1:0),(11+(rtgyo*2))*(16+(rtgxo*2)));
+        reset_relational_tile_grid();
     }
     
     int32_t newcolor=Map.getcolor();
@@ -4821,220 +4825,220 @@ int32_t onViewPic()
 
 int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *py2, double *scale2, bool isviewingmap)
 {
-    restore_mouse();
-    BITMAP *buf;
-    bool done=false, redraw=true;
-    
-    go();
-    clear_bitmap(screen);
-    
-    // Always call load_the_map() when viewing the map.
-    if((!*pictoview || isviewingmap) && (isviewingmap ? load_the_map() : load_the_pic(pictoview,pal)))
-    {
-        zc_set_palette(RAMpal);
-        comeback();
-        return D_O_K;
-    }
-    
-    get_bw(pal,pblack,pwhite);
-    
-    int32_t oldfgcolor = gui_fg_color;
-    int32_t oldbgcolor = gui_bg_color;
-    
-    buf = create_bitmap_ex(8,zq_screen_w,zq_screen_h);
-    
-    if(!buf)
-    {
-        jwin_alert("Error","Error creating temp bitmap",NULL,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
-        return D_O_K;
-    }
-    
-    //  go();
-    //    //  clear_bitmap(screen);
-    zc_set_palette(pal);
-    
-    do
-    {
-        if(redraw)
-        {
-            clear_to_color(buf,pblack);
-            stretch_blit(*pictoview,buf,0,0,(*pictoview)->w,(*pictoview)->h,
-                         int32_t(zq_screen_w+(*px2-(*pictoview)->w)* *scale2)/2,int32_t(zq_screen_h+(*py2-(*pictoview)->h)* *scale2)/2,
-                         int32_t((*pictoview)->w* *scale2),int32_t((*pictoview)->h* *scale2));
-                         
-            if(vp_showpal)
-                for(int32_t i=0; i<256; i++)
-                    rectfill(buf,((i&15)<<2)+zq_screen_w-64,((i>>4)<<2)+zq_screen_h-64,((i&15)<<2)+zq_screen_w-64+3,((i>>4)<<2)+zq_screen_h-64+3,i);
-                    
-            if(vp_showsize)
-            {
-                //        text_mode(pblack);
-                textprintf_ex(buf,font,0,zq_screen_h-8,pwhite,pblack,"%dx%d %.2f%%",(*pictoview)->w,(*pictoview)->h,*scale2*100.0);
-            }
-            
-            blit(buf,screen,0,0,0,0,zq_screen_w,zq_screen_h);
-            redraw=false;
-        }
-        
-        custom_vsync();
-        
-        int32_t step = 4;
-        
-        if(*scale2 < 1.0)
-            step = int32_t(4.0/ *scale2);
-            
-        if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
-            step <<= 2;
-            
-        if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
-            step = 1;
-            
-        if(key[KEY_UP])
-        {
-            *py2+=step;
-            redraw=true;
-        }
-        
-        if(key[KEY_DOWN])
-        {
-            *py2-=step;
-            redraw=true;
-        }
-        
-        if(key[KEY_LEFT])
-        {
-            *px2+=step;
-            redraw=true;
-        }
-        
-        if(key[KEY_RIGHT])
-        {
-            *px2-=step;
-            redraw=true;
-        }
-        
-        if(keypressed() && !redraw)
-            switch(readkey()>>8)
-            {
-            case KEY_PGUP:
-                *scale2*=0.95;
-                
-                if(*scale2<0.1) *scale2=0.1;
-                
-                redraw=true;
-                break;
-                
-            case KEY_PGDN:
-                *scale2/=0.95;
-                
-                if(*scale2>5.0) *scale2=5.0;
-                
-                redraw=true;
-                break;
-                
-            case KEY_HOME:
-                *scale2/=2.0;
-                
-                if(*scale2<0.1) *scale2=0.1;
-                
-                redraw=true;
-                break;
-                
-            case KEY_END:
-                *scale2*=2.0;
-                
-                if(*scale2>5.0) *scale2=5.0;
-                
-                redraw=true;
-                break;
-                
-            case KEY_TILDE:
-                *scale2=0.5;
-                redraw=true;
-                break;
-                
-            case KEY_Z:
-                *px2=(*pictoview)->w-zq_screen_w;
-                *py2=(*pictoview)->h-zq_screen_h;
-                vp_center=false;
-                redraw=true;
-                break;
-                
-            case KEY_1:
-                *scale2=1.0;
-                redraw=true;
-                break;
-                
-            case KEY_2:
-                *scale2=2.0;
-                redraw=true;
-                break;
-                
-            case KEY_3:
-                *scale2=3.0;
-                redraw=true;
-                break;
-                
-            case KEY_4:
-                *scale2=4.0;
-                redraw=true;
-                break;
-                
-            case KEY_5:
-                *scale2=5.0;
-                redraw=true;
-                break;
-                
-            case KEY_C:
-                *px2=*py2=0;
-                redraw=vp_center=true;
-                break;
-                
-            case KEY_S:
-                vp_showsize = !vp_showsize;
-                redraw=true;
-                break;
-                
-            case KEY_D:
-                vp_showpal = !vp_showpal;
-                redraw=true;
-                break;
-                
-            case KEY_P:
-                if(isviewingmap) break;
-                
-            case KEY_ESC:
-                done=true;
-                break;
-                
-            case KEY_SPACE:
-                if(isviewingmap ? load_the_map() : load_the_pic(pictoview,pal)==2)
-                {
-                    done=true;
-                }
-                else
-                {
-                    redraw=true;
-                    gui_bg_color = pblack;
-                    gui_fg_color = pwhite;
-                    *scale2=1.0;
-                    zc_set_palette(pal);
-                }
-                
-                get_bw(pal,pblack,pwhite);
-                break;
-            }
-    }
-    while(!done);
-    
-    destroy_bitmap(buf);
-    zc_set_palette(RAMpal);
-    gui_fg_color = oldfgcolor;
-    gui_bg_color = oldbgcolor;
-    
-    comeback();
-    position_mouse_z(0);
-    return D_O_K;
+	restore_mouse();
+	BITMAP *buf;
+	bool done=false, redraw=true;
+	
+	popup_zqdialog_start();
+	
+	// Always call load_the_map() when viewing the map.
+	if((!*pictoview || isviewingmap) && (isviewingmap ? load_the_map() : load_the_pic(pictoview,pal)))
+	{
+		zc_set_palette(RAMpal);
+		popup_zqdialog_end();
+		return D_O_K;
+	}
+	
+	get_bw(pal,pblack,pwhite);
+	
+	int32_t oldfgcolor = gui_fg_color;
+	int32_t oldbgcolor = gui_bg_color;
+	
+	buf = create_bitmap_ex(8,zq_screen_w,zq_screen_h);
+	
+	if(!buf)
+	{
+		jwin_alert("Error","Error creating temp bitmap",NULL,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
+		popup_zqdialog_end();
+		return D_O_K;
+	}
+	
+	//  go();
+	//    //  clear_bitmap(screen);
+	zc_set_palette(pal);
+	
+	do
+	{
+		if(redraw)
+		{
+			clear_to_color(buf,pblack);
+			stretch_blit(*pictoview,buf,0,0,(*pictoview)->w,(*pictoview)->h,
+						 int32_t(zq_screen_w+(*px2-(*pictoview)->w)* *scale2)/2,int32_t(zq_screen_h+(*py2-(*pictoview)->h)* *scale2)/2,
+						 int32_t((*pictoview)->w* *scale2),int32_t((*pictoview)->h* *scale2));
+						 
+			if(vp_showpal)
+				for(int32_t i=0; i<256; i++)
+					rectfill(buf,((i&15)<<2)+zq_screen_w-64,((i>>4)<<2)+zq_screen_h-64,((i&15)<<2)+zq_screen_w-64+3,((i>>4)<<2)+zq_screen_h-64+3,i);
+					
+			if(vp_showsize)
+			{
+				//        text_mode(pblack);
+				textprintf_ex(buf,font,0,zq_screen_h-8,pwhite,pblack,"%dx%d %.2f%%",(*pictoview)->w,(*pictoview)->h,*scale2*100.0);
+			}
+			
+			blit(buf,screen,0,0,0,0,zq_screen_w,zq_screen_h);
+			redraw=false;
+		}
+		
+		custom_vsync();
+		
+		int32_t step = 4;
+		
+		if(*scale2 < 1.0)
+			step = int32_t(4.0/ *scale2);
+			
+		if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
+			step <<= 2;
+			
+		if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+			step = 1;
+			
+		if(key[KEY_UP])
+		{
+			*py2+=step;
+			redraw=true;
+		}
+		
+		if(key[KEY_DOWN])
+		{
+			*py2-=step;
+			redraw=true;
+		}
+		
+		if(key[KEY_LEFT])
+		{
+			*px2+=step;
+			redraw=true;
+		}
+		
+		if(key[KEY_RIGHT])
+		{
+			*px2-=step;
+			redraw=true;
+		}
+		
+		if(keypressed() && !redraw)
+			switch(readkey()>>8)
+			{
+			case KEY_PGUP:
+				*scale2*=0.95;
+				
+				if(*scale2<0.1) *scale2=0.1;
+				
+				redraw=true;
+				break;
+				
+			case KEY_PGDN:
+				*scale2/=0.95;
+				
+				if(*scale2>5.0) *scale2=5.0;
+				
+				redraw=true;
+				break;
+				
+			case KEY_HOME:
+				*scale2/=2.0;
+				
+				if(*scale2<0.1) *scale2=0.1;
+				
+				redraw=true;
+				break;
+				
+			case KEY_END:
+				*scale2*=2.0;
+				
+				if(*scale2>5.0) *scale2=5.0;
+				
+				redraw=true;
+				break;
+				
+			case KEY_TILDE:
+				*scale2=0.5;
+				redraw=true;
+				break;
+				
+			case KEY_Z:
+				*px2=(*pictoview)->w-zq_screen_w;
+				*py2=(*pictoview)->h-zq_screen_h;
+				vp_center=false;
+				redraw=true;
+				break;
+				
+			case KEY_1:
+				*scale2=1.0;
+				redraw=true;
+				break;
+				
+			case KEY_2:
+				*scale2=2.0;
+				redraw=true;
+				break;
+				
+			case KEY_3:
+				*scale2=3.0;
+				redraw=true;
+				break;
+				
+			case KEY_4:
+				*scale2=4.0;
+				redraw=true;
+				break;
+				
+			case KEY_5:
+				*scale2=5.0;
+				redraw=true;
+				break;
+				
+			case KEY_C:
+				*px2=*py2=0;
+				redraw=vp_center=true;
+				break;
+				
+			case KEY_S:
+				vp_showsize = !vp_showsize;
+				redraw=true;
+				break;
+				
+			case KEY_D:
+				vp_showpal = !vp_showpal;
+				redraw=true;
+				break;
+				
+			case KEY_P:
+				if(isviewingmap) break;
+				
+			case KEY_ESC:
+				done=true;
+				break;
+				
+			case KEY_SPACE:
+				if(isviewingmap ? load_the_map() : load_the_pic(pictoview,pal)==2)
+				{
+					done=true;
+				}
+				else
+				{
+					redraw=true;
+					gui_bg_color = pblack;
+					gui_fg_color = pwhite;
+					*scale2=1.0;
+					zc_set_palette(pal);
+				}
+				
+				get_bw(pal,pblack,pwhite);
+				break;
+			}
+	}
+	while(!done);
+	
+	destroy_bitmap(buf);
+	zc_set_palette(RAMpal);
+	gui_fg_color = oldfgcolor;
+	gui_bg_color = oldbgcolor;
+	
+	popup_zqdialog_end();
+	position_mouse_z(0);
+	return D_O_K;
 }
 
 static DIALOG loadmap_dlg[] =
@@ -5731,9 +5735,10 @@ void draw_screenunit(int32_t unit, int32_t flags)
 			
 			if(ShowFFCs)
 			{
+				mapscr* ffscr = prv_mode?Map.get_prvscr():Map.CurrScr();
 				for(int32_t i=MAXFFCS-1; i>=0; i--)
 				{
-					ffcdata& ff = Map.CurrScr()->ffcs[i];
+					ffcdata& ff = ffscr->ffcs[i];
 					if(ff.getData() !=0 && (CurrentLayer<2 || (ff.flags&ffOVERLAY)))
 					{
 						auto x = ff.x+(showedges?16:0);
@@ -7346,6 +7351,7 @@ void select_combo(int32_t clist)
 	int autobrush_cx = -1, autobrush_cy = -1;
 	int autobrush_first = First[current_combolist];
 	auto& curlist = combolist[current_combolist];
+	AutoBrushRevert = (key[KEY_ALT]||key[KEY_ALTGR]);
     while(gui_mouse_b())
     {
         int32_t x=gui_mouse_x();
@@ -7383,7 +7389,8 @@ void select_combo(int32_t clist)
 		if(AutoBrush) //Prevent any scrolling
 			First[current_combolist] = autobrush_first;
     }
-    
+    if(key[KEY_ALT]||key[KEY_ALTGR])
+		AutoBrushRevert = true;
 	position_mouse_z(0);
     ComboBrush=tempcb;
 }
@@ -7594,6 +7601,13 @@ void draw(bool justcset)
     
     refresh(rMAP+rSCRMAP);
 	int32_t lastpos = -1;
+
+    std::shared_ptr<tile_grid_draw_command> dungeon_draw_cmd;
+    if (draw_mode == dm_relational || draw_mode == dm_dungeon)
+    {
+        dungeon_draw_cmd = std::make_shared<tile_grid_draw_command>();
+        util::copy_2d_array<byte, 15, 20>(relational_tile_grid, dungeon_draw_cmd->prev_tile_grid);
+    }
 	
     Map.StartListCommand();
     while(gui_mouse_b())
@@ -7617,7 +7631,6 @@ void draw(bool justcset)
 				continue;
 			}
 			lastpos = cstart;
-            combo_alias *combo = &combo_aliases[combo_apos];
             
             switch(draw_mode)
             {
@@ -7640,21 +7653,13 @@ void draw(bool justcset)
 					}
 					else
 					{
-						int32_t p=Combo/256;
-						int32_t pc=Combo%256;
-						
 						for(int32_t cy=0; cy+cystart<11&&cy<BrushHeight; cy++)
 						{
 							for(int32_t cx=0; cx+cxstart<16&&cx<BrushWidth; cx++)
 							{
 								int32_t c=cstart+(cy*16)+cx;
-								cc=((cx/4)*52)+(cy*4)+(cx%4)+pc;
-								
-								if(cc>=0&&cc<256)
-								{
-									cc+=(p*256);
-									Map.DoSetComboCommand(drawmap, drawscr, c, justcset ? -1 : cc, CSet);
-								}
+								cc=Combo + cx + cy*4;
+								Map.DoSetComboCommand(drawmap, drawscr, c, justcset ? -1 : cc, CSet);
 							}
 						}
 					}
@@ -7670,34 +7675,27 @@ void draw(bool justcset)
 					
 					if(!combo_cols)
 					{
+						auto cid2 = cid;
 						for(int32_t cy=0; cy+cystart<11&&cy<BrushHeight; cy++)
 						{
 							for(int32_t cx=0; cx+cxstart<16&&cx<BrushWidth; cx++)
 							{
 								int32_t c=cstart+(cy*16)+cx;
-								Map.DoSetComboCommand(drawmap, drawscr, c, justcset ? -1 : (cid + cx), cs);
+								Map.DoSetComboCommand(drawmap, drawscr, c, justcset ? -1 : (cid2 + cx), cs);
 							}
 							
-							cid+=20;
+							cid2+=20;
 						}
 					}
 					else
 					{
-						int32_t p=cid/256;
-						int32_t pc=cid%256;
-						
 						for(int32_t cy=0; cy+cystart<11&&cy<BrushHeight; cy++)
 						{
 							for(int32_t cx=0; cx+cxstart<16&&cx<BrushWidth; cx++)
 							{
 								int32_t c=cstart+(cy*16)+cx;
-								cid=((cx/4)*52)+(cy*4)+(cx%4)+pc;
-								
-								if(cid>=0&&cid<256)
-								{
-									cid+=(p*256);
-									Map.DoSetComboCommand(drawmap, drawscr, c, justcset ? -1 : cid, cs);
-								}
+								auto cid2=cid + cx + cy*4;
+								Map.DoSetComboCommand(drawmap, drawscr, c, justcset ? -1 : cid2, cs);
 							}
 						}
 					}
@@ -7855,6 +7853,8 @@ void draw(bool justcset)
 				break;
 				
 				case dm_alias:
+				{
+					combo_alias *combo = &combo_aliases[combo_apos];
 					if(!combo->layermask)
 					{
 						int32_t ox=0, oy=0;
@@ -7974,6 +7974,7 @@ void draw(bool justcset)
 					}
 					
 					break;
+				}
             }
         }
         
@@ -7981,7 +7982,18 @@ void draw(bool justcset)
 		refresh(rALL);
     }
 
+    if (dungeon_draw_cmd)
+    {
+        util::copy_2d_array<byte, 15, 20>(relational_tile_grid, dungeon_draw_cmd->tile_grid);
+        Map.ExecuteCommand(dungeon_draw_cmd, true);
+    }
     Map.FinishListCommand();
+	if(AutoBrushRevert)
+	{
+		AutoBrushRevert = false;
+		BrushWidth = 1;
+		BrushHeight = 1;
+	}
 }
 
 void replace(int32_t c)
@@ -10329,12 +10341,21 @@ void domouse()
 			if(unsigned(c) < 176 && draw_mapscr)
 			{
 				tooltip_current_combo = c;
-				char msg[512] = {0};
 				int cid = draw_mapscr->data[c];
-				sprintf(msg,"Pos: %d Combo: %d\nCSet: %d Flags: %d, %d\nCombo type: %s",
-					c, cid, draw_mapscr->cset[c], draw_mapscr->sflag[c], combobuf[cid].flag,
-					combo_class_buf[combobuf[cid].type].name);
-				update_tooltip(x, y, startxint+(cx*16*mapscreensize), startyint+(cy*16*mapscreensize), 16*mapscreensize, 16*mapscreensize, msg);
+				newcombo const& cmb = combobuf[cid];
+				std::ostringstream oss;
+				int cs = draw_mapscr->cset[c];
+				int sflag = draw_mapscr->sflag[c];
+				oss << "Pos: " << c
+					<< "\nCombo: " << cid
+					<< "\nCSet: " << cs;
+				if(sflag || cmb.flag)
+					oss << "\nFlags: " << sflag << ", " << (int)cmb.flag;
+				if(cmb.type)
+					oss << "\nCombo type: " << combo_class_buf[cmb.type].name;
+				if(cmb.label[0])
+					oss << "\nLabel: " << cmb.label;
+				update_tooltip(x, y, startxint+(cx*16*mapscreensize), startyint+(cy*16*mapscreensize), 16*mapscreensize, 16*mapscreensize, oss.str().c_str());
 			}
 		}
 	}
@@ -10483,7 +10504,7 @@ void domouse()
 				oss << "Combo " << c2 << ": " << combo_class_buf[cmb.type].name;
 				if(cmb.flag != 0)
 					oss << "\nInherent flag: " << ZI.getMapFlagName(cmb.flag);
-				if(cmb.label[0])
+				if(!cmb.label.empty())
 					oss << "\nLabel: " << cmb.label;
 					
 				update_tooltip(x,y,sqr.subsquare(ind), oss.str().c_str());
@@ -14625,7 +14646,7 @@ int32_t onGotoMap()
         
         if(m!=Map.getCurrMap())
         {
-            memset(relational_tile_grid,(draw_mode==dm_relational?1:0),(11+(rtgyo*2))*(16+(rtgxo*2)));
+            reset_relational_tile_grid();
         }
     }
     
@@ -24592,7 +24613,7 @@ static DIALOG assignscript_dlg[] =
     { jwin_win_proc,		  0,	0,		330,	236,	vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "Assign Compiled Script", NULL, NULL },
     { jwin_tab_proc,		  6,	25,		330-12,	130,	0,		0,		0,	0,		0,  0,  assignscript_tabs, NULL, (void*)assignscript_dlg },
     { jwin_button_proc,	  251,	207,	61,		21,		vc(14),	vc(1),	27,	D_EXIT,	0,	0,	(void *) "Cancel", NULL, NULL },
-    { jwin_button_proc,	  182,	207,	61,		21,		vc(14), vc(1),	'k',	    D_EXIT,	0,	0,	(void *) "O&K", NULL, NULL },
+    { jwin_button_proc,	  182,	207,	61,		21,		vc(14), vc(1),	0,	    D_EXIT,	0,	0,	(void *) "OK", NULL, NULL },
     { jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignffc_list, NULL, NULL },
     { jwin_abclist_proc,    174+10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignffcscript_list, NULL, NULL },
     //6
@@ -27001,6 +27022,8 @@ auto_do_slots:
 		if(!handle_slot_map(ewpnmap, 1, ewpnscripts))
 			goto exit_do_slots;
 		if(!handle_slot_map(playermap, 1, playerscripts))
+			goto exit_do_slots;
+		if(!handle_slot_map(dmapmap, 1, dmapscripts))
 			goto exit_do_slots;
 		if(!handle_slot_map(screenmap, 1, screenscripts))
 			goto exit_do_slots;
@@ -29434,13 +29457,9 @@ int32_t main(int32_t argc,char **argv)
 	
 	memrequested+=sizeof(newcombo)*MAXCOMBOS;
 	Z_message("Allocating combo undo buffer (%s)... ", byte_conversion2(sizeof(newcombo)*MAXCOMBOS,memrequested,-1,-1));
-	undocombobuf = (newcombo*)malloc(sizeof(newcombo)*MAXCOMBOS);
-	
-	if(!undocombobuf)
-	{
-		Z_error_fatal("Error: no memory for combo undo buffer!");
-	}
-	
+	undocombobuf.clear();
+	undocombobuf.resize(MAXCOMBOS);
+
 	Z_message("OK\n");									  // Allocating combo undo buffer...
 	
 	memrequested+=(NEWMAXTILES*sizeof(tiledata));
@@ -29603,39 +29622,6 @@ int32_t main(int32_t argc,char **argv)
 		FatalConsole("failed to load zquest.dat");
 	
 	datafile_str=moduledata.datafiles[zquest_dat];
-	Z_message("OK\n");
-	
-	strcpy(qstdat_str,moduledata.datafiles[qst_dat]);
-	strcat(qstdat_str,"#_SIGNATURE");
-	//al_trace("qstdat_str is: %s\n", qstdat_str);
-	
-	sprintf(qstdat_sig,"QST.Dat %s Build %d",VerStr(QSTDAT_VERSION), QSTDAT_BUILD);
-	
-	Z_message("QST.Dat...");
-	
-	PACKFILE *f=pack_fopen_password(qstdat_str, F_READ_PACKED, datapwd);
-	
-	if(!f)
-		FatalConsole("failed to load qst.dat");
-	
-	char qstdat_read_sig[52];
-	memset(qstdat_read_sig, 0, 52);
-	int32_t pos=0;
-	
-	while(!pack_feof(f))
-	{
-		if(!p_getc(&(qstdat_read_sig[pos++]),f,true))
-		{
-			pack_fclose(f);
-			Z_error_fatal("failed to read qst.dat");
-		}
-	}
-	
-	pack_fclose(f);
-	
-	if(strncmp(qstdat_read_sig,qstdat_sig,22))
-		FatalConsole("\nIncompatible version of qst.dat.\nPlease upgrade to %s Build %d",VerStr(QSTDAT_VERSION), QSTDAT_BUILD);
-	
 	Z_message("OK\n");
 	
 	
@@ -31483,7 +31469,7 @@ void quit_game()
     
     al_trace("Cleaning undotilebuf. \n");
     
-    if(undocombobuf) free(undocombobuf);
+    undocombobuf.clear();
     
     if(newundotilebuf)
     {
@@ -31666,7 +31652,7 @@ void quit_game2()
     
     al_trace("Cleaning undotilebuf. \n");
     
-    if(undocombobuf) free(undocombobuf);
+    undocombobuf.clear();
     
     if(newundotilebuf)
     {

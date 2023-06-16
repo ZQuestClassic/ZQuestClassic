@@ -2695,11 +2695,14 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 	}
 	
 	int32_t layermap, layerscreen;
-	layermap=layer->layermap[CurrentLayer-1]-1;
-	
-	if(layermap<0)
+	if(CurrentLayer < 1)
+		layermap = -1;
+	else
 	{
-		CurrentLayer=0;
+		layermap=layer->layermap[CurrentLayer-1]-1;
+		
+		if(layermap<0)
+			CurrentLayer=0;
 	}
 	
 	if(!(layer->valid&mVALID))
@@ -4562,6 +4565,18 @@ int set_screen_command::size()
     return (prev_screen ? 1 : 0) + (screen ? 1 : 0);
 }
 
+extern byte relational_tile_grid[11+(rtgyo*2)][16+(rtgxo*2)];
+
+void tile_grid_draw_command::execute()
+{
+	util::copy_2d_array<byte, 15, 20>(tile_grid, relational_tile_grid);
+}
+
+void tile_grid_draw_command::undo()
+{
+	util::copy_2d_array<byte, 15, 20>(prev_tile_grid, relational_tile_grid);
+}
+
 static std::shared_ptr<list_command> current_list_command;
 void zmap::StartListCommand()
 {
@@ -5246,7 +5261,7 @@ void zmap::update_combo_cycling()
     int32_t x;
     int32_t newdata[176];
     int32_t newcset[176];
-    bool restartanim[MAXCOMBOS];
+    bool restartanim[MAXCOMBOS] = {0};
     
     for(int32_t i=0; i<176; i++)
     {
@@ -6634,8 +6649,7 @@ static bool loading_file_new = false;
 int32_t init_quest(const char *)
 {
 	char qstdat_string[2048];
-	strcpy(qstdat_string,moduledata.datafiles[qst_dat]);
-	strcat(qstdat_string,"#NESQST_NEW_QST");
+	strcpy(qstdat_string, "modules/classic/default.qst");
 
     char buf[2048];
     
@@ -9814,7 +9828,7 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 		|| tmp_cmb.nextcset || tmp_cmb.skipanim || tmp_cmb.skipanimy
 		|| tmp_cmb.animflags)
 		combo_has_flags |= CHAS_ANIM;
-	if(tmp_cmb.script || strlen(tmp_cmb.label)
+	if(tmp_cmb.script || tmp_cmb.label.size()
 		|| tmp_cmb.initd[0] || tmp_cmb.initd[1])
 		combo_has_flags |= CHAS_SCRIPT;
 	if(tmp_cmb.o_tile || tmp_cmb.flip || tmp_cmb.walk != 0xF0
@@ -9871,13 +9885,8 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 	}
 	if(combo_has_flags&CHAS_SCRIPT)
 	{
-		for ( int32_t q = 0; q < 11; q++ ) 
-		{
-			if(!p_putc(tmp_cmb.label[q],f))
-			{
-				return 24;
-			}
-		}
+		p_putcstr(tmp_cmb.label, f);
+
 		if(!p_iputw(tmp_cmb.script,f))
 		{
 			return 26;

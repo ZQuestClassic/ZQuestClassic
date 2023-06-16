@@ -345,18 +345,7 @@ ZCHEATS    zcheats;
 byte       use_cheats;
 byte       use_tiles;
 char       palnames[MAXLEVELS][PALNAMESIZE];
-/*
-tiledata   *newtilebuf, *grabtilebuf;
-newcombo   *combobuf;
-word animated_combo_table[MAXCOMBOS][2];                    //[0]=position in act2, [1]=original tile
-word animated_combo_table4[MAXCOMBOS][2];                   //[0]=combo, [1]=clock
-word animated_combos;
-word animated_combo_table2[MAXCOMBOS][2];                    //[0]=position in act2, [1]=original tile
-word animated_combo_table24[MAXCOMBOS][2];                   //[0]=combo, [1]=clock
-word animated_combos2;
-bool blank_tile_table[NEWMAXTILES];                         //keeps track of blank tiles
-bool blank_tile_quarters_table[NEWMAXTILES*4];              //keeps track of blank tiles
-*/
+
 bool ewind_restart=false;
 
 word     msgclk = 0, msgstr = 0, enqueued_str = 0,
@@ -2070,19 +2059,6 @@ int32_t init_game()
 		lens_hint_weapon[x][0]=0;
 		lens_hint_weapon[x][1]=0;
 	}
-	
-	/* Disabling to see if this is causing virus scanner redflags. -Z
-	//Confuse the cheaters by moving the game data to a random location
-	if(game != NULL)
-		delete game;
-		
-	char *dummy = (char *) malloc((zc_oldrand()%(RAND_MAX/2))+32);
-	game = new gamedata;
-	game->Clear();
-	
-	free(dummy);
-	*/
-	
 
 	onload_gswitch_timers();
 	flushItemCache();
@@ -5365,12 +5341,13 @@ int main(int argc, char **argv)
 	if(!onlyInstance)
 	{
 		clear_to_color(screen,BLACK);
-		system_pal();
+		enter_sys_pal();
 		int32_t ret=jwin_alert3("Multiple Instances",
 							"Another instance of ZC is already running.",
 							"Running multiple instances may cause your",
 							"save file to be deleted. Continue anyway?",
 							"&No","&Yes", 0, 'n', 'y', 0, get_zc_font(font_lfont));
+		exit_sys_pal();
 		if(ret!=2)
 		{
 			if(forceExit)
@@ -5488,7 +5465,7 @@ int main(int argc, char **argv)
 		if (!checked_epilepsy)
 		{
 			clear_to_color(screen,BLACK);
-			system_pal();
+			enter_sys_pal();
 			if(jwin_alert("EPILEPSY Options",
 				"Do you desire epilepsy protection?",
 				"This will reduce the intensity of flashing effects",
@@ -5497,6 +5474,7 @@ int main(int argc, char **argv)
 			{
 				epilepsyFlashReduction = 1;
 			}
+			exit_sys_pal();
 			zc_set_config("zeldadx","checked_epilepsy",1);
 			zc_set_config("zeldadx","epilepsy_flash_reduction",epilepsyFlashReduction);
 			checked_epilepsy = 1;
@@ -5566,8 +5544,7 @@ int main(int argc, char **argv)
 	rgb_map = &rgb_table;
 	
 	// set up an initial game save slot (for the list_saves function)
-	game = new gamedata;
-	game->Clear();
+	game = new gamedata();
 	
 	DEBUG_PRINT_ZASM = zc_get_config("ZSCRIPT", "print_zasm", false);
 	DEBUG_JIT_PRINT_ASM = zc_get_config("ZSCRIPT", "jit_print_asm", false);

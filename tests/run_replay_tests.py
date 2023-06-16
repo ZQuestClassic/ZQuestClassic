@@ -621,6 +621,8 @@ def run_replay_test(replay_file: pathlib.Path, output_dir: pathlib.Path) -> RunR
         timeout = 180
     if is_coverage:
         timeout *= 5
+    if is_web:
+        timeout *= 2
 
     if is_web:
         player_interface = WebPlayerInterface()

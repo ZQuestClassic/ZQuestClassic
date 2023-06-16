@@ -4,7 +4,7 @@
 #include "base/zdefs.h"
 #include "zc/weapons.h"
 
-extern newcombo *combobuf;
+extern std::vector<newcombo> combobuf;
 #define minSECRET_TYPE 0
 #define maxSECRET_TYPE 43
 
@@ -25,7 +25,6 @@ public:
 extern CutsceneState active_cutscene;
 
 extern cpos_info combo_posinfos[7][176];
-extern std::vector<cpos_info> ffc_posinfos;
 
 bool do_cswitch_combo(newcombo const& cmb, weapon* w = NULL);
 void do_generic_combo_ffc2(const ffc_handle_t& ffc_handle, int32_t cid, int32_t ft);
@@ -48,7 +47,7 @@ bool trigger_lockblock(const rpos_handle_t& rpos_handle);
 bool trigger_lockblock_ffc(const rpos_handle_t& rpos_handle);
 bool trigger_armos_grave(const rpos_handle_t& rpos_handle, int32_t trigdir = -1);
 bool trigger_armos_grave_ffc(const ffc_handle_t& ffc_handle, int32_t trigdir = -1);
-bool trigger_damage_combo(mapscr* screen, int32_t cid, int32_t hdir = -1, bool force_solid = false);
+bool trigger_damage_combo(mapscr* screen, int32_t cid, int type = ZSD_NONE, int ptrval = 0, int32_t hdir = -1, bool force_solid = false);
 bool trigger_stepfx(const rpos_handle_t& rpos_handle, bool stepped = false);
 bool trigger_stepfx_ffc(const ffc_handle_t& ffc_handle, bool stepped = false);
 void trigger_save(newcombo const& cmb);

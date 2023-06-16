@@ -135,13 +135,7 @@
 #include <set>
 #include <assert.h>
 #include <string>
-
-typedef uint8_t  byte;  //0-255  ( 8 bits)
-typedef uint16_t word;  //0-65,535  (16 bits)
-typedef uint32_t dword; //0-4,294,967,295  (32 bits)
-typedef uint64_t qword; //0-18,446,744,073,709,551,616  (64 bits)
-
-typedef unsigned const char ucc;
+#include "base/ints.h"
 
 //Common struct array element sizes-Z
 #define INITIAL_A 2
@@ -154,7 +148,6 @@ typedef unsigned const char ucc;
 #define MAX_DWORD dword(-1)
 #define MIN_DWORD 0
 
-#include "ffc.h"
 #include "metadata/metadata.h"
 #include "base/zc_alleg.h"
 #include "gamedata.h"
@@ -278,7 +271,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_STRINGS         10
 #define V_MISC            15
 #define V_TILES            3 //2 is a int32_t, max 214500 tiles (ZScript upper limit)
-#define V_COMBOS          39
+#define V_COMBOS          41
 #define V_CSETS            5 //palette data
 #define V_MAPS            25
 #define V_DMAPS            17
@@ -1461,6 +1454,7 @@ enum
 #define combotriggerTGROUP_CONTRIB      0x00002000
 #define combotriggerTGROUP_LESS         0x00004000
 #define combotriggerTGROUP_GREATER      0x00008000
+#define combotriggerPUSHEDTRIG          0x00010000
 
 #define ctrigNONE          0x00
 #define ctrigIGNORE_SIGN   0x01
@@ -2947,7 +2941,7 @@ struct newcombo
 	byte prompt_cs;
 	int16_t prompt_x = 12;
 	int16_t prompt_y = -8;
-	char label[11];
+	std::string label;
 	byte attribytes[8];
 	int16_t attrishorts[8];
 	word script;
@@ -3018,7 +3012,7 @@ struct newcombo
 		if(trig_genscr) return false;
 		if(trig_group) return false;
 		if(trig_group_val) return false;
-		if(strlen(label)) return false;
+		if(!label.empty()) return false;
 		for(auto q = 0; q < 8; ++q)
 			if(attribytes[q]) return false;
 		for(auto q = 0; q < 8; ++q)
@@ -3766,40 +3760,6 @@ struct miscQdata
 	byte miscsfx[sfxMAX];
 };
 
-struct cpos_info
-{
-	int32_t data;
-	byte clk;
-	word shootrclk;
-	byte trig_cd;
-	byte pushes[4];
-	
-	void push(int dir, bool cancel = false)
-	{
-		if(unsigned(dir) < 4)
-		{
-			if(cancel && pushes[oppositeDir[dir]])
-				pushes[oppositeDir[dir]] -= 1;
-			else pushes[dir] += 1;
-		}
-	}
-	word sumpush() const
-	{
-		return pushes[0]+pushes[1]+pushes[2]+pushes[3];
-	}
-	void clear()
-	{
-		*this = cpos_info();
-	}
-	void updateData(int32_t newdata)
-	{
-		if(data != newdata)
-		{
-			clear();
-			data = newdata;
-		}
-	}
-};
 #define MFORMAT_MIDI 0
 #define MFORMAT_NSF  1
 
@@ -4139,7 +4099,7 @@ struct gamedata
 	std::vector< ZCArray <int32_t> > globalRAM;
 	
 	byte awpn, bwpn, xwpn, ywpn;											// Currently selected weapon slots
-	int16_t forced_awpn, forced_bwpn, forced_xwpn, forced_ywpn;
+	int16_t forced_awpn = -1, forced_bwpn = -1, forced_xwpn = -1, forced_ywpn = -1;
 	bool isclearing; // The gamedata is being cleared
 	//115456 (260)
 	byte bottleSlots[256];
@@ -4164,27 +4124,9 @@ struct gamedata
 	std::vector<saved_user_object> user_objects;
 	std::vector<savedportal> user_portals;
 	
-	
-	// member functions
-	// public:
-	gamedata()
-	{
-		Clear();
-	}
-	
-	~gamedata()
-	{}
-	
-	void Clear(); // This is a forward declaration. Real decl in gamedata.cpp.
+	void Clear();
 	void Copy(const gamedata& g);
 	void clear_genscript();
-	
-	gamedata &operator = (const gamedata& data)
-	{
-		this->Copy(data);
-		this->globalRAM=data.globalRAM;
-		return *this;
-	}
 	
 	void save_user_objects();
 	void load_user_objects();
@@ -4569,7 +4511,9 @@ enum controls //Args for 'getInput()'
 /// MODULES ///
 ///////////////
 
-enum { zelda_dat, zquest_dat, fonts_dat, sfx_dat, qst_dat };
+// TODO: we would like to remove the module system / loading from datafiles eventually.
+
+enum { zelda_dat, zquest_dat, fonts_dat, sfx_dat };
 
 enum {
     sels_tile_frame, sels_tile_questicon_1A, sels_tile_questicon_1B, sels_tile_questicon_2A,
@@ -5624,6 +5568,14 @@ bool isConveyorType(int32_t type);
 bool isChestType(int32_t type);
 
 DATAFILE* load_datafile_count(const char* path, size_t& sz);
+
+enum
+{
+	ZSD_NONE = -1,
+	ZSD_NPC, ZSD_LWPN, ZSD_EWPN, ZSD_ITSPR, ZSD_COMBODATA,
+	ZSD_COMBOPOS, ZSD_FFC,
+	NUM_ZSD
+};
 
 #define FONTSDAT_CNT (FONT_ZX+1)
 

@@ -9,6 +9,7 @@
 //
 //--------------------------------------------------------
 
+#include <filesystem>
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
@@ -1187,8 +1188,7 @@ int32_t readsaves(gamedata *savedata, PACKFILE *f)
 	// Excess saves would get deleted, so...
 	if(standalone_mode && save_count>1)
 	{
-		system_pal();
-		sys_mouse();
+		enter_sys_pal();
 		jwin_alert("Invalid save file",
 				   "This save file cannot be",
 				   "used in standalone mode.",
@@ -1198,10 +1198,7 @@ int32_t readsaves(gamedata *savedata, PACKFILE *f)
 	}
 	else if(!standalone_mode && save_count==1)
 	{
-		bool restoregame = !is_sys_pal;
-		system_pal();
-		sys_mouse();
-		
+		enter_sys_pal();
 		if(jwin_alert3("Standalone save file",
 					   "This save file was created in standalone mode.",
 					   "If you continue, you will no longer be able",
@@ -1210,11 +1207,7 @@ int32_t readsaves(gamedata *savedata, PACKFILE *f)
 		{
 			exit(0);
 		}
-		if(restoregame)
-		{
-			game_pal();
-			game_mouse();
-		}
+		exit_sys_pal();
 	}
 	
 	for(int32_t i=0; i<save_count; i++)
@@ -1573,8 +1566,7 @@ int32_t readsaves(gamedata *savedata, PACKFILE *f)
 		
 		if(standalone_mode && strcmp(savedata[i].qstpath, standalone_quest)!=0)
 		{
-			system_pal();
-			sys_mouse();
+			enter_sys_pal();
 			jwin_alert("Invalid save file",
 					   "This save file is for",
 					   "a different quest.",
@@ -2151,14 +2143,11 @@ int32_t init_saves()
 	if(saves == NULL)
 	{
 		saves = new gamedata[MAXSAVES];
+		for (int i = 0; i < MAXSAVES; i++)
+			saves[i].Clear();
 		
 		if(saves==NULL)
 			return 1;
-		
-		for(auto q = 0; q < MAXSAVES; ++q)
-		{
-			saves[q].Clear();
-		}
 	}
 	return 0;
 }
@@ -2168,31 +2157,6 @@ int32_t load_savedgames()
 {
 	memset(itemscriptInitialised,0,sizeof(itemscriptInitialised));
 	FFCore.kb_typing_mode = false;
-/*    
-if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
-	{
-	Z_scripterrlog("Trying to restore master MIDI volume to: %d\n", FFCore.usr_midi_volume);
-	midi_volume = FFCore.usr_midi_volume;
-//	master_volume(-1,FFCore.usr_midi_volume);
-	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
-	{
-	digi_volume = FFCore.usr_digi_volume;
-	//master_volume((int32_t)(FFCore.usr_digi_volume),1);
-	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
-	{
-	emusic_volume = (int32_t)FFCore.usr_music_volume;
-	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME )
-	{
-	sfx_volume = (int32_t)FFCore.usr_sfx_volume;
-	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
-	{
-	pan_style = (int32_t)FFCore.usr_panstyle;
-	}
-	*/
 	FFCore.skip_ending_credits = 0;
 	char *fname = SAVE_FILE;
 	char *iname = (char *)malloc(2048);
@@ -2205,6 +2169,7 @@ if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 
 	int32_t save_ret = init_saves();
 	if(save_ret) return save_ret;
+	enter_sys_pal();
 	
 	// see if it's there
 	if(!exists(fname))
@@ -2327,12 +2292,10 @@ if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 	pack_fclose(f);
 	delete_file(tmpfilename);
 	free(iname);
+	exit_sys_pal();
 	return 0;
 	
 newdata:
-	system_pal();
-	sys_mouse();
-	
 	if(standalone_mode)
 		goto init;
 
@@ -2349,15 +2312,11 @@ newdata:
 		exit(1);
 	}
 	
-	game_pal();
-	game_mouse();
 	Z_message("Save file not found.  Creating new save file.");
 	goto init;
 	
 cantopen:
 	{
-		system_pal();
-		sys_mouse();
 		char buf[256];
 		snprintf(buf, 256, "still can't be opened, you'll need to delete %s.", SAVE_FILE);
 		jwin_alert("Can't Open Saved Game File",
@@ -2369,9 +2328,6 @@ cantopen:
 	abort();
 	
 reset:
-	system_pal();
-	sys_mouse();
-	
 	if(jwin_alert3("Can't Open Saved Game File",
 				   "Unable to read the save file.",
 				   "Create a new file from scratch?",
@@ -2381,9 +2337,6 @@ reset:
 		abort();
 	}
 	
-	game_pal();
-	game_mouse();
-	
 	if(f)
 		pack_fclose(f);
 		
@@ -2391,7 +2344,6 @@ reset:
 	Z_message("Format error.  Resetting game data... ");
 	
 init:
-
 	for(int32_t i=0; i<MAXSAVES; i++)
 		saves[i].Clear();
 		
@@ -2401,8 +2353,8 @@ init:
 		set_up_standalone_save();
 		
 	free(iname);
+	exit_sys_pal();
 	return 0;
-	
 }
 
 
@@ -3808,9 +3760,17 @@ static bool copy_file(int32_t file)
 		saves[savecnt]=saves[file];
 		if (!saves[savecnt].replay_file.empty())
 		{
-			std::string new_replay_path = create_replay_path_for_save(&saves[savecnt]);
-			saves[savecnt].replay_file = new_replay_path;
-			std::filesystem::copy(saves[file].replay_file, new_replay_path);
+			if (std::filesystem::exists(saves[file].replay_file))
+			{
+				std::string new_replay_path = create_replay_path_for_save(&saves[savecnt]);
+				saves[savecnt].replay_file = new_replay_path;
+				std::filesystem::copy(saves[file].replay_file, new_replay_path);
+			}
+			else
+			{
+				Z_error("Error copying replay file - %s not found", saves[file].replay_file.c_str());
+				saves[savecnt].replay_file = "";
+			}
 		}
 		iconbuffer[savecnt]=iconbuffer[file];
 		++savecnt;
@@ -4003,8 +3963,7 @@ int32_t custom_game(int32_t file)
 	
 	gamemode_dlg[2].d1 = gamemode_dlg[4].d1 = 0;
 	gamemode_dlg[2].d2 = gamemode_dlg[4].d2 = 0;
-	system_pal();
-	sys_mouse();
+	enter_sys_pal();
 	
 	clear_keybuf();
 	
@@ -4052,8 +4011,7 @@ int32_t custom_game(int32_t file)
 	}
 	if(!customized) strcpy(qstpath, relpath);
 	
-	game_mouse();
-	game_pal();
+	exit_sys_pal();
 	key[KEY_ESC]=0;
 	chosecustomquest = (ret==5) && customized;
 	return (int32_t)chosecustomquest;

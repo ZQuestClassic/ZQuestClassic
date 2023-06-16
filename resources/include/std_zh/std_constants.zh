@@ -3581,6 +3581,7 @@ enum ComboTrigFlag
 	TRIGFLAG_TGROUP_CONTRIB,
 	TRIGFLAG_TGROUP_LESS,
 	TRIGFLAG_TGROUP_GREATER,
+	TRIGFLAG_TRIG_PUSHED,
 	
 	TRIGFLAG_MAX_IN_USE,
 	TRIGFLAG_MAX = 32*6
@@ -3689,6 +3690,8 @@ enum
 	GENSCR_EVENT_ENEMY_HIT1, //Enemy hit, before defenses
 	GENSCR_EVENT_ENEMY_HIT2, //Enemy hit, after defenses
 	GENSCR_EVENT_POST_COLLECT_ITEM, //After item is collected (post hold if held)
+	GENSCR_EVENT_PLAYER_FALL, //Player falls in a pitfall
+	GENSCR_EVENT_PLAYER_DROWN, //Player drowns
 	GENSCR_NUMEVENT
 };
 enum //Game->EventData[] indexes for 'GENSCR_EVENT_HERO_HIT_1' and 'GENSCR_EVENT_HERO_HIT_2'
@@ -3699,7 +3702,9 @@ enum //Game->EventData[] indexes for 'GENSCR_EVENT_HERO_HIT_1' and 'GENSCR_EVENT
 	GENEV_HEROHIT_NAYRUON, //Bool: if nayru's love will nullify the damage, or not
 	GENEV_HEROHIT_IFRAMES, //Number of IFrames to have after hit, if not nullified
 	GENEV_HEROHIT_HITTYPE, //What type of object is hitting the hero ('OBJTYPE_')
-	GENEV_HEROHIT_HITOBJ //The pointer to that object
+	GENEV_HEROHIT_HITOBJ, //The pointer to that object
+	GENEV_HEROHIT_HITTYPE2, //A second type of object (sometimes 'OBJTYPE_NONE')
+	GENEV_HEROHIT_HITOBJ2 //The pointer to the second object
 };
 enum //Game->EventData[] indexes for 'GENSCR_EVENT_COLLECT_ITEM'
 {
@@ -3740,6 +3745,10 @@ enum //Game->EventData[] indexes for 'GENSCR_EVENT_ENEMY_HIT1' and 'GENSCR_EVENT
 	GENEV_EHIT_NPCPTR, //npc pointer
 	GENEV_EHIT_LWPNPTR //lweapon pointer
 };
+enum //Game->EventData[] indexes for 'GENSCR_EVENT_PLAYER_FALL' and 'GENSCR_EVENT_PLAYER_DROWN'
+{
+	GENEV_PLAYER_FALLDROWN_COMBO //The combo ID the player is falling/drowning into.
+};
 
 enum //constants for 'GENEV_ITEMCOL_TYPE'
 {
@@ -3748,9 +3757,11 @@ enum //constants for 'GENEV_ITEMCOL_TYPE'
 	GENEVT_ICTYPE_MELEE_EW, //Melee weapon collected the item
 	GENEVT_ICTYPE_RANGED_DRAG //Ranged weapon collected, and will drag //Only 'NULLIFY' can be edited here
 };
-enum //constants for 'GENEV_HEROHIT_HITTYPE'
+enum //constants for 'GENEV_HEROHIT_HITTYPE' / 'GENEV_HEROHIT_HITTYPE2'
 {
+	OBJTYPE_NONE = -1,
 	OBJTYPE_NPC, OBJTYPE_LWPN, OBJTYPE_EWPN, OBJTYPE_ITSPR, OBJTYPE_COMBODATA,
+	OBJTYPE_COMBOPOS, OBJTYPE_FFC,
 	NUM_OBJTYPE
 };
 

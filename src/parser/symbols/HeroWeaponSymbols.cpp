@@ -161,6 +161,23 @@ static AccessorTable lwpnTable[] =
 	{ "MakeDirectional",            0,          ZTID_BOOL,   -1,                   FL_INL,  { ZTID_LWPN },{} },
 	{ "getFlags[]",                 0,          ZTID_BOOL,   LWPNFLAGS,                 0,  { ZTID_LWPN, ZTID_FLOAT },{} },
 	{ "setFlags[]",                 0,          ZTID_VOID,   LWPNFLAGS,                 0,  { ZTID_LWPN, ZTID_FLOAT, ZTID_BOOL },{} },
+	{ "getDeathItem",               0,         ZTID_FLOAT,   LWPNDEATHITEM,             0,  { ZTID_LWPN },{} },
+	{ "setDeathItem",               0,          ZTID_VOID,   LWPNDEATHITEM,             0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getDeathDropset",            0,         ZTID_FLOAT,   LWPNDEATHDROPSET,          0,  { ZTID_LWPN },{} },
+	{ "setDeathDropset",            0,          ZTID_VOID,   LWPNDEATHDROPSET,          0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getDeathItemPFlags",         0,         ZTID_FLOAT,   LWPNDEATHIPICKUP,          0,  { ZTID_LWPN },{} },
+	{ "setDeathItemPFlags",         0,          ZTID_VOID,   LWPNDEATHIPICKUP,          0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getDeathSprite",             0,         ZTID_FLOAT,   LWPNDEATHSPRITE,           0,  { ZTID_LWPN },{} },
+	{ "setDeathSprite",             0,          ZTID_VOID,   LWPNDEATHSPRITE,           0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getDeathSFX",                0,         ZTID_FLOAT,   LWPNDEATHSFX,              0,  { ZTID_LWPN },{} },
+	{ "setDeathSFX",                0,          ZTID_VOID,   LWPNDEATHSFX,              0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getLiftLevel",               0,         ZTID_FLOAT,   LWPNLIFTLEVEL,             0,  { ZTID_LWPN },{} },
+	{ "setLiftLevel",               0,          ZTID_VOID,   LWPNLIFTLEVEL,             0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getLiftTime",                0,         ZTID_FLOAT,   LWPNLIFTTIME,              0,  { ZTID_LWPN },{} },
+	{ "setLiftTime",                0,          ZTID_VOID,   LWPNLIFTTIME,              0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	{ "getLiftHeight",              0,         ZTID_FLOAT,   LWPNLIFTHEIGHT,            0,  { ZTID_LWPN },{} },
+	{ "setLiftHeight",              0,          ZTID_VOID,   LWPNLIFTHEIGHT,            0,  { ZTID_LWPN, ZTID_FLOAT },{} },
+	
 	
 	//Intentionally undocumented
 	{ "getUID",                     0,         ZTID_FLOAT,   LWEAPONSCRIPTUID,    FL_DEPR,  { ZTID_LWPN },{} },

@@ -94,6 +94,9 @@ public:
 	int16_t death_sprite;
 	byte death_sfx;
 	bool has_shadow;
+	byte lift_level;
+	byte lift_time = 16;
+	zfix lift_height = 8;
 	
 	//!DIMI: More variables? That suuuuuure won't break anything. Nope.
     int32_t count1; 

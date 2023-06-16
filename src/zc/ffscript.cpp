@@ -3888,6 +3888,10 @@ int32_t get_register(const int32_t arg)
 			break;
 		}
 		
+		case HEROSHIELDJINX:
+			ret = Hero.shieldjinxclk * 10000;
+			break;
+		
 		case HEROISWARPING:
 			ret = Hero.is_warping ? 10000L : 0L;
 			break;
@@ -7030,6 +7034,54 @@ int32_t get_register(const int32_t arg)
 				ret = ((weapon*)(s))->weap_timeout * 10000;
 			}
 			break;
+		case LWPNDEATHITEM:
+			if(0!=(s=checkLWpn(ri->lwpn,"DeathItem")))
+			{
+				ret = ((weapon*)(s))->death_spawnitem * 10000;
+			}
+			break;
+		case LWPNDEATHDROPSET:
+			if(0!=(s=checkLWpn(ri->lwpn,"DeathDropset")))
+			{
+				ret = ((weapon*)(s))->death_spawndropset * 10000;
+			}
+			break;
+		case LWPNDEATHIPICKUP:
+			if(0!=(s=checkLWpn(ri->lwpn,"DeathItemPFlags")))
+			{
+				ret = ((weapon*)(s))->death_item_pflags * 10000;
+			}
+			break;
+		case LWPNDEATHSPRITE:
+			if(0!=(s=checkLWpn(ri->lwpn,"DeathSprite")))
+			{
+				ret = ((weapon*)(s))->death_sprite * 10000;
+			}
+			break;
+		case LWPNDEATHSFX:
+			if(0!=(s=checkLWpn(ri->lwpn,"DeathSFX")))
+			{
+				ret = ((weapon*)(s))->death_sfx * 10000;
+			}
+			break;
+		case LWPNLIFTLEVEL:
+			if(0!=(s=checkLWpn(ri->lwpn,"LiftLevel")))
+			{
+				ret = ((weapon*)(s))->lift_level * 10000;
+			}
+			break;
+		case LWPNLIFTTIME:
+			if(0!=(s=checkLWpn(ri->lwpn,"LiftTime")))
+			{
+				ret = ((weapon*)(s))->lift_time * 10000;
+			}
+			break;
+		case LWPNLIFTHEIGHT:
+			if(0!=(s=checkLWpn(ri->lwpn,"LiftHeight")))
+			{
+				ret = ((weapon*)(s))->lift_height.getZLong();
+			}
+			break;
 			
 		///----------------------------------------------------------------------------------------------------//
 		//EWeapon Variables
@@ -7593,6 +7645,54 @@ int32_t get_register(const int32_t arg)
 			if(0!=(s=checkEWpn(ri->ewpn,"Timeout")))
 			{
 				ret = ((weapon*)(s))->weap_timeout * 10000;
+			}
+			break;
+		case EWPNDEATHITEM:
+			if(0!=(s=checkEWpn(ri->ewpn,"DeathItem")))
+			{
+				ret = ((weapon*)(s))->death_spawnitem * 10000;
+			}
+			break;
+		case EWPNDEATHDROPSET:
+			if(0!=(s=checkEWpn(ri->ewpn,"DeathDropset")))
+			{
+				ret = ((weapon*)(s))->death_spawndropset * 10000;
+			}
+			break;
+		case EWPNDEATHIPICKUP:
+			if(0!=(s=checkEWpn(ri->ewpn,"DeathItemPFlags")))
+			{
+				ret = ((weapon*)(s))->death_item_pflags * 10000;
+			}
+			break;
+		case EWPNDEATHSPRITE:
+			if(0!=(s=checkEWpn(ri->ewpn,"DeathSprite")))
+			{
+				ret = ((weapon*)(s))->death_sprite * 10000;
+			}
+			break;
+		case EWPNDEATHSFX:
+			if(0!=(s=checkEWpn(ri->ewpn,"DeathSFX")))
+			{
+				ret = ((weapon*)(s))->death_sfx * 10000;
+			}
+			break;
+		case EWPNLIFTLEVEL:
+			if(0!=(s=checkEWpn(ri->ewpn,"LiftLevel")))
+			{
+				ret = ((weapon*)(s))->lift_level * 10000;
+			}
+			break;
+		case EWPNLIFTTIME:
+			if(0!=(s=checkEWpn(ri->ewpn,"LiftTime")))
+			{
+				ret = ((weapon*)(s))->lift_time * 10000;
+			}
+			break;
+		case EWPNLIFTHEIGHT:
+			if(0!=(s=checkEWpn(ri->ewpn,"LiftHeight")))
+			{
+				ret = ((weapon*)(s))->lift_height.getZLong();
 			}
 			break;
 		
@@ -14120,6 +14220,10 @@ void set_register(int32_t arg, int32_t value)
 			break;
 		}
 		
+		case HEROSHIELDJINX:
+			Hero.shieldjinxclk = value/10000;
+			break;
+		
 		case CLOCKACTIVE:
 		{
 			Hero.setClock(watch=(value?true:false));
@@ -16587,6 +16691,54 @@ void set_register(int32_t arg, int32_t value)
 				((weapon*)(s))->weap_timeout = vbound(value/10000,0,214748);
 			}
 			break;
+		case LWPNDEATHITEM:
+			if(0!=(s=checkLWpn(ri->lwpn,"DeathItem")))
+			{
+				((weapon*)(s))->death_spawnitem = vbound(value/10000,-1,MAXITEMS-1);
+			}
+			break;
+		case LWPNDEATHDROPSET:
+			if(0!=(s=checkLWpn(ri->lwpn,"DeathDropset")))
+			{
+				((weapon*)(s))->death_spawndropset = vbound(value/10000,-1,MAXITEMDROPSETS-1);
+			}
+			break;
+		case LWPNDEATHIPICKUP:
+			if(0!=(s=checkLWpn(ri->lwpn,"DeathItemPFlags")))
+			{
+				((weapon*)(s))->death_item_pflags = value/10000;
+			}
+			break;
+		case LWPNDEATHSPRITE:
+			if(0!=(s=checkLWpn(ri->lwpn,"DeathSprite")))
+			{
+				((weapon*)(s))->death_sprite = vbound(value/10000,-255,wMAX-1);
+			}
+			break;
+		case LWPNDEATHSFX:
+			if(0!=(s=checkLWpn(ri->lwpn,"DeathSFX")))
+			{
+				((weapon*)(s))->death_sfx = vbound(value/10000,0,WAV_COUNT);
+			}
+			break;
+		case LWPNLIFTLEVEL:
+			if(0!=(s=checkLWpn(ri->lwpn,"LiftLevel")))
+			{
+				((weapon*)(s))->lift_level = vbound(value/10000,0,255);
+			}
+			break;
+		case LWPNLIFTTIME:
+			if(0!=(s=checkLWpn(ri->lwpn,"LiftTime")))
+			{
+				((weapon*)(s))->lift_time = vbound(value/10000,0,255);
+			}
+			break;
+		case LWPNLIFTHEIGHT:
+			if(0!=(s=checkLWpn(ri->lwpn,"LiftHeight")))
+			{
+				((weapon*)(s))->lift_height = zslongToFix(value);
+			}
+			break;
 			
 	///----------------------------------------------------------------------------------------------------//
 	//EWeapon Variables
@@ -17164,6 +17316,53 @@ void set_register(int32_t arg, int32_t value)
 			if(0!=(s=checkEWpn(ri->ewpn,"Timeout")))
 			{
 				((weapon*)(s))->weap_timeout = vbound(value/10000,0,214748);
+			}
+			break;case EWPNDEATHITEM:
+			if(0!=(s=checkEWpn(ri->ewpn,"DeathItem")))
+			{
+				((weapon*)(s))->death_spawnitem = vbound(value/10000,-1,MAXITEMS-1);
+			}
+			break;
+		case EWPNDEATHDROPSET:
+			if(0!=(s=checkEWpn(ri->ewpn,"DeathDropset")))
+			{
+				((weapon*)(s))->death_spawndropset = vbound(value/10000,-1,MAXITEMDROPSETS-1);
+			}
+			break;
+		case EWPNDEATHIPICKUP:
+			if(0!=(s=checkEWpn(ri->ewpn,"DeathItemPFlags")))
+			{
+				((weapon*)(s))->death_item_pflags = value/10000;
+			}
+			break;
+		case EWPNDEATHSPRITE:
+			if(0!=(s=checkEWpn(ri->ewpn,"DeathSprite")))
+			{
+				((weapon*)(s))->death_sprite = vbound(value/10000,-255,wMAX-1);
+			}
+			break;
+		case EWPNDEATHSFX:
+			if(0!=(s=checkEWpn(ri->ewpn,"DeathSFX")))
+			{
+				((weapon*)(s))->death_sfx = vbound(value/10000,0,WAV_COUNT);
+			}
+			break;
+		case EWPNLIFTLEVEL:
+			if(0!=(s=checkEWpn(ri->ewpn,"LiftLevel")))
+			{
+				((weapon*)(s))->lift_level = vbound(value/10000,0,255);
+			}
+			break;
+		case EWPNLIFTTIME:
+			if(0!=(s=checkEWpn(ri->ewpn,"LiftTime")))
+			{
+				((weapon*)(s))->lift_time = vbound(value/10000,0,255);
+			}
+			break;
+		case EWPNLIFTHEIGHT:
+			if(0!=(s=checkEWpn(ri->ewpn,"LiftHeight")))
+			{
+				((weapon*)(s))->lift_height = zslongToFix(value);
 			}
 			break;
 			
@@ -33110,6 +33309,46 @@ j_command:
 				ri->d[rEXP1] = Hero.can_movexy(dx, dy, kb, ign_sv, shove) ? 10000 : 0;
 				break;
 			}
+			case HEROMOVEATANGLE:
+			{
+				zfix degrees = zslongToFix(SH::read_stack(ri->sp + 4));
+				zfix pxamnt = zslongToFix(SH::read_stack(ri->sp + 3));
+				bool kb = SH::read_stack(ri->sp + 2)!=0;
+				bool ign_sv = SH::read_stack(ri->sp + 1)!=0;
+				bool shove = SH::read_stack(ri->sp + 0)!=0;
+				ri->d[rEXP1] = Hero.moveAtAngle(degrees, pxamnt, kb, ign_sv, shove) ? 10000 : 0;
+				break;
+			}
+			case HEROCANMOVEATANGLE:
+			{
+				zfix degrees = zslongToFix(SH::read_stack(ri->sp + 4));
+				zfix pxamnt = zslongToFix(SH::read_stack(ri->sp + 3));
+				bool kb = SH::read_stack(ri->sp + 2)!=0;
+				bool ign_sv = SH::read_stack(ri->sp + 1)!=0;
+				bool shove = SH::read_stack(ri->sp + 0)!=0;
+				ri->d[rEXP1] = Hero.can_moveAtAngle(degrees, pxamnt, kb, ign_sv, shove) ? 10000 : 0;
+				break;
+			}
+			case HEROMOVE:
+			{
+				int dir = SH::read_stack(ri->sp + 4)/10000;
+				zfix pxamnt = zslongToFix(SH::read_stack(ri->sp + 3));
+				bool kb = SH::read_stack(ri->sp + 2)!=0;
+				bool ign_sv = SH::read_stack(ri->sp + 1)!=0;
+				bool shove = SH::read_stack(ri->sp + 0)!=0;
+				ri->d[rEXP1] = Hero.moveDir(dir, pxamnt, kb, ign_sv, shove) ? 10000 : 0;
+				break;
+			}
+			case HEROCANMOVE:
+			{
+				int dir = SH::read_stack(ri->sp + 4)/10000;
+				zfix pxamnt = zslongToFix(SH::read_stack(ri->sp + 3));
+				bool kb = SH::read_stack(ri->sp + 2)!=0;
+				bool ign_sv = SH::read_stack(ri->sp + 1)!=0;
+				bool shove = SH::read_stack(ri->sp + 0)!=0;
+				ri->d[rEXP1] = Hero.can_moveDir(dir, pxamnt, kb, ign_sv, shove) ? 10000 : 0;
+				break;
+			}
 			case HEROLIFTRELEASE:
 			{
 				if(Hero.lift_wpn)
@@ -38912,13 +39151,13 @@ void FFScript::do_getcombobyname()
 	int32_t arrayptr = get_register(sarg1) / 10000;
 	string the_string;
 	int32_t num = -1;
-	ArrayH::getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
+	ArrayH::getString(arrayptr, the_string, 256);
 	
-	for(int32_t q = 0; q < MAXCOMBOS; q++)
+	if (!the_string.empty())
 	{
-		if ( combobuf[q].label[0] ) //skip blank)
+		for(int32_t q = 0; q < MAXCOMBOS; q++)
 		{
-			if(!(strcmp(the_string.c_str(), combobuf[q].label)))
+			if (the_string == combobuf[q].label)
 			{
 				num = q;
 				break;
@@ -40602,10 +40841,10 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "SAVEDPORTALREMOVE",   0,   0,   0,   0 },
 	{ "SAVEDPORTALGENERATE",   0,   0,   0,   0 },
 	{ "PORTALUSESPRITE", 1, 0, 0, 0 },
-	{ "RESRVD_OP_EMILY_02", 0, 0, 0, 0 },
-	{ "RESRVD_OP_EMILY_03", 0, 0, 0, 0 },
-	{ "RESRVD_OP_EMILY_04", 0, 0, 0, 0 },
-	{ "RESRVD_OP_EMILY_05", 0, 0, 0, 0 },
+	{ "HEROMOVEATANGLE", 0, 0, 0, 0 },
+	{ "HEROCANMOVEATANGLE", 0, 0, 0, 0 },
+	{ "HEROMOVE", 0, 0, 0, 0 },
+	{ "HEROCANMOVE", 0, 0, 0, 0 },
 	{ "RESRVD_OP_EMILY_06", 0, 0, 0, 0 },
 	{ "RESRVD_OP_EMILY_07", 0, 0, 0, 0 },
 	{ "RESRVD_OP_EMILY_08", 0, 0, 0, 0 },
@@ -42009,16 +42248,16 @@ script_variable ZASMVars[]=
 	{ "HEROHAMMERSTATE", HEROHAMMERSTATE, 0, 0 },
 	{ "HEROLIFTFLAGS", HEROLIFTFLAGS, 0, 0 },
 	{ "COMBODLIFTWEAPONITEM", COMBODLIFTWEAPONITEM, 0, 0 },
-	{ "RESRVD_VAR_EMILY21", RESRVD_VAR_EMILY21, 0, 0 },
-	{ "RESRVD_VAR_EMILY22", RESRVD_VAR_EMILY22, 0, 0 },
-	{ "RESRVD_VAR_EMILY23", RESRVD_VAR_EMILY23, 0, 0 },
-	{ "RESRVD_VAR_EMILY24", RESRVD_VAR_EMILY24, 0, 0 },
-	{ "RESRVD_VAR_EMILY25", RESRVD_VAR_EMILY25, 0, 0 },
-	{ "RESRVD_VAR_EMILY26", RESRVD_VAR_EMILY26, 0, 0 },
-	{ "RESRVD_VAR_EMILY27", RESRVD_VAR_EMILY27, 0, 0 },
-	{ "RESRVD_VAR_EMILY28", RESRVD_VAR_EMILY28, 0, 0 },
-	{ "RESRVD_VAR_EMILY29", RESRVD_VAR_EMILY29, 0, 0 },
-	{ "RESRVD_VAR_EMILY30", RESRVD_VAR_EMILY30, 0, 0 },
+	{ "LWPNDEATHITEM", LWPNDEATHITEM, 0, 0 },
+	{ "LWPNDEATHDROPSET", LWPNDEATHDROPSET, 0, 0 },
+	{ "LWPNDEATHIPICKUP", LWPNDEATHIPICKUP, 0, 0 },
+	{ "LWPNDEATHSPRITE", LWPNDEATHSPRITE, 0, 0 },
+	{ "LWPNDEATHSFX", LWPNDEATHSFX, 0, 0 },
+	{ "EWPNDEATHITEM", EWPNDEATHITEM, 0, 0 },
+	{ "EWPNDEATHDROPSET", EWPNDEATHDROPSET, 0, 0 },
+	{ "EWPNDEATHIPICKUP", EWPNDEATHIPICKUP, 0, 0 },
+	{ "EWPNDEATHSPRITE", EWPNDEATHSPRITE, 0, 0 },
+	{ "EWPNDEATHSFX", EWPNDEATHSFX, 0, 0 },
 
 	{ "REFPALDATA", REFPALDATA, 0, 0 },
 
@@ -42075,13 +42314,13 @@ script_variable ZASMVars[]=
 	{ "RESRVD_VAR_Z3_14", RESRVD_VAR_Z3_14, 0, 0 },
 	{ "RESRVD_VAR_Z3_15", RESRVD_VAR_Z3_15, 0, 0 },
 	{ "RESRVD_VAR_Z3_16", RESRVD_VAR_Z3_16, 0, 0 },
-	{ "RESRVD_VAR_EMILY31", RESRVD_VAR_EMILY31, 0, 0},
-	{ "RESRVD_VAR_EMILY32", RESRVD_VAR_EMILY32, 0, 0},
-	{ "RESRVD_VAR_EMILY33", RESRVD_VAR_EMILY33, 0, 0},
-	{ "RESRVD_VAR_EMILY34", RESRVD_VAR_EMILY34, 0, 0},
-	{ "RESRVD_VAR_EMILY35", RESRVD_VAR_EMILY35, 0, 0},
-	{ "RESRVD_VAR_EMILY36", RESRVD_VAR_EMILY36, 0, 0},
-	{ "RESRVD_VAR_EMILY37", RESRVD_VAR_EMILY37, 0, 0},
+	{ "LWPNLIFTLEVEL", LWPNLIFTLEVEL, 0, 0},
+	{ "LWPNLIFTTIME", LWPNLIFTTIME, 0, 0},
+	{ "LWPNLIFTHEIGHT", LWPNLIFTHEIGHT, 0, 0},
+	{ "EWPNLIFTLEVEL", EWPNLIFTLEVEL, 0, 0},
+	{ "EWPNLIFTTIME", EWPNLIFTTIME, 0, 0},
+	{ "EWPNLIFTHEIGHT", EWPNLIFTHEIGHT, 0, 0},
+	{ "HEROSHIELDJINX", HEROSHIELDJINX, 0, 0},
 	{ "RESRVD_VAR_EMILY38", RESRVD_VAR_EMILY38, 0, 0},
 	{ "RESRVD_VAR_EMILY39", RESRVD_VAR_EMILY39, 0, 0},
 	{ "RESRVD_VAR_EMILY40", RESRVD_VAR_EMILY40, 0, 0},

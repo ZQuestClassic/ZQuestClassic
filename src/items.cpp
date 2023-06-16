@@ -26,7 +26,7 @@
 #include <queue>
 
 char *item_string[ITEMCNT];
-extern newcombo *combobuf;
+extern std::vector<newcombo> combobuf;
 
 extern zinitdata zinit;
 #ifndef IS_ZQUEST
@@ -116,6 +116,7 @@ bool item::animate(int32_t)
 			{
 				if(fall!=0)
 				{
+					y.doFloor();
 					y-=int32_t(y)%8; //Fix coords
 					fall = 0;
 				}

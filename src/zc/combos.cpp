@@ -40,7 +40,6 @@ void CutsceneState::error()
 CutsceneState active_cutscene;
 
 cpos_info combo_posinfos[7][176];
-std::vector<cpos_info> ffc_posinfos;
 int trig_groups[256];
 
 bool alwaysCTypeEffects(int32_t type)
@@ -463,15 +462,6 @@ static void trigger_cswitch_block_ffc(const ffc_handle_t& ffc_handle)
 	}
 }
 
-void spawn_decoration(newcombo const& cmb, const rpos_handle_t& rpos_handle)
-{
-	if (!is_valid_rpos(rpos_handle.rpos)) return;
-
-	int x, y;
-	COMBOXY_REGION(rpos_handle.rpos, x, y);
-	spawn_decoration_xy(cmb, x, y);
-}
-
 void spawn_decoration_xy(newcombo const& cmb, zfix x, zfix y)
 {
 	int16_t decotype = (cmb.usrflags & cflag1) ? ((cmb.usrflags & cflag10) ? (cmb.attribytes[0]) : (-1)) : (0);
@@ -490,6 +480,15 @@ void spawn_decoration_xy(newcombo const& cmb, zfix x, zfix y)
 		case 2: decorations.add(new dFlowerClippings(x, y, dFLOWERCLIPPINGS, 0, 0)); break;
 		case 3: decorations.add(new dGrassClippings(x, y, dGRASSCLIPPINGS, 0, 0)); break;
 	}
+}
+
+void spawn_decoration(newcombo const& cmb, const rpos_handle_t& rpos_handle)
+{
+	if (!is_valid_rpos(rpos_handle.rpos)) return;
+
+	int x, y;
+	COMBOXY_REGION(rpos_handle.rpos, x, y);
+	spawn_decoration_xy(cmb, x, y);
 }
 
 void trigger_cuttable(const rpos_handle_t& rpos_handle)
@@ -1727,7 +1726,7 @@ bool trigger_armos_grave_ffc(const ffc_handle_t& ffc_handle, int32_t trigdir)
 }
 
 
-bool trigger_damage_combo(mapscr* screen, int32_t cid, int32_t hdir, bool force_solid)
+bool trigger_damage_combo(mapscr* screen, int32_t cid, int type, int ptrval, int32_t hdir, bool force_solid)
 {
 	if(hdir > 3) hdir = -1;
 	newcombo const& cmb = combobuf[cid];
@@ -1769,6 +1768,8 @@ bool trigger_damage_combo(mapscr* screen, int32_t cid, int32_t hdir, bool force_
 			ev.push_back(48*10000);
 			ev.push_back(ZSD_COMBODATA*10000);
 			ev.push_back(cid);
+			ev.push_back(type*10000);
+			ev.push_back(ptrval);
 			
 			throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_1);
 			int32_t dmg = ev[0]/10000;
@@ -2742,7 +2743,8 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, int32_t special, weapon*
 					
 					case cDAMAGE1: case cDAMAGE2: case cDAMAGE3: case cDAMAGE4:
 					case cDAMAGE5: case cDAMAGE6: case cDAMAGE7:
-						trigger_damage_combo(rpos_handle.screen, cid);
+						// TODO z3 !!
+						trigger_damage_combo(rpos_handle.screen, cid, ZSD_COMBOPOS, pos*10000);
 						break;
 					
 					case cSTEPSFX:
@@ -2972,8 +2974,8 @@ bool do_trigger_combo_ffc(const ffc_handle_t& ffc_handle, int32_t special, weapo
 
 	ffcdata* ffc = ffc_handle.ffc;
 	// TODO z3 !!!
-	cpos_info& timer = ffc_posinfos[ffc_handle.i];
 	int32_t cid = ffc->getData();
+	cpos_info& timer = ffc->info;
 	int32_t ocs = ffc->cset;
 	int32_t cx = ffc->x;
 	int32_t cy = ffc->y;
@@ -3131,7 +3133,8 @@ bool do_trigger_combo_ffc(const ffc_handle_t& ffc_handle, int32_t special, weapo
 					
 					case cDAMAGE1: case cDAMAGE2: case cDAMAGE3: case cDAMAGE4:
 					case cDAMAGE5: case cDAMAGE6: case cDAMAGE7:
-						trigger_damage_combo(ffc_handle.screen, cid);
+						// TODO z3 !!
+						trigger_damage_combo(ffc_handle.screen, cid, ZSD_FFC, ffc_handle.i);
 						break;
 					
 					case cSTEPSFX:
@@ -3472,16 +3475,13 @@ static void handle_shooter(newcombo const& cmb, cpos_info& timer, rpos_t rpos)
 	handle_shooter(cmb, timer, x, y);
 }
 
-void recount_ffc(dword c)
+void ffc_clear_cpos_info()
 {
-	if(ffc_posinfos.size() != c)
+	// TODO z3 !!
+	int c = tmpscr.numFFC();
+	for (int q = 0; q < c; ++q )
 	{
-		dword osz = ffc_posinfos.size();
-		ffc_posinfos.resize(c);
-		for(dword q = osz; q < c; ++q) //Is this needed? -Em
-		{
-			ffc_posinfos[q].clear();
-		}
+		tmpscr.ffcs[q].info.clear();
 	}
 }
 
@@ -3514,10 +3514,10 @@ void calculate_trig_groups()
 	}
 	mapscr* ffscr = FFCore.tempScreens[0];
 	dword c = ffscr->numFFC();
-	recount_ffc(c);
+	ffc_clear_cpos_info();
 	for(word ffc = 0; ffc < c; ++ffc)
 	{
-		cpos_info& timer = ffc_posinfos[ffc];
+		cpos_info& timer = ffscr->ffcs[ffc].info;
 		int cid = ffscr->ffcs[ffc].getData();
 		timer.updateData(cid);
 		newcombo const& cmb = combobuf[cid];
@@ -3530,7 +3530,7 @@ void trig_trigger_groups()
 {
 	mapscr* ffscr = FFCore.tempScreens[0];
 	dword c = ffscr->numFFC();
-	recount_ffc(c);
+	ffc_clear_cpos_info();
 	for(auto lyr = 0; lyr < 7; ++lyr)
 	{
 		mapscr* scr = FFCore.tempScreens[lyr];
@@ -3559,8 +3559,8 @@ void trig_trigger_groups()
 
 	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
 		// TODO ! ffc
-		cpos_info& timer = ffc_posinfos[ffc_handle.i];
 		int cid = ffc_handle.data();
+		cpos_info& timer = ffc_handle.ffc->info;
 		const newcombo* cmb = &combobuf[cid];
 		
 		while(
@@ -3590,14 +3590,12 @@ void init_combo_timers()
 			combo_posinfos[lyr][pos].clear();
 		}
 	}
-	ffc_posinfos.clear();
+	ffc_clear_cpos_info();
 }
 
 void update_combo_timers()
 {
-	mapscr* ffscr = FFCore.tempScreens[0];
-	dword c = ffscr->numFFC();
-	recount_ffc(c);
+	ffc_clear_cpos_info();
 
 	for_every_rpos_in_region([&](const rpos_handle_t& rpos_handle) {
 		int pos = rpos_handle.pos();
@@ -3627,7 +3625,7 @@ void update_combo_timers()
 	});
 
 	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
-		cpos_info& timer = ffc_posinfos[ffc_handle.i];
+		cpos_info& timer = ffc_handle.ffc->info;
 		int cid = ffc_handle.data();
 		update_trig_group(timer.data,cid);
 		timer.updateData(cid);

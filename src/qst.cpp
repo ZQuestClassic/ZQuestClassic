@@ -82,7 +82,7 @@ extern zcmap               *ZCMaps;
 extern MsgStr              *MsgStrings;
 extern DoorComboSet        *DoorComboSets;
 extern dmap                *DMaps;
-extern newcombo            *combobuf;
+extern std::vector<newcombo> combobuf;
 extern byte                *colordata;
 //extern byte              *tilebuf;
 extern tiledata            *newtilebuf;
@@ -854,7 +854,7 @@ PACKFILE *open_quest_file(int32_t *open_error, const char *filename, bool show_p
 	bool oldquest = false;
 	int32_t ret;
 
-	if(strcmp(filename, moduledata.datafiles[qst_dat])!=0)
+	if(strcmp(filename, "default.qst")!=0)
 	{
 		box_out(filename);
 	}
@@ -982,9 +982,8 @@ PACKFILE *open_quest_template(zquestheader *Header, char *deletefilename, bool v
     char *filename;
     PACKFILE *f=NULL;
     int32_t open_error=0;
-    
-	strcpy(qstdat_string,moduledata.datafiles[qst_dat]);
-	strcat(qstdat_string,"#NESQST_NEW_QST");
+ 
+	strcpy(qstdat_string, "modules/classic/default.qst");
     if(Header->templatepath[0]==0)
     {
         filename=(char *)malloc(2048);
@@ -1391,10 +1390,8 @@ int32_t get_qst_buffers()
     memrequested+=(sizeof(newcombo)*MAXCOMBOS);
     Z_message("Allocating combo buffer (%s)... ", byte_conversion2(sizeof(newcombo)*MAXCOMBOS,memrequested,-1,-1));
     
-    if((combobuf=(newcombo*)malloc(sizeof(newcombo)*MAXCOMBOS))==NULL)
-        return 0;
-        
-    memset(combobuf, 0, sizeof(newcombo)*MAXCOMBOS);
+	combobuf.clear();
+	combobuf.resize(MAXCOMBOS);
     Z_message("OK\n");                                        // Allocating combo buffer...
     
     memrequested+=(psTOTAL255);
@@ -1524,7 +1521,7 @@ void del_qst_buffers()
     
     if(DMaps) free(DMaps);
     
-    if(combobuf) free(combobuf);
+	combobuf.clear();
     
     if(colordata) free(colordata);
     
@@ -17695,6 +17692,21 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header, bool keepdata)
 }
 
 
+void update_combo(newcombo& cmb, word section_version)
+{
+	if(section_version < 40)
+	{
+		switch(cmb.type)
+		{
+			case cWATER: case cSHALLOWWATER:
+				cmb.attribytes[6] = iwRipples;
+				break;
+			case cTALLGRASS: case cTALLGRASSNEXT: case cTALLGRASSTOUCHY:
+				cmb.attribytes[6] = iwTallGrass;
+				break;
+		}
+	}
+}
 int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word version, word build, word start_combo, word max_combos, bool keepdata)
 {
 	reset_combo_animations();
@@ -17930,9 +17942,14 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 					return qe_invalid;
 			
 			if(section_version>=12) //combo label
+			{
+				char label[12];
+				label[11] = '\0';
 				for ( int32_t q = 0; q < 11; q++ )
-					if(!p_getc(&temp_combo.label[q],f,true))
+					if(!p_getc(&label[q],f,true))
 						return qe_invalid;
+				temp_combo.label = label;
+			}
 			if(section_version>=13) //attribytes[4]
 				for ( int32_t q = 0; q < 4; q++ )
 					if(!p_getc(&temp_combo.attribytes[q],f,true))
@@ -18103,6 +18120,8 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 			}
 		}
 		
+		update_combo(temp_combo, section_version);
+		
 		if(keepdata==true && i>=start_combo)
 		{
 			combobuf[i] = temp_combo;
@@ -18263,13 +18282,24 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 		}
 		if(combo_has_flags&CHAS_SCRIPT)
 		{
-			for ( int32_t q = 0; q < 11; q++ )
+			if (s_version>=41)
 			{
-				if(!p_getc(&temp_combo.label[q],f,true))
-				{
-					return qe_invalid;
-				}
+				p_getcstr(&temp_combo.label, f, true);
 			}
+			else
+			{
+				char label[12];
+				label[11] = '\0';
+				for ( int32_t q = 0; q < 11; q++ )
+				{
+					if(!p_getc(&label[q],f,true))
+					{
+						return qe_invalid;
+					}
+				}
+				temp_combo.label = label;
+			}
+
 			if(!p_igetw(&temp_combo.script,f,true)) return qe_invalid;
 			for ( int32_t q = 0; q < 2; q++ )
 			{
@@ -18533,6 +18563,7 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 				return qe_invalid;
 		}
 	}
+	update_combo(temp_combo, s_version);
 	return 0;
 }
 int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word start_combo, word max_combos, bool keepdata)
@@ -18584,7 +18615,7 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 			auto ret = readcombo_loop(f,section_version,temp_combo);
 			if(ret) return ret;
 			if(keepdata==true && i>=start_combo)
-				memcpy(&combobuf[i], &temp_combo, sizeof(temp_combo));
+				combobuf[i] = temp_combo;
 		}
 	}
 	else //Call the old function for all old versions

@@ -2,6 +2,7 @@
 #define _MAPSCR_H_
 
 #include "base/zdefs.h"
+#include "ffc.h"
 
 struct mapscr
 {
