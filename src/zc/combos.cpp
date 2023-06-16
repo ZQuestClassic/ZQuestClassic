@@ -3502,12 +3502,10 @@ static void handle_shooter(newcombo const& cmb, cpos_info& timer, rpos_t rpos)
 
 void ffc_clear_cpos_info()
 {
-	// TODO z3 !!
-	int c = tmpscr.numFFC();
-	for (int q = 0; q < c; ++q )
-	{
-		tmpscr.ffcs[q].info.clear();
-	}
+	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+		ffc_handle.ffc->info.clear();
+		return true;
+	});
 }
 
 void update_trig_group(int oldc, int newc)
