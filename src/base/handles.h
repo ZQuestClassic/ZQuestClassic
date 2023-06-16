@@ -46,6 +46,7 @@ struct ffc_handle_t
 	// A unique identifier for this ffc in this region.
 	// Roughly = (region screen index offset) * 128 + i.
 	// For non-regions, or for the top-left screen in a region, this is equal to i.
+	// TODO z3 !!! rename this!
 	int32_t region_id;
 	// The index into mapscr.ffcs
 	int32_t i;

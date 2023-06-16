@@ -121,7 +121,7 @@ static bool is_in_region(int region_origin_scr, int dmap, int scr)
 		return true;
 	}
 	
-	// TODO: the above is wrong when region ids are reused. We don't have the width/height
+	// TODO z3 !!: the above is wrong when region ids are reused. We don't have the width/height
 	// of non-current regions onhand so we'd have to calculate that.
 	int z3_scr_x = z3_origin_screen_index % 16;
 	int z3_scr_y = z3_origin_screen_index / 16;
@@ -137,7 +137,7 @@ static bool is_in_region(int region_origin_scr, int dmap, int scr)
 
 bool is_in_current_region(int scr)
 {
-	// TODO z3 cache
+	// TODO z3 ! cache
 	return is_in_region(z3_origin_screen_index, currdmap, scr);
 }
 
@@ -2300,7 +2300,7 @@ bool remove_xstatecombos_mi(mapscr *s, int32_t scr, int32_t mi, byte xflag, bool
 		for(word i=0; i<c; i++)
 		{
 			ffcdata* ffc2 = &s->ffcs[i];
-			int region_id = screen_index_offset + i;
+			int region_id = screen_index_offset * MAXFFCS + i;
 			newcombo const& cmb = combobuf[ffc2->getData()];
 			if(triggers && force_ex_trigger_ffc({s, scr, region_id, i, ffc2}, xflag))
 				didit = true;
@@ -7028,7 +7028,7 @@ void toggle_switches(dword flags, bool entry, mapscr* m, int screen_index)
 		word c = m->numFFC();
 		for(word q=0; q<c; ++q)
 		{
-			int region_id = screen_index_offset + q;
+			int region_id = screen_index_offset * MAXFFCS + q;
 			newcombo const& cmb = combobuf[m->ffcs[q].getData()];
 			if((cmb.triggerflags[3] & combotriggerTRIGLEVELSTATE) && cmb.trig_lstate < 32)
 				if(flags&(1<<cmb.trig_lstate))
@@ -7171,7 +7171,7 @@ void toggle_gswitches(bool* states, bool entry, mapscr* base_screen, int screen_
 		for(word q=0; q<c; ++q)
 		{
 			newcombo const& cmb = combobuf[base_screen->ffcs[q].getData()];
-			int region_id = screen_index_offset + q;
+			int region_id = screen_index_offset * MAXFFCS + q;
 			if(cmb.triggerflags[3] & combotriggerTRIGGLOBALSTATE)
 				if(states[cmb.trig_gstate])
 					do_trigger_combo_ffc({base_screen, screen_index, region_id, q, &base_screen->ffcs[q]}, ctrigSWITCHSTATE);
