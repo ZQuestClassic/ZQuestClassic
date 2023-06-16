@@ -62,6 +62,7 @@ static int z3_origin_screen_index;
 int region_scr_dx, region_scr_dy;
 int region_scr_width, region_scr_height;
 rpos_t region_max_rpos;
+int region_num_rpos;
 int scrolling_maze_scr, scrolling_maze_state;
 int scrolling_maze_mode = 0;
 
@@ -247,6 +248,7 @@ void z3_load_region(int dmap)
 
 	z3_calculate_region(dmap, currscr, z3_origin_screen_index, region_scr_width, region_scr_height, region_scr_dx, region_scr_dy, world_w, world_h);
 	region_max_rpos = static_cast<rpos_t>(region_scr_width*region_scr_height*176 - 1);
+	region_num_rpos = region_scr_width*region_scr_height*176;
 	initial_region_scr = currscr;
 	scrolling_maze_state = 0;
 	scrolling_maze_scr = 0;

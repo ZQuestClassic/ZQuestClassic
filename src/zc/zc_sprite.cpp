@@ -849,7 +849,7 @@ bool movingblock::animate(int32_t)
 			
 			if(m->data[combopos] == bcombo)
 			{
-				set_combo_posinfo(blockLayer, combopos, blockinfo);
+				set_combo_posinfo(get_rpos_handle(rpos_handle.rpos, blockLayer), blockinfo);
 			}
 		}
 		else

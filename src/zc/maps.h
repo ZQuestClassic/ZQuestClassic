@@ -76,9 +76,12 @@ extern int region_scr_dx, region_scr_dy;
 // The screens size of the region that the hero is currently standing in. If not currently
 // in z3 scrolling mode, this is just 1.
 extern int region_scr_width, region_scr_height;
-// Maximum value for 'rpos' in a region. Number of combo positions in a region, minus 1. If not currently
+// Maximum value for 'rpos' in the current region. This is the number of possible combo positions, minus 1. If not currently
 // in z3 scrolling mode, this is just 175.
 extern rpos_t region_max_rpos;
+// Number of unique values for 'rpos' in the current region. This is the number of possible combo positions. If not currently
+// in z3 scrolling mode, this is just 176.
+extern int region_num_rpos;
 // TODO z3
 extern int scrolling_maze_scr, scrolling_maze_state;
 // TODO z3: this only works in mode '0' and if the scrolling region is 1x1...

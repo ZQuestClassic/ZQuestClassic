@@ -39,38 +39,34 @@ void CutsceneState::error()
 }
 CutsceneState active_cutscene;
 
-// TODO z3 !!!!
-static cpos_info combo_posinfos[7][176];
+static std::vector<cpos_info> combo_posinfos;
 
 void clear_combo_posinfo()
 {
-	for(auto lyr = 0; lyr < 7; ++lyr)
+	combo_posinfos.resize(region_num_rpos * 7);
+	for (int i = 0; i < region_num_rpos * 7; i++)
 	{
-		for(auto pos = 0; pos < 176; ++pos)
-		{
-			combo_posinfos[lyr][pos].clear();
-		}
+		combo_posinfos[i].clear();
 	}
 }
 
+// TODO z3 !! rm
 cpos_info& get_combo_posinfo(int32_t layer, int32_t pos)
 {
-	return combo_posinfos[layer][pos];
+	int index = layer * region_num_rpos + pos;
+	return combo_posinfos[index];
 }
 
 cpos_info& get_combo_posinfo(const rpos_handle_t& rpos_handle)
 {
-	return combo_posinfos[rpos_handle.layer][rpos_handle.pos()];
-}
-
-void set_combo_posinfo(int32_t layer, int32_t pos, cpos_info& posinfo)
-{
-	combo_posinfos[layer][pos] = posinfo;
+	int index = rpos_handle.layer * region_num_rpos + (int)rpos_handle.rpos;
+	return combo_posinfos[index];
 }
 
 void set_combo_posinfo(const rpos_handle_t& rpos_handle, cpos_info& posinfo)
 {
-	combo_posinfos[rpos_handle.layer][rpos_handle.pos()] = posinfo;
+	int index = rpos_handle.layer * region_num_rpos + (int)rpos_handle.rpos;
+	combo_posinfos[index] = posinfo;
 }
 
 int trig_groups[256];
@@ -3558,15 +3554,12 @@ void calculate_trig_groups()
 
 void trig_trigger_groups()
 {
-	mapscr* ffscr = FFCore.tempScreens[0];
-	dword c = ffscr->numFFC();
 	ffc_clear_cpos_info();
 	for(auto lyr = 0; lyr < 7; ++lyr)
 	{
 		mapscr* scr = FFCore.tempScreens[lyr];
 		for(auto pos = 0; pos < 176; ++pos)
 		{
-			cpos_info& timer = get_combo_posinfo(lyr, pos);
 			int cid = scr->data[pos];
 			newcombo const& cmb = combobuf[cid];
 			
@@ -3580,6 +3573,7 @@ void trig_trigger_groups()
 				do_trigger_combo(lyr,pos);
 				int cid2 = scr->data[pos];
 				update_trig_group(cid,cid2);
+				cpos_info& timer = get_combo_posinfo(lyr, pos);
 				timer.updateData(cid2);
 				
 				--pos; continue; //check same pos again
@@ -3588,7 +3582,6 @@ void trig_trigger_groups()
 	}
 
 	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
-		// TODO ! ffc
 		int cid = ffc_handle.data();
 		cpos_info& timer = ffc_handle.ffc->info;
 		const newcombo* cmb = &combobuf[cid];
