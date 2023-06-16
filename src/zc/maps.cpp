@@ -1792,7 +1792,6 @@ int32_t iswaterex(int32_t combo, int32_t map, int32_t screen, int32_t layer, int
 		}
 		else
 		{
-			word ffc_count = tmpscr.numFFC();
 			for(int32_t i=(fullcheck?3:0); i>=0; i--)
 			{
 				int32_t tx2=((i&2)<<2)+x;
@@ -1837,31 +1836,34 @@ int32_t iswaterex(int32_t combo, int32_t map, int32_t screen, int32_t layer, int
 						if (!(ShallowCheck && (cmb.walk&(1<<b)) && (cmb.usrflags&cflag4))) return 0;
 					}
 				}
-				for(word k=0; k<ffc_count; k++)
-				{
-					if(ffcIsAt(k, tx2, ty2))
+
+				auto found_ffc_not_water = find_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+					if (ffcIsAt(ffc_handle, tx2, ty2))
 					{
-						ffcdata const& ffc = tmpscr.ffcs[k];
-						auto ty = combobuf[ffc.getData()].type;
+						auto ty = combobuf[ffc_handle.data()].type;
 						if(!combo_class_buf[ty].water && !(ShallowCheck && ty == cSHALLOWWATER))
-							return 0;
+							return true;
 					}
-				}
+
+					return false;
+				});
+				if (found_ffc_not_water) return 0;
+
 				if(!i)
 				{
-					for(word k=0; k<ffc_count; k++)
-					{
-						if(ffcIsAt(k, tx2, ty2))
+					auto found_ffc_water = find_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+						if (ffcIsAt(ffc_handle, tx2, ty2))
 						{
-							ffcdata const& ffc = tmpscr.ffcs[k];
-							auto ty = combobuf[ffc.getData()].type;
+							auto ty = combobuf[ffc_handle.data()].type;
 							if(combo_class_buf[ty].water || (ShallowCheck && ty == cSHALLOWWATER))
-							{
-								return ffc.getData();
-							}
+								return true;
 						}
-					}
+
+						return false;
+					});
+					if (found_ffc_water) return found_ffc_water->data();
 				}
+
 				int32_t checkcombo = MAPCOMBO3(map, screen, layer, tx2, ty2, secrets);
 				if (!(combobuf[checkcombo].walk&(1<<(b+4)))) return 0;
 				if (iswater_type(combobuf[checkcombo].type)||(ShallowCheck && (combobuf[checkcombo].type == cSHALLOWWATER || (iswater_type(combobuf[checkcombo].type) && (combobuf[checkcombo].walk&(1<<b)) && (combobuf[checkcombo].usrflags&cflag4))))) 
@@ -2100,7 +2102,7 @@ bool check_hshot(int32_t layer, int32_t x, int32_t y, bool switchhook, rpos_t *r
 	if (ret_ffc && !get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
 	{
 		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
-			if (ffcIsAt(ffc_handle.i, x, y))
+			if (ffcIsAt(ffc_handle, x, y))
 			{
 				newcombo const& cmb = combobuf[ffc_handle.data()];
 				if (switchhook ? isSwitchHookable(cmb) : isHSGrabbable(cmb))
