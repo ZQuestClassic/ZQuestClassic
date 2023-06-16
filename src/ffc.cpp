@@ -135,6 +135,7 @@ void ffcdata::incData(int32_t inc)
 	setData(data+inc);
 }
 
+// TODO z3 !! remove xofs, yofs
 void ffcdata::draw(BITMAP* dest, int32_t xofs, int32_t yofs, bool overlay)
 {
 	if (!data) return;
