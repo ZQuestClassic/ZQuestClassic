@@ -3154,8 +3154,7 @@ bool do_trigger_combo_ffc(const ffc_handle_t& ffc_handle, int32_t special, weapo
 					
 					case cDAMAGE1: case cDAMAGE2: case cDAMAGE3: case cDAMAGE4:
 					case cDAMAGE5: case cDAMAGE6: case cDAMAGE7:
-						// TODO z3 !!
-						trigger_damage_combo(ffc_handle.screen, cid, ZSD_FFC, ffc_handle.i);
+						trigger_damage_combo(ffc_handle.screen, cid, ZSD_FFC, ffc_handle.region_id);
 						break;
 					
 					case cSTEPSFX:

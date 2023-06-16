@@ -6965,7 +6965,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 		}
 	}
 	
-	// TODO z3 !!
+	// TODO z3 !! ffc
 	{
 		auto ffc_handle = getFFCAt(dx1,dy1);
 		poses[4] = ffc_handle ? ffc_handle->i : -1;
