@@ -460,6 +460,11 @@ int z3_get_region_relative_dy(int screen_index, int origin_screen_index)
 	return screen_index / 16 - origin_screen_index / 16;
 }
 
+int get_region_screen_index_offset(int screen_index)
+{
+	return z3_get_region_relative_dx(screen_index) + z3_get_region_relative_dy(screen_index) * region_scr_width;
+}
+
 const mapscr* get_canonical_scr(int map, int screen)
 {
 	return &TheMaps[map*MAPSCRS + screen];
@@ -867,6 +872,7 @@ bool ffcIsAt(int32_t index, int32_t x, int32_t y)
     return true;
 }
 
+// TODO z3 !!! ffc stop using ffEffectWidth ?
 bool ffcIsAt(const ffc_handle_t& ffc_handle, int32_t x, int32_t y)
 {
 	if (ffc_handle.data()<=0)
@@ -2314,11 +2320,13 @@ bool remove_xstatecombos_mi(mapscr *s, int32_t scr, int32_t mi, byte xflag, bool
 	if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
 	{
 		word c = s->numFFC();
+		int screen_index_offset = get_region_screen_index_offset(scr);
 		for(word i=0; i<c; i++)
 		{
 			ffcdata* ffc2 = &s->ffcs[i];
+			int region_id = screen_index_offset + i;
 			newcombo const& cmb = combobuf[ffc2->getData()];
-			if(triggers && force_ex_trigger_ffc({s, scr, i, ffc2}, xflag))
+			if(triggers && force_ex_trigger_ffc({s, scr, region_id, i, ffc2}, xflag))
 				didit = true;
 			else switch(cmb.type)
 			{
@@ -5639,7 +5647,7 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 		{
 			screen->ffcs[i].setLoaded(true);
 			screen->ffcs[i].solid_update(false);
-			screen_ffc_modify_postroutine({screen, scr, i, &screen->ffcs[i]});
+			screen_ffc_modify_postroutine({screen, scr, i, i, &screen->ffcs[i]});
 		}
 	
 	const int32_t _mapsSize = ZCMaps[currmap].tileHeight*ZCMaps[currmap].tileWidth;
@@ -7040,13 +7048,15 @@ void toggle_switches(dword flags, bool entry, mapscr* m, int screen_index)
 	
 	if(iscurscr)
 	{
+		int screen_index_offset = get_region_screen_index_offset(screen_index);
 		word c = m->numFFC();
 		for(word q=0; q<c; ++q)
 		{
+			int region_id = screen_index_offset + q;
 			newcombo const& cmb = combobuf[m->ffcs[q].getData()];
 			if((cmb.triggerflags[3] & combotriggerTRIGLEVELSTATE) && cmb.trig_lstate < 32)
 				if(flags&(1<<cmb.trig_lstate))
-					do_trigger_combo_ffc({m, screen_index, q, &m->ffcs[q]}, ctrigSWITCHSTATE);
+					do_trigger_combo_ffc({m, screen_index, region_id, q, &m->ffcs[q]}, ctrigSWITCHSTATE);
 		}
 	}
 }
@@ -7181,12 +7191,14 @@ void toggle_gswitches(bool* states, bool entry, mapscr* base_screen, int screen_
 	if(iscurscr)
 	{
 		word c = base_screen->numFFC();
+		int screen_index_offset = get_region_screen_index_offset(screen_index);
 		for(word q=0; q<c; ++q)
 		{
 			newcombo const& cmb = combobuf[base_screen->ffcs[q].getData()];
+			int region_id = screen_index_offset + q;
 			if(cmb.triggerflags[3] & combotriggerTRIGGLOBALSTATE)
 				if(states[cmb.trig_gstate])
-					do_trigger_combo_ffc({base_screen, screen_index, q, &base_screen->ffcs[q]}, ctrigSWITCHSTATE);
+					do_trigger_combo_ffc({base_screen, screen_index, region_id, q, &base_screen->ffcs[q]}, ctrigSWITCHSTATE);
 		}
 	}
 }

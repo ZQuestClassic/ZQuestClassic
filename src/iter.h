@@ -75,11 +75,13 @@ void for_every_ffc_in_region(T fn)
 		if (is_in_current_region(screen_index))
 		{
 			mapscr* screen = get_scr(currmap, screen_index);
+			int screen_index_offset = get_region_screen_index_offset(screen_index);
 
 			int c = screen->numFFC();
 			for (int i = 0; i < c; i++)
 			{
-				ffc_handle_t ffc_handle = {screen, screen_index, i, &screen->ffcs[i]};
+				int region_id = screen_index_offset * 128 + i;
+				ffc_handle_t ffc_handle = {screen, screen_index, region_id, i, &screen->ffcs[i]};
 				if (!fn(ffc_handle)) return;
 			}
 		}
@@ -99,11 +101,13 @@ std::optional<ffc_handle_t> find_ffc_in_region(T fn)
 		if (is_in_current_region(screen_index))
 		{
 			mapscr* screen = get_scr(currmap, screen_index);
+			int screen_index_offset = get_region_screen_index_offset(screen_index);
 
 			int c = screen->numFFC();
 			for (int i = 0; i < c; i++)
 			{
-				ffc_handle_t ffc_handle = {screen, screen_index, i, &screen->ffcs[i]};
+				int region_id = screen_index_offset * 128 + i;
+				ffc_handle_t ffc_handle = {screen, screen_index, region_id, i, &screen->ffcs[i]};
 				if (fn(ffc_handle)) return ffc_handle;
 			}
 		}

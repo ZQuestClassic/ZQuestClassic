@@ -7792,8 +7792,7 @@ heroanimate_skip_liftwpn:;
 								ev.push_back(ZSD_COMBODATA*10000);
 								ev.push_back(waterid);
 								ev.push_back((ffc_handle ? ZSD_FFC : ZSD_COMBOPOS)*10000);
-								// TODO z3 !!
-								ev.push_back(ffc_handle ? ffc_handle->i : combopos*10000);
+								ev.push_back(ffc_handle ? ffc_handle->region_id : combopos*10000);
 								
 								throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_1);
 								
@@ -12627,7 +12626,9 @@ void handle_lens_triggers(int32_t l_id)
 			if(enabled ? (cmb.triggerflags[1] & combotriggerLENSON)
 				: (cmb.triggerflags[1] & combotriggerLENSOFF))
 			{
-				do_trigger_combo_ffc({&tmpscr, currscr, i, &ffc});
+				// TODO z3 !! ffc
+				int region_id = i;
+				do_trigger_combo_ffc({&tmpscr, currscr, region_id, i, &ffc});
 				break;
 			}
 		}

@@ -118,11 +118,13 @@ void ffcdata::setData(word newdata)
 	mapscr* screen = get_scr_no_load(currmap, screen_index);
 	if (!screen) return;
 
+	int screen_index_offset = get_region_screen_index_offset(screen_index);
 	for (word i = 0; i < MAXFFCS; i++)
 	{
 		if (this == &screen->ffcs[i])
 		{
-			screen_ffc_modify_postroutine({screen, screen_index, i, this});
+			int region_id = screen_index_offset + i;
+			screen_ffc_modify_postroutine({screen, screen_index, region_id, i, this});
 			return;
 		}
 	}

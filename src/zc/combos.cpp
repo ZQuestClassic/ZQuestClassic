@@ -645,7 +645,7 @@ void trigger_cuttable(const rpos_handle_t& rpos_handle)
 
 void trigger_cuttable_ffc(const ffc_handle_t& ffc_handle)
 {
-	// TODO z3 !
+	// TODO z3 !!
 	int pos = ffc_handle.i;
 	if(unsigned(pos) > MAXFFCS) return;
 	ffcdata& ffc = *ffc_handle.ffc;
