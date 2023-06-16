@@ -154,6 +154,7 @@ static inline bool on_sideview_solid_oldpos(int32_t x, int32_t y, int32_t oldx, 
 	return false;
 }
 
+// TODO z3 !!
 void HeroClass::snap_platform()
 {
 	if(check_new_slope(x, y+1, 16, 16, old_x, old_y, false) < 0)
