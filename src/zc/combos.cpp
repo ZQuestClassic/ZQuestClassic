@@ -58,9 +58,19 @@ cpos_info& get_combo_posinfo(int32_t layer, int32_t pos)
 	return combo_posinfos[layer][pos];
 }
 
+cpos_info& get_combo_posinfo(const rpos_handle_t& rpos_handle)
+{
+	return combo_posinfos[rpos_handle.layer][rpos_handle.pos()];
+}
+
 void set_combo_posinfo(int32_t layer, int32_t pos, cpos_info& posinfo)
 {
 	combo_posinfos[layer][pos] = posinfo;
+}
+
+void set_combo_posinfo(const rpos_handle_t& rpos_handle, cpos_info& posinfo)
+{
+	combo_posinfos[rpos_handle.layer][rpos_handle.pos()] = posinfo;
 }
 
 int trig_groups[256];
@@ -2601,9 +2611,8 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, int32_t special, weapon*
 {
 	if (unsigned(rpos_handle.layer) > 6 || !is_valid_rpos(rpos_handle.rpos)) return false;
 
-	int lyr = rpos_handle.layer;
 	int32_t pos = rpos_handle.pos();
-	cpos_info& timer = get_combo_posinfo(lyr, pos);
+	cpos_info& timer = get_combo_posinfo(rpos_handle);
 	int32_t cid = rpos_handle.data();
 	int32_t cx, cy;
 	COMBOXY_REGION(rpos_handle.rpos, cx, cy);
@@ -3613,9 +3622,7 @@ void update_combo_timers()
 	ffc_clear_cpos_info();
 
 	for_every_rpos_in_region([&](const rpos_handle_t& rpos_handle) {
-		int pos = rpos_handle.pos();
-		int lyr = rpos_handle.layer;
-		cpos_info& timer = get_combo_posinfo(lyr, pos);
+		cpos_info& timer = get_combo_posinfo(rpos_handle);
 		int cid = rpos_handle.data();
 		update_trig_group(timer.data,cid);
 		timer.updateData(cid);
@@ -3678,5 +3685,5 @@ bool on_cooldown(const rpos_handle_t& rpos_handle)
 	int pos = rpos_handle.pos();
 	if(unsigned(rpos_handle.layer) > 7 || unsigned(pos) > 176)
 		return false;
-	return get_combo_posinfo(rpos_handle.layer, pos).trig_cd != 0;
+	return get_combo_posinfo(rpos_handle).trig_cd != 0;
 }

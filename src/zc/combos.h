@@ -26,8 +26,10 @@ public:
 extern CutsceneState active_cutscene;
 
 void clear_combo_posinfo();
+cpos_info& get_combo_posinfo(const rpos_handle_t& rpos_handle);
 cpos_info& get_combo_posinfo(int32_t layer, int32_t pos);
 void set_combo_posinfo(int32_t layer, int32_t pos, cpos_info& posinfo);
+void set_combo_posinfo(const rpos_handle_t& rpos_handle, cpos_info& posinfo);
 
 bool do_cswitch_combo(newcombo const& cmb, weapon* w = NULL);
 void do_generic_combo_ffc2(const ffc_handle_t& ffc_handle, int32_t cid, int32_t ft);
