@@ -28188,11 +28188,10 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			bool primitives = is_new_scr;
 			do_layer(framebuf, 0, screen_handles[1], offx, offy, primitives);
 
-			// TODO z3 !!!! this can get overdrawn by other layers sinces ffcs can cross screens...
-			if(get_bit(quest_rules, qr_FFCSCROLL))
+			if (get_bit(quest_rules, qr_FFCSCROLL))
 			{
-				int draw_ffc_x = is_new_scr ? ffc_offset_x : (region_scrolling ? 0 : offx);
-				int draw_ffc_y = is_new_scr ? ffc_offset_y : (region_scrolling ? 0 : offy);
+				int draw_ffc_x = is_new_screen ? ffc_offset_x : 0;
+				int draw_ffc_y = is_new_screen ? ffc_offset_y : 0;
 				do_layer(framebuf, -3, screen_handles[0], draw_ffc_x, draw_ffc_y); // ffcs
 			}
 
@@ -28272,9 +28271,11 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 				do_layer(framebuf, -1, screen_handles[2], offx, offy); //overhead combos
 			}
 			do_layer(framebuf, 0, screen_handles[5], offx, offy, is_new_scr); //layer 5
-			int draw_ffc_x = is_new_scr ? ffc_offset_x : (region_scrolling ? 0 : offx);
-			int draw_ffc_y = is_new_scr ? ffc_offset_y : (region_scrolling ? 0 : offy);
-			do_layer(framebuf, -4, screen_handles[0], draw_ffc_x, draw_ffc_y); //overhead FFCs
+			{
+				int draw_ffc_x = is_new_screen ? ffc_offset_x : 0;
+				int draw_ffc_y = is_new_screen ? ffc_offset_y : 0;
+				do_layer(framebuf, -4, screen_handles[0], draw_ffc_x, draw_ffc_y); //overhead FFCs
+			}
 			do_layer(framebuf, 0, screen_handles[6], offx, offy, is_new_scr); //layer 6
 		});
 		

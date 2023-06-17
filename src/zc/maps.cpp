@@ -3378,8 +3378,6 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen
 		{
 			if (base_screen->ffcs[i].getData() == 0)
 				continue;
-			if (screenscrolling)
-				printf(".");
 
 			if (screenscrolling && (base_screen->ffcs[i].flags & ffCARRYOVER) != 0 && screen_handle.index != scrolling_scr)
 				continue; //If scrolling, only draw carryover ffcs from newscr and not oldscr.
