@@ -138,7 +138,6 @@ void ffcdata::incData(int32_t inc)
 // TODO z3 !! remove xofs, yofs
 void ffcdata::draw(BITMAP* dest, int32_t xofs, int32_t yofs, bool overlay)
 {
-	if (!data) return;
 	if (flags&ffCHANGER) return;
 	#ifdef IS_PLAYER
 	if ((flags&ffLENSINVIS) && lensclk) return; //If lens is active and ffc is invis to lens, don't draw
@@ -165,8 +164,8 @@ void ffcdata::draw(BITMAP* dest, int32_t xofs, int32_t yofs, bool overlay)
 	
 	if(!(flags&ffOVERLAY) == !overlay) //force cast both of these to boolean. They're both not, so same as if they weren't not.
 	{
-		int32_t tx = x + xofs;
-		int32_t ty = y + yofs;
+		int32_t tx = x + xofs - viewport.x;
+		int32_t ty = y + yofs - viewport.y;
 		
 		if(flags&ffTRANS)
 		{

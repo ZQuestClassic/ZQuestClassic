@@ -3367,27 +3367,36 @@ static void get_bounds_for_draw_cmb_calls(BITMAP* bmp, int x, int y, int& start_
 
 void do_scrolling_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen_handle, int32_t x, int32_t y)
 {
+	mapscr* screen = screen_handle.screen;
+	mapscr* base_screen = screen_handle.base_screen;
+
+	if (type == -3 || type == -4)
+	{
+		y += playing_field_offset;
+
+		for(int32_t i = (base_screen->numFFC()-1); i >= 0; --i)
+		{
+			if (base_screen->ffcs[i].getData() == 0)
+				continue;
+			if (screenscrolling)
+				printf(".");
+
+			if (screenscrolling && (base_screen->ffcs[i].flags & ffCARRYOVER) != 0 && screen_handle.index != scrolling_scr)
+				continue; //If scrolling, only draw carryover ffcs from newscr and not oldscr.
+
+			base_screen->ffcs[i].draw(bmp, x, y, (type==-4));
+		}
+		return;
+	}
+
 	x -= viewport.x;
 	y -= viewport.y - playing_field_offset;
 
 	bool over = true, transp = false;
-	mapscr* screen = screen_handle.screen;
-	mapscr* base_screen = screen_handle.base_screen;
 	int layer = screen_handle.layer;
 	
 	switch(type ? type : layer)
 	{
-		case -4: //overhead FFCs
-		case -3:                                                //freeform combos
-			for(int32_t i = (base_screen->numFFC()-1); i >= 0; --i)
-			{
-				if (screenscrolling && (base_screen->ffcs[i].flags & ffCARRYOVER) != 0 && screen_handle.index != scrolling_scr)
-					continue; //If scrolling, only draw carryover ffcs from newscr and not oldscr,
-				base_screen->ffcs[i].draw(bmp, -viewport.x, -viewport.y, (type==-4));
-			}
-			
-			return;
-			
 		case -2:                                                //push blocks
 			if(screen && screen->valid)
 			{
@@ -4129,6 +4138,7 @@ static void for_every_nearby_screen(const std::function <void (std::array<screen
 			int offy = z3_get_region_relative_dy(screen_index) * 176;
 
 			// Can skip processsing screen if out of viewport... unless wanting to draw the ffcs.
+			// TODO z3 !!! separate these calls
 			if (check_bounds)
 			{
 				if (offx - viewport.x <= -256) continue;
@@ -4296,7 +4306,7 @@ void draw_screen(bool showhero, bool runGeneric)
 		if (screen_index == currscr) particles.draw(temp_buf, true, 0);
 		if (screen_index == currscr) draw_msgstr(1, true);
 		
-		do_layer(scrollbuf, -3, screen_handles[0], offx, offy); // freeform combos!
+		do_layer(scrollbuf, -3, screen_handles[0], 0, 0); // freeform combos!
 
 		if(!XOR(base_screen->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))
 		{
@@ -4670,12 +4680,12 @@ void draw_screen(bool showhero, bool runGeneric)
 		if (screen_index == currscr) particles.draw(temp_buf, true, 4);
 		if (screen_index == currscr) draw_msgstr(5, true);
 		// overhead freeform combos!
-		do_layer(temp_buf, -4, screen_handles[0], offx, offy);
+		do_layer(temp_buf, -4, screen_handles[0], 0, 0);
 		do_primitives(temp_buf, SPLAYER_OVERHEAD_FFC, base_screen, offx, offy + playing_field_offset);
 		// ---
 		do_layer(temp_buf, 0, screen_handles[6], offx, offy, true);
 		if (screen_index == currscr) particles.draw(temp_buf, true, 5);
-	});
+	}, false);
 	
 	//10. Blit temp_buf onto framebuf with clipping
 	
@@ -5381,8 +5391,8 @@ void load_a_screen_and_layers(int dmap, int map, int screen_index, int ldir)
 	}
 
 	// check doors
-	if (!is_z3_scrolling_mode()) // TODO z3
-	if (isdungeon(dmap, screen_index))
+	// TODO z3
+	if (isdungeon(dmap, screen_index) && !is_z3_scrolling_mode())
 	{
 		for(int32_t i=0; i<4; i++)
 		{
@@ -5432,6 +5442,16 @@ void load_a_screen_and_layers(int dmap, int map, int screen_index, int ldir)
 			{
 				base_screen->door[i]=door;
 			}
+		}
+	}
+
+	for (word i = 0; i < MAXFFCS; i++)
+	{
+		base_screen->ffcs[i].screen_index = screen_index;
+		if (is_z3_scrolling_mode())
+		{
+			base_screen->ffcs[i].x += z3_get_region_relative_dx(screen_index) * 256;
+			base_screen->ffcs[i].y += z3_get_region_relative_dy(screen_index) * 176;
 		}
 	}
 }
@@ -5773,8 +5793,11 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 	for (word i = 0; i < MAXFFCS; i++)
 	{
 		screen->ffcs[i].screen_index = scr;
-		screen->ffcs[i].x += z3_get_region_relative_dx(scr) * 256;
-		screen->ffcs[i].y += z3_get_region_relative_dy(scr) * 176;
+		if (is_z3_scrolling_mode())
+		{
+			screen->ffcs[i].x += z3_get_region_relative_dx(scr) * 256;
+			screen->ffcs[i].y += z3_get_region_relative_dy(scr) * 176;
+		}
 	}
 
 	// TODO z3 !!!
@@ -7330,6 +7353,7 @@ void ViewMap()
 						do_layer_old(scrollbuf_old,-2, 1, &tmpscr, 256, -playing_field_offset, 2);
 						do_layer_old(scrollbuf_old,-2, 2, &tmpscr, 256, -playing_field_offset, 2);
 					}
+					// TODO z3 !! offx,y 0,0?
 					do_layer_old(scrollbuf_old,-3, 0, &tmpscr, 256, -playing_field_offset, 2); // Freeform combos!
 					
 					if(!XOR((tmpscr.flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_layer_old(scrollbuf_old, 0, 3, &tmpscr, 256, -playing_field_offset, 2);

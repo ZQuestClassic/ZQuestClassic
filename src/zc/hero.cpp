@@ -27830,6 +27830,13 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	auto script_hero_x = x;
 	auto script_hero_y = y;
 
+	// FFCs coordinates are world positions, and so don't need an offset like other when drawing a specific screen's combos in do_scrolling_layer.
+	// But since their coordinates are in the new coordinate system, we must apply an offset based on the difference between the two coordinate systems.
+	// Only used when drawing the new screens.
+	// TODO z3 !!! this is really complex ...
+	int ffc_offset_x = (-z3_get_region_relative_dx(0) + z3_get_region_relative_dx(0, scrolling_origin_scr)) * 256;
+	int ffc_offset_y = (-z3_get_region_relative_dy(0) + z3_get_region_relative_dy(0, scrolling_origin_scr)) * 176;
+
 	currdmap = new_dmap;
 	for(word i = 0; (scroll_counter >= 0 && delay != 0) || align_counter; i++, scroll_counter--) //Go!
 	{
@@ -28181,9 +28188,12 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			bool primitives = is_new_scr;
 			do_layer(framebuf, 0, screen_handles[1], offx, offy, primitives);
 
+			// TODO z3 !!!! this can get overdrawn by other layers sinces ffcs can cross screens...
 			if(get_bit(quest_rules, qr_FFCSCROLL))
 			{
-				do_layer(framebuf, -3, screen_handles[0], offx, offy); // ffcs
+				int draw_ffc_x = is_new_scr ? ffc_offset_x : (region_scrolling ? 0 : offx);
+				int draw_ffc_y = is_new_scr ? ffc_offset_y : (region_scrolling ? 0 : offy);
+				do_layer(framebuf, -3, screen_handles[0], draw_ffc_x, draw_ffc_y); // ffcs
 			}
 
 			if(!(XOR(base_screen->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)))
@@ -28262,7 +28272,9 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 				do_layer(framebuf, -1, screen_handles[2], offx, offy); //overhead combos
 			}
 			do_layer(framebuf, 0, screen_handles[5], offx, offy, is_new_scr); //layer 5
-			do_layer(framebuf, -4, screen_handles[0], offx, offy); //overhead FFCs
+			int draw_ffc_x = is_new_scr ? ffc_offset_x : (region_scrolling ? 0 : offx);
+			int draw_ffc_y = is_new_scr ? ffc_offset_y : (region_scrolling ? 0 : offy);
+			do_layer(framebuf, -4, screen_handles[0], draw_ffc_x, draw_ffc_y); //overhead FFCs
 			do_layer(framebuf, 0, screen_handles[6], offx, offy, is_new_scr); //layer 6
 		});
 		
