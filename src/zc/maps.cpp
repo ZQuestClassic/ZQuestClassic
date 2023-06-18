@@ -4301,16 +4301,16 @@ void draw_screen(bool showhero, bool runGeneric)
 		mapscr* base_screen = screen_handles[0].base_screen;
 
 		do_layer(scrollbuf, 0, screen_handles[1], offx, offy, true); // LAYER 1
-		if (screen_index == currscr) particles.draw(temp_buf, true, 0);
-		if (screen_index == currscr) draw_msgstr(1, true);
+		if (screen_index == initial_region_scr) particles.draw(temp_buf, true, 0);
+		if (screen_index == initial_region_scr) draw_msgstr(1, true);
 		
 		do_layer(scrollbuf, -3, screen_handles[0], 0, 0); // freeform combos!
 
 		if(!XOR(base_screen->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))
 		{
 			do_layer(scrollbuf, 0, screen_handles[2], offx, offy, true); // LAYER 2
-			if (screen_index == currscr) particles.draw(temp_buf, true, 1);
-			if (screen_index == currscr) draw_msgstr(2, true);
+			if (screen_index == initial_region_scr) particles.draw(temp_buf, true, 1);
+			if (screen_index == initial_region_scr) draw_msgstr(2, true);
 		}
 	}, false);
 	
@@ -4679,7 +4679,11 @@ void draw_screen(bool showhero, bool runGeneric)
 		if (screen_index == currscr) draw_msgstr(5, true);
 		// overhead freeform combos!
 		do_layer(temp_buf, -4, screen_handles[0], 0, 0);
-		do_primitives(temp_buf, SPLAYER_OVERHEAD_FFC, base_screen, offx, offy + playing_field_offset);
+		// TODO z3 !!! overdraw?? other screens?
+		if (screen_index == initial_region_scr)
+		{
+			do_primitives(temp_buf, SPLAYER_OVERHEAD_FFC, base_screen, offx, offy + playing_field_offset);
+		}
 		// ---
 		do_layer(temp_buf, 0, screen_handles[6], offx, offy, true);
 		if (screen_index == currscr) particles.draw(temp_buf, true, 5);
