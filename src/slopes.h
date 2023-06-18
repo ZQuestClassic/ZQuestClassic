@@ -7,7 +7,7 @@
 
 struct slope_object;
 
-#define SLOPE_ID(rpos, layer) ((rpos_t)(((int)region_max_rpos + 1) * layer + (int)(rpos)))
+#define SLOPE_ID(index, layer) ((rpos_t)(region_num_rpos * (layer) + (index)))
 extern std::map<rpos_t, slope_object> slopes;
 void draw_slopes(BITMAP *dest, int32_t x, int32_t y, int32_t col);
 void draw_slopes_a5(int32_t x, int32_t y, ALLEGRO_COLOR col);

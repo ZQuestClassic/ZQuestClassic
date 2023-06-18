@@ -21083,7 +21083,7 @@ void update_slope_combopos(const rpos_handle_t& rpos_handle)
 	int pos = rpos_handle.pos();
 	newcombo const& cmb = combobuf[s->data[pos]];
 	
-	rpos_t id = SLOPE_ID(rpos_handle.rpos, rpos_handle.layer);
+	rpos_t id = SLOPE_ID((int)rpos_handle.rpos, rpos_handle.layer);
 	auto it = slopes.find(id);
 	
 	bool wasSlope = it!=slopes.end();
