@@ -17525,8 +17525,10 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 			{
 				zfix tx = (dx < 0 ? (x-1) : (x+16));
 				auto mdir = GET_XDIR(dx);
-				bool hit_top = scr_walkflag(tx,y,mdir,x+sign(dx),y,false);
-				bool hit_mid = scr_walkflag(tx,y+8,mdir,x+sign(dx),y,false);
+				int v1=bigHitbox?0:8;
+				int v2=bigHitbox?8:12;
+				bool hit_top = scr_walkflag(tx,y+v1,mdir,x+sign(dx),y,false);
+				bool hit_mid = scr_walkflag(tx,y+v2,mdir,x+sign(dx),y,false);
 				bool hit_bottom = scr_walkflag(tx,y+15,mdir,x+sign(dx),y,false);
 				if(!hit_mid && (hit_top!=hit_bottom))
 				{
