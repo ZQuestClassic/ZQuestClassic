@@ -3446,6 +3446,11 @@ int32_t get_register(const int32_t arg)
 			}
 		}
 		break;
+
+		case FF_SCREEN_INDEX:
+			if(BC::checkFFC(ri->ffcref, "ffc->ScreenIndex") == SH::_NoError)
+				ret=(tmpscr.ffcs[ri->ffcref].screen_index)*10000;
+			break;
 		
 		///----------------------------------------------------------------------------------------------------//
 		//Hero's Variables
@@ -42309,7 +42314,7 @@ script_variable ZASMVars[]=
 	{ "SPRITEDATAFLAGS", SPRITEDATAFLAGS, 0, 0 },
 	{ "SPRITEDATAID", SPRITEDATAID, 0, 0 },
 	{ "CLASS_THISKEY2", CLASS_THISKEY2, 0, 0 },
-	{ "RESRVD_VAR_Z3_12", RESRVD_VAR_Z3_12, 0, 0 },
+	{ "FF_SCREEN_INDEX", FF_SCREEN_INDEX, 0, 0 },
 	{ "RESRVD_VAR_Z3_13", RESRVD_VAR_Z3_13, 0, 0 },
 	{ "RESRVD_VAR_Z3_14", RESRVD_VAR_Z3_14, 0, 0 },
 	{ "RESRVD_VAR_Z3_15", RESRVD_VAR_Z3_15, 0, 0 },

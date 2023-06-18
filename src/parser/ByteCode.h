@@ -1530,7 +1530,7 @@
 #define REGIONWORLDHEIGHT       1444
 #define REGIONSCREENWIDTH       1445
 #define REGIONSCREENHEIGHT      1446
-#define RESRVD_VAR_Z3_12        1447
+#define FF_SCREEN_INDEX         1447
 #define RESRVD_VAR_Z3_13        1448
 #define RESRVD_VAR_Z3_14        1449
 #define RESRVD_VAR_Z3_15        1450

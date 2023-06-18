@@ -27830,7 +27830,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	auto script_hero_x = x;
 	auto script_hero_y = y;
 
-	// FFCs coordinates are world positions, and so don't need an offset like other when drawing a specific screen's combos in do_scrolling_layer.
+	// FFCs coordinates are world positions, and so don't need an offset like when drawing a specific screen's combos in do_scrolling_layer.
 	// But since their coordinates are in the new coordinate system, we must apply an offset based on the difference between the two coordinate systems.
 	// Only used when drawing the new screens.
 	// TODO z3 !!! this is really complex ...
@@ -32712,6 +32712,7 @@ void HeroClass::check_conveyor()
 		return;
 	}
 	newcombo const* cmb = &combobuf[cmbid];
+	// TODO z3 !!!!
 	auto pos = COMBOPOS(x+7,y+(bigHitbox?8:12));
 	bool custom_spd = (cmb->usrflags&cflag2);
 	if(custom_spd || conveyclk<=0) //!DIMITODO: let player be on multiple conveyors at once
