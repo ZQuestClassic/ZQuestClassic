@@ -21163,7 +21163,7 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 	newcombo const& cmb = (foundffc<0?combobuf[found]:combobuf[tmpscr->ffcs[foundffc].getData()]);
 	
 	byte signInput = 0;
-	bool didsign = false;
+	bool didsign = false, didprompt = false;
 	if(cmb.type == cSIGNPOST && !(cmb.triggerflags[0] & combotriggerONLYGENTRIG))
 	{
 		switch(dir)
@@ -21198,6 +21198,7 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 					prompt_cset = cmb.attribytes[4];
 					prompt_x = cmb.attrishorts[0];
 					prompt_y = cmb.attrishorts[1];
+					didprompt = true;
 				}
 				goto endsigns; //Button not pressed
 			}
@@ -21235,6 +21236,8 @@ endsigns:
 		else 
 			do_trigger_combo(found_lyr, COMBOPOS(fx,fy), didsign ? ctrigIGNORE_SIGN : 0);
 	}
+	else if(didprompt)
+		return;
 	else if(cmb.type == cBUTTONPROMPT)
 	{
 		prompt_combo = cmb.attributes[0]/10000;
