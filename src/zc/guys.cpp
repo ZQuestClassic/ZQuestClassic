@@ -21137,8 +21137,7 @@ void screen_ffc_modify_postroutine(const ffc_handle_t& ffc_handle)
 	ffcdata* ff = ffc_handle.ffc;
 	newcombo const& cmb = combobuf[ff->getData()];
 	
-	// TODO z3 !!! ffc
-	rpos_t id = SLOPE_ID(ffc_handle.i, 7);
+	rpos_t id = SLOPE_ID(ffc_handle.region_id, 7);
 	auto it = slopes.find(id);
 	
 	bool wasSlope = it!=slopes.end();
