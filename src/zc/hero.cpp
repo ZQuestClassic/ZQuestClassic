@@ -32712,8 +32712,7 @@ void HeroClass::check_conveyor()
 		return;
 	}
 	newcombo const* cmb = &combobuf[cmbid];
-	// TODO z3 !!!!
-	auto pos = COMBOPOS(x+7,y+(bigHitbox?8:12));
+	rpos_t rpos = COMBOPOS_REGION(x+7,y+(bigHitbox?8:12));
 	bool custom_spd = (cmb->usrflags&cflag2);
 	if(custom_spd || conveyclk<=0) //!DIMITODO: let player be on multiple conveyors at once
 	{
@@ -32956,9 +32955,9 @@ void HeroClass::check_conveyor()
 					}
 				}
 				if(deltax && !movedx)
-					y = COMBOY(pos);
+					y = COMBOY_REGION(rpos);
 				if(deltay && !movedy)
-					x = COMBOX(pos);
+					x = COMBOX_REGION(rpos);
 			}
 			if(!movedy)
 			{
