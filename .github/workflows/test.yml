@@ -141,17 +141,7 @@ jobs:
 
       - if: ${{ matrix.shard_index == 1 && inputs.extra-args == '' && inputs.config != 'Coverage' }}
         name: Test zscript
-        uses: ferki/os-specific-run@501696f215b5f20b303228bb3e445fe898f90a41
-        with:
-          windows: |
-            cd ${{ env.BUILD_FOLDER }}
-            ./zscript.exe -input "include/std.zh" -unlinked
-          macos: |
-            cd ${{ env.BUILD_FOLDER }}
-            ./zscript -input "include/std.zh" -unlinked
-          linux: |
-            cd ${{ env.BUILD_FOLDER }}
-            ./zscript -input "include/std.zh" -unlinked
+        run: bash .github/workflows/run_python.sh tests/test_zscript.py
 
         # TODO why does this result in "could not open file: test.zplay" on Windows?
       - if: ${{ matrix.shard_index == 1 && inputs.extra-args == '' && runner.os != 'Windows' && inputs.config != 'Coverage' }}
