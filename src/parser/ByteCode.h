@@ -1531,8 +1531,8 @@
 #define REGIONSCREENWIDTH       1445
 #define REGIONSCREENHEIGHT      1446
 #define FF_SCREEN_INDEX         1447
-#define RESRVD_VAR_Z3_13        1448
-#define RESRVD_VAR_Z3_14        1449
+#define REGION_MAX_RPOS         1448
+#define REGION_NUM_RPOS         1449
 #define RESRVD_VAR_Z3_15        1450
 #define RESRVD_VAR_Z3_16        1451
 #define LWPNLIFTLEVEL      1452

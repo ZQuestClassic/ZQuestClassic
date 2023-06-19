@@ -2772,7 +2772,6 @@ void movingblock::draw(BITMAP *dest)
 	}
     else if(clk)
     {
-        //    sprite::draw(dest);
         overcombo(dest,real_x(x+xofs)-viewport.x,real_y(y+yofs)-viewport.y,bcombo ,cs);
     }
 }

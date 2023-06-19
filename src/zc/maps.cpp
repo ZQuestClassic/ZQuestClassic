@@ -4227,7 +4227,7 @@ void draw_screen(bool showhero, bool runGeneric)
 	//1. Draw some layers onto temp_buf
 	clear_bitmap(scrollbuf);
 
-	// TODO z3 move to game loop?
+	// TODO z3 !!! move to game loop?
 	z3_update_viewport();
 	
 	for_every_nearby_screen([&](std::array<screen_handle_t, 7> screen_handles, int screen_index, int offx, int offy) {

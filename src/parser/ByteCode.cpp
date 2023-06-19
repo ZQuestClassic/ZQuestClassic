@@ -339,6 +339,8 @@ string ZScript::VarToString(int32_t ID)
 
 	case REGIONSCREENHEIGHT:
 		return "REGIONSCREENHEIGHT";
+	case REGION_MAX_RPOS: return "REGION_MAX_RPOS";
+	case REGION_NUM_RPOS: return "REGION_NUM_RPOS";
 	
 	case REFMAPDATA: return "REFMAPDATA";
 	case REFSCREENDATA: return "REFSCREENDATA";
@@ -2330,8 +2332,6 @@ string ZScript::VarToString(int32_t ID)
 	case RESRVD_VAR_MOOSH29: return "RESRVD_VAR_MOOSH29";
 	case RESRVD_VAR_MOOSH30: return "RESRVD_VAR_MOOSH30";
 	case FF_SCREEN_INDEX: return "FF_SCREEN_INDEX";
-	case RESRVD_VAR_Z3_13: return "RESRVD_VAR_Z3_13";
-	case RESRVD_VAR_Z3_14: return "RESRVD_VAR_Z3_14";
 	case RESRVD_VAR_Z3_15: return "RESRVD_VAR_Z3_15";
 	case RESRVD_VAR_Z3_16: return "RESRVD_VAR_Z3_16";
 	

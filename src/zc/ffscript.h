@@ -4855,8 +4855,8 @@ enum ASM_DEFINE
 #define REGIONSCREENWIDTH       0x14DB
 #define REGIONSCREENHEIGHT      0x14DC
 #define FF_SCREEN_INDEX         0x14DD
-#define RESRVD_VAR_Z3_13        0x14DE
-#define RESRVD_VAR_Z3_14        0x14DF
+#define REGION_MAX_RPOS         0x14DE
+#define REGION_NUM_RPOS         0x14DF
 #define RESRVD_VAR_Z3_15        0x14E0
 #define RESRVD_VAR_Z3_16        0x14E1
 #define LWPNLIFTLEVEL      0x14E2

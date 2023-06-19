@@ -8579,6 +8579,18 @@ int32_t get_register(const int32_t arg)
 			ret = region_scr_height * 10000;
 		}
 		break;
+
+		case REGION_MAX_RPOS:
+		{
+			ret = (int)region_max_rpos * 10000;
+		}
+		break;
+
+		case REGION_NUM_RPOS:
+		{
+			ret = region_num_rpos * 10000;
+		}
+		break;
 		
 		///----------------------------------------------------------------------------------------------------//
 		//Game->GetComboX
@@ -42320,8 +42332,8 @@ script_variable ZASMVars[]=
 	{ "SPRITEDATAID", SPRITEDATAID, 0, 0 },
 	{ "CLASS_THISKEY2", CLASS_THISKEY2, 0, 0 },
 	{ "FF_SCREEN_INDEX", FF_SCREEN_INDEX, 0, 0 },
-	{ "RESRVD_VAR_Z3_13", RESRVD_VAR_Z3_13, 0, 0 },
-	{ "RESRVD_VAR_Z3_14", RESRVD_VAR_Z3_14, 0, 0 },
+	{ "REGION_MAX_RPOS", REGION_MAX_RPOS, 0, 0 },
+	{ "REGION_NUM_RPOS", REGION_NUM_RPOS, 0, 0 },
 	{ "RESRVD_VAR_Z3_15", RESRVD_VAR_Z3_15, 0, 0 },
 	{ "RESRVD_VAR_Z3_16", RESRVD_VAR_Z3_16, 0, 0 },
 	{ "LWPNLIFTLEVEL", LWPNLIFTLEVEL, 0, 0},
