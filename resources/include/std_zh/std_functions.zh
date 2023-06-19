@@ -524,22 +524,24 @@ bool Collision(combodata f)
 //Finds the location of a combo, given its (x,y) coordinates on the screen
 int ComboAt(int x, int y)
 {
-	x = VBound(x,255,0);
-	y = VBound(y,175,0);
-	return (y & 240)+(x>>4);
-}
-
-//Finds the location of a combo, given its (x,y) coordinates in the region
-int ComboAtRegion(int x, int y) 
-{
-	x = VBound(x,Region->WorldWidth - 1,0);
-	y = VBound(y,Region->WorldHeight - 1,0);
-	// Floor'd because in Zscript, ints aren't ints?!
-	int scr_dx = Floor(x / 256);
-	int scr_dy = Floor(y / 176);
-	int offset_pos = (scr_dx + scr_dy * Region->ScreenWidth)*176;
-	int pos = ((y%176) & 240)+((x%256)>>4);
-	return offset_pos + pos;
+	if (Region->ScreenWidth > 1 || Region->ScreenHeight > 1)
+	{
+		x = VBound(x,Region->WorldWidth - 1,0);
+		y = VBound(y,Region->WorldHeight - 1,0);
+		// Floor'd because in Zscript, ints aren't ints?!
+		int scr_dx = Floor(x / 256);
+		int scr_dy = Floor(y / 176);
+		int offset_pos = (scr_dx + scr_dy * Region->ScreenWidth)*176;
+		int pos = ((y%176) & 240)+((x%256)>>4);
+		return offset_pos + pos;
+	}
+	else
+	{
+		// Fast path.
+		x = VBound(x,255,0);
+		y = VBound(y,175,0);
+		return (y & 240)+(x>>4);
+	}
 }
 
 //Returns true if the combo at '(x, y)' has either an inherent or place flag of type 'flag'
@@ -553,19 +555,6 @@ bool ComboFI(int x, int y, int flag)
 bool ComboFI(int loc, int flag)
 {
 	return Screen->ComboF[loc] == flag || Screen->ComboI[loc] == flag;
-}
-
-//Returns true if the combo at '(x, y)' has either an inherent or place flag of type 'flag'
-bool ComboFIRegion(int x, int y, int flag)
-{
-	int loc = ComboAtRegion(x,y);
-	return Region->ComboF[loc] == flag || Region->ComboI[loc] == flag;
-}
-
-//Returns true if the combo at 'loc' has either an inherent or place flag of type 'flag'
-bool ComboFIRegion(int loc, int flag)
-{
-	return Region->ComboF[loc] == flag || Region->ComboI[loc] == flag;
 }
 
 //Return the coordinates of a combo on the screen
