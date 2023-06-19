@@ -3606,7 +3606,7 @@ bool enemy::m_walkflag_old(int32_t dx,int32_t dy,int32_t special, int32_t x, int
 	int32_t yg = (special==spw_floater)?8:0;
 	int32_t nb = get_bit(quest_rules, qr_NOBORDER) ? 16 : 0;
 	
-	if(dx<16-nb || dy<zc_max(16-yg-nb,0) || dx>=240+nb || dy>=160+nb)
+	if(dx<16-nb || dy<zc_max(16-yg-nb,0) || dx>=world_w-16+nb || dy>=world_h-16+nb)
 		return true;
 		
 	bool isInDungeon = isdungeon();
@@ -11888,7 +11888,7 @@ bool eTrap::clip()
 			break;
 			
 		case down:
-			if(y>=160)         return true;
+			if(y>=world_h-16)         return true;
 			
 			break;
 			
@@ -11898,7 +11898,7 @@ bool eTrap::clip()
 			break;
 			
 		case right:
-			if(x>=240)         return true;
+			if(x>=world_w-16)         return true;
 			
 			break;
 			
@@ -11908,17 +11908,17 @@ bool eTrap::clip()
 			break;
 			
 		case l_down:
-			if(y>=160||x<=0)   return true;
+			if(y>=world_h-16||x<=0)   return true;
 			
 			break;
 			
 		case r_up:
-			if(y<=0||x>=240)   return true;
+			if(y<=0||x>=world_w-16)   return true;
 			
 			break;
 			
 		case r_down:
-			if(y>=160||x>=240) return true;
+			if(y>=world_h-16||x>=world_w-16) return true;
 			
 			break;
 		}
@@ -12120,7 +12120,7 @@ bool eTrap2::clip()
 		break;
 		
 	case down:
-		if(y>=160) return true;
+		if(y>=world_h-16) return true;
 		
 		break;
 		
@@ -12130,7 +12130,7 @@ bool eTrap2::clip()
 		break;
 		
 	case right:
-		if(x>=240) return true;
+		if(x>=world_w-16) return true;
 		
 		break;
 	}
@@ -14684,11 +14684,11 @@ void eWizzrobe::wizzrobe_newdir(int32_t homing)
 	// if they're already there, they should move toward the center
 	if(x<32)
 		dir=right;
-	else if(x>=224)
+	else if(x>=world_w-32)
 		dir=left;
 	else if(y<32)
 		dir=down;
-	else if(y>=144)
+	else if(y>=world_h-32)
 		dir=up;
 	else
 		newdir(4,homing,spw_wizzrobe);

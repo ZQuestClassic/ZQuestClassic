@@ -10445,6 +10445,7 @@ int32_t get_register(const int32_t arg)
 			
 		case MAPDATACOMBOFD:
 		{
+			// TODO z3 !!!!!
 			if (mapscr *m = GetMapscr(ri->mapsref))
 			{
 				//int32_t ffindex = ri->d[rINDEX]/10000;
