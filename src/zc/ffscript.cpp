@@ -8430,13 +8430,14 @@ int32_t get_register(const int32_t arg)
 		//Screen->ComboX
 		#define GET_COMBO_VAR(member, str) \
 		{ \
-		int32_t pos = ri->d[rINDEX] / 10000; \
-		if(BC::checkComboPos(pos, str) != SH::_NoError) \
+		rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000); \
+		int32_t pos = RPOS_TO_POS(rpos); \
+		if(BC::checkComboRpos(rpos, str) != SH::_NoError) \
 		{ \
 		    ret = -10000; \
 		} \
 		else \
-		    ret = tmpscr.member[pos]*10000; \
+		    ret = get_screen_for_rpos(rpos)->member[pos]*10000; \
 		}
 
 		case COMBODD:
@@ -8450,13 +8451,14 @@ int32_t get_register(const int32_t arg)
 			
 		#define GET_COMBO_VAR_BUF(member, str) \
 		{ \
-		    int32_t pos = ri->d[rINDEX] / 10000; \
-		    if(BC::checkComboPos(pos, str) != SH::_NoError) \
+		    rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000); \
+			int32_t pos = RPOS_TO_POS(rpos); \
+		    if(BC::checkComboRpos(rpos, str) != SH::_NoError) \
 		    { \
 			ret = -10000; \
 		    } \
 		    else \
-			ret = combobuf[tmpscr.data[pos]].member * 10000; \
+			ret = combobuf[get_screen_for_rpos(rpos)->data[pos]].member * 10000; \
 		}
 			
 		case COMBOTD:
@@ -8467,23 +8469,25 @@ int32_t get_register(const int32_t arg)
 			
 		case COMBOSD:
 		{
-			int32_t pos = ri->d[rINDEX] / 10000;
+			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
+			int32_t pos = RPOS_TO_POS(rpos);
 			
-			if(BC::checkComboPos(pos, "Screen->ComboS[]") != SH::_NoError)
+			if(BC::checkComboRpos(rpos, "Screen->ComboS[]") != SH::_NoError)
 				ret = -10000;
 			else
-				ret = (combobuf[tmpscr.data[pos]].walk & 0xF) * 10000;
+				ret = (combobuf[get_screen_for_rpos(rpos)->data[pos]].walk & 0xF) * 10000;
 		}
 		break;
 			
 		case COMBOED:
 		{
-			int32_t pos = ri->d[rINDEX] / 10000;
+			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
+			int32_t pos = RPOS_TO_POS(rpos);
 			
 			if(BC::checkComboPos(pos, "Screen->ComboE[]") != SH::_NoError)
 				ret = -10000;
 			else
-				ret = ((combobuf[tmpscr.data[pos]].walk & 0xF0)>>4) * 10000;
+				ret = ((combobuf[get_screen_for_rpos(rpos)->data[pos]].walk & 0xF0)>>4) * 10000;
 		}
 		break;
 
