@@ -561,7 +561,7 @@ int32_t COMBOPOS_REGION_EXTENDED(int32_t pos, int32_t scr_dx, int32_t scr_dy)
 }
 int32_t COMBOPOS_REGION_EXTENDED(int32_t x, int32_t y)
 {
-	int combos_wide = region_scr_width  * 16;
+	int combos_wide = region_scr_width * 16;
 	return x / 16 + y / 16 * combos_wide;
 }
 int32_t COMBOX_REGION_EXTENDED(int32_t pos)
@@ -611,7 +611,7 @@ rpos_t COMBOPOS_REGION(int32_t x, int32_t y)
 }
 rpos_t COMBOPOS_REGION_CHECK_BOUNDS(int32_t x, int32_t y)
 {
-	if (x < 0 || y < 0 || x >= region_scr_width*256 || y >= region_scr_height*176)
+	if (x < 0 || y < 0 || x >= world_w || y >= world_h)
 		return rpos_t::NONE;
 
 	int scr_dx = x / (16*16);
