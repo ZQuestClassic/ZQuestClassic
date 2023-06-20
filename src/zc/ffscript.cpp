@@ -9909,40 +9909,6 @@ int32_t get_register(const int32_t arg)
 			} \
 		} \
 		
-		#define GET_SCREENDATA_COMBO_VAR(member, str) \
-		{ \
-			if (mapscr *m = GetMapscr(ri->mapsref)) \
-			{ \
-				int32_t pos = ri->d[rINDEX] / 10000; \
-				if(BC::checkComboPos(pos, str) != SH::_NoError) \
-					ret = -10000; \
-				else \
-					ret = m->member[pos]*10000; \
-			} \
-			else \
-			{ \
-				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n",str); \
-				ret = -10000; \
-			} \
-		} \
-
-		#define GET_MAPDATA_COMBO_VAR_BUF(member, str) \
-		{ \
-			if (mapscr *m = GetMapscr(ri->mapsref)) \
-			{ \
-				int32_t pos = ri->d[rINDEX] / 10000; \
-				if(BC::checkComboPos(pos, str) != SH::_NoError) \
-					ret = -10000; \
-				else \
-					ret = combobuf[m->data[pos]].member * 10000; \
-			} \
-			else \
-			{ \
-				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n",str); \
-				ret = -10000; \
-			} \
-		} \
-		
 		#define GET_MAPDATA_FFCPOS_INDEX32(member, str, indexbound) \
 		{ \
 			int32_t indx = (ri->d[rINDEX] / 10000)-1; \
@@ -10524,7 +10490,6 @@ int32_t get_register(const int32_t arg)
 				ret = -10000;
 			}
 			break;
-			//GET_SCREENDATA_COMBO_VAR(data,  "mapdata->ComboD") break;
 		}
 			
 		case MAPDATACOMBOCD:
@@ -10551,63 +10516,34 @@ int32_t get_register(const int32_t arg)
 			}
 			break;
 		}
-			//GET_SCREENDATA_COMBO_VAR(cset,  "mapdata->ComboC") break;
 			
 		case MAPDATACOMBOFD:
 		{
-			// TODO z3 !!!!!
-			if (mapscr *m = GetMapscr(ri->mapsref))
+			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
+			if (auto [m, pos] = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboF[pos]"); m != nullptr)
 			{
-				//int32_t ffindex = ri->d[rINDEX]/10000;
-				//int32_t d = ri->d[rINDEX2]/10000;
-				//int32_t v = (value/10000);
-				int32_t pos = ri->d[rINDEX] / 10000;
-				if(BC::checkComboPos(pos, "mapdata->ComboF[pos]") != SH::_NoError)
-				{
-					ret = -10000;
-				}
-				else
-				{
-					ret = m->sflag[pos] * 10000;
-				}
+				ret = m->sflag[pos] * 10000;
 			}
 			else
 			{
-				Z_scripterrlog("Mapdata->%s pointer (%d) is either invalid or uninitialised.\n","ComboF[]",ri->mapsref);
 				ret = -10000;
 			}
 			break;
 		}
-			//GET_SCREENDATA_COMBO_VAR(sflag, "mapdata->ComboF") break;
-			
 
-			
 		case MAPDATACOMBOTD:
 		{
-			if (mapscr *m = GetMapscr(ri->mapsref))
+			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
+			if (auto [m, pos] = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboT[pos]"); m != nullptr)
 			{
-				//int32_t ffindex = ri->d[rINDEX]/10000;
-				//int32_t d = ri->d[rINDEX2]/10000;
-				//int32_t v = (value/10000);
-				int32_t pos = ri->d[rINDEX] / 10000;
-				if(BC::checkComboPos(pos, "mapdata->ComboT[pos]") != SH::_NoError)
-				{
-					ret = -10000;
-					
-				}
-				else
-				{
-					ret = combobuf[m->data[pos]].type * 10000;
-				}
+				ret = combobuf[m->data[pos]].type * 10000;
 			}
 			else
 			{
-				Z_scripterrlog("Mapdata->%s pointer (%d) is either invalid or uninitialised.\n","ComboT[]",ri->mapsref);
 				ret = -10000;
 			}
 			break;
 		}
-			//GET_MAPDATA_COMBO_VAR_BUF(type, "mapdata->ComboT") break;
 			
 		case MAPDATACOMBOID:
 		{
@@ -10621,9 +10557,7 @@ int32_t get_register(const int32_t arg)
 				ret = -10000;
 			}
 			break;
-			//GET_SCREENDATA_COMBO_VAR(data,  "mapdata->ComboD") break;
 		}
-			//GET_MAPDATA_COMBO_VAR_BUF(flag, "mapdata->ComboI") break;
 			
 		case MAPDATACOMBOSD:
 		{
