@@ -526,9 +526,9 @@ int ComboAt(int x, int y)
 {
 	if (Region->ID)
 	{
-		x = VBound(x,Region->WorldWidth - 1,0);
-		y = VBound(y,Region->WorldHeight - 1,0);
-		// Floor'd because in Zscript, ints aren't ints?!
+		x = VBound(x, Region->Width - 1, 0);
+		y = VBound(y, Region->Height - 1, 0);
+		// Floor'd because in ZScript, ints aren't ints?!
 		int scr_dx = Floor(x / 256);
 		int scr_dy = Floor(y / 176);
 		int offset_pos = (scr_dx + scr_dy * Region->ScreenWidth)*176;

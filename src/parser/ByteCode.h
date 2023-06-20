@@ -1534,8 +1534,8 @@
 #define VIEWPORT_HEIGHT         1440
 #define REGIONCD                1441 // TODO z3 !!! rm
 #define REGIONFD                1442 // TODO z3 !!! rm
-#define REGIONWORLDWIDTH        1443
-#define REGIONWORLDHEIGHT       1444
+#define REGION_WIDTH            1443
+#define REGION_HEIGHT           1444
 #define REGIONSCREENWIDTH       1445
 #define REGIONSCREENHEIGHT      1446
 #define FF_SCREEN_INDEX         1447

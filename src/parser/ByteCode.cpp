@@ -325,11 +325,11 @@ string ZScript::VarToString(int32_t ID)
 	case REFFFC:
 		return "REFFFC";
 	
-	case REGIONWORLDWIDTH:
-		return "REGIONWORLDWIDTH";
+	case REGION_WIDTH:
+		return "REGION_WIDTH";
 
-	case REGIONWORLDHEIGHT:
-		return "REGIONWORLDHEIGHT";
+	case REGION_HEIGHT:
+		return "REGION_HEIGHT";
 
 	case REGIONSCREENWIDTH:
 		return "REGIONSCREENWIDTH";

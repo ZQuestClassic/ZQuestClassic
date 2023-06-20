@@ -21,8 +21,8 @@ static AccessorTable RegionTable[] =
 	// { "getComboE[]",                0,         ZTID_FLOAT,   REGIONED,                           0,  { ZTID_REGION, ZTID_FLOAT },{} },
 	// { "setComboE[]",                0,          ZTID_VOID,   REGIONED,                           0,  { ZTID_REGION, ZTID_FLOAT, ZTID_FLOAT },{} },
 
-	{ "getWorldWidth",              0,          ZTID_LONG,   REGIONWORLDWIDTH,                   0,  { ZTID_REGION }, {} },
-	{ "getWorldHeight",             0,          ZTID_LONG,   REGIONWORLDHEIGHT,                  0,  { ZTID_REGION }, {} },
+	{ "getWidth",              0,               ZTID_LONG,   REGION_WIDTH,                       0,  { ZTID_REGION }, {} },
+	{ "getHeight",             0,               ZTID_LONG,   REGION_HEIGHT,                      0,  { ZTID_REGION }, {} },
 	{ "getScreenWidth",             0,          ZTID_LONG,   REGIONSCREENWIDTH,                  0,  { ZTID_REGION }, {} },
 	{ "getScreenHeight",            0,          ZTID_LONG,   REGIONSCREENHEIGHT,                 0,  { ZTID_REGION }, {} },
 	{ "getMaxRpos",                 0,          ZTID_LONG,   REGION_MAX_RPOS,                    0,  { ZTID_REGION }, {} },

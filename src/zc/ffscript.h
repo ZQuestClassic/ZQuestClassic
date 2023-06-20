@@ -4850,8 +4850,8 @@ enum ASM_DEFINE
 #define VIEWPORT_HEIGHT         0x14D6
 #define REGIONSD                0x14D7 // TODO z3 !!!! rm
 #define REGIONED                0x14D8 // TODO z3 !!!! rm
-#define REGIONWORLDWIDTH        0x14D9
-#define REGIONWORLDHEIGHT       0x14DA
+#define REGION_WIDTH            0x14D9
+#define REGION_HEIGHT           0x14DA
 #define REGIONSCREENWIDTH       0x14DB
 #define REGIONSCREENHEIGHT      0x14DC
 #define FF_SCREEN_INDEX         0x14DD

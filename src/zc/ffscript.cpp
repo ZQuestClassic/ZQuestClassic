@@ -295,6 +295,23 @@ int32_t getScreen(int32_t ref)
 	}
 }
 
+static bool mapRefIsTemp(int32_t ref)
+{
+	switch (ref)
+	{
+		case MAPSCR_TEMP0:
+		case MAPSCR_TEMP1:
+		case MAPSCR_TEMP2:
+		case MAPSCR_TEMP3:
+		case MAPSCR_TEMP4:
+		case MAPSCR_TEMP5:
+		case MAPSCR_TEMP6:
+			return true;
+	}
+
+	return false;
+}
+
 #include "zconsole/ConsoleLogger.h"
 
 //no ifdef here
@@ -8557,13 +8574,13 @@ int32_t get_register(const int32_t arg)
 		// }
 		// break;
 
-		case REGIONWORLDWIDTH:
+		case REGION_WIDTH:
 		{
 			ret = world_w * 10000;
 		}
 		break;
 
-		case REGIONWORLDHEIGHT:
+		case REGION_HEIGHT:
 		{
 			ret = world_h * 10000;
 		}
@@ -10615,11 +10632,25 @@ int32_t get_register(const int32_t arg)
 			
 		case MAPDATACOMBOED:
 		{
+			// TODO z3 !!!! add z3_is_scrolling_mode()
+			/*if (mapRefIsTemp(ri->mapsref))
+			{
+				rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
+				if(BC::checkComboRpos(rpos, "mapdata->ComboE[rpos]") != SH::_NoError)
+				{
+					ret = -10000;
+				}
+				else
+				{
+					int layer = -ri->mapsref - 1;
+					mapscr* m = get_layer_scr(currmap, get_screen_index_for_rpos(rpos), layer - 1);
+					int pos = RPOS_TO_POS(rpos);
+					ret = ((combobuf[m->data[pos]].walk & 0xF0)>>4) * 10000;
+				}
+			}
+			else*/
 			if (mapscr *m = GetMapscr(ri->mapsref))
 			{
-				//int32_t ffindex = ri->d[rINDEX]/10000;
-				//int32_t d = ri->d[rINDEX2]/10000;
-				//int32_t v = (value/10000);
 				int32_t pos = ri->d[rINDEX] / 10000;
 				if(BC::checkComboPos(pos, "mapdata->ComboE[pos]") != SH::_NoError)
 				{
@@ -42306,8 +42337,8 @@ script_variable ZASMVars[]=
 	{ "GAMEEVENTDATA", GAMEEVENTDATA, 0, 0 },
 	{ "ITEMDROPPEDBY", ITEMDROPPEDBY, 0, 0 },
 	{ "GAMEGSWITCH", GAMEGSWITCH, 0, 0 },
-	{ "REGIONWORLDWIDTH", REGIONWORLDWIDTH, 0, 0 },
-	{ "REGIONWORLDHEIGHT", REGIONWORLDHEIGHT, 0, 0 },
+	{ "REGION_WIDTH", REGION_WIDTH, 0, 0 },
+	{ "REGION_HEIGHT", REGION_HEIGHT, 0, 0 },
 	{ "REGIONSCREENWIDTH", REGIONSCREENWIDTH, 0, 0 },
 	{ "REGIONSCREENHEIGHT", REGIONSCREENHEIGHT, 0, 0 },
 	
