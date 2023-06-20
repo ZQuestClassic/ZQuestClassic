@@ -654,10 +654,10 @@ bool RegionIncludesScreen(int scr)
 	if (Region->ID)
 	{
 		int dx = RegionRelativeScreenX(scr);
-		if (dx < 0 || dx > Region->Width) return false;
+		if (dx < 0 || dx > Region->ScreenWidth) return false;
 
 		int dy = RegionRelativeScreenY(scr);
-		if (dy < 0 || dy > Region->Height) return false;
+		if (dy < 0 || dy > Region->ScreenHeight) return false;
 
 		return true;
 	}
