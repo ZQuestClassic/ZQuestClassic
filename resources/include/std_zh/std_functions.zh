@@ -524,7 +524,7 @@ bool Collision(combodata f)
 //Finds the location of a combo, given its (x,y) coordinates on the screen
 int ComboAt(int x, int y)
 {
-	if (Region->ScreenWidth > 1 || Region->ScreenHeight > 1)
+	if (Region->ID)
 	{
 		x = VBound(x,Region->WorldWidth - 1,0);
 		y = VBound(y,Region->WorldHeight - 1,0);
@@ -560,7 +560,7 @@ bool ComboFI(int loc, int flag)
 //Return the coordinates of a combo on the screen
 int ComboX(int rpos)
 {
-	if (Region->ScreenWidth > 1 || Region->ScreenHeight > 1)
+	if (Region->ID)
 	{
 		int scr_index = rpos / 176;
 		int scr_width = Region->ScreenWidth;
@@ -576,7 +576,7 @@ int ComboX(int rpos)
 }
 int ComboY(int rpos)
 {
-	if (Region->ScreenWidth > 1 || Region->ScreenHeight > 1)
+	if (Region->ID)
 	{
 		int scr_index = rpos / 176;
 		int scr_width = Region->ScreenWidth;

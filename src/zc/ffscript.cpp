@@ -8591,6 +8591,12 @@ int32_t get_register(const int32_t arg)
 			ret = region_num_rpos * 10000;
 		}
 		break;
+
+		case REGION_ID:
+		{
+			ret = get_current_region_id() * 10000;
+		}
+		break;
 		
 		///----------------------------------------------------------------------------------------------------//
 		//Game->GetComboX
@@ -42334,7 +42340,7 @@ script_variable ZASMVars[]=
 	{ "FF_SCREEN_INDEX", FF_SCREEN_INDEX, 0, 0 },
 	{ "REGION_MAX_RPOS", REGION_MAX_RPOS, 0, 0 },
 	{ "REGION_NUM_RPOS", REGION_NUM_RPOS, 0, 0 },
-	{ "RESRVD_VAR_Z3_15", RESRVD_VAR_Z3_15, 0, 0 },
+	{ "REGION_ID", REGION_ID, 0, 0 },
 	{ "RESRVD_VAR_Z3_16", RESRVD_VAR_Z3_16, 0, 0 },
 	{ "LWPNLIFTLEVEL", LWPNLIFTLEVEL, 0, 0},
 	{ "LWPNLIFTTIME", LWPNLIFTTIME, 0, 0},

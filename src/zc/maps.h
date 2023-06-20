@@ -90,6 +90,7 @@ extern int scrolling_maze_scr, scrolling_maze_state;
 extern int scrolling_maze_mode;
 
 int get_region_id(int dmap, int screen_index);
+int get_current_region_id();
 bool is_in_current_region(int scr);
 bool is_valid_rpos(rpos_t rpos);
 void z3_calculate_region(int dmap, int screen_index, int& origin_scr, int& region_scr_width, int& region_scr_height, int& region_scr_dx, int& region_scr_dy, int& world_w, int& world_h);

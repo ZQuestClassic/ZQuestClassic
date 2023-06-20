@@ -26,6 +26,7 @@ static AccessorTable RegionTable[] =
 	{ "getScreenHeight",            0,          ZTID_LONG,   REGIONSCREENHEIGHT,                 0,  { ZTID_REGION }, {} },
 	{ "getMaxRpos",                 0,          ZTID_LONG,   REGION_MAX_RPOS,                    0,  { ZTID_REGION }, {} },
 	{ "getNumRpos",                 0,          ZTID_LONG,   REGION_NUM_RPOS,                    0,  { ZTID_REGION }, {} },
+	{ "getID",                      0,          ZTID_LONG,   REGION_ID,                          0,  { ZTID_REGION }, {} },
 	
 	{ "GetScreenIndexForRpos",      0,          ZTID_FLOAT,  -1,                            FL_INL,  { ZTID_REGION, ZTID_FLOAT }, {} },
 

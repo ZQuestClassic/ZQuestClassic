@@ -174,6 +174,11 @@ int get_region_id(int dmap, int scr)
 #endif
 }
 
+int get_current_region_id()
+{
+	return get_region_id(currdmap, z3_origin_screen_index);
+}
+
 void z3_calculate_region(int dmap, int screen_index, int& origin_scr, int& region_scr_width, int& region_scr_height, int& region_scr_dx, int& region_scr_dy, int& world_w, int& world_h)
 {
 	if (!is_z3_scrolling_mode() || screen_index >= 0x80)

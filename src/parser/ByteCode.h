@@ -1533,7 +1533,7 @@
 #define FF_SCREEN_INDEX         1447
 #define REGION_MAX_RPOS         1448
 #define REGION_NUM_RPOS         1449
-#define RESRVD_VAR_Z3_15        1450
+#define REGION_ID               1450
 #define RESRVD_VAR_Z3_16        1451
 #define LWPNLIFTLEVEL      1452
 #define LWPNLIFTTIME      1453
