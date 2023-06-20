@@ -595,8 +595,8 @@ int ComboY(int rpos)
 }
 
 // Given a screen index, returns the screen offset in the X direction in the current region.
-// Example: If the region origin is screen 5, `RegionRelativeScreenDx(8) == 3`
-int RegionRelativeScreenDx(int scr)
+// Example: If the region origin is screen 5, `RegionRelativeScreenX(8) == 3`
+int RegionRelativeScreenX(int scr)
 {
 	if (Region->ID)
 	{
@@ -609,11 +609,37 @@ int RegionRelativeScreenDx(int scr)
 }
 
 // Given a screen index, returns the screen offset in the Y direction in the current region.
-int RegionRelativeScreenDy(int scr)
+int RegionRelativeScreenY(int scr)
 {
 	if (Region->ID)
 	{
 		return Floor(scr/16) - Floor(Region->OriginScreen/16);
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+// Given a screen index, returns the world offset in the x direction for the current region.
+int RegionWorldOffsetX(int scr)
+{
+	if (Region->ID)
+	{
+		return RegionRelativeScreenX(scr) * 256;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+// Given a screen index, returns the world offset in the y direction for the current region.
+int RegionWorldOffsetY(int scr)
+{
+	if (Region->ID)
+	{
+		return RegionRelativeScreenY(scr) * 176;
 	}
 	else
 	{
@@ -627,10 +653,10 @@ bool RegionIncludesScreen(int scr)
 {
 	if (Region->ID)
 	{
-		int dx = RegionRelativeScreenDx(scr);
+		int dx = RegionRelativeScreenX(scr);
 		if (dx < 0 || dx > Region->Width) return false;
 
-		int dy = RegionRelativeScreenDy(scr);
+		int dy = RegionRelativeScreenY(scr);
 		if (dy < 0 || dy > Region->Height) return false;
 
 		return true;
