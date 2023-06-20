@@ -558,33 +558,37 @@ bool ComboFI(int loc, int flag)
 }
 
 //Return the coordinates of a combo on the screen
-int ComboX(int loc)
+int ComboX(int rpos)
 {
-	return loc%16*16;
+	if (Region->ScreenWidth > 1 || Region->ScreenHeight > 1)
+	{
+		int scr_index = rpos / 176;
+		int scr_width = Region->ScreenWidth;
+		int scr_dx = scr_index % scr_width;
+		int scr_dy = scr_index / scr_width;
+		int pos = rpos % 176;
+		return scr_dx*16*16 + pos%16*16;
+	}
+	else
+	{
+		return rpos%16*16;
+	}
 }
-int ComboY(int loc)
+int ComboY(int rpos)
 {
-	return loc&0xF0;
-}
-
-//Return the coordinates of a combo on the screen
-int ComboXRegion(int rpos)
-{
-	int scr_index = rpos / 176;
-	int scr_width = Region->ScreenWidth;
-	int scr_dx = scr_index % scr_width;
-	int scr_dy = scr_index / scr_width;
-	int pos = rpos % 176;
-	return scr_dx*16*16 + ComboX(pos);
-}
-int ComboYRegion(int rpos)
-{
-	int scr_index = rpos / 176;
-	int scr_width = Region->ScreenWidth;
-	int scr_dx = scr_index % scr_width;
-	int scr_dy = scr_index / scr_width;
-	int pos = rpos % 176;
-	return scr_dy*11*16 + ComboY(pos);
+	if (Region->ScreenWidth > 1 || Region->ScreenHeight > 1)
+	{
+		int scr_index = rpos / 176;
+		int scr_width = Region->ScreenWidth;
+		int scr_dx = scr_index % scr_width;
+		int scr_dy = scr_index / scr_width;
+		int pos = rpos % 176;
+		return scr_dy*11*16 + pos&0xF0;
+	}
+	else
+	{
+		return rpos&0xF0;
+	}
 }
 
 //Returns a if cond is true, else b. Overloaded.
