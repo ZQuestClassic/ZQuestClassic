@@ -222,23 +222,6 @@ mapscr* GetMapscr(int32_t mapref)
 	}
 }
 
-static bool mapRefIsTemp(int32_t ref)
-{
-	switch (ref)
-	{
-		case MAPSCR_TEMP0:
-		case MAPSCR_TEMP1:
-		case MAPSCR_TEMP2:
-		case MAPSCR_TEMP3:
-		case MAPSCR_TEMP4:
-		case MAPSCR_TEMP5:
-		case MAPSCR_TEMP6:
-			return true;
-	}
-
-	return false;
-}
-
 int32_t getMap(int32_t ref)
 {
 	switch(ref)
@@ -1910,6 +1893,23 @@ public:
 	}
 };
 
+static bool mapRefIsTemp(int32_t ref)
+{
+	switch (ref)
+	{
+		case MAPSCR_TEMP0:
+		case MAPSCR_TEMP1:
+		case MAPSCR_TEMP2:
+		case MAPSCR_TEMP3:
+		case MAPSCR_TEMP4:
+		case MAPSCR_TEMP5:
+		case MAPSCR_TEMP6:
+			return true;
+	}
+
+	return false;
+}
+
 std::pair<mapscr*, int32_t> ResolveMapRef(int32_t mapref, rpos_t rpos, const char* context)
 {
 	if (mapref < 0)
@@ -1932,13 +1932,12 @@ std::pair<mapscr*, int32_t> ResolveMapRef(int32_t mapref, rpos_t rpos, const cha
 		}
 	}
 
-	int32_t pos = RPOS_TO_POS(rpos);
-	if (BC::checkComboPos(pos, context) != SH::_NoError)
+	if (BC::checkComboPos((int)rpos, context) != SH::_NoError)
 	{
 		return {nullptr, -1};
 	}
 
-	return {GetMapscr(mapref), pos};
+	return {GetMapscr(mapref), RPOS_TO_POS(rpos)};
 }
 
 ///------------------------------------------------//
@@ -10472,21 +10471,13 @@ int32_t get_register(const int32_t arg)
 
 		case MAPDATACOMBODD:
 		{
-			if (mapscr *m = GetMapscr(ri->mapsref))
+			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
+			if (auto [m, pos] = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboD[pos]"); m != nullptr)
 			{
-				int32_t pos = ri->d[rINDEX] / 10000;
-				if(BC::checkComboPos(pos, "mapdata->ComboD[pos]") != SH::_NoError)
-				{
-					ret = -10000;
-				}
-				else
-				{
-					ret = m->data[pos] * 10000;
-				}
+				ret = m->data[pos] * 10000;
 			}
 			else
 			{
-				Z_scripterrlog("Mapdata->%s pointer (%d) is either invalid or uninitialised.\n","ComboD[]",ri->mapsref);
 				ret = -10000;
 			}
 			break;
@@ -10494,29 +10485,18 @@ int32_t get_register(const int32_t arg)
 			
 		case MAPDATACOMBOCD:
 		{
-			if (mapscr *m = GetMapscr(ri->mapsref))
+			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
+			if (auto [m, pos] = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboC[pos]"); m != nullptr)
 			{
-				//int32_t ffindex = ri->d[rINDEX]/10000;
-				//int32_t d = ri->d[rINDEX2]/10000;
-				//int32_t v = (value/10000);
-				int32_t pos = ri->d[rINDEX] / 10000;
-				if(BC::checkComboPos(pos, "mapdata->ComboC[pos]") != SH::_NoError)
-				{
-					ret = -10000;
-				}
-				else
-				{
-					ret = m->cset[pos] * 10000;
-				}
+				ret = m->cset[pos] * 10000;
 			}
 			else
 			{
-				Z_scripterrlog("Mapdata->%s pointer (%d) is either invalid or uninitialised.\n","ComboC[]",ri->mapsref);
 				ret = -10000;
 			}
 			break;
 		}
-			
+
 		case MAPDATACOMBOFD:
 		{
 			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
