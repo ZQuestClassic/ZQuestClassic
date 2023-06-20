@@ -222,6 +222,23 @@ mapscr* GetMapscr(int32_t mapref)
 	}
 }
 
+static bool mapRefIsTemp(int32_t ref)
+{
+	switch (ref)
+	{
+		case MAPSCR_TEMP0:
+		case MAPSCR_TEMP1:
+		case MAPSCR_TEMP2:
+		case MAPSCR_TEMP3:
+		case MAPSCR_TEMP4:
+		case MAPSCR_TEMP5:
+		case MAPSCR_TEMP6:
+			return true;
+	}
+
+	return false;
+}
+
 int32_t getMap(int32_t ref)
 {
 	switch(ref)
@@ -293,23 +310,6 @@ int32_t getScreen(int32_t ref)
 		default:
 			return (ref % MAPSCRS);
 	}
-}
-
-static bool mapRefIsTemp(int32_t ref)
-{
-	switch (ref)
-	{
-		case MAPSCR_TEMP0:
-		case MAPSCR_TEMP1:
-		case MAPSCR_TEMP2:
-		case MAPSCR_TEMP3:
-		case MAPSCR_TEMP4:
-		case MAPSCR_TEMP5:
-		case MAPSCR_TEMP6:
-			return true;
-	}
-
-	return false;
 }
 
 #include "zconsole/ConsoleLogger.h"
@@ -1909,6 +1909,37 @@ public:
 		return _NoError;
 	}
 };
+
+std::pair<mapscr*, int32_t> ResolveMapRef(int32_t mapref, rpos_t rpos, const char* context)
+{
+	if (mapref < 0)
+	{
+		Z_scripterrlog("%s pointer (%d) is either invalid or uninitialised.\n", context, mapref);
+		return {nullptr, -1};
+	}
+
+	if (mapRefIsTemp(mapref))
+	{
+		if (BC::checkComboRpos(rpos, context) != SH::_NoError)
+		{
+			return {nullptr, -1};
+		}
+		else
+		{
+			int layer = -ri->mapsref - 1;
+			mapscr* m = get_screen_layer_for_rpos(rpos, layer - 1);
+			return {m, RPOS_TO_POS(rpos)};
+		}
+	}
+
+	int32_t pos = RPOS_TO_POS(rpos);
+	if (BC::checkComboPos(pos, context) != SH::_NoError)
+	{
+		return {nullptr, -1};
+	}
+
+	return {GetMapscr(mapref), pos};
+}
 
 ///------------------------------------------------//
 //           Pointer Handling Functions          //
@@ -10580,24 +10611,13 @@ int32_t get_register(const int32_t arg)
 			
 		case MAPDATACOMBOID:
 		{
-			if (mapscr *m = GetMapscr(ri->mapsref))
+			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
+			if (auto [m, pos] = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboI[pos]"); m != nullptr)
 			{
-				//int32_t ffindex = ri->d[rINDEX]/10000;
-				//int32_t d = ri->d[rINDEX2]/10000;
-				//int32_t v = (value/10000);
-				int32_t pos = ri->d[rINDEX] / 10000;
-				if(BC::checkComboPos(pos, "mapdata->ComboI[pos]") != SH::_NoError)
-				{
-					ret = -10000;
-				}
-				else
-				{
-					ret = combobuf[m->data[pos]].flag * 10000;
-				}
+				ret = combobuf[m->data[pos]].flag * 10000;
 			}
 			else
 			{
-				Z_scripterrlog("Mapdata->%s pointer (%d) is either invalid or uninitialised.\n","ComboI[]",ri->mapsref);
 				ret = -10000;
 			}
 			break;
@@ -10632,38 +10652,13 @@ int32_t get_register(const int32_t arg)
 			
 		case MAPDATACOMBOED:
 		{
-			// TODO z3 !!!! add z3_is_scrolling_mode()
-			/*if (mapRefIsTemp(ri->mapsref))
+			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
+			if (auto [m, pos] = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboE[pos]"); m != nullptr)
 			{
-				rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
-				if(BC::checkComboRpos(rpos, "mapdata->ComboE[rpos]") != SH::_NoError)
-				{
-					ret = -10000;
-				}
-				else
-				{
-					int layer = -ri->mapsref - 1;
-					mapscr* m = get_layer_scr(currmap, get_screen_index_for_rpos(rpos), layer - 1);
-					int pos = RPOS_TO_POS(rpos);
-					ret = ((combobuf[m->data[pos]].walk & 0xF0)>>4) * 10000;
-				}
-			}
-			else*/
-			if (mapscr *m = GetMapscr(ri->mapsref))
-			{
-				int32_t pos = ri->d[rINDEX] / 10000;
-				if(BC::checkComboPos(pos, "mapdata->ComboE[pos]") != SH::_NoError)
-				{
-					ret = -10000;
-				}
-				else
-				{
-					ret = ((combobuf[m->data[pos]].walk & 0xF0)>>4) * 10000;
-				}	
+				ret = ((combobuf[m->data[pos]].walk & 0xF0)>>4) * 10000;
 			}
 			else
 			{
-				Z_scripterrlog("Mapdata->%s pointer (%d) is either invalid or uninitialised.\n","ComboE[]", ri->mapsref);
 				ret = -10000;
 			}
 			break;

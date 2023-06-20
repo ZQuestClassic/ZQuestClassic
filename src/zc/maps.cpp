@@ -441,6 +441,11 @@ mapscr* get_screen_for_rpos(rpos_t rpos)
 	return get_scr(currmap, get_screen_index_for_rpos(rpos));
 }
 
+mapscr* get_screen_layer_for_rpos(rpos_t rpos, int layer)
+{
+	return get_layer_scr(currmap, get_screen_index_for_rpos(rpos), layer);
+}
+
 // Note: layer=0 is the base screen, 1 is the first layer, etc.
 // TODO rename get_screen_layer_for_world_xy
 // TODO z3 de-dupe this and get_layer_scr_for_xy

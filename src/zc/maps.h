@@ -105,6 +105,7 @@ bool edge_of_region(direction dir);
 int get_screen_index_for_world_xy(int x, int y);
 int get_screen_index_for_rpos(rpos_t rpos);
 mapscr* get_screen_for_rpos(rpos_t rpos);
+mapscr* get_screen_layer_for_rpos(rpos_t rpos, int layer);
 rpos_handle_t get_rpos_handle(rpos_t rpos, int layer);
 rpos_handle_t get_rpos_handle_for_world_xy(int x, int y, int layer);
 rpos_handle_t get_rpos_handle_for_screen(int screen_index, int layer, int pos);
