@@ -2333,7 +2333,7 @@ string ZScript::VarToString(int32_t ID)
 	case RESRVD_VAR_MOOSH30: return "RESRVD_VAR_MOOSH30";
 	case FF_SCREEN_INDEX: return "FF_SCREEN_INDEX";
 	case REGION_ID: return "REGION_ID";
-	case RESRVD_VAR_Z3_16: return "RESRVD_VAR_Z3_16";
+	case REGION_ORIGIN_SCREEN: return "REGION_ORIGIN_SCREEN";
 	
 	default:
 	{

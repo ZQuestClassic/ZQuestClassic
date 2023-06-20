@@ -557,6 +557,9 @@ bool ComboFI(int loc, int flag)
 	return Screen->ComboF[loc] == flag || Screen->ComboI[loc] == flag;
 }
 
+// Note: all of the `Region->ID` checks in these various functions are minor performance improvements. The functions
+// likely work even without that.
+
 //Return the coordinates of a combo on the screen
 int ComboX(int rpos)
 {
@@ -589,6 +592,51 @@ int ComboY(int rpos)
 	{
 		return rpos&0xF0;
 	}
+}
+
+// Given a screen index, returns the screen offset in the X direction in the current region.
+// Example: If the region origin is screen 5, `RegionRelativeScreenDx(8) == 3`
+int RegionRelativeScreenDx(int scr)
+{
+	if (Region->ID)
+	{
+		return scr%16 - Region->OriginScreen%16;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+// Given a screen index, returns the screen offset in the Y direction in the current region.
+int RegionRelativeScreenDy(int scr)
+{
+	if (Region->ID)
+	{
+		return Floor(scr/16) - Floor(Region->OriginScreen/16);
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+// Returns true if the given screen index is inside the current region.
+// When not in a region, only returns true if scr is equal to Game->CurScreen.
+bool RegionIncludesScreen(int scr)
+{
+	if (Region->ID)
+	{
+		int dx = RegionRelativeScreenDx(scr);
+		if (dx < 0 || dx > Region->Width) return false;
+
+		int dy = RegionRelativeScreenDy(scr);
+		if (dy < 0 || dy > Region->Height) return false;
+
+		return true;
+	}
+
+	return scr == Game->CurScreen;
 }
 
 //Returns a if cond is true, else b. Overloaded.

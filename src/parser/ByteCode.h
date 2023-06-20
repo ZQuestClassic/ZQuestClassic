@@ -1534,7 +1534,7 @@
 #define REGION_MAX_RPOS         1448
 #define REGION_NUM_RPOS         1449
 #define REGION_ID               1450
-#define RESRVD_VAR_Z3_16        1451
+#define REGION_ORIGIN_SCREEN    1451
 #define LWPNLIFTLEVEL      1452
 #define LWPNLIFTTIME      1453
 #define LWPNLIFTHEIGHT      1454

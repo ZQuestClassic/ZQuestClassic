@@ -4858,7 +4858,7 @@ enum ASM_DEFINE
 #define REGION_MAX_RPOS         0x14DE
 #define REGION_NUM_RPOS         0x14DF
 #define REGION_ID               0x14E0
-#define RESRVD_VAR_Z3_16        0x14E1
+#define REGION_ORIGIN_SCREEN    0x14E1
 #define LWPNLIFTLEVEL      0x14E2
 #define LWPNLIFTTIME      0x14E3
 #define LWPNLIFTHEIGHT      0x14E4
