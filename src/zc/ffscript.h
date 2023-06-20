@@ -4843,13 +4843,13 @@ enum ASM_DEFINE
 #define SPRITEDATAFLAGS         0x14CF
 #define SPRITEDATAID            0x14D0
 #define CLASS_THISKEY2          0x14D1
-#define REGIONDD                0x14D2
-#define REGIONCD                0x14D3
-#define REGIONFD                0x14D4
-#define REGIONTD                0x14D5
-#define REGIONID                0x14D6
-#define REGIONSD                0x14D7
-#define REGIONED                0x14D8
+#define VIEWPORT_MODE           0x14D2
+#define VIEWPORT_X              0x14D3
+#define VIEWPORT_Y              0x14D4
+#define VIEWPORT_WIDTH          0x14D5
+#define VIEWPORT_HEIGHT         0x14D6
+#define REGIONSD                0x14D7 // TODO z3 !!!! rm
+#define REGIONED                0x14D8 // TODO z3 !!!! rm
 #define REGIONWORLDWIDTH        0x14D9
 #define REGIONWORLDHEIGHT       0x14DA
 #define REGIONSCREENWIDTH       0x14DB

@@ -1519,13 +1519,21 @@
 #define SPRITEDATAFLAGS         1433
 #define SPRITEDATAID            1434
 #define CLASS_THISKEY2          1435
-#define REGIONID                1436 // region_max_rpos of these
-#define REGIONTD                1437 // region_max_rpos of these
-#define REGIONSD                1438 // region_max_rpos of these
-#define REGIONED                1439 // region_max_rpos of these
-#define REGIONDD                1440 // region_max_rpos of these
-#define REGIONCD                1441 // region_max_rpos of these
-#define REGIONFD                1442 // region_max_rpos of these
+// TODO z3 !!!!! rm
+// #define REGIONID                1436 // region_max_rpos of these
+// #define REGIONTD                1437 // region_max_rpos of these
+// #define REGIONSD                1438 // region_max_rpos of these
+// #define REGIONED                1439 // region_max_rpos of these
+// #define REGIONDD                1440 // region_max_rpos of these
+// #define REGIONCD                1441 // region_max_rpos of these
+// #define REGIONFD                1442 // region_max_rpos of these
+#define VIEWPORT_MODE           1436
+#define VIEWPORT_X              1437
+#define VIEWPORT_Y              1438
+#define VIEWPORT_WIDTH          1439
+#define VIEWPORT_HEIGHT         1440
+#define REGIONCD                1441 // TODO z3 !!! rm
+#define REGIONFD                1442 // TODO z3 !!! rm
 #define REGIONWORLDWIDTH        1443
 #define REGIONWORLDHEIGHT       1444
 #define REGIONSCREENWIDTH       1445

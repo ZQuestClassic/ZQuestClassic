@@ -316,9 +316,6 @@ string ZScript::VarToString(int32_t ID)
 	case COMBOFDM:
 		return "COMBOFDM";
 	
-	case REGIONDD:
-		return "REGIONDD";
-		
 	case REGIONCD:
 		return "REGIONCD";
 		
@@ -486,21 +483,22 @@ string ZScript::VarToString(int32_t ID)
 	case COMBOSDM:
 		return "COMBOSDM";
 	
-	case REGIONID:
-		return "REGIONID";
+	case VIEWPORT_MODE:
+		return "VIEWPORT_MODE";
 		
-	case REGIONTD:
-		return "REGIONTD";
+	case VIEWPORT_X:
+		return "VIEWPORT_X";
 		
-	case REGIONSD:
-		return "REGIONSD";
+	case VIEWPORT_Y:
+		return "VIEWPORT_Y";
 		
-	case REGIONED:
-		return "REGIONED";
+	case VIEWPORT_WIDTH:
+		return "VIEWPORT_WIDTH";
 		
-	// case REGIONIDM:
-	// 	return "REGIONIDM";
-		
+	case VIEWPORT_HEIGHT:
+		return "VIEWPORT_HEIGHT";
+	
+	// TODO z3 !!! rm
 	// case REGIONTDM:
 	// 	return "REGIONTDM";
 		

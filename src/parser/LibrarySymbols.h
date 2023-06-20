@@ -131,6 +131,19 @@ private:
 	void generateCode();
 };
 
+class ViewportSymbols : public LibrarySymbols
+{
+public:
+    static ViewportSymbols &getInst()
+    {
+        return singleton;
+    }
+private:
+    static ViewportSymbols singleton;
+    ViewportSymbols();
+	void generateCode();
+};
+
 class ItemSymbols : public LibrarySymbols
 {
 public:

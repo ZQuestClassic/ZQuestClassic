@@ -146,6 +146,7 @@ DataTypeClassConst DataType::GAME(ZCLID_GAME, "Game");
 DataTypeClassConst DataType::PLAYER(ZCLID_PLAYER, "Player");
 DataTypeClassConst DataType::SCREEN(ZCLID_SCREEN, "Screen");
 DataTypeClassConst DataType::REGION(ZCLID_REGION, "Region");
+DataTypeClassConst DataType::VIEWPORT(ZCLID_VIEWPORT, "Viewport");
 DataTypeClassConst DataType::AUDIO(ZCLID_AUDIO, "Audio");
 DataTypeClassConst DataType::DEBUG(ZCLID_DEBUG, "Debug");
 DataTypeClassConst DataType::GRAPHICS(ZCLID_GRAPHICS, "Graphics");
@@ -255,6 +256,7 @@ DataType const* DataType::get(DataTypeId id)
 		case ZTID_PLAYER: return &PLAYER;
 		case ZTID_SCREEN: return &SCREEN;
 		case ZTID_REGION: return &REGION;
+		case ZTID_VIEWPORT: return &VIEWPORT;
 		case ZTID_FFC: return &FFC;
 		case ZTID_ITEM: return &ITEM;
 		case ZTID_ITEMCLASS: return &ITEMCLASS;
