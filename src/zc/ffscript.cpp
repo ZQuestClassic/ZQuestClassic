@@ -18990,6 +18990,11 @@ void set_register(int32_t arg, int32_t value)
 
 	case VIEWPORT_MODE:
 	{
+		int val = value / 10000;
+		if (BC::checkBounds(val, 0, (int)ViewportMode::Max, "Viewport->Mode") != SH::_NoError)
+		{
+			viewport_mode = (ViewportMode)val;
+		}
 	}
 	break;
 

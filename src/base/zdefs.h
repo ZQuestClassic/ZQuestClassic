@@ -5452,6 +5452,14 @@ struct viewport_t
 	int32_t bottom() const;
 };
 
+enum class ViewportMode
+{
+	CenterAndBound = 0,
+	Center = 1,
+	Script = 2,
+	Max = Script,
+};
+
 enum //Mapscr hardcodes for temp mapscrs
 {
 	MAPSCR_SCROLL6 = -14,

@@ -70,6 +70,7 @@ extern int world_w, world_h;
 //  - w, h is 256, 176
 // this is just 0.
 extern viewport_t viewport;
+extern ViewportMode viewport_mode;
 // The screen offset from the region origin that the hero is currently standing in. If not currently
 // in z3 scrolling mode, this is just 0.
 extern int region_scr_dx, region_scr_dy;

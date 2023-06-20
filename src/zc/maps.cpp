@@ -304,21 +304,30 @@ std::vector<mapscr*> z3_take_temporary_screens()
 
 void z3_calculate_viewport(mapscr* scr, int world_w, int world_h, int hero_x, int hero_y, viewport_t& viewport)
 {
+	viewport.w = 256;
+	viewport.h = 176 + (is_extended_height_mode() ? 56 : 0);
+
+	if (viewport_mode == ViewportMode::Script)
+	{
+		return;
+	}
+
 	if (!is_z3_scrolling_mode())
 	{
 		viewport.x = 0;
 		viewport.y = 0;
-		viewport.w = 256;
-		viewport.h = 176;
-		return;
 	}
-
-	viewport.w = 256;
-	viewport.h = 176 + (is_extended_height_mode() ? 56 : 0);
-
-	// Clamp the viewport to the edges of the region.
-	viewport.x = CLAMP(0, world_w - viewport.w, hero_x - viewport.w/2);
-	viewport.y = CLAMP(0, world_h - viewport.h, hero_y - viewport.h/2 + viewport.yofs + 16);
+	else if (viewport_mode == ViewportMode::CenterAndBound)
+	{
+		// Clamp the viewport to the edges of the region.
+		viewport.x = CLAMP(0, world_w - viewport.w, hero_x - viewport.w/2);
+		viewport.y = CLAMP(0, world_h - viewport.h, hero_y - viewport.h/2 + viewport.yofs + 16);
+	}
+	else if (viewport_mode == ViewportMode::Center)
+	{
+		viewport.x = world_w - viewport.w;
+		viewport.y = world_h - viewport.h;
+	}
 }
 
 void z3_update_viewport()
