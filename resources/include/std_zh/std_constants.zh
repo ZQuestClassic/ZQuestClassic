@@ -3932,4 +3932,10 @@ enum //for Hero->LiftFlags[]
 	LIFTFL_MAX
 };
 
-
+// For Viewport->Mode
+enum
+{
+	VIEW_MODE_CENTER_AND_BOUND,
+	VIEW_MODE_CENTER,
+	VIEW_MODE_SCRIPT
+};
