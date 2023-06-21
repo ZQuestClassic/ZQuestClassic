@@ -10445,6 +10445,7 @@ int32_t get_register(const int32_t arg)
 
 		case MAPDATAMISCD:
 		{
+			// TODO z3 !!!
 			int32_t indx = (ri->d[rINDEX])/10000;
 			int32_t mi = get_mi(ri->mapsref);
 			if(unsigned(mi) >= MAX_MI)
@@ -24797,7 +24798,9 @@ void do_mapdataissolid()
 			case MAPSCR_TEMP0:
 				set_register(sarg1, (_walkflag(x, y, 1)) ? 10000 : 0);
 				break;
+			// TODO z3 !!!!!! ? other temp layers?
 			case MAPSCR_SCROLL0:
+				// TODO z3 !!!!!! ?
 				set_register(sarg1, (_walkflag(x, y, 1, FFCore.ScrollingScreens[0], FFCore.ScrollingScreens[1], FFCore.ScrollingScreens[2])) ? 10000 : 0);
 				break;
 			default:
@@ -24828,9 +24831,10 @@ void do_mapdataissolid_layer()
 			switch(ri->mapsref)
 			{
 				case MAPSCR_TEMP0:
-					set_register(sarg1, (_walkflag_layer(x, y, 1, FFCore.tempScreens[layer])) ? 10000 : 0);
+					set_register(sarg1, (_walkflag_layer(x, y, 1, get_screen_for_world_xy(x, y))) ? 10000 : 0);
 					break;
 				case MAPSCR_SCROLL0:
+					// TODO z3 !!!!!! ?
 					set_register(sarg1, (_walkflag_layer(x, y, 1, FFCore.ScrollingScreens[layer])) ? 10000 : 0);
 					break;
 				default:
@@ -24862,7 +24866,7 @@ void do_issolid_layer()
 	}
 	else
 	{
-		// TODO z3 ?
+		// TODO z3 !!!! ?
 		set_register(sarg1, (_walkflag_layer(x, y, 1, FFCore.tempScreens[layer])) ? 10000 : 0);
 	}
 }
