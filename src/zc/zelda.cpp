@@ -3845,7 +3845,7 @@ void game_loop()
 			{
 				if (ffc_handle.ffc->script != 0 && !FFCore.system_suspend[susptFFCSCRIPTS] )
 				{
-					ZScriptVersion::RunScript(SCRIPT_FFC, ffc_handle.ffc->script, q);
+					ZScriptVersion::RunScript(SCRIPT_FFC, ffc_handle.ffc->script, ffc_handle.region_id);
 					ffc_handle.screen->ffcswaitdraw &= ~(1<<q);
 				}
 			}

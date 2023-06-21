@@ -10509,6 +10509,7 @@ void enemy::removearmos(int32_t ax,int32_t ay, word ffcactive)
 
 void enemy::removearmosffc(int32_t region_id)
 {
+	// TODO z3 !! ugly
 	int i = region_id % 176;
 	int screen_index_offset = region_id / MAXFFCS;
 	int scr_dx = screen_index_offset % region_scr_width;

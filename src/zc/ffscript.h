@@ -2033,7 +2033,7 @@ enum __Error
 };
 
 extern int32_t ffmisc[MAXFFCS][16];
-extern refInfo ffcScriptData[MAXFFCS];
+extern std::map<int32_t, refInfo> ffcScriptData;
 extern refInfo screenScriptData;
 extern word g_doscript;
 extern PALETTE tempgreypal; //script greyscale

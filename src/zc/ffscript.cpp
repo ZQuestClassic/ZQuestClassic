@@ -3,6 +3,7 @@
 #include <sstream>
 #include <math.h>
 #include <cstdio>
+#include <algorithm>
 //
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -293,6 +294,16 @@ int32_t getScreen(int32_t ref)
 		default:
 			return (ref % MAPSCRS);
 	}
+}
+
+static mapscr* get_ffc_screen(int ffc_id)
+{
+	return get_screen_for_region_index_offset(ffc_id / MAXFFCS);
+}
+
+static ffcdata* get_ffc(int ffc_id)
+{
+	return &get_screen_for_region_index_offset(ffc_id / MAXFFCS)->ffcs[ffc_id % MAXFFCS];
 }
 
 #include "zconsole/ConsoleLogger.h"
@@ -643,7 +654,11 @@ int32_t combo_stack[176*7][MAX_SCRIPT_REGISTERS];
 //This is where we need to change the formula. These stacks need to be variable in some manner
 //to permit adding additional scripts to them, without manually sizing them in advance. - Z
 
-int32_t ffc_stack[MAXFFCS][MAX_SCRIPT_REGISTERS];
+struct FFC_Stack {
+	int32_t stack[MAX_SCRIPT_REGISTERS];
+};
+
+std::map<int32_t, FFC_Stack> ffc_stack;
 int32_t global_stack[NUMSCRIPTGLOBAL][MAX_SCRIPT_REGISTERS];
 int32_t item_stack[256][MAX_SCRIPT_REGISTERS];
 int32_t item_collect_stack[256][MAX_SCRIPT_REGISTERS];
@@ -654,7 +669,7 @@ int32_t onmap_stack[MAX_SCRIPT_REGISTERS];
 int32_t active_subscreen_stack[MAX_SCRIPT_REGISTERS];
 int32_t passive_subscreen_stack[MAX_SCRIPT_REGISTERS];
 int32_t screen_stack[MAX_SCRIPT_REGISTERS];
-refInfo ffcScriptData[MAXFFCS];
+std::map<int32_t, refInfo> ffcScriptData;
 
 user_genscript user_scripts[NUMSCRIPTSGENERIC];
 int32_t genscript_timing = SCR_TIMING_START_FRAME;
@@ -794,7 +809,7 @@ void FFScript::runGenericPassiveEngine(int32_t scrtm)
 
 void clear_ffc_stack(const byte i)
 {
-	memset(ffc_stack[i], 0, MAX_SCRIPT_REGISTERS * sizeof(int32_t));
+	ffc_stack[i] = FFC_Stack();
 }
 
 
@@ -1787,7 +1802,9 @@ public:
 	
 	static INLINE int32_t checkFFC(const int32_t ffc, const char * const str)
 	{
-		return checkBounds(ffc, 0, MAXFFCS-1, str);
+		// TODO z3 !!!!
+		int max_ffc_id = region_scr_count * MAXFFCS - 1;
+		return checkBounds(ffc, 0, max_ffc_id, str);
 	}
 	
 	static INLINE int32_t checkGuyIndex(const int32_t index, const char * const str)
@@ -3399,42 +3416,42 @@ int32_t get_register(const int32_t arg)
 		//FFC Variables
 		case DATA:
 			if(BC::checkFFC(ri->ffcref, "ffc->Data") == SH::_NoError)
-				ret = tmpscr.ffcs[ri->ffcref].getData() *10000;
+				ret = get_ffc(ri->ffcref)->getData() *10000;
 			break;
 			
 		case FFSCRIPT:
 			if(BC::checkFFC(ri->ffcref, "ffc->Script") == SH::_NoError)
-				ret = tmpscr.ffcs[ri->ffcref].script*10000;
+				ret = get_ffc(ri->ffcref)->script*10000;
 			break;
 			
 		case FCSET:
 			if(BC::checkFFC(ri->ffcref, "ffc->CSet") == SH::_NoError)
-				ret = tmpscr.ffcs[ri->ffcref].cset*10000;
+				ret = get_ffc(ri->ffcref)->cset*10000;
 			break;
 			
 		case DELAY:
 			if(BC::checkFFC(ri->ffcref, "ffc->Delay") == SH::_NoError)
-				ret = tmpscr.ffcs[ri->ffcref].delay*10000;
+				ret = get_ffc(ri->ffcref)->delay*10000;
 			break;
 			
 		case FX:
 			if(BC::checkFFC(ri->ffcref, "ffc->X") == SH::_NoError)
-				ret = tmpscr.ffcs[ri->ffcref].x.getZLong();
+				ret = get_ffc(ri->ffcref)->x.getZLong();
 			break;
 			
 		case FY:
 			if(BC::checkFFC(ri->ffcref, "ffc->Y") == SH::_NoError)
-				ret = tmpscr.ffcs[ri->ffcref].y.getZLong();
+				ret = get_ffc(ri->ffcref)->y.getZLong();
 			break;
 			
 		case XD:
 			if(BC::checkFFC(ri->ffcref, "ffc->Vx") == SH::_NoError)
-				ret = tmpscr.ffcs[ri->ffcref].vx.getZLong();
+				ret = get_ffc(ri->ffcref)->vx.getZLong();
 			break;
 			
 		case YD:
 			if(BC::checkFFC(ri->ffcref, "ffc->Vy") == SH::_NoError)
-				ret = tmpscr.ffcs[ri->ffcref].vy.getZLong();
+				ret = get_ffc(ri->ffcref)->vy.getZLong();
 			break;
 		case FFCID:
 			if(BC::checkFFC(ri->ffcref, "ffc->ID") == SH::_NoError)
@@ -3443,42 +3460,42 @@ int32_t get_register(const int32_t arg)
 			
 		case XD2:
 			if(BC::checkFFC(ri->ffcref, "ffc->Ax") == SH::_NoError)
-				ret = tmpscr.ffcs[ri->ffcref].ax.getZLong();
+				ret = get_ffc(ri->ffcref)->ax.getZLong();
 			break;
 			
 		case YD2:
 			if(BC::checkFFC(ri->ffcref, "ffc->Ay") == SH::_NoError)
-				ret = tmpscr.ffcs[ri->ffcref].ay.getZLong();
+				ret = get_ffc(ri->ffcref)->ay.getZLong();
 			break;
 			
 		case FFFLAGSD:
 			if(BC::checkFFC(ri->ffcref, "ffc->Flags[]") == SH::_NoError)
-				ret=((tmpscr.ffcs[ri->ffcref].flags >> (ri->d[rINDEX] / 10000))&1) ? 10000 : 0;
+				ret=((get_ffc(ri->ffcref)->flags >> (ri->d[rINDEX] / 10000))&1) ? 10000 : 0;
 			break;
 			
 		case FFCWIDTH:
 			if(BC::checkFFC(ri->ffcref, "ffc->EffectWidth") == SH::_NoError)
-				ret=(tmpscr.ffcs[ri->ffcref].hxsz*10000);
+				ret=(get_ffc(ri->ffcref)->hxsz*10000);
 			break;
 			
 		case FFCHEIGHT:
 			if(BC::checkFFC(ri->ffcref, "ffc->EffectHeight") == SH::_NoError)
-				ret=(tmpscr.ffcs[ri->ffcref].hysz*10000);
+				ret=(get_ffc(ri->ffcref)->hysz*10000);
 			break;
 			
 		case FFTWIDTH:
 			if(BC::checkFFC(ri->ffcref, "ffc->TileWidth") == SH::_NoError)
-				ret=(tmpscr.ffcs[ri->ffcref].txsz*10000);
+				ret=(get_ffc(ri->ffcref)->txsz*10000);
 			break;
 			
 		case FFTHEIGHT:
 			if(BC::checkFFC(ri->ffcref, "ffc->TileHeight") == SH::_NoError)
-				ret=(tmpscr.ffcs[ri->ffcref].tysz*10000);
+				ret=(get_ffc(ri->ffcref)->tysz*10000);
 			break;
 			
 		case FFLINK:
 			if(BC::checkFFC(ri->ffcref, "ffc->Link") == SH::_NoError)
-				ret=(tmpscr.ffcs[ri->ffcref].link)*10000;
+				ret=(get_ffc(ri->ffcref)->link)*10000;
 			break;
 			
 		case FFMISCD:
@@ -3490,7 +3507,7 @@ int32_t get_register(const int32_t arg)
 			else
 			{
 				if(BC::checkFFC(ri->ffcref, "ffc->Misc[]") == SH::_NoError)
-					ret = ffmisc[ri->ffcref][a];
+					ret = ffmisc[ri->ffcref%128][a];
 			}
 		}
 		break;
@@ -3504,14 +3521,14 @@ int32_t get_register(const int32_t arg)
 			else
 			{
 				if(BC::checkFFC(ri->ffcref, "ffc->InitD[]") == SH::_NoError)
-				ret = tmpscr.ffcs[ri->ffcref].initd[a];
+				ret = get_ffc(ri->ffcref)->initd[a];
 			}
 		}
 		break;
 
 		case FF_SCREEN_INDEX:
 			if(BC::checkFFC(ri->ffcref, "ffc->ScreenIndex") == SH::_NoError)
-				ret=(tmpscr.ffcs[ri->ffcref].screen_index)*10000;
+				ret=(get_ffc(ri->ffcref)->screen_index)*10000;
 			break;
 		
 		///----------------------------------------------------------------------------------------------------//
@@ -9039,7 +9056,7 @@ int32_t get_register(const int32_t arg)
 			} \
 			else \
 			{ \
-				ret = (tmpscr.ffcs[indx].member?10000:0); \
+				ret = (get_ffc(indx)->member?10000:0); \
 			} \
 		} \
 		
@@ -9139,23 +9156,25 @@ int32_t get_register(const int32_t arg)
 		case SCREENDATAENTRYX: 		GET_SCREENDATA_VAR_BYTE(entry_x, "EntryX"); break;	//B
 		case SCREENDATAENTRYY: 		GET_SCREENDATA_VAR_BYTE(entry_y, "EntryY"); break;	//B
 		//Number of ffcs that are in use (have valid data
+		// Note: that is totally not what its doing.
 		case SCREENDATANUMFF: 	
 		{
 			uint32_t indx = ri->d[rINDEX] / 10000;
-			if (!indx || indx > MAXFFCS)
+			int max_ffc_id = region_scr_count * MAXFFCS - 1;
+			if (!indx || indx > max_ffc_id)
 			{
-				Z_scripterrlog("Invalid Index passed to Screen->NumFFCs[%d].\n Valid indices are 1 through %d.\n", indx, MAXFFCS);
+				Z_scripterrlog("Invalid Index passed to Screen->NumFFCs[%d].\n Valid indices are 1 through %d.\n", indx, max_ffc_id);
 				ret = 0;
 			}
 			else
 			{
 				--indx;
-				ret = (tmpscr.ffcs[indx].getData() != 0) ? 10000 : 0;
+				ret = (get_ffc(indx)->getData() != 0) ? 10000 : 0;
 			}
 			break;
 		}
 			//inita	//INT32, 32 OF THESE, EACH WITH 2
-		case SCREENDATAFFINITIALISED: 	GET_FFC_BOOL_INDEX(initialized, "FFCRunning", MAXFFCS-1); break;	//BOOL, MAXFFCS OF THESE
+		case SCREENDATAFFINITIALISED: 	GET_FFC_BOOL_INDEX(initialized, "FFCRunning", region_scr_count * MAXFFCS - 1); break;	//BOOL, MAXFFCS OF THESE
 		case SCREENDATASCRIPTENTRY: 	GET_SCREENDATA_VAR_INT32(script_entry, "ScriptEntry"); break;	//W
 		case SCREENDATASCRIPTOCCUPANCY: 	GET_SCREENDATA_VAR_INT32(script_occupancy,	"ScriptOccupancy");  break;//W
 		case SCREENDATASCRIPTEXIT: 	GET_SCREENDATA_VAR_INT32(script_exit, "ExitScript"); break;	//W
@@ -13282,60 +13301,61 @@ void set_register(int32_t arg, int32_t value)
 		case DATA:
 			if(BC::checkFFC(ri->ffcref, "ffc->Data") == SH::_NoError)
 			{
-				tmpscr.ffcs[ri->ffcref].setData(vbound(value/10000,0,MAXCOMBOS-1));
+				get_ffc(ri->ffcref)->setData(vbound(value/10000,0,MAXCOMBOS-1));
 			}
 			break;
 		
 		case FFSCRIPT:
 			if(BC::checkFFC(ri->ffcref, "ffc->Script") == SH::_NoError)
 			{
-				tmpscr.ffcs[ri->ffcref].script = vbound(value/10000, 0, NUMSCRIPTFFC-1);
+				ffcdata* ffc = get_ffc(ri->ffcref);
+				ffc->script = vbound(value/10000, 0, NUMSCRIPTFFC-1);
 				if ( get_bit(quest_rules,qr_CLEARINITDONSCRIPTCHANGE))
 				{
 					for(int32_t i=0; i<2; i++)
-						tmpscr.ffcs[ri->ffcref].inita[i] = 0;
+						ffc->inita[i] = 0;
 					
 					for(int32_t i=0; i<8; i++)
-						tmpscr.ffcs[ri->ffcref].initd[i] = 0;
+						ffc->initd[i] = 0;
 				}
 				for(int32_t i=0; i<16; i++)
-					ffmisc[ri->ffcref][i] = 0;
+					ffmisc[ri->ffcref%128][i] = 0;
 				
 				ffcScriptData[ri->ffcref].Clear();
 				FFScript::deallocateAllArrays(SCRIPT_FFC, ri->ffcref);
-				tmpscr.ffcs[ri->ffcref].initialized = false;
+				ffc->initialized = false;
 			}
 			break;
 			
 			
 		case FCSET:
 			if(BC::checkFFC(ri->ffcref, "ffc->CSet") == SH::_NoError)
-				tmpscr.ffcs[ri->ffcref].cset = (value/10000)&15;
+				get_ffc(ri->ffcref)->cset = (value/10000)&15;
 			break;
 			
 		case DELAY:
 			if(BC::checkFFC(ri->ffcref, "ffc->Delay") == SH::_NoError)
-				tmpscr.ffcs[ri->ffcref].delay = value/10000;
+				get_ffc(ri->ffcref)->delay = value/10000;
 			break;
 			
 		case FX:
 			if(BC::checkFFC(ri->ffcref, "ffc->X") == SH::_NoError)
-				tmpscr.ffcs[ri->ffcref].x = zslongToFix(value);
+				get_ffc(ri->ffcref)->x = zslongToFix(value);
 			break;
 			
 		case FY:
 			if(BC::checkFFC(ri->ffcref, "ffc->Y") == SH::_NoError)
-				tmpscr.ffcs[ri->ffcref].y=zslongToFix(value);
+				get_ffc(ri->ffcref)->y=zslongToFix(value);
 			break;
 			
 		case XD:
 			if(BC::checkFFC(ri->ffcref, "ffc->Vx") == SH::_NoError)
-				tmpscr.ffcs[ri->ffcref].vx=zslongToFix(value);
+				get_ffc(ri->ffcref)->vx=zslongToFix(value);
 			break;
 			
 		case YD:
 			if(BC::checkFFC(ri->ffcref, "ffc->Vy") == SH::_NoError)
-				tmpscr.ffcs[ri->ffcref].vy=zslongToFix(value);
+				get_ffc(ri->ffcref)->vy=zslongToFix(value);
 			break;
 		
 		case FFCID:
@@ -13343,74 +13363,75 @@ void set_register(int32_t arg, int32_t value)
 			
 		case XD2:
 			if(BC::checkFFC(ri->ffcref, "ffc->Ax") == SH::_NoError)
-				tmpscr.ffcs[ri->ffcref].ax=zslongToFix(value);
+				get_ffc(ri->ffcref)->ax=zslongToFix(value);
 			break;
 			
 		case YD2:
 			if(BC::checkFFC(ri->ffcref, "ffc->Ay") == SH::_NoError)
-				tmpscr.ffcs[ri->ffcref].ay=zslongToFix(value);
+				get_ffc(ri->ffcref)->ay=zslongToFix(value);
 			break;
 			
 		case FFFLAGSD:
 			if(BC::checkFFC(ri->ffcref, "ffc->Flags[]") == SH::_NoError)
 			{
 				auto flag = 1<<((ri->d[rINDEX])/10000);
-				ffcdata& ff = tmpscr.ffcs[ri->ffcref];
-				SETFLAG(ff.flags, flag, value);
+				ffcdata* ff = get_ffc(ri->ffcref);
+				SETFLAG(ff->flags, flag, value);
 				if (flag == ffSOLID || flag == ffCHANGER)
-					ff.updateSolid();
+					ff->updateSolid();
 			}
 			break;
 			
 		case FFCWIDTH:
 			if(BC::checkFFC(ri->ffcref, "ffc->EffectWidth") == SH::_NoError)
-				tmpscr.ffcs[ri->ffcref].hxsz = (value/10000);
+				get_ffc(ri->ffcref)->hxsz = (value/10000);
 			break;
 			
 		case FFCHEIGHT:
 			if(BC::checkFFC(ri->ffcref, "ffc->EffectHeight") == SH::_NoError)
-				tmpscr.ffcs[ri->ffcref].hysz = (value/10000);
+				get_ffc(ri->ffcref)->hysz = (value/10000);
 			break;
 			
 		case FFTWIDTH:
 			if(BC::checkFFC(ri->ffcref, "ffc->TileWidth") == SH::_NoError)
-				tmpscr.ffcs[ri->ffcref].txsz = vbound(value/10000, 1, 4);
+				get_ffc(ri->ffcref)->txsz = vbound(value/10000, 1, 4);
 			break;
 			
 		case FFTHEIGHT:
 			if(BC::checkFFC(ri->ffcref, "ffc->TileHeight") == SH::_NoError)
-				tmpscr.ffcs[ri->ffcref].tysz = vbound(value/10000, 1, 4);
+				get_ffc(ri->ffcref)->tysz = vbound(value/10000, 1, 4);
 			break;
 			
 		case FFLINK:
 			if(BC::checkFFC(ri->ffcref, "ffc->Link") == SH::_NoError)
-				(tmpscr.ffcs[ri->ffcref].link)=vbound(value/10000, 0, MAXFFCS); // Allow "ffc->Link = 0" to unlink ffc.
+				(get_ffc(ri->ffcref)->link)=vbound(value/10000, 0, MAXFFCS); // Allow "ffc->Link = 0" to unlink ffc.
 			//0 is none, setting this before made it impssible to clear it. -Z
 			break;
 			
 		case FFMISCD:
 		{
 			int32_t a = vbound(ri->d[rINDEX]/10000,0,15);
+			// TODO z3 !!!!! move to ffcdata
 			if(BC::checkFFC(ri->ffcref, "ffc->Misc[]")== SH::_NoError)
-				ffmisc[ri->ffcref][a]=value;
+				ffmisc[ri->ffcref%128][a]=value;
 			break;
 		}
 		
 		case FFINITDD:
 			if(BC::checkFFC(ri->ffcref, "ffc->InitD[]") == SH::_NoError)
-				(tmpscr.ffcs[ri->ffcref].initd[vbound(ri->d[rINDEX]/10000,0,7)])=value;
+				(get_ffc(ri->ffcref)->initd[vbound(ri->d[rINDEX]/10000,0,7)])=value;
 			break;
 			
 		case FFCLASTCHANGERX:
 			// TODO z3 ffc
 			if(BC::checkFFC(ri->ffcref, "ffc->LastChangerX") == SH::_NoError)
-				tmpscr.ffcs[ri->ffcref].changer_x=vbound(zslongToFix(value).getInt(),-32768, 32767);
+				get_ffc(ri->ffcref)->changer_x=vbound(zslongToFix(value).getInt(),-32768, 32767);
 			break;
 			
 		case FFCLASTCHANGERY:
 			// TODO z3 ffc
 			if(BC::checkFFC(ri->ffcref, "ffc->LastChangerY") == SH::_NoError)
-				tmpscr.ffcs[ri->ffcref].changer_y=vbound(zslongToFix(value).getInt(),-32768, 32767);
+				get_ffc(ri->ffcref)->changer_y=vbound(zslongToFix(value).getInt(),-32768, 32767);
 			break;
 		
 			
@@ -19491,12 +19512,12 @@ void set_register(int32_t arg, int32_t value)
 		#define SET_FFC_BOOL_INDEX(member, str, indexbound) \
 		{ \
 			int32_t indx = ri->d[rINDEX] / 10000; \
-			if(indx < 0 || indx > indexbound ) \
+			if(indx < 0 || indx > (indexbound) ) \
 			{ \
 				Z_scripterrlog("Invalid Index passed to Screen->%s[]: %d\n", (indx), str); \
 				break; \
 			} \
-			tmpscr.ffcs[indx].member =( (value/10000) ? 1 : 0 ); \
+			get_ffc(indx)->member =( (value/10000) ? 1 : 0 ); \
 		}
 		
 
@@ -19667,7 +19688,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 
 			//inita	//INT32, 32 OF THESE, EACH WITH 2
-		case SCREENDATAFFINITIALISED: 	SET_FFC_BOOL_INDEX(initialized, "FFCRunning", MAXFFCS-1); break;	//BOOL, MAXFFCS OF THESE
+		case SCREENDATAFFINITIALISED: 	SET_FFC_BOOL_INDEX(initialized, "FFCRunning", region_scr_count * MAXFFCS - 1); break;	//BOOL, MAXFFCS OF THESE
 		case SCREENDATASCRIPTENTRY: 	SET_SCREENDATA_VAR_INT32(script_entry, "ScriptEntry"); break;	//W
 		case SCREENDATASCRIPTOCCUPANCY: 	SET_SCREENDATA_VAR_INT32(script_occupancy,	"ScriptOccupancy");  break;//W
 		case SCREENDATASCRIPTEXIT: 	SET_SCREENDATA_VAR_INT32(script_exit, "ExitScript"); break;	//W
@@ -30205,6 +30226,7 @@ int32_t get_own_i(int32_t type)
 }
 
 portal* loadportal(savedportal& p);
+
 ///----------------------------------------------------------------------------------------------------//
 //                                       Run the script                                                //
 ///----------------------------------------------------------------------------------------------------//
@@ -30229,16 +30251,22 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 		//Z_scripterrlog("The script type is: %d\n", type);
 		case SCRIPT_FFC:
 		{
+			if (!ffcScriptData.contains(i))
+			{
+				ffcScriptData[i] = refInfo();
+				ffc_stack[i] = FFC_Stack();
+			}
 			ri = &(ffcScriptData[i]);
 			
 			curscript = ffscripts[script];
-			stack = &(ffc_stack[i]);
+			stack = &ffc_stack[i].stack;
 			
-			if(!tmpscr.ffcs[i].initialized)
+			mapscr* screen = get_ffc_screen(i);
+			if(!screen->ffcs[i % 128].initialized)
 			{
 				got_initialized = true;
-				memcpy(ri->d, tmpscr.ffcs[i].initd, 8 * sizeof(int32_t));
-				memcpy(ri->a, tmpscr.ffcs[i].inita, 2 * sizeof(int32_t));
+				memcpy(ri->d, screen->ffcs[i].initd, 8 * sizeof(int32_t));
+				memcpy(ri->a, screen->ffcs[i].inita, 2 * sizeof(int32_t));
 			}
 			
 			ri->ffcref = i; //'this' pointer
@@ -34859,7 +34887,7 @@ j_command:
 		switch(type)
 		{
 			case SCRIPT_FFC:
-				tmpscr.ffcs[i].script = 0;
+				get_ffc(i)->script = 0;
 				break;
 				
 			case SCRIPT_GLOBAL:
@@ -35054,7 +35082,6 @@ int32_t ffscript_engine(const bool preload)
 			}
 		}
 		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
-			int i = ffc_handle.i;
 			if(ffc_handle.ffc->script == 0)
 				return true;
 				
@@ -35064,7 +35091,7 @@ int32_t ffscript_engine(const bool preload)
 			if((ffc_handle.ffc->flags&ffIGNOREHOLDUP)==0 && Hero.getHoldClk()>0)
 				return true;
 				
-			ZScriptVersion::RunScript(SCRIPT_FFC, ffc_handle.ffc->script, i);
+			ZScriptVersion::RunScript(SCRIPT_FFC, ffc_handle.ffc->script, ffc_handle.region_id);
 			ffc_handle.ffc->initialized = true;
 			return true;
 		});
@@ -36300,7 +36327,7 @@ int32_t FFScript::whichlayer(int32_t scr)
 
 void FFScript::clear_ffc_stack(const byte i)
 {
-	memset(ffc_stack[i], 0, MAX_SCRIPT_REGISTERS * sizeof(int32_t));
+	ffc_stack[i] = FFC_Stack();
 }
 
 void FFScript::clear_global_stack(const byte i)
@@ -37208,10 +37235,7 @@ void FFScript::init()
 	ScrollingData[SCROLLDATA_OX] = 0;
 	ScrollingData[SCROLLDATA_OY] = 0;
 	user_rng_init();
-	for(word q = 0; q < MAXFFCS; ++q)
-	{
-		ffcScriptData[q].Clear();
-	}
+	ffcScriptData.clear();
 	for (auto &it : jitted_scripts)
 	{
 		jit_delete_script_handle(it.second);

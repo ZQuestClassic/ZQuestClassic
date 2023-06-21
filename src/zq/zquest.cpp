@@ -460,7 +460,7 @@ script_data *itemspritescripts[NUMSCRIPTSITEMSPRITE];
 script_data *comboscripts[NUMSCRIPTSCOMBODATA];
 
 // Dummy - needed to compile, but unused
-refInfo ffcScriptData[MAXFFCS];
+std::map<int32_t, refInfo> ffcScriptData;
 
 extern string zScript;
 char zScriptBytes[512];

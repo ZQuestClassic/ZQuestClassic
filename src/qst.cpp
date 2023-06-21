@@ -17592,6 +17592,7 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header, bool keepdata)
 			TheMaps[i].zero_memory();
 		
 		// Used to be done for each screen
+		// TODO z3 !!!!!!! ?
 		for(int32_t i=0; i<MAXFFCS; i++)
 		{
 			ffcScriptData[i].a[0] = 10000;

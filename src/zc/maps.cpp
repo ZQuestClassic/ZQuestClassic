@@ -61,6 +61,7 @@ int world_w, world_h;
 static int z3_origin_screen_index;
 int region_scr_dx, region_scr_dy;
 int region_scr_width, region_scr_height;
+int region_scr_count;
 rpos_t region_max_rpos;
 int region_num_rpos;
 int scrolling_maze_scr, scrolling_maze_state;
@@ -188,6 +189,7 @@ void z3_calculate_region(int dmap, int screen_index, int& origin_scr, int& regio
 		region_scr_dy = 0;
 		region_scr_width = 1;
 		region_scr_height = 1;
+		region_scr_count = 1;
 		world_w = 256;
 		world_h = 176;
 		return;
@@ -228,6 +230,7 @@ void z3_calculate_region(int dmap, int screen_index, int& origin_scr, int& regio
 
 	region_scr_width = region_scr_right - origin_scr_x + 1;
 	region_scr_height = region_scr_bottom - origin_scr_y + 1;
+	region_scr_count = region_scr_width * region_scr_height;
 	world_w = 256*region_scr_width;
 	world_h = 176*region_scr_height;
 	region_scr_dx = input_scr_x - origin_scr_x;
@@ -484,6 +487,14 @@ int z3_get_region_relative_dy(int screen_index, int origin_screen_index)
 int get_region_screen_index_offset(int screen_index)
 {
 	return z3_get_region_relative_dx(screen_index) + z3_get_region_relative_dy(screen_index) * region_scr_width;
+}
+
+mapscr* get_screen_for_region_index_offset(int offset)
+{
+	int scr_dx = offset % region_scr_width;
+	int scr_dy = offset / region_scr_width;
+	int screen_index = z3_get_origin_scr() + scr_dx + scr_dy*16;
+	return get_scr(currmap, screen_index);
 }
 
 const mapscr* get_canonical_scr(int map, int screen)
@@ -5537,6 +5548,20 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 		}
 	}
 
+	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+		// Handled in loadscr_old.
+		if (ffc_handle.screen_index == scr)
+			return true;
+
+		FFCore.deallocateAllArrays(SCRIPT_FFC, ffc_handle.region_id, false);
+		// TODO z3 !!!!!!
+		memset(ffmisc[ffc_handle.i], 0, 16 * sizeof(int32_t));
+		ffcScriptData[ffc_handle.region_id].Clear();
+		clear_ffc_stack(ffc_handle.region_id);
+
+		return true;
+	});
+
 	//screen / screendata script
 	FFCore.clear_screen_stack();
 	screenScriptData.Clear();
@@ -5760,17 +5785,20 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 				{
 					screen->ffcs[i].initialized = false;
 					
-					ffcScriptData[i].pc = 0;
-					ffcScriptData[i].sp = 0;
-					ffcScriptData[i].ffcref = 0;
+					int ffc_id = get_region_screen_index_offset(scr)*MAXFFCS + i;
+					ffcScriptData[ffc_id].pc = 0;
+					ffcScriptData[ffc_id].sp = 0;
+					ffcScriptData[ffc_id].ffcref = 0;
 				}
 			}
 			else
 			{
-				FFCore.deallocateAllArrays(SCRIPT_FFC, i, false);
+				int ffc_id = get_region_screen_index_offset(scr)*MAXFFCS + i;
+				FFCore.deallocateAllArrays(SCRIPT_FFC, ffc_id, false);
+				// TODO z3 !!!!!!
 				memset(ffmisc[i], 0, 16 * sizeof(int32_t));
-				ffcScriptData[i].Clear();
-				clear_ffc_stack(i);
+				ffcScriptData[ffc_id].Clear();
+				clear_ffc_stack(ffc_id);
 			}
 		}
 
