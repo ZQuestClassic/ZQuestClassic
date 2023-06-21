@@ -60,6 +60,7 @@
 #include <fmt/std.h>
 #include <regex>
 #include "zc/render.h"
+#include "iter.h"
 
 using namespace util;
 extern FFScript FFCore; //the core script engine.
@@ -3567,6 +3568,7 @@ void game_loop()
 		
 		bool freeze = false;
 		
+		// TODO z3 !!!!!
 		word c = tmpscr.numFFC();
 		for(word i=0; i<c; i++)
 		{
@@ -3836,19 +3838,18 @@ void game_loop()
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_SCREEN_WAITDRAW);
 		
 		c = tmpscr.numFFC();
-		for ( word q = 0; q < c; ++q )
-		{
-			//Z_scripterrlog("tmpscr.ffcswaitdraw is: %d\n", tmpscr.ffcswaitdraw);
-			if ( tmpscr.ffcswaitdraw&(1<<q) )
+		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+			int q = ffc_handle.i;
+			if (ffc_handle.screen->ffcswaitdraw&(1<<q))
 			{
-				//Z_scripterrlog("FFC (%d) called Waitdraw()\n", q);
-				if(tmpscr.ffcs[q].script != 0 && !FFCore.system_suspend[susptFFCSCRIPTS] )
+				if (ffc_handle.ffc->script != 0 && !FFCore.system_suspend[susptFFCSCRIPTS] )
 				{
-					ZScriptVersion::RunScript(SCRIPT_FFC, tmpscr.ffcs[q].script, q);
-					tmpscr.ffcswaitdraw &= ~(1<<q);
+					ZScriptVersion::RunScript(SCRIPT_FFC, ffc_handle.ffc->script, q);
+					ffc_handle.screen->ffcswaitdraw &= ~(1<<q);
 				}
 			}
-		}
+			return true;
+		});
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_FFC_WAITDRAW);
 		
 		if ( !FFCore.system_suspend[susptCOMBOSCRIPTS] && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )

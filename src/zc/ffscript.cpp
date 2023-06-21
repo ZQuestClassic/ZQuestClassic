@@ -35051,21 +35051,21 @@ int32_t ffscript_engine(const bool preload)
 				
 			}
 		}
-		word c = tmpscr.numFFC();
-		for(word i = 0; i < c; i++)
-		{
-			if(tmpscr.ffcs[i].script == 0)
-				continue;
+		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+			int i = ffc_handle.i;
+			if(ffc_handle.ffc->script == 0)
+				return true;
 				
-			if(preload && !(tmpscr.ffcs[i].flags&ffPRELOAD))
-				continue;
+			if(preload && !(ffc_handle.ffc->flags&ffPRELOAD))
+				return true;
 				
-			if((tmpscr.ffcs[i].flags&ffIGNOREHOLDUP)==0 && Hero.getHoldClk()>0)
-				continue;
+			if((ffc_handle.ffc->flags&ffIGNOREHOLDUP)==0 && Hero.getHoldClk()>0)
+				return true;
 				
-			ZScriptVersion::RunScript(SCRIPT_FFC, tmpscr.ffcs[i].script, i);
-			tmpscr.ffcs[i].initialized = true;
-		}
+			ZScriptVersion::RunScript(SCRIPT_FFC, ffc_handle.ffc->script, i);
+			ffc_handle.ffc->initialized = true;
+			return true;
+		});
 	}
 	
 	
