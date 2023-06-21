@@ -2357,7 +2357,8 @@ void sprite_list::animate()
 
 		bool should_freeze = freeze_guys;
 #ifndef IS_ZQUEST
-		if (is_z3_scrolling_mode() && !freeze_rect.intersects_with(sprites[active_iterator]->x.getInt(), sprites[active_iterator]->y.getInt(), 256, 176))
+		auto spr = sprites[active_iterator];
+		if (is_z3_scrolling_mode() && !freeze_rect.intersects_with(spr->x.getInt(), spr->y.getInt(), spr->hxsz, spr->hysz))
 		{
 			should_freeze = true;
 		}
