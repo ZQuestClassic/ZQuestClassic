@@ -1910,31 +1910,46 @@ static bool mapRefIsTemp(int32_t ref)
 	return false;
 }
 
-std::pair<mapscr*, int32_t> ResolveMapRef(int32_t mapref, rpos_t rpos, const char* context)
+static bool mapRefIsScrolling(int32_t ref)
 {
-	if (mapref < 0)
+	switch (ref)
 	{
-		Z_scripterrlog("%s pointer (%d) is either invalid or uninitialised.\n", context, mapref);
-		return {nullptr, -1};
+		case MAPSCR_SCROLL0:
+		case MAPSCR_SCROLL1:
+		case MAPSCR_SCROLL2:
+		case MAPSCR_SCROLL3:
+		case MAPSCR_SCROLL4:
+		case MAPSCR_SCROLL5:
+		case MAPSCR_SCROLL6:
+			return true;
 	}
 
+	return false;
+}
+
+std::pair<mapscr*, int32_t> ResolveMapRef(int32_t mapref, rpos_t rpos, const char* context)
+{
 	if (mapRefIsTemp(mapref))
 	{
 		if (BC::checkComboRpos(rpos, context) != SH::_NoError)
 		{
-			return {nullptr, -1};
+			return {nullptr, 0};
 		}
-		else
-		{
-			int layer = -ri->mapsref - 1;
-			mapscr* m = get_screen_layer_for_rpos(rpos, layer - 1);
-			return {m, RPOS_TO_POS(rpos)};
-		}
+
+		int layer = -ri->mapsref - 1;
+		mapscr* m = get_screen_layer_for_rpos(rpos, layer - 1);
+		return {m, RPOS_TO_POS(rpos)};
+	}
+
+	if (!mapRefIsScrolling(mapref) && mapref < 0)
+	{
+		Z_scripterrlog("%s pointer (%d) is either invalid or uninitialised.\n", context, mapref);
+		return {nullptr, 0};
 	}
 
 	if (BC::checkComboPos((int)rpos, context) != SH::_NoError)
 	{
-		return {nullptr, -1};
+		return {nullptr, 0};
 	}
 
 	return {GetMapscr(mapref), RPOS_TO_POS(rpos)};
