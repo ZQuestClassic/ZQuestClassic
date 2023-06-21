@@ -312,6 +312,7 @@ DataTypeClass const* DataType::getClass(int32_t classId)
 		case ZCLID_PLAYER: return &PLAYER;
 		case ZCLID_SCREEN: return &SCREEN;
 		case ZCLID_REGION: return &REGION;
+		case ZCLID_VIEWPORT: return &VIEWPORT;
 		case ZCLID_FFC: return &FFC;
 		case ZCLID_ITEM: return &ITEM;
 		case ZCLID_ITEMCLASS: return &ITEMCLASS;
