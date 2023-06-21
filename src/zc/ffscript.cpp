@@ -8672,7 +8672,7 @@ int32_t get_register(const int32_t arg)
 
 		case VIEWPORT_MODE:
 		{
-			ret = 0 * 10000;
+			ret = (int)viewport_mode * 10000;
 		}
 		break;
 
@@ -18949,8 +18949,10 @@ void set_register(int32_t arg, int32_t value)
 		int val = value / 10000;
 		if (BC::checkBounds(val, 0, (int)ViewportMode::Max, "Viewport->Mode") != SH::_NoError)
 		{
-			viewport_mode = (ViewportMode)val;
+			Z_scripterrlog("invalid value for Viewport->Mode: %d\n", val);
+			return;
 		}
+		viewport_mode = (ViewportMode)val;
 	}
 	break;
 

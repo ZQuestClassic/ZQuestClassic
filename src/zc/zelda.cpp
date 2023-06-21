@@ -1946,6 +1946,7 @@ int32_t init_game()
     frame = 0;
 
 	// Initialize some other values.
+	viewport_mode = ViewportMode::CenterAndBound;
 	loadside = 0;
 
 	FFCore.user_objects_init();

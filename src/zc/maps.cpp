@@ -325,8 +325,8 @@ void z3_calculate_viewport(mapscr* scr, int world_w, int world_h, int hero_x, in
 	}
 	else if (viewport_mode == ViewportMode::Center)
 	{
-		viewport.x = world_w - viewport.w;
-		viewport.y = world_h - viewport.h;
+		viewport.x = hero_x - viewport.w/2;
+		viewport.y = hero_y - viewport.h/2 + viewport.yofs + 16;
 	}
 }
 
