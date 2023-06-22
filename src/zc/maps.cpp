@@ -2343,9 +2343,9 @@ bool remove_xstatecombos_mi(mapscr *s, int32_t scr, int32_t mi, byte xflag, bool
 		for(word i=0; i<c; i++)
 		{
 			ffcdata* ffc2 = &s->ffcs[i];
-			int region_id = screen_index_offset * MAXFFCS + i;
+			int ffc_id = screen_index_offset * MAXFFCS + i;
 			newcombo const& cmb = combobuf[ffc2->getData()];
-			if(triggers && force_ex_trigger_ffc({s, scr, region_id, i, ffc2}, xflag))
+			if(triggers && force_ex_trigger_ffc({s, scr, ffc_id, i, ffc2}, xflag))
 				didit = true;
 			else switch(cmb.type)
 			{
@@ -3046,7 +3046,7 @@ void update_freeform_combos()
 			if (thisffc.link==0)
 			{
 				for_some_ffcs_in_region([&](const ffc_handle_t& other_ffc_handle) {
-					if (ffc_handle.region_id == other_ffc_handle.region_id)
+					if (ffc_handle.id == other_ffc_handle.id)
 						return true;
 
 					ffcdata& otherffc = *other_ffc_handle.ffc;
@@ -3072,7 +3072,7 @@ void update_freeform_combos()
 					&& //and...
 						(thisffc.prev_changer_x>-10000000 && thisffc.prev_changer_y>-10000000)) // This isn't the first frame on this screen
 					{
-						thisffc.changerCopy(otherffc, ffc_handle.region_id, other_ffc_handle.region_id);
+						thisffc.changerCopy(otherffc, ffc_handle.id, other_ffc_handle.id);
 						return false;
 					}
 
@@ -3084,7 +3084,7 @@ void update_freeform_combos()
 			ffcdata* linked_ffc = thisffc.link ? get_ffc(thisffc.link - 1).ffc : nullptr;
 			if (linked_ffc ? !linked_ffc->delay : !thisffc.delay)
 			{
-				if(thisffc.link && (thisffc.link-1) != ffc_handle.region_id)
+				if(thisffc.link && (thisffc.link-1) != ffc_handle.id)
 				{
 					thisffc.prev_changer_x = thisffc.x.getZLong();
 					thisffc.prev_changer_y = thisffc.y.getZLong();
@@ -5601,10 +5601,10 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 		if (ffc_handle.screen_index == scr)
 			return true;
 
-		FFCore.deallocateAllArrays(SCRIPT_FFC, ffc_handle.region_id, false);
+		FFCore.deallocateAllArrays(SCRIPT_FFC, ffc_handle.id, false);
 		memset(ffc_handle.ffc->script_misc, 0, 16 * sizeof(int32_t));
-		ffcScriptData[ffc_handle.region_id].Clear();
-		clear_ffc_stack(ffc_handle.region_id);
+		ffcScriptData[ffc_handle.id].Clear();
+		clear_ffc_stack(ffc_handle.id);
 
 		return true;
 	});
@@ -7152,11 +7152,11 @@ void toggle_switches(dword flags, bool entry, mapscr* m, int screen_index)
 		word c = m->numFFC();
 		for(word q=0; q<c; ++q)
 		{
-			int region_id = screen_index_offset * MAXFFCS + q;
+			int ffc_id = screen_index_offset * MAXFFCS + q;
 			newcombo const& cmb = combobuf[m->ffcs[q].getData()];
 			if((cmb.triggerflags[3] & combotriggerTRIGLEVELSTATE) && cmb.trig_lstate < 32)
 				if(flags&(1<<cmb.trig_lstate))
-					do_trigger_combo_ffc({m, screen_index, region_id, q, &m->ffcs[q]}, ctrigSWITCHSTATE);
+					do_trigger_combo_ffc({m, screen_index, ffc_id, q, &m->ffcs[q]}, ctrigSWITCHSTATE);
 		}
 	}
 }
@@ -7295,10 +7295,10 @@ void toggle_gswitches(bool* states, bool entry, mapscr* base_screen, int screen_
 		for(word q=0; q<c; ++q)
 		{
 			newcombo const& cmb = combobuf[base_screen->ffcs[q].getData()];
-			int region_id = screen_index_offset * MAXFFCS + q;
+			int ffc_id = screen_index_offset * MAXFFCS + q;
 			if(cmb.triggerflags[3] & combotriggerTRIGGLOBALSTATE)
 				if(states[cmb.trig_gstate])
-					do_trigger_combo_ffc({base_screen, screen_index, region_id, q, &base_screen->ffcs[q]}, ctrigSWITCHSTATE);
+					do_trigger_combo_ffc({base_screen, screen_index, ffc_id, q, &base_screen->ffcs[q]}, ctrigSWITCHSTATE);
 		}
 	}
 }

@@ -34859,7 +34859,7 @@ int32_t ffscript_engine(const bool preload)
 			if((ffc_handle.ffc->flags&ffIGNOREHOLDUP)==0 && Hero.getHoldClk()>0)
 				return true;
 				
-			ZScriptVersion::RunScript(SCRIPT_FFC, ffc_handle.ffc->script, ffc_handle.region_id);
+			ZScriptVersion::RunScript(SCRIPT_FFC, ffc_handle.ffc->script, ffc_handle.id);
 			ffc_handle.ffc->initialized = true;
 			return true;
 		});

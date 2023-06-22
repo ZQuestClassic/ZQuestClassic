@@ -1669,7 +1669,7 @@ bool trigger_armos_grave(const rpos_handle_t& rpos_handle, int32_t trigdir)
 
 bool trigger_armos_grave_ffc(const ffc_handle_t& ffc_handle, int32_t trigdir)
 {
-	if (activation_counters_ffc[ffc_handle.region_id]) return false; //Currently activating
+	if (activation_counters_ffc[ffc_handle.id]) return false; //Currently activating
 
 	int32_t gc = 0;
 	for(int32_t i=0; i<guys.Count(); ++i)
@@ -1744,11 +1744,11 @@ bool trigger_armos_grave_ffc(const ffc_handle_t& ffc_handle, int32_t trigdir)
 		}
 		default: return false;
 	}
-	activation_counters_ffc[ffc_handle.region_id] = 61;
+	activation_counters_ffc[ffc_handle.id] = 61;
 	if(addenemy(ffc_handle.screen_index,tx,ty+3,id2,eclk))
 	{
 		((enemy*)guys.spr(guys.Count()-1))->did_armos=false;
-		((enemy*)guys.spr(guys.Count()-1))->ffcactivated=ffc_handle.region_id+1;
+		((enemy*)guys.spr(guys.Count()-1))->ffcactivated=ffc_handle.id+1;
 	}
 	else return false;
 	return true;
@@ -3159,7 +3159,7 @@ bool do_trigger_combo_ffc(const ffc_handle_t& ffc_handle, int32_t special, weapo
 					
 					case cDAMAGE1: case cDAMAGE2: case cDAMAGE3: case cDAMAGE4:
 					case cDAMAGE5: case cDAMAGE6: case cDAMAGE7:
-						trigger_damage_combo(ffc_handle.screen, cid, ZSD_FFC, ffc_handle.region_id);
+						trigger_damage_combo(ffc_handle.screen, cid, ZSD_FFC, ffc_handle.id);
 						break;
 					
 					case cSTEPSFX:

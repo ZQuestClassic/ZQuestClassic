@@ -10507,16 +10507,16 @@ void enemy::removearmos(int32_t ax,int32_t ay, word ffcactive)
 	putcombo(scrollbuf,ax,ay,scr->data[cd],scr->cset[cd]);
 }
 
-void enemy::removearmosffc(int32_t region_id)
+void enemy::removearmosffc(int32_t ffc_id)
 {
 	// TODO z3 !! ugly
-	int i = region_id % 176;
-	int screen_index_offset = region_id / MAXFFCS;
+	int i = ffc_id % MAXFFCS;
+	int screen_index_offset = ffc_id / MAXFFCS;
 	int scr_dx = screen_index_offset % region_scr_width;
 	int scr_dy = screen_index_offset / region_scr_width;
 	int screen_index = z3_get_origin_scr() + scr_dx + scr_dy*16;
 	mapscr* screen = get_scr(currmap, screen_index);
-	removearmosffc({screen, screen_index, region_id, i, &screen->ffcs[i]});
+	removearmosffc({screen, screen_index, ffc_id, i, &screen->ffcs[i]});
 }
 
 void enemy::removearmosffc(const ffc_handle_t& ffc_handle)
@@ -21138,7 +21138,7 @@ void screen_ffc_modify_postroutine(const ffc_handle_t& ffc_handle)
 	ffcdata* ff = ffc_handle.ffc;
 	newcombo const& cmb = combobuf[ff->getData()];
 	
-	rpos_t id = SLOPE_ID(ffc_handle.region_id, 7);
+	rpos_t id = SLOPE_ID(ffc_handle.id, 7);
 	auto it = slopes.find(id);
 	
 	bool wasSlope = it!=slopes.end();

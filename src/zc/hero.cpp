@@ -7792,7 +7792,7 @@ heroanimate_skip_liftwpn:;
 								ev.push_back(ZSD_COMBODATA*10000);
 								ev.push_back(waterid);
 								ev.push_back((ffc_handle ? ZSD_FFC : ZSD_COMBOPOS)*10000);
-								ev.push_back(ffc_handle ? ffc_handle->region_id : combopos*10000);
+								ev.push_back(ffc_handle ? ffc_handle->id : combopos*10000);
 								
 								throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_1);
 								
@@ -12627,8 +12627,8 @@ void handle_lens_triggers(int32_t l_id)
 				: (cmb.triggerflags[1] & combotriggerLENSOFF))
 			{
 				// TODO z3 !! ffc
-				int region_id = i;
-				do_trigger_combo_ffc({&tmpscr, currscr, region_id, i, &ffc});
+				int id = i;
+				do_trigger_combo_ffc({&tmpscr, currscr, id, i, &ffc});
 				break;
 			}
 		}
@@ -27475,7 +27475,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			{
 				if (ffc_handle.ffc->script != 0 && !FFCore.system_suspend[susptFFCSCRIPTS] )
 				{
-					ZScriptVersion::RunScript(SCRIPT_FFC, ffc_handle.ffc->script, ffc_handle.region_id);
+					ZScriptVersion::RunScript(SCRIPT_FFC, ffc_handle.ffc->script, ffc_handle.id);
 					ffc_handle.screen->ffcswaitdraw &= ~(1<<q);
 				}
 			}
@@ -28694,7 +28694,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		{
 			if (ffc_handle.ffc->script != 0)
 			{
-				ZScriptVersion::RunScript(SCRIPT_FFC, ffc_handle.ffc->script, ffc_handle.region_id);
+				ZScriptVersion::RunScript(SCRIPT_FFC, ffc_handle.ffc->script, ffc_handle.id);
 				ffc_handle.screen->ffcswaitdraw &= ~(1<<q);
 			}
 		}

@@ -123,8 +123,8 @@ void ffcdata::setData(word newdata)
 	{
 		if (this == &screen->ffcs[i])
 		{
-			int region_id = screen_index_offset + i;
-			screen_ffc_modify_postroutine({screen, screen_index, region_id, i, this});
+			int id = screen_index_offset * MAXFFCS + i;
+			screen_ffc_modify_postroutine({screen, screen_index, id, i, this});
 			return;
 		}
 	}
