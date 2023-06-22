@@ -17005,13 +17005,6 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 		}
 	}
 	
-	// for(int32_t m=0; m<32; m++)
-	// {
-		// // ffcScriptData used to be part of mapscr, and this was handled just above
-		// ffcScriptData[m].a[0] = 10000;
-		// ffcScriptData[m].a[1] = 10000;
-	// }
-	
 	//2.55 starts here
 	if ( version >= 19 && Header->zelda_version > 0x253 )
 	{
@@ -17591,13 +17584,13 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header, bool keepdata)
 		for(int32_t i(0); i<_mapsSize; i++)
 			TheMaps[i].zero_memory();
 		
+		// TODO z3 !!!!!!! upstream removing this.
 		// Used to be done for each screen
-		// TODO z3 !!!!!!! ?
-		for(int32_t i=0; i<MAXFFCS; i++)
-		{
-			ffcScriptData[i].a[0] = 10000;
-			ffcScriptData[i].a[1] = 10000;
-		}
+		// for(int32_t i=0; i<MAXFFCS; i++)
+		// {
+		// 	ffcScriptData[i].a[0] = 10000;
+		// 	ffcScriptData[i].a[1] = 10000;
+		// }
 		
 		memset(ZCMaps, 0, sizeof(zcmap)*MAXMAPS2);
 	}
