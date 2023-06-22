@@ -30265,8 +30265,8 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			if(!screen->ffcs[i % 128].initialized)
 			{
 				got_initialized = true;
-				memcpy(ri->d, screen->ffcs[i].initd, 8 * sizeof(int32_t));
-				memcpy(ri->a, screen->ffcs[i].inita, 2 * sizeof(int32_t));
+				memcpy(ri->d, screen->ffcs[i % 128].initd, 8 * sizeof(int32_t));
+				memcpy(ri->a, screen->ffcs[i % 128].inita, 2 * sizeof(int32_t));
 			}
 			
 			ri->ffcref = i; //'this' pointer
