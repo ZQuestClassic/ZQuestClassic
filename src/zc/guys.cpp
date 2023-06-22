@@ -2780,7 +2780,7 @@ bool enemy::scr_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int
 	
 	if(!(moveflags & FLAG_IGNORE_SCREENEDGE)
 		&& ((input_x<(16-nb)) || (input_y<zc_max(16-yg-nb,0))
-			|| ((input_x+hxsz-1) >= (240+nb)) || ((input_y+hysz-1) >= (160+nb))))
+			|| ((input_x+hxsz-1) >= (world_w-16+nb)) || ((input_y+hysz-1) >= (world_h-16+nb))))
 		return true;
 	
 	if(!(moveflags & FLAG_CAN_PITWALK) && (!(moveflags & FLAG_CAN_PITFALL) || !kb)) //Don't walk into pits, unless being knocked back
