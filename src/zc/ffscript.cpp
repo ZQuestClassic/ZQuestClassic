@@ -34606,7 +34606,7 @@ j_command:
 				if ( !(get_bit(quest_rules, qr_NOFFCWAITDRAW)) )
 				{
 				//zprint("FFScript: FFC (%d) issued WAITDRAW\n", i);
-					tmpscr.ffcswaitdraw |= (1<<i);
+				get_ffc_screen(i)->ffcswaitdraw |= (1<<(i % MAXFFCS));
 				//set_bitl(tmpscr.ffcswaitdraw, i, 1);
 				}
 				else

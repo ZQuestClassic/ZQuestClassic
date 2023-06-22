@@ -28687,21 +28687,19 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		tmpscr.screen_waitdraw = 0;		
 	}
 	FFCore.runGenericPassiveEngine(SCR_TIMING_POST_SCREEN_WAITDRAW);
-	
-	word c = tmpscr.numFFC();
-	for ( word q = 0; q < c; ++q )
-	{
-		//Z_scripterrlog("tmpscr.ffcswaitdraw is: %d\n", tmpscr.ffcswaitdraw);
-		if ( tmpscr.ffcswaitdraw&(1<<q) )
+
+	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+		int q = ffc_handle.i;
+		if (ffc_handle.screen->ffcswaitdraw&(1<<q))
 		{
-			//Z_scripterrlog("FFC (%d) called Waitdraw()\n", q);
-			if(tmpscr.ffcs[q].script != 0)
+			if (ffc_handle.ffc->script != 0)
 			{
-				ZScriptVersion::RunScript(SCRIPT_FFC, tmpscr.ffcs[q].script, q);
-				tmpscr.ffcswaitdraw &= ~(1<<q);
+				ZScriptVersion::RunScript(SCRIPT_FFC, ffc_handle.ffc->script, ffc_handle.region_id);
+				ffc_handle.screen->ffcswaitdraw &= ~(1<<q);
 			}
 		}
-	}
+		return true;
+	});
 	FFCore.runGenericPassiveEngine(SCR_TIMING_POST_FFC_WAITDRAW);
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_COMBO_WAITDRAW);
 	//Waitdraw for item scripts. 
