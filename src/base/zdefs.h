@@ -2249,7 +2249,7 @@ public:
 	uint32_t sp; //stack pointer for current script
 	dword scriptflag; //stores whether various operations were true/false etc.
 	
-	byte ffcref;
+	uint16_t ffcref;
 	int32_t idata;
 	dword itemref, guyref, lwpn, ewpn;
 	dword screenref, npcdataref, bitmapref, spritesref, dmapsref, zmsgref, shopsref, untypedref;
