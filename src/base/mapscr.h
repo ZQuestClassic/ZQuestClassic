@@ -114,7 +114,6 @@ struct mapscr
 	int32_t screeninitd[8];
 	byte screen_waitdraw;
 	byte preloadscript;
-	uint32_t ffcswaitdraw;
 	byte screendatascriptInitialised;
 	
 	byte hidelayers;

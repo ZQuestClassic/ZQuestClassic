@@ -27260,14 +27260,12 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	word c = tmpscr->numFFC();
 	for ( word q = 0; q < c; ++q )
 	{
-		//Z_scripterrlog("tmpscr->ffcswaitdraw is: %d\n", tmpscr->ffcswaitdraw);
-		if ( tmpscr->ffcswaitdraw&(1<<q) )
+		if ( tmpscr->ffcs[q].waitdraw )
 		{
-			//Z_scripterrlog("FFC (%d) called Waitdraw()\n", q);
 			if(tmpscr->ffcs[q].script != 0)
 			{
 				ZScriptVersion::RunScript(SCRIPT_FFC, tmpscr->ffcs[q].script, q);
-				tmpscr->ffcswaitdraw &= ~(1<<q);
+				tmpscr->ffcs[q].waitdraw = false;
 			}
 		}
 	}

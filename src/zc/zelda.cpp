@@ -3602,14 +3602,12 @@ void game_loop()
 		c = tmpscr->numFFC();
 		for ( word q = 0; q < c; ++q )
 		{
-			//Z_scripterrlog("tmpscr->ffcswaitdraw is: %d\n", tmpscr->ffcswaitdraw);
-			if ( tmpscr->ffcswaitdraw&(1<<q) )
+			if (tmpscr->ffcs[q].waitdraw)
 			{
-				//Z_scripterrlog("FFC (%d) called Waitdraw()\n", q);
 				if(tmpscr->ffcs[q].script != 0 && !FFCore.system_suspend[susptFFCSCRIPTS] )
 				{
 					ZScriptVersion::RunScript(SCRIPT_FFC, tmpscr->ffcs[q].script, q);
-					tmpscr->ffcswaitdraw &= ~(1<<q);
+					tmpscr->ffcs[q].waitdraw = false;
 				}
 			}
 		}

@@ -51,6 +51,7 @@ public:
 	
 	//Overload to do damage to Hero on pushing them
 	virtual void doContactDamage(int32_t hdir) override;
+	bool waitdraw;
 private:
 	word data;
 	bool loaded;

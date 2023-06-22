@@ -17071,7 +17071,6 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	temp_mapscr->preloadscript = 0;    
 	}
 	//all builds with version > 20 need this. -Z
-	temp_mapscr->ffcswaitdraw = 0;
 	
 	if ( version >= 22 && Header->zelda_version > 0x253 ) //26th June, 2019; Layer Visibility
 	{
