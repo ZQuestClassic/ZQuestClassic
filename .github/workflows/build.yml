@@ -49,6 +49,9 @@ on:
       package-name:
         description: "The name of the package inside the uploaded artifact"
         value: ${{ jobs.build.outputs.package-name }}
+    secrets:
+      SENTRY_TOKEN:
+        required: false
 
 env:
   CCACHE_BASEDIR: ${{ github.workspace }}
