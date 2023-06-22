@@ -5,22 +5,6 @@ RegionSymbols RegionSymbols::singleton = RegionSymbols();
 static AccessorTable RegionTable[] =
 {
 	//name,                       tag,            rettype,   var,                       funcFlags,  params,optparams
-	// TODO z3 !!! remove
-	// { "getComboD[]",                0,         ZTID_FLOAT,   REGIONDD,                           0,  { ZTID_REGION, ZTID_FLOAT },{} },
-	// { "setComboD[]",                0,          ZTID_VOID,   REGIONDD,                           0,  { ZTID_REGION, ZTID_FLOAT, ZTID_FLOAT },{} },
-	// { "getComboC[]",                0,         ZTID_FLOAT,   REGIONCD,                           0,  { ZTID_REGION, ZTID_FLOAT },{} },
-	// { "setComboC[]",                0,          ZTID_VOID,   REGIONCD,                           0,  { ZTID_REGION, ZTID_FLOAT, ZTID_FLOAT },{} },
-	// { "getComboF[]",                0,         ZTID_FLOAT,   REGIONFD,                           0,  { ZTID_REGION, ZTID_FLOAT },{} },
-	// { "setComboF[]",                0,          ZTID_VOID,   REGIONFD,                           0,  { ZTID_REGION, ZTID_FLOAT, ZTID_FLOAT },{} },
-	// { "getComboI[]",                0,         ZTID_FLOAT,   REGIONID,                           0,  { ZTID_REGION, ZTID_FLOAT },{} },
-	// { "setComboI[]",                0,          ZTID_VOID,   REGIONID,                           0,  { ZTID_REGION, ZTID_FLOAT, ZTID_FLOAT },{} },
-	// { "getComboT[]",                0,         ZTID_FLOAT,   REGIONTD,                           0,  { ZTID_REGION, ZTID_FLOAT },{} },
-	// { "setComboT[]",                0,          ZTID_VOID,   REGIONTD,                           0,  { ZTID_REGION, ZTID_FLOAT, ZTID_FLOAT },{} },
-	// { "getComboS[]",                0,         ZTID_FLOAT,   REGIONSD,                           0,  { ZTID_REGION, ZTID_FLOAT },{} },
-	// { "setComboS[]",                0,          ZTID_VOID,   REGIONSD,                           0,  { ZTID_REGION, ZTID_FLOAT, ZTID_FLOAT },{} },
-	// { "getComboE[]",                0,         ZTID_FLOAT,   REGIONED,                           0,  { ZTID_REGION, ZTID_FLOAT },{} },
-	// { "setComboE[]",                0,          ZTID_VOID,   REGIONED,                           0,  { ZTID_REGION, ZTID_FLOAT, ZTID_FLOAT },{} },
-
 	{ "getWidth",                   0,          ZTID_LONG,   REGION_WIDTH,                       0,  { ZTID_REGION }, {} },
 	{ "getHeight",                  0,          ZTID_LONG,   REGION_HEIGHT,                      0,  { ZTID_REGION }, {} },
 	{ "getScreenWidth",             0,          ZTID_LONG,   REGIONSCREENWIDTH,                  0,  { ZTID_REGION }, {} },

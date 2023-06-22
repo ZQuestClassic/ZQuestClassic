@@ -4848,8 +4848,8 @@ enum ASM_DEFINE
 #define VIEWPORT_Y              0x14D4
 #define VIEWPORT_WIDTH          0x14D5
 #define VIEWPORT_HEIGHT         0x14D6
-#define REGIONSD                0x14D7 // TODO z3 !!!! rm
-#define REGIONED                0x14D8 // TODO z3 !!!! rm
+#define Z3_RSRVD_1              0x14D7
+#define Z3_RSRVD_2              0x14D8
 #define REGION_WIDTH            0x14D9
 #define REGION_HEIGHT           0x14DA
 #define REGIONSCREENWIDTH       0x14DB

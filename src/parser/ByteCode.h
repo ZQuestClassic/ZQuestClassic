@@ -1519,14 +1519,6 @@
 #define SPRITEDATAFLAGS         1433
 #define SPRITEDATAID            1434
 #define CLASS_THISKEY2          1435
-// TODO z3 !!!!! rm
-// #define REGIONID                1436 // region_max_rpos of these
-// #define REGIONTD                1437 // region_max_rpos of these
-// #define REGIONSD                1438 // region_max_rpos of these
-// #define REGIONED                1439 // region_max_rpos of these
-// #define REGIONDD                1440 // region_max_rpos of these
-// #define REGIONCD                1441 // region_max_rpos of these
-// #define REGIONFD                1442 // region_max_rpos of these
 #define VIEWPORT_MODE           1436
 #define VIEWPORT_X              1437
 #define VIEWPORT_Y              1438
