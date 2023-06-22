@@ -409,7 +409,7 @@ static void trigger_cswitch_block(const rpos_handle_t& rpos_handle)
 	if (cmb.usrflags&cflag11)
 	{
 		int bx = COMBOX_REGION(rpos_handle.rpos)+8, by = COMBOY_REGION(rpos_handle.rpos)+8;
-		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+		for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle) {
 			if (ffcIsAt(ffc_handle, bx, by))
 			{
 				ffcdata* ffc = ffc_handle.ffc;
@@ -468,7 +468,7 @@ static void trigger_cswitch_block_ffc(const ffc_handle_t& ffc_handle)
 	}
 	if (cmb.usrflags&cflag11)
 	{
-		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle_2) {
+		for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle_2) {
 			if (&ffc_handle_2.ffc == &ffc_handle.ffc) return true;
 
 			if (ffcIsAt(ffc_handle_2, ffc->x+8, ffc->y+8))
@@ -784,7 +784,7 @@ bool trigger_step(const rpos_handle_t& rpos_handle)
 			});
 			if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
 			{
-				for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+				for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle) {
 					if (ffc_handle.data() == id)
 					{
 						ffc_handle.ffc->incData(1);
@@ -808,7 +808,7 @@ bool trigger_step(const rpos_handle_t& rpos_handle)
 			});
 			if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
 			{
-				for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+				for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle) {
 					if (isStepType(combobuf[ffc_handle.data()].type))
 					{
 						ffc_handle.ffc->incData(1);
@@ -852,7 +852,7 @@ bool trigger_step_ffc(const ffc_handle_t& ffc_handle)
 			});
 			if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
 			{
-				for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle_2) {
+				for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle_2) {
 					if (ffc_handle_2.data() == id && ffc_handle_2.ffc != ffc_handle.ffc)
 					{
 						ffc_handle_2.increment_data();
@@ -873,7 +873,7 @@ bool trigger_step_ffc(const ffc_handle_t& ffc_handle)
 			});
 			if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
 			{
-				for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle_2) {
+				for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle_2) {
 					if (isStepType(combobuf[ffc_handle_2.data()].type) && ffc_handle_2.ffc != ffc_handle.ffc)
 					{
 						ffc_handle_2.increment_data();
@@ -2492,7 +2492,7 @@ void do_ex_trigger(const rpos_handle_t& rpos_handle)
 			});
 			if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
 			{
-				for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+				for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle) {
 					do_copycat_trigger_ffc(ffc_handle);
 					return true;
 				});
@@ -2536,7 +2536,7 @@ void do_ex_trigger_ffc(const ffc_handle_t& ffc_handle)
 			copycat_id = 0;
 			if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
 			{
-				for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle_2) {
+				for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle_2) {
 					if (skipself && &ffc_handle.ffc == &ffc_handle_2.ffc)
 						return true;
 					do_copycat_trigger_ffc(ffc_handle_2);
@@ -2967,7 +2967,7 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, int32_t special, weapon*
 					});
 					if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
 					{
-						for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+						for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle) {
 							do_copycat_trigger_ffc(ffc_handle);
 							return true;
 						});
@@ -3319,7 +3319,7 @@ bool do_trigger_combo_ffc(const ffc_handle_t& ffc_handle, int32_t special, weapo
 					}
 					if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
 					{
-						for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle_2) {
+						for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle_2) {
 							if (skipself && &ffc_handle_2.ffc == &ffc_handle.ffc)
 								return true;
 
@@ -3502,7 +3502,7 @@ static void handle_shooter(newcombo const& cmb, cpos_info& timer, rpos_t rpos)
 
 void ffc_clear_cpos_info()
 {
-	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+	for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle) {
 		ffc_handle.ffc->info.clear();
 		return true;
 	});
@@ -3579,7 +3579,7 @@ void trig_trigger_groups()
 		}
 	}
 
-	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+	for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle) {
 		int cid = ffc_handle.data();
 		cpos_info& timer = ffc_handle.ffc->info;
 		const newcombo* cmb = &combobuf[cid];
@@ -3637,7 +3637,7 @@ void update_combo_timers()
 		}
 	});
 
-	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+	for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle) {
 		cpos_info& timer = ffc_handle.ffc->info;
 		int cid = ffc_handle.data();
 		update_trig_group(timer.data,cid);

@@ -3530,7 +3530,7 @@ bool HeroClass::checkstab()
 				set_bit(screengrid_layer[1],q,0);
 			}
 
-			for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+			for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle) {
 				ffc_handle.ffc->recently_hit = false;
 				return true;
 			});
@@ -3634,7 +3634,7 @@ bool HeroClass::checkstab()
 				set_bit(screengrid_layer[1],q,0);
 			}
 			
-			for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+			for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle) {
 				ffc_handle.ffc->recently_hit = false;
 				return true;
 			});
@@ -3689,7 +3689,7 @@ bool HeroClass::checkstab()
 			set_bit(screengrid_layer[1],q,0);
 		}
 		
-		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+		for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle) {
 			ffc_handle.ffc->recently_hit = false;
 			return true;
 		});
@@ -9757,7 +9757,7 @@ heroanimate_skip_liftwpn:;
 	
 	awarp=false;
 	
-	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+	for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle) {
 		int32_t ind=0;
 		
 		newcombo const& cmb = combobuf[ffc_handle.data()];
@@ -12473,7 +12473,7 @@ bool HeroClass::doattack()
 							}
 						}
 					}
-					for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+					for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle) {
 						newcombo const& cmb = combobuf[ffc_handle.data()];
 						if(distance(x,y,ffc_handle.ffc->x,ffc_handle.ffc->y) > rad) return true;
 
@@ -21049,7 +21049,7 @@ void HeroClass::checkgenpush()
 
 	if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
 	{
-		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+		for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle) {
 			if (ffcIsAt(ffc_handle, bx, by) || ffcIsAt(ffc_handle, bx2, by2))
 			{
 				newcombo const& cmb3 = combobuf[ffc_handle.data()];
@@ -22552,7 +22552,7 @@ void HeroClass::handleSpotlights()
 		}
 	});
 
-	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+	for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle) {
 		newcombo const* cmb = &combobuf[ffc_handle.data()];
 		size_t pos = COMBOPOS(ffc_handle.ffc->x+8, ffc_handle.ffc->y+8);
 		if(cmb->type == cLIGHTTARGET)
@@ -22848,7 +22848,7 @@ void HeroClass::checkspecial()
 					do_trigger_combo(rpos_handle);
 				}
 			});
-			for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+			for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle) {
 				newcombo const& cmb = combobuf[ffc_handle.data()];
 				if(cmb.triggerflags[2] & combotriggerENEMIESKILLED)
 				{
@@ -23525,7 +23525,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 			}
 		}
 
-		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+		for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle) {
 			bool found = false;
 			for (int xch = 0; xch < 2; ++xch)
 			{
@@ -27469,7 +27469,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_SCREEN_WAITDRAW);
 		
-		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+		for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle) {
 			int q = ffc_handle.i;
 			if (ffc_handle.screen->ffcswaitdraw&(1<<q))
 			{
@@ -28688,7 +28688,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	}
 	FFCore.runGenericPassiveEngine(SCR_TIMING_POST_SCREEN_WAITDRAW);
 
-	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+	for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle) {
 		int q = ffc_handle.i;
 		if (ffc_handle.screen->ffcswaitdraw&(1<<q))
 		{

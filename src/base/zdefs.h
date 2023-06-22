@@ -141,7 +141,9 @@
 #define INITIAL_A 2
 #define INITIAL_D 8
 #define FFSCRIPT_MISC 32
+// Max number of ffcs for a single screen.
 #define MAXFFCS 128
+#define MAX_FFCID (region_scr_count * MAXFFCS - 1)
 
 #define MAX_SIGNED_32 (2147483647)
 #define MIN_SIGNED_32 (-2147483647-1)

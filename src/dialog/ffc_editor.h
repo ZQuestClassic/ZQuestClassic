@@ -24,7 +24,7 @@ struct ffdata
 	byte cset;
 	word delay;
 	dword flags;
-	byte link;
+	word link;
 	byte twid : 2;
 	byte fwid : 6;
 	byte thei : 2;

@@ -63,12 +63,37 @@ void for_every_rpos_in_region(T fn)
 }
 
 // Iterates over every ffc in the current region.
+// Callback function: void fn(const ffc_handle_t& ffc_handle)
+template<typename T, typename = std::enable_if_t<
+    std::is_invocable_v<T, const ffc_handle_t&>
+>>
+void for_every_ffc_in_region(T fn)
+{
+	for (int screen_index = 0; screen_index < 128; screen_index++)
+	{
+		if (is_in_current_region(screen_index))
+		{
+			mapscr* screen = get_scr(currmap, screen_index);
+			int screen_index_offset = get_region_screen_index_offset(screen_index);
+
+			int c = screen->numFFC();
+			for (int i = 0; i < c; i++)
+			{
+				int region_id = screen_index_offset * MAXFFCS + i;
+				ffc_handle_t ffc_handle = {screen, screen_index, region_id, i, &screen->ffcs[i]};
+				fn(ffc_handle);
+			}
+		}
+	}
+}
+
+// Iterates over every ffc in the current region, until execution is requested to stop.
 // Callback function: bool fn(const ffc_handle_t& ffc_handle)
 // If the callback returns false, the exeuction stops early.
 template<typename T, typename = std::enable_if_t<
     std::is_invocable_r_v<bool, T, const ffc_handle_t&>
 >>
-void for_every_ffc_in_region(T fn)
+void for_some_ffcs_in_region(T fn)
 {
 	for (int screen_index = 0; screen_index < 128; screen_index++)
 	{

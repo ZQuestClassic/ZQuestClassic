@@ -26,7 +26,9 @@ public:
 	zfix ax, ay;
 	dword flags;
 	word delay;
-	byte cset, link, txsz = 1, tysz = 1;
+	byte cset;
+	word link;
+	byte txsz = 1, tysz = 1;
 	word script;
 	int32_t initd[INITIAL_D];
 	int32_t inita[INITIAL_A];

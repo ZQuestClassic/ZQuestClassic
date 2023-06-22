@@ -121,6 +121,7 @@ int z3_get_region_relative_dx(int screen_index, int origin_screen_index);
 int z3_get_region_relative_dy(int screen_index);
 int z3_get_region_relative_dy(int screen_index, int origin_screen_index);
 int get_region_screen_index_offset(int screen_index);
+int get_screen_index_for_region_index_offset(int offset);
 mapscr* get_screen_for_region_index_offset(int offset);
 bool is_z3_scrolling_mode();
 bool is_extended_height_mode();
@@ -129,6 +130,8 @@ mapscr* get_scr(int map, int screen_index);
 mapscr* get_scr_no_load(int map, int screen);
 mapscr* get_layer_scr(int map, int screen_index, int layer);
 mapscr* get_layer_scr_for_xy(int x, int y, int layer);
+
+ffc_handle_t get_ffc(int id);
 
 void debugging_box(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
 void clear_dmap(word i);

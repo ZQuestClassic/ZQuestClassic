@@ -17594,9 +17594,7 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header, bool keepdata)
 		
 		memset(ZCMaps, 0, sizeof(zcmap)*MAXMAPS2);
 	}
-	
-	temp_mapscr.zero_memory();
-	
+
 	memset(&temp_map, 0, sizeof(zcmap));
 	temp_map.scrResWidth = 256;
 	temp_map.scrResHeight = 224;

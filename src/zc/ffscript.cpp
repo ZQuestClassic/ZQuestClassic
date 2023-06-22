@@ -301,7 +301,7 @@ static mapscr* get_ffc_screen(int ffc_id)
 	return get_screen_for_region_index_offset(ffc_id / MAXFFCS);
 }
 
-static ffcdata* get_ffc(int ffc_id)
+static ffcdata* get_ffc_raw(int ffc_id)
 {
 	return &get_screen_for_region_index_offset(ffc_id / MAXFFCS)->ffcs[ffc_id % MAXFFCS];
 }
@@ -3415,42 +3415,42 @@ int32_t get_register(const int32_t arg)
 		//FFC Variables
 		case DATA:
 			if(BC::checkFFC(ri->ffcref, "ffc->Data") == SH::_NoError)
-				ret = get_ffc(ri->ffcref)->getData() *10000;
+				ret = get_ffc_raw(ri->ffcref)->getData() *10000;
 			break;
 			
 		case FFSCRIPT:
 			if(BC::checkFFC(ri->ffcref, "ffc->Script") == SH::_NoError)
-				ret = get_ffc(ri->ffcref)->script*10000;
+				ret = get_ffc_raw(ri->ffcref)->script*10000;
 			break;
 			
 		case FCSET:
 			if(BC::checkFFC(ri->ffcref, "ffc->CSet") == SH::_NoError)
-				ret = get_ffc(ri->ffcref)->cset*10000;
+				ret = get_ffc_raw(ri->ffcref)->cset*10000;
 			break;
 			
 		case DELAY:
 			if(BC::checkFFC(ri->ffcref, "ffc->Delay") == SH::_NoError)
-				ret = get_ffc(ri->ffcref)->delay*10000;
+				ret = get_ffc_raw(ri->ffcref)->delay*10000;
 			break;
 			
 		case FX:
 			if(BC::checkFFC(ri->ffcref, "ffc->X") == SH::_NoError)
-				ret = get_ffc(ri->ffcref)->x.getZLong();
+				ret = get_ffc_raw(ri->ffcref)->x.getZLong();
 			break;
 			
 		case FY:
 			if(BC::checkFFC(ri->ffcref, "ffc->Y") == SH::_NoError)
-				ret = get_ffc(ri->ffcref)->y.getZLong();
+				ret = get_ffc_raw(ri->ffcref)->y.getZLong();
 			break;
 			
 		case XD:
 			if(BC::checkFFC(ri->ffcref, "ffc->Vx") == SH::_NoError)
-				ret = get_ffc(ri->ffcref)->vx.getZLong();
+				ret = get_ffc_raw(ri->ffcref)->vx.getZLong();
 			break;
 			
 		case YD:
 			if(BC::checkFFC(ri->ffcref, "ffc->Vy") == SH::_NoError)
-				ret = get_ffc(ri->ffcref)->vy.getZLong();
+				ret = get_ffc_raw(ri->ffcref)->vy.getZLong();
 			break;
 		case FFCID:
 			if(BC::checkFFC(ri->ffcref, "ffc->ID") == SH::_NoError)
@@ -3459,42 +3459,42 @@ int32_t get_register(const int32_t arg)
 			
 		case XD2:
 			if(BC::checkFFC(ri->ffcref, "ffc->Ax") == SH::_NoError)
-				ret = get_ffc(ri->ffcref)->ax.getZLong();
+				ret = get_ffc_raw(ri->ffcref)->ax.getZLong();
 			break;
 			
 		case YD2:
 			if(BC::checkFFC(ri->ffcref, "ffc->Ay") == SH::_NoError)
-				ret = get_ffc(ri->ffcref)->ay.getZLong();
+				ret = get_ffc_raw(ri->ffcref)->ay.getZLong();
 			break;
 			
 		case FFFLAGSD:
 			if(BC::checkFFC(ri->ffcref, "ffc->Flags[]") == SH::_NoError)
-				ret=((get_ffc(ri->ffcref)->flags >> (ri->d[rINDEX] / 10000))&1) ? 10000 : 0;
+				ret=((get_ffc_raw(ri->ffcref)->flags >> (ri->d[rINDEX] / 10000))&1) ? 10000 : 0;
 			break;
 			
 		case FFCWIDTH:
 			if(BC::checkFFC(ri->ffcref, "ffc->EffectWidth") == SH::_NoError)
-				ret=(get_ffc(ri->ffcref)->hxsz*10000);
+				ret=(get_ffc_raw(ri->ffcref)->hxsz*10000);
 			break;
 			
 		case FFCHEIGHT:
 			if(BC::checkFFC(ri->ffcref, "ffc->EffectHeight") == SH::_NoError)
-				ret=(get_ffc(ri->ffcref)->hysz*10000);
+				ret=(get_ffc_raw(ri->ffcref)->hysz*10000);
 			break;
 			
 		case FFTWIDTH:
 			if(BC::checkFFC(ri->ffcref, "ffc->TileWidth") == SH::_NoError)
-				ret=(get_ffc(ri->ffcref)->txsz*10000);
+				ret=(get_ffc_raw(ri->ffcref)->txsz*10000);
 			break;
 			
 		case FFTHEIGHT:
 			if(BC::checkFFC(ri->ffcref, "ffc->TileHeight") == SH::_NoError)
-				ret=(get_ffc(ri->ffcref)->tysz*10000);
+				ret=(get_ffc_raw(ri->ffcref)->tysz*10000);
 			break;
 			
 		case FFLINK:
 			if(BC::checkFFC(ri->ffcref, "ffc->Link") == SH::_NoError)
-				ret=(get_ffc(ri->ffcref)->link)*10000;
+				ret=(get_ffc_raw(ri->ffcref)->link)*10000;
 			break;
 			
 		case FFMISCD:
@@ -3506,7 +3506,7 @@ int32_t get_register(const int32_t arg)
 			else
 			{
 				if(BC::checkFFC(ri->ffcref, "ffc->Misc[]") == SH::_NoError)
-					ret = get_ffc(ri->ffcref)->script_misc[a];
+					ret = get_ffc_raw(ri->ffcref)->script_misc[a];
 			}
 		}
 		break;
@@ -3520,14 +3520,14 @@ int32_t get_register(const int32_t arg)
 			else
 			{
 				if(BC::checkFFC(ri->ffcref, "ffc->InitD[]") == SH::_NoError)
-				ret = get_ffc(ri->ffcref)->initd[a];
+				ret = get_ffc_raw(ri->ffcref)->initd[a];
 			}
 		}
 		break;
 
 		case FF_SCREEN_INDEX:
 			if(BC::checkFFC(ri->ffcref, "ffc->ScreenIndex") == SH::_NoError)
-				ret=(get_ffc(ri->ffcref)->screen_index)*10000;
+				ret=(get_ffc_raw(ri->ffcref)->screen_index)*10000;
 			break;
 		
 		///----------------------------------------------------------------------------------------------------//
@@ -8992,7 +8992,7 @@ int32_t get_register(const int32_t arg)
 			} \
 			else \
 			{ \
-				ret = (get_ffc(indx)->member?10000:0); \
+				ret = (get_ffc_raw(indx)->member?10000:0); \
 			} \
 		} \
 		
@@ -9105,7 +9105,7 @@ int32_t get_register(const int32_t arg)
 			else
 			{
 				--indx;
-				ret = (get_ffc(indx)->getData() != 0) ? 10000 : 0;
+				ret = (get_ffc_raw(indx)->getData() != 0) ? 10000 : 0;
 			}
 			break;
 		}
@@ -10242,8 +10242,8 @@ int32_t get_register(const int32_t arg)
 		}
 			
 		 
-		case MAPDATAFFLINK:         GET_MAPDATA_FFC_INDEX32(link, "FFCLink", MAXFFCS-1); break;  //B, MAXFFCS OF THESE
-		case MAPDATAFFSCRIPT:       GET_MAPDATA_FFC_INDEX32(script, "FFCScript", MAXFFCS-1); break;  //W, MAXFFCS OF THESE
+		case MAPDATAFFLINK:         GET_MAPDATA_FFC_INDEX32(link, "FFCLink", MAX_FFCID); break;
+		case MAPDATAFFSCRIPT:       GET_MAPDATA_FFC_INDEX32(script, "FFCScript", MAX_FFCID); break;
 
 		case MAPDATAINTID: 	 //Same form as SetScreenD()
 			//SetFFCInitD(ffindex, d, value)
@@ -13237,14 +13237,14 @@ void set_register(int32_t arg, int32_t value)
 		case DATA:
 			if(BC::checkFFC(ri->ffcref, "ffc->Data") == SH::_NoError)
 			{
-				get_ffc(ri->ffcref)->setData(vbound(value/10000,0,MAXCOMBOS-1));
+				get_ffc_raw(ri->ffcref)->setData(vbound(value/10000,0,MAXCOMBOS-1));
 			}
 			break;
 		
 		case FFSCRIPT:
 			if(BC::checkFFC(ri->ffcref, "ffc->Script") == SH::_NoError)
 			{
-				ffcdata* ffc = get_ffc(ri->ffcref);
+				ffcdata* ffc = get_ffc_raw(ri->ffcref);
 				ffc->script = vbound(value/10000, 0, NUMSCRIPTFFC-1);
 				if ( get_bit(quest_rules,qr_CLEARINITDONSCRIPTCHANGE))
 				{
@@ -13266,32 +13266,32 @@ void set_register(int32_t arg, int32_t value)
 			
 		case FCSET:
 			if(BC::checkFFC(ri->ffcref, "ffc->CSet") == SH::_NoError)
-				get_ffc(ri->ffcref)->cset = (value/10000)&15;
+				get_ffc_raw(ri->ffcref)->cset = (value/10000)&15;
 			break;
 			
 		case DELAY:
 			if(BC::checkFFC(ri->ffcref, "ffc->Delay") == SH::_NoError)
-				get_ffc(ri->ffcref)->delay = value/10000;
+				get_ffc_raw(ri->ffcref)->delay = value/10000;
 			break;
 			
 		case FX:
 			if(BC::checkFFC(ri->ffcref, "ffc->X") == SH::_NoError)
-				get_ffc(ri->ffcref)->x = zslongToFix(value);
+				get_ffc_raw(ri->ffcref)->x = zslongToFix(value);
 			break;
 			
 		case FY:
 			if(BC::checkFFC(ri->ffcref, "ffc->Y") == SH::_NoError)
-				get_ffc(ri->ffcref)->y=zslongToFix(value);
+				get_ffc_raw(ri->ffcref)->y=zslongToFix(value);
 			break;
 			
 		case XD:
 			if(BC::checkFFC(ri->ffcref, "ffc->Vx") == SH::_NoError)
-				get_ffc(ri->ffcref)->vx=zslongToFix(value);
+				get_ffc_raw(ri->ffcref)->vx=zslongToFix(value);
 			break;
 			
 		case YD:
 			if(BC::checkFFC(ri->ffcref, "ffc->Vy") == SH::_NoError)
-				get_ffc(ri->ffcref)->vy=zslongToFix(value);
+				get_ffc_raw(ri->ffcref)->vy=zslongToFix(value);
 			break;
 		
 		case FFCID:
@@ -13299,19 +13299,19 @@ void set_register(int32_t arg, int32_t value)
 			
 		case XD2:
 			if(BC::checkFFC(ri->ffcref, "ffc->Ax") == SH::_NoError)
-				get_ffc(ri->ffcref)->ax=zslongToFix(value);
+				get_ffc_raw(ri->ffcref)->ax=zslongToFix(value);
 			break;
 			
 		case YD2:
 			if(BC::checkFFC(ri->ffcref, "ffc->Ay") == SH::_NoError)
-				get_ffc(ri->ffcref)->ay=zslongToFix(value);
+				get_ffc_raw(ri->ffcref)->ay=zslongToFix(value);
 			break;
 			
 		case FFFLAGSD:
 			if(BC::checkFFC(ri->ffcref, "ffc->Flags[]") == SH::_NoError)
 			{
 				auto flag = 1<<((ri->d[rINDEX])/10000);
-				ffcdata* ff = get_ffc(ri->ffcref);
+				ffcdata* ff = get_ffc_raw(ri->ffcref);
 				SETFLAG(ff->flags, flag, value);
 				if (flag == ffSOLID || flag == ffCHANGER)
 					ff->updateSolid();
@@ -13320,53 +13320,52 @@ void set_register(int32_t arg, int32_t value)
 			
 		case FFCWIDTH:
 			if(BC::checkFFC(ri->ffcref, "ffc->EffectWidth") == SH::_NoError)
-				get_ffc(ri->ffcref)->hxsz = (value/10000);
+				get_ffc_raw(ri->ffcref)->hxsz = (value/10000);
 			break;
 			
 		case FFCHEIGHT:
 			if(BC::checkFFC(ri->ffcref, "ffc->EffectHeight") == SH::_NoError)
-				get_ffc(ri->ffcref)->hysz = (value/10000);
+				get_ffc_raw(ri->ffcref)->hysz = (value/10000);
 			break;
 			
 		case FFTWIDTH:
 			if(BC::checkFFC(ri->ffcref, "ffc->TileWidth") == SH::_NoError)
-				get_ffc(ri->ffcref)->txsz = vbound(value/10000, 1, 4);
+				get_ffc_raw(ri->ffcref)->txsz = vbound(value/10000, 1, 4);
 			break;
 			
 		case FFTHEIGHT:
 			if(BC::checkFFC(ri->ffcref, "ffc->TileHeight") == SH::_NoError)
-				get_ffc(ri->ffcref)->tysz = vbound(value/10000, 1, 4);
+				get_ffc_raw(ri->ffcref)->tysz = vbound(value/10000, 1, 4);
 			break;
 			
 		case FFLINK:
 			if(BC::checkFFC(ri->ffcref, "ffc->Link") == SH::_NoError)
-				(get_ffc(ri->ffcref)->link)=vbound(value/10000, 0, MAXFFCS); // Allow "ffc->Link = 0" to unlink ffc.
-			//0 is none, setting this before made it impssible to clear it. -Z
+				(get_ffc_raw(ri->ffcref)->link)=vbound(value/10000, 0, MAX_FFCID+1); // Allow "ffc->Link = 0" to unlink ffc.
 			break;
 			
 		case FFMISCD:
 		{
 			int32_t a = vbound(ri->d[rINDEX]/10000,0,15);
 			if(BC::checkFFC(ri->ffcref, "ffc->Misc[]")== SH::_NoError)
-				get_ffc(ri->ffcref)->script_misc[a] = value;
+				get_ffc_raw(ri->ffcref)->script_misc[a] = value;
 			break;
 		}
 		
 		case FFINITDD:
 			if(BC::checkFFC(ri->ffcref, "ffc->InitD[]") == SH::_NoError)
-				(get_ffc(ri->ffcref)->initd[vbound(ri->d[rINDEX]/10000,0,7)])=value;
+				(get_ffc_raw(ri->ffcref)->initd[vbound(ri->d[rINDEX]/10000,0,7)])=value;
 			break;
 			
 		case FFCLASTCHANGERX:
 			// TODO z3 ffc
 			if(BC::checkFFC(ri->ffcref, "ffc->LastChangerX") == SH::_NoError)
-				get_ffc(ri->ffcref)->changer_x=vbound(zslongToFix(value).getInt(),-32768, 32767);
+				get_ffc_raw(ri->ffcref)->changer_x=vbound(zslongToFix(value).getInt(),-32768, 32767);
 			break;
 			
 		case FFCLASTCHANGERY:
 			// TODO z3 ffc
 			if(BC::checkFFC(ri->ffcref, "ffc->LastChangerY") == SH::_NoError)
-				get_ffc(ri->ffcref)->changer_y=vbound(zslongToFix(value).getInt(),-32768, 32767);
+				get_ffc_raw(ri->ffcref)->changer_y=vbound(zslongToFix(value).getInt(),-32768, 32767);
 			break;
 		
 			
@@ -19286,7 +19285,7 @@ void set_register(int32_t arg, int32_t value)
 				Z_scripterrlog("Invalid Index passed to Screen->%s[]: %d\n", (indx), str); \
 				break; \
 			} \
-			get_ffc(indx)->member =( (value/10000) ? 1 : 0 ); \
+			get_ffc_raw(indx)->member =( (value/10000) ? 1 : 0 ); \
 		}
 		
 
@@ -20660,8 +20659,8 @@ void set_register(int32_t arg, int32_t value)
 			break;
 		}
 		 
-		case MAPDATAFFLINK:         SET_MAPDATA_FFC_INDEX_VBOUND(link, "FFCLink", MAXFFCS-1, 0, MAXFFCS); break;  //B, MAXFFCS OF THESE
-		case MAPDATAFFSCRIPT:       SET_MAPDATA_FFC_INDEX_VBOUND(script, "FFCScript", MAXFFCS-1, 0, 255); break; //W, 32 OF THESE
+		case MAPDATAFFLINK:         SET_MAPDATA_FFC_INDEX_VBOUND(link, "FFCLink", MAX_FFCID, 0, MAX_FFCID+1); break;  //B, MAXFFCS OF THESE
+		case MAPDATAFFSCRIPT:       SET_MAPDATA_FFC_INDEX_VBOUND(script, "FFCScript", MAX_FFCID, 0, 255); break; //W, 32 OF THESE
 
 		case MAPDATAINTID: 	 //Same form as SetScreenD()
 			//SetFFCInitD(ffindex, d, value)
@@ -34656,7 +34655,7 @@ j_command:
 		switch(type)
 		{
 			case SCRIPT_FFC:
-				get_ffc(i)->script = 0;
+				get_ffc_raw(i)->script = 0;
 				break;
 				
 			case SCRIPT_GLOBAL:
@@ -34850,7 +34849,7 @@ int32_t ffscript_engine(const bool preload)
 				
 			}
 		}
-		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+		for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle) {
 			if(ffc_handle.ffc->script == 0)
 				return true;
 				
