@@ -3079,8 +3079,9 @@ void update_freeform_combos()
 					return true;
 				});
 			}
-			
-			ffcdata* linked_ffc = thisffc.link ? get_ffc(thisffc.link).ffc : nullptr;
+
+			// TODO z3 ! upstream this off-by-one fix
+			ffcdata* linked_ffc = thisffc.link ? get_ffc(thisffc.link - 1).ffc : nullptr;
 			if (linked_ffc ? !linked_ffc->delay : !thisffc.delay)
 			{
 				if(thisffc.link && (thisffc.link-1) != ffc_handle.region_id)
