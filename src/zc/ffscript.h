@@ -2032,7 +2032,6 @@ enum __Error
     int32_t sid;
 };
 
-extern int32_t ffmisc[MAXFFCS][16];
 extern std::map<int32_t, refInfo> ffcScriptData;
 extern refInfo screenScriptData;
 extern word g_doscript;

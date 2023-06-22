@@ -662,7 +662,6 @@ std::map<int32_t, FFC_Stack> ffc_stack;
 int32_t global_stack[NUMSCRIPTGLOBAL][MAX_SCRIPT_REGISTERS];
 int32_t item_stack[256][MAX_SCRIPT_REGISTERS];
 int32_t item_collect_stack[256][MAX_SCRIPT_REGISTERS];
-int32_t ffmisc[MAXFFCS][16];
 int32_t player_stack[MAX_SCRIPT_REGISTERS];
 int32_t dmap_stack[MAX_SCRIPT_REGISTERS];
 int32_t onmap_stack[MAX_SCRIPT_REGISTERS];
@@ -3507,7 +3506,7 @@ int32_t get_register(const int32_t arg)
 			else
 			{
 				if(BC::checkFFC(ri->ffcref, "ffc->Misc[]") == SH::_NoError)
-					ret = ffmisc[ri->ffcref%128][a];
+					ret = get_ffc(ri->ffcref)->script_misc[a];
 			}
 		}
 		break;
@@ -13256,7 +13255,7 @@ void set_register(int32_t arg, int32_t value)
 						ffc->initd[i] = 0;
 				}
 				for(int32_t i=0; i<16; i++)
-					ffmisc[ri->ffcref%128][i] = 0;
+					ffc->script_misc[i] = 0;
 				
 				ffcScriptData[ri->ffcref].Clear();
 				FFScript::deallocateAllArrays(SCRIPT_FFC, ri->ffcref);
@@ -13348,9 +13347,8 @@ void set_register(int32_t arg, int32_t value)
 		case FFMISCD:
 		{
 			int32_t a = vbound(ri->d[rINDEX]/10000,0,15);
-			// TODO z3 !!!!! move to ffcdata
 			if(BC::checkFFC(ri->ffcref, "ffc->Misc[]")== SH::_NoError)
-				ffmisc[ri->ffcref%128][a]=value;
+				get_ffc(ri->ffcref)->script_misc[a] = value;
 			break;
 		}
 		

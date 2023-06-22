@@ -5554,8 +5554,7 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 			return true;
 
 		FFCore.deallocateAllArrays(SCRIPT_FFC, ffc_handle.region_id, false);
-		// TODO z3 !!!!!!
-		memset(ffmisc[ffc_handle.i], 0, 16 * sizeof(int32_t));
+		memset(ffc_handle.ffc->script_misc, 0, 16 * sizeof(int32_t));
 		ffcScriptData[ffc_handle.region_id].Clear();
 		clear_ffc_stack(ffc_handle.region_id);
 
@@ -5795,8 +5794,7 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 			{
 				int ffc_id = get_region_screen_index_offset(scr)*MAXFFCS + i;
 				FFCore.deallocateAllArrays(SCRIPT_FFC, ffc_id, false);
-				// TODO z3 !!!!!!
-				memset(ffmisc[i], 0, 16 * sizeof(int32_t));
+				memset(screen->ffcs[i].script_misc, 0, 16 * sizeof(int32_t));
 				ffcScriptData[ffc_id].Clear();
 				clear_ffc_stack(ffc_id);
 			}
