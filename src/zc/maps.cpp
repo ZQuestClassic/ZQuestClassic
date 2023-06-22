@@ -4116,7 +4116,7 @@ void calc_darkroom_combos(int screen, int offx, int offy, BITMAP* bmp)
 	}
 }
 
-static void for_every_nearby_screen(const std::function <void (std::array<screen_handle_t, 7>, int, int, int)>& fn, bool check_bounds = true)
+static void for_every_nearby_screen(const std::function <void (std::array<screen_handle_t, 7>, int, int, int)>& fn)
 {
 	if (!is_z3_scrolling_mode())
 	{
@@ -4165,15 +4165,11 @@ static void for_every_nearby_screen(const std::function <void (std::array<screen
 			int offx = z3_get_region_relative_dx(screen_index) * 256;
 			int offy = z3_get_region_relative_dy(screen_index) * 176;
 
-			// Can skip processsing screen if out of viewport... unless wanting to draw the ffcs.
-			// TODO z3 !!! separate these calls
-			if (check_bounds)
-			{
-				if (offx - viewport.x <= -256) continue;
-				if (offy - viewport.y <= -176) continue;
-				if (offx - viewport.x >= 256) continue;
-				if (offy - viewport.y >= (is_extended_height_mode() ? 240 : 176)) continue;
-			}
+			// Skip processsing screen if out of viewport.
+			if (offx - viewport.x <= -256) continue;
+			if (offy - viewport.y <= -176) continue;
+			if (offx - viewport.x >= 256) continue;
+			if (offy - viewport.y >= (is_extended_height_mode() ? 240 : 176)) continue;
 
 			std::array<screen_handle_t, 7> screen_handles;
 			screen_handles[0] = {base_screen, base_screen, currmap, screen_index, 0};
@@ -4186,6 +4182,25 @@ static void for_every_nearby_screen(const std::function <void (std::array<screen
 			fn(screen_handles, screen_index, offx, offy);
 		}
 	}
+}
+
+static void for_every_screen_in_region_check_viewport(const std::function <void (std::array<screen_handle_t, 7>, int, int, int, bool)>& fn)
+{
+	for_every_screen_in_region([&](mapscr* base_screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
+		std::array<screen_handle_t, 7> screen_handles;
+		screen_handles[0] = {base_screen, base_screen, currmap, screen_index, 0};
+		for (int i = 1; i < 7; i++)
+		{
+			mapscr* screen = get_layer_scr(currmap, screen_index, i - 1);
+			screen_handles[i] = {base_screen, screen, currmap, screen_index, i};
+		}
+
+		int offx = region_scr_x * 256;
+		int offy = region_scr_y * 176;
+		bool in_viewport = viewport.intersects_with(offx, offy, offx + 256, offy + 256);
+
+		fn(screen_handles, screen_index, offx, offy, in_viewport);
+	});
 }
 
 void draw_msgstr(byte layer, bool tempb = false)
@@ -4327,22 +4342,28 @@ void draw_screen(bool showhero, bool runGeneric)
 		}
 	}
 	
-	for_every_nearby_screen([&](std::array<screen_handle_t, 7> screen_handles, int screen_index, int offx, int offy) {
+	for_every_screen_in_region_check_viewport([&](std::array<screen_handle_t, 7> screen_handles, int screen_index, int offx, int offy, bool in_viewport) {
 		mapscr* base_screen = screen_handles[0].base_screen;
 
-		do_layer(scrollbuf, 0, screen_handles[1], offx, offy, true); // LAYER 1
-		if (screen_index == initial_region_scr) particles.draw(temp_buf, true, 0);
-		if (screen_index == initial_region_scr) draw_msgstr(1, true);
+		if (in_viewport)
+		{
+			do_layer(scrollbuf, 0, screen_handles[1], offx, offy, true); // LAYER 1
+			if (screen_index == initial_region_scr) particles.draw(temp_buf, true, 0);
+			if (screen_index == initial_region_scr) draw_msgstr(1, true);
+		}
 		
 		do_layer(scrollbuf, -3, screen_handles[0], 0, 0); // freeform combos!
 
-		if(!XOR(base_screen->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))
+		if (in_viewport)
 		{
-			do_layer(scrollbuf, 0, screen_handles[2], offx, offy, true); // LAYER 2
-			if (screen_index == initial_region_scr) particles.draw(temp_buf, true, 1);
-			if (screen_index == initial_region_scr) draw_msgstr(2, true);
+			if(!XOR(base_screen->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))
+			{
+				do_layer(scrollbuf, 0, screen_handles[2], offx, offy, true); // LAYER 2
+				if (screen_index == initial_region_scr) particles.draw(temp_buf, true, 1);
+				if (screen_index == initial_region_scr) draw_msgstr(2, true);
+			}
 		}
-	}, false);
+	});
 	
 	if(get_bit(quest_rules,qr_LAYER12UNDERCAVE))
 	{
@@ -4701,24 +4722,32 @@ void draw_screen(bool showhero, bool runGeneric)
 		color_map = &trans_table;
 	}
 
-	for_every_nearby_screen([&](std::array<screen_handle_t, 7> screen_handles, int screen_index, int offx, int offy) {
+	for_every_screen_in_region_check_viewport([&](std::array<screen_handle_t, 7> screen_handles, int screen_index, int offx, int offy, bool in_viewport) {
 		mapscr* base_screen = screen_handles[0].base_screen;
-	
-		do_layer(temp_buf, 0, screen_handles[5], offx, offy, true);
-		if (screen_index == currscr) particles.draw(temp_buf, true, 4);
-		if (screen_index == currscr) draw_msgstr(5, true);
+
+		if (in_viewport)
+		{
+			do_layer(temp_buf, 0, screen_handles[5], offx, offy, true);
+			if (screen_index == currscr) particles.draw(temp_buf, true, 4);
+			if (screen_index == currscr) draw_msgstr(5, true);
+		}
+
 		// overhead freeform combos!
 		do_layer(temp_buf, -4, screen_handles[0], 0, 0);
-		// TODO z3 !!! overdraw?? other screens?
-		if (screen_index == initial_region_scr)
+
+		if (in_viewport)
 		{
-			do_primitives(temp_buf, SPLAYER_OVERHEAD_FFC, base_screen, offx, offy + playing_field_offset);
+			// TODO z3 !!! overdraw?? other screens?
+			if (screen_index == initial_region_scr)
+			{
+				do_primitives(temp_buf, SPLAYER_OVERHEAD_FFC, base_screen, offx, offy + playing_field_offset);
+			}
+			// ---
+			do_layer(temp_buf, 0, screen_handles[6], offx, offy, true);
+			if (screen_index == currscr) particles.draw(temp_buf, true, 5);
 		}
-		// ---
-		do_layer(temp_buf, 0, screen_handles[6], offx, offy, true);
-		if (screen_index == currscr) particles.draw(temp_buf, true, 5);
-	}, false);
-	
+	});
+
 	//10. Blit temp_buf onto framebuf with clipping
 	
 	set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);

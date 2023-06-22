@@ -5446,6 +5446,7 @@ struct viewport_t
 	int32_t yofs;
 
 	bool intersects_with(int x, int y, int w, int h) const;
+	bool contains_point(int x, int y) const;
 	int32_t left() const;
 	int32_t right() const;
 	int32_t top() const;
