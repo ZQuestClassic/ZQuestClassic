@@ -123,6 +123,8 @@ jobs:
         with:
           name: ${{ needs.create-tag.outputs.release-name }}
           tag_name: ${{ needs.create-tag.outputs.release-tag }}
+          # TODO z3 !!!! upstream
+          target_commitish: ${{ env.GITHUB_SHA }}
           files: release-packages/**/*
           prerelease: ${{ !inputs.full_release }}
           fail_on_unmatched_files: true
