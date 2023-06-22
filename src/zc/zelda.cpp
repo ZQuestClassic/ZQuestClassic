@@ -3567,10 +3567,9 @@ void game_loop()
 		// Messages also freeze FF combos.
 		bool freezeff = freezemsg;
 		bool freeze = false;
-		for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle) {
+		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
 			if (combobuf[ffc_handle.data()].type == cSCREENFREEZE) freeze = true;
 			if (combobuf[ffc_handle.data()].type == cSCREENFREEZEFF) freezeff = true;
-			return true;
 		});
 		for_every_rpos_in_region([&](const rpos_handle_t& rpos_handle) {
 			if (combobuf[rpos_handle.data()].type == cSCREENFREEZE) freeze = true;
@@ -3830,7 +3829,7 @@ void game_loop()
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_SCREEN_WAITDRAW);
 		
-		for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle) {
+		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
 			int q = ffc_handle.i;
 			if (ffc_handle.screen->ffcswaitdraw&(1<<q))
 			{
@@ -3840,7 +3839,6 @@ void game_loop()
 					ffc_handle.screen->ffcswaitdraw &= ~(1<<q);
 				}
 			}
-			return true;
 		});
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_FFC_WAITDRAW);
 		

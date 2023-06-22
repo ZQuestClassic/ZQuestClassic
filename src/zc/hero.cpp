@@ -3530,9 +3530,8 @@ bool HeroClass::checkstab()
 				set_bit(screengrid_layer[1],q,0);
 			}
 
-			for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle) {
+			for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
 				ffc_handle.ffc->recently_hit = false;
-				return true;
 			});
 		}
 		
@@ -3634,9 +3633,8 @@ bool HeroClass::checkstab()
 				set_bit(screengrid_layer[1],q,0);
 			}
 			
-			for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle) {
+			for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
 				ffc_handle.ffc->recently_hit = false;
-				return true;
 			});
 		}
 		
@@ -3689,9 +3687,8 @@ bool HeroClass::checkstab()
 			set_bit(screengrid_layer[1],q,0);
 		}
 		
-		for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle) {
+		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
 			ffc_handle.ffc->recently_hit = false;
-			return true;
 		});
 			
 		if(dir==up && (x.getInt()&15)==0)
@@ -12473,9 +12470,9 @@ bool HeroClass::doattack()
 							}
 						}
 					}
-					for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle) {
+					for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
 						newcombo const& cmb = combobuf[ffc_handle.data()];
-						if(distance(x,y,ffc_handle.ffc->x,ffc_handle.ffc->y) > rad) return true;
+						if(distance(x,y,ffc_handle.ffc->x,ffc_handle.ffc->y) > rad) return;
 
 						if(cmb.triggerflags[2] & ((super?combotriggerSQUAKESTUN:0)|combotriggerQUAKESTUN))
 						{
@@ -12484,8 +12481,6 @@ bool HeroClass::doattack()
 								: hmrlvl >= cmb.triggerlevel)
 								do_trigger_combo_ffc(ffc_handle);
 						}
-
-						return true;
 					});
 				}
 			}
@@ -22552,7 +22547,7 @@ void HeroClass::handleSpotlights()
 		}
 	});
 
-	for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle) {
+	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
 		newcombo const* cmb = &combobuf[ffc_handle.data()];
 		size_t pos = COMBOPOS(ffc_handle.ffc->x+8, ffc_handle.ffc->y+8);
 		if(cmb->type == cLIGHTTARGET)
@@ -22587,7 +22582,6 @@ void HeroClass::handleSpotlights()
 				do_trigger_combo_ffc(ffc_handle);
 			}
 		}
-		return true;
 	});
 
 	if(hastrigs && istrigged && !alltrig)
@@ -22848,13 +22842,12 @@ void HeroClass::checkspecial()
 					do_trigger_combo(rpos_handle);
 				}
 			});
-			for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle) {
+			for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
 				newcombo const& cmb = combobuf[ffc_handle.data()];
 				if(cmb.triggerflags[2] & combotriggerENEMIESKILLED)
 				{
 					do_trigger_combo_ffc(ffc_handle);
 				}
-				return true;
 			});
 
 			if (screen->flags9 & fENEMY_WAVES)
@@ -23525,7 +23518,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 			}
 		}
 
-		for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle) {
+		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
 			bool found = false;
 			for (int xch = 0; xch < 2; ++xch)
 			{
@@ -23545,7 +23538,6 @@ void HeroClass::checkspecial2(int32_t *ls)
 					do_trigger_combo_ffc(ffc_handle);
 				}
 			}
-			return true;
 		});
 	}
 	
@@ -27469,7 +27461,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_SCREEN_WAITDRAW);
 		
-		for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle) {
+		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
 			int q = ffc_handle.i;
 			if (ffc_handle.screen->ffcswaitdraw&(1<<q))
 			{
@@ -27479,7 +27471,6 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 					ffc_handle.screen->ffcswaitdraw &= ~(1<<q);
 				}
 			}
-			return true;
 		});
 		
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_FFC_WAITDRAW);
@@ -28688,7 +28679,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	}
 	FFCore.runGenericPassiveEngine(SCR_TIMING_POST_SCREEN_WAITDRAW);
 
-	for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle) {
+	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
 		int q = ffc_handle.i;
 		if (ffc_handle.screen->ffcswaitdraw&(1<<q))
 		{
@@ -28698,7 +28689,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 				ffc_handle.screen->ffcswaitdraw &= ~(1<<q);
 			}
 		}
-		return true;
 	});
 	FFCore.runGenericPassiveEngine(SCR_TIMING_POST_FFC_WAITDRAW);
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_COMBO_WAITDRAW);

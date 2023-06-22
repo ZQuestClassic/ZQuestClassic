@@ -34849,19 +34849,18 @@ int32_t ffscript_engine(const bool preload)
 				
 			}
 		}
-		for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle) {
+		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
 			if(ffc_handle.ffc->script == 0)
-				return true;
+				return;
 				
 			if(preload && !(ffc_handle.ffc->flags&ffPRELOAD))
-				return true;
+				return;
 				
 			if((ffc_handle.ffc->flags&ffIGNOREHOLDUP)==0 && Hero.getHoldClk()>0)
-				return true;
+				return;
 				
 			ZScriptVersion::RunScript(SCRIPT_FFC, ffc_handle.ffc->script, ffc_handle.id);
 			ffc_handle.ffc->initialized = true;
-			return true;
 		});
 	}
 	

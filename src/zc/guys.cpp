@@ -21173,12 +21173,11 @@ void screen_combo_modify_post(int32_t cid)
 		}
 	});
 
-	for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle) {
+	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
 		if (ffc_handle.data() == cid)
 		{
 			screen_ffc_modify_postroutine(ffc_handle);
 		}
-		return true;
 	});
 }
 

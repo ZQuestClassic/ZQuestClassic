@@ -350,10 +350,9 @@ void render_zc()
 	}
 	if (show_ff_scripts)
 	{
-		for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle) {
+		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
 			if (ffc_handle.ffc->script)
 				lines_right.push_back(ffcmap[ffc_handle.ffc->script-1].scriptname);
-			return true;
 		});
 	}
 	

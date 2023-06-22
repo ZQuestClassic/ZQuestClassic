@@ -718,12 +718,11 @@ bool triggered_screen_secrets=false;
 // TODO z3 can this be removed?
 void init_ffpos()
 {
-	for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle) {
+	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
 		ffc_handle.ffc->changer_x = -1000;
 		ffc_handle.ffc->changer_y = -1000;
 		ffc_handle.ffc->prev_changer_x = -10000000;
 		ffc_handle.ffc->prev_changer_y = -10000000;
-		return true;
 	});
 }
 
@@ -2596,11 +2595,10 @@ void trigger_secrets_for_screen_internal(int32_t screen_index, mapscr *s, bool d
 	if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
 	{
 		// TODO z3 ffc this should just for this screen ...
-		for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle) {
+		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
 			newcombo const& cmb = combobuf[ffc_handle.data()];
 			if (cmb.triggerflags[2] & combotriggerSECRETSTR)
 				do_trigger_combo_ffc(ffc_handle);
-			return true;
 		});
 	}
 
@@ -2999,14 +2997,13 @@ bool triggerfire(int x, int y, bool setflag, bool any, bool strong, bool magic, 
 		}
 	}
 
-	for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle) {
+	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
 		if((combobuf[ffc_handle.data()].triggerflags[2] & trigflags)
 			&& ffc_handle.ffc->collide(x,y,16,16))
 		{
 			do_trigger_combo_ffc(ffc_handle);
 			ret = true;
 		}
-		return true;
 	});
 
 	return ret;
@@ -5345,11 +5342,10 @@ void openshutters()
 	});
 	if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
 	{
-		for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle) {
+		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
 			newcombo const& cmb = combobuf[ffc_handle.data()];
 			if(cmb.triggerflags[0] & combotriggerSHUTTER)
 				do_trigger_combo_ffc(ffc_handle);
-			return true;
 		});
 	}
 	
@@ -5596,17 +5592,15 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 		}
 	}
 
-	for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle) {
+	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
 		// Handled in loadscr_old.
 		if (ffc_handle.screen_index == scr)
-			return true;
+			return;
 
 		FFCore.deallocateAllArrays(SCRIPT_FFC, ffc_handle.id, false);
 		memset(ffc_handle.ffc->script_misc, 0, 16 * sizeof(int32_t));
 		ffcScriptData[ffc_handle.id].Clear();
 		clear_ffc_stack(ffc_handle.id);
-
-		return true;
 	});
 
 	//screen / screendata script

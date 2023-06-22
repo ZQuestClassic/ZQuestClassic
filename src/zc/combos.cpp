@@ -409,11 +409,10 @@ static void trigger_cswitch_block(const rpos_handle_t& rpos_handle)
 	if (cmb.usrflags&cflag11)
 	{
 		int bx = COMBOX_REGION(rpos_handle.rpos)+8, by = COMBOY_REGION(rpos_handle.rpos)+8;
-		for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle) {
+		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
 			if (ffcIsAt(ffc_handle, bx, by))
 			{
 				ffcdata* ffc = ffc_handle.ffc;
-				newcombo const& cmb_2 = combobuf[ffc->getData()];
 				ffc->setData(BOUND_COMBO(ffc->getData() + cmbofs));
 				ffc->cset = (ffc->cset + csofs) & 15;
 				int32_t newcid2 = ffc->getData();
@@ -424,7 +423,6 @@ static void trigger_cswitch_block(const rpos_handle_t& rpos_handle)
 					combobuf[newcid2].aclk = 0;
 				}
 			}
-			return true;
 		});
 	}
 }
@@ -468,13 +466,12 @@ static void trigger_cswitch_block_ffc(const ffc_handle_t& ffc_handle)
 	}
 	if (cmb.usrflags&cflag11)
 	{
-		for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle_2) {
-			if (&ffc_handle_2.ffc == &ffc_handle.ffc) return true;
+		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle_2) {
+			if (&ffc_handle_2.ffc == &ffc_handle.ffc) return;
 
 			if (ffcIsAt(ffc_handle_2, ffc->x+8, ffc->y+8))
 			{
 				ffcdata* ffc2 = ffc_handle_2.ffc;
-				newcombo const& cmb_2 = combobuf[ffc2->getData()];
 				ffc2->setData(BOUND_COMBO(ffc2->getData() + cmbofs));
 				ffc2->cset = (ffc2->cset + csofs) & 15;
 				int32_t newcid2 = ffc2->getData();
@@ -485,8 +482,6 @@ static void trigger_cswitch_block_ffc(const ffc_handle_t& ffc_handle)
 					combobuf[newcid2].aclk = 0;
 				}
 			}
-
-			return true;
 		});
 	}
 }
@@ -784,12 +779,11 @@ bool trigger_step(const rpos_handle_t& rpos_handle)
 			});
 			if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
 			{
-				for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle) {
+				for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
 					if (ffc_handle.data() == id)
 					{
 						ffc_handle.ffc->incData(1);
 					}
-					return true;
 				});
 			}
 			if (rpos_handle.layer > 0) ++rpos_handle.screen->data[pos];
@@ -808,12 +802,11 @@ bool trigger_step(const rpos_handle_t& rpos_handle)
 			});
 			if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
 			{
-				for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle) {
+				for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
 					if (isStepType(combobuf[ffc_handle.data()].type))
 					{
 						ffc_handle.ffc->incData(1);
 					}
-					return true;
 				});
 			}
 			if (rpos_handle.layer > 0) ++rpos_handle.screen->data[pos];
@@ -852,12 +845,11 @@ bool trigger_step_ffc(const ffc_handle_t& ffc_handle)
 			});
 			if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
 			{
-				for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle_2) {
+				for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle_2) {
 					if (ffc_handle_2.data() == id && ffc_handle_2.ffc != ffc_handle.ffc)
 					{
 						ffc_handle_2.increment_data();
 					}
-					return true;
 				});
 			}
 			ffc_handle.increment_data();
@@ -873,12 +865,11 @@ bool trigger_step_ffc(const ffc_handle_t& ffc_handle)
 			});
 			if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
 			{
-				for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle_2) {
+				for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle_2) {
 					if (isStepType(combobuf[ffc_handle_2.data()].type) && ffc_handle_2.ffc != ffc_handle.ffc)
 					{
 						ffc_handle_2.increment_data();
 					}
-					return true;
 				});
 			}
 			ffc_handle.increment_data();
@@ -2492,10 +2483,7 @@ void do_ex_trigger(const rpos_handle_t& rpos_handle)
 			});
 			if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
 			{
-				for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle) {
-					do_copycat_trigger_ffc(ffc_handle);
-					return true;
-				});
+				for_every_ffc_in_region(do_copycat_trigger_ffc);
 			}
 			copycat_id = 0;
 		}
@@ -2536,11 +2524,10 @@ void do_ex_trigger_ffc(const ffc_handle_t& ffc_handle)
 			copycat_id = 0;
 			if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
 			{
-				for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle_2) {
+				for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle_2) {
 					if (skipself && &ffc_handle.ffc == &ffc_handle_2.ffc)
-						return true;
+						return;
 					do_copycat_trigger_ffc(ffc_handle_2);
-					return true;
 				});
 			}
 		}
@@ -2967,10 +2954,7 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, int32_t special, weapon*
 					});
 					if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
 					{
-						for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle) {
-							do_copycat_trigger_ffc(ffc_handle);
-							return true;
-						});
+						for_every_ffc_in_region(do_copycat_trigger_ffc);
 					}
 					copycat_id = 0;
 				}
@@ -3319,12 +3303,11 @@ bool do_trigger_combo_ffc(const ffc_handle_t& ffc_handle, int32_t special, weapo
 					}
 					if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
 					{
-						for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle_2) {
+						for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle_2) {
 							if (skipself && &ffc_handle_2.ffc == &ffc_handle.ffc)
-								return true;
+								return;
 
 							do_copycat_trigger_ffc(ffc_handle_2);
-							return true;
 						});
 					}
 					copycat_id = 0;
@@ -3502,9 +3485,8 @@ static void handle_shooter(newcombo const& cmb, cpos_info& timer, rpos_t rpos)
 
 void ffc_clear_cpos_info()
 {
-	for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle) {
+	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
 		ffc_handle.ffc->info.clear();
-		return true;
 	});
 }
 
@@ -3579,7 +3561,7 @@ void trig_trigger_groups()
 		}
 	}
 
-	for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle) {
+	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
 		int cid = ffc_handle.data();
 		cpos_info& timer = ffc_handle.ffc->info;
 		const newcombo* cmb = &combobuf[cid];
@@ -3597,8 +3579,6 @@ void trig_trigger_groups()
 			timer.updateData(cid2);
 			cmb = &combobuf[cid2];
 		}
-
-		return true;
 	});
 }
 
@@ -3637,7 +3617,7 @@ void update_combo_timers()
 		}
 	});
 
-	for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle) {
+	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
 		cpos_info& timer = ffc_handle.ffc->info;
 		int cid = ffc_handle.data();
 		update_trig_group(timer.data,cid);
@@ -3664,8 +3644,6 @@ void update_combo_timers()
 			wy += (ffc_handle.screen->ffTileHeight(ffc_handle.i)-1)*8;
 			handle_shooter(cmb, timer, wx, wy);
 		}
-
-		return true;
 	});
 
 	trig_trigger_groups();
