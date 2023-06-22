@@ -40688,6 +40688,7 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "SPRINTFVARG",           0,   0,   0,   0 },
 	{ "TRACELR",             1,   0,   0,   0 },
 	{ "WAITFRAMESR",             1,   0,   0,   0 },
+	{ "GETSCREENINDEXFORRPOS",   1,   0,   0,   0 },
 	{ "RESRVD_OP_Z3_02",   0,   0,   0,   0 },
 	{ "RESRVD_OP_Z3_03",   0,   0,   0,   0 },
 	{ "RESRVD_OP_Z3_04",   0,   0,   0,   0 },

@@ -316,11 +316,11 @@ string ZScript::VarToString(int32_t ID)
 	case COMBOFDM:
 		return "COMBOFDM";
 	
-	case REGIONCD:
-		return "REGIONCD";
+	case RESRVD_VAR_Z3_1:
+		return "RESRVD_VAR_Z3_1";
 		
-	case REGIONFD:
-		return "REGIONFD";
+	case RESRVD_VAR_Z3_2:
+		return "RESRVD_VAR_Z3_2";
 		
 	case REFFFC:
 		return "REFFFC";
@@ -497,14 +497,7 @@ string ZScript::VarToString(int32_t ID)
 		
 	case VIEWPORT_HEIGHT:
 		return "VIEWPORT_HEIGHT";
-	
-	// TODO z3 !!! rm
-	// case REGIONTDM:
-	// 	return "REGIONTDM";
-		
-	// case REGIONSDM:
-	// 	return "REGIONSDM";
-		
+
 	case GETMIDI:
 		return "GETMIDI";
 		
@@ -6636,40 +6629,3 @@ string ORunGenericFrozenScript::toString() const
 {
 	return "RUNGENFRZSCR " + getArgument()->toString();
 };
-
-string OReservedZ3_02::toString() const
-{
-	return "RESRVD_OP_Z3_02 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
-}
-string OReservedZ3_03::toString() const
-{
-	return "RESRVD_OP_Z3_03 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
-}
-string OReservedZ3_04::toString() const
-{
-	return "RESRVD_OP_Z3_04 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
-}
-string OReservedZ3_05::toString() const
-{
-	return "RESRVD_OP_Z3_05 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
-}
-string OReservedZ3_06::toString() const
-{
-	return "RESRVD_OP_Z3_06 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
-}
-string OReservedZ3_07::toString() const
-{
-	return "RESRVD_OP_Z3_07 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
-}
-string OReservedZ3_08::toString() const
-{
-	return "RESRVD_OP_Z3_08 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
-}
-string OReservedZ3_09::toString() const
-{
-	return "RESRVD_OP_Z3_09 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
-}
-string OReservedZ3_10::toString() const
-{
-	return "RESRVD_OP_Z3_10 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
-}
