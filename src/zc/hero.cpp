@@ -31919,13 +31919,13 @@ void red_shift()
     }
     
     // color scale the game screen
-    for(int32_t y=0; y<168; y++)
+    for(int32_t y=0; y<viewport.h-8; y++)
     {
         for(int32_t x=0; x<256; x++)
         {
-            int32_t c = framebuf->line[y+playing_field_offset][x];
+            int32_t c = framebuf->line[y+original_playing_field_offset][x];
             int32_t r = zc_min(int32_t(RAMpal[c].r*0.4 + RAMpal[c].g*0.6 + RAMpal[c].b*0.4)>>1,31);
-            framebuf->line[y+playing_field_offset][x] = (c ? (r+tnum+CSET(2)) : 0);
+            framebuf->line[y+original_playing_field_offset][x] = (c ? (r+tnum+CSET(2)) : 0);
         }
     }
     
@@ -32162,8 +32162,7 @@ void HeroClass::heroDeathAnimation()
 				for(int32_t i=0; i<32; i++) miscellaneous[i] = 0;
 			    
 				
-			    
-				playing_field_offset=56; // otherwise, red_shift() may go past the bottom of the screen
+				playing_field_offset = original_playing_field_offset; // otherwise, red_shift() may go past the bottom of the screen
 				quakeclk=wavy=0;
 			    
 				//in original Z1, Hero marker vanishes at death.
@@ -32277,7 +32276,7 @@ void HeroClass::heroDeathAnimation()
 						draw_screen();
 						//reuse our static subscreen
 						set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
-						blit(subscrbmp,framebuf,0,0,0,0,256,passive_subscreen_height);
+						blit(subscrbmp,framebuf,0,0,0,0,256,original_playing_field_offset);
 					}
                     
 					if(f==60)
@@ -32298,7 +32297,7 @@ void HeroClass::heroDeathAnimation()
 					{
 						draw_screen();
 						//reuse our static subscreen
-						blit(subscrbmp,framebuf,0,0,0,0,256,passive_subscreen_height);
+						blit(subscrbmp,framebuf,0,0,0,0,256,original_playing_field_offset);
 						red_shift();
                         
 					}
@@ -32335,9 +32334,9 @@ void HeroClass::heroDeathAnimation()
 					}
                     
 					//draw only hero. otherwise black layers might cover him.
-					rectfill(framebuf,0,playing_field_offset,255,167+playing_field_offset,0);
+					rectfill(framebuf,0,original_playing_field_offset,framebuf->w,framebuf->h,0);
 					draw(framebuf);
-					blit(subscrbmp,framebuf,0,0,0,0,256,passive_subscreen_height);
+					blit(subscrbmp,framebuf,0,0,0,0,256,original_playing_field_offset);
 				}
 			}
 			else //!qr_FADE
@@ -32416,14 +32415,14 @@ void HeroClass::heroDeathAnimation()
 				{
 					draw_screen();
 					//reuse our static subscreen
-					blit(subscrbmp,framebuf,0,0,0,0,256,passive_subscreen_height);
+					blit(subscrbmp,framebuf,0,0,0,0,256,original_playing_field_offset);
 				}
 				else
 				{
 					//draw only hero. otherwise black layers might cover him.
 					rectfill(framebuf,0,playing_field_offset,255,167+playing_field_offset,0);
 					draw(framebuf);
-					blit(subscrbmp,framebuf,0,0,0,0,256,passive_subscreen_height);
+					blit(subscrbmp,framebuf,0,0,0,0,256,original_playing_field_offset);
 				}
 			}
 		}

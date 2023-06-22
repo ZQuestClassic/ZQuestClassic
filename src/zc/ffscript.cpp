@@ -18926,13 +18926,23 @@ void set_register(int32_t arg, int32_t value)
 
 	case VIEWPORT_WIDTH:
 	{
-		viewport.w = value / 10000;
+		int val = value / 10000;
+		if (BC::checkBounds(val, 0, 256, "Viewport->Width") != SH::_NoError)
+		{
+			return;
+		}
+		viewport.w = val;
 	}
 	break;
 
 	case VIEWPORT_HEIGHT:
 	{
-		viewport.h = value / 10000;
+		int val = value / 10000;
+		if (BC::checkBounds(val, 0, 232, "Viewport->Height") != SH::_NoError)
+		{
+			return;
+		}
+		viewport.h = val;
 	}
 	break;
 		
