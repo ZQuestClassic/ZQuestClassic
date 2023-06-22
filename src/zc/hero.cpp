@@ -27461,18 +27461,17 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_SCREEN_WAITDRAW);
 		
-		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
-			int q = ffc_handle.i;
-			if (ffc_handle.screen->ffcswaitdraw&(1<<q))
-			{
-				if (ffc_handle.ffc->script != 0 && !FFCore.system_suspend[susptFFCSCRIPTS] )
+		if (!FFCore.system_suspend[susptFFCSCRIPTS])
+		{
+			for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+				if (ffc_handle.ffc->script != 0 && ffc_handle.ffc->script_wait_draw)
 				{
 					ZScriptVersion::RunScript(SCRIPT_FFC, ffc_handle.ffc->script, ffc_handle.id);
-					ffc_handle.screen->ffcswaitdraw &= ~(1<<q);
+					ffc_handle.ffc->script_wait_draw = false;
 				}
-			}
-		});
-		
+			});
+		}
+
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_FFC_WAITDRAW);
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_COMBO_WAITDRAW);
 		//Waitdraw for item scripts. 
@@ -28680,14 +28679,10 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	FFCore.runGenericPassiveEngine(SCR_TIMING_POST_SCREEN_WAITDRAW);
 
 	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
-		int q = ffc_handle.i;
-		if (ffc_handle.screen->ffcswaitdraw&(1<<q))
+		if (ffc_handle.ffc->script != 0 && ffc_handle.ffc->script_wait_draw)
 		{
-			if (ffc_handle.ffc->script != 0)
-			{
-				ZScriptVersion::RunScript(SCRIPT_FFC, ffc_handle.ffc->script, ffc_handle.id);
-				ffc_handle.screen->ffcswaitdraw &= ~(1<<q);
-			}
+			ZScriptVersion::RunScript(SCRIPT_FFC, ffc_handle.ffc->script, ffc_handle.id);
+			ffc_handle.ffc->script_wait_draw = false;
 		}
 	});
 	FFCore.runGenericPassiveEngine(SCR_TIMING_POST_FFC_WAITDRAW);

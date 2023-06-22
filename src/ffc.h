@@ -39,6 +39,7 @@ public:
 	int32_t prev_changer_x = -10000000, prev_changer_y = -10000000;
 	cpos_info info;
 	int32_t script_misc[16];
+	bool script_wait_draw;
 	
 	ffcdata() = default;
 	ffcdata(ffcdata const& other);

@@ -3830,13 +3830,12 @@ void game_loop()
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_SCREEN_WAITDRAW);
 		
 		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
-			int q = ffc_handle.i;
-			if (ffc_handle.screen->ffcswaitdraw&(1<<q))
+			if (ffc_handle.ffc->script_wait_draw)
 			{
 				if (ffc_handle.ffc->script != 0 && !FFCore.system_suspend[susptFFCSCRIPTS] )
 				{
 					ZScriptVersion::RunScript(SCRIPT_FFC, ffc_handle.ffc->script, ffc_handle.id);
-					ffc_handle.screen->ffcswaitdraw &= ~(1<<q);
+					ffc_handle.ffc->script_wait_draw = false;
 				}
 			}
 		});
