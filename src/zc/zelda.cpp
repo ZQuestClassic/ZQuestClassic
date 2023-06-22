@@ -3566,24 +3566,16 @@ void game_loop()
 		
 		// Messages also freeze FF combos.
 		bool freezeff = freezemsg;
-		
 		bool freeze = false;
-		
-		// TODO z3 !!!!!
-		word c = tmpscr.numFFC();
-		for(word i=0; i<c; i++)
-		{
-			if(combobuf[tmpscr.ffcs[i].getData()].type==cSCREENFREEZE) freeze=true;
-			
-			if(combobuf[tmpscr.ffcs[i].getData()].type==cSCREENFREEZEFF) freezeff=true;
-		}
-		
-		for(int32_t i=0; i<176; i++)
-		{
-			if(combobuf[tmpscr.data[i]].type == cSCREENFREEZE) freeze=true;
-			
-			if(combobuf[tmpscr.data[i]].type == cSCREENFREEZEFF) freezeff=true;
-		}
+		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+			if (combobuf[ffc_handle.data()].type == cSCREENFREEZE) freeze = true;
+			if (combobuf[ffc_handle.data()].type == cSCREENFREEZEFF) freezeff = true;
+			return true;
+		});
+		for_every_rpos_in_region([&](const rpos_handle_t& rpos_handle) {
+			if (combobuf[rpos_handle.data()].type == cSCREENFREEZE) freeze = true;
+			if (combobuf[rpos_handle.data()].type == cSCREENFREEZEFF) freezeff = true;
+		});
 		
 		if(!freeze_guys && !freeze && !freezemsg && !FFCore.system_suspend[susptGUYS])
 		{
@@ -3838,7 +3830,6 @@ void game_loop()
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_SCREEN_WAITDRAW);
 		
-		c = tmpscr.numFFC();
 		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
 			int q = ffc_handle.i;
 			if (ffc_handle.screen->ffcswaitdraw&(1<<q))
