@@ -17579,8 +17579,10 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 			{
 				zfix tx = (dx < 0 ? (x-1) : (x+16));
 				auto mdir = GET_XDIR(dx);
-				bool hit_top = scr_walkflag(tx,y,mdir,x+sign(dx),y,false);
-				bool hit_mid = scr_walkflag(tx,y+8,mdir,x+sign(dx),y,false);
+				int v1=bigHitbox?0:8;
+				int v2=bigHitbox?8:12;
+				bool hit_top = scr_walkflag(tx,y+v1,mdir,x+sign(dx),y,false);
+				bool hit_mid = scr_walkflag(tx,y+v2,mdir,x+sign(dx),y,false);
 				bool hit_bottom = scr_walkflag(tx,y+15,mdir,x+sign(dx),y,false);
 				if(!hit_mid && (hit_top!=hit_bottom))
 				{
@@ -21217,7 +21219,7 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 	newcombo const& cmb = foundffc ? combobuf[foundffc->data()] : combobuf[found];
 	
 	byte signInput = 0;
-	bool didsign = false;
+	bool didsign = false, didprompt = false;
 	if(cmb.type == cSIGNPOST && !(cmb.triggerflags[0] & combotriggerONLYGENTRIG))
 	{
 		switch(dir)
@@ -21252,6 +21254,7 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 					prompt_cset = cmb.attribytes[4];
 					prompt_x = cmb.attrishorts[0];
 					prompt_y = cmb.attrishorts[1];
+					didprompt = true;
 				}
 				goto endsigns; //Button not pressed
 			}
@@ -21290,6 +21293,8 @@ endsigns:
 		else 
 			do_trigger_combo(get_rpos_handle_for_world_xy(fx, fy, found_lyr), didsign ? ctrigIGNORE_SIGN : 0);
 	}
+	else if(didprompt)
+		return;
 	else if(cmb.type == cBUTTONPROMPT)
 	{
 		prompt_combo = cmb.attributes[0]/10000;
