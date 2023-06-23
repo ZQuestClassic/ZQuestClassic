@@ -6,11 +6,18 @@ from common import valid_types, valid_scopes
 if len(sys.argv) != 2:
     exit(0)
 
+
+def get_comment_char():
+    try:
+        return subprocess.check_output('git config core.commentchar', shell=True, encoding='utf-8').strip()
+    except:
+        return '#'
+
+
 commit_msg_path = Path(sys.argv[1])
 commit_msg = commit_msg_path.read_text()
 
-comment_char = subprocess.check_output(
-    'git config core.commentchar', shell=True, encoding='utf-8').strip()
+comment_char = get_comment_char()
 commit_msg += f'{comment_char} example commit - type(scope): details'
 commit_msg += '\n'
 commit_msg += f'{comment_char} valid types    - '
