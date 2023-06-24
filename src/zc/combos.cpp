@@ -1,3 +1,4 @@
+#include "base/zdefs.h"
 #include "zc/zelda.h"
 #include "sprite.h"
 #include "zc/decorations.h"
@@ -646,9 +647,8 @@ void trigger_cuttable(const rpos_handle_t& rpos_handle)
 
 void trigger_cuttable_ffc(const ffc_handle_t& ffc_handle)
 {
-	// TODO z3 !!
 	int pos = ffc_handle.i;
-	if(unsigned(pos) > MAXFFCS) return;
+	if (ffc_handle.id > MAX_FFCID) return;
 	ffcdata& ffc = *ffc_handle.ffc;
 	newcombo const& cmb = combobuf[ffc.getData()];
 	auto type = cmb.type;
