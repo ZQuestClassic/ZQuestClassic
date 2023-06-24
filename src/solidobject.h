@@ -17,7 +17,7 @@ class solid_object
 public:
 	zfix x, y, vx, vy;
 	zfix old_x, old_y, old_x2, old_y2;
-	int32_t hxsz=16,hysz=16,hxofs,hyofs;
+	int32_t hit_width=16,hit_height=16,hxofs,hyofs;
 	int32_t sxofs,syofs,sxsz_ofs,sysz_ofs;
 	int32_t solidflags, dir=-1;
 	bool switch_hooked;

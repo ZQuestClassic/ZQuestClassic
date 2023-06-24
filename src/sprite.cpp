@@ -306,7 +306,7 @@ sprite::sprite(zfix X,zfix Y,int32_t T,int32_t CS,int32_t F,int32_t Clk,int32_t 
     isspawning = false;
     slopeid = 0;
     onplatid = 0;
-    hxsz=hysz=16;
+    hit_width=hit_height=16;
     hxofs=hyofs=xofs=0;
     txsz=1;
     tysz=1;
@@ -988,7 +988,7 @@ bool sprite::hit(sprite *s)
 {
     if(!hit() || !s->hit()) return false;
     
-    return hit(s->x+s->hxofs,s->y+s->hyofs-s->fakez,s->z+s->zofs,s->hxsz,s->hysz,s->hzsz);
+    return hit(s->x+s->hxofs,s->y+s->hyofs-s->fakez,s->z+s->zofs,s->hit_width,s->hit_height,s->hzsz);
 }
 
 bool sprite::hit(int32_t tx,int32_t ty,int32_t txsz2,int32_t tysz2)
@@ -998,8 +998,8 @@ bool sprite::hit(int32_t tx,int32_t ty,int32_t txsz2,int32_t tysz2)
     return tx+txsz2>x+hxofs &&
            ty+tysz2>y+hyofs &&
            
-           tx<x+hxofs+hxsz &&
-           ty<y+hyofs+hysz;
+           tx<x+hxofs+hit_width &&
+           ty<y+hyofs+hit_height;
 }
 
 bool sprite::hit(int32_t tx,int32_t ty,int32_t tz,int32_t txsz2,int32_t tysz2,int32_t tzsz2)
@@ -1010,8 +1010,8 @@ bool sprite::hit(int32_t tx,int32_t ty,int32_t tz,int32_t txsz2,int32_t tysz2,in
            ty+tysz2>y+hyofs-fakez &&
            tz+tzsz2>z+zofs &&
            
-           tx<x+hxofs+hxsz &&
-           ty<y+hyofs+hysz-fakez &&
+           tx<x+hxofs+hit_width &&
+           ty<y+hyofs+hit_height-fakez &&
            tz<z+zofs+hzsz;
 }
 
@@ -1019,8 +1019,8 @@ int32_t sprite::hitdir(int32_t tx,int32_t ty,int32_t txsz2,int32_t tysz2,int32_t
 {
     if(!(scriptcoldet&1) || fallclk || drownclk) return 0xFF;
     
-    int32_t cx1=x+hxofs+(hxsz>>1);
-    int32_t cy1=y+hyofs+(hysz>>1)-fakez;
+    int32_t cx1=x+hxofs+(hit_width>>1);
+    int32_t cy1=y+hyofs+(hit_height>>1)-fakez;
     int32_t cx2=tx+(txsz2>>1);
     int32_t cy2=ty+(tysz2>>1);
     
@@ -1598,7 +1598,7 @@ void sprite::draw_hitbox()
 	if(hide_hitbox) return;
 #ifndef IS_ZQUEST
 	start_info_bmp();
-	al_draw_rectangle(x+hxofs,y+playing_field_offset+hyofs-(z+zofs)-fakez,x+hxofs+hxsz,(y+playing_field_offset+hyofs+hysz-(z+zofs)-fakez),hitboxColor(info_opacity),1);
+	al_draw_rectangle(x+hxofs,y+playing_field_offset+hyofs-(z+zofs)-fakez,x+hxofs+hit_width,(y+playing_field_offset+hyofs+hit_height-(z+zofs)-fakez),hitboxColor(info_opacity),1);
 	end_info_bmp();
 #endif
 }
@@ -2043,7 +2043,7 @@ void sprite::drawcloaked(BITMAP* dest)
     }
     
     if(get_debug() && key[KEY_O])
-        rectfill(dest,x+hxofs,sy+hyofs-fakez,x+hxofs+hxsz-1,sy+hyofs+hysz-fakez-1,vc(id));
+        rectfill(dest,x+hxofs,sy+hyofs-fakez,x+hxofs+hit_width-1,sy+hyofs+hit_height-fakez-1,vc(id));
 }
 
 void sprite::drawshadow(BITMAP* dest,bool translucent)

@@ -4402,8 +4402,8 @@ set_ffc_command::data_t set_ffc_command::create_data(const ffcdata& ffc)
 		.script = ffc.script,
 		.tw = ffc.txsz,
 		.th = ffc.tysz,
-		.ew = ffc.hxsz,
-		.eh = ffc.hysz,
+		.ew = ffc.hit_width,
+		.eh = ffc.hit_height,
 		.flags = ffc.flags,
 		.inita = inita_arr,
 		.initd = initd_arr,
@@ -5447,8 +5447,8 @@ void zmap::update_freeform_combos()
                                 prvscr.ffcs[i].ay=prvscr.ffcs[j].ay;
                                 
                                 prvscr.ffcs[i].link=prvscr.ffcs[j].link;
-                                prvscr.ffcs[i].hxsz=prvscr.ffcs[j].hxsz;
-                                prvscr.ffcs[i].hysz=prvscr.ffcs[j].hysz;
+                                prvscr.ffcs[i].hit_width=prvscr.ffcs[j].hit_width;
+                                prvscr.ffcs[i].hit_height=prvscr.ffcs[j].hit_height;
 								prvscr.ffcs[i].txsz=prvscr.ffcs[j].txsz;
                                 prvscr.ffcs[i].tysz=prvscr.ffcs[j].tysz;
                                 
@@ -5480,8 +5480,8 @@ void zmap::update_freeform_combos()
                                     zc_swap(prvscr.ffcs[j].ax,prvscr.ffcs[k].ax);
                                     zc_swap(prvscr.ffcs[j].ay,prvscr.ffcs[k].ay);
                                     zc_swap(prvscr.ffcs[j].link,prvscr.ffcs[k].link);
-                                    zc_swap(prvscr.ffcs[j].hxsz,prvscr.ffcs[k].hxsz);
-                                    zc_swap(prvscr.ffcs[j].hysz,prvscr.ffcs[k].hysz);
+                                    zc_swap(prvscr.ffcs[j].hit_width,prvscr.ffcs[k].hit_width);
+                                    zc_swap(prvscr.ffcs[j].hit_height,prvscr.ffcs[k].hit_height);
 				    zc_swap(prvscr.ffcs[j].txsz,prvscr.ffcs[k].txsz);
                                     zc_swap(prvscr.ffcs[j].tysz,prvscr.ffcs[k].tysz);
                                     zc_swap(prvscr.ffcs[j].flags,prvscr.ffcs[k].flags);
@@ -9654,10 +9654,10 @@ int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 		if(!p_putc(tempffc.link,f))
 			return qe_invalid;
 		
-		if(!p_iputl(tempffc.hxsz,f))
+		if(!p_iputl(tempffc.hit_width,f))
 			return qe_invalid;
 		
-		if(!p_iputl(tempffc.hysz,f))
+		if(!p_iputl(tempffc.hit_height,f))
 			return qe_invalid;
 		
 		if(!p_putc(tempffc.txsz,f))
