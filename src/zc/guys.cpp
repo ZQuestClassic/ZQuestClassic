@@ -255,7 +255,7 @@ bool enemy::overpit(enemy *e)
 
 	// for ( int32_t q = 0; q < hxsz; ++q )
 	{
-		for ( int32_t q = 0; q < hysz; ++q )
+		for ( int32_t q = 0; q < hit_height; ++q )
 		{
 			//check every pixel of the hitbox
 			if ( ispitfall(x+q+hxofs, y+q+hyofs) )
@@ -272,10 +272,10 @@ bool enemy::shadow_overpit(enemy *e)
 {
 	// for ( int32_t q = 0; q < hxsz; ++q )
 	{
-		for ( int32_t q = 0; q < hysz; ++q )
+		for ( int32_t q = 0; q < hit_height; ++q )
 		{
 			//check every pixel of the hitbox
-			if ( ispitfall(x+q+hxofs, y+q+hyofs+hysz-2) )
+			if ( ispitfall(x+q+hxofs, y+q+hyofs+hit_height-2) )
 			{
 				//if the hitbox is over a pit, we can't land
 				return true;
@@ -2509,8 +2509,8 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 	//al_trace("->txsz:%i\n", d->txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((d->SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && d->tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
-	if ( ((d->SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && d->hxsz >= 0 ) hxsz = d->hxsz;
-	if ( ((d->SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && d->hysz >= 0 ) hysz = d->hysz;
+	if ( ((d->SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && d->hxsz >= 0 ) hit_width = d->hxsz;
+	if ( ((d->SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && d->hysz >= 0 ) hit_height = d->hysz;
 	if ( ((d->SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && d->hzsz >= 0  ) hzsz = d->hzsz;
 	if ( (d->SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = d->hxofs;
 	if (  (d->SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) != 0 ) hyofs = d->hyofs;
@@ -2729,8 +2729,8 @@ enemy::enemy(enemy const & other, bool new_script_uid, bool clear_parent_script_
 	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = tysz; if ( tysz > 1 ) extend = 3; }
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hxsz >= 0 ) hxsz = hxsz;
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hysz >= 0 ) hysz = hysz;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = hit_width;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hit_height >= 0 ) hit_height = hit_height;
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && hzsz >= 0  ) hzsz = hzsz;
 	if ( (SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = hxofs;
 	if (  (SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) != 0 ) hyofs = hyofs;
@@ -2780,7 +2780,7 @@ bool enemy::scr_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int
 	
 	if(!(moveflags & FLAG_IGNORE_SCREENEDGE)
 		&& ((input_x<(16-nb)) || (input_y<zc_max(16-yg-nb,0))
-			|| ((input_x+hxsz-1) >= (world_w-16+nb)) || ((input_y+hysz-1) >= (world_h-16+nb))))
+			|| ((input_x+hit_width-1) >= (world_w-16+nb)) || ((input_y+hit_height-1) >= (world_h-16+nb))))
 		return true;
 	
 	if(!(moveflags & FLAG_CAN_PITWALK) && (!(moveflags & FLAG_CAN_PITFALL) || !kb)) //Don't walk into pits, unless being knocked back
@@ -2913,7 +2913,7 @@ bool enemy::scr_canmove(zfix dx, zfix dy, int32_t special, bool kb, bool ign_sv)
 {
 	if(!(dx || dy)) return true;
 	zfix bx = x+hxofs, by = y+hyofs; //left/top
-	zfix rx = bx+hxsz-1, ry = by+hysz-1; //right/bottom
+	zfix rx = bx+hit_width-1, ry = by+hit_height-1; //right/bottom
 	if(!ign_sv && dy < 0) //check gravity
 	{
 		if((moveflags & FLAG_OBEYS_GRAV) && isSideViewGravity())
@@ -2935,13 +2935,13 @@ bool enemy::scr_canmove(zfix dx, zfix dy, int32_t special, bool kb, bool ign_sv)
 			}
 			if(scr_walkflag(mx, ry, special, left, mx, by, kb))
 				return false;
-			if(nosolid && collide_object(bx+dx,by,-dx,hysz,this))
+			if(nosolid && collide_object(bx+dx,by,-dx,hit_height,this))
 				return false;
 		}
 		else
 		{
 			int mx = (rx+dx).getCeil();
-			int lx = mx-hxsz+1;
+			int lx = mx-hit_width+1;
 			for(zfix ty = 0; by+ty < ry; ty += 8)
 			{
 				if(scr_walkflag(mx, by+ty, special, right, lx, by, kb))
@@ -2949,7 +2949,7 @@ bool enemy::scr_canmove(zfix dx, zfix dy, int32_t special, bool kb, bool ign_sv)
 			}
 			if(scr_walkflag(mx, ry, special, right, lx, by, kb))
 				return false;
-			if(nosolid && collide_object(bx+hxsz,by,dx,hysz,this))
+			if(nosolid && collide_object(bx+hit_width,by,dx,hit_height,this))
 				return false;
 		}
 	}
@@ -2966,13 +2966,13 @@ bool enemy::scr_canmove(zfix dx, zfix dy, int32_t special, bool kb, bool ign_sv)
 			}
 			if(scr_walkflag(rx, my, special, up, bx, my, kb))
 				return false;
-			if(nosolid && collide_object(bx,by+dy,hxsz,-dy,this))
+			if(nosolid && collide_object(bx,by+dy,hit_width,-dy,this))
 				return false;
 		}
 		else
 		{
 			int my = (ry+dy).getCeil();
-			int ly = my-hysz+1;
+			int ly = my-hit_height+1;
 			for(zfix tx = 0; bx+tx < rx; tx += 8)
 			{
 				if(scr_walkflag(bx+tx, my, special, down, bx, ly, kb))
@@ -2980,7 +2980,7 @@ bool enemy::scr_canmove(zfix dx, zfix dy, int32_t special, bool kb, bool ign_sv)
 			}
 			if(scr_walkflag(rx, my, special, down, bx, ly, kb))
 				return false;
-			if(nosolid && collide_object(bx,by+hysz,hxsz,dy,this))
+			if(nosolid && collide_object(bx,by+hit_height,hit_width,dy,this))
 				return false;
 		}
 	}
@@ -2994,11 +2994,11 @@ bool enemy::scr_canmove(zfix dx, zfix dy, int32_t special, bool kb, bool ign_sv)
 bool enemy::scr_canplace(zfix dx, zfix dy, int32_t special, bool kb)
 {
 	zfix bx = dx+hxofs, by = dy+hyofs; //left/top
-	zfix rx = bx+hxsz-1, ry = by+hysz-1; //right/bottom
+	zfix rx = bx+hit_width-1, ry = by+hit_height-1; //right/bottom
 	
 	bool nosolid = !((moveflags & FLAG_IGNORE_SOLIDITY) || (special==spw_wizzrobe) || (special==spw_floater));
 	
-	if(nosolid && collide_object(bx,by,hxsz,hysz,this))
+	if(nosolid && collide_object(bx,by,hit_width,hit_height,this))
 		return false;
 	for(zfix ty = 0; by+ty < ry; ty += 8)
 	{
@@ -3022,11 +3022,11 @@ bool enemy::scr_canplace(zfix dx, zfix dy, int32_t special, bool kb)
 
 bool enemy::scr_canplace(zfix dx, zfix dy, int32_t special, bool kb, int32_t nwid, int32_t nhei)
 {
-	auto oxsz = hxsz, oysz = hysz;
-	if(nwid > -1) hxsz = nwid;
-	if(nhei > -1) hysz = nhei;
+	auto oxsz = hit_width, oysz = hit_height;
+	if(nwid > -1) hit_width = nwid;
+	if(nhei > -1) hit_height = nhei;
 	bool ret = scr_canplace(dx,dy,special,kb);
-	hxsz = oxsz; hysz = oysz;
+	hit_width = oxsz; hit_height = oysz;
 	return ret;
 }
 
@@ -3409,8 +3409,8 @@ bool enemy::animate(int32_t index)
 				if(!isOnSideviewPlatform())
 				{
 					bool willHitSVPlatform = false;
-					int32_t usewid = (SIZEflags&guyflagOVERRIDE_HIT_WIDTH)?hxsz:16;
-					int32_t usehei = (SIZEflags&guyflagOVERRIDE_HIT_HEIGHT)?hysz:16;
+					int32_t usewid = (SIZEflags&guyflagOVERRIDE_HIT_WIDTH)?hit_width:16;
+					int32_t usehei = (SIZEflags&guyflagOVERRIDE_HIT_HEIGHT)?hit_height:16;
 					for(int32_t nx = x+4; nx < x+usewid; nx+=16)
 					{
 						if(fall > 0 && !IGNORE_SIDEVIEW_PLATFORMS && checkSVLadderPlatform(x+4,y+(fall/100)+usehei-1) && (((int32_t(y)+(int32_t(fall)/100)+usehei-1)&0xF0)!=((int32_t(y)+usehei-1)&0xF0)))
@@ -3716,7 +3716,7 @@ bool enemy::m_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int32
 				if ( SIZEflags&guyflagOVERRIDE_HIT_HEIGHT && !isflier(id) )
 				{
 					//Small enemies are treated as 16x16, for the purposes of m_walkflag!
-					dy += zc_max(hysz-16,0);
+					dy += zc_max(hit_height-16,0);
 				}
 			}
 			break;
@@ -3736,7 +3736,7 @@ bool enemy::m_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int32
 				if ( SIZEflags&guyflagOVERRIDE_HIT_WIDTH && !isflier(id) )
 				{
 					//Small enemies are treated as 16x16, for the purposes of m_walkflag!
-					dx += zc_max(hxsz-16,0);
+					dx += zc_max(hit_width-16,0);
 				}
 			}
 			break;
@@ -3807,8 +3807,8 @@ bool enemy::m_walkflag(int32_t dx,int32_t dy,int32_t special, int32_t dir, int32
 
 bool enemy::isOnSideviewPlatform()
 {
-	int32_t usewid = (SIZEflags&guyflagOVERRIDE_HIT_WIDTH) ? hxsz : 16;
-	int32_t usehei = (SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) ? hysz : 16;
+	int32_t usewid = (SIZEflags&guyflagOVERRIDE_HIT_WIDTH) ? hit_width : 16;
+	int32_t usehei = (SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) ? hit_height : 16;
 	if(y + usehei >= world_h && currscr>=0x70 && !(get_screen_for_world_xy(x, y)->flags2&wfDOWN)) return true; //Bottom of the map
 	if(check_slope(x, y+1, usewid, usehei)) return true;
 	for(int32_t nx = x + 4; nx <= x + usewid - 4; nx+=16)
@@ -3885,7 +3885,7 @@ void enemy::leave_item()
 		item* itm;
 		if (get_bit(quest_rules, qr_ENEMY_DROPS_USE_HITOFFSETS))
 		{
-			itm = (new item(x+hxofs+(hxsz/2)-8,y+hyofs+(hysz/2)-8,(zfix)0,drop_item,ipBIGRANGE+ipTIMER,0));
+			itm = (new item(x+hxofs+(hit_width/2)-8,y+hyofs+(hit_height/2)-8,(zfix)0,drop_item,ipBIGRANGE+ipTIMER,0));
 		}
 		else
 		{
@@ -4025,12 +4025,12 @@ void enemy::FireWeapon()
 	int32_t yoff = 0;
 	if ( SIZEflags&guyflagOVERRIDE_HIT_WIDTH )
 	{
-		xoff += (hxsz/2)-8;   
+		xoff += (hit_width/2)-8;   
 		//Z_scripterrlog("width flag enabled. xoff = %d\n", xoff);
 	}
 	if ( SIZEflags&guyflagOVERRIDE_HIT_HEIGHT )
 	{
-		yoff += (hysz/2)-8;   
+		yoff += (hit_height/2)-8;   
 		//Z_scripterrlog("width flag enabled. yoff = %d\n", yoff);
 	}
 		
@@ -6642,8 +6642,8 @@ void enemy::try_death(bool force_kill)
 					{
 						if (get_bit(quest_rules, qr_ENEMY_DROPS_USE_HITOFFSETS))
 						{
-							items.spr(i)->x = x+hxofs+(hxsz/2)-8;
-							items.spr(i)->y = y+hyofs+(hysz/2)-10-fakez;
+							items.spr(i)->x = x+hxofs+(hit_width/2)-8;
+							items.spr(i)->y = y+hyofs+(hit_height/2)-10-fakez;
 						}
 						else
 						{
@@ -6840,8 +6840,8 @@ bool enemy::canmove(int32_t ndir,zfix s,int32_t special,int32_t dx1,int32_t dy1,
 	s += 0.5; // Make the ints round; doesn't seem to cause any problems.
 	int32_t usexoffs = (SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) ? hxofs : 0;
 	int32_t useyoffs = (SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) ? hyofs : 0;
-	int32_t usewid = (SIZEflags&guyflagOVERRIDE_HIT_WIDTH) ? hxsz : 16;
-	int32_t usehei = (SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) ? hysz : 16;
+	int32_t usewid = (SIZEflags&guyflagOVERRIDE_HIT_WIDTH) ? hit_width : 16;
+	int32_t usehei = (SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) ? hit_height : 16;
 	bool offgrid = OFFGRID_ENEMY;
 	if(!offgrid)
 	{
@@ -7136,8 +7136,8 @@ bool enemy::canmove(int32_t ndir,zfix s,int32_t special,int32_t dx1,int32_t dy1,
 
 bool enemy::canmove(int32_t ndir,zfix s,int32_t special, bool kb)
 {
-	int32_t usewid = (SIZEflags&guyflagOVERRIDE_HIT_WIDTH) ? hxsz : 16;
-	int32_t usehei = (SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) ? hysz : 16;
+	int32_t usewid = (SIZEflags&guyflagOVERRIDE_HIT_WIDTH) ? hit_width : 16;
+	int32_t usehei = (SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) ? hit_height : 16;
 	if (usewid % 16 != 0) usewid += (16 - (usewid%16));
 	if (usehei % 16 != 0) usehei += (16 - (usehei%16));
 	--usewid;
@@ -7153,8 +7153,8 @@ bool enemy::canmove(int32_t ndir,int32_t special, bool kb)
 	{
 		dodongo_move=canmove(ndir,(zfix)1,special,0,-8,31,15,kb);
 	}
-	int32_t usewid = (SIZEflags&guyflagOVERRIDE_HIT_WIDTH) ? hxsz : 16;
-	int32_t usehei = (SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) ? hysz : 16;
+	int32_t usewid = (SIZEflags&guyflagOVERRIDE_HIT_WIDTH) ? hit_width : 16;
+	int32_t usehei = (SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) ? hit_height : 16;
 	if (usewid % 16 != 0) usewid += (16 - (usewid%16));
 	if (usehei % 16 != 0) usehei += (16 - (usehei%16));
 	--usewid;
@@ -9946,8 +9946,8 @@ guy::guy(zfix X,zfix Y,int32_t Id,int32_t Clk,bool mg) : enemy(X,Y,Id,Clk)
 	yofs=(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
 	hxofs=2;
 	hzsz=8;
-	hxsz=12;
-	hysz=17;
+	hit_width=12;
+	hit_height=17;
 	
 	if(!superman && (!isdungeon() || id==gFAIRY || id==gFIRE || id==gZELDA))
 	{
@@ -10022,8 +10022,8 @@ eFire::eFire(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hxsz >= 0 ) hxsz = d->hxsz;
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hysz >= 0 ) hysz = d->hysz;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = d->hxsz;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hit_height >= 0 ) hit_height = d->hysz;
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && hzsz >= 0  ) hzsz = d->hzsz;
 	if ( (SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = d->hxofs;
 	if (  (SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) != 0 ) hyofs = d->hyofs;
@@ -10135,8 +10135,8 @@ eOther::eOther(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hxsz >= 0 ) hxsz = d->hxsz;
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hysz >= 0 ) hysz = d->hysz;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = d->hxsz;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hit_height >= 0 ) hit_height = d->hysz;
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && hzsz >= 0  ) hzsz = d->hzsz;
 	if ( (SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = d->hxofs;
 	if (  (SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) != 0 ) hyofs = d->hyofs;
@@ -10249,8 +10249,8 @@ eScript::eScript(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hxsz >= 0 ) hxsz = d->hxsz;
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hysz >= 0 ) hysz = d->hysz;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = d->hxsz;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hit_height >= 0 ) hit_height = d->hysz;
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && hzsz >= 0  ) hzsz = d->hzsz;
 	if ( (SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = d->hxofs;
 	if (  (SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) != 0 ) hyofs = d->hyofs;
@@ -10363,8 +10363,8 @@ eFriendly::eFriendly(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hxsz >= 0 ) hxsz = d->hxsz;
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hysz >= 0 ) hysz = d->hysz;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = d->hxsz;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hit_height >= 0 ) hit_height = d->hysz;
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && hzsz >= 0  ) hzsz = d->hzsz;
 	if ( (SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = d->hxofs;
 	if (  (SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) != 0 ) hyofs = d->hyofs;
@@ -10574,8 +10574,8 @@ eGhini::eGhini(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hxsz >= 0 ) hxsz = d->hxsz;
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hysz >= 0 ) hysz = d->hysz;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = d->hxsz;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hit_height >= 0 ) hit_height = d->hysz;
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && hzsz >= 0  ) hzsz = d->hzsz;
 	if ( (SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = d->hxofs;
 	if (  (SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) != 0 ) hyofs = d->hyofs;
@@ -10664,8 +10664,8 @@ eTektite::eTektite(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hxsz >= 0 ) hxsz = d->hxsz;
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hysz >= 0 ) hysz = d->hysz;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = d->hxsz;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hit_height >= 0 ) hit_height = d->hysz;
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && hzsz >= 0  ) hzsz = d->hzsz;
 	if ( (SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = d->hxofs;
 	if (  (SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) != 0 ) hyofs = d->hyofs;
@@ -10952,8 +10952,8 @@ eItemFairy::eItemFairy(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = tysz; if ( tysz > 1 ) extend = 3; }
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hxsz >= 0 ) hxsz = hxsz;
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hysz >= 0 ) hysz = hysz;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = hit_width;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hit_height >= 0 ) hit_height = hit_height;
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && hzsz >= 0  ) hzsz = hzsz;
 	if ( (SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = hxofs;
 	if (  (SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) != 0 ) hyofs = hyofs;
@@ -11009,8 +11009,8 @@ ePeahat::ePeahat(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hxsz >= 0 ) hxsz = d->hxsz;
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hysz >= 0 ) hysz = d->hysz;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = d->hxsz;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hit_height >= 0 ) hit_height = d->hysz;
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && hzsz >= 0  ) hzsz = d->hzsz;
 	if ( (SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = d->hxofs;
 	if (  (SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) != 0 ) hyofs = d->hyofs;
@@ -11149,8 +11149,8 @@ eLeever::eLeever(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hxsz >= 0 ) hxsz = d->hxsz;
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hysz >= 0 ) hysz = d->hysz;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = d->hxsz;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hit_height >= 0 ) hit_height = d->hysz;
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && hzsz >= 0  ) hzsz = d->hzsz;
 	if ( (SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = d->hxofs;
 	if (  (SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) != 0 ) hyofs = d->hyofs;
@@ -11424,8 +11424,8 @@ eWallM::eWallM(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hxsz >= 0 ) hxsz = d->hxsz;
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hysz >= 0 ) hysz = d->hysz;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = d->hxsz;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hit_height >= 0 ) hit_height = d->hysz;
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && hzsz >= 0  ) hzsz = d->hzsz;
 	if ( (SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = d->hxofs;
 	if (  (SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) != 0 ) hyofs = d->hyofs;
@@ -11673,8 +11673,8 @@ eTrap::eTrap(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hxsz >= 0 ) hxsz = d->hxsz;
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hysz >= 0 ) hysz = d->hysz;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = d->hxsz;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hit_height >= 0 ) hit_height = d->hysz;
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && hzsz >= 0  ) hzsz = d->hzsz;
 	if ( (SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = d->hxofs;
 	if (  (SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) != 0 ) hyofs = d->hyofs;
@@ -12014,8 +12014,8 @@ eTrap2::eTrap2(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hxsz >= 0 ) hxsz = d->hxsz;
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hysz >= 0 ) hysz = d->hysz;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = d->hxsz;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hit_height >= 0 ) hit_height = d->hysz;
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && hzsz >= 0  ) hzsz = d->hzsz;
 	if ( (SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = d->hxofs;
 	if (  (SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) != 0 ) hyofs = d->hyofs;
@@ -12161,10 +12161,10 @@ eRock::eRock(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	else hxofs = -2;
 	if (  (d->SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) != 0 ) hyofs = d->hyofs;
 	else hyofs = -2;
-	if ( ((d->SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && d->hxsz >= 0 ) hxsz = d->hxsz;
-	else hxsz = 20;
-	if ( ((d->SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && d->hysz >= 0 ) hysz = d->hysz;
-	else hysz=20;
+	if ( ((d->SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && d->hxsz >= 0 ) hit_width = d->hxsz;
+	else hit_width = 20;
+	if ( ((d->SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && d->hysz >= 0 ) hit_height = d->hysz;
+	else hit_height=20;
 	
 	if ( ((d->SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && d->txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
 		if ( ((d->SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && d->tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
@@ -12298,16 +12298,16 @@ eBoulder::eBoulder(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	else hxofs= -10; 
 	if (  (d->SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) != 0 ) hyofs = d->hyofs;
 	else hyofs=-10;
-	if ( ((d->SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && d->hxsz >= 0 ) hxsz = d->hxsz;
-	else hxsz=36;
-	if ( ((d->SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && d->hysz >= 0 ) hysz = d->hysz;
-	else hysz=36;
+	if ( ((d->SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && d->hxsz >= 0 ) hit_width = d->hxsz;
+	else hit_width=36;
+	if ( ((d->SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && d->hysz >= 0 ) hit_height = d->hysz;
+	else hit_height=36;
 	if ( ((d->SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && d->hzsz >= 0  ) hzsz = d->hzsz;
 	else hzsz=16; //can't be jumped
 	
 	if ( ((d->SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && d->txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
 	if ( ((d->SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && d->tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
-	if ( ((d->SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && d->hxsz >= 0 ) hxsz = d->hxsz;
+	if ( ((d->SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && d->hxsz >= 0 ) hit_width = d->hxsz;
 	if (  (d->SIZEflags&guyflagOVERRIDE_DRAW_X_OFFSET) != 0 ) xofs = (int32_t)d->xofs;
 	if ( (d->SIZEflags&guyflagOVERRIDE_DRAW_Y_OFFSET) != 0 ) 
 	{
@@ -12469,8 +12469,8 @@ eProjectile::eProjectile(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Cl
 	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hxsz >= 0 ) hxsz = d->hxsz;
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hysz >= 0 ) hysz = d->hysz;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = d->hxsz;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hit_height >= 0 ) hit_height = d->hysz;
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && hzsz >= 0  ) hzsz = d->hzsz;
 	if ( (SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = d->hxofs;
 	if (  (SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) != 0 ) hyofs = d->hyofs;
@@ -12600,8 +12600,8 @@ eNPC::eNPC(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hxsz >= 0 ) hxsz = d->hxsz;
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hysz >= 0 ) hysz = d->hysz;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = d->hxsz;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hit_height >= 0 ) hit_height = d->hysz;
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && hzsz >= 0  ) hzsz = d->hzsz;
 	if ( (SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = d->hxofs;
 	if (  (SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) != 0 ) hyofs = d->hyofs;
@@ -12701,8 +12701,8 @@ eSpinTile::eSpinTile(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hxsz >= 0 ) hxsz = d->hxsz;
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hysz >= 0 ) hysz = d->hysz;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = d->hxsz;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hit_height >= 0 ) hit_height = d->hysz;
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && hzsz >= 0  ) hzsz = d->hzsz;
 	if ( (SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = d->hxofs;
 	if (  (SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) != 0 ) hyofs = d->hyofs;
@@ -12836,8 +12836,8 @@ eZora::eZora(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,0)
 	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hxsz >= 0 ) hxsz = d->hxsz;
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hysz >= 0 ) hysz = d->hysz;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = d->hxsz;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hit_height >= 0 ) hit_height = d->hysz;
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && hzsz >= 0  ) hzsz = d->hzsz;
 	if ( (SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = d->hxofs;
 	if (  (SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) != 0 ) hyofs = d->hyofs;
@@ -13039,8 +13039,8 @@ eStalfos::eStalfos(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hxsz >= 0 ) hxsz = d->hxsz;
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hysz >= 0 ) hysz = d->hysz;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = d->hxsz;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hit_height >= 0 ) hit_height = d->hysz;
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && hzsz >= 0  ) hzsz = d->hzsz;
 	if ( (SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = d->hxofs;
 	if (  (SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) != 0 ) hyofs = d->hyofs;
@@ -13980,14 +13980,14 @@ eKeese::eKeese(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	if ( !(SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) ) hxofs=2;
 	if ( (SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = d->hxofs;
 	
-	if ( !(SIZEflags&guyflagOVERRIDE_HIT_WIDTH) ) hxsz=12;
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && d->hxsz >= 0 ) hxsz = d->hxsz;
+	if ( !(SIZEflags&guyflagOVERRIDE_HIT_WIDTH) ) hit_width=12;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && d->hxsz >= 0 ) hit_width = d->hxsz;
 	
 	if ( !(SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) ) hyofs=4;
 	if (  (SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) != 0 ) hyofs = d->hyofs;
 	
-	if ( !(SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) ) hysz=8;
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && d->hysz >= 0 ) hysz = d->hysz;
+	if ( !(SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) ) hit_height=8;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && d->hysz >= 0 ) hit_height = d->hysz;
 	
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && d->txsz > 0 ) { txsz = d->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 
 	//al_trace("->txsz:%i\n", d->txsz); Verified that this is setting the value. -Z
@@ -14169,8 +14169,8 @@ eWizzrobe::eWizzrobe(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && d->tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && d->hxsz >= 0 ) hxsz = d->hxsz;
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && d->hysz >= 0 ) hysz = d->hysz;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && d->hxsz >= 0 ) hit_width = d->hxsz;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && d->hysz >= 0 ) hit_height = d->hysz;
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && d->hzsz >= 0  ) hzsz = d->hzsz;
 	if ( (SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 )
 	{
@@ -14736,8 +14736,8 @@ eDodongo::eDodongo(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hxsz >= 0 ) hxsz = d->hxsz;
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hysz >= 0 ) hysz = d->hysz;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = d->hxsz;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hit_height >= 0 ) hit_height = d->hysz;
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && hzsz >= 0  ) hzsz = d->hzsz;
 	if ( (SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = d->hxofs;
 	if (  (SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) != 0 ) hyofs = d->hyofs;
@@ -14773,7 +14773,7 @@ bool eDodongo::animate(int32_t index)
 	else
 		constant_walk(rate,homing,spw_clipright);
 		
-	hxsz = (dir<=down) ? 16 : 32;
+	hit_width = (dir<=down) ? 16 : 32;
 	//    hysz = (dir>=left) ? 16 : 32;
 	
 	return enemy::animate(index);
@@ -14884,8 +14884,8 @@ eDodongo2::eDodongo2(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hxsz >= 0 ) hxsz = d->hxsz;
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hysz >= 0 ) hysz = d->hysz;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = d->hxsz;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hit_height >= 0 ) hit_height = d->hysz;
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && hzsz >= 0  ) hzsz = d->hzsz;
 	if ( (SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = d->hxofs;
 	if (  (SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) != 0 ) hyofs = d->hyofs;
@@ -14921,8 +14921,8 @@ bool eDodongo2::animate(int32_t index)
 	else
 		constant_walk(rate,homing,spw_clipbottomright);
 		
-	hxsz = (dir<=down) ? 16 : 32;
-	hysz = (dir>=left) ? 16 : 32;
+	hit_width = (dir<=down) ? 16 : 32;
+	hit_height = (dir>=left) ? 16 : 32;
 	hxofs=(dir>=left)?-8:0;
 	hyofs=(dir<left)?-8:0;
 	
@@ -15093,8 +15093,8 @@ eAquamentus::eAquamentus(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Cl
 	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hxsz >= 0 ) hxsz = d->hxsz;
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hysz >= 0 ) hysz = d->hysz;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = d->hxsz;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hit_height >= 0 ) hit_height = d->hysz;
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && hzsz >= 0  ) hzsz = d->hzsz;
 	if ( (SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = d->hxofs;
 	if (  (SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) != 0 ) hyofs = d->hyofs;
@@ -15257,11 +15257,11 @@ bool eAquamentus::hit(weapon *w)
 	case wBeam:
 	case wRefBeam:
 	case wMagic:
-		hysz=32;
+		hit_height=32;
 	}
 	
 	bool ret = (dying || hclk>0) ? false : sprite::hit(w);
-	hysz=16;
+	hit_height=16;
 	return ret;
 	
 }
@@ -15287,7 +15287,7 @@ eGohma::eGohma(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)  // ene
 		clk=0;
 	}
 	hxofs=-16;
-	hxsz=48;
+	hit_width=48;
 	clk4=0;
 	yofs=(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)+1;
 	dir=zc_oldrand()%3+1;
@@ -15296,8 +15296,8 @@ eGohma::eGohma(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)  // ene
 	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = tysz; if ( tysz > 1 ) extend = 3; }
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hxsz >= 0 ) hxsz = hxsz;
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hysz >= 0 ) hysz = hysz;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = hit_width;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hit_height >= 0 ) hit_height = hit_height;
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && hzsz >= 0  ) hzsz = hzsz;
 	if ( (SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = hxofs;
 	if (  (SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) != 0 ) hyofs = hyofs;
@@ -15515,8 +15515,8 @@ eLilDig::eLilDig(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hxsz >= 0 ) hxsz = d->hxsz;
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hysz >= 0 ) hysz = d->hysz;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = d->hxsz;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hit_height >= 0 ) hit_height = d->hysz;
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && hzsz >= 0  ) hzsz = d->hzsz;
 	if ( (SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = d->hxofs;
 	if (  (SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) != 0 ) hyofs = d->hyofs;
@@ -15627,10 +15627,10 @@ eBigDig::eBigDig(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hxsz >= 0 ) hxsz = d->hxsz;
-	else hxsz=32;
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hysz >= 0 ) hysz = d->hysz;
-	else hysz=32;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = d->hxsz;
+	else hit_width=32;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hit_height >= 0 ) hit_height = d->hysz;
+	else hit_height=32;
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && hzsz >= 0  ) hzsz = d->hzsz;
 	else hzsz=16; // hard to jump.
 	if ( (SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = d->hxofs;
@@ -15809,8 +15809,8 @@ eGanon::eGanon(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	{
 		hxofs = 4;
 		hyofs = 4;
-		hxsz = 24;
-		hysz = 24;
+		hit_width = 24;
+		hit_height = 24;
 		SIZEflags|=guyflagOVERRIDE_HIT_WIDTH;
 		SIZEflags|=guyflagOVERRIDE_HIT_HEIGHT;
 	}
@@ -16307,7 +16307,7 @@ esMoldorm::esMoldorm(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	
 	yofs=(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
 	hyofs=4;
-	hxsz=hysz=8;
+	hit_width=hit_height=8;
 	hxofs=1000;
 	mainguy=count_enemy=false;
 	parentclk = 0;
@@ -16655,7 +16655,7 @@ esLanmola::esLanmola(zfix X,zfix Y,int32_t Id,int32_t Clk) : eBaseLanmola(X,Y,Id
 	}
 	
 	hxofs=1000;
-	hxsz=8;
+	hit_width=8;
 	mainguy=false;
 	count_enemy=(id<0x2000)?true:false;
 	
@@ -16787,8 +16787,8 @@ eManhandla::eManhandla(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,0)
 	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hxsz >= 0 ) hxsz = d->hxsz;
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hysz >= 0 ) hysz = d->hysz;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = d->hxsz;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hit_height >= 0 ) hit_height = d->hysz;
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && hzsz >= 0  ) hzsz = d->hzsz;
 	if ( (SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = d->hxofs;
 	if (  (SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) != 0 ) hyofs = d->hyofs;
@@ -17185,8 +17185,8 @@ esManhandla::esManhandla(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Cl
 	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hxsz >= 0 ) hxsz = d->hxsz;
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hysz >= 0 ) hysz = d->hysz;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = d->hxsz;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hit_height >= 0 ) hit_height = d->hysz;
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && hzsz >= 0  ) hzsz = d->hzsz;
 	if ( (SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = d->hxofs;
 	if (  (SIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) != 0 ) hyofs = d->hyofs;
@@ -17309,7 +17309,7 @@ eGleeok::eGleeok(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk) //ene
 	hp=(guysbuf[id&0xFFF].misc2)*(misc-1)*game->get_hero_dmgmult()+guysbuf[id&0xFFF].hp;
 	dir = down;
 	hxofs=4;
-	hxsz=8;
+	hit_width=8;
 	//    frate=17*4;
 	fading=fade_blue_poof;
 	//nets+5420;
@@ -17557,7 +17557,7 @@ esGleeok::esGleeok(zfix X,zfix Y,int32_t Id,int32_t Clk, sprite * prnt) : enemy(
 	x = xoffset+parent->x;
 	y = yoffset+parent->y;
 	hxofs=4;
-	hxsz=8;
+	hit_width=8;
 	yofs=(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
 	clk2=clk;                                                 // how int32_t to wait before moving first time
 	clk=0;
@@ -17738,7 +17738,7 @@ bool esGleeok::animate(int32_t index)
 		misc=1;
 		superman=1;
 		hxofs=xofs=0;
-		hxsz=16;
+		hit_width=16;
 		cs=8;
 		clk=-24;
 		clk2=40;
@@ -17892,9 +17892,9 @@ ePatra::ePatra(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)// enemy
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = tysz; if ( tysz > 1 ) extend = 3; }
 	else if (dmisc10 == 1) { tysz = 2; extend = 3; }
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hxsz >= 0 ) hxsz = hxsz;
-	else if (dmisc10 == 1) hxsz = 32;
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hysz >= 0 ) hysz = hysz;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = hit_width;
+	else if (dmisc10 == 1) hit_width = 32;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hit_height >= 0 ) hit_height = hit_height;
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && hzsz >= 0  ) hzsz = hzsz;
 	if ( (SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = hxofs;
 	else if (dmisc10 == 1) hxofs = -8;
@@ -18596,12 +18596,12 @@ void ePatra::FirePatraWeapon()
 	int32_t yoff = 0;
 	if ( SIZEflags&guyflagOVERRIDE_HIT_WIDTH )
 	{
-		xoff += (hxsz/2)-8;   
+		xoff += (hit_width/2)-8;   
 		//Z_scripterrlog("width flag enabled. xoff = %d\n", xoff);
 	}
 	if ( SIZEflags&guyflagOVERRIDE_HIT_HEIGHT )
 	{
-		yoff += (hysz/2)-8;   
+		yoff += (hit_height/2)-8;   
 		//Z_scripterrlog("width flag enabled. yoff = %d\n", yoff);
 	}
 	sfx(wpnsfx(wpn),pan(int32_t(x)));
@@ -18722,8 +18722,8 @@ esPatra::esPatra(zfix X,zfix Y,int32_t Id,int32_t Clk, sprite * prnt) : enemy(X,
 	clk5 = 0;
 	clk = -((misc*21)>>1)-1;
 	yofs=(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
-	hxsz=12;
-	hysz=12;
+	hit_width=12;
+	hit_height=12;
 	hxofs=2;
 	hyofs=2;
 	extend = 0;
@@ -18850,9 +18850,9 @@ ePatraBS::ePatraBS(zfix ,zfix ,int32_t Id,int32_t Clk) : enemy((zfix)128,(zfix)4
 		//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((SIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = d->tysz; if ( tysz > 1 ) extend = 3; }
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hxsz >= 0 ) hxsz = d->hxsz;
-	else hxsz = 32;
-	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hysz >= 0 ) hysz = d->hysz;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = d->hxsz;
+	else hit_width = 32;
+	if ( ((SIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hit_height >= 0 ) hit_height = d->hysz;
 	if ( ((SIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && hzsz >= 0  ) hzsz = d->hzsz;
 	if ( (SIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = d->hxofs;
 	else hxofs=-8;
@@ -19133,10 +19133,10 @@ esPatraBS::esPatraBS(zfix X,zfix Y,int32_t Id,int32_t Clk, sprite * prnt) : enem
 	//al_trace("->txsz:%i\n", txsz); Verified that this is setting the value. -Z
    // al_trace("Enemy txsz:%i\n", txsz);
 	if ( ((prntSIZEflags&guyflagOVERRIDE_TILE_HEIGHT) != 0) && tysz > 0 ) { tysz = prntenemy->tysz; if ( tysz > 1 ) extend = 3; }
-	if ( ((prntSIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hxsz >= 0 ) hxsz = prntenemy->hxsz;
-	else hxsz=16;
-	if ( ((prntSIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hysz >= 0 ) hysz = prntenemy->hysz;
-	else hysz=16;
+	if ( ((prntSIZEflags&guyflagOVERRIDE_HIT_WIDTH) != 0) && hit_width >= 0 ) hit_width = prntenemy->hit_width;
+	else hit_width=16;
+	if ( ((prntSIZEflags&guyflagOVERRIDE_HIT_HEIGHT) != 0) && hit_height >= 0 ) hit_height = prntenemy->hit_height;
+	else hit_height=16;
 	if ( ((prntSIZEflags&guyflagOVERRIDE_HIT_Z_HEIGHT) != 0) && hzsz >= 0  ) hzsz = prntenemy->hzsz;
 	if ( (prntSIZEflags&guyflagOVERRIDE_HIT_X_OFFSET) != 0 ) hxofs = prntenemy->hxofs;
 	if (  (prntSIZEflags&guyflagOVERRIDE_HIT_Y_OFFSET) != 0 ) hyofs = prntenemy->hyofs;
@@ -22216,9 +22216,9 @@ void setupscreen()
 			curItem->flash = false;
 			curItem->twohand = false;
 			curItem->anim = true;
-			curItem->hxsz=1;
+			curItem->hit_width=1;
 			curItem->hyofs=4;
-			curItem->hysz=12;
+			curItem->hit_height=12;
 			curItem->script=0;
 			curItem->txsz=1;
 			curItem->tysz=1;
@@ -23757,8 +23757,8 @@ static void roaming_item(mapscr* screen, int screen_index)
 				{
 					if (get_bit(quest_rules, qr_ENEMY_DROPS_USE_HITOFFSETS))
 					{
-						items.spr(i)->x = guys.spr(guycarryingitem)->x+guys.spr(guycarryingitem)->hxofs+(guys.spr(guycarryingitem)->hxsz/2)-8;
-						items.spr(i)->y = guys.spr(guycarryingitem)->y+guys.spr(guycarryingitem)->hyofs+(guys.spr(guycarryingitem)->hysz/2)-10;
+						items.spr(i)->x = guys.spr(guycarryingitem)->x+guys.spr(guycarryingitem)->hxofs+(guys.spr(guycarryingitem)->hit_width/2)-8;
+						items.spr(i)->y = guys.spr(guycarryingitem)->y+guys.spr(guycarryingitem)->hyofs+(guys.spr(guycarryingitem)->hit_height/2)-10;
 					}
 					else
 					{

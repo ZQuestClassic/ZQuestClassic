@@ -3474,12 +3474,12 @@ int32_t get_register(const int32_t arg)
 			
 		case FFCWIDTH:
 			if(BC::checkFFC(ri->ffcref, "ffc->EffectWidth") == SH::_NoError)
-				ret=(get_ffc_raw(ri->ffcref)->hxsz*10000);
+				ret=(get_ffc_raw(ri->ffcref)->hit_width*10000);
 			break;
 			
 		case FFCHEIGHT:
 			if(BC::checkFFC(ri->ffcref, "ffc->EffectHeight") == SH::_NoError)
-				ret=(get_ffc_raw(ri->ffcref)->hysz*10000);
+				ret=(get_ffc_raw(ri->ffcref)->hit_height*10000);
 			break;
 			
 		case FFTWIDTH:
@@ -3794,11 +3794,11 @@ int32_t get_register(const int32_t arg)
 			break;
 			
 		case LINKHXSZ:
-			ret = (int32_t)(Hero.hxsz)*10000;
+			ret = (int32_t)(Hero.hit_width)*10000;
 			break;
 			
 		case LINKHYSZ:
-			ret = (int32_t)(Hero.hysz)*10000;
+			ret = (int32_t)(Hero.hit_height)*10000;
 			break;
 			
 		case LINKHZSZ:
@@ -4710,14 +4710,14 @@ int32_t get_register(const int32_t arg)
 		case ITEMHXSZ:
 			if(0!=(s=checkItem(ri->itemref)))
 			{
-				ret=(((item*)(s))->hxsz)*10000;
+				ret=(((item*)(s))->hit_width)*10000;
 			}
 			break;
 			
 		case ITEMHYSZ:
 			if(0!=(s=checkItem(ri->itemref)))
 			{
-				ret=(((item*)(s))->hysz)*10000;
+				ret=(((item*)(s))->hit_height)*10000;
 			}
 			break;
 			
@@ -5855,10 +5855,10 @@ int32_t get_register(const int32_t arg)
 			GET_NPC_VAR_INT(hyofs, "npc->HitYOffset") break;
 			
 		case NPCHXSZ:
-			GET_NPC_VAR_INT(hxsz, "npc->HitWidth") break;
+			GET_NPC_VAR_INT(hit_width, "npc->HitWidth") break;
 			
 		case NPCHYSZ:
-			GET_NPC_VAR_INT(hysz, "npc->HitHeight") break;
+			GET_NPC_VAR_INT(hit_height, "npc->HitHeight") break;
 			
 		case NPCHZSZ:
 			GET_NPC_VAR_INT(hzsz, "npc->HitZHeight") break;
@@ -6900,13 +6900,13 @@ int32_t get_register(const int32_t arg)
 			
 		case LWPNHXSZ:
 			if(0!=(s=checkLWpn(ri->lwpn,"HitWidth")))
-				ret=(((weapon*)(s))->hxsz)*10000;
+				ret=(((weapon*)(s))->hit_width)*10000;
 				
 			break;
 			
 		case LWPNHYSZ:
 			if(0!=(s=checkLWpn(ri->lwpn,"HitHeight")))
-				ret=(((weapon*)(s))->hysz)*10000;
+				ret=(((weapon*)(s))->hit_height)*10000;
 				
 			break;
 			
@@ -7538,13 +7538,13 @@ int32_t get_register(const int32_t arg)
 			
 		case EWPNHXSZ:
 			if(0!=(s=checkEWpn(ri->ewpn,"HitWidth")))
-				ret=(((weapon*)(s))->hxsz)*10000;
+				ret=(((weapon*)(s))->hit_width)*10000;
 				
 			break;
 			
 		case EWPNHYSZ:
 			if(0!=(s=checkEWpn(ri->ewpn,"HitHeight")))
-				ret=(((weapon*)(s))->hysz)*10000;
+				ret=(((weapon*)(s))->hit_height)*10000;
 				
 			break;
 			
@@ -13320,12 +13320,12 @@ void set_register(int32_t arg, int32_t value)
 			
 		case FFCWIDTH:
 			if(BC::checkFFC(ri->ffcref, "ffc->EffectWidth") == SH::_NoError)
-				get_ffc_raw(ri->ffcref)->hxsz = (value/10000);
+				get_ffc_raw(ri->ffcref)->hit_width = (value/10000);
 			break;
 			
 		case FFCHEIGHT:
 			if(BC::checkFFC(ri->ffcref, "ffc->EffectHeight") == SH::_NoError)
-				get_ffc_raw(ri->ffcref)->hysz = (value/10000);
+				get_ffc_raw(ri->ffcref)->hit_height = (value/10000);
 			break;
 			
 		case FFTWIDTH:
@@ -13914,11 +13914,11 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case LINKHXSZ:
-			(Hero.hxsz)=(zfix)(value/10000);
+			(Hero.hit_width)=(zfix)(value/10000);
 			break;
 			
 		case LINKHYSZ:
-			(Hero.hysz)=(zfix)(value/10000);
+			(Hero.hit_height)=(zfix)(value/10000);
 			break;
 			
 		case LINKHZSZ:
@@ -15023,7 +15023,7 @@ void set_register(int32_t arg, int32_t value)
 		case ITEMHXSZ:
 			if(0!=(s=checkItem(ri->itemref)))
 			{
-				((item*)(s))->hxsz=value/10000;
+				((item*)(s))->hit_width=value/10000;
 			}
 			
 			break;
@@ -15031,7 +15031,7 @@ void set_register(int32_t arg, int32_t value)
 		case ITEMHYSZ:
 			if(0!=(s=checkItem(ri->itemref)))
 			{
-				((item*)(s))->hysz=value/10000;
+				((item*)(s))->hit_height=value/10000;
 			}
 			
 			break;
@@ -15119,8 +15119,8 @@ void set_register(int32_t arg, int32_t value)
 								{
 									if (get_bit(quest_rules, qr_ENEMY_DROPS_USE_HITOFFSETS))
 									{
-										((item*)(s))->x = ((enemy*)guys.spr(i))->x+((enemy*)guys.spr(i))->hxofs+(((enemy*)guys.spr(i))->hxsz/2)-8;
-										((item*)(s))->y = ((enemy*)guys.spr(i))->y+((enemy*)guys.spr(i))->hyofs+(((enemy*)guys.spr(i))->hysz/2)-10;
+										((item*)(s))->x = ((enemy*)guys.spr(i))->x+((enemy*)guys.spr(i))->hxofs+(((enemy*)guys.spr(i))->hit_width/2)-8;
+										((item*)(s))->y = ((enemy*)guys.spr(i))->y+((enemy*)guys.spr(i))->hyofs+(((enemy*)guys.spr(i))->hit_height/2)-10;
 										((item*)(s))->z = ((enemy*)guys.spr(i))->z;
 									}
 									else
@@ -16456,13 +16456,13 @@ void set_register(int32_t arg, int32_t value)
 			
 		case LWPNHXSZ:
 			if(0!=(s=checkLWpn(ri->lwpn,"HitWidth")))
-				(((weapon*)s)->hxsz)=(value/10000);
+				(((weapon*)s)->hit_width)=(value/10000);
 				
 			break;
 			
 		case LWPNHYSZ:
 			if(0!=(s=checkLWpn(ri->lwpn,"HitHeight")))
-				(((weapon*)s)->hysz)=(value/10000);
+				(((weapon*)s)->hit_height)=(value/10000);
 				
 			break;
 			
@@ -17100,13 +17100,13 @@ void set_register(int32_t arg, int32_t value)
 			
 		case EWPNHXSZ:
 			if(0!=(s=checkEWpn(ri->ewpn,"HitWidth")))
-				(((weapon*)s)->hxsz)=(value/10000);
+				(((weapon*)s)->hit_width)=(value/10000);
 				
 			break;
 			
 		case EWPNHYSZ:
 			if(0!=(s=checkEWpn(ri->ewpn,"HitHeight")))
-				(((weapon*)s)->hysz)=(value/10000);
+				(((weapon*)s)->hit_height)=(value/10000);
 				
 			break;
 			
@@ -17689,10 +17689,10 @@ void set_register(int32_t arg, int32_t value)
 			SET_NPC_VAR_INT(hyofs, "npc->HitYOffset") break;
 			
 		case NPCHXSZ:
-			SET_NPC_VAR_INT(hxsz, "npc->HitWidth") break;
+			SET_NPC_VAR_INT(hit_width, "npc->HitWidth") break;
 			
 		case NPCHYSZ:
-			SET_NPC_VAR_INT(hysz, "npc->HitHeight") break;
+			SET_NPC_VAR_INT(hit_height, "npc->HitHeight") break;
 			
 		case NPCHZSZ:
 			SET_NPC_VAR_INT(hzsz, "npc->HitZHeight") break;
@@ -46244,12 +46244,12 @@ void FFScript::write_mapscreens(PACKFILE *f,int32_t vers_id)
 				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 				}
 				
-				if(!p_iputl(m->ffcs[k].hxsz,f))
+				if(!p_iputl(m->ffcs[k].hit_width,f))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 				}
 				
-				if(!p_iputl(m->ffcs[k].hysz,f))
+				if(!p_iputl(m->ffcs[k].hit_height,f))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to write MAPSCR NODEz\n"); return;
 				}
@@ -46851,12 +46851,12 @@ void FFScript::read_mapscreens(PACKFILE *f,int32_t vers_id)
 				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 				}
 				
-				if(!p_igetl(&(m->ffcs[k].hxsz),f,true))
+				if(!p_igetl(&(m->ffcs[k].hit_width),f,true))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 				}
 				
-				if(!p_igetl(&(m->ffcs[k].hysz),f,true))
+				if(!p_igetl(&(m->ffcs[k].hit_height),f,true))
 				{
 				Z_scripterrlog("do_savegamestructs FAILED to read MAPSCR NODE\n"); return;
 				}

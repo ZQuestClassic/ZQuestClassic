@@ -260,26 +260,26 @@ int32_t check_slope(solid_object* o, bool onlyNew)
 {
 	if (onlyNew) return check_new_slope(o->x + o->hxofs + o->sxofs,
 	               o->y + o->hyofs + o->syofs,
-	               o->hxsz + o->sxsz_ofs,
-	               o->hysz + o->sysz_ofs,
+	               o->hit_width + o->sxsz_ofs,
+	               o->hit_height + o->sysz_ofs,
 		       o->old_x + o->hxofs + o->sxofs,
 	               o->old_y + o->hyofs + o->syofs);
 	else return check_slope(o->x + o->hxofs + o->sxofs,
 	               o->y + o->hyofs + o->syofs,
-	               o->hxsz + o->sxsz_ofs,
-	               o->hysz + o->sysz_ofs);
+	               o->hit_width + o->sxsz_ofs,
+	               o->hit_height + o->sysz_ofs);
 }
 
 slope_object const& get_slope(solid_object* o, bool onlyNew)
 {
 	if (!onlyNew) return get_slope(o->x + o->hxofs + o->sxofs,
 	               o->y + o->hyofs + o->syofs,
-	               o->hxsz + o->sxsz_ofs,
-	               o->hysz + o->sysz_ofs);
+	               o->hit_width + o->sxsz_ofs,
+	               o->hit_height + o->sysz_ofs);
 	else return get_new_slope(o->x + o->hxofs + o->sxofs,
 	               o->y + o->hyofs + o->syofs,
-	               o->hxsz + o->sxsz_ofs,
-	               o->hysz + o->sysz_ofs,
+	               o->hit_width + o->sxsz_ofs,
+	               o->hit_height + o->sysz_ofs,
 		       o->old_x + o->hxofs + o->sxofs,
 	               o->old_y + o->hyofs + o->syofs);
 }
@@ -288,7 +288,7 @@ bool slide_slope(solid_object* obj, zfix& dx, zfix& dy, zfix& ID)
 {
 	if (!obj->sideview_mode()) return false;
 	zfix tx = obj->x+obj->hxofs+obj->sxofs, ty = obj->y+obj->hyofs+obj->syofs,
-		tw = obj->hxsz+obj->sxsz_ofs, th = obj->hysz+obj->sysz_ofs;
+		tw = obj->hit_width+obj->sxsz_ofs, th = obj->hit_height+obj->sysz_ofs;
 		
 	dx = dy = 0;
 	zfix otx = tx, oty = ty;
@@ -344,7 +344,7 @@ void slope_push_int(slope_info const& s, solid_object* obj, zfix& dx, zfix& dy, 
 	bool disabledY = (dy == -1);
 	bool disabledX = (dx == -1);
 	zfix rx = obj->x+obj->hxofs+obj->sxofs, ry = obj->y+obj->hyofs+obj->syofs,
-	rw = obj->hxsz+obj->sxsz_ofs, rh = obj->hysz+obj->sysz_ofs;
+	rw = obj->hit_width+obj->sxsz_ofs, rh = obj->hit_height+obj->sysz_ofs;
 	zfix orx = rx;
 	zfix ory = ry;
 	zfix cx = rx + rw/2 - 1;

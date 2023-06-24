@@ -4048,8 +4048,8 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
 					itemdata const& tmpitm = itemsbuf[get_subscreenitem_id(itemtype, true)];
 					bool oldsel = get_bit(quest_rules, qr_SUBSCR_OLD_SELECTOR);
 					if(!oldsel) big_sel = false;
-					int32_t sw = oldsel ? (tempsel->extend > 2 ? tempsel->txsz*16 : 16) : (tempsel->extend > 2 ? tempsel->hxsz : 16),
-						sh = oldsel ? (tempsel->extend > 2 ? tempsel->txsz*16 : 16) : (tempsel->extend > 2 ? tempsel->hysz : 16),
+					int32_t sw = oldsel ? (tempsel->extend > 2 ? tempsel->txsz*16 : 16) : (tempsel->extend > 2 ? tempsel->hit_width : 16),
+						sh = oldsel ? (tempsel->extend > 2 ? tempsel->txsz*16 : 16) : (tempsel->extend > 2 ? tempsel->hit_height : 16),
 						dw = oldsel ? (tempsel->extend > 2 ? tempsel->txsz*16 : 16) : ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_WIDTH) ? tmpitm.hxsz : 16),
 						dh = oldsel ? (tempsel->extend > 2 ? tempsel->txsz*16 : 16) : ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_HEIGHT) ? tmpitm.hysz : 16);
 					int32_t sxofs = oldsel ? 0 : (tempsel->extend > 2 ? tempsel->hxofs : 0),

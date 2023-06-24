@@ -969,8 +969,8 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	bounce=ignoreHero=false;
 	yofs=(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset) - 2;
 	dragging=-1;
-	hxsz=15;
-	hysz=15;
+	hit_width=15;
+	hit_height=15;
 	hzsz=8;
 	autorotate = false;
 	do_animation = 1;
@@ -1166,8 +1166,8 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				{
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tilew;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tileh;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].weap_hxsz;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].weap_hysz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hit_width = itemsbuf[parentitem].weap_hxsz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hit_height = itemsbuf[parentitem].weap_hysz;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].weap_hzsz;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
@@ -1227,8 +1227,8 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			{
 				if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tilew;}
 				if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tileh;}
-				if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].weap_hxsz;}
-				if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].weap_hysz;}
+				if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hit_width = itemsbuf[parentitem].weap_hxsz;}
+				if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hit_height = itemsbuf[parentitem].weap_hysz;}
 				if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].weap_hzsz;}
 				if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
 				if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
@@ -1276,7 +1276,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			{
 				itemid = getCanonicalItemID(itemsbuf, itype_sword);
 			}
-			hxsz=hysz=15;
+			hit_width=hit_height=15;
 			if ( parentitem > -1 )
 			{
 				//Port Item Editor Weapon Size Values
@@ -1289,8 +1289,8 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						{
 							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tilew;}
 							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tileh;}
-							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].weap_hxsz;}
-							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].weap_hysz;}
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hit_width = itemsbuf[parentitem].weap_hxsz;}
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hit_height = itemsbuf[parentitem].weap_hysz;}
 							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].weap_hzsz;}
 							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
 							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
@@ -1306,8 +1306,8 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						{
 							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tilew;}
 							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tileh;}
-							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].weap_hxsz;}
-							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].weap_hysz;}
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hit_width = itemsbuf[parentitem].weap_hxsz;}
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hit_height = itemsbuf[parentitem].weap_hysz;}
 							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].weap_hzsz;}
 							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
 							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
@@ -1322,8 +1322,8 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						{
 							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tileh;}
 							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tilew;}
-							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].weap_hysz;}
-							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].weap_hxsz;}
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hit_width = itemsbuf[parentitem].weap_hysz;}
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hit_height = itemsbuf[parentitem].weap_hxsz;}
 							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].weap_hzsz;}
 							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hyofs;}
 							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hxofs;}
@@ -1339,8 +1339,8 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						{
 							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tileh;}
 							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tilew;}
-							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].weap_hysz;}
-							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].weap_hxsz;}
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hit_width = itemsbuf[parentitem].weap_hysz;}
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hit_height = itemsbuf[parentitem].weap_hxsz;}
 							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].weap_hzsz;}
 							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hyofs;}
 							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hxofs;}
@@ -1375,8 +1375,8 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			{
 				itemid = getCanonicalItemID(itemsbuf, itype_wand);
 			}
-			hxsz=15;
-			hysz=15; //hysz=24;
+			hit_width=15;
+			hit_height=15; //hysz=24;
 			/* The wand class items need a special set of sizes, as the size is for their projectiles. 
 			if ( parentitem > -1 )
 			{
@@ -1417,8 +1417,8 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				itemid = getCanonicalItemID(itemsbuf, itype_hammer);
 			}
 		
-			hxsz=15;
-			hysz=24;
+			hit_width=15;
+			hit_height=24;
 			if ( parentitem > -1 )
 			{
 				//Port Item Editor Weapon Size Values
@@ -1426,8 +1426,8 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					extend = 3; 
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tilew;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tileh;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].weap_hxsz;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].weap_hysz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hit_width = itemsbuf[parentitem].weap_hxsz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hit_height = itemsbuf[parentitem].weap_hysz;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].weap_hzsz;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
@@ -1463,8 +1463,8 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					extend = 3; 
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tilew;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tileh;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].weap_hxsz;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].weap_hysz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hit_width = itemsbuf[parentitem].weap_hxsz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hit_height = itemsbuf[parentitem].weap_hysz;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].weap_hzsz;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
@@ -1504,7 +1504,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 		{
 			xofs=1000;                                            // don't show
 			x=y=hxofs=hyofs=0;
-			hxsz=hysz=255;                                        // hit the whole screen
+			hit_width=hit_height=255;                                        // hit the whole screen
 			//Port Item Editor Weapon Size Values
 		
 			if(isDummy || itemid<0)
@@ -1525,8 +1525,8 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					extend = 3; 
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tilew;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tileh;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].weap_hxsz;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].weap_hysz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hit_width = itemsbuf[parentitem].weap_hxsz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hit_height = itemsbuf[parentitem].weap_hysz;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].weap_hzsz;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
@@ -1555,8 +1555,8 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					extend = 3; 
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tilew;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tileh;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].weap_hxsz;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].weap_hysz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hit_width = itemsbuf[parentitem].weap_hxsz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hit_height = itemsbuf[parentitem].weap_hysz;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].weap_hzsz;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
@@ -1615,7 +1615,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					//}
 					case up:
 						hyofs=2;
-						hysz=12;
+						hit_height=12;
 						break;
 						
 					case left:
@@ -1626,7 +1626,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						update_weapon_frame(((frames>1)?frames:1),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 						hxofs=2;
-						hxsz=12;
+						hit_width=12;
 						yofs = (get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)+(BSZ ? 3 : 1);
 						break;
 				}
@@ -1664,8 +1664,8 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					extend = 3; 
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tilew;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tileh;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].weap_hxsz;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].weap_hysz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hit_width = itemsbuf[parentitem].weap_hxsz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hit_height = itemsbuf[parentitem].weap_hysz;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].weap_hzsz;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
@@ -1689,7 +1689,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						//hysz=12;
 					hyofs= ( (parentitem > -1) && itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) ? itemsbuf[parentitem].weap_hyofs : 2;
 						//2;
-					hysz= ( (parentitem > -1) && itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) ? itemsbuf[parentitem].weap_hysz : 12;
+					hit_height= ( (parentitem > -1) && itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) ? itemsbuf[parentitem].weap_hysz : 12;
 						//12;
 						break;
 						
@@ -1705,11 +1705,11 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						
 						hyofs= ( (parentitem > -1) && itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) ? itemsbuf[parentitem].weap_hyofs : 2;
 						//2;
-						hysz= ( (parentitem > -1) && itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) ? itemsbuf[parentitem].weap_hysz : 14;
+						hit_height= ( (parentitem > -1) && itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) ? itemsbuf[parentitem].weap_hysz : 14;
 						//14;
 						hxofs=( (parentitem > -1) && itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) ? itemsbuf[parentitem].weap_hxofs : 2;
 						//2;
-						hxsz=( (parentitem > -1) && itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ) ? itemsbuf[parentitem].weap_hxsz : 12;
+						hit_width=( (parentitem > -1) && itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ) ? itemsbuf[parentitem].weap_hxsz : 12;
 						//12;
 						//hyofs=2;
 						//hysz=14;
@@ -1799,8 +1799,8 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					extend = 3; 
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tilew;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tileh;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].weap_hxsz;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].weap_hysz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hit_width = itemsbuf[parentitem].weap_hxsz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hit_height = itemsbuf[parentitem].weap_hysz;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].weap_hzsz;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
@@ -1828,15 +1828,15 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						if(itemsbuf[parentitem].flags & ITEM_FLAG2)
 							glowRad = 0;
 						hxofs = hyofs=1;
-						hxsz = hysz = 14;
+						hit_width = hit_height = 14;
 						step = zfix(itemsbuf[parentitem].misc4)/100;
 						//Port Item Editor Weapon Size Values
 						if ( itemsbuf[itemid].weapoverrideFLAGS > 0 ) {
 							extend = 3; 
 							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tilew;}
 							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tileh;}
-							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].weap_hxsz;}
-							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].weap_hysz;}
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hit_width = itemsbuf[parentitem].weap_hxsz;}
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hit_height = itemsbuf[parentitem].weap_hysz;}
 							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].weap_hzsz;}
 							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
 							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
@@ -1877,7 +1877,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				itemid = getCanonicalItemID(itemsbuf, itype_bomb);
 			}
 			hxofs=hyofs=4;
-			hxsz=hysz=8;
+			hit_width=hit_height=8;
 		
 		
 			if(itemid >-1)
@@ -1904,8 +1904,8 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					extend = 3; 
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tilew;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tileh;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].weap_hxsz;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].weap_hysz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hit_width = itemsbuf[parentitem].weap_hxsz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hit_height = itemsbuf[parentitem].weap_hysz;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].weap_hzsz;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
@@ -1931,7 +1931,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				itemid = getCanonicalItemID(itemsbuf, itype_sbomb);
 			}
 			hxofs=hyofs=4;
-			hxsz=hysz=8;
+			hit_width=hit_height=8;
 		
 			if ( parentitem > -1 )
 			{
@@ -1948,8 +1948,8 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					extend = 3; 
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tilew;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tileh;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].weap_hxsz;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].weap_hysz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hit_width = itemsbuf[parentitem].weap_hxsz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hit_height = itemsbuf[parentitem].weap_hysz;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].weap_hzsz;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
@@ -1993,8 +1993,8 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					extend = 3; 
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tilew;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tileh;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].weap_hxsz;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].weap_hysz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hit_width = itemsbuf[parentitem].weap_hxsz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hit_height = itemsbuf[parentitem].weap_hysz;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].weap_hzsz;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
@@ -2047,8 +2047,8 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					extend = 3; 
 					if ( itemsbuf[itemid].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[itemid].weap_tilew;}
 					if ( itemsbuf[itemid].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[itemid].weap_tileh;}
-					if ( itemsbuf[itemid].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[itemid].weap_hxsz;}
-					if ( itemsbuf[itemid].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[itemid].weap_hysz;}
+					if ( itemsbuf[itemid].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hit_width = itemsbuf[itemid].weap_hxsz;}
+					if ( itemsbuf[itemid].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hit_height = itemsbuf[itemid].weap_hysz;}
 					if ( itemsbuf[itemid].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[itemid].weap_hzsz;}
 					if ( itemsbuf[itemid].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[itemid].weap_hxofs;}
 					if ( itemsbuf[itemid].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[itemid].weap_hyofs;}
@@ -2074,7 +2074,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					case up:
 						hyofs = ( (parentitem > -1) && itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) ? itemsbuf[parentitem].weap_hyofs : 2;
 						//2;
-						hysz=( (parentitem > -1) && itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) ? itemsbuf[parentitem].weap_hysz : 12;
+						hit_height=( (parentitem > -1) && itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) ? itemsbuf[parentitem].weap_hysz : 12;
 						//12;
 						break;
 						
@@ -2086,7 +2086,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 						hxofs=( (parentitem > -1) && itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) ? itemsbuf[parentitem].weap_hxofs : 2;
 						//2;
-						hxsz=( (parentitem > -1) && itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ) ? itemsbuf[parentitem].weap_hxsz : 12;
+						hit_width=( (parentitem > -1) && itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ) ? itemsbuf[parentitem].weap_hxsz : 12;
 						//12;
 						break;
 				}
@@ -2101,9 +2101,9 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				itemid = getCanonicalItemID(itemsbuf, itype_brang);
 			}
 			hxofs=4;
-			hxsz=7;
+			hit_width=7;
 			hyofs=2;
-			hysz=11;
+			hit_height=11;
 			if ( parentitem > -1 )
 			{
 				//Port Item Editor Weapon Size Values
@@ -2111,8 +2111,8 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					extend = 3; 
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itemsbuf[parentitem].weap_tilew;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itemsbuf[parentitem].weap_tileh;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itemsbuf[parentitem].weap_hxsz;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itemsbuf[parentitem].weap_hysz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hit_width = itemsbuf[parentitem].weap_hxsz;}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hit_height = itemsbuf[parentitem].weap_hysz;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itemsbuf[parentitem].weap_hzsz;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
@@ -2181,14 +2181,14 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						xofs+=4;
 						yofs+=1;
 						hyofs=2;
-						hysz=12;
+						hit_height=12;
 						break;
 						
 					case up:
 						yofs+=3;
 						xofs-=5;
 						hyofs=2;
-						hysz=12;
+						hit_height=12;
 						break;
 						
 					case left:
@@ -2197,7 +2197,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						xofs+=2;
 						yofs=(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)+4;
 						hxofs=2;
-						hxsz=12;
+						hit_width=12;
 						break;
 						
 					case right: /*tile=o_tile+((frames>1)?frames:1)*/
@@ -2206,15 +2206,15 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						xofs-=2;
 						yofs=(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)+4;
 						hxofs=2;
-						hxsz=12;
+						hit_width=12;
 						break;
 					//Diagonal Hookshot (1)
 					case l_up:
 						LOADGFX(hshot.wpn5);
 						yofs+=3;
 						xofs-=3;
-						hysz=12;
-						hxsz=12;
+						hit_height=12;
+						hit_width=12;
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 						flip=0;
@@ -2223,8 +2223,8 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						LOADGFX(hshot.wpn5);
 						yofs+=3; //check numbers ater
 						xofs-=3;
-						hysz=12;
-						hxsz=12;
+						hit_height=12;
+						hit_width=12;
 						//update gfx here
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
@@ -2234,8 +2234,8 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						LOADGFX(hshot.wpn5);
 						yofs+=3;
 						xofs-=3;
-						hysz=12;
-						hxsz=12;
+						hit_height=12;
+						hit_width=12;
 						//update gfx here
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
@@ -2245,8 +2245,8 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						LOADGFX(hshot.wpn5);
 						yofs+=3;
 						xofs-=3;
-						hysz=12;
-						hxsz=12;
+						hit_height=12;
+						hit_width=12;
 						//update gfx here
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
@@ -2284,14 +2284,14 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						xofs+=4;
 						yofs+=1;
 						hyofs=2;
-						hysz=12;
+						hit_height=12;
 						break;
 						
 					case up:
 						yofs+=3;
 						xofs-=5;
 						hyofs=2;
-						hysz=12;
+						hit_height=12;
 						break;
 						
 					case left:
@@ -2300,7 +2300,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						xofs+=2;
 						yofs=(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)+4;
 						hxofs=2;
-						hxsz=12;
+						hit_width=12;
 						break;
 						
 					case right: /*tile=o_tile+((frames>1)?frames:1)*/
@@ -2309,7 +2309,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						xofs-=2;
 						yofs=(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)+4;
 						hxofs=2;
-						hxsz=12;
+						hit_width=12;
 						break;
 				
 					//Diagonal Hookshot (5)
@@ -2317,8 +2317,8 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						LOADGFX(hshot.wpn6);
 						yofs+=3; //check numbers ater
 						xofs-=3;
-						hysz=12;
-						hxsz=12;
+						hit_height=12;
+						hit_width=12;
 						//update gfx here
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
@@ -2328,8 +2328,8 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						LOADGFX(hshot.wpn6);
 						yofs+=3;
 						xofs-=3;
-						hysz=12;
-						hxsz=12;
+						hit_height=12;
+						hit_width=12;
 						//update gfx here
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
@@ -2339,8 +2339,8 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						LOADGFX(hshot.wpn6);
 						yofs+=3;
 						xofs-=3;
-						hysz=12;
-						hxsz=12;
+						hit_height=12;
+						hit_width=12;
 						//update gfx here
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
@@ -2350,8 +2350,8 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						LOADGFX(hshot.wpn6);
 						yofs+=3;
 						xofs-=3;
-						hysz=12;
-						hxsz=12;
+						hit_height=12;
+						hit_width=12;
 						//update gfx here
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
 						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
@@ -2462,12 +2462,12 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			if(use_sprite > -1) defaultw = use_sprite;
 			LOADGFX(defaultw);
 			hxofs=0;
-			hxsz=16;
+			hit_width=16;
 			
 			if(get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
 			{
 				hyofs=0;
-				hysz=16;
+				hit_height=16;
 			}
 			
 			if(id==ewBomb)
@@ -2513,11 +2513,11 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			if(use_sprite > -1) defaultw = use_sprite;
 			LOADGFX(defaultw);
 			hxofs=0;
-			hxsz=16;
+			hit_width=16;
 			if(get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
 			{
 				hyofs=0;
-				hysz=16;
+				hit_height=16;
 			}
 			
 			if(id==ewSBomb)
@@ -2556,14 +2556,14 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			if(get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
 			{
 				hxofs=0;
-				hxsz=16;
+				hit_width=16;
 				hyofs=0;
-				hysz=16;
+				hit_height=16;
 			}
 			else
 			{
 				hxofs=4;
-				hxsz=8;
+				hit_width=8;
 			}
 			
 			wid = zc_min(zc_max(current_item(itype_brang),1),3)-1+wBRANG;
@@ -2641,14 +2641,14 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			if(get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
 			{
 				hxofs=0;
-				hxsz=16;
+				hit_width=16;
 				hyofs=0;
-				hysz=16;
+				hit_height=16;
 			}
 			else
 			{
 				hxofs=4;
-				hxsz=8;
+				hit_width=8;
 			}
 			
 			step=3;
@@ -2680,7 +2680,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					case l_up:
 					case up:
 						xofs=-4;
-						hxsz=8;
+						hit_width=8;
 						break;
 						
 					case left:
@@ -2711,14 +2711,14 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			if(get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
 			{
 				hxofs=0;
-				hxsz=16;
+				hit_width=16;
 				hyofs=0;
-				hysz=16;
+				hit_height=16;
 			}
 			else
 			{
 				hxofs=4;
-				hxsz=8;
+				hit_width=8;
 			}
 			
 			step=3;
@@ -2767,14 +2767,14 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			if(get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
 			{
 				hxofs=0;
-				hxsz=16;
+				hit_width=16;
 				hyofs=0;
-				hysz=16;
+				hit_height=16;
 			}
 			else
 			{
 				hxofs=4;
-				hxsz=8;
+				hit_width=8;
 			}
 			
 			step=3;
@@ -2859,12 +2859,12 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			if(get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
 			{
 				hxofs=hyofs=0;
-				hxsz=hysz=16;
+				hit_width=hit_height=16;
 			}
 			else
 			{
 				hxofs = hyofs=1; // hof of 1 means that hero can use the 'half-tile trick'.
-				hxsz = hysz = 14;
+				hit_width = hit_height = 14;
 			}
 			
 			if(BSZ)
@@ -2890,12 +2890,12 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			if(get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
 			{
 				hxofs=hyofs=0;
-				hxsz=hysz=16;
+				hit_width=hit_height=16;
 			}
 			else
 			{
 				hxofs = hyofs=1; // hof of 1 means that hero can use the 'half-tile trick'.
-				hxsz = hysz = 15;
+				hit_width = hit_height = 15;
 			}
 			
 			if(BSZ)
@@ -2909,7 +2909,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			if(get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
 			{
 				hxofs=hyofs=0;
-				hxsz=hysz=16;
+				hit_width=hit_height=16;
 			}
 			
 			defaultw = ewWIND;
@@ -3338,12 +3338,12 @@ void weapon::limited_animate()
 				if(id==wSBomb || id==wLitSBomb || id==ewSBomb || id==ewLitSBomb)
 				{
 					hxofs=hyofs=-16;
-					hxsz=hysz=48;
+					hit_width=hit_height=48;
 				}
 				else
 				{
 					hxofs=hyofs=-8;
-					hxsz=hysz=32;
+					hit_width=hit_height=32;
 				}
 				usedefence = usedefencedummy;
 				useweapon = useweapondummy;
@@ -3575,7 +3575,7 @@ bool weapon::animate(int32_t index)
 	{
 		zfix wx = x+hxofs;
 		zfix wy = y+hyofs-fakez;
-		auto wxsz = hxsz, wysz = hysz;
+		auto wxsz = hit_width, wysz = hit_height;
 		for(int32_t j=0; j<items.Count(); ++j)
 		{
 			item* ptr = (item*)items.spr(j);
@@ -3739,9 +3739,9 @@ bool weapon::animate(int32_t index)
 		
 		bool pound = useweapon == wHammer && id != wHammer;
 		
-		for(int32_t dx = 0; dx < hxsz; dx += 16)
+		for(int32_t dx = 0; dx < hit_width; dx += 16)
 		{
-			for(int32_t dy = 0; dy < hysz; dy += 16)
+			for(int32_t dy = 0; dy < hit_height; dy += 16)
 			{
 				Hero.check_slash_block2((int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs-fakez, this);
 				//Layers
@@ -3754,28 +3754,28 @@ bool weapon::animate(int32_t index)
 				if(pound) Hero.check_pound_block((int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs-fakez, this);
 				Hero.check_wpn_triggers((int32_t)x+dx+hxofs, (int32_t)y+dy+hyofs-fakez, this);
 			}
-			Hero.check_slash_block2((int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1)-fakez, this);
-			Hero.check_slash_block_layer2((int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1)-fakez, this,1);
-			Hero.check_slash_block_layer2((int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1)-fakez, this,2);
-			Hero.check_wand_block2((int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1)-fakez, this);
-			if(pound) Hero.check_pound_block((int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1)-fakez, this);
-			Hero.check_wpn_triggers((int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1)-fakez, this);
+			Hero.check_slash_block2((int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hit_height-1)-fakez, this);
+			Hero.check_slash_block_layer2((int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hit_height-1)-fakez, this,1);
+			Hero.check_slash_block_layer2((int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hit_height-1)-fakez, this,2);
+			Hero.check_wand_block2((int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hit_height-1)-fakez, this);
+			if(pound) Hero.check_pound_block((int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hit_height-1)-fakez, this);
+			Hero.check_wpn_triggers((int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hit_height-1)-fakez, this);
 		}
-		for(int32_t dy = 0; dy < hysz; dy += 16)
+		for(int32_t dy = 0; dy < hit_height; dy += 16)
 		{
-			Hero.check_slash_block2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs-fakez, this);
-			Hero.check_slash_block_layer2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs-fakez, this,1);
-			Hero.check_slash_block_layer2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs-fakez, this,2);
-			Hero.check_wand_block2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs-fakez, this);
-			if(pound) Hero.check_pound_block((int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs-fakez, this);
-			Hero.check_wpn_triggers((int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs-fakez, this);
+			Hero.check_slash_block2((int32_t)x+hxofs+(hit_width-1), (int32_t)y+dy+hyofs-fakez, this);
+			Hero.check_slash_block_layer2((int32_t)x+hxofs+(hit_width-1), (int32_t)y+dy+hyofs-fakez, this,1);
+			Hero.check_slash_block_layer2((int32_t)x+hxofs+(hit_width-1), (int32_t)y+dy+hyofs-fakez, this,2);
+			Hero.check_wand_block2((int32_t)x+hxofs+(hit_width-1), (int32_t)y+dy+hyofs-fakez, this);
+			if(pound) Hero.check_pound_block((int32_t)x+hxofs+(hit_width-1), (int32_t)y+dy+hyofs-fakez, this);
+			Hero.check_wpn_triggers((int32_t)x+hxofs+(hit_width-1), (int32_t)y+dy+hyofs-fakez, this);
 		}
-		Hero.check_slash_block2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1)-fakez, this);
-		Hero.check_slash_block_layer2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1)-fakez, this,1);
-		Hero.check_slash_block_layer2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1)-fakez, this,2);
-		Hero.check_wand_block2((int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1)-fakez, this);
-		if(pound) Hero.check_pound_block((int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1)-fakez, this);
-		Hero.check_wpn_triggers((int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1)-fakez, this);
+		Hero.check_slash_block2((int32_t)x+hxofs+(hit_width-1), (int32_t)y+hyofs+(hit_height-1)-fakez, this);
+		Hero.check_slash_block_layer2((int32_t)x+hxofs+(hit_width-1), (int32_t)y+hyofs+(hit_height-1)-fakez, this,1);
+		Hero.check_slash_block_layer2((int32_t)x+hxofs+(hit_width-1), (int32_t)y+hyofs+(hit_height-1)-fakez, this,2);
+		Hero.check_wand_block2((int32_t)x+hxofs+(hit_width-1), (int32_t)y+hyofs+(hit_height-1)-fakez, this);
+		if(pound) Hero.check_pound_block((int32_t)x+hxofs+(hit_width-1), (int32_t)y+hyofs+(hit_height-1)-fakez, this);
+		Hero.check_wpn_triggers((int32_t)x+hxofs+(hit_width-1), (int32_t)y+hyofs+(hit_height-1)-fakez, this);
 		
 		findcombotriggers();
 		
@@ -4076,8 +4076,8 @@ bool weapon::animate(int32_t index)
 				
 				if (get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTER))
 				{
-					checkx = (x+hxofs+(hxsz*0.5));
-					checky = (y+hyofs+(hysz*0.5)-fakez);
+					checkx = (x+hxofs+(hit_width*0.5));
+					checky = (y+hyofs+(hit_height*0.5)-fakez);
 					check_x_ofs = x - (checkx-8);
 					check_y_ofs = y - (checky-8);
 				}
@@ -4270,7 +4270,7 @@ bool weapon::animate(int32_t index)
 									case up:
 										w->tile = w->o_tile;
 										w->hyofs=2;
-										w->hysz=12;
+										w->hit_height=12;
 										break;
 										
 									case left:
@@ -4279,7 +4279,7 @@ bool weapon::animate(int32_t index)
 									case right:
 										w->tile=w->o_tile+((w->frames>1)?w->frames:1);
 										w->hxofs=2;
-										w->hxsz=12;
+										w->hit_width=12;
 										break;
 									
 									default: break;
@@ -4337,7 +4337,7 @@ bool weapon::animate(int32_t index)
 								case up:
 									w->tile = w->o_tile;
 									w->hyofs=2;
-									w->hysz=12;
+									w->hit_height=12;
 									break;
 								
 								case left:
@@ -4346,7 +4346,7 @@ bool weapon::animate(int32_t index)
 								case right:
 									w->tile=w->o_tile+((w->frames>1)?w->frames:1);
 									w->hxofs=2;
-									w->hxsz=12;
+									w->hit_width=12;
 									break;
 								
 								default: break;
@@ -4568,12 +4568,12 @@ bool weapon::animate(int32_t index)
 				if(id==wSBomb || id==wLitSBomb || id==ewSBomb || id==ewLitSBomb)
 				{
 					hxofs=hyofs=-16;
-					hxsz=hysz=48;
+					hit_width=hit_height=48;
 				}
 				else
 				{
 					hxofs=hyofs=-8;
-					hxsz=hysz=32;
+					hit_width=hit_height=32;
 				}
 				
 				hzsz=16;
@@ -5602,8 +5602,8 @@ bool weapon::animate(int32_t index)
 			int32_t check_x_ofs=0, check_y_ofs=0;
 			if (get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTER))
 			{
-				checkx = (x+hxofs+(hxsz*0.5));
-				checky = (y+hyofs+(hysz*0.5)-fakez);
+				checkx = (x+hxofs+(hit_width*0.5));
+				checky = (y+hyofs+(hit_height*0.5)-fakez);
 				check_x_ofs = x - (checkx-8);
 				check_y_ofs = y - (checky-8);
 			}
@@ -5822,7 +5822,7 @@ bool weapon::animate(int32_t index)
 									case up:
 										w->tile = w->o_tile;
 										w->hyofs=2;
-										w->hysz=12;
+										w->hit_height=12;
 										break;
 										
 									case left:
@@ -5831,7 +5831,7 @@ bool weapon::animate(int32_t index)
 									case right:
 										w->tile=w->o_tile+((w->frames>1)?w->frames:1);
 										w->hxofs=2;
-										w->hxsz=12;
+										w->hit_width=12;
 										break;
 									
 									default: break;
@@ -5891,7 +5891,7 @@ bool weapon::animate(int32_t index)
 								case up:
 									w->tile = w->o_tile;
 									w->hyofs=2;
-									w->hysz=12;
+									w->hit_height=12;
 									break;
 								
 								case left:
@@ -5900,7 +5900,7 @@ bool weapon::animate(int32_t index)
 								case right:
 									w->tile=w->o_tile+((w->frames>1)?w->frames:1);
 									w->hxofs=2;
-									w->hxsz=12;
+									w->hit_width=12;
 									break;
 								
 								default: break;
@@ -5932,8 +5932,8 @@ bool weapon::animate(int32_t index)
 			
 			if (get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTER))
 			{
-				checkx = (x+hxofs+(hxsz*0.5));
-				checky = (y+hyofs+(hysz*0.5)-fakez);
+				checkx = (x+hxofs+(hit_width*0.5));
+				checky = (y+hyofs+(hit_height*0.5)-fakez);
 				check_x_ofs = x - (checkx-8);
 				check_y_ofs = y - (checky-8);
 			}
@@ -6153,7 +6153,7 @@ bool weapon::animate(int32_t index)
 									case up:
 										w->tile = w->o_tile;
 										w->hyofs=2;
-										w->hysz=12;
+										w->hit_height=12;
 										break;
 										
 									case left:
@@ -6162,7 +6162,7 @@ bool weapon::animate(int32_t index)
 									case right:
 										w->tile=w->o_tile+((w->frames>1)?w->frames:1);
 										w->hxofs=2;
-										w->hxsz=12;
+										w->hit_width=12;
 										break;
 									
 									default: break;
@@ -6222,7 +6222,7 @@ bool weapon::animate(int32_t index)
 								case up:
 									w->tile = w->o_tile;
 									w->hyofs=2;
-									w->hysz=12;
+									w->hit_height=12;
 									break;
 								
 								case left:
@@ -6231,7 +6231,7 @@ bool weapon::animate(int32_t index)
 								case right:
 									w->tile=w->o_tile+((w->frames>1)?w->frames:1);
 									w->hxofs=2;
-									w->hxsz=12;
+									w->hit_width=12;
 									break;
 								
 								default: break;
@@ -6806,7 +6806,7 @@ offscreenCheck:
         misc=50;
         clk=misc-3;
         hxofs=hyofs=-7;
-        hxsz=hysz=30;
+        hit_width=hit_height=30;
         break;
         
     case ewSBomb:
@@ -6818,7 +6818,7 @@ offscreenCheck:
         misc=50;
         clk=misc-3;
         hxofs=hyofs=-16;
-        hxsz=hysz=48;
+        hit_width=hit_height=48;
         break;
         
     case wLitBomb:
@@ -7072,7 +7072,7 @@ bool weapon::hit(sprite *s)
 		else
 		{
 			int rad = itemsbuf[parentitem].misc7;
-			return (distance(x+8,y+8-fakez,s->x+s->hxsz/2,s->y+s->hysz/2) <= rad);
+			return (distance(x+8,y+8-fakez,s->x+s->hit_width/2,s->y+s->hit_height/2) <= rad);
 		}
 	}
     return sprite::hit(s);
@@ -7375,7 +7375,7 @@ void weapon::draw(BITMAP *dest)
 			
 			if(get_debug() && zc_getkey(KEY_O))
 				rectfill(dest,x0+hxofs,y0+hyofs+yofs-(z+zofs)-fakez,
-						 x0+hxofs+hxsz-1,y0+hyofs+hysz-1+yofs-fakez,vc(id));
+						 x0+hxofs+hit_width-1,y0+hyofs+hit_height-1+yofs-fakez,vc(id));
 			
 			if(show_hitboxes)
 				draw_hitbox();
@@ -7634,9 +7634,9 @@ void weapon::findcombotriggers()
 		}
 		return;
 	}
-	for(int32_t dx = 0; dx < hxsz; dx += 16)
+	for(int32_t dx = 0; dx < hit_width; dx += 16)
 	{
-		for(int32_t dy = 0; dy < hysz; dy += 16)
+		for(int32_t dy = 0; dy < hit_height; dy += 16)
 		{
 			for (int32_t ly = 0; ly < layercount; ++ly )
 			{
@@ -7645,19 +7645,19 @@ void weapon::findcombotriggers()
 		}
 		for (int32_t ly = 0; ly < layercount; ++ly )
 		{
-			MatchComboTrigger2(this, (int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hysz-1)-fakez, combobuf.data(), ly);
+			MatchComboTrigger2(this, (int32_t)x+dx+hxofs, (int32_t)y+hyofs+(hit_height-1)-fakez, combobuf.data(), ly);
 		}
 	}
-	for(int32_t dy = 0; dy < hysz; dy += 16)
+	for(int32_t dy = 0; dy < hit_height; dy += 16)
 	{
 		for (int32_t ly = 0; ly < layercount; ++ly )
 		{
-			MatchComboTrigger2(this, (int32_t)x+hxofs+(hxsz-1), (int32_t)y+dy+hyofs-fakez, combobuf.data(), ly);
+			MatchComboTrigger2(this, (int32_t)x+hxofs+(hit_width-1), (int32_t)y+dy+hyofs-fakez, combobuf.data(), ly);
 		}
 	}
 	for (int32_t ly = 0; ly < layercount; ++ly )
 	{
-		MatchComboTrigger2(this, (int32_t)x+hxofs+(hxsz-1), (int32_t)y+hyofs+(hysz-1)-fakez, combobuf.data(), ly);
+		MatchComboTrigger2(this, (int32_t)x+hxofs+(hit_width-1), (int32_t)y+hyofs+(hit_height-1)-fakez, combobuf.data(), ly);
 	}
 }
 
@@ -7758,8 +7758,8 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t usesprite, int32_t Dir, i
 	ignoreHero=true;
     yofs=(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset) - 2;
     dragging=-1;
-    hxsz=1;
-    hysz=1;
+    width=1;
+    height=1;
     hzsz=1;
 	hyofs = -32768;
     useweapon = usedefence = 0;

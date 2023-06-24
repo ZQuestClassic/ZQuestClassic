@@ -16878,7 +16878,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 						return qe_invalid;
 					}
 			
-					tempffc.hxsz = (tempbyte&0x3F)+1;
+					tempffc.hit_width = (tempbyte&0x3F)+1;
 					tempffc.txsz = (tempbyte>>6)+1;
 					
 					if(!p_getc(&tempbyte,f,true))
@@ -16886,7 +16886,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 						return qe_invalid;
 					}
 			
-					tempffc.hysz = (tempbyte&0x3F)+1;
+					tempffc.hit_height = (tempbyte&0x3F)+1;
 					tempffc.tysz = (tempbyte>>6)+1;
 					
 					if(!p_igetl(&(tempffc.flags),f,true))
@@ -16896,8 +16896,8 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 				}
 				else
 				{
-					tempffc.hxsz=16;
-					tempffc.hysz=16; 
+					tempffc.hit_width=16;
+					tempffc.hit_height=16; 
 					tempffc.txsz=1;
 					tempffc.tysz=1;
 					tempffc.flags=0;
@@ -17470,18 +17470,18 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zc
 			{
 				if(!p_getc(&tempbyte,f,true))
 					return qe_invalid;
-				tempffc.hxsz = (tempbyte&0x3F)+1;
+				tempffc.hit_width = (tempbyte&0x3F)+1;
 				tempffc.txsz = (tempbyte>>6)+1;
 				if(!p_getc(&tempbyte,f,true))
 					return qe_invalid;
-				tempffc.hysz = (tempbyte&0x3F)+1;
+				tempffc.hit_height = (tempbyte&0x3F)+1;
 				tempffc.tysz = (tempbyte>>6)+1;
 			}
 			else
 			{
-				if(!p_igetl(&(tempffc.hxsz),f,true))
+				if(!p_igetl(&(tempffc.hit_width),f,true))
 					return qe_invalid;
-				if(!p_igetl(&(tempffc.hysz),f,true))
+				if(!p_igetl(&(tempffc.hit_height),f,true))
 					return qe_invalid;
 				if(!p_getc(&(tempffc.txsz),f,true))
 					return qe_invalid;

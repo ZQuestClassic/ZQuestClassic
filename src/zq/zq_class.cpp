@@ -161,6 +161,10 @@ int32_t zmap::getCopyFFC()
 {
     return copyffc;
 }
+set_ffc_command::data_t zmap::getCopyFFCData()
+{
+    return set_ffc_command::create_data(copymapscr.ffcs[copyffc]);
+}
 int32_t zmap::getMapCount()
 {
     return map_count;
@@ -4386,8 +4390,8 @@ set_ffc_command::data_t set_ffc_command::create_data(const ffcdata& ffc)
 		.script = ffc.script,
 		.tw = ffc.txsz,
 		.th = ffc.tysz,
-		.ew = ffc.hxsz,
-		.eh = ffc.hysz,
+		.ew = ffc.hit_width,
+		.eh = ffc.hit_height,
 		.flags = ffc.flags,
 		.inita = inita_arr,
 		.initd = initd_arr,
@@ -4516,7 +4520,6 @@ void paste_screen_command::perform(mapscr* to)
             case ScreenFFCombos:             Map.PasteFFCombos(*to); break;
             case ScreenGuy:                  Map.PasteGuy(*to); break;
             case ScreenLayers:               Map.PasteLayers(*to); break;
-            case ScreenOneFFC:               Map.PasteOneFFC(*to, data); break;
             case ScreenPalette:              Map.PastePalette(*to); break;
             case ScreenPartial:              Map.Paste(*to); break;
             case ScreenPartialToEveryScreen: Map.PasteToAll(*to); break;
@@ -4951,37 +4954,6 @@ void zmap::PasteFFCombos(mapscr& copymapscr)
         
         saved=false;
     }
-}
-
-void zmap::PasteOneFFC(const mapscr& copymapscr, int32_t i) //i - destination ffc slot
-{
-    if(copyffc < 0)  // Sanity check
-        return;
-
-    screens[currscr].ffcs[i].setData(copymapscr.ffcs[copyffc].getData());
-    screens[currscr].ffcCountMarkDirty();
-    screens[currscr].ffcs[i].cset = copymapscr.ffcs[copyffc].cset;
-    // Don't copy X or Y
-    screens[currscr].ffcs[i].vx = copymapscr.ffcs[copyffc].vx;
-    screens[currscr].ffcs[i].vy = copymapscr.ffcs[copyffc].vy;
-    screens[currscr].ffcs[i].ax = copymapscr.ffcs[copyffc].ax;
-    screens[currscr].ffcs[i].ay = copymapscr.ffcs[copyffc].ay;
-    screens[currscr].ffcs[i].link = copymapscr.ffcs[copyffc].link;
-    screens[currscr].ffcs[i].delay = copymapscr.ffcs[copyffc].delay;
-    screens[currscr].ffcs[i].hxsz = copymapscr.ffcs[copyffc].hxsz;
-    screens[currscr].ffcs[i].hysz = copymapscr.ffcs[copyffc].hysz;
-    screens[currscr].ffcs[i].txsz = copymapscr.ffcs[copyffc].txsz;
-    screens[currscr].ffcs[i].tysz = copymapscr.ffcs[copyffc].tysz;
-    screens[currscr].ffcs[i].flags = copymapscr.ffcs[copyffc].flags;
-    screens[currscr].ffcs[i].script = copymapscr.ffcs[copyffc].script;
-    
-    for(int32_t j=0; j<8; j++)
-        screens[currscr].ffcs[i].initd[j] = copymapscr.ffcs[copyffc].initd[j];
-        
-    for(int32_t j=0; j<2; j++)
-        screens[currscr].ffcs[i].inita[j] = copymapscr.ffcs[copyffc].inita[j];
-    //copyffc = -1;
-    saved=false;
 }
 
 void zmap::PasteWarps(const mapscr& copymapscr)
@@ -5463,8 +5435,8 @@ void zmap::update_freeform_combos()
                                 prvscr.ffcs[i].ay=prvscr.ffcs[j].ay;
                                 
                                 prvscr.ffcs[i].link=prvscr.ffcs[j].link;
-                                prvscr.ffcs[i].hxsz=prvscr.ffcs[j].hxsz;
-                                prvscr.ffcs[i].hysz=prvscr.ffcs[j].hysz;
+                                prvscr.ffcs[i].hit_width=prvscr.ffcs[j].hit_width;
+                                prvscr.ffcs[i].hit_height=prvscr.ffcs[j].hit_height;
 								prvscr.ffcs[i].txsz=prvscr.ffcs[j].txsz;
                                 prvscr.ffcs[i].tysz=prvscr.ffcs[j].tysz;
                                 
@@ -5496,8 +5468,8 @@ void zmap::update_freeform_combos()
                                     zc_swap(prvscr.ffcs[j].ax,prvscr.ffcs[k].ax);
                                     zc_swap(prvscr.ffcs[j].ay,prvscr.ffcs[k].ay);
                                     zc_swap(prvscr.ffcs[j].link,prvscr.ffcs[k].link);
-                                    zc_swap(prvscr.ffcs[j].hxsz,prvscr.ffcs[k].hxsz);
-                                    zc_swap(prvscr.ffcs[j].hysz,prvscr.ffcs[k].hysz);
+                                    zc_swap(prvscr.ffcs[j].hit_width,prvscr.ffcs[k].hit_width);
+                                    zc_swap(prvscr.ffcs[j].hit_height,prvscr.ffcs[k].hit_height);
 				    zc_swap(prvscr.ffcs[j].txsz,prvscr.ffcs[k].txsz);
                                     zc_swap(prvscr.ffcs[j].tysz,prvscr.ffcs[k].tysz);
                                     zc_swap(prvscr.ffcs[j].flags,prvscr.ffcs[k].flags);
@@ -9676,10 +9648,10 @@ int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 		if(!p_putc(tempffc.link,f))
 			return qe_invalid;
 		
-		if(!p_iputl(tempffc.hxsz,f))
+		if(!p_iputl(tempffc.hit_width,f))
 			return qe_invalid;
 		
-		if(!p_iputl(tempffc.hysz,f))
+		if(!p_iputl(tempffc.hit_height,f))
 			return qe_invalid;
 		
 		if(!p_putc(tempffc.txsz,f))

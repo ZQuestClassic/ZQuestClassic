@@ -114,7 +114,6 @@ enum PasteCommandType {
     ScreenFFCombos,
     ScreenGuy,
     ScreenLayers,
-    ScreenOneFFC,
     ScreenPalette,
     ScreenPartial,
     ScreenPartialToEveryScreen,
@@ -194,6 +193,7 @@ public:
     int32_t  CopyScr();
     int32_t  getCopyFFC();
     void setCopyFFC(int32_t n);
+    set_ffc_command::data_t getCopyFFCData();
 
     // Undo/Redo
     void StartListCommand();
@@ -221,7 +221,6 @@ public:
     void PasteUnderCombo(const mapscr& copymapscr);
     void PasteSecretCombos(const mapscr& copymapscr);
     void PasteFFCombos(mapscr& copymapscr);
-    void PasteOneFFC(const mapscr& copymapscr, int32_t i);
     void PasteWarps(const mapscr& copymapscr);
     void PasteScreenData(const mapscr& copymapscr);
     void PasteWarpLocations(const mapscr& copymapscr);

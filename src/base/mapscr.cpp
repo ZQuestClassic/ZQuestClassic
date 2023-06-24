@@ -5,22 +5,22 @@ extern byte quest_rules[QUESTRULES_NEW_SIZE];
 
 byte mapscr::ffEffectWidth(size_t ind) const
 {
-	return (byte)ffcs[ind].hxsz;
+	return (byte)ffcs[ind].hit_width;
 }
 
 void mapscr::ffEffectWidth(size_t ind, byte val)
 {
-	ffcs[ind].hxsz = val;
+	ffcs[ind].hit_width = val;
 }
 
 byte mapscr::ffEffectHeight(size_t ind) const
 {
-	return ffcs[ind].hysz;
+	return ffcs[ind].hit_height;
 }
 
 void mapscr::ffEffectHeight(size_t ind, byte val)
 {
-	ffcs[ind].hysz = val;
+	ffcs[ind].hit_height = val;
 }
 
 byte mapscr::ffTileWidth(size_t ind) const
