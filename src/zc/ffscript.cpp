@@ -1801,7 +1801,6 @@ public:
 	
 	static INLINE int32_t checkFFC(const int32_t ffc, const char * const str)
 	{
-		// TODO z3 !!!!
 		int max_ffc_id = region_scr_count * MAXFFCS - 1;
 		return checkBounds(ffc, 0, max_ffc_id, str);
 	}
@@ -10420,7 +10419,6 @@ int32_t get_register(const int32_t arg)
 
 		case MAPDATAMISCD:
 		{
-			// TODO z3 !!!
 			int32_t indx = (ri->d[rINDEX])/10000;
 			int32_t mi = get_mi(ri->mapsref);
 			if(unsigned(mi) >= MAX_MI)
@@ -24677,8 +24675,7 @@ void do_issolid_layer()
 	}
 	else
 	{
-		// TODO z3 !!!! ?
-		set_register(sarg1, (_walkflag_layer(x, y, 1, FFCore.tempScreens[layer])) ? 10000 : 0);
+		set_register(sarg1, (_walkflag_layer(x, y, layer - 1, 1)) ? 10000 : 0);
 	}
 }
 
