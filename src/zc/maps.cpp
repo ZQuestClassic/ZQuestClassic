@@ -3018,10 +3018,8 @@ void update_freeform_combos()
 		int wrap_bottom = world_h + 32;
 
 		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
-			// TODO z3 !!!!
 			mapscr* screen = ffc_handle.screen;
 			ffcdata& thisffc = *ffc_handle.ffc;
-			int i = ffc_handle.i;
 
 			// Combo 0?
 			if(thisffc.getData()==0)
@@ -3112,7 +3110,7 @@ void update_freeform_combos()
 			}
 			else
 			{
-				if(!thisffc.link || (thisffc.link-1)==i)
+				if(!thisffc.link || (thisffc.link-1) == ffc_handle.id)
 					thisffc.delay--;
 			}
 			
