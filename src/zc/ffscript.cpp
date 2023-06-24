@@ -24599,7 +24599,6 @@ void do_mapdataissolid()
 	}
 	else
 	{
-		//mapscr *m = GetMapscr(ri->mapsref); 
 		int32_t x = int32_t(ri->d[rINDEX] / 10000);
 		int32_t y = int32_t(ri->d[rINDEX2] / 10000);
 		switch(ri->mapsref)
@@ -24627,7 +24626,6 @@ void do_mapdataissolid_layer()
 	}
 	else
 	{
-		//mapscr *m = GetMapscr(ri->mapsref); 
 		int32_t x = int32_t(ri->d[rINDEX] / 10000);
 		int32_t y = int32_t(ri->d[rINDEX2] / 10000);
 		int32_t layer = int32_t(ri->d[rEXP1] / 10000);
@@ -24640,7 +24638,7 @@ void do_mapdataissolid_layer()
 			switch(ri->mapsref)
 			{
 				case MAPSCR_TEMP0:
-					set_register(sarg1, (_walkflag_layer(x, y, 1, get_screen_for_world_xy(x, y))) ? 10000 : 0);
+					set_register(sarg1, (_walkflag_layer(x, y, layer - 1, 1)) ? 10000 : 0);
 					break;
 				case MAPSCR_SCROLL0:
 					// TODO z3 !!!!!! ?
