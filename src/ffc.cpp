@@ -234,14 +234,12 @@ void ffcdata::doContactDamage(int32_t hdir)
 		int ffnum = -1;
 		if(loaded)
 		{
-			// TODO z3 !!
-			for (word i = 0; i < MAXFFCS; i++)
+			auto ffc_handle = find_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+				return this == ffc_handle.ffc;
+			});
+			if (ffc_handle)
 			{
-				if (this == &tmpscr.ffcs[i])
-				{
-					ffnum = i;
-					break;
-				}
+				ffnum = ffc_handle->id;
 			}
 		}
 		if(ffnum > -1)
