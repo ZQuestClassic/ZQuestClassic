@@ -790,11 +790,11 @@ int32_t  HeroClass::getHYOfs()
 }
 int32_t  HeroClass::getHXSz()
 {
-    return hxsz;
+    return hit_width;
 }
 int32_t  HeroClass::getHYSz()
 {
-    return hysz;
+    return hit_height;
 }
 zfix  HeroClass::getClimbCoverX()
 {
@@ -2497,16 +2497,16 @@ void HeroClass::draw(BITMAP* dest)
 				w->z = (z+zofs);
 				w->tile = t;
 				w->flip = f;
-				w->hxsz=20;
-				w->hysz=20;
+				w->hit_width=20;
+				w->hit_height=20;
 				
 				if(dir>down)
 				{
-					w->hysz-=6;
+					w->hit_height-=6;
 				}
 				else
 				{
-					w->hxsz-=6;
+					w->hit_width-=6;
 					w->hyofs=4;
 				}
 				
@@ -3177,8 +3177,8 @@ bool HeroClass::checkstab()
             wx=w->x;
             wy=w->y;
             wz=w->z;
-            wxsz = w->hxsz;
-            wysz = w->hysz;
+            wxsz = w->hit_width;
+            wysz = w->hit_height;
 			parentitem = w->parentitem;
             break;
         }
@@ -4844,8 +4844,8 @@ void HeroClass::check_slash_block(weapon *w)
 	
 	
     int32_t bx = 0, by = 0;
-	bx = ((int32_t)w->x) + (((int32_t)w->hxsz)/2);
-	by = ((int32_t)w->y) + (((int32_t)w->hysz)/2);
+	bx = ((int32_t)w->x) + (((int32_t)w->hit_width)/2);
+	by = ((int32_t)w->y) + (((int32_t)w->hit_height)/2);
 	al_trace("check_slash_block(weapon *w): bx is: %d\n", bx);
 	al_trace("check_slash_block(weapon *w): by is: %d\n", by);
     //keep things inside the screen boundaries
@@ -5445,8 +5445,8 @@ void HeroClass::check_wand_block(weapon *w)
 	
 	
     int32_t bx = 0, by = 0;
-	bx = ((int32_t)w->x) + (((int32_t)w->hxsz)/2);
-	by = ((int32_t)w->y) + (((int32_t)w->hysz)/2);
+	bx = ((int32_t)w->x) + (((int32_t)w->hit_width)/2);
+	by = ((int32_t)w->y) + (((int32_t)w->hit_height)/2);
 	
     //keep things inside the screen boundaries
     bx=vbound(bx, 0, 255);
@@ -17407,7 +17407,7 @@ bool HeroClass::scr_canmove(zfix dx, zfix dy, bool kb, bool ign_sv)
 		else
 		{
 			int mx = (rx+dx).getCeil();
-			int lx = mx-hxsz+1;
+			int lx = mx-hit_width+1;
 			for(zfix ty = 0; by+ty < ry; ty += 8)
 			{
 				if(scr_walkflag(mx, by+ty, right, lx, by, kb))
@@ -17437,7 +17437,7 @@ bool HeroClass::scr_canmove(zfix dx, zfix dy, bool kb, bool ign_sv)
 		else
 		{
 			int my = (ry+dy).getCeil();
-			int ly = my-hysz+1;
+			int ly = my-hit_height+1;
 			for(zfix tx = 0; bx+tx < rx; tx += 8)
 			{
 				if(scr_walkflag(bx+tx, my, down, bx, ly, kb))

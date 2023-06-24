@@ -397,22 +397,22 @@ item::item(zfix X,zfix Y,zfix Z,int32_t i,int32_t p,int32_t c, bool isDummy) : s
 	if(pickup&ipBIGRANGE)
 	{
 		hxofs=-8;
-		hxsz=17;
+		hit_width=17;
 		hyofs=-4;
-		hysz=20;
+		hit_height=20;
 	}
 	else if(pickup&ipBIGTRI)
 	{
 		hxofs=-8;
-		hxsz=28;
+		hit_width=28;
 		hyofs=-4;
-		hysz=20;
+		hit_height=20;
 	}
 	else
 	{
-		hxsz=1;
+		hit_width=1;
 		hyofs=4;
-		hysz=12;
+		hit_height=12;
 	}
 	
 	if(!isDummy && itm.family == itype_fairy && itm.misc3)
@@ -433,8 +433,8 @@ item::item(zfix X,zfix Y,zfix Z,int32_t i,int32_t p,int32_t c, bool isDummy) : s
 		extend = 3; 
 		if ( itm.overrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { txsz = itm.tilew;}
 		if ( itm.overrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){  tysz = itm.tileh;}
-		if ( itm.overrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hxsz = itm.hxsz;}
-		if ( itm.overrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hysz = itm.hysz;}
+		if ( itm.overrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ){  hit_width = itm.hxsz;}
+		if ( itm.overrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {  hit_height = itm.hysz;}
 		if ( itm.overrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {  hzsz = itm.hzsz;}
 		if ( itm.overrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itm.hxofs;}
 		if ( itm.overrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itm.hyofs;}
@@ -460,8 +460,8 @@ void putitem(BITMAP *dest,int32_t x,int32_t y,int32_t item_id)
 		temp.extend = 3; 
 		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { temp.txsz = itemsbuf[item_id].tilew;}
 		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){temp.tysz = itemsbuf[item_id].tileh;}
-		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ) { temp.hxsz = itemsbuf[item_id].hxsz;}
-		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {temp.hysz = itemsbuf[item_id].hysz;}
+		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ) { temp.hit_width = itemsbuf[item_id].hxsz;}
+		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {temp.hit_height = itemsbuf[item_id].hysz;}
 		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) { temp.hzsz = itemsbuf[item_id].hzsz;}
 		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) { temp.hxofs = itemsbuf[item_id].hxofs;}
 		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) {temp.hyofs = itemsbuf[item_id].hyofs;}
@@ -591,8 +591,8 @@ void putitem2(BITMAP *dest,int32_t x,int32_t y,int32_t item_id, int32_t &aclk, i
 		temp.extend = 3;
 		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) { temp.txsz = itemsbuf[item_id].tilew;}
 		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ){temp.tysz = itemsbuf[item_id].tileh;}
-		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ) { temp.hxsz = itemsbuf[item_id].hxsz;}
-		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {temp.hysz = itemsbuf[item_id].hysz;}
+		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ) { temp.hit_width = itemsbuf[item_id].hxsz;}
+		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {temp.hit_height = itemsbuf[item_id].hysz;}
 		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) { temp.hzsz = itemsbuf[item_id].hzsz;}
 		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) { temp.hxofs = itemsbuf[item_id].hxofs;}
 		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) {temp.hyofs = itemsbuf[item_id].hyofs;}

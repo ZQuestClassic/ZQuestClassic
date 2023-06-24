@@ -68,10 +68,10 @@ void sprite::handle_sprlighting()
 	switch(glowShape)
 	{
 		case 0:
-			doDarkroomCircle(x.getInt()+(hxsz/2), y.getInt()+(hysz/2), glowRad);
+			doDarkroomCircle(x.getInt()+(hit_width/2), y.getInt()+(hit_height/2), glowRad);
 			break;
 		case 1:
-			doDarkroomCone(x.getInt()+(hxsz/2), y.getInt()+(hysz/2), glowRad, NORMAL_DIR(dir));
+			doDarkroomCone(x.getInt()+(hit_width/2), y.getInt()+(hit_height/2), glowRad, NORMAL_DIR(dir));
 			break;
 	}
 }

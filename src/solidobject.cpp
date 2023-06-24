@@ -107,14 +107,14 @@ bool solid_object::collide(solid_object const* o) const
 	if(ignore_solid_temp) return false;
 	return collide(o->x + o->hxofs + o->sxofs,
 	               o->y + o->hyofs + o->syofs,
-	               o->hxsz + o->sxsz_ofs,
-	               o->hysz + o->sysz_ofs);
+	               o->hit_width + o->sxsz_ofs,
+	               o->hit_height + o->sysz_ofs);
 }
 bool solid_object::collide(zfix tx, zfix ty, zfix tw, zfix th) const
 {
 	if(ignore_solid_temp) return false;
 	zfix rx = x+hxofs+sxofs, ry = y+hyofs+syofs;
-	zfix rw = hxsz+sxsz_ofs, rh = hysz+sysz_ofs;
+	zfix rw = hit_width+sxsz_ofs, rh = hit_height+sysz_ofs;
 	return tx+tw>rx && ty+th>ry &&
 	       tx<rx+rw && ty<ry+rh;
 }
@@ -124,16 +124,16 @@ void solid_object::draw(BITMAP *dest, int32_t tx, int32_t ty, int32_t col)
 	if(ignore_solid_temp) return;
 	tx += x.getFloor() + hxofs + sxofs;
 	ty += y.getFloor() + hyofs + syofs;
-	rectfill(dest, tx, ty, tx + hxsz-1 + sxsz_ofs,
-	         ty + hysz-1 + sysz_ofs, col);
+	rectfill(dest, tx, ty, tx + hit_width-1 + sxsz_ofs,
+	         ty + hit_height-1 + sysz_ofs, col);
 }
 void solid_object::draw_a5(int32_t tx, int32_t ty, ALLEGRO_COLOR col)
 {
 	if(ignore_solid_temp) return;
 	tx += x.getFloor() + hxofs + sxofs;
 	ty += y.getFloor() + hyofs + syofs;
-	al_draw_filled_rectangle(tx, ty, tx + hxsz + sxsz_ofs,
-	         ty + hysz + sysz_ofs, col);
+	al_draw_filled_rectangle(tx, ty, tx + hit_width + sxsz_ofs,
+	         ty + hit_height + sysz_ofs, col);
 }
 
 void solid_object::solid_update(bool push)
@@ -168,11 +168,11 @@ void solid_object::solid_push_int(solid_object const* obj,zfix& dx, zfix& dy, in
 	     obj_y = obj->y + obj->hyofs + obj->syofs,
 	     obj_ox = obj->old_x + obj->hxofs + obj->sxsz_ofs,
 	     obj_oy = obj->old_y + obj->hyofs + obj->sysz_ofs;
-	int32_t obj_w = obj->hxsz + obj->sxsz_ofs,
-	        obj_h = obj->hysz + obj->sysz_ofs;
+	int32_t obj_w = obj->hit_width + obj->sxsz_ofs,
+	        obj_h = obj->hit_height + obj->sysz_ofs;
 	
 	zfix rx = x+hxofs+sxofs, ry = y+hyofs+syofs,
-		 rw = hxsz+sxsz_ofs, rh = hysz+sysz_ofs;
+		 rw = hit_width+sxsz_ofs, rh = hit_height+sysz_ofs;
 	bool sideview_slim = false;
 	#define ZF_TO_INT(zf) (zf).getFloor()
 	

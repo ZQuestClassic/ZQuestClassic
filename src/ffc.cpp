@@ -58,8 +58,8 @@ void ffcdata::changerCopy(ffcdata& other, int32_t i, int32_t j)
 	ax=other.ax;
 	ay=other.ay;
 	link=other.link;
-	hxsz=other.hxsz;
-	hysz=other.hysz;
+	hit_width=other.hit_width;
+	hit_height=other.hit_height;
 	txsz=other.txsz;
 	tysz=other.tysz;
 	
@@ -97,8 +97,8 @@ void ffcdata::changerCopy(ffcdata& other, int32_t i, int32_t j)
 			zc_swap(other.ax,ffck.ax);
 			zc_swap(other.ay,ffck.ay);
 			zc_swap(other.link,ffck.link);
-			zc_swap(other.hxsz,ffck.hxsz);
-			zc_swap(other.hysz,ffck.hysz);
+			zc_swap(other.hit_width,ffck.hit_width);
+			zc_swap(other.hit_height,ffck.hit_height);
 			zc_swap(other.txsz,ffck.txsz);
 			zc_swap(other.tysz,ffck.tysz);
 			zc_swap(other.flags,ffck.flags);
