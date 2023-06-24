@@ -194,6 +194,7 @@ public:
     int32_t  CopyScr();
     int32_t  getCopyFFC();
     void setCopyFFC(int32_t n);
+    set_ffc_command::data_t getCopyFFCData();
 
     // Undo/Redo
     void StartListCommand();

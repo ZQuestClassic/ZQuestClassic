@@ -173,6 +173,10 @@ int32_t zmap::getCopyFFC()
 {
     return copyffc;
 }
+set_ffc_command::data_t zmap::getCopyFFCData()
+{
+    return set_ffc_command::create_data(copymapscr.ffcs[copyffc]);
+}
 int32_t zmap::getMapCount()
 {
     return map_count;

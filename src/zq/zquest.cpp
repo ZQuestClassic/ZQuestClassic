@@ -11132,9 +11132,10 @@ void domouse()
 						
 						case 13:
 						{
-							Map.CurrScr()->ffcs[earliestfreeffc].x = (((x-startxint)&(~0x000F))/mapscreensize);
-							Map.CurrScr()->ffcs[earliestfreeffc].y = (((y-startyint)&(~0x000F))/mapscreensize);
-							Map.DoPasteScreenCommand(PasteCommandType::ScreenOneFFC, earliestfreeffc);
+							auto set_ffc_data = Map.getCopyFFCData();
+							set_ffc_data.x = (((x-startxint)&(~0x000F))/mapscreensize);
+							set_ffc_data.y = (((y-startyint)&(~0x000F))/mapscreensize);
+							Map.DoSetFFCCommand(Map.getCurrMap(), Map.getCurrScr(), earliestfreeffc, set_ffc_data);
 						}
 						break;
 						
