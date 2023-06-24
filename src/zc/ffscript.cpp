@@ -1943,6 +1943,10 @@ static bool mapRefIsScrolling(int32_t ref)
 	return false;
 }
 
+// A `MapData` can refer to the canonical mapscr data, or one of the temporary mapscrs loaded via `Game->LoadTempScreen(int layer)`.
+// If temporary, and we are in a region, we allow some functions (like `MapData->ComboX[pos]`) to address any rpos in the current region.
+// Otherwise, only positions in the exact screen referenced by `MapData` can be used (0-175).
+// This function returns the mapscr that should be read from, along with a pos (0-175).
 std::pair<mapscr*, int32_t> ResolveMapRef(int32_t mapref, rpos_t rpos, const char* context)
 {
 	if (mapRefIsTemp(mapref))
@@ -1957,6 +1961,7 @@ std::pair<mapscr*, int32_t> ResolveMapRef(int32_t mapref, rpos_t rpos, const cha
 		return {m, RPOS_TO_POS(rpos)};
 	}
 
+	// TODO z3: consider supporting for the scrolling temporary screens.
 	if (!mapRefIsScrolling(mapref) && mapref < 0)
 	{
 		Z_scripterrlog("%s pointer (%d) is either invalid or uninitialised.\n", context, mapref);

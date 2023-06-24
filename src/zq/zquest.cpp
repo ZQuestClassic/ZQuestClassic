@@ -72,6 +72,7 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "qst.h"
 #include "base/zsys.h"
 #include "base/zapp.h"
+#include "base/process_management.h"
 #include "play_midi.h"
 #include "zcmusic.h"
 
@@ -15788,7 +15789,7 @@ int32_t d_region_grid_proc(int32_t msg,DIALOG *d,int32_t)
         int32_t x=d->x;
         int32_t y=d->y;
         int32_t j=0, k=0;
-        rectfill(tempbmp,x,y,x+d->w-1,y+header_height-1,jwin_pal[jcBOX]);
+        rectfill(tempbmp,x,y,x+d->w-18,y+header_height-1,jwin_pal[jcBOX]);
         
         for(j=0; j<8; ++j)
         {
@@ -16399,7 +16400,7 @@ static int32_t editdmap_scripts_list[] =
 static int32_t editdmap_regions_list[] =
 {
     // dialog control number
-	215, -1
+	215, 216, -1
 };
 
 static TABPANEL editdmap_tabs[] =
@@ -16761,7 +16762,8 @@ static DIALOG editdmap_dlg[] =
     {  jwin_text_proc,              162,    191,     48,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) "Mirror DMap:",                               NULL,                 NULL                  },
     {  jwin_edit_proc,              218,    187,     21,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           2,             0,  NULL,                                                  NULL,                 NULL                  },
     //215
-    {  d_region_grid_proc,           12,     69,     310,     145,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  },
+    {  d_region_grid_proc,           12,     65,     310,     145,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  },
+	{  jwin_button_proc,             12,    210,     61,     12,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],        0,    D_EXIT,      0,             0, (void *) "Z3 User Guide",                                       NULL,                 NULL                  },
 	
     {  NULL,                          0,      0,      0,      0,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  }
 };
@@ -17030,6 +17032,12 @@ void editdmap(int32_t index)
 		{
 			// 101 is the disabled list, 102 the item list
 			insertDI(editdmap_dlg[102].d1, index);
+		}
+		break;
+
+		case 216:
+		{
+			launch_file("docs/z3_user_guide.md");
 		}
 		break;
 		}
