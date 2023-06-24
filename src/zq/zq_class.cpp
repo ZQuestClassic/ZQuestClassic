@@ -4532,7 +4532,6 @@ void paste_screen_command::perform(mapscr* to)
             case ScreenFFCombos:             Map.PasteFFCombos(*to); break;
             case ScreenGuy:                  Map.PasteGuy(*to); break;
             case ScreenLayers:               Map.PasteLayers(*to); break;
-            case ScreenOneFFC:               Map.PasteOneFFC(*to, data); break;
             case ScreenPalette:              Map.PastePalette(*to); break;
             case ScreenPartial:              Map.Paste(*to); break;
             case ScreenPartialToEveryScreen: Map.PasteToAll(*to); break;
@@ -4967,37 +4966,6 @@ void zmap::PasteFFCombos(mapscr& copymapscr)
         
         saved=false;
     }
-}
-
-void zmap::PasteOneFFC(const mapscr& copymapscr, int32_t i) //i - destination ffc slot
-{
-    if(copyffc < 0)  // Sanity check
-        return;
-
-    screens[currscr].ffcs[i].setData(copymapscr.ffcs[copyffc].getData());
-    screens[currscr].ffcCountMarkDirty();
-    screens[currscr].ffcs[i].cset = copymapscr.ffcs[copyffc].cset;
-    // Don't copy X or Y
-    screens[currscr].ffcs[i].vx = copymapscr.ffcs[copyffc].vx;
-    screens[currscr].ffcs[i].vy = copymapscr.ffcs[copyffc].vy;
-    screens[currscr].ffcs[i].ax = copymapscr.ffcs[copyffc].ax;
-    screens[currscr].ffcs[i].ay = copymapscr.ffcs[copyffc].ay;
-    screens[currscr].ffcs[i].link = copymapscr.ffcs[copyffc].link;
-    screens[currscr].ffcs[i].delay = copymapscr.ffcs[copyffc].delay;
-    screens[currscr].ffcs[i].hxsz = copymapscr.ffcs[copyffc].hxsz;
-    screens[currscr].ffcs[i].hysz = copymapscr.ffcs[copyffc].hysz;
-    screens[currscr].ffcs[i].txsz = copymapscr.ffcs[copyffc].txsz;
-    screens[currscr].ffcs[i].tysz = copymapscr.ffcs[copyffc].tysz;
-    screens[currscr].ffcs[i].flags = copymapscr.ffcs[copyffc].flags;
-    screens[currscr].ffcs[i].script = copymapscr.ffcs[copyffc].script;
-    
-    for(int32_t j=0; j<8; j++)
-        screens[currscr].ffcs[i].initd[j] = copymapscr.ffcs[copyffc].initd[j];
-        
-    for(int32_t j=0; j<2; j++)
-        screens[currscr].ffcs[i].inita[j] = copymapscr.ffcs[copyffc].inita[j];
-    //copyffc = -1;
-    saved=false;
 }
 
 void zmap::PasteWarps(const mapscr& copymapscr)

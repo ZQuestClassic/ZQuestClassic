@@ -10923,8 +10923,10 @@ void domouse()
 								{
 									if(jwin_alert("Confirm Paste","Really replace the FFC with","the data of the copied FFC?",NULL,"&Yes","&No",'y','n',get_zc_font(font_lfont))==1)
 									{
-										Map.DoPasteScreenCommand(PasteCommandType::ScreenOneFFC, i);
-										saved=false;
+										auto set_ffc_data = Map.getCopyFFCData();
+										set_ffc_data.x = Map.CurrScr()->ffcs[i].x;
+										set_ffc_data.y = Map.CurrScr()->ffcs[i].y;
+										Map.DoSetFFCCommand(Map.getCurrMap(), Map.getCurrScr(), i, set_ffc_data);
 									}
 								}
 								break;
