@@ -298,6 +298,7 @@ bool _walkflag_layer(int32_t x,int32_t y,int32_t cnt, mapscr* m);
 bool _effectflag_layer(int32_t x, int32_t y, int32_t layer=-1, int32_t cnt=1, bool notLink = false);
 bool _effectflag_layer(int32_t x,int32_t y,int32_t cnt, mapscr* m, bool notLink = false);
 bool water_walkflag(int32_t x,int32_t y,int32_t cnt);
+bool water_walkflag(int32_t x,int32_t y);
 bool hit_walkflag(int32_t x,int32_t y,int32_t cnt);
 bool solpush_walkflag(int32_t x, int32_t y, int32_t cnt, solid_object const* ign = nullptr);
 void map_bkgsfx(bool on);

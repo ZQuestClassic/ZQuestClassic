@@ -6579,7 +6579,7 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt, mapscr* m)
 	}
 	else s2 = m;
 	
-	// TODO z3 ! script
+	// TODO z3 !!! script
 	// rpos_t rpos = COMBOPOS_REGION(bx, by);
 	int32_t bx=COMBOPOS(x, y);
 	newcombo c =  !is_z3_scrolling_mode() ? combobuf[m->data[bx]]  : combobuf[MAPCOMBO3(currmap, currscr, 0, bx, false)];
@@ -6875,41 +6875,31 @@ bool _effectflag_layer(int32_t x,int32_t y,int32_t cnt, mapscr* m, bool notLink)
 	return ((c.walk>>4)&b) ? !dried : false;
 }
 
-bool water_walkflag(int32_t x,int32_t y,int32_t cnt)
+bool water_walkflag(int32_t x, int32_t y, int32_t cnt)
 {
-	if(get_bit(quest_rules,qr_LTTPWALK))
+	int max_x = world_w;
+	int max_y = world_h;
+	if (!get_bit(quest_rules, qr_LTTPWALK))
 	{
-		if(x<0||y<0) return false;
-		
-		if(x>255) return false;
-		
-		if(x>247&&cnt==2) return false;
-		
-		if(y>175) return false;
+		max_x -= 7;
+		max_y -= 7;
 	}
-	else
-	{
-		if(x<0||y<0) return false;
-		
-		if(x>248) return false;
-		
-		if(x>240&&cnt==2) return false;
-		
-		if(y>168) return false;
-	}
-	
-	mapscr *s1, *s2;
-    s1=(tmpscr2->valid)?tmpscr2:&tmpscr;
-    s2=(tmpscr2[1].valid)?tmpscr2+1:&tmpscr;
-	
-	int32_t bx=(x>>4)+(y&0xF0);
-	newcombo c = combobuf[tmpscr.data[bx]];
-	newcombo c1 = combobuf[s1->data[bx]];
-	newcombo c2 = combobuf[s2->data[bx]];
+	if (x < 0 || y < 0) return false;
+	if (x >= max_x) return false;
+	if (x >= max_x - 8 && cnt == 2) return false;
+	if (y >= max_y) return false;
+
+	return water_walkflag(x, y) || (cnt != 1 && water_walkflag(x + 8, y));
+}
+
+bool water_walkflag(int32_t x, int32_t y)
+{
+	newcombo c = combobuf[MAPCOMBO2(-1, x, y)];
+	newcombo c1 = combobuf[MAPCOMBO2(0, x, y)];
+	newcombo c2 = combobuf[MAPCOMBO2(1, x, y)];
+
 	int32_t b=1;
-	
 	if(x&8) b<<=2;
-	
 	if(y&8) b<<=1;
 	
 	if(get_bit(quest_rules, qr_NO_SOLID_SWIM))
@@ -6934,27 +6924,8 @@ bool water_walkflag(int32_t x,int32_t y,int32_t cnt)
 		if((c2.walk&b) && !iswater_type(c2.type))
 			return true;
 	}
-	if(cnt==1) return false;
-	
-	if(x&8)
-		b<<=2;
-	else
-	{
-		c = combobuf[tmpscr.data[++bx]];
-		c1 = combobuf[s1->data[bx]];
-		c2 = combobuf[s2->data[bx]];
-		b=1;
-		
-		if(y&8) b<<=1;
-	}
-	
-	if(get_bit(quest_rules, qr_NO_SOLID_SWIM))
-	{
-		return (c.walk&b) || (c1.walk&b) || (c2.walk&b);
-	}
-	else return (c.walk&b) ? !iswater_type(c.type) :
-		   (c1.walk&b) ? !iswater_type(c1.type) :
-		   (c2.walk&b) ? !iswater_type(c2.type) :false;
+
+	return false;
 }
 
 bool hit_walkflag(int32_t x,int32_t y,int32_t cnt)
