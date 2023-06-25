@@ -21008,10 +21008,12 @@ void load_default_enemies(mapscr* screen, int screen_index)
 		}
 	}
 	
-	for(int32_t y=0; y<176; y+=16)
+	for(int32_t y0=0; y0<176; y0+=16)
 	{
-		for(int32_t x=0; x<256; x+=16)
+		for(int32_t x0=0; x0<256; x0+=16)
 		{
+			int32_t x = x0 + dx;
+			int32_t y = y0 + dy;
 			int32_t ctype = combobuf[MAPCOMBO(x,y)].type;
 			int32_t cflag = MAPFLAG(x, y);
 			int32_t cflag_i = MAPCOMBOFLAG(x, y);
@@ -21019,18 +21021,18 @@ void load_default_enemies(mapscr* screen, int screen_index)
 			if(ctype==cTRAP_H || cflag==mfTRAP_H || cflag_i==mfTRAP_H)
 			{
 				if(trapLOSHorizontalID>=0)
-					addenemy(screen_index, dx + x, dy + y, trapLOSHorizontalID, -14);
+					addenemy(screen_index, x, y, trapLOSHorizontalID, -14);
 			}
 			else if(ctype==cTRAP_V || cflag==mfTRAP_V || cflag_i==mfTRAP_V)
 			{
 				if(trapLOSVerticalID>=0)
-					addenemy(screen_index, dx + x, dy + y, trapLOSVerticalID, -14);
+					addenemy(screen_index, x, y, trapLOSVerticalID, -14);
 			}
 			else if(ctype==cTRAP_4 || cflag==mfTRAP_4 || cflag_i==mfTRAP_4)
 			{
 				if(trapLOS4WayID>=0)
 				{
-					if(addenemy(screen_index, dx + x, dy + y, trapLOS4WayID, -14))
+					if(addenemy(screen_index, x, y, trapLOS4WayID, -14))
 						guys.spr(guys.Count()-1)->dummy_int[1]=2;
 				}
 			}
@@ -21038,18 +21040,18 @@ void load_default_enemies(mapscr* screen, int screen_index)
 			else if(ctype==cTRAP_LR || cflag==mfTRAP_LR || cflag_i==mfTRAP_LR)
 			{
 				if(trapConstantHorizontalID>=0)
-					addenemy(screen_index, dx + x, dy + y, trapConstantHorizontalID, -14);
+					addenemy(screen_index, x, y, trapConstantHorizontalID, -14);
 			}
 			else if(ctype==cTRAP_UD || cflag==mfTRAP_UD || cflag_i==mfTRAP_UD)
 			{
 				if(trapConstantVerticalID>=0)
-					addenemy(screen_index, dx + x, dy + y, trapConstantVerticalID, -14);
+					addenemy(screen_index, x, y, trapConstantVerticalID, -14);
 			}
 			
 			if(ctype==cSPINTILE1)
 			{
 				// Awaken spinning tile
-				rpos_handle_t rpos_handle = {screen, screen_index, 0, COMBOPOS_REGION(dx + x, dy + y)};
+				rpos_handle_t rpos_handle = {screen, screen_index, 0, COMBOPOS_REGION(x, y)};
 				awaken_spinning_tile(rpos_handle);
 			}
 		}
