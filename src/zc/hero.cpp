@@ -154,7 +154,6 @@ static inline bool on_sideview_solid_oldpos(int32_t x, int32_t y, int32_t oldx, 
 	return false;
 }
 
-// TODO z3 !!
 void HeroClass::snap_platform()
 {
 	if(check_new_slope(x, y+1, 16, 16, old_x, old_y, false) < 0)
@@ -6904,10 +6903,9 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 	}
 	
 	int32_t bestcid=0;
-	int best_cpos = -1;
+	rpos_t best_rpos = rpos_t::NONE;
 	int32_t hp_modtotal=0;
-	// TODO z3 !!
-	int poses[8] = {COMBOPOS(dx1,dy1),COMBOPOS(dx1,dy2),COMBOPOS(dx2,dy1),COMBOPOS(dx2,dy2)};
+	rpos_t rposes[] = {COMBOPOS_REGION(dx1,dy1),COMBOPOS_REGION(dx1,dy2),COMBOPOS_REGION(dx2,dy1),COMBOPOS_REGION(dx2,dy2)};
 	if (!_effectflag(dx1,dy1,1, layer)) {hp_mod[0] = 0; hasKB &= ~(1<<0);}
 	if (!_effectflag(dx1,dy2,1, layer)) {hp_mod[1] = 0; hasKB &= ~(1<<1);}
 	if (!_effectflag(dx2,dy1,1, layer)) {hp_mod[2] = 0; hasKB &= ~(1<<2);}
@@ -6941,7 +6939,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 				{
 					hp_modtotal = hp_mod[i];
 					bestcid = cid[i];
-					best_cpos = poses[i];
+					best_rpos = rposes[i];
 				}
 			}
 			else if(hp_mod[i] < 0) //If it's under 0, it's hurting Hero.
@@ -6950,7 +6948,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 				{
 					hp_modtotal = hp_mod[i];
 					bestcid = cid[i];
-					best_cpos = poses[i];
+					best_rpos = rposes[i];
 				}
 			}
 		}
@@ -6958,14 +6956,14 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 		{
 			hp_modtotal = hp_mod[i];
 			bestcid = cid[i];
-			best_cpos = poses[i];
+			best_rpos = rposes[i];
 		}
 	}
-	
-	// TODO z3 !! ffc
+
+	int32_t ffc_ids[] = {-1, -1, -1, -1};
 	{
 		auto ffc_handle = getFFCAt(dx1,dy1);
-		poses[4] = ffc_handle ? ffc_handle->i : -1;
+		ffc_ids[0] = ffc_handle ? ffc_handle->id : -1;
 		cid[4] = ffc_handle ? ffc_handle->data() : 0;
 		newcombo& cmb = combobuf[cid[4]];
 		if ( !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && combo_class_buf[cmb.type].modify_hp_amount)
@@ -6980,7 +6978,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 	}
 	{
 		auto ffc_handle = getFFCAt(dx1,dy2);
-		poses[5] = ffc_handle ? ffc_handle->i : -1;
+		ffc_ids[1] = ffc_handle ? ffc_handle->id : -1;
 		cid[5] = ffc_handle ? ffc_handle->data() : 0;
 		newcombo& cmb = combobuf[cid[5]];
 		if ( !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && combo_class_buf[cmb.type].modify_hp_amount)
@@ -6995,7 +6993,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 	}
 	{
 		auto ffc_handle = getFFCAt(dx2,dy1);
-		poses[6] = ffc_handle ? ffc_handle->i : -1;
+		ffc_ids[2] = ffc_handle ? ffc_handle->id : -1;
 		cid[6] = ffc_handle ? ffc_handle->data() : 0;
 		newcombo& cmb = combobuf[cid[6]];
 		if ( !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && combo_class_buf[cmb.type].modify_hp_amount)
@@ -7010,7 +7008,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 	}
 	{
 		auto ffc_handle = getFFCAt(dx2,dy2);
-		poses[7] = ffc_handle ? ffc_handle->i : -1;
+		ffc_ids[3] = ffc_handle ? ffc_handle->id : -1;
 		cid[7] = ffc_handle ? ffc_handle->data() : 0;
 		newcombo& cmb = combobuf[cid[7]];
 		if ( !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && combo_class_buf[cmb.type].modify_hp_amount)
@@ -7025,7 +7023,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 	}
 	
 	int32_t bestffccid = 0;
-	int best_ffcpos = -1;
+	int best_ffcid = -1;
 	int32_t hp_modtotalffc = 0;
 	
 	for (int32_t i = 0; i <= 1; ++i)
@@ -7048,7 +7046,8 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 	
 	for(int32_t i=0; i<4; i++)
 	{
-		if(poses[i+4] < 0) continue;
+		if (ffc_ids[i] == -1) continue;
+
 		if(get_bit(quest_rules,qr_DMGCOMBOPRI))
 		{
 			if(hp_modtotalffc >= 0)
@@ -7057,7 +7056,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 				{
 					hp_modtotalffc = hp_mod[i];
 					bestffccid = cid[4+i];
-					best_ffcpos = poses[4+i];
+					best_ffcid = ffc_ids[i];
 				}
 			}
 			else if(hp_mod[i] < 0)
@@ -7066,7 +7065,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 				{
 					hp_modtotalffc = hp_mod[i];
 					bestffccid = cid[4+i];
-					best_ffcpos = poses[4+i];
+					best_ffcid = ffc_ids[i];
 				}
 			}
 		}
@@ -7074,7 +7073,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 		{
 			hp_modtotalffc = hp_mod[i];
 			bestffccid = cid[4+i];
-			best_ffcpos = poses[4+i];
+			best_ffcid = ffc_ids[i];
 		}
 	}
 	
@@ -7115,7 +7114,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 			ev.push_back(ZSD_COMBODATA*10000);
 			ev.push_back(bestcid);
 			ev.push_back((best_type ? ZSD_FFC : ZSD_COMBOPOS)*10000);
-			ev.push_back(best_type ? best_ffcpos : best_cpos*10000);
+			ev.push_back((best_type ? best_ffcid : (int)best_rpos)*10000);
 			
 			throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_1);
 			int32_t dmg = ev[0]/10000;
