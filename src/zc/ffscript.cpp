@@ -33031,7 +33031,13 @@ j_command:
 			{
 				int32_t lyr = get_register(sarg1) / 10000;
 				int32_t pos = get_register(sarg2) / 10000;
-				set_register(sarg1, do_trigger_combo(lyr,pos) ? 10000 : 0);
+				rpos_t rpos = (rpos_t)pos;
+				if (BC::checkComboRpos(rpos, "Screen->TriggerCombo") != SH::_NoError)
+				{
+					break;
+				}
+
+				set_register(sarg1, do_trigger_combo(get_rpos_handle(rpos, lyr)) ? 10000 : 0);
 				break;
 			}
 			
