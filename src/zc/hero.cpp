@@ -12595,37 +12595,30 @@ bool isRaftFlag(int32_t flag)
 
 void handle_lens_triggers(int32_t l_id)
 {
-	// TODO z3
 	bool enabled = l_id >= 0 && (itemsbuf[l_id].flags & ITEM_FLAG6);
-	for(auto layer = 0; layer < 7; ++layer)
-	{
-		mapscr* tmp = FFCore.tempScreens[layer];
-		for(auto pos = 0; pos < 176; ++pos)
+
+	for_every_rpos_in_region([&](const rpos_handle_t& rpos_handle) {
+		newcombo const& cmb = combobuf[rpos_handle.data()];
+		if (enabled ? (cmb.triggerflags[1] & combotriggerLENSON)
+			: (cmb.triggerflags[1] & combotriggerLENSOFF))
 		{
-			newcombo const& cmb = combobuf[tmp->data[pos]];
-			if(enabled ? (cmb.triggerflags[1] & combotriggerLENSON)
-				: (cmb.triggerflags[1] & combotriggerLENSOFF))
-			{
-				do_trigger_combo(layer, pos);
-			}
+			do_trigger_combo(rpos_handle);
 		}
-	}
+	});
+
 	if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
 	{
-		word c = tmpscr.numFFC();
-		for(word i=0; i<c; i++)
-		{
-			ffcdata& ffc = tmpscr.ffcs[i];
-			newcombo const& cmb = combobuf[ffc.getData()];
-			if(enabled ? (cmb.triggerflags[1] & combotriggerLENSON)
+		for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle) {
+			newcombo const& cmb = combobuf[ffc_handle.data()];
+			if (enabled ? (cmb.triggerflags[1] & combotriggerLENSON)
 				: (cmb.triggerflags[1] & combotriggerLENSOFF))
 			{
-				// TODO z3 !! ffc
-				int id = i;
-				do_trigger_combo_ffc({&tmpscr, currscr, id, i, &ffc});
-				break;
+				do_trigger_combo_ffc(ffc_handle);
+				return false;
 			}
-		}
+
+			return true;
+		});
 	}
 }
 
