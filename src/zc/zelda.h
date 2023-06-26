@@ -466,7 +466,13 @@ extern char   cheat_goto_screen_str[3];
 extern int16_t  visited[6];
 extern mapscr scrolling_screen;
 extern mapscr tmpscr;
+// This is typically used as the previous screen before doing a warp to a special room,
+// but it is also used (by scripting) to hold the previous screen during scrolling.
 extern mapscr special_warp_return_screen;
+// Pointer to the temporary screen that the hero is currently positioned in.
+// Updates as the hero moves around.
+// When not in a region, this always points to tmpscr.
+extern mapscr* current_screen;
 extern std::map<int, byte> activation_counters;
 extern std::map<int, byte> activation_counters_ffc;
 extern mapscr tmpscr2[6];

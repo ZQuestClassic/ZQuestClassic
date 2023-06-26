@@ -480,11 +480,10 @@ int16_t  visited[6]={0};
 std::map<int, byte> activation_counters;
 std::map<int, byte> activation_counters_ffc;
 mapscr tmpscr;
-// This is typically used as the previous screen before doing a warp to a special room,
-// but it is also used (by scripting) to hold the previous screen during scrolling.
 mapscr special_warp_return_screen;
 mapscr tmpscr2[6];
 mapscr tmpscr3[6];
+mapscr* current_screen;
 gamedata *game=NULL;
 script_data *ffscripts[NUMSCRIPTFFC];
 script_data *itemscripts[NUMSCRIPTITEM];

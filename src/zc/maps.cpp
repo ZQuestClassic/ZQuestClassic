@@ -350,9 +350,11 @@ void z3_update_currscr()
 	{
 		region_scr_dx = dx;
 		region_scr_dy = dy;
+		// TODO z3 ! can entire conditional check this?
 		bool try_replay_music = currscr != newscr;
 		currscr = newscr;
 		if (try_replay_music) playLevelMusic();
+		current_screen = get_scr(currmap, currscr);
 	}
 }
 
@@ -5574,6 +5576,7 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 	currscr_for_passive_subscr = -1;
 	currscr = scr;
 	z3_load_region(destdmap);
+	current_screen = &tmpscr;
 
 	loadscr_old(0, orig_destdmap, scr, ldir, overlay, false);
 	if (scr >= 0x80)
