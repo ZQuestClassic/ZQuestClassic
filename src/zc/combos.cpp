@@ -3504,32 +3504,24 @@ void update_trig_group(int oldc, int newc)
 void calculate_trig_groups()
 {
 	memset(trig_groups, 0, sizeof(trig_groups));
-	for(auto lyr = 0; lyr < 7; ++lyr)
-	{
-		mapscr* scr = FFCore.tempScreens[lyr];
-		for(auto pos = 0; pos < 176; ++pos)
-		{
-			cpos_info& timer = get_combo_posinfo(lyr, pos);
-			int cid = scr->data[pos];
-			timer.updateData(cid);
-			newcombo const& cmb = combobuf[cid];
-			if(cmb.triggerflags[3] & combotriggerTGROUP_CONTRIB)
-				++trig_groups[cmb.trig_group];
-		}
-	}
-	// TODO z3 !!
-	mapscr* ffscr = FFCore.tempScreens[0];
-	dword c = ffscr->numFFC();
-	ffc_clear_cpos_info();
-	for(word ffc = 0; ffc < c; ++ffc)
-	{
-		cpos_info& timer = ffscr->ffcs[ffc].info;
-		int cid = ffscr->ffcs[ffc].getData();
+
+	for_every_rpos_in_region([&](const rpos_handle_t& rpos_handle) {
+		cpos_info& timer = get_combo_posinfo(rpos_handle);
+		int cid = rpos_handle.data();
 		timer.updateData(cid);
 		newcombo const& cmb = combobuf[cid];
 		if(cmb.triggerflags[3] & combotriggerTGROUP_CONTRIB)
 			++trig_groups[cmb.trig_group];
-	}
+	});
+
+	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+		int cid = ffc_handle.data();
+		ffc_handle.ffc->info.clear();
+		ffc_handle.ffc->info.data = cid;
+		newcombo const& cmb = combobuf[cid];
+		if(cmb.triggerflags[3] & combotriggerTGROUP_CONTRIB)
+			++trig_groups[cmb.trig_group];
+	});
 }
 
 void trig_trigger_groups()
