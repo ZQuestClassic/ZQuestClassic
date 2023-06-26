@@ -6410,8 +6410,7 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt,zfix const& switchblockstate)
 	return _walkflag_new(x, y, switchblockstate) || (cnt != 1 && _walkflag_new(x + 8, y, switchblockstate));
 }
 
-// TODO z3 rename
-bool _effectflag_new(int32_t x, int32_t y, int32_t layer)
+static bool effectflag(int32_t x, int32_t y, int32_t layer)
 {
 	mapscr* s0 = get_screen_for_world_xy(x, y);
 	mapscr* s1 = get_screen_layer_for_xy_offset(x, y, 1);
@@ -6447,23 +6446,7 @@ bool _effectflag_new(int32_t x, int32_t y, int32_t layer)
 
 bool _effectflag(int32_t x,int32_t y,int32_t cnt, int32_t layer, bool notLink)
 {
-	// if (is_z3_scrolling_mode())
-	{
-		int max_x = world_w;
-		int max_y = world_h;
-		if (!get_bit(quest_rules, qr_LTTPWALK) && !notLink)
-		{
-			max_x -= 7;
-			max_y -= 7;
-		}
-		if (x < 0 || y < 0) return false;
-		if (x >= max_x) return false;
-		if (x >= max_x - 8 && cnt == 2) return false;
-		if (y >= max_y) return false;
-		return _effectflag_new(x, y, layer) || (cnt == 2 && _effectflag_new(x + 8, y, layer));
-	}
-	// TODO z3 !! rm
-
+	DCHECK(cnt == 0 || cnt == 1);
 	int max_x = world_w;
 	int max_y = world_h;
 	if (!get_bit(quest_rules, qr_LTTPWALK) && !notLink)
@@ -6475,80 +6458,8 @@ bool _effectflag(int32_t x,int32_t y,int32_t cnt, int32_t layer, bool notLink)
 	if (x >= max_x) return false;
 	if (x >= max_x - 8 && cnt == 2) return false;
 	if (y >= max_y) return false;
-	
-	mapscr *s0, *s1, *s2;
-	s0=&tmpscr;
-	s1=(tmpscr2->valid)?tmpscr2:&tmpscr;
-	s2=(tmpscr2[1].valid)?tmpscr2+1:&tmpscr;
-	//  s2=TheMaps+((*tmpscr).layermap[1]-1)MAPSCRS+((*tmpscr).layerscreen[1]);
-	
-	if (layer == 0 && (s1 == s0)) return false;
-	if (layer == 1 && (s2 == s0)) return false;
-	
-	int32_t bx=COMBOPOS(x, y);
-	newcombo c = combobuf[s0->data[bx]];
-	newcombo c1 = combobuf[s1->data[bx]];
-	newcombo c2 = combobuf[s2->data[bx]];
-	bool dried = (((iswater_type(c.type)) || (iswater_type(c1.type)) ||
-				   (iswater_type(c2.type))) && DRIEDLAKE);
-	int32_t b=1;
-	
-	if(x&8) b<<=2;
-	
-	if(y&8) b<<=1;
-	
-	int32_t cwalkflag = (c.walk>>4);
-	if (layer == 0) cwalkflag = (c1.walk>>4);
-	if (layer == 1) cwalkflag = (c2.walk>>4);
-	//if (c.type == cBRIDGE || (iswater_type(c.type) && ((c.usrflags&cflag3) || (c.usrflags&cflag4)))) cwalkflag = 0;
-	if (s1 != s0 && layer < 0)
-	{
-		if (c1.type == cBRIDGE) cwalkflag &= (~(c1.walk>>4));
-	}
-	if (s2 != s0 && layer < 1)
-	{
-		if (c2.type == cBRIDGE) cwalkflag &= (~(c2.walk>>4));
-	}
-	
-	if((cwalkflag&b) && !dried)
-		return true;
-		
-	if(cnt==1) return false;
-	
-	++bx;
-	
-	if(!(x&8))
-		b<<=2;
-	else
-	{
-		c  = combobuf[s0->data[bx]];
-		c1 = combobuf[s1->data[bx]];
-		c2 = combobuf[s2->data[bx]];
-		dried = (((iswater_type(c.type)) || (iswater_type(c1.type)) ||
-				  (iswater_type(c2.type))) && DRIEDLAKE);
-		b=1;
-		
-		if(y&8) b<<=1;
-	}
-	cwalkflag = (c.walk>>4);
-	if (layer == 0) cwalkflag = (c1.walk>>4);
-	if (layer == 1) cwalkflag = (c2.walk>>4);
-	//if (c.type == cBRIDGE || (iswater_type(c.type) && ((c.usrflags&cflag3) || (c.usrflags&cflag4)))) cwalkflag = 0;
-	if (s1 != s0 && layer < 0)
-	{
-		if (c1.type == cBRIDGE) 
-		{
-			cwalkflag &= (~(c1.walk>>4));
-		}
-	}
-	if (s2 != s0 && layer < 1)
-	{
-		if (c2.type == cBRIDGE) 
-		{
-			cwalkflag &= (~(c2.walk>>4));
-		}
-	}
-	return (cwalkflag&b) ? !dried : false;
+
+	return effectflag(x, y, layer) || (cnt == 2 && effectflag(x + 8, y, layer));
 }
 
 //used by mapdata->isSolid(x,y) in ZScript:
