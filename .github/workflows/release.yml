@@ -123,7 +123,7 @@ jobs:
         with:
           name: ${{ needs.create-tag.outputs.release-name }}
           tag_name: ${{ needs.create-tag.outputs.release-tag }}
-          target_commitish: ${{ env.GITHUB_SHA }}
+          target_commitish: ${{ github.sha }}
           files: release-packages/**/*
           prerelease: ${{ !inputs.full_release }}
           fail_on_unmatched_files: true
