@@ -12608,16 +12608,13 @@ void handle_lens_triggers(int32_t l_id)
 
 	if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
 	{
-		for_some_ffcs_in_region([&](const ffc_handle_t& ffc_handle) {
+		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
 			newcombo const& cmb = combobuf[ffc_handle.data()];
 			if (enabled ? (cmb.triggerflags[1] & combotriggerLENSON)
 				: (cmb.triggerflags[1] & combotriggerLENSOFF))
 			{
 				do_trigger_combo_ffc(ffc_handle);
-				return false;
 			}
-
-			return true;
 		});
 	}
 }
