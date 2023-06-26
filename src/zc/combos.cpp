@@ -51,13 +51,6 @@ void clear_combo_posinfo()
 	}
 }
 
-// TODO z3 !! rm
-cpos_info& get_combo_posinfo(int32_t layer, int32_t pos)
-{
-	int index = layer * region_num_rpos + pos;
-	return combo_posinfos[index];
-}
-
 cpos_info& get_combo_posinfo(const rpos_handle_t& rpos_handle)
 {
 	int index = rpos_handle.layer * region_num_rpos + (int)rpos_handle.rpos;
@@ -3527,31 +3520,31 @@ void calculate_trig_groups()
 void trig_trigger_groups()
 {
 	ffc_clear_cpos_info();
-	for(auto lyr = 0; lyr < 7; ++lyr)
-	{
-		mapscr* scr = FFCore.tempScreens[lyr];
-		for(auto pos = 0; pos < 176; ++pos)
+
+	for_every_rpos_in_region([&](const rpos_handle_t& rpos_handle) {
+		int cid = rpos_handle.data();
+		newcombo& cmb = combobuf[cid];
+
+		while (
+			((cmb.triggerflags[3] & combotriggerTGROUP_LESS)
+				&& trig_groups[cmb.trig_group] < cmb.trig_group_val)
+			|| ((cmb.triggerflags[3] & combotriggerTGROUP_GREATER)
+				&& trig_groups[cmb.trig_group] > cmb.trig_group_val)
+			)
 		{
-			int cid = scr->data[pos];
-			newcombo const& cmb = combobuf[cid];
-			
-			if(
-				((cmb.triggerflags[3] & combotriggerTGROUP_LESS)
-					&& trig_groups[cmb.trig_group] < cmb.trig_group_val)
-				|| ((cmb.triggerflags[3] & combotriggerTGROUP_GREATER)
-					&& trig_groups[cmb.trig_group] > cmb.trig_group_val)
-				)
+			do_trigger_combo(rpos_handle);
+			int cid2 = rpos_handle.data();
+			update_trig_group(cid, cid2);
+			cpos_info& timer = get_combo_posinfo(rpos_handle);
+			timer.updateData(cid2);
+
+			if (cid != cid2)
 			{
-				do_trigger_combo(lyr,pos);
-				int cid2 = scr->data[pos];
-				update_trig_group(cid,cid2);
-				cpos_info& timer = get_combo_posinfo(lyr, pos);
-				timer.updateData(cid2);
-				
-				--pos; continue; //check same pos again
+				cmb = combobuf[cid];
+				cid = cid2;
 			}
 		}
-	}
+	});
 
 	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
 		int cid = ffc_handle.data();
