@@ -41,7 +41,6 @@ jobs:
         run: |
           python3 .github/workflows/print-release-name-vars.py \
             --github_org=${{ github.repository_owner }} \
-            --branch=${{ github.ref_name }} \
             --full_release=${{ github.event.inputs.full_release }} \
             --version_type=${{ github.event.inputs.versiontype }} \
             --number=${{ inputs.number }}
