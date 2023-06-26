@@ -9,11 +9,6 @@
 //
 //--------------------------------------------------------
 
-/*
-  #define  INTERNAL_VERSION  0xA721
-  */
-
-
 #define MIDI_TRACK_BUFFER_SIZE 50
 
 #include <memory>
@@ -33458,3 +33453,4 @@ extern "C" void get_shareable_url()
 
 // TODO z3
 int32_t scrolling_destdmap = -1, currdmap = 0;
+viewport_t viewport;

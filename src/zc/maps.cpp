@@ -57,6 +57,8 @@ extern HeroClass Hero;
 
 static std::map<int, std::vector<mapscr*>> temporary_screens;
 static mapscr* temporary_screens_currmap[136*7] = {nullptr};
+viewport_t viewport;
+ViewportMode viewport_mode;
 int world_w, world_h;
 int current_region_origin_screen_index;
 int region_scr_dx, region_scr_dy;

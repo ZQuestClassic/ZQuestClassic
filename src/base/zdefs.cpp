@@ -19,10 +19,6 @@ extern bool update_hw_pal;
 bool global_z3_scrolling_extended_height_mode = true;
 // TODO z3 !
 bool global_z3_always_use_new_scrollscr = !false;
-// TODO z3 !!! move to maps.cpp
-viewport_t viewport;
-// TODO z3 !!! move to maps.cpp
-ViewportMode viewport_mode;
 
 volatile bool close_button_quit = false;
 
