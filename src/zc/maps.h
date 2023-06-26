@@ -40,37 +40,46 @@ bool ffcIsAt(const ffc_handle_t& ffc_handle, int32_t x, int32_t y);
 extern bool triggered_screen_secrets;
 
 /*
-    Z3-style scrolling is implemented via "regions".
+    Z3-style scrolling is implemented via "Regions".
     
     Regions:
 
         - are a NxM set of screens within a single map
         - must be a rectangle (for now, at least)
+		- are defined in the DMap Editor by setting an id, but other than grouping screens into the same region
+		  this id currently has no purpose in-engine
+		- the top-left screen is denoted at the `current_region_origin_screen_index`
+		- can be uniquely identified as (dmap, current_region_origin_screen_index)
         - can border other regions or single screens, and supports scrolling
           between them (including side warps)
         - can be 1x1, but this only has significance for maze screens which
           will wrap the player around the screen
-        - when moving around a region with >1 screen width or height, the viewport
+		- cannot overlap within the same dmap, though nothing prevents multiple dmaps from grouping
+		  screens into regions in overlapping ways
+        - when moving around a region with >1 screen width or height, by default the viewport
           will keep the player centered in the screen. When moving close to the region
-          edge the camera bounds to the edges
-        - tmpscr points to the entrance screen
-        - currscr is the screen where the hero currently is
+          edge the camera bounds to the edges. This behavior is modified by `viewport_mode`,
+		  which can be modified by scripts via `Viewport->`
+        - `tmpscr` points to the entrance screen
+        - `currscr` is the screen index where the hero currently is. `current_screen` is that screen object
 */
 
-// How large the current region is in pixels. If not currently in z3 scrolling mode, this is just the size
-// of a single screen (256, 176).
+// How large the current region is in pixels.
+// If not currently in z3 scrolling mode, this is just the size of a single screen (256, 176).
 extern int world_w, world_h;
 // The "camera" in the above world-space coordinates.
-// viewport.x and viewport.y are the world-point to draw in the top-left corner of the screen.
-// In region mode, x and y are set such that the hero in the middle of the screen when possible, snapping
-// to the region edges when not.
+// (viewport.x, viewport.y) is the point in world-space to draw as the top-left corner of the visible screen.
+// In region mode, by default x and y are set such that the hero in the middle of the screen when possible, snapping
+// to the region edges when not. This behavior is modified by `viewport_mode`.
 //
 // If not currently in z3 scrolling mode:
 //  - x, y is 0
 //  - w, h is 256, 176
-// this is just 0.
 extern viewport_t viewport;
 extern ViewportMode viewport_mode;
+// The top-left screen index of the current region.
+// If not currently in a region, this is always the same as `currscr`.
+extern int current_region_origin_screen_index;
 // The screen offset from the region origin that the hero is currently standing in. If not currently
 // in z3 scrolling mode, this is just 0.
 extern int region_scr_dx, region_scr_dy;
@@ -78,13 +87,12 @@ extern int region_scr_dx, region_scr_dy;
 // in z3 scrolling mode, this is just 1.
 extern int region_scr_width, region_scr_height;
 // Number of screens in the current region.
-// TODO z3 !! rm?
 extern int region_scr_count;
-// Maximum value for 'rpos' in the current region. This is the number of possible combo positions, minus 1. If not currently
-// in z3 scrolling mode, this is just 175.
+// Maximum value for 'rpos' in the current region. This is the number of possible combo positions, minus 1.
+// If not currently in z3 scrolling mode, this is just 175.
 extern rpos_t region_max_rpos;
-// Number of unique values for 'rpos' in the current region. This is the number of possible combo positions. If not currently
-// in z3 scrolling mode, this is just 176.
+// Number of unique values for 'rpos' in the current region. This is the number of possible combo positions.
+// If not currently in z3 scrolling mode, this is just 176.
 extern int region_num_rpos;
 // TODO z3
 extern int scrolling_maze_scr, scrolling_maze_state;

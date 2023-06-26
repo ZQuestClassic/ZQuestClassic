@@ -1801,8 +1801,7 @@ public:
 	
 	static INLINE int32_t checkFFC(const int32_t ffc, const char * const str)
 	{
-		int max_ffc_id = region_scr_count * MAXFFCS - 1;
-		return checkBounds(ffc, 0, max_ffc_id, str);
+		return checkBounds(ffc, 0, MAX_FFCID, str);
 	}
 	
 	static INLINE int32_t checkGuyIndex(const int32_t index, const char * const str)
@@ -9100,7 +9099,7 @@ int32_t get_register(const int32_t arg)
 		case SCREENDATANUMFF: 	
 		{
 			uint32_t indx = ri->d[rINDEX] / 10000;
-			int max_ffc_id = region_scr_count * MAXFFCS - 1;
+			int max_ffc_id = MAX_FFCID;
 			if (!indx || indx > max_ffc_id)
 			{
 				Z_scripterrlog("Invalid Index passed to Screen->NumFFCs[%d].\n Valid indices are 1 through %d.\n", indx, max_ffc_id);
@@ -9114,7 +9113,7 @@ int32_t get_register(const int32_t arg)
 			break;
 		}
 			//inita	//INT32, 32 OF THESE, EACH WITH 2
-		case SCREENDATAFFINITIALISED: 	GET_FFC_BOOL_INDEX(initialized, "FFCRunning", region_scr_count * MAXFFCS - 1); break;	//BOOL, MAXFFCS OF THESE
+		case SCREENDATAFFINITIALISED: 	GET_FFC_BOOL_INDEX(initialized, "FFCRunning", MAX_FFCID); break;
 		case SCREENDATASCRIPTENTRY: 	GET_SCREENDATA_VAR_INT32(script_entry, "ScriptEntry"); break;	//W
 		case SCREENDATASCRIPTOCCUPANCY: 	GET_SCREENDATA_VAR_INT32(script_occupancy,	"ScriptOccupancy");  break;//W
 		case SCREENDATASCRIPTEXIT: 	GET_SCREENDATA_VAR_INT32(script_exit, "ExitScript"); break;	//W
@@ -19459,7 +19458,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 
 			//inita	//INT32, 32 OF THESE, EACH WITH 2
-		case SCREENDATAFFINITIALISED: 	SET_FFC_BOOL_INDEX(initialized, "FFCRunning", region_scr_count * MAXFFCS - 1); break;	//BOOL, MAXFFCS OF THESE
+		case SCREENDATAFFINITIALISED: 	SET_FFC_BOOL_INDEX(initialized, "FFCRunning", MAX_FFCID); break;
 		case SCREENDATASCRIPTENTRY: 	SET_SCREENDATA_VAR_INT32(script_entry, "ScriptEntry"); break;	//W
 		case SCREENDATASCRIPTOCCUPANCY: 	SET_SCREENDATA_VAR_INT32(script_occupancy,	"ScriptOccupancy");  break;//W
 		case SCREENDATASCRIPTEXIT: 	SET_SCREENDATA_VAR_INT32(script_exit, "ExitScript"); break;	//W
