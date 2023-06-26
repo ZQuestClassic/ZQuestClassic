@@ -52,6 +52,7 @@ bool trigger_lockblock_ffc(const rpos_handle_t& rpos_handle);
 bool trigger_armos_grave(const rpos_handle_t& rpos_handle, int32_t trigdir = -1);
 bool trigger_armos_grave_ffc(const ffc_handle_t& ffc_handle, int32_t trigdir = -1);
 bool trigger_damage_combo(mapscr* screen, int32_t cid, int type = ZSD_NONE, int ptrval = 0, int32_t hdir = -1, bool force_solid = false);
+bool trigger_damage_combo(const rpos_handle_t& rpos_handle, int type = ZSD_NONE, int ptrval = 0, int32_t hdir = -1, bool force_solid = false);
 bool trigger_stepfx(const rpos_handle_t& rpos_handle, bool stepped = false);
 bool trigger_stepfx_ffc(const ffc_handle_t& ffc_handle, bool stepped = false);
 void trigger_save(newcombo const& cmb);

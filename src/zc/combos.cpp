@@ -1742,6 +1742,10 @@ bool trigger_armos_grave_ffc(const ffc_handle_t& ffc_handle, int32_t trigdir)
 	return true;
 }
 
+bool trigger_damage_combo(const rpos_handle_t& rpos_handle, int type, int ptrval, int32_t hdir, bool force_solid)
+{
+	return trigger_damage_combo(rpos_handle.screen, rpos_handle.data(), type, ptrval, hdir, force_solid);
+}
 
 bool trigger_damage_combo(mapscr* screen, int32_t cid, int type, int ptrval, int32_t hdir, bool force_solid)
 {
@@ -2754,8 +2758,7 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, int32_t special, weapon*
 					
 					case cDAMAGE1: case cDAMAGE2: case cDAMAGE3: case cDAMAGE4:
 					case cDAMAGE5: case cDAMAGE6: case cDAMAGE7:
-						// TODO z3 !!
-						trigger_damage_combo(rpos_handle.screen, cid, ZSD_COMBOPOS, pos*10000);
+						trigger_damage_combo(rpos_handle, ZSD_COMBOPOS, (int)rpos_handle.rpos*10000);
 						break;
 					
 					case cSTEPSFX:
