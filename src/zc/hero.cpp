@@ -12570,7 +12570,6 @@ void handle_lens_triggers(int32_t l_id)
 				: (cmb.triggerflags[1] & combotriggerLENSOFF))
 			{
 				do_trigger_combo_ffc(i);
-				break;
 			}
 		}
 	}
