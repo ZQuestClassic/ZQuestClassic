@@ -613,7 +613,7 @@ bool movingblock::animate(int32_t)
 	//Click the block into place, the push ended.
 	if(done)
 	{
-		size_t combopos = size_t((int32_t(y)&0xF0)+(int32_t(x)>>4));
+		rpos_t comborpos = COMBOPOS_REGION(x, y);
 		if(new_block)
 		{
 			clk = 0;
@@ -623,7 +623,7 @@ bool movingblock::animate(int32_t)
 			blockmoving=false;
 			
 			auto rpos_handle = get_rpos_handle_for_world_xy(x, y, 0);
-			size_t combopos = rpos_handle.pos();
+			int combopos = rpos_handle.pos();
 			int f1 = rpos_handle.screen->sflag[combopos];
 			int f2 = MAPCOMBOFLAG2(blockLayer-1,x,y);
 			auto maxLayer = get_bit(quest_rules, qr_PUSHBLOCK_LAYER_1_2) ? 2 : 0;
@@ -1085,7 +1085,7 @@ bool movingblock::animate(int32_t)
 		newcombo const& blockcmb = combobuf[bcombo];
 		if(blockcmb.triggerflags[3] & combotriggerPUSHEDTRIG)
 		{
-			do_trigger_combo(blockLayer, combopos);
+			do_trigger_combo(get_rpos_handle(comborpos, blockLayer));
 		}
 	}
 	return false;
