@@ -1045,9 +1045,6 @@ bool trigger_warp(newcombo const& cmb)
 
 bool trigger_chest(const rpos_handle_t& rpos_handle)
 {
-	int pos = rpos_handle.pos();
-	if (unsigned(rpos_handle.layer) > 6 || unsigned(pos) > unsigned(region_max_rpos)) return false;
-
 	mapscr* base_screen = rpos_handle.layer == 0 ? rpos_handle.screen : get_scr(currmap, rpos_handle.screen_index);
 
 	newcombo const& cmb = combobuf[rpos_handle.data()];
@@ -1120,11 +1117,11 @@ bool trigger_chest(const rpos_handle_t& rpos_handle)
 	for(int32_t i=0; i<3; i++)
 	{
 		mapscr* layer_scr = get_layer_scr(currmap, rpos_handle.screen_index, i - 1);
-		if(layer_scr->sflag[pos]==mfARMOS_ITEM)
+		if(layer_scr->sflag[rpos_handle.pos()]==mfARMOS_ITEM)
 		{
 			itemflag = true; break;
 		}
-		if(combobuf[layer_scr->data[pos]].flag==mfARMOS_ITEM)
+		if(combobuf[layer_scr->data[rpos_handle.pos()]].flag==mfARMOS_ITEM)
 		{
 			itemflag = true; break;
 		}

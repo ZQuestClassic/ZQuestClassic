@@ -3293,7 +3293,7 @@ std::set<rpos_t> weapon::getBombPositions()
 		int tx = x, ty = y-fakez;
 		rposes.insert(COMBOPOS_REGION(tx+8,ty+8)); //always hits at least 1 combo
 		// TODO z3 this is crazy inefficient
-		for (int q = 0; q <= (int)region_max_rpos; ++q)
+		for (int q = 0; q < region_num_rpos; ++q)
 		{
 			rpos_t rpos = (rpos_t)q;
 			int x, y;

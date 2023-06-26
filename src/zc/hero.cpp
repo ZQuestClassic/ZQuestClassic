@@ -8472,7 +8472,7 @@ heroanimate_skip_liftwpn:;
 									int32_t target_pos = RPOS_TO_POS(targrpos);
 									int32_t player_pos = RPOS_TO_POS(plrpos);
 
-									if (targrpos < region_max_rpos && plrpos < region_max_rpos && hooked_layerbits)
+									if (targrpos <= region_max_rpos && plrpos <= region_max_rpos && hooked_layerbits)
 									{
 										int32_t max_layer = get_bit(quest_rules, qr_HOOKSHOTALLLAYER) ? 6 : (get_bit(quest_rules, qr_HOOKSHOTLAYERFIX) ? 2 : 0);
 										for(int q = max_layer; q > -1; --q)
