@@ -14,7 +14,7 @@
 #include "base/zdefs.h"
 #include <optional>
 
-#define DRIEDLAKE ((tmpscr.flags7 & fWHISTLEWATER) && (whistleclk>=88))
+#define DRIEDLAKE ((current_screen->flags7 & fWHISTLEWATER) && (whistleclk>=88))
 
 int32_t COMBOPOS_REGION_EXTENDED(int32_t pos, int32_t scr_dx, int32_t scr_dy);
 int32_t COMBOPOS_REGION_EXTENDED(int32_t x, int32_t y);

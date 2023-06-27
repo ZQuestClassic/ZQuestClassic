@@ -28899,9 +28899,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 				raftclk=0;
 			}
 		}
-		// TODO z3 ! this good?
-		// else if(iswaterex_z3(ahead, -1, lookaheadx,lookaheady) && (current_item(itype_flippers)))
-		// else if(iswaterex(ahead, currmap, currscr, -1, wateraheadx1,wateraheady1) && iswaterex(ahead, currmap, currscr, -1, wateraheadx2,wateraheady2) && (current_item(itype_flippers)))
 		else if (iswaterex_z3(ahead, -1, wateraheadx1, wateraheady1) && iswaterex_z3(ahead, -1, wateraheadx2, wateraheady2) && (current_item(itype_flippers)))
 		{
 			if(lastaction==swimming || lastaction == sideswimming || lastaction == sideswimattacking || lastaction == sideswimhit || lastaction == swimhit || lastaction == sideswimcasting || lastaction == sidewaterhold1 || lastaction == sidewaterhold2)
