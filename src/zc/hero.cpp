@@ -329,6 +329,7 @@ void HeroClass::set_respawn_point(bool setwarp)
 				return; //Not a 'safe action'
 		}
 		if(z > 0 || fakez > 0 || hoverclk) return; //in air
+		if(sideview_mode() && !on_sideview_solid(x,y,true)) return; //in air sideview
 		if(check_pitslide(true) != -1) return; //On a pit
 		
 		{ //Check water
