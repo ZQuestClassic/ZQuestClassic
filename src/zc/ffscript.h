@@ -1257,7 +1257,8 @@ byte temp_no_stepforward;
 byte subscreen_scroll_speed;
 
 void set_sarg1(int32_t v);
-void clear_screen_stack();
+void clear_screen_scripts();
+void clear_screen_script(int32_t screen_index);
 void setSubscreenScrollSpeed(byte n);
 int32_t getSubscreenScrollSpeed();
 void do_fx_zap(const bool v);
@@ -2027,7 +2028,6 @@ enum __Error
 };
 
 extern std::map<int32_t, refInfo> ffcScriptData;
-extern refInfo screenScriptData;
 extern word g_doscript;
 extern PALETTE tempgreypal; //script greyscale
 extern PALETTE userPALETTE[256];

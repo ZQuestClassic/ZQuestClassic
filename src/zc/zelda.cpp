@@ -501,7 +501,6 @@ script_data *comboscripts[NUMSCRIPTSCOMBODATA];
 
 extern refInfo globalScriptData[NUMSCRIPTGLOBAL];
 extern refInfo playerScriptData;
-extern refInfo screenScriptData;
 extern refInfo dmapScriptData;
 extern word g_doscript;
 extern word player_doscript;
@@ -3821,10 +3820,15 @@ void game_loop()
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_PASSIVESUBSCREEN_WAITDRAW);
 		
 		
-		if ( !FFCore.system_suspend[susptSCREENSCRIPTS] && tmpscr.script != 0 && tmpscr.doscript && tmpscr.screen_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if (FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && !FFCore.system_suspend[susptSCREENSCRIPTS])
 		{
-			ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr.script, 0);  
-			tmpscr.screen_waitdraw = 0;	    
+			for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
+				if (screen->script != 0 && screen->doscript && screen->screen_waitdraw)
+				{
+					ZScriptVersion::RunScript(SCRIPT_SCREEN, screen->script, screen_index);  
+					screen->screen_waitdraw = 0;		
+				}
+			});
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_SCREEN_WAITDRAW);
 		

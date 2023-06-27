@@ -33,8 +33,6 @@ using std::set;
 #include "zc/combos.h"
 #include "zc/replay.h"
 #include "slopes.h"
-extern word combo_doscript[176];
-extern refInfo screenScriptData;
 extern FFScript FFCore;
 #include "particles.h"
 #include <fmt/format.h>
@@ -5605,9 +5603,7 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 	});
 
 	//screen / screendata script
-	FFCore.clear_screen_stack();
-	screenScriptData.Clear();
-	FFCore.deallocateAllArrays(SCRIPT_SCREEN, 0);
+	FFCore.clear_screen_scripts();
 	FFCore.deallocateAllArrays(SCRIPT_COMBO, 0);
 	//reset combo script doscripts
 	//Init combo scripts
@@ -5747,9 +5743,7 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 	//screen / screendata script
 	if (do_setups)
 	{
-		FFCore.clear_screen_stack();
-		screenScriptData.Clear();
-		FFCore.deallocateAllArrays(SCRIPT_SCREEN, 0);
+		FFCore.clear_screen_scripts();
 		FFCore.deallocateAllArrays(SCRIPT_COMBO, 0);
 		//reset combo script doscripts
 		//Init combo scripts
@@ -5810,8 +5804,6 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 	// screen has FF carryover enabled.
 	if (!is_setting_special_warp_return_screen)
 	{
-		FFCore.deallocateAllArrays(SCRIPT_SCREEN, 0);
-		
 		init_ffpos();
 		for(word i = 0; i < MAXFFCS; i++)
 		{

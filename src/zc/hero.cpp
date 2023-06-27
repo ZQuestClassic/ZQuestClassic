@@ -37,7 +37,6 @@
 #include "slopes.h"
 #include "iter.h"
 extern FFScript FFCore;
-extern word combo_doscript[176];
 extern byte itemscriptInitialised[256];
 extern HeroClass Hero;
 extern ZModule zcm;
@@ -26857,10 +26856,16 @@ void HeroClass::run_scrolling_script_int(bool waitdraw)
 			passive_subscreen_waitdraw = false;
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_PASSIVESUBSCREEN_WAITDRAW);
-		if ( (!( FFCore.system_suspend[susptSCREENSCRIPTS] )) && tmpscr.script != 0 && tmpscr.screen_waitdraw && tmpscr.preloadscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		
+		if (FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && !FFCore.system_suspend[susptSCREENSCRIPTS])
 		{
-			ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr.script, 0);  
-			tmpscr.screen_waitdraw = 0;		
+			for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
+				if (screen->script != 0 && screen->screen_waitdraw && screen->preloadscript)
+				{
+					ZScriptVersion::RunScript(SCRIPT_SCREEN, screen->script, screen_index);  
+					screen->screen_waitdraw = 0;		
+				}
+			});
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_SCREEN_WAITDRAW);
 		if ( !FFCore.system_suspend[susptITEMSCRIPTENGINE] )
@@ -26871,9 +26876,15 @@ void HeroClass::run_scrolling_script_int(bool waitdraw)
 	}
 	else
 	{
-		if ( (!( FFCore.system_suspend[susptSCREENSCRIPTS] )) && tmpscr.script != 0 && tmpscr.preloadscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if (FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && !FFCore.system_suspend[susptSCREENSCRIPTS])
 		{
-			ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr.script, 0);
+			for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
+				if (screen->script != 0 && screen->preloadscript)
+				{
+					ZScriptVersion::RunScript(SCRIPT_SCREEN, screen->script, screen_index);  
+					screen->screen_waitdraw = 0;		
+				}
+			});
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_FFCS);
 		if((!( FFCore.system_suspend[susptGLOBALGAME] )) && (g_doscript & (1<<GLOBAL_SCRIPT_GAME)))
@@ -27447,11 +27458,15 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			passive_subscreen_waitdraw = false;
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_PASSIVESUBSCREEN_WAITDRAW);
-		// TODO z3 tmpscr
-		if ( (!( FFCore.system_suspend[susptSCREENSCRIPTS] )) && tmpscr.script != 0 && tmpscr.screen_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if (FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && !FFCore.system_suspend[susptSCREENSCRIPTS])
 		{
-			ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr.script, 0);  
-			tmpscr.screen_waitdraw = 0;		
+			for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
+				if (screen->script != 0 && screen->screen_waitdraw)
+				{
+					ZScriptVersion::RunScript(SCRIPT_SCREEN, screen->script, screen_index);
+					screen->screen_waitdraw = 0;
+				}
+			});
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_SCREEN_WAITDRAW);
 		
@@ -28665,10 +28680,15 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		passive_subscreen_waitdraw = false;
 	}
 	FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_PASSIVESUBSCREEN_WAITDRAW);
-	if ( (!( FFCore.system_suspend[susptSCREENSCRIPTS] )) && tmpscr.script != 0 && tmpscr.screen_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+	if (FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && !FFCore.system_suspend[susptSCREENSCRIPTS])
 	{
-		ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr.script, 0);  
-		tmpscr.screen_waitdraw = 0;		
+		for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
+			if (screen->script != 0 && screen->screen_waitdraw)
+			{
+				ZScriptVersion::RunScript(SCRIPT_SCREEN, screen->script, screen_index);  
+				screen->screen_waitdraw = 0;		
+			}
+		});
 	}
 	FFCore.runGenericPassiveEngine(SCR_TIMING_POST_SCREEN_WAITDRAW);
 

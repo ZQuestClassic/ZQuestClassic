@@ -264,6 +264,7 @@ int32_t getScreen(int32_t ref)
 	switch(ref)
 	{
 		case MAPSCR_TEMP0:
+			// TODO z3 !!!
 			return currscr;
 		case MAPSCR_TEMP1:
 			return FFCore.tempScreens[0]->layerscreen[0];
@@ -609,7 +610,6 @@ bool gen_active_doscript = false, gen_active_initialized = false;
 //Global script data
 refInfo globalScriptData[NUMSCRIPTGLOBAL];
 refInfo playerScriptData;
-refInfo screenScriptData;
 refInfo dmapScriptData;
 refInfo onmapScriptData;
 refInfo activeSubscreenScriptData;
@@ -669,8 +669,13 @@ int32_t dmap_stack[MAX_SCRIPT_REGISTERS];
 int32_t onmap_stack[MAX_SCRIPT_REGISTERS];
 int32_t active_subscreen_stack[MAX_SCRIPT_REGISTERS];
 int32_t passive_subscreen_stack[MAX_SCRIPT_REGISTERS];
-int32_t screen_stack[MAX_SCRIPT_REGISTERS];
 std::map<int32_t, refInfo> ffcScriptData;
+
+struct ScreenScriptEngineData {
+	refInfo ref;
+	int32_t stack[MAX_SCRIPT_REGISTERS];
+};
+std::map<int32_t, ScreenScriptEngineData> screenScriptDatas;
 
 user_genscript user_scripts[NUMSCRIPTSGENERIC];
 int32_t genscript_timing = SCR_TIMING_START_FRAME;
@@ -819,9 +824,19 @@ void clear_global_stack(const byte i)
 	memset(global_stack[i], 0, sizeof(global_stack[i]));
 }
 
-void FFScript::clear_screen_stack()
+void FFScript::clear_screen_scripts()
 {
-	memset(screen_stack, 0, sizeof(screen_stack));
+	for (const auto& kv : screenScriptDatas)
+	{
+		int i = kv.first;
+		FFCore.deallocateAllArrays(SCRIPT_SCREEN, i);
+	}
+	screenScriptDatas.clear();
+}
+
+void FFScript::clear_screen_script(int32_t screen_index)
+{
+	screenScriptDatas[screen_index] = ScreenScriptEngineData();
 }
 
 void clear_player_stack()
@@ -19799,14 +19814,14 @@ void set_register(int32_t arg, int32_t value)
 		
 		case SCREENSCRIPT:
 		{
-			FFScript::deallocateAllArrays(SCRIPT_SCREEN, 0);
+			FFScript::deallocateAllArrays(SCRIPT_SCREEN, curScriptIndex);
 			
 			if ( get_bit(quest_rules,qr_CLEARINITDONSCRIPTCHANGE))
 			{
 				for(int32_t q=0; q<8; q++)
 					tmpscr.screeninitd[q] = 0;
 			}
-			screenScriptData.Clear();
+			FFCore.clear_screen_script(curScriptIndex);
 			tmpscr.script=vbound(value/10000, 0, NUMSCRIPTSCREEN-1);
 			break;
 		}
@@ -20430,7 +20445,7 @@ void set_register(int32_t arg, int32_t value)
 			{
 				if(ri->mapsref == MAPSCR_TEMP0) //This mapsref references tmpscr, so can reference a running script!
 				{
-					FFScript::deallocateAllArrays(SCRIPT_SCREEN, 0);
+					FFScript::deallocateAllArrays(SCRIPT_SCREEN, curScriptIndex);
 					
 					if ( get_bit(quest_rules,qr_CLEARINITDONSCRIPTCHANGE))
 					{
@@ -20438,7 +20453,7 @@ void set_register(int32_t arg, int32_t value)
 							tmpscr.screeninitd[q] = 0;
 					}
 					
-					screenScriptData.Clear();
+					FFCore.clear_screen_script(curScriptIndex);
 				}
 				m->script=vbound(value/10000, 0, NUMSCRIPTSCREEN-1);
 			} 
@@ -30270,23 +30285,24 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			}
 		}
 		break;
-		
+
 		case SCRIPT_SCREEN:
 		{
-			ri = &(screenScriptData);
+			auto& data = screenScriptDatas[i];
+			ri = &data.ref;
 			curscript = screenscripts[script];
-			stack = &(screen_stack);
-			if ( !tmpscr.screendatascriptInitialised )
+			stack = &data.stack;
+			mapscr* screen = get_scr(currmap, i);
+			if ( !screen->screendatascriptInitialised )
 			{
 				got_initialized = true;
-				al_trace("tmpscr.screendatascriptInitialised is %d\n",tmpscr.screendatascriptInitialised);
+				al_trace("screen->screendatascriptInitialised is %d\n",screen->screendatascriptInitialised);
 				for ( int32_t q = 0; q < 8; q++ ) 
 				{
-					ri->d[q] = tmpscr.screeninitd[q];// * 10000;
+					ri->d[q] = screen->screeninitd[q];// * 10000;
 				}
-				tmpscr.screendatascriptInitialised = 1;
+				screen->screendatascriptInitialised = 1;
 			}
-			
 		}
 		break;
 		
@@ -34579,9 +34595,11 @@ j_command:
 				break;
 			
 			case SCRIPT_SCREEN:
-				tmpscr.screen_waitdraw = 1;
-				break;
-			
+			{
+				mapscr* screen = get_scr(currmap, i);
+				screen->screen_waitdraw = 1;
+			}
+			break;
 			
 			case SCRIPT_ITEM:
 			{
@@ -34739,9 +34757,10 @@ j_command:
 			}
 			case SCRIPT_SCREEN:
 			{
-				tmpscr.script = 0;
-				tmpscr.screendatascriptInitialised = 0;
-				tmpscr.doscript = 0;
+				mapscr* screen = get_scr(currmap, i);
+				screen->script = 0;
+				screen->screendatascriptInitialised = 0;
+				screen->doscript = 0;
 				break;
 			} 
 			
@@ -34765,7 +34784,7 @@ j_command:
 				
 				case SCRIPT_SCREEN:
 				{
-					FFScript::deallocateAllArrays(SCRIPT_SCREEN, 0);
+					FFScript::deallocateAllArrays(SCRIPT_SCREEN, i);
 					break;
 				} 
 				
@@ -34830,17 +34849,19 @@ int32_t ffscript_engine(const bool preload)
 	{
 		//run screen script, first
 		//zprint("Screen Script Preload? %s \n", ( tmpscr.preloadscript ? "true" : "false"));
-		if(( preload && tmpscr.preloadscript) || !preload )
+		if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
 		{
-			if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
-			{
-				if ( tmpscr.script > 0 && tmpscr.doscript )
+			for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
+				if ((preload && screen->preloadscript) || !preload)
 				{
-					ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr.script, 0);
+					if ( screen->script > 0 && screen->doscript )
+					{
+						ZScriptVersion::RunScript(SCRIPT_SCREEN, screen->script, screen_index);
+					}
 				}
-				
-			}
+			});
 		}
+
 		for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
 			if(ffc_handle.ffc->script == 0)
 				return;
@@ -37305,10 +37326,15 @@ void FFScript::runWarpScripts(bool waitdraw)
 		//	passive_subscreen_waitdraw = false;
 		//}
 		//no doscript check here, becauseb of preload? Do we want to write doscript here? -Z 13th July, 2019
-		if ( (!( FFCore.system_suspend[susptSCREENSCRIPTS] )) && tmpscr.script != 0 && tmpscr.screen_waitdraw && tmpscr.preloadscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if (FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && !FFCore.system_suspend[susptSCREENSCRIPTS])
 		{
-			ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr.script, 0);  
-			tmpscr.screen_waitdraw = 0;		
+			for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
+				if (screen->script != 0 && screen->screen_waitdraw && screen->preloadscript )
+				{
+					ZScriptVersion::RunScript(SCRIPT_SCREEN, screen->script, screen_index);  
+					screen->screen_waitdraw = 0;		
+				}
+			});
 		}
 	}
 	else
@@ -37333,9 +37359,14 @@ void FFScript::runWarpScripts(bool waitdraw)
 		{
 			ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script,currdmap);
 		}
-		if ( (!( FFCore.system_suspend[susptSCREENSCRIPTS] )) && tmpscr.script != 0 && tmpscr.preloadscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if (FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && !FFCore.system_suspend[susptSCREENSCRIPTS])
 		{
-			ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr.script, 0);
+			for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
+				if (screen->script != 0 && screen->preloadscript)
+				{
+					ZScriptVersion::RunScript(SCRIPT_SCREEN, screen->script, screen_index);
+				}
+			});
 		}
 	}
 }
