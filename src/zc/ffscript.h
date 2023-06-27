@@ -1280,13 +1280,7 @@ void initZScriptItemScripts();
 
 //Combo Scripts
 void init_combo_doscript();
-void clear_combo_refinfo();
-void clear_combo_stacks();
-void clear_combo_refinfo(int32_t pos);
-void clear_combo_stack(int32_t q);
-void clear_combo_initialised();
-void reset_combo_script(int32_t lyr, int32_t pos);
-void ClearComboScripts();
+void reset_combo_script(int32_t layer, rpos_t rpos);
 int32_t getComboDataLayer(int32_t c, int32_t scripttype);
 int32_t getCombodataPos(int32_t c, int32_t scripttype);
 int32_t getCombodataY(int32_t c, int32_t scripttype);
@@ -4974,5 +4968,9 @@ bool command_is_wait(int command);
 bool command_uses_comparison_result(int command);
 bool command_could_return_not_ok(int command);
 const script_command& get_script_command(int command);
+
+int32_t get_combopos_ref(rpos_t rpos, int32_t layer);
+rpos_t combopos_ref_to_rpos(int32_t combopos_ref);
+int32_t combopos_ref_to_layer(int32_t combopos_ref);
 
 #endif

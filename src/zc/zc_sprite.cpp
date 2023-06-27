@@ -256,8 +256,7 @@ void movingblock::push(zfix bx,zfix by,int32_t d2,int32_t f)
     //   cs = ((*di)&0x700)>>8;
     *di = m->undercombo;
     *ci = m->undercset;
-	// TODO z3
-	FFCore.reset_combo_script(blockLayer, combopos);
+	FFCore.reset_combo_script(blockLayer, rpos);
     putcombo(scrollbuf,x-viewport.x,y-viewport.y,*di,*ci);
     clk=32;
     blockmoving=true;
@@ -294,7 +293,8 @@ void movingblock::push_new(zfix bx,zfix by,int d2,int f,zfix spd)
 			endy = y;
 	}
     oldflag=f;
-	size_t combopos = size_t((int32_t(y)&0xF0)+(int32_t(x)>>4));
+	rpos_t rpos = COMBOPOS_REGION(x.getInt(), y.getInt());
+	int32_t combopos = RPOS_TO_POS(rpos);
 	mapscr *m = FFCore.tempScreens[blockLayer];
     word *di = &(m->data[combopos]);
     byte *ci = &(m->cset[combopos]);
@@ -306,7 +306,7 @@ void movingblock::push_new(zfix bx,zfix by,int d2,int f,zfix spd)
     //   cs = ((*di)&0x700)>>8;
     *di = m->undercombo;
     *ci = m->undercset;
-	FFCore.reset_combo_script(blockLayer, combopos);
+	FFCore.reset_combo_script(blockLayer, rpos);
     putcombo(scrollbuf,x,y,*di,*ci);
     clk=32;
     blockmoving=true;
@@ -634,7 +634,7 @@ bool movingblock::animate(int32_t)
 			{
 				m->data[combopos]=bcombo;
 				m->cset[combopos]=oldcset;
-				FFCore.reset_combo_script(blockLayer, combopos);
+				FFCore.reset_combo_script(blockLayer, rpos_handle.rpos);
 				
 				if((f1==mfBLOCKTRIGGER)||f2==mfBLOCKTRIGGER)
 				{
@@ -869,8 +869,7 @@ bool movingblock::animate(int32_t)
 			{
 				rpos_handle.set_data(bcombo);
 				rpos_handle.set_cset(oldcset);
-				// TODO z3 !! script
-				FFCore.reset_combo_script(blockLayer, rpos_handle.pos());
+				FFCore.reset_combo_script(rpos_handle.layer, rpos_handle.rpos);
 			}
 			if(!fallclk && !drownclk)
 			{

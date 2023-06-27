@@ -91,7 +91,7 @@ user_paldata script_paldatas[MAX_USER_PALDATAS];
 FONT *get_zc_font(int index);
 
 int32_t combopos_modified = -1;
-static word combo_id_cache[7*176] = {0};
+static std::vector<word> combo_id_cache;
 
 const char scripttypenames[15][40]=
 {
@@ -641,14 +641,16 @@ refInfo lweaponScriptData[256]; //should this be lweapon and eweapon, separate s
 refInfo eweaponScriptData[256]; //should this be lweapon and eweapon, separate stacks?
 refInfo itemactiveScriptData[256];
 
-//char runningItemScripts[256] = {0};
-
 //Combo Scripts
-refInfo comboScriptData[176*7];
-word combo_doscript[176*7] = {0};
-byte combo_waitdraw[176] = {0}; //one bit per layer
-byte combo_initialised[176*7] = {0}; //one bit per layer
-int32_t combo_stack[176*7][MAX_SCRIPT_REGISTERS];
+// TODO z3 !! upstream
+struct ComboScriptEngineData {
+	refInfo ref;
+	bool doscript = true;
+	bool waitdraw;
+	bool initialised;
+	int32_t stack[MAX_SCRIPT_REGISTERS];
+};
+static std::map<int32_t, ComboScriptEngineData> comboScriptDatas;
 
 //The stacks
 //This is where we need to change the formula. These stacks need to be variable in some manner
@@ -11469,7 +11471,8 @@ int32_t get_register(const int32_t arg)
 			//ri->comboposref = i; //used for X(), Y(), Layer(), and so forth.
 			if ( curScriptType == SCRIPT_COMBO )
 			{
-				ret = (( COMBOX(((ri->comboposref)%176)) ) * 10000); //comboscriptstack[i]
+				rpos_t rpos = combopos_ref_to_rpos(ri->comboposref);
+				ret = (( COMBOX_REGION((rpos)) ) * 10000); //comboscriptstack[i]
 				//this may be wrong...may need a special new var for this, storing the exact combopos
 				//i is the current script number
 			}
@@ -11485,7 +11488,8 @@ int32_t get_register(const int32_t arg)
 		{
 			if ( curScriptType == SCRIPT_COMBO )
 			{
-				ret = (( COMBOY(((ri->comboposref)%176)) ) * 10000); //comboscriptstack[i]
+				rpos_t rpos = combopos_ref_to_rpos(ri->comboposref);
+				ret = (( COMBOY_REGION((rpos)) ) * 10000); //comboscriptstack[i]
 			}
 			else
 			{
@@ -11498,7 +11502,7 @@ int32_t get_register(const int32_t arg)
 		{
 			if ( curScriptType == SCRIPT_COMBO )
 			{
-				ret = (( ((ri->comboposref)%176) ) * 10000); //comboscriptstack[i]
+				ret = (( (int)combopos_ref_to_rpos(ri->comboposref) ) * 10000); //comboscriptstack[i]
 			}
 			else
 			{
@@ -11511,11 +11515,12 @@ int32_t get_register(const int32_t arg)
 		{
 			if ( curScriptType == SCRIPT_COMBO )
 			{
-				ret = (( ((ri->comboposref)/176) ) * 10000); //comboscriptstack[i]
+				int32_t layer = combopos_ref_to_layer(ri->comboposref);
+				ret = layer * 10000; //comboscriptstack[i]
 			}
 			else
 			{
-				Z_scripterrlog("combodata->Pos() can only be called by combodata scripts, but you tried to use it from script type %s, script token %s\n", scripttypenames[curScriptType], comboscriptmap[ri->combosref].scriptname.c_str() );
+				Z_scripterrlog("combodata->Layer() can only be called by combodata scripts, but you tried to use it from script type %s, script token %s\n", scripttypenames[curScriptType], comboscriptmap[ri->combosref].scriptname.c_str() );
 				ret = -10000;
 			}
 			break;
@@ -18951,14 +18956,13 @@ void set_register(int32_t arg, int32_t value)
 	//Game->SetComboX
 		case COMBODDM:
 		{
+			// TODO z3 !!!
 			int32_t pos = (ri->d[rINDEX])/10000;
 			int32_t sc = (ri->d[rEXP1]/10000);
 			int32_t m = (ri->d[rINDEX2]/10000)-1;
 			int32_t scr = zc_max(m*MAPSCRS+sc,0);
 			int32_t layr = whichlayer(scr);
-			
-			//if(!(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)) break;
-	    
+
 			if(pos < 0 || pos >= 176) 
 			{
 				Z_scripterrlog("Invalid combo position (%d) passed to SetComboData", pos);
@@ -18993,10 +18997,8 @@ void set_register(int32_t arg, int32_t value)
 				tmpscr.data[pos] = combo;
 				screen_combo_modify_postroutine({&tmpscr, initial_region_scr, 0, (rpos_t)pos});
 				//Start the script for the new combo
-				FFCore.clear_combo_stack(pos);
-				comboScriptData[pos].Clear();
-				combo_doscript[pos] = 1;
-				combo_initialised[pos] &= ~1;
+				int32_t combopos_ref = get_combopos_ref((rpos_t)pos, 0);
+				comboScriptDatas[combopos_ref] = ComboScriptEngineData();
 				//Not ure if combodata arrays clean themselves up, or leak. -Z
 				//Not sure if this could result in stack corruption. 
 			}
@@ -19005,11 +19007,8 @@ void set_register(int32_t arg, int32_t value)
 			{
 				
 				tmpscr2[layr].data[pos]=combo;
-				FFCore.clear_combo_stack(pos + (176 * (layr + 1)));
-				comboScriptData[pos + (176 * (layr + 1))].Clear();
-				combo_doscript[pos + (176*(layr+1))] = 1;
-				combo_initialised[pos] &= ~(1<<layr);
-
+				int32_t combopos_ref = get_combopos_ref((rpos_t)pos, layr + 1);
+				comboScriptDatas[combopos_ref] = ComboScriptEngineData();
 			}
 		}
 		break;
@@ -30293,20 +30292,22 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 		
 		case SCRIPT_COMBO:
 		{
-			ri = &(comboScriptData[i]);
+			auto& data = comboScriptDatas[i];
+			ri = &(data.ref);
 
 			curscript = comboscripts[script];
-			stack = &(combo_stack[i]);
-			int32_t pos = ((i%176));
-			int32_t lyr = i/176;
-			int32_t id = FFCore.tempScreens[lyr]->data[pos];
-			if(!(combo_initialised[pos] & (1<<lyr)))
+			stack = &(data.stack);
+			
+			rpos_t rpos = combopos_ref_to_rpos(i);
+			int32_t lyr = combopos_ref_to_layer(i);
+			int32_t id = get_rpos_handle(rpos, lyr).data();
+			if (!data.initialised)
 			{
 				got_initialized = true;
 				memset(ri->d, 0, 8 * sizeof(int32_t));
 				for ( int32_t q = 0; q < 2; q++ )
 					ri->d[q] = combobuf[id].initd[q];
-				combo_initialised[pos] |= 1<<lyr;
+				data.initialised = true;
 			}
 
 			ri->combosref = id; //'this' pointer
@@ -34628,17 +34629,7 @@ j_command:
 			
 			case SCRIPT_COMBO: 
 			{
-				int32_t l = 0; //get the layer
-				for (int32_t q = 176; q < 1232; q+= 176 )
-				{
-					if ( i < q )
-					{
-						break;
-					}
-					++l;
-				}
-				int32_t pos = ((i%176));
-				combo_waitdraw[pos] |= (1<<l);
+				comboScriptDatas[i].waitdraw = true;
 				break;
 			}
 			
@@ -34756,10 +34747,8 @@ j_command:
 			
 			case SCRIPT_COMBO:
 			{
-				int32_t pos = i%176;
-				int32_t lyr = i/176;
-				combo_doscript[pos+(176*lyr)] = 0;
-				combo_initialised[pos] &= ~(1<<lyr);
+				comboScriptDatas[i].doscript = false;
+				comboScriptDatas[i].initialised = false;
 				break;
 			}
 		}
@@ -47229,49 +47218,18 @@ void FFScript::do_loadnpc_by_script_uid(const bool v)
 
 void FFScript::init_combo_doscript()
 {
-	memset(combo_id_cache, -1, sizeof(combo_id_cache));
-	clear_combo_refinfo();
-	clear_combo_initialised();
-	memset(combo_doscript, 1, sizeof(combo_doscript));
-}
-void FFScript::clear_combo_refinfo()
-{
-	for ( int32_t q = 0; q < 1232; q++ )
-		comboScriptData[q].Clear();
+	combo_id_cache.clear();
+	combo_id_cache.resize(region_num_rpos * 7);
+	std::fill(combo_id_cache.begin(), combo_id_cache.end(), -1);
+	comboScriptDatas.clear();
 }
 
-void FFScript::clear_combo_refinfo(int32_t pos)
+void FFScript::reset_combo_script(int32_t layer, rpos_t rpos)
 {
-	comboScriptData[pos].Clear();
-}
-
-void FFScript::clear_combo_stacks()
-{
-	for ( int32_t q = 0; q < 1232; q++ )
-		memset(combo_stack[q], 0, sizeof(combo_stack[q]));
-}
-void FFScript::clear_combo_stack(int32_t q)
-{
-	memset(combo_stack[q], 0, sizeof(combo_stack[q]));
-}
-
-void FFScript::clear_combo_initialised()
-{
-	memset(combo_initialised, 0, sizeof(combo_initialised));
-}
-
-void FFScript::reset_combo_script(int32_t lyr, int32_t pos)
-{
-	if(lyr < 0) return;
-	uint32_t ind = pos+(176*lyr);
-	if(ind >= 176*7) return;
-	combo_id_cache[ind] = -1;
-	combopos_modified = ind;
-	combo_doscript[ind] = 1;
-	combo_initialised[pos] &= ~(1<<lyr);
-	FFCore.clear_combo_stack(ind);
-	comboScriptData[ind].Clear();
-	combo_waitdraw[pos] &= ~(1<<lyr);
+	int32_t combopos_ref = get_combopos_ref(rpos, layer);
+	combo_id_cache[combopos_ref] = -1;
+	combopos_modified = combopos_ref;
+	comboScriptDatas[combopos_ref] = ComboScriptEngineData();
 }
 
 int32_t FFScript::getComboDataLayer(int32_t c, int32_t scripttype)
@@ -47334,62 +47292,41 @@ int32_t FFScript::getCombodataY(int32_t c, int32_t scripttype)
 	}
 }
 
-//Clear stacks and refinfo in LOADSCR
-void FFScript::ClearComboScripts()
-{
-	for ( int32_t c = 0; c < 176; c++ )
-	{
-		combo_doscript[c] = 0;
-		combo_waitdraw[c] = 0;
-		combo_initialised[c] = 0;
-		for ( int32_t l = 0; l < 7; l++)
-		{
-			if ( get_bit(quest_rules, qr_COMBOSCRIPTS_LAYER_0+l) )
-			{
-				comboScriptData[c+(176*l)].Clear();
-				for ( int32_t r = 0; r < MAX_SCRIPT_REGISTERS; ++r )
-				{
-					combo_stack[c+(176*l)][r] = 0; //clear the stacks
-				}
-			}
-		}
-	}
-}
-
 int32_t FFScript::combo_script_engine(const bool preload, const bool waitdraw)
 {
-	///non-scripted effects
-	for ( int32_t q = 0; q < 7; ++q )
+	bool enabled[7];
+	for (int32_t q = 0; q < 7; ++q)
 	{
-		if (!get_bit(quest_rules, qr_COMBOSCRIPTS_LAYER_0+q))
-			continue;
-		for ( int32_t c = 0; c < 176; ++c )
+		enabled[q] = get_bit(quest_rules, qr_COMBOSCRIPTS_LAYER_0 + q);
+	}
+
+	///non-scripted effects
+	for_every_rpos_in_region([&](const rpos_handle_t& rpos_handle) {
+		if (!enabled[rpos_handle.layer])
+			return;
+
+		int32_t combopos_ref = get_combopos_ref(rpos_handle.rpos, rpos_handle.layer);
+		word cid = rpos_handle.data();
+		if(combo_id_cache[combopos_ref] < 0)
+			combo_id_cache[combopos_ref] = cid;
+		else if(combo_id_cache[combopos_ref] != cid)
 		{
-			// int32_t ls = (q ? tmpscr.layerscreen[q-1] : 0);
-			// int32_t lm = (q ? tmpscr.layermap[q-1] : 0);
-			// if(q && !lm) continue; //No layer for this screen
-			int32_t idval = c+(176*q);
-			mapscr* m = FFCore.tempScreens[q]; //get templayer mapscr for any layer (including 0)
-			word cid = m->data[c];
-			if(combo_id_cache[idval] < 0)
-				combo_id_cache[idval] = cid;
-			else if(combo_id_cache[idval] != cid)
+			reset_combo_script(rpos_handle.layer, rpos_handle.rpos);
+			combo_id_cache[combopos_ref] = cid;
+		}
+		
+		if ( combobuf[cid].script )
+		{
+			if (comboScriptDatas[combopos_ref].doscript)
 			{
-				reset_combo_script(q,c);
-				combo_id_cache[idval] = cid;
-			}
-			
-			if ( combobuf[cid].script )
-			{
-				if ( (combo_doscript[idval]) )
-				{
-					if(waitdraw && !(combo_waitdraw[c] & (1<<q))) continue; //waitdraw not set
-					ZScriptVersion::RunScript(SCRIPT_COMBO, combobuf[cid].script, idval);
-					if(waitdraw) combo_waitdraw[c] &= ~(1<<q);
-				}
+				if (waitdraw && !comboScriptDatas[combopos_ref].waitdraw) return; //waitdraw not set
+
+				ZScriptVersion::RunScript(SCRIPT_COMBO, combobuf[cid].script, combopos_ref);
+				if (waitdraw) comboScriptDatas[combopos_ref].waitdraw = true;
 			}
 		}
-	}
+	});
+
 	return 1;
 }
 
@@ -49130,4 +49067,19 @@ bool command_could_return_not_ok(int command)
 const script_command& get_script_command(int command)
 {
 	return ZASMcommands[command];
+}
+
+int32_t get_combopos_ref(rpos_t rpos, int32_t layer)
+{
+	return layer * region_num_rpos + (int)rpos;
+}
+
+rpos_t combopos_ref_to_rpos(int32_t combopos_ref)
+{
+	return (rpos_t)(combopos_ref % region_num_rpos);
+}
+
+int32_t combopos_ref_to_layer(int32_t combopos_ref)
+{
+	return combopos_ref / region_num_rpos;
 }

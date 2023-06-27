@@ -3078,7 +3078,6 @@ void update_freeform_combos()
 				});
 			}
 
-			// TODO z3 ! upstream this off-by-one fix
 			ffcdata* linked_ffc = thisffc.link ? get_ffc(thisffc.link - 1).ffc : nullptr;
 			if (linked_ffc ? !linked_ffc->delay : !thisffc.delay)
 			{
@@ -7315,6 +7314,7 @@ void ViewMap()
 					if(XOR(tmpscr.flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer_old(scrollbuf_old, 0, 3, &tmpscr, 256, -playing_field_offset, 2);
 					
 					putscr(scrollbuf_old,256,0,&tmpscr);
+					// TODO z3 !!!!! python3 tests/run_replay_tests.py --filter tests/replays/first_quest_layered.zplay --frame 300
 					do_layer_old(scrollbuf_old, 0, 1, &tmpscr, 256, -playing_field_offset, 2);
 					
 					if(!XOR((tmpscr.flags7&fLAYER2BG), DMaps[currdmap].flags&dmfLAYER2BG)) do_layer_old(scrollbuf_old, 0, 2, &tmpscr, 256, -playing_field_offset, 2);
