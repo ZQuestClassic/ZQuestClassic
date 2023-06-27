@@ -22122,8 +22122,19 @@ bool scriptloadenemies()
 	
 	for(; i<loadcnt && tmpscr->enemy[i]>0; i++)
 	{
+		int32_t preguycount = guys.Count(); //I'm not experienced enough to know if this is an awful hack but it feels like one.
 		spawnEnemy(pos, clk, x, y, fastguys, i, guycnt, loadcnt);
-		
+		if (guys.Count() > preguycount)
+		{
+			if (!get_bit(quest_rules, qr_ENEMIES_DONT_SCRIPT_FIRST_FRAME))
+			{
+				if (!FFCore.system_suspend[susptNPCSCRIPTS])
+				{
+					guys.spr(guys.Count()-1)->run_script(MODE_NORMAL);
+					((enemy*)guys.spr(guys.Count()-1))->didScriptThisFrame = true;
+				}
+			}
+		}
 		--clk;
 	}
 	return true;
