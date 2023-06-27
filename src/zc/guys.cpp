@@ -2422,6 +2422,7 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 	
 	stickclk = 0;
 	submerged = false;
+	didScriptThisFrame = false;
 	ffcactivated = 0;
 	hitdir = -1;
 	dialogue_str = 0; //set by spawn flags. 
@@ -3301,9 +3302,12 @@ bool enemy::animate(int32_t index)
 		if(get_bit(quest_rules, qr_SWITCHOBJ_RUN_SCRIPT))
 		{
 			//Run its script
-			if (runscript_do_earlyret(run_script(MODE_NORMAL)))
+			if (!didScriptThisFrame)
 			{
-				return 0; //Avoid NULLPO if this object deleted itself
+				if (runscript_do_earlyret(run_script(MODE_NORMAL)))
+				{
+					return 0; //Avoid NULLPO if this object deleted itself
+				}
 			}
 		}
 		return false;
@@ -3326,7 +3330,10 @@ bool enemy::animate(int32_t index)
 			Hero.fallclk = fallclk;
 			hashero = false; //Let Hero go if falling
 		}
-		run_script(MODE_NORMAL);
+		if (!didScriptThisFrame)
+		{
+			run_script(MODE_NORMAL);
+		}
 		return false;
 	}
 	if(do_drowning(index)) return true;
@@ -3346,7 +3353,10 @@ bool enemy::animate(int32_t index)
 			Hero.drownclk = drownclk;
 			hashero = false; //Let Hero go if falling
 		}
-		run_script(MODE_NORMAL);
+		if (!didScriptThisFrame)
+		{
+			run_script(MODE_NORMAL);
+		}
 		return false;
 	}
 	int32_t nx = real_x(x);
@@ -3523,9 +3533,12 @@ bool enemy::animate(int32_t index)
 	++c_clk;
 	
 	//Run its script
-	if (runscript_do_earlyret(run_script(MODE_NORMAL)))
+	if (!didScriptThisFrame)
 	{
-		return 0; //Avoid NULLPO if this object deleted itself
+		if (runscript_do_earlyret(run_script(MODE_NORMAL)))
+		{
+			return 0; //Avoid NULLPO if this object deleted itself
+		}
 	}
 	
 	// returns true when enemy is defeated
@@ -6186,6 +6199,7 @@ bool enemy::dont_draw()
 // sprite::draw()
 void enemy::draw(BITMAP *dest)
 {
+	didScriptThisFrame = false; //Since there's no better place to put it
 	if(fading==fade_invisible || (((flags2&guy_blinking)||(fading==fade_flicker)) && (clk&1))) 
 		return;
 	if(flags&guy_invisible)
@@ -21806,6 +21820,14 @@ void side_load_enemies()
 				{
 					guys.spr(enemy_slot)->dir = dir;
 				}
+				if (!get_bit(quest_rules, qr_ENEMIES_DONT_SCRIPT_FIRST_FRAME))
+				{
+					if (!FFCore.system_suspend[susptNPCSCRIPTS])
+					{
+						guys.spr(enemy_slot)->run_script(MODE_NORMAL);
+						((enemy*)guys.spr(enemy_slot))->didScriptThisFrame = true;
+					}
+				}
 			}
 		}
 	}
@@ -22149,14 +22171,40 @@ void loadenemies()
 			{
 				if ( tmpscr->enemy[i] )
 				{
+					int32_t preguycount = guys.Count();
 					addenemy(dngn_enemy_x[i],96,tmpscr->enemy[i],-14-i);
+					if (guys.Count() > preguycount)
+					{
+						if (!get_bit(quest_rules, qr_ENEMIES_DONT_SCRIPT_FIRST_FRAME))
+						{
+							if (!FFCore.system_suspend[susptNPCSCRIPTS])
+							{
+								guys.spr(guys.Count()-1)->run_script(MODE_NORMAL);
+								((enemy*)guys.spr(guys.Count()-1))->didScriptThisFrame = true;
+							}
+						}
+					}
 				}
 			}
 		}
 		else
 		{
 			for(int32_t i=0; i<4; i++)
+			{
+				int32_t preguycount = guys.Count();
 				addenemy(dngn_enemy_x[i],96,tmpscr->enemy[i]?tmpscr->enemy[i]:(int32_t)eKEESE1,-14-i);
+				if (guys.Count() > preguycount)
+				{
+					if (!get_bit(quest_rules, qr_ENEMIES_DONT_SCRIPT_FIRST_FRAME))
+					{
+						if (!FFCore.system_suspend[susptNPCSCRIPTS])
+						{
+							guys.spr(guys.Count()-1)->run_script(MODE_NORMAL);
+							((enemy*)guys.spr(guys.Count()-1))->didScriptThisFrame = true;
+						}
+					}
+				}
+			}
 		}
 		return;
 	}
@@ -22216,7 +22264,19 @@ void loadenemies()
 	
 	for(; i<loadcnt && tmpscr->enemy[i]>0; i++)
 	{
+		int32_t preguycount = guys.Count(); //I'm not experienced enough to know if this is an awful hack but it feels like one.
 		spawnEnemy(pos, clk, x, y, fastguys, i, guycnt, loadcnt);
+		if (guys.Count() > preguycount)
+		{
+			if (!get_bit(quest_rules, qr_ENEMIES_DONT_SCRIPT_FIRST_FRAME))
+			{
+				if (!FFCore.system_suspend[susptNPCSCRIPTS])
+				{
+					guys.spr(guys.Count()-1)->run_script(MODE_NORMAL);
+					((enemy*)guys.spr(guys.Count()-1))->didScriptThisFrame = true;
+				}
+			}
+		}
 		
 		--clk; //Each additional enemy spawns with a slightly longer spawn poof than the previous.
 	}

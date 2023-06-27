@@ -133,6 +133,8 @@ public:
 	
 	int8_t deathexstate;
 	
+	bool didScriptThisFrame; //Hack for enemies which are spawned by shit like scripted load enemies so they don't run their script a second time in a frame.
+	
 	int32_t getScriptUID();
 	void setScriptUID(int32_t new_id);
 	//void explode(int32_t type);
