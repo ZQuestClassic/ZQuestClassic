@@ -20972,16 +20972,16 @@ void set_register(int32_t arg, int32_t value)
 				Z_scripterrlog("Invalid Array Index passed to shopdata->%s: %d\n", indx, "Price"); 
 				break;
 			} 
-			else 
+			else
 			{ 
 				if ( isInfo ) 
 				{ 
-					QMisc.shop[ref].price[indx] = (byte)(vbound((value/10000), 0, 214747));
+					QMisc.info[ref].price[indx] = (word)(vbound((value/10000), 0, 65535));
 					break;
 				} 
 				else 
 				{ 
-					QMisc.shop[ref].price[indx] = (byte)(vbound((value/10000), 0, 214747));
+					QMisc.shop[ref].price[indx] = (word)(vbound((value/10000), 0, 65535));
 					break;
 				} 
 			} 
