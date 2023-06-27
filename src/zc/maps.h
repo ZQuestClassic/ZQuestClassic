@@ -164,7 +164,6 @@ int32_t FFORCOMBOTYPE_L(int32_t layer, int32_t x, int32_t y);
 int32_t MAPCOMBO2(int32_t layer,int32_t x,int32_t y);
 int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, int32_t x, int32_t y, bool secrets = false);
 int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, rpos_t rpos, bool secrets = false);
-int32_t MAPCOMBO3(mapscr *m, int32_t map, int32_t screen, int32_t layer, int32_t pos, bool secrets = false);
 int32_t MAPCSET2(int32_t layer,int32_t x,int32_t y);
 int32_t MAPFLAG2(int32_t layer,int32_t x,int32_t y);
 int32_t MAPCOMBOFLAG2(int32_t layer,int32_t x,int32_t y);

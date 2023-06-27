@@ -1069,36 +1069,9 @@ int32_t MAPCOMBO2(int32_t layer, int32_t x, int32_t y)
 	return rpos_handle.data();
 }
 
-// MAPCOMBO3 will read from the current temporary screens or, if (map, screen) is not loaded,
-// will load that screen and apply the relevant secrets before evaluating the combo at that position.
-int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, int32_t x, int32_t y, bool secrets)
+static int32_t MAPCOMBO3_impl(int32_t map, int32_t screen, int32_t layer, int32_t pos, bool secrets)
 {
-	DCHECK_LAYER_NEG1_INDEX(layer);
-	DCHECK(map >= 0 && screen >= 0);
-
-	if (map == currmap && is_in_current_region(screen)) return MAPCOMBO2(layer, x, y);
-
-	// Screen is not in temporary memory, so we have to load and trigger some secrets in MAPCOMBO3.
-	mapscr *m = &TheMaps[(map*MAPSCRS)+screen];
-	rpos_t rpos = COMBOPOS_REGION(x, y);
-	return MAPCOMBO3(m, map, screen, layer, RPOS_TO_POS(rpos), secrets);
-}
-
-int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, rpos_t rpos, bool secrets)
-{ 
-	DCHECK_LAYER_NEG1_INDEX(layer);
-	DCHECK(map >= 0 && screen >= 0);
-	DCHECK(is_valid_rpos(rpos));
-	
-	if (map == currmap && is_in_current_region(screen)) return MAPCOMBO(get_rpos_handle(rpos, layer + 1));
-	
-	// Screen is not in temporary memory, so we have to load and trigger some secrets in MAPCOMBO3.
-	mapscr *m = &TheMaps[(map*MAPSCRS)+screen];
-	return MAPCOMBO3(m, map, screen, layer, RPOS_TO_POS(rpos), secrets);
-}
-
-int32_t MAPCOMBO3(mapscr *m, int32_t map, int32_t screen, int32_t layer, int32_t pos, bool secrets)
-{
+	const mapscr *m = &TheMaps[(map*MAPSCRS)+screen];
 	if(!m->valid) return 0;
 	
 	int32_t mi = (map*MAPSCRSNORMAL)+screen;
@@ -1167,6 +1140,32 @@ int32_t MAPCOMBO3(mapscr *m, int32_t map, int32_t screen, int32_t layer, int32_t
 	clear_xstatecombos_mi(&scr, screen, mi);
 	
 	return scr.data[pos];
+}
+
+// MAPCOMBO3 will read from the current temporary screens or, if (map, screen) is not loaded,
+// will load that screen and apply the relevant secrets before evaluating the combo at that position.
+int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, int32_t x, int32_t y, bool secrets)
+{
+	DCHECK_LAYER_NEG1_INDEX(layer);
+	DCHECK(map >= 0 && screen >= 0);
+
+	if (map == currmap && is_in_current_region(screen)) return MAPCOMBO2(layer, x, y);
+
+	// Screen is not in temporary memory, so we have to load and trigger some secrets.
+	rpos_t rpos = COMBOPOS_REGION(x, y);
+	return MAPCOMBO3_impl(map, screen, layer, RPOS_TO_POS(rpos), secrets);
+}
+
+int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, rpos_t rpos, bool secrets)
+{ 
+	DCHECK_LAYER_NEG1_INDEX(layer);
+	DCHECK(map >= 0 && screen >= 0);
+	DCHECK(is_valid_rpos(rpos));
+	
+	if (map == currmap && is_in_current_region(screen)) return MAPCOMBO(get_rpos_handle(rpos, layer + 1));
+	
+	// Screen is not in temporary memory, so we have to load and trigger some secrets.
+	return MAPCOMBO3_impl(map, screen, layer, RPOS_TO_POS(rpos), secrets);
 }
 
 int32_t MAPCSET2(int32_t layer,int32_t x,int32_t y)
