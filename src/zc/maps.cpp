@@ -2843,7 +2843,7 @@ void update_freeform_combos()
 				}
 			}
 			
-			if(thisffc.link ? !tmpscr->ffcs[thisffc.link].delay : !thisffc.delay)
+			if(thisffc.link ? !tmpscr->ffcs[thisffc.link - 1].delay : !thisffc.delay)
 			{
 				if(thisffc.link&&(thisffc.link-1)!=i)
 				{
