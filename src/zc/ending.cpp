@@ -28,7 +28,6 @@
 extern FFScript FFCore;
 extern ZModule zcm; //modules
 extern zcmodule moduledata;
-extern word player_doscript;
 
 extern HeroClass   Hero;
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
@@ -213,12 +212,6 @@ void ending()
 	kill_sfx();
 	
 	Quit=0;
-	//do
-	//{
-		
-	//	ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_WIN, SCRIPT_PLAYER_WIN);
-	//	FFCore.Waitframe();
-	//}while(player_doscript);
 	
 	draw_screen_clip_rect_x1=0;
 	draw_screen_clip_rect_x2=255;
@@ -228,7 +221,7 @@ void ending()
 	for(int32_t f=0; f<365; f++)
 	{
 	script_drawing_commands.Clear();
-	if ( player_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255  ) 
+	if ( FFCore.doscript(SCRIPT_PLAYER) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255  ) 
 	{
 		ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_WIN, SCRIPT_PLAYER_WIN);
 		--f; load_control_state(); goto adv;
@@ -311,8 +304,6 @@ void ending()
 	
 	for(int32_t f=408; f<927; f++)
 	{
-		//Z_scripterrlog("f = %d and player_doscript = %d\n", f, player_doscript);
-		//if ( player_doscript ) ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_WIN, SCRIPT_PLAYER_WIN);
 		/*
 		  668  HERO out, ZELDA out
 		  669  HERO in (TRIFORCE overhead), ZELDA in (TRIFORCE overhead)

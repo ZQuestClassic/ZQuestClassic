@@ -16973,8 +16973,6 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 					tempffc.inita[1] = 10000;
 				}
 				
-				tempffc.initialized = false;
-				
 				if(version <= 11)
 				{
 					fixffcs=true;
@@ -16992,13 +16990,6 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 			temp_mapscr->flags7 |= (fWHISTLEPAL | fWHISTLEWATER);
 		}
 	}
-	
-	// for(int32_t m=0; m<32; m++)
-	// {
-		// // ffcScriptData used to be part of mapscr, and this was handled just above
-		// ffcScriptData[m].a[0] = 10000;
-		// ffcScriptData[m].a[1] = 10000;
-	// }
 	
 	//2.55 starts here
 	if ( version >= 19 && Header->zelda_version > 0x253 )
@@ -17501,8 +17492,6 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zc
 			if(!p_getc(&(tempbyte),f,true))
 				return qe_invalid;
 			tempffc.inita[1]=tempbyte*10000;
-			
-			tempffc.initialized = false;
 		}
 		for(word m = numffc; m < MAXFFCS; ++m)
 		{
@@ -17577,13 +17566,6 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header, bool keepdata)
 		
 		for(int32_t i(0); i<_mapsSize; i++)
 			TheMaps[i].zero_memory();
-		
-		// Used to be done for each screen
-		for(int32_t i=0; i<MAXFFCS; i++)
-		{
-			ffcScriptData[i].a[0] = 10000;
-			ffcScriptData[i].a[1] = 10000;
-		}
 		
 		memset(ZCMaps, 0, sizeof(zcmap)*MAXMAPS2);
 	}

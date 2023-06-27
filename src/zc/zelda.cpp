@@ -80,9 +80,6 @@ extern byte itemscriptInitialised[256];
 extern char runningItemScripts[256];
 extern char modulepath[2048];
 
-
-extern byte dmapscriptInitialised;
-
 extern char zc_builddate[80];
 extern char zc_aboutstr[80];
 
@@ -490,19 +487,6 @@ script_data *dmapscripts[NUMSCRIPTSDMAP];
 script_data *itemspritescripts[NUMSCRIPTSITEMSPRITE];
 script_data *comboscripts[NUMSCRIPTSCOMBODATA];
 
-extern refInfo globalScriptData[NUMSCRIPTGLOBAL];
-extern refInfo playerScriptData;
-extern refInfo screenScriptData;
-extern refInfo dmapScriptData;
-extern word g_doscript;
-extern word player_doscript;
-extern word dmap_doscript;
-extern word passive_subscreen_doscript;
-extern word global_wait;
-extern bool player_waitdraw;
-extern bool dmap_waitdraw;
-extern bool passive_subscreen_waitdraw;
-
 ScriptOwner::ScriptOwner() : scriptType(SCRIPT_NONE), ownerUID(0),
 	specOwned(false), specCleared(false)
 {}
@@ -576,21 +560,15 @@ void initZScriptArrayRAM(bool firstplay)
 
 void initZScriptGlobalRAM()
 {
-	g_doscript = 0xFFFF; //Set all scripts active
-	global_wait = 0; //Clear waitdraws
-	for(int32_t q = 0; q < NUMSCRIPTGLOBAL; ++q)
+	for (int32_t q = 0; q < NUMSCRIPTGLOBAL; ++q)
 	{
-		globalScriptData[q].Clear();
-		clear_global_stack(q);
+		FFCore.reset_script_engine_data(SCRIPT_GLOBAL, q);
 	}
 }
 
 void initZScriptGlobalScript(int32_t ID)
 {
-	g_doscript |= (1<<ID);
-	global_wait &= ~(1<<ID);
-	globalScriptData[ID].Clear();
-	clear_global_stack(ID);
+	FFCore.reset_script_engine_data(SCRIPT_GLOBAL, ID);
 }
 
 dword getNumGlobalArrays()
@@ -2046,8 +2024,8 @@ int32_t init_game()
 	
 	tmpscr[0].zero_memory();
 	tmpscr[1].zero_memory();
-	//clear initialise dmap script 
-	dmapscriptInitialised = 0;
+	//clear initialise dmap script
+	FFCore.reset_script_engine_data(SCRIPT_DMAP);
 	//Script-related nonsense
 	script_drawing_commands.Clear();
 	
@@ -2062,9 +2040,6 @@ int32_t init_game()
 	FFCore.initZScriptDMapScripts();
 	FFCore.initZScriptActiveSubscreenScript();
 	FFCore.initZScriptItemScripts();
-	
-	
-	global_wait=0;
 	
 	//show quest metadata when loading it
 	print_quest_metadata(QHeader, qstpath, byte(game->get_quest()-1));
@@ -2340,12 +2315,12 @@ int32_t init_game()
 		if(firstplay)
 		{
 			memset(game->screen_d, 0, MAXDMAPS * 64 * 8 * sizeof(int32_t));
-			ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT);
+			ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT, GLOBAL_SCRIPT_INIT);
 			if(!get_bit(quest_rules, qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS) ) FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_INIT); //Deallocate LOCAL arrays declared in the init script. This function does NOT deallocate global arrays.
 		}
 		else
 		{
-			ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONSAVELOAD); //Do this after global arrays have been loaded
+			ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONSAVELOAD, GLOBAL_SCRIPT_ONSAVELOAD); //Do this after global arrays have been loaded
 			if(!get_bit(quest_rules, qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS) ) FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONSAVELOAD);
 		}	
 	}
@@ -3387,22 +3362,22 @@ void game_loop()
 		
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_FFCS);
 		// Arbitrary Rule 637: neither 'freeze' nor 'freezeff' freeze the global script.
-		if(!FFCore.system_suspend[susptGLOBALGAME] && !freezemsg && (g_doscript & (1<<GLOBAL_SCRIPT_GAME)))
+		if (!FFCore.system_suspend[susptGLOBALGAME] && !freezemsg && FFCore.doscript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME))
 		{
 			ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_GLOBAL_ACTIVE);
-		if(!FFCore.system_suspend[susptHEROACTIVE] && !freezemsg && player_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
+		if(!FFCore.system_suspend[susptHEROACTIVE] && !freezemsg && FFCore.doscript(SCRIPT_PLAYER) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
 		{
-			ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_ACTIVE, SCRIPT_PLAYER_ACTIVE);
+			ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_ACTIVE);
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_PLAYER_ACTIVE);
-		if(!FFCore.system_suspend[susptDMAPSCRIPT] && !freezemsg && dmap_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
+		if(!FFCore.system_suspend[susptDMAPSCRIPT] && !freezemsg && FFCore.doscript(SCRIPT_DMAP) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
 		{
 			ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_ACTIVE);
-		if(!FFCore.system_suspend[susptDMAPSCRIPT] && !freezemsg && passive_subscreen_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
+		if(!FFCore.system_suspend[susptDMAPSCRIPT] && !freezemsg && FFCore.doscript(SCRIPT_PASSIVESUBSCREEN) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
 		{
 			ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script,currdmap);
 		}
@@ -3562,52 +3537,50 @@ void game_loop()
 			}
 			FFCore.runGenericPassiveEngine(SCR_TIMING_POST_NPC_ANIMATE);
 		}
-		#if LOGGAMELOOP > 0
-		al_trace("game_loop at: %s\n", "if(global_wait)\n");
-		#endif
+
 		FFCore.runGenericPassiveEngine(SCR_TIMING_WAITDRAW);
-		if( !FFCore.system_suspend[susptGLOBALGAME] && (global_wait & (1<<GLOBAL_SCRIPT_GAME)) )
+		if (!FFCore.system_suspend[susptGLOBALGAME] && FFCore.waitdraw(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME))
 		{
 			ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
-			global_wait &= ~(1<<GLOBAL_SCRIPT_GAME);
+			FFCore.waitdraw(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME) = false;
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_GLOBAL_WAITDRAW);
-		if ( !FFCore.system_suspend[susptHEROACTIVE] && player_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if ( !FFCore.system_suspend[susptHEROACTIVE] && FFCore.waitdraw(SCRIPT_PLAYER) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
-			ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_ACTIVE, SCRIPT_PLAYER_ACTIVE);
-			player_waitdraw = false;
+			ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_ACTIVE);
+			FFCore.waitdraw(SCRIPT_PLAYER) = false;
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_PLAYER_WAITDRAW);
-		if ( !FFCore.system_suspend[susptDMAPSCRIPT] && dmap_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if ( !FFCore.system_suspend[susptDMAPSCRIPT] && FFCore.waitdraw(SCRIPT_DMAP) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
 			ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
-			dmap_waitdraw = false;
+			FFCore.waitdraw(SCRIPT_DMAP) = false;
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_ACTIVE_WAITDRAW);
-		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && passive_subscreen_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(SCRIPT_PASSIVESUBSCREEN) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
 			ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script,currdmap);
-			passive_subscreen_waitdraw = false;
+			FFCore.waitdraw(SCRIPT_PASSIVESUBSCREEN) = false;
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_PASSIVESUBSCREEN_WAITDRAW);
 		
 		
-		if ( !FFCore.system_suspend[susptSCREENSCRIPTS] && tmpscr->script != 0 && tmpscr->doscript && tmpscr->screen_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if ( !FFCore.system_suspend[susptSCREENSCRIPTS] && tmpscr->script != 0 && FFCore.doscript(SCRIPT_SCREEN) && FFCore.waitdraw(SCRIPT_SCREEN) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
-			ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script, 0);  
-			tmpscr->screen_waitdraw = 0;	    
+			ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script);  
+			FFCore.waitdraw(SCRIPT_SCREEN) = 0;	    
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_SCREEN_WAITDRAW);
 		
 		c = tmpscr->numFFC();
 		for ( word q = 0; q < c; ++q )
 		{
-			if (tmpscr->ffcs[q].waitdraw)
+			if (FFCore.waitdraw(SCRIPT_FFC, q))
 			{
 				if(tmpscr->ffcs[q].script != 0 && !FFCore.system_suspend[susptFFCSCRIPTS] )
 				{
 					ZScriptVersion::RunScript(SCRIPT_FFC, tmpscr->ffcs[q].script, q);
-					tmpscr->ffcs[q].waitdraw = false;
+					FFCore.waitdraw(SCRIPT_FFC, q) = false;
 				}
 			}
 		}
@@ -5544,7 +5517,7 @@ reload_for_replay_file:
 				show_subscreen_life=true;
 		
 				initZScriptGlobalRAM();
-				ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_END);
+				ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_END, GLOBAL_SCRIPT_END);
 				ending_scripted();
 			}
 			break;

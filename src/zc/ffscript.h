@@ -1257,7 +1257,6 @@ byte temp_no_stepforward;
 byte subscreen_scroll_speed;
 
 void set_sarg1(int32_t v);
-void clear_screen_stack();
 void setSubscreenScrollSpeed(byte n);
 int32_t getSubscreenScrollSpeed();
 void do_fx_zap(const bool v);
@@ -1278,13 +1277,16 @@ void initZScriptActiveSubscreenScript();
 void initZScriptHeroScripts();
 void initZScriptItemScripts();
 
+void clear_script_engine_data();
+void reset_script_engine_data(int type, int index = 0);
+refInfo& ref(int type, int index);
+bool& doscript(int type, int index = 0);
+bool& waitdraw(int type, int index = 0);
+
 //Combo Scripts
 void init_combo_doscript();
 void clear_combo_refinfo();
-void clear_combo_stacks();
 void clear_combo_refinfo(int32_t pos);
-void clear_combo_stack(int32_t q);
-void clear_combo_initialised();
 void reset_combo_script(int32_t lyr, int32_t pos);
 void ClearComboScripts();
 int32_t getComboDataLayer(int32_t c, int32_t scripttype);
@@ -1651,8 +1653,6 @@ static void deallocateZScriptArray(const int32_t ptrval);
 static int32_t get_screen_d(int32_t index1, int32_t index2);
 static void set_screen_d(int32_t index1, int32_t index2, int32_t val);
 static int32_t whichlayer(int32_t scr);
-static void clear_ffc_stack(const byte i);
-static void clear_global_stack(const byte i);
 
 static void do_zapout();
 static void do_zapin();
@@ -2033,9 +2033,6 @@ enum __Error
 };
 
 extern int32_t ffmisc[MAXFFCS][16];
-extern refInfo ffcScriptData[MAXFFCS];
-extern refInfo screenScriptData;
-extern word g_doscript;
 extern PALETTE tempgreypal; //script greyscale
 extern PALETTE userPALETTE[256];
 extern PALETTE tempblackpal;
@@ -2044,12 +2041,6 @@ int32_t get_register(const int32_t arg);
 int32_t run_script(const byte type, const word script, const int32_t i = -1); //Global scripts don't need 'i'
 int32_t ffscript_engine(const bool preload);
 
-void clear_ffc_stack(const byte i);
-void clear_global_stack(const byte i);
-void clear_player_stack();
-void clear_dmap_stack();
-void clear_active_subscreen_stack();
-void clear_passive_subscreen_stack();
 void deallocateArray(const int32_t ptrval);
 void clearScriptHelperData();
 

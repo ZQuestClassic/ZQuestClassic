@@ -31,7 +31,6 @@
 #include "user_object.h"
 #include "slopes.h"
 extern FFScript FFCore;
-extern word combo_doscript[176];
 extern byte itemscriptInitialised[256];
 extern HeroClass Hero;
 extern ZModule zcm;
@@ -48,7 +47,6 @@ extern int32_t item_stack[256][MAX_SCRIPT_REGISTERS];
 extern int32_t item_collect_stack[256][MAX_SCRIPT_REGISTERS];
 extern refInfo *ri; //= NULL;
 extern int32_t(*stack)[MAX_SCRIPT_REGISTERS];
-extern byte dmapscriptInitialised;
 extern word item_doscript[256];
 extern word item_collect_doscript[256];
 extern portal mirror_portal;
@@ -60,11 +58,6 @@ extern int32_t draw_screen_clip_rect_x1;
 extern int32_t draw_screen_clip_rect_x2;
 extern int32_t draw_screen_clip_rect_y1;
 extern int32_t draw_screen_clip_rect_y2;
-extern word global_wait;
-extern bool player_waitdraw;
-extern bool dmap_waitdraw;
-extern bool passive_subscreen_waitdraw;
-extern bool active_subscreen_waitdraw;
 
 int32_t hero_count = -1;
 int32_t hero_animation_speed = 1; //lower is faster animation
@@ -83,10 +76,6 @@ int32_t directItemX = -1;
 int32_t directItemY = -1;
 int32_t directWpn = -1;
 int32_t whistleitem=-1;
-extern word g_doscript;
-extern word player_doscript;
-extern word dmap_doscript;
-extern word passive_subscreen_doscript;
 extern int32_t script_hero_cset;
 
 void playLevelMusic();
@@ -7451,10 +7440,11 @@ static void do_refill_waitframe()
 		script_drawing_commands.Clear();
 		if(DMaps[currdmap].passive_sub_script != 0)
 			ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script, currdmap);
-		if(passive_subscreen_waitdraw && DMaps[currdmap].passive_sub_script != 0 && passive_subscreen_doscript != 0)
+		
+		if (FFCore.waitdraw(SCRIPT_PASSIVESUBSCREEN) && DMaps[currdmap].passive_sub_script != 0 && FFCore.doscript(SCRIPT_PASSIVESUBSCREEN))
 		{
 			ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script, currdmap);
-			passive_subscreen_waitdraw = false;
+			FFCore.waitdraw(SCRIPT_PASSIVESUBSCREEN) = false;
 		}	
 		do_script_draws(framebuf, tmpscr, 0, playing_field_offset);
 	}
@@ -26860,34 +26850,34 @@ void HeroClass::run_scrolling_script_int(bool waitdraw)
 {
 	if(waitdraw)
 	{
-		if((!( FFCore.system_suspend[susptGLOBALGAME] )) && (global_wait & (1<<GLOBAL_SCRIPT_GAME)))
+		if ((!( FFCore.system_suspend[susptGLOBALGAME] )) && FFCore.waitdraw(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME))
 		{
 			ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
-			global_wait&= ~(1<<GLOBAL_SCRIPT_GAME);
+			FFCore.waitdraw(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME) = false;
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_GLOBAL_WAITDRAW);
-		if ( (!( FFCore.system_suspend[susptHEROACTIVE] )) && player_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if ( (!( FFCore.system_suspend[susptHEROACTIVE] )) && FFCore.waitdraw(SCRIPT_PLAYER) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
-			ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_ACTIVE, SCRIPT_PLAYER_ACTIVE);
-			player_waitdraw = false;
+			ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_ACTIVE);
+			FFCore.waitdraw(SCRIPT_PLAYER) = false;
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_PLAYER_WAITDRAW);
-		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && dmap_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(SCRIPT_DMAP) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
 			ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
-			dmap_waitdraw = false;
+			FFCore.waitdraw(SCRIPT_DMAP) = false;
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_ACTIVE_WAITDRAW);
-		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && passive_subscreen_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(SCRIPT_PASSIVESUBSCREEN) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
 			ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script,currdmap);
-			passive_subscreen_waitdraw = false;
+			FFCore.waitdraw(SCRIPT_PASSIVESUBSCREEN) = false;
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_PASSIVESUBSCREEN_WAITDRAW);
-		if ( (!( FFCore.system_suspend[susptSCREENSCRIPTS] )) && tmpscr->script != 0 && tmpscr->screen_waitdraw && tmpscr->preloadscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if ( (!( FFCore.system_suspend[susptSCREENSCRIPTS] )) && tmpscr->script != 0 && FFCore.waitdraw(SCRIPT_SCREEN) && tmpscr->preloadscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
-			ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script, 0);  
-			tmpscr->screen_waitdraw = 0;		
+			ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script);  
+			FFCore.waitdraw(SCRIPT_SCREEN) = 0;		
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_SCREEN_WAITDRAW);
 		if ( !FFCore.system_suspend[susptITEMSCRIPTENGINE] )
@@ -26900,25 +26890,25 @@ void HeroClass::run_scrolling_script_int(bool waitdraw)
 	{
 		if ( (!( FFCore.system_suspend[susptSCREENSCRIPTS] )) && tmpscr->script != 0 && tmpscr->preloadscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
-			ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script, 0);
+			ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script);
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_FFCS);
-		if((!( FFCore.system_suspend[susptGLOBALGAME] )) && (g_doscript & (1<<GLOBAL_SCRIPT_GAME)))
+		if ((!( FFCore.system_suspend[susptGLOBALGAME] )) && FFCore.doscript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME))
 		{
 			ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_GLOBAL_ACTIVE);
-		if ((!( FFCore.system_suspend[susptHEROACTIVE] )) && player_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
+		if ((!( FFCore.system_suspend[susptHEROACTIVE] )) && FFCore.doscript(SCRIPT_PLAYER) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
 		{
-			ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_ACTIVE, SCRIPT_PLAYER_ACTIVE);
+			ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_ACTIVE);
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_PLAYER_ACTIVE);
-		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && dmap_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
+		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.doscript(SCRIPT_DMAP) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
 		{
 			ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_ACTIVE);
-		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && passive_subscreen_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
+		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.doscript(SCRIPT_PASSIVESUBSCREEN) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
 		{
 			ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script,currdmap);
 		}
@@ -27226,46 +27216,46 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	lstep = (lstep + 6) % 12;
 	cx = scx;
 	FFCore.runGenericPassiveEngine(SCR_TIMING_WAITDRAW);
-	if((!( FFCore.system_suspend[susptGLOBALGAME] )) && (global_wait & (1<<GLOBAL_SCRIPT_GAME)))
+	if((!( FFCore.system_suspend[susptGLOBALGAME] )) && FFCore.waitdraw(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME))
 	{
 		ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
-		global_wait &= ~(1<<GLOBAL_SCRIPT_GAME);
+		FFCore.waitdraw(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME) = false;
 	}
 	FFCore.runGenericPassiveEngine(SCR_TIMING_POST_GLOBAL_WAITDRAW);
-	if ( (!( FFCore.system_suspend[susptHEROACTIVE] )) && player_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+	if ( (!( FFCore.system_suspend[susptHEROACTIVE] )) && FFCore.waitdraw(SCRIPT_PLAYER) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 	{
-		ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_ACTIVE, SCRIPT_PLAYER_ACTIVE);
-		player_waitdraw = false;
+		ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_ACTIVE);
+		FFCore.waitdraw(SCRIPT_PLAYER) = false;
 	}
 	FFCore.runGenericPassiveEngine(SCR_TIMING_POST_PLAYER_WAITDRAW);
-	if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && dmap_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+	if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(SCRIPT_DMAP) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 	{
 		ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
-		dmap_waitdraw = false;
+		FFCore.waitdraw(SCRIPT_DMAP) = false;
 	}
 	FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_ACTIVE_WAITDRAW);
-	if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && passive_subscreen_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+	if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(SCRIPT_PASSIVESUBSCREEN) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 	{
 		ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script,currdmap);
-		passive_subscreen_waitdraw = false;
+		FFCore.waitdraw(SCRIPT_PASSIVESUBSCREEN) = false;
 	}
 	FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_PASSIVESUBSCREEN_WAITDRAW);
-	if ( (!( FFCore.system_suspend[susptSCREENSCRIPTS] )) && tmpscr->script != 0 && tmpscr->screen_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+	if ( (!( FFCore.system_suspend[susptSCREENSCRIPTS] )) && tmpscr->script != 0 && FFCore.waitdraw(SCRIPT_SCREEN) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 	{
-		ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script, 0);  
-		tmpscr->screen_waitdraw = 0;		
+		ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script);  
+		FFCore.waitdraw(SCRIPT_SCREEN) = 0;		
 	}
 	FFCore.runGenericPassiveEngine(SCR_TIMING_POST_SCREEN_WAITDRAW);
 	
 	word c = tmpscr->numFFC();
 	for ( word q = 0; q < c; ++q )
 	{
-		if ( tmpscr->ffcs[q].waitdraw )
+		if (FFCore.waitdraw(SCRIPT_FFC, q))
 		{
 			if(tmpscr->ffcs[q].script != 0)
 			{
 				ZScriptVersion::RunScript(SCRIPT_FFC, tmpscr->ffcs[q].script, q);
-				tmpscr->ffcs[q].waitdraw = false;
+				FFCore.waitdraw(SCRIPT_FFC, q) = false;
 			}
 		}
 	}
@@ -30644,16 +30634,6 @@ void HeroClass::heroDeathAnimation()
 	
 	kill_sfx();  //call before the onDeath script.
 	
-	//do
-	//{
-		
-	//	ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_DEATH, SCRIPT_PLAYER_DEATH);
-	//	FFCore.Waitframe();
-	//}while(player_doscript);
-	//ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_DEATH, SCRIPT_PLAYER_DEATH);
-	//while(player_doscript) { advanceframe(true); } //Not safe. The script runs for only one frame at present.
-	
-	//Playing=false;
 	if(!debug_enabled)
 	{
 		Paused=false;
@@ -30731,10 +30711,10 @@ void HeroClass::heroDeathAnimation()
 					script_drawing_commands.Clear(); //We only want draws from this script
 					if(DMaps[currdmap].passive_sub_script != 0)
 						ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script, currdmap);
-					if(passive_subscreen_waitdraw && DMaps[currdmap].passive_sub_script != 0 && passive_subscreen_doscript != 0)
+					if (FFCore.waitdraw(SCRIPT_PASSIVESUBSCREEN) && DMaps[currdmap].passive_sub_script != 0 && FFCore.doscript(SCRIPT_PASSIVESUBSCREEN))
 					{
 						ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script, currdmap);
-						passive_subscreen_waitdraw = false;
+						FFCore.waitdraw(SCRIPT_PASSIVESUBSCREEN) = false;
 					}
 					BITMAP* tmp = framebuf;
 					framebuf = subscrbmp; //Hack; force draws to subscrbmp
@@ -31023,7 +31003,6 @@ void HeroClass::heroDeathAnimation()
 		//adv:
 		advanceframe(true);
 		++f;
-		//if (!player_doscript ) ++f;
 	}
 	while(f<353 && !Quit);
     

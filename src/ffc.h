@@ -30,7 +30,7 @@ public:
 	word script;
 	int32_t initd[INITIAL_D];
 	int32_t inita[INITIAL_A];
-	bool initialized, hooked;
+	bool hooked;
 	cpos_info info;
 	
 	ffcdata() = default;
@@ -51,7 +51,6 @@ public:
 	
 	//Overload to do damage to Hero on pushing them
 	virtual void doContactDamage(int32_t hdir) override;
-	bool waitdraw;
 private:
 	word data;
 	bool loaded;

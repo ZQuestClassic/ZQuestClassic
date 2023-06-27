@@ -75,8 +75,6 @@ extern zcmodule moduledata;
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
 extern particle_list particles;
 extern int32_t loadlast;
-extern word passive_subscreen_doscript;
-extern bool passive_subscreen_waitdraw;
 extern char *sfx_string[WAV_COUNT];
 byte use_dwm_flush;
 byte use_save_indicator;

@@ -32,8 +32,6 @@ using std::set;
 #include "zc/combos.h"
 #include "zc/replay.h"
 #include "slopes.h"
-extern word combo_doscript[176];
-extern refInfo screenScriptData;
 extern FFScript FFCore;
 #include "particles.h"
 #include <fmt/format.h>
@@ -4968,8 +4966,7 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 	memcpy(tmpscr[tmp].cset, TheMaps[currmap*MAPSCRS+scr].cset, sizeof(tmpscr[tmp].cset));
 	
 	//screen / screendata script
-	FFCore.clear_screen_stack();
-	screenScriptData.Clear();
+	FFCore.reset_script_engine_data(SCRIPT_SCREEN);
 	FFCore.deallocateAllArrays(SCRIPT_SCREEN, 0);
 	FFCore.deallocateAllArrays(SCRIPT_COMBO, 0);
 	//reset combo script doscripts
@@ -4978,22 +4975,15 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 	if ( TheMaps[currmap*MAPSCRS+scr].script > 0 )
 	{
 		tmpscr[tmp].script = TheMaps[currmap*MAPSCRS+scr].script;
-		al_trace("The screen script id is: %d \n", TheMaps[currmap*MAPSCRS+scr].script);
-		//if ( !tmpscr[tmp].screendatascriptInitialised )
-		//{
-			for ( int32_t q = 0; q < 8; q++ )
-			{
+		for ( int32_t q = 0; q < 8; q++ )
+		{
 			tmpscr[tmp].screeninitd[q] = TheMaps[currmap*MAPSCRS+scr].screeninitd[q];
-			}
-		//}
-		tmpscr[tmp].screendatascriptInitialised = 0;
-		tmpscr[tmp].doscript = 1;
+		}
 	}
 	else
 	{
 		tmpscr[tmp].script = 0;
-		tmpscr[tmp].screendatascriptInitialised = 0;
-		tmpscr[tmp].doscript = 0;
+		FFCore.doscript(SCRIPT_SCREEN) = false;
 	}
 	
 	if(overlay)
@@ -5039,29 +5029,19 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 			{
 				tmpscr[tmp].ffcs[i] = ffscr.ffcs[i];
 				
-				if(!(ffscr.ffcs[i].flags&ffSCRIPTRESET))
+				if (ffscr.ffcs[i].flags&ffSCRIPTRESET)
 				{
-					tmpscr[tmp].ffcs[i].initialized = ffscr.ffcs[i].initialized;
-				}
-				else
-				{
-					tmpscr[tmp].ffcs[i].initialized = false;
-					
-					ffcScriptData[i].pc = 0;
-					ffcScriptData[i].sp = 0;
-					ffcScriptData[i].ffcref = 0;
+					FFCore.reset_script_engine_data(SCRIPT_FFC, i);
 				}
 			}
 			else
 			{
 				FFCore.deallocateAllArrays(SCRIPT_FFC, i, false);
 				memset(ffmisc[i], 0, 16 * sizeof(int32_t));
-				ffcScriptData[i].Clear();
-				clear_ffc_stack(i);
+				FFCore.reset_script_engine_data(SCRIPT_FFC, i);
 			}
 		}
 	}
-	
 	
 	if(tmp==0)
 	{

@@ -591,32 +591,355 @@ std::vector<refInfo*> genericActiveData;
 std::vector<int32_t(*)[MAX_SCRIPT_REGISTERS]> generic_active_stack;
 bool gen_active_doscript = false, gen_active_initialized = false;
 
+struct ScriptEngineData {
+	refInfo ref;
+	int32_t stack[MAX_SCRIPT_REGISTERS];
+	bool doscript = true;
+	bool waitdraw;
+	bool initialized;
+
+	void reset()
+	{
+		// No need to zero the stack.
+		ref = refInfo();
+		doscript = true;
+		waitdraw = false;
+		initialized = false;
+	}
+};
+
+// (type, index) => ScriptEngineData
+static std::map<std::pair<byte, word>, ScriptEngineData> scriptEngineDatas;
+
+static ScriptEngineData& get_script_engine_data(int type, int index)
+{
+	if (type == SCRIPT_DMAP || type == SCRIPT_ONMAP || type == SCRIPT_PASSIVESUBSCREEN || type == SCRIPT_ACTIVESUBSCREEN)
+	{
+		// `index` is used for dmapref, not for different script engine data.
+		index = 0;
+	}
+
+	return scriptEngineDatas[{type, index}];
+}
+
+static ScriptEngineData& get_script_engine_data(int type)
+{
+	return scriptEngineDatas[{type, 0}];
+}
+
+void FFScript::clear_script_engine_data()
+{
+	scriptEngineDatas.clear();
+}
+
+void FFScript::reset_script_engine_data(int type, int index)
+{
+	get_script_engine_data(type, index).reset();
+}
+
+refInfo& FFScript::ref(int type, int index)
+{
+	return get_script_engine_data(type, index).ref;
+}
+
+bool& FFScript::doscript(int type, int index)
+{
+	return get_script_engine_data(type, index).doscript;
+}
+
+bool& FFScript::waitdraw(int type, int index)
+{
+	return get_script_engine_data(type, index).waitdraw;
+}
+
+// Returns true if registers had to be initialized.
+static bool set_current_script_engine_data(int type, int script, int index)
+{
+	bool got_initialized = false;
+
+	auto& data = get_script_engine_data(type, index);
+	ri = &data.ref;
+	stack = &data.stack;
+
+	switch (type)
+	{
+		case SCRIPT_FFC:
+		{
+			curscript = ffscripts[script];
+
+			if (!data.initialized)
+			{
+				got_initialized = true;
+				memcpy(ri->d, tmpscr->ffcs[index].initd, 8 * sizeof(int32_t));
+				memcpy(ri->a, tmpscr->ffcs[index].inita, 2 * sizeof(int32_t));
+				data.initialized = true;
+			}
+
+			ri->ffcref = index;
+		}
+		break;
+
+		// case SCRIPT_NPC:
+		// {
+		// 	int32_t npc_index = GuyH::getNPCIndex(i);
+		// 	enemy *w = (enemy*)guys.spr(npc_index);
+		// 	ri = &(w->scrmem->scriptData);
+		// 	curscript = guyscripts[w->script];
+		// 	stack = &(w->scrmem->stack);
+		// 	ri->guyref = i;
+			
+		// 	if (!w->initialised)
+		// 	{
+		// 		got_initialized = true;
+		// 		for ( int32_t q = 0; q < 8; q++ ) 
+		// 		{
+		// 			ri->d[q] = w->initD[q];
+		// 		}
+		// 		w->initialised = 1;
+		// 	}
+		// }
+		// break;
+		
+		// case SCRIPT_LWPN:
+		// {
+		// 	int32_t lwpn_index = LwpnH::getLWeaponIndex(i);
+		// 	weapon *w = (weapon*)Lwpns.spr(lwpn_index);
+		// 	ri = &(w->scrmem->scriptData);
+		// 	curscript = lwpnscripts[w->weaponscript];
+		// 	stack = &(w->scrmem->stack);
+		// 	ri->lwpn = i;
+			
+		// 	if (!w->initialised)
+		// 	{
+		// 		got_initialized = true;
+		// 		for ( int32_t q = 0; q < 8; q++ ) 
+		// 		{
+		// 			ri->d[q] = w->weap_initd[q]; //w->initiald[q];
+		// 		}
+		// 		w->initialised = 1;
+		// 	}
+		// }
+		// break;
+		
+		// case SCRIPT_EWPN:
+		// {
+		// 	int32_t ewpn_index = EwpnH::getEWeaponIndex(i);
+		// 	weapon *w = (weapon*)Ewpns.spr(ewpn_index);
+		// 	ri = &(w->scrmem->scriptData);
+		// 	curscript = ewpnscripts[w->weaponscript];
+		// 	stack = &(w->scrmem->stack);
+		// 	ri->ewpn = i;
+			
+		// 	if (!w->initialised)
+		// 	{
+		// 		got_initialized = true;
+		// 		for ( int32_t q = 0; q < 8; q++ ) 
+		// 		{
+		// 			ri->d[q] = w->weap_initd[q];
+		// 		}
+		// 		w->initialised = 1;
+		// 	}
+		// }
+		// break;
+		
+		// case SCRIPT_ITEMSPRITE:
+		// {
+		// 	int32_t the_index = ItemH::getItemIndex(i);
+		// 	item *w = (item*)items.spr(the_index);
+		// 	ri = &(w->scrmem->scriptData);
+		// 	curscript = itemspritescripts[w->script];
+		// 	stack = &(w->scrmem->stack);
+		// 	ri->itemref = i;
+			
+		// 	if (!w->initialised)
+		// 	{
+		// 		got_initialized = true;
+		// 		for ( int32_t q = 0; q < 8; q++ ) 
+		// 		{
+		// 			ri->d[q] = w->initD[q];
+		// 		}
+		// 		w->initialised = 1;
+		// 	}
+		// }
+		// break;
+		
+		// case SCRIPT_ITEM:
+		// {
+		// 	int32_t new_i = 0;
+		// 	bool collect = ( ( i < 1 ) || (i == COLLECT_SCRIPT_ITEM_ZERO) );
+		// 	new_i = ( collect ) ? (( i != COLLECT_SCRIPT_ITEM_ZERO ) ? (i * -1) : 0) : i;
+			
+		// 	ri = ( collect ) ? &(itemCollectScriptData[new_i]) : &(itemScriptData[i]);
+			
+		// 	curscript = itemscripts[script];
+		// 	stack = ( collect ) ?  &(item_collect_stack[new_i]) : &(item_stack[i]);
+			
+		// 	if ( !(itemscriptInitialised[new_i]) )
+		// 	{
+		// 		got_initialized = true;
+		// 		al_trace("itemscriptInitialised[new_i] is %d\n",itemscriptInitialised[new_i]);
+		// 		memcpy(ri->d, ( collect ) ? itemsbuf[new_i].initiald : itemsbuf[i].initiald, 8 * sizeof(int32_t));
+		// 		memcpy(ri->a, ( collect ) ? itemsbuf[new_i].initiala : itemsbuf[i].initiala, 2 * sizeof(int32_t));
+		// 		itemscriptInitialised[new_i] = 1;
+		// 	}			
+		// 	ri->idata = ( collect ) ? new_i : i; //'this' pointer
+			
+		// }
+		// break;
+		
+		case SCRIPT_GLOBAL:
+		{
+			curscript = globalscripts[script];
+		}
+		break;
+		
+		// case SCRIPT_GENERIC:
+		// {
+		// 	user_genscript& scr = user_scripts[script];
+		// 	stack = &scr.stack;
+		// 	ri = &scr.ri;
+		// 	ri->genericdataref = script;
+		// 	curscript = genericscripts[script];
+		// 	scr.waitevent = false;
+		// 	if(!scr.initialized)
+		// 	{
+		// 		got_initialized = true;
+		// 		scr.initialized = true;
+		// 		memcpy(ri->d, scr.initd, 8 * sizeof(int32_t));
+		// 	}
+		// }
+		// break;
+		
+		// case SCRIPT_GENERIC_FROZEN:
+		// {
+		// 	ri = genericActiveData.back();
+		// 	ri->genericdataref = script;
+		// 	curscript = genericscripts[script];
+		// 	stack = generic_active_stack.back();
+		// 	if(!gen_active_initialized)
+		// 	{
+		// 		got_initialized = true;
+		// 		gen_active_initialized = true;
+		// 		memcpy(ri->d, user_scripts[script].initd, 8 * sizeof(int32_t));
+		// 	}
+		// }
+		// break;
+		
+		case SCRIPT_PLAYER:
+		{
+			curscript = playerscripts[script];
+		}
+		break;
+		
+		case SCRIPT_DMAP:
+		{
+			curscript = dmapscripts[script];
+			ri->dmapsref = index;
+			//how do we clear initialised on dmap change?
+			if ( !data.initialized )
+			{
+				got_initialized = true;
+				for ( int32_t q = 0; q < 8; q++ ) 
+				{
+					ri->d[q] = DMaps[ri->dmapsref].initD[q];// * 10000;
+				}
+				data.initialized = true;
+			}
+		}
+		break;
+		
+		case SCRIPT_ONMAP:
+		{
+			curscript = dmapscripts[script];
+			ri->dmapsref = index;
+			if (!data.initialized)
+			{
+				got_initialized = true;
+				for ( int32_t q = 0; q < 8; q++ ) 
+				{
+					ri->d[q] = DMaps[ri->dmapsref].onmap_initD[q];
+				}
+				data.initialized = true;
+			}
+		}
+		break;
+		
+		case SCRIPT_ACTIVESUBSCREEN:
+		{
+			curscript = dmapscripts[script];
+			ri->dmapsref = index;
+			if (!data.initialized)
+			{
+				got_initialized = true;
+				for ( int32_t q = 0; q < 8; q++ ) 
+				{
+					ri->d[q] = DMaps[ri->dmapsref].sub_initD[q];
+				}
+				data.initialized = true;
+			}
+		}
+		break;
+		
+		case SCRIPT_PASSIVESUBSCREEN:
+		{
+			curscript = dmapscripts[script];
+			ri->dmapsref = index;
+			if (!data.initialized)
+			{
+				got_initialized = true;
+				for ( int32_t q = 0; q < 8; q++ ) 
+				{
+					ri->d[q] = DMaps[ri->dmapsref].sub_initD[q];
+				}
+				data.initialized = true;
+			}
+		}
+		break;
+		
+		case SCRIPT_SCREEN:
+		{
+			curscript = screenscripts[script];
+
+			if (!data.initialized)
+			{
+				got_initialized = true;
+				for ( int32_t q = 0; q < 8; q++ ) 
+				{
+					ri->d[q] = tmpscr->screeninitd[q];// * 10000;
+				}
+				data.initialized = true;
+			}
+		}
+		break;
+		
+		case SCRIPT_COMBO:
+		{
+			curscript = comboscripts[script];
+
+			int32_t pos = index%176;
+			int32_t lyr = index/176;
+			int32_t id = FFCore.tempScreens[lyr]->data[pos];
+			if (!data.initialized)
+			{
+				got_initialized = true;
+				memset(ri->d, 0, 8 * sizeof(int32_t));
+				for ( int32_t q = 0; q < 2; q++ )
+					ri->d[q] = combobuf[id].initd[q];
+				data.initialized = true;
+			}
+
+			ri->combosref = id; //'this' pointer
+			ri->comboposref = index; //used for X(), Y(), Layer(), and so forth.
+			break;
+		}
+	}
+
+	return got_initialized;
+}
+
 //Global script data
-refInfo globalScriptData[NUMSCRIPTGLOBAL];
-refInfo playerScriptData;
-refInfo screenScriptData;
-refInfo dmapScriptData;
-refInfo onmapScriptData;
-refInfo activeSubscreenScriptData;
-refInfo passiveSubscreenScriptData;
-word g_doscript = 0xFFFF;
-word player_doscript = 1;
-word dmap_doscript = 0; //Initialised at 0, intentionally. Zelda.cpp's game_loop() will set it to 1. 
-word onmap_doscript = 0;
-word active_subscreen_doscript = 0;
-word passive_subscreen_doscript = 0;
-word global_wait = 0;
-bool player_waitdraw = false;
-bool dmap_waitdraw = false;
-bool passive_subscreen_waitdraw = false;
-bool active_subscreen_waitdraw = false;
-bool onmap_waitdraw = false;
 word item_doscript[256] = {0};
 word item_collect_doscript[256] = {0};
-byte dmapscriptInitialised = 0;
-byte onmapInitialised = 0;
-byte activeSubscreenInitialised = 0;
-byte passiveSubscreenInitialised = 0;
 //Sprite script data
 refInfo itemScriptData[256];
 refInfo itemCollectScriptData[256];
@@ -628,29 +951,11 @@ refInfo itemactiveScriptData[256];
 
 //char runningItemScripts[256] = {0};
 
-//Combo Scripts
-refInfo comboScriptData[176*7];
-word combo_doscript[176*7] = {0};
-byte combo_waitdraw[176] = {0}; //one bit per layer
-byte combo_initialised[176*7] = {0}; //one bit per layer
-int32_t combo_stack[176*7][MAX_SCRIPT_REGISTERS];
-
 //The stacks
-//This is where we need to change the formula. These stacks need to be variable in some manner
-//to permit adding additional scripts to them, without manually sizing them in advance. - Z
 
-int32_t ffc_stack[MAXFFCS][MAX_SCRIPT_REGISTERS];
-int32_t global_stack[NUMSCRIPTGLOBAL][MAX_SCRIPT_REGISTERS];
 int32_t item_stack[256][MAX_SCRIPT_REGISTERS];
 int32_t item_collect_stack[256][MAX_SCRIPT_REGISTERS];
 int32_t ffmisc[MAXFFCS][16];
-int32_t player_stack[MAX_SCRIPT_REGISTERS];
-int32_t dmap_stack[MAX_SCRIPT_REGISTERS];
-int32_t onmap_stack[MAX_SCRIPT_REGISTERS];
-int32_t active_subscreen_stack[MAX_SCRIPT_REGISTERS];
-int32_t passive_subscreen_stack[MAX_SCRIPT_REGISTERS];
-int32_t screen_stack[MAX_SCRIPT_REGISTERS];
-refInfo ffcScriptData[MAXFFCS];
 
 user_genscript user_scripts[NUMSCRIPTSGENERIC];
 int32_t genscript_timing = SCR_TIMING_START_FRAME;
@@ -788,87 +1093,25 @@ void FFScript::runGenericPassiveEngine(int32_t scrtm)
 	else ++genscript_timing;
 }
 
-void clear_ffc_stack(const byte i)
-{
-	memset(ffc_stack[i], 0, MAX_SCRIPT_REGISTERS * sizeof(int32_t));
-}
-
-
-void clear_global_stack(const byte i)
-{
-	memset(global_stack[i], 0, sizeof(global_stack[i]));
-}
-
-void FFScript::clear_screen_stack()
-{
-	memset(screen_stack, 0, sizeof(screen_stack));
-}
-
-void clear_player_stack()
-{
-	memset(player_stack, 0, MAX_SCRIPT_REGISTERS * sizeof(int32_t));
-}
-
-void clear_dmap_stack()
-{
-	memset(dmap_stack, 0, MAX_SCRIPT_REGISTERS * sizeof(int32_t));
-}
-
-void clear_onmap_stack()
-{
-	memset(onmap_stack, 0, MAX_SCRIPT_REGISTERS * sizeof(int32_t));
-}
-
-void clear_active_subscreen_stack()
-{
-	memset(active_subscreen_stack, 0, MAX_SCRIPT_REGISTERS * sizeof(int32_t));
-}
-
-void clear_passive_subscreen_stack()
-{
-	memset(passive_subscreen_stack, 0, MAX_SCRIPT_REGISTERS * sizeof(int32_t));
-}
-
-
 void FFScript::initZScriptDMapScripts()
 {
-	dmap_doscript = 1;
-	dmap_waitdraw = false;
-	dmapScriptData.Clear();
-	clear_dmap_stack();
-	dmapscriptInitialised = 0;
-	//
-	passive_subscreen_doscript = 1;
-	passive_subscreen_waitdraw = false;
-	passiveSubscreenScriptData.Clear();
-	clear_passive_subscreen_stack();
-	passiveSubscreenInitialised = 0;
+	scriptEngineDatas[{SCRIPT_DMAP, 0}] = ScriptEngineData();
+	scriptEngineDatas[{SCRIPT_PASSIVESUBSCREEN, 0}] = ScriptEngineData();
 }
 
 void FFScript::initZScriptActiveSubscreenScript()
 {
-	active_subscreen_doscript = 1;
-	activeSubscreenScriptData.Clear();
-	clear_active_subscreen_stack();
-	activeSubscreenInitialised = 0;
-	active_subscreen_waitdraw = false;
+	scriptEngineDatas[{SCRIPT_ACTIVESUBSCREEN, 0}] = ScriptEngineData();
 }
 
 void FFScript::initZScriptOnMapScript()
 {
-	onmap_doscript = 1;
-	onmapScriptData.Clear();
-	clear_onmap_stack();
-	onmapInitialised = 0;
-	onmap_waitdraw = false;
+	scriptEngineDatas[{SCRIPT_ONMAP, 0}] = ScriptEngineData();
 }
 
 void FFScript::initZScriptHeroScripts()
 {
-	player_doscript = 1;
-	player_waitdraw = false;
-	playerScriptData.Clear();
-	clear_player_stack();
+	scriptEngineDatas[{SCRIPT_PLAYER, 0}] = ScriptEngineData();
 }
 
 void clear_item_stack(int32_t i)
@@ -922,15 +1165,6 @@ static int get_mouse_state(int index)
 
 	return value;
 }
-
-/*
-void FFScript::initZScriptItemScripts()
-{
-	dmap_doscript = 1;
-	dmapScriptData.Clear();
-	clear_dmap_stack();
-}
-*/
 
 ///----------------------------------------------//
 //           New Mapscreen Flags Tools           //
@@ -8917,7 +9151,20 @@ int32_t get_register(const int32_t arg)
 			break;
 		}
 			//inita	//INT32, 32 OF THESE, EACH WITH 2
-		case SCREENDATAFFINITIALISED: 	GET_FFC_BOOL_INDEX(initialized, "FFCRunning", MAXFFCS-1); break;	//BOOL, MAXFFCS OF THESE
+		case SCREENDATAFFINITIALISED: 	{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if (indx < 0 || indx > MAXFFCS-1)
+			{
+				Z_scripterrlog("Invalid Index passed to Screen->%s[]: %d\n", indx, "FFCRunning");
+				ret = -10000;
+			}
+			else
+			{
+				ret = get_script_engine_data(SCRIPT_FFC, indx).initialized ? 10000 : 0;
+			}
+		}
+		break;
+
 		case SCREENDATASCRIPTENTRY: 	GET_SCREENDATA_VAR_INT32(script_entry, "ScriptEntry"); break;	//W
 		case SCREENDATASCRIPTOCCUPANCY: 	GET_SCREENDATA_VAR_INT32(script_occupancy,	"ScriptOccupancy");  break;//W
 		case SCREENDATASCRIPTEXIT: 	GET_SCREENDATA_VAR_INT32(script_exit, "ExitScript"); break;	//W
@@ -10161,7 +10408,30 @@ int32_t get_register(const int32_t arg)
 		}	
 
 			//inita	//INT32, 32 OF THESE, EACH WITH 2
-		case MAPDATAFFINITIALISED: 	GET_FFC_MAPDATA_BOOL_INDEX(initialized, "FFCRunning", MAXFFCS-1); break;	//BOOL, MAXFFCS OF THESE
+		
+		case MAPDATAFFINITIALISED:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if (indx < 0 || indx > MAXFFCS-1)
+			{
+				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", "FFCRunning", indx);
+				ret = -10000;
+			}
+			else
+			{
+				if (mapscr *m = GetMapscr(ri->mapsref))
+				{
+					ret = get_script_engine_data(SCRIPT_FFC, indx).initialized ? 10000 : 0;
+				}
+				else
+				{
+					Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n", "FFCRunning");
+					ret = -10000;
+				}
+			}
+		}
+		break;
+
 		case MAPDATASCRIPTENTRY: 	GET_MAPDATA_VAR_INT32(script_entry, "ScriptEntry"); break;	//W
 		case MAPDATASCRIPTOCCUPANCY: 	GET_MAPDATA_VAR_INT32(script_occupancy,	"ScriptOccupancy");  break;//W
 		case MAPDATASCRIPTEXIT: 	GET_MAPDATA_VAR_INT32(script_exit, "ExitScript"); break;	//W
@@ -13168,9 +13438,10 @@ void set_register(int32_t arg, int32_t value)
 				for(int32_t i=0; i<16; i++)
 					ffmisc[ri->ffcref][i] = 0;
 				
-				ffcScriptData[ri->ffcref].Clear();
+				auto& data = get_script_engine_data(SCRIPT_FFC, ri->ffcref);
+				data.ref.Clear();
+				data.initialized = false;
 				FFScript::deallocateAllArrays(SCRIPT_FFC, ri->ffcref);
-				tmpscr->ffcs[ri->ffcref].initialized = false;
 			}
 			break;
 			
@@ -18848,23 +19119,17 @@ void set_register(int32_t arg, int32_t value)
 				tmpscr->data[pos] = combo;
 				screen_combo_modify_postroutine(tmpscr,pos);
 				//Start the script for the new combo
-				FFCore.clear_combo_stack(pos);
-				comboScriptData[pos].Clear();
-				combo_doscript[pos] = 1;
-				combo_initialised[pos] &= ~1;
+				int index = pos;
+				FFCore.reset_script_engine_data(SCRIPT_COMBO, index);
 				//Not ure if combodata arrays clean themselves up, or leak. -Z
 				//Not sure if this could result in stack corruption. 
 			}
 			
 			if(layr>-1)
 			{
-				
 				tmpscr2[layr].data[pos]=combo;
-				FFCore.clear_combo_stack(pos + (176 * (layr + 1)));
-				comboScriptData[pos + (176 * (layr + 1))].Clear();
-				combo_doscript[pos + (176*(layr+1))] = 1;
-				combo_initialised[pos] &= ~(1<<layr);
-
+				int index = pos + 176 * (layr + 1);
+				FFCore.reset_script_engine_data(SCRIPT_COMBO, index);
 			}
 		}
 		break;
@@ -19312,8 +19577,18 @@ void set_register(int32_t arg, int32_t value)
 			break;
 		}
 
-			//inita	//INT32, 32 OF THESE, EACH WITH 2
-		case SCREENDATAFFINITIALISED: 	SET_FFC_BOOL_INDEX(initialized, "FFCRunning", MAXFFCS-1); break;	//BOOL, MAXFFCS OF THESE
+		case SCREENDATAFFINITIALISED:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if (indx < 0 || indx > MAXFFCS-1)
+			{
+				Z_scripterrlog("Invalid Index passed to Screen->%s[]: %d\n", (indx), "FFCRunning");
+				break;
+			}
+			get_script_engine_data(SCRIPT_FFC, indx).initialized = (value/10000) ? true : false;
+		}
+		break;
+
 		case SCREENDATASCRIPTENTRY: 	SET_SCREENDATA_VAR_INT32(script_entry, "ScriptEntry"); break;	//W
 		case SCREENDATASCRIPTOCCUPANCY: 	SET_SCREENDATA_VAR_INT32(script_occupancy,	"ScriptOccupancy");  break;//W
 		case SCREENDATASCRIPTEXIT: 	SET_SCREENDATA_VAR_INT32(script_exit, "ExitScript"); break;	//W
@@ -19662,7 +19937,7 @@ void set_register(int32_t arg, int32_t value)
 				for(int32_t q=0; q<8; q++)
 					tmpscr->screeninitd[q] = 0;
 			}
-			screenScriptData.Clear();
+			FFCore.ref(SCRIPT_SCREEN, 0).Clear();
 			tmpscr->script=vbound(value/10000, 0, NUMSCRIPTSCREEN-1);
 			break;
 		}
@@ -20294,7 +20569,7 @@ void set_register(int32_t arg, int32_t value)
 							tmpscr->screeninitd[q] = 0;
 					}
 					
-					screenScriptData.Clear();
+					FFCore.ref(SCRIPT_SCREEN, 0).Clear();
 				}
 				m->script=vbound(value/10000, 0, NUMSCRIPTSCREEN-1);
 			} 
@@ -20582,9 +20857,26 @@ void set_register(int32_t arg, int32_t value)
 				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","SetFFCInitA()");
 			}
 			break;
-		}	
-			
-		case MAPDATAFFINITIALISED: 	SET_FFC_MAPDATA_BOOL_INDEX(initialized, "FFCRunning", MAXFFCS-1); break;	//BOOL, MAXFFCS OF THESE
+		}
+
+		case MAPDATAFFINITIALISED:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(indx < 0 || indx > MAXFFCS-1)
+			{
+				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", "FFCRunning", indx);
+			}
+			else if (mapscr *m = GetMapscr(ri->mapsref))
+			{
+				get_script_engine_data(SCRIPT_FFC, indx).initialized = (value/10000) ? true : false;
+			}
+			else
+			{
+				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n", "FFCRunning");
+			}
+		}
+		break;
+
 		case MAPDATASCRIPTENTRY: 	SET_MAPDATA_VAR_INT32(script_entry, "ScriptEntry"); break;	//W
 		case MAPDATASCRIPTOCCUPANCY: 	SET_MAPDATA_VAR_INT32(script_occupancy,	"ScriptOccupancy");  break;//W
 		case MAPDATASCRIPTEXIT: 	SET_MAPDATA_VAR_INT32(script_exit, "ExitScript"); break;	//W
@@ -21227,12 +21519,12 @@ void set_register(int32_t arg, int32_t value)
 		{
 			FFScript::deallocateAllArrays(SCRIPT_PASSIVESUBSCREEN, ri->dmapsref);
 			word val = vbound((value / 10000),0,NUMSCRIPTSDMAP-1);
-			if(passive_subscreen_doscript && ri->dmapsref == currdmap && val == DMaps[ri->dmapsref].passive_sub_script)
+			if (FFCore.doscript(SCRIPT_PASSIVESUBSCREEN) && ri->dmapsref == currdmap && val == DMaps[ri->dmapsref].passive_sub_script)
 				break;
 			DMaps[ri->dmapsref].passive_sub_script = val;
 			if(ri->dmapsref == currdmap)
 			{
-				passive_subscreen_doscript = (val != 0) ? 1 : 0;
+				FFCore.doscript(SCRIPT_PASSIVESUBSCREEN) = val != 0;
 			};
 			break;
 		}
@@ -23774,11 +24066,11 @@ void do_loada(const byte a)
 	int32_t reg = get_register(sarg2); //Register in FFC 2
 	
 	if(reg >= D(0) && reg <= D(7))
-		set_register(sarg1, ffcScriptData[ffcref].d[reg - D(0)]); //get back the info into *sarg1
+		set_register(sarg1, FFCore.ref(SCRIPT_FFC, ffcref).d[reg - D(0)]); //get back the info into *sarg1
 	else if(reg == A(0) || reg == A(1))
-		set_register(sarg1, ffcScriptData[ffcref].a[reg - A(0)]);
+		set_register(sarg1, FFCore.ref(SCRIPT_FFC, ffcref).a[reg - A(0)]);
 	else if(reg == SP)
-		set_register(sarg1, ffcScriptData[ffcref].sp * 10000);
+		set_register(sarg1, FFCore.ref(SCRIPT_FFC, ffcref).sp * 10000);
 		
 	//Can get everything else using REFFFC
 }
@@ -23799,11 +24091,11 @@ void do_seta(const byte a)
 	int32_t reg = get_register(sarg2); //Register in FFC 2
 	
 	if(reg >= D(0) && reg <= D(7))
-		ffcScriptData[ffcref].d[reg - D(0)] = get_register(sarg1); //Set it to *sarg1
+		FFCore.ref(SCRIPT_FFC, ffcref).d[reg - D(0)] = get_register(sarg1); //Set it to *sarg1
 	else if(reg == A(0) || reg == A(1))
-		ffcScriptData[ffcref].a[reg - A(0)] = get_register(sarg1);
+		FFCore.ref(SCRIPT_FFC, ffcref).a[reg - A(0)] = get_register(sarg1);
 	else if(reg == SP)
-		ffcScriptData[ffcref].sp = get_register(sarg1) / 10000;
+		FFCore.ref(SCRIPT_FFC, ffcref).sp = get_register(sarg1) / 10000;
 }
 
 ///----------------------------------------------------------------------------------------------------//
@@ -29857,27 +30149,30 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 	curScriptIndex=i;
 	//numInstructions=0; //DON'T CLEAR THIS OR IT CAN HARDLOCK! -Em
 
+	if (!(type >= SCRIPT_GLOBAL && type <= SCRIPT_GENERIC_FROZEN))
+	{
+		al_trace("Invalid script type: %d\n", type);
+		return RUNSCRIPT_ERROR;
+	}
+
 	bool got_initialized = false;
 	switch(type)
 	{
-		//Z_scripterrlog("The script type is: %d\n", type);
 		case SCRIPT_FFC:
+		case SCRIPT_GLOBAL:
+		case SCRIPT_PLAYER:
+		case SCRIPT_DMAP:
+		case SCRIPT_ONMAP:
+		case SCRIPT_ACTIVESUBSCREEN:
+		case SCRIPT_PASSIVESUBSCREEN:
+		case SCRIPT_SCREEN:
+		case SCRIPT_COMBO:
 		{
-			ri = &(ffcScriptData[i]);
-			
-			curscript = ffscripts[script];
-			stack = &(ffc_stack[i]);
-			
-			if(!tmpscr->ffcs[i].initialized)
-			{
-				got_initialized = true;
-				memcpy(ri->d, tmpscr->ffcs[i].initd, 8 * sizeof(int32_t));
-				memcpy(ri->a, tmpscr->ffcs[i].inita, 2 * sizeof(int32_t));
-			}
-			
-			ri->ffcref = i; //'this' pointer
+			// TODO: finish refactoring the other script types.
+			got_initialized = set_current_script_engine_data(type, script, i);
 		}
 		break;
+
 		case SCRIPT_NPC:
 		{
 			int32_t npc_index = GuyH::getNPCIndex(i);
@@ -29986,16 +30281,6 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 		}
 		break;
 		
-		case SCRIPT_GLOBAL:
-		{
-			ri = &globalScriptData[script];
-			
-			curscript = globalscripts[script];
-			stack = &global_stack[script];
-			//
-		}
-		break;
-		
 		case SCRIPT_GENERIC:
 		{
 			user_genscript& scr = user_scripts[script];
@@ -30027,132 +30312,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			}
 		}
 		break;
-		
-		case SCRIPT_PLAYER:
-		{
-			ri = &playerScriptData;
-			
-			curscript = playerscripts[script];
-			stack = &player_stack;
-			//
-		}
-		break;
-		
-		case SCRIPT_DMAP:
-		{
-			ri = &dmapScriptData;
-			curscript = dmapscripts[script];
-			stack = &dmap_stack;
-			ri->dmapsref = i;
-			//how do we clear initialised on dmap change?
-			if ( !dmapscriptInitialised )
-			{
-				got_initialized = true;
-				for ( int32_t q = 0; q < 8; q++ ) 
-				{
-					ri->d[q] = DMaps[ri->dmapsref].initD[q];// * 10000;
-				}
-				dmapscriptInitialised = 1;
-			}
-		}
-		break;
-		
-		case SCRIPT_ONMAP:
-		{
-			ri = &onmapScriptData;
-			curscript = dmapscripts[script];
-			stack = &onmap_stack;
-			ri->dmapsref = i;
-			if ( !onmapInitialised )
-			{
-				got_initialized = true;
-				for ( int32_t q = 0; q < 8; q++ ) 
-				{
-					ri->d[q] = DMaps[ri->dmapsref].onmap_initD[q];
-				}
-				onmapInitialised = 1;
-			}
-		}
-		break;
-		
-		case SCRIPT_ACTIVESUBSCREEN:
-		{
-			ri = &activeSubscreenScriptData;
-			curscript = dmapscripts[script];
-			stack = &active_subscreen_stack;
-			ri->dmapsref = i;
-			if ( !activeSubscreenInitialised )
-			{
-				got_initialized = true;
-				for ( int32_t q = 0; q < 8; q++ ) 
-				{
-					ri->d[q] = DMaps[ri->dmapsref].sub_initD[q];
-				}
-				activeSubscreenInitialised = 1;
-			}
-		}
-		break;
-		
-		case SCRIPT_PASSIVESUBSCREEN:
-		{
-			ri = &passiveSubscreenScriptData;
-			curscript = dmapscripts[script];
-			stack = &passive_subscreen_stack;
-			ri->dmapsref = i;
-			if ( !passiveSubscreenInitialised )
-			{
-				got_initialized = true;
-				for ( int32_t q = 0; q < 8; q++ ) 
-				{
-					ri->d[q] = DMaps[ri->dmapsref].sub_initD[q];
-				}
-				passiveSubscreenInitialised = 1;
-			}
-		}
-		break;
-		
-		case SCRIPT_SCREEN:
-		{
-			ri = &(screenScriptData);
-			curscript = screenscripts[script];
-			stack = &(screen_stack);
-			if ( !tmpscr->screendatascriptInitialised )
-			{
-				got_initialized = true;
-				al_trace("tmpscr->screendatascriptInitialised is %d\n",tmpscr->screendatascriptInitialised);
-				for ( int32_t q = 0; q < 8; q++ ) 
-				{
-					ri->d[q] = tmpscr->screeninitd[q];// * 10000;
-				}
-				tmpscr->screendatascriptInitialised = 1;
-			}
-			
-		}
-		break;
-		
-		case SCRIPT_COMBO:
-		{
-			ri = &(comboScriptData[i]);
 
-			curscript = comboscripts[script];
-			stack = &(combo_stack[i]);
-			int32_t pos = ((i%176));
-			int32_t lyr = i/176;
-			int32_t id = FFCore.tempScreens[lyr]->data[pos];
-			if(!(combo_initialised[pos] & (1<<lyr)))
-			{
-				got_initialized = true;
-				memset(ri->d, 0, 8 * sizeof(int32_t));
-				for ( int32_t q = 0; q < 2; q++ )
-					ri->d[q] = combobuf[id].initd[q];
-				combo_initialised[pos] |= 1<<lyr;
-			}
-
-			ri->combosref = id; //'this' pointer
-			ri->comboposref = i; //used for X(), Y(), Layer(), and so forth.
-			break;
-		}
-		
 		default:
 		{
 			al_trace("No other scripts are currently supported\n");
@@ -34383,33 +34543,15 @@ j_command:
 		switch(type)
 		{
 			case SCRIPT_GLOBAL:
-				global_wait |= (1<<i);
-				break;
-				
 			case SCRIPT_PLAYER:
-				player_waitdraw = true;
-				break;
-			
 			case SCRIPT_DMAP:
-				dmap_waitdraw = true;
-				break;
-				
-			case SCRIPT_PASSIVESUBSCREEN:
-				passive_subscreen_waitdraw = true;
-				break;
-				
-			case SCRIPT_ACTIVESUBSCREEN:
-				active_subscreen_waitdraw = true;
-				break;
-				
 			case SCRIPT_ONMAP:
-				onmap_waitdraw = true;
-				break;
-			
+			case SCRIPT_PASSIVESUBSCREEN:
+			case SCRIPT_ACTIVESUBSCREEN:
 			case SCRIPT_SCREEN:
-				tmpscr->screen_waitdraw = 1;
+			case SCRIPT_COMBO: 
+				FFCore.waitdraw(type, i) = true;
 				break;
-			
 			
 			case SCRIPT_ITEM:
 			{
@@ -34432,7 +34574,6 @@ j_command:
 			
 			case SCRIPT_EWPN:
 			{
-			
 				Ewpns.spr(EwpnH::getEWeaponIndex(i))->waitdraw = 1;
 				break;
 			}
@@ -34446,28 +34587,12 @@ j_command:
 			{
 				if ( !(get_bit(quest_rules, qr_NOFFCWAITDRAW)) )
 				{
-					tmpscr->ffcs[i].waitdraw = true;
+					FFCore.waitdraw(SCRIPT_FFC, i) = true;
 				}
 				else
 				{
 					Z_scripterrlog("Waitdraw cannot be used in script type: %s\n", "ffc, with Script Rule 'No FFC Waitdraw() enabled!");
 				}
-				break;
-			}
-			
-			case SCRIPT_COMBO: 
-			{
-				int32_t l = 0; //get the layer
-				for (int32_t q = 176; q < 1232; q+= 176 )
-				{
-					if ( i < q )
-					{
-						break;
-					}
-					++l;
-				}
-				int32_t pos = ((i%176));
-				combo_waitdraw[pos] |= (1<<l);
 				break;
 			}
 			
@@ -34487,12 +34612,27 @@ j_command:
 		switch(type)
 		{
 			case SCRIPT_FFC:
+			{
 				tmpscr->ffcs[i].script = 0;
-				break;
-				
+				auto& data = get_script_engine_data(type, i);
+				data.doscript = false;
+			}
+			break;
+
+			case SCRIPT_SCREEN:
+				tmpscr->script = 0;
 			case SCRIPT_GLOBAL:
-				g_doscript &= ~(1<<i);
-				break;
+			case SCRIPT_PLAYER:
+			case SCRIPT_DMAP:
+			case SCRIPT_ONMAP:
+			case SCRIPT_ACTIVESUBSCREEN:
+			case SCRIPT_PASSIVESUBSCREEN:
+			case SCRIPT_COMBO:
+			{
+				auto& data = get_script_engine_data(type, i);
+				data.doscript = false;
+			}
+			break;
 			
 			case SCRIPT_GENERIC:
 				user_scripts[script].quit();
@@ -34501,31 +34641,7 @@ j_command:
 			case SCRIPT_GENERIC_FROZEN:
 				gen_active_doscript = 0;
 				break;
-			
-			case SCRIPT_PLAYER:
-				player_doscript = 0;
-				break;
-			
-			case SCRIPT_DMAP:
-				dmap_doscript = 0; //Can't do this, as warping will need to start the script again! -Z
-				dmapscriptInitialised = 0;
-				break;
-			
-			case SCRIPT_ONMAP:
-				onmap_doscript = 0;
-				onmapInitialised = 0;
-				break;
-			
-			case SCRIPT_ACTIVESUBSCREEN:
-				active_subscreen_doscript = 0;
-				activeSubscreenInitialised = 0;
-				break;
-			
-			case SCRIPT_PASSIVESUBSCREEN:
-				passive_subscreen_doscript = 0;
-				passiveSubscreenInitialised = 0;
-				break;
-				
+
 			case SCRIPT_ITEM:
 			{
 				bool collect = ( ( i < 1 ) || (i == COLLECT_SCRIPT_ITEM_ZERO) );
@@ -34573,22 +34689,6 @@ j_command:
 				items.spr(ItemH::getItemIndex(i))->doscript = 0;
 				items.spr(ItemH::getItemIndex(i))->script = 0;
 				items.spr(ItemH::getItemIndex(i))->initialised = 0;
-				break;
-			}
-			case SCRIPT_SCREEN:
-			{
-				tmpscr->script = 0;
-				tmpscr->screendatascriptInitialised = 0;
-				tmpscr->doscript = 0;
-				break;
-			} 
-			
-			case SCRIPT_COMBO:
-			{
-				int32_t pos = i%176;
-				int32_t lyr = i/176;
-				combo_doscript[pos+(176*lyr)] = 0;
-				combo_initialised[pos] &= ~(1<<lyr);
 				break;
 			}
 		}
@@ -34674,11 +34774,10 @@ int32_t ffscript_engine(const bool preload)
 		{
 			if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
 			{
-				if ( tmpscr->script > 0 && tmpscr->doscript )
+				if ( tmpscr->script > 0 && FFCore.doscript(SCRIPT_SCREEN) )
 				{
-					ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script, 0);
+					ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script);
 				}
-				
 			}
 		}
 		word c = tmpscr->numFFC();
@@ -34694,7 +34793,6 @@ int32_t ffscript_engine(const bool preload)
 				continue;
 				
 			ZScriptVersion::RunScript(SCRIPT_FFC, tmpscr->ffcs[i].script, i);
-			tmpscr->ffcs[i].initialized = true;
 		}
 	}
 	
@@ -35926,16 +36024,6 @@ int32_t FFScript::whichlayer(int32_t scr)
 	return -1;
 }
 
-void FFScript::clear_ffc_stack(const byte i)
-{
-	memset(ffc_stack[i], 0, MAX_SCRIPT_REGISTERS * sizeof(int32_t));
-}
-
-void FFScript::clear_global_stack(const byte i)
-{
-	memset(global_stack[i], 0, MAX_SCRIPT_REGISTERS * sizeof(int32_t));
-}
-
 void FFScript::do_zapout()
 {
 	zapout();
@@ -36961,10 +37049,7 @@ void FFScript::init()
 	ScrollingData[SCROLLDATA_OX] = 0;
 	ScrollingData[SCROLLDATA_OY] = 0;
 	user_rng_init();
-	for(word q = 0; q < MAXFFCS; ++q)
-	{
-		ffcScriptData[q].Clear();
-	}
+	clear_script_engine_data();
 	for (auto &it : jitted_scripts)
 	{
 		jit_delete_script_handle(it.second);
@@ -37229,14 +37314,14 @@ void FFScript::warpScriptCheck()
 		FFCore.runWarpScripts(false);
 		FFCore.runWarpScripts(true); //Waitdraw
 	}
-	else if(get_bit(quest_rules, qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN) && passive_subscreen_doscript != 0)
+	else if(get_bit(quest_rules, qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN) && doscript(SCRIPT_PASSIVESUBSCREEN))
 	{
 		if(DMaps[currdmap].passive_sub_script != 0)
 			ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script, currdmap);
-		if(passive_subscreen_waitdraw && DMaps[currdmap].passive_sub_script != 0 && passive_subscreen_doscript != 0)
+		if (waitdraw(SCRIPT_PASSIVESUBSCREEN) && DMaps[currdmap].passive_sub_script != 0 && doscript(SCRIPT_PASSIVESUBSCREEN))
 		{
 			ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script, currdmap);
-			passive_subscreen_waitdraw = false;
+			waitdraw(SCRIPT_PASSIVESUBSCREEN) = false;
 		}	
 	}
 }
@@ -37245,29 +37330,29 @@ void FFScript::runWarpScripts(bool waitdraw)
 {
 	if(waitdraw)
 	{
-		if((!( FFCore.system_suspend[susptGLOBALGAME] )) && (global_wait & (1<<GLOBAL_SCRIPT_GAME)))
+		if ((!( FFCore.system_suspend[susptGLOBALGAME] )) && FFCore.waitdraw(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME))
 		{
 			ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
-			global_wait&= ~(1<<GLOBAL_SCRIPT_GAME);
+			FFCore.waitdraw(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME) = false;
 		}
 		if ( !FFCore.system_suspend[susptITEMSCRIPTENGINE] )
 		{
 			FFCore.itemScriptEngineOnWaitdraw();
 		}
-		if ( (!( FFCore.system_suspend[susptHEROACTIVE] )) && player_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if ( (!( FFCore.system_suspend[susptHEROACTIVE] )) && FFCore.waitdraw(SCRIPT_PLAYER) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
-			ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_ACTIVE, SCRIPT_PLAYER_ACTIVE);
-			player_waitdraw = false;
+			ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_ACTIVE);
+			FFCore.waitdraw(SCRIPT_PLAYER) = false;
 		}
-		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && dmap_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(SCRIPT_DMAP) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
 			ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
-			dmap_waitdraw = false;
+			FFCore.waitdraw(SCRIPT_DMAP) = false;
 		}
-		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && passive_subscreen_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(SCRIPT_PASSIVESUBSCREEN) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
 			ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script,currdmap);
-			passive_subscreen_waitdraw = false;
+			FFCore.waitdraw(SCRIPT_PASSIVESUBSCREEN) = false;
 		}
 		//if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && active_subscreen_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		//{
@@ -37275,15 +37360,15 @@ void FFScript::runWarpScripts(bool waitdraw)
 		//	passive_subscreen_waitdraw = false;
 		//}
 		//no doscript check here, becauseb of preload? Do we want to write doscript here? -Z 13th July, 2019
-		if ( (!( FFCore.system_suspend[susptSCREENSCRIPTS] )) && tmpscr->script != 0 && tmpscr->screen_waitdraw && tmpscr->preloadscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if ( (!( FFCore.system_suspend[susptSCREENSCRIPTS] )) && tmpscr->script != 0 && FFCore.waitdraw(SCRIPT_SCREEN) && tmpscr->preloadscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
-			ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script, 0);  
-			tmpscr->screen_waitdraw = 0;		
+			ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script);  
+			FFCore.waitdraw(SCRIPT_SCREEN) = 0;		
 		}
 	}
 	else
 	{
-		if((!( FFCore.system_suspend[susptGLOBALGAME] )) && (g_doscript & (1<<GLOBAL_SCRIPT_GAME)))
+		if ((!( FFCore.system_suspend[susptGLOBALGAME] )) && FFCore.doscript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME))
 		{
 			ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
 		}
@@ -37291,21 +37376,21 @@ void FFScript::runWarpScripts(bool waitdraw)
 		{
 			FFCore.itemScriptEngine();
 		}
-		if ((!( FFCore.system_suspend[susptHEROACTIVE] )) && player_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
+		if ((!( FFCore.system_suspend[susptHEROACTIVE] )) && doscript(SCRIPT_PLAYER) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
 		{
-			ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_ACTIVE, SCRIPT_PLAYER_ACTIVE);
+			ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_ACTIVE);
 		}
-		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && dmap_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
+		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && doscript(SCRIPT_DMAP) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
 		{
 			ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
 		}
-		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && passive_subscreen_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
+		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.doscript(SCRIPT_PASSIVESUBSCREEN) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
 		{
 			ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script,currdmap);
 		}
 		if ( (!( FFCore.system_suspend[susptSCREENSCRIPTS] )) && tmpscr->script != 0 && tmpscr->preloadscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
-			ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script, 0);
+			ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script);
 		}
 	}
 }
@@ -37329,15 +37414,17 @@ void FFScript::runF6Engine()
 			GameFlags |= GAMEFLAG_F6SCRIPT_ACTIVE;
 			//auto tmpDrawCommands = script_drawing_commands.pop_commands();
 			pause_all_sfx();
-			while(g_doscript & (1<<GLOBAL_SCRIPT_F6))
+
+			auto& data = get_script_engine_data(SCRIPT_GLOBAL, GLOBAL_SCRIPT_F6);
+			while (data.doscript)
 			{
 				script_drawing_commands.Clear();
 				load_control_state(); 
 				ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_F6, GLOBAL_SCRIPT_F6);
-				if(global_wait & (1<<GLOBAL_SCRIPT_F6))
+				if (data.waitdraw)
 				{
 					ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_F6, GLOBAL_SCRIPT_F6);
-					global_wait &= ~(1<<GLOBAL_SCRIPT_F6);
+					data.waitdraw = false;
 				}
 				//Draw
 				clear_bitmap(framebuf);
@@ -37382,15 +37469,17 @@ void FFScript::runOnDeathEngine()
 	GameFlags |= GAMEFLAG_SCRIPTMENU_ACTIVE;
 	kill_sfx(); //No need to pause/resume; the player is dead.
 	//auto tmpDrawCommands = script_drawing_commands.pop_commands();
-	while(player_doscript && !Quit)
+	
+	auto& data = get_script_engine_data(SCRIPT_PLAYER);
+	while (data.doscript && !Quit)
 	{
 		script_drawing_commands.Clear();
 		load_control_state();
 		ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_DEATH, SCRIPT_PLAYER_DEATH);
-		if(player_waitdraw)
+		if (data.waitdraw)
 		{
 			ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_DEATH, SCRIPT_PLAYER_DEATH);
-			player_waitdraw = false;
+			data.waitdraw = false;
 		}
 		//Draw
 		clear_bitmap(framebuf);
@@ -37411,15 +37500,17 @@ void FFScript::runOnLaunchEngine()
 	initZScriptGlobalScript(GLOBAL_SCRIPT_ONLAUNCH);
 	GameFlags |= GAMEFLAG_SCRIPTMENU_ACTIVE;
 	//auto tmpDrawCommands = script_drawing_commands.pop_commands();
-	while(g_doscript & (1<<GLOBAL_SCRIPT_ONLAUNCH) && !Quit)
+
+	auto& data = get_script_engine_data(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONLAUNCH);
+	while (data.doscript && !Quit)
 	{
 		script_drawing_commands.Clear();
 		load_control_state();
 		ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONLAUNCH, GLOBAL_SCRIPT_ONLAUNCH);
-		if(global_wait & (1<<GLOBAL_SCRIPT_ONLAUNCH))
+		if (data.waitdraw)
 		{
 			ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONLAUNCH, GLOBAL_SCRIPT_ONLAUNCH);
-			global_wait &= ~(1<<GLOBAL_SCRIPT_ONLAUNCH);
+			data.waitdraw = false;
 		}
 		//Draw
 		clear_bitmap(framebuf);
@@ -37507,33 +37598,34 @@ bool FFScript::runActiveSubscreenScriptEngine()
 	word script_dmap = currdmap;
 	//auto tmpDrawCommands = script_drawing_commands.pop_commands();
 	pause_all_sfx();
-	while(active_subscreen_doscript && !Quit)
+	auto& data = get_script_engine_data(SCRIPT_ACTIVESUBSCREEN);
+	while (data.doscript && !Quit)
 	{
 		script_drawing_commands.Clear();
 		load_control_state();
-		if(get_bit(quest_rules, qr_DMAP_ACTIVE_RUNS_DURING_ACTIVE_SUBSCRIPT) && DMaps[script_dmap].script != 0 && dmap_doscript != 0)
+		if(get_bit(quest_rules, qr_DMAP_ACTIVE_RUNS_DURING_ACTIVE_SUBSCRIPT) && DMaps[script_dmap].script != 0 && doscript(SCRIPT_DMAP))
 		{
 			ZScriptVersion::RunScript(SCRIPT_DMAP, dmapactivescript, script_dmap);
 		}
-		if(get_bit(quest_rules, qr_PASSIVE_SUBSCRIPT_RUNS_DURING_ACTIVE_SUBSCRIPT)!=0 && DMaps[script_dmap].passive_sub_script != 0 && passive_subscreen_doscript != 0)
+		if(get_bit(quest_rules, qr_PASSIVE_SUBSCRIPT_RUNS_DURING_ACTIVE_SUBSCRIPT)!=0 && DMaps[script_dmap].passive_sub_script != 0 && FFCore.doscript(SCRIPT_PASSIVESUBSCREEN))
 		{
 			ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, passivesubscript, script_dmap);
 		}
 		ZScriptVersion::RunScript(SCRIPT_ACTIVESUBSCREEN, activesubscript, script_dmap);
-		if(dmap_waitdraw && (get_bit(quest_rules, qr_DMAP_ACTIVE_RUNS_DURING_ACTIVE_SUBSCRIPT) && DMaps[script_dmap].script != 0 && dmap_doscript != 0))
+		if(waitdraw(SCRIPT_DMAP) && (get_bit(quest_rules, qr_DMAP_ACTIVE_RUNS_DURING_ACTIVE_SUBSCRIPT) && DMaps[script_dmap].script != 0 && doscript(SCRIPT_DMAP)))
 		{
 			ZScriptVersion::RunScript(SCRIPT_DMAP, dmapactivescript, script_dmap);
-			dmap_waitdraw = false;
+			waitdraw(SCRIPT_DMAP) = false;
 		}
-		if(passive_subscreen_waitdraw && (get_bit(quest_rules, qr_PASSIVE_SUBSCRIPT_RUNS_DURING_ACTIVE_SUBSCRIPT)!=0 && DMaps[script_dmap].passive_sub_script != 0 && passive_subscreen_doscript != 0))
+		if(waitdraw(SCRIPT_PASSIVESUBSCREEN) && (get_bit(quest_rules, qr_PASSIVE_SUBSCRIPT_RUNS_DURING_ACTIVE_SUBSCRIPT)!=0 && DMaps[script_dmap].passive_sub_script != 0 && FFCore.doscript(SCRIPT_PASSIVESUBSCREEN)))
 		{
 			ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, passivesubscript, script_dmap);
-			passive_subscreen_waitdraw = false;
+			waitdraw(SCRIPT_PASSIVESUBSCREEN) = false;
 		}
-		if(active_subscreen_waitdraw && active_subscreen_doscript != 0)
+		if (data.waitdraw && data.doscript)
 		{
 			ZScriptVersion::RunScript(SCRIPT_ACTIVESUBSCREEN, activesubscript, script_dmap);
-			active_subscreen_waitdraw = false;
+			data.waitdraw = false;
 		}
 		//Draw
 		clear_bitmap(framebuf);
@@ -37574,15 +37666,17 @@ bool FFScript::runOnMapScriptEngine()
 	word script_dmap = currdmap;
 	//auto tmpDrawCommands = script_drawing_commands.pop_commands();
 	pause_all_sfx();
-	while(onmap_doscript && !Quit)
+
+	auto& data = get_script_engine_data(SCRIPT_ONMAP);
+	while (data.doscript && !Quit)
 	{
 		script_drawing_commands.Clear();
 		load_control_state();
 		ZScriptVersion::RunScript(SCRIPT_ONMAP, onmap_script, script_dmap);
-		if(onmap_waitdraw && onmap_doscript != 0)
+		if (data.waitdraw && data.doscript)
 		{
 			ZScriptVersion::RunScript(SCRIPT_ONMAP, onmap_script, script_dmap);
-			onmap_waitdraw = false;
+			data.waitdraw = false;
 		}
 		//Draw
 		clear_bitmap(framebuf);
@@ -47197,47 +47291,28 @@ void FFScript::init_combo_doscript()
 {
 	memset(combo_id_cache, -1, sizeof(combo_id_cache));
 	clear_combo_refinfo();
-	clear_combo_initialised();
-	memset(combo_doscript, 1, sizeof(combo_doscript));
 }
 void FFScript::clear_combo_refinfo()
 {
 	for ( int32_t q = 0; q < 1232; q++ )
-		comboScriptData[q].Clear();
+		ref(SCRIPT_COMBO, q).Clear();
 }
 
 void FFScript::clear_combo_refinfo(int32_t pos)
 {
-	comboScriptData[pos].Clear();
-}
-
-void FFScript::clear_combo_stacks()
-{
-	for ( int32_t q = 0; q < 1232; q++ )
-		memset(combo_stack[q], 0, sizeof(combo_stack[q]));
-}
-void FFScript::clear_combo_stack(int32_t q)
-{
-	memset(combo_stack[q], 0, sizeof(combo_stack[q]));
-}
-
-void FFScript::clear_combo_initialised()
-{
-	memset(combo_initialised, 0, sizeof(combo_initialised));
+	ref(SCRIPT_COMBO, pos).Clear();
 }
 
 void FFScript::reset_combo_script(int32_t lyr, int32_t pos)
 {
 	if(lyr < 0) return;
-	uint32_t ind = pos+(176*lyr);
-	if(ind >= 176*7) return;
-	combo_id_cache[ind] = -1;
-	combopos_modified = ind;
-	combo_doscript[ind] = 1;
-	combo_initialised[pos] &= ~(1<<lyr);
-	FFCore.clear_combo_stack(ind);
-	comboScriptData[ind].Clear();
-	combo_waitdraw[pos] &= ~(1<<lyr);
+
+	uint32_t index = pos+(176*lyr);
+	if (index >= 176*7) return;
+
+	combo_id_cache[index] = -1;
+	combopos_modified = index;
+	reset_script_engine_data(SCRIPT_COMBO, index);
 }
 
 int32_t FFScript::getComboDataLayer(int32_t c, int32_t scripttype)
@@ -47305,20 +47380,7 @@ void FFScript::ClearComboScripts()
 {
 	for ( int32_t c = 0; c < 176; c++ )
 	{
-		combo_doscript[c] = 0;
-		combo_waitdraw[c] = 0;
-		combo_initialised[c] = 0;
-		for ( int32_t l = 0; l < 7; l++)
-		{
-			if ( get_bit(quest_rules, qr_COMBOSCRIPTS_LAYER_0+l) )
-			{
-				comboScriptData[c+(176*l)].Clear();
-				for ( int32_t r = 0; r < MAX_SCRIPT_REGISTERS; ++r )
-				{
-					combo_stack[c+(176*l)][r] = 0; //clear the stacks
-				}
-			}
-		}
+		reset_script_engine_data(SCRIPT_COMBO, c);
 	}
 }
 
@@ -47347,11 +47409,13 @@ int32_t FFScript::combo_script_engine(const bool preload, const bool waitdraw)
 			
 			if ( combobuf[cid].script )
 			{
-				if ( (combo_doscript[idval]) )
+				auto& data = get_script_engine_data(SCRIPT_COMBO, idval);
+				if (data.doscript)
 				{
-					if(waitdraw && !(combo_waitdraw[c] & (1<<q))) continue; //waitdraw not set
+					if (waitdraw && !data.waitdraw) continue;
+
 					ZScriptVersion::RunScript(SCRIPT_COMBO, combobuf[cid].script, idval);
-					if(waitdraw) combo_waitdraw[c] &= ~(1<<q);
+					if (waitdraw) data.waitdraw = false;
 				}
 			}
 		}

@@ -459,9 +459,6 @@ script_data *dmapscripts[NUMSCRIPTSDMAP];
 script_data *itemspritescripts[NUMSCRIPTSITEMSPRITE];
 script_data *comboscripts[NUMSCRIPTSCOMBODATA];
 
-// Dummy - needed to compile, but unused
-refInfo ffcScriptData[MAXFFCS];
-
 extern string zScript;
 char zScriptBytes[512];
 char zLastVer[512] = { 0 };
@@ -32893,10 +32890,6 @@ void FFScript::user_files_init(){}
 void FFScript::user_dirs_init(){}
 void FFScript::user_objects_init(){}
 void FFScript::user_stacks_init(){}
-
-void FFScript::deallocateAllArrays(const byte scriptType, const int32_t UID, bool requireAlways){}
-
-void FFScript::deallocateAllArrays(){}
 
 bool isSideViewGravity(int32_t t)
 {

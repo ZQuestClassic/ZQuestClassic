@@ -112,13 +112,10 @@ struct mapscr
 	
 	word script;
 	int32_t screeninitd[8];
-	byte screen_waitdraw;
 	byte preloadscript;
-	byte screendatascriptInitialised;
 	
 	byte hidelayers;
 	byte hidescriptlayers;
-	byte doscript;
 	
 	void zero_memory();
 
