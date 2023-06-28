@@ -4966,9 +4966,9 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 	memcpy(tmpscr[tmp].cset, TheMaps[currmap*MAPSCRS+scr].cset, sizeof(tmpscr[tmp].cset));
 	
 	//screen / screendata script
-	FFCore.reset_script_engine_data(SCRIPT_SCREEN);
-	FFCore.deallocateAllArrays(SCRIPT_SCREEN, 0);
-	FFCore.deallocateAllArrays(SCRIPT_COMBO, 0);
+	FFCore.reset_script_engine_data(ScriptType::Screen);
+	FFCore.deallocateAllArrays(ScriptType::Screen, 0);
+	FFCore.deallocateAllArrays(ScriptType::Combo, 0);
 	//reset combo script doscripts
 	//Init combo scripts
 	FFCore.init_combo_doscript();
@@ -4983,7 +4983,7 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 	else
 	{
 		tmpscr[tmp].script = 0;
-		FFCore.doscript(SCRIPT_SCREEN) = false;
+		FFCore.doscript(ScriptType::Screen) = false;
 	}
 	
 	if(overlay)
@@ -5020,7 +5020,7 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 	
 	if(tmp==0)
 	{
-		FFCore.deallocateAllArrays(SCRIPT_SCREEN, 0);
+		FFCore.deallocateAllArrays(ScriptType::Screen, 0);
 		
 		init_ffpos();
 		for(word i = 0; i < MAXFFCS; i++)
@@ -5031,14 +5031,14 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 				
 				if (ffscr.ffcs[i].flags&ffSCRIPTRESET)
 				{
-					FFCore.reset_script_engine_data(SCRIPT_FFC, i);
+					FFCore.reset_script_engine_data(ScriptType::FFC, i);
 				}
 			}
 			else
 			{
-				FFCore.deallocateAllArrays(SCRIPT_FFC, i, false);
+				FFCore.deallocateAllArrays(ScriptType::FFC, i, false);
 				memset(ffmisc[i], 0, 16 * sizeof(int32_t));
-				FFCore.reset_script_engine_data(SCRIPT_FFC, i);
+				FFCore.reset_script_engine_data(ScriptType::FFC, i);
 			}
 		}
 	}

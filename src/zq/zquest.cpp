@@ -24609,7 +24609,7 @@ int32_t jwin_zmeta_proc(int32_t msg, DIALOG *d, int32_t )
 					if(!meta.run_idens[q].size() || meta.run_types[q] == ZMETA_NULL_TYPE) continue;
 					if(q > 0)
 						oss << ", ";
-					string type_name = ZScript::getTypeName(meta.run_types[q]);
+					string type_name = ZScript::getDataTypeName(meta.run_types[q]);
 					lowerstr(type_name); //all lowercase for this output
 					if(oss.str().size() > unsigned(indentrun ? 41 : 50))
 					{
@@ -25292,7 +25292,7 @@ void do_script_disassembly(map<string, disassembled_script_data>& scripts, bool 
 	{
 		if(scripts.find(globalmap[i].scriptname) != scripts.end())
 		{
-			if(scripts[globalmap[i].scriptname].first.script_type != SCRIPT_GLOBAL)
+			if(scripts[globalmap[i].scriptname].first.script_type != ScriptType::Global)
 			{
 				while(scripts.find(globalmap[i].scriptname) != scripts.end())
 					inc_script_name(globalmap[i].scriptname);
@@ -25338,7 +25338,7 @@ void do_script_disassembly(map<string, disassembled_script_data>& scripts, bool 
 	{
 		if(scripts.find(ffcmap[i].scriptname) != scripts.end())
 		{
-			if(scripts[ffcmap[i].scriptname].first.script_type != SCRIPT_FFC)
+			if(scripts[ffcmap[i].scriptname].first.script_type != ScriptType::FFC)
 			{
 				while(scripts.find(ffcmap[i].scriptname) != scripts.end())
 					inc_script_name(ffcmap[i].scriptname);
@@ -25376,7 +25376,7 @@ void do_script_disassembly(map<string, disassembled_script_data>& scripts, bool 
 	{
 		if(scripts.find(itemmap[i].scriptname) != scripts.end())
 		{
-			if(scripts[itemmap[i].scriptname].first.script_type != SCRIPT_ITEM)
+			if(scripts[itemmap[i].scriptname].first.script_type != ScriptType::Item)
 			{
 				while(scripts.find(itemmap[i].scriptname) != scripts.end())
 					inc_script_name(itemmap[i].scriptname);
@@ -25414,7 +25414,7 @@ void do_script_disassembly(map<string, disassembled_script_data>& scripts, bool 
 	{
 		if(scripts.find(npcmap[i].scriptname) != scripts.end())
 		{
-			if(scripts[npcmap[i].scriptname].first.script_type != SCRIPT_NPC)
+			if(scripts[npcmap[i].scriptname].first.script_type != ScriptType::NPC)
 			{
 				while(scripts.find(npcmap[i].scriptname) != scripts.end())
 					inc_script_name(npcmap[i].scriptname);
@@ -25452,7 +25452,7 @@ void do_script_disassembly(map<string, disassembled_script_data>& scripts, bool 
 	{
 		if(scripts.find(lwpnmap[i].scriptname) != scripts.end())
 		{
-			if(scripts[lwpnmap[i].scriptname].first.script_type != SCRIPT_LWPN)
+			if(scripts[lwpnmap[i].scriptname].first.script_type != ScriptType::Lwpn)
 			{
 				while(scripts.find(lwpnmap[i].scriptname) != scripts.end())
 					inc_script_name(lwpnmap[i].scriptname);
@@ -25490,7 +25490,7 @@ void do_script_disassembly(map<string, disassembled_script_data>& scripts, bool 
 	{
 		if(scripts.find(ewpnmap[i].scriptname) != scripts.end())
 		{
-			if(scripts[ewpnmap[i].scriptname].first.script_type != SCRIPT_EWPN)
+			if(scripts[ewpnmap[i].scriptname].first.script_type != ScriptType::Ewpn)
 			{
 				while(scripts.find(ewpnmap[i].scriptname) != scripts.end())
 					inc_script_name(ewpnmap[i].scriptname);
@@ -25528,7 +25528,7 @@ void do_script_disassembly(map<string, disassembled_script_data>& scripts, bool 
 	{
 		if(scripts.find(playermap[i].scriptname) != scripts.end())
 		{
-			if(scripts[playermap[i].scriptname].first.script_type != SCRIPT_PLAYER)
+			if(scripts[playermap[i].scriptname].first.script_type != ScriptType::Player)
 			{
 				while(scripts.find(playermap[i].scriptname) != scripts.end())
 					inc_script_name(playermap[i].scriptname);
@@ -25566,7 +25566,7 @@ void do_script_disassembly(map<string, disassembled_script_data>& scripts, bool 
 	{
 		if(scripts.find(dmapmap[i].scriptname) != scripts.end())
 		{
-			if(scripts[dmapmap[i].scriptname].first.script_type != SCRIPT_DMAP)
+			if(scripts[dmapmap[i].scriptname].first.script_type != ScriptType::DMap)
 			{
 				while(scripts.find(dmapmap[i].scriptname) != scripts.end())
 					inc_script_name(dmapmap[i].scriptname);
@@ -25604,7 +25604,7 @@ void do_script_disassembly(map<string, disassembled_script_data>& scripts, bool 
 	{
 		if(scripts.find(screenmap[i].scriptname) != scripts.end())
 		{
-			if(scripts[screenmap[i].scriptname].first.script_type != SCRIPT_SCREEN)
+			if(scripts[screenmap[i].scriptname].first.script_type != ScriptType::Screen)
 			{
 				while(scripts.find(screenmap[i].scriptname) != scripts.end())
 					inc_script_name(screenmap[i].scriptname);
@@ -25642,7 +25642,7 @@ void do_script_disassembly(map<string, disassembled_script_data>& scripts, bool 
 	{
 		if(scripts.find(itemspritemap[i].scriptname) != scripts.end())
 		{
-			if(scripts[itemspritemap[i].scriptname].first.script_type != SCRIPT_ITEMSPRITE)
+			if(scripts[itemspritemap[i].scriptname].first.script_type != ScriptType::ItemSprite)
 			{
 				while(scripts.find(itemspritemap[i].scriptname) != scripts.end())
 					inc_script_name(itemspritemap[i].scriptname);
@@ -25680,7 +25680,7 @@ void do_script_disassembly(map<string, disassembled_script_data>& scripts, bool 
 	{
 		if(scripts.find(comboscriptmap[i].scriptname) != scripts.end())
 		{
-			if(scripts[comboscriptmap[i].scriptname].first.script_type != SCRIPT_COMBO)
+			if(scripts[comboscriptmap[i].scriptname].first.script_type != ScriptType::Combo)
 			{
 				while(scripts.find(comboscriptmap[i].scriptname) != scripts.end())
 					inc_script_name(comboscriptmap[i].scriptname);
@@ -25718,7 +25718,7 @@ void do_script_disassembly(map<string, disassembled_script_data>& scripts, bool 
 	{
 		if(scripts.find(genericmap[i].scriptname) != scripts.end())
 		{
-			if(scripts[genericmap[i].scriptname].first.script_type != SCRIPT_GENERIC)
+			if(scripts[genericmap[i].scriptname].first.script_type != ScriptType::Generic)
 			{
 				while(scripts.find(genericmap[i].scriptname) != scripts.end())
 					inc_script_name(genericmap[i].scriptname);
@@ -25759,27 +25759,27 @@ enum script_slot_type
 	type_ffc, type_global, type_itemdata, type_npc, type_lweapon, type_eweapon,
 	type_hero, type_dmap, type_screen, type_itemsprite, type_combo, type_generic, num_types
 };
-script_slot_type getType(int32_t type)
+script_slot_type getType(ScriptType type)
 {
 	switch(type)
 	{
-		case SCRIPT_FFC: return type_ffc;
-		case SCRIPT_GLOBAL: return type_global;
-		case SCRIPT_ITEM: return type_itemdata;
-		case SCRIPT_NPC: return type_npc;
-		case SCRIPT_LWPN: return type_lweapon;
-		case SCRIPT_EWPN: return type_eweapon;
-		case SCRIPT_PLAYER: return type_hero;
-		case SCRIPT_DMAP:
-		case SCRIPT_ACTIVESUBSCREEN:
-		case SCRIPT_PASSIVESUBSCREEN:
-		case SCRIPT_ONMAP:
+		case ScriptType::FFC: return type_ffc;
+		case ScriptType::Global: return type_global;
+		case ScriptType::Item: return type_itemdata;
+		case ScriptType::NPC: return type_npc;
+		case ScriptType::Lwpn: return type_lweapon;
+		case ScriptType::Ewpn: return type_eweapon;
+		case ScriptType::Player: return type_hero;
+		case ScriptType::DMap:
+		case ScriptType::ActiveSubscreen:
+		case ScriptType::PassiveSubscreen:
+		case ScriptType::OnMap:
 			return type_dmap;
-		case SCRIPT_GENERIC: case SCRIPT_GENERIC_FROZEN:
+		case ScriptType::Generic: case ScriptType::GenericFrozen:
 			return type_generic;
-		case SCRIPT_SCREEN: return type_screen;
-		case SCRIPT_ITEMSPRITE: return type_itemsprite;
-		case SCRIPT_COMBO: return type_combo;
+		case ScriptType::Screen: return type_screen;
+		case ScriptType::ItemSprite: return type_itemsprite;
+		case ScriptType::Combo: return type_combo;
 		default: return type_ffc; //Default
 	}
 }

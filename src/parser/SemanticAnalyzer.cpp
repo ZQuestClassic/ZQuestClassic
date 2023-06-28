@@ -507,7 +507,7 @@ void SemanticAnalyzer::caseScriptTypeDef(ASTScriptTypeDef& host, void*)
 {
 	if(host.registered()) return; //Skip if already handled
 	// Resolve the base type under current scope.
-	ScriptType type = resolveScriptType(*host.oldType, *scope);
+	ParserScriptType type = resolveScriptType(*host.oldType, *scope);
 	if (!type.isValid())
 	{
 		handleError(
@@ -518,7 +518,7 @@ void SemanticAnalyzer::caseScriptTypeDef(ASTScriptTypeDef& host, void*)
 	// Add type to the current scope under its new name.
 	if (!scope->addScriptType(host.newName, type, &host))
 	{
-		ScriptType originalType = lookupScriptType(*scope, host.newName);
+		ParserScriptType originalType = lookupScriptType(*scope, host.newName);
 		if (originalType != type)
 			handleError(
 				CompileError::RedefScriptType(
@@ -937,7 +937,7 @@ void SemanticAnalyzer::caseScript(ASTScript& host, void* param)
 	scope = &script.getScope();
 	RecursiveVisitor::caseScript(host, param);
 	scope = scope->getParent();
-	if(script.getType() == ScriptType::untyped) return;
+	if(script.getType() == ParserScriptType::untyped) return;
 	
 	// Check for a valid run function.
 	// Always run this, to ensure it is correct after all registration phase.

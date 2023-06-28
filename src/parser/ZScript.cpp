@@ -25,7 +25,7 @@ Program::Program(ASTFile& root, CompileErrorHandler* errorHandler)
 	// Create the ~Init script.
 	if (Script* initScript =
 	    	createScript(
-				*this, *rootScope_, ScriptType::global,
+				*this, *rootScope_, ParserScriptType::global,
 				"~Init", errorHandler))
 	{
 		scripts.push_back(initScript);
@@ -219,7 +219,7 @@ UserScript::UserScript(Program& program, ASTScript& node)
 	: Script(program), node(node)
 {}
 
-ScriptType UserScript::getType() const
+ParserScriptType UserScript::getType() const
 {
 	return resolveScriptType(*node.type, *scope->getParent());
 }
@@ -227,7 +227,7 @@ ScriptType UserScript::getType() const
 // ZScript::BuiltinScript
 const string BuiltinScript::builtin_author = "ZQ_PARSER";
 BuiltinScript::BuiltinScript(
-		Program& program, ScriptType type, string const& name)
+		Program& program, ParserScriptType type, string const& name)
 	: Script(program), type(type), name(name)
 {}
 
@@ -263,7 +263,7 @@ UserScript* ZScript::createScript(
 }
 
 BuiltinScript* ZScript::createScript(
-		Program& program, Scope& parentScope, ScriptType type,
+		Program& program, Scope& parentScope, ParserScriptType type,
 		string const& name, CompileErrorHandler* errorHandler)
 {
 	BuiltinScript* script = new BuiltinScript(program, type, name);

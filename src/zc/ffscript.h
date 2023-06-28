@@ -270,10 +270,12 @@ struct user_bitmap
 	int32_t depth;
 	byte flags;
 	
-	int32_t owned_type, owned_i;
+	// TODO: here and every other `owned_type`; can we replace -1 with ScriptType::None ?
+	ScriptType owned_type;
+	int32_t owned_i;
 	
 	user_bitmap() : u_bmp(NULL), width(0), height(0), depth(0), flags(0),
-		owned_type(-1), owned_i(0)
+		owned_type((ScriptType)-1), owned_i(0)
 	{}
 	
 	void destroy()
@@ -289,7 +291,7 @@ struct user_bitmap
 	{
 		destroy();
 		flags = 0;
-		owned_type = -1;
+		owned_type = (ScriptType)-1;
 		owned_i = 0;
 	}
 	void reserve()
@@ -309,19 +311,19 @@ struct user_bitmap
 		if(flags & UBMPFLAG_FREEING)
 			clear();
 	}
-	void own(int32_t type, int32_t i)
+	void own(ScriptType type, int32_t i)
 	{
 		owned_type = type;
 		owned_i = i;
 	}
-	void own_clear(int32_t type, int32_t i)
+	void own_clear(ScriptType type, int32_t i)
 	{
 		if(owned_type == type && owned_i == i)
 			free();
 	}
 	void own_clear_any()
 	{
-		if(owned_type != -1 || owned_i != 0)
+		if(owned_type != (ScriptType)-1 || owned_i != 0)
 			clear();
 	}
 };
@@ -365,10 +367,12 @@ struct user_file
 	std::string filepath;
 	bool reserved;
 	
-	int32_t owned_type, owned_i;
+	// TODO: here and every other `owned_type`; can we replace -1 with ScriptType::None ?
+	ScriptType owned_type;
+	int32_t owned_i;
 	
 	user_file() : file(NULL), reserved(false), filepath(""),
-		owned_type(-1), owned_i(0)
+		owned_type((ScriptType)-1), owned_i(0)
 	{}
 	
 	void clear()
@@ -377,7 +381,7 @@ struct user_file
 		file = NULL;
 		reserved = false;
 		filepath = "";
-		owned_type = -1;
+		owned_type = (ScriptType)-1;
 		owned_i = 0;
 	}
 	
@@ -404,19 +408,19 @@ struct user_file
 		else filepath = "";
 	}
 	
-	void own(int32_t type, int32_t i)
+	void own(ScriptType type, int32_t i)
 	{
 		owned_type = type;
 		owned_i = i;
 	}
-	void own_clear(int32_t type, int32_t i)
+	void own_clear(ScriptType type, int32_t i)
 	{
 		if(owned_type == type && owned_i == i)
 			clear();
 	}
 	void own_clear_any()
 	{
-		if(owned_type != -1 || owned_i != 0)
+		if(owned_type != (ScriptType)-1 || owned_i != 0)
 			clear();
 	}
 };
@@ -428,10 +432,12 @@ struct user_dir
 	std::string filepath;
 	bool reserved;
 	
-	int32_t owned_type, owned_i;
+	// TODO: here and every other `owned_type`; can we replace -1 with ScriptType::None ?
+	ScriptType owned_type;
+	int32_t owned_i;
 	
 	user_dir() : list(NULL), reserved(false), filepath(""),
-		owned_type(-1), owned_i(0)
+		owned_type((ScriptType)-1), owned_i(0)
 	{}
 	
 	void clear();
@@ -451,19 +457,19 @@ struct user_dir
 		return list->get(index, buf);
 	}
 	
-	void own(int32_t type, int32_t i)
+	void own(ScriptType type, int32_t i)
 	{
 		owned_type = type;
 		owned_i = i;
 	}
-	void own_clear(int32_t type, int32_t i)
+	void own_clear(ScriptType type, int32_t i)
 	{
 		if(owned_type == type && owned_i == i)
 			clear();
 	}
 	void own_clear_any()
 	{
-		if(owned_type != -1 || owned_i != 0)
+		if(owned_type != (ScriptType)-1 || owned_i != 0)
 			clear();
 	}
 };
@@ -474,17 +480,19 @@ struct user_dir
 struct user_stack
 {
 	bool reserved;
-	int32_t owned_type, owned_i;
+	// TODO: here and every other `owned_type`; can we replace -1 with ScriptType::None ?bool reserved;
+	ScriptType owned_type;
+	int32_t owned_i;
 	std::deque<int32_t> theStack;
 	
 	user_stack() : reserved(false),
-		owned_type(-1), owned_i(0)
+		owned_type((ScriptType)-1), owned_i(0)
 	{}
 	
 	void clear()
 	{
 		clearStack();
-		owned_type = -1;
+		owned_type = (ScriptType)-1;
 		owned_i = 0;
 		reserved = false;
 	}
@@ -546,19 +554,19 @@ struct user_stack
 		theStack.shrink_to_fit();
 	}
 	
-	void own(int32_t type, int32_t i)
+	void own(ScriptType type, int32_t i)
 	{
 		owned_type = type;
 		owned_i = i;
 	}
-	void own_clear(int32_t type, int32_t i)
+	void own_clear(ScriptType type, int32_t i)
 	{
 		if(owned_type == type && owned_i == i)
 			clear();
 	}
 	void own_clear_any()
 	{
-		if(owned_type != -1 || owned_i != 0)
+		if(owned_type != (ScriptType)-1 || owned_i != 0)
 			clear();
 	}
 };
@@ -569,12 +577,14 @@ struct user_rng
 	zc_randgen* gen;
 	bool reserved;
 	
-	int32_t owned_type, owned_i;
+	// TODO: here and every other `owned_type`; can we replace -1 with ScriptType::None ?
+	ScriptType owned_type;
+	int32_t owned_i;
 	
 	void clear()
 	{
 		reserved = false;
-		owned_type = -1;
+		owned_type = (ScriptType)-1;
 		owned_i = 0;
 	}
 	int32_t rand()
@@ -601,22 +611,22 @@ struct user_rng
 		if(newgen) srand();
 	}
 	user_rng() : gen(NULL), reserved(false),
-		owned_type(-1), owned_i(0)
+		owned_type((ScriptType)-1), owned_i(0)
 	{}
 	
-	void own(int32_t type, int32_t i)
+	void own(ScriptType type, int32_t i)
 	{
 		owned_type = type;
 		owned_i = i;
 	}
-	void own_clear(int32_t type, int32_t i)
+	void own_clear(ScriptType type, int32_t i)
 	{
 		if(owned_type == type && owned_i == i)
 			clear();
 	}
 	void own_clear_any()
 	{
-		if(owned_type != -1 || owned_i != 0)
+		if(owned_type != (ScriptType)-1 || owned_i != 0)
 			clear();
 	}
 };
@@ -631,7 +641,9 @@ struct user_paldata
 	RGB colors[PALDATA_NUM_COLORS];
 	byte colors_used[PALDATA_BITSTREAM_SIZE]; //A set of 256 bitflags
 
-	int32_t owned_type, owned_i;
+	// TODO: here and every other `owned_type`; can we replace -1 with ScriptType::None ?
+	ScriptType owned_type;
+	int32_t owned_i;
 
 	enum { CSPACE_RGB, CSPACE_CMYK, CSPACE_HSV, CSPACE_HSV_CW, CSPACE_HSV_CCW, CSPACE_HSL, CSPACE_HSL_CW, CSPACE_HSL_CCW, CSPACE_LAB, CSPACE_LCH, CSPACE_LCH_CW, CSPACE_LCH_CCW };
 
@@ -640,7 +652,7 @@ struct user_paldata
 		for(int32_t q = 0; q < 32; ++q)
 			colors_used[q] = 0;
 		reserved = false;
-		owned_type = -1;
+		owned_type = (ScriptType)-1;
 		owned_i = 0;
 	}
 	
@@ -667,19 +679,19 @@ struct user_paldata
 	static double WrapLerp(double a, double b, double t, double min, double max, int32_t direction);
 	void mix(user_paldata *pal_start, user_paldata *pal_end, double percent, int32_t color_space = CSPACE_RGB, int32_t start_color = 0, int32_t end_color = 240);
 
-	void own(int32_t type, int32_t i)
+	void own(ScriptType type, int32_t i)
 	{
 		owned_type = type;
 		owned_i = i;
 	}
-	void own_clear(int32_t type, int32_t i)
+	void own_clear(ScriptType type, int32_t i)
 	{
 		if (owned_type == type && owned_i == i)
 			clear();
 	}
 	void own_clear_any()
 	{
-		if (owned_type != -1 || owned_i != 0)
+		if (owned_type != (ScriptType)-1 || owned_i != 0)
 			clear();
 	}
 };
@@ -1278,10 +1290,10 @@ void initZScriptHeroScripts();
 void initZScriptItemScripts();
 
 void clear_script_engine_data();
-void reset_script_engine_data(int type, int index = 0);
-refInfo& ref(int type, int index);
-byte& doscript(int type, int index = 0);
-bool& waitdraw(int type, int index = 0);
+void reset_script_engine_data(ScriptType type, int index = 0);
+refInfo& ref(ScriptType type, int index);
+byte& doscript(ScriptType type, int index = 0);
+bool& waitdraw(ScriptType type, int index = 0);
 
 //Combo Scripts
 void init_combo_doscript();
@@ -1289,10 +1301,10 @@ void clear_combo_refinfo();
 void clear_combo_refinfo(int32_t pos);
 void reset_combo_script(int32_t lyr, int32_t pos);
 void ClearComboScripts();
-int32_t getComboDataLayer(int32_t c, int32_t scripttype);
-int32_t getCombodataPos(int32_t c, int32_t scripttype);
-int32_t getCombodataY(int32_t c, int32_t scripttype);
-int32_t getCombodataX(int32_t c, int32_t scripttype);
+int32_t getComboDataLayer(int32_t c, ScriptType scripttype);
+int32_t getCombodataPos(int32_t c, ScriptType scripttype);
+int32_t getCombodataY(int32_t c, ScriptType scripttype);
+int32_t getCombodataX(int32_t c, ScriptType scripttype);
 
 //tba
 //void deallocateComboArrays();
@@ -2025,7 +2037,7 @@ enum __Error
         _InvalidSpriteUID //bad npc, ffc, etc.
     };
     
-	static void deallocateAllArrays(const byte scriptType, const int32_t UID, bool requireAlways = true);
+	static void deallocateAllArrays(ScriptType scriptType, const int32_t UID, bool requireAlways = true);
 	static void deallocateAllArrays();
 	
     private:
@@ -2038,7 +2050,7 @@ extern PALETTE userPALETTE[256];
 extern PALETTE tempblackpal;
 
 int32_t get_register(const int32_t arg);
-int32_t run_script(const byte type, const word script, const int32_t i = -1); //Global scripts don't need 'i'
+int32_t run_script(ScriptType type, const word script, const int32_t i = -1); //Global scripts don't need 'i'
 int32_t ffscript_engine(const bool preload);
 
 void deallocateArray(const int32_t ptrval);

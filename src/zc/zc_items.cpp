@@ -199,11 +199,11 @@ int32_t item::run_script(int32_t mode)
 	switch(mode)
 	{
 		case MODE_NORMAL:
-			return ZScriptVersion::RunScript(SCRIPT_ITEMSPRITE, script, getUID());
+			return ZScriptVersion::RunScript(ScriptType::ItemSprite, script, getUID());
 		case MODE_WAITDRAW:
 			if(waitdraw)
 			{
-				ret = ZScriptVersion::RunScript(SCRIPT_ITEMSPRITE, script, getUID());
+				ret = ZScriptVersion::RunScript(ScriptType::ItemSprite, script, getUID());
 				waitdraw = 0;
 			}
 			break;

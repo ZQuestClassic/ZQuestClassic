@@ -1590,8 +1590,8 @@ void HeroClass::init()
 	//Run script!
 	if (( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) && (game->get_hasplayed()) ) //if (!hasplayed) runs in game_loop()
 	{
-		ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_INIT, SCRIPT_PLAYER_INIT); 
-		FFCore.deallocateAllArrays(SCRIPT_PLAYER, SCRIPT_PLAYER_INIT);
+		ZScriptVersion::RunScript(ScriptType::Player, SCRIPT_PLAYER_INIT, SCRIPT_PLAYER_INIT); 
+		FFCore.deallocateAllArrays(ScriptType::Player, SCRIPT_PLAYER_INIT);
 		FFCore.initZScriptHeroScripts(); //Clear the stack and the refinfo data to be ready for Hero's active script. 
 		set_respawn_point(); //screen entry at spawn; //This should be after the init script, so that Hero->X and Hero->Y set by the script
 						//are properly set by the engine.
@@ -3078,21 +3078,21 @@ void collectitem_script(int32_t id)
 	if(itemsbuf[id].collect_script)
 	{
 		//clear item script stack. 
-		FFCore.ref(SCRIPT_ITEM, -id).Clear();
+		FFCore.ref(ScriptType::Item, -id).Clear();
 
-		if ( id > 0 && !(FFCore.doscript(SCRIPT_ITEM, -id) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) //No collect script on item 0. 
+		if ( id > 0 && !(FFCore.doscript(ScriptType::Item, -id) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) //No collect script on item 0. 
 		{
 			int i = -id;
-			FFCore.reset_script_engine_data(SCRIPT_ITEM, i);
-			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id].collect_script, i);
-			FFCore.deallocateAllArrays(SCRIPT_ITEM, i);
+			FFCore.reset_script_engine_data(ScriptType::Item, i);
+			ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[id].collect_script, i);
+			FFCore.deallocateAllArrays(ScriptType::Item, i);
 		}
-		else if (id == 0 && !(FFCore.doscript(SCRIPT_ITEM, -id) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING))) //item 0
+		else if (id == 0 && !(FFCore.doscript(ScriptType::Item, -id) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING))) //item 0
 		{
 			int i = COLLECT_SCRIPT_ITEM_ZERO;
-			FFCore.reset_script_engine_data(SCRIPT_ITEM, i);
-			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id].collect_script, i);
-			FFCore.deallocateAllArrays(SCRIPT_ITEM, i);
+			FFCore.reset_script_engine_data(ScriptType::Item, i);
+			ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[id].collect_script, i);
+			FFCore.deallocateAllArrays(ScriptType::Item, i);
 		}
 		//runningItemScripts[id] = 0;
 	}
@@ -3102,16 +3102,16 @@ void passiveitem_script(int32_t id, bool doRun = false)
 	//Passive item scripts on colelction
 	if(itemsbuf[id].script && ( (itemsbuf[id].flags&ITEM_PASSIVESCRIPT) && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ))
 	{
-		FFCore.reset_script_engine_data(SCRIPT_ITEM, id);
+		FFCore.reset_script_engine_data(ScriptType::Item, id);
 		
 		if(get_bit(quest_rules,qr_PASSIVE_ITEM_SCRIPT_ONLY_HIGHEST)
 			&& current_item(itemsbuf[id].family) > itemsbuf[id].fam_type)
 		{
-			FFCore.doscript(SCRIPT_ITEM, id) = false;
+			FFCore.doscript(ScriptType::Item, id) = false;
 			return;
 		}
 		if(doRun)
-			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id].script, id);
+			ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[id].script, id);
 	}
 }
 
@@ -7123,12 +7123,12 @@ int32_t HeroClass::hithero(int32_t hit2, int32_t force_hdir)
 			game->set_item(stompid,false);
 			
 		// Stomp Boots script
-		if(itemsbuf[stompid].script != 0 && !(FFCore.doscript(SCRIPT_ITEM, stompid) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)))
+		if(itemsbuf[stompid].script != 0 && !(FFCore.doscript(ScriptType::Item, stompid) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)))
 		{
 			int i = stompid;
-			FFCore.reset_script_engine_data(SCRIPT_ITEM, i);
-			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[stompid].script, i);
-			FFCore.deallocateAllArrays(SCRIPT_ITEM, i);
+			FFCore.reset_script_engine_data(ScriptType::Item, i);
+			ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[stompid].script, i);
+			FFCore.deallocateAllArrays(ScriptType::Item, i);
 		}
 		
 		return -1;
@@ -7412,12 +7412,12 @@ static void do_refill_waitframe()
 	{
 		script_drawing_commands.Clear();
 		if(DMaps[currdmap].passive_sub_script != 0)
-			ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script, currdmap);
+			ZScriptVersion::RunScript(ScriptType::PassiveSubscreen, DMaps[currdmap].passive_sub_script, currdmap);
 		
-		if (FFCore.waitdraw(SCRIPT_PASSIVESUBSCREEN) && DMaps[currdmap].passive_sub_script != 0 && FFCore.doscript(SCRIPT_PASSIVESUBSCREEN))
+		if (FFCore.waitdraw(ScriptType::PassiveSubscreen) && DMaps[currdmap].passive_sub_script != 0 && FFCore.doscript(ScriptType::PassiveSubscreen))
 		{
-			ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script, currdmap);
-			FFCore.waitdraw(SCRIPT_PASSIVESUBSCREEN) = false;
+			ZScriptVersion::RunScript(ScriptType::PassiveSubscreen, DMaps[currdmap].passive_sub_script, currdmap);
+			FFCore.waitdraw(ScriptType::PassiveSubscreen) = false;
 		}	
 		do_script_draws(framebuf, tmpscr, 0, playing_field_offset);
 	}
@@ -9095,8 +9095,8 @@ heroanimate_skip_liftwpn:;
 					lstunclock = 0;
 					is_conveyor_stunned = 0;
 					FFCore.setHeroAction(dying);
-					FFCore.deallocateAllArrays(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME);
-					FFCore.deallocateAllArrays(SCRIPT_PLAYER, SCRIPT_PLAYER_ACTIVE);
+					FFCore.deallocateAllArrays(ScriptType::Global, GLOBAL_SCRIPT_GAME);
+					FFCore.deallocateAllArrays(ScriptType::Player, SCRIPT_PLAYER_ACTIVE);
 					ALLOFF(true,true);
 					GameFlags |= GAMEFLAG_NO_F6;
 					if(!debug_enabled)
@@ -9106,7 +9106,7 @@ heroanimate_skip_liftwpn:;
 					if(!get_bit(quest_rules,qr_ONDEATH_RUNS_AFTER_DEATH_ANIM))
 					{
 						FFCore.runOnDeathEngine();
-						FFCore.deallocateAllArrays(SCRIPT_PLAYER, SCRIPT_PLAYER_DEATH);
+						FFCore.deallocateAllArrays(ScriptType::Player, SCRIPT_PLAYER_DEATH);
 					}
 					Playing = false;
 					heroDeathAnimation();
@@ -9114,7 +9114,7 @@ heroanimate_skip_liftwpn:;
 					{
 						Playing = true;
 						FFCore.runOnDeathEngine();
-						FFCore.deallocateAllArrays(SCRIPT_PLAYER, SCRIPT_PLAYER_DEATH);
+						FFCore.deallocateAllArrays(ScriptType::Player, SCRIPT_PLAYER_DEATH);
 						Playing = false;
 					}
 					GameFlags &= ~GAMEFLAG_NO_F6;
@@ -10431,7 +10431,7 @@ void HeroClass::do_liftglove(int32_t liftid, bool passive)
 		item_error();
 		return;
 	}
-	if(glove.script!=0 && (FFCore.doscript(SCRIPT_ITEM, liftid) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)))
+	if(glove.script!=0 && (FFCore.doscript(ScriptType::Item, liftid) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)))
 		return;
 	
 	bool paidmagic = had_weapon; //don't pay to throw, only to lift
@@ -10444,9 +10444,9 @@ void HeroClass::do_liftglove(int32_t liftid, bool passive)
 		}
 		
 		int i = liftid;
-		FFCore.reset_script_engine_data(SCRIPT_ITEM, i);
-		ZScriptVersion::RunScript(SCRIPT_ITEM, glove.script, i);
-		FFCore.deallocateAllArrays(SCRIPT_ITEM,i);
+		FFCore.reset_script_engine_data(ScriptType::Item, i);
+		ZScriptVersion::RunScript(ScriptType::Item, glove.script, i);
+		FFCore.deallocateAllArrays(ScriptType::Item,i);
 		
 		bool has_weapon = lift_wpn;
 		if(has_weapon != had_weapon) //Item action script changed the lift information
@@ -11027,7 +11027,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			{
 				return item_error();
 			}
-			if(itm.script!=0 && (FFCore.doscript(SCRIPT_ITEM, itemid) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)))
+			if(itm.script!=0 && (FFCore.doscript(ScriptType::Item, itemid) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)))
 				return false;
 			
 			size_t bind = game->get_bottle_slot(itm.misc1);
@@ -11038,8 +11038,8 @@ bool HeroClass::startwpn(int32_t itemid)
 				paymagiccost(itemid);
 
 				int i = itemid;
-				FFCore.reset_script_engine_data(SCRIPT_ITEM, i);
-				ZScriptVersion::RunScript(SCRIPT_ITEM, itm.script, i);
+				FFCore.reset_script_engine_data(ScriptType::Item, i);
+				ZScriptVersion::RunScript(ScriptType::Item, itm.script, i);
 				bind = game->get_bottle_slot(itm.misc1);
 			}
 			bottletype const* bt = bind ? &(QMisc.bottle_types[bind-1]) : NULL;
@@ -12556,12 +12556,12 @@ void do_lens()
 			
 			paymagiccost(itemid, true); //Needs to ignore timer cause lensclk is our timer.
 			
-			if(itemid>=0 && itemsbuf[itemid].script != 0 && !did_scriptl && !(FFCore.doscript(SCRIPT_ITEM, itemid) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)))
+			if(itemid>=0 && itemsbuf[itemid].script != 0 && !did_scriptl && !(FFCore.doscript(ScriptType::Item, itemid) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)))
 			{
 				//clear the item script stack for a new script
 				int i = itemid;
-				FFCore.reset_script_engine_data(SCRIPT_ITEM, i);
-				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script, i);
+				FFCore.reset_script_engine_data(ScriptType::Item, i);
+				ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[i].script, i);
 					did_scriptl=true;
 			}
 			
@@ -12605,12 +12605,12 @@ void do_210_lens()
 		
 		paymagiccost(itemid, true);
 		
-		if(itemid>=0 && itemsbuf[itemid].script != 0 && !did_scriptl && !(FFCore.doscript(SCRIPT_ITEM, itemid) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)))
+		if(itemid>=0 && itemsbuf[itemid].script != 0 && !did_scriptl && !(FFCore.doscript(ScriptType::Item, itemid) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)))
 		{
 			//clear the item script stack for a new script
 			int i = itemid;
-			FFCore.reset_script_engine_data(SCRIPT_ITEM, i);
-			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script, i);
+			FFCore.reset_script_engine_data(ScriptType::Item, i);
+			ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[i].script, i);
 			did_scriptl=true;
 		}
 		
@@ -13760,7 +13760,7 @@ void HeroClass::moveheroOld()
 			attackclk=0;
 			sfx(itemsbuf[directWpn>-1 ? directWpn : current_item_id(itype_sword)].usesound, pan(x.getInt()));
 			
-			if(dowpn>-1 && itemsbuf[dowpn].script!=0 && !did_scripta && !(FFCore.doscript(SCRIPT_ITEM, dowpn) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)))
+			if(dowpn>-1 && itemsbuf[dowpn].script!=0 && !did_scripta && !(FFCore.doscript(ScriptType::Item, dowpn) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)))
 			{
 				if(!checkmagiccost(dowpn))
 				{
@@ -13770,8 +13770,8 @@ void HeroClass::moveheroOld()
 				{
 					//clear the item script stack for a new script
 					int i = dowpn;
-					FFCore.reset_script_engine_data(SCRIPT_ITEM, i);
-					ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script, i);
+					FFCore.reset_script_engine_data(ScriptType::Item, i);
+					ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[i].script, i);
 					did_scripta=true;
 				}
 			}
@@ -13966,7 +13966,7 @@ void HeroClass::moveheroOld()
 			}
 		}
 		
-		if(dowpn>-1 && no_jinx && itemsbuf[dowpn].script!=0 && !did_scriptb && !(FFCore.doscript(SCRIPT_ITEM, dowpn) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)))
+		if(dowpn>-1 && no_jinx && itemsbuf[dowpn].script!=0 && !did_scriptb && !(FFCore.doscript(ScriptType::Item, dowpn) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)))
 		{
 			if(!((paidmagic || checkmagiccost(dowpn)) && checkbunny(dowpn)))
 			{
@@ -13980,8 +13980,8 @@ void HeroClass::moveheroOld()
 					paymagiccost(dowpn);
 				//clear the item script stack for a new script
 				int i = dowpn;
-				FFCore.reset_script_engine_data(SCRIPT_ITEM, i);
-				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script, i);
+				FFCore.reset_script_engine_data(ScriptType::Item, i);
+				ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[i].script, i);
 				did_scriptb=true;
 			}
 		}
@@ -17759,7 +17759,7 @@ bool HeroClass::premove()
 			attackclk=0;
 			sfx(itemsbuf[directWpn>-1 ? directWpn : current_item_id(itype_sword)].usesound, pan(x.getInt()));
 			
-			if(dowpn>-1 && itemsbuf[dowpn].script!=0 && !did_scripta && !(FFCore.doscript(SCRIPT_ITEM, dowpn) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)))
+			if(dowpn>-1 && itemsbuf[dowpn].script!=0 && !did_scripta && !(FFCore.doscript(ScriptType::Item, dowpn) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)))
 			{
 				if(!checkmagiccost(dowpn))
 				{
@@ -17769,8 +17769,8 @@ bool HeroClass::premove()
 				{
 					//clear the item script stack for a new script
 					int i = dowpn;
-					FFCore.reset_script_engine_data(SCRIPT_ITEM, i);
-					ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script, i);
+					FFCore.reset_script_engine_data(ScriptType::Item, i);
+					ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[i].script, i);
 					did_scripta=true;
 				}
 			}
@@ -17963,7 +17963,7 @@ bool HeroClass::premove()
 			}
 		}
 		
-		if(dowpn>-1 && no_jinx && itemsbuf[dowpn].script!=0 && !did_scriptb && !(FFCore.doscript(SCRIPT_ITEM, dowpn) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)))
+		if(dowpn>-1 && no_jinx && itemsbuf[dowpn].script!=0 && !did_scriptb && !(FFCore.doscript(ScriptType::Item, dowpn) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)))
 		{
 			if(!((paidmagic || checkmagiccost(dowpn)) && checkbunny(dowpn)))
 			{
@@ -17977,8 +17977,8 @@ bool HeroClass::premove()
 					paymagiccost(dowpn);
 				//clear the item script stack for a new script
 				int i = dowpn;
-				FFCore.reset_script_engine_data(SCRIPT_ITEM, i);
-				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script, i);
+				FFCore.reset_script_engine_data(ScriptType::Item, i);
+				ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[i].script, i);
 				did_scriptb=true;
 			}
 		}
@@ -20077,12 +20077,12 @@ bool usekey()
 				}
 			}
 			
-			if ( key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(SCRIPT_ITEM, key_item) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
+			if ( key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(ScriptType::Item, key_item) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
 			{
 				int i = key_item;
-				FFCore.reset_script_engine_data(SCRIPT_ITEM, i);
-				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script, i);
-				FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
+				FFCore.reset_script_engine_data(ScriptType::Item, i);
+				ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[i].script, i);
+				FFCore.deallocateAllArrays(ScriptType::Item,(key_item));
 			}
 			return true;
 		}
@@ -20105,12 +20105,12 @@ bool usekey()
 				}
 				//zprint2("key_item is: %d\n",key_item);
 				//zprint2("key_item script is: %d\n",itemsbuf[key_item].script);
-				if ( key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(SCRIPT_ITEM, key_item) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
+				if ( key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(ScriptType::Item, key_item) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
 				{
 					int i = key_item;
-					FFCore.reset_script_engine_data(SCRIPT_ITEM, i);
-					ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script, i);
-					FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
+					FFCore.reset_script_engine_data(ScriptType::Item, i);
+					ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[i].script, i);
+					FFCore.deallocateAllArrays(ScriptType::Item,(key_item));
 				}
 				game->change_keys(-1);
 			}
@@ -20442,12 +20442,12 @@ void HeroClass::oldcheckbosslockblock()
 			key_item = q; break;
 		}
 	}
-	if ( key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(SCRIPT_ITEM, key_item) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
+	if ( key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(ScriptType::Item, key_item) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
 	{
 		int i = key_item;
-		FFCore.reset_script_engine_data(SCRIPT_ITEM, i);
-		ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script, i);
-		FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
+		FFCore.reset_script_engine_data(ScriptType::Item, i);
+		ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[i].script, i);
+		FFCore.deallocateAllArrays(ScriptType::Item,(key_item));
 	}
 	
 	if(cmb.usrflags&cflag16)
@@ -20572,12 +20572,12 @@ void HeroClass::oldcheckchest(int32_t type)
 					key_item = q; break;
 				}
 			}
-			if ( key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(SCRIPT_ITEM, key_item) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
+			if ( key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(ScriptType::Item, key_item) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
 			{
 				int i = key_item;
-				FFCore.reset_script_engine_data(SCRIPT_ITEM, i);
-				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script, i);
-				FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
+				FFCore.reset_script_engine_data(ScriptType::Item, i);
+				ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[i].script, i);
+				FFCore.deallocateAllArrays(ScriptType::Item,(key_item));
 			}
 			setmapflag(mBOSSCHEST);
 			break;
@@ -21233,12 +21233,12 @@ void HeroClass::checklocked()
 							key_item = q; break;
 						}
 					}
-					if ( key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(SCRIPT_ITEM, key_item) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
+					if ( key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(ScriptType::Item, key_item) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
 					{
 						int i = key_item;
-						FFCore.reset_script_engine_data(SCRIPT_ITEM, i);
-						ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script, i);
-						FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
+						FFCore.reset_script_engine_data(ScriptType::Item, i);
+						ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[i].script, i);
+						FFCore.deallocateAllArrays(ScriptType::Item,(key_item));
 					}
 					}
 					else return;
@@ -21289,12 +21289,12 @@ void HeroClass::checklocked()
 							key_item = q; break;
 						}
 					}
-					if ( key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(SCRIPT_ITEM, key_item) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
+					if ( key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(ScriptType::Item, key_item) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
 					{
 						int i = key_item;
-						FFCore.reset_script_engine_data(SCRIPT_ITEM, i);
-						ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script, i);
-						FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
+						FFCore.reset_script_engine_data(ScriptType::Item, i);
+						ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[i].script, i);
+						FFCore.deallocateAllArrays(ScriptType::Item,(key_item));
 					}
 					}
 					else return;
@@ -21343,12 +21343,12 @@ void HeroClass::checklocked()
 							key_item = q; break;
 						}
 					}
-					if ( key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(SCRIPT_ITEM, key_item) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
+					if ( key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(ScriptType::Item, key_item) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
 					{
 						int i = key_item;
-						FFCore.reset_script_engine_data(SCRIPT_ITEM, i);
-						ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script, i);
-						FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
+						FFCore.reset_script_engine_data(ScriptType::Item, i);
+						ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[i].script, i);
+						FFCore.deallocateAllArrays(ScriptType::Item,(key_item));
 					}
 					}
 					else return;
@@ -21401,12 +21401,12 @@ void HeroClass::checklocked()
 							key_item = q; break;
 						}
 					}
-					if ( key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(SCRIPT_ITEM, key_item) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
+					if ( key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(ScriptType::Item, key_item) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
 					{
 						int i = key_item;
-						FFCore.reset_script_engine_data(SCRIPT_ITEM, i);
-						ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script, i);
-						FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
+						FFCore.reset_script_engine_data(ScriptType::Item, i);
+						ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[i].script, i);
+						FFCore.deallocateAllArrays(ScriptType::Item,(key_item));
 					}
 					}
 					else return;
@@ -21465,12 +21465,12 @@ void HeroClass::checklocked()
 								key_item = q; break;
 							}
 						}
-						if ( key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(SCRIPT_ITEM, key_item) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
+						if ( key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(ScriptType::Item, key_item) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
 						{
 							int i = key_item;
-							FFCore.reset_script_engine_data(SCRIPT_ITEM, i);
-							ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script, i);
-							FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
+							FFCore.reset_script_engine_data(ScriptType::Item, i);
+							ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[i].script, i);
+							FFCore.deallocateAllArrays(ScriptType::Item,(key_item));
 						}
 						}
 						else return;
@@ -21529,12 +21529,12 @@ void HeroClass::checklocked()
 								key_item = q; break;
 							}
 						}
-						if ( key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(SCRIPT_ITEM, key_item) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
+						if ( key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(ScriptType::Item, key_item) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
 						{
 							int i = key_item;
-							FFCore.reset_script_engine_data(SCRIPT_ITEM, i);
-							ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script, i);
-							FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
+							FFCore.reset_script_engine_data(ScriptType::Item, i);
+							ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[i].script, i);
+							FFCore.deallocateAllArrays(ScriptType::Item,(key_item));
 						}
 						}
 						else return;
@@ -21591,12 +21591,12 @@ void HeroClass::checklocked()
 								key_item = q; break;
 							}
 						}
-						if ( key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(SCRIPT_ITEM, key_item) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
+						if ( key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(ScriptType::Item, key_item) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
 						{
 							int i = key_item;
-							FFCore.reset_script_engine_data(SCRIPT_ITEM, i);
-							ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script, i);
-							FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
+							FFCore.reset_script_engine_data(ScriptType::Item, i);
+							ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[i].script, i);
+							FFCore.deallocateAllArrays(ScriptType::Item,(key_item));
 						}
 						}
 						else return;
@@ -21656,12 +21656,12 @@ void HeroClass::checklocked()
 								key_item = q; break;
 							}
 						}
-						if ( key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(SCRIPT_ITEM, key_item) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) //
+						if ( key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(ScriptType::Item, key_item) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) //
 						{
 							int i = key_item;
-							FFCore.reset_script_engine_data(SCRIPT_ITEM, i);
-							ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script, i);
-							FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
+							FFCore.reset_script_engine_data(ScriptType::Item, i);
+							ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[i].script, i);
+							FFCore.deallocateAllArrays(ScriptType::Item,(key_item));
 						}
 
 						}
@@ -25427,7 +25427,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 	FFCore.init_combo_doscript();
 	if (!intradmap || get_bit(quest_rules, qr_WARPS_RESTART_DMAPSCRIPT))
 	{
-		FFScript::deallocateAllArrays(SCRIPT_DMAP, olddmap);
+		FFScript::deallocateAllArrays(ScriptType::DMap, olddmap);
 		FFCore.initZScriptDMapScripts();
 		FFCore.initZScriptActiveSubscreenScript();
 		if(refresh_dmap_scrollscript)
@@ -26742,34 +26742,34 @@ void HeroClass::run_scrolling_script_int(bool waitdraw)
 {
 	if(waitdraw)
 	{
-		if ((!( FFCore.system_suspend[susptGLOBALGAME] )) && FFCore.waitdraw(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME))
+		if ((!( FFCore.system_suspend[susptGLOBALGAME] )) && FFCore.waitdraw(ScriptType::Global, GLOBAL_SCRIPT_GAME))
 		{
-			ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
-			FFCore.waitdraw(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME) = false;
+			ZScriptVersion::RunScript(ScriptType::Global, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
+			FFCore.waitdraw(ScriptType::Global, GLOBAL_SCRIPT_GAME) = false;
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_GLOBAL_WAITDRAW);
-		if ( (!( FFCore.system_suspend[susptHEROACTIVE] )) && FFCore.waitdraw(SCRIPT_PLAYER) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if ( (!( FFCore.system_suspend[susptHEROACTIVE] )) && FFCore.waitdraw(ScriptType::Player) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
-			ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_ACTIVE);
-			FFCore.waitdraw(SCRIPT_PLAYER) = false;
+			ZScriptVersion::RunScript(ScriptType::Player, SCRIPT_PLAYER_ACTIVE);
+			FFCore.waitdraw(ScriptType::Player) = false;
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_PLAYER_WAITDRAW);
-		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(SCRIPT_DMAP) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(ScriptType::DMap) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
-			ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
-			FFCore.waitdraw(SCRIPT_DMAP) = false;
+			ZScriptVersion::RunScript(ScriptType::DMap, DMaps[currdmap].script,currdmap);
+			FFCore.waitdraw(ScriptType::DMap) = false;
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_ACTIVE_WAITDRAW);
-		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(SCRIPT_PASSIVESUBSCREEN) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(ScriptType::PassiveSubscreen) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
-			ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script,currdmap);
-			FFCore.waitdraw(SCRIPT_PASSIVESUBSCREEN) = false;
+			ZScriptVersion::RunScript(ScriptType::PassiveSubscreen, DMaps[currdmap].passive_sub_script,currdmap);
+			FFCore.waitdraw(ScriptType::PassiveSubscreen) = false;
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_PASSIVESUBSCREEN_WAITDRAW);
-		if ( (!( FFCore.system_suspend[susptSCREENSCRIPTS] )) && tmpscr->script != 0 && FFCore.waitdraw(SCRIPT_SCREEN) && tmpscr->preloadscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if ( (!( FFCore.system_suspend[susptSCREENSCRIPTS] )) && tmpscr->script != 0 && FFCore.waitdraw(ScriptType::Screen) && tmpscr->preloadscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
-			ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script);  
-			FFCore.waitdraw(SCRIPT_SCREEN) = 0;		
+			ZScriptVersion::RunScript(ScriptType::Screen, tmpscr->script);  
+			FFCore.waitdraw(ScriptType::Screen) = 0;		
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_SCREEN_WAITDRAW);
 		if ( !FFCore.system_suspend[susptITEMSCRIPTENGINE] )
@@ -26782,27 +26782,27 @@ void HeroClass::run_scrolling_script_int(bool waitdraw)
 	{
 		if ( (!( FFCore.system_suspend[susptSCREENSCRIPTS] )) && tmpscr->script != 0 && tmpscr->preloadscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
-			ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script);
+			ZScriptVersion::RunScript(ScriptType::Screen, tmpscr->script);
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_FFCS);
-		if ((!( FFCore.system_suspend[susptGLOBALGAME] )) && FFCore.doscript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME))
+		if ((!( FFCore.system_suspend[susptGLOBALGAME] )) && FFCore.doscript(ScriptType::Global, GLOBAL_SCRIPT_GAME))
 		{
-			ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
+			ZScriptVersion::RunScript(ScriptType::Global, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_GLOBAL_ACTIVE);
-		if ((!( FFCore.system_suspend[susptHEROACTIVE] )) && FFCore.doscript(SCRIPT_PLAYER) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
+		if ((!( FFCore.system_suspend[susptHEROACTIVE] )) && FFCore.doscript(ScriptType::Player) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
 		{
-			ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_ACTIVE);
+			ZScriptVersion::RunScript(ScriptType::Player, SCRIPT_PLAYER_ACTIVE);
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_PLAYER_ACTIVE);
-		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.doscript(SCRIPT_DMAP) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
+		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.doscript(ScriptType::DMap) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
 		{
-			ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
+			ZScriptVersion::RunScript(ScriptType::DMap, DMaps[currdmap].script,currdmap);
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_ACTIVE);
-		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.doscript(SCRIPT_PASSIVESUBSCREEN) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
+		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.doscript(ScriptType::PassiveSubscreen) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
 		{
-			ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script,currdmap);
+			ZScriptVersion::RunScript(ScriptType::PassiveSubscreen, DMaps[currdmap].passive_sub_script,currdmap);
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_PASSIVESUBSCREEN);
 		bool old = get_bit(quest_rules, qr_OLD_ITEMDATA_SCRIPT_TIMING);
@@ -27108,46 +27108,46 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	lstep = (lstep + 6) % 12;
 	cx = scx;
 	FFCore.runGenericPassiveEngine(SCR_TIMING_WAITDRAW);
-	if((!( FFCore.system_suspend[susptGLOBALGAME] )) && FFCore.waitdraw(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME))
+	if((!( FFCore.system_suspend[susptGLOBALGAME] )) && FFCore.waitdraw(ScriptType::Global, GLOBAL_SCRIPT_GAME))
 	{
-		ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
-		FFCore.waitdraw(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME) = false;
+		ZScriptVersion::RunScript(ScriptType::Global, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
+		FFCore.waitdraw(ScriptType::Global, GLOBAL_SCRIPT_GAME) = false;
 	}
 	FFCore.runGenericPassiveEngine(SCR_TIMING_POST_GLOBAL_WAITDRAW);
-	if ( (!( FFCore.system_suspend[susptHEROACTIVE] )) && FFCore.waitdraw(SCRIPT_PLAYER) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+	if ( (!( FFCore.system_suspend[susptHEROACTIVE] )) && FFCore.waitdraw(ScriptType::Player) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 	{
-		ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_ACTIVE);
-		FFCore.waitdraw(SCRIPT_PLAYER) = false;
+		ZScriptVersion::RunScript(ScriptType::Player, SCRIPT_PLAYER_ACTIVE);
+		FFCore.waitdraw(ScriptType::Player) = false;
 	}
 	FFCore.runGenericPassiveEngine(SCR_TIMING_POST_PLAYER_WAITDRAW);
-	if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(SCRIPT_DMAP) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+	if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(ScriptType::DMap) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 	{
-		ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
-		FFCore.waitdraw(SCRIPT_DMAP) = false;
+		ZScriptVersion::RunScript(ScriptType::DMap, DMaps[currdmap].script,currdmap);
+		FFCore.waitdraw(ScriptType::DMap) = false;
 	}
 	FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_ACTIVE_WAITDRAW);
-	if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(SCRIPT_PASSIVESUBSCREEN) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+	if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(ScriptType::PassiveSubscreen) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 	{
-		ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script,currdmap);
-		FFCore.waitdraw(SCRIPT_PASSIVESUBSCREEN) = false;
+		ZScriptVersion::RunScript(ScriptType::PassiveSubscreen, DMaps[currdmap].passive_sub_script,currdmap);
+		FFCore.waitdraw(ScriptType::PassiveSubscreen) = false;
 	}
 	FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_PASSIVESUBSCREEN_WAITDRAW);
-	if ( (!( FFCore.system_suspend[susptSCREENSCRIPTS] )) && tmpscr->script != 0 && FFCore.waitdraw(SCRIPT_SCREEN) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+	if ( (!( FFCore.system_suspend[susptSCREENSCRIPTS] )) && tmpscr->script != 0 && FFCore.waitdraw(ScriptType::Screen) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 	{
-		ZScriptVersion::RunScript(SCRIPT_SCREEN, tmpscr->script);  
-		FFCore.waitdraw(SCRIPT_SCREEN) = 0;		
+		ZScriptVersion::RunScript(ScriptType::Screen, tmpscr->script);  
+		FFCore.waitdraw(ScriptType::Screen) = 0;		
 	}
 	FFCore.runGenericPassiveEngine(SCR_TIMING_POST_SCREEN_WAITDRAW);
 	
 	word c = tmpscr->numFFC();
 	for ( word q = 0; q < c; ++q )
 	{
-		if (FFCore.waitdraw(SCRIPT_FFC, q))
+		if (FFCore.waitdraw(ScriptType::FFC, q))
 		{
 			if(tmpscr->ffcs[q].script != 0)
 			{
-				ZScriptVersion::RunScript(SCRIPT_FFC, tmpscr->ffcs[q].script, q);
-				FFCore.waitdraw(SCRIPT_FFC, q) = false;
+				ZScriptVersion::RunScript(ScriptType::FFC, tmpscr->ffcs[q].script, q);
+				FFCore.waitdraw(ScriptType::FFC, q) = false;
 			}
 		}
 	}
@@ -30136,17 +30136,17 @@ void HeroClass::getTriforce(int32_t id2)
 		{
 			if ( itemsbuf[id2].script )
 			{
-				if ( !FFCore.doscript(SCRIPT_ITEM, id2) ) 
+				if ( !FFCore.doscript(ScriptType::Item, id2) ) 
 				{
 					int i = id2;
-					FFCore.reset_script_engine_data(SCRIPT_ITEM, i);
-					ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].script, i);
-					FFCore.deallocateAllArrays(SCRIPT_ITEM, i);
+					FFCore.reset_script_engine_data(ScriptType::Item, i);
+					ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[id2].script, i);
+					FFCore.deallocateAllArrays(ScriptType::Item, i);
 				}
 				else
 				{
 					if ( !(itemsbuf[id2].flags & ITEM_FLAG10) ) //Cutscene halts the script it resumes after cutscene.
-						ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].script, id2); //if flag is off, run the script every frame of the cutscene.
+						ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[id2].script, id2); //if flag is off, run the script every frame of the cutscene.
 				}
 			}
 		}
@@ -30570,11 +30570,11 @@ void HeroClass::heroDeathAnimation()
 				{
 					script_drawing_commands.Clear(); //We only want draws from this script
 					if(DMaps[currdmap].passive_sub_script != 0)
-						ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script, currdmap);
-					if (FFCore.waitdraw(SCRIPT_PASSIVESUBSCREEN) && DMaps[currdmap].passive_sub_script != 0 && FFCore.doscript(SCRIPT_PASSIVESUBSCREEN))
+						ZScriptVersion::RunScript(ScriptType::PassiveSubscreen, DMaps[currdmap].passive_sub_script, currdmap);
+					if (FFCore.waitdraw(ScriptType::PassiveSubscreen) && DMaps[currdmap].passive_sub_script != 0 && FFCore.doscript(ScriptType::PassiveSubscreen))
 					{
-						ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script, currdmap);
-						FFCore.waitdraw(SCRIPT_PASSIVESUBSCREEN) = false;
+						ZScriptVersion::RunScript(ScriptType::PassiveSubscreen, DMaps[currdmap].passive_sub_script, currdmap);
+						FFCore.waitdraw(ScriptType::PassiveSubscreen) = false;
 					}
 					BITMAP* tmp = framebuf;
 					framebuf = subscrbmp; //Hack; force draws to subscrbmp

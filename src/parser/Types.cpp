@@ -672,7 +672,7 @@ namespace // file local
 		DataTypeId thisTypeId;
 	};
 	//the 'this' 'this->' stuff. -Z
-	ScriptTypeData scriptTypes[ScriptType::idEnd] = {
+	ScriptTypeData scriptTypes[ParserScriptType::idEnd] = {
 		{"invalid", ZTID_VOID},
 		{"global", ZTID_VOID},
 		{"ffc", ZTID_FFC},
@@ -691,41 +691,41 @@ namespace // file local
 	};
 }
 
-ScriptType const ScriptType::invalid(idInvalid);
-ScriptType const ScriptType::global(idGlobal);
-ScriptType const ScriptType::ffc(idFfc);
-ScriptType const ScriptType::item(idItem);
-ScriptType const ScriptType::npc(idNPC);
-ScriptType const ScriptType::lweapon(idLWeapon);
-ScriptType const ScriptType::eweapon(idEWeapon);
-ScriptType const ScriptType::player(idPlayer);
-ScriptType const ScriptType::screendata(idScreen);
-ScriptType const ScriptType::dmapdata(idDMap);
-ScriptType const ScriptType::itemsprite(idItemSprite);
-ScriptType const ScriptType::untyped(idUntyped);
-ScriptType const ScriptType::subscreendata(idSubscreenData);
-ScriptType const ScriptType::combodata(idComboData);
-ScriptType const ScriptType::genericscr(idGenericScript);
+ParserScriptType const ParserScriptType::invalid(idInvalid);
+ParserScriptType const ParserScriptType::global(idGlobal);
+ParserScriptType const ParserScriptType::ffc(idFfc);
+ParserScriptType const ParserScriptType::item(idItem);
+ParserScriptType const ParserScriptType::npc(idNPC);
+ParserScriptType const ParserScriptType::lweapon(idLWeapon);
+ParserScriptType const ParserScriptType::eweapon(idEWeapon);
+ParserScriptType const ParserScriptType::player(idPlayer);
+ParserScriptType const ParserScriptType::screendata(idScreen);
+ParserScriptType const ParserScriptType::dmapdata(idDMap);
+ParserScriptType const ParserScriptType::itemsprite(idItemSprite);
+ParserScriptType const ParserScriptType::untyped(idUntyped);
+ParserScriptType const ParserScriptType::subscreendata(idSubscreenData);
+ParserScriptType const ParserScriptType::combodata(idComboData);
+ParserScriptType const ParserScriptType::genericscr(idGenericScript);
 
-string const& ScriptType::getName() const
+string const& ParserScriptType::getName() const
 {
 	if (isValid()) return scriptTypes[id_].name;
 	return scriptTypes[idInvalid].name;
 }
 
-DataTypeId ScriptType::getThisTypeId() const
+DataTypeId ParserScriptType::getThisTypeId() const
 {
 	if (isValid()) return scriptTypes[id_].thisTypeId;
 	return scriptTypes[idInvalid].thisTypeId;
 }
 
-bool ZScript::operator==(ScriptType const& lhs, ScriptType const& rhs)
+bool ZScript::operator==(ParserScriptType const& lhs, ParserScriptType const& rhs)
 {
 	if (!lhs.isValid()) return !rhs.isValid();
 	return lhs.id_ == rhs.id_;
 }
 
-bool ZScript::operator!=(ScriptType const& lhs, ScriptType const& rhs)
+bool ZScript::operator!=(ParserScriptType const& lhs, ParserScriptType const& rhs)
 {
 	if (lhs.isValid()) return lhs.id_ != rhs.id_;
 	return rhs.isValid();

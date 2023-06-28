@@ -96,7 +96,7 @@ namespace ZScript
 	public:
 		virtual ~Script();
 
-		virtual ScriptType getType() const = 0;
+		virtual ParserScriptType getType() const = 0;
 		virtual std::string const& getName() const = 0;
 		virtual std::string const& getAuthor() const = 0;
 		virtual zasm_meta const& getMetadata() const = 0;
@@ -125,7 +125,7 @@ namespace ZScript
 				Program&, Scope&, ASTScript&, CompileErrorHandler*);
 
 	public:
-		ScriptType getType() const /*override*/;
+		ParserScriptType getType() const /*override*/;
 		std::string const& getName() const /*override*/ {return node.metadata.script_name;};
 		std::string const& getAuthor() const /*override*/ {return node.metadata.author;};
 		zasm_meta const& getMetadata() const /*override*/ {return node.metadata;};
@@ -143,10 +143,10 @@ namespace ZScript
 	class BuiltinScript : public Script
 	{
 		friend BuiltinScript* createScript(
-				Program&, Scope&, ScriptType, std::string const& name,
+				Program&, Scope&, ParserScriptType, std::string const& name,
 				CompileErrorHandler*);
 	public:
-		ScriptType getType() const /*override*/ {return type;}
+		ParserScriptType getType() const /*override*/ {return type;}
 		std::string const& getName() const /*override*/ {return name;};
 		std::string const& getAuthor() const /*override*/ {return builtin_author;};
 		zasm_meta const& getMetadata() const /*override*/
@@ -160,10 +160,10 @@ namespace ZScript
 		ScriptScope const& getScope() const /*override*/ {return *scope;}
 		
 	private:
-		BuiltinScript(Program&, ScriptType, std::string const& name);
+		BuiltinScript(Program&, ParserScriptType, std::string const& name);
 		static const std::string builtin_author;
 		
-		ScriptType type;
+		ParserScriptType type;
 		std::string name;
 		ScriptScope* scope;
 	};
@@ -171,7 +171,7 @@ namespace ZScript
 	UserScript* createScript(
 			Program&, Scope&, ASTScript&, CompileErrorHandler* = NULL);
 	BuiltinScript* createScript(
-			Program&, Scope&, ScriptType, std::string const& name,
+			Program&, Scope&, ParserScriptType, std::string const& name,
 			CompileErrorHandler* = NULL);
 	
 	std::optional<int32_t> getLabel(Script const&);

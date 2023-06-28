@@ -13150,7 +13150,7 @@ int32_t write_one_ffscript(PACKFILE *f, zquestheader *Header, int32_t i, script_
 		new_return(9);
 	}
 	
-	if(!p_putc(tmeta.script_type,f))
+	if(!p_putc((int)tmeta.script_type,f))
 	{
 		new_return(10);
 	}

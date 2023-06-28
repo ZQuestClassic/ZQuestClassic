@@ -1659,6 +1659,7 @@ namespace ZScript
 	{
 	public:
 		LiteralArgument(int32_t Value) : value(Value) {}
+		LiteralArgument(ScriptType Value) : value((int)Value) {}
 		std::string toString() const;
 		void execute(ArgumentVisitor &host, void *param)
 		{

@@ -213,13 +213,13 @@ DataType const* ZScript::lookupDataType(
 	return NULL;
 }
 
-ScriptType ZScript::lookupScriptType(Scope const& scope, string const& name)
+ParserScriptType ZScript::lookupScriptType(Scope const& scope, string const& name)
 {
 	for (Scope const* current = &scope;
 	     current; current = current->getParent())
-		if (std::optional<ScriptType> type = current->getLocalScriptType(name))
+		if (std::optional<ParserScriptType> type = current->getLocalScriptType(name))
 			return *type;
-	return ScriptType::invalid;
+	return ParserScriptType::invalid;
 }
 
 ZClass* ZScript::lookupClass(Scope const& scope, string const& name)
@@ -849,9 +849,9 @@ DataType const* BasicScope::getLocalDataType(string const& name) const
 	return find<DataType const*>(dataTypes_, name).value_or(std::add_pointer<DataType const>::type());
 }
 
-std::optional<ScriptType> BasicScope::getLocalScriptType(string const& name) const
+std::optional<ParserScriptType> BasicScope::getLocalScriptType(string const& name) const
 {
-	return find<ScriptType>(scriptTypes_, name);
+	return find<ParserScriptType>(scriptTypes_, name);
 }
 
 ZClass* BasicScope::getLocalClass(string const& name) const
@@ -1000,9 +1000,9 @@ DataType const* BasicScope::addDataType(
 }
 
 bool BasicScope::addScriptType(
-	string const& name, ScriptType type, AST* node)
+	string const& name, ParserScriptType type, AST* node)
 {
-	if (find<ScriptType>(scriptTypes_, name)) return false;
+	if (find<ParserScriptType>(scriptTypes_, name)) return false;
 	scriptTypes_[name] = type;
 	return true;
 }
@@ -1266,7 +1266,7 @@ DataType const* FileScope::addDataType(
 	return result;
 }
 
-bool FileScope::addScriptType(string const& name, ScriptType type, AST* node)
+bool FileScope::addScriptType(string const& name, ParserScriptType type, AST* node)
 {
 	if (!BasicScope::addScriptType(name, type, node)) return false;
 	if (!getRoot(*this)->registerScriptType(name, type)) return false;
@@ -1464,11 +1464,11 @@ DataType const* RootScope::getLocalDataType(string const& name) const
 	return result;
 }
 
-std::optional<ScriptType> RootScope::getLocalScriptType(string const& name) const
+std::optional<ParserScriptType> RootScope::getLocalScriptType(string const& name) const
 {
-	if (std::optional<ScriptType> result = BasicScope::getLocalScriptType(name))
+	if (std::optional<ParserScriptType> result = BasicScope::getLocalScriptType(name))
 		return result;
-	return find<ScriptType>(descScriptTypes_, name);
+	return find<ParserScriptType>(descScriptTypes_, name);
 }
 
 ZClass* RootScope::getLocalClass(string const& name) const
@@ -1570,7 +1570,7 @@ bool RootScope::registerDataType(string const& name, DataType const* type)
 	return true;
 }
 
-bool RootScope::registerScriptType(std::string const& name, ScriptType type)
+bool RootScope::registerScriptType(std::string const& name, ParserScriptType type)
 {
 	if (getLocalScriptType(name)) return false;
 	descScriptTypes_[name] = type;

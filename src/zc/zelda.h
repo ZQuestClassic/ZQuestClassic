@@ -472,7 +472,7 @@ extern int32_t sfxdat;
 struct ScriptOwner
 {
 	ScriptOwner();
-	byte scriptType;
+	ScriptType scriptType;
 	uint32_t ownerUID;
 	bool specOwned;
 	bool specCleared;

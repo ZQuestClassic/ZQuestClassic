@@ -79,7 +79,7 @@ void FFCSymbols::generateCode()
 		//Owner object
 		POPREF();
 		
-		addOpcode2(code, new OObjOwnBitmap(new VarArgument(EXP1), new LiteralArgument(SCRIPT_FFC)));
+		addOpcode2(code, new OObjOwnBitmap(new VarArgument(EXP1), new LiteralArgument(ScriptType::FFC)));
 		RETURN();
 		function->giveCode(code);
 	}
@@ -94,7 +94,7 @@ void FFCSymbols::generateCode()
 		//Owner object
 		POPREF();
 		
-		addOpcode2(code, new OObjOwnPaldata(new VarArgument(EXP1), new LiteralArgument(SCRIPT_FFC)));
+		addOpcode2(code, new OObjOwnPaldata(new VarArgument(EXP1), new LiteralArgument(ScriptType::FFC)));
 		RETURN();
 		function->giveCode(code);
 	}
@@ -109,7 +109,7 @@ void FFCSymbols::generateCode()
 		//Owner object
 		POPREF();
 		
-		addOpcode2(code, new OObjOwnFile(new VarArgument(EXP1), new LiteralArgument(SCRIPT_FFC)));
+		addOpcode2(code, new OObjOwnFile(new VarArgument(EXP1), new LiteralArgument(ScriptType::FFC)));
 		RETURN();
 		function->giveCode(code);
 	}
@@ -124,7 +124,7 @@ void FFCSymbols::generateCode()
 		//Owner object
 		POPREF();
 		
-		addOpcode2(code, new OObjOwnDir(new VarArgument(EXP1), new LiteralArgument(SCRIPT_FFC)));
+		addOpcode2(code, new OObjOwnDir(new VarArgument(EXP1), new LiteralArgument(ScriptType::FFC)));
 		RETURN();
 		function->giveCode(code);
 	}
@@ -139,7 +139,7 @@ void FFCSymbols::generateCode()
 		//Owner object
 		POPREF();
 		
-		addOpcode2(code, new OObjOwnStack(new VarArgument(EXP1), new LiteralArgument(SCRIPT_FFC)));
+		addOpcode2(code, new OObjOwnStack(new VarArgument(EXP1), new LiteralArgument(ScriptType::FFC)));
 		RETURN();
 		function->giveCode(code);
 	}
@@ -154,7 +154,7 @@ void FFCSymbols::generateCode()
 		//Owner object
 		POPREF();
 		
-		addOpcode2(code, new OObjOwnRNG(new VarArgument(EXP1), new LiteralArgument(SCRIPT_FFC)));
+		addOpcode2(code, new OObjOwnRNG(new VarArgument(EXP1), new LiteralArgument(ScriptType::FFC)));
 		RETURN();
 		function->giveCode(code);
 	}
@@ -169,7 +169,7 @@ void FFCSymbols::generateCode()
 		//Owner object
 		POPREF();
 		
-		addOpcode2(code, new OObjOwnArray(new VarArgument(EXP1), new LiteralArgument(SCRIPT_FFC)));
+		addOpcode2(code, new OObjOwnArray(new VarArgument(EXP1), new LiteralArgument(ScriptType::FFC)));
 		RETURN();
 		function->giveCode(code);
 	}
@@ -184,7 +184,7 @@ void FFCSymbols::generateCode()
 		//Owner object
 		POPREF();
 		
-		addOpcode2(code, new OObjOwnClass(new VarArgument(EXP1), new LiteralArgument(SCRIPT_FFC)));
+		addOpcode2(code, new OObjOwnClass(new VarArgument(EXP1), new LiteralArgument(ScriptType::FFC)));
 		RETURN();
 		function->giveCode(code);
 	}

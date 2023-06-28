@@ -2727,7 +2727,7 @@ int32_t writesaves(gamedata *savedata, PACKFILE *f)
 				return 89;
 			if(!p_iputl(exec.thiskey,f))
 				return 90;
-			if(!p_iputl(exec.type,f))
+			if(!p_iputl((int)exec.type,f))
 				return 91;
 			if(!p_iputl(exec.i,f))
 				return 92;

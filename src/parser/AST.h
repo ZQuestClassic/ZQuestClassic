@@ -2106,18 +2106,18 @@ namespace ZScript
 	class ASTScriptType : public AST
 	{
 	public:
-		ASTScriptType(ScriptType type, LocationData const& location);
+		ASTScriptType(ParserScriptType type, LocationData const& location);
 		ASTScriptType(std::string const& name, LocationData const& location);
 		ASTScriptType* clone() const {return new ASTScriptType(*this);}
 
 		void execute(ASTVisitor& visitor, void* param = NULL);
 
 		// If type is invalid, try to resolve using name.
-		ScriptType type;
+		ParserScriptType type;
 		std::string name;
 	};
 
-	ScriptType resolveScriptType(ASTScriptType const&, Scope const&);
+	ParserScriptType resolveScriptType(ASTScriptType const&, Scope const&);
 
 	class ASTDataType : public AST
 	{

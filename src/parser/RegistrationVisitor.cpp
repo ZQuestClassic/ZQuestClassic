@@ -173,7 +173,7 @@ void RegistrationVisitor::caseScript(ASTScript& host, void* param)
 		return;
 	}
 	
-	if(script.getType() == ScriptType::untyped)
+	if(script.getType() == ParserScriptType::untyped)
 	{
 		doRegister(host);
 		return;
@@ -423,14 +423,14 @@ void RegistrationVisitor::caseCustomDataTypeDef(ASTCustomDataTypeDef& host, void
 void RegistrationVisitor::caseScriptTypeDef(ASTScriptTypeDef& host, void* param)
 {
 	// Resolve the base type under current scope.
-	ScriptType type = resolveScriptType(*host.oldType, *scope);
+	ParserScriptType type = resolveScriptType(*host.oldType, *scope);
 	if (!type.isValid()) return;
 
 	doRegister(host);
 	// Add type to the current scope under its new name.
 	if (!scope->addScriptType(host.newName, type, &host))
 	{
-		ScriptType originalType = lookupScriptType(*scope, host.newName);
+		ParserScriptType originalType = lookupScriptType(*scope, host.newName);
 		if (originalType != type)
 			handleError(
 				CompileError::RedefScriptType(
@@ -1035,7 +1035,7 @@ void RegistrationVisitor::caseExprTernary(ASTTernaryExpr& host, void* param)
 //Types
 void RegistrationVisitor::caseScriptType(ASTScriptType& host, void* param)
 {
-	ScriptType const& type = resolveScriptType(host, *scope);
+	ParserScriptType const& type = resolveScriptType(host, *scope);
 	if(type.isValid()) doRegister(host);
 }
 

@@ -2399,7 +2399,7 @@ std::optional<int32_t> ASTIsIncluded::getCompileTimeValue(
 
 // ASTScriptType
 
-ASTScriptType::ASTScriptType(ScriptType type, LocationData const& location)
+ASTScriptType::ASTScriptType(ParserScriptType type, LocationData const& location)
 		: AST(location), type(type)
 {}
 
@@ -2412,7 +2412,7 @@ void ASTScriptType::execute(ASTVisitor& visitor, void* param)
 	visitor.caseScriptType(*this, param);
 }
 
-ScriptType ZScript::resolveScriptType(ASTScriptType const& node,
+ParserScriptType ZScript::resolveScriptType(ASTScriptType const& node,
                                       Scope const& scope)
 {
 	if (node.type.isValid()) return node.type;

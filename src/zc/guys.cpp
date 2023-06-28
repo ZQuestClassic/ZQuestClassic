@@ -2733,7 +2733,7 @@ int32_t enemy::getScriptUID() { return script_UID; }
 void enemy::setScriptUID(int32_t new_id) { script_UID = new_id; }
 enemy::~enemy()
 {
-	FFCore.deallocateAllArrays(SCRIPT_NPC, getUID());
+	FFCore.deallocateAllArrays(ScriptType::NPC, getUID());
 	if(hashero)
 	{
 		Hero.setEaten(0);
@@ -9941,11 +9941,11 @@ int32_t enemy::run_script(int32_t mode)
 	switch(mode)
 	{
 		case MODE_NORMAL:
-			return ZScriptVersion::RunScript(SCRIPT_NPC, script, getUID());
+			return ZScriptVersion::RunScript(ScriptType::NPC, script, getUID());
 		case MODE_WAITDRAW:
 			if(waitdraw)
 			{
-				ret = ZScriptVersion::RunScript(SCRIPT_NPC, script, getUID());
+				ret = ZScriptVersion::RunScript(ScriptType::NPC, script, getUID());
 				waitdraw = 0;
 			}
 			break;
@@ -22887,10 +22887,10 @@ bool parsemsgcode()
 			int32_t itemID = grab_next_argument();
 			
 			getitem(itemID, true);
-			if ( !FFCore.doscript(SCRIPT_ITEM, itemID) && (((unsigned)itemID) < 256) )
+			if ( !FFCore.doscript(ScriptType::Item, itemID) && (((unsigned)itemID) < 256) )
 			{
-				FFCore.reset_script_engine_data(SCRIPT_ITEM, itemID);
-				FFCore.doscript(SCRIPT_ITEM, itemID) = (itemsbuf[itemID].flags&ITEM_PASSIVESCRIPT) > 0;
+				FFCore.reset_script_engine_data(ScriptType::Item, itemID);
+				FFCore.doscript(ScriptType::Item, itemID) = (itemsbuf[itemID].flags&ITEM_PASSIVESCRIPT) > 0;
 			}
 			return true;
 		}
@@ -22922,9 +22922,9 @@ bool parsemsgcode()
 		case MSGC_TAKEITEM:
 		{
 			int32_t itemID = grab_next_argument();
-			if ( FFCore.doscript(SCRIPT_ITEM, itemID) )
+			if ( FFCore.doscript(ScriptType::Item, itemID) )
 			{
-				FFCore.doscript(SCRIPT_ITEM, itemID) = 4; //Val of 4 means 'clear stack and quit'
+				FFCore.doscript(ScriptType::Item, itemID) = 4; //Val of 4 means 'clear stack and quit'
 			}
 			takeitem(itemID);
 			if ( game->forced_bwpn == itemID ) 
@@ -23933,7 +23933,7 @@ void check_collisions()
 							{
 								if(itemsbuf[theItem->id].collect_script)
 								{
-									ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[theItem->id].collect_script, theItem->id & 0xFFF);
+									ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[theItem->id].collect_script, theItem->id & 0xFFF);
 								}
 								
 								Hero.checkitems(j);

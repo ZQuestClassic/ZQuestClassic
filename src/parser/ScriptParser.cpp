@@ -476,9 +476,9 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 			// Push on the this, if a script
 			if (isRun)
 			{
-				ScriptType type = program.getScript(scriptname)->getType();
+				ParserScriptType type = program.getScript(scriptname)->getType();
 
-				if (type == ScriptType::ffc )
+				if (type == ParserScriptType::ffc )
 				{
 					addOpcode2(funccode, 
 						new OSetRegister(new VarArgument(EXP2),
@@ -486,59 +486,59 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 
 
 				}
-				else if (type == ScriptType::item )
+				else if (type == ParserScriptType::item )
 				{
 					addOpcode2(funccode,
 						new OSetRegister(new VarArgument(EXP2),
 								 new VarArgument(REFITEMCLASS)));
 
 				}
-				else if (type == ScriptType::npc )
+				else if (type == ParserScriptType::npc )
 				{
 					addOpcode2(funccode,
 						new OSetRegister(new VarArgument(EXP2),
 								 new VarArgument(REFNPC)));
 
 				}
-				else if (type == ScriptType::lweapon )
+				else if (type == ParserScriptType::lweapon )
 				{
 					addOpcode2(funccode,
 						new OSetRegister(new VarArgument(EXP2),
 								 new VarArgument(REFLWPN)));
 				}
-				else if (type == ScriptType::eweapon )
+				else if (type == ParserScriptType::eweapon )
 				{
 					addOpcode2(funccode,
 						new OSetRegister(new VarArgument(EXP2),
 								 new VarArgument(REFEWPN)));
 
 				}
-				else if (type == ScriptType::dmapdata )
+				else if (type == ParserScriptType::dmapdata )
 				{
 					addOpcode2(funccode,
 						new OSetRegister(new VarArgument(EXP2),
 								 new VarArgument(REFDMAPDATA)));
 
 				}
-				else if (type == ScriptType::itemsprite)
+				else if (type == ParserScriptType::itemsprite)
 				{
 					addOpcode2(funccode,
 						new OSetRegister(new VarArgument(EXP2),
 								new VarArgument(REFITEM)));
 				}
-				else if (type == ScriptType::subscreendata)
+				else if (type == ParserScriptType::subscreendata)
 				{
 					addOpcode2(funccode,
 						new OSetRegister(new VarArgument(EXP2),
 								new VarArgument(REFSUBSCREEN)));
 				}
-				else if (type == ScriptType::combodata)
+				else if (type == ParserScriptType::combodata)
 				{
 					addOpcode2(funccode,
 						new OSetRegister(new VarArgument(EXP2),
 								new VarArgument(REFCOMBODATA)));
 				}
-				else if (type == ScriptType::genericscr)
+				else if (type == ParserScriptType::genericscr)
 				{
 					addOpcode2(funccode,
 						new OSetRegister(new VarArgument(EXP2),
@@ -625,7 +625,7 @@ void ScriptParser::assemble(IntermediateData *id)
 
 	// If there's a global script called "Init", append it to ~Init:
 	Script* userInit = program.getScript("Init");
-	if (userInit && userInit->getType() == ScriptType::global
+	if (userInit && userInit->getType() == ParserScriptType::global
 		&& !userInit->isPrototypeRun()) //Prototype run function can be ignored, as it is empty.
 	{
 		int32_t label = *getLabel(*userInit);
@@ -640,7 +640,7 @@ void ScriptParser::assemble(IntermediateData *id)
 	{
 		Script& script = **it;
 		if (script.getName() == "~Init") continue;
-		if(script.getType() == ScriptType::untyped) continue;
+		if(script.getType() == ParserScriptType::untyped) continue;
 		Function& run = *script.getRun();
 		if(run.prototype) //Generate a minimal script if 'run()' is a prototype.
 		{
