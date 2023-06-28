@@ -31,7 +31,6 @@
 #include "user_object.h"
 #include "slopes.h"
 extern FFScript FFCore;
-extern byte itemscriptInitialised[256];
 extern HeroClass Hero;
 extern ZModule zcm;
 extern zcmodule moduledata;
@@ -41,14 +40,8 @@ extern refInfo playerScriptData;
 #include <fmt/format.h>
 #include "zc/render.h"
 
-extern refInfo itemScriptData[256];
-extern refInfo itemCollectScriptData[256];
-extern int32_t item_stack[256][MAX_SCRIPT_REGISTERS];
-extern int32_t item_collect_stack[256][MAX_SCRIPT_REGISTERS];
 extern refInfo *ri; //= NULL;
 extern int32_t(*stack)[MAX_SCRIPT_REGISTERS];
-extern word item_doscript[256];
-extern word item_collect_doscript[256];
 extern portal mirror_portal;
 using std::set;
 
@@ -3085,30 +3078,21 @@ void collectitem_script(int32_t id)
 	if(itemsbuf[id].collect_script)
 	{
 		//clear item script stack. 
-		//ri = &(itemScriptData[id]);
-		//ri->Clear();
-		//itemCollectScriptData[id].Clear();
-		//for ( int32_t q = 0; q < 1024; q++ ) item_collect_stack[id][q] = 0;
-		ri = &(itemCollectScriptData[id]);
-		for ( int32_t q = 0; q < 1024; q++ ) item_collect_stack[id][q] = 0xFFFF;
-		ri->Clear();
-		//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id].collect_script, ((id & 0xFFF)*-1));
-		
-		if ( id > 0 && !(item_collect_doscript[id] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) //No collect script on item 0. 
+		FFCore.ref(SCRIPT_ITEM, -id).Clear();
+
+		if ( id > 0 && !(FFCore.doscript(SCRIPT_ITEM, -id) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) //No collect script on item 0. 
 		{
-			item_collect_doscript[id] = 1;
-			itemscriptInitialised[id] = 0;
-			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id].collect_script, ((id)*-1));
-			//if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
-			FFCore.deallocateAllArrays(SCRIPT_ITEM,-(id));
+			int i = -id;
+			FFCore.reset_script_engine_data(SCRIPT_ITEM, i);
+			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id].collect_script, i);
+			FFCore.deallocateAllArrays(SCRIPT_ITEM, i);
 		}
-		else if (id == 0 && !(item_collect_doscript[id] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING))) //item 0
+		else if (id == 0 && !(FFCore.doscript(SCRIPT_ITEM, -id) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING))) //item 0
 		{
-			item_collect_doscript[id] = 1;
-			itemscriptInitialised[id] = 0;
-			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id].collect_script, COLLECT_SCRIPT_ITEM_ZERO);
-			//if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
-			FFCore.deallocateAllArrays(SCRIPT_ITEM,COLLECT_SCRIPT_ITEM_ZERO);
+			int i = COLLECT_SCRIPT_ITEM_ZERO;
+			FFCore.reset_script_engine_data(SCRIPT_ITEM, i);
+			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id].collect_script, i);
+			FFCore.deallocateAllArrays(SCRIPT_ITEM, i);
 		}
 		//runningItemScripts[id] = 0;
 	}
@@ -3118,17 +3102,12 @@ void passiveitem_script(int32_t id, bool doRun = false)
 	//Passive item scripts on colelction
 	if(itemsbuf[id].script && ( (itemsbuf[id].flags&ITEM_PASSIVESCRIPT) && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ))
 	{
-		ri = &(itemScriptData[id]);
-		for ( int32_t q = 0; q < 1024; q++ ) item_stack[id][q] = 0xFFFF;
-		ri->Clear();
-		item_doscript[id] = 1;
-		itemscriptInitialised[id] = 0;
-		
+		FFCore.reset_script_engine_data(SCRIPT_ITEM, id);
 		
 		if(get_bit(quest_rules,qr_PASSIVE_ITEM_SCRIPT_ONLY_HIGHEST)
 			&& current_item(itemsbuf[id].family) > itemsbuf[id].fam_type)
 		{
-			item_doscript[id] = 0;
+			FFCore.doscript(SCRIPT_ITEM, id) = false;
 			return;
 		}
 		if(doRun)
@@ -7144,18 +7123,12 @@ int32_t HeroClass::hithero(int32_t hit2, int32_t force_hdir)
 			game->set_item(stompid,false);
 			
 		// Stomp Boots script
-		if(itemsbuf[stompid].script != 0 && !(item_doscript[stompid] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)))
+		if(itemsbuf[stompid].script != 0 && !(FFCore.doscript(SCRIPT_ITEM, stompid) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)))
 		{
-			//clear the item script stack for a new script
-			ri = &(itemScriptData[stompid]);
-			for ( int32_t q = 0; q < 1024; q++ ) item_stack[stompid][q] = 0xFFFF;
-			ri->Clear();
-			//itemScriptData[(stompid & 0xFFF)].Clear();
-			//for ( int32_t q = 0; q < 1024; q++ ) item_stack[(stompid & 0xFFF)][q] = 0;
-			//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[stompid].script, stompid & 0xFFF);
-			item_doscript[stompid] = 1;
-			itemscriptInitialised[stompid] = 0;
-			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[stompid].script, stompid);
+			int i = stompid;
+			FFCore.reset_script_engine_data(SCRIPT_ITEM, i);
+			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[stompid].script, i);
+			FFCore.deallocateAllArrays(SCRIPT_ITEM, i);
 		}
 		
 		return -1;
@@ -10458,7 +10431,7 @@ void HeroClass::do_liftglove(int32_t liftid, bool passive)
 		item_error();
 		return;
 	}
-	if(glove.script!=0 && (item_doscript[liftid] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)))
+	if(glove.script!=0 && (FFCore.doscript(SCRIPT_ITEM, liftid) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)))
 		return;
 	
 	bool paidmagic = had_weapon; //don't pay to throw, only to lift
@@ -10470,13 +10443,10 @@ void HeroClass::do_liftglove(int32_t liftid, bool passive)
 			paymagiccost(liftid);
 		}
 		
-		ri = &(itemScriptData[liftid]);
-		for ( int32_t q = 0; q < 1024; q++ )
-			item_stack[liftid][q] = 0xFFFF;
-		ri->Clear();
-		item_doscript[liftid] = 1;
-		itemscriptInitialised[liftid] = 0;
-		ZScriptVersion::RunScript(SCRIPT_ITEM, glove.script, liftid);
+		int i = liftid;
+		FFCore.reset_script_engine_data(SCRIPT_ITEM, i);
+		ZScriptVersion::RunScript(SCRIPT_ITEM, glove.script, i);
+		FFCore.deallocateAllArrays(SCRIPT_ITEM,i);
 		
 		bool has_weapon = lift_wpn;
 		if(has_weapon != had_weapon) //Item action script changed the lift information
@@ -11057,7 +11027,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			{
 				return item_error();
 			}
-			if(itm.script!=0 && (item_doscript[itemid] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)))
+			if(itm.script!=0 && (FFCore.doscript(SCRIPT_ITEM, itemid) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)))
 				return false;
 			
 			size_t bind = game->get_bottle_slot(itm.misc1);
@@ -11066,14 +11036,10 @@ bool HeroClass::startwpn(int32_t itemid)
 			{
 				paidmagic = true;
 				paymagiccost(itemid);
-				
-				ri = &(itemScriptData[itemid]);
-				for ( int32_t q = 0; q < 1024; q++ )
-					item_stack[itemid][q] = 0xFFFF;
-				ri->Clear();
-				item_doscript[itemid] = 1;
-				itemscriptInitialised[itemid] = 0;
-				ZScriptVersion::RunScript(SCRIPT_ITEM, itm.script, itemid);
+
+				int i = itemid;
+				FFCore.reset_script_engine_data(SCRIPT_ITEM, i);
+				ZScriptVersion::RunScript(SCRIPT_ITEM, itm.script, i);
 				bind = game->get_bottle_slot(itm.misc1);
 			}
 			bottletype const* bt = bind ? &(QMisc.bottle_types[bind-1]) : NULL;
@@ -12590,18 +12556,12 @@ void do_lens()
 			
 			paymagiccost(itemid, true); //Needs to ignore timer cause lensclk is our timer.
 			
-			if(itemid>=0 && itemsbuf[itemid].script != 0 && !did_scriptl && !(item_doscript[itemid] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)))
+			if(itemid>=0 && itemsbuf[itemid].script != 0 && !did_scriptl && !(FFCore.doscript(SCRIPT_ITEM, itemid) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)))
 			{
 				//clear the item script stack for a new script
-				//itemScriptData[(itemid & 0xFFF)].Clear();
-				//for ( int32_t q = 0; q < 1024; q++ ) item_stack[(itemid & 0xFFF)][q] = 0;
-				ri = &(itemScriptData[itemid]);
-				for ( int32_t q = 0; q < 1024; q++ ) item_stack[itemid][q] = 0xFFFF;
-				ri->Clear();
-				//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
-				item_doscript[itemid] = 1;
-				itemscriptInitialised[itemid] = 0;
-				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid);
+				int i = itemid;
+				FFCore.reset_script_engine_data(SCRIPT_ITEM, i);
+				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script, i);
 					did_scriptl=true;
 			}
 			
@@ -12645,19 +12605,13 @@ void do_210_lens()
 		
 		paymagiccost(itemid, true);
 		
-		if(itemid>=0 && itemsbuf[itemid].script != 0 && !did_scriptl && !(item_doscript[itemid] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)))
+		if(itemid>=0 && itemsbuf[itemid].script != 0 && !did_scriptl && !(FFCore.doscript(SCRIPT_ITEM, itemid) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)))
 		{
-		//clear the item script stack for a new script
-		//itemScriptData[(itemid & 0xFFF)].Clear();
-		ri = &(itemScriptData[itemid]);
-		for ( int32_t q = 0; q < 1024; q++ ) item_stack[itemid][q] = 0xFFFF;
-		ri->Clear();
-		//for ( int32_t q = 0; q < 1024; q++ ) item_stack[(itemid & 0xFFF)][q] = 0;
-		//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
-		item_doscript[itemid] = 1;
-		itemscriptInitialised[itemid] = 0;
-		ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid);
-		did_scriptl=true;
+			//clear the item script stack for a new script
+			int i = itemid;
+			FFCore.reset_script_engine_data(SCRIPT_ITEM, i);
+			ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script, i);
+			did_scriptl=true;
 		}
 		
 		if (itemsbuf[itemid].magiccosttimer[0]) lensclk = itemsbuf[itemid].magiccosttimer[0];
@@ -13806,7 +13760,7 @@ void HeroClass::moveheroOld()
 			attackclk=0;
 			sfx(itemsbuf[directWpn>-1 ? directWpn : current_item_id(itype_sword)].usesound, pan(x.getInt()));
 			
-			if(dowpn>-1 && itemsbuf[dowpn].script!=0 && !did_scripta && !(item_doscript[dowpn] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)))
+			if(dowpn>-1 && itemsbuf[dowpn].script!=0 && !did_scripta && !(FFCore.doscript(SCRIPT_ITEM, dowpn) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)))
 			{
 				if(!checkmagiccost(dowpn))
 				{
@@ -13815,16 +13769,9 @@ void HeroClass::moveheroOld()
 				else
 				{
 					//clear the item script stack for a new script
-				
-					ri = &(itemScriptData[dowpn]);
-					for ( int32_t q = 0; q < 1024; q++ ) item_stack[dowpn][q] = 0xFFFF;
-					ri->Clear();
-					//itemScriptData[(dowpn & 0xFFF)].Clear();
-					//for ( int32_t q = 0; q < 1024; q++ ) item_stack[(dowpn & 0xFFF)][q] = 0;
-					//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[dowpn].script, dowpn & 0xFFF);
-					item_doscript[dowpn] = 1;
-					itemscriptInitialised[dowpn] = 0;
-					ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[dowpn].script, dowpn);
+					int i = dowpn;
+					FFCore.reset_script_engine_data(SCRIPT_ITEM, i);
+					ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script, i);
 					did_scripta=true;
 				}
 			}
@@ -14019,7 +13966,7 @@ void HeroClass::moveheroOld()
 			}
 		}
 		
-		if(dowpn>-1 && no_jinx && itemsbuf[dowpn].script!=0 && !did_scriptb && !(item_doscript[dowpn] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)))
+		if(dowpn>-1 && no_jinx && itemsbuf[dowpn].script!=0 && !did_scriptb && !(FFCore.doscript(SCRIPT_ITEM, dowpn) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)))
 		{
 			if(!((paidmagic || checkmagiccost(dowpn)) && checkbunny(dowpn)))
 			{
@@ -14032,15 +13979,9 @@ void HeroClass::moveheroOld()
 				if(!paidmagic && attack!=wWand)
 					paymagiccost(dowpn);
 				//clear the item script stack for a new script
-				//itemScriptData[(dowpn & 0xFFF)].Clear();
-				ri = &(itemScriptData[dowpn]);
-				for ( int32_t q = 0; q < 1024; q++ ) item_stack[dowpn][q] = 0xFFFF;
-				ri->Clear();
-				//for ( int32_t q = 0; q < 1024; q++ ) item_stack[(dowpn & 0xFFF)][q] = 0;
-				//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[dowpn].script, dowpn & 0xFFF);
-				item_doscript[dowpn] = 1;
-				itemscriptInitialised[dowpn] = 0;
-				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[dowpn].script, dowpn);
+				int i = dowpn;
+				FFCore.reset_script_engine_data(SCRIPT_ITEM, i);
+				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script, i);
 				did_scriptb=true;
 			}
 		}
@@ -17818,7 +17759,7 @@ bool HeroClass::premove()
 			attackclk=0;
 			sfx(itemsbuf[directWpn>-1 ? directWpn : current_item_id(itype_sword)].usesound, pan(x.getInt()));
 			
-			if(dowpn>-1 && itemsbuf[dowpn].script!=0 && !did_scripta && !(item_doscript[dowpn] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)))
+			if(dowpn>-1 && itemsbuf[dowpn].script!=0 && !did_scripta && !(FFCore.doscript(SCRIPT_ITEM, dowpn) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)))
 			{
 				if(!checkmagiccost(dowpn))
 				{
@@ -17827,16 +17768,9 @@ bool HeroClass::premove()
 				else
 				{
 					//clear the item script stack for a new script
-				
-					ri = &(itemScriptData[dowpn]);
-					for ( int32_t q = 0; q < 1024; q++ ) item_stack[dowpn][q] = 0xFFFF;
-					ri->Clear();
-					//itemScriptData[(dowpn & 0xFFF)].Clear();
-					//for ( int32_t q = 0; q < 1024; q++ ) item_stack[(dowpn & 0xFFF)][q] = 0;
-					//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[dowpn].script, dowpn & 0xFFF);
-					item_doscript[dowpn] = 1;
-					itemscriptInitialised[dowpn] = 0;
-					ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[dowpn].script, dowpn);
+					int i = dowpn;
+					FFCore.reset_script_engine_data(SCRIPT_ITEM, i);
+					ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script, i);
 					did_scripta=true;
 				}
 			}
@@ -18029,7 +17963,7 @@ bool HeroClass::premove()
 			}
 		}
 		
-		if(dowpn>-1 && no_jinx && itemsbuf[dowpn].script!=0 && !did_scriptb && !(item_doscript[dowpn] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)))
+		if(dowpn>-1 && no_jinx && itemsbuf[dowpn].script!=0 && !did_scriptb && !(FFCore.doscript(SCRIPT_ITEM, dowpn) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)))
 		{
 			if(!((paidmagic || checkmagiccost(dowpn)) && checkbunny(dowpn)))
 			{
@@ -18042,15 +17976,9 @@ bool HeroClass::premove()
 				if(!paidmagic && attack!=wWand)
 					paymagiccost(dowpn);
 				//clear the item script stack for a new script
-				//itemScriptData[(dowpn & 0xFFF)].Clear();
-				ri = &(itemScriptData[dowpn]);
-				for ( int32_t q = 0; q < 1024; q++ ) item_stack[dowpn][q] = 0xFFFF;
-				ri->Clear();
-				//for ( int32_t q = 0; q < 1024; q++ ) item_stack[(dowpn & 0xFFF)][q] = 0;
-				//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[dowpn].script, dowpn & 0xFFF);
-				item_doscript[dowpn] = 1;
-				itemscriptInitialised[dowpn] = 0;
-				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[dowpn].script, dowpn);
+				int i = dowpn;
+				FFCore.reset_script_engine_data(SCRIPT_ITEM, i);
+				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script, i);
 				did_scriptb=true;
 			}
 		}
@@ -20149,14 +20077,11 @@ bool usekey()
 				}
 			}
 			
-			if ( key_item > 0 && itemsbuf[key_item].script && !(item_doscript[key_item] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
+			if ( key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(SCRIPT_ITEM, key_item) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
 			{
-				ri = &(itemScriptData[key_item]);
-				for ( int32_t q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
-				ri->Clear();
-				item_doscript[key_item] = 1;
-				itemscriptInitialised[key_item] = 0;
-				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[key_item].script, key_item);
+				int i = key_item;
+				FFCore.reset_script_engine_data(SCRIPT_ITEM, i);
+				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script, i);
 				FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
 			}
 			return true;
@@ -20180,14 +20105,11 @@ bool usekey()
 				}
 				//zprint2("key_item is: %d\n",key_item);
 				//zprint2("key_item script is: %d\n",itemsbuf[key_item].script);
-				if ( key_item > 0 && itemsbuf[key_item].script && !(item_doscript[key_item] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
+				if ( key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(SCRIPT_ITEM, key_item) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
 				{
-					ri = &(itemScriptData[key_item]);
-					for ( int32_t q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
-					ri->Clear();
-					item_doscript[key_item] = 1;
-					itemscriptInitialised[key_item] = 0;
-					ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[key_item].script, key_item);
+					int i = key_item;
+					FFCore.reset_script_engine_data(SCRIPT_ITEM, i);
+					ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script, i);
 					FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
 				}
 				game->change_keys(-1);
@@ -20520,14 +20442,11 @@ void HeroClass::oldcheckbosslockblock()
 			key_item = q; break;
 		}
 	}
-	if ( key_item > 0 && itemsbuf[key_item].script && !(item_doscript[key_item] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
+	if ( key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(SCRIPT_ITEM, key_item) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
 	{
-		ri = &(itemScriptData[key_item]);
-		for ( int32_t q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
-		ri->Clear();
-		item_doscript[key_item] = 1;
-		itemscriptInitialised[key_item] = 0;
-		ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[key_item].script, key_item);
+		int i = key_item;
+		FFCore.reset_script_engine_data(SCRIPT_ITEM, i);
+		ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script, i);
 		FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
 	}
 	
@@ -20653,14 +20572,11 @@ void HeroClass::oldcheckchest(int32_t type)
 					key_item = q; break;
 				}
 			}
-			if ( key_item > 0 && itemsbuf[key_item].script && !(item_doscript[key_item] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
+			if ( key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(SCRIPT_ITEM, key_item) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
 			{
-				ri = &(itemScriptData[key_item]);
-				for ( int32_t q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
-				ri->Clear();
-				item_doscript[key_item] = 1;
-				itemscriptInitialised[key_item] = 0;
-				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[key_item].script, key_item);
+				int i = key_item;
+				FFCore.reset_script_engine_data(SCRIPT_ITEM, i);
+				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script, i);
 				FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
 			}
 			setmapflag(mBOSSCHEST);
@@ -21317,14 +21233,11 @@ void HeroClass::checklocked()
 							key_item = q; break;
 						}
 					}
-					if ( key_item > 0 && itemsbuf[key_item].script && !(item_doscript[key_item] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
+					if ( key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(SCRIPT_ITEM, key_item) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
 					{
-						ri = &(itemScriptData[key_item]);
-						for ( int32_t q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
-						ri->Clear();
-						item_doscript[key_item] = 1;
-						itemscriptInitialised[key_item] = 0;
-						ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[key_item].script, key_item);
+						int i = key_item;
+						FFCore.reset_script_engine_data(SCRIPT_ITEM, i);
+						ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script, i);
 						FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
 					}
 					}
@@ -21376,14 +21289,11 @@ void HeroClass::checklocked()
 							key_item = q; break;
 						}
 					}
-					if ( key_item > 0 && itemsbuf[key_item].script && !(item_doscript[key_item] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
+					if ( key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(SCRIPT_ITEM, key_item) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
 					{
-						ri = &(itemScriptData[key_item]);
-						for ( int32_t q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
-						ri->Clear();
-						item_doscript[key_item] = 1;
-						itemscriptInitialised[key_item] = 0;
-						ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[key_item].script, key_item);
+						int i = key_item;
+						FFCore.reset_script_engine_data(SCRIPT_ITEM, i);
+						ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script, i);
 						FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
 					}
 					}
@@ -21433,14 +21343,11 @@ void HeroClass::checklocked()
 							key_item = q; break;
 						}
 					}
-					if ( key_item > 0 && itemsbuf[key_item].script && !(item_doscript[key_item] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
+					if ( key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(SCRIPT_ITEM, key_item) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
 					{
-						ri = &(itemScriptData[key_item]);
-						for ( int32_t q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
-						ri->Clear();
-						item_doscript[key_item] = 1;
-						itemscriptInitialised[key_item] = 0;
-						ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[key_item].script, key_item);
+						int i = key_item;
+						FFCore.reset_script_engine_data(SCRIPT_ITEM, i);
+						ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script, i);
 						FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
 					}
 					}
@@ -21494,14 +21401,11 @@ void HeroClass::checklocked()
 							key_item = q; break;
 						}
 					}
-					if ( key_item > 0 && itemsbuf[key_item].script && !(item_doscript[key_item] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
+					if ( key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(SCRIPT_ITEM, key_item) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
 					{
-						ri = &(itemScriptData[key_item]);
-						for ( int32_t q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
-						ri->Clear();
-						item_doscript[key_item] = 1;
-						itemscriptInitialised[key_item] = 0;
-						ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[key_item].script, key_item);
+						int i = key_item;
+						FFCore.reset_script_engine_data(SCRIPT_ITEM, i);
+						ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script, i);
 						FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
 					}
 					}
@@ -21561,14 +21465,11 @@ void HeroClass::checklocked()
 								key_item = q; break;
 							}
 						}
-						if ( key_item > 0 && itemsbuf[key_item].script && !(item_doscript[key_item] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
+						if ( key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(SCRIPT_ITEM, key_item) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
 						{
-							ri = &(itemScriptData[key_item]);
-							for ( int32_t q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
-							ri->Clear();
-							item_doscript[key_item] = 1;
-							itemscriptInitialised[key_item] = 0;
-							ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[key_item].script, key_item);
+							int i = key_item;
+							FFCore.reset_script_engine_data(SCRIPT_ITEM, i);
+							ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script, i);
 							FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
 						}
 						}
@@ -21628,14 +21529,11 @@ void HeroClass::checklocked()
 								key_item = q; break;
 							}
 						}
-						if ( key_item > 0 && itemsbuf[key_item].script && !(item_doscript[key_item] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
+						if ( key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(SCRIPT_ITEM, key_item) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
 						{
-							ri = &(itemScriptData[key_item]);
-							for ( int32_t q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
-							ri->Clear();
-							item_doscript[key_item] = 1;
-							itemscriptInitialised[key_item] = 0;
-							ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[key_item].script, key_item);
+							int i = key_item;
+							FFCore.reset_script_engine_data(SCRIPT_ITEM, i);
+							ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script, i);
 							FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
 						}
 						}
@@ -21693,14 +21591,11 @@ void HeroClass::checklocked()
 								key_item = q; break;
 							}
 						}
-						if ( key_item > 0 && itemsbuf[key_item].script && !(item_doscript[key_item] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
+						if ( key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(SCRIPT_ITEM, key_item) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
 						{
-							ri = &(itemScriptData[key_item]);
-							for ( int32_t q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
-							ri->Clear();
-							item_doscript[key_item] = 1;
-							itemscriptInitialised[key_item] = 0;
-							ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[key_item].script, key_item);
+							int i = key_item;
+							FFCore.reset_script_engine_data(SCRIPT_ITEM, i);
+							ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script, i);
 							FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
 						}
 						}
@@ -21761,14 +21656,11 @@ void HeroClass::checklocked()
 								key_item = q; break;
 							}
 						}
-						if ( key_item > 0 && itemsbuf[key_item].script && !(item_doscript[key_item] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) //
+						if ( key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(SCRIPT_ITEM, key_item) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) //
 						{
-							ri = &(itemScriptData[key_item]);
-							for ( int32_t q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
-							ri->Clear();
-							item_doscript[key_item] = 1;
-							itemscriptInitialised[key_item] = 0;
-							ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[key_item].script, key_item);
+							int i = key_item;
+							FFCore.reset_script_engine_data(SCRIPT_ITEM, i);
+							ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[i].script, i);
 							FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
 						}
 
@@ -30235,36 +30127,7 @@ void HeroClass::getTriforce(int32_t id2)
 	int32_t x2=0;
 	int32_t curtain_x=0;
 	int32_t c=0;
-	/*if ( (itemsbuf[id2].flags & ITEM_FLAG12) ) //Run collect script This happens w/o the flag. 
-		{
-			if(itemsbuf[id2].collect_script && !item_collect_doscript[id2])
-			{
-				//clear the item script stack for a new script
-				ri = &(itemCollectScriptData[id2]);
-				for ( int32_t q = 0; q < 1024; q++ ) item_collect_stack[id2][q] = 0xFFFF;
-				ri->Clear();
-				//itemCollectScriptData[(id2 & 0xFFF)].Clear();
-				//for ( int32_t q = 0; q < 1024; q++ ) item_collect_stack[(id2 & 0xFFF)][q] = 0;
-				//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].collect_script, ((id2 & 0xFFF)*-1));
-				if ( id2 > 0 && !item_collect_doscript[id2] ) //No collect script on item 0. 
-				{
-					item_collect_doscript[id2] = 1;
-					itemscriptInitialised[id2] = 0;
-					ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].collect_script, ((id2)*-1));
-					//if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
-					FFCore.deallocateAllArrays(SCRIPT_ITEM,-(id2));
-				}
-				else if (!id2 && !item_collect_doscript[id2]) //item 0
-				{
-					item_collect_doscript[id2] = 1;
-					itemscriptInitialised[id2] = 0;
-					ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].collect_script, COLLECT_SCRIPT_ITEM_ZERO);
-					//if ( !get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
-					FFCore.deallocateAllArrays(SCRIPT_ITEM,COLLECT_SCRIPT_ITEM_ZERO);
-				}
-			}
-		}
-		*/
+
 	do
 	{
 		
@@ -30273,15 +30136,12 @@ void HeroClass::getTriforce(int32_t id2)
 		{
 			if ( itemsbuf[id2].script )
 			{
-				if ( !item_doscript[id2] ) 
+				if ( !FFCore.doscript(SCRIPT_ITEM, id2) ) 
 				{
-					ri = &(itemScriptData[id2]);
-					for ( int32_t q = 0; q < 1024; q++ ) item_stack[id2][q] = 0xFFFF;
-					ri->Clear();
-					item_doscript[id2] = 1;
-					itemscriptInitialised[id2] = 0;
-					ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].script, id2);
-					FFCore.deallocateAllArrays(SCRIPT_ITEM,(id2));
+					int i = id2;
+					FFCore.reset_script_engine_data(SCRIPT_ITEM, i);
+					ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[id2].script, i);
+					FFCore.deallocateAllArrays(SCRIPT_ITEM, i);
 				}
 				else
 				{

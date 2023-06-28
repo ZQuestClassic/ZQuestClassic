@@ -1280,7 +1280,7 @@ void initZScriptItemScripts();
 void clear_script_engine_data();
 void reset_script_engine_data(int type, int index = 0);
 refInfo& ref(int type, int index);
-bool& doscript(int type, int index = 0);
+byte& doscript(int type, int index = 0);
 bool& waitdraw(int type, int index = 0);
 
 //Combo Scripts

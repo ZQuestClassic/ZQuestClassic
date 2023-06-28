@@ -76,7 +76,6 @@ extern bool epilepsyFlashReduction;
 #endif
 extern ZModule zcm; //modules
 extern zcmodule moduledata;
-extern byte itemscriptInitialised[256];
 extern char runningItemScripts[256];
 extern char modulepath[2048];
 
@@ -4317,7 +4316,6 @@ int main(int argc, char **argv)
 	});
 
 	bool onlyInstance=true;
-	memset(itemscriptInitialised, 0, sizeof(itemscriptInitialised));
 //	refresh_select_screen = 0;
 	memset(modulepath, 0, sizeof(modulepath));
 	FFCore.init_combo_doscript();

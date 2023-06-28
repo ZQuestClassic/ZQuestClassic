@@ -27,9 +27,6 @@
 extern particle_list particles;
 
 extern FFScript FFCore;
-extern word item_doscript[256];
-extern refInfo itemScriptData[256];
-extern int32_t item_stack[256][MAX_SCRIPT_REGISTERS];
 extern ZModule zcm;
 extern HeroClass   Hero;
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
@@ -22890,11 +22887,10 @@ bool parsemsgcode()
 			int32_t itemID = grab_next_argument();
 			
 			getitem(itemID, true);
-			if ( !item_doscript[itemID] && (((unsigned)itemID) < 256) )
+			if ( !FFCore.doscript(SCRIPT_ITEM, itemID) && (((unsigned)itemID) < 256) )
 			{
-				itemScriptData[itemID].Clear();
-				memset(item_stack[itemID], 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(int32_t));
-				if ( (itemsbuf[itemID].flags&ITEM_PASSIVESCRIPT) ) item_doscript[itemID] = 1;
+				FFCore.reset_script_engine_data(SCRIPT_ITEM, itemID);
+				FFCore.doscript(SCRIPT_ITEM, itemID) = (itemsbuf[itemID].flags&ITEM_PASSIVESCRIPT) > 0;
 			}
 			return true;
 		}
@@ -22926,9 +22922,9 @@ bool parsemsgcode()
 		case MSGC_TAKEITEM:
 		{
 			int32_t itemID = grab_next_argument();
-			if ( item_doscript[itemID] )
+			if ( FFCore.doscript(SCRIPT_ITEM, itemID) )
 			{
-				item_doscript[itemID] = 4; //Val of 4 means 'clear stack and quit'
+				FFCore.doscript(SCRIPT_ITEM, itemID) = 4; //Val of 4 means 'clear stack and quit'
 			}
 			takeitem(itemID);
 			if ( game->forced_bwpn == itemID ) 

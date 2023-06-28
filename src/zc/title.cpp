@@ -47,7 +47,6 @@ extern int32_t loadlast;
 extern int32_t skipcont;
 extern int32_t skipicon;
 extern FFScript FFCore;
-extern byte itemscriptInitialised[256];
 extern ZModule zcm; //modules
 extern zcmodule moduledata;
 //extern byte refresh_select_screen;
@@ -554,7 +553,6 @@ static void treasures(int32_t f)
 
 static void NES_titlescreen()
 {
-	memset(itemscriptInitialised,0,sizeof(itemscriptInitialised));
 	FFCore.kb_typing_mode = false;
 	FFCore.skip_ending_credits = 0;
 	/*if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
@@ -650,7 +648,6 @@ static void NES_titlescreen()
 
 static void DX_mainscreen(int32_t f)
 {
-	memset(itemscriptInitialised,0,sizeof(itemscriptInitialised));
 	FFCore.kb_typing_mode = false;
 	/*if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 	{
@@ -786,7 +783,6 @@ static void DX_mainscreen(int32_t f)
 static void DX_titlescreen()
 {
 	//  JGMOD *yea;
-	memset(itemscriptInitialised,0,sizeof(itemscriptInitialised));
 	FFCore.kb_typing_mode = false;
 	/*
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
@@ -875,7 +871,6 @@ static void DX_titlescreen()
 
 static void v25_mainscreen(int32_t f)
 {
-	memset(itemscriptInitialised,0,sizeof(itemscriptInitialised));
 	FFCore.kb_typing_mode = false;
 	/*
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
@@ -1011,7 +1006,6 @@ static void v25_mainscreen(int32_t f)
 
 static void v25_titlescreen()
 {
-	memset(itemscriptInitialised,0,sizeof(itemscriptInitialised));
 	FFCore.kb_typing_mode = false;
 	/*
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
@@ -1106,7 +1100,6 @@ extern char *SAVE_FILE;
 
 int32_t readsaves(gamedata *savedata, PACKFILE *f)
 {
-	memset(itemscriptInitialised,0,sizeof(itemscriptInitialised));
 	FFCore.kb_typing_mode = false;
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 	{
@@ -2155,7 +2148,6 @@ int32_t init_saves()
 // call once at startup
 int32_t load_savedgames()
 {
-	memset(itemscriptInitialised,0,sizeof(itemscriptInitialised));
 	FFCore.kb_typing_mode = false;
 	FFCore.skip_ending_credits = 0;
 	char *fname = SAVE_FILE;
@@ -3023,7 +3015,6 @@ static void framerect(BITMAP* dest, int32_t x, int32_t y, int32_t w, int32_t h, 
 static void selectscreen()
 {
 	FFCore.kb_typing_mode = false;
-	memset(itemscriptInitialised,0,sizeof(itemscriptInitialised));
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 	{
 		Z_scripterrlog("Trying to restore master MIDI volume to: %d\n", FFCore.usr_midi_volume);
@@ -4336,7 +4327,6 @@ void titlescreen(int32_t lsave)
 	Quit=0;
 	Playing=Paused=false;
 	FFCore.kb_typing_mode = false;
-	memset(itemscriptInitialised,0,sizeof(itemscriptInitialised));
 /*
 if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 	{
@@ -4448,7 +4438,6 @@ if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 void game_over(int32_t type)
 {
 	FFCore.kb_typing_mode = false; 
-	memset(itemscriptInitialised,0,sizeof(itemscriptInitialised));
 	/*
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 	{
@@ -4710,7 +4699,6 @@ bool save_game(bool savepoint, int32_t type)
 	bool done=false;
 	bool didsaved=false;
 	FFCore.kb_typing_mode = false;
-	memset(itemscriptInitialised,0,sizeof(itemscriptInitialised));
 	do
 	{
 		int32_t pos = 0;

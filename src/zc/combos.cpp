@@ -12,11 +12,6 @@
 extern sprite_list items, decorations;
 extern FFScript FFCore;
 extern HeroClass Hero;
-extern refInfo *ri;
-extern refInfo itemScriptData[256];
-extern word item_doscript[256];
-extern int32_t item_stack[256][MAX_SCRIPT_REGISTERS];
-extern byte itemscriptInitialised[256];
 
 void CutsceneState::clear()
 {
@@ -1094,15 +1089,11 @@ bool trigger_chest(int32_t lyr, int32_t pos)
 					key_item = q; break;
 				}
 			}
-			if ( key_item > 0 && itemsbuf[key_item].script && !(item_doscript[key_item] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
+			if ( key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(SCRIPT_ITEM, key_item) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
 			{
-				ri = &(itemScriptData[key_item]);
-				for ( int32_t q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
-				ri->Clear();
-				item_doscript[key_item] = 1;
-				itemscriptInitialised[key_item] = 0;
+				FFCore.reset_script_engine_data(SCRIPT_ITEM, key_item);
 				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[key_item].script, key_item);
-				FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
+				FFCore.deallocateAllArrays(SCRIPT_ITEM, key_item);
 			}
 			
 			if(cmb.usrflags&cflag16)
@@ -1211,15 +1202,11 @@ bool trigger_chest_ffc(int32_t pos)
 					key_item = q; break;
 				}
 			}
-			if ( key_item > 0 && itemsbuf[key_item].script && !(item_doscript[key_item] && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
+			if ( key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(SCRIPT_ITEM, key_item) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
 			{
-				ri = &(itemScriptData[key_item]);
-				for ( int32_t q = 0; q < 1024; q++ ) item_stack[key_item][q] = 0xFFFF;
-				ri->Clear();
-				item_doscript[key_item] = 1;
-				itemscriptInitialised[key_item] = 0;
+				FFCore.reset_script_engine_data(SCRIPT_ITEM, key_item);
 				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[key_item].script, key_item);
-				FFCore.deallocateAllArrays(SCRIPT_ITEM,(key_item));
+				FFCore.deallocateAllArrays(SCRIPT_ITEM, key_item);
 			}
 			
 			if(cmb.usrflags&cflag16)
@@ -1310,15 +1297,11 @@ bool trigger_lockblock(int32_t lyr, int32_t pos)
 					key_item = q; break;
 				}
 			}
-			if (key_item > 0 && itemsbuf[key_item].script && !(item_doscript[key_item] && get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)))
+			if (key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(SCRIPT_ITEM, key_item) && get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)))
 			{
-				ri = &(itemScriptData[key_item]);
-				for (int32_t q = 0; q < 1024; q++) item_stack[key_item][q] = 0xFFFF;
-				ri->Clear();
-				item_doscript[key_item] = 1;
-				itemscriptInitialised[key_item] = 0;
+				FFCore.reset_script_engine_data(SCRIPT_ITEM, key_item);
 				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[key_item].script, key_item);
-				FFCore.deallocateAllArrays(SCRIPT_ITEM, (key_item));
+				FFCore.deallocateAllArrays(SCRIPT_ITEM, key_item);
 			}
 			
 			if(cmb.usrflags&cflag16)
@@ -1378,15 +1361,11 @@ bool trigger_lockblock_ffc(int32_t pos)
 					key_item = q; break;
 				}
 			}
-			if (key_item > 0 && itemsbuf[key_item].script && !(item_doscript[key_item] && get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)))
+			if (key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(SCRIPT_ITEM, key_item) && get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)))
 			{
-				ri = &(itemScriptData[key_item]);
-				for (int32_t q = 0; q < 1024; q++) item_stack[key_item][q] = 0xFFFF;
-				ri->Clear();
-				item_doscript[key_item] = 1;
-				itemscriptInitialised[key_item] = 0;
+				FFCore.reset_script_engine_data(SCRIPT_ITEM, key_item);
 				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[key_item].script, key_item);
-				FFCore.deallocateAllArrays(SCRIPT_ITEM, (key_item));
+				FFCore.deallocateAllArrays(SCRIPT_ITEM, key_item);
 			}
 			
 			if(cmb.usrflags&cflag16)

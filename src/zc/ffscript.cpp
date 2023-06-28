@@ -450,7 +450,6 @@ int32_t FFScript::atox(char *ip_str)
 }
 
 char runningItemScripts[256] = {0};
-byte itemScriptsWaitdraw[256] = {0};
  
 //item *FFCore.temp_ff_item = NULL;
 //enemy *FFCore.temp_ff_enemy = NULL;
@@ -594,7 +593,8 @@ bool gen_active_doscript = false, gen_active_initialized = false;
 struct ScriptEngineData {
 	refInfo ref;
 	int32_t stack[MAX_SCRIPT_REGISTERS];
-	bool doscript = true;
+	// This is used as a boolean for all but SCRIPT_ITEM.
+	byte doscript = true;
 	bool waitdraw;
 	bool initialized;
 
@@ -642,7 +642,7 @@ refInfo& FFScript::ref(int type, int index)
 	return get_script_engine_data(type, index).ref;
 }
 
-bool& FFScript::doscript(int type, int index)
+byte& FFScript::doscript(int type, int index)
 {
 	return get_script_engine_data(type, index).doscript;
 }
@@ -763,29 +763,25 @@ static bool set_current_script_engine_data(int type, int script, int index)
 		// }
 		// break;
 		
-		// case SCRIPT_ITEM:
-		// {
-		// 	int32_t new_i = 0;
-		// 	bool collect = ( ( i < 1 ) || (i == COLLECT_SCRIPT_ITEM_ZERO) );
-		// 	new_i = ( collect ) ? (( i != COLLECT_SCRIPT_ITEM_ZERO ) ? (i * -1) : 0) : i;
+		case SCRIPT_ITEM:
+		{
+			int32_t i = index;
+			int32_t new_i = 0;
+			bool collect = ( ( i < 1 ) || (i == COLLECT_SCRIPT_ITEM_ZERO) );
+			new_i = ( collect ) ? (( i != COLLECT_SCRIPT_ITEM_ZERO ) ? (i * -1) : 0) : i;
+
+			curscript = itemscripts[script];
 			
-		// 	ri = ( collect ) ? &(itemCollectScriptData[new_i]) : &(itemScriptData[i]);
-			
-		// 	curscript = itemscripts[script];
-		// 	stack = ( collect ) ?  &(item_collect_stack[new_i]) : &(item_stack[i]);
-			
-		// 	if ( !(itemscriptInitialised[new_i]) )
-		// 	{
-		// 		got_initialized = true;
-		// 		al_trace("itemscriptInitialised[new_i] is %d\n",itemscriptInitialised[new_i]);
-		// 		memcpy(ri->d, ( collect ) ? itemsbuf[new_i].initiald : itemsbuf[i].initiald, 8 * sizeof(int32_t));
-		// 		memcpy(ri->a, ( collect ) ? itemsbuf[new_i].initiala : itemsbuf[i].initiala, 2 * sizeof(int32_t));
-		// 		itemscriptInitialised[new_i] = 1;
-		// 	}			
-		// 	ri->idata = ( collect ) ? new_i : i; //'this' pointer
-			
-		// }
-		// break;
+			if (!data.initialized)
+			{
+				got_initialized = true;
+				memcpy(ri->d, ( collect ) ? itemsbuf[new_i].initiald : itemsbuf[i].initiald, 8 * sizeof(int32_t));
+				memcpy(ri->a, ( collect ) ? itemsbuf[new_i].initiala : itemsbuf[i].initiala, 2 * sizeof(int32_t));
+				data.initialized = true;
+			}			
+			ri->idata = ( collect ) ? new_i : i; //'this' pointer
+		}
+		break;
 		
 		case SCRIPT_GLOBAL:
 		{
@@ -937,24 +933,12 @@ static bool set_current_script_engine_data(int type, int script, int index)
 	return got_initialized;
 }
 
-//Global script data
-word item_doscript[256] = {0};
-word item_collect_doscript[256] = {0};
 //Sprite script data
-refInfo itemScriptData[256];
-refInfo itemCollectScriptData[256];
-byte itemscriptInitialised[256]={0};
 refInfo npcScriptData[256];
 refInfo lweaponScriptData[256]; //should this be lweapon and eweapon, separate stacks?
 refInfo eweaponScriptData[256]; //should this be lweapon and eweapon, separate stacks?
 refInfo itemactiveScriptData[256];
 
-//char runningItemScripts[256] = {0};
-
-//The stacks
-
-int32_t item_stack[256][MAX_SCRIPT_REGISTERS];
-int32_t item_collect_stack[256][MAX_SCRIPT_REGISTERS];
 int32_t ffmisc[MAXFFCS][16];
 
 user_genscript user_scripts[NUMSCRIPTSGENERIC];
@@ -1114,23 +1098,20 @@ void FFScript::initZScriptHeroScripts()
 	scriptEngineDatas[{SCRIPT_PLAYER, 0}] = ScriptEngineData();
 }
 
-void clear_item_stack(int32_t i)
-{
-	memset(item_stack[i], 0, MAX_SCRIPT_REGISTERS * sizeof(int32_t));
-	memset(item_collect_stack[i], 0, MAX_SCRIPT_REGISTERS * sizeof(int32_t));
-}
-
 void FFScript::initZScriptItemScripts()
 {
 	for ( int32_t q = 0; q < 256; q++ )
 	{
-		if ( (itemsbuf[q].flags&ITEM_PASSIVESCRIPT) && game->item[q] ) item_doscript[q] = 1;
-		else item_doscript[q] = 0;
-		item_collect_doscript[q] = 0;
-		itemScriptData[q].Clear();
-		itemCollectScriptData[q].Clear();
-		itemscriptInitialised[q] = 0;
-		clear_item_stack(q);
+		auto& data = get_script_engine_data(SCRIPT_ITEM, q);
+		data.reset();
+		data.doscript = (itemsbuf[q].flags&ITEM_PASSIVESCRIPT) && game->item[q];
+	}
+
+	for ( int32_t q = -256; q < 0; q++ )
+	{
+		auto& data = get_script_engine_data(SCRIPT_ITEM, q);
+		data.reset();
+		data.doscript = 0;
 	}
 }
 
@@ -13709,25 +13690,25 @@ void set_register(int32_t arg, int32_t value)
 			// If the Cane of Byrna is being removed, cancel its effect.
 			if(value==0 && itemID==current_item_id(itype_cbyrna))
 				stopCaneOfByrna();
+			
+			auto& data = get_script_engine_data(SCRIPT_ITEM, itemID);
 		
 			//Stop current script if set false.
-			if ( !value && item_doscript[itemID] )
+			if ( !value && data.doscript )
 			{
-				item_doscript[itemID] = 4; //Val of 4 means 'clear stack and quit'
+				data.doscript = 4; //Val of 4 means 'clear stack and quit'
 				//itemScriptData[itemID].Clear(); //Don't clear here, causes crash if is current item!
 			}
-			else if ( value && !item_doscript[itemID] )
+			else if ( value && !data.doscript )
 			{
 				//Clear the item refInfo and stack for use.
-				itemScriptData[itemID].Clear();
-				memset(item_stack[itemID], 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(int32_t));
-				if ( (itemsbuf[itemID].flags&ITEM_PASSIVESCRIPT) ) item_doscript[itemID] = 1;
-				
+				data.ref.Clear();
+				if ( (itemsbuf[itemID].flags&ITEM_PASSIVESCRIPT) ) data.doscript = 1;
 			}
-			else if ( value && item_doscript[itemID] == 4 ) 
+			else if ( value && data.doscript == 4 ) 
 			{
 				// Arbitrary event number 49326: Writing the item false, then true, in the same frame. -Z
-				if ( (itemsbuf[itemID].flags&ITEM_PASSIVESCRIPT) ) item_doscript[itemID] = 1;
+				if ( (itemsbuf[itemID].flags&ITEM_PASSIVESCRIPT) ) data.doscript = 1;
 			}
 			
 			bool settrue = ( value != 0 );
@@ -13738,7 +13719,6 @@ void set_register(int32_t arg, int32_t value)
 				game->set_item(itemID,(value != 0));
 			}
 					
-			//resetItems(game); - Is this really necessary? ~Joe123
 			if((get_bit(quest_rules,qr_OVERWORLDTUNIC) != 0) || (currscr<128 || dlevel)) 
 			{
 				ringcolor(false);
@@ -30167,6 +30147,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 		case SCRIPT_PASSIVESUBSCREEN:
 		case SCRIPT_SCREEN:
 		case SCRIPT_COMBO:
+		case SCRIPT_ITEM:
 		{
 			// TODO: finish refactoring the other script types.
 			got_initialized = set_current_script_engine_data(type, script, i);
@@ -30254,30 +30235,6 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 				}
 				w->initialised = 1;
 			}
-		}
-		break;
-		
-		case SCRIPT_ITEM:
-		{
-			int32_t new_i = 0;
-			bool collect = ( ( i < 1 ) || (i == COLLECT_SCRIPT_ITEM_ZERO) );
-			new_i = ( collect ) ? (( i != COLLECT_SCRIPT_ITEM_ZERO ) ? (i * -1) : 0) : i;
-			
-			ri = ( collect ) ? &(itemCollectScriptData[new_i]) : &(itemScriptData[i]);
-			
-			curscript = itemscripts[script];
-			stack = ( collect ) ?  &(item_collect_stack[new_i]) : &(item_stack[i]);
-			
-			if ( !(itemscriptInitialised[new_i]) )
-			{
-				got_initialized = true;
-				al_trace("itemscriptInitialised[new_i] is %d\n",itemscriptInitialised[new_i]);
-				memcpy(ri->d, ( collect ) ? itemsbuf[new_i].initiald : itemsbuf[i].initiald, 8 * sizeof(int32_t));
-				memcpy(ri->a, ( collect ) ? itemsbuf[new_i].initiala : itemsbuf[i].initiala, 2 * sizeof(int32_t));
-				itemscriptInitialised[new_i] = 1;
-			}			
-			ri->idata = ( collect ) ? new_i : i; //'this' pointer
-			
 		}
 		break;
 		
@@ -33509,22 +33466,22 @@ j_command:
 				// zprint("Trying to run the script on item: %d\n",itemid);
 				// zprint("The script ID is: %d\n",itemsbuf[itemid].script);
 				// zprint("Runitemscript mode is: %d\n", mode);
+				auto& data = get_script_engine_data(SCRIPT_ITEM, itemid);
 				switch(mode)
 				{
 					case 0:
 					{
-						item_doscript[itemid] = 4;
+						data.doscript = 4;
 						break;
 					}
 					case 1:
 					{
-						if ( itemsbuf[itemid].script != 0 ) //&& !item_doscript[itemid] )
+						if ( itemsbuf[itemid].script != 0 ) //&& !data.doscript )
 						{
-							if ( !item_doscript[itemid] ) 
+							if ( !data.doscript ) 
 							{
-								for ( int32_t q = 0; q < 1024; q++ ) item_stack[itemid][q] = 0xFFFF;
-								itemScriptData[itemid].Clear();
-								item_doscript[itemid] = 1;
+								data.ref.Clear();
+								data.doscript = 1;
 								//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid);
 							}
 							else
@@ -33537,27 +33494,27 @@ j_command:
 					case 2:
 					default:
 					{
-						if ( itemsbuf[itemid].script != 0 ) //&& !item_doscript[itemid] )
+						if ( itemsbuf[itemid].script != 0 ) //&& !data.doscript )
 						{
-							if (item_doscript[itemid] != 2 )item_doscript[itemid] = 2;
+							if (data.doscript != 2 )data.doscript = 2;
 						}
 						break;
 					}
 					/*
 					case 0:
 					{
-						item_doscript[itemid] = 0;
+						data.doscript = 0;
 						break;
 					}
 					default:
 					{
 					
-						if ( itemsbuf[itemid].script != 0 ) //&& !item_doscript[itemid] )
+						if ( itemsbuf[itemid].script != 0 ) //&& !data.doscript )
 						{
 							//itemScriptData[itemid].Clear();
 							//for ( int32_t q = 0; q < 1024; q++ ) item_stack[itemid][q] = 0;
 							//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
-							item_doscript[itemid] = 2;
+							data.doscript = 2;
 						}
 						break;
 					}
@@ -34555,7 +34512,10 @@ j_command:
 			
 			case SCRIPT_ITEM:
 			{
-				if ( !get_bit(quest_rules, qr_NOITEMWAITDRAW) ) { itemScriptsWaitdraw[i] = 1; }
+				if (!get_bit(quest_rules, qr_NOITEMWAITDRAW))
+				{
+					FFCore.waitdraw(SCRIPT_ITEM, i) = true;
+				}
 				break;
 			}
 			
@@ -34646,20 +34606,19 @@ j_command:
 			{
 				bool collect = ( ( i < 1 ) || (i == COLLECT_SCRIPT_ITEM_ZERO) );
 				int new_i = ( collect ) ? (( i != COLLECT_SCRIPT_ITEM_ZERO ) ? (i * -1) : 0) : i;
+				auto& data = get_script_engine_data(SCRIPT_ITEM, i);
 				if ( !collect )
 				{
 					if ( (itemsbuf[i].flags&ITEM_PASSIVESCRIPT) && game->item[i] ) itemsbuf[i].script = 0; //Quit perpetual scripts, too.
-					item_doscript[new_i] = 0;
-					for ( int32_t q = 0; q < 1024; q++ ) item_stack[new_i][q] = 0xFFFF;
-					itemScriptData[new_i].Clear();
+					data.doscript = 0;
+					data.ref.Clear();
 				}
 				else
 				{
-					item_collect_doscript[new_i] = 0;
-					for ( int32_t q = 0; q < 1024; q++ ) item_collect_stack[new_i][q] = 0xFFFF;
-					itemCollectScriptData[new_i].Clear();
+					data.doscript = 0;
+					data.ref.Clear();
 				}
-				itemscriptInitialised[new_i] = 0;
+				data.initialized = false;
 				break;
 			}
 			case SCRIPT_NPC:
@@ -37740,7 +37699,8 @@ bool FFScript::itemScriptEngine()
 		//zprint("Checking item ID: %d\n",q);
 		if ( itemsbuf[q].script <= 0 || itemsbuf[q].script > NUMSCRIPTITEM ) continue; // > NUMSCRIPTITEM as someone could force an invaid script slot!
 		
-		if ( item_doscript[q] < 1 ) continue;
+		auto& data = get_script_engine_data(SCRIPT_ITEM, q);
+		if ( data.doscript < 1 ) continue;
 		
 		//Passive items
 		if (((itemsbuf[q].flags&ITEM_PASSIVESCRIPT)))
@@ -37749,14 +37709,14 @@ bool FFScript::itemScriptEngine()
 			{
 				if(get_bit(quest_rules,qr_PASSIVE_ITEM_SCRIPT_ONLY_HIGHEST)
 					&& current_item(itemsbuf[q].family) > itemsbuf[q].fam_type)
-					item_doscript[q] = 0;
+					data.doscript = 0;
 				else ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q&0xFFF);
-				if(!item_doscript[q])  //Item script ended. Clear the data, if any remains.
+				if(!data.doscript)  //Item script ended. Clear the data, if any remains.
 				{
-					itemScriptData[q].Clear();
+					data.ref.Clear();
+					data.initialized = false;
+					data.waitdraw = false;
 					FFScript::deallocateAllArrays(SCRIPT_ITEM, q);
-					itemscriptInitialised[q] = 0;
-					itemScriptsWaitdraw[q] = 0;
 				}
 			}
 		}
@@ -37774,40 +37734,42 @@ bool FFScript::itemScriptEngine()
 				If the item flag 'PERPETUAL SCRIPT' is enabled, then we ignore the lack of item_doscript==2.
 				  This allows passive item scripts to function. 
 			*/
+
+			auto& data = get_script_engine_data(SCRIPT_ITEM, q);
 			
-			if ( item_doscript[q] == 1 ) // FIrst frame, normally set in hero.cpp
+			if ( data.doscript == 1 ) // FIrst frame, normally set in hero.cpp
 			{
 				if ( get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
 				{
-					item_doscript[q] = 2;
+					data.doscript = 2;
 				}
 			}
-			else if (item_doscript[q] == 2) //Second frame and later, if scripts continue to run.
+			else if (data.doscript == 2) //Second frame and later, if scripts continue to run.
 			{
 				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q&0xFFF);
 			}
-			else if (item_doscript[q] == 3) //Run via itemdata->RunScript
+			else if (data.doscript == 3) //Run via itemdata->RunScript
 			{
 				if ( (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ) 
 				{
-					item_doscript[q] = 2; //Reduce to normal run status
+					data.doscript = 2; //Reduce to normal run status
 				}
 				else 
 				{
 					ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
-					item_doscript[q] = 0;
+					data.doscript = 0;
 				}
 			}
-			else if(item_doscript[q]==4)  //Item set itself false, kill script and clear data here
+			else if(data.doscript==4)  //Item set itself false, kill script and clear data here
 			{
-				item_doscript[q] = 0;
+				data.doscript = 0;
 			}
-			if(item_doscript[q]==0)  //Item script ended. Clear the data, if any remains.
+			if(data.doscript==0)  //Item script ended. Clear the data, if any remains.
 			{
-				itemScriptData[q].Clear();
+				data.ref.Clear();
+				data.initialized = false;
+				data.waitdraw = false;
 				FFScript::deallocateAllArrays(SCRIPT_ITEM, q);
-				itemscriptInitialised[q] = 0;
-				itemScriptsWaitdraw[q] = 0;
 			}
 		}
 	}
@@ -37823,9 +37785,11 @@ bool FFScript::itemScriptEngineOnWaitdraw()
 		//zprint("Checking item ID: %d\n",q);
 		if ( itemsbuf[q].script <= 0 || itemsbuf[q].script > NUMSCRIPTITEM ) continue; // > NUMSCRIPTITEM as someone could force an invaid script slot!
 		
-		if ( item_doscript[q] < 1 ) continue;
-		if ( !itemScriptsWaitdraw[q] ) continue;
-		else itemScriptsWaitdraw[q] = 0;
+		auto& data = get_script_engine_data(SCRIPT_ITEM, q);
+
+		if ( data.doscript < 1 ) continue;
+		if (!data.waitdraw) continue;
+		else data.waitdraw = false;
 		
 		//zprint("Running ItemScriptEngine() for item ID: %dn", q);
 		/*! What happens here: When an item script is first run by the user using that utem, the script runs for one frame.
@@ -37844,54 +37808,54 @@ bool FFScript::itemScriptEngineOnWaitdraw()
 			{
 				if(get_bit(quest_rules,qr_PASSIVE_ITEM_SCRIPT_ONLY_HIGHEST)
 					&& current_item(itemsbuf[q].family) > itemsbuf[q].fam_type)
-					item_doscript[q] = 0;
+					data.doscript = 0;
 				else ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q&0xFFF);
-				if(!item_doscript[q])  //Item script ended. Clear the data, if any remains.
+				if(!data.doscript)  //Item script ended. Clear the data, if any remains.
 				{
-					itemScriptData[q].Clear();
+					data.ref.Clear();
+					data.initialized = false;
+					data.waitdraw = false;
 					FFScript::deallocateAllArrays(SCRIPT_ITEM, q);
-					itemscriptInitialised[q] = 0;
-					itemScriptsWaitdraw[q] = 0;
 				}
 			}
 		}
 		else
 		{
 			//Normal items
-			if ( item_doscript[q] == 1 ) // FIrst frame, normally set in hero.cpp
+			if ( data.doscript == 1 ) // FIrst frame, normally set in hero.cpp
 			{
 				if ( get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
 				{
-					item_doscript[q] = 2;
+					data.doscript = 2;
 				}
-				else item_doscript[q] = 0;
+				else data.doscript = 0;
 			}
-			else if (item_doscript[q] == 2) //Second frame and later, if scripts continue to run.
+			else if (data.doscript == 2) //Second frame and later, if scripts continue to run.
 			{
 				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q&0xFFF);
 			}
-			else if (item_doscript[q] == 3) //Run via itemdata->RunScript
+			else if (data.doscript == 3) //Run via itemdata->RunScript
 			{
 				if ( (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ) 
 				{
-					item_doscript[q] = 2; //Reduce to normal run status
+					data.doscript = 2; //Reduce to normal run status
 				}
 				else 
 				{
 					ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
-					item_doscript[q] = 0;
+					data.doscript = 0;
 				}
 			}
-			else if(item_doscript[q]==4)  //Item set itself false, kill script and clear data here.
+			else if(data.doscript==4)  //Item set itself false, kill script and clear data here.
 			{
-				item_doscript[q] = 0;
+				data.doscript = 0;
 			}
-			if(!item_doscript[q])  //Item script ended. Clear the data, if any remains.
+			if(!data.doscript)  //Item script ended. Clear the data, if any remains.
 			{
-				itemScriptData[q].Clear();
+				data.ref.Clear();
+				data.initialized = false;
+				data.waitdraw = false;
 				FFScript::deallocateAllArrays(SCRIPT_ITEM, q);
-				itemscriptInitialised[q] = 0;
-				itemScriptsWaitdraw[q] = 0;
 			}
 		}
 	}
