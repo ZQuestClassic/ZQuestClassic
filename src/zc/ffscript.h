@@ -4980,4 +4980,8 @@ bool command_uses_comparison_result(int command);
 bool command_could_return_not_ok(int command);
 const script_command& get_script_command(int command);
 
+int32_t get_combopos_ref(int32_t pos, int32_t layer);
+int32_t combopos_ref_to_pos(int32_t combopos_ref);
+int32_t combopos_ref_to_layer(int32_t combopos_ref);
+
 #endif

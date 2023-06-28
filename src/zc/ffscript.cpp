@@ -895,8 +895,8 @@ static bool set_current_script_engine_data(ScriptType type, int script, int inde
 		{
 			curscript = comboscripts[script];
 
-			int32_t pos = index%176;
-			int32_t lyr = index/176;
+			int32_t pos = combopos_ref_to_pos(index);
+			int32_t lyr = combopos_ref_to_layer(index);
 			int32_t id = FFCore.tempScreens[lyr]->data[pos];
 			if (!data.initialized)
 			{
@@ -11613,7 +11613,8 @@ int32_t get_register(const int32_t arg)
 			//ri->comboposref = i; //used for X(), Y(), Layer(), and so forth.
 			if ( curScriptType == ScriptType::Combo )
 			{
-				ret = (( COMBOX(((ri->comboposref)%176)) ) * 10000); //comboscriptstack[i]
+				int pos = combopos_ref_to_pos(ri->comboposref);
+				ret = (( COMBOX(pos) ) * 10000); //comboscriptstack[i]
 				//this may be wrong...may need a special new var for this, storing the exact combopos
 				//i is the current script number
 			}
@@ -11629,7 +11630,8 @@ int32_t get_register(const int32_t arg)
 		{
 			if ( curScriptType == ScriptType::Combo )
 			{
-				ret = (( COMBOY(((ri->comboposref)%176)) ) * 10000); //comboscriptstack[i]
+				int pos = combopos_ref_to_pos(ri->comboposref);
+				ret = (( COMBOY(pos) ) * 10000); //comboscriptstack[i]
 			}
 			else
 			{
@@ -11642,7 +11644,8 @@ int32_t get_register(const int32_t arg)
 		{
 			if ( curScriptType == ScriptType::Combo )
 			{
-				ret = (( ((ri->comboposref)%176) ) * 10000); //comboscriptstack[i]
+				int pos = combopos_ref_to_pos(ri->comboposref);
+				ret = pos * 10000; //comboscriptstack[i]
 			}
 			else
 			{
@@ -19082,7 +19085,7 @@ void set_register(int32_t arg, int32_t value)
 				tmpscr->data[pos] = combo;
 				screen_combo_modify_postroutine(tmpscr,pos);
 				//Start the script for the new combo
-				int index = pos;
+				int index = get_combopos_ref(pos, 0);
 				FFCore.reset_script_engine_data(ScriptType::Combo, index);
 				//Not ure if combodata arrays clean themselves up, or leak. -Z
 				//Not sure if this could result in stack corruption. 
@@ -19091,7 +19094,7 @@ void set_register(int32_t arg, int32_t value)
 			if(layr>-1)
 			{
 				tmpscr2[layr].data[pos]=combo;
-				int index = pos + 176 * (layr + 1);
+				int index = get_combopos_ref(pos, layr + 1);
 				FFCore.reset_script_engine_data(ScriptType::Combo, index);
 			}
 		}
@@ -47236,7 +47239,8 @@ void FFScript::reset_combo_script(int32_t lyr, int32_t pos)
 {
 	if(lyr < 0) return;
 
-	uint32_t index = pos+(176*lyr);
+	
+	int32_t index = get_combopos_ref(pos, lyr);
 	if (index >= 176*7) return;
 
 	combo_id_cache[index] = -1;
@@ -47325,7 +47329,7 @@ int32_t FFScript::combo_script_engine(const bool preload, const bool waitdraw)
 			// int32_t ls = (q ? tmpscr->layerscreen[q-1] : 0);
 			// int32_t lm = (q ? tmpscr->layermap[q-1] : 0);
 			// if(q && !lm) continue; //No layer for this screen
-			int32_t idval = c+(176*q);
+			int32_t idval = get_combopos_ref(c, q);
 			mapscr* m = FFCore.tempScreens[q]; //get templayer mapscr for any layer (including 0)
 			word cid = m->data[c];
 			if(combo_id_cache[idval] < 0)
@@ -49089,4 +49093,19 @@ bool command_could_return_not_ok(int command)
 const script_command& get_script_command(int command)
 {
 	return ZASMcommands[command];
+}
+
+int32_t get_combopos_ref(int32_t pos, int32_t layer)
+{
+	return layer * 176 + pos;
+}
+
+int32_t combopos_ref_to_pos(int32_t combopos_ref)
+{
+	return combopos_ref % 176;
+}
+
+int32_t combopos_ref_to_layer(int32_t combopos_ref)
+{
+	return combopos_ref / 176;
 }
