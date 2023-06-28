@@ -183,7 +183,7 @@ def get_release_package_url(tag):
 
 def download_release(tag: str):
     url = get_release_package_url(tag)
-    dest = test_builds_dir / tag
+    dest = releases_dir / tag
     if dest.exists():
         return dest
 
