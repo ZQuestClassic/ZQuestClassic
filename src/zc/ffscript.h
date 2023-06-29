@@ -1291,15 +1291,15 @@ void initZScriptItemScripts();
 
 void clear_script_engine_data();
 void reset_script_engine_data(ScriptType type, int index = 0);
+void clear_script_engine_data(ScriptType type, int index = 0);
+void clear_script_engine_data_of_type(ScriptType type);
 refInfo& ref(ScriptType type, int index);
 byte& doscript(ScriptType type, int index = 0);
 bool& waitdraw(ScriptType type, int index = 0);
 
 //Combo Scripts
-void init_combo_doscript();
-void clear_combo_refinfo();
-void clear_combo_refinfo(int32_t pos);
-void reset_combo_script(int32_t lyr, int32_t pos);
+void clear_combo_scripts();
+void clear_combo_script(int32_t lyr, int32_t pos);
 void ClearComboScripts();
 int32_t getComboDataLayer(int32_t c, ScriptType scripttype);
 int32_t getCombodataPos(int32_t c, ScriptType scripttype);

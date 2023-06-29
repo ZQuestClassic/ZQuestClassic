@@ -620,6 +620,26 @@ void FFScript::reset_script_engine_data(ScriptType type, int index)
 	get_script_engine_data(type, index).reset();
 }
 
+void FFScript::clear_script_engine_data(ScriptType type, int index)
+{
+	if (type == ScriptType::DMap || type == ScriptType::OnMap || type == ScriptType::PassiveSubscreen || type == ScriptType::ActiveSubscreen)
+	{
+		// `index` is used for dmapref, not for different script engine data.
+		index = 0;
+	}
+
+	auto it = scriptEngineDatas.find({type, index});
+	if (it != scriptEngineDatas.end())
+	{
+		scriptEngineDatas.erase(it);
+	}
+}
+
+void FFScript::clear_script_engine_data_of_type(ScriptType type)
+{
+	std::erase_if(scriptEngineDatas, [&](auto& kv) { return kv.first.first == type; });
+}
+
 refInfo& FFScript::ref(ScriptType type, int index)
 {
 	return get_script_engine_data(type, index).ref;
@@ -47219,23 +47239,13 @@ void FFScript::do_loadnpc_by_script_uid(const bool v)
 
 //Combo Scripts
 
-void FFScript::init_combo_doscript()
+void FFScript::clear_combo_scripts()
 {
 	memset(combo_id_cache, -1, sizeof(combo_id_cache));
-	clear_combo_refinfo();
-}
-void FFScript::clear_combo_refinfo()
-{
-	for ( int32_t q = 0; q < 1232; q++ )
-		ref(ScriptType::Combo, q).Clear();
+	clear_script_engine_data_of_type(ScriptType::Combo);
 }
 
-void FFScript::clear_combo_refinfo(int32_t pos)
-{
-	ref(ScriptType::Combo, pos).Clear();
-}
-
-void FFScript::reset_combo_script(int32_t lyr, int32_t pos)
+void FFScript::clear_combo_script(int32_t lyr, int32_t pos)
 {
 	if(lyr < 0) return;
 
@@ -47245,7 +47255,7 @@ void FFScript::reset_combo_script(int32_t lyr, int32_t pos)
 
 	combo_id_cache[index] = -1;
 	combopos_modified = index;
-	reset_script_engine_data(ScriptType::Combo, index);
+	clear_script_engine_data(ScriptType::Combo, index);
 }
 
 int32_t FFScript::getComboDataLayer(int32_t c, ScriptType scripttype)
@@ -47308,7 +47318,6 @@ int32_t FFScript::getCombodataY(int32_t c, ScriptType scripttype)
 	}
 }
 
-//Clear stacks and refinfo in LOADSCR
 void FFScript::ClearComboScripts()
 {
 	for ( int32_t c = 0; c < 176; c++ )
@@ -47336,8 +47345,9 @@ int32_t FFScript::combo_script_engine(const bool preload, const bool waitdraw)
 				combo_id_cache[idval] = cid;
 			else if(combo_id_cache[idval] != cid)
 			{
-				reset_combo_script(q,c);
+				combopos_modified = idval;
 				combo_id_cache[idval] = cid;
+				clear_script_engine_data(ScriptType::Combo, idval);
 			}
 			
 			if ( combobuf[cid].script )
