@@ -7,18 +7,19 @@ void pop_ri();
 extern refInfo* ri;
 extern script_data* curscript;
 extern int32_t(*stack)[MAX_SCRIPT_REGISTERS];
-extern byte curScriptType;
+extern ScriptType curScriptType;
 extern word curScriptNum;
 extern int32_t curScriptIndex;
 extern bool script_funcrun;
 extern std::string* destructstr;
 
 void destroy_object_arr(int32_t ptr);
-script_data* load_scrdata(int32_t type, word script, int32_t i);
+script_data* load_scrdata(ScriptType type, word script, int32_t i);
 
 void scr_func_exec::clear()
 {
-	pc = type = i = 0;
+	pc = i = 0;
+	type = ScriptType::None;
 	script = 0; thiskey = 0;
 	name.clear();
 }
@@ -90,7 +91,7 @@ bool scr_func_exec::validate()
 		}
 	}
 }
-void user_object::prep(dword pc, int32_t type, word script, int32_t i)
+void user_object::prep(dword pc, ScriptType type, word script, int32_t i)
 {
 	if(!pc) return;
 	ffscript &zas = curscript->zasm[pc-1];
@@ -142,7 +143,7 @@ void user_object::clear(bool destructor)
 	}
 	data.clear();
 	reserved = false;
-	owned_type = -1;
+	owned_type = (ScriptType)-1;
 	owned_i = 0;
 	owned_vars = 0;
 }

@@ -33,7 +33,7 @@ public:
 	int32_t initd[INITIAL_D];
 	int32_t inita[INITIAL_A];
 	int32_t screen_index;
-	bool initialized, hooked;
+	bool hooked;
 	bool recently_hit;
 	int32_t changer_x = -1000, changer_y = -1000;
 	int32_t prev_changer_x = -10000000, prev_changer_y = -10000000;
@@ -59,7 +59,6 @@ public:
 	
 	//Overload to do damage to Hero on pushing them
 	virtual void doContactDamage(int32_t hdir) override;
-	bool waitdraw;
 private:
 	word data;
 	bool loaded;

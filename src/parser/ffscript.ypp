@@ -1166,7 +1166,7 @@ Script :
 		delete name;}
 
 	| SCRIPTSTRUCT IDENTIFIER Script_Block {
-		ASTScriptType* type = new ASTScriptType(ScriptType::untyped, @$);
+		ASTScriptType* type = new ASTScriptType(ParserScriptType::untyped, @$);
 		ASTString* name = (ASTString*)$2;
 		ASTScript* script = (ASTScript*)$3;
 		script->type = type;
@@ -1178,20 +1178,20 @@ Script :
 
 
 Script_Type :
-	GLOBAL {$$ = new ASTScriptType(ScriptType::global, @$);}
-	| FFC {$$ = new ASTScriptType(ScriptType::ffc, @$);}
-	| ITEMCLASS {$$ = new ASTScriptType(ScriptType::item, @$);}
-	| EWEAPON {$$ = new ASTScriptType(ScriptType::eweapon, @$);}
-	| LWEAPON {$$ = new ASTScriptType(ScriptType::lweapon, @$);}
-	| NPC {$$ = new ASTScriptType(ScriptType::npc, @$);}
-	| SCREEN {$$ = new ASTScriptType(ScriptType::screendata, @$);}
-	| DMAP {$$ = new ASTScriptType(ScriptType::dmapdata, @$);}
-	| LINK {$$ = new ASTScriptType(ScriptType::player, @$);}
-	| ITEMSPRITE {$$ = new ASTScriptType(ScriptType::itemsprite, @$);}
-	| UNTYPED {$$ = new ASTScriptType(ScriptType::untyped, @$);}
-	| SUBSCREENDATA {$$ = new ASTScriptType(ScriptType::subscreendata, @$);}
-	| GENERIC {$$ = new ASTScriptType(ScriptType::genericscr, @$);}
-	| COMBO {$$ = new ASTScriptType(ScriptType::combodata, @$);}
+	GLOBAL {$$ = new ASTScriptType(ParserScriptType::global, @$);}
+	| FFC {$$ = new ASTScriptType(ParserScriptType::ffc, @$);}
+	| ITEMCLASS {$$ = new ASTScriptType(ParserScriptType::item, @$);}
+	| EWEAPON {$$ = new ASTScriptType(ParserScriptType::eweapon, @$);}
+	| LWEAPON {$$ = new ASTScriptType(ParserScriptType::lweapon, @$);}
+	| NPC {$$ = new ASTScriptType(ParserScriptType::npc, @$);}
+	| SCREEN {$$ = new ASTScriptType(ParserScriptType::screendata, @$);}
+	| DMAP {$$ = new ASTScriptType(ParserScriptType::dmapdata, @$);}
+	| LINK {$$ = new ASTScriptType(ParserScriptType::player, @$);}
+	| ITEMSPRITE {$$ = new ASTScriptType(ParserScriptType::itemsprite, @$);}
+	| UNTYPED {$$ = new ASTScriptType(ParserScriptType::untyped, @$);}
+	| SUBSCREENDATA {$$ = new ASTScriptType(ParserScriptType::subscreendata, @$);}
+	| GENERIC {$$ = new ASTScriptType(ParserScriptType::genericscr, @$);}
+	| COMBO {$$ = new ASTScriptType(ParserScriptType::combodata, @$);}
 	| IDENTIFIER {
 		ASTString* name = static_cast<ASTString*>($1);
 		$$ = new ASTScriptType(name->getValue(), @$);

@@ -141,7 +141,7 @@ namespace ZScript
 		ZTID_END = ZTID_CLASS_END
 	};
 
-	static std::string getTypeName(DataTypeId id)
+	static std::string getDataTypeName(DataTypeId id)
 	{
 		switch(id)
 		{
@@ -724,10 +724,10 @@ namespace ZScript
 
 	// Basically an enum.
 	//the 'this' 'this->' stuff. -Z
-	class ScriptType
+	class ParserScriptType
 	{
-		friend bool operator==(ScriptType const& lhs, ScriptType const& rhs);
-		friend bool operator!=(ScriptType const& lhs, ScriptType const& rhs);
+		friend bool operator==(ParserScriptType const& lhs, ParserScriptType const& rhs);
+		friend bool operator!=(ParserScriptType const& lhs, ParserScriptType const& rhs);
 
 	public:
 		enum Id
@@ -752,67 +752,67 @@ namespace ZScript
 			idEnd
 		};
 	
-		ScriptType() : id_(idInvalid) {}
+		ParserScriptType() : id_(idInvalid) {}
 		
 		std::string const& getName() const;
-		int32_t getTrueId() const
+		ScriptType getTrueId() const
 		{
 			switch(id_)
 			{
 				case idInvalid:
-					return SCRIPT_NONE;
+					return ScriptType::None;
 				case idGlobal:
-					return SCRIPT_GLOBAL;
+					return ScriptType::Global;
 				case idFfc:
-					return SCRIPT_FFC;
+					return ScriptType::FFC;
 				case idItem:
-					return SCRIPT_ITEM;
+					return ScriptType::Item;
 				case idNPC:
-					return SCRIPT_NPC;
+					return ScriptType::NPC;
 				case idEWeapon:
-					return SCRIPT_EWPN;
+					return ScriptType::Ewpn;
 				case idLWeapon:
-					return SCRIPT_LWPN;
+					return ScriptType::Lwpn;
 				case idPlayer:
-					return SCRIPT_PLAYER;
+					return ScriptType::Player;
 				case idScreen:
-					return SCRIPT_SCREEN;
+					return ScriptType::Screen;
 				case idDMap:
-					return SCRIPT_DMAP;
+					return ScriptType::DMap;
 				case idItemSprite:
-					return SCRIPT_ITEMSPRITE;
+					return ScriptType::ItemSprite;
 				case idUntyped:
-					return SCRIPT_NONE;
+					return ScriptType::None;
 				case idComboData:
-					return SCRIPT_COMBO;
+					return ScriptType::Combo;
 				case idSubscreenData:
-					return SCRIPT_NONE;
+					return ScriptType::None;
 				case idGenericScript:
-					return SCRIPT_GENERIC;
+					return ScriptType::Generic;
 			}
-			return SCRIPT_NONE;
+			return ScriptType::None;
 		}
 		Id getId() const {return id_;}
 		DataTypeId getThisTypeId() const;
 		bool isValid() const {return id_ >= idStart && id_ < idEnd;}
 
-		static ScriptType const invalid;
-		static ScriptType const global;
-		static ScriptType const ffc;
-		static ScriptType const item;
-		static ScriptType const npc;
-		static ScriptType const eweapon;
-		static ScriptType const lweapon;
-		static ScriptType const player;
-		static ScriptType const dmapdata;
-		static ScriptType const screendata;
-		static ScriptType const itemsprite;
-		static ScriptType const untyped;
-		static ScriptType const subscreendata;
-		static ScriptType const combodata;
-		static ScriptType const genericscr;
+		static ParserScriptType const invalid;
+		static ParserScriptType const global;
+		static ParserScriptType const ffc;
+		static ParserScriptType const item;
+		static ParserScriptType const npc;
+		static ParserScriptType const eweapon;
+		static ParserScriptType const lweapon;
+		static ParserScriptType const player;
+		static ParserScriptType const dmapdata;
+		static ParserScriptType const screendata;
+		static ParserScriptType const itemsprite;
+		static ParserScriptType const untyped;
+		static ParserScriptType const subscreendata;
+		static ParserScriptType const combodata;
+		static ParserScriptType const genericscr;
 
-		ScriptType(Id id) : id_(id) {}
+		ParserScriptType(Id id) : id_(id) {}
 
 	private:
 		
@@ -820,8 +820,8 @@ namespace ZScript
 	};
 
 	// All invalid values are equal to each other.
-	bool operator==(ScriptType const& lhs, ScriptType const& rhs);
-	bool operator!=(ScriptType const& lhs, ScriptType const& rhs);
+	bool operator==(ParserScriptType const& lhs, ParserScriptType const& rhs);
+	bool operator!=(ParserScriptType const& lhs, ParserScriptType const& rhs);
 }
 
 #endif

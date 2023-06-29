@@ -19,7 +19,7 @@ public:
         CurrentVersion = newVersion;
     }
     
-    static inline int32_t RunScript(const byte type, const word script, const int32_t i = -1)
+    static inline int32_t RunScript(ScriptType type, const word script, const int32_t i = 0)
     {
         return run_script(type, script, i);
     }

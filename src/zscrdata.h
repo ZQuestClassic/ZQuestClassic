@@ -23,7 +23,7 @@ namespace ZScript
 {
 	enum ScriptTypeID
 	{
-		scrTypeIdInvalid = ZScript::ScriptType::idInvalid,
+		scrTypeIdInvalid = ZScript::ParserScriptType::idInvalid,
 		scrTypeIdStart,
 		scrTypeIdGlobal = scrTypeIdStart,
 		scrTypeIdFfc,
@@ -85,7 +85,7 @@ void write_meta(zasm_meta const& meta, FILE* f)
 	write_w(meta.zasm_v, f);
 	write_w(meta.meta_v, f);
 	write_w(meta.ffscript_v, f);
-	write_b(meta.script_type, f);
+	write_b((byte)meta.script_type, f);
 	for(auto q = 0; q < 8; ++q)
 		write_str(meta.run_idens[q], f);
 	for(auto q = 0; q < 8; ++q)
@@ -126,7 +126,11 @@ void read_meta(zasm_meta& meta, FILE* f)
 	read_w(meta.zasm_v, f);
 	read_w(meta.meta_v, f);
 	read_w(meta.ffscript_v, f);
-	read_b(meta.script_type, f);
+	{
+		byte st = (byte)meta.script_type;
+		read_b(st, f);
+		meta.script_type = (ScriptType)st;
+	}
 	for(auto q = 0; q < 8; ++q)
 		read_str(meta.run_idens[q], f);
 	for(auto q = 0; q < 8; ++q)
@@ -344,7 +348,7 @@ void ReadConsole(char buf[], int code)
 
 #ifdef IS_PARSER
 #include "parser/Compiler.h"
-void write_compile_data(map<string, ZScript::ScriptType>& stypes, map<string, disassembled_script_data>& scripts)
+void write_compile_data(map<string, ZScript::ParserScriptType>& stypes, map<string, disassembled_script_data>& scripts)
 {
 	map<string, ZScript::ScriptTypeID> sid_types;
 	for(auto it = stypes.begin(); it != stypes.end(); ++it)
@@ -357,63 +361,63 @@ void write_compile_data(map<string, ZScript::ScriptType>& stypes, map<string, di
 #endif //IS_PARSER
 
 
-int32_t get_script_type(string const& name)
+ScriptType get_script_type(string const& name)
 {
 	if(name=="GLOBAL")
-		return SCRIPT_GLOBAL;
+		return ScriptType::Global;
 	else if(name=="FFC")
-		return SCRIPT_FFC;
+		return ScriptType::FFC;
 	else if(name=="SCREEN")
-		return SCRIPT_SCREEN;
+		return ScriptType::Screen;
 	else if(name=="HERO" || name=="PLAYER" || name=="LINK")
-		return SCRIPT_PLAYER;
+		return ScriptType::Player;
 	else if(name=="ITEMDATA" || name=="ITEM")
-		return SCRIPT_ITEM;
+		return ScriptType::Item;
 	else if(name=="LWEAPON" || name=="LWPN")
-		return SCRIPT_LWPN;
+		return ScriptType::Lwpn;
 	else if(name=="NPC")
-		return SCRIPT_NPC;
+		return ScriptType::NPC;
 	else if(name=="EWEAPON" || name=="EWPN")
-		return SCRIPT_EWPN;
+		return ScriptType::Ewpn;
 	else if(name=="DMAP")
-		return SCRIPT_DMAP;
+		return ScriptType::DMap;
 	else if(name=="ITEMSPRITE")
-		return SCRIPT_ITEMSPRITE;
+		return ScriptType::ItemSprite;
 	else if(name=="COMBO" || name=="COMBODATA")
-		return SCRIPT_COMBO;
+		return ScriptType::Combo;
 	
-	return SCRIPT_NONE;
+	return ScriptType::None;
 }
 
-string get_script_name(int32_t type)
+string get_script_name(ScriptType type)
 {
 	switch(type)
 	{
-		case SCRIPT_GLOBAL:
+		case ScriptType::Global:
 			return "GLOBAL";
-		case SCRIPT_FFC:
+		case ScriptType::FFC:
 			return "FFC";
-		case SCRIPT_SCREEN:
+		case ScriptType::Screen:
 			return "SCREEN";
-		case SCRIPT_PLAYER:
+		case ScriptType::Player:
 			return "HERO";
-		case SCRIPT_ITEM:
+		case ScriptType::Item:
 			return "ITEMDATA";
-		case SCRIPT_LWPN:
+		case ScriptType::Lwpn:
 			return "LWEAPON";
-		case SCRIPT_NPC:
+		case ScriptType::NPC:
 			return "NPC";
-		case SCRIPT_EWPN:
+		case ScriptType::Ewpn:
 			return "EWEAPON";
-		case SCRIPT_DMAP:
+		case ScriptType::DMap:
 			return "DMAP";
-		case SCRIPT_ITEMSPRITE:
+		case ScriptType::ItemSprite:
 			return "ITEMSPRITE";
-		case SCRIPT_COMBO:
+		case ScriptType::Combo:
 			return "COMBODATA";
-		case SCRIPT_GENERIC: case SCRIPT_GENERIC_FROZEN:
+		case ScriptType::Generic: case ScriptType::GenericFrozen:
 			return "GENERIC";
-		case SCRIPT_NONE:
+		case ScriptType::None:
 		default:
 			return "UNKNOWN";
 	}
@@ -439,7 +443,7 @@ string zasm_meta::get_meta() const
 	{
 		if(!run_idens[q].size())
 			continue;
-		oss << "\n#PARAM_TYPE_" << q << " = " << ZScript::getTypeName(run_types[q])
+		oss << "\n#PARAM_TYPE_" << q << " = " << ZScript::getDataTypeName(run_types[q])
 			<< "\n#PARAM_NAME_" << q << " = " << run_idens[q];
 	}
 	for(auto q = 0; q < 10; ++q)

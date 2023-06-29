@@ -946,7 +946,7 @@ weapon::~weapon()
 		if(dragItem)
 			dragItem->is_dragged = false;
 	}
-	FFCore.deallocateAllArrays(isLWeapon ? SCRIPT_LWPN : SCRIPT_EWPN, getUID());
+	FFCore.deallocateAllArrays(isLWeapon ? ScriptType::Lwpn : ScriptType::Ewpn, getUID());
 	cleanup_sfx();
 }
 
@@ -7671,11 +7671,11 @@ int32_t weapon::run_script(int32_t mode)
 	switch(mode)
 	{
 		case MODE_NORMAL:
-			return ZScriptVersion::RunScript(isLWeapon ? SCRIPT_LWPN : SCRIPT_EWPN, weaponscript, getUID());
+			return ZScriptVersion::RunScript(isLWeapon ? ScriptType::Lwpn : ScriptType::Ewpn, weaponscript, getUID());
 		case MODE_WAITDRAW:
 			if(waitdraw)
 			{
-				ret = ZScriptVersion::RunScript(isLWeapon ? SCRIPT_LWPN : SCRIPT_EWPN, weaponscript, getUID());
+				ret = ZScriptVersion::RunScript(isLWeapon ? ScriptType::Lwpn : ScriptType::Ewpn, weaponscript, getUID());
 				waitdraw = 0;
 			}
 			break;

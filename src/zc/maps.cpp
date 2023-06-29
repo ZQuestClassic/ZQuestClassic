@@ -672,8 +672,9 @@ int32_t RPOS_TO_POS(rpos_t rpos)
 }
 rpos_t POS_TO_RPOS(int32_t pos, int32_t scr_dx, int32_t scr_dy)
 {
-	DCHECK(scr_dx >= 0 && scr_dy >= 0);
-	DCHECK_RANGE_EXCLUSIVE(pos, 0, 176);
+	// TODO z3 !!
+	// DCHECK(scr_dx >= 0 && scr_dy >= 0);
+	// DCHECK_RANGE_EXCLUSIVE(pos, 0, 176);
 	return static_cast<rpos_t>((scr_dx + scr_dy * region_scr_width)*176 + pos);
 }
 rpos_t POS_TO_RPOS(int32_t pos, int32_t scr)
@@ -5364,14 +5365,7 @@ void load_a_screen_and_layers(int dmap, int map, int screen_index, int ldir)
 
 	if (source->script > 0)
 	{
-		base_screen->screendatascriptInitialised = 0;
-		base_screen->doscript = 1;
-	}
-	else
-	{
-		base_screen->script = 0;
-		base_screen->screendatascriptInitialised = 0;
-		base_screen->doscript = 0;
+		FFCore.reset_script_engine_data(ScriptType::Screen, screen_index);
 	}
 
 	for (int i = 0; i < 6; i++)
@@ -5576,6 +5570,11 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 	z3_load_region(destdmap);
 	current_screen = &tmpscr;
 
+	FFCore.clear_script_engine_data_of_type(ScriptType::Screen);
+	FFCore.init_combo_doscript();
+	FFCore.deallocateAllArrays(ScriptType::Screen, 0);
+	FFCore.deallocateAllArrays(ScriptType::Combo, 0);
+
 	loadscr_old(0, orig_destdmap, scr, ldir, overlay, false);
 	if (scr >= 0x80)
 		loadscr_old(1, orig_destdmap, homescr, no_x80_dir ? -1 : ldir, overlay, false);
@@ -5596,18 +5595,9 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 		if (ffc_handle.screen_index == scr)
 			return;
 
-		FFCore.deallocateAllArrays(SCRIPT_FFC, ffc_handle.id, false);
+		FFCore.reset_script_engine_data(ScriptType::FFC, ffc_handle.id);
 		memset(ffc_handle.ffc->script_misc, 0, 16 * sizeof(int32_t));
-		ffcScriptData[ffc_handle.id].Clear();
-		clear_ffc_stack(ffc_handle.id);
 	});
-
-	//screen / screendata script
-	FFCore.clear_screen_scripts();
-	FFCore.deallocateAllArrays(SCRIPT_COMBO, 0);
-	//reset combo script doscripts
-	//Init combo scripts
-	FFCore.init_combo_doscript();
 
 	update_slope_comboposes();
 
@@ -5743,8 +5733,9 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 	//screen / screendata script
 	if (do_setups)
 	{
-		FFCore.clear_screen_scripts();
-		FFCore.deallocateAllArrays(SCRIPT_COMBO, 0);
+		FFCore.clear_script_engine_data_of_type(ScriptType::Screen);
+		FFCore.deallocateAllArrays(ScriptType::Screen, scr);
+		FFCore.deallocateAllArrays(ScriptType::Combo, 0);
 		//reset combo script doscripts
 		//Init combo scripts
 		FFCore.init_combo_doscript();
@@ -5758,14 +5749,13 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 		{
 			screen->screeninitd[q] = TheMaps[currmap*MAPSCRS+scr].screeninitd[q];
 		}
-		screen->screendatascriptInitialised = 0;
-		screen->doscript = 1;
+		FFCore.reset_script_engine_data(ScriptType::Screen, scr);
 	}
 	else
 	{
 		screen->script = 0;
-		screen->screendatascriptInitialised = 0;
-		screen->doscript = 0;
+		// TODO z3 !!! rm?
+		FFCore.doscript(ScriptType::Screen, scr) = false;
 	}
 	
 	if(overlay)
@@ -5811,27 +5801,18 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 			{
 				screen->ffcs[i] = previous_scr.ffcs[i];
 				
-				if(!(previous_scr.ffcs[i].flags&ffSCRIPTRESET))
+				if (previous_scr.ffcs[i].flags&ffSCRIPTRESET)
 				{
-					screen->ffcs[i].initialized = previous_scr.ffcs[i].initialized;
-				}
-				else
-				{
-					screen->ffcs[i].initialized = false;
-					
 					int ffc_id = get_region_screen_index_offset(scr)*MAXFFCS + i;
-					ffcScriptData[ffc_id].pc = 0;
-					ffcScriptData[ffc_id].sp = 0;
-					ffcScriptData[ffc_id].ffcref = 0;
+					FFCore.reset_script_engine_data(ScriptType::FFC, ffc_id);
 				}
 			}
 			else
 			{
 				int ffc_id = get_region_screen_index_offset(scr)*MAXFFCS + i;
-				FFCore.deallocateAllArrays(SCRIPT_FFC, ffc_id, false);
+				FFCore.deallocateAllArrays(ScriptType::FFC, ffc_id, false);
 				memset(screen->ffcs[i].script_misc, 0, 16 * sizeof(int32_t));
-				ffcScriptData[ffc_id].Clear();
-				clear_ffc_stack(ffc_id);
+				FFCore.reset_script_engine_data(ScriptType::FFC, ffc_id);
 			}
 		}
 

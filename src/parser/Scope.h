@@ -27,7 +27,7 @@ namespace ZScript
 	// Types.h
 	class DataType;
 	class TypeStore;
-	class ScriptType;
+	class ParserScriptType;
 
 	// ZScript.h
 	class Script;
@@ -90,7 +90,7 @@ namespace ZScript
 		// Lookup Local
 		virtual DataType const* getLocalDataType(std::string const& name)
 			const = 0;
-		virtual std::optional<ScriptType> getLocalScriptType(
+		virtual std::optional<ParserScriptType> getLocalScriptType(
 			std::string const& name) const = 0;
 		virtual ZClass* getLocalClass(std::string const& name) const = 0;
 		virtual Datum* getLocalDatum(std::string const& name) const = 0;
@@ -124,7 +124,7 @@ namespace ZScript
 				std::string const& name, DataType const* type, AST* node)
 		= 0;
 		virtual bool addScriptType(
-			std::string const& name, ScriptType type, AST* node) = 0;
+			std::string const& name, ParserScriptType type, AST* node) = 0;
 		//virtual ZClass* addClass(string const& name, AST* node) = 0;
 		virtual Function* addGetter(
 				DataType const* returnType, std::string const& name,
@@ -214,7 +214,7 @@ namespace ZScript
 	DataType const* lookupDataType(Scope const& scope, ASTExprIdentifier& host, CompileErrorHandler* errorHandler, bool isTypedefCheck = false);
 	
 	// Attempt to resolve name to a script type id under scope.
-	ScriptType lookupScriptType(Scope const&, std::string const& name);
+	ParserScriptType lookupScriptType(Scope const&, std::string const& name);
 	
 	// Attempt to resolve name to a class id under scope.
 	ZClass* lookupClass(Scope const&, std::string const& name);
@@ -321,7 +321,7 @@ namespace ZScript
 		// Lookup Local
 		DataType const* getLocalDataType(std::string const& name)
 			const /*override*/;
-		std::optional<ScriptType> getLocalScriptType(std::string const& name)
+		std::optional<ParserScriptType> getLocalScriptType(std::string const& name)
 			const /*override*/;
 		virtual ZClass* getLocalClass(std::string const& name) const;
 		virtual Datum* getLocalDatum(std::string const& name) const;
@@ -354,7 +354,7 @@ namespace ZScript
 				std::string const& name, DataType const* type,
 				AST* node = NULL);
 		bool addScriptType(
-			std::string const& name, ScriptType type, AST* node)
+			std::string const& name, ParserScriptType type, AST* node)
 			/*override*/;
 		virtual Function* addGetter(
 				DataType const* returnType, std::string const& name,
@@ -384,7 +384,7 @@ namespace ZScript
 		std::map<std::string, Scope*> children_;
 		std::vector<Scope*> anonymousChildren_;
 		std::map<std::string, DataType const*> dataTypes_;
-		std::map<std::string, ScriptType> scriptTypes_;
+		std::map<std::string, ParserScriptType> scriptTypes_;
 		std::map<std::string, ZClass*> classes_;
 		std::vector<Datum*> anonymousData_;
 		std::map<std::string, Datum*> namedData_;
@@ -431,7 +431,7 @@ namespace ZScript
 				std::string const& name, DataType const* type,
 				AST* node = NULL);
 		bool addScriptType(
-			std::string const& name, ScriptType type, AST* node)
+			std::string const& name, ParserScriptType type, AST* node)
 			/*override*/;
 		virtual Function* addGetter(
 				DataType const* returnType, std::string const& name,
@@ -478,7 +478,7 @@ namespace ZScript
 		virtual Scope* getChild(std::string const& name) const;
 		virtual DataType const* getLocalDataType(
 				std::string const& name) const;
-		std::optional<ScriptType> getLocalScriptType(std::string const& name)
+		std::optional<ParserScriptType> getLocalScriptType(std::string const& name)
 			const /*override*/;
 		virtual ZClass* getLocalClass(std::string const& name) const;
 		virtual Datum* getLocalDatum(std::string const& name) const;
@@ -497,7 +497,7 @@ namespace ZScript
 		// Register a descendant's thing.
 		bool registerChild(std::string const& name, Scope* child);
 		bool registerDataType(std::string const& name, DataType const* type);
-		bool registerScriptType(std::string const& name, ScriptType type);
+		bool registerScriptType(std::string const& name, ParserScriptType type);
 		bool registerClass(std::string const& name, ZClass* klass);
 		bool registerDatum(std::string const& name, Datum* datum);
 		bool registerGetter(std::string const& name, Function* getter);
@@ -514,7 +514,7 @@ namespace ZScript
 		// Unowned pointers to descendant's stuff.
 		std::map<std::string, Scope*> descChildren_;
 		std::map<std::string, DataType const*> descDataTypes_;
-		std::map<std::string, ScriptType> descScriptTypes_;
+		std::map<std::string, ParserScriptType> descScriptTypes_;
 		std::map<std::string, ZClass*> descClasses_;
 		std::map<std::string, Datum*> descData_;
 		std::map<std::string, Function*> descGetters_;

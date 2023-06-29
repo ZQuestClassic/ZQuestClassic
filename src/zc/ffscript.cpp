@@ -93,20 +93,11 @@ FONT *get_zc_font(int index);
 int32_t combopos_modified = -1;
 static std::vector<word> combo_id_cache;
 
-const char scripttypenames[15][40]=
-{
-	"none script",
-	"Global Script", "FFC Script", "Screen Script", "Hero Script", 
-	"Item Script", "LWeapon Script", "NPC Script", 
-	"Subscreen Script", "EWeapon Script", "DMap Script", "Itemsprite Script",
-	"DMap ActSub Script", "DMap PasSub Script", "Combo Script"
-};
-
 void user_dir::clear()
 {
 	filepath = "";
 	reserved = false;
-	owned_type = -1;
+	owned_type = (ScriptType)-1;
 	owned_i = 0;
 	if(list)
 	{
@@ -312,14 +303,6 @@ static ffcdata* get_ffc_raw(int ffc_id)
 //no ifdef here
 CConsoleLoggerEx coloured_console;
 extern CConsoleLoggerEx zscript_coloured_console;
-
-
-const char script_types[][16]=
-{
-	"none", "global", "ffc", "screendata", "hero", "item", "lweapon", "npc", "subscreen",
-	"eweapon", "dmapdata", "itemsprite", "dmapdata (AS)", "dmapdata (PS)", "combodata", "dmapdata (MAP)",
-	"generic", "generic (FRZ)"
-};
 	
 int32_t FFScript::UpperToLower(std::string *s)
 {
@@ -466,7 +449,6 @@ int32_t FFScript::atox(char *ip_str)
 }
 
 char runningItemScripts[256] = {0};
-byte itemScriptsWaitdraw[256] = {0};
  
 //item *FFCore.temp_ff_item = NULL;
 //enemy *FFCore.temp_ff_enemy = NULL;
@@ -557,13 +539,13 @@ refInfo *ri = NULL;
 script_data *curscript = NULL;
 int32_t(*stack)[MAX_SCRIPT_REGISTERS] = NULL;
 std::vector<int32_t> zs_vargs;
-byte curScriptType;
+ScriptType curScriptType;
 word curScriptNum;
 int32_t curScriptIndex;
 bool script_funcrun = false;
 std::string* destructstr = nullptr;
 
-static std::vector<int32_t> curScriptType_cache;
+static std::vector<ScriptType> curScriptType_cache;
 static std::vector<int32_t> curScriptNum_cache;
 static std::vector<int32_t> curScriptIndex_cache;
 static std::vector<int32_t> sarg1cache;
@@ -607,75 +589,379 @@ std::vector<refInfo*> genericActiveData;
 std::vector<int32_t(*)[MAX_SCRIPT_REGISTERS]> generic_active_stack;
 bool gen_active_doscript = false, gen_active_initialized = false;
 
-//Global script data
-refInfo globalScriptData[NUMSCRIPTGLOBAL];
-refInfo playerScriptData;
-refInfo dmapScriptData;
-refInfo onmapScriptData;
-refInfo activeSubscreenScriptData;
-refInfo passiveSubscreenScriptData;
-word g_doscript = 0xFFFF;
-word player_doscript = 1;
-word dmap_doscript = 0; //Initialised at 0, intentionally. Zelda.cpp's game_loop() will set it to 1. 
-word onmap_doscript = 0;
-word active_subscreen_doscript = 0;
-word passive_subscreen_doscript = 0;
-word global_wait = 0;
-bool player_waitdraw = false;
-bool dmap_waitdraw = false;
-bool passive_subscreen_waitdraw = false;
-bool active_subscreen_waitdraw = false;
-bool onmap_waitdraw = false;
-word item_doscript[256] = {0};
-word item_collect_doscript[256] = {0};
-byte dmapscriptInitialised = 0;
-byte onmapInitialised = 0;
-byte activeSubscreenInitialised = 0;
-byte passiveSubscreenInitialised = 0;
+struct ScriptEngineData {
+	refInfo ref;
+	int32_t stack[MAX_SCRIPT_REGISTERS];
+	// This is used as a boolean for all but ScriptType::Item.
+	byte doscript = true;
+	bool waitdraw;
+	bool initialized;
+
+	void reset()
+	{
+		// No need to zero the stack.
+		ref = refInfo();
+		doscript = true;
+		waitdraw = false;
+		initialized = false;
+	}
+};
+
+// (type, index) => ScriptEngineData
+static std::map<std::pair<ScriptType, word>, ScriptEngineData> scriptEngineDatas;
+
+static ScriptEngineData& get_script_engine_data(ScriptType type, int index)
+{
+	if (type == ScriptType::DMap || type == ScriptType::OnMap || type == ScriptType::PassiveSubscreen || type == ScriptType::ActiveSubscreen)
+	{
+		// `index` is used for dmapref, not for different script engine data.
+		index = 0;
+	}
+
+	return scriptEngineDatas[{type, index}];
+}
+
+static ScriptEngineData& get_script_engine_data(ScriptType type)
+{
+	return scriptEngineDatas[{type, 0}];
+}
+
+void FFScript::clear_script_engine_data()
+{
+	scriptEngineDatas.clear();
+}
+
+void FFScript::reset_script_engine_data(ScriptType type, int index)
+{
+	get_script_engine_data(type, index).reset();
+}
+
+void FFScript::clear_script_engine_data(ScriptType type, int index)
+{
+	if (type == ScriptType::DMap || type == ScriptType::OnMap || type == ScriptType::PassiveSubscreen || type == ScriptType::ActiveSubscreen)
+	{
+		// `index` is used for dmapref, not for different script engine data.
+		index = 0;
+	}
+
+	auto it = scriptEngineDatas.find({type, index});
+	if (it != scriptEngineDatas.end())
+	{
+		scriptEngineDatas.erase(it);
+	}
+}
+
+void FFScript::clear_script_engine_data_of_type(ScriptType type)
+{
+	std::erase_if(scriptEngineDatas, [&](auto& kv) { return kv.first.first == type; });
+}
+
+refInfo& FFScript::ref(ScriptType type, int index)
+{
+	return get_script_engine_data(type, index).ref;
+}
+
+byte& FFScript::doscript(ScriptType type, int index)
+{
+	return get_script_engine_data(type, index).doscript;
+}
+
+bool& FFScript::waitdraw(ScriptType type, int index)
+{
+	return get_script_engine_data(type, index).waitdraw;
+}
+
+// Returns true if registers had to be initialized.
+static bool set_current_script_engine_data(ScriptType type, int script, int index)
+{
+	bool got_initialized = false;
+
+	auto& data = get_script_engine_data(type, index);
+	ri = &data.ref;
+	stack = &data.stack;
+
+	switch (type)
+	{
+		case ScriptType::FFC:
+		{
+			curscript = ffscripts[script];
+
+			if (!data.initialized)
+			{
+				got_initialized = true;
+				mapscr* screen = get_ffc_screen(index);
+				memcpy(ri->d, screen->ffcs[index % 128].initd, 8 * sizeof(int32_t));
+				memcpy(ri->a, screen->ffcs[index % 128].inita, 2 * sizeof(int32_t));
+				data.initialized = true;
+			}
+
+			ri->ffcref = index;
+		}
+		break;
+
+		// case ScriptType::NPC:
+		// {
+		// 	int32_t npc_index = GuyH::getNPCIndex(i);
+		// 	enemy *w = (enemy*)guys.spr(npc_index);
+		// 	ri = &(w->scrmem->scriptData);
+		// 	curscript = guyscripts[w->script];
+		// 	stack = &(w->scrmem->stack);
+		// 	ri->guyref = i;
+			
+		// 	if (!w->initialised)
+		// 	{
+		// 		got_initialized = true;
+		// 		for ( int32_t q = 0; q < 8; q++ ) 
+		// 		{
+		// 			ri->d[q] = w->initD[q];
+		// 		}
+		// 		w->initialised = 1;
+		// 	}
+		// }
+		// break;
+		
+		// case ScriptType::Lwpn:
+		// {
+		// 	int32_t lwpn_index = LwpnH::getLWeaponIndex(i);
+		// 	weapon *w = (weapon*)Lwpns.spr(lwpn_index);
+		// 	ri = &(w->scrmem->scriptData);
+		// 	curscript = lwpnscripts[w->weaponscript];
+		// 	stack = &(w->scrmem->stack);
+		// 	ri->lwpn = i;
+			
+		// 	if (!w->initialised)
+		// 	{
+		// 		got_initialized = true;
+		// 		for ( int32_t q = 0; q < 8; q++ ) 
+		// 		{
+		// 			ri->d[q] = w->weap_initd[q]; //w->initiald[q];
+		// 		}
+		// 		w->initialised = 1;
+		// 	}
+		// }
+		// break;
+		
+		// case ScriptType::Ewpn:
+		// {
+		// 	int32_t ewpn_index = EwpnH::getEWeaponIndex(i);
+		// 	weapon *w = (weapon*)Ewpns.spr(ewpn_index);
+		// 	ri = &(w->scrmem->scriptData);
+		// 	curscript = ewpnscripts[w->weaponscript];
+		// 	stack = &(w->scrmem->stack);
+		// 	ri->ewpn = i;
+			
+		// 	if (!w->initialised)
+		// 	{
+		// 		got_initialized = true;
+		// 		for ( int32_t q = 0; q < 8; q++ ) 
+		// 		{
+		// 			ri->d[q] = w->weap_initd[q];
+		// 		}
+		// 		w->initialised = 1;
+		// 	}
+		// }
+		// break;
+		
+		// case ScriptType::ItemSprite:
+		// {
+		// 	int32_t the_index = ItemH::getItemIndex(i);
+		// 	item *w = (item*)items.spr(the_index);
+		// 	ri = &(w->scrmem->scriptData);
+		// 	curscript = itemspritescripts[w->script];
+		// 	stack = &(w->scrmem->stack);
+		// 	ri->itemref = i;
+			
+		// 	if (!w->initialised)
+		// 	{
+		// 		got_initialized = true;
+		// 		for ( int32_t q = 0; q < 8; q++ ) 
+		// 		{
+		// 			ri->d[q] = w->initD[q];
+		// 		}
+		// 		w->initialised = 1;
+		// 	}
+		// }
+		// break;
+		
+		case ScriptType::Item:
+		{
+			int32_t i = index;
+			int32_t new_i = 0;
+			bool collect = ( ( i < 1 ) || (i == COLLECT_SCRIPT_ITEM_ZERO) );
+			new_i = ( collect ) ? (( i != COLLECT_SCRIPT_ITEM_ZERO ) ? (i * -1) : 0) : i;
+
+			curscript = itemscripts[script];
+			
+			if (!data.initialized)
+			{
+				got_initialized = true;
+				memcpy(ri->d, ( collect ) ? itemsbuf[new_i].initiald : itemsbuf[i].initiald, 8 * sizeof(int32_t));
+				memcpy(ri->a, ( collect ) ? itemsbuf[new_i].initiala : itemsbuf[i].initiala, 2 * sizeof(int32_t));
+				data.initialized = true;
+			}			
+			ri->idata = ( collect ) ? new_i : i; //'this' pointer
+		}
+		break;
+		
+		case ScriptType::Global:
+		{
+			curscript = globalscripts[script];
+		}
+		break;
+		
+		// case ScriptType::Generic:
+		// {
+		// 	user_genscript& scr = user_scripts[script];
+		// 	stack = &scr.stack;
+		// 	ri = &scr.ri;
+		// 	ri->genericdataref = script;
+		// 	curscript = genericscripts[script];
+		// 	scr.waitevent = false;
+		// 	if(!scr.initialized)
+		// 	{
+		// 		got_initialized = true;
+		// 		scr.initialized = true;
+		// 		memcpy(ri->d, scr.initd, 8 * sizeof(int32_t));
+		// 	}
+		// }
+		// break;
+		
+		// case ScriptType::GenericFrozen:
+		// {
+		// 	ri = genericActiveData.back();
+		// 	ri->genericdataref = script;
+		// 	curscript = genericscripts[script];
+		// 	stack = generic_active_stack.back();
+		// 	if(!gen_active_initialized)
+		// 	{
+		// 		got_initialized = true;
+		// 		gen_active_initialized = true;
+		// 		memcpy(ri->d, user_scripts[script].initd, 8 * sizeof(int32_t));
+		// 	}
+		// }
+		// break;
+		
+		case ScriptType::Player:
+		{
+			curscript = playerscripts[script];
+		}
+		break;
+		
+		case ScriptType::DMap:
+		{
+			curscript = dmapscripts[script];
+			ri->dmapsref = index;
+			//how do we clear initialised on dmap change?
+			if ( !data.initialized )
+			{
+				got_initialized = true;
+				for ( int32_t q = 0; q < 8; q++ ) 
+				{
+					ri->d[q] = DMaps[ri->dmapsref].initD[q];// * 10000;
+				}
+				data.initialized = true;
+			}
+		}
+		break;
+		
+		case ScriptType::OnMap:
+		{
+			curscript = dmapscripts[script];
+			ri->dmapsref = index;
+			if (!data.initialized)
+			{
+				got_initialized = true;
+				for ( int32_t q = 0; q < 8; q++ ) 
+				{
+					ri->d[q] = DMaps[ri->dmapsref].onmap_initD[q];
+				}
+				data.initialized = true;
+			}
+		}
+		break;
+		
+		case ScriptType::ActiveSubscreen:
+		{
+			curscript = dmapscripts[script];
+			ri->dmapsref = index;
+			if (!data.initialized)
+			{
+				got_initialized = true;
+				for ( int32_t q = 0; q < 8; q++ ) 
+				{
+					ri->d[q] = DMaps[ri->dmapsref].sub_initD[q];
+				}
+				data.initialized = true;
+			}
+		}
+		break;
+		
+		case ScriptType::PassiveSubscreen:
+		{
+			curscript = dmapscripts[script];
+			ri->dmapsref = index;
+			if (!data.initialized)
+			{
+				got_initialized = true;
+				for ( int32_t q = 0; q < 8; q++ ) 
+				{
+					ri->d[q] = DMaps[ri->dmapsref].sub_initD[q];
+				}
+				data.initialized = true;
+			}
+		}
+		break;
+		
+		case ScriptType::Screen:
+		{
+			curscript = screenscripts[script];
+
+			if (!data.initialized)
+			{
+				got_initialized = true;
+				mapscr* screen = get_scr(currmap, index);
+				for ( int32_t q = 0; q < 8; q++ ) 
+				{
+					ri->d[q] = screen->screeninitd[q];// * 10000;
+				}
+				data.initialized = true;
+			}
+		}
+		break;
+		
+		case ScriptType::Combo:
+		{
+			curscript = comboscripts[script];
+
+			rpos_t rpos = combopos_ref_to_rpos(index);
+			int32_t lyr = combopos_ref_to_layer(index);
+			int32_t id = get_rpos_handle(rpos, lyr).data();
+			if (!data.initialized)
+			{
+				got_initialized = true;
+				memset(ri->d, 0, 8 * sizeof(int32_t));
+				for ( int32_t q = 0; q < 2; q++ )
+					ri->d[q] = combobuf[id].initd[q];
+				data.initialized = true;
+			}
+
+			ri->combosref = id; //'this' pointer
+			ri->comboposref = index; //used for X(), Y(), Layer(), and so forth.
+			break;
+		}
+	}
+
+	return got_initialized;
+}
+
 //Sprite script data
-refInfo itemScriptData[256];
-refInfo itemCollectScriptData[256];
-byte itemscriptInitialised[256]={0};
 refInfo npcScriptData[256];
 refInfo lweaponScriptData[256]; //should this be lweapon and eweapon, separate stacks?
 refInfo eweaponScriptData[256]; //should this be lweapon and eweapon, separate stacks?
 refInfo itemactiveScriptData[256];
 
-//Combo Scripts
-// TODO z3 !! upstream
-struct ComboScriptEngineData {
-	refInfo ref;
-	bool doscript = true;
-	bool waitdraw;
-	bool initialised;
-	int32_t stack[MAX_SCRIPT_REGISTERS];
-};
-static std::map<int32_t, ComboScriptEngineData> comboScriptDatas;
-
-//The stacks
-//This is where we need to change the formula. These stacks need to be variable in some manner
-//to permit adding additional scripts to them, without manually sizing them in advance. - Z
-
-struct FFC_Stack {
-	int32_t stack[MAX_SCRIPT_REGISTERS];
-};
-
-std::map<int32_t, FFC_Stack> ffc_stack;
-int32_t global_stack[NUMSCRIPTGLOBAL][MAX_SCRIPT_REGISTERS];
-int32_t item_stack[256][MAX_SCRIPT_REGISTERS];
-int32_t item_collect_stack[256][MAX_SCRIPT_REGISTERS];
-int32_t player_stack[MAX_SCRIPT_REGISTERS];
-int32_t dmap_stack[MAX_SCRIPT_REGISTERS];
-int32_t onmap_stack[MAX_SCRIPT_REGISTERS];
-int32_t active_subscreen_stack[MAX_SCRIPT_REGISTERS];
-int32_t passive_subscreen_stack[MAX_SCRIPT_REGISTERS];
-std::map<int32_t, refInfo> ffcScriptData;
-
-struct ScreenScriptEngineData {
-	refInfo ref;
-	int32_t stack[MAX_SCRIPT_REGISTERS];
-};
-std::map<int32_t, ScreenScriptEngineData> screenScriptDatas;
+// TODO z3 !!!!
+int32_t ffmisc[MAXFFCS][16];
 
 user_genscript user_scripts[NUMSCRIPTSGENERIC];
 int32_t genscript_timing = SCR_TIMING_START_FRAME;
@@ -687,7 +973,7 @@ void user_genscript::quit()
 	doscript = false;
 	if(indx > -1)
 	{
-		FFCore.deallocateAllArrays(SCRIPT_GENERIC, indx);
+		FFCore.deallocateAllArrays(ScriptType::Generic, indx);
 	}
 }
 
@@ -728,7 +1014,7 @@ void throwGenScriptEvent(int32_t event)
 			scr.waitevent = false;
 			
 			//Run the script!
-			ZScriptVersion::RunScript(SCRIPT_GENERIC, q, q);
+			ZScriptVersion::RunScript(ScriptType::Generic, q, q);
 		}
 	}
 }
@@ -806,123 +1092,48 @@ void FFScript::runGenericPassiveEngine(int32_t scrtm)
 			continue;
 		
 		//Run the script!
-		ZScriptVersion::RunScript(SCRIPT_GENERIC, q, q);
+		ZScriptVersion::RunScript(ScriptType::Generic, q, q);
 	}
 	if(init || genscript_timing >= SCR_TIMING_END_FRAME)
 		genscript_timing = SCR_TIMING_START_FRAME;
 	else ++genscript_timing;
 }
 
-void clear_ffc_stack(const byte i)
-{
-	ffc_stack[i] = FFC_Stack();
-}
-
-
-void clear_global_stack(const byte i)
-{
-	memset(global_stack[i], 0, sizeof(global_stack[i]));
-}
-
-void FFScript::clear_screen_scripts()
-{
-	for (const auto& kv : screenScriptDatas)
-	{
-		int i = kv.first;
-		FFCore.deallocateAllArrays(SCRIPT_SCREEN, i);
-	}
-	screenScriptDatas.clear();
-}
-
-void FFScript::clear_screen_script(int32_t screen_index)
-{
-	screenScriptDatas[screen_index] = ScreenScriptEngineData();
-}
-
-void clear_player_stack()
-{
-	memset(player_stack, 0, MAX_SCRIPT_REGISTERS * sizeof(int32_t));
-}
-
-void clear_dmap_stack()
-{
-	memset(dmap_stack, 0, MAX_SCRIPT_REGISTERS * sizeof(int32_t));
-}
-
-void clear_onmap_stack()
-{
-	memset(onmap_stack, 0, MAX_SCRIPT_REGISTERS * sizeof(int32_t));
-}
-
-void clear_active_subscreen_stack()
-{
-	memset(active_subscreen_stack, 0, MAX_SCRIPT_REGISTERS * sizeof(int32_t));
-}
-
-void clear_passive_subscreen_stack()
-{
-	memset(passive_subscreen_stack, 0, MAX_SCRIPT_REGISTERS * sizeof(int32_t));
-}
-
-
 void FFScript::initZScriptDMapScripts()
 {
-	dmap_doscript = 1;
-	dmap_waitdraw = false;
-	dmapScriptData.Clear();
-	clear_dmap_stack();
-	dmapscriptInitialised = 0;
-	//
-	passive_subscreen_doscript = 1;
-	passive_subscreen_waitdraw = false;
-	passiveSubscreenScriptData.Clear();
-	clear_passive_subscreen_stack();
-	passiveSubscreenInitialised = 0;
+	scriptEngineDatas[{ScriptType::DMap, 0}] = ScriptEngineData();
+	scriptEngineDatas[{ScriptType::PassiveSubscreen, 0}] = ScriptEngineData();
 }
 
 void FFScript::initZScriptActiveSubscreenScript()
 {
-	active_subscreen_doscript = 1;
-	activeSubscreenScriptData.Clear();
-	clear_active_subscreen_stack();
-	activeSubscreenInitialised = 0;
-	active_subscreen_waitdraw = false;
+	scriptEngineDatas[{ScriptType::ActiveSubscreen, 0}] = ScriptEngineData();
 }
 
 void FFScript::initZScriptOnMapScript()
 {
-	onmap_doscript = 1;
-	onmapScriptData.Clear();
-	clear_onmap_stack();
-	onmapInitialised = 0;
-	onmap_waitdraw = false;
+	scriptEngineDatas[{ScriptType::OnMap, 0}] = ScriptEngineData();
 }
 
 void FFScript::initZScriptHeroScripts()
 {
-	player_doscript = 1;
-	player_waitdraw = false;
-	playerScriptData.Clear();
-	clear_player_stack();
-}
-
-void clear_item_stack(int32_t i)
-{
-	memset(item_stack[i], 0, MAX_SCRIPT_REGISTERS * sizeof(int32_t));
-	memset(item_collect_stack[i], 0, MAX_SCRIPT_REGISTERS * sizeof(int32_t));
+	scriptEngineDatas[{ScriptType::Player, 0}] = ScriptEngineData();
 }
 
 void FFScript::initZScriptItemScripts()
 {
 	for ( int32_t q = 0; q < 256; q++ )
 	{
-		if ( (itemsbuf[q].flags&ITEM_PASSIVESCRIPT) && game->item[q] ) item_doscript[q] = 1;
-		else item_doscript[q] = 0;
-		item_collect_doscript[q] = 0;
-		itemScriptData[q].Clear();
-		itemCollectScriptData[q].Clear();
-		itemscriptInitialised[q] = 0;
-		clear_item_stack(q);
+		auto& data = get_script_engine_data(ScriptType::Item, q);
+		data.reset();
+		data.doscript = (itemsbuf[q].flags&ITEM_PASSIVESCRIPT) && game->item[q];
+	}
+
+	for ( int32_t q = -256; q < 0; q++ )
+	{
+		auto& data = get_script_engine_data(ScriptType::Item, q);
+		data.reset();
+		data.doscript = 0;
 	}
 }
 
@@ -957,15 +1168,6 @@ static int get_mouse_state(int index)
 
 	return value;
 }
-
-/*
-void FFScript::initZScriptItemScripts()
-{
-	dmap_doscript = 1;
-	dmapScriptData.Clear();
-	clear_dmap_stack();
-}
-*/
 
 ///----------------------------------------------//
 //           New Mapscreen Flags Tools           //
@@ -2899,7 +3101,7 @@ void deallocateArray(const int32_t ptrval)
 	}
 }
 
-void FFScript::deallocateAllArrays(const byte scriptType, const int32_t UID, bool requireAlways)
+void FFScript::deallocateAllArrays(ScriptType scriptType, const int32_t UID, bool requireAlways)
 {
 	for(int32_t q = MIN_USER_BITMAPS; q < MAX_USER_BITMAPS; ++q)
 	{
@@ -2934,9 +3136,9 @@ void FFScript::deallocateAllArrays(const byte scriptType, const int32_t UID, boo
 		//Keep 2.50.2 behavior if QR unchecked.
 		switch(scriptType)
 		{
-			case SCRIPT_FFC:
-			case SCRIPT_ITEM:
-			case SCRIPT_GLOBAL:
+			case ScriptType::FFC:
+			case ScriptType::Item:
+			case ScriptType::Global:
 				return;
 		}
 	}
@@ -9129,8 +9331,21 @@ int32_t get_register(const int32_t arg)
 			}
 			break;
 		}
-			//inita	//INT32, 32 OF THESE, EACH WITH 2
-		case SCREENDATAFFINITIALISED: 	GET_FFC_BOOL_INDEX(initialized, "FFCRunning", MAX_FFCID); break;
+
+		case SCREENDATAFFINITIALISED: 	{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if (indx < 0 || indx > MAX_FFCID)
+			{
+				Z_scripterrlog("Invalid Index passed to Screen->%s[]: %d\n", indx, "FFCRunning");
+				ret = -10000;
+			}
+			else
+			{
+				ret = get_script_engine_data(ScriptType::FFC, indx).initialized ? 10000 : 0;
+			}
+		}
+		break;
+
 		case SCREENDATASCRIPTENTRY: 	GET_SCREENDATA_VAR_INT32(script_entry, "ScriptEntry"); break;	//W
 		case SCREENDATASCRIPTOCCUPANCY: 	GET_SCREENDATA_VAR_INT32(script_occupancy,	"ScriptOccupancy");  break;//W
 		case SCREENDATASCRIPTEXIT: 	GET_SCREENDATA_VAR_INT32(script_exit, "ExitScript"); break;	//W
@@ -10340,7 +10555,30 @@ int32_t get_register(const int32_t arg)
 		}	
 
 			//inita	//INT32, 32 OF THESE, EACH WITH 2
-		case MAPDATAFFINITIALISED: 	GET_FFC_MAPDATA_BOOL_INDEX(initialized, "FFCRunning", MAXFFCS-1); break;	//BOOL, MAXFFCS OF THESE
+		
+		case MAPDATAFFINITIALISED:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if (indx < 0 || indx > MAXFFCS-1)
+			{
+				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", "FFCRunning", indx);
+				ret = -10000;
+			}
+			else
+			{
+				if (mapscr *m = GetMapscr(ri->mapsref))
+				{
+					ret = get_script_engine_data(ScriptType::FFC, indx).initialized ? 10000 : 0;
+				}
+				else
+				{
+					Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n", "FFCRunning");
+					ret = -10000;
+				}
+			}
+		}
+		break;
+
 		case MAPDATASCRIPTENTRY: 	GET_MAPDATA_VAR_INT32(script_entry, "ScriptEntry"); break;	//W
 		case MAPDATASCRIPTOCCUPANCY: 	GET_MAPDATA_VAR_INT32(script_occupancy,	"ScriptOccupancy");  break;//W
 		case MAPDATASCRIPTEXIT: 	GET_MAPDATA_VAR_INT32(script_exit, "ExitScript"); break;	//W
@@ -11484,7 +11722,7 @@ int32_t get_register(const int32_t arg)
 		{
 			//ri->combosref = id; //'this' pointer
 			//ri->comboposref = i; //used for X(), Y(), Layer(), and so forth.
-			if ( curScriptType == SCRIPT_COMBO )
+			if ( curScriptType == ScriptType::Combo )
 			{
 				rpos_t rpos = combopos_ref_to_rpos(ri->comboposref);
 				ret = (( COMBOX_REGION((rpos)) ) * 10000); //comboscriptstack[i]
@@ -11493,7 +11731,7 @@ int32_t get_register(const int32_t arg)
 			}
 			else
 			{
-				Z_scripterrlog("combodata->X() can only be called by combodata scripts, but you tried to use it from script type %s, script token %s\n", scripttypenames[curScriptType], comboscriptmap[ri->combosref].scriptname.c_str() );
+				Z_scripterrlog("combodata->X() can only be called by combodata scripts, but you tried to use it from script type %s, script token %s\n", ScriptTypeToString(curScriptType), comboscriptmap[ri->combosref].scriptname.c_str() );
 				ret = -10000;
 			}
 			break;
@@ -11501,41 +11739,42 @@ int32_t get_register(const int32_t arg)
 
 		case COMBOYR:
 		{
-			if ( curScriptType == SCRIPT_COMBO )
+			if ( curScriptType == ScriptType::Combo )
 			{
 				rpos_t rpos = combopos_ref_to_rpos(ri->comboposref);
 				ret = (( COMBOY_REGION((rpos)) ) * 10000); //comboscriptstack[i]
 			}
 			else
 			{
-				Z_scripterrlog("combodata->Y() can only be called by combodata scripts, but you tried to use it from script type %s, script token %s\n", scripttypenames[curScriptType], comboscriptmap[ri->combosref].scriptname.c_str() );
+				Z_scripterrlog("combodata->Y() can only be called by combodata scripts, but you tried to use it from script type %s, script token %s\n", ScriptTypeToString(curScriptType), comboscriptmap[ri->combosref].scriptname.c_str() );
 				ret = -10000;
 			}
 			break;
 		}
 		case COMBOPOSR:
 		{
-			if ( curScriptType == SCRIPT_COMBO )
+			if ( curScriptType == ScriptType::Combo )
 			{
-				ret = (( (int)combopos_ref_to_rpos(ri->comboposref) ) * 10000); //comboscriptstack[i]
+				rpos_t rpos = combopos_ref_to_rpos(ri->comboposref);
+				ret = (int)rpos * 10000; //comboscriptstack[i]
 			}
 			else
 			{
-				Z_scripterrlog("combodata->Pos() can only be called by combodata scripts, but you tried to use it from script type %s, script token %s\n", scripttypenames[curScriptType], comboscriptmap[ri->combosref].scriptname.c_str() );
+				Z_scripterrlog("combodata->Pos() can only be called by combodata scripts, but you tried to use it from script type %s, script token %s\n", ScriptTypeToString(curScriptType), comboscriptmap[ri->combosref].scriptname.c_str() );
 				ret = -10000;
 			}
 			break;
 		}
 		case COMBOLAYERR:
 		{
-			if ( curScriptType == SCRIPT_COMBO )
+			if ( curScriptType == ScriptType::Combo )
 			{
 				int32_t layer = combopos_ref_to_layer(ri->comboposref);
 				ret = layer * 10000; //comboscriptstack[i]
 			}
 			else
 			{
-				Z_scripterrlog("combodata->Layer() can only be called by combodata scripts, but you tried to use it from script type %s, script token %s\n", scripttypenames[curScriptType], comboscriptmap[ri->combosref].scriptname.c_str() );
+				Z_scripterrlog("combodata->Layer() can only be called by combodata scripts, but you tried to use it from script type %s, script token %s\n", ScriptTypeToString(curScriptType), comboscriptmap[ri->combosref].scriptname.c_str() );
 				ret = -10000;
 			}
 			break;
@@ -13279,9 +13518,10 @@ void set_register(int32_t arg, int32_t value)
 				for(int32_t i=0; i<16; i++)
 					ffc->script_misc[i] = 0;
 				
-				ffcScriptData[ri->ffcref].Clear();
-				FFScript::deallocateAllArrays(SCRIPT_FFC, ri->ffcref);
-				ffc->initialized = false;
+				auto& data = get_script_engine_data(ScriptType::FFC, ri->ffcref);
+				data.ref.Clear();
+				data.initialized = false;
+				FFScript::deallocateAllArrays(ScriptType::FFC, ri->ffcref);
 			}
 			break;
 			
@@ -13550,25 +13790,25 @@ void set_register(int32_t arg, int32_t value)
 			// If the Cane of Byrna is being removed, cancel its effect.
 			if(value==0 && itemID==current_item_id(itype_cbyrna))
 				stopCaneOfByrna();
+			
+			auto& data = get_script_engine_data(ScriptType::Item, itemID);
 		
 			//Stop current script if set false.
-			if ( !value && item_doscript[itemID] )
+			if ( !value && data.doscript )
 			{
-				item_doscript[itemID] = 4; //Val of 4 means 'clear stack and quit'
+				data.doscript = 4; //Val of 4 means 'clear stack and quit'
 				//itemScriptData[itemID].Clear(); //Don't clear here, causes crash if is current item!
 			}
-			else if ( value && !item_doscript[itemID] )
+			else if ( value && !data.doscript )
 			{
 				//Clear the item refInfo and stack for use.
-				itemScriptData[itemID].Clear();
-				memset(item_stack[itemID], 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(int32_t));
-				if ( (itemsbuf[itemID].flags&ITEM_PASSIVESCRIPT) ) item_doscript[itemID] = 1;
-				
+				data.ref.Clear();
+				if ( (itemsbuf[itemID].flags&ITEM_PASSIVESCRIPT) ) data.doscript = 1;
 			}
-			else if ( value && item_doscript[itemID] == 4 ) 
+			else if ( value && data.doscript == 4 ) 
 			{
 				// Arbitrary event number 49326: Writing the item false, then true, in the same frame. -Z
-				if ( (itemsbuf[itemID].flags&ITEM_PASSIVESCRIPT) ) item_doscript[itemID] = 1;
+				if ( (itemsbuf[itemID].flags&ITEM_PASSIVESCRIPT) ) data.doscript = 1;
 			}
 			
 			bool settrue = ( value != 0 );
@@ -13579,7 +13819,6 @@ void set_register(int32_t arg, int32_t value)
 				game->set_item(itemID,(value != 0));
 			}
 					
-			//resetItems(game); - Is this really necessary? ~Joe123
 			if((get_bit(quest_rules,qr_OVERWORLDTUNIC) != 0) || (currscr<128 || dlevel)) 
 			{
 				ringcolor(false);
@@ -14294,7 +14533,7 @@ void set_register(int32_t arg, int32_t value)
 					Hero.lift_wpn = wpn;
 					if(Lwpns.find(wpn) > -1)
 						Lwpns.remove(wpn);
-					if(curScriptType == SCRIPT_LWPN && value == curScriptIndex)
+					if(curScriptType == ScriptType::Lwpn && value == curScriptIndex)
 						earlyretval = RUNSCRIPT_SELFREMOVE;
 				}
 			} 
@@ -14745,7 +14984,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 		
 		case ITEMSPRITESCRIPT:
-			FFScript::deallocateAllArrays(SCRIPT_ITEMSPRITE, ri->itemref);
+			FFScript::deallocateAllArrays(ScriptType::ItemSprite, ri->itemref);
 			if(0!=(s=checkItem(ri->itemref)))
 			{
 				(s->script)=(value/10000);
@@ -15827,7 +16066,7 @@ void set_register(int32_t arg, int32_t value)
 				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
 				break;
 			}
-			FFScript::deallocateAllArrays(SCRIPT_ITEM, ri->idata);
+			FFScript::deallocateAllArrays(ScriptType::Item, ri->idata);
 			itemsbuf[ri->idata].script=vbound(value/10000,0,255);
 			break;
 		case IDATASPRSCRIPT:
@@ -15944,7 +16183,7 @@ void set_register(int32_t arg, int32_t value)
 			}
 			//Need to get collect script ref, not standard idata ref!
 			const int32_t new_ref = ri->idata!=0 ? -(ri->idata) : COLLECT_SCRIPT_ITEM_ZERO;
-			FFScript::deallocateAllArrays(SCRIPT_ITEM,new_ref);
+			FFScript::deallocateAllArrays(ScriptType::Item,new_ref);
 			itemsbuf[ri->idata].collect_script=vbound(value/10000, 0, 255);
 			break;
 		}
@@ -16546,7 +16785,7 @@ void set_register(int32_t arg, int32_t value)
 		case LWPNSCRIPT:
 			if(0!=(s=checkLWpn(ri->lwpn,"Script")))
 			{
-				FFScript::deallocateAllArrays(SCRIPT_LWPN, ri->lwpn);
+				FFScript::deallocateAllArrays(ScriptType::Lwpn, ri->lwpn);
 				(((weapon*)(s))->weaponscript)=vbound(value/10000,0,NUMSCRIPTWEAPONS-1);
 				if ( get_bit(quest_rules,qr_CLEARINITDONSCRIPTCHANGE))
 				{
@@ -17186,7 +17425,7 @@ void set_register(int32_t arg, int32_t value)
 		case EWPNSCRIPT:
 			if(0!=(s=checkEWpn(ri->ewpn,"Script")))
 			{
-				FFScript::deallocateAllArrays(SCRIPT_EWPN, ri->ewpn);
+				FFScript::deallocateAllArrays(ScriptType::Ewpn, ri->ewpn);
 				(((weapon*)(s))->weaponscript)=vbound(value/10000,0,NUMSCRIPTWEAPONS-1);
 				if ( get_bit(quest_rules,qr_CLEARINITDONSCRIPTCHANGE))
 				{
@@ -17929,7 +18168,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(GuyH::loadNPC(ri->guyref, "npc->Script") == SH::_NoError)
 			{
-				FFScript::deallocateAllArrays(SCRIPT_NPC, ri->guyref);
+				FFScript::deallocateAllArrays(ScriptType::NPC, ri->guyref);
 				//enemy *e = (enemy*)guys.spr(ri->guyref);
 				//e->initD[a] = value; 
 				if ( get_bit(quest_rules,qr_CLEARINITDONSCRIPTCHANGE))
@@ -19012,18 +19251,17 @@ void set_register(int32_t arg, int32_t value)
 				tmpscr.data[pos] = combo;
 				screen_combo_modify_postroutine({&tmpscr, initial_region_scr, 0, (rpos_t)pos});
 				//Start the script for the new combo
-				int32_t combopos_ref = get_combopos_ref((rpos_t)pos, 0);
-				comboScriptDatas[combopos_ref] = ComboScriptEngineData();
+				int index = get_combopos_ref((rpos_t)pos, 0);
+				FFCore.reset_script_engine_data(ScriptType::Combo, index);
 				//Not ure if combodata arrays clean themselves up, or leak. -Z
 				//Not sure if this could result in stack corruption. 
 			}
 			
 			if(layr>-1)
 			{
-				
 				tmpscr2[layr].data[pos]=combo;
-				int32_t combopos_ref = get_combopos_ref((rpos_t)pos, layr + 1);
-				comboScriptDatas[combopos_ref] = ComboScriptEngineData();
+				int index = get_combopos_ref((rpos_t)pos, layr + 1);
+				FFCore.reset_script_engine_data(ScriptType::Combo, index);
 			}
 		}
 		break;
@@ -19471,8 +19709,18 @@ void set_register(int32_t arg, int32_t value)
 			break;
 		}
 
-			//inita	//INT32, 32 OF THESE, EACH WITH 2
-		case SCREENDATAFFINITIALISED: 	SET_FFC_BOOL_INDEX(initialized, "FFCRunning", MAX_FFCID); break;
+		case SCREENDATAFFINITIALISED:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if (indx < 0 || indx > MAX_FFCID)
+			{
+				Z_scripterrlog("Invalid Index passed to Screen->%s[]: %d\n", (indx), "FFCRunning");
+				break;
+			}
+			get_script_engine_data(ScriptType::FFC, indx).initialized = (value/10000) ? true : false;
+		}
+		break;
+
 		case SCREENDATASCRIPTENTRY: 	SET_SCREENDATA_VAR_INT32(script_entry, "ScriptEntry"); break;	//W
 		case SCREENDATASCRIPTOCCUPANCY: 	SET_SCREENDATA_VAR_INT32(script_occupancy,	"ScriptOccupancy");  break;//W
 		case SCREENDATASCRIPTEXIT: 	SET_SCREENDATA_VAR_INT32(script_exit, "ExitScript"); break;	//W
@@ -19814,14 +20062,14 @@ void set_register(int32_t arg, int32_t value)
 		
 		case SCREENSCRIPT:
 		{
-			FFScript::deallocateAllArrays(SCRIPT_SCREEN, curScriptIndex);
+			FFScript::deallocateAllArrays(ScriptType::Screen, curScriptIndex);
 			
 			if ( get_bit(quest_rules,qr_CLEARINITDONSCRIPTCHANGE))
 			{
 				for(int32_t q=0; q<8; q++)
 					tmpscr.screeninitd[q] = 0;
 			}
-			FFCore.clear_screen_script(curScriptIndex);
+			FFCore.ref(ScriptType::Screen, curScriptIndex).Clear();
 			tmpscr.script=vbound(value/10000, 0, NUMSCRIPTSCREEN-1);
 			break;
 		}
@@ -20445,7 +20693,7 @@ void set_register(int32_t arg, int32_t value)
 			{
 				if(ri->mapsref == MAPSCR_TEMP0) //This mapsref references tmpscr, so can reference a running script!
 				{
-					FFScript::deallocateAllArrays(SCRIPT_SCREEN, curScriptIndex);
+					FFScript::deallocateAllArrays(ScriptType::Screen, curScriptIndex);
 					
 					if ( get_bit(quest_rules,qr_CLEARINITDONSCRIPTCHANGE))
 					{
@@ -20453,7 +20701,7 @@ void set_register(int32_t arg, int32_t value)
 							tmpscr.screeninitd[q] = 0;
 					}
 					
-					FFCore.clear_screen_script(curScriptIndex);
+					FFCore.ref(ScriptType::Screen, curScriptIndex).Clear();
 				}
 				m->script=vbound(value/10000, 0, NUMSCRIPTSCREEN-1);
 			} 
@@ -20741,9 +20989,26 @@ void set_register(int32_t arg, int32_t value)
 				Z_scripterrlog("Mapdata->%s pointer is either invalid or uninitialised","SetFFCInitA()");
 			}
 			break;
-		}	
-			
-		case MAPDATAFFINITIALISED: 	SET_FFC_MAPDATA_BOOL_INDEX(initialized, "FFCRunning", MAXFFCS-1); break;	//BOOL, MAXFFCS OF THESE
+		}
+
+		case MAPDATAFFINITIALISED:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if(indx < 0 || indx > MAXFFCS-1)
+			{
+				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", "FFCRunning", indx);
+			}
+			else if (mapscr *m = GetMapscr(ri->mapsref))
+			{
+				get_script_engine_data(ScriptType::FFC, indx).initialized = (value/10000) ? true : false;
+			}
+			else
+			{
+				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n", "FFCRunning");
+			}
+		}
+		break;
+
 		case MAPDATASCRIPTENTRY: 	SET_MAPDATA_VAR_INT32(script_entry, "ScriptEntry"); break;	//W
 		case MAPDATASCRIPTOCCUPANCY: 	SET_MAPDATA_VAR_INT32(script_occupancy,	"ScriptOccupancy");  break;//W
 		case MAPDATASCRIPTEXIT: 	SET_MAPDATA_VAR_INT32(script_exit, "ExitScript"); break;	//W
@@ -21133,16 +21398,16 @@ void set_register(int32_t arg, int32_t value)
 				Z_scripterrlog("Invalid Array Index passed to shopdata->%s: %d\n", indx, "Price"); 
 				break;
 			} 
-			else 
+			else
 			{ 
 				if ( isInfo ) 
 				{ 
-					QMisc.shop[ref].price[indx] = (byte)(vbound((value/10000), 0, 214747));
+					QMisc.info[ref].price[indx] = (word)(vbound((value/10000), 0, 65535));
 					break;
 				} 
 				else 
 				{ 
-					QMisc.shop[ref].price[indx] = (byte)(vbound((value/10000), 0, 214747));
+					QMisc.shop[ref].price[indx] = (word)(vbound((value/10000), 0, 65535));
 					break;
 				} 
 			} 
@@ -21230,7 +21495,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case DMAPSCRIPT:	//byte
 		{
-			FFScript::deallocateAllArrays(SCRIPT_DMAP, ri->dmapsref);
+			FFScript::deallocateAllArrays(ScriptType::DMap, ri->dmapsref);
 			DMaps[ri->dmapsref].script = vbound((value / 10000),0,NUMSCRIPTSDMAP-1); break;
 		}
 		case DMAPDATASIDEVIEW:	//byte, treat as bool
@@ -21376,24 +21641,24 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case DMAPDATAASUBSCRIPT:	//byte
 		{
-			FFScript::deallocateAllArrays(SCRIPT_ACTIVESUBSCREEN, ri->dmapsref);
+			FFScript::deallocateAllArrays(ScriptType::ActiveSubscreen, ri->dmapsref);
 			DMaps[ri->dmapsref].active_sub_script = vbound((value / 10000),0,NUMSCRIPTSDMAP-1); break;
 		}
 		case DMAPDATAMAPSCRIPT:	//byte
 		{
-			FFScript::deallocateAllArrays(SCRIPT_ONMAP, ri->dmapsref);
+			FFScript::deallocateAllArrays(ScriptType::OnMap, ri->dmapsref);
 			DMaps[ri->dmapsref].onmap_script = vbound((value / 10000),0,NUMSCRIPTSDMAP-1); break;
 		}
 		case DMAPDATAPSUBSCRIPT:	//byte
 		{
-			FFScript::deallocateAllArrays(SCRIPT_PASSIVESUBSCREEN, ri->dmapsref);
+			FFScript::deallocateAllArrays(ScriptType::PassiveSubscreen, ri->dmapsref);
 			word val = vbound((value / 10000),0,NUMSCRIPTSDMAP-1);
-			if(passive_subscreen_doscript && ri->dmapsref == currdmap && val == DMaps[ri->dmapsref].passive_sub_script)
+			if (FFCore.doscript(ScriptType::PassiveSubscreen) && ri->dmapsref == currdmap && val == DMaps[ri->dmapsref].passive_sub_script)
 				break;
 			DMaps[ri->dmapsref].passive_sub_script = val;
 			if(ri->dmapsref == currdmap)
 			{
-				passive_subscreen_doscript = (val != 0) ? 1 : 0;
+				FFCore.doscript(ScriptType::PassiveSubscreen) = val != 0;
 			};
 			break;
 		}
@@ -23589,26 +23854,26 @@ int32_t sz_int_arr(const int32_t ptr)
 ///----------------------------------------------------------------------------------------------------//
 //Internal (to ZScript)
 
-void do_set(const bool v, const byte whichType, const int32_t whichUID)
+void do_set(const bool v, ScriptType whichType, const int32_t whichUID)
 {
 	bool allowed = true;
 	switch(whichType) //Check for objects attempting to change own script
 	{
-		//case SCRIPT_GLOBAL:
+		//case ScriptType::Global:
 		
-		case SCRIPT_FFC:
+		case ScriptType::FFC:
 			if(sarg1==FFSCRIPT && ri->ffcref==whichUID)
 				allowed = false;
 			break;
 		
-		case SCRIPT_SCREEN:
+		case ScriptType::Screen:
 			if(sarg1==SCREENSCRIPT) //Only 1 screen script running at a time, no UID check needed
 				allowed = false;
 			break;
 		
-		//case SCRIPT_PLAYER:
+		//case ScriptType::Player:
 		
-		case SCRIPT_ITEM:
+		case ScriptType::Item:
 		{
 			bool collect = ( ( whichUID < 1 ) || (whichUID == COLLECT_SCRIPT_ITEM_ZERO) );
 			int32_t new_UID = ( collect ) ? (( whichUID != COLLECT_SCRIPT_ITEM_ZERO ) ? (whichUID * -1) : 0) : whichUID;
@@ -23623,29 +23888,29 @@ void do_set(const bool v, const byte whichType, const int32_t whichUID)
 			break;
 		}
 		
-		case SCRIPT_LWPN:
+		case ScriptType::Lwpn:
 			if(sarg1==LWPNSCRIPT && ri->lwpn==whichUID)
 				allowed = false;
 			break;
 			
-		case SCRIPT_NPC:
+		case ScriptType::NPC:
 			if(sarg1==NPCSCRIPT && ri->guyref==whichUID)
 				allowed = false;
 			break;
 		
-		//case SCRIPT_SUBSCREEN:
+		//case ScriptType::Subscreen:
 		
-		case SCRIPT_EWPN:
+		case ScriptType::Ewpn:
 			if(sarg1==EWPNSCRIPT && ri->ewpn==whichUID)
 				allowed = false;
 			break;
 		
-		case SCRIPT_DMAP:
+		case ScriptType::DMap:
 			if(sarg1==DMAPSCRIPT && ri->dmapsref==whichUID)
 				allowed = false;
 			break;
 		
-		case SCRIPT_ITEMSPRITE:
+		case ScriptType::ItemSprite:
 			if(sarg1==ITEMSPRITESCRIPT && ri->itemref==whichUID)
 				allowed = false;
 			break;
@@ -23781,7 +24046,7 @@ void do_resize_array()
 	am.resize(size);
 }
 
-void do_own_array(dword arrindx, const byte scriptType, const int32_t UID)
+void do_own_array(dword arrindx, ScriptType scriptType, const int32_t UID)
 {
 	ArrayManager am(arrindx);
 	
@@ -23844,7 +24109,7 @@ void do_destroy_array()
 	else Z_scripterrlog("Tried to 'DestroyArray()' an invalid array '%d'\n", arrindx);
 }
 
-void do_allocatemem(const bool v, const bool local, const byte type, const uint32_t UID)
+void do_allocatemem(const bool v, const bool local, ScriptType type, const uint32_t UID)
 {
 	const int32_t size = SH::get_arg(sarg2, v) / 10000;
 	dword ptrval;
@@ -23935,11 +24200,11 @@ void do_loada(const byte a)
 	int32_t reg = get_register(sarg2); //Register in FFC 2
 	
 	if(reg >= D(0) && reg <= D(7))
-		set_register(sarg1, ffcScriptData[ffcref].d[reg - D(0)]); //get back the info into *sarg1
+		set_register(sarg1, FFCore.ref(ScriptType::FFC, ffcref).d[reg - D(0)]); //get back the info into *sarg1
 	else if(reg == A(0) || reg == A(1))
-		set_register(sarg1, ffcScriptData[ffcref].a[reg - A(0)]);
+		set_register(sarg1, FFCore.ref(ScriptType::FFC, ffcref).a[reg - A(0)]);
 	else if(reg == SP)
-		set_register(sarg1, ffcScriptData[ffcref].sp * 10000);
+		set_register(sarg1, FFCore.ref(ScriptType::FFC, ffcref).sp * 10000);
 		
 	//Can get everything else using REFFFC
 }
@@ -23960,11 +24225,11 @@ void do_seta(const byte a)
 	int32_t reg = get_register(sarg2); //Register in FFC 2
 	
 	if(reg >= D(0) && reg <= D(7))
-		ffcScriptData[ffcref].d[reg - D(0)] = get_register(sarg1); //Set it to *sarg1
+		FFCore.ref(ScriptType::FFC, ffcref).d[reg - D(0)] = get_register(sarg1); //Set it to *sarg1
 	else if(reg == A(0) || reg == A(1))
-		ffcScriptData[ffcref].a[reg - A(0)] = get_register(sarg1);
+		FFCore.ref(ScriptType::FFC, ffcref).a[reg - A(0)] = get_register(sarg1);
 	else if(reg == SP)
-		ffcScriptData[ffcref].sp = get_register(sarg1) / 10000;
+		FFCore.ref(ScriptType::FFC, ffcref).sp = get_register(sarg1) / 10000;
 }
 
 ///----------------------------------------------------------------------------------------------------//
@@ -29184,7 +29449,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 	eventlog_mapflags();
 	if (((warpFlags&warpFlagDONTRESTARTDMAPSCRIPT) != 0) == (get_bit(quest_rules, qr_SCRIPT_WARPS_DMAP_SCRIPT_TOGGLE) != 0)|| olddmap != currdmap) //Changed DMaps, or needs to reset the script
 	{
-		FFScript::deallocateAllArrays(SCRIPT_DMAP, olddmap);
+		FFScript::deallocateAllArrays(ScriptType::DMap, olddmap);
 		initZScriptDMapScripts();
 	}
 	Hero.is_warping = false;
@@ -29876,7 +30141,7 @@ void destroy_object_arr(int32_t ptr)
 			objectRAM.erase(it);
 	}
 }
-void do_constructclass(int32_t type, word script, int32_t i)
+void do_constructclass(ScriptType type, word script, int32_t i)
 {
 	if(!sargvec) return;
 	
@@ -29988,19 +30253,19 @@ bool zasm_advance()
 	return false;
 }
 
-int32_t get_own_i(int32_t type)
+int32_t get_own_i(ScriptType type)
 {
 	switch(type)
 	{
-		case SCRIPT_LWPN:
+		case ScriptType::Lwpn:
 			return ri->lwpn;
-		case SCRIPT_EWPN:
+		case ScriptType::Ewpn:
 			return ri->ewpn;
-		case SCRIPT_ITEMSPRITE:
+		case ScriptType::ItemSprite:
 			return ri->itemref;
-		case SCRIPT_NPC:
+		case ScriptType::NPC:
 			return ri->guyref;
-		case SCRIPT_FFC:
+		case ScriptType::FFC:
 			return ri->ffcref;
 	}
 	return 0;
@@ -30013,12 +30278,12 @@ portal* loadportal(savedportal& p);
 ///----------------------------------------------------------------------------------------------------//
 
 
-int32_t run_script(const byte type, const word script, const int32_t i)
+int32_t run_script(ScriptType type, const word script, const int32_t i)
 {
 	if(Quit==qRESET || Quit==qEXIT) // In case an earlier script hung
 		return RUNSCRIPT_ERROR;
 		
-	if(type != SCRIPT_GLOBAL && !script) return RUNSCRIPT_OK; //Safeguard against running null scripts
+	if(type != ScriptType::Global && !script) return RUNSCRIPT_OK; //Safeguard against running null scripts
 	
 	combopos_modified = -1;
 	curScriptType=type;
@@ -30026,34 +30291,32 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 	curScriptIndex=i;
 	//numInstructions=0; //DON'T CLEAR THIS OR IT CAN HARDLOCK! -Em
 
+	if (!(type >= ScriptType::First && type <= ScriptType::Last))
+	{
+		al_trace("Invalid script type: %d\n", type);
+		return RUNSCRIPT_ERROR;
+	}
+
 	bool got_initialized = false;
 	switch(type)
 	{
-		//Z_scripterrlog("The script type is: %d\n", type);
-		case SCRIPT_FFC:
+		case ScriptType::FFC:
+		case ScriptType::Global:
+		case ScriptType::Player:
+		case ScriptType::DMap:
+		case ScriptType::OnMap:
+		case ScriptType::ActiveSubscreen:
+		case ScriptType::PassiveSubscreen:
+		case ScriptType::Screen:
+		case ScriptType::Combo:
+		case ScriptType::Item:
 		{
-			if (!ffcScriptData.contains(i))
-			{
-				ffcScriptData[i] = refInfo();
-				ffc_stack[i] = FFC_Stack();
-			}
-			ri = &(ffcScriptData[i]);
-			
-			curscript = ffscripts[script];
-			stack = &ffc_stack[i].stack;
-			
-			mapscr* screen = get_ffc_screen(i);
-			if(!screen->ffcs[i % 128].initialized)
-			{
-				got_initialized = true;
-				memcpy(ri->d, screen->ffcs[i % 128].initd, 8 * sizeof(int32_t));
-				memcpy(ri->a, screen->ffcs[i % 128].inita, 2 * sizeof(int32_t));
-			}
-			
-			ri->ffcref = i; //'this' pointer
+			// TODO: finish refactoring the other script types.
+			got_initialized = set_current_script_engine_data(type, script, i);
 		}
 		break;
-		case SCRIPT_NPC:
+
+		case ScriptType::NPC:
 		{
 			int32_t npc_index = GuyH::getNPCIndex(i);
 			enemy *w = (enemy*)guys.spr(npc_index);
@@ -30074,7 +30337,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 		}
 		break;
 		
-		case SCRIPT_LWPN:
+		case ScriptType::Lwpn:
 		{
 			int32_t lwpn_index = LwpnH::getLWeaponIndex(i);
 			weapon *w = (weapon*)Lwpns.spr(lwpn_index);
@@ -30095,7 +30358,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 		}
 		break;
 		
-		case SCRIPT_EWPN:
+		case ScriptType::Ewpn:
 		{
 			int32_t ewpn_index = EwpnH::getEWeaponIndex(i);
 			weapon *w = (weapon*)Ewpns.spr(ewpn_index);
@@ -30116,7 +30379,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 		}
 		break;
 		
-		case SCRIPT_ITEMSPRITE:
+		case ScriptType::ItemSprite:
 		{
 			int32_t the_index = ItemH::getItemIndex(i);
 			item *w = (item*)items.spr(the_index);
@@ -30137,41 +30400,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 		}
 		break;
 		
-		case SCRIPT_ITEM:
-		{
-			int32_t new_i = 0;
-			bool collect = ( ( i < 1 ) || (i == COLLECT_SCRIPT_ITEM_ZERO) );
-			new_i = ( collect ) ? (( i != COLLECT_SCRIPT_ITEM_ZERO ) ? (i * -1) : 0) : i;
-			
-			ri = ( collect ) ? &(itemCollectScriptData[new_i]) : &(itemScriptData[i]);
-			
-			curscript = itemscripts[script];
-			stack = ( collect ) ?  &(item_collect_stack[new_i]) : &(item_stack[i]);
-			
-			if ( !(itemscriptInitialised[new_i]) )
-			{
-				got_initialized = true;
-				al_trace("itemscriptInitialised[new_i] is %d\n",itemscriptInitialised[new_i]);
-				memcpy(ri->d, ( collect ) ? itemsbuf[new_i].initiald : itemsbuf[i].initiald, 8 * sizeof(int32_t));
-				memcpy(ri->a, ( collect ) ? itemsbuf[new_i].initiala : itemsbuf[i].initiala, 2 * sizeof(int32_t));
-				itemscriptInitialised[new_i] = 1;
-			}			
-			ri->idata = ( collect ) ? new_i : i; //'this' pointer
-			
-		}
-		break;
-		
-		case SCRIPT_GLOBAL:
-		{
-			ri = &globalScriptData[script];
-			
-			curscript = globalscripts[script];
-			stack = &global_stack[script];
-			//
-		}
-		break;
-		
-		case SCRIPT_GENERIC:
+		case ScriptType::Generic:
 		{
 			user_genscript& scr = user_scripts[script];
 			stack = &scr.stack;
@@ -30188,7 +30417,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 		}
 		break;
 		
-		case SCRIPT_GENERIC_FROZEN:
+		case ScriptType::GenericFrozen:
 		{
 			ri = genericActiveData.back();
 			ri->genericdataref = script;
@@ -30202,135 +30431,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 			}
 		}
 		break;
-		
-		case SCRIPT_PLAYER:
-		{
-			ri = &playerScriptData;
-			
-			curscript = playerscripts[script];
-			stack = &player_stack;
-			//
-		}
-		break;
-		
-		case SCRIPT_DMAP:
-		{
-			ri = &dmapScriptData;
-			curscript = dmapscripts[script];
-			stack = &dmap_stack;
-			ri->dmapsref = i;
-			//how do we clear initialised on dmap change?
-			if ( !dmapscriptInitialised )
-			{
-				got_initialized = true;
-				for ( int32_t q = 0; q < 8; q++ ) 
-				{
-					ri->d[q] = DMaps[ri->dmapsref].initD[q];// * 10000;
-				}
-				dmapscriptInitialised = 1;
-			}
-		}
-		break;
-		
-		case SCRIPT_ONMAP:
-		{
-			ri = &onmapScriptData;
-			curscript = dmapscripts[script];
-			stack = &onmap_stack;
-			ri->dmapsref = i;
-			if ( !onmapInitialised )
-			{
-				got_initialized = true;
-				for ( int32_t q = 0; q < 8; q++ ) 
-				{
-					ri->d[q] = DMaps[ri->dmapsref].onmap_initD[q];
-				}
-				onmapInitialised = 1;
-			}
-		}
-		break;
-		
-		case SCRIPT_ACTIVESUBSCREEN:
-		{
-			ri = &activeSubscreenScriptData;
-			curscript = dmapscripts[script];
-			stack = &active_subscreen_stack;
-			ri->dmapsref = i;
-			if ( !activeSubscreenInitialised )
-			{
-				got_initialized = true;
-				for ( int32_t q = 0; q < 8; q++ ) 
-				{
-					ri->d[q] = DMaps[ri->dmapsref].sub_initD[q];
-				}
-				activeSubscreenInitialised = 1;
-			}
-		}
-		break;
-		
-		case SCRIPT_PASSIVESUBSCREEN:
-		{
-			ri = &passiveSubscreenScriptData;
-			curscript = dmapscripts[script];
-			stack = &passive_subscreen_stack;
-			ri->dmapsref = i;
-			if ( !passiveSubscreenInitialised )
-			{
-				got_initialized = true;
-				for ( int32_t q = 0; q < 8; q++ ) 
-				{
-					ri->d[q] = DMaps[ri->dmapsref].sub_initD[q];
-				}
-				passiveSubscreenInitialised = 1;
-			}
-		}
-		break;
 
-		case SCRIPT_SCREEN:
-		{
-			auto& data = screenScriptDatas[i];
-			ri = &data.ref;
-			curscript = screenscripts[script];
-			stack = &data.stack;
-			mapscr* screen = get_scr(currmap, i);
-			if ( !screen->screendatascriptInitialised )
-			{
-				got_initialized = true;
-				al_trace("screen->screendatascriptInitialised is %d\n",screen->screendatascriptInitialised);
-				for ( int32_t q = 0; q < 8; q++ ) 
-				{
-					ri->d[q] = screen->screeninitd[q];// * 10000;
-				}
-				screen->screendatascriptInitialised = 1;
-			}
-		}
-		break;
-		
-		case SCRIPT_COMBO:
-		{
-			auto& data = comboScriptDatas[i];
-			ri = &(data.ref);
-
-			curscript = comboscripts[script];
-			stack = &(data.stack);
-			
-			rpos_t rpos = combopos_ref_to_rpos(i);
-			int32_t lyr = combopos_ref_to_layer(i);
-			int32_t id = get_rpos_handle(rpos, lyr).data();
-			if (!data.initialised)
-			{
-				got_initialized = true;
-				memset(ri->d, 0, 8 * sizeof(int32_t));
-				for ( int32_t q = 0; q < 2; q++ )
-					ri->d[q] = combobuf[id].initd[q];
-				data.initialised = true;
-			}
-
-			ri->combosref = id; //'this' pointer
-			ri->comboposref = i; //used for X(), Y(), Layer(), and so forth.
-			break;
-		}
-		
 		default:
 		{
 			al_trace("No other scripts are currently supported\n");
@@ -30364,7 +30465,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 	if (script_debug_is_runtime_debugging())
 	{
 		script_debug_set_file_type(0);
-		script_debug_print(fmt::format("\n=== running script id: {} name: {} type: {} i: {} script: {}\n", curscript->debug_id, curscript->meta.script_name, type, i, script).c_str());
+		script_debug_print(fmt::format("\n=== running script id: {} name: {} type: {} i: {} script: {}\n", curscript->debug_id, curscript->meta.script_name, ScriptTypeToString(type), i, script).c_str());
 	}
 	if (script_debug_is_runtime_debugging() == 1)
 	{
@@ -30431,7 +30532,7 @@ int32_t run_script(const byte type, const word script, const int32_t i)
 
 int32_t run_script_int(bool is_jitted)
 {
-	byte type = curScriptType;
+	ScriptType type = curScriptType;
 	word script = curScriptNum;
 	int32_t i = curScriptIndex;
 
@@ -30455,15 +30556,15 @@ int32_t run_script_int(bool is_jitted)
 		
 		switch(type)
 		{
-		case SCRIPT_FFC:
+		case ScriptType::FFC:
 			al_trace("\nStart of FFC script %i processing on FFC %i:\n", script, i);
 			break;
 			
-		case SCRIPT_ITEM:
+		case ScriptType::Item:
 			al_trace("\nStart of item script %i processing:\n", script);
 			break;
 			
-		case SCRIPT_GLOBAL:
+		case ScriptType::Global:
 			al_trace("\nStart of global script %I processing:\n", script);
 			break;
 		}
@@ -30525,8 +30626,8 @@ j_command:
 					scommand = NOP;
 				else switch(type)
 				{
-					case SCRIPT_GENERIC:
-					case SCRIPT_GENERIC_FROZEN: //ignore waitdraws
+					case ScriptType::Generic:
+					case ScriptType::GenericFrozen: //ignore waitdraws
 						Z_scripterrlog("'Waitdraw()' is invalid in generic scripts, will be ignored\n");
 						scommand = NOP;
 						break;
@@ -30539,11 +30640,11 @@ j_command:
 					scommand = NOP;
 				else switch(type)
 				{
-					case SCRIPT_GENERIC_FROZEN:
+					case ScriptType::GenericFrozen:
 						//ignore, no warn/error
 						scommand = NOP;
 						break;
-					case SCRIPT_GENERIC:
+					case ScriptType::Generic:
 					{
 						user_genscript& scr = user_scripts[script];
 						int32_t target = get_register(sarg1)/10000L;
@@ -30578,11 +30679,11 @@ j_command:
 					scommand = NOP;
 				else switch(type)
 				{
-					case SCRIPT_GENERIC_FROZEN:
+					case ScriptType::GenericFrozen:
 						scommand = WAITFRAME;
 						ri->d[0] = GENSCR_EVENT_NIL*10000; //no event
 						break;
-					case SCRIPT_GENERIC:
+					case ScriptType::Generic:
 					{
 						user_genscript& scr = user_scripts[script];
 						scr.waitevent = true;
@@ -30601,7 +30702,7 @@ j_command:
 					scommand = NOP;
 				else switch(type)
 				{
-					case SCRIPT_GENERIC:
+					case ScriptType::Generic:
 						user_scripts[script].waituntil = SCR_TIMING_START_FRAME;
 						user_scripts[script].wait_atleast = false;
 						break;
@@ -30621,7 +30722,7 @@ j_command:
 				ri->waitframes = frames-1; //this frame doesn't count
 				switch(type)
 				{
-					case SCRIPT_GENERIC:
+					case ScriptType::Generic:
 						user_scripts[script].waituntil = SCR_TIMING_START_FRAME;
 						user_scripts[script].wait_atleast = false;
 						break;
@@ -30667,32 +30768,33 @@ j_command:
 			//always first
 			case 0xFFFF:  //invalid command
 			{
+				const char* type_str = ScriptTypeToString(type);
 				switch(type)
 				{
-					case SCRIPT_FFC:
-						zprint("%s Script %s has exited.\n", script_types[type], ffcmap[i].scriptname.c_str()); break;
-					case SCRIPT_NPC:
-						zprint("%s Script %s has exited.\n", script_types[type], npcmap[i].scriptname.c_str()); break;
-					case SCRIPT_LWPN:
-						zprint("%s Script %s has exited.\n", script_types[type], lwpnmap[i].scriptname.c_str()); break;
-					case SCRIPT_EWPN:
-						zprint("%s Script %s has exited.\n", script_types[type], ewpnmap[i].scriptname.c_str()); break;
-					case SCRIPT_ITEMSPRITE:
-						zprint("%s Script %s has exited.\n", script_types[type], itemspritemap[i].scriptname.c_str()); break;
-					case SCRIPT_ITEM:
-						zprint("%s Script %s has exited.\n", script_types[type], itemmap[i].scriptname.c_str()); break;
-					case SCRIPT_GLOBAL:
-						zprint("%s Script %s has exited.\n", script_types[type], globalmap[i].scriptname.c_str()); break;
-					case SCRIPT_PLAYER:
-						zprint("%s Script %s has exited.\n", script_types[type], playermap[i].scriptname.c_str()); break;
-					case SCRIPT_SCREEN:
-						zprint("%s Script %s has exited.\n", script_types[type], screenmap[i].scriptname.c_str()); break;
-					case SCRIPT_ONMAP:
-					case SCRIPT_DMAP:
-					case SCRIPT_ACTIVESUBSCREEN:
-					case SCRIPT_PASSIVESUBSCREEN:
-						zprint("%s Script %s has exited.\n", script_types[type], dmapmap[i].scriptname.c_str()); break;
-					case SCRIPT_COMBO: zprint("%s Script %s has exited.\n", script_types[type], comboscriptmap[i].scriptname.c_str()); break;
+					case ScriptType::FFC:
+						zprint("%s Script %s has exited.\n", type_str, ffcmap[i].scriptname.c_str()); break;
+					case ScriptType::NPC:
+						zprint("%s Script %s has exited.\n", type_str, npcmap[i].scriptname.c_str()); break;
+					case ScriptType::Lwpn:
+						zprint("%s Script %s has exited.\n", type_str, lwpnmap[i].scriptname.c_str()); break;
+					case ScriptType::Ewpn:
+						zprint("%s Script %s has exited.\n", type_str, ewpnmap[i].scriptname.c_str()); break;
+					case ScriptType::ItemSprite:
+						zprint("%s Script %s has exited.\n", type_str, itemspritemap[i].scriptname.c_str()); break;
+					case ScriptType::Item:
+						zprint("%s Script %s has exited.\n", type_str, itemmap[i].scriptname.c_str()); break;
+					case ScriptType::Global:
+						zprint("%s Script %s has exited.\n", type_str, globalmap[i].scriptname.c_str()); break;
+					case ScriptType::Player:
+						zprint("%s Script %s has exited.\n", type_str, playermap[i].scriptname.c_str()); break;
+					case ScriptType::Screen:
+						zprint("%s Script %s has exited.\n", type_str, screenmap[i].scriptname.c_str()); break;
+					case ScriptType::OnMap:
+					case ScriptType::DMap:
+					case ScriptType::ActiveSubscreen:
+					case ScriptType::PassiveSubscreen:
+						zprint("%s Script %s has exited.\n", type_str, dmapmap[i].scriptname.c_str()); break;
+					case ScriptType::Combo: zprint("%s Script %s has exited.\n", type_str, comboscriptmap[i].scriptname.c_str()); break;
 					
 					default: break;					
 				}
@@ -30713,33 +30815,33 @@ j_command:
 				uint8_t invalid = 0;
 				if(sarg1 < 0 )
 				{
+					const char* type_str = ScriptTypeToString(type);
 					switch(type)
 					{
-						
-						case SCRIPT_FFC:
-							Z_scripterrlog("%s Script %s attempted to GOTO an invalid jump to (%d).\n", script_types[type], ffcmap[i].scriptname.c_str(), sarg1); break;
-						case SCRIPT_NPC:
-							Z_scripterrlog("%s Script %s attempted to GOTO an invalid jump to (%d).\n", script_types[type], npcmap[i].scriptname.c_str(), sarg1); break;
-						case SCRIPT_LWPN:
-							Z_scripterrlog("%s Script %s attempted to GOTO an invalid jump to (%d).\n", script_types[type], lwpnmap[i].scriptname.c_str(), sarg1); break;
-						case SCRIPT_EWPN:
-							Z_scripterrlog("%s Script %s attempted to GOTO an invalid jump to (%d).\n", script_types[type], ewpnmap[i].scriptname.c_str(), sarg1); break;
-						case SCRIPT_ITEMSPRITE:
-							Z_scripterrlog("%s Script %s attempted to GOTO an invalid jump to (%d).\n", script_types[type], itemspritemap[i].scriptname.c_str(), sarg1); break;
-						case SCRIPT_ITEM:
-							Z_scripterrlog("%s Script %s attempted to GOTO an invalid jump to (%d).\n", script_types[type], itemmap[i].scriptname.c_str(), sarg1); break;
-						case SCRIPT_GLOBAL:
-							Z_scripterrlog("%s Script %s attempted to GOTO an invalid jump to (%d).\n", script_types[type], globalmap[i].scriptname.c_str(), sarg1); break;
-						case SCRIPT_PLAYER:
-							Z_scripterrlog("%s Script %s attempted to GOTO an invalid jump to (%d).\n", script_types[type], playermap[i].scriptname.c_str(), sarg1); break;
-						case SCRIPT_SCREEN:
-							Z_scripterrlog("%s Script %s attempted to GOTO an invalid jump to (%d).\n", script_types[type], screenmap[i].scriptname.c_str(), sarg1); break;
-						case SCRIPT_ONMAP:
-						case SCRIPT_DMAP:
-						case SCRIPT_ACTIVESUBSCREEN:
-						case SCRIPT_PASSIVESUBSCREEN:
-							Z_scripterrlog("%s Script %s attempted to GOTO an invalid jump to (%d).\n", script_types[type], dmapmap[i].scriptname.c_str(), sarg1); break;
-						case SCRIPT_COMBO: Z_scripterrlog("%s Script %s attempted to GOTO an invalid jump to (%d).\n", script_types[type], comboscriptmap[i].scriptname.c_str(), sarg1); break;
+						case ScriptType::FFC:
+							Z_scripterrlog("%s Script %s attempted to GOTO an invalid jump to (%d).\n", type_str, ffcmap[i].scriptname.c_str(), sarg1); break;
+						case ScriptType::NPC:
+							Z_scripterrlog("%s Script %s attempted to GOTO an invalid jump to (%d).\n", type_str, npcmap[i].scriptname.c_str(), sarg1); break;
+						case ScriptType::Lwpn:
+							Z_scripterrlog("%s Script %s attempted to GOTO an invalid jump to (%d).\n", type_str, lwpnmap[i].scriptname.c_str(), sarg1); break;
+						case ScriptType::Ewpn:
+							Z_scripterrlog("%s Script %s attempted to GOTO an invalid jump to (%d).\n", type_str, ewpnmap[i].scriptname.c_str(), sarg1); break;
+						case ScriptType::ItemSprite:
+							Z_scripterrlog("%s Script %s attempted to GOTO an invalid jump to (%d).\n", type_str, itemspritemap[i].scriptname.c_str(), sarg1); break;
+						case ScriptType::Item:
+							Z_scripterrlog("%s Script %s attempted to GOTO an invalid jump to (%d).\n", type_str, itemmap[i].scriptname.c_str(), sarg1); break;
+						case ScriptType::Global:
+							Z_scripterrlog("%s Script %s attempted to GOTO an invalid jump to (%d).\n", type_str, globalmap[i].scriptname.c_str(), sarg1); break;
+						case ScriptType::Player:
+							Z_scripterrlog("%s Script %s attempted to GOTO an invalid jump to (%d).\n", type_str, playermap[i].scriptname.c_str(), sarg1); break;
+						case ScriptType::Screen:
+							Z_scripterrlog("%s Script %s attempted to GOTO an invalid jump to (%d).\n", type_str, screenmap[i].scriptname.c_str(), sarg1); break;
+						case ScriptType::OnMap:
+						case ScriptType::DMap:
+						case ScriptType::ActiveSubscreen:
+						case ScriptType::PassiveSubscreen:
+							Z_scripterrlog("%s Script %s attempted to GOTO an invalid jump to (%d).\n", type_str, dmapmap[i].scriptname.c_str(), sarg1); break;
+						case ScriptType::Combo: Z_scripterrlog("%s Script %s attempted to GOTO an invalid jump to (%d).\n", type_str, comboscriptmap[i].scriptname.c_str(), sarg1); break;
 						
 						default: break;						
 					}
@@ -30755,33 +30857,33 @@ j_command:
 				uint8_t invalid = 0;
 				if(sarg1 < 0 )
 				{
+					const char* type_str = ScriptTypeToString(type);
 					switch(type)
 					{
-						
-						case SCRIPT_FFC:
-							Z_scripterrlog("%s Script %s attempted to GOTOR an invalid jump to (%d).\n", script_types[type], ffcmap[i].scriptname.c_str() ,sarg1); break;
-						case SCRIPT_NPC:
-							Z_scripterrlog("%s Script %s attempted to GOTOR an invalid jump to (%d).\n", script_types[type], npcmap[i].scriptname.c_str(), sarg1); break;
-						case SCRIPT_LWPN:
-							Z_scripterrlog("%s Script %s attempted to GOTOR an invalid jump to (%d).\n", script_types[type], lwpnmap[i].scriptname.c_str(), sarg1); break;
-						case SCRIPT_EWPN:
-							Z_scripterrlog("%s Script %s attempted to GOTOR an invalid jump to (%d).\n", script_types[type], ewpnmap[i].scriptname.c_str(), sarg1); break;
-						case SCRIPT_ITEMSPRITE:
-							Z_scripterrlog("%s Script %s attempted to GOTOR an invalid jump to (%d).\n", script_types[type], itemspritemap[i].scriptname.c_str(), sarg1); break;
-						case SCRIPT_ITEM:
-							Z_scripterrlog("%s Script %s attempted to GOTOR an invalid jump to (%d).\n", script_types[type], itemmap[i].scriptname.c_str(), sarg1); break;
-						case SCRIPT_GLOBAL:
-							Z_scripterrlog("%s Script %s attempted to GOTOR an invalid jump to (%d).\n", script_types[type], globalmap[i].scriptname.c_str(), sarg1); break;
-						case SCRIPT_PLAYER:
-							Z_scripterrlog("%s Script %s attempted to GOTOR an invalid jump to (%d).\n", script_types[type], playermap[i].scriptname.c_str(), sarg1); break;
-						case SCRIPT_SCREEN:
-							Z_scripterrlog("%s Script %s attempted to GOTOR an invalid jump to (%d).\n", script_types[type], screenmap[i].scriptname.c_str(), sarg1); break;
-						case SCRIPT_ONMAP:
-						case SCRIPT_DMAP:
-						case SCRIPT_ACTIVESUBSCREEN:
-						case SCRIPT_PASSIVESUBSCREEN:
-							Z_scripterrlog("%s Script %s attempted to GOTOR an invalid jump to (%d).\n", script_types[type], dmapmap[i].scriptname.c_str(), sarg1); break;
-						case SCRIPT_COMBO: Z_scripterrlog("%s Script %s attempted to GOTOR an invalid jump to (%d).\n", script_types[type], comboscriptmap[i].scriptname.c_str(), sarg1); break;
+						case ScriptType::FFC:
+							Z_scripterrlog("%s Script %s attempted to GOTOR an invalid jump to (%d).\n", type_str, ffcmap[i].scriptname.c_str() ,sarg1); break;
+						case ScriptType::NPC:
+							Z_scripterrlog("%s Script %s attempted to GOTOR an invalid jump to (%d).\n", type_str, npcmap[i].scriptname.c_str(), sarg1); break;
+						case ScriptType::Lwpn:
+							Z_scripterrlog("%s Script %s attempted to GOTOR an invalid jump to (%d).\n", type_str, lwpnmap[i].scriptname.c_str(), sarg1); break;
+						case ScriptType::Ewpn:
+							Z_scripterrlog("%s Script %s attempted to GOTOR an invalid jump to (%d).\n", type_str, ewpnmap[i].scriptname.c_str(), sarg1); break;
+						case ScriptType::ItemSprite:
+							Z_scripterrlog("%s Script %s attempted to GOTOR an invalid jump to (%d).\n", type_str, itemspritemap[i].scriptname.c_str(), sarg1); break;
+						case ScriptType::Item:
+							Z_scripterrlog("%s Script %s attempted to GOTOR an invalid jump to (%d).\n", type_str, itemmap[i].scriptname.c_str(), sarg1); break;
+						case ScriptType::Global:
+							Z_scripterrlog("%s Script %s attempted to GOTOR an invalid jump to (%d).\n", type_str, globalmap[i].scriptname.c_str(), sarg1); break;
+						case ScriptType::Player:
+							Z_scripterrlog("%s Script %s attempted to GOTOR an invalid jump to (%d).\n", type_str, playermap[i].scriptname.c_str(), sarg1); break;
+						case ScriptType::Screen:
+							Z_scripterrlog("%s Script %s attempted to GOTOR an invalid jump to (%d).\n", type_str, screenmap[i].scriptname.c_str(), sarg1); break;
+						case ScriptType::OnMap:
+						case ScriptType::DMap:
+						case ScriptType::ActiveSubscreen:
+						case ScriptType::PassiveSubscreen:
+							Z_scripterrlog("%s Script %s attempted to GOTOR an invalid jump to (%d).\n", type_str, dmapmap[i].scriptname.c_str(), sarg1); break;
+						case ScriptType::Combo: Z_scripterrlog("%s Script %s attempted to GOTOR an invalid jump to (%d).\n", type_str, comboscriptmap[i].scriptname.c_str(), sarg1); break;
 						
 						default: break;						
 					}
@@ -30799,33 +30901,33 @@ j_command:
 					uint8_t invalid = 0;
 					if(sarg1 < 0 )
 					{
+						const char* type_str = ScriptTypeToString(type);
 						switch(type)
 						{
-							
-							case SCRIPT_FFC:
-								Z_scripterrlog("%s Script %s attempted to GOTOTRUE an invalid jump to (%d).\n", script_types[type], ffcmap[i].scriptname.c_str(), sarg1); break;
-							case SCRIPT_NPC:
-								Z_scripterrlog("%s Script %s attempted to GOTOTRUE an invalid jump to (%d).\n", script_types[type], npcmap[i].scriptname.c_str(), sarg1); break;
-							case SCRIPT_LWPN:
-								Z_scripterrlog("%s Script %s attempted to GOTOTRUE an invalid jump to (%d).\n", script_types[type], lwpnmap[i].scriptname.c_str(), sarg1); break;
-							case SCRIPT_EWPN:
-								Z_scripterrlog("%s Script %s attempted to GOTOTRUE an invalid jump to (%d).\n", script_types[type], ewpnmap[i].scriptname.c_str(), sarg1); break;
-							case SCRIPT_ITEMSPRITE:
-								Z_scripterrlog("%s Script %s attempted to GOTOTRUE an invalid jump to (%d).\n", script_types[type], itemspritemap[i].scriptname.c_str(), sarg1); break;
-							case SCRIPT_ITEM:
-								Z_scripterrlog("%s Script %s attempted to GOTOTRUE an invalid jump to (%d).\n", script_types[type], itemmap[i].scriptname.c_str(), sarg1); break;
-							case SCRIPT_GLOBAL:
-								Z_scripterrlog("%s Script %s attempted to GOTOTRUE an invalid jump to (%d).\n", script_types[type], globalmap[i].scriptname.c_str(), sarg1); break;
-							case SCRIPT_PLAYER:
-								Z_scripterrlog("%s Script %s attempted to GOTOTRUE an invalid jump to (%d).\n", script_types[type], playermap[i].scriptname.c_str(), sarg1); break;
-							case SCRIPT_SCREEN:
-								Z_scripterrlog("%s Script %s attempted to GOTOTRUE an invalid jump to (%d).\n", script_types[type], screenmap[i].scriptname.c_str(), sarg1); break;
-							case SCRIPT_ONMAP:
-							case SCRIPT_DMAP:
-							case SCRIPT_ACTIVESUBSCREEN:
-							case SCRIPT_PASSIVESUBSCREEN:
-								Z_scripterrlog("%s Script %s attempted to GOTOTRUE an invalid jump to (%d).\n", script_types[type], dmapmap[i].scriptname.c_str(), sarg1); break;
-							case SCRIPT_COMBO: Z_scripterrlog("%s Script %s attempted to GOTOTRUE an invalid jump to (%d).\n", script_types[type], comboscriptmap[i].scriptname.c_str(), sarg1); break;
+							case ScriptType::FFC:
+								Z_scripterrlog("%s Script %s attempted to GOTOTRUE an invalid jump to (%d).\n", type_str, ffcmap[i].scriptname.c_str(), sarg1); break;
+							case ScriptType::NPC:
+								Z_scripterrlog("%s Script %s attempted to GOTOTRUE an invalid jump to (%d).\n", type_str, npcmap[i].scriptname.c_str(), sarg1); break;
+							case ScriptType::Lwpn:
+								Z_scripterrlog("%s Script %s attempted to GOTOTRUE an invalid jump to (%d).\n", type_str, lwpnmap[i].scriptname.c_str(), sarg1); break;
+							case ScriptType::Ewpn:
+								Z_scripterrlog("%s Script %s attempted to GOTOTRUE an invalid jump to (%d).\n", type_str, ewpnmap[i].scriptname.c_str(), sarg1); break;
+							case ScriptType::ItemSprite:
+								Z_scripterrlog("%s Script %s attempted to GOTOTRUE an invalid jump to (%d).\n", type_str, itemspritemap[i].scriptname.c_str(), sarg1); break;
+							case ScriptType::Item:
+								Z_scripterrlog("%s Script %s attempted to GOTOTRUE an invalid jump to (%d).\n", type_str, itemmap[i].scriptname.c_str(), sarg1); break;
+							case ScriptType::Global:
+								Z_scripterrlog("%s Script %s attempted to GOTOTRUE an invalid jump to (%d).\n", type_str, globalmap[i].scriptname.c_str(), sarg1); break;
+							case ScriptType::Player:
+								Z_scripterrlog("%s Script %s attempted to GOTOTRUE an invalid jump to (%d).\n", type_str, playermap[i].scriptname.c_str(), sarg1); break;
+							case ScriptType::Screen:
+								Z_scripterrlog("%s Script %s attempted to GOTOTRUE an invalid jump to (%d).\n", type_str, screenmap[i].scriptname.c_str(), sarg1); break;
+							case ScriptType::OnMap:
+							case ScriptType::DMap:
+							case ScriptType::ActiveSubscreen:
+							case ScriptType::PassiveSubscreen:
+								Z_scripterrlog("%s Script %s attempted to GOTOTRUE an invalid jump to (%d).\n", type_str, dmapmap[i].scriptname.c_str(), sarg1); break;
+							case ScriptType::Combo: Z_scripterrlog("%s Script %s attempted to GOTOTRUE an invalid jump to (%d).\n", type_str, comboscriptmap[i].scriptname.c_str(), sarg1); break;
 							
 							default: break;						
 						}
@@ -30844,33 +30946,33 @@ j_command:
 					uint8_t invalid = 0;
 					if(sarg1 < 0 )
 					{
+						const char* type_str = ScriptTypeToString(type);
 						switch(type)
 						{
-							
-							case SCRIPT_FFC:
-								Z_scripterrlog("%s Script %s attempted to GOTOFALSE an invalid jump to (%d).\n", script_types[type], ffcmap[i].scriptname.c_str(), sarg1); break;
-							case SCRIPT_NPC:
-								Z_scripterrlog("%s Script %s attempted to GOTOFALSE an invalid jump to (%d).\n", script_types[type], npcmap[i].scriptname.c_str(), sarg1); break;
-							case SCRIPT_LWPN:
-								Z_scripterrlog("%s Script %s attempted to GOTOFALSE an invalid jump to (%d).\n", script_types[type], lwpnmap[i].scriptname.c_str(), sarg1); break;
-							case SCRIPT_EWPN:
-								Z_scripterrlog("%s Script %s attempted to GOTOFALSE an invalid jump to (%d).\n", script_types[type], ewpnmap[i].scriptname.c_str(), sarg1); break;
-							case SCRIPT_ITEMSPRITE:
-								Z_scripterrlog("%s Script %s attempted to GOTOFALSE an invalid jump to (%d).\n", script_types[type], itemspritemap[i].scriptname.c_str(), sarg1); break;
-							case SCRIPT_ITEM:
-								Z_scripterrlog("%s Script %s attempted to GOTOFALSE an invalid jump to (%d).\n", script_types[type], itemmap[i].scriptname.c_str(), sarg1); break;
-							case SCRIPT_GLOBAL:
-								Z_scripterrlog("%s Script %s attempted to GOTOFALSE an invalid jump to (%d).\n", script_types[type], globalmap[i].scriptname.c_str(), sarg1); break;
-							case SCRIPT_PLAYER:
-								Z_scripterrlog("%s Script %s attempted to GOTOFALSE an invalid jump to (%d).\n", script_types[type], playermap[i].scriptname.c_str(), sarg1); break;
-							case SCRIPT_SCREEN:
-								Z_scripterrlog("%s Script %s attempted to GOTOFALSE an invalid jump to (%d).\n", script_types[type], screenmap[i].scriptname.c_str(), sarg1); break;
-							case SCRIPT_ONMAP:
-							case SCRIPT_DMAP:
-							case SCRIPT_ACTIVESUBSCREEN:
-							case SCRIPT_PASSIVESUBSCREEN:
-								Z_scripterrlog("%s Script %s attempted to GOTOFALSE an invalid jump to (%d).\n", script_types[type], dmapmap[i].scriptname.c_str(), sarg1); break;
-							case SCRIPT_COMBO: Z_scripterrlog("%s Script %s attempted to GOTOFALSE an invalid jump to (%d).\n", script_types[type], comboscriptmap[i].scriptname.c_str(), sarg1); break;
+							case ScriptType::FFC:
+								Z_scripterrlog("%s Script %s attempted to GOTOFALSE an invalid jump to (%d).\n", type_str, ffcmap[i].scriptname.c_str(), sarg1); break;
+							case ScriptType::NPC:
+								Z_scripterrlog("%s Script %s attempted to GOTOFALSE an invalid jump to (%d).\n", type_str, npcmap[i].scriptname.c_str(), sarg1); break;
+							case ScriptType::Lwpn:
+								Z_scripterrlog("%s Script %s attempted to GOTOFALSE an invalid jump to (%d).\n", type_str, lwpnmap[i].scriptname.c_str(), sarg1); break;
+							case ScriptType::Ewpn:
+								Z_scripterrlog("%s Script %s attempted to GOTOFALSE an invalid jump to (%d).\n", type_str, ewpnmap[i].scriptname.c_str(), sarg1); break;
+							case ScriptType::ItemSprite:
+								Z_scripterrlog("%s Script %s attempted to GOTOFALSE an invalid jump to (%d).\n", type_str, itemspritemap[i].scriptname.c_str(), sarg1); break;
+							case ScriptType::Item:
+								Z_scripterrlog("%s Script %s attempted to GOTOFALSE an invalid jump to (%d).\n", type_str, itemmap[i].scriptname.c_str(), sarg1); break;
+							case ScriptType::Global:
+								Z_scripterrlog("%s Script %s attempted to GOTOFALSE an invalid jump to (%d).\n", type_str, globalmap[i].scriptname.c_str(), sarg1); break;
+							case ScriptType::Player:
+								Z_scripterrlog("%s Script %s attempted to GOTOFALSE an invalid jump to (%d).\n", type_str, playermap[i].scriptname.c_str(), sarg1); break;
+							case ScriptType::Screen:
+								Z_scripterrlog("%s Script %s attempted to GOTOFALSE an invalid jump to (%d).\n", type_str, screenmap[i].scriptname.c_str(), sarg1); break;
+							case ScriptType::OnMap:
+							case ScriptType::DMap:
+							case ScriptType::ActiveSubscreen:
+							case ScriptType::PassiveSubscreen:
+								Z_scripterrlog("%s Script %s attempted to GOTOFALSE an invalid jump to (%d).\n", type_str, dmapmap[i].scriptname.c_str(), sarg1); break;
+							case ScriptType::Combo: Z_scripterrlog("%s Script %s attempted to GOTOFALSE an invalid jump to (%d).\n", type_str, comboscriptmap[i].scriptname.c_str(), sarg1); break;
 							
 							default: break;						
 						}
@@ -30889,33 +30991,33 @@ j_command:
 					uint8_t invalid = 0;
 					if(sarg1 < 0 )
 					{
+						const char* type_str = ScriptTypeToString(type);
 						switch(type)
 						{
-							
-							case SCRIPT_FFC:
-								Z_scripterrlog("%s Script %s attempted to GOTOMORE an invalid jump to (%d).\n", script_types[type], ffcmap[i].scriptname.c_str(), sarg1); break;
-							case SCRIPT_NPC:
-								Z_scripterrlog("%s Script %s attempted to GOTOMORE an invalid jump to (%d).\n", script_types[type], npcmap[i].scriptname.c_str(), sarg1); break;
-							case SCRIPT_LWPN:
-								Z_scripterrlog("%s Script %s attempted to GOTOMORE an invalid jump to (%d).\n", script_types[type], lwpnmap[i].scriptname.c_str(), sarg1); break;
-							case SCRIPT_EWPN:
-								Z_scripterrlog("%s Script %s attempted to GOTOMORE an invalid jump to (%d).\n", script_types[type], ewpnmap[i].scriptname.c_str(), sarg1); break;
-							case SCRIPT_ITEMSPRITE:
-								Z_scripterrlog("%s Script %s attempted to GOTOMORE an invalid jump to (%d).\n", script_types[type], itemspritemap[i].scriptname.c_str(), sarg1); break;
-							case SCRIPT_ITEM:
-								Z_scripterrlog("%s Script %s attempted to GOTOMORE an invalid jump to (%d).\n", script_types[type], itemmap[i].scriptname.c_str(), sarg1); break;
-							case SCRIPT_GLOBAL:
-								Z_scripterrlog("%s Script %s attempted to GOTOMORE an invalid jump to (%d).\n", script_types[type], globalmap[i].scriptname.c_str(), sarg1); break;
-							case SCRIPT_PLAYER:
-								Z_scripterrlog("%s Script %s attempted to GOTOMORE an invalid jump to (%d).\n", script_types[type], playermap[i].scriptname.c_str(), sarg1); break;
-							case SCRIPT_SCREEN:
-								Z_scripterrlog("%s Script %s attempted to GOTOMORE an invalid jump to (%d).\n", script_types[type], screenmap[i].scriptname.c_str(), sarg1); break;
-							case SCRIPT_ONMAP:
-							case SCRIPT_DMAP:
-							case SCRIPT_ACTIVESUBSCREEN:
-							case SCRIPT_PASSIVESUBSCREEN:
-								Z_scripterrlog("%s Script %s attempted to GOTOMORE an invalid jump to (%d).\n", script_types[type], dmapmap[i].scriptname.c_str(), sarg1); break;
-							case SCRIPT_COMBO: Z_scripterrlog("%s Script %s attempted to GOTOMORE an invalid jump to (%d).\n", script_types[type], comboscriptmap[i].scriptname.c_str(), sarg1); break;
+							case ScriptType::FFC:
+								Z_scripterrlog("%s Script %s attempted to GOTOMORE an invalid jump to (%d).\n", type_str, ffcmap[i].scriptname.c_str(), sarg1); break;
+							case ScriptType::NPC:
+								Z_scripterrlog("%s Script %s attempted to GOTOMORE an invalid jump to (%d).\n", type_str, npcmap[i].scriptname.c_str(), sarg1); break;
+							case ScriptType::Lwpn:
+								Z_scripterrlog("%s Script %s attempted to GOTOMORE an invalid jump to (%d).\n", type_str, lwpnmap[i].scriptname.c_str(), sarg1); break;
+							case ScriptType::Ewpn:
+								Z_scripterrlog("%s Script %s attempted to GOTOMORE an invalid jump to (%d).\n", type_str, ewpnmap[i].scriptname.c_str(), sarg1); break;
+							case ScriptType::ItemSprite:
+								Z_scripterrlog("%s Script %s attempted to GOTOMORE an invalid jump to (%d).\n", type_str, itemspritemap[i].scriptname.c_str(), sarg1); break;
+							case ScriptType::Item:
+								Z_scripterrlog("%s Script %s attempted to GOTOMORE an invalid jump to (%d).\n", type_str, itemmap[i].scriptname.c_str(), sarg1); break;
+							case ScriptType::Global:
+								Z_scripterrlog("%s Script %s attempted to GOTOMORE an invalid jump to (%d).\n", type_str, globalmap[i].scriptname.c_str(), sarg1); break;
+							case ScriptType::Player:
+								Z_scripterrlog("%s Script %s attempted to GOTOMORE an invalid jump to (%d).\n", type_str, playermap[i].scriptname.c_str(), sarg1); break;
+							case ScriptType::Screen:
+								Z_scripterrlog("%s Script %s attempted to GOTOMORE an invalid jump to (%d).\n", type_str, screenmap[i].scriptname.c_str(), sarg1); break;
+							case ScriptType::OnMap:
+							case ScriptType::DMap:
+							case ScriptType::ActiveSubscreen:
+							case ScriptType::PassiveSubscreen:
+								Z_scripterrlog("%s Script %s attempted to GOTOMORE an invalid jump to (%d).\n", type_str, dmapmap[i].scriptname.c_str(), sarg1); break;
+							case ScriptType::Combo: Z_scripterrlog("%s Script %s attempted to GOTOMORE an invalid jump to (%d).\n", type_str, comboscriptmap[i].scriptname.c_str(), sarg1); break;
 							
 							default: break;						
 						}
@@ -30934,33 +31036,33 @@ j_command:
 					uint8_t invalid = 0;
 					if(sarg1 < 0 )
 					{
+						const char* type_str = ScriptTypeToString(type);
 						switch(type)
 						{
-							
-							case SCRIPT_FFC:
-								Z_scripterrlog("%s Script %s attempted to GOTOLESS an invalid jump to (%d).\n", script_types[type], ffcmap[i].scriptname.c_str(), sarg1); break;
-							case SCRIPT_NPC:
-								Z_scripterrlog("%s Script %s attempted to GOTOLESS an invalid jump to (%d).\n", script_types[type], npcmap[i].scriptname.c_str(), sarg1); break;
-							case SCRIPT_LWPN:
-								Z_scripterrlog("%s Script %s attempted to GOTOLESS an invalid jump to (%d).\n", script_types[type], lwpnmap[i].scriptname.c_str(), sarg1); break;
-							case SCRIPT_EWPN:
-								Z_scripterrlog("%s Script %s attempted to GOTOLESS an invalid jump to (%d).\n", script_types[type], ewpnmap[i].scriptname.c_str(), sarg1); break;
-							case SCRIPT_ITEMSPRITE:
-								Z_scripterrlog("%s Script %s attempted to GOTOLESS an invalid jump to (%d).\n", script_types[type], itemspritemap[i].scriptname.c_str(), sarg1); break;
-							case SCRIPT_ITEM:
-								Z_scripterrlog("%s Script %s attempted to GOTOLESS an invalid jump to (%d).\n", script_types[type], itemmap[i].scriptname.c_str(), sarg1); break;
-							case SCRIPT_GLOBAL:
-								Z_scripterrlog("%s Script %s attempted to GOTOLESS an invalid jump to (%d).\n", script_types[type], globalmap[i].scriptname.c_str(), sarg1); break;
-							case SCRIPT_PLAYER:
-								Z_scripterrlog("%s Script %s attempted to GOTOLESS an invalid jump to (%d).\n", script_types[type], playermap[i].scriptname.c_str(), sarg1); break;
-							case SCRIPT_SCREEN:
-								Z_scripterrlog("%s Script %s attempted to GOTOLESS an invalid jump to (%d).\n", script_types[type], screenmap[i].scriptname.c_str(), sarg1); break;
-							case SCRIPT_ONMAP:
-							case SCRIPT_DMAP:
-							case SCRIPT_ACTIVESUBSCREEN:
-							case SCRIPT_PASSIVESUBSCREEN:
-								Z_scripterrlog("%s Script %s attempted to GOTOLESS an invalid jump to (%d).\n", script_types[type], dmapmap[i].scriptname.c_str(), sarg1); break;
-							case SCRIPT_COMBO: Z_scripterrlog("%s Script %s attempted to GOTOLESS an invalid jump to (%d).\n", script_types[type], comboscriptmap[i].scriptname.c_str(), sarg1); break;
+							case ScriptType::FFC:
+								Z_scripterrlog("%s Script %s attempted to GOTOLESS an invalid jump to (%d).\n", type_str, ffcmap[i].scriptname.c_str(), sarg1); break;
+							case ScriptType::NPC:
+								Z_scripterrlog("%s Script %s attempted to GOTOLESS an invalid jump to (%d).\n", type_str, npcmap[i].scriptname.c_str(), sarg1); break;
+							case ScriptType::Lwpn:
+								Z_scripterrlog("%s Script %s attempted to GOTOLESS an invalid jump to (%d).\n", type_str, lwpnmap[i].scriptname.c_str(), sarg1); break;
+							case ScriptType::Ewpn:
+								Z_scripterrlog("%s Script %s attempted to GOTOLESS an invalid jump to (%d).\n", type_str, ewpnmap[i].scriptname.c_str(), sarg1); break;
+							case ScriptType::ItemSprite:
+								Z_scripterrlog("%s Script %s attempted to GOTOLESS an invalid jump to (%d).\n", type_str, itemspritemap[i].scriptname.c_str(), sarg1); break;
+							case ScriptType::Item:
+								Z_scripterrlog("%s Script %s attempted to GOTOLESS an invalid jump to (%d).\n", type_str, itemmap[i].scriptname.c_str(), sarg1); break;
+							case ScriptType::Global:
+								Z_scripterrlog("%s Script %s attempted to GOTOLESS an invalid jump to (%d).\n", type_str, globalmap[i].scriptname.c_str(), sarg1); break;
+							case ScriptType::Player:
+								Z_scripterrlog("%s Script %s attempted to GOTOLESS an invalid jump to (%d).\n", type_str, playermap[i].scriptname.c_str(), sarg1); break;
+							case ScriptType::Screen:
+								Z_scripterrlog("%s Script %s attempted to GOTOLESS an invalid jump to (%d).\n", type_str, screenmap[i].scriptname.c_str(), sarg1); break;
+							case ScriptType::OnMap:
+							case ScriptType::DMap:
+							case ScriptType::ActiveSubscreen:
+							case ScriptType::PassiveSubscreen:
+								Z_scripterrlog("%s Script %s attempted to GOTOLESS an invalid jump to (%d).\n", type_str, dmapmap[i].scriptname.c_str(), sarg1); break;
+							case ScriptType::Combo: Z_scripterrlog("%s Script %s attempted to GOTOLESS an invalid jump to (%d).\n", type_str, comboscriptmap[i].scriptname.c_str(), sarg1); break;
 							
 							default: break;						
 						}
@@ -31194,12 +31296,12 @@ j_command:
 				break;
 				
 			case ALLOCATEGMEMR:
-				if(type == SCRIPT_GLOBAL) do_allocatemem(false, false, type, i);
+				if(type == ScriptType::Global) do_allocatemem(false, false, type, i);
 				
 				break;
 				
 			case ALLOCATEGMEMV:
-				if(type == SCRIPT_GLOBAL) do_allocatemem(true, false, type, i);
+				if(type == ScriptType::Global) do_allocatemem(true, false, type, i);
 				
 				break;
 				
@@ -32682,7 +32784,7 @@ j_command:
 					break; //Don't attempt to own system bitmaps!
 				user_bitmap* b = checkBitmap(bmpid, nullptr, false);
 				if(!b) break;
-				int32_t own_type = sarg2;
+				ScriptType own_type = (ScriptType)sarg2;
 				int32_t own_i = get_own_i(own_type);
 				b->own(own_type,own_i);
 				break;
@@ -32692,7 +32794,7 @@ j_command:
 				int palid = get_register(sarg1);
 				user_paldata* pd = checkPalData(palid, nullptr, false);
 				if(!pd) break;
-				int32_t own_type = sarg2;
+				ScriptType own_type = (ScriptType)sarg2;
 				int32_t own_i = get_own_i(own_type);
 				pd->own(own_type,own_i);
 				break;
@@ -32702,7 +32804,7 @@ j_command:
 				int fileid = get_register(sarg1);
 				user_file* f = checkFile(fileid, nullptr, false);
 				if(!f) break;
-				int32_t own_type = sarg2;
+				ScriptType own_type = (ScriptType)sarg2;
 				int32_t own_i = get_own_i(own_type);
 				f->own(own_type,own_i);
 				break;
@@ -32712,7 +32814,7 @@ j_command:
 				int dirid = get_register(sarg1);
 				user_dir* dr = checkDir(dirid, nullptr, false);
 				if(!dr) break;
-				int32_t own_type = sarg2;
+				ScriptType own_type = (ScriptType)sarg2;
 				int32_t own_i = get_own_i(own_type);
 				dr->own(own_type,own_i);
 				break;
@@ -32722,7 +32824,7 @@ j_command:
 				int stackid = get_register(sarg1);
 				user_stack* st = checkStack(stackid, nullptr, false);
 				if(!st) break;
-				int32_t own_type = sarg2;
+				ScriptType own_type = (ScriptType)sarg2;
 				int32_t own_i = get_own_i(own_type);
 				st->own(own_type,own_i);
 				break;
@@ -32732,7 +32834,7 @@ j_command:
 				int rngid = get_register(sarg1);
 				user_rng* r = checkRNG(rngid, nullptr, false);
 				if(!r) break;
-				int32_t own_type = sarg2;
+				ScriptType own_type = (ScriptType)sarg2;
 				int32_t own_i = get_own_i(own_type);
 				r->own(own_type,own_i);
 				break;
@@ -32742,7 +32844,7 @@ j_command:
 				int classid = get_register(sarg1);
 				user_object* obj = checkObject(classid, false);
 				if(!obj) break;
-				int32_t own_type = sarg2;
+				ScriptType own_type = (ScriptType)sarg2;
 				int32_t own_i = get_own_i(own_type);
 				obj->own(own_type,own_i);
 				break;
@@ -32750,7 +32852,7 @@ j_command:
 			case OBJ_OWN_ARRAY:
 			{
 				int arrid = get_register(sarg1)/10000;
-				int32_t own_type = sarg2;
+				ScriptType own_type = (ScriptType)sarg2;
 				int32_t own_i = get_own_i(own_type);
 				do_own_array(arrid, own_type, own_i);
 				break;
@@ -33145,27 +33247,8 @@ j_command:
 			
 			case LINKWARPEXR:
 			{
-				
 				FFCore.do_warp_ex(false);
-				//terminate sprite scripts
-				//switch(type)
-				//{
-				//	case SCRIPT_NPC:
-				//	case SCRIPT_LWPN:
-				//	case SCRIPT_EWPN:
-				//	case SCRIPT_ITEMSPRITE:
-				//	{
-				//		Z_scripterrlog("Hero->WarpEx() cannot be called from script type %s. Ignoring the call.\n", scripttypenames[type]);
-				//		break;
-				//	}
-				//	default: 
-				//	{
-				//		FFCore.do_warp_ex(false);
-				//		break;
-				//	}
-				//}
 				break;
-				
 			}
 			
 			case KILLPLAYER:
@@ -33255,7 +33338,7 @@ j_command:
 					Hero.lift(wpn, lifttime, liftheight);
 					if(Lwpns.find(wpn) > -1)
 						Lwpns.remove(wpn);
-					if(type == SCRIPT_LWPN && lwuid == i)
+					if(type == ScriptType::Lwpn && lwuid == i)
 						earlyretval = RUNSCRIPT_SELFREMOVE;
 				}
 				break;
@@ -33533,23 +33616,23 @@ j_command:
 				// zprint("Trying to run the script on item: %d\n",itemid);
 				// zprint("The script ID is: %d\n",itemsbuf[itemid].script);
 				// zprint("Runitemscript mode is: %d\n", mode);
+				auto& data = get_script_engine_data(ScriptType::Item, itemid);
 				switch(mode)
 				{
 					case 0:
 					{
-						item_doscript[itemid] = 4;
+						data.doscript = 4;
 						break;
 					}
 					case 1:
 					{
-						if ( itemsbuf[itemid].script != 0 ) //&& !item_doscript[itemid] )
+						if ( itemsbuf[itemid].script != 0 ) //&& !data.doscript )
 						{
-							if ( !item_doscript[itemid] ) 
+							if ( !data.doscript ) 
 							{
-								for ( int32_t q = 0; q < 1024; q++ ) item_stack[itemid][q] = 0xFFFF;
-								itemScriptData[itemid].Clear();
-								item_doscript[itemid] = 1;
-								//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid);
+								data.ref.Clear();
+								data.doscript = 1;
+								//ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[itemid].script, itemid);
 							}
 							else
 							{
@@ -33561,27 +33644,27 @@ j_command:
 					case 2:
 					default:
 					{
-						if ( itemsbuf[itemid].script != 0 ) //&& !item_doscript[itemid] )
+						if ( itemsbuf[itemid].script != 0 ) //&& !data.doscript )
 						{
-							if (item_doscript[itemid] != 2 )item_doscript[itemid] = 2;
+							if (data.doscript != 2 )data.doscript = 2;
 						}
 						break;
 					}
 					/*
 					case 0:
 					{
-						item_doscript[itemid] = 0;
+						data.doscript = 0;
 						break;
 					}
 					default:
 					{
 					
-						if ( itemsbuf[itemid].script != 0 ) //&& !item_doscript[itemid] )
+						if ( itemsbuf[itemid].script != 0 ) //&& !data.doscript )
 						{
 							//itemScriptData[itemid].Clear();
 							//for ( int32_t q = 0; q < 1024; q++ ) item_stack[itemid][q] = 0;
-							//ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[itemid].script, itemid & 0xFFF);
-							item_doscript[itemid] = 2;
+							//ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[itemid].script, itemid & 0xFFF);
+							data.doscript = 2;
 						}
 						break;
 					}
@@ -33888,8 +33971,8 @@ j_command:
 			
 			case NPCKICKBUCKET:
 			{
-				FFScript::deallocateAllArrays(SCRIPT_NPC, ri->guyref);
-				if(type == SCRIPT_NPC && ri->guyref == i)
+				FFScript::deallocateAllArrays(ScriptType::NPC, ri->guyref);
+				if(type == ScriptType::NPC && ri->guyref == i)
 				{
 					FFCore.do_npc_delete();
 					return RUNSCRIPT_SELFDELETE;
@@ -33899,8 +33982,8 @@ j_command:
 			}
 			case LWPNDEL:
 			{
-				FFScript::deallocateAllArrays(SCRIPT_LWPN, ri->lwpn);
-				if(type == SCRIPT_LWPN && ri->lwpn == i)
+				FFScript::deallocateAllArrays(ScriptType::Lwpn, ri->lwpn);
+				if(type == ScriptType::Lwpn && ri->lwpn == i)
 				{
 					FFCore.do_lweapon_delete();
 					return RUNSCRIPT_SELFDELETE;
@@ -33910,8 +33993,8 @@ j_command:
 			}
 			case EWPNDEL:
 			{
-				FFScript::deallocateAllArrays(SCRIPT_EWPN, ri->ewpn);
-				if(type == SCRIPT_EWPN && ri->ewpn == i)
+				FFScript::deallocateAllArrays(ScriptType::Ewpn, ri->ewpn);
+				if(type == ScriptType::Ewpn && ri->ewpn == i)
 				{
 					FFCore.do_eweapon_delete();
 					return RUNSCRIPT_SELFDELETE;
@@ -33921,8 +34004,8 @@ j_command:
 			}
 			case ITEMDEL:
 			{
-				FFScript::deallocateAllArrays(SCRIPT_ITEMSPRITE, ri->itemref);
-				if(type == SCRIPT_ITEMSPRITE && ri->itemref == i)
+				FFScript::deallocateAllArrays(ScriptType::ItemSprite, ri->itemref);
+				if(type == ScriptType::ItemSprite && ri->itemref == i)
 				{
 					if(FFCore.do_itemsprite_delete())
 						return RUNSCRIPT_SELFDELETE;
@@ -34533,7 +34616,7 @@ j_command:
 		script_execount[scommand] += 1;
 #endif
 		
-		if (type == SCRIPT_COMBO)
+		if (type == ScriptType::Combo)
 		{
 			if(combopos_modified == i)
 			{
@@ -34570,73 +34653,55 @@ j_command:
 	{
 		switch(type)
 		{
-			case SCRIPT_GLOBAL:
-				global_wait |= (1<<i);
-				break;
-				
-			case SCRIPT_PLAYER:
-				player_waitdraw = true;
-				break;
-			
-			case SCRIPT_DMAP:
-				dmap_waitdraw = true;
-				break;
-				
-			case SCRIPT_PASSIVESUBSCREEN:
-				passive_subscreen_waitdraw = true;
-				break;
-				
-			case SCRIPT_ACTIVESUBSCREEN:
-				active_subscreen_waitdraw = true;
-				break;
-				
-			case SCRIPT_ONMAP:
-				onmap_waitdraw = true;
+			case ScriptType::Global:
+			case ScriptType::Player:
+			case ScriptType::DMap:
+			case ScriptType::OnMap:
+			case ScriptType::PassiveSubscreen:
+			case ScriptType::ActiveSubscreen:
+			case ScriptType::Screen:
+			case ScriptType::Combo: 
+				FFCore.waitdraw(type, i) = true;
 				break;
 			
-			case SCRIPT_SCREEN:
+			case ScriptType::Item:
 			{
-				mapscr* screen = get_scr(currmap, i);
-				screen->screen_waitdraw = 1;
-			}
-			break;
-			
-			case SCRIPT_ITEM:
-			{
-				if ( !get_bit(quest_rules, qr_NOITEMWAITDRAW) ) { itemScriptsWaitdraw[i] = 1; }
+				if (!get_bit(quest_rules, qr_NOITEMWAITDRAW))
+				{
+					FFCore.waitdraw(ScriptType::Item, i) = true;
+				}
 				break;
 			}
 			
-			case SCRIPT_NPC:
+			case ScriptType::NPC:
 			{
 				//enemy *wp = (enemy*)guys.spr(i);
 				//wp->waitdraw = 1;
 				guys.spr(GuyH::getNPCIndex(i))->waitdraw = 1;
 				break;
 			}
-			case SCRIPT_LWPN:
+			case ScriptType::Lwpn:
 			{
 				Lwpns.spr(LwpnH::getLWeaponIndex(i))->waitdraw = 1;
 				break;
 			}
 			
-			case SCRIPT_EWPN:
+			case ScriptType::Ewpn:
 			{
-			
 				Ewpns.spr(EwpnH::getEWeaponIndex(i))->waitdraw = 1;
 				break;
 			}
-			case SCRIPT_ITEMSPRITE:
+			case ScriptType::ItemSprite:
 			{
 				items.spr(ItemH::getItemIndex(i))->waitdraw = 1;
 				break;
 			}
 			
-			case SCRIPT_FFC:
+			case ScriptType::FFC:
 			{
 				if ( !(get_bit(quest_rules, qr_NOFFCWAITDRAW)) )
 				{
-					get_ffc_raw(i)->script_wait_draw = true;
+					FFCore.waitdraw(ScriptType::FFC, i) = true;
 				}
 				else
 				{
@@ -34645,19 +34710,13 @@ j_command:
 				break;
 			}
 			
-			case SCRIPT_COMBO: 
-			{
-				comboScriptDatas[i].waitdraw = true;
-				break;
-			}
-			
-			case SCRIPT_GENERIC:
-			case SCRIPT_GENERIC_FROZEN:
+			case ScriptType::Generic:
+			case ScriptType::GenericFrozen:
 				//No Waitdraw
 				break;
 			
 			default:
-				Z_scripterrlog("Waitdraw cannot be used in script type: %s\n", script_types[type]);
+				Z_scripterrlog("Waitdraw cannot be used in script type: %s\n", ScriptTypeToString(type));
 				break;
 		}
 	}
@@ -34666,81 +34725,71 @@ j_command:
 	{
 		switch(type)
 		{
-			case SCRIPT_FFC:
+			case ScriptType::FFC:
+			{
 				get_ffc_raw(i)->script = 0;
-				break;
-				
-			case SCRIPT_GLOBAL:
-				g_doscript &= ~(1<<i);
-				break;
+				auto& data = get_script_engine_data(type, i);
+				data.doscript = false;
+			}
+			break;
+
+			case ScriptType::Screen:
+				get_scr(currmap, i)->script = 0;
+			case ScriptType::Global:
+			case ScriptType::Player:
+			case ScriptType::DMap:
+			case ScriptType::OnMap:
+			case ScriptType::ActiveSubscreen:
+			case ScriptType::PassiveSubscreen:
+			case ScriptType::Combo:
+			{
+				auto& data = get_script_engine_data(type, i);
+				data.doscript = false;
+			}
+			break;
 			
-			case SCRIPT_GENERIC:
+			case ScriptType::Generic:
 				user_scripts[script].quit();
 				break;
 			
-			case SCRIPT_GENERIC_FROZEN:
+			case ScriptType::GenericFrozen:
 				gen_active_doscript = 0;
 				break;
-			
-			case SCRIPT_PLAYER:
-				player_doscript = 0;
-				break;
-			
-			case SCRIPT_DMAP:
-				dmap_doscript = 0; //Can't do this, as warping will need to start the script again! -Z
-				dmapscriptInitialised = 0;
-				break;
-			
-			case SCRIPT_ONMAP:
-				onmap_doscript = 0;
-				onmapInitialised = 0;
-				break;
-			
-			case SCRIPT_ACTIVESUBSCREEN:
-				active_subscreen_doscript = 0;
-				activeSubscreenInitialised = 0;
-				break;
-			
-			case SCRIPT_PASSIVESUBSCREEN:
-				passive_subscreen_doscript = 0;
-				passiveSubscreenInitialised = 0;
-				break;
-				
-			case SCRIPT_ITEM:
+
+			case ScriptType::Item:
 			{
 				bool collect = ( ( i < 1 ) || (i == COLLECT_SCRIPT_ITEM_ZERO) );
 				int new_i = ( collect ) ? (( i != COLLECT_SCRIPT_ITEM_ZERO ) ? (i * -1) : 0) : i;
+				auto& data = get_script_engine_data(ScriptType::Item, i);
 				if ( !collect )
 				{
 					if ( (itemsbuf[i].flags&ITEM_PASSIVESCRIPT) && game->item[i] ) itemsbuf[i].script = 0; //Quit perpetual scripts, too.
-					item_doscript[new_i] = 0;
-					for ( int32_t q = 0; q < 1024; q++ ) item_stack[new_i][q] = 0xFFFF;
-					itemScriptData[new_i].Clear();
+					data.doscript = 0;
+					data.ref.Clear();
 				}
 				else
 				{
-					item_collect_doscript[new_i] = 0;
-					for ( int32_t q = 0; q < 1024; q++ ) item_collect_stack[new_i][q] = 0xFFFF;
-					itemCollectScriptData[new_i].Clear();
+					data.doscript = 0;
+					data.ref.Clear();
 				}
-				itemscriptInitialised[new_i] = 0;
+				data.initialized = false;
 				break;
 			}
-			case SCRIPT_NPC:
+			case ScriptType::NPC:
 			{
 				guys.spr(GuyH::getNPCIndex(i))->doscript = 0;
 				guys.spr(GuyH::getNPCIndex(i))->weaponscript = 0;
 				guys.spr(GuyH::getNPCIndex(i))->initialised = 0;
 				break;
 			}
-			case SCRIPT_LWPN:
+			case ScriptType::Lwpn:
 			{
 				Lwpns.spr(LwpnH::getLWeaponIndex(i))->doscript = 0;
 				Lwpns.spr(LwpnH::getLWeaponIndex(i))->weaponscript = 0;
 				Lwpns.spr(LwpnH::getLWeaponIndex(i))->initialised = 0;
 				break;
 			}
-			case SCRIPT_EWPN:
+			case ScriptType::Ewpn:
 			{
 			
 				Ewpns.spr(EwpnH::getEWeaponIndex(i))->doscript = 0;
@@ -34748,43 +34797,28 @@ j_command:
 				Ewpns.spr(EwpnH::getEWeaponIndex(i))->initialised = 0;
 				break;
 			}
-			case SCRIPT_ITEMSPRITE:
+			case ScriptType::ItemSprite:
 			{
 				items.spr(ItemH::getItemIndex(i))->doscript = 0;
 				items.spr(ItemH::getItemIndex(i))->script = 0;
 				items.spr(ItemH::getItemIndex(i))->initialised = 0;
 				break;
 			}
-			case SCRIPT_SCREEN:
-			{
-				mapscr* screen = get_scr(currmap, i);
-				screen->script = 0;
-				screen->screendatascriptInitialised = 0;
-				screen->doscript = 0;
-				break;
-			} 
-			
-			case SCRIPT_COMBO:
-			{
-				comboScriptDatas[i].doscript = false;
-				comboScriptDatas[i].initialised = false;
-				break;
-			}
 		}
 		if(!no_dealloc)
 			switch(type)
 			{
-				case SCRIPT_ITEM:
+				case ScriptType::Item:
 				{
 					bool collect = ( ( i < 1 ) || (i == COLLECT_SCRIPT_ITEM_ZERO) );
 					int new_i = ( collect ) ? (( i != COLLECT_SCRIPT_ITEM_ZERO ) ? (i * -1) : 0) : i;
-					FFScript::deallocateAllArrays(SCRIPT_ITEM, new_i);
+					FFScript::deallocateAllArrays(ScriptType::Item, new_i);
 					break;
 				}
 				
-				case SCRIPT_SCREEN:
+				case ScriptType::Screen:
 				{
-					FFScript::deallocateAllArrays(SCRIPT_SCREEN, i);
+					FFScript::deallocateAllArrays(ScriptType::Screen, i);
 					break;
 				} 
 				
@@ -34801,38 +34835,38 @@ j_command:
 	return RUNSCRIPT_OK;
 }
 
-script_data* load_scrdata(int32_t type, word script, int32_t i)
+script_data* load_scrdata(ScriptType type, word script, int32_t i)
 {
 	switch(type)
 	{
-		case SCRIPT_FFC:
+		case ScriptType::FFC:
 			return ffscripts[script];
-		case SCRIPT_NPC:
+		case ScriptType::NPC:
 			return guyscripts[guys.spr(GuyH::getNPCIndex(i))->script];
-		case SCRIPT_LWPN:
+		case ScriptType::Lwpn:
 			return lwpnscripts[Lwpns.spr(LwpnH::getLWeaponIndex(i))->weaponscript];
-		case SCRIPT_EWPN:
+		case ScriptType::Ewpn:
 			return ewpnscripts[Ewpns.spr(EwpnH::getEWeaponIndex(i))->weaponscript];
-		case SCRIPT_ITEMSPRITE:
+		case ScriptType::ItemSprite:
 			return itemspritescripts[items.spr(ItemH::getItemIndex(i))->script];
-		case SCRIPT_ITEM:
+		case ScriptType::Item:
 			return itemscripts[script];
-		case SCRIPT_GLOBAL:
+		case ScriptType::Global:
 			return globalscripts[script];
-		case SCRIPT_GENERIC:
-		case SCRIPT_GENERIC_FROZEN:
+		case ScriptType::Generic:
+		case ScriptType::GenericFrozen:
 			return genericscripts[script];
-		case SCRIPT_PLAYER:
+		case ScriptType::Player:
 			return playerscripts[script];
-		case SCRIPT_DMAP:
+		case ScriptType::DMap:
 			return dmapscripts[script];
-		case SCRIPT_ONMAP:
-		case SCRIPT_ACTIVESUBSCREEN:
-		case SCRIPT_PASSIVESUBSCREEN:
+		case ScriptType::OnMap:
+		case ScriptType::ActiveSubscreen:
+		case ScriptType::PassiveSubscreen:
 			return dmapscripts[script];
-		case SCRIPT_SCREEN:
+		case ScriptType::Screen:
 			return screenscripts[script];
-		case SCRIPT_COMBO:
+		case ScriptType::Combo:
 			return comboscripts[script];
 	}
 	return nullptr;
@@ -34854,9 +34888,9 @@ int32_t ffscript_engine(const bool preload)
 			for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
 				if ((preload && screen->preloadscript) || !preload)
 				{
-					if ( screen->script > 0 && screen->doscript )
+					if ( screen->script > 0 && FFCore.doscript(ScriptType::Screen, screen_index) )
 					{
-						ZScriptVersion::RunScript(SCRIPT_SCREEN, screen->script, screen_index);
+						ZScriptVersion::RunScript(ScriptType::Screen, screen->script, screen_index);
 					}
 				}
 			});
@@ -34871,9 +34905,8 @@ int32_t ffscript_engine(const bool preload)
 				
 			if((ffc_handle.ffc->flags&ffIGNOREHOLDUP)==0 && Hero.getHoldClk()>0)
 				return;
-				
-			ZScriptVersion::RunScript(SCRIPT_FFC, ffc_handle.ffc->script, ffc_handle.id);
-			ffc_handle.ffc->initialized = true;
+
+			ZScriptVersion::RunScript(ScriptType::FFC, ffc_handle.ffc->script, ffc_handle.id);
 		});
 	}
 	
@@ -36105,16 +36138,6 @@ int32_t FFScript::whichlayer(int32_t scr)
 	return -1;
 }
 
-void FFScript::clear_ffc_stack(const byte i)
-{
-	ffc_stack[i] = FFC_Stack();
-}
-
-void FFScript::clear_global_stack(const byte i)
-{
-	memset(global_stack[i], 0, MAX_SCRIPT_REGISTERS * sizeof(int32_t));
-}
-
 void FFScript::do_zapout()
 {
 	zapout();
@@ -37015,7 +37038,7 @@ void FFScript::init()
 	ScrollingData[SCROLLDATA_OX] = 0;
 	ScrollingData[SCROLLDATA_OY] = 0;
 	user_rng_init();
-	ffcScriptData.clear();
+	clear_script_engine_data();
 	for (auto &it : jitted_scripts)
 	{
 		jit_delete_script_handle(it.second);
@@ -37280,14 +37303,14 @@ void FFScript::warpScriptCheck()
 		FFCore.runWarpScripts(false);
 		FFCore.runWarpScripts(true); //Waitdraw
 	}
-	else if(get_bit(quest_rules, qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN) && passive_subscreen_doscript != 0)
+	else if(get_bit(quest_rules, qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN) && doscript(ScriptType::PassiveSubscreen))
 	{
 		if(DMaps[currdmap].passive_sub_script != 0)
-			ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script, currdmap);
-		if(passive_subscreen_waitdraw && DMaps[currdmap].passive_sub_script != 0 && passive_subscreen_doscript != 0)
+			ZScriptVersion::RunScript(ScriptType::PassiveSubscreen, DMaps[currdmap].passive_sub_script, currdmap);
+		if (waitdraw(ScriptType::PassiveSubscreen) && DMaps[currdmap].passive_sub_script != 0 && doscript(ScriptType::PassiveSubscreen))
 		{
-			ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script, currdmap);
-			passive_subscreen_waitdraw = false;
+			ZScriptVersion::RunScript(ScriptType::PassiveSubscreen, DMaps[currdmap].passive_sub_script, currdmap);
+			waitdraw(ScriptType::PassiveSubscreen) = false;
 		}	
 	}
 }
@@ -37296,75 +37319,75 @@ void FFScript::runWarpScripts(bool waitdraw)
 {
 	if(waitdraw)
 	{
-		if((!( FFCore.system_suspend[susptGLOBALGAME] )) && (global_wait & (1<<GLOBAL_SCRIPT_GAME)))
+		if ((!( FFCore.system_suspend[susptGLOBALGAME] )) && FFCore.waitdraw(ScriptType::Global, GLOBAL_SCRIPT_GAME))
 		{
-			ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
-			global_wait&= ~(1<<GLOBAL_SCRIPT_GAME);
+			ZScriptVersion::RunScript(ScriptType::Global, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
+			FFCore.waitdraw(ScriptType::Global, GLOBAL_SCRIPT_GAME) = false;
 		}
 		if ( !FFCore.system_suspend[susptITEMSCRIPTENGINE] )
 		{
 			FFCore.itemScriptEngineOnWaitdraw();
 		}
-		if ( (!( FFCore.system_suspend[susptHEROACTIVE] )) && player_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if ( (!( FFCore.system_suspend[susptHEROACTIVE] )) && FFCore.waitdraw(ScriptType::Player) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
-			ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_ACTIVE, SCRIPT_PLAYER_ACTIVE);
-			player_waitdraw = false;
+			ZScriptVersion::RunScript(ScriptType::Player, SCRIPT_PLAYER_ACTIVE);
+			FFCore.waitdraw(ScriptType::Player) = false;
 		}
-		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && dmap_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(ScriptType::DMap) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
-			ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
-			dmap_waitdraw = false;
+			ZScriptVersion::RunScript(ScriptType::DMap, DMaps[currdmap].script,currdmap);
+			FFCore.waitdraw(ScriptType::DMap) = false;
 		}
-		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && passive_subscreen_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(ScriptType::PassiveSubscreen) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
-			ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script,currdmap);
-			passive_subscreen_waitdraw = false;
+			ZScriptVersion::RunScript(ScriptType::PassiveSubscreen, DMaps[currdmap].passive_sub_script,currdmap);
+			FFCore.waitdraw(ScriptType::PassiveSubscreen) = false;
 		}
 		//if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && active_subscreen_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		//{
-		//	ZScriptVersion::RunScript(SCRIPT_SUBSCREEN, DMaps[currdmap].activesubscript,currdmap);
+		//	ZScriptVersion::RunScript(ScriptType::Subscreen, DMaps[currdmap].activesubscript,currdmap);
 		//	passive_subscreen_waitdraw = false;
 		//}
 		//no doscript check here, becauseb of preload? Do we want to write doscript here? -Z 13th July, 2019
 		if (FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && !FFCore.system_suspend[susptSCREENSCRIPTS])
 		{
 			for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
-				if (screen->script != 0 && screen->screen_waitdraw && screen->preloadscript )
+				if (screen->script != 0 && FFCore.waitdraw(ScriptType::Screen, screen_index) && screen->preloadscript)
 				{
-					ZScriptVersion::RunScript(SCRIPT_SCREEN, screen->script, screen_index);  
-					screen->screen_waitdraw = 0;		
+					ZScriptVersion::RunScript(ScriptType::Screen, screen->script, screen_index);  
+					FFCore.waitdraw(ScriptType::Screen, screen_index) = 0;
 				}
 			});
 		}
 	}
 	else
 	{
-		if((!( FFCore.system_suspend[susptGLOBALGAME] )) && (g_doscript & (1<<GLOBAL_SCRIPT_GAME)))
+		if ((!( FFCore.system_suspend[susptGLOBALGAME] )) && FFCore.doscript(ScriptType::Global, GLOBAL_SCRIPT_GAME))
 		{
-			ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
+			ZScriptVersion::RunScript(ScriptType::Global, GLOBAL_SCRIPT_GAME, GLOBAL_SCRIPT_GAME);
 		}
 		if ( !FFCore.system_suspend[susptITEMSCRIPTENGINE] )
 		{
 			FFCore.itemScriptEngine();
 		}
-		if ((!( FFCore.system_suspend[susptHEROACTIVE] )) && player_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
+		if ((!( FFCore.system_suspend[susptHEROACTIVE] )) && doscript(ScriptType::Player) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
 		{
-			ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_ACTIVE, SCRIPT_PLAYER_ACTIVE);
+			ZScriptVersion::RunScript(ScriptType::Player, SCRIPT_PLAYER_ACTIVE);
 		}
-		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && dmap_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
+		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && doscript(ScriptType::DMap) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
 		{
-			ZScriptVersion::RunScript(SCRIPT_DMAP, DMaps[currdmap].script,currdmap);
+			ZScriptVersion::RunScript(ScriptType::DMap, DMaps[currdmap].script,currdmap);
 		}
-		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && passive_subscreen_doscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
+		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.doscript(ScriptType::PassiveSubscreen) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
 		{
-			ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, DMaps[currdmap].passive_sub_script,currdmap);
+			ZScriptVersion::RunScript(ScriptType::PassiveSubscreen, DMaps[currdmap].passive_sub_script,currdmap);
 		}
 		if (FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && !FFCore.system_suspend[susptSCREENSCRIPTS])
 		{
 			for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
 				if (screen->script != 0 && screen->preloadscript)
 				{
-					ZScriptVersion::RunScript(SCRIPT_SCREEN, screen->script, screen_index);
+					ZScriptVersion::RunScript(ScriptType::Screen, screen->script, screen_index);
 				}
 			});
 		}
@@ -37390,15 +37413,17 @@ void FFScript::runF6Engine()
 			GameFlags |= GAMEFLAG_F6SCRIPT_ACTIVE;
 			//auto tmpDrawCommands = script_drawing_commands.pop_commands();
 			pause_all_sfx();
-			while(g_doscript & (1<<GLOBAL_SCRIPT_F6))
+
+			auto& data = get_script_engine_data(ScriptType::Global, GLOBAL_SCRIPT_F6);
+			while (data.doscript)
 			{
 				script_drawing_commands.Clear();
 				load_control_state(); 
-				ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_F6, GLOBAL_SCRIPT_F6);
-				if(global_wait & (1<<GLOBAL_SCRIPT_F6))
+				ZScriptVersion::RunScript(ScriptType::Global, GLOBAL_SCRIPT_F6, GLOBAL_SCRIPT_F6);
+				if (data.waitdraw)
 				{
-					ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_F6, GLOBAL_SCRIPT_F6);
-					global_wait &= ~(1<<GLOBAL_SCRIPT_F6);
+					ZScriptVersion::RunScript(ScriptType::Global, GLOBAL_SCRIPT_F6, GLOBAL_SCRIPT_F6);
+					data.waitdraw = false;
 				}
 				//Draw
 				clear_bitmap(framebuf);
@@ -37443,15 +37468,17 @@ void FFScript::runOnDeathEngine()
 	GameFlags |= GAMEFLAG_SCRIPTMENU_ACTIVE;
 	kill_sfx(); //No need to pause/resume; the player is dead.
 	//auto tmpDrawCommands = script_drawing_commands.pop_commands();
-	while(player_doscript && !Quit)
+	
+	auto& data = get_script_engine_data(ScriptType::Player);
+	while (data.doscript && !Quit)
 	{
 		script_drawing_commands.Clear();
 		load_control_state();
-		ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_DEATH, SCRIPT_PLAYER_DEATH);
-		if(player_waitdraw)
+		ZScriptVersion::RunScript(ScriptType::Player, SCRIPT_PLAYER_DEATH, SCRIPT_PLAYER_DEATH);
+		if (data.waitdraw)
 		{
-			ZScriptVersion::RunScript(SCRIPT_PLAYER, SCRIPT_PLAYER_DEATH, SCRIPT_PLAYER_DEATH);
-			player_waitdraw = false;
+			ZScriptVersion::RunScript(ScriptType::Player, SCRIPT_PLAYER_DEATH, SCRIPT_PLAYER_DEATH);
+			data.waitdraw = false;
 		}
 		//Draw
 		clear_bitmap(framebuf);
@@ -37472,15 +37499,17 @@ void FFScript::runOnLaunchEngine()
 	initZScriptGlobalScript(GLOBAL_SCRIPT_ONLAUNCH);
 	GameFlags |= GAMEFLAG_SCRIPTMENU_ACTIVE;
 	//auto tmpDrawCommands = script_drawing_commands.pop_commands();
-	while(g_doscript & (1<<GLOBAL_SCRIPT_ONLAUNCH) && !Quit)
+
+	auto& data = get_script_engine_data(ScriptType::Global, GLOBAL_SCRIPT_ONLAUNCH);
+	while (data.doscript && !Quit)
 	{
 		script_drawing_commands.Clear();
 		load_control_state();
-		ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONLAUNCH, GLOBAL_SCRIPT_ONLAUNCH);
-		if(global_wait & (1<<GLOBAL_SCRIPT_ONLAUNCH))
+		ZScriptVersion::RunScript(ScriptType::Global, GLOBAL_SCRIPT_ONLAUNCH, GLOBAL_SCRIPT_ONLAUNCH);
+		if (data.waitdraw)
 		{
-			ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONLAUNCH, GLOBAL_SCRIPT_ONLAUNCH);
-			global_wait &= ~(1<<GLOBAL_SCRIPT_ONLAUNCH);
+			ZScriptVersion::RunScript(ScriptType::Global, GLOBAL_SCRIPT_ONLAUNCH, GLOBAL_SCRIPT_ONLAUNCH);
+			data.waitdraw = false;
 		}
 		//Draw
 		clear_bitmap(framebuf);
@@ -37527,7 +37556,7 @@ bool FFScript::runGenericFrozenEngine(const word script)
 	{
 		script_drawing_commands.Clear();
 		load_control_state();
-		ZScriptVersion::RunScript(SCRIPT_GENERIC_FROZEN, script, local_i);
+		ZScriptVersion::RunScript(ScriptType::GenericFrozen, script, local_i);
 		//Draw
 		clear_bitmap(framebuf);
 		if( !FFCore.system_suspend[susptCOMBOANIM] ) animate_combos();
@@ -37568,33 +37597,34 @@ bool FFScript::runActiveSubscreenScriptEngine()
 	word script_dmap = currdmap;
 	//auto tmpDrawCommands = script_drawing_commands.pop_commands();
 	pause_all_sfx();
-	while(active_subscreen_doscript && !Quit)
+	auto& data = get_script_engine_data(ScriptType::ActiveSubscreen);
+	while (data.doscript && !Quit)
 	{
 		script_drawing_commands.Clear();
 		load_control_state();
-		if(get_bit(quest_rules, qr_DMAP_ACTIVE_RUNS_DURING_ACTIVE_SUBSCRIPT) && DMaps[script_dmap].script != 0 && dmap_doscript != 0)
+		if(get_bit(quest_rules, qr_DMAP_ACTIVE_RUNS_DURING_ACTIVE_SUBSCRIPT) && DMaps[script_dmap].script != 0 && doscript(ScriptType::DMap))
 		{
-			ZScriptVersion::RunScript(SCRIPT_DMAP, dmapactivescript, script_dmap);
+			ZScriptVersion::RunScript(ScriptType::DMap, dmapactivescript, script_dmap);
 		}
-		if(get_bit(quest_rules, qr_PASSIVE_SUBSCRIPT_RUNS_DURING_ACTIVE_SUBSCRIPT)!=0 && DMaps[script_dmap].passive_sub_script != 0 && passive_subscreen_doscript != 0)
+		if(get_bit(quest_rules, qr_PASSIVE_SUBSCRIPT_RUNS_DURING_ACTIVE_SUBSCRIPT)!=0 && DMaps[script_dmap].passive_sub_script != 0 && FFCore.doscript(ScriptType::PassiveSubscreen))
 		{
-			ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, passivesubscript, script_dmap);
+			ZScriptVersion::RunScript(ScriptType::PassiveSubscreen, passivesubscript, script_dmap);
 		}
-		ZScriptVersion::RunScript(SCRIPT_ACTIVESUBSCREEN, activesubscript, script_dmap);
-		if(dmap_waitdraw && (get_bit(quest_rules, qr_DMAP_ACTIVE_RUNS_DURING_ACTIVE_SUBSCRIPT) && DMaps[script_dmap].script != 0 && dmap_doscript != 0))
+		ZScriptVersion::RunScript(ScriptType::ActiveSubscreen, activesubscript, script_dmap);
+		if(waitdraw(ScriptType::DMap) && (get_bit(quest_rules, qr_DMAP_ACTIVE_RUNS_DURING_ACTIVE_SUBSCRIPT) && DMaps[script_dmap].script != 0 && doscript(ScriptType::DMap)))
 		{
-			ZScriptVersion::RunScript(SCRIPT_DMAP, dmapactivescript, script_dmap);
-			dmap_waitdraw = false;
+			ZScriptVersion::RunScript(ScriptType::DMap, dmapactivescript, script_dmap);
+			waitdraw(ScriptType::DMap) = false;
 		}
-		if(passive_subscreen_waitdraw && (get_bit(quest_rules, qr_PASSIVE_SUBSCRIPT_RUNS_DURING_ACTIVE_SUBSCRIPT)!=0 && DMaps[script_dmap].passive_sub_script != 0 && passive_subscreen_doscript != 0))
+		if(waitdraw(ScriptType::PassiveSubscreen) && (get_bit(quest_rules, qr_PASSIVE_SUBSCRIPT_RUNS_DURING_ACTIVE_SUBSCRIPT)!=0 && DMaps[script_dmap].passive_sub_script != 0 && FFCore.doscript(ScriptType::PassiveSubscreen)))
 		{
-			ZScriptVersion::RunScript(SCRIPT_PASSIVESUBSCREEN, passivesubscript, script_dmap);
-			passive_subscreen_waitdraw = false;
+			ZScriptVersion::RunScript(ScriptType::PassiveSubscreen, passivesubscript, script_dmap);
+			waitdraw(ScriptType::PassiveSubscreen) = false;
 		}
-		if(active_subscreen_waitdraw && active_subscreen_doscript != 0)
+		if (data.waitdraw && data.doscript)
 		{
-			ZScriptVersion::RunScript(SCRIPT_ACTIVESUBSCREEN, activesubscript, script_dmap);
-			active_subscreen_waitdraw = false;
+			ZScriptVersion::RunScript(ScriptType::ActiveSubscreen, activesubscript, script_dmap);
+			data.waitdraw = false;
 		}
 		//Draw
 		clear_bitmap(framebuf);
@@ -37635,15 +37665,17 @@ bool FFScript::runOnMapScriptEngine()
 	word script_dmap = currdmap;
 	//auto tmpDrawCommands = script_drawing_commands.pop_commands();
 	pause_all_sfx();
-	while(onmap_doscript && !Quit)
+
+	auto& data = get_script_engine_data(ScriptType::OnMap);
+	while (data.doscript && !Quit)
 	{
 		script_drawing_commands.Clear();
 		load_control_state();
-		ZScriptVersion::RunScript(SCRIPT_ONMAP, onmap_script, script_dmap);
-		if(onmap_waitdraw && onmap_doscript != 0)
+		ZScriptVersion::RunScript(ScriptType::OnMap, onmap_script, script_dmap);
+		if (data.waitdraw && data.doscript)
 		{
-			ZScriptVersion::RunScript(SCRIPT_ONMAP, onmap_script, script_dmap);
-			onmap_waitdraw = false;
+			ZScriptVersion::RunScript(ScriptType::OnMap, onmap_script, script_dmap);
+			data.waitdraw = false;
 		}
 		//Draw
 		clear_bitmap(framebuf);
@@ -37690,7 +37722,7 @@ void FFScript::runOnSaveEngine()
 		Quit = 0;
 		//
 		initZScriptGlobalScript(GLOBAL_SCRIPT_ONSAVE);
-		ZScriptVersion::RunScript(SCRIPT_GLOBAL, GLOBAL_SCRIPT_ONSAVE, GLOBAL_SCRIPT_ONSAVE);
+		ZScriptVersion::RunScript(ScriptType::Global, GLOBAL_SCRIPT_ONSAVE, GLOBAL_SCRIPT_ONSAVE);
 		//
 		pop_ri();
 		Quit = tQuit;
@@ -37707,7 +37739,8 @@ bool FFScript::itemScriptEngine()
 		//zprint("Checking item ID: %d\n",q);
 		if ( itemsbuf[q].script <= 0 || itemsbuf[q].script > NUMSCRIPTITEM ) continue; // > NUMSCRIPTITEM as someone could force an invaid script slot!
 		
-		if ( item_doscript[q] < 1 ) continue;
+		auto& data = get_script_engine_data(ScriptType::Item, q);
+		if ( data.doscript < 1 ) continue;
 		
 		//Passive items
 		if (((itemsbuf[q].flags&ITEM_PASSIVESCRIPT)))
@@ -37716,14 +37749,14 @@ bool FFScript::itemScriptEngine()
 			{
 				if(get_bit(quest_rules,qr_PASSIVE_ITEM_SCRIPT_ONLY_HIGHEST)
 					&& current_item(itemsbuf[q].family) > itemsbuf[q].fam_type)
-					item_doscript[q] = 0;
-				else ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q&0xFFF);
-				if(!item_doscript[q])  //Item script ended. Clear the data, if any remains.
+					data.doscript = 0;
+				else ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[q].script, q&0xFFF);
+				if(!data.doscript)  //Item script ended. Clear the data, if any remains.
 				{
-					itemScriptData[q].Clear();
-					FFScript::deallocateAllArrays(SCRIPT_ITEM, q);
-					itemscriptInitialised[q] = 0;
-					itemScriptsWaitdraw[q] = 0;
+					data.ref.Clear();
+					data.initialized = false;
+					data.waitdraw = false;
+					FFScript::deallocateAllArrays(ScriptType::Item, q);
 				}
 			}
 		}
@@ -37741,40 +37774,42 @@ bool FFScript::itemScriptEngine()
 				If the item flag 'PERPETUAL SCRIPT' is enabled, then we ignore the lack of item_doscript==2.
 				  This allows passive item scripts to function. 
 			*/
+
+			auto& data = get_script_engine_data(ScriptType::Item, q);
 			
-			if ( item_doscript[q] == 1 ) // FIrst frame, normally set in hero.cpp
+			if ( data.doscript == 1 ) // FIrst frame, normally set in hero.cpp
 			{
 				if ( get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
 				{
-					item_doscript[q] = 2;
+					data.doscript = 2;
 				}
 			}
-			else if (item_doscript[q] == 2) //Second frame and later, if scripts continue to run.
+			else if (data.doscript == 2) //Second frame and later, if scripts continue to run.
 			{
-				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q&0xFFF);
+				ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[q].script, q&0xFFF);
 			}
-			else if (item_doscript[q] == 3) //Run via itemdata->RunScript
+			else if (data.doscript == 3) //Run via itemdata->RunScript
 			{
 				if ( (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ) 
 				{
-					item_doscript[q] = 2; //Reduce to normal run status
+					data.doscript = 2; //Reduce to normal run status
 				}
 				else 
 				{
-					ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
-					item_doscript[q] = 0;
+					ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[q].script, q & 0xFFF);
+					data.doscript = 0;
 				}
 			}
-			else if(item_doscript[q]==4)  //Item set itself false, kill script and clear data here
+			else if(data.doscript==4)  //Item set itself false, kill script and clear data here
 			{
-				item_doscript[q] = 0;
+				data.doscript = 0;
 			}
-			if(item_doscript[q]==0)  //Item script ended. Clear the data, if any remains.
+			if(data.doscript==0)  //Item script ended. Clear the data, if any remains.
 			{
-				itemScriptData[q].Clear();
-				FFScript::deallocateAllArrays(SCRIPT_ITEM, q);
-				itemscriptInitialised[q] = 0;
-				itemScriptsWaitdraw[q] = 0;
+				data.ref.Clear();
+				data.initialized = false;
+				data.waitdraw = false;
+				FFScript::deallocateAllArrays(ScriptType::Item, q);
 			}
 		}
 	}
@@ -37790,9 +37825,11 @@ bool FFScript::itemScriptEngineOnWaitdraw()
 		//zprint("Checking item ID: %d\n",q);
 		if ( itemsbuf[q].script <= 0 || itemsbuf[q].script > NUMSCRIPTITEM ) continue; // > NUMSCRIPTITEM as someone could force an invaid script slot!
 		
-		if ( item_doscript[q] < 1 ) continue;
-		if ( !itemScriptsWaitdraw[q] ) continue;
-		else itemScriptsWaitdraw[q] = 0;
+		auto& data = get_script_engine_data(ScriptType::Item, q);
+
+		if ( data.doscript < 1 ) continue;
+		if (!data.waitdraw) continue;
+		else data.waitdraw = false;
 		
 		//zprint("Running ItemScriptEngine() for item ID: %dn", q);
 		/*! What happens here: When an item script is first run by the user using that utem, the script runs for one frame.
@@ -37811,54 +37848,54 @@ bool FFScript::itemScriptEngineOnWaitdraw()
 			{
 				if(get_bit(quest_rules,qr_PASSIVE_ITEM_SCRIPT_ONLY_HIGHEST)
 					&& current_item(itemsbuf[q].family) > itemsbuf[q].fam_type)
-					item_doscript[q] = 0;
-				else ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q&0xFFF);
-				if(!item_doscript[q])  //Item script ended. Clear the data, if any remains.
+					data.doscript = 0;
+				else ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[q].script, q&0xFFF);
+				if(!data.doscript)  //Item script ended. Clear the data, if any remains.
 				{
-					itemScriptData[q].Clear();
-					FFScript::deallocateAllArrays(SCRIPT_ITEM, q);
-					itemscriptInitialised[q] = 0;
-					itemScriptsWaitdraw[q] = 0;
+					data.ref.Clear();
+					data.initialized = false;
+					data.waitdraw = false;
+					FFScript::deallocateAllArrays(ScriptType::Item, q);
 				}
 			}
 		}
 		else
 		{
 			//Normal items
-			if ( item_doscript[q] == 1 ) // FIrst frame, normally set in hero.cpp
+			if ( data.doscript == 1 ) // FIrst frame, normally set in hero.cpp
 			{
 				if ( get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
 				{
-					item_doscript[q] = 2;
+					data.doscript = 2;
 				}
-				else item_doscript[q] = 0;
+				else data.doscript = 0;
 			}
-			else if (item_doscript[q] == 2) //Second frame and later, if scripts continue to run.
+			else if (data.doscript == 2) //Second frame and later, if scripts continue to run.
 			{
-				ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q&0xFFF);
+				ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[q].script, q&0xFFF);
 			}
-			else if (item_doscript[q] == 3) //Run via itemdata->RunScript
+			else if (data.doscript == 3) //Run via itemdata->RunScript
 			{
 				if ( (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ) 
 				{
-					item_doscript[q] = 2; //Reduce to normal run status
+					data.doscript = 2; //Reduce to normal run status
 				}
 				else 
 				{
-					ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[q].script, q & 0xFFF);
-					item_doscript[q] = 0;
+					ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[q].script, q & 0xFFF);
+					data.doscript = 0;
 				}
 			}
-			else if(item_doscript[q]==4)  //Item set itself false, kill script and clear data here.
+			else if(data.doscript==4)  //Item set itself false, kill script and clear data here.
 			{
-				item_doscript[q] = 0;
+				data.doscript = 0;
 			}
-			if(!item_doscript[q])  //Item script ended. Clear the data, if any remains.
+			if(!data.doscript)  //Item script ended. Clear the data, if any remains.
 			{
-				itemScriptData[q].Clear();
-				FFScript::deallocateAllArrays(SCRIPT_ITEM, q);
-				itemscriptInitialised[q] = 0;
-				itemScriptsWaitdraw[q] = 0;
+				data.ref.Clear();
+				data.initialized = false;
+				data.waitdraw = false;
+				FFScript::deallocateAllArrays(ScriptType::Item, q);
 			}
 		}
 	}
@@ -43038,7 +43075,7 @@ void FFScript::TraceScriptIDs(bool zasm_console)
 		}
 		else switch(curScriptType)
 		{
-			case SCRIPT_GLOBAL:
+			case ScriptType::Global:
 			{
 				switch(curScriptNum)
 				{
@@ -43070,7 +43107,7 @@ void FFScript::TraceScriptIDs(bool zasm_console)
 				break;
 			}
 			
-			case SCRIPT_PLAYER:
+			case ScriptType::Player:
 			{
 				switch(curScriptNum)
 				{
@@ -43090,56 +43127,56 @@ void FFScript::TraceScriptIDs(bool zasm_console)
 				break;
 			}
 			
-			case SCRIPT_LWPN:
+			case ScriptType::Lwpn:
 				sprintf(buf, "LWeapon(%u, %s): ", curScriptNum,lwpnmap[curScriptNum-1].scriptname.c_str());
 				break;
 			
-			case SCRIPT_EWPN:
+			case ScriptType::Ewpn:
 				sprintf(buf, "EWeapon(%u, %s): ", curScriptNum,ewpnmap[curScriptNum-1].scriptname.c_str());
 				break;
 			
-			case SCRIPT_NPC:
+			case ScriptType::NPC:
 				sprintf(buf, "NPC(%u, %s): ", curScriptNum,npcmap[curScriptNum-1].scriptname.c_str());
 				break;
 				
-			case SCRIPT_FFC:
+			case ScriptType::FFC:
 				sprintf(buf, "FFC(%u, %s): ", curScriptNum,ffcmap[curScriptNum-1].scriptname.c_str());
 				break;
 				
-			case SCRIPT_ITEM:
+			case ScriptType::Item:
 				sprintf(buf, "Item(%u, %s): ", curScriptNum,itemmap[curScriptNum-1].scriptname.c_str());
 				break;
 			
-			case SCRIPT_ONMAP:
+			case ScriptType::OnMap:
 				sprintf(buf, "DMapMap(%u, %s): ", curScriptNum,dmapmap[curScriptNum-1].scriptname.c_str());
 				break;
-			case SCRIPT_ACTIVESUBSCREEN:
+			case ScriptType::ActiveSubscreen:
 				sprintf(buf, "DMapASub(%u, %s): ", curScriptNum,dmapmap[curScriptNum-1].scriptname.c_str());
 				break;
-			case SCRIPT_PASSIVESUBSCREEN:
+			case ScriptType::PassiveSubscreen:
 				sprintf(buf, "DMapPSub(%u, %s): ", curScriptNum,dmapmap[curScriptNum-1].scriptname.c_str());
 				break;
-			case SCRIPT_DMAP:
+			case ScriptType::DMap:
 				sprintf(buf, "DMap(%u, %s): ", curScriptNum,dmapmap[curScriptNum-1].scriptname.c_str());
 				break;
 			
-			case SCRIPT_ITEMSPRITE:
+			case ScriptType::ItemSprite:
 				sprintf(buf, "ItemSprite(%u, %s): ", curScriptNum,itemspritemap[curScriptNum-1].scriptname.c_str());
 				break;
 			
-			case SCRIPT_SCREEN:
+			case ScriptType::Screen:
 				sprintf(buf, "Screen(%u, %s): ", curScriptNum,screenmap[curScriptNum-1].scriptname.c_str());
 				break;
 			
-			case SCRIPT_COMBO:
+			case ScriptType::Combo:
 				sprintf(buf, "Combo(%u, %s): ", curScriptNum,comboscriptmap[curScriptNum-1].scriptname.c_str());
 				break;
 				
-			case SCRIPT_GENERIC:
+			case ScriptType::Generic:
 				sprintf(buf, "Generic(%u, %s): ", curScriptNum,genericmap[curScriptNum-1].scriptname.c_str());
 				break;
 				
-			case SCRIPT_GENERIC_FROZEN:
+			case ScriptType::GenericFrozen:
 				sprintf(buf, "GenericFRZ(%u, %s): ", curScriptNum,genericmap[curScriptNum-1].scriptname.c_str());
 				break;
 		}
@@ -47252,22 +47289,30 @@ void FFScript::init_combo_doscript()
 	combo_id_cache.clear();
 	combo_id_cache.resize(region_num_rpos * 7);
 	std::fill(combo_id_cache.begin(), combo_id_cache.end(), -1);
-	comboScriptDatas.clear();
+	clear_combo_refinfo();
+}
+void FFScript::clear_combo_refinfo()
+{
+	// TODO z3 !!!!!! omg do not do this
+	// for ( int32_t q = 0; q < region_num_rpos * 7; q++ )
+	// 	ref(ScriptType::Combo, q).Clear();
+	for ( int32_t q = 0; q < 1232; q++ )
+		ref(ScriptType::Combo, q).Clear();
 }
 
 void FFScript::reset_combo_script(int32_t layer, rpos_t rpos)
 {
-	int32_t combopos_ref = get_combopos_ref(rpos, layer);
-	combo_id_cache[combopos_ref] = -1;
-	combopos_modified = combopos_ref;
-	comboScriptDatas[combopos_ref] = ComboScriptEngineData();
+	int32_t index = get_combopos_ref(rpos, layer);
+	combo_id_cache[index] = -1;
+	combopos_modified = index;
+	reset_script_engine_data(ScriptType::Combo, index);
 }
 
-int32_t FFScript::getComboDataLayer(int32_t c, int32_t scripttype)
+int32_t FFScript::getComboDataLayer(int32_t c, ScriptType scripttype)
 {
-	if ( scripttype != SCRIPT_COMBO )
+	if ( scripttype != ScriptType::Combo )
 	{
-		Z_scripterrlog("combodata->Layer() only runs from combo scripts, not from script type &s\n", scripttypenames[scripttype]);
+		Z_scripterrlog("combodata->Layer() only runs from combo scripts, not from script type &s\n", ScriptTypeToString(scripttype));
 		return -1;
 	}
 	else
@@ -47285,21 +47330,21 @@ int32_t FFScript::getComboDataLayer(int32_t c, int32_t scripttype)
 	}
 }
 
-int32_t FFScript::getCombodataPos(int32_t c, int32_t scripttype)
+int32_t FFScript::getCombodataPos(int32_t c, ScriptType scripttype)
 {
-	if ( scripttype != SCRIPT_COMBO )
+	if ( scripttype != ScriptType::Combo )
 	{
-		Z_scripterrlog("combodata->Pos() only runs from combo scripts, not from script type &s\n", scripttypenames[scripttype]);
+		Z_scripterrlog("combodata->Pos() only runs from combo scripts, not from script type &s\n", ScriptTypeToString(scripttype));
 		return -1;
 	}
 	else return ((c%176));
 }
 
-int32_t FFScript::getCombodataX(int32_t c, int32_t scripttype)
+int32_t FFScript::getCombodataX(int32_t c, ScriptType scripttype)
 {
-	if ( scripttype != SCRIPT_COMBO )
+	if ( scripttype != ScriptType::Combo )
 	{
-		Z_scripterrlog("combodata->X() only runs from combo scripts, not from script type &s\n", scripttypenames[scripttype]);
+		Z_scripterrlog("combodata->X() only runs from combo scripts, not from script type &s\n", ScriptTypeToString(scripttype));
 		return -1;
 	}
 	else
@@ -47309,11 +47354,11 @@ int32_t FFScript::getCombodataX(int32_t c, int32_t scripttype)
 	}
 }
 
-int32_t FFScript::getCombodataY(int32_t c, int32_t scripttype)
+int32_t FFScript::getCombodataY(int32_t c, ScriptType scripttype)
 {
-	if ( scripttype != SCRIPT_COMBO )
+	if ( scripttype != ScriptType::Combo )
 	{
-		Z_scripterrlog("combodata->Y() only runs from combo scripts, not from script type &s\n", scripttypenames[scripttype]);
+		Z_scripterrlog("combodata->Y() only runs from combo scripts, not from script type &s\n", ScriptTypeToString(scripttype));
 		return -1;
 	}
 	else
@@ -47348,12 +47393,13 @@ int32_t FFScript::combo_script_engine(const bool preload, const bool waitdraw)
 		
 		if ( combobuf[cid].script )
 		{
-			if (comboScriptDatas[combopos_ref].doscript)
+			auto& data = get_script_engine_data(ScriptType::Combo, combopos_ref);
+			if (data.doscript)
 			{
-				if (waitdraw && !comboScriptDatas[combopos_ref].waitdraw) return; //waitdraw not set
+				if (waitdraw && !data.waitdraw) return; //waitdraw not set
 
-				ZScriptVersion::RunScript(SCRIPT_COMBO, combobuf[cid].script, combopos_ref);
-				if (waitdraw) comboScriptDatas[combopos_ref].waitdraw = true;
+				ZScriptVersion::RunScript(ScriptType::Combo, combobuf[cid].script, combopos_ref);
+				if (waitdraw) data.waitdraw = true;
 			}
 		}
 	});

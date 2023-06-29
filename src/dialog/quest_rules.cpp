@@ -888,7 +888,9 @@ static GUI::ListData compatRulesList
 		" and giving bombs custom radii will not work."},
 	{ "Broken scroll/warp frame issue", qr_SCROLLWARP_NO_RESET_FRAME,
 		"If enabled, after a scroll or warp, the next frame is started mid-frame"
-		" instead of from the start, possibly causing issues with things like input." }
+		" instead of from the start, possibly causing issues with things like input." },
+	{ "Scripted enemies don't run script on first frame of screen entry", qr_ENEMIES_DONT_SCRIPT_FIRST_FRAME,
+		"If enabled, enemies don't run their scripts on the first frame of entering a screen." }
 };
 
 static GUI::ListData enemiesRulesList

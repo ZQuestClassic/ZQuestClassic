@@ -31,9 +31,6 @@
 extern particle_list particles;
 
 extern FFScript FFCore;
-extern word item_doscript[256];
-extern refInfo itemScriptData[256];
-extern int32_t item_stack[256][MAX_SCRIPT_REGISTERS];
 extern ZModule zcm;
 extern HeroClass   Hero;
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
@@ -2441,6 +2438,7 @@ enemy::enemy(zfix X,zfix Y,int32_t Id,int32_t Clk) : sprite()
 	
 	stickclk = 0;
 	submerged = false;
+	didScriptThisFrame = false;
 	ffcactivated = 0;
 	hitdir = -1;
 	dialogue_str = 0; //set by spawn flags. 
@@ -2754,7 +2752,7 @@ int32_t enemy::getScriptUID() { return script_UID; }
 void enemy::setScriptUID(int32_t new_id) { script_UID = new_id; }
 enemy::~enemy()
 {
-	FFCore.deallocateAllArrays(SCRIPT_NPC, getUID());
+	FFCore.deallocateAllArrays(ScriptType::NPC, getUID());
 	if(hashero)
 	{
 		Hero.setEaten(0);
@@ -3325,9 +3323,12 @@ bool enemy::animate(int32_t index)
 		if(get_bit(quest_rules, qr_SWITCHOBJ_RUN_SCRIPT))
 		{
 			//Run its script
-			if (runscript_do_earlyret(run_script(MODE_NORMAL)))
+			if (!didScriptThisFrame)
 			{
-				return 0; //Avoid NULLPO if this object deleted itself
+				if (runscript_do_earlyret(run_script(MODE_NORMAL)))
+				{
+					return 0; //Avoid NULLPO if this object deleted itself
+				}
 			}
 		}
 		return false;
@@ -3350,7 +3351,10 @@ bool enemy::animate(int32_t index)
 			Hero.fallclk = fallclk;
 			hashero = false; //Let Hero go if falling
 		}
-		run_script(MODE_NORMAL);
+		if (!didScriptThisFrame)
+		{
+			run_script(MODE_NORMAL);
+		}
 		return false;
 	}
 	if(do_drowning(index)) return true;
@@ -3370,7 +3374,10 @@ bool enemy::animate(int32_t index)
 			Hero.drownclk = drownclk;
 			hashero = false; //Let Hero go if falling
 		}
-		run_script(MODE_NORMAL);
+		if (!didScriptThisFrame)
+		{
+			run_script(MODE_NORMAL);
+		}
 		return false;
 	}
 	int32_t nx = real_x(x);
@@ -3547,9 +3554,12 @@ bool enemy::animate(int32_t index)
 	++c_clk;
 	
 	//Run its script
-	if (runscript_do_earlyret(run_script(MODE_NORMAL)))
+	if (!didScriptThisFrame)
 	{
-		return 0; //Avoid NULLPO if this object deleted itself
+		if (runscript_do_earlyret(run_script(MODE_NORMAL)))
+		{
+			return 0; //Avoid NULLPO if this object deleted itself
+		}
 	}
 	
 	// returns true when enemy is defeated
@@ -6170,6 +6180,7 @@ bool enemy::dont_draw()
 // sprite::draw()
 void enemy::draw(BITMAP *dest)
 {
+	didScriptThisFrame = false; //Since there's no better place to put it
 	if(fading==fade_invisible || (((flags2&guy_blinking)||(fading==fade_flicker)) && (clk&1))) 
 		return;
 	if(flags&guy_invisible)
@@ -9916,11 +9927,11 @@ int32_t enemy::run_script(int32_t mode)
 	switch(mode)
 	{
 		case MODE_NORMAL:
-			return ZScriptVersion::RunScript(SCRIPT_NPC, script, getUID());
+			return ZScriptVersion::RunScript(ScriptType::NPC, script, getUID());
 		case MODE_WAITDRAW:
 			if(waitdraw)
 			{
-				ret = ZScriptVersion::RunScript(SCRIPT_NPC, script, getUID());
+				ret = ZScriptVersion::RunScript(ScriptType::NPC, script, getUID());
 				waitdraw = 0;
 			}
 			break;
@@ -21466,6 +21477,14 @@ static void side_load_enemies(mapscr* screen, int screen_index)
 				{
 					guys.spr(enemy_slot)->dir = dir;
 				}
+				if (!get_bit(quest_rules, qr_ENEMIES_DONT_SCRIPT_FIRST_FRAME))
+				{
+					if (!FFCore.system_suspend[susptNPCSCRIPTS])
+					{
+						guys.spr(enemy_slot)->run_script(MODE_NORMAL);
+						((enemy*)guys.spr(enemy_slot))->didScriptThisFrame = true;
+					}
+				}
 			}
 		}
 	}
@@ -21798,8 +21817,19 @@ bool scriptloadenemies()
 	
 	for(; i<loadcnt && tmpscr.enemy[i]>0; i++)
 	{
+		int32_t preguycount = guys.Count(); //I'm not experienced enough to know if this is an awful hack but it feels like one.
 		spawnEnemy(&tmpscr, currscr, pos, clk, x, y, fastguys, i, guycnt, loadcnt);
-		
+		if (guys.Count() > preguycount)
+		{
+			if (!get_bit(quest_rules, qr_ENEMIES_DONT_SCRIPT_FIRST_FRAME))
+			{
+				if (!FFCore.system_suspend[susptNPCSCRIPTS])
+				{
+					guys.spr(guys.Count()-1)->run_script(MODE_NORMAL);
+					((enemy*)guys.spr(guys.Count()-1))->didScriptThisFrame = true;
+				}
+			}
+		}
 		--clk;
 	}
 	return true;
@@ -21838,14 +21868,40 @@ void loadenemies()
 				{
 					if ( screen->enemy[i] )
 					{
+						int32_t preguycount = guys.Count();
 						addenemy(screen_index,dngn_enemy_x[i],96,screen->enemy[i],-14-i);
+						if (guys.Count() > preguycount)
+						{
+							if (!get_bit(quest_rules, qr_ENEMIES_DONT_SCRIPT_FIRST_FRAME))
+							{
+								if (!FFCore.system_suspend[susptNPCSCRIPTS])
+								{
+									guys.spr(guys.Count()-1)->run_script(MODE_NORMAL);
+									((enemy*)guys.spr(guys.Count()-1))->didScriptThisFrame = true;
+								}
+							}
+						}
 					}
 				}
 			}
 			else
 			{
 				for(int32_t i=0; i<4; i++)
+				{
+					int32_t preguycount = guys.Count();
 					addenemy(screen_index,dngn_enemy_x[i],96,screen->enemy[i]?screen->enemy[i]:(int32_t)eKEESE1,-14-i);
+					if (guys.Count() > preguycount)
+					{
+						if (!get_bit(quest_rules, qr_ENEMIES_DONT_SCRIPT_FIRST_FRAME))
+						{
+							if (!FFCore.system_suspend[susptNPCSCRIPTS])
+							{
+								guys.spr(guys.Count()-1)->run_script(MODE_NORMAL);
+								((enemy*)guys.spr(guys.Count()-1))->didScriptThisFrame = true;
+							}
+						}
+					}
+				}
 			}
 
 			loaded_enemies_for_screen.insert(screen_index);
@@ -21920,11 +21976,23 @@ void loadenemies()
 		int32_t i=0,guycnt=0; //Lastly, resets guycnt to 0 so spawnEnemy can increment it manually per-enemy.
 		for(; i<loadcnt && screen->enemy[i]>0; i++)
 		{
+			int32_t preguycount = guys.Count(); //I'm not experienced enough to know if this is an awful hack but it feels like one.
 			spawnEnemy(screen, screen_index, pos, clk, region_scr_x*256, region_scr_y*176, fastguys, i, guycnt, loadcnt);
+			if (guys.Count() > preguycount)
+			{
+				if (!get_bit(quest_rules, qr_ENEMIES_DONT_SCRIPT_FIRST_FRAME))
+				{
+					if (!FFCore.system_suspend[susptNPCSCRIPTS])
+					{
+						guys.spr(guys.Count()-1)->run_script(MODE_NORMAL);
+						((enemy*)guys.spr(guys.Count()-1))->didScriptThisFrame = true;
+					}
+				}
+			}
 			
 			--clk; //Each additional enemy spawns with a slightly longer spawn poof than the previous.
 		}
-		
+
 		game->guys[s] = guycnt;
 	});
 }
@@ -22532,11 +22600,10 @@ bool parsemsgcode()
 			int32_t itemID = grab_next_argument();
 			
 			getitem(itemID, true);
-			if ( !item_doscript[itemID] && (((unsigned)itemID) < 256) )
+			if ( !FFCore.doscript(ScriptType::Item, itemID) && (((unsigned)itemID) < 256) )
 			{
-				itemScriptData[itemID].Clear();
-				memset(item_stack[itemID], 0xFFFF, MAX_SCRIPT_REGISTERS * sizeof(int32_t));
-				if ( (itemsbuf[itemID].flags&ITEM_PASSIVESCRIPT) ) item_doscript[itemID] = 1;
+				FFCore.reset_script_engine_data(ScriptType::Item, itemID);
+				FFCore.doscript(ScriptType::Item, itemID) = (itemsbuf[itemID].flags&ITEM_PASSIVESCRIPT) > 0;
 			}
 			return true;
 		}
@@ -22568,9 +22635,9 @@ bool parsemsgcode()
 		case MSGC_TAKEITEM:
 		{
 			int32_t itemID = grab_next_argument();
-			if ( item_doscript[itemID] )
+			if ( FFCore.doscript(ScriptType::Item, itemID) )
 			{
-				item_doscript[itemID] = 4; //Val of 4 means 'clear stack and quit'
+				FFCore.doscript(ScriptType::Item, itemID) = 4; //Val of 4 means 'clear stack and quit'
 			}
 			takeitem(itemID);
 			if ( game->forced_bwpn == itemID ) 
@@ -23580,7 +23647,7 @@ void check_collisions()
 							{
 								if(itemsbuf[theItem->id].collect_script)
 								{
-									ZScriptVersion::RunScript(SCRIPT_ITEM, itemsbuf[theItem->id].collect_script, theItem->id & 0xFFF);
+									ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[theItem->id].collect_script, theItem->id & 0xFFF);
 								}
 								
 								Hero.checkitems(j);

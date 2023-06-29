@@ -117,7 +117,7 @@ else:
         'git describe --tags --abbrev=0', shell=True, encoding='utf-8').strip()
 
 commits_text = subprocess.check_output(
-    f'git log {branch}...{args.to} --format="%h %H %s"', shell=True, encoding='utf-8').strip()
+    f'git log {branch}...{args.to} --reverse --format="%h %H %s"', shell=True, encoding='utf-8').strip()
 
 commits: List[Commit] = []
 for commit_text in commits_text.splitlines():

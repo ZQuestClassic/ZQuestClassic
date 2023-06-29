@@ -3752,6 +3752,8 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 		set_bit(quest_rules,qr_OLD_BOMB_HITBOXES,1);
 	if(compatrule_version < 44)
 		set_bit(quest_rules,qr_SCROLLWARP_NO_RESET_FRAME,1);
+	if(compatrule_version < 45)
+		set_bit(quest_rules,qr_ENEMIES_DONT_SCRIPT_FIRST_FRAME,1);
 	
 	set_bit(quest_rules,qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)
@@ -16985,8 +16987,6 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 					tempffc.inita[1] = 10000;
 				}
 				
-				tempffc.initialized = false;
-				
 				if(version <= 11)
 				{
 					fixffcs=true;
@@ -17505,8 +17505,6 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zc
 			if(!p_getc(&(tempbyte),f,true))
 				return qe_invalid;
 			tempffc.inita[1]=tempbyte*10000;
-			
-			tempffc.initialized = false;
 		}
 		for(word m = numffc; m < MAXFFCS; ++m)
 		{
@@ -17581,14 +17579,6 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header, bool keepdata)
 		
 		for(int32_t i(0); i<_mapsSize; i++)
 			TheMaps[i].zero_memory();
-		
-		// TODO z3 !!!!!!! upstream removing this.
-		// Used to be done for each screen
-		// for(int32_t i=0; i<MAXFFCS; i++)
-		// {
-		// 	ffcScriptData[i].a[0] = 10000;
-		// 	ffcScriptData[i].a[1] = 10000;
-		// }
 		
 		memset(ZCMaps, 0, sizeof(zcmap)*MAXMAPS2);
 	}

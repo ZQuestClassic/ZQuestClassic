@@ -296,7 +296,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_SFX              8
 #define V_FAVORITES        3
 
-#define V_COMPATRULE       44
+#define V_COMPATRULE       45
 #define V_ZINFO            3
 
 //= V_SHOPS is under V_MISC
@@ -1117,7 +1117,7 @@ enum
 	qr_FFCPRELOAD_BUGGED_LOAD, qr_SWITCHES_AFFECT_MOVINGBLOCKS, qr_BROKEN_GETPIXEL_VALUE, qr_NO_LIFT_SPRITE,
 	//45
 	qr_OLD_SIDEVIEW_LANDING_CODE, qr_OLD_FFC_SPEED_CAP, qr_OLD_WIZZROBE_SUBMERGING, qr_SPARKLES_INHERIT_PROPERTIES,
-	qr_BROKENHITBY,
+	qr_BROKENHITBY, qr_ENEMIES_DONT_SCRIPT_FIRST_FRAME,
 	
 	//50
 	qr_OLD_FFC_FUNCTIONALITY = 50*8, qr_OLD_SHALLOW_SFX, qr_BUGGED_LAYERED_FLAGS, qr_HARDCODED_FFC_BUSH_DROPS,
@@ -2292,25 +2292,29 @@ extern const int BUILDTM_SECOND;
 // where the scripts are serialized
 #define ZASM_VERSION        3
 
-// Script types
-#define SCRIPT_NONE						0
-#define SCRIPT_GLOBAL					1
-#define SCRIPT_FFC						2
-#define SCRIPT_SCREEN					3
-#define SCRIPT_PLAYER						4
-#define SCRIPT_ITEM						5
-#define SCRIPT_LWPN						6
-#define SCRIPT_NPC						7
-#define SCRIPT_SUBSCREEN				8
-#define SCRIPT_EWPN						9
-#define SCRIPT_DMAP						10
-#define SCRIPT_ITEMSPRITE				11
-#define SCRIPT_ACTIVESUBSCREEN			12
-#define SCRIPT_PASSIVESUBSCREEN			13
-#define SCRIPT_COMBO					14
-#define SCRIPT_ONMAP					15
-#define SCRIPT_GENERIC                  16
-#define SCRIPT_GENERIC_FROZEN           17
+enum class ScriptType {
+	None,
+	Global,
+	FFC,
+	Screen,
+	Player,
+	Item,
+	Lwpn,
+	NPC,
+	Subscreen,
+	Ewpn,
+	DMap,
+	ItemSprite,
+	ActiveSubscreen,
+	PassiveSubscreen,
+	Combo,
+	OnMap,
+	Generic,
+	GenericFrozen,
+	First = Global,
+	Last = GenericFrozen,
+};
+const char* ScriptTypeToString(ScriptType type);
 
 #define ZMETA_AUTOGEN		0x01
 #define ZMETA_DISASSEMBLED	0x02
@@ -2332,7 +2336,7 @@ struct zasm_meta
 	word zasm_v;
 	word meta_v;
 	word ffscript_v;
-	byte script_type;
+	ScriptType script_type;
 	std::string run_idens[8];
 	byte run_types[8];
 	byte flags;
@@ -2376,7 +2380,7 @@ struct zasm_meta
 		zasm_v = 0;
 		meta_v = 0;
 		ffscript_v = 0;
-		script_type = 0;
+		script_type = ScriptType::None;
 		flags = 0;
 		compiler_v1 = 0;
 		compiler_v2 = 0;
@@ -2513,8 +2517,8 @@ struct zasm_meta
 	bool parse_meta(const char *buffer);
 	std::string get_meta() const;
 };
-int32_t get_script_type(std::string const& name);
-std::string get_script_name(int32_t type);
+ScriptType get_script_type(std::string const& name);
+std::string get_script_name(ScriptType type);
 
 struct ffscript
 {

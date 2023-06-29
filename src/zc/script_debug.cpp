@@ -279,7 +279,7 @@ void script_debug_pre_command()
 
 void script_debug_print_zasm(script_data *script)
 {
-	extern byte curScriptType;
+	extern ScriptType curScriptType;
 	extern word curScriptNum;
 	extern int32_t curScriptIndex;
 

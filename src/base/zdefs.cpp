@@ -2279,3 +2279,17 @@ savedportal::savedportal()
 {
 	uid = nextuid++;
 }
+
+// NOTE: there is also:
+// string get_script_name(ScriptType type)
+// ScriptType get_script_type(string const& name)
+const char* ScriptTypeToString(ScriptType type)
+{
+	static const char script_types[][16] =
+	{
+		"none", "global", "ffc", "screendata", "hero", "item", "lweapon", "npc", "subscreen",
+		"eweapon", "dmapdata", "itemsprite", "dmapdata (AS)", "dmapdata (PS)", "combodata", "dmapdata (MAP)",
+		"generic", "generic (FRZ)"
+	};
+	return script_types[(int)type];
+}
