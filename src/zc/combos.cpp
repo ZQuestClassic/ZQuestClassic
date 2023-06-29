@@ -3318,7 +3318,6 @@ bool do_lift_combo(const rpos_handle_t& rpos_handle, int32_t gloveid)
 
 	if(cmb.liftlvl > glove.fam_type) return false;
 
-	// TODO z3 !! better way?
 	int32_t cx, cy;
 	COMBOXY_REGION(rpos_handle.rpos, cx, cy);
 
@@ -3524,7 +3523,7 @@ void trig_trigger_groups()
 
 			if (cid != cid2)
 			{
-				cmb = combobuf[cid];
+				cmb = combobuf[cid2];
 				cid = cid2;
 			}
 		}
