@@ -3306,19 +3306,22 @@ bool do_trigger_combo_ffc(const ffc_handle_t& ffc_handle, int32_t special, weapo
 }
 
 
-bool do_lift_combo(int32_t lyr, int32_t pos, int32_t gloveid)
+bool do_lift_combo(const rpos_handle_t& rpos_handle, int32_t gloveid)
 {
-	if(unsigned(lyr) > 6 || unsigned(pos) > 175) return false;
 	if(!Hero.can_lift(gloveid)) return false;
 	if(Hero.lift_wpn) return false;
-	mapscr* tmp = FFCore.tempScreens[lyr];
-	int32_t cid = tmp->data[pos];
-	int32_t cset = tmp->cset[pos];
-	int32_t cx = COMBOX(pos);
-	int32_t cy = COMBOY(pos);
+
+	int32_t cid = rpos_handle.data();
+	int32_t cset = rpos_handle.cset();
 	newcombo const& cmb = combobuf[cid];
 	itemdata const& glove = itemsbuf[gloveid];
+
 	if(cmb.liftlvl > glove.fam_type) return false;
+
+	// TODO z3 !! better way?
+	int32_t cx, cy;
+	COMBOXY_REGION(rpos_handle.rpos, cx, cy);
+
 	//Able to lift, run effects
 	if(cmb.liftsfx) sfx(cmb.liftsfx,pan(cx));
 	else if(glove.usesound) sfx(glove.usesound,pan(cx));
@@ -3333,7 +3336,7 @@ bool do_lift_combo(int32_t lyr, int32_t pos, int32_t gloveid)
 		else dropitem = cmb.liftitm;
 	}
 	
-	if(hasitem && (cmb.liftflags&LF_SPECIALITEM) && getmapflag(mSPECIALITEM))
+	if(hasitem && (cmb.liftflags&LF_SPECIALITEM) && getmapflag(rpos_handle.screen_index, mSPECIALITEM))
 	{
 		hasitem = false;
 		dropitem = dropset = -1;
@@ -3409,10 +3412,12 @@ bool do_lift_combo(int32_t lyr, int32_t pos, int32_t gloveid)
 	
 	Hero.lift(w, cmb.lifttime, cmb.lifthei);
 	
-	tmp->data[pos] = cmb.liftundercmb;
+	rpos_handle.set_data(cmb.liftundercmb);
 	if(!(cmb.liftflags & LF_NOUCSET))
-		tmp->cset[pos] = cmb.liftundercs;
-	tmp->sflag[pos] = 0;
+		rpos_handle.set_cset(cmb.liftundercs);
+	rpos_handle.screen->sflag[rpos_handle.pos()] = 0;
+	// TODO z3 !!!
+	// rpos_handle.set_sflag(0);
 	return true;
 }
 

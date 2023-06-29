@@ -10617,31 +10617,32 @@ void HeroClass::do_liftglove(int32_t liftid, bool passive)
 				bx2 = x + 17;
 				break;
 		}
-		int32_t pos = COMBOPOS_B(bx,by);
-		int32_t pos2 = COMBOPOS_B(bx2,by2);
-		int32_t foundpos = -1;
+		rpos_t rpos = COMBOPOS_REGION_CHECK_BOUNDS(bx, by);
+		rpos_t rpos2 = COMBOPOS_REGION_CHECK_BOUNDS(bx2, by2);
+		// TODO z3 !! ::None ?
 		
 		for(auto lyr = 6; lyr >= 0; --lyr)
 		{
-			mapscr* scr = FFCore.tempScreens[lyr];
-			if(pos > -1)
+			if(rpos != rpos_t::NONE)
 			{
-				newcombo const& cmb = combobuf[scr->data[pos]];
+				auto rpos_handle = get_rpos_handle(rpos, lyr);
+				newcombo const& cmb = combobuf[rpos_handle.data()];
 				if(cmb.liftflags & LF_LIFTABLE)
 				{
-					if(do_lift_combo(lyr,pos,liftid))
+					if(do_lift_combo(rpos_handle,liftid))
 					{
 						lifted = true;
 						break;
 					}
 				}
 			}
-			if(pos != pos2 && pos2 > -1)
+			if(rpos != rpos2 && rpos2 != rpos_t::NONE)
 			{
-				newcombo const& cmb2 = combobuf[scr->data[pos2]];
+				auto rpos_handle_2 = get_rpos_handle(rpos2, lyr);
+				newcombo const& cmb2 = combobuf[rpos_handle_2.data()];
 				if(cmb2.liftflags & LF_LIFTABLE)
 				{
-					if(do_lift_combo(lyr,pos2,liftid))
+					if(do_lift_combo(rpos_handle_2,liftid))
 					{
 						lifted = true;
 						break;

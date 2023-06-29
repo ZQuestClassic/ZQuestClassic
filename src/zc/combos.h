@@ -64,7 +64,7 @@ bool do_trigger_combo(int layer, int pos, int32_t special = 0, weapon* w = NULL)
 bool do_trigger_combo(const rpos_handle_t& rpos_handle, int32_t special = 0, weapon* w = NULL);
 bool do_trigger_combo_ffc(const ffc_handle_t& ffc_handle, int32_t special = 0, weapon* w = NULL);
 
-bool do_lift_combo(int32_t lyr, int32_t pos, int32_t gloveid);
+bool do_lift_combo(const rpos_handle_t&, int32_t gloveid);
 
 void update_trig_group(int oldc, int newc);
 void calculate_trig_groups();

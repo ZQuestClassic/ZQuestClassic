@@ -960,9 +960,6 @@ refInfo lweaponScriptData[256]; //should this be lweapon and eweapon, separate s
 refInfo eweaponScriptData[256]; //should this be lweapon and eweapon, separate stacks?
 refInfo itemactiveScriptData[256];
 
-// TODO z3 !!!!
-int32_t ffmisc[MAXFFCS][16];
-
 user_genscript user_scripts[NUMSCRIPTSGENERIC];
 int32_t genscript_timing = SCR_TIMING_START_FRAME;
 static word max_valid_genscript;

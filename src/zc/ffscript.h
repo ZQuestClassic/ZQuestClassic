@@ -2043,7 +2043,6 @@ enum __Error
     int32_t sid;
 };
 
-extern int32_t ffmisc[MAXFFCS][16];
 extern PALETTE tempgreypal; //script greyscale
 extern PALETTE userPALETTE[256];
 extern PALETTE tempblackpal;
