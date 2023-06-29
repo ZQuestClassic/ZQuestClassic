@@ -1608,7 +1608,9 @@ void sprite::draw_hitbox()
 	if(hide_hitbox) return;
 #ifndef IS_ZQUEST
 	start_info_bmp();
-	al_draw_rectangle(x+hxofs,y+playing_field_offset+hyofs-(z+zofs)-fakez,x+hxofs+hit_width,(y+playing_field_offset+hyofs+hit_height-(z+zofs)-fakez),hitboxColor(info_opacity),1);
+	int x0 = x + hxofs - viewport.x;
+	int y0 = y + playing_field_offset + hyofs - (z + zofs) - fakez - viewport.y;
+	al_draw_rectangle(x0, y0, x0 + hit_width, y0 + hit_height, hitboxColor(info_opacity), 1);
 	end_info_bmp();
 #endif
 }
