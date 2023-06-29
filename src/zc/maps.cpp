@@ -4894,6 +4894,8 @@ void openshutters()
 
 void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay=false)
 {
+	auto oscr = homescr;
+	homescr = scr;
 	if (tmp == 0 && replay_is_active())
 	{
 		if (replay_get_mode() == ReplayMode::ManualTakeover)
@@ -5090,10 +5092,7 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 		if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mSECRET)			   // if special stuff done before
 		{
 			hiddenstair(tmp,false);
-			auto oscr = homescr;
-			homescr = scr;
 			hidden_entrance(tmp,false,false,-3);
-			homescr = oscr;
 		}
 		if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mLIGHTBEAM) // if special stuff done before
 		{
@@ -5251,11 +5250,14 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 			Hero.lift_wpn = nullptr;
 		}
 	}
+	homescr = oscr;
 }
 
 // Screen is being viewed by the Overworld Map viewer.
 void loadscr2(int32_t tmp,int32_t scr,int32_t)
 {
+	auto oscr = homescr;
+	homescr = scr;
 	for(word x=0; x<animated_combos; x++)
 	{
 		if(combobuf[animated_combo_table4[x][0]].nextcombo!=0)
@@ -5296,10 +5298,7 @@ void loadscr2(int32_t tmp,int32_t scr,int32_t)
 		if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mSECRET)			   // if special stuff done before
 		{
 			hiddenstair(tmp,false);
-			auto oscr = homescr;
-			homescr = scr;
 			hidden_entrance(tmp,false,false,-3);
-			homescr = oscr;
 		}
 		if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mLIGHTBEAM) // if special stuff done before
 		{
@@ -5437,7 +5436,7 @@ void loadscr2(int32_t tmp,int32_t scr,int32_t)
 			}
 		}
 	}
-	
+	homescr = oscr;
 }
 
 void putscr(BITMAP* dest,int32_t x,int32_t y, mapscr* scrn)
