@@ -1298,9 +1298,8 @@ byte& doscript(ScriptType type, int index = 0);
 bool& waitdraw(ScriptType type, int index = 0);
 
 //Combo Scripts
-void init_combo_doscript();
-void clear_combo_refinfo();
-void reset_combo_script(int32_t layer, rpos_t rpos);
+void clear_combo_scripts();
+void clear_combo_script(int32_t layer, rpos_t rpos);
 int32_t getComboDataLayer(int32_t c, ScriptType scripttype);
 int32_t getCombodataPos(int32_t c, ScriptType scripttype);
 int32_t getCombodataY(int32_t c, ScriptType scripttype);

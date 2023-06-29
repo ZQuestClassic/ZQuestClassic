@@ -47284,28 +47284,20 @@ void FFScript::do_loadnpc_by_script_uid(const bool v)
 
 //Combo Scripts
 
-void FFScript::init_combo_doscript()
+void FFScript::clear_combo_scripts()
 {
 	combo_id_cache.clear();
 	combo_id_cache.resize(region_num_rpos * 7);
 	std::fill(combo_id_cache.begin(), combo_id_cache.end(), -1);
-	clear_combo_refinfo();
-}
-void FFScript::clear_combo_refinfo()
-{
-	// TODO z3 !!!!!! omg do not do this
-	// for ( int32_t q = 0; q < region_num_rpos * 7; q++ )
-	// 	ref(ScriptType::Combo, q).Clear();
-	for ( int32_t q = 0; q < 1232; q++ )
-		ref(ScriptType::Combo, q).Clear();
+	clear_script_engine_data_of_type(ScriptType::Combo);
 }
 
-void FFScript::reset_combo_script(int32_t layer, rpos_t rpos)
+void FFScript::clear_combo_script(int32_t layer, rpos_t rpos)
 {
 	int32_t index = get_combopos_ref(rpos, layer);
 	combo_id_cache[index] = -1;
 	combopos_modified = index;
-	reset_script_engine_data(ScriptType::Combo, index);
+	clear_script_engine_data(ScriptType::Combo, index);
 }
 
 int32_t FFScript::getComboDataLayer(int32_t c, ScriptType scripttype)
@@ -47387,8 +47379,9 @@ int32_t FFScript::combo_script_engine(const bool preload, const bool waitdraw)
 			combo_id_cache[combopos_ref] = cid;
 		else if(combo_id_cache[combopos_ref] != cid)
 		{
-			reset_combo_script(rpos_handle.layer, rpos_handle.rpos);
+			combopos_modified = combopos_ref;
 			combo_id_cache[combopos_ref] = cid;
+			clear_script_engine_data(ScriptType::Combo, combopos_ref);
 		}
 		
 		if ( combobuf[cid].script )

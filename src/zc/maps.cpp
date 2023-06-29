@@ -5571,7 +5571,7 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 	current_screen = &tmpscr;
 
 	FFCore.clear_script_engine_data_of_type(ScriptType::Screen);
-	FFCore.init_combo_doscript();
+	FFCore.clear_combo_scripts();
 	FFCore.deallocateAllArrays(ScriptType::Screen, 0);
 	FFCore.deallocateAllArrays(ScriptType::Combo, 0);
 
@@ -5736,9 +5736,7 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 		FFCore.clear_script_engine_data_of_type(ScriptType::Screen);
 		FFCore.deallocateAllArrays(ScriptType::Screen, scr);
 		FFCore.deallocateAllArrays(ScriptType::Combo, 0);
-		//reset combo script doscripts
-		//Init combo scripts
-		FFCore.init_combo_doscript();
+		FFCore.clear_combo_scripts();
 	}
 
 	if ( TheMaps[currmap*MAPSCRS+scr].script > 0 )

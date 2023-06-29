@@ -25529,7 +25529,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 			}
 		}
 	}
-	FFCore.init_combo_doscript();
+	FFCore.clear_combo_scripts();
 	if (!intradmap || get_bit(quest_rules, qr_WARPS_RESTART_DMAPSCRIPT))
 	{
 		FFScript::deallocateAllArrays(ScriptType::DMap, olddmap);
@@ -27284,7 +27284,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			FFCore.ScrollingData[SCROLLDATA_OY] = 0;
 			break;
 	}
-	FFCore.init_combo_doscript();
+	FFCore.clear_combo_scripts();
 	
 	// expose previous screen to scripting.
 	special_warp_return_screen = tmpscr;
@@ -28389,7 +28389,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	newscr_clk = frame;
 	activated_timed_warp=false;
 	loadside = scrolldir^1;
-	FFCore.init_combo_doscript();
+	FFCore.clear_combo_scripts();
 	eventlog_mapflags();
 	decorations.animate(); //continue to animate tall grass during scrolling
 	if(get_bit(quest_rules,qr_FIXSCRIPTSDURINGSCROLLING))
@@ -28498,7 +28498,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			FFCore.ScrollingData[SCROLLDATA_OY] = 0;
 			break;
 	}
-	FFCore.init_combo_doscript();
+	FFCore.clear_combo_scripts();
 	// TODO z3 Just meant to expose previous screen to scriping.
 	special_warp_return_screen = tmpscr;
 	
@@ -28690,7 +28690,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			sy+=3;
 			
 		cx=176/step;
-	FFCore.init_combo_doscript();
+	FFCore.clear_combo_scripts();
 	}
 	break;
 	
@@ -28711,7 +28711,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			sy+=3;
 			
 		cx = 176 / step;
-	FFCore.init_combo_doscript();
+	FFCore.clear_combo_scripts();
 	}
 	break;
 	
@@ -28729,7 +28729,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		putscrdoors(scrollbuf_old,0,0,newscr);
 		sx = 256;
 		cx = 256 / step;
-		FFCore.init_combo_doscript();
+		FFCore.clear_combo_scripts();
 	}
 	break;
 	
@@ -28746,7 +28746,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		putscrdoors(scrollbuf_old,256,0,&tmpscr);
 		sx = 0;
 		cx = 256 / step;
-	FFCore.init_combo_doscript();
+	FFCore.clear_combo_scripts();
 	}
 	break;
 	}
@@ -29476,7 +29476,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	newscr_clk = frame;
 	activated_timed_warp=false;
 	loadside = scrolldir^1;
-	FFCore.init_combo_doscript();
+	FFCore.clear_combo_scripts();
 	eventlog_mapflags();
 	decorations.animate(); //continue to animate tall grass during scrolling
 	if(get_bit(quest_rules,qr_FIXSCRIPTSDURINGSCROLLING))

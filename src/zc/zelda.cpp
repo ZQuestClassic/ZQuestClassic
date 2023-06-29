@@ -4566,7 +4566,7 @@ int main(int argc, char **argv)
 	bool onlyInstance=true;
 //	refresh_select_screen = 0;
 	memset(modulepath, 0, sizeof(modulepath));
-	FFCore.init_combo_doscript();
+	FFCore.clear_combo_scripts();
 
 	memset(zc_builddate,0,80);
 	memset(zc_aboutstr,0,80);
@@ -5688,7 +5688,7 @@ reload_for_replay_file:
 				FFCore.initZScriptDMapScripts(); //Should we not be calling this AFTER running the exit script!!
 				FFCore.initZScriptItemScripts(); //Should we not be calling this AFTER running the exit script!!
 				FFCore.initZScriptActiveSubscreenScript();
-				FFCore.init_combo_doscript(); //clear running combo script data
+				FFCore.clear_combo_scripts(); //clear running combo script data
 				//Run Global script OnExit
 				ZScriptVersion::RunScript(ScriptType::Global, GLOBAL_SCRIPT_END, GLOBAL_SCRIPT_END);
 
@@ -5743,7 +5743,7 @@ reload_for_replay_file:
 				FFCore.initZScriptDMapScripts();
 				FFCore.initZScriptItemScripts();
 				FFCore.initZScriptActiveSubscreenScript();
-				FFCore.init_combo_doscript();
+				FFCore.clear_combo_scripts();
 				//Run global script OnExit
 				//ZScriptVersion::RunScript(ScriptType::Player, SCRIPT_PLAYER_WIN, SCRIPT_PLAYER_WIN); //runs in ending()
 				//while(player_doscript) advanceframe(true); //Not safe. The script can run for only one frame. 
