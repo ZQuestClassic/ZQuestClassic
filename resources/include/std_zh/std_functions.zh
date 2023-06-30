@@ -586,7 +586,7 @@ int ComboY(int rpos)
 		int scr_dx = scr_index % scr_width;
 		int scr_dy = Floor(scr_index / scr_width);
 		int pos = rpos % 176;
-		return scr_dy*11*16 + pos&0xF0;
+		return scr_dy*11*16 + (pos&0xF0);
 	}
 	else
 	{
