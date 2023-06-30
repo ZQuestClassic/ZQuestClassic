@@ -27488,6 +27488,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	int old_world_w = world_w;
 	int old_world_h = world_h;
 	int old_playing_field_offset = playing_field_offset;
+	int old_original_playing_field_offset = original_playing_field_offset;
 	bool old_extended_height_mode = is_extended_height_mode();
 	viewport_t old_viewport = viewport;
 
@@ -27573,9 +27574,9 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		int old_origin_scr_x = old_origin_scr % 16;
 		int old_origin_scr_y = old_origin_scr / 16;
 		int old_hero_screen_x = x.getInt() - old_viewport.x;
-		int old_hero_screen_y = y.getInt() - old_viewport.y + old_playing_field_offset;
+		int old_hero_screen_y = y.getInt() - old_viewport.y + old_original_playing_field_offset;
 		int new_hero_screen_x = new_hero_x - new_viewport.x;
-		int new_hero_screen_y = new_hero_y - new_viewport.y + new_playing_field_offset;
+		int new_hero_screen_y = new_hero_y - new_viewport.y + original_playing_field_offset;
 		if (dx)      secondary_axis_alignment_amount = new_hero_screen_y - old_hero_screen_y;
 		else if (dy) secondary_axis_alignment_amount = new_hero_screen_x - old_hero_screen_x;
 		else         secondary_axis_alignment_amount = 0;
