@@ -8,6 +8,7 @@
 
 import argparse
 from argparse import ArgumentTypeError
+import subprocess
 import os
 import re
 import json
@@ -31,6 +32,7 @@ def dir_path(path):
 
 script_dir = os.path.dirname(os.path.realpath(__file__))
 out_dir = Path(f'{script_dir}/compare-report')
+is_ci = 'CI' in os.environ
 
 
 def hash_image(filename):
@@ -146,7 +148,7 @@ def create_compare_report(test_runs):
                     hashes.add(snapshot['hash'])
         return len(hashes)
 
-    if 'CI' in os.environ:
+    if is_ci:
         image_count = count_images()
         if image_count > 4450:
             print(
@@ -204,6 +206,13 @@ def create_compare_report(test_runs):
     print(f'report written to {out_path}')
 
 
+def start_webserver():
+    port = 8000
+    command_args = f'npx statikk --port {port} --coi'.split(' ')
+    print(f'starting webserver at http://localhost:{port}\nCtrl-C to quit')
+    subprocess.check_call(command_args, cwd=out_dir)
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--workflow_run', type=int, action='append')
@@ -242,3 +251,5 @@ if __name__ == '__main__':
             all_test_runs.extend(test_runs)
 
     create_compare_report(all_test_runs)
+    if not is_ci:
+        start_webserver()
