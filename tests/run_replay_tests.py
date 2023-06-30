@@ -698,13 +698,15 @@ def run_replay_test(replay_file: pathlib.Path, output_dir: pathlib.Path) -> RunR
 
             result.success = watcher.result['stopped'] and watcher.result['success']
             if not result.success:
-                result.failing_frame = watcher.result['failing_frame']
-                result.unexpected_gfx_frames = watcher.result['unexpected_gfx_frames']
-                result.unexpected_gfx_segments = watcher.result['unexpected_gfx_segments']
-                result.unexpected_gfx_segments_limited = watcher.result['unexpected_gfx_segments_limited']
+                result.failing_frame = watcher.result.get('failing_frame', None)
+                result.unexpected_gfx_frames = watcher.result.get('unexpected_gfx_frames', None)
+                result.unexpected_gfx_segments = watcher.result.get('unexpected_gfx_segments', None)
+                result.unexpected_gfx_segments_limited = watcher.result.get('unexpected_gfx_segments_limited', None)
             else:
                 result.failing_frame = None
                 result.unexpected_gfx_frames = None
+                result.unexpected_gfx_segments = None
+                result.unexpected_gfx_segments_limited = None
             exit_code = player_interface.get_exit_code()
             if exit_code != 0 and exit_code != ASSERT_FAILED_EXIT_CODE:
                 print(f'replay failed with unexpected code {exit_code}')
