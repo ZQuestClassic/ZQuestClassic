@@ -653,8 +653,14 @@ def run_replay_test(replay_file: pathlib.Path, output_dir: pathlib.Path) -> RunR
                 num_frames = w.result['replay_log_frames']
                 duration = w.result['duration']
                 fps = w.result['fps']
-                print_progress_str(
-                    f'{time_format(duration)}, {fps} fps, {last_frame} / {num_frames}')
+                progress_str = f'{time_format(duration)}, {fps} fps, {last_frame} / {num_frames}'
+                if w.result.get('success') == False:
+                    failing_frame = w.result.get('failing_frame', None)
+                    if failing_frame != None:
+                        progress_str += f', failure on frame {failing_frame}'
+                    else:
+                        progress_str += ', failure'
+                print_progress_str(progress_str)
 
             watcher = ReplayResultUpdatedHandler(result_path, on_result_updated)
 
@@ -692,26 +698,29 @@ def run_replay_test(replay_file: pathlib.Path, output_dir: pathlib.Path) -> RunR
 
             player_interface.wait_for_finish()
             watcher.update_result()
+            on_result_updated(watcher)
             result.duration = watcher.result['duration']
             result.fps = int(watcher.result['fps'])
             result.frame = int(watcher.result['frame'])
 
             result.success = watcher.result['stopped'] and watcher.result['success']
             if not result.success:
-                result.failing_frame = watcher.result['failing_frame']
-                result.unexpected_gfx_frames = watcher.result['unexpected_gfx_frames']
-                result.unexpected_gfx_segments = watcher.result['unexpected_gfx_segments']
-                result.unexpected_gfx_segments_limited = watcher.result['unexpected_gfx_segments_limited']
+                result.failing_frame = watcher.result.get('failing_frame', None)
+                result.unexpected_gfx_frames = watcher.result.get('unexpected_gfx_frames', None)
+                result.unexpected_gfx_segments = watcher.result.get('unexpected_gfx_segments', None)
+                result.unexpected_gfx_segments_limited = watcher.result.get('unexpected_gfx_segments_limited', None)
             else:
                 result.failing_frame = None
                 result.unexpected_gfx_frames = None
+                result.unexpected_gfx_segments = None
+                result.unexpected_gfx_segments_limited = None
             exit_code = player_interface.get_exit_code()
             if exit_code != 0 and exit_code != ASSERT_FAILED_EXIT_CODE:
                 print(f'replay failed with unexpected code {exit_code}')
             # .zplay files are updated in-place, but lets also copy over to the test output folder.
             # This makes it easy to upload an archive of updated replays in CI.
             if mode == 'update' and watcher.result['changed']:
-                (test_results_dir / 'updated').mkdir()
+                (test_results_dir / 'updated').mkdir(exists_ok=True)
                 shutil.copy2(replay_file, test_results_dir / 'updated' / replay_file.name)
             break
         except ReplayTimeoutException:
@@ -801,6 +810,9 @@ for i in range(args.retries + 1):
         message = f'{status_emoji} {time_format(result.duration)}'
         if result.fps != None:
             message += f', {result.fps} fps'
+        if not result.success:
+            if result.failing_frame != None:
+                message += f', failure on frame {result.failing_frame}'
         print(message)
 
         # Only print on failure and last attempt.
