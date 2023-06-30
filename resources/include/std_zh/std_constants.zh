@@ -3269,7 +3269,11 @@ enum //Indexes for Game->Scrolling[]
 	SCROLL_NX,
 	SCROLL_NY,
 	SCROLL_OX,
-	SCROLL_OY
+	SCROLL_OY,
+	SCROLL_NPX,
+	SCROLL_NPY,
+	SCROLL_OPX,
+	SCROLL_OPY
 };
 
 enum //Indexes for messagedata->Flags

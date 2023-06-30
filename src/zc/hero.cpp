@@ -27285,6 +27285,10 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 			FFCore.ScrollingData[SCROLLDATA_OY] = 0;
 			break;
 	}
+	FFCore.ScrollingData[SCROLLDATA_NPX] = x.getInt();
+	FFCore.ScrollingData[SCROLLDATA_NPY] = y.getInt();
+	FFCore.ScrollingData[SCROLLDATA_OPX] = x.getInt();
+	FFCore.ScrollingData[SCROLLDATA_OPY] = y.getInt();
 	FFCore.clear_combo_scripts();
 	
 	// expose previous screen to scripting.
@@ -27550,6 +27554,11 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 
 		z3_calculate_viewport(newscr, world_w, world_h, new_hero_x, new_hero_y, new_viewport);
 	}
+
+	FFCore.ScrollingData[SCROLLDATA_NPX] = new_hero_x;
+	FFCore.ScrollingData[SCROLLDATA_NPY] = new_hero_y;
+	FFCore.ScrollingData[SCROLLDATA_OPX] = x.getInt();
+	FFCore.ScrollingData[SCROLLDATA_OPY] = y.getInt();
 
 	int scroll_counter, dx, dy;
 	{
@@ -28284,6 +28293,10 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	FFCore.ScrollingData[SCROLLDATA_NY] = 0;
 	FFCore.ScrollingData[SCROLLDATA_OX] = 0;
 	FFCore.ScrollingData[SCROLLDATA_OY] = 0;
+	FFCore.ScrollingData[SCROLLDATA_NPX] = 0;
+	FFCore.ScrollingData[SCROLLDATA_NPY] = 0;
+	FFCore.ScrollingData[SCROLLDATA_OPX] = 0;
+	FFCore.ScrollingData[SCROLLDATA_OPY] = 0;
 	
 	if (destdmap != -1)
 	{

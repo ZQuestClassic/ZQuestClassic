@@ -850,6 +850,8 @@ def is_known_failure_test(test_results: RunResult):
         print('dithered lighting is off-by-some only during scrolling, and doubled-up for a single frame')
         return True
 
+    return False
+
 
 if mode == 'assert':
     failing_tests = [r.name for r in test_results.runs[-1]

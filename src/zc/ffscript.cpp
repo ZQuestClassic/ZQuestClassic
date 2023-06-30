@@ -37034,6 +37034,10 @@ void FFScript::init()
 	ScrollingData[SCROLLDATA_NY] = 0;
 	ScrollingData[SCROLLDATA_OX] = 0;
 	ScrollingData[SCROLLDATA_OY] = 0;
+	ScrollingData[SCROLLDATA_NPX] = 0;
+	ScrollingData[SCROLLDATA_NPY] = 0;
+	ScrollingData[SCROLLDATA_OPX] = 0;
+	ScrollingData[SCROLLDATA_OPY] = 0;
 	user_rng_init();
 	clear_script_engine_data();
 	for (auto &it : jitted_scripts)
