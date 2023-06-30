@@ -4773,28 +4773,28 @@ void draw_screen(bool showhero, bool runGeneric)
 	if(get_bit(quest_rules, qr_NEW_DARKROOM) && (this_screen->flags&fDARK))
 	{
 		for_every_nearby_screen([&](std::array<screen_handle_t, 7> screen_handles, int screen_index, int offx, int offy) {
-			calc_darkroom_combos(screen_index, offx, offy, darkscr_bmp_curscr);
+			calc_darkroom_combos(screen_index, offx, offy, darkscr_bmp_z3);
 		});
-		Hero.calc_darkroom_hero(0, 0, darkscr_bmp_curscr);
+		Hero.calc_darkroom_hero(0, 0, darkscr_bmp_z3);
 	}
 	
 	//Darkroom if under the subscreen
 	if(get_bit(quest_rules, qr_NEW_DARKROOM) && get_bit(quest_rules, qr_NEWDARK_L6) && (this_screen->flags&fDARK))
 	{
 		do_primitives(framebuf, SPLAYER_DARKROOM_UNDER, this_screen, 0, playing_field_offset);
-		set_clip_rect(framebuf, 0, playing_field_offset, 256, 168+playing_field_offset);
+		set_clip_rect(framebuf, 0, playing_field_offset, framebuf->w, framebuf->h);
 		if(this_screen->flags9 & fDARK_DITHER) //dither the entire bitmap
 		{
-			ditherblit(darkscr_bmp_curscr,darkscr_bmp_curscr,0,game->get_dither_type(),game->get_dither_arg());
-			ditherblit(darkscr_bmp_curscr_trans,darkscr_bmp_curscr_trans,0,game->get_dither_type(),game->get_dither_arg());
+			ditherblit(darkscr_bmp_z3,darkscr_bmp_z3,0,game->get_dither_type(),game->get_dither_arg());
+			ditherblit(darkscr_bmp_z3_trans,darkscr_bmp_z3_trans,0,game->get_dither_type(),game->get_dither_arg());
 		}
 		
 		color_map = &trans_table2;
 		if(this_screen->flags9 & fDARK_TRANS) //draw the dark as transparent
-			draw_trans_sprite(framebuf, darkscr_bmp_curscr, 0, playing_field_offset);
+			draw_trans_sprite(framebuf, darkscr_bmp_z3, 0, playing_field_offset);
 		else 
-			masked_blit(darkscr_bmp_curscr, framebuf, 0, 0, 0, playing_field_offset, 256, 168);
-		draw_trans_sprite(framebuf, darkscr_bmp_curscr_trans, 0, playing_field_offset);
+			masked_blit(darkscr_bmp_z3, framebuf, 0, 0, 0, playing_field_offset, framebuf->w, framebuf->h);
+		draw_trans_sprite(framebuf, darkscr_bmp_z3_trans, 0, playing_field_offset);
 		color_map = &trans_table;
 		
 		set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
