@@ -27495,6 +27495,7 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	mapscr* newscr = get_scr(destmap, destscr);
 	scrolling_extended_height = old_extended_height_mode || is_extended_height_mode();
 	// TODO z3
+	int new_playing_field_offset = playing_field_offset;
 	playing_field_offset = old_playing_field_offset;
 	
 	// Determine what the player position will be after scrolling (within the new screen's coordinate system),
@@ -27572,9 +27573,9 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		int old_origin_scr_x = old_origin_scr % 16;
 		int old_origin_scr_y = old_origin_scr / 16;
 		int old_hero_screen_x = x.getInt() - old_viewport.x;
-		int old_hero_screen_y = y.getInt() - old_viewport.y;
+		int old_hero_screen_y = y.getInt() - old_viewport.y + old_playing_field_offset;
 		int new_hero_screen_x = new_hero_x - new_viewport.x;
-		int new_hero_screen_y = new_hero_y - new_viewport.y;
+		int new_hero_screen_y = new_hero_y - new_viewport.y + new_playing_field_offset;
 		if (dx)      secondary_axis_alignment_amount = new_hero_screen_y - old_hero_screen_y;
 		else if (dy) secondary_axis_alignment_amount = new_hero_screen_x - old_hero_screen_x;
 		else         secondary_axis_alignment_amount = 0;
