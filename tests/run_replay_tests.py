@@ -653,8 +653,14 @@ def run_replay_test(replay_file: pathlib.Path, output_dir: pathlib.Path) -> RunR
                 num_frames = w.result['replay_log_frames']
                 duration = w.result['duration']
                 fps = w.result['fps']
-                print_progress_str(
-                    f'{time_format(duration)}, {fps} fps, {last_frame} / {num_frames}')
+                progress_str = f'{time_format(duration)}, {fps} fps, {last_frame} / {num_frames}'
+                if w.result.get('success') == False:
+                    failing_frame = w.result.get('failing_frame', None)
+                    if failing_frame != None:
+                        progress_str += f', failure on frame {failing_frame}'
+                    else:
+                        progress_str += ', failure'
+                print_progress_str(progress_str)
 
             watcher = ReplayResultUpdatedHandler(result_path, on_result_updated)
 
@@ -692,6 +698,7 @@ def run_replay_test(replay_file: pathlib.Path, output_dir: pathlib.Path) -> RunR
 
             player_interface.wait_for_finish()
             watcher.update_result()
+            on_result_updated(watcher)
             result.duration = watcher.result['duration']
             result.fps = int(watcher.result['fps'])
             result.frame = int(watcher.result['frame'])
@@ -803,6 +810,9 @@ for i in range(args.retries + 1):
         message = f'{status_emoji} {time_format(result.duration)}'
         if result.fps != None:
             message += f', {result.fps} fps'
+        if not result.success:
+            if result.failing_frame != None:
+                message += f', failure on frame {result.failing_frame}'
         print(message)
 
         # Only print on failure and last attempt.
