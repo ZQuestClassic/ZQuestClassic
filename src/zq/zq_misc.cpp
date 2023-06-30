@@ -1196,22 +1196,6 @@ int32_t onDecreaseFlag()
 	return D_O_K;
 }
 
-int32_t on0();
-int32_t on1();
-int32_t on2();
-int32_t on3();
-int32_t on4();
-int32_t on5();
-int32_t on6();
-int32_t on7();
-int32_t on8();
-int32_t on9();
-int32_t on10();
-int32_t on11();
-int32_t on12();
-int32_t on13();
-int32_t on14();
-
 int32_t onToggleDarkness();
 int32_t onIncMap();
 int32_t onDecMap();

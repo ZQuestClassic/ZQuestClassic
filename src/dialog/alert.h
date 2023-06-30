@@ -3,6 +3,8 @@
 
 #include "info.h"
 
+void info_dsa(std::string const& title, std::string const& text, std::string const& dsastr);
+
 // A basic dialog that just shows some lines of text and a yes/no button
 class AlertDialog: public InfoDialog
 {
