@@ -565,10 +565,10 @@ int ComboX(int rpos)
 {
 	if (Region->ID)
 	{
-		int scr_index = rpos / 176;
+		int scr_index = Floor(rpos / 176);
 		int scr_width = Region->ScreenWidth;
 		int scr_dx = scr_index % scr_width;
-		int scr_dy = scr_index / scr_width;
+		int scr_dy = Floor(scr_index / scr_width);
 		int pos = rpos % 176;
 		return scr_dx*16*16 + pos%16*16;
 	}
@@ -581,10 +581,10 @@ int ComboY(int rpos)
 {
 	if (Region->ID)
 	{
-		int scr_index = rpos / 176;
+		int scr_index = Floor(rpos / 176);
 		int scr_width = Region->ScreenWidth;
 		int scr_dx = scr_index % scr_width;
-		int scr_dy = scr_index / scr_width;
+		int scr_dy = Floor(scr_index / scr_width);
 		int pos = rpos % 176;
 		return scr_dy*11*16 + pos&0xF0;
 	}
