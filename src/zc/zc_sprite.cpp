@@ -12,6 +12,7 @@
 //
 //--------------------------------------------------------
 
+#include "base/zdefs.h"
 #include "sprite.h"
 #include "zc/zelda.h"
 #include "zc/maps.h"
@@ -68,10 +69,10 @@ void sprite::handle_sprlighting()
 	switch(glowShape)
 	{
 		case 0:
-			doDarkroomCircle(x.getInt()+(hit_width/2), y.getInt()+(hit_height/2), glowRad, darkscr_bmp_z3);
+			doDarkroomCircle(x.getInt()+(hit_width/2), y.getInt()+(hit_height/2) + playing_field_offset, glowRad, darkscr_bmp_z3);
 			break;
 		case 1:
-			doDarkroomCone(x.getInt()+(hit_width/2), y.getInt()+(hit_height/2), glowRad, NORMAL_DIR(dir), darkscr_bmp_z3);
+			doDarkroomCone(x.getInt()+(hit_width/2), y.getInt()+(hit_height/2) + playing_field_offset, glowRad, NORMAL_DIR(dir), darkscr_bmp_z3);
 			break;
 	}
 }

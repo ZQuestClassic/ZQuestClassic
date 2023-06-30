@@ -27691,7 +27691,8 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 		draw_dark = draw_dark || (base_screen->flags&fDARK);
 	});
 	// TODO z3 remove old dark code
-	scrolling_use_new_dark_code = region_scrolling;
+	// scrolling_use_new_dark_code = region_scrolling;
+	scrolling_use_new_dark_code = true;
 
 	int no_move = 0;
 	int move_counter = 0;
@@ -28210,8 +28211,8 @@ void HeroClass::scrollscr_butgood(int32_t scrolldir, int32_t destscr, int32_t de
 	// previous screen... game_loop clears these bitmaps but that should be moved to draw_screen.
 	if (draw_dark && scrolling_use_new_dark_code)
 	{
-		blit(darkscr_bmp_z3, darkscr_bmp_curscr, 0, playing_field_offset, 0, 0, darkscr_bmp_curscr->w, darkscr_bmp_curscr->h);
-		blit(darkscr_bmp_z3_trans, darkscr_bmp_curscr_trans, 0, playing_field_offset, 0, 0, darkscr_bmp_curscr_trans->w, darkscr_bmp_curscr_trans->h);
+		// blit(darkscr_bmp_z3, darkscr_bmp_curscr, 0, playing_field_offset, 0, 0, darkscr_bmp_curscr->w, darkscr_bmp_curscr->h);
+		// blit(darkscr_bmp_z3_trans, darkscr_bmp_curscr_trans, 0, playing_field_offset, 0, 0, darkscr_bmp_curscr_trans->w, darkscr_bmp_curscr_trans->h);
 	}
 
 	clear_bitmap(msg_txt_display_buf);
