@@ -713,7 +713,7 @@ def run_replay_test(replay_file: pathlib.Path, output_dir: pathlib.Path) -> RunR
             # .zplay files are updated in-place, but lets also copy over to the test output folder.
             # This makes it easy to upload an archive of updated replays in CI.
             if mode == 'update' and watcher.result['changed']:
-                (test_results_dir / 'updated').mkdir()
+                (test_results_dir / 'updated').mkdir(exists_ok=True)
                 shutil.copy2(replay_file, test_results_dir / 'updated' / replay_file.name)
             break
         except ReplayTimeoutException:
