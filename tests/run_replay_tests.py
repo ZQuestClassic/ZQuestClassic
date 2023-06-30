@@ -1,9 +1,17 @@
+# TODO: use virtualenv. For now, manually install these packages:
+#   python -m pip install cutie PyGithub==1.58.2 requests watchdog discord.py Pillow intervaltree
+
 # For more information, see replay.h
 
 # Before this will work, you need to install git-lfs:
 #     https://git-lfs.github.com/
 # You should also run:
 #     git config diff.lfs.textconv cat
+
+# Default usage runs all the replays in assert mode:
+#   python tests/run_replay_tests.py
+#
+# If any fail, a comparison report is generated for you.
 
 # To create a new replay test, run:
 #    ./zelda -record path_to_file.zplay -test path_to_game.qst dmap screen
@@ -46,17 +54,22 @@ from datetime import datetime, timezone
 import time
 import logging
 from dataclasses import dataclass
-from common import ReplayTestResults, RunResult
 from time import sleep
 from timeit import default_timer as timer
 from typing import List
-from common import infer_gha_platform
+from github import Github
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
+import cutie
+
+from common import ReplayTestResults, RunResult, infer_gha_platform, download_release, maybe_get_downloaded_revision
+from run_test_workflow import collect_baseline_from_test_results, get_args_for_collect_baseline_from_test_results
+from compare_replays import create_compare_report, start_webserver, collect_test_runs_from_dir, collect_test_runs_from_ci
 
 script_dir = pathlib.Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent
 replays_dir = script_dir / 'replays'
+is_ci = 'CI' in os.environ
 
 
 def dir_path(path):
@@ -772,7 +785,6 @@ if test_results_dir.exists():
     shutil.rmtree(test_results_dir)
 test_results_dir.mkdir(parents=True)
 
-is_ci = 'CI' in os.environ
 test_results = ReplayTestResults(
     runs_on=runs_on,
     arch=arch,
@@ -825,7 +837,7 @@ for i in range(args.retries + 1):
 
 test_results_path.write_text(test_results.to_json())
 
-if 'CI' in os.environ:
+if is_ci:
     # Only keep the images of the last run of each replay.
     replay_runs: List[RunResult] = []
     for runs in reversed(test_results.runs):
@@ -840,6 +852,131 @@ if 'CI' in os.environ:
                 for png in (test_results_dir / run.directory).glob('*.png'):
                     png.unlink()
 
+def prompt_for_gh_auth():
+    print('Select the GitHub repo:')
+    repos = ['ArmageddonGames/ZQuestClassic', 'connorjclark/ZeldaClassic']
+    selected_index = cutie.select(repos)
+    print()
+    repo = repos[selected_index]
+
+    default_env_var = ['GH_PAT', 'GH_PAT_connorjclark'][selected_index]
+    if default_env_var in os.environ:
+        token = os.environ[default_env_var]
+    else:
+        print(f'Default environment variable for token (${default_env_var}) not set')
+        print('Note: you can create a token here: https://github.com/settings/personal-access-tokens/new')
+        print('Necessary permissions are: Actions (read and write), Contents (read and write), Metadata (read)')
+        token = input('Enter a GitHub PAT token: ').strip()
+        print()
+
+    return Github(token), repo
+
+
+def get_recent_release_tag(match: str):
+    command = f'git describe --tags --abbrev=0 --match {match} main'
+    return subprocess.check_output(command.split(' '), encoding='utf-8').strip()
+
+
+def prompt_to_create_compare_report():
+    if not cutie.prompt_yes_or_no('Would you like to generate a compare report?', default_is_yes=True):
+        return
+    print()
+
+    # TODO: support filtering the failing tests
+    # runs = [r for r in test_results.runs[-1] if not r.success]
+    # print('Select the tests to generate a report for (to use all, just press Enter)')
+    # selected_test_indices = cutie.select_multiple([r.name for r in runs],
+    #                                               ticked_indices=list(range(0, len(runs))))
+    # runs = [r for r in runs if runs.index(r) in selected_test_indices]
+    # print(selected_test_names)
+
+    test_runs = []
+
+    print('How should we get the baseline run?')
+    selected_index = cutie.select([
+        'Collect from disk',
+        'Run locally',
+        'Run new job in GitHub Actions (requires token)',
+        'Collect from finished job in GitHub Actions (requires token)',
+    ])
+    print()
+
+    local_baseline_dir = root_dir / '.tmp/local-baseline'
+
+    if selected_index == 0:
+        gha_cache_dir = root_dir / 'tests/.gha-cache-dir'
+        options = []
+        if local_baseline_dir.exists():
+            options.append(local_baseline_dir)
+        options.extend(gha_cache_dir.glob('*'))
+        options.sort(key=os.path.getmtime, reverse=True)
+        print('Select a folder to use for the baseline:')
+        selected_index = cutie.select(
+            [p.relative_to(root_dir) for p in options])
+        print()
+        test_runs.extend(collect_test_runs_from_dir(options[selected_index]))
+    elif selected_index == 1:
+        most_recent_nightly = get_recent_release_tag('nightly-*')
+        most_recent_alpha = get_recent_release_tag('2.55-alpha-*')
+        print('Select a release build to use: ')
+        selected_index = cutie.select([
+            # TODO
+            # 'Most recent passing build from CI (requires token)',
+            f'Most recent nightly ({most_recent_nightly}) (requires token)',
+            f'Most recent alpha ({most_recent_alpha}) (requires token)',
+        ])
+        print()
+
+        if selected_index == 0:
+            tag = most_recent_nightly
+        elif selected_index == 1:
+            tag = most_recent_alpha
+
+        system = platform.system()
+        if system == 'Darwin':
+            channel = 'mac'
+        elif system == 'Windows':
+            channel = 'windows'
+        elif system == 'Linux':
+            channel = 'linux'
+        else:
+            raise Exception(f'unexpected system: {system}')
+
+        build_dir = maybe_get_downloaded_revision(tag)
+        if not build_dir:
+            gh, repo = prompt_for_gh_auth()
+            build_dir = download_release(gh, repo, channel, tag)
+        if channel == 'mac':
+            build_dir = build_dir / 'ZeldaClassic.app/Contents/Resources'
+
+        command_args = [
+            sys.executable,
+            str(root_dir / 'tests/run_replay_tests.py'),
+            '--replay',
+            '--build_folder', str(build_dir),
+            '--test_results_folder', str(local_baseline_dir),
+            *get_args_for_collect_baseline_from_test_results([test_results_path]),
+        ]
+        print(f'Collecting baseline locally: {" ".join(command_args)}')
+        subprocess.check_call(command_args)
+        test_runs.extend(collect_test_runs_from_dir(local_baseline_dir))
+    elif selected_index == 2:
+        gh, repo = prompt_for_gh_auth()
+        baseline_run_id = collect_baseline_from_test_results(gh, repo, [test_results_path])
+        print(f'GitHub Actions job is done, the workflow run id is: {baseline_run_id}')
+        test_runs.extend(collect_test_runs_from_ci(gh, repo, baseline_run_id))
+        print('Note: now that you\'ve done this, this will be the first ".gha-cache-dir" option listed in the "Collect from disk" option')
+    elif selected_index == 3:
+        gh, repo = prompt_for_gh_auth()
+        baseline_run_id = cutie.get_number('Enter a workflow run id: ', allow_float=False)
+        test_runs.extend(collect_test_runs_from_ci(gh, repo, baseline_run_id))
+
+    test_runs.extend(collect_test_runs_from_dir(test_results_dir))
+
+    create_compare_report(test_runs)
+    start_webserver()
+
+
 if mode == 'assert':
     failing_tests = [r.name for r in test_results.runs[-1] if not r.success]
 
@@ -847,13 +984,6 @@ if mode == 'assert':
         print('all replay tests passed')
     else:
         print(f'{len(failing_tests)} replay tests failed')
-
-        if replays_dir == script_dir / 'replays':
-            print('\nto collect baseline artifacts and then generate a report, run the following commands:\n')
-            print(f'python {script_dir}/run_test_workflow.py --test_results {test_results_dir} --token <1>')
-            print(f'python {script_dir}/compare_replays.py --workflow_run <2> --local {test_results_dir}')
-            print('\n')
-            print('<1>: github personal access token, with write actions access')
-            print('<2>: workflow run id printed from the previous command')
-
+        if not is_ci and replays_dir == script_dir / 'replays':
+            prompt_to_create_compare_report()
         exit(1)
