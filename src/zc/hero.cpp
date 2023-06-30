@@ -29196,6 +29196,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			clear_to_color(darkscr_bmp_curscr_trans, game->get_darkscr_color());
 			clear_to_color(darkscr_bmp_scrollscr, game->get_darkscr_color());
 			clear_to_color(darkscr_bmp_scrollscr_trans, game->get_darkscr_color());
+			clear_to_color(darkscr_bmp_z3, game->get_darkscr_color());
+			clear_to_color(darkscr_bmp_z3_trans, game->get_darkscr_color());
 			calc_darkroom_combos_old(currscr, 0, 0, true);
 			calc_darkroom_hero(FFCore.ScrollingData[SCROLLDATA_NX], FFCore.ScrollingData[SCROLLDATA_NY], darkscr_bmp_curscr);
 			calc_darkroom_hero(FFCore.ScrollingData[SCROLLDATA_OX], FFCore.ScrollingData[SCROLLDATA_OY], darkscr_bmp_scrollscr);
