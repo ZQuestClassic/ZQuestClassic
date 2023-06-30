@@ -25,29 +25,6 @@ def arg_path(path):
         raise ArgumentTypeError(f'{path} is not a valid path')
 
 
-parser = argparse.ArgumentParser()
-parser.add_argument('--repo', default='ArmageddonGames/ZQuestClassic')
-parser.add_argument('--token', required=True)
-
-# Specify workflow parameters.
-parser.add_argument('--commit', default='main')
-parser.add_argument('--runs_on', default='ubuntu-22.04')
-parser.add_argument('--arch', default='x64')
-parser.add_argument('--compiler')
-parser.add_argument('--extra_args', default='')
-
-# Automatically start multiple workflow runs based on test failures.
-parser.add_argument('--test_results', type=arg_path)
-parser.add_argument('--failing_workflow_run', type=int)
-
-args = parser.parse_args()
-gh = Github(args.token)
-
-if args.test_results is not None and args.failing_workflow_run is not None:
-    raise ArgumentTypeError(
-        'can only choose one of --test_results or --failing_workflow_run')
-
-
 def set_action_output(output_name, value):
     if 'GITHUB_OUTPUT' in os.environ:
         with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
@@ -216,29 +193,53 @@ def collect_baseline_from_failing_workflow_run(run_id: int):
     collect_baseline_from_test_results(test_results_paths)
 
 
-if args.test_results:
-    test_results_paths = []
-    if args.test_results.is_dir():
-        test_results_paths = list(args.test_results.rglob('test_results.json'))
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--repo', default='ArmageddonGames/ZQuestClassic')
+    parser.add_argument('--token', required=True)
+
+    # Specify workflow parameters.
+    parser.add_argument('--commit', default='main')
+    parser.add_argument('--runs_on', default='ubuntu-22.04')
+    parser.add_argument('--arch', default='x64')
+    parser.add_argument('--compiler')
+    parser.add_argument('--extra_args', default='')
+
+    # Automatically start multiple workflow runs based on test failures.
+    parser.add_argument('--test_results', type=arg_path)
+    parser.add_argument('--failing_workflow_run', type=int)
+
+    args = parser.parse_args()
+    gh = Github(args.token)
+
+    if args.test_results is not None and args.failing_workflow_run is not None:
+        raise ArgumentTypeError(
+            'can only choose one of --test_results or --failing_workflow_run')
+
+    if args.test_results:
+        test_results_paths = []
+        if args.test_results.is_dir():
+            test_results_paths = list(
+                args.test_results.rglob('test_results.json'))
+        else:
+            test_results_paths = [args.test_results]
+        collect_baseline_from_test_results(test_results_paths)
+    elif args.failing_workflow_run:
+        collect_baseline_from_failing_workflow_run(args.failing_workflow_run)
     else:
-        test_results_paths = [args.test_results]
-    collect_baseline_from_test_results(test_results_paths)
-elif args.failing_workflow_run:
-    collect_baseline_from_failing_workflow_run(args.failing_workflow_run)
-else:
-    extra_args = []
-    if args.extra_args:
-        extra_args = args.extra_args.split(' ')
+        extra_args = []
+        if args.extra_args:
+            extra_args = args.extra_args.split(' ')
 
-    if args.compiler:
-        compiler = args.compiler
-    elif args.runs_on.startswith('windows'):
-        compiler = 'msvc'
-    elif args.runs_on.startswith('mac'):
-        compiler = 'clang'
-    elif args.runs_on.startswith('ubuntu'):
-        compiler = 'clang'
+        if args.compiler:
+            compiler = args.compiler
+        elif args.runs_on.startswith('windows'):
+            compiler = 'msvc'
+        elif args.runs_on.startswith('mac'):
+            compiler = 'clang'
+        elif args.runs_on.startswith('ubuntu'):
+            compiler = 'clang'
 
-    run_id = start_test_workflow_run(
-        args.commit, args.runs_on, args.arch, compiler, extra_args)
-    poll_workflow_run(run_id)
+        run_id = start_test_workflow_run(
+            args.commit, args.runs_on, args.arch, compiler, extra_args)
+        poll_workflow_run(run_id)
