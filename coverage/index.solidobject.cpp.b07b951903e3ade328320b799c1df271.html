@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2023-06-23 03:26:45</td>
+      <td>2023-06-30 09:11:33</td>
     </tr>
   </table>
 </div>
@@ -1253,14 +1253,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	               </span><span class="n">o</span><span class="o">-&gt;</span><span class="n">hxsz</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">o</span><span class="o">-&gt;</span><span class="n">sxsz_ofs</span><span class="p">,</span><span class="w"></span></td>
+      <td class="src uncoveredLine"><span class="w">	               </span><span class="n">o</span><span class="o">-&gt;</span><span class="n">hit_width</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">o</span><span class="o">-&gt;</span><span class="n">sxsz_ofs</span><span class="p">,</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l111" href="#l111">111</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	               </span><span class="n">o</span><span class="o">-&gt;</span><span class="n">hysz</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">o</span><span class="o">-&gt;</span><span class="n">sysz_ofs</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src uncoveredLine"><span class="w">	               </span><span class="n">o</span><span class="o">-&gt;</span><span class="n">hit_height</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">o</span><span class="o">-&gt;</span><span class="n">sysz_ofs</span><span class="p">);</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l112" href="#l112">112</a></td>
@@ -1309,7 +1309,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">172746</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">zfix</span><span class="w"> </span><span class="n">rw</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hxsz</span><span class="o">+</span><span class="n">sxsz_ofs</span><span class="p">,</span><span class="w"> </span><span class="n">rh</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hysz</span><span class="o">+</span><span class="n">sysz_ofs</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">zfix</span><span class="w"> </span><span class="n">rw</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hit_width</span><span class="o">+</span><span class="n">sxsz_ofs</span><span class="p">,</span><span class="w"> </span><span class="n">rh</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hit_height</span><span class="o">+</span><span class="n">sysz_ofs</span><span class="p">;</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l118" href="#l118">118</a></td>
@@ -1395,14 +1395,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="n">rectfill</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="n">tx</span><span class="p">,</span><span class="w"> </span><span class="n">ty</span><span class="p">,</span><span class="w"> </span><span class="n">tx</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">hxsz</span><span class="mi">-1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">sxsz_ofs</span><span class="p">,</span><span class="w"></span></td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="n">rectfill</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span><span class="w"> </span><span class="n">tx</span><span class="p">,</span><span class="w"> </span><span class="n">ty</span><span class="p">,</span><span class="w"> </span><span class="n">tx</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">hit_width</span><span class="mi">-1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">sxsz_ofs</span><span class="p">,</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l128" href="#l128">128</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	         </span><span class="n">ty</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">hysz</span><span class="mi">-1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">sysz_ofs</span><span class="p">,</span><span class="w"> </span><span class="n">col</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src uncoveredLine"><span class="w">	         </span><span class="n">ty</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">hit_height</span><span class="mi">-1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">sysz_ofs</span><span class="p">,</span><span class="w"> </span><span class="n">col</span><span class="p">);</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l129" href="#l129">129</a></td>
@@ -1451,14 +1451,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="n">al_draw_filled_rectangle</span><span class="p">(</span><span class="n">tx</span><span class="p">,</span><span class="w"> </span><span class="n">ty</span><span class="p">,</span><span class="w"> </span><span class="n">tx</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">hxsz</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">sxsz_ofs</span><span class="p">,</span><span class="w"></span></td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="n">al_draw_filled_rectangle</span><span class="p">(</span><span class="n">tx</span><span class="p">,</span><span class="w"> </span><span class="n">ty</span><span class="p">,</span><span class="w"> </span><span class="n">tx</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">hit_width</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">sxsz_ofs</span><span class="p">,</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l136" href="#l136">136</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	         </span><span class="n">ty</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">hysz</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">sysz_ofs</span><span class="p">,</span><span class="w"> </span><span class="n">col</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src uncoveredLine"><span class="w">	         </span><span class="n">ty</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">hit_height</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">sysz_ofs</span><span class="p">,</span><span class="w"> </span><span class="n">col</span><span class="p">);</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l137" href="#l137">137</a></td>
@@ -1728,14 +1728,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">5702</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">obj_w</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">obj</span><span class="o">-&gt;</span><span class="n">hxsz</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">obj</span><span class="o">-&gt;</span><span class="n">sxsz_ofs</span><span class="p">,</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">	</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">obj_w</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">obj</span><span class="o">-&gt;</span><span class="n">hit_width</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">obj</span><span class="o">-&gt;</span><span class="n">sxsz_ofs</span><span class="p">,</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l172" href="#l172">172</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">5702</td>
-      <td class="src coveredLine"><span class="w">	        </span><span class="n">obj_h</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">obj</span><span class="o">-&gt;</span><span class="n">hysz</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">obj</span><span class="o">-&gt;</span><span class="n">sysz_ofs</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">	        </span><span class="n">obj_h</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">obj</span><span class="o">-&gt;</span><span class="n">hit_height</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">obj</span><span class="o">-&gt;</span><span class="n">sysz_ofs</span><span class="p">;</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l173" href="#l173">173</a></td>
@@ -1756,7 +1756,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">5702</td>
-      <td class="src coveredLine"><span class="w">		 </span><span class="n">rw</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hxsz</span><span class="o">+</span><span class="n">sxsz_ofs</span><span class="p">,</span><span class="w"> </span><span class="n">rh</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hysz</span><span class="o">+</span><span class="n">sysz_ofs</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">		 </span><span class="n">rw</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hit_width</span><span class="o">+</span><span class="n">sxsz_ofs</span><span class="p">,</span><span class="w"> </span><span class="n">rh</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">hit_height</span><span class="o">+</span><span class="n">sysz_ofs</span><span class="p">;</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l176" href="#l176">176</a></td>

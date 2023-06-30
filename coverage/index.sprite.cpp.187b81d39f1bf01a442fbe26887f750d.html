@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2023-06-23 03:26:45</td>
+      <td>2023-06-30 09:11:33</td>
     </tr>
   </table>
 </div>
@@ -686,7 +686,7 @@
         <a href="#l2397">2397</a>
       </td>
       <td>
-        <a href="#l2397"> called 535021785 times</a>
+        <a href="#l2397"> called 535090633 times</a>
       </td>
     </tr>
     <tr>
@@ -3326,7 +3326,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">31495</td>
-      <td class="src coveredLine"><span class="w">    </span><span class="n">hxsz</span><span class="o">=</span><span class="n">hysz</span><span class="o">=</span><span class="mi">16</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">    </span><span class="n">hit_width</span><span class="o">=</span><span class="n">hit_height</span><span class="o">=</span><span class="mi">16</span><span class="p">;</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l310" href="#l310">310</a></td>
@@ -8329,7 +8329,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">6153485</td>
-      <td class="src coveredLine"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">hit</span><span class="p">(</span><span class="n">s</span><span class="o">-&gt;</span><span class="n">x</span><span class="o">+</span><span class="n">s</span><span class="o">-&gt;</span><span class="n">hxofs</span><span class="p">,</span><span class="n">s</span><span class="o">-&gt;</span><span class="n">y</span><span class="o">+</span><span class="n">s</span><span class="o">-&gt;</span><span class="n">hyofs</span><span class="o">-</span><span class="n">s</span><span class="o">-&gt;</span><span class="n">fakez</span><span class="p">,</span><span class="n">s</span><span class="o">-&gt;</span><span class="n">z</span><span class="o">+</span><span class="n">s</span><span class="o">-&gt;</span><span class="n">zofs</span><span class="p">,</span><span class="n">s</span><span class="o">-&gt;</span><span class="n">hxsz</span><span class="p">,</span><span class="n">s</span><span class="o">-&gt;</span><span class="n">hysz</span><span class="p">,</span><span class="n">s</span><span class="o">-&gt;</span><span class="n">hzsz</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">hit</span><span class="p">(</span><span class="n">s</span><span class="o">-&gt;</span><span class="n">x</span><span class="o">+</span><span class="n">s</span><span class="o">-&gt;</span><span class="n">hxofs</span><span class="p">,</span><span class="n">s</span><span class="o">-&gt;</span><span class="n">y</span><span class="o">+</span><span class="n">s</span><span class="o">-&gt;</span><span class="n">hyofs</span><span class="o">-</span><span class="n">s</span><span class="o">-&gt;</span><span class="n">fakez</span><span class="p">,</span><span class="n">s</span><span class="o">-&gt;</span><span class="n">z</span><span class="o">+</span><span class="n">s</span><span class="o">-&gt;</span><span class="n">zofs</span><span class="p">,</span><span class="n">s</span><span class="o">-&gt;</span><span class="n">hit_width</span><span class="p">,</span><span class="n">s</span><span class="o">-&gt;</span><span class="n">hit_height</span><span class="p">,</span><span class="n">s</span><span class="o">-&gt;</span><span class="n">hzsz</span><span class="p">);</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l992" href="#l992">992</a></td>
@@ -8399,14 +8399,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">           </span><span class="n">tx</span><span class="o">&lt;</span><span class="n">x</span><span class="o">+</span><span class="n">hxofs</span><span class="o">+</span><span class="n">hxsz</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"></span></td>
+      <td class="src uncoveredLine"><span class="w">           </span><span class="n">tx</span><span class="o">&lt;</span><span class="n">x</span><span class="o">+</span><span class="n">hxofs</span><span class="o">+</span><span class="n">hit_width</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1002" href="#l1002">1002</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">           </span><span class="n">ty</span><span class="o">&lt;</span><span class="n">y</span><span class="o">+</span><span class="n">hyofs</span><span class="o">+</span><span class="n">hysz</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src uncoveredLine"><span class="w">           </span><span class="n">ty</span><span class="o">&lt;</span><span class="n">y</span><span class="o">+</span><span class="n">hyofs</span><span class="o">+</span><span class="n">hit_height</span><span class="p">;</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1003" href="#l1003">1003</a></td>
@@ -8518,7 +8518,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">9409316</td>
-      <td class="src coveredLine"><span class="w">           </span><span class="n">tx</span><span class="o">&lt;</span><span class="n">x</span><span class="o">+</span><span class="n">hxofs</span><span class="o">+</span><span class="n">hxsz</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">           </span><span class="n">tx</span><span class="o">&lt;</span><span class="n">x</span><span class="o">+</span><span class="n">hxofs</span><span class="o">+</span><span class="n">hit_width</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1014" href="#l1014">1014</a></td>
@@ -8532,7 +8532,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">1918184</td>
-      <td class="src coveredLine"><span class="w">           </span><span class="n">ty</span><span class="o">&lt;</span><span class="n">y</span><span class="o">+</span><span class="n">hyofs</span><span class="o">+</span><span class="n">hysz</span><span class="o">-</span><span class="n">fakez</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">           </span><span class="n">ty</span><span class="o">&lt;</span><span class="n">y</span><span class="o">+</span><span class="n">hyofs</span><span class="o">+</span><span class="n">hit_height</span><span class="o">-</span><span class="n">fakez</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1015" href="#l1015">1015</a></td>
@@ -8599,14 +8599,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">6713</td>
-      <td class="src coveredLine"><span class="w">    </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">cx1</span><span class="o">=</span><span class="n">x</span><span class="o">+</span><span class="n">hxofs</span><span class="o">+</span><span class="p">(</span><span class="n">hxsz</span><span class="o">&gt;&gt;</span><span class="mi">1</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">    </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">cx1</span><span class="o">=</span><span class="n">x</span><span class="o">+</span><span class="n">hxofs</span><span class="o">+</span><span class="p">(</span><span class="n">hit_width</span><span class="o">&gt;&gt;</span><span class="mi">1</span><span class="p">);</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1023" href="#l1023">1023</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">6713</td>
-      <td class="src coveredLine"><span class="w">    </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">cy1</span><span class="o">=</span><span class="n">y</span><span class="o">+</span><span class="n">hyofs</span><span class="o">+</span><span class="p">(</span><span class="n">hysz</span><span class="o">&gt;&gt;</span><span class="mi">1</span><span class="p">)</span><span class="o">-</span><span class="n">fakez</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">    </span><span class="kt">int32_t</span><span class="w"> </span><span class="n">cy1</span><span class="o">=</span><span class="n">y</span><span class="o">+</span><span class="n">hyofs</span><span class="o">+</span><span class="p">(</span><span class="n">hit_height</span><span class="o">&gt;&gt;</span><span class="mi">1</span><span class="p">)</span><span class="o">-</span><span class="n">fakez</span><span class="p">;</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1024" href="#l1024">1024</a></td>
@@ -13054,7 +13054,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">	</span><span class="n">al_draw_rectangle</span><span class="p">(</span><span class="n">x</span><span class="o">+</span><span class="n">hxofs</span><span class="p">,</span><span class="n">y</span><span class="o">+</span><span class="n">playing_field_offset</span><span class="o">+</span><span class="n">hyofs</span><span class="o">-</span><span class="p">(</span><span class="n">z</span><span class="o">+</span><span class="n">zofs</span><span class="p">)</span><span class="o">-</span><span class="n">fakez</span><span class="p">,</span><span class="n">x</span><span class="o">+</span><span class="n">hxofs</span><span class="o">+</span><span class="n">hxsz</span><span class="p">,(</span><span class="n">y</span><span class="o">+</span><span class="n">playing_field_offset</span><span class="o">+</span><span class="n">hyofs</span><span class="o">+</span><span class="n">hysz</span><span class="o">-</span><span class="p">(</span><span class="n">z</span><span class="o">+</span><span class="n">zofs</span><span class="p">)</span><span class="o">-</span><span class="n">fakez</span><span class="p">),</span><span class="n">hitboxColor</span><span class="p">(</span><span class="n">info_opacity</span><span class="p">),</span><span class="mi">1</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="n">al_draw_rectangle</span><span class="p">(</span><span class="n">x</span><span class="o">+</span><span class="n">hxofs</span><span class="p">,</span><span class="n">y</span><span class="o">+</span><span class="n">playing_field_offset</span><span class="o">+</span><span class="n">hyofs</span><span class="o">-</span><span class="p">(</span><span class="n">z</span><span class="o">+</span><span class="n">zofs</span><span class="p">)</span><span class="o">-</span><span class="n">fakez</span><span class="p">,</span><span class="n">x</span><span class="o">+</span><span class="n">hxofs</span><span class="o">+</span><span class="n">hit_width</span><span class="p">,(</span><span class="n">y</span><span class="o">+</span><span class="n">playing_field_offset</span><span class="o">+</span><span class="n">hyofs</span><span class="o">+</span><span class="n">hit_height</span><span class="o">-</span><span class="p">(</span><span class="n">z</span><span class="o">+</span><span class="n">zofs</span><span class="p">)</span><span class="o">-</span><span class="n">fakez</span><span class="p">),</span><span class="n">hitboxColor</span><span class="p">(</span><span class="n">info_opacity</span><span class="p">),</span><span class="mi">1</span><span class="p">);</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l1602" href="#l1602">1602</a></td>
@@ -16577,7 +16577,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">        </span><span class="n">rectfill</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span><span class="n">x</span><span class="o">+</span><span class="n">hxofs</span><span class="p">,</span><span class="n">sy</span><span class="o">+</span><span class="n">hyofs</span><span class="o">-</span><span class="n">fakez</span><span class="p">,</span><span class="n">x</span><span class="o">+</span><span class="n">hxofs</span><span class="o">+</span><span class="n">hxsz</span><span class="mi">-1</span><span class="p">,</span><span class="n">sy</span><span class="o">+</span><span class="n">hyofs</span><span class="o">+</span><span class="n">hysz</span><span class="o">-</span><span class="n">fakez</span><span class="mi">-1</span><span class="p">,</span><span class="n">vc</span><span class="p">(</span><span class="n">id</span><span class="p">));</span><span class="w"></span></td>
+      <td class="src uncoveredLine"><span class="w">        </span><span class="n">rectfill</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span><span class="n">x</span><span class="o">+</span><span class="n">hxofs</span><span class="p">,</span><span class="n">sy</span><span class="o">+</span><span class="n">hyofs</span><span class="o">-</span><span class="n">fakez</span><span class="p">,</span><span class="n">x</span><span class="o">+</span><span class="n">hxofs</span><span class="o">+</span><span class="n">hit_width</span><span class="mi">-1</span><span class="p">,</span><span class="n">sy</span><span class="o">+</span><span class="n">hyofs</span><span class="o">+</span><span class="n">hit_height</span><span class="o">-</span><span class="n">fakez</span><span class="mi">-1</span><span class="p">,</span><span class="n">vc</span><span class="p">(</span><span class="n">id</span><span class="p">));</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2047" href="#l2047">2047</a></td>
@@ -19355,7 +19355,7 @@
       <td class="lineno"><a id="l2397" href="#l2397">2397</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">535021785</td>
+      <td class="linecount coveredLine">535090633</td>
       <td class="src coveredLine"><span class="kt">int32_t</span><span class="w"> </span><span class="nf">sprite_list::Count</span><span class="p">()</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
@@ -19369,7 +19369,7 @@
       <td class="lineno"><a id="l2399" href="#l2399">2399</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">535021785</td>
+      <td class="linecount coveredLine">535090633</td>
       <td class="src coveredLine"><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">count</span><span class="p">;</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
@@ -22119,8 +22119,8 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 1905644 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 4500858 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 1186093 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 5220409 times.</div>
         </div>
         </details>
       </td>
@@ -22138,7 +22138,7 @@
       <td class="lineno"><a id="l2778" href="#l2778">2778</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">4500858</td>
+      <td class="linecount coveredLine">5220409</td>
       <td class="src coveredLine"><span class="w">		</span><span class="n">aclk</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
@@ -22147,12 +22147,12 @@
         <details class="linebranchDetails">
         <summary class="linebranchSummary">2/2</summary>
         <div class="linebranchContents">
-          <div class="takenBranch">&check; Branch 0 taken 2236812 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 2264046 times.</div>
+          <div class="takenBranch">&check; Branch 0 taken 2957025 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 2263384 times.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">4500858</td>
+      <td class="linecount coveredLine">5220409</td>
       <td class="src coveredLine"><span class="w">		</span><span class="k">if</span><span class="p">(</span><span class="o">++</span><span class="n">aframe</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="n">frames</span><span class="p">)</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
@@ -22166,21 +22166,21 @@
       <td class="lineno"><a id="l2781" href="#l2781">2781</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">2264046</td>
+      <td class="linecount coveredLine">2263384</td>
       <td class="src coveredLine"><span class="w">			</span><span class="n">aframe</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2782" href="#l2782">2782</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">2264046</td>
+      <td class="linecount coveredLine">2263384</td>
       <td class="src coveredLine"><span class="w">		</span><span class="p">}</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l2783" href="#l2783">2783</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">4500858</td>
+      <td class="linecount coveredLine">5220409</td>
       <td class="src coveredLine"><span class="w">	</span><span class="p">}</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">

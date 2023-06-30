@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2023-06-23 03:26:45</td>
+      <td>2023-06-30 09:11:33</td>
     </tr>
   </table>
 </div>
@@ -695,7 +695,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">687141</td>
-      <td class="src coveredLine"><span class="w">	</span><span class="n">FFCore</span><span class="p">.</span><span class="n">deallocateAllArrays</span><span class="p">(</span><span class="n">SCRIPT_ITEMSPRITE</span><span class="p">,</span><span class="w"> </span><span class="n">getUID</span><span class="p">());</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">FFCore</span><span class="p">.</span><span class="n">deallocateAllArrays</span><span class="p">(</span><span class="n">ScriptType</span><span class="o">::</span><span class="n">ItemSprite</span><span class="p">,</span><span class="w"> </span><span class="n">getUID</span><span class="p">());</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l46" href="#l46">46</a></td>
@@ -3609,7 +3609,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">31551</td>
-      <td class="src coveredLine"><span class="w">		</span><span class="n">hxsz</span><span class="o">=</span><span class="mi">17</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">		</span><span class="n">hit_width</span><span class="o">=</span><span class="mi">17</span><span class="p">;</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l401" href="#l401">401</a></td>
@@ -3623,7 +3623,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">31551</td>
-      <td class="src coveredLine"><span class="w">		</span><span class="n">hysz</span><span class="o">=</span><span class="mi">20</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">		</span><span class="n">hit_height</span><span class="o">=</span><span class="mi">20</span><span class="p">;</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l403" href="#l403">403</a></td>
@@ -3665,7 +3665,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">8</td>
-      <td class="src coveredLine"><span class="w">		</span><span class="n">hxsz</span><span class="o">=</span><span class="mi">28</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">		</span><span class="n">hit_width</span><span class="o">=</span><span class="mi">28</span><span class="p">;</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l408" href="#l408">408</a></td>
@@ -3679,7 +3679,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">8</td>
-      <td class="src coveredLine"><span class="w">		</span><span class="n">hysz</span><span class="o">=</span><span class="mi">20</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">		</span><span class="n">hit_height</span><span class="o">=</span><span class="mi">20</span><span class="p">;</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l410" href="#l410">410</a></td>
@@ -3707,7 +3707,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">655874</td>
-      <td class="src coveredLine"><span class="w">		</span><span class="n">hxsz</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">		</span><span class="n">hit_width</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l414" href="#l414">414</a></td>
@@ -3721,7 +3721,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">655874</td>
-      <td class="src coveredLine"><span class="w">		</span><span class="n">hysz</span><span class="o">=</span><span class="mi">12</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">		</span><span class="n">hit_height</span><span class="o">=</span><span class="mi">12</span><span class="p">;</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l416" href="#l416">416</a></td>
@@ -3927,7 +3927,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">716</td>
-      <td class="src coveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">itm</span><span class="p">.</span><span class="n">overrideFLAGS</span><span class="o">&amp;</span><span class="n">itemdataOVERRIDE_HIT_WIDTH</span><span class="w"> </span><span class="p">){</span><span class="w">  </span><span class="n">hxsz</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">itm</span><span class="p">.</span><span class="n">hxsz</span><span class="p">;}</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">itm</span><span class="p">.</span><span class="n">overrideFLAGS</span><span class="o">&amp;</span><span class="n">itemdataOVERRIDE_HIT_WIDTH</span><span class="w"> </span><span class="p">){</span><span class="w">  </span><span class="n">hit_width</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">itm</span><span class="p">.</span><span class="n">hxsz</span><span class="p">;}</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l437" href="#l437">437</a></td>
@@ -3941,7 +3941,7 @@
         </details>
       </td>
       <td class="linecount coveredLine">716</td>
-      <td class="src coveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">itm</span><span class="p">.</span><span class="n">overrideFLAGS</span><span class="o">&amp;</span><span class="n">itemdataOVERRIDE_HIT_HEIGHT</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">  </span><span class="n">hysz</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">itm</span><span class="p">.</span><span class="n">hysz</span><span class="p">;}</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">itm</span><span class="p">.</span><span class="n">overrideFLAGS</span><span class="o">&amp;</span><span class="n">itemdataOVERRIDE_HIT_HEIGHT</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w">  </span><span class="n">hit_height</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">itm</span><span class="p">.</span><span class="n">hysz</span><span class="p">;}</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l438" href="#l438">438</a></td>
@@ -4180,14 +4180,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">itemsbuf</span><span class="p">[</span><span class="n">item_id</span><span class="p">].</span><span class="n">overrideFLAGS</span><span class="o">&amp;</span><span class="n">itemdataOVERRIDE_HIT_WIDTH</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">temp</span><span class="p">.</span><span class="n">hxsz</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">itemsbuf</span><span class="p">[</span><span class="n">item_id</span><span class="p">].</span><span class="n">hxsz</span><span class="p">;}</span><span class="w"></span></td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">itemsbuf</span><span class="p">[</span><span class="n">item_id</span><span class="p">].</span><span class="n">overrideFLAGS</span><span class="o">&amp;</span><span class="n">itemdataOVERRIDE_HIT_WIDTH</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">temp</span><span class="p">.</span><span class="n">hit_width</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">itemsbuf</span><span class="p">[</span><span class="n">item_id</span><span class="p">].</span><span class="n">hxsz</span><span class="p">;}</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l464" href="#l464">464</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">itemsbuf</span><span class="p">[</span><span class="n">item_id</span><span class="p">].</span><span class="n">overrideFLAGS</span><span class="o">&amp;</span><span class="n">itemdataOVERRIDE_HIT_HEIGHT</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="n">temp</span><span class="p">.</span><span class="n">hysz</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">itemsbuf</span><span class="p">[</span><span class="n">item_id</span><span class="p">].</span><span class="n">hysz</span><span class="p">;}</span><span class="w"></span></td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">itemsbuf</span><span class="p">[</span><span class="n">item_id</span><span class="p">].</span><span class="n">overrideFLAGS</span><span class="o">&amp;</span><span class="n">itemdataOVERRIDE_HIT_HEIGHT</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="n">temp</span><span class="p">.</span><span class="n">hit_height</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">itemsbuf</span><span class="p">[</span><span class="n">item_id</span><span class="p">].</span><span class="n">hysz</span><span class="p">;}</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l465" href="#l465">465</a></td>
@@ -5132,14 +5132,14 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">itemsbuf</span><span class="p">[</span><span class="n">item_id</span><span class="p">].</span><span class="n">overrideFLAGS</span><span class="o">&amp;</span><span class="n">itemdataOVERRIDE_HIT_WIDTH</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">temp</span><span class="p">.</span><span class="n">hxsz</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">itemsbuf</span><span class="p">[</span><span class="n">item_id</span><span class="p">].</span><span class="n">hxsz</span><span class="p">;}</span><span class="w"></span></td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">itemsbuf</span><span class="p">[</span><span class="n">item_id</span><span class="p">].</span><span class="n">overrideFLAGS</span><span class="o">&amp;</span><span class="n">itemdataOVERRIDE_HIT_WIDTH</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="n">temp</span><span class="p">.</span><span class="n">hit_width</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">itemsbuf</span><span class="p">[</span><span class="n">item_id</span><span class="p">].</span><span class="n">hxsz</span><span class="p">;}</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l595" href="#l595">595</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">itemsbuf</span><span class="p">[</span><span class="n">item_id</span><span class="p">].</span><span class="n">overrideFLAGS</span><span class="o">&amp;</span><span class="n">itemdataOVERRIDE_HIT_HEIGHT</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="n">temp</span><span class="p">.</span><span class="n">hysz</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">itemsbuf</span><span class="p">[</span><span class="n">item_id</span><span class="p">].</span><span class="n">hysz</span><span class="p">;}</span><span class="w"></span></td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="w"> </span><span class="n">itemsbuf</span><span class="p">[</span><span class="n">item_id</span><span class="p">].</span><span class="n">overrideFLAGS</span><span class="o">&amp;</span><span class="n">itemdataOVERRIDE_HIT_HEIGHT</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="p">{</span><span class="n">temp</span><span class="p">.</span><span class="n">hit_height</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">itemsbuf</span><span class="p">[</span><span class="n">item_id</span><span class="p">].</span><span class="n">hysz</span><span class="p">;}</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l596" href="#l596">596</a></td>
