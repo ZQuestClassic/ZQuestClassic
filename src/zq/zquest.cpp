@@ -26987,7 +26987,6 @@ int32_t onImportZASM()
 
 void center_zscript_dialogs()
 {
-    jwin_center_dialog(zscript_parser_dlg);
     jwin_center_dialog(exportzasm_dlg);
     jwin_center_dialog(importzasm_dlg);
     jwin_center_dialog(clearslots_dlg);
