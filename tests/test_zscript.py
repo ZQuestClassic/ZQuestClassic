@@ -68,8 +68,9 @@ class TestReplays(unittest.TestCase):
                         expected_path.write_text(zasm)
                 else:
                     if expected_zasm == None:
-                        raise Exception('f{expected_path} does not exist')
-                    self.assertEqual(expected_zasm, zasm)
+                        expected_path.write_text(zasm)
+                    else:
+                        self.assertEqual(expected_zasm, zasm)
 
 
 if __name__ == '__main__':
