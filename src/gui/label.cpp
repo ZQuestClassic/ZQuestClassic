@@ -116,7 +116,6 @@ void Label::fitText()
 				lastSpace = -1;
 				i = -1;
 				++currentLine;
-				continue;
 			}
 			else
 			{
@@ -132,10 +131,7 @@ void Label::fitText()
 				lastSpace = -1;
 				i = -1;
 				++currentLine;
-				continue;
 			}
-			if(widthSoFar > max_width)
-				max_width = widthSoFar;
 		}
 	}
 	oss << data; //add the rest
