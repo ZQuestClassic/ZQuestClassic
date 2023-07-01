@@ -6,6 +6,13 @@
 byte monochrome_console;
 
 #ifdef _WIN32
+
+static OVERLAPPED k_Over = {0};
+static void WINAPI CompletionRoutine(DWORD u32_ErrorCode, DWORD u32_BytesTransfered, OVERLAPPED* pk_Overlapped)
+{
+    // Don't care.
+}
+
 //{
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -68,7 +75,7 @@ int32_t CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
 	// Create the pipe
 	m_hPipe = CreateNamedPipe( 
 		  m_name,                   // pipe name 
-		  PIPE_ACCESS_OUTBOUND,     // read/write access, we're only writing...
+		  PIPE_ACCESS_OUTBOUND|FILE_FLAG_OVERLAPPED,     // read/write access, we're only writing...
 		  PIPE_TYPE_MESSAGE |       // message type pipe 
 		  PIPE_READMODE_BYTE|       // message-read mode 
 		  PIPE_WAIT,                // blocking mode 
@@ -458,33 +465,30 @@ int32_t CConsoleLoggerEx::safeprint(const char *str)
 	if ( monochrome_console ) return _cprint(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK | CConsoleLoggerEx::COLOR_WHITE,str,sz);
 	else return _cprint(m_dwCurrentAttributes,str,sz);
 }
+
 //////////////////////////////////////////////////////////////////////////
 // the _cprintf() helper . do the actual output
 //////////////////////////////////////////////////////////////////////////
 int32_t CConsoleLoggerEx::_cprint(int32_t attributes,const char *lpszText,int32_t iSize)
 {
-	DWORD dwWritten=(DWORD)-1;
 	// we assume that in iSize < 2^24 , because we're using only 3 bytes of iSize 
 	// 32BIT: send DWORD = 4bytes: one byte is the command (COMMAND_CPRINT) , and 3 bytes for size
 	DWORD command_plus_size = (COMMAND_CPRINT <<24)| iSize;
 	EnterCriticalSection();
-	if ( !WriteFile (m_hPipe, &command_plus_size,sizeof(DWORD),&dwWritten,NULL) 
-		|| dwWritten != sizeof(DWORD))
+	if ( !WriteFileEx (m_hPipe, &command_plus_size,sizeof(DWORD),&k_Over,&CompletionRoutine))
 	{
 		LeaveCriticalSection();
 		return -1;
 	}
 	
 	command_plus_size = attributes;	// reuse of the prev variable
-	if ( !WriteFile (m_hPipe, &command_plus_size,sizeof(DWORD),&dwWritten,NULL) 
-		|| dwWritten != sizeof(DWORD))
+	if ( !WriteFileEx (m_hPipe, &command_plus_size,sizeof(DWORD),&k_Over,&CompletionRoutine))
 	{
 		LeaveCriticalSection();
 		return -1;
 	}
 	
-	int32_t iRet = (!WriteFile( m_hPipe,lpszText,iSize,&dwWritten,NULL)
-		|| (int32_t)dwWritten!=iSize) ? -1 : (int32_t)dwWritten;
+	int32_t iRet = WriteFileEx( m_hPipe,lpszText,iSize,&k_Over,&CompletionRoutine);
 	LeaveCriticalSection();
 	return iRet;
 }
