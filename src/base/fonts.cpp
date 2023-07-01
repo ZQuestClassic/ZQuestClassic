@@ -156,6 +156,7 @@ BITMAP* __load_fontpal_bmp(char const* path)
 {
 	PALETTE pal;
 	BITMAP* bmp = load_bitmap(path,pal);
+	if(!bmp) return nullptr;
 	std::vector<byte> scolors = getColors(bmp,3);
 	std::vector<byte> dcolors;
 	for(byte c : scolors)
@@ -180,6 +181,7 @@ FONT* __load_a4_font(BITMAP* bmp)
 FONT* __load_a4_font(char const* path)
 {
 	BITMAP* bmp = __load_fontpal_bmp(path);
+	if(!bmp) return nullptr;
 	
 	FONT* newfont = __load_a4_font(bmp);
 	
@@ -207,6 +209,7 @@ ALLEGRO_FONT* __load_a5_font(BITMAP* bmp)
 ALLEGRO_FONT* __load_a5_font(char const* path)
 {
 	BITMAP* bmp = __load_fontpal_bmp(path);
+	if(!bmp) return nullptr;
 	
 	ALLEGRO_FONT* a5font = __load_a5_font(bmp);
 	
