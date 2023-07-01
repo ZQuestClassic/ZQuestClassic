@@ -1152,9 +1152,9 @@ int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, int32_t x, int32_t
 
 	if (map == currmap && is_in_current_region(screen)) return MAPCOMBO2(layer, x, y);
 
-	// Screen is not in temporary memory, so we have to load and trigger some secrets.
-	rpos_t rpos = COMBOPOS_REGION(x, y);
-	return MAPCOMBO3_impl(map, screen, layer, RPOS_TO_POS(rpos), secrets);
+	// Screen is not in the current region, so we have to load and trigger some secrets.
+	int pos = COMBOPOS(x, y);
+	return MAPCOMBO3_impl(map, screen, layer, pos, secrets);
 }
 
 int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, rpos_t rpos, bool secrets)

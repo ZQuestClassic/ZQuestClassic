@@ -26268,6 +26268,8 @@ bool HeroClass::nextcombo_solid(int32_t d2)
 	
 	int32_t cx = x;
 	int32_t cy = y;
+	cx %= 256;
+	cy %= 176;
 	
 	switch(d2)
 	{
@@ -26294,21 +26296,15 @@ bool HeroClass::nextcombo_solid(int32_t d2)
 	
 	int32_t initcx = cx;
 	int32_t initcy = cy;
+	bool smarter_scroll = get_bit(quest_rules, qr_SMARTER_SMART_SCROLL);
 	// from MAPCOMBO()
 	
 	for(int32_t i=0; i<=((bigHitbox&&!(d2==up||d2==down))?((initcy&7)?2:1):((initcy&7)?1:0)) && cy < world_h; cy+=(cy%2)?7:8,i++)
 	{
 		cx = initcx;
-		for(int32_t k=0; k<=(get_bit(quest_rules, qr_SMARTER_SMART_SCROLL)?((initcx&7)?2:1):0) && cx < world_w; cx+=(cx%2)?7:8,k++)
+		for(int32_t k=0; k<=(smarter_scroll?((initcx&7)?2:1):0) && cx < world_w; cx+=(cx%2)?7:8,k++)
 		{
-			int32_t cmb = COMBOPOS(cx%256, cy%176);
-			
-			if(cmb>175)
-			{
-				return true;
-			}
-			
-			newcombo const& c = combobuf[MAPCOMBO3(map, screen, -1,cx,cy, get_bit(quest_rules, qr_SMARTER_SMART_SCROLL))];
+			newcombo const& c = combobuf[MAPCOMBO3(map, screen, -1,cx,cy, smarter_scroll)];
 		
 			int32_t b=1;
 			
@@ -26319,7 +26315,7 @@ bool HeroClass::nextcombo_solid(int32_t d2)
 			//bool bridgedetected = false;
 		
 			int32_t walk = c.walk;
-			if (get_bit(quest_rules, qr_SMARTER_SMART_SCROLL))
+			if (smarter_scroll)
 			{
 				for (int32_t m = 0; m <= 1; m++)
 				{
@@ -26338,7 +26334,7 @@ bool HeroClass::nextcombo_solid(int32_t d2)
 				}
 			}
 
-			bool swim = iswaterex(MAPCOMBO3(map, screen, -1,cx,cy, get_bit(quest_rules, qr_SMARTER_SMART_SCROLL)), map, screen, -1, cx, cy, true, false, true) && (current_item(itype_flippers) || action==rafting);
+			bool swim = iswaterex(MAPCOMBO3(map, screen, -1,cx,cy, smarter_scroll), map, screen, -1, cx, cy, true, false, true) && (current_item(itype_flippers) || action==rafting);
 			
 			if((walk&b) && !swim)
 			{
