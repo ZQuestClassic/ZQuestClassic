@@ -17,8 +17,6 @@ extern bool update_hw_pal;
 
 // TODO z3 ! make this a property of the passive subscreen
 bool global_z3_scrolling_extended_height_mode = true;
-// TODO z3 !
-bool global_z3_always_use_new_scrollscr = !false;
 
 volatile bool close_button_quit = false;
 
