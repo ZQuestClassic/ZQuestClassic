@@ -13637,31 +13637,39 @@ void HeroClass::mod_steps(std::vector<zfix*>& v)
 		}
 	}
 	
-	auto slow_cpos = COMBOPOS(x+7,y+8);
-	if(can_combo) for(int q = 6; q >= 0; --q)
+	if (can_combo)
 	{
-		mapscr* m = FFCore.tempScreens[q];
-		if(!m->valid) continue;
-		newcombo const& cmb = combobuf[m->data[slow_cpos]];
-		
-		for(zfix* stp : v)
+		rpos_t slow_rpos = COMBOPOS_REGION(x+7, y+8);
+		for (int q = 6; q >= 0; --q)
 		{
-			zfix& pix = *stp;
-			pix *= cmb.speed_mult;
-			if(cmb.speed_div)
-				pix /= cmb.speed_div;
-			pix += cmb.speed_add;
-		}
-		if(q > 0 && cmb.type == cBRIDGE)
-		{
-			if(get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS)
-				? !_walkflag_layer(x+7,y+8,1,&(tmpscr2[q-1]))
-				: _effectflag_layer(x+7,y+8,1,&(tmpscr2[q-1])))
+			int cid = get_rpos_handle(slow_rpos, q).data();
+			newcombo const& cmb = combobuf[cid];
+
+			// TODO z3 upstream
+			if (cmb.speed_mult != 1 || cmb.speed_div || cmb.speed_add)
 			{
-				break; //Bridge blocks speed change from below it
+				for (zfix* stp : v)
+				{
+					zfix& pix = *stp;
+					pix *= cmb.speed_mult;
+					if(cmb.speed_div)
+						pix /= cmb.speed_div;
+					pix += cmb.speed_add;
+				}
+			}
+
+			if (q > 0 && cmb.type == cBRIDGE)
+			{
+				if(get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS)
+					? !_walkflag_layer(x+7,y+8,q-1)
+					: _effectflag_layer(x+7,y+8,q-1))
+				{
+					break; //Bridge blocks speed change from below it
+				}
 			}
 		}
 	}
+
 	zfix mult = 1, div = 1;
 	if(is_swimming)
 	{
