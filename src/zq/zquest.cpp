@@ -14653,8 +14653,9 @@ int32_t onScreenPalette()
 				if(screen_pal_dlg[2].d1 != oldcol)
 					saved=false;
 				Map.setcolor(screen_pal_dlg[2].d1);
-				refresh(rALL);
 			}
+			else Map.setcolor(oldcol);
+			refresh(rALL);
 			break;
 		}
 	}
