@@ -334,11 +334,13 @@ int32_t main(int32_t argc, char **argv)
 	}
 
 	int32_t qr_hex_index = used_switch(argc, argv, "-qr");
-	if (qr_hex_index)
 	{
-		char* qr_hex = argv[qr_hex_index + 1];
-
-		if (strlen(qr_hex) != QUESTRULES_NEW_SIZE * 2)
+		std::string qr_hex = qr_hex_index ?
+			argv[qr_hex_index + 1] :
+			// TODO: set to defaults in a better way.
+			"B343AFAF01C281A00DA58A4211A608DFDF080001162A0410FC5306FE2A274100381B02044031300000065824000000000000D0030000000000000000000000000000000000000000000000000000000034866C3140320000000000000000000000000000";
+		printf("%s\n", qr_hex.c_str());
+		if (qr_hex.size() != QUESTRULES_NEW_SIZE * 2)
 		{
 			zconsole_error("Error: -qr hex string must be of length %d", QUESTRULES_NEW_SIZE * 2);
 			return 1;
