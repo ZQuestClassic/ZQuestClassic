@@ -4,8 +4,7 @@
 
 int32_t rpos_handle_t::pos() const
 {
-	int32_t pos = static_cast<int32_t>(rpos)%176;
-	return pos;
+	return (int32_t)rpos % 176;
 }
 
 int32_t rpos_handle_t::data() const
@@ -31,6 +30,16 @@ int32_t rpos_handle_t::cset() const
 void rpos_handle_t::set_cset(int32_t value) const
 {
 	screen->cset[pos()] = value;
+}
+
+uint8_t rpos_handle_t::sflag() const
+{
+	return screen->sflag[pos()];
+}
+
+void rpos_handle_t::set_sflag(uint8_t value) const
+{
+	screen->sflag[pos()] = value;
 }
 
 int32_t ffc_handle_t::data() const

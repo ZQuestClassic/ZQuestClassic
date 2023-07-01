@@ -1192,7 +1192,7 @@ int32_t MAPFLAG2(int32_t layer,int32_t x,int32_t y)
 	auto rpos_handle = get_rpos_handle_for_world_xy(x, y, layer + 1);
 	if (!rpos_handle.screen->valid) return 0;
 
-	return rpos_handle.screen->sflag[rpos_handle.pos()];
+	return rpos_handle.sflag();
 }
 
 int32_t COMBOTYPE2(int32_t layer,int32_t x,int32_t y)

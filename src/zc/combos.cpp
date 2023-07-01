@@ -2585,7 +2585,7 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, int32_t special, weapon*
 	word ctramnt = game->get_counter(cmb.trigctr);
 	bool onlytrigctr = !(cmb.triggerflags[1] & combotriggerCTRNONLYTRIG);
 	
-	int32_t flag = rpos_handle.screen->sflag[pos];
+	int32_t flag = rpos_handle.sflag();
 	int32_t flag2 = cmb.flag;
 	
 	bool check_bit = false;
@@ -3414,9 +3414,7 @@ bool do_lift_combo(const rpos_handle_t& rpos_handle, int32_t gloveid)
 	rpos_handle.set_data(cmb.liftundercmb);
 	if(!(cmb.liftflags & LF_NOUCSET))
 		rpos_handle.set_cset(cmb.liftundercs);
-	rpos_handle.screen->sflag[rpos_handle.pos()] = 0;
-	// TODO z3 !!!
-	// rpos_handle.set_sflag(0);
+	rpos_handle.set_sflag(0);
 	return true;
 }
 

@@ -36,6 +36,9 @@ struct rpos_handle_t
 
 	int32_t cset() const;
 	void set_cset(int32_t value) const;
+
+	uint8_t sflag() const;
+	void set_sflag(uint8_t value) const;
 };
 
 // TODO z3 !! narrow size of fields here.

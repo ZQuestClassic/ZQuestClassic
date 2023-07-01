@@ -348,7 +348,7 @@ bool movingblock::check_hole() const
 {
 	auto rpos_handle = get_rpos_handle_for_world_xy(x, y, blockLayer);
 	size_t combopos = rpos_handle.pos();
-	if ((rpos_handle.screen->sflag[combopos]==mfBLOCKHOLE)||MAPCOMBOFLAG2(blockLayer-1,x,y)==mfBLOCKHOLE)
+	if ((rpos_handle.sflag()==mfBLOCKHOLE)||MAPCOMBOFLAG2(blockLayer-1,x,y)==mfBLOCKHOLE)
 		return true;
 
 	if (!get_bit(quest_rules, qr_BLOCKHOLE_SAME_ONLY))
@@ -625,7 +625,7 @@ bool movingblock::animate(int32_t)
 			
 			auto rpos_handle = get_rpos_handle_for_world_xy(x, y, 0);
 			int combopos = rpos_handle.pos();
-			int f1 = rpos_handle.screen->sflag[combopos];
+			int f1 = rpos_handle.sflag();
 			int f2 = MAPCOMBOFLAG2(blockLayer-1,x,y);
 			auto maxLayer = get_bit(quest_rules, qr_PUSHBLOCK_LAYER_1_2) ? 2 : 0;
 			bool no_trig_replace = get_bit(quest_rules, qr_BLOCKS_DONT_LOCK_OTHER_LAYERS);
@@ -860,7 +860,7 @@ bool movingblock::animate(int32_t)
 			
 			auto rpos_handle = get_rpos_handle_for_world_xy(x, y, 0);
 			int combopos = rpos_handle.pos();
-			int32_t f1 = rpos_handle.screen->sflag[rpos_handle.pos()];
+			int32_t f1 = rpos_handle.sflag();
 			int32_t f2 = MAPCOMBOFLAG2(blockLayer-1,x,y);
 			auto maxLayer = get_bit(quest_rules, qr_PUSHBLOCK_LAYER_1_2) ? 2 : 0;
 			bool no_trig_replace = get_bit(quest_rules, qr_BLOCKS_DONT_LOCK_OTHER_LAYERS);
