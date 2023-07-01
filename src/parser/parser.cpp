@@ -245,6 +245,19 @@ std::unique_ptr<ZScript::ScriptsData> compile(std::string script_path)
 	return res;
 }
 
+static std::vector<std::string> split(const std::string &s, char delim)
+{
+	std::vector<std::string> result;
+	std::stringstream ss (s);
+	std::string item;
+
+	while (getline (ss, item, delim)) {
+		result.push_back (item);
+	}
+
+	return result;
+}
+
 void updateIncludePaths()
 {
 	FILE* f = fopen("includepaths.txt", "r");
@@ -266,22 +279,8 @@ void updateIncludePaths()
 		fclose(f);
 	}
 	else strcpy(includePathString, "include/;headers/;scripts/;");
-	ZQincludePaths.clear();
-	int32_t pos = 0; int32_t pathnumber = 0;
-	for ( int32_t q = 0; includePathString[pos]; ++q )
-	{
-		int32_t dest = 0;
-		char buf[2048] = {0};
-		while(includePathString[pos] != ';' && includePathString[pos])
-		{
-			buf[dest] = includePathString[pos];
-			++pos;
-			++dest;
-		}
-		++pos;
-		std::string str(buf);
-		ZQincludePaths.push_back(str);
-	}
+
+	ZQincludePaths = split(includePathString, ';');
 }
 
 int32_t main(int32_t argc, char **argv)
@@ -366,7 +365,18 @@ int32_t main(int32_t argc, char **argv)
 	memset(FFCore.scriptRunString,0,sizeof(FFCore.scriptRunString));
 	char const* runstr = zc_get_config("Compiler","run_string","run");
 	strcpy(FFCore.scriptRunString, runstr);
-	updateIncludePaths();
+
+	int32_t include_paths_index = used_switch(argc, argv, "-include");
+	if (include_paths_index)
+	{
+		std::string include_paths = argv[include_paths_index+1];
+		ZQincludePaths = split(include_paths, ';');
+	}
+	else
+	{
+		updateIncludePaths();
+	}
+
 	// Any errors will be printed to stdout.
 	if(used_switch(argc, argv, "-delay"))
 	{
