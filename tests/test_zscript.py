@@ -33,10 +33,16 @@ class TestReplays(unittest.TestCase):
         if 'BUILD_FOLDER' in os.environ:
             build_folder = Path(os.environ['BUILD_FOLDER']).absolute()
         exe_name = 'zscript.exe' if os.name == 'nt' else 'zscript'
+        # Change include paths to use resources/ directly, instead of possibly-stale stuff inside a build folder.
+        include_paths = [
+            str(root_dir / 'resources/include'),
+            str(root_dir / 'resources/headers'),
+        ]
         args = [
             build_folder / exe_name,
             '-input', script_path,
             '-zasm', 'out.zasm',
+            '-include', ';'.join(include_paths),
             '-unlinked'
         ]
         output = subprocess.run(args, cwd=build_folder, encoding='utf-8',
@@ -52,7 +58,7 @@ class TestReplays(unittest.TestCase):
         return zasm
 
     def test_zscript_compiler_expected_zasm(self):
-        for script_path in test_scripts_dir.rglob('*.zs'):
+        for script_path in test_scripts_dir.glob('*.zs'):
             with self.subTest(msg=f'compile {script_path.name}'):
                 zasm = self.compile_script(script_path)
                 expected_path = script_path.with_name(
