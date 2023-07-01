@@ -2208,6 +2208,7 @@ bool ishookshottable(int32_t map, int32_t screen, int32_t bx, int32_t by)
 	return ret;
 }
 
+// TODO z3 !!!
 bool hiddenstair2(mapscr *s, int32_t screen_index, bool redraw)
 {
     if((s->stairx || s->stairy) && s->secretcombo[sSTAIRS])
@@ -5536,6 +5537,9 @@ void load_a_screen_and_layers(int dmap, int map, int screen_index, int ldir)
 // the new screen has a 0 combo).
 void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_x80_dir)
 {
+	// auto oscr = homescr;
+	// homescr = scr;
+
 	int32_t orig_destdmap = destdmap;
 	if (destdmap < 0) destdmap = currdmap;
 
@@ -5641,6 +5645,8 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 		delete Hero.lift_wpn;
 		Hero.lift_wpn = nullptr;
 	}
+
+	// homescr = oscr;
 }
 
 // Don't use this directly!
@@ -5652,6 +5658,12 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 //    - delete old scrollscr code
 void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay,bool do_setups)
 {
+	auto oscr = homescr;
+	if (do_setups)
+	{
+		homescr = scr;
+	}
+
 	if (replay_is_active() && tmp == 0)
 	{
 		if (replay_get_mode() == ReplayMode::ManualTakeover)
@@ -5876,10 +5888,7 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 		if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mSECRET)			   // if special stuff done before
 		{
 			hiddenstair2(screen, scr, false);
-			auto oscr = homescr;
-			homescr = scr;
 			trigger_secrets_for_screen_internal(-1, tmp == 0 ? &tmpscr : &special_warp_return_screen, true, false, -1);
-			homescr = oscr;
 		}
 		if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mLIGHTBEAM) // if special stuff done before
 		{
@@ -6040,11 +6049,17 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 			Hero.lift_wpn = nullptr;
 		}
 	}
+
+	if (do_setups)
+		homescr = oscr;
 }
 
 // Screen is being viewed by the Overworld Map viewer.
 void loadscr2(int32_t tmp,int32_t scr,int32_t)
 {
+	auto oscr = homescr;
+	homescr = scr;
+
 	for(word x=0; x<animated_combos; x++)
 	{
 		if(combobuf[animated_combo_table4[x][0]].nextcombo!=0)
@@ -6086,10 +6101,7 @@ void loadscr2(int32_t tmp,int32_t scr,int32_t)
 		if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mSECRET)			   // if special stuff done before
 		{
 			hiddenstair2(&screen, scr, false);
-			auto oscr = homescr;
-			homescr = scr;
 			trigger_secrets_for_screen_internal(-1, tmp == 0 ? &tmpscr : &special_warp_return_screen, true, false, -1);
-			homescr = oscr;
 		}
 		if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mLIGHTBEAM) // if special stuff done before
 		{
@@ -6227,6 +6239,8 @@ void loadscr2(int32_t tmp,int32_t scr,int32_t)
 			}
 		}
 	}
+
+	homescr = oscr;
 }
 
 void putscr(BITMAP* dest,int32_t x,int32_t y, mapscr* screen)

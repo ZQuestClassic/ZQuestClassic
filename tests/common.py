@@ -2,21 +2,22 @@ import platform
 import os
 import io
 import json
+import subprocess
+import shutil
+import tarfile
 from time import sleep
 from dataclasses import dataclass
 import dataclasses
-from typing import List, Literal, Tuple, Optional, Any
+from typing import List, Literal, Tuple, Optional
 import requests
 import zipfile
 from pathlib import Path
-
-# So that `PyGithub` is not necessary to simply run `run_replay_tests.py`.
-try:
-    from github import Github
-except:
-    Github = {}
+from github import Github
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
+root_dir = script_dir.parent
+releases_dir = root_dir / '.tmp/releases'
+test_builds_dir = root_dir / '.tmp/test_builds'
 
 
 @dataclass
@@ -91,6 +92,9 @@ def download_artifact(gh, repo, artifact, dest):
 
 
 def get_gha_artifacts(gh: Github, repo_str: str, run_id: int) -> Path:
+    if not isinstance(run_id, int):
+        raise Exception('run_id must be an integer')
+
     gha_cache_dir = script_dir / '.gha-cache-dir'
     workflow_run_dir = gha_cache_dir / str(run_id)
     if workflow_run_dir.exists() and (workflow_run_dir / '.complete').exists():
@@ -138,3 +142,68 @@ def get_gha_artifacts_with_retry(gh: Github, repo_str: str, run_id: int) -> Path
         except Exception as e:
             if i == NUM_TRIES - 1:
                 raise e
+
+# TODO: remove copy of these methods in bisect_builds.py
+def get_release_package_url(gh: Github, repo_str: str, channel: str, tag: str):
+    repo = gh.get_repo(repo_str)
+    release = repo.get_release(tag)
+    assets = list(release.get_assets())
+
+    asset = None
+    if channel == 'mac':
+        asset = next(asset for asset in assets if asset.name.endswith('.dmg'))
+    elif channel == 'windows':
+        if len(assets) == 1:
+            asset = assets[0]
+        else:
+            assets = [asset for asset in assets if 'windows' in asset.name]
+            asset = next((asset for asset in assets if 'x64' in asset.name), None) or \
+                next((asset for asset in assets if 'x86' in asset.name), None)
+    elif channel == 'linux':
+        asset = next(asset for asset in assets if asset.name.endswith(
+            '.tar.gz') or asset.name.endswith('.tgz'))
+
+    if not asset:
+        raise Exception(f'could not find package url for {tag}')
+
+    return asset.browser_download_url
+
+
+def maybe_get_downloaded_revision(tag: str) -> Optional[Path]:
+    if (releases_dir / tag).exists():
+        return releases_dir / tag
+    if (test_builds_dir / tag).exists():
+        return test_builds_dir / tag
+    return None
+
+
+def download_release(gh: Github, repo_str: str, channel: str, tag: str):
+    dest = releases_dir / tag
+    if dest.exists():
+        return dest
+
+    dest.mkdir(parents=True)
+    print(f'downloading release {tag}')
+
+    url = get_release_package_url(gh, repo_str, channel, tag)
+    r = requests.get(url)
+    if channel == 'mac':
+        (dest / 'ZeldaClassic.dmg').write_bytes(r.content)
+        subprocess.check_call(['hdiutil', 'attach', '-mountpoint',
+                              str(dest / 'zc-mounted'), str(dest / 'ZeldaClassic.dmg')], stdout=subprocess.DEVNULL)
+        shutil.copytree(dest / 'zc-mounted/ZeldaClassic.app',
+                        dest / 'ZeldaClassic.app')
+        subprocess.check_call(['hdiutil', 'unmount', str(
+            dest / 'zc-mounted')], stdout=subprocess.DEVNULL)
+        (dest / 'ZeldaClassic.dmg').unlink()
+    elif url.endswith('.tar.gz'):
+        tf = tarfile.open(fileobj=io.BytesIO(r.content), mode='r:gz')
+        tf.extractall(dest)
+        tf.close()
+    else:
+        zip = zipfile.ZipFile(io.BytesIO(r.content))
+        zip.extractall(dest)
+        zip.close()
+
+    print(f'finished downloading {tag}')
+    return dest

@@ -1757,9 +1757,20 @@ int onSetNewLayer(int newlayer)
 	refresh(rALL);
 	return D_O_K;
 }
+void lpal_dsa()
+{
+	info_dsa("Level Palette Shortcuts",
+		"You currently have level palette shortcuts disabled."
+		" These can be re-enabled in 'Etc->Options', on the toggle 'Disable Level Palette Shortcuts'.",
+		"dsa_lpal");
+}
 int onScreenLPal(int lpal)
 {
-	if(DisableLPalShortcuts) return D_O_K;
+	if(DisableLPalShortcuts)
+	{
+		lpal_dsa();
+		return D_O_K;
+	}
 	saved=false;
 	Map.setcolor(lpal);
 	refresh(rSCRMAP);
@@ -3463,247 +3474,6 @@ int32_t onDefault_MapStyles()
     }
     
     return D_O_K;
-}
-
-int32_t on0()
-{
-	if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
-	{
-		return on10();
-	}
-	else if(key[KEY_LCONTROL]||key[KEY_RCONTROL])
-	{
-		CurrentLayer = 0;
-		refresh(rALL);
-	}
-	else if(!DisableLPalShortcuts)
-	{
-		saved=false;
-		Map.setcolor(0);
-		refresh(rSCRMAP);
-	}
-	return D_O_K;
-}
-int32_t on1()
-{
-	if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
-	{
-		return on11();
-	}
-	else if(key[KEY_LCONTROL]||key[KEY_RCONTROL])
-	{
-		if(Map.CurrScr()->layermap[0])
-		{
-			CurrentLayer = 1;
-			refresh(rALL);
-		}
-	}
-	else if(!DisableLPalShortcuts)
-	{
-		saved=false;
-		Map.setcolor(1);
-		refresh(rSCRMAP);
-	}
-	return D_O_K;
-}
-int32_t on2()
-{
-	if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
-	{
-		return on12();
-	}
-	else if(key[KEY_LCONTROL]||key[KEY_RCONTROL])
-	{
-		if(Map.CurrScr()->layermap[1])
-		{
-			CurrentLayer = 2;
-			refresh(rALL);
-		}
-	}
-	else if(!DisableLPalShortcuts)
-	{
-		saved=false;
-		Map.setcolor(2);
-		refresh(rSCRMAP);
-	}
-	return D_O_K;
-}
-int32_t on3()
-{
-	if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
-	{
-		return on13();
-	}
-	else if(key[KEY_LCONTROL]||key[KEY_RCONTROL])
-	{
-		if(Map.CurrScr()->layermap[2])
-		{
-			CurrentLayer = 3;
-			refresh(rALL);
-		}
-	}
-	else if(!DisableLPalShortcuts)
-	{
-		saved=false;
-		Map.setcolor(3);
-		refresh(rSCRMAP);
-    }
-	return D_O_K;
-}
-int32_t on4()
-{
-	if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
-	{
-		return on14();
-	}
-	else if(key[KEY_LCONTROL]||key[KEY_RCONTROL])
-	{
-		if(Map.CurrScr()->layermap[3])
-		{
-			CurrentLayer = 4;
-			refresh(rALL);
-		}
-	}
-	else if(!DisableLPalShortcuts)
-	{
-		saved=false;
-		Map.setcolor(4);
-		refresh(rSCRMAP);
-	}
-	return D_O_K;
-}
-int32_t on5()
-{
-	if(key[KEY_LSHIFT] || key[KEY_RSHIFT])
-	{
-		return on15();
-	}
-	else if(key[KEY_LCONTROL]||key[KEY_RCONTROL])
-	{
-		if(Map.CurrScr()->layermap[4])
-		{
-			CurrentLayer = 5;
-			refresh(rALL);
-		}
-	}
-	else if(!DisableLPalShortcuts)
-	{
-		saved=false;
-		Map.setcolor(5);
-		refresh(rSCRMAP);
-    }
-	return D_O_K;
-}
-
-int32_t on6()
-{
-	if(key[KEY_LCONTROL]||key[KEY_RCONTROL])
-	// if(key_shifts & KB_CTRL_FLAG)
-	{
-		if(Map.CurrScr()->layermap[5])
-		{
-			CurrentLayer = 6;
-			refresh(rALL);
-		}
-	}
-	else if(!DisableLPalShortcuts)
-	{
-		saved=false;
-		Map.setcolor(6);
-		refresh(rSCRMAP);
-	}
-	return D_O_K;
-}
-int32_t on7()
-{
-	if(!DisableLPalShortcuts)
-	{
-		saved=false;
-		Map.setcolor(7);
-		refresh(rSCRMAP);
-	}
-	return D_O_K;
-}
-int32_t on8()
-{
-	if(!DisableLPalShortcuts)
-	{
-		saved=false;
-		Map.setcolor(8);
-		refresh(rSCRMAP);
-	}
-	return D_O_K;
-}
-int32_t on9()
-{
-	if(!DisableLPalShortcuts)
-	{
-		saved=false;
-		Map.setcolor(9);
-		refresh(rSCRMAP);
-	}
-	return D_O_K;
-}
-
-int32_t on10()
-{
-	if(!DisableLPalShortcuts)
-	{
-		saved=false;
-		Map.setcolor(10);
-		refresh(rSCRMAP);
-	}
-	return D_O_K;
-}
-int32_t on11()
-{
-	if(!DisableLPalShortcuts)
-	{
-		saved=false;
-		Map.setcolor(11);
-		refresh(rSCRMAP);
-	}
-	return D_O_K;
-}
-int32_t on12()
-{
-	if(!DisableLPalShortcuts)
-	{
-		saved=false;
-		Map.setcolor(12);
-		refresh(rSCRMAP);
-	}
-	return D_O_K;
-}
-int32_t on13()
-{
-	if(!DisableLPalShortcuts)
-	{
-		saved=false;
-		Map.setcolor(13);
-		refresh(rSCRMAP);
-	}
-	return D_O_K;
-}
-int32_t on14()
-{
-	if(!DisableLPalShortcuts)
-	{
-		saved=false;
-		Map.setcolor(14);
-		refresh(rSCRMAP);
-	}
-	return D_O_K;
-}
-int32_t on15()
-{
-	if(!DisableLPalShortcuts)
-	{
-		saved=false;
-		Map.setcolor(15);
-		refresh(rSCRMAP);
-	}
-	return D_O_K;
 }
 
 int onScrollScreen(int dir, bool warp)
@@ -11208,25 +10978,12 @@ void domouse()
 				{
 					if(get_bit(quest_rules,qr_NOARRIVALPOINT))
 					{
-						if(!zc_get_config("zquest","dsa_warparrival",0))
-						{
-							AlertDialog("Arrival Square",
+						info_dsa("Arrival Square",
 								"The arrival square cannot be used unless the QR 'Use Warp Return "
 								"Points Only' under 'Quest->Options->Combos' is disabled."
 								"\nGenerally, this square only exists for compatibility purposes, and is not used"
 								" in creating new quests.",
-								[&](bool ret,bool dsa)
-								{
-									if(dsa)
-									{
-										zc_set_config("zquest","dsa_warparrival",1);
-									}
-								},
-								"OK","",
-								0,false, //timeout - none
-								true //"Don't show this again"
-							).show();
-						}
+								"dsa_warparrival");
 					}
 					else doxypos(Map.CurrScr()->warparrivalx,Map.CurrScr()->warparrivaly,10,0xF8);
 					goto domouse_doneclick;
@@ -14891,7 +14648,11 @@ int32_t onScreenPalette()
 
 int32_t onDecScrPal()
 {
-	if(DisableLPalShortcuts) return D_O_K;
+	if(DisableLPalShortcuts)
+	{
+		lpal_dsa();
+		return D_O_K;
+	}
     restore_mouse();
     int32_t c=Map.getcolor();
     c+=511;
@@ -14904,7 +14665,11 @@ int32_t onDecScrPal()
 
 int32_t onIncScrPal()
 {
-	if(DisableLPalShortcuts) return D_O_K;
+	if(DisableLPalShortcuts)
+	{
+		lpal_dsa();
+		return D_O_K;
+	}
     restore_mouse();
     int32_t c=Map.getcolor();
     c+=1;
@@ -14927,7 +14692,11 @@ int32_t PalWrap(int32_t kX, int32_t const kLowerBound, int32_t const kUpperBound
 
 int32_t onDecScrPal16()
 {
-	if(DisableLPalShortcuts) return D_O_K;
+	if(DisableLPalShortcuts)
+	{
+		lpal_dsa();
+		return D_O_K;
+	}
     restore_mouse(); 
     int32_t c=Map.getcolor();
       
@@ -14941,7 +14710,11 @@ int32_t onDecScrPal16()
 
 int32_t onIncScrPal16()
 {
-	if(DisableLPalShortcuts) return D_O_K;
+	if(DisableLPalShortcuts)
+	{
+		lpal_dsa();
+		return D_O_K;
+	}
     restore_mouse();
     int32_t c=Map.getcolor();
       	    

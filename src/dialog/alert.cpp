@@ -2,6 +2,25 @@
 #include <gui/builder.h>
 #include <utility>
 
+void info_dsa(std::string const& title, std::string const& text, std::string const& dsastr)
+{
+	if(!zc_get_config("dsa",dsastr.c_str(),0))
+	{
+		AlertDialog(title, text,
+			[&](bool ret,bool dsa)
+			{
+				if(dsa)
+				{
+					zc_set_config("dsa",dsastr.c_str(),1);
+				}
+			},
+			"OK","",
+			0,false, //timeout - none
+			true //"Don't show this again"
+		).show();
+	}
+}
+
 AlertDialog::AlertDialog(std::string title, std::string text, std::function<void(bool,bool)> onEnd, std::string truebtn, std::string falsebtn, uint32_t timeout, bool default_ret, bool dontshow):
 	InfoDialog(title,text), onEnd(onEnd), timer(0), timeout(timeout), default_ret(default_ret), truebtn(truebtn), falsebtn(falsebtn), dontshowagain(dontshow)
 {}
