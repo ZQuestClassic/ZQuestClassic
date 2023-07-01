@@ -48,7 +48,7 @@ if all(f.startswith('src/zq') for f in changed_files):
 if all(f.startswith('src/launcher') for f in changed_files):
     suggested_scopes.append('launcher')
 if all(f.startswith('src/parser') for f in changed_files):
-    suggested_scopes.append('parser')
+    suggested_scopes.append('zscript')
 if all(f.startswith('src/zc/ffscript') for f in changed_files):
     suggested_scopes.append('zscript')
 if all(f.startswith('src/zc/zconsole') for f in changed_files):
