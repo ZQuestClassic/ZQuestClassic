@@ -36,7 +36,7 @@ static const GUI::ListData list_ondepr
 	{ "Error", 2 }
 };
 
-static const GUI::ListData list_questspec
+GUI::ListData compileSettingList
 {
 	{ "2.50 Division Truncation", qr_PARSER_250DIVISION, "COMPAT - This replicates an old bug with division." },
 	{ "Disable Tracing", qr_PARSER_NO_LOGGING, "OPTION - Disables 'Trace()', 'printf()', and similar commands." },
@@ -61,14 +61,14 @@ void CompileSettingsDlg::load()
 	strcpy(include_str,FFCore.includePathString);
 	include_str[MAX_INCLUDE_PATH_CHARS-1] = 0;
 	
-	for(size_t q = 0; q < list_questspec.size(); ++q)
+	for(size_t q = 0; q < compileSettingList.size(); ++q)
 	{
 		if(q > 8*sizeof(qst_cfg)) //sanity... probably not really necessary, but just to be safe -Em
 		{
 			displayinfo("DEV ERROR","Not enough space for all quest-specific QRs!");
 			break;
 		}
-		set_bit(qst_cfg,q,get_bit(quest_rules,list_questspec.getValue(q)));
+		set_bit(qst_cfg,q,get_bit(quest_rules,compileSettingList.getValue(q)));
 	}
 }
 void CompileSettingsDlg::save()
@@ -88,11 +88,11 @@ void CompileSettingsDlg::save()
 	memset(FFCore.includePathString,0,sizeof(FFCore.includePathString));
 	strcpy(FFCore.includePathString,include_str);
 	
-	for(size_t q = 0; q < list_questspec.size(); ++q)
+	for(size_t q = 0; q < compileSettingList.size(); ++q)
 	{
 		if(q > 8*sizeof(qst_cfg)) //match the above sanity check -Em
 			break;
-		set_bit(quest_rules,list_questspec.getValue(q),get_bit(qst_cfg,q));
+		set_bit(quest_rules,compileSettingList.getValue(q),get_bit(qst_cfg,q));
 	}
 	
 	FFCore.updateIncludePaths();
@@ -212,7 +212,7 @@ std::shared_ptr<GUI::Widget> CompileSettingsDlg::view()
 						indexed = true,
 						initializer = qst_cfg,
 						count = 14,
-						data = list_questspec
+						data = compileSettingList
 					)
 				))
 			),

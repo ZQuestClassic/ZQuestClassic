@@ -44,6 +44,7 @@ enum
 	rules_zs_object,
 	rules_zs_drawing,
 	rules_zs_bugfix,
+	rules_compiler_setting,
 	rules_tagcount
 };
 
@@ -63,12 +64,13 @@ std::string tagNames[rules_tagcount + 1] =
 	"ZS: Object",
 	"ZS: Drawing",
 	"ZS: Bugfix",
+	"Compiler Settings",
 	"??"
 };
 
 std::string const& getLongestTagName()
 {
-	return tagNames[rules_zs_instruction];
+	return tagNames[rules_compiler_setting];
 }
 std::string const& getTagName(int32_t ruletype)
 {
@@ -1565,6 +1567,8 @@ GUI::ListData bugfixRulesList
 	{ "Don't Deallocate Init/SaveLoad Local Arrays", qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS }
 };
 
+extern GUI::ListData compileSettingList;
+
 static GUI::ListData combinedZSRulesList;
 static bool inited_combined_zsrules = false;
 GUI::ListData const& combinedZSRList()
@@ -1576,10 +1580,12 @@ GUI::ListData const& combinedZSRList()
 		objectRulesList.tag(rules_zs_object);
 		drawingRulesList.tag(rules_zs_drawing);
 		bugfixRulesList.tag(rules_zs_bugfix);
+		compileSettingList.tag(rules_compiler_setting);
 		
 		combinedZSRulesList = scriptRulesList + instructionRulesList
 			+ objectRulesList + drawingRulesList + bugfixRulesList;
 		combinedZSRulesList.alphabetize();
+		combinedZSRulesList += compileSettingList;
 		inited_combined_zsrules = true;
 	}
 	return combinedZSRulesList;
