@@ -63,6 +63,7 @@ void Label::fitText()
 {
 	// text_length doesn't understand line breaks, so we'll do it ourselves.
 	text_fit = text;
+	std::ostringstream oss;
 	char* data = text_fit.data();
 	auto* f = widgFont;
 	auto* char_length = f->vtable->char_length;
@@ -78,6 +79,11 @@ void Label::fitText()
 		char c = data[i];
 		if(c == '\n')
 		{
+			char oc = data[i+1];
+			data[i+1] = 0;
+			oss << data;
+			data[i+1] = oc;
+			
 			data = data+i+1;
 			if(widthSoFar > max_width)
 				max_width = widthSoFar;
@@ -93,15 +99,36 @@ void Label::fitText()
 		if(widthSoFar > actualWidth)
 		{
 			// Line's too long; try to put replace the last space with
-			// a line break. If there hasn't been one, we'll just
-			// keep trying until there's a space.
+			// a line break. If there hasn't been one, just break it
 			if(lastSpace >= 0)
 			{
 				if(actualWidth > max_width)
 					max_width = actualWidth;
 				widthSoFar = 0;
 				data[lastSpace] = '\n';
+				
+				char oc = data[lastSpace+1];
+				data[lastSpace+1] = 0;
+				oss << data;
+				data[lastSpace+1] = oc;
+				
 				data = data+lastSpace+1;
+				lastSpace = -1;
+				i = -1;
+				++currentLine;
+				continue;
+			}
+			else
+			{
+				if(actualWidth > max_width)
+					max_width = actualWidth;
+				widthSoFar = 0;
+				
+				data[i] = 0;
+				oss << data << '\n';
+				data[i] = c;
+				
+				data = data+i;
 				lastSpace = -1;
 				i = -1;
 				++currentLine;
@@ -111,6 +138,10 @@ void Label::fitText()
 				max_width = widthSoFar;
 		}
 	}
+	oss << data; //add the rest
+	
+	text_fit = oss.str();
+	
 	widthSoFar = text_length(f, data);
 	if(widthSoFar > max_width)
 		max_width = widthSoFar;
