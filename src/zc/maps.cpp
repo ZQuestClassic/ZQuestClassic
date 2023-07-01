@@ -456,16 +456,9 @@ int32_t MAPCOMBO2(int32_t layer,int32_t x,int32_t y)
     return tmpscr2[layer].data[combo];                        // entire combo code
 }
 
-int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, int32_t x,int32_t y, bool secrets)
-{
-	return MAPCOMBO3(map, screen, layer, COMBOPOS(x,y), secrets);
-}
-
-int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, int32_t pos, bool secrets)
+static int32_t MAPCOMBO3_impl(int32_t map, int32_t screen, int32_t layer, int32_t pos, bool secrets)
 { 
 	if (map < 0 || screen < 0) return 0;
-	
-	if (map == currmap && screen == currscr) return MAPCOMBO2(layer,COMBOX(pos),COMBOY(pos));
 	
 	if(pos>175 || pos < 0)
 		return 0;
@@ -537,6 +530,25 @@ int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, int32_t pos, bool 
 	clear_xstatecombos2(&scr, nullptr, mi);
 	
 	return scr.data[pos];						// entire combo code
+}
+
+// Read from the current temporary screens or, if (map, screen) is not loaded,
+// load that screen and apply the relevant secrets before evaluating the combo at that position.
+int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, int32_t x, int32_t y, bool secrets)
+{
+	if (map == currmap && currscr == screen) return MAPCOMBO2(layer, x, y);
+
+	// Screen is not currently loaded, so we have to load and trigger some secrets.
+	int pos = COMBOPOS(x, y);
+	return MAPCOMBO3_impl(map, screen, layer, pos, secrets);
+}
+
+int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, int32_t pos, bool secrets)
+{
+	if (map == currmap && currscr == screen) return MAPCOMBO2(layer, COMBOX(pos), COMBOY(pos));
+
+	// Screen is not currently loaded, so we have to load and trigger some secrets.
+	return MAPCOMBO3_impl(map, screen, layer, pos, secrets);
 }
 
 int32_t MAPCSET2(int32_t layer,int32_t x,int32_t y)
