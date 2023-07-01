@@ -14621,7 +14621,7 @@ static DIALOG screen_pal_dlg[] =
     // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
     { jwin_win_proc,      60-12,   40,   200-16,  96,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Select Palette", NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { jwin_droplist_proc, 72-12,   84+4,   161,  16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,     0,             0, (void *) &levelnum_list, NULL, NULL },
+    { jwin_droplist_proc, 72-12,   84+4,   161,  16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       D_EXIT,     0,             0, (void *) &levelnum_list, NULL, NULL },
     { jwin_button_proc,   70,   111,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
     { jwin_button_proc,   150,  111,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
     { jwin_text_proc,       72-12,   60+4,  168,  8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Note: This does not affect how the", NULL, NULL },
@@ -14634,15 +14634,29 @@ int32_t onScreenPalette()
 {
 	restore_mouse();
 	screen_pal_dlg[0].dp2=get_zc_font(font_lfont);
-	screen_pal_dlg[2].d1=Map.getcolor();
+	auto oldcol = screen_pal_dlg[2].d1 = Map.getcolor();
 	
 	large_dialog(screen_pal_dlg);
 	
-	if(zc_popup_dialog(screen_pal_dlg,2)==3)
+	while(true)
 	{
-		saved=false;
-		Map.setcolor(screen_pal_dlg[2].d1);
-		refresh(rALL);
+		auto ret = zc_popup_dialog(screen_pal_dlg,2);
+		if(ret == 2)
+		{
+			Map.setcolor(screen_pal_dlg[2].d1);
+			refresh(rALL);
+		}
+		else
+		{
+			if(ret == 3)
+			{
+				if(screen_pal_dlg[2].d1 != oldcol)
+					saved=false;
+				Map.setcolor(screen_pal_dlg[2].d1);
+				refresh(rALL);
+			}
+			break;
+		}
 	}
 	
 	rebuild_trans_table();
