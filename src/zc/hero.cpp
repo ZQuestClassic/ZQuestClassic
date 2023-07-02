@@ -10496,7 +10496,8 @@ void HeroClass::do_liftglove(int32_t liftid, bool passive)
 			
 			lift_wpn->dir = dir;
 			//Configured throw speed in both axes
-			lift_wpn->step = zfix(glove.misc2)/100;
+			auto basestep = glove.misc2;
+			lift_wpn->step = zfix(basestep)/100;
 			
 			if(isSideViewGravity())
 			{
@@ -10506,11 +10507,11 @@ void HeroClass::do_liftglove(int32_t liftid, bool passive)
 					case left: case right:
 						break; //nothing special for sideways
 					case up: //step converts to upwards fall
-						lift_wpn->fall -= lift_wpn->step*100;
+						lift_wpn->fall -= basestep;
 						lift_wpn->step = 0;
 						break;
 					case down: //step converts into straight down fall
-						lift_wpn->fall = zc_min(lift_wpn->step*100,zinit.terminalv);
+						lift_wpn->fall = zc_min(basestep,zinit.terminalv);
 						lift_wpn->step = 0;
 						break;
 				}
