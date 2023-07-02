@@ -29331,8 +29331,7 @@ int32_t main(int32_t argc,char **argv)
 		}
 
 		if(install_sound(DIGI_AUTODETECT,MIDI_AUTODETECT,NULL))
-			FatalConsole("ZQuest Creator Init Error: %s\n", 
-				"Sound driver not available.  Sound disabled.!\n");
+			Z_message("Sound driver not available.  Sound disabled.\n");
 		else Z_message("OK\n");
 	}
 	

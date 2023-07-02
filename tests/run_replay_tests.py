@@ -1002,6 +1002,6 @@ if mode == 'assert':
         print('all replay tests passed')
     else:
         print(f'{len(failing_tests)} replay tests failed')
-        if not is_ci and replays_dir == script_dir / 'replays':
+        if not is_ci and sys.stdout.isatty() and replays_dir == script_dir / 'replays':
             prompt_to_create_compare_report()
         exit(1)

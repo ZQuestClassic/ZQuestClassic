@@ -138,6 +138,10 @@ jobs:
         name: Test zscript
         run: bash .github/workflows/run_python.sh tests/test_zscript.py
 
+      - if: ${{ matrix.shard_index == 1 && inputs.extra-args == '' && inputs.config != 'Coverage' }}
+        name: Test zquest
+        run: bash .github/workflows/run_python.sh tests/test_zquest.py
+
         # TODO why does this result in "could not open file: test.zplay" on Windows?
       - if: ${{ matrix.shard_index == 1 && inputs.extra-args == '' && runner.os != 'Windows' && inputs.config != 'Coverage' }}
         name: Test recording
