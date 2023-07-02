@@ -3517,7 +3517,7 @@ void game_loop()
 		clear_to_color(darkscr_bmp_z3_trans, game->get_darkscr_color());
 
 		z3_update_viewport();
-		z3_update_currscr();
+		z3_update_heroscr(); // TODO z3 ! move to/near Hero.animate?
 		
 		// Three kinds of freezes: freeze, freezemsg, freezeff
 		

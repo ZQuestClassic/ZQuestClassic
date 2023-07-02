@@ -343,8 +343,7 @@ void z3_update_viewport()
 
 void playLevelMusic();
 
-// TODO z3 !! rename, stop updating currscr
-void z3_update_currscr()
+void z3_update_heroscr()
 {
 	int x = vbound(Hero.getX().getInt(), 0, world_w - 1);
 	int y = vbound(Hero.getY().getInt(), 0, world_h - 1);
@@ -356,11 +355,10 @@ void z3_update_currscr()
 		region_scr_dx = dx;
 		region_scr_dy = dy;
 		// TODO z3 ! can entire conditional check this?
-		bool try_replay_music = currscr != newscr;
-		currscr = newscr;
+		bool try_replay_music = heroscr != newscr;
 		heroscr = newscr;
 		if (try_replay_music) playLevelMusic();
-		hero_screen = get_scr(currmap, currscr);
+		hero_screen = get_scr(currmap, heroscr);
 	}
 }
 
@@ -368,8 +366,8 @@ bool edge_of_region(direction dir)
 {
 	if (!is_z3_scrolling_mode()) return true;
 
-	int scr_x = currscr % 16;
-	int scr_y = currscr / 16;
+	int scr_x = heroscr % 16;
+	int scr_y = heroscr / 16;
 	if (dir == up) scr_y -= 1;
 	if (dir == down) scr_y += 1;
 	if (dir == left) scr_x -= 1;
@@ -3208,7 +3206,7 @@ bool hitflag(int32_t x, int32_t y, int32_t flagtype)
 int32_t nextscr(int32_t dir)
 {
     int32_t m = currmap;
-    int32_t s = currscr;
+    int32_t s = heroscr;
     
     switch(dir)
     {
@@ -3230,7 +3228,7 @@ int32_t nextscr(int32_t dir)
     }
     
     // need to check for screens on other maps, 's' not valid, etc.
-    
+    // TODO z3 ! hero_screen?
     int32_t index = (tmpscr.sidewarpindex >> (dir*2))&3;
     
     // Fun fact: when a scrolling warp is triggered, this function
@@ -4152,24 +4150,24 @@ static void for_every_nearby_screen(const std::function <void (std::array<screen
 		return;
 	}
 
-	int currscr_x = currscr % 16;
-	int currscr_y = currscr / 16;
+	int heroscr_x = heroscr % 16;
+	int heroscr_y = heroscr / 16;
 
-	for (int currscr_dx = -1; currscr_dx <= 1; currscr_dx++)
+	for (int heroscr_dx = -1; heroscr_dx <= 1; heroscr_dx++)
 	{
-		for (int currscr_dy = -1; currscr_dy <= 1; currscr_dy++)
+		for (int heroscr_dy = -1; heroscr_dy <= 1; heroscr_dy++)
 		{
-			int scr_x = currscr_x + currscr_dx;
-			int scr_y = currscr_y + currscr_dy;
-			if (tmpscr.flags&fMAZE && !(XY_DELTA_TO_DIR(currscr_dx, 0) == tmpscr.exitdir || XY_DELTA_TO_DIR(0, currscr_dy) == tmpscr.exitdir))
+			int scr_x = heroscr_x + heroscr_dx;
+			int scr_y = heroscr_y + heroscr_dy;
+			if (tmpscr.flags&fMAZE && !(XY_DELTA_TO_DIR(heroscr_dx, 0) == tmpscr.exitdir || XY_DELTA_TO_DIR(0, heroscr_dy) == tmpscr.exitdir))
 			{
-				scr_x = currscr_x;
-				scr_y = currscr_y;
+				scr_x = heroscr_x;
+				scr_y = heroscr_y;
 			}
-			if (currscr_dx || currscr_dy)
+			if (heroscr_dx || heroscr_dy)
 			{
-				if (Hero.edge_of_dmap(XY_DELTA_TO_DIR(currscr_dx, 0))) continue;
-				if (Hero.edge_of_dmap(XY_DELTA_TO_DIR(0, currscr_dy))) continue;
+				if (Hero.edge_of_dmap(XY_DELTA_TO_DIR(heroscr_dx, 0))) continue;
+				if (Hero.edge_of_dmap(XY_DELTA_TO_DIR(0, heroscr_dy))) continue;
 				if (scr_x < 0 || scr_x >= 16) continue;
 				if (scr_y < 0 || scr_y >= 8) continue;
 			}

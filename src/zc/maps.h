@@ -109,7 +109,7 @@ void z3_clear_temporary_screens();
 std::vector<mapscr*> z3_take_temporary_screens();
 void z3_calculate_viewport(mapscr* scr, int world_w, int world_h, int hero_x, int hero_y, viewport_t& viewport);
 void z3_update_viewport();
-void z3_update_currscr();
+void z3_update_heroscr();
 bool edge_of_region(direction dir);
 int get_screen_index_for_world_xy(int x, int y);
 int get_screen_index_for_rpos(rpos_t rpos);

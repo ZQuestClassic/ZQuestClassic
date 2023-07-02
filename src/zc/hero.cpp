@@ -26400,7 +26400,7 @@ void HeroClass::do_scroll_direction(direction dir)
 {
 	bool should_scroll = true;
 
-	z3_update_currscr();
+	z3_update_heroscr();
 
 	if((z > 0 || fakez > 0 || stomping) && get_bit(quest_rules, qr_NO_SCROLL_WHILE_IN_AIR))
 		should_scroll = false;
@@ -26418,7 +26418,7 @@ void HeroClass::do_scroll_direction(direction dir)
 	else if (dir == right) dir_flag = wfRIGHT;
 	// else {} // TODO z3
 
-	mapscr* scr = get_scr(currmap, currscr);
+	mapscr* scr = get_scr(currmap, heroscr);
 
 	if(get_bit(quest_rules, qr_SMARTSCREENSCROLL)&&(!(scr->flags&fMAZE))&&action!=inwind &&action!=scrolling && !(scr->flags2&dir_flag))
 	{
@@ -26535,7 +26535,7 @@ void HeroClass::checkscroll()
 			{
 				if (scrolling_maze_mode == 0)
 				{
-					int destscr = currscr;
+					int destscr = heroscr;
 					if (advance_dir == left)  destscr--;
 					if (advance_dir == right) destscr++;
 					if (advance_dir == up)    destscr -= 16;
@@ -26614,28 +26614,28 @@ bool HeroClass::edge_of_dmap(int32_t side)
     switch(side)
     {
     case up:
-        return currscr<16;
+        return heroscr<16;
         
     case down:
-        return currscr>=112;
+        return heroscr>=112;
         
     case left:
-        if((currscr&15)==0)
+        if((heroscr&15)==0)
             return true;
             
         if((DMaps[currdmap].type&dmfTYPE)!=dmOVERW)
             //    if(dlevel)
-            return (((currscr&15)-DMaps[currdmap].xoff)<=0);
+            return (((heroscr&15)-DMaps[currdmap].xoff)<=0);
             
         break;
         
     case right:
-        if((currscr&15)==15)
+        if((heroscr&15)==15)
             return true;
             
         if((DMaps[currdmap].type&dmfTYPE)!=dmOVERW)
             //    if(dlevel)
-            return (((currscr&15)-DMaps[currdmap].xoff)>=7);
+            return (((heroscr&15)-DMaps[currdmap].xoff)>=7);
             
         break;
     }
@@ -26676,6 +26676,7 @@ bool HeroClass::lookaheadraftflag(int32_t d2)
         break;
     }
     
+	// TODO z3 !!!!
     int32_t combo = COMBOPOS(cx, cy);
     if(combo>175)
         return 0;
@@ -26711,6 +26712,7 @@ int32_t HeroClass::lookahead(int32_t d2)                       // Helper for scr
         break;
     }
     
+	// TODO z3 !!
     int32_t combo = (cy&0xF0)+(cx>>4);
     
     if(combo>175)
@@ -27102,7 +27104,7 @@ static void for_every_nearby_screen_during_scroll(
 		bool use_new_screens = XY_DELTA_TO_DIR(draw_dx, 0) == scrolling_dir || XY_DELTA_TO_DIR(0, sign2(draw_dy)) == scrolling_dir;
 		int base_map = use_new_screens ? currmap : scrolling_map;
 		int base_dmap = use_new_screens ? scrolling_destdmap : scrolling_dmap;
-		int base_scr = use_new_screens ? currscr : scrolling_scr;
+		int base_scr = use_new_screens ? heroscr : scrolling_scr;
 		int base_scr_x = base_scr % 16;
 		int base_scr_y = base_scr / 16;
 
@@ -27117,7 +27119,7 @@ static void for_every_nearby_screen_during_scroll(
 		if (scr_x < 0 || scr_x >= 16 || scr_y < 0 || scr_y >= 8) continue;
 		
 		int scr = scr_x + scr_y * 16;
-		if (!is_region_scrolling && scr != currscr && scr != scrolling_scr) continue;
+		if (!is_region_scrolling && scr != heroscr && scr != scrolling_scr) continue;
 
 		int region = get_region_id(base_dmap, scr);
 		// TODO z3
@@ -27359,7 +27361,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	mapscr *oldscr = &special_warp_return_screen;
 	conveyclk = 2;
 	scrolling_dir = (direction) scrolldir;
-	scrolling_scr = currscr;
+	scrolling_scr = heroscr;
 	scrolling_origin_scr = cur_origin_screen_index;
 
 	int32_t scx = get_bit(quest_rules,qr_FASTDNGN) ? 30 : 0;
@@ -27528,7 +27530,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 
 	if (destscr == -1)
 	{
-		destscr = currscr;
+		destscr = heroscr;
 		if (checkmaze(oldscr, true) && !edge_of_dmap(scrolldir)) {
 			destscr += dir_to_scr_offset((direction)scrolldir);
 		}
