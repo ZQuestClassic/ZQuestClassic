@@ -44,6 +44,7 @@ enum
 	rules_zs_object,
 	rules_zs_drawing,
 	rules_zs_bugfix,
+	rules_compiler_setting,
 	rules_tagcount
 };
 
@@ -63,12 +64,13 @@ std::string tagNames[rules_tagcount + 1] =
 	"ZS: Object",
 	"ZS: Drawing",
 	"ZS: Bugfix",
+	"Compiler Settings",
 	"??"
 };
 
 std::string const& getLongestTagName()
 {
-	return tagNames[rules_zs_instruction];
+	return tagNames[rules_compiler_setting];
 }
 std::string const& getTagName(int32_t ruletype)
 {
@@ -890,7 +892,10 @@ static GUI::ListData compatRulesList
 		"If enabled, after a scroll or warp, the next frame is started mid-frame"
 		" instead of from the start, possibly causing issues with things like input." },
 	{ "Scripted enemies don't run script on first frame of screen entry", qr_ENEMIES_DONT_SCRIPT_FIRST_FRAME,
-		"If enabled, enemies don't run their scripts on the first frame of entering a screen." }
+		"If enabled, enemies don't run their scripts on the first frame of entering a screen." },
+	{ "Broken Scrolling Onto Raft Flags", qr_BROKEN_RAFT_SCROLL,
+		"If enabled, scrolling the screen such that you are on a raft flag on the new screen will force rafting,"
+		" even if you were not rafting before, or do not have the raft item." }
 };
 
 static GUI::ListData enemiesRulesList
@@ -1565,6 +1570,8 @@ GUI::ListData bugfixRulesList
 	{ "Don't Deallocate Init/SaveLoad Local Arrays", qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS }
 };
 
+extern GUI::ListData compileSettingList;
+
 static GUI::ListData combinedZSRulesList;
 static bool inited_combined_zsrules = false;
 GUI::ListData const& combinedZSRList()
@@ -1576,10 +1583,12 @@ GUI::ListData const& combinedZSRList()
 		objectRulesList.tag(rules_zs_object);
 		drawingRulesList.tag(rules_zs_drawing);
 		bugfixRulesList.tag(rules_zs_bugfix);
+		compileSettingList.tag(rules_compiler_setting);
 		
 		combinedZSRulesList = scriptRulesList + instructionRulesList
 			+ objectRulesList + drawingRulesList + bugfixRulesList;
 		combinedZSRulesList.alphabetize();
+		combinedZSRulesList += compileSettingList;
 		inited_combined_zsrules = true;
 	}
 	return combinedZSRulesList;

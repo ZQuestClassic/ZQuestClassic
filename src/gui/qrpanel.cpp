@@ -17,7 +17,7 @@ namespace GUI
 {
 
 QRPanel::QRPanel(): TabPanel(), message(-1), info_message(-1),
-	init_qrs(NULL), qrCount(16), scrolling(false),
+	init_qrs(NULL), qrCount(16), scrolling(false), indexed(false),
 	scrollWidth(0_px), scrollHeight(0_px), showTags(false)
 {}
 
@@ -33,6 +33,10 @@ void QRPanel::setCount(size_t count)
 void QRPanel::setShowTags(bool v)
 {
 	showTags = v;
+}
+void QRPanel::setIndexed(bool v)
+{
+	indexed = v;
 }
 
 void QRPanel::setScrollWidth(Size sz)
@@ -95,7 +99,7 @@ void QRPanel::loadList(GUI::ListData qrlist)
 			}
 			else if((li = &(qrlist.accessIndex(q))))
 			{
-				int32_t qr = li->value;
+				int32_t qr = indexed ? q : li->value;
 				std::string const& name = li->text;
 				std::string const& infotext = li->info;
 				cbox->setText(name);

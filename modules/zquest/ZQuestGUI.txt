@@ -69,6 +69,7 @@ src/dialog/waterpit_convert.cpp
 src/dialog/vidmode.cpp
 src/dialog/combopool.cpp
 src/dialog/compilezscript.cpp
+src/dialog/compilesetting.cpp
 src/dialog/vectorpick.cpp
 src/dialog/zqhotkeys.cpp
 

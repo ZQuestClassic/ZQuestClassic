@@ -12,6 +12,8 @@ enum App {
 void common_main_setup(App id, int argc, char **argv);
 App get_app_id();
 bool is_ci();
+void set_headless_mode();
+bool is_headless();
 double zc_get_monitor_scale();
 void zc_process_display_events();
 

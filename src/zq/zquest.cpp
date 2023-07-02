@@ -47,6 +47,7 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "dialog/script_rules.h"
 #include "dialog/headerdlg.h"
 #include "dialog/ffc_editor.h"
+#include "dialog/compilezscript.h"
 
 #include "base/gui.h"
 #include "jwin_a5.h"
@@ -14617,7 +14618,7 @@ static DIALOG screen_pal_dlg[] =
     // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
     { jwin_win_proc,      60-12,   40,   200-16,  96,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Select Palette", NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { jwin_droplist_proc, 72-12,   84+4,   161,  16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,     0,             0, (void *) &levelnum_list, NULL, NULL },
+    { jwin_droplist_proc, 72-12,   84+4,   161,  16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       D_EXIT,     0,             0, (void *) &levelnum_list, NULL, NULL },
     { jwin_button_proc,   70,   111,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
     { jwin_button_proc,   150,  111,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
     { jwin_text_proc,       72-12,   60+4,  168,  8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Note: This does not affect how the", NULL, NULL },
@@ -14630,15 +14631,30 @@ int32_t onScreenPalette()
 {
 	restore_mouse();
 	screen_pal_dlg[0].dp2=get_zc_font(font_lfont);
-	screen_pal_dlg[2].d1=Map.getcolor();
+	auto oldcol = screen_pal_dlg[2].d1 = Map.getcolor();
 	
 	large_dialog(screen_pal_dlg);
 	
-	if(zc_popup_dialog(screen_pal_dlg,2)==3)
+	while(true)
 	{
-		saved=false;
-		Map.setcolor(screen_pal_dlg[2].d1);
-		refresh(rALL);
+		auto ret = zc_popup_dialog(screen_pal_dlg,2);
+		if(ret == 2)
+		{
+			Map.setcolor(screen_pal_dlg[2].d1);
+			refresh(rALL);
+		}
+		else
+		{
+			if(ret == 3)
+			{
+				if(screen_pal_dlg[2].d1 != oldcol)
+					saved=false;
+				Map.setcolor(screen_pal_dlg[2].d1);
+			}
+			else Map.setcolor(oldcol);
+			refresh(rALL);
+			break;
+		}
 	}
 	
 	rebuild_trans_table();
@@ -24787,250 +24803,11 @@ void showScriptInfo(zasm_meta const* meta)
 	zc_popup_dialog(scriptinfo_dlg,2);
 }
 
-static int32_t compiler_tab_list_global[] =
-{
-	10,11,12,13,14,15,16,18,19,20,21,25,26,
-	-1
-};
-
-static int32_t compiler_tab_list_quest[] =
-{
-    6,7,8,9,17,22,23,24,
-	-1
-};
-
-static TABPANEL compiler_options_tabs[] =
-{
-    // (text)
-    { (char *)"Global Options",  D_SELECTED,  compiler_tab_list_global, 0, NULL },
-    { (char *)"Quest-Specific Options",  0,           compiler_tab_list_quest, 0, NULL },
-    { NULL,         0,           NULL, 0, NULL }
-};
-
-
-//static char zcompiler_halttype_str_buf[32];
-
-const char *zcompiler_haltlist(int32_t index, int32_t *list_size)
-{
-    if(index >= 0)
-    {
-        bound(index,0,1);
-        
-	switch(index)
-        {
-        case 0:
-            return "Halt";
-            
-        case 1:
-            return "Do Not Halt";
-        }
-	
-    }
-    
-    *list_size = 2;
-    return NULL;
-}
-
-static ListData zcompiler_halt_list(zcompiler_haltlist, &a4fonts[font_pfont]);
-
-const char *zcompiler_guardlist(int32_t index, int32_t *list_size)
-{
-	if(index >= 0)
-	{
-		bound(index,0,3);
-		
-		switch(index)
-		{
-			case 0:
-				return "Disable";
-			
-			case 1:
-				return "Enable";
-			
-			case 2:
-				return "Error, Enable";
-			
-			case 3:
-				return "Warn, Enable";
-		}
-	}
-	
-	*list_size = 4;
-	return NULL;
-}
-
-static ListData zcompiler_header_guard_list(zcompiler_guardlist, &a4fonts[font_pfont]);
-
-const char *zcompiler_deprlist(int32_t index, int32_t *list_size)
-{
-	if(index >= 0)
-	{
-		if(index < 0 || index > 2)
-			index = 1;
-		
-		switch(index)
-		{
-			case 0:
-				return "Ignore";
-			
-			case 1:
-				return "Warn";
-			
-			case 2:
-				return "Error";
-		}
-	}
-	
-	*list_size = 3;
-	return NULL;
-}
-
-static ListData zcompiler_depr_list(zcompiler_deprlist, &a4fonts[font_pfont]);
-
-char tempincludepath[MAX_INCLUDE_PATH_CHARS];
-char temprunstring[21];
-
-static DIALOG zscript_parser_dlg[] =
-{
-	/* (dialog proc)       (x)    (y)   (w)   (h)     (fg)      (bg)     (key)      (flags)     (d1)           (d2)     (dp) */
-	{ jwin_win_proc,         0,   0,    300,  235,    vc(14),   vc(1),      0,      D_EXIT,     0,             0, (void *) "ZScript Compiler Options", NULL, NULL },
-	{ d_timer_proc,          0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL },
-	// { d_dummy_proc,         5,   23,   290,  181,    vc(14),   vc(1),      0,      0,          1,             0, NULL, NULL, (void *)zscript_parser_dlg },
-	{ jwin_tab_proc,            4,     23,    252,    182,    vc(0),      vc(15),      0,    0,          0,    0, (void *) compiler_options_tabs,     NULL, (void *)zscript_parser_dlg },
-	// 3
-	{ jwin_button_proc,    170,  210,    61,   21,    vc(14),   vc(1),     27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-	{ jwin_button_proc,     90,  210,    61,   21,    vc(14),   vc(1),     13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-	{ d_keyboard_proc,       0,    0,     0,    0,         0,       0,      0,      0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
-	
-	// rules //6
-	{ jwin_check_proc,      10, 32+10,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "2.50 Division Truncation", NULL, NULL },
-	{ jwin_check_proc,      10, 32+20,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Disable Tracing", NULL, NULL },
-	{ jwin_check_proc,      10, 32+30,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Short-Circuit Boolean Operations", NULL, NULL },
-	{ jwin_check_proc,      10, 32+40,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "2.50 Value of Boolean 'true' is 0.0001", NULL, NULL },
-	//10
-	{ d_showedit_proc,      6+10,  122,   220,   16,    vc(12),  vc(1),  0,       0, MAX_INCLUDE_PATH_CHARS,            0,       tempincludepath, NULL, NULL },
-	{ jwin_textbox_proc,    6+10,  140,   220,  60,   vc(11),  vc(1),  0,       0,          0,            0,       tempincludepath, NULL, NULL },
-   
-	{ jwin_text_proc,           86,     38+10,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
-		(void *) ": On Error",                  NULL,   NULL                  },
-	{ jwin_droplist_proc,     10,     32+10,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, 
-		(void *) &zcompiler_halt_list,						 NULL,   NULL 				   },
-	{ jwin_text_proc,           86,     38+24,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
-		(void *) ": Header Guard",                  NULL,   NULL                  },
-	{ jwin_droplist_proc,     10,     32+24,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, 
-		(void *) &zcompiler_header_guard_list,						 NULL,   NULL 				   },
-	{ jwin_text_proc,           17,     122-11,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
-		(void *) "Include Paths:",                  NULL,   NULL                  },
-	//17
-	{ jwin_check_proc,      10, 32+50,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "True MAX_INT sizing", NULL, NULL },
-	
-	{ d_dummy_proc,           86,     38+38,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
-		(void *) ": Max Include Paths",                  NULL,   NULL                  },
-	{ d_dummy_proc,     10,     32+38,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, 
-		NULL,						 NULL,   NULL 				   },
-	
-	//20 run function
-	{ jwin_edit_proc,    16,  102-11,   50,  16,   vc(11),  vc(1),  0,       0,          64,            0,       temprunstring, NULL, NULL },
-	{ jwin_text_proc,           68,     102-8,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
-		(void *) "void run()' label:",                  NULL,   NULL                  },
-	{ d_dummy_proc,      10, 32+60+500,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Inline all possible functions", NULL, NULL },
-	{ jwin_check_proc,      10, 32+60,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Binary Operations use true 32-bit Int", NULL, NULL },
-	{ jwin_check_proc,      10, 32+70,  185,    9,    vc(14),   vc(1),      0,      0,          1,             0, (void *) "Switch/case of strings is case-insensitive", NULL, NULL },
-	
-	//25
-	{ jwin_text_proc,           86,     38+38,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, 
-		(void *) ": On Deprecated Use",                  NULL,   NULL                  },
-	{ jwin_droplist_proc,     10,     32+38,     72,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, 
-		(void *) &zcompiler_depr_list,						 NULL,   NULL 				   },
-	
-	{ NULL,                  0,    0,     0,    0,    0,        0,          0,      0,          0,             0,       NULL, NULL, NULL }
-};
-
-
-static int32_t zscripparsertrules[] =
-{
-	qr_PARSER_250DIVISION,
-	qr_PARSER_NO_LOGGING,
-	qr_PARSER_SHORT_CIRCUIT,
-	qr_PARSER_BOOL_TRUE_DECIMAL,
-	0, //this dialogue index is used by global settings
-	0, //this dialogue index is used by global settings
-	0, //this dialogue index is used by global settings
-	0, //this dialogue index is used by global settings
-	0, //this dialogue index is used by global settings
-	0, //this dialogue index is used by global settings
-	0, //this dialogue index is used by global settings
-	qr_PARSER_TRUE_INT_SIZE,
-	0, //this dialogue index is used by global settings
-	0, //this dialogue index is used by global settings
-	0, //this dialogue index is used by global settings
-	0, //this dialogue index is used by global settings
-	qr_PARSER_FORCE_INLINE,
-	qr_PARSER_BINARY_32BIT,
-	qr_PARSER_STRINGSWITCH_INSENSITIVE,
-	-1
-};
-
 void write_includepaths();
+void call_compile_settings();
 int32_t onZScriptCompilerSettings()
 {
-	large_dialog(zscript_parser_dlg);
-		
-	zscript_parser_dlg[0].dp2=get_zc_font(font_lfont);
-	
-	int32_t old_cfgs[3];
-	zscript_parser_dlg[13].d1 = old_cfgs[0] = zc_get_config("Compiler","NO_ERROR_HALT",0,App::zscript);
-	zscript_parser_dlg[15].d1 = old_cfgs[1] = zc_get_config("Compiler","HEADER_GUARD",1,App::zscript);
-	zscript_parser_dlg[26].d1 = old_cfgs[2] = zc_get_config("Compiler","WARN_DEPRECATED",0,App::zscript);
-	//memset(tempincludepath,0,sizeof(tempincludepath));
-	strcpy(tempincludepath,FFCore.includePathString);
-	//al_trace("Include path string in editbox should be: %s\n",tempincludepath);
-	zscript_parser_dlg[10].dp = tempincludepath;
-	
-	//run label
-	strcpy(temprunstring,FFCore.scriptRunString);
-	//al_trace("Include path string in editbox should be: %s\n",tempincludepath);
-	zscript_parser_dlg[20].dp = temprunstring;
-   
-	for(int32_t i=0; zscripparsertrules[i]!=-1; i++)
-	{
-		//This loop ignores trying to set bits in quest_rules, if the option is on the global settings tab.
-		//These settings are stored in zquest.cfg, not in the quest file. -ZoriaRPG (3rd April, 2019 )
-		for ( int32_t q = 0; q < (sizeof(compiler_tab_list_global)/4); q++ ) //Only if the bit is quest-based, in quest_rules.
-		{
-		if ( compiler_tab_list_global[q] == i ) continue;
-			
-		}
-		zscript_parser_dlg[i+6].flags = get_bit(quest_rules,zscripparsertrules[i]) ? D_SELECTED : 0;
-	}
-	
- 
-	
-	int32_t ret = zc_popup_dialog(zscript_parser_dlg,4);
-	
-	if(ret==4)
-	{
-		saved=false;
-		
-		for(int32_t i=0; zscripparsertrules[i]!=-1; i++)
-		{
-			set_bit(quest_rules, zscripparsertrules[i], zscript_parser_dlg[i+6].flags & D_SELECTED);
-		}
-		memset(FFCore.includePathString,0,sizeof(FFCore.includePathString));
-		strcpy(FFCore.includePathString,tempincludepath);
-		if(old_cfgs[0] != zscript_parser_dlg[13].d1)
-			zc_set_config("Compiler","NO_ERROR_HALT",zscript_parser_dlg[13].d1,App::zscript);
-		if(old_cfgs[1] != zscript_parser_dlg[15].d1)
-			zc_set_config("Compiler","HEADER_GUARD",zscript_parser_dlg[15].d1,App::zscript);
-		if(old_cfgs[2] != zscript_parser_dlg[26].d1)
-			zc_set_config("Compiler","WARN_DEPRECATED",zscript_parser_dlg[26].d1,App::zscript);
-		memset(FFCore.scriptRunString, 0, sizeof(FFCore.scriptRunString));
-		strcpy(FFCore.scriptRunString,temprunstring);
-		FFCore.updateIncludePaths();
-		ZQincludePaths = FFCore.includePaths;
-		write_includepaths();
-	}
-	
+	call_compile_settings();
 	return D_O_K;
 }
 
@@ -27546,7 +27323,6 @@ int32_t onImportZASM()
 
 void center_zscript_dialogs()
 {
-    jwin_center_dialog(zscript_parser_dlg);
     jwin_center_dialog(exportzasm_dlg);
     jwin_center_dialog(importzasm_dlg);
     jwin_center_dialog(clearslots_dlg);
@@ -29875,8 +29651,7 @@ int32_t main(int32_t argc,char **argv)
 		}
 
 		if(install_sound(DIGI_AUTODETECT,MIDI_AUTODETECT,NULL))
-			FatalConsole("ZQuest Creator Init Error: %s\n", 
-				"Sound driver not available.  Sound disabled.!\n");
+			Z_message("Sound driver not available.  Sound disabled.\n");
 		else Z_message("OK\n");
 	}
 	
@@ -30109,6 +29884,17 @@ int32_t main(int32_t argc,char **argv)
 		comboscripts[i] = new script_data();
 	}
 
+	int quick_assign_arg = used_switch(argc, argv, "-quick-assign");
+	if (quick_assign_arg > 0)
+	{
+		set_headless_mode();
+		load_quest(argv[1], false);
+		bool success = do_compile_and_slots(true, false);
+		if (success)
+			success = save_quest(argv[1], false) == 0;
+		exit(success ? 0 : 1);
+	}
+
 	int copy_qst_arg = used_switch(argc, argv, "-copy-qst");
 	if (copy_qst_arg > 0)
 	{
@@ -30158,13 +29944,10 @@ int32_t main(int32_t argc,char **argv)
 	
 	if (zc_get_config("zquest","always_betawarn",0) || strcmp(curcontrol, oldcontrol))
 	{
-		if (!is_ci())
-		{
-			InfoDialog("Alpha Warning", "WARNING:\nThis is an ALPHA version of ZQuest."
-				" There may be major bugs, which could cause quests"
-				"\nto crash or become corrupted. Keep backups of your quest file!!"
-				"\nAdditionally, new features may change over time.").show();
-		}
+		InfoDialog("Alpha Warning", "WARNING:\nThis is an ALPHA version of ZQuest."
+			" There may be major bugs, which could cause quests"
+			"\nto crash or become corrupted. Keep backups of your quest file!!"
+			"\nAdditionally, new features may change over time.").show();
 	}
 	
 	delete[] curcontrol;

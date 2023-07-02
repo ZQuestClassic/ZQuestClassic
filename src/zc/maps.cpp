@@ -1143,8 +1143,8 @@ static int32_t MAPCOMBO3_impl(int32_t map, int32_t screen, int32_t layer, int32_
 	return scr.data[pos];
 }
 
-// MAPCOMBO3 will read from the current temporary screens or, if (map, screen) is not loaded,
-// will load that screen and apply the relevant secrets before evaluating the combo at that position.
+// Read from the current temporary screens or, if (map, screen) is not loaded,
+// load that screen and apply the relevant secrets before evaluating the combo at that position.
 int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, int32_t x, int32_t y, bool secrets)
 {
 	DCHECK_LAYER_NEG1_INDEX(layer);
@@ -1165,7 +1165,7 @@ int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, rpos_t rpos, bool 
 	
 	if (map == currmap && is_in_current_region(screen)) return MAPCOMBO(get_rpos_handle(rpos, layer + 1));
 	
-	// Screen is not in temporary memory, so we have to load and trigger some secrets.
+	// Screen is not currently loaded, so we have to load and trigger some secrets.
 	return MAPCOMBO3_impl(map, screen, layer, RPOS_TO_POS(rpos), secrets);
 }
 

@@ -9,6 +9,7 @@
 #include <string_view>
 
 int32_t onCompileScript();
+bool do_compile_and_slots(bool quick_assign, bool delay);
 
 class CompileZScriptDialog: public GUI::Dialog<CompileZScriptDialog>
 {

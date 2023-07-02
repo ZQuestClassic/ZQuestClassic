@@ -30,23 +30,12 @@ extern std::vector<string> asffcscripts, asglobalscripts, asitemscripts,
 	asitemspritescripts, ascomboscripts, asgenericscripts;
 extern std::map<int32_t, script_slot_data > globalmap;
 
-int32_t onCompileScript()
-{
-	CompileZScriptDialog().show();
-	return D_O_K;
-}
-
-bool doCompileOpenHeaderDlg()
-{
-    call_header_dlg();
-    return false;
-}
-
 byte compile_success_sample = 0;
 byte compile_error_sample = 0;
 byte compile_finish_sample = 0;
 byte compile_audio_volume = 0;
-void compile_sfx(bool success)
+
+static void compile_sfx(bool success)
 {
 	if ( success )
 	{
@@ -76,6 +65,322 @@ void compile_sfx(bool success)
 			voice_start(sfx_voice[compile_error_sample]);
 		}
 	}
+}
+
+int32_t onCompileScript()
+{
+	CompileZScriptDialog().show();
+	return D_O_K;
+}
+
+bool doCompileOpenHeaderDlg()
+{
+    call_header_dlg();
+    return false;
+}
+
+static bool g_quick_assign, compile_cancel;
+bool quickassign()
+{
+	g_quick_assign = true;
+	return true;
+}
+bool docancel()
+{
+	compile_cancel = true;
+	return true;
+}
+
+// If quick_assign is false, will prompt user if they want to quick assign. If true, will do the quick assign automaticaly.
+bool do_compile_and_slots(bool quick_assign, bool delay)
+{
+	char tmpfilename[L_tmpnam];
+	std::tmpnam(tmpfilename);
+	FILE *tempfile = fopen(tmpfilename,"w");
+
+	char consolefilename[L_tmpnam];
+	std::tmpnam(consolefilename);
+
+	if(!tempfile)
+	{
+		jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+		return true;
+	}
+	
+	fwrite(zScript.c_str(), sizeof(char), zScript.size(), tempfile);
+	fclose(tempfile);
+	
+	script_data old_init_script(*globalscripts[0]);
+	uint32_t lastInitSize = old_init_script.size();
+	map<string, ZScript::ScriptTypeID> stypes;
+	map<string, disassembled_script_data> scripts;
+	
+	std::string quest_rules_hex = get_qr_hexstr();
+	clock_t start_compile_time = clock();
+	bool hasWarnErr = false;
+#ifdef __EMSCRIPTEN__
+	int32_t code = em_compile_zscript(tmpfilename, consolefilename, quest_rules_hex.c_str());
+#else
+	int32_t code = -9999;
+	if(!fileexists(ZSCRIPT_FILE))
+	{
+		InfoDialog("Parser", ZSCRIPT_FILE " was not found!").show();
+		return false;
+	}
+	parser_console.kill();
+	if (!DisableCompileConsole) 
+	{
+		parser_console.Create("ZScript Parser Output", 600, 200, NULL, "zconsole.exe");
+		parser_console.cls(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK);
+		parser_console.gotoxy(0,0);
+		_print_zconsole("External ZScript Parser\n","[INFO] ",INFO_COLOR);
+	}
+	else
+	{
+		box_start(1, "Compile Progress", get_zc_font(font_lfont), get_zc_font(font_sfont),true, 512, 280);
+	}
+
+	std::vector<std::string> args = {
+		"-input", tmpfilename,
+		"-console", consolefilename,
+		"-qr", quest_rules_hex.c_str(),
+		"-linked",
+	};
+	if(zc_get_config("Compiler","noclose_compile_console",0))
+		args.push_back("-noclose");
+	if(delay)
+		args.push_back("-delay");
+	process_manager* pm = launch_piped_process(ZSCRIPT_FILE, args);
+	if(!pm)
+	{
+		InfoDialog("Parser","Failed to launch " ZSCRIPT_FILE).show();
+		return false;
+	}
+	
+	int current = 0, last = 0;
+	int syncthing = 0;
+	pm->read(&syncthing, sizeof(int32_t));
+
+	FILE *console = fopen(consolefilename, "r");
+	bool running = true;
+	if (console) 
+	{
+		char buf4[4096];
+		while(running)
+		{
+			pm->read(&code, sizeof(int32_t));
+			switch(code)
+			{
+				case ZC_CONSOLE_DB_CODE:
+				case ZC_CONSOLE_ERROR_CODE:
+				case ZC_CONSOLE_WARN_CODE:
+					hasWarnErr = true;
+					[[fallthrough]];
+				case ZC_CONSOLE_INFO_CODE:
+					fseek(console, 0, SEEK_END);
+					current = ftell(console);
+					if (current != last)
+					{
+						int amount = (current-last);
+						fseek(console, last, SEEK_SET);
+						last = current;
+						int end = fread(&buf4, sizeof(char), amount, console);
+						buf4[end] = 0;
+						ReadConsole(buf4, code);
+					}
+					pm->write(&code, sizeof(int32_t));
+					break;
+				default:
+					running = false;
+					break;
+			}
+		}
+	}
+	pm->read(&code, sizeof(int32_t));
+	delete pm;
+#endif
+	clock_t end_compile_time = clock();
+	
+	char tmp[128] = {0};
+	sprintf(tmp,"%lf",(end_compile_time - start_compile_time)/((double)CLOCKS_PER_SEC));
+	for(size_t ind = strlen(tmp)-1; ind > 0; --ind)
+	{
+		if (tmp[ind] == '0' && tmp[ind - 1] != '.') tmp[ind] = 0;
+		else break;
+	}
+	char buf[1024] = {0};
+	sprintf(buf, "ZScript compilation: Returned code '%d' (%s)\n"
+		"Compile took %s seconds (%ld cycles)%s",
+		code, code ? "failure" : "success",
+		tmp, (long)end_compile_time - start_compile_time,
+		code ? (!DisableCompileConsole?"\nCompilation failed. See console for details.":"\nCompilation failed.") : "");
+	
+	if(!code)
+	{
+		read_compile_data(stypes, scripts);
+		if (!(DisableCompileConsole || hasWarnErr)) 
+		{
+			parser_console.kill();
+		}
+	}
+	else if (DisableCompileConsole)
+	{
+		char buf3[256] = {0};
+		sprintf(buf3, "Compile took %lf seconds (%ld cycles)", (end_compile_time - start_compile_time)/((double)CLOCKS_PER_SEC),(long)end_compile_time - start_compile_time);
+		box_out(buf3);
+		box_eol();
+		box_out("Compilation failed.");
+		box_eol();
+	}
+	compile_sfx(!code);
+	if (DisableCompileConsole) box_end(true);
+	
+	compile_cancel = code;
+
+	if (!quick_assign && !DisableCompileConsole) 
+	{
+		g_quick_assign = false;
+		if(code)
+			InfoDialog("ZScript Parser", buf).show();
+		else
+		{
+			AlertFuncDialog("ZScript Parser",
+				buf,
+				3, 1, //2 buttons, where buttons[1] is focused
+				"Quick Assign", quickassign,
+				"OK", NULL,
+				"Cancel", docancel
+			).show();
+		}
+		quick_assign = g_quick_assign;
+	}
+	if ( compile_success_sample > 0 )
+	{
+		if(sfx_voice[compile_success_sample]!=-1)
+		{
+			deallocate_voice(sfx_voice[compile_success_sample]);
+			sfx_voice[compile_success_sample]=-1;
+		}
+	}
+	if ( compile_error_sample > 0 )
+	{
+		if(sfx_voice[compile_error_sample]!=-1)
+		{
+			deallocate_voice(sfx_voice[compile_error_sample]);
+			sfx_voice[compile_error_sample]=-1;
+		}
+	}
+	//refresh(rALL);
+	
+	if(compile_cancel)
+		return false;
+	
+	asffcscripts.clear();
+	asffcscripts.push_back("<none>");
+	asglobalscripts.clear();
+	asglobalscripts.push_back("<none>");
+	asitemscripts.clear();
+	asitemscripts.push_back("<none>");
+	asnpcscripts.clear();
+	asnpcscripts.push_back("<none>");
+	aseweaponscripts.clear();
+	aseweaponscripts.push_back("<none>");
+	aslweaponscripts.clear();
+	aslweaponscripts.push_back("<none>");
+	asplayerscripts.clear();
+	asplayerscripts.push_back("<none>");
+	asdmapscripts.clear();
+	asdmapscripts.push_back("<none>");
+	asscreenscripts.clear();
+	asscreenscripts.push_back("<none>");
+	asitemspritescripts.clear();
+	asitemspritescripts.push_back("<none>");
+	ascomboscripts.clear();
+	ascomboscripts.push_back("<none>");
+	asgenericscripts.clear();
+	asgenericscripts.push_back("<none>");
+	clear_map_states();
+	globalmap[0].updateName("~Init"); //force name to ~Init
+	
+	using namespace ZScript;
+	for (auto it = stypes.begin(); it != stypes.end(); ++it)
+	{
+		string const& name = it->first;
+		switch(it->second)
+		{
+			case scrTypeIdFfc:
+				asffcscripts.push_back(name);
+				break;
+			case scrTypeIdItem:
+				asitemscripts.push_back(name);
+				break;
+			case scrTypeIdNPC:
+				asnpcscripts.push_back(name);
+				break;
+			case scrTypeIdEWeapon:
+				aseweaponscripts.push_back(name);
+				break;
+			case scrTypeIdLWeapon:
+				aslweaponscripts.push_back(name);
+				break;
+			case scrTypeIdPlayer:
+				asplayerscripts.push_back(name);
+				break;
+			case scrTypeIdDMap:
+				asdmapscripts.push_back(name);
+				break;
+			case scrTypeIdScreen:
+				asscreenscripts.push_back(name);
+				break;
+			case scrTypeIdItemSprite:
+				asitemspritescripts.push_back(name);
+				break;
+			case scrTypeIdComboData:
+				ascomboscripts.push_back(name);
+				break;
+			case scrTypeIdGeneric:
+				asgenericscripts.push_back(name);
+				break;
+			case scrTypeIdGlobal:
+				if (name != "~Init")
+				{
+					asglobalscripts.push_back(name);
+				}
+				break;
+		}
+	}
+	
+	//scripts are compiled without error, so store the zscript version here: -Z, 25th July 2019, A29
+	misc.zscript_last_compiled_version = V_FFSCRIPT;
+	FFCore.quest_format[vLastCompile] = V_FFSCRIPT;
+	zprint2("Compiled scripts in version: %d\n", misc.zscript_last_compiled_version);
+				
+	do_script_disassembly(scripts, true);
+	
+	//assign scripts to slots
+	do_slots(scripts, quick_assign);
+	
+	if(WarnOnInitChanged)
+	{
+		script_data const& new_init_script = *globalscripts[0];
+		if(new_init_script != old_init_script) //Global init changed
+		{
+			auto newInitSize = new_init_script.size();
+			AlertFuncDialog("Init Script Changed",
+				"Either global variables, or your global script Init, have changed. ("+to_string(lastInitSize)+"->"+to_string(newInitSize)+")\n\n"
+				"This can break existing save files of your quest. To prevent users "
+				"from loading save files that would break, you can raise the \"Quest "
+				"Ver\" and \"Min. Ver\" in the Header menu (Quest>>Options>>Header)\n\n"
+				"Ensure that both versions are higher than \"Quest Ver\" was previously, "
+				"and that \"Quest Ver\" is the same or higher than \"Min. Ver\"",
+				2, 1, //2 buttons, where buttons[1] is focused
+				"Header", doCompileOpenHeaderDlg,
+				"OK", NULL
+			).show();
+		}
+	}
+
+	return true;
 }
 
 CompileZScriptDialog::CompileZScriptDialog()
@@ -153,18 +458,6 @@ std::shared_ptr<GUI::Widget> CompileZScriptDialog::view()
 	);
 	updateLabels();
 	return window;
-}
-
-static bool quick_assign, compile_cancel;
-bool quickassign()
-{
-	quick_assign = true;
-	return true;
-}
-bool docancel()
-{
-	compile_cancel = true;
-	return true;
 }
 
 bool CompileZScriptDialog::handleMessage(const GUI::DialogMessage<message>& msg)
@@ -259,290 +552,8 @@ bool CompileZScriptDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		
 		case message::COMPILE:
 		{
-			char tmpfilename[L_tmpnam];
-			std::tmpnam(tmpfilename);
-			FILE *tempfile = fopen(tmpfilename,"w");
-
-			char consolefilename[L_tmpnam];
-			std::tmpnam(consolefilename);
-
-			if(!tempfile)
-			{
-				jwin_alert("Error","Unable to create a temporary file in current directory!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-				return true;
-			}
-			
-			fwrite(zScript.c_str(), sizeof(char), zScript.size(), tempfile);
-			fclose(tempfile);
-			
-			script_data old_init_script(*globalscripts[0]);
-			uint32_t lastInitSize = old_init_script.size();
-			map<string, ZScript::ScriptTypeID> stypes;
-			map<string, disassembled_script_data> scripts;
-			
-			std::string quest_rules_hex = get_qr_hexstr();
-			clock_t start_compile_time = clock();
-			bool hasWarnErr = false;
-#ifdef __EMSCRIPTEN__
-			int32_t code = em_compile_zscript(tmpfilename, consolefilename, quest_rules_hex.c_str());
-#else
-			int32_t code = -9999;
-			if(!fileexists(ZSCRIPT_FILE))
-			{
-				InfoDialog("Parser", ZSCRIPT_FILE " was not found!").show();
-				return false;
-			}
-			parser_console.kill();
-			if (!DisableCompileConsole) 
-			{
-				parser_console.Create("ZScript Parser Output", 600, 200, NULL, "zconsole.exe");
-				parser_console.cls(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK);
-				parser_console.gotoxy(0,0);
-				_print_zconsole("External ZScript Parser\n","[INFO] ",INFO_COLOR);
-			}
-			else
-			{
-				box_start(1, "Compile Progress", get_zc_font(font_lfont), get_zc_font(font_sfont),true, 512, 280);
-			}
-
-			std::vector<std::string> args = {
-				"-input", tmpfilename,
-				"-console", consolefilename,
-				"-qr", quest_rules_hex.c_str(),
-				"-linked",
-			};
-			if(zc_get_config("Compiler","noclose_compile_console",0))
-				args.push_back("-noclose");
-			if(ctrl && devpwd())
-				args.push_back("-delay");
-			process_manager* pm = launch_piped_process(ZSCRIPT_FILE, args);
-			if(!pm)
-			{
-				InfoDialog("Parser","Failed to launch " ZSCRIPT_FILE).show();
-				return false;
-			}
-			
-			int current = 0, last = 0;
-			int syncthing = 0;
-			pm->read(&syncthing, sizeof(int32_t));
-
-			FILE *console = fopen(consolefilename, "r");
-			bool running = true;
-			if (console) 
-			{
-				char buf4[4096];
-				while(running)
-				{
-					pm->read(&code, sizeof(int32_t));
-					switch(code)
-					{
-						case ZC_CONSOLE_DB_CODE:
-						case ZC_CONSOLE_ERROR_CODE:
-						case ZC_CONSOLE_WARN_CODE:
-							hasWarnErr = true;
-							[[fallthrough]];
-						case ZC_CONSOLE_INFO_CODE:
-							fseek(console, 0, SEEK_END);
-							current = ftell(console);
-							if (current != last)
-							{
-								int amount = (current-last);
-								fseek(console, last, SEEK_SET);
-								last = current;
-								int end = fread(&buf4, sizeof(char), amount, console);
-								buf4[end] = 0;
-								ReadConsole(buf4, code);
-							}
-							pm->write(&code, sizeof(int32_t));
-							break;
-						default:
-							running = false;
-							break;
-					}
-				}
-			}
-			pm->read(&code, sizeof(int32_t));
-			delete pm;
-#endif
-			clock_t end_compile_time = clock();
-			
-			char tmp[128] = {0};
-			sprintf(tmp,"%lf",(end_compile_time - start_compile_time)/((double)CLOCKS_PER_SEC));
-			for(size_t ind = strlen(tmp)-1; ind > 0; --ind)
-			{
-				if (tmp[ind] == '0' && tmp[ind - 1] != '.') tmp[ind] = 0;
-				else break;
-			}
-			char buf[1024] = {0};
-			sprintf(buf, "ZScript compilation: Returned code '%d' (%s)\n"
-				"Compile took %s seconds (%ld cycles)%s",
-				code, code ? "failure" : "success",
-				tmp, (long)end_compile_time - start_compile_time,
-				code ? (!DisableCompileConsole?"\nCompilation failed. See console for details.":"\nCompilation failed.") : "");
-			
-			if(!code)
-			{
-				read_compile_data(stypes, scripts);
-				if (!(DisableCompileConsole || hasWarnErr)) 
-				{
-					parser_console.kill();
-				}
-			}
-			else if (DisableCompileConsole)
-			{
-				char buf3[256] = {0};
-				sprintf(buf3, "Compile took %lf seconds (%ld cycles)", (end_compile_time - start_compile_time)/((double)CLOCKS_PER_SEC),(long)end_compile_time - start_compile_time);
-				box_out(buf3);
-				box_eol();
-				box_out("Compilation failed.");
-				box_eol();
-			}
-			compile_sfx(!code);
-			if (DisableCompileConsole) box_end(true);
-			
-			compile_cancel = code;
-			quick_assign = false;
-			if (!DisableCompileConsole) 
-			{
-				if(code)
-					InfoDialog("ZScript Parser", buf).show();
-				else
-				{
-					AlertFuncDialog("ZScript Parser",
-						buf,
-						3, 1, //2 buttons, where buttons[1] is focused
-						"Quick Assign", quickassign,
-						"OK", NULL,
-						"Cancel", docancel
-					).show();
-				}
-			}
-			if ( compile_success_sample > 0 )
-			{
-				if(sfx_voice[compile_success_sample]!=-1)
-				{
-					deallocate_voice(sfx_voice[compile_success_sample]);
-					sfx_voice[compile_success_sample]=-1;
-				}
-			}
-			if ( compile_error_sample > 0 )
-			{
-				if(sfx_voice[compile_error_sample]!=-1)
-				{
-					deallocate_voice(sfx_voice[compile_error_sample]);
-					sfx_voice[compile_error_sample]=-1;
-				}
-			}
-			//refresh(rALL);
-			
-			if(compile_cancel)
-				return false;
-			
-			asffcscripts.clear();
-			asffcscripts.push_back("<none>");
-			asglobalscripts.clear();
-			asglobalscripts.push_back("<none>");
-			asitemscripts.clear();
-			asitemscripts.push_back("<none>");
-			asnpcscripts.clear();
-			asnpcscripts.push_back("<none>");
-			aseweaponscripts.clear();
-			aseweaponscripts.push_back("<none>");
-			aslweaponscripts.clear();
-			aslweaponscripts.push_back("<none>");
-			asplayerscripts.clear();
-			asplayerscripts.push_back("<none>");
-			asdmapscripts.clear();
-			asdmapscripts.push_back("<none>");
-			asscreenscripts.clear();
-			asscreenscripts.push_back("<none>");
-			asitemspritescripts.clear();
-			asitemspritescripts.push_back("<none>");
-			ascomboscripts.clear();
-			ascomboscripts.push_back("<none>");
-			asgenericscripts.clear();
-			asgenericscripts.push_back("<none>");
-			clear_map_states();
-			globalmap[0].updateName("~Init"); //force name to ~Init
-			
-			using namespace ZScript;
-			for (auto it = stypes.begin(); it != stypes.end(); ++it)
-			{
-				string const& name = it->first;
-				switch(it->second)
-				{
-					case scrTypeIdFfc:
-						asffcscripts.push_back(name);
-						break;
-					case scrTypeIdItem:
-						asitemscripts.push_back(name);
-						break;
-					case scrTypeIdNPC:
-						asnpcscripts.push_back(name);
-						break;
-					case scrTypeIdEWeapon:
-						aseweaponscripts.push_back(name);
-						break;
-					case scrTypeIdLWeapon:
-						aslweaponscripts.push_back(name);
-						break;
-					case scrTypeIdPlayer:
-						asplayerscripts.push_back(name);
-						break;
-					case scrTypeIdDMap:
-						asdmapscripts.push_back(name);
-						break;
-					case scrTypeIdScreen:
-						asscreenscripts.push_back(name);
-						break;
-					case scrTypeIdItemSprite:
-						asitemspritescripts.push_back(name);
-						break;
-					case scrTypeIdComboData:
-						ascomboscripts.push_back(name);
-						break;
-					case scrTypeIdGeneric:
-						asgenericscripts.push_back(name);
-						break;
-					case scrTypeIdGlobal:
-						if (name != "~Init")
-						{
-							asglobalscripts.push_back(name);
-						}
-						break;
-				}
-			}
-			
-			//scripts are compiled without error, so store the zscript version here: -Z, 25th July 2019, A29
-			misc.zscript_last_compiled_version = V_FFSCRIPT;
-			FFCore.quest_format[vLastCompile] = V_FFSCRIPT;
-			zprint2("Compiled scripts in version: %d\n", misc.zscript_last_compiled_version);
-						
-			do_script_disassembly(scripts, true);
-			
-			//assign scripts to slots
-			do_slots(scripts, quick_assign);
-			
-			if(WarnOnInitChanged)
-			{
-				script_data const& new_init_script = *globalscripts[0];
-				if(new_init_script != old_init_script) //Global init changed
-				{
-					auto newInitSize = new_init_script.size();
-					AlertFuncDialog("Init Script Changed",
-						"Either global variables, or your global script Init, have changed. ("+to_string(lastInitSize)+"->"+to_string(newInitSize)+")\n\n"
-						"This can break existing save files of your quest. To prevent users "
-						"from loading save files that would break, you can raise the \"Quest "
-						"Ver\" and \"Min. Ver\" in the Header menu (Quest>>Options>>Header)\n\n"
-						"Ensure that both versions are higher than \"Quest Ver\" was previously, "
-						"and that \"Quest Ver\" is the same or higher than \"Min. Ver\"",
-						2, 1, //2 buttons, where buttons[1] is focused
-						"Header", doCompileOpenHeaderDlg,
-						"OK", NULL
-					).show();
-				}
-			}
-			return true;
+			bool delay = ctrl && devpwd();
+			return do_compile_and_slots(false, delay);
 		}
 		
 		case message::CANCEL:

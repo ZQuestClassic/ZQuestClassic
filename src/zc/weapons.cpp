@@ -3984,6 +3984,9 @@ bool weapon::animate(int32_t index)
 			break;
 		}
 		// Hero's weapons
+		case wThrown:
+			if(runscript_do_earlyret(run_script(MODE_NORMAL))) return false;
+			break;
 		case wSword:
 			if ( doscript && itemsbuf[parentitem].misc10 == 50 )
 			{

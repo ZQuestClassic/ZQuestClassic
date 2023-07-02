@@ -4,6 +4,7 @@
 #include "base/util.h"
 #include "zc/zelda.h"
 #include <array>
+#include <exception>
 #include <vector>
 #include <map>
 #include <fstream>
@@ -12,6 +13,7 @@
 #include <ctime>
 #include <filesystem>
 #include <chrono>
+#include <system_error>
 #include <fmt/format.h>
 
 #define XXH_STATIC_LINKING_ONLY
@@ -24,7 +26,7 @@ struct ReplayStep;
 
 static const int ASSERT_SNAPSHOT_BUFFER = 10;
 static const int ASSERT_FAILED_EXIT_CODE = 120;
-static const int VERSION = 16;
+static const int VERSION = 17;
 
 static const std::string ANNOTATION_MARKER = "«";
 static const char TypeMeta = 'M';
@@ -921,7 +923,17 @@ static void save_result(bool stopped = false, bool changed = false)
 
 	out.close();
 
-	std::filesystem::rename(tmp_filename, get_file_path(".result.txt"));
+	// If Windows decides to not fully trust an executable until a user OKs it, the renaming a tmpfile
+	// may throw an error. For some reason, the prompt only showed when directly opening crashpad_handler.exe
+	// https://zeldaclassic.sentry.io/share/issue/2a9dfce2e57c4a23820e73774189cfe0/
+	// https://discord.com/channels/876899628556091432/1120883971950125147/1124921628220981298
+	std::error_code ec;
+	std::filesystem::rename(tmp_filename, get_file_path(".result.txt"), ec);
+	// Fail, but only in CI (where this happening would be unexpected and could result in bad things for replay tests).
+	if (is_ci() && ec.value())
+	{
+		throw std::runtime_error(fmt::format("Failed to rename zplay.result.txt tmpfile. err {}", ec.value()));
+	}
 }
 
 static void save_snapshot(BITMAP* bitmap, PALETTE pal, int frame, bool was_unexpected)

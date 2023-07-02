@@ -92,6 +92,20 @@ bool is_ci()
 	return std::getenv("CI") != nullptr;
 }
 
+static bool headless;
+
+void set_headless_mode()
+{
+	headless = true;
+}
+
+// Note: we don't truly have a headless mode (yet), but this function is useful for skipping GUI prompts for CI and scripted
+// use cases.
+bool is_headless()
+{
+	return headless || is_ci();
+}
+
 // https://learn.microsoft.com/en-us/windows/win32/hidpi/high-dpi-desktop-application-development-on-windows
 // https://mariusbancila.ro/blog/2021/05/19/how-to-build-high-dpi-aware-native-desktop-applications/
 // On windows, Allegro sets DPI awareness at runtime:
