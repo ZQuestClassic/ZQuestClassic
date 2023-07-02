@@ -6925,7 +6925,7 @@ void set_rules(byte* newrules);
 void popup_bugfix_dlg(const char* cfg)
 {
 	bool dont_show_again = zc_get_config("zquest",cfg,0);
-	if(!dont_show_again && hasCompatRulesEnabled() && !is_ci())
+	if(!dont_show_again && hasCompatRulesEnabled())
 	{
 		AlertDialog("Apply New Bugfixes",
 			"New bugfixes found that can be applied to this quest!"
@@ -6954,7 +6954,7 @@ void popup_bugfix_dlg(const char* cfg)
 #endif
 
 // wrapper to reinitialize everything on an error
-int32_t load_quest(const char *filename)
+int32_t load_quest(const char *filename, bool show_progress)
 {
 	char buf[2048];
 //  if(encrypted)
@@ -6967,7 +6967,7 @@ int32_t load_quest(const char *filename)
 	}
 	for(int32_t i=0; i<qr_MAX; i++)
 				set_bit(quest_rules,i,0);
-	int32_t ret=loadquest(filename,&header,&misc,customtunes,true,true,skip_flags);
+	int32_t ret=loadquest(filename,&header,&misc,customtunes,show_progress,true,skip_flags);
 //  setPackfilePassword(NULL);
 
 	if(ret!=qe_OK)

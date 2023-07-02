@@ -1,6 +1,7 @@
 #ifndef ZC_GUI_DIALOG_H
 #define ZC_GUI_DIALOG_H
 
+#include "base/zapp.h"
 #include "dialog_message.h"
 #include "gui/dialog_runner.h"
 #include "gui/widget.h"
@@ -25,6 +26,9 @@ public:
 	
 	inline void show()
 	{
+		if (is_headless())
+			return;
+
 		clear_keybuf();
 		auto oz = gui_mouse_z();
 		runner = DialogRunner();

@@ -52,6 +52,7 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "dialog/script_rules.h"
 #include "dialog/headerdlg.h"
 #include "dialog/ffc_editor.h"
+#include "dialog/compilezscript.h"
 
 #include "base/gui.h"
 #include "jwin_a5.h"
@@ -29564,6 +29565,17 @@ int32_t main(int32_t argc,char **argv)
 		comboscripts[i] = new script_data();
 	}
 
+	int quick_assign_arg = used_switch(argc, argv, "-quick-assign");
+	if (quick_assign_arg > 0)
+	{
+		set_headless_mode();
+		load_quest(argv[1], false);
+		bool success = do_compile_and_slots(true, false);
+		if (success)
+			success = save_quest(argv[1], false) == 0;
+		exit(success ? 0 : 1);
+	}
+
 	int copy_qst_arg = used_switch(argc, argv, "-copy-qst");
 	if (copy_qst_arg > 0)
 	{
@@ -29613,13 +29625,10 @@ int32_t main(int32_t argc,char **argv)
 	
 	if (zc_get_config("zquest","always_betawarn",0) || strcmp(curcontrol, oldcontrol))
 	{
-		if (!is_ci())
-		{
-			InfoDialog("Alpha Warning", "WARNING:\nThis is an ALPHA version of ZQuest."
-				" There may be major bugs, which could cause quests"
-				"\nto crash or become corrupted. Keep backups of your quest file!!"
-				"\nAdditionally, new features may change over time.").show();
-		}
+		InfoDialog("Alpha Warning", "WARNING:\nThis is an ALPHA version of ZQuest."
+			" There may be major bugs, which could cause quests"
+			"\nto crash or become corrupted. Keep backups of your quest file!!"
+			"\nAdditionally, new features may change over time.").show();
 	}
 	
 	delete[] curcontrol;
