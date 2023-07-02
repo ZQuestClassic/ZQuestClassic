@@ -27360,7 +27360,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	conveyclk = 2;
 	scrolling_dir = (direction) scrolldir;
 	scrolling_scr = currscr;
-	scrolling_origin_scr = z3_get_origin_scr();
+	scrolling_origin_scr = cur_origin_screen_index;
 
 	int32_t scx = get_bit(quest_rules,qr_FASTDNGN) ? 30 : 0;
 	if(get_bit(quest_rules, qr_VERYFASTSCROLLING)) //just a minor adjustment.
@@ -27539,7 +27539,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 
 	// Remember everything about the current region, because `loadscr` is about to reset this data.
 	std::vector<mapscr*> old_temporary_screens = z3_take_temporary_screens();
-	int old_origin_scr = z3_get_origin_scr();
+	int old_origin_scr = cur_origin_screen_index;
 	int old_region_scr_width = region_scr_width;
 	int old_region_scr_height = region_scr_height;
 	int old_region_scr_dx = region_scr_dx;
@@ -27564,7 +27564,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	viewport_t new_viewport = {0};
 	{
 		// The above `loadscr` has loaded the destination screen's region information into these global variables.
-		int new_origin_scr = z3_get_origin_scr();
+		int new_origin_scr = cur_origin_screen_index;
 		int new_origin_scr_x = new_origin_scr % 16;
 		int new_origin_scr_y = new_origin_scr / 16;
 

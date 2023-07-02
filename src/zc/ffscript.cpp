@@ -8835,7 +8835,7 @@ int32_t get_register(const int32_t arg)
 
 		case REGION_ORIGIN_SCREEN:
 		{
-			ret = z3_get_origin_scr() * 10000;
+			ret = cur_origin_screen_index * 10000;
 		}
 		break;
 

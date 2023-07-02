@@ -77,9 +77,6 @@ extern int world_w, world_h;
 //  - w, h is 256, 176
 extern viewport_t viewport;
 extern ViewportMode viewport_mode;
-// The top-left screen index of the current region.
-// If not currently in a region, this is always the same as `currscr`.
-extern int current_region_origin_screen_index;
 // The screen offset from the region origin that the hero is currently standing in. If not currently
 // in z3 scrolling mode, this is just 0.
 extern int region_scr_dx, region_scr_dy;
@@ -123,7 +120,6 @@ rpos_handle_t get_rpos_handle_for_screen(int screen_index, int layer, int pos);
 rpos_handle_t get_rpos_handle_for_screen(mapscr* screen, int screen_index, int layer, int pos);
 mapscr* get_screen_for_world_xy(int x, int y);
 mapscr* get_screen_layer_for_xy_offset(int x, int y, int layer);
-int z3_get_origin_scr();
 int z3_get_region_relative_dx(int screen_index);
 int z3_get_region_relative_dx(int screen_index, int origin_screen_index);
 int z3_get_region_relative_dy(int screen_index);

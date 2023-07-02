@@ -10525,7 +10525,7 @@ void enemy::removearmosffc(int32_t ffc_id)
 	int screen_index_offset = ffc_id / MAXFFCS;
 	int scr_dx = screen_index_offset % region_scr_width;
 	int scr_dy = screen_index_offset / region_scr_width;
-	int screen_index = z3_get_origin_scr() + scr_dx + scr_dy*16;
+	int screen_index = cur_origin_screen_index + scr_dx + scr_dy*16;
 	mapscr* screen = get_scr(currmap, screen_index);
 	removearmosffc({screen, screen_index, ffc_id, i, &screen->ffcs[i]});
 }
@@ -21384,7 +21384,7 @@ static void side_load_enemies(mapscr* screen, int screen_index)
 		sle_pattern = screen->pattern;
 		sle_cnt = 0;
 		int32_t guycnt = 0;
-		int16_t s = (currmap<<7)+z3_get_origin_scr();
+		int16_t s = (currmap<<7)+cur_origin_screen_index;
 		bool beenhere=false;
 		bool reload=true;
 		bool unbeatablereload = true;
@@ -21840,7 +21840,7 @@ void loadenemies()
 	loaded_enemies=true;
 
 	// check if it's been long enough to reload all enemies
-	int16_t s = (currmap<<7)+z3_get_origin_scr();
+	int16_t s = (currmap<<7)+cur_origin_screen_index;
 	bool beenhere = false;
 	bool reload = true;
 	bool unbeatablereload = true;

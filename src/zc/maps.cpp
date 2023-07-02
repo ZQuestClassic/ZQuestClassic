@@ -59,7 +59,6 @@ static mapscr* temporary_screens_currmap[136*7] = {nullptr};
 viewport_t viewport;
 ViewportMode viewport_mode;
 int world_w, world_h;
-int current_region_origin_screen_index;
 int region_scr_dx, region_scr_dy;
 int region_scr_width, region_scr_height;
 int region_scr_count;
@@ -118,15 +117,15 @@ static bool is_in_region(int region_origin_scr, int dmap, int scr)
 	if (region_origin_scr == scr) return true;
 	if (!is_same_region_id(region_origin_scr, dmap, scr)) return false;
 
-	if (region_origin_scr != current_region_origin_screen_index)
+	if (region_origin_scr != cur_origin_screen_index)
 	{
 		return true;
 	}
 	
 	// TODO z3 !!: the above is wrong when region ids are reused. We don't have the width/height
 	// of non-current regions onhand so we'd have to calculate that.
-	int z3_scr_x = current_region_origin_screen_index % 16;
-	int z3_scr_y = current_region_origin_screen_index / 16;
+	int z3_scr_x = cur_origin_screen_index % 16;
+	int z3_scr_y = cur_origin_screen_index / 16;
 	int scr_x = scr % 16;
 	int scr_y = scr / 16;
 	
@@ -140,7 +139,7 @@ static bool is_in_region(int region_origin_scr, int dmap, int scr)
 bool is_in_current_region(int scr)
 {
 	// TODO z3 ! cache
-	return is_in_region(current_region_origin_screen_index, currdmap, scr);
+	return is_in_region(cur_origin_screen_index, currdmap, scr);
 }
 
 bool is_valid_rpos(rpos_t rpos)
@@ -178,7 +177,7 @@ int get_region_id(int dmap, int scr)
 
 int get_current_region_id()
 {
-	return get_region_id(currdmap, current_region_origin_screen_index);
+	return get_region_id(currdmap, cur_origin_screen_index);
 }
 
 void z3_calculate_region(int dmap, int screen_index, int& origin_scr, int& region_scr_width, int& region_scr_height, int& region_scr_dx, int& region_scr_dy, int& world_w, int& world_h)
@@ -255,7 +254,7 @@ void z3_load_region(int dmap)
 	}
 #endif
 
-	z3_calculate_region(dmap, currscr, current_region_origin_screen_index, region_scr_width, region_scr_height, region_scr_dx, region_scr_dy, world_w, world_h);
+	z3_calculate_region(dmap, currscr, cur_origin_screen_index, region_scr_width, region_scr_height, region_scr_dx, region_scr_dy, world_w, world_h);
 	region_max_rpos = static_cast<rpos_t>(region_scr_width*region_scr_height*176 - 1);
 	region_num_rpos = region_scr_width*region_scr_height*176;
 	initial_region_scr = currscr;
@@ -346,7 +345,7 @@ void z3_update_currscr()
 	int y = vbound(Hero.getY().getInt(), 0, world_h - 1);
 	int dx = x / 256;
 	int dy = y / 176;
-	int newscr = current_region_origin_screen_index + dx + dy * 16;
+	int newscr = cur_origin_screen_index + dx + dy * 16;
 	if (dx >= 0 && dy >= 0 && dx < 16 && dy < 8 && is_in_current_region(newscr))
 	{
 		region_scr_dx = dx;
@@ -381,8 +380,8 @@ int get_screen_index_for_world_xy(int x, int y)
 
 	int dx = vbound(x, 0, world_w - 1) / 256;
 	int dy = vbound(y, 0, world_h - 1) / 176;
-	int origin_scr_x = current_region_origin_screen_index % 16;
-	int origin_scr_y = current_region_origin_screen_index / 16;
+	int origin_scr_x = cur_origin_screen_index % 16;
+	int origin_scr_y = cur_origin_screen_index / 16;
 	int scr_x = origin_scr_x + dx;
 	int scr_y = origin_scr_y + dy;
 	return scr_xy_to_index(scr_x, scr_y);
@@ -390,8 +389,8 @@ int get_screen_index_for_world_xy(int x, int y)
 
 int get_screen_index_for_rpos(rpos_t rpos)
 {
-	int origin_scr_x = current_region_origin_screen_index % 16;
-	int origin_scr_y = current_region_origin_screen_index / 16;
+	int origin_scr_x = cur_origin_screen_index % 16;
+	int origin_scr_y = cur_origin_screen_index / 16;
 	int scr_index = static_cast<int32_t>(rpos) / 176;
 	int scr_x = origin_scr_x + scr_index%region_scr_width;
 	int scr_y = origin_scr_y + scr_index/region_scr_width;
@@ -464,14 +463,9 @@ mapscr* get_screen_layer_for_xy_offset(int x, int y, int layer)
 		get_layer_scr(currmap, get_screen_index_for_world_xy(x, y), layer - 1);
 }
 
-int z3_get_origin_scr()
-{
-	return current_region_origin_screen_index;
-}
-
 int z3_get_region_relative_dx(int screen_index)
 {
-	return z3_get_region_relative_dx(screen_index, current_region_origin_screen_index);
+	return z3_get_region_relative_dx(screen_index, cur_origin_screen_index);
 }
 int z3_get_region_relative_dx(int screen_index, int origin_screen_index)
 {
@@ -480,7 +474,7 @@ int z3_get_region_relative_dx(int screen_index, int origin_screen_index)
 
 int z3_get_region_relative_dy(int screen_index)
 {
-	return z3_get_region_relative_dy(screen_index, current_region_origin_screen_index);
+	return z3_get_region_relative_dy(screen_index, cur_origin_screen_index);
 }
 int z3_get_region_relative_dy(int screen_index, int origin_screen_index)
 {
@@ -496,7 +490,7 @@ int get_screen_index_for_region_index_offset(int offset)
 {
 	int scr_dx = offset % region_scr_width;
 	int scr_dy = offset / region_scr_width;
-	int screen_index = z3_get_origin_scr() + scr_dx + scr_dy*16;
+	int screen_index = cur_origin_screen_index + scr_dx + scr_dy*16;
 	return screen_index;
 }
 
@@ -5589,7 +5583,7 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 	{
 		for (int screen_index = 0; screen_index < 128; screen_index++)
 		{
-			if (screen_index != scr && is_in_region(current_region_origin_screen_index, destdmap, screen_index))
+			if (screen_index != scr && is_in_region(cur_origin_screen_index, destdmap, screen_index))
 			{
 				load_a_screen_and_layers(destdmap, currmap, screen_index, ldir);
 			}

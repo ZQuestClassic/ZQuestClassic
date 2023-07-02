@@ -399,6 +399,9 @@ extern char *SAVE_FILE;
 extern int32_t homescr;
 // The current screen. If in a region, this updates as the player moves around.
 extern int32_t currscr;
+// The top-left screen index of the current region.
+// If not currently in a region, this is always the same as currscr.
+extern int32_t cur_origin_screen_index;
 // The initial screen that the player loads into when entering a region. If not in a region, this is equal to currscr.
 // Corresponds to tmpscr and tmpscr2.
 extern int32_t initial_region_scr;
