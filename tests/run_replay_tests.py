@@ -19,7 +19,13 @@
 # When done recording, just do Quit from the system menu.
 
 # To run a specific test, run:
-#   python tests/run_replay_tests.py --filter test.zplay
+#   python tests/run_replay_tests.py --filter classic_1st.zplay
+#
+# Add `--frame <frame #>` to run the test only up to the specified frame.
+# Instead of the command line, you can also use the ZC > Replay menu.
+
+# To run just the tests containing a substring, run:
+#   python tests/run_replay_tests.py --filter playground
 #
 # Add `--frame <frame #>` to run the test only up to the specified frame.
 # Instead of the command line, you can also use the ZC > Replay menu.
@@ -318,19 +324,31 @@ grouped_max_duration_arg = group_arg(args.max_duration)
 grouped_snapshot_arg = group_arg(args.snapshot, allow_concat=True)
 grouped_frame_arg = group_arg(args.frame)
 
+
+def apply_test_filter(filter: str):
+    filter_as_path = pathlib.Path(filter)
+    if (os.curdir / filter_as_path).exists():
+        filter_as_path = filter_as_path.absolute()
+    if filter_as_path.is_absolute():
+        filter_as_path = filter_as_path.relative_to(replays_dir)
+
+    filtered = []
+    for test in tests:
+        if str(test.relative_to(replays_dir)) == str(filter_as_path):
+            filtered.append(test)
+        if filter in str(test.relative_to(replays_dir)):
+            filtered.append(test)
+    return filtered
+
+
 if args.filter:
-    filtered_tests = []
+    filtered_tests = set()
     for filter in args.filter:
-        filter = pathlib.Path(filter)
-        if (os.curdir / filter).exists():
-            filter = filter.absolute()
-        if filter.is_absolute():
-            filter = filter.relative_to(replays_dir)
-        test = next((t for t in tests if str(t.relative_to(replays_dir)) == str(filter)), None)
-        if not test:
+        some_tests = apply_test_filter(filter)
+        if not some_tests:
             raise Exception(f'bad filter: {filter}')
-        filtered_tests.append(test)
-    tests = filtered_tests
+        filtered_tests.update(some_tests)
+    tests = list(filtered_tests)
 
 if args.ci:
     skip_in_ci = [
