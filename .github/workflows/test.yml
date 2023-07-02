@@ -126,7 +126,6 @@ jobs:
           --retries 1
           --ci ${{ inputs.runs-on }}_${{ inputs.arch }}
           --filter playground
-          --filter ghost_armos.zplay
           --filter keys.zplay
           --no-jit
 
