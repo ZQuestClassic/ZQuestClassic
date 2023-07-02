@@ -10406,21 +10406,29 @@ void HeroClass::drop_liftwpn()
 	handle_lift(false); //sets position properly, accounting for large weapons
 	auto liftid = current_item_id(itype_liftglove,true,true);
 	itemdata const& glove = itemsbuf[liftid];
-	auto lheight = liftheight+z+fakez;
-	if(glove.flags & ITEM_FLAG1)
+	if(isSideViewGravity())
 	{
-		lift_wpn->z = 0;
-		lift_wpn->fakez = lheight;
+		lift_wpn->moveflags |= FLAG_NO_FAKE_Z;
 	}
-	else lift_wpn->z = lheight;
+	else
+	{
+		auto lheight = liftheight+z+fakez;
+		if(glove.flags & ITEM_FLAG1)
+		{
+			lift_wpn->z = 0;
+			lift_wpn->fakez = lheight;
+			lift_wpn->moveflags |= FLAG_NO_REAL_Z;
+		}
+		else
+		{
+			lift_wpn->z = lheight;
+			lift_wpn->moveflags |= FLAG_NO_FAKE_Z;
+		}
+	}
 	lift_wpn->dir = dir;
 	lift_wpn->step = 0;
 	lift_wpn->fakefall = 0;
 	lift_wpn->fall = 0;
-	if(glove.flags & ITEM_FLAG1)
-		lift_wpn->moveflags |= FLAG_NO_REAL_Z;
-	else
-		lift_wpn->moveflags |= FLAG_NO_FAKE_Z;
 	Lwpns.add(lift_wpn);
 	lift_wpn = nullptr;
 }
@@ -10485,25 +10493,46 @@ void HeroClass::do_liftglove(int32_t liftid, bool passive)
 			//Throw the weapon!
 			//hero's direction and position
 			handle_lift(false); //sets position properly, accounting for large weapons
-			auto lheight = liftheight+z+fakez;
-			if(glove.flags & ITEM_FLAG1)
-			{
-				lift_wpn->z = 0;
-				lift_wpn->fakez = lheight;
-			}
-			else lift_wpn->z = lheight;
+			
 			lift_wpn->dir = dir;
 			//Configured throw speed in both axes
 			lift_wpn->step = zfix(glove.misc2)/100;
-			if(glove.flags & ITEM_FLAG1)
+			
+			if(isSideViewGravity())
 			{
-				lift_wpn->fakefall = -glove.misc3;
-				lift_wpn->moveflags |= FLAG_NO_REAL_Z;
+				lift_wpn->fall = -glove.misc3;
+				switch(dir)
+				{
+					case left: case right:
+						break; //nothing special for sideways
+					case up: //step converts to upwards fall
+						lift_wpn->fall -= lift_wpn->step*100;
+						lift_wpn->step = 0;
+						break;
+					case down: //step converts into straight down fall
+						lift_wpn->fall = zc_min(lift_wpn->step*100,zinit.terminalv);
+						zprint2("step,termv %d,%d\n",lift_wpn->step*100,zinit.terminalv);
+						lift_wpn->step = 0;
+						break;
+				}
+				lift_wpn->moveflags |= FLAG_NO_FAKE_Z;
 			}
 			else
 			{
-				lift_wpn->fall = -glove.misc3;
-				lift_wpn->moveflags |= FLAG_NO_FAKE_Z;
+				auto lheight = liftheight+z+fakez;
+				if(glove.flags & ITEM_FLAG1)
+				{
+					lift_wpn->z = 0;
+					lift_wpn->fakez = lheight;
+					lift_wpn->fakefall = -glove.misc3;
+					lift_wpn->moveflags |= FLAG_NO_REAL_Z;
+				}
+				else
+				{
+					lift_wpn->z = lheight;
+					lift_wpn->fall = -glove.misc3;
+					lift_wpn->moveflags |= FLAG_NO_FAKE_Z;
+				}
 			}
 			Lwpns.add(lift_wpn);
 			lift_wpn = nullptr;
@@ -10660,7 +10689,9 @@ void HeroClass::handle_lift(bool dec)
 				lift_wpn->x = x;
 				lift_wpn->y = y;
 			}
-			lift_wpn->z = liftheight;
+			if(isSideViewGravity())
+				lift_wpn->y -= liftheight;
+			else lift_wpn->z = liftheight;
 		}
 		if(action == lifting)
 		{
@@ -10733,7 +10764,9 @@ void HeroClass::handle_lift(bool dec)
 	
 	lift_wpn->x = x + xdist;
 	lift_wpn->y = y + ydist;
-	lift_wpn->z = liftheight*(1.0-perc);
+	if(isSideViewGravity())
+		lift_wpn->y -= liftheight*(1.0-perc);
+	else lift_wpn->z = liftheight*(1.0-perc);
 }
 bool HeroClass::can_lift(int32_t gloveid)
 {
