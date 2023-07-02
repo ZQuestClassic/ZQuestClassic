@@ -892,7 +892,10 @@ static GUI::ListData compatRulesList
 		"If enabled, after a scroll or warp, the next frame is started mid-frame"
 		" instead of from the start, possibly causing issues with things like input." },
 	{ "Scripted enemies don't run script on first frame of screen entry", qr_ENEMIES_DONT_SCRIPT_FIRST_FRAME,
-		"If enabled, enemies don't run their scripts on the first frame of entering a screen." }
+		"If enabled, enemies don't run their scripts on the first frame of entering a screen." },
+	{ "Broken Scrolling Onto Raft Flags", qr_BROKEN_RAFT_SCROLL,
+		"If enabled, scrolling the screen such that you are on a raft flag on the new screen will force rafting,"
+		" even if you were not rafting before, or do not have the raft item." }
 };
 
 static GUI::ListData enemiesRulesList

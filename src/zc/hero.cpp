@@ -27950,7 +27950,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	putscrdoors(scrollbuf,0,0,newscr);
 	
 	// Check for raft flags
-	if(action!=rafting && hopclk==0 && !toogam)
+	if((get_bit(quest_rules,qr_BROKEN_RAFT_SCROLL) || lastaction == rafting)
+		&& action!=rafting && hopclk==0 && !toogam)
 	{
 		if(MAPFLAG(x,y)==mfRAFT||MAPCOMBOFLAG(x,y)==mfRAFT)
 		{
