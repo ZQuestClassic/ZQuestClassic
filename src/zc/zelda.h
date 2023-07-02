@@ -394,11 +394,14 @@ extern bool usebombpal;
 extern int32_t slot_arg, slot_arg2;
 extern char *SAVE_FILE;
 
-// If currently on an 0x80+ screen, homescr is where the player came from. Corresponds to special_warp_return_screen.
+// If currently on an 0x80+ screen, this is where the player came from. Corresponds to special_warp_return_screen.
 // Otherwise, is equal to initial_region_scr.
 extern int32_t homescr;
-// The current screen. If in a region, this updates as the player moves around.
+// The current screen. If in a region, this is the screen entered on - same as initial_region_scr.
 extern int32_t currscr;
+// Screen the player is currently on. If in a region, this updates as the player moves around. Otherwise, this is equal to currscr.
+extern int32_t heroscr;
+extern mapscr* hero_screen;
 // The top-left screen index of the current region.
 // If not currently in a region, this is always the same as currscr.
 extern int32_t cur_origin_screen_index;
@@ -473,10 +476,6 @@ extern mapscr tmpscr;
 // This is typically used as the previous screen before doing a warp to a special room,
 // but it is also used (by scripting) to hold the previous screen during scrolling.
 extern mapscr special_warp_return_screen;
-// Pointer to the temporary screen that the hero is currently positioned in.
-// Updates as the hero moves around.
-// When not in a region, this always points to tmpscr.
-extern mapscr* current_screen;
 extern std::map<int, byte> activation_counters;
 extern std::map<int, byte> activation_counters_ffc;
 extern mapscr tmpscr2[6];

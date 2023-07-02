@@ -261,6 +261,9 @@ void z3_load_region(int dmap)
 	scrolling_maze_state = 0;
 	scrolling_maze_scr = 0;
 	z3_clear_temporary_screens();
+
+	// TODO z3 !!!
+	// z3_update_currscr();
 }
 
 void z3_clear_temporary_screens()
@@ -339,6 +342,8 @@ void z3_update_viewport()
 }
 
 void playLevelMusic();
+
+// TODO z3 !! rename, stop updating currscr
 void z3_update_currscr()
 {
 	int x = vbound(Hero.getX().getInt(), 0, world_w - 1);
@@ -353,8 +358,9 @@ void z3_update_currscr()
 		// TODO z3 ! can entire conditional check this?
 		bool try_replay_music = currscr != newscr;
 		currscr = newscr;
+		heroscr = newscr;
 		if (try_replay_music) playLevelMusic();
-		current_screen = get_scr(currmap, currscr);
+		hero_screen = get_scr(currmap, currscr);
 	}
 }
 
@@ -5568,7 +5574,8 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 	currscr_for_passive_subscr = -1;
 	currscr = scr;
 	z3_load_region(destdmap);
-	current_screen = &tmpscr;
+	heroscr = scr;
+	hero_screen = &tmpscr;
 
 	FFCore.clear_script_engine_data_of_type(ScriptType::Screen);
 	FFCore.clear_combo_scripts();

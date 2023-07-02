@@ -397,7 +397,8 @@ byte forceExit=0,zc_vsync=0;
 byte zc_color_depth=8;
 byte use_win32_proc=1, zasm_debugger = 0, zscript_debugger = 0; //windows-build configs
 int32_t homescr,currscr,initial_region_scr,frame=0,currmap=0,dlevel,warpscr,worldscr,scrolling_scr=0,scrolling_map=0,scrolling_dmap=0,scrolling_destdmap=-1;
-int32_t cur_origin_screen_index;
+int32_t heroscr=0;
+int32_t cur_origin_screen_index=0;
 bool scrolling_use_new_dark_code=false;
 int32_t scrolling_origin_scr=0;
 int32_t currscr_for_passive_subscr;
@@ -480,7 +481,7 @@ mapscr tmpscr;
 mapscr special_warp_return_screen;
 mapscr tmpscr2[6];
 mapscr tmpscr3[6];
-mapscr* current_screen;
+mapscr* hero_screen;
 gamedata *game=NULL;
 script_data *ffscripts[NUMSCRIPTFFC];
 script_data *itemscripts[NUMSCRIPTITEM];
@@ -2214,16 +2215,16 @@ int32_t init_game()
 		//if ((DMaps[currdmap].type&dmfTYPE)==dmOVERW || QHeader.zelda_version <= 0x190)
 		if((DMaps[currdmap].type&dmfTYPE)==dmOVERW)
 		{
-			homescr = currscr = DMaps[currdmap].cont;
+			homescr = currscr = heroscr = DMaps[currdmap].cont;
 		}
 		else
 		{
-			homescr = currscr = DMaps[currdmap].cont + DMaps[currdmap].xoff;
+			homescr = currscr = heroscr = DMaps[currdmap].cont + DMaps[currdmap].xoff;
 		}
 	}
 	else
 	{
-		homescr = currscr = game->get_continue_scrn();
+		homescr = currscr = heroscr = game->get_continue_scrn();
 	}
 	
 	lastentrance = currscr;
@@ -2754,18 +2755,18 @@ void restart_level()
 		{
 			throwGenScriptEvent(GENSCR_EVENT_CHANGE_LEVEL);
 		}
-		homescr = currscr = lastentrance;
+		homescr = currscr = heroscr = lastentrance;
 		init_dmap();
 	}
 	else
 	{
 		if((DMaps[currdmap].type&dmfTYPE)==dmOVERW)
 		{
-			homescr = currscr = DMaps[currdmap].cont;
+			homescr = currscr = heroscr = DMaps[currdmap].cont;
 		}
 		else
 		{
-			homescr = currscr = DMaps[currdmap].cont + DMaps[currdmap].xoff;
+			homescr = currscr = heroscr = DMaps[currdmap].cont + DMaps[currdmap].xoff;
 		}
 	}
 	

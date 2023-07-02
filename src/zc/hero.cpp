@@ -140,7 +140,7 @@ void HeroClass::snap_platform()
 {
 	if(check_new_slope(x, y+1, 16, 16, old_x, old_y, false) < 0)
 		return;
-	if (y>=world_h-16 && currscr>=0x70 && !(current_screen->flags2&wfDOWN))
+	if (y>=world_h-16 && currscr>=0x70 && !(hero_screen->flags2&wfDOWN))
 	{
 		y = world_h-16;
 		return;
