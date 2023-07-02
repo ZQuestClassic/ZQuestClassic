@@ -240,7 +240,7 @@ void z3_calculate_region(int dmap, int screen_index, int& origin_scr, int& regio
 	DCHECK_RANGE_INCLUSIVE(region_scr_height, 0, 8);
 }
 
-void z3_load_region(int dmap)
+void z3_load_region(int screen_index, int dmap)
 {
 	if (dmap == -1) dmap = currdmap;
 
@@ -254,10 +254,12 @@ void z3_load_region(int dmap)
 	}
 #endif
 
-	z3_calculate_region(dmap, currscr, cur_origin_screen_index, region_scr_width, region_scr_height, region_scr_dx, region_scr_dy, world_w, world_h);
-	region_max_rpos = static_cast<rpos_t>(region_scr_width*region_scr_height*176 - 1);
+	currscr = screen_index;
+	z3_calculate_region(dmap, screen_index, cur_origin_screen_index, region_scr_width, region_scr_height, region_scr_dx, region_scr_dy, world_w, world_h);
+	region_max_rpos = (rpos_t)(region_scr_width*region_scr_height*176 - 1);
 	region_num_rpos = region_scr_width*region_scr_height*176;
-	initial_region_scr = currscr;
+	// TODO z3 !! remove initial_region_scr ?
+	initial_region_scr = screen_index;
 	scrolling_maze_state = 0;
 	scrolling_maze_scr = 0;
 	z3_clear_temporary_screens();
@@ -299,10 +301,10 @@ std::vector<mapscr*> z3_take_temporary_screens()
 	// in the temporary screens array.
 	for (int i = 0; i < 7; i++)
 	{
-		mapscr* s = get_layer_scr(currmap, initial_region_scr, i - 1);
+		mapscr* s = get_layer_scr(currmap, currscr, i - 1);
 		DCHECK(s);
-		DCHECK(!screens[initial_region_scr*7 + i]);
-		screens[initial_region_scr*7 + i] = new mapscr(*s);
+		DCHECK(!screens[currscr*7 + i]);
+		screens[currscr*7 + i] = new mapscr(*s);
 	}
 
 	return screens;
@@ -512,7 +514,7 @@ const mapscr* get_canonical_scr(int map, int screen)
 mapscr* get_scr(int map, int screen)
 {
 	DCHECK_RANGE_INCLUSIVE(screen, 0, 135);
-	if (screen == initial_region_scr && map == currmap) return &tmpscr;
+	if (screen == currscr && map == currmap) return &tmpscr;
 	if (screen == homescr && map == currmap) return &special_warp_return_screen;
 
 	if (map == currmap)
@@ -536,7 +538,7 @@ mapscr* get_scr(int map, int screen)
 mapscr* get_scr_no_load(int map, int screen)
 {
 	DCHECK_RANGE_INCLUSIVE(screen, 0, 135);
-	if (screen == initial_region_scr && map == currmap) return &tmpscr;
+	if (screen == currscr && map == currmap) return &tmpscr;
 	if (screen == homescr && map == currmap) return &special_warp_return_screen;
 
 	if (map == currmap)
@@ -557,7 +559,7 @@ mapscr* get_layer_scr(int map, int screen, int layer)
 {
 	DCHECK_LAYER_NEG1_INDEX(layer);
 	if (layer == -1) return get_scr(map, screen);
-	if (screen == initial_region_scr && map == currmap) return &tmpscr2[layer];
+	if (screen == currscr && map == currmap) return &tmpscr2[layer];
 	if (screen == homescr && map == currmap) return &tmpscr3[layer];
 
 	if (map == currmap)
@@ -788,7 +790,7 @@ void clear_dmaps()
 
 int32_t isdungeon(int32_t dmap, int32_t scr) // The arg is only used by loadscr2 and loadscr
 {
-    if (scr < 0) scr = initial_region_scr;
+    if (scr < 0) scr = currscr;
     if (dmap < 0) dmap = currdmap;
     
     // dungeons can have any dlevel above 0
@@ -2529,7 +2531,7 @@ static int32_t findtrigger(int32_t screen_index)
 // -1: triggered by some other cause
 void trigger_secrets_for_screen(TriggerSource source, bool high16only, int32_t single)
 {
-	trigger_secrets_for_screen(source, initial_region_scr, high16only, single);
+	trigger_secrets_for_screen(source, currscr, high16only, single);
 }
 
 static void log_trigger_secret_reason(TriggerSource source)
@@ -2572,7 +2574,7 @@ void trigger_secrets_for_screen_internal(int32_t screen_index, mapscr *s, bool d
 {
 	DCHECK(screen_index != -1 || s);
 	if (!s) s = get_scr(currmap, screen_index);
-	if (screen_index == -1) screen_index = initial_region_scr;
+	if (screen_index == -1) screen_index = currscr;
 
 	// TODO z3 ! this should move into `trigger_secrets_for_screen`.
 	if (replay_is_active())
@@ -2589,7 +2591,7 @@ void trigger_secrets_for_screen_internal(int32_t screen_index, mapscr *s, bool d
 				newcombo const& cmb = combobuf[layer_screen->data[pos]];
 				if(cmb.triggerflags[2] & combotriggerSECRETSTR)
 				{
-					do_trigger_combo(get_rpos_handle_for_screen(layer_screen, initial_region_scr, lyr, pos), ctrigSECRETS);
+					do_trigger_combo(get_rpos_handle_for_screen(layer_screen, currscr, lyr, pos), ctrigSECRETS);
 				}
 			}
 		}
@@ -4364,8 +4366,8 @@ void draw_screen(bool showhero, bool runGeneric)
 		if (in_viewport)
 		{
 			do_layer(scrollbuf, 0, screen_handles[1], offx, offy, true); // LAYER 1
-			if (screen_index == initial_region_scr) particles.draw(temp_buf, true, 0);
-			if (screen_index == initial_region_scr) draw_msgstr(1, true);
+			if (screen_index == currscr) particles.draw(temp_buf, true, 0);
+			if (screen_index == currscr) draw_msgstr(1, true);
 		}
 		
 		do_layer(scrollbuf, -3, screen_handles[0], 0, 0); // freeform combos!
@@ -4375,8 +4377,8 @@ void draw_screen(bool showhero, bool runGeneric)
 			if(!XOR(base_screen->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))
 			{
 				do_layer(scrollbuf, 0, screen_handles[2], offx, offy, true); // LAYER 2
-				if (screen_index == initial_region_scr) particles.draw(temp_buf, true, 1);
-				if (screen_index == initial_region_scr) draw_msgstr(2, true);
+				if (screen_index == currscr) particles.draw(temp_buf, true, 1);
+				if (screen_index == currscr) draw_msgstr(2, true);
 			}
 		}
 	});
@@ -4754,7 +4756,7 @@ void draw_screen(bool showhero, bool runGeneric)
 		if (in_viewport)
 		{
 			// TODO z3 !!! overdraw?? other screens?
-			if (screen_index == initial_region_scr)
+			if (screen_index == currscr)
 			{
 				do_primitives(temp_buf, SPLAYER_OVERHEAD_FFC, base_screen, offx, offy + playing_field_offset);
 			}
@@ -5530,7 +5532,7 @@ void load_a_screen_and_layers(int dmap, int map, int screen_index, int ldir)
 // starting the game, etc...)
 // Note: for regions, only the initial screen load calls this function. Simply walking between screens
 // in the same region does not use this, because every screen in a region is loaded into temporary memory up front.
-// If scr >= 0x80, `currscr` will be saved to `homescr` and also be loaded into `special_warp_return_screen`.
+// If scr >= 0x80, `heroscr` will be saved to `homescr` and also be loaded into `special_warp_return_screen`.
 // If overlay is true, the old tmpscr combos will be copied to the new tmpscr combos on all layers (but only where
 // the new screen has a 0 combo).
 void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_x80_dir)
@@ -5542,7 +5544,7 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 	if (destdmap < 0) destdmap = currdmap;
 
 	triggered_screen_secrets = false;
-	init_combo_timers();
+	// init_combo_timers();
 	timeExitAllGenscript(GENSCR_ST_CHANGE_SCREEN);
 	
 	clear_to_color(darkscr_bmp_curscr, game->get_darkscr_color());
@@ -5568,19 +5570,32 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 	}
 	reset_combo_animations2();
 
-	homescr = scr >= 0x80 ? currscr : scr;
 	currscr_for_passive_subscr = -1;
-	currscr = scr;
-	z3_load_region(destdmap);
-	heroscr = scr;
-	hero_screen = &tmpscr;
+	z3_load_region(scr, destdmap);
+	homescr = scr >= 0x80 ? heroscr : cur_origin_screen_index;
+	currscr = cur_origin_screen_index;
 
 	FFCore.clear_script_engine_data_of_type(ScriptType::Screen);
 	FFCore.clear_combo_scripts();
 	FFCore.deallocateAllArrays(ScriptType::Screen, 0);
 	FFCore.deallocateAllArrays(ScriptType::Combo, 0);
 
-	loadscr_old(0, orig_destdmap, scr, ldir, overlay, false);
+	if (orig_destdmap != -1)
+	{
+		if (strlen(DMaps[orig_destdmap].name) > 0)
+		{
+			replay_step_comment(fmt::format("dmap={} {}", orig_destdmap, DMaps[orig_destdmap].name));
+		}
+		else
+		{
+			replay_step_comment(fmt::format("dmap={}", orig_destdmap));
+		}
+	}
+	replay_step_comment_loadscr(scr);
+
+	// Load the origin screen (top-left in region) into tmpscr.
+	loadscr_old(0, orig_destdmap, cur_origin_screen_index, ldir, overlay, false);
+	// Store the current tmpscr into special_warp_return_screen, if on a special screen.
 	if (scr >= 0x80)
 		loadscr_old(1, orig_destdmap, homescr, no_x80_dir ? -1 : ldir, overlay, false);
 
@@ -5588,16 +5603,23 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 	{
 		for (int screen_index = 0; screen_index < 128; screen_index++)
 		{
-			if (screen_index != scr && is_in_region(cur_origin_screen_index, destdmap, screen_index))
+			if (screen_index != cur_origin_screen_index && is_in_region(cur_origin_screen_index, destdmap, screen_index))
 			{
 				load_a_screen_and_layers(destdmap, currmap, screen_index, ldir);
 			}
 		}
 	}
 
+	init_ffpos();
+	init_combo_timers();
+
+	heroscr = scr;
+	hero_screen = get_scr_no_load(currmap, scr);
+	DCHECK(hero_screen);
+
 	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
 		// Handled in loadscr_old.
-		if (ffc_handle.screen_index == scr)
+		if (ffc_handle.screen_index == cur_origin_screen_index)
 			return;
 
 		FFCore.reset_script_engine_data(ScriptType::FFC, ffc_handle.id);
@@ -5623,6 +5645,7 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 	// - lots
 	//
 	// TODO z3 maybe instead- make yofs start as 0 by default, and add playing_field_offset at draw time?
+	// TODO z3 we already loaded the region... so dont use is_a_region
 	if (is_a_region(currdmap, currscr) && is_extended_height_mode())
 	{
 		playing_field_offset = 0;
@@ -5668,18 +5691,21 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 		if (replay_get_mode() == ReplayMode::ManualTakeover)
 			replay_stop_manual_takeover();
 
-		if (destdmap != -1)
+		if (do_setups)
 		{
-			if (strlen(DMaps[destdmap].name) > 0)
+			if (destdmap != -1)
 			{
-				replay_step_comment(fmt::format("dmap={} {}", destdmap, DMaps[destdmap].name));
+				if (strlen(DMaps[destdmap].name) > 0)
+				{
+					replay_step_comment(fmt::format("dmap={} {}", destdmap, DMaps[destdmap].name));
+				}
+				else
+				{
+					replay_step_comment(fmt::format("dmap={}", destdmap));
+				}
 			}
-			else
-			{
-				replay_step_comment(fmt::format("dmap={}", destdmap));
-			}
+			replay_step_comment_loadscr(scr);
 		}
-		replay_step_comment_loadscr(scr);
 
 		// Reset the rngs and frame count so that recording steps can be modified without impacting
 		// behavior of later screens.
@@ -5689,7 +5715,7 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 	bool is_setting_special_warp_return_screen = tmp == 1;
 	int32_t destlvl = DMaps[destdmap < 0 ? currdmap : destdmap].level;
 
-	if (!is_setting_special_warp_return_screen)
+	if (do_setups && !is_setting_special_warp_return_screen)
 	{
 		slopes.clear();
 		triggered_screen_secrets = false; //Reset var
@@ -5805,7 +5831,7 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 	// screen has FF carryover enabled.
 	if (!is_setting_special_warp_return_screen)
 	{
-		init_ffpos();
+		if (do_setups) init_ffpos();
 		for(word i = 0; i < MAXFFCS; i++)
 		{
 			if((previous_scr.ffcs[i].flags&ffCARRYOVER) && !(previous_scr.flags5&fNOFFCARRYOVER))
@@ -5909,9 +5935,9 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 		}
 	}
 	
-	toggle_switches(game->lvlswitches[destlvl], true, tmp == 0 ? &tmpscr : &special_warp_return_screen, tmp == 0 ? initial_region_scr : homescr);
+	toggle_switches(game->lvlswitches[destlvl], true, tmp == 0 ? &tmpscr : &special_warp_return_screen, tmp == 0 ? cur_origin_screen_index : homescr);
 	// TODO z3 !? replay
-	toggle_gswitches_load(tmp == 0 ? &tmpscr : &special_warp_return_screen, tmp == 0 ? initial_region_scr : homescr);
+	toggle_gswitches_load(tmp == 0 ? &tmpscr : &special_warp_return_screen, tmp == 0 ? cur_origin_screen_index : homescr);
 	
 	if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mLOCKBLOCK)			  // if special stuff done before
 	{

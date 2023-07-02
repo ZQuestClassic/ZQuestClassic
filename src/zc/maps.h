@@ -104,7 +104,7 @@ int get_current_region_id();
 bool is_in_current_region(int scr);
 bool is_valid_rpos(rpos_t rpos);
 void z3_calculate_region(int dmap, int screen_index, int& origin_scr, int& region_scr_width, int& region_scr_height, int& region_scr_dx, int& region_scr_dy, int& world_w, int& world_h);
-void z3_load_region(int dmap = -1);
+void z3_load_region(int screen_index, int dmap = -1);
 void z3_clear_temporary_screens();
 std::vector<mapscr*> z3_take_temporary_screens();
 void z3_calculate_viewport(mapscr* scr, int world_w, int world_h, int hero_x, int hero_y, viewport_t& viewport);

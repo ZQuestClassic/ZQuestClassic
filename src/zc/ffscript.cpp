@@ -8908,7 +8908,7 @@ int32_t get_register(const int32_t arg)
 			//if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
 			else
 			{
-				if(scr==(currmap*MAPSCRS+initial_region_scr))
+				if(scr==(currmap*MAPSCRS+currscr))
 					ret=tmpscr.data[pos]*10000;
 				else if(layr>-1)
 					ret=tmpscr2[layr].data[pos]*10000;
@@ -8951,7 +8951,7 @@ int32_t get_register(const int32_t arg)
 			//if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
 			else
 			{
-				if(scr==(currmap*MAPSCRS+initial_region_scr))
+				if(scr==(currmap*MAPSCRS+currscr))
 					ret=tmpscr.cset[pos]*10000;
 				else if(layr>-1)
 					ret=tmpscr2[layr].cset[pos]*10000;
@@ -8993,7 +8993,7 @@ int32_t get_register(const int32_t arg)
 			//if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
 			else
 			{
-				if(scr==(currmap*MAPSCRS+initial_region_scr))
+				if(scr==(currmap*MAPSCRS+currscr))
 					ret=tmpscr.sflag[pos]*10000;
 				else if(layr>-1)
 					ret=tmpscr2[layr].sflag[pos]*10000;
@@ -9036,7 +9036,7 @@ int32_t get_register(const int32_t arg)
 			//if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
 			else
 			{
-				if(scr==(currmap*MAPSCRS+initial_region_scr))
+				if(scr==(currmap*MAPSCRS+currscr))
 					ret=combobuf[tmpscr.data[pos]].type*10000;
 				else if(layr>-1)
 					ret=combobuf[tmpscr2[layr].data[pos]].type*10000;
@@ -9079,7 +9079,7 @@ int32_t get_register(const int32_t arg)
 			//if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
 			else
 					{
-				if(scr==(currmap*MAPSCRS+initial_region_scr))
+				if(scr==(currmap*MAPSCRS+currscr))
 					ret=combobuf[tmpscr.data[pos]].flag*10000;
 				else if(layr>-1)
 					ret=combobuf[tmpscr2[layr].data[pos]].flag*10000;
@@ -9121,7 +9121,7 @@ int32_t get_register(const int32_t arg)
 			//if(pos >= 0 && pos < 176 && scr >= 0 && sc < MAPSCRS && m < map_count)
 			else
 			{
-				if(scr==(currmap*MAPSCRS+initial_region_scr))
+				if(scr==(currmap*MAPSCRS+currscr))
 					ret=(combobuf[tmpscr.data[pos]].walk&15)*10000;
 				else if(layr>-1)
 					ret=(combobuf[tmpscr2[layr].data[pos]].walk&15)*10000;
@@ -19235,18 +19235,18 @@ void set_register(int32_t arg, int32_t value)
 				break;
 			}
 			int32_t combo = vbound(value/10000,0,MAXCOMBOS);
-			if(scr==(currmap*MAPSCRS+initial_region_scr))
+			if(scr==(currmap*MAPSCRS+currscr))
 			{
-				screen_combo_modify_preroutine({&tmpscr, initial_region_scr, 0, (rpos_t)pos});
+				screen_combo_modify_preroutine({&tmpscr, currscr, 0, (rpos_t)pos});
 				
 			}
 				
 			TheMaps[scr].data[pos]=combo;
 			
-			if(scr==(currmap*MAPSCRS+initial_region_scr))
+			if(scr==(currmap*MAPSCRS+currscr))
 			{
 				tmpscr.data[pos] = combo;
-				screen_combo_modify_postroutine({&tmpscr, initial_region_scr, 0, (rpos_t)pos});
+				screen_combo_modify_postroutine({&tmpscr, currscr, 0, (rpos_t)pos});
 				//Start the script for the new combo
 				int index = get_combopos_ref((rpos_t)pos, 0);
 				FFCore.reset_script_engine_data(ScriptType::Combo, index);
@@ -19295,7 +19295,7 @@ void set_register(int32_t arg, int32_t value)
 			
 			TheMaps[scr].cset[pos]=(value/10000)&15;
 			
-			if(scr==(currmap*MAPSCRS+initial_region_scr))
+			if(scr==(currmap*MAPSCRS+currscr))
 				tmpscr.cset[pos] = value/10000;
 				
 			int32_t layr = whichlayer(scr);
@@ -19337,7 +19337,7 @@ void set_register(int32_t arg, int32_t value)
 			
 			TheMaps[scr].sflag[pos]=value/10000;
 			
-			if(scr==(currmap*MAPSCRS+initial_region_scr))
+			if(scr==(currmap*MAPSCRS+currscr))
 				tmpscr.sflag[pos] = value/10000;
 				
 			int32_t layr = whichlayer(scr);
@@ -29295,7 +29295,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 				dlevel = DMaps[currdmap].level;
 				homescr = currscr = scrID + DMaps[dmapID].xoff;
 				heroscr = currscr;
-				z3_load_region();
+				z3_load_region(currscr);
 				init_dmap();
 				
 				

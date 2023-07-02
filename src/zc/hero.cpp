@@ -24699,7 +24699,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		int destscr = wscr + DMaps[currdmap].xoff;
 		loadscr(currdmap, destscr, -1, overlay);
 		
-		if((tmpscr.flags&fDARK) && !get_bit(quest_rules,qr_NEW_DARKROOM))
+		if((hero_screen->flags&fDARK) && !get_bit(quest_rules,qr_NEW_DARKROOM))
 		{
 			if(get_bit(quest_rules,qr_FADE))
 			{
@@ -24721,16 +24721,16 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		
 		if(get_bit(quest_rules,qr_NOARRIVALPOINT))
 		{
-			wrx=tmpscr.warpreturnx[0];
-			wry=tmpscr.warpreturny[0];
+			wrx=hero_screen->warpreturnx[0];
+			wry=hero_screen->warpreturny[0];
 		}
 		else
 		{
-			wrx=tmpscr.warparrivalx;
-			wry=tmpscr.warparrivaly;
+			wrx=hero_screen->warparrivalx;
+			wry=hero_screen->warparrivaly;
 		}
 		
-		if(((wrx>0||wry>0)||(get_bit(quest_rules,qr_WARPSIGNOREARRIVALPOINT)))&&(!(tmpscr.flags6&fNOCONTINUEHERE)))
+		if(((wrx>0||wry>0)||(get_bit(quest_rules,qr_WARPSIGNOREARRIVALPOINT)))&&(!(hero_screen->flags6&fNOCONTINUEHERE)))
 		{
 			if(dlevel)
 			{
@@ -24748,19 +24748,19 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		{
 			if(get_bit(quest_rules,qr_NOARRIVALPOINT))
 			{
-				x=tmpscr.warpreturnx[wrindex];
-				y=tmpscr.warpreturny[wrindex];
+				x=hero_screen->warpreturnx[wrindex];
+				y=hero_screen->warpreturny[wrindex];
 			}
 			else
 			{
-				x=tmpscr.warparrivalx;
-				y=tmpscr.warparrivaly;
+				x=hero_screen->warparrivalx;
+				y=hero_screen->warparrivaly;
 			}
 		}
 		else
 		{
-			x=tmpscr.warpreturnx[wrindex];
-			y=tmpscr.warpreturny[wrindex];
+			x=hero_screen->warpreturnx[wrindex];
+			y=hero_screen->warpreturny[wrindex];
 		}
 		
 		if(didpit)
@@ -24919,13 +24919,13 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 			
 			if(get_bit(quest_rules,qr_NOARRIVALPOINT))
 			{
-				wrx=tmpscr.warpreturnx[0];
-				wry=tmpscr.warpreturny[0];
+				wrx=hero_screen->warpreturnx[0];
+				wry=hero_screen->warpreturny[0];
 			}
 			else
 			{
-				wrx=tmpscr.warparrivalx;
-				wry=tmpscr.warparrivaly;
+				wrx=hero_screen->warparrivalx;
+				wry=hero_screen->warparrivaly;
 			}
 			
 			if(((wrx>0||wry>0)||(get_bit(quest_rules,qr_WARPSIGNOREARRIVALPOINT)))&&(!get_bit(quest_rules,qr_NOSCROLLCONTINUE))&&(!(tmpscr.flags6&fNOCONTINUEHERE)))
@@ -24972,14 +24972,14 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		int32_t wry;
 		
 		if(get_bit(quest_rules,qr_NOARRIVALPOINT))
-			wry=tmpscr.warpreturny[0];
-		else wry=tmpscr.warparrivaly;
+			wry=hero_screen->warpreturny[0];
+		else wry=hero_screen->warparrivaly;
 		
 		int32_t wrx;
 		
 		if(get_bit(quest_rules,qr_NOARRIVALPOINT))
-			wrx=tmpscr.warpreturnx[0];
-		else wrx=tmpscr.warparrivalx;
+			wrx=hero_screen->warpreturnx[0];
+		else wrx=hero_screen->warparrivalx;
 		
 		Lwpns.add(new weapon((zfix)(index==left?240:index==right?0:wrx),(zfix)(index==down?0:index==up?160:wry),
 							 (zfix)0,wWind,1,0,index,whistleitem,getUID(),false,false,true,1));
@@ -25088,8 +25088,8 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		loadscr(currdmap, wscr + DMaps[currdmap].xoff, -1, overlay);
 		lightingInstant(); // Also sets naturaldark
 		
-		x = tmpscr.warpreturnx[wrindex];
-		y = tmpscr.warpreturny[wrindex];
+		x = hero_screen->warpreturnx[wrindex];
+		y = hero_screen->warpreturny[wrindex];
 		
 		if(didpit)
 		{
@@ -25132,21 +25132,21 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		//preloaded freeform combos
 		ffscript_engine(true);
 		
-		putscr(scrollbuf,0,0,&tmpscr);
-		putscrdoors(scrollbuf,0,0,&tmpscr);
+		putscr(scrollbuf,0,0,hero_screen);
+		putscrdoors(scrollbuf,0,0,hero_screen);
 		
 		if((type1==cCAVE)||(type1>=cCAVEB && type1<=cCAVED) || (type2==cCAVE)||(type2>=cCAVEB && type2<=cCAVED))
 		{
 			reset_pal_cycling();
-			putscr(scrollbuf,0,0,&tmpscr);
-			putscrdoors(scrollbuf,0,0,&tmpscr);
+			putscr(scrollbuf,0,0,hero_screen);
+			putscrdoors(scrollbuf,0,0,hero_screen);
 			walkup(COOLSCROLL);
 		}
 		else if((type3==cCAVE2)||(type3>=cCAVE2B && type3<=cCAVE2D) || (type2==cCAVE2)||(type2>=cCAVE2B && type2<=cCAVE2D))
 		{
 			reset_pal_cycling();
-			putscr(scrollbuf,0,0,&tmpscr);
-			putscrdoors(scrollbuf,0,0,&tmpscr);
+			putscr(scrollbuf,0,0,hero_screen);
+			putscrdoors(scrollbuf,0,0,hero_screen);
 			walkdown2(COOLSCROLL);
 		}
 		else if(wtype==wtIWARPZAP)
@@ -25207,7 +25207,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 			bool cavewarp = ((type1==cCAVE)||(type1>=cCAVEB && type1<=cCAVED) || (type2==cCAVE)||(type2>=cCAVEB && type2<=cCAVED)
 					 ||(type3==cCAVE2)||(type3>=cCAVE2B && type3<=cCAVE2D) || (type2==cCAVE2)||(type2>=cCAVE2B && type2<=cCAVE2D));
 					 
-			if(!(tmpscr.flags3&fIWARPFULLSCREEN))
+			if(!(hero_screen->flags3&fIWARPFULLSCREEN))
 			{
 				//ALLOFF kills the action, but we want to preserve Hero's action if he's swimming or diving -DD
 				bool wasswimming = (action == swimming);
@@ -25274,8 +25274,8 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 			loadscr(currdmap, wscr + DMaps[currdmap].xoff, -1, overlay);
 			lightingInstant(); // Also sets naturaldark
 			
-			x = tmpscr.warpreturnx[wrindex];
-			y = tmpscr.warpreturny[wrindex];
+			x = hero_screen->warpreturnx[wrindex];
+			y = hero_screen->warpreturny[wrindex];
 			
 			if(didpit)
 			{
@@ -25312,21 +25312,21 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 			//preloaded freeform combos
 			ffscript_engine(true);
 			
-			putscr(scrollbuf,0,0,&tmpscr);
-			putscrdoors(scrollbuf,0,0,&tmpscr);
+			putscr(scrollbuf,0,0,hero_screen);
+			putscrdoors(scrollbuf,0,0,hero_screen);
 			
 			if((type1==cCAVE)||(type1>=cCAVEB && type1<=cCAVED) || (type2==cCAVE)||(type2>=cCAVEB && type2<=cCAVED))
 			{
 				reset_pal_cycling();
-				putscr(scrollbuf,0,0,&tmpscr);
-				putscrdoors(scrollbuf,0,0,&tmpscr);
+				putscr(scrollbuf,0,0,hero_screen);
+				putscrdoors(scrollbuf,0,0,hero_screen);
 				walkup(COOLSCROLL);
 			}
 			else if((type3==cCAVE2)||(type3>=cCAVE2B && type3<=cCAVE2D) || (type2==cCAVE2)||(type2>=cCAVE2B && type2<=cCAVE2D))
 			{
 				reset_pal_cycling();
-				putscr(scrollbuf,0,0,&tmpscr);
-				putscrdoors(scrollbuf,0,0,&tmpscr);
+				putscr(scrollbuf,0,0,hero_screen);
+				putscrdoors(scrollbuf,0,0,hero_screen);
 				walkdown2(COOLSCROLL);
 			}
 			else if(wtype==wtIWARPZAP)
@@ -27719,14 +27719,14 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		
 		// The naturaldark state can be read/set by an FFC script before
 		// fade() or lighting() is called.
-		naturaldark = ((TheMaps[currmap*MAPSCRS+currscr].flags & fDARK) != 0);
+		naturaldark = ((TheMaps[currmap*MAPSCRS+heroscr].flags & fDARK) != 0);
 		
 		if(newscr->oceansfx != oldscr->oceansfx)	adjust_sfx(oldscr->oceansfx, 128, false);
 		
 		if(newscr->bosssfx != oldscr->bosssfx)	adjust_sfx(oldscr->bosssfx, 128, false);
 
 		// TODO z3 needed?
-		homescr=currscr;
+		//homescr=heroscr;
 
 		//Preloaded ffc scripts
 		{
@@ -28388,7 +28388,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	{
 		if(MAPFLAG(x,y)==mfRAFT||MAPCOMBOFLAG(x,y)==mfRAFT)
 		{
-			sfx(tmpscr.secretsfx);
+			sfx(hero_screen->secretsfx);
 			action=rafting; FFCore.setHeroAction(rafting);
 			raftclk=0;
 		}
@@ -28396,7 +28396,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		// Half a tile off?
 		else if((dir==left || dir==right) && (MAPFLAG(x,y+8)==mfRAFT||MAPCOMBOFLAG(x,y+8)==mfRAFT))
 		{
-			sfx(tmpscr.secretsfx);
+			sfx(hero_screen->secretsfx);
 			action=rafting; FFCore.setHeroAction(rafting);
 			raftclk=0;
 		}
@@ -28407,7 +28407,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	
 	if(isdungeon())
 	{
-		switch(tmpscr.door[scrolldir^1])
+		switch(hero_screen->door[scrolldir^1])
 		{
 		case dOPEN:
 		case dUNLOCKED:
@@ -28426,7 +28426,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			if(action!=rafting)
 				stepforward(diagonalMovement?21:24, false);
 				
-			putdoor(scrollbuf,0,scrolldir^1,tmpscr.door[scrolldir^1]);
+			putdoor(scrollbuf,0,scrolldir^1,hero_screen->door[scrolldir^1]);
 			opendoors=-4;
 			sfx(WAV_DOOR);
 			break;
@@ -31169,8 +31169,8 @@ void HeroClass::heroDeathAnimation()
 
 void HeroClass::ganon_intro()
 {
-	int offx = z3_get_region_relative_dx(initial_region_scr)*256;
-	int offy = z3_get_region_relative_dy(initial_region_scr)*176;
+	int offx = z3_get_region_relative_dx(heroscr)*256;
+	int offy = z3_get_region_relative_dy(heroscr)*176;
 
     /*
     ************************

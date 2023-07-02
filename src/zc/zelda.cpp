@@ -2291,13 +2291,13 @@ int32_t init_game()
 	
 	Hero.init();
 	if (use_testingst_start
-		&& currscr == testingqst_screen
+		&& heroscr == testingqst_screen
 		&& currdmap == testingqst_dmap)
 	{
-		if (tmpscr.warpreturnx[testingqst_retsqr] != 0 || tmpscr.warpreturny[testingqst_retsqr] != 0)
+		if (hero_screen->warpreturnx[testingqst_retsqr] != 0 || hero_screen->warpreturny[testingqst_retsqr] != 0)
 		{
-			Hero.setX(region_scr_dx*256 + tmpscr.warpreturnx[testingqst_retsqr]);
-			Hero.setY(region_scr_dy*176 + tmpscr.warpreturny[testingqst_retsqr]);
+			Hero.setX(region_scr_dx*256 + hero_screen->warpreturnx[testingqst_retsqr]);
+			Hero.setY(region_scr_dy*176 + hero_screen->warpreturny[testingqst_retsqr]);
 		}
 		else
 		{
@@ -2654,11 +2654,11 @@ int32_t cont_game()
 	lighting(false,true);
 	Hero.init();
 	if (use_testingst_start
-		&& currscr == testingqst_screen
+		&& heroscr == testingqst_screen
 		&& currdmap == testingqst_dmap)
 	{
-		Hero.setX(region_scr_dx*256 + tmpscr.warpreturnx[testingqst_retsqr]);
-		Hero.setY(region_scr_dy*176 + tmpscr.warpreturny[testingqst_retsqr]);
+		Hero.setX(region_scr_dx*256 + hero_screen->warpreturnx[testingqst_retsqr]);
+		Hero.setY(region_scr_dy*176 + hero_screen->warpreturny[testingqst_retsqr]);
 	}
 	if(DMaps[currdmap].flags&dmfBUNNYIFNOPEARL)
 	{
