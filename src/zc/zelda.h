@@ -394,11 +394,12 @@ extern bool usebombpal;
 extern int32_t slot_arg, slot_arg2;
 extern char *SAVE_FILE;
 
-// If currently on an 0x80+ screen, homescr is where the player came from. Corresponds to special_warp_return_screen
+// If currently on an 0x80+ screen, homescr is where the player came from. Corresponds to special_warp_return_screen.
+// Otherwise, is equal to initial_region_scr.
 extern int32_t homescr;
 // The current screen. If in a region, this updates as the player moves around.
 extern int32_t currscr;
-// The initial screen that the player loads into when entering a region. If not in region mode, this is equal to currscr.
+// The initial screen that the player loads into when entering a region. If not in a region, this is equal to currscr.
 // Corresponds to tmpscr and tmpscr2.
 extern int32_t initial_region_scr;
 extern int32_t frame,currmap,dlevel,warpscr,worldscr,scrolling_scr,scrolling_map,scrolling_dmap,scrolling_destdmap;
