@@ -10511,7 +10511,6 @@ void HeroClass::do_liftglove(int32_t liftid, bool passive)
 						break;
 					case down: //step converts into straight down fall
 						lift_wpn->fall = zc_min(lift_wpn->step*100,zinit.terminalv);
-						zprint2("step,termv %d,%d\n",lift_wpn->step*100,zinit.terminalv);
 						lift_wpn->step = 0;
 						break;
 				}
