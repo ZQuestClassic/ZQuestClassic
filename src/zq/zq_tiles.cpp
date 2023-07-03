@@ -1879,19 +1879,6 @@ void wrap_sel_tile(int32_t vertical, int32_t horizontal)
 	memcpy(floatsel,buf,256);
 }
 
-bool has_selection()
-{
-	for(int32_t x=1; x<17; ++x)
-	{
-		for(int32_t y=1; y<17; ++y)
-		{
-			if(selection_grid[x][y])
-				return true;
-		}
-	}
-	return false;
-}
-
 void float_selection(int32_t tile, bool clear)
 {
 	if(floating_sel) return;
