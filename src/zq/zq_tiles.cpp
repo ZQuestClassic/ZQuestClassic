@@ -17464,28 +17464,29 @@ bool select_combo_3(int32_t &cmb,int32_t &cs)
 
 static DIALOG advpaste_dlg[] =
 {
-	/* (dialog proc)     (x)   (y)    (w)   (h)    (fg)      (bg)     (key)    (flags)       (d1)           (d2)      (dp) */
-	{ jwin_win_proc,         0,    0,   200,  161,   vc(14),   vc(1),       0,     D_EXIT,       0,             0, (void *) "Advanced Paste", NULL, NULL },
-	{ jwin_button_proc,     27,   130,  61,   21,   vc(14),  vc(1),  'k',     D_EXIT,     0,             0, (void *) "O&K", NULL, NULL },
-	{ jwin_button_proc,     112,  130,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+	/* (dialog proc)     (x)   (y)  (w)    (h)  (fg)(bg)(key)  (flags)   (d1)  (d2)      (dp) */
+	{ jwin_win_proc,       0,    0, 200,   150,   0,  0,   0,   D_EXIT,    0,    0,    (void*)"Advanced Paste", NULL, NULL },
+	{ jwin_button_proc,   27,  125,  61,    21,   0,  0, 'k',   D_EXIT,    0,    0,    (void*)"O&K", NULL, NULL },
+	{ jwin_button_proc,  112,  125,  61,    21,   0,  0,  27,   D_EXIT,    0,    0,    (void*)"Cancel", NULL, NULL },
 	
-	{ jwin_check_proc,		 10,	   30,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Tile", NULL, NULL },
-	{ jwin_check_proc,		 10,	   40,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Cset2", NULL, NULL },
-	{ jwin_check_proc,		 10,	   50,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Walkability", NULL, NULL },
-	{ jwin_check_proc,		 10,	   60,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Animation", NULL, NULL },
-	{ jwin_check_proc,		 10,	   70,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Type", NULL, NULL },
-	{ jwin_check_proc,		 10,	   80,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Inherent Flag", NULL, NULL },
-	{ jwin_check_proc,		 10,	   90,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Attribytes", NULL, NULL },
-	{ jwin_check_proc,		 10,	  100,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Attrishorts", NULL, NULL },
-	{ jwin_check_proc,		 10,	  110,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Attributes", NULL, NULL },
-	{ jwin_check_proc,		 10,	  120,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Flags", NULL, NULL },
-	{ jwin_check_proc,		110,	   30,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Label", NULL, NULL },
-	{ jwin_check_proc,		110,	   40,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Triggered By", NULL, NULL },
-	{ jwin_check_proc,		110,	   50,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Script", NULL, NULL },
-	{ jwin_check_proc,		110,	   60,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Effect", NULL, NULL },
-	{ jwin_check_proc,		110,	   70,	33,		9,	vc(14),	 vc(1),	  0,		0,				1,			0,	(void*) "Lift", NULL, NULL },
+	{ jwin_check_proc,    10,   20,    33,   9,   0,  0,   0,        0,    1,    0,    (void*)"Tile", NULL, NULL },
+	{ jwin_check_proc,    10,   30,    33,   9,   0,  0,   0,        0,    1,    0,    (void*)"CSet2", NULL, NULL },
+	{ jwin_check_proc,    10,   40,    33,   9,   0,  0,   0,        0,    1,    0,    (void*)"Solidity", NULL, NULL },
+	{ jwin_check_proc,    10,   50,    33,   9,   0,  0,   0,        0,    1,    0,    (void*)"Animation", NULL, NULL },
+	{ jwin_check_proc,    10,   60,    33,   9,   0,  0,   0,        0,    1,    0,    (void*)"Type", NULL, NULL },
+	{ jwin_check_proc,    10,   70,    33,   9,   0,  0,   0,        0,    1,    0,    (void*)"Inherent Flag", NULL, NULL },
+	{ jwin_check_proc,    10,   80,    33,   9,   0,  0,   0,        0,    1,    0,    (void*)"Attribytes", NULL, NULL },
+	{ jwin_check_proc,    10,   90,    33,   9,   0,  0,   0,        0,    1,    0,    (void*)"Attrishorts", NULL, NULL },
+	{ jwin_check_proc,    10,  100,    33,   9,   0,  0,   0,        0,    1,    0,    (void*)"Attributes", NULL, NULL },
+	{ jwin_check_proc,    10,  110,    33,   9,   0,  0,   0,        0,    1,    0,    (void*)"Flags", NULL, NULL },
+	{ jwin_check_proc,   110,   20,    33,   9,   0,  0,   0,        0,    1,    0,    (void*)"Label", NULL, NULL },
+	{ jwin_check_proc,   110,   30,    33,   9,   0,  0,   0,        0,    1,    0,    (void*)"Script", NULL, NULL },
+	{ jwin_check_proc,   110,   40,    33,   9,   0,  0,   0,        0,    1,    0,    (void*)"Effect", NULL, NULL },
+	{ jwin_check_proc,   110,   50,    33,   9,   0,  0,   0,        0,    1,    0,    (void*)"Triggers Tab", NULL, NULL },
+	{ jwin_check_proc,   110,   60,    33,   9,   0,  0,   0,        0,    1,    0,    (void*)"Lifting Tab", NULL, NULL },
+	{ jwin_check_proc,   110,   70,    33,   9,   0,  0,   0,        0,    1,    0,    (void*)"General Tab", NULL, NULL },
 	
-	{ NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+	{ NULL,                0,    0,     0,   0,   0,  0,   0,        0,    0,    0,    NULL, NULL, NULL }
 };
 
 int32_t advpaste(int32_t tile, int32_t tile2, int32_t copy)
@@ -17631,6 +17632,13 @@ int32_t advpaste(int32_t tile, int32_t tile2, int32_t copy)
 			combobuf[i].lifthei = combo.lifthei;
 			combobuf[i].lifttime = combo.lifttime;
 			combobuf[i].lift_parent_item = combo.lift_parent_item;
+		}
+		
+		if(advpaste_dlg[18].flags & D_SELECTED)   // general
+		{
+			combobuf[i].speed_mult = combo.speed_mult;
+			combobuf[i].speed_div = combo.speed_div;
+			combobuf[i].speed_add = combo.speed_add;
 		}
 	}
 	
