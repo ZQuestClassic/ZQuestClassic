@@ -25020,7 +25020,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		bool cavewarp = ((type1==cCAVE)||(type1>=cCAVEB && type1<=cCAVED) || (type2==cCAVE)||(type2>=cCAVEB && type2<=cCAVED)
 						 ||(type3==cCAVE2)||(type3>=cCAVE2B && type3<=cCAVE2D) || (type2==cCAVE2)||(type2>=cCAVE2B && type2<=cCAVE2D));
 					
-		if(!(tmpscr.flags3&fIWARPFULLSCREEN))
+		if(!(hero_screen->flags3&fIWARPFULLSCREEN))
 		{
 			//ALLOFF kills the action, but we want to preserve Hero's action if he's swimming or diving -DD
 			bool wasswimming = (action == swimming);
@@ -25295,6 +25295,9 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 			if(y==0)   dir=down;
 			
 			if(y==160) dir=up;
+
+			x += region_scr_dx * 256;
+			y += region_scr_dy * 176;
 			
 			markBmap(dir^1);
 			
