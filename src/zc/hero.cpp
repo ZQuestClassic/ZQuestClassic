@@ -26307,7 +26307,6 @@ bool HeroClass::nextcombo_solid(int32_t d2)
 	// assumes Hero is about to scroll screens
 	
 	auto [map, screen] = nextscr2(d2);
-	
 	if (map == -1)
 		return false;
 	
@@ -26672,6 +26671,9 @@ bool HeroClass::lookaheadraftflag(int32_t d2)
     }
 
 	auto [map, screen_index] = nextscr2(d2);
+	if (map == -1)
+		return false;
+
 	mapscr* screen = get_scr(map, screen_index);
 
     int32_t combo = COMBOPOS(cx%256, cy%176);
@@ -26708,6 +26710,9 @@ int32_t HeroClass::lookahead(int32_t d2)                       // Helper for scr
     }
 
 	auto [map, screen_index] = nextscr2(d2);
+	if (map == -1)
+		return 0;
+
 	mapscr* screen = get_scr(map, screen_index);
 
     int32_t combo = COMBOPOS(cx%256, cy%176);
@@ -26753,6 +26758,9 @@ int32_t HeroClass::lookaheadflag(int32_t d2)
 	}
 
 	auto [map, screen_index] = nextscr2(d2);
+	if (map == -1)
+		return 0;
+
 	mapscr* screen = get_scr(map, screen_index);
 
     int32_t combo = COMBOPOS(cx%256, cy%176);
