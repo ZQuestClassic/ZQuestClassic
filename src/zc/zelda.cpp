@@ -5360,11 +5360,6 @@ reload_for_replay_file:
 				//Failed initializing? Keep trying.
 				do Quit = 0; while(init_game());
 			}
-			// Unclear why Quit=0 is needed here for testing mode, but this breaks
-			// 'Load Replay' + quiting during init_game, so let's not do it when replaying.
-			// Seems totally safe to just delete this, but I don't want to test that right now.
-			if (!replay_is_replaying())
-				Quit = 0;
 			game_pal();
 		}
 		else titlescreen(load_save);
