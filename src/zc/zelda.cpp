@@ -374,6 +374,7 @@ word     introclk  = 0, intropos = 0, dmapmsgclk = 0, linkedmsgclk = 0;
 int16_t    lensclk = 0;
 int32_t     lensid = 0; // Lens's item id. -1 if lens is off.
 int32_t    Bpos = 0;
+// TODO z3 !!!!
 byte screengrid[22]={0};
 byte screengrid_layer[2][22]={0};
 bool halt=false;

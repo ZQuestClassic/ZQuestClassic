@@ -3719,7 +3719,6 @@ bool HeroClass::checkstab()
 	return true;
 }
 
-// TODO z3 !
 void HeroClass::check_slash_block_layer(int32_t bx, int32_t by, int32_t layer)
 {
     if(!(get_bit(quest_rules,qr_BUSHESONLAYERS1AND2))) 
@@ -3728,10 +3727,10 @@ void HeroClass::check_slash_block_layer(int32_t bx, int32_t by, int32_t layer)
 	    return;
     }
     //keep things inside the screen boundaries
-    bx=vbound(bx, 0, 255);
-    by=vbound(by, 0, 176);
-    int32_t fx=vbound(bx, 0, 255);
-    int32_t fy=vbound(by, 0, 176);
+    bx=vbound(bx, 0, world_w-1);
+    by=vbound(by, 0, world_h);
+    int32_t fx=vbound(bx, 0, world_w-1);
+    int32_t fy=vbound(by, 0, world_h);
     //first things first
     if(attack!=wSword)
         return;
@@ -3741,9 +3740,8 @@ void HeroClass::check_slash_block_layer(int32_t bx, int32_t by, int32_t layer)
         return;
         
     //find out which combo row/column the coordinates are in
-    bx &= 0xF0;
-    by &= 0xF0;
-    
+    bx = TRUNCATE_TILE(bx);
+    by = TRUNCATE_TILE(by);
    
     int32_t flag = MAPFLAGL(layer,bx,by);
     int32_t flag2 = MAPCOMBOFLAGL(layer,bx,by);
@@ -3751,12 +3749,10 @@ void HeroClass::check_slash_block_layer(int32_t bx, int32_t by, int32_t layer)
     int32_t type = combobuf[cid].type;
 	if(combobuf[cid].triggerflags[0] & combotriggerONLYGENTRIG)
 		type = cNONE;
-    //zprint("cid is: %d\n", cid);
-     //zprint("type is: %d\n", type);
-    int32_t i = (bx>>4) + by;
-    
-    if(i > 175)
-        return;
+
+	auto rpos_handle = get_rpos_handle_for_world_xy(bx, by, layer);
+	mapscr* s = rpos_handle.screen;
+	int i = rpos_handle.pos();
         
     bool ignorescreen=false;
     
@@ -3768,13 +3764,13 @@ void HeroClass::check_slash_block_layer(int32_t bx, int32_t by, int32_t layer)
 	if(!isTouchyType(type) && !get_bit(quest_rules, qr_CONT_SWORD_TRIGGERS)) set_bit(screengrid_layer[layer-1],i,1);
 	if(isCuttableNextType(type))
 	{
-		FFCore.tempScreens[layer]->data[i]++;
+		s->data[i]++;
 	}
 	else
 	{
-		FFCore.tempScreens[layer]->data[i] = tmpscr.undercombo;
-		FFCore.tempScreens[layer]->cset[i] = tmpscr.undercset;
-		FFCore.tempScreens[layer]->sflag[i] = 0;
+		s->data[i] = tmpscr.undercombo;
+		s->cset[i] = tmpscr.undercset;
+		s->sflag[i] = 0;
 	}
 	if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr.flags9&fBELOWRETURN)))
 	{
@@ -3810,7 +3806,7 @@ void HeroClass::check_slash_block_layer(int32_t bx, int32_t by, int32_t layer)
 		}
 	}
 	
-	putcombo(scrollbuf,(i&15)<<4,i&0xF0,tmpscr.data[i],tmpscr.cset[i]);
+	putcombo(scrollbuf,bx - viewport.x,by - viewport.y,rpos_handle.data(),rpos_handle.cset());
 	
 	if(get_bit(quest_rules,qr_MORESOUNDS))
 	{
@@ -3845,11 +3841,6 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 	by=vbound(by, 0, world_h-1);
 	int32_t fx=bx;
 	int32_t fy=by;
-	// TODO z3 ! ??
-	// bx=vbound(bx, 0, 255);
-	// by=vbound(by, 0, 176);
-	// int32_t fx=vbound(bx, 0, 255);
-	// int32_t fy=vbound(by, 0, 176);
 
 	if(z>8||fakez>8 || attackclk==SWORDCHARGEFRAME  // is not charging>0, as tapping a wall reduces attackclk but retains charging
 			|| (attackclk>SWORDTAPFRAME && tapping))
@@ -4152,9 +4143,8 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 
 void HeroClass::check_wpn_triggers(int32_t bx, int32_t by, weapon *w)
 {
-	bx=vbound(bx, 0, 255);
-	by=vbound(by, 0, 176);
-	int32_t cid = MAPCOMBO(bx,by);
+	bx=vbound(bx, 0, world_w-1);
+	by=vbound(by, 0, world_h);
 	switch(w->useweapon)
 	{
 		case wArrow:
@@ -4263,17 +4253,17 @@ void HeroClass::check_slash_block_layer2(int32_t bx, int32_t by, weapon *w, int3
 	    return;
     }
     //keep things inside the screen boundaries
-    bx=vbound(bx, 0, 255);
-    by=vbound(by, 0, 176);
-    int32_t fx=vbound(bx, 0, 255);
-    int32_t fy=vbound(by, 0, 176);
+    bx=vbound(bx, 0, world_w-1);
+    by=vbound(by, 0, world_h);
+    int32_t fx=vbound(bx, 0, world_w-1);
+    int32_t fy=vbound(by, 0, world_h);
     //first things first
     if(w->useweapon != wSword)
         return;
         
     //find out which combo row/column the coordinates are in
-    bx &= 0xF0;
-    by &= 0xF0;
+	bx = TRUNCATE_TILE(bx);
+	by = TRUNCATE_TILE(by);
     
    
     int32_t flag = MAPFLAGL(layer,bx,by);
@@ -4284,10 +4274,9 @@ void HeroClass::check_slash_block_layer2(int32_t bx, int32_t by, weapon *w, int3
 		type = cNONE;
     //zprint("cid is: %d\n", cid);
      //zprint("type is: %d\n", type);
-    int32_t i = (bx>>4) + by;
-    
-    if(i > 175)
-        return;
+	
+	auto rpos_handle = get_rpos_handle_for_world_xy(bx, by, layer);
+    int32_t i = rpos_handle.pos();
     
 	// bool checked = w->rposes_checked.contains({rpos_handle.layer, rpos_handle.rpos});
     if((get_bit(w->wscreengrid_layer[layer-1], i) != 0) || (!isCuttableType(type)))
@@ -4296,6 +4285,8 @@ void HeroClass::check_slash_block_layer2(int32_t bx, int32_t by, weapon *w, int3
         //ignorescreen = true;
 	//zprint("ignoring\n");
     }
+
+	mapscr* s = rpos_handle.screen;
     
     int32_t sworditem = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? itemsbuf[directWpn].fam_type : current_item(itype_sword);
     
@@ -4303,13 +4294,13 @@ void HeroClass::check_slash_block_layer2(int32_t bx, int32_t by, weapon *w, int3
 	    if(!isTouchyType(type) && !get_bit(quest_rules, qr_CONT_SWORD_TRIGGERS)) set_bit(w->wscreengrid_layer[layer-1],i,1);
             if(isCuttableNextType(type) || isCuttableNextType(type))
             {
-                FFCore.tempScreens[layer]->data[i]++;
+                s->data[i]++;
             }
             else
             {
-                FFCore.tempScreens[layer]->data[i] = tmpscr.undercombo;
-                FFCore.tempScreens[layer]->cset[i] = tmpscr.undercset;
-                FFCore.tempScreens[layer]->sflag[i] = 0;
+                s->data[i] = tmpscr.undercombo;
+                s->cset[i] = tmpscr.undercset;
+                s->sflag[i] = 0;
             }
 	if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr.flags9&fBELOWRETURN)))
         {
@@ -4345,7 +4336,7 @@ void HeroClass::check_slash_block_layer2(int32_t bx, int32_t by, weapon *w, int3
 			}
         }
         
-        putcombo(scrollbuf,(i&15)<<4,i&0xF0,tmpscr.data[i],tmpscr.cset[i]);
+        putcombo(scrollbuf,bx - viewport.x, by - viewport.y,rpos_handle.data(),rpos_handle.cset());
         
         if(get_bit(quest_rules,qr_MORESOUNDS))
 		{
@@ -4403,15 +4394,15 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
     
 	
     //keep things inside the screen boundaries
-    bx=vbound(bx, 0, 255);
-    by=vbound(by, 0, 176);
-    int32_t fx=vbound(bx, 0, 255);
-    int32_t fy=vbound(by, 0, 176);
+    bx=vbound(bx, 0, world_w-1);
+    by=vbound(by, 0, world_h);
+    int32_t fx=vbound(bx, 0, world_w-1);
+    int32_t fy=vbound(by, 0, world_h);
     int32_t cid = MAPCOMBO(bx,by);
         
     //find out which combo row/column the coordinates are in
-    bx &= 0xF0;
-    by &= 0xF0;
+    bx = TRUNCATE_TILE(bx);
+    by = TRUNCATE_TILE(by);
     
     int32_t type = COMBOTYPE(bx,by);
     int32_t type2 = FFCOMBOTYPE(fx,fy);
@@ -4761,10 +4752,10 @@ void HeroClass::check_wand_block2(int32_t bx, int32_t by, weapon *w)
     
 
     //keep things inside the screen boundaries
-    bx=vbound(bx, 0, 255);
-    by=vbound(by, 0, 176);
-    int32_t fx=vbound(bx, 0, 255);
-    int32_t fy=vbound(by, 0, 176);
+    bx=vbound(bx, 0, world_w-1);
+    by=vbound(by, 0, world_h);
+    int32_t fx=vbound(bx, 0, world_w-1);
+    int32_t fy=vbound(by, 0, world_h);
     int32_t cid = MAPCOMBO(bx,by);
    
     //Z_scripterrlog("check_wand_block2 MatchComboTrigger() returned: %d\n", );
@@ -4775,8 +4766,8 @@ void HeroClass::check_wand_block2(int32_t bx, int32_t by, weapon *w)
     if(z>8||fakez>8) return;
     
     //find out which combo row/column the coordinates are in
-    bx &= 0xF0;
-    by &= 0xF0;
+    bx = TRUNCATE_TILE(bx);
+    by = TRUNCATE_TILE(by);
     
     int32_t flag = MAPFLAG(bx,by);
     int32_t flag2 = MAPCOMBOFLAG(bx,by);
@@ -4843,16 +4834,16 @@ void HeroClass::check_slash_block(weapon *w)
 	al_trace("check_slash_block(weapon *w): bx is: %d\n", bx);
 	al_trace("check_slash_block(weapon *w): by is: %d\n", by);
     //keep things inside the screen boundaries
-    bx=vbound(bx, 0, 255);
-    by=vbound(by, 0, 176);
-    int32_t fx=vbound(bx, 0, 255);
-    int32_t fy=vbound(by, 0, 176);
+    bx=vbound(bx, 0, world_w-1);
+    by=vbound(by, 0, world_h);
+    int32_t fx=vbound(bx, 0, world_w-1);
+    int32_t fy=vbound(by, 0, world_h);
     
     int32_t cid = MAPCOMBO(bx,by);
         
     //find out which combo row/column the coordinates are in
-    bx &= 0xF0;
-    by &= 0xF0;
+    bx = TRUNCATE_TILE(bx);
+    by = TRUNCATE_TILE(by);
     
     int32_t type = COMBOTYPE(bx,by);
     int32_t type2 = FFCOMBOTYPE(fx,fy);
@@ -5135,18 +5126,18 @@ void HeroClass::check_slash_block(weapon *w)
 void HeroClass::check_wand_block(int32_t bx, int32_t by)
 {
     //keep things inside the screen boundaries
-    bx=vbound(bx, 0, 255);
-    by=vbound(by, 0, 176);
-    int32_t fx=vbound(bx, 0, 255);
-    int32_t fy=vbound(by, 0, 176);
+    bx=vbound(bx, 0, world_w-1);
+    by=vbound(by, 0, world_h);
+    int32_t fx=vbound(bx, 0, world_w-1);
+    int32_t fy=vbound(by, 0, world_h);
     int32_t cid = MAPCOMBO(bx,by);
     
     //first things first
     if(z>8||fakez>8) return;
     
     //find out which combo row/column the coordinates are in
-    bx &= 0xF0;
-    by &= 0xF0;
+    bx = TRUNCATE_TILE(bx);
+    by = TRUNCATE_TILE(by);
     
     int32_t flag = MAPFLAG(bx,by);
     int32_t flag2 = MAPCOMBOFLAG(bx,by);
@@ -5343,8 +5334,8 @@ void HeroClass::check_pound_block_layer(int bx, int by, int lyr, weapon* w)
 {
 	if(lyr < 1 || lyr > 2) return; //sanity
 	//keep things inside the screen boundaries
-	bx=vbound(bx, 0, 255);
-	by=vbound(by, 0, 176);
+	bx=vbound(bx, 0, world_w-1);
+	by=vbound(by, 0, world_h);
 	int32_t cid = MAPCOMBOL(lyr,bx,by);
 	newcombo const& scr_cmb = combobuf[cid];
 	auto* grid = w ? w->wscreengrid_layer[lyr-1] : screengrid_layer[lyr-1];
@@ -5353,8 +5344,8 @@ void HeroClass::check_pound_block_layer(int bx, int by, int lyr, weapon* w)
 	if(z>8||fakez>8) return;
 	
 	//find out which combo row/column the coordinates are in
-	bx &= 0xF0;
-	by &= 0xF0;
+	bx = TRUNCATE_TILE(bx);
+	by = TRUNCATE_TILE(by);
 	
 	int32_t type = scr_cmb.type;
 	int32_t flag = MAPFLAGL(lyr,bx,by);
@@ -5452,17 +5443,17 @@ void HeroClass::check_wand_block(weapon *w)
 	by = ((int32_t)w->y) + (((int32_t)w->hit_height)/2);
 	
     //keep things inside the screen boundaries
-    bx=vbound(bx, 0, 255);
-    by=vbound(by, 0, 176);
-    int32_t fx=vbound(bx, 0, 255);
-    int32_t fy=vbound(by, 0, 176);
+    bx=vbound(bx, 0, world_w-1);
+    by=vbound(by, 0, world_h);
+    int32_t fx=vbound(bx, 0, world_w-1);
+    int32_t fy=vbound(by, 0, world_h);
     int32_t cid = MAPCOMBO(bx,by);
     //first things first
     if(z>8||fakez>8) return;
     
     //find out which combo row/column the coordinates are in
-    bx &= 0xF0;
-    by &= 0xF0;
+    bx = TRUNCATE_TILE(bx);
+    by = TRUNCATE_TILE(by);
     
     int32_t flag = MAPFLAG(bx,by);
     int32_t flag2 = MAPCOMBOFLAG(bx,by);
