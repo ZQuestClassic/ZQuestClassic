@@ -2171,43 +2171,6 @@ bool ishookshottable(int32_t bx, int32_t by)
 	return ret;
 }
 
-bool ishookshottable(int32_t map, int32_t screen, int32_t bx, int32_t by)
-{
-	if (map < 0 || screen < 0) return false;
-		
-	mapscr *m = &TheMaps[(map*MAPSCRS)+screen];
-	
-	if(!m->valid) return false;
-	
-	if(!_walkflag(bx,by,1, m))
-		return true;
-	
-	if (collide_object(bx, by, 1, 1))
-		return false;
-	
-	bool ret = true;
-	for(int32_t i=2; i>=0; i--)
-	{
-		int32_t c = MAPCOMBO3(map, screen, i-1,bx,by);
-		int32_t t = combobuf[c].type;
-		
-		if(i == 0 && (t == cHOOKSHOTONLY || t == cLADDERHOOKSHOT)) return true;
-		
-		//bool dried = (iswater_type(t) && DRIEDLAKE);
-		
-		int32_t b=1;
-		
-		if(bx&8) b<<=2;
-		
-		if(by&8) b<<=1;
-		
-		if(combobuf[c].walk&b && !(combo_class_buf[t].ladder_pass && t!=cLADDERONLY) && t!=cHOOKSHOTONLY)
-			ret = false;
-	}
-	
-	return ret;
-}
-
 // TODO z3 !!!
 bool hiddenstair2(mapscr *s, int32_t screen_index, bool redraw)
 {
@@ -6346,15 +6309,8 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt)
 	return _walkflag(x,y,cnt,zfix(0));
 }
 
-// Returns true if the combo at viewport position x,y is solid. Looks at a combo's quadrant walkablity flags.
-static bool _walkflag_new(int32_t x, int32_t y, zfix const& switchblockstate)
+static bool _walkflag_new(const mapscr* s0, const mapscr* s1, const mapscr* s2, int32_t x, int32_t y, zfix const& switchblockstate, bool is_temp_screens)
 {
-	mapscr* s0 = get_screen_layer_for_xy_offset(x, y, 0);
-	mapscr* s1 = get_screen_layer_for_xy_offset(x, y, 1);
-	mapscr* s2 = get_screen_layer_for_xy_offset(x, y, 2);
-	if (!s1->valid) s1 = s0;
-	if (!s2->valid) s2 = s0;
-
 	int32_t bx = COMBOPOS(x % 256, y % 176);
 	newcombo c = combobuf[s0->data[bx]];
 	newcombo c1 = combobuf[s1->data[bx]];
@@ -6366,11 +6322,11 @@ static bool _walkflag_new(int32_t x, int32_t y, zfix const& switchblockstate)
 	if(y&8) b<<=1;
 	
 	int32_t cwalkflag = c.walk;
-	if(onSwitch(c,switchblockstate) && c.type == cCSWITCHBLOCK && c.usrflags&cflag9) cwalkflag &= (c.walk>>4)^0xF;
+	if(is_temp_screens && onSwitch(c,switchblockstate) && c.type == cCSWITCHBLOCK && c.usrflags&cflag9) cwalkflag &= (c.walk>>4)^0xF;
 	else if ((c.type == cBRIDGE && get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS)) || (iswater_type(c.type) && ((c.walk>>4)&b) && ((c.usrflags&cflag3) || (c.usrflags&cflag4)))) cwalkflag = 0;
 	if (s1 != s0)
 	{
-		if(onSwitch(c1,switchblockstate) && c1.type == cCSWITCHBLOCK && c1.usrflags&cflag9) cwalkflag &= (c1.walk>>4)^0xF;
+		if(is_temp_screens && onSwitch(c1,switchblockstate) && c1.type == cCSWITCHBLOCK && c1.usrflags&cflag9) cwalkflag &= (c1.walk>>4)^0xF;
 		else if ((iswater_type(c1.type) && ((c1.walk>>4)&b) && get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && !((c1.usrflags&cflag3) || (c1.usrflags&cflag4)))) cwalkflag &= c1.walk;
 		else if (c1.type == cBRIDGE)
 		{
@@ -6387,7 +6343,7 @@ static bool _walkflag_new(int32_t x, int32_t y, zfix const& switchblockstate)
 	}
 	if (s2 != s0)
 	{
-		if(onSwitch(c2,switchblockstate) && c2.type == cCSWITCHBLOCK && c2.usrflags&cflag9) cwalkflag &= (c2.walk>>4)^0xF;
+		if(is_temp_screens && onSwitch(c2,switchblockstate) && c2.type == cCSWITCHBLOCK && c2.usrflags&cflag9) cwalkflag &= (c2.walk>>4)^0xF;
 		else if ((iswater_type(c2.type) && ((c2.walk>>4)&b) && get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && !((c2.usrflags&cflag3) || (c2.usrflags&cflag4)))) cwalkflag &= c2.walk;
 		else if (c2.type == cBRIDGE)
 		{
@@ -6406,9 +6362,20 @@ static bool _walkflag_new(int32_t x, int32_t y, zfix const& switchblockstate)
 	if((cwalkflag&b) && !dried)
 		return true;
 	
-	if (collide_object(x, y, 1, 1)) return true;
+	if (is_temp_screens && collide_object(x, y, 1, 1)) return true;
 
 	return false;
+}
+
+// Returns true if the combo at viewport position x,y is solid. Looks at a combo's quadrant walkablity flags.
+static bool _walkflag_new(int32_t x, int32_t y, zfix const& switchblockstate)
+{
+	mapscr* s0 = get_screen_layer_for_xy_offset(x, y, 0);
+	mapscr* s1 = get_screen_layer_for_xy_offset(x, y, 1);
+	mapscr* s2 = get_screen_layer_for_xy_offset(x, y, 2);
+	if (!s1->valid) s1 = s0;
+	if (!s2->valid) s2 = s0;
+	return _walkflag_new(s0, s1, s2, x, y, switchblockstate, true);
 }
 
 bool _walkflag(int32_t x,int32_t y,int32_t cnt,zfix const& switchblockstate)
@@ -6480,12 +6447,14 @@ bool _effectflag(int32_t x,int32_t y,int32_t cnt, int32_t layer, bool notLink)
 	return effectflag(x, y, layer) || (cnt == 2 && effectflag(x + 8, y, layer));
 }
 
+// TODO z3 !!! rm m ?
+// TODO z3 !!! bound to single screen. re-use main walkflag code?
 //used by mapdata->isSolid(x,y) in ZScript:
 bool _walkflag(int32_t x,int32_t y,int32_t cnt, mapscr* m)
 {
 	{
-		int max_x = world_w;
-		int max_y = world_h;
+		int max_x = 256;
+		int max_y = 176;
 		if (!get_bit(quest_rules, qr_LTTPWALK))
 		{
 			max_x -= 7;
@@ -6510,94 +6479,12 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt, mapscr* m)
 		s2 = get_canonical_scr(m->layermap[1], m->layerscreen[1]);
 	}
 	else s2 = m;
-	
-	// TODO z3 !!! script
-	// rpos_t rpos = COMBOPOS_REGION(bx, by);
-	int32_t bx=COMBOPOS(x, y);
-	newcombo c =  !is_z3_scrolling_mode() ? combobuf[m->data[bx]]  : combobuf[MAPCOMBO3(currmap, currscr, 0, bx, false)];
-	newcombo c1 = !is_z3_scrolling_mode() ? combobuf[s1->data[bx]] : combobuf[MAPCOMBO3(currmap, currscr, 1, bx, false)];
-	newcombo c2 = !is_z3_scrolling_mode() ? combobuf[s2->data[bx]] : combobuf[MAPCOMBO3(currmap, currscr, 2, bx, false)];
-	bool dried = (((iswater_type(c.type)) || (iswater_type(c1.type)) ||
-				   (iswater_type(c2.type))) && DRIEDLAKE);
-	int32_t b=1;
-	
-	if(x&8) b<<=2;
-	
-	if(y&8) b<<=1;
-	
-	int32_t cwalkflag = c.walk;
-	// Bridge combos supress the solidity of the layer below them.
-	if (c1.type == cBRIDGE)
-	{
-		if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
-		{
-			int efflag = (c1.walk & 0xF0)>>4;
-			int newsolid = (c1.walk & 0xF);
-			cwalkflag = ((newsolid | cwalkflag) & (~efflag)) | (newsolid & efflag);
-		}
-		else cwalkflag &= c1.walk;
-	}
-	else if (s1 != m) cwalkflag |= c1.walk;
-	if (c2.type == cBRIDGE)
-	{
-		if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
-		{
-			int efflag = (c2.walk & 0xF0)>>4;
-			int newsolid = (c2.walk & 0xF);
-			cwalkflag = ((newsolid | cwalkflag) & (~efflag)) | (newsolid & efflag);
-		}
-		else cwalkflag &= c2.walk;
-	}
-	else if (s2 != m) cwalkflag |= c2.walk;
-	
-	if((cwalkflag&b) && !dried)
-		return true;
-		
-	if(cnt==1) return false;
-	
-	++bx;
-	
-	if(!(x&8))
-		b<<=2;
-	else
-	{
-		c  = combobuf[m->data[bx]];
-		c1 = combobuf[s1->data[bx]];
-		c2 = combobuf[s2->data[bx]];
-		dried = (((iswater_type(c.type)) || (iswater_type(c1.type)) ||
-				  (iswater_type(c2.type))) && DRIEDLAKE);
-		b=1;
-		
-		if(y&8) b<<=1;
-	}
-	
-	cwalkflag = c.walk;
-	if (c1.type == cBRIDGE)
-	{
-		if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
-		{
-			int efflag = (c1.walk & 0xF0)>>4;
-			int newsolid = (c1.walk & 0xF);
-			cwalkflag = ((newsolid | cwalkflag) & (~efflag)) | (newsolid & efflag);
-		}
-		else cwalkflag &= c1.walk;
-	}
-	else if (s1 != m) cwalkflag |= c1.walk;
-	if (c2.type == cBRIDGE)
-	{
-		if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
-		{
-			int efflag = (c2.walk & 0xF0)>>4;
-			int newsolid = (c2.walk & 0xF);
-			cwalkflag = ((newsolid | cwalkflag) & (~efflag)) | (newsolid & efflag);
-		}
-		else cwalkflag &= c2.walk;
-	}
-	else if (s2 != m) cwalkflag |= c2.walk;
-	return (cwalkflag&b) ? !dried : false;
+
+	zfix unused;
+	return _walkflag_new(m, s1, s2, x, y, unused, false) || (cnt != 1 && _walkflag_new(m, s1, s2, x + 8, y, unused, false));
 }
 
-// TODO z3 ! script
+// TODO z3 !!! script
 bool _walkflag(int32_t x,int32_t y,int32_t cnt, mapscr* m, mapscr* s1, mapscr* s2)
 {
 	{
