@@ -4434,12 +4434,10 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
 	    }*/
 	if(w->useweapon != wSword && !dontignore) return;
 
-    
-    int32_t i = (bx>>4) + by;
-	    if (get_bit(w->wscreengrid,(((bx>>4) + by))) ) return;
-    
-    if(i > 175)
-        return;
+    auto rpos_handle = get_rpos_handle_for_world_xy(bx, by, 0);
+    int32_t i = rpos_handle.pos();
+
+	if (get_bit(w->wscreengrid,i)) return;
         
     bool ignorescreen=false;
     bool ignoreffc=false;
@@ -4469,7 +4467,7 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
         ignoreffc = true;
     }
     
-    mapscr *s = currscr >= 128 ? &special_warp_return_screen : &tmpscr;
+    mapscr *s = currscr >= 128 ? &special_warp_return_screen : rpos_handle.screen;
     
     int32_t sworditem = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? itemsbuf[directWpn].fam_type : current_item(itype_sword);
     byte skipsecrets = 0;
@@ -4793,10 +4791,7 @@ void HeroClass::check_wand_block2(int32_t bx, int32_t by, weapon *w)
     
     if(flag!=mfWAND&&flag2!=mfWAND&&flag3!=mfWAND&&flag!=mfSTRIKE&&flag2!=mfSTRIKE&&flag3!=mfSTRIKE)
         return;
-        
-    if(i > 175)
-        return;
-        
+
     //mapscr *s = currscr >= 128 ? &special_warp_return_screen : &tmpscr;
     
     //trigger_secrets_if_flag(bx,by,mfWAND,true);
@@ -4856,13 +4851,8 @@ void HeroClass::check_slash_block(weapon *w)
     int32_t flag = MAPFLAG(bx,by);
     int32_t flag2 = MAPCOMBOFLAG(bx,by);
     int32_t flag3 = MAPFFCOMBOFLAG(fx,fy);
-    int32_t i = (bx>>4) + by;
-		
-    if(i > 175)
-    {
-	    al_trace("check_slash_block(weapon *w): %s\n", "i > 175");
-        return;
-    }
+	auto rpos_handle = get_rpos_handle_for_world_xy(bx, by, 0);
+    int32_t i = rpos_handle.pos();
         
 	if(combobuf[cid].triggerflags[0] & combotriggerONLYGENTRIG)
 		type = cNONE;
@@ -4894,7 +4884,7 @@ void HeroClass::check_slash_block(weapon *w)
         ignoreffc = true;
     }
     
-    mapscr *s = currscr >= 128 ? &special_warp_return_screen : &tmpscr;
+    mapscr *s = currscr >= 128 ? &special_warp_return_screen : rpos_handle.screen;
     
     int32_t sworditem = (par_item >-1 ? itemsbuf[par_item].fam_type : current_item(itype_sword)); //Get the level of the item, else the highest sword level in inventory.
     
@@ -5158,13 +5148,8 @@ void HeroClass::check_wand_block(int32_t bx, int32_t by)
         
     if(flag31==mfSTRIKE||flag32==mfSTRIKE||flag33==mfSTRIKE||flag34==mfSTRIKE)
         flag3=mfSTRIKE;
-        
-    int32_t i = (bx>>4) + by;
     
     if(flag!=mfWAND&&flag2!=mfWAND&&flag3!=mfWAND&&flag!=mfSTRIKE&&flag2!=mfSTRIKE&&flag3!=mfSTRIKE)
-        return;
-        
-    if(i > 175)
         return;
         
     //mapscr *s = currscr >= 128 ? &special_warp_return_screen : &tmpscr;
@@ -5356,10 +5341,8 @@ void HeroClass::check_pound_block_layer(int bx, int by, int lyr, weapon* w)
 	int32_t type = scr_cmb.type;
 	int32_t flag = MAPFLAGL(lyr,bx,by);
 	int32_t flag2 = scr_cmb.flag;
-	int32_t i = (bx>>4) + by;
-	
-	if(i > 175)
-		return;
+	auto rpos_handle = get_rpos_handle_for_world_xy(bx, by, lyr - 1);
+	int32_t i = rpos_handle.pos();
 	
 	bool pound=false;
 	
@@ -5422,8 +5405,9 @@ void HeroClass::check_pound_block_layer(int bx, int by, int lyr, weapon* w)
 	
 	if(type==cPOUND && get_bit(quest_rules,qr_MORESOUNDS))
 		sfx(QMisc.miscsfx[sfxHAMMERPOUND],int32_t(bx));
-		
-	putcombo(scrollbuf,(i&15)<<4,i&0xF0,s->data[i],s->cset[i]);
+	
+
+	putcombo(scrollbuf,bx-viewport.x,by-viewport.y,s->data[i],s->cset[i]);
 }
 
 void HeroClass::check_wand_block(weapon *w)
@@ -5474,13 +5458,8 @@ void HeroClass::check_wand_block(weapon *w)
         
     if(flag31==mfSTRIKE||flag32==mfSTRIKE||flag33==mfSTRIKE||flag34==mfSTRIKE)
         flag3=mfSTRIKE;
-        
-    int32_t i = (bx>>4) + by;
     
     if(flag!=mfWAND&&flag2!=mfWAND&&flag3!=mfWAND&&flag!=mfSTRIKE&&flag2!=mfSTRIKE&&flag3!=mfSTRIKE)
-        return;
-        
-    if(i > 175)
         return;
         
     //mapscr *s = currscr >= 128 ? &special_warp_return_screen : &tmpscr;
