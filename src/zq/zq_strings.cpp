@@ -770,7 +770,6 @@ int32_t onStrings()
 			// Fix the quick-category menu
 			strlist_dlg[17].d1=0;
 			build_bistringcat_list();
-			refresh(rMENU);
 		}
 	}
 	tid = atoi(static_cast<char*>(strlist_dlg[22].dp));
