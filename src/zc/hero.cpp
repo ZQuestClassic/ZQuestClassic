@@ -4617,7 +4617,7 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
         }
         
         
-        putcombo(scrollbuf,(i&15)<<4,i&0xF0,s->data[i],s->cset[i]);
+        putcombo(scrollbuf,bx-viewport.x,by-viewport.y,s->data[i],s->cset[i]);
         
         if(get_bit(quest_rules,qr_MORESOUNDS))
 		{
@@ -4806,8 +4806,6 @@ void HeroClass::check_wand_block2(int32_t bx, int32_t by, weapon *w)
     }
     
     if(dontignore) { trigger_secrets_if_flag(bx,by,mfWAND,true); }
-    
-    //putcombo(scrollbuf,(i&15)<<4,i&0xF0,s->data[i],s->cset[i]);
 }
 
 void HeroClass::check_slash_block(weapon *w)
@@ -5012,7 +5010,7 @@ void HeroClass::check_slash_block(weapon *w)
 			}
         }
         
-        putcombo(scrollbuf,(i&15)<<4,i&0xF0,s->data[i],s->cset[i]);
+        putcombo(scrollbuf,bx-viewport.x,by-viewport.y,s->data[i],s->cset[i]);
         
         if(get_bit(quest_rules,qr_MORESOUNDS))
 		{
@@ -5164,8 +5162,6 @@ void HeroClass::check_wand_block(int32_t bx, int32_t by)
             trigger_secrets_if_flag(fx,fy,mfSTRIKE,true);
         }
     }
-    
-    //putcombo(scrollbuf,(i&15)<<4,i&0xF0,s->data[i],s->cset[i]);
 }
 
 void HeroClass::check_pound_block(int bx, int by, weapon* w)
@@ -5301,11 +5297,6 @@ void HeroClass::check_pound_block(int bx, int by, weapon* w)
         if(type==cPOUND && get_bit(quest_rules,qr_MORESOUNDS))
             sfx(QMisc.miscsfx[sfxHAMMERPOUND],int32_t(bx));
         
-		// TODO z3 rm?
-		// int x, y;
-		// COMBOXY_REGION(rpos, x, y);
-		// x -= viewport.x;
-		// y -= viewport.y;
         putcombo(scrollbuf, bx - viewport.x, by - viewport.y, s->data[pos], s->cset[pos]);
     }
     
@@ -5320,7 +5311,6 @@ void HeroClass::check_pound_block(int bx, int by, weapon* w)
     return;
 }
 
-// TODO z3 !
 void HeroClass::check_pound_block_layer(int bx, int by, int lyr, weapon* w)
 {
 	if(lyr < 1 || lyr > 2) return; //sanity
@@ -5474,8 +5464,6 @@ void HeroClass::check_wand_block(weapon *w)
             trigger_secrets_if_flag(fx,fy,mfSTRIKE,true);
         }
     }
-    
-    //putcombo(scrollbuf,(i&15)<<4,i&0xF0,s->data[i],s->cset[i]);
 }
 
 //defend results should match defence types. 

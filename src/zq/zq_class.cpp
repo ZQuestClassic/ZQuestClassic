@@ -14674,11 +14674,6 @@ void zmap::prv_secrets(bool high16only)
         }
         
         //} //if(true)
-        
-        /*
-          if(putit && refresh)
-          putcombo(scrollbuf,(i&15)<<4,i&0xF0,s->data[i],s->cset[i]);
-          */
     }
     
     //FFCs
