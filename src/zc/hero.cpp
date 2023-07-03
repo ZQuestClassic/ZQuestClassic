@@ -26670,6 +26670,14 @@ bool HeroClass::lookaheadraftflag(int32_t d2)
         break;
     }
 
+	// TODO z3 !!!!! rm if yuurand works
+	if (!is_z3_scrolling_mode())
+	{
+		int32_t combo = COMBOPOS(cx, cy);
+		if(combo>175)
+			return 0;
+	}
+
 	auto [map, screen_index] = nextscr2(d2);
 	if (map == -1)
 		return false;
@@ -26708,6 +26716,16 @@ int32_t HeroClass::lookahead(int32_t d2)                       // Helper for scr
         cx=0;
         break;
     }
+
+	// TODO z3 !!!!! rm if yuurand works
+	if (!is_z3_scrolling_mode())
+	{
+		int32_t combo = (cy&0xF0)+(cx>>4);
+		if(combo>175)
+			return 0;
+
+		return tmpscr.data[combo];
+	}
 
 	auto [map, screen_index] = nextscr2(d2);
 	if (map == -1)
@@ -26755,6 +26773,21 @@ int32_t HeroClass::lookaheadflag(int32_t d2)
 	if (cx < 0 || cx >= world_w || cy < 0 || cy >= world_h)
 	{
 		return 0;
+	}
+
+	// TODO z3 !!!
+	if (!is_z3_scrolling_mode())
+	{
+		int32_t combo = (cy&0xF0)+(cx>>4);
+		if(combo>175)
+			return 0;
+
+		if(!tmpscr.sflag[combo])
+		{
+			return combobuf[tmpscr.data[combo]].flag;
+		}
+		
+		return tmpscr.sflag[combo];
 	}
 
 	auto [map, screen_index] = nextscr2(d2);
