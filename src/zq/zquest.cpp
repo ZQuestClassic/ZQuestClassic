@@ -15546,8 +15546,8 @@ int32_t d_region_grid_proc(int32_t msg,DIALOG *d,int32_t)
 {
 	if (msg == MSG_DRAW && !should_allow_regions())
 	{
-		InfoDialog("Regions are disabled because of QRs", "You must disable all of the following compat QRs to use regions." + QRHINT(qrs_that_prevent_regions)).show();
-		return D_O_K;
+		// InfoDialog("Regions are disabled because of QRs", "You must disable all of the following compat QRs to use regions." + QRHINT(qrs_that_prevent_regions)).show();
+		// return D_O_K;
 	}
 
     int32_t frame_thickness = 5;

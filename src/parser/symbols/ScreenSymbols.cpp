@@ -1,4 +1,5 @@
 #include "SymbolDefs.h"
+#include "parser/ByteCode.h"
 
 ScreenSymbols ScreenSymbols::singleton = ScreenSymbols();
 
@@ -89,6 +90,7 @@ static AccessorTable ScreenTable[] =
 	{ "getEFlags[]",                0,         ZTID_FLOAT,   SCREENEFLAGSD,                     0,  { ZTID_SCREEN, ZTID_FLOAT },{} },
 	{ "setEFlags[]",                0,          ZTID_VOID,   SCREENEFLAGSD,                     0,  { ZTID_SCREEN, ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "TriggerSecrets",             0,          ZTID_VOID,   -1,                           FL_INL,  { ZTID_SCREEN },{} },
+	{ "TriggerSecretsFor",          0,          ZTID_VOID,   -1,                           FL_INL,  { ZTID_SCREEN, ZTID_FLOAT }, {} },
 	{ "getRoomType",                0,         ZTID_FLOAT,   ROOMTYPE,                          0,  { ZTID_SCREEN },{} },
 	{ "setRoomType",                0,          ZTID_VOID,   ROOMTYPE,                          0,  { ZTID_SCREEN, ZTID_FLOAT },{} },
 	{ "getMovingBlockX",            0,         ZTID_FLOAT,   PUSHBLOCKX,                        0,  { ZTID_SCREEN },{} },
@@ -1162,6 +1164,19 @@ void ScreenSymbols::generateCode()
 		ASSERT_NUL();
 		addOpcode2 (code, new OTriggerSecrets());
 		LABELBACK(label);
+		RETURN();
+		function->giveCode(code);
+	}
+	//void TriggerSecretsFor(screen, float)
+	{
+		Function* function = getFunction("TriggerSecretsFor");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OTriggerSecretsFor(new VarArgument(EXP1)));
 		RETURN();
 		function->giveCode(code);
 	}

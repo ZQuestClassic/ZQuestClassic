@@ -6623,6 +6623,11 @@ string OGetScreenIndexForRpos::toString() const
     return "GETSCREENINDEXFORRPOS " + getArgument()->toString();
 }
 
+string OTriggerSecretsFor::toString() const
+{
+    return "SECRETSFORR " + getArgument()->toString();
+}
+
 //////////////////////////////////////////////////////////////////////////////////////
 
 string ORunGenericFrozenScript::toString() const

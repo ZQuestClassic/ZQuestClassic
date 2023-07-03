@@ -5257,6 +5257,17 @@ namespace ZScript
 		}
 	};
 
+	class OTriggerSecretsFor : public UnaryOpcode
+	{
+	public:
+		OTriggerSecretsFor(Argument *A) : UnaryOpcode(A) {}
+		std::string toString() const;
+		Opcode *clone() const
+		{
+			return new OTriggerSecretsFor(a->clone());
+		}
+	};
+
 	class OIsValidArray : public UnaryOpcode
 	{
 	public:

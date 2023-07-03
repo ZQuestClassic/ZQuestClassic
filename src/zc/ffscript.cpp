@@ -25114,9 +25114,15 @@ void do_layermap()
 
 	
 // TODO z3 what screen?
-void do_triggersecrets()
+void do_triggersecrets(int screen_index)
 {
-	trigger_secrets_for_screen(TriggerSource::Script, false);
+	if (!is_in_current_region(screen_index))
+	{
+		Z_scripterrlog("Screen->TriggerSecrets must be given a screen in the current region. got: %d\n", screen_index);
+		return;
+	}
+
+	trigger_secrets_for_screen(TriggerSource::Script, screen_index, false);
 }
 
 
@@ -32527,7 +32533,11 @@ j_command:
 				break;
 				
 			case SECRETS:
-				do_triggersecrets();
+				do_triggersecrets(currscr);
+				break;
+
+			case SECRETSFORR:
+				do_triggersecrets(get_register(sarg1) / 10000);
 				break;
 				
 			case GETSCREENFLAGS:
@@ -40749,7 +40759,7 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "TRACELR",             1,   0,   0,   0 },
 	{ "WAITFRAMESR",             1,   0,   0,   0 },
 	{ "GETSCREENINDEXFORRPOS",   1,   0,   0,   0 },
-	{ "RESRVD_OP_Z3_02",   0,   0,   0,   0 },
+	{ "SECRETSFORR",   1,   0,   0,   0 },
 	{ "RESRVD_OP_Z3_03",   0,   0,   0,   0 },
 	{ "RESRVD_OP_Z3_04",   0,   0,   0,   0 },
 	{ "RESRVD_OP_Z3_05",   0,   0,   0,   0 },
