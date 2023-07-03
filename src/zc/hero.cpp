@@ -26306,15 +26306,10 @@ bool HeroClass::nextcombo_solid(int32_t d2)
 		
 	// assumes Hero is about to scroll screens
 	
-	int32_t ns = nextscr(d2);
+	auto [map, screen] = nextscr2(d2);
 	
-	if(ns==0xFFFF)
+	if (map == -1)
 		return false;
-		
-	// want actual screen index, not game->maps[] index
-	ns = (ns&127) + (ns>>7)*MAPSCRS;
-	int32_t screen = (ns%MAPSCRS);
-	int32_t map = (ns - screen) / MAPSCRS;
 	
 	int32_t cx = x;
 	int32_t cy = y;
@@ -26675,12 +26670,12 @@ bool HeroClass::lookaheadraftflag(int32_t d2)
         cx=0;
         break;
     }
-    
-	// TODO z3 !!!!
-    int32_t combo = COMBOPOS(cx, cy);
-    if(combo>175)
-        return 0;
-    return ( isRaftFlag(combobuf[tmpscr.data[combo]].flag) || isRaftFlag(tmpscr.sflag[combo]));
+
+	auto [map, screen_index] = nextscr2(d2);
+	mapscr* screen = get_scr(map, screen_index);
+
+    int32_t combo = COMBOPOS(cx%256, cy%176);
+    return ( isRaftFlag(combobuf[screen->data[combo]].flag) || isRaftFlag(screen->sflag[combo]));
 }
 
 int32_t HeroClass::lookahead(int32_t d2)                       // Helper for scrollscr that gets next combo on next screen.
@@ -26711,14 +26706,12 @@ int32_t HeroClass::lookahead(int32_t d2)                       // Helper for scr
         cx=0;
         break;
     }
-    
-	// TODO z3 !!
-    int32_t combo = (cy&0xF0)+(cx>>4);
-    
-    if(combo>175)
-        return 0;
-        
-    return tmpscr.data[combo];            // entire combo code
+
+	auto [map, screen_index] = nextscr2(d2);
+	mapscr* screen = get_scr(map, screen_index);
+
+    int32_t combo = COMBOPOS(cx%256, cy%176);
+    return screen->data[combo];
 }
 
 int32_t HeroClass::lookaheadflag(int32_t d2)
@@ -26758,15 +26751,17 @@ int32_t HeroClass::lookaheadflag(int32_t d2)
 	{
 		return 0;
 	}
-    
+
+	auto [map, screen_index] = nextscr2(d2);
+	mapscr* screen = get_scr(map, screen_index);
+
     int32_t combo = COMBOPOS(cx%256, cy%176);
-    
-    if(!tmpscr.sflag[combo])
+    if(!screen->sflag[combo])
     {
-        return combobuf[tmpscr.data[combo]].flag;           // flag
+        return combobuf[screen->data[combo]].flag;
     }
     
-    return tmpscr.sflag[combo];           // flag
+    return screen->sflag[combo];
 }
 
 void HeroClass::run_scrolling_script_int(bool waitdraw)

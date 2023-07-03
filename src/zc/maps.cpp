@@ -3207,7 +3207,14 @@ bool hitflag(int32_t x, int32_t y, int32_t flagtype)
 
 int32_t nextscr(int32_t dir)
 {
-    int32_t m = currmap;
+	auto [m, s] = nextscr2(dir);
+	if (m == -1) return 0xFFFF;
+    return (m<<7) + s;
+}
+
+std::pair<int32_t, int32_t> nextscr2(int32_t dir)
+{
+	int32_t m = currmap;
     int32_t s = heroscr;
     
     switch(dir)
@@ -3266,9 +3273,9 @@ int32_t nextscr(int32_t dir)
     
 nowarp:
     if(s<0||s>=128)
-        return 0xFFFF;
+        return {-1, -1};
 
-    return (m<<7) + s;
+	return {m, s};
 }
 
 void bombdoor(int32_t x,int32_t y)
