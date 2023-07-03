@@ -6678,7 +6678,7 @@ void ViewMap()
 	
 	do
 	{
-		if (replay_is_active() && replay_get_version() < 11)
+		if (replay_version_check(0, 11))
 			load_control_state();
 
 		int32_t step = int32_t(16.0/scales[sc]);
@@ -6810,7 +6810,7 @@ void ViewMap()
 		}
 		
 		advanceframe(false, false);
-		if (!replay_is_active() || replay_get_version() >= 11)
+		if (replay_version_check(11))
 			load_control_state();
 		
 		if(getInput(btnS, true, false, true)) //rSbtn

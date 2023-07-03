@@ -33,6 +33,7 @@
 #include "defdata.h"
 #include "subscr.h"
 #include "font.h"
+#include "zc/replay.h"
 #include "zc/zc_custom.h"
 #include "sfx.h"
 #include "md5.h"
@@ -20564,7 +20565,7 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 				return qe_invalid;
 			}
 		}
-		else if(replay_is_replaying() && replay_get_version() < 13)
+		else if (replay_version_check(0, 13))
 			temp_zinit.msg_speed = 0;
 		
 		if(s_version>17)

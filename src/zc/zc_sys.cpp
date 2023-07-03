@@ -4116,7 +4116,7 @@ void f_Quit(int32_t type)
 	enter_sys_pal();
 	clear_keybuf();
 	
-	if (replay_is_active() && replay_get_version() <= 9)
+	if (replay_version_check(0, 10))
 		replay_poll();
 	if (replay_is_replaying())
 		replay_peek_quit();
@@ -4624,16 +4624,18 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 	if(Playing && game->get_time()<unsigned(get_bit(quest_rules,qr_GREATER_MAX_TIME) ? MAXTIME : OLDMAXTIME))
 		game->change_time(1);
 	
-	if (replay_is_active() && replay_get_version() >= 11 && replay_get_version() < 16)
+	// Many mistakes have been make re: inputs, and we are stuck with many replays relying on those mistakes.
+
+	if (replay_version_check(11, 16))
 		for (int i = 0; i < ZC_CONTROL_STATES; i++)
 			down_control_states[i] = raw_control_state[i];
 	
 	if (replay_is_active())
 	{
-		if (replay_get_version() >= 3)
+		if (replay_version_check(3))
 			replay_poll();
 		
-		if (replay_get_version() >= 11 || (replay_get_version() >= 6 && replay_get_version() < 8))
+		if (replay_version_check(11) || replay_version_check(6, 8))
 			replay_peek_input();
 	}
 	
@@ -8690,7 +8692,7 @@ void load_control_state()
 {
 	load_control_called_this_frame = true;
 
-	if (replay_get_version() >= 8 && replay_get_version() < 11)
+	if (replay_version_check(8, 11))
 	{
 		for (int i = 0; i < ZC_CONTROL_STATES; i++)
 			down_control_states[i] = raw_control_state[i];
@@ -8745,7 +8747,7 @@ void load_control_state()
 			replay_poll();
 		else if (replay_is_replaying() && replay_get_version() < 6)
 			replay_peek_input();
-		else if (replay_is_replaying() && replay_get_version() >= 8 && replay_get_version() < 11)
+		else if (replay_is_replaying() && replay_version_check(8, 11))
 			replay_peek_input();
 		if (replay_get_version() == 8)
 			update_keys();

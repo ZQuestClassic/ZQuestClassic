@@ -91,7 +91,7 @@ inline double Sin(double x)
 		double r = sin1(x) * Q15;
 		// round to 4 decimal places, otherwise some "critical" values
 		// will be slightly off (ex: Cos(0) == 0.99996, instead of 1)
-		if (replay_get_version() >= 4)
+		if (replay_version_check(4))
 			return std::round(r * 10000.0) / 10000.0;
 		return r;
 	}
@@ -106,7 +106,7 @@ inline double Cos(double x)
 		x = x * (180/PI * 32768.0/360.0);
 		x = (long)x % 0x8000;
 		double r = cos1(x) * Q15;
-		if (replay_get_version() >= 4)
+		if (replay_version_check(4))
 			return std::round(r * 10000.0) / 10000.0;
 		return r;
 	}
@@ -121,7 +121,7 @@ inline double Tan(double x)
 		x = x * (180/PI * 32768.0/360.0);
 		x = (long)x % 0x8000;
 		double r = (sin1(x) * Q15) / (cos1(x) * Q15);
-		if (replay_get_version() >= 4)
+		if (replay_version_check(4))
 			return std::round(r * 10000.0) / 10000.0;
 		return r;
 	}

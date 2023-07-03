@@ -1898,6 +1898,21 @@ int replay_get_version()
     return version;
 }
 
+bool replay_version_check(int min, int max)
+{
+	if (!replay_is_active())
+	{
+		return max == -1;
+	}
+
+	if (max == -1)
+	{
+		return version >= min;
+	}
+
+    return version >= min && version < max;
+}
+
 int replay_get_frame()
 {
     return frame_count;
