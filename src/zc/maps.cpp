@@ -1070,29 +1070,8 @@ int32_t MAPCOMBO2(int32_t layer, int32_t x, int32_t y)
 	return rpos_handle.data();
 }
 
-static int32_t MAPCOMBO3_impl(int32_t map, int32_t screen, int32_t layer, int32_t pos, bool secrets)
+static void apply_state_changes_to_screen(mapscr& scr, int32_t map, int32_t screen, int32_t flags)
 {
-	const mapscr *m = &TheMaps[(map*MAPSCRS)+screen];
-	if(!m->valid) return 0;
-	
-	int32_t mi = (map*MAPSCRSNORMAL)+screen;
-	int32_t flags = 0;
-	
-	if(secrets)
-	{
-		flags = game->maps[mi];
-	}
-	
-	int32_t mapid = (layer < 0 ? -1 : ((m->layermap[layer] - 1) * MAPSCRS + m->layerscreen[layer]));
-	
-	if (layer >= 0 && (mapid < 0 || mapid > MAXMAPS2*MAPSCRS)) return 0;
-	
-	// TODO z3 super expensive...
-	mapscr scr = ((mapid < 0 || mapid > MAXMAPS2*MAPSCRS) ? *m : TheMaps[mapid]);
-    
-	if(scr.valid==0) return 0;
-	
-	// TODO z3 can this not be called all the time?
 	if ((flags & mSECRET) && canPermSecret(currdmap, screen))
 	{
 		hiddenstair2(&scr, screen, false);
@@ -1137,8 +1116,34 @@ static int32_t MAPCOMBO3_impl(int32_t map, int32_t screen, int32_t layer, int32_
 	{
 	    remove_screenstatecombos2(&scr, screen, false, cBOSSCHEST, cBOSSCHEST2);
 	}
-	
+
+	int32_t mi = (map*MAPSCRSNORMAL)+screen;
 	clear_xstatecombos_mi(&scr, screen, mi);
+}
+
+static int32_t MAPCOMBO3_impl(int32_t map, int32_t screen, int32_t layer, int32_t pos, bool secrets)
+{
+	const mapscr *m = &TheMaps[(map*MAPSCRS)+screen];
+	if(!m->valid) return 0;
+	
+	int32_t mi = (map*MAPSCRSNORMAL)+screen;
+	int32_t flags = 0;
+	
+	if(secrets)
+	{
+		flags = game->maps[mi];
+	}
+	
+	int32_t mapid = (layer < 0 ? -1 : ((m->layermap[layer] - 1) * MAPSCRS + m->layerscreen[layer]));
+	
+	if (layer >= 0 && (mapid < 0 || mapid > MAXMAPS2*MAPSCRS)) return 0;
+	
+	// TODO z3 super expensive...
+	mapscr scr = ((mapid < 0 || mapid > MAXMAPS2*MAPSCRS) ? *m : TheMaps[mapid]);
+	if (scr.valid==0) return 0;
+	
+	// TODO z3 can this not be called all the time?
+	apply_state_changes_to_screen(scr, map, screen, flags);
 	
 	return scr.data[pos];
 }
@@ -6450,6 +6455,7 @@ bool _effectflag(int32_t x,int32_t y,int32_t cnt, int32_t layer, bool notLink)
 // TODO z3 !!! rm m ?
 // TODO z3 !!! bound to single screen. re-use main walkflag code?
 //used by mapdata->isSolid(x,y) in ZScript:
+// Note: secrets are not applied, unlike MAPCOMBO3.
 bool _walkflag(int32_t x,int32_t y,int32_t cnt, mapscr* m)
 {
 	{
