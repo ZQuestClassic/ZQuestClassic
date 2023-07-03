@@ -123,7 +123,11 @@ void dosubscr(miscQdata *misc)
     }
     
     bool done=false;
-    
+
+    // Consume whatever input was registered during opening animation.
+    if (!replay_is_active() || replay_get_version() >= 18)
+        load_control_state();
+
     do
     {
 		if (replay_is_active() && replay_get_version() < 11)
