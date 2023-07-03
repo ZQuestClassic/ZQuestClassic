@@ -3215,7 +3215,7 @@ int32_t nextscr(int32_t dir)
 std::pair<int32_t, int32_t> nextscr2(int32_t dir)
 {
 	int32_t m = currmap;
-    int32_t s = heroscr;
+    int32_t s = screenscrolling ? scrolling_scr : heroscr;
     
     switch(dir)
     {
@@ -5684,7 +5684,6 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 //      (this is hard)
 //    - do the "overlay" logic (but just for tmpscr, not every single screen in a region) in
 //      load_a_screen_and_layers (this is easy).
-//    - delete old scrollscr code
 void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay,bool do_setups)
 {
 	auto oscr = homescr;
