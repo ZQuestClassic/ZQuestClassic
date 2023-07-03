@@ -2953,13 +2953,15 @@ void HeroClass::draw(BITMAP* dest)
 		{
 			if(holditem > -1)
 			{
+				int hx = x - ((action==landhold1)?4:0);
+				int hy = y+yofs-16-(get_bit(quest_rules, qr_NOITEMOFFSET))-fakez-z;
 				if(get_bit(quest_rules,qr_HOLDITEMANIMATION))
 				{
-					putitem2(dest,x-((action==landhold1)?4:0),y+yofs-16-(get_bit(quest_rules, qr_NOITEMOFFSET))-fakez-z,holditem,lens_hint_item[holditem][0], lens_hint_item[holditem][1], 0);
+					putitem2(dest,hx,hy,holditem,lens_hint_item[holditem][0], lens_hint_item[holditem][1], 0);
 				}
 				else
 				{
-					putitem(dest,x-((action==landhold1)?4:0),y+yofs-16-(get_bit(quest_rules, qr_NOITEMOFFSET))-fakez-z,holditem);
+					putitem(dest,hx,hy,holditem);
 				}
 			}
 		}
@@ -2967,13 +2969,15 @@ void HeroClass::draw(BITMAP* dest)
 		{
 			if(holditem > -1)
 			{
+				int hx = x - ((action==waterhold1)?4:0);
+				int hy = y+yofs-12-(get_bit(quest_rules, qr_NOITEMOFFSET))-fakez-z;
 				if(get_bit(quest_rules,qr_HOLDITEMANIMATION))
 				{
-					putitem2(dest,x-((action==waterhold1)?4:0),y+yofs-12-(get_bit(quest_rules, qr_NOITEMOFFSET))-fakez-z,holditem,lens_hint_item[holditem][0], lens_hint_item[holditem][1], 0);
+					putitem2(dest,hx,hy,holditem,lens_hint_item[holditem][0], lens_hint_item[holditem][1], 0);
 				}
 				else
 				{
-					putitem(dest,x-((action==waterhold1)?4:0),y+yofs-12-(get_bit(quest_rules, qr_NOITEMOFFSET))-fakez-z,holditem);
+					putitem(dest,hx,hy,holditem);
 				}
 			}
 		}
@@ -2981,13 +2985,15 @@ void HeroClass::draw(BITMAP* dest)
 		{
 			if(holditem > -1)
 			{
+				int hx = x - ((action==sidewaterhold1)?4:0);
+				int hy = y+yofs-16-(get_bit(quest_rules, qr_NOITEMOFFSET))-fakez-z;
 				if(get_bit(quest_rules,qr_HOLDITEMANIMATION))
 				{
-					putitem2(dest,x-((action==sidewaterhold1)?4:0),y+yofs-16-(get_bit(quest_rules, qr_NOITEMOFFSET))-fakez-z,holditem,lens_hint_item[holditem][0], lens_hint_item[holditem][1], 0);
+					putitem2(dest,hx,hy,holditem,lens_hint_item[holditem][0], lens_hint_item[holditem][1], 0);
 				}
 				else
 				{
-					putitem(dest,x-((action==sidewaterhold1)?4:0),y+yofs-16-(get_bit(quest_rules, qr_NOITEMOFFSET))-fakez-z,holditem);
+					putitem(dest,hx,hy,holditem);
 				}
 			}
 		}
