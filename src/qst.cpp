@@ -19084,6 +19084,11 @@ int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, wo
 		{
 			return qe_invalid;
 		}
+
+		if (!(palcycles >= 0 && palcycles <= NUM_PAL_CYCLES))
+		{
+			return qe_invalid;
+		}
 		
 		for(int32_t i=0; i<palcycles; i++)
 		{

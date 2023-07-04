@@ -3721,6 +3721,9 @@ enum miscsfx
 	sfxDRAIN,
 	sfxMAX = 256
 };
+
+#define NUM_PAL_CYCLES 256
+
 struct miscQdata
 {
     shoptype shop[256];
@@ -3729,7 +3732,7 @@ struct miscQdata
     //384 (224=14*16)
     warpring warp[9];
     //528 (144=18*8)
-    palcycle cycles[256][3];
+    palcycle cycles[NUM_PAL_CYCLES][3];
     //2832 (2304=3*256*3)
     //2850 (18=2*2)
     byte     triforce[8];                                     // positions of triforce pieces on subscreen
