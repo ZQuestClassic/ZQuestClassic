@@ -6364,6 +6364,11 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
         {
             return qe_invalid;
         }
+
+        if (!(items_to_read >= 0 && items_to_read <= ITEMCNT))
+        {
+            return qe_invalid;
+        }
     }
     
     if(s_version>1)
