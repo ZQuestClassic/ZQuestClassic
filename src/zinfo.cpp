@@ -809,6 +809,8 @@ int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr)
 		word num_mapflags;
 		if(!p_igetw(&num_mapflags,f,true))
 			return qe_invalid;
+		if (!(num_mapflags >= 0 && num_mapflags <= mfMAX))
+			return qe_invalid;
 		for(auto q = 0; q < num_mapflags; ++q)
 		{
 			byte namesize;
