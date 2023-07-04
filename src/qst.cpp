@@ -13273,6 +13273,16 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int32_t , 
 			return qe_invalid;
 		}
 	}
+
+#ifdef ZC_FUZZ
+	const int32_t command_limit = 300000;
+#else
+	const int32_t command_limit = 10000000;
+#endif
+	if (num_commands < 0 || num_commands > command_limit)
+	{
+		return qe_invalid;
+	}
 	
 	if(keepdata)
 	{
