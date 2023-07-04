@@ -2430,7 +2430,7 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printm
 	
 		get_questpwd(temp_pwd, temp_pwdkey, temp_pwd2);
 		cvs_MD5Init(&ctx);
-		cvs_MD5Update(&ctx, (const uint8_t*)temp_pwd2, (unsigned)strlen(temp_pwd2));
+		cvs_MD5Update(&ctx, (const uint8_t*)temp_pwd2, (unsigned)strnlen(temp_pwd2, 30));
 		cvs_MD5Final(tempheader.pwd_hash, &ctx);
 		
 		if(tempheader.zelda_version < 0x177)                       // lacks new header stuff...
@@ -2602,7 +2602,7 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printm
 			
 			get_questpwd(temp_pwd, temp_pwdkey, temp_pwd2);
 			cvs_MD5Init(&ctx);
-			cvs_MD5Update(&ctx, (const uint8_t*)temp_pwd2, (unsigned)strlen(temp_pwd2));
+			cvs_MD5Update(&ctx, (const uint8_t*)temp_pwd2, (unsigned)strnlen(temp_pwd2, 30));
 			cvs_MD5Final(tempheader.pwd_hash, &ctx);
 		}
 		else
