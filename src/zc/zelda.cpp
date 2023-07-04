@@ -4308,12 +4308,146 @@ void zc_game_srand(int seed, zc_randgen* rng)
 		zc_srand(seed, rng);
 }
 
+
+static void allocate_crap()
+{
+	for(int32_t i=0; i<4; i++)
+	{
+		for(int32_t j=0; j<MAXSUBSCREENITEMS; j++)
+		{
+			memset(&custom_subscreen[i].objects[j],0,sizeof(subscreen_object));
+		}
+	}
+	
+	for(int32_t i=0; i<WAV_COUNT; i++)
+	{
+		customsfxdata[i].data=NULL;
+		sfx_string[i] = new char[36];
+	}
+	
+	for(int32_t i=0; i<WAV_COUNT>>3; i++)
+	{
+		customsfxflag[i] = 0;
+	}
+	
+	for(int32_t i=0; i<WPNCNT; i++)
+	{
+		weapon_string[i] = new char[64];
+	}
+	
+	for(int32_t i=0; i<ITEMCNT; i++)
+	{
+		item_string[i] = new char[64];
+	}
+	
+	for(int32_t i=0; i<eMAXGUYS; i++)
+	{
+		guy_string[i] = new char[64];
+	}
+	
+	next_script_data_debug_id = 0;
+	for(int32_t i=0; i<NUMSCRIPTFFC; i++)
+	{
+		ffscripts[i] = new script_data();
+	}
+	
+	for(int32_t i=0; i<NUMSCRIPTITEM; i++)
+	{
+		itemscripts[i] = new script_data();
+	}
+	
+	for(int32_t i=0; i<NUMSCRIPTGUYS; i++)
+	{
+		guyscripts[i] = new script_data();
+	}
+	
+	for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
+	{
+		wpnscripts[i] = new script_data();
+	}
+	
+	for(int32_t i=0; i<NUMSCRIPTSCREEN; i++)
+	{
+		screenscripts[i] = new script_data();
+	}
+	
+	for(int32_t i=0; i<NUMSCRIPTGLOBAL; i++)
+	{
+		globalscripts[i] = new script_data();
+	}
+	
+	for(int32_t i=0; i<NUMSCRIPTPLAYER; i++)
+	{
+		playerscripts[i] = new script_data();
+	}
+	
+	 for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
+	{
+		lwpnscripts[i] = new script_data();
+	}
+	 for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
+	{
+		ewpnscripts[i] = new script_data();
+	}
+	
+	 for(int32_t i=0; i<NUMSCRIPTSDMAP; i++)
+	{
+		dmapscripts[i] = new script_data();
+	}
+	for(int32_t i=0; i<NUMSCRIPTSITEMSPRITE; i++)
+	{
+		itemspritescripts[i] = new script_data();
+	}
+	for(int32_t i=0; i<NUMSCRIPTSCOMBODATA; i++)
+	{
+		comboscripts[i] = new script_data();
+	}
+}
+
+void do_load_and_quit_command(const char* quest_path)
+{
+	// We need to init some stuff before loading a quest file will work.
+	Z_message("Initializing Allegro... ");
+	if(!al_init())
+	{
+		Z_error_fatal("Failed Init!");
+	}
+	if(allegro_init() != 0)
+	{
+		Z_error_fatal("Failed Init!");
+	}
+	get_qst_buffers();
+	allocate_crap();
+	if ( !(zcm.init(true)) ) 
+	{
+		Z_error_fatal("ZC Player I/O Error: No module definitions found. Please check your settings in %s.cfg.\n", "zc");
+	}
+	if ((sfxdata=load_datafile(moduledata.datafiles[sfx_dat]))==NULL)
+	{
+		Z_error_fatal("failed to load sfx_dat");
+	}
+
+	byte skip_flags[4];
+	for (int32_t i=0; i<4; ++i)
+	{
+		skip_flags[i] = 0;
+	}
+	int ret = loadquest(quest_path,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,true,skip_flags,false,false,0xFF);
+	exit(ret);
+}
+
 int main(int argc, char **argv)
 {
 	common_main_setup(App::zelda, argc, argv);
 	set_should_zprint_cb([]() {
 		return get_bit(quest_rules,qr_SCRIPTERRLOG) || DEVLEVEL > 0;
 	});
+
+	int load_and_quit_arg = used_switch(argc, argv, "-load-and-quit");
+	if (load_and_quit_arg > 0)
+	{
+		do_load_and_quit_command(argv[load_and_quit_arg+1]);
+	}
 
 	bool onlyInstance=true;
 //	refresh_select_screen = 0;
@@ -4766,97 +4900,7 @@ int main(int argc, char **argv)
 	
 	set_uformat(U_ASCII);
 	
-	for(int32_t i=0; i<4; i++)
-	{
-		for(int32_t j=0; j<MAXSUBSCREENITEMS; j++)
-		{
-			memset(&custom_subscreen[i].objects[j],0,sizeof(subscreen_object));
-		}
-	}
-	
-	for(int32_t i=0; i<WAV_COUNT; i++)
-	{
-		customsfxdata[i].data=NULL;
-		sfx_string[i] = new char[36];
-	}
-	
-	for(int32_t i=0; i<WAV_COUNT>>3; i++)
-	{
-		customsfxflag[i] = 0;
-	}
-	
-	for(int32_t i=0; i<WPNCNT; i++)
-	{
-		weapon_string[i] = new char[64];
-	}
-	
-	for(int32_t i=0; i<ITEMCNT; i++)
-	{
-		item_string[i] = new char[64];
-	}
-	
-	for(int32_t i=0; i<eMAXGUYS; i++)
-	{
-		guy_string[i] = new char[64];
-	}
-	
-	next_script_data_debug_id = 0;
-	for(int32_t i=0; i<NUMSCRIPTFFC; i++)
-	{
-		ffscripts[i] = new script_data();
-	}
-	
-	for(int32_t i=0; i<NUMSCRIPTITEM; i++)
-	{
-		itemscripts[i] = new script_data();
-	}
-	
-	for(int32_t i=0; i<NUMSCRIPTGUYS; i++)
-	{
-		guyscripts[i] = new script_data();
-	}
-	
-	for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
-	{
-		wpnscripts[i] = new script_data();
-	}
-	
-	for(int32_t i=0; i<NUMSCRIPTSCREEN; i++)
-	{
-		screenscripts[i] = new script_data();
-	}
-	
-	for(int32_t i=0; i<NUMSCRIPTGLOBAL; i++)
-	{
-		globalscripts[i] = new script_data();
-	}
-	
-	for(int32_t i=0; i<NUMSCRIPTPLAYER; i++)
-	{
-		playerscripts[i] = new script_data();
-	}
-	
-	 for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
-	{
-		lwpnscripts[i] = new script_data();
-	}
-	 for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
-	{
-		ewpnscripts[i] = new script_data();
-	}
-	
-	 for(int32_t i=0; i<NUMSCRIPTSDMAP; i++)
-	{
-		dmapscripts[i] = new script_data();
-	}
-	for(int32_t i=0; i<NUMSCRIPTSITEMSPRITE; i++)
-	{
-		itemspritescripts[i] = new script_data();
-	}
-	for(int32_t i=0; i<NUMSCRIPTSCOMBODATA; i++)
-	{
-		comboscripts[i] = new script_data();
-	}
+	allocate_crap();
 	
 	//script drawing bitmap allocation
 	zscriptDrawingRenderTarget = new ZScriptDrawingRenderTarget();
@@ -4909,7 +4953,7 @@ int main(int argc, char **argv)
 	  */
 	
 	const int32_t wait_ms_on_set_graphics = 20; //formerly 250. -Gleeok
-	
+
 	// quick quit
 	if(used_switch(argc,argv,"-q"))
 	{
