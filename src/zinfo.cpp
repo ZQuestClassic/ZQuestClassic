@@ -746,6 +746,8 @@ int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr)
 	if(section_version > 0)
 		if(!p_igetw(&num_itemtypes,f,true))
 			return qe_invalid;
+	if (!(num_itemtypes >= 0 && num_itemtypes <= itype_max))
+		return qe_invalid;
 	for(auto q = 0; q < num_itemtypes; ++q)
 	{
 		byte namesize;
