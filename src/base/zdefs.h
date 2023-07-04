@@ -3724,6 +3724,7 @@ enum miscsfx
 
 #define NUM_SHOPS 256
 #define NUM_PAL_CYCLES 256
+#define NUM_WARP_RINGS 9
 
 struct miscQdata
 {
@@ -3731,7 +3732,7 @@ struct miscQdata
     //160 (160=10*16)
     infotype info[256];
     //384 (224=14*16)
-    warpring warp[9];
+    warpring warp[NUM_WARP_RINGS];
     //528 (144=18*8)
     palcycle cycles[NUM_PAL_CYCLES][3];
     //2832 (2304=3*256*3)

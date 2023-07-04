@@ -5770,15 +5770,27 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 		{
 			return qe_invalid;
 		}
+
+		if (!(warprings >= 0 && warprings <= NUM_WARP_RINGS))
+		{
+			// return qe_invalid;
+			// Note: we can't actually fail here because for some reason, some quest files have more than the max
+			// number of possible warp rings. Some examples of this are: demosp253.qst, yuurand.qst
+			// So instead below we disable `keepdata` when reading the bad warp ring data, so no memory is corrupted.
+		}
 	}
 	
 	for(int32_t i=0; i<warprings; i++)
 	{
+		// See above comment on the `warprings` range check.
+		bool keep_data_before = keepdata;
+		keepdata = keep_data_before && i < NUM_WARP_RINGS;
+
 		for(int32_t j=0; j<8+((s_version > 5)?1:0); j++)
 		{
 			if(s_version <= 3)
 			{
-				if(!p_getc(&tempbyte,f,true))
+				if(!p_getc(&tempbyte,f,keepdata))
 				{
 					return qe_invalid;
 				}
@@ -5787,7 +5799,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 			}
 			else
 			{
-				if(!p_igetw(&temp_misc.warp[i].dmap[j],f,true))
+				if(!p_igetw(&temp_misc.warp[i].dmap[j],f,keepdata))
 				{
 					return qe_invalid;
 				}
@@ -5796,24 +5808,26 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 		
 		for(int32_t j=0; j<8+((s_version > 5)?1:0); j++)
 		{
-			if(!p_getc(&temp_misc.warp[i].scr[j],f,true))
+			if(!p_getc(&temp_misc.warp[i].scr[j],f,keepdata))
 			{
 				return qe_invalid;
 			}
 		}
 		
-		if(!p_getc(&temp_misc.warp[i].size,f,true))
+		if(!p_getc(&temp_misc.warp[i].size,f,keepdata))
 		{
 			return qe_invalid;
 		}
 		
 		if(Header->zelda_version < 0x193)
 		{
-			if(!p_getc(&tempbyte,f,true))
+			if(!p_getc(&tempbyte,f,keepdata))
 			{
 				return qe_invalid;
 			}
 		}
+
+		keepdata = keep_data_before;
 	}
 	
 	//palette cycles
@@ -5866,6 +5880,11 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 			{
 				return qe_invalid;
 			}
+		}
+
+		if (!(windwarps >= 0 && windwarps <= NUM_WARP_RINGS))
+		{
+			return qe_invalid;
 		}
 		
 		for(int32_t i=0; i<windwarps; i++)
