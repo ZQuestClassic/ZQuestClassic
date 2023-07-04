@@ -779,6 +779,8 @@ int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr)
 		word num_combotypes;
 		if(!p_igetw(&num_combotypes,f,true))
 			return qe_invalid;
+		if (!(num_combotypes >= 0 && num_combotypes <= cMAX))
+			return qe_invalid;
 		for(auto q = 0; q < num_combotypes; ++q)
 		{
 			byte namesize;
