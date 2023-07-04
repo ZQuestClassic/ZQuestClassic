@@ -17610,8 +17610,12 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header, bool keepdata)
 	{
 		temp_map_count=map_count;
 	}
-	
-	
+
+	if (!(temp_map_count >= 0 && temp_map_count <= MAXMAPS2))
+	{
+		return qe_invalid;
+	}
+
 	if(keepdata)
 	{
 		const int32_t _mapsSize = MAPSCRS*temp_map_count;
