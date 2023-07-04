@@ -866,6 +866,8 @@ int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr)
 		word num_counters;
 		if(!p_igetw(&num_counters,f,true))
 			return qe_invalid;
+		if (!(num_counters >= 0 && num_counters <= MAX_COUNTERS))
+			return qe_invalid;
 		for(auto q = 0; q < num_counters; ++q)
 		{
 			byte namesize;
