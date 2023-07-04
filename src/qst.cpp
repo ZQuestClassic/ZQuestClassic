@@ -6414,7 +6414,8 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
             
             if(keepdata)
             {
-                strcpy(item_string[i], tempname);
+                item_string[i][0] = '\0';
+                strncat(item_string[i], tempname, 64 - 1);
             }
         }
     }
@@ -9671,7 +9672,8 @@ int32_t readweapons(PACKFILE *f, zquestheader *Header, bool keepdata)
             
             if(keepdata)
             {
-                strcpy(weapon_string[i], tempname);
+                weapon_string[i][0] = '\0';
+                strncat(weapon_string[i], tempname, 64 - 1);
             }
         }
         
@@ -12109,7 +12111,8 @@ int32_t read_one_subscreen(PACKFILE *f, zquestheader *, bool keepdata, int32_t i
                 break;
             }
             
-            strcpy(custom_subscreen[i].name, tempname);
+            custom_subscreen[i].name[0] = '\0';
+            strncat(custom_subscreen[i].name, tempname, 64 - 1);
             custom_subscreen[i].ss_type = temp_ss;
         }
     }
@@ -13627,8 +13630,8 @@ int32_t readsfx(PACKFILE *f, zquestheader *Header, bool keepdata)
 				
 				if(keepdata)
 				{
-					strcpy(sfx_string[i], tempname);
-					sfx_string[i][35] = 0; //Force NULL Termination
+					sfx_string[i][0] = '\0';
+					strncat(sfx_string[i], tempname, 36 - 1);
 				}
 			}
 			else if(keepdata)
@@ -13914,7 +13917,8 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
                 
                 if(i >= OLDMAXGUYS || strlen(tempname)<1 || tempname[strlen(tempname)-1]!=' ')
                 {
-                    strcpy(guy_string[i], tempname);
+                    guy_string[i][0] = '\0';
+                    strncat(guy_string[i], tempname, 64 - 1);
                 }
                 else
                 {
