@@ -21671,9 +21671,15 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
         {
             return qe_invalid;
         }
+
+        std::set<dword> seen_sections;
         
         while(!pack_feof(f))
         {
+            if (seen_sections.contains(section_id))
+                return qe_invalid;
+            seen_sections.insert(section_id);
+
             switch(section_id)
             {
             case ID_RULES:
