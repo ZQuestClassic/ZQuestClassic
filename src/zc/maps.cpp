@@ -3767,6 +3767,11 @@ void calc_darkroom_combos(bool scrolling)
 				doDarkroomCircle((tmpscr->ffcs[q].x.getInt())+(tmpscr->ffEffectWidth(q)/2)+scrollxoffs, (tmpscr->ffcs[q].y.getInt())+(tmpscr->ffEffectHeight(q)/2)+scrollyoffs, cmb.attribytes[0], darkscr_bmp_scrollscr);
 		}
 	}
+	if(!scrolling && mblock2.clk)
+	{
+		newcombo const& cmb = combobuf[mblock2.bcombo];
+		doDarkroomCircle(mblock2.x+8, mblock2.y+8, cmb.attribytes[0], darkscr_bmp_curscr);
+	}
 	
 	if(!scrolling) return; //not a scrolling call, don't run code for scrolling screen
 	
