@@ -4260,6 +4260,11 @@ int32_t readdoorcombosets(PACKFILE *f, zquestheader *Header, bool keepdata)
     {
         return qe_invalid;
     }
+
+	if (!(temp_door_combo_set_count >= 0 && temp_door_combo_set_count <= MAXDOORCOMBOSETS))
+	{
+		return qe_invalid;
+	}
     
     for(int32_t i=0; i<temp_door_combo_set_count; i++)
     {
