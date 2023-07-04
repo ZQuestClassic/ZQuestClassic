@@ -5688,7 +5688,12 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 			return qe_invalid;
 		}
 	}
-	
+
+	if (!(infos >= 0 && infos <= NUM_INFOS))
+	{
+		return qe_invalid;
+	}
+
 	for(int32_t i=0; i<infos; i++)
 	{
 		if(s_version > 6)
