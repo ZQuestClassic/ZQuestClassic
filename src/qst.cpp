@@ -9621,6 +9621,11 @@ int32_t readweapons(PACKFILE *f, zquestheader *Header, bool keepdata)
         {
             return qe_invalid;
         }
+
+        if (!(weapons_to_read >= 0 && weapons_to_read <= WPNCNT))
+        {
+            return qe_invalid;
+        }
     }
     
     if(s_version>2)
