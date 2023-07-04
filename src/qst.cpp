@@ -4545,7 +4545,7 @@ int32_t count_dmaps()
 
 int32_t count_shops(miscQdata *Misc)
 {
-    int32_t i=255,j;
+    int32_t i=NUM_SHOPS-1,j;
     bool found=false;
     
     while(i>=0 && !found)
@@ -5580,6 +5580,11 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 		{
 			return qe_invalid;
 		}
+	}
+
+	if (!(shops >= 0 && shops <= NUM_SHOPS))
+	{
+		return qe_invalid;
 	}
 	
 	for(int32_t i=0; i<shops; i++)

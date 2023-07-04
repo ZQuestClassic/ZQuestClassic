@@ -3722,11 +3722,12 @@ enum miscsfx
 	sfxMAX = 256
 };
 
+#define NUM_SHOPS 256
 #define NUM_PAL_CYCLES 256
 
 struct miscQdata
 {
-    shoptype shop[256];
+    shoptype shop[NUM_SHOPS];
     //160 (160=10*16)
     infotype info[256];
     //384 (224=14*16)
