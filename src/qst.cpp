@@ -4002,6 +4002,12 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
 					return qe_invalid;
 				}
 			}
+
+			if (string_length < 0 || string_length > 8193)
+			{
+				return qe_invalid;
+			}
+
 			if (string_length > 0)
 			{
 				if (!pfread(buf, string_length, f, true))
