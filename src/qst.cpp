@@ -21247,6 +21247,11 @@ int32_t readitemdropsets(PACKFILE *f, int32_t version, word build, bool keepdata
         {
             return qe_invalid;
         }
+
+        if (!(item_drop_sets_to_read >= 0 && item_drop_sets_to_read <= MAXITEMDROPSETS))
+        {
+            return qe_invalid;
+        }
     }
     else
     {
