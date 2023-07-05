@@ -21143,6 +21143,8 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 		word numgenscript = 0;
 		if(!p_igetw(&numgenscript,f,true))
 			return qe_invalid;
+		if (!(numgenscript >= 0 && numgenscript <= NUMSCRIPTSGENERIC))
+			return qe_invalid;
 		for(auto q = 1; q < numgenscript; ++q)
 		{
 			if(!p_getc(&padding,f,true))
