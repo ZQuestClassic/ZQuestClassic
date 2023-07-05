@@ -5806,7 +5806,8 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 					return qe_invalid;
 				}
 				
-				temp_misc.warp[i].dmap[j]=(word)tempbyte;
+				if (keepdata)
+					temp_misc.warp[i].dmap[j]=(word)tempbyte;
 			}
 			else
 			{
