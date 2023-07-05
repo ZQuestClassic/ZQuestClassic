@@ -12859,6 +12859,11 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 	{
 		int32_t bufsize;
 		p_igetl(&bufsize, f, true);
+		if (bufsize < 0 || bufsize > 1024*1024*10)
+		{
+			// God help anyone storing more than 10MB of code in the script buffer.
+			return qe_invalid;
+		}
 		char * buf = new char[bufsize+1];
 		pfread(buf, bufsize, f, true);
 		buf[bufsize]=0;
@@ -12875,6 +12880,8 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 			word id;
 			p_igetw(&id, f, true);
 			p_igetl(&bufsize, f, true);
+			if (bufsize < 0 || bufsize > 1024)
+				return qe_invalid;
 			buf = new char[bufsize+1];
 			pfread(buf, bufsize, f, true);
 			buf[bufsize]=0;
@@ -12894,6 +12901,8 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 			word id;
 			p_igetw(&id, f, true);
 			p_igetl(&bufsize, f, true);
+			if (bufsize < 0 || bufsize > 1024)
+				return qe_invalid;
 			buf = new char[bufsize+1];
 			pfread(buf, bufsize, f, true);
 			buf[bufsize]=0;
@@ -12930,6 +12939,8 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 				word id;
 				p_igetw(&id, f, true);
 				p_igetl(&bufsize, f, true);
+				if (bufsize < 0 || bufsize > 1024)
+					return qe_invalid;
 				buf = new char[bufsize+1];
 				pfread(buf, bufsize, f, true);
 				buf[bufsize]=0;
@@ -12953,6 +12964,8 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 				word id;
 				p_igetw(&id, f, true);
 				p_igetl(&bufsize, f, true);
+				if (bufsize < 0 || bufsize > 1024)
+					return qe_invalid;
 				buf = new char[bufsize+1];
 				pfread(buf, bufsize, f, true);
 				buf[bufsize]=0;
@@ -12972,6 +12985,8 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 				word id;
 				p_igetw(&id, f, true);
 				p_igetl(&bufsize, f, true);
+				if (bufsize < 0 || bufsize > 1024)
+					return qe_invalid;
 				buf = new char[bufsize+1];
 				pfread(buf, bufsize, f, true);
 				buf[bufsize]=0;
@@ -12991,6 +13006,8 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 				word id;
 				p_igetw(&id, f, true);
 				p_igetl(&bufsize, f, true);
+				if (bufsize < 0 || bufsize > 1024)
+					return qe_invalid;
 				buf = new char[bufsize+1];
 				pfread(buf, bufsize, f, true);
 				buf[bufsize]=0;
@@ -13010,6 +13027,8 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 				word id;
 				p_igetw(&id, f, true);
 				p_igetl(&bufsize, f, true);
+				if (bufsize < 0 || bufsize > 1024)
+					return qe_invalid;
 				buf = new char[bufsize+1];
 				pfread(buf, bufsize, f, true);
 				buf[bufsize]=0;
@@ -13029,6 +13048,8 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 				word id;
 				p_igetw(&id, f, true);
 				p_igetl(&bufsize, f, true);
+				if (bufsize < 0 || bufsize > 1024)
+					return qe_invalid;
 				buf = new char[bufsize+1];
 				pfread(buf, bufsize, f, true);
 				buf[bufsize]=0;
@@ -13048,6 +13069,8 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 				word id;
 				p_igetw(&id, f, true);
 				p_igetl(&bufsize, f, true);
+				if (bufsize < 0 || bufsize > 1024)
+					return qe_invalid;
 				buf = new char[bufsize+1];
 				pfread(buf, bufsize, f, true);
 				buf[bufsize]=0;
@@ -13069,6 +13092,8 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 				word id;
 				p_igetw(&id, f, true);
 				p_igetl(&bufsize, f, true);
+				if (bufsize < 0 || bufsize > 1024)
+					return qe_invalid;
 				buf = new char[bufsize+1];
 				pfread(buf, bufsize, f, true);
 				buf[bufsize]=0;
@@ -13090,6 +13115,8 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 				word id;
 				p_igetw(&id, f, true);
 				p_igetl(&bufsize, f, true);
+				if (bufsize < 0 || bufsize > 1024)
+					return qe_invalid;
 				buf = new char[bufsize+1];
 				pfread(buf, bufsize, f, true);
 				buf[bufsize]=0;
@@ -13111,6 +13138,8 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 				word id;
 				p_igetw(&id, f, true);
 				p_igetl(&bufsize, f, true);
+				if (bufsize < 0 || bufsize > 1024)
+					return qe_invalid;
 				buf = new char[bufsize+1];
 				pfread(buf, bufsize, f, true);
 				buf[bufsize]=0;
