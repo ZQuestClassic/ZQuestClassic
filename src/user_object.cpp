@@ -31,17 +31,12 @@ void scr_func_exec::execute()
 	if(!pc || !sc_data || !sc_data->valid())
 		return;
 	
-	ffscript *zas = &sc_data->zasm[pc-1];
-	if(!(zas->command == STARTDESTRUCTOR && zas->strptr && name == *(zas->strptr)))
+	// Check that the line number points to the correct destructor
+	if(validate())
 	{
-		if(validate())
-			zas = &sc_data->zasm[pc-1];
-		else return;
-	}
-	
-	if(zas->command == STARTDESTRUCTOR && zas->strptr && name == *(zas->strptr))
-	{
-		push_ri();
+		// Either it did, or it was auto-correctable
+		push_ri(); //Store the prior script state
+		// Setup the refInfo/stack/global vars for the destructor script state
 		refInfo newRI;
 		ri = &newRI;
 		ri->pc = pc;
@@ -54,48 +49,48 @@ void scr_func_exec::execute()
 		curScriptNum = script;
 		curScriptIndex = i;
 		memset(static_stack, 0, sizeof(int32_t)*MAX_SCRIPT_REGISTERS);
-		//
+		// Run  the destructor script
 		std::string* oldstr = destructstr;
 		destructstr = &name;
 		script_funcrun = true;
 		run_script_int(false);
-		script_funcrun = false;
+		script_funcrun = false; //If this ever is able to be set elsewhere, this should restore old value...
 		destructstr = oldstr;
 		//
-		pop_ri();
+		pop_ri(); //restore the prior script state
 	}
 }
 bool scr_func_exec::validate()
 {
 	script_data* sc_data = load_scrdata(type,script,i);
-	if(!pc || !sc_data || !sc_data->valid())
+	if(!pc || !sc_data || !sc_data->valid()) // Destructor is null or points to bad script
 		return false;
 	
 	ffscript &zas = sc_data->zasm[pc-1];
 	if(zas.command == STARTDESTRUCTOR && zas.strptr && name == *(zas.strptr))
-		return true; //validated!
+		return true; //validated! Destructor already points to correct line
 	dword q = 0;
 	while(true)
 	{
 		ffscript& zas = sc_data->zasm[q];
-		if(zas.command == 0xFFFF)
+		if(zas.command == 0xFFFF) //Ran out of script to check
 		{
 			zprint2("Destructor for class '%s' expected, but not found!\n", name.c_str());
 			return false;
 		}
-		else if(zas.command == STARTDESTRUCTOR
-			&& zas.strptr && name == *(zas.strptr))
-		{
+		else if(zas.command == STARTDESTRUCTOR && zas.strptr && name == *(zas.strptr))
+		{ //Found the correct destructor
 			pc = q+1;
 			return true; //validated!
 		}
 	}
 }
+//Prepare the object's destructor
 void user_object::prep(dword pc, ScriptType type, word script, int32_t i)
 {
-	if(!pc) return;
+	if(!pc) return; //destructor is null
 	ffscript &zas = curscript->zasm[pc-1];
-	if(zas.command == STARTDESTRUCTOR && zas.strptr)
+	if(zas.command == STARTDESTRUCTOR && zas.strptr) //Destructor is valid
 	{
 		destruct.pc = pc;
 		destruct.type = type;
@@ -104,8 +99,9 @@ void user_object::prep(dword pc, ScriptType type, word script, int32_t i)
 		destruct.thiskey = ri->thiskey;
 		destruct.name = *zas.strptr;
 	}
-	else zprint2("Destructor for object not found?\n");
+	else zprint2("Destructor for object not found?\n"); //Should never occur
 }
+//Load object arrays (from save file)
 void user_object::load_arrays(std::map<int32_t,ZScriptArray>& arrs)
 {
 	for(auto it = arrs.begin(); it != arrs.end(); ++it)
@@ -114,6 +110,7 @@ void user_object::load_arrays(std::map<int32_t,ZScriptArray>& arrs)
 		objectRAM[ind] = it->second;
 	}
 }
+//Save object arrays (to save file)
 void user_object::save_arrays(std::map<int32_t,ZScriptArray>& arrs)
 {
 	if(data.size() > owned_vars) //owns arrays!
@@ -147,3 +144,4 @@ void user_object::clear(bool destructor)
 	owned_i = 0;
 	owned_vars = 0;
 }
+
