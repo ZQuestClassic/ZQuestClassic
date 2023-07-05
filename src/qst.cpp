@@ -13755,6 +13755,10 @@ int32_t readsfx(PACKFILE *f, zquestheader *Header, bool keepdata)
 			// al_trace("F%i: L%i\n",i,temp_sample.len);
 			// temp_sample.data = new byte[(temp_sample.bits==8?1:2)*temp_sample.len];
 			int32_t len = (temp_sample.bits==8?1:2)*(temp_sample.stereo==0?1:2)*temp_sample.len;
+			if (len < 0 || len > 10000000)
+			{
+				return qe_invalid;
+			}
 			temp_sample.data = calloc(len,1);
 			
 			if(s_version < 3)
