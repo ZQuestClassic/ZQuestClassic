@@ -11798,8 +11798,9 @@ int32_t read_one_subscreen(PACKFILE *f, zquestheader *, bool keepdata, int32_t i
             //if(temp_sub->dp1!=NULL) delete[] temp_sub->dp1;
             if(keepdata)
             {
-                uint32_t char_length = temp_size+1;
+                uint32_t char_length = temp_size+2;
                 temp_sub->dp1 = new char[char_length]; //memory not freed
+                ((char*)temp_sub->dp1)[char_length - 1] = '\0';
                 
                 //deletets = true; //obsolete
             }
@@ -12095,7 +12096,7 @@ int32_t read_one_subscreen(PACKFILE *f, zquestheader *, bool keepdata, int32_t i
                 
                 memcpy(&custom_subscreen[i].objects[j],temp_sub,sizeof(subscreen_object));
                 custom_subscreen[i].objects[j].dp1 = NULL;
-                custom_subscreen[i].objects[j].dp1 = new char[temp_size+1];
+                custom_subscreen[i].objects[j].dp1 = new char[temp_size+2];
                 strcpy((char*)custom_subscreen[i].objects[j].dp1,(char*)temp_sub->dp1);
                 break;
                 
