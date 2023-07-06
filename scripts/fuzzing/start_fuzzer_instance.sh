@@ -8,4 +8,4 @@ fi
 set -ex
 
 cd /src/build_fuzz
-xvfb-run --auto-servernum afl-fuzz "$@"
+afl-fuzz "$@"

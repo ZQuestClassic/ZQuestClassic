@@ -2673,9 +2673,12 @@ void trigger_secrets_for_screen_internal(int32_t screen_index, mapscr *s, bool d
 							int32_t c=layer_scr->data[i];
 							int32_t cs=layer_scr->cset[i];
 							
-							// TODO z3 !!!
 							if(combobuf[c].type==cSPINTILE1)  //Surely this means we can have spin tiles on layers 3+? Isn't that bad? ~Joe123
-								addenemy(screen_index,(i&15)<<4,i&0xF0,(cs<<12)+eSPINTILE1,combobuf[c].o_tile+zc_max(1,combobuf[c].frames));
+							{
+								int offx = z3_get_region_relative_dx(screen_index) * 256 + COMBOX(i);
+								int offy = z3_get_region_relative_dy(screen_index) * 176 + COMBOY(i);
+								addenemy(screen_index,offx,offy,(cs<<12)+eSPINTILE1,combobuf[c].o_tile+zc_max(1,combobuf[c].frames));
+							}
 						}
 					}
 					
