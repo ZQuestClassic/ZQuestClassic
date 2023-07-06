@@ -5531,7 +5531,7 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 	if (destdmap < 0) destdmap = currdmap;
 
 	triggered_screen_secrets = false;
-	// init_combo_timers();
+	slopes.clear();
 	timeExitAllGenscript(GENSCR_ST_CHANGE_SCREEN);
 	
 	clear_to_color(darkscr_bmp_curscr, game->get_darkscr_color());
@@ -5567,24 +5567,34 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 	FFCore.deallocateAllArrays(ScriptType::Screen, 0);
 	FFCore.deallocateAllArrays(ScriptType::Combo, 0);
 
-	if (orig_destdmap != -1)
+	if (replay_is_active())
 	{
-		if (strlen(DMaps[orig_destdmap].name) > 0)
+		if (replay_get_mode() == ReplayMode::ManualTakeover)
+			replay_stop_manual_takeover();
+
+		if (orig_destdmap != -1)
 		{
-			replay_step_comment(fmt::format("dmap={} {}", orig_destdmap, DMaps[orig_destdmap].name));
+			if (strlen(DMaps[orig_destdmap].name) > 0)
+			{
+				replay_step_comment(fmt::format("dmap={} {}", orig_destdmap, DMaps[orig_destdmap].name));
+			}
+			else
+			{
+				replay_step_comment(fmt::format("dmap={}", orig_destdmap));
+			}
 		}
-		else
-		{
-			replay_step_comment(fmt::format("dmap={}", orig_destdmap));
-		}
+		replay_step_comment_loadscr(scr);
+
+		// Reset the rngs and frame count so that recording steps can be modified without impacting
+		// behavior of later screens.
+		replay_sync_rng();
 	}
-	replay_step_comment_loadscr(scr);
 
 	// Load the origin screen (top-left in region) into tmpscr.
-	loadscr_old(0, orig_destdmap, cur_origin_screen_index, ldir, overlay, false);
+	loadscr_old(0, orig_destdmap, cur_origin_screen_index, ldir, overlay);
 	// Store the current tmpscr into special_warp_return_screen, if on a special screen.
 	if (scr >= 0x80)
-		loadscr_old(1, orig_destdmap, homescr, no_x80_dir ? -1 : ldir, overlay, false);
+		loadscr_old(1, orig_destdmap, homescr, no_x80_dir ? -1 : ldir, overlay);
 
 	if (is_z3_scrolling_mode())
 	{
@@ -5632,8 +5642,7 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 	// - lots
 	//
 	// TODO z3 maybe instead- make yofs start as 0 by default, and add playing_field_offset at draw time?
-	// TODO z3 we already loaded the region... so dont use is_a_region
-	if (is_a_region(currdmap, currscr) && is_extended_height_mode())
+	if (is_extended_height_mode())
 	{
 		playing_field_offset = 0;
 		original_playing_field_offset = 0;
@@ -5664,80 +5673,11 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 //      (this is hard)
 //    - do the "overlay" logic (but just for tmpscr, not every single screen in a region) in
 //      load_a_screen_and_layers (this is easy).
-void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay,bool do_setups)
+void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay)
 {
-	auto oscr = homescr;
-	if (do_setups)
-	{
-		homescr = scr;
-	}
-
-	if (replay_is_active() && tmp == 0)
-	{
-		if (replay_get_mode() == ReplayMode::ManualTakeover)
-			replay_stop_manual_takeover();
-
-		if (do_setups)
-		{
-			if (destdmap != -1)
-			{
-				if (strlen(DMaps[destdmap].name) > 0)
-				{
-					replay_step_comment(fmt::format("dmap={} {}", destdmap, DMaps[destdmap].name));
-				}
-				else
-				{
-					replay_step_comment(fmt::format("dmap={}", destdmap));
-				}
-			}
-			replay_step_comment_loadscr(scr);
-		}
-
-		// Reset the rngs and frame count so that recording steps can be modified without impacting
-		// behavior of later screens.
-		replay_sync_rng();
-	}
-
 	bool is_setting_special_warp_return_screen = tmp == 1;
 	int32_t destlvl = DMaps[destdmap < 0 ? currdmap : destdmap].level;
 
-	if (do_setups && !is_setting_special_warp_return_screen)
-	{
-		slopes.clear();
-		triggered_screen_secrets = false; //Reset var
-		init_combo_timers();
-		timeExitAllGenscript(GENSCR_ST_CHANGE_SCREEN);
-	}
-
-	if (do_setups)
-	{
-		clear_to_color(darkscr_bmp_curscr, game->get_darkscr_color());
-		clear_to_color(darkscr_bmp_curscr_trans, game->get_darkscr_color());
-		clear_to_color(darkscr_bmp_scrollscr, game->get_darkscr_color());
-		clear_to_color(darkscr_bmp_scrollscr_trans, game->get_darkscr_color());
-		clear_to_color(darkscr_bmp_z3, game->get_darkscr_color());
-		clear_to_color(darkscr_bmp_z3_trans, game->get_darkscr_color());
-
-		//  introclk=intropos=msgclk=msgpos=dmapmsgclk=0;
-		for(word x=0; x<animated_combos; x++)
-		{
-			if(combobuf[animated_combo_table4[x][0]].nextcombo!=0)
-			{
-				combobuf[animated_combo_table4[x][0]].aclk = 0;
-			}
-		}
-		
-		for(word x=0; x<animated_combos2; x++)
-		{
-			if(combobuf[animated_combo_table24[x][0]].nextcombo!=0)
-			{
-				combobuf[animated_combo_table24[x][0]].aclk = 0;
-			}
-		}
-		
-		reset_combo_animations2();
-	}
-	
 	mapscr previous_scr = tmp == 0 ? tmpscr : special_warp_return_screen;
 	mapscr* screen = tmp == 0 ? &tmpscr : &special_warp_return_screen;
 	*screen = TheMaps[currmap*MAPSCRS+scr];
@@ -5754,15 +5694,6 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 	memcpy(screen->data, TheMaps[currmap*MAPSCRS+scr].data, sizeof(screen->data));
 	memcpy(screen->sflag, TheMaps[currmap*MAPSCRS+scr].sflag, sizeof(screen->sflag));
 	memcpy(screen->cset, TheMaps[currmap*MAPSCRS+scr].cset, sizeof(screen->cset));
-	
-	//screen / screendata script
-	if (do_setups)
-	{
-		FFCore.clear_script_engine_data_of_type(ScriptType::Screen);
-		FFCore.deallocateAllArrays(ScriptType::Screen, scr);
-		FFCore.deallocateAllArrays(ScriptType::Combo, 0);
-		FFCore.clear_combo_scripts();
-	}
 
 	if ( TheMaps[currmap*MAPSCRS+scr].script > 0 )
 	{
@@ -5815,7 +5746,6 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 	// screen has FF carryover enabled.
 	if (!is_setting_special_warp_return_screen)
 	{
-		if (do_setups) init_ffpos();
 		for(word i = 0; i < MAXFFCS; i++)
 		{
 			if((previous_scr.ffcs[i].flags&ffCARRYOVER) && !(previous_scr.flags5&fNOFFCARRYOVER))
@@ -5885,11 +5815,11 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 	}
 
 	// TODO z3 !!!
-	if (!tmp && do_setups)
-	{
-		calculate_trig_groups();
-		trig_trigger_groups();
-	}
+	// if (!tmp && do_setups)
+	// {
+	// 	calculate_trig_groups();
+	// 	trig_trigger_groups();
+	// }
 
 	// Apply perm secrets, if applicable.
 	if(canPermSecret(destdmap,scr)/*||TheMaps[(currmap*MAPSCRS)+currscr].flags6&fTRIGGERFPERM*/)
@@ -5950,11 +5880,11 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 	
 	clear_xstatecombos(screen, scr);
 	
-	if(!tmp && do_setups)
-	{
-		calculate_trig_groups();
-		trig_trigger_groups();
-	}
+	// if(!tmp && do_setups)
+	// {
+	// 	calculate_trig_groups();
+	// 	trig_trigger_groups();
+	// }
 	// check doors
 	if(isdungeon(destdmap,scr))
 	{
@@ -6016,8 +5946,6 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 		}
 	}
 	
-	if (do_setups && tmp == 0) //Reload slopes
-		update_slope_comboposes();
 	for(int32_t j=-1; j<6; ++j)  // j == -1 denotes the current screen
 	{
 		if(j<0 || ((screen->layermap[j]>0)&&(ZCMaps[screen->layermap[j]-1].tileWidth==ZCMaps[currmap].tileWidth) && (ZCMaps[screen->layermap[j]-1].tileHeight==ZCMaps[currmap].tileHeight)))
@@ -6047,20 +5975,6 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 			}
 		}
 	}
-
-	if (do_setups)
-	{
-		game->load_portal();
-		if(!tmp) throwGenScriptEvent(GENSCR_EVENT_CHANGE_SCREEN);
-		if(Hero.lift_wpn && get_bit(quest_rules,qr_CARRYABLE_NO_ACROSS_SCREEN))
-		{
-			delete Hero.lift_wpn;
-			Hero.lift_wpn = nullptr;
-		}
-	}
-
-	if (do_setups)
-		homescr = oscr;
 }
 
 // Screen is being viewed by the Overworld Map viewer.
