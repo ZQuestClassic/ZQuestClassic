@@ -194,7 +194,7 @@ int32_t count_layer_enemies(int screen_index)
 	
 	for(int32_t i=0; i<6; ++i)
 	{
-		if(tmpscr.layermap[i]!=0)
+		if(tmpscr->layermap[i]!=0)
 		{
 			const mapscr* layerscreen = get_canonical_scr(base_screen->layermap[i]-1, base_screen->layerscreen[i]);
 			
@@ -6215,7 +6215,7 @@ void enemy::draw(BITMAP *dest)
 		}	
 	}
 	//Room specific
-	if (tmpscr.flags3&fINVISROOM)
+	if (tmpscr->flags3&fINVISROOM)
 	{
 		if (canSee == DRAW_NORMAL && !(current_item(itype_amulet)) && 
 		!((itemsbuf[Hero.getLastLensID()].flags & ITEM_FLAG5) && lensclk) && family!=eeGANON) canSee = DRAW_CLOAKED;
@@ -6425,7 +6425,7 @@ void enemy::drawzcboss(BITMAP *dest)
 			cs=(((hclk-1)>>1)&3)+6;
 	}
 	
-	if((tmpscr.flags3&fINVISROOM) &&
+	if((tmpscr->flags3&fINVISROOM) &&
 			!(current_item(itype_amulet)) &&
 			!(get_bit(quest_rules,qr_LENSSEESENEMIES) &&
 			  lensclk) && family!=eeGANON)
@@ -6534,7 +6534,7 @@ void enemy::drawshadow(BITMAP *dest, bool translucent)
 		return;
 	}
 	
-	if(((tmpscr.flags3&fINVISROOM)&& !(current_item(itype_amulet)))||
+	if(((tmpscr->flags3&fINVISROOM)&& !(current_item(itype_amulet)))||
 			(darkroom))
 	{
 		return;
@@ -10475,7 +10475,7 @@ void enemy::removearmos(int32_t ax,int32_t ay, word ffcactive)
 	}
 
 	// TODO z3 ?
-	mapscr* scr = &tmpscr;
+	mapscr* scr = tmpscr;
 	if (is_z3_scrolling_mode())
 	{
 		scr = get_screen_for_world_xy(ax, ay);
@@ -11850,7 +11850,7 @@ bool eTrap::trapmove(int32_t ndir)
 {
 	if(get_bit(quest_rules,qr_MEANTRAPS))
 	{
-		if(tmpscr.flags2&fFLOATTRAPS)
+		if(tmpscr->flags2&fFLOATTRAPS)
 			return canmove(ndir,(zfix)1,spw_floater, 0, 0, 15, 15,false);
 			
 		return canmove(ndir,(zfix)1,spw_water, 0, 0, 15, 15,false);
@@ -12117,7 +12117,7 @@ bool eTrap2::animate(int32_t index)
 
 bool eTrap2::trapmove(int32_t ndir)
 {
-	if(tmpscr.flags2&fFLOATTRAPS)
+	if(tmpscr->flags2&fFLOATTRAPS)
 		return canmove(ndir,(zfix)1,spw_floater, 0, 0, 15, 15,false);
 		
 	return canmove(ndir,(zfix)1,spw_water, 0, 0, 15, 15,false);
@@ -12838,7 +12838,7 @@ eZora::eZora(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,0)
 	Clk=Clk;
 	mainguy=false;
 	if (!(editorflags&ENEMY_FLAG3)) count_enemy=false;
-	/*if((x>-17 && x<0) && iswaterex(tmpscr.data[(((int32_t)y&0xF0)+((int32_t)x>>4))]))
+	/*if((x>-17 && x<0) && iswaterex(tmpscr->data[(((int32_t)y&0xF0)+((int32_t)x>>4))]))
 	{
 	  clk=1;
 	}*/
@@ -15829,7 +15829,7 @@ eGanon::eGanon(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	hzsz=16; //can't be jumped.
 	clk2=70;
 	misc=-1;
-	mainguy=(!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr.flags9&fBELOWRETURN));
+	mainguy=(!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr->flags9&fBELOWRETURN));
 }
 
 bool eGanon::animate(int32_t index) //DO NOT ADD a check for do_animation to this version of GANON!! -Z
@@ -17548,7 +17548,7 @@ void eGleeok::draw2(BITMAP *dest)
 	
 	if(hp > 0 && !dont_draw())
 	{
-		if((tmpscr.flags3&fINVISROOM)&& !(current_item(itype_amulet)))
+		if((tmpscr->flags3&fINVISROOM)&& !(current_item(itype_amulet)))
 			sprite::drawcloaked(dest);
 		else
 			sprite::draw(dest);
@@ -17837,14 +17837,14 @@ void esGleeok::draw(BITMAP *dest)
 			{
 				if(get_bit(quest_rules,qr_NEWENEMYTILES))
 				{
-					if((tmpscr.flags3&fINVISROOM)&& !(current_item(itype_amulet)))
+					if((tmpscr->flags3&fINVISROOM)&& !(current_item(itype_amulet)))
 						overtilecloaked16(dest,necktile+(i*dmisc7),nx[i]-4,ny[i]+playing_field_offset,0);
 					else
 						overtile16(dest,necktile+(i*dmisc7),nx[i]-4,ny[i]+playing_field_offset,cs,0);
 				}
 				else
 				{
-					if((tmpscr.flags3&fINVISROOM)&& !(current_item(itype_amulet)))
+					if((tmpscr->flags3&fINVISROOM)&& !(current_item(itype_amulet)))
 						overtilecloaked16(dest,necktile,nx[i]-4,ny[i]+playing_field_offset,0);
 					else
 						overtile16(dest,necktile,nx[i]-4,ny[i]+playing_field_offset,cs,0);
@@ -21121,7 +21121,7 @@ void update_slope_comboposes()
 }
 
 // Everything that must be done before we change a screen's combo to another combo, or a combo's type to another type.
-// There's 2 routines because it's unclear if combobuf or tmpscr.data gets modified. -L
+// There's 2 routines because it's unclear if combobuf or tmpscr->data gets modified. -L
 void screen_combo_modify_preroutine(const rpos_handle_t& rpos_handle)
 {
 	delete_fireball_shooter(rpos_handle);
@@ -21370,10 +21370,10 @@ void script_side_load_enemies()
 {
 	if(script_sle || sle_clk) return;
 	sle_cnt = 0;
-	while(sle_cnt<10 && tmpscr.enemy[sle_cnt]!=0)
+	while(sle_cnt<10 && tmpscr->enemy[sle_cnt]!=0)
 		++sle_cnt;
 	script_sle = true;
-	sle_pattern = tmpscr.pattern;
+	sle_pattern = tmpscr->pattern;
 	sle_clk = 0;
 }
 
@@ -21803,9 +21803,9 @@ bool scriptloadenemies()
 {
 	loaded_enemies = true;
 	if(script_sle || sle_clk) return false;
-	if(tmpscr.pattern==pNOSPAWN) return false;
+	if(tmpscr->pattern==pNOSPAWN) return false;
 	
-	if(tmpscr.pattern==pSIDES || tmpscr.pattern==pSIDESR)
+	if(tmpscr->pattern==pSIDES || tmpscr->pattern==pSIDESR)
 	{
 		script_side_load_enemies();
 		return true;
@@ -21816,10 +21816,10 @@ bool scriptloadenemies()
 	int32_t i=0,guycnt=0;
 	int32_t loadcnt = 10;
 	
-	for(; i<loadcnt && tmpscr.enemy[i]>0; i++)
+	for(; i<loadcnt && tmpscr->enemy[i]>0; i++)
 	{
 		int32_t preguycount = guys.Count(); //I'm not experienced enough to know if this is an awful hack but it feels like one.
-		spawnEnemy(&tmpscr, currscr, pos, clk, x, y, fastguys, i, guycnt, loadcnt);
+		spawnEnemy(tmpscr, currscr, pos, clk, x, y, fastguys, i, guycnt, loadcnt);
 		if (guys.Count() > preguycount)
 		{
 			if (!get_bit(quest_rules, qr_ENEMIES_DONT_SCRIPT_FIRST_FRAME))
@@ -22012,7 +22012,7 @@ void putprices(bool sign)
 	if(fadeclk > 0) return;
 	// refresh what's under the prices
 	// for(int32_t i=5; i<12; i++)
-	//   putcombo(scrollbuf,i<<4,112,tmpscr.data[112+i],tmpscr.cpage);
+	//   putcombo(scrollbuf,i<<4,112,tmpscr->data[112+i],tmpscr->cpage);
 	
 	rectfill(pricesdisplaybuf, 72, 112, pricesdisplaybuf->w-1, pricesdisplaybuf->h-1, 0);
 	int32_t step=32;
@@ -23050,7 +23050,7 @@ void putmsg()
 					{
 						msgfont=get_zc_font(font_zfont);
 						
-						if(tmpscr.room!=rGRUMBLE)
+						if(tmpscr->room!=rGRUMBLE)
 							blockpath=false;
 							
 						dismissmsg();
@@ -23451,7 +23451,7 @@ disappear:
 				//       if (get_bit(quest_rules,qr_REPAIRFIX)) {
 				//         fixed_door=true;
 				//       }
-				game->change_drupy(-(currscr >= 128 ? special_warp_return_screen : tmpscr).catchall);
+				game->change_drupy(-(currscr >= 128 ? special_warp_return_screen : *tmpscr).catchall);
 				repaircharge = 0;
 			}
 			

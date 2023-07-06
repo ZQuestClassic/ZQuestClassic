@@ -563,7 +563,7 @@ void dryuplake()
         {
             if(hiddenstair2(screen, currscr, true))
             {
-                sfx(tmpscr.secretsfx);
+                sfx(tmpscr->secretsfx);
             }
         }
     }

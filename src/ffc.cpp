@@ -15,7 +15,7 @@ extern byte quest_rules[QUESTRULES_NEW_SIZE];
 #include "iter.h"
 
 extern std::vector<newcombo> combobuf;
-extern mapscr tmpscr;
+extern mapscr* tmpscr;
 extern int16_t lensclk;
 extern HeroClass Hero;
 void screen_ffc_modify_postroutine(const ffc_handle_t& ffc_handle);
@@ -72,7 +72,7 @@ void ffcdata::changerCopy(ffcdata& other, int32_t i, int32_t j)
 	flags&=~ffCHANGER;
 	
 	if(combobuf[other.data].flag>15 && combobuf[other.data].flag<32)
-		other.setData(tmpscr.secretcombo[combobuf[other.data].flag-16+4]);
+		other.setData(tmpscr->secretcombo[combobuf[other.data].flag-16+4]);
 	
 	if(i > -1 && j > -1)
 	{
@@ -87,7 +87,7 @@ void ffcdata::changerCopy(ffcdata& other, int32_t i, int32_t j)
 				
 			if(other.flags&ffSWAPPREV)
 				k=j>0?j-1:(MAXFFCS-1);
-			ffcdata& ffck = tmpscr.ffcs[k];
+			ffcdata& ffck = tmpscr->ffcs[k];
 			auto w = ffck.data;
 			ffck.setData(other.data);
 			other.setData(w);

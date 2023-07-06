@@ -266,8 +266,8 @@ void do_generic_combo(const rpos_handle_t& rpos_handle, weapon *w, int32_t wid,
 					//undercombo or next?
 					if((combobuf[cid].usrflags&cflag12))
 					{
-						screen->data[pos] = tmpscr.undercombo;
-						screen->cset[pos] = tmpscr.undercset;
+						screen->data[pos] = tmpscr->undercombo;
+						screen->cset[pos] = tmpscr->undercset;
 						screen->sflag[pos] = 0;	
 					}
 					else
@@ -4402,14 +4402,14 @@ bool weapon::animate(int32_t index)
 			int32_t wrx;
 			
 			if(get_bit(quest_rules,qr_NOARRIVALPOINT))
-				wrx=tmpscr.warpreturnx[0];
-			else wrx=tmpscr.warparrivalx;
+				wrx=tmpscr->warpreturnx[0];
+			else wrx=tmpscr->warparrivalx;
 			
 			int32_t wry;
 			
 			if(get_bit(quest_rules,qr_NOARRIVALPOINT))
-				wry=tmpscr.warpreturny[0];
-			else wry=tmpscr.warparrivaly;
+				wry=tmpscr->warpreturny[0];
+			else wry=tmpscr->warparrivaly;
 			
 			if(specialinfo==1 && dead==-1 && x==(int32_t)wrx && y==(int32_t)wry)
 			{
@@ -7249,7 +7249,7 @@ void weapon::draw(BITMAP *dest)
 		case wSword:
 		case wHammer:
 			if(get_bit(quest_rules,qr_HEROFLICKER)&&((getClock()||HeroHClk())&&(frame&1)) ||
-					Hero.getDontDraw() || tmpscr.flags3&fINVISHERO)
+					Hero.getDontDraw() || tmpscr->flags3&fINVISHERO)
 				return;
 				
 		case wBeam:

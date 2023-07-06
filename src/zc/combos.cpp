@@ -535,7 +535,7 @@ void trigger_cuttable(const rpos_handle_t& rpos_handle)
 			tmp->data[pos] = tmp->secretcombo[sSTAIRS];
 			tmp->cset[pos] = tmp->secretcset[sSTAIRS];
 			tmp->sflag[pos] = tmp->secretflag[sSTAIRS];
-			sfx(tmpscr.secretsfx);
+			sfx(tmpscr->secretsfx);
 		}
 		else if((flag>=mfSWORD && flag<=mfXSWORD) || flag==mfSTRIKE)
 		{
@@ -557,7 +557,7 @@ void trigger_cuttable(const rpos_handle_t& rpos_handle)
 			tmp->data[pos] = tmp->secretcombo[sSTAIRS];
 			tmp->cset[pos] = tmp->secretcset[sSTAIRS];
 			tmp->sflag[pos] = tmp->secretflag[sSTAIRS];
-			sfx(tmpscr.secretsfx);
+			sfx(tmpscr->secretsfx);
 		}
 		else if((flag2>=mfSWORD && flag2<=mfXSWORD)|| flag2==mfSTRIKE)
 		{
@@ -679,15 +679,15 @@ void trigger_cuttable_ffc(const ffc_handle_t& ffc_handle)
 		}
 		else
 		{
-			ffc.setData(tmpscr.undercombo);
-			ffc.cset = tmpscr.undercset;
+			ffc.setData(tmpscr->undercombo);
+			ffc.cset = tmpscr->undercset;
 		}
 	}
 	
-	if((flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr.flags9&fBELOWRETURN)))
+	if((flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr->flags9&fBELOWRETURN)))
 	{
-		items.add(new item((zfix)x, (zfix)y,(zfix)0, tmpscr.catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr.flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
-		sfx(tmpscr.secretsfx);
+		items.add(new item((zfix)x, (zfix)y,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
+		sfx(tmpscr->secretsfx);
 	}
 	else if(isCuttableItemType(type))
 	{
@@ -983,7 +983,7 @@ void trigger_sign(newcombo const& cmb)
 bool trigger_warp(newcombo const& cmb)
 {
 	if(!isWarpType(cmb.type)) return false;
-	mapscr* wscr = currscr >= 128 ? &special_warp_return_screen : &tmpscr;
+	mapscr* wscr = currscr >= 128 ? &special_warp_return_screen : tmpscr;
 	auto index = getWarpLetter(cmb.type);
 	if(index == 4) index = zc_oldrand()%4; //Random warp
 	auto wtype = wscr->tilewarptype[index];
@@ -1025,7 +1025,7 @@ bool trigger_warp(newcombo const& cmb)
 	}
 	
 	auto wflag = 0;
-	if(tmpscr.flags3&fIWARPFULLSCREEN) wflag |= warpFlagDONTCLEARSPRITES;
+	if(tmpscr->flags3&fIWARPFULLSCREEN) wflag |= warpFlagDONTCLEARSPRITES;
 	//Queue the warp for the next frame, as doing anything else breaks terribly
 	FFCore.queueWarp(wtype, tdm, tscr, wx, wy, weff, wsfx, wflag, -1);
 	return true;
@@ -1235,7 +1235,7 @@ bool trigger_chest_ffc(const ffc_handle_t& ffc_handle)
 				break;
 			}
 			case -1:
-				itid = tmpscr.catchall;
+				itid = tmpscr->catchall;
 				break;
 		}
 		if(unsigned(itid) >= MAXITEMS) itid = 0;
@@ -1467,7 +1467,7 @@ bool trigger_armos_grave(const rpos_handle_t& rpos_handle, int32_t trigdir)
 							{
 								chy += 16;
 								if ( pos - chy < 0 ) break; //don't go out of bounds
-								if ( combobuf[(tmpscr.data[pos-chy])].type == cARMOS )
+								if ( combobuf[(tmpscr->data[pos-chy])].type == cARMOS )
 								{
 									ypos -=16;
 								}
@@ -1478,7 +1478,7 @@ bool trigger_armos_grave(const rpos_handle_t& rpos_handle, int32_t trigdir)
 								if ( (pos % 16) == 0 || pos == 0 ) break; //don't wrap rows
 								++chx;
 								if ( pos - chx < 0 ) break; //don't go out of bounds
-								if ( combobuf[(tmpscr.data[pos-chx])].type == cARMOS )
+								if ( combobuf[(tmpscr->data[pos-chx])].type == cARMOS )
 								{
 									xpos -=16;
 								}
@@ -1507,7 +1507,7 @@ bool trigger_armos_grave(const rpos_handle_t& rpos_handle, int32_t trigdir)
 								//zprint("ty2: %d\n", ty2);
 								//zprint("MAPCOMBO(tx2,ty2): %d\n",MAPCOMBO(tx2,ty2));
 								//zprint("MAPCOMBO(tx2-chx,ty2): %d\n",MAPCOMBO(GridX(tx2-chx),ty2));
-								if ( combobuf[(tmpscr.data[pos-chx])].type == cARMOS )
+								if ( combobuf[(tmpscr->data[pos-chx])].type == cARMOS )
 								{
 									//zprint("found match\n");
 									xpos -=16;
@@ -1523,7 +1523,7 @@ bool trigger_armos_grave(const rpos_handle_t& rpos_handle, int32_t trigdir)
 							{
 								chy += 16;
 								if ( pos - chy < 0 ) break; //don't go out of bounds
-								if ( combobuf[(tmpscr.data[pos-chy])].type == cARMOS )
+								if ( combobuf[(tmpscr->data[pos-chy])].type == cARMOS )
 								{
 									ypos -=16;
 								}
@@ -1534,7 +1534,7 @@ bool trigger_armos_grave(const rpos_handle_t& rpos_handle, int32_t trigdir)
 								if ( (pos % 16) == 0 || pos == 0 ) break; //don't wrap rows
 								++chx;
 								if ( pos - chx < 0 ) break; //don't go out of bounds
-								if ( combobuf[(tmpscr.data[pos-chx])].type == cARMOS ) 
+								if ( combobuf[(tmpscr->data[pos-chx])].type == cARMOS ) 
 								{
 									xpos -=16;
 								}
@@ -1550,7 +1550,7 @@ bool trigger_armos_grave(const rpos_handle_t& rpos_handle, int32_t trigdir)
 							{
 								chy += 16;
 								if ( pos - chy < 0 ) break; //don't go out of bounds
-								if ( combobuf[(tmpscr.data[pos-chy])].type == cARMOS ) 
+								if ( combobuf[(tmpscr->data[pos-chy])].type == cARMOS ) 
 								{
 									//zprint("found match\n");
 									ypos -=16;
@@ -1579,7 +1579,7 @@ bool trigger_armos_grave(const rpos_handle_t& rpos_handle, int32_t trigdir)
 				}
 				if (guysbuf[id2].family == eeGHOMA) 
 				{
-					if ( combobuf[(tmpscr.data[pos-chx+1])].type == cARMOS ) xpos += 16;
+					if ( combobuf[(tmpscr->data[pos-chx+1])].type == cARMOS ) xpos += 16;
 				}
 				if(addenemy(rpos_handle.screen_index,tx+xpos,ty+1+ypos,id2,0))
 				{
@@ -1747,7 +1747,7 @@ bool trigger_damage_combo(mapscr* screen, int32_t cid, int type, int ptrval, int
 	bool ignoreBoots = itemid >= 0 && (itemsbuf[itemid].flags & ITEM_FLAG3);
 	if(dmg < 0)
 	{
-		if(itemid < 0 || ignoreBoots || (tmpscr.flags5&fDAMAGEWITHBOOTS)
+		if(itemid < 0 || ignoreBoots || (tmpscr->flags5&fDAMAGEWITHBOOTS)
 			|| (4<<current_item_power(itype_boots)<(abs(dmg)))
 			|| ((force_solid||(cmb.walk&0xF)) && bootsnosolid)
 			|| !(checkbunny(itemid) && checkmagiccost(itemid)))
@@ -2386,7 +2386,7 @@ void trigger_save(newcombo const& cmb)
 			game->set_magic(magic);
 	}
 	// TODO z3 !
-	save_game((tmpscr.flags4&fSAVEROOM) != 0, save_type);
+	save_game((tmpscr->flags4&fSAVEROOM) != 0, save_type);
 }
 
 static byte copycat_id = 0;

@@ -16,7 +16,7 @@ void for_every_screen_in_region(T fn)
 {
 	if (!is_z3_scrolling_mode())
 	{
-		fn(&tmpscr, currscr, 0, 0);
+		fn(tmpscr, currscr, 0, 0);
 		return;
 	}
 

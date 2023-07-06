@@ -63,7 +63,7 @@ void sprite::check_conveyor()
 
 void sprite::handle_sprlighting()
 {
-	if(!(tmpscr.flags & fDARK)) return;
+	if(!(tmpscr->flags & fDARK)) return;
 	if(!get_bit(quest_rules, qr_NEW_DARKROOM)) return;
 	if(!glowRad) return;
 	switch(glowShape)
@@ -150,7 +150,7 @@ void sprite::check_conveyor()
 	if(cmbid < 0) return;
 	newcombo const* cmb = &combobuf[cmbid];
 	bool custom_spd = (cmb->usrflags&cflag2);
-    if(((z==0&&fakez==0) || (tmpscr.flags2&fAIRCOMBOS)))
+    if(((z==0&&fakez==0) || (tmpscr->flags2&fAIRCOMBOS)))
     {
         int32_t ctype=(combobuf[cmbid].type);
         deltax=combo_class_buf[ctype].conveyor_x_speed;

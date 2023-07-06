@@ -478,7 +478,7 @@ char   cheat_goto_screen_str[3]={0};
 int16_t  visited[6]={0};
 std::map<int, byte> activation_counters;
 std::map<int, byte> activation_counters_ffc;
-mapscr tmpscr;
+mapscr* tmpscr = new mapscr();
 mapscr special_warp_return_screen;
 mapscr tmpscr2[6];
 mapscr tmpscr3[6];
@@ -2254,7 +2254,7 @@ int32_t init_game()
 	currcset=DMaps[currdmap].color;
 	darkroom=naturaldark=false;
 	
-	tmpscr.zero_memory();
+	tmpscr->zero_memory();
 	special_warp_return_screen.zero_memory();
 	//clear initialise dmap script 
 	FFCore.reset_script_engine_data(ScriptType::DMap);
@@ -2284,8 +2284,8 @@ int32_t init_game()
 	}
 	
 	loadscr(currdmap, currscr, -1, false);
-	putscr(scrollbuf,0,0,&tmpscr);
-	putscrdoors(scrollbuf,0,0,&tmpscr);
+	putscr(scrollbuf,0,0,tmpscr);
+	putscrdoors(scrollbuf,0,0,tmpscr);
 	
 	//preloaded freeform combos
 	//ffscript_engine(true); Can't do this here! Global arrays haven't been allocated yet... ~Joe
@@ -2518,7 +2518,7 @@ int32_t init_game()
 	show_subscreen_numbers=true;
 	show_subscreen_life=true;
 	dointro();
-	if(!(tmpscr.room==rGANON && !get_bit(quest_rules, qr_GANON_CANT_SPAWN_ON_CONTINUE)))
+	if(!(tmpscr->room==rGANON && !get_bit(quest_rules, qr_GANON_CANT_SPAWN_ON_CONTINUE)))
 	{
 		loadguys();
 	}
@@ -2534,7 +2534,7 @@ int32_t init_game()
 	
 	if(!Quit)
 	{
-		if(tmpscr.room==rGANON && !get_bit(quest_rules, qr_GANON_CANT_SPAWN_ON_CONTINUE))
+		if(tmpscr->room==rGANON && !get_bit(quest_rules, qr_GANON_CANT_SPAWN_ON_CONTINUE))
 		{
 			Hero.ganon_intro();
 		}
@@ -2638,12 +2638,12 @@ int32_t cont_game()
 	whistleclk=-1;
 	currcset=DMaps[currdmap].color;
 	darkroom=naturaldark=false;
-	tmpscr.zero_memory();
+	tmpscr->zero_memory();
 	special_warp_return_screen.zero_memory();
 	
 	loadscr(currdmap, lastentrance, -1, false);
-	putscr(scrollbuf,0,0,&tmpscr);
-	putscrdoors(scrollbuf,0,0,&tmpscr);
+	putscr(scrollbuf,0,0,tmpscr);
+	putscrdoors(scrollbuf,0,0,tmpscr);
 	script_drawing_commands.Clear();
 	
 	//preloaded freeform combos
@@ -2703,7 +2703,7 @@ int32_t cont_game()
 	show_subscreen_numbers=true;
 	show_subscreen_life=true;
 	dointro();
-	if(!(tmpscr.room==rGANON && !get_bit(quest_rules, qr_GANON_CANT_SPAWN_ON_CONTINUE)))
+	if(!(tmpscr->room==rGANON && !get_bit(quest_rules, qr_GANON_CANT_SPAWN_ON_CONTINUE)))
 	{
 		loadguys();
 	}
@@ -2712,14 +2712,14 @@ int32_t cont_game()
 	if(!Quit)
 	{
 		//play_DmapMusic();
-		if(!(tmpscr.room==rGANON && !get_bit(quest_rules, qr_GANON_CANT_SPAWN_ON_CONTINUE))) playLevelMusic();
+		if(!(tmpscr->room==rGANON && !get_bit(quest_rules, qr_GANON_CANT_SPAWN_ON_CONTINUE))) playLevelMusic();
 		
 		if(isdungeon())
 			Hero.stepforward(get_bit(quest_rules,qr_LTTPWALK)?11:12, false);
 			
 		newscr_clk=frame;
 		activated_timed_warp=false;
-		if(tmpscr.room==rGANON && !get_bit(quest_rules, qr_GANON_CANT_SPAWN_ON_CONTINUE))
+		if(tmpscr->room==rGANON && !get_bit(quest_rules, qr_GANON_CANT_SPAWN_ON_CONTINUE))
 		{
 			Hero.ganon_intro();
 		}
@@ -2780,12 +2780,12 @@ void restart_level()
 	ALLOFF();
 	whistleclk=-1;
 	darkroom=naturaldark=false;
-	tmpscr.zero_memory();
+	tmpscr->zero_memory();
 	special_warp_return_screen.zero_memory();
 	
 	loadscr(currdmap, currscr, -1, false);
-	putscr(scrollbuf,0,0,&tmpscr);
-	putscrdoors(scrollbuf,0,0,&tmpscr);
+	putscr(scrollbuf,0,0,tmpscr);
+	putscrdoors(scrollbuf,0,0,tmpscr);
 	//preloaded freeform combos
 	ffscript_engine(true);
 	
@@ -2811,7 +2811,7 @@ void restart_level()
 	Hero.trySideviewLadder();
 	show_subscreen_numbers=true;
 	show_subscreen_life=true;
-	if(!(tmpscr.room==rGANON && !get_bit(quest_rules, qr_GANON_CANT_SPAWN_ON_CONTINUE)))
+	if(!(tmpscr->room==rGANON && !get_bit(quest_rules, qr_GANON_CANT_SPAWN_ON_CONTINUE)))
 	{
 		loadguys();
 	}
@@ -2819,14 +2819,14 @@ void restart_level()
 	if(!Quit)
 	{
 		//play_DmapMusic();
-		if(!(tmpscr.room==rGANON && !get_bit(quest_rules, qr_GANON_CANT_SPAWN_ON_CONTINUE))) playLevelMusic();
+		if(!(tmpscr->room==rGANON && !get_bit(quest_rules, qr_GANON_CANT_SPAWN_ON_CONTINUE))) playLevelMusic();
 		
 		if(isdungeon())
 			Hero.stepforward(get_bit(quest_rules,qr_LTTPWALK)?11:12, false);
 			
 		newscr_clk=frame;
 		activated_timed_warp=false;
-		if(tmpscr.room==rGANON && !get_bit(quest_rules, qr_GANON_CANT_SPAWN_ON_CONTINUE))
+		if(tmpscr->room==rGANON && !get_bit(quest_rules, qr_GANON_CANT_SPAWN_ON_CONTINUE))
 		{
 			Hero.ganon_intro();
 		}
@@ -2891,14 +2891,14 @@ void show_ffscript_names()
 {
 	int32_t ypos = 8;
 	
-	word c = tmpscr.numFFC();
+	word c = tmpscr->numFFC();
 	for(word i=0; i< c; i++)
 	{
 		// TODO z3 ffc
 		if(ypos > 224) break;
-		if(tmpscr.ffcs[i].script)
+		if(tmpscr->ffcs[i].script)
 		{
-			textout_shadowed_ex(framebuf,font, ffcmap[tmpscr.ffcs[i].script-1].scriptname.c_str(),2,ypos,WHITE,BLACK,-1);
+			textout_shadowed_ex(framebuf,font, ffcmap[tmpscr->ffcs[i].script-1].scriptname.c_str(),2,ypos,WHITE,BLACK,-1);
 			ypos+=12;
 		}
 	}
@@ -4073,7 +4073,7 @@ int32_t get_bmaps(int32_t si)
 
 bool no_subscreen()
 {
-    return (tmpscr.flags3&fNOSUBSCR)!=0;
+    return (tmpscr->flags3&fNOSUBSCR)!=0;
 }
 
 bool isMonochrome(){
@@ -5698,7 +5698,7 @@ reload_for_replay_file:
 			goto reload_for_replay_file;
 		}
 		
-		tmpscr.flags3=0;
+		tmpscr->flags3=0;
 		Playing=Paused=false;
 		//Clear active script array ownership
 		FFCore.deallocateAllArrays(ScriptType::Global, GLOBAL_SCRIPT_GAME);
@@ -6118,7 +6118,7 @@ void quit_game()
 bool isSideViewGravity(int32_t t)
 {
 	if (t == 1) return (((special_warp_return_screen.flags7 & fSIDEVIEW)!=0) != (DMaps[currdmap].sideview));
-	return (((tmpscr.flags7 & fSIDEVIEW)!=0) != (DMaps[currdmap].sideview));
+	return (((tmpscr->flags7 & fSIDEVIEW)!=0) != (DMaps[currdmap].sideview));
 }
 
 bool isSideViewHero(int32_t t)

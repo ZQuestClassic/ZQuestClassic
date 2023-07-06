@@ -3560,7 +3560,7 @@ int32_t whichlayer(int32_t scr)
 {
 	for(int32_t i = 0; i < 6; i++)
 	{
-		if(scr == (tmpscr.layermap[i] - 1) * MAPSCRS + tmpscr.layerscreen[i])
+		if(scr == (tmpscr->layermap[i] - 1) * MAPSCRS + tmpscr->layerscreen[i])
 			return i;
 	}
 	
@@ -8933,7 +8933,7 @@ int32_t get_register(const int32_t arg)
 			else
 			{
 				if(scr==(currmap*MAPSCRS+currscr))
-					ret=tmpscr.data[pos]*10000;
+					ret=tmpscr->data[pos]*10000;
 				else if(layr>-1)
 					ret=tmpscr2[layr].data[pos]*10000;
 				else ret=TheMaps[scr].data[pos]*10000;
@@ -8976,7 +8976,7 @@ int32_t get_register(const int32_t arg)
 			else
 			{
 				if(scr==(currmap*MAPSCRS+currscr))
-					ret=tmpscr.cset[pos]*10000;
+					ret=tmpscr->cset[pos]*10000;
 				else if(layr>-1)
 					ret=tmpscr2[layr].cset[pos]*10000;
 				else ret=TheMaps[scr].cset[pos]*10000;
@@ -9018,7 +9018,7 @@ int32_t get_register(const int32_t arg)
 			else
 			{
 				if(scr==(currmap*MAPSCRS+currscr))
-					ret=tmpscr.sflag[pos]*10000;
+					ret=tmpscr->sflag[pos]*10000;
 				else if(layr>-1)
 					ret=tmpscr2[layr].sflag[pos]*10000;
 				else ret=TheMaps[scr].sflag[pos]*10000;
@@ -9061,7 +9061,7 @@ int32_t get_register(const int32_t arg)
 			else
 			{
 				if(scr==(currmap*MAPSCRS+currscr))
-					ret=combobuf[tmpscr.data[pos]].type*10000;
+					ret=combobuf[tmpscr->data[pos]].type*10000;
 				else if(layr>-1)
 					ret=combobuf[tmpscr2[layr].data[pos]].type*10000;
 				else ret=combobuf[
@@ -9104,7 +9104,7 @@ int32_t get_register(const int32_t arg)
 			else
 					{
 				if(scr==(currmap*MAPSCRS+currscr))
-					ret=combobuf[tmpscr.data[pos]].flag*10000;
+					ret=combobuf[tmpscr->data[pos]].flag*10000;
 				else if(layr>-1)
 					ret=combobuf[tmpscr2[layr].data[pos]].flag*10000;
 				else ret=combobuf[TheMaps[scr].data[pos]].flag*10000;
@@ -9146,7 +9146,7 @@ int32_t get_register(const int32_t arg)
 			else
 			{
 				if(scr==(currmap*MAPSCRS+currscr))
-					ret=(combobuf[tmpscr.data[pos]].walk&15)*10000;
+					ret=(combobuf[tmpscr->data[pos]].walk&15)*10000;
 				else if(layr>-1)
 					ret=(combobuf[tmpscr2[layr].data[pos]].walk&15)*10000;
 				else ret=(combobuf[TheMaps[scr].data[pos]].walk&15)*10000;
@@ -9163,35 +9163,35 @@ int32_t get_register(const int32_t arg)
 		
 			#define	GET_SCREENDATA_VAR_INT32(member, str) \
 		{ \
-			ret = (tmpscr.member *10000); \
+			ret = (tmpscr->member *10000); \
 		} \
 
 		#define	GET_SCREENDATA_VAR_INT16(member, str) \
 		{ \
-			ret = (tmpscr.member *10000); \
+			ret = (tmpscr->member *10000); \
 		} \
 
 		#define	GET_SCREENDATA_VAR_BYTE(member, str) \
 		{ \
-			ret = (tmpscr.member *10000); \
+			ret = (tmpscr->member *10000); \
 		} \
 		
 		#define GET_SCREENDATA_VAR_INDEX32(member, str, indexbound) \
 		{ \
 			int32_t indx = ri->d[rINDEX] / 10000; \
-			ret = (tmpscr.member[indx] *10000); \
+			ret = (tmpscr->member[indx] *10000); \
 		} \
 		
 		#define GET_SCREENDATA_VAR_INDEX16(member, str, indexbound) \
 		{ \
 			int32_t indx = ri->d[rINDEX] / 10000; \
-			ret = (tmpscr.member[indx] *10000); \
+			ret = (tmpscr->member[indx] *10000); \
 		} \
 		
 		#define GET_SCREENDATA_BYTE_INDEX(member, str, indexbound) \
 		{ \
 			int32_t indx = ri->d[rINDEX] / 10000; \
-			ret = (tmpscr.member[indx] *10000); \
+			ret = (tmpscr->member[indx] *10000); \
 		} \
 		
 		//byte
@@ -9206,7 +9206,7 @@ int32_t get_register(const int32_t arg)
 			} \
 			else \
 			{ \
-				ret = (tmpscr.member[indx-1] *10000); \
+				ret = (tmpscr->member[indx-1] *10000); \
 			} \
 		} \
 		
@@ -9221,7 +9221,7 @@ int32_t get_register(const int32_t arg)
 			} \
 			else \
 			{ \
-				ret = (tmpscr.member[indx]?10000:0); \
+				ret = (tmpscr->member[indx]?10000:0); \
 			} \
 		} \
 
@@ -9243,7 +9243,7 @@ int32_t get_register(const int32_t arg)
 		#define GET_SCREENDATA_FLAG(member, str, indexbound) \
 		{ \
 			int32_t flag =  (value/10000);  \
-			ret = (tmpscr.member&flag) ? 10000 : 0); \
+			ret = (tmpscr->member&flag) ? 10000 : 0); \
 		} \
 		
 		case SCREENDATAVALID:		GET_SCREENDATA_VAR_BYTE(valid, "Valid"); break;		//b
@@ -9252,8 +9252,8 @@ int32_t get_register(const int32_t arg)
 		case SCREENDATAROOM: 		GET_SCREENDATA_VAR_BYTE(room, "RoomType");	break;		//b
 		case SCREENDATAITEM:
 		{
-			if(tmpscr.hasitem)
-				ret = (tmpscr.item *10000);
+			if(tmpscr->hasitem)
+				ret = (tmpscr->item *10000);
 			else ret = -10000;
 			break;
 		}
@@ -9304,7 +9304,7 @@ int32_t get_register(const int32_t arg)
 			}
 			else
 			{
-				ret = ((tmpscr.hidelayers >> indx) & 1) *10000;
+				ret = ((tmpscr->hidelayers >> indx) & 1) *10000;
 			}
 			break;
 		}
@@ -9318,7 +9318,7 @@ int32_t get_register(const int32_t arg)
 			}
 			else
 			{
-				ret = ((tmpscr.hidescriptlayers >> indx) & 1) ? 0 : 10000;
+				ret = ((tmpscr->hidescriptlayers >> indx) & 1) ? 0 : 10000;
 			}
 			break;
 		}
@@ -9376,7 +9376,7 @@ int32_t get_register(const int32_t arg)
 		case SCREENDATAHOLDUPSFX:	 	GET_SCREENDATA_VAR_BYTE(holdupsfx,	"ItemSFX"); break; //B
 		case SCREENDATASCREENMIDI:
 		{
-			ret = ((tmpscr.screen_midi+(MIDIOFFSET_MAPSCR-MIDIOFFSET_ZSCRIPT)) *10000);
+			ret = ((tmpscr->screen_midi+(MIDIOFFSET_MAPSCR-MIDIOFFSET_ZSCRIPT)) *10000);
 			break;
 		}
 		case SCREENDATALENSLAYER:	 	GET_SCREENDATA_VAR_BYTE(lens_layer, "LensLayer"); break;	//B, OLD QUESTS ONLY?
@@ -9385,8 +9385,8 @@ int32_t get_register(const int32_t arg)
 		{
 			int32_t indx = ri->d[rINDEX] / 10000;
 			
-			ret = (((tmpscr.flags2 >> indx) & 1)
-				? (tmpscr.sidewarpindex >> (2*indx)) & 3 //Return which warp is set
+			ret = (((tmpscr->flags2 >> indx) & 1)
+				? (tmpscr->sidewarpindex >> (2*indx)) & 3 //Return which warp is set
 				: -1 //Returns -1 if no warp is set
 				)*10000;
 			break;
@@ -9402,7 +9402,7 @@ int32_t get_register(const int32_t arg)
 			}
 			else
 			{
-				ret = (tmpscr.tilewarpoverlayflags & (1<<indx))?10000:0;
+				ret = (tmpscr->tilewarpoverlayflags & (1<<indx))?10000:0;
 			}
 			break;
 		}
@@ -9417,7 +9417,7 @@ int32_t get_register(const int32_t arg)
 			}
 			else
 			{
-				ret = (tmpscr.sidewarpoverlayflags & (1<<indx))?10000:0;
+				ret = (tmpscr->sidewarpoverlayflags & (1<<indx))?10000:0;
 			}
 			break;
 		}
@@ -9433,7 +9433,7 @@ int32_t get_register(const int32_t arg)
 			}
 			else 
 			{
-				ret = ((tmpscr.warpreturnc>>(indx*2))&3) * 10000;
+				ret = ((tmpscr->warpreturnc>>(indx*2))&3) * 10000;
 			}
 			break;
 		}
@@ -9450,7 +9450,7 @@ int32_t get_register(const int32_t arg)
 			}
 			else 
 			{
-				ret = ((tmpscr.warpreturnc>>(8+(indx*2)))&3) * 10000;
+				ret = ((tmpscr->warpreturnc>>(8+(indx*2)))&3) * 10000;
 			}
 			break;
 		}
@@ -9461,16 +9461,16 @@ int32_t get_register(const int32_t arg)
 			//bool valtrue = ( value ? 10000 : 0);
 			switch(flagid)
 			{
-				case 0: ret = (tmpscr.flags * 10000); break;
-				case 1: ret = (tmpscr.flags2 * 10000); break;
-				case 2: ret = (tmpscr.flags3 * 10000); break;
-				case 3: ret = (tmpscr.flags4 * 10000); break;
-				case 4: ret = (tmpscr.flags5 * 10000); break;
-				case 5: ret = (tmpscr.flags6 * 10000); break;
-				case 6: ret = (tmpscr.flags7 * 10000); break;
-				case 7: ret = (tmpscr.flags8 * 10000); break;
-				case 8: ret = (tmpscr.flags9 * 10000); break;
-				case 9: ret = (tmpscr.flags10 * 10000); break;
+				case 0: ret = (tmpscr->flags * 10000); break;
+				case 1: ret = (tmpscr->flags2 * 10000); break;
+				case 2: ret = (tmpscr->flags3 * 10000); break;
+				case 3: ret = (tmpscr->flags4 * 10000); break;
+				case 4: ret = (tmpscr->flags5 * 10000); break;
+				case 5: ret = (tmpscr->flags6 * 10000); break;
+				case 6: ret = (tmpscr->flags7 * 10000); break;
+				case 7: ret = (tmpscr->flags8 * 10000); break;
+				case 8: ret = (tmpscr->flags9 * 10000); break;
+				case 9: ret = (tmpscr->flags10 * 10000); break;
 				default:
 				{
 					Z_scripterrlog("Invalid index passed to mapdata->flags[]: %d\n", flagid); 
@@ -9515,15 +9515,15 @@ int32_t get_register(const int32_t arg)
 			break;
 			
 		case SCRDOORD:
-			ret=tmpscr.door[ri->d[rINDEX]/10000]*10000;
+			ret=tmpscr->door[ri->d[rINDEX]/10000]*10000;
 			break;
 		
 		case SCREENSCRIPT:
-			ret=tmpscr.script*10000;
+			ret=tmpscr->script*10000;
 			break;
 		
 		case SCREENINITD:
-			ret = tmpscr.screeninitd[ri->d[rINDEX]/10000];
+			ret = tmpscr->screeninitd[ri->d[rINDEX]/10000];
 			break;
 		
 		case MAPDATAINITDARRAY:
@@ -9655,11 +9655,11 @@ int32_t get_register(const int32_t arg)
 			break;
 			
 		case SCREENFLAGSD:
-			ret = get_screenflags(&tmpscr,vbound(ri->d[rINDEX] / 10000,0,9));
+			ret = get_screenflags(tmpscr,vbound(ri->d[rINDEX] / 10000,0,9));
 			break;
 			
 		case SCREENEFLAGSD:
-			ret = get_screeneflags(&tmpscr,vbound(ri->d[rINDEX] / 10000,0,2));
+			ret = get_screeneflags(tmpscr,vbound(ri->d[rINDEX] / 10000,0,2));
 			break;
 			
 		case NPCCOUNT:
@@ -9667,11 +9667,11 @@ int32_t get_register(const int32_t arg)
 			break;
 			
 		case ROOMDATA:
-			ret = tmpscr.catchall*10000;
+			ret = tmpscr->catchall*10000;
 			break;
 			
 		case ROOMTYPE:
-			ret = tmpscr.room*10000;
+			ret = tmpscr->room*10000;
 			break;
 			
 		case PUSHBLOCKX:
@@ -9695,11 +9695,11 @@ int32_t get_register(const int32_t arg)
 			break;
 			
 		case UNDERCOMBO:
-			ret = tmpscr.undercombo*10000;
+			ret = tmpscr->undercombo*10000;
 			break;
 			
 		case UNDERCSET:
-			ret = tmpscr.undercset*10000;
+			ret = tmpscr->undercset*10000;
 			break;
 		
 		//Creates an lweapon using an iemdata struct values to generate its properties.
@@ -19094,7 +19094,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		
 		else
-			tmpscr.sflag[pos]=(val);
+			tmpscr->sflag[pos]=(val);
 	}
 	break;
     
@@ -19112,7 +19112,7 @@ void set_register(int32_t arg, int32_t value)
 		}
         else
         {
-			auto cid = tmpscr.data[pos];
+			auto cid = tmpscr->data[pos];
             screen_combo_modify_pre(cid);
             combobuf[cid].type=val;
             screen_combo_modify_post(cid);
@@ -19134,7 +19134,7 @@ void set_register(int32_t arg, int32_t value)
 	}
         
         else
-            combobuf[tmpscr.data[pos]].flag=val;
+            combobuf[tmpscr->data[pos]].flag=val;
     }
     break;
     
@@ -19152,8 +19152,8 @@ void set_register(int32_t arg, int32_t value)
 		}
         else
 		{
-			combobuf[tmpscr.data[pos]].walk &= ~0x0F;
-            combobuf[tmpscr.data[pos]].walk |= (val)&0x0F;
+			combobuf[tmpscr->data[pos]].walk &= ~0x0F;
+            combobuf[tmpscr->data[pos]].walk |= (val)&0x0F;
 		}
     }
     break;
@@ -19172,8 +19172,8 @@ void set_register(int32_t arg, int32_t value)
 		}
         else
 		{
-			combobuf[tmpscr.data[pos]].walk &= ~0xF0;
-            combobuf[tmpscr.data[pos]].walk |= ((val)&0x0F)<<4;
+			combobuf[tmpscr->data[pos]].walk &= ~0xF0;
+            combobuf[tmpscr->data[pos]].walk |= ((val)&0x0F)<<4;
 		}
     }
     break;
@@ -19261,7 +19261,7 @@ void set_register(int32_t arg, int32_t value)
 			int32_t combo = vbound(value/10000,0,MAXCOMBOS);
 			if(scr==(currmap*MAPSCRS+currscr))
 			{
-				screen_combo_modify_preroutine({&tmpscr, currscr, 0, (rpos_t)pos});
+				screen_combo_modify_preroutine({tmpscr, currscr, 0, (rpos_t)pos});
 				
 			}
 				
@@ -19269,8 +19269,8 @@ void set_register(int32_t arg, int32_t value)
 			
 			if(scr==(currmap*MAPSCRS+currscr))
 			{
-				tmpscr.data[pos] = combo;
-				screen_combo_modify_postroutine({&tmpscr, currscr, 0, (rpos_t)pos});
+				tmpscr->data[pos] = combo;
+				screen_combo_modify_postroutine({tmpscr, currscr, 0, (rpos_t)pos});
 				//Start the script for the new combo
 				int index = get_combopos_ref((rpos_t)pos, 0);
 				FFCore.reset_script_engine_data(ScriptType::Combo, index);
@@ -19320,7 +19320,7 @@ void set_register(int32_t arg, int32_t value)
 			TheMaps[scr].cset[pos]=(value/10000)&15;
 			
 			if(scr==(currmap*MAPSCRS+currscr))
-				tmpscr.cset[pos] = value/10000;
+				tmpscr->cset[pos] = value/10000;
 				
 			int32_t layr = whichlayer(scr);
 			
@@ -19362,7 +19362,7 @@ void set_register(int32_t arg, int32_t value)
 			TheMaps[scr].sflag[pos]=value/10000;
 			
 			if(scr==(currmap*MAPSCRS+currscr))
-				tmpscr.sflag[pos] = value/10000;
+				tmpscr->sflag[pos] = value/10000;
 				
 			int32_t layr = whichlayer(scr);
 			
@@ -19473,35 +19473,35 @@ void set_register(int32_t arg, int32_t value)
 		
 			#define	SET_SCREENDATA_VAR_INT32(member, str) \
 		{ \
-			tmpscr.member = vbound((value / 10000),-214747,214747); \
+			tmpscr->member = vbound((value / 10000),-214747,214747); \
 		} \
 		
 		#define	SET_SCREENDATA_VAR_INT16(member, str) \
 		{ \
-			tmpscr.member = vbound((value / 10000),0,32767); \
+			tmpscr->member = vbound((value / 10000),0,32767); \
 		} \
 
 		#define	SET_SCREENDATA_VAR_BYTE(member, str) \
 		{ \
-			tmpscr.member = vbound((value / 10000),0,255); \
+			tmpscr->member = vbound((value / 10000),0,255); \
 		} \
 		
 		#define SET_SCREENDATA_VAR_INDEX32(member, str, indexbound) \
 		{ \
 			int32_t indx = ri->d[rINDEX] / 10000; \
-			tmpscr.member[indx] = vbound((value / 10000),-214747,214747); \
+			tmpscr->member[indx] = vbound((value / 10000),-214747,214747); \
 		} \
 		
 		#define SET_SCREENDATA_VAR_INDEX16(member, str, indexbound) \
 		{ \
 			int32_t indx = ri->d[rINDEX] / 10000; \
-			tmpscr.member[indx] = vbound((value / 10000),-32767,32767); \
+			tmpscr->member[indx] = vbound((value / 10000),-32767,32767); \
 		} \
 
 		#define SET_SCREENDATA_BYTE_INDEX(member, str, indexbound) \
 		{ \
 			int32_t indx = ri->d[rINDEX] / 10000; \
-			tmpscr.member[indx] = vbound((value / 10000),0,255); \
+			tmpscr->member[indx] = vbound((value / 10000),0,255); \
 		}
 		#define SET_SCREENDATA_LAYER_INDEX(member, str, indexbound) \
 		{ \
@@ -19511,7 +19511,7 @@ void set_register(int32_t arg, int32_t value)
 			{ \
 				Z_scripterrlog("Invalid Index passed to mapdata->%s[]: %d\n", str, indx); \
 			} \
-			else tmpscr.member[indx-1] = vbound((value / 10000),0,255); \
+			else tmpscr->member[indx-1] = vbound((value / 10000),0,255); \
 		}
 		///max screen id is higher! vbound properly... -Z
 		#define SET_SCREENDATA_LAYERSCREEN_INDEX(member, str, indexbound) \
@@ -19528,7 +19528,7 @@ void set_register(int32_t arg, int32_t value)
 				Z_scripterrlog("Script attempted to use a mapdata->LayerScreen[%d].\n",scrn_id); \
 				Z_scripterrlog("Valid Screen values are (0) through (%d).\n",MAPSCRS); \
 			} \
-			else tmpscr.member[indx-1] = vbound((scrn_id),0,MAPSCRS); \
+			else tmpscr->member[indx-1] = vbound((scrn_id),0,MAPSCRS); \
 		}
 		
 		#define SET_SCREENDATA_FLAG(member, str) \
@@ -19536,9 +19536,9 @@ void set_register(int32_t arg, int32_t value)
 			int32_t flag =  (value/10000);  \
 			if ( flag != 0 ) \
 			{ \
-				tmpscr.member|=flag; \
+				tmpscr->member|=flag; \
 			} \
-			else tmpscr..member|= ~flag; \
+			else tmpscr->.member|= ~flag; \
 		} \
 		
 		#define SET_SCREENDATA_BOOL_INDEX(member, str, indexbound) \
@@ -19549,7 +19549,7 @@ void set_register(int32_t arg, int32_t value)
 				Z_scripterrlog("Invalid Index passed to Screen->%s[]: %d\n", (indx), str); \
 				break; \
 			} \
-			tmpscr.member[indx] =( (value/10000) ? 1 : 0 ); \
+			tmpscr->member[indx] =( (value/10000) ? 1 : 0 ); \
 		}
 
 		#define SET_FFC_BOOL_INDEX(member, str, indexbound) \
@@ -19572,8 +19572,8 @@ void set_register(int32_t arg, int32_t value)
 		{
 			auto v = vbound((value / 10000),-1,255);
 			if(v > -1)
-				tmpscr.item = v;
-			tmpscr.hasitem = v > -1;
+				tmpscr->item = v;
+			tmpscr->hasitem = v > -1;
 			break;
 		}
 		case SCREENDATAHASITEM: 		SET_SCREENDATA_VAR_BYTE(hasitem, "HasItem"); break;	//b
@@ -19607,7 +19607,7 @@ void set_register(int32_t arg, int32_t value)
 				Z_scripterrlog("Invalid index (%d) used for Screen->Enemy[]", indx);
 				break;
 			}
-			tmpscr.enemy[indx] = enemyid; 
+			tmpscr->enemy[indx] = enemyid; 
 			break;
 		} 
 		//case SCREENDATAENEMY: 		SET_SCREENDATA_VAR_INDEX32(enemy, "Enemy", 9); break;	//w, 10 of these
@@ -19640,9 +19640,9 @@ void set_register(int32_t arg, int32_t value)
 			else
 			{
 				if(value)
-					tmpscr.hidelayers |= (1<<indx);
+					tmpscr->hidelayers |= (1<<indx);
 				else
-					tmpscr.hidelayers &= ~(1<<indx);
+					tmpscr->hidelayers &= ~(1<<indx);
 			}
 			break;
 		}
@@ -19656,9 +19656,9 @@ void set_register(int32_t arg, int32_t value)
 			else
 			{
 				if(value)
-					tmpscr.hidescriptlayers &= ~(1<<indx);
+					tmpscr->hidescriptlayers &= ~(1<<indx);
 				else
-					tmpscr.hidescriptlayers |= (1<<indx);
+					tmpscr->hidescriptlayers |= (1<<indx);
 			}
 			break;
 		}
@@ -19672,8 +19672,8 @@ void set_register(int32_t arg, int32_t value)
 			}
 			else
 			{
-				if ( value ) tmpscr.tilewarpoverlayflags |= (1<<indx);
-				else tmpscr.tilewarpoverlayflags &= ~(1<<indx);
+				if ( value ) tmpscr->tilewarpoverlayflags |= (1<<indx);
+				else tmpscr->tilewarpoverlayflags &= ~(1<<indx);
 			}
 			break;
 		}
@@ -19687,8 +19687,8 @@ void set_register(int32_t arg, int32_t value)
 			}
 			else
 			{
-				if ( value ) tmpscr.sidewarpoverlayflags |= (1<<indx);
-				else tmpscr.sidewarpoverlayflags &= ~(1<<indx);
+				if ( value ) tmpscr->sidewarpoverlayflags |= (1<<indx);
+				else tmpscr->sidewarpoverlayflags &= ~(1<<indx);
 			}
 			break;
 		}
@@ -19706,7 +19706,7 @@ void set_register(int32_t arg, int32_t value)
 		case SCREENDATAENTRYX: 		
 		{
 			int32_t newx = vbound((value/10000),0,255);
-			tmpscr.entry_x = newx;
+			tmpscr->entry_x = newx;
 			if ( get_bit(quest_rules, qr_WRITE_ENTRYPOINTS_AFFECTS_HEROCLASS) )
 			{
 				Hero.respawn_x = (zfix)(newx);
@@ -19717,7 +19717,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			
 			int32_t newy = vbound((value/10000),0,175);
-			tmpscr.entry_y = newy;
+			tmpscr->entry_y = newy;
 			if ( get_bit(quest_rules, qr_WRITE_ENTRYPOINTS_AFFECTS_HEROCLASS) )
 			{
 				Hero.respawn_y = (zfix)(newy);
@@ -19748,11 +19748,11 @@ void set_register(int32_t arg, int32_t value)
 		case SCREENDATAOCEANSFX:
 		{
 			int32_t v = vbound(value/10000, 0, 255);
-			if(tmpscr.oceansfx != v)
+			if(tmpscr->oceansfx != v)
 			{
-				stop_sfx(tmpscr.oceansfx);
-				tmpscr.oceansfx = v;
-				cont_sfx(tmpscr.oceansfx);
+				stop_sfx(tmpscr->oceansfx);
+				tmpscr->oceansfx = v;
+				cont_sfx(tmpscr->oceansfx);
 			}
 			break;
 		}
@@ -19761,7 +19761,7 @@ void set_register(int32_t arg, int32_t value)
 		case SCREENDATAHOLDUPSFX:	 	SET_SCREENDATA_VAR_BYTE(holdupsfx,	"ItemSFX"); break; //B
 		case SCREENDATASCREENMIDI:
 		{
-			tmpscr.screen_midi = vbound((value / 10000)-(MIDIOFFSET_MAPSCR-MIDIOFFSET_ZSCRIPT),-1,32767);
+			tmpscr->screen_midi = vbound((value / 10000)-(MIDIOFFSET_MAPSCR-MIDIOFFSET_ZSCRIPT),-1,32767);
 			break;
 		}
 		case SCREENDATALENSLAYER:	 	SET_SCREENDATA_VAR_BYTE(lens_layer, "LensLayer"); break;	//B, OLD QUESTS ONLY?
@@ -19773,14 +19773,14 @@ void set_register(int32_t arg, int32_t value)
 			int32_t new_warp_return = vbound((value / 10000),-1,3); //none, A, B, C, D
 			if(new_warp_return == -1)
 			{
-				tmpscr.flags2 &= ~(1<<indx); //Unset the "Enabled" flag for this dir
-				tmpscr.sidewarpindex &= ~(3<<(2*indx)); //Clear the dir as well.
+				tmpscr->flags2 &= ~(1<<indx); //Unset the "Enabled" flag for this dir
+				tmpscr->sidewarpindex &= ~(3<<(2*indx)); //Clear the dir as well.
 			}
 			else
 			{
-				tmpscr.flags2 |= 1<<indx; //Set the "Enabled" flag for this dir
-				tmpscr.sidewarpindex &= ~(3<<(2*indx)); //Clear the dir bits
-				tmpscr.sidewarpindex |= (new_warp_return<<(2*indx)); //Set the new dir
+				tmpscr->flags2 |= 1<<indx; //Set the "Enabled" flag for this dir
+				tmpscr->sidewarpindex &= ~(3<<(2*indx)); //Clear the dir bits
+				tmpscr->sidewarpindex |= (new_warp_return<<(2*indx)); //Set the new dir
 			}
 			
 			break;
@@ -19796,7 +19796,7 @@ void set_register(int32_t arg, int32_t value)
 			else
 			{
 				int32_t wrindex = vbound(value/10000, 0, 3);
-				tmpscr.warpreturnc = (tmpscr.warpreturnc&~(3<<(indx*2))) | (wrindex<<(indx*2));
+				tmpscr->warpreturnc = (tmpscr->warpreturnc&~(3<<(indx*2))) | (wrindex<<(indx*2));
 			}
 			break;
 		}
@@ -19813,7 +19813,7 @@ void set_register(int32_t arg, int32_t value)
 			else
 			{
 				int32_t wrindex = vbound(value/10000, 0, 3);
-				tmpscr.warpreturnc = (tmpscr.warpreturnc&~(3<<(8+(indx*2)))) | (wrindex<<(8+(indx*2)));
+				tmpscr->warpreturnc = (tmpscr->warpreturnc&~(3<<(8+(indx*2)))) | (wrindex<<(8+(indx*2)));
 			}
 			break;
 		}
@@ -19825,16 +19825,16 @@ void set_register(int32_t arg, int32_t value)
 			//bool valtrue = ( value ? 10000 : 0);
 			switch(flagid)
 			{
-				case 0: tmpscr.flags = (value / 10000); break;
-				case 1: tmpscr.flags2 = (value / 10000); break;
-				case 2: tmpscr.flags3 = (value / 10000); break;
-				case 3: tmpscr.flags4 = (value / 10000); break;
-				case 4: tmpscr.flags5 = (value / 10000); break;
-				case 5: tmpscr.flags6 = (value / 10000); break;
-				case 6: tmpscr.flags7 = (value / 10000); break;
-				case 7: tmpscr.flags8 = (value / 10000); break;
-				case 8: tmpscr.flags9 = (value / 10000); break;
-				case 9: tmpscr.flags10 = (value / 10000); break;
+				case 0: tmpscr->flags = (value / 10000); break;
+				case 1: tmpscr->flags2 = (value / 10000); break;
+				case 2: tmpscr->flags3 = (value / 10000); break;
+				case 3: tmpscr->flags4 = (value / 10000); break;
+				case 4: tmpscr->flags5 = (value / 10000); break;
+				case 5: tmpscr->flags6 = (value / 10000); break;
+				case 6: tmpscr->flags7 = (value / 10000); break;
+				case 7: tmpscr->flags8 = (value / 10000); break;
+				case 8: tmpscr->flags9 = (value / 10000); break;
+				case 9: tmpscr->flags10 = (value / 10000); break;
 				default:
 				{
 					Z_scripterrlog("Invalid index passed to mapdata->flags[]: %d\n", flagid); 
@@ -20078,7 +20078,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case SCREENINITD:
-			tmpscr.screeninitd[ri->d[rINDEX]/10000] = value;
+			tmpscr->screeninitd[ri->d[rINDEX]/10000] = value;
 			break;
 		
 		case SCREENSCRIPT:
@@ -20088,19 +20088,19 @@ void set_register(int32_t arg, int32_t value)
 			if ( get_bit(quest_rules,qr_CLEARINITDONSCRIPTCHANGE))
 			{
 				for(int32_t q=0; q<8; q++)
-					tmpscr.screeninitd[q] = 0;
+					tmpscr->screeninitd[q] = 0;
 			}
 			FFCore.ref(ScriptType::Screen, curScriptIndex).Clear();
-			tmpscr.script=vbound(value/10000, 0, NUMSCRIPTSCREEN-1);
+			tmpscr->script=vbound(value/10000, 0, NUMSCRIPTSCREEN-1);
 			break;
 		}
 		
 		case MAPDATAINITD:
-			tmpscr.screeninitd[ri->d[rINDEX]/10000]=value;
+			tmpscr->screeninitd[ri->d[rINDEX]/10000]=value;
 			break;
 		
 		case SCRDOORD:
-			tmpscr.door[ri->d[rINDEX]/10000]=value/10000;
+			tmpscr->door[ri->d[rINDEX]/10000]=value/10000;
 			putdoor(scrollbuf,0,ri->d[rINDEX]/10000,value/10000,true,true);
 			break;
 			
@@ -20118,10 +20118,10 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case ROOMTYPE:
-			tmpscr.room=value/10000; break; //this probably doesn't work too well...
+			tmpscr->room=value/10000; break; //this probably doesn't work too well...
 		
 		case ROOMDATA:
-			tmpscr.catchall=value/10000;
+			tmpscr->catchall=value/10000;
 			break;
 			
 		case PUSHBLOCKLAYER:
@@ -20138,11 +20138,11 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case UNDERCOMBO:
-			tmpscr.undercombo=value/10000;
+			tmpscr->undercombo=value/10000;
 			break;
 			
 		case UNDERCSET:
-			tmpscr.undercset=value/10000;
+			tmpscr->undercset=value/10000;
 			break;
 		
 		
@@ -20606,11 +20606,11 @@ void set_register(int32_t arg, int32_t value)
 				{
 					if(value)
 					{
-						tmpscr.hidelayers |= (1<<indx);
+						tmpscr->hidelayers |= (1<<indx);
 					}
 					else
 					{
-						tmpscr.hidelayers &= ~(1<<indx);
+						tmpscr->hidelayers &= ~(1<<indx);
 					}
 				}
 				else
@@ -20633,11 +20633,11 @@ void set_register(int32_t arg, int32_t value)
 				{
 					if(value)
 					{
-						tmpscr.hidescriptlayers &= ~(1<<indx);
+						tmpscr->hidescriptlayers &= ~(1<<indx);
 					}
 					else
 					{
-						tmpscr.hidescriptlayers |= (1<<indx);
+						tmpscr->hidescriptlayers |= (1<<indx);
 					}
 				}
 				else
@@ -20719,7 +20719,7 @@ void set_register(int32_t arg, int32_t value)
 					if ( get_bit(quest_rules,qr_CLEARINITDONSCRIPTCHANGE))
 					{
 						for(int32_t q=0; q<8; q++)
-							tmpscr.screeninitd[q] = 0;
+							tmpscr->screeninitd[q] = 0;
 					}
 					
 					FFCore.ref(ScriptType::Screen, curScriptIndex).Clear();
@@ -21038,7 +21038,7 @@ void set_register(int32_t arg, int32_t value)
 			if (mapscr *m = GetMapscr(ri->mapsref))
 			{
 				int32_t v = vbound(value/10000, 0, 255);
-				if(m == &tmpscr && m->oceansfx != v)
+				if(m == tmpscr && m->oceansfx != v)
 				{
 					stop_sfx(m->oceansfx);
 					m->oceansfx = v;
@@ -24731,9 +24731,9 @@ void do_warp(bool v)
 		Z_scripterrlog("Invalid destination passed to Warp(). Aborting.\n");
 		return;
 	}
-	tmpscr.sidewarpdmap[0] = dmapid;
-	tmpscr.sidewarpscr[0]  = screenid;
-	tmpscr.sidewarptype[0] = wtIWARP;
+	tmpscr->sidewarpdmap[0] = dmapid;
+	tmpscr->sidewarpscr[0]  = screenid;
+	tmpscr->sidewarptype[0] = wtIWARP;
 	Hero.ffwarp = true;
 }
 
@@ -24757,9 +24757,9 @@ void do_pitwarp(bool v)
 		Z_scripterrlog("Invalid destination passed to Warp(). Aborting.\n");
 		return;
 	}
-	tmpscr.sidewarpdmap[0] = dmapid;
-	tmpscr.sidewarpscr[0]  = screenid;
-	tmpscr.sidewarptype[0] = wtIWARP;
+	tmpscr->sidewarpdmap[0] = dmapid;
+	tmpscr->sidewarpscr[0]  = screenid;
+	tmpscr->sidewarptype[0] = wtIWARP;
 	Hero.ffwarp = true;
 	Hero.ffpit = true;
 }
@@ -24956,13 +24956,13 @@ void do_setsidewarp()
 		return;
 		
 	if(scrn > -1)
-		tmpscr.sidewarpscr[warp] = scrn;
+		tmpscr->sidewarpscr[warp] = scrn;
 		
 	if(dmap > -1)
-		tmpscr.sidewarpdmap[warp] = dmap;
+		tmpscr->sidewarpdmap[warp] = dmap;
 		
 	if(type > -1)
-		tmpscr.sidewarptype[warp] = type;
+		tmpscr->sidewarptype[warp] = type;
 }
 
 void do_settilewarp()
@@ -24979,13 +24979,13 @@ void do_settilewarp()
 		return;
 		
 	if(scrn > -1)
-		tmpscr.tilewarpscr[warp] = scrn;
+		tmpscr->tilewarpscr[warp] = scrn;
 		
 	if(dmap > -1)
-		tmpscr.tilewarpdmap[warp] = dmap;
+		tmpscr->tilewarpdmap[warp] = dmap;
 		
 	if(type > -1)
-		tmpscr.tilewarptype[warp] = type;
+		tmpscr->tilewarptype[warp] = type;
 }
 
 void do_getsidewarpdmap(const bool v)
@@ -24998,7 +24998,7 @@ void do_getsidewarpdmap(const bool v)
 		return;
 	}
 	
-	set_register(sarg1, tmpscr.sidewarpdmap[warp]*10000);
+	set_register(sarg1, tmpscr->sidewarpdmap[warp]*10000);
 }
 
 void do_getsidewarpscr(const bool v)
@@ -25011,7 +25011,7 @@ void do_getsidewarpscr(const bool v)
 		return;
 	}
 	
-	set_register(sarg1, tmpscr.sidewarpscr[warp]*10000);
+	set_register(sarg1, tmpscr->sidewarpscr[warp]*10000);
 }
 
 void do_getsidewarptype(const bool v)
@@ -25024,7 +25024,7 @@ void do_getsidewarptype(const bool v)
 		return;
 	}
 	
-	set_register(sarg1, tmpscr.sidewarptype[warp]*10000);
+	set_register(sarg1, tmpscr->sidewarptype[warp]*10000);
 }
 
 void do_gettilewarpdmap(const bool v)
@@ -25037,7 +25037,7 @@ void do_gettilewarpdmap(const bool v)
 		return;
 	}
 	
-	set_register(sarg1, tmpscr.tilewarpdmap[warp]*10000);
+	set_register(sarg1, tmpscr->tilewarpdmap[warp]*10000);
 }
 
 void do_gettilewarpscr(const bool v)
@@ -25050,7 +25050,7 @@ void do_gettilewarpscr(const bool v)
 		return;
 	}
 	
-	set_register(sarg1, tmpscr.tilewarpscr[warp]*10000);
+	set_register(sarg1, tmpscr->tilewarpscr[warp]*10000);
 }
 
 void do_gettilewarptype(const bool v)
@@ -25063,7 +25063,7 @@ void do_gettilewarptype(const bool v)
 		return;
 	}
 	
-	set_register(sarg1, tmpscr.tilewarptype[warp]*10000);
+	set_register(sarg1, tmpscr->tilewarptype[warp]*10000);
 }
 
 void do_getscreenindexforrpos(const bool v)
@@ -25084,10 +25084,10 @@ void do_layerscreen()
 	int32_t layer = (get_register(sarg2) / 10000) - 1;
 	
 	if(BC::checkBounds(layer, 0, 5, "Screen->LayerScreen") != SH::_NoError ||
-			tmpscr.layermap[layer] == 0)
+			tmpscr->layermap[layer] == 0)
 		set_register(sarg1, -10000);
 	else
-		set_register(sarg1, tmpscr.layerscreen[layer] * 10000);
+		set_register(sarg1, tmpscr->layerscreen[layer] * 10000);
 }
 
 void do_layermap()
@@ -25095,10 +25095,10 @@ void do_layermap()
 	int32_t layer = (get_register(sarg2) / 10000) - 1;
 	
 	if(BC::checkBounds(layer, 0, 5, "Screen->LayerMap") != SH::_NoError ||
-			tmpscr.layermap[layer] == 0)
+			tmpscr->layermap[layer] == 0)
 		set_register(sarg1, -10000);
 	else
-		set_register(sarg1, tmpscr.layermap[layer] * 10000);
+		set_register(sarg1, tmpscr->layermap[layer] * 10000);
 }
 
 
@@ -29080,8 +29080,8 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 			//preloaded freeform combos
 			ffscript_engine(true);
 			
-			putscr(scrollbuf,0,0,&tmpscr);
-			putscrdoors(scrollbuf,0,0,&tmpscr);
+			putscr(scrollbuf,0,0,tmpscr);
+			putscrdoors(scrollbuf,0,0,tmpscr);
 			
 			doWarpEffect(warpEffect, false);
 			show_subscreen_life=true;
@@ -29136,7 +29136,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 			//lastentrance_dmap = currdmap;
 			loadscr(currdmap, scrID + DMaps[currdmap].xoff, -1, overlay);
 			
-			if((tmpscr.flags&fDARK) && !get_bit(quest_rules,qr_NEW_DARKROOM))
+			if((tmpscr->flags&fDARK) && !get_bit(quest_rules,qr_NEW_DARKROOM))
 			{
 				if(get_bit(quest_rules,qr_FADE))
 				{
@@ -29295,7 +29295,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 				init_dmap();
 				
 				
-				if(((wx>0||wy>0)||(get_bit(quest_rules,qr_WARPSIGNOREARRIVALPOINT)))&&(!get_bit(quest_rules,qr_NOSCROLLCONTINUE))&&(!(tmpscr.flags6&fNOCONTINUEHERE)))
+				if(((wx>0||wy>0)||(get_bit(quest_rules,qr_WARPSIGNOREARRIVALPOINT)))&&(!get_bit(quest_rules,qr_NOSCROLLCONTINUE))&&(!(tmpscr->flags6&fNOCONTINUEHERE)))
 				{
 					if(dlevel)
 					{
@@ -29421,12 +29421,12 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 		
 		
 	}
-	if(tmpscr.flags4&fAUTOSAVE)
+	if(tmpscr->flags4&fAUTOSAVE)
 	{
 		save_game(true,0);
 	}
 		
-	if(tmpscr.flags6&fCONTINUEHERE)
+	if(tmpscr->flags6&fCONTINUEHERE)
 	{
 		lastentrance_dmap = currdmap;
 		lastentrance = homescr;
@@ -34880,7 +34880,7 @@ int32_t ffscript_engine(const bool preload)
 	if (!FFCore.system_suspend[susptFFCSCRIPTS])
 	{
 		//run screen script, first
-		//zprint("Screen Script Preload? %s \n", ( tmpscr.preloadscript ? "true" : "false"));
+		//zprint("Screen Script Preload? %s \n", ( tmpscr->preloadscript ? "true" : "false"));
 		if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
 		{
 			for_every_screen_in_region([&](mapscr* screen, int screen_index, unsigned int region_scr_x, unsigned int region_scr_y) {
@@ -36129,7 +36129,7 @@ int32_t FFScript::whichlayer(int32_t scr)
 {
 	for(int32_t i = 0; i < 6; i++)
 	{
-		if(scr == (tmpscr.layermap[i] - 1) * MAPSCRS + tmpscr.layerscreen[i])
+		if(scr == (tmpscr->layermap[i] - 1) * MAPSCRS + tmpscr->layerscreen[i])
 			return i;
 	}
 	
@@ -36172,7 +36172,7 @@ void FFScript::do_wavyout() { wavyout(false); }
 void FFScript::do_triggersecret(const bool v)
 {
 	int32_t ID = vbound((SH::get_arg(sarg1, v) / 10000), 0, 255);
-	mapscr *s = &tmpscr;
+	mapscr *s = tmpscr;
 	//Convert a flag type to a secret type.
 	int32_t ft = combo_trigger_flag_to_secret_combo_index(ID);
 	if (ft != -1)
@@ -37023,7 +37023,7 @@ void FFScript::init()
 	initIncludePaths();
 	initRunString();
 	//clearRunningItemScripts();
-	tempScreens[0] = &tmpscr;
+	tempScreens[0] = tmpscr;
 	ScrollingScreens[0] = &special_warp_return_screen;
 	for(int32_t q = 0; q < 6; ++q)
 	{
@@ -37153,7 +37153,7 @@ void FFScript::do_fs_remove()
 
 void FFScript::Play_Level_Music()
 {
-	int32_t m=tmpscr.screen_midi;
+	int32_t m=tmpscr->screen_midi;
 	
 	switch(m)
 	{
@@ -37711,7 +37711,7 @@ void FFScript::doScriptMenuDraws()
 	BITMAP* menu_buf = ((GameFlags & GAMEFLAG_F6SCRIPT_ACTIVE) != 0) ? f6_menu_buf : script_menu_buf;
 	blit(menu_buf, framebuf, 0, 0, 0, 0, 256, 224);
 	//Script draws
-	do_script_draws(framebuf, &tmpscr, 0, playing_field_offset);
+	do_script_draws(framebuf, tmpscr, 0, playing_field_offset);
 }
 
 void FFScript::runOnSaveEngine()

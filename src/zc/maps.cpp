@@ -340,7 +340,7 @@ void z3_calculate_viewport(mapscr* scr, int world_w, int world_h, int hero_x, in
 
 void z3_update_viewport()
 {
-	z3_calculate_viewport(&tmpscr, world_w, world_h, Hero.getX(), Hero.getY(), viewport);
+	z3_calculate_viewport(tmpscr, world_w, world_h, Hero.getX(), Hero.getY(), viewport);
 }
 
 void playLevelMusic();
@@ -443,7 +443,7 @@ rpos_handle_t get_rpos_handle_for_screen(mapscr* screen, int screen_index, int l
 mapscr* get_screen_for_world_xy(int x, int y)
 {
 	// Quick path, but should work the same without.
-	if (!is_z3_scrolling_mode()) return &tmpscr;
+	if (!is_z3_scrolling_mode()) return tmpscr;
 	return get_scr(currmap, get_screen_index_for_world_xy(x, y));
 }
 
@@ -514,7 +514,7 @@ const mapscr* get_canonical_scr(int map, int screen)
 mapscr* get_scr(int map, int screen)
 {
 	DCHECK_RANGE_INCLUSIVE(screen, 0, 135);
-	if (screen == currscr && map == currmap) return &tmpscr;
+	if (screen == currscr && map == currmap) return tmpscr;
 	if (screen == homescr && map == currmap) return &special_warp_return_screen;
 
 	if (map == currmap)
@@ -538,7 +538,7 @@ mapscr* get_scr(int map, int screen)
 mapscr* get_scr_no_load(int map, int screen)
 {
 	DCHECK_RANGE_INCLUSIVE(screen, 0, 135);
-	if (screen == currscr && map == currmap) return &tmpscr;
+	if (screen == currscr && map == currmap) return tmpscr;
 	if (screen == homescr && map == currmap) return &special_warp_return_screen;
 
 	if (map == currmap)
@@ -1246,7 +1246,7 @@ bool HASFLAG(int32_t flag, int32_t layer, rpos_t rpos)
 	DCHECK_LAYER_ZERO_INDEX(layer);
 	if (rpos > region_max_rpos) return false;
 	if(unsigned(layer) > 6) return false;
-	mapscr* m = (layer ? &tmpscr2[layer-1] : &tmpscr);
+	mapscr* m = (layer ? &tmpscr2[layer-1] : tmpscr);
 	if(!m->valid) return false;
 	
 	auto rpos_handle = get_rpos_handle(rpos, layer);
@@ -1337,11 +1337,11 @@ void setmapflag(int32_t screen, int32_t flag)
 }
 void setmapflag(int32_t flag)
 {
-    setmapflag_mi(&tmpscr, (currmap*MAPSCRSNORMAL)+homescr, flag);
+    setmapflag_mi(tmpscr, (currmap*MAPSCRSNORMAL)+homescr, flag);
 }
 void setmapflag_mi(int32_t mi2, int32_t flag)
 {
-	setmapflag_mi(&tmpscr, mi2, flag);
+	setmapflag_mi(tmpscr, mi2, flag);
 }
 void setmapflag_mi(mapscr* scr, int32_t mi2, int32_t flag)
 {
@@ -1435,7 +1435,7 @@ void unsetmapflag(int32_t mi2, int32_t flag, bool anyflag)
         
         while((nmap!=0) && !looped && !(nscr>=128))
         {
-            if((tmpscr.nocarry&flag)!=flag && (game->maps[((nmap-1)<<7)+nscr] & flag))
+            if((tmpscr->nocarry&flag)!=flag && (game->maps[((nmap-1)<<7)+nscr] & flag))
             {
                 // TODO z3 replay step here would be good
                 Z_eventlog("State change carried over to (%d, %02X)\n",nmap,nscr);
@@ -2242,10 +2242,10 @@ bool remove_screenstatecombos2(mapscr *s, int32_t screen_index, bool do_layers, 
 	
 	if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
 	{
-		word c = tmpscr.numFFC();
+		word c = tmpscr->numFFC();
 		for(word i=0; i<c; i++)
 		{
-			ffcdata* ffc2 = &tmpscr.ffcs[i];
+			ffcdata* ffc2 = &tmpscr->ffcs[i];
 			newcombo const& cmb = combobuf[ffc2->getData()];
 			if(cmb.usrflags&cflag16) continue; //custom state instead of normal state
 			if((cmb.type== what1) || (cmb.type== what2))
@@ -3213,37 +3213,37 @@ std::pair<int32_t, int32_t> nextscr2(int32_t dir)
     
     // need to check for screens on other maps, 's' not valid, etc.
     // TODO z3 ! hero_screen?
-    int32_t index = (tmpscr.sidewarpindex >> (dir*2))&3;
+    int32_t index = (tmpscr->sidewarpindex >> (dir*2))&3;
     
     // Fun fact: when a scrolling warp is triggered, this function
     // is never even called! - Saf
-    if(tmpscr.sidewarptype[index] == 3)                                // scrolling warp
+    if(tmpscr->sidewarptype[index] == 3)                                // scrolling warp
     {
         switch(dir)
         {
         case up:
-            if(!(tmpscr.flags2&wfUP))    goto nowarp;
+            if(!(tmpscr->flags2&wfUP))    goto nowarp;
             
             break;
             
         case down:
-            if(!(tmpscr.flags2&wfDOWN))  goto nowarp;
+            if(!(tmpscr->flags2&wfDOWN))  goto nowarp;
             
             break;
             
         case left:
-            if(!(tmpscr.flags2&wfLEFT))  goto nowarp;
+            if(!(tmpscr->flags2&wfLEFT))  goto nowarp;
             
             break;
             
         case right:
-            if(!(tmpscr.flags2&wfRIGHT)) goto nowarp;
+            if(!(tmpscr->flags2&wfRIGHT)) goto nowarp;
             
             break;
         }
         
-        m = DMaps[tmpscr.sidewarpdmap[index]].map;
-        s = tmpscr.sidewarpscr[index] + DMaps[tmpscr.sidewarpdmap[index]].xoff;
+        m = DMaps[tmpscr->sidewarpdmap[index]].map;
+        s = tmpscr->sidewarpscr[index] + DMaps[tmpscr->sidewarpdmap[index]].xoff;
     }
     
 nowarp:
@@ -3255,9 +3255,9 @@ nowarp:
 
 void bombdoor(int32_t x,int32_t y)
 {
-    if(tmpscr.door[0]==dBOMB && isinRect(x,y,100,0,139,48))
+    if(tmpscr->door[0]==dBOMB && isinRect(x,y,100,0,139,48))
     {
-        tmpscr.door[0]=dBOMBED;
+        tmpscr->door[0]=dBOMBED;
         putdoor(scrollbuf,0,0,dBOMBED);
         setmapflag(mDOOR_UP);
         markBmap(-1);
@@ -3269,9 +3269,9 @@ void bombdoor(int32_t x,int32_t y)
         }
     }
     
-    if(tmpscr.door[1]==dBOMB && isinRect(x,y,100,112,139,176))
+    if(tmpscr->door[1]==dBOMB && isinRect(x,y,100,112,139,176))
     {
-        tmpscr.door[1]=dBOMBED;
+        tmpscr->door[1]=dBOMBED;
         putdoor(scrollbuf,0,1,dBOMBED);
         setmapflag(mDOOR_DOWN);
         markBmap(-1);
@@ -3283,9 +3283,9 @@ void bombdoor(int32_t x,int32_t y)
         }
     }
     
-    if(tmpscr.door[2]==dBOMB && isinRect(x,y,0,60,48,98))
+    if(tmpscr->door[2]==dBOMB && isinRect(x,y,0,60,48,98))
     {
-        tmpscr.door[2]=dBOMBED;
+        tmpscr->door[2]=dBOMBED;
         putdoor(scrollbuf,0,2,dBOMBED);
         setmapflag(mDOOR_LEFT);
         markBmap(-1);
@@ -3297,9 +3297,9 @@ void bombdoor(int32_t x,int32_t y)
         }
     }
     
-    if(tmpscr.door[3]==dBOMB && isinRect(x,y,192,60,240,98))
+    if(tmpscr->door[3]==dBOMB && isinRect(x,y,192,60,240,98))
     {
-        tmpscr.door[3]=dBOMBED;
+        tmpscr->door[3]=dBOMBED;
         putdoor(scrollbuf,0,3,dBOMBED);
         setmapflag(mDOOR_RIGHT);
         markBmap(-1);
@@ -4148,7 +4148,7 @@ static void for_every_nearby_screen(const std::function <void (std::array<screen
 		{
 			int scr_x = heroscr_x + heroscr_dx;
 			int scr_y = heroscr_y + heroscr_dy;
-			if (tmpscr.flags&fMAZE && !(XY_DELTA_TO_DIR(heroscr_dx, 0) == tmpscr.exitdir || XY_DELTA_TO_DIR(0, heroscr_dy) == tmpscr.exitdir))
+			if (tmpscr->flags&fMAZE && !(XY_DELTA_TO_DIR(heroscr_dx, 0) == tmpscr->exitdir || XY_DELTA_TO_DIR(0, heroscr_dy) == tmpscr->exitdir))
 			{
 				scr_x = heroscr_x;
 				scr_y = heroscr_y;
@@ -4233,7 +4233,7 @@ void draw_msgstr(byte layer, bool tempb = false)
 
 void draw_screen(bool showhero, bool runGeneric)
 {
-	mapscr* this_screen = &tmpscr;
+	mapscr* this_screen = tmpscr;
 	clear_a5_bmp(AL5_INVIS,rti_infolayer.bitmap);
 	if((GameFlags & (GAMEFLAG_SCRIPTMENU_ACTIVE|GAMEFLAG_F6SCRIPT_ACTIVE))!=0)
 	{
@@ -4840,7 +4840,7 @@ void put_door(BITMAP *dest,int32_t t,int32_t pos,int32_t side,int32_t type,bool 
 {
 	if (type > 8) return;
 
-	mapscr& screen = t == 0 ? tmpscr : special_warp_return_screen;
+	mapscr& screen = t == 0 ? *tmpscr : special_warp_return_screen;
 	int32_t d=screen.door_combo_set;
 	
 	switch(type)
@@ -4995,7 +4995,7 @@ void put_door(BITMAP *dest,int32_t t,int32_t pos,int32_t side,int32_t type,bool 
 
 void over_door(BITMAP *dest,int32_t t, int32_t pos,int32_t side, int32_t xoff, int32_t yoff)
 {
-	mapscr& screen = t == 0 ? tmpscr : special_warp_return_screen;
+	mapscr& screen = t == 0 ? *tmpscr : special_warp_return_screen;
 	int32_t d=screen.door_combo_set;
 	int32_t x=(pos&15)<<4;
 	int32_t y=(pos&0xF0);
@@ -5203,7 +5203,7 @@ void overcombo_not_zero(BITMAP *dest, int32_t x, int32_t y, int32_t combo, int32
 
 void showbombeddoor(BITMAP *dest, int32_t side)
 {
-    int32_t d=tmpscr.door_combo_set;
+    int32_t d=tmpscr->door_combo_set;
     
     switch(side)
     {
@@ -5315,10 +5315,10 @@ void openshutters()
 {
 	bool opened_door = false;
 	for(int32_t i=0; i<4; i++)
-		if(tmpscr.door[i]==dSHUTTER)
+		if(tmpscr->door[i]==dSHUTTER)
 		{
 			putdoor(scrollbuf,0,i,dOPENSHUTTER);
-			tmpscr.door[i]=dOPENSHUTTER;
+			tmpscr->door[i]=dOPENSHUTTER;
 			opened_door = true;
 		}
 	
@@ -5590,7 +5590,7 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 		replay_sync_rng();
 	}
 
-	// Load the origin screen (top-left in region) into tmpscr.
+	// Load the origin screen (top-left in region) into tmpscr
 	loadscr_old(0, orig_destdmap, cur_origin_screen_index, ldir, overlay);
 	// Store the current tmpscr into special_warp_return_screen, if on a special screen.
 	if (scr >= 0x80)
@@ -5678,8 +5678,8 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 	bool is_setting_special_warp_return_screen = tmp == 1;
 	int32_t destlvl = DMaps[destdmap < 0 ? currdmap : destdmap].level;
 
-	mapscr previous_scr = tmp == 0 ? tmpscr : special_warp_return_screen;
-	mapscr* screen = tmp == 0 ? &tmpscr : &special_warp_return_screen;
+	mapscr previous_scr = tmp == 0 ? *tmpscr : special_warp_return_screen;
+	mapscr* screen = tmp == 0 ? tmpscr : &special_warp_return_screen;
 	*screen = TheMaps[currmap*MAPSCRS+scr];
 	if (!tmp)
 		for(int i = 0; i < MAXFFCS; ++i)
@@ -5827,7 +5827,7 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 		if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mSECRET)			   // if special stuff done before
 		{
 			hiddenstair2(screen, scr, false);
-			trigger_secrets_for_screen_internal(-1, tmp == 0 ? &tmpscr : &special_warp_return_screen, true, false, -1);
+			trigger_secrets_for_screen_internal(-1, tmp == 0 ? tmpscr : &special_warp_return_screen, true, false, -1);
 		}
 		if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mLIGHTBEAM) // if special stuff done before
 		{
@@ -5849,9 +5849,9 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 		}
 	}
 	
-	toggle_switches(game->lvlswitches[destlvl], true, tmp == 0 ? &tmpscr : &special_warp_return_screen, tmp == 0 ? cur_origin_screen_index : homescr);
+	toggle_switches(game->lvlswitches[destlvl], true, tmp == 0 ? tmpscr : &special_warp_return_screen, tmp == 0 ? cur_origin_screen_index : homescr);
 	// TODO z3 !? replay
-	toggle_gswitches_load(tmp == 0 ? &tmpscr : &special_warp_return_screen, tmp == 0 ? cur_origin_screen_index : homescr);
+	toggle_gswitches_load(tmp == 0 ? tmpscr : &special_warp_return_screen, tmp == 0 ? cur_origin_screen_index : homescr);
 	
 	if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mLOCKBLOCK)			  // if special stuff done before
 	{
@@ -5993,7 +5993,7 @@ void loadscr2(int32_t tmp,int32_t scr,int32_t)
 	
 	const int32_t _mapsSize = (ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight);
 	
-	mapscr& screen = tmp == 0 ? tmpscr : special_warp_return_screen;
+	mapscr& screen = tmp == 0 ? *tmpscr : special_warp_return_screen;
 	screen = TheMaps[currmap*MAPSCRS+scr];
 	
 	if(tmp==0)
@@ -6024,7 +6024,7 @@ void loadscr2(int32_t tmp,int32_t scr,int32_t)
 		if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mSECRET)			   // if special stuff done before
 		{
 			hiddenstair2(&screen, scr, false);
-			trigger_secrets_for_screen_internal(-1, tmp == 0 ? &tmpscr : &special_warp_return_screen, true, false, -1);
+			trigger_secrets_for_screen_internal(-1, tmp == 0 ? tmpscr : &special_warp_return_screen, true, false, -1);
 		}
 		if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mLIGHTBEAM) // if special stuff done before
 		{
@@ -6719,15 +6719,15 @@ void map_bkgsfx(bool on)
 {
 	if(on)
 	{
-		cont_sfx(tmpscr.oceansfx);
+		cont_sfx(tmpscr->oceansfx);
 		
-		if(tmpscr.bosssfx && !(game->lvlitems[dlevel]&liBOSS))
-			cont_sfx(tmpscr.bosssfx);
+		if(tmpscr->bosssfx && !(game->lvlitems[dlevel]&liBOSS))
+			cont_sfx(tmpscr->bosssfx);
 	}
 	else
 	{
-		adjust_sfx(tmpscr.oceansfx,128,false);
-		adjust_sfx(tmpscr.bosssfx,128,false);
+		adjust_sfx(tmpscr->oceansfx,128,false);
+		adjust_sfx(tmpscr->bosssfx,128,false);
 		
 		for(int32_t i=0; i<guys.Count(); i++)
 		{
@@ -6748,7 +6748,7 @@ void toggle_switches(dword flags, bool entry)
 void toggle_switches(dword flags, bool entry, mapscr* m, int screen_index)
 {
 	if(!flags) return; //No flags to toggle
-	bool iscurscr = m==&tmpscr;
+	bool iscurscr = m==tmpscr;
 
 	for_every_rpos_in_screen(m, screen_index, [&](const rpos_handle_t& rpos_handle) {
 		byte togglegrid[176] = {0};
@@ -6888,7 +6888,7 @@ void toggle_gswitches(int32_t state, bool entry, mapscr* base_screen, int screen
 void toggle_gswitches(bool* states, bool entry, mapscr* base_screen, int screen_index)
 {
 	if(!states) return;
-	bool iscurscr = base_screen==&tmpscr;
+	bool iscurscr = base_screen==tmpscr;
 	byte togglegrid[176] = {0};
 	for(int32_t lyr = 0; lyr < 7; ++lyr)
 	{
@@ -7073,8 +7073,8 @@ void ViewMap()
 	mapscr tmpscr_b[2];
 	mapscr tmpscr_c[6];
 
-	tmpscr_a[0] = tmpscr;
-	tmpscr.zero_memory();
+	tmpscr_a[0] = *tmpscr;
+	tmpscr->zero_memory();
 	tmpscr_a[1] = special_warp_return_screen;
 	special_warp_return_screen.zero_memory();
 	
@@ -7123,58 +7123,58 @@ void ViewMap()
 			if(displayOnMap(x, y))
 			{
 				int32_t s = (y<<4) + x;
-				tmpscr.zero_memory();
+				tmpscr->zero_memory();
 				special_warp_return_screen.zero_memory();
 				loadscr2(1,s,-1);
-				tmpscr = special_warp_return_screen;
-				if(tmpscr.valid&mVALID)
+				*tmpscr = special_warp_return_screen;
+				if(tmpscr->valid&mVALID)
 				{
 					for(int32_t i=0; i<6; i++)
 					{
 						tmpscr2[i].zero_memory();
-						if(tmpscr.layermap[i]<=0)
+						if(tmpscr->layermap[i]<=0)
 							continue;
 						
-						if((ZCMaps[tmpscr.layermap[i]-1].tileWidth==ZCMaps[currmap].tileWidth) &&
-						   (ZCMaps[tmpscr.layermap[i]-1].tileHeight==ZCMaps[currmap].tileHeight))
+						if((ZCMaps[tmpscr->layermap[i]-1].tileWidth==ZCMaps[currmap].tileWidth) &&
+						   (ZCMaps[tmpscr->layermap[i]-1].tileHeight==ZCMaps[currmap].tileHeight))
 						{
 							const int32_t _mapsSize = (ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight);
 							
-							tmpscr2[i]=TheMaps[(tmpscr.layermap[i]-1)*MAPSCRS+tmpscr.layerscreen[i]];
+							tmpscr2[i]=TheMaps[(tmpscr->layermap[i]-1)*MAPSCRS+tmpscr->layerscreen[i]];
 						}
 					}
 					
-					if(XOR(tmpscr.flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer_old(scrollbuf_old, 0, 2, &tmpscr, 256, -playing_field_offset, 2);
+					if(XOR(tmpscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer_old(scrollbuf_old, 0, 2, tmpscr, 256, -playing_field_offset, 2);
 					
-					if(XOR(tmpscr.flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer_old(scrollbuf_old, 0, 3, &tmpscr, 256, -playing_field_offset, 2);
+					if(XOR(tmpscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer_old(scrollbuf_old, 0, 3, tmpscr, 256, -playing_field_offset, 2);
 					
-					putscr(scrollbuf_old,256,0,&tmpscr);
+					putscr(scrollbuf_old,256,0,tmpscr);
 					// TODO z3 !!!!! python3 tests/run_replay_tests.py --filter tests/replays/first_quest_layered.zplay --frame 300
-					do_layer_old(scrollbuf_old, 0, 1, &tmpscr, 256, -playing_field_offset, 2);
+					do_layer_old(scrollbuf_old, 0, 1, tmpscr, 256, -playing_field_offset, 2);
 					
-					if(!XOR((tmpscr.flags7&fLAYER2BG), DMaps[currdmap].flags&dmfLAYER2BG)) do_layer_old(scrollbuf_old, 0, 2, &tmpscr, 256, -playing_field_offset, 2);
+					if(!XOR((tmpscr->flags7&fLAYER2BG), DMaps[currdmap].flags&dmfLAYER2BG)) do_layer_old(scrollbuf_old, 0, 2, tmpscr, 256, -playing_field_offset, 2);
 					
-					putscrdoors(scrollbuf_old,256,0,&tmpscr);
-					do_layer_old(scrollbuf_old,-2, 0, &tmpscr, 256, -playing_field_offset, 2);
+					putscrdoors(scrollbuf_old,256,0,tmpscr);
+					do_layer_old(scrollbuf_old,-2, 0, tmpscr, 256, -playing_field_offset, 2);
 					if(get_bit(quest_rules, qr_PUSHBLOCK_LAYER_1_2))
 					{
-						do_layer_old(scrollbuf_old,-2, 1, &tmpscr, 256, -playing_field_offset, 2);
-						do_layer_old(scrollbuf_old,-2, 2, &tmpscr, 256, -playing_field_offset, 2);
+						do_layer_old(scrollbuf_old,-2, 1, tmpscr, 256, -playing_field_offset, 2);
+						do_layer_old(scrollbuf_old,-2, 2, tmpscr, 256, -playing_field_offset, 2);
 					}
 					// TODO z3 !! offx,y 0,0?
-					do_layer_old(scrollbuf_old,-3, 0, &tmpscr, 256, -playing_field_offset, 2); // Freeform combos!
+					do_layer_old(scrollbuf_old,-3, 0, tmpscr, 256, -playing_field_offset, 2); // Freeform combos!
 					
-					if(!XOR((tmpscr.flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_layer_old(scrollbuf_old, 0, 3, &tmpscr, 256, -playing_field_offset, 2);
+					if(!XOR((tmpscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_layer_old(scrollbuf_old, 0, 3, tmpscr, 256, -playing_field_offset, 2);
 					
-					do_layer_old(scrollbuf_old, 0, 4, &tmpscr, 256, -playing_field_offset, 2);
-					do_layer_old(scrollbuf_old,-1, 0, &tmpscr, 256, -playing_field_offset, 2);
+					do_layer_old(scrollbuf_old, 0, 4, tmpscr, 256, -playing_field_offset, 2);
+					do_layer_old(scrollbuf_old,-1, 0, tmpscr, 256, -playing_field_offset, 2);
 					if(get_bit(quest_rules, qr_OVERHEAD_COMBOS_L1_L2))
 					{
-						do_layer_old(scrollbuf_old,-1, 1, &tmpscr, 256, -playing_field_offset, 2);
-						do_layer_old(scrollbuf_old,-1, 2, &tmpscr, 256, -playing_field_offset, 2);
+						do_layer_old(scrollbuf_old,-1, 1, tmpscr, 256, -playing_field_offset, 2);
+						do_layer_old(scrollbuf_old,-1, 2, tmpscr, 256, -playing_field_offset, 2);
 					}
-					do_layer_old(scrollbuf_old, 0, 5, &tmpscr, 256, -playing_field_offset, 2);
-					do_layer_old(scrollbuf_old, 0, 6, &tmpscr, 256, -playing_field_offset, 2);
+					do_layer_old(scrollbuf_old, 0, 5, tmpscr, 256, -playing_field_offset, 2);
+					do_layer_old(scrollbuf_old, 0, 6, tmpscr, 256, -playing_field_offset, 2);
 				}
 			}
 			
@@ -7182,7 +7182,7 @@ void ViewMap()
 		}
 	}
 	
-	tmpscr = tmpscr_a[0];
+	*tmpscr = tmpscr_a[0];
 	special_warp_return_screen = tmpscr_a[1];
 	for(int32_t i=0; i<6; ++i)
 	{

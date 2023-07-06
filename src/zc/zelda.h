@@ -473,7 +473,7 @@ extern char   cheat_goto_dmap_str[4];
 extern char   cheat_goto_screen_str[3];
 extern int16_t  visited[6];
 extern mapscr scrolling_screen;
-extern mapscr tmpscr;
+extern mapscr* tmpscr;
 // This is typically used as the previous screen before doing a warp to a special room,
 // but it is also used (by scripting) to hold the previous screen during scrolling.
 extern mapscr special_warp_return_screen;
