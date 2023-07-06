@@ -5777,8 +5777,6 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 	else
 	{
 		screen->script = 0;
-		// TODO z3 !!! rm?
-		FFCore.doscript(ScriptType::Screen, scr) = false;
 	}
 	
 	if(overlay)
