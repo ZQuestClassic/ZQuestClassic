@@ -901,7 +901,7 @@ int for_each_file(AL_CONST char *name, int attrib, void (*callback)(AL_CONST cha
  */
 int for_each_file_ex(AL_CONST char *name, int in_attrib, int out_attrib, int (*callback)(AL_CONST char *filename, int attrib, void *param), void *param)
 {
-   char buf[1024];
+   char buf[1024*2];
    struct al_ffblk info;
    int ret, c = 0;
    ASSERT(name);
@@ -919,6 +919,9 @@ int for_each_file_ex(AL_CONST char *name, int in_attrib, int out_attrib, int (*c
 
    do {
       if ((~info.attrib & in_attrib) == 0) {
+    // TODO: 'info.name' is the _full path_ of the file (except for . and ..), so `replace_filename` gets confused
+    // and doubles-up the filename into buf. In practice this doesn't matter because we call `get_filename` in the callback.
+    // To be safe and account for this silliness, for now the above `buf` has been doubled.
 	 replace_filename(buf, name, info.name, sizeof(buf));
 	 ret = (*callback)(buf, info.attrib, param);
 

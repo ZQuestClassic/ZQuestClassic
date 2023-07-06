@@ -132,10 +132,14 @@ void dosubscr(miscQdata *misc)
     }
     
     bool done=false;
-    
+
+    // Consume whatever input was registered during opening animation.
+    if (replay_version_check(18))
+        load_control_state();
+
     do
     {
-		if (replay_is_active() && replay_get_version() < 11)
+		if (replay_version_check(0, 11))
 			load_control_state();
 		int32_t pos = Bpos;
 		
@@ -316,7 +320,7 @@ void dosubscr(miscQdata *misc)
         
         
         advanceframe(false);
-		if (!replay_is_active() || replay_get_version() >= 11)
+		if (replay_version_check(11))
 			load_control_state();
         
         if(NESquit && Up() && cAbtn() && cBbtn())

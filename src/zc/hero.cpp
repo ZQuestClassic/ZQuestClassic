@@ -304,11 +304,12 @@ void HeroClass::set_liftflags(int liftid)
 void HeroClass::set_respawn_point(bool setwarp)
 {
 	zfix oldx = x, oldy = y;
-	if(!(replay_is_active() && replay_get_version() < 17))
+	if (replay_version_check(17))
 	{
 		x = vbound(x,0,240);
 		y = vbound(y,0,160);
 	}
+
 	do
 	{
 		if(setwarp)
@@ -1624,7 +1625,7 @@ void HeroClass::init()
 	}
 	FFCore.nostepforward = 0;
 
-	if (!replay_is_active() || replay_get_version() >= 12)
+	if (replay_version_check(12))
 		z3step = 2;
 }
 
@@ -27793,7 +27794,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	currdmap = new_dmap;
 	for(word i = 0; (scroll_counter >= 0 && delay != 0) || align_counter; i++, scroll_counter--) //Go!
 	{
-		if (replay_is_active() && replay_get_version() < 3)
+		if (replay_version_check(0, 3))
 		{
 			replay_poll();
 		}
@@ -28470,7 +28471,9 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	decorations.animate(); //continue to animate tall grass during scrolling
 	if(get_bit(quest_rules,qr_FIXSCRIPTSDURINGSCROLLING))
 	{
-		ZScriptVersion::RunScrollingScript(scrolldir, scroll_counter, sx, sy, end_frames, false); //Prewaitdraw
+		if(old_dmap == new_dmap || (replay_version_check(0, 15)))
+			ZScriptVersion::RunScrollingScript(scrolldir, scroll_counter, sx, sy, end_frames, false); //Prewaitdraw
+		else refresh_dmap_scrollscript = true;
 	}
 
 	// Bye!

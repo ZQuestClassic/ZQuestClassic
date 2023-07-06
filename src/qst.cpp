@@ -33,6 +33,7 @@
 #include "defdata.h"
 #include "subscr.h"
 #include "font.h"
+#include "zc/replay.h"
 #include "zc/zc_custom.h"
 #include "sfx.h"
 #include "md5.h"
@@ -2429,7 +2430,7 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printm
 	
 		get_questpwd(temp_pwd, temp_pwdkey, temp_pwd2);
 		cvs_MD5Init(&ctx);
-		cvs_MD5Update(&ctx, (const uint8_t*)temp_pwd2, (unsigned)strlen(temp_pwd2));
+		cvs_MD5Update(&ctx, (const uint8_t*)temp_pwd2, (unsigned)strnlen(temp_pwd2, 30));
 		cvs_MD5Final(tempheader.pwd_hash, &ctx);
 		
 		if(tempheader.zelda_version < 0x177)                       // lacks new header stuff...
@@ -2601,7 +2602,7 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printm
 			
 			get_questpwd(temp_pwd, temp_pwdkey, temp_pwd2);
 			cvs_MD5Init(&ctx);
-			cvs_MD5Update(&ctx, (const uint8_t*)temp_pwd2, (unsigned)strlen(temp_pwd2));
+			cvs_MD5Update(&ctx, (const uint8_t*)temp_pwd2, (unsigned)strnlen(temp_pwd2, 30));
 			cvs_MD5Final(tempheader.pwd_hash, &ctx);
 		}
 		else
@@ -4001,6 +4002,12 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
 					return qe_invalid;
 				}
 			}
+
+			if (string_length < 0 || string_length > 8193)
+			{
+				return qe_invalid;
+			}
+
 			if (string_length > 0)
 			{
 				if (!pfread(buf, string_length, f, true))
@@ -4259,6 +4266,11 @@ int32_t readdoorcombosets(PACKFILE *f, zquestheader *Header, bool keepdata)
     {
         return qe_invalid;
     }
+
+	if (!(temp_door_combo_set_count >= 0 && temp_door_combo_set_count <= MAXDOORCOMBOSETS))
+	{
+		return qe_invalid;
+	}
     
     for(int32_t i=0; i<temp_door_combo_set_count; i++)
     {
@@ -4544,7 +4556,7 @@ int32_t count_dmaps()
 
 int32_t count_shops(miscQdata *Misc)
 {
-    int32_t i=255,j;
+    int32_t i=NUM_SHOPS-1,j;
     bool found=false;
     
     while(i>=0 && !found)
@@ -5594,6 +5606,11 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 			return qe_invalid;
 		}
 	}
+
+	if (!(shops >= 0 && shops <= NUM_SHOPS))
+	{
+		return qe_invalid;
+	}
 	
 	for(int32_t i=0; i<shops; i++)
 	{
@@ -5685,7 +5702,12 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 			return qe_invalid;
 		}
 	}
-	
+
+	if (!(infos >= 0 && infos <= NUM_INFOS))
+	{
+		return qe_invalid;
+	}
+
 	for(int32_t i=0; i<infos; i++)
 	{
 		if(s_version > 6)
@@ -5773,24 +5795,37 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 		{
 			return qe_invalid;
 		}
+
+		if (!(warprings >= 0 && warprings <= NUM_WARP_RINGS))
+		{
+			// return qe_invalid;
+			// Note: we can't actually fail here because for some reason, some quest files have more than the max
+			// number of possible warp rings. Some examples of this are: demosp253.qst, yuurand.qst
+			// So instead below we disable `keepdata` when reading the bad warp ring data, so no memory is corrupted.
+		}
 	}
 	
 	for(int32_t i=0; i<warprings; i++)
 	{
+		// See above comment on the `warprings` range check.
+		bool keep_data_before = keepdata;
+		keepdata = keep_data_before && i < NUM_WARP_RINGS;
+
 		for(int32_t j=0; j<8+((s_version > 5)?1:0); j++)
 		{
 			if(s_version <= 3)
 			{
-				if(!p_getc(&tempbyte,f,true))
+				if(!p_getc(&tempbyte,f,keepdata))
 				{
 					return qe_invalid;
 				}
 				
-				temp_misc.warp[i].dmap[j]=(word)tempbyte;
+				if (keepdata)
+					temp_misc.warp[i].dmap[j]=(word)tempbyte;
 			}
 			else
 			{
-				if(!p_igetw(&temp_misc.warp[i].dmap[j],f,true))
+				if(!p_igetw(&temp_misc.warp[i].dmap[j],f,keepdata))
 				{
 					return qe_invalid;
 				}
@@ -5799,24 +5834,26 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 		
 		for(int32_t j=0; j<8+((s_version > 5)?1:0); j++)
 		{
-			if(!p_getc(&temp_misc.warp[i].scr[j],f,true))
+			if(!p_getc(&temp_misc.warp[i].scr[j],f,keepdata))
 			{
 				return qe_invalid;
 			}
 		}
 		
-		if(!p_getc(&temp_misc.warp[i].size,f,true))
+		if(!p_getc(&temp_misc.warp[i].size,f,keepdata))
 		{
 			return qe_invalid;
 		}
 		
 		if(Header->zelda_version < 0x193)
 		{
-			if(!p_getc(&tempbyte,f,true))
+			if(!p_getc(&tempbyte,f,keepdata))
 			{
 				return qe_invalid;
 			}
 		}
+
+		keepdata = keep_data_before;
 	}
 	
 	//palette cycles
@@ -5869,6 +5906,11 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 			{
 				return qe_invalid;
 			}
+		}
+
+		if (!(windwarps >= 0 && windwarps <= NUM_WARP_RINGS))
+		{
+			return qe_invalid;
 		}
 		
 		for(int32_t i=0; i<windwarps; i++)
@@ -6367,6 +6409,11 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
         {
             return qe_invalid;
         }
+
+        if (!(items_to_read >= 0 && items_to_read <= ITEMCNT))
+        {
+            return qe_invalid;
+        }
     }
     
     if(s_version>1)
@@ -6382,7 +6429,8 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
             
             if(keepdata)
             {
-                strcpy(item_string[i], tempname);
+                item_string[i][0] = '\0';
+                strncat(item_string[i], tempname, 64 - 1);
             }
         }
     }
@@ -9619,6 +9667,11 @@ int32_t readweapons(PACKFILE *f, zquestheader *Header, bool keepdata)
         {
             return qe_invalid;
         }
+
+        if (!(weapons_to_read >= 0 && weapons_to_read <= WPNCNT))
+        {
+            return qe_invalid;
+        }
     }
     
     if(s_version>2)
@@ -9634,7 +9687,8 @@ int32_t readweapons(PACKFILE *f, zquestheader *Header, bool keepdata)
             
             if(keepdata)
             {
-                strcpy(weapon_string[i], tempname);
+                weapon_string[i][0] = '\0';
+                strncat(weapon_string[i], tempname, 64 - 1);
             }
         }
         
@@ -11759,8 +11813,9 @@ int32_t read_one_subscreen(PACKFILE *f, zquestheader *, bool keepdata, int32_t i
             //if(temp_sub->dp1!=NULL) delete[] temp_sub->dp1;
             if(keepdata)
             {
-                uint32_t char_length = temp_size+1;
+                uint32_t char_length = temp_size+2;
                 temp_sub->dp1 = new char[char_length]; //memory not freed
+                ((char*)temp_sub->dp1)[char_length - 1] = '\0';
                 
                 //deletets = true; //obsolete
             }
@@ -12056,7 +12111,7 @@ int32_t read_one_subscreen(PACKFILE *f, zquestheader *, bool keepdata, int32_t i
                 
                 memcpy(&custom_subscreen[i].objects[j],temp_sub,sizeof(subscreen_object));
                 custom_subscreen[i].objects[j].dp1 = NULL;
-                custom_subscreen[i].objects[j].dp1 = new char[temp_size+1];
+                custom_subscreen[i].objects[j].dp1 = new char[temp_size+2];
                 strcpy((char*)custom_subscreen[i].objects[j].dp1,(char*)temp_sub->dp1);
                 break;
                 
@@ -12072,7 +12127,8 @@ int32_t read_one_subscreen(PACKFILE *f, zquestheader *, bool keepdata, int32_t i
                 break;
             }
             
-            strcpy(custom_subscreen[i].name, tempname);
+            custom_subscreen[i].name[0] = '\0';
+            strncat(custom_subscreen[i].name, tempname, 64 - 1);
             custom_subscreen[i].ss_type = temp_ss;
         }
     }
@@ -12819,6 +12875,11 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 	{
 		int32_t bufsize;
 		p_igetl(&bufsize, f, true);
+		if (bufsize < 0 || bufsize > 1024*1024*10)
+		{
+			// God help anyone storing more than 10MB of code in the script buffer.
+			return qe_invalid;
+		}
 		char * buf = new char[bufsize+1];
 		pfread(buf, bufsize, f, true);
 		buf[bufsize]=0;
@@ -12835,6 +12896,8 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 			word id;
 			p_igetw(&id, f, true);
 			p_igetl(&bufsize, f, true);
+			if (bufsize < 0 || bufsize > 1024)
+				return qe_invalid;
 			buf = new char[bufsize+1];
 			pfread(buf, bufsize, f, true);
 			buf[bufsize]=0;
@@ -12854,6 +12917,8 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 			word id;
 			p_igetw(&id, f, true);
 			p_igetl(&bufsize, f, true);
+			if (bufsize < 0 || bufsize > 1024)
+				return qe_invalid;
 			buf = new char[bufsize+1];
 			pfread(buf, bufsize, f, true);
 			buf[bufsize]=0;
@@ -12890,6 +12955,8 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 				word id;
 				p_igetw(&id, f, true);
 				p_igetl(&bufsize, f, true);
+				if (bufsize < 0 || bufsize > 1024)
+					return qe_invalid;
 				buf = new char[bufsize+1];
 				pfread(buf, bufsize, f, true);
 				buf[bufsize]=0;
@@ -12913,6 +12980,8 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 				word id;
 				p_igetw(&id, f, true);
 				p_igetl(&bufsize, f, true);
+				if (bufsize < 0 || bufsize > 1024)
+					return qe_invalid;
 				buf = new char[bufsize+1];
 				pfread(buf, bufsize, f, true);
 				buf[bufsize]=0;
@@ -12932,6 +13001,8 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 				word id;
 				p_igetw(&id, f, true);
 				p_igetl(&bufsize, f, true);
+				if (bufsize < 0 || bufsize > 1024)
+					return qe_invalid;
 				buf = new char[bufsize+1];
 				pfread(buf, bufsize, f, true);
 				buf[bufsize]=0;
@@ -12951,6 +13022,8 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 				word id;
 				p_igetw(&id, f, true);
 				p_igetl(&bufsize, f, true);
+				if (bufsize < 0 || bufsize > 1024)
+					return qe_invalid;
 				buf = new char[bufsize+1];
 				pfread(buf, bufsize, f, true);
 				buf[bufsize]=0;
@@ -12970,6 +13043,8 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 				word id;
 				p_igetw(&id, f, true);
 				p_igetl(&bufsize, f, true);
+				if (bufsize < 0 || bufsize > 1024)
+					return qe_invalid;
 				buf = new char[bufsize+1];
 				pfread(buf, bufsize, f, true);
 				buf[bufsize]=0;
@@ -12989,6 +13064,8 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 				word id;
 				p_igetw(&id, f, true);
 				p_igetl(&bufsize, f, true);
+				if (bufsize < 0 || bufsize > 1024)
+					return qe_invalid;
 				buf = new char[bufsize+1];
 				pfread(buf, bufsize, f, true);
 				buf[bufsize]=0;
@@ -13008,6 +13085,8 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 				word id;
 				p_igetw(&id, f, true);
 				p_igetl(&bufsize, f, true);
+				if (bufsize < 0 || bufsize > 1024)
+					return qe_invalid;
 				buf = new char[bufsize+1];
 				pfread(buf, bufsize, f, true);
 				buf[bufsize]=0;
@@ -13029,6 +13108,8 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 				word id;
 				p_igetw(&id, f, true);
 				p_igetl(&bufsize, f, true);
+				if (bufsize < 0 || bufsize > 1024)
+					return qe_invalid;
 				buf = new char[bufsize+1];
 				pfread(buf, bufsize, f, true);
 				buf[bufsize]=0;
@@ -13050,6 +13131,8 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 				word id;
 				p_igetw(&id, f, true);
 				p_igetl(&bufsize, f, true);
+				if (bufsize < 0 || bufsize > 1024)
+					return qe_invalid;
 				buf = new char[bufsize+1];
 				pfread(buf, bufsize, f, true);
 				buf[bufsize]=0;
@@ -13071,6 +13154,8 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 				word id;
 				p_igetw(&id, f, true);
 				p_igetl(&bufsize, f, true);
+				if (bufsize < 0 || bufsize > 1024)
+					return qe_invalid;
 				buf = new char[bufsize+1];
 				pfread(buf, bufsize, f, true);
 				buf[bufsize]=0;
@@ -13232,6 +13317,16 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int32_t , 
 		{
 			return qe_invalid;
 		}
+	}
+
+#ifdef ZC_FUZZ
+	const int32_t command_limit = 300000;
+#else
+	const int32_t command_limit = 10000000;
+#endif
+	if (num_commands < 0 || num_commands > command_limit)
+	{
+		return qe_invalid;
 	}
 	
 	if(keepdata)
@@ -13590,8 +13685,8 @@ int32_t readsfx(PACKFILE *f, zquestheader *Header, bool keepdata)
 				
 				if(keepdata)
 				{
-					strcpy(sfx_string[i], tempname);
-					sfx_string[i][35] = 0; //Force NULL Termination
+					sfx_string[i][0] = '\0';
+					strncat(sfx_string[i], tempname, 36 - 1);
 				}
 			}
 			else if(keepdata)
@@ -13675,6 +13770,10 @@ int32_t readsfx(PACKFILE *f, zquestheader *Header, bool keepdata)
 			// al_trace("F%i: L%i\n",i,temp_sample.len);
 			// temp_sample.data = new byte[(temp_sample.bits==8?1:2)*temp_sample.len];
 			int32_t len = (temp_sample.bits==8?1:2)*(temp_sample.stereo==0?1:2)*temp_sample.len;
+			if (len < 0 || len > 10000000)
+			{
+				return qe_invalid;
+			}
 			temp_sample.data = calloc(len,1);
 			
 			if(s_version < 3)
@@ -13877,7 +13976,8 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
                 
                 if(i >= OLDMAXGUYS || strlen(tempname)<1 || tempname[strlen(tempname)-1]!=' ')
                 {
-                    strcpy(guy_string[i], tempname);
+                    guy_string[i][0] = '\0';
+                    strncat(guy_string[i], tempname, 64 - 1);
                 }
                 else
                 {
@@ -17572,8 +17672,12 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header, bool keepdata)
 	{
 		temp_map_count=map_count;
 	}
-	
-	
+
+	if (!(temp_map_count >= 0 && temp_map_count <= MAXMAPS2))
+	{
+		return qe_invalid;
+	}
+
 	if(keepdata)
 	{
 		const int32_t _mapsSize = MAPSCRS*temp_map_count;
@@ -19094,6 +19198,11 @@ int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, wo
 		{
 			return qe_invalid;
 		}
+
+		if (!(palcycles >= 0 && palcycles <= NUM_PAL_CYCLES))
+		{
+			return qe_invalid;
+		}
 		
 		for(int32_t i=0; i<palcycles; i++)
 		{
@@ -20575,7 +20684,7 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 				return qe_invalid;
 			}
 		}
-		else if(replay_is_replaying() && replay_get_version() < 13)
+		else if (replay_version_check(0, 13))
 			temp_zinit.msg_speed = 0;
 		
 		if(s_version>17)
@@ -21045,6 +21154,8 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 		word numgenscript = 0;
 		if(!p_igetw(&numgenscript,f,true))
 			return qe_invalid;
+		if (!(numgenscript >= 0 && numgenscript <= NUMSCRIPTSGENERIC))
+			return qe_invalid;
 		for(auto q = 1; q < numgenscript; ++q)
 		{
 			if(!p_getc(&padding,f,true))
@@ -21144,6 +21255,11 @@ int32_t readitemdropsets(PACKFILE *f, int32_t version, word build, bool keepdata
         
         //finally...  section data
         if(!p_igetw(&item_drop_sets_to_read,f,true))
+        {
+            return qe_invalid;
+        }
+
+        if (!(item_drop_sets_to_read >= 0 && item_drop_sets_to_read <= MAXITEMDROPSETS))
         {
             return qe_invalid;
         }
@@ -21608,9 +21724,15 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
         {
             return qe_invalid;
         }
+
+        std::set<dword> seen_sections;
         
         while(!pack_feof(f))
         {
+            if (seen_sections.contains(section_id))
+                return qe_invalid;
+            seen_sections.insert(section_id);
+
             switch(section_id)
             {
             case ID_RULES:

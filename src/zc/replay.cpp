@@ -26,7 +26,7 @@ struct ReplayStep;
 
 static const int ASSERT_SNAPSHOT_BUFFER = 10;
 static const int ASSERT_FAILED_EXIT_CODE = 120;
-static const int VERSION = 17;
+static const int VERSION = 18;
 
 static const std::string ANNOTATION_MARKER = "«";
 static const char TypeMeta = 'M';
@@ -1897,6 +1897,21 @@ ReplayMode replay_get_mode()
 int replay_get_version()
 {
     return version;
+}
+
+bool replay_version_check(int min, int max)
+{
+	if (!replay_is_active())
+	{
+		return max == -1;
+	}
+
+	if (max == -1)
+	{
+		return version >= min;
+	}
+
+    return version >= min && version < max;
 }
 
 int replay_get_frame()

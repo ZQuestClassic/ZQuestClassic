@@ -976,7 +976,7 @@ void edit_cycles(int32_t level)
 	memset(cycle_none, 0, sizeof(cycle_none)); 
     for(int32_t i=0; i<3; i++)
     {
-        palcycle c = ( level < 256 ) ? misc.cycles[level][i] : cycle_none[0][i]; //Only level palettes 0 through 255 have valid data in 2.50.x. -Z
+        palcycle c = ( level < NUM_PAL_CYCLES ) ? misc.cycles[level][i] : cycle_none[0][i]; //Only level palettes 0 through 255 have valid data in 2.50.x. -Z
         sprintf(buf[i*5  ],"%d",c.first>>4);
         sprintf(buf[i*5+1],"%X",c.first&15);
         sprintf(buf[i*5+2],"%X",c.count&15);

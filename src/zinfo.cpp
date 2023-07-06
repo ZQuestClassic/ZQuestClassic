@@ -746,6 +746,8 @@ int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr)
 	if(section_version > 0)
 		if(!p_igetw(&num_itemtypes,f,true))
 			return qe_invalid;
+	if (!(num_itemtypes >= 0 && num_itemtypes <= itype_max))
+		return qe_invalid;
 	for(auto q = 0; q < num_itemtypes; ++q)
 	{
 		byte namesize;
@@ -779,6 +781,8 @@ int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr)
 		word num_combotypes;
 		if(!p_igetw(&num_combotypes,f,true))
 			return qe_invalid;
+		if (!(num_combotypes >= 0 && num_combotypes <= cMAX))
+			return qe_invalid;
 		for(auto q = 0; q < num_combotypes; ++q)
 		{
 			byte namesize;
@@ -808,6 +812,8 @@ int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr)
 		
 		word num_mapflags;
 		if(!p_igetw(&num_mapflags,f,true))
+			return qe_invalid;
+		if (!(num_mapflags >= 0 && num_mapflags <= mfMAX))
 			return qe_invalid;
 		for(auto q = 0; q < num_mapflags; ++q)
 		{
@@ -866,6 +872,8 @@ int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr)
 		word num_counters;
 		if(!p_igetw(&num_counters,f,true))
 			return qe_invalid;
+		if (!(num_counters >= 0 && num_counters <= MAX_COUNTERS))
+			return qe_invalid;
 		for(auto q = 0; q < num_counters; ++q)
 		{
 			byte namesize;
@@ -886,6 +894,8 @@ int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr)
 	{
 		word num_wpns;
 		if(!p_igetw(&num_wpns,f,true))
+			return qe_invalid;
+		if (!(num_wpns >= 0 && num_wpns <= WPNCNT))
 			return qe_invalid;
 		for(auto q = 0; q < num_wpns; ++q)
 		{

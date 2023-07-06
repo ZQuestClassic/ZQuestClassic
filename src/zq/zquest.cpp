@@ -9073,7 +9073,7 @@ static MENU draw_rc_menu[] =
 	//10
 	{ (char *)"Edit Tile Warp",          NULL,  NULL,              0, NULL },
 	{ (char *)"",                        NULL,  NULL,              0, NULL },
-	{ (char *)"Place + Edit FFC 1",      NULL,  NULL,              0, NULL },
+	{ (char *)"Edit New FFC 1",          NULL,  NULL,              0, NULL },
 	{ (char *)"Paste FFC as FFC 1",      NULL,  NULL,              0, NULL },
 	{ (char *)"",                        NULL,  NULL,              0, NULL },
 	//15
@@ -10758,7 +10758,7 @@ void domouse()
 					// FFC-specific options
 					if(earliestfreeffc < MAXFFCS)
 					{
-						sprintf(paste_ffc_menu_text, "Place + Edit FFC %d",earliestfreeffc+1);
+						sprintf(paste_ffc_menu_text, "Edit New FFC %d",earliestfreeffc+1);
 						sprintf(paste_ffc_menu_text2,"Paste FFC as FFC %d",earliestfreeffc+1);
 						draw_rc_menu[12].text = paste_ffc_menu_text;
 						draw_rc_menu[12].flags = 0;
@@ -10772,7 +10772,7 @@ void domouse()
 					}
 					else
 					{
-						draw_rc_menu[12].text = (char*)"Place + Edit FFC";
+						draw_rc_menu[12].text = (char*)"Edit New FFC";
 						draw_rc_menu[13].text = (char*)"Paste FFC";
 						draw_rc_menu[13].flags = draw_rc_menu[12].flags = D_DISABLED;
 					}
@@ -32964,7 +32964,7 @@ void exit_sys_pal(){}
 void replay_step_comment(std::string comment) {}
 bool replay_is_active() {return false;}
 bool replay_is_replaying() {return false;}
-int replay_get_version() {return 0;}
+bool replay_version_check(int min, int max) {return false;}
 bool replay_is_debug() {return false;}
 // TODO z3 !
 int32_t homescr, currscr, currscr_for_passive_subscr;

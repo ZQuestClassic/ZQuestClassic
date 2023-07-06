@@ -13,7 +13,7 @@
 #include <stdio.h>
 #include "base/zc_alleg.h"
 #include "zc/guys.h"
-#include "zc/maps.h"
+#include "zc/replay.h"
 #include "zc/zelda.h"
 #include "base/zsys.h"
 #include "zc/maps.h"
@@ -6595,7 +6595,8 @@ bool enemy::hit(int32_t tx,int32_t ty,int32_t txsz2,int32_t tysz2)
 bool enemy::hit(weapon *w)
 {
 	if(!hit()) return false;
-	if(replay_is_active() && replay_get_version() < 14)
+
+	if (replay_version_check(0, 14))
 	{
 		if(!(w->scriptcoldet&1) || w->fallclk || w->drownclk)
 			return false;

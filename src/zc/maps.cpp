@@ -4029,6 +4029,11 @@ void calc_darkroom_combos_old(int screen, int offx, int offy, bool scrolling)
 				doDarkroomCircle((scr->ffcs[q].x.getInt())+(scr->ffEffectWidth(q)/2)+scrollxoffs+offx, (scr->ffcs[q].y.getInt())+(scr->ffEffectHeight(q)/2)+scrollyoffs+offy, cmb.attribytes[0], darkscr_bmp_scrollscr);
 		}
 	}
+	if(!scrolling && mblock2.clk)
+	{
+		newcombo const& cmb = combobuf[mblock2.bcombo];
+		doDarkroomCircle(mblock2.x+8, mblock2.y+8, cmb.attribytes[0], darkscr_bmp_curscr);
+	}
 	
 	if(!scrolling) return; //not a scrolling call, don't run code for scrolling screen
 	
@@ -7276,7 +7281,7 @@ void ViewMap()
 	
 	do
 	{
-		if (replay_is_active() && replay_get_version() < 11)
+		if (replay_version_check(0, 11))
 			load_control_state();
 
 		int32_t step = int32_t(16.0/scales[sc]);
@@ -7408,7 +7413,7 @@ void ViewMap()
 		}
 		
 		advanceframe(false, false);
-		if (!replay_is_active() || replay_get_version() >= 11)
+		if (replay_version_check(11))
 			load_control_state();
 		
 		if(getInput(btnS, true, false, true)) //rSbtn

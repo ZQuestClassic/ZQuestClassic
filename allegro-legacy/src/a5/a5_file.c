@@ -419,6 +419,9 @@ int al_findnext(struct al_ffblk * info)
                 *allegro_errno = (errno ? errno : ENOENT);
                 return -1;
             }
+            // local edit
+            if (al_get_fs_entry_mode(entry) & ALLEGRO_FILEMODE_HIDDEN)
+                continue;
             entry_name = al_get_fs_entry_name(entry);
             read_fake_entry = false;
         }

@@ -4503,16 +4503,16 @@ void game_over(int32_t type)
 	int32_t curcset = SaveScreenSettings[SAVESC_CURSOR_CSET];
 	bool done=false;
 
-	if (replay_is_active() && replay_get_version() <= 6)
+	if (replay_version_check(7))
+	{
+		zc_readrawkey(Skey, true);
+	}
+	else
 	{
 		do {
 			load_control_state();
 		}
 		while(getInput(btnS, true, false, true));//rSbtn
-	}
-	else
-	{
-		zc_readrawkey(Skey, true);
 	}
 	
 	do
