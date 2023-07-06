@@ -256,7 +256,6 @@ int32_t getScreen(int32_t ref)
 	switch(ref)
 	{
 		case MAPSCR_TEMP0:
-			// TODO z3 !!!
 			return currscr;
 		case MAPSCR_TEMP1:
 			return FFCore.tempScreens[0]->layerscreen[0];
@@ -2123,6 +2122,32 @@ public:
 		return _NoError;
 	}
 };
+
+static int mapRefToLayer(int32_t ref)
+{
+	switch (ref)
+	{
+		case MAPSCR_TEMP0:
+		case MAPSCR_TEMP1:
+		case MAPSCR_TEMP2:
+		case MAPSCR_TEMP3:
+		case MAPSCR_TEMP4:
+		case MAPSCR_TEMP5:
+		case MAPSCR_TEMP6:
+			return -ref - 1;
+
+		case MAPSCR_SCROLL0:
+		case MAPSCR_SCROLL1:
+		case MAPSCR_SCROLL2:
+		case MAPSCR_SCROLL3:
+		case MAPSCR_SCROLL4:
+		case MAPSCR_SCROLL5:
+		case MAPSCR_SCROLL6:
+			return -ref - 8;
+	}
+
+	return -1;
+}
 
 static bool mapRefIsTemp(int32_t ref)
 {
@@ -24839,18 +24864,20 @@ void do_mapdataissolid()
 	{
 		int32_t x = int32_t(ri->d[rINDEX] / 10000);
 		int32_t y = int32_t(ri->d[rINDEX2] / 10000);
-		switch(ri->mapsref)
+
+		if (mapRefIsTemp(ri->mapsref))
 		{
-			case MAPSCR_TEMP0:
-				set_register(sarg1, (_walkflag(x, y, 1)) ? 10000 : 0);
-				break;
-			// TODO z3 !!!!!! ? other temp layers?
-			case MAPSCR_SCROLL0:
-				// TODO z3 !!!!!! ?
-				set_register(sarg1, (_walkflag(x, y, 1, FFCore.ScrollingScreens[0], FFCore.ScrollingScreens[1], FFCore.ScrollingScreens[2])) ? 10000 : 0);
-				break;
-			default:
-				set_register(sarg1, (_walkflag(x, y, 1, GetMapscr(ri->mapsref)) ? 10000 : 0));
+			int layer = mapRefToLayer(ri->mapsref);
+			set_register(sarg1, (_walkflag_layer(x, y, layer - 1, 1)) ? 10000 : 0);
+		}
+		else if (ri->mapsref == MAPSCR_SCROLL0)
+		{
+			// TODO z3 !!!!!! ?
+			set_register(sarg1, (_walkflag(x, y, 1, FFCore.ScrollingScreens[0], FFCore.ScrollingScreens[1], FFCore.ScrollingScreens[2])) ? 10000 : 0);
+		}
+		else
+		{
+			set_register(sarg1, (_walkflag(x, y, 1, GetMapscr(ri->mapsref)) ? 10000 : 0));
 		}
 	}
 }
