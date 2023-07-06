@@ -45,7 +45,7 @@ bld/
 [Oo]bj/
 [Ll]og/
 [Bb]uild/
-build64/
+build*
 .git/
 .git - Copy/
 src - Copy/
@@ -59,7 +59,6 @@ src - Copy (7)/
 src - Copy (8)/
 src - Copy (9)/
 src - Copy (10)/
-build_emscripten
 node_modules
 /timidity/soundfont-pats
 
