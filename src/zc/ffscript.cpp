@@ -14,6 +14,7 @@
 #include <fmt/format.h>
 //
 
+#include "base/handles.h"
 #include "zc/maps.h"
 #include "zc/zc_sys.h"
 #include "zc/jit.h"
@@ -2160,34 +2161,32 @@ static bool mapRefIsScrolling(int32_t ref)
 // A `MapData` can refer to the canonical mapscr data, or one of the temporary mapscrs loaded via `Game->LoadTempScreen(int layer)`.
 // If temporary, and we are in a region, we allow some functions (like `MapData->ComboX[pos]`) to address any rpos in the current region.
 // Otherwise, only positions in the exact screen referenced by `MapData` can be used (0-175).
-// This function returns the mapscr that should be read from, along with a pos (0-175).
-std::pair<mapscr*, int32_t> ResolveMapRef(int32_t mapref, rpos_t rpos, const char* context)
+rpos_handle_t ResolveMapRef(int32_t mapref, rpos_t rpos, const char* context)
 {
 	if (mapRefIsTemp(mapref))
 	{
 		if (BC::checkComboRpos(rpos, context) != SH::_NoError)
 		{
-			return {nullptr, 0};
+			return {nullptr, 0, 0, rpos_t::NONE};
 		}
 
 		int layer = -ri->mapsref - 1;
-		mapscr* m = get_screen_layer_for_rpos(rpos, layer - 1);
-		return {m, RPOS_TO_POS(rpos)};
+		return get_rpos_handle(rpos, layer);
 	}
 
 	// TODO z3: consider supporting for the scrolling temporary screens.
 	if (!mapRefIsScrolling(mapref) && mapref < 0)
 	{
 		Z_scripterrlog("%s pointer (%d) is either invalid or uninitialised.\n", context, mapref);
-		return {nullptr, 0};
+		return {nullptr, 0, 0, rpos_t::NONE};
 	}
 
 	if (BC::checkComboPos((int)rpos, context) != SH::_NoError)
 	{
-		return {nullptr, 0};
+		return {nullptr, 0, 0, rpos_t::NONE};
 	}
 
-	return {GetMapscr(mapref), RPOS_TO_POS(rpos)};
+	return {GetMapscr(mapref), getScreen(mapref), 0, rpos};
 }
 
 ///------------------------------------------------//
@@ -10697,9 +10696,9 @@ int32_t get_register(const int32_t arg)
 		case MAPDATACOMBODD:
 		{
 			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
-			if (auto [m, pos] = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboD[pos]"); m != nullptr)
+			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboD[pos]"); rpos_handle.screen != nullptr)
 			{
-				ret = m->data[pos] * 10000;
+				ret = rpos_handle.data() * 10000;
 			}
 			else
 			{
@@ -10711,9 +10710,9 @@ int32_t get_register(const int32_t arg)
 		case MAPDATACOMBOCD:
 		{
 			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
-			if (auto [m, pos] = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboC[pos]"); m != nullptr)
+			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboC[pos]"); rpos_handle.screen != nullptr)
 			{
-				ret = m->cset[pos] * 10000;
+				ret = rpos_handle.cset() * 10000;
 			}
 			else
 			{
@@ -10725,9 +10724,9 @@ int32_t get_register(const int32_t arg)
 		case MAPDATACOMBOFD:
 		{
 			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
-			if (auto [m, pos] = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboF[pos]"); m != nullptr)
+			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboF[pos]"); rpos_handle.screen != nullptr)
 			{
-				ret = m->sflag[pos] * 10000;
+				ret = rpos_handle.sflag() * 10000;
 			}
 			else
 			{
@@ -10739,9 +10738,9 @@ int32_t get_register(const int32_t arg)
 		case MAPDATACOMBOTD:
 		{
 			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
-			if (auto [m, pos] = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboT[pos]"); m != nullptr)
+			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboT[pos]"); rpos_handle.screen != nullptr)
 			{
-				ret = combobuf[m->data[pos]].type * 10000;
+				ret = combobuf[rpos_handle.data()].type * 10000;
 			}
 			else
 			{
@@ -10753,9 +10752,9 @@ int32_t get_register(const int32_t arg)
 		case MAPDATACOMBOID:
 		{
 			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
-			if (auto [m, pos] = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboI[pos]"); m != nullptr)
+			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboI[pos]"); rpos_handle.screen != nullptr)
 			{
-				ret = combobuf[m->data[pos]].flag * 10000;
+				ret = combobuf[rpos_handle.data()].flag * 10000;
 			}
 			else
 			{
@@ -10792,9 +10791,9 @@ int32_t get_register(const int32_t arg)
 		case MAPDATACOMBOED:
 		{
 			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
-			if (auto [m, pos] = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboE[pos]"); m != nullptr)
+			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboE[pos]"); rpos_handle.screen != nullptr)
 			{
-				ret = ((combobuf[m->data[pos]].walk & 0xF0)>>4) * 10000;
+				ret = ((combobuf[rpos_handle.data()].walk & 0xF0)>>4) * 10000;
 			}
 			else
 			{
@@ -21107,26 +21106,19 @@ void set_register(int32_t arg, int32_t value)
 
 		case MAPDATACOMBODD:
 		{
-			int32_t pos = (ri->d[rINDEX])/10000;
 			int32_t val = (value/10000);
-      
-			if(mapscr *m = GetMapscr(ri->mapsref))
+			if ( ((unsigned) val) >= MAXCOMBOS )
 			{
-				if ( ((unsigned) pos) > 175 )
-				{
-					Z_scripterrlog("Invalid [pos] %d used to write to mapdata->ComboD[]\n", pos);
-				}
-				else if ( ((unsigned) val) >= MAXCOMBOS )
-				{
-					Z_scripterrlog("Invalid combo ID %d used to write to mapdata->ComboD[]\n", val);
-				}
-				else
-				{
-					auto rpos_handle = get_rpos_handle_for_screen(m, getScreen(ri->mapsref), 0, pos);
-					screen_combo_modify_preroutine(rpos_handle);
-					m->data[pos]=val;
-					screen_combo_modify_postroutine(rpos_handle);
-				}
+				Z_scripterrlog("Invalid combo ID %d used to write to mapdata->ComboD[]\n", val);
+				return;
+			}
+
+			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
+			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboD[pos]"); rpos_handle.screen != nullptr)
+			{
+				screen_combo_modify_preroutine(rpos_handle);
+				rpos_handle.set_data(val);
+				screen_combo_modify_postroutine(rpos_handle);
 			}
 			else
 			{
@@ -21137,25 +21129,19 @@ void set_register(int32_t arg, int32_t value)
 		
 		case MAPDATACOMBOCD:
 		{
-			int32_t pos = (ri->d[rINDEX])/10000;
 			int32_t val = (value/10000); //cset
-			if(mapscr *m = GetMapscr(ri->mapsref))
+			if ( ((unsigned) val) >= 15 )
 			{
-				if ( ((unsigned) pos) > 175 )
-				{
-					Z_scripterrlog("Invalid [pos] %d used to write to mapdata->ComboC[]\n", pos);
-				}
-				else if ( ((unsigned) val) >= 15 )
-				{
-					Z_scripterrlog("Invalid CSet ID %d used to write to mapdata->ComboC[]\n", val);
-				}
-				else
-				{
-					auto rpos_handle = get_rpos_handle_for_screen(m, getScreen(ri->mapsref), 0, pos);
-					screen_combo_modify_preroutine(rpos_handle);
-					m->cset[pos]=(val)&15;
-					screen_combo_modify_postroutine(rpos_handle);
-				}
+				Z_scripterrlog("Invalid CSet ID %d used to write to mapdata->ComboC[]\n", val);
+				return;
+			}
+
+			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
+			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboC[pos]"); rpos_handle.screen != nullptr)
+			{
+				screen_combo_modify_preroutine(rpos_handle);
+				rpos_handle.set_cset(val&15);
+				screen_combo_modify_postroutine(rpos_handle);
 			}
 			else
 			{
@@ -21166,21 +21152,17 @@ void set_register(int32_t arg, int32_t value)
 		
 		case MAPDATACOMBOFD:
 		{
-			int32_t pos = (ri->d[rINDEX])/10000;
 			int32_t val = (value/10000); //flag
-			if(mapscr *m = GetMapscr(ri->mapsref))
+			if ( ((unsigned) val) >= 256 )
 			{
-				if ( ((unsigned) pos) > 175 )
-				{
-					Z_scripterrlog("Invalid [pos] %d used to write to mapdata->ComboF[]\n", pos);
-				}
-				else if ( ((unsigned) val) >= 256 )
-				{
-					Z_scripterrlog("Invalid Flag ID %d used to write to mapdata->ComboF[]\n", val);
-				}
-				
-				else
-					m->sflag[pos]=(val);
+				Z_scripterrlog("Invalid Flag ID %d used to write to mapdata->ComboF[]\n", val);
+				return;
+			}
+
+			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
+			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboF[pos]"); rpos_handle.screen != nullptr)
+			{
+				rpos_handle.set_sflag(val);
 			}
 			else
 			{
@@ -21191,25 +21173,20 @@ void set_register(int32_t arg, int32_t value)
 		
 		case MAPDATACOMBOTD:
 		{
-			int32_t pos = (ri->d[rINDEX])/10000;
 			int32_t val = (value/10000); //type
-			if(mapscr *m = GetMapscr(ri->mapsref))
+			if ( ((unsigned) val) >= cMAX )
 			{
-				if ( ((unsigned) pos) > 175 )
-				{
-					Z_scripterrlog("Invalid [pos] %d used to write to mapdata->ComboT[]\n", pos);
-				}
-				else if ( ((unsigned) val) >= cMAX )
-				{
-					Z_scripterrlog("Invalid Type ID %d used to write to mapdata->ComboT[]\n", val);
-				}
-				else
-				{
-					auto cid = m->data[pos];
-					screen_combo_modify_pre(cid);
-					combobuf[cid].type=val;
-					screen_combo_modify_post(cid);
-				}
+				Z_scripterrlog("Invalid Type ID %d used to write to mapdata->ComboT[]\n", val);
+				return;
+			}
+
+			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
+			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboT[pos]"); rpos_handle.screen != nullptr)
+			{
+				auto cid = rpos_handle.data();
+				screen_combo_modify_pre(cid);
+				combobuf[cid].type=val;
+				screen_combo_modify_post(cid);
 			}
 			else
 			{
@@ -21220,21 +21197,17 @@ void set_register(int32_t arg, int32_t value)
 		
 		case MAPDATACOMBOID:
 		{
-			int32_t pos = (ri->d[rINDEX])/10000;
 			int32_t val = (value/10000); //iflag
-			if(mapscr *m = GetMapscr(ri->mapsref))
+			if ( ((unsigned) val) >= 256 )
 			{
-				if ( ((unsigned) pos) > 175 )
-				{
-					Z_scripterrlog("Invalid [pos] %d used to write to mapdata->ComboI[]\n", pos);
-				}
-				else if ( ((unsigned) val) >= 256 )
-				{
-					Z_scripterrlog("Invalid Flag ID %d used to write to mapdata->ComboI[]\n", val);
-				}
-				
-				else
-					combobuf[m->data[pos]].flag=value/10000;
+				Z_scripterrlog("Invalid Flag ID %d used to write to mapdata->ComboI[]\n", val);
+				return;
+			}
+			
+			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
+			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboI[pos]"); rpos_handle.screen != nullptr)
+			{
+				combobuf[rpos_handle.data()].flag = value/10000;
 			}
 			else
 			{
@@ -21245,24 +21218,19 @@ void set_register(int32_t arg, int32_t value)
 		
 		case MAPDATACOMBOSD:
 		{
-			int32_t pos = (ri->d[rINDEX])/10000;
 			int32_t val = (value/10000); //solidity
-			if(mapscr *m = GetMapscr(ri->mapsref))
+			if ( ((unsigned) val) >= 16 )
 			{
-				if ( ((unsigned) pos) > 175 )
-				{
-					Z_scripterrlog("Invalid [pos] %d used to write to mapdata->ComboS[]\n", pos);
-				}
-				else if ( ((unsigned) val) >= 16 )
-				{
-					Z_scripterrlog("Invalid Solidity %d used to write to mapdata->ComboS[]\n", val);
-				}
-				
-				else
-				{
-					combobuf[m->data[pos]].walk &= ~0x0F;
-					combobuf[m->data[pos]].walk |= (val)&0x0F;
-				}
+				Z_scripterrlog("Invalid Solidity %d used to write to mapdata->ComboS[]\n", val);
+				return;
+			}
+
+			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
+			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboS[pos]"); rpos_handle.screen != nullptr)
+			{
+				int32_t cid = rpos_handle.data();
+				combobuf[cid].walk &= ~0x0F;
+				combobuf[cid].walk |= (val)&0x0F;
 			}
 			else
 			{
@@ -21273,24 +21241,19 @@ void set_register(int32_t arg, int32_t value)
 		
 		case MAPDATACOMBOED:
 		{
-			int32_t pos = (ri->d[rINDEX])/10000;
 			int32_t val = (value/10000); //solidity
-			if(mapscr *m = GetMapscr(ri->mapsref))
+			if ( ((unsigned) val) >= 16 )
 			{
-				if ( ((unsigned) pos) > 175 )
-				{
-					Z_scripterrlog("Invalid [pos] %d used to write to mapdata->ComboE[]\n", pos);
-				}
-				else if ( ((unsigned) val) >= 16 )
-				{
-					Z_scripterrlog("Invalid Solidity %d used to write to mapdata->ComboE[]\n", val);
-				}
-				
-				else
-				{
-					combobuf[m->data[pos]].walk &= ~0xF0;
-					combobuf[m->data[pos]].walk |= ((val)&0x0F)<<4;
-				}
+				Z_scripterrlog("Invalid Solidity %d used to write to mapdata->ComboE[]\n", val);
+				return;
+			}
+			
+			rpos_t rpos = (rpos_t)(ri->d[rINDEX] / 10000);
+			if (auto rpos_handle = ResolveMapRef(ri->mapsref, rpos, "mapdata->ComboE[pos]"); rpos_handle.screen != nullptr)
+			{
+				int32_t cid = rpos_handle.data();
+				combobuf[cid].walk &= ~0xF0;
+				combobuf[cid].walk |= ((val)&0x0F)<<4;
 			}
 			else
 			{
