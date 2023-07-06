@@ -1241,25 +1241,28 @@ int32_t MAPCOMBOFLAG2(int32_t layer,int32_t x,int32_t y)
 	return combobuf[cid].flag;
 }
 
-bool HASFLAG(int32_t flag, int32_t layer, int32_t pos)
+bool HASFLAG(int32_t flag, int32_t layer, rpos_t rpos)
 {
-	if(unsigned(pos) > 175) return false;
+	DCHECK_LAYER_ZERO_INDEX(layer);
+	if (rpos > region_max_rpos) return false;
 	if(unsigned(layer) > 6) return false;
 	mapscr* m = (layer ? &tmpscr2[layer-1] : &tmpscr);
 	if(!m->valid) return false;
 	
-	if(m->sflag[pos] == flag) return true;
-	if(combobuf[m->data[pos]].flag == flag) return true;
+	auto rpos_handle = get_rpos_handle(rpos, layer);
+	if (rpos_handle.sflag() == flag) return true;
+	if (combobuf[rpos_handle.data()].flag == flag) return true;
 	
 	return false;
 }
 
-bool HASFLAG_ANY(int32_t flag, int32_t pos)
+bool HASFLAG_ANY(int32_t flag, rpos_t rpos)
 {
-	if(unsigned(pos) > 175) return false;
+	if (rpos > region_max_rpos) return false;
+
 	for(auto q = 0; q < 7; ++q)
 	{
-		if(HASFLAG(flag, q, pos))
+		if(HASFLAG(flag, q, rpos))
 			return true;
 	}
 	return false;

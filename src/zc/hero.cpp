@@ -306,8 +306,8 @@ void HeroClass::set_respawn_point(bool setwarp)
 	zfix oldx = x, oldy = y;
 	if (replay_version_check(17))
 	{
-		x = vbound(x,0,240);
-		y = vbound(y,0,160);
+		x = vbound(x,0,world_w-16);
+		y = vbound(y,0,world_h-16);
 	}
 
 	do
@@ -380,15 +380,15 @@ void HeroClass::set_respawn_point(bool setwarp)
 					break;
 			} //End check water
 			
-			int poses[4] = {
-				COMBOPOS(x,y+(bigHitbox?0:8)),
-				COMBOPOS(x,y+15),
-				COMBOPOS(x+15,y+(bigHitbox?0:8)),
-				COMBOPOS(x+15,y+15)
+			rpos_t rposes[] = {
+				COMBOPOS_REGION(x,y+(bigHitbox?0:8)),
+				COMBOPOS_REGION(x,y+15),
+				COMBOPOS_REGION(x+15,y+(bigHitbox?0:8)),
+				COMBOPOS_REGION(x+15,y+15)
 				};
-			for(auto pos : poses)
+			for(auto rpos : rposes)
 			{
-				if(HASFLAG_ANY(mfUNSAFEGROUND, pos)) //"Unsafe Ground" flag touching the player
+				if(HASFLAG_ANY(mfUNSAFEGROUND, rpos)) //"Unsafe Ground" flag touching the player
 				{
 					is_safe = false;
 					break;
@@ -10238,11 +10238,11 @@ void HeroClass::doMirror(int32_t mirrorid)
 		return;
 	}
 	static const int32_t sens = 4; //sensitivity of 'No Mirror' combos (0 most, 8 least)
-	int32_t posarr[] = {COMBOPOS(x+sens,y+sens), COMBOPOS(x+sens,y+15-sens),
-		COMBOPOS(x+15-sens,y+sens), COMBOPOS(x+15-sens,y+15-sens)};
-	for(auto pos : posarr)
+	rpos_t rposes[] = {COMBOPOS_REGION(x+sens,y+sens), COMBOPOS_REGION(x+sens,y+15-sens),
+		COMBOPOS_REGION(x+15-sens,y+sens), COMBOPOS_REGION(x+15-sens,y+15-sens)};
+	for(auto rpos : rposes)
 	{
-		if(HASFLAG_ANY(mfNOMIRROR, pos)) //"No Mirror" flag touching the player
+		if(HASFLAG_ANY(mfNOMIRROR, rpos)) //"No Mirror" flag touching the player
 		{
 			item_error();
 			return;
