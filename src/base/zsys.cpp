@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
+#include "base/zapp.h"
 #include "base/zc_alleg.h"
 #include <allegro/internal/aintern.h>
 #include <string>
@@ -988,6 +989,9 @@ void set_box_size(int32_t w, int32_t h)
 /* starts outputting a progress message */
 void box_start(int32_t style, const char *title, FONT *title_font, FONT *message_font, bool log, int32_t w, int32_t h, uint8_t scale)
 {
+    if (is_headless())
+        return;
+
     box_text_scale=scale;
     box_style=style;
     box_title_font=(title_font!=NULL)?title_font:font;

@@ -28748,6 +28748,136 @@ bool no_subscreen()
     return false;
 }
 
+static void allocate_crap()
+{
+	memrequested+=(2048*5);
+	Z_message("Allocating file path buffers (%s)... ", byte_conversion2(2048*7,memrequested,-1,-1));
+	filepath=(char*)malloc(2048);
+	temppath=(char*)malloc(2048);
+	datapath=(char*)malloc(2048);
+	midipath=(char*)malloc(2048);
+	imagepath=(char*)malloc(2048);
+	tmusicpath=(char*)malloc(2048);
+	last_timed_save=(char*)malloc(2048);
+	
+	if(!filepath || !datapath || !temppath || !imagepath || !midipath || !tmusicpath || !last_timed_save)
+	{
+		Z_error_fatal("Error: no memory for file paths!");
+	}
+	
+	Z_message("OK\n");									  // Allocating file path buffers...
+
+	memrequested+=sizeof(zctune)*MAXCUSTOMMIDIS_ZQ;
+	Z_message("Allocating tunes buffer (%s)... ", byte_conversion2(sizeof(zctune)*MAXCUSTOMMIDIS_ZQ,memrequested,-1,-1));
+	customtunes = (zctune*)malloc(sizeof(class zctune)*MAXCUSTOMMIDIS_ZQ);
+	memset(customtunes, 0, sizeof(class zctune)*MAXCUSTOMMIDIS_ZQ);
+
+	for(int32_t i=0; i<MAXCUSTOMMIDIS_ZQ; ++i)
+	{
+		customtunes[i].data=NULL;
+	}
+
+	for(int32_t i=0; i<MAXCUSTOMTUNES; i++)
+	{
+		midi_string[i+4]=customtunes[i].title;
+		screen_midi_string[i+5]=customtunes[i].title;
+	}
+	
+	for(int32_t i=0; i<WAV_COUNT; i++)
+	{
+		if(sfx_string[i]!=NULL) delete sfx_string[i];
+		customsfxdata[i].data=NULL;
+		sfx_string[i] = new char[36];
+		memset(sfx_string[i], 0, 36);
+	}
+	
+	for(int32_t i=0; i<WPNCNT; i++)
+	{
+		if(weapon_string[i]!=NULL) delete weapon_string[i];
+		weapon_string[i] = new char[64];
+		memset(weapon_string[i], 0, 64);
+	}
+	
+	for(int32_t i=0; i<ITEMCNT; i++)
+	{
+		if(item_string[i]!=NULL) delete item_string[i];
+		item_string[i] = new char[64];
+		memset(item_string[i], 0, 64);
+	}
+	
+	for(int32_t i=0; i<eMAXGUYS; i++)
+	{
+		if(guy_string[i]!=NULL) delete guy_string[i];
+		guy_string[i] = new char[64];
+		memset(guy_string[i], 0, 64);
+	}
+	
+	for(int32_t i=0; i<NUMSCRIPTFFC; i++)
+	{
+		if(ffscripts[i]!=NULL) delete ffscripts[i];
+		ffscripts[i] = new script_data();
+	}
+	
+	for(int32_t i=0; i<NUMSCRIPTITEM; i++)
+	{
+		if(itemscripts[i]!=NULL) delete itemscripts[i];
+		itemscripts[i] = new script_data();
+	}
+	
+	for(int32_t i=0; i<NUMSCRIPTGUYS; i++)
+	{
+		if(guyscripts[i]!=NULL) delete guyscripts[i];
+		guyscripts[i] = new script_data();
+	}
+	
+	for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
+	{
+		if(lwpnscripts[i]!=NULL) delete lwpnscripts[i];
+		lwpnscripts[i] = new script_data();
+	}
+	
+	for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
+	{
+		if(ewpnscripts[i]!=NULL) delete ewpnscripts[i];
+		ewpnscripts[i] = new script_data();
+	}
+	
+	for(int32_t i=0; i<NUMSCRIPTSCREEN; i++)
+	{
+		if(screenscripts[i]!=NULL) delete screenscripts[i];
+		screenscripts[i] = new script_data();
+	}
+	
+	for(int32_t i=0; i<3; i++) //should this be NUMSCRIPTGLOBAL or NUMSCRIPTGLOBALOLD? -Z
+	{
+		if(globalscripts[i]!=NULL) delete globalscripts[i];
+		globalscripts[i] = new script_data();
+	}
+	
+	for(int32_t i=0; i<NUMSCRIPTPLAYER; i++)
+	{
+		if(playerscripts[i]!=NULL) delete playerscripts[i];
+		playerscripts[i] = new script_data();
+	}
+	
+	for(int32_t i=0; i<NUMSCRIPTSDMAP; i++)
+	{
+		if(dmapscripts[i]!=NULL) delete dmapscripts[i];
+		dmapscripts[i] = new script_data();
+	}
+	
+	for(int32_t i=0; i<NUMSCRIPTSITEMSPRITE; i++)
+	{
+		if(itemspritescripts[i]!=NULL) delete itemspritescripts[i];
+		itemspritescripts[i] = new script_data();
+	}
+	for(int32_t i=0; i<NUMSCRIPTSCOMBODATA; i++)
+	{
+		if(comboscripts[i]!=NULL) delete comboscripts[i];
+		comboscripts[i] = new script_data();
+	}
+}
+
 // Removes the top layer encoding from a quest file. See open_quest_file.
 // This has zero impact on the contents of the quest file. There should be no way for this to
 // break anything.
@@ -28776,8 +28906,26 @@ static void do_unencrypt_qst_command(const char* input_filename, const char* out
 // typically for compatability, but could possibly be a source of bugs.
 static void do_copy_qst_command(const char* input_filename, const char* output_filename)
 {
-	load_quest(input_filename);
-	save_quest(output_filename, false);
+	set_headless_mode();
+
+	// We need to init some stuff before loading a quest file will work.
+	int fake_errno = 0;
+	allegro_errno = &fake_errno;
+	get_qst_buffers();
+	allocate_crap();
+	if ((sfxdata=load_datafile("sfx.dat"))==NULL)
+	{
+		Z_error_fatal("failed to load sfx_dat");
+	}
+
+	int ret = load_quest(input_filename, false);
+	if (ret)
+	{
+		exit(ret);
+	}
+
+	ret = save_quest(output_filename, false);
+	exit(ret);
 }
 
 int32_t Awpn=0, Bwpn=0, Bpos=0, Xwpn = 0, Ywpn = 0;
@@ -28798,24 +28946,27 @@ int32_t main(int32_t argc,char **argv)
 		return get_bit(quest_rules,qr_SCRIPTERRLOG) || DEVLEVEL > 0;
 	});
 
+	int copy_qst_arg = used_switch(argc, argv, "-copy-qst");
+	if (copy_qst_arg > 0)
+	{
+		if (copy_qst_arg + 3 > argc)
+		{
+			printf("%d\n", argc);
+			printf("expected -copy-qst <input> <output>\n");
+			exit(1);
+		}
+
+		const char* input_filename = argv[copy_qst_arg + 1];
+		const char* output_filename = argv[copy_qst_arg + 2];
+		do_copy_qst_command(input_filename, output_filename);
+	}
+
 	Z_title("%s, v.%s %s",ZQ_EDITOR_NAME, ZQ_EDITOR_V, ALPHA_VER_STR);
 	
 	// Before anything else, let's register our custom trace handler:
 	register_trace_handler(zc_trace_handler);
-	
-	//FFScript::init();
-	memrequested+=sizeof(zctune)*MAXCUSTOMMIDIS_ZQ;
-	Z_message("Allocating tunes buffer (%s)... ", byte_conversion2(sizeof(zctune)*MAXCUSTOMMIDIS_ZQ,memrequested,-1,-1));
-	customtunes = (zctune*)malloc(sizeof(class zctune)*MAXCUSTOMMIDIS_ZQ);
-	memset(customtunes, 0, sizeof(class zctune)*MAXCUSTOMMIDIS_ZQ);
-	
-	if(!customtunes)
-	{
-		Z_error_fatal("Error");
-	}
-	
-	Z_message("OK\n");									  // Allocating MIDI buffer...
-	
+
+	allocate_crap();
 	if(!get_qst_buffers())
 	{
 		Z_error_fatal("Error");
@@ -28847,22 +28998,6 @@ int32_t main(int32_t argc,char **argv)
 		
 	Z_message("OK\n");
 	
-	memrequested+=(2048*5);
-	Z_message("Allocating file path buffers (%s)... ", byte_conversion2(2048*7,memrequested,-1,-1));
-	filepath=(char*)malloc(2048);
-	temppath=(char*)malloc(2048);
-	datapath=(char*)malloc(2048);
-	midipath=(char*)malloc(2048);
-	imagepath=(char*)malloc(2048);
-	tmusicpath=(char*)malloc(2048);
-	last_timed_save=(char*)malloc(2048);
-	
-	if(!filepath || !datapath || !temppath || !imagepath || !midipath || !tmusicpath || !last_timed_save)
-	{
-		Z_error_fatal("Error: no memory for file paths!");
-	}
-	
-	Z_message("OK\n");									  // Allocating file path buffers...
 	
 	zc_srand(time(0));
 	
@@ -29005,18 +29140,6 @@ int32_t main(int32_t argc,char **argv)
 		FatalConsole("\nIncompatible version of sfx.dat.\nPlease upgrade to %s Build %d",VerStr(SFXDAT_VERSION), SFXDAT_BUILD);
 	
 	Z_message("OK\n");
-	
-	for(int32_t i=0; i<MAXCUSTOMTUNES; i++)
-	{
-		customtunes[i].data=NULL;
-		midi_string[i+4]=customtunes[i].title;
-	}
-	
-	for(int32_t i=0; i<MAXCUSTOMTUNES; i++)
-	{
-		customtunes[i].data=NULL;
-		screen_midi_string[i+5]=customtunes[i].title;
-	}
 	
 	for(int32_t i=0; i<4; i++)
 	{
@@ -29463,106 +29586,6 @@ int32_t main(int32_t argc,char **argv)
 	
 	zc_set_palette(RAMpal);
 	clear_to_color(screen,vc(0));
-	
-	//clear the midis (to keep loadquest from crashing by trying to destroy a garbage midi)
-	for(int32_t i=0; i<MAXCUSTOMMIDIS_ZQ; ++i)
-	{
-		customtunes[i].data=NULL;
-	}
-	
-	for(int32_t i=0; i<WAV_COUNT; i++)
-	{
-		if(sfx_string[i]!=NULL) delete sfx_string[i];
-		customsfxdata[i].data=NULL;
-		sfx_string[i] = new char[36];
-		memset(sfx_string[i], 0, 36);
-	}
-	
-	for(int32_t i=0; i<WPNCNT; i++)
-	{
-		if(weapon_string[i]!=NULL) delete weapon_string[i];
-		weapon_string[i] = new char[64];
-		memset(weapon_string[i], 0, 64);
-	}
-	
-	for(int32_t i=0; i<ITEMCNT; i++)
-	{
-		if(item_string[i]!=NULL) delete item_string[i];
-		item_string[i] = new char[64];
-		memset(item_string[i], 0, 64);
-	}
-	
-	for(int32_t i=0; i<eMAXGUYS; i++)
-	{
-		if(guy_string[i]!=NULL) delete guy_string[i];
-		guy_string[i] = new char[64];
-		memset(guy_string[i], 0, 64);
-	}
-	
-	for(int32_t i=0; i<NUMSCRIPTFFC; i++)
-	{
-		if(ffscripts[i]!=NULL) delete ffscripts[i];
-		ffscripts[i] = new script_data();
-	}
-	
-	for(int32_t i=0; i<NUMSCRIPTITEM; i++)
-	{
-		if(itemscripts[i]!=NULL) delete itemscripts[i];
-		itemscripts[i] = new script_data();
-	}
-	
-	for(int32_t i=0; i<NUMSCRIPTGUYS; i++)
-	{
-		if(guyscripts[i]!=NULL) delete guyscripts[i];
-		guyscripts[i] = new script_data();
-	}
-	
-	for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
-	{
-		if(lwpnscripts[i]!=NULL) delete lwpnscripts[i];
-		lwpnscripts[i] = new script_data();
-	}
-	
-	for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
-	{
-		if(ewpnscripts[i]!=NULL) delete ewpnscripts[i];
-		ewpnscripts[i] = new script_data();
-	}
-	
-	for(int32_t i=0; i<NUMSCRIPTSCREEN; i++)
-	{
-		if(screenscripts[i]!=NULL) delete screenscripts[i];
-		screenscripts[i] = new script_data();
-	}
-	
-	for(int32_t i=0; i<3; i++) //should this be NUMSCRIPTGLOBAL or NUMSCRIPTGLOBALOLD? -Z
-	{
-		if(globalscripts[i]!=NULL) delete globalscripts[i];
-		globalscripts[i] = new script_data();
-	}
-	
-	for(int32_t i=0; i<NUMSCRIPTPLAYER; i++)
-	{
-		if(playerscripts[i]!=NULL) delete playerscripts[i];
-		playerscripts[i] = new script_data();
-	}
-	
-	for(int32_t i=0; i<NUMSCRIPTSDMAP; i++)
-	{
-		if(dmapscripts[i]!=NULL) delete dmapscripts[i];
-		dmapscripts[i] = new script_data();
-	}
-	
-	for(int32_t i=0; i<NUMSCRIPTSITEMSPRITE; i++)
-	{
-		if(itemspritescripts[i]!=NULL) delete itemspritescripts[i];
-		itemspritescripts[i] = new script_data();
-	}
-	for(int32_t i=0; i<NUMSCRIPTSCOMBODATA; i++)
-	{
-		if(comboscripts[i]!=NULL) delete comboscripts[i];
-		comboscripts[i] = new script_data();
-	}
 
 	int quick_assign_arg = used_switch(argc, argv, "-quick-assign");
 	if (quick_assign_arg > 0)
@@ -29573,22 +29596,6 @@ int32_t main(int32_t argc,char **argv)
 		if (success)
 			success = save_quest(argv[1], false) == 0;
 		exit(success ? 0 : 1);
-	}
-
-	int copy_qst_arg = used_switch(argc, argv, "-copy-qst");
-	if (copy_qst_arg > 0)
-	{
-		if (copy_qst_arg + 3 > argc)
-		{
-			printf("%d\n", argc);
-			printf("expected -copy-qst <input> <output>\n");
-			exit(1);
-		}
-
-		const char* input_filename = argv[copy_qst_arg + 1];
-		const char* output_filename = argv[copy_qst_arg + 2];
-		do_copy_qst_command(input_filename, output_filename);
-		exit(0);
 	}
 	
 	zScript = string();

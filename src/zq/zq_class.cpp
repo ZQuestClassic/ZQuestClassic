@@ -7004,8 +7004,11 @@ int32_t load_quest(const char *filename, bool show_progress)
 				bmap=NULL;
 			}
 			
-			sprintf(buf,"ZQuest - [%s]", get_filename(filename));
-			set_window_title(buf);
+			if (show_progress)
+			{
+				sprintf(buf,"ZQuest - [%s]", get_filename(filename));
+				set_window_title(buf);
+			}
 		}
 	}
 
