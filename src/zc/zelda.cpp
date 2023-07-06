@@ -4310,15 +4310,7 @@ void zc_game_srand(int seed, zc_randgen* rng)
 
 
 static void allocate_crap()
-{
-	for(int32_t i=0; i<4; i++)
-	{
-		for(int32_t j=0; j<MAXSUBSCREENITEMS; j++)
-		{
-			memset(&custom_subscreen[i].objects[j],0,sizeof(subscreen_object));
-		}
-	}
-	
+{	
 	for(int32_t i=0; i<WAV_COUNT; i++)
 	{
 		customsfxdata[i].data=NULL;
@@ -4407,31 +4399,16 @@ static void allocate_crap()
 void do_load_and_quit_command(const char* quest_path)
 {
 	// We need to init some stuff before loading a quest file will work.
-	Z_message("Initializing Allegro... ");
-	if(!al_init())
-	{
-		Z_error_fatal("Failed Init!");
-	}
-	if(allegro_init() != 0)
-	{
-		Z_error_fatal("Failed Init!");
-	}
+	int fake_errno = 0;
+	allegro_errno = &fake_errno;
 	get_qst_buffers();
 	allocate_crap();
-	if ( !(zcm.init(true)) ) 
-	{
-		Z_error_fatal("ZC Player I/O Error: No module definitions found. Please check your settings in %s.cfg.\n", "zc");
-	}
-	if ((sfxdata=load_datafile(moduledata.datafiles[sfx_dat]))==NULL)
+	if ((sfxdata=load_datafile("sfx.dat"))==NULL)
 	{
 		Z_error_fatal("failed to load sfx_dat");
 	}
 
-	byte skip_flags[4];
-	for (int32_t i=0; i<4; ++i)
-	{
-		skip_flags[i] = 0;
-	}
+	byte skip_flags[] = {0, 0, 0, 0};
 	int ret = loadquest(quest_path,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,true,skip_flags,false,false,0xFF);
 	exit(ret);
 }
