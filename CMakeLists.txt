@@ -646,6 +646,10 @@ if(CMAKE_SIZEOF_VOID_P EQUAL 8)
 	FetchContent_MakeAvailable(asmjit)
 	target_link_libraries(zelda PRIVATE asmjit)
 	target_compile_definitions(zelda PRIVATE ZC_JIT)
+
+	get_target_property(asm_compile_options asmjit COMPILE_OPTIONS)
+	string(REPLACE "$<NOT:$<CONFIG:Debug>>" "$<NOT:$<CONFIG:Debug,Asan>>" asm_compile_options "${asm_compile_options}")
+	set_target_properties(asmjit PROPERTIES COMPILE_OPTIONS "${asm_compile_options}")
 endif()
 
 #############################################################
