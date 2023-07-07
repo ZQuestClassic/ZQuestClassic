@@ -22,7 +22,7 @@ else:
 parser = argparse.ArgumentParser(
     description='Runs each bad input found by AFL++ fuzzer, and saves stacktrace to disk')
 parser.add_argument('--fuzz_results_folder', default='.tmp/fuzz_results')
-parser.add_argument('--build_folder', default='build_asan/Debug')
+parser.add_argument('--build_folder', default='build/Asan')
 
 args = parser.parse_args()
 
