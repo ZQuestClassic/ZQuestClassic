@@ -2489,6 +2489,7 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printm
 		{
 			set_bit(quest_rules,qr_BRKNSHLDTILES,(get_bit(quest_rules,qr_BRKBLSHLDS_DEP)));
 			set_bit(deprecated_rules,qr_BRKBLSHLDS_DEP,1);
+			set_bit(quest_rules,qr_BRKBLSHLDS_DEP,1);
 		}
 		
 		if(tempheader.zelda_version >= 0x192)                       //  lacks newer header stuff...
@@ -3183,6 +3184,7 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	if(tempheader.zelda_version < 0x210)
 	{
 		set_bit(deprecated_rules, qr_OLDTRIBBLES_DEP,1);
+		set_bit(quest_rules, qr_OLDTRIBBLES_DEP,1);
 		set_bit(quest_rules, qr_OLDHOOKSHOTGRAB,1);
 	}
 	
@@ -3199,6 +3201,7 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	if(tempheader.zelda_version == 0x210)
 	{
 		set_bit(deprecated_rules, qr_OLDTRIBBLES_DEP, get_bit(quest_rules, qr_DMGCOMBOPRI));
+		set_bit(quest_rules, qr_OLDTRIBBLES_DEP, get_bit(quest_rules, qr_DMGCOMBOPRI));
 		set_bit(quest_rules, qr_DMGCOMBOPRI, 0);
 	}
 	
@@ -3357,11 +3360,12 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 		set_bit(quest_rules,qr_SLOWENEMYANIM_DEP,0);
 	}
 	
-	if(s_version<12)  // December 2009
-	{
-		set_bit(quest_rules,qr_BRKBLSHLDS_DEP,0);
-		set_bit(quest_rules, qr_OLDTRIBBLES_DEP,0);
-	}
+	// This served no purpose.
+	// if(s_version<12)  // December 2009
+	// {
+	// 	set_bit(quest_rules,qr_BRKBLSHLDS_DEP,0);
+	// 	set_bit(quest_rules, qr_OLDTRIBBLES_DEP,0);
+	// }
 	
 	//if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build < 24))
 	if(s_version < 13)
@@ -7291,7 +7295,7 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 						tempitem.wpn2=wBOOM;
 						tempitem.misc1 = 50;
 						
-						if(get_bit(deprecated_rules,116)) tempitem.misc1 = 200;  //qr_SLOWBOMBFUSES
+						if(get_bit(deprecated_rules,qr_SLOWBOMBFUSES_DEP)) tempitem.misc1 = 200;
 						
 						break;
 						
@@ -7302,13 +7306,13 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 						tempitem.wpn2=wSBOOM;
 						tempitem.misc1 = 50;
 						
-						if(get_bit(deprecated_rules,116)) tempitem.misc1 = 400;  //qr_SLOWBOMBFUSES
+						if(get_bit(deprecated_rules,qr_SLOWBOMBFUSES_DEP)) tempitem.misc1 = 400;
 						
 						break;
 						
 					case iBook:
-						if(get_bit(deprecated_rules, 113))
-							tempitem.wpn = wFIREMAGIC; //qr_FIREMAGICSPRITE
+						if(get_bit(deprecated_rules, qr_FIREMAGICSPRITE_DEP))
+							tempitem.wpn = wFIREMAGIC;
 							
 						break;
 						
@@ -7345,26 +7349,26 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 						break;
 						
 					case iBoots:
-						tempitem.cost_amount[0] = get_bit(deprecated_rules,51) ? 1 : 0;
+						tempitem.cost_amount[0] = get_bit(deprecated_rules,qr_MAGICBOOTS_DEP) ? 1 : 0;
 						tempitem.power=7;
 						break;
 						
 					case iWand:
-						tempitem.cost_amount[0] = get_bit(deprecated_rules,49) ? 8 : 0;
+						tempitem.cost_amount[0] = get_bit(deprecated_rules,qr_MAGICWAND_DEP) ? 8 : 0;
 						tempitem.power=2;
 						tempitem.wpn=wWAND;
 						tempitem.wpn3=wMAGIC;
 						break;
 						
 					case iBCandle:
-						tempitem.cost_amount[0] = get_bit(deprecated_rules,50) ? 4 : 0;
+						tempitem.cost_amount[0] = get_bit(deprecated_rules,qr_MAGICCANDLE_DEP) ? 4 : 0;
 						tempitem.power=1;
 						tempitem.flags|=(ITEM_GAMEDATA|ITEM_FLAG1);
 						tempitem.wpn3=wFIRE;
 						break;
 						
 					case iRCandle:
-						tempitem.cost_amount[0] = get_bit(deprecated_rules,50) ? 4 : 0;
+						tempitem.cost_amount[0] = get_bit(deprecated_rules,qr_MAGICCANDLE_DEP) ? 4 : 0;
 						tempitem.power=1;
 						tempitem.wpn3=wFIRE;
 						break;
@@ -7398,8 +7402,8 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 						break;
 						
 					case iDivineProtection:
-						tempitem.flags |= get_bit(deprecated_rules,76) ? ITEM_FLAG1 : 0;
-						tempitem.flags |= get_bit(deprecated_rules,75) ? ITEM_FLAG2 : 0;
+						tempitem.flags |= get_bit(deprecated_rules,qr_FLICKERINGDIVINEPROTECTIONROCKET_DEP) ? ITEM_FLAG1 : 0;
+						tempitem.flags |= get_bit(deprecated_rules,qr_TRANSLUCENTDIVINEPROTECTIONROCKET_DEP) ? ITEM_FLAG2 : 0;
 						tempitem.wpn=wDIVINEPROTECTION1A;
 						tempitem.wpn2=wDIVINEPROTECTION1B;
 						tempitem.wpn3=wDIVINEPROTECTIONS1A;
