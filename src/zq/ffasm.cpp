@@ -1162,6 +1162,16 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "RESRVD_OP_EMILY_18", 0, 0, 0, 0 },
 	{ "RESRVD_OP_EMILY_19", 0, 0, 0, 0 },
 	{ "RESRVD_OP_EMILY_20", 0, 0, 0, 0 },
+	{ "CONVERTFROMRGB", 0, 0, 0, 0 },
+	{ "CONVERTTORGB", 0, 0, 0, 0 },
+	{ "RESRVD_OP_MOOSH_03", 0, 0, 0, 0 },
+	{ "RESRVD_OP_MOOSH_04", 0, 0, 0, 0 },
+	{ "RESRVD_OP_MOOSH_05", 0, 0, 0, 0 },
+	{ "RESRVD_OP_MOOSH_06", 0, 0, 0, 0 },
+	{ "RESRVD_OP_MOOSH_07", 0, 0, 0, 0 },
+	{ "RESRVD_OP_MOOSH_08", 0, 0, 0, 0 },
+	{ "RESRVD_OP_MOOSH_09", 0, 0, 0, 0 },
+	{ "RESRVD_OP_MOOSH_10", 0, 0, 0, 0 },
 	
 	{ "",                    0,   0,   0,   0}
 };

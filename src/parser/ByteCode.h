@@ -4155,6 +4155,28 @@ namespace ZScript
 			return new OCreateRGB();
 		}
 	};
+
+	class OConvertFromRGB : public Opcode
+	{
+	public:
+		OConvertFromRGB() : Opcode() {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OConvertFromRGB();
+		}
+	};
+
+	class OConvertToRGB : public Opcode
+	{
+	public:
+		OConvertToRGB() : Opcode() {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OConvertToRGB();
+		}
+	};
 	
 	class OMixColorArray : public Opcode
 	{

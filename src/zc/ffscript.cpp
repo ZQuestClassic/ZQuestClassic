@@ -25988,6 +25988,79 @@ void FFScript::do_create_rgb()
 	ri->d[rEXP1] = (r << 16) | (g << 8) | b;
 }
 
+void FFScript::do_convert_from_rgb()
+{
+	int32_t buf = SH::read_stack(ri->sp + 2) / 10000;
+	int32_t clri = SH::read_stack(ri->sp + 1);
+	int32_t color_space = SH::read_stack(ri->sp + 0) / 10000;
+
+	ArrayManager am(buf);
+	if (am.invalid()) return;
+	int32_t zscript_array_size = am.size();
+	int32_t target_size;
+	
+	switch (color_space)
+	{
+	case user_paldata::CSPACE_CMYK:
+			target_size = 4;
+			break;
+		default:
+			target_size = 3;
+	}
+
+	if (zscript_array_size < target_size)
+	{
+		Z_scripterrlog("Array supplied to 'Graphics->ConvertFromRGB' not large enough. Should be at least size %d\n", target_size);
+		return;
+	}
+	
+	RGB c = _RGB((clri >> 16) & 0xFF, (clri >> 8) & 0xFF, clri & 0xFF);
+	double convert[4];
+	user_paldata::RGBTo(c, convert, color_space);
+
+	for (int32_t q = 0; q < target_size; ++q)
+	{
+		am.set(q, int32_t(convert[q]*10000));
+	}
+
+	return;
+}
+
+void FFScript::do_convert_to_rgb()
+{
+	int32_t buf = SH::read_stack(ri->sp + 1) / 10000;
+	int32_t color_space = SH::read_stack(ri->sp + 0) / 10000;
+	
+	ArrayManager am(buf);
+	if (am.invalid()) return;
+	int32_t zscript_array_size = am.size();
+	int32_t target_size;
+
+	switch (color_space)
+	{
+	case user_paldata::CSPACE_CMYK:
+		target_size = 4;
+		break;
+	default:
+		target_size = 3;
+	}
+
+	if (zscript_array_size < target_size)
+	{
+		Z_scripterrlog("Array supplied to 'Graphics->ConvertToRGB' not large enough. Should be at least size %d\n", target_size);
+		return;
+	}
+
+	double convert[4];
+	for (int32_t q = 0; q < target_size; ++q)
+	{
+		convert[q] = am.get(q) / 10000.0;
+	}
+	RGB c = user_paldata::RGBFrom(convert, color_space);
+
+	ri->d[rEXP1] = (c.r << 16) | (c.g << 8) | c.b;
+}
+
 void FFScript::do_paldata_load_level()
 {
 	if (user_paldata* pd = checkPalData(ri->paldataref, "paldata->LoadLevelPalette()"))
@@ -32063,6 +32136,10 @@ j_command:
 				FFCore.do_create_rgb_hex(); break;
 			case CREATERGB:
 				FFCore.do_create_rgb(); break;
+			case CONVERTFROMRGB:
+				FFCore.do_convert_from_rgb(); break;
+			case CONVERTTORGB:
+				FFCore.do_convert_to_rgb(); break;
 			case PALDATALOADLEVEL:
 				FFCore.do_paldata_load_level(); break;
 			case PALDATALOADSPRITE:
@@ -40728,6 +40805,16 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "RESRVD_OP_EMILY_18", 0, 0, 0, 0 },
 	{ "RESRVD_OP_EMILY_19", 0, 0, 0, 0 },
 	{ "RESRVD_OP_EMILY_20", 0, 0, 0, 0 },
+	{ "CONVERTFROMRGB", 0, 0, 0, 0 },
+	{ "CONVERTTORGB", 0, 0, 0, 0 },
+	{ "RESRVD_OP_MOOSH_03", 0, 0, 0, 0 },
+	{ "RESRVD_OP_MOOSH_04", 0, 0, 0, 0 },
+	{ "RESRVD_OP_MOOSH_05", 0, 0, 0, 0 },
+	{ "RESRVD_OP_MOOSH_06", 0, 0, 0, 0 },
+	{ "RESRVD_OP_MOOSH_07", 0, 0, 0, 0 },
+	{ "RESRVD_OP_MOOSH_08", 0, 0, 0, 0 },
+	{ "RESRVD_OP_MOOSH_09", 0, 0, 0, 0 },
+	{ "RESRVD_OP_MOOSH_10", 0, 0, 0, 0 },
 	
 	{ "",                    0,   0,   0,   0}
 };

@@ -1167,6 +1167,8 @@ void do_create_paldata_clr();
 void do_mix_clr();
 void do_create_rgb_hex();
 void do_create_rgb();
+void do_convert_from_rgb();
+void do_convert_to_rgb();
 void do_paldata_load_level();
 void do_paldata_load_sprite();
 void do_paldata_load_main();
@@ -3242,8 +3244,19 @@ enum ASM_DEFINE
 	RESRVD_OP_EMILY_18,
 	RESRVD_OP_EMILY_19,
 	RESRVD_OP_EMILY_20,
+
+	CONVERTFROMRGB,
+	CONVERTTORGB,
+	RESRVD_OP_MOOSH_03,
+	RESRVD_OP_MOOSH_04,
+	RESRVD_OP_MOOSH_05,
+	RESRVD_OP_MOOSH_06,
+	RESRVD_OP_MOOSH_07,
+	RESRVD_OP_MOOSH_08,
+	RESRVD_OP_MOOSH_09,
+	RESRVD_OP_MOOSH_10,
 	
-	NUMCOMMANDS           //0x020F
+	NUMCOMMANDS           //0x0219
 };
 
 

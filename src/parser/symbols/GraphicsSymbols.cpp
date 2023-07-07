@@ -21,6 +21,8 @@ static AccessorTable GraphicsTable[] =
 	{ "MixColor",                   0,       ZTID_RGBDATA,   -1,                   FL_INL,  { ZTID_GRAPHICS, ZTID_RGBDATA, ZTID_RGBDATA, ZTID_FLOAT, ZTID_FLOAT },{ 0 } },
 	{ "CreateRGB",                  0,       ZTID_RGBDATA,   -1,                   FL_INL,  { ZTID_GRAPHICS, ZTID_LONG },{} },
 	{ "CreateRGB",                  1,       ZTID_RGBDATA,   -1,                   FL_INL,  { ZTID_GRAPHICS, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "ConvertFromRGB",             0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_GRAPHICS, ZTID_FLOAT, ZTID_RGBDATA, ZTID_FLOAT },{} },
+	{ "ConvertToRGB",               0,       ZTID_RGBDATA,   -1,                   FL_INL,  { ZTID_GRAPHICS, ZTID_FLOAT, ZTID_FLOAT },{} },
 
 	{ "",                           0,          ZTID_VOID,   -1,                        0,  {},{} }
 };
@@ -212,6 +214,34 @@ void GraphicsSymbols::generateCode()
 		addOpcode2(code, new OCreateRGB());
 		LABELBACK(label);
 		POP_ARGS(3, NUL);
+		//pop pointer, and ignore it
+		POPREF();
+		RETURN();
+		function->giveCode(code);
+	}
+	//void ConvertFromRGB(graphics, float[], rgb, float)
+	{
+		Function* function = getFunction("ConvertFromRGB", 0);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2(code, new OConvertFromRGB());
+		LABELBACK(label);
+		POP_ARGS(3, NUL);
+		//pop pointer, and ignore it
+		POPREF();
+		RETURN();
+		function->giveCode(code);
+	}
+	//void ConvertToRGB(graphics, float[], rgb, float)
+	{
+		Function* function = getFunction("ConvertToRGB", 0);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2(code, new OConvertToRGB());
+		LABELBACK(label);
+		POP_ARGS(2, NUL);
 		//pop pointer, and ignore it
 		POPREF();
 		RETURN();

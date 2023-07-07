@@ -3415,6 +3415,14 @@ string OCreateRGB::toString() const
 {
 	return "CREATERGB";
 }
+string OConvertFromRGB::toString() const
+{
+	return "CONVERTFROMRGB";
+}
+string OConvertToRGB::toString() const
+{
+	return "CONVERTTORGB";
+}
 string OLoadLevelPalette::toString() const
 {
     return "PALDATALOADLEVEL " + getArgument()->toString();
