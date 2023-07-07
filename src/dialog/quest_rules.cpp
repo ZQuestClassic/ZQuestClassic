@@ -1675,7 +1675,7 @@ QRDialog::QRDialog(byte const* qrs, size_t qrs_per_tab, std::function<void(byte*
 }
 
 static std::string searchstring;
-static int32_t scroll_pos1;
+static size_t scroll_pos1;
 static bool info_search = false, zs_search = true;
 std::shared_ptr<GUI::Widget> QRDialog::view()
 {
@@ -1696,7 +1696,7 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 			onClose = message::CANCEL,
 			Column(
 				QRPanel(
-					ptr = (size_t*)&scroll_pos1,
+					ptr = &scroll_pos1,
 					padding = 3_px,
 					onToggle = message::TOGGLE_QR,
 					initializer = local_qrs,

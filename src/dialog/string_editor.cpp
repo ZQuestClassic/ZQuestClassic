@@ -120,7 +120,6 @@ Button(forceFitH = true, text = "?", \
 //}
 
 static size_t stred_tab_1 = 0;
-static int32_t scroll_pos1 = 0;
 bool sorted_fontdd = true;
 std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 {

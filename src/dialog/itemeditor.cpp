@@ -1172,7 +1172,6 @@ int32_t calcBottleTile(itemdata const& local_itemref, byte bottleVal)
 //}
 
 static size_t itmtabs[4] = {0};
-static int32_t scroll_pos1 = 0, scroll_pos2 = 0;
 static byte bottleType = 0;
 std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 {
