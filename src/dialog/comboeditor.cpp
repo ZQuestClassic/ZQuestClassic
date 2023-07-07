@@ -408,6 +408,10 @@ std::string getComboTypeHelpText(int32_t id)
 		case cICY:
 			typehelp = "A block that may act slippery in different ways depending on its' flags.";
 			break;
+		case cSLOPE:
+			typehelp = "This type has a diagonal collision box (separate from normal solidity), and several options"
+				" that are useful in sideview.";
+			break;
 		default:
 			if(combotype_help_string[id] && combotype_help_string[id][0])
 				typehelp = combotype_help_string[id];
