@@ -4,7 +4,7 @@ import os from 'os';
 import * as url from 'url';
 import puppeteer from 'puppeteer';
 import statikk from 'statikk';
-import { setupConsoleListener, useLocalStorage } from './utils.js';
+import { setupConsoleListener } from './utils.js';
 
 const dirname = url.fileURLToPath(new URL('.', import.meta.url));
 
@@ -19,6 +19,7 @@ const server = statikk({
 await new Promise(resolve => server.server.once('listening', resolve));
 
 const replayUrl = new URL(urlPath, server.url);
+replayUrl.searchParams.append('storage', 'idb');
 const zplay = replayUrl.searchParams.get('assert') || replayUrl.searchParams.get('replay');
 
 async function runReplay(zplay) {
@@ -48,7 +49,6 @@ async function runReplay(zplay) {
   await page.goto(replayUrl, {
     waitUntil: 'networkidle0',
   });
-  await useLocalStorage(page);
 
   let hasExited = false;
   let exitCode = 0;

@@ -15,12 +15,17 @@ const configuredMountPromise = new Promise(resolve => {
 });
 
 export async function configureMount() {
-  let type = 'fs';
+  let type = new URLSearchParams(location.search).get('storage');
+  if (type !== 'fs' && type !== 'idb') type = undefined;
 
-  attachedDirHandle = await kv.get('attached-dir');
-  if (!self.showDirectoryPicker || attachedDirHandle === false || !await requestPermission()) {
-    type = 'idb';
-    attachedDirHandle = null;
+  if (type === undefined) {
+    attachedDirHandle = await kv.get('attached-dir');
+    if (!self.showDirectoryPicker || attachedDirHandle === false || !await requestPermission()) {
+      type = 'idb';
+      attachedDirHandle = null;
+    } else {
+      type = 'fs';
+    }
   }
 
   // Mount the persisted files (zc.sav and zc.cfg live here).
@@ -81,7 +86,6 @@ export async function requestPermission() {
       });
     } catch { }
   }
-
   if (result && attachedDirHandle) result = await attachedDirHandle.requestPermission(options) === 'granted';
   document.querySelector('.content').classList.remove('hidden');
   document.querySelector('.permission').classList.add('hidden');

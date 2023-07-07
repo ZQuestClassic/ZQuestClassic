@@ -4490,6 +4490,8 @@ int main(int argc, char **argv)
 	{
 		Z_error_fatal("Error");
 	}
+
+	all_disable_threaded_display();
 	
 	Z_message("Initializing Allegro... ");
 	if(!al_init())
@@ -4507,8 +4509,6 @@ int main(int argc, char **argv)
 		al_merge_config_into(al_get_system_config(), tempcfg);
 		al_destroy_config(tempcfg);
 	}
-
-	all_disable_threaded_display();
 
 #ifdef __EMSCRIPTEN__
 	em_mark_initializing_status();

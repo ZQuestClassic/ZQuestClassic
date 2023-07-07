@@ -1,22 +1,6 @@
 /**
  * @param {import('puppeteer').Page} page
  */
-async function useLocalStorage(page) {
-  const isVisible = await page.evaluate(() => {
-    const node = document.querySelector('.permission:not(.hidden) .cancel');
-    if (!node)
-      return false;
-    const style = window.getComputedStyle(node);
-    return style && style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0';
-  });
-  if (isVisible) {
-    await page.click('.permission .cancel');
-  }
-}
-
-/**
- * @param {import('puppeteer').Page} page
- */
 function setupConsoleListener(page) {
   /** @type {string[]} */
   let seen = [];
@@ -57,7 +41,6 @@ function waitForConsoleMessage(page, pattern) {
 }
 
 export {
-  useLocalStorage,
   setupConsoleListener,
   waitForConsoleMessage,
 };
