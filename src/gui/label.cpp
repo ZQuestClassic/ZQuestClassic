@@ -136,9 +136,8 @@ void Label::fitText()
 	}
 	oss << data; //add the rest
 	
-	text_fit = oss.str();
-	
 	widthSoFar = text_length(f, data);
+	text_fit = oss.str();
 	if(widthSoFar > max_width)
 		max_width = widthSoFar;
 	setPreferredHeight(Size::pixels(text_height(widgFont)*currentLine));
