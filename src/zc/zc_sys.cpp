@@ -8153,8 +8153,7 @@ void set_zcmusicpos(int32_t position)
 
 void set_zcmusicspeed(int32_t speed)
 {
-	int32_t newspeed = vbound(speed, 0, 10000);
-	zcmusic_set_speed(zcmusic, newspeed);
+	zcmusic_set_speed(zcmusic, speed);
 }
 
 void jukebox(int32_t index,int32_t loop)

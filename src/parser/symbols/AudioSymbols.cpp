@@ -22,9 +22,9 @@ static AccessorTable AudioTable[] =
 	//Undocumented intentionally
 	{ "AdjustSound",             0,          ZTID_VOID,   -1,               FL_DEPR,  { ZTID_AUDIO, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL },{} },
 	{ "PlayOgg",                 0,          ZTID_BOOL,   -1,               FL_DEPR,  { ZTID_AUDIO, ZTID_FLOAT, ZTID_FLOAT },{} },
-	{ "GetOggPos",               0,         ZTID_FLOAT,   -1,               FL_DEPR,  { ZTID_AUDIO },{} },
-	{ "SetOggPos",               0,          ZTID_VOID,   -1,               FL_DEPR,  { ZTID_AUDIO, ZTID_FLOAT },{} },
-	{ "SetOggSpeed",             0,          ZTID_VOID,   -1,               FL_DEPR,  { ZTID_AUDIO, ZTID_FLOAT },{} },
+	{ "GetMusicPos",               0,         ZTID_FLOAT,   -1,               FL_DEPR,  { ZTID_AUDIO },{} },
+	{ "SetMusicPos",               0,          ZTID_VOID,   -1,               FL_DEPR,  { ZTID_AUDIO, ZTID_FLOAT },{} },
+	{ "SetMusicSpeed",             0,          ZTID_VOID,   -1,               FL_DEPR,  { ZTID_AUDIO, ZTID_FLOAT },{} },
 	{ "getVolume[]",             0,         ZTID_FLOAT,   AUDIOVOLUME,      FL_DEPR,  { ZTID_AUDIO, ZTID_FLOAT },{} },
 	{ "setVolume[]",             0,          ZTID_VOID,   AUDIOVOLUME,      FL_DEPR,  { ZTID_AUDIO, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
@@ -230,7 +230,7 @@ void AudioSymbols::generateCode()
 	}
 	//int32_t GetEnhancedMusicPos(game)
 {
-		Function* function = getFunction("GetOggPos");
+		Function* function = getFunction("GetMusicPos");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer, and ignore it
@@ -242,7 +242,7 @@ void AudioSymbols::generateCode()
 }
 	 //void SetEnhancedMusicPos(game, int32_t)
 	{
-		Function* function = getFunction("SetOggPos");
+		Function* function = getFunction("SetMusicPos");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -256,7 +256,7 @@ void AudioSymbols::generateCode()
 	}
 	//void SetEnhancedMusicSpeed(game, int32_t)
 	{
-		Function* function = getFunction("SetOggSpeed");
+		Function* function = getFunction("SetMusicSpeed");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params

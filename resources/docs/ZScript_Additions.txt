@@ -7768,18 +7768,17 @@ rgb ConvertRGBFrom(float[] buf, int color_space)
 ///  Audio->  ///
 /////////////////								// Audio
 
-bool PlayOgg(int filename[], int track);
- * Similar to PlayEnhancedMusic(), but only for OGG files.
- * Supports seeking, and other special instructions.
+int GetMusicPos();
+ * Returns the current seek position of the currently playing enhanced music in seconds.
+ * CURRENTLY ONLY SUPPORTS MP3
 
-int GetOggPos();
- * Returns the current seek position of an OGG started with PlayOgg, in ms.
-
-void SetOggPos(int new_pos);
- * Sets the play position for an OGG started with PlayOgg(), in ms.
+void SetMusicPos(int new_pos);
+ * Sets the play position for the currently playing enhanced music in seconds.
+ * CURRENTLY ONLY SUPPORTS MP3
  
-void SetOggSpeed(int newspeed);
- * Sets the playback speed of an OGG started with PlayOgg();
+void SetMusicSpeed(int newspeed);
+ * Sets the playback speed of the currently playing enhanced music.
+ * CURRENTLY ONLY SUPPORTS MP3
  
 
 void PlaySound(int soundid);	ZASM Instruction: 
