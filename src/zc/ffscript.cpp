@@ -29523,43 +29523,23 @@ void do_enh_music(bool v)
 	}
 }
 
-void FFScript::do_playogg_ex(const bool v)
+void FFScript::do_set_music_position(const bool v)
 {
-	int32_t arrayptr = SH::get_arg(sarg1, v) / 10000;
-	int32_t track = (SH::get_arg(sarg2, v) / 10000)-1;
-	
-	if(arrayptr == 0)
-		music_stop();
-	else // Pointer to a string..
-	{
-		string filename_str;
-		char filename_char[256];
-		bool ret;
-		ArrayH::getString(arrayptr, filename_str, 256);
-		strncpy(filename_char, filename_str.c_str(), 255);
-		filename_char[255]='\0';
-		ret=try_zcmusic_ex(filename_char, track, -1000);
-		set_register(sarg2, ret ? 10000 : 0);
-	}
-}
-
-void FFScript::do_set_oggex_position(const bool v)
-{
-	int32_t newposition = SH::get_arg(sarg1, v) / 10;
+	int32_t newposition = SH::get_arg(sarg1, v);
 	
 	set_zcmusicpos(newposition);
 }
 
-void FFScript::go_get_oggex_position()
+void FFScript::do_get_music_position()
 {
-	int32_t pos = get_zcmusicpos()*10;
+	int32_t pos = get_zcmusicpos();
 	// zprint("ZC OGG Position is %d\n", pos);
 	set_register(sarg1, pos);
 }
 
-void FFScript::do_set_oggex_speed(const bool v)
+void FFScript::do_set_music_speed(const bool v)
 {
-	int32_t newspeed = SH::get_arg(sarg1, v) / 10;
+	int32_t newspeed = SH::get_arg(sarg1, v);
 	
 	set_zcmusicspeed(newspeed);
 }
@@ -34258,19 +34238,20 @@ j_command:
 			}
 			
 			case PLAYENHMUSICEX:
-				FFCore.do_playogg_ex(false);
+				// DEPRECATED
+				do_enh_music(false);
 				break;
 				
 			case GETENHMUSICPOS:
-				FFCore.go_get_oggex_position();
+				FFCore.do_get_music_position();
 				break;
 				
 			case SETENHMUSICPOS:
-				FFCore.do_set_oggex_position(false);
+				FFCore.do_set_music_position(false);
 				break;
 				
 			case SETENHMUSICSPEED:
-				FFCore.do_set_oggex_speed(false);
+				FFCore.do_set_music_speed(false);
 				break;
 			
 			case DIREXISTS:

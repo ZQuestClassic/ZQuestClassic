@@ -1209,10 +1209,9 @@ void do_isvalidbitmap();
 void do_isallocatedbitmap();
 
 //OGG Ex --dimi
-void do_playogg_ex(const bool v);
-void do_set_oggex_position(const bool v);
-void go_get_oggex_position();
-void do_set_oggex_speed(const bool v);
+void do_set_music_position(const bool v);
+void do_get_music_position();
+void do_set_music_speed(const bool v);
 
 BITMAP* GetScriptBitmap(int32_t id, bool skipError = false);
 
