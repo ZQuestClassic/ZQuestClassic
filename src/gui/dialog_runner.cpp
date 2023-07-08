@@ -20,7 +20,7 @@ int32_t dialog_proc(int32_t msg, DIALOG *d, int32_t c)
 		MessageDispatcher md(dr->widgets[d->d1], dr->sendMessage);
 		int32_t ret = dr->widgets[d->d1]->onEvent(c, md);
 		if(dr->done)
-			return D_EXIT;
+			return D_CLOSE;
 		else
 		{
 			dr->redrawPending = true;
@@ -37,7 +37,7 @@ int32_t dialog_proc(int32_t msg, DIALOG *d, int32_t c)
 		broadcast_dialog_message(MSG_DRAW, 0);
 		release_screen();
 		dr->redrawPending = false;
-		return D_O_K;
+		return D_REDRAWME;
 	}
 	else
 		return D_O_K;

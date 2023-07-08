@@ -85,6 +85,8 @@ int32_t new_gui_event(DIALOG* d, guiEvent event)
 			return d->proc(MSG_GUI_EVENT, d, event);
 		}
 	}
+
+	return -1;
 }
 
 void close_new_gui_dlg(DIALOG* d);
@@ -1211,6 +1213,7 @@ int32_t jwin_button_proc(int32_t msg, DIALOG *d, int32_t c)
 					down = mouse_in_rect(d->x, d->y, d->w, d->h);
 					
 					/* redraw? */
+					bool should_redraw = false;
 					if(last_draw != down)
 					{
 						if(down != selected)
@@ -1220,12 +1223,17 @@ int32_t jwin_button_proc(int32_t msg, DIALOG *d, int32_t c)
 							
 						object_message(d, MSG_DRAW, 0);
 						last_draw = down;
+						should_redraw = true;
 					}
 					
 					/* let other objects continue to animate */
-					broadcast_dialog_message(MSG_IDLE, 0);
-					
-					update_hw_screen();
+					int r = broadcast_dialog_message(MSG_IDLE, 0);
+					if (r & D_REDRAWME) should_redraw = true;
+
+					if (should_redraw)
+					{
+						update_hw_screen();
+					}
 				}
 				
 				/* redraw in normal state */
@@ -1301,6 +1309,7 @@ int32_t jwin_infobtn_proc(int32_t msg, DIALOG *d, int32_t)
 					down = mouse_in_rect(d->x, d->y, d->w, d->h);
 					
 					/* redraw? */
+					bool should_redraw = false;
 					if(last_draw != down)
 					{
 						if(down != selected)
@@ -1310,12 +1319,17 @@ int32_t jwin_infobtn_proc(int32_t msg, DIALOG *d, int32_t)
 							
 						object_message(d, MSG_DRAW, 0);
 						last_draw = down;
+						should_redraw = true;
 					}
 					
 					/* let other objects continue to animate */
-					broadcast_dialog_message(MSG_IDLE, 0);
-					
-					update_hw_screen();
+					int r = broadcast_dialog_message(MSG_IDLE, 0);
+					if (r & D_REDRAWME) should_redraw = true;
+
+					if (should_redraw)
+					{
+						update_hw_screen();
+					}
 				}
 				
 				/* redraw in normal state */
@@ -1355,6 +1369,7 @@ int32_t jwin_func_button_proc(int32_t msg, DIALOG *d, int32_t c)
             down = mouse_in_rect(d->x, d->y, d->w, d->h);
             
             /* redraw? */
+            bool should_redraw = false;
             if(last_draw != down)
             {
                 if(down != selected)
@@ -1364,12 +1379,17 @@ int32_t jwin_func_button_proc(int32_t msg, DIALOG *d, int32_t c)
                     
                 object_message(d, MSG_DRAW, 0);
                 last_draw = down;
+                should_redraw = true;
             }
             
             /* let other objects continue to animate */
-            broadcast_dialog_message(MSG_IDLE, 0);
-            
-			update_hw_screen();
+            int r = broadcast_dialog_message(MSG_IDLE, 0);
+            if (r & D_REDRAWME) should_redraw = true;
+
+            if (should_redraw)
+            {
+                update_hw_screen();
+            }
         }
         
         /* redraw in normal state */
@@ -4177,17 +4197,23 @@ void _handle_jwin_scrollable_scroll_click(DIALOG *d, int32_t listsize, int32_t *
                     
                 if(yy < 0)
                     yy = 0;
-                    
+                
+                bool should_redraw = false;
                 if(yy != *offset)
                 {
                     *offset = yy;
                     d->proc(MSG_DRAW, d, 0);
+                    should_redraw = true;
                 }
                 
-                // let other objects continue to animate
-                broadcast_dialog_message(MSG_IDLE, 0);
-                
-				update_hw_screen();
+                /* let other objects continue to animate */
+                int r = broadcast_dialog_message(MSG_IDLE, 0);
+                if (r & D_REDRAWME) should_redraw = true;
+
+                if (should_redraw)
+                {
+                    update_hw_screen();
+                }
             }
             
             break;
@@ -7245,11 +7271,10 @@ dropit:
         {
             draw_arrow_button(screen, d->x+d->w-18, d->y+2,16, d->h-4, 0, down*3);
             last_draw = down;
+            update_hw_screen();
         }
         
         clear_keybuf();
-        
-		update_hw_screen();
     }
     
     if(!down)
@@ -9358,18 +9383,24 @@ int32_t d_jwinbutton_proc(int32_t msg, DIALOG *d, int32_t)
 					state2 = !state2;
 					
 				/* redraw? */
+				bool should_redraw = false;
 				if(((state1) && (!state2)) || ((state2) && (!state1)))
 				{
 					d->flags ^= D_SELECTED;
 					GUI_EVENT(d, geTOGGLE);
 					state1 = d->flags & D_SELECTED;
 					object_message(d, MSG_DRAW, 0);
+					should_redraw = true;
 				}
 				
 				/* let other objects continue to animate */
-				broadcast_dialog_message(MSG_IDLE, 0);
-				
-				update_hw_screen();
+				int r = broadcast_dialog_message(MSG_IDLE, 0);
+				if (r & D_REDRAWME) should_redraw = true;
+
+				if (should_redraw)
+				{
+					update_hw_screen();
+				}
 			}
 			
 			if(d->dp3 != NULL)
