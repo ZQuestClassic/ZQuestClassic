@@ -37500,10 +37500,10 @@ void FFScript::runOnDeathEngine()
 	{
 		script_drawing_commands.Clear();
 		load_control_state();
-		ZScriptVersion::RunScript(ScriptType::Player, SCRIPT_PLAYER_DEATH, SCRIPT_PLAYER_DEATH);
+		ZScriptVersion::RunScript(ScriptType::Player, SCRIPT_PLAYER_DEATH);
 		if (data.waitdraw)
 		{
-			ZScriptVersion::RunScript(ScriptType::Player, SCRIPT_PLAYER_DEATH, SCRIPT_PLAYER_DEATH);
+			ZScriptVersion::RunScript(ScriptType::Player, SCRIPT_PLAYER_DEATH);
 			data.waitdraw = false;
 		}
 		//Draw

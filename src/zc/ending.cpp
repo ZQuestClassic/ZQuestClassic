@@ -223,7 +223,7 @@ void ending()
 	script_drawing_commands.Clear();
 	if ( FFCore.doscript(ScriptType::Player) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255  ) 
 	{
-		ZScriptVersion::RunScript(ScriptType::Player, SCRIPT_PLAYER_WIN, SCRIPT_PLAYER_WIN);
+		ZScriptVersion::RunScript(ScriptType::Player, SCRIPT_PLAYER_WIN);
 		--f; load_control_state(); goto adv;
 	}
 	if ( f == 0 ) { sfx(WAV_ZELDA); music_stop(); }

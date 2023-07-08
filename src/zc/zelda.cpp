@@ -2092,7 +2092,7 @@ int32_t init_game()
 		}
 		if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
-			ZScriptVersion::RunScript(ScriptType::Player, SCRIPT_PLAYER_INIT, SCRIPT_PLAYER_INIT); //We run this here so that the user can set up custom
+			ZScriptVersion::RunScript(ScriptType::Player, SCRIPT_PLAYER_INIT); //We run this here so that the user can set up custom
 									//positional data, sprites, tiles, csets, invisibility states, and the like.
 			FFCore.deallocateAllArrays(ScriptType::Player, SCRIPT_PLAYER_INIT);
 		}
@@ -5509,7 +5509,7 @@ reload_for_replay_file:
 				FFCore.initZScriptActiveSubscreenScript();
 				FFCore.clear_combo_scripts();
 				//Run global script OnExit
-				//ZScriptVersion::RunScript(ScriptType::Player, SCRIPT_PLAYER_WIN, SCRIPT_PLAYER_WIN); //runs in ending()
+				//ZScriptVersion::RunScript(ScriptType::Player, SCRIPT_PLAYER_WIN); //runs in ending()
 				//while(player_doscript) advanceframe(true); //Not safe. The script can run for only one frame. 
 				//We need a special routine for win and death player scripts. Otherwise, they work. 
 				ZScriptVersion::RunScript(ScriptType::Global, GLOBAL_SCRIPT_END, GLOBAL_SCRIPT_END);
