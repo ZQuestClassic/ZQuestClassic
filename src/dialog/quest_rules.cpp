@@ -895,7 +895,9 @@ static GUI::ListData compatRulesList
 		"If enabled, enemies don't run their scripts on the first frame of entering a screen." },
 	{ "Broken Scrolling Onto Raft Flags", qr_BROKEN_RAFT_SCROLL,
 		"If enabled, scrolling the screen such that you are on a raft flag on the new screen will force rafting,"
-		" even if you were not rafting before, or do not have the raft item." }
+		" even if you were not rafting before, or do not have the raft item." },
+	{ "Broken Input Down State For Scripts", qr_BROKEN_INPUT_DOWN_STATE,
+		"If enabled, setting button inputs to false (ex: `Input->Button[CB_A] = false`) will have no effect on button presses. If disabled, button presses are eaten."},
 };
 
 static GUI::ListData enemiesRulesList

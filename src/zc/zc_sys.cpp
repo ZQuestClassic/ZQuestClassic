@@ -8636,6 +8636,13 @@ int32_t next_press_btn()
 	}
 }
 
+static bool rButton(bool &btn, bool &flag, bool rawbtn)
+{
+	bool ret = btn && !flag;
+	flag = rawbtn;
+	
+	return ret;
+}
 static bool rButton(bool &btn, bool &flag)
 {
 	bool ret = btn && !flag;
@@ -8809,33 +8816,38 @@ bool zc_key_pressed()
 
 bool getInput(int32_t btn, bool press, bool drunk, bool ignoreDisable, bool eatEntirely, bool peek)
 {
-	bool ret = false, drunkstate = false;
+	bool ret = false, drunkstate = false, rawret = false;;
 	bool* flag = &down_control_states[btn];
 	switch(btn)
 	{
 		case btnF12:
 			ret = zc_getkey(KEY_F12, ignoreDisable);
+			rawret = zc_getrawkey(KEY_F12, ignoreDisable);
 			eatEntirely = false;
 			break;
 		case btnF11:
 			ret = zc_getkey(KEY_F11, ignoreDisable);
+			rawret = zc_getrawkey(KEY_F11, ignoreDisable);
 			eatEntirely = false;
 			break;
 		case btnF5:
 			ret = zc_getkey(KEY_F5, ignoreDisable);
+			rawret = zc_getrawkey(KEY_F5, ignoreDisable);
 			eatEntirely = false;
 			break;
 		case btnQ:
 			ret = zc_getkey(KEY_Q, ignoreDisable);
+			rawret = zc_getrawkey(KEY_Q, ignoreDisable);
 			eatEntirely = false;
 			break;
 		case btnI:
 			ret = zc_getkey(KEY_I, ignoreDisable);
+			rawret = zc_getrawkey(KEY_I, ignoreDisable);
 			eatEntirely = false;
 			break;
 		case btnM:
 			if(FFCore.kb_typing_mode) return false;
-			ret = zc_getrawkey(KEY_ESC, ignoreDisable);
+			rawret = ret = zc_getrawkey(KEY_ESC, ignoreDisable);
 			eatEntirely = false;
 			break;
 		default: //control_state[] index
@@ -8843,13 +8855,15 @@ bool getInput(int32_t btn, bool press, bool drunk, bool ignoreDisable, bool eatE
 			if(!ignoreDisable && get_bit(quest_rules, qr_FIXDRUNKINPUTS) && disable_control[btn]) drunk = false;
 			else if(btn<11) drunkstate = drunk_toggle_state[btn];
 			ret = control_state[btn] && (ignoreDisable || !disable_control[btn]);
+			rawret = raw_control_state[btn];
 	}
 	assert(flag);
 	if(press)
 	{
 		if(peek)
 			ret = rButtonPeek(ret, *flag);
-		else ret = rButton(ret, *flag);
+		else if(get_bit(quest_rules, qr_BROKEN_INPUT_DOWN_STATE)) ret = rButton(ret, *flag);
+		else ret = rButton(ret, *flag, rawret);
 	}
 	if(eatEntirely && ret) control_state[btn] = false;
 	if(drunk && drunkstate) ret = !ret;
