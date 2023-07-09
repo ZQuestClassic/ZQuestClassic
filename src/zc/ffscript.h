@@ -1212,6 +1212,8 @@ void do_isallocatedbitmap();
 void do_set_music_position(const bool v);
 void do_get_music_position();
 void do_set_music_speed(const bool v);
+void do_get_music_length();
+void do_set_music_loop();
 
 BITMAP* GetScriptBitmap(int32_t id, bool skipError = false);
 
@@ -3249,8 +3251,8 @@ enum ASM_DEFINE
 
 	CONVERTFROMRGB,
 	CONVERTTORGB,
-	RESRVD_OP_MOOSH_03,
-	RESRVD_OP_MOOSH_04,
+	GETENHMUSICLEN,
+	SETENHMUSICLOOP,
 	RESRVD_OP_MOOSH_05,
 	RESRVD_OP_MOOSH_06,
 	RESRVD_OP_MOOSH_07,
