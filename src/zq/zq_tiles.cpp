@@ -4214,10 +4214,16 @@ error2:
 		
 		set_bit(skip_flags,skip_tiles,0);
 		set_bit(skip_flags,skip_header,0);
-		loadquest(imagepath,&tempheader,&misc,customtunes,false,true,skip_flags);
-	//fails to keep quest password data / header
+		int ret = loadquest(imagepath,&tempheader,&misc,customtunes,true,true,skip_flags);
+		if (ret)
+		{
+			imagetype=0;
+			imagesize=0;
+			clear_tiles(grabtilebuf);
+			chop_path(imagepath);
+		}
 		
-		if(encrypted&&compressed)
+		if (!ret && encrypted && compressed)
 		{
 			if(quest_access(imagepath, &tempheader) != 1)
 			{
