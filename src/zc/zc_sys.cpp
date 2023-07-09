@@ -8156,6 +8156,16 @@ void set_zcmusicspeed(int32_t speed)
 	zcmusic_set_speed(zcmusic, speed);
 }
 
+int32_t get_zcmusiclen()
+{
+	return zcmusic_get_length(zcmusic);
+}
+
+void set_zcmusicloop(double start, double end)
+{
+	zcmusic_set_loop(zcmusic, start, end);
+}
+
 void jukebox(int32_t index,int32_t loop)
 {
 	if (is_headless())

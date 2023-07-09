@@ -4898,6 +4898,28 @@ namespace ZScript
 		}
 	};
 
+	class OGetEnhancedMusicLength : public UnaryOpcode
+	{
+	public:
+		OGetEnhancedMusicLength(Argument *A) : UnaryOpcode(A) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OGetEnhancedMusicLength(a->clone());
+		}
+	};
+
+	class OSetEnhancedMusicLoop : public BinaryOpcode
+	{
+	public:
+		OSetEnhancedMusicLoop(Argument* A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OSetEnhancedMusicLoop(a->clone(), b->clone());
+		}
+	};
+
 	class OGetDMapMusicFilename : public BinaryOpcode
 	{
 	public:

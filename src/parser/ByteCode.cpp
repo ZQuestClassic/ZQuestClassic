@@ -3703,6 +3703,16 @@ string OSetEnhancedMusicSpeed::toString() const
     return "SETENHMUSICSPEED " + getArgument()->toString();
 }
 
+string OGetEnhancedMusicLength::toString() const
+{
+	return "GETENHMUSICLEN " + getArgument()->toString();
+}
+
+string OSetEnhancedMusicLoop::toString() const
+{
+	return "SETENHMUSICLOOP " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
 string OGetDMapMusicFilename::toString() const
 {
     return "GETMUSICFILE " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();

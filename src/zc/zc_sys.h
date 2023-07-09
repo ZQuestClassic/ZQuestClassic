@@ -235,6 +235,8 @@ bool try_zcmusic_ex(char *filename, int32_t track, int32_t midi);
 int32_t get_zcmusicpos();
 void set_zcmusicpos(int32_t position);
 void set_zcmusicspeed(int32_t speed);
+int32_t get_zcmusiclen();
+void set_zcmusicloop(double start, double end);
 void jukebox(int32_t index);
 void jukebox(int32_t index,int32_t loop);
 void play_DmapMusic();

@@ -29536,8 +29536,21 @@ void FFScript::do_get_music_position()
 void FFScript::do_set_music_speed(const bool v)
 {
 	int32_t newspeed = SH::get_arg(sarg1, v);
-	
 	set_zcmusicspeed(newspeed);
+}
+
+void FFScript::do_get_music_length()
+{
+	int32_t len = get_zcmusiclen();
+	set_register(sarg1, len);
+}
+
+void FFScript::do_set_music_loop()
+{
+	double start = (get_register(sarg1) / 10000);
+	double end = (get_register(sarg2) / 10000);
+
+	set_zcmusicloop(start, end);
 }
 
 void do_get_enh_music_filename(const bool v)
@@ -34246,6 +34259,14 @@ j_command:
 				
 			case SETENHMUSICSPEED:
 				FFCore.do_set_music_speed(false);
+				break;
+
+			case GETENHMUSICLEN:
+				FFCore.do_get_music_length();
+				break;
+
+			case SETENHMUSICLOOP:
+				FFCore.do_set_music_loop();
 				break;
 			
 			case DIREXISTS:
@@ -40955,8 +40976,8 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "RESRVD_OP_EMILY_20", 0, 0, 0, 0 },
 	{ "CONVERTFROMRGB", 0, 0, 0, 0 },
 	{ "CONVERTTORGB", 0, 0, 0, 0 },
-	{ "RESRVD_OP_MOOSH_03", 0, 0, 0, 0 },
-	{ "RESRVD_OP_MOOSH_04", 0, 0, 0, 0 },
+	{ "GETENHMUSICLEN", 1, 0, 0, 0 },
+	{ "SETENHMUSICLOOP", 2, 0, 0, 0 },
 	{ "RESRVD_OP_MOOSH_05", 0, 0, 0, 0 },
 	{ "RESRVD_OP_MOOSH_06", 0, 0, 0, 0 },
 	{ "RESRVD_OP_MOOSH_07", 0, 0, 0, 0 },

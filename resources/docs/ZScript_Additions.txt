@@ -7778,8 +7778,15 @@ void SetMusicPos(int new_pos);
  
 void SetMusicSpeed(int newspeed);
  * Sets the playback speed of the currently playing enhanced music.
- * CURRENTLY ONLY SUPPORTS MP3
+ * CURRENTLY ONLY SUPPORTS MP3 / OGG
+
+void GetMusicLength();
+ * Returns the length of the current playing enhanced music in seconds.
+ * CURRENTLY ONLY SUPPORTS MP3 / OGG
  
+void SetMusicLoop(float start, float end);
+ * Loops the currently playing enhanced music between two timestamps in seconds.
+ * CURRENTLY ONLY SUPPORTS MP3 / OGG
 
 void PlaySound(int soundid);	ZASM Instruction: 
 					PLAYSOUNDR
