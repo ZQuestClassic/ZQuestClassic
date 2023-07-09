@@ -3770,7 +3770,8 @@ void calc_darkroom_combos(bool scrolling)
 	if(!scrolling && mblock2.clk)
 	{
 		newcombo const& cmb = combobuf[mblock2.bcombo];
-		doDarkroomCircle(mblock2.x+8, mblock2.y+8, cmb.attribytes[0], darkscr_bmp_curscr);
+		if(cmb.type == cTORCH)
+			doDarkroomCircle(mblock2.x+8, mblock2.y+8, cmb.attribytes[0], darkscr_bmp_curscr);
 	}
 	
 	if(!scrolling) return; //not a scrolling call, don't run code for scrolling screen
