@@ -1045,9 +1045,16 @@ MP3FILE *load_mp3_file(const char *filename)
         return NULL;
 
 	al_reserve_samples(5);
-	ALLEGRO_AUDIO_STREAM* stream = al_play_audio_stream(filename);
+
+	ALLEGRO_AUDIO_STREAM* stream = al_load_audio_stream(filename, 4, 2048);
 	if (!stream)
 		goto error;
+	if (!al_attach_audio_stream_to_mixer(stream, al_get_default_mixer()))
+	{
+		al_destroy_audio_stream(stream);
+		goto error;
+	}
+
 	al_set_audio_stream_playing(stream, false);
 	al_set_audio_stream_playmode(stream, ALLEGRO_PLAYMODE_LOOP);
 
