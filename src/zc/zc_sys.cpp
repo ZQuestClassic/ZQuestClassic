@@ -7370,7 +7370,7 @@ int32_t onScreenSaver()
 	{
 		clear_keybuf();
 		Matrix(ss_speed, ss_density, 30);
-		system_pal();
+		system_pal(true);
 		sys_mouse();
 	}
 	
@@ -8030,7 +8030,7 @@ void System()
 			// Screen saver enabled for now.
 			clear_keybuf();
 			Matrix(ss_speed, ss_density, 0);
-			system_pal();
+			system_pal(true);
 			sys_mouse();
 			broadcast_dialog_message(MSG_DRAW, 0);
 		}
