@@ -37,6 +37,7 @@ private:
 	std::shared_ptr<Widget> content;
 	DialogRef alDialog;
 	size_t childrenEnd;
+	// TODO: This would be better as size_t
 	int32_t scrollPos, maxScrollPos, contentHeight;
 	mousePosFunc* oldMouseX;
 	mousePosFunc* oldMouseY;

@@ -433,10 +433,6 @@ static void error(script_data *script, std::string str)
 
 	al_trace("%s", str.c_str());
 	script_debug_print(CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | CConsoleLoggerEx::COLOR_BACKGROUND_BLACK, str.c_str());
-	if (replay_is_active() && replay_is_debug())
-	{
-		replay_step_comment(str);
-	}
 
 	if (DEBUG_JIT_EXIT_ON_COMPILE_FAIL)
 	{

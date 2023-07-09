@@ -2325,7 +2325,7 @@ int32_t init_game()
 		}
 		if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
-			ZScriptVersion::RunScript(ScriptType::Player, SCRIPT_PLAYER_INIT, SCRIPT_PLAYER_INIT); //We run this here so that the user can set up custom
+			ZScriptVersion::RunScript(ScriptType::Player, SCRIPT_PLAYER_INIT); //We run this here so that the user can set up custom
 									//positional data, sprites, tiles, csets, invisibility states, and the like.
 			FFCore.deallocateAllArrays(ScriptType::Player, SCRIPT_PLAYER_INIT);
 		}
@@ -4561,15 +4561,7 @@ void zc_game_srand(int seed, zc_randgen* rng)
 
 
 static void allocate_crap()
-{
-	for(int32_t i=0; i<4; i++)
-	{
-		for(int32_t j=0; j<MAXSUBSCREENITEMS; j++)
-		{
-			memset(&custom_subscreen[i].objects[j],0,sizeof(subscreen_object));
-		}
-	}
-	
+{	
 	for(int32_t i=0; i<WAV_COUNT; i++)
 	{
 		customsfxdata[i].data=NULL;
@@ -4658,31 +4650,16 @@ static void allocate_crap()
 void do_load_and_quit_command(const char* quest_path)
 {
 	// We need to init some stuff before loading a quest file will work.
-	Z_message("Initializing Allegro... ");
-	if(!al_init())
-	{
-		Z_error_fatal("Failed Init!");
-	}
-	if(allegro_init() != 0)
-	{
-		Z_error_fatal("Failed Init!");
-	}
+	int fake_errno = 0;
+	allegro_errno = &fake_errno;
 	get_qst_buffers();
 	allocate_crap();
-	if ( !(zcm.init(true)) ) 
-	{
-		Z_error_fatal("ZC Player I/O Error: No module definitions found. Please check your settings in %s.cfg.\n", "zc");
-	}
-	if ((sfxdata=load_datafile(moduledata.datafiles[sfx_dat]))==NULL)
+	if ((sfxdata=load_datafile("sfx.dat"))==NULL)
 	{
 		Z_error_fatal("failed to load sfx_dat");
 	}
 
-	byte skip_flags[4];
-	for (int32_t i=0; i<4; ++i)
-	{
-		skip_flags[i] = 0;
-	}
+	byte skip_flags[] = {0, 0, 0, 0};
 	int ret = loadquest(quest_path,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,true,skip_flags,false,false,0xFF);
 	exit(ret);
 }
@@ -4764,6 +4741,8 @@ int main(int argc, char **argv)
 	{
 		Z_error_fatal("Error");
 	}
+
+	all_disable_threaded_display();
 	
 	Z_message("Initializing Allegro... ");
 	if(!al_init())
@@ -4781,8 +4760,6 @@ int main(int argc, char **argv)
 		al_merge_config_into(al_get_system_config(), tempcfg);
 		al_destroy_config(tempcfg);
 	}
-
-	all_disable_threaded_display();
 
 #ifdef __EMSCRIPTEN__
 	em_mark_initializing_status();
@@ -5787,7 +5764,7 @@ reload_for_replay_file:
 				FFCore.initZScriptActiveSubscreenScript();
 				FFCore.clear_combo_scripts();
 				//Run global script OnExit
-				//ZScriptVersion::RunScript(ScriptType::Player, SCRIPT_PLAYER_WIN, SCRIPT_PLAYER_WIN); //runs in ending()
+				//ZScriptVersion::RunScript(ScriptType::Player, SCRIPT_PLAYER_WIN); //runs in ending()
 				//while(player_doscript) advanceframe(true); //Not safe. The script can run for only one frame. 
 				//We need a special routine for win and death player scripts. Otherwise, they work. 
 				ZScriptVersion::RunScript(ScriptType::Global, GLOBAL_SCRIPT_END, GLOBAL_SCRIPT_END);

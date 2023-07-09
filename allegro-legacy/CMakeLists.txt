@@ -540,13 +540,9 @@ set_target_properties(allegro-legacy
 
 # local edit
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-    set_property(TARGET allegro-legacy
-        APPEND_STRING PROPERTY COMPILE_FLAGS "/O2"
-    )
+    target_compile_options(allegro-legacy PRIVATE $<$<CONFIG:Debug>:/O2>)
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    set_property(TARGET allegro-legacy
-        APPEND_STRING PROPERTY COMPILE_FLAGS "-O3"
-    )
+    target_compile_options(allegro-legacy PRIVATE $<$<CONFIG:Debug>:-O3>)
 endif()
 
 STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")

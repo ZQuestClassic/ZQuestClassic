@@ -13156,7 +13156,8 @@ int32_t get_register(const int32_t arg)
 				if (get_bit(pd->colors_used, ind))
 				{
 					RGB c = pd->colors[ind];
-					ret = c.r | (c.g << 8) | (c.b << 16);
+					
+					ret = (c.r << 16) | (c.g << 8) | c.b;
 				}
 				else
 				{
@@ -23408,7 +23409,7 @@ void set_register(int32_t arg, int32_t value)
 				}
 				int32_t clri = value;
 
-				RGB c = _RGB(clri & 0xFF, (clri >> 8) & 0xFF, (clri >> 16) & 0xFF);
+				RGB c = _RGB((clri >> 16) & 0xFF, (clri >> 8) & 0xFF, clri & 0xFF);
 
 				if (c.r < 0 || c.g < 0 || c.b < 0)
 				{
@@ -26073,7 +26074,7 @@ void FFScript::do_create_paldata_clr()
 	user_paldata* pd = &script_paldatas[ri->paldataref - 1];
 	int32_t clri = get_register(sarg1);
 	
-	RGB c = _RGB(clri & 0xFF, (clri >> 8) & 0xFF, (clri >> 16) & 0xFF);
+	RGB c = _RGB((clri >> 16) & 0xFF, (clri >> 8) & 0xFF, clri & 0xFF);
 
 	if (c.r < 0 || c.g < 0 || c.b < 0)
 	{
@@ -26095,31 +26096,31 @@ void FFScript::do_mix_clr()
 	float percent = SH::read_stack(ri->sp + 1) / 10000.0;
 	int32_t color_space = SH::read_stack(ri->sp + 0) / 10000;
 
-	RGB ref1c = _RGB(clr_start & 0xFF, (clr_start >> 8) & 0xFF, (clr_start >> 16) & 0xFF);
-	RGB ref2c = _RGB(clr_end & 0xFF, (clr_end >> 8) & 0xFF, (clr_end >> 16) & 0xFF);
+	RGB ref1c = _RGB((clr_start >> 16) & 0xFF, (clr_start >> 8) & 0xFF, clr_start & 0xFF);
+	RGB ref2c = _RGB((clr_end >> 16) & 0xFF, (clr_end >> 8) & 0xFF, clr_end & 0xFF);
 	RGB outputc = user_paldata::mix_color(ref1c, ref2c, percent, color_space);
 
 	int32_t r = vbound(outputc.r, 0, 63);
 	int32_t g = vbound(outputc.g, 0, 63);
 	int32_t b = vbound(outputc.b, 0, 63);
 
-	ri->d[rEXP1] = r | (g << 8) | (b << 16);
+	ri->d[rEXP1] = (r << 16) | (g << 8) | b;
 }
 
 void FFScript::do_create_rgb_hex()
 {
 	int32_t hexrgb = get_register(sarg1);
 
-	int32_t r = hexrgb & 0xFF;
+	int32_t r = (hexrgb >> 16) & 0xFF;
 	int32_t g = (hexrgb >> 8) & 0xFF;
-	int32_t b = (hexrgb >> 16) & 0xFF;
+	int32_t b = hexrgb & 0xFF;
 
 	//Convert rgb from 8-bit to 6-bit
-	r = vbound(int32_t(floor((r + 1) / 4 - 1)), 0, 63);
-	g = vbound(int32_t(floor((g + 1) / 4 - 1)), 0, 63);
-	b = vbound(int32_t(floor((b + 1) / 4 - 1)), 0, 63);
+	r = vbound(r / 4, 0, 63);
+	g = vbound(g / 4, 0, 63);
+	b = vbound(b / 4, 0, 63);
 
-	ri->d[rEXP1] = r | (g<<8) | (b<<16);
+	ri->d[rEXP1] = (r << 16) | (g << 8) | b;
 }
 
 void FFScript::do_create_rgb()
@@ -26136,7 +26137,80 @@ void FFScript::do_create_rgb()
 	g = vbound(g, 0, 63);
 	b = vbound(b, 0, 63);
 
-	ri->d[rEXP1] = r | (g << 8) | (b << 16);
+	ri->d[rEXP1] = (r << 16) | (g << 8) | b;
+}
+
+void FFScript::do_convert_from_rgb()
+{
+	int32_t buf = SH::read_stack(ri->sp + 2) / 10000;
+	int32_t clri = SH::read_stack(ri->sp + 1);
+	int32_t color_space = SH::read_stack(ri->sp + 0) / 10000;
+
+	ArrayManager am(buf);
+	if (am.invalid()) return;
+	int32_t zscript_array_size = am.size();
+	int32_t target_size;
+	
+	switch (color_space)
+	{
+	case user_paldata::CSPACE_CMYK:
+			target_size = 4;
+			break;
+		default:
+			target_size = 3;
+	}
+
+	if (zscript_array_size < target_size)
+	{
+		Z_scripterrlog("Array supplied to 'Graphics->ConvertFromRGB' not large enough. Should be at least size %d\n", target_size);
+		return;
+	}
+	
+	RGB c = _RGB((clri >> 16) & 0xFF, (clri >> 8) & 0xFF, clri & 0xFF);
+	double convert[4];
+	user_paldata::RGBTo(c, convert, color_space);
+
+	for (int32_t q = 0; q < target_size; ++q)
+	{
+		am.set(q, int32_t(convert[q]*10000));
+	}
+
+	return;
+}
+
+void FFScript::do_convert_to_rgb()
+{
+	int32_t buf = SH::read_stack(ri->sp + 1) / 10000;
+	int32_t color_space = SH::read_stack(ri->sp + 0) / 10000;
+	
+	ArrayManager am(buf);
+	if (am.invalid()) return;
+	int32_t zscript_array_size = am.size();
+	int32_t target_size;
+
+	switch (color_space)
+	{
+	case user_paldata::CSPACE_CMYK:
+		target_size = 4;
+		break;
+	default:
+		target_size = 3;
+	}
+
+	if (zscript_array_size < target_size)
+	{
+		Z_scripterrlog("Array supplied to 'Graphics->ConvertToRGB' not large enough. Should be at least size %d\n", target_size);
+		return;
+	}
+
+	double convert[4];
+	for (int32_t q = 0; q < target_size; ++q)
+	{
+		convert[q] = am.get(q) / 10000.0;
+	}
+	RGB c = user_paldata::RGBFrom(convert, color_space);
+
+	ri->d[rEXP1] = (c.r << 16) | (c.g << 8) | c.b;
 }
 
 void FFScript::do_paldata_load_level()
@@ -32212,6 +32286,10 @@ j_command:
 				FFCore.do_create_rgb_hex(); break;
 			case CREATERGB:
 				FFCore.do_create_rgb(); break;
+			case CONVERTFROMRGB:
+				FFCore.do_convert_from_rgb(); break;
+			case CONVERTTORGB:
+				FFCore.do_convert_to_rgb(); break;
 			case PALDATALOADLEVEL:
 				FFCore.do_paldata_load_level(); break;
 			case PALDATALOADSPRITE:
@@ -37476,10 +37554,10 @@ void FFScript::runOnDeathEngine()
 	{
 		script_drawing_commands.Clear();
 		load_control_state();
-		ZScriptVersion::RunScript(ScriptType::Player, SCRIPT_PLAYER_DEATH, SCRIPT_PLAYER_DEATH);
+		ZScriptVersion::RunScript(ScriptType::Player, SCRIPT_PLAYER_DEATH);
 		if (data.waitdraw)
 		{
-			ZScriptVersion::RunScript(ScriptType::Player, SCRIPT_PLAYER_DEATH, SCRIPT_PLAYER_DEATH);
+			ZScriptVersion::RunScript(ScriptType::Player, SCRIPT_PLAYER_DEATH);
 			data.waitdraw = false;
 		}
 		//Draw
@@ -40781,6 +40859,16 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "RESRVD_OP_EMILY_18", 0, 0, 0, 0 },
 	{ "RESRVD_OP_EMILY_19", 0, 0, 0, 0 },
 	{ "RESRVD_OP_EMILY_20", 0, 0, 0, 0 },
+	{ "CONVERTFROMRGB", 0, 0, 0, 0 },
+	{ "CONVERTTORGB", 0, 0, 0, 0 },
+	{ "RESRVD_OP_MOOSH_03", 0, 0, 0, 0 },
+	{ "RESRVD_OP_MOOSH_04", 0, 0, 0, 0 },
+	{ "RESRVD_OP_MOOSH_05", 0, 0, 0, 0 },
+	{ "RESRVD_OP_MOOSH_06", 0, 0, 0, 0 },
+	{ "RESRVD_OP_MOOSH_07", 0, 0, 0, 0 },
+	{ "RESRVD_OP_MOOSH_08", 0, 0, 0, 0 },
+	{ "RESRVD_OP_MOOSH_09", 0, 0, 0, 0 },
+	{ "RESRVD_OP_MOOSH_10", 0, 0, 0, 0 },
 	
 	{ "",                    0,   0,   0,   0}
 };

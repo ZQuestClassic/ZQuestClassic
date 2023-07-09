@@ -85,6 +85,8 @@ int32_t new_gui_event(DIALOG* d, guiEvent event)
 			return d->proc(MSG_GUI_EVENT, d, event);
 		}
 	}
+
+	return -1;
 }
 
 void close_new_gui_dlg(DIALOG* d);
@@ -1211,6 +1213,7 @@ int32_t jwin_button_proc(int32_t msg, DIALOG *d, int32_t c)
 					down = mouse_in_rect(d->x, d->y, d->w, d->h);
 					
 					/* redraw? */
+					bool should_redraw = false;
 					if(last_draw != down)
 					{
 						if(down != selected)
@@ -1220,12 +1223,17 @@ int32_t jwin_button_proc(int32_t msg, DIALOG *d, int32_t c)
 							
 						object_message(d, MSG_DRAW, 0);
 						last_draw = down;
+						should_redraw = true;
 					}
 					
 					/* let other objects continue to animate */
-					broadcast_dialog_message(MSG_IDLE, 0);
-					
-					update_hw_screen();
+					int r = broadcast_dialog_message(MSG_IDLE, 0);
+					if (r & D_REDRAWME) should_redraw = true;
+
+					if (should_redraw)
+					{
+						update_hw_screen();
+					}
 				}
 				
 				/* redraw in normal state */
@@ -1301,6 +1309,7 @@ int32_t jwin_infobtn_proc(int32_t msg, DIALOG *d, int32_t)
 					down = mouse_in_rect(d->x, d->y, d->w, d->h);
 					
 					/* redraw? */
+					bool should_redraw = false;
 					if(last_draw != down)
 					{
 						if(down != selected)
@@ -1310,12 +1319,17 @@ int32_t jwin_infobtn_proc(int32_t msg, DIALOG *d, int32_t)
 							
 						object_message(d, MSG_DRAW, 0);
 						last_draw = down;
+						should_redraw = true;
 					}
 					
 					/* let other objects continue to animate */
-					broadcast_dialog_message(MSG_IDLE, 0);
-					
-					update_hw_screen();
+					int r = broadcast_dialog_message(MSG_IDLE, 0);
+					if (r & D_REDRAWME) should_redraw = true;
+
+					if (should_redraw)
+					{
+						update_hw_screen();
+					}
 				}
 				
 				/* redraw in normal state */
@@ -1355,6 +1369,7 @@ int32_t jwin_func_button_proc(int32_t msg, DIALOG *d, int32_t c)
             down = mouse_in_rect(d->x, d->y, d->w, d->h);
             
             /* redraw? */
+            bool should_redraw = false;
             if(last_draw != down)
             {
                 if(down != selected)
@@ -1364,12 +1379,17 @@ int32_t jwin_func_button_proc(int32_t msg, DIALOG *d, int32_t c)
                     
                 object_message(d, MSG_DRAW, 0);
                 last_draw = down;
+                should_redraw = true;
             }
             
             /* let other objects continue to animate */
-            broadcast_dialog_message(MSG_IDLE, 0);
-            
-			update_hw_screen();
+            int r = broadcast_dialog_message(MSG_IDLE, 0);
+            if (r & D_REDRAWME) should_redraw = true;
+
+            if (should_redraw)
+            {
+                update_hw_screen();
+            }
         }
         
         /* redraw in normal state */
@@ -2217,6 +2237,7 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 			bool shifted = key_shifts & KB_SHIFT_FLAG;
 			bool ctrl = key_shifts & KB_CTRL_FLAG;
 			bool change_cursor = true;
+			bool change_value = false;
 			int16_t scursor = cursor_start, ecursor = cursor_end;
 			bool multiselect = cursor_end > -1;
 			auto upper_c = c>>8;
@@ -2282,6 +2303,7 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 					scursor = 0;
 					ecursor = -1;
 					GUI_EVENT(d, geCHANGE_VALUE);
+					change_value = true;
 				}
 				else if(multiselect)
 				{
@@ -2293,12 +2315,14 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 					while(s[ind])
 						s[ind++] = 0;
 					GUI_EVENT(d, geCHANGE_VALUE);
+					change_value = true;
 				}
 				else if(scursor < l)
 				{
 					for(p=scursor; s[p]; p++)
 						s[p] = s[p+1];
 					GUI_EVENT(d, geCHANGE_VALUE);
+					change_value = true;
 				}
 			}
 			else if(upper_c == KEY_BACKSPACE)
@@ -2309,6 +2333,7 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 					scursor = 0;
 					ecursor = -1;
 					GUI_EVENT(d, geCHANGE_VALUE);
+					change_value = true;
 				}
 				else if(multiselect)
 				{
@@ -2320,6 +2345,7 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 					while(s[ind])
 						s[ind++] = 0;
 					GUI_EVENT(d, geCHANGE_VALUE);
+					change_value = true;
 				}
 				else if(scursor > 0)
 				{
@@ -2327,6 +2353,7 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 					for(p=scursor; s[p]; p++)
 						s[p] = s[p+1];
 					GUI_EVENT(d, geCHANGE_VALUE);
+					change_value = true;
 				}
 			}
 			else if(upper_c == KEY_ENTER)
@@ -2412,6 +2439,7 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 					scursor = paste_start + paste_len;
 					ecursor = -1;
 					GUI_EVENT(d, geCHANGE_VALUE);
+					change_value = true;
 				}
 			}
 			else if(ctrl && (lower_c=='a' || lower_c=='A'))
@@ -2450,6 +2478,7 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 					s[scursor++] = lower_c;
 
 					GUI_EVENT(d, geCHANGE_VALUE);
+					change_value = true;
 				}
 			}
 			else
@@ -2461,7 +2490,9 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 				d->d2 = cursor_start | ((cursor_end&0xFFFF) << 16);
 			}
 			/* if we changed something, better redraw... */
-			object_message(d, MSG_DRAW, 0);
+			// Note: this still redraws when not necessary.
+			if (change_value || change_cursor)
+				d->flags |= D_DIRTY;
 			return D_USED_CHAR;
 		}
 	}
@@ -4177,17 +4208,23 @@ void _handle_jwin_scrollable_scroll_click(DIALOG *d, int32_t listsize, int32_t *
                     
                 if(yy < 0)
                     yy = 0;
-                    
+                
+                bool should_redraw = false;
                 if(yy != *offset)
                 {
                     *offset = yy;
                     d->proc(MSG_DRAW, d, 0);
+                    should_redraw = true;
                 }
                 
-                // let other objects continue to animate
-                broadcast_dialog_message(MSG_IDLE, 0);
-                
-				update_hw_screen();
+                /* let other objects continue to animate */
+                int r = broadcast_dialog_message(MSG_IDLE, 0);
+                if (r & D_REDRAWME) should_redraw = true;
+
+                if (should_redraw)
+                {
+                    update_hw_screen();
+                }
             }
             
             break;
@@ -4622,14 +4659,23 @@ int32_t jwin_list_proc(int32_t msg, DIALOG *d, int32_t c)
             {
                 broadcast_dialog_message(MSG_IDLE, 0);
                 d->flags |= D_INTERNAL;
+				bool should_redraw = false;
 				if(_handle_jwin_listbox_click(d))
 				{
 					d->flags &= ~D_INTERNAL;
 					GUI_EVENT(d, geCHANGE_SELECTION);
+					should_redraw = true;
 				}
 				d->flags &= ~D_INTERNAL;
                 
-				update_hw_screen();
+				/* let other objects continue to animate */
+				int r = broadcast_dialog_message(MSG_IDLE, 0);
+				if (r & D_REDRAWME) should_redraw = true;
+
+				if (should_redraw)
+				{
+					update_hw_screen();
+				}
             }
             
             if(rightClicked)
@@ -4651,6 +4697,8 @@ int32_t jwin_list_proc(int32_t msg, DIALOG *d, int32_t c)
                     return D_CLOSE;
                 }
             }
+
+			return D_REDRAWME;
         }
         else
         {
@@ -4722,6 +4770,7 @@ int32_t jwin_list_proc(int32_t msg, DIALOG *d, int32_t c)
                 d->d2 = i;
                 object_message(d, MSG_DRAW, 0);
 				GUI_EVENT(d, geCHANGE_SELECTION);
+				return D_REDRAWME;
             }
         }
         
@@ -4790,7 +4839,8 @@ int32_t jwin_list_proc(int32_t msg, DIALOG *d, int32_t c)
 			
 			GUI_EVENT(d, geCHANGE_SELECTION);
             
-            object_message(d, MSG_DRAW, 0);
+			if (d->d1 != orig)
+				d->flags |= D_DIRTY;
             return D_USED_CHAR;
         }
         
@@ -4878,10 +4928,9 @@ int32_t jwin_do_abclist_proc(int32_t msg, DIALOG *d, int32_t c)
 					{
 						d->flags &= ~D_INTERNAL;
 						GUI_EVENT(d, geCHANGE_SELECTION);
+						update_hw_screen();
 					}
 					d->flags &= ~D_INTERNAL;
-					
-					update_hw_screen();
 				}
 				
 				if(rightClicked)
@@ -4903,6 +4952,8 @@ int32_t jwin_do_abclist_proc(int32_t msg, DIALOG *d, int32_t c)
 						ret = D_CLOSE;
 					}
 				}
+
+				return D_REDRAWME;
 			}
 			else
 			{
@@ -4985,6 +5036,7 @@ int32_t jwin_do_abclist_proc(int32_t msg, DIALOG *d, int32_t c)
                 d->d2 = i;
                 object_message(d, MSG_DRAW, 0);
 				GUI_EVENT(d, geCHANGE_SELECTION);
+				ret |= D_REDRAWME;
             }
         }
         
@@ -5053,7 +5105,8 @@ int32_t jwin_do_abclist_proc(int32_t msg, DIALOG *d, int32_t c)
 			
 			GUI_EVENT(d, geCHANGE_SELECTION);
 			
-            object_message(d, MSG_DRAW, 0);
+			if (d->d1 != orig)
+				d->flags |= D_DIRTY;
             ret = D_USED_CHAR;
         }
         
@@ -7245,11 +7298,10 @@ dropit:
         {
             draw_arrow_button(screen, d->x+d->w-18, d->y+2,16, d->h-4, 0, down*3);
             last_draw = down;
+            update_hw_screen();
         }
         
         clear_keybuf();
-        
-		update_hw_screen();
     }
     
     if(!down)
@@ -8629,9 +8681,9 @@ int32_t jwin_tab_proc(int32_t msg, DIALOG *d, int32_t c)
 		//d->y=zq_screen_h*3;
 	}
 	
-	broadcast_dialog_message(MSG_IDLE, 0);
+	return broadcast_dialog_message(MSG_IDLE, 0);
 	
-	return D_O_K;
+	// return D_O_K;
 }
 
 int32_t discern_tab(GUI::TabPanel *panel, int32_t first_tab, int32_t x)
@@ -9217,6 +9269,7 @@ int32_t d_jslider_proc(int32_t msg, DIALOG *d, int32_t c)
             }
             
             object_message(d, MSG_DRAW, 0);
+			retval |= D_REDRAWME;
         }
         
         break;
@@ -9358,18 +9411,24 @@ int32_t d_jwinbutton_proc(int32_t msg, DIALOG *d, int32_t)
 					state2 = !state2;
 					
 				/* redraw? */
+				bool should_redraw = false;
 				if(((state1) && (!state2)) || ((state2) && (!state1)))
 				{
 					d->flags ^= D_SELECTED;
 					GUI_EVENT(d, geTOGGLE);
 					state1 = d->flags & D_SELECTED;
 					object_message(d, MSG_DRAW, 0);
+					should_redraw = true;
 				}
 				
 				/* let other objects continue to animate */
-				broadcast_dialog_message(MSG_IDLE, 0);
-				
-				update_hw_screen();
+				int r = broadcast_dialog_message(MSG_IDLE, 0);
+				if (r & D_REDRAWME) should_redraw = true;
+
+				if (should_redraw)
+				{
+					update_hw_screen();
+				}
 			}
 			
 			if(d->dp3 != NULL)

@@ -14,7 +14,7 @@ set -ex
 
 # Setup deps.
 apt update -y
-apt install -y lsb-core software-properties-common ccache ninja-build build-essential gcc-multilib g++-multilib libx11-dev libglu1-mesa-dev libcurl4-gnutls-dev freeglut3-dev mesa-common-dev libxcursor1 libasound2-dev libgtk-3-dev flex bison elfutils xvfb
+apt install -y lsb-core software-properties-common ccache ninja-build build-essential gcc-multilib g++-multilib libx11-dev libglu1-mesa-dev libcurl4-gnutls-dev freeglut3-dev mesa-common-dev libxcursor1 libasound2-dev libgtk-3-dev flex bison elfutils
 
 if cmake --version | grep -q '3.22'; then
     wget -O - https://apt.kitware.com/keys/kitware-archive-latest.asc 2>/dev/null | gpg --dearmor - | tee /etc/apt/trusted.gpg.d/kitware.gpg >/dev/null

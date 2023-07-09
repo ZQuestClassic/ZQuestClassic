@@ -621,7 +621,7 @@ int32_t d_tab_proc(int32_t msg, DIALOG *d, int32_t c)
                 }
                 
                 panel[selected].flags |= D_SELECTED;
-                object_message(d, MSG_DRAW, 0);
+                d->flags |= D_DIRTY;
             }
         }
         

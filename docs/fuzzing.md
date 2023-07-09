@@ -28,20 +28,19 @@ When crashes are found the input file that caused them will be saved to `.tmp/fu
 
 You likely want to enable ASAN to help debug:
 ```sh
-cmake -G 'Ninja Multi-Config' -B build_asan -S . -DWANT_ASAN=ON
-cmake --build build_asan --config Debug -t zelda
+cmake --build build --config Asan -t zelda
 ```
 
 This script is helpful for 1) getting a stack trace of the program crashing with the bad inputs and 2) verifying changes no longer result in a crash:
 
 ```sh
-python scripts/process_fuzz_results.py --build_folder build_asan/Debug
+python scripts/process_fuzz_results.py --build_folder build/Asan
 ```
 
 Each crashing input will generate a file in `.tmp/fuzz_debugging/outputs` that looks something like this:
 
 ```cpp
-build_asan/Debug/zelda -load-and-quit /Users/connorclark/code/ZeldaClassic-secondary/.tmp/fuzz_results/main/hangs/id:000080,src:000787+000076,time:26346082,execs:78378,op:splice,rep:11
+build/Asan/zelda -load-and-quit /Users/connorclark/code/ZeldaClassic-secondary/.tmp/fuzz_results/main/hangs/id:000080,src:000787+000076,time:26346082,execs:78378,op:splice,rep:11
 
 =================================================================
 ==10193==ERROR: AddressSanitizer: stack-buffer-overflow on address 0x700003bff22e at pc 0x00010c6489f5 bp 0x700003bfd790 sp 0x700003bfcf50

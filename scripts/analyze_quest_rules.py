@@ -9,6 +9,7 @@ import logging
 import os
 import sys
 import argparse
+import subprocess
 from joblib import Memory
 from typing import Set, List
 from pathlib import Path
@@ -20,14 +21,18 @@ logging.getLogger('zquest').setLevel(logging.FATAL)
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent
-memory = Memory(root_dir / '.tmp/cache_analyze_replay_tests', verbose=0)
+tmp_dir = root_dir / '.tmp/cache_analyze_replay_tests'
+memory = Memory(tmp_dir / 'memory', verbose=0)
 
 parser = argparse.ArgumentParser(
     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument('--quest_database', type=Path)
 parser.add_argument('--no_compat', action='store_true')
 parser.add_argument('--analyze_replay_tests', action='store_true')
+parser.add_argument('--build_folder', default='build/Release')
 args = parser.parse_args()
+
+build_folder = Path(args.build_folder).absolute()
 
 quest_rules = {qr: qr_name for qr, qr_name in enumerate(
     constants.quest_rules) if qr_name}
@@ -44,13 +49,34 @@ if args.quest_database:
     quest_database = sorted(quest_database, key=get_pzc_id_number)
 
 
+def get_post_compat_rules(path: Path):
+    tmp_path = tmp_dir / 'tmp.qst'
+    exe_name = 'zquest.exe' if os.name == 'nt' else 'zquest'
+    args = [
+        build_folder / exe_name,
+        '-copy-qst', path, tmp_path,
+    ]
+    output = subprocess.run(args, cwd=build_folder, encoding='utf-8',
+                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    if output.returncode != 0:
+        raise Exception(f'got error: {output.returncode}\n{output.stdout}')
+
+    reader = ZeldaClassicReader(str(tmp_path), {
+        'only_sections': [SECTION_IDS.RULES],
+    })
+    reader.read_qst()
+    tmp_path.unlink()
+    return reader.get_quest_rules()
+
+
 @memory.cache
 def read_qst_impl(path: Path):
     reader = ZeldaClassicReader(str(path), {
         'only_sections': [SECTION_IDS.RULES],
     })
     reader.read_qst()
-    return reader.header, reader.get_quest_rules(), reader.get_quest_rules_post_compat()
+
+    return reader.header, reader.get_quest_rules(), get_post_compat_rules(path)
 
 
 def read_qst(path: Path):

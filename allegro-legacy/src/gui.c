@@ -432,6 +432,7 @@ int dialog_message(DIALOG *dialog, int msg, int c, int *obj)
 	    if ((msg == MSG_IDLE) && (dialog[count].flags & (D_DIRTY | D_HIDDEN)) == D_DIRTY) {
 	       dialog[count].flags &= ~D_DIRTY;
 	       object_message(dialog+count, MSG_DRAW, 0);
+           res |= D_REDRAWME;
 	    }
 	 }
       }
@@ -1039,6 +1040,7 @@ static void check_for_redraw(DIALOG_PLAYER *player)
    /* need to draw it? */
    if (player->res & D_REDRAW) {
       player->res ^= D_REDRAW;
+      player->res |= D_REDRAWME;
       player->res |= dialog_message(player->dialog, MSG_DRAW, 0, &player->obj);
    }
 
@@ -1047,6 +1049,7 @@ static void check_for_redraw(DIALOG_PLAYER *player)
       if ((player->dialog[c].flags & (D_DIRTY | D_HIDDEN)) == D_DIRTY) {
 	 player->dialog[c].flags &= ~D_DIRTY;
 	 MESSAGE(c, MSG_DRAW, 0);
+     player->res |= D_REDRAWME;
       }
    }
 

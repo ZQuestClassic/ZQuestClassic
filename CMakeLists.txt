@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.24)
-set(CMAKE_CONFIGURATION_TYPES Debug Release RelWithDebInfo Coverage CACHE STRING INTERNAL FORCE)
+set(CMAKE_CONFIGURATION_TYPES Asan Debug Release RelWithDebInfo Coverage CACHE STRING INTERNAL FORCE)
 project (ZeldaClassic)
 
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${CMAKE_CURRENT_SOURCE_DIR}/cmake")
@@ -12,7 +12,6 @@ set(USE_PCH FALSE CACHE BOOL "Use precompiled headers")
 set(UNITY_BUILD FALSE CACHE BOOL "Unity build")
 set(WANT_SENTRY FALSE CACHE BOOL "Include Sentry for crash dump handling")
 set(WANT_MAC_DEBUG_FILES FALSE CACHE BOOL "Generate .dSYM debug files on Mac")
-set(WANT_ASAN FALSE CACHE BOOL "Compile with ASAN")
 set(WANT_FUZZ FALSE CACHE BOOL "Set FUZZ CXX definition")
 set(WANT_GIT_HOOKS TRUE CACHE BOOL "Install git hooks")
 set(RELEASE_TAG "" CACHE STRING "Release tag")
@@ -20,16 +19,14 @@ set(RELEASE_TAG "" CACHE STRING "Release tag")
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-if(WANT_ASAN)
-	# Will also need to use `-s` flag to disable sound, as there is a known problem there.
-	if(MSVC)
-		string(REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-		add_compile_options(/fsanitize=address)
-		add_link_options(/fsanitize=address)
-	else()
-		add_compile_options(-fsanitize=address)
-		add_link_options(-fsanitize=address)
-	endif()
+if(MSVC)
+	set(CMAKE_CXX_FLAGS_ASAN "${CMAKE_CXX_FLAGS_DEBUG} /fsanitize=address" CACHE STRING "" FORCE)
+	set(CMAKE_C_FLAGS_ASAN "${CMAKE_C_FLAGS_DEBUG} /fsanitize=address" CACHE STRING "" FORCE)
+	set(CMAKE_EXE_LINKER_FLAGS_ASAN "${CMAKE_EXE_LINKER_FLAGS_DEBUG} /fsanitize=address" CACHE STRING "" FORCE)
+else()
+	set(CMAKE_CXX_FLAGS_ASAN "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address -fno-omit-frame-pointer" CACHE STRING "" FORCE)
+	set(CMAKE_C_FLAGS_ASAN "${CMAKE_C_FLAGS_DEBUG} -fsanitize=address -fno-omit-frame-pointer" CACHE STRING "" FORCE)
+	set(CMAKE_EXE_LINKER_FLAGS_ASAN "${CMAKE_EXE_LINKER_FLAGS_DEBUG} -fsanitize=address" CACHE STRING "" FORCE)
 endif()
 
 if(WANT_GIT_HOOKS)
@@ -203,7 +200,7 @@ if(NOT allegro5_POPULATED)
   add_subdirectory(${allegro5_SOURCE_DIR} ${allegro5_BINARY_DIR} EXCLUDE_FROM_ALL)
   # Allegro 5 CMakeLists sets CMAKE_CONFIGURATION_TYPES in a way that doesn't work for us,
   # so set it back to our value.
-  set(CMAKE_CONFIGURATION_TYPES Debug Release RelWithDebInfo Coverage CACHE STRING INTERNAL FORCE)
+  set(CMAKE_CONFIGURATION_TYPES Asan Debug Release RelWithDebInfo Coverage CACHE STRING INTERNAL FORCE)
 endif()
 
 # These include files are typically copied into the correct places via allegro's install
@@ -650,6 +647,10 @@ if(CMAKE_SIZEOF_VOID_P EQUAL 8)
 	FetchContent_MakeAvailable(asmjit)
 	target_link_libraries(zelda PRIVATE asmjit)
 	target_compile_definitions(zelda PRIVATE ZC_JIT)
+
+	get_target_property(asm_compile_options asmjit COMPILE_OPTIONS)
+	string(REPLACE "$<NOT:$<CONFIG:Debug>>" "$<NOT:$<CONFIG:Debug,Asan>>" asm_compile_options "${asm_compile_options}")
+	set_target_properties(asmjit PROPERTIES COMPILE_OPTIONS "${asm_compile_options}")
 endif()
 
 #############################################################
@@ -787,15 +788,6 @@ if(WANT_FUZZ)
 	endforeach()
 endif()
 
-# if(WANT_ASAN)
-	# add_compile_options(-fsanitize=address)
-	# add_link_options(-fsanitize=address)
-	# foreach(target IN LISTS zc_targets)
-	# 	target_compile_options(${target} PRIVATE -fsanitize=address)
-	# 	target_link_options(${target} PRIVATE -fsanitize=address)
-	# endforeach()
-# endif()
-
 if(USE_PCH)
 	foreach(target IN LISTS zc_targets)
 		target_precompile_headers(${target}
@@ -894,6 +886,8 @@ if(CMAKE_GENERATOR MATCHES "Visual Studio")
 	set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /SAFESEH:NO")
 	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SAFESEH:NO")
 
+	set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT zquest)
+
 	# Configure "Debug" option in VS to use the correct working directory, otherwise it fails to load zc configuration files
 	set_property(TARGET ${zc_targets} PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "$(ProjectDir)$(Configuration)")
 
@@ -932,4 +926,7 @@ if(CMAKE_GENERATOR MATCHES "Visual Studio")
 			set_target_properties(${target} PROPERTIES FOLDER Other)
 		endif()
 	endforeach()
+
+	# The sound system has a known memory issue, so for now set the default debugging args to disable sound.
+	set_property(TARGET ${zc_targets} PROPERTY VS_DEBUGGER_COMMAND_ARGUMENTS "$<$<CONFIG:ASAN>:-s>")
 endif()

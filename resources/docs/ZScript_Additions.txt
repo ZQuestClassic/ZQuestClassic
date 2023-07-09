@@ -7748,6 +7748,14 @@ rgb CreateRGB(long hexcode);
  * Returns an rgb based on a long hexcode (0xRRGGBBL)
  * R/G/B values will be converted from 0-255 to 0-63
 
+void ConvertRGBTo(float[] buf, rgb clr, int color_space)
+ * Converts an rgb into another color space and copies the values into the buffer.
+ * The buffer should be at least size 3 (or 4 for CMYK).
+
+rgb ConvertRGBFrom(float[] buf, int color_space)
+ * Converts the contents of the buffer from a color space back to rgb.
+ * The buffer should be at least size 3 (or 4 for CMYK).
+
 /////////////////
 ///  Audio->  ///
 /////////////////								// Audio
