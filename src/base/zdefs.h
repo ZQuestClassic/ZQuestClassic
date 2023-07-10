@@ -5180,7 +5180,7 @@ INLINE bool p_getcstr(std::string *str, PACKFILE *f, bool keepdata)
 	if(keepdata)
 		str->clear();
 	byte sz = 0;
-	if(!p_getc(&sz,f,keepdata))
+	if(!p_getc(&sz,f,true))
 		return false;
 	if(sz) //string found
 	{
@@ -5215,7 +5215,7 @@ INLINE bool p_getwstr(std::string *str, PACKFILE *f, bool keepdata)
 	if(keepdata)
 		str->clear();
 	word sz = 0;
-	if(!p_igetw(&sz,f,keepdata))
+	if(!p_igetw(&sz,f,true))
 		return false;
 	if(sz) //string found
 	{
@@ -5252,7 +5252,7 @@ INLINE bool p_getcvec(std::vector<T> *vec, PACKFILE *f, bool keepdata)
 	if(keepdata)
 		vec->clear();
 	byte sz = 0;
-	if(!p_getc(&sz,f,keepdata))
+	if(!p_getc(&sz,f,true))
 		return false;
 	if(sz) //vec found
 	{
@@ -5289,7 +5289,7 @@ INLINE bool p_getwvec(std::vector<T> *vec, PACKFILE *f, bool keepdata)
 	if(keepdata)
 		vec->clear();
 	word sz = 0;
-	if(!p_igetw(&sz,f,keepdata))
+	if(!p_igetw(&sz,f,true))
 		return false;
 	if(sz) //vec found
 	{
@@ -5326,7 +5326,7 @@ INLINE bool p_getlvec(std::vector<T> *vec, PACKFILE *f, bool keepdata)
 	if(keepdata)
 		vec->clear();
 	dword sz = 0;
-	if(!p_igetl(&sz,f,keepdata))
+	if(!p_igetl(&sz,f,true))
 		return false;
 	if(sz) //vec found
 	{
