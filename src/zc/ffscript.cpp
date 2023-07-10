@@ -38084,7 +38084,9 @@ void FFScript::do_npc_delete()
 {
 	if(GuyH::loadNPC(ri->guyref, "npc->Remove()") == SH::_NoError)
 	{
-		guys.del(GuyH::getNPCIndex(ri->guyref));
+		auto ind = GuyH::getNPCIndex(ri->guyref);
+		GuyH::getNPC()->stop_bgsfx(ind);
+		guys.del(ind);
 	}
 }
 
