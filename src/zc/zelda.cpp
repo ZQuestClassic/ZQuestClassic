@@ -5550,6 +5550,7 @@ reload_for_replay_file:
 			FFCore.user_bitmaps_init(); //Clear open bitmaps
 			FFCore.user_stacks_init(); //Clear open stacks
 			FFCore.user_objects_init(); //Clear open stacks
+			objectRAM.clear();
 		}
 		//Deallocate ALL ZScript arrays on ANY exit.
 		FFCore.deallocateAllArrays();

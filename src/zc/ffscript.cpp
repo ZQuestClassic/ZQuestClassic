@@ -3082,7 +3082,6 @@ void FFScript::deallocateAllArrays()
 	{
 		script_objects[q].own_clear_any();
 	}
-	objectRAM.clear();
 	//No QR check here- always deallocate on quest exit.
 	for(int32_t i = 1; i < NUM_ZSCRIPT_ARRAYS; i++)
 	{
