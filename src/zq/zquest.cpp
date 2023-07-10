@@ -16934,6 +16934,18 @@ int32_t writesomedmaps(PACKFILE *f, int32_t first, int32_t last, int32_t max)
 				}
 			}
 		}
+		if (!p_iputw(DMaps[i].mirrorDMap, f))
+		{
+			new_return(38);
+		}
+		if (!p_iputl(DMaps[i].tmusic_loop_start, f))
+		{
+			new_return(39);
+		}
+		if (!p_iputl(DMaps[i].tmusic_loop_end, f))
+		{
+			new_return(40);
+		}
 	}
 
 	return 1;
@@ -17256,6 +17268,18 @@ int32_t readsomedmaps(PACKFILE *f)
 							}
 						}
 					}
+					if (!p_igetw(&tempdmap.mirrorDMap, f, true))
+					{
+						return 0;
+					}
+					if (!p_igetl(&tempdmap.tmusic_loop_start, f, true))
+					{
+						return 0;
+					}
+					if (!p_igetl(&tempdmap.tmusic_loop_end, f, true))
+					{
+						return 0;
+					}
 				}
 			}
 		::memcpy(&DMaps[i], &tempdmap, sizeof(dmap));
@@ -17516,7 +17540,18 @@ int32_t writeonedmap(PACKFILE *f, int32_t i)
 				}
 			}
 		}
-	    
+		if (!p_iputw(DMaps[i].mirrorDMap, f))
+		{
+			new_return(38);
+		}
+		if (!p_iputl(DMaps[i].tmusic_loop_start, f))
+		{
+			new_return(39);
+		}
+		if (!p_iputl(DMaps[i].tmusic_loop_end, f))
+		{
+			new_return(40);
+		}
 
 	return 1;
 }
@@ -17828,6 +17863,18 @@ int32_t readonedmap(PACKFILE *f, int32_t index)
 							return 0;
 						}
 					}
+				}
+				if (!p_igetw(&tempdmap.mirrorDMap, f, true))
+				{
+					return 0;
+				}
+				if (!p_igetl(&tempdmap.tmusic_loop_start, f, true))
+				{
+					return 0;
+				}
+				if (!p_igetl(&tempdmap.tmusic_loop_end, f, true))
+				{
+					return 0;
 				}
 			}
 		}
