@@ -29492,6 +29492,7 @@ void HeroClass::checkitems(int32_t index)
 	int32_t holdid = ptr->id;
 	int32_t pstr = ptr->pstring;
 	int32_t pstr_flags = ptr->pickup_string_flags;
+	int32_t linked_parent = ptr->linked_parent;
 	if(ptr->fallclk > 0) return; //Don't pick up a falling item
 	
 	if(itemsbuf[id2].family == itype_progressive_itm)
@@ -29938,7 +29939,7 @@ void HeroClass::checkitems(int32_t index)
 	}
 	
 	if(itemsbuf[id2].family==itype_triforcepiece
-		&& itemsbuf[id2].misc2 <= 0 && ptr->linked_parent == eeGANON)
+		&& itemsbuf[id2].misc2 <= 0 && linked_parent == eeGANON)
 	{
 		game->lvlitems[dlevel]|=liBOSS;
 	}
