@@ -896,8 +896,11 @@ static GUI::ListData compatRulesList
 	{ "Broken Scrolling Onto Raft Flags", qr_BROKEN_RAFT_SCROLL,
 		"If enabled, scrolling the screen such that you are on a raft flag on the new screen will force rafting,"
 		" even if you were not rafting before, or do not have the raft item." },
-	{ "Broken Input Down State For Scripts", qr_BROKEN_INPUT_DOWN_STATE,
-		"If enabled, setting button inputs to false (ex: `Input->Button[CB_A] = false`) will have no effect on button presses. If disabled, button presses are eaten."},
+	{ "Broken Input Down State", qr_BROKEN_INPUT_DOWN_STATE,
+		"If enabled: 1) the engine does not reset the internal button down state every frame."
+		" 2) setting button inputs to false (ex: `Input->Button[CB_A] = false`) will have no effect on button presses."
+		" 3) breaks Roc's Feather when assigned to a button press."
+		" If disabled: button presses are eaten when scripts write to button states."},
 };
 
 static GUI::ListData enemiesRulesList
