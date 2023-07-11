@@ -207,10 +207,37 @@ def create_compare_report(test_runs):
 
 
 def start_webserver():
+    from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
+
+    class Serv(BaseHTTPRequestHandler):
+        def do_GET(self):
+            if self.path == '/':
+                self.path = '/index.html'
+            path = out_dir / self.path[1:]
+
+            file_to_open = None
+            try:
+                if path.exists():
+                    file_to_open = open(path, 'rb')
+                    self.send_response(200)
+                    self.send_header('Cross-Origin-Embedder-Policy', 'require-corp')
+                    self.send_header('Cross-Origin-Opener-Policy', 'same-origin')
+            except:
+                pass
+
+            if not file_to_open:
+                self.send_response(404)
+
+            self.end_headers()
+            if file_to_open:
+                print(path)
+                self.wfile.write(file_to_open.read())
+                file_to_open.close()
+
     port = 8000
-    command_args = f'npx statikk --port {port} --coi'.split(' ')
-    print(f'starting webserver at http://localhost:{port}\nCtrl-C to quit')
-    subprocess.check_call(command_args, cwd=out_dir)
+    httpd = ThreadingHTTPServer(('localhost', port), Serv)
+    print(f'View report at: http://localhost:{port}')
+    httpd.serve_forever()
 
 
 if __name__ == '__main__':
