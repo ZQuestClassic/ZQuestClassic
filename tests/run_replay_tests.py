@@ -315,6 +315,7 @@ is_mac_ci = args.ci and 'mac' in args.ci
 is_web = bool(list(args.build_folder.glob('*.wasm')))
 is_web_ci = is_web and args.ci
 is_coverage = args.build_folder.name == 'Coverage'
+is_asan = args.build_folder.name == 'Asan'
 if args.test_results_folder:
     test_results_dir = args.test_results_folder.absolute()
 else:
@@ -433,6 +434,8 @@ def get_replay_data(file):
         estimated_fps /= 11
     if is_coverage:
         estimated_fps /= 10
+    if is_asan:
+        estimated_fps /= 15
 
     frames_limited = frames
     frame_arg = get_arg_for_replay(file, grouped_frame_arg, is_int=True)
@@ -651,11 +654,15 @@ def run_replay_test(replay_file: pathlib.Path, output_dir: pathlib.Path) -> RunR
 
     # Cap the duration in CI, in case it somehow never ends.
     do_timeout = True if args.ci else False
+    # ...but not for Coverage/Asan, which is unpredictably slow.
+    if is_coverage:
+        do_timeout = False
+    if is_asan:
+        do_timeout = False
+
     timeout = 60
     if replay_file.name == 'yuurand.zplay':
         timeout = 180
-    if is_coverage:
-        timeout *= 5
     if is_web:
         timeout *= 2
 
