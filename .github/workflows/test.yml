@@ -17,7 +17,7 @@ on:
         type: choice
         description: 'config'
         default: 'Release'
-        options: ['Release', 'Debug', 'RelWithDebInfo', 'Coverage']
+        options: ['Release', 'Debug', 'RelWithDebInfo', 'Coverage', 'Asan']
       extra-args:
         type: string
         description: 'extra-args'
