@@ -513,10 +513,13 @@ class CLIPlayerInterface:
         # Assertion failed: (mutex), function al_lock_mutex, file threads.Assertion failed: (mutex), function al_lock_mutex, file threads.c, line 324.
         # Assertion failed: (mutex), function al_lock_mutex, file threads.c, line 324.
         exe_name = 'zelda.exe' if os.name == 'nt' else 'zelda'
-        exe_path = (args.build_folder / exe_name).absolute()
+        exe_path = args.build_folder / exe_name
+        if not exe_path.exists():
+            print(f'could not find executable at: {exe_path}\nYou may need to set the --build_folder arg (defaults to build/Release)')
+            os._exit(1)
 
         exe_args = [
-            exe_path,
+            exe_path.absolute(),
             f'-{mode}', replay_path,
             '-v1' if args.throttle_fps else '-v0',
             '-replay-exit-when-done',
