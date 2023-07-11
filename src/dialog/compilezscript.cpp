@@ -91,9 +91,10 @@ bool docancel()
 	return true;
 }
 
-// If quick_assign is false, will prompt user if they want to quick assign. If true, will do the quick assign automaticaly.
-bool do_compile_and_slots(bool quick_assign, bool delay)
+// If quick_compile is false, will prompt user if they want to quick assign. If true, will do the quick assign automaticaly and skip some outputs.
+bool do_compile_and_slots(bool quick_compile, bool delay)
 {
+	bool quick_assign = quick_compile;
 	char tmpfilename[L_tmpnam];
 	std::tmpnam(tmpfilename);
 	FILE *tempfile = fopen(tmpfilename,"w");
@@ -128,7 +129,7 @@ bool do_compile_and_slots(bool quick_assign, bool delay)
 		return false;
 	}
 	parser_console.kill();
-	if (!DisableCompileConsole) 
+	if (!DisableCompileConsole)
 	{
 		parser_console.Create("ZScript Parser Output", 600, 200, NULL, "zconsole.exe");
 		parser_console.cls(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK);
@@ -146,7 +147,7 @@ bool do_compile_and_slots(bool quick_assign, bool delay)
 		"-qr", quest_rules_hex.c_str(),
 		"-linked",
 	};
-	if(zc_get_config("Compiler","noclose_compile_console",0))
+	if(!quick_compile && zc_get_config("Compiler","noclose_compile_console",0))
 		args.push_back("-noclose");
 	if(delay)
 		args.push_back("-delay");
@@ -237,13 +238,13 @@ bool do_compile_and_slots(bool quick_assign, bool delay)
 	
 	compile_cancel = code;
 
-	if (!quick_assign && !DisableCompileConsole) 
+	if (!DisableCompileConsole)
 	{
-		g_quick_assign = false;
 		if(code)
 			InfoDialog("ZScript Parser", buf).show();
-		else
+		else if(!quick_assign)
 		{
+			g_quick_assign = false;
 			AlertFuncDialog("ZScript Parser",
 				buf,
 				3, 1, //2 buttons, where buttons[1] is focused
@@ -251,8 +252,8 @@ bool do_compile_and_slots(bool quick_assign, bool delay)
 				"OK", NULL,
 				"Cancel", docancel
 			).show();
+			quick_assign = g_quick_assign;
 		}
-		quick_assign = g_quick_assign;
 	}
 	if ( compile_success_sample > 0 )
 	{
@@ -360,7 +361,7 @@ bool do_compile_and_slots(bool quick_assign, bool delay)
 	//assign scripts to slots
 	do_slots(scripts, quick_assign);
 	
-	if(WarnOnInitChanged)
+	if(WarnOnInitChanged && !quick_compile)
 	{
 		script_data const& new_init_script = *globalscripts[0];
 		if(new_init_script != old_init_script) //Global init changed

@@ -755,6 +755,7 @@ enum
     cmdRedo,
 	cmdDrawingModePool,
 	cmdQRSearch,
+	cmdQuickCompile,
     cmdMAX
 };
 

@@ -26415,14 +26415,15 @@ auto_do_slots:
 		if ( compile_finish_sample > 0 )
 		{
 			if(sfxdat)
-			sfx_voice[compile_finish_sample]=allocate_voice((SAMPLE*)sfxdata[compile_finish_sample].dat);
+				sfx_voice[compile_finish_sample]=allocate_voice((SAMPLE*)sfxdata[compile_finish_sample].dat);
 			else sfx_voice[compile_finish_sample]=allocate_voice(&customsfxdata[compile_finish_sample]);
 			voice_set_volume(sfx_voice[compile_finish_sample], compile_audio_volume);
 			//zc_set_volume(255,-1);
 			//kill_sfx();
 			voice_start(sfx_voice[compile_finish_sample]);
 		}
-		InfoDialog("Slots Assigned",buf).show();
+		if(!quick_assign)
+			InfoDialog("Slots Assigned",buf).show();
 		if ( compile_finish_sample > 0 )
 		{
 			if(sfx_voice[compile_finish_sample]!=-1)
@@ -31598,6 +31599,20 @@ int32_t onCmdExit()
     return 0;
 }
 
+int32_t onQuickCompile()
+{
+	if(do_compile_and_slots(true,false))
+	{
+		saved = false;
+		InfoDialog("Quick Compile","Success!").show();
+	}
+	else
+	{
+		InfoDialog("Quick Compile","Failure!").show();
+	}
+	return 0;
+}
+
 //remember to adjust this number in zquest.h if it changes here!
 //P.S: Must be listed in the same order as the enum in zquest.h. No exceptions! -L
 //These auto-alphabetize in the dialog! Don't add in the middle! -Em
@@ -31777,7 +31792,8 @@ command_pair commands[cmdMAX]=
     { "Test Quest",                         0, (intF) onTestQst },
     { "Redo",                               0, (intF) onRedo },
     { "Combo Pool Mode",                    0, (intF) onDrawingModePool },
-    { "Quest Rules Search",                 0, (intF) onRulesSearch }
+    { "Quest Rules Search",                 0, (intF) onRulesSearch },
+    { "Quick Compile ZScript",              0, (intF) onQuickCompile }
 };
 
 /********************************/
