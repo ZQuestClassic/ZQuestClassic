@@ -908,7 +908,9 @@ static void save_result(bool stopped = false, bool changed = false)
 	out << fmt::format("fps: {}", fps) << '\n';
 	out << fmt::format("stopped: {}", stopped) << '\n';
 	if (stopped || has_assert_failed)
-		out << fmt::format("success: {}", stopped && !has_assert_failed) << '\n';
+		out << fmt::format("success: {}", stopped && !has_assert_failed && !has_rng_desynced) << '\n';
+	if (has_rng_desynced)
+		out << fmt::format("rng_desync: {}", has_rng_desynced) << '\n';
 	if (has_assert_failed)
 		out << fmt::format("failing_frame: {}", failing_frame) << '\n';
 	if (mode == ReplayMode::Update)

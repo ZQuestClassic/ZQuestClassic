@@ -750,7 +750,7 @@ def run_replay_test(replay_file: pathlib.Path, output_dir: pathlib.Path) -> RunR
                 result.unexpected_gfx_segments_limited = None
             exit_code = player_interface.get_exit_code()
             if exit_code != 0 and exit_code != ASSERT_FAILED_EXIT_CODE:
-                print(f'replay failed with unexpected code {exit_code}')
+                print(f'\nreplay failed with unexpected code {exit_code}')
             # .zplay files are updated in-place, but lets also copy over to the test output folder.
             # This makes it easy to upload an archive of updated replays in CI.
             if mode == 'update' and watcher.result['changed']:
@@ -998,13 +998,23 @@ def prompt_to_create_compare_report():
     start_webserver()
 
 
+failing_replays = [r.name for r in test_results.runs[-1] if not r.success]
 if mode == 'assert':
-    failing_tests = [r.name for r in test_results.runs[-1] if not r.success]
-
-    if len(failing_tests) == 0:
+    if not failing_replays:
         print('all replay tests passed')
     else:
-        print(f'{len(failing_tests)} replay tests failed')
+        print(f'{len(failing_replays)} replay tests failed')
         if not is_ci and sys.stdout.isatty() and replays_dir == script_dir / 'replays':
             prompt_to_create_compare_report()
+        exit(1)
+else:
+    # We should still return a failing exit code if any replay failed to run, or had an
+    # rng desync. Graphical differences won't count as failure here - this is good for
+    # non-Release builds (coverage, asan). Don't want to fail if some visual-only floating
+    # point drawing produces different visual results, but we do want to fail if the replay
+    # does not finish.
+    if not failing_replays:
+        print('all replays ran successfully')
+    else:
+        print(f'{len(failing_replays)} replays did not finish')
         exit(1)
