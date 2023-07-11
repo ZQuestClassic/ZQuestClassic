@@ -3205,7 +3205,6 @@ void FFScript::deallocateAllArrays()
 	{
 		script_objects[q].own_clear_any();
 	}
-	objectRAM.clear();
 	//No QR check here- always deallocate on quest exit.
 	for(int32_t i = 1; i < NUM_ZSCRIPT_ARRAYS; i++)
 	{
@@ -38139,7 +38138,9 @@ void FFScript::do_npc_delete()
 {
 	if(GuyH::loadNPC(ri->guyref, "npc->Remove()") == SH::_NoError)
 	{
-		guys.del(GuyH::getNPCIndex(ri->guyref));
+		auto ind = GuyH::getNPCIndex(ri->guyref);
+		GuyH::getNPC()->stop_bgsfx(ind);
+		guys.del(ind);
 	}
 }
 

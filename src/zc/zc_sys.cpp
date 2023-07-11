@@ -4624,9 +4624,14 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 	
 	// Many mistakes have been make re: inputs, and we are stuck with many replays relying on those mistakes.
 
-	if (replay_version_check(11, 16))
+	bool should_reset_down_state = !get_bit(quest_rules, qr_BROKEN_INPUT_DOWN_STATE);
+	if (replay_version_check(0, 16))
+		should_reset_down_state = replay_version_check(11, 16);
+	if (should_reset_down_state)
+	{
 		for (int i = 0; i < ZC_CONTROL_STATES; i++)
 			down_control_states[i] = raw_control_state[i];
+	}
 	
 	if (replay_is_active())
 	{
@@ -7368,7 +7373,7 @@ int32_t onScreenSaver()
 	{
 		clear_keybuf();
 		Matrix(ss_speed, ss_density, 30);
-		system_pal();
+		system_pal(true);
 		sys_mouse();
 	}
 	
@@ -8028,7 +8033,7 @@ void System()
 			// Screen saver enabled for now.
 			clear_keybuf();
 			Matrix(ss_speed, ss_density, 0);
-			system_pal();
+			system_pal(true);
 			sys_mouse();
 			broadcast_dialog_message(MSG_DRAW, 0);
 		}

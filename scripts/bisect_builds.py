@@ -269,7 +269,7 @@ def download_test_build(workflow_run: WorkflowRun):
                         dest / 'ZeldaClassic.app')
         subprocess.check_call(['hdiutil', 'unmount', str(
             dest / 'zc-mounted')], stdout=subprocess.DEVNULL)
-        (dest / 'ZeldaClassic.dmg').unlink()
+        (dest / 'ZeldaClassic.dmg').unlink(missing_ok=True)
     elif archive_path.suffix.endswith('.tar.gz'):
         tf = tarfile.open(name=archive_path, mode='r:gz')
         tf.extractall(dest)
@@ -382,7 +382,7 @@ def run_bisect(revisions: List[Revision]):
             cmd = cmd.replace('%zq', f'"{binaries["zq"]}"')
             cmd = cmd.replace('%zl', f'"{binaries["zl"]}"')
             print(f'running command: {cmd}')
-            p = subprocess.Popen(cmd, cwd=binaries['dir'])
+            p = subprocess.Popen(cmd, cwd=binaries['dir'], shell=system != 'Windows')
             if args.check_return_code:
                 retcode = p.communicate()
                 answer = 'g' if retcode == 0 else 'b'

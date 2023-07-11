@@ -288,6 +288,7 @@ void showbombeddoor(BITMAP *dest, int32_t side);
 void openshutters();
 void load_a_screen_and_layers(int dmap, int map, int screen_index, int ldir);
 void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay=false, bool no_x80_dir=false);
+void clear_darkroom_bitmaps();
 void loadscr2(int32_t tmp,int32_t scr,int32_t);
 void loadscr_old(int32_t tmp,int32_t destdmap,int32_t scr,int32_t ldir,bool overlay=false);
 void putscr(BITMAP* dest,int32_t x,int32_t y,mapscr* screen);

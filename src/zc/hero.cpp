@@ -27171,12 +27171,7 @@ static int dir_to_scr_offset(direction dir)
 
 static void scrollscr_handle_dark(mapscr* newscr, mapscr* oldscr, std::vector<mapscr*>& old_temporary_screens)
 {
-	clear_to_color(darkscr_bmp_curscr, game->get_darkscr_color());
-	clear_to_color(darkscr_bmp_curscr_trans, game->get_darkscr_color());
-	clear_to_color(darkscr_bmp_scrollscr, game->get_darkscr_color());
-	clear_to_color(darkscr_bmp_scrollscr_trans, game->get_darkscr_color());
-	clear_to_color(darkscr_bmp_z3, game->get_darkscr_color());
-	clear_to_color(darkscr_bmp_z3_trans, game->get_darkscr_color());
+	clear_darkroom_bitmaps();
 
 	if (scrolling_use_new_dark_code)
 	{
@@ -28976,10 +28971,14 @@ int32_t getRocsPressed()
 			return jumpid; //not pressed
 	}
 
-	if((itype_rocs==getItemFamily(itemsbuf,Bwpn&0xFFF)) && DrunkcBbtn()) return Bwpn;
-	if((itype_rocs==getItemFamily(itemsbuf,Awpn&0xFFF)) && DrunkcAbtn()) return Awpn;
-	if((itype_rocs==getItemFamily(itemsbuf,Xwpn&0xFFF)) && DrunkcEx1btn()) return Xwpn;
-	if((itype_rocs==getItemFamily(itemsbuf,Ywpn&0xFFF)) && DrunkcEx2btn()) return Ywpn;
+	if((itype_rocs==getItemFamily(itemsbuf,Bwpn&0xFFF)) && DrunkcBbtn())
+		return Bwpn;
+	if((itype_rocs==getItemFamily(itemsbuf,Awpn&0xFFF)) && DrunkcAbtn())
+		return Awpn;
+	if((itype_rocs==getItemFamily(itemsbuf,Xwpn&0xFFF)) && DrunkcEx1btn())
+		return Xwpn;
+	if((itype_rocs==getItemFamily(itemsbuf,Ywpn&0xFFF)) && DrunkcEx2btn())
+		return Ywpn;
 
 	return -1;
 }
@@ -29882,8 +29881,8 @@ void HeroClass::checkitems(int32_t index)
 	int32_t holdid = ptr->id;
 	int32_t pstr = ptr->pstring;
 	int32_t pstr_flags = ptr->pickup_string_flags;
+	int32_t linked_parent = ptr->linked_parent;
 	int32_t item_screen_index = ptr->screen_index_spawned;
-	
 	if(ptr->fallclk > 0) return; //Don't pick up a falling item
 	
 	if(itemsbuf[id2].family == itype_progressive_itm)
@@ -30331,7 +30330,7 @@ void HeroClass::checkitems(int32_t index)
 	}
 	
 	if(itemsbuf[id2].family==itype_triforcepiece
-		&& itemsbuf[id2].misc2 <= 0 && ptr->linked_parent == eeGANON)
+		&& itemsbuf[id2].misc2 <= 0 && linked_parent == eeGANON)
 	{
 		game->lvlitems[dlevel]|=liBOSS;
 	}
@@ -31163,6 +31162,7 @@ void HeroClass::heroDeathAnimation()
 			break;
 		}
 		//adv:
+		clear_darkroom_bitmaps();
 		advanceframe(true);
 		++f;
 	}

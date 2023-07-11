@@ -4038,7 +4038,8 @@ void calc_darkroom_combos_old(int screen, int offx, int offy, bool scrolling)
 	if(!scrolling && mblock2.clk)
 	{
 		newcombo const& cmb = combobuf[mblock2.bcombo];
-		doDarkroomCircle(mblock2.x+8, mblock2.y+8, cmb.attribytes[0], darkscr_bmp_curscr);
+		if(cmb.type == cTORCH)
+			doDarkroomCircle(mblock2.x+8, mblock2.y+8, cmb.attribytes[0], darkscr_bmp_curscr);
 	}
 	
 	if(!scrolling) return; //not a scrolling call, don't run code for scrolling screen
@@ -5342,6 +5343,16 @@ void openshutters()
 		sfx(WAV_DOOR,128);
 }
 
+void clear_darkroom_bitmaps()
+{
+	clear_to_color(darkscr_bmp_curscr, game->get_darkscr_color());
+	clear_to_color(darkscr_bmp_curscr_trans, game->get_darkscr_color());
+	clear_to_color(darkscr_bmp_scrollscr, game->get_darkscr_color());
+	clear_to_color(darkscr_bmp_scrollscr_trans, game->get_darkscr_color());
+	clear_to_color(darkscr_bmp_z3, game->get_darkscr_color());
+	clear_to_color(darkscr_bmp_z3_trans, game->get_darkscr_color());
+}
+
 void load_a_screen_and_layers(int dmap, int map, int screen_index, int ldir)
 {
 	std::vector<mapscr*> screens;
@@ -5533,13 +5544,7 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 	triggered_screen_secrets = false;
 	slopes.clear();
 	timeExitAllGenscript(GENSCR_ST_CHANGE_SCREEN);
-	
-	clear_to_color(darkscr_bmp_curscr, game->get_darkscr_color());
-	clear_to_color(darkscr_bmp_curscr_trans, game->get_darkscr_color());
-	clear_to_color(darkscr_bmp_scrollscr, game->get_darkscr_color());
-	clear_to_color(darkscr_bmp_scrollscr_trans, game->get_darkscr_color());
-	clear_to_color(darkscr_bmp_z3, game->get_darkscr_color());
-	clear_to_color(darkscr_bmp_z3_trans, game->get_darkscr_color());
+	clear_darkroom_bitmaps();
 
 	for (word x=0; x<animated_combos; x++)
 	{

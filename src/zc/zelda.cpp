@@ -3510,12 +3510,7 @@ void game_loop()
 		
 		//  walkflagx=0; walkflagy=0;
 		runDrunkRNG();
-		clear_to_color(darkscr_bmp_curscr, game->get_darkscr_color());
-		clear_to_color(darkscr_bmp_curscr_trans, game->get_darkscr_color());
-		clear_to_color(darkscr_bmp_scrollscr, game->get_darkscr_color());
-		clear_to_color(darkscr_bmp_scrollscr_trans, game->get_darkscr_color());
-		clear_to_color(darkscr_bmp_z3, game->get_darkscr_color());
-		clear_to_color(darkscr_bmp_z3_trans, game->get_darkscr_color());
+		clear_darkroom_bitmaps();
 
 		z3_update_viewport();
 		z3_update_heroscr(); // TODO z3 ! move to/near Hero.animate?
@@ -5805,6 +5800,7 @@ reload_for_replay_file:
 			FFCore.user_bitmaps_init(); //Clear open bitmaps
 			FFCore.user_stacks_init(); //Clear open stacks
 			FFCore.user_objects_init(); //Clear open stacks
+			objectRAM.clear();
 		}
 		//Deallocate ALL ZScript arrays on ANY exit.
 		FFCore.deallocateAllArrays();

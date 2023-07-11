@@ -21292,7 +21292,9 @@ const char *enemy_viewer(int32_t index, int32_t *list_size)
     }
     
     int32_t guy=Map.CurrScr()->enemy[index];
-    return guy>=eOCTO1S ? guy_string[guy] : (char *) "(None)";
+
+    if (guy == 0) return "(None)";
+    return guy>=eSTART ? guy_string[guy] : (char *) "(Guy - Do Not Use!)";
 }
 
 enemy_struct bie[eMAXGUYS];
@@ -21312,7 +21314,8 @@ void build_bie_list(bool hide)
     
     for(int32_t i=1; i<eMAXGUYS; i++)
     {
-	if ( i >= 11 && i <= 19 ) continue; //ignore segment components
+        if (i < eSTART) continue; // ignore guys - enemies only!
+
         if(i >= OLDMAXGUYS || old_guy_string[i][strlen(old_guy_string[i])-1]!=' ' || !hide)
         {
             bie[bie_cnt].s = (char *)guy_string[i];

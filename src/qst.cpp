@@ -12625,7 +12625,10 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 	{
 		ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &ffscripts[i], zmeta_version);
 		
-		if(ret != 0) return qe_invalid;
+		if (ret)
+		{
+			return qe_invalid;
+		}
 	}
 	
 	/* HIGHLY UNORTHODOX UPDATING THING, by Deedee
@@ -12648,21 +12651,30 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 		{
 			ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &itemscripts[i], zmeta_version);
 			
-			if(ret != 0) return qe_invalid;
+			if (ret)
+			{
+				return qe_invalid;
+			}
 		}
 		
 		for(int32_t i = 0; i < NUMSCRIPTGUYS; i++)
 		{
 			ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &guyscripts[i], zmeta_version);
 			
-			if(ret != 0) return qe_invalid;
+			if (ret)
+			{
+				return qe_invalid;
+			}
 		}
 		
 		for(int32_t i = 0; i < NUMSCRIPTWEAPONS; i++)
 		{
 			ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &wpnscripts[i], zmeta_version);
 			
-			if(ret != 0) return qe_invalid;
+			if (ret)
+			{
+				return qe_invalid;
+			}
 		}
 		
 	
@@ -12670,7 +12682,10 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 		{
 			ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &screenscripts[i], zmeta_version);
 			
-			if(ret != 0) return qe_invalid;
+			if (ret)
+			{
+				return qe_invalid;
+			}
 		}
 	
 		if(s_version > 16)
@@ -12679,7 +12694,10 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 			{
 				ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &globalscripts[i], zmeta_version);
 				
-				if(ret != 0) return qe_invalid;
+				if (ret)
+				{
+					return qe_invalid;
+				}
 			}
 		}
 		else if(s_version > 13)
@@ -12688,7 +12706,10 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 			{
 				ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &globalscripts[i], zmeta_version);
 				
-				if(ret != 0) return qe_invalid;
+				if (ret)
+				{
+					return qe_invalid;
+				}
 			}
 			
 			if(globalscripts[GLOBAL_SCRIPT_ONSAVE] != NULL)
@@ -12702,7 +12723,10 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 			{
 				ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &globalscripts[i], zmeta_version);
 				
-				if(ret != 0) return qe_invalid;
+				if (ret)
+				{
+					return qe_invalid;
+				}
 			}
 			
 			if(globalscripts[GLOBAL_SCRIPT_ONLAUNCH] != NULL)
@@ -12731,7 +12755,10 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 			{
 				ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &globalscripts[i], zmeta_version);
 				
-				if(ret != 0) return qe_invalid;
+				if (ret)
+				{
+					return qe_invalid;
+				}
 			}
 			
 			if(globalscripts[GLOBAL_SCRIPT_ONSAVELOAD] != NULL)
@@ -12766,7 +12793,10 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 			{
 				ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &playerscripts[i], zmeta_version);
 				
-				if(ret != 0) return qe_invalid;
+				if (ret)
+				{
+					return qe_invalid;
+				}
 			}
 		}
 		else
@@ -12775,7 +12805,10 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 			{
 				ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &playerscripts[i], zmeta_version);
 				
-				if(ret != 0) return qe_invalid;
+				if (ret)
+				{
+					return qe_invalid;
+				}
 			}
 			if(playerscripts[3] != NULL)
 				delete playerscripts[3];
@@ -12794,13 +12827,19 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 			{
 				ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &ewpnscripts[i], zmeta_version);
 				
-				if(ret != 0) return qe_invalid;
+				if (ret)
+				{
+					return qe_invalid;
+				}
 			}
 			for(int32_t i = 0; i < NUMSCRIPTSDMAP; i++)
 			{
 				ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &dmapscripts[i], zmeta_version);
 			
-				if(ret != 0) return qe_invalid;
+				if (ret)
+				{
+					return qe_invalid;
+				}
 			}
 			
 		}
@@ -12810,19 +12849,28 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 			{
 				ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &lwpnscripts[i], zmeta_version);
 				
-				if(ret != 0) return qe_invalid;
+				if (ret)
+				{
+					return qe_invalid;
+				}
 			}
 			for(int32_t i = 0; i < NUMSCRIPTWEAPONS; i++)
 			{
 				ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &ewpnscripts[i], zmeta_version);
 				
-				if(ret != 0) return qe_invalid;
+				if (ret)
+				{
+					return qe_invalid;
+				}
 			}
 			for(int32_t i = 0; i < NUMSCRIPTSDMAP; i++)
 			{
 				ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &dmapscripts[i], zmeta_version);
 			
-				if(ret != 0) return qe_invalid;
+				if (ret)
+				{
+					return qe_invalid;
+				}
 			}
 			
 		}
@@ -12832,7 +12880,10 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 			{
 				ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &itemspritescripts[i], zmeta_version);
 					
-				if(ret != 0) return qe_invalid;
+				if (ret)
+				{
+					return qe_invalid;
+				}
 			}
 		}
 		if(s_version >=15)
@@ -12841,7 +12892,10 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 			{
 				ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &comboscripts[i], zmeta_version);
 					
-				if(ret != 0) return qe_invalid;
+				if (ret)
+				{
+					return qe_invalid;
+				}
 			}
 		}
 		if(s_version >19)
@@ -12855,7 +12909,10 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 			{
 				ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &genericscripts[i], zmeta_version);
 					
-				if(ret != 0) return qe_invalid;
+				if (ret)
+				{
+					return qe_invalid;
+				}
 			}
 		}
 	
@@ -13308,7 +13365,7 @@ void reset_scripts()
 }
 
 extern script_command command_list[];
-int32_t read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int32_t , word s_version, word , script_data **script, word zmeta_version)
+int32_t read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int32_t script_index, word s_version, word , script_data **script, word zmeta_version)
 {
 	//Please also update loadquest() when modifying this method -DD
 	char b33[34] = {0};
@@ -13531,7 +13588,7 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int32_t , 
 			if(s_version >= 21)
 			{
 				uint32_t sz = 0;
-				if(!p_igetl(&sz,f,keepdata))
+				if(!p_igetl(&sz,f,true))
 				{
 					return qe_invalid;
 				}
@@ -13548,7 +13605,7 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int32_t , 
 						temp_script.strptr->push_back(dummy);
 					}
 				}
-				if(!p_igetl(&sz,f,keepdata))
+				if(!p_igetl(&sz,f,true))
 				{
 					return qe_invalid;
 				}

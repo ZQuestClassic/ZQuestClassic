@@ -2219,7 +2219,7 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 			}
 			if(cursor_end == cursor_start) cursor_end = -1;
 			d->d2 = cursor_start | ((cursor_end&0xFFFF) << 16);
-			object_message(d, MSG_DRAW, 0);
+			d->flags |= D_DIRTY;
 			break;
 		}
 			
@@ -7433,7 +7433,7 @@ int32_t jwin_abclist_proc(int32_t msg,DIALOG *d,int32_t c)
 			}
 			if(foundmatch)
 				GUI_EVENT(d, geCHANGE_SELECTION);
-			jwin_do_abclist_proc(MSG_DRAW,d,0);
+			d->flags |= D_DIRTY;
 			if ( gui_mouse_b() ) wipe_abc_keypresses();
 			return foundmatch ? D_USED_CHAR : D_O_K;
 		}
@@ -7443,11 +7443,10 @@ int32_t jwin_abclist_proc(int32_t msg,DIALOG *d,int32_t c)
 			{
 				if ( abc_keypresses[q] ) 
 				{
+					d->flags |= D_DIRTY;
 					abc_keypresses[q] = '\0'; break;
 				}
 			}
-			//al_trace("keypresses: %s\n", abc_keypresses);
-			jwin_do_abclist_proc(MSG_DRAW,d,0);
 			return D_USED_CHAR;
 		}
 		if ( gui_mouse_b() ) { wipe_abc_keypresses(); } //al_trace("keypresses: %s\n", abc_keypresses); }
@@ -7478,7 +7477,7 @@ int32_t jwin_abclist_proc(int32_t msg,DIALOG *d,int32_t c)
 				}
 			}
 			
-			jwin_list_proc(MSG_DRAW,d,0);
+			d->flags |= D_DIRTY;
 			return foundmatch ? D_USED_CHAR : D_O_K;
 		}
 	}

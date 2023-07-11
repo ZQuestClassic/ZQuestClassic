@@ -14465,7 +14465,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 		msg[79]=10;
 		pfwrite(msg, 80, fp3);
 		p_iputw(header.zelda_version,fp3);
-		p_putc(header.build,fp2);
+		p_putc(header.build,fp3);
 		/* no, this writes as bytes
 		int32_t temp_pw[256];
 		for ( int32_t q = 0; q < 256; ++q ) temp_pw[q] = header.password[q];
