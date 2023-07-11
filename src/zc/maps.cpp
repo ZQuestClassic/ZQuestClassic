@@ -4910,6 +4910,14 @@ void openshutters()
 		sfx(WAV_DOOR,128);
 }
 
+void clear_darkroom_bitmaps()
+{
+	clear_to_color(darkscr_bmp_curscr, game->get_darkscr_color());
+	clear_to_color(darkscr_bmp_curscr_trans, game->get_darkscr_color());
+	clear_to_color(darkscr_bmp_scrollscr, game->get_darkscr_color());
+	clear_to_color(darkscr_bmp_scrollscr_trans, game->get_darkscr_color());
+}
+
 void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay=false)
 {
 	auto oscr = homescr;
@@ -4943,10 +4951,7 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 		init_combo_timers();
 		timeExitAllGenscript(GENSCR_ST_CHANGE_SCREEN);
 	}
-	clear_to_color(darkscr_bmp_curscr, game->get_darkscr_color());
-	clear_to_color(darkscr_bmp_curscr_trans, game->get_darkscr_color());
-	clear_to_color(darkscr_bmp_scrollscr, game->get_darkscr_color());
-	clear_to_color(darkscr_bmp_scrollscr_trans, game->get_darkscr_color());
+	clear_darkroom_bitmaps();
 	int32_t destlvl = DMaps[destdmap < 0 ? currdmap : destdmap].level;
 	
 	//  introclk=intropos=msgclk=msgpos=dmapmsgclk=0;

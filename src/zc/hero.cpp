@@ -27796,10 +27796,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			
 		if(get_bit(quest_rules, qr_NEW_DARKROOM) && ((newscr->flags&fDARK)||(oldscr->flags&fDARK)))
 		{
-			clear_to_color(darkscr_bmp_curscr, game->get_darkscr_color());
-			clear_to_color(darkscr_bmp_curscr_trans, game->get_darkscr_color());
-			clear_to_color(darkscr_bmp_scrollscr, game->get_darkscr_color());
-			clear_to_color(darkscr_bmp_scrollscr_trans, game->get_darkscr_color());
+			clear_darkroom_bitmaps();
 			calc_darkroom_combos(true);
 			calc_darkroom_hero(FFCore.ScrollingData[SCROLLDATA_NX], FFCore.ScrollingData[SCROLLDATA_NY],FFCore.ScrollingData[SCROLLDATA_OX], FFCore.ScrollingData[SCROLLDATA_OY]);
 		}
@@ -30918,6 +30915,7 @@ void HeroClass::heroDeathAnimation()
 			break;
 		}
 		//adv:
+		clear_darkroom_bitmaps();
 		advanceframe(true);
 		++f;
 	}

@@ -3274,10 +3274,7 @@ void game_loop()
 		
 		//  walkflagx=0; walkflagy=0;
 		runDrunkRNG();
-		clear_to_color(darkscr_bmp_curscr, game->get_darkscr_color());
-		clear_to_color(darkscr_bmp_curscr_trans, game->get_darkscr_color());
-		clear_to_color(darkscr_bmp_scrollscr, game->get_darkscr_color());
-		clear_to_color(darkscr_bmp_scrollscr_trans, game->get_darkscr_color());
+		clear_darkroom_bitmaps();
 		
 		
 		// Three kinds of freezes: freeze, freezemsg, freezeff

@@ -149,6 +149,7 @@ void over_door(BITMAP *dest,int32_t t, int32_t pos,int32_t side);
 void putdoor(BITMAP *dest,int32_t t,int32_t side,int32_t door,bool redraw=true,bool even_walls=false);
 void showbombeddoor(BITMAP *dest, int32_t side);
 void openshutters();
+void clear_darkroom_bitmaps();
 void loadscr2(int32_t tmp,int32_t scr,int32_t);
 void loadscr(int32_t tmp,int32_t destdmap,int32_t scr,int32_t ldir,bool overlay);
 void putscr(BITMAP* dest,int32_t x,int32_t y,mapscr* screen);
