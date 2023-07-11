@@ -175,8 +175,6 @@ void run_gswitch_timers();
 void onload_gswitch_timers();
 
 //
-void doDarkroomCircle(int32_t cx, int32_t cy, byte glowRad,BITMAP* dest=NULL,BITMAP* transdest=NULL);
-void doDarkroomCone(int32_t sx, int32_t sy, byte glowRad, int32_t dir, BITMAP* dest=NULL,BITMAP* transdest=NULL);
 
 /****  View Map  ****/
 extern int32_t mapres;

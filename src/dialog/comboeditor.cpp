@@ -1753,6 +1753,10 @@ void ComboEditorDialog::loadComboType()
 		{
 			l_attribyte[0] = "Radius:";
 			h_attribyte[0] = "The radius of light, in pixels, to light up in dark rooms.";
+			l_attribyte[1] = "Shape:";
+			h_attribyte[1] = "The shape of light. 0=circle, 1=cone, 2=square";
+			l_attribyte[2] = "Direction:";
+			h_attribyte[2] = "The direction the torch is facing, for direction-requiring shapes like 'cone'.";
 			break;
 		}
 		case cSPOTLIGHT:

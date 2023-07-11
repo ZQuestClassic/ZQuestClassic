@@ -6,6 +6,161 @@
 
 using namespace util;
 
+#ifdef IS_PLAYER
+extern BITMAP *darkscr_bmp_curscr, *darkscr_bmp_curscr_trans, *darkscr_bmp_scrollscr, *darkscr_bmp_scrollscr_trans;
+
+extern gamedata* game;
+extern zinitdata zinit;
+#define DITH_PERC (game ? game->get_dither_perc() : zinit.dither_percent)
+#define TRANS_PERC (game ? game->get_transdark_perc() : zinit.transdark_percent)
+#define DITH_TYPE (game ? game->get_dither_type() : zinit.dither_type)
+#define DITH_ARG (game ? game->get_dither_arg() : zinit.dither_arg)
+//end IS_PLAYER
+#elif defined(IS_ZQUEST)
+
+extern gamedata* game;
+extern zinitdata zinit;
+#define DITH_PERC (game ? game->get_dither_perc() : zinit.dither_percent)
+#define TRANS_PERC (game ? game->get_transdark_perc() : zinit.transdark_percent)
+#define DITH_TYPE (game ? game->get_dither_type() : zinit.dither_type)
+#define DITH_ARG (game ? game->get_dither_arg() : zinit.dither_arg)
+#else
+#define DITH_PERC 0
+#define TRANS_PERC 0
+#define DITH_TYPE 0
+#define DITH_ARG 0
+#endif
+
+void doDarkroomCircle(int32_t cx, int32_t cy, byte glowRad,BITMAP* dest, BITMAP* transdest)
+{
+	if(!glowRad) return;
+	#ifdef IS_PLAYER
+	//Default bitmap handling
+	if(!dest) dest = darkscr_bmp_curscr;
+	if(dest == darkscr_bmp_scrollscr) transdest = darkscr_bmp_scrollscr_trans;
+	else if(!transdest || dest == darkscr_bmp_curscr) transdest = darkscr_bmp_curscr_trans;
+	#endif
+	auto dith_perc = DITH_PERC;
+	auto trans_perc = TRANS_PERC;
+	auto dith_type = DITH_TYPE;
+	auto dith_arg = DITH_ARG;
+	
+	int32_t ditherRad = glowRad + (int32_t)(glowRad * (dith_perc/(double)100.0));
+	int32_t transRad = glowRad + (int32_t)(glowRad * (trans_perc/(double)100.0));
+	auto maxRad = zc_max(glowRad,transRad);
+	if(dest)
+	{
+		dithercircfill(dest, cx, cy, ditherRad, 0, dith_type, dith_arg);
+		circlefill(dest, cx, cy, maxRad, 0);
+	}
+	if(transdest)
+	{
+		dithercircfill(transdest, cx, cy, ditherRad, 0, dith_type, dith_arg);
+		circlefill(transdest, cx, cy, glowRad, 0);
+	}
+}
+
+void doDarkroomCone(int32_t sx, int32_t sy, byte glowRad, int32_t dir, BITMAP* dest, BITMAP* transdest)
+{
+	if(!glowRad) return;
+	#ifdef IS_PLAYER
+	//Default bitmap handling
+	if(!dest) dest = darkscr_bmp_curscr;
+	if(dest == darkscr_bmp_scrollscr) transdest = darkscr_bmp_scrollscr_trans;
+	else if(!transdest || dest == darkscr_bmp_curscr) transdest = darkscr_bmp_curscr_trans;
+	#endif
+	auto dith_perc = DITH_PERC;
+	auto trans_perc = TRANS_PERC;
+	auto dith_type = DITH_TYPE;
+	auto dith_arg = DITH_ARG;
+	
+	int32_t ditherDiff = (int32_t)(glowRad * (dith_perc/(double)100.0));
+	int32_t transDiff = (int32_t)(glowRad * (trans_perc/(double)100.0));
+	
+	int32_t ditherRad = glowRad + 2*ditherDiff;
+	int32_t transRad = glowRad + 2*transDiff;
+	auto maxRad = zc_max(glowRad,transRad);
+	
+	double xs = 0, ys = 0;
+	int32_t d = NORMAL_DIR(dir);
+	if(d<0) return;
+	switch(d)
+	{
+		case up: case l_up: case r_up: ys=1; break;
+		case down: case l_down: case r_down: ys=-1; break;
+	}
+	switch(d)
+	{
+		case left: case l_up: case l_down: xs=1; break;
+		case right: case r_up: case r_down: xs=-1; break;
+	}
+	if(d&4) {xs*=0.75; ys*=0.75;}
+	if(glowRad>transRad) transDiff = 0;
+	if(dest)
+	{
+		ditherLampCone(dest, sx+(xs*ditherDiff), sy+(ys*ditherDiff), ditherRad, d, 0, dith_type, dith_arg);
+		lampcone(dest, sx+(xs*transDiff), sy+(ys*transDiff), maxRad, d, 0);
+	}
+	if(transdest)
+	{
+		ditherLampCone(transdest, sx+(xs*ditherDiff), sy+(ys*ditherDiff), ditherRad, d, 0, dith_type, dith_arg);
+		lampcone(transdest, sx, sy, glowRad, d, 0);
+	}
+}
+
+void doDarkroomSquare(int32_t cx, int32_t cy, byte glowRad, int32_t dir, BITMAP* dest, BITMAP* transdest)
+{
+	if(!glowRad) return;
+	#ifdef IS_PLAYER
+	//Default bitmap handling
+	if(!dest) dest = darkscr_bmp_curscr;
+	if(dest == darkscr_bmp_scrollscr) transdest = darkscr_bmp_scrollscr_trans;
+	else if(!transdest || dest == darkscr_bmp_curscr) transdest = darkscr_bmp_curscr_trans;
+	#endif
+	auto dith_perc = DITH_PERC;
+	auto trans_perc = TRANS_PERC;
+	auto dith_type = DITH_TYPE;
+	auto dith_arg = DITH_ARG;
+	
+	int32_t ditherRad = glowRad + (int32_t)(glowRad * (dith_perc/(double)100.0));
+	int32_t transRad = glowRad + (int32_t)(glowRad * (trans_perc/(double)100.0));
+	auto mrad = zc_max(glowRad,transRad);
+	if(dest)
+	{
+		ditherrectfill(dest, cx-ditherRad, cy-ditherRad, cx+ditherRad, cy+ditherRad, 0, dith_type, dith_arg);
+		rectfill(dest, cx-mrad, cy-mrad, cx+mrad, cy+mrad, 0);
+	}
+	if(transdest)
+	{
+		ditherrectfill(transdest, cx-ditherRad, cy-ditherRad, cx+ditherRad, cy+ditherRad, 0, dith_type, dith_arg);
+		rectfill(transdest, cx-glowRad, cy-glowRad, cx+glowRad, cy+glowRad, 0);
+	}
+}
+
+void handle_lighting(int cx, int cy, byte shape, byte rad, byte dir, BITMAP* dest, BITMAP* transdest)
+{
+	if(!rad) return;
+	dir = NORMAL_DIR(dir);
+	switch(shape)
+	{
+		case 0:
+			doDarkroomCircle(cx,cy,rad,dest,transdest);
+			break;
+		case 1:
+			doDarkroomCone(cx,cy,rad,dir,dest,transdest);
+			break;
+		case 2:
+			doDarkroomSquare(cx,cy,rad,dir,dest,transdest);
+			break;
+	}
+}
+
+void do_torch_combo(newcombo const& cmb, int cx, int cy, BITMAP* dest, BITMAP* transdest)
+{
+	if(cmb.type != cTORCH) return; //not a torch
+	handle_lighting(cx, cy, cmb.attribytes[1], cmb.attribytes[0], cmb.attribytes[2], dest, transdest);
+}
+
 static inline bool dithercheck(byte type, byte arg, int32_t x, int32_t y, int32_t wid=256, int32_t hei=168)
 {
 	bool ret = false,
@@ -200,6 +355,14 @@ void dithercircfill(BITMAP* dest, int32_t x, int32_t y, int32_t rad, int32_t col
 	BITMAP* tmp = create_bitmap_ex(8, dest->w, dest->h);
 	clear_bitmap(tmp);
 	circlefill(tmp, x, y, rad, 1);
+	ditherblit(dest, tmp, color, ditherType, ditherArg, xoffs, yoffs);
+	destroy_bitmap(tmp);
+}
+void ditherrectfill(BITMAP* dest, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t color, byte ditherType, byte ditherArg, int32_t xoffs, int32_t yoffs)
+{
+	BITMAP* tmp = create_bitmap_ex(8, dest->w, dest->h);
+	clear_bitmap(tmp);
+	rectfill(tmp, x1, y1, x2, y2, 1);
 	ditherblit(dest, tmp, color, ditherType, ditherArg, xoffs, yoffs);
 	destroy_bitmap(tmp);
 }

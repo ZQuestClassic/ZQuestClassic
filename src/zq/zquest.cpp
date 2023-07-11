@@ -32558,26 +32558,6 @@ int32_t iswaterexzq(int32_t combo, int32_t map, int32_t screen, int32_t layer, i
 
 int32_t MAPCOMBOzq(int32_t x, int32_t y){return 0;}
 
-void doDarkroomCirclePreview(int32_t cx, int32_t cy, byte glowRad,BITMAP* dest,BITMAP* transdest)
-{
-	if(!glowRad) return;
-	//
-	int32_t ditherRad = glowRad + (int32_t)(glowRad * (zinit.dither_percent/(double)100.0));
-	int32_t transRad = glowRad + (int32_t)(glowRad * (zinit.transdark_percent/(double)100.0));
-	
-	if(dest)
-	{
-		dithercircfill(dest, cx, cy, ditherRad, 0, zinit.dither_type, zinit.dither_arg);
-		circlefill(dest, cx, cy, zc_max(glowRad,transRad), 0);
-	}
-	if(transdest)
-	{
-		dithercircfill(transdest, cx, cy, ditherRad, 0, zinit.dither_type, zinit.dither_arg);
-		circlefill(transdest, cx, cy, glowRad, 0);
-	}
-}
-// void doDarkroomConePreview(int32_t sx, int32_t sy, byte glowRad, int32_t dir, BITMAP* dest,BITMAP* transdest){}
-
 bool update_hw_pal = false;
 void update_hw_screen(bool force)
 {

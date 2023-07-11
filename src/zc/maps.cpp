@@ -3707,14 +3707,9 @@ void do_effectflags(mapscr* layer,int32_t x, int32_t y, int32_t tempscreen)
 	}
 }
 
-void doTorchCircle(BITMAP* bmp, int32_t pos, newcombo const& cmb, int32_t xoffs = 0, int32_t yoffs = 0)
-{
-	if(cmb.type != cTORCH) return;
-	doDarkroomCircle(COMBOX(pos)+8+xoffs, COMBOY(pos)+8+yoffs, cmb.attribytes[0], bmp);
-}
-
 void calc_darkroom_combos(bool scrolling)
 {
+	if(!get_bit(quest_rules, qr_NEW_DARKROOM)) return;
 	int32_t scrolldir = get_bit(quest_rules, qr_NEWDARK_SCROLLEDGE) ? FFCore.ScrollingData[SCROLLDATA_DIR] : -1;
 	int32_t scrollxoffs = 0, scrollyoffs = 0;
 	switch(scrolldir)
@@ -3732,27 +3727,18 @@ void calc_darkroom_combos(bool scrolling)
 			scrollxoffs = 256;
 			break;
 	}
-	for(int32_t q = 0; q < 176; ++q)
+	for(int32_t lyr = 0; lyr < 7; ++lyr)
 	{
-		newcombo const& cmb = combobuf[tmpscr->data[q]];
-		if(cmb.type == cTORCH)
-		{
-			doTorchCircle(darkscr_bmp_curscr, q, cmb);
-			if(scrolldir > -1)
-				doTorchCircle(darkscr_bmp_scrollscr, q, cmb, scrollxoffs, scrollyoffs);
-		}
-	}
-	for(int32_t lyr = 0; lyr < 6; ++lyr)
-	{
-		if(!tmpscr2[lyr].valid) continue; //invalid layer
+		mapscr* m = FFCore.tempScreens[lyr];
+		if(lyr && !m->valid) continue; //invalid layer
 		for(int32_t q = 0; q < 176; ++q)
 		{
-			newcombo const& cmb = combobuf[tmpscr2[lyr].data[q]];
+			newcombo const& cmb = combobuf[m->data[q]];
 			if(cmb.type == cTORCH)
 			{
-				doTorchCircle(darkscr_bmp_curscr, q, cmb);
+				do_torch_combo(cmb, COMBOX(q)+8, COMBOY(q)+8, darkscr_bmp_curscr);
 				if(scrolldir > -1)
-					doTorchCircle(darkscr_bmp_scrollscr, q, cmb, scrollxoffs, scrollyoffs);
+					do_torch_combo(cmb, COMBOX(q)+8+scrollxoffs, COMBOY(q)+8+scrollyoffs, darkscr_bmp_scrollscr);
 			}
 		}
 	}
@@ -3762,41 +3748,34 @@ void calc_darkroom_combos(bool scrolling)
 		newcombo const& cmb = combobuf[tmpscr->ffcs[q].getData()];
 		if(cmb.type == cTORCH)
 		{
-			doDarkroomCircle((tmpscr->ffcs[q].x.getInt())+(tmpscr->ffEffectWidth(q)/2), (tmpscr->ffcs[q].y.getInt())+(tmpscr->ffEffectHeight(q)/2), cmb.attribytes[0], darkscr_bmp_curscr);
+			int cx = (tmpscr->ffcs[q].x.getInt())+(tmpscr->ffEffectWidth(q)/2),
+			    cy = (tmpscr->ffcs[q].y.getInt())+(tmpscr->ffEffectHeight(q)/2);
+			do_torch_combo(cmb, cx, cy, darkscr_bmp_curscr);
 			if(scrolldir > -1)
-				doDarkroomCircle((tmpscr->ffcs[q].x.getInt())+(tmpscr->ffEffectWidth(q)/2)+scrollxoffs, (tmpscr->ffcs[q].y.getInt())+(tmpscr->ffEffectHeight(q)/2)+scrollyoffs, cmb.attribytes[0], darkscr_bmp_scrollscr);
+				do_torch_combo(cmb, cx+scrollxoffs, cy+scrollyoffs, darkscr_bmp_scrollscr);
 		}
 	}
 	if(!scrolling && mblock2.clk)
 	{
 		newcombo const& cmb = combobuf[mblock2.bcombo];
 		if(cmb.type == cTORCH)
-			doDarkroomCircle(mblock2.x+8, mblock2.y+8, cmb.attribytes[0], darkscr_bmp_curscr);
+			do_torch_combo(cmb, mblock2.x+8, mblock2.y+8, darkscr_bmp_curscr);
 	}
 	
 	if(!scrolling) return; //not a scrolling call, don't run code for scrolling screen
 	
-	for(int32_t q = 0; q < 176; ++q)
+	for(int32_t lyr = 0; lyr < 7; ++lyr)
 	{
-		newcombo const& cmb = combobuf[tmpscr[1].data[q]];
-		if(cmb.type == cTORCH)
-		{
-			doTorchCircle(darkscr_bmp_scrollscr, q, cmb);
-			if(scrolldir > -1)
-				doTorchCircle(darkscr_bmp_curscr, q, cmb, -scrollxoffs, -scrollyoffs);
-		}
-	}
-	for(int32_t lyr = 0; lyr < 6; ++lyr)
-	{
-		if(!tmpscr3[lyr].valid) continue; //invalid layer
+		mapscr* m = FFCore.ScrollingScreens[lyr];
+		if(lyr && !m->valid) continue; //invalid layer
 		for(int32_t q = 0; q < 176; ++q)
 		{
-			newcombo const& cmb = combobuf[tmpscr3[lyr].data[q]];
+			newcombo const& cmb = combobuf[m->data[q]];
 			if(cmb.type == cTORCH)
 			{
-				doTorchCircle(darkscr_bmp_scrollscr, q, cmb);
+				do_torch_combo(cmb, COMBOX(q)+8, COMBOY(q)+8, darkscr_bmp_scrollscr);
 				if(scrolldir > -1)
-					doTorchCircle(darkscr_bmp_curscr, q, cmb, -scrollxoffs, -scrollyoffs);
+					do_torch_combo(cmb, COMBOX(q)+8-scrollxoffs, COMBOY(q)+8-scrollyoffs, darkscr_bmp_curscr);
 			}
 		}
 	}
@@ -3806,9 +3785,11 @@ void calc_darkroom_combos(bool scrolling)
 		newcombo const& cmb = combobuf[tmpscr[1].ffcs[q].getData()];
 		if(cmb.type == cTORCH)
 		{
-			doDarkroomCircle((tmpscr[1].ffcs[q].x.getInt())+(tmpscr[1].ffEffectWidth(q)/2), (tmpscr[1].ffcs[q].y.getInt())+(tmpscr[1].ffEffectHeight(q)/2), cmb.attribytes[0], darkscr_bmp_scrollscr);
+			int cx = (tmpscr[1].ffcs[q].x.getInt())+(tmpscr[1].ffEffectWidth(q)/2),
+			    cy = (tmpscr[1].ffcs[q].y.getInt())+(tmpscr[1].ffEffectHeight(q)/2);
+			do_torch_combo(cmb, cx, cy, darkscr_bmp_scrollscr);
 			if(scrolldir > -1)
-				doDarkroomCircle((tmpscr[1].ffcs[q].x.getInt())+(tmpscr[1].ffEffectWidth(q)/2)-scrollxoffs, (tmpscr[1].ffcs[q].y.getInt())+(tmpscr[1].ffEffectHeight(q)/2)-scrollyoffs, cmb.attribytes[0], darkscr_bmp_curscr);
+				do_torch_combo(cmb, cx-scrollxoffs, cy-scrollyoffs, darkscr_bmp_curscr);
 		}
 	}
 }

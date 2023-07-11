@@ -4112,57 +4112,6 @@ int32_t getTint(int32_t color)
 	return lastCustomTint[color];
 }
 
-void doDarkroomCircle(int32_t cx, int32_t cy, byte glowRad,BITMAP* dest,BITMAP* transdest)
-{
-	if(!glowRad) return;
-	//Default bitmap handling
-	if(!dest) dest = darkscr_bmp_curscr;
-	if(dest == darkscr_bmp_scrollscr) transdest = darkscr_bmp_scrollscr_trans;
-	else if(!transdest || dest == darkscr_bmp_curscr) transdest = darkscr_bmp_curscr_trans;
-	//
-	int32_t ditherRad = glowRad + (int32_t)(glowRad * (game->get_dither_perc()/(double)100.0));
-	int32_t transRad = glowRad + (int32_t)(glowRad * (game->get_transdark_perc()/(double)100.0));
-	dithercircfill(dest, cx, cy, ditherRad, 0, game->get_dither_type(), game->get_dither_arg());
-	circlefill(dest, cx, cy, zc_max(glowRad,transRad), 0);
-	dithercircfill(transdest, cx, cy, ditherRad, 0, game->get_dither_type(), game->get_dither_arg());
-	circlefill(transdest, cx, cy, glowRad, 0);
-}
-
-void doDarkroomCone(int32_t sx, int32_t sy, byte glowRad, int32_t dir, BITMAP* dest,BITMAP* transdest)
-{
-	if(!glowRad) return;
-	//Default bitmap handling
-	if(!dest) dest = darkscr_bmp_curscr;
-	if(dest == darkscr_bmp_scrollscr) transdest = darkscr_bmp_scrollscr_trans;
-	else if(!transdest || dest == darkscr_bmp_curscr) transdest = darkscr_bmp_curscr_trans;
-	//
-	int32_t ditherDiff = (int32_t)(glowRad * (game->get_dither_perc()/(double)100.0));
-	int32_t transDiff = (int32_t)(glowRad * (game->get_transdark_perc()/(double)100.0));
-	int32_t ditherRad = glowRad + 2*ditherDiff;
-	int32_t transRad = glowRad + 2*transDiff;
-	
-	double xs = 0, ys = 0;
-	int32_t d = NORMAL_DIR(dir);
-	if(d<0) return;
-	switch(d)
-	{
-		case up: case l_up: case r_up: ys=1; break;
-		case down: case l_down: case r_down: ys=-1; break;
-	}
-	switch(d)
-	{
-		case left: case l_up: case l_down: xs=1; break;
-		case right: case r_up: case r_down: xs=-1; break;
-	}
-	if(d&4) {xs*=0.75; ys*=0.75;}
-	ditherLampCone(dest, sx+(xs*ditherDiff), sy+(ys*ditherDiff), ditherRad, d, 0, game->get_dither_type(), game->get_dither_arg());
-	if(glowRad>transRad) transDiff = 0;
-	lampcone(dest, sx+(xs*transDiff), sy+(ys*transDiff), zc_max(glowRad,transRad), d, 0);
-	
-	ditherLampCone(transdest, sx+(xs*ditherDiff), sy+(ys*ditherDiff), ditherRad, d, 0, game->get_dither_type(), game->get_dither_arg());
-	lampcone(transdest, sx, sy, glowRad, d, 0);
-}
-
 /**************************/
 /********** Main **********/
 /**************************/

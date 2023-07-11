@@ -62,7 +62,7 @@ bool hasComboWizard(int32_t type)
 		case cAWARPA: case cAWARPB: case cAWARPC: case cAWARPD: case cAWARPR:
 		case cSWARPA: case cSWARPB: case cSWARPC: case cSWARPD: case cSWARPR:
 		case cSLOPE: case cSHOOTER: case cWATER: case cSHALLOWWATER:
-		case cSTEPSFX:
+		case cSTEPSFX: case cTORCH:
 			return true;
 	}
 	return false;
@@ -117,6 +117,13 @@ static const GUI::ListData list_chest_content
 	{ "Screen->D[5]", -15 },
 	{ "Screen->D[6]", -16 },
 	{ "Screen->D[7]", -17 },
+};
+
+static const GUI::ListData list_torch_shapes
+{
+	{ "Circle", 0 },
+	{ "Cone", 1 },
+	{ "Square", 2 }
 };
 
 void ComboWizardDialog::setRadio(size_t rs, size_t ind)
@@ -846,6 +853,9 @@ void combo_default(newcombo& ref, bool typeonly)
 			ref.attribytes[3] = 76;
 			ref.attributes[0] = 4*10000;
 			ref.usrflags = cflag1;
+			break;
+		case cTORCH:
+			ref.attribytes[0] = 32;
 			break;
 		//CHESTS
 		case cLOCKEDCHEST:
@@ -2274,6 +2284,43 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							}
 						)
 					)
+				)
+			);
+			break;
+		}
+		case cTORCH:
+		{
+			byte& radius = local_ref.attribytes[0];
+			byte& shape = local_ref.attribytes[1];
+			byte& dir = local_ref.attribytes[2];
+			windowRow->add(
+				Rows<3>(
+					Label(text = "Size", hAlign = 1.0),
+					TextField(
+						fitParent = true, minwidth = 8_em,
+						type = GUI::TextField::type::SWAP_BYTE,
+						low = 0, high = 255, val = radius,
+						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+						{
+							radius = val;
+						}),
+					INFOBTN("The size in pixels of the light area. Acts as a radius for most shapes."),
+					Label(text = "Shape", hAlign = 1.0),
+					DropDownList(data = list_torch_shapes,
+						fitParent = true, selectedValue = shape,
+						onSelectFunc = [&](int32_t val)
+						{
+							shape = val;
+						}),
+					INFOBTN("The shape to cast light in."),
+					Label(text = "Direction", hAlign = 1.0),
+					DropDownList(data = list_dirs,
+						fitParent = true, selectedValue = dir,
+						onSelectFunc = [&](int32_t val)
+						{
+							dir = val;
+						}),
+					INFOBTN("The direction to cast light in, if the shape is directional (like a cone)")
 				)
 			);
 			break;
