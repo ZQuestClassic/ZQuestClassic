@@ -919,7 +919,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 		case itype_lantern:
 		{
 			_SET(misc[0], "Shape", "What shape to use for the light area emitted.\n"
-				"0 = circular, 1 = cone in front");
+				"0 = circular, 1 = cone in front, 2 = square");
 			_SET(misc[1], "Range", "The range, in pixels, of the light.");
 			break;
 		}
