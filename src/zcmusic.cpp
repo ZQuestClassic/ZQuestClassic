@@ -13,7 +13,6 @@
 #endif
 
 #include <aldumb.h>
-#include <alogg.h>
 #ifdef SOUND_LIBS_BUILT_FROM_SOURCE
 #include <gme.h>
 #endif
@@ -116,28 +115,13 @@ typedef struct DUHFILE : public ZCMUSIC
     AL_DUH_PLAYER *p;
 } DUHFILE;
 
-typedef struct OGGFILE : public ZCMUSIC
+// used for allegro streamed music (ogg, mp3)
+typedef struct ALSTREAMFILE : public ZCMUSIC
 {
-    ALOGG_OGGSTREAM *s;
-    PACKFILE *f;
+	ALLEGRO_AUDIO_STREAM *s;
     char *fname;
     int32_t vol;
-} OGGFILE;
-
-typedef struct OGGEXFILE : public ZCMUSIC
-{
-    ALOGG_OGG *s;
-    FILE *f;
-    char *fname;
-    int32_t vol;
-} OGGEXFILE;
-
-typedef struct MP3FILE : public ZCMUSIC
-{
-    ALLEGRO_AUDIO_STREAM *s;
-    char *fname;
-    int32_t vol;
-} MP3FILE;
+} ALSTREAMFILE;
 
 typedef struct GMEFILE : public ZCMUSIC
 {
@@ -151,27 +135,14 @@ static std::vector<ZCMUSIC*> playlist;                      //yeah, I'm too lazy
 static int32_t libflags = 0;
 
 // forward declarations
-OGGFILE *load_ogg_file(const char *filename);
-int32_t poll_ogg_file(OGGFILE *ogg);
-void unload_ogg_file(OGGFILE *ogg);
-bool ogg_pause(OGGFILE *ogg);
-bool ogg_resume(OGGFILE *ogg);
-bool ogg_reset(OGGFILE *ogg);
-void ogg_stop(OGGFILE *ogg);
+ALSTREAMFILE *load_alstream_file(const char *filename);
+void unload_alstream_file(ALSTREAMFILE *als);
 
-OGGEXFILE *load_ogg_ex_file(const char *filename);
-int32_t poll_ogg_ex_file(OGGEXFILE *ogg);
-void unload_ogg_ex_file(OGGEXFILE *ogg);
-bool ogg_ex_pause(OGGEXFILE *ogg);
-bool ogg_ex_resume(OGGEXFILE *ogg);
-bool ogg_ex_reset(OGGEXFILE *ogg);
-void ogg_ex_stop(OGGEXFILE *ogg);
-int32_t ogg_ex_getpos(OGGEXFILE *ogg);
-void ogg_ex_setpos(OGGEXFILE *ogg, int32_t msecs);
-void ogg_ex_setspeed(OGGEXFILE *ogg, int32_t speed);
-
-MP3FILE *load_mp3_file(const char *filename);
-void unload_mp3_file(MP3FILE *mp3);
+int32_t stream_getpos(ALSTREAMFILE* als);
+void stream_setpos(ALSTREAMFILE* als, int32_t msecs);
+void stream_setspeed(ALSTREAMFILE* als, int32_t speed);
+int32_t stream_getlength(ALSTREAMFILE* als);
+void stream_setloop(ALSTREAMFILE* als, double start, double end);
 
 Music_Emu* gme_load_file(const char* filename, const char* ext);
 int32_t poll_gme_file(GMEFILE *gme);
@@ -239,11 +210,6 @@ bool zcmusic_init(int32_t flags)                              /* = -1 */
 		libflags |= ZCMF_GME;
 	}
 
-if(flags & ZCMF_OGGEX)
-	{
-		libflags |= ZCMF_OGGEX;
-	}
-	
 	if (!playlistmutex) playlistmutex = al_create_mutex();
 	
 	install_int_ex(zcmusic_autopoll, MSEC_TO_TIMER(25));
@@ -279,7 +245,6 @@ bool zcmusic_poll(int32_t flags)                              /* = -1 */
 				break;
 				
 			case ZCMF_OGG:
-				poll_ogg_file((OGGFILE*)*b);
 				break;
 				
 			case ZCMF_MP3:
@@ -289,10 +254,6 @@ bool zcmusic_poll(int32_t flags)                              /* = -1 */
 				if(((GMEFILE*)*b)->emu)
 					poll_gme_file((GMEFILE*)*b);
 					
-				break;
-		
-	case ZCMF_OGGEX:
-				poll_ogg_ex_file((OGGEXFILE*)*b);
 				break;
 			}
 			[[fallthrough]];
@@ -342,11 +303,6 @@ void zcmusic_exit()
 	{
 		libflags ^= ZCMF_GME;
 	}
-
-if(libflags & ZCMF_OGGEX)
-	{
-		libflags ^= ZCMF_OGGEX;
-	}
 }
 
 ZCMUSIC * zcmusic_load_file(const char *filename)
@@ -368,7 +324,7 @@ ZCMUSIC * zcmusic_load_file(const char *filename)
 	
 	if((stricmp(ext,"ogg")==0) && (libflags & ZCMF_OGG))
 	{
-		OGGFILE *p = load_ogg_file(filename);
+		ALSTREAMFILE *p = load_alstream_file(filename);
 		
 		if(!p)
 		{
@@ -380,7 +336,7 @@ ZCMUSIC * zcmusic_load_file(const char *filename)
 		
 		if(!p->fname)
 		{
-			unload_ogg_file(p);
+			unload_alstream_file(p);
 			goto error;
 		}
 		
@@ -396,7 +352,7 @@ ZCMUSIC * zcmusic_load_file(const char *filename)
 	
 	if((stricmp(ext,"mp3")==0) && (libflags & ZCMF_MP3))
 	{
-		MP3FILE *p = load_mp3_file(filename);
+		ALSTREAMFILE *p = load_alstream_file(filename);
 		
 		if(!p)
 		{
@@ -408,7 +364,7 @@ ZCMUSIC * zcmusic_load_file(const char *filename)
 		
 		if(!p->fname)
 		{
-			unload_mp3_file(p);
+			unload_alstream_file(p);
 			goto error;
 		}
 		
@@ -511,55 +467,6 @@ error:
 	return NULL;
 }
 
-ZCMUSIC * zcmusic_load_file_ex(const char *filename)
-{
-	if(filename == NULL)
-	{
-		return NULL;
-	}
-	
-	al_trace("Trying to load %s\n", filename);
-	
-	if(strlen(filename)>255)
-	{
-		al_trace("Music file '%s' not loaded: filename too int32_t\n", filename);
-		return NULL;
-	}
-	
-	char *ext=get_extension(filename);
-
-if((stricmp(ext,"ogg")==0) && (libflags & ZCMF_OGGEX))
-	{
-		OGGEXFILE *p = load_ogg_ex_file(filename);
-		
-		if(!p)
-		{
-			al_trace("OGG file '%s' not loaded.\n",filename);
-			goto error;
-		}
-		
-		p->fname = (char*)malloc(strlen(filename)+1);
-		
-		if(!p->fname)
-		{
-			unload_ogg_ex_file(p);
-			goto error;
-		}
-		
-		strcpy(p->fname, filename);
-		p->type = ZCMF_OGGEX;
-		p->playing = ZCM_STOPPED;
-		ZCMUSIC *music=(ZCMUSIC*)p;
-		zcm_extract_name(filename, music->filename, FILENAMEALL);
-		music->filename[255]='\0';
-		music->track=0;
-		return music;
-	}
-	
-error:
-	return NULL;
-}
-
 bool zcmusic_play(ZCMUSIC* zcm, int32_t vol) /* = FALSE */
 {
 	// the libraries require polling
@@ -587,36 +494,17 @@ bool zcmusic_play(ZCMUSIC* zcm, int32_t vol) /* = FALSE */
 			break;
 			
 		case ZCMF_OGG:
-			if(((OGGFILE*)zcm)->s != NULL)
-			{
-				/*pan*/
-				alogg_adjust_oggstream(((OGGFILE*)zcm)->s, vol, 128, 1000/*speed*/);
-				((OGGFILE*)zcm)->vol = vol;
-			}
-			
-			break;
-			
 		case ZCMF_MP3:
-			if(((MP3FILE*)zcm)->s != NULL)
+			if(((ALSTREAMFILE*)zcm)->s != NULL)
 			{
-				al_set_audio_stream_gain(((MP3FILE*)zcm)->s, vol / 255.0);
-				((MP3FILE*)zcm)->vol = vol;
+				al_set_audio_stream_gain(((ALSTREAMFILE*)zcm)->s, vol / 255.0);
+				((ALSTREAMFILE*)zcm)->vol = vol;
 			}
 			
 			break;
 			
 		case ZCMF_GME:
 			// need to figure out volume switch
-			break;
-	
-	case ZCMF_OGGEX:
-			if(((OGGEXFILE*)zcm)->s != NULL)
-			{
-				/*pan*/
-				alogg_adjust_ogg(((OGGEXFILE*)zcm)->s, vol, 128, 1000/*speed*/, true);
-				((OGGEXFILE*)zcm)->vol = vol;
-			}
-			
 			break;
 			
 		}
@@ -633,38 +521,14 @@ bool zcmusic_play(ZCMUSIC* zcm, int32_t vol) /* = FALSE */
 			}
 			
 			break;
-			
+
 		case ZCMF_OGG:
-			if(((OGGFILE*)zcm)->s != NULL)
-			{
-				if(alogg_play_oggstream(((OGGFILE*)zcm)->s, (zcmusic_bufsz_private*1024), vol, 128) != ALOGG_OK)
-					ret = FALSE;
-					
-				((OGGFILE*)zcm)->vol = vol;
-		/*
-		//Should be possible to establish loops for these file types. -Z
-		((MP3FILE*)zcm)->loop_start = 0;
-		((MP3FILE*)zcm)->loop_end = samp->len;
-		*/
-			}
-			else
-			{
-				ret = FALSE;
-			}
-			
-			break;
-			
 		case ZCMF_MP3:
-			if(((MP3FILE*)zcm)->s != NULL)
+			if (((ALSTREAMFILE*)zcm)->s != NULL)
 			{
-				ret = al_set_audio_stream_playing(((MP3FILE*)zcm)->s, true);
-				al_set_audio_stream_gain(((MP3FILE*)zcm)->s, vol / 255.0);
-				((MP3FILE*)zcm)->vol = vol;
-		/*
-		//Should be possible to establish loops for these file types. -Z
-		((MP3FILE*)zcm)->loop_start = 0;
-		((MP3FILE*)zcm)->loop_end = samp->len;
-		*/
+				ret = al_set_audio_stream_playing(((ALSTREAMFILE*)zcm)->s, true);
+				al_set_audio_stream_gain(((ALSTREAMFILE*)zcm)->s, vol / 255.0);
+				((ALSTREAMFILE*)zcm)->vol = vol;
 			}
 			else
 			{
@@ -677,26 +541,6 @@ bool zcmusic_play(ZCMUSIC* zcm, int32_t vol) /* = FALSE */
 			if(((GMEFILE*)zcm)->emu != NULL)
 			{
 				gme_play((GMEFILE*) zcm, vol);
-			}
-			
-			break;
-	
-	case ZCMF_OGGEX:
-			if(((OGGEXFILE*)zcm)->s != NULL)
-			{
-				if(alogg_play_ogg(((OGGEXFILE*)zcm)->s, (zcmusic_bufsz_private*1024), vol, 128) != ALOGG_OK)
-					ret = FALSE;
-					
-				((OGGEXFILE*)zcm)->vol = vol;
-		/*
-		//Should be possible to establish loops for these file types. -Z
-		((MP3FILE*)zcm)->loop_start = 0;
-		((MP3FILE*)zcm)->loop_end = samp->len;
-		*/
-			}
-			else
-			{
-				ret = FALSE;
 			}
 			
 			break;
@@ -763,15 +607,11 @@ bool zcmusic_pause(ZCMUSIC* zcm, int32_t pause = -1)
 				break;
 				
 			case ZCMF_OGG:
-				if(p == ZCM_PAUSED)
-					ogg_pause((OGGFILE*)zcm);
-				else
-					ogg_resume((OGGFILE*)zcm);
-					
+				al_set_audio_stream_playing(((ALSTREAMFILE*)zcm)->s, p != ZCM_PAUSED);
 				break;
 				
 			case ZCMF_MP3:
-				al_set_audio_stream_playing(((MP3FILE*)zcm)->s, p != ZCM_PAUSED);
+				al_set_audio_stream_playing(((ALSTREAMFILE*)zcm)->s, p != ZCM_PAUSED);
 				break;
 				
 			case ZCMF_GME:
@@ -787,14 +627,6 @@ bool zcmusic_pause(ZCMUSIC* zcm, int32_t pause = -1)
 					}
 					
 				}
-				break;
-			
-	case ZCMF_OGGEX:
-				if(p == ZCM_PAUSED)
-					ogg_ex_pause((OGGEXFILE*)zcm);
-				else
-					ogg_ex_resume((OGGEXFILE*)zcm);
-					
 				break;
 			}
 		}
@@ -825,12 +657,13 @@ bool zcmusic_stop(ZCMUSIC* zcm)
 		break;
 		
 	case ZCMF_OGG:
-		ogg_stop((OGGFILE*)zcm);
+		al_set_audio_stream_playing(((ALSTREAMFILE*)zcm)->s, false);
+		al_seek_audio_stream_secs(((ALSTREAMFILE*)zcm)->s, 0);
 		break;
 		
 	case ZCMF_MP3:
-		al_set_audio_stream_playing(((MP3FILE*)zcm)->s, false);
-		al_seek_audio_stream_secs(((MP3FILE*)zcm)->s, 0);
+		al_set_audio_stream_playing(((ALSTREAMFILE*)zcm)->s, false);
+		al_seek_audio_stream_secs(((ALSTREAMFILE*)zcm)->s, 0);
 		break;
 		
 	case ZCMF_GME:
@@ -841,10 +674,6 @@ bool zcmusic_stop(ZCMUSIC* zcm)
 			zcm->playing = ZCM_STOPPED;
 		}
 		
-		break;
-	
-case ZCMF_OGGEX:
-		ogg_ex_stop((OGGEXFILE*)zcm);
 		break;
 	}
 	
@@ -901,19 +730,12 @@ void zcmusic_unload_file(ZCMUSIC* &zcm)
 		break;
 		
 	case ZCMF_OGG:
-		unload_ogg_file((OGGFILE*)zcm);
-		break;
-		
 	case ZCMF_MP3:
-		unload_mp3_file((MP3FILE*)zcm);
+		unload_alstream_file((ALSTREAMFILE*)zcm);
 		break;
 		
 	case ZCMF_GME:
 		unload_gme_file((GMEFILE*)zcm);
-		break;
-	
-case ZCMF_OGGEX:
-		unload_ogg_ex_file((OGGEXFILE*)zcm);
 		break;
 }
 	
@@ -929,7 +751,6 @@ int32_t zcmusic_get_tracks(ZCMUSIC* zcm)
 	{
 	case ZCMF_DUH:
 	case ZCMF_OGG:
-case ZCMF_OGGEX:
 	case ZCMF_MP3:
 		return 0;
 		break;
@@ -959,7 +780,6 @@ int32_t zcmusic_change_track(ZCMUSIC* zcm, int32_t tracknum)
 	{
 	case ZCMF_DUH:
 	case ZCMF_OGG:
-case ZCMF_OGGEX:
 	case ZCMF_MP3:
 		return -1;
 		break;
@@ -999,49 +819,82 @@ std::string zcmusic_get_track_name(ZCMUSIC *zcm, int track)
 
 int32_t zcmusic_get_curpos(ZCMUSIC* zcm)
 {
-if(zcm == NULL) return 0;
+	if(zcm == NULL) return -10000;
 	
-	switch(zcm->type & libflags)
-	{
-	case ZCMF_OGGEX:
-	return ogg_ex_getpos((OGGEXFILE*)zcm);
-	break;
-}
+		switch(zcm->type & libflags)
+		{
+		case ZCMF_OGG:
+		case ZCMF_MP3:
+			return stream_getpos((ALSTREAMFILE*)zcm);
+	}
 
-return 0;
+	return -10000;
 }
 void zcmusic_set_curpos(ZCMUSIC* zcm, int32_t value)
 {
-if(zcm == NULL) return;
+	if(zcm == NULL) return;
 	
-	switch(zcm->type & libflags)
-	{
-	case ZCMF_OGGEX:
-	ogg_ex_setpos((OGGEXFILE*)zcm, value);
-	break;
-}
+		switch(zcm->type & libflags)
+		{
+		case ZCMF_OGG:
+		case ZCMF_MP3:
+			stream_setpos((ALSTREAMFILE*)zcm, value);
+			break;
+	}
 
-return;
+	return;
 }
 void zcmusic_set_speed(ZCMUSIC* zcm, int32_t value)
 {
-if(zcm == NULL) return;
+	if(zcm == NULL) return;
 	
-	switch(zcm->type & libflags)
-	{
-	case ZCMF_OGGEX:
-	ogg_ex_setspeed((OGGEXFILE*)zcm, value);
-	break;
+		switch(zcm->type & libflags)
+		{
+		case ZCMF_OGG:
+		case ZCMF_MP3:
+			stream_setspeed((ALSTREAMFILE*)zcm, value);
+			break;
+	}
+
+	return;
 }
 
-return;
-}
-
-MP3FILE *load_mp3_file(const char *filename)
+int32_t zcmusic_get_length(ZCMUSIC* zcm)
 {
-    MP3FILE *p = NULL;
+	if (zcm == NULL) return -10000;
 
-	if((p = (MP3FILE *)malloc(sizeof(MP3FILE)))==NULL)
+	switch (zcm->type & libflags)
+	{
+	case ZCMF_OGG:
+	case ZCMF_MP3:
+		return stream_getlength((ALSTREAMFILE*)zcm);
+		break;
+	}
+
+	return -10000;
+}
+
+void zcmusic_set_loop(ZCMUSIC* zcm, double start, double end)
+{
+	if (zcm == NULL) return;
+
+	switch (zcm->type & libflags)
+	{
+	case ZCMF_OGG:
+	case ZCMF_MP3:
+		stream_setloop((ALSTREAMFILE*)zcm, start, end);
+		break;
+	}
+
+	return;
+}
+
+
+ALSTREAMFILE *load_alstream_file(const char *filename)
+{
+	ALSTREAMFILE *p = NULL;
+
+	if((p = (ALSTREAMFILE*)malloc(sizeof(ALSTREAMFILE)))==NULL)
         return NULL;
 
 	al_reserve_samples(5);
@@ -1070,469 +923,65 @@ error:
     return NULL;
 }
 
-void unload_mp3_file(MP3FILE *mp3)
+void unload_alstream_file(ALSTREAMFILE *als)
 {
-    if(mp3 != NULL)
+    if(als != NULL)
     {
-        if(mp3->s != NULL)
+        if(als->s != NULL)
         {
-			al_set_audio_stream_playing(mp3->s, false);
-            mp3->s = NULL;
+			al_set_audio_stream_playing(als->s, false);
+			als->s = NULL;
         }
         
-        if(mp3->fname != NULL)
+        if(als->fname != NULL)
         {
-            free(mp3->fname);
-            free(mp3);
+            free(als->fname);
+            free(als);
         }
     }
 }
 
-OGGFILE *load_ogg_file(const char *filename)
+int32_t stream_getpos(ALSTREAMFILE* mp3)
 {
-    OGGFILE *p = NULL;
-    PACKFILE *f = NULL;
-    ALOGG_OGGSTREAM *s = NULL;
-    char *data = new char[(zcmusic_bufsz_private*512)];
-    int32_t len;
-    
-    if((p = (OGGFILE *)malloc(sizeof(OGGFILE)))==NULL)
-    {
-        goto error;
-    }
-    
-    if((f = pack_fopen_password(filename, F_READ,""))==NULL)
-    {
-        goto error;
-    }
-    
-    if((len = pack_fread(data, (zcmusic_bufsz_private*512), f)) <= 0)
-    {
-        goto error;
-    }
-    
-    if(len < (zcmusic_bufsz_private*512))
-    {
-        if((s = alogg_create_oggstream(data, len, TRUE))==NULL)
-        {
-            goto error;
-        }
-    }
-    else
-    {
-        if((s = alogg_create_oggstream(data, (zcmusic_bufsz_private*512), FALSE))==NULL)
-        {
-            goto error;
-        }
-    }
-    
-    p->f = f;
-    p->s = s;
-    delete[] data;
-    return p;
-    
-error:
-
-    if(f)
-        pack_fclose(f);
-        
-    if(p)
-        free(p);
-        
-    delete[] data;
-    return NULL;
-}
-
-int32_t poll_ogg_file(OGGFILE *ogg)
-{
-    if(ogg == NULL) return ALOGG_POLL_NOTPLAYING;
-    
-    if(ogg->s == NULL) return ALOGG_POLL_NOTPLAYING;
-    
-    char *data = (char *)alogg_get_oggstream_buffer(ogg->s);
-    
-    if(data)
-    {
-        int32_t len = pack_fread(data, (zcmusic_bufsz_private*512), ogg->f);
-        
-        if(len < (zcmusic_bufsz_private*512))
-            alogg_free_oggstream_buffer(ogg->s, len);
-        else
-            alogg_free_oggstream_buffer(ogg->s, -1);
-    }
-    
-    int32_t ret = alogg_poll_oggstream(ogg->s);
-    
-    if(ret != ALOGG_OK)
-    {
-        ogg_reset(ogg);
-        alogg_play_oggstream(ogg->s, (zcmusic_bufsz_private*1024), ogg->vol, 128);
-        ogg->playing = ZCM_PLAYING;
-    }
-    
-    return ret;
-}
-
-void unload_ogg_file(OGGFILE *ogg)
-{
-    if(ogg != NULL)
-    {
-        if(ogg->f != NULL)
-        {
-            pack_fclose(ogg->f);
-            ogg->f = NULL;
-        }
-        
-        if(ogg->s != NULL)
-        {
-            AUDIOSTREAM* a = alogg_get_audiostream_oggstream(ogg->s);
-            
-            if(a != NULL)
-                voice_stop(a->voice);
-                
-            alogg_destroy_oggstream(ogg->s);
-            ogg->s = NULL;
-        }
-        
-        if(ogg->fname != NULL)
-        {
-            free(ogg->fname);
-            free(ogg);
-        }
-    }
-}
-
-bool ogg_pause(OGGFILE *ogg)
-{
-    AUDIOSTREAM* a = NULL;
-    
-    if(ogg->s != NULL)
-        a = alogg_get_audiostream_oggstream(ogg->s);
-        
-    if(a != NULL)
-    {
-        voice_stop(a->voice);
-        return true;
-    }
-    
-    return false;
-}
-
-bool ogg_resume(OGGFILE *ogg)
-{
-    AUDIOSTREAM* a = NULL;
-    
-    if(ogg->s != NULL)
-        a = alogg_get_audiostream_oggstream(ogg->s);
-        
-    if(a != NULL)
-    {
-        voice_start(a->voice);
-        return true;
-    }
-    
-    return false;
-}
-
-bool ogg_reset(OGGFILE *ogg)
-{
-    if(ogg->fname != NULL)
-    {
-        if(ogg->f != NULL)
-        {
-            pack_fclose(ogg->f);
-            ogg->f = NULL;
-        }
-        
-        if(ogg->s != NULL)
-        {
-            AUDIOSTREAM* a = alogg_get_audiostream_oggstream(ogg->s);
-            
-            if(a != NULL)
-                voice_stop(a->voice);
-                
-            alogg_destroy_oggstream(ogg->s);
-            ogg->s = NULL;
-        }
-        
-        OGGFILE* togg = load_ogg_file(ogg->fname);
-        
-        if(togg != NULL)
-        {
-            ogg->playing = ZCM_STOPPED;
-            ogg->s = togg->s;
-            ogg->f = togg->f;
-            free(togg);
-            return true;
-        }
-    }
-    
-    return false;
-}
-
-void ogg_stop(OGGFILE *ogg)
-{
-    if(ogg->fname != NULL)
-    {
-        if(ogg->f != NULL)
-        {
-            pack_fclose(ogg->f);
-            ogg->f = NULL;
-        }
-        
-        if(ogg->s != NULL)
-        {
-            AUDIOSTREAM* a = alogg_get_audiostream_oggstream(ogg->s);
-            
-            if(a != NULL)
-                voice_stop(a->voice);
-                
-            alogg_destroy_oggstream(ogg->s);
-            ogg->s = NULL;
-        }
-    }
-}
-
-OGGEXFILE *load_ogg_ex_file(const char *filename) //!dimi: Start of og_ex. og_ex allows for seeking and getting total length of audio file.
-{
-    //OGGEXFILE *p = NULL;
-    OGGEXFILE *p = (OGGEXFILE*)malloc(sizeof(OGGEXFILE));
-    FILE *f = fopen(filename, "rb");
-    ALOGG_OGG *s = alogg_create_ogg_from_file(f);
-    /*char *data = new char[(zcmusic_bufsz_private*512)];
-    int32_t len;*/
-    
-    /*if((p = (OGGEXFILE*)malloc(sizeof(OGGEXFILE)))==NULL)
-    {
-        goto error;
-    }*/
-    
-    if(!p)
-    {
-        goto error;
-    }
-    
-    al_trace("oggex filename is: %s\n",filename);
-    if(!f)
-    {
-        al_trace("oggex error at %s\n", "reading file");
-        goto error;
-    }
-    
-    /*if((len = pack_fread(data, (zcmusic_bufsz_private*512), f)) <= 0)
-    {
-        goto error;
-    }*/
-    
-    /*if(len < (zcmusic_bufsz_private*512))
-    {*/
-        if(!s)
-        {
-	    al_trace("oggex error at %s\n", "checking alogg");
-            goto error;
-        }
-    /*}
-    else
-    {
-        if((s = alogg_create_ogg_from_buffer(data, (zcmusic_bufsz_private*512)))==NULL)
-        {
-            goto error;
-        }
-    }*/
-    
-    p->f = f;
-    p->s = s;
-    //delete[] data;
-    return p;
-    
-error:
-
-    if(f)
-        fclose(f);
-        
-    if(p)
-        free(p);
-        
-    //delete[] data;
-    return NULL;
-}
-
-int32_t poll_ogg_ex_file(OGGEXFILE *ogg)
-{
-    if(ogg == NULL) return ALOGG_POLL_NOTPLAYING;
-    
-    if(ogg->s == NULL) return ALOGG_POLL_NOTPLAYING;
-    
-    int32_t ret = alogg_poll_ogg(ogg->s);
-    
-    if(ret != ALOGG_OK && ret != ALOGG_POLL_PLAYJUSTFINISHED && ret != ALOGG_POLL_NOTPLAYING)
-    {
-        if (ogg_ex_reset(ogg))
+	if (mp3->s != NULL)
 	{
-		alogg_play_ogg(ogg->s, (zcmusic_bufsz_private*1024), ogg->vol, 128);
-		ogg->playing = ZCM_PLAYING;
+		return int32_t(al_get_audio_stream_position_secs(mp3->s) * 10000.0);
 	}
-    }
-    else if (ret == ALOGG_POLL_PLAYJUSTFINISHED || ret == ALOGG_POLL_NOTPLAYING)
-    {
-	alogg_rewind_ogg(ogg->s);
-	alogg_play_ogg(ogg->s, (zcmusic_bufsz_private*1024), ogg->vol, 128);
-    }
-    
-    return ret;
+	return -10000;
 }
 
-void unload_ogg_ex_file(OGGEXFILE *ogg)
+void stream_setpos(ALSTREAMFILE* mp3, int32_t msecs)
 {
-    if(ogg != NULL)
-    {
-        if(ogg->f != NULL)
-        {
-            fclose(ogg->f);
-            ogg->f = NULL;
-        }
-        
-        if(ogg->s != NULL)
-        {
-            AUDIOSTREAM* a = alogg_get_audiostream_ogg(ogg->s);
-            
-            if(a != NULL)
-                voice_stop(a->voice);
-                
-            alogg_destroy_ogg(ogg->s);
-            ogg->s = NULL;
-        }
-        
-        if(ogg->fname != NULL)
-        {
-            free(ogg->fname);
-            free(ogg);
-        }
-    }
+	if (mp3->s != NULL)
+	{
+		al_seek_audio_stream_secs(mp3->s, double(msecs) / 10000.0);
+	}
 }
 
-bool ogg_ex_pause(OGGEXFILE *ogg)
+void stream_setspeed(ALSTREAMFILE* mp3, int32_t speed)
 {
-    AUDIOSTREAM* a = NULL;
-    
-    if(ogg->s != NULL)
-        a = alogg_get_audiostream_ogg(ogg->s);
-        
-    if(a != NULL)
-    {
-        voice_stop(a->voice);
-        return true;
-    }
-    
-    return false;
+	if (mp3->s != NULL)
+	{
+		al_set_audio_stream_speed(mp3->s, float(speed / 10000.0));
+	}
 }
 
-bool ogg_ex_resume(OGGEXFILE *ogg)
+int32_t stream_getlength(ALSTREAMFILE* mp3)
 {
-    AUDIOSTREAM* a = NULL;
-    
-    if(ogg->s != NULL)
-        a = alogg_get_audiostream_ogg(ogg->s);
-        
-    if(a != NULL)
-    {
-        voice_start(a->voice);
-        return true;
-    }
-    
-    return false;
+	if (mp3->s != NULL)
+	{
+		return int32_t(al_get_audio_stream_length_secs(mp3->s) * 10000.0);
+	}
+	return -10000;
 }
 
-bool ogg_ex_reset(OGGEXFILE *ogg)
+void stream_setloop(ALSTREAMFILE* mp3, double start, double end)
 {
-    if(ogg->fname != NULL)
-    {
-        if(ogg->f != NULL)
-        {
-            fclose(ogg->f);
-            ogg->f = NULL;
-        }
-        
-        if(ogg->s != NULL)
-        {
-            AUDIOSTREAM* a = alogg_get_audiostream_ogg(ogg->s);
-            
-            if(a != NULL)
-                voice_stop(a->voice);
-                
-            alogg_destroy_ogg(ogg->s);
-            ogg->s = NULL;
-        }
-        
-        OGGEXFILE* togg = load_ogg_ex_file(ogg->fname);
-        
-        if(togg != NULL)
-        {
-            ogg->playing = ZCM_STOPPED;
-            ogg->s = togg->s;
-            ogg->f = togg->f;
-            free(togg);
-            return true;
-        }
-    }
-    
-    return false;
+	if (mp3->s != NULL)
+	{
+		al_set_audio_stream_loop_secs(mp3->s, start, end);
+	}
 }
-
-void ogg_ex_stop(OGGEXFILE *ogg)
-{
-    if(ogg->fname != NULL)
-    {
-        if(ogg->f != NULL)
-        {
-            fclose(ogg->f);
-            ogg->f = NULL;
-        }
-        
-        if(ogg->s != NULL)
-        {
-            AUDIOSTREAM* a = alogg_get_audiostream_ogg(ogg->s);
-            
-            if(a != NULL)
-                voice_stop(a->voice);
-                
-            alogg_destroy_ogg(ogg->s);
-            ogg->s = NULL;
-        }
-    }
-}
-
-int32_t ogg_ex_getpos(OGGEXFILE *ogg) //!dimi: both getpos and setpos are in milliseconds. This is so that you can (hopefully) use decimals in zscript to access sub-second values.
-{
-    if(ogg->s != NULL)
-    {
-	int32_t baddebugtimes = alogg_get_pos_msecs_ogg(ogg->s);
-	return baddebugtimes;
-	
-	return 0;
-    }
-    return 0; //if it is NULL, we still need to return a value. -Z
-}
-
-void ogg_ex_setpos(OGGEXFILE *ogg, int32_t msecs)
-{
-    if(ogg->s != NULL)
-    {
-	alogg_seek_abs_msecs_ogg(ogg->s, msecs);
-    }
-}
-
-void ogg_ex_setspeed(OGGEXFILE *ogg, int32_t speed)
-{
-    if(ogg->s != NULL)
-    {
-	//alogg_adjust_ogg(ogg->s, ogg->vol, 128, speed, 1);
-	alogg_stop_ogg(ogg->s);
-	alogg_play_ex_ogg(ogg->s, (zcmusic_bufsz_private*1024), ogg->vol, 128, speed, 1);
-    }
-}
-
-//!dimi: End of ogg_ex.
 
 int32_t poll_gme_file(GMEFILE* gme)
 {

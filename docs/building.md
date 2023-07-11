@@ -55,6 +55,26 @@ Then before running, you need some additional packages installed:
 sudo apt install libopengl0 libglu1
 ```
 
+# Building w/ OGG support on Windows
+
+You'll need to install libogg and libvorbis. This is typically already present on Unix systems, but for Windows you can use `vcpkg`:
+
+```sh
+cd ~/tools
+git clone https://github.com/microsoft/vcpkg
+cd vcpkg
+./bootstrap-vcpkg.bat
+./vcpkg.exe install --triplet x64-windows libogg libvorbis
+```
+
+You then need to configure your CMake build with the `vcpkg` toolchain:
+
+```sh
+cmake -B build -S . -DCMAKE_TOOLCHAIN_FILE=/c/Users/cjamc/tools/vcpkg/scripts/buildsystems/vcpkg.cmake
+```
+
+If these libraries are not present, you can still build but won't be able to play OGG music.
+
 # Building with Ninja and MSVC
 
 Typically, on Windows you want to use Visual Studio as the cmake generator, but if you want to use Ninja here's how:
