@@ -298,6 +298,10 @@ int al_findfirst(const char * pattern, struct al_ffblk * info, int attrib)
         {
             if(!al_fs_entry_exists(entry))
             {
+                // local edit
+                *allegro_errno = (errno ? errno : ENOENT);
+                free(ff_data);
+                info->ff_data = NULL;
                 al_destroy_fs_entry(entry);
                 return -1;
             }
