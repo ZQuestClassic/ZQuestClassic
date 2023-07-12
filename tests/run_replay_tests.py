@@ -188,6 +188,8 @@ if os.name == 'nt':
 parser = argparse.ArgumentParser()
 parser.add_argument('--build_folder', type=dir_path, default='build/Release',
     help='The folder containing the exe files', metavar='DIRECTORY')
+parser.add_argument('--build_type', default='Release',
+    help='How to treat the build, for purposes of timeouts and duration estimates')
 parser.add_argument('--test_results_folder', type=dir_path,
     help='Where to save the replay test artifacts. By default, somewhere in .tmp')
 parser.add_argument('--filter', action='append', metavar='FILEPATH',
@@ -314,8 +316,8 @@ def clear_progress_str():
 is_mac_ci = args.ci and 'mac' in args.ci
 is_web = bool(list(args.build_folder.glob('*.wasm')))
 is_web_ci = is_web and args.ci
-is_coverage = args.build_folder.name == 'Coverage'
-is_asan = args.build_folder.name == 'Asan'
+is_coverage = args.build_folder.name == 'Coverage' or args.build_type == 'Coverage'
+is_asan = args.build_folder.name == 'Asan' or args.build_type == 'Asan'
 if args.test_results_folder:
     test_results_dir = args.test_results_folder.absolute()
 else:
