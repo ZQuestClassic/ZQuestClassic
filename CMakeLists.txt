@@ -381,6 +381,12 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 	add_compile_options("-ffp-model=fast")
 endif()
 
+if(MSVC)
+	set_source_files_properties(src/base/zc_math.cpp PROPERTIES COMPILE_FLAGS /O2)
+else()
+	set_source_files_properties(src/base/zc_math.cpp PROPERTIES COMPILE_FLAGS -O3)
+endif()
+
 #############################################################
 # Allegro Graphics Addons
 #############################################################
@@ -447,6 +453,7 @@ set(zcbase_sources
 	src/base/win32.cpp
 	src/base/zapp.cpp
 	src/base/zc_alleg.cpp
+	src/base/zc_math.cpp
 	src/base/zdefs.cpp
 	src/base/zsys.cpp
 )
