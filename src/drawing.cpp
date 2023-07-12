@@ -31,7 +31,7 @@ extern zinitdata zinit;
 #define DITH_ARG 0
 #endif
 
-void doDarkroomCircle(int32_t cx, int32_t cy, byte glowRad,BITMAP* dest, BITMAP* transdest)
+void doDarkroomCircle(int32_t cx, int32_t cy, byte glowRad,BITMAP* dest, BITMAP* transdest, int dith_perc, int trans_perc, int dith_type, int dith_arg)
 {
 	if(!glowRad) return;
 	#ifdef IS_PLAYER
@@ -40,10 +40,10 @@ void doDarkroomCircle(int32_t cx, int32_t cy, byte glowRad,BITMAP* dest, BITMAP*
 	if(dest == darkscr_bmp_scrollscr) transdest = darkscr_bmp_scrollscr_trans;
 	else if(!transdest || dest == darkscr_bmp_curscr) transdest = darkscr_bmp_curscr_trans;
 	#endif
-	auto dith_perc = DITH_PERC;
-	auto trans_perc = TRANS_PERC;
-	auto dith_type = DITH_TYPE;
-	auto dith_arg = DITH_ARG;
+	if(dith_perc < 0) dith_perc = DITH_PERC;
+	if(trans_perc < 0) trans_perc = TRANS_PERC;
+	if(dith_type < 0) dith_type = DITH_TYPE;
+	if(dith_arg < 0) dith_arg = DITH_ARG;
 	
 	int32_t ditherRad = glowRad + (int32_t)(glowRad * (dith_perc/(double)100.0));
 	int32_t transRad = glowRad + (int32_t)(glowRad * (trans_perc/(double)100.0));
@@ -60,7 +60,7 @@ void doDarkroomCircle(int32_t cx, int32_t cy, byte glowRad,BITMAP* dest, BITMAP*
 	}
 }
 
-void doDarkroomCone(int32_t sx, int32_t sy, byte glowRad, int32_t dir, BITMAP* dest, BITMAP* transdest)
+void doDarkroomCone(int32_t sx, int32_t sy, byte glowRad, int32_t dir, BITMAP* dest, BITMAP* transdest, int dith_perc, int trans_perc, int dith_type, int dith_arg)
 {
 	if(!glowRad) return;
 	#ifdef IS_PLAYER
@@ -69,10 +69,10 @@ void doDarkroomCone(int32_t sx, int32_t sy, byte glowRad, int32_t dir, BITMAP* d
 	if(dest == darkscr_bmp_scrollscr) transdest = darkscr_bmp_scrollscr_trans;
 	else if(!transdest || dest == darkscr_bmp_curscr) transdest = darkscr_bmp_curscr_trans;
 	#endif
-	auto dith_perc = DITH_PERC;
-	auto trans_perc = TRANS_PERC;
-	auto dith_type = DITH_TYPE;
-	auto dith_arg = DITH_ARG;
+	if(dith_perc < 0) dith_perc = DITH_PERC;
+	if(trans_perc < 0) trans_perc = TRANS_PERC;
+	if(dith_type < 0) dith_type = DITH_TYPE;
+	if(dith_arg < 0) dith_arg = DITH_ARG;
 	
 	int32_t ditherDiff = (int32_t)(glowRad * (dith_perc/(double)100.0));
 	int32_t transDiff = (int32_t)(glowRad * (trans_perc/(double)100.0));
@@ -108,7 +108,7 @@ void doDarkroomCone(int32_t sx, int32_t sy, byte glowRad, int32_t dir, BITMAP* d
 	}
 }
 
-void doDarkroomSquare(int32_t cx, int32_t cy, byte glowRad, int32_t dir, BITMAP* dest, BITMAP* transdest)
+void doDarkroomSquare(int32_t cx, int32_t cy, byte glowRad, BITMAP* dest, BITMAP* transdest, int dith_perc, int trans_perc, int dith_type, int dith_arg)
 {
 	if(!glowRad) return;
 	#ifdef IS_PLAYER
@@ -117,10 +117,10 @@ void doDarkroomSquare(int32_t cx, int32_t cy, byte glowRad, int32_t dir, BITMAP*
 	if(dest == darkscr_bmp_scrollscr) transdest = darkscr_bmp_scrollscr_trans;
 	else if(!transdest || dest == darkscr_bmp_curscr) transdest = darkscr_bmp_curscr_trans;
 	#endif
-	auto dith_perc = DITH_PERC;
-	auto trans_perc = TRANS_PERC;
-	auto dith_type = DITH_TYPE;
-	auto dith_arg = DITH_ARG;
+	if(dith_perc < 0) dith_perc = DITH_PERC;
+	if(trans_perc < 0) trans_perc = TRANS_PERC;
+	if(dith_type < 0) dith_type = DITH_TYPE;
+	if(dith_arg < 0) dith_arg = DITH_ARG;
 	
 	int32_t ditherRad = glowRad + (int32_t)(glowRad * (dith_perc/(double)100.0));
 	int32_t transRad = glowRad + (int32_t)(glowRad * (trans_perc/(double)100.0));
@@ -150,7 +150,7 @@ void handle_lighting(int cx, int cy, byte shape, byte rad, byte dir, BITMAP* des
 			doDarkroomCone(cx,cy,rad,dir,dest,transdest);
 			break;
 		case 2:
-			doDarkroomSquare(cx,cy,rad,dir,dest,transdest);
+			doDarkroomSquare(cx,cy,rad,dest,transdest);
 			break;
 	}
 }

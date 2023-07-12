@@ -32554,7 +32554,131 @@ j_command:
 			case COMBOTILE:
 				do_combotile(false);
 				break;
+			
+			case DRAWLIGHT_CIRCLE:
+			{
+				static const int ARGS = 7;
+				zfix cx = zslongToFix(SH::read_stack(ri->sp + (ARGS-1)));
+				zfix cy = zslongToFix(SH::read_stack(ri->sp + (ARGS-2)));
+				int radius = SH::read_stack(ri->sp + (ARGS-3));
+				int transp_rad = SH::read_stack(ri->sp + (ARGS-4));
+				int dith_rad = SH::read_stack(ri->sp + (ARGS-5));
+				int dith_type = SH::read_stack(ri->sp + (ARGS-6));
+				int dith_arg = SH::read_stack(ri->sp + (ARGS-7));
+				if(radius >= 0) radius /= 10000;
+				else radius = game->get_light_rad();
+				if(!radius) break;
+				if(transp_rad >= 0) transp_rad /= 10000;
+				if(dith_rad >= 0) dith_rad /= 10000;
+				if(dith_type >= 0) dith_type /= 10000;
+				if(dith_arg >= 0) dith_arg /= 10000;
 				
+				int32_t scrolldir = FFCore.ScrollingData[SCROLLDATA_DIR];
+				int32_t scrollxoffs = 0, scrollyoffs = 0;
+				switch(scrolldir)
+				{
+					case up:
+						scrollyoffs = -176;
+						break;
+					case down:
+						scrollyoffs = 176;
+						break;
+					case left:
+						scrollxoffs = -256;
+						break;
+					case right:
+						scrollxoffs = 256;
+						break;
+				}
+				
+				doDarkroomCircle(cx,cy,radius,darkscr_bmp_curscr,nullptr,dith_rad,transp_rad,dith_type,dith_arg);
+				doDarkroomCircle(cx+scrollxoffs,cy+scrollyoffs,radius,darkscr_bmp_scrollscr,nullptr,dith_rad,transp_rad,dith_type,dith_arg);
+				break;
+			}
+			case DRAWLIGHT_SQUARE:
+			{
+				static const int ARGS = 7;
+				zfix cx = zslongToFix(SH::read_stack(ri->sp + (ARGS-1)));
+				zfix cy = zslongToFix(SH::read_stack(ri->sp + (ARGS-2)));
+				int radius = SH::read_stack(ri->sp + (ARGS-3));
+				int transp_rad = SH::read_stack(ri->sp + (ARGS-4));
+				int dith_rad = SH::read_stack(ri->sp + (ARGS-5));
+				int dith_type = SH::read_stack(ri->sp + (ARGS-6));
+				int dith_arg = SH::read_stack(ri->sp + (ARGS-7));
+				if(radius >= 0) radius /= 10000;
+				else radius = game->get_light_rad();
+				if(!radius) break;
+				if(transp_rad >= 0) transp_rad /= 10000;
+				if(dith_rad >= 0) dith_rad /= 10000;
+				if(dith_type >= 0) dith_type /= 10000;
+				if(dith_arg >= 0) dith_arg /= 10000;
+				
+				int32_t scrolldir = FFCore.ScrollingData[SCROLLDATA_DIR];
+				int32_t scrollxoffs = 0, scrollyoffs = 0;
+				switch(scrolldir)
+				{
+					case up:
+						scrollyoffs = -176;
+						break;
+					case down:
+						scrollyoffs = 176;
+						break;
+					case left:
+						scrollxoffs = -256;
+						break;
+					case right:
+						scrollxoffs = 256;
+						break;
+				}
+				
+				doDarkroomSquare(cx,cy,radius,darkscr_bmp_curscr,nullptr,dith_rad,transp_rad,dith_type,dith_arg);
+				doDarkroomSquare(cx+scrollxoffs,cy+scrollyoffs,radius,darkscr_bmp_scrollscr,nullptr,dith_rad,transp_rad,dith_type,dith_arg);
+				break;
+			}
+			case DRAWLIGHT_CONE:
+			{
+				static const int ARGS = 8;
+				zfix cx = zslongToFix(SH::read_stack(ri->sp + (ARGS-1)));
+				zfix cy = zslongToFix(SH::read_stack(ri->sp + (ARGS-2)));
+				int dir = SH::read_stack(ri->sp + (ARGS-3)) / 10000;
+				int radius = SH::read_stack(ri->sp + (ARGS-4));
+				int transp_rad = SH::read_stack(ri->sp + (ARGS-5));
+				int dith_rad = SH::read_stack(ri->sp + (ARGS-6));
+				int dith_type = SH::read_stack(ri->sp + (ARGS-7));
+				int dith_arg = SH::read_stack(ri->sp + (ARGS-8));
+				if(radius >= 0) radius /= 10000;
+				else radius = game->get_light_rad()*2;
+				if(!radius) break;
+				if(dir < 0) break;
+				else dir = NORMAL_DIR(dir);
+				if(transp_rad >= 0) transp_rad /= 10000;
+				if(dith_rad >= 0) dith_rad /= 10000;
+				if(dith_type >= 0) dith_type /= 10000;
+				if(dith_arg >= 0) dith_arg /= 10000;
+				
+				int32_t scrolldir = FFCore.ScrollingData[SCROLLDATA_DIR];
+				int32_t scrollxoffs = 0, scrollyoffs = 0;
+				switch(scrolldir)
+				{
+					case up:
+						scrollyoffs = -176;
+						break;
+					case down:
+						scrollyoffs = 176;
+						break;
+					case left:
+						scrollxoffs = -256;
+						break;
+					case right:
+						scrollxoffs = 256;
+						break;
+				}
+				
+				doDarkroomCone(cx,cy,radius,dir,darkscr_bmp_curscr,nullptr,dith_rad,transp_rad,dith_type,dith_arg);
+				doDarkroomCone(cx+scrollxoffs,cy+scrollyoffs,radius,dir,darkscr_bmp_scrollscr,nullptr,dith_rad,transp_rad,dith_type,dith_arg);
+				break;
+			}
+			
 			case RECTR:
 			case CIRCLER:
 			case ARCR:
@@ -40791,9 +40915,9 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "HEROCANMOVEATANGLE", 0, 0, 0, 0 },
 	{ "HEROMOVE", 0, 0, 0, 0 },
 	{ "HEROCANMOVE", 0, 0, 0, 0 },
-	{ "RESRVD_OP_EMILY_06", 0, 0, 0, 0 },
-	{ "RESRVD_OP_EMILY_07", 0, 0, 0, 0 },
-	{ "RESRVD_OP_EMILY_08", 0, 0, 0, 0 },
+	{ "DRAWLIGHT_CIRCLE", 0, 0, 0, 0 },
+	{ "DRAWLIGHT_SQUARE", 0, 0, 0, 0 },
+	{ "DRAWLIGHT_CONE", 0, 0, 0, 0 },
 	{ "RESRVD_OP_EMILY_09", 0, 0, 0, 0 },
 	{ "RESRVD_OP_EMILY_10", 0, 0, 0, 0 },
 	{ "RESRVD_OP_EMILY_11", 0, 0, 0, 0 },

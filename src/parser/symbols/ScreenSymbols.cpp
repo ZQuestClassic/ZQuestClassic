@@ -289,6 +289,10 @@ static AccessorTable ScreenTable[] =
 	{ "constFFCs",                  0,           ZTID_FFC,   INTARR_SCREEN_FFC*10000,      FL_ARR,  { ZTID_SCREEN },{} },
 	{ "constPortals",               0,        ZTID_PORTAL,   INTARR_SCREEN_PORTALS*10000,  FL_ARR,  { ZTID_SCREEN },{} },
 	
+	{ "DrawLightSquare",            0,          ZTID_VOID,   -1,                                0,  { ZTID_SCREEN, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ -10000, -10000, -10000, -10000, -10000 } },
+	{ "DrawLightCircle",            0,          ZTID_VOID,   -1,                                0,  { ZTID_SCREEN, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ -10000, -10000, -10000, -10000, -10000 } },
+	{ "DrawLightCone",              0,          ZTID_VOID,   -1,                                0,  { ZTID_SCREEN, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ -10000, -10000, -10000, -10000, -10000 } },
+	
 	//Undocumented intentionally
 	//Renamed to AmbientSFX
 	{ "getOceanSFX",                0,         ZTID_FLOAT,   SCREENDATAOCEANSFX,                0,  { ZTID_SCREEN },{} },
@@ -1412,6 +1416,46 @@ void ScreenSymbols::generateCode()
 		ASSERT_NUL();
 		addOpcode2 (code, new OCreatePortal());
 		LABELBACK(label);
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	//void DrawLightCircle(screen, int cx, int cy, int radius, int transp_rad, int dither_rad, int dither_type, int dither_arg)
+	{
+		Function* function = getFunction("DrawLightCircle");
+		
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		ASSERT_NUL();
+		addOpcode2(code, new ODrawLightCircle());
+		LABELBACK(label);
+		POP_ARGS(7, NUL);
+		RETURN();
+		function->giveCode(code);
+	}
+	//void DrawLightSquare(screen, int cx, int cy, int radius, int transp_rad, int dither_rad, int dither_type, int dit)
+	{
+		Function* function = getFunction("DrawLightSquare");
+		
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		ASSERT_NUL();
+		addOpcode2(code, new ODrawLightSquare());
+		LABELBACK(label);
+		POP_ARGS(7, NUL);
+		RETURN();
+		function->giveCode(code);
+	}
+	//void DrawLightCone(screen, int cx, int cy, int dir, int radius, int transp_rad, int dither_rad, int dither_type, int dit)
+	{
+		Function* function = getFunction("DrawLightCone");
+		
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		ASSERT_NUL();
+		addOpcode2(code, new ODrawLightCone());
+		LABELBACK(label);
+		POP_ARGS(8, NUL);
 		RETURN();
 		function->giveCode(code);
 	}
