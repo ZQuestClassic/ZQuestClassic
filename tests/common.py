@@ -25,6 +25,7 @@ class RunResult:
     name: str
     directory: str
     success: bool = False
+    exit_code: int = None
     duration: float = None
     fps: int = None
     frame: int = None
