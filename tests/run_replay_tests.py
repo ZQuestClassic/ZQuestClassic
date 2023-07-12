@@ -539,6 +539,11 @@ class CLIPlayerInterface:
         if args.jit:
             exe_args.append('-jit')
 
+        # Allegro seems to be using free'd memory when shutting down the sound system.
+        # For now, just disable sound in CI or when using Asan/Coverage.
+        if is_asan or is_coverage or is_ci or mode == 'assert':
+            exe_args.append('-s')
+
         allegro_log_path = output_dir / 'allegro.log'
         self.p = subprocess.Popen(exe_args,
                                   cwd=args.build_folder,
