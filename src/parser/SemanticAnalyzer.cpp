@@ -352,7 +352,7 @@ void SemanticAnalyzer::caseStmtForEach(ASTStmtForEach& host, void* param)
 	ASTDataDecl* arrdecl = new ASTDataDecl(host.location);
 	arrdecl->name = "__LOOP_ARR";
 	arrdecl->setInitializer(host.arrExpr.clone());
-	arrdecl->baseType = new ASTDataType(arrtype, host.location);
+	arrdecl->baseType = new ASTDataType(ty, host.location);
 	host.arrdecl = arrdecl;
 	//The data declaration
 	ASTDataDecl* decl = new ASTDataDecl(host.location);

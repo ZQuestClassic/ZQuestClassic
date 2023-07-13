@@ -741,12 +741,6 @@ void BuildOpcodes::caseStmtForEach(ASTStmtForEach &host, void *param)
 	//Declare the local variable that will hold the current loop value
 	literalVisit(host.decl.get(), param);
 	
-	auto* optarg = opcodeTargets.back();
-	if(OStoreDirect* ocode = dynamic_cast<OStoreDirect*>(optarg->back().get()))
-	{
-		optarg->pop_back();
-	}
-	
 	int32_t decloffset = 10000L * *getStackOffset(*host.decl.get()->manager);
 	int32_t arrdecloffset = 10000L * *getStackOffset(*host.arrdecl.get()->manager);
 	int32_t indxdecloffset = 10000L * *getStackOffset(*host.indxdecl.get()->manager);
