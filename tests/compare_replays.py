@@ -19,7 +19,7 @@ from github import Github
 from common import get_gha_artifacts_with_retry, ReplayTestResults, RunResult
 from typing import List
 from PIL import Image
-import hashlib
+import intervaltree
 
 
 def dir_path(path):
@@ -35,7 +35,7 @@ is_ci = 'CI' in os.environ
 
 
 def hash_image(filename):
-    return hashlib.sha256(Image.open(filename).tobytes()).hexdigest()
+    return hashlib.md5(Image.open(filename).tobytes()).hexdigest()
 
 
 # A `test_results` represents an invocation of run_replay_tests.py, including:
@@ -77,11 +77,14 @@ def collect_test_results_from_dir(directory: Path) -> ReplayTestResults:
         snapshots = [{
             'path': s,
             'frame': int(re.match(r'.*\.zplay\.(\d+)', s.name).group(1)),
-            'unexpected': 'unexpected' in s.name,
             'hash': hash_image(s.absolute()),
         } for s in (directory/run.directory).rglob('*.zplay*.png')]
         if not snapshots:
             continue
+
+        for snapshot in snapshots:
+            if 'unexpected' in snapshot['path'].name:
+                snapshot['unexpected'] = True
 
         snapshots.sort(key=lambda s: s['frame'])
         run.snapshots = snapshots
@@ -138,33 +141,100 @@ def create_compare_report(test_runs: List[ReplayTestResults]):
                     hashes.add(snapshot['hash'])
         return len(hashes)
 
+    did_prune = False
     if is_ci:
-        image_count = count_images()
-        if image_count > 4450:
+        # Surge has an unknown limit on deployment size. Let's use number of images as a proxy.
+        max_image_count = 8500
+        init_image_count = count_images()
+        if init_image_count > max_image_count:
             print(
-                f'found {image_count} images, which is too many to upload to surge')
-            baseline_test_results = test_runs[0]
-            for test_results in test_runs[1:]:
+                f'found {init_image_count} images, which is too many to upload to surge')
+
+            image_budget = max_image_count
+            hashes_to_keep = set()
+            replay_names = [r.name for r in test_runs[0].runs[0]]
+            print('! num_replays', len(replay_names))
+
+            replay_index = 0
+            for replay_name in replay_names:
+                # Give each replay a portion of the remaining budget.
+                replay_budget = int(image_budget / (len(replay_names) - replay_index))
+                replay_index += 1
+
+                print('! replay_name', replay_name)
+                print('! replay_budget', replay_budget)
+                runs: List[RunResult] = []
+                for test_results in test_runs:
+                    for run in test_results.runs[0]:
+                        if run.name == replay_name:
+                            runs.append(run)
+
+                # Get up to 60 frames around the start of every failing gfx segment.
+                segments = []
+                for run in runs:
+                    if run.unexpected_gfx_segments:
+                        for begin, _ in run.unexpected_gfx_segments:
+                            segments.append([begin - 30, begin + 30])
+                tree = intervaltree.IntervalTree.from_tuples(segments)
+                tree.merge_overlaps(strict=False)
+                segments = [[x.begin, x.end] for x in tree.items()]
+                print('! segments', len(segments))
+
+                # Each segment gets part of the image budget.
+                segment_budget = int(replay_budget / len(segments))
+
+                # That budget should never be less than 30 frames. If it is,
+                # drop some segments.
+                while segment_budget < 30 and len(segments) > 1:
+                    print('! removed a segment')
+                    segments.pop()
+                    segment_budget = int(replay_budget / len(segments))
+
+                print('! segment_budget', segment_budget)
+                segment_index = 0
+                for begin, end in segments:
+                    # Again, give each segment a portion of the remaining budget.
+                    budget = int(replay_budget / (len(segments) - segment_index))
+                    segment_index += 1
+
+                    # Start in the middle of the range (which is the failure point).
+                    i = int((begin + end) / 2)
+                    l = i
+                    r = i + 1
+                    frames = [i]
+                    while l >= begin and r <= end:
+                        if l >= begin:
+                            frames.append(l)
+                            l -= 1
+                        if r <= end:
+                            frames.append(r)
+                            r += 1
+
+                    for frame in frames:
+                        for run in runs:
+                            snapshots = (s for s in run.snapshots
+                                         if s['frame'] == frame and s['hash'] not in hashes_to_keep)
+                            for snapshot in snapshots:
+                                hashes_to_keep.add(snapshot['hash'])
+                                budget -= 1
+                                image_budget -= 1
+                                replay_budget -= 1
+                                if budget == 0:
+                                    break
+                            if budget == 0:
+                                break
+                        if budget == 0:
+                                break # lol
+
+            # Finally, apply the filter.
+            for test_results in test_runs:
                 for run in test_results.runs[0]:
-                    filtered_snapshots = []
-                    for snapshot in run.snapshots:
-                        frame = snapshot['frame']
-                        baseline_replay_data = next(
-                            (d for d in baseline_test_results.runs[0] if d.name == run.name), None)
-                        if not baseline_replay_data:
-                            continue
+                    run.snapshots = [s for s in run.snapshots if s['hash'] in hashes_to_keep]
 
-                        baseline_snapshot = next(
-                            (s for s in baseline_replay_data.snapshots if s['frame'] == frame), None)
-                        if not baseline_snapshot:
-                            continue
-
-                        filtered_snapshots.append(snapshot)
-
-                    run.snapshots = filtered_snapshots
-
-            image_count = count_images()
-            print(f'reduced to {image_count} images')
+            final_image_count = count_images()
+            if init_image_count != final_image_count:
+                did_prune = True
+                print(f'reduced to {final_image_count} images')
 
     snapshots_dir = out_dir / 'snapshots'
     snapshots_dir.mkdir()
@@ -197,8 +267,16 @@ def create_compare_report(test_runs: List[ReplayTestResults]):
 
     test_runs_as_json = ',\n'.join(test_run.to_json(indent=0) for test_run in test_runs)
     test_runs_as_json = '[\n' + test_runs_as_json + '\n]'
-    result = html.replace(
-        '// JAVASCRIPT', f'const __TEST_RUNS__ = {test_runs_as_json}\n  {js}')
+    js = f'const __TEST_RUNS__ = {test_runs_as_json}\n  {js}'
+
+    if did_prune:
+        run_ids = list(dict.fromkeys(t.workflow_run_id for t in test_runs))
+        args = ' '.join(f'--workflow_run {id}' for id in run_ids)
+        cmd = f'python tests/compare_replays.py {args}'
+        msg = f'The full report was too large to upload, so it has been reduced. To see the full report run this command locally:\\n\\t{cmd}'
+        js += f'\nconsole.log("{msg}")'
+
+    result = html.replace('// JAVASCRIPT', js)
     result = result.replace('// DEPS', deps)
     result = result.replace('/* CSS */', css)
     out_path = Path(f'{out_dir}/index.html')

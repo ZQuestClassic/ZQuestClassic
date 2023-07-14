@@ -1076,7 +1076,7 @@ static void maybe_take_snapshot()
 		if (current_failing_gfx_segment_start_frame != -1)
 		{
 			// Limit how many snapshots are saved in the same gfx failure segment.
-			if (frame_count - current_failing_gfx_segment_start_frame > 60*10)
+			if (frame_count - current_failing_gfx_segment_start_frame > 60*5)
 			{
 				if (unexpected_gfx_segments_limited.back().second == -1)
 					unexpected_gfx_segments_limited.back().second = frame_count - 1;
