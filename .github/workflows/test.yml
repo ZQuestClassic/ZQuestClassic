@@ -177,7 +177,7 @@ jobs:
           path: ${{ github.workspace }}/tests/.coverage/coverage.json
 
       - uses: actions/upload-artifact@v3
-        if: github.event_name == 'workflow_dispatch' || failure()
+        if: (github.event_name == 'workflow_dispatch' && !contains(inputs.extra-args, '--update')) || failure()
         with:
           name: replays-${{ inputs.runs-on }}-${{ inputs.arch }}-${{ matrix.shard_index }}-of-${{ matrix.num_shards }}
           path: ${{ github.workspace }}/.tmp/test_results
