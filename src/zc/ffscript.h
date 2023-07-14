@@ -943,6 +943,7 @@ class FFScript
 public:
 //FFScript();
 void init();
+void shutdown();
 
 
 int32_t max_ff_rules;

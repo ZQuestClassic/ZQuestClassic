@@ -5761,24 +5761,16 @@ void quit_game()
 	
 	delete zscriptDrawingRenderTarget;
 	
-	//for(int32_t i=0; i<map_count*MAPSCRS; i++)
-	//{
-	//if(TheMaps[i].data != NULL) delete [] TheMaps[i].data;
-	//if(TheMaps[i].sflag != NULL) delete [] TheMaps[i].sflag;
-	//if(TheMaps[i].cset != NULL) delete [] TheMaps[i].cset;
-	//}
-	al_trace("Screen Data... \n");
-	
 	al_trace("Deleting quest buffers... \n");
 	del_qst_buffers();
 	
 	if(qstdir) free(qstdir);
 	
 	if(qstpath) free(qstpath);
+
+	FFCore.shutdown();
 	
-	//if(TheMaps != NULL) free(TheMaps);
 	//if(ZCMaps != NULL) free(ZCMaps);
-	//  dumb_exit();
 }
 
 bool isSideViewGravity(int32_t t)

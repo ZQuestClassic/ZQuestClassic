@@ -37206,6 +37206,15 @@ void FFScript::init()
 	seen_scripts.clear();
 }
 
+void FFScript::shutdown()
+{
+	for (auto &it : jitted_scripts)
+	{
+		jit_delete_script_handle(it.second);
+	}
+	jitted_scripts.clear();
+}
+
 
 void FFScript::SetFFEngineFlag(int32_t flag, bool state)
 {
