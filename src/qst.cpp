@@ -3736,8 +3736,7 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	}
 	if(compatrule_version < 35)
 	{
-		// Leaving this commented for now, might need to enable later -Em
-		// set_bit(quest_rules,qr_ZS_NO_NEG_ARRAY,1);
+		set_bit(quest_rules,qr_ZS_NO_NEG_ARRAY,1);
 		set_bit(quest_rules,qr_BROKEN_INPUT_DOWN_STATE,1);
 	}
 	if(compatrule_version < 36)

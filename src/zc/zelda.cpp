@@ -1824,6 +1824,8 @@ int32_t init_game()
 		return 1;
 	}
 	
+	FFCore.SetNegArray();
+	
 	if (jit_is_enabled() && zc_get_config("ZSCRIPT", "jit_precompile", false))
 	{
 		jit_precompile_scripts();
