@@ -287,18 +287,21 @@ def test_expect_error(cb):
         return
     raise Exception('expected error')
 
-assert group_arg([]) == ({}, None)
-assert group_arg(['1']) == ({}, '1')
-test_expect_error(lambda: group_arg(['1', '2']))
-assert group_arg(['classic_1st.zplay=10']) == ({test_r('classic_1st.zplay'): '10'}, None)
-assert group_arg(['1', 'classic_1st.zplay=10']) == ({test_r('classic_1st.zplay'): '10'}, '1')
-test_expect_error(lambda: group_arg(['1', 'no_exist.zplay=10']))
-test_expect_error(lambda: group_arg(['1', 'classic_1st.zplay=10', 'classic_1st.zplay=20']))
-assert group_arg(['3', 'classic_1st.zplay=10', 'classic_1st.zplay=20'], allow_concat=True) == ({test_r('classic_1st.zplay'): '10 20'}, '3')
-assert group_arg(['3', 'classic_1st.zplay=10', 'credits.zplay=20']) == ({
-    test_r('classic_1st.zplay'): '10',
-    test_r('credits.zplay'): '20',
-}, '3')
+if 'LAZY_TEST' in os.environ:
+    assert group_arg([]) == ({}, None)
+    assert group_arg(['1']) == ({}, '1')
+    test_expect_error(lambda: group_arg(['1', '2']))
+    assert group_arg(['classic_1st.zplay=10']) == ({test_r('classic_1st.zplay'): '10'}, None)
+    assert group_arg(['1', 'classic_1st.zplay=10']) == ({test_r('classic_1st.zplay'): '10'}, '1')
+    test_expect_error(lambda: group_arg(['1', 'no_exist.zplay=10']))
+    test_expect_error(lambda: group_arg(['1', 'classic_1st.zplay=10', 'classic_1st.zplay=20']))
+    assert group_arg(['3', 'classic_1st.zplay=10', 'classic_1st.zplay=20'], allow_concat=True) == ({test_r('classic_1st.zplay'): '10 20'}, '3')
+    assert group_arg(['3', 'classic_1st.zplay=10', 'credits.zplay=20']) == ({
+        test_r('classic_1st.zplay'): '10',
+        test_r('credits.zplay'): '20',
+    }, '3')
+    print('LAZY_TEST done! exiting')
+    exit(0)
 
 
 def get_arg_for_replay(replay_file, grouped_arg, is_int=False):
