@@ -11541,6 +11541,10 @@ int32_t read_one_subscreen(PACKFILE *f, zquestheader *, bool keepdata, int32_t i
     subscreen_object *temp_sub = &temp_sub_stack;
     
     char tempname[64];
+
+	// FWIW I never saw anything bigger than 20.
+	#define MAX_DP1_LEN 1024
+	char tempdp1[MAX_DP1_LEN];
     
     if(!pfread(tempname,64,f,true))
     {
@@ -11801,19 +11805,19 @@ int32_t read_one_subscreen(PACKFILE *f, zquestheader *, bool keepdata, int32_t i
             //temptempsize = temp1 + (temp2 << 8);
             temp_size = (int32_t)temptempsize;
             
-            //if(temp_sub->dp1!=NULL) delete[] temp_sub->dp1;
             if(keepdata)
             {
                 uint32_t char_length = temp_size+2;
-                temp_sub->dp1 = new char[char_length]; //memory not freed
-                ((char*)temp_sub->dp1)[char_length - 1] = '\0';
-                
-                //deletets = true; //obsolete
+                if (char_length > MAX_DP1_LEN)
+                {
+                    return qe_invalid;
+                }
+                tempdp1[char_length - 1] = '\0';
             }
             
             if(temp_size)
             {
-                if(!pfread(temp_sub->dp1,temp_size+1,f,keepdata))
+                if(!pfread(tempdp1,temp_size+1,f,keepdata))
                 {
                     return qe_invalid;
                 }
@@ -12103,7 +12107,7 @@ int32_t read_one_subscreen(PACKFILE *f, zquestheader *, bool keepdata, int32_t i
                 memcpy(&custom_subscreen[i].objects[j],temp_sub,sizeof(subscreen_object));
                 custom_subscreen[i].objects[j].dp1 = NULL;
                 custom_subscreen[i].objects[j].dp1 = new char[temp_size+2];
-                strcpy((char*)custom_subscreen[i].objects[j].dp1,(char*)temp_sub->dp1);
+                strcpy((char*)custom_subscreen[i].objects[j].dp1,tempdp1);
                 break;
                 
             case ssoCOUNTER:
