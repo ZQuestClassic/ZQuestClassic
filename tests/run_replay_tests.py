@@ -276,6 +276,31 @@ def group_arg(raw_values: List[str], allow_concat=False):
     return (arg_by_replay, default_arg)
 
 
+# Lazy unit testing.
+def test_r(replay: str):
+    return replays_dir / replay
+
+def test_expect_error(cb):
+    try:
+        cb()
+    except:
+        return
+    raise Exception('expected error')
+
+assert group_arg([]) == ({}, None)
+assert group_arg(['1']) == ({}, '1')
+test_expect_error(lambda: group_arg(['1', '2']))
+assert group_arg(['classic_1st.zplay=10']) == ({test_r('classic_1st.zplay'): '10'}, None)
+assert group_arg(['1', 'classic_1st.zplay=10']) == ({test_r('classic_1st.zplay'): '10'}, '1')
+test_expect_error(lambda: group_arg(['1', 'no_exist.zplay=10']))
+test_expect_error(lambda: group_arg(['1', 'classic_1st.zplay=10', 'classic_1st.zplay=20']))
+assert group_arg(['3', 'classic_1st.zplay=10', 'classic_1st.zplay=20'], allow_concat=True) == ({test_r('classic_1st.zplay'): '10 20'}, '3')
+assert group_arg(['3', 'classic_1st.zplay=10', 'credits.zplay=20']) == ({
+    test_r('classic_1st.zplay'): '10',
+    test_r('credits.zplay'): '20',
+}, '3')
+
+
 def get_arg_for_replay(replay_file, grouped_arg, is_int=False):
     arg_by_replay, default_arg = grouped_arg
     if replay_file in arg_by_replay:
