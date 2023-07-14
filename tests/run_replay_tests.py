@@ -70,7 +70,7 @@ import cutie
 
 from common import ReplayTestResults, RunResult, infer_gha_platform, download_release, maybe_get_downloaded_revision
 from run_test_workflow import collect_baseline_from_test_results, get_args_for_collect_baseline_from_test_results
-from compare_replays import create_compare_report, start_webserver, collect_test_runs_from_dir, collect_test_runs_from_ci
+from compare_replays import create_compare_report, start_webserver, collect_many_test_results_from_dir, collect_test_results_from_dir
 
 script_dir = pathlib.Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent
@@ -975,7 +975,7 @@ def prompt_to_create_compare_report():
         selected_index = cutie.select(
             [p.relative_to(root_dir) for p in options])
         print()
-        test_runs.extend(collect_test_runs_from_dir(options[selected_index]))
+        test_runs.extend(collect_many_test_results_from_dir(options[selected_index]))
     elif selected_index == 1:
         most_recent_nightly = get_recent_release_tag('nightly-*')
         most_recent_alpha = get_recent_release_tag('2.55-alpha-*')
@@ -1020,19 +1020,19 @@ def prompt_to_create_compare_report():
         ]
         print(f'Collecting baseline locally: {" ".join(command_args)}')
         subprocess.check_call(command_args)
-        test_runs.extend(collect_test_runs_from_dir(local_baseline_dir))
+        test_runs.extend(collect_many_test_results_from_dir(local_baseline_dir))
     elif selected_index == 2:
         gh, repo = prompt_for_gh_auth()
         baseline_run_id = collect_baseline_from_test_results(gh, repo, [test_results_path])
         print(f'GitHub Actions job is done, the workflow run id is: {baseline_run_id}')
-        test_runs.extend(collect_test_runs_from_ci(gh, repo, baseline_run_id))
+        test_runs.extend(collect_test_results_from_dir(gh, repo, baseline_run_id))
         print('Note: now that you\'ve done this, this will be the first ".gha-cache-dir" option listed in the "Collect from disk" option')
     elif selected_index == 3:
         gh, repo = prompt_for_gh_auth()
         baseline_run_id = cutie.get_number('Enter a workflow run id: ', allow_float=False)
-        test_runs.extend(collect_test_runs_from_ci(gh, repo, baseline_run_id))
+        test_runs.extend(collect_test_results_from_dir(gh, repo, baseline_run_id))
 
-    test_runs.extend(collect_test_runs_from_dir(test_results_dir))
+    test_runs.extend(collect_many_test_results_from_dir(test_results_dir))
 
     create_compare_report(test_runs)
     start_webserver()
