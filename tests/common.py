@@ -8,7 +8,7 @@ import tarfile
 from time import sleep
 from dataclasses import dataclass
 import dataclasses
-from typing import List, Literal, Tuple, Optional
+from typing import List, Literal, Tuple, Optional, Any
 import requests
 import zipfile
 from pathlib import Path
@@ -34,6 +34,8 @@ class RunResult:
     unexpected_gfx_segments: List[Tuple[int, int]] = None
     unexpected_gfx_segments_limited: List[Tuple[int, int]] = None
     diff: str = None
+    # Only for compare report.
+    snapshots: List[Any] = None
 
 
 @dataclass
@@ -46,6 +48,8 @@ class ReplayTestResults:
     zc_version: str
     time: str
     runs: List[List[RunResult]]
+    # Only for compare report.
+    label: str = None
 
     def __post_init__(self):
         if self.runs and isinstance(self.runs[0][0], dict):
@@ -54,9 +58,9 @@ class ReplayTestResults:
                 deserialized.append([RunResult(**run) for run in runs])
             self.runs = deserialized
 
-    def to_json(self):
+    def to_json(self, indent=2):
         as_dict = dataclasses.asdict(self)
-        return json.dumps(as_dict, indent=2)
+        return json.dumps(as_dict, indent=indent)
 
 
 def infer_gha_platform():

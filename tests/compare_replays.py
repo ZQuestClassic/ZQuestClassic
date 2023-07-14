@@ -8,7 +8,6 @@
 
 import argparse
 from argparse import ArgumentTypeError
-import subprocess
 import os
 import re
 import json
@@ -39,36 +38,28 @@ def hash_image(filename):
     return hashlib.sha256(Image.open(filename).tobytes()).hexdigest()
 
 
-# A `test_run` represents an invocation of run_replay_tests.py, including:
+# A `test_results` represents an invocation of run_replay_tests.py, including:
 #  - what platform it ran on
 #  - if run in CI, the workflow run id and git ref
 #  - a list of replays and any snapshots they produced
-# TODO remove older `test_run` concept and use `test_results` directly in the JS instead.
-def collect_test_run_from_dir(directory: Path):
+# It's mostly the same as ReplayTestResults, except only one array of ReplayRuns, and
+# with some additional properties: label and snapshots.
+# We re-use the ReplayTestResults dataclass for convenience.
+def collect_test_results_from_dir(directory: Path) -> ReplayTestResults:
     test_results_json = json.loads(
         (directory/'test_results.json').read_text('utf-8'))
     test_results = ReplayTestResults(**test_results_json)
-    test_run = {
-        'label': '',
-        'runs_on': test_results.runs_on,
-        'arch': test_results.arch,
-        'ci': False,
-    }
-    if test_results.ci:
-        test_run['ci'] = True
-        test_run['ref'] = test_results.git_ref
-        test_run['run_id'] = test_results.workflow_run_id
 
     label_parts = [
-        test_run['runs_on'],
-        test_run['arch'],
+        test_results.runs_on,
+        test_results.arch,
     ]
-    if test_run['ci']:
+    if test_results.ci:
         label_parts.extend([
-            f'run_id {test_run["run_id"]}',
-            test_run['ref'],
+            f'run_id {test_results.workflow_run_id}',
+            test_results.git_ref,
         ])
-    test_run['label'] = ' '.join(label_parts)
+    test_results.label = ' '.join(label_parts)
 
     snapshot_paths = list(directory.rglob('*.zplay*.png'))
     if not snapshot_paths:
@@ -82,7 +73,6 @@ def collect_test_run_from_dir(directory: Path):
                 continue
             replay_runs.append(run)
 
-    test_run['replays'] = []
     for run in replay_runs:
         snapshots = [{
             'path': s,
@@ -94,23 +84,23 @@ def collect_test_run_from_dir(directory: Path):
             continue
 
         snapshots.sort(key=lambda s: s['frame'])
-        test_run['replays'].append({
-            'name': run.name,
-            'snapshots': snapshots,
-        })
+        run.snapshots = snapshots
 
-    return test_run
+    fake_single_run = [run for run in replay_runs if run.snapshots]
+    test_results.runs = [fake_single_run]
+
+    return test_results
 
 
 # `directory` can include just one test run (a folder with test_results.json);
 # or many. For the latter, they will be grouped into a single test run per
 # platform (so that sharding does not generate multiple test runs).
-def collect_test_runs_from_dir(directory: Path):
-    test_runs = []
+def collect_many_test_results_from_dir(directory: Path) -> List[ReplayTestResults]:
+    test_runs: List[ReplayTestResults] = []
 
     for test_results_path in directory.rglob('test_results.json'):
         test_run_dir = test_results_path.parent
-        test_runs.append(collect_test_run_from_dir(test_run_dir))
+        test_runs.append(collect_test_results_from_dir(test_run_dir))
 
     if len(test_runs) == 0:
         raise Exception('found no test runs')
@@ -119,32 +109,32 @@ def collect_test_runs_from_dir(directory: Path):
         return test_runs
 
     runs_by_platform = {}
-    for test_run in test_runs:
-        key = (test_run['runs_on'], test_run['arch'])
+    for test_results in test_runs:
+        key = (test_results.runs_on, test_results.arch)
         if key not in runs_by_platform:
-            runs_by_platform[key] = test_run
+            runs_by_platform[key] = test_results
             continue
 
-        runs_by_platform[key]['replays'].extend(test_run['replays'])
+        runs_by_platform[key].runs[0].extend(test_results.runs[0])
 
     return runs_by_platform.values()
 
 
-def collect_test_runs_from_ci(gh: Github, repo: str, workflow_run_id: str):
+def collect_many_test_results_from_ci(gh: Github, repo: str, workflow_run_id: str) -> List[ReplayTestResults]:
     workflow_dir = get_gha_artifacts_with_retry(gh, repo, workflow_run_id)
-    return collect_test_runs_from_dir(workflow_dir)
+    return collect_many_test_results_from_dir(workflow_dir)
 
 
-def create_compare_report(test_runs):
+def create_compare_report(test_runs: List[ReplayTestResults]):
     if out_dir.exists():
         shutil.rmtree(out_dir)
     out_dir.mkdir(parents=True)
 
     def count_images():
         hashes = set()
-        for test_run in test_runs:
-            for replay_data in test_run['replays']:
-                for snapshot in replay_data['snapshots']:
+        for test_results in test_runs:
+            for run in test_results.runs[0]:
+                for snapshot in run.snapshots:
                     hashes.add(snapshot['hash'])
         return len(hashes)
 
@@ -153,34 +143,34 @@ def create_compare_report(test_runs):
         if image_count > 4450:
             print(
                 f'found {image_count} images, which is too many to upload to surge')
-            baseline_test_run = test_runs[0]
-            for test_run in test_runs[1:]:
-                for replay_data in test_run['replays']:
+            baseline_test_results = test_runs[0]
+            for test_results in test_runs[1:]:
+                for run in test_results.runs[0]:
                     filtered_snapshots = []
-                    for snapshot in replay_data['snapshots']:
+                    for snapshot in run.snapshots:
                         frame = snapshot['frame']
                         baseline_replay_data = next(
-                            (d for d in baseline_test_run['replays'] if d['name'] == replay_data['name']), None)
+                            (d for d in baseline_test_results.runs[0] if d.name == run.name), None)
                         if not baseline_replay_data:
                             continue
 
                         baseline_snapshot = next(
-                            (s for s in baseline_replay_data['snapshots'] if s['frame'] == frame), None)
+                            (s for s in baseline_replay_data.snapshots if s['frame'] == frame), None)
                         if not baseline_snapshot:
                             continue
 
                         filtered_snapshots.append(snapshot)
 
-                    replay_data['snapshots'] = filtered_snapshots
+                    run.snapshots = filtered_snapshots
 
             image_count = count_images()
             print(f'reduced to {image_count} images')
 
     snapshots_dir = out_dir / 'snapshots'
     snapshots_dir.mkdir()
-    for test_run in test_runs:
-        for replay_data in test_run['replays']:
-            for snapshot in replay_data['snapshots']:
+    for test_results in test_runs:
+        for run in test_results.runs[0]:
+            for snapshot in run.snapshots:
                 hashsum = snapshot['hash']
                 ext = snapshot['path'].suffix
                 filename = f'{hashsum}{ext}'
@@ -197,8 +187,18 @@ def create_compare_report(test_runs):
     deps = Path(
         f'{script_dir}/compare-resources/pixelmatch.js').read_text('utf-8')
 
+    # Remove unneeded data.
+    for test_run in test_runs:
+        for runs in test_run.runs:
+            for run in runs:
+                run.unexpected_gfx_frames = None
+                run.unexpected_gfx_segments = None
+                run.unexpected_gfx_segments_limited = None
+
+    test_runs_as_json = ',\n'.join(test_run.to_json(indent=0) for test_run in test_runs)
+    test_runs_as_json = '[\n' + test_runs_as_json + '\n]'
     result = html.replace(
-        '// JAVASCRIPT', f'const testRuns = {json.dumps(test_runs, indent=2)}\n  {js}')
+        '// JAVASCRIPT', f'const __TEST_RUNS__ = {test_runs_as_json}\n  {js}')
     result = result.replace('// DEPS', deps)
     result = result.replace('/* CSS */', css)
     out_path = Path(f'{out_dir}/index.html')
@@ -261,20 +261,20 @@ if __name__ == '__main__':
         gh = Github(args.token)
         for run_id in args.workflow_run:
             print(f'=== collecting test runs from workflow run {run_id}')
-            test_runs = collect_test_runs_from_ci(gh, args.repo, run_id)
+            test_runs = collect_many_test_results_from_ci(gh, args.repo, run_id)
 
             print('found:')
-            for test_run in test_runs:
-                print(f' - {test_run["label"]}')
+            for test_results in test_runs:
+                print(f' - {test_results.label}')
             all_test_runs.extend(test_runs)
     if args.local:
         for directory in args.local:
             print(f'=== collecting test runs from {directory}')
-            test_runs = collect_test_runs_from_dir(directory)
+            test_runs = collect_many_test_results_from_dir(directory)
 
             print('found:')
-            for test_run in test_runs:
-                print(f' - {test_run["label"]}')
+            for test_results in test_runs:
+                print(f' - {test_results.label}')
             all_test_runs.extend(test_runs)
 
     create_compare_report(all_test_runs)
