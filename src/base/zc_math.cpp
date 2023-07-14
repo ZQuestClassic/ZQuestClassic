@@ -102,6 +102,11 @@ double Sin(double x)
 		return std::sin(x);
 }
 
+double SinD(int16_t x)
+{
+	return Sin(x * PI/180);
+}
+
 double Cos(double x)
 {
 	if (replay_is_active())
@@ -115,6 +120,11 @@ double Cos(double x)
 	}
 	else
 		return std::cos(x);
+}
+
+double CosD(int16_t x)
+{
+	return Cos(x * PI/180);
 }
 
 double Tan(double x)
