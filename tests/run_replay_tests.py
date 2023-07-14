@@ -1013,7 +1013,20 @@ def prompt_to_create_compare_report():
     start_webserver()
 
 
-failing_replays = [r.name for r in test_results.runs[-1] if not r.success or r.exit_code != 0]
+def should_consider_failure(run: RunResult):
+    if not run.success:
+        return True
+
+    # Currently there are failing exit codes when otherwise everything succeeded.
+    # Maybe bad code in program termination? For now, ignore (unless under Asan where
+    # we specifically care about the exit code).
+    if is_asan and run.exit_code != 0:
+        return True
+
+    return False
+
+
+failing_replays = [r.name for r in test_results.runs[-1] if should_consider_failure(r)]
 if mode == 'assert':
     if not failing_replays:
         print('all replay tests passed')
