@@ -1,0 +1,185 @@
+//This file purely for notes to be removed when no longer needed -Em
+//NOTE: Passing `nullptr` for any `char32[]` parameter will be treated the same as passing an empty string. Passing an empty string (or nullptr) for `char32[] info` will result in a greyed-out (disabled) info button.
+//NOTE: All fields must have a unique `name`, which must be at least 1 character in length. Trying to create a field with an invalid name will fail.
+
+//global
+form SettingsForm;
+ * global pointer `SettingsForm->` similar in implementation to `RandGen->`
+ 
+//Game->
+form Game->CreateForm();
+ * Opens a free form and returns it.
+ * Be sure to `->Free()` it when you are done with it!
+
+//form->
+field form->AddBoolean(char32[] name, char32[] info, bool default_value = false);
+ * Adds a boolean option (Checkbox) to the form, with the specified `name` as a label, and a help text button displaying `info`.
+ * Returns a pointer to the field, NULL on failure.
+
+field form->AddText(char32[] name, char32[] info, char32[] default_txt = nullptr, int maxChars = 0);
+ * Adds a text option to the form, with the specified `name` as a label, and a help text button displaying `info`.
+ * Does not allow more than `maxChars` characters. If `maxChars <= 0`, it will be treated as `max limit`. The max limit is `1024 characters`, for sanity reasons.
+ * Returns a pointer to the field, NULL on failure.
+
+field form->AddNumber(char32[] name, char32[] info, int minval, int maxval, bool allow_decimal = false);
+ * Adds a number option to the form. The number must be between `minval` and `maxval`, inclusively- if the user sets a value out of range, the result will be clamped.
+ * Decimal place values are only allowed if `allow_decimal` is passed as true.
+ * Returns a pointer to the field, NULL on failure.
+
+field form->AddBooleanPresets(char32[] name, char32[] info, bool default_value, bool preset_only, ...[char32[] preset_name, int preset_value]);
+ * Adds a boolean option (Checkbox) to the form, with the specified `name` as a label, and a help text button displaying `info`.
+ * Uses a set of defined presets (pass as many as you like, if a preset_name is passed with no preset_value after it the value will be read as `0`)
+ * Returns a pointer to the field, NULL on failure.
+
+field form->AddTextPresets(char32[] name, char32[] info, char32[] default_txt, int maxChars, bool preset_only, ...[char32[] preset_name, char32[] preset_value]);
+ * Adds a text option to the form, with the specified `name` as a label, and a help text button displaying `info`.
+ * Does not allow more than `maxChars` characters. If `maxChars <= 0`, it will be treated as `max limit`. The max limit is `1024 characters`, for sanity reasons.
+ * Uses a set of defined presets (pass as many as you like, if a preset_name is passed with no preset_value after it the value will be read as nullptr/blank strings)
+ * Returns a pointer to the field, NULL on failure.
+
+field form->AddNumberPresets(char32[] name, char32[] info, int minval, int maxval, bool allow_decimal, bool preset_only, ...[char32[] preset_name, int preset_value]);
+ * Adds a number option to the form. The number must be between `minval` and `maxval`, inclusively- if the user sets a value out of range, the result will be clamped.
+ * Decimal place values are only allowed if `allow_decimal` is passed as true.
+ * Uses a set of defined presets (pass as many as you like, if a preset_name is passed with no preset_value after it the value will be read as `0`)
+ * Returns a pointer to the field, NULL on failure.
+ 
+field form->LoadSetting(int index);
+ * Loads the field with the specified index.
+ * Returns NULL if no such field currently exists.
+
+field form->FindSetting(char32[] name);
+ * Loads the field with the specified string name.
+ * Returns NULL if no such field currently exists.
+ 
+void form->Free();
+ * This will deallocate the form pointer, so that the pointer ID may be re-used.
+ * There is a limit to how many form pointers may be allocated at once,
+ *     so be sure to free them when you are no longer using them.
+
+void form->Own();
+ * Grants `Ownership` of the pointer to the currently running script.
+ * When the script terminates (at the same time any Local Arrays in the script
+ *     are cleared), the pointer will be automatically freed.
+
+void form->CopyTo(form other);
+ * Copies the current form into the `other` form. Both forms must be valid open form pointers.
+ * The contents previous in the `other` form are destroyed.
+
+bool form->AddTo(form other);
+ * Adds every field from the current form into the `other` form.
+ * Returns false and makes no changes if any entries have duplicate names between the forms.
+ * Otherwise, returns true, and the `other` form contains both its previous contents and the contents of this form.
+
+bool form->Show();
+ * Pops up the form GUI to have the user interact with it. Returns `true` if the user chose `OK`,
+ *     and `false` if the user cancelled. Changes to the form will not be saved on canceling.
+ 
+//field->
+int field->Index;
+ * Read-only, the index of this field.
+int field->Type;
+ * Read-only, the type of this field. Use the FIELD_ constants to reference this value.
+form field->ParentForm;
+ * Read-only, the form pointer that owns this field.
+bool field->Valid;
+ * Read-only, true if this field (and its ParentForm) are valid.
+
+untyped field->Data[];
+ * Use the `FIELDDATA_` constants to access this array.
+ * Use the appropriate constants based on the field's `Type`. Ex. `FIELDDATA_NUMBER_MIN_VAL` is
+ *     only valid on a `FIELD_NUMBER` typed field.
+
+bool field->OnlyPresets;
+ * If set to true, only the presets will be selectable, the actual field will not appear anymore.
+
+bool field->IsNumeric();
+ * Returns true if the field is numeric in nature.
+bool field->IsString();
+ * Returns true if the field is string-based in nature.
+
+int field->getValue();
+ * Returns the integer value of this field. String-based fields will return `0`.
+ * Boolean fields return an integer value of `0` or `1`.
+bool field->setValue(int val);
+ * Overrides the value of the specified field. Fails if the field is string-based. Returns true on success, false on failure.
+
+bool field->getString(char32[] buf);
+ * Places the string value of this field into the buffer. If the field is numeric, the buffer will be unmodified and the function returns false. Returns true if successful, and false if it fails.
+bool field->setString(char32[] buf);
+ * Overrides the value of the specified field. Fails if the field is not string-based. Returns true on success, false on failure.
+
+bool field->setName(char32[] buf);
+ * Changes the name of the field to the specified new name. Returns true if successful.
+ * Fails if the new name would be a duplicate of another field, or if it is a blank string.
+
+bool field->getName(char32[] buf);
+ * Gets the name of the field into the buffer. Returns true if successful.
+
+bool field->setInfo(char32[] buf);
+ * Changes the info string of the field to the specified new name. Returns true if successful.
+
+bool field->getInfo(char32[] buf);
+ * Gets the info string of the field into the buffer. Returns true if successful.
+
+//
+int field->NumPresets();
+ * Returns the number of presets this field has.
+
+bool field->setPresetName(int preset_index, char32[] preset_name);
+ * Changes the name of the specified preset.
+bool field->getPresetName(int preset_index, char32[] buf);
+ * Gets the name of the specified preset into the buffer.
+
+int field->getPresetValue(int preset_index);
+ * Gets the value of the specified preset. Returns 0 if the field is non-numeric.
+bool field->setPresetValue(int preset_index, int val);
+ * Sets the value of the specified preset. Fails if the field is non-numeric.
+ * Returns true on success, false on failure.
+
+bool field->getPresetString(int preset_index, char32[] buf);
+ * Gets the preset string into the buffer. Fails if the field is not string-based.
+ * Returns true on success, false on failure.
+bool field->setPresetString(int preset_index, char32[] str);
+ * Sets the preset string based on the buffer. Fails if the field is not string-based.
+ * Returns true on success, false on failure.
+
+bool field->addNumericPreset(char32[] name, int val);
+ * Adds a numeric preset. Fails if the field is non-numeric.
+ * Returns true on success, false on failure.
+bool field->addNumericPreset(char32[] name, char32[] val);
+ * Adds a string preset. Fails if the field is non-string-based.
+ * Returns true on success, false on failure.
+
+bool field->AddTo(form f);
+ * Adds a copy of this field to the specified form.
+ * Returns false if the form `f` already contains a field of the same name as this field.
+ * Otherwise, returns true, and the form `f` now contains a copy of this field.
+void field->CopyTo(field other);
+ * Copies this field over the `other` field, replacing its contents entirely.
+void field->CopyPresetsTo(field other);
+ * Copies this field's presets over the `other` field's presets, replacing them.
+bool field->AddPresetsTo(field other);
+ * Copies this field's presets to the `other` field's presets, adding them.
+ * Returns false and makes no changes if any presets have duplicate names between the fields,
+ *     except if the presets have the same name AND value, in which case the duplicate is ignored.
+ * Otherwise, returns true, and the `other` field contains both its previous presets and the presets of this field.
+ 
+//std_constants.zh
+enum //Field types
+{
+	FIELD_NUMBER,
+	FIELD_BOOL,
+	FIELD_TEXT,
+	FIELD_MAX
+};
+enum //Data indexes for `field->Data[]` on `FIELD_NUMBER` fields
+{
+	FIELDDATA_NUMBER_MIN_VAL,
+	FIELDDATA_NUMBER_MAX_VAL,
+	FIELDDATA_NUMBER_MAX
+};
+enum //Data indexes for `field->Data[]` on `FIELD_TEXT` fields
+{
+	FIELDDATA_TEXT_MAX_CHARS,
+	FIELDDATA_TEXT_MAX
+};
