@@ -2820,6 +2820,14 @@ Available annotations:
 			long: "LD"
 			bool: "B"
 			otherwise: "-1"
+	
+	@InitScript
+		Valid on: Global Scripts
+		Function: Mark the script to be merged into the global ~Init slot
+		Value: Number, a weight used to determine merge order.
+		       (the 'global script Init' has a weight of 0)
+		Default value: Unset. Setting this to ANYTHING stops the default
+		               behavior, and marks the script to be merged.
 
 /////////////////////////////
 ///  Registration System  ///

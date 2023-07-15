@@ -2646,7 +2646,7 @@ void BuildOpcodes::caseNumberLiteral(ASTNumberLiteral& host, void*)
 		addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*cval)));
 	else
 	{
-		pair<int32_t, bool> val = ScriptParser::parseLong(host.value->parseValue(this, scope), scope);
+		pair<int32_t, bool> val = ScriptParser::parseLong(host.value->parseValue(scope), scope);
 
 		if (!val.second)
 			handleError(CompileError::ConstTrunc(&host, host.value->value));
@@ -2661,7 +2661,7 @@ void BuildOpcodes::caseCharLiteral(ASTCharLiteral& host, void*)
 		addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*cval)));
 	else
 	{
-		pair<int32_t, bool> val = ScriptParser::parseLong(host.value->parseValue(this, scope), scope);
+		pair<int32_t, bool> val = ScriptParser::parseLong(host.value->parseValue(scope), scope);
 
 		if (!val.second)
 			handleError(CompileError::ConstTrunc(&host, host.value->value));

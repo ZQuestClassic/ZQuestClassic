@@ -97,12 +97,14 @@ namespace ZScript
 		virtual ~Script();
 
 		virtual ParserScriptType getType() const = 0;
+		virtual void setName(std::string const& newname) = 0;
 		virtual std::string const& getName() const = 0;
 		virtual std::string const& getAuthor() const = 0;
 		virtual zasm_meta const& getMetadata() const = 0;
 		virtual ASTScript* getNode() const = 0;
 		virtual ScriptScope& getScope() = 0;
 		virtual ScriptScope const& getScope() const = 0;
+		virtual std::optional<int32_t> getInitWeight() const {return std::nullopt;}
 		
 		void setRun(Function* func) {runFunc = func;}
 		Function* getRun() const {return runFunc;}
@@ -126,12 +128,14 @@ namespace ZScript
 
 	public:
 		ParserScriptType getType() const /*override*/;
+		void setName(std::string const& newname) /*override*/ {node.metadata.script_name = newname;};
 		std::string const& getName() const /*override*/ {return node.metadata.script_name;};
 		std::string const& getAuthor() const /*override*/ {return node.metadata.author;};
 		zasm_meta const& getMetadata() const /*override*/ {return node.metadata;};
 		ASTScript* getNode() const /*override*/ {return &node;};
 		ScriptScope& getScope() /*override*/ {return *scope;}
 		ScriptScope const& getScope() const /*override*/ {return *scope;}
+		std::optional<int32_t> getInitWeight() const /*override*/ {return node.init_weight;}
 
 	private:
 		UserScript(Program&, ASTScript&);
@@ -147,6 +151,7 @@ namespace ZScript
 				CompileErrorHandler*);
 	public:
 		ParserScriptType getType() const /*override*/ {return type;}
+		void setName(std::string const& newname) /*override*/ {name = newname;}
 		std::string const& getName() const /*override*/ {return name;};
 		std::string const& getAuthor() const /*override*/ {return builtin_author;};
 		zasm_meta const& getMetadata() const /*override*/

@@ -625,13 +625,83 @@ void ScriptParser::assemble(IntermediateData *id)
 
 	// If there's a global script called "Init", append it to ~Init:
 	Script* userInit = program.getScript("Init");
-	if (userInit && userInit->getType() == ParserScriptType::global
-		&& !userInit->isPrototypeRun()) //Prototype run function can be ignored, as it is empty.
+	if (userInit->getType() != ParserScriptType::global || userInit->isPrototypeRun())
+		userInit = nullptr;
+	
+	map<int32_t,vector<Script*>> initScripts;
+	
+	if(userInit)
 	{
-		int32_t label = *getLabel(*userInit);
-		addOpcode2(ginit, new OGotoImmediate(new LabelArgument(label)));
+		std::optional<int32_t> weight = userInit->getInitWeight();
+		auto& vec = initScripts[weight ? *weight : 0];
+		vec.push_back(userInit);
 	}
-
+	for (vector<Script*>::const_iterator it = program.scripts.begin();
+	     it != program.scripts.end(); ++it)
+	{
+		Script& script = **it;
+		if(script.getType() != ParserScriptType::global) continue;
+		if(script.isPrototypeRun()) continue; //skippable
+		if(std::optional<int32_t> weight = script.getInitWeight())
+		{
+			auto& vec = initScripts[*weight];
+			vec.push_back(&script);
+		}
+	}
+	vector<shared_ptr<Opcode>> ginit_mergefuncs;
+	for(auto it = initScripts.begin(); it != initScripts.end(); ++it)
+	{
+		auto& vec = it->second;
+		for(auto it = vec.begin(); it != vec.end(); ++it)
+		{
+			Script& script = **it;
+			Function* run = script.getRun();
+			vector<shared_ptr<Opcode>> const& runCode = run->getCode();
+			
+			//Function call the run function
+			//push the stack frame pointer
+			addOpcode2(ginit, new OPushRegister(new VarArgument(SFRAME)));
+			//push the return address
+			int32_t returnaddr = ScriptParser::getUniqueLabelID();
+			addOpcode2(ginit, new OPushImmediate(new LabelArgument(returnaddr)));
+			
+			int32_t funcaddr = ScriptParser::getUniqueLabelID();
+			addOpcode2(ginit, new OGotoImmediate(new LabelArgument(funcaddr)));
+			
+			Opcode *next = new OPopRegister(new VarArgument(SFRAME));
+			next->setLabel(returnaddr);
+			addOpcode2(ginit,next);
+			
+			//Add the function to the end of the script, as a special copy
+			bool didlabel = false;
+			size_t index = 0;
+			for(auto it = runCode.begin(); it != runCode.end(); ++it, ++index)
+			{
+				Opcode* op = it->get();
+				if(index < 2)
+					continue; //Skip the SETV d2,0 and PUSHR d3
+				if(dynamic_cast<OQuit*>(op))
+				{
+					op = new OReturn(); //Replace 'Quit();' with 'return;'
+				}
+				else
+					op = op->makeClone(false);
+				if(!didlabel)
+				{
+					op->setLabel(funcaddr);
+					didlabel = true;
+				}
+				addOpcode2(ginit_mergefuncs, op);
+			}
+			Opcode* last = ginit_mergefuncs.back().get();
+			if(OReturn* opcode = dynamic_cast<OReturn*>(last))
+				; //function ends in a return already
+			else
+				addOpcode2(ginit_mergefuncs, new OReturn());
+		}
+	}
+	addOpcode2(ginit, new OQuit());
+	ginit.insert(ginit.end(), ginit_mergefuncs.begin(), ginit_mergefuncs.end());
 	Script* init = program.getScript("~Init");
 	init->code = assembleOne(program, ginit, 0);
 
@@ -639,8 +709,13 @@ void ScriptParser::assemble(IntermediateData *id)
 	     it != program.scripts.end(); ++it)
 	{
 		Script& script = **it;
-		if (script.getName() == "~Init") continue;
-		if(script.getType() == ParserScriptType::untyped) continue;
+		if(script.getName() == "~Init") continue; //init script
+		if(script.getType() == ParserScriptType::global && (script.getName() == "Init" || script.getInitWeight()))
+		{
+			script.setName("~~"+script.getName()); //'~' start hides the script
+			continue; //init script
+		}
+		if(script.getType() == ParserScriptType::untyped) continue; //untyped script has no body
 		Function& run = *script.getRun();
 		if(run.prototype) //Generate a minimal script if 'run()' is a prototype.
 		{

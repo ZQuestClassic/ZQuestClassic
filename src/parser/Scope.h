@@ -251,6 +251,7 @@ namespace ZScript
 	// the provided option is invalid. If the option is valid but not set,
 	// returns the default value for it.
 	std::optional<int32_t> lookupOption(Scope const&, CompileOption);
+	std::optional<int32_t> lookupOption(Scope const*, CompileOption);
 	
 	std::vector<NamespaceScope*> lookupUsingNamespaces(Scope const& scope);
 

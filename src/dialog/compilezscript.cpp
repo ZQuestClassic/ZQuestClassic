@@ -307,6 +307,8 @@ bool do_compile_and_slots(bool quick_compile, bool delay)
 	for (auto it = stypes.begin(); it != stypes.end(); ++it)
 	{
 		string const& name = it->first;
+		if(name.size() && name[0] == '~')
+			continue; //hidden script
 		switch(it->second)
 		{
 			case scrTypeIdFfc:
@@ -343,10 +345,7 @@ bool do_compile_and_slots(bool quick_compile, bool delay)
 				asgenericscripts.push_back(name);
 				break;
 			case scrTypeIdGlobal:
-				if (name != "~Init")
-				{
-					asglobalscripts.push_back(name);
-				}
+				asglobalscripts.push_back(name);
 				break;
 		}
 	}
