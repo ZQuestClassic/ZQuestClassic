@@ -211,10 +211,10 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 				),
 				nextstr_dd = DropDownList(data = list_nextstr,
 					fitParent = true,
-					selectedValue = MsgStrings[tmpMsgStr.nextstring].listpos,
+					selectedValue = tmpMsgStr.nextstring,
 					onSelectFunc = [&](int32_t val)
 					{
-						tmpMsgStr.nextstring = addtomsglist(val);
+						tmpMsgStr.nextstring = val;
 					}
 				),
 				Button(text = "Next in List",

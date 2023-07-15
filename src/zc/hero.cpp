@@ -3003,9 +3003,8 @@ void HeroClass::draw(BITMAP* dest)
 			goto herodraw_end;
 		}
 		
-		double a2 = fairyclk*int64_t(2)*PI/80 + (PI/2);
+		double a2 = fairyclk*4.5 + 90;
 		int32_t hearts=0;
-		//  int32_t htile = QHeader.dat_flags[ZQ_TILES] ? 2 : 0;
 		int32_t htile = 2;
 		
 		do
@@ -3024,13 +3023,13 @@ void HeroClass::draw(BITMAP* dest)
 				ny=y;
 			}
 			
-			double tx = zc::math::Cos(a2)*53  +nx;
-			double ty = -zc::math::Sin(a2)*53 +ny+playing_field_offset;
-			overtile8(dest,htile,int32_t(tx),int32_t(ty),1,0);
-			a2-=PI/4;
+			int32_t tx = zc::math::CosD(a2)*53  +nx;
+			int32_t ty = -zc::math::SinD(a2)*53 +ny+playing_field_offset;
+			overtile8(dest,htile,tx,ty,1,0);
+			a2-=45;
 			++hearts;
 		}
-		while(a2>PI/2 && hearts<8);
+		while(a2>90 && hearts<8);
 	}
 herodraw_end:
 	xofs=oxofs;
@@ -27024,6 +27023,7 @@ int32_t HeroClass::get_scroll_delay(int32_t scrolldir)
 
 void HeroClass::calc_darkroom_hero(int32_t x1, int32_t y1, BITMAP* bmp)
 {
+	if(!get_bit(quest_rules, qr_NEW_DARKROOM)) return;
 	int32_t lampid = current_item_id(itype_lantern);
 	if(lampid < 0) return;
 	static bool lamp_paid = false;
@@ -27039,15 +27039,7 @@ void HeroClass::calc_darkroom_hero(int32_t x1, int32_t y1, BITMAP* bmp)
 	int32_t hy = y.getInt() - y1 + 8;
 	
 	itemdata& lamp = itemsbuf[lampid];
-	switch(lamp.misc1) //Shape
-	{
-		case 0: //Circle
-			doDarkroomCircle(hx, hy, lamp.misc2, bmp);
-			break;
-		case 1: //Lamp Cone
-			doDarkroomCone(hx, hy, lamp.misc2, dir, bmp);
-			break;
-	}
+	handle_lighting(hx, hy, lamp.misc1, lamp.misc2, dir, bmp);
 }
 
 // TODO z3 scrolling between extended height ON and OFF is not working right now

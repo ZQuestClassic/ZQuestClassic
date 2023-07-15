@@ -3880,10 +3880,11 @@ enum //spritedata->Flags[] indexes
 	NUM_SPRFL
 };
 
-enum
+enum //Light shapes for torch combos, lantern itemdata, and GlowShape variables
 {
 	LIGHT_CIRCLE,
-	LIGHT_CONE
+	LIGHT_CONE,
+	LIGHT_SQUARE
 };
 
 enum

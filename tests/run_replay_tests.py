@@ -70,7 +70,7 @@ import cutie
 
 from common import ReplayTestResults, RunResult, infer_gha_platform, download_release, maybe_get_downloaded_revision
 from run_test_workflow import collect_baseline_from_test_results, get_args_for_collect_baseline_from_test_results
-from compare_replays import create_compare_report, start_webserver, collect_test_runs_from_dir, collect_test_runs_from_ci
+from compare_replays import create_compare_report, start_webserver, collect_many_test_results_from_dir, collect_many_test_results_from_ci
 
 script_dir = pathlib.Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent
@@ -188,6 +188,8 @@ if os.name == 'nt':
 parser = argparse.ArgumentParser()
 parser.add_argument('--build_folder', type=dir_path, default='build/Release',
     help='The folder containing the exe files', metavar='DIRECTORY')
+parser.add_argument('--build_type', default='Release',
+    help='How to treat the build, for purposes of timeouts and duration estimates')
 parser.add_argument('--test_results_folder', type=dir_path,
     help='Where to save the replay test artifacts. By default, somewhere in .tmp')
 parser.add_argument('--filter', action='append', metavar='FILEPATH',
@@ -274,6 +276,34 @@ def group_arg(raw_values: List[str], allow_concat=False):
     return (arg_by_replay, default_arg)
 
 
+# Lazy unit testing.
+def test_r(replay: str):
+    return replays_dir / replay
+
+def test_expect_error(cb):
+    try:
+        cb()
+    except:
+        return
+    raise Exception('expected error')
+
+if 'LAZY_TEST' in os.environ:
+    assert group_arg([]) == ({}, None)
+    assert group_arg(['1']) == ({}, '1')
+    test_expect_error(lambda: group_arg(['1', '2']))
+    assert group_arg(['classic_1st.zplay=10']) == ({test_r('classic_1st.zplay'): '10'}, None)
+    assert group_arg(['1', 'classic_1st.zplay=10']) == ({test_r('classic_1st.zplay'): '10'}, '1')
+    test_expect_error(lambda: group_arg(['1', 'no_exist.zplay=10']))
+    test_expect_error(lambda: group_arg(['1', 'classic_1st.zplay=10', 'classic_1st.zplay=20']))
+    assert group_arg(['3', 'classic_1st.zplay=10', 'classic_1st.zplay=20'], allow_concat=True) == ({test_r('classic_1st.zplay'): '10 20'}, '3')
+    assert group_arg(['3', 'classic_1st.zplay=10', 'credits.zplay=20']) == ({
+        test_r('classic_1st.zplay'): '10',
+        test_r('credits.zplay'): '20',
+    }, '3')
+    print('LAZY_TEST done! exiting')
+    exit(0)
+
+
 def get_arg_for_replay(replay_file, grouped_arg, is_int=False):
     arg_by_replay, default_arg = grouped_arg
     if replay_file in arg_by_replay:
@@ -314,7 +344,8 @@ def clear_progress_str():
 is_mac_ci = args.ci and 'mac' in args.ci
 is_web = bool(list(args.build_folder.glob('*.wasm')))
 is_web_ci = is_web and args.ci
-is_coverage = args.build_folder.name == 'Coverage'
+is_coverage = args.build_folder.name == 'Coverage' or args.build_type == 'Coverage'
+is_asan = args.build_folder.name == 'Asan' or args.build_type == 'Asan'
 if args.test_results_folder:
     test_results_dir = args.test_results_folder.absolute()
 else:
@@ -433,6 +464,8 @@ def get_replay_data(file):
         estimated_fps /= 11
     if is_coverage:
         estimated_fps /= 10
+    if is_asan:
+        estimated_fps /= 15
 
     frames_limited = frames
     frame_arg = get_arg_for_replay(file, grouped_frame_arg, is_int=True)
@@ -513,10 +546,13 @@ class CLIPlayerInterface:
         # Assertion failed: (mutex), function al_lock_mutex, file threads.Assertion failed: (mutex), function al_lock_mutex, file threads.c, line 324.
         # Assertion failed: (mutex), function al_lock_mutex, file threads.c, line 324.
         exe_name = 'zelda.exe' if os.name == 'nt' else 'zelda'
-        exe_path = (args.build_folder / exe_name).absolute()
+        exe_path = args.build_folder / exe_name
+        if not exe_path.exists():
+            print(f'could not find executable at: {exe_path}\nYou may need to set the --build_folder arg (defaults to build/Release)')
+            os._exit(1)
 
         exe_args = [
-            exe_path,
+            exe_path.absolute(),
             f'-{mode}', replay_path,
             '-v1' if args.throttle_fps else '-v0',
             '-replay-exit-when-done',
@@ -532,6 +568,11 @@ class CLIPlayerInterface:
 
         if args.jit:
             exe_args.append('-jit')
+
+        # Allegro seems to be using free'd memory when shutting down the sound system.
+        # For now, just disable sound in CI or when using Asan/Coverage.
+        if is_asan or is_coverage or is_ci or mode == 'assert':
+            exe_args.append('-s')
 
         allegro_log_path = output_dir / 'allegro.log'
         self.p = subprocess.Popen(exe_args,
@@ -648,11 +689,15 @@ def run_replay_test(replay_file: pathlib.Path, output_dir: pathlib.Path) -> RunR
 
     # Cap the duration in CI, in case it somehow never ends.
     do_timeout = True if args.ci else False
+    # ...but not for Coverage/Asan, which is unpredictably slow.
+    if is_coverage:
+        do_timeout = False
+    if is_asan:
+        do_timeout = False
+
     timeout = 60
     if replay_file.name == 'yuurand.zplay':
         timeout = 180
-    if is_coverage:
-        timeout *= 5
     if is_web:
         timeout *= 2
 
@@ -746,8 +791,9 @@ def run_replay_test(replay_file: pathlib.Path, output_dir: pathlib.Path) -> RunR
                 result.unexpected_gfx_segments = None
                 result.unexpected_gfx_segments_limited = None
             exit_code = player_interface.get_exit_code()
+            result.exit_code = exit_code
             if exit_code != 0 and exit_code != ASSERT_FAILED_EXIT_CODE:
-                print(f'replay failed with unexpected code {exit_code}')
+                print(f'\nreplay failed with unexpected code {exit_code}')
             # .zplay files are updated in-place, but lets also copy over to the test output folder.
             # This makes it easy to upload an archive of updated replays in CI.
             if mode == 'update' and watcher.result['changed']:
@@ -933,7 +979,7 @@ def prompt_to_create_compare_report():
         selected_index = cutie.select(
             [p.relative_to(root_dir) for p in options])
         print()
-        test_runs.extend(collect_test_runs_from_dir(options[selected_index]))
+        test_runs.extend(collect_many_test_results_from_dir(options[selected_index]))
     elif selected_index == 1:
         most_recent_nightly = get_recent_release_tag('nightly-*')
         most_recent_alpha = get_recent_release_tag('2.55-alpha-*')
@@ -978,29 +1024,29 @@ def prompt_to_create_compare_report():
         ]
         print(f'Collecting baseline locally: {" ".join(command_args)}')
         subprocess.check_call(command_args)
-        test_runs.extend(collect_test_runs_from_dir(local_baseline_dir))
+        test_runs.extend(collect_many_test_results_from_dir(local_baseline_dir))
     elif selected_index == 2:
         gh, repo = prompt_for_gh_auth()
         baseline_run_id = collect_baseline_from_test_results(gh, repo, [test_results_path])
         print(f'GitHub Actions job is done, the workflow run id is: {baseline_run_id}')
-        test_runs.extend(collect_test_runs_from_ci(gh, repo, baseline_run_id))
+        test_runs.extend(collect_many_test_results_from_ci(gh, repo, baseline_run_id))
         print('Note: now that you\'ve done this, this will be the first ".gha-cache-dir" option listed in the "Collect from disk" option')
     elif selected_index == 3:
         gh, repo = prompt_for_gh_auth()
         baseline_run_id = cutie.get_number('Enter a workflow run id: ', allow_float=False)
-        test_runs.extend(collect_test_runs_from_ci(gh, repo, baseline_run_id))
+        test_runs.extend(collect_many_test_results_from_ci(gh, repo, baseline_run_id))
 
-    test_runs.extend(collect_test_runs_from_dir(test_results_dir))
+    test_runs.extend(collect_many_test_results_from_dir(test_results_dir))
 
     create_compare_report(test_runs)
     start_webserver()
 
 
-def is_known_failure_test(test_results: RunResult):
-    if test_results.success:
+def is_known_failure_test(run: RunResult):
+    if run.success:
         return False
 
-    if test_results.name == 'triggers.zplay' and test_results.unexpected_gfx_segments == [[10817, 11217]]:
+    if run.name == 'triggers.zplay' and run.unexpected_gfx_segments == [[10817, 11217]]:
         print('!!! filtering out known replay test failure !!!')
         print('dithered lighting is off-by-some only during scrolling, and doubled-up for a single frame')
         return True
@@ -1008,14 +1054,39 @@ def is_known_failure_test(test_results: RunResult):
     return False
 
 
-if mode == 'assert':
-    failing_tests = [r.name for r in test_results.runs[-1]
-                     if not r.success and not is_known_failure_test(r)]
+def should_consider_failure(run: RunResult):
+    if is_known_failure_test(run):
+        return False
 
-    if len(failing_tests) == 0:
+    if not run.success:
+        return True
+
+    # Currently there are failing exit codes when otherwise everything succeeded.
+    # Maybe bad code in program termination? For now, ignore (unless under Asan where
+    # we specifically care about the exit code).
+    if is_asan and run.exit_code != 0:
+        return True
+
+    return False
+
+
+failing_replays = [r.name for r in test_results.runs[-1] if should_consider_failure(r)]
+if mode == 'assert':
+    if not failing_replays:
         print('all replay tests passed')
     else:
-        print(f'{len(failing_tests)} replay tests failed')
+        print(f'{len(failing_replays)} replay tests failed')
         if not is_ci and sys.stdout.isatty() and replays_dir == script_dir / 'replays':
             prompt_to_create_compare_report()
+        exit(1)
+else:
+    # We should still return a failing exit code if any replay failed to run, or had an
+    # rng desync, or a bad exit code. Graphical differences won't count as failure
+    # here - this is good for non-Release builds (coverage, asan). Don't want to fail if some
+    # visual-only floating point drawing produces different visual results, but we do want to
+    # fail if the replay does not finish.
+    if not failing_replays:
+        print('all replays ran successfully')
+    else:
+        print(f'{len(failing_replays)} replays did not finish')
         exit(1)

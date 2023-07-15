@@ -121,6 +121,7 @@ X(	NoClass,			S,	A,	E,	STR,	VOID,	"The class '%s' was not found to construct."		
 X(	BadDelete,			T,	A,	E,	VOID,	VOID,	"'delete' may only be used on objects of classes."								)
 X(	DeprecatedWarn,			S,	A,	W,	STR,	STR,	"%s '%s' is deprecated, and should not be used."								)
 X(	DeprecatedError,			S,	A,	E,	STR,	STR,	"%s '%s' is deprecated, and cannot be used due to current compiler settings."								)
+X(	BadAnnotation,			P,	A,	E,	STR,	STR,	"Annotation @%s invalid: %s"						)
 
 
 #undef STR

@@ -8,7 +8,6 @@
 
 import argparse
 from argparse import ArgumentTypeError
-import subprocess
 import os
 import re
 import json
@@ -20,7 +19,7 @@ from github import Github
 from common import get_gha_artifacts_with_retry, ReplayTestResults, RunResult
 from typing import List
 from PIL import Image
-import hashlib
+import intervaltree
 
 
 def dir_path(path):
@@ -36,39 +35,31 @@ is_ci = 'CI' in os.environ
 
 
 def hash_image(filename):
-    return hashlib.sha256(Image.open(filename).tobytes()).hexdigest()
+    return hashlib.md5(Image.open(filename).tobytes()).hexdigest()
 
 
-# A `test_run` represents an invocation of run_replay_tests.py, including:
+# A `test_results` represents an invocation of run_replay_tests.py, including:
 #  - what platform it ran on
 #  - if run in CI, the workflow run id and git ref
 #  - a list of replays and any snapshots they produced
-# TODO remove older `test_run` concept and use `test_results` directly in the JS instead.
-def collect_test_run_from_dir(directory: Path):
+# It's mostly the same as ReplayTestResults, except only one array of ReplayRuns, and
+# with some additional properties: label and snapshots.
+# We re-use the ReplayTestResults dataclass for convenience.
+def collect_test_results_from_dir(directory: Path) -> ReplayTestResults:
     test_results_json = json.loads(
         (directory/'test_results.json').read_text('utf-8'))
     test_results = ReplayTestResults(**test_results_json)
-    test_run = {
-        'label': '',
-        'runs_on': test_results.runs_on,
-        'arch': test_results.arch,
-        'ci': False,
-    }
-    if test_results.ci:
-        test_run['ci'] = True
-        test_run['ref'] = test_results.git_ref
-        test_run['run_id'] = test_results.workflow_run_id
 
     label_parts = [
-        test_run['runs_on'],
-        test_run['arch'],
+        test_results.runs_on,
+        test_results.arch,
     ]
-    if test_run['ci']:
+    if test_results.ci:
         label_parts.extend([
-            f'run_id {test_run["run_id"]}',
-            test_run['ref'],
+            f'run_id {test_results.workflow_run_id}',
+            test_results.git_ref,
         ])
-    test_run['label'] = ' '.join(label_parts)
+    test_results.label = ' '.join(label_parts)
 
     snapshot_paths = list(directory.rglob('*.zplay*.png'))
     if not snapshot_paths:
@@ -82,35 +73,37 @@ def collect_test_run_from_dir(directory: Path):
                 continue
             replay_runs.append(run)
 
-    test_run['replays'] = []
     for run in replay_runs:
         snapshots = [{
             'path': s,
             'frame': int(re.match(r'.*\.zplay\.(\d+)', s.name).group(1)),
-            'unexpected': 'unexpected' in s.name,
             'hash': hash_image(s.absolute()),
         } for s in (directory/run.directory).rglob('*.zplay*.png')]
         if not snapshots:
             continue
 
-        snapshots.sort(key=lambda s: s['frame'])
-        test_run['replays'].append({
-            'name': run.name,
-            'snapshots': snapshots,
-        })
+        for snapshot in snapshots:
+            if 'unexpected' in snapshot['path'].name:
+                snapshot['unexpected'] = True
 
-    return test_run
+        snapshots.sort(key=lambda s: s['frame'])
+        run.snapshots = snapshots
+
+    fake_single_run = [run for run in replay_runs if run.snapshots]
+    test_results.runs = [fake_single_run]
+
+    return test_results
 
 
 # `directory` can include just one test run (a folder with test_results.json);
 # or many. For the latter, they will be grouped into a single test run per
 # platform (so that sharding does not generate multiple test runs).
-def collect_test_runs_from_dir(directory: Path):
-    test_runs = []
+def collect_many_test_results_from_dir(directory: Path) -> List[ReplayTestResults]:
+    test_runs: List[ReplayTestResults] = []
 
     for test_results_path in directory.rglob('test_results.json'):
         test_run_dir = test_results_path.parent
-        test_runs.append(collect_test_run_from_dir(test_run_dir))
+        test_runs.append(collect_test_results_from_dir(test_run_dir))
 
     if len(test_runs) == 0:
         raise Exception('found no test runs')
@@ -119,68 +112,135 @@ def collect_test_runs_from_dir(directory: Path):
         return test_runs
 
     runs_by_platform = {}
-    for test_run in test_runs:
-        key = (test_run['runs_on'], test_run['arch'])
+    for test_results in test_runs:
+        key = (test_results.runs_on, test_results.arch)
         if key not in runs_by_platform:
-            runs_by_platform[key] = test_run
+            runs_by_platform[key] = test_results
             continue
 
-        runs_by_platform[key]['replays'].extend(test_run['replays'])
+        runs_by_platform[key].runs[0].extend(test_results.runs[0])
 
     return runs_by_platform.values()
 
 
-def collect_test_runs_from_ci(gh: Github, repo: str, workflow_run_id: str):
+def collect_many_test_results_from_ci(gh: Github, repo: str, workflow_run_id: str) -> List[ReplayTestResults]:
     workflow_dir = get_gha_artifacts_with_retry(gh, repo, workflow_run_id)
-    return collect_test_runs_from_dir(workflow_dir)
+    return collect_many_test_results_from_dir(workflow_dir)
 
 
-def create_compare_report(test_runs):
+def create_compare_report(test_runs: List[ReplayTestResults]):
     if out_dir.exists():
         shutil.rmtree(out_dir)
     out_dir.mkdir(parents=True)
 
     def count_images():
         hashes = set()
-        for test_run in test_runs:
-            for replay_data in test_run['replays']:
-                for snapshot in replay_data['snapshots']:
+        for test_results in test_runs:
+            for run in test_results.runs[0]:
+                for snapshot in run.snapshots:
                     hashes.add(snapshot['hash'])
         return len(hashes)
 
+    did_prune = False
     if is_ci:
-        image_count = count_images()
-        if image_count > 4450:
+        # Surge has an unknown limit on deployment size. Let's use number of images as a proxy.
+        max_image_count = 8500
+        init_image_count = count_images()
+        if init_image_count > max_image_count:
             print(
-                f'found {image_count} images, which is too many to upload to surge')
-            baseline_test_run = test_runs[0]
-            for test_run in test_runs[1:]:
-                for replay_data in test_run['replays']:
-                    filtered_snapshots = []
-                    for snapshot in replay_data['snapshots']:
-                        frame = snapshot['frame']
-                        baseline_replay_data = next(
-                            (d for d in baseline_test_run['replays'] if d['name'] == replay_data['name']), None)
-                        if not baseline_replay_data:
-                            continue
+                f'found {init_image_count} images, which is too many to upload to surge')
 
-                        baseline_snapshot = next(
-                            (s for s in baseline_replay_data['snapshots'] if s['frame'] == frame), None)
-                        if not baseline_snapshot:
-                            continue
+            image_budget = max_image_count
+            hashes_to_keep = set()
+            replay_names = [r.name for r in test_runs[0].runs[0]]
+            print('! num_replays', len(replay_names))
 
-                        filtered_snapshots.append(snapshot)
+            replay_index = 0
+            for replay_name in replay_names:
+                # Give each replay a portion of the remaining budget.
+                replay_budget = int(image_budget / (len(replay_names) - replay_index))
+                replay_index += 1
 
-                    replay_data['snapshots'] = filtered_snapshots
+                print('! replay_name', replay_name)
+                print('! replay_budget', replay_budget)
+                runs: List[RunResult] = []
+                for test_results in test_runs:
+                    for run in test_results.runs[0]:
+                        if run.name == replay_name:
+                            runs.append(run)
 
-            image_count = count_images()
-            print(f'reduced to {image_count} images')
+                # Get up to 60 frames around the start of every failing gfx segment.
+                segments = []
+                for run in runs:
+                    if run.unexpected_gfx_segments:
+                        for begin, _ in run.unexpected_gfx_segments:
+                            segments.append([begin - 30, begin + 30])
+                tree = intervaltree.IntervalTree.from_tuples(segments)
+                tree.merge_overlaps(strict=False)
+                segments = [[x.begin, x.end] for x in tree.items()]
+                print('! segments', len(segments))
+
+                # Each segment gets part of the image budget.
+                segment_budget = int(replay_budget / len(segments))
+
+                # That budget should never be less than 30 frames. If it is,
+                # drop some segments.
+                while segment_budget < 30 and len(segments) > 1:
+                    print('! removed a segment')
+                    segments.pop()
+                    segment_budget = int(replay_budget / len(segments))
+
+                print('! segment_budget', segment_budget)
+                segment_index = 0
+                for begin, end in segments:
+                    # Again, give each segment a portion of the remaining budget.
+                    budget = int(replay_budget / (len(segments) - segment_index))
+                    segment_index += 1
+
+                    # Start in the middle of the range (which is the failure point).
+                    i = int((begin + end) / 2)
+                    l = i
+                    r = i + 1
+                    frames = [i]
+                    while l >= begin and r <= end:
+                        if l >= begin:
+                            frames.append(l)
+                            l -= 1
+                        if r <= end:
+                            frames.append(r)
+                            r += 1
+
+                    for frame in frames:
+                        for run in runs:
+                            snapshots = (s for s in run.snapshots
+                                         if s['frame'] == frame and s['hash'] not in hashes_to_keep)
+                            for snapshot in snapshots:
+                                hashes_to_keep.add(snapshot['hash'])
+                                budget -= 1
+                                image_budget -= 1
+                                replay_budget -= 1
+                                if budget == 0:
+                                    break
+                            if budget == 0:
+                                break
+                        if budget == 0:
+                                break # lol
+
+            # Finally, apply the filter.
+            for test_results in test_runs:
+                for run in test_results.runs[0]:
+                    run.snapshots = [s for s in run.snapshots if s['hash'] in hashes_to_keep]
+
+            final_image_count = count_images()
+            if init_image_count != final_image_count:
+                did_prune = True
+                print(f'reduced to {final_image_count} images')
 
     snapshots_dir = out_dir / 'snapshots'
     snapshots_dir.mkdir()
-    for test_run in test_runs:
-        for replay_data in test_run['replays']:
-            for snapshot in replay_data['snapshots']:
+    for test_results in test_runs:
+        for run in test_results.runs[0]:
+            for snapshot in run.snapshots:
                 hashsum = snapshot['hash']
                 ext = snapshot['path'].suffix
                 filename = f'{hashsum}{ext}'
@@ -197,8 +257,26 @@ def create_compare_report(test_runs):
     deps = Path(
         f'{script_dir}/compare-resources/pixelmatch.js').read_text('utf-8')
 
-    result = html.replace(
-        '// JAVASCRIPT', f'const testRuns = {json.dumps(test_runs, indent=2)}\n  {js}')
+    # Remove unneeded data.
+    for test_run in test_runs:
+        for runs in test_run.runs:
+            for run in runs:
+                run.unexpected_gfx_frames = None
+                run.unexpected_gfx_segments = None
+                run.unexpected_gfx_segments_limited = None
+
+    test_runs_as_json = ',\n'.join(test_run.to_json(indent=0) for test_run in test_runs)
+    test_runs_as_json = '[\n' + test_runs_as_json + '\n]'
+    js = f'const __TEST_RUNS__ = {test_runs_as_json}\n  {js}'
+
+    if did_prune:
+        run_ids = list(dict.fromkeys(t.workflow_run_id for t in test_runs))
+        args = ' '.join(f'--workflow_run {id}' for id in run_ids)
+        cmd = f'python tests/compare_replays.py {args}'
+        msg = f'The full report was too large to upload, so it has been reduced. To see the full report run this command locally:\\n\\t{cmd}'
+        js += f'\nconsole.log("{msg}")'
+
+    result = html.replace('// JAVASCRIPT', js)
     result = result.replace('// DEPS', deps)
     result = result.replace('/* CSS */', css)
     out_path = Path(f'{out_dir}/index.html')
@@ -207,10 +285,37 @@ def create_compare_report(test_runs):
 
 
 def start_webserver():
+    from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
+
+    class Serv(BaseHTTPRequestHandler):
+        def do_GET(self):
+            if self.path == '/':
+                self.path = '/index.html'
+            path = out_dir / self.path[1:]
+
+            file_to_open = None
+            try:
+                if path.exists():
+                    file_to_open = open(path, 'rb')
+                    self.send_response(200)
+                    self.send_header('Cross-Origin-Embedder-Policy', 'require-corp')
+                    self.send_header('Cross-Origin-Opener-Policy', 'same-origin')
+            except:
+                pass
+
+            if not file_to_open:
+                self.send_response(404)
+
+            self.end_headers()
+            if file_to_open:
+                print(path)
+                self.wfile.write(file_to_open.read())
+                file_to_open.close()
+
     port = 8000
-    command_args = f'npx statikk --port {port} --coi'.split(' ')
-    print(f'starting webserver at http://localhost:{port}\nCtrl-C to quit')
-    subprocess.check_call(command_args, cwd=out_dir)
+    httpd = ThreadingHTTPServer(('localhost', port), Serv)
+    print(f'View report at: http://localhost:{port}')
+    httpd.serve_forever()
 
 
 if __name__ == '__main__':
@@ -234,20 +339,20 @@ if __name__ == '__main__':
         gh = Github(args.token)
         for run_id in args.workflow_run:
             print(f'=== collecting test runs from workflow run {run_id}')
-            test_runs = collect_test_runs_from_ci(gh, args.repo, run_id)
+            test_runs = collect_many_test_results_from_ci(gh, args.repo, run_id)
 
             print('found:')
-            for test_run in test_runs:
-                print(f' - {test_run["label"]}')
+            for test_results in test_runs:
+                print(f' - {test_results.label}')
             all_test_runs.extend(test_runs)
     if args.local:
         for directory in args.local:
             print(f'=== collecting test runs from {directory}')
-            test_runs = collect_test_runs_from_dir(directory)
+            test_runs = collect_many_test_results_from_dir(directory)
 
             print('found:')
-            for test_run in test_runs:
-                print(f' - {test_run["label"]}')
+            for test_results in test_runs:
+                print(f' - {test_results.label}')
             all_test_runs.extend(test_runs)
 
     create_compare_report(all_test_runs)

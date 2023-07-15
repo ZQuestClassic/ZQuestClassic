@@ -2,6 +2,39 @@ const tracksEl = find('.snapshot-tracks');
 const frameViewEl = find('.frame-view');
 const titleEl = find('.replay-title');
 
+/**
+ * @typedef ReplayTestResults
+ * @property {string} runs_on
+ * @property {string} arch
+ * @property {boolean} ci
+ * @property {number=} workflow_run_id
+ * @property {string=} git_ref
+ * @property {string} zc_version
+ * @property {string} time
+ * @property {RunResult[]} runs Note: this differs from the Python type. We only have a single set of runs, not one for each attempt.
+ */
+
+/**
+ * @typedef RunResult
+ * @property {string} name
+ * @property {string} directory
+ * @property {boolean} success
+ * @property {number=} exit_code
+ * @property {string=} duration
+ * @property {string} fps
+ * @property {string} frame
+ * @property {number} failing_frame
+ * @property {number} unexpected_gfx_frames
+ * @property {number} unexpected_gfx_segments
+ * @property {number} unexpected_gfx_segments_limited
+ * @property {Array<{path: string, frame: number, unexpected: boolean, hash: string}>} snapshots
+ */
+
+// `__TEST_RUNS__` has been defined by the python generation script.
+/** @type {ReplayTestResults[]} */
+const testRuns = __TEST_RUNS__;
+
+/** @type {Array<RunResult & {source: string}>} */
 let tracks = [];
 /** @type {Array<{frame: number, snapshots: Array<{url: string, frame: number, unexpected: boolean}>, tracks: number[]}>} */
 let trackFrames = [];
@@ -100,8 +133,11 @@ const observer = new IntersectionObserver((entries) => {
 });
 
 function init() {
-    // `testRuns` has been defined by the python generation script.
     console.log({ testRuns });
+    for (const testResults of testRuns) {
+        // We only have a single set of runs for each test replay.
+        testResults.runs = testResults.runs[0];
+    }
 
     function onToggleUnexpectedFilter() {
         renderTracks(getOptions());
@@ -183,7 +219,7 @@ function init() {
         hideFrameView();
     });
 
-    const replays = [...new Set(testRuns.map(r => r.replays.map(r => r.name)).flat())];
+    const replays = [...new Set(testRuns.map(r => r.runs.map(r => r.name)).flat())];
     const selectEl = find('.select__replays select');
     for (const replay of replays) {
         const el = document.createElement('option');
@@ -209,12 +245,12 @@ function renderTracks(options) {
     showOptions('tracks');
 
     tracks = [];
-    for (const testRun of testRuns) {
-        for (const replayData of testRun.replays) {
-            if (replayData.name === options.replay) {
+    for (const testResults of testRuns) {
+        for (const run of testResults.runs) {
+            if (run.name === options.replay) {
                 tracks.push({
-                    source: testRun.label,
-                    ...replayData,
+                    source: testResults.label,
+                    ...run,
                 });
             }
         }

@@ -1,6 +1,12 @@
 #ifndef DRAW_H
 #define DRAW_H
 
+void doDarkroomCircle(int32_t cx, int32_t cy, byte glowRad,BITMAP* dest=NULL,BITMAP* transdest=NULL, int dith_perc=-1, int trans_perc=-1, int dith_type=-1, int dith_arg=-1);
+void doDarkroomCone(int32_t sx, int32_t sy, byte glowRad, int32_t dir, BITMAP* dest=NULL,BITMAP* transdest=NULL, int dith_perc=-1, int trans_perc=-1, int dith_type=-1, int dith_arg=-1);
+void doDarkroomSquare(int32_t cx, int32_t cy, byte glowRad, BITMAP* dest=NULL, BITMAP* transdest=NULL, int dith_perc=-1, int trans_perc=-1, int dith_type=-1, int dith_arg=-1);
+void handle_lighting(int cx, int cy, byte shape, byte rad, byte dir, BITMAP* dest=NULL,BITMAP* transdest=NULL);
+void do_torch_combo(newcombo const& cmb, int cx, int cy, BITMAP* dest=NULL,BITMAP* transdest=NULL);
+
 enum dithType
 {
 	//Every odd index is the inverted of the index before it, always.
@@ -26,6 +32,7 @@ void mask_blit(BITMAP* dest, BITMAP* mask, BITMAP* pattern, bool repeats, int32_
 void ditherblit(BITMAP* dest, BITMAP* src, int32_t color, byte dType, byte dArg, int32_t xoffs=0, int32_t yoffs=0);
 void ditherblit_clipped(BITMAP* dest, BITMAP* src, int32_t color, byte dType, byte dArg, int32_t xoffs=0, int32_t yoffs=0);
 void dithercircfill(BITMAP* dest, int32_t x, int32_t y, int32_t rad, int32_t color, byte ditherType, byte ditherArg, int32_t xoffs=0, int32_t yoffs=0);
+void ditherrectfill(BITMAP* dest, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t color, byte ditherType, byte ditherArg, int32_t xoffs=0, int32_t yoffs=0);
 
 void lampcone(BITMAP* dest, int32_t sx, int32_t sy, int32_t range, int32_t dir, int32_t color);
 void ditherLampCone(BITMAP* dest, int32_t sx, int32_t sy, int32_t range, int32_t dir, int32_t color, byte ditherType, byte ditherArg, int32_t xoffs=0, int32_t yoffs=0);

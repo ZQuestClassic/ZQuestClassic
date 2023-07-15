@@ -84,9 +84,27 @@ jobs:
         uses: crazy-max/ghaction-chocolatey@v2
         with:
           args: install .github/dependencies.config -y
+      - if: ${{ contains(inputs.runs-on, 'windows') }}
+        name: Set vcpkg env vars
+        shell: python
+        run: |
+          import os
+
+          arch = '${{ inputs.arch }}'
+          triplet = 'x64-windows' if arch == 'x64' else 'x86-windows'
+
+          with open(os.environ['GITHUB_ENV'], 'a') as f:
+            print('{0}={1}'.format('CMAKE_TOOLCHAIN_FILE', r'${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake'), file=f)
+            print('{0}={1}'.format('VCPKG_DEFAULT_TRIPLET', triplet), file=f)
+      - if: ${{ contains(inputs.runs-on, 'windows') }}
+        uses: lukka/run-vcpkg@v11
+        with:
+          vcpkgGitCommitId: 5b1214315250939257ef5d62ecdcbca18cf4fb1c
+      - if: ${{ contains(inputs.runs-on, 'windows') }}
+        run: vcpkg install libogg libvorbis
 
       - if: ${{ contains(inputs.runs-on, 'ubuntu') }}
-        run: sudo apt-get update && sudo apt-get install ccache ninja-build build-essential gcc-multilib g++-multilib libx11-dev libglu1-mesa-dev libcurl4-gnutls-dev freeglut3-dev mesa-common-dev libxcursor1 libasound2-dev libgtk-3-dev flex bison elfutils
+        run: sudo apt-get update && sudo apt-get install ccache ninja-build build-essential gcc-multilib g++-multilib libx11-dev libglu1-mesa-dev libcurl4-gnutls-dev freeglut3-dev mesa-common-dev libxcursor1 libasound2-dev libgtk-3-dev flex bison elfutils libogg-dev libvorbis-dev
 
       - if: ${{ contains(inputs.runs-on, 'mac') }}
         run: brew install ninja dylibbundler create-dmg ccache

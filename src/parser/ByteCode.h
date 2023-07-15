@@ -2381,40 +2381,41 @@ namespace ZScript
 			return new OHeroCanMove();
 		}
 	};
-	class OResrvdOpEmily06 : public Opcode
+	class ODrawLightCircle : public Opcode
 	{
 	public:
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OResrvdOpEmily06();
+			return new ODrawLightCircle();
 		}
 	};
-	class OResrvdOpEmily07 : public Opcode
+	class ODrawLightSquare : public Opcode
 	{
 	public:
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OResrvdOpEmily07();
+			return new ODrawLightSquare();
 		}
 	};
-	class OResrvdOpEmily08 : public Opcode
+	class ODrawLightCone : public Opcode
 	{
 	public:
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OResrvdOpEmily08();
+			return new ODrawLightCone();
 		}
 	};
-	class OResrvdOpEmily09 : public Opcode
+	class OPeekRegister : public UnaryOpcode
 	{
 	public:
+		OPeekRegister(Argument *A) : UnaryOpcode(A) {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OResrvdOpEmily09();
+			return new OPeekRegister(a->clone());
 		}
 	};
 	class OResrvdOpEmily10 : public Opcode

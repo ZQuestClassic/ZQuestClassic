@@ -19,6 +19,7 @@
 #include "tiles.h"
 #include "zc/ffscript.h"
 #include "zc/combos.h"
+#include "drawing.h"
 
 extern FFScript FFCore;
 /*
@@ -63,18 +64,11 @@ void sprite::check_conveyor()
 
 void sprite::handle_sprlighting()
 {
-	if(!(tmpscr->flags & fDARK)) return;
 	if(!get_bit(quest_rules, qr_NEW_DARKROOM)) return;
-	if(!glowRad) return;
-	switch(glowShape)
-	{
-		case 0:
-			doDarkroomCircle(x.getInt()+(hit_width/2), y.getInt()+(hit_height/2) + playing_field_offset, glowRad, darkscr_bmp_z3);
-			break;
-		case 1:
-			doDarkroomCone(x.getInt()+(hit_width/2), y.getInt()+(hit_height/2) + playing_field_offset, glowRad, NORMAL_DIR(dir), darkscr_bmp_z3);
-			break;
-	}
+	// TODO z3 !!
+	if(!(tmpscr->flags & fDARK)) return;
+
+	handle_lighting(x.getInt()+(hit_width/2), y.getInt()+(hit_height/2) + playing_field_offset,glowShape,glowRad,dir, darkscr_bmp_z3);
 }
 
 bool is_conveyor(int32_t type)

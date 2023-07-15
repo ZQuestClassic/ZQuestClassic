@@ -412,6 +412,7 @@ static bool command_is_compiled(int command)
 	case MODR:
 	case MODV:
 	case MULTR:
+	case MULTV:
 	case NOP:
 	case SETR:
 	case SETV:
@@ -709,6 +710,14 @@ static JittedFunction compile_script(script_data *script)
 		{
 			if (DEBUG_JIT_PRINT_ASM && command != 0xFFFF)
 				uncompiled_command_counts[command]++;
+
+			if (DEBUG_JIT_PRINT_ASM)
+			{
+				std::string command_str =
+					script_debug_command_to_string(command, arg1, arg2);
+				cc.setInlineComment((comment = fmt::format("{} {}", i, command_str)).c_str());
+				cc.nop();
+			}
 
 			// Every command that is not compiled to assembly must go through the regular interpreter function.
 			// In order to reduce function call overhead, we call into the interpreter function in batches.
@@ -1080,6 +1089,14 @@ static JittedFunction compile_script(script_data *script)
 			cc.mov(result, arg1);
 			cc.sub(result, val);
 			set_z_register(cc, vStackIndex, arg2, result);
+		}
+		break;
+		case MULTV:
+		{
+			x86::Gp val = get_z_register_64(cc, vStackIndex, arg1);
+			cc.imul(val, arg2);
+			div_10000(cc, val);
+			set_z_register(cc, vStackIndex, arg1, val.r32());
 		}
 		break;
 		case MULTR:

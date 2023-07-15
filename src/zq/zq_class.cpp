@@ -41,6 +41,7 @@
 #include "zq/zq_files.h"
 #include "dialog/alert.h"
 #include "slopes.h"
+#include "drawing.h"
 #include "iter.h"
 
 #ifdef __EMSCRIPTEN__
@@ -2644,9 +2645,7 @@ void zmap::draw_darkness(BITMAP* dest, BITMAP* transdest)
 		{
 			newcombo const& cmb = combobuf[layers[q]->data[pos]];
 			if(cmb.type == cTORCH)
-			{
-				doDarkroomCirclePreview(COMBOX(pos)+8, COMBOY(pos)+8, cmb.attribytes[0], dest, transdest);
-			}
+				do_torch_combo(cmb, COMBOX(pos)+8, COMBOY(pos)+8, dest, transdest);
 		}
 	}
 	word maxffc = basescr->numFFC();
@@ -2654,9 +2653,7 @@ void zmap::draw_darkness(BITMAP* dest, BITMAP* transdest)
 	{
 		newcombo const& cmb = combobuf[basescr->ffcs[q].getData()];
 		if(cmb.type == cTORCH)
-		{
-			doDarkroomCirclePreview((basescr->ffcs[q].x.getInt())+(basescr->ffEffectWidth(q)/2), (basescr->ffcs[q].y.getInt())+(basescr->ffEffectHeight(q)/2), cmb.attribytes[0], dest, transdest);
-		}
+			do_torch_combo(cmb, (basescr->ffcs[q].x.getInt())+(basescr->ffEffectWidth(q)/2), (basescr->ffcs[q].y.getInt())+(basescr->ffEffectHeight(q)/2), dest, transdest);
 	}
 }
 

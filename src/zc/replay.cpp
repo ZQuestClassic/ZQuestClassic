@@ -909,7 +909,9 @@ static void save_result(bool stopped = false, bool changed = false)
 	out << fmt::format("fps: {}", fps) << '\n';
 	out << fmt::format("stopped: {}", stopped) << '\n';
 	if (stopped || has_assert_failed)
-		out << fmt::format("success: {}", stopped && !has_assert_failed) << '\n';
+		out << fmt::format("success: {}", stopped && !has_assert_failed && !has_rng_desynced) << '\n';
+	if (has_rng_desynced)
+		out << fmt::format("rng_desync: {}", has_rng_desynced) << '\n';
 	if (has_assert_failed)
 		out << fmt::format("failing_frame: {}", failing_frame) << '\n';
 	if (mode == ReplayMode::Update)
@@ -1075,7 +1077,7 @@ static void maybe_take_snapshot()
 		if (current_failing_gfx_segment_start_frame != -1)
 		{
 			// Limit how many snapshots are saved in the same gfx failure segment.
-			if (frame_count - current_failing_gfx_segment_start_frame > 60*10)
+			if (frame_count - current_failing_gfx_segment_start_frame > 60*5)
 			{
 				if (unexpected_gfx_segments_limited.back().second == -1)
 					unexpected_gfx_segments_limited.back().second = frame_count - 1;

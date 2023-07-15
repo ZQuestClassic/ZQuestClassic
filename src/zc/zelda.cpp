@@ -2057,6 +2057,8 @@ int32_t init_game()
 		return 1;
 	}
 	
+	FFCore.SetNegArray();
+	
 	if (jit_is_enabled() && zc_get_config("ZSCRIPT", "jit_precompile", false))
 	{
 		jit_precompile_scripts();
@@ -4345,73 +4347,6 @@ int32_t getTint(int32_t color)
 	return lastCustomTint[color];
 }
 
-void doDarkroomCircle(int32_t cx, int32_t cy, byte glowRad,BITMAP* dest,BITMAP* transdest)
-{
-	if(!glowRad) return;
-
-	cx -= viewport.x;
-	cy -= viewport.y;
-
-	//Default bitmap handling
-	if(!dest) dest = darkscr_bmp_curscr;
-	if(dest == darkscr_bmp_scrollscr) transdest = darkscr_bmp_scrollscr_trans;
-	else if(dest == darkscr_bmp_z3) transdest = darkscr_bmp_z3_trans;
-	else if(!transdest || dest == darkscr_bmp_curscr) transdest = darkscr_bmp_curscr_trans;
-	//
-	int32_t ditherRad = glowRad + (int32_t)(glowRad * (game->get_dither_perc()/(double)100.0));
-	int32_t transRad = glowRad + (int32_t)(glowRad * (game->get_transdark_perc()/(double)100.0));
-	// TODO z3 remove once it is OK to update replays for new dark dither behavior during scrolling.
-	int offx = screenscrolling && !scrolling_use_new_dark_code ? 0 : viewport.x;
-	int offy = screenscrolling && !scrolling_use_new_dark_code ? 0 : viewport.y;
-	dithercircfill(dest, cx, cy, ditherRad, 0, game->get_dither_type(), game->get_dither_arg(),offx,offy);
-	circlefill(dest, cx, cy, zc_max(glowRad,transRad), 0);
-	dithercircfill(transdest, cx, cy, ditherRad, 0, game->get_dither_type(), game->get_dither_arg(),offx,offy);
-	circlefill(transdest, cx, cy, glowRad, 0);
-}
-
-void doDarkroomCone(int32_t sx, int32_t sy, byte glowRad, int32_t dir, BITMAP* dest,BITMAP* transdest)
-{
-	if(!glowRad) return;
-
-	sx -= viewport.x;
-	sy -= viewport.y;
-
-	//Default bitmap handling
-	if(!dest) dest = darkscr_bmp_curscr;
-	if(dest == darkscr_bmp_scrollscr) transdest = darkscr_bmp_scrollscr_trans;
-	else if(dest == darkscr_bmp_z3) transdest = darkscr_bmp_z3_trans;
-	else if(!transdest || dest == darkscr_bmp_curscr) transdest = darkscr_bmp_curscr_trans;
-	//
-	int32_t ditherDiff = (int32_t)(glowRad * (game->get_dither_perc()/(double)100.0));
-	int32_t transDiff = (int32_t)(glowRad * (game->get_transdark_perc()/(double)100.0));
-	int32_t ditherRad = glowRad + 2*ditherDiff;
-	int32_t transRad = glowRad + 2*transDiff;
-	
-	double xs = 0, ys = 0;
-	int32_t d = NORMAL_DIR(dir);
-	if(d<0) return;
-	switch(d)
-	{
-		case up: case l_up: case r_up: ys=1; break;
-		case down: case l_down: case r_down: ys=-1; break;
-	}
-	switch(d)
-	{
-		case left: case l_up: case l_down: xs=1; break;
-		case right: case r_up: case r_down: xs=-1; break;
-	}
-	if(d&4) {xs*=0.75; ys*=0.75;}
-	// TODO z3 remove once it is OK to update replays for new dark dither behavior during scrolling.
-	int offx = screenscrolling && !scrolling_use_new_dark_code ? 0 : viewport.x;
-	int offy = screenscrolling && !scrolling_use_new_dark_code ? 0 : viewport.y;
-	ditherLampCone(dest, sx+(xs*ditherDiff), sy+(ys*ditherDiff), ditherRad, d, 0, game->get_dither_type(), game->get_dither_arg(), offx, offy);
-	if(glowRad>transRad) transDiff = 0;
-	lampcone(dest, sx+(xs*transDiff), sy+(ys*transDiff), zc_max(glowRad,transRad), d, 0);
-	
-	ditherLampCone(transdest, sx+(xs*ditherDiff), sy+(ys*ditherDiff), ditherRad, d, 0, game->get_dither_type(), game->get_dither_arg(), offx, offy);
-	lampcone(transdest, sx, sy, glowRad, d, 0);
-}
-
 /**************************/
 /********** Main **********/
 /**************************/
@@ -6067,24 +6002,16 @@ void quit_game()
 	
 	delete zscriptDrawingRenderTarget;
 	
-	//for(int32_t i=0; i<map_count*MAPSCRS; i++)
-	//{
-	//if(TheMaps[i].data != NULL) delete [] TheMaps[i].data;
-	//if(TheMaps[i].sflag != NULL) delete [] TheMaps[i].sflag;
-	//if(TheMaps[i].cset != NULL) delete [] TheMaps[i].cset;
-	//}
-	al_trace("Screen Data... \n");
-	
 	al_trace("Deleting quest buffers... \n");
 	del_qst_buffers();
 	
 	if(qstdir) free(qstdir);
 	
 	if(qstpath) free(qstpath);
+
+	FFCore.shutdown();
 	
-	//if(TheMaps != NULL) free(TheMaps);
 	//if(ZCMaps != NULL) free(ZCMaps);
-	//  dumb_exit();
 }
 
 // TODO z3

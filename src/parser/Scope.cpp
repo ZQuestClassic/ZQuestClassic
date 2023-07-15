@@ -592,6 +592,20 @@ std::optional<int32_t> ZScript::lookupOption(Scope const& scope, CompileOption o
 	}
 	return *option.getDefault();
 }
+std::optional<int32_t> ZScript::lookupOption(Scope const* scope, CompileOption option)
+{
+	if (!option.isValid()) return std::nullopt;
+	for (Scope const* current = scope;
+	     current; current = current->getParent())
+	{
+		CompileOptionSetting setting = current->getLocalOption(option);
+		if (setting == CompileOptionSetting::Inherit) continue;
+		if (setting == CompileOptionSetting::Default)
+			return *option.getDefault();
+		return *setting.getValue();
+	}
+	return *option.getDefault();
+}
 
 vector<NamespaceScope*> ZScript::lookupUsingNamespaces(Scope const& scope)
 {

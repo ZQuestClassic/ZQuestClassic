@@ -449,10 +449,13 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 			appendElements(funccode, bo.getResult());
 			
 			// Pop off everything
-			std::shared_ptr<Opcode> next(new OPopArgsRegister(new VarArgument(NUL),
-				new LiteralArgument(stackSize)));
+			Opcode* next;
+			if(stackSize)
+				next = new OPopArgsRegister(new VarArgument(NUL),
+					new LiteralArgument(stackSize));
+			else next = new ONoOp();
 			next->setLabel(bo.getReturnLabelID());
-			funccode.push_back(std::move(next));
+			addOpcode2(funccode, next);
 			if (puc == puc_construct) //return val
 			{
 				addOpcode2(funccode, new OSetRegister(new VarArgument(EXP1), new VarArgument(CLASS_THISKEY)));
@@ -468,8 +471,7 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 			int32_t stackSize = getStackSize(function);
 			
 			// Start of the function.
-			std::shared_ptr<Opcode> first(new OSetImmediate(new VarArgument(EXP1),
-											  new LiteralArgument(0)));
+			std::shared_ptr<Opcode> first(new ONoOp());
 			first->setLabel(function.getLabel());
 			funccode.push_back(std::move(first));
 			
@@ -481,71 +483,54 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 				if (type == ParserScriptType::ffc )
 				{
 					addOpcode2(funccode, 
-						new OSetRegister(new VarArgument(EXP2),
-								 new VarArgument(REFFFC)));
-
-
+						new OPushRegister(new VarArgument(REFFFC)));
 				}
 				else if (type == ParserScriptType::item )
 				{
 					addOpcode2(funccode,
-						new OSetRegister(new VarArgument(EXP2),
-								 new VarArgument(REFITEMCLASS)));
-
+						new OPushRegister(new VarArgument(REFITEMCLASS)));
 				}
 				else if (type == ParserScriptType::npc )
 				{
 					addOpcode2(funccode,
-						new OSetRegister(new VarArgument(EXP2),
-								 new VarArgument(REFNPC)));
-
+						new OPushRegister(new VarArgument(REFNPC)));
 				}
 				else if (type == ParserScriptType::lweapon )
 				{
 					addOpcode2(funccode,
-						new OSetRegister(new VarArgument(EXP2),
-								 new VarArgument(REFLWPN)));
+						new OPushRegister(new VarArgument(REFLWPN)));
 				}
 				else if (type == ParserScriptType::eweapon )
 				{
 					addOpcode2(funccode,
-						new OSetRegister(new VarArgument(EXP2),
-								 new VarArgument(REFEWPN)));
-
+						new OPushRegister(new VarArgument(REFEWPN)));
 				}
 				else if (type == ParserScriptType::dmapdata )
 				{
 					addOpcode2(funccode,
-						new OSetRegister(new VarArgument(EXP2),
-								 new VarArgument(REFDMAPDATA)));
-
+						new OPushRegister(new VarArgument(REFDMAPDATA)));
 				}
 				else if (type == ParserScriptType::itemsprite)
 				{
 					addOpcode2(funccode,
-						new OSetRegister(new VarArgument(EXP2),
-								new VarArgument(REFITEM)));
+						new OPushRegister(new VarArgument(REFITEM)));
 				}
 				else if (type == ParserScriptType::subscreendata)
 				{
 					addOpcode2(funccode,
-						new OSetRegister(new VarArgument(EXP2),
-								new VarArgument(REFSUBSCREEN)));
+						new OPushRegister(new VarArgument(REFSUBSCREEN)));
 				}
 				else if (type == ParserScriptType::combodata)
 				{
 					addOpcode2(funccode,
-						new OSetRegister(new VarArgument(EXP2),
-								new VarArgument(REFCOMBODATA)));
+						new OPushRegister(new VarArgument(REFCOMBODATA)));
 				}
 				else if (type == ParserScriptType::genericscr)
 				{
 					addOpcode2(funccode,
-						new OSetRegister(new VarArgument(EXP2),
-								new VarArgument(REFGENERICDATA)));
+						new OPushRegister(new VarArgument(REFGENERICDATA)));
 				}
-				
-				addOpcode2(funccode, new OPushRegister(new VarArgument(EXP2)));
+				//else addOpcode2(funccode, new OPushImmediate(new LiteralArgument(0)));
 			}
 			
 			// Push 0s for the local variables.
@@ -564,16 +549,15 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 			appendElements(funccode, bo.getResult());
 			
 			// Add appendix code.
-			std::shared_ptr<Opcode> next(new OSetImmediate(new VarArgument(EXP2),
-													  new LiteralArgument(0)));
+			std::shared_ptr<Opcode> next(new ONoOp());
 			next->setLabel(bo.getReturnLabelID());
 			funccode.push_back(std::move(next));
 			
 			// Pop off everything.
-			for (int32_t i = 0; i < stackSize; ++i)
-			{
-				addOpcode2(funccode, new OPopRegister(new VarArgument(EXP2)));
-			}
+			if(stackSize)
+				addOpcode2(funccode, new OPopArgsRegister(new VarArgument(NUL),
+					new LiteralArgument(stackSize)));
+			else addOpcode2(funccode, new ONoOp());
 			
 			//if it's a main script, quit.
 			if (isRun)
@@ -625,13 +609,81 @@ void ScriptParser::assemble(IntermediateData *id)
 
 	// If there's a global script called "Init", append it to ~Init:
 	Script* userInit = program.getScript("Init");
-	if (userInit && userInit->getType() == ParserScriptType::global
-		&& !userInit->isPrototypeRun()) //Prototype run function can be ignored, as it is empty.
+	if (userInit->getType() != ParserScriptType::global || userInit->isPrototypeRun())
+		userInit = nullptr;
+	
+	map<int32_t,vector<Script*>> initScripts;
+	
+	if(userInit)
 	{
-		int32_t label = *getLabel(*userInit);
-		addOpcode2(ginit, new OGotoImmediate(new LabelArgument(label)));
+		std::optional<int32_t> weight = userInit->getInitWeight();
+		auto& vec = initScripts[weight ? *weight : 0];
+		vec.push_back(userInit);
 	}
-
+	for (vector<Script*>::const_iterator it = program.scripts.begin();
+	     it != program.scripts.end(); ++it)
+	{
+		Script& script = **it;
+		if(script.getType() != ParserScriptType::global) continue;
+		if(script.isPrototypeRun()) continue; //skippable
+		if(std::optional<int32_t> weight = script.getInitWeight())
+		{
+			auto& vec = initScripts[*weight];
+			vec.push_back(&script);
+		}
+	}
+	vector<shared_ptr<Opcode>> ginit_mergefuncs;
+	for(auto it = initScripts.begin(); it != initScripts.end(); ++it)
+	{
+		auto& vec = it->second;
+		for(auto it = vec.begin(); it != vec.end(); ++it)
+		{
+			Script& script = **it;
+			Function* run = script.getRun();
+			vector<shared_ptr<Opcode>> const& runCode = run->getCode();
+			
+			//Function call the run function
+			//push the stack frame pointer
+			addOpcode2(ginit, new OPushRegister(new VarArgument(SFRAME)));
+			//push the return address
+			int32_t returnaddr = ScriptParser::getUniqueLabelID();
+			addOpcode2(ginit, new OPushImmediate(new LabelArgument(returnaddr)));
+			
+			int32_t funcaddr = ScriptParser::getUniqueLabelID();
+			addOpcode2(ginit, new OGotoImmediate(new LabelArgument(funcaddr)));
+			
+			Opcode *next = new OPopRegister(new VarArgument(SFRAME));
+			next->setLabel(returnaddr);
+			addOpcode2(ginit,next);
+			
+			//Add the function to the end of the script, as a special copy
+			bool didlabel = false;
+			size_t index = 0;
+			for(auto it = runCode.begin(); it != runCode.end(); ++it, ++index)
+			{
+				Opcode* op = it->get();
+				if(dynamic_cast<OQuit*>(op))
+				{
+					op = new OReturn(); //Replace 'Quit();' with 'return;'
+				}
+				else
+					op = op->makeClone(false);
+				if(!didlabel)
+				{
+					op->setLabel(funcaddr);
+					didlabel = true;
+				}
+				addOpcode2(ginit_mergefuncs, op);
+			}
+			Opcode* last = ginit_mergefuncs.back().get();
+			if(OReturn* opcode = dynamic_cast<OReturn*>(last))
+				; //function ends in a return already
+			else
+				addOpcode2(ginit_mergefuncs, new OReturn());
+		}
+	}
+	addOpcode2(ginit, new OQuit());
+	ginit.insert(ginit.end(), ginit_mergefuncs.begin(), ginit_mergefuncs.end());
 	Script* init = program.getScript("~Init");
 	init->code = assembleOne(program, ginit, 0);
 
@@ -639,8 +691,13 @@ void ScriptParser::assemble(IntermediateData *id)
 	     it != program.scripts.end(); ++it)
 	{
 		Script& script = **it;
-		if (script.getName() == "~Init") continue;
-		if(script.getType() == ParserScriptType::untyped) continue;
+		if(script.getName() == "~Init") continue; //init script
+		if(script.getType() == ParserScriptType::global && (script.getName() == "Init" || script.getInitWeight()))
+		{
+			script.setName("~~"+script.getName()); //'~' start hides the script
+			continue; //init script
+		}
+		if(script.getType() == ParserScriptType::untyped) continue; //untyped script has no body
 		Function& run = *script.getRun();
 		if(run.prototype) //Generate a minimal script if 'run()' is a prototype.
 		{
@@ -728,6 +785,7 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(
 	{
 		Opcode* ocode = it->get();
 		
+		auto lbl = ocode->getLabel();
 		//Merge multiple consecutive pops to the same register
 		OPopRegister* popreg = dynamic_cast<OPopRegister*>(ocode);
 		OPopArgsRegister* popargs = dynamic_cast<OPopArgsRegister*>(ocode);
@@ -763,6 +821,32 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(
 					++addcount;
 				it2 = rval.erase(it2);
 			}
+			size_t startcount = 1;
+			if(popargs)
+			{
+				LiteralArgument* litarg = static_cast<LiteralArgument*>(popargs->getSecondArgument());
+				startcount = litarg->value;
+			}
+			if(addcount+startcount == 1)
+			{
+				Opcode* nextcode = it2->get();
+				if(nextcode->getLabel() == -1)
+				{
+					if(OPushRegister* pusharg = dynamic_cast<OPushRegister*>(nextcode))
+					{
+						if(!targreg.compare(pusharg->getArgument()->toString()))
+						{
+							Argument* reg = regarg->clone();
+							it2 = rval.erase(it2);
+							it = rval.erase(it);
+							it = rval.insert(it,std::shared_ptr<Opcode>(new OPeekRegister(reg)));
+							(*it)->setLabel(lbl);
+							++it;
+							continue;
+						}
+					}
+				}
+			}
 			if(addcount)
 			{
 				if(popreg)
@@ -770,6 +854,7 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(
 					Argument* reg = regarg->clone();
 					it = rval.erase(it);
 					it = rval.insert(it,std::shared_ptr<Opcode>(new OPopArgsRegister(reg,new LiteralArgument(addcount+1))));
+					(*it)->setLabel(lbl);
 				}
 				else //if popargs
 				{
@@ -784,7 +869,6 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(
 		//Remove No Ops, handling their labels
 		if(ONoOp* nop = dynamic_cast<ONoOp*>(ocode))
 		{
-			auto lbl = nop->getLabel();
 			if(lbl == -1) //no label, just trash it
 			{
 				it = rval.erase(it);
@@ -808,6 +892,27 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(
 			continue;
 		}
 		
+		if(OSetImmediate* setop = dynamic_cast<OSetImmediate*>(ocode))
+		{
+			Argument const* regarg = setop->getFirstArgument();
+			auto it2 = it;
+			++it2;
+			Opcode* nextcode = it2->get();
+			if(OTraceRegister* traceop = dynamic_cast<OTraceRegister*>(nextcode))
+			{
+				if(traceop->getLabel() == -1 && !regarg->toString().compare(
+					traceop->getArgument()->toString()))
+				{
+					Argument* arg = setop->getSecondArgument()->clone();
+					it2 = rval.erase(it2);
+					it = rval.erase(it);
+					it = rval.insert(it, std::shared_ptr<Opcode>(new OTraceImmediate(arg)));
+					(*it)->setLabel(lbl);
+					++it;
+					continue;
+				}
+			}
+		}
 		//Not an opcode that has any special optimizations
 		++it;
 	}

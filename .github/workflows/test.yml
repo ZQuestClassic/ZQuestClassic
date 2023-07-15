@@ -17,7 +17,7 @@ on:
         type: choice
         description: 'config'
         default: 'Release'
-        options: ['Release', 'Debug', 'RelWithDebInfo', 'Coverage']
+        options: ['Release', 'Debug', 'RelWithDebInfo', 'Coverage', 'Asan']
       extra-args:
         type: string
         description: 'extra-args'
@@ -111,6 +111,7 @@ jobs:
         run: >
           bash .github/workflows/run_python.sh tests/run_replay_tests.py
           --build_folder ${{ env.BUILD_FOLDER }}
+          --build_type ${{ inputs.config }}
           --test_results_folder .tmp/test_results
           --retries 1
           --ci ${{ inputs.runs-on }}_${{ inputs.arch }}
@@ -123,6 +124,7 @@ jobs:
         run: >
           bash .github/workflows/run_python.sh tests/run_replay_tests.py
           --build_folder ${{ env.BUILD_FOLDER }}
+          --build_type ${{ inputs.config }}
           --retries 1
           --ci ${{ inputs.runs-on }}_${{ inputs.arch }}
           --filter playground
@@ -175,7 +177,7 @@ jobs:
           path: ${{ github.workspace }}/tests/.coverage/coverage.json
 
       - uses: actions/upload-artifact@v3
-        if: github.event_name == 'workflow_dispatch' || failure()
+        if: (github.event_name == 'workflow_dispatch' && !contains(inputs.extra-args, '--update')) || failure()
         with:
           name: replays-${{ inputs.runs-on }}-${{ inputs.arch }}-${{ matrix.shard_index }}-of-${{ matrix.num_shards }}
           path: ${{ github.workspace }}/.tmp/test_results

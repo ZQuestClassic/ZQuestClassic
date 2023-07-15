@@ -123,27 +123,34 @@ bool ASTFile::hasDeclarations() const
 
 // ASTFloat
 
-ASTFloat::ASTFloat(char* value, Type type, LocationData const& location)
+ASTFloat::ASTFloat(char* val, Type type, LocationData const& location)
 	: AST(location), type(type), negative(false),
-	  value(static_cast<string>(value))
-{}
+	value(static_cast<string>(val))
+{
+	initNeg();
+}
     
-ASTFloat::ASTFloat(char const* value, Type type, LocationData const& location)
+ASTFloat::ASTFloat(char const* val, Type type, LocationData const& location)
 	: AST(location), type(type), negative(false),
-	  value(static_cast<string>(value))
-{}
+	value(static_cast<string>(val))
+{
+	initNeg();
+}
     
 ASTFloat::ASTFloat(
-		string const& value, Type type, LocationData const& location)
-	: AST(location), type(type), negative(false), value(value)
-{}
+		string const& val, Type type, LocationData const& location)
+	: AST(location), type(type), negative(false), value(val)
+{
+	initNeg();
+}
 
-ASTFloat::ASTFloat(int32_t value, Type type, LocationData const& location)
+ASTFloat::ASTFloat(int32_t val, Type type, LocationData const& location)
 	: AST(location), type(type), negative(false)
 {
 	char tmp[15];
-	sprintf(tmp, "%d", value);
-	ASTFloat::value = string(tmp);
+	sprintf(tmp, "%d", val);
+	value = string(tmp);
+	initNeg();
 }
 
 ASTFloat::ASTFloat(int32_t ipart, int32_t dpart, LocationData const& location)
@@ -155,6 +162,16 @@ ASTFloat::ASTFloat(int32_t ipart, int32_t dpart, LocationData const& location)
 	else
 		sprintf(tmp,"%d",ipart);
 	value = string(tmp);
+	initNeg();
+}
+
+void ASTFloat::initNeg()
+{
+	if(value[0] == '-')
+	{
+		negative = !negative;
+		value = value.substr(1);
+	}
 }
 
 void ASTFloat::execute(ASTVisitor& visitor, void* param)
@@ -162,7 +179,7 @@ void ASTFloat::execute(ASTVisitor& visitor, void* param)
 	visitor.caseFloat(*this, param);
 }
 
-pair<string, string> ASTFloat::parseValue(CompileErrorHandler* errorHandler, Scope* scope) const
+pair<string, string> ASTFloat::parseValue(Scope* scope) const
 {
 	string f = value;
 	string intpart;
@@ -366,7 +383,7 @@ pair<string, string> ASTFloat::parseValue(CompileErrorHandler* errorHandler, Sco
 				f = f.substr(0,f.size()-1);
 			}
 			int32_t val2=0;
-			if(is_long || (*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT) != 0))
+			if(is_long || (*lookupOption(scope, CompileOption::OPT_BINARY_32BIT) != 0))
 			{
 				if(f.size() > 32)
 				{
@@ -394,7 +411,7 @@ pair<string, string> ASTFloat::parseValue(CompileErrorHandler* errorHandler, Sco
 
 			if(neg && val2 > 0) val2 *= -1;
 
-			if(is_long || (*lookupOption(*scope, CompileOption::OPT_BINARY_32BIT) != 0))
+			if(is_long || (*lookupOption(scope, CompileOption::OPT_BINARY_32BIT) != 0))
 			{
 				char temp[60];
 				sprintf(temp, "%d", abs(val2/10000));
@@ -416,7 +433,183 @@ pair<string, string> ASTFloat::parseValue(CompileErrorHandler* errorHandler, Sco
 
 	return pair<string,string>(intpart, fpart);
 }
+int32_t ASTFloat::getValue(Scope* scope)
+{
+	string f = value;
+	int32_t outval = 0;
+	bool is_long = false;
+	bool alt = false;
+	bool neg = negative;
+	switch(type)
+	{
+		case TYPE_L_DECIMAL: case TYPE_L_BINARY: case TYPE_L_HEX: case TYPE_L_OCTAL:
+		case TYPE_L_BINARY_2: case TYPE_L_OCTAL_2:
+			is_long = true;
+			break;
+	}
+	switch(type)
+	{
+		case TYPE_BINARY_2: case TYPE_L_BINARY_2:
+		case TYPE_OCTAL_2: case TYPE_L_OCTAL_2:
+			alt = true;
+			break;
+	}
 
+	switch(type)
+	{
+		case TYPE_DECIMAL:
+		{
+			bool founddot = false;
+
+			for(size_t i=0; i<f.size(); i++)
+			{
+				if(f.at(i) == '.')
+				{
+					outval = std::stoi(f.substr(0,i))*10000 + std::stoi(f.substr(i+1,zc_min(4,f.size()-i-1)));
+					founddot = true;
+					break;
+				}
+			}
+
+			if(!founddot)
+			{
+				outval = std::stoi(f)*10000;
+			}
+
+			if(neg) outval = -outval;
+			break;
+		}
+		
+		case TYPE_L_DECIMAL:
+		{
+			// Trim off the "L".
+			f = f.substr(0,f.size()-1);
+			outval = std::stoi(f);
+			if(neg) outval = -outval;
+			break;
+		}
+		
+		case TYPE_L_HEX:
+		case TYPE_HEX:
+		{
+			if(is_long)
+			{
+				// Trim off the "0x" and "L".
+				f = f.substr(2,f.size()-3);
+			}
+			else
+			{
+				// Trim off the "0x".
+				f = f.substr(2,f.size()-2);
+			}
+			// Parse the hex.
+			for(size_t i=0; i<f.size(); i++)
+			{
+				char d = f.at(i);
+				outval*=16;
+
+				if('0' <= d && d <= '9')
+					outval+=(d-'0');
+				else if('A' <= d && d <= 'F')
+					outval+=(10+d-'A');
+				else
+					outval+=(10+d-'a');
+			}
+		
+			if(neg && outval > 0) outval *= -1;
+			break;
+		}
+
+		case TYPE_OCTAL:
+		case TYPE_L_OCTAL:
+		case TYPE_OCTAL_2:
+		case TYPE_L_OCTAL_2:
+		{
+			if(alt)
+			{
+				//Trim '0o' prefix
+				f = f.substr(2,f.size()-2);
+				if(is_long) //...and 'L' suffix
+					f = f.substr(0,f.size()-1);
+			}
+			else if(is_long)
+			{
+				// Trim off the "oL".
+				f = f.substr(0,f.size()-2);
+			}
+			else
+			{
+				// Trim off the "o".
+				f = f.substr(0,f.size()-1);
+			}
+			// Parse the octal.
+			for(size_t i=0; i<f.size(); i++)
+			{
+				char d = f.at(i);
+				outval*=8;
+
+				outval+=(d-'0');
+			}
+		
+			if(neg && outval > 0) outval *= -1;
+			break;
+		}
+
+		case TYPE_BINARY:
+		case TYPE_L_BINARY:
+		case TYPE_BINARY_2:
+		case TYPE_L_BINARY_2:
+		{
+			if(alt)
+			{
+				//Trim '0b' prefix
+				f = f.substr(2,f.size()-2);
+				if(is_long) //...and 'L' suffix
+					f = f.substr(0,f.size()-1);
+			}
+			else if(is_long)
+			{
+				//trim 'Lb' / 'bL' suffix
+				f = f.substr(0,f.size()-2);
+			}
+			else
+			{
+				//trim 'b' suffix
+				f = f.substr(0,f.size()-1);
+			}
+			if(is_long || (*lookupOption(scope, CompileOption::OPT_BINARY_32BIT) != 0))
+			{
+				if(f.size() > 32)
+				{
+					f = f.substr(f.size() - 32, 32);
+				}
+				if(f.size() == 32)
+				{
+					/*if(f.find_first_of('0') == string::npos)
+					{
+						val2 = -1;
+						goto parselong_skipbinary;
+					}*/
+				}
+			}
+			else if(f.size() > 18)
+			{
+				f = f.substr(f.size() - 18, 18);
+			}
+			
+			for(size_t i=0; i<f.size(); i++)
+			{
+				outval<<=1;
+				if(f.at(i) == '1') outval |= 1;
+			}
+
+			if(neg && outval > 0) outval *= -1;
+			break;
+		}
+	}
+
+	return outval;
+}
 // ASTString
 
 ASTString::ASTString(const char* str, LocationData const& location)
@@ -434,8 +627,11 @@ void ASTString::execute(ASTVisitor& visitor, void* param)
 
 // ASTAnnotation
 
-ASTAnnotation::ASTAnnotation(ASTString* first, ASTString* second, LocationData const& location)
-	: AST(location), first(first), second(second)
+ASTAnnotation::ASTAnnotation(ASTString* key, ASTString* strval, LocationData const& location)
+	: AST(location), key(key), strval(strval)
+{}
+ASTAnnotation::ASTAnnotation(ASTString* key, ASTFloat* intval, LocationData const& location)
+	: AST(location), key(key), intval(intval)
 {}
 
 void ASTAnnotation::execute(ASTVisitor& visitor, void* param)
@@ -2207,7 +2403,7 @@ std::optional<int32_t> ASTNumberLiteral::getCompileTimeValue(
 	CompileErrorHandler* errorHandler, Scope* scope)
 {
 	if (!value) return std::nullopt;
-    pair<int32_t, bool> val = ScriptParser::parseLong(value->parseValue(errorHandler, scope), scope);
+    pair<int32_t, bool> val = ScriptParser::parseLong(value->parseValue(scope), scope);
 	
     if (!val.second && errorHandler)
 	    errorHandler->handleError(
@@ -2245,7 +2441,7 @@ std::optional<int32_t> ASTCharLiteral::getCompileTimeValue(
 	CompileErrorHandler* errorHandler, Scope* scope)
 {
 	if (!value) return std::nullopt;
-    pair<int32_t, bool> val = ScriptParser::parseLong(value->parseValue(errorHandler, scope), scope);
+    pair<int32_t, bool> val = ScriptParser::parseLong(value->parseValue(scope), scope);
 
     if (!val.second && errorHandler)
 	    errorHandler->handleError(

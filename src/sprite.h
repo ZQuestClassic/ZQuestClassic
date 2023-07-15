@@ -84,7 +84,7 @@ public:
     zfix slopeid;
     byte onplatid = 0;
     bool angular,canfreeze;
-    double angle;
+    double angle; // TODO: bad for replays
     int32_t lasthit, lasthitclk;
     int32_t dummy_int[10];
     zfix dummy_fix[10];

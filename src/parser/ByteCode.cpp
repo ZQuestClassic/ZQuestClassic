@@ -2627,21 +2627,21 @@ string OHeroCanMove::toString() const
 {
 	return "HEROCANMOVE";
 }
-string OResrvdOpEmily06::toString() const
+string ODrawLightCircle::toString() const
 {
-	return "RESRVD_OP_EMILY_06";
+	return "DRAWLIGHT_CIRCLE";
 }
-string OResrvdOpEmily07::toString() const
+string ODrawLightSquare::toString() const
 {
-	return "RESRVD_OP_EMILY_07";
+	return "DRAWLIGHT_SQUARE";
 }
-string OResrvdOpEmily08::toString() const
+string ODrawLightCone::toString() const
 {
-	return "RESRVD_OP_EMILY_08";
+	return "DRAWLIGHT_CONE";
 }
-string OResrvdOpEmily09::toString() const
+string OPeekRegister::toString() const
 {
-	return "RESRVD_OP_EMILY_09";
+	return "PEEK " + getArgument()->toString();
 }
 string OResrvdOpEmily10::toString() const
 {

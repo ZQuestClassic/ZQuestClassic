@@ -23,6 +23,8 @@
 #include "tiles.h"
 #include "zq/zq_tiles.h"
 #include "zq/zq_custom.h"
+#include "dialog/info.h"
+#include "dialog/compilezscript.h"
 
 #ifdef __EMSCRIPTEN__
 #include "base/emscripten_utils.h"
@@ -810,6 +812,14 @@ int32_t onSave()
         return D_O_K;
     }
     
+	if(zc_get_config("zquest","quick_compile_on_save",0))
+	{
+		if(!do_compile_and_slots(true,false))
+		{
+			InfoDialog("ZQuest","Failed compile on save! Saving quest anyway...").show();
+		}
+	}
+	
     //bool compress = !UncompressedAutoSaves;
 	//Don't tie regular saves being uncompressed to the autosave option.
 	bool compress = true;
@@ -847,61 +857,69 @@ int32_t onSaveAs()
 		{ NULL,                                                  NULL                                              }
 	};
 
-    if(disable_saving)
-    {
-        jwin_alert("ZQuest","Saving is","disabled in this version.",NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-        return D_O_K;
-    }
+	if(disable_saving)
+	{
+		jwin_alert("ZQuest","Saving is","disabled in this version.",NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+		return D_O_K;
+	}
 #ifdef __EMSCRIPTEN__
-		if(!getname("Save Quest As (.qst)","qst",list,get_initial_file_dialog_folder().c_str(),true))
-        return D_O_K;
+	if(!getname("Save Quest As (.qst)","qst",list,get_initial_file_dialog_folder().c_str(),true))
+		return D_O_K;
 #else
-		if(!getname("Save Quest As (.qst)","qst",list,filepath,true))
-        return D_O_K;
+	if(!getname("Save Quest As (.qst)","qst",list,filepath,true))
+		return D_O_K;
 #endif
-        
-    if(exists(temppath))
-    {
-        if(OverwriteProtection)
-        {
-            jwin_alert("ZQuest","Overwriting quests is disabled.","Change this in the options dialog.",NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-            return D_O_K;
-        }
-        
-        if(jwin_alert("Confirm Overwrite",temppath,"already exists.","Write over existing file?","&Yes","&No",'y','n',get_zc_font(font_lfont))==2)
-        {
-            return D_O_K;
-        }
-    }
-    
-    //bool compress = !UncompressedAutoSaves;
+		
+	if(exists(temppath))
+	{
+		if(OverwriteProtection)
+		{
+			jwin_alert("ZQuest","Overwriting quests is disabled.","Change this in the options dialog.",NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+			return D_O_K;
+		}
+		
+		if(jwin_alert("Confirm Overwrite",temppath,"already exists.","Write over existing file?","&Yes","&No",'y','n',get_zc_font(font_lfont))==2)
+		{
+			return D_O_K;
+		}
+	}
+	
+	if(zc_get_config("zquest","quick_compile_on_save",0))
+	{
+		if(!do_compile_and_slots(true,false))
+		{
+			InfoDialog("ZQuest","Failed compile on save! Saving quest anyway...").show();
+		}
+	}
+	
+	//bool compress = !UncompressedAutoSaves;
 	bool compress = true;
-    if (util::get_ext(temppath) == ".qsu") compress = false;
-    int32_t ret = save_unencoded_quest(temppath, compress, temppath);
-    char buf[1024],name[256];
-    extract_name(temppath,name,FILENAMEALL);
-    
-    if(!ret)
-    {
-        strcpy(filepath,temppath);
+	if (util::get_ext(temppath) == ".qsu") compress = false;
+	int32_t ret = save_unencoded_quest(temppath, compress, temppath);
+	char buf[1024],name[256];
+	extract_name(temppath,name,FILENAMEALL);
+	
+	if(!ret)
+	{
+		strcpy(filepath,temppath);
 		update_recent_quest(temppath);
-        sprintf(buf,"ZQuest - [%s]", get_filename(filepath));
-        set_window_title(buf);
-        sprintf(buf,"Saved %s",name);
-        jwin_alert("ZQuest",buf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-        saved=true;
-        first_save=true;
-        header.dirty_password=false;
-    }
-    else
-    {
-        sprintf(buf,"Error saving %s",name);
-        jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-    }
-    
-    refresh(rMENU);
+		sprintf(buf,"ZQuest - [%s]", get_filename(filepath));
+		set_window_title(buf);
+		sprintf(buf,"Saved %s",name);
+		jwin_alert("ZQuest",buf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+		saved=true;
+		first_save=true;
+		header.dirty_password=false;
+	}
+	else
+	{
+		sprintf(buf,"Error saving %s",name);
+		jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+	}
+	
+	refresh(rMENU);
 	set_last_timed_save(nullptr);
-    return D_O_K;
+	return D_O_K;
 }
 
 int32_t open_quest(char const* path)

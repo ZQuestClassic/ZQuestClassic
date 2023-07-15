@@ -381,6 +381,12 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 	add_compile_options("-ffp-model=fast")
 endif()
 
+if(MSVC)
+	set_source_files_properties(src/base/zc_math.cpp PROPERTIES COMPILE_FLAGS /O2)
+else()
+	set_source_files_properties(src/base/zc_math.cpp PROPERTIES COMPILE_FLAGS -O3)
+endif()
+
 #############################################################
 # Allegro Graphics Addons
 #############################################################
@@ -448,6 +454,7 @@ set(zcbase_sources
 	src/base/win32.cpp
 	src/base/zapp.cpp
 	src/base/zc_alleg.cpp
+	src/base/zc_math.cpp
 	src/base/zdefs.cpp
 	src/base/zsys.cpp
 )
@@ -523,43 +530,6 @@ if(BUILD_SOUND_LIBS_FROM_SOURCE)
 		set(SOUND_LIB_SHARED SHARED)
 	endif()
 
-	add_library(alogg ${SOUND_LIB_SHARED}
-		allegro-addons/alogg/decoder/libogg/macos/compat/strdup.c
-		allegro-addons/alogg/decoder/libogg/src/bitwise.c
-		allegro-addons/alogg/decoder/libogg/src/framing.c
-		allegro-addons/alogg/decoder/libvorbis/lib/analysis.c
-		allegro-addons/alogg/decoder/libvorbis/lib/bitrate.c
-		allegro-addons/alogg/decoder/libvorbis/lib/block.c
-		allegro-addons/alogg/decoder/libvorbis/lib/codebook.c
-		allegro-addons/alogg/decoder/libvorbis/lib/envelope.c
-		allegro-addons/alogg/decoder/libvorbis/lib/floor0.c
-		allegro-addons/alogg/decoder/libvorbis/lib/floor1.c
-		allegro-addons/alogg/decoder/libvorbis/lib/info.c
-		allegro-addons/alogg/decoder/libvorbis/lib/lookup.c
-		allegro-addons/alogg/decoder/libvorbis/lib/lpc.c
-		allegro-addons/alogg/decoder/libvorbis/lib/lsp.c
-		allegro-addons/alogg/decoder/libvorbis/lib/mapping0.c
-		allegro-addons/alogg/decoder/libvorbis/lib/mdct.c
-		allegro-addons/alogg/decoder/libvorbis/lib/psy.c
-		allegro-addons/alogg/decoder/libvorbis/lib/registry.c
-		allegro-addons/alogg/decoder/libvorbis/lib/res0.c
-		allegro-addons/alogg/decoder/libvorbis/lib/sharedbook.c
-		allegro-addons/alogg/decoder/libvorbis/lib/smallft.c
-		allegro-addons/alogg/decoder/libvorbis/lib/synthesis.c
-		allegro-addons/alogg/decoder/libvorbis/lib/vorbisenc.c
-		allegro-addons/alogg/decoder/libvorbis/lib/vorbisfile.c
-		allegro-addons/alogg/decoder/libvorbis/lib/window.c
-		allegro-addons/alogg/src/alogg.c
-	)
-	target_include_directories(alogg PUBLIC
-		allegro-addons/alogg/include
-		allegro-addons/alogg/decoder
-		allegro-addons/alogg/decoder/libogg/include
-		allegro-addons/alogg/decoder/libvorbis/include
-		allegro-addons/alogg/decoder/libvorbis/lib
-	)
-	target_link_libraries(alogg PUBLIC allegro_with_legacy)
-
 	FetchContent_Declare(
 		gme_external
 		GIT_REPOSITORY https://bitbucket.org/mpyne/game-music-emu.git
@@ -586,7 +556,7 @@ if(BUILD_SOUND_LIBS_FROM_SOURCE)
 	add_library(dumb_headers INTERFACE)
 	target_include_directories(dumb_headers INTERFACE ${dumb_external_SOURCE_DIR}/include)
 
-	set(SOUNDLIBS alpng alogg gme gme_headers aldmb dumb dumb_headers)
+	set(SOUNDLIBS alpng gme gme_headers aldmb dumb dumb_headers)
 endif()
 
 if(MSVC AND (MSVC_VERSION GREATER 1600))
@@ -598,7 +568,7 @@ target_link_libraries(zcsound PUBLIC allegro_with_legacy zcbase ${SOUNDLIBS} ${Z
 if(BUILD_SOUND_LIBS_FROM_SOURCE)
 	target_compile_definitions(zcsound PRIVATE SOUND_LIBS_BUILT_FROM_SOURCE)
 else()
-	target_include_directories(zcsound PRIVATE include/dumb include/alogg include/gme)
+	target_include_directories(zcsound PRIVATE include/dumb include/gme)
 endif()
 
 #############################################################
@@ -895,7 +865,7 @@ if(CMAKE_GENERATOR MATCHES "Visual Studio")
 	set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 	set_target_properties(zelda zquest zscript zlauncher package package_no_archive PROPERTIES FOLDER "")
 	set_target_properties(zcbase zcgui zcsound PROPERTIES FOLDER "Our Libraries")
-	set_target_properties(gme dumb aldmb alogg PROPERTIES FOLDER Sound)
+	set_target_properties(gme dumb aldmb PROPERTIES FOLDER Sound)
 	set_target_properties(allegro allegro_audio allegro_acodec allegro_image allegro_font allegro_main allegro_primitives allegro_dialog allegro-legacy al5img algif alpng PROPERTIES FOLDER Allegro)
 	set_target_properties(zconsole zconsolelogger PROPERTIES FOLDER ZConsole)
 	if(WANT_SENTRY)

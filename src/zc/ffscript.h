@@ -943,6 +943,7 @@ class FFScript
 public:
 //FFScript();
 void init();
+void shutdown();
 
 
 int32_t max_ff_rules;
@@ -1311,6 +1312,8 @@ int32_t getCombodataX(int32_t c, ScriptType scripttype);
 //void deallocateComboArrays();
 
 int32_t GetScriptObjectUID(int32_t type);
+
+void SetNegArray();
     
 //byte item_messages_played[MAXITEMS]; //Each field is set when an item pickup message plays the first time per session
 				//so that they do not play every time an item is collected, unless one of the flags is set for it.
@@ -3226,10 +3229,10 @@ enum ASM_DEFINE
 	HEROCANMOVEATANGLE,
 	HEROMOVE,
 	HEROCANMOVE,
-	RESRVD_OP_EMILY_06,
-	RESRVD_OP_EMILY_07,
-	RESRVD_OP_EMILY_08,
-	RESRVD_OP_EMILY_09,
+	DRAWLIGHT_CIRCLE,
+	DRAWLIGHT_SQUARE,
+	DRAWLIGHT_CONE,
+	PEEK,
 	RESRVD_OP_EMILY_10,
 	RESRVD_OP_EMILY_11,
 	RESRVD_OP_EMILY_12,

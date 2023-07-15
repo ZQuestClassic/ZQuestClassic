@@ -166,11 +166,11 @@ class TestReplays(unittest.TestCase):
         self.assertEqual(result.success, False)
         self.assertEqual(result.failing_frame, 102)
         self.assertEqual(result.unexpected_gfx_segments, [[102, 1700], [3700, 3900]])
-        self.assertEqual(result.unexpected_gfx_segments_limited, [[102, 702], [3700, 3900]])
-        self.assertEqual(len(result.unexpected_gfx_frames), 553)
+        self.assertEqual(result.unexpected_gfx_segments_limited, [[102, 402], [3700, 3900]])
+        self.assertEqual(len(result.unexpected_gfx_frames), 344)
         snapshots = get_snapshots()
         self.assertEqual(len([s for s in snapshots if segment_1[0]
-                         <= get_frame_from_snapshot_index(s) <= segment_1[1]]), 352)
+                         <= get_frame_from_snapshot_index(s) <= segment_1[1]]), 143)
         self.assertEqual(len([s for s in snapshots if segment_2[0]
                          <= get_frame_from_snapshot_index(s) <= segment_2[1]]), 201)
         self.assertEqual([s for s in snapshots if not 'unexpected' in s], [
@@ -233,7 +233,7 @@ class TestReplays(unittest.TestCase):
         self.assertEqual(result.failing_frame, 1)
         self.assertEqual(result.unexpected_gfx_frames, [1])
         self.assertEqual(result.unexpected_gfx_segments, [[1, 634]])
-        self.assertEqual(result.unexpected_gfx_segments_limited, [[1, 601]])
+        self.assertEqual(result.unexpected_gfx_segments_limited, [[1, 301]])
         snapshots = get_snapshots()
         self.assertEqual(snapshots, [
             '0/failing/failing.zplay.1-unexpected.png',

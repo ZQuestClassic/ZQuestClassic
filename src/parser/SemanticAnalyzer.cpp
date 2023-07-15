@@ -352,7 +352,7 @@ void SemanticAnalyzer::caseStmtForEach(ASTStmtForEach& host, void* param)
 	ASTDataDecl* arrdecl = new ASTDataDecl(host.location);
 	arrdecl->name = "__LOOP_ARR";
 	arrdecl->setInitializer(host.arrExpr.clone());
-	arrdecl->baseType = new ASTDataType(arrtype, host.location);
+	arrdecl->baseType = new ASTDataType(ty, host.location);
 	host.arrdecl = arrdecl;
 	//The data declaration
 	ASTDataDecl* decl = new ASTDataDecl(host.location);
@@ -937,6 +937,14 @@ void SemanticAnalyzer::caseScript(ASTScript& host, void* param)
 	scope = &script.getScope();
 	RecursiveVisitor::caseScript(host, param);
 	scope = scope->getParent();
+	
+	std::optional<int32_t> init_weight = script.getInitWeight();
+	if(init_weight && script.getType() != ParserScriptType::global)
+	{
+		handleError(CompileError::BadAnnotation(&host, "InitScript", "Only scripts of type 'global' can be InitScripts!"));
+		return;
+	}
+	
 	if(script.getType() == ParserScriptType::untyped) return;
 	
 	// Check for a valid run function.
@@ -947,17 +955,17 @@ void SemanticAnalyzer::caseScript(ASTScript& host, void* param)
 	if (possibleRuns.size() == 0)
 	{
 		handleError(CompileError::ScriptNoRun(&host, name, FFCore.scriptRunString));
-		if (breakRecursion(host)) return;
+		return;
 	}
 	if (possibleRuns.size() > 1)
 	{
 		handleError(CompileError::TooManyRun(&host, name, FFCore.scriptRunString));
-		if (breakRecursion(host)) return;
+		return;
 	}
 	if (*possibleRuns[0]->returnType != DataType::ZVOID)
 	{
 		handleError(CompileError::ScriptRunNotVoid(&host, name, FFCore.scriptRunString));
-		if (breakRecursion(host)) return;
+		return;
 	}
 	script.setRun(possibleRuns[0]);
 }

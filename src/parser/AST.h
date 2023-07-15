@@ -323,8 +323,9 @@ namespace ZScript
 	
 		void execute(ASTVisitor& visitor, void* param = NULL);
     	
-		std::pair<std::string,std::string> parseValue(CompileErrorHandler* errorHandler, Scope* scope) const;
-
+		std::pair<std::string,std::string> parseValue(Scope* scope) const;
+		int32_t getValue(Scope* scope);
+		void initNeg();
 		Type type;
 		std::string value;
 		bool negative;
@@ -349,13 +350,16 @@ namespace ZScript
 	class ASTAnnotation : public AST
 	{
 	public:
-		ASTAnnotation(ASTString* first, ASTString* second,
+		ASTAnnotation(ASTString* key, ASTString* strval,
+		          LocationData const& location = LOC_NONE);
+		ASTAnnotation(ASTString* key, ASTFloat* intval,
 		          LocationData const& location = LOC_NONE);
 		ASTAnnotation* clone() const {return new ASTAnnotation(*this);}
 		
 		void execute(ASTVisitor& visitor, void* param = NULL);
 		
-		owning_ptr<ASTString> first, second;
+		owning_ptr<ASTString> key, strval;
+		owning_ptr<ASTFloat> intval;
 	};
 	
 	class ASTAnnotationList : public AST
@@ -725,6 +729,8 @@ namespace ZScript
 		owning_vector<ASTDataTypeDef> types;
 		owning_vector<ASTUsingDecl> use;
 		owning_vector<ASTAssert> asserts;
+		
+		std::optional<int32_t> init_weight;
 		
 		Script* script;
 	};

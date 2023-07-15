@@ -639,3 +639,6 @@ bool getname(const char *prompt,const char *ext,EXT_LIST *list,const char *def,b
 }
 
 
+// TODO z3 !!
+viewport_t viewport;
+bool screenscrolling, scrolling_use_new_dark_code;
