@@ -21603,7 +21603,102 @@ void portBombRules()
 			else itemsbuf[q].flags &= ~ ITEM_FLAG2;
 		}
 	}
-	
+}
+
+static int section_id_to_enum(int id)
+{
+	switch (id)
+	{
+		case ID_HEADER: return skip_header;
+		case ID_RULES: return skip_rules;
+		case ID_STRINGS: return skip_strings;
+		case ID_MISC: return skip_misc;
+		case ID_TILES: return skip_tiles;
+		case ID_COMBOS: return skip_combos;
+		case ID_COMBOALIASES: return skip_comboaliases;
+		case ID_CSETS: return skip_csets;
+		case ID_MAPS: return skip_maps;
+		case ID_DMAPS: return skip_dmaps;
+		case ID_DOORS: return skip_doors;
+		case ID_ITEMS: return skip_items;
+		case ID_WEAPONS: return skip_weapons;
+		case ID_COLORS: return skip_colors;
+		case ID_ICONS: return skip_icons;
+		case ID_INITDATA: return skip_initdata;
+		case ID_GUYS: return skip_guys;
+		case ID_HEROSPRITES: return skip_herosprites;
+		case ID_SUBSCREEN: return skip_subscreens;
+		case ID_FFSCRIPT: return skip_ffscript;
+		case ID_SFX: return skip_sfx;
+		case ID_MIDIS: return skip_midis;
+		case ID_CHEATS: return skip_cheats;
+		case ID_ITEMDROPSETS: return skip_itemdropsets;
+		case ID_FAVORITES: return skip_favorites;
+		case ID_ZINFO: return skip_zinfo;
+	}
+
+	return -1;
+}
+
+static int maybe_skip_section(PACKFILE* f, int section_id, const byte* skip_flags)
+{
+	int section_enum = section_id_to_enum(section_id);
+	bool skip = section_enum >= 0 && get_bit(skip_flags, section_enum);
+	if (skip)
+	{
+		word s_version;
+		if (!p_igetw(&s_version,f,true))
+		{
+			return qe_invalid;
+		}
+
+		word c_version;
+		if (!p_igetw(&c_version,f,true))
+		{
+			return qe_invalid;
+		}
+
+		if (section_id == ID_RULES && s_version > 16)
+		{
+			dword dummy;
+			if (!p_igetl(&dummy,f,true))
+			{
+				return qe_invalid;
+			}
+		}
+
+		if (section_id == ID_FFSCRIPT && s_version >= 18)
+		{
+			word dummy;
+			if (!p_igetw(&dummy,f,true))
+			{
+				return qe_invalid;
+			}
+		}
+
+		dword section_length;
+		if (!p_igetl(&section_length,f,true))
+		{
+			return qe_invalid;
+		}
+
+		if (pack_fseek(f, section_length))
+		{
+			return qe_invalid;
+		}
+
+		if (!pack_feof(f))
+		{
+			if (!p_mgetl(&section_id,f,true))
+			{
+				return qe_invalid;
+			}
+		}
+
+		return qe_cancel;
+	}
+
+	return qe_OK;
 }
 
 //Internal function for loadquest wrapper
@@ -21613,12 +21708,8 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
     combosread=false;
     mapsread=false;
     fixffcs=false;
-    
-    if(get_debug()&&(key[KEY_LSHIFT]||key[KEY_RSHIFT]))
-    {
-        keepall=false;
-        jwin_alert("Load Quest","Data retention disabled.",NULL,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
-    }
+	// TODO: remove keepall.
+	ASSERT(keepall);
     
     //  show_progress=true;
     char tmpfilename[L_tmpnam];
@@ -21789,6 +21880,13 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
                 return qe_invalid;
             seen_sections.insert(section_id);
 
+			if (int retval = maybe_skip_section(f, section_id, skip_flags); retval != qe_OK)
+			{
+				if (retval == qe_cancel)
+					continue;
+				checkstatus(retval);
+			}
+
             switch(section_id)
             {
             case ID_RULES:
@@ -21802,7 +21900,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
                 }
                 
                 box_out("Reading Rules...");
-                ret=readrules(f, &tempheader, keepall&&!get_bit(skip_flags, skip_rules));
+                ret=readrules(f, &tempheader, true);
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
@@ -21819,7 +21917,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
                 }
                 
                 box_out("Reading Strings...");
-                ret=readstrings(f, &tempheader, keepall&&!get_bit(skip_flags, skip_strings));
+                ret=readstrings(f, &tempheader, true);
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
@@ -21836,7 +21934,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
                 }
                 
                 box_out("Reading Misc. Data...");
-                ret=readmisc(f, &tempheader, Misc, keepall&&!get_bit(skip_flags, skip_misc));
+                ret=readmisc(f, &tempheader, Misc, true);
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
@@ -21853,7 +21951,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
                 }
                 
                 box_out("Reading Tiles...");
-                ret=readtiles(f, newtilebuf, &tempheader, tempheader.zelda_version, tempheader.build, 0, NEWMAXTILES, false, keepall&&!get_bit(skip_flags, skip_tiles));
+                ret=readtiles(f, newtilebuf, &tempheader, tempheader.zelda_version, tempheader.build, 0, NEWMAXTILES, false, true);
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
@@ -21870,7 +21968,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
                 }
                 
                 box_out("Reading Combos...");
-                ret=readcombos(f, &tempheader, tempheader.zelda_version, tempheader.build, 0, MAXCOMBOS, keepall&&!get_bit(skip_flags, skip_combos));
+                ret=readcombos(f, &tempheader, tempheader.zelda_version, tempheader.build, 0, MAXCOMBOS, true);
                 combosread=true;
                 checkstatus(ret);
                 box_out("okay.");
@@ -21888,7 +21986,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
                 }
                 
                 box_out("Reading Combo Aliases...");
-                ret=readcomboaliases(f, &tempheader, tempheader.zelda_version, tempheader.build, keepall&&!get_bit(skip_flags, skip_comboaliases));
+                ret=readcomboaliases(f, &tempheader, tempheader.zelda_version, tempheader.build, true);
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
@@ -21905,7 +22003,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
                 }
                 
                 box_out("Reading Color Data...");
-                ret=readcolordata(f, Misc, tempheader.zelda_version, tempheader.build, 0, newerpdTOTAL, keepall&&!get_bit(skip_flags, skip_csets));
+                ret=readcolordata(f, Misc, tempheader.zelda_version, tempheader.build, 0, newerpdTOTAL, true);
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
@@ -21922,7 +22020,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
                 }
                 
                 box_out("Reading Maps...");
-                ret=readmaps(f, &tempheader, keepall&&!get_bit(skip_flags, skip_maps));
+                ret=readmaps(f, &tempheader, true);
                 mapsread=true;
                 checkstatus(ret);
                 box_out("okay.");
@@ -21940,7 +22038,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
                 }
                 
                 box_out("Reading DMaps...");
-                ret=readdmaps(f, &tempheader, tempheader.zelda_version, tempheader.build, 0, MAXDMAPS, keepall&&!get_bit(skip_flags, skip_dmaps));
+                ret=readdmaps(f, &tempheader, tempheader.zelda_version, tempheader.build, 0, MAXDMAPS, true);
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
@@ -21957,7 +22055,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
                 }
                 
                 box_out("Reading Doors...");
-                ret=readdoorcombosets(f, &tempheader, keepall&&!get_bit(skip_flags, skip_doors));
+                ret=readdoorcombosets(f, &tempheader, true);
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
@@ -21974,7 +22072,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
                 }
                 
                 box_out("Reading Items...");
-                ret=readitems(f, tempheader.zelda_version, tempheader.build, keepall&&!get_bit(skip_flags, skip_items));
+                ret=readitems(f, tempheader.zelda_version, tempheader.build, true);
                 checkstatus(ret);
                 
                 box_out("okay.");
@@ -21992,7 +22090,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
                 }
                 
                 box_out("Reading Weapons...");
-                ret=readweapons(f, &tempheader, keepall&&!get_bit(skip_flags, skip_weapons));
+                ret=readweapons(f, &tempheader, true);
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
@@ -22009,7 +22107,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
                 }
                 
                 box_out("Reading Misc. Colors...");
-                ret=readmisccolors(f, &tempheader, Misc, keepall&&!get_bit(skip_flags, skip_colors));
+                ret=readmisccolors(f, &tempheader, Misc, true);
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
@@ -22026,7 +22124,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
                 }
                 
                 box_out("Reading Game Icons...");
-                ret=readgameicons(f, &tempheader, Misc, keepall&&!get_bit(skip_flags, skip_icons));
+                ret=readgameicons(f, &tempheader, Misc, true);
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
@@ -22043,7 +22141,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
                 }
                 
                 box_out("Reading Init. Data...");
-                ret=readinitdata(f, &tempheader, keepall&&!get_bit(skip_flags, skip_initdata));
+                ret=readinitdata(f, &tempheader, true);
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
@@ -22091,7 +22189,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
                 }
                 
                 box_out("Reading Custom Guy Data...");
-                ret=readguys(f, &tempheader, keepall&&!get_bit(skip_flags, skip_guys));
+                ret=readguys(f, &tempheader, keepall);
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
@@ -22108,7 +22206,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
                 }
                 
                 box_out("Reading Custom Player Sprite Data...");
-                ret=readherosprites(f, &tempheader, keepall&&!get_bit(skip_flags, skip_herosprites));
+                ret=readherosprites(f, &tempheader, keepall);
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
@@ -22125,7 +22223,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
                 }
                 
                 box_out("Reading Custom Subscreen Data...");
-                ret=readsubscreens(f, &tempheader, keepall&&!get_bit(skip_flags, skip_subscreens));
+                ret=readsubscreens(f, &tempheader, keepall);
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
@@ -22142,7 +22240,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
                 }
                 
                 box_out("Reading FF Script Data...");
-                ret=readffscript(f, &tempheader, keepall&&!get_bit(skip_flags, skip_ffscript));
+                ret=readffscript(f, &tempheader, keepall);
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
@@ -22159,7 +22257,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
                 }
                 
                 box_out("Reading SFX Data...");
-                ret=readsfx(f, &tempheader, keepall&&!get_bit(skip_flags, skip_sfx));
+                ret=readsfx(f, &tempheader, keepall);
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
@@ -22176,7 +22274,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
                 }
                 
                 box_out("Reading Tunes...");
-                ret=readtunes(f, &tempheader, tunes, keepall&&!get_bit(skip_flags, skip_midis));
+                ret=readtunes(f, &tempheader, tunes, keepall);
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
@@ -22193,7 +22291,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
                 }
                 
                 box_out("Reading Cheat Codes...");
-                ret=readcheatcodes(f, &tempheader, keepall&&!get_bit(skip_flags, skip_cheats));
+                ret=readcheatcodes(f, &tempheader, keepall);
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
@@ -22210,7 +22308,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
                 }
                 
                 box_out("Reading Item Drop Sets...");
-                ret=readitemdropsets(f, tempheader.zelda_version, tempheader.build, keepall&&!get_bit(skip_flags, skip_itemdropsets));
+                ret=readitemdropsets(f, tempheader.zelda_version, tempheader.build, keepall);
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
@@ -22227,7 +22325,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
                 }
                 
                 box_out("Reading Favorite Combos...");
-                ret=readfavorites(f, tempheader.zelda_version, tempheader.build, keepall&&!get_bit(skip_flags, skip_favorites));
+                ret=readfavorites(f, tempheader.zelda_version, tempheader.build, keepall);
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
@@ -22273,113 +22371,45 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
     }
     else
     {
-        //rules
-        box_out("Reading Rules...");
-        ret=readrules(f, &tempheader, keepall&&!get_bit(skip_flags, skip_rules));
-        checkstatus(ret);
-        box_out("okay.");
-        box_eol();
-        
-        //strings
-        box_out("Reading Strings...");
-        ret=readstrings(f, &tempheader, keepall&&!get_bit(skip_flags, skip_strings));
-        checkstatus(ret);
-        box_out("okay.");
-        box_eol();
-        
-        //door combo sets
-        box_out("Reading Doors...");
-        ret=readdoorcombosets(f, &tempheader, keepall&&!get_bit(skip_flags, skip_doors));
-        checkstatus(ret);
-        box_out("okay.");
-        box_eol();
-        
-        //dmaps
-        box_out("Reading DMaps...");
-        ret=readdmaps(f, &tempheader, tempheader.zelda_version, tempheader.build, 0, MAXDMAPS, keepall&&!get_bit(skip_flags, skip_dmaps));
-        checkstatus(ret);
-        box_out("okay.");
-        box_eol();
-        
-        // misc data
-        box_out("Reading Misc. Data...");
-        ret=readmisc(f, &tempheader, Misc, keepall&&!get_bit(skip_flags, skip_misc));
-        checkstatus(ret);
-        box_out("okay.");
-        box_eol();
-        
-        //items
-        box_out("Reading Items...");
-        ret=readitems(f, tempheader.zelda_version, tempheader.build, keepall&&!get_bit(skip_flags, skip_items));
-        checkstatus(ret);
-        box_out("okay.");
-        box_eol();
-        
-        //weapons
-        box_out("Reading Weapons...");
-        ret=readweapons(f, &tempheader, keepall&&!get_bit(skip_flags, skip_weapons));
-        checkstatus(ret);
-        box_out("okay.");
-        box_eol();
-        
-        //guys
-        box_out("Reading Custom Guy Data...");
-        ret=readguys(f, &tempheader, keepall&&!get_bit(skip_flags, skip_guys));
-        checkstatus(ret);
-        box_out("okay.");
-        box_eol();
-        
-        //maps
-        box_out("Reading Maps...");
-        ret=readmaps(f, &tempheader, keepall&&!get_bit(skip_flags, skip_maps));
-        mapsread=true;
-        checkstatus(ret);
-        box_out("okay.");
-        box_eol();
-        
-        //combos
-        box_out("Reading Combos...");
-        ret=readcombos(f, &tempheader, tempheader.zelda_version, tempheader.build, 0, MAXCOMBOS, keepall&&!get_bit(skip_flags, skip_combos));
-        combosread=true;
-        checkstatus(ret);
-        box_out("okay.");
-        box_eol();
-        
-        //color data
-        box_out("Reading Color Data...");
-        ret=readcolordata(f, Misc, tempheader.zelda_version, tempheader.build, 0, newerpdTOTAL, keepall&&!get_bit(skip_flags, skip_csets));
-        checkstatus(ret);
-        box_out("okay.");
-        box_eol();
-        
-        //tiles
-        box_out("Reading Tiles...");
-        ret=readtiles(f, newtilebuf, &tempheader, tempheader.zelda_version, tempheader.build, 0, NEWMAXTILES, false, keepall&&!get_bit(skip_flags, skip_tiles));
-        checkstatus(ret);
-        box_out("okay.");
-        box_eol();
-        
-        //midis
-        box_out("Reading Tunes...");
-        ret=readtunes(f, &tempheader, tunes, keepall&&!get_bit(skip_flags, skip_midis));
-        checkstatus(ret);
-        box_out("okay.");
-        box_eol();
-        
-        //cheat codes
-        box_out("Reading Cheat Codes...");
-        ret=readcheatcodes(f, &tempheader, keepall&&!get_bit(skip_flags, skip_cheats));
-        checkstatus(ret);
-        box_out("okay.");
-        box_eol();
-        
-        //initialization data
-        box_out("Reading Init. Data...");
-        ret=readinitdata(f, &tempheader, keepall&&!get_bit(skip_flags, skip_initdata));
-        checkstatus(ret);
-        box_out("okay.");
-        box_eol();
-        
+		std::vector<std::tuple<std::string, int32_t, std::function<int32_t()>>> hardcoded_sections = {
+			{ "Rules", ID_RULES, [&](){ return readrules(f, &tempheader, true); }},
+			{ "Strings", ID_STRINGS, [&](){ return readstrings(f, &tempheader, true); }},
+			{ "Doors", ID_DOORS, [&](){ return readdoorcombosets(f, &tempheader, true); }},
+			{ "DMaps", ID_DMAPS, [&](){ return readdmaps(f, &tempheader, tempheader.zelda_version, tempheader.build, 0, MAXDMAPS, true); }},
+			{ "Misc. Data", ID_MISC, [&](){ return readmisc(f, &tempheader, Misc, true); }},
+			{ "Items", ID_ITEMS, [&](){ return readitems(f, tempheader.zelda_version, tempheader.build, true); }},
+			{ "Weapons", ID_WEAPONS, [&](){ return readweapons(f, &tempheader, true); }},
+			{ "Custom Guy Data", ID_GUYS, [&](){ return readguys(f, &tempheader, true); }},
+			{ "Maps", ID_MAPS, [&](){ return readmaps(f, &tempheader, true); }},
+			{ "Combos", ID_COMBOS, [&](){ return readcombos(f, &tempheader, tempheader.zelda_version, tempheader.build, 0, MAXCOMBOS, true); }},
+			{ "Color Data", ID_CSETS, [&](){ return readcolordata(f, Misc, tempheader.zelda_version, tempheader.build, 0, newerpdTOTAL, true); }},
+			{ "Tiles", ID_TILES, [&](){ return readtiles(f, newtilebuf, &tempheader, tempheader.zelda_version, tempheader.build, 0, NEWMAXTILES, false, true); }},
+			{ "Tunes", ID_MIDIS, [&](){ return readtunes(f, &tempheader, tunes, true); }},
+			{ "Cheat Codes", ID_CHEATS, [&](){ return readcheatcodes(f, &tempheader, true); }},
+			{ "Init. Data", ID_INITDATA, [&](){ return readinitdata(f, &tempheader, true); }},
+			{ "Custom Player Sprite Data", ID_HEROSPRITES, [&](){ return readherosprites2(f, -1, 0, true); }},
+			{ "Up Default Item Drop Sets", ID_ITEMDROPSETS, [&](){ return readitemdropsets(f, -1, 0, true); }},
+		};
+
+		for (auto& [desc, section_id, fn] : hardcoded_sections)
+		{
+			// Would be nice, but old sections mostly did not save section sizes. We could advance by
+			// a specific amount, but it'd be a lot of work to get it right. So, for old quests, let's just
+			// read all the sections even if requested to skip some.
+			// if (int retval = maybe_skip_section(f, section_id, skip_flags); retval != qe_OK)
+			// {
+			// 	if (retval == qe_cancel)
+			// 		continue;
+			// 	checkstatus(retval);
+			// }
+
+			box_out(fmt::format("Reading {}...", desc).c_str());
+			ret = fn();
+			checkstatus(ret);
+			box_out("okay.");
+			box_eol();
+		}
+
         if(keepall&&!get_bit(skip_flags, skip_subscreens))
         {
             setupsubscreens();
@@ -22397,18 +22427,6 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
         if(keepall&&!get_bit(skip_flags, skip_sfx))
             setupsfx();
             
-        box_out("okay.");
-        box_eol();
-        
-        //player sprites
-        box_out("Reading Custom Player Sprite Data...");
-        ret=readherosprites2(f, -1, 0, keepall&&!get_bit(skip_flags, skip_herosprites));
-        checkstatus(ret);
-        box_out("okay.");
-        box_eol();
-        
-        box_out("Setting Up Default Item Drop Sets...");
-        ret=readitemdropsets(f, -1, 0, keepall&&!get_bit(skip_flags, skip_itemdropsets));
         box_out("okay.");
         box_eol();
     }
