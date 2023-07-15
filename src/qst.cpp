@@ -5219,7 +5219,25 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 			tempDMap.mirrorDMap = -1;
 		}
 
-		if(s_version >= 17)
+		// Enhanced music loop points
+		if (s_version >= 17)
+		{
+			if (!p_igetl(&tempDMap.tmusic_loop_start, f))
+			{
+				return qe_invalid;
+			}
+			if (!p_igetl(&tempDMap.tmusic_loop_end, f))
+			{
+				return qe_invalid;
+			}
+		}
+		else
+		{
+			tempDMap.tmusic_loop_start = 0;
+			tempDMap.tmusic_loop_end = 0;
+		}
+
+		if(s_version >= 18)
 		{
 			// Reserved for z3.
 		}
