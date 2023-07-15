@@ -4911,11 +4911,6 @@ void zmap::Paste(const mapscr& copymapscr)
         int32_t newcolor=getcolor();
         loadlvlpal(newcolor);
         
-        if(!(screens[currscr].valid&mVALID))
-        {
-            newcolor=-1;
-        }
-        
         if(newcolor!=oldcolor)
         {
             rebuild_trans_table();
@@ -5106,10 +5101,7 @@ void zmap::PastePalette(const mapscr& copymapscr)
         int32_t newcolor=getcolor();
         loadlvlpal(newcolor);
         
-        if(!(screens[currscr].valid&mVALID))
-        {
-            newcolor=-1;
-        }
+        screens[currscr].valid|=mVALID;
         
         if(newcolor!=oldcolor)
         {
@@ -5130,10 +5122,7 @@ void zmap::PasteAll(const mapscr& copymapscr)
         int32_t newcolor=getcolor();
         loadlvlpal(newcolor);
         
-        if(!(screens[currscr].valid&mVALID))
-        {
-            newcolor=-1;
-        }
+        screens[currscr].valid|=mVALID;
         
         if(newcolor!=oldcolor)
         {
