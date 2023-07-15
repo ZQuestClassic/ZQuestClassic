@@ -609,7 +609,7 @@ void ScriptParser::assemble(IntermediateData *id)
 
 	// If there's a global script called "Init", append it to ~Init:
 	Script* userInit = program.getScript("Init");
-	if (userInit->getType() != ParserScriptType::global || userInit->isPrototypeRun())
+	if (userInit && (userInit->getType() != ParserScriptType::global || userInit->isPrototypeRun()))
 		userInit = nullptr;
 	
 	map<int32_t,vector<Script*>> initScripts;
