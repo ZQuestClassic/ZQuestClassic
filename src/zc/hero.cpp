@@ -324,6 +324,7 @@ void HeroClass::set_respawn_point(bool setwarp)
 			if(z > 0 || fakez > 0 || hoverclk) break; //in air
 			if(sideview_mode() && !on_sideview_solid(x,y,true)) break; //in air sideview
 			if(check_pitslide(true) != -1) break; //On a pit
+			if (ladderx+laddery) break; //on the ladder
 			
 			{ //Check water
 				int32_t water = 0;
@@ -9496,8 +9497,6 @@ heroanimate_skip_liftwpn:;
 	if(shield_forcedir > -1 && action != rafting)
 		dir = shield_forcedir;
 	
-	if(!get_bit(quest_rules,qr_OLD_RESPAWN_POINTS))
-		set_respawn_point(false); //Keep the 'last safe location' updated!
 	
 	// check for ladder removal
 	if(diagonalMovement)
@@ -9527,6 +9526,9 @@ heroanimate_skip_liftwpn:;
 			reset_ladder();
 		}
 	}
+	
+	if(!get_bit(quest_rules,qr_OLD_RESPAWN_POINTS)) //needs to happen after ladder removal so the respawn point is set when laddering over multiple 1 tile gaps.
+		set_respawn_point(false); //Keep the 'last safe location' updated!
 	
 	if(ilswim)
 		landswim++;
