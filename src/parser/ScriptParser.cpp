@@ -412,7 +412,7 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 					new LiteralArgument(0)));
 				first->setLabel(function.getLabel());
 				funccode.push_back(std::move(first));
-				addOpcode2(funccode, new OSetRegister(new VarArgument(CLASS_THISKEY2), new VarArgument(CLASS_THISKEY)));
+				addOpcode2(funccode, new OSetRegister(new VarArgument(CLASS_THISKEY2),new VarArgument(CLASS_THISKEY)));
 				addOpcode2(funccode, new OConstructClass(new VarArgument(CLASS_THISKEY),
 					new VectorArgument(user_class.members)));
 				std::shared_ptr<Opcode> alt(new ONoOp());
@@ -439,6 +439,8 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 			// Set up the stack frame register
 			addOpcode2(funccode, new OSetRegister(new VarArgument(SFRAME),
 												new VarArgument(SP)));
+			if (puc == puc_construct)
+				addOpcode2(funccode, new OPushRegister(new VarArgument(CLASS_THISKEY2)));
 			OpcodeContext oc(typeStore);
 			BuildOpcodes bo(scope);
 			bo.parsing_user_class = puc;
@@ -456,10 +458,11 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 			else next = new ONoOp();
 			next->setLabel(bo.getReturnLabelID());
 			addOpcode2(funccode, next);
+			
 			if (puc == puc_construct) //return val
 			{
 				addOpcode2(funccode, new OSetRegister(new VarArgument(EXP1), new VarArgument(CLASS_THISKEY)));
-				addOpcode2(funccode, new OSetRegister(new VarArgument(CLASS_THISKEY), new VarArgument(CLASS_THISKEY2)));
+				addOpcode2(funccode, new OPopRegister(new VarArgument(CLASS_THISKEY)));
 			}
 			addOpcode2(funccode, new OReturn());
 			function.giveCode(funccode);
