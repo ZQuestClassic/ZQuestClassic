@@ -87,7 +87,7 @@ def start_test_workflow_run(gh: Github, repo_str: str, branch: str, runs_on: str
         'runs-on': runs_on,
         'arch': arch,
         'compiler': compiler,
-        'extra-args': ' '.join(extra_args),
+        'extra-args': ' '.join(f'"{x}"' if ' ' in x else x for x in extra_args),
     }
     print(f'starting run with inputs: {inputs}')
     for key, value in inputs.items():
@@ -169,7 +169,7 @@ def get_args_for_collect_baseline_from_test_results(test_results_paths: List[Pat
         tree = intervaltree.IntervalTree.from_tuples(ranges)
         tree.merge_overlaps(strict=False)
         intervals_str = ' '.join(f'{i.begin}-{i.end}' for i in tree.items())
-        args.append(f'--snapshot={replay_name}="{intervals_str}"')
+        args.append(f'--snapshot={replay_name}={intervals_str}')
         max_frame = max([segment[1] for segment in ranges])
         args.append(f'--frame={replay_name}={max_frame}')
 
