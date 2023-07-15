@@ -412,6 +412,7 @@ static bool command_is_compiled(int command)
 	case MODR:
 	case MODV:
 	case MULTR:
+	case MULTV:
 	case NOP:
 	case SETR:
 	case SETV:
@@ -1080,6 +1081,14 @@ static JittedFunction compile_script(script_data *script)
 			cc.mov(result, arg1);
 			cc.sub(result, val);
 			set_z_register(cc, vStackIndex, arg2, result);
+		}
+		break;
+		case MULTV:
+		{
+			x86::Gp val = get_z_register_64(cc, vStackIndex, arg1);
+			cc.imul(val, arg2);
+			div_10000(cc, val);
+			set_z_register(cc, vStackIndex, arg1, val.r32());
 		}
 		break;
 		case MULTR:
