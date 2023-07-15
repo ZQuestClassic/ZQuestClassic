@@ -9830,25 +9830,25 @@ heroanimate_skip_liftwpn:;
 	
 	if(isdungeon() && action!=freeze && action != sideswimfreeze && loaded_guys && !inlikelike && !diveclk && action!=rafting && !lstunclock && !is_conveyor_stunned)
 	{
-		if(((dtype==dBOMBED)?DrunkUp():dir==up) && ((diagonalMovement||NO_GRIDLOCK)?x>112&&x<128:x==120) && y<=32 && tmpscr->door[0]==dtype)
+		if(((dtype==dBOMBED)?DrunkUp():dir==up) && ((diagonalMovement||NO_GRIDLOCK)?x.getInt()>112&&x.getInt()<128:x.getInt()==120) && y<=32 && tmpscr->door[0]==dtype)
 		{
 			walk=true;
 			dir=up;
 		}
 		
-		if(((dtype==dBOMBED)?DrunkDown():dir==down) && ((diagonalMovement||NO_GRIDLOCK)?x>112&&x<128:x==120) && y>=128 && tmpscr->door[1]==dtype)
+		if(((dtype==dBOMBED)?DrunkDown():dir==down) && ((diagonalMovement||NO_GRIDLOCK)?x.getInt()>112&&x.getInt()<128:x.getInt()==120) && y>=128 && tmpscr->door[1]==dtype)
 		{
 			walk=true;
 			dir=down;
 		}
 		
-		if(((dtype==dBOMBED)?DrunkLeft():dir==left) && x<=32 && ((diagonalMovement||NO_GRIDLOCK)?y>72&&y<88:y==80) && tmpscr->door[2]==dtype)
+		if(((dtype==dBOMBED)?DrunkLeft():dir==left) && x<=32 && ((diagonalMovement||NO_GRIDLOCK)?y.getInt()>72&&y.getInt()<88:y.getInt()==80) && tmpscr->door[2]==dtype)
 		{
 			walk=true;
 			dir=left;
 		}
 		
-		if(((dtype==dBOMBED)?DrunkRight():dir==right) && x>=208 && ((diagonalMovement||NO_GRIDLOCK)?y>72&&y<88:y==80) && tmpscr->door[3]==dtype)
+		if(((dtype==dBOMBED)?DrunkRight():dir==right) && x>=208 && ((diagonalMovement||NO_GRIDLOCK)?y.getInt()>72&&y.getInt()<88:y.getInt()==80) && tmpscr->door[3]==dtype)
 		{
 			walk=true;
 			dir=right;
@@ -17075,7 +17075,7 @@ LEFTRIGHT_OLDMOVE:
 	}
 }
 
-bool HeroClass::scr_walkflag(int dx,int dy,int d2,int mx,int my,bool kb)
+bool HeroClass::scr_walkflag(int dx,int dy,int d2,bool kb)
 {
 	if(toogam) return false;
 	
@@ -17086,19 +17086,19 @@ bool HeroClass::scr_walkflag(int dx,int dy,int d2,int mx,int my,bool kb)
 		return true;
 	//collide_object handled in scr_canmove
 	
-	if(isdungeon() && currscr<128 && dy<32
+	if(isdungeon() && currscr<128 && dy<40
 		&& ((x<=112||x>=128) || _walkflag(120,24,2,SWITCHBLOCK_STATE))
 		&& !get_bit(quest_rules,qr_FREEFORM))
-		return false; //Old NES dungeon stuff
+		return true; //Old NES dungeon stuff
 	
 	bool solid = _walkflag(dx,dy,1,SWITCHBLOCK_STATE);
 	
 	if(isdungeon() && currscr<128 && !get_bit(quest_rules,qr_FREEFORM))
 	{
-		if(mx>=112&&mx<120&&my<40&&my>=32)
+		if(dx>=112&&dx<120&&dy<40&&dy>=32)
 			solid=true;
 		
-		if(mx>=136&&mx<144&&my<40&&my>=32)
+		if(dx>=136&&dx<144&&dy<40&&dy>=32)
 			solid=true;
 	}
 	
@@ -17119,12 +17119,11 @@ bool HeroClass::scr_walkflag(int dx,int dy,int d2,int mx,int my,bool kb)
 				ls = 1;
 			if(landswim < ls)
 			{
-				if(mx<0||my<0);
-				else if(mx>248);
-				else if(mx>240);
-				else if(my>168);
+				if(dx<0||dy<0);
+				else if(dx>=256);
+				else if(dy>=176);
 				else if(get_bit(quest_rules, qr_DROWN) && !ilswim);
-				else if(iswaterex(MAPCOMBO(mx,my), currmap, currscr, -1, mx,my)) //!DIMI: weird duplicate function here before. Was water bugged this whole time, or was it just an unneccessary duplicate?
+				else if(iswaterex(MAPCOMBO(dx,dy), currmap, currscr, -1, dx,dy)) //!DIMI: weird duplicate function here before. Was water bugged this whole time, or was it just an unneccessary duplicate?
 					solid = false;
 				else
 					solid = true;
@@ -17132,19 +17131,18 @@ bool HeroClass::scr_walkflag(int dx,int dy,int d2,int mx,int my,bool kb)
 		}
 		else
 		{
-			int32_t wtrx  = iswaterex(MAPCOMBO(mx,my), currmap, currscr, -1, mx,my);
-			int32_t wtrx8 = iswaterex(MAPCOMBO(mx+8,my), currmap, currscr, -1, mx+8,my);
+			int32_t wtrx  = iswaterex(MAPCOMBO(dx,dy), currmap, currscr, -1, dx,dy);
 			
-			if((d2>=left && wtrx) || (d2<=down && wtrx && wtrx8))
+			if(wtrx)
 				solid = false;
 		}
 	}
 	else if(ladderx+laddery)                                  // ladder is being used
 	{
-		int32_t lx = !(get_bit(quest_rules, qr_DROWN)&&iswaterex(MAPCOMBO(x+4,y+11), currmap, currscr, -1, x+4,y+11)&&!_walkflag(x+4,y+11,1,SWITCHBLOCK_STATE)) ? zfix(mx) : x;
-		int32_t ly = !(get_bit(quest_rules, qr_DROWN)&&iswaterex(MAPCOMBO(x+4,y+11), currmap, currscr, -1, x+4,y+11)&&!_walkflag(x+4,y+11,1,SWITCHBLOCK_STATE)) ? zfix(my) : y;
+		int32_t lx = zfix(dx);
+		int32_t ly = zfix(dy);
 		
-		if(ladderdir==up)
+		if(ladderdir<=down) //vertical ladder
 		{
 			if(abs(ly-(laddery+8))<=8) // ly is between laddery (laddery+8-8) and laddery+16 (laddery+8+8)
 			{
@@ -17152,9 +17150,6 @@ bool HeroClass::scr_walkflag(int dx,int dy,int d2,int mx,int my,bool kb)
 				
 				if(!(abs(lx-(ladderx+8))<=8))
 					temp = true;
-					
-				if(!(abs((lx+8)-(ladderx+8))<=8))
-					temp=true;
 						
 				if(!temp)
 				{
@@ -17166,7 +17161,7 @@ bool HeroClass::scr_walkflag(int dx,int dy,int d2,int mx,int my,bool kb)
 				}
 			}
 		}
-		else
+		else //horizontal ladder
 		{
 			if(abs(lx-(ladderx+8))<=8)
 			{
@@ -17188,35 +17183,32 @@ bool HeroClass::scr_walkflag(int dx,int dy,int d2,int mx,int my,bool kb)
 	else if(solid || isSideViewHero() || get_bit(quest_rules, qr_DROWN))
 	{
 		// see if it's a good spot for the ladder or for swimming
-		bool unwalkablex  = _walkflag(mx,my,1,SWITCHBLOCK_STATE); //will be used later for the ladder -DD
-		bool unwalkablex8 = _walkflag(mx+8,my,1,SWITCHBLOCK_STATE);
+		bool unwalkablex  = _walkflag(dx,dy,1,SWITCHBLOCK_STATE); //will be used later for the ladder -DD
 		
 		if(get_bit(quest_rules, qr_DROWN))
 		{
 			// Drowning changes the following attributes:
 			// * Dangerous water is also walkable, so ignore the previous
-			// definitions of unwalkablex and unwalkablex8.
+			// definitions of unwalkablex.
 			// * Instead, prevent the ladder from being used in the
 			// one frame where Hero has landed on water before drowning.
-			unwalkablex = unwalkablex8 = !iswaterex(MAPCOMBO(x+4,y+11), currmap, currscr, -1, x+4,y+11);
+			unwalkablex = !iswaterex(MAPCOMBO(x+4,y+11), currmap, currscr, -1, x+4,y+11);
 		}
 		
 		// check if he can swim
 		if(current_item(itype_flippers) && z==0 && fakez==0)
 		{
-			int32_t wtrx  = iswaterex(MAPCOMBO(mx,my), currmap, currscr, -1, mx,my);
-			int32_t wtrx8 = iswaterex(MAPCOMBO(x+8,my), currmap, currscr, -1, mx+8,my);
-			if (current_item(itype_flippers) >= combobuf[wtrx8].attribytes[0] && (!(combobuf[wtrx8].usrflags&cflag1) || (itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG3))) //Don't swim if the water's required level is too high! -Dimi
+			int32_t wtrx  = iswaterex(MAPCOMBO(dx,dy), currmap, currscr, -1, dx,dy);
+			if (current_item(itype_flippers) >= combobuf[wtrx].attribytes[0] && (!(combobuf[wtrx].usrflags&cflag1) || (itemsbuf[current_item_id(itype_flippers)].flags & ITEM_FLAG3))) //Don't swim if the water's required level is too high! -Dimi
 			{
 				//ladder ignores water combos that are now walkable thanks to flippers -DD
 				unwalkablex = unwalkablex && (!wtrx);
-				unwalkablex8 = unwalkablex8 && (!wtrx8);
 				
 				if(landswim >= 22)
 				{
 					solid = false;
 				}
-				else if((d2>=left && wtrx) || (d2<=down && wtrx && wtrx8))
+				else if(wtrx)
 				{
 					if(dir==d2)
 					{
@@ -17233,28 +17225,25 @@ bool HeroClass::scr_walkflag(int dx,int dy,int d2,int mx,int my,bool kb)
 			// laddersetup
 		{
 			// Check if there's water to use the ladder over
-			bool wtrx = (iswaterex(MAPCOMBO(mx,my), currmap, currscr, -1, mx,my) != 0);
-			bool wtrx8 = (iswaterex(MAPCOMBO(mx+8,my), currmap, currscr, -1, mx+8,my) != 0);
+			bool wtrx = (iswaterex(MAPCOMBO(dx,dy), currmap, currscr, -1, dx,dy) != 0);
 			int32_t ldrid = current_item_id(itype_ladder);
 			bool ladderpits = ldrid > -1 && (itemsbuf[ldrid].flags&ITEM_FLAG1);
 			
-			if(wtrx || wtrx8)
+			if(wtrx)
 			{
 				if(isSideViewHero())
 				{
-					wtrx  = !_walkflag(mx, my+8, 1,SWITCHBLOCK_STATE) && !_walkflag(mx, my, 1,SWITCHBLOCK_STATE) && dir!=down;
-					wtrx8 = !_walkflag(mx+8, my+8, 1,SWITCHBLOCK_STATE) && !_walkflag(mx+8, my, 1,SWITCHBLOCK_STATE) && dir!=down;
+					wtrx  = !_walkflag(dx, dy+8, 1,SWITCHBLOCK_STATE) && !_walkflag(dx, dy, 1,SWITCHBLOCK_STATE) && dir!=down;
 				}
 				// * walk on half-water using the ladder instead of using flippers.
 				// * otherwise, walk on ladder(+hookshot) combos.
-				else if(wtrx==wtrx8 && (isstepable(MAPCOMBO(mx, my)) || isstepable(MAPCOMBO(mx+8,my)) || wtrx==true))
+				else if((isstepable(MAPCOMBO(dx, dy)) || wtrx==true))
 				{
 					if(!get_bit(quest_rules, qr_OLD_210_WATER))
 					{
 						//if Hero could swim on a tile instead of using the ladder,
 						//refuse to use the ladder to step over that tile. -DD
-						wtrx  = isstepable(MAPCOMBO(mx, my)) && unwalkablex;
-						wtrx8 = isstepable(MAPCOMBO(mx+8,my)) && unwalkablex8;
+						wtrx  = isstepable(MAPCOMBO(dx, dy)) && unwalkablex;
 					}
 				}
 			}
@@ -17265,17 +17254,13 @@ bool HeroClass::scr_walkflag(int dx,int dy,int d2,int mx,int my,bool kb)
 				//Check pits
 				if(ladderpits)
 				{
-					int32_t pit_cmb = getpitfall(mx,my);
+					int32_t pit_cmb = getpitfall(dx,dy);
 					wtrx = pit_cmb && (combobuf[pit_cmb].usrflags&cflag4);
-					pit_cmb = getpitfall(mx+8,my);
-					wtrx8 = pit_cmb && (combobuf[pit_cmb].usrflags&cflag4);
 				}
-				if(!ladderpits || (!(wtrx || wtrx8) || isSideViewHero())) //If no pit, check ladder combos
+				if(!ladderpits || (!wtrx || isSideViewHero())) //If no pit, check ladder combos
 				{
-					int32_t combo=combobuf[MAPCOMBO(mx, my)].type;
+					int32_t combo=combobuf[MAPCOMBO(dx, dy)].type;
 					wtrx=(combo==cLADDERONLY || combo==cLADDERHOOKSHOT);
-					combo=combobuf[MAPCOMBO(mx+8, my)].type;
-					wtrx8=(combo==cLADDERONLY || combo==cLADDERHOOKSHOT);
 				}
 			}
 			
@@ -17285,17 +17270,15 @@ bool HeroClass::scr_walkflag(int dx,int dy,int d2,int mx,int my,bool kb)
 				{
 					if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
 					{
-						if (combobuf[MAPCOMBO2(i,mx,my)].type == cBRIDGE && !_walkflag_layer(mx,my,1, &(tmpscr2[i]))) wtrx = false;
-						if (combobuf[MAPCOMBO2(i,mx+8,my)].type == cBRIDGE && !_walkflag_layer(mx+8,my,1, &(tmpscr2[i]))) wtrx8 = false;
+						if (combobuf[MAPCOMBO2(i,dx,dy)].type == cBRIDGE && !_walkflag_layer(dx,dy,1, &(tmpscr2[i]))) wtrx = false;
 					}
 					else
 					{
-						if (combobuf[MAPCOMBO2(i,mx,my)].type == cBRIDGE && _effectflag_layer(mx,my,1, &(tmpscr2[i]))) wtrx = false;
-						if (combobuf[MAPCOMBO2(i,mx+8,my)].type == cBRIDGE && _effectflag_layer(mx+8,my,1, &(tmpscr2[i]))) wtrx8 = false;
+						if (combobuf[MAPCOMBO2(i,dx,dy)].type == cBRIDGE && _effectflag_layer(dx,dy,1, &(tmpscr2[i]))) wtrx = false;
 					}
 				}
 			}
-			bool walkwater = (get_bit(quest_rules, qr_DROWN) && !iswaterex(MAPCOMBO(mx,my), currmap, currscr, -1, mx,my));
+			bool walkwater = (get_bit(quest_rules, qr_DROWN) && !iswaterex(MAPCOMBO(dx,dy), currmap, currscr, -1, dx,dy));
 			
 			if(d2==dir)
 			{
@@ -17304,15 +17287,15 @@ bool HeroClass::scr_walkflag(int dx,int dy,int d2,int mx,int my,bool kb)
 				
 				if(d2>=left)
 				{
-					// If the difference between my and y is small enough
-					if(abs((my)-(int32_t(y+c)))<=(b) && wtrx)
+					// If the difference between dy and y is small enough
+					if(abs((dy)-(int32_t(y+c)))<=(b) && wtrx)
 					{
 						// Don't activate the ladder if it would be entirely
 						// over water and Hero has the flippers. This isn't
 						// a good way to do this, but it's too risky
 						// to make big changes to this stuff.
 						bool deployLadder=true;
-						int32_t lx=mx&0xF0;
+						int32_t lx=dx&0xF0;
 						if(current_item(itype_flippers) && current_item(itype_flippers) >= combobuf[iswaterex(MAPCOMBO(lx+8, y+8), currmap, currscr, -1, lx+8, y+8)].attribytes[0] && z==0 && fakez==0)
 						{
 							if(iswaterex(MAPCOMBO(lx, y), currmap, currscr, -1, lx, y) && 
@@ -17323,7 +17306,7 @@ bool HeroClass::scr_walkflag(int dx,int dy,int d2,int mx,int my,bool kb)
 						}
 						if(deployLadder)
 						{
-							ladderx = mx&0xF0;
+							ladderx = dx&0xF0;
 							laddery = y;
 							ladderdir = left;
 							ladderstart = d2;
@@ -17333,19 +17316,11 @@ bool HeroClass::scr_walkflag(int dx,int dy,int d2,int mx,int my,bool kb)
 				}
 				else if(d2<=down)
 				{
-					// If the difference between mx and x is small enough
-					if(abs((mx)-(int32_t(x+c)))<=(b) && wtrx)
+					// If the difference between dx and x is small enough
+					if(abs((dx)-(int32_t(x+c)))<=(b) && wtrx)
 					{
 						ladderx = x;
-						laddery = my&0xF0;
-						ladderdir = up;
-						ladderstart = d2;
-						solid = ladderx!=x.getInt();
-					}
-					else if(abs((mx+8)-(int32_t(x+c)))<=(b) && wtrx8)
-					{
-						ladderx = x;
-						laddery = my&0xF0;
+						laddery = dy&0xF0;
 						ladderdir = up;
 						ladderstart = d2;
 						solid = ladderx!=x.getInt();
@@ -17377,10 +17352,10 @@ bool HeroClass::scr_canmove(zfix dx, zfix dy, bool kb, bool ign_sv)
 			int mx = (bx+dx).getFloor();
 			for(zfix ty = 0; by+ty < ry; ty += 8)
 			{
-				if(scr_walkflag(mx, by+ty, left, mx, by, kb))
+				if(scr_walkflag(mx, by+ty, left, kb))
 					return false;
 			}
-			if(scr_walkflag(mx, ry, left, mx, by, kb))
+			if(scr_walkflag(mx, ry, left, kb))
 				return false;
 			if(nosolid && collide_object(bx+dx,by,-dx,hei,this))
 				return false;
@@ -17391,10 +17366,10 @@ bool HeroClass::scr_canmove(zfix dx, zfix dy, bool kb, bool ign_sv)
 			int lx = mx-hit_width+1;
 			for(zfix ty = 0; by+ty < ry; ty += 8)
 			{
-				if(scr_walkflag(mx, by+ty, right, lx, by, kb))
+				if(scr_walkflag(mx, by+ty, right, kb))
 					return false;
 			}
-			if(scr_walkflag(mx, ry, right, lx, by, kb))
+			if(scr_walkflag(mx, ry, right, kb))
 				return false;
 			if(nosolid && collide_object(bx+wid,by,dx,hei,this))
 				return false;
@@ -17407,10 +17382,10 @@ bool HeroClass::scr_canmove(zfix dx, zfix dy, bool kb, bool ign_sv)
 			int my = (by+dy).getFloor();
 			for(zfix tx = 0; bx+tx < rx; tx += 8)
 			{
-				if(scr_walkflag(bx+tx, my, up, bx, my, kb))
+				if(scr_walkflag(bx+tx, my, up, kb))
 					return false;
 			}
-			if(scr_walkflag(rx, my, up, bx, my, kb))
+			if(scr_walkflag(rx, my, up, kb))
 				return false;
 			if(nosolid && collide_object(bx,by+dy,wid,-dy,this))
 				return false;
@@ -17421,10 +17396,10 @@ bool HeroClass::scr_canmove(zfix dx, zfix dy, bool kb, bool ign_sv)
 			int ly = my-hit_height+1;
 			for(zfix tx = 0; bx+tx < rx; tx += 8)
 			{
-				if(scr_walkflag(bx+tx, my, down, bx, ly, kb))
+				if(scr_walkflag(bx+tx, my, down, kb))
 					return false;
 			}
-			if(scr_walkflag(rx, my, down, bx, ly, kb))
+			if(scr_walkflag(rx, my, down, kb))
 				return false;
 			if(nosolid && collide_object(bx,by+hei,wid,dy,this))
 				return false;
@@ -17508,9 +17483,9 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 				auto mdir = GET_XDIR(dx);
 				int v1=bigHitbox?0:8;
 				int v2=bigHitbox?8:12;
-				bool hit_top = scr_walkflag(tx,y+v1,mdir,x+sign(dx),y,false);
-				bool hit_mid = scr_walkflag(tx,y+v2,mdir,x+sign(dx),y,false);
-				bool hit_bottom = scr_walkflag(tx,y+15,mdir,x+sign(dx),y,false);
+				bool hit_top = scr_walkflag(tx,y+v1,mdir,false);
+				bool hit_mid = scr_walkflag(tx,y+v2,mdir,false);
+				bool hit_bottom = scr_walkflag(tx,y+15,mdir,false);
 				if(!hit_mid && (hit_top!=hit_bottom))
 				{
 					if(hit_bottom) //shove up
@@ -17567,9 +17542,9 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 			{
 				zfix ty = (dy < 0 ? (y+(bigHitbox?0:8)-1) : (y+16));
 				auto mdir = GET_YDIR(dy);
-				bool hit_left = scr_walkflag(x,ty,mdir,x,y+sign(dy),false);
-				bool hit_mid = scr_walkflag(x+8,ty,mdir,x,y+sign(dy),false);
-				bool hit_right = scr_walkflag(x+15,ty,mdir,x,y+sign(dy),false);
+				bool hit_left = scr_walkflag(x,ty,mdir,false);
+				bool hit_mid = scr_walkflag(x+8,ty,mdir,false);
+				bool hit_right = scr_walkflag(x+15,ty,mdir,false);
 				if(!hit_mid && (hit_left!=hit_right))
 				{
 					if(hit_right) //shove left
@@ -18137,7 +18112,6 @@ bool HeroClass::premove()
 }
 void HeroClass::movehero()
 {
-	WalkflagInfo info;
 	int32_t xoff=x.getInt()&7;
 	int32_t yoff=y.getInt()&7;
 	if(NO_GRIDLOCK)
