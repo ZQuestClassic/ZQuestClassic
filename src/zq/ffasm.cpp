@@ -1150,7 +1150,7 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "DRAWLIGHT_CIRCLE", 0, 0, 0, 0 },
 	{ "DRAWLIGHT_SQUARE", 0, 0, 0, 0 },
 	{ "DRAWLIGHT_CONE", 0, 0, 0, 0 },
-	{ "RESRVD_OP_EMILY_09", 0, 0, 0, 0 },
+	{ "PEEK", 1, 0, 0, 0 },
 	{ "RESRVD_OP_EMILY_10", 0, 0, 0, 0 },
 	{ "RESRVD_OP_EMILY_11", 0, 0, 0, 0 },
 	{ "RESRVD_OP_EMILY_12", 0, 0, 0, 0 },

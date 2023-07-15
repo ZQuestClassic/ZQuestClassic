@@ -2616,9 +2616,9 @@ string ODrawLightCone::toString() const
 {
 	return "DRAWLIGHT_CONE";
 }
-string OResrvdOpEmily09::toString() const
+string OPeekRegister::toString() const
 {
-	return "RESRVD_OP_EMILY_09";
+	return "PEEK " + getArgument()->toString();
 }
 string OResrvdOpEmily10::toString() const
 {

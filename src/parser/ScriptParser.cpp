@@ -449,10 +449,13 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 			appendElements(funccode, bo.getResult());
 			
 			// Pop off everything
-			std::shared_ptr<Opcode> next(new OPopArgsRegister(new VarArgument(NUL),
-				new LiteralArgument(stackSize)));
+			Opcode* next;
+			if(stackSize)
+				next = new OPopArgsRegister(new VarArgument(NUL),
+					new LiteralArgument(stackSize));
+			else next = new ONoOp();
 			next->setLabel(bo.getReturnLabelID());
-			funccode.push_back(std::move(next));
+			addOpcode2(funccode, next);
 			if (puc == puc_construct) //return val
 			{
 				addOpcode2(funccode, new OSetRegister(new VarArgument(EXP1), new VarArgument(CLASS_THISKEY)));
@@ -468,8 +471,7 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 			int32_t stackSize = getStackSize(function);
 			
 			// Start of the function.
-			std::shared_ptr<Opcode> first(new OSetImmediate(new VarArgument(EXP1),
-											  new LiteralArgument(0)));
+			std::shared_ptr<Opcode> first(new ONoOp());
 			first->setLabel(function.getLabel());
 			funccode.push_back(std::move(first));
 			
@@ -481,71 +483,54 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 				if (type == ParserScriptType::ffc )
 				{
 					addOpcode2(funccode, 
-						new OSetRegister(new VarArgument(EXP2),
-								 new VarArgument(REFFFC)));
-
-
+						new OPushRegister(new VarArgument(REFFFC)));
 				}
 				else if (type == ParserScriptType::item )
 				{
 					addOpcode2(funccode,
-						new OSetRegister(new VarArgument(EXP2),
-								 new VarArgument(REFITEMCLASS)));
-
+						new OPushRegister(new VarArgument(REFITEMCLASS)));
 				}
 				else if (type == ParserScriptType::npc )
 				{
 					addOpcode2(funccode,
-						new OSetRegister(new VarArgument(EXP2),
-								 new VarArgument(REFNPC)));
-
+						new OPushRegister(new VarArgument(REFNPC)));
 				}
 				else if (type == ParserScriptType::lweapon )
 				{
 					addOpcode2(funccode,
-						new OSetRegister(new VarArgument(EXP2),
-								 new VarArgument(REFLWPN)));
+						new OPushRegister(new VarArgument(REFLWPN)));
 				}
 				else if (type == ParserScriptType::eweapon )
 				{
 					addOpcode2(funccode,
-						new OSetRegister(new VarArgument(EXP2),
-								 new VarArgument(REFEWPN)));
-
+						new OPushRegister(new VarArgument(REFEWPN)));
 				}
 				else if (type == ParserScriptType::dmapdata )
 				{
 					addOpcode2(funccode,
-						new OSetRegister(new VarArgument(EXP2),
-								 new VarArgument(REFDMAPDATA)));
-
+						new OPushRegister(new VarArgument(REFDMAPDATA)));
 				}
 				else if (type == ParserScriptType::itemsprite)
 				{
 					addOpcode2(funccode,
-						new OSetRegister(new VarArgument(EXP2),
-								new VarArgument(REFITEM)));
+						new OPushRegister(new VarArgument(REFITEM)));
 				}
 				else if (type == ParserScriptType::subscreendata)
 				{
 					addOpcode2(funccode,
-						new OSetRegister(new VarArgument(EXP2),
-								new VarArgument(REFSUBSCREEN)));
+						new OPushRegister(new VarArgument(REFSUBSCREEN)));
 				}
 				else if (type == ParserScriptType::combodata)
 				{
 					addOpcode2(funccode,
-						new OSetRegister(new VarArgument(EXP2),
-								new VarArgument(REFCOMBODATA)));
+						new OPushRegister(new VarArgument(REFCOMBODATA)));
 				}
 				else if (type == ParserScriptType::genericscr)
 				{
 					addOpcode2(funccode,
-						new OSetRegister(new VarArgument(EXP2),
-								new VarArgument(REFGENERICDATA)));
+						new OPushRegister(new VarArgument(REFGENERICDATA)));
 				}
-				
-				addOpcode2(funccode, new OPushRegister(new VarArgument(EXP2)));
+				//else addOpcode2(funccode, new OPushImmediate(new LiteralArgument(0)));
 			}
 			
 			// Push 0s for the local variables.
@@ -564,16 +549,15 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 			appendElements(funccode, bo.getResult());
 			
 			// Add appendix code.
-			std::shared_ptr<Opcode> next(new OSetImmediate(new VarArgument(EXP2),
-													  new LiteralArgument(0)));
+			std::shared_ptr<Opcode> next(new ONoOp());
 			next->setLabel(bo.getReturnLabelID());
 			funccode.push_back(std::move(next));
 			
 			// Pop off everything.
-			for (int32_t i = 0; i < stackSize; ++i)
-			{
-				addOpcode2(funccode, new OPopRegister(new VarArgument(EXP2)));
-			}
+			if(stackSize)
+				addOpcode2(funccode, new OPopArgsRegister(new VarArgument(NUL),
+					new LiteralArgument(stackSize)));
+			else addOpcode2(funccode, new ONoOp());
 			
 			//if it's a main script, quit.
 			if (isRun)
@@ -678,8 +662,6 @@ void ScriptParser::assemble(IntermediateData *id)
 			for(auto it = runCode.begin(); it != runCode.end(); ++it, ++index)
 			{
 				Opcode* op = it->get();
-				if(index < 2)
-					continue; //Skip the SETV d2,0 and PUSHR d3
 				if(dynamic_cast<OQuit*>(op))
 				{
 					op = new OReturn(); //Replace 'Quit();' with 'return;'
@@ -803,6 +785,7 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(
 	{
 		Opcode* ocode = it->get();
 		
+		auto lbl = ocode->getLabel();
 		//Merge multiple consecutive pops to the same register
 		OPopRegister* popreg = dynamic_cast<OPopRegister*>(ocode);
 		OPopArgsRegister* popargs = dynamic_cast<OPopArgsRegister*>(ocode);
@@ -838,6 +821,32 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(
 					++addcount;
 				it2 = rval.erase(it2);
 			}
+			size_t startcount = 1;
+			if(popargs)
+			{
+				LiteralArgument* litarg = static_cast<LiteralArgument*>(popargs->getSecondArgument());
+				startcount = litarg->value;
+			}
+			if(addcount+startcount == 1)
+			{
+				Opcode* nextcode = it2->get();
+				if(nextcode->getLabel() == -1)
+				{
+					if(OPushRegister* pusharg = dynamic_cast<OPushRegister*>(nextcode))
+					{
+						if(!targreg.compare(pusharg->getArgument()->toString()))
+						{
+							Argument* reg = regarg->clone();
+							it2 = rval.erase(it2);
+							it = rval.erase(it);
+							it = rval.insert(it,std::shared_ptr<Opcode>(new OPeekRegister(reg)));
+							(*it)->setLabel(lbl);
+							++it;
+							continue;
+						}
+					}
+				}
+			}
 			if(addcount)
 			{
 				if(popreg)
@@ -845,6 +854,7 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(
 					Argument* reg = regarg->clone();
 					it = rval.erase(it);
 					it = rval.insert(it,std::shared_ptr<Opcode>(new OPopArgsRegister(reg,new LiteralArgument(addcount+1))));
+					(*it)->setLabel(lbl);
 				}
 				else //if popargs
 				{
@@ -859,7 +869,6 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(
 		//Remove No Ops, handling their labels
 		if(ONoOp* nop = dynamic_cast<ONoOp*>(ocode))
 		{
-			auto lbl = nop->getLabel();
 			if(lbl == -1) //no label, just trash it
 			{
 				it = rval.erase(it);

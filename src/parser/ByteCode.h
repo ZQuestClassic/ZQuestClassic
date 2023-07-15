@@ -2409,13 +2409,14 @@ namespace ZScript
 			return new ODrawLightCone();
 		}
 	};
-	class OResrvdOpEmily09 : public Opcode
+	class OPeekRegister : public UnaryOpcode
 	{
 	public:
+		OPeekRegister(Argument *A) : UnaryOpcode(A) {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OResrvdOpEmily09();
+			return new OPeekRegister(a->clone());
 		}
 	};
 	class OResrvdOpEmily10 : public Opcode

@@ -23797,6 +23797,11 @@ void do_pop()
 	set_register(sarg1, value);
 }
 
+void do_peek()
+{
+	set_register(sarg1, SH::read_stack(ri->sp));
+}
+
 void do_pops() // Pop past a bunch of stuff at once. Useful for clearing the stack.
 {
 	int32_t num = sarg2;
@@ -31172,6 +31177,9 @@ j_command:
 				do_push(true);
 				break;
 				
+			case PEEK:
+				do_peek();
+				break;
 			case POP:
 				do_pop();
 				break;
@@ -40932,7 +40940,7 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "DRAWLIGHT_CIRCLE", 0, 0, 0, 0 },
 	{ "DRAWLIGHT_SQUARE", 0, 0, 0, 0 },
 	{ "DRAWLIGHT_CONE", 0, 0, 0, 0 },
-	{ "RESRVD_OP_EMILY_09", 0, 0, 0, 0 },
+	{ "PEEK", 1, 0, 0, 0 },
 	{ "RESRVD_OP_EMILY_10", 0, 0, 0, 0 },
 	{ "RESRVD_OP_EMILY_11", 0, 0, 0, 0 },
 	{ "RESRVD_OP_EMILY_12", 0, 0, 0, 0 },
