@@ -711,6 +711,14 @@ static JittedFunction compile_script(script_data *script)
 			if (DEBUG_JIT_PRINT_ASM && command != 0xFFFF)
 				uncompiled_command_counts[command]++;
 
+			if (DEBUG_JIT_PRINT_ASM)
+			{
+				std::string command_str =
+					script_debug_command_to_string(command, arg1, arg2);
+				cc.setInlineComment((comment = fmt::format("{} {}", i, command_str)).c_str());
+				cc.nop();
+			}
+
 			// Every command that is not compiled to assembly must go through the regular interpreter function.
 			// In order to reduce function call overhead, we call into the interpreter function in batches.
 			int uncompiled_command_count = 1;
