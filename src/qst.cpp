@@ -3890,6 +3890,7 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
 		for(int32_t x=0; x<strings_to_read; x++)
 		{
 			init_msgstr(&tempMsgString);
+			tempMsgString.listpos = x;
 			
 			if(!pfread(buf,73,f,true))
 			{
@@ -3999,6 +4000,7 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
 		for(int32_t i=0; i<temp_msg_count; i++)
 		{
 			init_msgstr(&tempMsgString);
+			tempMsgString.listpos = i;
 			if(s_version > 8)
 			{
 				if(!p_igetl(&string_length,f,true))
