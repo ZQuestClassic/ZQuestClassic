@@ -381,8 +381,11 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 	add_compile_options("-ffp-model=fast")
 endif()
 
+# Optimize the math functions always, even for debug mode. This reduces many inconsistencies with replays
+# in non-Release builds.
 if(MSVC)
-	set_source_files_properties(src/base/zc_math.cpp PROPERTIES COMPILE_FLAGS /O2)
+	# error D8016: '/O2' and '/RTC1' command-line options are incompatible
+	# set_source_files_properties(src/base/zc_math.cpp PROPERTIES COMPILE_FLAGS /O2)
 else()
 	set_source_files_properties(src/base/zc_math.cpp PROPERTIES COMPILE_FLAGS -O3)
 endif()

@@ -1494,10 +1494,8 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 	else if(classfunc)
 	{
 		int32_t funclabel = func.getLabel();
-		//push the stack frame pointer
-		bool store_this = host.left->isTypeArrow();
-		if(store_this)
-			addOpcode(new OPushRegister(new VarArgument(CLASS_THISKEY)));
+		//push the this key/stack frame pointer
+		addOpcode(new OPushRegister(new VarArgument(CLASS_THISKEY)));
 		addOpcode(new OPushRegister(new VarArgument(SFRAME)));
 		//push the return address
 		int32_t returnaddr = ScriptParser::getUniqueLabelID();
@@ -1549,7 +1547,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		{
 			addOpcode(new OPushImmediate(new LiteralArgument(func.opt_vals[q])));
 		}
-		if (store_this)
+		if (host.left->isTypeArrow())
 		{
 			//load the value of the left-hand of the arrow into EXP1
 			visit(static_cast<ASTExprArrow&>(*host.left).left.get(), c);
@@ -1569,8 +1567,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		Opcode *next = new OPopRegister(new VarArgument(SFRAME));
 		next->setLabel(returnaddr);
 		addOpcode(next);
-		if(store_this)
-			addOpcode(new OPopRegister(new VarArgument(CLASS_THISKEY)));
+		addOpcode(new OPopRegister(new VarArgument(CLASS_THISKEY)));
 	}
 	else
 	{
