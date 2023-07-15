@@ -1,10 +1,14 @@
 import argparse
 import re
+import os
 import subprocess
 import textwrap
+from pathlib import Path
 from dataclasses import dataclass
 from typing import Dict, List
 from git_hooks.common import valid_types, valid_scopes
+
+script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
@@ -17,6 +21,8 @@ from_sha = getattr(args, 'from', None)
 
 commit_url_prefix = 'https://github.com/ArmageddonGames/ZQuestClassic/commit'
 
+overrides = (script_dir / 'changelog_overrides.txt').read_text()
+overrides = dict(map(lambda s: s.split(' ', 1), overrides.splitlines()))
 
 @dataclass
 class Commit:
@@ -114,6 +120,8 @@ def generate_changelog(commits_by_type: Dict[str, List[Commit]], format: str):
                 if c.body and not prev_had_body:
                     lines.append('')
                 lines.append(f'{c.scope_and_oneline()}')
+                if 'SHOW_HASH' in os.environ:
+                    lines[-1] = c.hash + ' ' + lines[-1]
                 if c.body:
                     lines.append('  ' + c.body.replace('\n', '\n  ') + '\n')
                     prev_had_body = True
@@ -134,6 +142,8 @@ commits_text = subprocess.check_output(
 commits: List[Commit] = []
 for commit_text in commits_text.splitlines():
     short_hash, hash, subject = commit_text.split(' ', 2)
+    if hash in overrides:
+        subject = overrides[hash]
     body = subprocess.check_output(
         f'git log -1 {hash} --format="%b"', shell=True, encoding='utf-8').strip()
     type, scope, oneline = parse_scope_and_type(subject)
