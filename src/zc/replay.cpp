@@ -1118,6 +1118,11 @@ static void fail_replay(std::string error)
 	fprintf(stderr, "%s\n", error1.c_str());
 	fprintf(stderr, "%s\n", error2.c_str());
 
+	if (failing_frame == -1)
+	{
+		failing_frame = frame_count;
+	}
+
 	if (!exit_when_done)
 	{
 		enter_sys_pal();
