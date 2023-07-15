@@ -1685,7 +1685,6 @@ int32_t init_game()
 {
 	if(clearConsoleOnLoad)
 		clearConsole();
-	jit_reset_all();
 	current_subscreen_active = nullptr;
 
     // Various things use the frame counter to do random stuff (ex: runDrunkRNG).
@@ -1824,13 +1823,9 @@ int32_t init_game()
 		//setPackfilePassword(NULL);
 		return 1;
 	}
-	
+
 	FFCore.SetNegArray();
-	
-	if (jit_is_enabled() && zc_get_config("ZSCRIPT", "jit_precompile", false))
-	{
-		jit_precompile_scripts();
-	}
+	jit_startup();
 
 	if (!firstplay) load_genscript(*game);
 	genscript_timing = SCR_TIMING_START_FRAME;
@@ -4919,7 +4914,8 @@ int main(int argc, char **argv)
 		skipcont = 0;
 		if(forceExit) //fix for the allegro at_exit() hang.
 			exit(0);
-			
+		
+		jit_shutdown();
 		allegro_exit();
 		return 0;
 	}
