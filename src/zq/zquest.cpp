@@ -14638,7 +14638,7 @@ int32_t onScreenPalette()
 	auto oldcol = screen_pal_dlg[2].d1 = Map.getcolor();
 	
 	large_dialog(screen_pal_dlg);
-	
+	auto old_valid = Map.CurrScr()->valid;
 	while(true)
 	{
 		auto ret = zc_popup_dialog(screen_pal_dlg,2);
@@ -14655,7 +14655,11 @@ int32_t onScreenPalette()
 					saved=false;
 				Map.setcolor(screen_pal_dlg[2].d1);
 			}
-			else Map.setcolor(oldcol);
+			else
+			{
+				Map.setcolor(oldcol);
+				Map.CurrScr()->valid = old_valid;
+			}
 			refresh(rALL);
 			break;
 		}
