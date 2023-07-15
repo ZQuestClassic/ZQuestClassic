@@ -892,6 +892,27 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(
 			continue;
 		}
 		
+		if(OSetImmediate* setop = dynamic_cast<OSetImmediate*>(ocode))
+		{
+			Argument const* regarg = setop->getFirstArgument();
+			auto it2 = it;
+			++it2;
+			Opcode* nextcode = it2->get();
+			if(OTraceRegister* traceop = dynamic_cast<OTraceRegister*>(nextcode))
+			{
+				if(traceop->getLabel() == -1 && !regarg->toString().compare(
+					traceop->getArgument()->toString()))
+				{
+					Argument* arg = setop->getSecondArgument()->clone();
+					it2 = rval.erase(it2);
+					it = rval.erase(it);
+					it = rval.insert(it, std::shared_ptr<Opcode>(new OTraceImmediate(arg)));
+					(*it)->setLabel(lbl);
+					++it;
+					continue;
+				}
+			}
+		}
 		//Not an opcode that has any special optimizations
 		++it;
 	}
