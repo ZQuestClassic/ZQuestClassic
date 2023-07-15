@@ -3472,6 +3472,8 @@ struct dmap
 	int32_t onmap_initD[8];
 	char onmap_initD_label[8][65];
 	int16_t mirrorDMap;
+	int32_t tmusic_loop_start;
+	int32_t tmusic_loop_end;
 };
 
 // DMap flags
