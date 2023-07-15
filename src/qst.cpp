@@ -79,6 +79,7 @@ using std::pair;
 // extern bool                debug;
 extern int32_t                 hero_animation_speed; //lower is faster animation
 extern std::vector<mapscr> TheMaps;
+extern std::vector<word>   map_autolayers;
 extern zcmap               *ZCMaps;
 extern MsgStr              *MsgStrings;
 extern DoorComboSet        *DoorComboSets;
@@ -1334,6 +1335,7 @@ int32_t get_qst_buffers()
     memrequested+=(sizeof(mapscr)*MAPSCRS);
     Z_message("Allocating map buffer (%s)... ", byte_conversion2(sizeof(mapscr)*MAPSCRS,memrequested,-1, -1));
     TheMaps.resize(MAPSCRS);
+	map_autolayers.resize(6);
     
     for(int32_t i(0); i<MAPSCRS; i++)
         TheMaps[i].zero_memory();
@@ -17265,7 +17267,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	
 	return 0;
 }
-int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap *temp_map, word version)
+int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap *temp_map, word version, int scrind)
 {
 	if(version < 23)
 	{
@@ -17277,7 +17279,22 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zc
 		if(!p_getc(&(temp_mapscr->valid),f,true))
 			return qe_invalid;
 		if(!(temp_mapscr->valid & mVALID))
-			return 0; //Empty screen
+		{
+			int map = scrind/MAPSCRS;
+			int scr = scrind%MAPSCRS;
+			if(version > 25 && scrind > -1 && (map*6+5) < map_autolayers.size())
+			{
+				//Empty screen, apply autolayers
+				for(int q = 0; q < 6; ++q)
+				{
+					auto layermap = map_autolayers[map*6+q];
+					temp_mapscr->layermap[q] = layermap;
+					if(layermap)
+						temp_mapscr->layerscreen[q] = scr;
+				}
+			}
+			return 0;
+		}
 		uint32_t scr_has_flags;
 		if(!p_igetl(&scr_has_flags,f,true))
 			return qe_invalid;
@@ -17389,13 +17406,6 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zc
 				return qe_invalid;
 			if(!p_getc(&(temp_mapscr->hidescriptlayers),f,true))
 				return qe_invalid;
-		}
-		else
-		{			
-			for(int32_t k=0; k<6; k++)
-			{
-				temp_mapscr->layeropacity[k] = 255;
-			}
 		}
 		if(scr_has_flags & SCRHAS_MAZE)
 		{
@@ -17736,6 +17746,8 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header, bool keepdata)
 	{
 		const int32_t _mapsSize = MAPSCRS*temp_map_count;
 		TheMaps.resize(_mapsSize);
+		map_autolayers.clear();
+		map_autolayers.resize(temp_map_count*6);
 		
 		for(int32_t i(0); i<_mapsSize; i++)
 			TheMaps[i].zero_memory();
@@ -17745,21 +17757,23 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header, bool keepdata)
 	
 	temp_mapscr.zero_memory();
 	
-	memset(&temp_map, 0, sizeof(zcmap));
-	temp_map.scrResWidth = 256;
-	temp_map.scrResHeight = 224;
-	temp_map.tileWidth = 16;
-	temp_map.tileHeight = 11;
-	temp_map.viewWidth = 256;
-	temp_map.viewHeight = 176;
-	temp_map.viewX = 0;
-	temp_map.viewY = 64;
-	temp_map.subaWidth = 256;
-	temp_map.subaHeight = 168;
-	temp_map.subaTrans = false;
-	temp_map.subpWidth = 256;
-	temp_map.subpHeight = 56;
-	temp_map.subpTrans = false;
+	{ //Is this stuff even needed anymore? Is it used at all? -Em
+		memset(&temp_map, 0, sizeof(zcmap));
+		temp_map.scrResWidth = 256;
+		temp_map.scrResHeight = 224;
+		temp_map.tileWidth = 16;
+		temp_map.tileHeight = 11;
+		temp_map.viewWidth = 256;
+		temp_map.viewHeight = 176;
+		temp_map.viewX = 0;
+		temp_map.viewY = 64;
+		temp_map.subaWidth = 256;
+		temp_map.subaHeight = 168;
+		temp_map.subaTrans = false;
+		temp_map.subpWidth = 256;
+		temp_map.subpHeight = 56;
+		temp_map.subpTrans = false;
+	}
 	for(int32_t i=0; i<temp_map_count && i<MAXMAPS2; i++)
 	{
 		if(keepdata==true) //!TODO Trim fully
@@ -17772,17 +17786,23 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header, bool keepdata)
 			if(!p_getc(&valid,f,true))
 				return qe_invalid;
 		}
+		if(valid && version > 25)
+		{
+			for(int q = 0; q < 6; ++q)
+			{
+				if(!p_igetw(&map_autolayers[i*6+q],f,keepdata))
+					return qe_invalid;
+			}
+		}
 		for(int32_t j=0; j<screens_to_read; j++)
 		{
 			scr=i*MAPSCRS+j;
 			clear_screen(&temp_mapscr);
 			if(valid)
-				readmapscreen(f, Header, &temp_mapscr, &temp_map, version);
+				readmapscreen(f, Header, &temp_mapscr, &temp_map, version, scr);
 			
 			if(keepdata==true)
-			{
 				TheMaps[scr] = temp_mapscr;
-			}
 		}
 		
 		if(keepdata==true)

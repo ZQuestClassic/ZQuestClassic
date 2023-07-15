@@ -625,6 +625,7 @@ DoorComboSet        *DoorComboSets;
 dmap                *DMaps;
 miscQdata           QMisc;
 std::vector<mapscr> TheMaps;
+std::vector<word>   map_autolayers;
 zcmap               *ZCMaps;
 byte                *quest_file;
 dword               quest_map_pos[MAPSCRS*MAXMAPS2]={0};

@@ -246,7 +246,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode=false);
 int32_t readweapons(PACKFILE *f, zquestheader *Header, bool keepdata);
 int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata);
-int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap *temp_map, word version);
+int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap *temp_map, word version, int scrind = -1);
 int32_t readmaps(PACKFILE *f, zquestheader *Header, bool keepdata);
 int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word start_combo, word max_combos, bool keepdata);
 int32_t readcomboaliases(PACKFILE *f, zquestheader *Header, word version, word build, bool keepdata);

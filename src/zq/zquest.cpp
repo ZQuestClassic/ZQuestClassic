@@ -698,7 +698,8 @@ byte                midi_flags[MIDIFLAGS_SIZE];
 byte                music_flags[MUSICFLAGS_SIZE];
 word                map_count;
 miscQdata           misc;
-vector<mapscr> TheMaps;
+vector<mapscr>      TheMaps;
+vector<word>        map_autolayers;
 zcmap               *ZCMaps;
 byte                *quest_file;
 dmap                *DMaps;
@@ -3279,13 +3280,10 @@ int32_t onDelete()
 {
     restore_mouse();
     
-    if(Map.CurrScr()->valid&mVALID)
-    {
-        if(jwin_alert("Confirm Delete","Delete this screen?", NULL, NULL, "Yes", "Cancel", 'y', 27,get_zc_font(font_lfont)) == 1)
-        {
-            Map.DoClearScreenCommand();
-        }
-    }
+	if(!(Map.CurrScr()->valid&mVALID) || jwin_alert("Confirm Delete","Delete this screen?", NULL, NULL, "Yes", "Cancel", 'y', 27,get_zc_font(font_lfont)) == 1)
+	{
+		Map.DoClearScreenCommand();
+	}
     
     reset_relational_tile_grid();
     saved=false;
@@ -28142,162 +28140,137 @@ int32_t edit_layers(mapscr* tempscr)
 
 static DIALOG autolayer_dlg[] =
 {
-    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
-    { jwin_win_proc,        64,   32+48,   192+1,  184+1-64-28,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Autolayer Setup", NULL, NULL },
-    { jwin_text_proc,       76,   56+48,   136,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Map for layer ?: ", NULL, NULL },
-    { jwin_edit_proc,       212,  56+48,   32,   16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
-    { jwin_check_proc,      76,   56+18+48,   153,   8,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Overwrite current", NULL, NULL },
-    
-    //5
-    { jwin_button_proc,     90,   188-40,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-    { jwin_button_proc,     170,  188-40,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F1,   0, (void *) onHelp, NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+	/* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
+	{ jwin_win_proc,        64,   32+48,   192+1,  184+1-64,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Autolayer Setup", NULL, NULL },
+	{ jwin_text_proc,       76,   56+48,   136,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Map for layer ?: ", NULL, NULL },
+	{ jwin_edit_proc,       212,  56+48,   32,   16,    vc(12),  vc(1),  0,       0,          3,             0,       NULL, NULL, NULL },
+	{ jwin_check_proc,      76,   56+18+48,   153,   8,    vc(14),  vc(1),  0,       D_EXIT,          1,             0, (void *) "Only Blank Screens", NULL, NULL },
+	{ jwin_button_proc,     90,   188-12,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
+	
+	//5
+	{ jwin_button_proc,     170,  188-12,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
+	{ d_keyboard_proc,   0,    0,    0,    0,    0,    0,    0,       0,       KEY_F1,   0, (void *) onHelp, NULL, NULL },
+	{ d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
+	{ jwin_check_proc,      76,   56+28+48,   153,   8,    vc(14),  vc(1),  0,       D_EXIT,          1,             0, (void *) "Only Blank Layers", NULL, NULL },
+	{ jwin_check_proc,      76,   56+38+48,   153,   8,    vc(14),  vc(1),  0,       D_EXIT,          1,             0, (void *) "Overwrite Layers", NULL, NULL },
+	
+	//10
+	{ NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
-
+enum
+{
+	autolyr_blankscreens,
+	autolyr_blanklayers,
+	autolyr_any
+};
 void autolayer(mapscr* tempscr, int32_t layer, int32_t al[6][3])
 {
-    char tbuf[80],mlayer[80];
-    autolayer_dlg[0].dp2=get_zc_font(font_lfont);
-    sprintf(tbuf, "Map for layer %d: ", layer+1);
-    autolayer_dlg[1].dp=tbuf;
-    sprintf(mlayer, "%d", tempscr->layermap[layer]);
-    autolayer_dlg[2].dp=mlayer;
-    
-    large_dialog(autolayer_dlg);
-        
-    int32_t ret=zc_popup_dialog(autolayer_dlg,0);
-    
-    if(ret==4)
-    {
-        int32_t lmap=vbound(atoi(mlayer),0,Map.getMapCount());
-        al[layer][0]=lmap;
-        tempscr->layermap[layer]=lmap;
-        tempscr->layerscreen[layer]=Map.getCurrScr();
-        al[layer][1]=autolayer_dlg[3].flags & D_SELECTED?1:0;
-        al[layer][2]=1;
-    }
-}
-
-int32_t findblankcombo()
-{
-    for(int32_t i=0; i<MAXCOMBOS; i++)
-    {
-    
-        if(!combobuf[i].flip&&!(combobuf[i].walk&0xF)&&!combobuf[i].type&&
-                !combobuf[i].csets&&!combobuf[i].frames&&!combobuf[i].speed&&
-                !combobuf[i].nextcombo&&!combobuf[i].nextcset&&
-                blank_tile_table[combobuf[i].tile])
-        {
-            return i;
-        }
-    }
-    
-    return 0;
+	char tbuf[80],mlayer[80];
+	autolayer_dlg[0].dp2=get_zc_font(font_lfont);
+	sprintf(tbuf, "Map for layer %d: ", layer+1);
+	autolayer_dlg[1].dp=tbuf;
+	sprintf(mlayer, "%d", tempscr->layermap[layer]);
+	autolayer_dlg[2].dp=mlayer;
+	
+	large_dialog(autolayer_dlg);
+	int ret, sel = 8, fl = autolyr_blanklayers;
+	bool running = true;
+	do
+	{
+		SETFLAG(autolayer_dlg[3].flags, D_SELECTED, sel==3);
+		SETFLAG(autolayer_dlg[8].flags, D_SELECTED, sel==8);
+		SETFLAG(autolayer_dlg[9].flags, D_SELECTED, sel==9);
+		switch(ret=zc_popup_dialog(autolayer_dlg,0))
+		{
+			case 4: //OK
+			{
+				int32_t lmap=vbound(atoi(mlayer),0,Map.getMapCount());
+				al[layer][0]=lmap;
+				tempscr->layermap[layer]=lmap;
+				tempscr->layerscreen[layer]=Map.getCurrScr();
+				al[layer][1]=fl;
+				al[layer][2]=1;
+				running = false;
+				break;
+			}
+			case 0: case 5: //cancel
+				running = false;
+				break;
+			case 3:
+				sel = ret;
+				fl = autolyr_blankscreens;
+				break;
+			case 8:
+				sel = ret;
+				fl = autolyr_blanklayers;
+				break;
+			case 9:
+				sel = ret;
+				fl = autolyr_any;
+				break;
+		}
+	}
+	while(ret != 0 && ret != 4 && ret != 5);
 }
 
 int32_t onLayers()
 {
-    mapscr tempscr=*Map.CurrScr();
-    int32_t blankcombo=findblankcombo();
-    int32_t al[6][3];                                             //autolayer[layer][0=map, 1=overwrite current][go]
-    
-    for(int32_t i=0; i<6; i++)
-    {
-        al[i][0]=tempscr.layermap[i];
-        al[i][1]=0;
-        al[i][2]=0;
-    }
-    
-    int32_t ret;
-    
-    do
-    {
-        ret=edit_layers(&tempscr);
-        
-        if(ret>2)                                               //autolayer button
-        {
-            autolayer(&tempscr, ret-30, al);
-        }
-    }
-    while(ret>2);                                             //autolayer button
-    
-    if(ret==2)                                                //OK
-    {
-        saved=false;
-        TheMaps[Map.getCurrMap()*MAPSCRS+Map.getCurrScr()]=tempscr;
-        
-        for(int32_t i=0; i<6; i++)
-        {
-            int32_t tm=tempscr.layermap[i]-1;
-            
-            if(tm!=al[i][0]-1)
-            {
-                al[i][2]=0;
-            }
-            
-            int32_t ts=tempscr.layerscreen[i];
-            
-            if(tm>0)
-            {
-                if(!(TheMaps[tm*MAPSCRS+ts].valid&mVALID))
-                {
-                    TheMaps[tm*MAPSCRS+ts].valid=mVALID+mVERSION;
-                    
-                    for(int32_t k=0; k<176; k++)
-                    {
-                        TheMaps[tm*MAPSCRS+ts].data[k]=blankcombo;
-                    }
-                }
-            }
-            
-            if(al[i][2]>0)
-            {
-                for(int32_t j=0; j<128; j++)
-                {
-                    if((TheMaps[Map.getCurrMap()*MAPSCRS+j].layermap[i]==0) || (al[i][1]))
-                    {
-                        if(TheMaps[Map.getCurrMap()*MAPSCRS+j].layermap[i]==0)
-                        {
-                        }
-                        
-                        if((TheMaps[Map.getCurrMap()*MAPSCRS+j].layermap[i]==0) && (al[i][1]))
-                        {
-                        }
-                        
-                        if(al[i][1])
-                        {
-                        }
-                        
-                        TheMaps[Map.getCurrMap()*MAPSCRS+j].layermap[i]=al[i][0];
-                        TheMaps[Map.getCurrMap()*MAPSCRS+j].layerscreen[i]=al[i][0]?j:0;
-                        
-                        if(al[i][0])
-                        {
-                            if(!(TheMaps[(al[i][0]-1)*MAPSCRS+j].valid&mVALID))
-                            {
-                                TheMaps[(al[i][0]-1)*MAPSCRS+j].valid=mVALID+mVERSION;
-                                
-                                for(int32_t k=0; k<176; k++)
-                                {
-                                    TheMaps[(al[i][0]-1)*MAPSCRS+j].data[k]=blankcombo;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    
-    // Check that the working layer wasn't just disabled
-    if(CurrentLayer>0 && tempscr.layermap[CurrentLayer-1]==0)
-    {
-        CurrentLayer=0;
-    }
-    
-    return D_O_K;
+	mapscr tempscr=*Map.CurrScr();
+	int32_t al[6][3]; //autolayer[layer][0=map, 1=autolyr_ type, 2=bool go]
+	
+	for(int32_t i=0; i<6; i++)
+	{
+		al[i][0]=tempscr.layermap[i];
+		al[i][1]=0;
+		al[i][2]=0;
+	}
+	
+	int32_t ret;
+	
+	do
+	{
+		ret=edit_layers(&tempscr);
+		
+		if(ret>2)                                               //autolayer button
+		{
+			autolayer(&tempscr, ret-30, al);
+		}
+	}
+	while(ret>2);                                             //autolayer button
+	
+	if(ret==2)                                                //OK
+	{
+		saved=false;
+		TheMaps[Map.getCurrMap()*MAPSCRS+Map.getCurrScr()]=tempscr;
+		
+		for(int32_t i=0; i<6; i++)
+		{
+			int32_t tm=tempscr.layermap[i]-1;
+			int32_t ts=tempscr.layerscreen[i];
+			
+			if(al[i][2])
+			{
+				map_autolayers[Map.getCurrMap()*6+i] = al[i][0];
+				for(int32_t j=0; j<128; j++)
+				{
+					auto& curmapscr = TheMaps[Map.getCurrMap()*MAPSCRS+j];
+					if(al[i][1] == autolyr_blankscreens && (curmapscr.valid&mVALID))
+						continue;
+					else if(al[i][1] == autolyr_blanklayers && curmapscr.layermap[i])
+						continue;
+					
+					curmapscr.layermap[i]=al[i][0];
+					curmapscr.layerscreen[i]=al[i][0]?j:0;
+				}
+			}
+		}
+	}
+	
+	// Check that the working layer wasn't just disabled
+	if(CurrentLayer>0 && tempscr.layermap[CurrentLayer-1]==0)
+		CurrentLayer=0;
+	
+	return D_O_K;
 }
 
 

@@ -848,6 +848,12 @@ void zmap::clearscr(int32_t scr)
 {
     screens[scr].zero_memory();
     screens[scr].valid=mVERSION;
+	for(int q = 0; q < 6; ++q)
+	{
+		auto layer = map_autolayers[currmap*6+q];
+		screens[scr].layermap[q] = layer;
+		screens[scr].layerscreen[q] = layer ? scr : 0;
+	}
 }
 
 const char *loaderror[] =
@@ -4819,12 +4825,6 @@ void zmap::DoPasteScreenCommand(PasteCommandType type, int data)
 
 void zmap::DoClearScreenCommand()
 {
-    if (!(Map.CurrScr()->valid&mVALID))
-    {
-        // nothing to do...
-        return;
-    }
-
     std::shared_ptr<set_screen_command> command(new set_screen_command);
     command->view_map = currmap;
     command->view_scr = currscr;
@@ -6580,6 +6580,7 @@ bool setMapCount2(int32_t c)
     try
     {
         TheMaps.resize(c*MAPSCRS);
+		map_autolayers.resize(c*6);
     }
     catch(...)
     {
@@ -9713,12 +9714,11 @@ int32_t writemaps(PACKFILE *f, zquestheader *)
 		
 		writesize=0;
 		
-		//finally...  section data
 		if(!p_iputw(map_count,f))
 		{
 			new_return(5);
 		}
-		
+		map_autolayers.resize(map_count*6);
 		for(int32_t i=0; i<map_count && i<MAXMAPS2; i++)
 		{
 			byte valid = 0;
@@ -9738,6 +9738,16 @@ int32_t writemaps(PACKFILE *f, zquestheader *)
 				new_return(6);
 			}
 			if(!valid) continue;
+			
+			{ //per-map info
+				for(int q = 0; q < 6; ++q)
+				{
+					size_t ind = i*6+q;
+					if(!p_iputw(map_autolayers[ind],f))
+						new_return(7);
+				}
+			}
+			
 			for(int32_t j=0; j<MAPSCRS; j++)
 				writemapscreen(f,i,j);
 		}
