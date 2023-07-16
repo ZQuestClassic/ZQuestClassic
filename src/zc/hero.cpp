@@ -17460,6 +17460,26 @@ bool handle_movestate(std::function<bool()> proc)
 	
 	return ret;
 }
+
+zfix handle_movestate_zfix(std::function<zfix()> proc)
+{
+	zfix ox = Hero.x, oy = Hero.y;
+	auto oladderx = Hero.ladderx;
+	auto oladdery = Hero.laddery;
+	auto oladderdir = Hero.ladderdir;
+	auto oladderstart = Hero.ladderstart;
+	
+	zfix ret = proc();
+	
+	Hero.x = ox;
+	Hero.y = oy;
+	Hero.ladderx = oladderx;
+	Hero.laddery = oladdery;
+	Hero.ladderdir = oladderdir;
+	Hero.ladderstart = oladderstart;
+	
+	return ret;
+}
 bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool earlyret)
 {
 	bool ret = true;
@@ -31387,10 +31407,60 @@ void HeroClass::check_conveyor()
 						}
 					}
 				}
-				if(deltax && !movedx)
+				if(deltax && !movedx && !deltay)
+				{
+					zfix oy = y;
 					y = COMBOY(pos);
-				if(deltay && !movedy)
+					bool validpush = scr_canmove(deltax, 0, false, false);
+					zfix ny = handle_movestate_zfix([&]()
+					{
+						movexy(deltax,0,false,false,true,true);
+						return y;
+					});
+					y = oy;
+					if (validpush || ny != COMBOY(pos))
+					{
+						if (y <= ny-1)
+						{
+							setYfix(y+1);
+						}
+						else if (y >= ny+1)
+						{
+							setYfix(y-1);
+						}
+						else
+						{
+							setYfix(ny);
+						}
+					}
+				}
+				if(deltay && !movedy && !deltax)
+				{
+					zfix ox = x;
 					x = COMBOX(pos);
+					bool validpush = scr_canmove(0, deltay, false, false);
+					zfix nx = handle_movestate_zfix([&]()
+					{
+						movexy(0,deltay,false,false,true,true);
+						return x;
+					});
+					x = ox;
+					if (validpush || nx != COMBOX(pos))
+					{
+						if (x <= nx-1)
+						{
+							setXfix(x+1);
+						}
+						else if (x >= nx+1)
+						{
+							setXfix(x-1);
+						}
+						else
+						{
+							setXfix(nx);
+						}
+					}
+				}
 			}
 			if(!movedy)
 			{
