@@ -371,7 +371,7 @@ void markBmap(int32_t dir, int32_t sc)
       if((DMaps[get_currdmap()].type&dmfTYPE)==dmOVERW)
         return;
     */
-    if(sc>=128)
+    if(sc>=128 || sc<0)
     {
         return;
     }
