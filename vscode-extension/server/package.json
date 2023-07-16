@@ -1,0 +1,14 @@
+{
+	"name": "zscript-lsp-server",
+	"description": "Example implementation of a language server in node.",
+	"version": "1.0.0",
+	"license": "MIT",
+	"engines": {
+		"node": "*"
+	},
+	"dependencies": {
+		"vscode-languageserver": "^8.1.0",
+		"vscode-languageserver-textdocument": "^1.0.8"
+	},
+	"scripts": {}
+}

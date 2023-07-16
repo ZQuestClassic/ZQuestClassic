@@ -1,0 +1,74 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "ZScript",
+	"patterns": [
+		{
+			"include": "#keywords"
+		},
+		{
+			"include": "#comments"
+		},
+		{
+			"include": "#strings"
+		}
+	],
+	"repository": {
+		"keywords": {
+			"patterns": [
+				{
+					"name": "keyword.control.zscript",
+					"match": "\\b(break|case|continue|do|else|for|if|return|switch|until|while|unless)\\b"
+				},
+				{
+					"name": "storage.type.zscript",
+					"match": "\\b(enum|function|int|bool|void|ffc)\\b"
+				},
+				{
+					"name": "storage.type.zscript",
+					"match": "\\b(void|untyped|bool|float|int|char32|long|rgb|bitmap|cheatdata|combodata|doorsetdat|dropsetdata|dmapdata|eweapon|ffc|gamedata|itemdata|lweapon|mapdata|messagedata|misccolordata|misccolourdata|npc|npcdata|palcycledata|ponddata|shopdata|spritedata|musicdata|warpringdata|screendata|player|link|hero|itemsprite|file|directory|stack|randgen|paldata|bottledata|bottleshopdata|subscreendata|generic|genericdata|portal|savedportal|particlesprite|decorationsprite)\\b"
+				},
+				{
+					"name": "support.function.zscript",
+					"match": "\\b(Rand|Cos|Sin|Waitframe|CONFIG|DEFINE)\\b"
+				},
+				{
+					"name": "support.type.zscript",
+					"match": "\\b(script|global|ffc|item|npc|eweapon|lweapon|player|screendata|dmapdata|itemsprite|untyped|combodata|subscreendata|generic)\\b"
+				},
+				{
+					"name": "support.class.zscript",
+					"match": "\\b(this|Link|Hero|Player|Screen|Game|Audio|Debug|NPCData|Text|ComboData|SpriteData|Input|Graphics|MapData|DMapData|MessageData|ShopData|DropData|PondData|WarpRing|DoorSet|MiscColors|MusicTrack|PalCycle|GameData|Cheats|FileSystem|Module|ZInfo|RandGen)\\b"
+				},
+				{
+					"name": "constant.numeric.zscript",
+					"match": "\\b(\\d+[.]?\\d?)\\b"
+				}
+			]
+		},
+		"comments": {
+			"patterns": [
+				{
+					"name": "comment.line.zscript",
+					"match": "//.*"
+				},
+				{
+					"name": "comment.block.zscript",
+					"begin": "/[*]",
+					"end": "[*]/"
+				}
+			]
+		},
+		"strings": {
+			"name": "string.quoted.double.zscript",
+			"begin": "\"",
+			"end": "\"",
+			"patterns": [
+				{
+					"name": "constant.character.escape.zscript",
+					"match": "\\\\."
+				}
+			]
+		}
+	},
+	"scopeName": "source.zscript"
+}
