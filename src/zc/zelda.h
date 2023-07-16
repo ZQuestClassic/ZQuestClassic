@@ -260,15 +260,11 @@ extern char SaveScreenText[7][32]; //(char *) "CONTINUE", (char *) "SAVE", (char
 					//DON'T SAVE, SAVE AND QUIT, SAVE, QUIT
 extern void SetSaveScreenSetting(int32_t indx, int32_t value);
 extern void ChangeSubscreenText(int32_t index, const char *f);
-INLINE void sfx(int32_t index)
-{
-    sfx(index,128,false);
-}
-INLINE void sfx(int32_t index,int32_t pan)
+INLINE void sfx(int32_t index,int32_t pan = 128)
 {
 	sfx(index,vbound(pan, 0, 255) ,false);
 }
-INLINE void sfx_no_repeat(int32_t index, int32_t pan)
+INLINE void sfx_no_repeat(int32_t index, int32_t pan = 128)
 {
 	if (!sfx_allocated(index))
 		sfx(index, vbound(pan, 0, 255), false, false);

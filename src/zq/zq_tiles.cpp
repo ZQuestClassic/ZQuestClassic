@@ -17490,7 +17490,9 @@ static DIALOG advpaste_dlg[] =
 	{ jwin_check_proc,   110,   40,    33,   9,   0,  0,   0,        0,    1,    0,    (void*)"Effect", NULL, NULL },
 	{ jwin_check_proc,   110,   50,    33,   9,   0,  0,   0,        0,    1,    0,    (void*)"Triggers Tab", NULL, NULL },
 	{ jwin_check_proc,   110,   60,    33,   9,   0,  0,   0,        0,    1,    0,    (void*)"Lifting Tab", NULL, NULL },
-	{ jwin_check_proc,   110,   70,    33,   9,   0,  0,   0,        0,    1,    0,    (void*)"General Tab", NULL, NULL },
+	{ jwin_check_proc,   110,   70,    33,   9,   0,  0,   0,        0,    1,    0,    (void*)"Gen: Movespeed", NULL, NULL },
+	{ jwin_check_proc,   110,   80,    33,   9,   0,  0,   0,        0,    1,    0,    (void*)"Gen: SFX", NULL, NULL },
+	{ jwin_check_proc,   110,   90,    33,   9,   0,  0,   0,        0,    1,    0,    (void*)"Gen: Sprites", NULL, NULL },
 	
 	{ NULL,                0,    0,     0,   0,   0,  0,   0,        0,    0,    0,    NULL, NULL, NULL }
 };
@@ -17640,11 +17642,26 @@ int32_t advpaste(int32_t tile, int32_t tile2, int32_t copy)
 			combobuf[i].lift_parent_item = combo.lift_parent_item;
 		}
 		
-		if(advpaste_dlg[18].flags & D_SELECTED)   // general
+		if(advpaste_dlg[18].flags & D_SELECTED)   // general: movespeed
 		{
 			combobuf[i].speed_mult = combo.speed_mult;
 			combobuf[i].speed_div = combo.speed_div;
 			combobuf[i].speed_add = combo.speed_add;
+		}
+		if(advpaste_dlg[19].flags & D_SELECTED)   // general: sfx
+		{
+			combobuf[i].sfx_appear = combo.sfx_appear;
+			combobuf[i].sfx_disappear = combo.sfx_disappear;
+			combobuf[i].sfx_loop = combo.sfx_loop;
+			combobuf[i].sfx_walking = combo.sfx_walking;
+			combobuf[i].sfx_standing = combo.sfx_standing;
+		}
+		if(advpaste_dlg[20].flags & D_SELECTED)   // general: sprites
+		{
+			combobuf[i].spr_appear = combo.spr_appear;
+			combobuf[i].spr_disappear = combo.spr_disappear;
+			combobuf[i].spr_walking = combo.spr_walking;
+			combobuf[i].spr_standing = combo.spr_standing;
 		}
 	}
 	

@@ -9819,7 +9819,9 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 		|| tmp_cmb.lifthei!=8 || tmp_cmb.lifttime!=16
 		|| tmp_cmb.lift_parent_item)
 		combo_has_flags |= CHAS_LIFT;
-	if(tmp_cmb.speed_mult != 1 || tmp_cmb.speed_div != 1 || tmp_cmb.speed_add)
+	if(tmp_cmb.speed_mult != 1 || tmp_cmb.speed_div != 1 || tmp_cmb.speed_add
+		|| tmp_cmb.sfx_appear || tmp_cmb.sfx_disappear || tmp_cmb.sfx_loop || tmp_cmb.sfx_walking || tmp_cmb.sfx_standing
+		|| tmp_cmb.spr_appear || tmp_cmb.spr_disappear || tmp_cmb.spr_walking || tmp_cmb.spr_standing)
 		combo_has_flags |= CHAS_GENERAL;
 	
 	if(!p_putc(combo_has_flags,f))
@@ -10142,6 +10144,24 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 			return 74;
 		if(!p_iputzf(tmp_cmb.speed_add,f))
 			return 75;
+		if(!p_putc(tmp_cmb.sfx_appear,f))
+			return 79;
+		if(!p_putc(tmp_cmb.sfx_disappear,f))
+			return 80;
+		if(!p_putc(tmp_cmb.sfx_loop,f))
+			return 81;
+		if(!p_putc(tmp_cmb.sfx_walking,f))
+			return 82;
+		if(!p_putc(tmp_cmb.sfx_standing,f))
+			return 83;
+		if(!p_putc(tmp_cmb.spr_appear,f))
+			return 84;
+		if(!p_putc(tmp_cmb.spr_disappear,f))
+			return 85;
+		if(!p_putc(tmp_cmb.spr_walking,f))
+			return 86;
+		if(!p_putc(tmp_cmb.spr_standing,f))
+			return 87;
 	}
 	return 0;
 }

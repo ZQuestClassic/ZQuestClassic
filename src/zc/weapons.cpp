@@ -386,7 +386,7 @@ int32_t wid = (w->useweapon > 0) ? w->useweapon : w->id;
 						break;
 				}
 			}
-			else decorations.add(new comboSprite((zfix)COMBOX(scombo), (zfix)COMBOY(scombo), 0, 0, combobuf[cid].attribytes[0]));
+			else decorations.add(new comboSprite((zfix)COMBOX(scombo), (zfix)COMBOY(scombo), dCOMBOSPRITE, 0, combobuf[cid].attribytes[0]));
 		}
 		int32_t it = -1;
 		int32_t thedropset = -1;
@@ -534,7 +534,7 @@ void do_generic_combo_ffc(weapon *w, int32_t pos, int32_t cid, int32_t ft)
 						break;
 				}
 			}
-			else decorations.add(new comboSprite(ffc.x, ffc.y, 0, 0, combobuf[cid].attribytes[0]));
+			else decorations.add(new comboSprite(ffc.x, ffc.y, dCOMBOSPRITE, 0, combobuf[cid].attribytes[0]));
 		}
 		int32_t it = -1;
 		int32_t thedropset = -1;
@@ -6838,7 +6838,7 @@ void weapon::do_death_fx()
 		case -4: decorations.add(new dGrassClippings(x, y-(z+fakez), dGRASSCLIPPINGS, 0, 0)); break;
 		default:
 			if(death_sprite < 0) break;
-			decorations.add(new comboSprite(x, y-(z+fakez), 0, 0, death_sprite));
+			decorations.add(new comboSprite(x, y-(z+fakez), dCOMBOSPRITE, 0, death_sprite));
 	}
 	if(death_sfx > 0)
 		sfx(death_sfx, pan(int32_t(x)));

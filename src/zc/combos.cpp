@@ -28,8 +28,8 @@ bool CutsceneState::can_f6()
 }
 void CutsceneState::error()
 {
-	if(errsfx && !sfx_allocated(errsfx))
-		sfx(errsfx);
+	if(errsfx)
+		sfx_no_repeat(errsfx);
 }
 CutsceneState active_cutscene;
 
@@ -97,7 +97,7 @@ void do_generic_combo2(int32_t bx, int32_t by, int32_t cid, int32_t flag, int32_
 						break;
 				}
 			}
-			else decorations.add(new comboSprite((zfix)COMBOX(scombo), (zfix)COMBOY(scombo), 0, 0, combobuf[cid].attribytes[0]));
+			else decorations.add(new comboSprite((zfix)COMBOX(scombo), (zfix)COMBOY(scombo), dCOMBOSPRITE, 0, combobuf[cid].attribytes[0]));
 		}
 		
 		int32_t it = -1; 
@@ -245,7 +245,7 @@ void do_generic_combo_ffc2(int32_t pos, int32_t cid, int32_t ft)
 						break;
 				}
 			}
-			else decorations.add(new comboSprite(ffc.x, ffc.y, 0, 0, combobuf[cid].attribytes[0]));
+			else decorations.add(new comboSprite(ffc.x, ffc.y, dCOMBOSPRITE, 0, combobuf[cid].attribytes[0]));
 		}
 		
 		int32_t it = -1; 
@@ -506,7 +506,7 @@ void spawn_decoration_xy(newcombo const& cmb, zfix x, zfix y)
 	{
 		case -2: break; //nothing
 		case -1:
-			decorations.add(new comboSprite(x, y, 0, 0, cmb.attribytes[0]));
+			decorations.add(new comboSprite(x, y, dCOMBOSPRITE, 0, cmb.attribytes[0]));
 			break;
 		case 1: decorations.add(new dBushLeaves(x, y, dBUSHLEAVES, 0, 0)); break;
 		case 2: decorations.add(new dFlowerClippings(x, y, dFLOWERCLIPPINGS, 0, 0)); break;
@@ -3595,6 +3595,23 @@ void update_combo_timers()
 			timer.updateData(cid);
 			
 			newcombo const& cmb = combobuf[cid];
+			if(!timer.appeared)
+			{
+				timer.appeared = true;
+				if(cmb.sfx_appear)
+					sfx(cmb.sfx_appear);
+				if(cmb.spr_appear)
+					decorations.add(new comboSprite(COMBOX(pos), COMBOY(pos), dCOMBOSPRITE, 0, cmb.spr_appear));
+				if(timer.sfx_onchange) //last combo's sfx_disappear
+					sfx(timer.sfx_onchange);
+				if(timer.spr_onchange) //last combo's spr_disappear
+					decorations.add(new comboSprite(COMBOX(pos), COMBOY(pos), dCOMBOSPRITE, 0, timer.spr_onchange));
+				timer.sfx_onchange = 0;
+				timer.spr_onchange = 0;
+			}
+			if(cmb.sfx_loop)
+				sfx_no_repeat(cmb.sfx_loop);
+			
 			if(cmb.trigtimer)
 			{
 				if(++timer.clk >= cmb.trigtimer)
@@ -3608,9 +3625,7 @@ void update_combo_timers()
 			}
 			if(timer.trig_cd) --timer.trig_cd;
 			if(cmb.type == cSHOOTER)
-			{
 				handle_shooter(cmb, timer, pos);
-			}
 		}
 	}
 	for(word ffc = 0; ffc < c; ++ffc)
@@ -3619,8 +3634,29 @@ void update_combo_timers()
 		int cid = ffscr->ffcs[ffc].getData();
 		update_trig_group(timer.data,cid);
 		timer.updateData(cid);
+		zfix wx = ffscr->ffcs[ffc].x;
+		zfix wy = ffscr->ffcs[ffc].y;
+		wx += (ffscr->ffTileWidth(ffc)-1)*8;
+		wy += (ffscr->ffTileHeight(ffc)-1)*8;
 		
 		newcombo const& cmb = combobuf[cid];
+		if(!timer.appeared)
+		{
+			timer.appeared = true;
+			if(cmb.sfx_appear)
+				sfx(cmb.sfx_appear);
+			if(cmb.spr_appear)
+				decorations.add(new comboSprite(wx, wy, dCOMBOSPRITE, 0, cmb.spr_appear));
+			if(timer.sfx_onchange) //last combo's sfx_disappear
+				sfx(timer.sfx_onchange);
+			if(timer.spr_onchange) //last combo's spr_disappear
+				decorations.add(new comboSprite(wx, wy, dCOMBOSPRITE, 0, timer.spr_onchange));
+			timer.sfx_onchange = 0;
+			timer.spr_onchange = 0;
+		}
+		if(cmb.sfx_loop)
+			sfx_no_repeat(cmb.sfx_loop);
+		
 		if(cmb.trigtimer)
 		{
 			if(++timer.clk >= cmb.trigtimer)
@@ -3634,13 +3670,7 @@ void update_combo_timers()
 		}
 		if(timer.trig_cd) --timer.trig_cd;
 		if(cmb.type == cSHOOTER)
-		{
-			zfix wx = ffscr->ffcs[ffc].x;
-			zfix wy = ffscr->ffcs[ffc].y;
-			wx += (ffscr->ffTileWidth(ffc)-1)*8;
-			wy += (ffscr->ffTileHeight(ffc)-1)*8;
 			handle_shooter(cmb, timer, wx, wy);
-		}
 	}
 	
 	//Handle trigger groups

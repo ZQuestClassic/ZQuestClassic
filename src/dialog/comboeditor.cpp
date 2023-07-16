@@ -85,6 +85,15 @@ ComboEditorDialog::ComboEditorDialog(newcombo const& ref, int32_t index):
 	list_counters_nn(GUI::ZCListData::counters(true, true)),
 	list_sprites(GUI::ZCListData::miscsprites()),
 	list_sprites_spec(GUI::ZCListData::miscsprites(false,true)),
+	list_sprites_0none(GUI::ZCListData::miscsprites(false).filter(
+		[&](GUI::ListItem& itm)
+		{
+			if(itm.value == 0) //Remove item 0
+				return false;
+			if(itm.value == -1) //Change the none value to 0
+				itm.value = 0;
+			return true;
+		})),
 	list_weaptype(GUI::ZCListData::weaptypes(true)),
 	list_sfx(GUI::ZCListData::sfxnames(true)),
 	list_lift_parent_items(GUI::ZCListData::items(true).filter(
@@ -3449,6 +3458,104 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 					)
 				)),
 				TabRef(name = "General", Row(
+					Column(
+						Frame(title = "SFX", hAlign = 1.0, fitParent = true,
+							Rows<3>(
+								Label(text = "Appears:"),
+								DropDownList(data = list_sfx,
+									vPadding = 0_px,
+									fitParent = true, selectedValue = local_comboref.sfx_appear,
+									onSelectFunc = [&](int32_t val)
+									{
+										local_comboref.sfx_appear = val;
+									}),
+								INFOBTN("Plays when the combo is on the screen for at least a frame."),
+								//
+								Label(text = "Disappears:"),
+								DropDownList(data = list_sfx,
+									vPadding = 0_px,
+									fitParent = true, selectedValue = local_comboref.sfx_disappear,
+									onSelectFunc = [&](int32_t val)
+									{
+										local_comboref.sfx_disappear = val;
+									}),
+								INFOBTN("Plays when the combo had appeared, but is now gone"),
+								//
+								Label(text = "Loop:"),
+								DropDownList(data = list_sfx,
+									vPadding = 0_px,
+									fitParent = true, selectedValue = local_comboref.sfx_loop,
+									onSelectFunc = [&](int32_t val)
+									{
+										local_comboref.sfx_loop = val;
+									}),
+								INFOBTN("Plays repeatedly as long as the combo is on the screen."),
+								//
+								Label(text = "Walking:"),
+								DropDownList(data = list_sfx,
+									vPadding = 0_px,
+									fitParent = true, selectedValue = local_comboref.sfx_walking,
+									onSelectFunc = [&](int32_t val)
+									{
+										local_comboref.sfx_walking = val;
+									}),
+								INFOBTN("Plays when the player walks on the combo. In sideview, this is the combo actually BELOW the player."),
+								//
+								Label(text = "Standing:"),
+								DropDownList(data = list_sfx,
+									vPadding = 0_px,
+									fitParent = true, selectedValue = local_comboref.sfx_standing,
+									onSelectFunc = [&](int32_t val)
+									{
+										local_comboref.sfx_standing = val;
+									}),
+								INFOBTN("Plays when the player stands (not walking) on the combo. In sideview, this is the combo actually BELOW the player.")
+							)
+						),
+						Frame(title = "Sprites", hAlign = 1.0, fitParent = true,
+							Rows<3>(
+								Label(text = "Appears:"),
+								DropDownList(data = list_sprites_0none,
+									vPadding = 0_px,
+									fitParent = true, selectedValue = local_comboref.spr_appear,
+									onSelectFunc = [&](int32_t val)
+									{
+										local_comboref.spr_appear = val;
+									}),
+								INFOBTN("Spawns when the combo is on the screen for at least a frame."),
+								//
+								Label(text = "Disappears:"),
+								DropDownList(data = list_sprites_0none,
+									vPadding = 0_px,
+									fitParent = true, selectedValue = local_comboref.spr_disappear,
+									onSelectFunc = [&](int32_t val)
+									{
+										local_comboref.spr_disappear = val;
+									}),
+								INFOBTN("Spawns when the combo had appeared, but is now gone"),
+								//
+								Label(text = "Walking:"),
+								DropDownList(data = list_sprites_0none,
+									vPadding = 0_px,
+									fitParent = true, selectedValue = local_comboref.spr_walking,
+									onSelectFunc = [&](int32_t val)
+									{
+										local_comboref.spr_walking = val;
+									}),
+								INFOBTN("Spawns when the player walks on the combo. In sideview, this is the combo actually BELOW the player."),
+								//
+								Label(text = "Standing:"),
+								DropDownList(data = list_sprites_0none,
+									vPadding = 0_px,
+									fitParent = true, selectedValue = local_comboref.spr_standing,
+									onSelectFunc = [&](int32_t val)
+									{
+										local_comboref.spr_standing = val;
+									}),
+								INFOBTN("Spawns when the player stands (not walking) on the combo. In sideview, this is the combo actually BELOW the player.")
+							)
+						)
+					),
 					Frame(title = "Player Speed Mod",
 						info = "Speed Modification only applies if the Quest Rule 'Newer Player Movement' is enabled." + QRHINT({qr_NEW_HERO_MOVEMENT2}),
 						Rows<3>(
