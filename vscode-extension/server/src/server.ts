@@ -188,7 +188,7 @@ async function processScript(textDocument: TextDocument): Promise<void> {
 	
 	const diagnostics: Diagnostic[] = [];
 	for (const line of stdout.split('\n')) {
-		if (line.startsWith('syntax error')) {
+		if (line.includes('syntax error')) {
 			const m = line.match(/syntax error, (.*) \[.*Line (\d+) Column (\d+).*\].*/);
 			let message = '';
 			let lineNum = 0;
