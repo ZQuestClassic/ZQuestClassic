@@ -14,6 +14,7 @@ valid_scopes = [
     'zc',
     'zq',
     'zscript',
+    'vscode',
     'launcher',
     'zconsole',
     'web',
