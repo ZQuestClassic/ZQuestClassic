@@ -11088,6 +11088,14 @@ int32_t get_register(const int32_t arg)
 		{
 			ret = (DMaps[ri->dmapsref].mirrorDMap) * 10000; break;
 		}
+		case DMAPDATALOOPSTART:
+		{
+			ret = (DMaps[ri->dmapsref].tmusic_loop_start); break;
+		}
+		case DMAPDATALOOPEND:
+		{
+			ret = (DMaps[ri->dmapsref].tmusic_loop_end); break;
+		}
 		case DMAPDATAASUBSCRIPT:	//word
 		{
 			ret = (DMaps[ri->dmapsref].active_sub_script) * 10000; break;
@@ -21493,6 +21501,30 @@ void set_register(int32_t arg, int32_t value)
 		{
 			DMaps[ri->dmapsref].mirrorDMap = vbound(value / 10000, -1, MAXDMAPS); break;
 		}
+		case DMAPDATALOOPSTART:
+		{
+			DMaps[ri->dmapsref].tmusic_loop_start = value; 
+			if (ri->dmapsref == currdmap)
+			{
+				if (FFCore.doing_dmap_enh_music(currdmap))
+				{
+					zcmusic_set_loop(zcmusic, double(DMaps[currdmap].tmusic_loop_start / 10000.0), double(DMaps[currdmap].tmusic_loop_end / 10000.0));
+				}
+			}
+			break;
+		}
+		case DMAPDATALOOPEND:
+		{
+			DMaps[ri->dmapsref].tmusic_loop_end = value;
+			if (ri->dmapsref == currdmap)
+			{
+				if (FFCore.doing_dmap_enh_music(currdmap))
+				{
+					zcmusic_set_loop(zcmusic, double(DMaps[currdmap].tmusic_loop_start / 10000.0), double(DMaps[currdmap].tmusic_loop_end / 10000.0));
+				}
+			}
+			break;
+		}
 		case DMAPDATAASUBSCRIPT:	//byte
 		{
 			FFScript::deallocateAllArrays(ScriptType::ActiveSubscreen, ri->dmapsref);
@@ -29517,6 +29549,32 @@ void do_enh_music(bool v)
 		ret=try_zcmusic(filename_char, track, -1000);
 		set_register(sarg2, ret ? 10000 : 0);
 	}
+}
+
+bool FFScript::doing_dmap_enh_music(int32_t dm)
+{
+	if (DMaps[dm].tmusic[0] != 0)
+	{
+		if (zcmusic != NULL)
+		{
+			if (strcmp(zcmusic->filename, DMaps[dm].tmusic) == 0)
+			{
+				switch (zcmusic_get_type(zcmusic))
+				{
+				case ZCMF_OGG:
+				case ZCMF_MP3:
+					return true;
+				case ZCMF_DUH:
+				case ZCMF_GME:
+					if (zcmusic->track == DMaps[dm].tmusictrack)
+					{
+						return true;
+					}
+				}
+			}
+		}
+	}
+	return false;
 }
 
 void FFScript::do_set_music_position(const bool v)
@@ -42386,8 +42444,8 @@ script_variable ZASMVars[]=
 	{ "PALDATAG", PALDATAG, 0, 0 },
 	{ "PALDATAB", PALDATAB, 0, 0 },
 
-	{ "RESRVD_VAR_MOOSH01", RESRVD_VAR_MOOSH01, 0, 0 },
-	{ "RESRVD_VAR_MOOSH02", RESRVD_VAR_MOOSH02, 0, 0 },
+	{ "DMAPDATALOOPSTART", DMAPDATALOOPSTART, 0, 0 },
+	{ "DMAPDATALOOPEND", DMAPDATALOOPEND, 0, 0 },
 	{ "RESRVD_VAR_MOOSH03", RESRVD_VAR_MOOSH03, 0, 0 },
 	{ "RESRVD_VAR_MOOSH04", RESRVD_VAR_MOOSH04, 0, 0 },
 	{ "RESRVD_VAR_MOOSH05", RESRVD_VAR_MOOSH05, 0, 0 },

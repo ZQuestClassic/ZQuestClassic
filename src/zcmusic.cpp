@@ -889,6 +889,11 @@ void zcmusic_set_loop(ZCMUSIC* zcm, double start, double end)
 	return;
 }
 
+int32_t zcmusic_get_type(ZCMUSIC* zcm)
+{
+	return zcm->type & libflags;
+}
+
 
 ALSTREAMFILE *load_alstream_file(const char *filename)
 {

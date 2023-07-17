@@ -24,7 +24,6 @@
 #define ZCMF_OGG      0x00000002
 #define ZCMF_MP3      0x00000004
 #define ZCMF_GME	  0x00000008
-#define ZCMF_OGGEX	  0x00000010
 
 #define ZCM_PLAYING 1
 #define ZCM_STOPPED 0
@@ -69,6 +68,7 @@ ZCM_EXTERN void zcmusic_set_curpos(ZCMUSIC* zcm, int32_t value);
 ZCM_EXTERN void zcmusic_set_speed(ZCMUSIC* zcm, int32_t value);
 ZCM_EXTERN int32_t zcmusic_get_length(ZCMUSIC* zcm);
 ZCM_EXTERN void zcmusic_set_loop(ZCMUSIC* zcm, double start, double end);
+ZCM_EXTERN int32_t zcmusic_get_type(ZCMUSIC* zcm);
 
 #undef ZCM_EXTERN
 #endif
