@@ -80,6 +80,12 @@ static AccessorTable DMapDataTable[] =
 	{ "getFlags",                   0,         ZTID_FLOAT,   DMAPDATAFLAGS,             0,  { ZTID_DMAPDATA },{} },
 	{ "setFlags",                   0,          ZTID_VOID,   DMAPDATAFLAGS,             0,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },
 	
+	{ "getMusicLoopStart",               0,         ZTID_FLOAT,   DMAPDATALOOPSTART,         0,  { ZTID_DMAPDATA },{} },
+	{ "setMusicLoopStart",               0,          ZTID_VOID,   DMAPDATALOOPSTART,         0,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },
+
+	{ "getMusicLoopEnd",                 0,         ZTID_FLOAT,   DMAPDATALOOPEND,         0,  { ZTID_DMAPDATA },{} },
+	{ "setMusicLoopEnd",                 0,          ZTID_VOID,   DMAPDATALOOPEND,         0,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },
+
 	{ "",                           0,          ZTID_VOID,   -1,                        0,  {},{} }
 };
 

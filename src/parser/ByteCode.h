@@ -1477,8 +1477,8 @@
 #define PALDATAG                1391
 #define PALDATAB                1392
 
-#define RESRVD_VAR_MOOSH01      1393
-#define RESRVD_VAR_MOOSH02      1394
+#define DMAPDATALOOPSTART       1393
+#define DMAPDATALOOPEND         1394
 #define RESRVD_VAR_MOOSH03      1395
 #define RESRVD_VAR_MOOSH04      1396
 #define RESRVD_VAR_MOOSH05      1397

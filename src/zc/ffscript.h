@@ -1209,6 +1209,7 @@ void do_isvalidbitmap();
 void do_isallocatedbitmap();
 
 //OGG Ex --dimi
+bool doing_dmap_enh_music(int32_t dm);
 void do_set_music_position(const bool v);
 void do_get_music_position();
 void do_set_music_speed(const bool v);
@@ -4821,8 +4822,8 @@ enum ASM_DEFINE
 #define PALDATAG     		    0x14A5
 #define PALDATAB     		    0x14A6
 
-#define RESRVD_VAR_MOOSH01      0x14A7
-#define RESRVD_VAR_MOOSH02      0x14A8
+#define DMAPDATALOOPSTART       0x14A7
+#define DMAPDATALOOPEND         0x14A8
 #define RESRVD_VAR_MOOSH03      0x14A9
 #define RESRVD_VAR_MOOSH04      0x14AA
 #define RESRVD_VAR_MOOSH05      0x14AB

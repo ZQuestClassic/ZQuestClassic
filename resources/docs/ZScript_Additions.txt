@@ -6483,6 +6483,14 @@ int Type;
  
 int MusicTrack;
  * The enhanced music tracker file track ID.
+
+int MusicLoopStart;
+ * The starting loop point for enhanced music in seconds.
+ * CURRENTLY ONLY SUPPORTS MP3 / OGG
+
+int MusicLoopEnd;
+ * The ending loop point for enhanced music in seconds.
+ * CURRENTLY ONLY SUPPORTS MP3 / OGG
  
 int ActiveSubscreen;
  * The active subscreen ID.
@@ -7770,11 +7778,11 @@ rgb ConvertRGBFrom(float[] buf, int color_space)
 
 int GetMusicPos();
  * Returns the current seek position of the currently playing enhanced music in seconds.
- * CURRENTLY ONLY SUPPORTS MP3
+ * CURRENTLY ONLY SUPPORTS MP3 / OGG
 
 void SetMusicPos(int new_pos);
  * Sets the play position for the currently playing enhanced music in seconds.
- * CURRENTLY ONLY SUPPORTS MP3
+ * CURRENTLY ONLY SUPPORTS MP3 / OGG
  
 void SetMusicSpeed(int newspeed);
  * Sets the playback speed of the currently playing enhanced music.
