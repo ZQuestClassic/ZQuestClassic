@@ -314,6 +314,8 @@ int32_t main(int32_t argc, char **argv)
 	
 	child_process_handler* cph = (linked ? new child_process_handler() : nullptr);
 	ConsoleWrite = cph;
+	// We only need to initialize allegro to read config files. We could still trace without this.
+	// TODO: figure out how to drop this.
 	if(allegro_init() != 0)
 	{
 		zconsole_error("%s", "Failed Init!");
