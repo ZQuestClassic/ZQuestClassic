@@ -4738,6 +4738,27 @@ namespace ZScript
 		}
 	};
 
+	class OAdjustSound : public Opcode
+	{
+	public:
+		OAdjustSound() : Opcode() {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OAdjustSound();
+		}
+	};
+
+	class OPlaySoundEX : public Opcode
+	{
+	public:
+		OPlaySoundEX() : Opcode() {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OPlaySoundEX();
+		}
+	};
 
 	class OEndSoundRegister : public UnaryOpcode
 	{

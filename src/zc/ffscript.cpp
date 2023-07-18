@@ -28678,6 +28678,22 @@ void do_sfx(const bool v)
 	sfx(ID);
 }
 
+void do_sfx_ex(const bool restart)
+{
+	int32_t ID = SH::read_stack(ri->sp + 3) / 10000;
+	int32_t vol = vbound(SH::read_stack(ri->sp + 2), 0, 10000 * 100);
+	int32_t pan = vbound(SH::read_stack(ri->sp + 1)/10000 + 128, 0, 255);
+	bool loop = SH::read_stack(ri->sp) / 10000;
+
+	if (BC::checkSFXID(ID, restart?"Audio->PlaySound":"Audio->AdjustSound") != SH::_NoError)
+		return;
+
+	if (!restart && !sfx_allocated(ID))
+		return;
+
+	sfx(ID, pan, loop, restart, vol);
+}
+
 int32_t FFScript::do_get_internal_uid_npc(int32_t index)
 {
 	return ((int32_t)guys.spr(index)->getUID());
@@ -32010,16 +32026,15 @@ j_command:
 
 			case ADJUSTSFX:
 			{
-				// int32_t sound = ri->d[rEXP1]/10000;
-				// int32_t pan = ri->d[rINDEX2];
-				// control_state[6]=((value/10000)!=0)?true:false;
-				// bool loop = ((ri->d[rINDEX]/10000)!=0)?true:false;
-				//SFXBackend.adjust_sfx(sound,pan,loop);
-				
-				//! adjust_sfx was not ported to the new back end!!! -Z
+				do_sfx_ex(false);
 			}
 			break;
 
+			case PLAYSOUNDEX:
+			{
+				do_sfx_ex(true);
+			}
+			break;
 
 			case CONTINUESFX:
 			{
@@ -40241,7 +40256,7 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "PAUSESFX",         1,   0,   0,   0},
 	{ "RESUMESFX",         1,   0,   0,   0},
 	{ "CONTINUESFX",         1,   0,   0,   0},
-	{ "ADJUSTSFX",         3,   0,   0,   0},
+	{ "ADJUSTSFX",         0,   0,   0,   0},
 	{ "GETITEMSCRIPT",        1,   0,   0,   0},
 	{ "GETSCREENLAYOP",      1,   0,   0,   0},
 	{ "GETSCREENSECCMB",      1,   0,   0,   0},
@@ -41074,7 +41089,7 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "CONVERTTORGB", 0, 0, 0, 0 },
 	{ "GETENHMUSICLEN", 1, 0, 0, 0 },
 	{ "SETENHMUSICLOOP", 2, 0, 0, 0 },
-	{ "RESRVD_OP_MOOSH_05", 0, 0, 0, 0 },
+	{ "PLAYSOUNDEX", 0, 0, 0, 0 },
 	{ "RESRVD_OP_MOOSH_06", 0, 0, 0, 0 },
 	{ "RESRVD_OP_MOOSH_07", 0, 0, 0, 0 },
 	{ "RESRVD_OP_MOOSH_08", 0, 0, 0, 0 },

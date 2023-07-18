@@ -19,8 +19,7 @@ static AccessorTable AudioTable[] =
 	{ "getPanStyle",             0,         ZTID_FLOAT,   AUDIOPAN,               0,  { ZTID_AUDIO },{} },
 	{ "setPanStyle",             0,          ZTID_VOID,   AUDIOPAN,               0,  { ZTID_AUDIO, ZTID_FLOAT },{} },
 	
-	//Undocumented intentionally
-	{ "AdjustSound",             0,          ZTID_VOID,   -1,               FL_DEPR,  { ZTID_AUDIO, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL },{} },
+	{ "AdjustSound",             0,          ZTID_VOID,   -1,               FL_INL,   { ZTID_AUDIO, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL },{ 0, 0 } },
 	{ "PlayOgg",                 0,          ZTID_BOOL,   -1,               FL_DEPR,  { ZTID_AUDIO, ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "GetMusicPos",             0,         ZTID_FLOAT,   -1,                FL_INL,  { ZTID_AUDIO },{} },
 	{ "SetMusicPos",             0,          ZTID_VOID,   -1,                FL_INL,  { ZTID_AUDIO, ZTID_FLOAT },{} },
@@ -29,6 +28,7 @@ static AccessorTable AudioTable[] =
 	{ "setVolume[]",             0,          ZTID_VOID,   AUDIOVOLUME,      FL_DEPR,  { ZTID_AUDIO, ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "GetMusicLength",          0,         ZTID_FLOAT,   -1,                FL_INL,  { ZTID_AUDIO },{} },
 	{ "SetMusicLoop",            0,          ZTID_VOID,   -1,                FL_INL,  { ZTID_AUDIO, ZTID_FLOAT, ZTID_FLOAT},{} },
+	{ "PlaySound",               1,          ZTID_VOID,   -1,               FL_INL,   { ZTID_AUDIO, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL },{ 0, 0 } },
 
 	{ "",                        0,          ZTID_VOID,   -1,          0,  {},{} }
 };
@@ -70,25 +70,22 @@ void AudioSymbols::generateCode()
 		function->giveCode(code);
 	}
 	
-	//void AdjustSound(game, int32_t,int32_t,bool)
+	//void AdjustSound(game, int32_t,int32_t,int32_t,bool)
 	{
 		Function* function = getFunction("AdjustSound");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
-		//pop off the params
-		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2(code, new OAdjustSound());
 		LABELBACK(label);
-		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-		//pop pointer, and ignore it
+		POP_ARGS(4, NUL);
+		//pop pointer
 		POPREF();
-		addOpcode2 (code, new OSetRegister(new VarArgument(ADJUSTSFX), new VarArgument(SFTEMP)));
 		RETURN();
 		function->giveCode(code);
 	}
 	//void PlaySound(game, int32_t)
 	{
-		Function* function = getFunction("PlaySound");
+		Function* function = getFunction("PlaySound", 0);
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -294,6 +291,19 @@ void AudioSymbols::generateCode()
 		//pop pointer
 		POPREF();
 		addOpcode2(code, new OSetEnhancedMusicLoop(new VarArgument(EXP1), new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void PlaySound(game, int32_t,int32_t,int32_t,bool)
+	{
+		Function* function = getFunction("PlaySound", 1);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2(code, new OPlaySoundEX());
+		LABELBACK(label);
+		POP_ARGS(4, NUL);
+		//pop pointer
+		POPREF();
 		RETURN();
 		function->giveCode(code);
 	}
