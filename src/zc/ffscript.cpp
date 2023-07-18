@@ -29485,7 +29485,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 
 void FFScript::do_adjustvolume(const bool v)
 {
-	if (get_bit(quest_rules, qr_OLD_SCRIPT_VOLUME))
+	if (get_qr(qr_OLD_SCRIPT_VOLUME))
 	{
 		int32_t perc = (SH::get_arg(sarg1, v) / 10000);
 		float pct = perc / 100.0;
