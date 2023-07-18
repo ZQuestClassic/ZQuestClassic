@@ -287,7 +287,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_SFX              8
 #define V_FAVORITES        3
 
-#define V_COMPATRULE       46
+#define V_COMPATRULE       47
 #define V_ZINFO            3
 
 //= V_SHOPS is under V_MISC
@@ -1116,6 +1116,7 @@ enum
 	qr_SCROLLWARP_NO_RESET_FRAME, qr_BROKEN_RAFT_SCROLL, qr_BROKEN_INPUT_DOWN_STATE,
 	//60
 	//70
+	qr_OLD_SCRIPT_VOLUME = 70 * 8,
 	
 	//ZScript Parser //room for 20 of these
 	//80

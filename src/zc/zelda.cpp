@@ -2038,6 +2038,12 @@ int32_t init_game()
 	FFCore.initZScriptDMapScripts();
 	FFCore.initZScriptActiveSubscreenScript();
 	FFCore.initZScriptItemScripts();
+
+	if (!get_bit(quest_rules, qr_OLD_SCRIPT_VOLUME))
+	{
+		FFCore.usr_sfx_volume = 10000 * 100;
+		FFCore.usr_music_volume = 10000 * 100;
+	}
 	
 	//show quest metadata when loading it
 	print_quest_metadata(QHeader, qstpath, byte(game->get_quest()-1));
@@ -2460,7 +2466,13 @@ int32_t cont_game()
 	FFCore.initZScriptDMapScripts();
 	FFCore.initZScriptActiveSubscreenScript();
 	FFCore.initZScriptItemScripts();
-	
+
+	if (!get_bit(quest_rules, qr_OLD_SCRIPT_VOLUME))
+	{
+		FFCore.usr_sfx_volume = 10000 * 100;
+		FFCore.usr_music_volume = 10000 * 100;
+	}
+
 	update_subscreens();
 	Playing=true;
 	map_bkgsfx(true);
@@ -4845,22 +4857,25 @@ int main(int argc, char **argv)
 	if(used_switch(argc,argv,"-q"))
 	{
 		printf("-q switch used, quitting program.\n");
-		//restore user volume settings
-		if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
+		if (get_bit(quest_rules, qr_OLD_SCRIPT_VOLUME))
 		{
-			master_volume(-1,((int32_t)FFCore.usr_midi_volume));
-		}
-		if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
-		{
-			master_volume((int32_t)(FFCore.usr_digi_volume),1);
-		}
-		if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
-		{
-			emusic_volume = (int32_t)FFCore.usr_music_volume;
-		}
-		if ( FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME )
-		{
-			sfx_volume = (int32_t)FFCore.usr_sfx_volume;
+			//restore user volume settings
+			if (FFCore.coreflags & FFCORE_SCRIPTED_MIDI_VOLUME)
+			{
+				master_volume(-1, ((int32_t)FFCore.usr_midi_volume));
+			}
+			if (FFCore.coreflags & FFCORE_SCRIPTED_DIGI_VOLUME)
+			{
+				master_volume((int32_t)(FFCore.usr_digi_volume), 1);
+			}
+			if (FFCore.coreflags & FFCORE_SCRIPTED_MUSIC_VOLUME)
+			{
+				emusic_volume = (int32_t)FFCore.usr_music_volume;
+			}
+			if (FFCore.coreflags & FFCORE_SCRIPTED_SFX_VOLUME)
+			{
+				sfx_volume = (int32_t)FFCore.usr_sfx_volume;
+			}
 		}
 		if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
 		{
@@ -5390,22 +5405,25 @@ reload_for_replay_file:
 				
 				skipcont = 0;
 				
-				//restore user volume settings
-				if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
+				if (get_bit(quest_rules, qr_OLD_SCRIPT_VOLUME))
 				{
-					master_volume(-1,((int32_t)FFCore.usr_midi_volume));
-				}
-				if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
-				{
-					master_volume((int32_t)(FFCore.usr_digi_volume),1);
-				}
-				if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
-				{
-					emusic_volume = (int32_t)FFCore.usr_music_volume;
-				}
-				if ( FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME )
-				{
-					sfx_volume = (int32_t)FFCore.usr_sfx_volume;
+					//restore user volume settings
+					if (FFCore.coreflags & FFCORE_SCRIPTED_MIDI_VOLUME)
+					{
+						master_volume(-1, ((int32_t)FFCore.usr_midi_volume));
+					}
+					if (FFCore.coreflags & FFCORE_SCRIPTED_DIGI_VOLUME)
+					{
+						master_volume((int32_t)(FFCore.usr_digi_volume), 1);
+					}
+					if (FFCore.coreflags & FFCORE_SCRIPTED_MUSIC_VOLUME)
+					{
+						emusic_volume = (int32_t)FFCore.usr_music_volume;
+					}
+					if (FFCore.coreflags & FFCORE_SCRIPTED_SFX_VOLUME)
+					{
+						sfx_volume = (int32_t)FFCore.usr_sfx_volume;
+					}
 				}
 				if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
 				{
@@ -5513,22 +5531,25 @@ reload_for_replay_file:
 	music_stop();
 	kill_sfx();
 	
-	//restore user volume settings
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
+	if (get_bit(quest_rules, qr_OLD_SCRIPT_VOLUME))
 	{
-		master_volume(-1,((int32_t)FFCore.usr_midi_volume));
-	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
-	{
-		master_volume((int32_t)(FFCore.usr_digi_volume),1);
-	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
-	{
-		emusic_volume = (int32_t)FFCore.usr_music_volume;
-	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME )
-	{
-		sfx_volume = (int32_t)FFCore.usr_sfx_volume;
+		//restore user volume settings
+		if (FFCore.coreflags & FFCORE_SCRIPTED_MIDI_VOLUME)
+		{
+			master_volume(-1, ((int32_t)FFCore.usr_midi_volume));
+		}
+		if (FFCore.coreflags & FFCORE_SCRIPTED_DIGI_VOLUME)
+		{
+			master_volume((int32_t)(FFCore.usr_digi_volume), 1);
+		}
+		if (FFCore.coreflags & FFCORE_SCRIPTED_MUSIC_VOLUME)
+		{
+			emusic_volume = (int32_t)FFCore.usr_music_volume;
+		}
+		if (FFCore.coreflags & FFCORE_SCRIPTED_SFX_VOLUME)
+		{
+			sfx_volume = (int32_t)FFCore.usr_sfx_volume;
+		}
 	}
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
 	{

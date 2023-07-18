@@ -7819,16 +7819,18 @@ void ContinueSound(int soundid);
  * Resumes a sound effect with an ID of sfx_id, that has been paused.
 
 void AdjustMusicVolume(int percent); 
- * Adjusts the volume of all MIDI, DIGI, and Enhanced Music.
+ * Adjusts a multiplier for the volume of all MIDI, DIGI, and Enhanced Music.
  * The parameter 'int percent' is the percentage of its present volume.
- * To double the volume, you would pass '200' to parameter 1; to reduce it by half, you
- *	would pass '50' to parameter 1.
+ * Values range from 0 (mute) to 100 (the player's max volume setting).
+ * If the quest rule "Old (Buggy) ZScript Volume Access" is on,
+ * this will use deprecated behavior and may not function properly.
 
 void AdjustSFXVolume(int percent);
- * Adjusts the volume of all Soune Effects (WAV).
+ * Adjusts a multiplier for the volume of all Sound Effects (WAV).
  * The parameter 'int percent' is the percentage of its present volume.
- * To double the volume, you would pass '200' to parameter 1; to reduce it by half, you
- *	would pass '50' to parameter 1.
+ * Values range from 0 (mute) to 100 (the player's max volume setting).
+ * If the quest rule "Old (Buggy) ZScript Volume Access" is on,
+ * this will use deprecated behavior and may not function properly.
 
 void AdjustSound(int, int, bool)
 
