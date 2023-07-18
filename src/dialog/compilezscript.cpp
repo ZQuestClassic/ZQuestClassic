@@ -9,6 +9,7 @@
 #include "zq/ffasmexport.h"
 #include "zscrdata.h"
 #include "info.h"
+#include <fmt/format.h>
 using std::string;
 
 #ifdef __EMSCRIPTEN__
@@ -160,45 +161,70 @@ bool do_compile_and_slots(bool quick_compile, bool delay)
 	
 	int current = 0, last = 0;
 	int syncthing = 0;
-	pm->read(&syncthing, sizeof(int32_t));
-
-	FILE *console = fopen(consolefilename, "r");
-	bool running = true;
-	if (console) 
+	FILE *console = nullptr;
+	try
 	{
-		char buf4[4096];
-		while(running)
+		pm->read(&syncthing, sizeof(int32_t));
+		console = fopen(consolefilename, "r");
+		bool running = true;
+		if (console) 
 		{
-			pm->read(&code, sizeof(int32_t));
-			switch(code)
+			char buf4[4096];
+			while(running)
 			{
-				case ZC_CONSOLE_DB_CODE:
-				case ZC_CONSOLE_ERROR_CODE:
-				case ZC_CONSOLE_WARN_CODE:
-					hasWarnErr = true;
-					[[fallthrough]];
-				case ZC_CONSOLE_INFO_CODE:
-					fseek(console, 0, SEEK_END);
-					current = ftell(console);
-					if (current != last)
-					{
-						int amount = (current-last);
-						fseek(console, last, SEEK_SET);
-						last = current;
-						int end = fread(&buf4, sizeof(char), amount, console);
-						buf4[end] = 0;
-						ReadConsole(buf4, code);
-					}
-					pm->write(&code, sizeof(int32_t));
-					break;
-				default:
-					running = false;
-					break;
+				pm->read(&code, sizeof(int32_t));
+				switch(code)
+				{
+					case ZC_CONSOLE_DB_CODE:
+					case ZC_CONSOLE_ERROR_CODE:
+					case ZC_CONSOLE_WARN_CODE:
+						hasWarnErr = true;
+						[[fallthrough]];
+					case ZC_CONSOLE_INFO_CODE:
+						fseek(console, 0, SEEK_END);
+						current = ftell(console);
+						if (current != last)
+						{
+							int amount = (current-last);
+							fseek(console, last, SEEK_SET);
+							last = current;
+							int end = fread(&buf4, sizeof(char), amount, console);
+							buf4[end] = 0;
+							ReadConsole(buf4, code);
+						}
+						pm->write(&code, sizeof(int32_t));
+						break;
+					default:
+						running = false;
+						break;
+				}
 			}
 		}
+		pm->read(&code, sizeof(int32_t));
 	}
-	pm->read(&code, sizeof(int32_t));
+	catch(zc_io_exception& e)
+	{
+		zprint2("CAUGHT ZC_IO_EXCEPTION!\n");
+		if (DisableCompileConsole) box_end(true);
+		switch(e.getType())
+		{
+			case zc_io_exception::IO_TIMEOUT:
+				InfoDialog("Timeout",fmt::format("IO Timeout error: the parser timed out. {}",
+					pm->is_alive() ? "Unknown cause." : "Parser process died or crashed.")).show();
+				break;
+			case zc_io_exception::IO_DEAD:
+				InfoDialog("Dead Parser","The parser process died unexpectedly.").show();
+				break;
+			default:
+				InfoDialog("Error","An unknown error occurred while compiling").show();
+				break;
+		}
+		delete pm;
+		if(console) fclose(console);
+		return false;
+	}
 	delete pm;
+	if(console) fclose(console);
 #endif
 	clock_t end_compile_time = clock();
 	

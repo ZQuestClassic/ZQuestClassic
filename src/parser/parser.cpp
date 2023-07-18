@@ -22,22 +22,6 @@ extern uint32_t zscript_failcode;
 extern bool zscript_had_warn_err;
 extern bool zscript_error_out;
 
-int32_t get_bit(byte const* bitstr,int32_t bit)
-{
-	bitstr += bit>>3;
-	return ((*bitstr) >> (bit&7))&1;
-}
-
-int32_t used_switch(int32_t argc, char* argv[], const char* s)
-{
-	// assumes a switch won't be in argv[0]
-	for (int32_t i = 1; i < argc; i++)
-		if (stricmp(argv[i], s) == 0)
-			return i;
-
-	return 0;
-}
-
 const int BUILDTM_YEAR = (
     __DATE__[7] == '?' ? 1900
     : (((__DATE__[7] - '0') * 1000 )

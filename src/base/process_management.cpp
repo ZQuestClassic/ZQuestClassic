@@ -17,22 +17,242 @@ using namespace util;
 		return NULL; \
 	} while(false)
 
-void process_killer::kill(uint32_t exitcode)
+void process_killer::init_process(void* h, uint32_t exitcode)
+{
+#ifdef _WIN32
+	if(process_handle)
+		kill(exitcode);
+	process_handle = h;
+#else
+	if(pid)
+		kill(exitcode);
+	pid = pr_id;
+#endif
+}
+bool process_killer::is_alive() const
+{
+#ifdef _WIN32
+	return process_handle && WaitForSingleObject(process_handle,0) == WAIT_TIMEOUT;
+#else
+	waitpid(pid, nullptr, WNOHANG);
+	if(::kill(pid,0) == -1)
+	{
+		if(errno != ESRCH)
+			return true;
+		return false;
+	}
+	return true;
+#endif
+}
+bool process_killer::kill(uint32_t exitcode)
 {
 #ifdef _WIN32
 	if(process_handle)
 	{
-		TerminateProcess(process_handle, exitcode);
-		process_handle = NULL;
+		if(TerminateProcess(process_handle, exitcode))
+		{
+			process_handle = NULL;
+			return true;
+		}
+		return false;
 	}
 #else
 	if(pid)
 	{
-		::kill(pid,SIGKILL);
-		pid = 0;
+		if(::kill(pid,SIGKILL) == 0)
+		{
+			pid = 0;
+			return true;
+		}
+		return false
 	}
 #endif
+	return true;
 }
+
+//
+
+#ifdef _WIN32
+static size_t callback_complete_count = 0;
+static bool callback_error = false;
+static VOID WINAPI FileCallback(DWORD error_code, DWORD bytes_transferred, LPOVERLAPPED ptr_overlapped)
+{
+	if(error_code)
+		callback_error = true;
+}
+
+bool io_manager::ProcessReadFile(HANDLE read_handle, LPVOID buf, DWORD bytes_to_read, LPDWORD bytes_read, bool throw_timeout)
+{
+	OVERLAPPED ov;
+	LPOVERLAPPED p_ov = &ov;
+	LPOVERLAPPED_COMPLETION_ROUTINE callback = FileCallback;
+	memset(&ov, 0, sizeof(OVERLAPPED));
+	
+	callback_error = false;
+	
+	zprint2("STARTING READ!\n");
+	//! Why does this sometimes block, not returning? It's supposed to be async and continue to the GetOverlappedResultEx calls... -Em
+	if(!ReadFileEx(read_handle, buf, bytes_to_read, p_ov, callback))
+	{
+		zprint2("READ FAILURE: %d\n",GetLastError());
+		return false;
+	}
+	if(auto w = GetLastError())
+		zprint2("READ WARNING: %d\n", w);
+	
+	int waitcount = 0;
+	while(!GetOverlappedResultEx(read_handle, p_ov, bytes_read, 30000, true))
+	{
+		auto error = GetLastError();
+		zprint2("...waiting %d (err %d)\n",++waitcount, error);
+		switch(error)
+		{
+			case WAIT_TIMEOUT:
+			{
+				if(throw_timeout)
+					throw zc_io_exception::timeout();
+				else return false;
+			}
+			case WAIT_IO_COMPLETION:
+			case ERROR_IO_INCOMPLETE:
+				continue;
+			default:
+				throw zc_io_exception::unknown();
+		}
+	}
+	
+	return !callback_error;
+}
+bool io_manager::ProcessWriteFile(HANDLE write_handle, LPVOID buf, DWORD bytes_to_write, LPDWORD bytes_written, bool throw_timeout)
+{
+	return WriteFile(write_handle, buf, bytes_to_write, bytes_written, NULL);
+}
+#endif
+
+//
+
+process_manager::~process_manager()
+{
+#ifdef _WIN32
+	if(write_handle)
+	{
+		CloseHandle(write_handle);
+		write_handle = NULL;
+	}
+	if(read_handle)
+	{
+		CloseHandle(read_handle);
+		read_handle = NULL;
+	}
+	if(wr_2)
+	{
+		CloseHandle(wr_2);
+		wr_2 = NULL;
+	}
+	if(re_2)
+	{
+		CloseHandle(re_2);
+		re_2 = NULL;
+	}
+#endif
+	if(kill_on_destructor)
+		kill();
+}
+
+bool process_manager::read(void* buf, uint32_t bytes_to_read, uint32_t* bytes_read, bool throw_timeout)
+{
+#ifdef _WIN32
+	if(!read_handle) return false;
+	if(throw_timeout && !is_alive())
+		throw zc_io_exception::dead();
+	if(!bytes_read) bytes_read = &__dummy_;
+	bool ret = ProcessReadFile((HANDLE)read_handle, (LPVOID)buf, (DWORD)bytes_to_read, (LPDWORD)bytes_read, throw_timeout);
+	
+	zprint2("READ: %d %d '%s'[%d]\n",callback_error?1:0,is_alive()?1:0,buf,*bytes_read);
+	if(throw_timeout && !is_alive())
+		throw zc_io_exception::dead();
+	return ret;
+#else
+	if(!read_handle) return false;
+	if(throw_timeout && !is_alive())
+		throw zc_io_exception::dead();
+	size_t ret = ::read(read_handle, buf, bytes_to_read); //!TODO handle timeouts (if throw_timeout, throw zc_io_exception::timeout())
+	if(bytes_read) *bytes_read = ret;
+	if(throw_timeout && !is_alive())
+		throw zc_io_exception::dead();
+	return ret>0;
+#endif
+}
+
+bool process_manager::write(void* buf, uint32_t bytes_to_write, uint32_t* bytes_written, bool throw_timeout)
+{
+#ifdef _WIN32
+	if(!write_handle) return false;
+	if(throw_timeout && !is_alive())
+		throw zc_io_exception::dead();
+	if(!bytes_written) bytes_written = &__dummy_;
+	bool ret = ProcessWriteFile((HANDLE)write_handle, (LPVOID)buf, (DWORD)bytes_to_write, (LPDWORD)bytes_written, throw_timeout);
+	if(throw_timeout && !is_alive())
+		throw zc_io_exception::dead();
+	return ret;
+#else
+	if(!write_handle) return false;
+	if(throw_timeout && !is_alive())
+		throw zc_io_exception::dead();
+	size_t ret = ::write(write_handle, buf, bytes_to_write); //!TODO handle timeouts (if throw_timeout, throw zc_io_exception::timeout())
+	if(bytes_written) *bytes_written = ret;
+	if(throw_timeout && !is_alive())
+		throw zc_io_exception::dead();
+	return ret==bytes_to_write;
+#endif
+}
+
+//
+
+bool child_process_handler::init()
+{
+#ifdef _WIN32
+	out = GetStdHandle(STD_OUTPUT_HANDLE);
+	in = GetStdHandle(STD_INPUT_HANDLE);
+	return (out != INVALID_HANDLE_VALUE && in != INVALID_HANDLE_VALUE);
+#else
+	read_handle = fileno(stdin);
+	write_handle = fileno(stdout);
+	return true;
+#endif
+}
+
+bool child_process_handler::read(void* buf, uint32_t bytes_to_read, uint32_t* bytes_read, bool throw_timeout)
+{
+#ifdef _WIN32
+	if(!bytes_read) bytes_read = &__dummy_;
+	if(in != INVALID_HANDLE_VALUE)
+		return ReadFile((HANDLE)in, (LPVOID)buf, (DWORD)bytes_to_read, (LPDWORD)bytes_read, NULL);
+	return false;
+#else
+	if(!read_handle) return false;
+	size_t ret = ::read(read_handle, buf, bytes_to_read);
+	if(bytes_read) *bytes_read = ret;
+	return ret>0;
+#endif
+}
+
+bool child_process_handler::write(void* buf, uint32_t bytes_to_write, uint32_t* bytes_written, bool throw_timeout)
+{
+#ifdef _WIN32
+	if(!bytes_written) bytes_written = &__dummy_;
+	if(out != INVALID_HANDLE_VALUE)
+		return WriteFile((HANDLE)out, (LPVOID)buf, (DWORD)bytes_to_write, (LPDWORD)bytes_written, NULL);
+	return false;
+#else
+	if(!write_handle) return false;
+	size_t ret = ::write(write_handle, buf, bytes_to_write);
+	if(bytes_written) *bytes_written = ret;
+	return ret==bytes_to_write;
+#endif
+}
+
+//
 
 static std::vector<char*> create_argv_unix(std::string file, const std::vector<std::string>& args)
 {
@@ -129,7 +349,7 @@ process_manager* launch_piped_process(std::string file, const std::vector<std::s
 		&si, &pi);
 	if(!bSuccess)
 		ERR_EXIT("Failed to create process", pm);
-	pm->pk.init(pi.hProcess);
+	pm->init_process(pi.hProcess);
 	return pm;
 #else
 	int32_t pdes_r[2], pdes_w[2], pid;
@@ -163,7 +383,7 @@ process_manager* launch_piped_process(std::string file, const std::vector<std::s
 	pm->write_handle = pdes_w[1];
 	close(pdes_r[1]);
 	close(pdes_w[0]);
-	pm->pk.init(pid);
+	pm->init_process(pid);
 	return pm;
 #endif
 }
