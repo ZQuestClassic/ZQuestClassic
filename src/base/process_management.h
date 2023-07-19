@@ -74,7 +74,7 @@ struct process_killer
 	#else
 	int32_t pid;
 	bool kill();
-	void init_process(int32_t pr_id, uint32_t exitcode = 0);
+	void init_process(int32_t pr_id);
 	process_killer(int32_t pr_id) : pid(pr_id) {}
 	process_killer() : pid(0) {}
 	bool is_alive() const;
