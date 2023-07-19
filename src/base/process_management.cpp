@@ -13,22 +13,25 @@ using namespace util;
 	{ \
 		if(pm) \
 			delete pm; \
-		zprint2("[PROCESS_LAUNCH: '%s' ERROR %d]: %s\n", file, errcode, str); \
+		zprint2("[PROCESS_LAUNCH: '%s' ERROR %d]: %s\n", file.c_str(), errcode, str); \
 		return NULL; \
 	} while(false)
 
+#ifdef _WIN32
 void process_killer::init_process(void* h, uint32_t exitcode)
 {
-#ifdef _WIN32
 	if(process_handle)
 		kill(exitcode);
 	process_handle = h;
-#else
-	if(pid)
-		kill(exitcode);
-	pid = pr_id;
-#endif
 }
+#else
+void process_killer::init_process(int32_t pr_id)
+{
+	if(pid)
+		kill();
+	pid = pr_id;
+}
+#endif
 bool process_killer::is_alive() const
 {
 #ifdef _WIN32
@@ -44,9 +47,9 @@ bool process_killer::is_alive() const
 	return true;
 #endif
 }
+#ifdef _WIN32
 bool process_killer::kill(uint32_t exitcode)
 {
-#ifdef _WIN32
 	if(process_handle)
 	{
 		if(TerminateProcess(process_handle, exitcode))
@@ -56,7 +59,11 @@ bool process_killer::kill(uint32_t exitcode)
 		}
 		return false;
 	}
+	return true;
+}
 #else
+bool process_killer::kill()
+{
 	if(pid)
 	{
 		if(::kill(pid,SIGKILL) == 0)
@@ -64,11 +71,11 @@ bool process_killer::kill(uint32_t exitcode)
 			pid = 0;
 			return true;
 		}
-		return false
+		return false;
 	}
-#endif
 	return true;
 }
+#endif
 
 //
 
