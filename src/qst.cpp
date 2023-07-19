@@ -5240,6 +5240,11 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 		{
 			tempDMap.mirrorDMap = -1;
 		}
+
+		if(s_version >= 17)
+		{
+			// Reserved for z3.
+		}
 		
 		if(keepdata==true)
 		{
