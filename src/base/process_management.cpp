@@ -70,7 +70,7 @@ process_killer launch_process(std::string file, const std::vector<std::string>& 
 	std::vector<char*> argv = create_argv_unix(file, args);
 	pid_t pid;
 #ifdef ALLEGRO_LINUX
-	int s = posix_spawn(&pid, file.c_str(), NULL, NULL, argv.data(), environ);
+	int s = posix_spawnp(&pid, file.c_str(), NULL, NULL, argv.data(), environ);
 #else
 	int s = posix_spawn(&pid, file.c_str(), NULL, NULL, argv.data(), NULL);
 #endif
