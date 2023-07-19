@@ -37,13 +37,14 @@ bool process_killer::is_alive() const
 #ifdef _WIN32
 	return process_handle && WaitForSingleObject(process_handle,0) == WAIT_TIMEOUT;
 #else
-	waitpid(pid, nullptr, WNOHANG);
-	if(::kill(pid,0) == -1)
-	{
-		if(errno != ESRCH)
-			return true;
-		return false;
-	}
+	//!TODO non-windows process stuff
+	// waitpid(pid, nullptr, WNOHANG);
+	// if(::kill(pid,0) == -1)
+	// {
+		// if(errno != ESRCH)
+			// return true;
+		// return false;
+	// }
 	return true;
 #endif
 }
