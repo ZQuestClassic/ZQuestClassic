@@ -4371,7 +4371,7 @@ void HeroClass::check_slash_block_layer2(int32_t bx, int32_t by, weapon *w, int3
 		{
 			case -2: break; //nothing
 			case -1:
-				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, dCOMBOSPRITE, 0, combobuf[cid].attribytes[0]));
 				break;
 			case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
 			case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
@@ -4646,7 +4646,7 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
 		{
 			case -2: break; //nothing
 			case -1:
-				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, dCOMBOSPRITE, 0, combobuf[cid].attribytes[0]));
 				break;
 			case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
 			case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
@@ -4723,7 +4723,7 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
 		{
 			case -2: break; //nothing
 			case -1:
-				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, dCOMBOSPRITE, 0, combobuf[cid].attribytes[0]));
 				break;
 			case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
 			case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
@@ -5039,7 +5039,7 @@ void HeroClass::check_slash_block(weapon *w)
 		{
 			case -2: break; //nothing
 			case -1:
-				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, dCOMBOSPRITE, 0, combobuf[cid].attribytes[0]));
 				break;
 			case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
 			case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
@@ -5109,7 +5109,7 @@ void HeroClass::check_slash_block(weapon *w)
 		{
 			case -2: break; //nothing
 			case -1:
-				decorations.add(new comboSprite((zfix)fx, (zfix)fy, 0, 0, combobuf[cid].attribytes[0]));
+				decorations.add(new comboSprite((zfix)fx, (zfix)fy, dCOMBOSPRITE, 0, combobuf[cid].attribytes[0]));
 				break;
 			case 1: decorations.add(new dBushLeaves((zfix)fx, (zfix)fy, dBUSHLEAVES, 0, 0)); break;
 			case 2: decorations.add(new dFlowerClippings((zfix)fx, (zfix)fy, dFLOWERCLIPPINGS, 0, 0)); break;
@@ -7596,7 +7596,7 @@ bool HeroClass::animate(int32_t)
 				case -4: decorations.add(new dGrassClippings(lift_wpn->x, lift_wpn->y-(lift_wpn->z+lift_wpn->fakez), dGRASSCLIPPINGS, 0, 0)); break;
 				default:
 					if(lift_wpn->death_sprite < 0) break;
-					decorations.add(new comboSprite(lift_wpn->x, lift_wpn->y-(lift_wpn->z+lift_wpn->fakez), 0, 0, lift_wpn->death_sprite));
+					decorations.add(new comboSprite(lift_wpn->x, lift_wpn->y-(lift_wpn->z+lift_wpn->fakez), dCOMBOSPRITE, 0, lift_wpn->death_sprite));
 			}
 			if(lift_wpn->death_sfx > 0)
 				sfx(lift_wpn->death_sfx, pan(int32_t(lift_wpn->x)));
@@ -7636,7 +7636,7 @@ heroanimate_skip_liftwpn:;
 		return handle_portal_collide((portal*)&p);
 	});
 	
-	if(z<=8&&fakez<=8)
+	if(z<=8&&fakez<=8) //Tall Grass
 	{
 		if (get_bit(quest_rules, qr_GRASS_SENSITIVE))
 		{
@@ -7683,136 +7683,165 @@ heroanimate_skip_liftwpn:;
 			}
 		}
 	}
-	
-	if (get_bit(quest_rules, qr_SHALLOW_SENSITIVE))
+	if(z==0 && fakez==0) //Shallow Water / Custom Walk SFX
 	{
-		if (z == 0 && fakez == 0 && action != swimming && action != isdiving && action != drowning && action!=lavadrowning && action!=sidedrowning && action!=rafting && action != falling && !IsSideSwim() && !(ladderx+laddery) && !pull_hero && !toogam)
+		if (get_bit(quest_rules, qr_SHALLOW_SENSITIVE))
 		{
-			bool b1 = iswaterex_z3(FFORCOMBO(x+11,y+15), -1, x+11, y+15, false, false, true, true);
-			bool b2 = iswaterex_z3(FFORCOMBO(x+4,y+15), -1, x+4, y+15, false, false, true, true);
-			bool b3 = iswaterex_z3(FFORCOMBO(x+11,y+9), -1, x+11, y+9, false, false, true, true);
-			bool b4 = iswaterex_z3(FFORCOMBO(x+4,y+9), -1, x+4, y+9, false, false, true, true);
-
-			if (b1 && b2 && b3 && b4)
+			if (action != swimming && action != isdiving && action != drowning && action!=lavadrowning && action!=sidedrowning && action!=rafting && action != falling && !IsSideSwim() && !(ladderx+laddery) && !pull_hero && !toogam)
 			{
-				int watercheck_x = x.getInt()+7.5, watercheck_y = y.getInt()+12;
-				auto ffc_handle = getFFCAt(watercheck_x,watercheck_y);
-				int combopos = ffc_handle ? -1 : COMBOPOS(watercheck_x,watercheck_y);
-				if(watercheck_x < 0 || watercheck_x > world_w-1 || watercheck_y < 0 || watercheck_y > world_h-1)
-					combopos = -1;
-				int waterid = ffc_handle ? ffc_handle->data() : (combopos > -1 ? tmpscr->data[combopos] : 0);
-				if(waterid)
-					waterid = iswaterex(waterid, currmap, currscr, -1, watercheck_x,watercheck_y, false, false, true, true);
-				if(waterid)
+				bool b1 = iswaterex_z3(FFORCOMBO(x+11,y+15), -1, x+11, y+15, false, false, true, true);
+				bool b2 = iswaterex_z3(FFORCOMBO(x+4,y+15), -1, x+4, y+15, false, false, true, true);
+				bool b3 = iswaterex_z3(FFORCOMBO(x+11,y+9), -1, x+11, y+9, false, false, true, true);
+				bool b4 = iswaterex_z3(FFORCOMBO(x+4,y+9), -1, x+4, y+9, false, false, true, true);
+
+				if (b1 && b2 && b3 && b4)
 				{
-					newcombo const& watercmb = combobuf[waterid];
-					auto ripplesprite = watercmb.attribytes[6];
-					if(decorations.idCount(dRIPPLES)==0)
-						decorations.add(new dRipples(x, y, dRIPPLES, 0, ripplesprite));
-					if (watercmb.usrflags&cflag2)
+					int watercheck_x = x.getInt()+7.5, watercheck_y = y.getInt()+12;
+					auto ffc_handle = getFFCAt(watercheck_x,watercheck_y);
+					int combopos = ffc_handle ? -1 : COMBOPOS(watercheck_x,watercheck_y);
+					if(watercheck_x < 0 || watercheck_x > 255 || watercheck_y < 0 || watercheck_y > 175)
+						combopos = -1;
+					// TODO z3 !!!! tmpscr
+					int waterid = ffc_handle ? ffc_handle->data() : (combopos > -1 ? tmpscr->data[combopos] : 0);
+					if(waterid)
+						waterid = iswaterex(waterid, currmap, currscr, -1, watercheck_x,watercheck_y, false, false, true, true);
+					if(waterid)
 					{
-						if (!(current_item(watercmb.attribytes[2]) > 0 && current_item(watercmb.attribytes[2]) >= watercmb.attribytes[3]))
+						newcombo const& watercmb = combobuf[waterid];
+						auto ripplesprite = watercmb.attribytes[6];
+						if(decorations.idCount(dRIPPLES)==0)
+							decorations.add(new dRipples(x, y, dRIPPLES, 0, ripplesprite));
+						if (watercmb.usrflags&cflag2)
 						{
-							onpassivedmg = true;
-							if (!damageovertimeclk)
+							if (!(current_item(watercmb.attribytes[2]) > 0 && current_item(watercmb.attribytes[2]) >= watercmb.attribytes[3]))
 							{
-								int32_t curhp = game->get_life();
-								auto dmg = watercmb.attributes[1]/10000L;
-								auto hitsfx = watercmb.attributes[2]/10000L;
-								bool hitstun = dmg < 0 && (watercmb.usrflags&cflag7);
-								
-								if(game->get_life() == curhp && (watercmb.usrflags&cflag6))
-									hitsfx = 0;
-								
-								std::vector<int32_t> &ev = FFCore.eventData;
-								ev.clear();
-								ev.push_back(-dmg*10000);
-								ev.push_back(-1*10000);
-								ev.push_back(0);
-								ev.push_back(0);
-								ev.push_back(48*10000);
-								ev.push_back(ZSD_COMBODATA*10000);
-								ev.push_back(waterid);
-								ev.push_back((ffc_handle ? ZSD_FFC : ZSD_COMBOPOS)*10000);
-								ev.push_back(ffc_handle ? ffc_handle->id : combopos*10000);
-								
-								throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_1);
-								
-								if(watercmb.usrflags & cflag5)
-									ev[0] = ringpower(ev[0]/10000) * 10000;
-								
-								throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_2);
-								dmg = -ev[0]/10000;
-								
-								if(!ev[2]) //nullify
+								onpassivedmg = true;
+								if (!damageovertimeclk)
 								{
-									game->set_life(vbound(game->get_life()+dmg, 0, game->get_maxlife()));
-									if (hitsfx)
-										sfx(hitsfx);
-									if (hitstun)
+									int32_t curhp = game->get_life();
+									auto dmg = watercmb.attributes[1]/10000L;
+									auto hitsfx = watercmb.attributes[2]/10000L;
+									bool hitstun = dmg < 0 && (watercmb.usrflags&cflag7);
+									
+									if(game->get_life() == curhp && (watercmb.usrflags&cflag6))
+										hitsfx = 0;
+									
+									std::vector<int32_t> &ev = FFCore.eventData;
+									ev.clear();
+									ev.push_back(-dmg*10000);
+									ev.push_back(-1*10000);
+									ev.push_back(0);
+									ev.push_back(0);
+									ev.push_back(48*10000);
+									ev.push_back(ZSD_COMBODATA*10000);
+									ev.push_back(waterid);
+									ev.push_back((ffc_handle ? ZSD_FFC : ZSD_COMBOPOS)*10000);
+									ev.push_back(ffc_handle ? ffc_handle->id : combopos*10000);
+									
+									throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_1);
+									
+									if(watercmb.usrflags & cflag5)
+										ev[0] = ringpower(ev[0]/10000) * 10000;
+									
+									throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_2);
+									dmg = -ev[0]/10000;
+									
+									if(!ev[2]) //nullify
 									{
-										hclk = ev[4]/10000;
-										hitdir = ev[1]/10000;
-										action = gothit; FFCore.setHeroAction(gothit);
+										game->set_life(vbound(game->get_life()+dmg, 0, game->get_maxlife()));
+										if (hitsfx)
+											sfx(hitsfx);
+										if (hitstun)
+										{
+											hclk = ev[4]/10000;
+											hitdir = ev[1]/10000;
+											action = gothit; FFCore.setHeroAction(gothit);
+										}
 									}
 								}
-							}
-							if (watercmb.attribytes[1] > 0)
-							{
-								if (!damageovertimeclk || damageovertimeclk > watercmb.attribytes[1]) damageovertimeclk = watercmb.attribytes[1];
-								else --damageovertimeclk;
+								if (watercmb.attribytes[1] > 0)
+								{
+									if (!damageovertimeclk || damageovertimeclk > watercmb.attribytes[1]) damageovertimeclk = watercmb.attribytes[1];
+									else --damageovertimeclk;
+								}
+								else damageovertimeclk = 0;
 							}
 							else damageovertimeclk = 0;
 						}
 						else damageovertimeclk = 0;
+						int32_t thesfx = watercmb.attribytes[0];
+						if (watercmb.type != cSHALLOWWATER || !get_bit(quest_rules, qr_OLD_SHALLOW_SFX))
+						{
+							thesfx = watercmb.attribytes[5];
+						}
+						if (action==walking)
+							sfx_no_repeat(thesfx,pan((int32_t)x));
 					}
-					else damageovertimeclk = 0;
-					int32_t thesfx = watercmb.attribytes[0];
-					if (watercmb.type != cSHALLOWWATER || !get_bit(quest_rules, qr_OLD_SHALLOW_SFX))
-					{
-						thesfx = watercmb.attribytes[5];
-					}
-					if (action==walking)
-						sfx_no_repeat(thesfx,pan((int32_t)x));
 				}
 			}
 		}
-	}
-	else
-	{
-		if((COMBOTYPE(x,y+15)==cSHALLOWWATER)&&(COMBOTYPE(x+15,y+15)==cSHALLOWWATER) && z==0 && fakez==0)
+		else
 		{
-			int32_t watercheck = FFORCOMBO(x+7.5,y.getInt()+15);
-			auto ripplesprite = combobuf[watercheck].attribytes[6];
-			if(decorations.idCount(dRIPPLES)==0)
+			if((COMBOTYPE(x,y+15)==cSHALLOWWATER)&&(COMBOTYPE(x+15,y+15)==cSHALLOWWATER))
 			{
-				decorations.add(new dRipples(x, y, dRIPPLES, 0, ripplesprite));
-			}
-			if (combobuf[watercheck].usrflags&cflag2)
-			{
-				if (!(current_item(combobuf[watercheck].attribytes[2]) > 0 && current_item(combobuf[watercheck].attribytes[2]) >= combobuf[watercheck].attribytes[3]))
+				int32_t watercheck = FFORCOMBO(x+7.5,y.getInt()+15);
+				auto ripplesprite = combobuf[watercheck].attribytes[6];
+				if(decorations.idCount(dRIPPLES)==0)
 				{
-					onpassivedmg = true;
-					if (!damageovertimeclk)
+					decorations.add(new dRipples(x, y, dRIPPLES, 0, ripplesprite));
+				}
+				if (combobuf[watercheck].usrflags&cflag2)
+				{
+					if (!(current_item(combobuf[watercheck].attribytes[2]) > 0 && current_item(combobuf[watercheck].attribytes[2]) >= combobuf[watercheck].attribytes[3]))
 					{
-						int32_t curhp = game->get_life();
-						if (combobuf[watercheck].usrflags&cflag5) game->set_life(vbound(game->get_life()+ringpower(combobuf[watercheck].attributes[1]/10000L), 0, game->get_maxlife())); //Affected by rings
-						else game->set_life(vbound(game->get_life()+(combobuf[watercheck].attributes[1]/10000L), 0, game->get_maxlife()));
-						if ((combobuf[watercheck].attributes[2]/10000L) && (game->get_life() != curhp || !(combobuf[watercheck].usrflags&cflag6))) sfx(combobuf[watercheck].attributes[2]/10000L);
-					}
-					if (combobuf[watercheck].attribytes[1] > 0)
-					{
-						if (!damageovertimeclk || damageovertimeclk > combobuf[watercheck].attribytes[1]) damageovertimeclk = combobuf[watercheck].attribytes[1];
-						else --damageovertimeclk;
+						onpassivedmg = true;
+						if (!damageovertimeclk)
+						{
+							int32_t curhp = game->get_life();
+							if (combobuf[watercheck].usrflags&cflag5) game->set_life(vbound(game->get_life()+ringpower(combobuf[watercheck].attributes[1]/10000L), 0, game->get_maxlife())); //Affected by rings
+							else game->set_life(vbound(game->get_life()+(combobuf[watercheck].attributes[1]/10000L), 0, game->get_maxlife()));
+							if ((combobuf[watercheck].attributes[2]/10000L) && (game->get_life() != curhp || !(combobuf[watercheck].usrflags&cflag6))) sfx(combobuf[watercheck].attributes[2]/10000L);
+						}
+						if (combobuf[watercheck].attribytes[1] > 0)
+						{
+							if (!damageovertimeclk || damageovertimeclk > combobuf[watercheck].attribytes[1]) damageovertimeclk = combobuf[watercheck].attribytes[1];
+							else --damageovertimeclk;
+						}
+						else damageovertimeclk = 0;
 					}
 					else damageovertimeclk = 0;
 				}
 				else damageovertimeclk = 0;
+				int32_t thesfx = combobuf[watercheck].attribytes[0];
+				if (action==walking )
+					sfx_no_repeat(thesfx,pan((int32_t)x));
 			}
-			else damageovertimeclk = 0;
-			int32_t thesfx = combobuf[watercheck].attribytes[0];
-			if (action==walking )
-				sfx_no_repeat(thesfx,pan((int32_t)x));
+		}
+		
+		auto cpos = COMBOPOS(x+8,y+(sideview_mode()?16:12));
+		for(int q = 0; q < 7; ++q)
+		{
+			mapscr* lyr = FFCore.tempScreens[q];
+			auto cid = lyr->data[cpos];
+			newcombo const& cmb = combobuf[cid];
+			byte csfx = action == walking ? cmb.sfx_walking : cmb.sfx_standing;
+			byte cspr = action == walking ? cmb.spr_walking : cmb.spr_standing;
+			if(csfx)
+				sfx_no_repeat(csfx);
+			auto indx = decorations.idFirst(dCUSTOMWALK);
+			if(cspr)
+			{
+				if(indx < 0)
+				{
+					if(decorations.add(new customWalkSprite(x, y, dCUSTOMWALK, 0, -1)))
+						indx = decorations.Count()-1;
+				}
+				if(indx > -1)
+				{
+					if(customWalkSprite* spr = dynamic_cast<customWalkSprite*>(decorations.spr(indx)))
+						spr->run_sprite(cspr);
+				}
+			}
 		}
 	}
 	
@@ -10971,15 +11000,15 @@ void HeroClass::doSwitchHook(byte style)
 		{
 			wpndata const& spr = wpnsbuf[QMisc.sprites[sprSWITCHPOOF]];
 			switchhookmaxtime = switchhookclk = zc_max(spr.frames,1) * zc_max(spr.speed,1);
-			decorations.add(new comboSprite(x, y, 0, 0, QMisc.sprites[sprSWITCHPOOF]));
+			decorations.add(new comboSprite(x, y, dCOMBOSPRITE, 0, QMisc.sprites[sprSWITCHPOOF]));
 			if(hooked_comborpos != rpos_t::NONE)
 			{
 				int decx, decy;
 				COMBOXY_REGION(hooked_comborpos, decx, decy);
-				decorations.add(new comboSprite(decx, decy, 0, 0, QMisc.sprites[sprSWITCHPOOF]));
+				decorations.add(new comboSprite(decx, decy, dCOMBOSPRITE, 0, QMisc.sprites[sprSWITCHPOOF]));
 			}
 			else if(switching_object)
-				decorations.add(new comboSprite(switching_object->x, switching_object->y, 0, 0, QMisc.sprites[sprSWITCHPOOF]));
+				decorations.add(new comboSprite(switching_object->x, switching_object->y, dCOMBOSPRITE, 0, QMisc.sprites[sprSWITCHPOOF]));
 			break;
 		}
 		case swFLICKER:

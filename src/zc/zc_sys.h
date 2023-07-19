@@ -36,7 +36,6 @@ int32_t zc_load_zmod_module_file();
 bool zc_getname(const char *prompt,const char *ext,EXT_LIST *list,const char *def,bool usefilename);
 bool zc_getname_nogo(const char *prompt,const char *ext,EXT_LIST *list,const char *def,bool usefilename);
 
-extern bool midi_paused;
 #ifdef _WIN32
 void do_DwmFlush();
 #endif
@@ -63,7 +62,7 @@ int32_t  onTryQuit(bool inMenu = false);
 int32_t  onReset();
 int32_t  onExit();
 void fix_dialogs();
-int32_t onMIDIPatch();
+int32_t onPauseInBackground();
 
 int32_t onCheatBombs();
 int32_t onCheatArrows();

@@ -273,9 +273,9 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_STRINGS         10
 #define V_MISC            15
 #define V_TILES            3 //2 is a int32_t, max 214500 tiles (ZScript upper limit)
-#define V_COMBOS          41
+#define V_COMBOS          42
 #define V_CSETS            5 //palette data
-#define V_MAPS            25
+#define V_MAPS            26
 #define V_DMAPS            17
 #define V_DOORS            1
 #define V_ITEMS           57
@@ -1206,8 +1206,10 @@ enum { pal_litDEFAULT, pal_litOVERRIDE, pal_litRESET, pal_litSET, pal_litRESETON
 
 enum
 {
-    dBUSHLEAVES, dFLOWERCLIPPINGS, dGRASSCLIPPINGS, dHAMMERSMACK,
-    dTALLGRASS, dRIPPLES, dDIVINEPROTECTIONSHIELD, dHOVER, dMAXDECORATIONS
+	dBUSHLEAVES, dFLOWERCLIPPINGS, dGRASSCLIPPINGS, dHAMMERSMACK,
+	dTALLGRASS, dRIPPLES, dDIVINEPROTECTIONSHIELD, dHOVER, dCOMBOSPRITE,
+	dCUSTOMWALK,
+	dMAXDECORATIONS
 };
 
 // items
@@ -2958,6 +2960,8 @@ struct newcombo
 	byte speed_mult = 1;
 	byte speed_div = 1;
 	zfix speed_add;
+	byte sfx_appear, sfx_disappear, sfx_loop, sfx_walking, sfx_standing;
+	byte spr_appear, spr_disappear, spr_walking, spr_standing;
 	
 	void set_tile(int32_t newtile)
 	{
@@ -3054,6 +3058,16 @@ struct newcombo
 		if(speed_mult != 1) return false;
 		if(speed_div != 1) return false;
 		if(speed_add) return false;
+		
+		if(sfx_appear) return false;
+		if(sfx_disappear) return false;
+		if(sfx_loop) return false;
+		if(sfx_walking) return false;
+		if(sfx_standing) return false;
+		if(spr_appear) return false;
+		if(spr_disappear) return false;
+		if(spr_walking) return false;
+		if(spr_standing) return false;
 		return true;
 	}
 	

@@ -230,6 +230,7 @@ extern byte                music_flags[MUSICFLAGS_SIZE];
 extern word                map_count;
 extern miscQdata           misc;
 extern std::vector<mapscr> TheMaps;
+extern std::vector<word>   map_autolayers;
 extern zcmap               *ZCMaps;
 extern dmap                *DMaps;
 extern MsgStr              *MsgStrings;
@@ -1142,7 +1143,6 @@ int32_t onHelp();
 int32_t onZScripthelp();
 int32_t edit_layers(mapscr* tempscr);
 void autolayer(mapscr* tempscr, int32_t layer, int32_t al[6][3]);
-int32_t findblankcombo();
 int32_t onLayers();
 
 // **** Timers ****

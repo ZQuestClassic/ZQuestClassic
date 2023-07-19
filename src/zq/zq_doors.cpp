@@ -26,6 +26,7 @@
 DoorComboSet *DoorComboSets;
 extern void restore_mouse();
 extern std::vector<mapscr> TheMaps;
+extern std::vector<word>   map_autolayers;
 extern zquestheader header;
 extern word map_count;
 

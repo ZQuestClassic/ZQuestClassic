@@ -126,6 +126,20 @@ namespace GUI::Lists
 		{ "Slot 14", 14 },
 		{ "Slot 15", 15 }
 	};
+
+	static const ListData jitThreadsList
+	{
+		{ "All Available", -1 },
+		{ "1/2 Available", -2 },
+		{ "1/3 Available", -3 },
+		{ "1/4 Available", -4 },
+		{ "1", 1 },
+		{ "2", 2 },
+		{ "3", 3 },
+		{ "4", 4 },
+		{ "8", 8 },
+		{ "Disabled", 0 }
+	};
 }
 //}
 
@@ -155,6 +169,7 @@ Checkbox( \
 	{ \
 		zc_set_config(head,subhead,state?1:0,app); \
 	})
+	
 	
 #define CONFIG_CHECKBOX_I_ZCL(name, head, subhead, def, info) \
 Button(forceFitH = true, text = "?", \
@@ -477,6 +492,7 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_TEXTFIELD_I("Saved Window X:",App::zelda,"zeldadx","window_x", 0, 0, rightmost, "The top-left corner of the ZQuest Window, for manual positioning and also used by 'Save Window Position'. If 0, uses the default position."),
 						CONFIG_TEXTFIELD_I("Saved Window Y:",App::zelda,"zeldadx","window_y", 0, 0, bottommost, "The top-left corner of the ZQuest Window, for manual positioning and also used by 'Save Window Position'. If 0, uses the default position."),
 						GFXCARD_DROPDOWN("Graphics Driver:", App::zelda, "graphics", "driver", 0, gfxDriverList),
+						CONFIG_DROPDOWN_I("(EXPERIMENTAL) JIT threads:",App::zelda,"ZSCRIPT","jit_threads",-2,jitThreadsList,"Use background threads to speed up JIT compilation"),
 						//
 						Button(hAlign = 1.0, forceFitH = true,
 							text = "Browse Module", onPressFunc = [&]()

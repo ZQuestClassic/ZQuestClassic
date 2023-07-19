@@ -4,6 +4,8 @@ JIT compilation is off by default. It can be enabled by setting the `[ZSCRIPT] j
 
 `[ZSCRIPT] jit_precompile = 1` can be set to compile all scripts on quest load, instead of as they are encountered.
 
+`[ZSCRIPT] jit_threads = -2` controls how many threads to use for compilation. See the note in `base_config/zc.cfg` for more.
+
 ## How it works
 
 First, details on how ZASM is normally interpreted:
@@ -84,7 +86,7 @@ These are useful config options:
 Given a replay that fails only when using JIT, this is how you can debug what's wrong with the compiled code.
 
 1. Determine the first frame that fails in the replay
-1. At the top of `script_debug_pre_command`, add an early exit based on that frame number. For example, if the first failing frame is 471704, add: `if (replay_get_frame() < 471704 - 100) return;`. This will prevent emitting any debugging information until 100 frames _before_ the first failure (you may need to change this value). This should be enough for context, and prevents the entire thing taking forever to run
+1. At the top of `ScriptDebugHandle::pre_command`, add an early exit based on that frame number. For example, if the first failing frame is 471704, add: `if (replay_get_frame() < 471704 - 100) return;`. This will prevent emitting any debugging information until 100 frames _before_ the first failure (you may need to change this value). This should be enough for context, and prevents the entire thing taking forever to run
 1. Clear any current `zscript-debug` directories: `rm -rf build/Release/zscript-debug*`
 1. Collect the _baseline_ debugging output by running the replay with JIT turned off. You can stop the replay a few frames after the first failing frame. To enable the debugging output, set `runtime_debug` in `script_debug.cpp` to `2`.
 1. Move the results to a new directory. For example: `mv build/Release/zscript-debug build/Release/zscript-debug-baseline`

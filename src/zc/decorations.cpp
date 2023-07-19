@@ -199,7 +199,7 @@ void dBushLeaves::draw(BITMAP *dest)
 
 
 comboSprite::comboSprite(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t wpnSpr) :
-	decoration(X,Y,Id,Clk), timer(0), initialized(false)
+	decoration(X,Y,Id,Clk)
 {
 	id=Id;
 	clk=Clk;
@@ -224,26 +224,11 @@ bool comboSprite::animate(int32_t)
 	//zprint2("Animating comboSprite: %d / %d\n", clk, dur);
 	return (clk++>=dur);
 }
-/*
-void comboSprite::draw(BITMAP *dest)
-{
-	if(screenscrolling)
-	{
-		clk=128;
-		return;
-	}
-	al_trace("Drawing combo sprite.z\n");
-	tile=wpnsbuf[the_deco_sprite].tile;
-	cs=wpnsbuf[the_deco_sprite].csets&15;
-	sprite::draw(dest);
-}
-*/
+
 void comboSprite::realdraw(BITMAP *dest, int32_t draw_what)
 {
-	if(misc!=draw_what)
-	{
+	if(misc!=draw_what || the_deco_sprite < 0)
 		return;
-	}
 	
 	int32_t fb=the_deco_sprite;
 	int32_t t=wpnsbuf[fb].tile;
@@ -802,6 +787,56 @@ void dDivineProtectionShield::draw(BITMAP *dest)
 void dDivineProtectionShield::draw2(BITMAP *dest)
 {
 	realdraw(dest,1);
+}
+
+//
+
+customWalkSprite::customWalkSprite(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t wpnSpr) :
+	comboSprite(X,Y,Id,Clk,wpnSpr), bits(0)
+{}
+
+bool customWalkSprite::animate(int32_t)
+{
+	if(bits&0b01)
+		bits &= ~0b01;
+	else return true;
+	if(!(bits & 0b10))
+		return false;
+	auto const& wspr = wpnsbuf[the_deco_sprite];
+	int32_t dur = zc_max(1,wspr.frames) * zc_max(1,wspr.speed);
+	clk = (clk+1)%dur;
+	return false;
+}
+
+void customWalkSprite::realdraw(BITMAP *dest, int32_t draw_what)
+{
+	if(misc!=draw_what || the_deco_sprite < 0)
+		return;
+	bits |= 0b10;
+	
+	auto const& wspr = wpnsbuf[the_deco_sprite];
+	int32_t t=wspr.tile;
+	int32_t fr=zc_max(1,wspr.frames);
+	int32_t spd=zc_max(1,wspr.speed);
+	cs=wspr.csets&15;
+	flip=0;
+	x=HeroX();
+	y=HeroY()+2;
+	
+	tile = t+((clk/spd)%fr);
+	
+	decoration::draw(dest);
+}
+
+void customWalkSprite::run_sprite(int32_t newSprite)
+{
+	bits |= 0b01; //ready to animate once more
+	if(newSprite != the_deco_sprite)
+	{
+		clk = 0;
+		bits &= ~0b10; //has not drawn first frame of new sprite yet
+		the_deco_sprite = newSprite;
+	}
 }
 
 

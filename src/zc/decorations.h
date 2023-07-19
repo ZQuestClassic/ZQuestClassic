@@ -36,15 +36,12 @@ public:
 class comboSprite : public decoration
 {
 public:
-    int32_t timer;
-    bool initialized;
 	int32_t tframes, spd;
-    comboSprite(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t wpnSpr=0);
-    virtual bool animate(int32_t index);
-    virtual void draw(BITMAP *dest);
-    virtual void draw2(BITMAP *dest);
+	comboSprite(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t wpnSpr=0);
+	virtual bool animate(int32_t index);
+	virtual void draw(BITMAP *dest);
+	virtual void draw2(BITMAP *dest);
 	virtual void realdraw(BITMAP *dest, int32_t draw_what);
-	
 };
 
 class dBushLeaves : public decoration
@@ -121,4 +118,16 @@ public:
 	virtual void draw(BITMAP *dest);
 	virtual void draw2(BITMAP *dest);
 };
+
+class customWalkSprite : public comboSprite
+{
+public:
+	byte bits;
+	customWalkSprite(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t wpnSpr=0);
+	virtual bool animate(int32_t index);
+	virtual void realdraw(BITMAP *dest, int32_t draw_what);
+	void run_sprite(int32_t newSprite);
+};
+
+
 #endif

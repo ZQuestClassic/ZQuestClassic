@@ -521,7 +521,7 @@ Statement_Assert :
 	CASSERT LPAREN Expression_Constant RPAREN {
 		$$ = new ASTAssert((ASTExprConst*)$3, NULL, @$);
 	}
-	| CASSERT LPAREN Expression_Constant COMMA QUOTEDSTRING RPAREN {
+	| CASSERT LPAREN Expression_Constant COMMA QuotedString RPAREN {
 		$$ = new ASTAssert((ASTExprConst*)$3, (ASTString*)$5, @$);
 	}
 	;
@@ -1322,7 +1322,7 @@ Annotation_List :
 	;
 
 Annotation :
-	HANDLE IDENTIFIER LPAREN QUOTEDSTRING RPAREN {
+	HANDLE IDENTIFIER LPAREN QuotedString RPAREN {
 		ASTString* key = (ASTString*)$2;
 		ASTString* val = (ASTString*)$4;
 		ASTAnnotation* a = new ASTAnnotation(key, val, @$);
@@ -2138,18 +2138,23 @@ Literal :
 		delete name;}
 	;
 
-Literal_String :
-	Literal_String QUOTEDSTRING {
-		ASTStringLiteral* str = (ASTStringLiteral*)$1;
+QuotedString :
+	QuotedString QUOTEDSTRING {
+		ASTString* str = (ASTString*)$1;
 		ASTString* rawstr = (ASTString*)$2;
-		str->value += rawstr->getValue();
+		str->append(rawstr->getValue());
 		delete rawstr;
 		$$ = str;}
-	| QUOTEDSTRING {
+	| QUOTEDSTRING {$$ = $1;}
+	;
+
+Literal_String :
+	QuotedString {
 		ASTString* rawstring = (ASTString*)$1;
 		ASTStringLiteral* str = new ASTStringLiteral(*rawstring);
 		delete rawstring;
 		$$ = str;}
+	;
 
 
 Literal_Bool :

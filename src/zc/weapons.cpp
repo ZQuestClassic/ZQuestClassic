@@ -212,7 +212,7 @@ void do_generic_combo(const rpos_handle_t& rpos_handle, weapon *w, int32_t wid,
 						break;
 				}
 			}
-			else decorations.add(new comboSprite(x, y, 0, 0, combobuf[cid].attribytes[0]));
+			else decorations.add(new comboSprite(x, y, dCOMBOSPRITE, 0, combobuf[cid].attribytes[0]));
 		}
 		int32_t it = -1;
 		int32_t thedropset = -1;
@@ -6661,7 +6661,7 @@ void weapon::do_death_fx()
 		case -4: decorations.add(new dGrassClippings(x, y-(z+fakez), dGRASSCLIPPINGS, 0, 0)); break;
 		default:
 			if(death_sprite < 0) break;
-			decorations.add(new comboSprite(x, y-(z+fakez), 0, 0, death_sprite));
+			decorations.add(new comboSprite(x, y-(z+fakez), dCOMBOSPRITE, 0, death_sprite));
 	}
 	if(death_sfx > 0)
 		sfx(death_sfx, pan(int32_t(x)));

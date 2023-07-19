@@ -30,6 +30,7 @@ class Commit:
     scope: str
     short_hash: str
     hash: str
+    subject: str
     oneline: str
     body: str
 
@@ -79,6 +80,7 @@ def get_scope_label(scope: str):
         case 'zc': return 'Player'
         case 'zq': return 'Editor'
         case 'zscript': return 'ZScript'
+        case 'vscode': return 'Visual Studio Code Extension'
         case 'launcher': return 'ZLauncher'
         case 'zconsole': return 'ZConsole'
         case _: return scope.capitalize()
@@ -106,10 +108,11 @@ def generate_changelog(commits_by_type: Dict[str, List[Commit]], format: str):
                     link = f'[`{c.short_hash}`]({commit_url_prefix}/{c.hash})'
                     lines.append(f'- {c.oneline} {link}')
                     if c.body:
-                        wrapped_body = '\n'.join(textwrap.wrap(c.body, 100))
-                        lines.append('```')
-                        lines.append('  ' + wrapped_body.replace('\n', '\n  '))
-                        lines.append('```')
+                        lines.append('   &nbsp;')
+                        for l in c.body.splitlines():
+                            if l:
+                                lines.append(f'   >{l}')
+
                 lines.append('')
     elif format == 'plaintext':
         for type, commits in commits_by_type.items():
@@ -119,7 +122,10 @@ def generate_changelog(commits_by_type: Dict[str, List[Commit]], format: str):
             for c in commits:
                 if c.body and not prev_had_body:
                     lines.append('')
-                lines.append(f'{c.scope_and_oneline()}')
+                if 'SHOW_SUBJECT' in os.environ:
+                    lines.append(c.subject)
+                else:
+                    lines.append(f'{c.scope_and_oneline()}')
                 if 'SHOW_HASH' in os.environ:
                     lines[-1] = c.hash + ' ' + lines[-1]
                 if c.body:
@@ -147,7 +153,7 @@ for commit_text in commits_text.splitlines():
     body = subprocess.check_output(
         f'git log -1 {hash} --format="%b"', shell=True, encoding='utf-8').strip()
     type, scope, oneline = parse_scope_and_type(subject)
-    commits.append(Commit(type, scope, short_hash, hash, oneline, body))
+    commits.append(Commit(type, scope, short_hash, hash, subject, oneline, body))
 
 
 commits_by_type: Dict[str, List[Commit]] = {}

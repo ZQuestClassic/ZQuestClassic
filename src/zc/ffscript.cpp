@@ -72,6 +72,8 @@ bool can_neg_array = true;
 extern byte monochrome_console;
 
 static std::set<int> seen_scripts;
+static std::map<int, ScriptDebugHandle> script_debug_handles;
+ScriptDebugHandle* runtime_script_debug_handle;
 static std::map<std::pair<script_data*, refInfo*>, JittedScriptHandle*> jitted_scripts;
 int32_t jitted_uncompiled_command_count;
 
@@ -30511,13 +30513,22 @@ int32_t run_script(ScriptType type, const word script, const int32_t i)
 		}
 	}
 
+	// Because qst.cpp likes to write script_data without setting this.
+	curscript->meta.script_type = type;
+
+	// No need to do anything if the script is not valid.
+	// An example of this is found in `playground.qst` player scripts, which have scripts with
+	// a single 0xFFFF command.
+	if (!curscript->valid())
+		return RUNSCRIPT_OK;
+
 	script_funcrun = false;
 
-	if (DEBUG_PRINT_ZASM && seen_scripts.find(curscript->debug_id) == seen_scripts.end())
+	if (DEBUG_PRINT_ZASM && !seen_scripts.contains(curscript->debug_id))
 	{
 		seen_scripts.insert(curscript->debug_id);
-		script_debug_set_file_type(1);
-		script_debug_print_zasm(curscript);
+		ScriptDebugHandle h(ScriptDebugHandle::OutputSplit::ByScript, curscript);
+		h.print_zasm(curScriptNum, curScriptIndex);
 	}
 
 	JittedScriptHandle* jitted_script = nullptr;
@@ -30534,15 +30545,21 @@ int32_t run_script(ScriptType type, const word script, const int32_t i)
 		}
 	}
 
+	runtime_script_debug_handle = nullptr;
 	if (script_debug_is_runtime_debugging())
 	{
-		script_debug_set_file_type(0);
-		script_debug_print(fmt::format("\n=== running script id: {} name: {} type: {} i: {} script: {}\n", curscript->debug_id, curscript->meta.script_name, ScriptTypeToString(type), i, script).c_str());
+		if (!script_debug_handles.contains(curscript->debug_id))
+		{
+			script_debug_handles.emplace(curscript->debug_id, ScriptDebugHandle(ScriptDebugHandle::OutputSplit::ByFrame, curscript));
+		}
+		runtime_script_debug_handle = &script_debug_handles.at(curscript->debug_id);
+		runtime_script_debug_handle->update_file();
+		runtime_script_debug_handle->print(fmt::format("\n=== running script id: {} name: {} type: {} i: {} script: {}\n", curscript->debug_id, curscript->meta.script_name, ScriptTypeToString(type), i, script).c_str());
 	}
 	if (script_debug_is_runtime_debugging() == 1)
 	{
-		script_debug_print(script_debug_registers_and_stack_to_string().c_str());
-		script_debug_print("\n");
+		runtime_script_debug_handle->print(script_debug_registers_and_stack_to_string().c_str());
+		runtime_script_debug_handle->print("\n");
 	}
 
 	int32_t result;
@@ -30597,8 +30614,8 @@ int32_t run_script(ScriptType type, const word script, const int32_t i)
 	}
 #endif
 
-	if (script_debug_is_runtime_debugging())
-		script_debug_print(fmt::format("result: {}\n", result).c_str());
+	if (runtime_script_debug_handle)
+		runtime_script_debug_handle->print(fmt::format("result: {}\n", result).c_str());
 	return result;
 }
 
@@ -30686,9 +30703,9 @@ j_command:
 
 		if (is_debugging && (!is_jitted || commands_run > 0))
 		{
-			script_debug_pre_command();
+			runtime_script_debug_handle->pre_command();
 		}
-		
+
 		bool waiting = true;
 		switch(scommand) //Handle waitframe-type commands first
 		{
@@ -32086,12 +32103,13 @@ j_command:
 				void stop_item_sfx(int32_t family)
 			*/
 			
+			// Note: these have never worked.
 			case PAUSEMUSIC:
 				//What was the instruction prior to adding backends?
 				//! The pauseAll() function pauses sfx, not music, so this instruction is not doing what I intended. -Z
 				//Check AllOff() -Z
 				//zcmusic_pause(ZCMUSIC* zcm, int32_t pause); is in zcmusic.h
-				midi_paused = true; 
+				// midi_paused = true; 
 				//pause_all_sfx();
 			
 				//Backend::sfx->pauseAll();
@@ -32100,7 +32118,7 @@ j_command:
 				//What was the instruction prior to adding backends?
 				//Check AllOff() -Z
 				//resume_all_sfx();
-				midi_paused = false; 
+				// midi_paused = false; 
 				//Backend::sfx->resumeAll();
 				break;
 			
@@ -37261,6 +37279,8 @@ void FFScript::init()
 	}
 	jitted_scripts.clear();
 	seen_scripts.clear();
+	script_debug_handles.clear();
+	runtime_script_debug_handle = nullptr;
 }
 
 void FFScript::shutdown()

@@ -2872,7 +2872,7 @@ bool breakable::animate(int32_t)
 			switch(breaksprtype)
 			{
 				case -1:
-					decorations.add(new comboSprite(x, y, 0, 0, breakspr));
+					decorations.add(new comboSprite(x, y, dCOMBOSPRITE, 0, breakspr));
 					break;
 				case 1: decorations.add(new dBushLeaves(x, y, dBUSHLEAVES, 0, 0)); break;
 				case 2: decorations.add(new dFlowerClippings(x, y, dFLOWERCLIPPINGS, 0, 0)); break;

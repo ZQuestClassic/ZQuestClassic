@@ -10,6 +10,9 @@ struct cpos_info
 	word shootrclk;
 	byte trig_cd;
 	byte pushes[4];
+	bool appeared;
+	
+	byte sfx_onchange, spr_onchange;
 	
 	void push(int dir, bool cancel = false);
 	word sumpush() const;

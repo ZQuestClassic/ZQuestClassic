@@ -4,7 +4,7 @@
 # To update a patch:
 #   1) cd to the directory
 #   2) make your changes
-#   3) git add .
+#   3) git add -u
 #   4) git diff --staged | pbcopy
 #   5) overwrite existing patch file with new one
 

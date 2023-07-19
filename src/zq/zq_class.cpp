@@ -836,6 +836,12 @@ void zmap::clearscr(int32_t scr)
 {
     screens[scr].zero_memory();
     screens[scr].valid=mVERSION;
+	for(int q = 0; q < 6; ++q)
+	{
+		auto layer = map_autolayers[currmap*6+q];
+		screens[scr].layermap[q] = layer;
+		screens[scr].layerscreen[q] = layer ? scr : 0;
+	}
 }
 
 const char *loaderror[] =
@@ -4807,12 +4813,6 @@ void zmap::DoPasteScreenCommand(PasteCommandType type, int data)
 
 void zmap::DoClearScreenCommand()
 {
-    if (!(Map.CurrScr()->valid&mVALID))
-    {
-        // nothing to do...
-        return;
-    }
-
     std::shared_ptr<set_screen_command> command(new set_screen_command);
     command->view_map = currmap;
     command->view_scr = currscr;
@@ -4898,11 +4898,6 @@ void zmap::Paste(const mapscr& copymapscr)
         
         int32_t newcolor=getcolor();
         loadlvlpal(newcolor);
-        
-        if(!(screens[currscr].valid&mVALID))
-        {
-            newcolor=-1;
-        }
         
         if(newcolor!=oldcolor)
         {
@@ -5094,10 +5089,7 @@ void zmap::PastePalette(const mapscr& copymapscr)
         int32_t newcolor=getcolor();
         loadlvlpal(newcolor);
         
-        if(!(screens[currscr].valid&mVALID))
-        {
-            newcolor=-1;
-        }
+        screens[currscr].valid|=mVALID;
         
         if(newcolor!=oldcolor)
         {
@@ -5118,10 +5110,7 @@ void zmap::PasteAll(const mapscr& copymapscr)
         int32_t newcolor=getcolor();
         loadlvlpal(newcolor);
         
-        if(!(screens[currscr].valid&mVALID))
-        {
-            newcolor=-1;
-        }
+        screens[currscr].valid|=mVALID;
         
         if(newcolor!=oldcolor)
         {
@@ -6573,6 +6562,7 @@ bool setMapCount2(int32_t c)
     try
     {
         TheMaps.resize(c*MAPSCRS);
+		map_autolayers.resize(c*6);
     }
     catch(...)
     {
@@ -9718,12 +9708,11 @@ int32_t writemaps(PACKFILE *f, zquestheader *)
 		
 		writesize=0;
 		
-		//finally...  section data
 		if(!p_iputw(map_count,f))
 		{
 			new_return(5);
 		}
-		
+		map_autolayers.resize(map_count*6);
 		for(int32_t i=0; i<map_count && i<MAXMAPS2; i++)
 		{
 			byte valid = 0;
@@ -9743,6 +9732,16 @@ int32_t writemaps(PACKFILE *f, zquestheader *)
 				new_return(6);
 			}
 			if(!valid) continue;
+			
+			{ //per-map info
+				for(int q = 0; q < 6; ++q)
+				{
+					size_t ind = i*6+q;
+					if(!p_iputw(map_autolayers[ind],f))
+						new_return(7);
+				}
+			}
+			
 			for(int32_t j=0; j<MAPSCRS; j++)
 				writemapscreen(f,i,j);
 		}
@@ -9814,7 +9813,9 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 		|| tmp_cmb.lifthei!=8 || tmp_cmb.lifttime!=16
 		|| tmp_cmb.lift_parent_item)
 		combo_has_flags |= CHAS_LIFT;
-	if(tmp_cmb.speed_mult != 1 || tmp_cmb.speed_div != 1 || tmp_cmb.speed_add)
+	if(tmp_cmb.speed_mult != 1 || tmp_cmb.speed_div != 1 || tmp_cmb.speed_add
+		|| tmp_cmb.sfx_appear || tmp_cmb.sfx_disappear || tmp_cmb.sfx_loop || tmp_cmb.sfx_walking || tmp_cmb.sfx_standing
+		|| tmp_cmb.spr_appear || tmp_cmb.spr_disappear || tmp_cmb.spr_walking || tmp_cmb.spr_standing)
 		combo_has_flags |= CHAS_GENERAL;
 	
 	if(!p_putc(combo_has_flags,f))
@@ -10137,6 +10138,24 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 			return 74;
 		if(!p_iputzf(tmp_cmb.speed_add,f))
 			return 75;
+		if(!p_putc(tmp_cmb.sfx_appear,f))
+			return 79;
+		if(!p_putc(tmp_cmb.sfx_disappear,f))
+			return 80;
+		if(!p_putc(tmp_cmb.sfx_loop,f))
+			return 81;
+		if(!p_putc(tmp_cmb.sfx_walking,f))
+			return 82;
+		if(!p_putc(tmp_cmb.sfx_standing,f))
+			return 83;
+		if(!p_putc(tmp_cmb.spr_appear,f))
+			return 84;
+		if(!p_putc(tmp_cmb.spr_disappear,f))
+			return 85;
+		if(!p_putc(tmp_cmb.spr_walking,f))
+			return 86;
+		if(!p_putc(tmp_cmb.spr_standing,f))
+			return 87;
 	}
 	return 0;
 }

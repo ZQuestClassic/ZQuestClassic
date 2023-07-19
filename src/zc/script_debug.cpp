@@ -1,12 +1,10 @@
 #include "zc/script_debug.h"
+#include "allegro5/file.h"
 #include "zc/ffscript.h"
 #include "zconsole/ConsoleLogger.h"
 #include <fmt/format.h>
 
-extern CConsoleLoggerEx zscript_coloured_console;
 extern refInfo *ri;
-extern script_data *curscript;
-extern int32_t (*stack)[MAX_SCRIPT_REGISTERS];
 std::string ZASMVarToString(int32_t arg);
 
 bool DEBUG_PRINT_ZASM;
@@ -17,24 +15,227 @@ bool DEBUG_JIT_EXIT_ON_COMPILE_FAIL;
 static int runtime_debug = 0;
 static bool debug_to_file = true;
 static bool debug_to_console = false;
-static std::string debug_file_path;
-static ALLEGRO_FILE *debug_file = nullptr;
-static ALLEGRO_FILE *debug_file_cur_frame = nullptr;
-static ALLEGRO_FILE *debug_file_zasm = nullptr;
-static int debug_file_zasm_cur_id = -1;
-static int debug_file_index = 0;
 
-static void script_debug_print_impl(int32_t attributes, const char *str)
+ScriptDebugHandle::ScriptDebugHandle(OutputSplit output_split, script_data* script)
 {
-	if (debug_file)
+	this->output_split = output_split;
+	this->script = script;
+	this->file = nullptr;
+	this->file_counter = 0;
+
+	update_file();
+}
+
+ScriptDebugHandle::ScriptDebugHandle(ScriptDebugHandle&& rhs)
+	: file { std::exchange(rhs.file, nullptr) }
+{
+	output_split = rhs.output_split;
+	script = rhs.script;
+	file_counter = rhs.file_counter;
+}
+
+ScriptDebugHandle& ScriptDebugHandle::operator=(ScriptDebugHandle&& rhs)
+{
+	if (this != &rhs)
 	{
-		al_fputs(debug_file, str);
+		if (file)
+			al_fclose(file);
+        file = std::exchange(rhs.file, nullptr);
+		output_split = rhs.output_split;
+		script = rhs.script;
+		file_counter = rhs.file_counter;
+	}
+
+	return *this;
+}
+
+ScriptDebugHandle::~ScriptDebugHandle()
+{
+	if (file)
+		al_fclose(file);
+}
+
+void ScriptDebugHandle::update_file()
+{
+	if (!debug_to_file)
+		return;
+
+	if (file)
+		al_fflush(file);
+
+	if (output_split == OutputSplit::ByFrame)
+	{
+		int counter = replay_is_active() ? replay_get_frame() : frame;
+		if (!file || counter != file_counter)
+		{
+			if (file)
+			{
+				al_fclose(file);
+			}
+			std::string dir = fmt::format("zscript-debug/{}", counter / 1000);
+			al_make_directory(dir.c_str());
+			std::string path = fmt::format("{}/debug-{}.txt", dir, counter);
+			file = al_fopen(path.c_str(), "w");
+			file_counter = counter;
+		}
+	}
+	else if (output_split == OutputSplit::ByScript && !file)
+	{
+		std::string dir = fmt::format("zscript-debug/zasm/{}", get_filename(qstpath));
+		std::string path;
+		if (script->meta.script_name.empty())
+			path = fmt::format("{}/zasm-{}.txt", dir, script->debug_id);
+		else
+			path = fmt::format("{}/zasm-{}-{}.txt", dir, script->debug_id, script->meta.script_name);
+		al_make_directory(dir.c_str());
+		file = al_fopen(path.c_str(), "w");
+	}
+}
+
+void ScriptDebugHandle::_print(int32_t attributes, const char *str)
+{
+	extern CConsoleLoggerEx zscript_coloured_console;
+
+	if (file)
+	{
+		al_fputs(file, str);
 	}
 
 	if (debug_to_console && zscript_debugger)
 	{
 		zscript_coloured_console.safeprint(attributes, str);
 	}
+}
+
+void ScriptDebugHandle::printf(int32_t attributes, const char *format, ...)
+{
+	char buffer[1024];
+	va_list argList;
+	va_start(argList, format);
+	int ret = vsnprintf(buffer, sizeof(buffer) - 1, format, argList);
+	buffer[vbound(ret, 0, 1023)] = 0;
+
+	_print(attributes, buffer);
+}
+
+void ScriptDebugHandle::printf(const char *format, ...)
+{
+	char buffer[1024];
+	va_list argList;
+	va_start(argList, format);
+	int ret = vsnprintf(buffer, sizeof(buffer) - 1, format, argList);
+	buffer[vbound(ret, 0, 1023)] = 0;
+
+	_print(0, buffer);
+}
+
+void ScriptDebugHandle::print(const char *str)
+{
+	_print(0, str);
+}
+
+void ScriptDebugHandle::print(int32_t attributes, const char *str)
+{
+	_print(attributes, str);
+}
+
+void ScriptDebugHandle::print_command(int i)
+{
+	word scommand = script->zasm[i].command;
+	int32_t arg1 = script->zasm[i].arg1;
+	int32_t arg2 = script->zasm[i].arg2;
+	script_command c = get_script_command(scommand);
+
+	printf(CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY |
+							CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
+						"%14s", c.name);
+	if (c.args >= 1)
+	{
+		if (c.arg1_type == 0)
+		{
+			printf(CConsoleLoggerEx::COLOR_WHITE |
+									CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
+								"\t %s", ZASMVarToString(arg1).c_str());
+		}
+		else
+		{
+			printf(CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
+									CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
+								"\t %d", arg1);
+		}
+	}
+	if (c.args >= 2)
+	{
+		print(CConsoleLoggerEx::COLOR_WHITE | CConsoleLoggerEx::COLOR_BACKGROUND_BLACK, ", ");
+		if (c.arg2_type == 0)
+		{
+			printf(CConsoleLoggerEx::COLOR_WHITE |
+									CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
+								"%s", ZASMVarToString(arg2).c_str());
+		}
+		else
+		{
+			printf(CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
+									CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
+								"%d", arg2);
+		}
+	}
+	print("\n");
+}
+
+void ScriptDebugHandle::print_zasm(int script_num, int script_index)
+{
+	size_t size = script->size();
+	print("ZASM:\n\n");
+	printf(
+		CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
+			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
+		"script id: %d\nname: %s\ntype: %d\nnum: %d\nindex: %d\n\n", script->debug_id, script->meta.script_name.c_str(), script->meta.script_type, script_num, script_index);
+	for (size_t i = 0; i < size; i++)
+	{
+		printf(CConsoleLoggerEx::COLOR_WHITE | CConsoleLoggerEx::COLOR_INTENSITY |
+								CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
+							"%4d: ", i);
+		print_command(i);
+	}
+	if (file)
+		al_fflush(file);
+}
+
+void ScriptDebugHandle::pre_command()
+{
+	// if (replay_get_frame() < 4034-100) return;
+	// if (script->debug_id != 5134) return;
+
+	// This is only to match the behavior in jitted code, where comparison instructions
+	// must be grouped together.
+	static bool supress_output = false;
+
+	int command = script->zasm[ri->pc].command;
+	if (!command_uses_comparison_result(command))
+		supress_output = false;
+	if (supress_output)
+		return;
+
+	int f = CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | CConsoleLoggerEx::COLOR_BACKGROUND_BLACK;
+	printf(f, "pc:\t%d\n", ri->pc);
+	print(f, script_debug_registers_and_stack_to_string().c_str());
+
+	print_command(ri->pc);
+
+	if (command == COMPAREV || command == COMPARER)
+	{
+		supress_output = true;
+		for (int j = ri->pc + 1; script->zasm[j].command != 0xFFFF; j++)
+		{
+			if (!command_uses_comparison_result(script->zasm[j].command))
+				break;
+			print_command(j);
+		}
+	}
+
+	if (file)
+		al_fflush(file);
 }
 
 int script_debug_is_runtime_debugging()
@@ -45,131 +246,6 @@ int script_debug_is_runtime_debugging()
 	}
 
 	return runtime_debug;
-}
-
-void script_debug_set_file_type(int type)
-{
-	if (!debug_to_file)
-		return;
-	if (type != 0 && type != 1)
-		return;
-
-	if (debug_file)
-		al_fflush(debug_file);
-
-	if (type == 0)
-	{
-		int counter = replay_is_active() ? replay_get_frame() : frame;
-		if (!debug_file_cur_frame || counter != debug_file_index)
-		{
-			if (debug_file_cur_frame)
-			{
-				al_fclose(debug_file_cur_frame);
-			}
-			std::string dir = fmt::format("zscript-debug/{}", counter / 1000);
-			al_make_directory(dir.c_str());
-			debug_file_path = fmt::format("{}/debug-{}.txt", dir, counter);
-			debug_file_cur_frame = al_fopen(debug_file_path.c_str(), "w");
-			debug_file_index = counter;
-		}
-		debug_file = debug_file_cur_frame;
-	}
-	else
-	{
-		if (!debug_file_zasm || debug_file_zasm_cur_id != curscript->debug_id)
-		{
-			if (debug_file_zasm)
-			{
-				al_fclose(debug_file_zasm);
-			}
-
-			std::string dir = fmt::format("zscript-debug/zasm/{}", get_filename(qstpath));
-			al_make_directory(dir.c_str());
-			if (curscript->meta.script_name.empty())
-				debug_file_path = fmt::format("{}/zasm-{}.txt", dir, curscript->debug_id);
-			else
-				debug_file_path = fmt::format("{}/zasm-{}-{}.txt", dir, curscript->debug_id, curscript->meta.script_name);
-			debug_file_zasm = al_fopen(debug_file_path.c_str(), "w");
-			debug_file_zasm_cur_id = curscript->debug_id;
-		}
-		debug_file = debug_file_zasm;
-	}
-}
-
-void script_debug_printf(int32_t attributes, const char *format, ...)
-{
-	char buffer[1024];
-	va_list argList;
-	va_start(argList, format);
-	int ret = vsnprintf(buffer, sizeof(buffer) - 1, format, argList);
-	buffer[vbound(ret, 0, 1023)] = 0;
-
-	script_debug_print_impl(attributes, buffer);
-}
-
-void script_debug_printf(const char *format, ...)
-{
-	char buffer[1024];
-	va_list argList;
-	va_start(argList, format);
-	int ret = vsnprintf(buffer, sizeof(buffer) - 1, format, argList);
-	buffer[vbound(ret, 0, 1023)] = 0;
-
-	script_debug_print_impl(0, buffer);
-}
-
-void script_debug_print(const char *str)
-{
-	script_debug_print_impl(0, str);
-}
-
-void script_debug_print(int32_t attributes, const char *str)
-{
-	script_debug_print_impl(attributes, str);
-}
-
-void script_debug_print_command(int i)
-{
-	word scommand = curscript->zasm[i].command;
-	int32_t arg1 = curscript->zasm[i].arg1;
-	int32_t arg2 = curscript->zasm[i].arg2;
-	script_command c = get_script_command(scommand);
-
-	script_debug_printf(CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY |
-							CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
-						"%14s", c.name);
-	if (c.args >= 1)
-	{
-		if (c.arg1_type == 0)
-		{
-			script_debug_printf(CConsoleLoggerEx::COLOR_WHITE |
-									CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
-								"\t %s", ZASMVarToString(arg1).c_str());
-		}
-		else
-		{
-			script_debug_printf(CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
-									CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
-								"\t %d", arg1);
-		}
-	}
-	if (c.args >= 2)
-	{
-		script_debug_print(CConsoleLoggerEx::COLOR_WHITE | CConsoleLoggerEx::COLOR_BACKGROUND_BLACK, ", ");
-		if (c.arg2_type == 0)
-		{
-			script_debug_printf(CConsoleLoggerEx::COLOR_WHITE |
-									CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
-								"%s", ZASMVarToString(arg2).c_str());
-		}
-		else
-		{
-			script_debug_printf(CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
-									CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
-								"%d", arg2);
-		}
-	}
-	script_debug_print("\n");
 }
 
 std::string script_debug_command_to_string(word scommand, int32_t arg1, int32_t arg2)
@@ -212,6 +288,8 @@ std::string script_debug_command_to_string(word scommand)
 
 std::string script_debug_registers_and_stack_to_string()
 {
+	extern int32_t (*stack)[MAX_SCRIPT_REGISTERS];
+
 	std::stringstream ss;
 
 	ss << "D:\t";
@@ -239,63 +317,4 @@ std::string script_debug_registers_and_stack_to_string()
 	ss << "\n";
 
 	return ss.str();
-}
-
-void script_debug_pre_command()
-{
-	// if (replay_get_frame() < 4034-100) return;
-	// if (curscript->debug_id != 5134) return;
-
-	// This is only to match the behavior in jitted code, where comparison instructions
-	// must be grouped together.
-	static bool supress_output = false;
-
-	int command = curscript->zasm[ri->pc].command;
-	if (!command_uses_comparison_result(command))
-		supress_output = false;
-	if (supress_output)
-		return;
-
-	int f = CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | CConsoleLoggerEx::COLOR_BACKGROUND_BLACK;
-	script_debug_printf(f, "pc:\t%d\n", ri->pc);
-	script_debug_print(f, script_debug_registers_and_stack_to_string().c_str());
-
-	script_debug_print_command(ri->pc);
-
-	if (command == COMPAREV || command == COMPARER)
-	{
-		supress_output = true;
-		for (int j = ri->pc + 1; curscript->zasm[j].command != 0xFFFF; j++)
-		{
-			if (!command_uses_comparison_result(curscript->zasm[j].command))
-				break;
-			script_debug_print_command(j);
-		}
-	}
-
-	if (debug_file)
-		al_fflush(debug_file);
-}
-
-void script_debug_print_zasm(script_data *script)
-{
-	extern ScriptType curScriptType;
-	extern word curScriptNum;
-	extern int32_t curScriptIndex;
-
-	size_t size = script->size();
-	script_debug_print("ZASM:\n\n");
-	script_debug_printf(
-		CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
-			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
-		"script id: %d\nname: %s\ntype: %d\nnum: %d\nindex: %d\n\n", script->debug_id, script->meta.script_name.c_str(), (int)curScriptType, (int)curScriptNum, curScriptIndex);
-	for (size_t i = 0; i < size; i++)
-	{
-		script_debug_printf(CConsoleLoggerEx::COLOR_WHITE | CConsoleLoggerEx::COLOR_INTENSITY |
-								CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
-							"%4d: ", i);
-		script_debug_print_command(i);
-	}
-	if (debug_file)
-		al_fflush(debug_file);
 }

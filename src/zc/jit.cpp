@@ -6,34 +6,17 @@
 //   just once. Could be problematic for cases where an overflow might happen (detect this?). Same for POP.
 // * Compile: LSHIFTR RSHIFTR
 
+#include "allegro.h"
 #include "zc/jit.h"
 #include "zc/ffscript.h"
 #include "zc/script_debug.h"
 #include "zconsole/ConsoleLogger.h"
 #include <fmt/format.h>
-
-#ifdef ZC_JIT
-#include <asmjit/asmjit.h>
-
-using namespace asmjit;
-
-static JitRuntime rt;
-
-// Some globals to prevent passing around everywhere
-static size_t size;
-static x86::Gp vRetVal;
-static x86::Gp vSwitchKey;
-static Label L_End;
-// Registers for the compiled function parameters.
-static x86::Gp ptrRegisters;
-static x86::Gp ptrGlobalRegisters;
-static x86::Gp ptrStack;
-static x86::Gp ptrStackIndex;
-static x86::Gp ptrPc;
-static x86::Gp ptrCallStackRets;
-static x86::Gp ptrCallStackRetIndex;
-static x86::Gp ptrWaitIndex;
-#endif
+#include <algorithm>
+#include <memory>
+#include <chrono>
+#include <optional>
+#include <array>
 
 typedef int32_t (*JittedFunction)(int32_t *registers, int32_t *global_registers,
 								  int32_t *stack, uint32_t *stack_index, uint32_t *pc,
@@ -41,7 +24,293 @@ typedef int32_t (*JittedFunction)(int32_t *registers, int32_t *global_registers,
 								  uint32_t *wait_index);
 
 static bool is_enabled;
+static bool jit_log_enabled;
 static std::map<int, JittedFunction> compiled_functions;
+
+void jit_printf(const char *format, ...)
+{
+	if (!jit_log_enabled)
+		return;
+
+	va_list arglist;
+	va_start(arglist, format);
+	vprintf(format, arglist);
+	va_end(arglist);
+}
+
+#ifdef ZC_JIT
+#include <asmjit/asmjit.h>
+#include <thread>
+
+using namespace asmjit;
+
+enum class ThreadState
+{
+	Inactive,
+	Starting,
+	Running,
+	Stopping,
+	Done,
+};
+
+struct ThreadInfo
+{
+	int id;
+	ThreadState state = ThreadState::Inactive;
+	ALLEGRO_THREAD* thread;
+};
+
+enum class TaskState
+{
+	Pending,
+	Active,
+	Done,
+};
+
+static const int MAX_THREADS = 16;
+static std::array<ThreadInfo, MAX_THREADS> thread_infos;
+static std::map<int, TaskState> task_states;
+static std::vector<int> active_tasks;
+static std::vector<script_data*> pending_scripts;
+static ALLEGRO_MUTEX* tasks_mutex;
+static ALLEGRO_COND* tasks_cond;
+static ALLEGRO_COND* task_finish_cond;
+
+static JittedFunction compile_script(script_data *script);
+
+// Returns a JittedFunction. If already compiled, returns the cached reference.
+// If a thread is currently compiling this script, waits for that thread to finish.
+// Otherwise compile the script on this thread.
+// If null is returned, the script failed to compile.
+static JittedFunction compile_if_needed(script_data *script)
+{
+	JittedFunction fn;
+
+	// First check if script is already compiled.
+	al_lock_mutex(tasks_mutex);
+	auto it = compiled_functions.find(script->debug_id);
+	if (it != compiled_functions.end())
+	{
+		fn = compiled_functions.at(script->debug_id);
+		al_unlock_mutex(tasks_mutex);
+		return fn;
+	}
+
+	// Next check if a thread is currently compiling this script.
+	if (task_states[script->debug_id] == TaskState::Active)
+	{
+		// Wait for task to finish.
+		jit_printf("jit: [*] waiting for thread to compile script type: %s id: %d name: %s\n", ScriptTypeToString(script->meta.script_type), script->debug_id, script->meta.script_name.c_str());
+		while (compiled_functions.find(script->debug_id) == compiled_functions.end())
+		{
+			al_wait_cond(task_finish_cond, tasks_mutex);
+		}
+
+		fn = compiled_functions[script->debug_id];
+		al_unlock_mutex(tasks_mutex);
+		return fn;
+	}
+
+	// Finally, just compile the script here. No need to keep lock during this.
+	auto pending_it = std::find(pending_scripts.begin(), pending_scripts.end(), script);
+	if (pending_it != pending_scripts.end())
+		pending_scripts.erase(pending_it);
+	al_unlock_mutex(tasks_mutex);
+
+	jit_printf("jit: [*] compiling script type: %s id: %d name: %s\n", ScriptTypeToString(script->meta.script_type), script->debug_id, script->meta.script_name.c_str());
+	fn = compile_script(script);
+
+	al_lock_mutex(tasks_mutex);
+	compiled_functions[script->debug_id] = fn;
+	al_unlock_mutex(tasks_mutex);
+
+	return fn;
+}
+
+static int thread_pool_generation_count;
+
+static void * compile_script_proc(ALLEGRO_THREAD *thread, void *arg)
+{
+	ThreadInfo* thread_info = (ThreadInfo*)arg;
+	int id = thread_info->id;
+	jit_printf("jit: [%d] thread started\n", id);
+
+	al_lock_mutex(tasks_mutex);
+	thread_info->state = ThreadState::Running;
+	while (true)
+	{
+		while (!(al_get_thread_should_stop(thread) || pending_scripts.size()))
+		{
+			al_wait_cond(tasks_cond, tasks_mutex);
+		}
+
+		if (al_get_thread_should_stop(thread))
+		{
+			break;
+		}
+
+		int generation = thread_pool_generation_count;
+		auto script = pending_scripts.back();
+		pending_scripts.pop_back();
+		task_states[script->debug_id] = TaskState::Active;
+		active_tasks.push_back(script->debug_id);
+		al_unlock_mutex(tasks_mutex);
+
+		jit_printf("jit: [%d] compiling script type: %s id: %d name: %s\n", id, ScriptTypeToString(script->meta.script_type), script->debug_id, script->meta.script_name.c_str());
+		auto fn = compile_script(script);
+
+		al_lock_mutex(tasks_mutex);
+		if (auto it = std::find(active_tasks.begin(), active_tasks.end(), script->debug_id); it != active_tasks.end())
+			active_tasks.erase(it);
+		if (thread_pool_generation_count != generation)
+		{
+			// This task is now useless, since a new quest was loaded.
+			continue;
+		}
+		task_states[script->debug_id] = TaskState::Done;
+		compiled_functions[script->debug_id] = fn;
+		// This is what signals the main thread that this script is ready.
+		al_broadcast_cond(task_finish_cond);
+		// Go back to top of loop, still with the mutex locked.
+	}
+
+	thread_info->state = ThreadState::Done;
+	al_unlock_mutex(tasks_mutex);
+	jit_printf("jit: [%d] done\n", id);
+	return nullptr;
+}
+
+static void create_compile_tasks(script_data *scripts[], size_t len, ScriptType type)
+{
+	for (size_t i = 0; i < len; i++)
+	{
+		auto script = scripts[i];
+		if (script && script->valid())
+		{
+			// Just because qst.cpp does not always set this.
+			script->meta.script_type = type;
+			pending_scripts.push_back(script);
+		}
+	}
+}
+
+static bool set_compilation_thread_pool_size(int target_size)
+{
+	if (target_size > MAX_THREADS)
+		target_size = MAX_THREADS;
+
+	al_lock_mutex(tasks_mutex);
+	int num_active_threads = 0;
+	for (auto& thread_info : thread_infos)
+	{
+		if (thread_info.state == ThreadState::Running || thread_info.state == ThreadState::Starting)
+			num_active_threads += 1;
+	}
+	al_unlock_mutex(tasks_mutex);
+
+	int delta = target_size - num_active_threads;
+	if (delta == 0)
+		return true;
+
+	jit_printf("jit: changing from %d to %d threads\n", num_active_threads, target_size);
+
+	if (delta > 0)
+	{
+		for (auto& thread_info : thread_infos)
+		{
+			if (delta == 0)
+				break;
+			if (thread_info.state != ThreadState::Inactive)
+				continue;
+
+			ALLEGRO_THREAD *t = al_create_thread(compile_script_proc, &thread_info);
+			if (!t)
+			{
+				return false;
+			}
+			thread_info.thread = t;
+			thread_info.state = ThreadState::Starting;
+			al_start_thread(t);
+			delta--;
+		}
+	}
+	else
+	{
+		al_lock_mutex(tasks_mutex);
+
+		for (auto& thread_info : thread_infos)
+		{
+			if (delta == 0)
+				break;
+			if (!(thread_info.state == ThreadState::Running || thread_info.state == ThreadState::Starting))
+				continue;
+
+			al_set_thread_should_stop(thread_info.thread);
+			thread_info.state = ThreadState::Stopping;
+			++delta;
+		}
+
+		al_broadcast_cond(tasks_cond);
+		al_unlock_mutex(tasks_mutex);
+	}
+
+	return true;
+}
+
+static void create_compile_tasks()
+{
+	al_lock_mutex(tasks_mutex);
+	task_states.clear();
+	active_tasks.clear();
+	pending_scripts.clear();
+	create_compile_tasks(ffscripts, NUMSCRIPTFFC, ScriptType::FFC);
+	create_compile_tasks(itemscripts, NUMSCRIPTITEM, ScriptType::Item);
+	create_compile_tasks(guyscripts, NUMSCRIPTGUYS, ScriptType::NPC);
+	create_compile_tasks(screenscripts, NUMSCRIPTSCREEN, ScriptType::Screen);
+	create_compile_tasks(lwpnscripts, NUMSCRIPTWEAPONS, ScriptType::Lwpn);
+	create_compile_tasks(ewpnscripts, NUMSCRIPTWEAPONS, ScriptType::Ewpn);
+	create_compile_tasks(dmapscripts, NUMSCRIPTSDMAP, ScriptType::DMap);
+	create_compile_tasks(itemspritescripts, NUMSCRIPTSITEMSPRITE, ScriptType::ItemSprite);
+	create_compile_tasks(comboscripts, NUMSCRIPTSCOMBODATA, ScriptType::Combo);
+	// Sort by # of commands, so that biggest scripts get compiled first.
+	std::sort(pending_scripts.begin(), pending_scripts.end(), [](script_data* a, script_data* b) {
+		return a->size() < b->size();
+	});
+	// Make sure player and global scripts are compiled first.
+	create_compile_tasks(playerscripts, NUMSCRIPTPLAYER, ScriptType::Player);
+	create_compile_tasks(globalscripts, NUMSCRIPTGLOBAL, ScriptType::Global);
+	if (jit_log_enabled)
+	{
+		for (auto a : pending_scripts) 
+		{
+			jit_printf("jit: %d: %d\n", a->debug_id, (int)a->size());
+		}
+	}
+
+	al_broadcast_cond(tasks_cond);
+	al_unlock_mutex(tasks_mutex);
+}
+
+static JitRuntime rt;
+
+struct CompilationState
+{
+	// Some globals to prevent passing around everywhere
+	size_t size;
+	x86::Gp vRetVal;
+	x86::Gp vSwitchKey;
+	Label L_End;
+	// Registers for the compiled function parameters.
+	x86::Gp ptrRegisters;
+	x86::Gp ptrGlobalRegisters;
+	x86::Gp ptrStack;
+	x86::Gp ptrStackIndex;
+	x86::Gp ptrPc;
+	x86::Gp ptrCallStackRets;
+	x86::Gp ptrCallStackRetIndex;
+	x86::Gp ptrWaitIndex;
+};
+#endif
 
 struct JittedScriptHandle
 {
@@ -52,16 +321,20 @@ struct JittedScriptHandle
 	uint32_t call_stack_ret_index;
 };
 
+extern ScriptDebugHandle* runtime_script_debug_handle;
+
 static void print(int32_t n)
 {
-	script_debug_printf(CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
+	if (runtime_script_debug_handle)
+		runtime_script_debug_handle->printf(CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
 							CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
 						"JIT: %d\n", n);
 }
 
 static void print64(int64_t n)
 {
-	script_debug_printf(CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
+	if (runtime_script_debug_handle)
+		runtime_script_debug_handle->printf(CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY |
 							CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
 						"JIT: %ld\n", n);
 }
@@ -72,7 +345,8 @@ static void debug_pre_command(int32_t pc, uint16_t sp)
 
 	ri->pc = pc;
 	ri->sp = sp;
-	script_debug_pre_command();
+	if (runtime_script_debug_handle)
+		runtime_script_debug_handle->pre_command();
 }
 
 void set_register(int32_t arg, int32_t value);
@@ -88,16 +362,16 @@ public:
 	}
 };
 
-static x86::Gp get_z_register(x86::Compiler &cc, x86::Gp vStackIndex, int r)
+static x86::Gp get_z_register(CompilationState& state, x86::Compiler &cc, x86::Gp vStackIndex, int r)
 {
 	x86::Gp val = cc.newInt32();
 	if (r >= D(0) && r <= A(1))
 	{
-		cc.mov(val, x86::ptr_32(ptrRegisters, r * 4));
+		cc.mov(val, x86::ptr_32(state.ptrRegisters, r * 4));
 	}
 	else if (r >= GD(0) && r <= GD(MAX_SCRIPT_REGISTERS))
 	{
-		cc.mov(val, x86::ptr_32(ptrGlobalRegisters, (r - GD(0)) * 4));
+		cc.mov(val, x86::ptr_32(state.ptrGlobalRegisters, (r - GD(0)) * 4));
 	}
 	else if (r == SP)
 	{
@@ -106,7 +380,7 @@ static x86::Gp get_z_register(x86::Compiler &cc, x86::Gp vStackIndex, int r)
 	}
 	else if (r == SWITCHKEY)
 	{
-		cc.mov(val, vSwitchKey);
+		cc.mov(val, state.vSwitchKey);
 	}
 	else
 	{
@@ -119,16 +393,16 @@ static x86::Gp get_z_register(x86::Compiler &cc, x86::Gp vStackIndex, int r)
 	return val;
 }
 
-static x86::Gp get_z_register_64(x86::Compiler &cc, x86::Gp vStackIndex, int r)
+static x86::Gp get_z_register_64(CompilationState& state, x86::Compiler &cc, x86::Gp vStackIndex, int r)
 {
 	x86::Gp val = cc.newInt64();
 	if (r >= D(0) && r <= A(1))
 	{
-		cc.movsxd(val, x86::ptr_32(ptrRegisters, r * 4));
+		cc.movsxd(val, x86::ptr_32(state.ptrRegisters, r * 4));
 	}
 	else if (r >= GD(0) && r <= GD(MAX_SCRIPT_REGISTERS))
 	{
-		cc.movsxd(val, x86::ptr_32(ptrGlobalRegisters, (r - GD(0)) * 4));
+		cc.movsxd(val, x86::ptr_32(state.ptrGlobalRegisters, (r - GD(0)) * 4));
 	}
 	else if (r == SP)
 	{
@@ -137,7 +411,7 @@ static x86::Gp get_z_register_64(x86::Compiler &cc, x86::Gp vStackIndex, int r)
 	}
 	else if (r == SWITCHKEY)
 	{
-		cc.movsxd(val, vSwitchKey);
+		cc.movsxd(val, state.vSwitchKey);
 	}
 	else
 	{
@@ -153,15 +427,15 @@ static x86::Gp get_z_register_64(x86::Compiler &cc, x86::Gp vStackIndex, int r)
 }
 
 template <typename T>
-static void set_z_register(x86::Compiler &cc, x86::Gp vStackIndex, int r, T val)
+static void set_z_register(CompilationState& state, x86::Compiler &cc, x86::Gp vStackIndex, int r, T val)
 {
 	if (r >= D(0) && r <= A(1))
 	{
-		cc.mov(x86::ptr_32(ptrRegisters, r * 4), val);
+		cc.mov(x86::ptr_32(state.ptrRegisters, r * 4), val);
 	}
 	else if (r >= GD(0) && r <= GD(MAX_SCRIPT_REGISTERS))
 	{
-		cc.mov(x86::ptr_32(ptrGlobalRegisters, (r - GD(0)) * 4), val);
+		cc.mov(x86::ptr_32(state.ptrGlobalRegisters, (r - GD(0)) * 4), val);
 	}
 	else if (r == SP)
 	{
@@ -170,8 +444,8 @@ static void set_z_register(x86::Compiler &cc, x86::Gp vStackIndex, int r, T val)
 	}
 	else if (r == SWITCHKEY)
 	{
-		vSwitchKey = cc.newInt32();
-		cc.mov(vSwitchKey, val);
+		state.vSwitchKey = cc.newInt32();
+		cc.mov(state.vSwitchKey, val);
 	}
 	else
 	{
@@ -183,11 +457,11 @@ static void set_z_register(x86::Compiler &cc, x86::Gp vStackIndex, int r, T val)
 	}
 }
 
-static void set_z_register(x86::Compiler &cc, x86::Gp vStackIndex, int r, x86::Mem mem)
+static void set_z_register(CompilationState& state, x86::Compiler &cc, x86::Gp vStackIndex, int r, x86::Mem mem)
 {
 	x86::Gp val = cc.newInt32();
 	cc.mov(val, mem);
-	set_z_register(cc, vStackIndex, r, val);
+	set_z_register(state, cc, vStackIndex, r, val);
 }
 
 static void modify_sp(x86::Compiler &cc, x86::Gp vStackIndex, int delta)
@@ -241,7 +515,7 @@ static void zero(x86::Compiler &cc, x86::Gp reg)
 	cc.xor_(reg, reg);
 }
 
-static void compile_compare(x86::Compiler &cc, std::map<int, Label> &goto_labels, x86::Gp vStackIndex, int command, int arg)
+static void compile_compare(CompilationState& state, x86::Compiler &cc, std::map<int, Label> &goto_labels, x86::Gp vStackIndex, int command, int arg)
 {
 	x86::Gp val = cc.newInt32();
 
@@ -268,7 +542,7 @@ static void compile_compare(x86::Compiler &cc, std::map<int, Label> &goto_labels
 	{
 		cc.mov(val, 0);
 		cc.sete(val);
-		set_z_register(cc, vStackIndex, arg, val);
+		set_z_register(state, cc, vStackIndex, arg, val);
 	}
 	else if (command == SETTRUEI)
 	{
@@ -277,13 +551,13 @@ static void compile_compare(x86::Compiler &cc, std::map<int, Label> &goto_labels
 		x86::Gp val2 = cc.newInt32();
 		cc.mov(val2, 10000);
 		cc.cmove(val, val2);
-		set_z_register(cc, vStackIndex, arg, val);
+		set_z_register(state, cc, vStackIndex, arg, val);
 	}
 	else if (command == SETFALSE)
 	{
 		cc.mov(val, 0);
 		cc.setne(val);
-		set_z_register(cc, vStackIndex, arg, val);
+		set_z_register(state, cc, vStackIndex, arg, val);
 	}
 	else if (command == SETFALSEI)
 	{
@@ -291,7 +565,7 @@ static void compile_compare(x86::Compiler &cc, std::map<int, Label> &goto_labels
 		x86::Gp val2 = cc.newInt32();
 		cc.mov(val2, 10000);
 		cc.cmovne(val, val2);
-		set_z_register(cc, vStackIndex, arg, val);
+		set_z_register(state, cc, vStackIndex, arg, val);
 	}
 	else if (command == SETMOREI)
 	{
@@ -299,7 +573,7 @@ static void compile_compare(x86::Compiler &cc, std::map<int, Label> &goto_labels
 		x86::Gp val2 = cc.newInt32();
 		cc.mov(val2, 10000);
 		cc.cmovge(val, val2);
-		set_z_register(cc, vStackIndex, arg, val);
+		set_z_register(state, cc, vStackIndex, arg, val);
 	}
 	else if (command == SETLESSI)
 	{
@@ -307,19 +581,19 @@ static void compile_compare(x86::Compiler &cc, std::map<int, Label> &goto_labels
 		x86::Gp val2 = cc.newInt32();
 		cc.mov(val2, 10000);
 		cc.cmovle(val, val2);
-		set_z_register(cc, vStackIndex, arg, val);
+		set_z_register(state, cc, vStackIndex, arg, val);
 	}
 	else if (command == SETMORE)
 	{
 		cc.mov(val, 0);
 		cc.setge(val);
-		set_z_register(cc, vStackIndex, arg, val);
+		set_z_register(state, cc, vStackIndex, arg, val);
 	}
 	else if (command == SETLESS)
 	{
 		cc.mov(val, 0);
 		cc.setle(val);
-		set_z_register(cc, vStackIndex, arg, val);
+		set_z_register(state, cc, vStackIndex, arg, val);
 	}
 	else
 	{
@@ -328,7 +602,7 @@ static void compile_compare(x86::Compiler &cc, std::map<int, Label> &goto_labels
 }
 
 // Defer to the ZASM command interpreter for 1+ commands.
-static void compile_command(x86::Compiler &cc, script_data *script, int i, int count, x86::Gp vStackIndex)
+static void compile_command(CompilationState& state, x86::Compiler &cc, script_data *script, int i, int count, x86::Gp vStackIndex)
 {
 	extern int32_t jitted_uncompiled_command_count;
 
@@ -336,8 +610,8 @@ static void compile_command(x86::Compiler &cc, script_data *script, int i, int c
 	cc.mov(reg, (uint64_t)&jitted_uncompiled_command_count);
 	cc.mov(x86::ptr_32(reg), count);
 
-	cc.mov(x86::ptr_32(ptrPc), i);
-	cc.mov(x86::ptr_32(ptrStackIndex), vStackIndex);
+	cc.mov(x86::ptr_32(state.ptrPc), i);
+	cc.mov(x86::ptr_32(state.ptrStackIndex), vStackIndex);
 
 	InvokeNode *invokeNode;
 	cc.invoke(&invokeNode, run_script_int, FuncSignatureT<int32_t, bool>(CallConvId::kHost));
@@ -347,7 +621,7 @@ static void compile_command(x86::Compiler &cc, script_data *script, int i, int c
 	for (int j = 0; j < count; j++)
 	{
 		int index = i + j;
-		if (index >= size)
+		if (index >= state.size)
 			break;
 
 		if (command_could_return_not_ok(script->zasm[index].command))
@@ -359,9 +633,9 @@ static void compile_command(x86::Compiler &cc, script_data *script, int i, int c
 
 	if (could_return_not_ok)
 	{
-		invokeNode->setRet(0, vRetVal);
-		cc.cmp(vRetVal, RUNSCRIPT_OK);
-		cc.jne(L_End);
+		invokeNode->setRet(0, state.vRetVal);
+		cc.cmp(state.vRetVal, RUNSCRIPT_OK);
+		cc.jne(state.L_End);
 	}
 }
 
@@ -427,13 +701,14 @@ static bool command_is_compiled(int command)
 	return false;
 }
 
-static void error(script_data *script, std::string str)
+static void error(ScriptDebugHandle* debug_handle, script_data *script, std::string str)
 {
 	str = fmt::format("failed to compile id: {} name: {}\nerror: {}\n",
 					  script->debug_id, script->meta.script_name.c_str(), str);
 
 	al_trace("%s", str.c_str());
-	script_debug_print(CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | CConsoleLoggerEx::COLOR_BACKGROUND_BLACK, str.c_str());
+	if (debug_handle)
+		debug_handle->print(CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | CConsoleLoggerEx::COLOR_BACKGROUND_BLACK, str.c_str());
 
 	if (DEBUG_JIT_EXIT_ON_COMPILE_FAIL)
 	{
@@ -445,14 +720,21 @@ static void error(script_data *script, std::string str)
 // Compile the entire ZASM script at once, into a single function.
 static JittedFunction compile_script(script_data *script)
 {
-	size = script->size();
+	CompilationState state;
+
+	al_trace("compiling script type: %s id: %d name: %s\n", ScriptTypeToString(script->meta.script_type), script->debug_id, script->meta.script_name.c_str());
+
+	state.size = script->size();
+	size_t size = state.size;
 	if (size <= 1)
 		return nullptr;
 
+	std::optional<ScriptDebugHandle> debug_handle_ = std::nullopt;
 	if (DEBUG_JIT_PRINT_ASM)
 	{
-		script_debug_set_file_type(1);
+		debug_handle_.emplace(ScriptDebugHandle::OutputSplit::ByScript, script);
 	}
+	auto debug_handle = debug_handle_ ? std::addressof(debug_handle_.value()) : nullptr;
 
 	std::chrono::steady_clock::time_point start_time, end_time;
 	start_time = std::chrono::steady_clock::now();
@@ -477,7 +759,7 @@ static JittedFunction compile_script(script_data *script)
 			}
 			else if (command_uses_comparison_result(command))
 			{
-				error(script, fmt::format("comparison assumption failed! i: {}", i));
+				error(debug_handle, script, fmt::format("comparison assumption failed! i: {}", i));
 				return nullptr;
 			}
 		}
@@ -501,31 +783,31 @@ static JittedFunction compile_script(script_data *script)
 
 	// Setup parameters.
 	cc.addFunc(FuncSignatureT<int32_t, int32_t *, int32_t *, int32_t *, uint16_t *, uint32_t *, intptr_t *, uint32_t *, uint32_t *>(CallConvId::kHost));
-	ptrRegisters = cc.newIntPtr("registers_ptr");
-	ptrGlobalRegisters = cc.newIntPtr("global_registers_ptr");
-	ptrStack = cc.newIntPtr("stack_ptr");
-	ptrStackIndex = cc.newIntPtr("stack_index_ptr");
-	ptrPc = cc.newIntPtr("pc_ptr");
-	ptrCallStackRets = cc.newIntPtr("call_stack_rets_ptr");
-	ptrCallStackRetIndex = cc.newIntPtr("call_stack_ret_index_ptr");
-	ptrWaitIndex = cc.newIntPtr("wait_index_ptr");
-	cc.setArg(0, ptrRegisters);
-	cc.setArg(1, ptrGlobalRegisters);
-	cc.setArg(2, ptrStack);
-	cc.setArg(3, ptrStackIndex);
-	cc.setArg(4, ptrPc);
-	cc.setArg(5, ptrCallStackRets);
-	cc.setArg(6, ptrCallStackRetIndex);
-	cc.setArg(7, ptrWaitIndex);
+	state.ptrRegisters = cc.newIntPtr("registers_ptr");
+	state.ptrGlobalRegisters = cc.newIntPtr("global_registers_ptr");
+	state.ptrStack = cc.newIntPtr("stack_ptr");
+	state.ptrStackIndex = cc.newIntPtr("stack_index_ptr");
+	state.ptrPc = cc.newIntPtr("pc_ptr");
+	state.ptrCallStackRets = cc.newIntPtr("call_stack_rets_ptr");
+	state.ptrCallStackRetIndex = cc.newIntPtr("call_stack_ret_index_ptr");
+	state.ptrWaitIndex = cc.newIntPtr("wait_index_ptr");
+	cc.setArg(0, state.ptrRegisters);
+	cc.setArg(1, state.ptrGlobalRegisters);
+	cc.setArg(2, state.ptrStack);
+	cc.setArg(3, state.ptrStackIndex);
+	cc.setArg(4, state.ptrPc);
+	cc.setArg(5, state.ptrCallStackRets);
+	cc.setArg(6, state.ptrCallStackRetIndex);
+	cc.setArg(7, state.ptrWaitIndex);
 
-	vRetVal = cc.newInt32("return_val");
-	zero(cc, vRetVal); // RUNSCRIPT_OK
+	state.vRetVal = cc.newInt32("return_val");
+	zero(cc, state.vRetVal); // RUNSCRIPT_OK
 
 	x86::Gp vStackIndex = cc.newUInt32("stack_index");
-	cc.mov(vStackIndex, x86::ptr_32(ptrStackIndex));
+	cc.mov(vStackIndex, x86::ptr_32(state.ptrStackIndex));
 
 	x86::Gp vCallStackRetIndex = cc.newUInt32("call_stack_ret_index");
-	cc.mov(vCallStackRetIndex, x86::ptr_32(ptrCallStackRetIndex));
+	cc.mov(vCallStackRetIndex, x86::ptr_32(state.ptrCallStackRetIndex));
 
 	// Scripts yield on calls to WaitX, which means the function
 	// this returns needs to take a parameter that represents which WaitX to jump to on re-entry.
@@ -538,7 +820,7 @@ static JittedFunction compile_script(script_data *script)
 	std::vector<Label> wait_frame_labels;
 	Label L_Table = cc.newLabel();
 	Label L_Start = cc.newLabel();
-	L_End = cc.newLabel();
+	state.L_End = cc.newLabel();
 	JumpAnnotation *annotation = cc.newJumpAnnotation();
 	annotation->addLabel(L_Start);
 	for (size_t i = 0; i < size; i++)
@@ -555,7 +837,7 @@ static JittedFunction compile_script(script_data *script)
 	x86::Gp target = cc.newIntPtr("target");
 	x86::Gp offset = cc.newIntPtr("offset");
 	x86::Gp wait_index = cc.newUInt32("wait_index");
-	cc.mov(wait_index, x86::ptr_32(ptrWaitIndex));
+	cc.mov(wait_index, x86::ptr_32(state.ptrWaitIndex));
 	cc.lea(offset, x86::ptr(L_Table));
 	if (cc.is64Bit())
 		cc.movsxd(target, x86::ptr_32(offset, wait_index.cloneAs(offset), 2));
@@ -692,15 +974,15 @@ static JittedFunction compile_script(script_data *script)
 
 		if (command_uses_comparison_result(command))
 		{
-			compile_compare(cc, goto_labels, vStackIndex, command, arg1);
+			compile_compare(state, cc, goto_labels, vStackIndex, command, arg1);
 			continue;
 		}
 
 		if (command_is_wait(command))
 		{
-			compile_command(cc, script, i, 1, vStackIndex);
-			cc.mov(x86::ptr_32(ptrWaitIndex), label_index + 1);
-			cc.jmp(L_End);
+			compile_command(state, cc, script, i, 1, vStackIndex);
+			cc.mov(x86::ptr_32(state.ptrWaitIndex), label_index + 1);
+			cc.jmp(state.L_End);
 			cc.bind(wait_frame_labels[label_index]);
 			label_index += 1;
 			continue;
@@ -744,7 +1026,7 @@ static JittedFunction compile_script(script_data *script)
 				}
 			}
 
-			compile_command(cc, script, i, uncompiled_command_count, vStackIndex);
+			compile_command(state, cc, script, i, uncompiled_command_count, vStackIndex);
 			i += uncompiled_command_count - 1;
 			continue;
 		}
@@ -758,9 +1040,9 @@ static JittedFunction compile_script(script_data *script)
 			break;
 		case QUIT:
 		{
-			compile_command(cc, script, i, 1, vStackIndex);
-			cc.mov(x86::ptr_32(ptrWaitIndex), 0);
-			cc.jmp(L_End);
+			compile_command(state, cc, script, i, 1, vStackIndex);
+			cc.mov(x86::ptr_32(state.ptrWaitIndex), 0);
+			cc.jmp(state.L_End);
 		}
 		break;
 		case GOTO:
@@ -770,7 +1052,7 @@ static JittedFunction compile_script(script_data *script)
 				// https://github.com/asmjit/asmjit/issues/286
 				x86::Gp address = cc.newIntPtr();
 				cc.lea(address, x86::qword_ptr(call_pc_to_return_label.at(i)));
-				cc.mov(x86::qword_ptr(ptrCallStackRets, vCallStackRetIndex, 3), address);
+				cc.mov(x86::qword_ptr(state.ptrCallStackRets, vCallStackRetIndex, 3), address);
 				cc.add(vCallStackRetIndex, 1);
 				cc.jmp(goto_labels.at(arg1));
 				cc.bind(call_pc_to_return_label.at(i));
@@ -789,12 +1071,12 @@ static JittedFunction compile_script(script_data *script)
 
 			cc.sub(vCallStackRetIndex, 1);
 			x86::Gp address = cc.newIntPtr();
-			cc.mov(address, x86::qword_ptr(ptrCallStackRets, vCallStackRetIndex, 3));
+			cc.mov(address, x86::qword_ptr(state.ptrCallStackRets, vCallStackRetIndex, 3));
 
 			int function_index = return_to_function_id.at(i);
 			if (function_jump_annotations.size() <= function_index)
 			{
-				error(script, fmt::format("failed to resolve function return! i: {} function_index: {}", i, function_index));
+				error(debug_handle, script, fmt::format("failed to resolve function return! i: {} function_index: {}", i, function_index));
 				return nullptr;
 			}
 			cc.jmp(address, function_jump_annotations[function_index]);
@@ -808,12 +1090,12 @@ static JittedFunction compile_script(script_data *script)
 			// the function call return label.
 			cc.sub(vCallStackRetIndex, 1);
 			x86::Gp address = cc.newIntPtr();
-			cc.mov(address, x86::qword_ptr(ptrCallStackRets, vCallStackRetIndex, 3));
+			cc.mov(address, x86::qword_ptr(state.ptrCallStackRets, vCallStackRetIndex, 3));
 
 			int function_index = return_to_function_id.at(i);
 			if (function_jump_annotations.size() <= function_index)
 			{
-				error(script, fmt::format("failed to resolve function return! i: {} function_index: {}", i, function_index));
+				error(debug_handle, script, fmt::format("failed to resolve function return! i: {} function_index: {}", i, function_index));
 				return nullptr;
 			}
 			cc.jmp(address, function_jump_annotations[function_index]);
@@ -822,28 +1104,28 @@ static JittedFunction compile_script(script_data *script)
 		case PUSHV:
 		{
 			modify_sp(cc, vStackIndex, -1);
-			cc.mov(x86::ptr_32(ptrStack, vStackIndex, 2), arg1);
+			cc.mov(x86::ptr_32(state.ptrStack, vStackIndex, 2), arg1);
 		}
 		break;
 		case PUSHR:
 		{
 			// Grab value from register and push onto stack.
-			x86::Gp val = get_z_register(cc, vStackIndex, arg1);
+			x86::Gp val = get_z_register(state, cc, vStackIndex, arg1);
 			modify_sp(cc, vStackIndex, -1);
-			cc.mov(x86::ptr_32(ptrStack, vStackIndex, 2), val);
+			cc.mov(x86::ptr_32(state.ptrStack, vStackIndex, 2), val);
 		}
 		break;
 		case SETV:
 		{
 			// Set register to immediate value.
-			set_z_register(cc, vStackIndex, arg1, arg2);
+			set_z_register(state, cc, vStackIndex, arg1, arg2);
 		}
 		break;
 		case SETR:
 		{
 			// Set register arg1 to value of register arg2.
-			x86::Gp val = get_z_register(cc, vStackIndex, arg2);
-			set_z_register(cc, vStackIndex, arg1, val);
+			x86::Gp val = get_z_register(state, cc, vStackIndex, arg2);
+			set_z_register(state, cc, vStackIndex, arg1, val);
 		}
 		break;
 		case LOADD:
@@ -851,19 +1133,19 @@ static JittedFunction compile_script(script_data *script)
 			// Set register to a value on the stack (offset is arg2 + rSFRAME register).
 			x86::Gp offset = cc.newInt32();
 			cc.mov(offset, arg2);
-			cc.add(offset, x86::ptr_32(ptrRegisters, rSFRAME * 4));
+			cc.add(offset, x86::ptr_32(state.ptrRegisters, rSFRAME * 4));
 			div_10000(cc, offset);
 
-			set_z_register(cc, vStackIndex, arg1, x86::ptr_32(ptrStack, offset, 2));
+			set_z_register(state, cc, vStackIndex, arg1, x86::ptr_32(state.ptrStack, offset, 2));
 		}
 		break;
 		case LOADI:
 		{
 			// Set register to a value on the stack (offset is register at arg2).
-			x86::Gp offset = get_z_register(cc, vStackIndex, arg2);
+			x86::Gp offset = get_z_register(state, cc, vStackIndex, arg2);
 			div_10000(cc, offset);
 
-			set_z_register(cc, vStackIndex, arg1, x86::ptr_32(ptrStack, offset, 2));
+			set_z_register(state, cc, vStackIndex, arg1, x86::ptr_32(state.ptrStack, offset, 2));
 		}
 		break;
 		case STORED:
@@ -871,29 +1153,29 @@ static JittedFunction compile_script(script_data *script)
 			// Write from register to a value on the stack (offset is arg2 + rSFRAME register).
 			x86::Gp offset = cc.newInt32();
 			cc.mov(offset, arg2);
-			cc.add(offset, x86::ptr_32(ptrRegisters, rSFRAME * 4));
+			cc.add(offset, x86::ptr_32(state.ptrRegisters, rSFRAME * 4));
 			div_10000(cc, offset);
 
-			x86::Gp val = get_z_register(cc, vStackIndex, arg1);
-			cc.mov(x86::ptr_32(ptrStack, offset, 2), val);
+			x86::Gp val = get_z_register(state, cc, vStackIndex, arg1);
+			cc.mov(x86::ptr_32(state.ptrStack, offset, 2), val);
 		}
 		break;
 		case STOREI:
 		{
 			// Write from register to a value on the stack (offset is register at arg2).
-			x86::Gp offset = get_z_register(cc, vStackIndex, arg2);
+			x86::Gp offset = get_z_register(state, cc, vStackIndex, arg2);
 			div_10000(cc, offset);
 
-			x86::Gp val = get_z_register(cc, vStackIndex, arg1);
-			cc.mov(x86::ptr_32(ptrStack, offset, 2), val);
+			x86::Gp val = get_z_register(state, cc, vStackIndex, arg1);
+			cc.mov(x86::ptr_32(state.ptrStack, offset, 2), val);
 		}
 		break;
 		case POP:
 		{
 			x86::Gp val = cc.newInt32();
-			cc.mov(val, x86::ptr_32(ptrStack, vStackIndex, 2));
+			cc.mov(val, x86::ptr_32(state.ptrStack, vStackIndex, 2));
 			modify_sp(cc, vStackIndex, 1);
-			set_z_register(cc, vStackIndex, arg1, val);
+			set_z_register(state, cc, vStackIndex, arg1, val);
 		}
 		break;
 		case POPARGS:
@@ -911,116 +1193,116 @@ static JittedFunction compile_script(script_data *script)
 			// int32_t value = SH::read_stack(read);
 			// set_register(sarg1, value);
 			x86::Gp val = cc.newInt32();
-			cc.mov(val, x86::ptr_32(ptrStack, read));
-			set_z_register(cc, vStackIndex, arg1, val);
+			cc.mov(val, x86::ptr_32(state.ptrStack, read));
+			set_z_register(state, cc, vStackIndex, arg1, val);
 		}
 		break;
 		case ABSR:
 		{
-			x86::Gp val = get_z_register(cc, vStackIndex, arg1);
+			x86::Gp val = get_z_register(state, cc, vStackIndex, arg1);
 			x86::Gp y = cc.newInt32();
 			cc.mov(y, val);
 			cc.sar(y, 31);
 			cc.xor_(val, y);
 			cc.sub(val, y);
-			set_z_register(cc, vStackIndex, arg1, val);
+			set_z_register(state, cc, vStackIndex, arg1, val);
 		}
 		break;
 		case CASTBOOLI:
 		{
 			// https://clang.godbolt.org/z/W8PM4j33b
-			x86::Gp val = get_z_register(cc, vStackIndex, arg1);
+			x86::Gp val = get_z_register(state, cc, vStackIndex, arg1);
 			cc.neg(val);
 			cc.sbb(val, val);
 			cc.and_(val, 10000);
-			set_z_register(cc, vStackIndex, arg1, val);
+			set_z_register(state, cc, vStackIndex, arg1, val);
 		}
 		break;
 		case CASTBOOLF:
 		{
-			x86::Gp val = get_z_register(cc, vStackIndex, arg1);
+			x86::Gp val = get_z_register(state, cc, vStackIndex, arg1);
 			x86::Gp result = cc.newInt32();
 			zero(cc, result);
 			cc.test(val, val);
 			cc.setne(result.r8());
-			set_z_register(cc, vStackIndex, arg1, result);
+			set_z_register(state, cc, vStackIndex, arg1, result);
 		}
 		break;
 		case ADDV:
 		{
-			x86::Gp val = get_z_register(cc, vStackIndex, arg1);
+			x86::Gp val = get_z_register(state, cc, vStackIndex, arg1);
 			cc.add(val, arg2);
-			set_z_register(cc, vStackIndex, arg1, val);
+			set_z_register(state, cc, vStackIndex, arg1, val);
 		}
 		break;
 		case ADDR:
 		{
-			x86::Gp val = get_z_register(cc, vStackIndex, arg1);
-			x86::Gp val2 = get_z_register(cc, vStackIndex, arg2);
+			x86::Gp val = get_z_register(state, cc, vStackIndex, arg1);
+			x86::Gp val2 = get_z_register(state, cc, vStackIndex, arg2);
 			cc.add(val, val2);
-			set_z_register(cc, vStackIndex, arg1, val);
+			set_z_register(state, cc, vStackIndex, arg1, val);
 		}
 		break;
 		case ANDV:
 		{
-			x86::Gp val = get_z_register(cc, vStackIndex, arg1);
+			x86::Gp val = get_z_register(state, cc, vStackIndex, arg1);
 
 			div_10000(cc, val);
 			cc.and_(val, arg2 / 10000);
 			cc.imul(val, 10000);
 
-			set_z_register(cc, vStackIndex, arg1, val);
+			set_z_register(state, cc, vStackIndex, arg1, val);
 		}
 		break;
 		case ANDR:
 		{
-			x86::Gp val = get_z_register(cc, vStackIndex, arg1);
-			x86::Gp val2 = get_z_register(cc, vStackIndex, arg2);
+			x86::Gp val = get_z_register(state, cc, vStackIndex, arg1);
+			x86::Gp val2 = get_z_register(state, cc, vStackIndex, arg2);
 
 			div_10000(cc, val);
 			div_10000(cc, val2);
 			cc.and_(val, val2);
 			cc.imul(val, 10000);
 
-			set_z_register(cc, vStackIndex, arg1, val);
+			set_z_register(state, cc, vStackIndex, arg1, val);
 		}
 		break;
 		case MAXR:
 		{
-			x86::Gp val = get_z_register(cc, vStackIndex, arg1);
-			x86::Gp val2 = get_z_register(cc, vStackIndex, arg2);
+			x86::Gp val = get_z_register(state, cc, vStackIndex, arg1);
+			x86::Gp val2 = get_z_register(state, cc, vStackIndex, arg2);
 			cc.cmp(val2, val);
 			cc.cmovge(val, val2);
-			set_z_register(cc, vStackIndex, arg1, val);
+			set_z_register(state, cc, vStackIndex, arg1, val);
 		}
 		break;
 		case MAXV:
 		{
-			x86::Gp val = get_z_register(cc, vStackIndex, arg1);
+			x86::Gp val = get_z_register(state, cc, vStackIndex, arg1);
 			x86::Gp val2 = cc.newInt32();
 			cc.mov(val2, arg2);
 			cc.cmp(val2, val);
 			cc.cmovge(val, val2);
-			set_z_register(cc, vStackIndex, arg1, val);
+			set_z_register(state, cc, vStackIndex, arg1, val);
 		}
 		break;
 		case MINR:
 		{
-			x86::Gp val = get_z_register(cc, vStackIndex, arg1);
-			x86::Gp val2 = get_z_register(cc, vStackIndex, arg2);
+			x86::Gp val = get_z_register(state, cc, vStackIndex, arg1);
+			x86::Gp val2 = get_z_register(state, cc, vStackIndex, arg2);
 			cc.cmp(val, val2);
 			cc.cmovge(val, val2);
-			set_z_register(cc, vStackIndex, arg1, val);
+			set_z_register(state, cc, vStackIndex, arg1, val);
 		}
 		break;
 		case MINV:
 		{
-			x86::Gp val = get_z_register(cc, vStackIndex, arg1);
+			x86::Gp val = get_z_register(state, cc, vStackIndex, arg1);
 			x86::Gp val2 = cc.newInt32();
 			cc.mov(val2, arg2);
 			cc.cmp(val, val2);
 			cc.cmovge(val, val2);
-			set_z_register(cc, vStackIndex, arg1, val);
+			set_z_register(state, cc, vStackIndex, arg1, val);
 		}
 		break;
 		case MODV:
@@ -1029,19 +1311,19 @@ static JittedFunction compile_script(script_data *script)
 			{
 				x86::Gp val = cc.newInt32();
 				zero(cc, val);
-				set_z_register(cc, vStackIndex, arg1, val);
+				set_z_register(state, cc, vStackIndex, arg1, val);
 				continue;
 			}
 
 			// https://stackoverflow.com/a/8022107/2788187
-			x86::Gp val = get_z_register(cc, vStackIndex, arg1);
+			x86::Gp val = get_z_register(state, cc, vStackIndex, arg1);
 			if (arg2 > 0 && (arg2 & (-arg2)) == arg2)
 			{
 				// Power of 2.
 				// Because numbers in zscript are fixed point, "2" is really "20000"... so this won't
 				// ever really be utilized.
 				cc.and_(val, arg2 - 1);
-				set_z_register(cc, vStackIndex, arg1, val);
+				set_z_register(state, cc, vStackIndex, arg1, val);
 			}
 			else
 			{
@@ -1051,67 +1333,67 @@ static JittedFunction compile_script(script_data *script)
 				zero(cc, rem);
 				cc.cdq(rem, val);
 				cc.idiv(rem, val, divisor);
-				set_z_register(cc, vStackIndex, arg1, rem);
+				set_z_register(state, cc, vStackIndex, arg1, rem);
 			}
 		}
 		break;
 		case MODR:
 		{
-			x86::Gp dividend = get_z_register(cc, vStackIndex, arg1);
-			x86::Gp divisor = get_z_register(cc, vStackIndex, arg2);
+			x86::Gp dividend = get_z_register(state, cc, vStackIndex, arg1);
+			x86::Gp divisor = get_z_register(state, cc, vStackIndex, arg2);
 			x86::Gp rem = cc.newInt32();
 			zero(cc, rem);
 			cc.cdq(rem, dividend);
 			// TODO division by zero
 			cc.idiv(rem, dividend, divisor);
-			set_z_register(cc, vStackIndex, arg1, rem);
+			set_z_register(state, cc, vStackIndex, arg1, rem);
 		}
 		break;
 		case SUBV:
 		{
-			x86::Gp val = get_z_register(cc, vStackIndex, arg1);
+			x86::Gp val = get_z_register(state, cc, vStackIndex, arg1);
 			cc.sub(val, arg2);
-			set_z_register(cc, vStackIndex, arg1, val);
+			set_z_register(state, cc, vStackIndex, arg1, val);
 		}
 		break;
 		case SUBR:
 		{
-			x86::Gp val = get_z_register(cc, vStackIndex, arg1);
-			x86::Gp val2 = get_z_register(cc, vStackIndex, arg2);
+			x86::Gp val = get_z_register(state, cc, vStackIndex, arg1);
+			x86::Gp val2 = get_z_register(state, cc, vStackIndex, arg2);
 			cc.sub(val, val2);
-			set_z_register(cc, vStackIndex, arg1, val);
+			set_z_register(state, cc, vStackIndex, arg1, val);
 		}
 		break;
 		case SUBV2:
 		{
-			x86::Gp val = get_z_register(cc, vStackIndex, arg2);
+			x86::Gp val = get_z_register(state, cc, vStackIndex, arg2);
 			x86::Gp result = cc.newInt32();
 			cc.mov(result, arg1);
 			cc.sub(result, val);
-			set_z_register(cc, vStackIndex, arg2, result);
+			set_z_register(state, cc, vStackIndex, arg2, result);
 		}
 		break;
 		case MULTV:
 		{
-			x86::Gp val = get_z_register_64(cc, vStackIndex, arg1);
+			x86::Gp val = get_z_register_64(state, cc, vStackIndex, arg1);
 			cc.imul(val, arg2);
 			div_10000(cc, val);
-			set_z_register(cc, vStackIndex, arg1, val.r32());
+			set_z_register(state, cc, vStackIndex, arg1, val.r32());
 		}
 		break;
 		case MULTR:
 		{
-			x86::Gp val = get_z_register_64(cc, vStackIndex, arg1);
-			x86::Gp val2 = get_z_register_64(cc, vStackIndex, arg2);
+			x86::Gp val = get_z_register_64(state, cc, vStackIndex, arg1);
+			x86::Gp val2 = get_z_register_64(state, cc, vStackIndex, arg2);
 			cc.imul(val, val2);
 			div_10000(cc, val);
-			set_z_register(cc, vStackIndex, arg1, val.r32());
+			set_z_register(state, cc, vStackIndex, arg1, val.r32());
 		}
 		break;
 		// TODO guard for div by zero
 		case DIVV:
 		{
-			x86::Gp dividend = get_z_register_64(cc, vStackIndex, arg1);
+			x86::Gp dividend = get_z_register_64(state, cc, vStackIndex, arg1);
 			int val2 = arg2;
 
 			cc.imul(dividend, 10000);
@@ -1122,13 +1404,13 @@ static JittedFunction compile_script(script_data *script)
 			cc.cqo(dummy, dividend);
 			cc.idiv(dummy, dividend, divisor);
 
-			set_z_register(cc, vStackIndex, arg1, dividend.r32());
+			set_z_register(state, cc, vStackIndex, arg1, dividend.r32());
 		}
 		break;
 		case DIVR:
 		{
-			x86::Gp dividend = get_z_register_64(cc, vStackIndex, arg1);
-			x86::Gp divisor = get_z_register_64(cc, vStackIndex, arg2);
+			x86::Gp dividend = get_z_register_64(state, cc, vStackIndex, arg1);
+			x86::Gp divisor = get_z_register_64(state, cc, vStackIndex, arg2);
 
 			Label do_division = cc.newLabel();
 			Label do_set_register = cc.newLabel();
@@ -1155,27 +1437,27 @@ static JittedFunction compile_script(script_data *script)
 			cc.idiv(dummy, dividend, divisor);
 
 			cc.bind(do_set_register);
-			set_z_register(cc, vStackIndex, arg1, dividend.r32());
+			set_z_register(state, cc, vStackIndex, arg1, dividend.r32());
 		}
 		break;
 		case COMPAREV:
 		{
 			int val = arg2;
-			x86::Gp val2 = get_z_register(cc, vStackIndex, arg1);
+			x86::Gp val2 = get_z_register(state, cc, vStackIndex, arg1);
 			cc.cmp(val2, val);
 		}
 		break;
 		case COMPARER:
 		{
-			x86::Gp val = get_z_register(cc, vStackIndex, arg2);
-			x86::Gp val2 = get_z_register(cc, vStackIndex, arg1);
+			x86::Gp val = get_z_register(state, cc, vStackIndex, arg2);
+			x86::Gp val2 = get_z_register(state, cc, vStackIndex, arg1);
 			cc.cmp(val2, val);
 		}
 		break;
 		// https://gcc.godbolt.org/z/r9zq67bK1
 		case FLOOR:
 		{
-			x86::Gp val = get_z_register(cc, vStackIndex, arg1);
+			x86::Gp val = get_z_register(state, cc, vStackIndex, arg1);
 			x86::Xmm y = cc.newXmm();
 			x86::Mem mem = cc.newQWordConst(ConstPoolScope::kGlobal, 4547007122018943789);
 			cc.cvtsi2sd(y, val);
@@ -1183,12 +1465,12 @@ static JittedFunction compile_script(script_data *script)
 			cc.roundsd(y, y, 9);
 			cc.cvttsd2si(val, y);
 			cc.imul(val, val, 10000);
-			set_z_register(cc, vStackIndex, arg1, val);
+			set_z_register(state, cc, vStackIndex, arg1, val);
 		}
 		break;
 		case CEILING:
 		{
-			x86::Gp val = get_z_register(cc, vStackIndex, arg1);
+			x86::Gp val = get_z_register(state, cc, vStackIndex, arg1);
 			x86::Xmm y = cc.newXmm();
 			x86::Mem mem = cc.newQWordConst(ConstPoolScope::kGlobal, 4547007122018943789);
 			cc.cvtsi2sd(y, val);
@@ -1196,12 +1478,12 @@ static JittedFunction compile_script(script_data *script)
 			cc.roundsd(y, y, 10);
 			cc.cvttsd2si(val, y);
 			cc.imul(val, val, 10000);
-			set_z_register(cc, vStackIndex, arg1, val);
+			set_z_register(state, cc, vStackIndex, arg1, val);
 		}
 		break;
 		default:
 		{
-			error(script, fmt::format("unhandled command: {}", command));
+			error(debug_handle, script, fmt::format("unhandled command: {}", command));
 			return nullptr;
 		}
 		}
@@ -1213,18 +1495,18 @@ static JittedFunction compile_script(script_data *script)
 		cc.nop();
 	}
 
-	cc.bind(L_End);
+	cc.bind(state.L_End);
 
 	// Persist stack pointer.
 	if (DEBUG_JIT_PRINT_ASM)
 		cc.setInlineComment("persist stack pointer");
-	cc.mov(x86::ptr_32(ptrStackIndex), vStackIndex);
+	cc.mov(x86::ptr_32(state.ptrStackIndex), vStackIndex);
 
 	if (DEBUG_JIT_PRINT_ASM)
 		cc.setInlineComment("persist call stack ret pointer");
-	cc.mov(x86::ptr_32(ptrCallStackRetIndex), vCallStackRetIndex);
+	cc.mov(x86::ptr_32(state.ptrCallStackRetIndex), vCallStackRetIndex);
 
-	cc.ret(vRetVal);
+	cc.ret(state.vRetVal);
 	cc.endFunc();
 
 	// Relative int32_t offsets of `L_XXX - L_Table`.
@@ -1249,66 +1531,48 @@ static JittedFunction compile_script(script_data *script)
 	end_time = std::chrono::steady_clock::now();
 	int32_t compile_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
 
-	if (DEBUG_JIT_PRINT_ASM)
+	if (debug_handle)
 	{
-		script_debug_print(
+		debug_handle->print(
 			CConsoleLoggerEx::COLOR_WHITE | CConsoleLoggerEx::COLOR_INTENSITY |
 				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
 			"\nasmjit log / assembly:\n\n");
-		script_debug_print(
+		debug_handle->print(
 			CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY |
 				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
 			logger.data());
-		script_debug_print("\n");
+		debug_handle->print("\n");
 
 		if (!uncompiled_command_counts.empty())
 		{
-			script_debug_print("=== uncompiled commands:\n");
+			debug_handle->print("=== uncompiled commands:\n");
 			for (auto &it : uncompiled_command_counts)
 			{
-				script_debug_printf("%s: %d\n", script_debug_command_to_string(it.first).c_str(), it.second);
+				debug_handle->printf("%s: %d\n", script_debug_command_to_string(it.first).c_str(), it.second);
 			}
-			script_debug_print("\n");
+			debug_handle->print("\n");
 		}
 
-		script_debug_printf("time to preprocess: %d ms\n", preprocess_ms);
-		script_debug_printf("time to compile:    %d ms\n\n", compile_ms);
+		debug_handle->printf("time to preprocess: %d ms\n", preprocess_ms);
+		debug_handle->printf("time to compile:    %d ms\n\n", compile_ms);
 	}
 
 	rt.add(&fn, &code);
 
-	if (!fn)
+	if (fn)
 	{
-		error(script, "failed to compile");
+		jit_printf("success\n");
+	}
+	else
+	{
+		error(debug_handle, script, "failed to compile");
+		jit_printf("failure\n");
 	}
 
 	return fn;
 }
 
 #endif
-
-static JittedFunction do_cached_compile(script_data *script)
-{
-#ifndef ZC_JIT
-	return nullptr;
-#else
-	auto it = compiled_functions.find(script->debug_id);
-	if (it == compiled_functions.end())
-	{
-		al_trace("compiling script id: %d name: %s\n", script->debug_id, script->meta.script_name.c_str());
-		auto fn = compiled_functions[script->debug_id] = compile_script(script);
-		if (fn)
-			al_trace("success\n");
-		else
-			al_trace("failure\n");
-		return fn;
-	}
-	else
-	{
-		return compiled_functions.at(script->debug_id);
-	}
-#endif
-}
 
 bool jit_is_enabled()
 {
@@ -1320,37 +1584,6 @@ void jit_set_enabled(bool enabled)
 	is_enabled = enabled;
 }
 
-static void precompile_scripts(script_data *scripts[], size_t len)
-{
-	for (int i = 0; i < len; i++)
-	{
-		script_data *script = scripts[i];
-		if (script && script->valid())
-		{
-			extern script_data *curscript;
-			curscript = script;
-			do_cached_compile(script);
-			curscript = nullptr;
-		}
-	}
-}
-
-void jit_precompile_scripts()
-{
-	precompile_scripts(ffscripts, NUMSCRIPTFFC);
-	precompile_scripts(itemscripts, NUMSCRIPTITEM);
-	precompile_scripts(guyscripts, NUMSCRIPTGUYS);
-	precompile_scripts(wpnscripts, NUMSCRIPTWEAPONS);
-	precompile_scripts(screenscripts, NUMSCRIPTSCREEN);
-	precompile_scripts(globalscripts, NUMSCRIPTGLOBAL);
-	precompile_scripts(playerscripts, NUMSCRIPTPLAYER);
-	precompile_scripts(lwpnscripts, NUMSCRIPTWEAPONS);
-	precompile_scripts(ewpnscripts, NUMSCRIPTWEAPONS);
-	precompile_scripts(dmapscripts, NUMSCRIPTSDMAP);
-	precompile_scripts(itemspritescripts, NUMSCRIPTSITEMSPRITE);
-	precompile_scripts(comboscripts, NUMSCRIPTSCOMBODATA);
-}
-
 JittedScriptHandle *jit_create_script_handle(script_data *script, refInfo *ri)
 {
 #ifndef ZC_JIT
@@ -1360,7 +1593,7 @@ JittedScriptHandle *jit_create_script_handle(script_data *script, refInfo *ri)
 	jit_reinit(jitted_script);
 	jitted_script->script = script;
 	jitted_script->ri = ri;
-	jitted_script->fn = do_cached_compile(script);
+	jitted_script->fn = compile_if_needed(script);
 	if (!jitted_script->fn)
 	{
 		delete jitted_script;
@@ -1393,13 +1626,125 @@ void jit_reinit(JittedScriptHandle *jitted_script)
 	jitted_script->call_stack_ret_index = 0;
 }
 
-void jit_reset_all()
+void jit_startup()
 {
+	if (!is_enabled)
+		return;
+
 #ifdef ZC_JIT
+	jit_log_enabled = zc_get_config("ZSCRIPT", "jit_log", false) || is_ci();
+	bool precompile = zc_get_config("ZSCRIPT", "jit_precompile", false);
+	int num_threads = zc_get_config("ZSCRIPT", "jit_threads", -2);
+	// Currently fails somewhat rarely in CI... need to figure out why.
+	if (is_ci())
+		num_threads = 0;
+
+	auto processor_count = std::thread::hardware_concurrency();
+	if (num_threads < 0)
+		num_threads = std::max(1, (int)processor_count / -num_threads);
+
+	for (int i = 0; i < thread_infos.size(); i++)
+	{
+		thread_infos[i].id = i;
+	}
+
+	if (!tasks_mutex)
+		tasks_mutex = al_create_mutex();
+	if (!tasks_cond)
+		tasks_cond = al_create_cond();
+	if (!task_finish_cond)
+		task_finish_cond = al_create_cond();
+
+	// TODO: should not clear compiled_functions on init_game if not a new quest.
+	al_lock_mutex(tasks_mutex);
+	thread_pool_generation_count++;
 	for (auto &it : compiled_functions)
 	{
 		rt.release(it.second);
 	}
 	compiled_functions.clear();
+	al_unlock_mutex(tasks_mutex);
+
+	create_compile_tasks();
+
+	// Never make more threads than there are tasks.
+	if (pending_scripts.size() + active_tasks.size() < num_threads)
+		num_threads = pending_scripts.size() + active_tasks.size();
+	set_compilation_thread_pool_size(num_threads);
+
+	al_lock_mutex(tasks_mutex);
+	al_broadcast_cond(tasks_cond);
+	al_unlock_mutex(tasks_mutex);
+
+	if (precompile)
+	{
+		al_lock_mutex(tasks_mutex);
+		while (pending_scripts.size() || active_tasks.size())
+		{
+			al_wait_cond(task_finish_cond, tasks_mutex);
+		}
+		al_unlock_mutex(tasks_mutex);
+	}
+#endif
+}
+
+void jit_poll()
+{
+	if (!is_enabled)
+		return;
+
+#ifdef ZC_JIT
+	int active_threads = 0;
+	for (auto& thread_info : thread_infos)
+	{
+		if (thread_info.state == ThreadState::Done)
+		{
+			jit_printf("jit: [%d] destroy\n", thread_info.id);
+			al_destroy_thread(thread_info.thread);
+			thread_info.thread = nullptr;
+			thread_info.state = ThreadState::Inactive;
+		}
+
+		if (thread_info.state == ThreadState::Running || thread_info.state == ThreadState::Starting)
+		{
+			active_threads += 1;
+		}
+	}
+
+	int tasks_left = active_tasks.size() + pending_scripts.size();
+	if (active_threads > tasks_left)
+		set_compilation_thread_pool_size(tasks_left);
+#endif
+}
+
+void jit_shutdown()
+{
+	if (!is_enabled)
+		return;
+
+#ifdef ZC_JIT
+	set_compilation_thread_pool_size(0);
+	for (auto& thread_info : thread_infos)
+	{
+		if (thread_info.thread)
+			al_destroy_thread(thread_info.thread);
+	}
+	thread_infos = {};
+
+	if (tasks_mutex)
+	{
+		al_destroy_mutex(tasks_mutex);
+		tasks_mutex = nullptr;
+	}
+	if (tasks_cond)
+	{
+		al_destroy_cond(tasks_cond);
+		tasks_cond = nullptr;
+	}
+	if (task_finish_cond)
+	{
+		al_destroy_cond(task_finish_cond);
+		task_finish_cond = nullptr;
+	}
 #endif
 }

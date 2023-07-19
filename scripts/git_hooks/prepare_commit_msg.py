@@ -53,6 +53,8 @@ if all(f.startswith('src/zc/ffscript') for f in changed_files):
     suggested_scopes.append('zscript')
 if all(f.startswith('src/zc/zconsole') for f in changed_files):
     suggested_scopes.append('zconsole')
+if all(f.startswith('vscode-extension') for f in changed_files):
+    suggested_scopes.append('vscode')
 
 note = 'The above generated commit prefix is just a suggestion, change as needed'
 if len(suggested_types) == 1 and len(suggested_scopes) == 1:

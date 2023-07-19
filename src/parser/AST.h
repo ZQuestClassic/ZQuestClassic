@@ -341,7 +341,8 @@ namespace ZScript
 		ASTString* clone() const {return new ASTString(*this);}
 	
 		void execute(ASTVisitor& visitor, void* param = NULL);
-
+		
+		void append(std::string const& newstr) {str += newstr;}
 		std::string getValue() const {return str;}
 	private:
 		std::string str;

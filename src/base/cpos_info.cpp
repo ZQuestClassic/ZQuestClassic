@@ -1,6 +1,8 @@
 #include "base/cpos_info.h"
 #include "base/zdefs.h"
 
+extern std::vector<newcombo> combobuf;
+
 void cpos_info::push(int dir, bool cancel)
 {
 	if(unsigned(dir) < 4)
@@ -25,7 +27,18 @@ void cpos_info::updateData(int32_t newdata)
 {
 	if(data != newdata)
 	{
+		byte csfx = sfx_onchange, cspr = spr_onchange;
+		if(appeared)
+		{
+			newcombo const& cmb = combobuf[data];
+			csfx = cmb.sfx_disappear;
+			cspr = cmb.spr_disappear;
+		}
+		
 		clear();
 		data = newdata;
+		
+		sfx_onchange = csfx;
+		spr_onchange = cspr;
 	}
 }
