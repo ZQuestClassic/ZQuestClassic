@@ -21140,7 +21140,18 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 	
 	if(found<0&&!foundffc) return;
 
-	newcombo const& cmb = foundffc ? combobuf[foundffc->data()] : combobuf[found];
+	newcombo const& cmb = combobuf[foundffc ? foundffc->data() : found];
+	int offx = 0;
+	int offy = 0;
+	if (!foundffc)
+	{
+		// TODO z3 !!!! can we have a better api for this?
+		// auto [x, y] = get_world_position(rpos_t);
+		// auto [x, y] = get_world_position(ffc);
+		// auto [x, y] = get_world_position_for_screen_index(scr);
+		offx = z3_get_region_relative_dx(scr) * 256;
+		offy = z3_get_region_relative_dx(scr) * 176;
+	}
 	
 	byte signInput = 0;
 	bool didsign = false, didprompt = false;
@@ -21176,8 +21187,8 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 				{
 					prompt_combo = cmb.attributes[1]/10000;
 					prompt_cset = cmb.attribytes[4];
-					prompt_x = cmb.attrishorts[0];
-					prompt_y = cmb.attrishorts[1];
+					prompt_x = cmb.attrishorts[0] + offx;
+					prompt_y = cmb.attrishorts[1] + offy;
 					didprompt = true;
 				}
 				goto endsigns; //Button not pressed
@@ -21189,7 +21200,7 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 		didsign = true;
 	}
 endsigns:
-	if (on_cooldown(get_rpos_handle_for_world_xy(fx, fy, found_lyr))) return;
+	if (!foundffc && on_cooldown(get_rpos_handle_for_world_xy(fx, fy, found_lyr))) return;
 
 	switch(dir)
 	{
@@ -21223,15 +21234,15 @@ endsigns:
 	{
 		prompt_combo = cmb.attributes[0]/10000;
 		prompt_cset = cmb.attribytes[0];
-		prompt_x = cmb.attrishorts[0];
-		prompt_y = cmb.attrishorts[1];
+		prompt_x = cmb.attrishorts[0] + offx;
+		prompt_y = cmb.attrishorts[1] + offy;
 	}
 	else if(cmb.prompt_cid)
 	{
 		prompt_combo = cmb.prompt_cid;
 		prompt_cset = cmb.prompt_cs;
-		prompt_x = cmb.prompt_x;
-		prompt_y = cmb.prompt_y;
+		prompt_x = cmb.prompt_x + offx;
+		prompt_y = cmb.prompt_y + offy;
 	}
 }
 
