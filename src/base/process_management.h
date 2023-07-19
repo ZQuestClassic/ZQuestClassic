@@ -43,17 +43,17 @@ public:
 	}
 	zc_io_exception(std::string const& msg, int type) : msg(msg), type(type)
 	{}
-	static zc_io_exception* dead()
+	static zc_io_exception dead()
 	{
-		return new zc_io_exception("Error: Process Dead",IO_TIMEOUT);
+		return zc_io_exception("Error: Process Dead",IO_TIMEOUT);
 	}
-	static zc_io_exception* timeout()
+	static zc_io_exception timeout()
 	{
-		return new zc_io_exception("Error: IO Timeout Ocurred",IO_TIMEOUT);
+		return zc_io_exception("Error: IO Timeout Ocurred",IO_TIMEOUT);
 	}
-	static zc_io_exception* unknown()
+	static zc_io_exception unknown()
 	{
-		return new zc_io_exception("Error: Unkown IO error",IO_UNKNOWN);
+		return zc_io_exception("Error: Unknown IO error",IO_UNKNOWN);
 	}
 	int getType() const {return type;}
 private:
@@ -84,14 +84,14 @@ struct process_killer
 //virtual handling for io
 struct io_manager
 {
-	virtual bool read(void* buf, uint32_t bytes_to_read, uint32_t* bytes_read = NULL, bool throw_timeout = true) = 0;
-	virtual bool write(void* buf, uint32_t bytes_to_write, uint32_t* bytes_written = NULL, bool throw_timeout = true) = 0;
+	virtual bool read(void* buf, uint32_t bytes_to_read, uint32_t* bytes_read = NULL) = 0;
+	virtual bool write(void* buf, uint32_t bytes_to_write, uint32_t* bytes_written = NULL) = 0;
 	virtual bool is_alive() const = 0;
 protected:
 #ifdef _WIN32
 	static inline COMMTIMEOUTS timeouts ={ 0, 0, 10/*read*/, 0, 10/*write*/ };
-	bool ProcessReadFile(HANDLE read_handle, LPVOID buf, DWORD bytes_to_read, LPDWORD bytes_read, bool throw_timeout = true);
-	bool ProcessWriteFile(HANDLE write_handle, LPVOID buf, DWORD bytes_to_write, LPDWORD bytes_written, bool throw_timeout = true);
+	bool ProcessReadFile(HANDLE read_handle, LPVOID buf, DWORD bytes_to_read, LPDWORD bytes_read);
+	bool ProcessWriteFile(HANDLE write_handle, LPVOID buf, DWORD bytes_to_write, LPDWORD bytes_written);
 #endif
 };
 
@@ -118,8 +118,8 @@ struct process_manager : public io_manager, public process_killer
 	{}
 	~process_manager();
 	
-	virtual bool read(void* buf, uint32_t bytes_to_read, uint32_t* bytes_read = NULL, bool throw_timeout = true);
-	virtual bool write(void* buf, uint32_t bytes_to_write, uint32_t* bytes_written = NULL, bool throw_timeout = true);
+	virtual bool read(void* buf, uint32_t bytes_to_read, uint32_t* bytes_read = NULL);
+	virtual bool write(void* buf, uint32_t bytes_to_write, uint32_t* bytes_written = NULL);
 	//}
 	#else
 	//{ Unix
@@ -130,8 +130,8 @@ struct process_manager : public io_manager, public process_killer
 	
 	~process_manager();
 	
-	virtual bool read(void* buf, uint32_t bytes_to_read, uint32_t* bytes_read = NULL, bool throw_timeout = true);
-	virtual bool write(void* buf, uint32_t bytes_to_write, uint32_t* bytes_written = NULL, bool throw_timeout = true);
+	virtual bool read(void* buf, uint32_t bytes_to_read, uint32_t* bytes_read = NULL);
+	virtual bool write(void* buf, uint32_t bytes_to_write, uint32_t* bytes_written = NULL);
 	//}
 	#endif
 };
@@ -155,8 +155,8 @@ struct child_process_handler : public io_manager
 		init();
 	}
 	
-	virtual bool read(void* buf, uint32_t bytes_to_read, uint32_t* bytes_read = NULL, bool throw_timeout = true);
-	virtual bool write(void* buf, uint32_t bytes_to_write, uint32_t* bytes_written = NULL, bool throw_timeout = true);
+	virtual bool read(void* buf, uint32_t bytes_to_read, uint32_t* bytes_read = NULL);
+	virtual bool write(void* buf, uint32_t bytes_to_write, uint32_t* bytes_written = NULL);
 	//}
 	#else
 	//{
@@ -169,14 +169,14 @@ struct child_process_handler : public io_manager
 		init();
 	}
 	
-	virtual bool read(void* buf, uint32_t bytes_to_read, uint32_t* bytes_read = NULL, bool throw_timeout = true);
-	virtual bool write(void* buf, uint32_t bytes_to_write, uint32_t* bytes_written = NULL, bool throw_timeout = true);
+	virtual bool read(void* buf, uint32_t bytes_to_read, uint32_t* bytes_read = NULL);
+	virtual bool write(void* buf, uint32_t bytes_to_write, uint32_t* bytes_written = NULL);
 	//}
 	#endif
 };
 
 process_killer launch_process(std::string file, const std::vector<std::string>& args = {});
-process_manager* launch_piped_process(std::string file, const std::vector<std::string>& args = {});
+process_manager* launch_piped_process(std::string file, std::string pipename, const std::vector<std::string>& args = {});
 void launch_file(std::string const& file);
 
 #endif

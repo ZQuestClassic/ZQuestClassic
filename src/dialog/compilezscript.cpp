@@ -130,17 +130,6 @@ bool do_compile_and_slots(bool quick_compile, bool delay)
 		return false;
 	}
 	parser_console.kill();
-	if (!DisableCompileConsole)
-	{
-		parser_console.Create("ZScript Parser Output", 600, 200, NULL, "zconsole.exe");
-		parser_console.cls(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK);
-		parser_console.gotoxy(0,0);
-		_print_zconsole("External ZScript Parser\n","[INFO] ",INFO_COLOR);
-	}
-	else
-	{
-		box_start(1, "Compile Progress", get_zc_font(font_lfont), get_zc_font(font_sfont),true, 512, 280);
-	}
 
 	std::vector<std::string> args = {
 		"-input", tmpfilename,
@@ -152,11 +141,23 @@ bool do_compile_and_slots(bool quick_compile, bool delay)
 		args.push_back("-noclose");
 	if(delay)
 		args.push_back("-delay");
-	process_manager* pm = launch_piped_process(ZSCRIPT_FILE, args);
+	process_manager* pm = launch_piped_process(ZSCRIPT_FILE, "zq_parser_pipe", args);
 	if(!pm)
 	{
 		InfoDialog("Parser","Failed to launch " ZSCRIPT_FILE).show();
 		return false;
+	}
+	
+	if (!DisableCompileConsole)
+	{
+		parser_console.Create("ZScript Parser Output", 600, 200, NULL, "zconsole.exe");
+		parser_console.cls(CConsoleLoggerEx::COLOR_BACKGROUND_BLACK);
+		parser_console.gotoxy(0,0);
+		_print_zconsole("External ZScript Parser\n","[INFO] ",INFO_COLOR);
+	}
+	else
+	{
+		box_start(1, "Compile Progress", get_zc_font(font_lfont), get_zc_font(font_sfont),true, 512, 280);
 	}
 	
 	int current = 0, last = 0;

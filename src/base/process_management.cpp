@@ -8,12 +8,12 @@
 #endif
 using namespace util;
 
-#define ERR_EXIT(str, pm) \
+#define ERR_EXIT(str, pm, errcode) \
 	do \
 	{ \
 		if(pm) \
 			delete pm; \
-		safe_al_trace(fmt::format("[PROCESS_LAUNCH: '{}' ERROR]: {}\n", file, str)); \
+		zprint2("[PROCESS_LAUNCH: '%s' ERROR %d]: %s\n", file, errcode, str); \
 		return NULL; \
 	} while(false)
 
@@ -81,7 +81,7 @@ static VOID WINAPI FileCallback(DWORD error_code, DWORD bytes_transferred, LPOVE
 		callback_error = true;
 }
 
-bool io_manager::ProcessReadFile(HANDLE read_handle, LPVOID buf, DWORD bytes_to_read, LPDWORD bytes_read, bool throw_timeout)
+bool io_manager::ProcessReadFile(HANDLE read_handle, LPVOID buf, DWORD bytes_to_read, LPDWORD bytes_read)
 {
 	OVERLAPPED ov;
 	LPOVERLAPPED p_ov = &ov;
@@ -90,28 +90,23 @@ bool io_manager::ProcessReadFile(HANDLE read_handle, LPVOID buf, DWORD bytes_to_
 	
 	callback_error = false;
 	
-	zprint2("STARTING READ!\n");
-	//! Why does this sometimes block, not returning? It's supposed to be async and continue to the GetOverlappedResultEx calls... -Em
 	if(!ReadFileEx(read_handle, buf, bytes_to_read, p_ov, callback))
 	{
 		zprint2("READ FAILURE: %d\n",GetLastError());
 		return false;
 	}
-	if(auto w = GetLastError())
-		zprint2("READ WARNING: %d\n", w);
 	
 	int waitcount = 0;
 	while(!GetOverlappedResultEx(read_handle, p_ov, bytes_read, 30000, true))
 	{
+		if(!is_alive())
+			throw zc_io_exception::dead();
 		auto error = GetLastError();
-		zprint2("...waiting %d (err %d)\n",++waitcount, error);
 		switch(error)
 		{
 			case WAIT_TIMEOUT:
 			{
-				if(throw_timeout)
-					throw zc_io_exception::timeout();
-				else return false;
+				throw zc_io_exception::timeout();
 			}
 			case WAIT_IO_COMPLETION:
 			case ERROR_IO_INCOMPLETE:
@@ -123,7 +118,7 @@ bool io_manager::ProcessReadFile(HANDLE read_handle, LPVOID buf, DWORD bytes_to_
 	
 	return !callback_error;
 }
-bool io_manager::ProcessWriteFile(HANDLE write_handle, LPVOID buf, DWORD bytes_to_write, LPDWORD bytes_written, bool throw_timeout)
+bool io_manager::ProcessWriteFile(HANDLE write_handle, LPVOID buf, DWORD bytes_to_write, LPDWORD bytes_written)
 {
 	return WriteFile(write_handle, buf, bytes_to_write, bytes_written, NULL);
 }
@@ -159,50 +154,49 @@ process_manager::~process_manager()
 		kill();
 }
 
-bool process_manager::read(void* buf, uint32_t bytes_to_read, uint32_t* bytes_read, bool throw_timeout)
+bool process_manager::read(void* buf, uint32_t bytes_to_read, uint32_t* bytes_read)
 {
 #ifdef _WIN32
 	if(!read_handle) return false;
-	if(throw_timeout && !is_alive())
+	if(!is_alive())
 		throw zc_io_exception::dead();
 	if(!bytes_read) bytes_read = &__dummy_;
-	bool ret = ProcessReadFile((HANDLE)read_handle, (LPVOID)buf, (DWORD)bytes_to_read, (LPDWORD)bytes_read, throw_timeout);
+	bool ret = ProcessReadFile((HANDLE)read_handle, (LPVOID)buf, (DWORD)bytes_to_read, (LPDWORD)bytes_read);
 	
-	zprint2("READ: %d %d '%s'[%d]\n",callback_error?1:0,is_alive()?1:0,buf,*bytes_read);
-	if(throw_timeout && !is_alive())
+	if(!is_alive())
 		throw zc_io_exception::dead();
 	return ret;
 #else
 	if(!read_handle) return false;
-	if(throw_timeout && !is_alive())
-		throw zc_io_exception::dead();
-	size_t ret = ::read(read_handle, buf, bytes_to_read); //!TODO handle timeouts (if throw_timeout, throw zc_io_exception::timeout())
+	// if(!is_alive())
+		// throw zc_io_exception::dead();
+	size_t ret = ::read(read_handle, buf, bytes_to_read); //!TODO handle timeouts
 	if(bytes_read) *bytes_read = ret;
-	if(throw_timeout && !is_alive())
-		throw zc_io_exception::dead();
+	// if(!is_alive())
+		// throw zc_io_exception::dead();
 	return ret>0;
 #endif
 }
 
-bool process_manager::write(void* buf, uint32_t bytes_to_write, uint32_t* bytes_written, bool throw_timeout)
+bool process_manager::write(void* buf, uint32_t bytes_to_write, uint32_t* bytes_written)
 {
 #ifdef _WIN32
 	if(!write_handle) return false;
-	if(throw_timeout && !is_alive())
+	if(!is_alive())
 		throw zc_io_exception::dead();
 	if(!bytes_written) bytes_written = &__dummy_;
-	bool ret = ProcessWriteFile((HANDLE)write_handle, (LPVOID)buf, (DWORD)bytes_to_write, (LPDWORD)bytes_written, throw_timeout);
-	if(throw_timeout && !is_alive())
+	bool ret = ProcessWriteFile((HANDLE)write_handle, (LPVOID)buf, (DWORD)bytes_to_write, (LPDWORD)bytes_written);
+	if(!is_alive())
 		throw zc_io_exception::dead();
 	return ret;
 #else
 	if(!write_handle) return false;
-	if(throw_timeout && !is_alive())
-		throw zc_io_exception::dead();
-	size_t ret = ::write(write_handle, buf, bytes_to_write); //!TODO handle timeouts (if throw_timeout, throw zc_io_exception::timeout())
+	// if(!is_alive())
+		// throw zc_io_exception::dead();
+	size_t ret = ::write(write_handle, buf, bytes_to_write); //!TODO handle timeouts
 	if(bytes_written) *bytes_written = ret;
-	if(throw_timeout && !is_alive())
-		throw zc_io_exception::dead();
+	// if(!is_alive())
+		// throw zc_io_exception::dead();
 	return ret==bytes_to_write;
 #endif
 }
@@ -222,7 +216,7 @@ bool child_process_handler::init()
 #endif
 }
 
-bool child_process_handler::read(void* buf, uint32_t bytes_to_read, uint32_t* bytes_read, bool throw_timeout)
+bool child_process_handler::read(void* buf, uint32_t bytes_to_read, uint32_t* bytes_read)
 {
 #ifdef _WIN32
 	if(!bytes_read) bytes_read = &__dummy_;
@@ -237,7 +231,7 @@ bool child_process_handler::read(void* buf, uint32_t bytes_to_read, uint32_t* by
 #endif
 }
 
-bool child_process_handler::write(void* buf, uint32_t bytes_to_write, uint32_t* bytes_written, bool throw_timeout)
+bool child_process_handler::write(void* buf, uint32_t bytes_to_write, uint32_t* bytes_written)
 {
 #ifdef _WIN32
 	if(!bytes_written) bytes_written = &__dummy_;
@@ -295,12 +289,12 @@ process_killer launch_process(std::string file, const std::vector<std::string>& 
 	int s = posix_spawn(&pid, file.c_str(), NULL, NULL, argv.data(), NULL);
 #endif
 	for (auto arg : argv) free(arg);
-	if (s != 0) ERR_EXIT("Failed posix_spawn", (process_manager*)0);
+	if (s != 0) ERR_EXIT("Failed posix_spawn", (process_manager*)0, 0);
 	return process_killer(pid);
 #endif
 }
 
-process_manager* launch_piped_process(std::string file, const std::vector<std::string>& args)
+process_manager* launch_piped_process(std::string file, std::string pipename, const std::vector<std::string>& args)
 {
 	process_manager* pm = new process_manager();
 #ifdef _WIN32
@@ -308,14 +302,44 @@ process_manager* launch_piped_process(std::string file, const std::vector<std::s
 	saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
 	saAttr.bInheritHandle = TRUE;
 	saAttr.lpSecurityDescriptor = NULL;
-	if ( !CreatePipe(&(pm->read_handle), &(pm->re_2), &saAttr, 0))
-		ERR_EXIT("Failed to create child output pipe", pm);
+	#define PIPE_BUFFER_SZ 256
+	
+	std::string pipename_1 = fmt::format("\\\\.\\pipe\\{}",pipename),
+		pipename_2 = pipename_1+"2";
+	
+	// if ( !CreatePipe(&(pm->read_handle), &(pm->re_2), &saAttr, 0))
+		// ERR_EXIT("Failed to create child output pipe", pm);
+	HANDLE PipeHandle1 = CreateNamedPipeA(pipename_1.c_str(),PIPE_ACCESS_DUPLEX|FILE_FLAG_OVERLAPPED,PIPE_TYPE_BYTE,1,PIPE_BUFFER_SZ,PIPE_BUFFER_SZ,0,&saAttr);
+	if(PipeHandle1==INVALID_HANDLE_VALUE)
+		ERR_EXIT("Failed to create child output pipe", pm, GetLastError());
+	if(!WaitNamedPipeA(pipename_1.c_str(), 1000*5))
+		ERR_EXIT("Failed to recognize opened child output pipe", pm, 0);
+	pm->read_handle = CreateFileA(pipename_1.c_str(),GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,&saAttr,OPEN_EXISTING,FILE_FLAG_OVERLAPPED,NULL);
+	if(pm->read_handle==INVALID_HANDLE_VALUE)
+		ERR_EXIT("Failed to open child output pipe read end", pm, GetLastError());
+	pm->re_2 = PipeHandle1;//CreateFileA(pipename_1.c_str(),GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE,&saAttr,OPEN_EXISTING,FILE_FLAG_OVERLAPPED,NULL);
+	// if(pm->re_2==INVALID_HANDLE_VALUE)
+		// ERR_EXIT("Failed to open child output pipe write end", pm, GetLastError());
+	
 	if ( !SetHandleInformation(pm->read_handle, HANDLE_FLAG_INHERIT, 0))
-		ERR_EXIT("Failed to set handle information for child output", pm); 
-	if ( !CreatePipe(&(pm->wr_2), &(pm->write_handle), &saAttr, 0))
-		ERR_EXIT("Failed to create child input pipe", pm);
+		ERR_EXIT("Failed to set handle information for child output", pm, GetLastError()); 
+	
+	// if ( !CreatePipe(&(pm->wr_2), &(pm->write_handle), &saAttr, 0))
+		// ERR_EXIT("Failed to create child input pipe", pm);
+	HANDLE PipeHandle2 = CreateNamedPipeA(pipename_2.c_str(),PIPE_ACCESS_DUPLEX|FILE_FLAG_OVERLAPPED,PIPE_TYPE_BYTE,1,PIPE_BUFFER_SZ,PIPE_BUFFER_SZ,0,&saAttr);
+	if(PipeHandle2==INVALID_HANDLE_VALUE)
+		ERR_EXIT("Failed to create child input pipe", pm, GetLastError());
+	if(!WaitNamedPipeA(pipename_2.c_str(), 1000*5))
+		ERR_EXIT("Failed to recognize opened child input pipe", pm, 0);
+	pm->wr_2 = PipeHandle2;//CreateFileA(pipename_2.c_str(),GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,&saAttr,OPEN_EXISTING,FILE_FLAG_OVERLAPPED,NULL);
+	// if(pm->wr_2==INVALID_HANDLE_VALUE)
+		// ERR_EXIT("Failed to open child input pipe read end", pm, GetLastError());
+	pm->write_handle = CreateFileA(pipename_2.c_str(),GENERIC_WRITE,FILE_SHARE_READ|FILE_SHARE_WRITE,&saAttr,OPEN_EXISTING,FILE_FLAG_OVERLAPPED,NULL);
+	if(pm->write_handle==INVALID_HANDLE_VALUE)
+		ERR_EXIT("Failed to open child input pipe write end", pm, GetLastError());
+	
 	if ( !SetHandleInformation(pm->write_handle, HANDLE_FLAG_INHERIT, 0))
-		ERR_EXIT("Failed to set handle information for child input", pm); 
+		ERR_EXIT("Failed to set handle information for child input", pm, GetLastError()); 
 	
 	
 	PROCESS_INFORMATION pi;
@@ -348,7 +372,7 @@ process_manager* launch_piped_process(std::string file, const std::vector<std::s
 		NULL,          // use parent's current directory 
 		&si, &pi);
 	if(!bSuccess)
-		ERR_EXIT("Failed to create process", pm);
+		ERR_EXIT("Failed to create process", pm, GetLastError());
 	pm->init_process(pi.hProcess);
 	return pm;
 #else
@@ -360,7 +384,7 @@ process_manager* launch_piped_process(std::string file, const std::vector<std::s
 	pipe(pdes_w);
 
 	s = posix_spawn_file_actions_init(&file_actions);
-	if (s != 0) ERR_EXIT("Failed posix_spawn_file_actions_init", pm);
+	if (s != 0) ERR_EXIT("Failed posix_spawn_file_actions_init", pm, 0);
 	
 	posix_spawn_file_actions_adddup2(&file_actions, pdes_r[1], fileno(stdout));
 	posix_spawn_file_actions_addclose(&file_actions, pdes_r[1]);
@@ -377,7 +401,7 @@ process_manager* launch_piped_process(std::string file, const std::vector<std::s
 #else
 	s = posix_spawn(&child_pid, file.c_str(), &file_actions, NULL, argv.data(), NULL);
 #endif
-	if (s != 0) ERR_EXIT("Failed posix_spawn", pm);
+	if (s != 0) ERR_EXIT("Failed posix_spawn", pm, 0);
 	
 	pm->read_handle = pdes_r[0];
 	pm->write_handle = pdes_w[1];
