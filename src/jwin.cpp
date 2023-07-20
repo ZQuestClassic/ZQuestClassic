@@ -1646,6 +1646,7 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 				}
 			}
 			if(cursor_end == cursor_start) cursor_end = -1;
+			else d->flags |= D_DIRTY;
 			d->d2 = cursor_start | ((cursor_end&0xFFFF) << 16);
 			
 			object_message(d, MSG_DRAW, 0);
@@ -2002,6 +2003,9 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 			
 			if(change_cursor)
 			{
+				if (cursor_start != scursor)
+					d->flags |= D_DIRTY;
+
 				cursor_end = ecursor; cursor_start = scursor;
 				if (cursor_end == cursor_start) cursor_end = -1;
 				d->d2 = cursor_start | ((cursor_end&0xFFFF) << 16);
