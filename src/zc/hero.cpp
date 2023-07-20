@@ -14658,7 +14658,7 @@ void HeroClass::moveheroOld()
 									!_walkflag(x+8, y+(bigHitbox?0:8)-1,1,SWITCHBLOCK_STATE) &&
 									_walkflag(x+15,y+(bigHitbox?0:8)-1,1,SWITCHBLOCK_STATE))
 							{
-								if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?15:11,y+(bigHitbox?0:8)-1))
+								if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+(get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?15:11),y+(bigHitbox?0:8)-1))
 									sprite::move((zfix)-1,(zfix)0);
 							}
 							else
@@ -14667,7 +14667,7 @@ void HeroClass::moveheroOld()
 										!_walkflag(x+7, y+(bigHitbox?0:8)-1,1,SWITCHBLOCK_STATE) &&
 										!_walkflag(x+15,y+(bigHitbox?0:8)-1,1,SWITCHBLOCK_STATE))
 								{
-									if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?0:4,y+(bigHitbox?0:8)-1))
+									if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+(get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?0:4),y+(bigHitbox?0:8)-1))
 										sprite::move((zfix)1,(zfix)0);
 								}
 								else
@@ -14884,14 +14884,14 @@ void HeroClass::moveheroOld()
 									!_walkflag(x+8, y+15+1,1,SWITCHBLOCK_STATE)&&
 									_walkflag(x+15,y+15+1,1,SWITCHBLOCK_STATE))
 							{
-								if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?15:11,y+15+1))
+								if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+(get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?15:11),y+15+1))
 									sprite::move((zfix)-1,(zfix)0);
 							}
 							else if(_walkflag(x,   y+15+1,1,SWITCHBLOCK_STATE)&&
 									!_walkflag(x+7, y+15+1,1,SWITCHBLOCK_STATE)&&
 									!_walkflag(x+15,y+15+1,1,SWITCHBLOCK_STATE))
 							{
-								if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?0:4,y+15+1))
+								if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+(get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?0:4),y+15+1))
 									sprite::move((zfix)1,(zfix)0);
 							}
 							else
@@ -15114,14 +15114,14 @@ void HeroClass::moveheroOld()
 									!_walkflag(x-1,y+v2,1,SWITCHBLOCK_STATE)&&
 									_walkflag(x-1,y+15,1,SWITCHBLOCK_STATE))
 							{
-								if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x-1,y+get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?15:11))
+								if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x-1,y+(get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?15:11)))
 									sprite::move((zfix)0,(zfix)-1);
 							}
 							else if(_walkflag(x-1,y+v1,  1,SWITCHBLOCK_STATE)&&
 									!_walkflag(x-1,y+v2-1,1,SWITCHBLOCK_STATE)&&
 									!_walkflag(x-1,y+15,  1,SWITCHBLOCK_STATE))
 							{
-								if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x-1,y+v1+get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?0:4))
+								if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x-1,y+v1+(get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?0:4)))
 									sprite::move((zfix)0,(zfix)1);
 							}
 							else
@@ -15347,14 +15347,14 @@ void HeroClass::moveheroOld()
 								   !_walkflag(x+16,y+v2,1,SWITCHBLOCK_STATE)&&
 								   _walkflag(x+16,y+15,1,SWITCHBLOCK_STATE))
 							{
-								if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+16,y+get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?15:11))
+								if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+16,y+(get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?15:11)))
 									sprite::move((zfix)0,(zfix)-1);
 							}
 							else if(_walkflag(x+16,y+v1,1,SWITCHBLOCK_STATE)&&
 									   !_walkflag(x+16,y+v2-1,1,SWITCHBLOCK_STATE)&&
 									   !_walkflag(x+16,y+15,1,SWITCHBLOCK_STATE))
 							{
-								if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+16,y+v1+get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?0:4))
+								if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+16,y+v1+(get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?0:4)))
 									sprite::move((zfix)0,(zfix)1);
 							}
 							else
@@ -15516,7 +15516,7 @@ void HeroClass::moveheroOld()
 									!_walkflag(x+8, y+(bigHitbox?0:8)-1,1,SWITCHBLOCK_STATE) &&
 									_walkflag(x+15,y+(bigHitbox?0:8)-1,1,SWITCHBLOCK_STATE))
 							{
-								if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?15:11,y+(bigHitbox?0:8)-1))
+								if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+(get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?15:11),y+(bigHitbox?0:8)-1))
 									sprite::move((zfix)-1,(zfix)0);
 							}
 							else
@@ -15525,7 +15525,7 @@ void HeroClass::moveheroOld()
 										!_walkflag(x+7, y+(bigHitbox?0:8)-1,1,SWITCHBLOCK_STATE) &&
 										!_walkflag(x+15,y+(bigHitbox?0:8)-1,1,SWITCHBLOCK_STATE))
 								{
-									if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?0:4,y+(bigHitbox?0:8)-1))
+									if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+(get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?0:4),y+(bigHitbox?0:8)-1))
 										sprite::move((zfix)1,(zfix)0);
 								}
 								else
@@ -15685,14 +15685,14 @@ void HeroClass::moveheroOld()
 									!_walkflag(x+8, y+15+1,1,SWITCHBLOCK_STATE)&&
 									_walkflag(x+15,y+15+1,1,SWITCHBLOCK_STATE))
 							{
-								if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?15:11,y+15+1))
+								if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+(get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?15:11),y+15+1))
 									sprite::move((zfix)-1,(zfix)0);
 							}
 							else if(_walkflag(x,   y+15+1,1,SWITCHBLOCK_STATE)&&
 									!_walkflag(x+7, y+15+1,1,SWITCHBLOCK_STATE)&&
 									!_walkflag(x+15,y+15+1,1,SWITCHBLOCK_STATE))
 							{
-								if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?0:4,y+15+1))
+								if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+(get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?0:4),y+15+1))
 									sprite::move((zfix)1,(zfix)0);
 							}
 							else //if(shiftdir==-1)
@@ -15852,14 +15852,14 @@ void HeroClass::moveheroOld()
 									!_walkflag(x-1,y+v2,1,SWITCHBLOCK_STATE)&&
 									_walkflag(x-1,y+15,1,SWITCHBLOCK_STATE))
 							{
-								if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x-1,y+get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?15:11))
+								if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x-1,y+(get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?15:11)))
 									sprite::move((zfix)0,(zfix)-1);
 							}
 							else if(_walkflag(x-1,y+v1,  1,SWITCHBLOCK_STATE)&&
 									!_walkflag(x-1,y+v2-1,1,SWITCHBLOCK_STATE)&&
 									!_walkflag(x-1,y+15,  1,SWITCHBLOCK_STATE))
 							{
-								if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x-1,y+v1+get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?0:4))
+								if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x-1,y+v1+(get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?0:4)))
 									sprite::move((zfix)0,(zfix)1);
 							}
 							else //if(shiftdir==-1)
@@ -16022,7 +16022,7 @@ void HeroClass::moveheroOld()
 							//do NOT execute these
 							if(info.isUnwalkable())
 							{
-								if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+16,y+get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?15:11))
+								if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+16,y+(get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?15:11)))
 									sprite::move((zfix)0,(zfix)-1);
 							}
 							else
@@ -16033,7 +16033,7 @@ void HeroClass::moveheroOld()
 									   
 								if(info.isUnwalkable())
 								{
-									if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+16,y+v1+get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?0:4))
+									if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+16,y+v1+(get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?0:4)))
 										sprite::move((zfix)0,(zfix)1);
 								}
 								else //if(shiftdir==-1)
@@ -16280,14 +16280,14 @@ void HeroClass::moveheroOld()
 								!_walkflag(x+8, y+(bigHitbox?0:8)-1,1,SWITCHBLOCK_STATE) &&
 								_walkflag(x+15,y+(bigHitbox?0:8)-1,1,SWITCHBLOCK_STATE))
 						{
-							if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?15:11,y+(bigHitbox?0:8)-1))
+							if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+(get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?15:11),y+(bigHitbox?0:8)-1))
 								sprite::move((zfix)-1,(zfix)0);
 						}
 						else if(_walkflag(x,y+(bigHitbox?0:8)-1,1,SWITCHBLOCK_STATE) &&
 								!_walkflag(x+7, y+(bigHitbox?0:8)-1,1,SWITCHBLOCK_STATE) &&
 								!_walkflag(x+15,y+(bigHitbox?0:8)-1,1,SWITCHBLOCK_STATE))
 						{
-							if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?0:4,y+(bigHitbox?0:8)-1))
+							if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+(get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?0:4),y+(bigHitbox?0:8)-1))
 								sprite::move((zfix)1,(zfix)0);
 						}
 						else
@@ -16410,14 +16410,14 @@ void HeroClass::moveheroOld()
 								!_walkflag(x+8, y+15+1,1,SWITCHBLOCK_STATE)&&
 								_walkflag(x+15,y+15+1,1,SWITCHBLOCK_STATE))
 						{
-							if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?15:11,y+15+1))
+							if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+(get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?15:11),y+15+1))
 								sprite::move((zfix)-1,(zfix)0);
 						}
 						else if(_walkflag(x,   y+15+1,1,SWITCHBLOCK_STATE)&&
 								!_walkflag(x+7, y+15+1,1,SWITCHBLOCK_STATE)&&
 								!_walkflag(x+15,y+15+1,1,SWITCHBLOCK_STATE))
 						{
-							if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?0:4,y+15+1))
+							if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+(get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?0:4),y+15+1))
 								sprite::move((zfix)1,(zfix)0);
 						}
 						else
@@ -16537,14 +16537,14 @@ LEFTRIGHT_NEWMOVE:
 								!_walkflag(x-1,y+v2,1,SWITCHBLOCK_STATE)&&
 								_walkflag(x-1,y+15,1,SWITCHBLOCK_STATE))
 						{
-							if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x-1,y+get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?15:11))
+							if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x-1,y+(get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?15:11)))
 								sprite::move((zfix)0,(zfix)-1);
 						}
 						else if(_walkflag(x-1,y+v1,1,SWITCHBLOCK_STATE)&&
 								!_walkflag(x-1,y+v2-1,1,SWITCHBLOCK_STATE)&&
 								!_walkflag(x-1,y+15,  1,SWITCHBLOCK_STATE))
 						{
-							if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x-1,y+v1+get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?0:4))
+							if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x-1,y+v1+(get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?0:4)))
 								sprite::move((zfix)0,(zfix)1);
 						}
 						else
@@ -16654,14 +16654,14 @@ LEFTRIGHT_NEWMOVE:
 							   !_walkflag(x+16,y+v2,1,SWITCHBLOCK_STATE)&&
 							   _walkflag(x+16,y+15,1,SWITCHBLOCK_STATE))
 						{
-							if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+16,y+get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?15:11))
+							if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+16,y+(get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?15:11)))
 								sprite::move((zfix)0,(zfix)-1);
 						}
 						else if(_walkflag(x+16,y+v1,1,SWITCHBLOCK_STATE)&&
 								   !_walkflag(x+16,y+v2-1,1,SWITCHBLOCK_STATE)&&
 								   !_walkflag(x+16,y+15,1,SWITCHBLOCK_STATE))
 						{
-							if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+16,y+v1+get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?0:4))
+							if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+16,y+v1+(get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?0:4)))
 								sprite::move((zfix)0,(zfix)1);
 						}
 						else
@@ -16780,14 +16780,14 @@ LEFTRIGHT_NEWMOVE:
 								!_walkflag(x+8, y+(bigHitbox?0:8)-1,1,SWITCHBLOCK_STATE) &&
 								_walkflag(x+15,y+(bigHitbox?0:8)-1,1,SWITCHBLOCK_STATE))
 						{
-							if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?15:11,y+(bigHitbox?0:8)-1))
+							if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+(get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?15:11),y+(bigHitbox?0:8)-1))
 								sprite::move((zfix)-1,(zfix)0);
 						}
 						else if(_walkflag(x,y+(bigHitbox?0:8)-1,1,SWITCHBLOCK_STATE) &&
 								!_walkflag(x+7, y+(bigHitbox?0:8)-1,1,SWITCHBLOCK_STATE) &&
 								!_walkflag(x+15,y+(bigHitbox?0:8)-1,1,SWITCHBLOCK_STATE))
 						{
-							if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?0:4,y+(bigHitbox?0:8)-1))
+							if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+(get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?0:4),y+(bigHitbox?0:8)-1))
 								sprite::move((zfix)1,(zfix)0);
 						}
 						else
@@ -16885,14 +16885,14 @@ LEFTRIGHT_NEWMOVE:
 								!_walkflag(x+8, y+15+1,1,SWITCHBLOCK_STATE)&&
 								_walkflag(x+15,y+15+1,1,SWITCHBLOCK_STATE))
 						{
-							if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?15:11,y+15+1))
+							if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+(get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?15:11),y+15+1))
 								sprite::move((zfix)-1,(zfix)0);
 						}
 						else if(_walkflag(x,   y+15+1,1,SWITCHBLOCK_STATE)&&
 								!_walkflag(x+7, y+15+1,1,SWITCHBLOCK_STATE)&&
 								!_walkflag(x+15,y+15+1,1,SWITCHBLOCK_STATE))
 						{
-							if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?0:4,y+15+1))
+							if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+(get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?0:4),y+15+1))
 								sprite::move((zfix)1,(zfix)0);
 						}
 						else
@@ -16982,14 +16982,14 @@ LEFTRIGHT_OLDMOVE:
 								!_walkflag(x-1,y+v2,1,SWITCHBLOCK_STATE)&&
 								_walkflag(x-1,y+15,1,SWITCHBLOCK_STATE))
 						{
-							if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x-1,y+get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?15:11))
+							if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x-1,y+(get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?15:11)))
 								sprite::move((zfix)0,(zfix)-1);
 						}
 						else if(_walkflag(x-1,y+v1,  1,SWITCHBLOCK_STATE)&&
 								!_walkflag(x-1,y+v2-1,1,SWITCHBLOCK_STATE)&&
 								!_walkflag(x-1,y+15,  1,SWITCHBLOCK_STATE))
 						{
-							if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x-1,y+v1+get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?0:4))
+							if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x-1,y+v1+(get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?0:4)))
 								sprite::move((zfix)0,(zfix)1);
 						}
 						else
@@ -17071,14 +17071,14 @@ LEFTRIGHT_OLDMOVE:
 							   !_walkflag(x+16,y+v2,1,SWITCHBLOCK_STATE)&&
 							   _walkflag(x+16,y+15,1,SWITCHBLOCK_STATE))
 						{
-							if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+16,y+get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?15:11))
+							if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+16,y+(get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?15:11)))
 								sprite::move((zfix)0,(zfix)-1);
 						}
 						else if(_walkflag(x+16,y+v1,1,SWITCHBLOCK_STATE)&&
 								   !_walkflag(x+16,y+v2-1,1,SWITCHBLOCK_STATE)&&
 								   !_walkflag(x+16,y+15,1,SWITCHBLOCK_STATE))
 						{
-							if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+16,y+v1+get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?0:4))
+							if(hclk || get_bit(quest_rules,qr_LENIENT_SOLID_DAMAGE) || get_bit(quest_rules, qr_NOSOLIDDAMAGECOMBOS) || ((z>0||fakez>0) && !(tmpscr->flags2&fAIRCOMBOS)) || !checkdamagecombos(x+16,y+v1+(get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?0:4)))
 								sprite::move((zfix)0,(zfix)1);
 						}
 						else
@@ -17545,7 +17545,7 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 					}
 					else //shove down
 					{
-						if(skipdmg || !checkdamagecombos(tx,v1+get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?0:4))
+						if(skipdmg || !checkdamagecombos(tx,v1+(get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?0:4)))
 							movexy(0, 1, kb, true, false, false);
 					}
 					
@@ -17599,12 +17599,12 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 				{
 					if(hit_right) //shove left
 					{
-						if(skipdmg || !checkdamagecombos(x+get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?15:11,ty))
+						if(skipdmg || !checkdamagecombos(x+(get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?15:11),ty))
 							movexy(-1, 0, kb, true, false, false);
 					}
 					else //shove right
 					{
-						if(skipdmg || !checkdamagecombos(x+get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?0:4,ty))
+						if(skipdmg || !checkdamagecombos(x+(get_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE)?0:4),ty))
 							movexy(1, 0, kb, true, false, false);
 					}
 					
