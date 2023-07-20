@@ -773,6 +773,9 @@ void load_mouse()
 // sets the video mode and initializes the palette and mouse sprite
 bool game_vid_mode(int32_t mode,int32_t wait)
 {
+	if (is_headless())
+		return true;
+
 	if(set_gfx_mode(mode,resx,resy,0,0)!=0)
 	{
 		return false;
@@ -8157,6 +8160,9 @@ void set_zcmusicspeed(int32_t speed)
 
 void jukebox(int32_t index,int32_t loop)
 {
+	if (is_headless())
+		return;
+
 	music_stop();
 	
 	if(index<0)		 index=MAXMIDIS-1;
@@ -8200,6 +8206,9 @@ void jukebox(int32_t index)
 
 void play_DmapMusic()
 {
+	if (is_headless())
+		return;
+
 	static char tfile[2048];
 	static int32_t ttrack=0;
 	bool domidi=false;
@@ -8271,6 +8280,9 @@ void play_DmapMusic()
 
 void playLevelMusic()
 {
+	if (is_headless())
+		return;
+
 	int32_t m=tmpscr->screen_midi;
 	
 	switch(m)
@@ -8396,16 +8408,19 @@ void sfx(int32_t index,int32_t pan,bool loop, bool restart)
 {
 	if(!sfx_init(index))
 		return;
+	
+	if (!is_headless())
+	{
+		voice_set_playmode(sfx_voice[index],loop?PLAYMODE_LOOP:PLAYMODE_PLAY);
+		voice_set_pan(sfx_voice[index],pan);
 		
-	voice_set_playmode(sfx_voice[index],loop?PLAYMODE_LOOP:PLAYMODE_PLAY);
-	voice_set_pan(sfx_voice[index],pan);
-	
-	int32_t pos = voice_get_position(sfx_voice[index]);
-	
-	if(restart) voice_set_position(sfx_voice[index],0);
-	
-	if(pos<=0)
-		voice_start(sfx_voice[index]);
+		int32_t pos = voice_get_position(sfx_voice[index]);
+		
+		if(restart) voice_set_position(sfx_voice[index],0);
+		
+		if(pos<=0)
+			voice_start(sfx_voice[index]);
+	}
 
 	if (restart && replay_is_debug())
 		replay_step_comment(fmt::format("sfx {}", sfx_string[index]));
@@ -8421,6 +8436,9 @@ bool sfx_allocated(int32_t index)
 // otherwise adjust it to play in loop mode -DD
 void cont_sfx(int32_t index)
 {
+	if (is_headless())
+		return;
+
 	if(!sfx_init(index))
 	{
 		return;
@@ -8458,6 +8476,9 @@ void pause_sfx(int32_t index)
 // resumes a voice
 void resume_sfx(int32_t index)
 {
+	if (is_headless())
+		return;
+
 	if(index>0 && index<WAV_COUNT && sfx_voice[index]!=-1)
 		voice_start(sfx_voice[index]);
 }

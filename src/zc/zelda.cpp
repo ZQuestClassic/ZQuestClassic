@@ -644,6 +644,9 @@ bool update_hw_pal = false;
 PALETTE* hw_palette = NULL;
 void update_hw_screen(bool force)
 {
+	if (is_headless())
+		return;
+
 #ifdef __EMSCRIPTEN__
 	force = true;
 #endif
@@ -4322,6 +4325,11 @@ int main(int argc, char **argv)
 		return get_bit(quest_rules,qr_SCRIPTERRLOG) || DEVLEVEL > 0;
 	});
 
+	if (used_switch(argc, argv, "-headless") > 0)
+	{
+		set_headless_mode();
+	}
+
 	int load_and_quit_arg = used_switch(argc, argv, "-load-and-quit");
 	if (load_and_quit_arg > 0)
 	{
@@ -4926,7 +4934,7 @@ int main(int argc, char **argv)
 	initFonts();
 
 #ifndef __EMSCRIPTEN__
-	if (!all_get_fullscreen_flag()) {
+	if (!all_get_fullscreen_flag() && !is_headless()) {
 		// Just in case.
 		while (!all_get_display()) {
 			al_rest(1);
@@ -4955,9 +4963,12 @@ int main(int argc, char **argv)
 	}
 #endif
 	switch_type = pause_in_background ? SWITCH_PAUSE : SWITCH_BACKGROUND;
-	set_display_switch_mode(is_windowed_mode()?SWITCH_PAUSE:switch_type);
-	set_display_switch_callback(SWITCH_OUT, switch_out_callback);
-	set_display_switch_callback(SWITCH_IN, switch_in_callback);
+	if (!is_headless())
+	{
+		set_display_switch_mode(is_windowed_mode()?SWITCH_PAUSE:switch_type);
+		set_display_switch_callback(SWITCH_OUT, switch_out_callback);
+		set_display_switch_callback(SWITCH_IN, switch_in_callback);
+	}
 	
 	hw_palette = &RAMpal;
 	zq_screen_w = 640;
@@ -5000,10 +5011,13 @@ int main(int argc, char **argv)
 	checked_epilepsy = true;
 #endif
 	
-	//set switching/focus mode -Z
-	set_display_switch_mode(is_windowed_mode()?(pause_in_background ? SWITCH_PAUSE : SWITCH_BACKGROUND):SWITCH_BACKAMNESIA);
-	set_display_switch_callback(SWITCH_OUT, switch_out_callback);
-	set_display_switch_callback(SWITCH_IN, switch_in_callback);
+	// TODO: we are repeating this code (See few lines above) but different switch mode ...
+	if (!is_headless())
+	{
+		set_display_switch_mode(is_windowed_mode()?(pause_in_background ? SWITCH_PAUSE : SWITCH_BACKGROUND):SWITCH_BACKAMNESIA);
+		set_display_switch_callback(SWITCH_OUT, switch_out_callback);
+		set_display_switch_callback(SWITCH_IN, switch_in_callback);
+	}
 
 	int32_t test_arg = used_switch(argc,argv,"-test");
 	zqtesting_mode = test_arg > 0;

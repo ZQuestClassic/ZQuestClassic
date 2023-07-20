@@ -1,4 +1,5 @@
 #include "render.h"
+#include "base/zapp.h"
 #include "base/zdefs.h"
 #include "jwin_a5.h"
 
@@ -31,6 +32,9 @@ void set_bitmap_create_flags(bool preserve_texture)
 
 void clear_a5_bmp(ALLEGRO_COLOR col, ALLEGRO_BITMAP* bmp)
 {
+	if (is_headless())
+		return;
+
 	if(bmp)
 	{
 		ALLEGRO_STATE old_state;

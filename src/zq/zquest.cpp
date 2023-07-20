@@ -28927,6 +28927,11 @@ int32_t main(int32_t argc,char **argv)
 		return get_bit(quest_rules,qr_SCRIPTERRLOG) || DEVLEVEL > 0;
 	});
 
+	if (used_switch(argc, argv, "-headless") > 0)
+	{
+		set_headless_mode();
+	}
+
 	int copy_qst_arg = used_switch(argc, argv, "-copy-qst");
 	if (copy_qst_arg > 0)
 	{
