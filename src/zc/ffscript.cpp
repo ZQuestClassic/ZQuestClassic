@@ -28699,6 +28699,25 @@ void do_sfx_ex(const bool restart)
 	sfx(ID, pan, loop, restart, vol, freq);
 }
 
+void do_get_sfx_completion()
+{
+	int32_t ID = get_register(sarg1) / 10000;
+	
+	// TODO: record results for replays
+
+	uint64_t sample_pos = voice_get_position(sfx_voice[ID]);
+
+	if (!sfx_allocated(ID) || sample_pos < 0)
+	{
+		set_register(sarg1, -10000);
+		return;
+	}
+
+	uint32_t sample_length = sfx_get_length(ID);
+	uint64_t res = (sample_pos * 10000 * 100) / sample_length;
+	set_register(sarg1, int32_t(res));
+}
+
 int32_t FFScript::do_get_internal_uid_npc(int32_t index)
 {
 	return ((int32_t)guys.spr(index)->getUID());
@@ -29644,7 +29663,9 @@ void FFScript::do_set_music_position(const bool v)
 void FFScript::do_get_music_position()
 {
 	int32_t pos = get_zcmusicpos();
-	// zprint("ZC OGG Position is %d\n", pos);
+
+	// TODO: record results for replays
+
 	set_register(sarg1, pos);
 }
 
@@ -32040,6 +32061,12 @@ j_command:
 			case PLAYSOUNDEX:
 			{
 				do_sfx_ex(true);
+			}
+			break;
+
+			case GETSFXCOMPLETION:
+			{
+				do_get_sfx_completion();
 			}
 			break;
 
@@ -41097,7 +41124,7 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "GETENHMUSICLEN", 1, 0, 0, 0 },
 	{ "SETENHMUSICLOOP", 2, 0, 0, 0 },
 	{ "PLAYSOUNDEX", 0, 0, 0, 0 },
-	{ "RESRVD_OP_MOOSH_06", 0, 0, 0, 0 },
+	{ "GETSFXCOMPLETION", 1, 0, 0, 0 },
 	{ "RESRVD_OP_MOOSH_07", 0, 0, 0, 0 },
 	{ "RESRVD_OP_MOOSH_08", 0, 0, 0, 0 },
 	{ "RESRVD_OP_MOOSH_09", 0, 0, 0, 0 },

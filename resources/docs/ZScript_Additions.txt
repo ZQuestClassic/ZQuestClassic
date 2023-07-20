@@ -7840,6 +7840,10 @@ void PlaySound(int id, int volume, int pan = 0, long freq = -1L, bool loop = fal
 void AdjustSound(int id, int volume, int pan = 0, bool loop = false);
  * Same as above, but does not restart the sound
 
+float GetSoundCompletion(int id);
+ * Returns a rough completion percentage (0-100) for how much of a sound has played.
+ * Returns -1 if the sound is not currently playing. 
+
 void PauseCurMIDI();
  * Pauses the current MIDI in a manner that permits resuming it.
  * Note: This does not affect Enhanced Music playback.

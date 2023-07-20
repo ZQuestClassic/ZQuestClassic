@@ -8450,6 +8450,25 @@ int32_t sfx_get_default_freq(int32_t index)
 	}
 }
 
+int32_t sfx_get_length(int32_t index)
+{
+	if (sfxdat)
+	{
+		if (index < Z35)
+		{
+			return int32_t(((SAMPLE*)sfxdata[index].dat)->len);
+		}
+		else
+		{
+			return int32_t(((SAMPLE*)sfxdata[Z35].dat)->len);
+		}
+	}
+	else
+	{
+		return int32_t(customsfxdata[index].len);
+	}
+}
+
 // plays an sfx sample
 void sfx(int32_t index,int32_t pan,bool loop, bool restart, int32_t vol, int32_t freq)
 {

@@ -3676,6 +3676,10 @@ string OPlaySoundEX::toString() const
 {
 	return "PLAYSOUNDEX";
 }
+string OGetSoundCompletion::toString() const
+{
+	return "GETSFXCOMPLETION " + getArgument()->toString();
+}
 string OPlaySoundRegister::toString() const
 {
     return "PLAYSOUNDR " + getArgument()->toString();
