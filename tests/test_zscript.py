@@ -9,7 +9,6 @@
 import argparse
 import os
 import sys
-import subprocess
 import unittest
 from pathlib import Path
 
@@ -23,33 +22,28 @@ script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent
 test_scripts_dir = root_dir / 'tests/scripts'
 
+sys.path.append(str((root_dir / 'scripts').absolute()))
+import run_target
+
 
 class TestReplays(unittest.TestCase):
     def setUp(self):
         self.maxDiff = None
 
     def compile_script(self, script_path):
-        build_folder = root_dir / 'build/Release'
-        if 'BUILD_FOLDER' in os.environ:
-            build_folder = Path(os.environ['BUILD_FOLDER']).absolute()
-        exe_name = 'zscript.exe' if os.name == 'nt' else 'zscript'
         # Change include paths to use resources/ directly, instead of possibly-stale stuff inside a build folder.
         include_paths = [
             str(root_dir / 'resources/include'),
             str(root_dir / 'resources/headers'),
         ]
         args = [
-            build_folder / exe_name,
             '-input', script_path,
             '-zasm', 'out.zasm',
             '-include', ';'.join(include_paths),
             '-unlinked'
         ]
-        output = subprocess.run(args, cwd=build_folder, encoding='utf-8',
-                                stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        if output.returncode != 0:
-            raise Exception(f'got error: {output.returncode}\n{output.stdout}')
-        zasm = Path(build_folder / 'out.zasm').read_text()
+        run_target.check_run('zscript', args)
+        zasm = Path(run_target.get_build_folder() / 'out.zasm').read_text()
 
         # Remove metadata.
         zasm = '\n'.join([l.strip() for l in zasm.splitlines()

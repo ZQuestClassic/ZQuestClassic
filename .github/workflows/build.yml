@@ -17,6 +17,10 @@ on:
       cache:
         type: boolean
         default: true
+      debug-info:
+        type: boolean
+        default: false
+        description: "Whether to include debug info in the packaged artifact"
       # The following is for releases only.
       sentry:
         type: boolean
@@ -165,6 +169,8 @@ jobs:
       - run: ccache -s
 
       # Package.
+      - if: inputs.debug-info
+        run: echo "PACKAGE_DEBUG_INFO=1" >> "$GITHUB_ENV"
       - name: Set package name
         id: set-package-name
         shell: python

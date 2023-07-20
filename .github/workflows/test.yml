@@ -51,6 +51,7 @@ jobs:
       arch: ${{ inputs.arch }}
       compiler: ${{ inputs.compiler }}
       config: ${{ inputs.config }}
+      debug-info: true
 
   test:
     needs: ["build"]
@@ -84,17 +85,19 @@ jobs:
         with:
           windows: |
             chcp 65001
-            echo ("BUILD_FOLDER=zc-extracted") >> $env:GITHUB_ENV
+            echo ("BUILD_FOLDER=$PWD/zc-extracted") >> $env:GITHUB_ENV
             mkdir zc-extracted
             cd zc-extracted
             7z x ../${{ needs.build.outputs.artifact-name }}/${{ needs.build.outputs.package-name }}
           macos: |
-            echo "BUILD_FOLDER=zc-extracted/Contents/Resources" >> "$GITHUB_ENV"
+            echo "BUILD_FOLDER=$PWD/zc-extracted/ZeldaClassic.app/Contents/Resources" >> "$GITHUB_ENV"
             hdiutil attach -mountpoint zc-mounted ${{ needs.build.outputs.artifact-name }}/${{ needs.build.outputs.package-name }}
+            mkdir zc-extracted
             cp -r zc-mounted/ZeldaClassic.app zc-extracted
+            cp -r zc-mounted/ZeldaClassic.app.dSYM zc-extracted
             hdiutil unmount zc-mounted
           linux: |
-            echo "BUILD_FOLDER=zc-extracted" >> "$GITHUB_ENV"
+            echo "BUILD_FOLDER=$PWD/zc-extracted" >> "$GITHUB_ENV"
             mkdir zc-extracted
             tar -xvzf ${{ needs.build.outputs.artifact-name }}/${{ needs.build.outputs.package-name }} -C zc-extracted
       - name: Prepare build folder
@@ -103,7 +106,7 @@ jobs:
             echo "BUILD_FOLDER=build/Coverage" >> "$GITHUB_ENV"
             tar -xvzf ${{ needs.build.outputs.artifact-name }}/${{ needs.build.outputs.package-name }} -C build
 
-      - run: sudo apt-get update && sudo apt-get install libopengl0 libglu1
+      - run: sudo apt-get update && sudo apt-get install libopengl0 libglu1 lldb
         if: ${{ contains(inputs.runs-on, 'ubuntu') }}
 
       # Note: Uses JIT by default, except for win32.
@@ -150,22 +153,24 @@ jobs:
         name: Test recording
         run: |
           cd ${{ env.BUILD_FOLDER }}
-          bash ${{ github.workspace }}/.github/workflows/run_zelda.sh -replay-exit-when-done -record test.zplay -frame 100 -replay-debug -test modules/classic/classic_1st.qst 0 119
-          bash ${{ github.workspace }}/.github/workflows/run_zelda.sh -v0 -replay-exit-when-done -assert test.zplay
+          set -ex
+
+          bash ${{ github.workspace }}/.github/workflows/run_target.sh zelda -headless -replay-exit-when-done -record test.zplay -frame 100 -replay-debug -test modules/classic/classic_1st.qst 0 119
+          bash ${{ github.workspace }}/.github/workflows/run_target.sh zelda -headless -v0 -replay-exit-when-done -assert test.zplay
       # Simply open ZQuest with the new quest template.
       - if: ${{ matrix.shard_index == 1 && inputs.extra-args == '' && runner.os != 'Windows' && inputs.config != 'Coverage' }}
         name: Test ZQuest File->New
-        run: |
-          cd ${{ env.BUILD_FOLDER }}
-          bash ${{ github.workspace }}/.github/workflows/run_zquest.sh -s -q -headless 'modules/classic/default.qst'
+        run: bash ${{ github.workspace }}/.github/workflows/run_target.sh zquest -headless -s -q 'modules/classic/default.qst'
       # Resave classic_1st.qst and assert classic_1st.zplay, to make sure the loading/saving code is not introducing bugs.
       - if: ${{ matrix.shard_index == 1 && inputs.extra-args == '' && runner.os != 'Windows' && inputs.config != 'Coverage' }}
         name: Test saving qst
         run: |
           cd ${{ env.BUILD_FOLDER }}
-          bash ${{ github.workspace }}/.github/workflows/run_zquest.sh -s -copy-qst modules/classic/classic_1st.qst tmp.qst
+          set -ex
+
+          bash ${{ github.workspace }}/.github/workflows/run_target.sh zquest -headless -s -copy-qst modules/classic/classic_1st.qst tmp.qst
           mv tmp.qst modules/classic/classic_1st.qst
-          bash ${{ github.workspace }}/.github/workflows/run_zelda.sh -s -v0 -replay-exit-when-done -assert ${{ github.workspace }}/tests/replays/classic_1st.zplay
+          bash ${{ github.workspace }}/.github/workflows/run_target.sh zelda -headless -s -v0 -replay-exit-when-done -assert ${{ github.workspace }}/tests/replays/classic_1st.zplay
 
       - name: Generate coverage json
         if: inputs.config == 'Coverage'

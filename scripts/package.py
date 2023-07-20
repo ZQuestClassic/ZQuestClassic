@@ -189,4 +189,7 @@ else:
         if crashpad_binary.exists():
             files.append(crashpad_binary)
 
+        if system == 'Linux' and 'PACKAGE_DEBUG_INFO' in os.environ:
+            files += glob_files(build_dir, '*.debug')
+
     do_packaging(packages_dir / 'zc', files)
