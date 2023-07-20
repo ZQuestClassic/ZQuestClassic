@@ -202,6 +202,8 @@ parser.add_argument('--retries', type=int, default=0,
     help='The number of retries (default 0) to give each replay')
 parser.add_argument('--jit', action=argparse.BooleanOptionalAction, default=True,
     help='Enables JIT compilation')
+parser.add_argument('--debugger', action=argparse.BooleanOptionalAction, default=True,
+    help='Run in debugger (uses lldb)')
 parser.add_argument('--headless', action=argparse.BooleanOptionalAction, default=True,
     help='Run without display or sound')
 
@@ -561,6 +563,9 @@ class CLIPlayerInterface:
             '-replay-output-dir', output_dir,
         ]
 
+        if args.debugger:
+            exe_args = [sys.executable, root_dir / 'scripts/run_target.py', 'zelda'] + exe_args[1:]
+
         snapshot_arg = get_arg_for_replay(replay_path, grouped_snapshot_arg)
         if snapshot_arg is not None:
             exe_args.extend(['-snapshot', snapshot_arg])
@@ -585,6 +590,7 @@ class CLIPlayerInterface:
                                   env={
                                       **os.environ,
                                       'ALLEGRO_LEGACY_TRACE': str(allegro_log_path),
+                                      'BUILD_FOLDER': str(args.build_folder.absolute()),
                                   },
                                   stdout=open(output_dir / 'stdout.txt', 'w'),
                                   stderr=open(output_dir / 'stderr.txt', 'w'),
@@ -761,6 +767,10 @@ def run_replay_test(replay_file: pathlib.Path, output_dir: pathlib.Path) -> RunR
                 if watcher.result:
                     break
 
+                retcode = player_interface.poll()
+                if retcode != None:
+                    raise ReplayTimeoutException(f'process finished before replay started, exit code: {retcode}')
+
                 sleep(0.1)
 
             test_results.zc_version = watcher.result['zc_version']
@@ -806,22 +816,12 @@ def run_replay_test(replay_file: pathlib.Path, output_dir: pathlib.Path) -> RunR
                 shutil.copy2(replay_file, test_results_dir / 'updated' / replay_file.name)
             break
         except ReplayTimeoutException:
-            print('\nSTDOUT:\n\n', (output_dir / 'stdout.txt').read_text())
-            print('\n\nSTDERR:\n\n', (output_dir / 'stderr.txt').read_text())
-            if allegro_log_path.exists():
-                print('\n\nALLEGRO LOG:\n\n', allegro_log_path.read_text())
-
             # Will try again.
             logging.exception('replay timed out')
             player_interface.stop()
         except KeyboardInterrupt:
             exit(1)
         except:
-            print('\nSTDOUT:\n\n', (output_dir / 'stdout.txt').read_text())
-            print('\n\nSTDERR:\n\n', (output_dir / 'stderr.txt').read_text())
-            if allegro_log_path.exists():
-                print('\n\nALLEGRO LOG:\n\n', allegro_log_path.read_text())
-
             logging.exception('replay encountered an error')
             return result
         finally:
@@ -898,6 +898,22 @@ for i in range(args.retries + 1):
 
         # Only print on failure and last attempt.
         if not result.success and i == args.retries:
+            def print_nicely(title: str, path: pathlib.Path):
+                if not path.exists():
+                    return
+
+                title = f' {title} '
+                length = len(title) * 2
+                print()
+                print('=' * length)
+                print(title.center(length, '='))
+                print('=' * length)
+                print()
+                sys.stdout.buffer.write(path.read_bytes())
+
+            print_nicely('STDOUT', run_dir / 'stdout.txt')
+            print_nicely('STDERR', run_dir / 'stderr.txt')
+            print_nicely('ALLEGRO LOG', run_dir / 'allegro.log')
             print('\ndiff:')
             print(result.diff)
 
