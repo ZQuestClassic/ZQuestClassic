@@ -436,7 +436,22 @@ static GUI::ListData comboRulesList
 		" as opposed to the screen's secret sound."},
 	{ "Conveyors work on layers 1 and 2", qr_CONVEYORS_L1_L2,
 		"Conveyor combos work on layers 1 and 2. If multiple conveyors overlap, only"
-		" the highest layer conveyor will apply."}
+		" the highest layer conveyor will apply."},
+	{ "No Solid Damage Combos", qr_NOSOLIDDAMAGECOMBOS, 
+		"Disables solid damage combos. You can only take damage by"
+		" stepping on a walkable damage combo. Note that this does"
+		" not affect solid sideview damage combos that you step on,"
+		" you will still take damage from those even if this rule"
+		" is on." +QRHINT({qr_NO_SIDEVIEW_SOLID_DAMAGE}) },
+	{ "No Sideview Solid Damage", qr_NO_SIDEVIEW_SOLID_DAMAGE, 
+		"Disables taking damage by stepping on solid sideview damage."
+		" Does not affect damage taken by walkin into solid damage combos." +QRHINT({qr_NOSOLIDDAMAGECOMBOS}) },
+	{ "Lenient Solid Damage Combos", qr_LENIENT_SOLID_DAMAGE, 
+		"Solid damage combos only check the center of the Player's hitbox. Does not affect sideview damage combos you step on."
+		" Does nothing if 'No Solid Damage Combos' is checked." +QRHINT({qr_NOSOLIDDAMAGECOMBOS}) },
+	{ "Sensitive Solid Damage Combos", qr_SENSITIVE_SOLID_DAMAGE, 
+		"Solid damage combos only check the center of the Player's hitbox. Does not affect sideview damage combos you step on."
+		" Does nothing if 'No Solid Damage Combos' or 'Lenient Solid Damage Combos' is checked." +QRHINT({qr_NOSOLIDDAMAGECOMBOS,qr_LENIENT_SOLID_DAMAGE}) }
 };
 
 static GUI::ListData compatRulesList
@@ -471,12 +486,6 @@ static GUI::ListData compatRulesList
 		" replace the tiles in the door position with the open door"
 		" tiles. With this disabled, you can have different tiles"
 		" occupy the Open Door space."},
-	{ "No Solid Damage Combos", qr_NOSOLIDDAMAGECOMBOS, 
-		"Disables solid damage combos. You can only take damage by"
-		" stepping on a walkable damage combo. Note that this does"
-		" not affect solid sideview damage combos that you step on,"
-		" you will still take damage from those even if this rule"
-		" is on."},
 	{ "Old Hookshot Grab Checking", qr_OLDHOOKSHOTGRAB, 
 		"If this is enabled, the check for if a hookshot has grabbed a"
 		" combo going left or right will check it's Y value plus 7."
