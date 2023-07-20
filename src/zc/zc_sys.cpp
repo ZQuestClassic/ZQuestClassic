@@ -8431,22 +8431,53 @@ bool sfx_init(int32_t index)
 	return sfx_voice[index] != -1;
 }
 
+int32_t sfx_get_default_freq(int32_t index)
+{
+	if (sfxdat)
+	{
+		if (index < Z35)
+		{
+			return ((SAMPLE*)sfxdata[index].dat)->freq;
+		}
+		else
+		{
+			return ((SAMPLE*)sfxdata[Z35].dat)->freq;
+		}
+	}
+	else
+	{
+		return customsfxdata[index].freq;
+	}
+}
+
 // plays an sfx sample
-void sfx(int32_t index,int32_t pan,bool loop, bool restart)
+void sfx(int32_t index,int32_t pan,bool loop, bool restart, int32_t vol, int32_t freq)
 {
 	if(!sfx_init(index))
 		return;
-	
 	if (!is_headless())
 	{
-		voice_set_playmode(sfx_voice[index],loop?PLAYMODE_LOOP:PLAYMODE_PLAY);
-		voice_set_pan(sfx_voice[index],pan);
-		
+		voice_set_playmode(sfx_voice[index], loop ? PLAYMODE_LOOP : PLAYMODE_PLAY);
+		voice_set_pan(sfx_voice[index], pan);
+
+		// Only used by ZScript currently
+		if (freq <= -1)
+		{
+			freq = sfx_get_default_freq(index);
+		}
+		voice_set_frequency(sfx_voice[index], freq);
+
+		// Only used by ZScript currently
+		int32_t temp_volume = (sfx_volume * vol) / 10000 / 100;
+		if (!get_bit(quest_rules, qr_OLD_SCRIPT_VOLUME))
+			temp_volume = (temp_volume * FFCore.usr_sfx_volume) / 10000 / 100;
+		voice_set_volume(sfx_voice[index], temp_volume);
+
 		int32_t pos = voice_get_position(sfx_voice[index]);
-		
-		if(restart) voice_set_position(sfx_voice[index],0);
-		
-		if(pos<=0)
+
+		if (restart) voice_set_position(sfx_voice[index], 0);
+
+		if (pos <= 0)
 			voice_start(sfx_voice[index]);
 	}
 

@@ -19,7 +19,7 @@ static AccessorTable AudioTable[] =
 	{ "getPanStyle",             0,         ZTID_FLOAT,   AUDIOPAN,               0,  { ZTID_AUDIO },{} },
 	{ "setPanStyle",             0,          ZTID_VOID,   AUDIOPAN,               0,  { ZTID_AUDIO, ZTID_FLOAT },{} },
 	
-	{ "AdjustSound",             0,          ZTID_VOID,   -1,               FL_INL,   { ZTID_AUDIO, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL },{ 0, 0 } },
+	{ "AdjustSound",             0,          ZTID_VOID,   -1,               FL_INL,   { ZTID_AUDIO, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL },{ 0, -1, 0 } },
 	{ "PlayOgg",                 0,          ZTID_BOOL,   -1,               FL_DEPR,  { ZTID_AUDIO, ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "GetMusicPos",             0,         ZTID_FLOAT,   -1,                FL_INL,  { ZTID_AUDIO },{} },
 	{ "SetMusicPos",             0,          ZTID_VOID,   -1,                FL_INL,  { ZTID_AUDIO, ZTID_FLOAT },{} },
@@ -28,7 +28,7 @@ static AccessorTable AudioTable[] =
 	{ "setVolume[]",             0,          ZTID_VOID,   AUDIOVOLUME,      FL_DEPR,  { ZTID_AUDIO, ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "GetMusicLength",          0,         ZTID_FLOAT,   -1,                FL_INL,  { ZTID_AUDIO },{} },
 	{ "SetMusicLoop",            0,          ZTID_VOID,   -1,                FL_INL,  { ZTID_AUDIO, ZTID_FLOAT, ZTID_FLOAT},{} },
-	{ "PlaySound",               1,          ZTID_VOID,   -1,               FL_INL,   { ZTID_AUDIO, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL },{ 0, 0 } },
+	{ "PlaySound",               1,          ZTID_VOID,   -1,               FL_INL,   { ZTID_AUDIO, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL },{ 0, -1, 0 } },
 
 	{ "",                        0,          ZTID_VOID,   -1,          0,  {},{} }
 };
@@ -77,7 +77,7 @@ void AudioSymbols::generateCode()
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2(code, new OAdjustSound());
 		LABELBACK(label);
-		POP_ARGS(4, NUL);
+		POP_ARGS(5, NUL);
 		//pop pointer
 		POPREF();
 		RETURN();
@@ -301,7 +301,7 @@ void AudioSymbols::generateCode()
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2(code, new OPlaySoundEX());
 		LABELBACK(label);
-		POP_ARGS(4, NUL);
+		POP_ARGS(5, NUL);
 		//pop pointer
 		POPREF();
 		RETURN();

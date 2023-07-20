@@ -27038,7 +27038,7 @@ bool sfx_init(int32_t index)
 }
 
 // plays an sfx sample
-void sfx(int32_t index,int32_t pan,bool loop,bool restart,int32_t vol)
+void sfx(int32_t index,int32_t pan,bool loop,bool restart,int32_t vol,int32_t freq)
 {
     if(!sfx_init(index))
         return;
