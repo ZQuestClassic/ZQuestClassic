@@ -372,7 +372,6 @@ extern int32_t    Bpos;
 extern byte screengrid[22];
 extern byte screengrid_layer[2][22];
 extern byte ffcgrid[MAXFFCS/8];
-extern volatile int32_t logic_counter;
 extern bool halt;
 extern bool screenscrolling;
 extern int32_t jwin_pal[jcMAX];

@@ -1694,6 +1694,8 @@ void jit_poll()
 		return;
 
 #ifdef ZC_JIT
+	al_lock_mutex(tasks_mutex);
+
 	int active_threads = 0;
 	for (auto& thread_info : thread_infos)
 	{
@@ -1712,6 +1714,8 @@ void jit_poll()
 	}
 
 	int tasks_left = active_tasks.size() + pending_scripts.size();
+	al_unlock_mutex(tasks_mutex);
+
 	if (active_threads > tasks_left)
 		set_compilation_thread_pool_size(tasks_left);
 #endif

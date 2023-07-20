@@ -4355,7 +4355,6 @@ void syskeys()
 		{
 			Throttlefps=!Throttlefps;
 			zc_set_config(cfg_sect,"throttlefps", (int32_t)Throttlefps);
-			logic_counter=0;
 		}
 	}
 	

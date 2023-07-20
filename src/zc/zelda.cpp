@@ -189,14 +189,14 @@ extern int32_t script_hero_sprite;
 extern int32_t script_hero_cset;
 extern int32_t script_hero_flip;
 
-volatile int32_t logic_counter=0;
 bool trip=false;
 extern byte midi_suspended;
 extern int32_t paused_midi_pos;
 
+static std::atomic<bool> logic_counter;
 void update_logic_counter()
 {
-    ++logic_counter;
+	logic_counter.store(true, std::memory_order_relaxed);
 }
 END_OF_FUNCTION(update_logic_counter)
 
@@ -237,19 +237,19 @@ static void preciseThrottle(double seconds)
 
 	// spin lock
 #ifdef __EMSCRIPTEN__
-	while (logic_counter < 1)
+	while (!logic_counter.load(std::memory_order_relaxed))
 	{
 		volatile int i = 0;
 		while (i < 10000000)
 		{
-			if (logic_counter != 0) return;
+			if (logic_counter.load(std::memory_order_relaxed)) return;
 			i += 1;
 		}
 
 		rest(1);
 	}
 #else
-	while(logic_counter < 1);
+	while(!logic_counter.load(std::memory_order_relaxed));
 #endif
 }
 
@@ -261,7 +261,7 @@ void throttleFPS()
     {
         if(zc_vsync == FALSE)
         {
-            if (!logic_counter)
+            if (!logic_counter.load(std::memory_order_relaxed))
             {
                 int freq = 60;
                 double target = 1.0 / freq;
@@ -277,7 +277,7 @@ void throttleFPS()
         }
     }
 
-    logic_counter = 0;
+    logic_counter.store(false, std::memory_order_relaxed);
     last_time = std::chrono::high_resolution_clock::now();
 }
 
