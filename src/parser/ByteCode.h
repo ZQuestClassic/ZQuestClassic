@@ -4760,6 +4760,17 @@ namespace ZScript
 		}
 	};
 
+	class OGetSoundCompletion : public UnaryOpcode
+	{
+	public:
+		OGetSoundCompletion(Argument *A) : UnaryOpcode(A) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OGetSoundCompletion(a->clone());
+		}
+	};
+
 	class OEndSoundRegister : public UnaryOpcode
 	{
 	public:
