@@ -2951,9 +2951,11 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			defaultw = ewMAGIC;
 			if ( parentid > -1 && !script_gen && (!(id == ewMagic && isLWeapon)) )
 			{
-				enemy *e = (enemy*)guys.getByUID(parentid);
-				int32_t enemy_wpnsprite = e->wpnsprite; 
-				if ( enemy_wpnsprite > 0 ) defaultw = enemy_wpnsprite;
+				if(enemy *e = (enemy*)guys.getByUID(parentid))
+				{
+					int32_t enemy_wpnsprite = e->wpnsprite;
+					if ( enemy_wpnsprite > 0 ) defaultw = enemy_wpnsprite;
+				}
 			}
 			if(use_sprite > -1) defaultw = use_sprite;
 			LOADGFX(defaultw);
