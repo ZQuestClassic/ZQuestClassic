@@ -28725,142 +28725,145 @@ void verifyBothWeapons()
     verifyYWpn();
 }
 
-int32_t selectWpn_new(int32_t type, int32_t startpos, int32_t forbiddenpos, int32_t fp2, int32_t fp3)
+int32_t selectWpn_new(int32_t type, int32_t startpos, int32_t forbiddenpos, int32_t fp2, int32_t fp3, bool equip_only, bool checkwpn)
 {
-    //what will be returned when all else fails.
-    //don't return the forbiddenpos... no matter what -DD
-    
-    int32_t failpos(0);
-    
-    if(startpos == forbiddenpos || startpos == fp2 || startpos == fp3)
-        failpos = 0xFF;
-    else failpos = startpos;
-    
-    // verify startpos
-    if(startpos < 0 || startpos >= 0xFF)
-        startpos = 0;
-        
-    if(current_subscreen_active == NULL)
-        return failpos;
-        
-    if(type==SEL_VERIFY_RIGHT || type==SEL_VERIFY_LEFT)
-    {
-        int32_t wpn = Bweapon(startpos);
-        
-        if(wpn != 0 && startpos != forbiddenpos && startpos != fp2 && startpos != fp3)
-        {
-            return startpos;
-        }
-    }
-    
-    int32_t p=-1;
-    int32_t curpos = startpos;
-    int32_t firstValidPos=-1;
-    
-    for(int32_t i=0; current_subscreen_active->objects[i].type!=ssoNULL; ++i)
-    {
-        if(current_subscreen_active->objects[i].type==ssoCURRENTITEM)
-        {
-            if(firstValidPos==-1 && current_subscreen_active->objects[i].d3>=0)
-            {
-                firstValidPos=i;
-            }
-            
-            if(current_subscreen_active->objects[i].d3==curpos)
-            {
-                p=i;
-                break;
-            }
-        }
-    }
-    
-    if(p == -1)
-    {
-        //can't find the current position
-        // Switch to a valid weapon if there is one; otherwise,
-        // the selector can simply disappear
-        if(firstValidPos>=0)
-        {
-            return current_subscreen_active->objects[firstValidPos].d3;
-        }
-        //FAILURE
-        else
-        {
-            return failpos;
-        }
-    }
-    
-    //remember we've been here
-    set<int32_t> oldPositions;
-    oldPositions.insert(curpos);
-    
-    //1. Perform any shifts required by the above
-    //2. If that's not possible, go to position 1 and reset the b weapon.
-    //2a.  -if we arrive at a position we've already visited, give up and stay there
-    //3. Get the weapon at the new slot
-    //4. If it's not possible, go to step 1.
-    
-    for(;;)
-    {
-        //shift
-        switch(type)
-        {
-        case SEL_LEFT:
-        case SEL_VERIFY_LEFT:
-            curpos = current_subscreen_active->objects[p].d6;
-            break;
-            
-        case SEL_RIGHT:
-        case SEL_VERIFY_RIGHT:
-            curpos = current_subscreen_active->objects[p].d7;
-            break;
-            
-        case SEL_DOWN:
-            curpos = current_subscreen_active->objects[p].d5;
-            break;
-            
-        case SEL_UP:
-            curpos = current_subscreen_active->objects[p].d4;
-            break;
-        }
-        
-        //find our new position
-        p = -1;
-        
-        for(int32_t i=0; current_subscreen_active->objects[i].type!=ssoNULL; ++i)
-        {
-            if(current_subscreen_active->objects[i].type==ssoCURRENTITEM)
-            {
-                if(current_subscreen_active->objects[i].d3==curpos)
-                {
-                    p=i;
-                    break;
-                }
-            }
-        }
-        
-        if(p == -1)
-        {
-            //can't find the current position
-            //FAILURE
-            return failpos;
-        }
-        
-        //if we've already been here, give up
-        if(oldPositions.find(curpos) != oldPositions.end())
-        {
-            return failpos;
-        }
-        
-        //else, remember we've been here
-        oldPositions.insert(curpos);
-        
-        //see if this weapon is acceptable
-        if(Bweapon(curpos) != 0 && curpos != forbiddenpos && curpos != fp2 && curpos != fp3)
-            return curpos;
-            
-        //keep going otherwise
-    }
+	//what will be returned when all else fails.
+	//don't return the forbiddenpos... no matter what -DD
+	
+	int32_t failpos(0);
+	
+	if(startpos == forbiddenpos || startpos == fp2 || startpos == fp3)
+		failpos = 0xFF;
+	else failpos = startpos;
+	
+	// verify startpos
+	if(startpos < 0 || startpos >= 0xFF)
+		startpos = 0;
+		
+	if(current_subscreen_active == NULL)
+		return failpos;
+	auto* objects = current_subscreen_active->objects;
+	
+	checkwpn = checkwpn || !get_bit(quest_rules,qr_FREEFORM_SUBSCREEN_CURSOR);
+		
+	if(type==SEL_VERIFY_RIGHT || type==SEL_VERIFY_LEFT)
+	{
+		//this ALWAYS CHECKS 'Bweapon', regardless of 'checkwpn' -Em
+		int32_t wpn = Bweapon(startpos);
+		if(equip_only && (objects[startpos].d2&SSCURRITEM_NONEQUIP))
+			wpn = 0;
+		
+		if(wpn != 0 && startpos != forbiddenpos && startpos != fp2 && startpos != fp3)
+		{
+			return startpos;
+		}
+	}
+	
+	int32_t p=-1;
+	int32_t curpos = startpos;
+	int32_t firstValidPos=-1, firstValidEquipPos=-1;
+	
+	for(int32_t i=0; objects[i].type!=ssoNULL; ++i)
+	{
+		if(objects[i].type==ssoCURRENTITEM)
+		{
+			if(firstValidPos==-1 && objects[i].d3>=0)
+				firstValidPos=i;
+			if(firstValidEquipPos==-1 && objects[i].d3>=0)
+				if(!equip_only || !(objects[i].d2&SSCURRITEM_NONEQUIP))
+					firstValidEquipPos=i;
+			
+			if(objects[i].d3==curpos)
+				p=i;
+			
+			if(p>-1 && firstValidPos>-1 && firstValidEquipPos>-1)
+				break;
+		}
+	}
+	
+	if(p == -1)
+	{
+		//can't find the current position
+		// Switch to a valid weapon if there is one; otherwise,
+		// the selector can simply disappear
+		if(firstValidEquipPos>=0)
+			return objects[firstValidEquipPos].d3;
+		if(firstValidPos>=0)
+			return objects[firstValidPos].d3;
+		//FAILURE
+		else return failpos;
+	}
+	
+	//remember we've been here
+	set<int32_t> oldPositions;
+	oldPositions.insert(curpos);
+	
+	//1. Perform any shifts required by the above
+	//2. If that's not possible, go to position 1 and reset the b weapon.
+	//2a.  -if we arrive at a position we've already visited, give up and stay there
+	//3. Get the weapon at the new slot
+	//4. If it's not possible, go to step 1.
+	
+	for(;;)
+	{
+		//shift
+		switch(type)
+		{
+		case SEL_LEFT:
+		case SEL_VERIFY_LEFT:
+			curpos = objects[p].d6;
+			break;
+			
+		case SEL_RIGHT:
+		case SEL_VERIFY_RIGHT:
+			curpos = objects[p].d7;
+			break;
+			
+		case SEL_DOWN:
+			curpos = objects[p].d5;
+			break;
+			
+		case SEL_UP:
+			curpos = objects[p].d4;
+			break;
+		}
+		
+		//find our new position
+		p = -1;
+		
+		for(int32_t i=0; objects[i].type!=ssoNULL; ++i)
+		{
+			if(objects[i].type==ssoCURRENTITEM)
+			{
+				if(objects[i].d3==curpos)
+				{
+					p=i;
+					break;
+				}
+			}
+		}
+		
+		if(p == -1)
+		{
+			//can't find the current position
+			//FAILURE
+			return failpos;
+		}
+		
+		//if we've already been here, give up
+		if(oldPositions.find(curpos) != oldPositions.end())
+			return failpos;
+		
+		//else, remember we've been here
+		oldPositions.insert(curpos);
+		
+		//see if this weapon is acceptable
+		if(curpos != forbiddenpos && curpos != fp2 && curpos != fp3)
+			if(!equip_only || !(objects[p].d2 & SSCURRITEM_NONEQUIP))
+				if(!checkwpn || Bweapon(curpos))
+					return curpos;
+		//keep going otherwise
+	}
 }
 
 // Select the sword for the A button if the 'select A button weapon' quest rule isn't set.

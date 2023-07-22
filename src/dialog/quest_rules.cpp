@@ -1115,6 +1115,10 @@ static GUI::ListData miscRulesList
 	{ "Allow Setting Y Button Items", qr_SET_YBUTTON_ITEMS,
 		"If enabled, allows setting items to the Y (Ex2) button. If disabled, the"
 		" Y/Ex2 button has no usage outside of scripting."},
+	{ "Freeform Subscreen Cursor", qr_FREEFORM_SUBSCREEN_CURSOR,
+		"If enabled, the subscreen cursor can move freely even to empty spots."},
+	{ "Always Press To Equip", qr_SUBSCR_PRESS_TO_EQUIP,
+		"If enabled, you must always press a button to equip an item, even if only B items are enabled."},
 	{ "Messages Can Be Sped Up With The A Button", qr_ALLOWFASTMSG,
 		"If enabled, holding the A button will prevent any message delay from occuring, displaying"
 		" 60 characters per second."},
