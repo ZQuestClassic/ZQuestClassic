@@ -1054,7 +1054,7 @@ void integrityCheckStringNoGuy()
 
 bool integrityBoolGuyNoString(mapscr *ts)
 {
-    return (ts->guy!=0&&ts->guy!=gFAIRY&&ts->room==0&&ts->str==0);
+    return (ts->guy!=0&&!(ts->roomflags&RFL_ALWAYS_GUY)&&ts->room==0&&ts->str==0);
 }
 
 
