@@ -3768,6 +3768,8 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 		set_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE,1);
 		set_bit(quest_rules,qr_OLD_CONVEYOR_COLLISION,1);
 	}
+	if(compatrule_version < 48)
+		set_bit(quest_rules,qr_OLD_GUY_HANDLING,1);
 	
 	set_bit(quest_rules,qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)
@@ -15880,11 +15882,11 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 		return qe_invalid;
 	}
 	
-	
 	if(!p_getc(&(temp_mapscr->guy),f,true))
-	{
 		return qe_invalid;
-	}
+	temp_mapscr->guytile = -1; //signal to use default guy values
+	SETFLAG(temp_mapscr->roomflags,RFL_ALWAYS_GUY,temp_mapscr->guy==gFAIRY);
+	SETFLAG(temp_mapscr->roomflags,RFL_GUYFIRES,temp_mapscr->guy!=gFAIRY || !get_bit(quest_rules,qr_NOFAIRYGUYFIRES));
 	
 	if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<146)))
 	{
@@ -17160,7 +17162,10 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 				}
 			}
 		}
-		
+		for(m = 32; m < MAXFFCS; ++m)
+		{
+			temp_mapscr->ffcs[m].clear();
+		}
 	}
 	
 	//add in the new whistle flags
@@ -17313,6 +17318,21 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zc
 		{
 			if(!p_getc(&(temp_mapscr->guy),f,true))
 				return qe_invalid;
+			if(version > 26)
+			{
+				if(!p_igetl(&(temp_mapscr->guytile),f,true))
+					return qe_invalid;
+				if(!p_getc(&(temp_mapscr->guycs),f,true))
+					return qe_invalid;
+				if(!p_igetw(&(temp_mapscr->roomflags),f,true))
+					return qe_invalid;
+			}
+			else
+			{
+				temp_mapscr->guytile = -1; //signal to use default guy values
+				SETFLAG(temp_mapscr->roomflags,RFL_ALWAYS_GUY,temp_mapscr->guy==gFAIRY);
+				SETFLAG(temp_mapscr->roomflags,RFL_GUYFIRES,temp_mapscr->guy!=gFAIRY || !get_bit(quest_rules,qr_NOFAIRYGUYFIRES));
+			}
 			if(!p_igetw(&(temp_mapscr->str),f,true))
 				return qe_invalid;
 			if(!p_getc(&(temp_mapscr->room),f,true))

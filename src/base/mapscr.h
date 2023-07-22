@@ -8,6 +8,9 @@ struct mapscr
 {
 	byte valid;
 	byte guy;
+	int32_t guytile = -1;
+	byte guycs;
+	word roomflags;
 	word str;
 	byte room;
 	byte item;
@@ -123,5 +126,8 @@ private:
 	word num_ffcs;
 	bool ffc_count_dirty = true;
 };
+
+#define RFL_ALWAYS_GUY 0x0001
+#define RFL_GUYFIRES   0x0002
 
 #endif

@@ -19659,9 +19659,16 @@ void enemy_scored(int32_t index)
 	((enemy*)guys.spr(index))->scored=true;
 }
 
-void addguy(int32_t x,int32_t y,int32_t id,int32_t clk,bool mainguy)
+void addguy(int32_t x,int32_t y,int32_t id,int32_t clk,bool mainguy,mapscr* parentscr)
 {
 	guy *g = new guy((zfix)x,(zfix)(y+(isdungeon()?1:0)),id,get_bit(quest_rules,qr_NOGUYPOOF)?0:clk,mainguy);
+	if(parentscr && parentscr->guytile > -1 && !get_bit(quest_rules,qr_OLD_GUY_HANDLING))
+	{
+		g->o_tile = parentscr->guytile;
+		if(g->o_tile != 0)
+			g->flags &= ~guy_invisible;
+		g->cs = parentscr->guycs;
+	}
 	guys.add(g);
 }
 
@@ -20989,8 +20996,8 @@ void addfires()
 	if(!get_bit(quest_rules,qr_NOGUYFIRES))
 	{
 		int32_t bs = get_bit(quest_rules,qr_BSZELDA);
-		addguy(bs? 64: 72,64,gFIRE,-17,false);
-		addguy(bs?176:168,64,gFIRE,-18,false);
+		addguy(bs? 64: 72,64,gFIRE,-17,false,nullptr);
+		addguy(bs?176:168,64,gFIRE,-18,false,nullptr);
 	}
 }
 
@@ -21018,11 +21025,13 @@ void loadguys()
 	
 	hasitem=0;
 	
+	mapscr* guyscr = tmpscr;
 	if(currscr>=128 && DMaps[currdmap].flags&dmfGUYCAVES)
 	{
 		if(DMaps[currdmap].flags&dmfCAVES)
 		{
 			Guy=tmpscr[1].guy;
+			guyscr = tmpscr+1;
 		}
 	}
 	else
@@ -21033,12 +21042,13 @@ void loadguys()
 			game->maps[(currmap*MAPSCRSNORMAL)+currscr] |= mVISITED;          // mark as visited
 	}
 	
+	bool oldguy = get_bit(quest_rules,qr_OLD_GUY_HANDLING);
 	// The Guy appears if 'Hero is in cave' equals 'Guy is in cave'.
 	if(Guy && ((currscr>=128) == !!(DMaps[currdmap].flags&dmfGUYCAVES)))
 	{
 		if(tmpscr->room==rZELDA)
 		{
-			addguy(120,72,Guy,-15,true);
+			addguy(120,72,Guy,-15,true,guyscr);
 			guys.spr(0)->hxofs=1000;
 			addenemy(128,96,eFIRE,-15);
 			addenemy(112,96,eFIRE,-15);
@@ -21047,7 +21057,10 @@ void loadguys()
 			return;
 		}
 		
-		if(Guy!=gFAIRY || !get_bit(quest_rules,qr_NOFAIRYGUYFIRES))
+		bool ffire = oldguy
+			? (Guy!=gFAIRY || !get_bit(quest_rules,qr_NOFAIRYGUYFIRES))
+			: (guyscr->roomflags&RFL_GUYFIRES);
+		if(ffire)
 			addfires();
 			
 		if(currscr>=128)
@@ -21108,20 +21121,20 @@ void loadguys()
 		
 		if(Guy)
 		{
-			if(Guy!=gFAIRY || !get_bit(quest_rules,qr_NOFAIRYGUYFIRES))
+			if(ffire)
 				blockpath=true;
 				
 			if(currscr<128)
 				sfx(WAV_SCALE);
 				
-			addguy(120,64,Guy, (dlevel||BSZ)?-15:startguy[zc_oldrand()&7], true);
+			addguy(120,64,Guy, (dlevel||BSZ)?-15:startguy[zc_oldrand()&7], true,guyscr);
 			Hero.Freeze();
 		}
 	}
-	else if(Guy==gFAIRY)  // The only Guy that somewhat ignores the "Guys In Caves Only" DMap flag
+	else if(oldguy ? Guy==gFAIRY : (Guy && (guyscr->roomflags&RFL_ALWAYS_GUY)))  // The only Guy that somewhat ignores the "Guys In Caves Only" DMap flag
 	{
 		sfx(WAV_SCALE);
-		addguy(120,62,gFAIRY,-14,false);
+		addguy(120,62,Guy,-14,false,guyscr);
 	}
 	
 	loaditem();

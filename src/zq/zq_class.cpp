@@ -5084,12 +5084,16 @@ void zmap::PasteRoom(const mapscr& copymapscr)
 
 void zmap::PasteGuy(const mapscr& copymapscr)
 {
-    if(can_paste)
-    {
-        screens[currscr].guy = copymapscr.guy;
-        screens[currscr].str = copymapscr.str;
-        saved=false;
-    }
+	if(can_paste)
+	{
+		screens[currscr].guy = copymapscr.guy;
+		screens[currscr].guytile = copymapscr.guytile;
+		screens[currscr].guycs = copymapscr.guycs;
+		SETFLAG(screens[currscr].roomflags,RFL_ALWAYS_GUY,copymapscr.roomflags&RFL_ALWAYS_GUY);
+		SETFLAG(screens[currscr].roomflags,RFL_GUYFIRES,copymapscr.roomflags&RFL_GUYFIRES);
+		screens[currscr].str = copymapscr.str;
+		saved=false;
+	}
 }
 
 void zmap::PastePalette(const mapscr& copymapscr)
@@ -9168,7 +9172,7 @@ int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 		return qe_OK;
 	//Calculate what needs writing
 	uint32_t scr_has_flags = 0;
-	if(screen.guy || screen.str
+	if(screen.guytile || screen.guy || screen.roomflags || screen.str
 		|| screen.room || screen.catchall)
 		scr_has_flags |= SCRHAS_ROOMDATA;
 	if(screen.hasitem || (is_0x80_screen && (screen.itemx||screen.itemy)))
@@ -9326,6 +9330,12 @@ int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 	if(scr_has_flags & SCRHAS_ROOMDATA)
 	{
 		if(!p_putc(screen.guy,f))
+			return qe_invalid;
+		if(!p_iputl(screen.guytile,f))
+			return qe_invalid;
+		if(!p_putc(screen.guycs,f))
+			return qe_invalid;
+		if(!p_iputw(screen.roomflags,f))
 			return qe_invalid;
 		if(!p_iputw(screen.str,f))
 			return qe_invalid;
