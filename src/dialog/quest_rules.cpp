@@ -910,6 +910,8 @@ static GUI::ListData compatRulesList
 		" 2) setting button inputs to false (ex: `Input->Button[CB_A] = false`) will have no effect on button presses."
 		" 3) breaks Roc's Feather when assigned to a button press."
 		" If disabled: button presses are eaten when scripts write to button states."},
+	{ "Old Guy Handling", qr_OLD_GUY_HANDLING,
+		"If enabled, several new features relating to room guys will not work, instead using the old version behaviors."},
 	{ "Old (Buggy) ZScript Volume Access", qr_OLD_SCRIPT_VOLUME,
 		"If enabled, Audio->AdjustMusicVolume() and Audio->AdjustSFXVolume() will use their old behavior,"
 		" which was bugged and wrote directly to the volume sliders." },

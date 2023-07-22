@@ -1031,7 +1031,6 @@ const char *enemylist(int32_t index, int32_t *list_size);
 const char *guylist(int32_t index, int32_t *list_size);
 int32_t efrontfacingtile(int32_t id);
 int32_t select_enemy(const char *prompt,int32_t enemy,bool hide,bool edit,int32_t& exit_status);
-int32_t select_guy(const char *prompt,int32_t guy);
 
 //uint8_t check[2] = { ';'+128,0 };
 

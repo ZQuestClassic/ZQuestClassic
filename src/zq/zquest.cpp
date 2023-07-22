@@ -14589,16 +14589,7 @@ int32_t onRoom()
 {
 	restore_mouse();
 	auto* scr = Map.CurrScr();
-	RoomDialog(scr->room, scr->catchall, scr->guy, scr->str,
-		[scr](int32_t r, int32_t a, int32_t g, int32_t m)
-		{
-			scr->room = r;
-			scr->guy = g;
-			scr->str = m;
-			scr->catchall = a;
-			saved = false;
-		}
-	).show();
+	RoomDialog(scr).show();
 	refresh(rMAP+rMENU);
 	return D_O_K;
 }
@@ -21466,101 +21457,6 @@ int32_t select_enemy(const char *prompt,int32_t enemy,bool hide,bool is_editor,i
     
     index = elist_dlg[2].d1;
     return bie[index].i;
-}
-
-int32_t select_guy(const char *prompt,int32_t guy)
-{
-    //  if(bie_cnt==-1)
-    {
-        build_big_list(true);
-    }
-    
-    int32_t index=0;
-    
-    for(int32_t j=0; j<big_cnt; j++)
-    {
-        if(big[j].i == guy)
-        {
-            index=j;
-        }
-    }
-    
-    glist_dlg[0].dp=(void *)prompt;
-    glist_dlg[0].dp2=get_zc_font(font_lfont);
-    glist_dlg[2].d1=index;
-    ListData guy_list(guylist, &font);
-    glist_dlg[2].dp=(void *) &guy_list;
-    
-    large_dialog(glist_dlg);
-        
-    int32_t ret;
-    
-    do
-    {
-        ret=zc_popup_dialog(glist_dlg,2);
-        
-        if(ret==5)
-        {
-            int32_t id = big[glist_dlg[2].d1].i;
-            
-            switch(id)
-            {
-            case gABEI:
-                jwin_alert(old_guy_string[id],"The old man. Uses tile 84.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-                break;
-                
-            case gAMA:
-                jwin_alert(old_guy_string[id],"The old woman. Uses tile 85.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-                break;
-                
-            case gDUDE:
-                jwin_alert(old_guy_string[id],"The shopkeeper. Uses tile 86.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-                break;
-                
-            case gMOBLIN:
-                jwin_alert(old_guy_string[id],"The generous Moblin. Uses tile 116.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-                break;
-                
-            case gGORIYA:
-                jwin_alert(old_guy_string[id],"The hungry Goriya. Uses tile 132.","He isn't entirely necessary to make","use of the 'Feed the Goriya' Room Type.","O&K",NULL,'k',0,get_zc_font(font_lfont));
-                break;
-                
-            case gFIRE:
-                jwin_alert(old_guy_string[id],"A sentient flame. Uses tile 65, and","flips horizontally as it animates.",NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-                break;
-                
-            case gFAIRY:
-                jwin_alert(old_guy_string[id],"A fairy. Uses tiles 63 and 64. Even if the","DMap uses 'Special Rooms/Guys In Caves Only'","she will still appear in regular screens.","O&K",NULL,'k',0,get_zc_font(font_lfont));
-                break;
-                
-            case gZELDA:
-                jwin_alert(old_guy_string[id],"The princess. Uses tiles 35 and 36.","Approaching her won't cause the game to end.","(Unless you touch a Zelda combo flag.)","O&K",NULL,'k',0,get_zc_font(font_lfont));
-                break;
-                
-            case gABEI2:
-                jwin_alert(old_guy_string[id],"A different old man. Uses tile 87.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-                break;
-                
-            case gEMPTY:
-                jwin_alert(old_guy_string[id],"An invisible Guy. Uses tile 259, which is","usually empty. Use it when you just want the","String to appear without a visible Guy.","O&K",NULL,'k',0,get_zc_font(font_lfont));
-                break;
-                
-            default:
-                jwin_alert("Help","Select a Guy, then click","Help to find out what it is.",NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-                break;
-            }
-        }
-    }
-    while(ret==5);
-    
-    if(ret==0||ret==4)
-    {
-        return -1;
-    }
-    
-    
-    index = glist_dlg[2].d1;
-    return big[index].i;
 }
 
 uint8_t check[2] = { (uint8_t)'\x81',0 };
