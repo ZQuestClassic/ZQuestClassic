@@ -6,6 +6,7 @@
 #include "qst.h"
 #include "base/gui.h"
 #include "base/zapp.h"
+#include "base/mapscr.h"
 #include <fmt/format.h>
 
 extern sprite_list guys;
