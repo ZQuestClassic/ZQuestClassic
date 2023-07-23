@@ -14,6 +14,7 @@
 
 #include "defdata.h"
 #include "sfx.h"
+#include "zinfo.h"
 extern zcmodule moduledata;
 
 /*

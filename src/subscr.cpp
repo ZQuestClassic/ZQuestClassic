@@ -19,6 +19,7 @@
 #include "items.h"
 #include <stdio.h>
 #include <string.h>
+#include "base/mapscr.h"
 
 using namespace util;
 

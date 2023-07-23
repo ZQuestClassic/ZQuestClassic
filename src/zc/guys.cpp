@@ -26,6 +26,7 @@
 #include "base/zc_math.h"
 #include "slopes.h"
 #include "base/qrs.h"
+#include "base/mapscr.h"
 extern particle_list particles;
 
 extern FFScript FFCore;

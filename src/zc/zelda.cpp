@@ -61,6 +61,7 @@
 #include <fmt/std.h>
 #include <regex>
 #include "zc/render.h"
+#include "zinfo.h"
 
 using namespace util;
 extern FFScript FFCore; //the core script engine.

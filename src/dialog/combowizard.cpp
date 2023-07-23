@@ -9,6 +9,7 @@
 #include "zc/weapons.h"
 #include "sfx.h"
 #include "base/qrs.h"
+#include "zinfo.h"
 
 extern bool saved;
 extern zcmodule moduledata;

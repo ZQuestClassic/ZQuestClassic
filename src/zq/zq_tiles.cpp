@@ -32,6 +32,7 @@
 #include "drawing.h"
 #include "colorname.h"
 #include "zq/render.h"
+#include "zinfo.h"
 
 extern zcmodule moduledata;
 

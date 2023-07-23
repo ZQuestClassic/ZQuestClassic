@@ -8,6 +8,7 @@
 #include "launcher/launcher_dialog.h"
 #include "base/zapp.h"
 #include "fontsdat.h"
+#include "zinfo.h"
 
 #define QUICK_EXIT 0
 

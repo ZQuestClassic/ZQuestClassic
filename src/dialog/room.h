@@ -7,7 +7,8 @@
 #include <gui/switcher.h>
 #include <gui/text_field.h>
 #include <functional>
-
+#include "base/mapscr.h"
+void call_room_dlg(mapscr* scr);
 class RoomDialog: public GUI::Dialog<RoomDialog>
 {
 public:

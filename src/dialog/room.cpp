@@ -6,6 +6,11 @@
 extern bool saved;
 extern guydata *guysbuf;
 
+void call_room_dlg(mapscr* scr)
+{
+	RoomDialog(scr).show();
+}
+
 // Used as a indices into argSwitcher. Make sure the order matches.
 enum { argTEXT_FIELD, argITEM_LIST, argSHOP_LIST, argINFO_LIST, argBSHOP_LIST };
 

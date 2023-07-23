@@ -43,6 +43,8 @@
 #include "dialog/alert.h"
 #include "slopes.h"
 #include "drawing.h"
+#include "zinfo.h"
+#include "base/mapscr.h"
 
 #ifdef __EMSCRIPTEN__
 #include "base/emscripten_utils.h"

@@ -19,6 +19,7 @@
 #include "zc/guys.h"
 #include "zc/ffscript.h"
 #include "zc/replay.h"
+#include "base/mapscr.h"
 
 extern HeroClass   Hero;
 extern int32_t directItem;

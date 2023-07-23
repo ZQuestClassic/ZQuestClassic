@@ -17,6 +17,7 @@
 #include "zc/hero.h"
 #include "base/colors.h"
 #include "base/zsys.h"
+#include "base/mapscr.h"
 #include "pal.h"
 #include "subscr.h"
 

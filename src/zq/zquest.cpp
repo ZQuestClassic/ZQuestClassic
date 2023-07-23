@@ -46,7 +46,6 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include <loadpng.h>
 
 #include "dialog/cheat_codes.h"
-#include "dialog/room.h"
 #include "dialog/set_password.h"
 #include "dialog/foodlg.h"
 #include "dialog/quest_rules.h"
@@ -145,6 +144,7 @@ static const char *qtpath_name      = "macosx_qtpath%d";
 #include "zq/zq_init.h"
 #include "zq/zq_doors.h"
 #include "zq/zq_cset.h"
+#include "zinfo.h"
 
 #ifdef _MSC_VER
 #include <crtdbg.h>
@@ -342,6 +342,21 @@ void write_fav_command(int ind, int val)
 	sprintf(buf, "command%02d", ind+1);
 	zc_set_config("favcmd", buf, val);
 }
+
+const char *roomtype_string[MAXROOMTYPES] =
+{
+	"(None)","Special Item","Pay for Info","Secret Money","Gamble",
+	"Door Repair","Red Potion or Heart Container","Feed the Goriya","Triforce Check",
+	"Potion Shop","Shop","More Bombs","Leave Money or Life","10 Rupees",
+	"3-Stair Warp","Ganon","Zelda", "-<item pond>", "1/2 Magic Upgrade", "Learn Slash", "More Arrows","Take One Item"
+};
+
+const char *catchall_string[MAXROOMTYPES] =
+{
+	"Generic Catchall","Special Item","Info Type","Amount","Generic Catchall","Repair Fee","Generic Catchall","Generic Catchall","Generic Catchall","Shop Type",
+	"Shop Type","Price","Price","Generic Catchall","Warp Ring","Generic Catchall","Generic Catchall", "Generic Catchall", "Generic Catchall",
+	"Generic Catchall", "Price","Shop Type","Bottle Shop Type"
+};
 
 #define MAXPOOLCOMBOS MAXFAVORITECOMBOS
 
@@ -14581,11 +14596,13 @@ int32_t onItem()
     return D_O_K;
 }
 
+void call_room_dlg(mapscr* scr);
 int32_t onRoom()
 {
 	restore_mouse();
 	auto* scr = Map.CurrScr();
-	RoomDialog(scr).show();
+	call_room_dlg(scr);
+	
 	refresh(rMAP+rMENU);
 	return D_O_K;
 }

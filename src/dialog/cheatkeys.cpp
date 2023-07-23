@@ -3,6 +3,7 @@
 #include <gui/builder.h>
 #include "jwin.h"
 #include "base/zsys.h"
+#include "zinfo.h"
 #include "gui/use_size.h"
 #include "zc/cheats.h"
 #include <fmt/format.h>
