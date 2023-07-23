@@ -7,6 +7,7 @@
 // * Compile: LSHIFTR RSHIFTR
 
 #include "allegro.h"
+#include "base/qrs.h"
 #include "zc/jit.h"
 #include "zc/ffscript.h"
 #include "zc/script_debug.h"
@@ -533,7 +534,7 @@ static void compile_compare(CompilationState& state, x86::Compiler &cc, std::map
 	}
 	else if (command == GOTOLESS)
 	{
-		if (get_bit(quest_rules, qr_GOTOLESSNOTEQUAL))
+		if (get_qr(qr_GOTOLESSNOTEQUAL))
 			cc.jle(goto_labels.at(arg));
 		else
 			cc.jl(goto_labels.at(arg));

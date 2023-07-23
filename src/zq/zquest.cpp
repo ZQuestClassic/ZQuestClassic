@@ -33,6 +33,7 @@
 #include <malloc.h>
 #endif
 
+#include "base/qrs.h"
 #include "parser/Compiler.h"
 #include "base/zc_alleg.h"
 #include "particles.h"
@@ -68,6 +69,7 @@ void setZScriptVersion(int32_t) { } //bleh...
 
 // the following are used by both zelda.cc and zquest.cc
 #include "base/zdefs.h"
+#include "base/qrs.h"
 #include "tiles.h"
 #include "base/colors.h"
 #include "qst.h"
@@ -693,8 +695,6 @@ END_OF_FUNCTION(myvsync_callback)
 
 // quest data
 zquestheader header;
-byte                quest_rules[QUESTRULES_NEW_SIZE];
-byte                extra_rules[EXTRARULES_SIZE];
 byte                midi_flags[MIDIFLAGS_SIZE];
 byte                music_flags[MUSICFLAGS_SIZE];
 word                map_count;
@@ -1324,7 +1324,7 @@ int32_t onPalFix();
 int32_t onPitFix();
 int32_t onStrFix()
 {
-	if(get_bit(quest_rules, qr_OLD_STRING_EDITOR_MARGINS))
+	if(get_qr(qr_OLD_STRING_EDITOR_MARGINS))
 	{
 		AlertDialog("Fix: Old Margins",
 			"Fixing margins may cause strings that used to spill outside the textbox"
@@ -1333,12 +1333,12 @@ int32_t onStrFix()
 			{
 				if(ret)
 				{
-					set_bit(quest_rules, qr_OLD_STRING_EDITOR_MARGINS, 0);
+					set_qr(qr_OLD_STRING_EDITOR_MARGINS, 0);
 					saved = false;
 				}
 			}).show();
 	}
-	if(get_bit(quest_rules, qr_STRING_FRAME_OLD_WIDTH_HEIGHT))
+	if(get_qr(qr_STRING_FRAME_OLD_WIDTH_HEIGHT))
 	{
 		AlertDialog("Fix: Old Frame Size",
 			"This will fix the frame size of all strings. No visual changes should occur,"
@@ -1352,7 +1352,7 @@ int32_t onStrFix()
 						MsgStrings[q].w += 16;
 						MsgStrings[q].h += 16;
 					}
-					set_bit(quest_rules, qr_STRING_FRAME_OLD_WIDTH_HEIGHT, 0);
+					set_qr(qr_STRING_FRAME_OLD_WIDTH_HEIGHT, 0);
 					saved = false;
 				}
 			}).show();
@@ -1430,7 +1430,7 @@ void set_rules(byte* newrules)
 	saved = false;
 	if(newrules != quest_rules)
 		memcpy(quest_rules, newrules, QR_SZ);
-	if(!get_bit(quest_rules,qr_ALLOW_EDITING_COMBO_0))
+	if(!get_qr(qr_ALLOW_EDITING_COMBO_0))
 	{
 		combobuf[0].walk = 0xF0;
 		combobuf[0].type = 0;
@@ -1438,11 +1438,11 @@ void set_rules(byte* newrules)
 	}
 	
 	// For 2.50.0 and 2.50.1
-	if(get_bit(quest_rules, qr_VERYFASTSCROLLING))
-		set_bit(quest_rules, qr_FASTDNGN, 1);
+	if(get_qr(qr_VERYFASTSCROLLING))
+		set_qr(qr_FASTDNGN, 1);
 	
 	//this is only here until the subscreen style is selectable by itself
-	zinit.subscreen_style=get_bit(quest_rules,qr_COOLSCROLL)?1:0;
+	zinit.subscreen_style=get_qr(qr_COOLSCROLL)?1:0;
 }
 
 int32_t onSelectFFCombo();
@@ -5081,7 +5081,7 @@ void drawpanel()
 		}
 		
 		//Green arrival square:
-		bool disabled_arrival = get_bit(quest_rules,qr_NOARRIVALPOINT);
+		bool disabled_arrival = get_qr(qr_NOARRIVALPOINT);
 		if(warparrival_pos.x > -1)
 		{
 			draw_sqr_frame(warparrival_pos);
@@ -5128,7 +5128,7 @@ void drawpanel()
 			for(int32_t i=0; i< 10 && Map.CurrScr()->enemy[i]!=0; i++)
 			{
 				int32_t id = Map.CurrScr()->enemy[i];
-				int32_t tile = get_bit(quest_rules, qr_NEWENEMYTILES) ? guysbuf[id].e_tile : guysbuf[id].tile;
+				int32_t tile = get_qr(qr_NEWENEMYTILES) ? guysbuf[id].e_tile : guysbuf[id].tile;
 				int32_t cset = guysbuf[id].cset;
 				auto& sqr = ep.subsquare(i);
 				if(tile)
@@ -5234,7 +5234,7 @@ bool isFavCmdSelected(int32_t cmd)
 		case cmdDrawingModeNormal:
 			return draw_mode==dm_normal;
 		case cmdShowDark:
-			return (get_bit(quest_rules,qr_NEW_DARKROOM) && (Flags&cNEWDARK));
+			return (get_qr(qr_NEW_DARKROOM) && (Flags&cNEWDARK));
 	}
 	return false;
 }
@@ -5612,7 +5612,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 			
 			if(Map.isDark())
 			{
-				if((Flags&cNEWDARK) && get_bit(quest_rules, qr_NEW_DARKROOM))
+				if((Flags&cNEWDARK) && get_qr(qr_NEW_DARKROOM))
 				{
 					BITMAP* tmpDark = create_bitmap_ex(8,16*16,16*11);
 					BITMAP* tmpDarkTrans = create_bitmap_ex(8,16*16,16*11);
@@ -10983,7 +10983,7 @@ void domouse()
 				if(dummymode) do_dummyxy = true;
 				else
 				{
-					if(get_bit(quest_rules,qr_NOARRIVALPOINT))
+					if(get_qr(qr_NOARRIVALPOINT))
 					{
 						info_dsa("Arrival Square",
 								"The arrival square cannot be used unless the QR 'Use Warp Return "
@@ -21226,7 +21226,7 @@ static DIALOG glist_dlg[] =
 
 int32_t efrontfacingtile(int32_t id)
 {
-    int32_t anim = get_bit(quest_rules,qr_NEWENEMYTILES)?guysbuf[id].e_anim:guysbuf[id].anim;
+    int32_t anim = get_qr(qr_NEWENEMYTILES)?guysbuf[id].e_anim:guysbuf[id].anim;
     int32_t usetile = 0;
     
     switch(anim)
@@ -21234,7 +21234,7 @@ int32_t efrontfacingtile(int32_t id)
 	    
     case aNONE: break;
     case aAQUA:
-        if(!(get_bit(quest_rules,qr_NEWENEMYTILES) && guysbuf[id].misc1))
+        if(!(get_qr(qr_NEWENEMYTILES) && guysbuf[id].misc1))
             break;
             
     case aWALLM:
@@ -21254,7 +21254,7 @@ int32_t efrontfacingtile(int32_t id)
         break;
         
     case aLANM:
-        usetile = !(get_bit(quest_rules,qr_NEWENEMYTILES))?0:4;
+        usetile = !(get_qr(qr_NEWENEMYTILES))?0:4;
         break;
         
     case aNEWDONGO:
@@ -21292,7 +21292,7 @@ int32_t efrontfacingtile(int32_t id)
         break;
         
     case aGLEEOK:
-        if(!get_bit(quest_rules,qr_NEWENEMYTILES))
+        if(!get_qr(qr_NEWENEMYTILES))
             usetile = (guysbuf[id].s_tile - guysbuf[id].tile)+1;
         else
             usetile = (guysbuf[id].misc8);
@@ -21300,7 +21300,7 @@ int32_t efrontfacingtile(int32_t id)
         break;
     }
     
-    return zc_max(get_bit(quest_rules, qr_NEWENEMYTILES) ? -guysbuf[id].e_tile
+    return zc_max(get_qr(qr_NEWENEMYTILES) ? -guysbuf[id].e_tile
                   : -guysbuf[id].tile, usetile);
 }
 
@@ -21356,7 +21356,7 @@ int32_t enelist_proc(int32_t msg,DIALOG *d,int32_t c,bool use_abc_list)
             id = bie[d->d1].i;
         }
         
-        int32_t tile = get_bit(quest_rules, qr_NEWENEMYTILES) ? guysbuf[id].e_tile
+        int32_t tile = get_qr(qr_NEWENEMYTILES) ? guysbuf[id].e_tile
                    : guysbuf[id].tile;
         int32_t cset = guysbuf[id].cset;
         int32_t x = d->x + int32_t(195 * 1.5);
@@ -27953,7 +27953,7 @@ void reset_pal_cycling()
 
 void cycle_palette()
 {
-    if(!get_bit(quest_rules,qr_FADE))
+    if(!get_qr(qr_FADE))
         return;
         
     int32_t level = Map.CurrScr()->color;
@@ -28956,7 +28956,7 @@ int32_t main(int32_t argc,char **argv)
 {
 	common_main_setup(App::zquest, argc, argv);
 	set_should_zprint_cb([]() {
-		return get_bit(quest_rules,qr_SCRIPTERRLOG) || DEVLEVEL > 0;
+		return get_qr(qr_SCRIPTERRLOG) || DEVLEVEL > 0;
 	});
 
 	if (used_switch(argc, argv, "-headless") > 0)
@@ -29883,8 +29883,8 @@ int32_t main(int32_t argc,char **argv)
 		file_menu[fileSaveAs].flags =
 			commands[cmdSaveAs].flags = disable_saving ? D_DISABLED : 0;
 		
-		fixtools_menu[ftOSFix].flags = (get_bit(quest_rules, qr_OLD_STRING_EDITOR_MARGINS)
-			|| get_bit(quest_rules, qr_STRING_FRAME_OLD_WIDTH_HEIGHT))
+		fixtools_menu[ftOSFix].flags = (get_qr(qr_OLD_STRING_EDITOR_MARGINS)
+			|| get_qr(qr_STRING_FRAME_OLD_WIDTH_HEIGHT))
 				? 0 : D_DISABLED;
 		
 		edit_menu[0].flags =
@@ -29950,7 +29950,7 @@ int32_t main(int32_t argc,char **argv)
 		view_menu[10].flags=(ShowFFCs)?D_SELECTED:0; // Show Squares
 		view_menu[11].flags=(ShowFFScripts)?D_SELECTED:0; // Show Script Names
 		view_menu[12].flags=(ShowGrid)?D_SELECTED:0; // Show Grid
-		view_menu[13].flags=(get_bit(quest_rules,qr_NEW_DARKROOM) && (Flags&cNEWDARK))?D_SELECTED:0; // Show Grid
+		view_menu[13].flags=(get_qr(qr_NEW_DARKROOM) && (Flags&cNEWDARK))?D_SELECTED:0; // Show Grid
 		view_menu[14].flags=(ViewLayer3BG)?D_SELECTED:0; // Show Grid
 		view_menu[15].flags=(ViewLayer2BG)?D_SELECTED:0; // Show Grid
 		
@@ -32387,7 +32387,7 @@ void FFScript::initIncludePaths()
 
 int32_t FFScript::getQRBit(int32_t rule)
 {
-	return ( get_bit(quest_rules,rule) ? 1 : 0 );
+	return ( get_qr(rule) ? 1 : 0 );
 }
 
 int32_t FFScript::getTime(int32_t type)
@@ -32603,7 +32603,7 @@ bool checkCost(int32_t ctr, int32_t amnt)
 		}
 		case crMAGIC: //magic
 		{
-			if (get_bit(quest_rules,qr_ENABLEMAGIC))
+			if (get_qr(qr_ENABLEMAGIC))
 			{
 				return (((current_item_power(itype_magicring) > 0)
 					 ? game->get_maxmagic()
@@ -32615,7 +32615,7 @@ bool checkCost(int32_t ctr, int32_t amnt)
 		{
 			if(current_item_power(itype_quiver))
 				return true;
-			if(!get_bit(quest_rules,qr_TRUEARROWS))
+			if(!get_qr(qr_TRUEARROWS))
 				return checkCost(crMONEY, amnt);
 			break;
 		}

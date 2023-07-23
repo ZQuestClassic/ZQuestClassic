@@ -8,6 +8,7 @@
 #include "items.h"
 #include "zc/weapons.h"
 #include "sfx.h"
+#include "base/qrs.h"
 
 extern bool saved;
 extern zcmodule moduledata;
@@ -18,7 +19,6 @@ extern int32_t numericalFlags;
 extern script_data *comboscripts[NUMSCRIPTSCOMBODATA];
 extern miscQdata misc;
 extern itemdata *itemsbuf;
-extern byte quest_rules[QUESTRULES_SIZE];
 
 char *ordinal(int32_t num);
 using std::string;
@@ -1435,7 +1435,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 			byte& ripple_sprite = local_ref.attribytes[6];
 			
 			//Shallow only
-			int shallow_indx = get_bit(quest_rules,qr_OLD_SHALLOW_SFX) ? 0 : 5;
+			int shallow_indx = get_qr(qr_OLD_SHALLOW_SFX) ? 0 : 5;
 			byte& splash_sfx = local_ref.attribytes[shallow_indx];
 			
 			//Both

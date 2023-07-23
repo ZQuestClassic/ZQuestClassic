@@ -12,6 +12,7 @@
 #include "base/gui.h"
 #include "gui/use_size.h"
 #include "zq/zq_files.h"
+#include "base/qrs.h"
 
 bool mapcount_will_affect_layers(word newmapcount);
 void update_map_count(word newmapcount);
@@ -1625,7 +1626,7 @@ bool hasCompatRulesEnabled()
 	for(size_t q = 0; q < compatRulesList.size(); ++q)
 	{
 		auto rule = compatRulesList.getValue(q);
-		if(get_bit(quest_rules, rule))
+		if(get_qr(rule))
 			return true;
 	}
 	return false;
@@ -1645,7 +1646,7 @@ void applyRuleTemplate(int32_t ruleTemplate)
 					case qr_STRING_FRAME_OLD_WIDTH_HEIGHT:
 						continue; //Don't auto-unset, use 'onStrFix()' instead
 				}
-				set_bit(quest_rules, rule, 0);
+				set_qr(rule, 0);
 			}
 			onStrFix();
 			break;
@@ -1674,11 +1675,11 @@ void applyRuleTemplate(int32_t ruleTemplate)
 			};
 			for(int32_t qr : zsOnRules)
 			{
-				set_bit(quest_rules, qr, 1);
+				set_qr(qr, 1);
 			}
 			for(int32_t qr : zsOffRules)
 			{
-				set_bit(quest_rules, qr, 0);
+				set_qr(qr, 0);
 			}
 			break;
 		}

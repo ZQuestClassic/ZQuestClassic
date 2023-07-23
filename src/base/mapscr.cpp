@@ -1,7 +1,6 @@
 #include "base/mapscr.h"
 #include "base/zsys.h"
-
-extern byte quest_rules[QUESTRULES_NEW_SIZE];
+#include "base/qrs.h"
 
 byte mapscr::ffEffectWidth(size_t ind) const
 {
@@ -62,7 +61,7 @@ word mapscr::numFFC()
 			break;
 		}
 	}
-	if (lastffc < 31 && get_bit(quest_rules, qr_OLD_FFC_FUNCTIONALITY))
+	if (lastffc < 31 && get_qr(qr_OLD_FFC_FUNCTIONALITY))
 		lastffc = 31;
 	num_ffcs = lastffc + 1;
 	ffc_count_dirty = false;

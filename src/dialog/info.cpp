@@ -1,12 +1,11 @@
 #include "info.h"
 #include <gui/builder.h>
 #include <utility>
+#include "base/qrs.h"
 
 #ifdef IS_ZQUEST
 #include "quest_rules.h"
 #endif
-
-extern byte quest_rules[QUESTRULES_NEW_SIZE];
 
 void displayinfo(std::string title, std::string text)
 {

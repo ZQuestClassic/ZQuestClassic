@@ -10,6 +10,7 @@
 
 #include "subscr.h"
 #include "base/zapp.h"
+#include "base/qrs.h"
 #include "tiles.h"
 #include "base/zsys.h"
 #include "base/util.h"
@@ -2539,8 +2540,8 @@ void drawdmap(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y, bool showmap,
         case dmOVERW:
         case dmBSOVERW:
 		{
-            int32_t maptile=(!get_bit(quest_rules, qr_BROKEN_OVERWORLD_MINIMAP) && has_item(itype_map, get_dlevel()))?DMaps[get_currdmap()].minimap_2_tile:DMaps[get_currdmap()].minimap_1_tile;
-            int32_t mapcset=(!get_bit(quest_rules, qr_BROKEN_OVERWORLD_MINIMAP) && has_item(itype_map, get_dlevel()))?DMaps[get_currdmap()].minimap_2_cset:DMaps[get_currdmap()].minimap_1_cset;
+            int32_t maptile=(!get_qr(qr_BROKEN_OVERWORLD_MINIMAP) && has_item(itype_map, get_dlevel()))?DMaps[get_currdmap()].minimap_2_tile:DMaps[get_currdmap()].minimap_1_tile;
+            int32_t mapcset=(!get_qr(qr_BROKEN_OVERWORLD_MINIMAP) && has_item(itype_map, get_dlevel()))?DMaps[get_currdmap()].minimap_2_cset:DMaps[get_currdmap()].minimap_1_cset;
             //What a mess. The map drawing is based on a variable that can change states during a scrolling transition when warping. -Z
             if(maptile)
             {
@@ -2652,7 +2653,7 @@ void lifemeter(BITMAP *dest,int32_t x,int32_t y,int32_t cs,bool bs_style)
 	{
 		if(game != NULL)
 		{
-			if(get_bit(quest_rules,qr_QUARTERHEART))
+			if(get_qr(qr_QUARTERHEART))
 			{
 				if(i+((game->get_hp_per_heart()/4)*3)>=game->get_life()) tile= (basetile*4)+2;
 				
@@ -2825,7 +2826,7 @@ void lifegauge(BITMAP *dest,int32_t x,int32_t y, int32_t container, int32_t notl
 
 void magicmeter(BITMAP *dest,int32_t x,int32_t y)
 {
-    if(!get_bit(quest_rules,qr_ENABLEMAGIC)) return;
+    if(!get_qr(qr_ENABLEMAGIC)) return;
     
     if(game->get_maxmagic()==0) return;
     
@@ -3162,7 +3163,7 @@ bool displaysubscreenitem(int32_t itemtype, int32_t d, int32_t id)
 {
 	if(game==NULL)  //ZQuest
 		return true;
-	if (get_bit(quest_rules,qr_NEVERDISABLEAMMOONSUBSCREEN)) return true;
+	if (get_qr(qr_NEVERDISABLEAMMOONSUBSCREEN)) return true;
 	//Okay, so the problem is that remote bombs are getting flagged with misc1 50, because
 	//current item id is referring to your highest levelled item instead of the actual item.
 	//Solution here is to have code for override items.
@@ -3182,8 +3183,8 @@ bool displaysubscreenitem(int32_t itemtype, int32_t d, int32_t id)
 			
 		if(itemtype!=itype_bowandarrow ||
 				d!=itype_arrow ||
-				((get_bit(quest_rules,qr_TRUEARROWS)&&game->get_arrows()) ||
-				 (!get_bit(quest_rules,qr_TRUEARROWS)&&game->get_rupies())))
+				((get_qr(qr_TRUEARROWS)&&game->get_arrows()) ||
+				 (!get_qr(qr_TRUEARROWS)&&game->get_rupies())))
 			return true;
 			
 		return false;
@@ -3204,8 +3205,8 @@ bool displaysubscreenitem(int32_t itemtype, int32_t d, int32_t id)
 			
 		if(itemtype!=itype_bowandarrow ||
 				d!=itype_arrow ||
-				((get_bit(quest_rules,qr_TRUEARROWS)&&game->get_arrows()) ||
-				 (!get_bit(quest_rules,qr_TRUEARROWS)&&game->get_rupies())))
+				((get_qr(qr_TRUEARROWS)&&game->get_arrows()) ||
+				 (!get_qr(qr_TRUEARROWS)&&game->get_rupies())))
 			return true;
 			
 		return false;
@@ -3242,7 +3243,7 @@ int32_t get_subscreenitem_id(int32_t itemtype, bool forceItem)
     }
     if(forceItem)
 	{
-		bool useLowestID = get_bit(quest_rules,qr_SUBSCR_BACKWARDS_ID_ORDER);
+		bool useLowestID = get_qr(qr_SUBSCR_BACKWARDS_ID_ORDER);
 		int32_t id = -1;
 		for(auto q = 0; q < MAXITEMS; ++q)
 		{
@@ -4037,7 +4038,7 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
 					}
 					int32_t itemtype = css->objects[p].d8>0 ? ((css->objects[p].d8-1) | 0x8000) : css->objects[p].d1;
 					itemdata const& tmpitm = itemsbuf[get_subscreenitem_id(itemtype, true)];
-					bool oldsel = get_bit(quest_rules, qr_SUBSCR_OLD_SELECTOR);
+					bool oldsel = get_qr(qr_SUBSCR_OLD_SELECTOR);
 					if(!oldsel) big_sel = false;
 					int32_t sw = oldsel ? (tempsel->extend > 2 ? tempsel->txsz*16 : 16) : (tempsel->extend > 2 ? tempsel->hit_width : 16),
 						sh = oldsel ? (tempsel->extend > 2 ? tempsel->txsz*16 : 16) : (tempsel->extend > 2 ? tempsel->hit_height : 16),
@@ -4138,7 +4139,7 @@ void buttonitem(BITMAP *dest, int32_t button, int32_t x, int32_t y)
                     if(current_item_id(itype_bow)>-1)
                     {
                         subscreenitem(dest, x, y, itype_bow);
-						if(get_bit(quest_rules,qr_NEVERDISABLEAMMOONSUBSCREEN)) break;
+						if(get_qr(qr_NEVERDISABLEAMMOONSUBSCREEN)) break;
                         if(!checkmagiccost(Aitem->id)) return;
                     }
                 }
@@ -4166,7 +4167,7 @@ void buttonitem(BITMAP *dest, int32_t button, int32_t x, int32_t y)
                     if(current_item_id(itype_bow)>-1)
                     {
                         subscreenitem(dest, x, y, itype_bow);
-						if(get_bit(quest_rules,qr_NEVERDISABLEAMMOONSUBSCREEN)) break;
+						if(get_qr(qr_NEVERDISABLEAMMOONSUBSCREEN)) break;
                         if(!checkmagiccost(Bitem->id)) return;
                     }
                 }
@@ -4196,7 +4197,7 @@ void buttonitem(BITMAP *dest, int32_t button, int32_t x, int32_t y)
                     if(current_item_id(itype_bow)>-1)
                     {
                         subscreenitem(dest, x, y, itype_bow);
-						if(get_bit(quest_rules,qr_NEVERDISABLEAMMOONSUBSCREEN)) break;
+						if(get_qr(qr_NEVERDISABLEAMMOONSUBSCREEN)) break;
                         if(!checkmagiccost(Xitem->id)) return;
                     }
                 }
@@ -4227,7 +4228,7 @@ void buttonitem(BITMAP *dest, int32_t button, int32_t x, int32_t y)
                     if(current_item_id(itype_bow)>-1)
                     {
                         subscreenitem(dest, x, y, itype_bow);
-						if(get_bit(quest_rules,qr_NEVERDISABLEAMMOONSUBSCREEN)) break;
+						if(get_qr(qr_NEVERDISABLEAMMOONSUBSCREEN)) break;
                         if(!checkmagiccost(Yitem->id)) return;
                     }
                 }
@@ -4402,7 +4403,7 @@ void counter(BITMAP *dest, int32_t x, int32_t y, FONT *tempfont, int32_t color, 
     }
     
     case sscARROWS:
-        if((!get_bit(quest_rules,qr_TRUEARROWS) && current_item_power(itype_wallet)) || current_item_power(itype_quiver))
+        if((!get_qr(qr_TRUEARROWS) && current_item_power(itype_wallet)) || current_item_power(itype_quiver))
             infinite=true;
             
         // If Hero somehow got ammunition before getting the arrow,
@@ -4410,7 +4411,7 @@ void counter(BITMAP *dest, int32_t x, int32_t y, FONT *tempfont, int32_t color, 
         // we shouldn't put the value as zero.
 //        if(/*current_item_id(itype_arrow)>-1*/ true)
         {
-            if(get_bit(quest_rules,qr_TRUEARROWS))
+            if(get_qr(qr_TRUEARROWS))
             {
                 value+=game->get_arrows();
             }
@@ -4483,7 +4484,7 @@ void counter(BITMAP *dest, int32_t x, int32_t y, FONT *tempfont, int32_t color, 
     }
     
     //Re-implement item2 and item3 stacking counters. -Z 26-Jan-2020
-	if ( /*get_bit(quest_rules,qrSTACKSUBSCREENCOUNTERS) || (*/( FFCore.getQuestHeaderInfo(vZelda) == 0x250 && FFCore.getQuestHeaderInfo(vBuild) >= 33 ) //this ishowit looks in 2.53.1, Beta 25
+	if ( /*get_qr(qrSTACKSUBSCREENCOUNTERS) || (*/( FFCore.getQuestHeaderInfo(vZelda) == 0x250 && FFCore.getQuestHeaderInfo(vBuild) >= 33 ) //this ishowit looks in 2.53.1, Beta 25
 		|| ( FFCore.getQuestHeaderInfo(vZelda) > 0x250  ) ) /*)*/
     
 	{
@@ -4571,7 +4572,7 @@ void counter(BITMAP *dest, int32_t x, int32_t y, FONT *tempfont, int32_t color, 
 					break;
 				}
 				case sscARROWS:
-					if((!get_bit(quest_rules,qr_TRUEARROWS) && current_item_power(itype_wallet)) || current_item_power(itype_quiver))
+					if((!get_qr(qr_TRUEARROWS) && current_item_power(itype_wallet)) || current_item_power(itype_quiver))
 					infinite=true;
 			    
 					// If Hero somehow got ammunition before getting the arrow,
@@ -4579,7 +4580,7 @@ void counter(BITMAP *dest, int32_t x, int32_t y, FONT *tempfont, int32_t color, 
 					// we shouldn't put the value as zero.
 					//        if(/*current_item_id(itype_arrow)>-1*/ true)
 				{
-					if(get_bit(quest_rules,qr_TRUEARROWS))
+					if(get_qr(qr_TRUEARROWS))
 					{
 						value+=game->get_arrows();
 					}
@@ -4781,7 +4782,7 @@ void puttriframe(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y, int32_t tr
             {
                 int32_t lvl = i+1;
                 
-                if(get_bit(quest_rules,qr_4TRI) && lvl>4)
+                if(get_qr(qr_4TRI) && lvl>4)
                     lvl -= 4;
                     
                 if(has_item(itype_triforcepiece, lvl))
@@ -4807,7 +4808,7 @@ void puttriframe(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y, int32_t tr
             }
             else
             {
-                if(!get_bit(quest_rules,qr_4TRI))
+                if(!get_qr(qr_4TRI))
                 {
                     //left inside vertical
                     _allegro_vline(dest,x+31,y+56,y+103,triframecolor);
@@ -4821,7 +4822,7 @@ void puttriframe(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y, int32_t tr
                     _allegro_vline(dest,x+79,y+56,y+103,triframecolor);
                     _allegro_vline(dest,x+80,y+56,y+103,triframecolor);
                     
-                    if(!get_bit(quest_rules,qr_3TRI))
+                    if(!get_qr(qr_3TRI))
                     {
                         //center inside vertical bottom
                         _allegro_vline(dest,x+55,y+56,y+103,triframecolor);
@@ -4858,7 +4859,7 @@ void puttriframe(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y, int32_t tr
                 {
                     int32_t lvl = i+1;
                     
-                    if(get_bit(quest_rules,qr_4TRI) && lvl>4)
+                    if(get_qr(qr_4TRI) && lvl>4)
                     {
                         lvl -= 4;
                     }
@@ -4887,7 +4888,7 @@ void puttriframe(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y, int32_t tr
             {
                 int32_t lvl = i+1;
                 
-                if(get_bit(quest_rules,qr_4TRI) && lvl>4)
+                if(get_qr(qr_4TRI) && lvl>4)
                 {
                     lvl -= 4;
                 }
@@ -4926,7 +4927,7 @@ void puttriforce(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y, int32_t ti
 		{
 			int32_t lvl = i+1;
 			
-			if(get_bit(quest_rules,qr_4TRI) && lvl>4)
+			if(get_qr(qr_4TRI) && lvl>4)
 				lvl -= 4;
 				
 			if(lvl==trinum && has_item(itype_triforcepiece, lvl))

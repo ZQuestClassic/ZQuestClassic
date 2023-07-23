@@ -11,6 +11,7 @@
 //INLINE void SCRFIX() { putpixel(screen,0,0,getpixel(screen,0,0)); }
 //INLINE void SCRFIX() {}
 
+#include "base/qrs.h"
 #include "zq/zq_misc.h"
 #include "zq/zquestdat.h"
 #include "zq/zquest.h"
@@ -309,7 +310,7 @@ void loadlvlpal(int32_t level)
 		si+=3;
 	}
 	
-	if (get_bit(quest_rules, qr_CSET1_LEVEL))
+	if (get_qr(qr_CSET1_LEVEL))
 	{
 		si = colordata + CSET(level*pdLEVEL+poNEWCSETS)*3;
 		for(int32_t i=0; i<16; i++)
@@ -318,7 +319,7 @@ void loadlvlpal(int32_t level)
 			si+=3;
 		}
 	}
-	if (get_bit(quest_rules, qr_CSET5_LEVEL))
+	if (get_qr(qr_CSET5_LEVEL))
 	{
 		si = colordata + CSET(level*pdLEVEL+poNEWCSETS+1)*3;
 		for(int32_t i=0; i<16; i++)
@@ -327,7 +328,7 @@ void loadlvlpal(int32_t level)
 			si+=3;
 		}
 	}
-	if (get_bit(quest_rules, qr_CSET7_LEVEL))
+	if (get_qr(qr_CSET7_LEVEL))
 	{
 		si = colordata + CSET(level*pdLEVEL+poNEWCSETS+2)*3;
 		for(int32_t i=0; i<16; i++)
@@ -336,7 +337,7 @@ void loadlvlpal(int32_t level)
 			si+=3;
 		}
 	}
-	if (get_bit(quest_rules, qr_CSET8_LEVEL))
+	if (get_qr(qr_CSET8_LEVEL))
 	{
 		si = colordata + CSET(level*pdLEVEL+poNEWCSETS+3)*3;
 		for(int32_t i=0; i<16; i++)
@@ -1118,7 +1119,7 @@ int32_t onShowCType()
 extern MENU view_menu[];
 int32_t onShowDarkness()
 {
-	if(get_bit(quest_rules,qr_NEW_DARKROOM))
+	if(get_qr(qr_NEW_DARKROOM))
 	{
 		Flags ^= cNEWDARK;
 		refresh(rALL);
@@ -1126,11 +1127,11 @@ int32_t onShowDarkness()
 	else
 	{
 		refresh(rALL);
-		if(get_bit(quest_rules,qr_FADE))
+		if(get_qr(qr_FADE))
 		{
 			int32_t last = CSET(5)-1;
 
-			if(get_bit(quest_rules,qr_FADECS5))
+			if(get_qr(qr_FADECS5))
 				last += 16;
 
 			byte *si = colordata + CSET(Color*pdLEVEL+poFADE1)*3;

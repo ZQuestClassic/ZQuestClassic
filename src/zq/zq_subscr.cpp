@@ -8,6 +8,7 @@
 //
 //--------------------------------------------------------
 
+#include "base/qrs.h"
 #include "base/gui.h"
 #include "subscr.h"
 #include "zq/zq_subscr.h"
@@ -1657,7 +1658,7 @@ int32_t Bweapon(int32_t pos)
         
     case itype_sword:
     {
-        if(!get_bit(quest_rules,qr_SELECTAWPN))
+        if(!get_qr(qr_SELECTAWPN))
             break;
             
         family=itype_sword;

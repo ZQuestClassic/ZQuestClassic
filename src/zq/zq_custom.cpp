@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "base/qrs.h"
 #include "base/gui.h"
 #include "zc/zc_custom.h"
 #include "zq/zq_custom.h"
@@ -4493,7 +4494,7 @@ void setEnemyLabels(int32_t family)
 		}
 	}
 	
-	bool r = 0 != get_bit(quest_rules,qr_NEWENEMYTILES);
+	bool r = 0 != get_qr(qr_NEWENEMYTILES);
 	enedata_dlg[r ? 47 : 48].flags |= D_DISABLED;
 	enedata_dlg[r ? 48 : 47].flags &= ~D_DISABLED;
 	enedata_dlg[r ? 140 : 141].flags |= D_DISABLED;
@@ -8771,8 +8772,8 @@ int32_t onCustomHero()
 	}
 	
 	herotile_dlg[0].dp2=get_zc_font(font_lfont);
-	herotile_dlg[189].flags = get_bit(quest_rules, qr_LTTPCOLLISION)? D_SELECTED : 0;
-	herotile_dlg[192].flags = get_bit(quest_rules, qr_LTTPWALK)? D_SELECTED : 0;
+	herotile_dlg[189].flags = get_qr(qr_LTTPCOLLISION)? D_SELECTED : 0;
+	herotile_dlg[192].flags = get_qr(qr_LTTPWALK)? D_SELECTED : 0;
 	herotile_dlg[194].d1=(zinit.hero_swim_speed<60)?0:1;
 	herotile_dlg[191].d1=zinit.heroAnimationStyle;
 	
@@ -8885,8 +8886,8 @@ int32_t onCustomHero()
 		if (ret == 3)
 		{
 			saved = false;
-			set_bit(quest_rules, qr_LTTPCOLLISION, (herotile_dlg[181+8].flags & D_SELECTED) ? 1 : 0);
-			set_bit(quest_rules, qr_LTTPWALK, (herotile_dlg[184+8].flags & D_SELECTED) ? 1 : 0);
+			set_qr(qr_LTTPCOLLISION, (herotile_dlg[181+8].flags & D_SELECTED) ? 1 : 0);
+			set_qr(qr_LTTPWALK, (herotile_dlg[184+8].flags & D_SELECTED) ? 1 : 0);
 			zinit.hero_swim_speed = (herotile_dlg[186+8].d1 == 0) ? 50 : 67;
 
 			//Save Player defenses

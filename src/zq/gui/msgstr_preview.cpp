@@ -1,5 +1,6 @@
 #include "msgstr_preview.h"
 #include "zq/zquest.h"
+#include "base/qrs.h"
 #include "gui/common.h"
 #include "gui/dialog.h"
 #include "gui/dialog_runner.h"
@@ -9,7 +10,6 @@
 #include <utility>
 
 extern char namebuf[9];
-extern byte quest_rules[QUESTRULES_NEW_SIZE];
 
 void init_msgstr(MsgStr *str);
 std::string parse_msg_str(std::string const& s);
@@ -19,8 +19,8 @@ int32_t msg_code_operands(byte cc);
 
 bool bottom_margin_clip(int32_t cursor_y, int32_t msg_h, int32_t bottom_margin)
 {
-	return !get_bit(quest_rules, qr_OLD_STRING_EDITOR_MARGINS)
-		&& cursor_y >= (msg_h + (get_bit(quest_rules,qr_STRING_FRAME_OLD_WIDTH_HEIGHT)?16:0) - bottom_margin);
+	return !get_qr(qr_OLD_STRING_EDITOR_MARGINS)
+		&& cursor_y >= (msg_h + (get_qr(qr_STRING_FRAME_OLD_WIDTH_HEIGHT)?16:0) - bottom_margin);
 }
 #define BOTTOM_MARGIN_CLIP() bottom_margin_clip(cursor_y, h, msg_margins[down])
 
@@ -32,7 +32,7 @@ void put_msg_str(char const* s, int32_t x, int32_t y, MsgStr const* str, int32_t
 	int16_t msg_margins[4];
 	
 	int16_t old_margins[4] = {8,0,8,-8};
-	int16_t const* copy_from = get_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS) ? old_margins : str->margins;
+	int16_t const* copy_from = get_qr(qr_OLD_STRING_EDITOR_MARGINS) ? old_margins : str->margins;
 	for(auto q = 0; q < 4; ++q)
 		msg_margins[q] = copy_from[q];
 	
@@ -68,7 +68,7 @@ void put_msg_str(char const* s, int32_t x, int32_t y, MsgStr const* str, int32_t
 		}
 		else
 		{
-			int32_t add = (get_bit(quest_rules,qr_STRING_FRAME_OLD_WIDTH_HEIGHT)!=0 ? 2 : 0);
+			int32_t add = (get_qr(qr_STRING_FRAME_OLD_WIDTH_HEIGHT)!=0 ? 2 : 0);
 			frame2x2(buf,&misc,0,0,msgtile,msgcset,(w/8)+add,(h/8)+add,0,0,0);
 		}
 	}

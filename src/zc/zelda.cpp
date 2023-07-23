@@ -20,6 +20,7 @@
 #include <vector>
 #include <sstream>
 
+#include "base/qrs.h"
 #include "base/zc_alleg.h"
 
 #include <stdlib.h>
@@ -209,7 +210,7 @@ bool doThrottle()
 	int toggle_key = KEY_TILDE;
 #endif
 	return (Throttlefps ^ (zc_get_system_key(toggle_key)!=0))
-		|| (get_bit(quest_rules, qr_NOFASTMODE) && !replay_is_replaying());
+		|| (get_qr(qr_NOFASTMODE) && !replay_is_replaying());
 }
 
 // https://blat-blatnik.github.io/computerBear/making-accurate-sleep-function/
@@ -613,8 +614,6 @@ int32_t idle_count=0, active_count=0;
 
 // quest file data
 zquestheader QHeader;
-byte                quest_rules[QUESTRULES_NEW_SIZE];
-byte                extra_rules[EXTRARULES_SIZE];
 byte                midi_flags[MIDIFLAGS_SIZE];
 byte                music_flags[MUSICFLAGS_SIZE];
 word                map_count=0;
@@ -881,7 +880,7 @@ void msg_bg(MsgStr const& msg)
 	}
 	else
 	{
-		int32_t add = (get_bit(quest_rules,qr_STRING_FRAME_OLD_WIDTH_HEIGHT)!=0 ? 2 : 0);
+		int32_t add = (get_qr(qr_STRING_FRAME_OLD_WIDTH_HEIGHT)!=0 ? 2 : 0);
 		frame2x2(msg_bg_bmp_buf,&QMisc,0,0,msg.tile,msg.cset,
                  (msg.w>>3)+add,(msg.h>>3)+add,0,true,0);
 	}
@@ -1001,7 +1000,7 @@ void donewmsg(int32_t str)
     msg_prt();
     
 	int16_t old_margins[4] = {8,0,8,-8};
-	int16_t const* copy_from = get_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS) ? old_margins : MsgStrings[msgstr].margins;
+	int16_t const* copy_from = get_qr(qr_OLD_STRING_EDITOR_MARGINS) ? old_margins : MsgStrings[msgstr].margins;
 	for(auto q = 0; q < 4; ++q)
 		msg_margins[q] = copy_from[q];
     cursor_x=msg_margins[left];
@@ -1086,7 +1085,7 @@ extern word curScriptNum;
 
 void Z_eventlog(const char *format,...)
 {
-    if(get_bit(quest_rules,qr_LOG) || DEVLEVEL > 0)
+    if(get_qr(qr_LOG) || DEVLEVEL > 0)
     {
         char buf[2048];
         
@@ -1103,7 +1102,7 @@ void Z_eventlog(const char *format,...)
 
 void Z_scripterrlog(const char * const format,...)
 {
-    if(get_bit(quest_rules,qr_SCRIPTERRLOG) || DEVLEVEL > 0)
+    if(get_qr(qr_SCRIPTERRLOG) || DEVLEVEL > 0)
     {
         FFCore.TraceScriptIDs();
 		
@@ -1353,7 +1352,7 @@ void StunGuy(int32_t j,int32_t stun)
         ((enemy*)guys.spr(j))->stunclk=zc_min(360,stun*4);
         ((enemy*)guys.spr(j))->fall=-zc_min(FEATHERJUMP,(stun*8)+zc_oldrand()%5);
     }
-    else if(((enemy*)guys.spr(j))->z==0 && ((enemy*)guys.spr(j))->fakez==0 && ((enemy*)guys.spr(j))->family == eeLEV && get_bit(quest_rules, qr_QUAKE_STUNS_LEEVERS))
+    else if(((enemy*)guys.spr(j))->z==0 && ((enemy*)guys.spr(j))->fakez==0 && ((enemy*)guys.spr(j))->family == eeLEV && get_qr(qr_QUAKE_STUNS_LEEVERS))
     {
         ((enemy*)guys.spr(j))->stunclk=zc_min(360,stun*4);
     }
@@ -1940,17 +1939,17 @@ int32_t init_game()
 		regulate_path(qst_files_path);
 	}
 	
-	BSZ = get_bit(quest_rules,qr_BSZELDA)!=0;
+	BSZ = get_qr(qr_BSZELDA)!=0;
 	//setupherotiles(zinit.heroAnimationStyle);
 	
-	COOLSCROLL = (get_bit(quest_rules,qr_COOLSCROLL)!=0 ? 1 : 0) |
-				 (get_bit(quest_rules,qr_OVALWIPE)!=0 ? 2 : 0) |
-				 (get_bit(quest_rules,qr_TRIANGLEWIPE)!=0 ? 4 : 0) |
-				 (get_bit(quest_rules,qr_SMASWIPE)!=0 ? 8 : 0) |
-				 (get_bit(quest_rules,qr_FADEBLACKWIPE)!=0 ? 16 : 0);
+	COOLSCROLL = (get_qr(qr_COOLSCROLL)!=0 ? 1 : 0) |
+				 (get_qr(qr_OVALWIPE)!=0 ? 2 : 0) |
+				 (get_qr(qr_TRIANGLEWIPE)!=0 ? 4 : 0) |
+				 (get_qr(qr_SMASWIPE)!=0 ? 8 : 0) |
+				 (get_qr(qr_FADEBLACKWIPE)!=0 ? 16 : 0);
 	identifyCFEnemies();
 				 
-	//  NEWSUBSCR = get_bit(quest_rules,qr_NEWSUBSCR);
+	//  NEWSUBSCR = get_qr(qr_NEWSUBSCR);
 	
 	//  homescr = currscr = DMaps[0].cont;
 	//  currdmap = warpscr = worldscr=0;
@@ -2050,7 +2049,7 @@ int32_t init_game()
 	print_quest_metadata(QHeader, qstpath, byte(game->get_quest()-1));
 	
 	//FFCore.init(); ///Initialise new ffscript engine core. 
-	if(!firstplay && !get_bit(quest_rules, qr_OLD_INIT_SCRIPT_TIMING))
+	if(!firstplay && !get_qr(qr_OLD_INIT_SCRIPT_TIMING))
 	{
 		ZScriptVersion::RunScript(ScriptType::Global, GLOBAL_SCRIPT_ONSAVELOAD, GLOBAL_SCRIPT_ONSAVELOAD); //Do this after global arrays have been loaded
 		FFCore.deallocateAllArrays(ScriptType::Global, GLOBAL_SCRIPT_ONSAVELOAD);
@@ -2091,7 +2090,7 @@ int32_t init_game()
 	if(firstplay) //Move up here, so that arrays are initialised before we run Hero's Init script.
 	{
 		memset(game->screen_d, 0, MAXDMAPS * 64 * 8 * sizeof(int32_t));
-		if(!get_bit(quest_rules, qr_OLD_INIT_SCRIPT_TIMING))
+		if(!get_qr(qr_OLD_INIT_SCRIPT_TIMING))
 		{
 			ZScriptVersion::RunScript(ScriptType::Global, GLOBAL_SCRIPT_INIT, GLOBAL_SCRIPT_INIT);
 			FFCore.deallocateAllArrays(ScriptType::Global, GLOBAL_SCRIPT_INIT); //Deallocate LOCAL arrays declared in the init script. This function does NOT deallocate global arrays.
@@ -2161,10 +2160,10 @@ int32_t init_game()
 	
 	//Setup button items
 	{
-		bool use_x = get_bit(quest_rules, qr_SET_XBUTTON_ITEMS), use_y = get_bit(quest_rules, qr_SET_YBUTTON_ITEMS);
+		bool use_x = get_qr(qr_SET_XBUTTON_ITEMS), use_y = get_qr(qr_SET_YBUTTON_ITEMS);
 		if(use_x || use_y)
 		{
-			if(!get_bit(quest_rules, qr_SELECTAWPN))
+			if(!get_qr(qr_SELECTAWPN))
 			{
 				Awpn = selectSword();
 				apos = -1;
@@ -2230,7 +2229,7 @@ int32_t init_game()
 		}
 		else
 		{
-			if(!get_bit(quest_rules,qr_SELECTAWPN))
+			if(!get_qr(qr_SELECTAWPN))
 			{
 				Awpn = selectSword();
 				apos = -1;
@@ -2282,7 +2281,7 @@ int32_t init_game()
 	FFCore.runGenericPassiveEngine(SCR_TIMING_INIT);
 	throwGenScriptEvent(GENSCR_EVENT_INIT);
 	
-	if(!get_bit(quest_rules,qr_FFCPRELOAD_BUGGED_LOAD)) ffscript_engine(true);
+	if(!get_qr(qr_FFCPRELOAD_BUGGED_LOAD)) ffscript_engine(true);
 	
 	
 	if ( Hero.getDontDraw() < 2 ) { Hero.setDontDraw(0); }
@@ -2290,7 +2289,7 @@ int32_t init_game()
 	show_subscreen_numbers=true;
 	show_subscreen_life=true;
 	dointro();
-	if(!(tmpscr->room==rGANON && !get_bit(quest_rules, qr_GANON_CANT_SPAWN_ON_CONTINUE)))
+	if(!(tmpscr->room==rGANON && !get_qr(qr_GANON_CANT_SPAWN_ON_CONTINUE)))
 	{
 		loadguys();
 	}
@@ -2301,12 +2300,12 @@ int32_t init_game()
 	
 	if(isdungeon() && currdmap>0) // currdmap>0 is weird, but at least one quest (Mario's Insane Rampage) depends on it
 	{
-		Hero.stepforward(get_bit(quest_rules,qr_LTTPWALK) ? 11: 12, false);
+		Hero.stepforward(get_qr(qr_LTTPWALK) ? 11: 12, false);
 	}
 	
 	if(!Quit)
 	{
-		if(tmpscr->room==rGANON && !get_bit(quest_rules, qr_GANON_CANT_SPAWN_ON_CONTINUE))
+		if(tmpscr->room==rGANON && !get_qr(qr_GANON_CANT_SPAWN_ON_CONTINUE))
 		{
 			Hero.ganon_intro();
 		}
@@ -2315,18 +2314,18 @@ int32_t init_game()
 
 	 
 	//2.53 timing
-	if(get_bit(quest_rules, qr_OLD_INIT_SCRIPT_TIMING))
+	if(get_qr(qr_OLD_INIT_SCRIPT_TIMING))
 	{
 		if(firstplay)
 		{
 			memset(game->screen_d, 0, MAXDMAPS * 64 * 8 * sizeof(int32_t));
 			ZScriptVersion::RunScript(ScriptType::Global, GLOBAL_SCRIPT_INIT, GLOBAL_SCRIPT_INIT);
-			if(!get_bit(quest_rules, qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS) ) FFCore.deallocateAllArrays(ScriptType::Global, GLOBAL_SCRIPT_INIT); //Deallocate LOCAL arrays declared in the init script. This function does NOT deallocate global arrays.
+			if(!get_qr(qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS) ) FFCore.deallocateAllArrays(ScriptType::Global, GLOBAL_SCRIPT_INIT); //Deallocate LOCAL arrays declared in the init script. This function does NOT deallocate global arrays.
 		}
 		else
 		{
 			ZScriptVersion::RunScript(ScriptType::Global, GLOBAL_SCRIPT_ONSAVELOAD, GLOBAL_SCRIPT_ONSAVELOAD); //Do this after global arrays have been loaded
-			if(!get_bit(quest_rules, qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS) ) FFCore.deallocateAllArrays(ScriptType::Global, GLOBAL_SCRIPT_ONSAVELOAD);
+			if(!get_qr(qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS) ) FFCore.deallocateAllArrays(ScriptType::Global, GLOBAL_SCRIPT_ONSAVELOAD);
 		}	
 	}
 	
@@ -2335,7 +2334,7 @@ int32_t init_game()
 	FFCore.initZScriptDMapScripts(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
 	FFCore.initZScriptItemScripts(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
 	FFCore.initZScriptActiveSubscreenScript();
-	if(get_bit(quest_rules,qr_FFCPRELOAD_BUGGED_LOAD)) ffscript_engine(true);  //Here is a much safer place...
+	if(get_qr(qr_FFCPRELOAD_BUGGED_LOAD)) ffscript_engine(true);  //Here is a much safer place...
 	return 0;
 }
 
@@ -2481,7 +2480,7 @@ int32_t cont_game()
 	show_subscreen_numbers=true;
 	show_subscreen_life=true;
 	dointro();
-	if(!(tmpscr->room==rGANON && !get_bit(quest_rules, qr_GANON_CANT_SPAWN_ON_CONTINUE)))
+	if(!(tmpscr->room==rGANON && !get_qr(qr_GANON_CANT_SPAWN_ON_CONTINUE)))
 	{
 		loadguys();
 	}
@@ -2490,14 +2489,14 @@ int32_t cont_game()
 	if(!Quit)
 	{
 		//play_DmapMusic();
-		if(!(tmpscr->room==rGANON && !get_bit(quest_rules, qr_GANON_CANT_SPAWN_ON_CONTINUE))) playLevelMusic();
+		if(!(tmpscr->room==rGANON && !get_qr(qr_GANON_CANT_SPAWN_ON_CONTINUE))) playLevelMusic();
 		
 		if(isdungeon())
-			Hero.stepforward(get_bit(quest_rules,qr_LTTPWALK)?11:12, false);
+			Hero.stepforward(get_qr(qr_LTTPWALK)?11:12, false);
 			
 		newscr_clk=frame;
 		activated_timed_warp=false;
-		if(tmpscr->room==rGANON && !get_bit(quest_rules, qr_GANON_CANT_SPAWN_ON_CONTINUE))
+		if(tmpscr->room==rGANON && !get_qr(qr_GANON_CANT_SPAWN_ON_CONTINUE))
 		{
 			Hero.ganon_intro();
 		}
@@ -2510,7 +2509,7 @@ void restart_level()
 	blackscr(16,true);
 	map_bkgsfx(false);
 	
-	if(dlevel && !get_bit(quest_rules,qr_LEVEL_RESTART_CONT_POINT))
+	if(dlevel && !get_qr(qr_LEVEL_RESTART_CONT_POINT))
 	{
 		bool changedlevel = false;
 		bool changeddmap = false;
@@ -2588,7 +2587,7 @@ void restart_level()
 	Hero.trySideviewLadder();
 	show_subscreen_numbers=true;
 	show_subscreen_life=true;
-	if(!(tmpscr->room==rGANON && !get_bit(quest_rules, qr_GANON_CANT_SPAWN_ON_CONTINUE)))
+	if(!(tmpscr->room==rGANON && !get_qr(qr_GANON_CANT_SPAWN_ON_CONTINUE)))
 	{
 		loadguys();
 	}
@@ -2596,14 +2595,14 @@ void restart_level()
 	if(!Quit)
 	{
 		//play_DmapMusic();
-		if(!(tmpscr->room==rGANON && !get_bit(quest_rules, qr_GANON_CANT_SPAWN_ON_CONTINUE))) playLevelMusic();
+		if(!(tmpscr->room==rGANON && !get_qr(qr_GANON_CANT_SPAWN_ON_CONTINUE))) playLevelMusic();
 		
 		if(isdungeon())
-			Hero.stepforward(get_bit(quest_rules,qr_LTTPWALK)?11:12, false);
+			Hero.stepforward(get_qr(qr_LTTPWALK)?11:12, false);
 			
 		newscr_clk=frame;
 		activated_timed_warp=false;
-		if(tmpscr->room==rGANON && !get_bit(quest_rules, qr_GANON_CANT_SPAWN_ON_CONTINUE))
+		if(tmpscr->room==rGANON && !get_qr(qr_GANON_CANT_SPAWN_ON_CONTINUE))
 		{
 			Hero.ganon_intro();
 		}
@@ -2619,7 +2618,7 @@ void putintro()
         return;
     }
     
-    if((cBbtn())&&(get_bit(quest_rules,qr_ALLOWMSGBYPASS)))
+    if((cBbtn())&&(get_qr(qr_ALLOWMSGBYPASS)))
     {
         //finish writing out the string
         for(; intropos<72; ++intropos)
@@ -2637,7 +2636,7 @@ void putintro()
         return;
     }
     
-    if(((introclk++)%6<5)&&((!cAbtn())||(!get_bit(quest_rules,qr_ALLOWFASTMSG))))
+    if(((introclk++)%6<5)&&((!cAbtn())||(!get_qr(qr_ALLOWFASTMSG))))
         return;
         
     dmapmsgclk=51;
@@ -2706,7 +2705,7 @@ void do_magic_casting()
             //          Hero.tile=(BSZ)?32:29;
             herotile(&Hero.tile, &Hero.flip, &Hero.extend, Hero.IsSideSwim()?ls_sidewaterhold2:ls_landhold2, Hero.getDir(), zinit.heroAnimationStyle);
             
-            if(get_bit(quest_rules,qr_EXPANDEDLTM))
+            if(get_qr(qr_EXPANDEDLTM))
             {
                 Hero.tile+=Hero.getTileModifier();
             }
@@ -2723,7 +2722,7 @@ void do_magic_casting()
             //          Hero.tile=29;
             herotile(&Hero.tile, &Hero.flip, &Hero.extend, Hero.IsSideSwim()?ls_sidewaterhold2:ls_landhold2, Hero.getDir(), zinit.heroAnimationStyle);
             
-            if(get_bit(quest_rules,qr_EXPANDEDLTM))
+            if(get_qr(qr_EXPANDEDLTM))
             {
                 Hero.tile+=Hero.getTileModifier();
             }
@@ -2735,12 +2734,12 @@ void do_magic_casting()
         {
             herotile(&Hero.tile, &Hero.flip, &Hero.extend, Hero.IsSideSwim()?ls_sideswimcast:ls_cast, Hero.getDir(), zinit.heroAnimationStyle);
             
-            if(get_bit(quest_rules,qr_EXPANDEDLTM))
+            if(get_qr(qr_EXPANDEDLTM))
             {
                 Hero.tile+=Hero.getTileModifier();
             }
             
-            if(get_bit(quest_rules,qr_MORESOUNDS))
+            if(get_qr(qr_MORESOUNDS))
                 sfx(itemsbuf[magicitem].usesound,pan(int32_t(Hero.getX())));
                 
             int32_t flamemax=itemsbuf[magicitem].misc1;
@@ -2776,7 +2775,7 @@ void do_magic_casting()
         {
             herotile(&ltile, &lflip, Hero.IsSideSwim()?ls_sideswimstab:ls_stab, down, zinit.heroAnimationStyle);
             
-            if(get_bit(quest_rules,qr_EXPANDEDLTM))
+            if(get_qr(qr_EXPANDEDLTM))
             {
                 ltile+=Hero.getTileModifier();
             }
@@ -2787,7 +2786,7 @@ void do_magic_casting()
             tempy=Hero.getY();
             herotile(&Hero.tile, &Hero.flip, &Hero.extend, Hero.IsSideSwim()?ls_sideswimpound:ls_pound, down, zinit.heroAnimationStyle);
             
-            if(get_bit(quest_rules,qr_EXPANDEDLTM))
+            if(get_qr(qr_EXPANDEDLTM))
             {
                 Hero.tile+=Hero.getTileModifier();
             }
@@ -2805,7 +2804,7 @@ void do_magic_casting()
             Hero.setY(tempy);
             herotile(&Hero.tile, &Hero.flip, &Hero.extend, Hero.IsSideSwim()?ls_sideswimstab:ls_stab, down, zinit.heroAnimationStyle);
             
-            if(get_bit(quest_rules,qr_EXPANDEDLTM))
+            if(get_qr(qr_EXPANDEDLTM))
             {
                 Hero.tile+=Hero.getTileModifier();
             }
@@ -2813,7 +2812,7 @@ void do_magic_casting()
         
         if(magiccastclk==96)
         {
-            if(get_bit(quest_rules,qr_MORESOUNDS))
+            if(get_qr(qr_MORESOUNDS))
                 sfx(itemsbuf[magicitem].usesound,pan(int32_t(Hero.getX())));
                 
             if ( Hero.getDontDraw() < 2 ) { Hero.setDontDraw(1); }
@@ -2897,7 +2896,7 @@ void do_magic_casting()
             //          Hero.tile=(BSZ)?32:29;
             herotile(&Hero.tile, &Hero.flip, &Hero.extend, Hero.IsSideSwim()?ls_sideswimcast:ls_cast, Hero.getDir(), zinit.heroAnimationStyle);
             
-            if(get_bit(quest_rules,qr_EXPANDEDLTM))
+            if(get_qr(qr_EXPANDEDLTM))
             {
                 Hero.tile+=Hero.getTileModifier();
             }
@@ -2927,7 +2926,7 @@ void do_magic_casting()
             //          Hero.tile=29;
             herotile(&Hero.tile, &Hero.flip, &Hero.extend, Hero.IsSideSwim()?ls_sideswimcast:ls_cast, Hero.getDir(), zinit.heroAnimationStyle);
             
-            if(get_bit(quest_rules,qr_EXPANDEDLTM))
+            if(get_qr(qr_EXPANDEDLTM))
             {
                 Hero.tile+=Hero.getTileModifier();
             }
@@ -2940,14 +2939,14 @@ void do_magic_casting()
             //          Hero.tile=4;
             herotile(&Hero.tile, &Hero.flip, &Hero.extend, Hero.IsSideSwim()?ls_sidewaterhold2:ls_landhold2, Hero.getDir(), zinit.heroAnimationStyle);
             
-            if(get_bit(quest_rules,qr_EXPANDEDLTM))
+            if(get_qr(qr_EXPANDEDLTM))
             {
                 Hero.tile+=Hero.getTileModifier();
             }
             
             Hero.setDivineProtectionShieldClk(itemsbuf[magicitem].misc1);
             
-            if(get_bit(quest_rules,qr_MORESOUNDS))
+            if(get_qr(qr_MORESOUNDS))
             {
                 if(div_prot_item != -1)
                 {
@@ -3152,7 +3151,7 @@ void do_dcounters()
             {
 				sfx_to_use = QMisc.miscsfx[sfxREFILL];
                 int32_t drain = (i==4 ? game->get_mp_per_block()/4 : 1);
-				if(get_bit(quest_rules,qr_FASTCOUNTERDRAIN)) drain *= 4;
+				if(get_qr(qr_FASTCOUNTERDRAIN)) drain *= 4;
                 drain = zc_min(game->get_dcounter(i),drain);
                 
                 if(game->get_counter(i) < game->get_maxcounter(i))
@@ -3175,7 +3174,7 @@ void do_dcounters()
                     sfx_to_use = QMisc.miscsfx[sfxDRAIN];;
                     
                 int32_t drain = (i==4 ? 2*game->get_magicdrainrate() : 1);
-				if(get_bit(quest_rules,qr_FASTCOUNTERDRAIN)) drain *= 4;
+				if(get_qr(qr_FASTCOUNTERDRAIN)) drain *= 4;
                 drain = zc_min(-game->get_dcounter(i),drain);
                 
                 if(game->get_counter(i)>0)
@@ -3206,7 +3205,7 @@ void update_msgstr()
 	set_clip_state(msg_bg_display_buf, 0);
 	blit(msg_bg_bmp_buf, msg_bg_display_buf, 0, 0, msg_xpos, msg_ypos, msg_w+16, msg_h+16);
 	set_clip_state(msg_txt_display_buf, 0);
-	if(get_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS)!=0)
+	if(get_qr(qr_OLD_STRING_EDITOR_MARGINS)!=0)
 	{
 		blit(msg_txt_bmp_buf, msg_txt_display_buf, 0, 0, msg_xpos, msg_ypos, msg_w+16, msg_h+16);
 		masked_blit(msg_menu_bmp_buf, msg_txt_display_buf, 0, 0, msg_xpos, msg_ypos, msg_w+16, msg_h+16);
@@ -3253,8 +3252,8 @@ void game_loop()
 		
 		// freezemsg if message is being printed && qr_MSGFREEZE is on,
 		// or if a message is being prepared && qr_MSGDISAPPEAR is on.
-		bool freezemsg = ((msg_active || (intropos && intropos<72) || (linkedmsgclk && get_bit(quest_rules,qr_MSGDISAPPEAR)))
-			&& (get_bit(quest_rules,qr_MSGFREEZE)));
+		bool freezemsg = ((msg_active || (intropos && intropos<72) || (linkedmsgclk && get_qr(qr_MSGDISAPPEAR)))
+			&& (get_qr(qr_MSGFREEZE)));
 		if(!freezemsg)
 		{
 			if ( !FFCore.system_suspend[susptSCRIPDRAWCLEAR] ) script_drawing_commands.Clear();
@@ -3407,7 +3406,7 @@ void game_loop()
 			
 			if ( !FFCore.system_suspend[susptONEFRAMECONDS] )  clear_script_one_frame_conditions(); //clears npc->HitBy[] for this frame: the timing on this may need adjustment. 
 			
-			if ( get_bit(quest_rules, qr_OLD_ITEMDATA_SCRIPT_TIMING) && !FFCore.system_suspend[susptITEMSCRIPTENGINE] )
+			if ( get_qr(qr_OLD_ITEMDATA_SCRIPT_TIMING) && !FFCore.system_suspend[susptITEMSCRIPTENGINE] )
 				FFCore.itemScriptEngine(); //run before lweapon scripts
 			FFCore.runGenericPassiveEngine(SCR_TIMING_POST_OLD_ITEMDATA_SCRIPT);
 			if ( !FFCore.system_suspend[susptHERO] )
@@ -3435,7 +3434,7 @@ void game_loop()
 				if(GameFlags & GAMEFLAG_RESET_GAME_LOOP) continue; //continue the game_loop while(true)
 			}
 			FFCore.runGenericPassiveEngine(SCR_TIMING_POST_PLAYER_ANIMATE);
-			if ( !get_bit(quest_rules, qr_OLD_ITEMDATA_SCRIPT_TIMING) && !FFCore.system_suspend[susptITEMSCRIPTENGINE] )
+			if ( !get_qr(qr_OLD_ITEMDATA_SCRIPT_TIMING) && !FFCore.system_suspend[susptITEMSCRIPTENGINE] )
 				FFCore.itemScriptEngine(); //run before lweapon scripts
 			FFCore.runGenericPassiveEngine(SCR_TIMING_POST_NEW_ITEMDATA_SCRIPT);
 			
@@ -3834,7 +3833,7 @@ void setMonochrome(bool v){
 		} else { // else back up RAMpal to tempgreypal
 			memcpy(tempgreypal, RAMpal, PAL_SIZE*sizeof(RGB));
 		}
-		if(get_bit(quest_rules,qr_FADE)) {
+		if(get_qr(qr_FADE)) {
 		for(int32_t i=CSET(0); i < CSET(15); i++)
 		{
 			int32_t g = zc_min((RAMpal[i].r*42 + RAMpal[i].g*75 + RAMpal[i].b*14) >> 7, 63);
@@ -4335,7 +4334,7 @@ int main(int argc, char **argv)
 {
 	common_main_setup(App::zelda, argc, argv);
 	set_should_zprint_cb([]() {
-		return get_bit(quest_rules,qr_SCRIPTERRLOG) || DEVLEVEL > 0;
+		return get_qr(qr_SCRIPTERRLOG) || DEVLEVEL > 0;
 	});
 
 	if (used_switch(argc, argv, "-headless") > 0)
@@ -5393,7 +5392,7 @@ reload_for_replay_file:
 				//Run Global script OnExit
 				ZScriptVersion::RunScript(ScriptType::Global, GLOBAL_SCRIPT_END, GLOBAL_SCRIPT_END);
 
-				if(!skipcont&&!get_bit(quest_rules,qr_NOCONTINUE)) game_over(get_bit(quest_rules,qr_NOSAVE));
+				if(!skipcont&&!get_qr(qr_NOCONTINUE)) game_over(get_qr(qr_NOSAVE));
 				
 				if(Quit==qSAVE)
 				{
@@ -5809,7 +5808,7 @@ bool checkCost(int32_t ctr, int32_t amnt)
 		}
 		case crMAGIC: //magic
 		{
-			if (get_bit(quest_rules,qr_ENABLEMAGIC))
+			if (get_qr(qr_ENABLEMAGIC))
 			{
 				return (((current_item_power(itype_magicring) > 0)
 					 ? game->get_maxmagic()
@@ -5821,7 +5820,7 @@ bool checkCost(int32_t ctr, int32_t amnt)
 		{
 			if(current_item_power(itype_quiver))
 				return true;
-			if(!get_bit(quest_rules,qr_TRUEARROWS))
+			if(!get_qr(qr_TRUEARROWS))
 				return checkCost(crMONEY, amnt);
 			break;
 		}
@@ -5868,7 +5867,7 @@ void payCost(int32_t ctr, int32_t amnt, int32_t tmr, bool ignoreTimer)
 	{
 		case crMAGIC:
 		{
-			if(!get_bit(quest_rules,qr_ENABLEMAGIC))
+			if(!get_qr(qr_ENABLEMAGIC))
 				return;
 			if(cost && current_item_power(itype_magicring) > 0)
 				return;
@@ -5881,7 +5880,7 @@ void payCost(int32_t ctr, int32_t amnt, int32_t tmr, bool ignoreTimer)
 			if(!cost) break;
 			if ( current_item_power(itype_wallet) )
 				return;
-			if(get_bit(quest_rules,qr_OLDINFMAGIC) && current_item_power(itype_magicring) > 0)
+			if(get_qr(qr_OLDINFMAGIC) && current_item_power(itype_magicring) > 0)
 				return;
 			break;
 		}
@@ -5889,7 +5888,7 @@ void payCost(int32_t ctr, int32_t amnt, int32_t tmr, bool ignoreTimer)
 		{
 			if(cost && current_item_power(itype_quiver))
 				return;
-			if(!get_bit(quest_rules,qr_TRUEARROWS))
+			if(!get_qr(qr_TRUEARROWS))
 				return payCost(crMONEY, amnt, tmr, ignoreTimer);
 			break;
 		}
