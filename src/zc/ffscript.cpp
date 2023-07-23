@@ -13,6 +13,7 @@
 #include <fmt/format.h>
 //
 
+#include "base/qrs.h"
 #include "zc/zc_sys.h"
 #include "zc/jit.h"
 #include "zc/script_debug.h"
@@ -3031,7 +3032,7 @@ void FFScript::deallocateAllArrays(ScriptType scriptType, const int32_t UID, boo
 	{
 		script_objects[q].own_clear(scriptType, UID);
 	}
-	if(requireAlways && !get_bit(quest_rules, qr_ALWAYS_DEALLOCATE_ARRAYS))
+	if(requireAlways && !get_qr(qr_ALWAYS_DEALLOCATE_ARRAYS))
 	{
 		//Keep 2.50.2 behavior if QR unchecked.
 		switch(scriptType)
@@ -3650,7 +3651,7 @@ int32_t get_register(const int32_t arg)
 		//Hero's Variables
 		case LINKX:
 		{
-			if (get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT))
+			if (get_qr(qr_SPRITEXY_IS_FLOAT))
 			{
 				//double lx = (double)Hero.getX();
 				//Z_scripterrlog("lx: %f\n", lx);
@@ -3672,7 +3673,7 @@ int32_t get_register(const int32_t arg)
 		}		
 		case LINKY:
 		{
-			if (get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT))
+			if (get_qr(qr_SPRITEXY_IS_FLOAT))
 			{
 				ret = Hero.getY().getZLong();
 			}
@@ -3682,7 +3683,7 @@ int32_t get_register(const int32_t arg)
 		}    
 		case LINKZ:
 		{
-			if (get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT))
+			if (get_qr(qr_SPRITEXY_IS_FLOAT))
 			{
 				ret = Hero.getZ().getZLong();
 			}
@@ -3852,7 +3853,7 @@ int32_t get_register(const int32_t arg)
 			
 			
 		case LINKROTATION:
-			if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+			if ( get_qr(qr_OLDSPRITEDRAWS) ) 
 			{
 				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
 					"Player->Rotation");
@@ -3863,7 +3864,7 @@ int32_t get_register(const int32_t arg)
 		
 		case LINKSCALE:
 		{
-			if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+			if ( get_qr(qr_OLDSPRITEDRAWS) ) 
 			{
 				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
 					"Player->Scale");
@@ -3888,7 +3889,7 @@ int32_t get_register(const int32_t arg)
 			break;
 			
 		case LINKYOFS:
-			ret = (int32_t)(Hero.yofs-(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset))*10000;
+			ret = (int32_t)(Hero.yofs-(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset))*10000;
 			break;
 			
 		case HEROSHADOWXOFS:
@@ -3900,7 +3901,7 @@ int32_t get_register(const int32_t arg)
 			break;
 			
 		case HEROTOTALDYOFFS:
-			ret = 10000*(((int32_t)(Hero.yofs-(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)))
+			ret = 10000*(((int32_t)(Hero.yofs-(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)))
 				+ ((Hero.switch_hooked && Hero.switchhookstyle == swRISE)
 					? -(8-(abs(Hero.switchhookclk-32)/4)) : 0));
 			break;
@@ -4055,7 +4056,7 @@ int32_t get_register(const int32_t arg)
 			
 		case HEROFAKEZ:
 		{
-			if (get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT))
+			if (get_qr(qr_SPRITEXY_IS_FLOAT))
 			{
 				ret = Hero.getFakeZ().getZLong();
 			}
@@ -4266,7 +4267,7 @@ int32_t get_register(const int32_t arg)
 		case INPUTMOUSEY:
 		{
 			int32_t mousequakeoffset = 56+((int32_t)(zc::math::Sin((double)(quakeclk*int64_t(2)-frame))*4));
-			int32_t tempoffset = (quakeclk > 0) ? mousequakeoffset : (get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
+			int32_t tempoffset = (quakeclk > 0) ? mousequakeoffset : (get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
 			ret=((get_mouse_state(1)-tempoffset))*10000;
 			break;
 		}
@@ -4354,7 +4355,7 @@ int32_t get_register(const int32_t arg)
 		case FFRULE:
 		{
 			int32_t ruleid = vbound((ri->d[rINDEX]/10000),0,qr_MAX);
-			ret = get_bit(quest_rules,ruleid)?10000:0;
+			ret = get_qr(ruleid)?10000:0;
 		}
 		break;
 		
@@ -4484,7 +4485,7 @@ int32_t get_register(const int32_t arg)
 				case 1: //MouseY
 				{
 					int32_t mousequakeoffset = 56+((int32_t)(zc::math::Sin((double)(quakeclk*int64_t(2)-frame))*4));
-					int32_t tempoffset = (quakeclk > 0) ? mousequakeoffset : (get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
+					int32_t tempoffset = (quakeclk > 0) ? mousequakeoffset : (get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
 					int32_t topOffset= (112-tempoffset);
 					rv=(get_mouse_state(1)-topOffset)*10000;
 					break;
@@ -4526,7 +4527,7 @@ int32_t get_register(const int32_t arg)
 		///----------------------------------------------------------------------------------------------------//
 		//Item Variables
 		case ITEMSCALE:
-			if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+			if ( get_qr(qr_OLDSPRITEDRAWS) ) 
 			{
 				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
 					"item->Scale");
@@ -4541,7 +4542,7 @@ int32_t get_register(const int32_t arg)
 		case ITEMX:
 			if(0!=(s=checkItem(ri->itemref)))
 			{
-				if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
+				if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
 				{
 					ret=(((item*)(s))->x).getZLong();    
 				}
@@ -4595,7 +4596,7 @@ int32_t get_register(const int32_t arg)
 		case ITEMY:
 			if(0!=(s=checkItem(ri->itemref)))
 			{
-				if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
+				if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
 				{
 					ret=(((item*)(s))->y).getZLong();    
 				}
@@ -4607,7 +4608,7 @@ int32_t get_register(const int32_t arg)
 		case ITEMZ:
 			if(0!=(s=checkItem(ri->itemref)))
 			{
-				if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
+				if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
 				{
 					ret=(((item*)(s))->z).getZLong();    
 				}
@@ -4620,7 +4621,7 @@ int32_t get_register(const int32_t arg)
 			if(0!=(s=checkItem(ri->itemref)))
 			{
 				ret = ((item*)(s))->fall.getZLong() / -100;
-				if (get_bit(quest_rules, qr_SPRITE_JUMP_IS_TRUNCATED)) ret = trunc(ret / 10000) * 10000;
+				if (get_qr(qr_SPRITE_JUMP_IS_TRUNCATED)) ret = trunc(ret / 10000) * 10000;
 			}
 			break;
 		
@@ -4628,7 +4629,7 @@ int32_t get_register(const int32_t arg)
 			if(0!=(s=checkItem(ri->itemref)))
 			{
 				ret = ((item*)(s))->fakefall.getZLong() / -100;
-				if (get_bit(quest_rules, qr_SPRITE_JUMP_IS_TRUNCATED)) ret = trunc(ret / 10000) * 10000;
+				if (get_qr(qr_SPRITE_JUMP_IS_TRUNCATED)) ret = trunc(ret / 10000) * 10000;
 			}
 			break;
 			
@@ -4768,7 +4769,7 @@ int32_t get_register(const int32_t arg)
 			break;
 
 		case ITEMROTATION:
-			if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+			if ( get_qr(qr_OLDSPRITEDRAWS) ) 
 			{
 				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
 					"item->Rotation");
@@ -4797,7 +4798,7 @@ int32_t get_register(const int32_t arg)
 		case ITEMYOFS:
 			if(0!=(s=checkItem(ri->itemref)))
 			{
-				ret=((int32_t)(((item*)(s))->yofs-(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)))*10000;
+				ret=((int32_t)(((item*)(s))->yofs-(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)))*10000;
 			}
 			break;
 		
@@ -4919,7 +4920,7 @@ int32_t get_register(const int32_t arg)
 		case ITEMFAKEZ:
 			if(0!=(s=checkItem(ri->itemref)))
 			{
-				if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
+				if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
 				{
 					ret=(((item*)(s))->fakez).getZLong();    
 				}
@@ -5980,7 +5981,7 @@ int32_t get_register(const int32_t arg)
 			GET_NPC_VAR_INT(hzsz, "npc->HitZHeight") break;
 		
 		case NPCROTATION:
-			if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+			if ( get_qr(qr_OLDSPRITEDRAWS) ) 
 			{
 				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
 					"npc->Rotation");
@@ -6015,7 +6016,7 @@ int32_t get_register(const int32_t arg)
 			}
 			else 
 			{
-				if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
+				if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
 				{
 					ret = ((GuyH::getNPC()->x).getZLong()); 
 				}
@@ -6058,7 +6059,7 @@ int32_t get_register(const int32_t arg)
 			}
 			else 
 			{
-				if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
+				if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
 				{
 					ret = ((GuyH::getNPC()->y).getZLong()); 
 				}
@@ -6080,7 +6081,7 @@ int32_t get_register(const int32_t arg)
 			}
 			else 
 			{
-				if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
+				if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
 				{
 					ret = ((GuyH::getNPC()->z).getZLong()); 
 				}
@@ -6096,7 +6097,7 @@ int32_t get_register(const int32_t arg)
 			GET_NPC_VAR_FIX(xofs, "npc->DrawXOffset") break;
 			
 		case NPCYOFS:
-			GET_NPC_VAR_FIX(yofs, "npc->DrawYOffset") ret-=(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)*10000;
+			GET_NPC_VAR_FIX(yofs, "npc->DrawYOffset") ret-=(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)*10000;
 			break;
 		case NPCSHADOWXOFS:
 			GET_NPC_VAR_FIX(shadowxofs, "npc->ShadowXOffset") break;
@@ -6112,7 +6113,7 @@ int32_t get_register(const int32_t arg)
 			}
 			else
 			{
-				ret = ((int32_t(GuyH::getNPC()->yofs - (get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset))
+				ret = ((int32_t(GuyH::getNPC()->yofs - (get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset))
 					+ ((GuyH::getNPC()->switch_hooked && Hero.switchhookstyle == swRISE)
 						? -(8-(abs(Hero.switchhookclk-32)/4)) : 0)) * 10000);
 			}
@@ -6129,7 +6130,7 @@ int32_t get_register(const int32_t arg)
 			else
 			{
 				ret = GuyH::getNPC()->fall.getZLong() / -100;
-				if (get_bit(quest_rules, qr_SPRITE_JUMP_IS_TRUNCATED)) ret = trunc(ret / 10000) * 10000;
+				if (get_qr(qr_SPRITE_JUMP_IS_TRUNCATED)) ret = trunc(ret / 10000) * 10000;
 			}
 				
 			break;
@@ -6140,14 +6141,14 @@ int32_t get_register(const int32_t arg)
 			else
 			{
 				ret = GuyH::getNPC()->fakefall.getZLong() / -100;
-				if (get_bit(quest_rules, qr_SPRITE_JUMP_IS_TRUNCATED)) ret = trunc(ret / 10000) * 10000;
+				if (get_qr(qr_SPRITE_JUMP_IS_TRUNCATED)) ret = trunc(ret / 10000) * 10000;
 			}
 				
 			break;
 		
 		
 		case NPCSCALE:
-			if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+			if ( get_qr(qr_OLDSPRITEDRAWS) ) 
 			{
 				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
 					"npc->Scale");
@@ -6193,7 +6194,7 @@ int32_t get_register(const int32_t arg)
 				ret = -10000;
 			else
 			{
-				if ( get_bit(quest_rules,qr_STEP_IS_FLOAT) || replay_is_active() )
+				if ( get_qr(qr_STEP_IS_FLOAT) || replay_is_active() )
 				{
 					ret = ( ( (GuyH::getNPC()->step).getZLong() ) * 100 );
 				}
@@ -6569,7 +6570,7 @@ int32_t get_register(const int32_t arg)
 			}
 			else 
 			{
-				if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
+				if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
 				{
 					ret = ((GuyH::getNPC()->fakez).getZLong()); 
 				}
@@ -6654,7 +6655,7 @@ int32_t get_register(const int32_t arg)
 			break;
 			
 		case LWPNSCALE:
-			if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+			if ( get_qr(qr_OLDSPRITEDRAWS) ) 
 			{
 				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
 					"lweapon->Scale");
@@ -6668,7 +6669,7 @@ int32_t get_register(const int32_t arg)
 		case LWPNX:
 			if(0!=(s=checkLWpn(ri->lwpn,"X")))
 			{
-				if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
+				if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
 				{
 					ret=(((weapon*)(s))->x).getZLong();  
 				}
@@ -6688,7 +6689,7 @@ int32_t get_register(const int32_t arg)
 		case LWPNY:
 			if(0!=(s=checkLWpn(ri->lwpn,"Y")))
 			{
-				if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
+				if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
 				{
 					ret=(((weapon*)(s))->y).getZLong();  
 				}
@@ -6700,7 +6701,7 @@ int32_t get_register(const int32_t arg)
 		case LWPNZ:
 			if(0!=(s=checkLWpn(ri->lwpn,"Z")))
 			{
-				if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
+				if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
 				{
 					ret=(((weapon*)(s))->z).getZLong();  
 				}
@@ -6714,7 +6715,7 @@ int32_t get_register(const int32_t arg)
 			if(0!=(s=checkLWpn(ri->lwpn,"Jump")))
 			{
 				ret = ((weapon*)(s))->fall.getZLong() / -100;
-				if (get_bit(quest_rules, qr_SPRITE_JUMP_IS_TRUNCATED)) ret = trunc(ret / 10000) * 10000;
+				if (get_qr(qr_SPRITE_JUMP_IS_TRUNCATED)) ret = trunc(ret / 10000) * 10000;
 			}
 				
 			break;
@@ -6723,7 +6724,7 @@ int32_t get_register(const int32_t arg)
 			if(0!=(s=checkLWpn(ri->lwpn,"FakeJump")))
 			{
 				ret = ((weapon*)(s))->fakefall.getZLong() / -100;
-				if (get_bit(quest_rules, qr_SPRITE_JUMP_IS_TRUNCATED)) ret = trunc(ret / 10000) * 10000;
+				if (get_qr(qr_SPRITE_JUMP_IS_TRUNCATED)) ret = trunc(ret / 10000) * 10000;
 			}
 				
 			break;
@@ -6743,7 +6744,7 @@ int32_t get_register(const int32_t arg)
 		case LWPNSTEP:
 			if(0!=(s=checkLWpn(ri->lwpn,"Step")))
 			{
-				if ( get_bit(quest_rules,qr_STEP_IS_FLOAT) || replay_is_active() )
+				if ( get_qr(qr_STEP_IS_FLOAT) || replay_is_active() )
 				{
 					ret=((weapon*)s)->step.getZLong() * 100;
 				}
@@ -6985,7 +6986,7 @@ int32_t get_register(const int32_t arg)
 			
 		case LWPNYOFS:
 			if(0!=(s=checkLWpn(ri->lwpn,"DrawYOffset")))
-				ret=((int32_t)(((weapon*)(s))->yofs-(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)))*10000;
+				ret=((int32_t)(((weapon*)(s))->yofs-(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)))*10000;
 				
 			break;
 			
@@ -7003,7 +7004,7 @@ int32_t get_register(const int32_t arg)
 			
 		case LWPNTOTALDYOFFS:
 			if(0!=(s=checkLWpn(ri->lwpn,"TotalDYOffset")))
-				ret = ((int32_t)(((weapon*)(s))->yofs-(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset))
+				ret = ((int32_t)(((weapon*)(s))->yofs-(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset))
 					+ ((((weapon*)(s))->switch_hooked && Hero.switchhookstyle == swRISE)
 						? -(8-(abs(Hero.switchhookclk-32)/4)) : 0)) * 10000;
 			break;
@@ -7112,7 +7113,7 @@ int32_t get_register(const int32_t arg)
 			break;
 
 		case LWPNROTATION:
-			if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+			if ( get_qr(qr_OLDSPRITEDRAWS) ) 
 			{
 				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
 					"lweapon->Rotation");
@@ -7154,7 +7155,7 @@ int32_t get_register(const int32_t arg)
 		case LWPNFAKEZ:
 			if(0!=(s=checkLWpn(ri->lwpn,"FakeZ")))
 			{
-				if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
+				if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
 				{
 					ret=(((weapon*)(s))->fakez).getZLong();  
 				}
@@ -7285,7 +7286,7 @@ int32_t get_register(const int32_t arg)
 		///----------------------------------------------------------------------------------------------------//
 		//EWeapon Variables
 		case EWPNSCALE:
-			if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+			if ( get_qr(qr_OLDSPRITEDRAWS) ) 
 			{
 				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
 					"eweapon->Scale");
@@ -7299,7 +7300,7 @@ int32_t get_register(const int32_t arg)
 		case EWPNX:
 			if(0!=(s=checkEWpn(ri->ewpn, "X")))
 			{
-				if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
+				if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
 				{
 					ret=(((weapon*)(s))->x).getZLong();
 				}
@@ -7318,7 +7319,7 @@ int32_t get_register(const int32_t arg)
 		case EWPNY:
 			if(0!=(s=checkEWpn(ri->ewpn, "Y")))
 			{
-				if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
+				if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
 				{
 					ret=(((weapon*)(s))->y).getZLong();
 				}
@@ -7330,7 +7331,7 @@ int32_t get_register(const int32_t arg)
 		case EWPNZ:
 			if(0!=(s=checkEWpn(ri->ewpn, "Z")))
 			{
-				if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
+				if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
 				{
 					ret=(((weapon*)(s))->z).getZLong();
 				}
@@ -7343,7 +7344,7 @@ int32_t get_register(const int32_t arg)
 			if(0!=(s=checkEWpn(ri->ewpn, "Jump")))
 			{
 				ret = ((weapon*)(s))->fall.getZLong() / -100;
-				if (get_bit(quest_rules, qr_SPRITE_JUMP_IS_TRUNCATED)) ret = trunc(ret / 10000) * 10000;
+				if (get_qr(qr_SPRITE_JUMP_IS_TRUNCATED)) ret = trunc(ret / 10000) * 10000;
 			}
 				
 			break;
@@ -7352,7 +7353,7 @@ int32_t get_register(const int32_t arg)
 			if(0!=(s=checkEWpn(ri->ewpn, "FakeJump")))
 			{
 				ret = ((weapon*)(s))->fakefall.getZLong() / -100;
-				if (get_bit(quest_rules, qr_SPRITE_JUMP_IS_TRUNCATED)) ret = trunc(ret / 10000) * 10000;
+				if (get_qr(qr_SPRITE_JUMP_IS_TRUNCATED)) ret = trunc(ret / 10000) * 10000;
 			}
 				
 			break;
@@ -7378,7 +7379,7 @@ int32_t get_register(const int32_t arg)
 		case EWPNSTEP:
 			if(0!=(s=checkEWpn(ri->ewpn, "Step")))
 			{
-				if ( get_bit(quest_rules,qr_STEP_IS_FLOAT) || replay_is_active() )
+				if ( get_qr(qr_STEP_IS_FLOAT) || replay_is_active() )
 				{
 					ret=((weapon*)s)->step.getZLong() * 100;
 				}
@@ -7571,7 +7572,7 @@ int32_t get_register(const int32_t arg)
 			break;
 
 		case EWPNROTATION:
-			if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+			if ( get_qr(qr_OLDSPRITEDRAWS) ) 
 			{
 				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
 					"eweapon->Rotation");
@@ -7624,7 +7625,7 @@ int32_t get_register(const int32_t arg)
 			
 		case EWPNYOFS:
 			if(0!=(s=checkEWpn(ri->ewpn,"DrawYOffset")))
-				ret=((int32_t)(((weapon*)(s))->yofs-(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)))*10000;
+				ret=((int32_t)(((weapon*)(s))->yofs-(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)))*10000;
 				
 			break;
 			
@@ -7641,7 +7642,7 @@ int32_t get_register(const int32_t arg)
 			break;
 		case EWPNTOTALDYOFFS:
 			if(0!=(s=checkLWpn(ri->ewpn,"TotalDYOffset")))
-				ret = ((int32_t)(((weapon*)(s))->yofs-(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset))
+				ret = ((int32_t)(((weapon*)(s))->yofs-(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset))
 					+ ((((weapon*)(s))->switch_hooked && Hero.switchhookstyle == swRISE)
 						? -(8-(abs(Hero.switchhookclk-32)/4)) : 0) * 10000);
 			break;
@@ -7705,7 +7706,7 @@ int32_t get_register(const int32_t arg)
 		
 		case EWPNPARENT:
 			if(0!=(s=checkEWpn(ri->ewpn, "Parent")))
-				ret= ((get_bit(quest_rules,qr_OLDEWPNPARENT)) ? (((weapon*)(s))->parentid)*10000 : (((weapon*)(s))->parentid));
+				ret= ((get_qr(qr_OLDEWPNPARENT)) ? (((weapon*)(s))->parentid)*10000 : (((weapon*)(s))->parentid));
 		
 			break;
 		
@@ -7767,7 +7768,7 @@ int32_t get_register(const int32_t arg)
 		case EWPNFAKEZ:
 			if(0!=(s=checkEWpn(ri->ewpn, "FakeZ")))
 			{
-				if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
+				if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
 				{
 					ret=(((weapon*)(s))->fakez).getZLong();
 				}
@@ -7982,7 +7983,7 @@ int32_t get_register(const int32_t arg)
 			break;
 		
 		case SKIPF6:
-			ret=get_bit(quest_rules,qr_NOCONTINUE)?10000:0;
+			ret=get_qr(qr_NOCONTINUE)?10000:0;
 			break;
 			
 		case GAMESTANDALONE:
@@ -8038,7 +8039,7 @@ int32_t get_register(const int32_t arg)
 			}
 			else
 			{
-				ret = QMisc.questmisc[indx]*((get_bit(quest_rules,qr_OLDQUESTMISC)) ? 10000 : 1);
+				ret = QMisc.questmisc[indx]*((get_qr(qr_OLDQUESTMISC)) ? 10000 : 1);
 			}
 			break;
 		}
@@ -10469,7 +10470,7 @@ int32_t get_register(const int32_t arg)
 		{
 			if(mapscr *m = GetMapscr(ri->mapsref))
 			{
-				if ( get_bit(quest_rules, qr_OLDMAPDATAFLAGS) )
+				if ( get_qr(qr_OLDMAPDATAFLAGS) )
 				{
 					ret = get_screenflags(m,vbound(ri->d[rINDEX] / 10000,0,9));
 				}
@@ -11795,7 +11796,7 @@ int32_t get_register(const int32_t arg)
 			} 
 			else 
 			{ 
-				ret = (combobuf[ri->combosref].initd[indx] * (get_bit(quest_rules, qr_COMBODATA_INITD_MULT_TENK) ? 10000 : 1)); 
+				ret = (combobuf[ri->combosref].initd[indx] * (get_qr(qr_COMBODATA_INITD_MULT_TENK) ? 10000 : 1)); 
 			} 
 			break;
 		}
@@ -13416,7 +13417,7 @@ void set_register(int32_t arg, int32_t value)
 			if(BC::checkFFC(ri->ffcref, "ffc->Script") == SH::_NoError)
 			{
 				tmpscr->ffcs[ri->ffcref].script = vbound(value/10000, 0, NUMSCRIPTFFC-1);
-				if ( get_bit(quest_rules,qr_CLEARINITDONSCRIPTCHANGE))
+				if ( get_qr(qr_CLEARINITDONSCRIPTCHANGE))
 				{
 					for(int32_t i=0; i<2; i++)
 						tmpscr->ffcs[ri->ffcref].inita[i] = 0;
@@ -13544,7 +13545,7 @@ void set_register(int32_t arg, int32_t value)
 	//Hero's Variables
 		case LINKX:
 		{
-			if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
+			if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
 			{
 				Hero.setXfix(zslongToFix(value));
 			}
@@ -13562,7 +13563,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case LINKY:
 		{
-			if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
+			if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
 			{
 				Hero.setYfix(zslongToFix(value));
 			}
@@ -13575,7 +13576,7 @@ void set_register(int32_t arg, int32_t value)
 			
 		case LINKZ:
 		{
-			if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
+			if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
 			{
 				Hero.setZfix(zslongToFix(value));
 			}
@@ -13682,12 +13683,12 @@ void set_register(int32_t arg, int32_t value)
 		}
 		
 		case HEROSTEPRATE:
-			if(!get_bit(quest_rules, qr_NEW_HERO_MOVEMENT))
+			if(!get_qr(qr_NEW_HERO_MOVEMENT))
 			{
 				Z_scripterrlog("To use '%s', you must %s the quest rule '%s'.", "Hero->Step", "enable", "New Player Movement");
 			}
 			Hero.setStepRate(zc_max(value/10000,0));
-			if(!get_bit(quest_rules, qr_SCRIPT_WRITING_HEROSTEP_DOESNT_CARRY_OVER))
+			if(!get_qr(qr_SCRIPT_WRITING_HEROSTEP_DOESNT_CARRY_OVER))
 				zinit.heroStep = Hero.getStepRate();
 			break;
 		
@@ -13727,7 +13728,7 @@ void set_register(int32_t arg, int32_t value)
 				game->set_item(itemID,(value != 0));
 			}
 					
-			if((get_bit(quest_rules,qr_OVERWORLDTUNIC) != 0) || (currscr<128 || dlevel)) 
+			if((get_qr(qr_OVERWORLDTUNIC) != 0) || (currscr<128 || dlevel)) 
 			{
 				ringcolor(false);
 				//refreshpal=true;
@@ -13890,7 +13891,7 @@ void set_register(int32_t arg, int32_t value)
 					
 					case 1: //a
 					{
-						if (get_bit(quest_rules,qr_SELECTAWPN))
+						if (get_qr(qr_SELECTAWPN))
 						{
 							Awpn = itm;
 							game->items_off[itm] = 0;
@@ -13930,7 +13931,7 @@ void set_register(int32_t arg, int32_t value)
 						
 						case 1: //a
 						{
-							if (get_bit(quest_rules,qr_SELECTAWPN))
+							if (get_qr(qr_SELECTAWPN))
 							{
 								Awpn = itm;
 								game->items_off[itm] = 0;
@@ -14033,7 +14034,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 
 		case LINKROTATION:
-			if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+			if ( get_qr(qr_OLDSPRITEDRAWS) ) 
 			{
 				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
 					"Player->Rotation");
@@ -14044,7 +14045,7 @@ void set_register(int32_t arg, int32_t value)
 		
 		case LINKSCALE:
 		{
-			if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+			if ( get_qr(qr_OLDSPRITEDRAWS) ) 
 			{
 				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
 					"Player->Scale");
@@ -14065,7 +14066,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case LINKYOFS:
-			(Hero.yofs)=(zfix)(value/10000)+(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
+			(Hero.yofs)=(zfix)(value/10000)+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
 			break;
 		case HEROTOTALDYOFFS:
 			break; //READ-ONLY
@@ -14276,13 +14277,13 @@ void set_register(int32_t arg, int32_t value)
 		//Set Hero Diagonal
 		case LINKDIAG:
 			Hero.setDiagMove(value?1:0);
-			set_bit(quest_rules, qr_LTTPWALK, value?1:0);
+			set_qr(qr_LTTPWALK, value?1:0);
 			break;
 		
 		//Set Hero Big Hitbox
 		case LINKBIGHITBOX:
 			Hero.setBigHitbox((value/10000)?1:0);
-			set_bit(quest_rules, qr_LTTPCOLLISION, (value/10000)?1:0);
+			set_qr(qr_LTTPCOLLISION, (value/10000)?1:0);
 			break;
 		
 		case LINKCLIMBING:
@@ -14330,7 +14331,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 		case HEROFAKEZ:
 			{
-				if ( get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) )
+				if ( get_qr(qr_SPRITEXY_IS_FLOAT) )
 				{
 					Hero.setFakeZfix(zslongToFix(value));
 				}
@@ -14474,14 +14475,14 @@ void set_register(int32_t arg, int32_t value)
 		case INPUTSTART:
 		{
 			control_state[6]=(value?true:false);
-			if ( get_bit(quest_rules,qr_FIXDRUNKINPUTS) ) drunk_toggle_state[6]=false;
+			if ( get_qr(qr_FIXDRUNKINPUTS) ) drunk_toggle_state[6]=false;
 			break;
 		}
 			
 		case INPUTMAP:
 		{
 			control_state[9]=(value?true:false);
-			if ( get_bit(quest_rules,qr_FIXDRUNKINPUTS) ) 
+			if ( get_qr(qr_FIXDRUNKINPUTS) ) 
 				drunk_toggle_state[9]=false;
 			break;
 		}
@@ -14489,14 +14490,14 @@ void set_register(int32_t arg, int32_t value)
 		case INPUTUP:
 		{
 			control_state[0]=(value?true:false);
-			if ( get_bit(quest_rules,qr_FIXDRUNKINPUTS) ) drunk_toggle_state[0]=false;
+			if ( get_qr(qr_FIXDRUNKINPUTS) ) drunk_toggle_state[0]=false;
 			break;
 		}
 			
 		case INPUTDOWN:
 		{
 			control_state[1]=(value?true:false);
-			if ( get_bit(quest_rules,qr_FIXDRUNKINPUTS) ) 
+			if ( get_qr(qr_FIXDRUNKINPUTS) ) 
 				drunk_toggle_state[1]=false;
 			break;
 		}
@@ -14504,42 +14505,42 @@ void set_register(int32_t arg, int32_t value)
 		case INPUTLEFT:
 		{
 			control_state[2]=(value?true:false);
-			if ( get_bit(quest_rules,qr_FIXDRUNKINPUTS) ) drunk_toggle_state[2]=false;
+			if ( get_qr(qr_FIXDRUNKINPUTS) ) drunk_toggle_state[2]=false;
 			break;
 		}
 			
 		case INPUTRIGHT:
 		{
 			control_state[3]=(value?true:false);
-			if ( get_bit(quest_rules,qr_FIXDRUNKINPUTS) ) drunk_toggle_state[3]=false;
+			if ( get_qr(qr_FIXDRUNKINPUTS) ) drunk_toggle_state[3]=false;
 			break;
 		}
 			
 		case INPUTA:
 		{
 			control_state[4]=(value?true:false);
-			if ( get_bit(quest_rules,qr_FIXDRUNKINPUTS) ) drunk_toggle_state[4]=false;
+			if ( get_qr(qr_FIXDRUNKINPUTS) ) drunk_toggle_state[4]=false;
 			break;
 		}
 			
 		case INPUTB:
 		{
 			control_state[5]=(value?true:false);
-			if ( get_bit(quest_rules,qr_FIXDRUNKINPUTS) ) drunk_toggle_state[5]=false;
+			if ( get_qr(qr_FIXDRUNKINPUTS) ) drunk_toggle_state[5]=false;
 			break;
 		}
 			
 		case INPUTL:
 		{
 			control_state[7]=(value?true:false);
-			if ( get_bit(quest_rules,qr_FIXDRUNKINPUTS) ) drunk_toggle_state[7]=false;
+			if ( get_qr(qr_FIXDRUNKINPUTS) ) drunk_toggle_state[7]=false;
 			break;
 		}
 			
 		case INPUTR:
 		{
 			control_state[8]=(value?true:false);
-			if ( get_bit(quest_rules,qr_FIXDRUNKINPUTS) ) drunk_toggle_state[8]=false;
+			if ( get_qr(qr_FIXDRUNKINPUTS) ) drunk_toggle_state[8]=false;
 			break;
 		}
 			
@@ -14658,7 +14659,7 @@ void set_register(int32_t arg, int32_t value)
 		case INPUTMOUSEY:
 		{
 			int32_t mousequakeoffset = 56+((int32_t)(zc::math::Sin((double)(quakeclk*int64_t(2)-frame))*4));
-			int32_t tempoffset = (quakeclk > 0) ? mousequakeoffset : (get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
+			int32_t tempoffset = (quakeclk > 0) ? mousequakeoffset : (get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
 			position_mouse(mouse_x, rti_game.local_to_global_y(value/10000 + tempoffset));
 			break;
 		}
@@ -14670,7 +14671,7 @@ void set_register(int32_t arg, int32_t value)
 		case FFRULE:
 		{
 			int32_t ruleid = vbound((ri->d[rINDEX]/10000),0,qr_MAX);
-			set_bit(quest_rules, ruleid, (value?true:false));
+			set_qr(ruleid, (value?true:false));
 			switch(ruleid)
 			{
 				case qr_LTTPWALK:
@@ -14692,7 +14693,7 @@ void set_register(int32_t arg, int32_t value)
 			//Read-only
 			int32_t button = vbound((ri->d[rINDEX]/10000),0,17);
 			button_press[button]=(value?true:false);
-			if ( button < 11 && get_bit(quest_rules,qr_FIXDRUNKINPUTS) ) drunk_toggle_state[button]=false;
+			if ( button < 11 && get_qr(qr_FIXDRUNKINPUTS) ) drunk_toggle_state[button]=false;
 			
 		}
 		break;
@@ -14702,7 +14703,7 @@ void set_register(int32_t arg, int32_t value)
 			//Read-only
 			int32_t button = vbound((ri->d[rINDEX]/10000),0,17);
 			control_state[button]=(value?true:false);
-			if ( button < 11 && get_bit(quest_rules,qr_FIXDRUNKINPUTS) ) drunk_toggle_state[button]=false;
+			if ( button < 11 && get_qr(qr_FIXDRUNKINPUTS) ) drunk_toggle_state[button]=false;
 		}
 		break;
 
@@ -14815,7 +14816,7 @@ void set_register(int32_t arg, int32_t value)
 				case 1: //MouseY
 				{
 					int32_t mousequakeoffset = 56+((int32_t)(zc::math::Sin((double)(quakeclk*int64_t(2)-frame))*4));
-					int32_t tempoffset = (quakeclk > 0) ? mousequakeoffset :(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
+					int32_t tempoffset = (quakeclk > 0) ? mousequakeoffset :(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
 					position_mouse(mouse_x, rti_game.local_to_global_y(value/10000 + tempoffset));
 					break;
 					
@@ -14882,7 +14883,7 @@ void set_register(int32_t arg, int32_t value)
 		case ITEMX:
 			if(0!=(s=checkItem(ri->itemref)))
 			{
-				(s->x)=get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
+				(s->x)=get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
 				
 				// Move the Fairy enemy as well.
 				if(itemsbuf[((item*)(s))->id].family==itype_fairy && itemsbuf[((item*)(s))->id].misc3)
@@ -14900,7 +14901,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 		
 		case ITEMSCALE:
-			if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+			if ( get_qr(qr_OLDSPRITEDRAWS) ) 
 			{
 				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
 					"item->Scale");
@@ -14916,7 +14917,7 @@ void set_register(int32_t arg, int32_t value)
 		case ITEMY:
 			if(0!=(s=checkItem(ri->itemref)))
 			{
-				(s->y)=get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
+				(s->y)=get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
 				
 				// Move the Fairy enemy as well.
 				if(itemsbuf[((item*)(s))->id].family==itype_fairy && itemsbuf[((item*)(s))->id].misc3)
@@ -15128,7 +15129,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case ITEMROTATION:
-			if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+			if ( get_qr(qr_OLDSPRITEDRAWS) ) 
 			{
 				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
 					"item->Rotation");
@@ -15160,7 +15161,7 @@ void set_register(int32_t arg, int32_t value)
 		case ITEMYOFS:
 			if(0!=(s=checkItem(ri->itemref)))
 			{
-				((item*)(s))->yofs=(zfix)(value/10000)+(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
+				((item*)(s))->yofs=(zfix)(value/10000)+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
 			}
 			
 			break;
@@ -15278,15 +15279,15 @@ void set_register(int32_t arg, int32_t value)
 				else if((((item*)(s))->pickup & ipENEMY) > (newpickup & ipENEMY))
 				{
 					// Move it back onscreen!
-					if(get_bit(quest_rules,qr_HIDECARRIEDITEMS))
+					if(get_qr(qr_HIDECARRIEDITEMS))
 					{
 						for(int32_t i=0; i<guys.Count(); i++)
 						{
 							if(((enemy*)guys.spr(i))->itemguy)
 							{
-								if (!get_bit(quest_rules, qr_BROKEN_ITEM_CARRYING))
+								if (!get_qr(qr_BROKEN_ITEM_CARRYING))
 								{
-									if (get_bit(quest_rules, qr_ENEMY_DROPS_USE_HITOFFSETS))
+									if (get_qr(qr_ENEMY_DROPS_USE_HITOFFSETS))
 									{
 										((item*)(s))->x = ((enemy*)guys.spr(i))->x+((enemy*)guys.spr(i))->hxofs+(((enemy*)guys.spr(i))->hit_width/2)-8;
 										((item*)(s))->y = ((enemy*)guys.spr(i))->y+((enemy*)guys.spr(i))->hyofs+(((enemy*)guys.spr(i))->hit_height/2)-10;
@@ -16234,7 +16235,7 @@ void set_register(int32_t arg, int32_t value)
 	//LWeapon Variables
 		
 		case LWPNSCALE:
-			if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+			if ( get_qr(qr_OLDSPRITEDRAWS) ) 
 			{
 				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
 					"lweapon->Scale");
@@ -16247,7 +16248,7 @@ void set_register(int32_t arg, int32_t value)
 		
 		case LWPNX:
 			if(0!=(s=checkLWpn(ri->lwpn,"X")))
-				((weapon*)s)->x=get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
+				((weapon*)s)->x=get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
 			break;
 		
 		case SPRITEMAXLWPN:
@@ -16259,14 +16260,14 @@ void set_register(int32_t arg, int32_t value)
 			
 		case LWPNY:
 			if(0!=(s=checkLWpn(ri->lwpn,"Y")))
-				((weapon*)s)->y=get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
+				((weapon*)s)->y=get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
 				
 			break;
 			
 		case LWPNZ:
 			if(0!=(s=checkLWpn(ri->lwpn,"Z")))
 			{
-				((weapon*)s)->z=get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
+				((weapon*)s)->z=get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
 				if(((weapon*)s)->z < 0) ((weapon*)s)->z = zfix(0);
 			}
 				
@@ -16316,7 +16317,7 @@ void set_register(int32_t arg, int32_t value)
 				// TODO: can we just delete this QR? Would it actually break anything? For now,
 				// just disable for replay and wait for more tests to be played with this QR
 				// ignored.
-				if ( get_bit(quest_rules,qr_STEP_IS_FLOAT) || replay_is_active() )
+				if ( get_qr(qr_STEP_IS_FLOAT) || replay_is_active() )
 				{
 					((weapon*)s)->step= zslongToFix(value / 100);
 				}
@@ -16541,7 +16542,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 
 		case LWPNROTATION:
-			if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+			if ( get_qr(qr_OLDSPRITEDRAWS) ) 
 			{
 				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
 					"lweapon->Rotation");
@@ -16598,7 +16599,7 @@ void set_register(int32_t arg, int32_t value)
 			
 		case LWPNYOFS:
 			if(0!=(s=checkLWpn(ri->lwpn,"DrawYOffset")))
-				(((weapon*)s)->yofs)=(zfix)(value/10000)+(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
+				(((weapon*)s)->yofs)=(zfix)(value/10000)+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
 				
 			break;
 		
@@ -16695,7 +16696,7 @@ void set_register(int32_t arg, int32_t value)
 			{
 				FFScript::deallocateAllArrays(ScriptType::Lwpn, ri->lwpn);
 				(((weapon*)(s))->weaponscript)=vbound(value/10000,0,NUMSCRIPTWEAPONS-1);
-				if ( get_bit(quest_rules,qr_CLEARINITDONSCRIPTCHANGE))
+				if ( get_qr(qr_CLEARINITDONSCRIPTCHANGE))
 				{
 					for(int32_t q=0; q<8; q++)
 						(((weapon*)(s))->weap_initd[q]) = 0;
@@ -16763,7 +16764,7 @@ void set_register(int32_t arg, int32_t value)
 		case LWPNFAKEZ:
 			if(0!=(s=checkLWpn(ri->lwpn,"FakeZ")))
 			{
-				((weapon*)s)->fakez=get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
+				((weapon*)s)->fakez=get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
 				if(((weapon*)s)->fakez < 0) ((weapon*)s)->fakez = zfix(0);
 			}
 				
@@ -16891,7 +16892,7 @@ void set_register(int32_t arg, int32_t value)
 	///----------------------------------------------------------------------------------------------------//
 	//EWeapon Variables
 		case EWPNSCALE:
-			if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+			if ( get_qr(qr_OLDSPRITEDRAWS) ) 
 			{
 				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
 					"eweapon->Scale");
@@ -16904,7 +16905,7 @@ void set_register(int32_t arg, int32_t value)
 		
 		case EWPNX:
 			if(0!=(s=checkEWpn(ri->ewpn,"X")))
-				((weapon*)s)->x = (get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000));
+				((weapon*)s)->x = (get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000));
 				
 			break;
 		
@@ -16917,14 +16918,14 @@ void set_register(int32_t arg, int32_t value)
 		
 		case EWPNY:
 			if(0!=(s=checkEWpn(ri->ewpn,"Y")))
-				((weapon*)s)->y = (get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000));
+				((weapon*)s)->y = (get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000));
 				
 			break;
 			
 		case EWPNZ:
 			if(0!=(s=checkEWpn(ri->ewpn,"Z")))
 			{
-				((weapon*)s)->z=get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
+				((weapon*)s)->z=get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
 				if(((weapon*)s)->z < 0) ((weapon*)s)->z = zfix(0);
 			}
 				
@@ -16970,7 +16971,7 @@ void set_register(int32_t arg, int32_t value)
 		case EWPNSTEP:
 			if(0!=(s=checkEWpn(ri->ewpn,"Step")))
 			{
-				if ( get_bit(quest_rules,qr_STEP_IS_FLOAT) || replay_is_active() )
+				if ( get_qr(qr_STEP_IS_FLOAT) || replay_is_active() )
 				{
 					((weapon*)s)->step= zslongToFix(value / 100);
 				}
@@ -17191,7 +17192,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case EWPNROTATION:
-			if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+			if ( get_qr(qr_OLDSPRITEDRAWS) ) 
 			{
 				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
 					"eweapon->Rotation");
@@ -17243,7 +17244,7 @@ void set_register(int32_t arg, int32_t value)
 			
 		case EWPNYOFS:
 			if(0!=(s=checkEWpn(ri->ewpn,"DrawYOffset")))
-				(((weapon*)s)->yofs)=(zfix)(value/10000)+(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
+				(((weapon*)s)->yofs)=(zfix)(value/10000)+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
 				
 			break;
 		case EWPNTOTALDYOFFS:
@@ -17326,7 +17327,7 @@ void set_register(int32_t arg, int32_t value)
 		
 		case EWPNPARENT:
 			if(0!=(s=checkEWpn(ri->ewpn, "Parent")))
-				(((weapon*)(s))->parentid)= ( (get_bit(quest_rules,qr_OLDEWPNPARENT)) ? value / 10000 : value );
+				(((weapon*)(s))->parentid)= ( (get_qr(qr_OLDEWPNPARENT)) ? value / 10000 : value );
 				
 			break;
 		
@@ -17335,7 +17336,7 @@ void set_register(int32_t arg, int32_t value)
 			{
 				FFScript::deallocateAllArrays(ScriptType::Ewpn, ri->ewpn);
 				(((weapon*)(s))->weaponscript)=vbound(value/10000,0,NUMSCRIPTWEAPONS-1);
-				if ( get_bit(quest_rules,qr_CLEARINITDONSCRIPTCHANGE))
+				if ( get_qr(qr_CLEARINITDONSCRIPTCHANGE))
 				{
 					for(int32_t q=0; q<8; q++)
 						(((weapon*)(s))->weap_initd[q]) = 0;
@@ -17391,7 +17392,7 @@ void set_register(int32_t arg, int32_t value)
 		case EWPNFAKEZ:
 			if(0!=(s=checkEWpn(ri->ewpn,"FakeZ")))
 			{
-				((weapon*)s)->fakez=get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
+				((weapon*)s)->fakez=get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
 				if(((weapon*)s)->fakez < 0) ((weapon*)s)->fakez = zfix(0);
 			}
 				
@@ -17522,17 +17523,17 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(GuyH::loadNPC(ri->guyref, "npc->X") == SH::_NoError)
 			{
-				GuyH::getNPC()->x = get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
+				GuyH::getNPC()->x = get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
 				
 				if(GuyH::hasHero())
-					Hero.setXfix(get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000));
+					Hero.setXfix(get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000));
 			}
 		}
 		break;
 		
 		case NPCSCALE:
 		{
-			if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+			if ( get_qr(qr_OLDSPRITEDRAWS) ) 
 			{
 				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
 					"npc->Scale");
@@ -17599,11 +17600,11 @@ void set_register(int32_t arg, int32_t value)
 			if(GuyH::loadNPC(ri->guyref, "npc->Y") == SH::_NoError)
 			{
 				zfix oldy = GuyH::getNPC()->y;
-				GuyH::getNPC()->y = get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
-				GuyH::getNPC()->floor_y += ((get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000)) - oldy);
+				GuyH::getNPC()->y = get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
+				GuyH::getNPC()->floor_y += ((get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000)) - oldy);
 				
 				if(GuyH::hasHero())
-					Hero.setYfix(get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000));
+					Hero.setYfix(get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000));
 			}
 		}
 		break;
@@ -17617,10 +17618,10 @@ void set_register(int32_t arg, int32_t value)
 					if(value < 0)
 						GuyH::getNPC()->z = zfix(0);
 					else
-						GuyH::getNPC()->z = get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
+						GuyH::getNPC()->z = get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
 						
 					if(GuyH::hasHero())
-						Hero.setZfix(get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000));
+						Hero.setZfix(get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000));
 				}
 			}
 		}
@@ -17656,7 +17657,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(GuyH::loadNPC(ri->guyref, "npc->Step") == SH::_NoError)
 			{
-				if ( get_bit(quest_rules,qr_STEP_IS_FLOAT) || replay_is_active() )
+				if ( get_qr(qr_STEP_IS_FLOAT) || replay_is_active() )
 				{	
 					GuyH::getNPC()->step = zslongToFix(value / 100);
 				}
@@ -17696,7 +17697,7 @@ void set_register(int32_t arg, int32_t value)
 		case NPCYOFS:
 		{
 			if(GuyH::loadNPC(ri->guyref, "npc->DrawYOffset") == SH::_NoError)
-				GuyH::getNPC()->yofs = zfix(value / 10000) + (get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
+				GuyH::getNPC()->yofs = zfix(value / 10000) + (get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
 		}
 		break;
 		
@@ -17719,7 +17720,7 @@ void set_register(int32_t arg, int32_t value)
 		
 		case NPCROTATION:
 		{
-			if ( get_bit(quest_rules, qr_OLDSPRITEDRAWS) ) 
+			if ( get_qr(qr_OLDSPRITEDRAWS) ) 
 			{
 				Z_scripterrlog("To use %s you must disable the quest rule 'Old (Faster) Sprite Drawing'.\n",
 					"npc->Rotation");
@@ -17956,7 +17957,7 @@ void set_register(int32_t arg, int32_t value)
 				GuyH::getNPC()->wpn = weapon;
 			
 				//al_trace("Correct weapon sprite is: %d /n", FFCore.GetDefaultWeaponSprite(weapon));
-				if ( get_bit(quest_rules, qr_SETENEMYWEAPONSPRITESONWPNCHANGE) ) //this should probably just be an extra_rule
+				if ( get_qr(qr_SETENEMYWEAPONSPRITESONWPNCHANGE) ) //this should probably just be an extra_rule
 				{
 					GuyH::getNPC()->wpnsprite = FFCore.GetDefaultWeaponSprite(weapon);
 				}
@@ -17973,7 +17974,7 @@ void set_register(int32_t arg, int32_t value)
 			if(GuyH::loadNPC(ri->guyref, "npc->Defense") == SH::_NoError &&
 					BC::checkBounds(a, 0, (edefLAST255), "npc->Defense") == SH::_NoError)
 			{
-				if ( ( get_bit(quest_rules, qr_250WRITEEDEFSCRIPT) ) && a == edefSCRIPT ) 
+				if ( ( get_qr(qr_250WRITEEDEFSCRIPT) ) && a == edefSCRIPT ) 
 				{
 					for ( int32_t sd = edefSCRIPT01; sd <= edefSCRIPT10; sd++ )
 					{
@@ -18079,7 +18080,7 @@ void set_register(int32_t arg, int32_t value)
 				FFScript::deallocateAllArrays(ScriptType::NPC, ri->guyref);
 				//enemy *e = (enemy*)guys.spr(ri->guyref);
 				//e->initD[a] = value; 
-				if ( get_bit(quest_rules,qr_CLEARINITDONSCRIPTCHANGE))
+				if ( get_qr(qr_CLEARINITDONSCRIPTCHANGE))
 				{
 					for(int32_t q=0; q<8; q++)
 						GuyH::getNPC()->initD[q] = 0;
@@ -18323,10 +18324,10 @@ void set_register(int32_t arg, int32_t value)
 						if(value < 0)
 							GuyH::getNPC()->fakez = zfix(0);
 						else
-							GuyH::getNPC()->fakez = get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
+							GuyH::getNPC()->fakez = get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
 							
 						if(GuyH::hasHero())
-							Hero.setFakeZfix(get_bit(quest_rules,qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000));
+							Hero.setFakeZfix(get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000));
 					}
 				}
 			}
@@ -18434,7 +18435,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 		
 		case SKIPF6:
-			set_bit(quest_rules,qr_NOCONTINUE,((value/10000)?1:0));
+			set_qr(qr_NOCONTINUE,((value/10000)?1:0));
 			break;
 		
 		
@@ -18486,7 +18487,7 @@ void set_register(int32_t arg, int32_t value)
 			}
 			else 
 			{
-				QMisc.questmisc[indx] = (value/((get_bit(quest_rules,qr_OLDQUESTMISC)) ? 10000 : 1));
+				QMisc.questmisc[indx] = (value/((get_qr(qr_OLDQUESTMISC)) ? 10000 : 1));
 			}
 			break;
 		}
@@ -19542,7 +19543,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			int32_t newx = vbound((value/10000),0,255);
 			tmpscr->entry_x = newx;
-			if ( get_bit(quest_rules, qr_WRITE_ENTRYPOINTS_AFFECTS_HEROCLASS) )
+			if ( get_qr(qr_WRITE_ENTRYPOINTS_AFFECTS_HEROCLASS) )
 			{
 				Hero.respawn_x = (zfix)(newx);
 			}
@@ -19553,7 +19554,7 @@ void set_register(int32_t arg, int32_t value)
 			
 			int32_t newy = vbound((value/10000),0,175);
 			tmpscr->entry_y = newy;
-			if ( get_bit(quest_rules, qr_WRITE_ENTRYPOINTS_AFFECTS_HEROCLASS) )
+			if ( get_qr(qr_WRITE_ENTRYPOINTS_AFFECTS_HEROCLASS) )
 			{
 				Hero.respawn_y = (zfix)(newy);
 			}
@@ -19920,7 +19921,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			FFScript::deallocateAllArrays(ScriptType::Screen, 0);
 			
-			if ( get_bit(quest_rules,qr_CLEARINITDONSCRIPTCHANGE))
+			if ( get_qr(qr_CLEARINITDONSCRIPTCHANGE))
 			{
 				for(int32_t q=0; q<8; q++)
 					tmpscr->screeninitd[q] = 0;
@@ -20551,7 +20552,7 @@ void set_register(int32_t arg, int32_t value)
 				{
 					FFScript::deallocateAllArrays(ScriptType::Screen, 0);
 					
-					if ( get_bit(quest_rules,qr_CLEARINITDONSCRIPTCHANGE))
+					if ( get_qr(qr_CLEARINITDONSCRIPTCHANGE))
 					{
 						for(int32_t q=0; q<8; q++)
 							tmpscr->screeninitd[q] = 0;
@@ -22042,7 +22043,7 @@ void set_register(int32_t arg, int32_t value)
 			{
 				newcombo& cdata = combobuf[ri->combosref];
 				cdata.o_tile = vbound((value / 10000),0,NEWMAXTILES);
-				if(get_bit(quest_rules, qr_NEW_COMBO_ANIMATION))
+				if(get_qr(qr_NEW_COMBO_ANIMATION))
 				{
 					cdata.tile = cdata.o_tile + ((1+cdata.skipanim)*cdata.cur_frame);
 					if(int32_t rowoffset = TILEROW(cdata.tile)-TILEROW(cdata.o_tile))
@@ -22165,7 +22166,7 @@ void set_register(int32_t arg, int32_t value)
 			} 
 			else 
 			{ 
-				combobuf[ri->combosref].initd[indx] = (value * ( get_bit(quest_rules, qr_COMBODATA_INITD_MULT_TENK) ? 10000 : 1)); 
+				combobuf[ri->combosref].initd[indx] = (value * ( get_qr(qr_COMBODATA_INITD_MULT_TENK) ? 10000 : 1)); 
 			} 
 			break;
 		}
@@ -24661,15 +24662,15 @@ void do_selectweapon(bool v, int32_t btn)
 	switch(btn)
 	{
 		case 1:
-			if(!get_bit(quest_rules,qr_SELECTAWPN))
+			if(!get_qr(qr_SELECTAWPN))
 				return;
 			break;
 		case 2:
-			if(!get_bit(quest_rules,qr_SET_XBUTTON_ITEMS))
+			if(!get_qr(qr_SET_XBUTTON_ITEMS))
 				return;
 			break;
 		case 3:
-			if(!get_bit(quest_rules,qr_SET_YBUTTON_ITEMS))
+			if(!get_qr(qr_SET_YBUTTON_ITEMS))
 				return;
 			break;
 	}
@@ -25004,7 +25005,7 @@ void do_getscreeneflags()
 void FFScript::do_graphics_getpixel()
 {
 	int32_t yoffset = 0;
-	const bool brokenOffset= ( (get_bit(extra_rules, er_BITMAPOFFSET)!=0) || (get_bit(quest_rules,qr_BITMAPOFFSETFIX)!=0) );
+	const bool brokenOffset= ( (get_er(er_BITMAPOFFSET)!=0) || (get_qr(qr_BITMAPOFFSETFIX)!=0) );
 	int32_t ref = (ri->d[rEXP1]);
 	
 	if ( ref == -10000 || ref == -20000 || ref >= 10000 ) //Bitmaps Loaded by LoadBitmapID have values of -10000 to 70000
@@ -25033,7 +25034,7 @@ void FFScript::do_graphics_getpixel()
 	
 	int32_t ret =  getpixel(bitty, xpos, ypos); //This is a palette index value. 
 	
-	if(!get_bit(quest_rules,qr_BROKEN_GETPIXEL_VALUE))
+	if(!get_qr(qr_BROKEN_GETPIXEL_VALUE))
 		ret *= 10000;
 	set_register(sarg1, ret);
 }
@@ -26143,7 +26144,7 @@ void FFScript::do_paldata_load_bitmap()
 		string str;
 		ArrayH::getString(pathptr, str, 256);
 
-		if (get_bit(quest_rules, qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE))
+		if (get_qr(qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE))
 		{
 			char buf[2048+1] = { 0 };
 			if (FFCore.get_scriptfile_path(buf, str.c_str()))
@@ -26238,9 +26239,9 @@ void FFScript::do_paldata_write_level()
 		{
 			loadlvlpal(lvl);
 			currcset = lvl;
-			if (darkroom && !get_bit(quest_rules, qr_NEW_DARKROOM))
+			if (darkroom && !get_qr(qr_NEW_DARKROOM))
 			{
-				if (get_bit(quest_rules, qr_FADE))
+				if (get_qr(qr_FADE))
 				{
 					interpolatedfade();
 				}
@@ -26329,9 +26330,9 @@ void FFScript::do_paldata_write_levelcset()
 		if (changed && DMaps[currdmap].color == lvl)
 		{
 			loadlvlpal(lvl);
-			if (darkroom && !get_bit(quest_rules, qr_NEW_DARKROOM))
+			if (darkroom && !get_qr(qr_NEW_DARKROOM))
 			{
-				if (get_bit(quest_rules, qr_FADE))
+				if (get_qr(qr_FADE))
 				{
 					interpolatedfade();
 				}
@@ -27899,7 +27900,7 @@ void do_createitem(const bool v)
 
 	if ( items.has_space() )
 	{
-		additem(0, (get_bit(quest_rules, qr_NOITEMOFFSET) ? 1: 0), ID, ipBIGRANGE);
+		additem(0, (get_qr(qr_NOITEMOFFSET) ? 1: 0), ID, ipBIGRANGE);
 		ri->itemref = items.spr(items.Count() - 1)->getUID();
 		Z_eventlog("Script created item \"%s\" with UID = %ld\n", item_string[ID], ri->itemref);
 	}
@@ -28382,7 +28383,7 @@ void do_drawing_command(const int32_t script_command)
 			//char cptr = new char[str->size()+1]; // +1 to account for \0 byte
 			//strncpy(cptr, str->c_str(), str->size());
 			
-			if(get_bit(quest_rules, qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE))
+			if(get_qr(qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE))
 			{
 				char buf[2048+1] = {0};
 				if(FFCore.get_scriptfile_path(buf, str->c_str()))
@@ -28407,7 +28408,7 @@ void do_drawing_command(const int32_t script_command)
 			//char *cptr = new char[str->size()+1]; // +1 to account for \0 byte
 			//strncpy(cptr, str->c_str(), str->size());
 			
-			if(get_bit(quest_rules, qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE))
+			if(get_qr(qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE))
 			{
 				char buf[2048+1] = {0};
 				if(FFCore.get_scriptfile_path(buf, str->c_str()))
@@ -29002,7 +29003,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 			{
 				Hero.hopclk=0xFF;
 				Hero.attackclk = Hero.charging = Hero.spins = 0;
-				if (isSideViewHero() && get_bit(quest_rules,qr_SIDESWIM)) {Hero.setAction(sideswimming); FFCore.setHeroAction(sideswimming);}
+				if (isSideViewHero() && get_qr(qr_SIDESWIM)) {Hero.setAction(sideswimming); FFCore.setHeroAction(sideswimming);}
 				else {Hero.setAction(swimming); FFCore.setHeroAction(swimming);}
 			}
 			else
@@ -29070,9 +29071,9 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 			homescr = currscr = scrID + DMaps[currdmap].xoff;
 			loadscr(0,currdmap,currscr,-1,overlay);
 			
-			if((tmpscr->flags&fDARK) && !get_bit(quest_rules,qr_NEW_DARKROOM))
+			if((tmpscr->flags&fDARK) && !get_qr(qr_NEW_DARKROOM))
 			{
-				if(get_bit(quest_rules,qr_FADE))
+				if(get_qr(qr_FADE))
 				{
 				interpolatedfade();
 				}
@@ -29141,7 +29142,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 			if(isdungeon())
 			{
 				openscreen();
-				if(get_bit(extra_rules, er_SHORTDGNWALK)==0 && get_bit(quest_rules, qr_SHORTDGNWALK)==0)
+				if(get_er(er_SHORTDGNWALK)==0 && get_qr(qr_SHORTDGNWALK)==0)
 				Hero.stepforward(Hero.diagonalMovement?11:12, false);
 				else
 				// Didn't walk as far pre-1.93, and some quests depend on that
@@ -29226,7 +29227,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 				init_dmap();
 				
 				
-				if(((wx>0||wy>0)||(get_bit(quest_rules,qr_WARPSIGNOREARRIVALPOINT)))&&(!get_bit(quest_rules,qr_NOSCROLLCONTINUE))&&(!(tmpscr->flags6&fNOCONTINUEHERE)))
+				if(((wx>0||wy>0)||(get_qr(qr_WARPSIGNOREARRIVALPOINT)))&&(!get_qr(qr_NOSCROLLCONTINUE))&&(!(tmpscr->flags6&fNOCONTINUEHERE)))
 				{
 					if(dlevel)
 					{
@@ -29270,11 +29271,11 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 	}
 		
 	// But keep him swimming if he ought to be!
-	if(Hero.getAction()!=rafting && iswaterex(MAPCOMBO((int32_t)Hero.x,(int32_t)Hero.y+8), currmap, currscr, -1, Hero.x, Hero.y+8, true) && (_walkflag((int32_t)Hero.x,(int32_t)Hero.y+8,0) || get_bit(quest_rules,qr_DROWN))
+	if(Hero.getAction()!=rafting && iswaterex(MAPCOMBO((int32_t)Hero.x,(int32_t)Hero.y+8), currmap, currscr, -1, Hero.x, Hero.y+8, true) && (_walkflag((int32_t)Hero.x,(int32_t)Hero.y+8,0) || get_qr(qr_DROWN))
 			&& (current_item(itype_flippers)) && (Hero.getAction()!=inwind))
 	{
 		Hero.hopclk=0xFF;
-		if (isSideViewHero() && get_bit(quest_rules,qr_SIDESWIM)) {Hero.setAction(sideswimming); FFCore.setHeroAction(sideswimming);}
+		if (isSideViewHero() && get_qr(qr_SIDESWIM)) {Hero.setAction(sideswimming); FFCore.setHeroAction(sideswimming);}
 		else {Hero.setAction(swimming); FFCore.setHeroAction(swimming);}
 	}
 		
@@ -29372,13 +29373,13 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 						"Insta-Warp");
 						
 	eventlog_mapflags();
-	if (((warpFlags&warpFlagDONTRESTARTDMAPSCRIPT) != 0) == (get_bit(quest_rules, qr_SCRIPT_WARPS_DMAP_SCRIPT_TOGGLE) != 0)|| olddmap != currdmap) //Changed DMaps, or needs to reset the script
+	if (((warpFlags&warpFlagDONTRESTARTDMAPSCRIPT) != 0) == (get_qr(qr_SCRIPT_WARPS_DMAP_SCRIPT_TOGGLE) != 0)|| olddmap != currdmap) //Changed DMaps, or needs to reset the script
 	{
 		FFScript::deallocateAllArrays(ScriptType::DMap, olddmap);
 		initZScriptDMapScripts();
 	}
 	Hero.is_warping = false;
-	if(!get_bit(quest_rules,qr_SCROLLWARP_NO_RESET_FRAME))
+	if(!get_qr(qr_SCROLLWARP_NO_RESET_FRAME))
 		GameFlags |= GAMEFLAG_RESET_GAME_LOOP;
 	return true;
 }
@@ -30970,7 +30971,7 @@ j_command:
 				break;
 				
 			case GOTOLESS:
-				if(!(ri->scriptflag & MOREFLAG) || (!get_bit(quest_rules,qr_GOTOLESSNOTEQUAL) && (ri->scriptflag & TRUEFLAG)))
+				if(!(ri->scriptflag & MOREFLAG) || (!get_qr(qr_GOTOLESSNOTEQUAL) && (ri->scriptflag & TRUEFLAG)))
 				{
 					uint8_t invalid = 0;
 					if(sarg1 < 0 )
@@ -32817,7 +32818,7 @@ j_command:
 				{
 					int32_t w = SH::read_stack(ri->sp) / 10000;
 					int32_t h = SH::read_stack(ri->sp+1) / 10000;
-					if ( get_bit(quest_rules, qr_OLDCREATEBITMAP_ARGS) )
+					if ( get_qr(qr_OLDCREATEBITMAP_ARGS) )
 					{
 						//flip height and width
 						h = h ^ w;
@@ -34727,7 +34728,7 @@ j_command:
 			
 			case ScriptType::Item:
 			{
-				if (!get_bit(quest_rules, qr_NOITEMWAITDRAW))
+				if (!get_qr(qr_NOITEMWAITDRAW))
 				{
 					FFCore.waitdraw(ScriptType::Item, i) = true;
 				}
@@ -34760,7 +34761,7 @@ j_command:
 			
 			case ScriptType::FFC:
 			{
-				if ( !(get_bit(quest_rules, qr_NOFFCWAITDRAW)) )
+				if ( !(get_qr(qr_NOFFCWAITDRAW)) )
 				{
 					FFCore.waitdraw(ScriptType::FFC, i) = true;
 				}
@@ -35743,7 +35744,7 @@ int32_t FFScript::do_create_bitmap()
 	//CreateBitmap(h,w)
 	int32_t w = (ri->d[rINDEX2] / 10000);
 	int32_t h = (ri->d[rINDEX]/10000);
-	if ( get_bit(quest_rules, qr_OLDCREATEBITMAP_ARGS) )
+	if ( get_qr(qr_OLDCREATEBITMAP_ARGS) )
 	{
 		//flip height and width
 		h = h ^ w;
@@ -36010,16 +36011,16 @@ int32_t FFScript::GetDefaultWeaponSprite(int32_t wpn_id)
 		case wRefBeam: return 1;
 		case wStomp: return 45; //blank, unused misc sprite
 		case lwMax: return 45; //blank, unused misc sprite
-		case wScript1: { if ( get_bit(quest_rules, qr_WRITING_NPC_WEAPON_UNIQUE_SPRITES ) ) return 246; else return 0; }
-		case wScript2: { if ( get_bit(quest_rules, qr_WRITING_NPC_WEAPON_UNIQUE_SPRITES ) ) return 247; else return 0; }
-		case wScript3: { if ( get_bit(quest_rules, qr_WRITING_NPC_WEAPON_UNIQUE_SPRITES ) ) return 248; else return 0; }
-		case wScript4: { if ( get_bit(quest_rules, qr_WRITING_NPC_WEAPON_UNIQUE_SPRITES ) ) return 249; else return 0; }
-		case wScript5: { if ( get_bit(quest_rules, qr_WRITING_NPC_WEAPON_UNIQUE_SPRITES ) ) return 250; else return 0; }
-		case wScript6: { if ( get_bit(quest_rules, qr_WRITING_NPC_WEAPON_UNIQUE_SPRITES ) ) return 251; else return 0; }
-		case wScript7: { if ( get_bit(quest_rules, qr_WRITING_NPC_WEAPON_UNIQUE_SPRITES ) ) return 252; else return 0; }
-		case wScript8: { if ( get_bit(quest_rules, qr_WRITING_NPC_WEAPON_UNIQUE_SPRITES ) ) return 253; else return 0; }
-		case wScript9: { if ( get_bit(quest_rules, qr_WRITING_NPC_WEAPON_UNIQUE_SPRITES ) ) return 254; else return 0; }
-		case wScript10: { if ( get_bit(quest_rules, qr_WRITING_NPC_WEAPON_UNIQUE_SPRITES ) ) return 255; else return 0; }
+		case wScript1: { if ( get_qr(qr_WRITING_NPC_WEAPON_UNIQUE_SPRITES ) ) return 246; else return 0; }
+		case wScript2: { if ( get_qr(qr_WRITING_NPC_WEAPON_UNIQUE_SPRITES ) ) return 247; else return 0; }
+		case wScript3: { if ( get_qr(qr_WRITING_NPC_WEAPON_UNIQUE_SPRITES ) ) return 248; else return 0; }
+		case wScript4: { if ( get_qr(qr_WRITING_NPC_WEAPON_UNIQUE_SPRITES ) ) return 249; else return 0; }
+		case wScript5: { if ( get_qr(qr_WRITING_NPC_WEAPON_UNIQUE_SPRITES ) ) return 250; else return 0; }
+		case wScript6: { if ( get_qr(qr_WRITING_NPC_WEAPON_UNIQUE_SPRITES ) ) return 251; else return 0; }
+		case wScript7: { if ( get_qr(qr_WRITING_NPC_WEAPON_UNIQUE_SPRITES ) ) return 252; else return 0; }
+		case wScript8: { if ( get_qr(qr_WRITING_NPC_WEAPON_UNIQUE_SPRITES ) ) return 253; else return 0; }
+		case wScript9: { if ( get_qr(qr_WRITING_NPC_WEAPON_UNIQUE_SPRITES ) ) return 254; else return 0; }
+		case wScript10: { if ( get_qr(qr_WRITING_NPC_WEAPON_UNIQUE_SPRITES ) ) return 255; else return 0; }
 
 		case wIce: return 83;
 			//Cannot use any of these weapons yet. 
@@ -36058,8 +36059,8 @@ int32_t FFScript::do_getpixel()
 {
 	int32_t xoffset = 0, yoffset = 0;
 	int32_t xoff = 0; int32_t yoff = 0;
-	const bool brokenOffset= ( (get_bit(extra_rules, er_BITMAPOFFSET)!=0)
-		|| (get_bit(quest_rules,qr_BITMAPOFFSETFIX)!=0) );
+	const bool brokenOffset= ( (get_er(er_BITMAPOFFSET)!=0)
+		|| (get_qr(qr_BITMAPOFFSETFIX)!=0) );
 	
 	BITMAP *bitty = FFCore.GetScriptBitmap(ri->bitmapref-10);
 	if(!bitty)
@@ -36080,7 +36081,7 @@ int32_t FFScript::do_getpixel()
 	
 	int32_t yv = ri->d[rINDEX2]/10000 + yoffset;
 	int32_t ret =  getpixel(bitty, ri->d[rINDEX]/10000, yv); //This is a palette index value. 
-	if(!get_bit(quest_rules,qr_BROKEN_GETPIXEL_VALUE))
+	if(!get_qr(qr_BROKEN_GETPIXEL_VALUE))
 		ret *= 10000;
 	return ret;
 }
@@ -37115,7 +37116,7 @@ bool FFScript::GetItemMessagePlayed(int32_t itm)
 
 int32_t FFScript::getQRBit(int32_t rule)
 {
-	return ( get_bit(quest_rules,rule) ? 1 : 0 );
+	return ( get_qr(rule) ? 1 : 0 );
 }
 
 void FFScript::setHeroAction(int32_t a)
@@ -37139,7 +37140,7 @@ int32_t FFScript::GetScriptObjectUID(int32_t type)
 
 void FFScript::SetNegArray()
 {
-	can_neg_array = !get_bit(quest_rules,qr_ZS_NO_NEG_ARRAY);
+	can_neg_array = !get_qr(qr_ZS_NO_NEG_ARRAY);
 }
 
 void FFScript::init()
@@ -37158,7 +37159,7 @@ void FFScript::init()
 	temp_no_stepforward = 0;
 	nostepforward = 0;
 	
-	can_neg_array = !get_bit(quest_rules,qr_ZS_NO_NEG_ARRAY);
+	can_neg_array = !get_qr(qr_ZS_NO_NEG_ARRAY);
 	
 	numscriptdraws = 0;
 	max_ff_rules = qr_MAX;
@@ -37340,7 +37341,7 @@ string get_filestr(const bool relative) //Used for 'FileSystem' functions.
 
 void FFScript::do_checkdir(const bool is_dir)
 {
-	string the_string = get_filestr(get_bit(quest_rules, qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE));
+	string the_string = get_filestr(get_qr(qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE));
 	set_register(sarg1, checkPath(the_string.c_str(), is_dir) ? 10000 : 0);
 }
 
@@ -37499,12 +37500,12 @@ void FFScript::clearRunningItemScripts()
 
 void FFScript::warpScriptCheck()
 {
-	if(get_bit(quest_rules, qr_SCRIPTDRAWSINWARPS))
+	if(get_qr(qr_SCRIPTDRAWSINWARPS))
 	{
 		FFCore.runWarpScripts(false);
 		FFCore.runWarpScripts(true); //Waitdraw
 	}
-	else if(get_bit(quest_rules, qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN) && doscript(ScriptType::PassiveSubscreen))
+	else if(get_qr(qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN) && doscript(ScriptType::PassiveSubscreen))
 	{
 		if(DMaps[currdmap].passive_sub_script != 0)
 			ZScriptVersion::RunScript(ScriptType::PassiveSubscreen, DMaps[currdmap].passive_sub_script, currdmap);
@@ -37641,7 +37642,7 @@ void FFScript::runF6Engine()
 			//
 			if(!Quit)
 			{
-				if(!get_bit(quest_rules, qr_NOCONTINUE))
+				if(!get_qr(qr_NOCONTINUE))
 					f_Quit(qQUIT);
 			}
 		}
@@ -37793,21 +37794,21 @@ bool FFScript::runActiveSubscreenScriptEngine()
 	{
 		script_drawing_commands.Clear();
 		load_control_state();
-		if(get_bit(quest_rules, qr_DMAP_ACTIVE_RUNS_DURING_ACTIVE_SUBSCRIPT) && DMaps[script_dmap].script != 0 && doscript(ScriptType::DMap))
+		if(get_qr(qr_DMAP_ACTIVE_RUNS_DURING_ACTIVE_SUBSCRIPT) && DMaps[script_dmap].script != 0 && doscript(ScriptType::DMap))
 		{
 			ZScriptVersion::RunScript(ScriptType::DMap, dmapactivescript, script_dmap);
 		}
-		if(get_bit(quest_rules, qr_PASSIVE_SUBSCRIPT_RUNS_DURING_ACTIVE_SUBSCRIPT)!=0 && DMaps[script_dmap].passive_sub_script != 0 && FFCore.doscript(ScriptType::PassiveSubscreen))
+		if(get_qr(qr_PASSIVE_SUBSCRIPT_RUNS_DURING_ACTIVE_SUBSCRIPT)!=0 && DMaps[script_dmap].passive_sub_script != 0 && FFCore.doscript(ScriptType::PassiveSubscreen))
 		{
 			ZScriptVersion::RunScript(ScriptType::PassiveSubscreen, passivesubscript, script_dmap);
 		}
 		ZScriptVersion::RunScript(ScriptType::ActiveSubscreen, activesubscript, script_dmap);
-		if(waitdraw(ScriptType::DMap) && (get_bit(quest_rules, qr_DMAP_ACTIVE_RUNS_DURING_ACTIVE_SUBSCRIPT) && DMaps[script_dmap].script != 0 && doscript(ScriptType::DMap)))
+		if(waitdraw(ScriptType::DMap) && (get_qr(qr_DMAP_ACTIVE_RUNS_DURING_ACTIVE_SUBSCRIPT) && DMaps[script_dmap].script != 0 && doscript(ScriptType::DMap)))
 		{
 			ZScriptVersion::RunScript(ScriptType::DMap, dmapactivescript, script_dmap);
 			waitdraw(ScriptType::DMap) = false;
 		}
-		if(waitdraw(ScriptType::PassiveSubscreen) && (get_bit(quest_rules, qr_PASSIVE_SUBSCRIPT_RUNS_DURING_ACTIVE_SUBSCRIPT)!=0 && DMaps[script_dmap].passive_sub_script != 0 && FFCore.doscript(ScriptType::PassiveSubscreen)))
+		if(waitdraw(ScriptType::PassiveSubscreen) && (get_qr(qr_PASSIVE_SUBSCRIPT_RUNS_DURING_ACTIVE_SUBSCRIPT)!=0 && DMaps[script_dmap].passive_sub_script != 0 && FFCore.doscript(ScriptType::PassiveSubscreen)))
 		{
 			ZScriptVersion::RunScript(ScriptType::PassiveSubscreen, passivesubscript, script_dmap);
 			waitdraw(ScriptType::PassiveSubscreen) = false;
@@ -37936,9 +37937,9 @@ bool FFScript::itemScriptEngine()
 		//Passive items
 		if (((itemsbuf[q].flags&ITEM_PASSIVESCRIPT)))
 		{
-			if(game->item[q] && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)))
+			if(game->item[q] && (get_qr(qr_ITEMSCRIPTSKEEPRUNNING)))
 			{
-				if(get_bit(quest_rules,qr_PASSIVE_ITEM_SCRIPT_ONLY_HIGHEST)
+				if(get_qr(qr_PASSIVE_ITEM_SCRIPT_ONLY_HIGHEST)
 					&& current_item(itemsbuf[q].family) > itemsbuf[q].fam_type)
 					data.doscript = 0;
 				else ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[q].script, q&0xFFF);
@@ -37970,7 +37971,7 @@ bool FFScript::itemScriptEngine()
 			
 			if ( data.doscript == 1 ) // FIrst frame, normally set in hero.cpp
 			{
-				if ( get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
+				if ( get_qr(qr_ITEMSCRIPTSKEEPRUNNING) )
 				{
 					data.doscript = 2;
 				}
@@ -37981,7 +37982,7 @@ bool FFScript::itemScriptEngine()
 			}
 			else if (data.doscript == 3) //Run via itemdata->RunScript
 			{
-				if ( (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ) 
+				if ( (get_qr(qr_ITEMSCRIPTSKEEPRUNNING)) ) 
 				{
 					data.doscript = 2; //Reduce to normal run status
 				}
@@ -38035,9 +38036,9 @@ bool FFScript::itemScriptEngineOnWaitdraw()
 		//Passive items
 		if ((itemsbuf[q].flags&ITEM_PASSIVESCRIPT))
 		{
-			if(game->item[q] && (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)))
+			if(game->item[q] && (get_qr(qr_ITEMSCRIPTSKEEPRUNNING)))
 			{
-				if(get_bit(quest_rules,qr_PASSIVE_ITEM_SCRIPT_ONLY_HIGHEST)
+				if(get_qr(qr_PASSIVE_ITEM_SCRIPT_ONLY_HIGHEST)
 					&& current_item(itemsbuf[q].family) > itemsbuf[q].fam_type)
 					data.doscript = 0;
 				else ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[q].script, q&0xFFF);
@@ -38055,7 +38056,7 @@ bool FFScript::itemScriptEngineOnWaitdraw()
 			//Normal items
 			if ( data.doscript == 1 ) // FIrst frame, normally set in hero.cpp
 			{
-				if ( get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING) )
+				if ( get_qr(qr_ITEMSCRIPTSKEEPRUNNING) )
 				{
 					data.doscript = 2;
 				}
@@ -38067,7 +38068,7 @@ bool FFScript::itemScriptEngineOnWaitdraw()
 			}
 			else if (data.doscript == 3) //Run via itemdata->RunScript
 			{
-				if ( (get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)) ) 
+				if ( (get_qr(qr_ITEMSCRIPTSKEEPRUNNING)) ) 
 				{
 					data.doscript = 2; //Reduce to normal run status
 				}
@@ -42989,7 +42990,7 @@ string zs_sprintf(char const* format, int32_t num_args, const bool varg)
 {
 	int32_t arg_offset = ((ri->sp + num_args) - 1);
 	int32_t next_arg = 0;
-	bool is_old_args = get_bit(quest_rules, qr_OLD_PRINTF_ARGS);
+	bool is_old_args = get_qr(qr_OLD_PRINTF_ARGS);
 	ostringstream oss;
 	while(format[0] != '\0')
 	{
@@ -43273,7 +43274,7 @@ void FFScript::TraceScriptIDs(bool zasm_console)
 		if ( cond ) {console.safeprint((CConsoleLoggerEx::COLOR_GREEN | CConsoleLoggerEx::COLOR_INTENSITY | 
 			CConsoleLoggerEx::COLOR_BACKGROUND_BLACK),buf); }
 	}
-	if(get_bit(quest_rules,qr_TRACESCRIPTIDS) || DEVLOGGING )
+	if(get_qr(qr_TRACESCRIPTIDS) || DEVLOGGING )
 	{
 		if(!zasm_debugger && zasm_console) return;
 		CConsoleLoggerEx console = (zasm_console ? coloured_console : zscript_coloured_console);
@@ -47454,7 +47455,7 @@ void FFScript::do_loadlweapon_by_script_uid(const bool v)
 	else
 	{
 		ri->lwpn = 0;
-		if(get_bit(quest_rules, qr_LOG_INVALID_UID_LOAD))
+		if(get_qr(qr_LOG_INVALID_UID_LOAD))
 			Z_scripterrlog("There is no valid LWeapon associated with UID (%) at this time.\nThe UID is stale, or invalid.\n", sUID);
 	}
 }
@@ -47470,7 +47471,7 @@ void FFScript::do_loadeweapon_by_script_uid(const bool v)
 	else
 	{
 		ri->ewpn = 0;
-		if(get_bit(quest_rules, qr_LOG_INVALID_UID_LOAD))
+		if(get_qr(qr_LOG_INVALID_UID_LOAD))
 			Z_scripterrlog("There is no valid EWeapon associated with UID (%) at this time.\nThe UID is stale, or invalid.\n", sUID);
 	}
 }
@@ -47487,7 +47488,7 @@ void FFScript::do_loadnpc_by_script_uid(const bool v)
 	else
 	{
 		ri->guyref = 0;
-		if(get_bit(quest_rules, qr_LOG_INVALID_UID_LOAD))
+		if(get_qr(qr_LOG_INVALID_UID_LOAD))
 			Z_scripterrlog("There is no valid NPC associated with UID (%) at this time.\nThe UID is stale, or invalid.\n", sUID);
 	}
 }
@@ -47586,7 +47587,7 @@ int32_t FFScript::combo_script_engine(const bool preload, const bool waitdraw)
 	///non-scripted effects
 	for ( int32_t q = 0; q < 7; ++q )
 	{
-		if (!get_bit(quest_rules, qr_COMBOSCRIPTS_LAYER_0+q))
+		if (!get_qr(qr_COMBOSCRIPTS_LAYER_0+q))
 			continue;
 		for ( int32_t c = 0; c < 176; ++c )
 		{

@@ -15,6 +15,7 @@
 #include "base/gui.h"
 #include "base/zc_alleg.h"
 #include "base/zdefs.h"
+#include "base/qrs.h"
 #include "base/colors.h"
 #include "pal.h"
 #include "zq/zquest.h"
@@ -1330,7 +1331,7 @@ int32_t EditColors(const char *caption,int32_t first,int32_t count,byte *label)
     colors_dlg[1].h  = bh + 6;
     colors_dlg[21].proc = (count==pdLEVEL) ? jwin_button_proc : d_dummy_proc;
     //if the palette is > 255, disable button [21]
-    colors_dlg[21].dp   = get_bit(quest_rules,qr_FADE) ? (void *) "Cycle" : (void *) "Dark";
+    colors_dlg[21].dp   = get_qr(qr_FADE) ? (void *) "Cycle" : (void *) "Dark";
     colors_dlg[26].dp   =  tempstuff;
     colors_dlg[25].x    =(count==pdLEVEL)?colors_dlg[0].x+60:colors_dlg[0].x+12;
     colors_dlg[25].w    =(count==pdLEVEL)?48:0;
@@ -1438,7 +1439,7 @@ int32_t EditColors(const char *caption,int32_t first,int32_t count,byte *label)
 		int32_t curpal = (first/pdLEVEL+poLEVEL)-10; 
 		
 		
-		    if(!get_bit(quest_rules,qr_FADE))
+		    if(!get_qr(qr_FADE))
 		    {
 			calc_dark(first);
 		    }
@@ -1537,7 +1538,7 @@ void copyPal(int32_t src, int32_t dest)
 
 int32_t onColors_Levels()
 {
-	int32_t cycle = get_bit(quest_rules,qr_FADE);
+	int32_t cycle = get_qr(qr_FADE);
 	int32_t index=Map.getcolor();
 	
 	while((index=select_data("Select Level",index,levelnumlist,"Edit","Done",get_zc_font(font_lfont), copyPal))!=-1)

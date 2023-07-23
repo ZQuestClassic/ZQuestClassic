@@ -17,6 +17,7 @@
 #include <set>
 using std::set;
 
+#include "base/qrs.h"
 #include "zc/maps.h"
 #include "zc/zelda.h"
 #include "tiles.h"
@@ -190,7 +191,7 @@ int32_t isdungeon(int32_t dmap, int32_t scr) // The arg is only used by loadscr2
 
 bool canPermSecret(int32_t dmap, int32_t scr)
 {
-	return (!isdungeon(dmap, scr) || get_bit(quest_rules,qr_DUNGEON_DMAPS_PERM_SECRETS));
+	return (!isdungeon(dmap, scr) || get_qr(qr_DUNGEON_DMAPS_PERM_SECRETS));
 }
 
 int32_t MAPCOMBO(int32_t x,int32_t y)
@@ -328,7 +329,7 @@ int32_t COMBOTYPE(int32_t x,int32_t y)
 	{
 		if(tmpscr2[i].valid!=0)
 		{
-			if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+			if (get_qr(qr_OLD_BRIDGE_COMBOS))
 			{
 				if (combobuf[MAPCOMBO2(i,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1, &(tmpscr2[i]))) return cNONE;
 			}
@@ -374,7 +375,7 @@ int32_t FFORCOMBOTYPE(int32_t x, int32_t y)
 	{
 		if(tmpscr2[i].valid!=0)
 		{
-			if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+			if (get_qr(qr_OLD_BRIDGE_COMBOS))
 			{
 				if (combobuf[MAPCOMBO2(i,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1, &(tmpscr2[i]))) return cNONE;
 			}
@@ -567,7 +568,7 @@ int32_t MAPCSET2(int32_t layer,int32_t x,int32_t y)
 
 int32_t MAPFLAG2(int32_t layer,int32_t x,int32_t y)
 {
-    if(!get_bit(quest_rules,qr_BUGGED_LAYERED_FLAGS) && (x<0 || x>255 || y<0 || y>175))
+    if(!get_qr(qr_BUGGED_LAYERED_FLAGS) && (x<0 || x>255 || y<0 || y>175))
         return 0;
     if(layer==-1) return MAPFLAG(x,y);
     
@@ -589,7 +590,7 @@ int32_t COMBOTYPE2(int32_t layer,int32_t x,int32_t y)
 	{
 		if(tmpscr2[i].valid!=0)
 		{
-			if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+			if (get_qr(qr_OLD_BRIDGE_COMBOS))
 			{
 				if (combobuf[MAPCOMBO2(i,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1, &(tmpscr2[i]))) return cNONE;
 			}
@@ -1008,7 +1009,7 @@ void update_combo_cycling()
         }
     }
     
-    if(get_bit(quest_rules,qr_CMBCYCLELAYERS))
+    if(get_qr(qr_CMBCYCLELAYERS))
     {
         for(int32_t j=0; j<6; j++)
         {
@@ -1127,15 +1128,15 @@ int32_t iswaterex(int32_t combo, int32_t map, int32_t screen, int32_t layer, int
 	//Fullcheck makes no sense to ever be on, but hey I guess it's here in case you ever need it... 
 	
 	//Oh hey, Zoras might actually need it. Nevermind, this had a use!
-	if (get_bit(quest_rules, qr_SMARTER_WATER))
+	if (get_qr(qr_SMARTER_WATER))
 	{
 		if (DRIEDLAKE) return 0;
-		if (LayerCheck && (get_bit(quest_rules,  qr_WATER_ON_LAYER_1) || get_bit(quest_rules,  qr_WATER_ON_LAYER_2))) //LayerCheck is a bit dumber, but it lets me add this QR without having to replace all calls, again.
+		if (LayerCheck && (get_qr(qr_WATER_ON_LAYER_1) || get_qr(qr_WATER_ON_LAYER_2))) //LayerCheck is a bit dumber, but it lets me add this QR without having to replace all calls, again.
 		{
 			for (int32_t m = layer; m <= 1; m++)
 			{
-				if (m < 0 || m == 0 && get_bit(quest_rules,  qr_WATER_ON_LAYER_1)
-				|| m == 1 && get_bit(quest_rules,  qr_WATER_ON_LAYER_2))
+				if (m < 0 || m == 0 && get_qr(qr_WATER_ON_LAYER_1)
+				|| m == 1 && get_qr(qr_WATER_ON_LAYER_2))
 				{
 					int32_t checkwater = iswaterex(combo, map, screen, m, x, y, secrets, fullcheck, false, ShallowCheck);
 					if (checkwater > 0) 
@@ -1165,7 +1166,7 @@ int32_t iswaterex(int32_t combo, int32_t map, int32_t screen, int32_t layer, int
 				for (int32_t m = layer; m <= 1; m++)
 				{
 					newcombo const& cmb = combobuf[MAPCOMBO3(map, screen, m,tx2,ty2, true)];
-					if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+					if (get_qr(qr_OLD_BRIDGE_COMBOS))
 					{
 						if (cmb.type == cBRIDGE && !(cmb.walk&(1<<b))) 
 						{
@@ -1179,9 +1180,9 @@ int32_t iswaterex(int32_t combo, int32_t map, int32_t screen, int32_t layer, int
 							return 0;
 						}
 					}
-					if (get_bit(quest_rules, qr_NO_SOLID_SWIM))
+					if (get_qr(qr_NO_SOLID_SWIM))
 					{
-						if ((cmb.type != cBRIDGE || (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS) && !(cmb.walk&(0x10<<b)))) && (cmb.walk&(1<<b)) && !((cmb.usrflags&cflag4) && cmb.type == cWATER && (cmb.walk&(0x10<<b)) && ShallowCheck))
+						if ((cmb.type != cBRIDGE || (!get_qr(qr_OLD_BRIDGE_COMBOS) && !(cmb.walk&(0x10<<b)))) && (cmb.walk&(1<<b)) && !((cmb.usrflags&cflag4) && cmb.type == cWATER && (cmb.walk&(0x10<<b)) && ShallowCheck))
 						{
 							return 0;
 						}						
@@ -1233,7 +1234,7 @@ int32_t iswaterex(int32_t combo, int32_t map, int32_t screen, int32_t layer, int
 		int32_t b = 0;
 		if(x&8) b+=2;
 		if(y&8) b+=1;
-		if (get_bit(quest_rules, qr_NO_SOLID_SWIM))
+		if (get_qr(qr_NO_SOLID_SWIM))
 		{
 			if (combobuf[combo].walk&(1<<b))
 			{
@@ -1281,7 +1282,7 @@ bool ispitfall(int32_t x, int32_t y)
 	if(ispitfall(c)) return true;
 	if(tmpscr2[1].valid!=0)
 	{
-		if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+		if (get_qr(qr_OLD_BRIDGE_COMBOS))
 		{
 			if (combobuf[MAPCOMBO2(1,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1, &(tmpscr2[1]))) return false;
 		}
@@ -1294,7 +1295,7 @@ bool ispitfall(int32_t x, int32_t y)
 	if(ispitfall(c)) return true;
 	if(tmpscr2[0].valid!=0)
 	{
-		if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+		if (get_qr(qr_OLD_BRIDGE_COMBOS))
 		{
 			if (combobuf[MAPCOMBO2(0,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1, &(tmpscr2[0]))) return false;
 		}
@@ -1318,7 +1319,7 @@ int32_t getpitfall(int32_t x, int32_t y) //Return the highest-layer active pit c
 	if(ispitfall(c)) return c;
 	if(tmpscr2[1].valid!=0)
 	{
-		if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+		if (get_qr(qr_OLD_BRIDGE_COMBOS))
 		{
 			if (combobuf[MAPCOMBO2(1,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1, &(tmpscr2[1]))) return 0;
 		}
@@ -1331,7 +1332,7 @@ int32_t getpitfall(int32_t x, int32_t y) //Return the highest-layer active pit c
 	if(ispitfall(c)) return c;
 	if(tmpscr2[0].valid!=0)
 	{
-		if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+		if (get_qr(qr_OLD_BRIDGE_COMBOS))
 		{
 			if (combobuf[MAPCOMBO2(0,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1, &(tmpscr2[0]))) return 0;
 		}
@@ -1361,7 +1362,7 @@ int get_icy(int x, int y, int type)
 	if(check_icy(combobuf[c], type)) return c;
 	if(tmpscr2[1].valid!=0)
 	{
-		if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+		if (get_qr(qr_OLD_BRIDGE_COMBOS))
 		{
 			if (combobuf[MAPCOMBO2(1,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1, &(tmpscr2[1]))) return 0;
 		}
@@ -1374,7 +1375,7 @@ int get_icy(int x, int y, int type)
 	if(check_icy(combobuf[c], type)) return c;
 	if(tmpscr2[0].valid!=0)
 	{
-		if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+		if (get_qr(qr_OLD_BRIDGE_COMBOS))
 		{
 			if (combobuf[MAPCOMBO2(0,x,y)].type == cBRIDGE && !_walkflag_layer(x,y,1, &(tmpscr2[0]))) return 0;
 		}
@@ -1462,7 +1463,7 @@ bool check_hshot(int32_t layer, int32_t x, int32_t y, bool switchhook, int32_t *
 		}
 	}
 	int32_t ffcpos = -1;
-	if(retffcpos && !get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
+	if(retffcpos && !get_qr(qr_OLD_FFC_FUNCTIONALITY))
 	{
 		word c = tmpscr->numFFC();
 		for(word i=0; i<c; i++)
@@ -1615,7 +1616,7 @@ bool remove_screenstatecombos2(mapscr *s, mapscr *t, int32_t what1, int32_t what
 		}
 	}
 	
-	if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
+	if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
 	{
 		word c = tmpscr->numFFC();
 		for(word i=0; i<c; i++)
@@ -1707,7 +1708,7 @@ bool remove_xstatecombos2(mapscr *s, mapscr *t, int32_t mi, byte xflag, bool tri
 			}
 		}
 	}
-	if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
+	if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
 	{
 		word c = tmpscr->numFFC();
 		for(word i=0; i<c; i++)
@@ -1936,7 +1937,7 @@ void hidden_entrance(int32_t tmp,bool refresh, bool high16only,int32_t single) /
 			}
 		}
 	}
-	if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
+	if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
 	{
 		word c = tmpscr->numFFC();
 		for(word i=0; i<c; i++)
@@ -2479,7 +2480,7 @@ void hidden_entrance2(mapscr *s, mapscr *t, bool high16only,int32_t single) //Pe
 	{
 		//If it's an enemies->secret screen, only do the high 16 if told to
 		//That way you can have secret and burn/bomb entrance separately
-		bool old_enem_secret = get_bit(quest_rules,qr_ENEMIES_SECRET_ONLY_16_31);
+		bool old_enem_secret = get_qr(qr_ENEMIES_SECRET_ONLY_16_31);
 		if(((!(old_enem_secret && (s->flags2&fCLEARSECRET)) /*Enemies->Secret*/ && single < 0) || high16only || s->flags4&fENEMYSCRTPERM))
 		{
 			int32_t newflag = -1;
@@ -2739,7 +2740,7 @@ bool findentrance(int x, int y, int flag, bool setflag)
             // setflag=false;
         // }
 		
-		if(!(tr/*|| ftr*/) && !get_bit(quest_rules, qr_ALLTRIG_PERMSEC_NO_TEMP))
+		if(!(tr/*|| ftr*/) && !get_qr(qr_ALLTRIG_PERMSEC_NO_TEMP))
 		{
 			hidden_entrance(0,true,(tmpscr->flags6&fTRIGGERF1631));
 		}
@@ -2872,7 +2873,7 @@ void update_freeform_combos()
 					thisffc.vy+=thisffc.ay;
 					
 					
-					if(get_bit(quest_rules, qr_OLD_FFC_SPEED_CAP))
+					if(get_qr(qr_OLD_FFC_SPEED_CAP))
 					{
 						if(thisffc.vx>128) thisffc.vx=128;
 						
@@ -3364,7 +3365,7 @@ void put_walkflags(BITMAP *dest,int32_t x,int32_t y,int32_t xofs,int32_t yofs, w
 {
 	newcombo const &c = combobuf[cmbdat];
 	
-	if (c.type == cBRIDGE && get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS)) return;
+	if (c.type == cBRIDGE && get_qr(qr_OLD_BRIDGE_COMBOS)) return;
 	
 	int32_t xx = x-xofs;
 	int32_t yy = y+playing_field_offset-yofs;
@@ -3379,7 +3380,7 @@ void put_walkflags(BITMAP *dest,int32_t x,int32_t y,int32_t xofs,int32_t yofs, w
 		int32_t ty2=((i&1)<<3)+y;
 		for (int32_t m = lyr-1; m <= 1; m++)
 		{
-			if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+			if (get_qr(qr_OLD_BRIDGE_COMBOS))
 			{
 				if (combobuf[MAPCOMBO2(m,tx2,ty2)].type == cBRIDGE && !_walkflag_layer(tx2,ty2,1, &(tmpscr2[m]))) 
 				{
@@ -3411,8 +3412,8 @@ void put_walkflags(BITMAP *dest,int32_t x,int32_t y,int32_t xofs,int32_t yofs, w
 		}
 		if (iswater_type(c.type) && !DRIEDLAKE && !((c.walk&(1<<(i+4))) && ((c.walk&(1<<i) && ((c.usrflags&cflag3) || (c.usrflags&cflag4)) && c.type == cWATER)))) //Yes, I realize this is horribly inaccurate; the alternative is the game chugging every time you turn on walk cheats.
 		{
-			if (get_bit(quest_rules,  qr_NO_SOLID_SWIM)) doladdercheck = false;
-			if((lyr==0 || (get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && lyr == 1) || (get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && lyr == 2)) && get_bit(quest_rules, qr_DROWN))
+			if (get_qr(qr_NO_SOLID_SWIM)) doladdercheck = false;
+			if((lyr==0 || (get_qr(qr_WATER_ON_LAYER_1) && lyr == 1) || (get_qr(qr_WATER_ON_LAYER_2) && lyr == 2)) && get_qr(qr_DROWN))
 				rectfill(dest,tx,ty,tx+7,ty+7,makecol(85,85,255));
 			else rectfill(dest,tx,ty,tx+7,ty+7,makecol(170,170,170));
 		}
@@ -3479,7 +3480,7 @@ void put_walkflags_a5(int32_t x,int32_t y,int32_t xofs,int32_t yofs, word cmbdat
 	ALLEGRO_COLOR col_dmg = al_map_rgba(255,255,0,info_opacity);
 	newcombo const &c = combobuf[cmbdat];
 	
-	if (c.type == cBRIDGE && get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS)) return;
+	if (c.type == cBRIDGE && get_qr(qr_OLD_BRIDGE_COMBOS)) return;
 	
 	int32_t xx = x-xofs;
 	int32_t yy = y+playing_field_offset-yofs;
@@ -3497,7 +3498,7 @@ void put_walkflags_a5(int32_t x,int32_t y,int32_t xofs,int32_t yofs, word cmbdat
 		int32_t ty2=((i&1)<<3)+y;
 		for (int32_t m = lyr-1; m <= 1; m++)
 		{
-			if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+			if (get_qr(qr_OLD_BRIDGE_COMBOS))
 			{
 				if (combobuf[MAPCOMBO2(m,tx2,ty2)].type == cBRIDGE && !_walkflag_layer(tx2,ty2,1, &(tmpscr2[m]))) 
 				{
@@ -3526,8 +3527,8 @@ void put_walkflags_a5(int32_t x,int32_t y,int32_t xofs,int32_t yofs, word cmbdat
 		}
 		if (iswater_type(c.type) && !DRIEDLAKE && !((c.walk&(1<<(i+4))) && ((c.walk&(1<<i) && ((c.usrflags&cflag3) || (c.usrflags&cflag4)) && c.type == cWATER)))) //Yes, I realize this is horribly inaccurate; the alternative is the game chugging every time you turn on walk cheats.
 		{
-			if (get_bit(quest_rules,  qr_NO_SOLID_SWIM)) doladdercheck = false;
-			if((lyr==0 || (get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && lyr == 1) || (get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && lyr == 2)) && get_bit(quest_rules, qr_DROWN))
+			if (get_qr(qr_NO_SOLID_SWIM)) doladdercheck = false;
+			if((lyr==0 || (get_qr(qr_WATER_ON_LAYER_1) && lyr == 1) || (get_qr(qr_WATER_ON_LAYER_2) && lyr == 2)) && get_qr(qr_DROWN))
 				al_draw_filled_rectangle(tx,ty,tx+8,ty+8,col_water1);
 			else al_draw_filled_rectangle(tx,ty,tx+8,ty+8,col_lhook);
 		}
@@ -3709,8 +3710,8 @@ void do_effectflags(mapscr* layer,int32_t x, int32_t y, int32_t tempscreen)
 
 void calc_darkroom_combos(bool scrolling)
 {
-	if(!get_bit(quest_rules, qr_NEW_DARKROOM)) return;
-	int32_t scrolldir = get_bit(quest_rules, qr_NEWDARK_SCROLLEDGE) ? FFCore.ScrollingData[SCROLLDATA_DIR] : -1;
+	if(!get_qr(qr_NEW_DARKROOM)) return;
+	int32_t scrolldir = get_qr(qr_NEWDARK_SCROLLEDGE) ? FFCore.ScrollingData[SCROLLDATA_DIR] : -1;
 	int32_t scrollxoffs = 0, scrollyoffs = 0;
 	switch(scrolldir)
 	{
@@ -3881,7 +3882,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	putscr(scrollbuf,0,playing_field_offset,this_screen);
 	
 	// Lens hints, then primitives, then particles.
-	if((lensclk || (get_debug() && zc_getkey(KEY_L))) && !get_bit(quest_rules, qr_OLDLENSORDER))
+	if((lensclk || (get_debug() && zc_getkey(KEY_L))) && !get_qr(qr_OLDLENSORDER))
 	{
 		draw_lens_under(scrollbuf, false);
 	}
@@ -3894,7 +3895,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	
 	set_clip_rect(scrollbuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
 	
-	if(!(get_bit(quest_rules,qr_LAYER12UNDERCAVE)))
+	if(!(get_qr(qr_LAYER12UNDERCAVE)))
 	{
 		if(showhero &&
 				((Hero.getAction()==climbcovertop)||(Hero.getAction()==climbcoverbottom)))
@@ -3940,7 +3941,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 		draw_msgstr(2, true);
 	}
 	
-	if(get_bit(quest_rules,qr_LAYER12UNDERCAVE))
+	if(get_qr(qr_LAYER12UNDERCAVE))
 	{
 		if(showhero &&
 				((Hero.getAction()==climbcovertop)||(Hero.getAction()==climbcoverbottom)))
@@ -3972,7 +3973,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	}
 	
 	do_layer(scrollbuf, -2, 0, this_screen, 0, 0, 2); // push blocks!
-	if(get_bit(quest_rules, qr_PUSHBLOCK_LAYER_1_2))
+	if(get_qr(qr_PUSHBLOCK_LAYER_1_2))
 	{
 		do_layer(scrollbuf, -2, 1, this_screen, 0, 0, 2); // push blocks!
 		do_layer(scrollbuf, -2, 2, this_screen, 0, 0, 2); // push blocks!
@@ -3988,7 +3989,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	// Lens hints, doors etc.
 	if(lensclk || (get_debug() && zc_getkey(KEY_L)))
 	{
-		if(get_bit(quest_rules, qr_OLDLENSORDER))
+		if(get_qr(qr_OLDLENSORDER))
 		{
 			draw_lens_under(scrollbuf, false);
 		}
@@ -4025,7 +4026,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	
 	if(drawguys)
 	{
-		if(get_bit(quest_rules,qr_NOFLICKER) || (frame&1))
+		if(get_qr(qr_NOFLICKER) || (frame&1))
 		{
 			for(int32_t i=0; i<Ewpns.Count(); i++)
 			{
@@ -4041,9 +4042,9 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 			}
 			do_primitives(framebuf, SPLAYER_LWEAP_BEHIND_DRAW, this_screen, 0, playing_field_offset);
 			
-			if(get_bit(quest_rules,qr_SHADOWS)&&(!get_bit(quest_rules,qr_SHADOWSFLICKER)||frame&1))
+			if(get_qr(qr_SHADOWS)&&(!get_qr(qr_SHADOWSFLICKER)||frame&1))
 			{
-				guys.drawshadow(framebuf,get_bit(quest_rules,qr_TRANSSHADOWS)!=0,true);
+				guys.drawshadow(framebuf,get_qr(qr_TRANSSHADOWS)!=0,true);
 			}
 			
 			guys.draw(framebuf,true);
@@ -4086,9 +4087,9 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 			}
 			do_primitives(framebuf, SPLAYER_LWEAP_BEHIND_DRAW, this_screen, 0, playing_field_offset);
 			
-			if(get_bit(quest_rules,qr_SHADOWS)&&(!get_bit(quest_rules,qr_SHADOWSFLICKER)||frame&1))
+			if(get_qr(qr_SHADOWS)&&(!get_qr(qr_SHADOWSFLICKER)||frame&1))
 			{
-				guys.drawshadow(framebuf,get_bit(quest_rules,qr_TRANSSHADOWS)!=0,true);
+				guys.drawshadow(framebuf,get_qr(qr_TRANSSHADOWS)!=0,true);
 			}
 			
 			items.draw(framebuf,false);
@@ -4132,9 +4133,9 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 		
 		if(!Hero.isSwimming())
 		{
-			if((Hero.getZ()>0 || Hero.getFakeZ()>0) &&(!get_bit(quest_rules,qr_SHADOWSFLICKER)||frame&1))
+			if((Hero.getZ()>0 || Hero.getFakeZ()>0) &&(!get_qr(qr_SHADOWSFLICKER)||frame&1))
 			{
-				Hero.drawshadow(framebuf,get_bit(quest_rules,qr_TRANSSHADOWS)!=0);
+				Hero.drawshadow(framebuf,get_qr(qr_TRANSSHADOWS)!=0);
 			}
 			
 			if(Hero.getZ() <= (zfix)zinit.jump_hero_layer_threshold)
@@ -4197,7 +4198,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	
 	do_layer(temp_buf, -1, 0, this_screen, 0, 0, 2);
 	do_layer(scrollbuf, -1, 0, this_screen, 0, 0, 2);
-	if(get_bit(quest_rules,qr_OVERHEAD_COMBOS_L1_L2))
+	if(get_qr(qr_OVERHEAD_COMBOS_L1_L2))
 	{
 		do_layer(temp_buf, -1, 1, this_screen, 0, 0, 2);
 		do_layer(scrollbuf, -1, 1, this_screen, 0, 0, 2);
@@ -4214,7 +4215,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	blit(temp_buf, framebuf, 0, 0, 0, 0, 256, 224);
 	
 	//6b. Draw the subscreen, without clipping
-	if(!get_bit(quest_rules,qr_SUBSCREENOVERSPRITES))
+	if(!get_qr(qr_SUBSCREENOVERSPRITES))
 	{
 		set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
 		put_passive_subscr(framebuf, &QMisc, 0, passive_subscreen_offset, false, sspUP);
@@ -4244,7 +4245,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 		decorations.draw(framebuf,false);
 	}
 	
-	if(!get_bit(quest_rules,qr_ENEMIESZAXIS)) for(int32_t i=0; i<guys.Count(); i++)
+	if(!get_qr(qr_ENEMIESZAXIS)) for(int32_t i=0; i<guys.Count(); i++)
 		{
 			if((isflier(guys.spr(i)->id)) || (guys.spr(i)->z+guys.spr(i)->fakez) > (zfix)zinit.jump_hero_layer_threshold)
 			{
@@ -4280,7 +4281,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	if (lightbeam_present)
 	{
 		color_map = &trans_table2;
-		if(get_bit(quest_rules,qr_LIGHTBEAM_TRANSPARENT))
+		if(get_qr(qr_LIGHTBEAM_TRANSPARENT))
 			draw_trans_sprite(temp_buf, lightbeam_bmp, 0, playing_field_offset);
 		else 
 			masked_blit(lightbeam_bmp, temp_buf, 0, 0, 0, playing_field_offset, 256, 176);
@@ -4308,13 +4309,13 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	blit(temp_buf, framebuf, 0, 0, 0, 0, 256, 224);
 	
 	//11. Handle low drawn darkness
-	if(get_bit(quest_rules, qr_NEW_DARKROOM)&& (this_screen->flags&fDARK))
+	if(get_qr(qr_NEW_DARKROOM)&& (this_screen->flags&fDARK))
 	{
 		calc_darkroom_combos();
 		Hero.calc_darkroom_hero();
 	}
 	//Darkroom if under the subscreen
-	if(get_bit(quest_rules, qr_NEW_DARKROOM) && get_bit(quest_rules, qr_NEWDARK_L6) && (this_screen->flags&fDARK))
+	if(get_qr(qr_NEW_DARKROOM) && get_qr(qr_NEWDARK_L6) && (this_screen->flags&fDARK))
 	{
 		do_primitives(framebuf, SPLAYER_DARKROOM_UNDER, this_screen, 0, playing_field_offset);
 		set_clip_rect(framebuf, 0, playing_field_offset, 256, 168+playing_field_offset);
@@ -4345,7 +4346,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	draw_msgstr(6);
 	
 	//13. Draw the subscreen, without clipping
-	if(get_bit(quest_rules,qr_SUBSCREENOVERSPRITES))
+	if(get_qr(qr_SUBSCREENOVERSPRITES))
 	{
 		put_passive_subscr(framebuf, &QMisc, 0, passive_subscreen_offset, game->should_show_time(), sspUP);
 		
@@ -4354,7 +4355,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	}
 	
 	//14. Handle high-drawn darkness
-	if(get_bit(quest_rules, qr_NEW_DARKROOM) && !get_bit(quest_rules, qr_NEWDARK_L6) && (this_screen->flags&fDARK))
+	if(get_qr(qr_NEW_DARKROOM) && !get_qr(qr_NEWDARK_L6) && (this_screen->flags&fDARK))
 	{
 		do_primitives(framebuf, SPLAYER_DARKROOM_UNDER, this_screen, 0, playing_field_offset);
 		set_clip_rect(framebuf, 0, playing_field_offset, 256, 168+playing_field_offset);
@@ -4395,7 +4396,7 @@ void put_door(BITMAP *dest,int32_t t,int32_t pos,int32_t side,int32_t type,bool 
 			break;
 		[[fallthrough]];
 	case dt_pass:
-		if(!get_bit(quest_rules, qr_REPLACEOPENDOORS) && !even_walls)
+		if(!get_qr(qr_REPLACEOPENDOORS) && !even_walls)
 			break;
 		[[fallthrough]];
 	case dt_lock:
@@ -4875,7 +4876,7 @@ void openshutters()
 				do_trigger_combo(lyr,pos);
 		}
 	}
-	if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
+	if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
 	{
 		word c = tmpscr->numFFC();
 		for(word i=0; i<c; i++)
@@ -5228,7 +5229,7 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 				int32_t cs=layerscreen->cset[i];
 				
 				// New screen flag: Cycle Combos At Screen Init
-				if(combobuf[c].nextcombo != 0 && (tmpscr[tmp].flags3 & fCYCLEONINIT) && (j<0 || get_bit(quest_rules,qr_CMBCYCLELAYERS)))
+				if(combobuf[c].nextcombo != 0 && (tmpscr[tmp].flags3 & fCYCLEONINIT) && (j<0 || get_qr(qr_CMBCYCLELAYERS)))
 				{
 					int32_t r = 0;
 					
@@ -5248,7 +5249,7 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 	if(!tmp)
 	{
 		throwGenScriptEvent(GENSCR_EVENT_CHANGE_SCREEN);
-		if(Hero.lift_wpn && get_bit(quest_rules,qr_CARRYABLE_NO_ACROSS_SCREEN))
+		if(Hero.lift_wpn && get_qr(qr_CARRYABLE_NO_ACROSS_SCREEN))
 		{
 			delete Hero.lift_wpn;
 			Hero.lift_wpn = nullptr;
@@ -5424,7 +5425,7 @@ void loadscr2(int32_t tmp,int32_t scr,int32_t)
 				int32_t cs=layerscreen->cset[i];
 				
 				// New screen flag: Cycle Combos At Screen Init
-				if((tmpscr[tmp].flags3 & fCYCLEONINIT) && (j<0 || get_bit(quest_rules,qr_CMBCYCLELAYERS)))
+				if((tmpscr[tmp].flags3 & fCYCLEONINIT) && (j<0 || get_qr(qr_CMBCYCLELAYERS)))
 				{
 					int32_t r = 0;
 					
@@ -5498,7 +5499,7 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt)
 bool _walkflag(int32_t x,int32_t y,int32_t cnt,zfix const& switchblockstate)
 {
 	//  walkflagx=x; walkflagy=y;
-	if(get_bit(quest_rules,qr_LTTPWALK))
+	if(get_qr(qr_LTTPWALK))
 	{
 		if(x<0||y<0) return false;
 		
@@ -5538,14 +5539,14 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt,zfix const& switchblockstate)
 	
 	int32_t cwalkflag = c.walk;
 	if(onSwitch(c,switchblockstate) && c.type == cCSWITCHBLOCK && c.usrflags&cflag9) cwalkflag &= (c.walk>>4)^0xF;
-	else if ((c.type == cBRIDGE && get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS)) || (iswater_type(c.type) && ((c.walk>>4)&b) && ((c.usrflags&cflag3) || (c.usrflags&cflag4)))) cwalkflag = 0;
+	else if ((c.type == cBRIDGE && get_qr(qr_OLD_BRIDGE_COMBOS)) || (iswater_type(c.type) && ((c.walk>>4)&b) && ((c.usrflags&cflag3) || (c.usrflags&cflag4)))) cwalkflag = 0;
 	if (s1 != tmpscr)
 	{
 		if(onSwitch(c1,switchblockstate) && c1.type == cCSWITCHBLOCK && c1.usrflags&cflag9) cwalkflag &= (c1.walk>>4)^0xF;
-		else if ((iswater_type(c1.type) && ((c1.walk>>4)&b) && get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && !((c1.usrflags&cflag3) || (c1.usrflags&cflag4)))) cwalkflag &= c1.walk;
+		else if ((iswater_type(c1.type) && ((c1.walk>>4)&b) && get_qr(qr_WATER_ON_LAYER_1) && !((c1.usrflags&cflag3) || (c1.usrflags&cflag4)))) cwalkflag &= c1.walk;
 		else if (c1.type == cBRIDGE)
 		{
-			if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+			if (!get_qr(qr_OLD_BRIDGE_COMBOS))
 			{
 				int efflag = (c1.walk & 0xF0)>>4;
 				int newsolid = (c1.walk & 0xF);
@@ -5553,16 +5554,16 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt,zfix const& switchblockstate)
 			}
 			else cwalkflag &= c1.walk;
 		}
-		else if ((iswater_type(c1.type) && get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && ((c1.usrflags&cflag3) || (c1.usrflags&cflag4)) && ((c1.walk>>4)&b))) cwalkflag = 0;
+		else if ((iswater_type(c1.type) && get_qr(qr_WATER_ON_LAYER_1) && ((c1.usrflags&cflag3) || (c1.usrflags&cflag4)) && ((c1.walk>>4)&b))) cwalkflag = 0;
 		else cwalkflag |= c1.walk;
 	}
 	if (s2 != tmpscr)
 	{
 		if(onSwitch(c2,switchblockstate) && c2.type == cCSWITCHBLOCK && c2.usrflags&cflag9) cwalkflag &= (c2.walk>>4)^0xF;
-		else if ((iswater_type(c2.type) && ((c2.walk>>4)&b) && get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && !((c2.usrflags&cflag3) || (c2.usrflags&cflag4)))) cwalkflag &= c2.walk;
+		else if ((iswater_type(c2.type) && ((c2.walk>>4)&b) && get_qr(qr_WATER_ON_LAYER_2) && !((c2.usrflags&cflag3) || (c2.usrflags&cflag4)))) cwalkflag &= c2.walk;
 		else if (c2.type == cBRIDGE)
 		{
-			if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+			if (!get_qr(qr_OLD_BRIDGE_COMBOS))
 			{
 				int efflag = (c2.walk & 0xF0)>>4;
 				int newsolid = (c2.walk & 0xF);
@@ -5570,7 +5571,7 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt,zfix const& switchblockstate)
 			}
 			else cwalkflag &= c2.walk;
 		}
-		else if ((iswater_type(c2.type) && get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && ((c2.usrflags&cflag3) || (c2.usrflags&cflag4))) && ((c2.walk>>4)&b)) cwalkflag = 0;
+		else if ((iswater_type(c2.type) && get_qr(qr_WATER_ON_LAYER_2) && ((c2.usrflags&cflag3) || (c2.usrflags&cflag4))) && ((c2.walk>>4)&b)) cwalkflag = 0;
 		else cwalkflag |= c2.walk;
 	}
 	
@@ -5597,14 +5598,14 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt,zfix const& switchblockstate)
 	}
 	cwalkflag = c.walk;
 	if(onSwitch(c,switchblockstate) && c.type == cCSWITCHBLOCK && c.usrflags&cflag9) cwalkflag &= (c.walk>>4)^0xF;
-	else if ((c.type == cBRIDGE && get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS)) || (iswater_type(c.type) && ((c.walk>>4)&b) && ((c.usrflags&cflag3) || (c.usrflags&cflag4)))) cwalkflag = 0;
+	else if ((c.type == cBRIDGE && get_qr(qr_OLD_BRIDGE_COMBOS)) || (iswater_type(c.type) && ((c.walk>>4)&b) && ((c.usrflags&cflag3) || (c.usrflags&cflag4)))) cwalkflag = 0;
 	if (s1 != tmpscr)
 	{
 		if(onSwitch(c1,switchblockstate) && c1.type == cCSWITCHBLOCK && c1.usrflags&cflag9) cwalkflag &= (c1.walk>>4)^0xF;
-		else if ((iswater_type(c1.type) && ((c1.walk>>4)&b) && get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && !((c1.usrflags&cflag3) || (c1.usrflags&cflag4)))) cwalkflag &= c1.walk;
+		else if ((iswater_type(c1.type) && ((c1.walk>>4)&b) && get_qr(qr_WATER_ON_LAYER_1) && !((c1.usrflags&cflag3) || (c1.usrflags&cflag4)))) cwalkflag &= c1.walk;
 		else if (c1.type == cBRIDGE)
 		{
-			if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+			if (!get_qr(qr_OLD_BRIDGE_COMBOS))
 			{
 				int efflag = (c1.walk & 0xF0)>>4;
 				int newsolid = (c1.walk & 0xF);
@@ -5612,16 +5613,16 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt,zfix const& switchblockstate)
 			}
 			else cwalkflag &= c1.walk;
 		}
-		else if ((iswater_type(c1.type) && get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && ((c1.usrflags&cflag3) || (c1.usrflags&cflag4))) && ((c1.walk>>4)&b)) cwalkflag = 0;
+		else if ((iswater_type(c1.type) && get_qr(qr_WATER_ON_LAYER_1) && ((c1.usrflags&cflag3) || (c1.usrflags&cflag4))) && ((c1.walk>>4)&b)) cwalkflag = 0;
 		else cwalkflag |= c1.walk;
 	}
 	if (s2 != tmpscr)
 	{
 		if(onSwitch(c2,switchblockstate) && c2.type == cCSWITCHBLOCK && c2.usrflags&cflag9) cwalkflag &= (c2.walk>>4)^0xF;
-		else if ((iswater_type(c2.type) && ((c2.walk>>4)&b) && get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && !((c2.usrflags&cflag3) || (c2.usrflags&cflag4)))) cwalkflag &= c2.walk;
+		else if ((iswater_type(c2.type) && ((c2.walk>>4)&b) && get_qr(qr_WATER_ON_LAYER_2) && !((c2.usrflags&cflag3) || (c2.usrflags&cflag4)))) cwalkflag &= c2.walk;
 		else if (c2.type == cBRIDGE)
 		{
-			if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+			if (!get_qr(qr_OLD_BRIDGE_COMBOS))
 			{
 				int efflag = (c2.walk & 0xF0)>>4;
 				int newsolid = (c2.walk & 0xF);
@@ -5629,7 +5630,7 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt,zfix const& switchblockstate)
 			}
 			else cwalkflag &= c2.walk;
 		}
-		else if ((iswater_type(c2.type) && get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && ((c2.usrflags&cflag3) || (c2.usrflags&cflag4))) && ((c2.walk>>4)&b)) cwalkflag = 0;
+		else if ((iswater_type(c2.type) && get_qr(qr_WATER_ON_LAYER_2) && ((c2.usrflags&cflag3) || (c2.usrflags&cflag4))) && ((c2.walk>>4)&b)) cwalkflag = 0;
 		else cwalkflag |= c2.walk;
 	}
 	return (cwalkflag&b) ? !dried : false;
@@ -5638,7 +5639,7 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt,zfix const& switchblockstate)
 bool _effectflag(int32_t x,int32_t y,int32_t cnt, int32_t layer, bool notLink)
 {
 	//  walkflagx=x; walkflagy=y;
-	if(get_bit(quest_rules,qr_LTTPWALK) || notLink)
+	if(get_qr(qr_LTTPWALK) || notLink)
 	{
 		if(x<0||y<0) return false;
 		
@@ -5737,7 +5738,7 @@ bool _effectflag(int32_t x,int32_t y,int32_t cnt, int32_t layer, bool notLink)
 bool _walkflag(int32_t x,int32_t y,int32_t cnt, mapscr* m)
 {
 	//  walkflagx=x; walkflagy=y;
-	if(get_bit(quest_rules,qr_LTTPWALK))
+	if(get_qr(qr_LTTPWALK))
 	{
 		if(x<0||y<0) return false;
 		
@@ -5787,7 +5788,7 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt, mapscr* m)
 	int32_t cwalkflag = c.walk;
 	if (c1.type == cBRIDGE)
 	{
-		if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+		if (!get_qr(qr_OLD_BRIDGE_COMBOS))
 		{
 			int efflag = (c1.walk & 0xF0)>>4;
 			int newsolid = (c1.walk & 0xF);
@@ -5798,7 +5799,7 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt, mapscr* m)
 	else if (s1 != m) cwalkflag |= c1.walk;
 	if (c2.type == cBRIDGE)
 	{
-		if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+		if (!get_qr(qr_OLD_BRIDGE_COMBOS))
 		{
 			int efflag = (c2.walk & 0xF0)>>4;
 			int newsolid = (c2.walk & 0xF);
@@ -5832,7 +5833,7 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt, mapscr* m)
 	cwalkflag = c.walk;
 	if (c1.type == cBRIDGE)
 	{
-		if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+		if (!get_qr(qr_OLD_BRIDGE_COMBOS))
 		{
 			int efflag = (c1.walk & 0xF0)>>4;
 			int newsolid = (c1.walk & 0xF);
@@ -5843,7 +5844,7 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt, mapscr* m)
 	else if (s1 != m) cwalkflag |= c1.walk;
 	if (c2.type == cBRIDGE)
 	{
-		if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+		if (!get_qr(qr_OLD_BRIDGE_COMBOS))
 		{
 			int efflag = (c2.walk & 0xF0)>>4;
 			int newsolid = (c2.walk & 0xF);
@@ -5858,7 +5859,7 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt, mapscr* m)
 bool _walkflag(int32_t x,int32_t y,int32_t cnt, mapscr* m, mapscr* s1, mapscr* s2)
 {
 	//  walkflagx=x; walkflagy=y;
-	if(get_bit(quest_rules,qr_LTTPWALK))
+	if(get_qr(qr_LTTPWALK))
 	{
 		if(x<0||y<0) return false;
 		
@@ -5897,7 +5898,7 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt, mapscr* m, mapscr* s1, mapscr* s
 	int32_t cwalkflag = c.walk;
 	if (c1.type == cBRIDGE)
 	{
-		if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+		if (!get_qr(qr_OLD_BRIDGE_COMBOS))
 		{
 			int efflag = (c1.walk & 0xF0)>>4;
 			int newsolid = (c1.walk & 0xF);
@@ -5908,7 +5909,7 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt, mapscr* m, mapscr* s1, mapscr* s
 	else if (s1 != m) cwalkflag |= c1.walk;
 	if (c2.type == cBRIDGE)
 	{
-		if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+		if (!get_qr(qr_OLD_BRIDGE_COMBOS))
 		{
 			int efflag = (c2.walk & 0xF0)>>4;
 			int newsolid = (c2.walk & 0xF);
@@ -5942,7 +5943,7 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt, mapscr* m, mapscr* s1, mapscr* s
 	cwalkflag = c.walk;
 	if (c1.type == cBRIDGE)
 	{
-		if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+		if (!get_qr(qr_OLD_BRIDGE_COMBOS))
 		{
 			int efflag = (c1.walk & 0xF0)>>4;
 			int newsolid = (c1.walk & 0xF);
@@ -5953,7 +5954,7 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt, mapscr* m, mapscr* s1, mapscr* s
 	else if (s1 != m) cwalkflag |= c1.walk;
 	if (c2.type == cBRIDGE) 
 	{
-		if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+		if (!get_qr(qr_OLD_BRIDGE_COMBOS))
 		{
 			int efflag = (c2.walk & 0xF0)>>4;
 			int newsolid = (c2.walk & 0xF);
@@ -5969,7 +5970,7 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt, mapscr* m, mapscr* s1, mapscr* s
 bool _walkflag_layer(int32_t x,int32_t y,int32_t cnt, mapscr* m)
 {
 	//  walkflagx=x; walkflagy=y;
-	if(get_bit(quest_rules,qr_LTTPWALK))
+	if(get_qr(qr_LTTPWALK))
 	{
 		if(x<0||y<0) return false;
 		
@@ -6024,7 +6025,7 @@ bool _walkflag_layer(int32_t x,int32_t y,int32_t cnt, mapscr* m)
 bool _effectflag_layer(int32_t x,int32_t y,int32_t cnt, mapscr* m, bool notLink)
 {
 	//  walkflagx=x; walkflagy=y;
-	if(get_bit(quest_rules,qr_LTTPWALK) || notLink)
+	if(get_qr(qr_LTTPWALK) || notLink)
 	{
 		if(x<0||y<0) return false;
 		
@@ -6078,7 +6079,7 @@ bool _effectflag_layer(int32_t x,int32_t y,int32_t cnt, mapscr* m, bool notLink)
 
 bool water_walkflag(int32_t x,int32_t y,int32_t cnt)
 {
-	if(get_bit(quest_rules,qr_LTTPWALK))
+	if(get_qr(qr_LTTPWALK))
 	{
 		if(x<0||y<0) return false;
 		
@@ -6113,7 +6114,7 @@ bool water_walkflag(int32_t x,int32_t y,int32_t cnt)
 	
 	if(y&8) b<<=1;
 	
-	if(get_bit(quest_rules, qr_NO_SOLID_SWIM))
+	if(get_qr(qr_NO_SOLID_SWIM))
 	{
 		if(c.walk&b)
 			return true;
@@ -6149,7 +6150,7 @@ bool water_walkflag(int32_t x,int32_t y,int32_t cnt)
 		if(y&8) b<<=1;
 	}
 	
-	if(get_bit(quest_rules, qr_NO_SOLID_SWIM))
+	if(get_qr(qr_NO_SOLID_SWIM))
 	{
 		return (c.walk&b) || (c1.walk&b) || (c2.walk&b);
 	}
@@ -6164,7 +6165,7 @@ bool hit_walkflag(int32_t x,int32_t y,int32_t cnt)
 		if(x<32 || y<40 || (x+(cnt-1)*8)>=224 || y>=144)
 			return true;
 			
-	if(blockpath && y<((get_bit(quest_rules,qr_LTTPCOLLISION))?80:88))
+	if(blockpath && y<((get_qr(qr_LTTPCOLLISION))?80:88))
 		return true;
 		
 	if(x<16 || y<16 || (x+(cnt-1)*8)>=240 || y>=160)
@@ -6312,7 +6313,7 @@ void toggle_switches(dword flags, bool entry, mapscr* m, mapscr* t)
 			}
 		}
 	}
-	if(get_bit(quest_rules, qr_SWITCHES_AFFECT_MOVINGBLOCKS) && mblock2.clk)
+	if(get_qr(qr_SWITCHES_AFFECT_MOVINGBLOCKS) && mblock2.clk)
 	{
 		newcombo const& cmb = combobuf[mblock2.bcombo];
 		if(!(cmb.usrflags & cflag11) && (cmb.type == cCSWITCH || cmb.type == cCSWITCHBLOCK) && cmb.attribytes[0] < 32)
@@ -6450,7 +6451,7 @@ void toggle_gswitches(bool* states, bool entry, mapscr* m, mapscr* t)
 		}
 	}
 	
-	if(get_bit(quest_rules, qr_SWITCHES_AFFECT_MOVINGBLOCKS) && mblock2.clk)
+	if(get_qr(qr_SWITCHES_AFFECT_MOVINGBLOCKS) && mblock2.clk)
 	{
 		newcombo const& cmb = combobuf[mblock2.bcombo];
 		if((cmb.type == cCSWITCH || cmb.type == cCSWITCHBLOCK) && (cmb.usrflags & cflag11))
@@ -6623,7 +6624,7 @@ void ViewMap()
 					
 					putscrdoors(scrollbuf,256,0,tmpscr);
 					do_layer(scrollbuf,-2, 0, tmpscr, -256, playing_field_offset, 2);
-					if(get_bit(quest_rules, qr_PUSHBLOCK_LAYER_1_2))
+					if(get_qr(qr_PUSHBLOCK_LAYER_1_2))
 					{
 						do_layer(scrollbuf,-2, 1, tmpscr, -256, playing_field_offset, 2);
 						do_layer(scrollbuf,-2, 2, tmpscr, -256, playing_field_offset, 2);
@@ -6634,7 +6635,7 @@ void ViewMap()
 					
 					do_layer(scrollbuf, 0, 4, tmpscr, -256, playing_field_offset, 2);
 					do_layer(scrollbuf,-1, 0, tmpscr, -256, playing_field_offset, 2);
-					if(get_bit(quest_rules, qr_OVERHEAD_COMBOS_L1_L2))
+					if(get_qr(qr_OVERHEAD_COMBOS_L1_L2))
 					{
 						do_layer(scrollbuf,-1, 1, tmpscr, -256, playing_field_offset, 2);
 						do_layer(scrollbuf,-1, 2, tmpscr, -256, playing_field_offset, 2);

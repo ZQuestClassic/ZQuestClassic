@@ -15,6 +15,7 @@
 #include <string.h>
 #include <memory>
 #include "base/zc_alleg.h"
+#include "base/qrs.h"
 
 #include "base/zdefs.h"
 #include "zc/zelda.h"
@@ -4471,7 +4472,7 @@ void game_over(int32_t type)
 	//clear_to_color(screen,SaveScreenSettings[SAVESC_BACKGROUND]);
 	loadfullpal();
 	
-	//if(get_bit(quest_rules, qr_INSTANT_RESPAWN))
+	//if(get_qr(qr_INSTANT_RESPAWN))
 	//{	zprint2("Reloading/n");
 	//	Quit = qRELOAD;
 	//	return;
@@ -4920,7 +4921,7 @@ bool save_game(bool savepoint, int32_t type)
 	
 	if(darkroom)
 	{
-		if(get_bit(quest_rules,qr_FADE))
+		if(get_qr(qr_FADE))
 		{
 			interpolatedfade();
 		}

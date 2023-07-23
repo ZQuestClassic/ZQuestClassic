@@ -10,6 +10,7 @@
 
 #include <string.h>
 
+#include "base/qrs.h"
 #include "zc/zelda.h"
 #include "subscr.h"
 #include "zc/zc_subscr.h"
@@ -76,9 +77,9 @@ void dosubscr(miscQdata *misc)
     blit(framebuf,scrollbuf,0,playing_field_offset,0,176,256,176);
     miny = 6;
     
-	bool use_a = get_bit(quest_rules,qr_SELECTAWPN), use_x = get_bit(quest_rules,qr_SET_XBUTTON_ITEMS),
-	     use_y = get_bit(quest_rules,qr_SET_YBUTTON_ITEMS);
-	bool b_only = !(use_a||use_x||use_y||get_bit(quest_rules,qr_SUBSCR_PRESS_TO_EQUIP));
+	bool use_a = get_qr(qr_SELECTAWPN), use_x = get_qr(qr_SET_XBUTTON_ITEMS),
+	     use_y = get_qr(qr_SET_YBUTTON_ITEMS);
+	bool b_only = !(use_a||use_x||use_y||get_qr(qr_SUBSCR_PRESS_TO_EQUIP));
 	//Set the selector to the correct position before bringing up the subscreen -DD
 	{
 		if(Bwpn)
@@ -139,28 +140,28 @@ void dosubscr(miscQdata *misc)
 		else if(rRight()) Bpos = selectWpn_new(SEL_RIGHT, pos, -1, -1, -1, false, false);
 		else if(rLbtn())
 		{
-			if (!get_bit(quest_rules,qr_NO_L_R_BUTTON_INVENTORY_SWAP))
+			if (!get_qr(qr_NO_L_R_BUTTON_INVENTORY_SWAP))
 			{
 				Bpos = selectWpn_new(SEL_LEFT, pos, -1, -1, -1, false, true);
 			}
 		}
 		else if(rRbtn() )
 		{
-			if (!get_bit(quest_rules,qr_NO_L_R_BUTTON_INVENTORY_SWAP)) 
+			if (!get_qr(qr_NO_L_R_BUTTON_INVENTORY_SWAP)) 
 			{
 				Bpos = selectWpn_new(SEL_RIGHT, pos, -1, -1, -1, false, true);
 			}
 		}
 		else if(rEx3btn() )
 		{
-			if ( use_a && get_bit(quest_rules,qr_USE_EX1_EX2_INVENTORYSWAP) )
+			if ( use_a && get_qr(qr_USE_EX1_EX2_INVENTORYSWAP) )
 			{
 				selectNextAWpn(SEL_LEFT);
 			}
 		}
 		else if(rEx4btn() )
 		{
-			if ( use_a && get_bit(quest_rules,qr_USE_EX1_EX2_INVENTORYSWAP) )
+			if ( use_a && get_qr(qr_USE_EX1_EX2_INVENTORYSWAP) )
 			{
 				selectNextAWpn(SEL_RIGHT);
 			}
@@ -171,7 +172,7 @@ void dosubscr(miscQdata *misc)
 		if(p > -1 && (current_subscreen_active->objects[p].d2 & SSCURRITEM_NONEQUIP))
 			can_equip = false;
 		auto eqwpn = Bweapon(Bpos);
-		if(get_bit(quest_rules,qr_FREEFORM_SUBSCREEN_CURSOR) && !eqwpn)
+		if(get_qr(qr_FREEFORM_SUBSCREEN_CURSOR) && !eqwpn)
 			can_equip = false;
 		if(can_equip)
 		{
@@ -392,7 +393,7 @@ void markBmap(int32_t dir, int32_t sc)
     switch((DMaps[get_currdmap()].type&dmfTYPE))
     {
     case dmDNGN:
-		if(get_bit(quest_rules, qr_DUNGEONS_USE_CLASSIC_CHARTING))
+		if(get_qr(qr_DUNGEONS_USE_CLASSIC_CHARTING))
 		{
 			// check dmap
 			if((drow&mask)==0) //Only squares marked in dmap editor can be charted
@@ -412,7 +413,7 @@ void markBmap(int32_t dir, int32_t sc)
         break;
         
     case dmOVERW:
-		if(get_bit(quest_rules, qr_NO_OVERWORLD_MAP_CHARTING))
+		if(get_qr(qr_NO_OVERWORLD_MAP_CHARTING))
 			break;
         
     default:

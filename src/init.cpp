@@ -22,6 +22,7 @@
 #include "base/gui.h"
 #include "init.h"
 #include "items.h"
+#include "base/qrs.h"
 #include "zc/zelda.h"
 
 extern zcmodule moduledata;
@@ -44,7 +45,6 @@ extern zcmodule moduledata;
 extern int32_t jwin_pal[jcMAX];
 extern dmap *DMaps;
 extern itemdata *itemsbuf;
-extern byte quest_rules[QUESTRULES_NEW_SIZE];
 extern char *item_string[];
 extern byte *colordata;
 

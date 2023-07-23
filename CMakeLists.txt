@@ -450,6 +450,7 @@ set(zcbase_sources
 	src/base/mapscr.cpp
 	src/base/module.cpp
 	src/base/process_management.cpp
+	src/base/qrs.cpp
 	src/base/random.cpp
 	src/base/render.cpp
 	src/base/sin1.cpp

@@ -11,6 +11,7 @@
 #include "allegro/file.h"
 #include "base/util.h"
 #include "base/zapp.h"
+#include "base/qrs.h"
 #include <filesystem>
 #include <stdio.h>
 #include <string.h>
@@ -2482,16 +2483,16 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printm
 			
 			if(tempheader.zelda_version <= 0x190)
 			{
-				set_bit(quest_rules,qr_MEANPLACEDTRAPS,0);
+				set_qr(qr_MEANPLACEDTRAPS,0);
 			}
 		}
 		
 		if((tempheader.zelda_version < 0x192)||
 				((tempheader.zelda_version == 0x192)&&(tempheader.build<149)))
 		{
-			set_bit(quest_rules,qr_BRKNSHLDTILES,(get_bit(quest_rules,qr_BRKBLSHLDS_DEP)));
+			set_qr(qr_BRKNSHLDTILES,(get_qr(qr_BRKBLSHLDS_DEP)));
 			set_bit(deprecated_rules,qr_BRKBLSHLDS_DEP,1);
-			set_bit(quest_rules,qr_BRKBLSHLDS_DEP,1);
+			set_qr(qr_BRKBLSHLDS_DEP,1);
 		}
 		
 		if(tempheader.zelda_version >= 0x192)                       //  lacks newer header stuff...
@@ -3118,134 +3119,134 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	
 	if(s_version<2)
 	{
-		set_bit(quest_rules,14,0);
-		set_bit(quest_rules,27,0);
-		set_bit(quest_rules,28,0);
-		set_bit(quest_rules,29,0);
-		set_bit(quest_rules,30,0);
-		set_bit(quest_rules,32,0);
-		set_bit(quest_rules,36,0);
-		set_bit(quest_rules,49,0);
-		set_bit(quest_rules,50,0);
-		set_bit(quest_rules,51,0);
-		set_bit(quest_rules,68,0);
-		set_bit(quest_rules,75,0);
-		set_bit(quest_rules,76,0);
-		set_bit(quest_rules,98,0);
-		set_bit(quest_rules,110,0);
-		set_bit(quest_rules,113,0);
-		set_bit(quest_rules,116,0);
-		set_bit(quest_rules,102,0);
-		set_bit(quest_rules,132,0);
+		set_qr(14,0);
+		set_qr(27,0);
+		set_qr(28,0);
+		set_qr(29,0);
+		set_qr(30,0);
+		set_qr(32,0);
+		set_qr(36,0);
+		set_qr(49,0);
+		set_qr(50,0);
+		set_qr(51,0);
+		set_qr(68,0);
+		set_qr(75,0);
+		set_qr(76,0);
+		set_qr(98,0);
+		set_qr(110,0);
+		set_qr(113,0);
+		set_qr(116,0);
+		set_qr(102,0);
+		set_qr(132,0);
 	}
 	
 	//Now, do any updates...
 	if((tempheader.zelda_version < 0x211)||((tempheader.zelda_version == 0x211)&&(tempheader.build<18)))
 	{
-		set_bit(quest_rules, qr_SMOOTHVERTICALSCROLLING,1);
-		set_bit(quest_rules, qr_REPLACEOPENDOORS, 1);
-		set_bit(quest_rules, qr_OLDLENSORDER, 1);
-		set_bit(quest_rules, qr_NOFAIRYGUYFIRES, 1);
-		set_bit(quest_rules, qr_TRIGGERSREPEAT, 1);
+		set_qr(qr_SMOOTHVERTICALSCROLLING,1);
+		set_qr(qr_REPLACEOPENDOORS, 1);
+		set_qr(qr_OLDLENSORDER, 1);
+		set_qr(qr_NOFAIRYGUYFIRES, 1);
+		set_qr(qr_TRIGGERSREPEAT, 1);
 	}
 	
 	if((tempheader.zelda_version < 0x193)||((tempheader.zelda_version == 0x193)&&(tempheader.build<3)))
 	{
-		set_bit(quest_rules,qr_WALLFLIERS,1);
+		set_qr(qr_WALLFLIERS,1);
 	}
 	
 	if((tempheader.zelda_version < 0x193)||((tempheader.zelda_version == 0x193)&&(tempheader.build<4)))
 	{
-		set_bit(quest_rules,qr_NOBOMBPALFLASH,1);
+		set_qr(qr_NOBOMBPALFLASH,1);
 	}
 	
 	if((tempheader.zelda_version < 0x193)||((tempheader.zelda_version == 0x193)&&(tempheader.build<3)))
 	{
-		set_bit(quest_rules,qr_NOSCROLLCONTINUE,1);
+		set_qr(qr_NOSCROLLCONTINUE,1);
 	}
 	
 	if(tempheader.zelda_version <= 0x210)
 	{
-		set_bit(quest_rules,qr_ARROWCLIP,1);
+		set_qr(qr_ARROWCLIP,1);
 	}
 	
 	if(tempheader.zelda_version == 0x210)
 	{
-		set_bit(quest_rules, qr_NOSCROLLCONTINUE, get_bit(quest_rules, qr_CMBCYCLELAYERS));
-		set_bit(quest_rules, qr_CMBCYCLELAYERS, 0);
-		set_bit(quest_rules, qr_CONT_SWORD_TRIGGERS, 1);
+		set_qr(qr_NOSCROLLCONTINUE, get_qr(qr_CMBCYCLELAYERS));
+		set_qr(qr_CMBCYCLELAYERS, 0);
+		set_qr(qr_CONT_SWORD_TRIGGERS, 1);
 	}
 	
 	if(tempheader.zelda_version <= 0x210)
 	{
-		set_bit(quest_rules,qr_OLDSTYLEWARP,1);
-		set_bit(quest_rules,qr_210_WARPRETURN,1);
+		set_qr(qr_OLDSTYLEWARP,1);
+		set_qr(qr_210_WARPRETURN,1);
 	}
 	
 	//might not be correct
 	if(tempheader.zelda_version < 0x210)
 	{
 		set_bit(deprecated_rules, qr_OLDTRIBBLES_DEP,1);
-		set_bit(quest_rules, qr_OLDTRIBBLES_DEP,1);
-		set_bit(quest_rules, qr_OLDHOOKSHOTGRAB,1);
+		set_qr(qr_OLDTRIBBLES_DEP,1);
+		set_qr(qr_OLDHOOKSHOTGRAB,1);
 	}
 	
 	if(tempheader.zelda_version < 0x211)
 	{
-		set_bit(quest_rules, qr_WRONG_BRANG_TRAIL_DIR,1);
+		set_qr(qr_WRONG_BRANG_TRAIL_DIR,1);
 	}
 	
 	if(tempheader.zelda_version == 0x192 && tempheader.build == 163)
 	{
-		set_bit(quest_rules, qr_192b163_WARP,1);
+		set_qr(qr_192b163_WARP,1);
 	}
 	
 	if(tempheader.zelda_version == 0x210)
 	{
-		set_bit(deprecated_rules, qr_OLDTRIBBLES_DEP, get_bit(quest_rules, qr_DMGCOMBOPRI));
-		set_bit(quest_rules, qr_OLDTRIBBLES_DEP, get_bit(quest_rules, qr_DMGCOMBOPRI));
-		set_bit(quest_rules, qr_DMGCOMBOPRI, 0);
+		set_bit(deprecated_rules, qr_OLDTRIBBLES_DEP, get_qr(qr_DMGCOMBOPRI));
+		set_qr(qr_OLDTRIBBLES_DEP, get_qr(qr_DMGCOMBOPRI));
+		set_qr(qr_DMGCOMBOPRI, 0);
 	}
 	
 	if(tempheader.zelda_version < 0x211 || (tempheader.zelda_version == 0x211 && tempheader.build<15))
 	{
-		set_bit(quest_rules, qr_OLDPICKUP,1);
+		set_qr(qr_OLDPICKUP,1);
 	}
 	
 	if(tempheader.zelda_version < 0x211 || (tempheader.zelda_version == 0x211 && tempheader.build < 18))
 	{
-		set_bit(quest_rules,qr_NOSOLIDDAMAGECOMBOS, 1);
-		set_bit(quest_rules, qr_ITEMPICKUPSETSBELOW, 1); // broke around build 400
+		set_qr(qr_NOSOLIDDAMAGECOMBOS, 1);
+		set_qr(qr_ITEMPICKUPSETSBELOW, 1); // broke around build 400
 	}
 	
 	if(tempheader.zelda_version < 0x250) // version<0x250 checks for beta 18; build was set to 18 prematurely
 	{
-		set_bit(quest_rules,qr_HOOKSHOTDOWNBUG, 1);
+		set_qr(qr_HOOKSHOTDOWNBUG, 1);
 	}
 	
 	if(tempheader.zelda_version == 0x250 && tempheader.build == 24) // Annoying...
 	{
-		set_bit(quest_rules,qr_PEAHATCLOCKVULN, 1);
+		set_qr(qr_PEAHATCLOCKVULN, 1);
 	}
 	
 	if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build < 22)) //22 is 2.50.0 RC4. Gotta set the door repair QR... -Dimi
 	{
-		set_bit(quest_rules,qr_OLD_DOORREPAIR, 1);
+		set_qr(qr_OLD_DOORREPAIR, 1);
 	}
 	
 	if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build < 20)) //20 is 2.50.0 RC1 and RC2 (cause it didn't get bumped). Okay I'm gonna be honest I have no idea if any 2.50 build was available before RC1, but gonna try and cover my ass here -Dimi
 	{
-		set_bit(quest_rules,qr_OLD_SECRETMONEY, 1);
+		set_qr(qr_OLD_SECRETMONEY, 1);
 	}
 	
 	if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build < 28)) //28 is 2.50.1 final. Potion bug might have been used, I dunno. -Dimi
 	{
-		set_bit(quest_rules,qr_OLD_POTION_OR_HC, 1);
+		set_qr(qr_OLD_POTION_OR_HC, 1);
 	}
 	
 	if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build<28))
 	{
-		set_bit(quest_rules, qr_OFFSCREENWEAPONS, 1);
+		set_qr(qr_OFFSCREENWEAPONS, 1);
 	}
 	
 	//Bombchu fix.
@@ -3253,19 +3254,19 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	{
 		if ( tempheader.build == 24 ) //2.50.0
 		{
-			set_bit(quest_rules, qr_BOMBCHUSUPERBOMB, 1);
+			set_qr(qr_BOMBCHUSUPERBOMB, 1);
 		}
 		if ( tempheader.build == 28 ) //2.50.1
 		{
-			set_bit(quest_rules, qr_BOMBCHUSUPERBOMB, 1);
+			set_qr(qr_BOMBCHUSUPERBOMB, 1);
 		}
 		if ( tempheader.build == 29 ) //2.50.2
 		{
-			set_bit(quest_rules, qr_BOMBCHUSUPERBOMB, 0);
+			set_qr(qr_BOMBCHUSUPERBOMB, 0);
 		}
 		if ( tempheader.build == 30 ) //2.50.3RC1
 		{
-			set_bit(quest_rules, qr_BOMBCHUSUPERBOMB, 0);
+			set_qr(qr_BOMBCHUSUPERBOMB, 0);
 		}
 	}
 	
@@ -3277,66 +3278,66 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 		// All 2.11 - 2.5.1 quests should have it set also, due to a bug in about half of all the betas.
 
 		//~Gleeok
-		set_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX, 1); //This has to be set!!!!
+		set_qr(qr_OFFSETEWPNCOLLISIONFIX, 1); //This has to be set!!!!
 		
 		// Broke in build 695
 		if(tempheader.zelda_version>=0x211 && tempheader.build>=18)
-			set_bit(quest_rules, qr_BROKENSTATUES, 1);
+			set_qr(qr_BROKENSTATUES, 1);
 	}
 	if (tempheader.zelda_version <= 0x190)
 	{
-		set_bit(quest_rules, qr_COPIED_SWIM_SPRITES, 1);
+		set_qr(qr_COPIED_SWIM_SPRITES, 1);
 	}
 	if ( (tempheader.zelda_version == 0x250 && tempheader.build < 33) || tempheader.zelda_version == 0x254 || tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x255 && tempheader.build < 50) )
 	{
-		set_bit(quest_rules, qr_OLD_SLASHNEXT_SECRETS, 1);
+		set_qr(qr_OLD_SLASHNEXT_SECRETS, 1);
 	}
 	
 	if ( (tempheader.zelda_version < 0x211) ) //2.10 water and ladder interaction
 	{
-		set_bit(quest_rules, qr_OLD_210_WATER, 1);
+		set_qr(qr_OLD_210_WATER, 1);
 	}
 	
 	if ( (tempheader.zelda_version < 0x255 ) || (tempheader.zelda_version == 0x255 &&  tempheader.build < 51 ) ) //2.10 water and ladder interaction
 	{
-		set_bit(quest_rules,qr_STEP_IS_FLOAT,0);
+		set_qr(qr_STEP_IS_FLOAT,0);
 	}
 	
 	if ( tempheader.zelda_version < 0x250 ) 
 	{
-		set_bit(quest_rules, qr_8WAY_SHOT_SFX, 1);		
+		set_qr(qr_8WAY_SHOT_SFX, 1);		
 	}
 	
 	if(s_version < 3)
 	{
-		set_bit(quest_rules, qr_HOLDNOSTOPMUSIC, 1);
-		set_bit(quest_rules, qr_CAVEEXITNOSTOPMUSIC, 1);
+		set_qr(qr_HOLDNOSTOPMUSIC, 1);
+		set_qr(qr_CAVEEXITNOSTOPMUSIC, 1);
 	}
 	
 	if(s_version<4)
 	{
-		set_bit(quest_rules,10,0);
+		set_qr(10,0);
 	}
 	
 	if(s_version<5)
 	{
-		set_bit(quest_rules,27,0);
+		set_qr(27,0);
 	}
 	
 	if(s_version<6)
 	{
-		set_bit(quest_rules,46,0);
+		set_qr(46,0);
 	}
 	
 	if(s_version<7) // January 2008
 	{
-		set_bit(quest_rules,qr_HEARTSREQUIREDFIX,0);
-		set_bit(quest_rules,qr_PUSHBLOCKCSETFIX,1);
+		set_qr(qr_HEARTSREQUIREDFIX,0);
+		set_qr(qr_PUSHBLOCKCSETFIX,1);
 	}
 	
 	if(s_version<8)
 	{
-		set_bit(quest_rules, 12, 0);
+		set_qr(12, 0);
 	}
 	else
 	{
@@ -3345,34 +3346,34 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	
 	if(s_version<9) // October 2008
 	{
-		set_bit(quest_rules,qr_NOROPE2FLASH_DEP,0);
-		set_bit(quest_rules,qr_NOBUBBLEFLASH_DEP,0);
-		set_bit(quest_rules,qr_GHINI2BLINK_DEP,0);
-		set_bit(quest_rules,qr_PHANTOMGHINI2_DEP,0);
+		set_qr(qr_NOROPE2FLASH_DEP,0);
+		set_qr(qr_NOBUBBLEFLASH_DEP,0);
+		set_qr(qr_GHINI2BLINK_DEP,0);
+		set_qr(qr_PHANTOMGHINI2_DEP,0);
 	}
 	
 	if(s_version<10) // December 2008
 	{
-		set_bit(quest_rules,qr_NOCLOCKS_DEP,0);
-		set_bit(quest_rules, qr_ALLOW10RUPEEDROPS_DEP,0);
+		set_qr(qr_NOCLOCKS_DEP,0);
+		set_qr(qr_ALLOW10RUPEEDROPS_DEP,0);
 	}
 	
 	if(s_version<11) // April 2009
 	{
-		set_bit(quest_rules,qr_SLOWENEMYANIM_DEP,0);
+		set_qr(qr_SLOWENEMYANIM_DEP,0);
 	}
 	
 	// This served no purpose.
 	// if(s_version<12)  // December 2009
 	// {
-	// 	set_bit(quest_rules,qr_BRKBLSHLDS_DEP,0);
-	// 	set_bit(quest_rules, qr_OLDTRIBBLES_DEP,0);
+	// 	set_qr(qr_BRKBLSHLDS_DEP,0);
+	// 	set_qr(qr_OLDTRIBBLES_DEP,0);
 	// }
 	
 	//if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build < 24))
 	if(s_version < 13)
 	{
-		set_bit(quest_rules,qr_SHOPCHEAT, 1);
+		set_qr(qr_SHOPCHEAT, 1);
 	}
 	
 	// Not entirely sure this is the best place for this...
@@ -3380,8 +3381,8 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	memset(extra_rules, 0, EXTRARULES_SIZE);
 	if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build<29))
 	{
-		set_bit(extra_rules, er_BITMAPOFFSET, 1);
-		set_bit(quest_rules, qr_BITMAPOFFSETFIX, 1);
+		set_er(er_BITMAPOFFSET, 1);
+		set_qr(qr_BITMAPOFFSETFIX, 1);
 	}
 	//required because quest templates also used this bit, although
 	//it never did anything, before. -Z
@@ -3389,76 +3390,76 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	{
 		if( tempheader.build == 29 || tempheader.build == 30 || tempheader.build == 31 )
 		{
-			set_bit(extra_rules, er_BITMAPOFFSET, 0);
-			set_bit(quest_rules, qr_BITMAPOFFSETFIX, 0);    
+			set_er(er_BITMAPOFFSET, 0);
+			set_qr(qr_BITMAPOFFSETFIX, 0);    
 		}
 	}
 	if ( tempheader.zelda_version == 0x254 )
 	{
-		set_bit(extra_rules, er_BITMAPOFFSET, 0);
-		set_bit(quest_rules, qr_BITMAPOFFSETFIX, 0);    
+		set_er(er_BITMAPOFFSET, 0);
+		set_qr(qr_BITMAPOFFSETFIX, 0);    
 	}
 	if ( tempheader.zelda_version == 0x255 && tempheader.build < 42 ) //QR was added to 255 in this build.
 	{
-		set_bit(extra_rules, er_BITMAPOFFSET, 0);
-		set_bit(quest_rules, qr_BITMAPOFFSETFIX, 0);    
+		set_er(er_BITMAPOFFSET, 0);
+		set_qr(qr_BITMAPOFFSETFIX, 0);    
 	}
 	//optimise fast drawing for older versions.
 	if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 42) )
 	{
-		set_bit(quest_rules, qr_OLDSPRITEDRAWS, 1);    
+		set_qr(qr_OLDSPRITEDRAWS, 1);    
 	}
 	//Old eweapon->Parent (was added in 2.54, Alpha 19)
 	//The change was made in build 43, but I'm setting this to < 42, because quests made in 42 would benefit from this change, and
 	//older quests can set the rule by hand. We need a new qst.dat again.
 	if ( tempheader.zelda_version == 0x254 || (tempheader.zelda_version == 0x255 && tempheader.build < 42) )
 	{
-		set_bit(quest_rules, qr_OLDEWPNPARENT, 1);    
+		set_qr(qr_OLDEWPNPARENT, 1);    
 	}
 	if ( tempheader.zelda_version == 0x254 || (tempheader.zelda_version == 0x255 && tempheader.build < 44) )
 	{
-		set_bit(quest_rules, qr_OLDCREATEBITMAP_ARGS, 1);    
+		set_qr(qr_OLDCREATEBITMAP_ARGS, 1);    
 	}
 	if ( tempheader.zelda_version == 0x254 || (tempheader.zelda_version == 0x255 && tempheader.build < 45) )
 	{
-		set_bit(quest_rules, qr_OLDQUESTMISC, 1);    
+		set_qr(qr_OLDQUESTMISC, 1);    
 	}
 	if ( tempheader.zelda_version < 0x254 )
 	{
-		set_bit(quest_rules, qr_OLDCREATEBITMAP_ARGS, 0);  
-		set_bit(quest_rules, qr_OLDEWPNPARENT, 0); 	    
-		set_bit(quest_rules, qr_OLDQUESTMISC, 0); 	    
+		set_qr(qr_OLDCREATEBITMAP_ARGS, 0);  
+		set_qr(qr_OLDEWPNPARENT, 0); 	    
+		set_qr(qr_OLDQUESTMISC, 0); 	    
 	}
 	
 	//item scripts continue to run
 	if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 44) )
 	{
-		set_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING, 0);  	    
-		set_bit(quest_rules, qr_SCRIPTSRUNINHEROSTEPFORWARD, 0);  	    
-		set_bit(quest_rules, qr_FIXSCRIPTSDURINGSCROLLING, 0);
-		set_bit(quest_rules, qr_SCRIPTDRAWSINWARPS, 0);  	    
-		set_bit(quest_rules, qr_DYINGENEMYESDONTHURTHERO, 0);  	    
-		set_bit(quest_rules, qr_OUTOFBOUNDSENEMIES, 0);  
-		set_bit(quest_rules, qr_SPRITEXY_IS_FLOAT, 0);
+		set_qr(qr_ITEMSCRIPTSKEEPRUNNING, 0);  	    
+		set_qr(qr_SCRIPTSRUNINHEROSTEPFORWARD, 0);  	    
+		set_qr(qr_FIXSCRIPTSDURINGSCROLLING, 0);
+		set_qr(qr_SCRIPTDRAWSINWARPS, 0);  	    
+		set_qr(qr_DYINGENEMYESDONTHURTHERO, 0);  	    
+		set_qr(qr_OUTOFBOUNDSENEMIES, 0);  
+		set_qr(qr_SPRITEXY_IS_FLOAT, 0);
 	}
 	
 	if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 46) )
 	{
-		set_bit(quest_rules, qr_CLEARINITDONSCRIPTCHANGE, 1);  	    
+		set_qr(qr_CLEARINITDONSCRIPTCHANGE, 1);  	    
 	}
 	if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 46) )
 	{
-		set_bit(quest_rules, qr_TRACESCRIPTIDS, 0);      
-		set_bit(quest_rules, qr_SCRIPT_FRIENDLY_ENEMY_TYPES, 1);      
-		set_bit(quest_rules, qr_PARSER_BOOL_TRUE_DECIMAL, 1);   
-		set_bit(quest_rules,qr_PARSER_250DIVISION,1);
-		set_bit(quest_rules,qr_PARSER_BOOL_TRUE_DECIMAL,1);
-		set_bit(quest_rules,qr_PARSER_TRUE_INT_SIZE,0);
-		set_bit(quest_rules,qr_PARSER_FORCE_INLINE,0);
-		set_bit(quest_rules,qr_PARSER_BINARY_32BIT,0);
-		if ( get_bit(quest_rules, qr_SELECTAWPN) ) 
+		set_qr(qr_TRACESCRIPTIDS, 0);      
+		set_qr(qr_SCRIPT_FRIENDLY_ENEMY_TYPES, 1);      
+		set_qr(qr_PARSER_BOOL_TRUE_DECIMAL, 1);   
+		set_qr(qr_PARSER_250DIVISION,1);
+		set_qr(qr_PARSER_BOOL_TRUE_DECIMAL,1);
+		set_qr(qr_PARSER_TRUE_INT_SIZE,0);
+		set_qr(qr_PARSER_FORCE_INLINE,0);
+		set_qr(qr_PARSER_BINARY_32BIT,0);
+		if ( get_qr(qr_SELECTAWPN) ) 
 		{
-			set_bit(quest_rules,qr_NO_L_R_BUTTON_INVENTORY_SWAP,1); 
+			set_qr(qr_NO_L_R_BUTTON_INVENTORY_SWAP,1); 
 			//In < 2.55a27, if you had an A+B subscreen, L and R didn't shift through inventory.
 			//Now they **do**, unless you disable that behaviour.
 			//For the sake of compatibility, old quests with the A+B subscreen rule enabed
@@ -3469,189 +3470,189 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 47) )
 	{
 		//Compatibility: Setting the hero's action to rafting was previously disallowed, though legal for scripts to attempt.
-		set_bit(quest_rules, qr_DISALLOW_SETTING_RAFTING, 1);
+		set_qr(qr_DISALLOW_SETTING_RAFTING, 1);
 		//Compatibility: The calculation for when to loop an animation did not factor in ASkipY correctly, resulting in
 		//animations ending earlier than they should.
-		set_bit(quest_rules, qr_BROKEN_ASKIP_Y_FRAMES, 1);
+		set_qr(qr_BROKEN_ASKIP_Y_FRAMES, 1);
 		//Enemies would ignore solidity on the top half of combos
-		set_bit(quest_rules, qr_ENEMY_BROKEN_TOP_HALF_SOLIDITY, 1);
+		set_qr(qr_ENEMY_BROKEN_TOP_HALF_SOLIDITY, 1);
 		//Ceiling collison was a bit wonky, including hitting your head before you are near the ceiling or clipping into it slightly.
-		set_bit(quest_rules, qr_OLD_SIDEVIEW_CEILING_COLLISON, 1);
+		set_qr(qr_OLD_SIDEVIEW_CEILING_COLLISON, 1);
 		//If an itemdata had a 'frames' of 0, items created of that data would ignore all changes to 'frames'
-		set_bit(quest_rules, qr_0AFRAME_ITEMS_IGNORE_AFRAME_CHANGES, 1);
+		set_qr(qr_0AFRAME_ITEMS_IGNORE_AFRAME_CHANGES, 1);
 		//Collision used some odd calculations before, and enemies could not be hit back into the top row or left column
-		set_bit(quest_rules, qr_OLD_ENEMY_KNOCKBACK_COLLISION, 1);
+		set_qr(qr_OLD_ENEMY_KNOCKBACK_COLLISION, 1);
 	}
 	if ( tempheader.zelda_version < 0x255 )
 	{
-		set_bit(quest_rules, qr_NOFFCWAITDRAW, 1);  
-		set_bit(quest_rules, qr_NOITEMWAITDRAW, 1);  
-		set_bit(quest_rules, qr_SETENEMYWEAPONSPRITESONWPNCHANGE, 1); 
-		set_bit(quest_rules, qr_OLD_INIT_SCRIPT_TIMING, 1);
-		//set_bit(quest_rules, qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS, 1);
+		set_qr(qr_NOFFCWAITDRAW, 1);  
+		set_qr(qr_NOITEMWAITDRAW, 1);  
+		set_qr(qr_SETENEMYWEAPONSPRITESONWPNCHANGE, 1); 
+		set_qr(qr_OLD_INIT_SCRIPT_TIMING, 1);
+		//set_qr(qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS, 1);
 	}
 	if ( tempheader.zelda_version < 0x255 || ( tempheader.zelda_version == 0x255 && tempheader.build < 48 ) )
 	{
-		set_bit(quest_rules, qr_SETENEMYWEAPONSPRITESONWPNCHANGE, 1);  
+		set_qr(qr_SETENEMYWEAPONSPRITESONWPNCHANGE, 1);  
 	}
 	if( tempheader.zelda_version < 0x255 || ( tempheader.zelda_version == 0x255 && tempheader.build < 52 ) )
 	{
-		set_bit(quest_rules, qr_OLD_PRINTF_ARGS, 1);
+		set_qr(qr_OLD_PRINTF_ARGS, 1);
 	}
 	
 	
 	if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 54) )
 	{
-		set_bit(quest_rules, qr_BROKEN_RING_POWER, 1);
+		set_qr(qr_BROKEN_RING_POWER, 1);
 	}
 	if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 56) )
 	{
-		set_bit(quest_rules, qr_NO_OVERWORLD_MAP_CHARTING, 1);
+		set_qr(qr_NO_OVERWORLD_MAP_CHARTING, 1);
 	}
 	if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 57) )
 	{
-		set_bit(quest_rules, qr_DUNGEONS_USE_CLASSIC_CHARTING, 1);
+		set_qr(qr_DUNGEONS_USE_CLASSIC_CHARTING, 1);
 	}
 	if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 58) )
 	{
 		//Rule used to be 'qr_SETXYBUTTONITEMS', now split.
-		if(get_bit(quest_rules,qr_SET_XBUTTON_ITEMS))
-			set_bit(quest_rules,qr_SET_YBUTTON_ITEMS,1);
+		if(get_qr(qr_SET_XBUTTON_ITEMS))
+			set_qr(qr_SET_YBUTTON_ITEMS,1);
 	}
 	if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 59) )
 	{
-		set_bit(quest_rules,qr_ALLOW_EDITING_COMBO_0,1);
+		set_qr(qr_ALLOW_EDITING_COMBO_0,1);
 	}
 	if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 60) )
 	{
-		set_bit(quest_rules,qr_OLD_CHEST_COLLISION,1);
+		set_qr(qr_OLD_CHEST_COLLISION,1);
 	}
 	
 	if ( tempheader.zelda_version < 0x254 )
 	{
-		set_bit(quest_rules, qr_250WRITEEDEFSCRIPT, 1);  
+		set_qr(qr_250WRITEEDEFSCRIPT, 1);  
 	}
 	//Sideview spikes in 2.50.0
 	if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build<27)) //2.50.1RC3
 	{
-		set_bit(quest_rules, qr_OLDSIDEVIEWSPIKES, 1);
+		set_qr(qr_OLDSIDEVIEWSPIKES, 1);
 	}
 	//more 2.50 fixes -Z
 	if(tempheader.zelda_version < 0x250 || (tempheader.zelda_version == 0x250 && tempheader.build<31))
 	{
-		set_bit(quest_rules, qr_MELEEMAGICCOST, 0);
-		set_bit(quest_rules, qr_GANONINTRO, 0); //This will get flipped later on in the compatrule 11 check. That's why it's turning it off.
-		set_bit(quest_rules, qr_OLDMIRRORCOMBOS, 1);
-		set_bit(quest_rules, qr_BROKENBOOKCOST, 1);
-		set_bit(quest_rules, qr_BROKENCHARINTDRAWING, 1);
+		set_qr(qr_MELEEMAGICCOST, 0);
+		set_qr(qr_GANONINTRO, 0); //This will get flipped later on in the compatrule 11 check. That's why it's turning it off.
+		set_qr(qr_OLDMIRRORCOMBOS, 1);
+		set_qr(qr_BROKENBOOKCOST, 1);
+		set_qr(qr_BROKENCHARINTDRAWING, 1);
 	
 	}
 	if(tempheader.zelda_version == 0x254 && tempheader.build<41)
 	{
-		//set_bit(quest_rules,qr_MELEEMAGICCOST, get_bit(extra_rules,er_MAGICCOSTSWORD));
-		set_bit(quest_rules,qr_MELEEMAGICCOST, 1);
+		//set_qr(qr_MELEEMAGICCOST, get_er(er_MAGICCOSTSWORD));
+		set_qr(qr_MELEEMAGICCOST, 1);
 	}
 	
 	if(tempheader.zelda_version < 0x193)
 	{
-		set_bit(quest_rules, qr_SHORTDGNWALK, 1);
+		set_qr(qr_SHORTDGNWALK, 1);
 	}
 	
 	if(tempheader.zelda_version < 0x255)
 	{
-		set_bit(quest_rules, qr_OLDINFMAGIC, 1);
+		set_qr(qr_OLDINFMAGIC, 1);
 	}
 	
 	if((tempheader.zelda_version < 0x250)) //2.10 and earlier allowed the triforce to Warp Player out of Item Cellars in Dungeons. -Z (15th March, 2019 )
 	{
-		set_bit(quest_rules,qr_SIDEVIEWTRIFORCECELLAR,1);
+		set_qr(qr_SIDEVIEWTRIFORCECELLAR,1);
 	}
 	
 	if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 47) )
 	{
-		set_bit(quest_rules,qr_OLD_F6,1);
+		set_qr(qr_OLD_F6,1);
 	}
 	if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 49) )
 	{
-		set_bit(quest_rules,qr_NO_OVERWRITING_HOPPING,1);
+		set_qr(qr_NO_OVERWRITING_HOPPING,1);
 	}
 	if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 50) )
 	{
-		set_bit(quest_rules,qr_STRING_FRAME_OLD_WIDTH_HEIGHT,1);
+		set_qr(qr_STRING_FRAME_OLD_WIDTH_HEIGHT,1);
 	}
 	if ( tempheader.zelda_version < 0x255 || (tempheader.zelda_version == 0x255 && tempheader.build < 53) )
 	{
-		set_bit(quest_rules,qr_BROKEN_OVERWORLD_MINIMAP,1);
+		set_qr(qr_BROKEN_OVERWORLD_MINIMAP,1);
 	}
 	//}
 	
 	if(compatrule_version < 1) //Enemies->Secret only affects flag 16-31
-		set_bit(quest_rules,qr_ENEMIES_SECRET_ONLY_16_31,1);
+		set_qr(qr_ENEMIES_SECRET_ONLY_16_31,1);
 	
 	if(compatrule_version < 2) //Old CSet2 Handling
-		set_bit(quest_rules,qr_OLDCS2,1);
+		set_qr(qr_OLDCS2,1);
 	
 	if(compatrule_version < 3) //Hardcoded Shadow/Spawn/Death anim frames
-		set_bit(quest_rules,qr_HARDCODED_ENEMY_ANIMS,1);
+		set_qr(qr_HARDCODED_ENEMY_ANIMS,1);
 	
 	if(compatrule_version < 4) //Hardcoded Shadow/Spawn/Death anim frames
-		set_bit(quest_rules,qr_OLD_ITEMDATA_SCRIPT_TIMING,1);
+		set_qr(qr_OLD_ITEMDATA_SCRIPT_TIMING,1);
 	
 	if(compatrule_version < 5 && tempheader.zelda_version >= 0x250) //Hardcoded Shadow/Spawn/Death anim frames
-		set_bit(quest_rules,qr_NO_LANMOLA_RINGLEADER,1);
+		set_qr(qr_NO_LANMOLA_RINGLEADER,1);
 	
 	if(compatrule_version < 6) //Step->Secret (Temp) only affects flag 16-31
-		set_bit(quest_rules,qr_STEPTEMP_SECRET_ONLY_16_31,1);
+		set_qr(qr_STEPTEMP_SECRET_ONLY_16_31,1);
 	
 	if(compatrule_version < 7) //'Hit All Triggers->Perm Secret' doesn't trigger temp secrets
-		set_bit(quest_rules,qr_ALLTRIG_PERMSEC_NO_TEMP,1);
+		set_qr(qr_ALLTRIG_PERMSEC_NO_TEMP,1);
 	
 	if(compatrule_version < 8) //Hardcoded LItem/Bomb/Clock/Magic Tile Mods
-		set_bit(quest_rules,qr_HARDCODED_LITEM_LTMS,1);
+		set_qr(qr_HARDCODED_LITEM_LTMS,1);
 	
 	if(compatrule_version < 9)
 	{
 		//Hardcoded BS Patras
-		set_bit(quest_rules,qr_HARDCODED_BS_PATRA,1);
+		set_qr(qr_HARDCODED_BS_PATRA,1);
 		//Hardcoded Patra Inner Eye offsets
-		set_bit(quest_rules,qr_PATRAS_USE_HARDCODED_OFFSETS,1);
+		set_qr(qr_PATRAS_USE_HARDCODED_OFFSETS,1);
 		//Broken 'Big enemy' animation style
-		set_bit(quest_rules,qr_BROKEN_BIG_ENEMY_ANIMATION,1);
+		set_qr(qr_BROKEN_BIG_ENEMY_ANIMATION,1);
 		//Broken Attribute 31/32
-		set_bit(quest_rules,qr_BROKEN_ATTRIBUTE_31_32,1);
+		set_qr(qr_BROKEN_ATTRIBUTE_31_32,1);
 	}
 	
 	if(compatrule_version < 10) //Shared candle use limits
-		set_bit(quest_rules,qr_CANDLES_SHARED_LIMIT,1);
+		set_qr(qr_CANDLES_SHARED_LIMIT,1);
 	
 	if(compatrule_version < 11) //No cross-screen return points
-		set_bit(quest_rules,qr_OLD_RESPAWN_POINTS,1);
+		set_qr(qr_OLD_RESPAWN_POINTS,1);
 
 	if(compatrule_version < 12)
 	{
 		//Old fire trail duration
-		set_bit(quest_rules,qr_OLD_FLAMETRAIL_DURATION,1);
+		set_qr(qr_OLD_FLAMETRAIL_DURATION,1);
 		//Old Intro String in Ganon Room Behavior
-		if(get_bit(quest_rules,qr_GANONINTRO)) set_bit(quest_rules,qr_GANONINTRO,0);
-		else set_bit(quest_rules,qr_GANONINTRO,1);
+		if(get_qr(qr_GANONINTRO)) set_qr(qr_GANONINTRO,0);
+		else set_qr(qr_GANONINTRO,1);
 	}
 	
 	if(compatrule_version < 13 && tempheader.zelda_version >= 0x255) //ANone doesn't reset to originaltile
-		set_bit(quest_rules,qr_ANONE_NOANIM,1);
+		set_qr(qr_ANONE_NOANIM,1);
 	
 	if(compatrule_version < 14) //Old Bridge Combo Behavior
-		set_bit(quest_rules,qr_OLD_BRIDGE_COMBOS,1);
+		set_qr(qr_OLD_BRIDGE_COMBOS,1);
 	
 	if(compatrule_version < 15) //Broken Z3 Animation
-		set_bit(quest_rules,qr_BROKEN_Z3_ANIMATION,1);
+		set_qr(qr_BROKEN_Z3_ANIMATION,1);
 	
 	if(compatrule_version < 16) //Old Enemy Tile Behavior with Animation (None) Enemies
-		set_bit(quest_rules,qr_OLD_TILE_INITIALIZATION,1);
+		set_qr(qr_OLD_TILE_INITIALIZATION,1);
 	
 	if(compatrule_version < 17)
 	{
 		//Old Quake/DrawYOffset behavior
-		//set_bit(quest_rules,qr_OLD_DRAWOFFSET,1);
+		//set_qr(qr_OLD_DRAWOFFSET,1);
 		//I'm leaving this commented cause I doubt it'll break anything and I think the bugfix might be appreciated in older versions.
 		//On the offchance that it *does* break old quests, fixing it is as simple as uncommenting the set_bit above.
 	}
@@ -3659,121 +3660,121 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	if(compatrule_version < 18)
 	{
 		//Broken DrawScreen Derivative Functions
-		set_bit(quest_rules,qr_BROKEN_DRAWSCREEN_FUNCTIONS,1);
+		set_qr(qr_BROKEN_DRAWSCREEN_FUNCTIONS,1);
 		//Scrolling Cancels Charge
-		set_bit(quest_rules,qr_SCROLLING_KILLS_CHARGE,1);
+		set_qr(qr_SCROLLING_KILLS_CHARGE,1);
 	}
 	
 	if(compatrule_version < 19) //Broken Enemy Item Carrying with Large Enemies
-		set_bit(quest_rules,qr_BROKEN_ITEM_CARRYING,1);
+		set_qr(qr_BROKEN_ITEM_CARRYING,1);
 	
 	if(compatrule_version < 20)
-		set_bit(quest_rules,qr_CUSTOMWEAPON_IGNORE_COST,1);
+		set_qr(qr_CUSTOMWEAPON_IGNORE_COST,1);
 	
 	if(compatrule_version < 21)
 	{
-		set_bit(quest_rules,qr_LEEVERS_DONT_OBEY_STUN,1);
-		set_bit(quest_rules,qr_GANON_CANT_SPAWN_ON_CONTINUE,1);
-		set_bit(quest_rules,qr_WIZZROBES_DONT_OBEY_STUN,1);
-		set_bit(quest_rules,qr_OLD_BUG_NET,1);
-		set_bit(quest_rules,qr_MANHANDLA_BLOCK_SFX,1);
+		set_qr(qr_LEEVERS_DONT_OBEY_STUN,1);
+		set_qr(qr_GANON_CANT_SPAWN_ON_CONTINUE,1);
+		set_qr(qr_WIZZROBES_DONT_OBEY_STUN,1);
+		set_qr(qr_OLD_BUG_NET,1);
+		set_qr(qr_MANHANDLA_BLOCK_SFX,1);
 	}
 	
 	if(compatrule_version < 22)
-		set_bit(quest_rules,qr_BROKEN_KEEPOLD_FLAG,1);
+		set_qr(qr_BROKEN_KEEPOLD_FLAG,1);
 	
 	if(compatrule_version < 23)
-		set_bit(quest_rules,qr_OLD_HALF_MAGIC,1);
+		set_qr(qr_OLD_HALF_MAGIC,1);
 	
 	if(compatrule_version < 24)
 	{
-		set_bit(quest_rules,qr_WARPS_RESTART_DMAPSCRIPT,1);
-		set_bit(quest_rules,qr_DMAP_0_CONTINUE_BUG,1);
+		set_qr(qr_WARPS_RESTART_DMAPSCRIPT,1);
+		set_qr(qr_DMAP_0_CONTINUE_BUG,1);
 	}
 	
 	if(compatrule_version < 25)
 	{
-		if (get_bit(quest_rules, qr_OLD_FAIRY_LIMIT)) set_bit(quest_rules,qr_OLD_FAIRY_LIMIT,0);
-		else set_bit(quest_rules,qr_OLD_FAIRY_LIMIT,1);
-		set_bit(quest_rules,qr_OLD_SCRIPTED_KNOCKBACK,1);
+		if (get_qr(qr_OLD_FAIRY_LIMIT)) set_qr(qr_OLD_FAIRY_LIMIT,0);
+		else set_qr(qr_OLD_FAIRY_LIMIT,1);
+		set_qr(qr_OLD_SCRIPTED_KNOCKBACK,1);
 	}
 	if(compatrule_version < 26)
 	{
-		set_bit(quest_rules,qr_OLD_KEESE_Z_AXIS,1);
-		set_bit(quest_rules,qr_POLVIRE_NO_SHADOW,1);
-		set_bit(quest_rules,qr_SUBSCR_OLD_SELECTOR,1);
+		set_qr(qr_OLD_KEESE_Z_AXIS,1);
+		set_qr(qr_POLVIRE_NO_SHADOW,1);
+		set_qr(qr_SUBSCR_OLD_SELECTOR,1);
 	}
 	if(compatrule_version < 27) //Noticed some junk data in the QR array...
 	{
 		for(auto q = qr_POLVIRE_NO_SHADOW+1; q < qr_PARSER_250DIVISION; ++q)
-			set_bit(quest_rules,q,0);
+			set_qr(q,0);
 		for(auto q = qr_COMBODATA_INITD_MULT_TENK+1; q < QUESTRULES_NEW_SIZE*8; ++q)
-			set_bit(quest_rules,q,0);
+			set_qr(q,0);
 		//This should nuke any remaining junk data... not sure if it affected anything previous. -Em
 	}
 	if(compatrule_version < 28)
-		set_bit(quest_rules,qr_SUBSCR_BACKWARDS_ID_ORDER,1);
+		set_qr(qr_SUBSCR_BACKWARDS_ID_ORDER,1);
 	if(compatrule_version < 29)
-		set_bit(quest_rules,qr_OLD_LOCKBLOCK_COLLISION,1);
+		set_qr(qr_OLD_LOCKBLOCK_COLLISION,1);
 	if(compatrule_version < 30)
 	{
-		set_bit(quest_rules,qr_DECO_2_YOFFSET,1);
-		set_bit(quest_rules,qr_SCREENSTATE_80s_BUG,1);
+		set_qr(qr_DECO_2_YOFFSET,1);
+		set_qr(qr_SCREENSTATE_80s_BUG,1);
 	}
 	if(compatrule_version < 31)
 	{
-		set_bit(quest_rules,qr_GOHMA_UNDAMAGED_BUG,1);
-		set_bit(quest_rules,qr_FFCPRELOAD_BUGGED_LOAD,1);
+		set_qr(qr_GOHMA_UNDAMAGED_BUG,1);
+		set_qr(qr_FFCPRELOAD_BUGGED_LOAD,1);
 	}
 	if(compatrule_version < 32)
-		set_bit(quest_rules,qr_BROKEN_GETPIXEL_VALUE,1);
+		set_qr(qr_BROKEN_GETPIXEL_VALUE,1);
 	if(compatrule_version < 33)
-		set_bit(quest_rules,qr_NO_LIFT_SPRITE,1);
+		set_qr(qr_NO_LIFT_SPRITE,1);
 	if(compatrule_version < 34)
 	{
-		set_bit(quest_rules,qr_OLD_SIDEVIEW_LANDING_CODE,1);
-		set_bit(quest_rules,qr_OLD_FFC_SPEED_CAP,1);
-		set_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY,1);
-		set_bit(quest_rules,qr_OLD_WIZZROBE_SUBMERGING,1);
+		set_qr(qr_OLD_SIDEVIEW_LANDING_CODE,1);
+		set_qr(qr_OLD_FFC_SPEED_CAP,1);
+		set_qr(qr_OLD_FFC_FUNCTIONALITY,1);
+		set_qr(qr_OLD_WIZZROBE_SUBMERGING,1);
 	}
 	if(compatrule_version < 35)
 	{
-		set_bit(quest_rules,qr_ZS_NO_NEG_ARRAY,1);
-		set_bit(quest_rules,qr_BROKEN_INPUT_DOWN_STATE,1);
+		set_qr(qr_ZS_NO_NEG_ARRAY,1);
+		set_qr(qr_BROKEN_INPUT_DOWN_STATE,1);
 	}
 	if(compatrule_version < 36)
-		set_bit(quest_rules,qr_OLD_SHALLOW_SFX,1);
+		set_qr(qr_OLD_SHALLOW_SFX,1);
 	if(compatrule_version < 37)
-		set_bit(quest_rules,qr_SPARKLES_INHERIT_PROPERTIES,1);
+		set_qr(qr_SPARKLES_INHERIT_PROPERTIES,1);
 	if(compatrule_version < 38)
-		set_bit(quest_rules,qr_BUGGED_LAYERED_FLAGS,1);
+		set_qr(qr_BUGGED_LAYERED_FLAGS,1);
 	if(compatrule_version < 39)
-		set_bit(quest_rules,qr_HARDCODED_FFC_BUSH_DROPS,1);
+		set_qr(qr_HARDCODED_FFC_BUSH_DROPS,1);
 	if(compatrule_version < 40)
-		set_bit(quest_rules,qr_MOVINGBLOCK_FAKE_SOLID,1);
+		set_qr(qr_MOVINGBLOCK_FAKE_SOLID,1);
 	if(compatrule_version < 41)
-		set_bit(quest_rules,qr_BROKENHITBY,1);
+		set_qr(qr_BROKENHITBY,1);
 	if(compatrule_version < 42)
-		set_bit(quest_rules,qr_BROKEN_MOVING_BOMBS,1);
+		set_qr(qr_BROKEN_MOVING_BOMBS,1);
 	if(compatrule_version < 43)
-		set_bit(quest_rules,qr_OLD_BOMB_HITBOXES,1);
+		set_qr(qr_OLD_BOMB_HITBOXES,1);
 	if(compatrule_version < 44)
-		set_bit(quest_rules,qr_SCROLLWARP_NO_RESET_FRAME,1);
+		set_qr(qr_SCROLLWARP_NO_RESET_FRAME,1);
 	if(compatrule_version < 45)
-		set_bit(quest_rules,qr_ENEMIES_DONT_SCRIPT_FIRST_FRAME,1);
+		set_qr(qr_ENEMIES_DONT_SCRIPT_FIRST_FRAME,1);
 	if(compatrule_version < 46)
-		set_bit(quest_rules,qr_BROKEN_RAFT_SCROLL,1);
+		set_qr(qr_BROKEN_RAFT_SCROLL,1);
 	if(compatrule_version < 47)
 	{
-		set_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE,1);
-		set_bit(quest_rules,qr_OLD_CONVEYOR_COLLISION,1);
+		set_qr(qr_SENSITIVE_SOLID_DAMAGE,1);
+		set_qr(qr_OLD_CONVEYOR_COLLISION,1);
 	}
 	if(compatrule_version < 48)
-		set_bit(quest_rules,qr_OLD_GUY_HANDLING,1);
+		set_qr(qr_OLD_GUY_HANDLING,1);
 	
-	set_bit(quest_rules,qr_ANIMATECUSTOMWEAPONS,0);
+	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)
-		set_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM,1);
+		set_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM,1);
 	
 	if(keepdata==true)
 		memcpy(Header, &tempheader, sizeof(tempheader));
@@ -3794,8 +3795,8 @@ void init_msgstr(MsgStr *str)
     str->sfx=18;
     str->listpos=0;
     str->x=24;
-	str->w=get_bit(quest_rules,qr_STRING_FRAME_OLD_WIDTH_HEIGHT)!=0 ? 24*8 : 26*8;
-	str->h=get_bit(quest_rules,qr_STRING_FRAME_OLD_WIDTH_HEIGHT)!=0 ? 3*8 : 5*8;
+	str->w=get_qr(qr_STRING_FRAME_OLD_WIDTH_HEIGHT)!=0 ? 24*8 : 26*8;
+	str->h=get_qr(qr_STRING_FRAME_OLD_WIDTH_HEIGHT)!=0 ? 3*8 : 5*8;
     str->hspace=0;
     str->vspace=0;
     str->stringflags=0;
@@ -3845,7 +3846,7 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
 	{
 		byte tempbyte;
 		int32_t strings_to_read=0;
-		set_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS,true);
+		set_qr(qr_OLD_STRING_EDITOR_MARGINS,true);
 		if((Header->zelda_version < 0x192)||
 			((Header->zelda_version == 0x192)&&(Header->build<31)))
 		{
@@ -4000,7 +4001,7 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
 		if(keepdata)
 		{
 			if(s_version < 7)
-				set_bit(quest_rules,qr_OLD_STRING_EDITOR_MARGINS,true);
+				set_qr(qr_OLD_STRING_EDITOR_MARGINS,true);
 			init_msgstrings(0,msg_strings_size);
 		}
 		
@@ -6521,11 +6522,11 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
                 switch(i)
                 {
                 case iShield:
-                    tempitem.ltm=get_bit(quest_rules,qr_BSZELDA)?-12:10;
+                    tempitem.ltm=get_qr(qr_BSZELDA)?-12:10;
                     break;
                     
                 case iMShield:
-                    tempitem.ltm=get_bit(quest_rules,qr_BSZELDA)?-6:-10;
+                    tempitem.ltm=get_qr(qr_BSZELDA)?-6:-10;
                     break;
                     
                 default:
@@ -7436,8 +7437,8 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 						
 					case iLens:
 						tempitem.misc1=60;
-						tempitem.flags |= get_bit(quest_rules,qr_ENABLEMAGIC) ? 0 : ITEM_RUPEE_MAGIC;
-						tempitem.cost_amount[0] = get_bit(quest_rules,qr_ENABLEMAGIC) ? 2 : 1;
+						tempitem.flags |= get_qr(qr_ENABLEMAGIC) ? 0 : ITEM_RUPEE_MAGIC;
+						tempitem.cost_amount[0] = get_qr(qr_ENABLEMAGIC) ? 2 : 1;
 						break;
 						
 					case iArrow:
@@ -7608,7 +7609,7 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 						tempitem.misc1|=shFLAME;
 						tempitem.misc2|=shFIREBALL|shMAGIC;
 						
-						if(get_bit(quest_rules, qr_SWORDMIRROR))
+						if(get_qr(qr_SWORDMIRROR))
 						{
 							tempitem.misc2 |= shSWORD;
 						}
@@ -7656,7 +7657,7 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
             //add the misc flag for bomb
             if(s_version < 10 && tempitem.family == itype_bomb)
             {
-                tempitem.flags = (tempitem.flags & ~ITEM_FLAG1) | (get_bit(quest_rules, qr_LONGBOMBBOOM_DEP) ? ITEM_FLAG1 : 0);
+                tempitem.flags = (tempitem.flags & ~ITEM_FLAG1) | (get_qr(qr_LONGBOMBBOOM_DEP) ? ITEM_FLAG1 : 0);
             }
             
             if(s_version < 11 && tempitem.family == itype_triforcepiece)
@@ -9258,23 +9259,23 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 			{
 				if(tempitem.family == itype_bomb)
 				{
-					if ( get_bit(quest_rules,qr_OUCHBOMBS) )  tempitem.flags |= ITEM_FLAG2;
+					if ( get_qr(qr_OUCHBOMBS) )  tempitem.flags |= ITEM_FLAG2;
 					else tempitem.flags &= ~ ITEM_FLAG2;
 				}
 				else if(tempitem.family == itype_sbomb)
 				{
-					if ( get_bit(quest_rules,qr_OUCHBOMBS) )  tempitem.flags |= ITEM_FLAG2;
+					if ( get_qr(qr_OUCHBOMBS) )  tempitem.flags |= ITEM_FLAG2;
 					else tempitem.flags &= ~ ITEM_FLAG2;
 				}
 				
 				else if(tempitem.family == itype_brang)
 				{
-					if ( get_bit(quest_rules,qr_BRANGPICKUP) )  tempitem.flags |= ITEM_FLAG4;
+					if ( get_qr(qr_BRANGPICKUP) )  tempitem.flags |= ITEM_FLAG4;
 					else tempitem.flags &= ~ ITEM_FLAG4;
 				}	
 				else if(tempitem.family == itype_wand)
 				{
-					if ( get_bit(quest_rules,qr_NOWANDMELEE) )  tempitem.flags |= ITEM_FLAG3;
+					if ( get_qr(qr_NOWANDMELEE) )  tempitem.flags |= ITEM_FLAG3;
 					else tempitem.flags &= ~ ITEM_FLAG3;
 				}
 			}
@@ -9284,23 +9285,23 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 			{
 				if(tempitem.family == itype_flippers)
 				{
-					if ( (get_bit(quest_rules,qr_NODIVING)) ) tempitem.flags |= ITEM_FLAG1;
+					if ( (get_qr(qr_NODIVING)) ) tempitem.flags |= ITEM_FLAG1;
 					else tempitem.flags &= ~ ITEM_FLAG1;
 				}
 				else if(tempitem.family == itype_sword)
 				{
-					if ( (get_bit(quest_rules,qr_QUICKSWORD)) ) tempitem.flags |= ITEM_FLAG5;
+					if ( (get_qr(qr_QUICKSWORD)) ) tempitem.flags |= ITEM_FLAG5;
 					else tempitem.flags &= ~ ITEM_FLAG5;
 				}
 				else if(tempitem.family == itype_wand)
 				{
-					if ( (get_bit(quest_rules,qr_QUICKSWORD)) ) tempitem.flags |= ITEM_FLAG5;
+					if ( (get_qr(qr_QUICKSWORD)) ) tempitem.flags |= ITEM_FLAG5;
 					else tempitem.flags &= ~ ITEM_FLAG5;
 				}
 				else if(tempitem.family == itype_book || tempitem.family == itype_candle)
 				{
 					//@Emily: What was qrFIREPROOFHERO2 again, and does that also need to enable this?
-					if ( (get_bit(quest_rules,qr_FIREPROOFHERO)) ) tempitem.flags |= ITEM_FLAG3;
+					if ( (get_qr(qr_FIREPROOFHERO)) ) tempitem.flags |= ITEM_FLAG3;
 					else tempitem.flags &= ~ ITEM_FLAG3;
 				}
 			}
@@ -9309,18 +9310,18 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 			{
 				if(tempitem.family == itype_brang || tempitem.family == itype_hookshot)
 				{
-					if(get_bit(quest_rules,qr_BRANGPICKUP)) tempitem.flags |= ITEM_FLAG4;
+					if(get_qr(qr_BRANGPICKUP)) tempitem.flags |= ITEM_FLAG4;
 					else tempitem.flags &= ~ITEM_FLAG4;
 					
-					if(get_bit(quest_rules,qr_Z3BRANG_HSHOT)) tempitem.flags |= ITEM_FLAG5 | ITEM_FLAG6;
+					if(get_qr(qr_Z3BRANG_HSHOT)) tempitem.flags |= ITEM_FLAG5 | ITEM_FLAG6;
 					else tempitem.flags &= ~(ITEM_FLAG5|ITEM_FLAG6);
 				} 
 				else if(tempitem.family == itype_arrow)
 				{
-					if(get_bit(quest_rules,qr_BRANGPICKUP)) tempitem.flags |= ITEM_FLAG4;
+					if(get_qr(qr_BRANGPICKUP)) tempitem.flags |= ITEM_FLAG4;
 					else tempitem.flags &= ~ITEM_FLAG4;
 					
-					if(get_bit(quest_rules,qr_Z3BRANG_HSHOT)) tempitem.flags &= ~ITEM_FLAG2;
+					if(get_qr(qr_Z3BRANG_HSHOT)) tempitem.flags &= ~ITEM_FLAG2;
 					else tempitem.flags |= ITEM_FLAG2;
 				}
 			}
@@ -9329,28 +9330,28 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 			{
 				if(tempitem.family == itype_divinefire || tempitem.family == itype_book || tempitem.family == itype_candle)
 				{
-					if(get_bit(quest_rules,qr_TEMPCANDLELIGHT)) tempitem.flags |= ITEM_FLAG5;
+					if(get_qr(qr_TEMPCANDLELIGHT)) tempitem.flags |= ITEM_FLAG5;
 					else tempitem.flags &= ~ITEM_FLAG5;
 				}
 				else if(tempitem.family == itype_potion)
 				{
-					if(get_bit(quest_rules,qr_NONBUBBLEMEDICINE))
+					if(get_qr(qr_NONBUBBLEMEDICINE))
 					{
 						tempitem.flags &= ~(ITEM_FLAG3|ITEM_FLAG4);
 					}
 					else
 					{
 						tempitem.flags |= ITEM_FLAG3;
-						if(get_bit(quest_rules,qr_ITEMBUBBLE))tempitem.flags |= ITEM_FLAG4;
+						if(get_qr(qr_ITEMBUBBLE))tempitem.flags |= ITEM_FLAG4;
 						else tempitem.flags &= ~ITEM_FLAG4;
 					}
 				}
 				else if(tempitem.family == itype_triforcepiece)
 				{
-					if(get_bit(quest_rules,qr_NONBUBBLETRIFORCE))
+					if(get_qr(qr_NONBUBBLETRIFORCE))
 					{
 						tempitem.flags |= ITEM_FLAG3;
-						if(get_bit(quest_rules,qr_ITEMBUBBLE))tempitem.flags |= ITEM_FLAG4;
+						if(get_qr(qr_ITEMBUBBLE))tempitem.flags |= ITEM_FLAG4;
 						else tempitem.flags &= ~ITEM_FLAG4;
 					}
 					else
@@ -9364,17 +9365,17 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 			{
 				if(tempitem.family == itype_ring || tempitem.family == itype_perilring)
 				{
-					if(get_bit(quest_rules,qr_RINGAFFECTDAMAGE))tempitem.flags |= ITEM_FLAG1;
+					if(get_qr(qr_RINGAFFECTDAMAGE))tempitem.flags |= ITEM_FLAG1;
 					else tempitem.flags &= ~ITEM_FLAG1;
 				} 
 				else if(tempitem.family == itype_candle || tempitem.family == itype_sword || tempitem.family == itype_wand || tempitem.family == itype_cbyrna)
 				{
-					if(get_bit(quest_rules,qr_SLASHFLIPFIX))tempitem.flags |= ITEM_FLAG8;
+					if(get_qr(qr_SLASHFLIPFIX))tempitem.flags |= ITEM_FLAG8;
 					else tempitem.flags &= ~ITEM_FLAG8;
 				}
 				if(tempitem.family == itype_sword || tempitem.family == itype_wand || tempitem.family == itype_hammer)
 				{
-					if(get_bit(quest_rules,qr_NOITEMMELEE))tempitem.flags |= ITEM_FLAG7;
+					if(get_qr(qr_NOITEMMELEE))tempitem.flags |= ITEM_FLAG7;
 					else tempitem.flags &= ~ITEM_FLAG7;
 				} 
 				else if(tempitem.family == itype_cbyrna)
@@ -9387,10 +9388,10 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 			{
 				if(tempitem.family == itype_sword)
 				{
-					if(get_bit(quest_rules,qr_SWORDMIRROR))tempitem.flags |= ITEM_FLAG9;
+					if(get_qr(qr_SWORDMIRROR))tempitem.flags |= ITEM_FLAG9;
 					else tempitem.flags &= ~ITEM_FLAG9;
 					
-					if(get_bit(quest_rules,qr_SLOWCHARGINGWALK))tempitem.flags |= ITEM_FLAG10;
+					if(get_qr(qr_SLOWCHARGINGWALK))tempitem.flags |= ITEM_FLAG10;
 					else tempitem.flags &= ~ITEM_FLAG10;
 				}
 			}
@@ -9399,7 +9400,7 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 			{
 				if(tempitem.family == itype_wand)
 				{
-					if(get_bit(quest_rules,qr_NOWANDMELEE))tempitem.flags |= ITEM_FLAG3;
+					if(get_qr(qr_NOWANDMELEE))tempitem.flags |= ITEM_FLAG3;
 					else tempitem.flags &= ~ITEM_FLAG3;
 					
 					tempitem.flags &= ~ITEM_FLAG6;
@@ -9416,7 +9417,7 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 				} 
 				else if(tempitem.family == itype_sword)
 				{
-					if(get_bit(quest_rules,qr_MELEEMAGICCOST))tempitem.flags |= ITEM_FLAG6;
+					if(get_qr(qr_MELEEMAGICCOST))tempitem.flags |= ITEM_FLAG6;
 					else tempitem.flags &= ~ITEM_FLAG6;
 				}
 			}
@@ -9425,7 +9426,7 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 			{
 				if(tempitem.family == itype_whistle)
 				{
-					if(get_bit(quest_rules,qr_WHIRLWINDMIRROR))tempitem.flags |= ITEM_FLAG3;
+					if(get_qr(qr_WHIRLWINDMIRROR))tempitem.flags |= ITEM_FLAG3;
 					else tempitem.flags &= ~ITEM_FLAG3;
 				}
 			}
@@ -9454,7 +9455,7 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 				}
 				else 
 				{
-					if(get_bit(quest_rules,qr_ENABLEMAGIC))
+					if(get_qr(qr_ENABLEMAGIC))
 						tempitem.cost_counter[0] = 4;
 					else
 					{
@@ -9468,15 +9469,15 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 			{
 				if ( tempitem.family == itype_lens )
 				{
-					if ( get_bit(quest_rules,qr_RAFTLENS) ) 
+					if ( get_qr(qr_RAFTLENS) ) 
 					{
 						tempitem.flags |= ITEM_FLAG4;
 					}
-					if ( get_bit(quest_rules,qr_LENSHINTS) ) 
+					if ( get_qr(qr_LENSHINTS) ) 
 					{
 						tempitem.flags |= ITEM_FLAG1;
 					}
-					if ( get_bit(quest_rules,qr_LENSSEESENEMIES) ) 
+					if ( get_qr(qr_LENSSEESENEMIES) ) 
 					{
 						tempitem.flags |= ITEM_FLAG5;
 					}
@@ -9900,7 +9901,7 @@ void init_guys(int32_t guyversion)
         // Darknut fix
         if(i==eDKNUT1 || i==eDKNUT2 || i==eDKNUT3 || i==eDKNUT4 || i==eDKNUT5)
         {
-            if(get_bit(quest_rules,qr_NEWENEMYTILES))
+            if(get_qr(qr_NEWENEMYTILES))
             {
                 guysbuf[i].s_tile=guysbuf[i].e_tile+120;
                 guysbuf[i].s_width=guysbuf[i].e_width;
@@ -12643,11 +12644,11 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 	*/
 	if(((Header->zelda_version < 0x253)||((Header->zelda_version == 0x253)&&(Header->build<33))||((Header->zelda_version > 0x253) && s_version < 12)) && keepdata)
 	{
-		set_bit(quest_rules,qr_SPRITE_JUMP_IS_TRUNCATED,1);
+		set_qr(qr_SPRITE_JUMP_IS_TRUNCATED,1);
 	}
 	if(s_version < 19 && keepdata)
 	{
-		set_bit(quest_rules,qr_FLUCTUATING_ENEMY_JUMP,1);
+		set_qr(qr_FLUCTUATING_ENEMY_JUMP,1);
 	}
 	
 	if(s_version > 1)
@@ -13700,7 +13701,7 @@ int32_t readsfx(PACKFILE *f, zquestheader *Header, bool keepdata)
 	 * changing from 1 to 2.
 	 */
 	if(s_version < 2 && keepdata)
-		set_bit(quest_rules,qr_GOTOLESSNOTEQUAL,1);
+		set_qr(qr_GOTOLESSNOTEQUAL,1);
 		
 	/* End highly unorthodox updating thing */
 	
@@ -14078,7 +14079,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
         // Goriya guy fix
         if((Header->zelda_version < 0x211)||((Header->zelda_version == 0x211)&&(Header->build<7)))
         {
-            if(get_bit(quest_rules,qr_NEWENEMYTILES))
+            if(get_qr(qr_NEWENEMYTILES))
             {
                 guysbuf[gGORIYA].tile=130;
                 guysbuf[gGORIYA].e_tile=130;
@@ -14284,7 +14285,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
             
             if(guyversion < 9 && (i==eDKNUT1 || i==eDKNUT2 || i==eDKNUT3 || i==eDKNUT4 || i==eDKNUT5)) // Whoops, forgot about Darknuts...
             {
-                if(get_bit(quest_rules,qr_NEWENEMYTILES))
+                if(get_qr(qr_NEWENEMYTILES))
                 {
                     tempguy.s_tile=tempguy.e_tile+120;
                     tempguy.s_width=tempguy.e_width;
@@ -14360,13 +14361,13 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
                 if(tempguy.anim == aNEWPOLV || tempguy.anim == a4FRM3TRAP)
                 {
                     tempguy.anim=a4FRM4DIR;
-                    tempguy.s_tile=(get_bit(quest_rules,qr_NEWENEMYTILES) ? tempguy.e_tile : tempguy.tile)+20;
+                    tempguy.s_tile=(get_qr(qr_NEWENEMYTILES) ? tempguy.e_tile : tempguy.tile)+20;
                 }
                 
                 if(tempguy.e_anim == aNEWPOLV || tempguy.e_anim == a4FRM3TRAP)
                 {
                     tempguy.e_anim=a4FRM4DIR;
-                    tempguy.s_tile=(get_bit(quest_rules,qr_NEWENEMYTILES) ? tempguy.e_tile : tempguy.tile)+20;
+                    tempguy.s_tile=(get_qr(qr_NEWENEMYTILES) ? tempguy.e_tile : tempguy.tile)+20;
                 }
             }
             
@@ -15886,7 +15887,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 		return qe_invalid;
 	temp_mapscr->guytile = -1; //signal to use default guy values
 	SETFLAG(temp_mapscr->roomflags,RFL_ALWAYS_GUY,temp_mapscr->guy==gFAIRY);
-	SETFLAG(temp_mapscr->roomflags,RFL_GUYFIRES,temp_mapscr->guy!=gFAIRY || !get_bit(quest_rules,qr_NOFAIRYGUYFIRES));
+	SETFLAG(temp_mapscr->roomflags,RFL_GUYFIRES,temp_mapscr->guy!=gFAIRY || !get_qr(qr_NOFAIRYGUYFIRES));
 	
 	if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<146)))
 	{
@@ -17331,7 +17332,7 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zc
 			{
 				temp_mapscr->guytile = -1; //signal to use default guy values
 				SETFLAG(temp_mapscr->roomflags,RFL_ALWAYS_GUY,temp_mapscr->guy==gFAIRY);
-				SETFLAG(temp_mapscr->roomflags,RFL_GUYFIRES,temp_mapscr->guy!=gFAIRY || !get_bit(quest_rules,qr_NOFAIRYGUYFIRES));
+				SETFLAG(temp_mapscr->roomflags,RFL_GUYFIRES,temp_mapscr->guy!=gFAIRY || !get_qr(qr_NOFAIRYGUYFIRES));
 			}
 			if(!p_igetw(&(temp_mapscr->str),f,true))
 				return qe_invalid;
@@ -18153,7 +18154,7 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 			*/
 			if (section_version >= 13 && section_version < 21)
 			{
-				set_bit(quest_rules,qr_BUGGY_BUGGY_SLASH_TRIGGERS,1);
+				set_qr(qr_BUGGY_BUGGY_SLASH_TRIGGERS,1);
 			}
 			//combo scripts
 			if(section_version>=14) 
@@ -18191,7 +18192,7 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 		//Goriya tiles were flipped around in 2.11 build 7. Compensate for the flip here. -DD
 		if((version < 0x211)||((version == 0x211)&&(build<7)))
 		{
-			if(!get_bit(quest_rules,qr_NEWENEMYTILES))
+			if(!get_qr(qr_NEWENEMYTILES))
 			{
 				switch(temp_combo.tile)
 				{
@@ -18391,7 +18392,7 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 				}
 			}
 		}
-		if(!get_bit(quest_rules,qr_ALLOW_EDITING_COMBO_0))
+		if(!get_qr(qr_ALLOW_EDITING_COMBO_0))
 		{
 			combobuf[0].walk = 0xF0;
 			combobuf[0].type = 0;
@@ -18839,7 +18840,7 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 	
 	if(keepdata==true)
 	{
-		if(!get_bit(quest_rules,qr_ALLOW_EDITING_COMBO_0))
+		if(!get_qr(qr_ALLOW_EDITING_COMBO_0))
 		{
 			combobuf[0].walk = 0xF0;
 			combobuf[0].type = 0;
@@ -19569,7 +19570,7 @@ int32_t readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version
         
         if((version < 0x192)|| ((version == 0x192)&&(build<186)))
         {
-            if(get_bit(quest_rules,qr_BSZELDA))   //
+            if(get_qr(qr_BSZELDA))   //
             {
                 byte tempbyte;
                 int32_t floattile=wpnsbuf[iwSwim].tile;
@@ -19594,7 +19595,7 @@ int32_t readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version
         
         if((version < 0x211)||((version == 0x211)&&(build<7)))   //Goriya tiles are out of order
         {
-            if(!get_bit(quest_rules,qr_NEWENEMYTILES))
+            if(!get_qr(qr_NEWENEMYTILES))
             {
                 byte tempbyte;
                 
@@ -19895,7 +19896,7 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 	byte red_potion_magic=100;
 	byte red_potion_magic_percent=1;
 	
-	temp_zinit.subscreen_style=get_bit(quest_rules,qr_COOLSCROLL)?1:0;
+	temp_zinit.subscreen_style=get_qr(qr_COOLSCROLL)?1:0;
 	
 	if(Header->zelda_version > 0x192)
 	{
@@ -20307,11 +20308,11 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 			
 			if(s_version<16)  // July 2007
 			{
-				if(get_bit(quest_rules,qr_BRANGPICKUP+1))
+				if(get_qr(qr_BRANGPICKUP+1))
 					temp_zinit.hcp_per_hc = 0xFF;
 					
 				//Dispose of legacy rule
-				set_bit(quest_rules,qr_BRANGPICKUP+1, 0);
+				set_qr(qr_BRANGPICKUP+1, 0);
 			}
 		}
 		
@@ -20962,16 +20963,16 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 		
 		for(int32_t i=0; i<idBP_MAX; i++)
 		{
-			set_bit(&beam_percent,i,!get_bit(quest_rules,qr_LENSHINTS+i));
-			set_bit(quest_rules,qr_LENSHINTS+i,0);
+			set_bit(&beam_percent,i,!get_qr(qr_LENSHINTS+i));
+			set_qr(qr_LENSHINTS+i,0);
 		}
 		
 		for(int32_t x=0; x<4; x++)
 		{
-			beam_power[x]=get_bit(quest_rules,qr_HIDECARRIEDITEMS)?50:100;
+			beam_power[x]=get_qr(qr_HIDECARRIEDITEMS)?50:100;
 		}
 		
-		set_bit(quest_rules,qr_HIDECARRIEDITEMS,0);
+		set_qr(qr_HIDECARRIEDITEMS,0);
 		hookshot_links=100;
 		temp_zinit.msg_more_x=224;
 		temp_zinit.msg_more_y=64;
@@ -21057,8 +21058,8 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 	if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<168)))
 	{
 		//was new subscreen rule
-		temp_zinit.subscreen=get_bit(quest_rules,qr_FREEFORM)?1:0;
-		set_bit(quest_rules,qr_FREEFORM,0);
+		temp_zinit.subscreen=get_qr(qr_FREEFORM)?1:0;
+		set_qr(qr_FREEFORM,0);
 	}
 	
 	if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<185)))
@@ -21068,7 +21069,7 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 	
 	if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<186)))
 	{
-		temp_zinit.heroAnimationStyle=get_bit(quest_rules,qr_BSZELDA)?1:0;
+		temp_zinit.heroAnimationStyle=get_qr(qr_BSZELDA)?1:0;
 	}
 	
 	if(s_version < 16 && get_bit(deprecated_rules, qr_COOLSCROLL+1))
@@ -21650,7 +21651,7 @@ void port250QuestRules(){
 
 void portCandleRules()
 {
-	bool hurtshero = get_bit(quest_rules,qr_FIREPROOFHERO);
+	bool hurtshero = get_qr(qr_FIREPROOFHERO);
 	//itemdata itemsbuf;
 	for ( int32_t q = 0; q < MAXITEMS; q++ ) 
 	{
@@ -21664,7 +21665,7 @@ void portCandleRules()
 
 void portBombRules()
 {
-	bool hurtshero = get_bit(quest_rules,qr_OUCHBOMBS);
+	bool hurtshero = get_qr(qr_OUCHBOMBS);
 	//itemdata itemsbuf;
 	for ( int32_t q = 0; q < MAXITEMS; q++ ) 
 	{
@@ -22227,7 +22228,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
                         {
                             int32_t type=DMaps[i].type&dmfTYPE;
                             DMaps[i].active_subscreen=(type == dmOVERW || type == dmBSOVERW)?0:1;
-                            DMaps[i].passive_subscreen=(get_bit(quest_rules,qr_ENABLEMAGIC))?0:1;
+                            DMaps[i].passive_subscreen=(get_qr(qr_ENABLEMAGIC))?0:1;
                         }
                     }
                 }
@@ -22489,7 +22490,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
             {
                 int32_t type=DMaps[i].type&dmfTYPE;
                 DMaps[i].active_subscreen=(type == dmOVERW || type == dmBSOVERW)?0:1;
-                DMaps[i].passive_subscreen=(get_bit(quest_rules,qr_ENABLEMAGIC))?0:1;
+                DMaps[i].passive_subscreen=(get_qr(qr_ENABLEMAGIC))?0:1;
             }
         }
         
@@ -22534,9 +22535,9 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
         }
     }
     
-    if(get_bit(quest_rules, qr_CONTFULL_DEP))
+    if(get_qr(qr_CONTFULL_DEP))
     {
-        set_bit(quest_rules, qr_CONTFULL_DEP, 0);
+        set_qr(qr_CONTFULL_DEP, 0);
         set_bit(zinit.misc, idM_CONTPERCENT, 1);
         zinit.cont_heart=100;
         zinit.start_heart=zinit.hc;

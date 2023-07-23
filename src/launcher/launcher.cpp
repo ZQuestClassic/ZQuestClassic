@@ -36,8 +36,6 @@ BITMAP *tmp_scr;
 BITMAP *mouse_bmp;
 int32_t gui_colorset = 99;
 
-byte quest_rules[QUESTRULES_NEW_SIZE];
-
 char temppath[4096] = {0}, rootpath[4096] = {0};
 
 

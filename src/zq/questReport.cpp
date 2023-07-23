@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string>
 
+#include "base/qrs.h"
 #include "editbox.h"
 #include "EditboxNew.h"
 #include "base/gui.h"
@@ -581,7 +582,7 @@ void integrityCheckTileWarpDestSquare()
                 {
                     int32_t wx, wy, retc = (ts->warpreturnc>>(w*2))&3;
                     
-                    if(get_bit(quest_rules,qr_NOARRIVALPOINT))
+                    if(get_qr(qr_NOARRIVALPOINT))
                     {
                         wx=wscr->warpreturnx[retc];
                         wy=wscr->warpreturny[retc];

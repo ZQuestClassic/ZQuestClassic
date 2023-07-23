@@ -2,8 +2,8 @@
 #include "common.h"
 #include "info.h"
 #include <gui/builder.h>
+#include "base/qrs.h"
 extern bool saved;
-extern byte quest_rules[QUESTRULES_NEW_SIZE];
 extern guydata *guysbuf;
 
 // Used as a indices into argSwitcher. Make sure the order matches.
@@ -294,7 +294,7 @@ std::shared_ptr<GUI::Widget> RoomDialog::view()
 					{
 						setOldGuy();
 						SETFLAG(local_mapref.roomflags,RFL_ALWAYS_GUY,local_mapref.guy==gFAIRY);
-						SETFLAG(local_mapref.roomflags,RFL_GUYFIRES,local_mapref.guy!=gFAIRY || !get_bit(quest_rules,qr_NOFAIRYGUYFIRES));
+						SETFLAG(local_mapref.roomflags,RFL_GUYFIRES,local_mapref.guy!=gFAIRY || !get_qr(qr_NOFAIRYGUYFIRES));
 					})
 			),
 			Row(
@@ -421,7 +421,7 @@ const char* RoomDialog::getRoomInfo() const
 void RoomDialog::setOldGuy()
 {
 	auto& ref = guysbuf[local_mapref.guy];
-	local_mapref.guytile = get_bit(quest_rules,qr_NEWENEMYTILES) ? ref.e_tile : ref.tile;
+	local_mapref.guytile = get_qr(qr_NEWENEMYTILES) ? ref.e_tile : ref.tile;
 	local_mapref.guycs = ref.cset;
 }
 

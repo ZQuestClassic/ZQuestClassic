@@ -19,6 +19,7 @@
 
 #include "metadata/metadata.h"
 
+#include "base/qrs.h"
 #include "base/gui.h"
 #include "zq/zq_class.h"
 #include "zq/zq_misc.h"
@@ -1121,7 +1122,7 @@ void zmap::put_walkflags_layered(BITMAP *dest,int32_t x,int32_t y,int32_t pos,in
 	
 	newcombo const& c = combobuf[ MAPCOMBO2(layer,cx,cy) ];
 	
-	if (c.type == cBRIDGE && get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS)) return;
+	if (c.type == cBRIDGE && get_qr(qr_OLD_BRIDGE_COMBOS)) return;
 	
 	int32_t bridgedetected = 0;
 	
@@ -1133,7 +1134,7 @@ void zmap::put_walkflags_layered(BITMAP *dest,int32_t x,int32_t y,int32_t pos,in
 		int32_t ty2=((i&1)<<3)+cy;
 		for (int32_t m = layer; m <= 1; m++)
 		{
-			if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+			if (get_qr(qr_OLD_BRIDGE_COMBOS))
 			{
 				if (combobuf[MAPCOMBO2(m,tx2,ty2)].type == cBRIDGE && !(combobuf[MAPCOMBO2(m,tx2,ty2)].walk&(1<<i))) 
 				{
@@ -1159,7 +1160,7 @@ void zmap::put_walkflags_layered(BITMAP *dest,int32_t x,int32_t y,int32_t pos,in
 				for(int32_t j=0; j<8; j+=2)
 					if(((k+j)/2)%2) rectfill(dest,tx+k,ty+j,tx+k+1,ty+j+1,vc(11));
 		}
-		if (!(c.walk&(1<<i) && ((c.usrflags&cflag3) || (c.usrflags&cflag4))) && (layer==-1 || (get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && layer == 0) || (get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && layer == 1)) && combo_class_buf[c.type].water!=0 && get_bit(quest_rules, qr_DROWN))
+		if (!(c.walk&(1<<i) && ((c.usrflags&cflag3) || (c.usrflags&cflag4))) && (layer==-1 || (get_qr(qr_WATER_ON_LAYER_1) && layer == 0) || (get_qr(qr_WATER_ON_LAYER_2) && layer == 1)) && combo_class_buf[c.type].water!=0 && get_qr(qr_DROWN))
 			rectfill(dest,tx,ty,tx+7,ty+7,vc(11));
 			
 		if(c.walk&(1<<i) && !(combo_class_buf[c.type].water!=0 && ((c.usrflags&cflag3) || (c.usrflags&cflag4))))
@@ -1174,7 +1175,7 @@ void zmap::put_walkflags_layered(BITMAP *dest,int32_t x,int32_t y,int32_t pos,in
 			{
 				int32_t color = COLOR_SOLID;
 				
-				if(isstepable(MAPCOMBO(cx,cy)) && (!get_bit(quest_rules,  qr_NO_SOLID_SWIM) || (combo_class_buf[combobuf[MAPCOMBO(cx,cy)].type].water==0 && combo_class_buf[c.type].water==0)))
+				if(isstepable(MAPCOMBO(cx,cy)) && (!get_qr(qr_NO_SOLID_SWIM) || (combo_class_buf[combobuf[MAPCOMBO(cx,cy)].type].water==0 && combo_class_buf[c.type].water==0)))
 					color=vc(6);
 				else if((c.type==cHOOKSHOTONLY || c.type==cLADDERHOOKSHOT) && ishookshottable(cx,cy,i))
 					color=vc(7);
@@ -1191,7 +1192,7 @@ void zmap::put_walkflags_layered(BITMAP *dest,int32_t x,int32_t y,int32_t pos,in
 		int32_t ty2=((i&1)<<3)+cy;
 		for (int32_t m = 0; m <= 1; m++)
 		{
-			if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+			if (get_qr(qr_OLD_BRIDGE_COMBOS))
 			{
 				if (combobuf[MAPCOMBO2(m,tx2,ty2)].type == cBRIDGE && !(combobuf[MAPCOMBO2(m,tx2,ty2)].walk&(1<<i))) 
 				{
@@ -1288,7 +1289,7 @@ void zmap::put_walkflags_layered_external(BITMAP *dest,int32_t x,int32_t y,int32
 	
 	newcombo const& c = combobuf[MAPCOMBO3(map, screen, layer, pos)];
 	
-	if (c.type == cBRIDGE && get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS)) return;
+	if (c.type == cBRIDGE && get_qr(qr_OLD_BRIDGE_COMBOS)) return;
 	
 	int32_t bridgedetected = 0;
 	for(int32_t i=0; i<4; i++)
@@ -1300,7 +1301,7 @@ void zmap::put_walkflags_layered_external(BITMAP *dest,int32_t x,int32_t y,int32
 		for (int32_t m = layer; m <= 1; m++)
 		{
 			newcombo const& cmb = combobuf[MAPCOMBO3(map, screen, m,tx2,ty2)];
-			if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+			if (get_qr(qr_OLD_BRIDGE_COMBOS))
 			{
 				if (cmb.type == cBRIDGE && !(cmb.walk&(1<<i))) 
 				{
@@ -1319,7 +1320,7 @@ void zmap::put_walkflags_layered_external(BITMAP *dest,int32_t x,int32_t y,int32
 		{
 			continue;
 		}
-		if(!(c.walk&(1<<i) && ((c.usrflags&cflag3) || (c.usrflags&cflag4))) && (layer==-1 || (get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && layer == 0) || (get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && layer == 1)) && combo_class_buf[c.type].water!=0 && get_bit(quest_rules, qr_DROWN))
+		if(!(c.walk&(1<<i) && ((c.usrflags&cflag3) || (c.usrflags&cflag4))) && (layer==-1 || (get_qr(qr_WATER_ON_LAYER_1) && layer == 0) || (get_qr(qr_WATER_ON_LAYER_2) && layer == 1)) && combo_class_buf[c.type].water!=0 && get_qr(qr_DROWN))
 			rectfill(dest,tx,ty,tx+7,ty+7,vc(11));
 		
 			
@@ -1341,7 +1342,7 @@ void zmap::put_walkflags_layered_external(BITMAP *dest,int32_t x,int32_t y,int32
 			{
 				int32_t color = COLOR_SOLID;
 				
-				if(isstepable(MAPCOMBO3(map, screen, -1, cx,cy)) && (!get_bit(quest_rules,  qr_NO_SOLID_SWIM) || combo_class_buf[combobuf[MAPCOMBO3(map, screen, -1, cx,cy)].type].water==0))
+				if(isstepable(MAPCOMBO3(map, screen, -1, cx,cy)) && (!get_qr(qr_NO_SOLID_SWIM) || combo_class_buf[combobuf[MAPCOMBO3(map, screen, -1, cx,cy)].type].water==0))
 					color=vc(6);
 				else if((c.type==cHOOKSHOTONLY || c.type==cLADDERHOOKSHOT) && ishookshottable(map, screen, cx,cy,i))
 					color=vc(7);
@@ -1359,7 +1360,7 @@ void zmap::put_walkflags_layered_external(BITMAP *dest,int32_t x,int32_t y,int32
 		for (int32_t m = 0; m <= 1; m++)
 		{
 			newcombo const& cmb = combobuf[MAPCOMBO3(map, screen, m,tx2,ty2)];
-			if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+			if (get_qr(qr_OLD_BRIDGE_COMBOS))
 			{
 				if (cmb.type == cBRIDGE && !(cmb.walk&(1<<i))) 
 				{
@@ -1450,7 +1451,7 @@ void put_walkflags(BITMAP *dest,int32_t x,int32_t y,word cmbdat,int32_t layer)
 {
 	newcombo c = combobuf[cmbdat];
 	
-	if (c.type == cBRIDGE && get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS)) return;
+	if (c.type == cBRIDGE && get_qr(qr_OLD_BRIDGE_COMBOS)) return;
 	
 	for(int32_t i=0; i<4; i++)
 	{
@@ -1459,7 +1460,7 @@ void put_walkflags(BITMAP *dest,int32_t x,int32_t y,word cmbdat,int32_t layer)
 		
 		if(!(c.walk&(1<<i) && ((c.usrflags&cflag3) || (c.usrflags&cflag4))) && combo_class_buf[c.type].water!=0)
 		{
-			if ((layer==0 || (get_bit(quest_rules,  qr_WATER_ON_LAYER_1) && layer == 1) || (get_bit(quest_rules,  qr_WATER_ON_LAYER_2) && layer == 2)) && get_bit(quest_rules, qr_DROWN))
+			if ((layer==0 || (get_qr(qr_WATER_ON_LAYER_1) && layer == 1) || (get_qr(qr_WATER_ON_LAYER_2) && layer == 2)) && get_qr(qr_DROWN))
 			{
 				rectfill(dest,tx,ty,tx+7,ty+7,vc(11));
 				//al_trace("water, drown\n");
@@ -1881,8 +1882,8 @@ bool zmap::misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir)
 			//check main screen
 			cmbcheck1 = vbound(AbsoluteScr(map, scr)->data[i], 0, MAXCOMBOS-1);
 			cmbcheck2 = vbound(AbsoluteScr(map, scr-16)->data[i+160], 0, MAXCOMBOS-1);
-			if (combobuf[cmbcheck1].type != cBRIDGE || !get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS)) combocheck1.walk|=combobuf[cmbcheck1].walk;
-			if (combobuf[cmbcheck2].type != cBRIDGE || !get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS)) combocheck2.walk|=combobuf[cmbcheck2].walk;
+			if (combobuf[cmbcheck1].type != cBRIDGE || !get_qr(qr_OLD_BRIDGE_COMBOS)) combocheck1.walk|=combobuf[cmbcheck1].walk;
+			if (combobuf[cmbcheck2].type != cBRIDGE || !get_qr(qr_OLD_BRIDGE_COMBOS)) combocheck2.walk|=combobuf[cmbcheck2].walk;
 			
 			//check layer 1
 			layermap=AbsoluteScr(map, scr)->layermap[0]-1;
@@ -1893,7 +1894,7 @@ bool zmap::misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir)
 				cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
 				if (combobuf[cmbcheck1].type == cBRIDGE) 
 				{
-					if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+					if (!get_qr(qr_OLD_BRIDGE_COMBOS))
 					{
 						int efflag = (combobuf[cmbcheck1].walk & 0xF0)>>4;
 						int newsolid = (combobuf[cmbcheck1].walk & 0xF);
@@ -1912,7 +1913,7 @@ bool zmap::misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir)
 				cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i+160];
 				if (combobuf[cmbcheck2].type == cBRIDGE)
 				{
-					if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+					if (!get_qr(qr_OLD_BRIDGE_COMBOS))
 					{
 						int efflag = (combobuf[cmbcheck2].walk & 0xF0)>>4;
 						int newsolid = (combobuf[cmbcheck2].walk & 0xF);
@@ -1933,7 +1934,7 @@ bool zmap::misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir)
 				cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
 				if (combobuf[cmbcheck2].type == cBRIDGE)
 				{
-					if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+					if (!get_qr(qr_OLD_BRIDGE_COMBOS))
 					{
 						int efflag = (combobuf[cmbcheck1].walk & 0xF0)>>4;
 						int newsolid = (combobuf[cmbcheck1].walk & 0xF);
@@ -1952,7 +1953,7 @@ bool zmap::misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir)
 				cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i+160];
 				if (combobuf[cmbcheck2].type == cBRIDGE)
 				{
-					if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+					if (!get_qr(qr_OLD_BRIDGE_COMBOS))
 					{
 						int efflag = (combobuf[cmbcheck2].walk & 0xF0)>>4;
 						int newsolid = (combobuf[cmbcheck2].walk & 0xF);
@@ -1985,8 +1986,8 @@ bool zmap::misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir)
 			//check main screen
 			cmbcheck1 = vbound(AbsoluteScr(map, scr)->data[i], 0, MAXCOMBOS-1);
 			cmbcheck2 = vbound(AbsoluteScr(map, scr+16)->data[i-160], 0, MAXCOMBOS-1);
-			if (combobuf[cmbcheck1].type != cBRIDGE || !get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS)) combocheck1.walk|=combobuf[cmbcheck1].walk;
-			if (combobuf[cmbcheck2].type != cBRIDGE || !get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS)) combocheck2.walk|=combobuf[cmbcheck2].walk;
+			if (combobuf[cmbcheck1].type != cBRIDGE || !get_qr(qr_OLD_BRIDGE_COMBOS)) combocheck1.walk|=combobuf[cmbcheck1].walk;
+			if (combobuf[cmbcheck2].type != cBRIDGE || !get_qr(qr_OLD_BRIDGE_COMBOS)) combocheck2.walk|=combobuf[cmbcheck2].walk;
 			
 			
 			//check layer 1
@@ -1998,7 +1999,7 @@ bool zmap::misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir)
 				cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
 				if (combobuf[cmbcheck1].type == cBRIDGE) 
 				{
-					if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+					if (!get_qr(qr_OLD_BRIDGE_COMBOS))
 					{
 						int efflag = (combobuf[cmbcheck1].walk & 0xF0)>>4;
 						int newsolid = (combobuf[cmbcheck1].walk & 0xF);
@@ -2017,7 +2018,7 @@ bool zmap::misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir)
 				cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i-160];
 				if (combobuf[cmbcheck2].type == cBRIDGE)
 				{
-					if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+					if (!get_qr(qr_OLD_BRIDGE_COMBOS))
 					{
 						int efflag = (combobuf[cmbcheck2].walk & 0xF0)>>4;
 						int newsolid = (combobuf[cmbcheck2].walk & 0xF);
@@ -2037,7 +2038,7 @@ bool zmap::misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir)
 				cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
 				if (combobuf[cmbcheck1].type == cBRIDGE) 
 				{
-					if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+					if (!get_qr(qr_OLD_BRIDGE_COMBOS))
 					{
 						int efflag = (combobuf[cmbcheck1].walk & 0xF0)>>4;
 						int newsolid = (combobuf[cmbcheck1].walk & 0xF);
@@ -2056,7 +2057,7 @@ bool zmap::misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir)
 				cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i-160];
 				if (combobuf[cmbcheck2].type == cBRIDGE)
 				{
-					if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+					if (!get_qr(qr_OLD_BRIDGE_COMBOS))
 					{
 						int efflag = (combobuf[cmbcheck2].walk & 0xF0)>>4;
 						int newsolid = (combobuf[cmbcheck2].walk & 0xF);
@@ -2089,8 +2090,8 @@ bool zmap::misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir)
 			//check main screen
 			cmbcheck1 = AbsoluteScr(map, scr)->data[i];
 			cmbcheck2 = AbsoluteScr(map, scr-1)->data[i+15];
-			if (combobuf[cmbcheck1].type != cBRIDGE || !get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS)) combocheck1.walk|=combobuf[cmbcheck1].walk;
-			if (combobuf[cmbcheck2].type != cBRIDGE || !get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS)) combocheck2.walk|=combobuf[cmbcheck2].walk;
+			if (combobuf[cmbcheck1].type != cBRIDGE || !get_qr(qr_OLD_BRIDGE_COMBOS)) combocheck1.walk|=combobuf[cmbcheck1].walk;
+			if (combobuf[cmbcheck2].type != cBRIDGE || !get_qr(qr_OLD_BRIDGE_COMBOS)) combocheck2.walk|=combobuf[cmbcheck2].walk;
 			
 			//check layer 1
 			layermap=AbsoluteScr(map, scr)->layermap[0]-1;
@@ -2101,7 +2102,7 @@ bool zmap::misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir)
 				cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
 				if (combobuf[cmbcheck1].type == cBRIDGE) 
 				{
-					if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+					if (!get_qr(qr_OLD_BRIDGE_COMBOS))
 					{
 						int efflag = (combobuf[cmbcheck1].walk & 0xF0)>>4;
 						int newsolid = (combobuf[cmbcheck1].walk & 0xF);
@@ -2120,7 +2121,7 @@ bool zmap::misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir)
 				cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i+15];
 				if (combobuf[cmbcheck2].type == cBRIDGE)
 				{
-					if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+					if (!get_qr(qr_OLD_BRIDGE_COMBOS))
 					{
 						int efflag = (combobuf[cmbcheck2].walk & 0xF0)>>4;
 						int newsolid = (combobuf[cmbcheck2].walk & 0xF);
@@ -2140,7 +2141,7 @@ bool zmap::misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir)
 				cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
 				if (combobuf[cmbcheck1].type == cBRIDGE) 
 				{
-					if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+					if (!get_qr(qr_OLD_BRIDGE_COMBOS))
 					{
 						int efflag = (combobuf[cmbcheck1].walk & 0xF0)>>4;
 						int newsolid = (combobuf[cmbcheck1].walk & 0xF);
@@ -2159,7 +2160,7 @@ bool zmap::misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir)
 				cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i+15];
 				if (combobuf[cmbcheck2].type == cBRIDGE)
 				{
-					if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+					if (!get_qr(qr_OLD_BRIDGE_COMBOS))
 					{
 						int efflag = (combobuf[cmbcheck2].walk & 0xF0)>>4;
 						int newsolid = (combobuf[cmbcheck2].walk & 0xF);
@@ -2192,8 +2193,8 @@ bool zmap::misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir)
 			//check main screen
 			cmbcheck1 = AbsoluteScr(map, scr)->data[i];
 			cmbcheck2 = AbsoluteScr(map, scr+1)->data[i-15];
-			if (combobuf[cmbcheck1].type != cBRIDGE || !get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS)) combocheck1.walk|=combobuf[cmbcheck1].walk;
-			if (combobuf[cmbcheck2].type != cBRIDGE || !get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS)) combocheck2.walk|=combobuf[cmbcheck2].walk;
+			if (combobuf[cmbcheck1].type != cBRIDGE || !get_qr(qr_OLD_BRIDGE_COMBOS)) combocheck1.walk|=combobuf[cmbcheck1].walk;
+			if (combobuf[cmbcheck2].type != cBRIDGE || !get_qr(qr_OLD_BRIDGE_COMBOS)) combocheck2.walk|=combobuf[cmbcheck2].walk;
 			
 			//check layer 1
 			layermap=AbsoluteScr(map, scr)->layermap[0]-1;
@@ -2204,7 +2205,7 @@ bool zmap::misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir)
 				cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
 				if (combobuf[cmbcheck1].type == cBRIDGE) 
 				{
-					if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+					if (!get_qr(qr_OLD_BRIDGE_COMBOS))
 					{
 						int efflag = (combobuf[cmbcheck1].walk & 0xF0)>>4;
 						int newsolid = (combobuf[cmbcheck1].walk & 0xF);
@@ -2223,7 +2224,7 @@ bool zmap::misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir)
 				cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i-15];
 				if (combobuf[cmbcheck2].type == cBRIDGE)
 				{
-					if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+					if (!get_qr(qr_OLD_BRIDGE_COMBOS))
 					{
 						int efflag = (combobuf[cmbcheck2].walk & 0xF0)>>4;
 						int newsolid = (combobuf[cmbcheck2].walk & 0xF);
@@ -2243,7 +2244,7 @@ bool zmap::misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir)
 				cmbcheck1 = AbsoluteScr(layermap, layerscreen)->data[i];
 				if (combobuf[cmbcheck1].type == cBRIDGE) 
 				{
-					if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+					if (!get_qr(qr_OLD_BRIDGE_COMBOS))
 					{
 						int efflag = (combobuf[cmbcheck1].walk & 0xF0)>>4;
 						int newsolid = (combobuf[cmbcheck1].walk & 0xF);
@@ -2263,7 +2264,7 @@ bool zmap::misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir)
 				cmbcheck2 = AbsoluteScr(layermap, layerscreen)->data[i-15];
 				if (combobuf[cmbcheck2].type == cBRIDGE)
 				{
-					if (!get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+					if (!get_qr(qr_OLD_BRIDGE_COMBOS))
 					{
 						int efflag = (combobuf[cmbcheck2].walk & 0xF0)>>4;
 						int newsolid = (combobuf[cmbcheck2].walk & 0xF);
@@ -3004,7 +3005,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 	if((layer->hasitem != 0) && !(flags&cNOITEM))
 	{
 		frame=0;
-		putitem2(dest,layer->itemx+x,layer->itemy+y+1-(get_bit(quest_rules, qr_NOITEMOFFSET)),layer->item,lens_hint_item[layer->item][0],lens_hint_item[layer->item][1], 0);
+		putitem2(dest,layer->itemx+x,layer->itemy+y+1-(get_qr(qr_NOITEMOFFSET)),layer->item,lens_hint_item[layer->item][0],lens_hint_item[layer->item][1], 0);
 	}
 	
 	for(int32_t k=2; k<4; k++)
@@ -3045,7 +3046,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 		}
 	}
 	//Overhead L1/2
-	if(get_bit(quest_rules, qr_OVERHEAD_COMBOS_L1_L2))
+	if(get_qr(qr_OVERHEAD_COMBOS_L1_L2))
 	{
 		for(int32_t k = 0; k < 2; ++k)
 		{
@@ -3220,7 +3221,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 	int32_t dark = layer->flags&cDARK;
 	
 	if(dark && !(flags&cNODARK)
-		&& !((Flags&cNEWDARK) && get_bit(quest_rules, qr_NEW_DARKROOM)))
+		&& !((Flags&cNEWDARK) && get_qr(qr_NEW_DARKROOM)))
 	{
 		for(int32_t j=0; j<80; j++)
 		{
@@ -3422,7 +3423,7 @@ void zmap::drawrow(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t c,int3
 	}
 	
 	//Overhead L1/2
-	if(get_bit(quest_rules, qr_OVERHEAD_COMBOS_L1_L2))
+	if(get_qr(qr_OVERHEAD_COMBOS_L1_L2))
 	{
 		for(int32_t k = 0; k < 2; ++k)
 		{
@@ -3718,7 +3719,7 @@ void zmap::drawcolumn(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t c,i
 		}
 	}
 	//Overhead L1/2
-	if(get_bit(quest_rules, qr_OVERHEAD_COMBOS_L1_L2))
+	if(get_qr(qr_OVERHEAD_COMBOS_L1_L2))
 	{
 		for(int32_t k = 0; k < 2; ++k)
 		{
@@ -3924,7 +3925,7 @@ void zmap::drawblock(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t c,in
 		}
 	}
 	//Overhead L1/2
-	if(get_bit(quest_rules, qr_OVERHEAD_COMBOS_L1_L2))
+	if(get_qr(qr_OVERHEAD_COMBOS_L1_L2))
 	{
 		for(int32_t k = 0; k < 2; ++k)
 		{
@@ -5316,7 +5317,7 @@ void zmap::update_combo_cycling()
     }
     
     
-    if(get_bit(quest_rules,qr_CMBCYCLELAYERS))
+    if(get_qr(qr_CMBCYCLELAYERS))
     {
         for(int32_t j=0; j<6; j++)
         {
@@ -5500,7 +5501,7 @@ void zmap::update_freeform_combos()
                     prvscr.ffcs[i].vx+=prvscr.ffcs[i].ax;
                     prvscr.ffcs[i].vy+=prvscr.ffcs[i].ay;
                     
-					if(get_bit(quest_rules, qr_OLD_FFC_SPEED_CAP))
+					if(get_qr(qr_OLD_FFC_SPEED_CAP))
 					{
 						if(prvscr.ffcs[i].vx>128) prvscr.ffcs[i].vx=128;
 						
@@ -6957,7 +6958,7 @@ int32_t load_quest(const char *filename, bool show_progress)
 		skip_flags[i]=0;
 	}
 	for(int32_t i=0; i<qr_MAX; i++)
-				set_bit(quest_rules,i,0);
+				set_qr(i,0);
 	int32_t ret=loadquest(filename,&header,&misc,customtunes,show_progress,true,skip_flags);
 //  setPackfilePassword(NULL);
 

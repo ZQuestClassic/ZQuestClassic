@@ -9,6 +9,7 @@
 #include <cassert>
 #include <utility>
 #include "tiles.h"
+#include "base/qrs.h"
 
 int32_t tile_anim_proc(int32_t msg,DIALOG *d,int32_t c)
 {

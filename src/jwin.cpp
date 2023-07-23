@@ -9508,5 +9508,337 @@ int32_t d_vsync_proc(int32_t msg,DIALOG *d,int32_t c)
     return D_O_K;
 }
 
+//box_out stuff
+using std::string;
+using std::istringstream;
+static int32_t box_x = 0;
+static int32_t box_y = 0;
+static bool box_active=false;
+static int32_t box_store_x = 0;
+static FONT *box_title_font=font;
+static FONT *box_message_font=font;
+static int32_t box_style=0;
+static int32_t box_titlebar_height=0;
+static int32_t box_message_height=0;
+static uint8_t box_text_scale=1;
+static int32_t box_w=304;
+static int32_t box_h=176;
+static int32_t box_l=8;
+static int32_t box_r=312;
+static int32_t box_t=32;
+static int32_t box_b=208;
+static bool box_log=true;
+static char box_log_msg[480];
+static int32_t box_msg_pos=0;
+static int32_t box_store_pos=0;
+static BITMAP* box_bg=NULL;
+/*
+  static int32_t jwin_pal[jcMAX] =
+  {
+  vc(11),vc(15),vc(4),vc(7),vc(6),vc(0),
+  192,223,vc(14),vc(15),vc(0),vc(1),vc(14)
+  };
+  */
+int32_t onSnapshot2()
+{
+    char buf[20];
+    int32_t num=0;
+    
+    do
+    {
+        sprintf(buf, "zelda%03d.bmp", ++num);
+    }
+    while(num<999 && exists(buf));
+    
+    PALETTE temppal;
+    get_palette(temppal);
+    BITMAP *tempbmp=create_bitmap_ex(8,screen->w, screen->h);
+    blit(screen,tempbmp,0,0,0,0,screen->w,screen->h);
+    save_bitmap(buf,screen,temppal);
+    destroy_bitmap(tempbmp);
+    return D_O_K;
+}
+
+void set_default_box_size()
+{
+    int32_t screen_w = screen->w;
+    int32_t screen_h = screen->h;
+    
+    box_w=MIN(512, screen_w-16);
+    box_h=MIN(256, (screen_h-64)&0xFFF0);
+    
+    box_l=(screen_w-box_w)/2;
+    box_t=(screen_h-box_h)/2;
+    box_r=box_l+box_w;
+    box_b=box_t+box_h;
+}
+/* resizes the box */
+void set_box_size(int32_t w, int32_t h)
+{
+	int32_t screen_w = screen->w;
+	int32_t screen_h = screen->h;
+	
+	if(w <= 0) w = 512;
+	if(h <= 0) h = 256;
+	box_w=MIN(w, screen_w-16);
+	box_h=MIN(h, (screen_h-64)&0xFFF0);
+	
+	box_l=(screen_w-box_w)/2;
+	box_t=(screen_h-box_h)/2;
+	box_r=box_l+box_w;
+	box_b=box_t+box_h;
+}
+
+/* starts outputting a progress message */
+void box_start(int32_t style, const char *title, FONT *title_font, FONT *message_font, bool log, int32_t w, int32_t h, uint8_t scale)
+{
+    if (is_headless())
+        return;
+
+    box_text_scale=scale;
+    box_style=style;
+    box_title_font=(title_font!=NULL)?title_font:font;
+    box_message_font=(message_font!=NULL)?message_font:font;
+    box_message_height=text_height(box_message_font)*scale;
+    box_titlebar_height=title?text_height(box_title_font)+2:0;
+    set_box_size(w,h);
+    /*
+    box_w=BOX_W;
+    box_h=BOX_H;
+    box_l=BOX_L;
+    box_r=BOX_R;
+    box_t=BOX_T;
+    box_b=BOX_B;
+    */
+    box_log=log;
+    memset(box_log_msg, 0, 480);
+    box_msg_pos=0;
+    box_store_pos=0;
+    
+    if(box_bg)
+    {
+        destroy_bitmap(box_bg);
+    }
+    box_bg = create_bitmap_ex(8, box_w, box_h);
+    blit(screen, box_bg, box_l, box_t, 0, 0, box_w, box_h);
+    jwin_draw_win(screen, box_l, box_t, box_r-box_l, box_b-box_t, FR_WIN);
+    
+    if(title!=NULL)
+    {
+        zc_swap(font,box_title_font);
+        jwin_draw_titlebar(screen, box_l+3, box_t+3, box_r-box_l-6, 18, title, false);
+        zc_swap(font,box_title_font);
+        box_titlebar_height=18;
+    }
+    
+    
+    box_store_x = box_x = box_y = 0;
+    box_active = true;
+    box_t+=box_titlebar_height;
+    box_h-=box_titlebar_height;
+    box_log=log;
+    memset(box_log_msg, 0, 480);
+    box_msg_pos=0;
+    box_store_pos=0;
+}
+
+/* outputs text to the progress message */
+void box_out(const char *msg)
+{
+    string remainder = "";
+    string temp(msg);
+    
+    if(box_active)
+    {
+        //do primitive text wrapping
+        uint32_t i;
+        for(i=0; i<temp.size(); i++)
+        {
+            int32_t length = text_length(box_message_font,temp.substr(0,i).c_str())*box_text_scale;
+            
+            if(length > box_r-box_l-16)
+            {
+                i = zc_max(i-1,0);
+                break;
+            }
+        }
+        
+        set_clip_rect(screen, box_l+8, box_t+1, box_r-8, box_b-1);
+        if(box_text_scale == 1)
+            textout_ex(screen, box_message_font, temp.substr(0,i).c_str(), box_l+8+box_x, box_t+(box_y+1)*box_message_height, gui_fg_color, gui_bg_color);
+        else
+        {
+            int32_t length = text_length(box_message_font,temp.substr(0,i).c_str());
+            BITMAP* tempbit = create_bitmap_ex(8, length, box_message_height);
+            clear_bitmap(tempbit);
+            textout_ex(tempbit, box_message_font, temp.substr(0,i).c_str(), 0, 0, gui_fg_color, gui_bg_color);
+            stretch_blit(tempbit, screen, 0, 0, length, box_message_height/box_text_scale, box_l+8+box_x, box_t+(box_y+1)*box_message_height, length*box_text_scale, box_message_height);
+            destroy_bitmap(tempbit);
+        }
+        set_clip_rect(screen, 0, 0, screen->w-1, screen->h-1);
+        remainder = temp.substr(i,temp.size()-i);
+    }
+    
+    if(box_log)
+    {
+        sprintf(box_log_msg+box_msg_pos, "%s", msg);
+    }
+    
+    box_x += text_length(box_message_font, msg);
+    box_msg_pos+=(int32_t)strlen(msg);
+    
+    if(remainder != "")
+    {
+        bool oldlog = box_log;
+        box_log = false;
+        box_eol();
+        box_out(remainder.c_str());
+        box_log = oldlog;
+    }
+    
+    if (box_active)
+        update_hw_screen(true);
+}
+
+/* calls box_out, and box_eol for newlines */
+void box_out_nl(const char *msg)
+{
+	string line;
+	istringstream reader(msg);
+	while (getline(reader, line))
+	{
+		box_out(line.c_str());
+		box_eol();
+	}
+}
+		
+/* remembers the current x position */
+void box_save_x()
+{
+    if(box_active)
+    {
+        box_store_x=box_x;
+    }
+    
+    box_store_pos=box_msg_pos;
+}
+
+/* remembers the current x position */
+void box_load_x()
+{
+    if(box_active)
+    {
+        box_x=box_store_x;
+    }
+    
+    box_msg_pos=box_store_pos;
+}
+
+/* outputs text to the progress message */
+void box_eol()
+{
+    if(box_active)
+    {
+        box_x = 0;
+        box_y++;
+        
+        if((box_y+2)*box_message_height >= box_h)
+        {
+            blit(screen, screen, box_l+8, box_t+(box_message_height*2), box_l+8, box_t+(box_message_height), box_w-16, box_y*box_message_height);
+            rectfill(screen, box_l+8, box_t+box_y*box_message_height, box_l+box_w-8, box_t+(box_y+1)*box_message_height, gui_bg_color);
+            box_y--;
+        }
+    }
+    
+    box_msg_pos = 0;
+    
+    if(box_log)
+    {
+        al_trace("%s", box_log_msg);
+        al_trace("\n");
+        memset(box_log_msg, 0, 480);
+    }
+    
+    if (box_active)
+        update_hw_screen(true);
+}
+
+/* ends output of a progress message */
+void box_end(bool pause)
+{
+    if(box_active)
+    {
+        if(pause)
+        {
+	    //zc_set_volume(255,-1);
+	    // kill_sfx();
+	    // sfx(20,128, false,true);
+	
+            box_eol();
+            box_out("-- press a key --");
+            
+            do
+            {
+                rest(1);
+            }
+            while(gui_mouse_b());
+            
+            do
+            {
+                rest(1);
+            }
+            while((!keypressed()) && (!gui_mouse_b()));
+            
+            do
+            {
+                rest(1);
+            }
+            while(gui_mouse_b());
+            
+            clear_keybuf();
+        }
+        
+        box_active = false;
+        if(box_bg)
+        {
+            blit(box_bg, screen, 0, 0, box_l, box_t-box_titlebar_height, box_w, box_h+box_titlebar_height);
+            destroy_bitmap(box_bg);
+            box_bg = NULL;
+        }
+    }
+}
+
+/* pauses box output */
+void box_pause()
+{
+    if(box_active)
+    {
+        box_save_x();
+        box_out("-- press a key --");
+        
+        do
+        {
+            //        poll_mouse();
+        }
+        while(gui_mouse_b());
+        
+        do
+        {
+            //        poll_mouse();
+        }
+        while((!keypressed()) && (!gui_mouse_b()));
+        
+        do
+        {
+            //        poll_mouse();
+        }
+        while(gui_mouse_b());
+        
+        clear_keybuf();
+        box_load_x();
+    }
+}
+
+
 /***  The End  ***/
 
