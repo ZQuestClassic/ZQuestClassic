@@ -677,9 +677,10 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			}
 			case ssoCURRENTITEM:
 			{
-				attrib_grid = Rows<2>(
+				attrib_grid = Rows<3>(
 					labels[0] = Label(text = "Item Class:", hAlign = 1.0),
 					ddl = DDL(d1, list_itemclass),
+					INFOBTN("The highest level owned of this itemclass will be tied to this item slot."),
 					Label(text = "Item Override:", hAlign = 1.0),
 					DropDownList(data = list_items,
 						fitParent = true,
@@ -692,25 +693,43 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 							labels[0]->setDisabled(val > -1);
 						}
 					),
+					INFOBTN("The specified item ID will be tied to this item slot (OVERRIDES 'Item Class' if set)"),
 					Label(text = "Position:", hAlign = 1.0),
 					NUM_FIELD(d3, -9999, 9999),
+					INFOBTN("The unique position ID of this slot"),
 					Label(text = "Up Select:", hAlign = 1.0),
 					NUM_FIELD(d4, -9999, 9999),
+					INFOBTN("The unique position ID to move to when pressing 'Up'"),
 					Label(text = "Down Select:", hAlign = 1.0),
 					NUM_FIELD(d5, -9999, 9999),
+					INFOBTN("The unique position ID to move to when pressing 'Down'"),
 					Label(text = "Left Select:", hAlign = 1.0),
 					NUM_FIELD(d6, -9999, 9999),
+					INFOBTN("The unique position ID to move to when pressing 'Left' / 'L' quickswap"),
 					Label(text = "Right Select:", hAlign = 1.0),
 					NUM_FIELD(d7, -9999, 9999),
+					INFOBTN("The unique position ID to move to when pressing 'Right' / 'R' quickswap"),
 					DummyWidget(),
 					Checkbox(
 						text = "Invisible", hAlign = 0.0,
-						checked = !(local_subref.d2 & 0b1),
+						checked = !(local_subref.d2 & SSCURRITEM_VISIBLE),
 						onToggleFunc = [&](bool state)
 						{
-							SETFLAG(local_subref.d2, 0b1, !state);
+							SETFLAG(local_subref.d2, SSCURRITEM_VISIBLE, !state);
 						}
-					)
+					),
+					INFOBTN("If checked, the item is invisible on the subscreen"),
+					DummyWidget(),
+					Checkbox(
+						text = "Non-Equippable", hAlign = 0.0,
+						checked = local_subref.d2 & SSCURRITEM_NONEQUIP,
+						onToggleFunc = [&](bool state)
+						{
+							SETFLAG(local_subref.d2, SSCURRITEM_NONEQUIP, state);
+						}
+					),
+					INFOBTN("If checked, the item cannot be equipped to a button."
+						" 'Always Press To Equip' is recommended if this is used." + QRHINT({qr_SUBSCR_PRESS_TO_EQUIP}))
 				);
 				break;
 			}

@@ -18,6 +18,8 @@
 #define ssflagSHOWGRID  1
 #define ssflagSHOWINVIS 2
 
+#define SSCURRITEM_VISIBLE  0x01
+#define SSCURRITEM_NONEQUIP 0x02
 
 extern bool show_subscreen_dmap_dots;
 extern bool show_subscreen_numbers;
