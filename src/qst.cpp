@@ -38,6 +38,7 @@
 #include "zc/zc_custom.h"
 #include "sfx.h"
 #include "md5.h"
+#include "zinfo.h"
 #include "zc/ffscript.h"
 #include "particles.h"
 #include "dialog/alert.h"

@@ -34,6 +34,7 @@
 #include "zc/hero.h"
 #include "zc/ffscript.h"
 #include "zc/render.h"
+#include "zinfo.h"
 
 #ifdef __EMSCRIPTEN__
 #include "base/emscripten_utils.h"

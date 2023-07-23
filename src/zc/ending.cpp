@@ -26,6 +26,7 @@
 #include "init.h"
 #include "gamedata.h"
 #include "zc/ffscript.h"
+#include "zinfo.h"
 extern FFScript FFCore;
 extern ZModule zcm; //modules
 extern zcmodule moduledata;

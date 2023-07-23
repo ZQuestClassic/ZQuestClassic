@@ -9,6 +9,7 @@
 #include "items.h"
 #include "base/qrs.h"
 #include <fmt/format.h>
+#include "zinfo.h"
 
 extern bool saved;
 extern zcmodule moduledata;

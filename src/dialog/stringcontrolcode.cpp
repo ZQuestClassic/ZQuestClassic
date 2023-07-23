@@ -6,6 +6,7 @@
 #include "zc_list_data.h"
 #include "gui/use_size.h"
 #include "zq/zq_tiles.h"
+#include "zinfo.h"
 
 extern bool saved;
 extern miscQdata misc;

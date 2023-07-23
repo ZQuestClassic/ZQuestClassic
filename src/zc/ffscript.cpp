@@ -32,6 +32,7 @@
 #include "drawing.h"
 #include "base/colors.h"
 #include "pal.h"
+#include "zinfo.h"
 #include <sstream>
 
 #ifdef _WIN32

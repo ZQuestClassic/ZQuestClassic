@@ -28,6 +28,7 @@
 #include "zc/combos.h"
 #include "base/zc_math.h"
 #include "base/qrs.h"
+#include "base/mapscr.h"
 
 #ifndef IS_ZQUEST
 #include "zc/render.h"

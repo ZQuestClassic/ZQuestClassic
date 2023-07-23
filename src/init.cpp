@@ -24,6 +24,7 @@
 #include "items.h"
 #include "base/qrs.h"
 #include "zc/zelda.h"
+#include "zinfo.h"
 
 extern zcmodule moduledata;
 

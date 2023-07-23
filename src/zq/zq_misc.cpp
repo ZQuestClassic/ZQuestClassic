@@ -26,6 +26,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <sstream>
+#include "zinfo.h"
 
 #include "metadata/metadata.h"
 
@@ -380,22 +381,6 @@ void refresh_pal()
 }
 
 char ns_string[4];
-
-// Mirrored in hero.cpp
-const char *roomtype_string[MAXROOMTYPES] =
-{
-    "(None)","Special Item","Pay for Info","Secret Money","Gamble",
-    "Door Repair","Red Potion or Heart Container","Feed the Goriya","Triforce Check",
-    "Potion Shop","Shop","More Bombs","Leave Money or Life","10 Rupees",
-    "3-Stair Warp","Ganon","Zelda", "-<item pond>", "1/2 Magic Upgrade", "Learn Slash", "More Arrows","Take One Item"
-};
-
-const char *catchall_string[MAXROOMTYPES] =
-{
-    "Generic Catchall","Special Item","Info Type","Amount","Generic Catchall","Repair Fee","Generic Catchall","Generic Catchall","Generic Catchall","Shop Type",
-    "Shop Type","Price","Price","Generic Catchall","Warp Ring","Generic Catchall","Generic Catchall", "Generic Catchall", "Generic Catchall",
-    "Generic Catchall", "Price","Shop Type","Bottle Shop Type"
-};
 
 const char *warptype_string[MAXWARPTYPES] =
 {

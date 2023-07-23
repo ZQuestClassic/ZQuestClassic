@@ -31,6 +31,7 @@
 #include "base/zc_math.h"
 #include "user_object.h"
 #include "slopes.h"
+#include "zinfo.h"
 extern FFScript FFCore;
 extern HeroClass Hero;
 extern ZModule zcm;
@@ -24263,14 +24264,6 @@ bool HeroClass::HasHeavyBoots()
 	}
 	return false;
 }
-
-const char *roomtype_string[rMAX] =
-{
-    "(None)","Special Item","Pay for Info","Secret Money","Gamble",
-    "Door Repair","Red Potion or Heart Container","Feed the Goriya","Triforce Check",
-    "Potion Shop","Shop","More Bombs","Leave Money or Life","10 Rupees",
-    "3-Stair Warp","Ganon","Zelda", "-<item pond>", "1/2 Magic Upgrade", "Learn Slash", "More Arrows","Take One Item"
-};
 
 static bool refresh_dmap_scrollscript = false;
 bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)

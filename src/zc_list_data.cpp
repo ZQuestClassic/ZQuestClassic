@@ -1,6 +1,7 @@
 #include "zc_list_data.h"
 #include "zq/zquest.h"
 #include "qst.h"
+#include "zinfo.h"
 
 extern zcmodule moduledata;
 extern char *weapon_string[];

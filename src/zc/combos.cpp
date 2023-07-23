@@ -9,6 +9,7 @@
 #include "zc/ffscript.h"
 #include "zc/hero.h"
 #include "zc/title.h"
+#include "base/mapscr.h"
 
 extern sprite_list items, decorations;
 extern FFScript FFCore;

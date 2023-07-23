@@ -20,6 +20,7 @@
 #include <set>
 #include <map>
 #include "solidobject.h"
+#include "base/cpos_info.h"
 
 struct itemdata;
 using std::map;

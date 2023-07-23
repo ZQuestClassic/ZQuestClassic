@@ -12,6 +12,7 @@
 #define _ZQ_CLASS_H_
 
 #include "base/zdefs.h"
+#include "base/mapscr.h"
 #include <stdio.h>
 #include <string_view>
 #include <deque>
