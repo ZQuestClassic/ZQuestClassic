@@ -1,6 +1,8 @@
 #ifndef ZQ_HOTKEY_H
 #define ZQ_HOTKEY_H
 
+struct Hotkey;
+
 enum
 {
 	ZQKEY_UNDO,

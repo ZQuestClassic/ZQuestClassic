@@ -1,6 +1,7 @@
 #ifndef ZC_GUI_BUTTON_H
 #define ZC_GUI_BUTTON_H
 
+#include "base/hotkey.h"
 #include "gui/widget.h"
 #include "gui/dialog_ref.h"
 #include <string>
