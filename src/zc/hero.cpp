@@ -28748,9 +28748,9 @@ int32_t selectWpn_new(int32_t type, int32_t startpos, int32_t forbiddenpos, int3
 		
 	if(type==SEL_VERIFY_RIGHT || type==SEL_VERIFY_LEFT)
 	{
-		//this ALWAYS CHECKS 'Bweapon', regardless of 'checkwpn' -Em
 		int32_t wpn = Bweapon(startpos);
-		if(equip_only && (objects[startpos].d2&SSCURRITEM_NONEQUIP))
+		equip_only = checkwpn = true;
+		if(objects[startpos].d2&SSCURRITEM_NONEQUIP)
 			wpn = 0;
 		
 		if(wpn != 0 && startpos != forbiddenpos && startpos != fp2 && startpos != fp3)
@@ -28775,7 +28775,6 @@ int32_t selectWpn_new(int32_t type, int32_t startpos, int32_t forbiddenpos, int3
 			
 			if(objects[i].d3==curpos)
 				p=i;
-			
 			if(p>-1 && firstValidPos>-1 && firstValidEquipPos>-1)
 				break;
 		}
@@ -28858,9 +28857,10 @@ int32_t selectWpn_new(int32_t type, int32_t startpos, int32_t forbiddenpos, int3
 		oldPositions.insert(curpos);
 		
 		//see if this weapon is acceptable
+		auto wpn = Bweapon(curpos);
 		if(curpos != forbiddenpos && curpos != fp2 && curpos != fp3)
 			if(!equip_only || !(objects[p].d2 & SSCURRITEM_NONEQUIP))
-				if(!checkwpn || Bweapon(curpos))
+				if(!checkwpn || wpn)
 					return curpos;
 		//keep going otherwise
 	}
