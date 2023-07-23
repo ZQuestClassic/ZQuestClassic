@@ -167,19 +167,7 @@ void dosubscr(miscQdata *misc)
 		}
 		//Assign items to buttons
 		bool can_equip = true;
-		int p = -1;
-		if(current_subscreen_active)
-			for(int32_t i=0; current_subscreen_active->objects[i].type!=ssoNULL; ++i)
-			{
-				if(current_subscreen_active->objects[i].type==ssoCURRENTITEM)
-				{
-					if(current_subscreen_active->objects[i].d3==Bpos)
-					{
-						p=i;
-						break;
-					}
-				}
-			}
+		int p = get_subscr_itemind(Bpos);
 		if(p > -1 && (current_subscreen_active->objects[p].d2 & SSCURRITEM_NONEQUIP))
 			can_equip = false;
 		auto eqwpn = Bweapon(Bpos);

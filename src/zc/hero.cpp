@@ -28725,6 +28725,21 @@ void verifyBothWeapons()
     verifyYWpn();
 }
 
+int get_subscr_itemind(int32_t pos)
+{
+	if(current_subscreen_active == NULL)
+		return -1;
+	auto* objects = current_subscreen_active->objects;
+	for(int32_t i=0; objects[i].type!=ssoNULL; ++i)
+	{
+		if(objects[i].type==ssoCURRENTITEM)
+		{
+			if(objects[i].d3==pos)
+				return i;
+		}
+	}
+	return -1;
+}
 int32_t selectWpn_new(int32_t type, int32_t startpos, int32_t forbiddenpos, int32_t fp2, int32_t fp3, bool equip_only, bool checkwpn)
 {
 	//what will be returned when all else fails.
@@ -28745,12 +28760,14 @@ int32_t selectWpn_new(int32_t type, int32_t startpos, int32_t forbiddenpos, int3
 	auto* objects = current_subscreen_active->objects;
 	
 	checkwpn = checkwpn || !get_bit(quest_rules,qr_FREEFORM_SUBSCREEN_CURSOR);
-		
-	if(type==SEL_VERIFY_RIGHT || type==SEL_VERIFY_LEFT)
+	bool verify = type==SEL_VERIFY_RIGHT || type==SEL_VERIFY_LEFT;
+	
+	if(verify)
 	{
 		int32_t wpn = Bweapon(startpos);
 		equip_only = checkwpn = true;
-		if(objects[startpos].d2&SSCURRITEM_NONEQUIP)
+		auto startind = get_subscr_itemind(startpos);
+		if(objects[startind].type==ssoCURRENTITEM&&(objects[startind].d2&SSCURRITEM_NONEQUIP))
 			wpn = 0;
 		
 		if(wpn != 0 && startpos != forbiddenpos && startpos != fp2 && startpos != fp3)
@@ -28828,19 +28845,7 @@ int32_t selectWpn_new(int32_t type, int32_t startpos, int32_t forbiddenpos, int3
 		}
 		
 		//find our new position
-		p = -1;
-		
-		for(int32_t i=0; objects[i].type!=ssoNULL; ++i)
-		{
-			if(objects[i].type==ssoCURRENTITEM)
-			{
-				if(objects[i].d3==curpos)
-				{
-					p=i;
-					break;
-				}
-			}
-		}
+		p = get_subscr_itemind(curpos);
 		
 		if(p == -1)
 		{

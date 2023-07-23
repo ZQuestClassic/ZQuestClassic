@@ -665,6 +665,7 @@ const int32_t SEL_DOWN = 2;
 const int32_t SEL_RIGHT = 3;
 const int32_t SEL_VERIFY_LEFT = 4;
 const int32_t SEL_VERIFY_RIGHT = 5;
+int get_subscr_itemind(int32_t pos);
 int32_t selectWpn_new(int32_t type, int32_t startpos, int32_t forbiddenpos = -1, int32_t fp2 = -1, int32_t fp3 = -1, bool equip_only = true, bool checkwpn = true);
 bool isWpnPressed(int32_t wpn);
 int32_t getWpnPressed(int32_t wpn);
