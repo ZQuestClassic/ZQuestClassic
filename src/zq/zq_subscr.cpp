@@ -2742,7 +2742,7 @@ void doNewSubscreenObject(int32_t type)
 	switch(tempsso.type)
 	{
 		case ssoCURRENTITEM:
-			tempsso.d2 = 1; // Should not be invisible!
+			tempsso.d2 = SSCURRITEM_VISIBLE;
 			break;
 		case ssoMAGICGAUGE:
 			tempsso.d9 = -1; // 'Always show' by default
@@ -4370,7 +4370,7 @@ void copySSOProperties(subscreen_object& src, subscreen_object& dest)
             break;
             
         case ssoCURRENTITEM:
-            // Only the invisible flag
+            // Flags only
             doCopySSOProperties(src, dest, D2);
             break;
             
