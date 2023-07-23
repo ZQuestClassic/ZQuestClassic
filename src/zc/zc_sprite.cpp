@@ -20,6 +20,7 @@
 #include "zc/ffscript.h"
 #include "zc/combos.h"
 #include "drawing.h"
+#include "base/mapscr.h"
 
 extern FFScript FFCore;
 /*
