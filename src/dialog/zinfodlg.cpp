@@ -5,6 +5,7 @@
 #include "zq/zquest.h"
 #include "dialog/alert.h"
 #include "zc_list_data.h"
+#include "zinfo.h"
 
 extern zquestheader header;
 

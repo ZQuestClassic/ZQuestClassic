@@ -18,6 +18,7 @@
 using std::set;
 
 #include "base/qrs.h"
+#include "base/mapscr.h"
 #include "zc/maps.h"
 #include "zc/zelda.h"
 #include "tiles.h"
