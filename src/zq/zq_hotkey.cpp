@@ -1,4 +1,5 @@
 #include "base/zdefs.h"
+#include "base/hotkey.h"
 #include "zq/zquest.h"
 #include "zq/zq_misc.h"
 #include "zq/zq_hotkey.h"
