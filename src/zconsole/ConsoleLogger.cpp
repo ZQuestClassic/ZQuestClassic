@@ -118,7 +118,7 @@ int32_t CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
 			return -1;
 		}
 	}
-	killer.init(pi.hProcess);
+	killer.init_process(pi.hProcess);
 	
 	_CONSOLE_DEBUG("Created process!\nConnecting pipe...\n");
 	BOOL bConnected = ConnectNamedPipe(m_hPipe, NULL) ? 

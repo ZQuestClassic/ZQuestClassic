@@ -5,6 +5,7 @@
 #include "dialog/alertfunc.h"
 #include "launcher/theme_editor.h"
 #include "launcher/launcher.h"
+#include "base/process_management.h"
 #include "gui/builder.h"
 
 LauncherDialog::LauncherDialog(){}

@@ -40,6 +40,8 @@
 #include "gui/text_field.h"
 #include "dialog/info.h"
 using namespace util;
+using std::string;
+using std::istringstream;
 
 //#ifndef _MSC_VER
 #define zc_max(a,b)  ((a)>(b)?(a):(b))
@@ -9509,8 +9511,6 @@ int32_t d_vsync_proc(int32_t msg,DIALOG *d,int32_t c)
 }
 
 //box_out stuff
-using std::string;
-using std::istringstream;
 static int32_t box_x = 0;
 static int32_t box_y = 0;
 static bool box_active=false;
