@@ -11,6 +11,7 @@
 #include <string.h>
 #include <stdio.h>
 
+#include "base/qrs.h"
 #include "zc/ending.h"
 #include "zc/zelda.h"
 #include "base/zsys.h"
@@ -25,6 +26,7 @@
 #include "init.h"
 #include "gamedata.h"
 #include "zc/ffscript.h"
+#include "zinfo.h"
 extern FFScript FFCore;
 extern ZModule zcm; //modules
 extern zcmodule moduledata;
@@ -112,15 +114,15 @@ void noproc() {}
 
 void put_triforce()
 {
-	if(get_bit(quest_rules,qr_HOLDITEMANIMATION))
+	if(get_qr(qr_HOLDITEMANIMATION))
 	{
-		putitem2(framebuf,120,113-(get_bit(quest_rules, qr_NOITEMOFFSET)),iTriforce,lens_hint_item[iTriforce][0],lens_hint_item[iTriforce][1], 0);
-		putitem2(framebuf,136,113-(get_bit(quest_rules, qr_NOITEMOFFSET)),iTriforce,lens_hint_item[iTriforce][0],lens_hint_item[iTriforce][1], 0);
+		putitem2(framebuf,120,113-(get_qr(qr_NOITEMOFFSET)),iTriforce,lens_hint_item[iTriforce][0],lens_hint_item[iTriforce][1], 0);
+		putitem2(framebuf,136,113-(get_qr(qr_NOITEMOFFSET)),iTriforce,lens_hint_item[iTriforce][0],lens_hint_item[iTriforce][1], 0);
 	}
 	else
 	{
-		putitem(framebuf,120,113-(get_bit(quest_rules, qr_NOITEMOFFSET)),iTriforce);
-		putitem(framebuf,136,113-(get_bit(quest_rules, qr_NOITEMOFFSET)),iTriforce);
+		putitem(framebuf,120,113-(get_qr(qr_NOITEMOFFSET)),iTriforce);
+		putitem(framebuf,136,113-(get_qr(qr_NOITEMOFFSET)),iTriforce);
 	}
 }
 

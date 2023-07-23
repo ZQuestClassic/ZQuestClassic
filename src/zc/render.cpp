@@ -6,6 +6,7 @@
 #include "qst.h"
 #include "base/gui.h"
 #include "base/zapp.h"
+#include "base/mapscr.h"
 #include <fmt/format.h>
 
 extern sprite_list guys;
@@ -311,6 +312,9 @@ void end_info_bmp()
 
 void render_zc()
 {
+	if (is_headless())
+		return;
+
 	ALLEGRO_STATE oldstate;
 	al_store_state(&oldstate, ALLEGRO_STATE_TARGET_BITMAP);
 	

@@ -7,12 +7,13 @@
 #include "zconsole/ConsoleLogger.h"
 #include "zscrdata.h"
 #include "base/zapp.h"
+#include "base/qrs.h"
+#include "base/zsys.h"
 
 FFScript FFCore;
 
 std::vector<std::string> ZQincludePaths;
 std::string console_path;
-byte quest_rules[QUESTRULES_NEW_SIZE];
 
 extern byte monochrome_console;
 

@@ -4,6 +4,7 @@
 #include "zc/hero.h"
 #include "base/zc_math.h"
 #include "slopes.h"
+#include "base/mapscr.h"
 
 #ifdef IS_PLAYER
 extern sprite_list guys;

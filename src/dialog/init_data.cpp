@@ -7,6 +7,7 @@
 #include "zc/ffscript.h"
 #include "vectorpick.h"
 #include "items.h"
+#include "zinfo.h"
 
 using std::map;
 using std::vector;

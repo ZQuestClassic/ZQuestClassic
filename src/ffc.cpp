@@ -3,9 +3,9 @@
 #include "ffc.h"
 #include "tiles.h"
 #include "sprite.h"
+#include "base/qrs.h"
 
 extern sprite_list Lwpns;
-extern byte quest_rules[QUESTRULES_NEW_SIZE];
 
 #ifdef IS_PLAYER
 #include "zc/combos.h"

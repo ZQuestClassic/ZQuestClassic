@@ -1,6 +1,7 @@
 #ifndef ZC_DIALOG_INFO_H
 #define ZC_DIALOG_INFO_H
 
+#include "base/qrs.h"
 #include <gui/dialog.h>
 #include <gui/checkbox.h>
 #include <gui/text_field.h>

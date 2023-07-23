@@ -11,6 +11,7 @@
 #include <string.h>
 #include <cmath>
 
+#include "base/qrs.h"
 #include "base/gui.h"
 #include "zq/zquestdat.h"
 #include "zq/zq_tiles.h"
@@ -31,6 +32,7 @@
 #include "drawing.h"
 #include "colorname.h"
 #include "zq/render.h"
+#include "zinfo.h"
 
 extern zcmodule moduledata;
 
@@ -3367,13 +3369,13 @@ int32_t bestfit_cset_color(int32_t cs, int32_t r, int32_t g, int32_t b)
 			rgbByte = colordata + (CSET((Map.CurrScr()->color) * pdLEVEL + (cs-2) + pdFULL) + i) * 3;
 		else if(cs==9)
 			rgbByte = colordata + (CSET((Map.CurrScr()->color) * pdLEVEL + 3 + pdFULL) + i) * 3;
-		else if(cs==1&&get_bit(quest_rules, qr_CSET1_LEVEL))
+		else if(cs==1&&get_qr(qr_CSET1_LEVEL))
 			rgbByte = colordata + (CSET((Map.CurrScr()->color) * pdLEVEL + poNEWCSETS) + i) * 3;
-		else if(cs==5&&get_bit(quest_rules, qr_CSET5_LEVEL))
+		else if(cs==5&&get_qr(qr_CSET5_LEVEL))
 			rgbByte = colordata + (CSET((Map.CurrScr()->color) * pdLEVEL + poNEWCSETS + 1) + i) * 3;
-		else if(cs==7&&get_bit(quest_rules, qr_CSET7_LEVEL))
+		else if(cs==7&&get_qr(qr_CSET7_LEVEL))
 			rgbByte = colordata + (CSET((Map.CurrScr()->color) * pdLEVEL + poNEWCSETS + 2) + i) * 3;
-		else if(cs==8&&get_bit(quest_rules, qr_CSET8_LEVEL))
+		else if(cs==8&&get_qr(qr_CSET8_LEVEL))
 			rgbByte = colordata + (CSET((Map.CurrScr()->color) * pdLEVEL + poNEWCSETS + 3) + i) * 3;
 		else
 			rgbByte = colordata + (CSET(cs)+i)*3;
@@ -3422,13 +3424,13 @@ int32_t bestfit_cset_color_8bit(int32_t r, int32_t g, int32_t b)
 			rgbByte = colordata + (CSET((Map.CurrScr()->color) * pdLEVEL + (cs-2) + pdFULL) + (i%16)) * 3;
 		else if(cs==9)
 			rgbByte = colordata + (CSET((Map.CurrScr()->color) * pdLEVEL + 3 + pdFULL) + (i%16)) * 3;
-		else if(cs==1&&get_bit(quest_rules, qr_CSET1_LEVEL))
+		else if(cs==1&&get_qr(qr_CSET1_LEVEL))
 			rgbByte = colordata + (CSET((Map.CurrScr()->color) * pdLEVEL + poNEWCSETS) + (i%16)) * 3;
-		else if(cs==5&&get_bit(quest_rules, qr_CSET5_LEVEL))
+		else if(cs==5&&get_qr(qr_CSET5_LEVEL))
 			rgbByte = colordata + (CSET((Map.CurrScr()->color) * pdLEVEL + poNEWCSETS + 1) + (i%16)) * 3;
-		else if(cs==7&&get_bit(quest_rules, qr_CSET7_LEVEL))
+		else if(cs==7&&get_qr(qr_CSET7_LEVEL))
 			rgbByte = colordata + (CSET((Map.CurrScr()->color) * pdLEVEL + poNEWCSETS + 2) + (i%16)) * 3;
-		else if(cs==8&&get_bit(quest_rules, qr_CSET8_LEVEL))
+		else if(cs==8&&get_qr(qr_CSET8_LEVEL))
 			rgbByte = colordata + (CSET((Map.CurrScr()->color) * pdLEVEL + poNEWCSETS + 3) + (i%16)) * 3;
 		else
 			rgbByte = colordata + i * 3;
@@ -6694,7 +6696,7 @@ void register_used_tiles()
 		}
 	}
 	
-	bool BSZ2=get_bit(quest_rules,qr_BSZELDA)!=0;
+	bool BSZ2=get_qr(qr_BSZELDA)!=0;
 	
 	for(int32_t u=0; u<wLast; u++)
 	{
@@ -6861,7 +6863,7 @@ void register_used_tiles()
 		}
 	}
 	
-	bool newtiles=get_bit(quest_rules,qr_NEWENEMYTILES)!=0;
+	bool newtiles=get_qr(qr_NEWENEMYTILES)!=0;
 	int32_t u;
 	
 	for(u=0; u<eMAXGUYS; u++)
@@ -7602,7 +7604,7 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 				found=false;
 				flood=false;
 				build_biw_list();
-				bool BSZ2=get_bit(quest_rules,qr_BSZELDA)!=0;
+				bool BSZ2=get_qr(qr_BSZELDA)!=0;
 				
 				for(int32_t u=0; u<wMAX; u++)
 				{
@@ -8217,7 +8219,7 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 				found=false;
 				flood=false;
 				build_bie_list(false);
-				bool newtiles=get_bit(quest_rules,qr_NEWENEMYTILES)!=0;
+				bool newtiles=get_qr(qr_NEWENEMYTILES)!=0;
 				int32_t u;
 				
 				for(u=0; u<eMAXGUYS; u++)
@@ -9149,7 +9151,7 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 				found=false;
 				flood=false;
 				build_biw_list();
-				bool BSZ2=get_bit(quest_rules,qr_BSZELDA)!=0;
+				bool BSZ2=get_qr(qr_BSZELDA)!=0;
 				
 				for(int32_t u=0; u<wMAX; u++)
 				{
@@ -9764,7 +9766,7 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 				found=false;
 				flood=false;
 				build_bie_list(false);
-				bool newtiles=get_bit(quest_rules,qr_NEWENEMYTILES)!=0;
+				bool newtiles=get_qr(qr_NEWENEMYTILES)!=0;
 				int32_t u;
 				
 				for(u=0; u<eMAXGUYS; u++)
@@ -10314,7 +10316,7 @@ bool do_movetile_united(tile_move_data const& tmd)
 	int32_t selection_first=0, selection_last=0, selection_left=0, selection_top=0, selection_width=0, selection_height=0;
 	bool done = false;
 	bool first = true;
-	bool newtiles=get_bit(quest_rules,qr_NEWENEMYTILES)!=0;
+	bool newtiles=get_qr(qr_NEWENEMYTILES)!=0;
 	int32_t diff = 0;
 	for(int32_t q=tmd.move?1:0; q>=0 && !done; --q)
 	{
@@ -10523,7 +10525,7 @@ bool do_movetile_united(tile_move_data const& tmd)
 				found=false;
 				flood=false;
 				build_biw_list();
-				bool BSZ2=get_bit(quest_rules,qr_BSZELDA)!=0;
+				bool BSZ2=get_qr(qr_BSZELDA)!=0;
 				
 				for(int32_t u=0; u<wMAX; u++)
 				{
@@ -12203,7 +12205,7 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 				found=false;
 				flood=false;
 				build_biw_list();
-				bool BSZ2=get_bit(quest_rules,qr_BSZELDA)!=0;
+				bool BSZ2=get_qr(qr_BSZELDA)!=0;
 				
 				for(int32_t u=0; u<wMAX; u++)
 				{
@@ -12818,7 +12820,7 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 				found=false;
 				flood=false;
 				build_bie_list(false);
-				bool newtiles=get_bit(quest_rules,qr_NEWENEMYTILES)!=0;
+				bool newtiles=get_qr(qr_NEWENEMYTILES)!=0;
 				int32_t u;
 				
 				for(u=0; u<eMAXGUYS; u++)
@@ -13451,7 +13453,7 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 		found=false;
 		flood=false;
 		build_biw_list();
-		bool BSZ2=get_bit(quest_rules,qr_BSZELDA)!=0;
+		bool BSZ2=get_qr(qr_BSZELDA)!=0;
 		
 		for(int32_t u=0; u<wMAX; u++)
 		{
@@ -13913,7 +13915,7 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 		found=false;
 		flood=false;
 		build_bie_list(false);
-		bool newtiles=get_bit(quest_rules,qr_NEWENEMYTILES)!=0;
+		bool newtiles=get_qr(qr_NEWENEMYTILES)!=0;
 		int32_t u;
 		
 		for(u=0; u<eMAXGUYS; u++)

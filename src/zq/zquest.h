@@ -222,8 +222,6 @@ void set_debug(bool d);
 
 // quest data
 extern zquestheader        header;
-extern byte                quest_rules[QUESTRULES_NEW_SIZE];
-extern byte                extra_rules[EXTRARULES_SIZE];
 extern byte                midi_flags[MIDIFLAGS_SIZE];
 extern byte                music_flags[MUSICFLAGS_SIZE];
 extern word                map_count;
@@ -1030,7 +1028,6 @@ const char *enemylist(int32_t index, int32_t *list_size);
 const char *guylist(int32_t index, int32_t *list_size);
 int32_t efrontfacingtile(int32_t id);
 int32_t select_enemy(const char *prompt,int32_t enemy,bool hide,bool edit,int32_t& exit_status);
-int32_t select_guy(const char *prompt,int32_t guy);
 
 //uint8_t check[2] = { ';'+128,0 };
 

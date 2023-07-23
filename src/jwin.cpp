@@ -1648,6 +1648,7 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 				}
 			}
 			if(cursor_end == cursor_start) cursor_end = -1;
+			else d->flags |= D_DIRTY;
 			d->d2 = cursor_start | ((cursor_end&0xFFFF) << 16);
 			
 			object_message(d, MSG_DRAW, 0);
@@ -2004,6 +2005,9 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 			
 			if(change_cursor)
 			{
+				if (cursor_start != scursor)
+					d->flags |= D_DIRTY;
+
 				cursor_end = ecursor; cursor_start = scursor;
 				if (cursor_end == cursor_start) cursor_end = -1;
 				d->d2 = cursor_start | ((cursor_end&0xFFFF) << 16);
@@ -9528,6 +9532,32 @@ static char box_log_msg[480];
 static int32_t box_msg_pos=0;
 static int32_t box_store_pos=0;
 static BITMAP* box_bg=NULL;
+/*
+  static int32_t jwin_pal[jcMAX] =
+  {
+  vc(11),vc(15),vc(4),vc(7),vc(6),vc(0),
+  192,223,vc(14),vc(15),vc(0),vc(1),vc(14)
+  };
+  */
+int32_t onSnapshot2()
+{
+    char buf[20];
+    int32_t num=0;
+    
+    do
+    {
+        sprintf(buf, "zelda%03d.bmp", ++num);
+    }
+    while(num<999 && exists(buf));
+    
+    PALETTE temppal;
+    get_palette(temppal);
+    BITMAP *tempbmp=create_bitmap_ex(8,screen->w, screen->h);
+    blit(screen,tempbmp,0,0,0,0,screen->w,screen->h);
+    save_bitmap(buf,screen,temppal);
+    destroy_bitmap(tempbmp);
+    return D_O_K;
+}
 
 void set_default_box_size()
 {
@@ -9808,6 +9838,7 @@ void box_pause()
         box_load_x();
     }
 }
+
 
 /***  The End  ***/
 

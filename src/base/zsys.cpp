@@ -19,8 +19,6 @@
 #include "base/util.h"
 
 using namespace util;
-using std::string;
-using std::istringstream;
 using std::getline;
 
 #include "zsyssimple.h"
@@ -906,33 +904,6 @@ void copy_file(const char *src, const char *dest)
         
     fclose(fin);
     fclose(fout);
-}
-
-/*
-  static int32_t jwin_pal[jcMAX] =
-  {
-  vc(11),vc(15),vc(4),vc(7),vc(6),vc(0),
-  192,223,vc(14),vc(15),vc(0),vc(1),vc(14)
-  };
-  */
-int32_t onSnapshot2()
-{
-    char buf[20];
-    int32_t num=0;
-    
-    do
-    {
-        sprintf(buf, "zelda%03d.bmp", ++num);
-    }
-    while(num<999 && exists(buf));
-    
-    PALETTE temppal;
-    get_palette(temppal);
-    BITMAP *tempbmp=create_bitmap_ex(8,screen->w, screen->h);
-    blit(screen,tempbmp,0,0,0,0,screen->w,screen->h);
-    save_bitmap(buf,screen,temppal);
-    destroy_bitmap(tempbmp);
-    return D_O_K;
 }
 
 // Checking for double clicks is complicated. The user could release the

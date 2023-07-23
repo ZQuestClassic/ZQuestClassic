@@ -197,6 +197,7 @@ if(NOT allegro5_POPULATED)
 	option(WANT_DEMO "" OFF)
 	option(WANT_DOCS "" OFF)
 	option(WANT_IMAGE_WEBP "" OFF)
+	option(WANT_OPUS "" OFF)
   add_subdirectory(${allegro5_SOURCE_DIR} ${allegro5_BINARY_DIR} EXCLUDE_FROM_ALL)
   # Allegro 5 CMakeLists sets CMAKE_CONFIGURATION_TYPES in a way that doesn't work for us,
   # so set it back to our value.
@@ -449,6 +450,7 @@ set(zcbase_sources
 	src/base/mapscr.cpp
 	src/base/module.cpp
 	src/base/process_management.cpp
+	src/base/qrs.cpp
 	src/base/random.cpp
 	src/base/render.cpp
 	src/base/sin1.cpp
@@ -673,7 +675,7 @@ endif()
 if(${BISON_FOUND} AND ${FLEX_FOUND})
 	add_executable(zscript ${ZSCRIPT_CORE_SOURCES} ${PARSER_SOURCES} ${BISON_ZScriptParser_OUTPUTS} ${FLEX_ZScriptLexer_OUTPUTS} ${ZSCRIPT_MODULES})
 	target_include_directories(zscript PRIVATE src)
-	target_link_libraries(zscript PRIVATE allegro_with_legacy zconsolelogger ${ZSCRIPTLIBSEXTRA})
+	target_link_libraries(zscript PRIVATE allegro_with_legacy zcbase zconsolelogger ${ZSCRIPTLIBSEXTRA})
 	target_compile_definitions(zscript PRIVATE IS_PARSER)
 endif()
 

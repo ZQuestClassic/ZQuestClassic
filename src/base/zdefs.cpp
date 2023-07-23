@@ -5,8 +5,7 @@
 #include <sstream>
 #include "zcmusic.h"
 #include <fmt/format.h>
-
-extern byte quest_rules[QUESTRULES_NEW_SIZE];
+#include "base/qrs.h"
 
 using std::string;
 using std::ostringstream;

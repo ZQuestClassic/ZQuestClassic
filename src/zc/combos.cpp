@@ -1,3 +1,4 @@
+#include "base/qrs.h"
 #include "zc/zelda.h"
 #include "sprite.h"
 #include "zc/decorations.h"
@@ -8,6 +9,7 @@
 #include "zc/ffscript.h"
 #include "zc/hero.h"
 #include "zc/title.h"
+#include "base/mapscr.h"
 
 extern sprite_list items, decorations;
 extern FFScript FFCore;
@@ -530,7 +532,7 @@ void trigger_cuttable(int32_t lyr, int32_t pos)
 	auto flag2 = cmb.flag;
 	auto x = COMBOX(pos), y = COMBOY(pos);
 	
-	bool skipSecrets = isNextType(type) && !get_bit(quest_rules,qr_OLD_SLASHNEXT_SECRETS);
+	bool skipSecrets = isNextType(type) && !get_qr(qr_OLD_SLASHNEXT_SECRETS);
 	bool done = false;
 	if(!skipSecrets)
 	{
@@ -595,7 +597,7 @@ void trigger_cuttable(int32_t lyr, int32_t pos)
 		}
 	}
 	
-	if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr->flags9&fBELOWRETURN)))
+	if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr->flags9&fBELOWRETURN)))
 	{
 		items.add(new item((zfix)x, (zfix)y,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
 		sfx(tmpscr->secretsfx);
@@ -632,7 +634,7 @@ void trigger_cuttable(int32_t lyr, int32_t pos)
 	
 	//putcombo(scrollbuf,(i&15)<<4,i&0xF0,s->data[i],s->cset[i]);
 	
-	if(get_bit(quest_rules,qr_MORESOUNDS))
+	if(get_qr(qr_MORESOUNDS))
 	{
 		if (cmb.usrflags&cflag3)
 		{
@@ -656,7 +658,7 @@ void trigger_cuttable_ffc(int32_t pos)
 	auto flag2 = cmb.flag;
 	auto x = ffc.x, y = ffc.y;
 	
-	bool skipSecrets = isNextType(type) && !get_bit(quest_rules,qr_OLD_SLASHNEXT_SECRETS);
+	bool skipSecrets = isNextType(type) && !get_qr(qr_OLD_SLASHNEXT_SECRETS);
 	bool done = false;
 	if(!skipSecrets)
 	{
@@ -696,7 +698,7 @@ void trigger_cuttable_ffc(int32_t pos)
 		}
 	}
 	
-	if((flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr->flags9&fBELOWRETURN)))
+	if((flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr->flags9&fBELOWRETURN)))
 	{
 		items.add(new item((zfix)x, (zfix)y,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
 		sfx(tmpscr->secretsfx);
@@ -733,7 +735,7 @@ void trigger_cuttable_ffc(int32_t pos)
 	
 	//putcombo(scrollbuf,(i&15)<<4,i&0xF0,s->data[i],s->cset[i]);
 	
-	if(get_bit(quest_rules,qr_MORESOUNDS))
+	if(get_qr(qr_MORESOUNDS))
 	{
 		if (cmb.usrflags&cflag3)
 		{
@@ -773,7 +775,7 @@ bool trigger_step(int32_t lyr, int32_t pos)
 					++tmpscr->data[q];
 				}
 			}
-			if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
+			if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
 			{
 				word c = tmpscr->numFFC();
 				for(word i=0; i<c; i++)
@@ -797,7 +799,7 @@ bool trigger_step(int32_t lyr, int32_t pos)
 					++tmpscr->data[q];
 				}
 			}
-			if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
+			if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
 			{
 				word c = tmpscr->numFFC();
 				for(word i=0; i<c; i++)
@@ -845,7 +847,7 @@ bool trigger_step_ffc(int32_t pos)
 					++tmpscr->data[q];
 				}
 			}
-			if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
+			if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
 			{
 				word c = tmpscr->numFFC();
 				for(word i=0; i<c; i++)
@@ -869,7 +871,7 @@ bool trigger_step_ffc(int32_t pos)
 					++tmpscr->data[q];
 				}
 			}
-			if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
+			if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
 			{
 				word c = tmpscr->numFFC();
 				for(word i=0; i<c; i++)
@@ -1089,7 +1091,7 @@ bool trigger_chest(int32_t lyr, int32_t pos)
 					key_item = q; break;
 				}
 			}
-			if ( key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(ScriptType::Item, key_item) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
+			if ( key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(ScriptType::Item, key_item) && get_qr(qr_ITEMSCRIPTSKEEPRUNNING)) ) 
 			{
 				FFCore.reset_script_engine_data(ScriptType::Item, key_item);
 				ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[key_item].script, key_item);
@@ -1124,8 +1126,8 @@ bool trigger_chest(int32_t lyr, int32_t pos)
 	int32_t ipflag = 0;
 	if(cmb.usrflags & cflag7)
 	{
-		itemstate = getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
-		ipflag = (currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? ipONETIME : ipONETIME2;
+		itemstate = getmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
+		ipflag = (currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? ipONETIME : ipONETIME2;
 	}
 	if(itemflag && !itemstate)
 	{
@@ -1202,7 +1204,7 @@ bool trigger_chest_ffc(int32_t pos)
 					key_item = q; break;
 				}
 			}
-			if ( key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(ScriptType::Item, key_item) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
+			if ( key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(ScriptType::Item, key_item) && get_qr(qr_ITEMSCRIPTSKEEPRUNNING)) ) 
 			{
 				FFCore.reset_script_engine_data(ScriptType::Item, key_item);
 				ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[key_item].script, key_item);
@@ -1230,8 +1232,8 @@ bool trigger_chest_ffc(int32_t pos)
 	int32_t ipflag = 0;
 	if(cmb.usrflags & cflag7)
 	{
-		itemstate = getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
-		ipflag = (currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? ipONETIME : ipONETIME2;
+		itemstate = getmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
+		ipflag = (currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? ipONETIME : ipONETIME2;
 	}
 	if(itemflag && !itemstate)
 	{
@@ -1297,7 +1299,7 @@ bool trigger_lockblock(int32_t lyr, int32_t pos)
 					key_item = q; break;
 				}
 			}
-			if (key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(ScriptType::Item, key_item) && get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)))
+			if (key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(ScriptType::Item, key_item) && get_qr(qr_ITEMSCRIPTSKEEPRUNNING)))
 			{
 				FFCore.reset_script_engine_data(ScriptType::Item, key_item);
 				ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[key_item].script, key_item);
@@ -1361,7 +1363,7 @@ bool trigger_lockblock_ffc(int32_t pos)
 					key_item = q; break;
 				}
 			}
-			if (key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(ScriptType::Item, key_item) && get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)))
+			if (key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(ScriptType::Item, key_item) && get_qr(qr_ITEMSCRIPTSKEEPRUNNING)))
 			{
 				FFCore.reset_script_engine_data(ScriptType::Item, key_item);
 				ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[key_item].script, key_item);
@@ -2239,7 +2241,7 @@ static weapon* fire_shooter_wpn(newcombo const& cmb, zfix& wx, zfix& wy, bool an
 	wpn->dir = dir;
 	wpn->step = steprate;
 	wpn->xofs = 0;
-	wpn->yofs = (get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
+	wpn->yofs = (get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
 	if(autorot)
 	{
 		if(angular)
@@ -2457,7 +2459,7 @@ void do_ex_trigger(int32_t lyr, int32_t pos)
 					do_copycat_trigger(cclayer, ccpos);
 				}
 			}
-			if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
+			if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
 			{
 				word c = tmpscr->numFFC();
 				for(word i=0; i<c; i++)
@@ -2507,7 +2509,7 @@ void do_ex_trigger_ffc(int32_t pos)
 				}
 			}
 			copycat_id = 0;
-			if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
+			if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
 			{
 				word c = tmpscr->numFFC();
 				for(word i=0; i<c; i++)
@@ -2937,7 +2939,7 @@ bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 							do_copycat_trigger(cclayer, ccpos);
 						}
 					}
-					if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
+					if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
 					{
 						word c = tmpscr->numFFC();
 						for(word i=0; i<c; i++)
@@ -2970,7 +2972,7 @@ bool do_trigger_combo(int32_t lyr, int32_t pos, int32_t special, weapon* w)
 
 bool do_trigger_combo_ffc(int32_t pos, int32_t special, weapon* w)
 {
-	if (get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY)) return false;
+	if (get_qr(qr_OLD_FFC_FUNCTIONALITY)) return false;
 	if(unsigned(pos) >= MAXFFCS) return false;
 	ffcdata& ffc = tmpscr->ffcs[pos];
 	cpos_info& timer = tmpscr->ffcs[pos].info;
@@ -3292,7 +3294,7 @@ bool do_trigger_combo_ffc(int32_t pos, int32_t special, weapon* w)
 							do_copycat_trigger(cclayer, ccpos);
 						}
 					}
-					if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
+					if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
 					{
 						word c = tmpscr->numFFC();
 						for(word i=0; i<c; i++)

@@ -80,8 +80,6 @@ extern const char *old_sfx_string[Z35];
 extern char *item_string[ITEMCNT];
 extern char *weapon_string[WPNCNT];
 extern char *sfx_string[WAV_COUNT];
-extern const char *roomtype_string[MAXROOMTYPES];
-extern const char *catchall_string[MAXROOMTYPES];
 extern const char *warptype_string[MAXWARPTYPES];
 extern const char *warpeffect_string[MAXWARPEFFECTS];
 //extern const char *combotype_string[MAXCOMBOTYPES];

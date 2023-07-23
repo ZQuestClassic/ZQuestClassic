@@ -202,6 +202,8 @@ parser.add_argument('--retries', type=int, default=0,
     help='The number of retries (default 0) to give each replay')
 parser.add_argument('--jit', action=argparse.BooleanOptionalAction, default=True,
     help='Enables JIT compilation')
+parser.add_argument('--headless', action=argparse.BooleanOptionalAction, default=True,
+    help='Run without display or sound')
 
 
 mode_group = parser.add_argument_group('Mode','The playback mode')
@@ -569,9 +571,12 @@ class CLIPlayerInterface:
         if args.jit:
             exe_args.append('-jit')
 
+        if args.headless:
+            exe_args.append('-headless')
+
         # Allegro seems to be using free'd memory when shutting down the sound system.
         # For now, just disable sound in CI or when using Asan/Coverage.
-        if is_asan or is_coverage or is_ci or mode == 'assert':
+        if args.headless and (is_asan or is_coverage or is_ci or mode == 'assert'):
             exe_args.append('-s')
 
         allegro_log_path = output_dir / 'allegro.log'

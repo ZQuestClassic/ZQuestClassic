@@ -8,6 +8,7 @@
 #include <gui/list_data.h>
 #include <functional>
 #include <string_view>
+#include "zinfo.h"
 
 void call_zinf_dlg();
 

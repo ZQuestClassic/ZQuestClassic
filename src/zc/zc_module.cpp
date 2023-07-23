@@ -1,5 +1,6 @@
 #include "zc/ffscript.h"
 #include "base/module.h"
+#include "zinfo.h"
 
 extern zcmodule moduledata;
 

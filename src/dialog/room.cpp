@@ -2,6 +2,14 @@
 #include "common.h"
 #include "info.h"
 #include <gui/builder.h>
+#include "base/qrs.h"
+extern bool saved;
+extern guydata *guysbuf;
+
+void call_room_dlg(mapscr* scr)
+{
+	RoomDialog(scr).show();
+}
 
 // Used as a indices into argSwitcher. Make sure the order matches.
 enum { argTEXT_FIELD, argITEM_LIST, argSHOP_LIST, argINFO_LIST, argBSHOP_LIST };
@@ -138,15 +146,14 @@ static const auto defaultDesc =
 	"Select a Room Type, then click the \"Info\" button "
 	"to find out what it does.";
 
-RoomDialog::RoomDialog(int32_t room, int32_t argument, int32_t guy, int32_t string,
-	std::function<void(int32_t, int32_t, int32_t, int32_t)> setRoomVars):
+RoomDialog::RoomDialog(mapscr* m):
 		itemListData(getItemListData(false)),
 		shopListData(getShopListData()),
 		bshopListData(getBShopListData()),
 		infoShopListData(getInfoShopListData()),
 		stringListData(getStringListData()),
-		room({ room, argument, guy, string }),
-		setRoomVars(setRoomVars)
+		local_mapref(*m),
+		base_mapref(m)
 {}
 
 std::shared_ptr<GUI::Widget> RoomDialog::view()
@@ -154,37 +161,50 @@ std::shared_ptr<GUI::Widget> RoomDialog::view()
 	using namespace GUI::Builder;
 	using namespace GUI::Key;
 	using namespace GUI::Props;
-
+	
+	if(local_mapref.guytile == -1)
+		setOldGuy();
+	
 	argLabel = Label(hAlign = 1.0);
 	argSwitcher = Switcher(
 		forceFitW = true,
 		argTF = TextField(
 			fitParent = true,
-			type=  GUI::TextField::type::INT_DECIMAL,
-			maxLength = 6,
-			text = std::to_string(room.argument),
-			hAlign = 0.0,
-			onValueChanged = message::SET_ARGUMENT),
-		itemDD = DropDownList(
+			type = GUI::TextField::type::INT_DECIMAL,
+			maxLength = 6, val = local_mapref.catchall,
+			low = 0, high = 65535, hAlign = 0.0,
+			onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+			{
+				local_mapref.catchall = val;
+			}),
+		itemDD = DropDownList(data = itemListData,
 			fitParent = true,
-			data = itemListData,
-			selectedValue = room.argument,
-			onSelectionChanged = message::SET_ARGUMENT),
-		shopDD = DropDownList(
+			selectedValue = local_mapref.catchall,
+			onSelectFunc = [&](int32_t val)
+			{
+				local_mapref.catchall = val;
+			}),
+		shopDD = DropDownList(data = shopListData,
 			fitParent = true,
-			data = shopListData,
-			selectedValue = room.argument,
-			onSelectionChanged = message::SET_ARGUMENT),
-		infoShopDD = DropDownList(
+			selectedValue = local_mapref.catchall,
+			onSelectFunc = [&](int32_t val)
+			{
+				local_mapref.catchall = val;
+			}),
+		infoShopDD = DropDownList(data = infoShopListData,
 			fitParent = true,
-			data = infoShopListData,
-			selectedValue = room.argument,
-			onSelectionChanged = message::SET_ARGUMENT),
-		bshopDD = DropDownList(
+			selectedValue = local_mapref.catchall,
+			onSelectFunc = [&](int32_t val)
+			{
+				local_mapref.catchall = val;
+			}),
+		bshopDD = DropDownList(data = bshopListData,
 			fitParent = true,
-			data = bshopListData,
-			selectedValue = room.argument,
-			onSelectionChanged = message::SET_ARGUMENT)
+			selectedValue = local_mapref.catchall,
+			onSelectFunc = [&](int32_t val)
+			{
+				local_mapref.catchall = val;
+			})
 	);
 
 	setArgField();
@@ -195,42 +215,96 @@ std::shared_ptr<GUI::Widget> RoomDialog::view()
 		shortcuts = {
 			F1 = message::ROOM_INFO
 		},
-		info = "FooBar",
 		Column(
-			Columns<4>(
+			Rows<4>(
 				Label(text = "Room type:", hAlign=1.0),
-				argLabel,
-				Label(text = "Guy:", hAlign=1.0),
-				Label(text = "Message:", hAlign=1.0),
-
-				DropDownList(
+				DropDownList(data = roomListData,
 					fitParent = true,
-					data = roomListData,
-					onSelectionChanged = message::SET_ROOM,
-					selectedValue = room.type,
-					focused = true),
-				argSwitcher,
-				DropDownList(
-					fitParent = true,
-					data = guyListData,
-					onSelectionChanged = message::SET_GUY,
-					selectedValue = room.guy),
-				DropDownList(
-					forceFitW = true,
-					data = stringListData,
-					onSelectionChanged = message::SET_STRING,
-					selectedValue = room.string),
-
-				Button(
-					text = "?",
+					selectedValue = local_mapref.room,
+					onSelectFunc = [&](int32_t val)
+					{
+						local_mapref.room = val;
+						setArgField();
+					}),
+				Button(text = "?",
 					width = 2_em,
 					onClick = message::ROOM_INFO,
-					padding = 0_px
-				)
+					padding = 0_px),
+				DummyWidget(),
+				//
+				argLabel,
+				argSwitcher,
+				DummyWidget(colSpan=2),
+				//
+				Label(text = "Message:", hAlign=1.0),
+				DropDownList(data = stringListData,
+					forceFitW = true,
+					selectedValue = local_mapref.str,
+					onSelectFunc = [&](int32_t val)
+					{
+						local_mapref.str = val;
+					}),
+				DummyWidget(colSpan=2),
+				//
+				Label(text = "Guy Tile:", hAlign=1.0),
+				SelTileSwatch(
+					tile = local_mapref.guytile,
+					cset = local_mapref.guycs,
+					showvals = true,
+					onSelectFunc = [&](int32_t t, int32_t c, int32_t,int32_t)
+					{
+						local_mapref.guytile = t;
+						local_mapref.guycs = (c&0xF)%14;
+					}),
+				INFOBTN("Set the tile+cset for the guy to use."
+					" Requires 'Old Guy Handling' off." + QRHINT({qr_OLD_GUY_HANDLING})),
+				DummyWidget(),
+				//
+				Checkbox(colSpan = 2,
+					text = "Force Guy on Screen", hAlign = 0.0,
+					checked = local_mapref.roomflags & RFL_ALWAYS_GUY,
+					onToggleFunc = [&](bool state)
+					{
+						SETFLAG(local_mapref.roomflags,RFL_ALWAYS_GUY,state);
+					}),
+				INFOBTN("Makes the guy appear on the main screen, regardless of"
+					" 'Special Rooms And Guys Are In Caves Only' dmap flag."
+					" Requires 'Old Guy Handling' off."+ QRHINT({qr_OLD_GUY_HANDLING})),
+				DummyWidget(),
+				//
+				Checkbox(colSpan = 2,
+					text = "Show Fires", hAlign = 0.0,
+					checked = local_mapref.roomflags & RFL_GUYFIRES,
+					onToggleFunc = [&](bool state)
+					{
+						SETFLAG(local_mapref.roomflags,RFL_GUYFIRES,state);
+					}),
+				INFOBTN("If the fires should spawn next to the guy or not."
+					" Requires 'Old Guy Handling' off." + QRHINT({qr_OLD_GUY_HANDLING})),
+				DummyWidget(),
+				//
+				Label(text = "Guy ID:", hAlign = 1.0),
+				DropDownList(data = guyListData,
+					fitParent = true,
+					selectedValue = local_mapref.guy,
+					onSelectFunc = [&](int32_t val)
+					{
+						local_mapref.guy = val;
+					}),
+				INFOBTN("Which ID to use for the guy. If 'None', the room has no guy."
+					"\nUse the 'Set' button to set the tile/cset/guy-related flags based on"
+					" how old versions used these guys." + QRHINT({qr_OLD_GUY_HANDLING})),
+				Button(forceFitH = true, text = "Set",
+					onPressFunc = [&]()
+					{
+						setOldGuy();
+						SETFLAG(local_mapref.roomflags,RFL_ALWAYS_GUY,local_mapref.guy==gFAIRY);
+						SETFLAG(local_mapref.roomflags,RFL_GUYFIRES,local_mapref.guy!=gFAIRY || !get_qr(qr_NOFAIRYGUYFIRES));
+					})
 			),
 			Row(
 				spacing = 2_em,
-				Button(text = "OK", minwidth = 90_px, onClick = message::OK),
+				Button(text = "OK", minwidth = 90_px, onClick = message::OK, focused = true),
 				Button(text = "Cancel", minwidth = 90_px, onClick = message::CANCEL)
 			)
 		)
@@ -241,29 +315,13 @@ bool RoomDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 {
 	switch(msg.message)
 	{
-	case message::SET_ROOM:
-		room.type = msg.argument;
-		setArgField();
-		return false;
-
-	case message::SET_ARGUMENT:
-		room.argument = msg.argument;
-		return false;
-
-	case message::SET_GUY:
-		room.guy = msg.argument;
-		return false;
-
-	case message::SET_STRING:
-		room.string = msg.argument;
-		return false;
-
 	case message::ROOM_INFO:
 		InfoDialog("Room Info", getRoomInfo()).show();
 		return false;
 
 	case message::OK:
-		setRoomVars(room.type, getArgument(), room.guy, room.string);
+		*base_mapref = local_mapref;
+		saved = false;
 		return true;
 
 	case message::CANCEL:
@@ -274,21 +332,21 @@ bool RoomDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 
 void RoomDialog::setArgField()
 {
-	switch(room.type)
+	switch(local_mapref.room)
 	{
 	case rSP_ITEM:
 		argSwitcher->switchTo(argITEM_LIST);
-		itemDD->setSelectedValue(room.argument);
+		itemDD->setSelectedValue(local_mapref.catchall);
 		argLabel->setText("Item:");
 		break;
 	case rINFO:
 		argSwitcher->switchTo(argINFO_LIST);
-		infoShopDD->setSelectedValue(room.argument);
+		infoShopDD->setSelectedValue(local_mapref.catchall);
 		argLabel->setText("Shop:");
 		break;
 	case rMONEY:
 		argSwitcher->switchTo(argTEXT_FIELD);
-		argTF->setText(std::to_string(room.argument));
+		argTF->setVal(local_mapref.catchall);
 		argLabel->setText("Amount:");
 		break;
 	case rREPAIR:
@@ -296,24 +354,24 @@ void RoomDialog::setArgField()
 	case rSWINDLE:
 	case rARROWS:
 		argSwitcher->switchTo(argTEXT_FIELD);
-		argTF->setText(std::to_string(room.argument));
+		argTF->setVal(local_mapref.catchall);
 		argLabel->setText("Price:");
 		break;
 	case rP_SHOP:
 	case rSHOP:
 	case rTAKEONE:
 		argSwitcher->switchTo(argSHOP_LIST);
-		shopDD->setSelectedValue(room.argument);
+		shopDD->setSelectedValue(local_mapref.catchall);
 		argLabel->setText("Shop:");
 		break;
 	case rBOTTLESHOP:
 		argSwitcher->switchTo(argBSHOP_LIST);
-		bshopDD->setSelectedValue(room.argument);
+		bshopDD->setSelectedValue(local_mapref.catchall);
 		argLabel->setText("B. Shop:");
 		break;
 	default:
 		argSwitcher->switchTo(argTEXT_FIELD);
-		argTF->setText(std::to_string(room.argument));
+		argTF->setVal(local_mapref.catchall);
 		argLabel->setText("(Unused):");
 		break;
 	}
@@ -332,13 +390,13 @@ int32_t RoomDialog::getArgument() const
 	case argINFO_LIST:
 		return infoShopDD->getSelectedValue();
 	default:
-		return room.argument >= 0 ? room.argument : -room.argument;
+		return local_mapref.catchall >= 0 ? local_mapref.catchall : -local_mapref.catchall;
 	}
 }
 
 const char* RoomDialog::getRoomInfo() const
 {
-	switch(room.type)
+	switch(local_mapref.room)
 	{
 		case rSP_ITEM: return specialItemDesc;
 		case rINFO: return infoDesc;
@@ -364,3 +422,12 @@ const char* RoomDialog::getRoomInfo() const
 		default: return defaultDesc;
 	}
 }
+
+void RoomDialog::setOldGuy()
+{
+	auto& ref = guysbuf[local_mapref.guy];
+	local_mapref.guytile = get_qr(qr_NEWENEMYTILES) ? ref.e_tile : ref.tile;
+	local_mapref.guycs = ref.cset;
+}
+
+

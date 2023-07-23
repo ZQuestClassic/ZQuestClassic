@@ -8,6 +8,7 @@
 #include "launcher/launcher_dialog.h"
 #include "base/zapp.h"
 #include "fontsdat.h"
+#include "zinfo.h"
 
 #define QUICK_EXIT 0
 
@@ -35,8 +36,6 @@ int32_t zq_screen_h=LARGE_H;
 BITMAP *tmp_scr;
 BITMAP *mouse_bmp;
 int32_t gui_colorset = 99;
-
-byte quest_rules[QUESTRULES_NEW_SIZE];
 
 char temppath[4096] = {0}, rootpath[4096] = {0};
 

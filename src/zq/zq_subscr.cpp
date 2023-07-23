@@ -8,6 +8,7 @@
 //
 //--------------------------------------------------------
 
+#include "base/qrs.h"
 #include "base/gui.h"
 #include "subscr.h"
 #include "zq/zq_subscr.h"
@@ -1657,7 +1658,7 @@ int32_t Bweapon(int32_t pos)
         
     case itype_sword:
     {
-        if(!get_bit(quest_rules,qr_SELECTAWPN))
+        if(!get_qr(qr_SELECTAWPN))
             break;
             
         family=itype_sword;
@@ -2742,7 +2743,7 @@ void doNewSubscreenObject(int32_t type)
 	switch(tempsso.type)
 	{
 		case ssoCURRENTITEM:
-			tempsso.d2 = 1; // Should not be invisible!
+			tempsso.d2 = SSCURRITEM_VISIBLE;
 			break;
 		case ssoMAGICGAUGE:
 			tempsso.d9 = -1; // 'Always show' by default
@@ -4370,7 +4371,7 @@ void copySSOProperties(subscreen_object& src, subscreen_object& dest)
             break;
             
         case ssoCURRENTITEM:
-            // Only the invisible flag
+            // Flags only
             doCopySSOProperties(src, dest, D2);
             break;
             
