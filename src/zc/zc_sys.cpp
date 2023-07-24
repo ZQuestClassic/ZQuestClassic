@@ -12,6 +12,7 @@
 #include "zc/zc_sys.h"
 
 #include "base/qrs.h"
+#include "base/dmap.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

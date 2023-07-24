@@ -34,6 +34,7 @@
 #endif
 
 #include "base/qrs.h"
+#include "base/dmap.h"
 #include "parser/Compiler.h"
 #include "base/zc_alleg.h"
 #include "particles.h"
@@ -717,7 +718,6 @@ vector<mapscr>      TheMaps;
 vector<word>        map_autolayers;
 zcmap               *ZCMaps;
 byte                *quest_file;
-dmap                *DMaps;
 MsgStr              *MsgStrings;
 int32_t					msg_strings_size;
 //DoorComboSet      *DoorComboSets;
@@ -12766,7 +12766,7 @@ static DIALOG wlist_dlg[] =
   int32_t i;
   } item_struct;
   */
-item_struct bii[iMax+1];
+item_struct bii[MAXITEMS+1];
 int32_t bii_cnt=-1;
 
 void build_bii_list(bool usenone)
@@ -12780,7 +12780,7 @@ void build_bii_list(bool usenone)
         bii_cnt=start=1;
     }
     
-    for(int32_t i=0; i<iMax; i++)
+    for(int32_t i=0; i<MAXITEMS; i++)
     {
         bii[bii_cnt].s = item_string[i];
         bii[bii_cnt].i = i;
@@ -12825,14 +12825,14 @@ const char *itemlist_num(int32_t index, int32_t *list_size)
 }
 
 // disable items on dmaps stuff
-int32_t DI[iMax];
+int32_t DI[MAXITEMS];
 int32_t nDI;
 
 void initDI(int32_t index)
 {
     int32_t j=0;
     
-    for(int32_t i=0; i<iMax; i++)
+    for(int32_t i=0; i<MAXITEMS; i++)
     {
         int32_t index1=bii[i].i; // true index of item in dmap's DI list
         
@@ -12845,7 +12845,7 @@ void initDI(int32_t index)
     
     nDI=j;
     
-    for(int32_t i=j; i<iMax; i++) DI[j]=0;
+    for(int32_t i=j; i<MAXITEMS; i++) DI[j]=0;
     
     return;
 }
@@ -12880,14 +12880,14 @@ const char *DIlist(int32_t index, int32_t *list_size)
     
 }
 
-weapon_struct biw[wMAX];
+weapon_struct biw[MAXWPNS];
 int32_t biw_cnt=-1;
 
 void build_biw_list()
 {
     int32_t start=biw_cnt=0;
     
-    for(int32_t i=start; i<wMAX; i++)
+    for(int32_t i=start; i<MAXWPNS; i++)
     {
         biw[biw_cnt].s = (char *)weapon_string[i];
         biw[biw_cnt].i = i;
@@ -28685,14 +28685,14 @@ static void allocate_crap()
 		memset(sfx_string[i], 0, 36);
 	}
 	
-	for(int32_t i=0; i<WPNCNT; i++)
+	for(int32_t i=0; i<MAXWPNS; i++)
 	{
 		if(weapon_string[i]!=NULL) delete weapon_string[i];
 		weapon_string[i] = new char[64];
 		memset(weapon_string[i], 0, 64);
 	}
 	
-	for(int32_t i=0; i<ITEMCNT; i++)
+	for(int32_t i=0; i<MAXITEMS; i++)
 	{
 		if(item_string[i]!=NULL) delete item_string[i];
 		item_string[i] = new char[64];
@@ -30662,12 +30662,12 @@ void quit_game()
         delete [] sfx_string[i];
     }
     
-    for(int32_t i=0; i<WPNCNT; i++)
+    for(int32_t i=0; i<MAXWPNS; i++)
     {
         delete [] weapon_string[i];
     }
     
-    for(int32_t i=0; i<ITEMCNT; i++)
+    for(int32_t i=0; i<MAXITEMS; i++)
     {
         delete [] item_string[i];
     }
@@ -30845,12 +30845,12 @@ void quit_game2()
         delete [] sfx_string[i];
     }
     
-    for(int32_t i=0; i<WPNCNT; i++)
+    for(int32_t i=0; i<MAXWPNS; i++)
     {
         delete [] weapon_string[i];
     }
     
-    for(int32_t i=0; i<ITEMCNT; i++)
+    for(int32_t i=0; i<MAXITEMS; i++)
     {
         delete [] item_string[i];
     }

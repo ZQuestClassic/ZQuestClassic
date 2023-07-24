@@ -12,6 +12,7 @@
 #include <cmath>
 
 #include "base/qrs.h"
+#include "base/dmap.h"
 #include "base/gui.h"
 #include "zq/zquestdat.h"
 #include "zq/zq_tiles.h"
@@ -7385,8 +7386,8 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 	
 	int32_t i;
 	bool *move_combo_list = new bool[MAXCOMBOS];
-	bool *move_items_list = new bool[iMax];
-	bool *move_weapons_list = new bool[wMAX];
+	bool *move_items_list = new bool[MAXITEMS];
+	bool *move_weapons_list = new bool[MAXWPNS];
 	bool move_hero_sprites_list[num_hspr];
 	bool move_mapstyles_list[6];
 	//bool move_subscreenobjects_list[MAXCUSTOMSUBSCREENS*MAXSUBSCREENITEMS];
@@ -7519,7 +7520,7 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 				flood=false;
 				build_bii_list(false);
 				
-				for(int32_t u=0; u<iMax; u++)
+				for(int32_t u=0; u<MAXITEMS; u++)
 				{
 					move_items_list[u]=false;
 					
@@ -7606,7 +7607,7 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 				build_biw_list();
 				bool BSZ2=get_qr(qr_BSZELDA)!=0;
 				
-				for(int32_t u=0; u<wMAX; u++)
+				for(int32_t u=0; u<MAXWPNS; u++)
 				{
 					ignore_frames=false;
 					move_weapons_list[u]=false;
@@ -8613,7 +8614,7 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 				}
 			}
 			
-			for(int32_t u=0; u<iMax; u++)
+			for(int32_t u=0; u<MAXITEMS; u++)
 			{
 				if(move_items_list[u])
 				{
@@ -8621,7 +8622,7 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 				}
 			}
 			
-			for(int32_t u=0; u<wMAX; u++)
+			for(int32_t u=0; u<MAXWPNS; u++)
 			{
 				if(move_weapons_list[u])
 				{
@@ -8932,8 +8933,8 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 	
 	int32_t i;
 	bool *move_combo_list = new bool[MAXCOMBOS];
-	bool *move_items_list = new bool[iMax];
-	bool *move_weapons_list = new bool[wMAX];
+	bool *move_items_list = new bool[MAXITEMS];
+	bool *move_weapons_list = new bool[MAXWPNS];
 	bool move_hero_sprites_list[num_hspr];
 	bool move_mapstyles_list[6];
 	//bool move_subscreenobjects_list[MAXCUSTOMSUBSCREENS*MAXSUBSCREENITEMS];
@@ -9066,7 +9067,7 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 				flood=false;
 				build_bii_list(false);
 				
-				for(int32_t u=0; u<iMax; u++)
+				for(int32_t u=0; u<MAXITEMS; u++)
 				{
 					move_items_list[u]=false;
 					
@@ -9153,7 +9154,7 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 				build_biw_list();
 				bool BSZ2=get_qr(qr_BSZELDA)!=0;
 				
-				for(int32_t u=0; u<wMAX; u++)
+				for(int32_t u=0; u<MAXWPNS; u++)
 				{
 					ignore_frames=false;
 					move_weapons_list[u]=false;
@@ -10160,7 +10161,7 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 				}
 			}
 			
-			for(int32_t u=0; u<iMax; u++)
+			for(int32_t u=0; u<MAXITEMS; u++)
 			{
 				if(move_items_list[u])
 				{
@@ -10168,7 +10169,7 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 				}
 			}
 			
-			for(int32_t u=0; u<wMAX; u++)
+			for(int32_t u=0; u<MAXWPNS; u++)
 			{
 				if(move_weapons_list[u])
 				{
@@ -10301,8 +10302,8 @@ bool do_movetile_united(tile_move_data const& tmd)
 	
 	int32_t i;
 	bool *move_combo_list = new bool[MAXCOMBOS];
-	bool *move_items_list = new bool[iMax];
-	bool *move_weapons_list = new bool[wMAX];
+	bool *move_items_list = new bool[MAXITEMS];
+	bool *move_weapons_list = new bool[MAXWPNS];
 	bool *move_enemy_list = new bool[eMAXGUYS];
 	bool move_hero_sprites_list[num_hspr];
 	bool move_mapstyles_list[6];
@@ -10439,7 +10440,7 @@ bool do_movetile_united(tile_move_data const& tmd)
 				flood=false;
 				build_bii_list(false);
 				
-				for(int32_t u=0; u<iMax; u++)
+				for(int32_t u=0; u<MAXITEMS; u++)
 				{
 					if(first) move_items_list[u]=false;
 					else if(move_items_list[u]) continue;
@@ -10527,7 +10528,7 @@ bool do_movetile_united(tile_move_data const& tmd)
 				build_biw_list();
 				bool BSZ2=get_qr(qr_BSZELDA)!=0;
 				
-				for(int32_t u=0; u<wMAX; u++)
+				for(int32_t u=0; u<MAXWPNS; u++)
 				{
 					ignore_frames=false;
 					if(first) move_weapons_list[u]=false;
@@ -11592,7 +11593,7 @@ bool do_movetile_united(tile_move_data const& tmd)
 				}
 			}
 			
-			for(int32_t u=0; u<iMax; u++)
+			for(int32_t u=0; u<MAXITEMS; u++)
 			{
 				if(move_items_list[u])
 				{
@@ -11600,7 +11601,7 @@ bool do_movetile_united(tile_move_data const& tmd)
 				}
 			}
 			
-			for(int32_t u=0; u<wMAX; u++)
+			for(int32_t u=0; u<MAXWPNS; u++)
 			{
 				if(move_weapons_list[u])
 				{
@@ -11986,8 +11987,8 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 	
 	int32_t i;
 	bool *move_combo_list = new bool[MAXCOMBOS];
-	bool *move_items_list = new bool[iMax];
-	bool *move_weapons_list = new bool[wMAX];
+	bool *move_items_list = new bool[MAXITEMS];
+	bool *move_weapons_list = new bool[MAXWPNS];
 	bool move_hero_sprites_list[num_hspr];
 	bool move_mapstyles_list[6];
 	//bool move_subscreenobjects_list[MAXCUSTOMSUBSCREENS*MAXSUBSCREENITEMS];
@@ -12120,7 +12121,7 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 				flood=false;
 				build_bii_list(false);
 				
-				for(int32_t u=0; u<iMax; u++)
+				for(int32_t u=0; u<MAXITEMS; u++)
 				{
 					move_items_list[u]=false;
 					
@@ -12207,7 +12208,7 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 				build_biw_list();
 				bool BSZ2=get_qr(qr_BSZELDA)!=0;
 				
-				for(int32_t u=0; u<wMAX; u++)
+				for(int32_t u=0; u<MAXWPNS; u++)
 				{
 					ignore_frames=false;
 					move_weapons_list[u]=false;
@@ -13393,7 +13394,7 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 		flood=false;
 		build_bii_list(false);
 		
-		for(int32_t u=0; u<iMax; u++)
+		for(int32_t u=0; u<MAXITEMS; u++)
 		{
 			i=move_intersection_sr(itemsbuf[bii[u].i].tile, itemsbuf[bii[u].i].tile+zc_max(itemsbuf[bii[u].i].frames,1)-1, dest_left, dest_top, dest_width, dest_height);
 			
@@ -13455,7 +13456,7 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 		build_biw_list();
 		bool BSZ2=get_qr(qr_BSZELDA)!=0;
 		
-		for(int32_t u=0; u<wMAX; u++)
+		for(int32_t u=0; u<MAXWPNS; u++)
 		{
 			ignore_frames=false;
 			int32_t m=0;

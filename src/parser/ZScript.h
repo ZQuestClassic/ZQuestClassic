@@ -6,10 +6,7 @@
 #include "AST.h"
 #include "CompilerUtils.h"
 #include "Types.h"
-
-
-#define BITS_SP	10
-#define MAX_SCRIPT_REGISTERS	(1<<BITS_SP)
+#include "base/sizes.h"
 
 namespace ZScript
 {

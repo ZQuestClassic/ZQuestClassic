@@ -9,6 +9,7 @@
 //--------------------------------------------------------
 
 #include "base/qrs.h"
+#include "base/dmap.h"
 #include "base/gui.h"
 #include "subscr.h"
 #include "zq/zq_subscr.h"

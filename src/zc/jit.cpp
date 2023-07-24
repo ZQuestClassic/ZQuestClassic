@@ -468,7 +468,7 @@ static void set_z_register(CompilationState& state, x86::Compiler &cc, x86::Gp v
 static void modify_sp(x86::Compiler &cc, x86::Gp vStackIndex, int delta)
 {
 	cc.add(vStackIndex, delta);
-	cc.and_(vStackIndex, (1 << BITS_SP) - 1);
+	cc.and_(vStackIndex, MASK_SP);
 }
 
 static void div_10000(x86::Compiler &cc, x86::Gp dividend)
@@ -1185,11 +1185,11 @@ static JittedFunction compile_script(script_data *script)
 			// ri->sp += num;
 			modify_sp(cc, vStackIndex, arg2);
 
-			// word read = (ri->sp-1) & ((1<<BITS_SP)-1);
+			// word read = (ri->sp-1) & MASK_SP;
 			x86::Gp read = cc.newInt32();
 			cc.mov(read, vStackIndex);
 			cc.sub(read, 1);
-			cc.and_(read, (1 << BITS_SP) - 1);
+			cc.and_(read, MASK_SP);
 
 			// int32_t value = SH::read_stack(read);
 			// set_register(sarg1, value);

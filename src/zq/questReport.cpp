@@ -5,6 +5,7 @@
 #include <string>
 
 #include "base/qrs.h"
+#include "base/dmap.h"
 #include "editbox.h"
 #include "EditboxNew.h"
 #include "base/gui.h"
@@ -1672,9 +1673,9 @@ void itemLocationReport()
     
     item_location_node **item_location_grid;
     
-    item_location_grid = new item_location_node*[iMax];
+    item_location_grid = new item_location_node*[MAXITEMS];
     
-    for(int32_t i=0; i<iMax; i++)
+    for(int32_t i=0; i<MAXITEMS; i++)
     {
         item_location_grid[i] = new item_location_node[location_types];
     }
@@ -1683,7 +1684,7 @@ void itemLocationReport()
     item_location_node *tempnode2=NULL;
     item_location_node *newnode=NULL;
     
-    for(int32_t i=0; i<iMax; ++i)
+    for(int32_t i=0; i<MAXITEMS; ++i)
     {
         for(int32_t j=0; j<location_types; ++j)
         {
@@ -1840,7 +1841,7 @@ void itemLocationReport()
     build_bii_list(false);
     
     //for each item
-    for(int32_t i2=0; i2<iMax; ++i2)
+    for(int32_t i2=0; i2<MAXITEMS; ++i2)
     {
         int32_t i=bii[i2].i;
         item_found=false;
@@ -1909,7 +1910,7 @@ void itemLocationReport()
         }
     }
     
-    for(int32_t i=0; i<iMax; ++i)
+    for(int32_t i=0; i<MAXITEMS; ++i)
     {
         for(int32_t type=0; type<location_types; ++type)
         {

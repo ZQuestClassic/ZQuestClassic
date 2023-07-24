@@ -1,4 +1,5 @@
 #include "zc_list_data.h"
+#include "base/dmap.h"
 #include "zq/zquest.h"
 #include "qst.h"
 #include "zinfo.h"
@@ -500,7 +501,7 @@ GUI::ListData GUI::ZCListData::miscsprites(bool skipNone, bool inclNegSpecialVal
 	std::map<std::string, int32_t> ids;
 	std::set<std::string> sprnames;
 	
-	for(int32_t i=0; i<wMAX; ++i)
+	for(int32_t i=0; i<MAXWPNS; ++i)
 	{
 		char buf[512];
 		char* ptr = buf;

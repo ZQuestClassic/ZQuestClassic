@@ -21,6 +21,7 @@
 #include <sstream>
 
 #include "base/qrs.h"
+#include "base/dmap.h"
 #include "base/zc_alleg.h"
 
 #include <stdlib.h>
@@ -620,7 +621,6 @@ word                map_count=0;
 MsgStr              *MsgStrings;
 int32_t					msg_strings_size=0;
 DoorComboSet        *DoorComboSets;
-dmap                *DMaps;
 miscQdata           QMisc;
 std::vector<mapscr> TheMaps;
 std::vector<word>   map_autolayers;
@@ -4227,12 +4227,12 @@ static void allocate_crap()
 		customsfxflag[i] = 0;
 	}
 	
-	for(int32_t i=0; i<WPNCNT; i++)
+	for(int32_t i=0; i<MAXWPNS; i++)
 	{
 		weapon_string[i] = new char[64];
 	}
 	
-	for(int32_t i=0; i<ITEMCNT; i++)
+	for(int32_t i=0; i<MAXITEMS; i++)
 	{
 		item_string[i] = new char[64];
 	}
@@ -5660,12 +5660,12 @@ void quit_game()
 	
 	al_trace("Misc... \n");
 	
-	for(int32_t i=0; i<WPNCNT; i++)
+	for(int32_t i=0; i<MAXWPNS; i++)
 	{
 		delete [] weapon_string[i];
 	}
 	
-	for(int32_t i=0; i<ITEMCNT; i++)
+	for(int32_t i=0; i<MAXITEMS; i++)
 	{
 		delete [] item_string[i];
 	}

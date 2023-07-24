@@ -518,7 +518,6 @@ extern word                map_count;
 extern MsgStr              *MsgStrings;
 extern int32_t				   msg_strings_size;
 extern DoorComboSet        *DoorComboSets;
-extern dmap                *DMaps;
 extern miscQdata           QMisc;
 extern std::vector<mapscr> TheMaps;
 extern zcmap               *ZCMaps;
