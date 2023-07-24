@@ -448,6 +448,7 @@ set(zcbase_sources
 	src/base/cpool.cpp
 	src/base/dmap.cpp
 	src/base/fonts.cpp
+	src/base/general.cpp
 	src/base/gui.cpp
 	src/base/hotkey.cpp
 	src/base/jwinfsel.cpp

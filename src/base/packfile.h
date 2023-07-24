@@ -3,7 +3,7 @@
 
 #include "base/zc_alleg.h"
 #include "base/ints.h"
-#include "base/sizes.h"
+#include "base/general.h"
 #include "zfix.h"
 #include <string>
 #include <vector>

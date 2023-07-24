@@ -29,6 +29,30 @@
 #define cflag15                    0x04000
 #define cflag16                    0x08000
 
+enum
+{
+	ADVP_TILE,
+	ADVP_CSET2,
+	ADVP_SOLIDITY,
+	ADVP_ANIM,
+	ADVP_TYPE,
+	ADVP_INHFLAG,
+	ADVP_ATTRIBYTE,
+	ADVP_ATTRISHORT,
+	ADVP_ATTRIBUTE,
+	ADVP_FLAGS,
+	ADVP_LABEL,
+	ADVP_SCRIPT,
+	ADVP_EFFECT,
+	ADVP_TRIGGERS,
+	ADVP_LIFTING,
+	ADVP_GEN_MOVESPEED,
+	ADVP_GEN_SFX,
+	ADVP_GEN_SPRITES,
+	ADVP_SZ
+};
+#define ADVP_BYTESZ ((ADVP_SZ/8) + (ADVP_SZ%8 ? 1 : 0))
+
 struct newcombo
 {
     int32_t tile;
@@ -109,6 +133,8 @@ struct newcombo
 	bool is_blank(bool ignoreEff = false);
 	
 	int each_tile(std::function<bool(int32_t)> proc) const;
+	
+	void advpaste(newcombo const& other, byte* pasteflags);
 };
 
 #define AF_FRESH          0x01

@@ -55,13 +55,6 @@ int32_t encode_file_007(const char *srcfile, const char *destfile, int32_t key, 
 int32_t decode_file_007(const char *srcfile, const char *destfile, const char *header, int32_t method, bool packed, const char *password);
 void copy_file(const char *src, const char *dest);
 
-int32_t  get_bit(byte const* bitstr,int32_t bit);
-void set_bit(byte *bitstr,int32_t bit,byte val);
-bool toggle_bit(byte *bitstr,int32_t bit);
-
-int32_t  get_bitl(int32_t bitstr,int32_t bit);
-void set_bitl(int32_t bitstr,int32_t bit,byte val);
-
 [[noreturn]] void Z_error_fatal(const char *format,...);
 void Z_error(const char *format,...);
 void Z_title(const char *format,...);

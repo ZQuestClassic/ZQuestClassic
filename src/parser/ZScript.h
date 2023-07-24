@@ -6,7 +6,7 @@
 #include "AST.h"
 #include "CompilerUtils.h"
 #include "Types.h"
-#include "base/sizes.h"
+#include "base/general.h"
 
 namespace ZScript
 {

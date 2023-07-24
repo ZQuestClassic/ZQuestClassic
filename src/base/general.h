@@ -1,5 +1,13 @@
-#ifndef _SIZES_H_
-#define _SIZES_H_
+#ifndef _GENERAL_H_
+#define _GENERAL_H_
+
+#include "base/ints.h"
+
+int32_t get_bit(byte const* bitstr,int32_t bit);
+void set_bit(byte *bitstr,int32_t bit,byte val);
+bool toggle_bit(byte *bitstr,int32_t bit);
+int32_t get_bitl(int32_t bitstr,int32_t bit);
+void set_bitl(int32_t bitstr,int32_t bit,byte val);
 
 #define zc_max(a,b)  ((a)>(b)?(a):(b))
 #define zc_min(a,b)  ((a)<(b)?(a):(b))

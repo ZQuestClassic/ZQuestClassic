@@ -3,7 +3,7 @@
 
 #include <vector>
 #include "base/ints.h"
-#include "base/sizes.h"
+#include "base/general.h"
 
 struct combo_alias
 {
