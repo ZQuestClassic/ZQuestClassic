@@ -15,6 +15,7 @@
 #include "zc/replay.h"
 #include "zc/zelda.h"
 #include "base/zsys.h"
+#include "base/msgstr.h"
 #include "zc/maps.h"
 #include "zc/hero.h"
 #include "subscr.h"

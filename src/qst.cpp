@@ -15,6 +15,7 @@
 #include "base/cpool.h"
 #include "base/packfile.h"
 #include "base/dmap.h"
+#include "base/msgstr.h"
 #include <filesystem>
 #include <stdio.h>
 #include <string.h>
@@ -86,7 +87,6 @@ extern int32_t                 hero_animation_speed; //lower is faster animation
 extern std::vector<mapscr> TheMaps;
 extern std::vector<word>   map_autolayers;
 extern zcmap               *ZCMaps;
-extern MsgStr              *MsgStrings;
 extern DoorComboSet        *DoorComboSets;
 extern std::vector<newcombo> combobuf;
 extern byte                *colordata;

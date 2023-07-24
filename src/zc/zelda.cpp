@@ -24,6 +24,7 @@
 #include "base/dmap.h"
 #include "base/cpool.h"
 #include "base/packfile.h"
+#include "base/msgstr.h"
 #include "base/zc_alleg.h"
 
 #include <stdlib.h>
@@ -619,7 +620,6 @@ zquestheader QHeader;
 byte                midi_flags[MIDIFLAGS_SIZE];
 byte                music_flags[MUSICFLAGS_SIZE];
 word                map_count=0;
-MsgStr              *MsgStrings;
 int32_t					msg_strings_size=0;
 DoorComboSet        *DoorComboSets;
 miscQdata           QMisc;

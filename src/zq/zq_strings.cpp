@@ -7,6 +7,7 @@
 #include "tiles.h"
 #include "base/zc_alleg.h"
 #include "base/zdefs.h"
+#include "base/msgstr.h"
 #include "zq/zq_custom.h"
 #include "zq/zq_misc.h"
 #include "zq/zq_tiles.h"

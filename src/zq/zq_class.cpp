@@ -24,6 +24,7 @@
 #include "base/packfile.h"
 #include "base/cpool.h"
 #include "base/gui.h"
+#include "base/msgstr.h"
 #include "zq/zq_class.h"
 #include "zq/zq_misc.h"
 #include "zq/zquest.h"
