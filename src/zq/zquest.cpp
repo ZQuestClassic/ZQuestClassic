@@ -36,6 +36,7 @@
 #include "base/qrs.h"
 #include "base/dmap.h"
 #include "base/packfile.h"
+#include "base/cpool.h"
 #include "parser/Compiler.h"
 #include "base/zc_alleg.h"
 #include "particles.h"
@@ -622,12 +623,10 @@ byte Color = 0;
 extern int32_t jwin_pal[jcMAX];
 int32_t gui_colorset=99;
 
-combo_alias combo_aliases[MAXCOMBOALIASES];
 static int32_t combo_apos=0; //currently selected combo alias
 int32_t alias_origin=0;
 int32_t alias_cset_mod=0;
 
-combo_pool combo_pools[MAXCOMBOPOOLS];
 static int32_t combo_pool_pos=0; //currently selected combo pool
 bool weighted_cpool = true;
 bool cpool_prev_visible = false;

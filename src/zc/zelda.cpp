@@ -22,6 +22,7 @@
 
 #include "base/qrs.h"
 #include "base/dmap.h"
+#include "base/cpool.h"
 #include "base/packfile.h"
 #include "base/zc_alleg.h"
 
@@ -386,8 +387,6 @@ bool usebombpal = false;
 
 int32_t readsize = 0, writesize = 0;
 bool fake_pack_writing=false;
-combo_alias combo_aliases[MAXCOMBOALIASES];  //Temporarily here so ZC can compile. All memory from this is freed after loading the quest file.
-combo_pool combo_pools[MAXCOMBOPOOLS];
 
 SAMPLE customsfxdata[WAV_COUNT] = {0};
 uint8_t customsfxflag[WAV_COUNT>>3]  = {0};
