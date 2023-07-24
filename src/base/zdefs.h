@@ -119,7 +119,7 @@
 
 #include "metadata/metadata.h"
 #include "base/zc_alleg.h"
-#include "base/sizes.h"
+#include "base/general.h"
 #include "gamedata.h"
 #include "base/zc_array.h"
 #include "base/random.h"
