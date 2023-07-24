@@ -21,13 +21,13 @@
 #include "zc/maps.h"
 #include "base/zdefs.h"
 #include "base/qrs.h"
+#include "base/combo.h"
 #include "zc/ffscript.h"
 #include <fmt/format.h>
 
 #include <queue>
 
 char *item_string[MAXITEMS];
-extern std::vector<newcombo> combobuf;
 
 extern zinitdata zinit;
 #ifndef IS_ZQUEST

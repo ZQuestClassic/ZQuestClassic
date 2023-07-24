@@ -6,6 +6,7 @@
 #include <map>
 
 struct slope_object;
+struct newcombo;
 
 extern std::map<int32_t, slope_object> slopes;
 void draw_slopes(BITMAP *dest, int32_t x, int32_t y, int32_t col);

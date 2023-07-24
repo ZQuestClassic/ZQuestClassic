@@ -16,6 +16,7 @@
 #include "base/zdefs.h"
 #include "base/zsys.h"
 #include "base/qrs.h"
+#include "base/combo.h"
 #include "tiles.h"
 #include "items.h"
 
@@ -26,7 +27,6 @@ extern wpndata    *wpnsbuf;
 //extern byte *tilebuf;
 //BITMAP* tilebuf[NEWMAXTILES];
 tiledata *newtilebuf, *grabtilebuf;
-std::vector<newcombo> combobuf;
 int32_t animated_combo_table[MAXCOMBOS][2];                    //[0]=position in act2, [1]=original tile
 int32_t animated_combo_table4[MAXCOMBOS][2];                   //[0]=combo, [1]=clock
 int32_t animated_combos;

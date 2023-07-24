@@ -4,6 +4,7 @@
 #include "tiles.h"
 #include "sprite.h"
 #include "base/qrs.h"
+#include "base/combo.h"
 
 extern sprite_list Lwpns;
 
@@ -13,7 +14,6 @@ extern sprite_list Lwpns;
 #include "zc/hero.h"
 #include "base/mapscr.h"
 
-extern std::vector<newcombo> combobuf;
 extern mapscr tmpscr[2];
 extern int16_t lensclk;
 extern HeroClass Hero;
