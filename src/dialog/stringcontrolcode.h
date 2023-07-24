@@ -1,6 +1,7 @@
 #ifndef ZC_DIALOG_SCC_H
 #define ZC_DIALOG_SCC_H
 
+#include "base/msgstr.h"
 #include <gui/dialog.h>
 #include <gui/drop_down_list.h>
 #include <gui/checkbox.h>

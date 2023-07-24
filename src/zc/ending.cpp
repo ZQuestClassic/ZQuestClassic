@@ -12,6 +12,7 @@
 #include <stdio.h>
 
 #include "base/qrs.h"
+#include "base/msgstr.h"
 #include "zc/ending.h"
 #include "zc/zelda.h"
 #include "base/zsys.h"

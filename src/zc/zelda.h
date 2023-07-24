@@ -34,6 +34,7 @@
 
 class sprite;
 struct itemdata;
+struct MsgStr;
 
 int32_t isFullScreen();
 int32_t onFullscreen();
@@ -515,7 +516,6 @@ extern zquestheader QHeader;
 extern byte                midi_flags[MIDIFLAGS_SIZE];
 extern byte                music_flags[MUSICFLAGS_SIZE];
 extern word                map_count;
-extern MsgStr              *MsgStrings;
 extern int32_t				   msg_strings_size;
 extern DoorComboSet        *DoorComboSets;
 extern miscQdata           QMisc;

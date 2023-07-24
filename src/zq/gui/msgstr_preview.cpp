@@ -1,6 +1,7 @@
 #include "msgstr_preview.h"
 #include "zq/zquest.h"
 #include "base/qrs.h"
+#include "base/msgstr.h"
 #include "gui/common.h"
 #include "gui/dialog.h"
 #include "gui/dialog_runner.h"
