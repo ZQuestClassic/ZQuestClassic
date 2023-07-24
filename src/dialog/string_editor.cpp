@@ -1,5 +1,6 @@
 #include "string_editor.h"
 #include "base/zsys.h"
+#include "base/msgstr.h"
 #include "editbox.h"
 #include "EditboxNew.h"
 #include "info.h"
@@ -8,7 +9,6 @@
 #include "zc_list_data.h"
 
 extern bool saved;
-extern MsgStr* MsgStrings;
 extern char msgbuf[MSGBUF_SIZE];
 extern char namebuf[9];
 extern word msg_count;

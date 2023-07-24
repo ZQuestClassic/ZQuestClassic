@@ -35,6 +35,7 @@
 
 #include "base/qrs.h"
 #include "base/dmap.h"
+#include "base/msgstr.h"
 #include "base/packfile.h"
 #include "base/cpool.h"
 #include "parser/Compiler.h"
@@ -718,7 +719,6 @@ vector<mapscr>      TheMaps;
 vector<word>        map_autolayers;
 zcmap               *ZCMaps;
 byte                *quest_file;
-MsgStr              *MsgStrings;
 int32_t					msg_strings_size;
 //DoorComboSet      *DoorComboSets;
 zctune              *customtunes;

@@ -452,6 +452,7 @@ set(zcbase_sources
 	src/base/jwinfsel.cpp
 	src/base/mapscr.cpp
 	src/base/module.cpp
+	src/base/msgstr.cpp
 	src/base/process_management.cpp
 	src/base/qrs.cpp
 	src/base/random.cpp

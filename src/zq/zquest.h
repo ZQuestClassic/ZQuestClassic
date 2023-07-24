@@ -230,7 +230,6 @@ extern miscQdata           misc;
 extern std::vector<mapscr> TheMaps;
 extern std::vector<word>   map_autolayers;
 extern zcmap               *ZCMaps;
-extern MsgStr              *MsgStrings;
 extern int32_t				   msg_strings_size;
 extern DoorComboSet        *DoorComboSets;
 extern class zctune        *customtunes;
