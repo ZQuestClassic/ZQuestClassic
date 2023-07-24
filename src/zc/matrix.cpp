@@ -9,6 +9,7 @@
 //--------------------------------------------------------
 
 #include "base/ints.h"
+#include "base/fonts.h"
 #include "zc/matrix.h"
 #include "zc/render.h"
 FONT* get_zc_font(int index);
