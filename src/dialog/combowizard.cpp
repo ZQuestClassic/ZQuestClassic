@@ -10,10 +10,10 @@
 #include "sfx.h"
 #include "base/qrs.h"
 #include "zinfo.h"
+#include "base/combo.h"
 
 extern bool saved;
 extern zcmodule moduledata;
-extern std::vector<newcombo> combobuf;
 extern comboclass *combo_class_buf;
 extern int32_t CSet;
 extern int32_t numericalFlags;

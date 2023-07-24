@@ -443,6 +443,7 @@ target_include_directories(fmt PUBLIC include/fmt)
 
 set(zcbase_sources
 	src/base/colors.cpp
+	src/base/combo.cpp
 	src/base/cpos_info.cpp
 	src/base/cpool.cpp
 	src/base/dmap.cpp

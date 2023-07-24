@@ -10,10 +10,10 @@
 #include "base/qrs.h"
 #include <fmt/format.h>
 #include "zinfo.h"
+#include "base/combo.h"
 
 extern bool saved;
 extern zcmodule moduledata;
-extern std::vector<newcombo> combobuf;
 extern comboclass *combo_class_buf;
 extern itemdata *itemsbuf;
 extern int32_t CSet;

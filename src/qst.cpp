@@ -15,6 +15,7 @@
 #include "base/cpool.h"
 #include "base/packfile.h"
 #include "base/dmap.h"
+#include "base/combo.h"
 #include "base/msgstr.h"
 #include <filesystem>
 #include <stdio.h>
@@ -88,7 +89,6 @@ extern std::vector<mapscr> TheMaps;
 extern std::vector<word>   map_autolayers;
 extern zcmap               *ZCMaps;
 extern DoorComboSet        *DoorComboSets;
-extern std::vector<newcombo> combobuf;
 extern byte                *colordata;
 //extern byte              *tilebuf;
 extern tiledata            *newtilebuf;

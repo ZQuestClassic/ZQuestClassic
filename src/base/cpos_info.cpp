@@ -1,7 +1,6 @@
 #include "base/cpos_info.h"
 #include "base/zdefs.h"
-
-extern std::vector<newcombo> combobuf;
+#include "base/combo.h"
 
 void cpos_info::push(int dir, bool cancel)
 {

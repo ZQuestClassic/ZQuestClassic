@@ -1,6 +1,8 @@
 #ifndef DRAW_H
 #define DRAW_H
 
+struct newcombo;
+
 void doDarkroomCircle(int32_t cx, int32_t cy, byte glowRad,BITMAP* dest=NULL,BITMAP* transdest=NULL, int dith_perc=-1, int trans_perc=-1, int dith_type=-1, int dith_arg=-1);
 void doDarkroomCone(int32_t sx, int32_t sy, byte glowRad, int32_t dir, BITMAP* dest=NULL,BITMAP* transdest=NULL, int dith_perc=-1, int trans_perc=-1, int dith_type=-1, int dith_arg=-1);
 void doDarkroomSquare(int32_t cx, int32_t cy, byte glowRad, BITMAP* dest=NULL, BITMAP* transdest=NULL, int dith_perc=-1, int trans_perc=-1, int dith_type=-1, int dith_arg=-1);
