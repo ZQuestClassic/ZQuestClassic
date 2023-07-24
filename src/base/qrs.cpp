@@ -1,10 +1,8 @@
 #include "qrs.h"
+#include "general.h"
 
 byte quest_rules[QUESTRULES_NEW_SIZE];
 byte extra_rules[EXTRARULES_SIZE];
-
-int32_t get_bit(byte const* bitstr,int32_t bit);
-void set_bit(byte *bitstr,int32_t bit,byte val);
 
 bool get_qr(int index)
 {

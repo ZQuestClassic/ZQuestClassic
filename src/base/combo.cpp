@@ -1,5 +1,5 @@
 #include "combo.h"
-#include "sizes.h"
+#include "general.h"
 
 std::vector<newcombo> combobuf;
 
@@ -127,5 +127,124 @@ int newcombo::each_tile(std::function<bool(int32_t)> proc) const
 	}
 	while(true);
 	return -1;
+}
+
+void newcombo::advpaste(newcombo const& other, byte* pasteflags)
+{
+	if(!pasteflags) return;
+	if(get_bit(pasteflags,ADVP_TILE))
+	{
+		tile = other.tile;
+		o_tile = other.o_tile;
+		flip = other.flip;
+	}
+	if(get_bit(pasteflags,ADVP_CSET2))
+		csets = other.csets;
+	if(get_bit(pasteflags,ADVP_SOLIDITY))
+		walk = (walk&0xF0) | (other.walk&0x0F);
+	if(get_bit(pasteflags,ADVP_ANIM))
+	{
+		frames = other.frames;
+		speed = other.speed;
+		nextcombo = other.nextcombo;
+		nextcset = other.nextcset;
+		skipanim = other.skipanim;
+		nexttimer = other.nexttimer;
+		skipanimy = other.skipanimy;
+		animflags = other.animflags;
+	}
+	if(get_bit(pasteflags,ADVP_TYPE))
+		type = other.type;
+	if(get_bit(pasteflags,ADVP_INHFLAG))
+		flag = other.flag;
+	if(get_bit(pasteflags,ADVP_ATTRIBYTE))
+		for(int32_t q = 0; q < NUM_COMBO_ATTRIBYTES; ++q)
+			attribytes[q] = other.attribytes[q];
+	if(get_bit(pasteflags,ADVP_ATTRISHORT))
+		for(int32_t q = 0; q < NUM_COMBO_ATTRISHORTS; ++q)
+			attrishorts[q] = other.attrishorts[q];
+	if(get_bit(pasteflags,ADVP_ATTRIBUTE))
+		for(int32_t q = 0; q < NUM_COMBO_ATTRIBUTES; ++q)
+			attributes[q] = other.attributes[q];
+	if(get_bit(pasteflags,ADVP_FLAGS))
+		usrflags = other.usrflags;
+	if(get_bit(pasteflags,ADVP_LABEL))
+		label = other.label;
+	if(get_bit(pasteflags,ADVP_SCRIPT))
+	{
+		script = other.script;
+		for(int32_t q = 0; q < 2; ++q)
+			initd[q] = other.initd[q];
+	}
+	if(get_bit(pasteflags,ADVP_EFFECT))
+		walk = (walk&0x0F) | (other.walk&0xF0);
+	if(get_bit(pasteflags,ADVP_TRIGGERS))
+	{
+		for(int32_t q = 0; q < 6; ++q)
+			triggerflags[q] = other.triggerflags[q];
+		triggerlevel = other.triggerlevel;
+		triggerbtn = other.triggerbtn;
+		triggeritem = other.triggeritem;
+		trigtimer = other.trigtimer;
+		trigsfx = other.trigsfx;
+		trigchange = other.trigchange;
+		trigprox = other.trigprox;
+		trigctr = other.trigctr;
+		trigctramnt = other.trigctramnt;
+		triglbeam = other.triglbeam;
+		trigcschange = other.trigcschange;
+		spawnitem = other.spawnitem;
+		spawnenemy = other.spawnenemy;
+		exstate = other.exstate;
+		spawnip = other.spawnip;
+		trigcopycat = other.trigcopycat;
+		trigcooldown = other.trigcooldown;
+		trig_lstate = other.trig_lstate;
+		trig_gstate = other.trig_gstate;
+		trig_statetime = other.trig_statetime;
+		trig_genscr = other.trig_genscr;
+		trig_group = other.trig_group;
+		trig_group_val = other.trig_group_val;
+	}
+	if(get_bit(pasteflags,ADVP_LIFTING))
+	{
+		liftcmb = other.liftcmb;
+		liftundercmb = other.liftundercmb;
+		liftcs = other.liftcs;
+		liftundercs = other.liftundercs;
+		liftdmg = other.liftdmg;
+		liftlvl = other.liftlvl;
+		liftitm = other.liftitm;
+		liftflags = other.liftflags;
+		liftgfx = other.liftgfx;
+		liftsprite = other.liftsprite;
+		liftsfx = other.liftsfx;
+		liftbreaksprite = other.liftbreaksprite;
+		liftbreaksfx = other.liftbreaksfx;
+		lifthei = other.lifthei;
+		lifttime = other.lifttime;
+		lift_parent_item = other.lift_parent_item;
+	}
+	if(get_bit(pasteflags,ADVP_GEN_MOVESPEED))
+	{
+		speed_mult = other.speed_mult;
+		speed_div = other.speed_div;
+		speed_add = other.speed_add;
+	}
+	if(get_bit(pasteflags,ADVP_GEN_SFX))
+	{
+		sfx_appear = other.sfx_appear;
+		sfx_disappear = other.sfx_disappear;
+		sfx_loop = other.sfx_loop;
+		sfx_walking = other.sfx_walking;
+		sfx_standing = other.sfx_standing;
+	}
+	if(get_bit(pasteflags,ADVP_GEN_SPRITES))
+	{
+		spr_appear = other.spr_appear;
+		spr_disappear = other.spr_disappear;
+		spr_walking = other.spr_walking;
+		spr_standing = other.spr_standing;
+	}
 }
 
