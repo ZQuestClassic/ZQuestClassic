@@ -15,6 +15,7 @@
 
 #include "base/qrs.h"
 #include "base/dmap.h"
+#include "base/packfile.h"
 #include "zc/zc_sys.h"
 #include "zc/jit.h"
 #include "zc/script_debug.h"

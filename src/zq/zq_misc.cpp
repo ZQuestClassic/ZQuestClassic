@@ -12,6 +12,7 @@
 //INLINE void SCRFIX() {}
 
 #include "base/qrs.h"
+#include "base/packfile.h"
 #include "zq/zq_misc.h"
 #include "zq/zquestdat.h"
 #include "zq/zquest.h"

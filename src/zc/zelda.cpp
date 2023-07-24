@@ -22,6 +22,7 @@
 
 #include "base/qrs.h"
 #include "base/dmap.h"
+#include "base/packfile.h"
 #include "base/zc_alleg.h"
 
 #include <stdlib.h>
