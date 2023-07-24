@@ -14,6 +14,7 @@
 #include <string.h>
 
 #include "base/qrs.h"
+#include "base/packfile.h"
 #include "base/gui.h"
 #include "zc/zc_custom.h"
 #include "zq/zq_custom.h"

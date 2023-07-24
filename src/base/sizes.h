@@ -1,6 +1,9 @@
 #ifndef _SIZES_H_
 #define _SIZES_H_
 
+#define zc_max(a,b)  ((a)>(b)?(a):(b))
+#define zc_min(a,b)  ((a)<(b)?(a):(b))
+
 //Script Counts
 #define NUMSCRIPTFFC               512
 #define NUMSCRIPTFFCOLD            256
