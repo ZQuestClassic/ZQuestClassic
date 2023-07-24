@@ -12,6 +12,7 @@
 #include "parser/parserDefs.h"
 #include "zfix.h"
 #include "base/fonts.h"
+#include "base/cpool.h"
 
 #define  INTERNAL_VERSION  0xA721
 
@@ -758,9 +759,6 @@ enum
 };
 
 extern command_struct bic[cmdMAX];
-
-extern combo_alias combo_aliases[MAXCOMBOALIASES];
-extern combo_pool combo_pools[MAXCOMBOPOOLS];
 //int32_t combo_apos;
 //int32_t combo_alistpos;
 
