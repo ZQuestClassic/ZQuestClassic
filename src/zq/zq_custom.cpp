@@ -2029,7 +2029,7 @@ const char *itemsetlist(int32_t index, int32_t *list_size)
 	return NULL;
 }
 
-list_data_struct biew[wMAX];
+list_data_struct biew[MAXWPNS];
 int32_t biew_cnt=-1;
 
 char temp_custom_ew_strings[10][40];

@@ -14,6 +14,7 @@
 //
 
 #include "base/qrs.h"
+#include "base/dmap.h"
 #include "zc/zc_sys.h"
 #include "zc/jit.h"
 #include "zc/script_debug.h"
@@ -2031,12 +2032,12 @@ public:
 	
 	static INLINE int32_t checkItemID(const int32_t ID, const char * const str)
 	{
-		return checkBounds(ID, 0, ITEMCNT-1, str);
+		return checkBounds(ID, 0, MAXITEMS-1, str);
 	}
 	
 	static INLINE int32_t checkWeaponID(const int32_t ID, const char * const str)
 	{
-		return checkBounds(ID, 0, WPNCNT-1, str);
+		return checkBounds(ID, 0, MAXWPNS-1, str);
 	}
 	
 	static INLINE int32_t checkWeaponMiscSprite(const int32_t ID, const char * const str)
@@ -11056,10 +11057,10 @@ int32_t get_register(const int32_t arg)
 		{
 			ret = ((byte)DMaps[ri->dmapsref].passive_subscreen) * 10000; break;
 		}
-		case DMAPDATADISABLEDITEMS:	 //byte[iMax]
+		case DMAPDATADISABLEDITEMS:	 //byte[MAXITEMS]
 		{
 			int32_t indx = ri->d[rINDEX] / 10000;
-			if ( indx < 0 || indx > (iMax-1) ) 
+			if ( indx < 0 || indx > (MAXITEMS-1) ) 
 			{
 				Z_scripterrlog("Invalid index supplied to dmapdata->Grid[]: %d\n", indx);
 				ret = -10000;
@@ -16862,7 +16863,7 @@ void set_register(int32_t arg, int32_t value)
 		case LWPNDEATHSPRITE:
 			if(0!=(s=checkLWpn(ri->lwpn,"DeathSprite")))
 			{
-				((weapon*)(s))->death_sprite = vbound(value/10000,-255,wMAX-1);
+				((weapon*)(s))->death_sprite = vbound(value/10000,-255,MAXWPNS-1);
 			}
 			break;
 		case LWPNDEATHSFX:
@@ -17488,7 +17489,7 @@ void set_register(int32_t arg, int32_t value)
 		case EWPNDEATHSPRITE:
 			if(0!=(s=checkEWpn(ri->ewpn,"DeathSprite")))
 			{
-				((weapon*)(s))->death_sprite = vbound(value/10000,-255,wMAX-1);
+				((weapon*)(s))->death_sprite = vbound(value/10000,-255,MAXWPNS-1);
 			}
 			break;
 		case EWPNDEATHSFX:
@@ -21462,10 +21463,10 @@ void set_register(int32_t arg, int32_t value)
 				update_subscreens();
 			break;
 		}
-		case DMAPDATADISABLEDITEMS:	 //byte[iMax]
+		case DMAPDATADISABLEDITEMS:	 //byte[MAXITEMS]
 		{
 			int32_t indx = ri->d[rINDEX] / 10000;
-			if ( indx < 0 || indx > (iMax-1) ) 
+			if ( indx < 0 || indx > (MAXITEMS-1) ) 
 			{
 				Z_scripterrlog("Invalid index supplied to dmapdata->Grid[]: %d\n", indx); break;
 			}
@@ -23184,7 +23185,7 @@ void set_register(int32_t arg, int32_t value)
 	//Misc./Internal
 		case SP:
 			ri->sp = value / 10000;
-			ri->sp &= (1 << BITS_SP) - 1;
+			ri->sp &= MASK_SP;
 			break;
 			
 		case PC:
@@ -23784,7 +23785,7 @@ void do_push(const bool v)
 {
 	const int32_t value = SH::get_arg(sarg1, v);
 	--ri->sp;
-	ri->sp &= (1 << BITS_SP) - 1;
+	ri->sp &= MASK_SP;
 	SH::write_stack(ri->sp, value);
 }
 void do_push_varg(const bool v)
@@ -23797,7 +23798,7 @@ void do_pop()
 {
 	const int32_t value = SH::read_stack(ri->sp);
 	++ri->sp;
-	ri->sp &= (1 << BITS_SP) - 1;
+	ri->sp &= MASK_SP;
 	set_register(sarg1, value);
 }
 
@@ -23810,8 +23811,8 @@ void do_pops() // Pop past a bunch of stuff at once. Useful for clearing the sta
 {
 	int32_t num = sarg2;
 	ri->sp += num;
-	ri->sp &= (1 << BITS_SP) - 1;
-	word read = (ri->sp-1) & ((1<<BITS_SP)-1);
+	ri->sp &= MASK_SP;
+	word read = (ri->sp-1) & MASK_SP;
 	int32_t value = SH::read_stack(read);
 	set_register(sarg1, value);
 }
@@ -31034,7 +31035,7 @@ j_command:
 			{
 				ri->pc = SH::read_stack(ri->sp) - 1;
 				++ri->sp;
-				ri->sp &= (1 << BITS_SP) - 1;
+				ri->sp &= MASK_SP;
 				increment = false;
 				break;
 			}
@@ -44138,7 +44139,7 @@ void FFScript::write_combos(PACKFILE *f, int32_t version_id)
 }
 void FFScript::read_weaponsprtites(PACKFILE *f, int32_t vers_id)
 {   
-	for(int32_t i=0; i<wMAX; i++)
+	for(int32_t i=0; i<MAXWPNS; i++)
 	{
 		word oldtile = 0;
 		if(!p_igetw(&oldtile,f,true))
@@ -44184,7 +44185,7 @@ void FFScript::read_weaponsprtites(PACKFILE *f, int32_t vers_id)
 }
 void FFScript::write_weaponsprtites(PACKFILE *f, int32_t vers_id)
 {   
-	for(int32_t i=0; i<wMAX; i++)
+	for(int32_t i=0; i<MAXWPNS; i++)
 	{
 		if(!p_iputw(wpnsbuf[i].tile,f))
 		{
@@ -45170,7 +45171,7 @@ void FFScript::write_enemies(PACKFILE *f, int32_t vers_id)
 
 void FFScript::write_items(PACKFILE *f, int32_t vers_id)
 {
-		for(int32_t i=0; i<iMax; i++)
+		for(int32_t i=0; i<MAXITEMS; i++)
 		{
 			if(!p_iputl(itemsbuf[i].tile,f))
 			{
@@ -45607,7 +45608,7 @@ void FFScript::write_items(PACKFILE *f, int32_t vers_id)
 
 void FFScript::read_items(PACKFILE *f, int32_t vers_id)
 {
-		for(int32_t i=0; i<iMax; i++)
+		for(int32_t i=0; i<MAXITEMS; i++)
 		{
 			if(!p_igetl(&itemsbuf[i].tile,f,true))
 			{

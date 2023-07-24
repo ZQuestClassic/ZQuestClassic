@@ -12,6 +12,7 @@
 #include "base/zc_alleg.h"
 #include "base/zdefs.h"
 #include "base/qrs.h"
+#include "base/dmap.h"
 #include "zc/maps.h"
 #include "zc/zelda.h"
 #include "zc/hero.h"

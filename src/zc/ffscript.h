@@ -4272,7 +4272,7 @@ enum ASM_DEFINE
 #define DMAPDATAMUISCTRACK 	0x12A9 //byte
 #define DMAPDATASUBSCRA 	0x12AA //byte, active subscreen
 #define DMAPDATASUBSCRP 	0x12AB //byte, passive subscreen
-#define DMAPDATADISABLEDITEMS 	0x12AC //byte[iMax]
+#define DMAPDATADISABLEDITEMS 	0x12AC //byte[MAXITEMS]
 #define DMAPDATAFLAGS 		0x12AD //int32_t
 //Audio->Volume()
 #define AUUDIOUNUSED0001		0x12AE

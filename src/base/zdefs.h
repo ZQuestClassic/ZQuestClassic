@@ -37,24 +37,6 @@
 #define DEVTIMESTAMP false
 #endif
 
-
-#define NUMSCRIPTFFC			512
-#define NUMSCRIPTFFCOLD			256
-#define NUMSCRIPTITEM			256
-#define NUMSCRIPTGUYS			256
-#define NUMSCRIPTWEAPONS		256
-#define NUMSCRIPTGLOBAL			8
-#define NUMSCRIPTGLOBAL255OLD	7
-#define NUMSCRIPTGLOBAL253		4
-#define NUMSCRIPTGLOBALOLD		3
-#define NUMSCRIPTHEROOLD		3
-#define NUMSCRIPTPLAYER			5
-#define NUMSCRIPTSCREEN			256
-#define NUMSCRIPTSDMAP			256
-#define NUMSCRIPTSITEMSPRITE	256
-#define NUMSCRIPTSCOMBODATA		512
-#define NUMSCRIPTSGENERIC       512
-
 //Conditional Debugging Compilation
 //Script related
 #define _FFDEBUG
@@ -135,19 +117,9 @@
 #include <string>
 #include "base/ints.h"
 
-//Common struct array element sizes-Z
-#define INITIAL_A 2
-#define INITIAL_D 8
-#define FFSCRIPT_MISC 32
-#define MAXFFCS 128
-
-#define MAX_SIGNED_32 (2147483647)
-#define MIN_SIGNED_32 (-2147483647-1)
-#define MAX_DWORD dword(-1)
-#define MIN_DWORD 0
-
 #include "metadata/metadata.h"
 #include "base/zc_alleg.h"
+#include "base/sizes.h"
 #include "gamedata.h"
 #include "base/zc_array.h"
 #include "base/random.h"
@@ -187,12 +159,6 @@ struct cpos_info;
 #define ZQUESTDAT_VERSION     0x0211                        //version of zquest.dat
 #define ZQUESTDAT_BUILD       18                            //build of zquest.dat
 
-#define MAX_INTERNAL_QUESTS 	5
-
-#define BITS_SP	10
-#define MAX_SCRIPT_REGISTERS (1<<BITS_SP)
-#define MAX_SCRIPT_REGISTERS_250 256
-
 enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_211B9, ENC_METHOD_211B18, ENC_METHOD_MAX};
 
 //Moved these OS-dependent defs from 'ffasm.cpp', to be global.
@@ -223,10 +189,6 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #endif
 
 #define PI 3.14159265358979323846
-
-//#define HP_PER_HEART          16 //We should make this a global quest setting.
-//#define MAGICPERBLOCK         32
-//#define DAMAGE_MULTIPLIER     2 //We should make this a global quest setting.
 
 #define ZC_ID(a,b,c,d)  (((a)<<24) | ((b)<<16) | ((c)<<8) | (d))
 
@@ -388,104 +350,15 @@ extern volatile bool close_button_quit;
 #define SIDE_TO_DIAG		1.4142
 #define STEP_DIAGONAL(s)	(s*DIAG_TO_SIDE)
 
-#define SINGLE_TILE_SIZE    128
-#define TILES_PER_ROW       20
-#define TILE_ROWS_PER_PAGE  13
-#define TILES_PER_PAGE      (TILES_PER_ROW*TILE_ROWS_PER_PAGE)
-
-#define TILEROW(tile)		((tile)/TILES_PER_ROW)
-#define TILECOL(tile)		((tile)%TILES_PER_ROW)
-#define TILEPAGE(tile)		((tile)/TILES_PER_PAGE)
-
-#define TILE_PAGES          825
-#define TILE_PAGES_ZC250    252 //2.50.x
-
-#define OLDMAXTILES         (TILES_PER_PAGE*6)              // 1560 tiles
-#define NEWMAXTILES         (TILES_PER_PAGE*TILE_PAGES)     // 214500 tiles
-#define ZC250MAXTILES         (TILES_PER_PAGE*TILE_PAGES_ZC250)     // 32760 tiles
-
-#define MAXTILEROWS         (TILE_ROWS_PER_PAGE*TILE_PAGES) //Last row that we can show when trying to grab tiles from  .QST file. -Z
-
-#define NEWTILE_SIZE2       (NEWMAXTILES*SINGLE_TILE_SIZE)  // 27456000 bytes 
-#define ZC250TILESIZE       (ZC250MAXTILES*SINGLE_TILE_SIZE)  // 4193280 bytes (new packed format, 6 pages)
-#define OLDTILE_SIZE2       (OLDMAXTILES*SINGLE_TILE_SIZE)  // 199680 bytes (new packed format, 6 pages)
-// 133120 bytes (new packed format, 4 pages)
-#define OLDTILE_SIZE        (TILES_PER_PAGE*4*SINGLE_TILE_SIZE)
-//#define NEWTILE_SIZE      (260*6*128) // 199680 bytes (new packed format, 6 pages)
-//#define OLDTILE_SIZE      (260*4*128) // 133120 bytes (new packed format, 4 pages)
-#define TILEBUF_SIZE        (320*480)                       // 153600 bytes (old unpacked format)
-
-#define COMBOS_PER_ROW      20
-
-//TODO Turn this into an init data var, and allow editing it per-weapon! -Em
-#define DEFAULT_FIRE_LIGHT_RADIUS 40
-
 #define WRAP_CS2(cs,cs2) (get_qr(qr_OLDCS2)?((cs+cs2+16)%16):((cs+cs2+14)%14))
 
 #define XOR(a,b) (!(a) != !(b))
-
-//#define MAGICDRAINRATE  2
 
 // quest stuff
 #define ZQ_TILES        0
 #define ZQ_MIDIS2       1                                   //4 bytes
 #define ZQ_CHEATS2       5
 #define ZQ_MAXDATA      20
-#define WAV_COUNT       256
-
-#define MAXSCREENS 128
-#define MAXCUSTOMMIDIS192b177 32                                  // uses bit string for midi flags, so 32 bytes
-#define MAXCUSTOMMIDIS        252                                 // uses bit string for midi flags, so 32 bytes
-#define MIDIFLAGS_SIZE  ((MAXCUSTOMMIDIS+7)>>3)
-#define MAXCUSTOMTUNES        252
-//Midi offsets
-//The offset from dmap/mapscr-> midi/screen_midi to currmidi
-#define MIDIOFFSET_DMAP		(ZC_MIDI_COUNT-4)
-#define MIDIOFFSET_MAPSCR	(ZC_MIDI_COUNT-4)
-//The offset from currmidi to ZScript MIDI values
-#define MIDIOFFSET_ZSCRIPT	(ZC_MIDI_COUNT-1)
-//Use together as `(MIDIOFFSET_DMAP-MIDIOFFSET_ZSCRIPT)` to go from `dmap` directly to `zscript`
-
-
-#define MAXMUSIC              256                                 // uses bit string for music flags, so 32 bytes
-#define MUSICFLAGS_SIZE       MAXMUSIC>>3
-
-#define MAXMAPS2        255                                 // 4 times the old number
-//#define MAXMAPS         16
-#define MAPSCRSNORMAL   128
-#define MAPSCRS192b136  132
-#define MAPSCRS         136
-#define TEMPLATES         8
-#define TEMPLATE        131
-#define TEMPLATE2       132
-
-#define MAXQTS           256
-#define MAXMSGS          65535
-#define MAXDOORCOMBOSETS 256
-#define MAXDMAPS         512                                 //this and
-#define MAXLEVELS        512								 //this should be the same number (was 32)
-#define OLDMAXLEVELS	 256
-#define OLDMAXDMAPS		 256
-#define MAXITEMS         256
-#define MAXWPNS          256
-#define OLDBETAMAXGUYS   256								//max 2.5 guys through beta 20
-#define MAXGUYS          512
-#define MAXITEMDROPSETS  256
-#define COMBOS_PER_PAGE  256
-#define COMBO_PAGES      255
-#define MAXCOMBOS        COMBO_PAGES*COMBOS_PER_PAGE
-#define BOUND_COMBO(c)	vbound(c, 0, MAXCOMBOS)
-#define MAXSUBSCREENITEMS	256
-#define MAXCUSTOMSUBSCREENS 128
-#define MAXNPCS	512
-
-#define MAXFAVORITECOMMANDS 64
-#define MAXFAVORITECOMBOS 300
-#define MAXFAVORITECOMBOALIASES MAXFAVORITECOMBOS
-
-#define FAVORITECOMBO_PER_ROW 30
-
-#define PALNAMESIZE     17
 
 // lvlitems flags
 #define liTRIFORCE      1
@@ -537,13 +410,6 @@ enum
     spAQUA, spGLEEOK, spDIG, spGANON, spBROWN, spPILE, spBLUE, spRED,
     spGOLD, spICON1, spICON2, spICON3, spICON4, spGLEEOKF, spFROZEN
 };
-
-// dmap types
-enum { dmDNGN, dmOVERW, dmCAVE, dmBSOVERW, dmMAX };
-
-// dmap type bit masks (?)
-#define dmfCONTINUE      128
-#define dmfTYPE          127
 
 // map flags
 enum
@@ -898,8 +764,7 @@ enum                                                        // value matters bec
     iCustom6, iCustom7, iCustom8, iCustom9, iCustom10,
     iCustom11, iCustom12, iCustom13, iCustom14, iCustom15,
     iCustom16, iCustom17, iCustom18, iCustom19, iCustom20,
-    iLast,
-    iMax=256
+    iLast
 };
 
 // Shield projectile blocking
@@ -1555,17 +1420,11 @@ struct size_and_pos
 	size_and_pos(int nx = -1, int ny = -1, int nw = -1, int nh = -1, int xsc = 1, int ysc = 1, int fw = -1, int fh = -1);
 };
 
-//#define OLDITEMCNT i90
-//#define OLDWPNCNT  w84
-#define ITEMCNT   iMax
-#define WPNCNT    wMAX
-
 struct tiledata
 {
     byte format;
     byte *data;
 };
-
 
 //Weapon editor
 
@@ -1574,8 +1433,6 @@ enum
 { 
 	wpnclkFRAMECOUNT, wpnclkMAGICUSAGE = 9 
 };
-
-
 
 //Weapon Types
 enum
@@ -1603,14 +1460,11 @@ enum
 	weapdefSCRIPT6, weapdefSCRIPT7, weapdefSCRIPT8, weapdefSCRIPT9, weapdefSCRIPT10 
 };
 	
-
 #define ITEM_MOVEMENT_PATTERNS 10
-
-	//Move pattern array indices
+//Move pattern array indices
 enum{
 	wpnmovePATTERN, wmoveARG1, wmoveARG2, wmoveARG3, wmoveARG4, wmoveDUPLICATES, wmoveOTHER1
 };
-	
 
 //Movement patterns
 enum
@@ -1733,7 +1587,6 @@ struct item_drop_object
 
 #define MAX_NPC_ATRIBUTES 31
 
-
 struct guydata
 {
     dword flags;
@@ -1837,7 +1690,6 @@ struct guydata
 #define LIFTFL_DIS_ITEMS              0x00000002
 #define NUM_LIFTFL 2
 
-#define MAX_PC dword(-1)
 class refInfo
 {
 public:
@@ -3028,92 +2880,6 @@ struct DoorComboSet
     //638 (44)
 };
 
-struct dmap
-{
-    byte map;
-    word level;
-    char xoff;
-    byte compass;
-    word color;
-    byte midi;
-    byte cont;
-    byte type;
-    //8
-    byte grid[8];
-    //16
-    char name[21];
-    char title[21];
-    char intro[73];
-    //byte padding;
-    //132
-    int32_t minimap_1_tile;                                      //before getting map
-    byte minimap_1_cset;                                      //cset for minimap 1
-    //byte padding;
-    int32_t minimap_2_tile;                                      //after getting map
-    byte minimap_2_cset;                                      //cset for minimap 2
-    //byte padding;
-    //140
-    int32_t largemap_1_tile;                                     //large map
-    byte largemap_1_cset;                                     //cset for large
-    //byte padding;
-    int32_t largemap_2_tile;                                     //large map
-    byte largemap_2_cset;                                     //cset for large
-    char tmusic[56];
-    byte tmusictrack;
-    byte active_subscreen;
-    byte passive_subscreen;
-    // int32_t emusic;
-    //byte padding;
-    //204
-    byte disableditems[iMax];
-    // 460
-    int32_t flags;
-    char sideview;
-    word script;
-    int32_t initD[8];
-    char initD_label[8][65];
-	word active_sub_script;
-	word passive_sub_script;
-	int32_t sub_initD[8];
-	char sub_initD_label[8][65];
-	word onmap_script;
-	int32_t onmap_initD[8];
-	char onmap_initD_label[8][65];
-	int16_t mirrorDMap;
-};
-
-// DMap flags
-#define dmfCAVES            0x000001
-#define dmf3STAIR           0x000002
-#define dmfWHIRLWIND        0x000004
-#define dmfGUYCAVES         0x000008
-#define dmfNOCOMPASS        0x000010
-#define dmfWAVY             0x000020
-#define dmfWHIRLWINDRET     0x000040
-#define dmfALWAYSMSG        0x000080
-#define dmfVIEWMAP          0x000100
-#define dmfDMAPMAP          0x000200
-#define dmfMINIMAPCOLORFIX  0x000400
-#define dmfSCRIPT1          0x000800
-#define dmfSCRIPT2          0x001000
-#define dmfSCRIPT3          0x002000
-#define dmfSCRIPT4          0x004000
-#define dmfSCRIPT5          0x008000
-#define dmfSIDEVIEW         0x010000
-#define dmfLAYER3BG         0x020000
-#define dmfLAYER2BG         0x040000
-#define dmfNEWCELLARENEMIES 0x080000
-#define dmfBUNNYIFNOPEARL   0x100000
-#define dmfMIRRORCONTINUE   0x200000
-#define dmfZ3_RESERVERD_1   0x400000
-#define dmfZ3_RESERVERD_2   0x800000
-
-
-#define OLDMAXCOMBOALIASES 256
-#define MAX250COMBOALIASES 2048
-#define MAXCOMBOALIASES 8192
-#define MAXCOMBOPOOLS 8192
-
 struct combo_alias
 {
     combo_alias()
@@ -3343,11 +3109,6 @@ enum miscsfx
 	sfxDRAIN,
 	sfxMAX = 256
 };
-
-#define NUM_SHOPS 256
-#define NUM_INFOS 256
-#define NUM_PAL_CYCLES 256
-#define NUM_WARP_RINGS 9
 
 struct miscQdata
 {

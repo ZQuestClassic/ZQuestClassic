@@ -11,6 +11,7 @@
 #include <string.h>
 
 #include "base/qrs.h"
+#include "base/dmap.h"
 #include "zc/zelda.h"
 #include "subscr.h"
 #include "zc/zc_subscr.h"

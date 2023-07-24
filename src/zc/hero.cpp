@@ -17,6 +17,7 @@
 #include <stdio.h>
 
 #include "base/qrs.h"
+#include "base/dmap.h"
 #include "zc/hero.h"
 #include "zc/guys.h"
 #include "subscr.h"

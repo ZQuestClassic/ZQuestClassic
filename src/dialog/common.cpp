@@ -9,11 +9,11 @@
 GUI::ListData getItemListData(bool includeNone)
 {
 	std::vector<GUI::ListItem> listItems;
-	listItems.reserve(ITEMCNT+(includeNone ? 1 : 0));
+	listItems.reserve(MAXITEMS+(includeNone ? 1 : 0));
 
 	if(includeNone)
 		listItems.emplace_back("(None)", -1);
-	for(int32_t i = 0; i < ITEMCNT; ++i)
+	for(int32_t i = 0; i < MAXITEMS; ++i)
 		listItems.emplace_back(item_string[i], i);
 
 	auto sortBegin = listItems.begin();

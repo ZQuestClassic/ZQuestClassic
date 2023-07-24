@@ -11,6 +11,7 @@
 #include "subscr.h"
 #include "base/zapp.h"
 #include "base/qrs.h"
+#include "base/dmap.h"
 #include "tiles.h"
 #include "base/zsys.h"
 #include "base/util.h"
@@ -5101,7 +5102,7 @@ void load_Sitems(miscQdata *misc)
     // HC Pieces
     if(misc->colors.HCpieces_tile)
     {
-        //      item *HCP = new item((zfix)(inventory_x[5]-ofs),(zfix)y,iMax,0,0);
+        //      item *HCP = new item((zfix)(inventory_x[5]-ofs),(zfix)y,MAXITEMS,0,0);
         item *HCP = new item((zfix)0,(zfix)0,(zfix)0,iHCPiece,0,0);
         
         if(HCP)

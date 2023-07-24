@@ -18,6 +18,7 @@
 #include "base/zc_alleg.h"
 #include "jwin.h"
 #include "base/zdefs.h"
+#include "base/dmap.h"
 #include "base/zsys.h"
 #include "base/gui.h"
 #include "init.h"
@@ -44,7 +45,6 @@ extern zcmodule moduledata;
 
 
 extern int32_t jwin_pal[jcMAX];
-extern dmap *DMaps;
 extern itemdata *itemsbuf;
 extern char *item_string[];
 extern byte *colordata;

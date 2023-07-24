@@ -23,15 +23,12 @@
 #include <string.h>
 
 #include "base/zc_alleg.h"
+#include "base/ints.h"
 #include "allegro/internal/aintern.h"
 #include "/allegro/tools/datedit.h"
 #include "font.h"
 
 extern FONT* create_font();
-
-typedef uint8_t   byte;                               //0-255         ( 8 bits)
-typedef uint16_t  word;                               //0-65535       (16 bits)
-typedef uint32_t   dword;                              //0-4294967295  (32 bits)
 
 extern byte *tilebuf;
 

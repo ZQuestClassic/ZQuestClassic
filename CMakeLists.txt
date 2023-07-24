@@ -444,6 +444,7 @@ target_include_directories(fmt PUBLIC include/fmt)
 set(zcbase_sources
 	src/base/colors.cpp
 	src/base/cpos_info.cpp
+	src/base/dmap.cpp
 	src/base/fonts.cpp
 	src/base/gui.cpp
 	src/base/hotkey.cpp

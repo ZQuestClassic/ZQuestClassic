@@ -12,6 +12,7 @@
 #include <stdio.h>
 
 #include "base/qrs.h"
+#include "base/dmap.h"
 #include "base/gui.h"
 #include "base/util.h"
 #include "zq/zq_files.h"

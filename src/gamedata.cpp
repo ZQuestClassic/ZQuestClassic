@@ -18,6 +18,7 @@
 #include "base/util.h"
 #include "zc/ffscript.h"
 #include "base/qrs.h"
+#include "base/dmap.h"
 
 using namespace util;
 extern FFScript FFCore;
