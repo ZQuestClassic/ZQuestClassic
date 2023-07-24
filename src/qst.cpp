@@ -12,6 +12,7 @@
 #include "base/util.h"
 #include "base/zapp.h"
 #include "base/qrs.h"
+#include "base/packfile.h"
 #include "base/dmap.h"
 #include <filesystem>
 #include <stdio.h>

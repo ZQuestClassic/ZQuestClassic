@@ -16,6 +16,7 @@
 #include <memory>
 #include "base/zc_alleg.h"
 #include "base/qrs.h"
+#include "base/packfile.h"
 #include "base/dmap.h"
 
 #include "base/zdefs.h"

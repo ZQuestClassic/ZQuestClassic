@@ -21,6 +21,7 @@
 
 #include "base/qrs.h"
 #include "base/dmap.h"
+#include "base/packfile.h"
 #include "base/gui.h"
 #include "zq/zq_class.h"
 #include "zq/zq_misc.h"
