@@ -1594,24 +1594,6 @@ size_and_pos::size_and_pos(int nx, int ny, int nw, int nh, int xsc, int ysc, int
 	: x(nx), y(ny), w(nw), h(nh), xscale(xsc), yscale(ysc), fw(fw), fh(fh)
 {}
 
-int newcombo::each_tile(std::function<bool(int32_t)> proc) const
-{
-	int tile = o_tile;
-	int frame = 0;
-	do
-	{
-		if(proc(tile))
-			return frame;
-		if(++frame >= frames)
-			break;
-		tile += ((1+skipanim)*frame);
-		if(int rowoffset = TILEROW(tile)-TILEROW(o_tile))
-			tile += skipanimy * rowoffset * TILES_PER_ROW;
-	}
-	while(true);
-	return -1;
-}
-
 const int BUILDTM_YEAR = (
     __DATE__[7] == '?' ? 1900
     : (((__DATE__[7] - '0') * 1000 )

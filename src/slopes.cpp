@@ -3,8 +3,7 @@
 #include "zc/maps.h"
 #include "base/zc_math.h"
 #include "sprite.h"
-
-extern std::vector<newcombo> combobuf;
+#include "base/combo.h"
 
 std::map<int32_t, slope_object> slopes;
 

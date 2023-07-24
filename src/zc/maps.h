@@ -12,6 +12,8 @@
 #define _MAPS_H_
 #include "base/zdefs.h"
 
+struct newcombo;
+
 #define DRIEDLAKE ((tmpscr->flags7 & fWHISTLEWATER) && (whistleclk>=88))
 int32_t COMBOPOS(int32_t x, int32_t y);
 int32_t COMBOPOS_B(int32_t x, int32_t y);

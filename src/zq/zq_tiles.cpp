@@ -16,6 +16,7 @@
 #include "base/cpool.h"
 #include "base/packfile.h"
 #include "base/gui.h"
+#include "base/combo.h"
 #include "zq/zquestdat.h"
 #include "zq/zq_tiles.h"
 #include "zq/zquest.h"

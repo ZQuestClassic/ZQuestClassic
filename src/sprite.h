@@ -23,6 +23,7 @@
 #include "base/cpos_info.h"
 
 struct itemdata;
+struct newcombo;
 using std::map;
 // this code needs some patching for use in zquest.cc
 
