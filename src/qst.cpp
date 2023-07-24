@@ -12,6 +12,7 @@
 #include "base/util.h"
 #include "base/zapp.h"
 #include "base/qrs.h"
+#include "base/cpool.h"
 #include "base/packfile.h"
 #include "base/dmap.h"
 #include <filesystem>
@@ -136,8 +137,6 @@ const byte clavio[9]={97,109,111,110,103,117,115,0};
 //enum { qe_OK, qe_notfound, qe_invalid, qe_version, qe_obsolete,
 //       qe_missing, qe_internal, qe_pwd, qe_match, qe_minver };
 
-extern combo_alias combo_aliases[MAXCOMBOALIASES];
-extern combo_pool combo_pools[MAXCOMBOPOOLS];
 const char *qst_error[] =
 {
     "OK","File not found","Invalid quest file",
