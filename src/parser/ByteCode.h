@@ -921,7 +921,7 @@
 #define DMAPDATAMUISCTRACK 	866	//byte
 #define DMAPDATASUBSCRA 	867	//byte, active subscreen
 #define DMAPDATASUBSCRP 	868	//byte, passive subscreen
-#define DMAPDATADISABLEDITEMS 	869	//byte[iMax]
+#define DMAPDATADISABLEDITEMS 	869	//byte[MAXITEMS]
 #define DMAPDATAFLAGS 		870	//int32_t
 #define NPCFROZEN 		871	//int32_t
 #define NPCFROZENTILE 		872	//int32_t

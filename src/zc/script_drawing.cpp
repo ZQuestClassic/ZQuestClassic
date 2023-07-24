@@ -10,6 +10,7 @@
 
 #define LOG_BMPBLIT_LEVEL 0
 #include "base/qrs.h"
+#include "base/dmap.h"
 #include "base/zc_alleg.h"
 #include "zc/script_drawing.h"
 #include "zc/rendertarget.h"

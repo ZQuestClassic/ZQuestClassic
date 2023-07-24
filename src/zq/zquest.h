@@ -230,7 +230,6 @@ extern miscQdata           misc;
 extern std::vector<mapscr> TheMaps;
 extern std::vector<word>   map_autolayers;
 extern zcmap               *ZCMaps;
-extern dmap                *DMaps;
 extern MsgStr              *MsgStrings;
 extern int32_t				   msg_strings_size;
 extern DoorComboSet        *DoorComboSets;
@@ -519,7 +518,7 @@ typedef struct item_struct
     int32_t i;
 } item_struct;
 
-extern item_struct bii[iMax+1];
+extern item_struct bii[MAXITEMS+1];
 
 typedef struct weapon_struct
 {
@@ -527,7 +526,7 @@ typedef struct weapon_struct
     int32_t i;
 } weapon_struct;
 
-extern weapon_struct biw[wMAX];
+extern weapon_struct biw[MAXWPNS];
 
 typedef std::pair<std::string, int32_t> script_struct;
 void build_biitems_list();

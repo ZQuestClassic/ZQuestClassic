@@ -16,6 +16,7 @@
 #include <memory>
 #include "base/zc_alleg.h"
 #include "base/qrs.h"
+#include "base/dmap.h"
 
 #include "base/zdefs.h"
 #include "zc/zelda.h"
@@ -2385,7 +2386,7 @@ int32_t writesaves(gamedata *savedata, PACKFILE *f)
 		return 4;
 	}
 	
-	//word item_count=iMax;
+	//word item_count=MAXITEMS;
 	word qstpath_len=0;
 	
 	if(!p_iputw(MAXSAVES,f))

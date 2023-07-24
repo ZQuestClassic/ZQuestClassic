@@ -26,7 +26,7 @@
 
 #include <queue>
 
-char *item_string[ITEMCNT];
+char *item_string[MAXITEMS];
 extern std::vector<newcombo> combobuf;
 
 extern zinitdata zinit;
@@ -349,7 +349,7 @@ item::item(zfix X,zfix Y,zfix Z,int32_t i,int32_t p,int32_t c, bool isDummy) : s
 	//if ( x > 0 && x < 256 && y > 56 && y < 256 && !isDummy && ( pickup == 0x100 || pickup == 0 || pickup == 0x002 || pickup == 0x004 && pickup == 0x800 ) ) script_UID = FFCore.GetScriptObjectUID(UID_TYPE_ITEM); //This is used by child npcs. 
 	#endif
 	
-	if(id<0 || id>iMax) //>, not >= for dummy items such as the HC Piece display in the subscreen
+	if(id<0 || id>MAXITEMS) //>, not >= for dummy items such as the HC Piece display in the subscreen
 		return;
 		 
 	o_tile = itm.tile;
@@ -866,7 +866,7 @@ const char *old_weapon_string[wLast] =
 	"Fire Trail (Enemy)", "Fire 2 (Enemy)", "Fire 2 Trail (Enemy) <Unused>", "Ice Magic (Enemy) <Unused>", "MISC: Hover Boots Glow", "Magic (Fire)", "MISC: Quarter Hearts", "Cane of Byrna (Beam)" /*, "MISC: Sideview Ladder", "MISC: Sideview Raft"*/
 };
 
-char *weapon_string[WPNCNT];
+char *weapon_string[MAXWPNS];
 
 ALLEGRO_COLOR item::hitboxColor(byte opacity) const
 {

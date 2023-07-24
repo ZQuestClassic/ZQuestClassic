@@ -1,3 +1,4 @@
+#include "base/dmap.h"
 #include "test_quest_dlg.h"
 #include "alertfunc.h"
 #include "base/process_management.h"
@@ -15,7 +16,6 @@ int32_t onSave();
 int32_t onSaveAs();
 extern char *filepath;
 extern bool saved, first_save;
-extern dmap *DMaps;
 
 static int32_t test_start_dmap = 0, test_start_screen = 0, test_ret_sqr = 0;
 static process_killer test_killer;

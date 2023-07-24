@@ -12,6 +12,7 @@
 #include "base/util.h"
 #include "base/zapp.h"
 #include "base/qrs.h"
+#include "base/dmap.h"
 #include <filesystem>
 #include <stdio.h>
 #include <string.h>
@@ -85,7 +86,6 @@ extern std::vector<word>   map_autolayers;
 extern zcmap               *ZCMaps;
 extern MsgStr              *MsgStrings;
 extern DoorComboSet        *DoorComboSets;
-extern dmap                *DMaps;
 extern std::vector<newcombo> combobuf;
 extern byte                *colordata;
 //extern byte              *tilebuf;
@@ -1309,7 +1309,7 @@ bool reset_wpns(bool validate, zquestheader *Header)
     if (get_app_id() == App::zquest)
         ret = init_section(Header, ID_WEAPONS, NULL, NULL, validate);
     
-    for(int32_t i=0; i<WPNCNT; i++)
+    for(int32_t i=0; i<MAXWPNS; i++)
         reset_weaponname(i);
         
     return ret;
@@ -6400,9 +6400,9 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 	return 0;
 }
 
-extern char *item_string[ITEMCNT];
+extern char *item_string[MAXITEMS];
 extern const char *old_item_string[iLast];
-extern char *weapon_string[WPNCNT];
+extern char *weapon_string[MAXWPNS];
 extern const char *old_weapon_string[wLast];
 
 int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode)
@@ -6449,7 +6449,7 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
             return qe_invalid;
         }
 
-        if (!(items_to_read >= 0 && items_to_read <= ITEMCNT))
+        if (!(items_to_read >= 0 && items_to_read <= MAXITEMS))
         {
             return qe_invalid;
         }
@@ -6477,7 +6477,7 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
     {
         if(keepdata)
         {
-            for(int32_t i=0; i<ITEMCNT; i++)
+            for(int32_t i=0; i<MAXITEMS; i++)
             {
                 reset_itemname(i);
             }
@@ -9707,7 +9707,7 @@ int32_t readweapons(PACKFILE *f, zquestheader *Header, bool keepdata)
             return qe_invalid;
         }
 
-        if (!(weapons_to_read >= 0 && weapons_to_read <= WPNCNT))
+        if (!(weapons_to_read >= 0 && weapons_to_read <= MAXWPNS))
         {
             return qe_invalid;
         }
@@ -9759,7 +9759,7 @@ int32_t readweapons(PACKFILE *f, zquestheader *Header, bool keepdata)
     else
     {
         if(keepdata)
-            for(int32_t i=0; i<WPNCNT; i++)
+            for(int32_t i=0; i<MAXWPNS; i++)
                 reset_weaponname(i);
     }
     

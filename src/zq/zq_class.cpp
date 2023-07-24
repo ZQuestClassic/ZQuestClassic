@@ -20,6 +20,7 @@
 #include "metadata/metadata.h"
 
 #include "base/qrs.h"
+#include "base/dmap.h"
 #include "base/gui.h"
 #include "zq/zq_class.h"
 #include "zq/zq_misc.h"
@@ -8593,12 +8594,12 @@ int32_t writeitems(PACKFILE *f, zquestheader *Header)
         writesize=0;
         
         //finally...  section data
-        if(!p_iputw(iMax,f))
+        if(!p_iputw(MAXITEMS,f))
         {
             new_return(5);
         }
         
-        for(int32_t i=0; i<iMax; i++)
+        for(int32_t i=0; i<MAXITEMS; i++)
         {
             if(!pfwrite(item_string[i], 64, f))
             {
@@ -8606,7 +8607,7 @@ int32_t writeitems(PACKFILE *f, zquestheader *Header)
             }
         }
         
-        for(int32_t i=0; i<iMax; i++)
+        for(int32_t i=0; i<MAXITEMS; i++)
         {
             if(!p_iputl(itemsbuf[i].tile,f))
             {
@@ -9110,12 +9111,12 @@ int32_t writeweapons(PACKFILE *f, zquestheader *Header)
         writesize=0;
         
         //finally...  section data
-        if(!p_iputw(wMAX,f))
+        if(!p_iputw(MAXWPNS,f))
         {
             new_return(5);
         }
         
-        for(int32_t i=0; i<wMAX; i++)
+        for(int32_t i=0; i<MAXWPNS; i++)
         {
             if(!pfwrite((char *)weapon_string[i], 64, f))
             {
@@ -9123,7 +9124,7 @@ int32_t writeweapons(PACKFILE *f, zquestheader *Header)
             }
         }
         
-        for(int32_t i=0; i<wMAX; i++)
+        for(int32_t i=0; i<MAXWPNS; i++)
         {            
             if(!p_putc(wpnsbuf[i].misc,f))
             {

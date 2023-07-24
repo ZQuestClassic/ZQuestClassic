@@ -1,4 +1,5 @@
 #include "base/qrs.h"
+#include "base/dmap.h"
 #include "zc/zelda.h"
 #include "sprite.h"
 #include "zc/decorations.h"
