@@ -243,6 +243,28 @@ struct SW_Counter : public SubscrWidget
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs) const override;
 };
 
+#define SUBSCR_COUNTERS_USEX   SUBSCRFLAG_SPEC_01
+struct SW_Counters : public SubscrWidget
+{
+	int32_t fontid;
+	byte shadtype;
+	SubscrColorInfo c_text, c_shadow, c_bg;
+	byte digits;
+	int32_t infitm;
+	char infchar;
+	
+	SW_Counters() = default;
+	SW_Counters(subscreen_object const& old);
+	
+	virtual bool load_old(subscreen_object const& old) override;
+	virtual int16_t getX() const override; //Returns x in pixels
+	virtual int16_t getY() const override; //Returns y in pixels
+	virtual word getW() const override; //Returns width in pixels
+	virtual word getH() const override; //Returns height in pixels
+	virtual byte getType() const override;
+	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs) const override;
+};
+
 
 struct SubscrPage
 {

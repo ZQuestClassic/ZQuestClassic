@@ -695,6 +695,54 @@ void SW_Counter::draw(BITMAP* dest, int32_t xofs, int32_t yofs) const
 		flags&SUBSCR_COUNTER_ONLYSEL);
 }
 
+SW_Counters::SW_Counters(subscreen_object const& old) : SW_Counters()
+{
+	load_old(old);
+}
+bool SW_Counters::load_old(subscreen_object const& old)
+{
+	if(old.type != ssoCOUNTERS)
+		return false;
+	SubscrWidget::load_old(old);
+	fontid = to_real_font(old.d1);
+	SETFLAG(flags,SUBSCR_COUNTERS_USEX,old.d2);
+	shadtype = old.d3;
+	digits = old.d4;
+	infitm = old.d10;
+	infchar = old.d5;
+	c_text.load_old(old,1);
+	c_shadow.load_old(old,2);
+	c_bg.load_old(old,3);
+	return true;
+}
+int16_t SW_Counters::getX() const
+{
+	return x+shadow_x(shadtype);
+}
+int16_t SW_Counters::getY() const
+{
+	return y+shadow_y(shadtype);
+}
+word SW_Counters::getW() const
+{
+	return 32 + shadow_w(shadtype);
+}
+word SW_Counters::getH() const
+{
+	return 32 + shadow_h(shadtype);
+}
+byte SW_Counters::getType() const
+{
+	return ssoCOUNTERS;
+}
+void SW_Counters::draw(BITMAP* dest, int32_t xofs, int32_t yofs) const
+{
+	FONT* tempfont = get_zc_font(fontid);
+	defaultcounters(dest, getX()+xofs, getY()+yofs, tempfont, c_text.get_color(),
+		c_shadow.get_color(), c_bg.get_color(),flags&SUBSCR_COUNTERS_USEX,shadtype,
+		digits,infchar);
+}
+
 
 SubscrWidget SubscrWidget::fromOld(subscreen_object const& old)
 {
@@ -721,6 +769,7 @@ SubscrWidget SubscrWidget::fromOld(subscreen_object const& old)
 		case ssoCOUNTER:
 			return SW_Counter(old);
 		case ssoCOUNTERS:
+			return SW_Counters(old);
 		case ssoMINIMAPTITLE:
 		case ssoMINIMAP:
 		case ssoLARGEMAP:
