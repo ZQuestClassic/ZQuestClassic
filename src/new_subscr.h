@@ -265,7 +265,7 @@ struct SW_Counters : public SubscrWidget
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs) const override;
 };
 
-#define SUBSCR_MMAP_REQMAP     SUBSCRFLAG_SPEC_01
+#define SUBSCR_MMAPTIT_REQMAP  SUBSCRFLAG_SPEC_01
 struct SW_MMapTitle : public SubscrWidget
 {
 	int32_t fontid;
@@ -279,6 +279,23 @@ struct SW_MMapTitle : public SubscrWidget
 	virtual word getW() const override; //Returns width in pixels
 	virtual word getH() const override; //Returns height in pixels
 	virtual int16_t getXOffs() const override; //Returns any special x-offset
+	virtual byte getType() const override;
+	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs) const override;
+};
+
+#define SUBSCR_MMAP_SHOWMAP    SUBSCRFLAG_SPEC_01
+#define SUBSCR_MMAP_SHOWPLR    SUBSCRFLAG_SPEC_02
+#define SUBSCR_MMAP_SHOWCMP    SUBSCRFLAG_SPEC_03
+struct SW_MMap : public SubscrWidget
+{
+	SubscrColorInfo c_plr, c_cmp_blink, c_cmp_off;
+	
+	SW_MMap() = default;
+	SW_MMap(subscreen_object const& old);
+	
+	virtual bool load_old(subscreen_object const& old) override;
+	virtual word getW() const override; //Returns width in pixels
+	virtual word getH() const override; //Returns height in pixels
 	virtual byte getType() const override;
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs) const override;
 };

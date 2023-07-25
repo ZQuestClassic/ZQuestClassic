@@ -742,11 +742,11 @@ SW_MMapTitle::SW_MMapTitle(subscreen_object const& old) : SW_MMapTitle()
 }
 bool SW_MMapTitle::load_old(subscreen_object const& old)
 {
-	if(old.type != ssoCOUNTERS)
+	if(old.type != ssoMINIMAPTITLE)
 		return false;
 	SubscrWidget::load_old(old);
 	fontid = to_real_font(old.d1);
-	SETFLAG(flags,SUBSCR_MMAP_REQMAP,old.d4);
+	SETFLAG(flags,SUBSCR_MMAPTIT_REQMAP,old.d4);
 	shadtype = old.d3;
 	c_text.load_old(old,1);
 	c_shadow.load_old(old,2);
@@ -755,11 +755,11 @@ bool SW_MMapTitle::load_old(subscreen_object const& old)
 }
 word SW_MMapTitle::getW() const
 {
-	return 16;
+	return 80;
 }
 word SW_MMapTitle::getH() const
 {
-	return 80;
+	return 16;
 }
 int16_t SW_MMapTitle::getXOffs() const
 {
@@ -779,9 +779,46 @@ byte SW_MMapTitle::getType() const
 void SW_MMapTitle::draw(BITMAP* dest, int32_t xofs, int32_t yofs) const
 {
 	FONT* tempfont = get_zc_font(fontid);
-	if(!(flags&SUBSCR_MMAP_REQMAP) || has_item(itype_map, get_dlevel()))
+	if(!(flags&SUBSCR_MMAPTIT_REQMAP) || has_item(itype_map, get_dlevel()))
 		minimaptitle(dest, getX()+xofs, getY()+yofs, tempfont, c_text.get_color(),
 			c_shadow.get_color(),c_bg.get_color(), align, shadtype);
+}
+
+SW_MMap::SW_MMap(subscreen_object const& old) : SW_MMap()
+{
+	load_old(old);
+}
+bool SW_MMap::load_old(subscreen_object const& old)
+{
+	if(old.type != ssoMINIMAPTITLE)
+		return false;
+	SubscrWidget::load_old(old);
+	SETFLAG(flags,SUBSCR_MMAP_SHOWMAP,old.d1);
+	SETFLAG(flags,SUBSCR_MMAP_SHOWPLR,old.d2);
+	SETFLAG(flags,SUBSCR_MMAP_SHOWCMP,old.d3);
+	c_plr.load_old(old,1);
+	c_cmp_blink.load_old(old,2);
+	c_cmp_off.load_old(old,3);
+	return true;
+}
+word SW_MMap::getW() const
+{
+	return 80;
+}
+word SW_MMap::getH() const
+{
+	return 48;
+}
+byte SW_MMap::getType() const
+{
+	return ssoMINIMAP;
+}
+void SW_MMap::draw(BITMAP* dest, int32_t xofs, int32_t yofs) const
+{
+	bool showplr = (flags&SUBSCR_MMAP_SHOWPLR) && !(TheMaps[(DMaps[get_currdmap()].map*MAPSCRS)+get_homescr()].flags7&fNOHEROMARK);
+	bool showcmp = (flags&SUBSCR_MMAP_SHOWCMP) && !(DMaps[get_currdmap()].flags&dmfNOCOMPASS);
+	drawdmap(dest, getX()+xofs, getY()+yofs, flags&SUBSCR_MMAP_SHOWMAP, showplr,
+		showcmp, c_plr.get_color(), c_cmp_blink.get_color(), c_cmp_off.get_color());
 }
 
 
@@ -814,6 +851,7 @@ SubscrWidget SubscrWidget::fromOld(subscreen_object const& old)
 		case ssoMINIMAPTITLE:
 			return SW_MMapTitle(old);
 		case ssoMINIMAP:
+			return SW_MMap(old);
 		case ssoLARGEMAP:
 		case ssoCLEAR:
 		case ssoCURRENTITEM:
