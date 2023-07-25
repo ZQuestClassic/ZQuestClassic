@@ -17,6 +17,7 @@
 #include "base/dmap.h"
 #include "base/msgstr.h"
 #include "base/packfile.h"
+#include "base/misctypes.h"
 #include "zc/zc_sys.h"
 #include "zc/jit.h"
 #include "zc/script_debug.h"
@@ -461,6 +462,7 @@ extern int32_t directItemY;
 #include "gamedata.h"
 #include "zc/zc_init.h"
 #include "base/zsys.h"
+#include "base/misctypes.h"
 #include "zc/title.h"
 #include "zscriptversion.h"
 
@@ -515,8 +517,7 @@ int32_t FF_lweapon_removal_bounds[4]; //left, right, top, bottom coordinates for
 int32_t FF_clocks[FFSCRIPTCLASS_CLOCKS]; //Will be used for Heroaction, anims, and so forth 
 byte ScriptDrawingRules[SCRIPT_DRAWING_RULES];
 int32_t FF_UserMidis[NUM_USER_MIDI_OVERRIDES]; //MIDIs to use for Game Over, and similar to override system defaults. 
-	
-miscQdata *misc;
+
 int32_t get_int_arr(const int32_t ptr, int32_t indx);
 void set_int_arr(const int32_t ptr, int32_t indx, int32_t val);
 int32_t sz_int_arr(const int32_t ptr);

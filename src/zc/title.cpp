@@ -18,6 +18,7 @@
 #include "base/qrs.h"
 #include "base/packfile.h"
 #include "base/dmap.h"
+#include "base/misctypes.h"
 
 #include "base/zdefs.h"
 #include "zc/zelda.h"

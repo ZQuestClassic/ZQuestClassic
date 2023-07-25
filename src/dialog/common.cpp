@@ -1,6 +1,7 @@
 #include "common.h"
 #include "zq/zq_misc.h"
 #include "base/msgstr.h"
+#include "base/misctypes.h"
 #include "zq/zquest.h"
 #include <fmt/format.h>
 #include <algorithm>
@@ -54,7 +55,7 @@ GUI::ListData getShopListData()
 	return GUI::ListData(256,
 		[](size_t index)
 		{
-			return fmt::format("{}: {}", index, misc.shop[index].name);
+			return fmt::format("{}: {}", index, QMisc.shop[index].name);
 		},
 		[](size_t index)
 		{
@@ -67,7 +68,7 @@ GUI::ListData getBShopListData()
 	return GUI::ListData(256,
 		[](size_t index)
 		{
-			return fmt::format("{}: {}", index, misc.bottle_shop_types[index].name);
+			return fmt::format("{}: {}", index, QMisc.bottle_shop_types[index].name);
 		},
 		[](size_t index)
 		{
@@ -80,7 +81,7 @@ GUI::ListData getInfoShopListData()
 	return GUI::ListData(256,
 		[](size_t index)
 		{
-			return fmt::format("{}: {}", index, misc.info[index].name);
+			return fmt::format("{}: {}", index, QMisc.info[index].name);
 		},
 		[](size_t index)
 		{

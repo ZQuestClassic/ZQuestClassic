@@ -26,6 +26,7 @@
 #include "base/packfile.h"
 #include "base/msgstr.h"
 #include "base/zc_alleg.h"
+#include "base/misctypes.h"
 
 #include <stdlib.h>
 
@@ -620,8 +621,6 @@ byte                midi_flags[MIDIFLAGS_SIZE];
 byte                music_flags[MUSICFLAGS_SIZE];
 word                map_count=0;
 int32_t					msg_strings_size=0;
-DoorComboSet        *DoorComboSets;
-miscQdata           QMisc;
 std::vector<mapscr> TheMaps;
 std::vector<word>   map_autolayers;
 zcmap               *ZCMaps;

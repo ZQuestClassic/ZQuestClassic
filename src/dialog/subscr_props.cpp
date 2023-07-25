@@ -7,8 +7,7 @@
 #include "zc_list_data.h"
 #include "gui/use_size.h"
 #include "gui/common.h"
-extern miscQdata misc;
-#define QMisc misc
+#include "base/misctypes.h"
 
 void printobj(subscreen_object const& obj)
 {

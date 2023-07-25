@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "base/mapscr.h"
+#include "base/misctypes.h"
 
 using namespace util;
 

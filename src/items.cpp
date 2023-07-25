@@ -24,6 +24,7 @@
 #include "base/combo.h"
 #include "zc/ffscript.h"
 #include <fmt/format.h>
+#include "base/misctypes.h"
 
 #include <queue>
 

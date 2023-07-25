@@ -11,6 +11,7 @@
 #include "zc/hero.h"
 #include "zc/title.h"
 #include "base/mapscr.h"
+#include "base/misctypes.h"
 
 extern sprite_list items, decorations;
 extern FFScript FFCore;

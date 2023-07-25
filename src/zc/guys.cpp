@@ -29,6 +29,7 @@
 #include "base/qrs.h"
 #include "base/dmap.h"
 #include "base/mapscr.h"
+#include "base/misctypes.h"
 extern particle_list particles;
 
 extern FFScript FFCore;

@@ -7,9 +7,9 @@
 #include "gui/use_size.h"
 #include "zq/zq_tiles.h"
 #include "zinfo.h"
+#include "base/misctypes.h"
 
 extern bool saved;
-extern miscQdata misc;
 extern zinitdata zinit;
 extern ListData dmap_list;
 extern bool sorted_fontdd;
@@ -101,8 +101,8 @@ const GUI::ListData SCCListData()
 
 void SCCDialog::default_args()
 {
-	args[MSGC_COLOUR][0] = misc.colors.msgtext >> 4;
-	args[MSGC_COLOUR][1] = misc.colors.msgtext & 0xF;
+	args[MSGC_COLOUR][0] = QMisc.colors.msgtext >> 4;
+	args[MSGC_COLOUR][1] = QMisc.colors.msgtext & 0xF;
 	args[MSGC_SPEED][0] = zinit.msg_speed;
 	args[MSGC_GOTOIFRAND][0] = 2;
 	
@@ -321,7 +321,7 @@ std::shared_ptr<GUI::Widget> SCCDialog::view()
 					onClick = message::RELOAD,
 					onPressFunc = [&]()
 					{
-						byte val = misc.colors.msgtext;
+						byte val = QMisc.colors.msgtext;
 						cur_args[0] = val>>4;
 						cur_args[1] = val&0xF;
 					})

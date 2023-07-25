@@ -15,6 +15,8 @@
 #include "items.h"
 #include <stdio.h>
 
+struct miscQdata;
+
 #define ssflagSHOWGRID  1
 #define ssflagSHOWINVIS 2
 

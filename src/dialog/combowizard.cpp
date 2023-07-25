@@ -11,6 +11,7 @@
 #include "base/qrs.h"
 #include "zinfo.h"
 #include "base/combo.h"
+#include "base/misctypes.h"
 
 extern bool saved;
 extern zcmodule moduledata;
@@ -18,7 +19,6 @@ extern comboclass *combo_class_buf;
 extern int32_t CSet;
 extern int32_t numericalFlags;
 extern script_data *comboscripts[NUMSCRIPTSCOMBODATA];
-extern miscQdata misc;
 extern itemdata *itemsbuf;
 
 char *ordinal(int32_t num);
@@ -2468,7 +2468,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 			
 			byte defcut = cutsfx;
 			if(!(local_ref.usrflags&cflag3))
-				defcut = misc.miscsfx[sfxBUSHGRASS];
+				defcut = QMisc.miscsfx[sfxBUSHGRASS];
 			
 			windowRow->add(
 				Column(padding = 0_px,
@@ -2641,7 +2641,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 			
 			byte defcut = cutsfx;
 			if(!(local_ref.usrflags&cflag3))
-				defcut = misc.miscsfx[sfxBUSHGRASS];
+				defcut = QMisc.miscsfx[sfxBUSHGRASS];
 			
 			windowRow->add(
 				Column(padding = 0_px,
@@ -2785,7 +2785,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 			
 			byte defcut = cutsfx;
 			if(!(local_ref.usrflags&cflag3))
-				defcut = misc.miscsfx[sfxBUSHGRASS];
+				defcut = QMisc.miscsfx[sfxBUSHGRASS];
 			
 			windowRow->add(
 				Column(padding = 0_px,

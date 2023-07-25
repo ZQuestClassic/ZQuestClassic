@@ -3,9 +3,9 @@
 #include "info.h"
 #include <gui/builder.h>
 #include "zc_list_data.h"
+#include "base/misctypes.h"
 
 extern bool saved;
-extern miscQdata misc;
 
 void call_bottleshop_dlg(int32_t index)
 {
@@ -14,8 +14,8 @@ void call_bottleshop_dlg(int32_t index)
 }
 
 BottleShopDialog::BottleShopDialog(int32_t index):
-	index(index), sourceBottleShop(misc.bottle_shop_types[index]),
-	tempBottleShop(misc.bottle_shop_types[index]),
+	index(index), sourceBottleShop(QMisc.bottle_shop_types[index]),
+	tempBottleShop(QMisc.bottle_shop_types[index]),
 	list_bottletypes(GUI::ZCListData::bottletype())
 {}
 
