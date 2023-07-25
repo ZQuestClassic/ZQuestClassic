@@ -3,6 +3,7 @@
 #include "zq/zquest.h"
 #include "qst.h"
 #include "zinfo.h"
+#include "base/misctypes.h"
 
 extern zcmodule moduledata;
 extern char *weapon_string[];
@@ -10,7 +11,6 @@ extern char *sfx_string[];
 extern char *item_string[];
 extern char *guy_string[eMAXGUYS];
 extern const char *old_guy_string[OLDMAXGUYS];
-extern miscQdata QMisc;
 extern item_drop_object item_drop_sets[MAXITEMDROPSETS];
 
 #ifdef IS_PARSER

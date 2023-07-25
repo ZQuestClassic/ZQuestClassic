@@ -2154,9 +2154,9 @@ void draw_textbox(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, FONT
 
 
 
-//void frame2x2(BITMAP *dest,miscQdata *misc,int32_t x,int32_t y,int32_t xsize,int32_t ysize,int32_t t,int32_t c)
-//draw_block_flip(dest,x,y,css->objects[i].d1,subscreen_cset(misc, css->objects[i].colortype1, css->objects[i].color1),css->objects[i].w,css->objects[i].h,css->objects[i].d2,css->objects[i].d3,css->objects[i].d4);
-void frame2x2(BITMAP *dest,miscQdata *misc,int32_t x,int32_t y,int32_t tile,int32_t cset,int32_t w,int32_t h,int32_t /*flip*/,bool overlay,bool trans)
+//void frame2x2(BITMAP *dest,int32_t x,int32_t y,int32_t xsize,int32_t ysize,int32_t t,int32_t c)
+//draw_block_flip(dest,x,y,css->objects[i].d1,subscreen_cset(css->objects[i].colortype1, css->objects[i].color1),css->objects[i].w,css->objects[i].h,css->objects[i].d2,css->objects[i].d3,css->objects[i].d4);
+void frame2x2(BITMAP *dest,int32_t x,int32_t y,int32_t tile,int32_t cset,int32_t w,int32_t h,int32_t /*flip*/,bool overlay,bool trans)
 {
     /*
       /- -- -- -\
@@ -2169,9 +2169,9 @@ void frame2x2(BITMAP *dest,miscQdata *misc,int32_t x,int32_t y,int32_t tile,int3
       80 81 84 85
       82 83 86 87
       */
-    if(tile==0&&misc)
+    if(tile==0)
     {
-		tile = misc->colors.blueframe_tile;
+		tile = QMisc.colors.blueframe_tile;
     }
     
     int32_t t8 = tile<<2;
@@ -2531,9 +2531,9 @@ void draw_block_flip(BITMAP *dest,int32_t x,int32_t y,int32_t tile,int32_t cset,
     }
 }
 
-void drawdmap(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y, bool showmap, int32_t showhero, int32_t showcompass, int32_t herocolor, int32_t lccolor, int32_t dccolor)
+void drawdmap(BITMAP *dest, int32_t x, int32_t y, bool showmap, int32_t showhero, int32_t showcompass, int32_t herocolor, int32_t lccolor, int32_t dccolor)
 {
-    zcolors c=misc->colors;
+    zcolors c=QMisc.colors;
     int32_t type = (DMaps[get_currdmap()].type&dmfTYPE);
     
     if(showmap)
@@ -3373,7 +3373,7 @@ void subscreenitem(BITMAP *dest, int32_t x, int32_t y, int32_t itemtype)
     }
 }
 
-int32_t subscreen_color(miscQdata *misc, int32_t c1, int32_t c2)
+int32_t subscreen_color(int32_t c1, int32_t c2)
 {
     int32_t ret;
     
@@ -3387,67 +3387,67 @@ int32_t subscreen_color(miscQdata *misc, int32_t c1, int32_t c2)
         switch(c2)
         {
         case ssctTEXT:
-            ret=misc->colors.text;
+            ret=QMisc.colors.text;
             break;
             
         case ssctCAPTION:
-            ret=misc->colors.caption;
+            ret=QMisc.colors.caption;
             break;
             
         case ssctOVERWBG:
-            ret=misc->colors.overw_bg;
+            ret=QMisc.colors.overw_bg;
             break;
             
         case ssctDNGNBG:
-            ret=misc->colors.dngn_bg;
+            ret=QMisc.colors.dngn_bg;
             break;
             
         case ssctDNGNFG:
-            ret=misc->colors.dngn_fg;
+            ret=QMisc.colors.dngn_fg;
             break;
             
         case ssctCAVEFG:
-            ret=misc->colors.cave_fg;
+            ret=QMisc.colors.cave_fg;
             break;
             
         case ssctBSDK:
-            ret=misc->colors.bs_dk;
+            ret=QMisc.colors.bs_dk;
             break;
             
         case ssctBSGOAL:
-            ret=misc->colors.bs_goal;
+            ret=QMisc.colors.bs_goal;
             break;
             
         case ssctCOMPASSLT:
-            ret=misc->colors.compass_lt;
+            ret=QMisc.colors.compass_lt;
             break;
             
         case ssctCOMPASSDK:
-            ret=misc->colors.compass_dk;
+            ret=QMisc.colors.compass_dk;
             break;
             
         case ssctSUBSCRBG:
-            ret=misc->colors.subscr_bg;
+            ret=QMisc.colors.subscr_bg;
             break;
             
         case ssctSUBSCRSHADOW:
-            ret=misc->colors.subscr_shadow;
+            ret=QMisc.colors.subscr_shadow;
             break;
             
         case ssctTRIFRAMECOLOR:
-            ret=misc->colors.triframe_color;
+            ret=QMisc.colors.triframe_color;
             break;
             
         case ssctBMAPBG:
-            ret=misc->colors.bmap_bg;
+            ret=QMisc.colors.bmap_bg;
             break;
             
         case ssctBMAPFG:
-            ret=misc->colors.bmap_fg;
+            ret=QMisc.colors.bmap_fg;
             break;
             
         case ssctHERODOT:
-            ret=misc->colors.hero_dot;
+            ret=QMisc.colors.hero_dot;
             break;
             
         default:
@@ -3466,7 +3466,7 @@ int32_t subscreen_color(miscQdata *misc, int32_t c1, int32_t c2)
 
 
 
-int32_t subscreen_cset(miscQdata *misc,int32_t c1, int32_t c2)
+int32_t subscreen_cset(int32_t c1, int32_t c2)
 {
     int32_t ret=c1;
     
@@ -3476,27 +3476,27 @@ int32_t subscreen_cset(miscQdata *misc,int32_t c1, int32_t c2)
         switch(c2)
         {
         case sscsTRIFORCECSET:
-            ret=misc->colors.triforce_cset;
+            ret=QMisc.colors.triforce_cset;
             break;
             
         case sscsTRIFRAMECSET:
-            ret=misc->colors.triframe_cset;
+            ret=QMisc.colors.triframe_cset;
             break;
             
         case sscsOVERWORLDMAPCSET:
-            ret=misc->colors.overworld_map_cset;
+            ret=QMisc.colors.overworld_map_cset;
             break;
             
         case sscsDUNGEONMAPCSET:
-            ret=misc->colors.dungeon_map_cset;
+            ret=QMisc.colors.dungeon_map_cset;
             break;
             
         case sscsBLUEFRAMECSET:
-            ret=misc->colors.blueframe_cset;
+            ret=QMisc.colors.blueframe_cset;
             break;
             
         case sscsHCPIECESCSET:
-            ret=misc->colors.HCpieces_cset;
+            ret=QMisc.colors.HCpieces_cset;
             break;
             
         case sscsSSVINECSET:
@@ -3710,7 +3710,7 @@ void animate_selectors()
     sel_b->animate(0);
 }
 
-void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, int32_t xofs, int32_t yofs, bool showtime, int32_t pos2)
+void show_custom_subscreen(BITMAP *dest, subscreen_group *css, int32_t xofs, int32_t yofs, bool showtime, int32_t pos2)
 {
 	//this is not a good place to be clearing the bitmap
 	//other stuff might already have been drawn on it that needs to be kept
@@ -3753,8 +3753,8 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
 				{
 					//al_trace("2x2 Frame tile is: %d\n",css->objects[i].d1);
 					//in 1.92 and earlier, the 2x2 frame object was tile 278
-					frame2x2(dest, misc, x, y, css->objects[i].d1, subscreen_cset(misc, css->objects[i].colortype1, css->objects[i].color1), css->objects[i].w, css->objects[i].h, css->objects[i].d2, css->objects[i].d3 != 0, css->objects[i].d4 != 0);
-					//frame2x2(dest, misc, x, y, FFCore.getQuestHeaderInfo(vZelda) < 0x193 ? 278 : css->objects[i].d1, subscreen_cset(misc, css->objects[i].colortype1, css->objects[i].color1), css->objects[i].w, css->objects[i].h, css->objects[i].d2, css->objects[i].d3 != 0, css->objects[i].d4 != 0);
+					frame2x2(dest, x, y, css->objects[i].d1, subscreen_cset(css->objects[i].colortype1, css->objects[i].color1), css->objects[i].w, css->objects[i].h, css->objects[i].d2, css->objects[i].d3 != 0, css->objects[i].d4 != 0);
+					//frame2x2(dest, x, y, FFCore.getQuestHeaderInfo(vZelda) < 0x193 ? 278 : css->objects[i].d1, subscreen_cset(css->objects[i].colortype1, css->objects[i].color1), css->objects[i].w, css->objects[i].h, css->objects[i].d2, css->objects[i].d3 != 0, css->objects[i].d4 != 0);
 				}
 				break;
 				
@@ -3767,8 +3767,8 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
 					else
 						ts = time_str_short2(0);
 						
-					//textout_shadowed_ex(dest,tempfont,ts,x,y,subscreen_color(misc, css->objects[i].colortype1, css->objects[i].color1),subscreen_color(misc, css->objects[i].colortype2, css->objects[i].color2),subscreen_color(misc, css->objects[i].colortype3, css->objects[i].color3));
-					textout_styled_aligned_ex(dest,tempfont,ts,x,y,css->objects[i].d3,css->objects[i].d2,subscreen_color(misc, css->objects[i].colortype1, css->objects[i].color1),subscreen_color(misc, css->objects[i].colortype2, css->objects[i].color2),subscreen_color(misc, css->objects[i].colortype3, css->objects[i].color3));
+					//textout_shadowed_ex(dest,tempfont,ts,x,y,subscreen_color(css->objects[i].colortype1, css->objects[i].color1),subscreen_color(css->objects[i].colortype2, css->objects[i].color2),subscreen_color(css->objects[i].colortype3, css->objects[i].color3));
+					textout_styled_aligned_ex(dest,tempfont,ts,x,y,css->objects[i].d3,css->objects[i].d2,subscreen_color(css->objects[i].colortype1, css->objects[i].color1),subscreen_color(css->objects[i].colortype2, css->objects[i].color2),subscreen_color(css->objects[i].colortype3, css->objects[i].color3));
 				}
 				break;
 				
@@ -3784,8 +3784,8 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
 						else
 							ts = time_str_med(0);
 							
-						//textout_right_ex(dest,tempfont,ts,x,y,subscreen_color(misc, css->objects[i].colortype1, css->objects[i].color1),subscreen_color(misc, css->objects[i].colortype2, css->objects[i].color2));
-						textout_styled_aligned_ex(dest,tempfont,ts,x,y,css->objects[i].d3,css->objects[i].d2,subscreen_color(misc, css->objects[i].colortype1, css->objects[i].color1),subscreen_color(misc, css->objects[i].colortype2, css->objects[i].color2),subscreen_color(misc, css->objects[i].colortype3, css->objects[i].color3));
+						//textout_right_ex(dest,tempfont,ts,x,y,subscreen_color(css->objects[i].colortype1, css->objects[i].color1),subscreen_color(css->objects[i].colortype2, css->objects[i].color2));
+						textout_styled_aligned_ex(dest,tempfont,ts,x,y,css->objects[i].d3,css->objects[i].d2,subscreen_color(css->objects[i].colortype1, css->objects[i].color1),subscreen_color(css->objects[i].colortype2, css->objects[i].color2),subscreen_color(css->objects[i].colortype3, css->objects[i].color3));
 					}
 				}
 				break;
@@ -3793,7 +3793,7 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
 				case ssoTEXT:
 				{
 					//textout_styled_aligned_ex(bmp, f,       s,                          x,y,textstyle,         alignment,         color,                                                                    shadow,                                                                   bg)
-					textout_styled_aligned_ex(dest,tempfont,(char *)css->objects[i].dp1,x,y,css->objects[i].d3,css->objects[i].d2,subscreen_color(misc, css->objects[i].colortype1, css->objects[i].color1),subscreen_color(misc, css->objects[i].colortype2, css->objects[i].color2),subscreen_color(misc, css->objects[i].colortype3, css->objects[i].color3));
+					textout_styled_aligned_ex(dest,tempfont,(char *)css->objects[i].dp1,x,y,css->objects[i].d3,css->objects[i].d2,subscreen_color(css->objects[i].colortype1, css->objects[i].color1),subscreen_color(css->objects[i].colortype2, css->objects[i].color2),subscreen_color(css->objects[i].colortype3, css->objects[i].color3));
 				}
 				break;
 				
@@ -3804,7 +3804,7 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
 						drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
 					}
 					
-					line(dest, x, y, x+css->objects[i].w-1, y+css->objects[i].h-1, subscreen_color(misc, css->objects[i].colortype1, css->objects[i].color1));
+					line(dest, x, y, x+css->objects[i].w-1, y+css->objects[i].h-1, subscreen_color(css->objects[i].colortype1, css->objects[i].color1));
 					
 					if(css->objects[i].d4)
 					{
@@ -3822,10 +3822,10 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
 					
 					if(css->objects[i].d1!=0)
 					{
-						rectfill(dest, x, y, x+css->objects[i].w-1, y+css->objects[i].h-1, subscreen_color(misc, css->objects[i].colortype2, css->objects[i].color2));
+						rectfill(dest, x, y, x+css->objects[i].w-1, y+css->objects[i].h-1, subscreen_color(css->objects[i].colortype2, css->objects[i].color2));
 					}
 					
-					rect(dest, x, y, x+css->objects[i].w-1, y+css->objects[i].h-1, subscreen_color(misc, css->objects[i].colortype1, css->objects[i].color1));
+					rect(dest, x, y, x+css->objects[i].w-1, y+css->objects[i].h-1, subscreen_color(css->objects[i].colortype1, css->objects[i].color1));
 					
 					if(css->objects[i].d2)
 					{
@@ -3865,13 +3865,13 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
 				
 				case ssoCOUNTERS:
 				{
-					defaultcounters(dest, x, y, tempfont,subscreen_color(misc, css->objects[i].colortype1, css->objects[i].color1),subscreen_color(misc, css->objects[i].colortype2, css->objects[i].color2),subscreen_color(misc, css->objects[i].colortype3, css->objects[i].color3),css->objects[i].d2 != 0,css->objects[i].d3,css->objects[i].d4,css->objects[i].d5);
+					defaultcounters(dest, x, y, tempfont,subscreen_color(css->objects[i].colortype1, css->objects[i].color1),subscreen_color(css->objects[i].colortype2, css->objects[i].color2),subscreen_color(css->objects[i].colortype3, css->objects[i].color3),css->objects[i].d2 != 0,css->objects[i].d3,css->objects[i].d4,css->objects[i].d5);
 				}
 				break;
 				
 				case ssoCOUNTER:
 				{
-					counter(dest, x, y, tempfont,subscreen_color(misc, css->objects[i].colortype1, css->objects[i].color1),subscreen_color(misc, css->objects[i].colortype2, css->objects[i].color2),subscreen_color(misc, css->objects[i].colortype3, css->objects[i].color3),css->objects[i].d2,css->objects[i].d3,css->objects[i].d4,css->objects[i].d5,css->objects[i].d6&1, css->objects[i].d7, css->objects[i].d8, css->objects[i].d9, css->objects[i].d10, (css->objects[i].d6&2)!=0);
+					counter(dest, x, y, tempfont,subscreen_color(css->objects[i].colortype1, css->objects[i].color1),subscreen_color(css->objects[i].colortype2, css->objects[i].color2),subscreen_color(css->objects[i].colortype3, css->objects[i].color3),css->objects[i].d2,css->objects[i].d3,css->objects[i].d4,css->objects[i].d5,css->objects[i].d6&1, css->objects[i].d7, css->objects[i].d8, css->objects[i].d9, css->objects[i].d10, (css->objects[i].d6&2)!=0);
 				}
 				break;
 				
@@ -3879,29 +3879,29 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
 				{
 					if(!css->objects[i].d4 || has_item(itype_map, get_dlevel()))
 					{
-						minimaptitle(dest, x, y, tempfont, subscreen_color(misc, css->objects[i].colortype1, css->objects[i].color1),subscreen_color(misc, css->objects[i].colortype2, css->objects[i].color2),subscreen_color(misc, css->objects[i].colortype3, css->objects[i].color3), css->objects[i].d2, css->objects[i].d3);
+						minimaptitle(dest, x, y, tempfont, subscreen_color(css->objects[i].colortype1, css->objects[i].color1),subscreen_color(css->objects[i].colortype2, css->objects[i].color2),subscreen_color(css->objects[i].colortype3, css->objects[i].color3), css->objects[i].d2, css->objects[i].d3);
 					}
 				}
 				break;
 				
 				case ssoMINIMAP:
 				{
-					//drawdmap(dest, misc, x, y, showmap,                 showhero,           showcompass,        herocolor,                                                                 lccolor,                                                                   dccolor)
-					drawdmap(dest, misc, x, y, css->objects[i].d1 != 0, css->objects[i].d2 && !(TheMaps[(DMaps[get_currdmap()].map*MAPSCRS)+get_homescr()].flags7&fNOHEROMARK),
-							 css->objects[i].d3 && !(DMaps[get_currdmap()].flags&dmfNOCOMPASS), subscreen_color(misc, css->objects[i].colortype1, css->objects[i].color1), subscreen_color(misc, css->objects[i].colortype2, css->objects[i].color2), subscreen_color(misc, css->objects[i].colortype3, css->objects[i].color3));
+					//drawdmap(dest, x, y, showmap,                 showhero,           showcompass,        herocolor,                                                                 lccolor,                                                                   dccolor)
+					drawdmap(dest, x, y, css->objects[i].d1 != 0, css->objects[i].d2 && !(TheMaps[(DMaps[get_currdmap()].map*MAPSCRS)+get_homescr()].flags7&fNOHEROMARK),
+							 css->objects[i].d3 && !(DMaps[get_currdmap()].flags&dmfNOCOMPASS), subscreen_color(css->objects[i].colortype1, css->objects[i].color1), subscreen_color(css->objects[i].colortype2, css->objects[i].color2), subscreen_color(css->objects[i].colortype3, css->objects[i].color3));
 				}
 				break;
 				
 				case ssoLARGEMAP:
 				{
-					//putBmap(dest, misc, x, y, showmap,                 showhero,              showrooms,             roomcolor,                                                                 herocolor,                                                                 large)
-					putBmap(dest, misc, x, y, css->objects[i].d1 != 0, css->objects[i].d2!=0, css->objects[i].d3!=0, subscreen_color(misc, css->objects[i].colortype1, css->objects[i].color1), subscreen_color(misc, css->objects[i].colortype2, css->objects[i].color2), css->objects[i].d10 != 0);
+					//putBmap(dest, x, y, showmap,                 showhero,              showrooms,             roomcolor,                                                                 herocolor,                                                                 large)
+					putBmap(dest, x, y, css->objects[i].d1 != 0, css->objects[i].d2!=0, css->objects[i].d3!=0, subscreen_color(css->objects[i].colortype1, css->objects[i].color1), subscreen_color(css->objects[i].colortype2, css->objects[i].color2), css->objects[i].d10 != 0);
 				}
 				break;
 				
 				case ssoCLEAR:
 				{
-					clear_to_color(dest,subscreen_color(misc, css->objects[i].colortype1, css->objects[i].color1));
+					clear_to_color(dest,subscreen_color(css->objects[i].colortype1, css->objects[i].color1));
 				}
 				break;
 				
@@ -3918,8 +3918,8 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
 				case ssoTEXTBOX:
 				{
 					//draw_textbox(dest, x, y, w,                 h,                 tempfont, thetext,                     wword,                 tabsize,            alignment,          textstyle,          color,                                                                     shadowcolor,                                                               backcolor)
-					draw_textbox(dest, x, y, css->objects[i].w, css->objects[i].h, tempfont, (char *)css->objects[i].dp1, css->objects[i].d4!=0, css->objects[i].d5, css->objects[i].d2, css->objects[i].d3, subscreen_color(misc, css->objects[i].colortype1, css->objects[i].color1), subscreen_color(misc, css->objects[i].colortype2, css->objects[i].color2), subscreen_color(misc, css->objects[i].colortype3, css->objects[i].color3));
-					//draw_textbox(dest, 0, 0, 200, 50, get_zc_font(font_sfont), "This is a test", 1, 4, 0, 0, subscreen_color(misc, css->objects[i].colortype1, css->objects[i].color1), subscreen_color(misc, css->objects[i].colortype2, css->objects[i].color2), subscreen_color(misc, css->objects[i].colortype3, css->objects[i].color3));
+					draw_textbox(dest, x, y, css->objects[i].w, css->objects[i].h, tempfont, (char *)css->objects[i].dp1, css->objects[i].d4!=0, css->objects[i].d5, css->objects[i].d2, css->objects[i].d3, subscreen_color(css->objects[i].colortype1, css->objects[i].color1), subscreen_color(css->objects[i].colortype2, css->objects[i].color2), subscreen_color(css->objects[i].colortype3, css->objects[i].color3));
+					//draw_textbox(dest, 0, 0, 200, 50, get_zc_font(font_sfont), "This is a test", 1, 4, 0, 0, subscreen_color(css->objects[i].colortype1, css->objects[i].color1), subscreen_color(css->objects[i].colortype2, css->objects[i].color2), subscreen_color(css->objects[i].colortype3, css->objects[i].color3));
 				}
 				break;
 				
@@ -3940,27 +3940,27 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
 					char itemname[256]="";
 					strncpy(itemname, itm.get_name().c_str(), 255);
 					
-					draw_textbox(dest, x, y, css->objects[i].w, css->objects[i].h, tempfont, itemname, css->objects[i].d4!=0, css->objects[i].d5, css->objects[i].d2, css->objects[i].d3, subscreen_color(misc, css->objects[i].colortype1, css->objects[i].color1), subscreen_color(misc, css->objects[i].colortype2, css->objects[i].color2), subscreen_color(misc, css->objects[i].colortype3, css->objects[i].color3));
+					draw_textbox(dest, x, y, css->objects[i].w, css->objects[i].h, tempfont, itemname, css->objects[i].d4!=0, css->objects[i].d5, css->objects[i].d2, css->objects[i].d3, subscreen_color(css->objects[i].colortype1, css->objects[i].color1), subscreen_color(css->objects[i].colortype2, css->objects[i].color2), subscreen_color(css->objects[i].colortype3, css->objects[i].color3));
 					// draw_textbox(dest, x, y, w,                 h,                 tempfont, thetext,  wword,                 tabsize,            alignment,          textstyle,          color,                                             shadowcolor,                                       backcolor);
 				}
 				break;
 				
 				case ssoTRIFRAME:
 				{
-					//puttriframe(dest, misc, x, y, triframecolor,                                                             numbercolor,                                                               triframetile,       triframecset,       triforcetile,       triforcecset,       showframe,             showpieces,            largepieces)
-					puttriframe(dest, misc, x, y, subscreen_color(misc, css->objects[i].colortype1, css->objects[i].color1), subscreen_color(misc, css->objects[i].colortype2, css->objects[i].color2), css->objects[i].d1, css->objects[i].d2, css->objects[i].d3, css->objects[i].d4, css->objects[i].d5!=0, css->objects[i].d6!=0, css->objects[i].d7!=0);
+					//puttriframe(dest, x, y, triframecolor,                                                             numbercolor,                                                               triframetile,       triframecset,       triforcetile,       triforcecset,       showframe,             showpieces,            largepieces)
+					puttriframe(dest, x, y, subscreen_color(css->objects[i].colortype1, css->objects[i].color1), subscreen_color(css->objects[i].colortype2, css->objects[i].color2), css->objects[i].d1, css->objects[i].d2, css->objects[i].d3, css->objects[i].d4, css->objects[i].d5!=0, css->objects[i].d6!=0, css->objects[i].d7!=0);
 				}
 				break;
 				
 				case ssoTRIFORCE:
 				{
-					puttriforce(dest,misc,x,y,css->objects[i].d1,subscreen_cset(misc, css->objects[i].colortype1, css->objects[i].color1),css->objects[i].w,css->objects[i].h,css->objects[i].d2,css->objects[i].d3!=0,css->objects[i].d4!=0,css->objects[i].d5);
+					puttriforce(dest,x,y,css->objects[i].d1,subscreen_cset(css->objects[i].colortype1, css->objects[i].color1),css->objects[i].w,css->objects[i].h,css->objects[i].d2,css->objects[i].d3!=0,css->objects[i].d4!=0,css->objects[i].d5);
 				}
 				break;
 				
 				case ssoTILEBLOCK:
 				{
-					draw_block_flip(dest,x,y,css->objects[i].d1,subscreen_cset(misc, css->objects[i].colortype1, css->objects[i].color1),css->objects[i].w,css->objects[i].h,css->objects[i].d2,css->objects[i].d3!=0,css->objects[i].d4!=0);
+					draw_block_flip(dest,x,y,css->objects[i].d1,subscreen_cset(css->objects[i].colortype1, css->objects[i].color1),css->objects[i].w,css->objects[i].h,css->objects[i].d2,css->objects[i].d3!=0,css->objects[i].d4!=0);
 				}
 				break;
 				
@@ -3992,22 +3992,22 @@ void show_custom_subscreen(BITMAP *dest, miscQdata *misc, subscreen_group *css, 
 					{
 						if(css->objects[i].d6)
 						{
-							overtiletranslucent8(dest,t,x,y,subscreen_cset(misc, css->objects[i].colortype1, css->objects[i].color1),css->objects[i].d4,128);
+							overtiletranslucent8(dest,t,x,y,subscreen_cset(css->objects[i].colortype1, css->objects[i].color1),css->objects[i].d4,128);
 						}
 						else
 						{
-							overtile8(dest,t,x,y,subscreen_cset(misc, css->objects[i].colortype1, css->objects[i].color1),css->objects[i].d4);
+							overtile8(dest,t,x,y,subscreen_cset(css->objects[i].colortype1, css->objects[i].color1),css->objects[i].d4);
 						}
 					}
 					else
 					{
 						if(css->objects[i].d6)
 						{
-							puttiletranslucent8(dest,t,x,y,subscreen_cset(misc, css->objects[i].colortype1, css->objects[i].color1),css->objects[i].d4,128);
+							puttiletranslucent8(dest,t,x,y,subscreen_cset(css->objects[i].colortype1, css->objects[i].color1),css->objects[i].d4,128);
 						}
 						else
 						{
-							oldputtile8(dest,t,x,y,subscreen_cset(misc, css->objects[i].colortype1, css->objects[i].color1),css->objects[i].d4);
+							oldputtile8(dest,t,x,y,subscreen_cset(css->objects[i].colortype1, css->objects[i].color1),css->objects[i].d4);
 						}
 					}
 				}
@@ -4719,7 +4719,7 @@ void minimaptitle(BITMAP *dest, int32_t x, int32_t y, FONT *tempfont, int32_t co
     }
 }
 
-void put_passive_subscr(BITMAP *dest,miscQdata *misc,int32_t x,int32_t y,bool showtime,int32_t pos2)
+void put_passive_subscr(BITMAP *dest,int32_t x,int32_t y,bool showtime,int32_t pos2)
 {
     // uncomment this?
     //  load_Sitems();
@@ -4734,7 +4734,7 @@ void put_passive_subscr(BITMAP *dest,miscQdata *misc,int32_t x,int32_t y,bool sh
         return;
     }
     
-    show_custom_subscreen(subscr, misc, current_subscreen_passive, 0, 0, showtime, pos2);
+    show_custom_subscreen(subscr, current_subscreen_passive, 0, 0, showtime, pos2);
     destroy_bitmap(subscr);
 }
 
@@ -4746,18 +4746,18 @@ void put_passive_subscr(BITMAP *dest,miscQdata *misc,int32_t x,int32_t y,bool sh
   };
   */
 
-void puttriframe(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y, int32_t triframecolor, int32_t numbercolor, int32_t triframetile, int32_t triframecset, int32_t triforcetile, int32_t triforcecset, bool showframe, bool showpieces, bool largepieces)
+void puttriframe(BITMAP *dest, int32_t x, int32_t y, int32_t triframecolor, int32_t numbercolor, int32_t triframetile, int32_t triframecset, int32_t triforcetile, int32_t triforcecset, bool showframe, bool showpieces, bool largepieces)
 {
     if(triframetile==0)
     {
-        triframetile=misc->colors.triframe_tile;
-        triframecset=misc->colors.triframe_cset;
+        triframetile=QMisc.colors.triframe_tile;
+        triframecset=QMisc.colors.triframe_cset;
     }
     
     if(triforcetile==0)
     {
-        triforcetile=misc->colors.triforce_tile;
-        triforcecset=misc->colors.triforce_cset;
+        triforcetile=QMisc.colors.triforce_tile;
+        triforcecset=QMisc.colors.triforce_cset;
     }
     
     if(!largepieces)
@@ -4793,7 +4793,7 @@ void puttriframe(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y, int32_t tr
                     int32_t tp=0;
                     
                     for(; tp<8; tp++)
-                        if(misc->triforce[tp] == i+1)
+                        if(QMisc.triforce[tp] == i+1)
                             break;
                             
                     overtile16(dest,triforcetile,x+tripiece[0][tp][0],y+tripiece[0][tp][1],triforcecset,tripiece[0][tp][2]);
@@ -4871,7 +4871,7 @@ void puttriframe(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y, int32_t tr
                     
                     for(; tp<8; tp++)
                     {
-                        if(misc->triforce[tp] == i+1)
+                        if(QMisc.triforce[tp] == i+1)
                         {
                             break;
                         }
@@ -4900,7 +4900,7 @@ void puttriframe(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y, int32_t tr
                 
                 for(; tp<8; tp++)
                 {
-                    if(misc->triforce[tp] == i+1)
+                    if(QMisc.triforce[tp] == i+1)
                     {
                         break;
                     }
@@ -4916,12 +4916,12 @@ void puttriframe(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y, int32_t tr
 }
 
 
-void puttriforce(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y, int32_t tile, int32_t cset, int32_t w, int32_t h, int32_t flip, bool overlay, bool trans, int32_t trinum)
+void puttriforce(BITMAP *dest, int32_t x, int32_t y, int32_t tile, int32_t cset, int32_t w, int32_t h, int32_t flip, bool overlay, bool trans, int32_t trinum)
 {
     if(tile==0)
     {
-        tile=misc->colors.triforce_tile;
-        cset=misc->colors.triforce_cset;
+        tile=QMisc.colors.triforce_tile;
+        cset=QMisc.colors.triforce_cset;
     }
     
 	if(trinum <= 8)
@@ -4938,7 +4938,7 @@ void puttriforce(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y, int32_t ti
 				int32_t tp=0;
 				
 				for(; tp<8; tp++)
-					if(misc->triforce[tp] == i+1)
+					if(QMisc.triforce[tp] == i+1)
 						break;
 						
 				draw_block_flip(dest,x,y,tile,cset,w,h,flip,overlay,trans);
@@ -4967,7 +4967,7 @@ void puttriforce(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y, int32_t ti
   */
 
 void draw_block(BITMAP *dest,int32_t x,int32_t y,int32_t tile,int32_t cset,int32_t w,int32_t h);
-void putBmap(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y,bool showmap, bool showrooms, bool showhero, int32_t roomcolor, int32_t herocolor, bool large)
+void putBmap(BITMAP *dest, int32_t x, int32_t y,bool showmap, bool showrooms, bool showhero, int32_t roomcolor, int32_t herocolor, bool large)
 {
     int32_t si=0;
     
@@ -4980,13 +4980,13 @@ void putBmap(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y,bool showmap, b
         {
             draw_block(dest,x,y,maptile,mapcset,large?9:7,5);
         }
-        else if(misc->colors.dungeon_map_tile||misc->colors.dungeon_map_tile)
+        else if(QMisc.colors.dungeon_map_tile||QMisc.colors.dungeon_map_tile)
         {
             for(int32_t y2=0; y2<5; y2++)
             {
                 for(int32_t x2=0; x2<(large?8:6); x2++)
                 {
-                    overtile16(dest,(misc->colors.dungeon_map_tile!=0?misc->colors.dungeon_map_tile:misc->colors.dungeon_map_tile)+(large?bmaptiles_original[y2][x2]:bmaptiles_bs[y2][x2]),x+(x2<<4),y+(y2<<4),misc->colors.dungeon_map_cset,0);
+                    overtile16(dest,(QMisc.colors.dungeon_map_tile!=0?QMisc.colors.dungeon_map_tile:QMisc.colors.dungeon_map_tile)+(large?bmaptiles_original[y2][x2]:bmaptiles_bs[y2][x2]),x+(x2<<4),y+(y2<<4),QMisc.colors.dungeon_map_cset,0);
                     //++si;
                 }
             }
@@ -5004,11 +5004,11 @@ void putBmap(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y,bool showmap, b
             {
                 for(int32_t y2=8-fringe[x2]; y2<8; y2++)
                 {
-                    putpixel(bmp,x2,y2,misc->colors.bmap_bg);
+                    putpixel(bmp,x2,y2,QMisc.colors.bmap_bg);
                 }
             }
             
-            rectfill(dest,x,y,x+(large?127:95),y+79,misc->colors.bmap_bg);
+            rectfill(dest,x,y,x+(large?127:95),y+79,QMisc.colors.bmap_bg);
             
             for(int32_t y2=0; y2<2; ++y2)
             {
@@ -5016,7 +5016,7 @@ void putBmap(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y,bool showmap, b
                 {
                     if((large?bmap_original[y2][x2]:bmap_bs[y2][x2]))
                     {
-                        rectfill(dest,(x2<<3)+x,(y2*72)+y,(x2<<3)+x+7,(y2*72)+y+7,misc->colors.subscr_bg);
+                        rectfill(dest,(x2<<3)+x,(y2*72)+y,(x2<<3)+x+7,(y2*72)+y+7,QMisc.colors.subscr_bg);
                         
                         switch((large?bmap_original[y2][x2]:bmap_bs[y2][x2]))
                         {
@@ -5041,7 +5041,7 @@ void putBmap(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y,bool showmap, b
     {
         if(roomcolor==-1)
         {
-            roomcolor = misc->colors.bmap_fg;
+            roomcolor = QMisc.colors.bmap_fg;
         }
         
         si=(get_currdmap() << 7);
@@ -5086,7 +5086,7 @@ void putBmap(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y,bool showmap, b
         {
             if(herocolor==-1)
             {
-                herocolor=misc->colors.hero_dot;
+                herocolor=QMisc.colors.hero_dot;
             }
             
             int32_t xoff = (((DMaps[get_currdmap()].type&dmfTYPE)==dmOVERW) ? 0 : DMaps[get_currdmap()].xoff);
@@ -5096,12 +5096,12 @@ void putBmap(BITMAP *dest, miscQdata *misc, int32_t x, int32_t y,bool showmap, b
 }
 
 
-void load_Sitems(miscQdata *misc)
+void load_Sitems()
 {
     Sitems.clear();
     
     // HC Pieces
-    if(misc->colors.HCpieces_tile)
+    if(QMisc.colors.HCpieces_tile)
     {
         //      item *HCP = new item((zfix)(inventory_x[5]-ofs),(zfix)y,MAXITEMS,0,0);
         item *HCP = new item((zfix)0,(zfix)0,(zfix)0,iHCPiece,0,0);
@@ -5109,9 +5109,9 @@ void load_Sitems(miscQdata *misc)
         if(HCP)
         {
             int32_t hcpphc =  game->get_hcp_per_hc();
-            HCP->tile   = misc->colors.HCpieces_tile + vbound(game->get_HCpieces(),0,hcpphc > 0 ? hcpphc-1 : 0);
+            HCP->tile   = QMisc.colors.HCpieces_tile + vbound(game->get_HCpieces(),0,hcpphc > 0 ? hcpphc-1 : 0);
             HCP->o_tile = HCP->tile;
-            HCP->cs     = misc->colors.HCpieces_cset;
+            HCP->cs     = QMisc.colors.HCpieces_cset;
             HCP->frames = 0;
             add_subscr_item(HCP);
         }

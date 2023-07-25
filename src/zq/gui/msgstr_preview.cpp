@@ -41,7 +41,7 @@ void put_msg_str(char const* s, int32_t x, int32_t y, MsgStr const* str, int32_t
 	int32_t cursor_y = msg_margins[up];
 	
 	uint32_t i=0;
-	int32_t msgcolour=misc.colors.msgtext;
+	int32_t msgcolour=QMisc.colors.msgtext;
 	int32_t shdtype=str->shadow_type;
 	int32_t shdcolor=str->shadow_color;
 	int32_t msgtile = str->tile;
@@ -70,7 +70,7 @@ void put_msg_str(char const* s, int32_t x, int32_t y, MsgStr const* str, int32_t
 		else
 		{
 			int32_t add = (get_qr(qr_STRING_FRAME_OLD_WIDTH_HEIGHT)!=0 ? 2 : 0);
-			frame2x2(buf,&misc,0,0,msgtile,msgcset,(w/8)+add,(h/8)+add,0,0,0);
+			frame2x2(buf,0,0,msgtile,msgcset,(w/8)+add,(h/8)+add,0,0,0);
 		}
 	}
 		

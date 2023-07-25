@@ -38,6 +38,7 @@
 #include "base/msgstr.h"
 #include "base/packfile.h"
 #include "base/cpool.h"
+#include "base/misctypes.h"
 #include "parser/Compiler.h"
 #include "base/zc_alleg.h"
 #include "particles.h"
@@ -715,13 +716,11 @@ zquestheader header;
 byte                midi_flags[MIDIFLAGS_SIZE];
 byte                music_flags[MUSICFLAGS_SIZE];
 word                map_count;
-miscQdata           misc;
 vector<mapscr>      TheMaps;
 vector<word>        map_autolayers;
 zcmap               *ZCMaps;
 byte                *quest_file;
 int32_t					msg_strings_size;
-//DoorComboSet      *DoorComboSets;
 zctune              *customtunes;
 //emusic            *enhancedMusic;
 ZCHEATS             zcheats;
@@ -734,7 +733,6 @@ char                fontsdat_sig[52];
 char                zquestdat_sig[52];
 char                sfxdat_sig[52];
 char		    qstdat_str[2048];
-miscQdata           QMisc;
 
 int32_t gme_track=0;
 
@@ -3380,7 +3378,7 @@ int32_t onDefault_Pals()
     {
         saved=false;
         
-        if(!init_colordata(true, &header, &misc))
+        if(!init_colordata(true, &header, &QMisc))
         {
             jwin_alert("Error","Palette reset failed.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
         }
@@ -3489,7 +3487,7 @@ int32_t onDefault_MapStyles()
     if(jwin_alert("Confirm Reset","Reset all map styles?", NULL, NULL, "Yes", "Cancel", 'y', 27,get_zc_font(font_lfont)) == 1)
     {
         saved=false;
-        reset_mapstyles(true, &misc);
+        reset_mapstyles(true, &QMisc);
     }
     
     return D_O_K;
@@ -4332,10 +4330,10 @@ void EditGameMiscArray()
 	for ( int32_t q = 0; q < 32; q++ )
 	{
 		gamemiscarray_dlg[37+q].dp = miscvalue[q];
-		gamemiscarray_dlg[37+q].fg = misc.questmisc[q];
+		gamemiscarray_dlg[37+q].fg = QMisc.questmisc[q];
 		gamemiscarray_dlg[37+q].dp3 = &(gamemiscarray_dlg[71+q]);
 		
-		strcpy(miscvalue_labels[q], misc.questmisc_strings[q]);
+		strcpy(miscvalue_labels[q], QMisc.questmisc_strings[q]);
 		if ( miscvalue_labels[q][0] == 0 ) sprintf(miscvalue_labels[q],"Misc[%d]",q);
 		gamemiscarray_dlg[5+q].dp = miscvalue_labels[q];
 		
@@ -4350,8 +4348,8 @@ void EditGameMiscArray()
 		for ( int32_t q = 0; q < 32; q++ )
 		{
 			
-			misc.questmisc[q] = gamemiscarray_dlg[37+q].fg;
-			strcpy(misc.questmisc_strings[q], miscvalue_labels[q]);
+			QMisc.questmisc[q] = gamemiscarray_dlg[37+q].fg;
+			strcpy(QMisc.questmisc_strings[q], miscvalue_labels[q]);
 		}
 		
 	}
@@ -6667,7 +6665,7 @@ void refresh(int32_t flags, bool update)
 			{
 				int32_t shop = Map.CurrScr()->catchall;
 				sprintf(buf,"Pay For Info: -%d, -%d, -%d",
-						misc.info[shop].price[0],misc.info[shop].price[1],misc.info[shop].price[2]);
+						QMisc.info[shop].price[0],QMisc.info[shop].price[1],QMisc.info[shop].price[2]);
 				show_screen_error(buf,i++, vc(15));
 			}
 			break;
@@ -6706,15 +6704,15 @@ void refresh(int32_t flags, bool update)
 				sprintf(buf,"%sShop: ",
 						Map.CurrScr()->room==rP_SHOP ? "Potion ":"");
 						
-				for(int32_t j=0; j<3; j++) if(misc.shop[shop].item[j]>0)  // Print the 3 items and prices
+				for(int32_t j=0; j<3; j++) if(QMisc.shop[shop].item[j]>0)  // Print the 3 items and prices
 				{
-					strcat(buf,item_string[misc.shop[shop].item[j]]);
+					strcat(buf,item_string[QMisc.shop[shop].item[j]]);
 					strcat(buf,":");
 					char pricebuf[8];
-					sprintf(pricebuf,"%d",misc.shop[shop].price[j]);
+					sprintf(pricebuf,"%d",QMisc.shop[shop].price[j]);
 					strcat(buf,pricebuf);
 					
-					if(j<2 && misc.shop[shop].item[j+1]>0) strcat(buf,", ");
+					if(j<2 && QMisc.shop[shop].item[j+1]>0) strcat(buf,", ");
 				}
 					
 				show_screen_error(buf,i++, vc(15));
@@ -6726,15 +6724,15 @@ void refresh(int32_t flags, bool update)
 				int32_t shop = Map.CurrScr()->catchall;
 				sprintf(buf,"Bottle Shop: ");
 						
-				for(int32_t j=0; j<3; j++) if(misc.bottle_shop_types[shop].fill[j]>0)  // Print the 3 fills and prices
+				for(int32_t j=0; j<3; j++) if(QMisc.bottle_shop_types[shop].fill[j]>0)  // Print the 3 fills and prices
 				{
-					strcat(buf,misc.bottle_types[misc.bottle_shop_types[shop].fill[j]-1].name);
+					strcat(buf,QMisc.bottle_types[QMisc.bottle_shop_types[shop].fill[j]-1].name);
 					strcat(buf,":");
 					char pricebuf[8];
-					sprintf(pricebuf,"%d",misc.bottle_shop_types[shop].price[j]);
+					sprintf(pricebuf,"%d",QMisc.bottle_shop_types[shop].price[j]);
 					strcat(buf,pricebuf);
 					
-					if(j<2 && misc.bottle_shop_types[shop].fill[j+1]>0) strcat(buf,", ");
+					if(j<2 && QMisc.bottle_shop_types[shop].fill[j+1]>0) strcat(buf,", ");
 				}
 					
 				show_screen_error(buf,i++, vc(15));
@@ -6745,9 +6743,9 @@ void refresh(int32_t flags, bool update)
 			{
 				int32_t shop = Map.CurrScr()->catchall;
 				sprintf(buf,"Take Only One: %s%s%s%s%s",
-						misc.shop[shop].item[0]<1?"":item_string[misc.shop[shop].item[0]],misc.shop[shop].item[0]>0?", ":"",
-						misc.shop[shop].item[1]<1?"":item_string[misc.shop[shop].item[1]],(misc.shop[shop].item[1]>0&&misc.shop[shop].item[2]>0)?", ":"",
-						misc.shop[shop].item[2]<1?"":item_string[misc.shop[shop].item[2]]);
+						QMisc.shop[shop].item[0]<1?"":item_string[QMisc.shop[shop].item[0]],QMisc.shop[shop].item[0]>0?", ":"",
+						QMisc.shop[shop].item[1]<1?"":item_string[QMisc.shop[shop].item[1]],(QMisc.shop[shop].item[1]>0&&QMisc.shop[shop].item[2]>0)?", ":"",
+						QMisc.shop[shop].item[2]<1?"":item_string[QMisc.shop[shop].item[2]]);
 				show_screen_error(buf,i++, vc(15));
 			}
 			break;
@@ -14318,7 +14316,7 @@ const char *shoplist(int32_t index, int32_t *list_size)
     if(index>=0)
     {
         bound(index,0,shop_list_size-1);
-        sprintf(shop_str_buf,"%3d:  %s",index,misc.shop[index].name);
+        sprintf(shop_str_buf,"%3d:  %s",index,QMisc.shop[index].name);
         return shop_str_buf;
     }
     
@@ -14334,7 +14332,7 @@ const char *bottlelist(int32_t index, int32_t *list_size)
     if(index>=0)
     {
         bound(index,0,bottle_list_size-1);
-		sprintf(bottle_str_buf,"%2d:  %s",index+1,misc.bottle_types[index].name);
+		sprintf(bottle_str_buf,"%2d:  %s",index+1,QMisc.bottle_types[index].name);
         return bottle_str_buf;
     }
     
@@ -14350,7 +14348,7 @@ const char *bottleshoplist(int32_t index, int32_t *list_size)
     if(index>=0)
     {
         bound(index,0,bottleshop_list_size-1);
-		sprintf(bottleshop_str_buf,"%3d:  %s",index,misc.bottle_shop_types[index].name);
+		sprintf(bottleshop_str_buf,"%3d:  %s",index,QMisc.bottle_shop_types[index].name);
         return bottleshop_str_buf;
     }
     
@@ -14366,7 +14364,7 @@ const char *infolist(int32_t index, int32_t *list_size)
     if(index>=0)
     {
         bound(index,0,info_list_size-1);
-        sprintf(info_str_buf,"%3d:  %s",index,misc.info[index].name);
+        sprintf(info_str_buf,"%3d:  %s",index,QMisc.info[index].name);
         return info_str_buf;
     }
     
@@ -14613,12 +14611,12 @@ int32_t onRoom()
 
 int32_t onEndString()
 {
-    int32_t ret=select_data("Select Ending String",misc.endstring,msgslist,get_zc_font(font_lfont));
+    int32_t ret=select_data("Select Ending String",QMisc.endstring,msgslist,get_zc_font(font_lfont));
     
     if(ret>=0)
     {
         saved=false;
-        misc.endstring=msglistcache[ret];
+        QMisc.endstring=msglistcache[ret];
     }
 
     refresh(rMENU);
@@ -15014,9 +15012,9 @@ int32_t onTriPieces()
     
     for(int32_t i=0; i<8; i++)
     {
-        tp_dlg[i+3].d1 = misc.triforce[i];
-        //    ((char*)(tp_dlg[i+3].dp))[0] = misc.triforce[i]+'0';
-        sprintf(temptext[i], "%d", misc.triforce[i]);
+        tp_dlg[i+3].d1 = QMisc.triforce[i];
+        //    ((char*)(tp_dlg[i+3].dp))[0] = QMisc.triforce[i]+'0';
+        sprintf(temptext[i], "%d", QMisc.triforce[i]);
         tp_dlg[i+3].dp=temptext[i];
     }
     
@@ -15027,7 +15025,7 @@ int32_t onTriPieces()
         saved=false;
         
         for(int32_t i=0; i<8; i++)
-            misc.triforce[i] = tp_dlg[i+3].d1;
+            QMisc.triforce[i] = tp_dlg[i+3].d1;
     }
     
     return D_O_K;
@@ -15139,7 +15137,7 @@ void drawgrid_s(BITMAP *dest,int32_t x,int32_t y,int32_t grid,int32_t fg,int32_t
 void drawdmap(int32_t dmap)
 {
     int32_t c;
-    zcolors mc=misc.colors;
+    zcolors mc=QMisc.colors;
     
     switch((DMaps[dmap].type&dmfTYPE))
     {
@@ -15193,7 +15191,7 @@ void drawdmap_screen(int32_t x, int32_t y, int32_t w, int32_t h, int32_t dmap)
 {
     BITMAP *tempbmp = create_bitmap_ex(8,w,h);
     clear_to_color(tempbmp, vc(0));
-    zcolors mc=misc.colors;
+    zcolors mc=QMisc.colors;
     
 //  rectfill(tempbmp,x,y,x+w-1,y+h-1,vc(0));
 
@@ -20237,17 +20235,17 @@ void EditInfoType(int32_t index)
     editinfo_dlg[0].dp = caption;
     editinfo_dlg[0].dp2 = get_zc_font(font_lfont);
     
-    sprintf(ps1,"%d",misc.info[index].price[0]);
-    sprintf(ps2,"%d",misc.info[index].price[1]);
-    sprintf(ps3,"%d",misc.info[index].price[2]);
-    snprintf(infoname,32,"%s",misc.info[index].name);
+    sprintf(ps1,"%d",QMisc.info[index].price[0]);
+    sprintf(ps2,"%d",QMisc.info[index].price[1]);
+    sprintf(ps3,"%d",QMisc.info[index].price[2]);
+    snprintf(infoname,32,"%s",QMisc.info[index].name);
     editinfo_dlg[8].dp  = ps1;
     editinfo_dlg[10].dp = ps2;
     editinfo_dlg[12].dp = ps3;
     editinfo_dlg[15].dp = infoname;
-    str1 = misc.info[index].str[0];
-    str2 = misc.info[index].str[1];
-    str3 = misc.info[index].str[2];
+    str1 = QMisc.info[index].str[0];
+    str2 = QMisc.info[index].str[1];
+    str3 = QMisc.info[index].str[2];
     editinfo_dlg[9].d1  = MsgStrings[str1].listpos;
     editinfo_dlg[11].d1 = MsgStrings[str2].listpos;
     editinfo_dlg[13].d1 = MsgStrings[str3].listpos;
@@ -20263,56 +20261,56 @@ void EditInfoType(int32_t index)
     if(ret==16)
     {
         saved=false;
-        misc.info[index].price[0] = vbound(atoi(ps1), 0, 65535);
-        misc.info[index].price[1] = vbound(atoi(ps2), 0, 65535);
-        misc.info[index].price[2] = vbound(atoi(ps3), 0, 65535);
-        snprintf(misc.info[index].name,32,"%s",infoname);
+        QMisc.info[index].price[0] = vbound(atoi(ps1), 0, 65535);
+        QMisc.info[index].price[1] = vbound(atoi(ps2), 0, 65535);
+        QMisc.info[index].price[2] = vbound(atoi(ps3), 0, 65535);
+        snprintf(QMisc.info[index].name,32,"%s",infoname);
         str1 = editinfo_dlg[9].d1;
         str2 = editinfo_dlg[11].d1;
         str3 = editinfo_dlg[13].d1;
-        misc.info[index].str[0] = msg_at_pos(str1);
-        misc.info[index].str[1] = msg_at_pos(str2);
-        misc.info[index].str[2] = msg_at_pos(str3);
+        QMisc.info[index].str[0] = msg_at_pos(str1);
+        QMisc.info[index].str[1] = msg_at_pos(str2);
+        QMisc.info[index].str[2] = msg_at_pos(str3);
         
         //move 0s to the end
         word swaptmp;
         
-        if(misc.info[index].str[0] == 0)
+        if(QMisc.info[index].str[0] == 0)
         {
             //possibly permute the infos
-            if(misc.info[index].str[1] != 0)
+            if(QMisc.info[index].str[1] != 0)
             {
                 //swap
-                swaptmp = misc.info[index].str[0];
-                misc.info[index].str[0] = misc.info[index].str[1];
-                misc.info[index].str[1] = swaptmp;
-                swaptmp = misc.info[index].price[0];
-                misc.info[index].price[0] = misc.info[index].price[1];
-                misc.info[index].price[1] = swaptmp;
+                swaptmp = QMisc.info[index].str[0];
+                QMisc.info[index].str[0] = QMisc.info[index].str[1];
+                QMisc.info[index].str[1] = swaptmp;
+                swaptmp = QMisc.info[index].price[0];
+                QMisc.info[index].price[0] = QMisc.info[index].price[1];
+                QMisc.info[index].price[1] = swaptmp;
             }
-            else if(misc.info[index].str[2] != 0)
+            else if(QMisc.info[index].str[2] != 0)
             {
                 //move info 0 to 1, 1 to 2, and 2 to 0
-                swaptmp = misc.info[index].str[0];
-                misc.info[index].str[0] = misc.info[index].str[2];
-                misc.info[index].str[2] = misc.info[index].str[1];
-                misc.info[index].str[1] = swaptmp;
-                swaptmp = misc.info[index].price[0];
-                misc.info[index].price[0] = misc.info[index].price[2];
-                misc.info[index].price[2] = misc.info[index].price[1];
-                misc.info[index].price[1] = swaptmp;
+                swaptmp = QMisc.info[index].str[0];
+                QMisc.info[index].str[0] = QMisc.info[index].str[2];
+                QMisc.info[index].str[2] = QMisc.info[index].str[1];
+                QMisc.info[index].str[1] = swaptmp;
+                swaptmp = QMisc.info[index].price[0];
+                QMisc.info[index].price[0] = QMisc.info[index].price[2];
+                QMisc.info[index].price[2] = QMisc.info[index].price[1];
+                QMisc.info[index].price[1] = swaptmp;
             }
         }
         
-        if(misc.info[index].str[1] == 0 && misc.info[index].str[2] != 0)
+        if(QMisc.info[index].str[1] == 0 && QMisc.info[index].str[2] != 0)
             //swap
         {
-            swaptmp = misc.info[index].str[1];
-            misc.info[index].str[1] = misc.info[index].str[2];
-            misc.info[index].str[2] = swaptmp;
-            swaptmp = misc.info[index].price[1];
-            misc.info[index].price[1] = misc.info[index].price[2];
-            misc.info[index].price[2] = swaptmp;
+            swaptmp = QMisc.info[index].str[1];
+            QMisc.info[index].str[1] = QMisc.info[index].str[2];
+            QMisc.info[index].str[2] = swaptmp;
+            swaptmp = QMisc.info[index].price[1];
+            QMisc.info[index].price[1] = QMisc.info[index].price[2];
+            QMisc.info[index].price[2] = swaptmp;
         }
     }
 }
@@ -20385,15 +20383,15 @@ void EditShopType(int32_t index)
     editshop_dlg[0].dp = caption;
     editshop_dlg[0].dp2=get_zc_font(font_lfont);
     
-    sprintf(ps1,"%d",misc.shop[index].price[0]);
-    sprintf(ps2,"%d",misc.shop[index].price[1]);
-    sprintf(ps3,"%d",misc.shop[index].price[2]);
+    sprintf(ps1,"%d",QMisc.shop[index].price[0]);
+    sprintf(ps2,"%d",QMisc.shop[index].price[1]);
+    sprintf(ps3,"%d",QMisc.shop[index].price[2]);
 	
-    sprintf(info1,"%d",misc.shop[index].str[0]);
-    sprintf(info2,"%d",misc.shop[index].str[1]);
-    sprintf(info3,"%d",misc.shop[index].str[2]);
+    sprintf(info1,"%d",QMisc.shop[index].str[0]);
+    sprintf(info2,"%d",QMisc.shop[index].str[1]);
+    sprintf(info3,"%d",QMisc.shop[index].str[2]);
 	
-    sprintf(shopname,"%s",misc.shop[index].name);
+    sprintf(shopname,"%s",QMisc.shop[index].name);
     editshop_dlg[8].dp  = ps1;
     editshop_dlg[10].dp = ps2;
     editshop_dlg[12].dp = ps3;
@@ -20411,11 +20409,11 @@ void EditShopType(int32_t index)
     
     for(int32_t i=0; i<3; ++i)
     {
-        if(misc.shop[index].hasitem[i])
+        if(QMisc.shop[index].hasitem[i])
         {
             for(int32_t j=0; j<bii_cnt; j++)
             {
-                if(bii[j].i == misc.shop[index].item[i])
+                if(bii[j].i == QMisc.shop[index].item[i])
                 {
                     editshop_dlg[9+(i<<1)].d1  = j;
                 }
@@ -20434,28 +20432,28 @@ void EditShopType(int32_t index)
     if(ret==16)
     {
         saved=false;
-        misc.shop[index].price[0] = vbound(atoi(ps1), 0, 65535);
-        misc.shop[index].price[1] = vbound(atoi(ps2), 0, 65535);
-        misc.shop[index].price[2] = vbound(atoi(ps3), 0, 65535);
+        QMisc.shop[index].price[0] = vbound(atoi(ps1), 0, 65535);
+        QMisc.shop[index].price[1] = vbound(atoi(ps2), 0, 65535);
+        QMisc.shop[index].price[2] = vbound(atoi(ps3), 0, 65535);
 	    
-	misc.shop[index].str[0] = vbound(atoi(info1), 0, 65535);
-        misc.shop[index].str[1] = vbound(atoi(info2), 0, 65535);
-        misc.shop[index].str[2] = vbound(atoi(info3), 0, 65535);
+	QMisc.shop[index].str[0] = vbound(atoi(info1), 0, 65535);
+        QMisc.shop[index].str[1] = vbound(atoi(info2), 0, 65535);
+        QMisc.shop[index].str[2] = vbound(atoi(info3), 0, 65535);
 	    
-        snprintf(misc.shop[index].name, 32, "%s",shopname);
+        snprintf(QMisc.shop[index].name, 32, "%s",shopname);
         
         for(int32_t i=0; i<3; ++i)
         {
             if(bii[editshop_dlg[9+(i<<1)].d1].i == -2)
             {
-                misc.shop[index].hasitem[i] = 0;
-                misc.shop[index].item[i] = 0;
-                misc.shop[index].price[i] = 0;
+                QMisc.shop[index].hasitem[i] = 0;
+                QMisc.shop[index].item[i] = 0;
+                QMisc.shop[index].price[i] = 0;
             }
             else
             {
-                misc.shop[index].hasitem[i] = 1;
-                misc.shop[index].item[i] = bii[editshop_dlg[9+(i<<1)].d1].i;
+                QMisc.shop[index].hasitem[i] = 1;
+                QMisc.shop[index].item[i] = bii[editshop_dlg[9+(i<<1)].d1].i;
             }
         }
         
@@ -20466,17 +20464,17 @@ void EditShopType(int32_t index)
         {
             for(int32_t k=0; k<2-j; k++)
             {
-                if(misc.shop[index].hasitem[k]==0)
+                if(QMisc.shop[index].hasitem[k]==0)
                 {
-                    swaptmp = misc.shop[index].item[k];
-                    misc.shop[index].item[k] = misc.shop[index].item[k+1];
-                    misc.shop[index].item[k+1] = swaptmp;
-                    swaptmp = misc.shop[index].price[k];
-                    misc.shop[index].price[k] = misc.shop[index].price[k+1];
-                    misc.shop[index].price[k+1] = swaptmp;
-                    swaptmp = misc.shop[index].hasitem[k];
-                    misc.shop[index].hasitem[k] = misc.shop[index].item[k+1];
-                    misc.shop[index].hasitem[k+1] = swaptmp;
+                    swaptmp = QMisc.shop[index].item[k];
+                    QMisc.shop[index].item[k] = QMisc.shop[index].item[k+1];
+                    QMisc.shop[index].item[k+1] = swaptmp;
+                    swaptmp = QMisc.shop[index].price[k];
+                    QMisc.shop[index].price[k] = QMisc.shop[index].price[k+1];
+                    QMisc.shop[index].price[k+1] = swaptmp;
+                    swaptmp = QMisc.shop[index].hasitem[k];
+                    QMisc.shop[index].hasitem[k] = QMisc.shop[index].item[k+1];
+                    QMisc.shop[index].hasitem[k+1] = swaptmp;
                 }
             }
         }
@@ -20829,8 +20827,8 @@ void EditWarpRingScr(int32_t ring,int32_t index)
     warpring_warp_dlg[1].dp = NULL;
     warpring_warp_dlg[1].dp3 = NULL;
     
-    sprintf(buf,"%02X",misc.warp[ring].scr[index]);
-    warpring_warp_dlg[8].d1=misc.warp[ring].dmap[index];
+    sprintf(buf,"%02X",QMisc.warp[ring].scr[index]);
+    warpring_warp_dlg[8].d1=QMisc.warp[ring].dmap[index];
     warpring_warp_dlg[9].dp=buf;
     warpring_warp_dlg[24].dp=buf;
     warpring_warp_dlg[36].dp=buf;
@@ -20850,8 +20848,8 @@ void EditWarpRingScr(int32_t ring,int32_t index)
     if(ret==14 || ret==15)
     {
         saved=false;
-        misc.warp[ring].dmap[index] = warpring_warp_dlg[8].d1;
-        misc.warp[ring].scr[index] = zc_xtoi(buf);
+        QMisc.warp[ring].dmap[index] = warpring_warp_dlg[8].d1;
+        QMisc.warp[ring].scr[index] = zc_xtoi(buf);
     }
     
     if(ret==15)
@@ -20891,7 +20889,7 @@ int32_t d_warplist_proc(int32_t msg,DIALOG *d,int32_t c)
     {
         int32_t *xy = (int32_t*)(d->dp3);
         int32_t ring = curr_ring;
-        int32_t dmap = misc.warp[ring].dmap[d->d1];
+        int32_t dmap = QMisc.warp[ring].dmap[d->d1];
         float temp_scale = 1.5;
         
         drawdmap(dmap);
@@ -20918,7 +20916,7 @@ int32_t d_warplist_proc(int32_t msg,DIALOG *d,int32_t c)
         
         if(xy[6]||xy[7])
         {
-            textprintf_ex(screen,font,d->x+int32_t(xy[6]*temp_scale),d->y+int32_t(xy[7]*temp_scale),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Scr: 0x%02X ",misc.warp[ring].scr[d->d1]);
+            textprintf_ex(screen,font,d->x+int32_t(xy[6]*temp_scale),d->y+int32_t(xy[7]*temp_scale),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Scr: 0x%02X ",QMisc.warp[ring].scr[d->d1]);
         }
     }
     
@@ -20929,7 +20927,7 @@ int32_t d_wclist_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     int32_t d1 = d->d1;
     int32_t ret = jwin_droplist_proc(msg,d,c);
-    misc.warp[curr_ring].size=d->d1+3;
+    QMisc.warp[curr_ring].size=d->d1+3;
     
     if(d->d1 != d1)
         return D_CLOSE;
@@ -20977,7 +20975,7 @@ static DIALOG warpring_dlg[] =
 
 int32_t select_warp()
 {
-    misc.warp[curr_ring].size = vbound(misc.warp[curr_ring].size,3,9);
+    QMisc.warp[curr_ring].size = vbound(QMisc.warp[curr_ring].size,3,9);
     number_list_zero = false;
     
     int32_t ret=4;
@@ -20986,8 +20984,8 @@ int32_t select_warp()
         
     do
     {
-        number_list_size = misc.warp[curr_ring].size;
-        warpring_dlg[3].d1 = misc.warp[curr_ring].size-3;
+        number_list_size = QMisc.warp[curr_ring].size;
+        warpring_dlg[3].d1 = QMisc.warp[curr_ring].size-3;
         ret = zc_popup_dialog(warpring_dlg,ret);
     }
     while(ret==3);
@@ -27652,24 +27650,24 @@ int32_t onMapStyles()
     }
     
     mapstyles_dlg[0].dp2 = get_zc_font(font_lfont);
-    //al_trace("onMapStyles() read blueframe_tile as: %d\n", misc.colors.blueframe_tile);
-    mapstyles_dlg[17].d1  = misc.colors.blueframe_tile;
-    mapstyles_dlg[17].fg  = misc.colors.blueframe_cset;
-    //al_trace("onMapStyles() read triforce_tile as: %d\n", misc.colors.triforce_tile);
-    mapstyles_dlg[18].d1  = misc.colors.triforce_tile;
-    mapstyles_dlg[18].fg  = misc.colors.triforce_cset;
-    //al_trace("onMapStyles() read triframe_tile as: %d\n", misc.colors.triframe_tile);
-    mapstyles_dlg[19].d1  = misc.colors.triframe_tile;
-    mapstyles_dlg[19].fg  = misc.colors.triframe_cset;
-    //al_trace("onMapStyles() read overworld_map_tile as: %d\n", misc.colors.overworld_map_tile);
-    mapstyles_dlg[20].d1  = misc.colors.overworld_map_tile;
-    mapstyles_dlg[20].fg  = misc.colors.overworld_map_cset;
-     //al_trace("onMapStyles() read HCpieces_tile as: %d\n", misc.colors.HCpieces_tile);
-    mapstyles_dlg[21].d1 = misc.colors.HCpieces_tile;
-    mapstyles_dlg[21].fg = misc.colors.HCpieces_cset;
-    //al_trace("onMapStyles() read dungeon_map_tile as: %d\n", misc.colors.dungeon_map_tile);
-    mapstyles_dlg[22].d1  = misc.colors.dungeon_map_tile;
-    mapstyles_dlg[22].fg  = misc.colors.dungeon_map_cset;
+    //al_trace("onMapStyles() read blueframe_tile as: %d\n", QMisc.colors.blueframe_tile);
+    mapstyles_dlg[17].d1  = QMisc.colors.blueframe_tile;
+    mapstyles_dlg[17].fg  = QMisc.colors.blueframe_cset;
+    //al_trace("onMapStyles() read triforce_tile as: %d\n", QMisc.colors.triforce_tile);
+    mapstyles_dlg[18].d1  = QMisc.colors.triforce_tile;
+    mapstyles_dlg[18].fg  = QMisc.colors.triforce_cset;
+    //al_trace("onMapStyles() read triframe_tile as: %d\n", QMisc.colors.triframe_tile);
+    mapstyles_dlg[19].d1  = QMisc.colors.triframe_tile;
+    mapstyles_dlg[19].fg  = QMisc.colors.triframe_cset;
+    //al_trace("onMapStyles() read overworld_map_tile as: %d\n", QMisc.colors.overworld_map_tile);
+    mapstyles_dlg[20].d1  = QMisc.colors.overworld_map_tile;
+    mapstyles_dlg[20].fg  = QMisc.colors.overworld_map_cset;
+     //al_trace("onMapStyles() read HCpieces_tile as: %d\n", QMisc.colors.HCpieces_tile);
+    mapstyles_dlg[21].d1 = QMisc.colors.HCpieces_tile;
+    mapstyles_dlg[21].fg = QMisc.colors.HCpieces_cset;
+    //al_trace("onMapStyles() read dungeon_map_tile as: %d\n", QMisc.colors.dungeon_map_tile);
+    mapstyles_dlg[22].d1  = QMisc.colors.dungeon_map_tile;
+    mapstyles_dlg[22].fg  = QMisc.colors.dungeon_map_cset;
     
     large_dialog(mapstyles_dlg,2);
         
@@ -27679,18 +27677,18 @@ int32_t onMapStyles()
     
     if(ret==23)
     {
-        misc.colors.blueframe_tile     = mapstyles_dlg[17].d1;
-        misc.colors.blueframe_cset     = mapstyles_dlg[17].fg;
-        misc.colors.triforce_tile      = mapstyles_dlg[18].d1;
-        misc.colors.triforce_cset      = mapstyles_dlg[18].fg;
-        misc.colors.triframe_tile      = mapstyles_dlg[19].d1;
-        misc.colors.triframe_cset      = mapstyles_dlg[19].fg;
-        misc.colors.overworld_map_tile = mapstyles_dlg[20].d1;
-        misc.colors.overworld_map_cset = mapstyles_dlg[20].fg;
-        misc.colors.HCpieces_tile      = mapstyles_dlg[21].d1;
-        misc.colors.HCpieces_cset      = mapstyles_dlg[21].fg;
-        misc.colors.dungeon_map_tile   = mapstyles_dlg[22].d1;
-        misc.colors.dungeon_map_cset   = mapstyles_dlg[22].fg;
+        QMisc.colors.blueframe_tile     = mapstyles_dlg[17].d1;
+        QMisc.colors.blueframe_cset     = mapstyles_dlg[17].fg;
+        QMisc.colors.triforce_tile      = mapstyles_dlg[18].d1;
+        QMisc.colors.triforce_cset      = mapstyles_dlg[18].fg;
+        QMisc.colors.triframe_tile      = mapstyles_dlg[19].d1;
+        QMisc.colors.triframe_cset      = mapstyles_dlg[19].fg;
+        QMisc.colors.overworld_map_tile = mapstyles_dlg[20].d1;
+        QMisc.colors.overworld_map_cset = mapstyles_dlg[20].fg;
+        QMisc.colors.HCpieces_tile      = mapstyles_dlg[21].d1;
+        QMisc.colors.HCpieces_cset      = mapstyles_dlg[21].fg;
+        QMisc.colors.dungeon_map_tile   = mapstyles_dlg[22].d1;
+        QMisc.colors.dungeon_map_cset   = mapstyles_dlg[22].fg;
         saved=false;
     }
     
@@ -27927,13 +27925,13 @@ int32_t d_misccolors_proc(int32_t msg,DIALOG *d,int32_t c)
 int32_t onMiscColors()
 {
     char buf[17][3];
-    byte *si = &(misc.colors.text);
+    byte *si = &(QMisc.colors.text);
     misccolors_dlg[0].dp2=get_zc_font(font_lfont);
     
     for(int32_t i=0; i<16; i++)
     {
         sprintf(buf[i],"%02X",*(si++));
-        sprintf(buf[16], "%02X", misc.colors.msgtext);
+        sprintf(buf[16], "%02X", QMisc.colors.msgtext);
         misccolors_dlg[i+20].dp = buf[i];
         misccolors_dlg[55].dp = buf[16];
     }
@@ -27943,7 +27941,7 @@ int32_t onMiscColors()
     if(zc_popup_dialog(misccolors_dlg,0)==52)
     {
         saved=false;
-        si = &(misc.colors.text);
+        si = &(QMisc.colors.text);
         
         for(int32_t i=0; i<16; i++)
         {
@@ -27951,7 +27949,7 @@ int32_t onMiscColors()
             ++si;
         }
         
-        misc.colors.msgtext = zc_xtoi(buf[16]);
+        QMisc.colors.msgtext = zc_xtoi(buf[16]);
     }
     
     return D_O_K;
@@ -27978,7 +27976,7 @@ void cycle_palette()
     
     for(int32_t i=0; i<3; i++)
     {
-        palcycle c = misc.cycles[level][i];
+        palcycle c = QMisc.cycles[level][i];
         
         if(c.count&0xF0)
         {

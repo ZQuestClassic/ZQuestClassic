@@ -5686,8 +5686,8 @@ void zmap::prv_dowarp(int32_t type, int32_t index)
 
 void zmap::dowarp2(int32_t ring,int32_t index)
 {
-    int32_t dmap=misc.warp[ring].dmap[index];
-    int32_t scr=misc.warp[ring].scr[index];
+    int32_t dmap=QMisc.warp[ring].dmap[index];
+    int32_t scr=QMisc.warp[ring].scr[index];
     setCurrMap(DMaps[dmap].map);
     setCurrScr(scr+DMaps[dmap].xoff);
 }
@@ -5779,7 +5779,7 @@ bool save_pals(const char *path)
         return false;
     }
     
-    if(writecolordata(f, &misc, ZELDA_VERSION, VERSION_BUILD, 0, newerpdTOTAL)==0)
+    if(writecolordata(f, ZELDA_VERSION, VERSION_BUILD, 0, newerpdTOTAL)==0)
     {
         pack_fclose(f);
         return true;
@@ -5806,8 +5806,8 @@ bool load_pals(const char *path, int32_t startcset)
     
     if(section_id==ID_CSETS)
     {
-        //if(readcolordata(f, &misc, ZELDA_VERSION, VERSION_BUILD, startcset, newerpdTOTAL-startcset, true)==0)
-        if(readcolordata(f, &misc, 0x250, 33, startcset, newerpdTOTAL-startcset, true)==0)
+        //if(readcolordata(f,  ZELDA_VERSION, VERSION_BUILD, startcset, newerpdTOTAL-startcset, true)==0)
+        if(readcolordata(f, &QMisc, 0x250, 33, startcset, newerpdTOTAL-startcset, true)==0)
         {
             pack_fclose(f);
             loadlvlpal(Color);
@@ -6194,7 +6194,7 @@ bool load_zgp(const char *path)
     
     if(section_id==ID_CSETS)
     {
-        if(readcolordata(f, &misc, ZELDA_VERSION, VERSION_BUILD, 0, newerpdTOTAL, true)!=0)
+        if(readcolordata(f, &QMisc, ZELDA_VERSION, VERSION_BUILD, 0, newerpdTOTAL, true)!=0)
         {
             pack_fclose(f);
             return false;
@@ -6260,7 +6260,7 @@ bool load_zgp(const char *path)
     
     if(section_id==ID_ICONS)
     {
-        if(readgameicons(f, &header, &misc, true)!=0)
+        if(readgameicons(f, &header, &QMisc, true)!=0)
         {
             pack_fclose(f);
             return false;
@@ -6281,7 +6281,7 @@ bool load_zgp(const char *path)
     
     if(section_id==ID_COLORS)
     {
-        if(readmisccolors(f, &header, &misc, true)!=0)
+        if(readmisccolors(f, &header, &QMisc, true)!=0)
         {
             pack_fclose(f);
             return false;
@@ -6374,7 +6374,7 @@ bool save_zgp(const char *path)
     }
     
     //palettes
-    if(writecolordata(f, &misc, ZELDA_VERSION, VERSION_BUILD, 0, newerpdTOTAL)!=0)
+    if(writecolordata(f, ZELDA_VERSION, VERSION_BUILD, 0, newerpdTOTAL)!=0)
     {
         pack_fclose(f);
         return false;
@@ -6398,14 +6398,14 @@ bool save_zgp(const char *path)
     //really do this?
     
     //write the game icons info and make sure it worked
-    if(writegameicons(f, &header, &misc)!=0)
+    if(writegameicons(f, &header)!=0)
     {
         pack_fclose(f);
         return false;
     }
     
     //write the misc colors info and map styles info and make sure it worked
-    if(writemisccolors(f, &header, &misc)!=0)
+    if(writemisccolors(f, &header)!=0)
     {
         pack_fclose(f);
         return false;
@@ -6965,7 +6965,7 @@ int32_t load_quest(const char *filename, bool show_progress)
 	}
 	for(int32_t i=0; i<qr_MAX; i++)
 				set_qr(i,0);
-	int32_t ret=loadquest(filename,&header,&misc,customtunes,show_progress,true,skip_flags);
+	int32_t ret=loadquest(filename,&header,&QMisc,customtunes,show_progress,true,skip_flags);
 //  setPackfilePassword(NULL);
 
 	if(ret!=qe_OK)
@@ -8039,7 +8039,7 @@ int32_t writedmaps(PACKFILE *f, word version, word build, word start_dmap, word 
     new_return(0);
 }
 
-int32_t writemisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
+int32_t writemisccolors(PACKFILE *f, zquestheader *Header)
 {
 	//these are here to bypass compiler warnings about unused arguments
 	Header=Header;
@@ -8079,147 +8079,147 @@ int32_t writemisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 		
 		writesize=0;
 		
-		if(!p_putc(Misc->colors.text,f))
+		if(!p_putc(QMisc.colors.text,f))
 		{
 			new_return(5);
 		}
 		
-		if(!p_putc(Misc->colors.caption,f))
+		if(!p_putc(QMisc.colors.caption,f))
 		{
 			new_return(6);
 		}
 		
-		if(!p_putc(Misc->colors.overw_bg,f))
+		if(!p_putc(QMisc.colors.overw_bg,f))
 		{
 			new_return(7);
 		}
 		
-		if(!p_putc(Misc->colors.dngn_bg,f))
+		if(!p_putc(QMisc.colors.dngn_bg,f))
 		{
 			new_return(8);
 		}
 		
-		if(!p_putc(Misc->colors.dngn_fg,f))
+		if(!p_putc(QMisc.colors.dngn_fg,f))
 		{
 			new_return(9);
 		}
 		
-		if(!p_putc(Misc->colors.cave_fg,f))
+		if(!p_putc(QMisc.colors.cave_fg,f))
 		{
 			new_return(10);
 		}
 		
-		if(!p_putc(Misc->colors.bs_dk,f))
+		if(!p_putc(QMisc.colors.bs_dk,f))
 		{
 			new_return(11);
 		}
 		
-		if(!p_putc(Misc->colors.bs_goal,f))
+		if(!p_putc(QMisc.colors.bs_goal,f))
 		{
 			new_return(12);
 		}
 		
-		if(!p_putc(Misc->colors.compass_lt,f))
+		if(!p_putc(QMisc.colors.compass_lt,f))
 		{
 			new_return(13);
 		}
 		
-		if(!p_putc(Misc->colors.compass_dk,f))
+		if(!p_putc(QMisc.colors.compass_dk,f))
 		{
 			new_return(14);
 		}
 		
-		if(!p_putc(Misc->colors.subscr_bg,f))
+		if(!p_putc(QMisc.colors.subscr_bg,f))
 		{
 			new_return(15);
 		}
 		
-		if(!p_putc(Misc->colors.triframe_color,f))
+		if(!p_putc(QMisc.colors.triframe_color,f))
 		{
 			new_return(16);
 		}
 		
-		if(!p_putc(Misc->colors.hero_dot,f))
+		if(!p_putc(QMisc.colors.hero_dot,f))
 		{
 			new_return(17);
 		}
 		
-		if(!p_putc(Misc->colors.bmap_bg,f))
+		if(!p_putc(QMisc.colors.bmap_bg,f))
 		{
 			new_return(18);
 		}
 		
-		if(!p_putc(Misc->colors.bmap_fg,f))
+		if(!p_putc(QMisc.colors.bmap_fg,f))
 		{
 			new_return(19);
 		}
 		
-		if(!p_putc(Misc->colors.triforce_cset,f))
+		if(!p_putc(QMisc.colors.triforce_cset,f))
 		{
 			new_return(20);
 		}
 		
-		if(!p_putc(Misc->colors.triframe_cset,f))
+		if(!p_putc(QMisc.colors.triframe_cset,f))
 		{
 			new_return(21);
 		}
 		
-		if(!p_putc(Misc->colors.overworld_map_cset,f))
+		if(!p_putc(QMisc.colors.overworld_map_cset,f))
 		{
 			new_return(22);
 		}
 		
-		if(!p_putc(Misc->colors.dungeon_map_cset,f))
+		if(!p_putc(QMisc.colors.dungeon_map_cset,f))
 		{
 			new_return(23);
 		}
 		
-		if(!p_putc(Misc->colors.blueframe_cset,f))
+		if(!p_putc(QMisc.colors.blueframe_cset,f))
 		{
 			new_return(24);
 		}
 		
-		if(!p_putc(Misc->colors.HCpieces_cset,f))
+		if(!p_putc(QMisc.colors.HCpieces_cset,f))
 		{
 			new_return(31);
 		}
 		
-		if(!p_putc(Misc->colors.subscr_shadow,f))
+		if(!p_putc(QMisc.colors.subscr_shadow,f))
 		{
 			new_return(32);
 		}
 		
-		if(!p_putc(Misc->colors.msgtext,f))
+		if(!p_putc(QMisc.colors.msgtext,f))
 		{
 			new_return(33);
 		}
 	
-		if(!p_iputl(Misc->colors.triforce_tile,f))
+		if(!p_iputl(QMisc.colors.triforce_tile,f))
 		{
 			new_return(34);
 		}
 		
-		if(!p_iputl(Misc->colors.triframe_tile,f))
+		if(!p_iputl(QMisc.colors.triframe_tile,f))
 		{
 			new_return(35);
 		}
 		
-		if(!p_iputl(Misc->colors.overworld_map_tile,f))
+		if(!p_iputl(QMisc.colors.overworld_map_tile,f))
 		{
 			new_return(36);
 		}
 		
-		if(!p_iputl(Misc->colors.dungeon_map_tile,f))
+		if(!p_iputl(QMisc.colors.dungeon_map_tile,f))
 		{
 			new_return(37);
 		}
 		
-		if(!p_iputl(Misc->colors.blueframe_tile,f))
+		if(!p_iputl(QMisc.colors.blueframe_tile,f))
 		{
 			new_return(38);
 		}
 		
-		if(!p_iputl(Misc->colors.HCpieces_tile,f))
+		if(!p_iputl(QMisc.colors.HCpieces_tile,f))
 		{
 			new_return(39);
 		}
@@ -8241,7 +8241,7 @@ int32_t writemisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 	new_return(0);
 }
 
-int32_t writegameicons(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
+int32_t writegameicons(PACKFILE *f, zquestheader *Header)
 {
     //these are here to bypass compiler warnings about unused arguments
     Header=Header;
@@ -8282,7 +8282,7 @@ int32_t writegameicons(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
         
         for(int32_t i=0; i<4; i++)
         {
-            if(!p_iputl(Misc->icons[i],f))
+            if(!p_iputl(QMisc.icons[i],f))
             {
                 new_return(5);
             }
@@ -8304,7 +8304,7 @@ int32_t writegameicons(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
     new_return(0);
 }
 
-int32_t writemisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
+int32_t writemisc(PACKFILE *f, zquestheader *Header)
 {
 	//these are here to bypass compiler warnings about unused arguments
 	Header=Header;
@@ -8312,9 +8312,9 @@ int32_t writemisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 	dword section_id=ID_MISC;
 	dword section_version=V_MISC;
 	dword section_cversion=CV_MISC;
-	word shops=count_shops(Misc);
-	word infos=count_infos(Misc);
-	word warprings=count_warprings(Misc);
+	word shops=count_shops(&QMisc);
+	word infos=count_infos(&QMisc);
+	word warprings=count_warprings(&QMisc);
 	word triforces=8;
 	dword section_size = 0;
 	
@@ -8356,14 +8356,14 @@ int32_t writemisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 		
 		for(int32_t i=0; i<shops; i++)
 		{
-			if(!pfwrite(Misc->shop[i].name,sizeof(Misc->shop[i].name),f))
+			if(!pfwrite(QMisc.shop[i].name,sizeof(QMisc.shop[i].name),f))
 			{
 				new_return(6);
 			}
 			
 			for(int32_t j=0; j<3; j++)
 			{
-				if(!p_putc(Misc->shop[i].item[j],f))
+				if(!p_putc(QMisc.shop[i].item[j],f))
 				{
 					new_return(7);
 				}
@@ -8371,7 +8371,7 @@ int32_t writemisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 			
 			for(int32_t j=0; j<3; j++)
 			{
-				if(!p_iputw(Misc->shop[i].price[j],f))
+				if(!p_iputw(QMisc.shop[i].price[j],f))
 				{
 					new_return(8);
 				}
@@ -8379,7 +8379,7 @@ int32_t writemisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 			
 			for(int32_t j=0; j<3; j++)
 			{
-				if(!p_putc(Misc->shop[i].hasitem[j],f))
+				if(!p_putc(QMisc.shop[i].hasitem[j],f))
 				{
 					new_return(9);
 				}
@@ -8394,14 +8394,14 @@ int32_t writemisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 		
 		for(int32_t i=0; i<infos; i++)
 		{
-			if(!pfwrite(Misc->info[i].name,sizeof(Misc->info[i].name),f))
+			if(!pfwrite(QMisc.info[i].name,sizeof(QMisc.info[i].name),f))
 			{
 				new_return(11);
 			}
 			
 			for(int32_t j=0; j<3; j++)
 			{
-				if(!p_iputw(Misc->info[i].str[j],f))
+				if(!p_iputw(QMisc.info[i].str[j],f))
 				{
 					new_return(12);
 				}
@@ -8409,7 +8409,7 @@ int32_t writemisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 			
 			for(int32_t j=0; j<3; j++)
 			{
-				if(!p_iputw(Misc->info[i].price[j],f))
+				if(!p_iputw(QMisc.info[i].price[j],f))
 				{
 					new_return(13);
 				}
@@ -8426,7 +8426,7 @@ int32_t writemisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 		{
 			for(int32_t j=0; j<9; j++)
 			{
-				if(!p_iputw(Misc->warp[i].dmap[j],f))
+				if(!p_iputw(QMisc.warp[i].dmap[j],f))
 				{
 					new_return(15);
 				}
@@ -8434,13 +8434,13 @@ int32_t writemisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 			
 			for(int32_t j=0; j<9; j++)
 			{
-				if(!p_putc(Misc->warp[i].scr[j],f))
+				if(!p_putc(QMisc.warp[i].scr[j],f))
 				{
 					new_return(16);
 				}
 			}
 			
-			if(!p_putc(Misc->warp[i].size,f))
+			if(!p_putc(QMisc.warp[i].size,f))
 			{
 				new_return(17);
 			}
@@ -8449,14 +8449,14 @@ int32_t writemisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 		//triforce pieces
 		for(int32_t i=0; i<triforces; i++)
 		{
-			if(!p_putc(Misc->triforce[i],f))
+			if(!p_putc(QMisc.triforce[i],f))
 			{
 				new_return(18);
 			}
 		}
 		
 		//end string
-		if(!p_iputw(Misc->endstring,f))
+		if(!p_iputw(QMisc.endstring,f))
 		{
 			new_return(19);
 		}
@@ -8466,7 +8466,7 @@ int32_t writemisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 		{
 			for(int32_t j=0; j<3; j++)
 			{
-				if(!p_iputw(Misc->shop[i].str[j],f))
+				if(!p_iputw(QMisc.shop[i].str[j],f))
 				{
 					new_return(20);
 				}
@@ -8475,30 +8475,30 @@ int32_t writemisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 		//V_MISC >= 9
 		for ( int32_t q = 0; q < 32; q++ ) 
 		{
-			if(!p_iputl(Misc->questmisc[q],f))
+			if(!p_iputl(QMisc.questmisc[q],f))
 						new_return(21);
 		}
 		for ( int32_t q = 0; q < 32; q++ ) 
 		{
 			for ( int32_t j = 0; j < 128; j++ )
-			if(!p_putc(Misc->questmisc_strings[q][j],f))
+			if(!p_putc(QMisc.questmisc_strings[q][j],f))
 						 new_return(22);
 		}
 		//V_MISC >= 11
-		if(!p_iputl(Misc->zscript_last_compiled_version,f))
+		if(!p_iputl(QMisc.zscript_last_compiled_version,f))
 			new_return(23);
 		
 		//V_MISC >= 12
 		for(int32_t q = 0; q < sprMAX; ++q)
 		{
-			if(!p_putc(Misc->sprites[q],f))
+			if(!p_putc(QMisc.sprites[q],f))
 				new_return(24);
 		}
 		
 		//V_MISC >= 13
 		for(size_t q = 0; q < 64; ++q)
 		{
-			bottletype* bt = &(Misc->bottle_types[q]);
+			bottletype* bt = &(QMisc.bottle_types[q]);
             if (!pfwrite(bt->name, 32, f))
                 new_return(25);
 			for(size_t j = 0; j < 3; ++j)
@@ -8515,7 +8515,7 @@ int32_t writemisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 		}
 		for(size_t q = 0; q < 256; ++q)
 		{
-			bottleshoptype* bst = &(Misc->bottle_shop_types[q]);
+			bottleshoptype* bst = &(QMisc.bottle_shop_types[q]);
             if (!pfwrite(bst->name, 32, f))
                 new_return(26);
 			for(size_t j = 0; j < 3; ++j)
@@ -8536,7 +8536,7 @@ int32_t writemisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 		//V_MISC >= 14
 		for(int32_t q = 0; q < sfxMAX; ++q)
 		{
-			if(!p_putc(Misc->miscsfx[q],f))
+			if(!p_putc(QMisc.miscsfx[q],f))
 				new_return(27);
 		}
 		
@@ -10425,7 +10425,7 @@ int32_t writecomboaliases(PACKFILE *f, word version, word build)
     new_return(0);
 }
 
-int32_t writecolordata(PACKFILE *f, miscQdata *Misc, word version, word build, word start_cset, word max_csets)
+int32_t writecolordata(PACKFILE *f, word version, word build, word start_cset, word max_csets)
 {
     //these are here to bypass compiler warnings about unused arguments
     version=version;
@@ -10436,8 +10436,8 @@ int32_t writecolordata(PACKFILE *f, miscQdata *Misc, word version, word build, w
     dword section_id=ID_CSETS;
     dword section_version=V_CSETS;
     dword section_cversion=CV_CSETS;
-    int32_t palcycles = count_palcycles(Misc);
-// int32_t palcyccount = count_palcycles(Misc);
+    int32_t palcycles = count_palcycles(&QMisc);
+// int32_t palcyccount = count_palcycles(&QMisc);
     dword section_size = 0;
     
     //section id
@@ -10490,7 +10490,7 @@ int32_t writecolordata(PACKFILE *f, miscQdata *Misc, word version, word build, w
         {
             for(int32_t j=0; j<3; j++)
             {
-                if(!p_putc(Misc->cycles[i][j].first,f))
+                if(!p_putc(QMisc.cycles[i][j].first,f))
                 {
                     new_return(16);
                 }
@@ -10498,7 +10498,7 @@ int32_t writecolordata(PACKFILE *f, miscQdata *Misc, word version, word build, w
             
             for(int32_t j=0; j<3; j++)
             {
-                if(!p_putc(Misc->cycles[i][j].count,f))
+                if(!p_putc(QMisc.cycles[i][j].count,f))
                 {
                     new_return(17);
                 }
@@ -10506,7 +10506,7 @@ int32_t writecolordata(PACKFILE *f, miscQdata *Misc, word version, word build, w
             
             for(int32_t j=0; j<3; j++)
             {
-                if(!p_putc(Misc->cycles[i][j].speed,f))
+                if(!p_putc(QMisc.cycles[i][j].speed,f))
                 {
                     new_return(18);
                 }
@@ -14279,9 +14279,9 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_out("okay.");
 	box_eol();
 	
-	box_out("Writing Misc. Data...");
+	box_out("Writing &QMisc. Data...");
 	
-	if(writemisc(f,&header,&misc)!=0)
+	if(writemisc(f,&header)!=0)
 	{
 		new_return(7);
 	}
@@ -14289,9 +14289,9 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_out("okay.");
 	box_eol();
 	
-	box_out("Writing Misc. Colors...");
+	box_out("Writing &QMisc. Colors...");
 	
-	if(writemisccolors(f,&header,&misc)!=0)
+	if(writemisccolors(f,&header)!=0)
 	{
 		new_return(8);
 	}
@@ -14301,7 +14301,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	
 	box_out("Writing Game Icons...");
 	
-	if(writegameicons(f,&header,&misc)!=0)
+	if(writegameicons(f,&header)!=0)
 	{
 		new_return(9);
 	}
@@ -14361,7 +14361,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	
 	box_out("Writing Color Data...");
 	
-	if(writecolordata(f,&misc,header.zelda_version,header.build,0,newerpdTOTAL)!=0)
+	if(writecolordata(f,header.zelda_version,header.build,0,newerpdTOTAL)!=0)
 	{
 		new_return(15);
 	}

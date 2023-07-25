@@ -32,14 +32,14 @@ extern int32_t directItemX;
 
 //DIALOG *sso_properties_dlg;
 
-void put_active_subscr(miscQdata *misc, int32_t y, int32_t pos)
+void put_active_subscr(int32_t y, int32_t pos)
 {
     //Don't call Sitems.animate() - that gets called somewhere else, somehow. -L
     animate_selectors();
-    show_custom_subscreen(framebuf, misc, current_subscreen_active, 0, 6-y, game->should_show_time(), pos);
+    show_custom_subscreen(framebuf, current_subscreen_active, 0, 6-y, game->should_show_time(), pos);
 }
 
-void dosubscr(miscQdata *misc)
+void dosubscr()
 {
     PALETTE temppal;
     
@@ -57,7 +57,7 @@ void dosubscr(miscQdata *misc)
     
     int32_t miny;
     bool showtime = game->should_show_time();
-    load_Sitems(misc);
+    load_Sitems();
     
     pause_sfx(WAV_BRANG);
     
@@ -115,9 +115,9 @@ void dosubscr(miscQdata *misc)
         }
         
         //throw the passive subscreen onto the screen
-        put_passive_subscr(framebuf,misc,0,176-2-y,showtime,sspSCROLLING);
+        put_passive_subscr(framebuf,0,176-2-y,showtime,sspSCROLLING);
         //put the active subscreen above the passive subscreen
-        put_active_subscr(misc,y,sspSCROLLING);
+        put_active_subscr(y,sspSCROLLING);
         
         advanceframe(false);
         
@@ -299,9 +299,9 @@ void dosubscr(miscQdata *misc)
         do_dcounters();
         Hero.refill();
         
-        //put_passive_subscr(framebuf,misc,0,174-miny,showtime,true);
+        //put_passive_subscr(framebuf,0,174-miny,showtime,true);
         //blit(scrollbuf,framebuf,0,6,0,6-miny,256,168);
-        //put_active_subscr(misc,miny,true);
+        //put_active_subscr(miny,true);
         
         //fill in the screen with black to prevent the hall of mirrors effect
         rectfill(framebuf, 0, 0, 255, 223, 0);
@@ -317,9 +317,9 @@ void dosubscr(miscQdata *misc)
         }
         
         //throw the passive subscreen onto the screen
-        put_passive_subscr(framebuf,misc,0,176-2-miny,showtime,sspDOWN);
+        put_passive_subscr(framebuf,0,176-2-miny,showtime,sspDOWN);
         //put the active subscreen above the passive subscreen
-        put_active_subscr(misc,miny,sspDOWN);
+        put_active_subscr(miny,sspDOWN);
         
         
         advanceframe(false);
@@ -358,9 +358,9 @@ void dosubscr(miscQdata *misc)
         }
         
         //throw the passive subscreen onto the screen
-        put_passive_subscr(framebuf,misc,0,176-2-y,showtime,sspSCROLLING);
+        put_passive_subscr(framebuf,0,176-2-y,showtime,sspSCROLLING);
         //put the active subscreen above the passive subscreen
-        put_active_subscr(misc,y,sspSCROLLING);
+        put_active_subscr(y,sspSCROLLING);
         advanceframe(false);
         
         if(Quit)

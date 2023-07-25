@@ -20,8 +20,6 @@
 #include <stack>
 #include <array>
 
-struct miscQdata;
-
 int32_t COMBOPOS(int32_t x, int32_t y);
 int32_t COMBOPOS_B(int32_t x, int32_t y);
 int32_t COMBOX(int32_t pos);
@@ -391,7 +389,7 @@ int32_t writestrings_text(PACKFILE *f);
 
 bool load_pals(const char *path, int32_t startcset);
 bool save_pals(const char *path);
-int32_t writecolordata(PACKFILE *f, miscQdata *Misc, word version, word build, word start_cset, word max_csets);
+int32_t writecolordata(PACKFILE *f, word version, word build, word start_cset, word max_csets);
 
 bool load_combos(const char *path, int32_t startcombo);
 bool save_combos(const char *path);
@@ -422,8 +420,8 @@ void center_zq_class_dialogs();
 
 int32_t writeitems(PACKFILE *f, zquestheader *Header);
 int32_t writeweapons(PACKFILE *f, zquestheader *Header);
-int32_t writemisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc);
-int32_t writegameicons(PACKFILE *f, zquestheader *Header, miscQdata *Misc);
+int32_t writemisccolors(PACKFILE *f, zquestheader *Header);
+int32_t writegameicons(PACKFILE *f, zquestheader *Header);
 int32_t writedoorcombosets(PACKFILE *f, zquestheader *Header);
 int32_t write_one_subscreen(PACKFILE *f, zquestheader *Header, int32_t i);
 int32_t writeffscript(PACKFILE *f, zquestheader *Header, bool keepdata);

@@ -881,7 +881,7 @@ void msg_bg(MsgStr const& msg)
 	else
 	{
 		int32_t add = (get_qr(qr_STRING_FRAME_OLD_WIDTH_HEIGHT)!=0 ? 2 : 0);
-		frame2x2(msg_bg_bmp_buf,&QMisc,0,0,msg.tile,msg.cset,
+		frame2x2(msg_bg_bmp_buf,0,0,msg.tile,msg.cset,
                  (msg.w>>3)+add,(msg.h>>3)+add,0,true,0);
 	}
 }
@@ -2151,7 +2151,7 @@ int32_t init_game()
 		
 	update_subscreens();
 	
-	load_Sitems(&QMisc);
+	load_Sitems();
 	
 	//load the previous weapons -DD	
 	

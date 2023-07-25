@@ -228,7 +228,6 @@ extern zquestheader        header;
 extern byte                midi_flags[MIDIFLAGS_SIZE];
 extern byte                music_flags[MUSICFLAGS_SIZE];
 extern word                map_count;
-extern miscQdata           misc;
 extern std::vector<mapscr> TheMaps;
 extern std::vector<word>   map_autolayers;
 extern zcmap               *ZCMaps;

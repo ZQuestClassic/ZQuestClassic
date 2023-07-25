@@ -16,6 +16,7 @@
 #include "base/zdefs.h"
 #include "jwin.h"
 #include "base/zsys.h"
+#include "base/misctypes.h"
 #include "zc/zc_sys.h"
 #include "zq/zq_misc.h"
 #include "tiles.h"
@@ -23,7 +24,6 @@
 #include "zq/zq_tiles.h"
 #include "zq/zquest.h"
 
-DoorComboSet *DoorComboSets;
 extern void restore_mouse();
 extern std::vector<mapscr> TheMaps;
 extern std::vector<word>   map_autolayers;

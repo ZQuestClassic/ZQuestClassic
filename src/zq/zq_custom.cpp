@@ -1560,22 +1560,22 @@ int32_t onCustomWpns()
 
 int32_t onMiscSprites()
 {
-	MiscSprsDialog(misc.sprites, 20, [](int32_t* newsprs)
+	MiscSprsDialog(QMisc.sprites, 20, [](int32_t* newsprs)
 	{
 		saved = false;
 		for(auto q = 0; q < sprMAX; ++q)
-			misc.sprites[q] = byte(newsprs[q]);
+			QMisc.sprites[q] = byte(newsprs[q]);
 	}).show();
 	return D_O_K;
 }
 
 int32_t onMiscSFX()
 {
-	MiscSFXDialog(misc.miscsfx, 20, [](int32_t* newsfx)
+	MiscSFXDialog(QMisc.miscsfx, 20, [](int32_t* newsfx)
 	{
 		saved = false;
 		for(auto q = 0; q < sfxMAX; ++q)
-			misc.miscsfx[q] = byte(newsfx[q]);
+			QMisc.miscsfx[q] = byte(newsfx[q]);
 	}).show();
 	return D_O_K;
 }

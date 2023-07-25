@@ -527,7 +527,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 					tswatches[0] = SelTileSwatch(
 						hAlign = 0.0,
 						tile = local_subref.d1,
-						cset = subscreen_cset(&QMisc,cs_sel[0]->getC1(), cs_sel[0]->getC2()),
+						cset = subscreen_cset(cs_sel[0]->getC1(), cs_sel[0]->getC2()),
 						//flip = local_subref.d2,
 						tilewid = 2, tilehei = 2,
 						showvals = false,
@@ -917,7 +917,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 						width = 4_px + (32_px*9),
 						hAlign = 0.0,
 						tile = tl,
-						cset = subscreen_cset(&QMisc,cs_sel[0]->getC1(),cs_sel[0]->getC2()),
+						cset = subscreen_cset(cs_sel[0]->getC1(),cs_sel[0]->getC2()),
 						tilewid = tw,
 						minionly = local_subref.d2 != -1,
 						mini = true,
@@ -1018,7 +1018,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 					tswatches[0] = SelTileSwatch(
 						hAlign = 0.0,
 						tile = local_subref.d1,
-						cset = subscreen_cset(&QMisc,cs_sel[0]->getC1(), cs_sel[0]->getC2()),
+						cset = subscreen_cset(cs_sel[0]->getC1(), cs_sel[0]->getC2()),
 						flip = local_subref.d2,
 						showvals = false,
 						showFlip = true,
@@ -1114,7 +1114,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 						minwidth = 32_px*TB_LA+4_px,
 						minheight = 32_px*TB_LA+4_px,
 						tile = local_subref.d1,
-						cset = subscreen_cset(&QMisc,cs_sel[0]->getC1(), cs_sel[0]->getC2()),
+						cset = subscreen_cset(cs_sel[0]->getC1(), cs_sel[0]->getC2()),
 						showvals = false,
 						tilewid = std::min(local_subref.w, (word)TB_LA),
 						tilehei = std::min(local_subref.h, (word)TB_LA),
@@ -1295,7 +1295,7 @@ void SubscrPropDialog::updateColors()
 		case ssoMINITILE:
 		case ssoTILEBLOCK:
 		{
-			tswatches[0]->setCSet(subscreen_cset(&QMisc,cs_sel[0]->getC1(), cs_sel[0]->getC2()));
+			tswatches[0]->setCSet(subscreen_cset(cs_sel[0]->getC1(), cs_sel[0]->getC2()));
 			break;
 		}
 	}
