@@ -1,4 +1,11 @@
+#include "base/zdefs.h"
 #include "new_subscr.h"
+#include "subscr.h"
+#include "base/misctypes.h"
+#include "base/fonts.h"
+#include "base/zsys.h"
+
+extern gamedata* game; //!TODO ZDEFSCLEAN move to gamedata.h
 
 int shadow_x(int shadow)
 {
@@ -76,7 +83,7 @@ void SubscrPage::draw(BITMAP* dest, int32_t xofs, int32_t yofs, byte pos, bool s
 	}
 }
 
-int32_t SubscrColorInfo::get_color()
+int32_t SubscrColorInfo::get_color() const
 {
 	int32_t ret;
 	
@@ -167,7 +174,7 @@ int32_t SubscrColorInfo::get_color()
 	return ret;
 }
 
-int32_t SubscrColorInfo::get_cset()
+int32_t SubscrColorInfo::get_cset() const
 {
 	int32_t ret=type;
 	
@@ -238,7 +245,7 @@ SubscrWidget::SubscrWidget(subscreen_object const& old) : SubscrWidget()
 {
 	load_old(old);
 }
-void SubscrWidget::load_old(subscreen_object const& old)
+bool SubscrWidget::load_old(subscreen_object const& old)
 {
 	type = old.type;
 	posflags = old.pos;
@@ -246,6 +253,7 @@ void SubscrWidget::load_old(subscreen_object const& old)
 	y = old.y;
 	w = old.w;
 	h = old.h;
+	return true;
 }
 int16_t SubscrWidget::getX() const
 {
@@ -279,7 +287,7 @@ void SubscrWidget::draw(BITMAP* dest, int32_t xofs, int32_t yofs) const
 {
 	
 }
-void SubscrWidget::visible(byte pos, bool showtime) const
+bool SubscrWidget::visible(byte pos, bool showtime) const
 {
 	return posflags&pos;
 }
@@ -288,11 +296,14 @@ SW_2x2Frame::SW_2x2Frame(subscreen_object const& old) : SW_2x2Frame()
 {
 	load_old(old);
 }
-void SW_2x2Frame::load_old(subscreen_object const& old)
+bool SW_2x2Frame::load_old(subscreen_object const& old)
 {
+	if(old.type != sso2X2FRAME)
+		return false;
 	SubscrWidget::load_old(old);
 	tile = old.d1;
 	cs.load_old(old,1);
+	return true;
 }
 word SW_2x2Frame::getW() const
 {
@@ -316,8 +327,10 @@ SW_Text::SW_Text(subscreen_object const& old) : SW_Text()
 {
 	load_old(old);
 }
-void SW_Text::load_old(subscreen_object const& old)
+bool SW_Text::load_old(subscreen_object const& old)
 {
+	if(old.type != ssoTEXT)
+		return false;
 	SubscrWidget::load_old(old);
 	if(old.dp1) text = (char*)old.dp1;
 	else text.clear();
@@ -327,6 +340,7 @@ void SW_Text::load_old(subscreen_object const& old)
 	c_text.load_old(old,1);
 	c_shadow.load_old(old,2);
 	c_bg.load_old(old,3);
+	return true;
 }
 int16_t SW_Text::getX() const
 {
@@ -370,11 +384,14 @@ SW_Line::SW_Line(subscreen_object const& old) : SW_Line()
 {
 	load_old(old);
 }
-void SW_Line::load_old(subscreen_object const& old)
+bool SW_Line::load_old(subscreen_object const& old)
 {
+	if(old.type != ssoLINE)
+		return false;
 	SubscrWidget::load_old(old);
 	SETFLAG(flags,SUBSCR_LINE_TRANSP,old.d4);
 	c_line.load_old(old,1);
+	return true;
 }
 byte SW_Line::getType() const
 {
@@ -395,13 +412,16 @@ SW_Rect::SW_Rect(subscreen_object const& old) : SW_Rect()
 {
 	load_old(old);
 }
-void SW_Rect::load_old(subscreen_object const& old)
+bool SW_Rect::load_old(subscreen_object const& old)
 {
+	if(old.type != ssoRECT)
+		return false;
 	SubscrWidget::load_old(old);
 	SETFLAG(flags,SUBSCR_RECT_TRANSP,old.d2);
 	SETFLAG(flags,SUBSCR_RECT_FILLED,old.d1);
 	c_fill.load_old(old,2);
 	c_outline.load_old(old,1);
+	return true;
 }
 byte SW_Rect::getType() const
 {
@@ -426,8 +446,11 @@ SW_Time::SW_Time(subscreen_object const& old) : SW_Time()
 {
 	load_old(old);
 }
-void SW_Time::load_old(subscreen_object const& old)
+bool SW_Time::load_old(subscreen_object const& old)
 {
+	if(old.type != ssoBSTIME && old.type != ssoTIME
+		&& old.type != ssoSSTIME)
+		return false;
 	SubscrWidget::load_old(old);
 	fontid = to_real_font(old.d1);
 	align = old.d2;
@@ -435,6 +458,7 @@ void SW_Time::load_old(subscreen_object const& old)
 	c_text.load_old(old,1);
 	c_shadow.load_old(old,2);
 	c_bg.load_old(old,3);
+	return true;
 }
 int16_t SW_Time::getX() const
 {
@@ -497,7 +521,7 @@ void SW_Time::draw(BITMAP* dest, int32_t xofs, int32_t yofs) const
 	textout_styled_aligned_ex(dest,tempfont,ts,getX()+xofs,getY()+yofs,
 		shadtype,align,c_text.get_color(),c_shadow.get_color(),c_bg.get_color());
 }
-void SW_Time::visible(byte pos, bool showtime) const
+bool SW_Time::visible(byte pos, bool showtime) const
 {
 	return showtime && SubscrWidget::visible(pos,showtime);
 }
@@ -505,6 +529,13 @@ void SW_Time::visible(byte pos, bool showtime) const
 SW_MagicMeter::SW_MagicMeter(subscreen_object const& old) : SW_MagicMeter()
 {
 	load_old(old);
+}
+bool SW_MagicMeter::load_old(subscreen_object const& old)
+{
+	if(old.type != ssoMAGICMETER)
+		return false;
+	SubscrWidget::load_old(old);
+	return true;
 }
 int16_t SW_MagicMeter::getX() const
 {
@@ -531,11 +562,14 @@ SW_LifeMeter::SW_LifeMeter(subscreen_object const& old) : SW_LifeMeter()
 {
 	load_old(old);
 }
-void SW_LifeMeter::load_old(subscreen_object const& old)
+bool SW_LifeMeter::load_old(subscreen_object const& old)
 {
+	if(old.type != ssoLIFEMETER)
+		return false;
 	SubscrWidget::load_old(old);
 	rows = old.d3 ? 3 : 2;
 	SETFLAG(flags,SUBSCR_LIFEMET_BOT,old.d2);
+	return true;
 }
 int16_t SW_LifeMeter::getY() const
 {
@@ -564,11 +598,14 @@ SW_ButtonItem::SW_ButtonItem(subscreen_object const& old) : SW_ButtonItem()
 {
 	load_old(old);
 }
-void SW_ButtonItem::load_old(subscreen_object const& old)
+bool SW_ButtonItem::load_old(subscreen_object const& old)
 {
+	if(old.type != ssoBUTTONITEM)
+		return false;
 	SubscrWidget::load_old(old);
 	btn = old.d1;
 	SETFLAG(flags,SUBSCR_BTNITM_TRANSP,old.d2);
+	return true;
 }
 word SW_ButtonItem::getW() const
 {
@@ -597,8 +634,10 @@ SW_Counter::SW_Counter(subscreen_object const& old) : SW_Counter()
 {
 	load_old(old);
 }
-void SW_Counter::load_old(subscreen_object const& old)
+bool SW_Counter::load_old(subscreen_object const& old)
 {
+	if(old.type != ssoCOUNTER)
+		return false;
 	SubscrWidget::load_old(old);
 	fontid = to_real_font(old.d1);
 	align = old.d2;
@@ -609,11 +648,12 @@ void SW_Counter::load_old(subscreen_object const& old)
 	SETFLAG(flags,SUBSCR_COUNTER_SHOW0,old.d6&0b01);
 	SETFLAG(flags,SUBSCR_COUNTER_ONLYSEL,old.d6&0b10);
 	digits = old.d4;
-	infitem = old.d10;
+	infitm = old.d10;
 	infchar = old.d5;
 	c_text.load_old(old,1);
 	c_shadow.load_old(old,2);
 	c_bg.load_old(old,3);
+	return true;
 }
 int16_t SW_Counter::getX() const
 {
@@ -651,7 +691,7 @@ void SW_Counter::draw(BITMAP* dest, int32_t xofs, int32_t yofs) const
 	FONT* tempfont = get_zc_font(fontid);
 	counter(dest, getX()+xofs,getY()+yofs, tempfont, c_text.get_color(),
 		c_shadow.get_color(), c_bg.get_color(),align,shadtype,digits,infchar,
-		flags&SUBSCR_COUNTER_SHOW0, ctrs[0], ctrs[1], ctrs[2], infitem,
+		flags&SUBSCR_COUNTER_SHOW0, ctrs[0], ctrs[1], ctrs[2], infitm,
 		flags&SUBSCR_COUNTER_ONLYSEL);
 }
 
@@ -706,11 +746,14 @@ SubscrWidget SubscrWidget::fromOld(subscreen_object const& old)
 		case ssoSELECTEDITEMCLASSNAME:
 			break; //!TODO
 		case ssoICON:
-			old.w = 8;
-			old.h = 8;
-			break;
+		{
+			SubscrWidget ret(old);
+			ret.w = 8;
+			ret.h = 8;
+			return ret;
+		}
 		case ssoNULL:
-		case ssoNIL:
+		case ssoNONE:
 			break; //Nothingness
 	}
 	return SubscrWidget(old);

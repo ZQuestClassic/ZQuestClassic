@@ -53,13 +53,7 @@ enum { sstACTIVE, sstPASSIVE, sstMAX };
 
 enum { sssFULLPUSH, sssFULLSLIDEDOWN, sssMAX };
 
-// subscreen object types
-enum { ssoNULL, ssoNONE, sso2X2FRAME, ssoTEXT,
-       ssoLINE, ssoRECT, ssoBSTIME, ssoTIME, ssoSSTIME, ssoMAGICMETER, ssoLIFEMETER, ssoBUTTONITEM, ssoICON, ssoCOUNTER,
-       ssoCOUNTERS, ssoMINIMAPTITLE, ssoMINIMAP, ssoLARGEMAP, ssoCLEAR, ssoCURRENTITEM, ssoITEM, ssoTRIFRAME, ssoTRIFORCE, ssoTILEBLOCK, ssoMINITILE, ssoSELECTOR1, ssoSELECTOR2,
-       ssoMAGICGAUGE, ssoLIFEGAUGE, ssoTEXTBOX, ssoCURRENTITEMTILE, ssoSELECTEDITEMTILE, ssoCURRENTITEMTEXT, ssoCURRENTITEMNAME, ssoSELECTEDITEMNAME, ssoCURRENTITEMCLASSTEXT,
-       ssoCURRENTITEMCLASSNAME, ssoSELECTEDITEMCLASSNAME, ssoMAX
-     };
+#include "new_subscr.h"
 //ssoCURRENTITEM shows what item of that type you currently have.  if the itemtype is sword, it will show what sword you have
 //ssoBUTTONITEM shows what item is currently assigned to the A or B button
 //ssoITEMTILE shows a requested item

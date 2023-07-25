@@ -2,14 +2,19 @@
 #define _NEW_SUBSCR_H_
 
 #include "base/ints.h"
+#include "base/zc_alleg.h"
+#include "base/general.h"
 #include <string>
+#include <vector>
+
+struct subscreen_object;
 
 struct SubscrColorInfo
 {
 	byte type;
 	int16_t color;
-	int32_t get_cset();
-	int32_t get_color();
+	int32_t get_cset() const;
+	int32_t get_color() const;
 	void load_old(subscreen_object const& old, int indx);
 };
 
@@ -83,7 +88,7 @@ struct SubscrWidget
 	virtual bool visible(byte pos, bool showtime) const;
 	
 	static SubscrWidget fromOld(subscreen_object const& old);
-private:
+protected:
 	byte type;
 };
 
@@ -176,6 +181,7 @@ struct SW_MagicMeter : public SubscrWidget
 	SW_MagicMeter() = default;
 	SW_MagicMeter(subscreen_object const& old);
 	
+	virtual bool load_old(subscreen_object const& old) override;
 	virtual int16_t getX() const override; //Returns x in pixels
 	virtual word getW() const override; //Returns width in pixels
 	virtual word getH() const override; //Returns height in pixels
