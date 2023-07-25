@@ -794,7 +794,7 @@ SW_MMap::SW_MMap(subscreen_object const& old) : SW_MMap()
 }
 bool SW_MMap::load_old(subscreen_object const& old)
 {
-	if(old.type != ssoMINIMAPTITLE)
+	if(old.type != ssoMINIMAP)
 		return false;
 	SubscrWidget::load_old(old);
 	SETFLAG(flags,SUBSCR_MMAP_SHOWMAP,old.d1);
@@ -823,6 +823,42 @@ void SW_MMap::draw(BITMAP* dest, int32_t xofs, int32_t yofs) const
 	bool showcmp = (flags&SUBSCR_MMAP_SHOWCMP) && !(DMaps[get_currdmap()].flags&dmfNOCOMPASS);
 	drawdmap(dest, getX()+xofs, getY()+yofs, flags&SUBSCR_MMAP_SHOWMAP, showplr,
 		showcmp, c_plr.get_color(), c_cmp_blink.get_color(), c_cmp_off.get_color());
+}
+
+SW_LMap::SW_LMap(subscreen_object const& old) : SW_LMap()
+{
+	load_old(old);
+}
+bool SW_LMap::load_old(subscreen_object const& old)
+{
+	if(old.type != ssoLARGEMAP)
+		return false;
+	SubscrWidget::load_old(old);
+	SETFLAG(flags,SUBSCR_LMAP_SHOWMAP,old.d1);
+	SETFLAG(flags,SUBSCR_LMAP_SHOWROOM,old.d2);
+	SETFLAG(flags,SUBSCR_LMAP_SHOWPLR,old.d3);
+	SETFLAG(flags,SUBSCR_LMAP_LARGE,old.d10);
+	c_room.load_old(old,1);
+	c_plr.load_old(old,2);
+	return true;
+}
+word SW_LMap::getW() const
+{
+	return 16*((flags&SUBSCR_LMAP_LARGE)?9:7);
+}
+word SW_LMap::getH() const
+{
+	return 80;
+}
+byte SW_LMap::getType() const
+{
+	return ssoLARGEMAP;
+}
+void SW_LMap::draw(BITMAP* dest, int32_t xofs, int32_t yofs) const
+{
+	putBmap(dest, getX()+xofs, getY()+yofs, flags&SUBSCR_LMAP_SHOWMAP,
+		flags&SUBSCR_LMAP_SHOWROOM, flags&SUBSCR_LMAP_SHOWPLR, c_room.get_color(),
+		c_plr.get_color(), flags&SUBSCR_LMAP_LARGE);
 }
 
 
@@ -857,6 +893,7 @@ SubscrWidget SubscrWidget::fromOld(subscreen_object const& old)
 		case ssoMINIMAP:
 			return SW_MMap(old);
 		case ssoLARGEMAP:
+			return SW_LMap(old);
 		case ssoCLEAR:
 		case ssoCURRENTITEM:
 		case ssoITEM:

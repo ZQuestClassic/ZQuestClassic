@@ -300,6 +300,24 @@ struct SW_MMap : public SubscrWidget
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs) const override;
 };
 
+#define SUBSCR_LMAP_SHOWMAP    SUBSCRFLAG_SPEC_01
+#define SUBSCR_LMAP_SHOWROOM   SUBSCRFLAG_SPEC_02
+#define SUBSCR_LMAP_SHOWPLR    SUBSCRFLAG_SPEC_03
+#define SUBSCR_LMAP_LARGE      SUBSCRFLAG_SPEC_04
+struct SW_LMap : public SubscrWidget
+{
+	SubscrColorInfo c_room, c_plr;
+	
+	SW_LMap() = default;
+	SW_LMap(subscreen_object const& old);
+	
+	virtual bool load_old(subscreen_object const& old) override;
+	virtual word getW() const override; //Returns width in pixels
+	virtual word getH() const override; //Returns height in pixels
+	virtual byte getType() const override;
+	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs) const override;
+};
+
 
 struct SubscrPage
 {
