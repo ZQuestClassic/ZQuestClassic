@@ -83,6 +83,8 @@ struct SubscrWidget
 	virtual bool visible(byte pos, bool showtime) const;
 	
 	static SubscrWidget fromOld(subscreen_object const& old);
+private:
+	byte type;
 };
 
 #define SUBSCR_2X2FR_TRANSP    SUBSCRFLAG_SPEC_01
@@ -151,7 +153,6 @@ struct SW_Rect : public SubscrWidget
 
 struct SW_Time : public SubscrWidget
 {
-	byte timeType;
 	int32_t fontid;
 	byte align, shadtype;
 	SubscrColorInfo c_text, c_shadow, c_bg;
@@ -197,7 +198,44 @@ struct SW_LifeMeter : public SubscrWidget
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs) const override;
 };
 
+#define SUBSCR_BTNITM_TRANSP   SUBSCRFLAG_SPEC_01
+struct SW_ButtonItem : public SubscrWidget
+{
+	byte btn;
+	SW_ButtonItem() = default;
+	SW_ButtonItem(subscreen_object const& old);
+	
+	virtual bool load_old(subscreen_object const& old) override;
+	virtual word getW() const override; //Returns width in pixels
+	virtual word getH() const override; //Returns height in pixels
+	virtual byte getType() const override;
+	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs) const override;
+};
 
+#define SUBSCR_COUNTER_SHOW0   SUBSCRFLAG_SPEC_01
+#define SUBSCR_COUNTER_ONLYSEL SUBSCRFLAG_SPEC_02
+struct SW_Counter : public SubscrWidget
+{
+	int32_t fontid;
+	byte align, shadtype;
+	SubscrColorInfo c_text, c_shadow, c_bg;
+	int32_t ctrs[3];
+	byte digits;
+	int32_t infitm;
+	char infchar;
+	
+	SW_Counter() = default;
+	SW_Counter(subscreen_object const& old);
+	
+	virtual bool load_old(subscreen_object const& old) override;
+	virtual int16_t getX() const override; //Returns x in pixels
+	virtual int16_t getY() const override; //Returns y in pixels
+	virtual word getW() const override; //Returns width in pixels
+	virtual word getH() const override; //Returns height in pixels
+	virtual int16_t getXOffs() const override; //Returns any special x-offset
+	virtual byte getType() const override;
+	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs) const override;
+};
 
 
 struct SubscrPage

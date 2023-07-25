@@ -236,8 +236,6 @@ void SubscrColorInfo::load_old(subscreen_object const& old, int indx)
 
 SubscrWidget::SubscrWidget(subscreen_object const& old) : SubscrWidget()
 {
-	if(old.type > ssoNONE && old.type < ssoMAX)
-		zprint2("Failed convert sso type '%d'\n", old.type); //!TODO remove trace
 	load_old(old);
 }
 void SubscrWidget::load_old(subscreen_object const& old)
@@ -275,7 +273,7 @@ int16_t SubscrWidget::getYOffs() const
 }
 byte SubscrWidget::getType() const
 {
-	return ssoNULL;
+	return type;
 }
 void SubscrWidget::draw(BITMAP* dest, int32_t xofs, int32_t yofs) const
 {
@@ -431,7 +429,6 @@ SW_Time::SW_Time(subscreen_object const& old) : SW_Time()
 void SW_Time::load_old(subscreen_object const& old)
 {
 	SubscrWidget::load_old(old);
-	timeType = old.type;
 	fontid = to_real_font(old.d1);
 	align = old.d2;
 	shadtype = old.d3;
@@ -449,7 +446,19 @@ int16_t SW_Time::getY() const
 }
 word SW_Time::getW() const
 {
-	return text_length(get_zc_font(fontid), time_str_short2(game->get_time())) + shadow_w(shadtype);
+	char *ts;
+	auto tm = game ? game->get_time() : 0;
+	switch(type)
+	{
+		case ssoBSTIME:
+			ts = time_str_short2(tm);
+			break;
+		case ssoTIME:
+		case ssoSSTIME:
+			ts = time_str_med(tm);
+			break;
+	}
+	return text_length(get_zc_font(fontid), ts) + shadow_w(shadtype);
 }
 word SW_Time::getH() const
 {
@@ -468,13 +477,13 @@ int16_t SW_Time::getXOffs() const
 }
 byte SW_Time::getType() const
 {
-	return timeType; //ssoBSTIME,ssoTIME,ssoSSTIME
+	return type; //ssoBSTIME,ssoTIME,ssoSSTIME
 }
 void SW_Time::draw(BITMAP* dest, int32_t xofs, int32_t yofs) const
 {
 	char *ts;
 	auto tm = game ? game->get_time() : 0;
-	switch(timeType)
+	switch(type)
 	{
 		case ssoBSTIME:
 			ts = time_str_short2(tm);
@@ -511,7 +520,7 @@ word SW_MagicMeter::getH() const
 }
 byte SW_MagicMeter::getType() const
 {
-	return case ssoMAGICMETER;
+	return ssoMAGICMETER;
 }
 void SW_MagicMeter::draw(BITMAP* dest, int32_t xofs, int32_t yofs) const
 {
@@ -544,13 +553,107 @@ word SW_LifeMeter::getH() const
 }
 byte SW_LifeMeter::getType() const
 {
-	return case case ssoLIFEMETER;
+	return ssoLIFEMETER;
 }
 void SW_LifeMeter::draw(BITMAP* dest, int32_t xofs, int32_t yofs) const
 {
 	lifemeter(dest, getX()+xofs, getY()+yofs, 1, flags&SUBSCR_LIFEMET_BOT);
 }
 
+SW_ButtonItem::SW_ButtonItem(subscreen_object const& old) : SW_ButtonItem()
+{
+	load_old(old);
+}
+void SW_ButtonItem::load_old(subscreen_object const& old)
+{
+	SubscrWidget::load_old(old);
+	btn = old.d1;
+	SETFLAG(flags,SUBSCR_BTNITM_TRANSP,old.d2);
+}
+word SW_ButtonItem::getW() const
+{
+	return 16;
+}
+word SW_ButtonItem::getH() const
+{
+	return 16;
+}
+byte SW_ButtonItem::getType() const
+{
+	return ssoBUTTONITEM;
+}
+void SW_ButtonItem::draw(BITMAP* dest, int32_t xofs, int32_t yofs) const
+{
+	if(flags&SUBSCR_BTNITM_TRANSP)
+		drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
+	
+	buttonitem(dest, btn, x, y);
+	
+	if(flags&SUBSCR_BTNITM_TRANSP)
+		drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
+}
+
+SW_Counter::SW_Counter(subscreen_object const& old) : SW_Counter()
+{
+	load_old(old);
+}
+void SW_Counter::load_old(subscreen_object const& old)
+{
+	SubscrWidget::load_old(old);
+	fontid = to_real_font(old.d1);
+	align = old.d2;
+	shadtype = old.d3;
+	ctrs[0] = old.d7;
+	ctrs[1] = old.d8;
+	ctrs[2] = old.d9;
+	SETFLAG(flags,SUBSCR_COUNTER_SHOW0,old.d6&0b01);
+	SETFLAG(flags,SUBSCR_COUNTER_ONLYSEL,old.d6&0b10);
+	digits = old.d4;
+	infitem = old.d10;
+	infchar = old.d5;
+	c_text.load_old(old,1);
+	c_shadow.load_old(old,2);
+	c_bg.load_old(old,3);
+}
+int16_t SW_Counter::getX() const
+{
+	return x+shadow_x(shadtype);
+}
+int16_t SW_Counter::getY() const
+{
+	return y+shadow_y(shadtype);
+}
+word SW_Counter::getW() const
+{
+	return text_length(get_zc_font(fontid), "0")*4 + shadow_w(shadtype);
+}
+word SW_Counter::getH() const
+{
+	return text_height(get_zc_font(fontid)) + shadow_h(shadtype);
+}
+int16_t SW_Counter::getXOffs() const
+{
+	switch(align)
+	{
+		case sstaCENTER:
+			return -getW()/2;
+		case sstaRIGHT:
+			return -getW();
+	}
+	return 0;
+}
+byte SW_Counter::getType() const
+{
+	return ssoCOUNTER;
+}
+void SW_Counter::draw(BITMAP* dest, int32_t xofs, int32_t yofs) const
+{
+	FONT* tempfont = get_zc_font(fontid);
+	counter(dest, getX()+xofs,getY()+yofs, tempfont, c_text.get_color(),
+		c_shadow.get_color(), c_bg.get_color(),align,shadtype,digits,infchar,
+		flags&SUBSCR_COUNTER_SHOW0, ctrs[0], ctrs[1], ctrs[2], infitem,
+		flags&SUBSCR_COUNTER_ONLYSEL);
+}
 
 
 SubscrWidget SubscrWidget::fromOld(subscreen_object const& old)
@@ -574,8 +677,9 @@ SubscrWidget SubscrWidget::fromOld(subscreen_object const& old)
 		case ssoLIFEMETER:
 			return SW_LifeMeter(old);
 		case ssoBUTTONITEM:
-		case ssoICON:
+			return SW_ButtonItem(old);
 		case ssoCOUNTER:
+			return SW_Counter(old);
 		case ssoCOUNTERS:
 		case ssoMINIMAPTITLE:
 		case ssoMINIMAP:
@@ -601,7 +705,14 @@ SubscrWidget SubscrWidget::fromOld(subscreen_object const& old)
 		case ssoCURRENTITEMCLASSNAME:
 		case ssoSELECTEDITEMCLASSNAME:
 			break; //!TODO
+		case ssoICON:
+			old.w = 8;
+			old.h = 8;
+			break;
+		case ssoNULL:
+		case ssoNIL:
+			break; //Nothingness
 	}
-	return SubscrWidget(old); //ssoNULL type result
+	return SubscrWidget(old);
 }
 
