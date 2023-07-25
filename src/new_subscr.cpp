@@ -4,9 +4,13 @@
 #include "base/misctypes.h"
 #include "base/fonts.h"
 #include "base/zsys.h"
+#include "base/dmap.h"
+#include "base/mapscr.h"
 
 extern gamedata* game; //!TODO ZDEFSCLEAN move to gamedata.h
 int32_t get_dlevel();
+int32_t get_currdmap();
+int32_t get_homescr();
 bool has_item(int32_t item_type, int32_t item);
 
 int shadow_x(int shadow)

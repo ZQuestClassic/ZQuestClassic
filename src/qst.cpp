@@ -86,8 +86,6 @@ using std::pair;
 
 // extern bool                debug;
 extern int32_t                 hero_animation_speed; //lower is faster animation
-extern std::vector<mapscr> TheMaps;
-extern std::vector<word>   map_autolayers;
 extern zcmap               *ZCMaps;
 extern byte                *colordata;
 //extern byte              *tilebuf;

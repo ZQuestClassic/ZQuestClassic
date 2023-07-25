@@ -13,6 +13,7 @@
 #include "gui/use_size.h"
 #include "zq/zq_files.h"
 #include "base/qrs.h"
+#include "base/mapscr.h"
 
 bool mapcount_will_affect_layers(word newmapcount);
 void update_map_count(word newmapcount);

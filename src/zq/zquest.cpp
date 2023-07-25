@@ -716,9 +716,6 @@ END_OF_FUNCTION(myvsync_callback)
 zquestheader header;
 byte                midi_flags[MIDIFLAGS_SIZE];
 byte                music_flags[MUSICFLAGS_SIZE];
-word                map_count;
-vector<mapscr>      TheMaps;
-vector<word>        map_autolayers;
 zcmap               *ZCMaps;
 byte                *quest_file;
 int32_t					msg_strings_size;
