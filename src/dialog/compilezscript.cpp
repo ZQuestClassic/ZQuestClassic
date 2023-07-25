@@ -10,6 +10,7 @@
 #include "zscrdata.h"
 #include "info.h"
 #include <fmt/format.h>
+#include "base/misctypes.h"
 using std::string;
 
 #ifdef __EMSCRIPTEN__
@@ -378,9 +379,9 @@ bool do_compile_and_slots(bool quick_compile, bool delay)
 	}
 	
 	//scripts are compiled without error, so store the zscript version here: -Z, 25th July 2019, A29
-	misc.zscript_last_compiled_version = V_FFSCRIPT;
+	QMisc.zscript_last_compiled_version = V_FFSCRIPT;
 	FFCore.quest_format[vLastCompile] = V_FFSCRIPT;
-	zprint2("Compiled scripts in version: %d\n", misc.zscript_last_compiled_version);
+	zprint2("Compiled scripts in version: %d\n", QMisc.zscript_last_compiled_version);
 				
 	do_script_disassembly(scripts, true);
 	

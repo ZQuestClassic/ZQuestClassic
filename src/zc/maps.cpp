@@ -20,6 +20,7 @@ using std::set;
 #include "base/qrs.h"
 #include "base/dmap.h"
 #include "base/mapscr.h"
+#include "base/misctypes.h"
 #include "zc/maps.h"
 #include "zc/zelda.h"
 #include "tiles.h"

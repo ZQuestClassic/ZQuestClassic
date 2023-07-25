@@ -3,9 +3,9 @@
 #include "info.h"
 #include <gui/builder.h>
 #include "zc_list_data.h"
+#include "base/misctypes.h"
 
 extern bool saved;
-extern miscQdata misc;
 
 void call_bottle_dlg(int32_t index)
 {
@@ -14,8 +14,8 @@ void call_bottle_dlg(int32_t index)
 }
 
 BottleTypeDialog::BottleTypeDialog(int32_t index):
-	index(index), sourceBottle(misc.bottle_types[index]),
-	tempBottle(misc.bottle_types[index]),
+	index(index), sourceBottle(QMisc.bottle_types[index]),
+	tempBottle(QMisc.bottle_types[index]),
 	list_counters(GUI::ZCListData::counters(true))
 {}
 

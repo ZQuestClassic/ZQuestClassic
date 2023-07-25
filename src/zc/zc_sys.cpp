@@ -59,6 +59,7 @@
 #include "zc/jit.h"
 #include <fmt/format.h>
 #include "zinfo.h"
+#include "base/misctypes.h"
 
 #ifdef __EMSCRIPTEN__
 #include "base/emscripten_utils.h"

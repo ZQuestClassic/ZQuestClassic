@@ -6,6 +6,7 @@
 #include <gui/list_data.h>
 #include <functional>
 #include <string_view>
+#include "base/misctypes.h"
 
 class MiscSprsDialog: public GUI::Dialog<MiscSprsDialog>
 {

@@ -22,6 +22,7 @@
 #include "subscr.h"
 #include "drawing.h"
 #include "base/mapscr.h"
+#include "base/misctypes.h"
 using namespace util;
 extern FFScript FFCore;
 extern ZModule zcm;

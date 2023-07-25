@@ -47,6 +47,7 @@
 #include "zc/ffscript.h"
 #include "particles.h"
 #include "dialog/alert.h"
+#include "base/misctypes.h"
 
 #ifdef __EMSCRIPTEN__
 #include "base/emscripten_utils.h"
