@@ -813,8 +813,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			case ssoLINE:
 			{
 				attrib_grid = Column(
-					CBOX(d1, 0b1, "Overlay", 1),
-					CBOX(d2, 0b1, "Transparent", 1)
+					CBOX(d4, 0b1, "Transparent", 1)
 				);
 				break;
 			}
