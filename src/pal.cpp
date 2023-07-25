@@ -21,6 +21,7 @@
 #include "base/mapscr.h"
 #include "pal.h"
 #include "subscr.h"
+#include "base/misctypes.h"
 
 extern HeroClass Hero;
 

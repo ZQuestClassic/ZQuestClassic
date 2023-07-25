@@ -222,6 +222,7 @@ bool get_debug();
 void set_debug(bool d);
 
 
+#include "base/misctypes.h"
 // quest data
 extern zquestheader        header;
 extern byte                midi_flags[MIDIFLAGS_SIZE];
@@ -232,7 +233,6 @@ extern std::vector<mapscr> TheMaps;
 extern std::vector<word>   map_autolayers;
 extern zcmap               *ZCMaps;
 extern int32_t				   msg_strings_size;
-extern DoorComboSet        *DoorComboSets;
 extern class zctune        *customtunes;
 //extern emusic            *enhancedMusic;
 extern ZCHEATS             zcheats;

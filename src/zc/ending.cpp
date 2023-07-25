@@ -28,6 +28,7 @@
 #include "gamedata.h"
 #include "zc/ffscript.h"
 #include "zinfo.h"
+#include "base/misctypes.h"
 extern FFScript FFCore;
 extern ZModule zcm; //modules
 extern zcmodule moduledata;

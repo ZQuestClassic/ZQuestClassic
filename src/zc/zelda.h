@@ -517,8 +517,6 @@ extern byte                midi_flags[MIDIFLAGS_SIZE];
 extern byte                music_flags[MUSICFLAGS_SIZE];
 extern word                map_count;
 extern int32_t				   msg_strings_size;
-extern DoorComboSet        *DoorComboSets;
-extern miscQdata           QMisc;
 extern std::vector<mapscr> TheMaps;
 extern zcmap               *ZCMaps;
 extern byte                *quest_file;

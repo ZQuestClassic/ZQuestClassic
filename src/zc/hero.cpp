@@ -33,6 +33,7 @@
 #include "user_object.h"
 #include "slopes.h"
 #include "zinfo.h"
+#include "base/misctypes.h"
 extern FFScript FFCore;
 extern HeroClass Hero;
 extern ZModule zcm;

@@ -453,6 +453,7 @@ set(zcbase_sources
 	src/base/hotkey.cpp
 	src/base/jwinfsel.cpp
 	src/base/mapscr.cpp
+	src/base/misctypes.cpp
 	src/base/module.cpp
 	src/base/msgstr.cpp
 	src/base/process_management.cpp

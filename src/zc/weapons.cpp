@@ -29,6 +29,7 @@
 #include "base/zc_math.h"
 #include "base/qrs.h"
 #include "base/mapscr.h"
+#include "base/misctypes.h"
 
 #ifndef IS_ZQUEST
 #include "zc/render.h"

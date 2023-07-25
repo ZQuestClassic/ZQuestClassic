@@ -23,6 +23,7 @@
 #include "zc/guys.h"
 #include "base/zc_math.h"
 #include <fmt/format.h>
+#include "base/misctypes.h"
 
 #ifndef IS_ZQUEST
 #include "zc/hero.h"
