@@ -493,6 +493,64 @@ void SW_Time::visible(byte pos, bool showtime) const
 	return showtime && SubscrWidget::visible(pos,showtime);
 }
 
+SW_MagicMeter::SW_MagicMeter(subscreen_object const& old) : SW_MagicMeter()
+{
+	load_old(old);
+}
+int16_t SW_MagicMeter::getX() const
+{
+	return x-10;
+}
+word SW_MagicMeter::getW() const
+{
+	return 82;
+}
+word SW_MagicMeter::getH() const
+{
+	return 8;
+}
+byte SW_MagicMeter::getType() const
+{
+	return case ssoMAGICMETER;
+}
+void SW_MagicMeter::draw(BITMAP* dest, int32_t xofs, int32_t yofs) const
+{
+	magicmeter(dest, getX()+xofs, getY()+yofs);
+}
+
+SW_LifeMeter::SW_LifeMeter(subscreen_object const& old) : SW_LifeMeter()
+{
+	load_old(old);
+}
+void SW_LifeMeter::load_old(subscreen_object const& old)
+{
+	SubscrWidget::load_old(old);
+	rows = old.d3 ? 3 : 2;
+	SETFLAG(flags,SUBSCR_LIFEMET_BOT,old.d2);
+}
+int16_t SW_LifeMeter::getY() const
+{
+	if(flags&SUBSCR_LIFEMET_BOT)
+		return y;
+	return (4-rows)*8;
+}
+word SW_LifeMeter::getW() const
+{
+	return 64;
+}
+word SW_LifeMeter::getH() const
+{
+	return 8*rows;
+}
+byte SW_LifeMeter::getType() const
+{
+	return case case ssoLIFEMETER;
+}
+void SW_LifeMeter::draw(BITMAP* dest, int32_t xofs, int32_t yofs) const
+{
+	lifemeter(dest, getX()+xofs, getY()+yofs, 1, flags&SUBSCR_LIFEMET_BOT);
+}
+
 
 
 SubscrWidget SubscrWidget::fromOld(subscreen_object const& old)
@@ -512,7 +570,9 @@ SubscrWidget SubscrWidget::fromOld(subscreen_object const& old)
 		case ssoSSTIME:
 			return SW_Time(old);
 		case ssoMAGICMETER:
+			return SW_MagicMeter(old);
 		case ssoLIFEMETER:
+			return SW_LifeMeter(old);
 		case ssoBUTTONITEM:
 		case ssoICON:
 		case ssoCOUNTER:

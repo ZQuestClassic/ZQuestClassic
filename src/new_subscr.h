@@ -170,6 +170,33 @@ struct SW_Time : public SubscrWidget
 	virtual bool visible(byte pos, bool showtime) const override;
 };
 
+struct SW_MagicMeter : public SubscrWidget
+{
+	SW_MagicMeter() = default;
+	SW_MagicMeter(subscreen_object const& old);
+	
+	virtual int16_t getX() const override; //Returns x in pixels
+	virtual word getW() const override; //Returns width in pixels
+	virtual word getH() const override; //Returns height in pixels
+	virtual byte getType() const override;
+	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs) const override;
+};
+
+#define SUBSCR_LIFEMET_BOT     SUBSCRFLAG_SPEC_01
+struct SW_LifeMeter : public SubscrWidget
+{
+	byte rows;
+	SW_LifeMeter() = default;
+	SW_LifeMeter(subscreen_object const& old);
+	
+	virtual bool load_old(subscreen_object const& old) override;
+	virtual int16_t getY() const override; //Returns y in pixels
+	virtual word getW() const override; //Returns width in pixels
+	virtual word getH() const override; //Returns height in pixels
+	virtual byte getType() const override;
+	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs) const override;
+};
+
 
 
 
