@@ -379,7 +379,7 @@ void do_framer(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
     bool overlay=sdci[8];
     bool trans=(sdci[9]/10000<=127);
     
-	frame2x2(bmp, &QMisc, x + xoffset, y + yoffset, tile, cs, w, h, 0, overlay, trans);
+	frame2x2(bmp, x + xoffset, y + yoffset, tile, cs, w, h, 0, overlay, trans);
 }
 
 
@@ -4030,7 +4030,7 @@ void bmp_do_framer(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
     bool overlay=sdci[8];
     bool trans=(sdci[9]/10000<=127);
     
-	frame2x2(refbmp, &QMisc, x + xoffset, y + yoffset, tile, cs, w, h, 0, overlay, trans);
+	frame2x2(refbmp, x + xoffset, y + yoffset, tile, cs, w, h, 0, overlay, trans);
 }
 
 

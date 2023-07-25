@@ -7429,7 +7429,7 @@ void HeroClass::PhantomsCleanup()
 //Waitframe handler for refilling operations
 static void do_refill_waitframe()
 {
-	put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,game->should_show_time(),sspUP);
+	put_passive_subscr(framebuf,0,passive_subscreen_offset,game->should_show_time(),sspUP);
 	if(get_qr(qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN))
 	{
 		script_drawing_commands.Clear();
@@ -9955,7 +9955,7 @@ heroanimate_skip_liftwpn:;
 			else if ( !stopSubscreenFalling() )
 			{
 				conveyclk=3;
-				dosubscr(&QMisc);
+				dosubscr();
 				newscr_clk += frame - tmp_subscr_clk;
 			}
 			break;
@@ -27856,7 +27856,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			}
 			set_clip_rect(framebuf, 0, 0, framebuf->w, framebuf->h);
 		}
-		put_passive_subscr(framebuf, &QMisc, 0, passive_subscreen_offset, game->should_show_time(), sspUP);
+		put_passive_subscr(framebuf, 0, passive_subscreen_offset, game->should_show_time(), sspUP);
 		if(get_qr(qr_SUBSCREENOVERSPRITES))
 			do_primitives(framebuf, 7, newscr, 0, playing_field_offset);
 		
@@ -29347,7 +29347,7 @@ void getitem(int32_t id, bool nosound, bool doRunPassive)
 	
 	flushItemCache();
 	update_subscreens();
-	load_Sitems(&QMisc);
+	load_Sitems();
 	verifyBothWeapons();
 }
 
@@ -30343,7 +30343,7 @@ void HeroClass::getTriforce(int32_t id2)
 		//this causes bugs
 		//the subscreen appearing over the curtain effect should now be fixed in draw_screen
 		//so this is not necessary -DD
-		//put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,false);
+		//put_passive_subscr(framebuf,0,passive_subscreen_offset,false,false);
 		
 		//Run Triforce Script
 		advanceframe(true);
@@ -30600,10 +30600,10 @@ void HeroClass::heroDeathAnimation()
 	QMisc.colors.hero_dot = 255;
 	//doesn't work
 	//scrollbuf is tampered with by draw_screen()
-	//put_passive_subscr(scrollbuf, &QMisc, 256, passive_subscreen_offset, false, false);//save this and reuse it.
+	//put_passive_subscr(scrollbuf, 256, passive_subscreen_offset, false, false);//save this and reuse it.
 	BITMAP *subscrbmp = create_bitmap_ex(8, framebuf->w, framebuf->h);
 	clear_bitmap(subscrbmp);
-	put_passive_subscr(subscrbmp, &QMisc, 0, passive_subscreen_offset, false, sspUP);
+	put_passive_subscr(subscrbmp, 0, passive_subscreen_offset, false, sspUP);
 	QMisc.colors.hero_dot = tmp_hero_dot;
     */
 	BITMAP *subscrbmp = create_bitmap_ex(8, framebuf->w, framebuf->h);
@@ -30640,9 +30640,9 @@ void HeroClass::heroDeathAnimation()
 				QMisc.colors.hero_dot = 255;
 				//doesn't work
 				//scrollbuf is tampered with by draw_screen()
-				//put_passive_subscr(scrollbuf, &QMisc, 256, passive_subscreen_offset, false, false);//save this and reuse it.
+				//put_passive_subscr(scrollbuf, 256, passive_subscreen_offset, false, false);//save this and reuse it.
 				
-				put_passive_subscr(subscrbmp, &QMisc, 0, passive_subscreen_offset, game->should_show_time(), sspUP);
+				put_passive_subscr(subscrbmp, 0, passive_subscreen_offset, game->should_show_time(), sspUP);
 				//Don't forget passive subscreen scripts!
 				if(get_qr(qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN))
 				{
@@ -31045,7 +31045,7 @@ void HeroClass::ganon_intro()
         {
             conveyclk=3;
             int32_t tmp_subscr_clk = frame;
-            dosubscr(&QMisc);
+            dosubscr();
             newscr_clk += frame - tmp_subscr_clk;
         }
         

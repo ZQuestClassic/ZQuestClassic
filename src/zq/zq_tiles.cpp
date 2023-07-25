@@ -4220,7 +4220,7 @@ error2:
 		
 		set_bit(skip_flags,skip_tiles,0);
 		set_bit(skip_flags,skip_header,0);
-		int ret = loadquest(imagepath,&tempheader,&misc,customtunes,true,true,skip_flags);
+		int ret = loadquest(imagepath,&tempheader,&QMisc,customtunes,true,true,skip_flags);
 		if (ret)
 		{
 			imagetype=0;
@@ -6813,17 +6813,17 @@ void register_used_tiles()
 	}
 	
 	BSZ2=(zinit.subscreen>2);
-	map_styles_items[0].tile=misc.colors.blueframe_tile;
-	map_styles_items[1].tile=misc.colors.HCpieces_tile;
+	map_styles_items[0].tile=QMisc.colors.blueframe_tile;
+	map_styles_items[1].tile=QMisc.colors.HCpieces_tile;
 	map_styles_items[1].width=zinit.hcp_per_hc;
-	map_styles_items[2].tile=misc.colors.triforce_tile;
+	map_styles_items[2].tile=QMisc.colors.triforce_tile;
 	map_styles_items[2].width=BSZ2?2:1;
 	map_styles_items[2].height=BSZ2?3:1;
-	map_styles_items[3].tile=misc.colors.triframe_tile;
+	map_styles_items[3].tile=QMisc.colors.triframe_tile;
 	map_styles_items[3].width=BSZ2?7:6;
 	map_styles_items[3].height=BSZ2?7:3;
-	map_styles_items[4].tile=misc.colors.overworld_map_tile;
-	map_styles_items[5].tile=misc.colors.dungeon_map_tile;
+	map_styles_items[4].tile=QMisc.colors.overworld_map_tile;
+	map_styles_items[5].tile=QMisc.colors.dungeon_map_tile;
 	
 	for(int32_t u=0; u<6; u++)
 	{
@@ -6838,7 +6838,7 @@ void register_used_tiles()
 	
 	for(int32_t u=0; u<4; u++)
 	{
-		for(int32_t t=zc_max(misc.icons[u],0); t<zc_min(misc.icons[u]+1,NEWMAXTILES); ++t)
+		for(int32_t t=zc_max(QMisc.icons[u],0); t<zc_min(QMisc.icons[u]+1,NEWMAXTILES); ++t)
 		{
 			used_tile_table[t]=true;
 		}
@@ -7912,17 +7912,17 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 				found=false;
 				flood=false;
 				bool BSZ2=(zinit.subscreen>2);
-				map_styles_items[0].tile=misc.colors.blueframe_tile;
-				map_styles_items[1].tile=misc.colors.HCpieces_tile;
+				map_styles_items[0].tile=QMisc.colors.blueframe_tile;
+				map_styles_items[1].tile=QMisc.colors.HCpieces_tile;
 				map_styles_items[1].width=zinit.hcp_per_hc;
-				map_styles_items[2].tile=misc.colors.triforce_tile;
+				map_styles_items[2].tile=QMisc.colors.triforce_tile;
 				map_styles_items[2].width=BSZ2?2:1;
 				map_styles_items[2].height=BSZ2?3:1;
-				map_styles_items[3].tile=misc.colors.triframe_tile;
+				map_styles_items[3].tile=QMisc.colors.triframe_tile;
 				map_styles_items[3].width=BSZ2?7:6;
 				map_styles_items[3].height=BSZ2?7:3;
-				map_styles_items[4].tile=misc.colors.overworld_map_tile;
-				map_styles_items[5].tile=misc.colors.dungeon_map_tile;
+				map_styles_items[4].tile=QMisc.colors.overworld_map_tile;
+				map_styles_items[5].tile=QMisc.colors.dungeon_map_tile;
 				
 				for(int32_t u=0; u<6; u++)
 				{
@@ -8019,14 +8019,14 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 					
 					if(rect)
 					{
-						i=move_intersection_sr(misc.icons[u], misc.icons[u], selection_left, selection_top, selection_width, selection_height);
+						i=move_intersection_sr(QMisc.icons[u], QMisc.icons[u], selection_left, selection_top, selection_width, selection_height);
 					}
 					else
 					{
-						i=move_intersection_ss(misc.icons[u], misc.icons[u], selection_first, selection_last);
+						i=move_intersection_ss(QMisc.icons[u], QMisc.icons[u], selection_first, selection_last);
 					}
 					
-					if((i!=ti_none)&&(misc.icons[u]!=0))
+					if((i!=ti_none)&&(QMisc.icons[u]!=0))
 					{
 						if(i==ti_broken || q==0)
 						{
@@ -8642,27 +8642,27 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 					switch(u)
 					{
 					case 0:
-						misc.colors.blueframe_tile+=diff;
+						QMisc.colors.blueframe_tile+=diff;
 						break;
 						
 					case 1:
-						misc.colors.HCpieces_tile+=diff;
+						QMisc.colors.HCpieces_tile+=diff;
 						break;
 						
 					case 2:
-						misc.colors.triforce_tile+=diff;
+						QMisc.colors.triforce_tile+=diff;
 						break;
 						
 					case 3:
-						misc.colors.triframe_tile+=diff;
+						QMisc.colors.triframe_tile+=diff;
 						break;
 						
 					case 4:
-						misc.colors.overworld_map_tile+=diff;
+						QMisc.colors.overworld_map_tile+=diff;
 						break;
 						
 					case 5:
-						misc.colors.dungeon_map_tile+=diff;
+						QMisc.colors.dungeon_map_tile+=diff;
 						break;
 					}
 				}
@@ -8672,7 +8672,7 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 			{
 				if(move_game_icons_list[u])
 				{
-					misc.icons[u]+=diff;
+					QMisc.icons[u]+=diff;
 				}
 			}
 			
@@ -9459,17 +9459,17 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 				found=false;
 				flood=false;
 				bool BSZ2=(zinit.subscreen>2);
-				map_styles_items[0].tile=misc.colors.blueframe_tile;
-				map_styles_items[1].tile=misc.colors.HCpieces_tile;
+				map_styles_items[0].tile=QMisc.colors.blueframe_tile;
+				map_styles_items[1].tile=QMisc.colors.HCpieces_tile;
 				map_styles_items[1].width=zinit.hcp_per_hc;
-				map_styles_items[2].tile=misc.colors.triforce_tile;
+				map_styles_items[2].tile=QMisc.colors.triforce_tile;
 				map_styles_items[2].width=BSZ2?2:1;
 				map_styles_items[2].height=BSZ2?3:1;
-				map_styles_items[3].tile=misc.colors.triframe_tile;
+				map_styles_items[3].tile=QMisc.colors.triframe_tile;
 				map_styles_items[3].width=BSZ2?7:6;
 				map_styles_items[3].height=BSZ2?7:3;
-				map_styles_items[4].tile=misc.colors.overworld_map_tile;
-				map_styles_items[5].tile=misc.colors.dungeon_map_tile;
+				map_styles_items[4].tile=QMisc.colors.overworld_map_tile;
+				map_styles_items[5].tile=QMisc.colors.dungeon_map_tile;
 				
 				for(int32_t u=0; u<6; u++)
 				{
@@ -9566,14 +9566,14 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 					
 					if(rect)
 					{
-						i=move_intersection_sr(misc.icons[u], misc.icons[u], selection_left, selection_top, selection_width, selection_height);
+						i=move_intersection_sr(QMisc.icons[u], QMisc.icons[u], selection_left, selection_top, selection_width, selection_height);
 					}
 					else
 					{
-						i=move_intersection_ss(misc.icons[u], misc.icons[u], selection_first, selection_last);
+						i=move_intersection_ss(QMisc.icons[u], QMisc.icons[u], selection_first, selection_last);
 					}
 					
-					if((i!=ti_none)&&(misc.icons[u]!=0))
+					if((i!=ti_none)&&(QMisc.icons[u]!=0))
 					{
 						if(i==ti_broken || q==0)
 						{
@@ -10189,27 +10189,27 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 					switch(u)
 					{
 					case 0:
-						misc.colors.blueframe_tile+=diff;
+						QMisc.colors.blueframe_tile+=diff;
 						break;
 						
 					case 1:
-						misc.colors.HCpieces_tile+=diff;
+						QMisc.colors.HCpieces_tile+=diff;
 						break;
 						
 					case 2:
-						misc.colors.triforce_tile+=diff;
+						QMisc.colors.triforce_tile+=diff;
 						break;
 						
 					case 3:
-						misc.colors.triframe_tile+=diff;
+						QMisc.colors.triframe_tile+=diff;
 						break;
 						
 					case 4:
-						misc.colors.overworld_map_tile+=diff;
+						QMisc.colors.overworld_map_tile+=diff;
 						break;
 						
 					case 5:
-						misc.colors.dungeon_map_tile+=diff;
+						QMisc.colors.dungeon_map_tile+=diff;
 						break;
 					}
 				}
@@ -10219,7 +10219,7 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 			{
 				if(move_game_icons_list[u])
 				{
-					misc.icons[u]+=diff;
+					QMisc.icons[u]+=diff;
 				}
 			}
 			
@@ -10836,17 +10836,17 @@ bool do_movetile_united(tile_move_data const& tmd)
 				found=false;
 				flood=false;
 				bool BSZ2=(zinit.subscreen>2);
-				map_styles_items[0].tile=misc.colors.blueframe_tile;
-				map_styles_items[1].tile=misc.colors.HCpieces_tile;
+				map_styles_items[0].tile=QMisc.colors.blueframe_tile;
+				map_styles_items[1].tile=QMisc.colors.HCpieces_tile;
 				map_styles_items[1].width=zinit.hcp_per_hc;
-				map_styles_items[2].tile=misc.colors.triforce_tile;
+				map_styles_items[2].tile=QMisc.colors.triforce_tile;
 				map_styles_items[2].width=BSZ2?2:1;
 				map_styles_items[2].height=BSZ2?3:1;
-				map_styles_items[3].tile=misc.colors.triframe_tile;
+				map_styles_items[3].tile=QMisc.colors.triframe_tile;
 				map_styles_items[3].width=BSZ2?7:6;
 				map_styles_items[3].height=BSZ2?7:3;
-				map_styles_items[4].tile=misc.colors.overworld_map_tile;
-				map_styles_items[5].tile=misc.colors.dungeon_map_tile;
+				map_styles_items[4].tile=QMisc.colors.overworld_map_tile;
+				map_styles_items[5].tile=QMisc.colors.dungeon_map_tile;
 				
 				for(int32_t u=0; u<6; u++)
 				{
@@ -10945,14 +10945,14 @@ bool do_movetile_united(tile_move_data const& tmd)
 					
 					if(tmd.rect)
 					{
-						i=move_intersection_sr(misc.icons[u], misc.icons[u], selection_left, selection_top, selection_width, selection_height);
+						i=move_intersection_sr(QMisc.icons[u], QMisc.icons[u], selection_left, selection_top, selection_width, selection_height);
 					}
 					else
 					{
-						i=move_intersection_ss(misc.icons[u], misc.icons[u], selection_first, selection_last);
+						i=move_intersection_ss(QMisc.icons[u], QMisc.icons[u], selection_first, selection_last);
 					}
 					
-					if((i!=ti_none)&&(misc.icons[u]!=0))
+					if((i!=ti_none)&&(QMisc.icons[u]!=0))
 					{
 						if(i==ti_broken || q==0)
 						{
@@ -11621,27 +11621,27 @@ bool do_movetile_united(tile_move_data const& tmd)
 					switch(u)
 					{
 					case 0:
-						misc.colors.blueframe_tile+=diff;
+						QMisc.colors.blueframe_tile+=diff;
 						break;
 						
 					case 1:
-						misc.colors.HCpieces_tile+=diff;
+						QMisc.colors.HCpieces_tile+=diff;
 						break;
 						
 					case 2:
-						misc.colors.triforce_tile+=diff;
+						QMisc.colors.triforce_tile+=diff;
 						break;
 						
 					case 3:
-						misc.colors.triframe_tile+=diff;
+						QMisc.colors.triframe_tile+=diff;
 						break;
 						
 					case 4:
-						misc.colors.overworld_map_tile+=diff;
+						QMisc.colors.overworld_map_tile+=diff;
 						break;
 						
 					case 5:
-						misc.colors.dungeon_map_tile+=diff;
+						QMisc.colors.dungeon_map_tile+=diff;
 						break;
 					}
 				}
@@ -11651,7 +11651,7 @@ bool do_movetile_united(tile_move_data const& tmd)
 			{
 				if(move_game_icons_list[u])
 				{
-					misc.icons[u]+=diff;
+					QMisc.icons[u]+=diff;
 				}
 			}
 			
@@ -12513,17 +12513,17 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 				found=false;
 				flood=false;
 				bool BSZ2=(zinit.subscreen>2);
-				map_styles_items[0].tile=misc.colors.blueframe_tile;
-				map_styles_items[1].tile=misc.colors.HCpieces_tile;
+				map_styles_items[0].tile=QMisc.colors.blueframe_tile;
+				map_styles_items[1].tile=QMisc.colors.HCpieces_tile;
 				map_styles_items[1].width=zinit.hcp_per_hc;
-				map_styles_items[2].tile=misc.colors.triforce_tile;
+				map_styles_items[2].tile=QMisc.colors.triforce_tile;
 				map_styles_items[2].width=BSZ2?2:1;
 				map_styles_items[2].height=BSZ2?3:1;
-				map_styles_items[3].tile=misc.colors.triframe_tile;
+				map_styles_items[3].tile=QMisc.colors.triframe_tile;
 				map_styles_items[3].width=BSZ2?7:6;
 				map_styles_items[3].height=BSZ2?7:3;
-				map_styles_items[4].tile=misc.colors.overworld_map_tile;
-				map_styles_items[5].tile=misc.colors.dungeon_map_tile;
+				map_styles_items[4].tile=QMisc.colors.overworld_map_tile;
+				map_styles_items[5].tile=QMisc.colors.dungeon_map_tile;
 				
 				for(int32_t u=0; u<6; u++)
 				{
@@ -12620,14 +12620,14 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 					
 					if(rect)
 					{
-						i=move_intersection_sr(misc.icons[u], misc.icons[u], selection_left, selection_top, selection_width, selection_height);
+						i=move_intersection_sr(QMisc.icons[u], QMisc.icons[u], selection_left, selection_top, selection_width, selection_height);
 					}
 					else
 					{
-						i=move_intersection_ss(misc.icons[u], misc.icons[u], selection_first, selection_last);
+						i=move_intersection_ss(QMisc.icons[u], QMisc.icons[u], selection_first, selection_last);
 					}
 					
-					if((i!=ti_none)&&(misc.icons[u]!=0))
+					if((i!=ti_none)&&(QMisc.icons[u]!=0))
 					{
 						if(i==ti_broken || q==0)
 						{
@@ -13690,17 +13690,17 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 		found=false;
 		flood=false;
 		bool BSZ2=(zinit.subscreen>2);
-		map_styles_items[0].tile=misc.colors.blueframe_tile;
-		map_styles_items[1].tile=misc.colors.HCpieces_tile;
+		map_styles_items[0].tile=QMisc.colors.blueframe_tile;
+		map_styles_items[1].tile=QMisc.colors.HCpieces_tile;
 		map_styles_items[1].width=zinit.hcp_per_hc;
-		map_styles_items[2].tile=misc.colors.triforce_tile;
+		map_styles_items[2].tile=QMisc.colors.triforce_tile;
 		map_styles_items[2].width=BSZ2?2:1;
 		map_styles_items[2].height=BSZ2?3:1;
-		map_styles_items[3].tile=misc.colors.triframe_tile;
+		map_styles_items[3].tile=QMisc.colors.triframe_tile;
 		map_styles_items[3].width=BSZ2?7:6;
 		map_styles_items[3].height=BSZ2?7:3;
-		map_styles_items[4].tile=misc.colors.overworld_map_tile;
-		map_styles_items[5].tile=misc.colors.dungeon_map_tile;
+		map_styles_items[4].tile=QMisc.colors.overworld_map_tile;
+		map_styles_items[5].tile=QMisc.colors.dungeon_map_tile;
 		
 		for(int32_t u=0; u<6; u++)
 		{
@@ -13768,9 +13768,9 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 		
 		for(int32_t u=0; u<4; u++)
 		{
-			i=move_intersection_sr(misc.icons[u], misc.icons[u], dest_left, dest_top, dest_width, dest_height);
+			i=move_intersection_sr(QMisc.icons[u], QMisc.icons[u], dest_left, dest_top, dest_width, dest_height);
 			
-			if((i!=ti_none)&&(misc.icons[u]!=0))
+			if((i!=ti_none)&&(QMisc.icons[u]!=0))
 			{
 				sprintf(temptext, "%s\n", icon_title[u]);
 				
@@ -14443,8 +14443,8 @@ void do_movecombo(combo_move_data const& cmd)
 	{
 		for(auto p = 0; p < 3; ++p)
 		{
-			if(misc.bottle_shop_types[q].comb[p] >= cmd.copy1 && misc.bottle_shop_types[q].comb[p] < cmd.copy1+cmd.copycnt)
-				misc.bottle_shop_types[q].comb[p] += diff;
+			if(QMisc.bottle_shop_types[q].comb[p] >= cmd.copy1 && QMisc.bottle_shop_types[q].comb[p] < cmd.copy1+cmd.copycnt)
+				QMisc.bottle_shop_types[q].comb[p] += diff;
 		}
 	}
 	
@@ -18538,7 +18538,7 @@ int32_t onIcons()
 	
 	for(int32_t i=0; i<4; i++)
 	{
-		icon_dlg[i+2].d1 = misc.icons[i];
+		icon_dlg[i+2].d1 = QMisc.icons[i];
 		icon_dlg[i+2].fg = i+6;
 		load_cset(pal, i+6, pSprite(i+spICON1));
 	}
@@ -18553,9 +18553,9 @@ int32_t onIcons()
 	{
 		for(int32_t i=0; i<4; i++)
 		{
-			if(misc.icons[i] != icon_dlg[i+2].d1)
+			if(QMisc.icons[i] != icon_dlg[i+2].d1)
 			{
-				misc.icons[i] = icon_dlg[i+2].d1;
+				QMisc.icons[i] = icon_dlg[i+2].d1;
 				saved=false;
 			}
 		}

@@ -15,6 +15,7 @@
 #include "subscr.h"
 #include "zscriptversion.h"
 
+struct miscQdata;
 
 #include "zc/ffscript.h"
 extern FFScript ffengine;

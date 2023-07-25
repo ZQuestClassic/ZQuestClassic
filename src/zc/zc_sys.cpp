@@ -1818,7 +1818,7 @@ void close_black_opening(int32_t x, int32_t y, bool wait, int32_t shape)
 		for(int32_t i=0; i<66; i++)
 		{
 			draw_screen(tmpscr);
-			//put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
+			//put_passive_subscr(framebuf,0,passive_subscreen_offset,false,sspUP);
 			advanceframe(true);
 			
 			if(Quit)
@@ -1860,7 +1860,7 @@ void open_black_opening(int32_t x, int32_t y, bool wait, int32_t shape)
 		for(int32_t i=0; i<66; i++)
 		{
 			draw_screen(tmpscr);
-			//put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
+			//put_passive_subscr(framebuf,0,passive_subscreen_offset,false,sspUP);
 			advanceframe(true);
 			
 			if(Quit)
@@ -2270,7 +2270,7 @@ void flushItemCache()
 	if(game != NULL)
 	{
 		verifyBothWeapons();
-		load_Sitems(&QMisc);
+		load_Sitems();
 	}
 }
 
@@ -4722,7 +4722,7 @@ void zapin()
 	FFCore.warpScriptCheck();
 	draw_screen(tmpscr);
 	set_clip_rect(scrollbuf, 0, 0, scrollbuf->w, scrollbuf->h);
-	//put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
+	//put_passive_subscr(framebuf,0,passive_subscreen_offset,false,sspUP);
 	blit(framebuf,scrollbuf,0,0,256,0,256,224);
 	
 	// zap out
@@ -4743,7 +4743,7 @@ void zapin()
 void wavyout(bool showhero)
 {
 	draw_screen(tmpscr, showhero);
-	//put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
+	//put_passive_subscr(framebuf,0,passive_subscreen_offset,false,sspUP);
 	
 	BITMAP *wavebuf = create_bitmap_ex(8,288,224);
 	clear_to_color(wavebuf,0);
@@ -4808,7 +4808,7 @@ void wavyout(bool showhero)
 void wavyin()
 {
 	draw_screen(tmpscr);
-	//put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
+	//put_passive_subscr(framebuf,0,passive_subscreen_offset,false,sspUP);
 	
 	BITMAP *wavebuf = create_bitmap_ex(8,288,224);
 	clear_to_color(wavebuf,0);
@@ -4890,7 +4890,7 @@ void blackscr(int32_t fcnt,bool showsubscr)
 		
 		if(showsubscr)
 		{
-			put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,showtime,sspUP);
+			put_passive_subscr(framebuf,0,passive_subscreen_offset,showtime,sspUP);
 			if(get_qr(qr_SCRIPTDRAWSINWARPS) || (get_qr(qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN)))
 			{
 				do_script_draws(framebuf, tmpscr, 0, playing_field_offset);
@@ -4932,7 +4932,7 @@ void openscreen(int32_t shape)
 	{
 		draw_screen(tmpscr);
 		//? draw_screen already draws the subscreen -DD
-		//put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
+		//put_passive_subscr(framebuf,0,passive_subscreen_offset,false,sspUP);
 		x=128-(((i*128/80)/8)*8);
 		
 		if(x>0)
@@ -4980,7 +4980,7 @@ void closescreen(int32_t shape)
 	{
 		draw_screen(tmpscr);
 		//? draw_screen already draws the subscreen -DD
-		//put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
+		//put_passive_subscr(framebuf,0,passive_subscreen_offset,false,sspUP);
 		x=128-(((i*128/80)/8)*8);
 		
 		if(x>0)

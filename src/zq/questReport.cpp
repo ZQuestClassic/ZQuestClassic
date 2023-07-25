@@ -1810,10 +1810,10 @@ void itemLocationReport()
             {
                 for(int32_t si=0; si<3; ++si)
                 {
-                    if(misc.shop[ts->catchall].item[si]>0)
+                    if(QMisc.shop[ts->catchall].item[si]>0)
                     {
                         //start at the special item in the item location grid
-                        tempnode=&(item_location_grid[misc.shop[ts->catchall].item[si]][(ts->room==rSHOP?3:(ts->room==rP_SHOP?4:5))]);
+                        tempnode=&(item_location_grid[QMisc.shop[ts->catchall].item[si]][(ts->room==rSHOP?3:(ts->room==rP_SHOP?4:5))]);
                         
                         //loop to the end of the list
                         while(tempnode->next!=NULL)
@@ -1827,7 +1827,7 @@ void itemLocationReport()
                         newnode->map=m+1;
                         newnode->screen=s;
                         newnode->extra1=ts->catchall;
-                        newnode->extra2=misc.shop[ts->catchall].price[si];
+                        newnode->extra2=QMisc.shop[ts->catchall].price[si];
                         newnode->enemy=-1;
                         newnode->pal=ts->color;
                         newnode->next=NULL;

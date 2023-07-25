@@ -4221,7 +4221,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	if(!get_qr(qr_SUBSCREENOVERSPRITES))
 	{
 		set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
-		put_passive_subscr(framebuf, &QMisc, 0, passive_subscreen_offset, false, sspUP);
+		put_passive_subscr(framebuf, 0, passive_subscreen_offset, false, sspUP);
 	}
 	
 	
@@ -4351,7 +4351,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	//13. Draw the subscreen, without clipping
 	if(get_qr(qr_SUBSCREENOVERSPRITES))
 	{
-		put_passive_subscr(framebuf, &QMisc, 0, passive_subscreen_offset, game->should_show_time(), sspUP);
+		put_passive_subscr(framebuf, 0, passive_subscreen_offset, game->should_show_time(), sspUP);
 		
 		// Draw primitives over subscren
 		do_primitives(framebuf, 7, this_screen, 0, playing_field_offset); //Layer '7' appears above subscreen if quest rule is set

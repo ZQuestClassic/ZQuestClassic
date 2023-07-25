@@ -447,8 +447,6 @@ char runningItemScripts[256] = {0};
 //weapon *FFCore.temp_ff_lweapon = NULL;
 //weapon *FFCore.temp_ff_eweapon = NULL;
 
-//miscQdata *Misc;
-
 #include "zc/zelda.h"
 #include "particles.h"
 #include "zc/hero.h"
