@@ -6,6 +6,8 @@
 #include "base/zsys.h"
 
 extern gamedata* game; //!TODO ZDEFSCLEAN move to gamedata.h
+int32_t get_dlevel();
+bool has_item(int32_t item_type, int32_t item);
 
 int shadow_x(int shadow)
 {
@@ -72,15 +74,6 @@ int shadow_h(int shadow)
 			return 1;
 	}
 	return 0;
-}
-
-void SubscrPage::draw(BITMAP* dest, int32_t xofs, int32_t yofs, byte pos, bool showtime)
-{
-	for(SubscrWidget& widg : contents)
-	{
-		if(widg.visible(pos,showtime))
-			widg.draw(dest,xofs,yofs);
-	}
 }
 
 int32_t SubscrColorInfo::get_color() const
@@ -743,6 +736,54 @@ void SW_Counters::draw(BITMAP* dest, int32_t xofs, int32_t yofs) const
 		digits,infchar);
 }
 
+SW_MMapTitle::SW_MMapTitle(subscreen_object const& old) : SW_MMapTitle()
+{
+	load_old(old);
+}
+bool SW_MMapTitle::load_old(subscreen_object const& old)
+{
+	if(old.type != ssoCOUNTERS)
+		return false;
+	SubscrWidget::load_old(old);
+	fontid = to_real_font(old.d1);
+	SETFLAG(flags,SUBSCR_MMAP_REQMAP,old.d4);
+	shadtype = old.d3;
+	c_text.load_old(old,1);
+	c_shadow.load_old(old,2);
+	c_bg.load_old(old,3);
+	return true;
+}
+word SW_MMapTitle::getW() const
+{
+	return 16;
+}
+word SW_MMapTitle::getH() const
+{
+	return 80;
+}
+int16_t SW_MMapTitle::getXOffs() const
+{
+	switch(align)
+	{
+		case sstaCENTER:
+			return -getW()/2;
+		case sstaRIGHT:
+			return -getW();
+	}
+	return 0;
+}
+byte SW_MMapTitle::getType() const
+{
+	return ssoMINIMAPTITLE;
+}
+void SW_MMapTitle::draw(BITMAP* dest, int32_t xofs, int32_t yofs) const
+{
+	FONT* tempfont = get_zc_font(fontid);
+	if(!(flags&SUBSCR_MMAP_REQMAP) || has_item(itype_map, get_dlevel()))
+		minimaptitle(dest, getX()+xofs, getY()+yofs, tempfont, c_text.get_color(),
+			c_shadow.get_color(),c_bg.get_color(), align, shadtype);
+}
+
 
 SubscrWidget SubscrWidget::fromOld(subscreen_object const& old)
 {
@@ -771,6 +812,7 @@ SubscrWidget SubscrWidget::fromOld(subscreen_object const& old)
 		case ssoCOUNTERS:
 			return SW_Counters(old);
 		case ssoMINIMAPTITLE:
+			return SW_MMapTitle(old);
 		case ssoMINIMAP:
 		case ssoLARGEMAP:
 		case ssoCLEAR:
@@ -793,7 +835,7 @@ SubscrWidget SubscrWidget::fromOld(subscreen_object const& old)
 		case ssoCURRENTITEMCLASSTEXT:
 		case ssoCURRENTITEMCLASSNAME:
 		case ssoSELECTEDITEMCLASSNAME:
-			break; //!TODO
+			break; //!TODO SUBSCR
 		case ssoICON:
 		{
 			SubscrWidget ret(old);
@@ -806,5 +848,22 @@ SubscrWidget SubscrWidget::fromOld(subscreen_object const& old)
 			break; //Nothingness
 	}
 	return SubscrWidget(old);
+}
+
+void SubscrPage::draw(BITMAP* dest, int32_t xofs, int32_t yofs, byte pos, bool showtime)
+{
+	for(SubscrWidget& widg : contents)
+	{
+		if(widg.visible(pos,showtime))
+			widg.draw(dest,xofs,yofs);
+	}
+}
+void ZCSubscreen::draw(BITMAP* dest, int32_t xofs, int32_t yofs, byte pos, bool showtime)
+{
+	if(pages.empty()) return;
+	size_t page = curpage;
+	if(page >= pages.size()) page = 0;
+	//!TODO SUBSCR handle animations between multiple pages?
+	pages[page].draw(dest,xofs,yofs,pos,showtime);
 }
 

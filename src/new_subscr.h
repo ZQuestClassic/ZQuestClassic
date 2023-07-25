@@ -265,10 +265,35 @@ struct SW_Counters : public SubscrWidget
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs) const override;
 };
 
+#define SUBSCR_MMAP_REQMAP     SUBSCRFLAG_SPEC_01
+struct SW_MMapTitle : public SubscrWidget
+{
+	int32_t fontid;
+	byte align, shadtype;
+	SubscrColorInfo c_text, c_shadow, c_bg;
+	
+	SW_MMapTitle() = default;
+	SW_MMapTitle(subscreen_object const& old);
+	
+	virtual bool load_old(subscreen_object const& old) override;
+	virtual word getW() const override; //Returns width in pixels
+	virtual word getH() const override; //Returns height in pixels
+	virtual int16_t getXOffs() const override; //Returns any special x-offset
+	virtual byte getType() const override;
+	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs) const override;
+};
+
 
 struct SubscrPage
 {
 	std::vector<SubscrWidget> contents;
+	
+	void draw(BITMAP* dest, int32_t xofs, int32_t yofs, byte pos, bool showtime);
+};
+struct ZCSubscreen
+{
+	std::vector<SubscrPage> pages;
+	size_t curpage;
 	
 	void draw(BITMAP* dest, int32_t xofs, int32_t yofs, byte pos, bool showtime);
 };
