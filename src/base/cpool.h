@@ -7,14 +7,7 @@
 
 struct combo_alias
 {
-    combo_alias()
-    {
-        memset(this, 0, sizeof(combo_alias));
-        combos = new word[1];
-        csets = new byte[1];
-        combos[0] = 0;
-        csets[0] = 0;
-    }
+    combo_alias();
     
     byte width;      // Max 15
     byte height;     // Max 10

@@ -5,6 +5,15 @@
 combo_alias combo_aliases[MAXCOMBOALIASES];
 combo_pool combo_pools[MAXCOMBOPOOLS];
 
+combo_alias::combo_alias()
+{
+	memset(this, 0, sizeof(combo_alias));
+	combos = new word[1];
+	csets = new byte[1];
+	combos[0] = 0;
+	csets[0] = 0;
+}
+
 combo_pool& combo_pool::operator=(combo_pool const& other)
 {
 	clear();
