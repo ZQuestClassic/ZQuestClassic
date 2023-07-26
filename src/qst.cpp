@@ -13274,132 +13274,157 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 
 void reset_scripts()
 {
-    //OK, who spaced this? ;)
-    for(int32_t i=0; i<NUMSCRIPTFFC; i++)
-    {
-        if(ffscripts[i]!=NULL) delete ffscripts[i];
-    }
-    
-    for(int32_t i=0; i<NUMSCRIPTITEM; i++)
-    {
-        if(itemscripts[i]!=NULL) delete itemscripts[i];
-    }
-    
-    for(int32_t i=0; i<NUMSCRIPTGUYS; i++)
-    {
-        if(guyscripts[i]!=NULL) delete guyscripts[i];
-    }
-    
-    for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
-    {
-        if(wpnscripts[i]!=NULL) delete wpnscripts[i];
-    }
-    
-    
-    
-    for(int32_t i=0; i<NUMSCRIPTSCREEN; i++)
-    {
-        if(screenscripts[i]!=NULL) delete screenscripts[i];
-    }
-    
-    for(int32_t i=0; i<NUMSCRIPTGLOBAL; i++)
-    {
-        if(globalscripts[i]!=NULL) delete globalscripts[i];
-    }
-    
-    for(int32_t i=0; i<NUMSCRIPTPLAYER; i++)
-    {
-        if(playerscripts[i]!=NULL) delete playerscripts[i];
-    }
-    
-    for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
-    {
-        if(lwpnscripts[i]!=NULL) delete lwpnscripts[i];
-    }
-    
-    for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
-    {
-        if(ewpnscripts[i]!=NULL) delete ewpnscripts[i];
-    }
-    
-    for(int32_t i=0; i<NUMSCRIPTSDMAP; i++)
-    {
-        if(dmapscripts[i]!=NULL) delete dmapscripts[i];
-    }
-    
-    for(int32_t i=0; i<NUMSCRIPTSITEMSPRITE; i++)
-    {
-        if(itemspritescripts[i]!=NULL) delete itemspritescripts[i];
-    }
-    
-    for(int32_t i=0; i<NUMSCRIPTSCOMBODATA; i++)
-    {
-        if(comboscripts[i]!=NULL) delete comboscripts[i];
-    }
-    
-    next_script_data_debug_id = 0;
-    for(int32_t i=0; i<NUMSCRIPTSGENERIC; i++)
-    {
-        if(genericscripts[i]!=NULL) delete genericscripts[i];
-        genericscripts[i] = new script_data();
-    }
-    
-    for(int32_t i=0; i<NUMSCRIPTFFC; i++)
-    {
-        ffscripts[i] = new script_data();
-    }
-    
-    for(int32_t i=0; i<NUMSCRIPTITEM; i++)
-    {
-        itemscripts[i] = new script_data();
-    }
-    
-    for(int32_t i=0; i<NUMSCRIPTGUYS; i++)
-    {
-        guyscripts[i] = new script_data();
-    }
-    
-    for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
-    {
-        wpnscripts[i] = new script_data();
-    }
-    
-    for(int32_t i=0; i<NUMSCRIPTSCREEN; i++)
-    {
-        screenscripts[i] = new script_data();
-    }
-    
-    for(int32_t i=0; i<NUMSCRIPTGLOBAL; i++)
-    {
-        globalscripts[i] = new script_data();
-    }
-    
-    for(int32_t i=0; i<NUMSCRIPTPLAYER; i++)
-    {
-        playerscripts[i] = new script_data();
-    }
-    
-     for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
-    {
-        lwpnscripts[i] = new script_data();
-    }
-     for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
-    {
-        ewpnscripts[i] = new script_data();
-    }
-    
-     for(int32_t i=0; i<NUMSCRIPTSDMAP; i++)
-    {
-        dmapscripts[i] = new script_data();
-    }
-    for(int32_t i=0; i<NUMSCRIPTSITEMSPRITE; i++)
-    {
-        itemspritescripts[i] = new script_data();
-    }
-    for(int32_t i=0; i<NUMSCRIPTSCOMBODATA; i++)
-    {
-        comboscripts[i] = new script_data();
-    }
+	next_script_data_debug_id = 0;
+
+	for(int32_t i=0; i<NUMSCRIPTSGENERIC; i++)
+	{
+		if (genericscripts[i]!=NULL) genericscripts[i]->disable();
+		else genericscripts[i] = new script_data();
+	}
+
+	for(int32_t i=0; i<NUMSCRIPTFFC; i++)
+	{
+		if(ffscripts[i]!=NULL)
+		{
+			ffscripts[i]->disable();
+		}
+		else
+		{
+			ffscripts[i] = new script_data();
+		}
+	}
+
+	for(int32_t i=0; i<NUMSCRIPTITEM; i++)
+	{
+		if(itemscripts[i]!=NULL)
+		{
+			itemscripts[i]->disable();
+		}
+		else
+		{
+			itemscripts[i] = new script_data();
+		}
+	}
+
+	for(int32_t i=0; i<NUMSCRIPTGUYS; i++)
+	{
+		if(guyscripts[i]!=NULL)
+		{
+			guyscripts[i]->disable();
+		}
+		else
+		{
+			guyscripts[i] = new script_data();
+		}
+	}
+
+	for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
+	{
+		if(wpnscripts[i]!=NULL)
+		{
+			wpnscripts[i]->disable();
+		}
+		else
+		{
+			wpnscripts[i] = new script_data();
+		}
+	}
+
+	for(int32_t i=0; i<NUMSCRIPTSCREEN; i++)
+	{
+		if(screenscripts[i]!=NULL)
+		{
+			screenscripts[i]->disable();
+		}
+		else
+		{
+			screenscripts[i] = new script_data();
+		}
+	}
+
+	for(int32_t i=0; i<NUMSCRIPTGLOBAL; i++)
+	{
+		if(globalscripts[i]!=NULL)
+		{
+			globalscripts[i]->disable();
+		}
+		else
+		{
+			globalscripts[i] = new script_data();
+		}
+	}
+
+	for(int32_t i=0; i<NUMSCRIPTPLAYER; i++)
+	{
+		if(playerscripts[i]!=NULL)
+		{
+			playerscripts[i]->disable();
+		}
+		else
+		{
+			playerscripts[i] = new script_data();
+		}
+	}
+
+	for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
+	{
+		if(lwpnscripts[i]!=NULL)
+		{
+			lwpnscripts[i]->disable();
+		}
+		else
+		{
+			lwpnscripts[i] = new script_data();
+		}
+	}
+
+	for(int32_t i=0; i<NUMSCRIPTWEAPONS; i++)
+	{
+		if(ewpnscripts[i]!=NULL)
+		{
+			ewpnscripts[i]->disable();
+		}
+		else
+		{
+			ewpnscripts[i] = new script_data();
+		}
+	}
+
+	for(int32_t i=0; i<NUMSCRIPTSDMAP; i++)
+	{
+		if(dmapscripts[i]!=NULL)
+		{
+			dmapscripts[i]->disable();
+		}
+		else
+		{
+			dmapscripts[i] = new script_data();
+		}
+	}
+
+	for(int32_t i=0; i<NUMSCRIPTSITEMSPRITE; i++)
+	{
+		if(itemspritescripts[i]!=NULL)
+		{
+			itemspritescripts[i]->disable();
+		}
+		else
+		{
+			itemspritescripts[i] = new script_data();
+		}
+	}
+
+	for(int32_t i=0; i<NUMSCRIPTSCOMBODATA; i++)
+	{
+		if(comboscripts[i]!=NULL)
+		{
+			comboscripts[i]->disable();
+		}
+		else
+		{
+			comboscripts[i] = new script_data();
+		}
+	}
 }
 
 extern script_command command_list[];
