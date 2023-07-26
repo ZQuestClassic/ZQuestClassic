@@ -332,6 +332,21 @@ struct SW_Clear : public SubscrWidget
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs) const override;
 };
 
+#define SUBSCR_CURITM_INVIS    SUBSCRFLAG_SPEC_01
+#define SUBSCR_CURITM_NONEQP   SUBSCRFLAG_SPEC_02
+struct SW_CurrentItem : public SubscrWidget
+{
+	int32_t iclass, iid;
+	SW_CurrentItem() = default;
+	SW_CurrentItem(subscreen_object const& old);
+	
+	virtual bool load_old(subscreen_object const& old) override;
+	virtual word getW() const override; //Returns width in pixels
+	virtual word getH() const override; //Returns height in pixels
+	virtual byte getType() const override;
+	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs) const override;
+};
+
 
 struct SubscrPage
 {

@@ -8,10 +8,12 @@
 #include "base/mapscr.h"
 
 extern gamedata* game; //!TODO ZDEFSCLEAN move to gamedata.h
+extern zinitdata zinit; //!TODO ZDEFSCLEAN move to zinit.h
 int32_t get_dlevel();
 int32_t get_currdmap();
 int32_t get_homescr();
 bool has_item(int32_t item_type, int32_t item);
+void subscreenitem(BITMAP *dest, int32_t x, int32_t y, int32_t itemtype);
 
 int shadow_x(int shadow)
 {
@@ -890,6 +892,50 @@ void SW_Clear::draw(BITMAP* dest, int32_t xofs, int32_t yofs) const
 	clear_to_color(dest,c_bg.get_color());
 }
 
+SW_CurrentItem::SW_CurrentItem(subscreen_object const& old) : SW_CurrentItem()
+{
+	load_old(old);
+}
+bool SW_CurrentItem::load_old(subscreen_object const& old)
+{
+	if(old.type != ssoCURRENTITEM)
+		return false;
+	SubscrWidget::load_old(old);
+	iclass = old.d1;
+	iid = old.d8;
+	pos = old.d3;
+	pos_up = old.d4;
+	pos_down = old.d5;
+	pos_left = old.d6;
+	pos_right = old.d7;
+	SETFLAG(flags,SUBSCRFLAG_SELECTABLE,pos>=0);
+	SETFLAG(flags,SUBSCR_CURITM_INVIS,!(old.d2&0x1));
+	SETFLAG(flags,SUBSCR_CURITM_NONEQP,old.d2&0x2);
+	return true;
+}
+word SW_CurrentItem::getW() const
+{
+	return 16;
+}
+word SW_CurrentItem::getH() const
+{
+	return 16;
+}
+byte SW_CurrentItem::getType() const
+{
+	return ssoCURRENTITEM;
+}
+void SW_CurrentItem::draw(BITMAP* dest, int32_t xofs, int32_t yofs) const
+{
+	#ifdef IS_PLAYER
+	if(flags&SUBSCR_CURITM_INVIS)
+		return;
+	#else
+	if((flags&SUBSCR_CURITM_INVIS) && !(zinit.ss_flags&ssflagSHOWINVIS))
+		return;
+	#endif
+	subscreenitem(dest, getX()+xofs,getY()+yofs, iid>0 ? ((iid-1) | 0x8000) : iclass);
+}
 
 SubscrWidget SubscrWidget::fromOld(subscreen_object const& old)
 {
@@ -926,6 +972,7 @@ SubscrWidget SubscrWidget::fromOld(subscreen_object const& old)
 		case ssoCLEAR:
 			return SW_Clear(old);
 		case ssoCURRENTITEM:
+			return SW_CurrentItem(old);
 		case ssoITEM:
 		case ssoTRIFRAME:
 		case ssoTRIFORCE:
