@@ -1695,6 +1695,9 @@ void jit_poll()
 		return;
 
 #ifdef ZC_JIT
+	if (tasks_mutex == nullptr)
+		return;
+
 	al_lock_mutex(tasks_mutex);
 
 	int active_threads = 0;
@@ -1728,6 +1731,9 @@ void jit_shutdown()
 		return;
 
 #ifdef ZC_JIT
+	if (tasks_mutex == nullptr)
+		return;
+
 	set_compilation_thread_pool_size(0);
 	for (auto& thread_info : thread_infos)
 	{
