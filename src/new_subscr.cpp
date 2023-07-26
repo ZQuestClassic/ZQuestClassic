@@ -6,6 +6,7 @@
 #include "base/zsys.h"
 #include "base/dmap.h"
 #include "base/mapscr.h"
+#include "tiles.h"
 
 extern gamedata* game; //!TODO ZDEFSCLEAN move to gamedata.h
 extern zinitdata zinit; //!TODO ZDEFSCLEAN move to zinit.h
@@ -1045,6 +1046,74 @@ void SW_TileBlock::draw(BITMAP* dest, int32_t xofs, int32_t yofs) const
 		w,h,flip,flags&SUBSCR_TILEBL_OVERLAY,flags&SUBSCR_TILEBL_TRANSP);
 }
 
+SW_MiniTile::SW_MiniTile(subscreen_object const& old) : SW_MiniTile()
+{
+	load_old(old);
+}
+bool SW_MiniTile::load_old(subscreen_object const& old)
+{
+	if(old.type != ssoMINITILE)
+		return false;
+	SubscrWidget::load_old(old);
+	if(old.d1 == -1) tile = -1;
+	else tile = old.d1>>2;
+	special_tile = old.d2;
+	crn = old.d3;
+	flip = old.d4;
+	SETFLAG(flags,SUBSCR_MINITL_OVERLAY,old.d5);
+	SETFLAG(flags,SUBSCR_MINITL_TRANSP,old.d6);
+	cs.load_old(old,1);
+	return true;
+}
+word SW_MiniTile::getW() const
+{
+	return 8;
+}
+word SW_MiniTile::getH() const
+{
+	return 8;
+}
+byte SW_MiniTile::getType() const
+{
+	return ssoMINITILE;
+}
+int32_t SW_MiniTile::get_tile() const
+{
+	if(tile == -1)
+	{
+		switch(special_tile)
+		{
+			case ssmstSSVINETILE:
+				return wpnsbuf[iwSubscreenVine].tile;
+			case ssmstMAGICMETER:
+				return wpnsbuf[iwMMeter].tile;
+			default:
+				return (zc_oldrand()*100000)%32767;
+		}
+	}
+	else return tile;
+}
+void SW_MiniTile::draw(BITMAP* dest, int32_t xofs, int32_t yofs) const
+{
+	auto t = (get_tile()<<2)+crn;
+	auto tx = getX()+xofs, ty = getY()+yofs;
+	byte cset = cs.get_cset();
+	if(flags&SUBSCR_MINITL_OVERLAY)
+	{
+		if(flags&SUBSCR_MINITL_TRANSP)
+			overtiletranslucent8(dest,t,tx,ty,cset,flip,128);
+		else
+			overtile8(dest,t,tx,ty,cset,flip);
+	}
+	else
+	{
+		if(flags&SUBSCR_MINITL_TRANSP)
+			puttiletranslucent8(dest,t,tx,ty,cset,flip,128);
+		else
+			oldputtile8(dest,t,tx,ty,cset,flip);
+	}
+}
+
 SubscrWidget SubscrWidget::fromOld(subscreen_object const& old)
 {
 	switch(old.type)
@@ -1088,6 +1157,7 @@ SubscrWidget SubscrWidget::fromOld(subscreen_object const& old)
 		case ssoTILEBLOCK:
 			return SW_TileBlock(old);
 		case ssoMINITILE:
+			return SW_MiniTile(old);
 		case ssoSELECTOR1:
 		case ssoSELECTOR2:
 		case ssoMAGICGAUGE:
