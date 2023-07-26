@@ -152,6 +152,9 @@ for commit_text in commits_text.splitlines():
         subject = overrides[hash]
     body = subprocess.check_output(
         f'git log -1 {hash} --format="%b"', shell=True, encoding='utf-8').strip()
+    m = re.search(r'end changelog', body, re.IGNORECASE)
+    if m:
+        body = body[0:m.start()].strip()
     type, scope, oneline = parse_scope_and_type(subject)
     commits.append(Commit(type, scope, short_hash, hash, subject, oneline, body))
 
