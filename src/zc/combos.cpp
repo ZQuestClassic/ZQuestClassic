@@ -1,4 +1,5 @@
-#include "base/zdefs.h"
+#include "base/qrs.h"
+#include "base/dmap.h"
 #include "zc/zelda.h"
 #include "sprite.h"
 #include "zc/decorations.h"
@@ -9,6 +10,8 @@
 #include "zc/guys.h"
 #include "zc/hero.h"
 #include "zc/title.h"
+#include "base/mapscr.h"
+#include "base/misctypes.h"
 #include "iter.h"
 
 extern sprite_list items, decorations;
@@ -519,7 +522,7 @@ void trigger_cuttable(const rpos_handle_t& rpos_handle)
 	int32_t x, y;
 	COMBOXY_REGION(rpos_handle.rpos, x, y);
 	
-	bool skipSecrets = isNextType(type) && !get_bit(quest_rules,qr_OLD_SLASHNEXT_SECRETS);
+	bool skipSecrets = isNextType(type) && !get_qr(qr_OLD_SLASHNEXT_SECRETS);
 	bool done = false;
 	if(!skipSecrets)
 	{
@@ -584,7 +587,7 @@ void trigger_cuttable(const rpos_handle_t& rpos_handle)
 		}
 	}
 	
-	if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((rpos_handle.screen_index < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmp->flags9&fBELOWRETURN)))
+	if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((rpos_handle.screen_index < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmp->flags9&fBELOWRETURN)))
 	{
 		items.add(new item((zfix)x, (zfix)y,(zfix)0, tmp->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmp->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
 		sfx(tmp->secretsfx);
@@ -619,7 +622,7 @@ void trigger_cuttable(const rpos_handle_t& rpos_handle)
 		}
 	}
 	
-	if(get_bit(quest_rules,qr_MORESOUNDS))
+	if(get_qr(qr_MORESOUNDS))
 	{
 		if (cmb.usrflags&cflag3)
 		{
@@ -644,7 +647,7 @@ void trigger_cuttable_ffc(const ffc_handle_t& ffc_handle)
 	auto flag2 = cmb.flag;
 	auto x = ffc.x, y = ffc.y;
 	
-	bool skipSecrets = isNextType(type) && !get_bit(quest_rules,qr_OLD_SLASHNEXT_SECRETS);
+	bool skipSecrets = isNextType(type) && !get_qr(qr_OLD_SLASHNEXT_SECRETS);
 	bool done = false;
 	if(!skipSecrets)
 	{
@@ -684,7 +687,7 @@ void trigger_cuttable_ffc(const ffc_handle_t& ffc_handle)
 		}
 	}
 	
-	if((flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr->flags9&fBELOWRETURN)))
+	if((flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr->flags9&fBELOWRETURN)))
 	{
 		items.add(new item((zfix)x, (zfix)y,(zfix)0, tmpscr->catchall, ipONETIME2 + ipBIGRANGE + ipHOLDUP | ((tmpscr->flags8&fITEMSECRET) ? ipSECRETS : 0), 0));
 		sfx(tmpscr->secretsfx);
@@ -719,7 +722,7 @@ void trigger_cuttable_ffc(const ffc_handle_t& ffc_handle)
 		}
 	}
 	
-	if(get_bit(quest_rules,qr_MORESOUNDS))
+	if(get_qr(qr_MORESOUNDS))
 	{
 		if (cmb.usrflags&cflag3)
 		{
@@ -765,7 +768,7 @@ bool trigger_step(const rpos_handle_t& rpos_handle)
 					}
 				}
 			});
-			if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
+			if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
 			{
 				for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
 					if (ffc_handle.data() == id)
@@ -788,7 +791,7 @@ bool trigger_step(const rpos_handle_t& rpos_handle)
 					}
 				}
 			});
-			if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
+			if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
 			{
 				for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
 					if (isStepType(combobuf[ffc_handle.data()].type))
@@ -831,7 +834,7 @@ bool trigger_step_ffc(const ffc_handle_t& ffc_handle)
 					rpos_handle.increment_data();
 				}
 			});
-			if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
+			if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
 			{
 				for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle_2) {
 					if (ffc_handle_2.data() == id && ffc_handle_2.ffc != ffc_handle.ffc)
@@ -851,7 +854,7 @@ bool trigger_step_ffc(const ffc_handle_t& ffc_handle)
 					rpos_handle.increment_data();
 				}
 			});
-			if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
+			if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
 			{
 				for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle_2) {
 					if (isStepType(combobuf[ffc_handle_2.data()].type) && ffc_handle_2.ffc != ffc_handle.ffc)
@@ -1078,7 +1081,7 @@ bool trigger_chest(const rpos_handle_t& rpos_handle)
 					key_item = q; break;
 				}
 			}
-			if ( key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(ScriptType::Item, key_item) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
+			if ( key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(ScriptType::Item, key_item) && get_qr(qr_ITEMSCRIPTSKEEPRUNNING)) ) 
 			{
 				FFCore.reset_script_engine_data(ScriptType::Item, key_item);
 				ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[key_item].script, key_item);
@@ -1114,8 +1117,8 @@ bool trigger_chest(const rpos_handle_t& rpos_handle)
 	int32_t ipflag = 0;
 	if(cmb.usrflags & cflag7)
 	{
-		itemstate = getmapflag((rpos_handle.screen_index < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
-		ipflag = (rpos_handle.screen_index < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? ipONETIME : ipONETIME2;
+		itemstate = getmapflag((rpos_handle.screen_index < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
+		ipflag = (rpos_handle.screen_index < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? ipONETIME : ipONETIME2;
 	}
 	if(itemflag && !itemstate)
 	{
@@ -1190,7 +1193,7 @@ bool trigger_chest_ffc(const ffc_handle_t& ffc_handle)
 					key_item = q; break;
 				}
 			}
-			if ( key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(ScriptType::Item, key_item) && get_bit(quest_rules,qr_ITEMSCRIPTSKEEPRUNNING)) ) 
+			if ( key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(ScriptType::Item, key_item) && get_qr(qr_ITEMSCRIPTSKEEPRUNNING)) ) 
 			{
 				FFCore.reset_script_engine_data(ScriptType::Item, key_item);
 				ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[key_item].script, key_item);
@@ -1218,8 +1221,8 @@ bool trigger_chest_ffc(const ffc_handle_t& ffc_handle)
 	int32_t ipflag = 0;
 	if(cmb.usrflags & cflag7)
 	{
-		itemstate = getmapflag((currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
-		ipflag = (currscr < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? ipONETIME : ipONETIME2;
+		itemstate = getmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
+		ipflag = (currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? ipONETIME : ipONETIME2;
 	}
 	if(itemflag && !itemstate)
 	{
@@ -1285,7 +1288,7 @@ bool trigger_lockblock(const rpos_handle_t& rpos_handle)
 					key_item = q; break;
 				}
 			}
-			if (key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(ScriptType::Item, key_item) && get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)))
+			if (key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(ScriptType::Item, key_item) && get_qr(qr_ITEMSCRIPTSKEEPRUNNING)))
 			{
 				FFCore.reset_script_engine_data(ScriptType::Item, key_item);
 				ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[key_item].script, key_item);
@@ -1348,7 +1351,7 @@ bool trigger_lockblock_ffc(const ffc_handle_t& ffc_handle)
 					key_item = q; break;
 				}
 			}
-			if (key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(ScriptType::Item, key_item) && get_bit(quest_rules, qr_ITEMSCRIPTSKEEPRUNNING)))
+			if (key_item > 0 && itemsbuf[key_item].script && !(FFCore.doscript(ScriptType::Item, key_item) && get_qr(qr_ITEMSCRIPTSKEEPRUNNING)))
 			{
 				FFCore.reset_script_engine_data(ScriptType::Item, key_item);
 				ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[key_item].script, key_item);
@@ -2240,7 +2243,7 @@ static weapon* fire_shooter_wpn(newcombo const& cmb, zfix& wx, zfix& wy, bool an
 	wpn->dir = dir;
 	wpn->step = steprate;
 	wpn->xofs = 0;
-	wpn->yofs = (get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
+	wpn->yofs = (get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
 	if(autorot)
 	{
 		if(angular)
@@ -2454,7 +2457,7 @@ void do_ex_trigger(const rpos_handle_t& rpos_handle)
 				if (skipself && cc_rpos_handle.screen_index == rpos_handle.screen_index && cc_rpos_handle.layer == rpos_handle.layer && cc_rpos_handle.rpos == rpos_handle.rpos) return;
 				do_copycat_trigger(cc_rpos_handle);
 			});
-			if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
+			if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
 			{
 				for_every_ffc_in_region(do_copycat_trigger_ffc);
 			}
@@ -2495,7 +2498,7 @@ void do_ex_trigger_ffc(const ffc_handle_t& ffc_handle)
 				do_copycat_trigger(rpos_handle);
 			});
 			copycat_id = 0;
-			if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
+			if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
 			{
 				for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle_2) {
 					if (skipself && &ffc_handle.ffc == &ffc_handle_2.ffc)
@@ -2924,7 +2927,7 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, int32_t special, weapon*
 						if (skipself && cc_rpos_handle.layer == rpos_handle.layer && cc_rpos_handle.rpos == rpos_handle.rpos) return;
 						do_copycat_trigger(cc_rpos_handle);
 					});
-					if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
+					if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
 					{
 						for_every_ffc_in_region(do_copycat_trigger_ffc);
 					}
@@ -2953,7 +2956,7 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, int32_t special, weapon*
 
 bool do_trigger_combo_ffc(const ffc_handle_t& ffc_handle, int32_t special, weapon* w)
 {
-	if (get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY)) return false;
+	if (get_qr(qr_OLD_FFC_FUNCTIONALITY)) return false;
 
 	ffcdata* ffc = ffc_handle.ffc;
 	int32_t cid = ffc->getData();
@@ -3273,7 +3276,7 @@ bool do_trigger_combo_ffc(const ffc_handle_t& ffc_handle, int32_t special, weapo
 							do_copycat_trigger(get_rpos_handle((rpos_t)ccpos, cclayer));
 						}
 					}
-					if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
+					if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
 					{
 						for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle_2) {
 							if (skipself && &ffc_handle_2.ffc == &ffc_handle.ffc)

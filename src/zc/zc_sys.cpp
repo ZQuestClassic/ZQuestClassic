@@ -11,6 +11,8 @@
 
 #include "zc/zc_sys.h"
 
+#include "base/qrs.h"
+#include "base/dmap.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -56,6 +58,8 @@
 #include "zc/combos.h"
 #include "zc/jit.h"
 #include <fmt/format.h>
+#include "zinfo.h"
+#include "base/misctypes.h"
 
 #ifdef __EMSCRIPTEN__
 #include "base/emscripten_utils.h"
@@ -155,7 +159,7 @@ void do_DwmFlush()
 
 bool flash_reduction_enabled(bool check_qr)
 {
-	return (check_qr && get_bit(quest_rules, qr_EPILEPSY)) || epilepsyFlashReduction || replay_is_debug();
+	return (check_qr && get_qr(qr_EPILEPSY)) || epilepsyFlashReduction || replay_is_debug();
 }
 
 // Dialogue largening
@@ -773,6 +777,9 @@ void load_mouse()
 // sets the video mode and initializes the palette and mouse sprite
 bool game_vid_mode(int32_t mode,int32_t wait)
 {
+	if (is_headless())
+		return true;
+
 	if(set_gfx_mode(mode,resx,resy,0,0)!=0)
 	{
 		return false;
@@ -1808,17 +1815,17 @@ void close_black_opening(int32_t x, int32_t y, bool wait, int32_t shape)
 	if(wait)
 	{
 		FFCore.warpScriptCheck();
-        for(int32_t i=0; i<66; i++)
-        {
-            draw_screen();
-            //put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
-            advanceframe(true);
-            
-            if(Quit)
-            {
-                break;
-            }
-        }
+		for(int32_t i=0; i<66; i++)
+		{
+			draw_screen();
+			//put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
+			advanceframe(true);
+			
+			if(Quit)
+			{
+				break;
+			}
+		}
     }
 }
 
@@ -1853,7 +1860,6 @@ void open_black_opening(int32_t x, int32_t y, bool wait, int32_t shape)
 		for(int32_t i=0; i<66; i++)
 		{
 			draw_screen();
-			//put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
 			advanceframe(true);
 			
 			if(Quit)
@@ -2263,7 +2269,7 @@ void flushItemCache()
 	if(game != NULL)
 	{
 		verifyBothWeapons();
-		load_Sitems(&QMisc);
+		load_Sitems();
 	}
 }
 
@@ -2295,7 +2301,7 @@ int32_t _c_item_id_internal(int32_t itemtype, bool checkmagic, bool jinx_check)
 				//printf("Checkmagic for %d: %d (%d %d)\n",i,checkmagiccost(i),itemsbuf[i].magic*game->get_magicdrainrate(),game->get_magic());
 				if(!checkmagiccost(i))
 				{
-					if ( !get_bit(quest_rules,qr_NEVERDISABLEAMMOONSUBSCREEN) ) continue; //don't make items with a magic cost vanish!! -Z
+					if ( !get_qr(qr_NEVERDISABLEAMMOONSUBSCREEN) ) continue; //don't make items with a magic cost vanish!! -Z
 				}
 			}
 			if(jinx_check && (usesSwordJinx(i) ? HeroSwordClk() : HeroItemClk()))
@@ -2374,7 +2380,7 @@ int32_t item_tile_mod()
 	if(current_item(itype_clock))
 	{
 		int32_t itemid =
-			get_bit(quest_rules, qr_HARDCODED_LITEM_LTMS)
+			get_qr(qr_HARDCODED_LITEM_LTMS)
 				? iClock
 				: getHighestLevelEvenUnowned(itemsbuf, itype_clock);
 		if(itemid > -1 && checkbunny(itemid))
@@ -2384,7 +2390,7 @@ int32_t item_tile_mod()
 	if(current_item(itype_key))
 	{
 		int32_t itemid =
-			get_bit(quest_rules, qr_HARDCODED_LITEM_LTMS)
+			get_qr(qr_HARDCODED_LITEM_LTMS)
 				? iKey
 				: getHighestLevelEvenUnowned(itemsbuf, itype_key);
 		if(itemid > -1 && checkbunny(itemid))
@@ -2394,7 +2400,7 @@ int32_t item_tile_mod()
 	if(current_item(itype_lkey))
 	{
 		int32_t itemid =
-			get_bit(quest_rules, qr_HARDCODED_LITEM_LTMS)
+			get_qr(qr_HARDCODED_LITEM_LTMS)
 				? iLevelKey
 				: getHighestLevelEvenUnowned(itemsbuf, itype_lkey);
 		if(itemid > -1 && checkbunny(itemid))
@@ -2404,7 +2410,7 @@ int32_t item_tile_mod()
 	if(current_item(itype_map))
 	{
 		int32_t itemid =
-			get_bit(quest_rules, qr_HARDCODED_LITEM_LTMS)
+			get_qr(qr_HARDCODED_LITEM_LTMS)
 				? iMap
 				: getHighestLevelEvenUnowned(itemsbuf, itype_map);
 		if(itemid > -1 && checkbunny(itemid))
@@ -2414,7 +2420,7 @@ int32_t item_tile_mod()
 	if(current_item(itype_compass))
 	{
 		int32_t itemid =
-			get_bit(quest_rules, qr_HARDCODED_LITEM_LTMS)
+			get_qr(qr_HARDCODED_LITEM_LTMS)
 				? iCompass
 				: getHighestLevelEvenUnowned(itemsbuf, itype_compass);
 		if(itemid > -1 && checkbunny(itemid))
@@ -2424,7 +2430,7 @@ int32_t item_tile_mod()
 	if(current_item(itype_bosskey))
 	{
 		int32_t itemid =
-			get_bit(quest_rules, qr_HARDCODED_LITEM_LTMS)
+			get_qr(qr_HARDCODED_LITEM_LTMS)
 				? iBossKey
 				: getHighestLevelEvenUnowned(itemsbuf, itype_bosskey);
 		if(itemid > -1 && checkbunny(itemid))
@@ -2434,7 +2440,7 @@ int32_t item_tile_mod()
 	if(current_item(itype_magiccontainer))
 	{
 		int32_t itemid =
-			get_bit(quest_rules, qr_HARDCODED_LITEM_LTMS)
+			get_qr(qr_HARDCODED_LITEM_LTMS)
 				? iMagicC
 				: getHighestLevelEvenUnowned(itemsbuf, itype_magiccontainer);
 		if(itemid > -1 && checkbunny(itemid))
@@ -2444,7 +2450,7 @@ int32_t item_tile_mod()
 	if(current_item(itype_triforcepiece))
 	{
 		int32_t itemid =
-			get_bit(quest_rules, qr_HARDCODED_LITEM_LTMS)
+			get_qr(qr_HARDCODED_LITEM_LTMS)
 				? iTriforce
 				: getHighestLevelEvenUnowned(itemsbuf, itype_triforcepiece);
 		if(itemid > -1 && checkbunny(itemid))
@@ -2453,7 +2459,7 @@ int32_t item_tile_mod()
 	
 	for(int32_t i=0; i<itype_max; i++)
 	{
-		if(!get_bit(quest_rules, qr_HARDCODED_LITEM_LTMS))
+		if(!get_qr(qr_HARDCODED_LITEM_LTMS))
 		{
 			switch(i)
 			{
@@ -3697,9 +3703,9 @@ void draw_wavy(BITMAP *source, BITMAP *target, int32_t amplitude, bool interpol)
 	//  int32_t amplitude=8;
 	//  int32_t wavelength=4;
 	amplitude = zc_min(2048,amplitude); // some arbitrary limit to prevent crashing
-	if(flash_reduction_enabled() && !get_bit(quest_rules, qr_WAVY_NO_EPILEPSY)) amplitude = zc_min(16,amplitude);
+	if(flash_reduction_enabled() && !get_qr(qr_WAVY_NO_EPILEPSY)) amplitude = zc_min(16,amplitude);
 	int32_t amp2=168;
-	if(flash_reduction_enabled() && !get_bit(quest_rules, qr_WAVY_NO_EPILEPSY_2)) amp2*=2;
+	if(flash_reduction_enabled() && !get_qr(qr_WAVY_NO_EPILEPSY_2)) amp2*=2;
 	int32_t i=frame%amp2;
 	
 	for(int32_t j=0; j<168; j++)
@@ -4056,7 +4062,7 @@ int32_t onSaveMapPic()
 				
 				putscrdoors(_screen_draw_buffer,256,0,&special_warp_return_screen);
 				do_layer_old(_screen_draw_buffer, -2, 0, &special_warp_return_screen, 256, -playing_field_offset, 2);
-				if(get_bit(quest_rules, qr_PUSHBLOCK_LAYER_1_2))
+				if(get_qr(qr_PUSHBLOCK_LAYER_1_2))
 				{
 					do_layer_old(_screen_draw_buffer, -2, 1, &special_warp_return_screen, 256, -playing_field_offset, 2);
 					do_layer_old(_screen_draw_buffer, -2, 2, &special_warp_return_screen, 256, -playing_field_offset, 2);
@@ -4067,7 +4073,7 @@ int32_t onSaveMapPic()
 				
 				do_layer_old(_screen_draw_buffer, 0, 4, &special_warp_return_screen, 256, -playing_field_offset, 2);
 				do_layer_old(_screen_draw_buffer, -1, 0, &special_warp_return_screen, 256, -playing_field_offset, 2);
-				if(get_bit(quest_rules, qr_OVERHEAD_COMBOS_L1_L2))
+				if(get_qr(qr_OVERHEAD_COMBOS_L1_L2))
 				{
 					do_layer_old(_screen_draw_buffer, -1, 1, &special_warp_return_screen, 256, -playing_field_offset, 2);
 					do_layer_old(_screen_draw_buffer, -1, 2, &special_warp_return_screen, 256, -playing_field_offset, 2);
@@ -4350,7 +4356,6 @@ void syskeys()
 		{
 			Throttlefps=!Throttlefps;
 			zc_set_config(cfg_sect,"throttlefps", (int32_t)Throttlefps);
-			logic_counter=0;
 		}
 	}
 	
@@ -4615,12 +4620,12 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 	if(Quit)
 		return;
 	
-	if(Playing && game->get_time()<unsigned(get_bit(quest_rules,qr_GREATER_MAX_TIME) ? MAXTIME : OLDMAXTIME))
+	if(Playing && game->get_time()<unsigned(get_qr(qr_GREATER_MAX_TIME) ? MAXTIME : OLDMAXTIME))
 		game->change_time(1);
 	
 	// Many mistakes have been make re: inputs, and we are stuck with many replays relying on those mistakes.
 
-	bool should_reset_down_state = !get_bit(quest_rules, qr_BROKEN_INPUT_DOWN_STATE);
+	bool should_reset_down_state = !get_qr(qr_BROKEN_INPUT_DOWN_STATE);
 	if (replay_version_check(0, 16))
 		should_reset_down_state = replay_version_check(11, 16);
 	if (should_reset_down_state)
@@ -4714,7 +4719,6 @@ void zapin()
 	FFCore.warpScriptCheck();
 	draw_screen();
 	set_clip_rect(scrollbuf_old, 0, 0, scrollbuf_old->w, scrollbuf_old->h);
-	//put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
 	blit(framebuf,scrollbuf_old,0,0,256,0,256,224);
 	
 	// zap out
@@ -4735,7 +4739,6 @@ void zapin()
 void wavyout(bool showhero)
 {
 	draw_screen(showhero);
-	//put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
 	
 	BITMAP *wavebuf = create_bitmap_ex(8,288,224);
 	clear_to_color(wavebuf,0);
@@ -4800,7 +4803,6 @@ void wavyout(bool showhero)
 void wavyin()
 {
 	draw_screen();
-	//put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
 	
 	BITMAP *wavebuf = create_bitmap_ex(8,288,224);
 	clear_to_color(wavebuf,0);
@@ -4882,8 +4884,8 @@ void blackscr(int32_t fcnt,bool showsubscr)
 		
 		if(showsubscr)
 		{
-			put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,showtime,sspUP);
-			if(get_bit(quest_rules, qr_SCRIPTDRAWSINWARPS) || (get_bit(quest_rules, qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN)))
+			put_passive_subscr(framebuf,0,passive_subscreen_offset,showtime,sspUP);
+			if(get_qr(qr_SCRIPTDRAWSINWARPS) || (get_qr(qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN)))
 			{
 				do_script_draws(framebuf, tmpscr, 0, playing_field_offset);
 			}
@@ -4924,7 +4926,7 @@ void openscreen(int32_t shape)
 	{
 		draw_screen();
 		//? draw_screen already draws the subscreen -DD
-		//put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
+		//put_passive_subscr(framebuf,0,passive_subscreen_offset,false,sspUP);
 		x=128-(((i*128/80)/8)*8);
 		
 		if(x>0)
@@ -4972,7 +4974,7 @@ void closescreen(int32_t shape)
 	{
 		draw_screen();
 		//? draw_screen already draws the subscreen -DD
-		//put_passive_subscr(framebuf,&QMisc,0,passive_subscreen_offset,false,sspUP);
+		//put_passive_subscr(framebuf,0,passive_subscreen_offset,false,sspUP);
 		x=128-(((i*128/80)/8)*8);
 		
 		if(x>0)
@@ -6951,7 +6953,7 @@ int32_t onQuit()
 	{
 		int32_t ret=0;
 		
-		if(get_bit(quest_rules, qr_NOCONTINUE))
+		if(get_qr(qr_NOCONTINUE))
 		{
 			if(standalone_mode)
 			{
@@ -6999,10 +7001,10 @@ int32_t onTryQuit(bool inMenu)
 	{
 		if(active_cutscene.can_f6())
 		{
-			if(get_bit(quest_rules,qr_OLD_F6))
+			if(get_qr(qr_OLD_F6))
 			{
 				if(inMenu) onQuit();
-				else /*if(!get_bit(quest_rules, qr_NOCONTINUE))*/ f_Quit(qQUIT);
+				else /*if(!get_qr(qr_NOCONTINUE))*/ f_Quit(qQUIT);
 			}
 			else
 			{
@@ -7943,7 +7945,7 @@ void System()
 			|| (!zcheats.flags && !get_debug() && DEVLEVEL < 2 && !zqtesting_mode && !devpwd()));
 		the_player_menu[2].flags = nocheat ? D_DISABLED : 0;
 		cheat_menu[0].flags = 0;
-		refill_menu[4].flags = get_bit(quest_rules, qr_TRUEARROWS) ? 0 : D_DISABLED;
+		refill_menu[4].flags = get_qr(qr_TRUEARROWS) ? 0 : D_DISABLED;
 		cheat_menu[1].text  = (cheat >= 1) || get_debug() ? bar_str : NULL;
 		cheat_menu[3].text  = (cheat >= 2) || get_debug() ? bar_str : NULL;
 		cheat_menu[8].text  = (cheat >= 3) || get_debug() ? bar_str : NULL;
@@ -8155,6 +8157,9 @@ void set_zcmusicspeed(int32_t speed)
 
 void jukebox(int32_t index,int32_t loop)
 {
+	if (is_headless())
+		return;
+
 	music_stop();
 	
 	if(index<0)		 index=MAXMIDIS-1;
@@ -8198,6 +8203,9 @@ void jukebox(int32_t index)
 
 void play_DmapMusic()
 {
+	if (is_headless())
+		return;
+
 	static char tfile[2048];
 	static int32_t ttrack=0;
 	bool domidi=false;
@@ -8269,6 +8277,9 @@ void play_DmapMusic()
 
 void playLevelMusic()
 {
+	if (is_headless())
+		return;
+
 	int32_t m=get_scr(currmap, currscr)->screen_midi;
 	
 	switch(m)
@@ -8394,16 +8405,19 @@ void sfx(int32_t index,int32_t pan,bool loop, bool restart)
 {
 	if(!sfx_init(index))
 		return;
+	
+	if (!is_headless())
+	{
+		voice_set_playmode(sfx_voice[index],loop?PLAYMODE_LOOP:PLAYMODE_PLAY);
+		voice_set_pan(sfx_voice[index],pan);
 		
-	voice_set_playmode(sfx_voice[index],loop?PLAYMODE_LOOP:PLAYMODE_PLAY);
-	voice_set_pan(sfx_voice[index],pan);
-	
-	int32_t pos = voice_get_position(sfx_voice[index]);
-	
-	if(restart) voice_set_position(sfx_voice[index],0);
-	
-	if(pos<=0)
-		voice_start(sfx_voice[index]);
+		int32_t pos = voice_get_position(sfx_voice[index]);
+		
+		if(restart) voice_set_position(sfx_voice[index],0);
+		
+		if(pos<=0)
+			voice_start(sfx_voice[index]);
+	}
 
 	if (restart && replay_is_debug())
 		replay_step_comment(fmt::format("sfx {}", sfx_string[index]));
@@ -8419,6 +8433,9 @@ bool sfx_allocated(int32_t index)
 // otherwise adjust it to play in loop mode -DD
 void cont_sfx(int32_t index)
 {
+	if (is_headless())
+		return;
+
 	if(!sfx_init(index))
 	{
 		return;
@@ -8456,6 +8473,9 @@ void pause_sfx(int32_t index)
 // resumes a voice
 void resume_sfx(int32_t index)
 {
+	if (is_headless())
+		return;
+
 	if(index>0 && index<WAV_COUNT && sfx_voice[index]!=-1)
 		voice_start(sfx_voice[index]);
 }
@@ -8828,7 +8848,7 @@ bool getInput(int32_t btn, bool press, bool drunk, bool ignoreDisable, bool eatE
 			break;
 		default: //control_state[] index
 			if(FFCore.kb_typing_mode) return false;
-			if(!ignoreDisable && get_bit(quest_rules, qr_FIXDRUNKINPUTS) && disable_control[btn]) drunk = false;
+			if(!ignoreDisable && get_qr(qr_FIXDRUNKINPUTS) && disable_control[btn]) drunk = false;
 			else if(btn<11) drunkstate = drunk_toggle_state[btn];
 			ret = control_state[btn] && (ignoreDisable || !disable_control[btn]);
 			rawret = raw_control_state[btn];
@@ -8838,7 +8858,7 @@ bool getInput(int32_t btn, bool press, bool drunk, bool ignoreDisable, bool eatE
 	{
 		if(peek)
 			ret = rButtonPeek(ret, *flag);
-		else if(get_bit(quest_rules, qr_BROKEN_INPUT_DOWN_STATE)) ret = rButton(ret, *flag);
+		else if(get_qr(qr_BROKEN_INPUT_DOWN_STATE)) ret = rButton(ret, *flag);
 		else ret = rButton(ret, *flag, rawret);
 	}
 	if(eatEntirely && ret) control_state[btn] = false;

@@ -11,8 +11,12 @@
 #ifndef _MAPS_H_
 #define _MAPS_H_
 
-#include "base/zdefs.h"
 #include <optional>
+#include "base/handles.h"
+// TODO: extract direction so this can be removed.
+#include "base/zdefs.h"
+
+struct newcombo;
 
 #define DRIEDLAKE ((hero_screen->flags7 & fWHISTLEWATER) && (whistleclk>=88))
 

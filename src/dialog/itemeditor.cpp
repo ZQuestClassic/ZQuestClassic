@@ -4,6 +4,7 @@
 #include "base/zsys.h"
 #include <gui/builder.h>
 #include "zc_list_data.h"
+#include "zinfo.h"
 #include <fmt/format.h>
 
 void reset_itembuf(itemdata *item, int32_t id);

@@ -7,6 +7,7 @@
 // * Compile: LSHIFTR RSHIFTR
 
 #include "allegro.h"
+#include "base/qrs.h"
 #include "zc/jit.h"
 #include "zc/ffscript.h"
 #include "zc/script_debug.h"
@@ -467,7 +468,7 @@ static void set_z_register(CompilationState& state, x86::Compiler &cc, x86::Gp v
 static void modify_sp(x86::Compiler &cc, x86::Gp vStackIndex, int delta)
 {
 	cc.add(vStackIndex, delta);
-	cc.and_(vStackIndex, (1 << BITS_SP) - 1);
+	cc.and_(vStackIndex, MASK_SP);
 }
 
 static void div_10000(x86::Compiler &cc, x86::Gp dividend)
@@ -533,7 +534,7 @@ static void compile_compare(CompilationState& state, x86::Compiler &cc, std::map
 	}
 	else if (command == GOTOLESS)
 	{
-		if (get_bit(quest_rules, qr_GOTOLESSNOTEQUAL))
+		if (get_qr(qr_GOTOLESSNOTEQUAL))
 			cc.jle(goto_labels.at(arg));
 		else
 			cc.jl(goto_labels.at(arg));
@@ -1184,11 +1185,11 @@ static JittedFunction compile_script(script_data *script)
 			// ri->sp += num;
 			modify_sp(cc, vStackIndex, arg2);
 
-			// word read = (ri->sp-1) & ((1<<BITS_SP)-1);
+			// word read = (ri->sp-1) & MASK_SP;
 			x86::Gp read = cc.newInt32();
 			cc.mov(read, vStackIndex);
 			cc.sub(read, 1);
-			cc.and_(read, (1 << BITS_SP) - 1);
+			cc.and_(read, MASK_SP);
 
 			// int32_t value = SH::read_stack(read);
 			// set_register(sarg1, value);
@@ -1635,9 +1636,6 @@ void jit_startup()
 	jit_log_enabled = zc_get_config("ZSCRIPT", "jit_log", false) || is_ci();
 	bool precompile = zc_get_config("ZSCRIPT", "jit_precompile", false);
 	int num_threads = zc_get_config("ZSCRIPT", "jit_threads", -2);
-	// Currently fails somewhat rarely in CI... need to figure out why.
-	if (is_ci())
-		num_threads = 0;
 
 	auto processor_count = std::thread::hardware_concurrency();
 	if (num_threads < 0)
@@ -1694,6 +1692,11 @@ void jit_poll()
 		return;
 
 #ifdef ZC_JIT
+	if (tasks_mutex == nullptr)
+		return;
+
+	al_lock_mutex(tasks_mutex);
+
 	int active_threads = 0;
 	for (auto& thread_info : thread_infos)
 	{
@@ -1712,6 +1715,8 @@ void jit_poll()
 	}
 
 	int tasks_left = active_tasks.size() + pending_scripts.size();
+	al_unlock_mutex(tasks_mutex);
+
 	if (active_threads > tasks_left)
 		set_compilation_thread_pool_size(tasks_left);
 #endif
@@ -1723,6 +1728,9 @@ void jit_shutdown()
 		return;
 
 #ifdef ZC_JIT
+	if (tasks_mutex == nullptr)
+		return;
+
 	set_compilation_thread_pool_size(0);
 	for (auto& thread_info : thread_infos)
 	{

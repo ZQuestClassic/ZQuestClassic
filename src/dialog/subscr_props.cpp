@@ -7,8 +7,7 @@
 #include "zc_list_data.h"
 #include "gui/use_size.h"
 #include "gui/common.h"
-extern miscQdata misc;
-#define QMisc misc
+#include "base/misctypes.h"
 
 void printobj(subscreen_object const& obj)
 {
@@ -528,7 +527,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 					tswatches[0] = SelTileSwatch(
 						hAlign = 0.0,
 						tile = local_subref.d1,
-						cset = subscreen_cset(&QMisc,cs_sel[0]->getC1(), cs_sel[0]->getC2()),
+						cset = subscreen_cset(cs_sel[0]->getC1(), cs_sel[0]->getC2()),
 						//flip = local_subref.d2,
 						tilewid = 2, tilehei = 2,
 						showvals = false,
@@ -677,9 +676,10 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			}
 			case ssoCURRENTITEM:
 			{
-				attrib_grid = Rows<2>(
+				attrib_grid = Rows<3>(
 					labels[0] = Label(text = "Item Class:", hAlign = 1.0),
 					ddl = DDL(d1, list_itemclass),
+					INFOBTN("The highest level owned of this itemclass will be tied to this item slot."),
 					Label(text = "Item Override:", hAlign = 1.0),
 					DropDownList(data = list_items,
 						fitParent = true,
@@ -692,25 +692,43 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 							labels[0]->setDisabled(val > -1);
 						}
 					),
+					INFOBTN("The specified item ID will be tied to this item slot (OVERRIDES 'Item Class' if set)"),
 					Label(text = "Position:", hAlign = 1.0),
 					NUM_FIELD(d3, -9999, 9999),
+					INFOBTN("The unique position ID of this slot"),
 					Label(text = "Up Select:", hAlign = 1.0),
 					NUM_FIELD(d4, -9999, 9999),
+					INFOBTN("The unique position ID to move to when pressing 'Up'"),
 					Label(text = "Down Select:", hAlign = 1.0),
 					NUM_FIELD(d5, -9999, 9999),
+					INFOBTN("The unique position ID to move to when pressing 'Down'"),
 					Label(text = "Left Select:", hAlign = 1.0),
 					NUM_FIELD(d6, -9999, 9999),
+					INFOBTN("The unique position ID to move to when pressing 'Left' / 'L' quickswap"),
 					Label(text = "Right Select:", hAlign = 1.0),
 					NUM_FIELD(d7, -9999, 9999),
+					INFOBTN("The unique position ID to move to when pressing 'Right' / 'R' quickswap"),
 					DummyWidget(),
 					Checkbox(
 						text = "Invisible", hAlign = 0.0,
-						checked = !(local_subref.d2 & 0b1),
+						checked = !(local_subref.d2 & SSCURRITEM_VISIBLE),
 						onToggleFunc = [&](bool state)
 						{
-							SETFLAG(local_subref.d2, 0b1, !state);
+							SETFLAG(local_subref.d2, SSCURRITEM_VISIBLE, !state);
 						}
-					)
+					),
+					INFOBTN("If checked, the item is invisible on the subscreen"),
+					DummyWidget(),
+					Checkbox(
+						text = "Non-Equippable", hAlign = 0.0,
+						checked = local_subref.d2 & SSCURRITEM_NONEQUIP,
+						onToggleFunc = [&](bool state)
+						{
+							SETFLAG(local_subref.d2, SSCURRITEM_NONEQUIP, state);
+						}
+					),
+					INFOBTN("If checked, the item cannot be equipped to a button."
+						" 'Always Press To Equip' is recommended if this is used." + QRHINT({qr_SUBSCR_PRESS_TO_EQUIP}))
 				);
 				break;
 			}
@@ -899,7 +917,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 						width = 4_px + (32_px*9),
 						hAlign = 0.0,
 						tile = tl,
-						cset = subscreen_cset(&QMisc,cs_sel[0]->getC1(),cs_sel[0]->getC2()),
+						cset = subscreen_cset(cs_sel[0]->getC1(),cs_sel[0]->getC2()),
 						tilewid = tw,
 						minionly = local_subref.d2 != -1,
 						mini = true,
@@ -1000,7 +1018,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 					tswatches[0] = SelTileSwatch(
 						hAlign = 0.0,
 						tile = local_subref.d1,
-						cset = subscreen_cset(&QMisc,cs_sel[0]->getC1(), cs_sel[0]->getC2()),
+						cset = subscreen_cset(cs_sel[0]->getC1(), cs_sel[0]->getC2()),
 						flip = local_subref.d2,
 						showvals = false,
 						showFlip = true,
@@ -1096,7 +1114,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 						minwidth = 32_px*TB_LA+4_px,
 						minheight = 32_px*TB_LA+4_px,
 						tile = local_subref.d1,
-						cset = subscreen_cset(&QMisc,cs_sel[0]->getC1(), cs_sel[0]->getC2()),
+						cset = subscreen_cset(cs_sel[0]->getC1(), cs_sel[0]->getC2()),
 						showvals = false,
 						tilewid = std::min(local_subref.w, (word)TB_LA),
 						tilehei = std::min(local_subref.h, (word)TB_LA),
@@ -1277,7 +1295,7 @@ void SubscrPropDialog::updateColors()
 		case ssoMINITILE:
 		case ssoTILEBLOCK:
 		{
-			tswatches[0]->setCSet(subscreen_cset(&QMisc,cs_sel[0]->getC1(), cs_sel[0]->getC2()));
+			tswatches[0]->setCSet(subscreen_cset(cs_sel[0]->getC1(), cs_sel[0]->getC2()));
 			break;
 		}
 	}

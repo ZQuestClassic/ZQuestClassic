@@ -2,15 +2,15 @@
 #include <map>
 #include <vector>
 
-//We need access to quest_rules, for option defaults. -V
-#include "base/zdefs.h"
+//We need access to quest_rules, for option defaults. -Em
+//#include "base/zdefs.h"
 #include "base/zsys.h"
+#include "base/qrs.h"
 
 using std::map;
 using std::string;
 using namespace ZScript;
 
-extern byte quest_rules[QUESTRULES_NEW_SIZE];
 ////////////////////////////////////////////////////////////////
 // CompileOptionSetting
 
@@ -133,7 +133,7 @@ void CompileOption::updateDefaults()
 		{
 			case OPTTYPE_QR:
 				if(entries[i].defaultqr)
-					entries[i].defaultValue = get_bit(quest_rules, entries[i].defaultqr) ? 10000L : 0L;
+					entries[i].defaultValue = get_qr(entries[i].defaultqr) ? 10000L : 0L;
 				break;
 			
 			case OPTTYPE_CONFIG:

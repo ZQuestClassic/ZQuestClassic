@@ -12,6 +12,7 @@
 //
 //--------------------------------------------------------
 
+#include "base/qrs.h"
 #include "sprite.h"
 #include "zc/decorations.h"
 #include "zc/zc_custom.h"
@@ -31,8 +32,8 @@ decoration::decoration(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t wpnSpr) : s
 	id=Id;
 	clk=Clk;
 	misc = 0;
-	yofs = (get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
-	if(get_bit(quest_rules, qr_DECO_2_YOFFSET)) yofs -= 2;
+	yofs = (get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
+	if(get_qr(qr_DECO_2_YOFFSET)) yofs -= 2;
 	the_deco_sprite = vbound(wpnSpr,0,255);
 }
 
@@ -587,7 +588,7 @@ bool dTallGrass::animate(int32_t)
 {
 	if(HeroZ()>8 || HeroFakeZ()>8) return true;
 	bool g1 = isGrassType(COMBOTYPE(HeroX(),HeroY()+15)), g2 = isGrassType(COMBOTYPE(HeroX()+15,HeroY()+15));
-	if(get_bit(quest_rules, qr_BUSHESONLAYERS1AND2))
+	if(get_qr(qr_BUSHESONLAYERS1AND2))
 	{
 		g1 = g1 || isGrassType(COMBOTYPEL(1,HeroX(),HeroY()+15)) || isGrassType(COMBOTYPEL(2,HeroX(),HeroY()+15));
 		g2 = g2 || isGrassType(COMBOTYPEL(1,HeroX()+15,HeroY()+15)) || isGrassType(COMBOTYPEL(2,HeroX()+15,HeroY()+15));
@@ -641,7 +642,7 @@ dRipples::dRipples(zfix X,zfix Y,int32_t Id,int32_t Clk, int32_t wpnSpr) : decor
 bool dRipples::animate(int32_t)
 {
 	clk++;
-	if (get_bit(quest_rules, qr_SHALLOW_SENSITIVE))
+	if (get_qr(qr_SHALLOW_SENSITIVE))
 	{
 		if (HeroZ() == 0 && HeroFakeZ() == 0 && HeroAction() != swimming && HeroAction() != sideswimming && HeroAction() != sideswimhit && HeroAction() != sideswimattacking && HeroAction() != isdiving && HeroAction() != drowning)
 		{

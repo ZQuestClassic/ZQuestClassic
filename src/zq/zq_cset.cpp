@@ -15,6 +15,7 @@
 #include "base/gui.h"
 #include "base/zc_alleg.h"
 #include "base/zdefs.h"
+#include "base/qrs.h"
 #include "base/colors.h"
 #include "pal.h"
 #include "zq/zquest.h"
@@ -976,7 +977,7 @@ void edit_cycles(int32_t level)
 	memset(cycle_none, 0, sizeof(cycle_none)); 
     for(int32_t i=0; i<3; i++)
     {
-        palcycle c = ( level < NUM_PAL_CYCLES ) ? misc.cycles[level][i] : cycle_none[0][i]; //Only level palettes 0 through 255 have valid data in 2.50.x. -Z
+        palcycle c = ( level < NUM_PAL_CYCLES ) ? QMisc.cycles[level][i] : cycle_none[0][i]; //Only level palettes 0 through 255 have valid data in 2.50.x. -Z
         sprintf(buf[i*5  ],"%d",c.first>>4);
         sprintf(buf[i*5+1],"%X",c.first&15);
         sprintf(buf[i*5+2],"%X",c.count&15);
@@ -1002,7 +1003,7 @@ void edit_cycles(int32_t level)
             c.count =  zc_xtoi(buf[i*5+2])&15;
             c.count += (atoi(buf[i*5+3])&15)<<4;
             c.speed =  atoi(buf[i*5+4]);
-            misc.cycles[level][i] = c;
+            QMisc.cycles[level][i] = c;
         }
     }
 }
@@ -1330,7 +1331,7 @@ int32_t EditColors(const char *caption,int32_t first,int32_t count,byte *label)
     colors_dlg[1].h  = bh + 6;
     colors_dlg[21].proc = (count==pdLEVEL) ? jwin_button_proc : d_dummy_proc;
     //if the palette is > 255, disable button [21]
-    colors_dlg[21].dp   = get_bit(quest_rules,qr_FADE) ? (void *) "Cycle" : (void *) "Dark";
+    colors_dlg[21].dp   = get_qr(qr_FADE) ? (void *) "Cycle" : (void *) "Dark";
     colors_dlg[26].dp   =  tempstuff;
     colors_dlg[25].x    =(count==pdLEVEL)?colors_dlg[0].x+60:colors_dlg[0].x+12;
     colors_dlg[25].w    =(count==pdLEVEL)?48:0;
@@ -1438,7 +1439,7 @@ int32_t EditColors(const char *caption,int32_t first,int32_t count,byte *label)
 		int32_t curpal = (first/pdLEVEL+poLEVEL)-10; 
 		
 		
-		    if(!get_bit(quest_rules,qr_FADE))
+		    if(!get_qr(qr_FADE))
 		    {
 			calc_dark(first);
 		    }
@@ -1537,7 +1538,7 @@ void copyPal(int32_t src, int32_t dest)
 
 int32_t onColors_Levels()
 {
-	int32_t cycle = get_bit(quest_rules,qr_FADE);
+	int32_t cycle = get_qr(qr_FADE);
 	int32_t index=Map.getcolor();
 	
 	while((index=select_data("Select Level",index,levelnumlist,"Edit","Done",get_zc_font(font_lfont), copyPal))!=-1)

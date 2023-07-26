@@ -9,6 +9,8 @@
 #endif
 
 #define LOG_BMPBLIT_LEVEL 0
+#include "base/qrs.h"
+#include "base/dmap.h"
 #include "base/zc_alleg.h"
 #include "zc/script_drawing.h"
 #include "zc/rendertarget.h"
@@ -19,6 +21,8 @@
 #include "base/util.h"
 #include "subscr.h"
 #include "drawing.h"
+#include "base/mapscr.h"
+#include "base/misctypes.h"
 using namespace util;
 extern FFScript FFCore;
 extern ZModule zcm;
@@ -375,7 +379,7 @@ void do_framer(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
     bool overlay=sdci[8];
     bool trans=(sdci[9]/10000<=127);
     
-	frame2x2(bmp, &QMisc, x + xoffset, y + yoffset, tile, cs, w, h, 0, overlay, trans);
+	frame2x2(bmp, x + xoffset, y + yoffset, tile, cs, w, h, 0, overlay, trans);
 }
 
 
@@ -829,7 +833,7 @@ void do_polygonr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32_t
 	int32_t col = sdci[4]/10000;
 	int32_t op = sdci[5]/10000;
     
-	//bool brokenOffset= ( (get_bit(extra_rules, er_BITMAPOFFSET)!=0) || (get_bit(quest_rules,qr_BITMAPOFFSETFIX)!=0) );
+	//bool brokenOffset= ( (get_er(er_BITMAPOFFSET)!=0) || (get_qr(qr_BITMAPOFFSETFIX)!=0) );
 	//Z_scripterrlog("Broken offset rule for Polygon() is: %s\n", brokenOffset ? "ON" : "OFF");
     std::vector<int32_t>* v_ptr = (std::vector<int32_t>*)script_drawing_commands[i].GetPtr();
     
@@ -1598,7 +1602,7 @@ void do_fastcombosr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int3
 void do_drawcharr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
 	//broken 2.50.2 and earlier drawcharacter()
-	if ( get_bit(quest_rules, qr_BROKENCHARINTDRAWING) )
+	if ( get_qr(qr_BROKENCHARINTDRAWING) )
 	{
 		//sdci[1]=layer
 		    //sdci[2]=x
@@ -1770,7 +1774,7 @@ void do_drawcharr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 void do_drawintr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
 {
 	//broken 2.50.2 and earlier drawinteger()
-	if ( get_bit(quest_rules, qr_BROKENCHARINTDRAWING) )
+	if ( get_qr(qr_BROKENCHARINTDRAWING) )
 	{
 	    //sdci[1]=layer
 	    //sdci[2]=x
@@ -4031,7 +4035,7 @@ void bmp_do_framer(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
     bool overlay=sdci[8];
     bool trans=(sdci[9]/10000<=127);
     
-	frame2x2(refbmp, &QMisc, x + xoffset, y + yoffset, tile, cs, w, h, 0, overlay, trans);
+	frame2x2(refbmp, x + xoffset, y + yoffset, tile, cs, w, h, 0, overlay, trans);
 }
 
 
@@ -5183,7 +5187,7 @@ void bmp_do_drawcharr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffs
 	if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
 	
 	//broken 2.50.2 and earlier drawcharacter()
-	if ( get_bit(quest_rules, qr_BROKENCHARINTDRAWING) )
+	if ( get_qr(qr_BROKENCHARINTDRAWING) )
 	{
 		//sdci[1]=layer
 		    //sdci[2]=x
@@ -5366,7 +5370,7 @@ void bmp_do_drawintr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffse
 	if ( (sdci[17]-10) != -2 && (sdci[17]-10) != -1 ) yoffset = 0; //Don't crop. 
 	
 	//broken 2.50.2 and earlier drawinteger()
-	if ( get_bit(quest_rules, qr_BROKENCHARINTDRAWING) )
+	if ( get_qr(qr_BROKENCHARINTDRAWING) )
 	{
 	    //sdci[1]=layer
 	    //sdci[2]=x
@@ -5780,7 +5784,7 @@ void bmp_do_regenr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t yoffset)
     //sdci[1]=layer
 	int32_t h = sdci[3]/10000;
 	int32_t w = sdci[2]/10000;
-	if ( get_bit(quest_rules, qr_OLDCREATEBITMAP_ARGS) )
+	if ( get_qr(qr_OLDCREATEBITMAP_ARGS) )
 	{
 		//flip height and width
 		h = h ^ w;
@@ -9633,7 +9637,7 @@ void draw_map_solidity(BITMAP *b, const mapscr& m, int32_t x, int32_t y)
 		//	
 		//}
 		clear_to_color(square,(combobuf[m.data[i]].walk&15));
-		if (get_bit(quest_rules, qr_BROKEN_DRAWSCREEN_FUNCTIONS)) blit(square, b, 0, 0, x2, y2, square->w, square->h);
+		if (get_qr(qr_BROKEN_DRAWSCREEN_FUNCTIONS)) blit(square, b, 0, 0, x2, y2, square->w, square->h);
 		else masked_blit(square, b, 0, 0, x2, y2, square->w, square->h);
 	}
 	destroy_bitmap(square);
@@ -9681,7 +9685,7 @@ void do_bmpdrawscreen_solidmaskr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, in
 		
 	//draw layer 0
 	draw_map_solidity(b, m, x1, y1);
-	if (get_bit(quest_rules, qr_BROKEN_DRAWSCREEN_FUNCTIONS))
+	if (get_qr(qr_BROKEN_DRAWSCREEN_FUNCTIONS))
 	{
 		for(int32_t i(0); i < 6; ++i)
 		{
@@ -9740,7 +9744,7 @@ void draw_map_solid(BITMAP *b, const mapscr& m, int32_t x, int32_t y)
 			blit(subsquare, square, 0, 0, 8, 8, 8, 8);
 		}
 		
-		if (get_bit(quest_rules, qr_BROKEN_DRAWSCREEN_FUNCTIONS)) blit(square, b, 0, 0, x2, y2, square->w, square->h);
+		if (get_qr(qr_BROKEN_DRAWSCREEN_FUNCTIONS)) blit(square, b, 0, 0, x2, y2, square->w, square->h);
 		else masked_blit(square, b, 0, 0, x2, y2, square->w, square->h);
 	}
 	destroy_bitmap(square);
@@ -9820,7 +9824,7 @@ void draw_map_cflag(BITMAP *b, const mapscr& m, int32_t x, int32_t y)
 		const int32_t y2 = (i&0xF0) + y;
 		//Blit the palette index of the solidity value.
 		clear_to_color(square,m.sflag[i]);
-		if (get_bit(quest_rules, qr_BROKEN_DRAWSCREEN_FUNCTIONS)) blit(square, b, 0, 0, x2, y2, square->w, square->h);
+		if (get_qr(qr_BROKEN_DRAWSCREEN_FUNCTIONS)) blit(square, b, 0, 0, x2, y2, square->w, square->h);
 		else masked_blit(square, b, 0, 0, x2, y2, square->w, square->h);
 	}
 	destroy_bitmap(square);
@@ -9868,7 +9872,7 @@ void do_bmpdrawscreen_cflagr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_
 		
 	//draw layer 0
 	draw_map_cflag(b, m, x1, y1);
-	if (get_bit(quest_rules, qr_BROKEN_DRAWSCREEN_FUNCTIONS))
+	if (get_qr(qr_BROKEN_DRAWSCREEN_FUNCTIONS))
 	{
 		for(int32_t i(0); i < 6; ++i)
 		{
@@ -9902,7 +9906,7 @@ void draw_map_combotype(BITMAP *b, const mapscr& m, int32_t x, int32_t y)
 		const int32_t y2 = (i&0xF0) + y;
 		//Blit the palette index of the solidity value.
 		clear_to_color(square,(combobuf[m.data[i]].type));
-		if (get_bit(quest_rules, qr_BROKEN_DRAWSCREEN_FUNCTIONS)) blit(square, b, 0, 0, x2, y2, square->w, square->h);
+		if (get_qr(qr_BROKEN_DRAWSCREEN_FUNCTIONS)) blit(square, b, 0, 0, x2, y2, square->w, square->h);
 		else masked_blit(square, b, 0, 0, x2, y2, square->w, square->h);
 	}
 	destroy_bitmap(square);
@@ -9951,7 +9955,7 @@ void do_bmpdrawscreen_ctyper(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_
 	//draw layer 0
 	draw_map_combotype(b, m, x1, y1);
 	
-	if (get_bit(quest_rules, qr_BROKEN_DRAWSCREEN_FUNCTIONS))
+	if (get_qr(qr_BROKEN_DRAWSCREEN_FUNCTIONS))
 	{
 		for(int32_t i(0); i < 6; ++i)
 		{
@@ -9985,7 +9989,7 @@ void draw_map_comboiflag(BITMAP *b, const mapscr& m, int32_t x, int32_t y)
 		const int32_t y2 = (i&0xF0) + y;
 		//Blit the palette index of the solidity value.
 		clear_to_color(square,(combobuf[m.data[i]].flag));
-		if (get_bit(quest_rules, qr_BROKEN_DRAWSCREEN_FUNCTIONS)) blit(square, b, 0, 0, x2, y2, square->w, square->h);
+		if (get_qr(qr_BROKEN_DRAWSCREEN_FUNCTIONS)) blit(square, b, 0, 0, x2, y2, square->w, square->h);
 		else masked_blit(square, b, 0, 0, x2, y2, square->w, square->h);
 	}
 	destroy_bitmap(square);
@@ -10034,7 +10038,7 @@ void do_bmpdrawscreen_ciflagr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32
 	//draw layer 0
 	draw_map_comboiflag(b, m, x1, y1);
 	
-	if (get_bit(quest_rules, qr_BROKEN_DRAWSCREEN_FUNCTIONS))
+	if (get_qr(qr_BROKEN_DRAWSCREEN_FUNCTIONS))
 	{
 		for(int32_t i(0); i < 6; ++i)
 		{
@@ -10772,7 +10776,7 @@ void do_primitives(BITMAP *targetBitmap, int32_t type, mapscr* theScreen, int32_
 	//[][19]: unused
 	
 	// Trying to match the old behavior exactly...
-	const bool brokenOffset= ( (get_bit(extra_rules, er_BITMAPOFFSET)!=0) || (get_bit(quest_rules,qr_BITMAPOFFSETFIX)!=0) );
+	const bool brokenOffset= ( (get_er(er_BITMAPOFFSET)!=0) || (get_qr(qr_BITMAPOFFSETFIX)!=0) );
 	
 	bool isTargetOffScreenBmp = false;
 	const int32_t type_mul_10000 = type * 10000;

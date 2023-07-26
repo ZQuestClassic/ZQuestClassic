@@ -4,6 +4,7 @@
 #include "info.h"
 #include "zq/zquest.h"
 #include "zc/ffscript.h"
+#include "base/qrs.h"
 
 extern FFScript FFCore;
 extern std::vector<std::string> ZQincludePaths;
@@ -68,7 +69,7 @@ void CompileSettingsDlg::load()
 			displayinfo("DEV ERROR","Not enough space for all quest-specific QRs!");
 			break;
 		}
-		set_bit(qst_cfg,q,get_bit(quest_rules,compileSettingList.getValue(q)));
+		set_bit(qst_cfg,q,get_qr(compileSettingList.getValue(q)));
 	}
 }
 void CompileSettingsDlg::save()
@@ -92,7 +93,7 @@ void CompileSettingsDlg::save()
 	{
 		if(q > 8*sizeof(qst_cfg)) //match the above sanity check -Em
 			break;
-		set_bit(quest_rules,compileSettingList.getValue(q),get_bit(qst_cfg,q));
+		set_qr(compileSettingList.getValue(q),get_bit(qst_cfg,q));
 	}
 	
 	FFCore.updateIncludePaths();

@@ -308,6 +308,13 @@ void draw_x(BITMAP* dest, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_
 
 int32_t d_vsync_proc(int32_t msg,DIALOG *,int32_t c);
 
+//box_out stuff
+void box_out(const char *msg);
+void box_out_nl(const char *msg);
+void box_start(int32_t style, const char *title, FONT *title_font, FONT *message_font, bool log, int32_t w = -1, int32_t h = -1, uint8_t scale = 1);
+void box_end(bool pause);
+void box_eol();
+
 #ifdef __cplusplus
 }
 #endif

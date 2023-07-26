@@ -6,6 +6,7 @@
 #include "jwin.h"
 #include "qst.h"
 #include "base/fonts.h"
+#include "base/packfile.h"
 
 
 std::string getComboTypeHelpText(int32_t id);
@@ -895,7 +896,7 @@ int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr)
 		word num_wpns;
 		if(!p_igetw(&num_wpns,f,true))
 			return qe_invalid;
-		if (!(num_wpns >= 0 && num_wpns <= WPNCNT))
+		if (!(num_wpns >= 0 && num_wpns <= MAXWPNS))
 			return qe_invalid;
 		for(auto q = 0; q < num_wpns; ++q)
 		{

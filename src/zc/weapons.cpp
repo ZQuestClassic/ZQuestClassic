@@ -29,6 +29,9 @@
 #include "drawing.h"
 #include "zc/combos.h"
 #include "base/zc_math.h"
+#include "base/qrs.h"
+#include "base/mapscr.h"
+#include "base/misctypes.h"
 #include "iter.h"
 
 #ifndef IS_ZQUEST
@@ -427,7 +430,7 @@ static void MatchComboTrigger2(weapon *w, int32_t bx, int32_t by, newcombo *cbuf
 	if(unsigned(bx) > world_w-1 || unsigned(by) > world_h-1) return;
 	if (!layer)
 	{
-		if (!get_bit(quest_rules,qr_OLD_FFC_FUNCTIONALITY))
+		if (!get_qr(qr_OLD_FFC_FUNCTIONALITY))
 		{
 			for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
 				if (ffcIsAt(ffc_handle, bx, by))
@@ -855,7 +858,7 @@ void weapon::cleanup_sfx()
     }
     // First, check for the existence of weapons that don't have parentitems
     // but make looping sounds anyway.
-    if(parentitem<0 && get_bit(quest_rules, qr_MORESOUNDS))
+    if(parentitem<0 && get_qr(qr_MORESOUNDS))
     {
         //I am reasonably confident that I fixed these expressions. ~pkmnfrk
 			//No, you didn't. Now I have. -V
@@ -967,7 +970,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	dead=-1;
 	specialinfo = special;
 	bounce=ignoreHero=false;
-	yofs=(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset) - 2;
+	yofs=(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset) - 2;
 	dragging=-1;
 	hit_width=15;
 	hit_height=15;
@@ -996,7 +999,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 	has_shadow = true;
 	if ( Parentitem > -1 )
 	{
-		if(get_bit(quest_rules,qr_SPARKLES_INHERIT_PROPERTIES)
+		if(get_qr(qr_SPARKLES_INHERIT_PROPERTIES)
 			|| (id != wSSparkle && id != wFSparkle))
 		{
 			//Sparkles shouldn't have these behaviors!
@@ -1172,7 +1175,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].weap_xofs;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
 					
 					defaultw = itemsbuf[parentitem].wpn;
 					if(use_sprite > -1) defaultw = use_sprite;
@@ -1233,7 +1236,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
 				if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
 				if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].weap_xofs;}
-				if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
+				if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
 				
 				defaultw = itemsbuf[parentitem].wpn;
 				if(use_sprite > -1) defaultw = use_sprite;
@@ -1295,8 +1298,8 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
 							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
 							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].weap_xofs;}
-							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
-							/* yofs+(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset) == yofs+56.
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
+							/* yofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset) == yofs+56.
 							It is needed for the passive subscreen offset.
 							*/
 							yofs-=16;
@@ -1312,7 +1315,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
 							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
 							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].weap_xofs;}
-							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
 							/* yofs+playing_field_offset == yofs+56.
 							It is needed for the passive subscreen offset.
 							*/
@@ -1328,7 +1331,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hyofs;}
 							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hxofs;}
 							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].weap_yofs;}
-							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_xofs+(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_xofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
 							/* yofs+playing_field_offset == yofs+56.
 							It is needed for the passive subscreen offset.
 							*/
@@ -1345,7 +1348,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hyofs;}
 							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hxofs;}
 							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].weap_yofs;}
-							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_xofs+(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_xofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
 							/* yofs+playing_field_offset == yofs+56.
 							It is needed for the passive subscreen offset.
 							*/
@@ -1391,7 +1394,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].hxofs;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].hyofs;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].xofs;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].yofs+(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].yofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
 					// yofs+playing_field_offset == yofs+56.
 					//It is needed for the passive subscreen offset.
 					
@@ -1432,7 +1435,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].weap_xofs;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
 					/* yofs+playing_field_offset == yofs+56.
 					It is needed for the passive subscreen offset.
 					*/
@@ -1469,7 +1472,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].weap_xofs;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
 					/* yofs+playing_field_offset == yofs+56.
 					It is needed for the passive subscreen offset.
 					*/
@@ -1531,7 +1534,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].weap_xofs;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
 					/* yofs+playing_field_offset == yofs+56.
 					It is needed for the passive subscreen offset.
 					*/
@@ -1561,7 +1564,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].weap_xofs;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
 					/* yofs+playing_field_offset == yofs+56.
 					It is needed for the passive subscreen offset.
 					*/
@@ -1576,7 +1579,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				
 			LOADGFX(defaultw);
 			
-			if(get_bit(quest_rules,qr_MORESOUNDS) && dead != 1 && dead != 2)
+			if(get_qr(qr_MORESOUNDS) && dead != 1 && dead != 2)
 				cont_sfx(WAV_ZN1WHIRLWIND);
 				
 			
@@ -1607,7 +1610,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				switch(dir)
 				{
 					case down:
-						flip=get_bit(quest_rules,qr_SWORDWANDFLIPFIX)?3:2;
+						flip=get_qr(qr_SWORDWANDFLIPFIX)?3:2;
 						
 					//if ( itemid > -1 ) 
 					//{
@@ -1624,10 +1627,10 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						
 					case right: /*tile=o_tile+((frames>1)?frames:1)*/
 						update_weapon_frame(((frames>1)?frames:1),o_tile);
-						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+						if (!get_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 						hxofs=2;
 						hit_width=12;
-						yofs = (get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)+(BSZ ? 3 : 1);
+						yofs = (get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)+(BSZ ? 3 : 1);
 						break;
 				}
 				
@@ -1670,7 +1673,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].weap_xofs;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
 					/* yofs+playing_field_offset == yofs+56.
 					It is needed for the passive subscreen offset.
 					*/
@@ -1699,8 +1702,8 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						
 					case right: /*tile=o_tile+((frames>1)?frames:1)*/
 						update_weapon_frame(((frames>1)?frames:1),o_tile);
-						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
-						yofs=(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset) + 1;
+						if (!get_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+						yofs=(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset) + 1;
 						
 						
 						hyofs= ( (parentitem > -1) && itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) ? itemsbuf[parentitem].weap_hyofs : 2;
@@ -1740,7 +1743,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].hxofs;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].hyofs;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].xofs;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].yofs+(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].yofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
 					// yofs+playing_field_offset == yofs+56.
 					//It is needed for the passive subscreen offset.
 					
@@ -1770,7 +1773,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].hxofs;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].hyofs;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].xofs;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].yofs+(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].yofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
 					// yofs+playing_field_offset == yofs+56.
 					It is needed for the passive subscreen offset.
 					
@@ -1805,7 +1808,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].weap_xofs;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
 				}
 				
 				switch(itemsbuf[parentitem].family)
@@ -1841,7 +1844,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
 							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
 							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].weap_xofs;}
-							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
+							if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
 							/* yofs+playing_field_offset == yofs+56.
 							It is needed for the passive subscreen offset.
 							*/
@@ -1910,7 +1913,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].weap_xofs;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
 					/* yofs+playing_field_offset == yofs+56.
 					It is needed for the passive subscreen offset.
 					*/
@@ -1954,7 +1957,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].weap_xofs;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
 					/* yofs+playing_field_offset == yofs+56.
 					It is needed for the passive subscreen offset.
 					*/
@@ -1999,7 +2002,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].weap_xofs;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
 					/* yofs+playing_field_offset == yofs+56.
 					It is needed for the passive subscreen offset.
 					*/
@@ -2053,7 +2056,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					if ( itemsbuf[itemid].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[itemid].weap_hxofs;}
 					if ( itemsbuf[itemid].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[itemid].weap_hyofs;}
 					if ( itemsbuf[itemid].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[itemid].weap_xofs;}
-					if ( itemsbuf[itemid].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[itemid].weap_yofs+(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
+					if ( itemsbuf[itemid].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[itemid].weap_yofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
 					/* yofs+playing_field_offset == yofs+56.
 					It is needed for the passive subscreen offset.
 					*/
@@ -2083,7 +2086,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						
 					case right: /*tile=o_tile+((frames>1)?frames:1)*/
 						update_weapon_frame(((frames>1)?frames:1),o_tile);
-						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+						if (!get_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 						hxofs=( (parentitem > -1) && itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) ? itemsbuf[parentitem].weap_hxofs : 2;
 						//2;
 						hit_width=( (parentitem > -1) && itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ) ? itemsbuf[parentitem].weap_hxsz : 12;
@@ -2117,7 +2120,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itemsbuf[parentitem].weap_hxofs;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itemsbuf[parentitem].weap_hyofs;}
 					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itemsbuf[parentitem].weap_xofs;}
-					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
+					if ( itemsbuf[parentitem].weapoverrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itemsbuf[parentitem].weap_yofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);}
 					/* yofs+playing_field_offset == yofs+56.
 					It is needed for the passive subscreen offset.
 					*/
@@ -2193,18 +2196,18 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						
 					case left:
 						flip=1; /*tile=o_tile+((frames>1)?frames:1)*/update_weapon_frame(((frames>1)?frames:1),o_tile);
-						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+						if (!get_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 						xofs+=2;
-						yofs=(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)+4;
+						yofs=(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)+4;
 						hxofs=2;
 						hit_width=12;
 						break;
 						
 					case right: /*tile=o_tile+((frames>1)?frames:1)*/
 						update_weapon_frame(((frames>1)?frames:1),o_tile);
-						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+						if (!get_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 						xofs-=2;
-						yofs=(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)+4;
+						yofs=(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)+4;
 						hxofs=2;
 						hit_width=12;
 						break;
@@ -2216,7 +2219,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						hit_height=12;
 						hit_width=12;
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
-						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+						if (!get_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 						flip=0;
 						break;
 					case r_down:
@@ -2227,7 +2230,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						hit_width=12;
 						//update gfx here
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
-						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+						if (!get_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 						flip=3;
 						break;
 					case l_down:
@@ -2238,7 +2241,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						hit_width=12;
 						//update gfx here
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
-						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+						if (!get_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 						flip=2;
 						break;
 					case r_up:
@@ -2249,7 +2252,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						hit_width=12;
 						//update gfx here
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
-						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+						if (!get_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 						flip=1;
 						break;
 				}
@@ -2296,18 +2299,18 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						
 					case left:
 						flip=1; /*tile=o_tile+((frames>1)?frames:1)*/update_weapon_frame(((frames>1)?frames:1),o_tile);
-						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+						if (!get_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 						xofs+=2;
-						yofs=(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)+4;
+						yofs=(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)+4;
 						hxofs=2;
 						hit_width=12;
 						break;
 						
 					case right: /*tile=o_tile+((frames>1)?frames:1)*/
 						update_weapon_frame(((frames>1)?frames:1),o_tile);
-						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+						if (!get_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 						xofs-=2;
-						yofs=(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)+4;
+						yofs=(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)+4;
 						hxofs=2;
 						hit_width=12;
 						break;
@@ -2321,7 +2324,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						hit_width=12;
 						//update gfx here
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
-						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+						if (!get_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 						flip=3;
 						break;
 					case l_down:
@@ -2332,7 +2335,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						hit_width=12;
 						//update gfx here
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
-						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+						if (!get_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 						flip=2;
 						break;
 					case r_up:
@@ -2343,7 +2346,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						hit_width=12;
 						//update gfx here
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
-						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+						if (!get_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 						flip=1;
 						break;
 					case l_up:
@@ -2354,7 +2357,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						hit_width=12;
 						//update gfx here
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
-						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+						if (!get_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 						flip=0;
 						break;
 				}
@@ -2396,13 +2399,13 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				case left:
 					LOADGFX(defaultw);
 					xofs+=10;
-					yofs=(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)+4;
+					yofs=(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)+4;
 					break;
 					
 				case right:
 					LOADGFX(defaultw);
 					xofs-=10;
-					yofs=(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)+4;
+					yofs=(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)+4;
 					break;
 				
 				//Diagonal Hookshot (4)
@@ -2416,7 +2419,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					xofs-=10;
 					yofs+=7;
 					update_weapon_frame(((frames>1)?frames:0),o_tile);
-					if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+					if (!get_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 					flip=1;
 					break;
 				case r_down:
@@ -2424,7 +2427,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					xofs-=10;
 					yofs-=7;
 					update_weapon_frame(((frames>1)?frames:0),o_tile);
-					if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+					if (!get_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 					flip=3;
 					break;
 				case l_up:
@@ -2432,7 +2435,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					xofs+=10;
 					yofs+=7;
 					update_weapon_frame(((frames>1)?frames:0),o_tile);
-					if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+					if (!get_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 					flip=0;
 					break;
 				case l_down:
@@ -2440,7 +2443,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					xofs+=10;
 					yofs-=7;
 					update_weapon_frame(((frames>1)?frames:0),o_tile);
-					if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+					if (!get_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 					flip=2;
 					break;
 			}
@@ -2464,7 +2467,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			hxofs=0;
 			hit_width=16;
 			
-			if(get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
+			if(get_qr(qr_OFFSETEWPNCOLLISIONFIX))
 			{
 				hyofs=0;
 				hit_height=16;
@@ -2493,7 +2496,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						
 					case right: /*tile=o_tile+((frames>1)?frames:1)*/
 						update_weapon_frame(((frames>1)?frames:1),o_tile);
-						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+						if (!get_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 						break;
 				}
 			}
@@ -2514,7 +2517,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			LOADGFX(defaultw);
 			hxofs=0;
 			hit_width=16;
-			if(get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
+			if(get_qr(qr_OFFSETEWPNCOLLISIONFIX))
 			{
 				hyofs=0;
 				hit_height=16;
@@ -2543,7 +2546,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						
 					case right: /*tile=o_tile+((frames>1)?frames:1)*/
 						update_weapon_frame(((frames>1)?frames:1),o_tile);
-						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+						if (!get_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 						break;
 				}
 				
@@ -2553,7 +2556,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			
 		case ewBrang:
 		{
-			if(get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
+			if(get_qr(qr_OFFSETEWPNCOLLISIONFIX))
 			{
 				hxofs=0;
 				hit_width=16;
@@ -2638,7 +2641,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			if(use_sprite > -1) defaultw = use_sprite;
 			LOADGFX(defaultw);
 			
-			if(get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
+			if(get_qr(qr_OFFSETEWPNCOLLISIONFIX))
 			{
 				hxofs=0;
 				hit_width=16;
@@ -2688,8 +2691,8 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						
 					case right: /*tile=o_tile+((frames>1)?frames:1)*/
 						update_weapon_frame(((frames>1)?frames:1),o_tile);
-						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
-						yofs=(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)+1;
+						if (!get_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+						yofs=(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)+1;
 						break;
 				}
 			}
@@ -2708,7 +2711,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			if(use_sprite > -1) defaultw = use_sprite;
 			LOADGFX(defaultw);
 			
-			if(get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
+			if(get_qr(qr_OFFSETEWPNCOLLISIONFIX))
 			{
 				hxofs=0;
 				hit_width=16;
@@ -2741,8 +2744,8 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						
 					case right: /*tile=o_tile+((frames>1)?frames:1)*/
 						update_weapon_frame(((frames>1)?frames:1),o_tile);
-						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
-						yofs=(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)+1;
+						if (!get_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+						yofs=(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)+1;
 						break;
 				}
 			}
@@ -2757,14 +2760,16 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			defaultw = ewMAGIC;
 			if ( parentid > -1 && !script_gen && (!(id == ewMagic && isLWeapon)) )
 			{
-				enemy *e = (enemy*)guys.getByUID(parentid);
-				int32_t enemy_wpnsprite = e->wpnsprite; 
-				if ( enemy_wpnsprite > 0 ) defaultw = enemy_wpnsprite;
+				if(enemy *e = (enemy*)guys.getByUID(parentid))
+				{
+					int32_t enemy_wpnsprite = e->wpnsprite;
+					if ( enemy_wpnsprite > 0 ) defaultw = enemy_wpnsprite;
+				}
 			}
 			if(use_sprite > -1) defaultw = use_sprite;
 			LOADGFX(defaultw);
 			
-			if(get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
+			if(get_qr(qr_OFFSETEWPNCOLLISIONFIX))
 			{
 				hxofs=0;
 				hit_width=16;
@@ -2797,8 +2802,8 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 						
 					case right: /*tile=o_tile+((frames>1)?frames:1)*/
 						update_weapon_frame(((frames>1)?frames:1),o_tile);
-						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
-						yofs=(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)+1;
+						if (!get_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+						yofs=(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset)+1;
 						break;
 				}
 			}
@@ -2856,7 +2861,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				}
 			}
 			
-			if(get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
+			if(get_qr(qr_OFFSETEWPNCOLLISIONFIX))
 			{
 				hxofs=hyofs=0;
 				hit_width=hit_height=16;
@@ -2887,7 +2892,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			step=0;
 			dir=-1;
 			
-			if(get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
+			if(get_qr(qr_OFFSETEWPNCOLLISIONFIX))
 			{
 				hxofs=hyofs=0;
 				hit_width=hit_height=16;
@@ -2906,7 +2911,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			
 		case ewWind:
 		{
-			if(get_bit(quest_rules, qr_OFFSETEWPNCOLLISIONFIX))
+			if(get_qr(qr_OFFSETEWPNCOLLISIONFIX))
 			{
 				hxofs=hyofs=0;
 				hit_width=hit_height=16;
@@ -2931,7 +2936,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			switch(type)
 			{
 				case pDIVINEFIREROCKET:
-					if(get_bit(quest_rules,qr_MORESOUNDS))
+					if(get_qr(qr_MORESOUNDS))
 						sfx(WAV_ZN1ROCKETUP,(int32_t)x);
 						
 					LOADGFX(itemsbuf[parentitem].wpn);
@@ -2939,7 +2944,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 					break;
 					
 				case pDIVINEFIREROCKETRETURN:
-					if(get_bit(quest_rules,qr_MORESOUNDS))
+					if(get_qr(qr_MORESOUNDS))
 						sfx(WAV_ZN1ROCKETDOWN,(int32_t)x);
 						
 					LOADGFX(itemsbuf[parentitem].wpn2);
@@ -2961,7 +2966,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				case pDIVINEPROTECTIONROCKET1:
 					LOADGFX(itemsbuf[parentitem].wpn);
 					
-					if(get_bit(quest_rules,qr_MORESOUNDS))
+					if(get_qr(qr_MORESOUNDS))
 						sfx(WAV_ZN1ROCKETUP,(int32_t)x);
 						
 					step = 4;
@@ -2971,7 +2976,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 				case pDIVINEPROTECTIONROCKETRETURN1:
 					LOADGFX(itemsbuf[parentitem].wpn2);
 					
-					if(get_bit(quest_rules,qr_MORESOUNDS))
+					if(get_qr(qr_MORESOUNDS))
 						sfx(WAV_ZN1ROCKETDOWN,(int32_t)x);
 						
 					step = 4;
@@ -3105,8 +3110,8 @@ bool weapon::clip()
 {
     int32_t c[4];
     int32_t d2=isdungeon();
-    int32_t nb1 = get_bit(quest_rules,qr_NOBORDER) ? 16 : 0;
-    int32_t nb2 = get_bit(quest_rules,qr_NOBORDER) ? 8 : 0;
+    int32_t nb1 = get_qr(qr_NOBORDER) ? 16 : 0;
+    int32_t nb2 = get_qr(qr_NOBORDER) ? 8 : 0;
     
     if(id>wEnemyWeapons && id!=ewBrang)
     {
@@ -3162,7 +3167,7 @@ bool weapon::clip()
         c[3] = d2?208:(224+nb1);
     }
     /*
-    if (id==wArrow && get_bit(quest_rules,qr_ARROWCLIP))
+    if (id==wArrow && get_qr(qr_ARROWCLIP))
     {
         c[0] = d2?14:2;
         c[1] = d2?146:160;
@@ -3319,7 +3324,7 @@ void weapon::limited_animate()
 			if(!misc)
 				break;
 			
-			bool fixboom = !get_bit(quest_rules,qr_BROKEN_MOVING_BOMBS);
+			bool fixboom = !get_qr(qr_BROKEN_MOVING_BOMBS);
 			bool canboom = (fixboom || step==0);
 			if(clk==(misc-2) && canboom)
 			{
@@ -3363,7 +3368,7 @@ void weapon::limited_animate()
 			
 			if(clk==(misc-1))
 			{
-				if(get_bit(quest_rules,qr_OLD_BOMB_HITBOXES))
+				if(get_qr(qr_OLD_BOMB_HITBOXES))
 				{
 					int32_t f1 = (id==wSBomb || id==wLitSBomb) ? 16 : 0; // Large SBomb triggerbox
 					
@@ -3403,7 +3408,7 @@ void weapon::limited_animate()
 				}
 			}
 			
-			if(!get_bit(quest_rules,qr_NOBOMBPALFLASH) && !flash_reduction_enabled(false))
+			if(!get_qr(qr_NOBOMBPALFLASH) && !flash_reduction_enabled(false))
 			{
 				if(!usebombpal)
 				{
@@ -3414,7 +3419,7 @@ void weapon::limited_animate()
 						memcpy(tempbombpal, RAMpal, PAL_SIZE*sizeof(RGB));
 						
 						//grayscale entire screen
-						if(get_bit(quest_rules,qr_FADE))
+						if(get_qr(qr_FADE))
 						{
 							for(int32_t i=CSET(0); i < CSET(15); i++)
 							{
@@ -3485,7 +3490,7 @@ bool weapon::animate(int32_t index)
 		if(fallclk == PITFALL_FALL_FRAMES && fallCombo) sfx(combobuf[fallCombo].attribytes[0], pan(x.getInt()));
 		if(!--fallclk)
 		{
-			if(!weapon_dying_frame && get_bit(quest_rules,qr_WEAPONS_EXTRA_FRAME))
+			if(!weapon_dying_frame && get_qr(qr_WEAPONS_EXTRA_FRAME))
 			{
 				if(id==wSword || id==wBrang)
 				{
@@ -3523,7 +3528,7 @@ bool weapon::animate(int32_t index)
 		//!TODO: Drown SFX
 		if(!--drownclk)
 		{
-			if(!weapon_dying_frame && get_bit(quest_rules,qr_WEAPONS_EXTRA_FRAME))
+			if(!weapon_dying_frame && get_qr(qr_WEAPONS_EXTRA_FRAME))
 			{
 				if(id==wSword || id==wBrang)
 				{
@@ -3619,7 +3624,7 @@ bool weapon::animate(int32_t index)
 						if(pickup&ipONETIME) // set mITEM for one-time-only items
 							setmapflag(screen, screen_index, mITEM);
 						else if(pickup&ipONETIME2) // set mSPECIALITEM flag for other one-time-only items
-							setmapflag(screen, screen_index, (screen_index < 128 && get_bit(quest_rules, qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
+							setmapflag(screen, screen_index, (screen_index < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM);
 						
 						if(pickup&ipSECRETS)								// Trigger secrets if this item has the secret pickup
 						{
@@ -3957,7 +3962,7 @@ bool weapon::animate(int32_t index)
 			//case r_down:y+=.354; x+=.354; break;
 		}
 	
-	bool AngleReflect = (this->angular && get_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS) && !get_bit(quest_rules, qr_ANGULAR_REFLECT_BROKEN));
+	bool AngleReflect = (this->angular && get_qr(qr_ANGULAR_REFLECTED_WEAPONS) && !get_qr(qr_ANGULAR_REFLECT_BROKEN));
 	
 	switch(id)
 	{
@@ -4072,12 +4077,12 @@ bool weapon::animate(int32_t index)
 				dead=0;
 			}
 			
-			if(id==ewSword && get_bit(quest_rules,qr_SWORDMIRROR) || id!=ewSword && (parentitem > -1 ? itemsbuf[parentitem].flags & ITEM_FLAG9 : get_bit(quest_rules,qr_SWORDMIRROR))) //TODO: First qr_SWORDMIRROR port to enemy weapon flag, second qr_SWORDMIRROR port to script default flag -V
+			if(id==ewSword && get_qr(qr_SWORDMIRROR) || id!=ewSword && (parentitem > -1 ? itemsbuf[parentitem].flags & ITEM_FLAG9 : get_qr(qr_SWORDMIRROR))) //TODO: First qr_SWORDMIRROR port to enemy weapon flag, second qr_SWORDMIRROR port to script default flag -V
 			{
 				zfix checkx=0, checky=0;
 				int32_t check_x_ofs=0, check_y_ofs=0;
 				
-				if (get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTER))
+				if (get_qr(qr_MIRRORS_USE_WEAPON_CENTER))
 				{
 					checkx = (x+hxofs+(hit_width*0.5));
 					checky = (y+hyofs+(hit_height*0.5)-fakez);
@@ -4115,7 +4120,7 @@ bool weapon::animate(int32_t index)
 					break;
 					
 				int32_t posx, posy;
-				if(get_bit(quest_rules,qr_OLDMIRRORCOMBOS))//Replace this conditional with an ER; true if the ER is checked. This will use the old (glitchy) behavior for sword beams.
+				if(get_qr(qr_OLDMIRRORCOMBOS))//Replace this conditional with an ER; true if the ER is checked. This will use the old (glitchy) behavior for sword beams.
 				{
 					posx=x;
 					posy=y;
@@ -4234,7 +4239,7 @@ bool weapon::animate(int32_t index)
 							w->doAutoRotate(true);
 							//jesus fuck Zoria, this is blatantly wrong...
 							//In your next job, don't code while drunk you dumbass. -Deedee
-							if ( this->angular && get_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS) )
+							if ( this->angular && get_qr(qr_ANGULAR_REFLECTED_WEAPONS) )
 							{
 								double newangle = this->angle + DegreesToRadians(90*tdir);
 								w->angle = WrapAngle(newangle);
@@ -4306,7 +4311,7 @@ bool weapon::animate(int32_t index)
 						weapon *w=new weapon(*this);
 						w->dir=tdir;
 						w->doAutoRotate(true);
-						if ( this->angular && get_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS) )
+						if ( this->angular && get_qr(qr_ANGULAR_REFLECTED_WEAPONS) )
 						{
 							double newangle = this->angle + DegreesToRadians(90*tdir);
 							w->angle = WrapAngle(newangle);
@@ -4401,13 +4406,13 @@ bool weapon::animate(int32_t index)
 			
 			int32_t wrx;
 			
-			if(get_bit(quest_rules,qr_NOARRIVALPOINT))
+			if(get_qr(qr_NOARRIVALPOINT))
 				wrx=tmpscr->warpreturnx[0];
 			else wrx=tmpscr->warparrivalx;
 			
 			int32_t wry;
 			
-			if(get_bit(quest_rules,qr_NOARRIVALPOINT))
+			if(get_qr(qr_NOARRIVALPOINT))
 				wry=tmpscr->warpreturny[0];
 			else wry=tmpscr->warparrivaly;
 			
@@ -4421,10 +4426,10 @@ bool weapon::animate(int32_t index)
 				stop_sfx(WAV_ZN1WHIRLWIND);
 				dead=1;
 			}
-			else if(get_bit(quest_rules,qr_MORESOUNDS) && dead < 1)
+			else if(get_qr(qr_MORESOUNDS) && dead < 1)
 				sfx(WAV_ZN1WHIRLWIND,pan(int32_t(x)),true,false);
 				
-			if((parentitem==-1 && get_bit(quest_rules,qr_WHIRLWINDMIRROR)) || (parentitem > -1 && itemsbuf[parentitem].flags & ITEM_FLAG3))
+			if((parentitem==-1 && get_qr(qr_WHIRLWINDMIRROR)) || (parentitem > -1 && itemsbuf[parentitem].flags & ITEM_FLAG3))
 				goto mirrors;
 				
 			if ( doscript )
@@ -4451,7 +4456,7 @@ bool weapon::animate(int32_t index)
 					if(parentitem<0 || !(parent.flags & ITEM_FLAG2))
 					{
 						isLit = true;
-						if(parentitem==-1 ? get_bit(quest_rules,qr_TEMPCANDLELIGHT)
+						if(parentitem==-1 ? get_qr(qr_TEMPCANDLELIGHT)
 							: (parent.flags & ITEM_FLAG5))
 						{
 							checkLightSources();
@@ -4467,7 +4472,7 @@ bool weapon::animate(int32_t index)
 				{
 					dead=1;
 					
-					if((parentitem==-1 ? (get_bit(quest_rules,qr_TEMPCANDLELIGHT))
+					if((parentitem==-1 ? (get_qr(qr_TEMPCANDLELIGHT))
 					    : (!(parent.flags & ITEM_FLAG2)
 							&&(parent.flags & ITEM_FLAG5))) &&
 					    (Lwpns.idCount(wFire) + Ewpns.idCount(ewFlame))==1)
@@ -4477,7 +4482,7 @@ bool weapon::animate(int32_t index)
 					}
 				}
 				
-				if(clk==94 || get_bit(quest_rules,qr_INSTABURNFLAGS))
+				if(clk==94 || get_qr(qr_INSTABURNFLAGS))
 				{
 					triggerfire(x,y,true,
 						true,parentitem < 0 ? type > 1 : (parent.flags & ITEM_FLAG9),
@@ -4506,7 +4511,7 @@ bool weapon::animate(int32_t index)
 						true,parent.flags & ITEM_FLAG9,
 						parent.flags & ITEM_FLAG10,parent.flags & ITEM_FLAG11);
 					
-					if((parentitem==-1 ? (get_bit(quest_rules,qr_TEMPCANDLELIGHT))
+					if((parentitem==-1 ? (get_qr(qr_TEMPCANDLELIGHT))
 						: ((parent.flags & ITEM_FLAG5)))
 						&& (Lwpns.idCount(wFire) + Ewpns.idCount(ewFlame))==1)
 					{
@@ -4517,7 +4522,7 @@ bool weapon::animate(int32_t index)
 			}
 			
 			// Killed by script?
-			if(dead==0 && (parentitem==-1 ? get_bit(quest_rules,qr_TEMPCANDLELIGHT)
+			if(dead==0 && (parentitem==-1 ? get_qr(qr_TEMPCANDLELIGHT)
 				: (parent.flags & ITEM_FLAG5))
 				&& (Lwpns.idCount(wFire) + Ewpns.idCount(ewFlame))==1)
 			{
@@ -4612,7 +4617,7 @@ bool weapon::animate(int32_t index)
 					weapon_dying_frame = false;
 				else break;
 			}
-			if(dead>0 && !get_bit(quest_rules,qr_ARROWCLIP))
+			if(dead>0 && !get_qr(qr_ARROWCLIP))
 			{
 				break;
 			}
@@ -4888,7 +4893,7 @@ bool weapon::animate(int32_t index)
 						CatchBrang();
 					}
 					
-					if(Lwpns.idCount(wBrang)<=1 && (!get_bit(quest_rules, qr_MORESOUNDS) || !Ewpns.idCount(ewBrang)))
+					if(Lwpns.idCount(wBrang)<=1 && (!get_qr(qr_MORESOUNDS) || !Ewpns.idCount(ewBrang)))
 						stop_sfx(itemsbuf[parentitem>-1 ? parentitem : current_item_id(itype_brang)].usesound);
 						
 					/*if (dummy_bool[0])
@@ -4951,7 +4956,7 @@ bool weapon::animate(int32_t index)
 						LOADGFX(hshot.wpn5);
 						dir=l_up;
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
-						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+						if (!get_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 						flip=0;
 						switch((int32_t)(Hero.dir))
 						{
@@ -4973,7 +4978,7 @@ bool weapon::animate(int32_t index)
 						LOADGFX(hshot.wpn5);
 						dir=r_up;
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
-						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+						if (!get_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 						flip=1;
 						
 						switch((int32_t)(Hero.dir))
@@ -5003,7 +5008,7 @@ bool weapon::animate(int32_t index)
 						LOADGFX(hshot.wpn5);
 						dir=l_down;
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
-						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+						if (!get_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 						flip=2;
 						switch((int32_t)(Hero.dir))
 						{
@@ -5025,7 +5030,7 @@ bool weapon::animate(int32_t index)
 						LOADGFX(hshot.wpn5);
 						dir=r_down;
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
-						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+						if (!get_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 						flip=3;
 						switch((int32_t)(Hero.dir))
 						{
@@ -5069,7 +5074,7 @@ bool weapon::animate(int32_t index)
 				//Look for grab combos based on direction.
 				int32_t tx = -1, ty = -1, tx2 = -1, ty2 = -1, ty3 = -1;
 				//ty3 is for the old hookshot collision. Hookshot blocks would block the hookshot but not grab them in certain scenarios.
-				bool oldshot = (get_bit(quest_rules, qr_OLDHOOKSHOTGRAB) && !sw);
+				bool oldshot = (get_qr(qr_OLDHOOKSHOTGRAB) && !sw);
 				switch(Y_DIR(dir))
 				{
 					case up:
@@ -5099,8 +5104,8 @@ bool weapon::animate(int32_t index)
 				
 				bool hitsolid = false;
 				int32_t maxlayer = 0;
-				if (get_bit(quest_rules, qr_HOOKSHOTALLLAYER)) maxlayer = 6;
-				else if (get_bit(quest_rules, qr_HOOKSHOTLAYERFIX)) maxlayer = 2;
+				if (get_qr(qr_HOOKSHOTALLLAYER)) maxlayer = 6;
+				else if (get_qr(qr_HOOKSHOTLAYERFIX)) maxlayer = 2;
 				
 				if(tx > -1)
 				{
@@ -5259,7 +5264,7 @@ bool weapon::animate(int32_t index)
 						LOADGFX(hshot.wpn6);
 						dir=l_up;
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
-						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+						if (!get_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 						flip=0;
 						switch((int32_t)(Hero.dir))
 						{
@@ -5281,7 +5286,7 @@ bool weapon::animate(int32_t index)
 						LOADGFX(hshot.wpn6);
 						dir=r_up;
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
-						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+						if (!get_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 						flip=1;
 						
 						switch((int32_t)(Hero.dir))
@@ -5312,7 +5317,7 @@ bool weapon::animate(int32_t index)
 						LOADGFX(hshot.wpn6);
 						dir=l_down;
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
-						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+						if (!get_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 						flip=2;
 						switch((int32_t)(Hero.dir))
 						{
@@ -5334,7 +5339,7 @@ bool weapon::animate(int32_t index)
 						LOADGFX(hshot.wpn6);
 						dir=r_down;
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
-						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+						if (!get_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 						flip=3;
 						switch((int32_t)(Hero.dir))
 						{
@@ -5382,7 +5387,7 @@ bool weapon::animate(int32_t index)
 						LOADGFX(hshot.wpn7);
 						dir=l_up;
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
-						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+						if (!get_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 						//flip=0;
 						//switch((int32_t)(Hero.dir))
 						//{
@@ -5404,7 +5409,7 @@ bool weapon::animate(int32_t index)
 						LOADGFX(hshot.wpn7);
 						dir=r_up;
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
-						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+						if (!get_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 						//flip=1;
 						
 						//switch((int32_t)(Hero.dir))
@@ -5435,7 +5440,7 @@ bool weapon::animate(int32_t index)
 						LOADGFX(hshot.wpn7);
 						dir=l_down;
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
-						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+						if (!get_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 						//flip=2;
 						//switch((int32_t)(Hero.dir))
 						//{
@@ -5457,7 +5462,7 @@ bool weapon::animate(int32_t index)
 						LOADGFX(hshot.wpn7);
 						dir=r_down;
 						update_weapon_frame(((frames>1)?frames:0),o_tile);
-						if (!get_bit(quest_rules,qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
+						if (!get_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM)) o_tile = tile;
 						//flip=3;
 						//switch((int32_t)(Hero.dir))
 						//{
@@ -5589,10 +5594,10 @@ bool weapon::animate(int32_t index)
 			if(trigger_secrets_if_flag(x,y,mfSTRIKE,true))
 				dead=0;
 		   
-			bool brokebook = get_bit(quest_rules,qr_BROKENBOOKCOST);
+			bool brokebook = get_qr(qr_BROKENBOOKCOST);
 			itemdata const& book = itemsbuf[brokebook ? (parentitem>-1 ? parentitem : current_item_id(itype_book)) : linkedItem];
 			if((id==wMagic && (brokebook ? current_item(itype_book) : (linkedItem && book.family == itype_book)) &&
-				book.flags&ITEM_FLAG1) && get_bit(quest_rules,qr_INSTABURNFLAGS))
+				book.flags&ITEM_FLAG1) && get_qr(qr_INSTABURNFLAGS))
 			{
 				triggerfire(x,y,true,
 					true,book.flags & ITEM_FLAG9,
@@ -5603,7 +5608,7 @@ bool weapon::animate(int32_t index)
 			//mirrors: //the latter instance should suffice
 			zfix checkx=0, checky=0;
 			int32_t check_x_ofs=0, check_y_ofs=0;
-			if (get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTER))
+			if (get_qr(qr_MIRRORS_USE_WEAPON_CENTER))
 			{
 				checkx = (x+hxofs+(hit_width*0.5));
 				checky = (y+hyofs+(hit_height*0.5)-fakez);
@@ -5790,7 +5795,7 @@ bool weapon::animate(int32_t index)
 							weapon *w=new weapon(*this);
 							w->dir=tdir;
 							w->doAutoRotate(true);
-							if ( this->angular && get_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS) )
+							if ( this->angular && get_qr(qr_ANGULAR_REFLECTED_WEAPONS) )
 							{
 								double newangle = this->angle + DegreesToRadians(90*tdir);
 								w->angle = WrapAngle(newangle);
@@ -5858,7 +5863,7 @@ bool weapon::animate(int32_t index)
 						weapon *w=new weapon(*this);
 						w->dir=tdir;
 						w->doAutoRotate(true);
-						if ( this->angular && get_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS) )
+						if ( this->angular && get_qr(qr_ANGULAR_REFLECTED_WEAPONS) )
 						{
 							double newangle = this->angle + DegreesToRadians(90*tdir);
 							w->angle = WrapAngle(newangle);
@@ -5933,7 +5938,7 @@ bool weapon::animate(int32_t index)
 			zfix checkx=0, checky=0;
 			int32_t check_x_ofs=0, check_y_ofs=0;
 			
-			if (get_bit(quest_rules,qr_MIRRORS_USE_WEAPON_CENTER))
+			if (get_qr(qr_MIRRORS_USE_WEAPON_CENTER))
 			{
 				checkx = (x+hxofs+(hit_width*0.5));
 				checky = (y+hyofs+(hit_height*0.5)-fakez);
@@ -6121,7 +6126,7 @@ bool weapon::animate(int32_t index)
 							weapon *w=new weapon(*this);
 							w->dir=tdir;
 							w->doAutoRotate(true);
-							if ( this->angular && get_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS) )
+							if ( this->angular && get_qr(qr_ANGULAR_REFLECTED_WEAPONS) )
 							{
 								double newangle = this->angle + DegreesToRadians(90*tdir);
 								w->angle = WrapAngle(newangle);
@@ -6189,7 +6194,7 @@ bool weapon::animate(int32_t index)
 						weapon *w=new weapon(*this);
 						w->dir=tdir;
 						w->doAutoRotate(true);
-						if ( this->angular && get_bit(quest_rules, qr_ANGULAR_REFLECTED_WEAPONS) )
+						if ( this->angular && get_qr(qr_ANGULAR_REFLECTED_WEAPONS) )
 						{
 							double newangle = this->angle + DegreesToRadians(90*tdir);
 							w->angle = WrapAngle(newangle);
@@ -6315,7 +6320,7 @@ bool weapon::animate(int32_t index)
 				if(dead>0)
 					--dead;
 				
-				if(dead == 0 && !weapon_dying_frame && get_bit(quest_rules,qr_WEAPONS_EXTRA_FRAME))
+				if(dead == 0 && !weapon_dying_frame && get_qr(qr_WEAPONS_EXTRA_FRAME))
 				{
 					weapon_dying_frame = true;
 					return false;
@@ -6337,7 +6342,7 @@ bool weapon::animate(int32_t index)
 				step=0;
 				misc = -1; // Don't drift diagonally anymore
 				isLit=true;
-				if(get_bit(quest_rules,qr_TEMPCANDLELIGHT))
+				if(get_qr(qr_TEMPCANDLELIGHT))
 				{
 					checkLightSources();
 				}
@@ -6351,7 +6356,7 @@ bool weapon::animate(int32_t index)
 			{
 				dead=1;
 				
-				if(get_bit(quest_rules,qr_TEMPCANDLELIGHT))
+				if(get_qr(qr_TEMPCANDLELIGHT))
 				{
 					isLit=false;
 					checkLightSources();
@@ -6364,7 +6369,7 @@ bool weapon::animate(int32_t index)
 			}
 			
 			// Killed by script?
-			if(dead==0 && get_bit(quest_rules,qr_TEMPCANDLELIGHT) && (Lwpns.idCount(wFire) + Ewpns.idCount(ewFlame))==1)
+			if(dead==0 && get_qr(qr_TEMPCANDLELIGHT) && (Lwpns.idCount(wFire) + Ewpns.idCount(ewFlame))==1)
 			{
 				isLit=false;
 				checkLightSources();
@@ -6379,7 +6384,7 @@ bool weapon::animate(int32_t index)
 			{
 				step=0;  //should already be 0, but still...
 				isLit=true;
-				if(get_bit(quest_rules,qr_TEMPCANDLELIGHT))
+				if(get_qr(qr_TEMPCANDLELIGHT))
 				{
 					checkLightSources();
 				}
@@ -6389,11 +6394,11 @@ bool weapon::animate(int32_t index)
 				}
 			}
 			
-			if((get_bit(quest_rules, qr_OLD_FLAMETRAIL_DURATION) && clk==640) || (!get_bit(quest_rules, qr_OLD_FLAMETRAIL_DURATION) && clk == 180))
+			if((get_qr(qr_OLD_FLAMETRAIL_DURATION) && clk==640) || (!get_qr(qr_OLD_FLAMETRAIL_DURATION) && clk == 180))
 			{
 				dead=1;
 				
-				if(get_bit(quest_rules,qr_TEMPCANDLELIGHT))
+				if(get_qr(qr_TEMPCANDLELIGHT))
 				{
 					isLit=false;
 					checkLightSources();
@@ -6420,7 +6425,7 @@ bool weapon::animate(int32_t index)
 					seekHero();
 				}
 				
-				if(get_bit(quest_rules,qr_MORESOUNDS))
+				if(get_qr(qr_MORESOUNDS))
 				{
 					//if (step!=0)
 					sfx(WAV_BRANG, pan(int32_t(x)), true);
@@ -6485,7 +6490,7 @@ bool weapon::animate(int32_t index)
 					
 					if((abs(x-GuyX(index))<7)&&(abs(y-GuyY(index))<7))
 					{
-						if(get_bit(quest_rules,qr_MORESOUNDS) && !Lwpns.idCount(wBrang) && Ewpns.idCount(ewBrang)<=1)
+						if(get_qr(qr_MORESOUNDS) && !Lwpns.idCount(wBrang) && Ewpns.idCount(ewBrang)<=1)
 						{
 							stop_sfx(WAV_BRANG);
 						}
@@ -6537,7 +6542,7 @@ bool weapon::animate(int32_t index)
 			//otherwise it disappears
 			if(killrang || dead==1)
 			{
-				if(get_bit(quest_rules,qr_MORESOUNDS) && !Lwpns.idCount(wBrang) && Ewpns.idCount(ewBrang)<=1)
+				if(get_qr(qr_MORESOUNDS) && !Lwpns.idCount(wBrang) && Ewpns.idCount(ewBrang)<=1)
 				{
 					stop_sfx(WAV_BRANG);
 				}
@@ -6623,7 +6628,7 @@ bool weapon::animate(int32_t index)
 	}
 	
 	bool ret = dead==0;
-	if(ret && !weapon_dying_frame && get_bit(quest_rules,qr_WEAPONS_EXTRA_FRAME))
+	if(ret && !weapon_dying_frame && get_qr(qr_WEAPONS_EXTRA_FRAME))
 	{
 		if(id!=wSword)
 		{
@@ -6685,7 +6690,7 @@ void weapon::onhit(bool clipped, int32_t special, int32_t linkdir, enemy* e, int
     {
         // These won't hit anything, but they can still go too far offscreen...
         // Unless the compatibility rule is set.
-        if(get_bit(quest_rules, qr_OFFSCREENWEAPONS) || !clipped)
+        if(get_qr(qr_OFFSCREENWEAPONS) || !clipped)
             return;
         goto offscreenCheck;
     }
@@ -6791,7 +6796,7 @@ reflect:
     
 offscreenCheck:
     
-    if ( get_bit(quest_rules,qr_WEAPONSMOVEOFFSCREEN) || (screenedge&SPRITE_MOVESOFFSCREEN) ) goto skip_offscreenCheck;
+    if ( get_qr(qr_WEAPONSMOVEOFFSCREEN) || (screenedge&SPRITE_MOVESOFFSCREEN) ) goto skip_offscreenCheck;
     switch(id)
     {
     case wSword:
@@ -6973,7 +6978,7 @@ offscreenCheck:
 	case wMagic:
 		dead=1; //remove the dead part to make the wand only die when clipped
 		
-		if ( get_bit(quest_rules, qr_BROKENBOOKCOST) )
+		if ( get_qr(qr_BROKENBOOKCOST) )
 		{
 			//Create an ER to sue this in older quests -V
 			//used a QR. -Z
@@ -7029,7 +7034,7 @@ offscreenCheck:
 	case wScript10:
 	{
 		
-		if(!clipped || !get_bit(quest_rules,qr_CHECKSCRIPTWEAPONOFFSCREENCLIP) ) dead=1;
+		if(!clipped || !get_qr(qr_CHECKSCRIPTWEAPONOFFSCREENCLIP) ) dead=1;
 		break;
 	}
     default:
@@ -7056,7 +7061,7 @@ bool weapon::hit()
 bool weapon::hit(sprite *s)
 {
     if(!hit() || !s->hit()) return false;
-	if(!get_bit(quest_rules,qr_OLD_BOMB_HITBOXES) && (id == wBomb || id == wSBomb || id == ewBomb || id == ewSBomb))
+	if(!get_qr(qr_OLD_BOMB_HITBOXES) && (id == wBomb || id == wSBomb || id == ewBomb || id == ewSBomb))
 	{
 		if(z+zofs >= s->z+s->zofs+s->hzsz || z+zofs+hzsz < s->z+s->zofs)
 			return false;
@@ -7084,7 +7089,7 @@ bool weapon::hit(sprite *s)
 bool weapon::hit(int32_t tx2,int32_t ty2,int32_t tz2,int32_t txsz2,int32_t tysz2,int32_t tzsz2)
 {
     if(!hit()) return false;
-	if(!get_bit(quest_rules,qr_OLD_BOMB_HITBOXES) && (id == wBomb || id == wSBomb || id == ewBomb || id == ewSBomb))
+	if(!get_qr(qr_OLD_BOMB_HITBOXES) && (id == wBomb || id == wSBomb || id == ewBomb || id == ewSBomb))
 	{
 		if(z+zofs >= tz2+tzsz2 || z+zofs+hzsz < tz2)
 			return false;
@@ -7113,7 +7118,7 @@ bool weapon::hit(int32_t tx2,int32_t ty2,int32_t tz2,int32_t txsz2,int32_t tysz2
 bool weapon::hit(int32_t tx2,int32_t ty2,int32_t txsz2,int32_t tysz2)
 {
     if(!hit()) return false;
-    if(!get_bit(quest_rules,qr_OLD_BOMB_HITBOXES) && (id == wBomb || id == wSBomb || id == ewBomb || id == ewSBomb))
+    if(!get_qr(qr_OLD_BOMB_HITBOXES) && (id == wBomb || id == wSBomb || id == ewBomb || id == ewSBomb))
 	{
 		if(parentitem < 0 || itemsbuf[parentitem].misc7 < 1)
 		{
@@ -7248,7 +7253,7 @@ void weapon::draw(BITMAP *dest)
 	{
 		case wSword:
 		case wHammer:
-			if(get_bit(quest_rules,qr_HEROFLICKER)&&((getClock()||HeroHClk())&&(frame&1)) ||
+			if(get_qr(qr_HEROFLICKER)&&((getClock()||HeroHClk())&&(frame&1)) ||
 					Hero.getDontDraw() || tmpscr->flags3&fINVISHERO)
 				return;
 				
@@ -7421,7 +7426,7 @@ void weapon::draw(BITMAP *dest)
 				cs = o_cset&15;
 				
 				if((id == wBrang && (parentitem<0 || !(itemsbuf[parentitem].flags & ITEM_FLAG1)))
-					|| (id == ewBrang && !get_bit(quest_rules,qr_CORRECTED_EW_BRANG_ANIM)))
+					|| (id == ewBrang && !get_qr(qr_CORRECTED_EW_BRANG_ANIM)))
 				{
 					if ( do_animation ) 
 					{
@@ -7540,7 +7545,7 @@ void weapon::draw(BITMAP *dest)
 				//Let's see if this works, and failstobreakanything. -Z
 				//This also will need a QR, if it works!
 				/* Bugged, disabling.
-				if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && get_bit(quest_rules, qr_ANIMATECUSTOMWEAPONS) )
+				if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && get_qr(qr_ANIMATECUSTOMWEAPONS) )
 				{
 					if(frames>1 && ++aframe >= frames)
 					{
@@ -7576,7 +7581,7 @@ void weapon::draw(BITMAP *dest)
 	
 	// draw it
 	
-	if (has_shadow && (z > 0||fakez > 0) && get_bit(quest_rules, qr_WEAPONSHADOWS) )
+	if (has_shadow && (z > 0||fakez > 0) && get_qr(qr_WEAPONSHADOWS) )
 	{
 		wpndata const& spr = wpnsbuf[spr_shadow];
 		if(!suspt)
@@ -7591,7 +7596,7 @@ void weapon::draw(BITMAP *dest)
 			}
 		}
 		shadowtile = spr.tile+shd_aframe;
-		sprite::drawshadow(dest,get_bit(quest_rules, qr_TRANSSHADOWS) != 0);
+		sprite::drawshadow(dest,get_qr(qr_TRANSSHADOWS) != 0);
 	}
 	sprite::draw(dest);
 }
@@ -7615,9 +7620,9 @@ void putweapon(BITMAP *dest,int32_t x,int32_t y,int32_t weapon_id, int32_t type,
 void weapon::findcombotriggers()
 {
 	if(!CanComboTrigger(this)) return;
-	int32_t layercount = get_bit(quest_rules,qr_CUSTOMCOMBOS_EVERY_LAYER) ?
-		7 : ((get_bit(quest_rules,qr_CUSTOMCOMBOSLAYERS1AND2)) ? 3 : 1);
-	if(!get_bit(quest_rules,qr_OLD_BOMB_HITBOXES) && (id == wBomb || id == wSBomb || id == ewBomb || id == ewSBomb))
+	int32_t layercount = get_qr(qr_CUSTOMCOMBOS_EVERY_LAYER) ?
+		7 : ((get_qr(qr_CUSTOMCOMBOSLAYERS1AND2)) ? 3 : 1);
+	if(!get_qr(qr_OLD_BOMB_HITBOXES) && (id == wBomb || id == wSBomb || id == ewBomb || id == ewSBomb))
 	{
 		bool sbomb = id == wSBomb || id == ewSBomb;
 		std::set<rpos_t> rposes = getBombPositions();
@@ -7666,7 +7671,7 @@ void weapon::findcombotriggers()
 
 int32_t weapon::run_script(int32_t mode)
 {
-	if(switch_hooked && !get_bit(quest_rules, qr_SWITCHOBJ_RUN_SCRIPT)) return RUNSCRIPT_OK;
+	if(switch_hooked && !get_qr(qr_SWITCHOBJ_RUN_SCRIPT)) return RUNSCRIPT_OK;
 	if (weaponscript <= 0 || !doscript || FFCore.getQuestHeaderInfo(vZelda) < 0x255 || FFCore.system_suspend[isLWeapon ? susptLWEAPONSCRIPTS : susptEWEAPONSCRIPTS])
 		return RUNSCRIPT_OK;
 	int32_t ret = RUNSCRIPT_OK;
@@ -7692,7 +7697,7 @@ ALLEGRO_COLOR weapon::hitboxColor(byte opacity) const
 void weapon::draw_hitbox()
 {
 	if(hide_hitbox) return;
-	if(!get_bit(quest_rules,qr_OLD_BOMB_HITBOXES) && (id == wBomb || id == wSBomb || id == ewBomb || id == ewSBomb))
+	if(!get_qr(qr_OLD_BOMB_HITBOXES) && (id == wBomb || id == wSBomb || id == ewBomb || id == ewSBomb))
 	{
 #ifndef IS_ZQUEST
 		start_info_bmp();
@@ -7759,7 +7764,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t usesprite, int32_t Dir, i
     ref_o_tile = 0;
     bounce= false;
 	ignoreHero=true;
-    yofs=(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset) - 2;
+    yofs=(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset) - 2;
     dragging=-1;
     width=1;
     height=1;

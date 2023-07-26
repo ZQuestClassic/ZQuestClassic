@@ -12,7 +12,7 @@
 //
 //--------------------------------------------------------
 
-#include "base/zdefs.h"
+#include "base/qrs.h"
 #include "sprite.h"
 #include "zc/zelda.h"
 #include "zc/maps.h"
@@ -20,6 +20,7 @@
 #include "zc/ffscript.h"
 #include "zc/combos.h"
 #include "drawing.h"
+#include "base/mapscr.h"
 
 extern FFScript FFCore;
 /*
@@ -64,7 +65,7 @@ void sprite::check_conveyor()
 
 void sprite::handle_sprlighting()
 {
-	if(!get_bit(quest_rules, qr_NEW_DARKROOM)) return;
+	if(!get_qr(qr_NEW_DARKROOM)) return;
 	// TODO z3 !!
 	if(!(tmpscr->flags & fDARK)) return;
 
@@ -88,7 +89,7 @@ int32_t get_conveyor(int32_t x, int32_t y)
 		cmbid = -1;
 		cmb = NULL;
 	}
-	if(get_bit(quest_rules, qr_CONVEYORS_L1_L2))
+	if(get_qr(qr_CONVEYORS_L1_L2))
 		for (int32_t i = 0; i <= 1; ++i)
 		{
 			mapscr* layer_scr = get_layer_scr_for_xy(x, y, i);
@@ -119,7 +120,7 @@ int32_t get_conveyor(int32_t x, int32_t y)
 			auto tcid = MAPCOMBO2(i,x,y);
 			if(combobuf[tcid].type == cBRIDGE)
 			{
-				if (get_bit(quest_rules, qr_OLD_BRIDGE_COMBOS))
+				if (get_qr(qr_OLD_BRIDGE_COMBOS))
 				{
 					if (!_walkflag_layer(x,y,i)) return -1;
 				}
@@ -245,7 +246,7 @@ void movingblock::push(zfix bx,zfix by,int32_t d2,int32_t f)
     byte *ci = &(m->cset[combopos]);
     bcombo =  m->data[combopos];
     oldcset = m->cset[combopos];
-    cs     = (isdungeon() && !get_bit(quest_rules, qr_PUSHBLOCKCSETFIX)) ? 9 : oldcset;
+    cs     = (isdungeon() && !get_qr(qr_PUSHBLOCKCSETFIX)) ? 9 : oldcset;
     tile = combobuf[bcombo].tile;
     flip = combobuf[bcombo].flip;
     //   cs = ((*di)&0x700)>>8;
@@ -295,7 +296,7 @@ void movingblock::push_new(zfix bx,zfix by,int d2,int f,zfix spd)
     byte *ci = &(m->cset[combopos]);
     bcombo =  m->data[combopos];
     oldcset = m->cset[combopos];
-    cs     = (isdungeon() && !get_bit(quest_rules, qr_PUSHBLOCKCSETFIX)) ? 9 : oldcset;
+    cs     = (isdungeon() && !get_qr(qr_PUSHBLOCKCSETFIX)) ? 9 : oldcset;
     tile = combobuf[bcombo].tile;
     flip = combobuf[bcombo].flip;
     //   cs = ((*di)&0x700)>>8;
@@ -345,9 +346,9 @@ bool movingblock::check_hole() const
 	if ((rpos_handle.sflag()==mfBLOCKHOLE)||MAPCOMBOFLAG2(blockLayer-1,x,y)==mfBLOCKHOLE)
 		return true;
 
-	if (!get_bit(quest_rules, qr_BLOCKHOLE_SAME_ONLY))
+	if (!get_qr(qr_BLOCKHOLE_SAME_ONLY))
 	{
-		int maxLayer = get_bit(quest_rules, qr_PUSHBLOCK_LAYER_1_2) ? 2 : 0;
+		int maxLayer = get_qr(qr_PUSHBLOCK_LAYER_1_2) ? 2 : 0;
 		for (int lyr = 0; lyr <= maxLayer; ++lyr)
 		{
 			if(lyr==blockLayer) continue;
@@ -374,7 +375,7 @@ bool movingblock::animate(int32_t)
 
 	auto rpos_handle = get_rpos_handle_for_world_xy(x, y, blockLayer);
 	mapscr* m = rpos_handle.screen;
-	if(get_bit(quest_rules,qr_MOVINGBLOCK_FAKE_SOLID))
+	if(get_qr(qr_MOVINGBLOCK_FAKE_SOLID))
 		setSolid(false);
 	else setSolid(clk > 0 && !(fallclk || drownclk));
 	if(fallclk)
@@ -517,7 +518,7 @@ bool movingblock::animate(int32_t)
 							iflag = MAPCOMBOFLAG2(blockLayer-1,endx+16,endy+8);
 							break;
 					}
-					if(get_bit(quest_rules,qr_SOLIDBLK))
+					if(get_qr(qr_SOLIDBLK))
 					{
 						if(solid && iflag != mfBLOCKHOLE && pflag != mfBLOCKHOLE)
 							canslide = false;
@@ -581,7 +582,7 @@ bool movingblock::animate(int32_t)
 						iflag = MAPCOMBOFLAG2(blockLayer-1,endx+16,endy+8);
 						break;
 				}
-				if(get_bit(quest_rules,qr_SOLIDBLK))
+				if(get_qr(qr_SOLIDBLK))
 				{
 					if(solid || iflag == mfBLOCKHOLE || pflag == mfBLOCKHOLE)
 						canslide = false;
@@ -621,9 +622,9 @@ bool movingblock::animate(int32_t)
 			int combopos = rpos_handle.pos();
 			int f1 = rpos_handle.sflag();
 			int f2 = MAPCOMBOFLAG2(blockLayer-1,x,y);
-			auto maxLayer = get_bit(quest_rules, qr_PUSHBLOCK_LAYER_1_2) ? 2 : 0;
-			bool no_trig_replace = get_bit(quest_rules, qr_BLOCKS_DONT_LOCK_OTHER_LAYERS);
-			bool trig_hole_same_only = get_bit(quest_rules, qr_BLOCKHOLE_SAME_ONLY);
+			auto maxLayer = get_qr(qr_PUSHBLOCK_LAYER_1_2) ? 2 : 0;
+			bool no_trig_replace = get_qr(qr_BLOCKS_DONT_LOCK_OTHER_LAYERS);
+			bool trig_hole_same_only = get_qr(qr_BLOCKHOLE_SAME_ONLY);
 			bool trig_is_layer = false;
 			if(!fallclk && !drownclk)
 			{
@@ -830,7 +831,7 @@ bool movingblock::animate(int32_t)
 				
 				if(canPermSecret(currdmap, rpos_handle.screen_index))
 				{
-					if(get_bit(quest_rules, qr_NONHEAVY_BLOCKTRIGGER_PERM) ||
+					if(get_qr(qr_NONHEAVY_BLOCKTRIGGER_PERM) ||
 						(combobuf[bcombo].type==cPUSH_HEAVY || combobuf[bcombo].type==cPUSH_HW
 							|| combobuf[bcombo].type==cPUSH_HEAVY2 || combobuf[bcombo].type==cPUSH_HW2))
 					{
@@ -856,9 +857,9 @@ bool movingblock::animate(int32_t)
 			int combopos = rpos_handle.pos();
 			int32_t f1 = rpos_handle.sflag();
 			int32_t f2 = MAPCOMBOFLAG2(blockLayer-1,x,y);
-			auto maxLayer = get_bit(quest_rules, qr_PUSHBLOCK_LAYER_1_2) ? 2 : 0;
-			bool no_trig_replace = get_bit(quest_rules, qr_BLOCKS_DONT_LOCK_OTHER_LAYERS);
-			bool trig_hole_same_only = get_bit(quest_rules, qr_BLOCKHOLE_SAME_ONLY);
+			auto maxLayer = get_qr(qr_PUSHBLOCK_LAYER_1_2) ? 2 : 0;
+			bool no_trig_replace = get_qr(qr_BLOCKS_DONT_LOCK_OTHER_LAYERS);
+			bool trig_hole_same_only = get_qr(qr_BLOCKHOLE_SAME_ONLY);
 			bool trig_is_layer = false;
 			if(!fallclk && !drownclk)
 			{
@@ -1064,7 +1065,7 @@ bool movingblock::animate(int32_t)
 				
 				if(canPermSecret(currdmap, rpos_handle.screen_index))
 				{
-					if(get_bit(quest_rules, qr_NONHEAVY_BLOCKTRIGGER_PERM) ||
+					if(get_qr(qr_NONHEAVY_BLOCKTRIGGER_PERM) ||
 						(combobuf[bcombo].type==cPUSH_HEAVY || combobuf[bcombo].type==cPUSH_HW
 							|| combobuf[bcombo].type==cPUSH_HEAVY2 || combobuf[bcombo].type==cPUSH_HW2))
 					{

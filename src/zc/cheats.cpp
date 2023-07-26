@@ -4,6 +4,7 @@
 #include "zc/guys.h"
 #include "zc/zc_init.h"
 #include "init.h"
+#include "zinfo.h"
 #include <queue>
 #include <tuple>
 #include <algorithm>

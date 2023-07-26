@@ -15,43 +15,34 @@ from common import ReplayTestResults
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent
 
+sys.path.append(str((root_dir / 'scripts').absolute()))
+import run_target
 
 class TestReplays(unittest.TestCase):
     def setUp(self):
         self.maxDiff = None
 
-    def get_build_folder(self):
-        build_folder = root_dir / 'build/Release'
-        if 'BUILD_FOLDER' in os.environ:
-            build_folder = Path(os.environ['BUILD_FOLDER']).absolute()
-        return build_folder
-
     def quick_assign(self, qst_path):
-        build_folder = self.get_build_folder()
-        exe_name = 'zquest.exe' if os.name == 'nt' else 'zquest'
         args = [
-            build_folder / exe_name,
             qst_path,
             '-quick-assign',
         ]
-        output = subprocess.run(args, cwd=build_folder, encoding='utf-8',
-                                stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        if output.returncode != 0:
-            raise Exception(f'got error: {output.returncode}\n{output.stdout}')
+        run_target.check_run('zquest', args)
 
     def run_replay(self, output_dir, args):
         args = [
             sys.executable,
             root_dir / 'tests/run_replay_tests.py',
+            '--build_folder', run_target.get_build_folder(),
             '--test_results', output_dir,
             *args,
         ]
-        if 'BUILD_FOLDER' in os.environ:
-            args.append('--build_folder')
-            args.append(os.environ['BUILD_FOLDER'])
-        output = subprocess.run(args, stdout=subprocess.DEVNULL)
-
+        output = subprocess.run(args, stdout=subprocess.PIPE, encoding='utf-8')
         test_results_path = output_dir / 'test_results.json'
+        if not test_results_path.exists():
+            print(output.stdout)
+            raise Exception('could not find test_results.json')
+
         test_results_json = json.loads(test_results_path.read_text('utf-8'))
         return output.returncode, ReplayTestResults(**test_results_json)
 
@@ -62,7 +53,7 @@ class TestReplays(unittest.TestCase):
             str(root_dir / 'resources/include'),
             str(root_dir / 'resources/headers'),
         ]
-        (self.get_build_folder() / 'includepaths.txt').write_text(';'.join(include_paths))
+        (run_target.get_build_folder() / 'includepaths.txt').write_text(';'.join(include_paths))
 
         # Re-compile and assign slots.
         self.quick_assign(root_dir / 'tests/replays/playground.qst')

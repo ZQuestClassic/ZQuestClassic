@@ -7,11 +7,13 @@
 #include "gui/builder.h"
 #include "zc_list_data.h"
 #include "items.h"
+#include "base/qrs.h"
 #include <fmt/format.h>
+#include "zinfo.h"
+#include "base/combo.h"
 
 extern bool saved;
 extern zcmodule moduledata;
-extern std::vector<newcombo> combobuf;
 extern comboclass *combo_class_buf;
 extern itemdata *itemsbuf;
 extern int32_t CSet;
@@ -20,8 +22,6 @@ extern script_data *comboscripts[NUMSCRIPTSCOMBODATA];
 char *ordinal(int32_t num);
 using std::string;
 using std::to_string;
-
-extern byte quest_rules[QUESTRULES_NEW_SIZE];
 
 static size_t cmb_tab1 = 0, cmb_tab2 = 0, cmb_tab3 = 0;
 static bool combo_use_script_data = true;
@@ -873,7 +873,7 @@ void ComboEditorDialog::loadComboType()
 			l_flag[1] = "Modify HP (Passive)";
 			h_flag[1] = "If checked, the player's HP will change over time while in the liquid"
 				" (either healing or damaging).";
-			if (get_bit(quest_rules, qr_OLD_SHALLOW_SFX))
+			if (get_qr(qr_OLD_SHALLOW_SFX))
 			{
 				l_attribyte[0] = "Splash Sound";
 				h_attribyte[0] = "SFX ID to play when stepping in the shallow liquid";

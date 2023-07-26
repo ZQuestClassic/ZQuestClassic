@@ -20,13 +20,15 @@
 #include "zc/guys.h"
 #include "zc/maps.h"
 #include "base/zdefs.h"
+#include "base/qrs.h"
+#include "base/combo.h"
 #include "zc/ffscript.h"
 #include <fmt/format.h>
+#include "base/misctypes.h"
 
 #include <queue>
 
-char *item_string[ITEMCNT];
-extern std::vector<newcombo> combobuf;
+char *item_string[MAXITEMS];
 
 extern zinitdata zinit;
 #ifndef IS_ZQUEST
@@ -40,7 +42,7 @@ item::~item()
 {
 	// TODO: we should have an item manager class in zc and manage lifetime explicitly, not via dtors.
 #ifndef IS_ZQUEST
-	if(itemsbuf[id].family==itype_fairy && itemsbuf[id].misc3>0 && misc>0 && !get_bit(quest_rules,qr_OLD_FAIRY_LIMIT))
+	if(itemsbuf[id].family==itype_fairy && itemsbuf[id].misc3>0 && misc>0 && !get_qr(qr_OLD_FAIRY_LIMIT))
 		killfairynew(*this);
 	FFCore.deallocateAllArrays(ScriptType::ItemSprite, getUID());
 #endif
@@ -228,7 +230,7 @@ bool item::animate(int32_t)
 		}
 	}
 	
-	if(do_animation && ((get_bit(quest_rules, qr_0AFRAME_ITEMS_IGNORE_AFRAME_CHANGES) ? (anim) : (frames>0)) || itm->family==itype_bottle))
+	if(do_animation && ((get_qr(qr_0AFRAME_ITEMS_IGNORE_AFRAME_CHANGES) ? (anim) : (frames>0)) || itm->family==itype_bottle))
 	{
 		int32_t spd = o_speed;
 		
@@ -304,10 +306,10 @@ void item::draw(BITMAP *dest)
 	if(pickup&ipNODRAW || tile==0 || force_grab)
 		return;
 		
-	if ( (z > 0 || fakez > 0) && get_bit(quest_rules, qr_ITEMSHADOWS) )
+	if ( (z > 0 || fakez > 0) && get_qr(qr_ITEMSHADOWS) )
 	{
 		shadowtile = wpnsbuf[spr_shadow].tile+aframe;
-		sprite::drawshadow(dest,get_bit(quest_rules, qr_TRANSSHADOWS) != 0);
+		sprite::drawshadow(dest,get_qr(qr_TRANSSHADOWS) != 0);
 	}
 	if(!(pickup&ipFADE) || fadeclk<0 || fadeclk&1 || fallclk || drownclk)
 	{
@@ -351,7 +353,7 @@ item::item(zfix X,zfix Y,zfix Z,int32_t i,int32_t p,int32_t c, bool isDummy) : s
 	//if ( x > 0 && x < 256 && y > 56 && y < 256 && !isDummy && ( pickup == 0x100 || pickup == 0 || pickup == 0x002 || pickup == 0x004 && pickup == 0x800 ) ) script_UID = FFCore.GetScriptObjectUID(UID_TYPE_ITEM); //This is used by child npcs. 
 	#endif
 	
-	if(id<0 || id>iMax) //>, not >= for dummy items such as the HC Piece display in the subscreen
+	if(id<0 || id>MAXITEMS) //>, not >= for dummy items such as the HC Piece display in the subscreen
 		return;
 		 
 	o_tile = itm.tile;
@@ -442,7 +444,7 @@ item::item(zfix X,zfix Y,zfix Z,int32_t i,int32_t p,int32_t c, bool isDummy) : s
 		if ( itm.overrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {  hxofs = itm.hxofs;}
 		if ( itm.overrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) { hyofs = itm.hyofs;}
 		if ( itm.overrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) { xofs = itm.xofs;}
-		if ( itm.overrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itm.yofs+(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);} 
+		if ( itm.overrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {  yofs = itm.yofs+(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);} 
 		/* yofs+playing_field_offset == yofs+56.
 		It is needed for the passive subscreen offset.
 		*/
@@ -487,7 +489,7 @@ void item::load_gfx(itemdata const& itm)
 	flip = itm.misc_flags>>2;
 	anim = itm.frames>0;
 	aframe = aclk = 0;
-	if(do_animation && ((get_bit(quest_rules, qr_0AFRAME_ITEMS_IGNORE_AFRAME_CHANGES) ? (anim) : (frames>0))||itm.family==itype_bottle))
+	if(do_animation && ((get_qr(qr_0AFRAME_ITEMS_IGNORE_AFRAME_CHANGES) ? (anim) : (frames>0))||itm.family==itype_bottle))
 	{
 		int32_t spd = o_speed;
 		
@@ -868,7 +870,7 @@ const char *old_weapon_string[wLast] =
 	"Fire Trail (Enemy)", "Fire 2 (Enemy)", "Fire 2 Trail (Enemy) <Unused>", "Ice Magic (Enemy) <Unused>", "MISC: Hover Boots Glow", "Magic (Fire)", "MISC: Quarter Hearts", "Cane of Byrna (Beam)" /*, "MISC: Sideview Ladder", "MISC: Sideview Raft"*/
 };
 
-char *weapon_string[WPNCNT];
+char *weapon_string[MAXWPNS];
 
 ALLEGRO_COLOR item::hitboxColor(byte opacity) const
 {

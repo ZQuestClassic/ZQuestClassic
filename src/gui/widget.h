@@ -10,6 +10,7 @@
 #include <memory>
 #include <type_traits>
 #include <vector>
+#include <string>
 #include "base/fonts.h"
 
 #define GUI_DEF_FONT get_custom_font(CFONT_DLG)

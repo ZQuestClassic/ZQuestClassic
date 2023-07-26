@@ -12,6 +12,7 @@
 #include "base/gui.h"
 #include "gui/use_size.h"
 #include "zq/zq_files.h"
+#include "base/qrs.h"
 
 bool mapcount_will_affect_layers(word newmapcount);
 void update_map_count(word newmapcount);
@@ -436,7 +437,22 @@ static GUI::ListData comboRulesList
 		" as opposed to the screen's secret sound."},
 	{ "Conveyors work on layers 1 and 2", qr_CONVEYORS_L1_L2,
 		"Conveyor combos work on layers 1 and 2. If multiple conveyors overlap, only"
-		" the highest layer conveyor will apply."}
+		" the highest layer conveyor will apply."},
+	{ "No Solid Damage Combos", qr_NOSOLIDDAMAGECOMBOS, 
+		"Disables solid damage combos. You can only take damage by"
+		" stepping on a walkable damage combo. Note that this does"
+		" not affect solid sideview damage combos that you step on,"
+		" you will still take damage from those even if this rule"
+		" is on." +QRHINT({qr_NO_SIDEVIEW_SOLID_DAMAGE}) },
+	{ "No Sideview Solid Damage", qr_NO_SIDEVIEW_SOLID_DAMAGE, 
+		"Disables taking damage by stepping on solid sideview damage."
+		" Does not affect damage taken by walkin into solid damage combos." +QRHINT({qr_NOSOLIDDAMAGECOMBOS}) },
+	{ "Lenient Solid Damage Combos", qr_LENIENT_SOLID_DAMAGE, 
+		"Solid damage combos only check the center of the Player's hitbox. Does not affect sideview damage combos you step on."
+		" Does nothing if 'No Solid Damage Combos' is checked." +QRHINT({qr_NOSOLIDDAMAGECOMBOS}) },
+	{ "Sensitive Solid Damage Combos", qr_SENSITIVE_SOLID_DAMAGE, 
+		"Solid damage combos only check the center of the Player's hitbox. Does not affect sideview damage combos you step on."
+		" Does nothing if 'No Solid Damage Combos' or 'Lenient Solid Damage Combos' is checked." +QRHINT({qr_NOSOLIDDAMAGECOMBOS,qr_LENIENT_SOLID_DAMAGE}) }
 };
 
 static GUI::ListData compatRulesList
@@ -471,12 +487,6 @@ static GUI::ListData compatRulesList
 		" replace the tiles in the door position with the open door"
 		" tiles. With this disabled, you can have different tiles"
 		" occupy the Open Door space."},
-	{ "No Solid Damage Combos", qr_NOSOLIDDAMAGECOMBOS, 
-		"Disables solid damage combos. You can only take damage by"
-		" stepping on a walkable damage combo. Note that this does"
-		" not affect solid sideview damage combos that you step on,"
-		" you will still take damage from those even if this rule"
-		" is on."},
 	{ "Old Hookshot Grab Checking", qr_OLDHOOKSHOTGRAB, 
 		"If this is enabled, the check for if a hookshot has grabbed a"
 		" combo going left or right will check it's Y value plus 7."
@@ -901,6 +911,8 @@ static GUI::ListData compatRulesList
 		" 2) setting button inputs to false (ex: `Input->Button[CB_A] = false`) will have no effect on button presses."
 		" 3) breaks Roc's Feather when assigned to a button press."
 		" If disabled: button presses are eaten when scripts write to button states."},
+	{ "Old Guy Handling", qr_OLD_GUY_HANDLING,
+		"If enabled, several new features relating to room guys will not work, instead using the old version behaviors."},
 };
 
 static GUI::ListData enemiesRulesList
@@ -1104,6 +1116,10 @@ static GUI::ListData miscRulesList
 	{ "Allow Setting Y Button Items", qr_SET_YBUTTON_ITEMS,
 		"If enabled, allows setting items to the Y (Ex2) button. If disabled, the"
 		" Y/Ex2 button has no usage outside of scripting."},
+	{ "Freeform Subscreen Cursor", qr_FREEFORM_SUBSCREEN_CURSOR,
+		"If enabled, the subscreen cursor can move freely even to empty spots."},
+	{ "Always Press To Equip", qr_SUBSCR_PRESS_TO_EQUIP,
+		"If enabled, you must always press a button to equip an item, even if only B items are enabled."},
 	{ "Messages Can Be Sped Up With The A Button", qr_ALLOWFASTMSG,
 		"If enabled, holding the A button will prevent any message delay from occuring, displaying"
 		" 60 characters per second."},
@@ -1607,7 +1623,7 @@ bool hasCompatRulesEnabled()
 	for(size_t q = 0; q < compatRulesList.size(); ++q)
 	{
 		auto rule = compatRulesList.getValue(q);
-		if(get_bit(quest_rules, rule))
+		if(get_qr(rule))
 			return true;
 	}
 	return false;
@@ -1627,7 +1643,7 @@ void applyRuleTemplate(int32_t ruleTemplate)
 					case qr_STRING_FRAME_OLD_WIDTH_HEIGHT:
 						continue; //Don't auto-unset, use 'onStrFix()' instead
 				}
-				set_bit(quest_rules, rule, 0);
+				set_qr(rule, 0);
 			}
 			onStrFix();
 			break;
@@ -1656,11 +1672,11 @@ void applyRuleTemplate(int32_t ruleTemplate)
 			};
 			for(int32_t qr : zsOnRules)
 			{
-				set_bit(quest_rules, qr, 1);
+				set_qr(qr, 1);
 			}
 			for(int32_t qr : zsOffRules)
 			{
-				set_bit(quest_rules, qr, 0);
+				set_qr(qr, 0);
 			}
 			break;
 		}

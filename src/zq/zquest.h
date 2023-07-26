@@ -12,6 +12,7 @@
 #include "parser/parserDefs.h"
 #include "zfix.h"
 #include "base/fonts.h"
+#include "base/cpool.h"
 
 #define  INTERNAL_VERSION  0xA721
 
@@ -221,21 +222,16 @@ bool get_debug();
 void set_debug(bool d);
 
 
+#include "base/misctypes.h"
 // quest data
 extern zquestheader        header;
-extern byte                quest_rules[QUESTRULES_NEW_SIZE];
-extern byte                extra_rules[EXTRARULES_SIZE];
 extern byte                midi_flags[MIDIFLAGS_SIZE];
 extern byte                music_flags[MUSICFLAGS_SIZE];
 extern word                map_count;
-extern miscQdata           misc;
 extern std::vector<mapscr> TheMaps;
 extern std::vector<word>   map_autolayers;
 extern zcmap               *ZCMaps;
-extern dmap                *DMaps;
-extern MsgStr              *MsgStrings;
 extern int32_t				   msg_strings_size;
-extern DoorComboSet        *DoorComboSets;
 extern class zctune        *customtunes;
 //extern emusic            *enhancedMusic;
 extern ZCHEATS             zcheats;
@@ -521,7 +517,7 @@ typedef struct item_struct
     int32_t i;
 } item_struct;
 
-extern item_struct bii[iMax+1];
+extern item_struct bii[MAXITEMS+1];
 
 typedef struct weapon_struct
 {
@@ -529,7 +525,7 @@ typedef struct weapon_struct
     int32_t i;
 } weapon_struct;
 
-extern weapon_struct biw[wMAX];
+extern weapon_struct biw[MAXWPNS];
 
 typedef std::pair<std::string, int32_t> script_struct;
 void build_biitems_list();
@@ -762,9 +758,6 @@ enum
 };
 
 extern command_struct bic[cmdMAX];
-
-extern combo_alias combo_aliases[MAXCOMBOALIASES];
-extern combo_pool combo_pools[MAXCOMBOPOOLS];
 //int32_t combo_apos;
 //int32_t combo_alistpos;
 
@@ -1031,7 +1024,6 @@ const char *enemylist(int32_t index, int32_t *list_size);
 const char *guylist(int32_t index, int32_t *list_size);
 int32_t efrontfacingtile(int32_t id);
 int32_t select_enemy(const char *prompt,int32_t enemy,bool hide,bool edit,int32_t& exit_status);
-int32_t select_guy(const char *prompt,int32_t guy);
 
 //uint8_t check[2] = { ';'+128,0 };
 

@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <string>
 
+#include "base/qrs.h"
+#include "base/dmap.h"
 #include "editbox.h"
 #include "EditboxNew.h"
 #include "base/gui.h"
@@ -581,7 +583,7 @@ void integrityCheckTileWarpDestSquare()
                 {
                     int32_t wx, wy, retc = (ts->warpreturnc>>(w*2))&3;
                     
-                    if(get_bit(quest_rules,qr_NOARRIVALPOINT))
+                    if(get_qr(qr_NOARRIVALPOINT))
                     {
                         wx=wscr->warpreturnx[retc];
                         wy=wscr->warpreturny[retc];
@@ -1054,7 +1056,7 @@ void integrityCheckStringNoGuy()
 
 bool integrityBoolGuyNoString(mapscr *ts)
 {
-    return (ts->guy!=0&&ts->guy!=gFAIRY&&ts->room==0&&ts->str==0);
+    return (ts->guy!=0&&!(ts->roomflags&RFL_ALWAYS_GUY)&&ts->room==0&&ts->str==0);
 }
 
 
@@ -1671,9 +1673,9 @@ void itemLocationReport()
     
     item_location_node **item_location_grid;
     
-    item_location_grid = new item_location_node*[iMax];
+    item_location_grid = new item_location_node*[MAXITEMS];
     
-    for(int32_t i=0; i<iMax; i++)
+    for(int32_t i=0; i<MAXITEMS; i++)
     {
         item_location_grid[i] = new item_location_node[location_types];
     }
@@ -1682,7 +1684,7 @@ void itemLocationReport()
     item_location_node *tempnode2=NULL;
     item_location_node *newnode=NULL;
     
-    for(int32_t i=0; i<iMax; ++i)
+    for(int32_t i=0; i<MAXITEMS; ++i)
     {
         for(int32_t j=0; j<location_types; ++j)
         {
@@ -1808,10 +1810,10 @@ void itemLocationReport()
             {
                 for(int32_t si=0; si<3; ++si)
                 {
-                    if(misc.shop[ts->catchall].item[si]>0)
+                    if(QMisc.shop[ts->catchall].item[si]>0)
                     {
                         //start at the special item in the item location grid
-                        tempnode=&(item_location_grid[misc.shop[ts->catchall].item[si]][(ts->room==rSHOP?3:(ts->room==rP_SHOP?4:5))]);
+                        tempnode=&(item_location_grid[QMisc.shop[ts->catchall].item[si]][(ts->room==rSHOP?3:(ts->room==rP_SHOP?4:5))]);
                         
                         //loop to the end of the list
                         while(tempnode->next!=NULL)
@@ -1825,7 +1827,7 @@ void itemLocationReport()
                         newnode->map=m+1;
                         newnode->screen=s;
                         newnode->extra1=ts->catchall;
-                        newnode->extra2=misc.shop[ts->catchall].price[si];
+                        newnode->extra2=QMisc.shop[ts->catchall].price[si];
                         newnode->enemy=-1;
                         newnode->pal=ts->color;
                         newnode->next=NULL;
@@ -1839,7 +1841,7 @@ void itemLocationReport()
     build_bii_list(false);
     
     //for each item
-    for(int32_t i2=0; i2<iMax; ++i2)
+    for(int32_t i2=0; i2<MAXITEMS; ++i2)
     {
         int32_t i=bii[i2].i;
         item_found=false;
@@ -1908,7 +1910,7 @@ void itemLocationReport()
         }
     }
     
-    for(int32_t i=0; i<iMax; ++i)
+    for(int32_t i=0; i<MAXITEMS; ++i)
     {
         for(int32_t type=0; type<location_types; ++type)
         {

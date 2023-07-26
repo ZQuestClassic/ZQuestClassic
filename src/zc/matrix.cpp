@@ -8,6 +8,8 @@
 //
 //--------------------------------------------------------
 
+#include "base/ints.h"
+#include "base/fonts.h"
 #include "zc/matrix.h"
 #include "zc/render.h"
 FONT* get_zc_font(int index);
@@ -24,8 +26,6 @@ FONT* get_zc_font(int index);
 #define zc_max(a,b)  ((a)>(b)?(a):(b))
 #define zc_min(a,b)  ((a)<(b)?(a):(b))
 //#endif
-
-typedef uint8_t byte;
 
 typedef struct zcMatrixTRACER
 {

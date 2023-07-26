@@ -8,17 +8,18 @@
 #include "items.h"
 #include "zc/weapons.h"
 #include "sfx.h"
+#include "base/qrs.h"
+#include "zinfo.h"
+#include "base/combo.h"
+#include "base/misctypes.h"
 
 extern bool saved;
 extern zcmodule moduledata;
-extern std::vector<newcombo> combobuf;
 extern comboclass *combo_class_buf;
 extern int32_t CSet;
 extern int32_t numericalFlags;
 extern script_data *comboscripts[NUMSCRIPTSCOMBODATA];
-extern miscQdata misc;
 extern itemdata *itemsbuf;
-extern byte quest_rules[QUESTRULES_SIZE];
 
 char *ordinal(int32_t num);
 using std::string;
@@ -1435,7 +1436,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 			byte& ripple_sprite = local_ref.attribytes[6];
 			
 			//Shallow only
-			int shallow_indx = get_bit(quest_rules,qr_OLD_SHALLOW_SFX) ? 0 : 5;
+			int shallow_indx = get_qr(qr_OLD_SHALLOW_SFX) ? 0 : 5;
 			byte& splash_sfx = local_ref.attribytes[shallow_indx];
 			
 			//Both
@@ -2467,7 +2468,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 			
 			byte defcut = cutsfx;
 			if(!(local_ref.usrflags&cflag3))
-				defcut = misc.miscsfx[sfxBUSHGRASS];
+				defcut = QMisc.miscsfx[sfxBUSHGRASS];
 			
 			windowRow->add(
 				Column(padding = 0_px,
@@ -2640,7 +2641,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 			
 			byte defcut = cutsfx;
 			if(!(local_ref.usrflags&cflag3))
-				defcut = misc.miscsfx[sfxBUSHGRASS];
+				defcut = QMisc.miscsfx[sfxBUSHGRASS];
 			
 			windowRow->add(
 				Column(padding = 0_px,
@@ -2784,7 +2785,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 			
 			byte defcut = cutsfx;
 			if(!(local_ref.usrflags&cflag3))
-				defcut = misc.miscsfx[sfxBUSHGRASS];
+				defcut = QMisc.miscsfx[sfxBUSHGRASS];
 			
 			windowRow->add(
 				Column(padding = 0_px,

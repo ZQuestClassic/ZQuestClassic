@@ -14,6 +14,7 @@
 
 #include "base/zdefs.h"
 #include "base/zsys.h"
+#include "base/qrs.h"
 #include "sprite.h"
 #include "tiles.h"
 #include "particles.h"
@@ -22,6 +23,7 @@
 #include "zc/guys.h"
 #include "base/zc_math.h"
 #include <fmt/format.h>
+#include "base/misctypes.h"
 
 #ifndef IS_ZQUEST
 #include "zc/hero.h"
@@ -33,7 +35,6 @@ extern sprite_list decorations;
 #endif
 extern particle_list particles;
 
-extern byte                quest_rules[QUESTRULES_NEW_SIZE];
 extern bool get_debug();
 extern bool halt;
 extern bool show_sprites;
@@ -82,7 +83,7 @@ sprite::sprite(): solid_object()
     tysz=1;
     id=-1;
     hzsz=1;
-    yofs=(get_bit(quest_rules, qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
+    yofs=(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
     dir=down;
     angular=canfreeze=false;
     drawstyle=0;
@@ -1159,7 +1160,7 @@ void sprite::draw(BITMAP* dest)
 		yofs = tyoffs;
 		return; //don't run the rest, use the old code
 	}
-	if ( get_bit(quest_rules,qr_OLDSPRITEDRAWS) || (drawflags&sprdrawflagALWAYSOLDDRAWS) ) 
+	if ( get_qr(qr_OLDSPRITEDRAWS) || (drawflags&sprdrawflagALWAYSOLDDRAWS) ) 
 	{
 		drawzcboss(dest);
 		yofs = tyoffs;
@@ -1503,7 +1504,7 @@ void sprite::draw(BITMAP* dest)
 			int32_t t  = wpnsbuf[spr_spawn].tile;
 			int32_t cs2 = wpnsbuf[spr_spawn].csets&15;
             
-			if(!get_bit(quest_rules,qr_HARDCODED_ENEMY_ANIMS))
+			if(!get_qr(qr_HARDCODED_ENEMY_ANIMS))
 			{
 				if(clk < -2)
 				{
@@ -1892,7 +1893,7 @@ void sprite::drawzcboss(BITMAP* dest)
             int32_t t  = wpnsbuf[spr_spawn].tile;
             int32_t cs2 = wpnsbuf[spr_spawn].csets&15;
             
-            if(!get_bit(quest_rules,qr_HARDCODED_ENEMY_ANIMS))
+            if(!get_qr(qr_HARDCODED_ENEMY_ANIMS))
 			{
 				if(clk < -2)
 				{
@@ -2023,7 +2024,7 @@ void sprite::drawcloaked(BITMAP* dest)
         int32_t t  = wpnsbuf[spr_spawn].tile;
         int32_t cs2 = wpnsbuf[spr_spawn].csets&15;
         
-		if(!get_bit(quest_rules,qr_HARDCODED_ENEMY_ANIMS))
+		if(!get_qr(qr_HARDCODED_ENEMY_ANIMS))
 		{
 			if(clk < -2)
 			{

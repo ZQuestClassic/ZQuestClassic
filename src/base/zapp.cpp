@@ -45,6 +45,11 @@ void common_main_setup(App id, int argc, char **argv)
 {
     app_id = id;
 
+	if (std::getenv("ZC_HEADLESS") != nullptr)
+	{
+		set_headless_mode();
+	}
+
 #ifdef HAS_SENTRY
     sentry_options_t *options = sentry_options_new();
     sentry_options_set_dsn(options, "https://133f371c936a4bc4bddec532b1d1304a@o1313474.ingest.sentry.io/6563738");
@@ -89,7 +94,9 @@ App get_app_id()
 
 bool is_ci()
 {
-	return std::getenv("CI") != nullptr;
+	// Cache the result, so it is not possible to ever change the result of "is_ci()".
+	static bool state = std::getenv("CI") != nullptr;
+	return state;
 }
 
 static bool headless;
@@ -103,7 +110,7 @@ void set_headless_mode()
 // use cases.
 bool is_headless()
 {
-	return headless || is_ci();
+	return headless;
 }
 
 // https://learn.microsoft.com/en-us/windows/win32/hidpi/high-dpi-desktop-application-development-on-windows

@@ -1,6 +1,7 @@
 #ifndef ZC_DIALOG_QRS_H
 #define ZC_DIALOG_QRS_H
 
+#include "base/qrs.h"
 #include <gui/dialog.h>
 #include <gui/text_field.h>
 #include <gui/list_data.h>

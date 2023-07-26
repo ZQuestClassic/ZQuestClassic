@@ -7,17 +7,17 @@
 #include <gui/switcher.h>
 #include <gui/text_field.h>
 #include <functional>
-
+#include "base/mapscr.h"
+void call_room_dlg(mapscr* scr);
 class RoomDialog: public GUI::Dialog<RoomDialog>
 {
 public:
 	enum class message
 	{
-		SET_ROOM, SET_ARGUMENT, SET_GUY, SET_STRING, ROOM_INFO, OK, CANCEL
+		ROOM_INFO, OK, CANCEL
 	};
 
-	RoomDialog(int32_t room, int32_t argument, int32_t guy, int32_t string,
-		std::function<void(int32_t, int32_t, int32_t, int32_t)> setRoomVars);
+	RoomDialog(mapscr* m);
 
 	std::shared_ptr<GUI::Widget> view() override;
 	bool handleMessage(const GUI::DialogMessage<message>& msg);
@@ -28,11 +28,8 @@ private:
 	std::shared_ptr<GUI::TextField> argTF;
 	std::shared_ptr<GUI::Switcher> argSwitcher;
 	std::shared_ptr<GUI::Label> argLabel;
-	struct
-	{
-		int32_t type, argument, guy, string;
-	} room;
-	std::function<void(int32_t, int32_t, int32_t, int32_t)> setRoomVars;
+	mapscr local_mapref;
+	mapscr* base_mapref;
 
 	/* Called when the room is changed to show the appropriate
 	* argument selector and set its value.
@@ -46,6 +43,8 @@ private:
 
 	/* Returns a string describing the currently selected room. */
 	const char* getRoomInfo() const;
+	
+	void setOldGuy();
 };
 
 #endif

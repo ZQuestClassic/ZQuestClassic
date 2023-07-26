@@ -8,6 +8,8 @@
 //
 //--------------------------------------------------------
 
+#include "base/qrs.h"
+#include "base/dmap.h"
 #include "base/gui.h"
 #include "subscr.h"
 #include "zq/zq_subscr.h"
@@ -185,7 +187,7 @@ void update_csl_proc(DIALOG *d, int32_t cs)
         (d+1)->proc=d_csl2_proc;
         (d+1)->fg=0;
         (d+1)->bg=0;
-        //(d+59)->fg=subscreen_cset(&misc,(d-1)->d1?(d-1)->d1-1:ssctMISC, (d+1)->d1);
+        //(d+59)->fg=subscreen_cset((d-1)->d1?(d-1)->d1-1:ssctMISC, (d+1)->d1);
         break;
         
     default:
@@ -210,7 +212,7 @@ int32_t d_csl_proc(int32_t msg,DIALOG *d,int32_t c)
     if(d->d1!=old_d1)
     {
         update_csl_proc(d+1, d->d1);
-        (d+60)->fg=subscreen_cset(&misc,d->d1?d->d1-1:ssctMISC, (d+2)->d1);
+        (d+60)->fg=subscreen_cset(d->d1?d->d1-1:ssctMISC, (d+2)->d1);
     }
     
     return ret;
@@ -223,7 +225,7 @@ int32_t d_csl2_proc(int32_t msg,DIALOG *d,int32_t c)
     
     if(d->d1!=old_d1)
     {
-        (d+58)->fg=subscreen_cset(&misc,(d-2)->d1?(d-2)->d1-1:ssctMISC, d->d1);
+        (d+58)->fg=subscreen_cset((d-2)->d1?(d-2)->d1-1:ssctMISC, d->d1);
     }
     
     return ret;
@@ -1276,7 +1278,7 @@ int32_t d_subscreen_proc(int32_t msg,DIALOG *d,int32_t)
         if(buf)
         {
             clear_bitmap(buf);
-            show_custom_subscreen(buf, &misc, (subscreen_group *)(d->dp), 0, 0, true, sspUP | sspDOWN | sspSCROLLING);
+            show_custom_subscreen(buf, (subscreen_group *)(d->dp), 0, 0, true, sspUP | sspDOWN | sspSCROLLING);
             
             for(int32_t i=0; i<MAXSUBSCREENITEMS; ++i)
             {
@@ -1657,7 +1659,7 @@ int32_t Bweapon(int32_t pos)
         
     case itype_sword:
     {
-        if(!get_bit(quest_rules,qr_SELECTAWPN))
+        if(!get_qr(qr_SELECTAWPN))
             break;
             
         family=itype_sword;
@@ -2742,7 +2744,7 @@ void doNewSubscreenObject(int32_t type)
 	switch(tempsso.type)
 	{
 		case ssoCURRENTITEM:
-			tempsso.d2 = 1; // Should not be invisible!
+			tempsso.d2 = SSCURRITEM_VISIBLE;
 			break;
 		case ssoMAGICGAUGE:
 			tempsso.d9 = -1; // 'Always show' by default
@@ -3627,7 +3629,7 @@ void edit_subscreen()
         game->set_arrows(1);
         
     subscreen_dlg[0].dp2=get_zc_font(font_lfont);
-    load_Sitems(&misc);
+    load_Sitems();
     curr_subscreen_object=0;
     ss_propCopySrc=-1;
     subscreen_group tempss;
@@ -4370,7 +4372,7 @@ void copySSOProperties(subscreen_object& src, subscreen_object& dest)
             break;
             
         case ssoCURRENTITEM:
-            // Only the invisible flag
+            // Flags only
             doCopySSOProperties(src, dest, D2);
             break;
             

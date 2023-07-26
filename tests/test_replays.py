@@ -14,6 +14,9 @@ test_dir = root_dir / '.tmp/test_replays'
 failing_replay = test_dir / 'failing.zplay'
 output_dir = test_dir / 'output'
 
+sys.path.append(str((root_dir / 'scripts').absolute()))
+import run_target
+
 
 def get_frame_from_snapshot_index(path: str) -> int:
     return int(re.match(r'.*\.zplay\.(\d+)', path).group(1))
@@ -41,16 +44,17 @@ class TestReplays(unittest.TestCase):
         args = [
             sys.executable,
             root_dir / 'tests/run_replay_tests.py',
+            '--build_folder', run_target.get_build_folder(),
             '--test_results', output_dir,
         ]
-        if 'BUILD_FOLDER' in os.environ:
-            args.append('--build_folder')
-            args.append(os.environ['BUILD_FOLDER'])
         args.append(failing_replay)
-        output = subprocess.run(args, stdout=subprocess.DEVNULL)
+        output = subprocess.run(args, stdout=subprocess.PIPE, encoding='utf-8')
+        test_results_path = test_dir / 'output/test_results.json'
+        if not test_results_path.exists():
+            print(output.stdout)
+            raise Exception('could not find test_results.json')
         self.assertEqual(output.returncode, 1)
 
-        test_results_path = test_dir / 'output/test_results.json'
         test_results_json = json.loads(test_results_path.read_text('utf-8'))
         return ReplayTestResults(**test_results_json)
 

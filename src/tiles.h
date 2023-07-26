@@ -15,10 +15,10 @@
 
 #include "base/zc_alleg.h"
 #include "base/zdefs.h"
+#include "base/combo.h"
 
 //extern byte *tilebuf;
 extern tiledata *newtilebuf, *grabtilebuf;
-extern std::vector<newcombo> combobuf;
 extern int32_t animated_combo_table[MAXCOMBOS][2];             //[0]=position in act2, [1]=original tile
 extern int32_t animated_combo_table4[MAXCOMBOS][2];            //[0]=combo, [1]=clock
 extern int32_t animated_combos;

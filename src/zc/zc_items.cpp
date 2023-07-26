@@ -16,6 +16,7 @@
 /**********  Item Class  **********/
 /**********************************/
 
+#include "base/qrs.h"
 #include "zc/zelda.h"
 #include "zc/guys.h"
 #include "base/zdefs.h"
@@ -23,6 +24,7 @@
 #include "items.h"
 #include "zscriptversion.h"
 #include <stdio.h>
+#include "base/misctypes.h"
 
 extern FFScript FFCore;
 extern sprite_list  guys;
@@ -44,7 +46,7 @@ bool addfairynew(zfix x, zfix y, int32_t misc3, item &itemfairy)
     ptr->dstep=misc3;
     ptr->step=(misc3/100.0);
     itemfairy.fairyUID = ptr->getUID();
-    if (get_bit(quest_rules, qr_FAIRYDIR)) ptr->dir = zc_rand(7);
+    if (get_qr(qr_FAIRYDIR)) ptr->dir = zc_rand(7);
     movefairynew(x,y,itemfairy);
     return true;
 }
@@ -52,13 +54,13 @@ bool addfairynew(zfix x, zfix y, int32_t misc3, item &itemfairy)
 bool can_drop(zfix x, zfix y)
 {
     return !(_walkflag(x,y+16,0) ||
-		((!get_bit(quest_rules, qr_ITEMS_IGNORE_SIDEVIEW_PLATFORMS) && int32_t(y)%16==0) &&
+		((!get_qr(qr_ITEMS_IGNORE_SIDEVIEW_PLATFORMS) && int32_t(y)%16==0) &&
 		((checkSVLadderPlatform(x+4,y+16)) || (checkSVLadderPlatform(x+12,y+16)))));
 }
 
 void item_fall(zfix& x, zfix& y, zfix& fall)
 {
-	if(!get_bit(quest_rules, qr_ITEMS_IGNORE_SIDEVIEW_PLATFORMS) && checkSVLadderPlatform(x+4,y+(fall/100)+15))
+	if(!get_qr(qr_ITEMS_IGNORE_SIDEVIEW_PLATFORMS) && checkSVLadderPlatform(x+4,y+(fall/100)+15))
 	{
 		y+=fall/100;
 		y-=int32_t(y)%16; //Fix to top of ladder
@@ -90,24 +92,24 @@ int32_t select_dropitem(int32_t item_set)
         {
             int32_t current_item=item_drop_sets[item_set].item[k-1];
             
-            if((!get_bit(quest_rules,qr_ENABLEMAGIC)||(game->get_maxmagic()<=0))&&(itemsbuf[current_item].family == itype_magic))
+            if((!get_qr(qr_ENABLEMAGIC)||(game->get_maxmagic()<=0))&&(itemsbuf[current_item].family == itype_magic))
             {
                 current_chance=0;
             }
             
-            if((!get_bit(quest_rules,qr_TRUEARROWS))&&(itemsbuf[current_item].family == itype_arrowammo))
+            if((!get_qr(qr_TRUEARROWS))&&(itemsbuf[current_item].family == itype_arrowammo))
             {
                 current_chance=0;
             }
 			
-			if(get_bit(quest_rules, qr_SMARTDROPS))
+			if(get_qr(qr_SMARTDROPS))
 			{
 				if(itemsbuf[current_item].amount > 0 && game->get_maxcounter(itemsbuf[current_item].count) == 0)
 				{
 					current_chance = 0;
 				}
 			}
-			if(get_bit(quest_rules, qr_SMARTER_DROPS))
+			if(get_qr(qr_SMARTER_DROPS))
 			{
 				if(itemsbuf[current_item].amount > 0 && game->get_counter(itemsbuf[current_item].count) >= game->get_maxcounter(itemsbuf[current_item].count))
 				{
@@ -132,17 +134,17 @@ int32_t select_dropitem(int32_t item_set)
         int32_t current_chance=item_drop_sets[item_set].chance[k];
         int32_t current_item=(k==0 ? -1 : item_drop_sets[item_set].item[k-1]);
         
-        if((!get_bit(quest_rules,qr_ENABLEMAGIC)||(game->get_maxmagic()<=0))&&(current_item>=0&&itemsbuf[current_item].family == itype_magic))
+        if((!get_qr(qr_ENABLEMAGIC)||(game->get_maxmagic()<=0))&&(current_item>=0&&itemsbuf[current_item].family == itype_magic))
         {
             current_chance=0;
         }
         
-        if((!get_bit(quest_rules,qr_TRUEARROWS))&&(current_item>=0&&itemsbuf[current_item].family == itype_arrowammo))
+        if((!get_qr(qr_TRUEARROWS))&&(current_item>=0&&itemsbuf[current_item].family == itype_arrowammo))
         {
             current_chance=0;
         }
         
-		if(get_bit(quest_rules, qr_SMARTDROPS))
+		if(get_qr(qr_SMARTDROPS))
 		{
 			if(itemsbuf[current_item].amount > 0 && game->get_maxcounter(itemsbuf[current_item].count) == 0)
 			{
@@ -150,7 +152,7 @@ int32_t select_dropitem(int32_t item_set)
 			}
 		}
 		
-		if(get_bit(quest_rules, qr_SMARTER_DROPS)) //OH SHIT EMILY
+		if(get_qr(qr_SMARTER_DROPS)) //OH SHIT EMILY
 		{											//DEEDEE 'BOUT TO DAB ON YOU
 			if(itemsbuf[current_item].amount > 0 && game->get_counter(itemsbuf[current_item].count) >= game->get_maxcounter(itemsbuf[current_item].count))
 			{
@@ -175,7 +177,7 @@ int32_t select_dropitem(int32_t item_set, int32_t x, int32_t y)
 {
 	int32_t drop_item = select_dropitem(item_set);
 	
-    if(drop_item>=0 && itemsbuf[drop_item].family==itype_fairy && !get_bit(quest_rules,qr_OLD_FAIRY_LIMIT))
+    if(drop_item>=0 && itemsbuf[drop_item].family==itype_fairy && !get_qr(qr_OLD_FAIRY_LIMIT))
     {
         for(int32_t j=0; j<items.Count(); ++j)
         {
@@ -191,7 +193,7 @@ int32_t select_dropitem(int32_t item_set, int32_t x, int32_t y)
 }
 int32_t item::run_script(int32_t mode)
 {
-	if(switch_hooked && !get_bit(quest_rules, qr_SWITCHOBJ_RUN_SCRIPT)) return RUNSCRIPT_OK;
+	if(switch_hooked && !get_qr(qr_SWITCHOBJ_RUN_SCRIPT)) return RUNSCRIPT_OK;
 	if (script <= 0 || !doscript || FFCore.getQuestHeaderInfo(vZelda) < 0x255 || FFCore.system_suspend[susptITEMSPRITESCRIPTS])
 		return RUNSCRIPT_OK;
 	int32_t ret = RUNSCRIPT_OK;

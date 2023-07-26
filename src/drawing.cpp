@@ -2,6 +2,7 @@
 #include "drawing.h"
 #include "base/util.h"
 #include "base/zc_math.h"
+#include "base/combo.h"
 #include <allegro/internal/aintern.h>
 
 using namespace util;

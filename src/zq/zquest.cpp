@@ -28,6 +28,12 @@
 #include <malloc.h>
 #endif
 
+#include "base/qrs.h"
+#include "base/dmap.h"
+#include "base/msgstr.h"
+#include "base/packfile.h"
+#include "base/cpool.h"
+#include "base/misctypes.h"
 #include "parser/Compiler.h"
 #include "base/zc_alleg.h"
 #include "particles.h"
@@ -40,7 +46,6 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include <loadpng.h>
 
 #include "dialog/cheat_codes.h"
-#include "dialog/room.h"
 #include "dialog/set_password.h"
 #include "dialog/foodlg.h"
 #include "dialog/quest_rules.h"
@@ -63,6 +68,7 @@ void setZScriptVersion(int32_t) { } //bleh...
 
 // the following are used by both zelda.cc and zquest.cc
 #include "base/zdefs.h"
+#include "base/qrs.h"
 #include "tiles.h"
 #include "base/colors.h"
 #include "qst.h"
@@ -139,6 +145,7 @@ static const char *qtpath_name      = "macosx_qtpath%d";
 #include "zq/zq_init.h"
 #include "zq/zq_doors.h"
 #include "zq/zq_cset.h"
+#include "zinfo.h"
 
 #ifdef _MSC_VER
 #include <crtdbg.h>
@@ -336,6 +343,21 @@ void write_fav_command(int ind, int val)
 	sprintf(buf, "command%02d", ind+1);
 	zc_set_config("favcmd", buf, val);
 }
+
+const char *roomtype_string[MAXROOMTYPES] =
+{
+	"(None)","Special Item","Pay for Info","Secret Money","Gamble",
+	"Door Repair","Red Potion or Heart Container","Feed the Goriya","Triforce Check",
+	"Potion Shop","Shop","More Bombs","Leave Money or Life","10 Rupees",
+	"3-Stair Warp","Ganon","Zelda", "-<item pond>", "1/2 Magic Upgrade", "Learn Slash", "More Arrows","Take One Item"
+};
+
+const char *catchall_string[MAXROOMTYPES] =
+{
+	"Generic Catchall","Special Item","Info Type","Amount","Generic Catchall","Repair Fee","Generic Catchall","Generic Catchall","Generic Catchall","Shop Type",
+	"Shop Type","Price","Price","Generic Catchall","Warp Ring","Generic Catchall","Generic Catchall", "Generic Catchall", "Generic Catchall",
+	"Generic Catchall", "Price","Shop Type","Bottle Shop Type"
+};
 
 #define MAXPOOLCOMBOS MAXFAVORITECOMBOS
 
@@ -599,12 +621,10 @@ byte Color = 0;
 extern int32_t jwin_pal[jcMAX];
 int32_t gui_colorset=99;
 
-combo_alias combo_aliases[MAXCOMBOALIASES];
 static int32_t combo_apos=0; //currently selected combo alias
 int32_t alias_origin=0;
 int32_t alias_cset_mod=0;
 
-combo_pool combo_pools[MAXCOMBOPOOLS];
 static int32_t combo_pool_pos=0; //currently selected combo pool
 bool weighted_cpool = true;
 bool cpool_prev_visible = false;
@@ -688,20 +708,14 @@ END_OF_FUNCTION(myvsync_callback)
 
 // quest data
 zquestheader header;
-byte                quest_rules[QUESTRULES_NEW_SIZE];
-byte                extra_rules[EXTRARULES_SIZE];
 byte                midi_flags[MIDIFLAGS_SIZE];
 byte                music_flags[MUSICFLAGS_SIZE];
 word                map_count;
-miscQdata           misc;
 vector<mapscr>      TheMaps;
 vector<word>        map_autolayers;
 zcmap               *ZCMaps;
 byte                *quest_file;
-dmap                *DMaps;
-MsgStr              *MsgStrings;
 int32_t					msg_strings_size;
-//DoorComboSet      *DoorComboSets;
 zctune              *customtunes;
 //emusic            *enhancedMusic;
 ZCHEATS             zcheats;
@@ -714,7 +728,6 @@ char                fontsdat_sig[52];
 char                zquestdat_sig[52];
 char                sfxdat_sig[52];
 char		    qstdat_str[2048];
-miscQdata           QMisc;
 
 int32_t gme_track=0;
 
@@ -1319,7 +1332,7 @@ int32_t onPalFix();
 int32_t onPitFix();
 int32_t onStrFix()
 {
-	if(get_bit(quest_rules, qr_OLD_STRING_EDITOR_MARGINS))
+	if(get_qr(qr_OLD_STRING_EDITOR_MARGINS))
 	{
 		AlertDialog("Fix: Old Margins",
 			"Fixing margins may cause strings that used to spill outside the textbox"
@@ -1328,12 +1341,12 @@ int32_t onStrFix()
 			{
 				if(ret)
 				{
-					set_bit(quest_rules, qr_OLD_STRING_EDITOR_MARGINS, 0);
+					set_qr(qr_OLD_STRING_EDITOR_MARGINS, 0);
 					saved = false;
 				}
 			}).show();
 	}
-	if(get_bit(quest_rules, qr_STRING_FRAME_OLD_WIDTH_HEIGHT))
+	if(get_qr(qr_STRING_FRAME_OLD_WIDTH_HEIGHT))
 	{
 		AlertDialog("Fix: Old Frame Size",
 			"This will fix the frame size of all strings. No visual changes should occur,"
@@ -1347,7 +1360,7 @@ int32_t onStrFix()
 						MsgStrings[q].w += 16;
 						MsgStrings[q].h += 16;
 					}
-					set_bit(quest_rules, qr_STRING_FRAME_OLD_WIDTH_HEIGHT, 0);
+					set_qr(qr_STRING_FRAME_OLD_WIDTH_HEIGHT, 0);
 					saved = false;
 				}
 			}).show();
@@ -1425,7 +1438,7 @@ void set_rules(byte* newrules)
 	saved = false;
 	if(newrules != quest_rules)
 		memcpy(quest_rules, newrules, QR_SZ);
-	if(!get_bit(quest_rules,qr_ALLOW_EDITING_COMBO_0))
+	if(!get_qr(qr_ALLOW_EDITING_COMBO_0))
 	{
 		combobuf[0].walk = 0xF0;
 		combobuf[0].type = 0;
@@ -1433,11 +1446,11 @@ void set_rules(byte* newrules)
 	}
 	
 	// For 2.50.0 and 2.50.1
-	if(get_bit(quest_rules, qr_VERYFASTSCROLLING))
-		set_bit(quest_rules, qr_FASTDNGN, 1);
+	if(get_qr(qr_VERYFASTSCROLLING))
+		set_qr(qr_FASTDNGN, 1);
 	
 	//this is only here until the subscreen style is selectable by itself
-	zinit.subscreen_style=get_bit(quest_rules,qr_COOLSCROLL)?1:0;
+	zinit.subscreen_style=get_qr(qr_COOLSCROLL)?1:0;
 }
 
 int32_t onSelectFFCombo();
@@ -3360,7 +3373,7 @@ int32_t onDefault_Pals()
     {
         saved=false;
         
-        if(!init_colordata(true, &header, &misc))
+        if(!init_colordata(true, &header, &QMisc))
         {
             jwin_alert("Error","Palette reset failed.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
         }
@@ -3469,7 +3482,7 @@ int32_t onDefault_MapStyles()
     if(jwin_alert("Confirm Reset","Reset all map styles?", NULL, NULL, "Yes", "Cancel", 'y', 27,get_zc_font(font_lfont)) == 1)
     {
         saved=false;
-        reset_mapstyles(true, &misc);
+        reset_mapstyles(true, &QMisc);
     }
     
     return D_O_K;
@@ -4309,10 +4322,10 @@ void EditGameMiscArray()
 	for ( int32_t q = 0; q < 32; q++ )
 	{
 		gamemiscarray_dlg[37+q].dp = miscvalue[q];
-		gamemiscarray_dlg[37+q].fg = misc.questmisc[q];
+		gamemiscarray_dlg[37+q].fg = QMisc.questmisc[q];
 		gamemiscarray_dlg[37+q].dp3 = &(gamemiscarray_dlg[71+q]);
 		
-		strcpy(miscvalue_labels[q], misc.questmisc_strings[q]);
+		strcpy(miscvalue_labels[q], QMisc.questmisc_strings[q]);
 		if ( miscvalue_labels[q][0] == 0 ) sprintf(miscvalue_labels[q],"Misc[%d]",q);
 		gamemiscarray_dlg[5+q].dp = miscvalue_labels[q];
 		
@@ -4327,8 +4340,8 @@ void EditGameMiscArray()
 		for ( int32_t q = 0; q < 32; q++ )
 		{
 			
-			misc.questmisc[q] = gamemiscarray_dlg[37+q].fg;
-			strcpy(misc.questmisc_strings[q], miscvalue_labels[q]);
+			QMisc.questmisc[q] = gamemiscarray_dlg[37+q].fg;
+			strcpy(QMisc.questmisc_strings[q], miscvalue_labels[q]);
 		}
 		
 	}
@@ -5073,7 +5086,7 @@ void drawpanel()
 		}
 		
 		//Green arrival square:
-		bool disabled_arrival = get_bit(quest_rules,qr_NOARRIVALPOINT);
+		bool disabled_arrival = get_qr(qr_NOARRIVALPOINT);
 		if(warparrival_pos.x > -1)
 		{
 			draw_sqr_frame(warparrival_pos);
@@ -5120,7 +5133,7 @@ void drawpanel()
 			for(int32_t i=0; i< 10 && Map.CurrScr()->enemy[i]!=0; i++)
 			{
 				int32_t id = Map.CurrScr()->enemy[i];
-				int32_t tile = get_bit(quest_rules, qr_NEWENEMYTILES) ? guysbuf[id].e_tile : guysbuf[id].tile;
+				int32_t tile = get_qr(qr_NEWENEMYTILES) ? guysbuf[id].e_tile : guysbuf[id].tile;
 				int32_t cset = guysbuf[id].cset;
 				auto& sqr = ep.subsquare(i);
 				if(tile)
@@ -5226,7 +5239,7 @@ bool isFavCmdSelected(int32_t cmd)
 		case cmdDrawingModeNormal:
 			return draw_mode==dm_normal;
 		case cmdShowDark:
-			return (get_bit(quest_rules,qr_NEW_DARKROOM) && (Flags&cNEWDARK));
+			return (get_qr(qr_NEW_DARKROOM) && (Flags&cNEWDARK));
 	}
 	return false;
 }
@@ -5604,7 +5617,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 			
 			if(Map.isDark())
 			{
-				if((Flags&cNEWDARK) && get_bit(quest_rules, qr_NEW_DARKROOM))
+				if((Flags&cNEWDARK) && get_qr(qr_NEW_DARKROOM))
 				{
 					BITMAP* tmpDark = create_bitmap_ex(8,16*16,16*11);
 					BITMAP* tmpDarkTrans = create_bitmap_ex(8,16*16,16*11);
@@ -6644,7 +6657,7 @@ void refresh(int32_t flags, bool update)
 			{
 				int32_t shop = Map.CurrScr()->catchall;
 				sprintf(buf,"Pay For Info: -%d, -%d, -%d",
-						misc.info[shop].price[0],misc.info[shop].price[1],misc.info[shop].price[2]);
+						QMisc.info[shop].price[0],QMisc.info[shop].price[1],QMisc.info[shop].price[2]);
 				show_screen_error(buf,i++, vc(15));
 			}
 			break;
@@ -6683,15 +6696,15 @@ void refresh(int32_t flags, bool update)
 				sprintf(buf,"%sShop: ",
 						Map.CurrScr()->room==rP_SHOP ? "Potion ":"");
 						
-				for(int32_t j=0; j<3; j++) if(misc.shop[shop].item[j]>0)  // Print the 3 items and prices
+				for(int32_t j=0; j<3; j++) if(QMisc.shop[shop].item[j]>0)  // Print the 3 items and prices
 				{
-					strcat(buf,item_string[misc.shop[shop].item[j]]);
+					strcat(buf,item_string[QMisc.shop[shop].item[j]]);
 					strcat(buf,":");
 					char pricebuf[8];
-					sprintf(pricebuf,"%d",misc.shop[shop].price[j]);
+					sprintf(pricebuf,"%d",QMisc.shop[shop].price[j]);
 					strcat(buf,pricebuf);
 					
-					if(j<2 && misc.shop[shop].item[j+1]>0) strcat(buf,", ");
+					if(j<2 && QMisc.shop[shop].item[j+1]>0) strcat(buf,", ");
 				}
 					
 				show_screen_error(buf,i++, vc(15));
@@ -6703,15 +6716,15 @@ void refresh(int32_t flags, bool update)
 				int32_t shop = Map.CurrScr()->catchall;
 				sprintf(buf,"Bottle Shop: ");
 						
-				for(int32_t j=0; j<3; j++) if(misc.bottle_shop_types[shop].fill[j]>0)  // Print the 3 fills and prices
+				for(int32_t j=0; j<3; j++) if(QMisc.bottle_shop_types[shop].fill[j]>0)  // Print the 3 fills and prices
 				{
-					strcat(buf,misc.bottle_types[misc.bottle_shop_types[shop].fill[j]-1].name);
+					strcat(buf,QMisc.bottle_types[QMisc.bottle_shop_types[shop].fill[j]-1].name);
 					strcat(buf,":");
 					char pricebuf[8];
-					sprintf(pricebuf,"%d",misc.bottle_shop_types[shop].price[j]);
+					sprintf(pricebuf,"%d",QMisc.bottle_shop_types[shop].price[j]);
 					strcat(buf,pricebuf);
 					
-					if(j<2 && misc.bottle_shop_types[shop].fill[j+1]>0) strcat(buf,", ");
+					if(j<2 && QMisc.bottle_shop_types[shop].fill[j+1]>0) strcat(buf,", ");
 				}
 					
 				show_screen_error(buf,i++, vc(15));
@@ -6722,9 +6735,9 @@ void refresh(int32_t flags, bool update)
 			{
 				int32_t shop = Map.CurrScr()->catchall;
 				sprintf(buf,"Take Only One: %s%s%s%s%s",
-						misc.shop[shop].item[0]<1?"":item_string[misc.shop[shop].item[0]],misc.shop[shop].item[0]>0?", ":"",
-						misc.shop[shop].item[1]<1?"":item_string[misc.shop[shop].item[1]],(misc.shop[shop].item[1]>0&&misc.shop[shop].item[2]>0)?", ":"",
-						misc.shop[shop].item[2]<1?"":item_string[misc.shop[shop].item[2]]);
+						QMisc.shop[shop].item[0]<1?"":item_string[QMisc.shop[shop].item[0]],QMisc.shop[shop].item[0]>0?", ":"",
+						QMisc.shop[shop].item[1]<1?"":item_string[QMisc.shop[shop].item[1]],(QMisc.shop[shop].item[1]>0&&QMisc.shop[shop].item[2]>0)?", ":"",
+						QMisc.shop[shop].item[2]<1?"":item_string[QMisc.shop[shop].item[2]]);
 				show_screen_error(buf,i++, vc(15));
 			}
 			break;
@@ -10975,7 +10988,7 @@ void domouse()
 				if(dummymode) do_dummyxy = true;
 				else
 				{
-					if(get_bit(quest_rules,qr_NOARRIVALPOINT))
+					if(get_qr(qr_NOARRIVALPOINT))
 					{
 						info_dsa("Arrival Square",
 								"The arrival square cannot be used unless the QR 'Use Warp Return "
@@ -12747,7 +12760,7 @@ static DIALOG wlist_dlg[] =
   int32_t i;
   } item_struct;
   */
-item_struct bii[iMax+1];
+item_struct bii[MAXITEMS+1];
 int32_t bii_cnt=-1;
 
 void build_bii_list(bool usenone)
@@ -12761,7 +12774,7 @@ void build_bii_list(bool usenone)
         bii_cnt=start=1;
     }
     
-    for(int32_t i=0; i<iMax; i++)
+    for(int32_t i=0; i<MAXITEMS; i++)
     {
         bii[bii_cnt].s = item_string[i];
         bii[bii_cnt].i = i;
@@ -12806,14 +12819,14 @@ const char *itemlist_num(int32_t index, int32_t *list_size)
 }
 
 // disable items on dmaps stuff
-int32_t DI[iMax];
+int32_t DI[MAXITEMS];
 int32_t nDI;
 
 void initDI(int32_t index)
 {
     int32_t j=0;
     
-    for(int32_t i=0; i<iMax; i++)
+    for(int32_t i=0; i<MAXITEMS; i++)
     {
         int32_t index1=bii[i].i; // true index of item in dmap's DI list
         
@@ -12826,7 +12839,7 @@ void initDI(int32_t index)
     
     nDI=j;
     
-    for(int32_t i=j; i<iMax; i++) DI[j]=0;
+    for(int32_t i=j; i<MAXITEMS; i++) DI[j]=0;
     
     return;
 }
@@ -12861,14 +12874,14 @@ const char *DIlist(int32_t index, int32_t *list_size)
     
 }
 
-weapon_struct biw[wMAX];
+weapon_struct biw[MAXWPNS];
 int32_t biw_cnt=-1;
 
 void build_biw_list()
 {
     int32_t start=biw_cnt=0;
     
-    for(int32_t i=start; i<wMAX; i++)
+    for(int32_t i=start; i<MAXWPNS; i++)
     {
         biw[biw_cnt].s = (char *)weapon_string[i];
         biw[biw_cnt].i = i;
@@ -14295,7 +14308,7 @@ const char *shoplist(int32_t index, int32_t *list_size)
     if(index>=0)
     {
         bound(index,0,shop_list_size-1);
-        sprintf(shop_str_buf,"%3d:  %s",index,misc.shop[index].name);
+        sprintf(shop_str_buf,"%3d:  %s",index,QMisc.shop[index].name);
         return shop_str_buf;
     }
     
@@ -14311,7 +14324,7 @@ const char *bottlelist(int32_t index, int32_t *list_size)
     if(index>=0)
     {
         bound(index,0,bottle_list_size-1);
-		sprintf(bottle_str_buf,"%2d:  %s",index+1,misc.bottle_types[index].name);
+		sprintf(bottle_str_buf,"%2d:  %s",index+1,QMisc.bottle_types[index].name);
         return bottle_str_buf;
     }
     
@@ -14327,7 +14340,7 @@ const char *bottleshoplist(int32_t index, int32_t *list_size)
     if(index>=0)
     {
         bound(index,0,bottleshop_list_size-1);
-		sprintf(bottleshop_str_buf,"%3d:  %s",index,misc.bottle_shop_types[index].name);
+		sprintf(bottleshop_str_buf,"%3d:  %s",index,QMisc.bottle_shop_types[index].name);
         return bottleshop_str_buf;
     }
     
@@ -14343,7 +14356,7 @@ const char *infolist(int32_t index, int32_t *list_size)
     if(index>=0)
     {
         bound(index,0,info_list_size-1);
-        sprintf(info_str_buf,"%3d:  %s",index,misc.info[index].name);
+        sprintf(info_str_buf,"%3d:  %s",index,QMisc.info[index].name);
         return info_str_buf;
     }
     
@@ -14577,32 +14590,25 @@ int32_t onItem()
     return D_O_K;
 }
 
+void call_room_dlg(mapscr* scr);
 int32_t onRoom()
 {
 	restore_mouse();
 	auto* scr = Map.CurrScr();
-	RoomDialog(scr->room, scr->catchall, scr->guy, scr->str,
-		[scr](int32_t r, int32_t a, int32_t g, int32_t m)
-		{
-			scr->room = r;
-			scr->guy = g;
-			scr->str = m;
-			scr->catchall = a;
-			saved = false;
-		}
-	).show();
+	call_room_dlg(scr);
+	
 	refresh(rMAP+rMENU);
 	return D_O_K;
 }
 
 int32_t onEndString()
 {
-    int32_t ret=select_data("Select Ending String",misc.endstring,msgslist,get_zc_font(font_lfont));
+    int32_t ret=select_data("Select Ending String",QMisc.endstring,msgslist,get_zc_font(font_lfont));
     
     if(ret>=0)
     {
         saved=false;
-        misc.endstring=msglistcache[ret];
+        QMisc.endstring=msglistcache[ret];
     }
 
     refresh(rMENU);
@@ -14998,9 +15004,9 @@ int32_t onTriPieces()
     
     for(int32_t i=0; i<8; i++)
     {
-        tp_dlg[i+3].d1 = misc.triforce[i];
-        //    ((char*)(tp_dlg[i+3].dp))[0] = misc.triforce[i]+'0';
-        sprintf(temptext[i], "%d", misc.triforce[i]);
+        tp_dlg[i+3].d1 = QMisc.triforce[i];
+        //    ((char*)(tp_dlg[i+3].dp))[0] = QMisc.triforce[i]+'0';
+        sprintf(temptext[i], "%d", QMisc.triforce[i]);
         tp_dlg[i+3].dp=temptext[i];
     }
     
@@ -15011,7 +15017,7 @@ int32_t onTriPieces()
         saved=false;
         
         for(int32_t i=0; i<8; i++)
-            misc.triforce[i] = tp_dlg[i+3].d1;
+            QMisc.triforce[i] = tp_dlg[i+3].d1;
     }
     
     return D_O_K;
@@ -15123,7 +15129,7 @@ void drawgrid_s(BITMAP *dest,int32_t x,int32_t y,int32_t grid,int32_t fg,int32_t
 void drawdmap(int32_t dmap)
 {
     int32_t c;
-    zcolors mc=misc.colors;
+    zcolors mc=QMisc.colors;
     
     switch((DMaps[dmap].type&dmfTYPE))
     {
@@ -15177,7 +15183,7 @@ void drawdmap_screen(int32_t x, int32_t y, int32_t w, int32_t h, int32_t dmap)
 {
     BITMAP *tempbmp = create_bitmap_ex(8,w,h);
     clear_to_color(tempbmp, vc(0));
-    zcolors mc=misc.colors;
+    zcolors mc=QMisc.colors;
     
 //  rectfill(tempbmp,x,y,x+w-1,y+h-1,vc(0));
 
@@ -20413,17 +20419,17 @@ void EditInfoType(int32_t index)
     editinfo_dlg[0].dp = caption;
     editinfo_dlg[0].dp2 = get_zc_font(font_lfont);
     
-    sprintf(ps1,"%d",misc.info[index].price[0]);
-    sprintf(ps2,"%d",misc.info[index].price[1]);
-    sprintf(ps3,"%d",misc.info[index].price[2]);
-    snprintf(infoname,32,"%s",misc.info[index].name);
+    sprintf(ps1,"%d",QMisc.info[index].price[0]);
+    sprintf(ps2,"%d",QMisc.info[index].price[1]);
+    sprintf(ps3,"%d",QMisc.info[index].price[2]);
+    snprintf(infoname,32,"%s",QMisc.info[index].name);
     editinfo_dlg[8].dp  = ps1;
     editinfo_dlg[10].dp = ps2;
     editinfo_dlg[12].dp = ps3;
     editinfo_dlg[15].dp = infoname;
-    str1 = misc.info[index].str[0];
-    str2 = misc.info[index].str[1];
-    str3 = misc.info[index].str[2];
+    str1 = QMisc.info[index].str[0];
+    str2 = QMisc.info[index].str[1];
+    str3 = QMisc.info[index].str[2];
     editinfo_dlg[9].d1  = MsgStrings[str1].listpos;
     editinfo_dlg[11].d1 = MsgStrings[str2].listpos;
     editinfo_dlg[13].d1 = MsgStrings[str3].listpos;
@@ -20439,56 +20445,56 @@ void EditInfoType(int32_t index)
     if(ret==16)
     {
         saved=false;
-        misc.info[index].price[0] = vbound(atoi(ps1), 0, 65535);
-        misc.info[index].price[1] = vbound(atoi(ps2), 0, 65535);
-        misc.info[index].price[2] = vbound(atoi(ps3), 0, 65535);
-        snprintf(misc.info[index].name,32,"%s",infoname);
+        QMisc.info[index].price[0] = vbound(atoi(ps1), 0, 65535);
+        QMisc.info[index].price[1] = vbound(atoi(ps2), 0, 65535);
+        QMisc.info[index].price[2] = vbound(atoi(ps3), 0, 65535);
+        snprintf(QMisc.info[index].name,32,"%s",infoname);
         str1 = editinfo_dlg[9].d1;
         str2 = editinfo_dlg[11].d1;
         str3 = editinfo_dlg[13].d1;
-        misc.info[index].str[0] = msg_at_pos(str1);
-        misc.info[index].str[1] = msg_at_pos(str2);
-        misc.info[index].str[2] = msg_at_pos(str3);
+        QMisc.info[index].str[0] = msg_at_pos(str1);
+        QMisc.info[index].str[1] = msg_at_pos(str2);
+        QMisc.info[index].str[2] = msg_at_pos(str3);
         
         //move 0s to the end
         word swaptmp;
         
-        if(misc.info[index].str[0] == 0)
+        if(QMisc.info[index].str[0] == 0)
         {
             //possibly permute the infos
-            if(misc.info[index].str[1] != 0)
+            if(QMisc.info[index].str[1] != 0)
             {
                 //swap
-                swaptmp = misc.info[index].str[0];
-                misc.info[index].str[0] = misc.info[index].str[1];
-                misc.info[index].str[1] = swaptmp;
-                swaptmp = misc.info[index].price[0];
-                misc.info[index].price[0] = misc.info[index].price[1];
-                misc.info[index].price[1] = swaptmp;
+                swaptmp = QMisc.info[index].str[0];
+                QMisc.info[index].str[0] = QMisc.info[index].str[1];
+                QMisc.info[index].str[1] = swaptmp;
+                swaptmp = QMisc.info[index].price[0];
+                QMisc.info[index].price[0] = QMisc.info[index].price[1];
+                QMisc.info[index].price[1] = swaptmp;
             }
-            else if(misc.info[index].str[2] != 0)
+            else if(QMisc.info[index].str[2] != 0)
             {
                 //move info 0 to 1, 1 to 2, and 2 to 0
-                swaptmp = misc.info[index].str[0];
-                misc.info[index].str[0] = misc.info[index].str[2];
-                misc.info[index].str[2] = misc.info[index].str[1];
-                misc.info[index].str[1] = swaptmp;
-                swaptmp = misc.info[index].price[0];
-                misc.info[index].price[0] = misc.info[index].price[2];
-                misc.info[index].price[2] = misc.info[index].price[1];
-                misc.info[index].price[1] = swaptmp;
+                swaptmp = QMisc.info[index].str[0];
+                QMisc.info[index].str[0] = QMisc.info[index].str[2];
+                QMisc.info[index].str[2] = QMisc.info[index].str[1];
+                QMisc.info[index].str[1] = swaptmp;
+                swaptmp = QMisc.info[index].price[0];
+                QMisc.info[index].price[0] = QMisc.info[index].price[2];
+                QMisc.info[index].price[2] = QMisc.info[index].price[1];
+                QMisc.info[index].price[1] = swaptmp;
             }
         }
         
-        if(misc.info[index].str[1] == 0 && misc.info[index].str[2] != 0)
+        if(QMisc.info[index].str[1] == 0 && QMisc.info[index].str[2] != 0)
             //swap
         {
-            swaptmp = misc.info[index].str[1];
-            misc.info[index].str[1] = misc.info[index].str[2];
-            misc.info[index].str[2] = swaptmp;
-            swaptmp = misc.info[index].price[1];
-            misc.info[index].price[1] = misc.info[index].price[2];
-            misc.info[index].price[2] = swaptmp;
+            swaptmp = QMisc.info[index].str[1];
+            QMisc.info[index].str[1] = QMisc.info[index].str[2];
+            QMisc.info[index].str[2] = swaptmp;
+            swaptmp = QMisc.info[index].price[1];
+            QMisc.info[index].price[1] = QMisc.info[index].price[2];
+            QMisc.info[index].price[2] = swaptmp;
         }
     }
 }
@@ -20561,15 +20567,15 @@ void EditShopType(int32_t index)
     editshop_dlg[0].dp = caption;
     editshop_dlg[0].dp2=get_zc_font(font_lfont);
     
-    sprintf(ps1,"%d",misc.shop[index].price[0]);
-    sprintf(ps2,"%d",misc.shop[index].price[1]);
-    sprintf(ps3,"%d",misc.shop[index].price[2]);
+    sprintf(ps1,"%d",QMisc.shop[index].price[0]);
+    sprintf(ps2,"%d",QMisc.shop[index].price[1]);
+    sprintf(ps3,"%d",QMisc.shop[index].price[2]);
 	
-    sprintf(info1,"%d",misc.shop[index].str[0]);
-    sprintf(info2,"%d",misc.shop[index].str[1]);
-    sprintf(info3,"%d",misc.shop[index].str[2]);
+    sprintf(info1,"%d",QMisc.shop[index].str[0]);
+    sprintf(info2,"%d",QMisc.shop[index].str[1]);
+    sprintf(info3,"%d",QMisc.shop[index].str[2]);
 	
-    sprintf(shopname,"%s",misc.shop[index].name);
+    sprintf(shopname,"%s",QMisc.shop[index].name);
     editshop_dlg[8].dp  = ps1;
     editshop_dlg[10].dp = ps2;
     editshop_dlg[12].dp = ps3;
@@ -20587,11 +20593,11 @@ void EditShopType(int32_t index)
     
     for(int32_t i=0; i<3; ++i)
     {
-        if(misc.shop[index].hasitem[i])
+        if(QMisc.shop[index].hasitem[i])
         {
             for(int32_t j=0; j<bii_cnt; j++)
             {
-                if(bii[j].i == misc.shop[index].item[i])
+                if(bii[j].i == QMisc.shop[index].item[i])
                 {
                     editshop_dlg[9+(i<<1)].d1  = j;
                 }
@@ -20610,28 +20616,28 @@ void EditShopType(int32_t index)
     if(ret==16)
     {
         saved=false;
-        misc.shop[index].price[0] = vbound(atoi(ps1), 0, 65535);
-        misc.shop[index].price[1] = vbound(atoi(ps2), 0, 65535);
-        misc.shop[index].price[2] = vbound(atoi(ps3), 0, 65535);
+        QMisc.shop[index].price[0] = vbound(atoi(ps1), 0, 65535);
+        QMisc.shop[index].price[1] = vbound(atoi(ps2), 0, 65535);
+        QMisc.shop[index].price[2] = vbound(atoi(ps3), 0, 65535);
 	    
-	misc.shop[index].str[0] = vbound(atoi(info1), 0, 65535);
-        misc.shop[index].str[1] = vbound(atoi(info2), 0, 65535);
-        misc.shop[index].str[2] = vbound(atoi(info3), 0, 65535);
+	QMisc.shop[index].str[0] = vbound(atoi(info1), 0, 65535);
+        QMisc.shop[index].str[1] = vbound(atoi(info2), 0, 65535);
+        QMisc.shop[index].str[2] = vbound(atoi(info3), 0, 65535);
 	    
-        snprintf(misc.shop[index].name, 32, "%s",shopname);
+        snprintf(QMisc.shop[index].name, 32, "%s",shopname);
         
         for(int32_t i=0; i<3; ++i)
         {
             if(bii[editshop_dlg[9+(i<<1)].d1].i == -2)
             {
-                misc.shop[index].hasitem[i] = 0;
-                misc.shop[index].item[i] = 0;
-                misc.shop[index].price[i] = 0;
+                QMisc.shop[index].hasitem[i] = 0;
+                QMisc.shop[index].item[i] = 0;
+                QMisc.shop[index].price[i] = 0;
             }
             else
             {
-                misc.shop[index].hasitem[i] = 1;
-                misc.shop[index].item[i] = bii[editshop_dlg[9+(i<<1)].d1].i;
+                QMisc.shop[index].hasitem[i] = 1;
+                QMisc.shop[index].item[i] = bii[editshop_dlg[9+(i<<1)].d1].i;
             }
         }
         
@@ -20642,17 +20648,17 @@ void EditShopType(int32_t index)
         {
             for(int32_t k=0; k<2-j; k++)
             {
-                if(misc.shop[index].hasitem[k]==0)
+                if(QMisc.shop[index].hasitem[k]==0)
                 {
-                    swaptmp = misc.shop[index].item[k];
-                    misc.shop[index].item[k] = misc.shop[index].item[k+1];
-                    misc.shop[index].item[k+1] = swaptmp;
-                    swaptmp = misc.shop[index].price[k];
-                    misc.shop[index].price[k] = misc.shop[index].price[k+1];
-                    misc.shop[index].price[k+1] = swaptmp;
-                    swaptmp = misc.shop[index].hasitem[k];
-                    misc.shop[index].hasitem[k] = misc.shop[index].item[k+1];
-                    misc.shop[index].hasitem[k+1] = swaptmp;
+                    swaptmp = QMisc.shop[index].item[k];
+                    QMisc.shop[index].item[k] = QMisc.shop[index].item[k+1];
+                    QMisc.shop[index].item[k+1] = swaptmp;
+                    swaptmp = QMisc.shop[index].price[k];
+                    QMisc.shop[index].price[k] = QMisc.shop[index].price[k+1];
+                    QMisc.shop[index].price[k+1] = swaptmp;
+                    swaptmp = QMisc.shop[index].hasitem[k];
+                    QMisc.shop[index].hasitem[k] = QMisc.shop[index].item[k+1];
+                    QMisc.shop[index].hasitem[k+1] = swaptmp;
                 }
             }
         }
@@ -21005,8 +21011,8 @@ void EditWarpRingScr(int32_t ring,int32_t index)
     warpring_warp_dlg[1].dp = NULL;
     warpring_warp_dlg[1].dp3 = NULL;
     
-    sprintf(buf,"%02X",misc.warp[ring].scr[index]);
-    warpring_warp_dlg[8].d1=misc.warp[ring].dmap[index];
+    sprintf(buf,"%02X",QMisc.warp[ring].scr[index]);
+    warpring_warp_dlg[8].d1=QMisc.warp[ring].dmap[index];
     warpring_warp_dlg[9].dp=buf;
     warpring_warp_dlg[24].dp=buf;
     warpring_warp_dlg[36].dp=buf;
@@ -21026,8 +21032,8 @@ void EditWarpRingScr(int32_t ring,int32_t index)
     if(ret==14 || ret==15)
     {
         saved=false;
-        misc.warp[ring].dmap[index] = warpring_warp_dlg[8].d1;
-        misc.warp[ring].scr[index] = zc_xtoi(buf);
+        QMisc.warp[ring].dmap[index] = warpring_warp_dlg[8].d1;
+        QMisc.warp[ring].scr[index] = zc_xtoi(buf);
     }
     
     if(ret==15)
@@ -21067,7 +21073,7 @@ int32_t d_warplist_proc(int32_t msg,DIALOG *d,int32_t c)
     {
         int32_t *xy = (int32_t*)(d->dp3);
         int32_t ring = curr_ring;
-        int32_t dmap = misc.warp[ring].dmap[d->d1];
+        int32_t dmap = QMisc.warp[ring].dmap[d->d1];
         float temp_scale = 1.5;
         
         drawdmap(dmap);
@@ -21094,7 +21100,7 @@ int32_t d_warplist_proc(int32_t msg,DIALOG *d,int32_t c)
         
         if(xy[6]||xy[7])
         {
-            textprintf_ex(screen,font,d->x+int32_t(xy[6]*temp_scale),d->y+int32_t(xy[7]*temp_scale),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Scr: 0x%02X ",misc.warp[ring].scr[d->d1]);
+            textprintf_ex(screen,font,d->x+int32_t(xy[6]*temp_scale),d->y+int32_t(xy[7]*temp_scale),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"Scr: 0x%02X ",QMisc.warp[ring].scr[d->d1]);
         }
     }
     
@@ -21105,7 +21111,7 @@ int32_t d_wclist_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     int32_t d1 = d->d1;
     int32_t ret = jwin_droplist_proc(msg,d,c);
-    misc.warp[curr_ring].size=d->d1+3;
+    QMisc.warp[curr_ring].size=d->d1+3;
     
     if(d->d1 != d1)
         return D_CLOSE;
@@ -21153,7 +21159,7 @@ static DIALOG warpring_dlg[] =
 
 int32_t select_warp()
 {
-    misc.warp[curr_ring].size = vbound(misc.warp[curr_ring].size,3,9);
+    QMisc.warp[curr_ring].size = vbound(QMisc.warp[curr_ring].size,3,9);
     number_list_zero = false;
     
     int32_t ret=4;
@@ -21162,8 +21168,8 @@ int32_t select_warp()
         
     do
     {
-        number_list_size = misc.warp[curr_ring].size;
-        warpring_dlg[3].d1 = misc.warp[curr_ring].size-3;
+        number_list_size = QMisc.warp[curr_ring].size;
+        warpring_dlg[3].d1 = QMisc.warp[curr_ring].size-3;
         ret = zc_popup_dialog(warpring_dlg,ret);
     }
     while(ret==3);
@@ -21419,7 +21425,7 @@ static DIALOG glist_dlg[] =
 
 int32_t efrontfacingtile(int32_t id)
 {
-    int32_t anim = get_bit(quest_rules,qr_NEWENEMYTILES)?guysbuf[id].e_anim:guysbuf[id].anim;
+    int32_t anim = get_qr(qr_NEWENEMYTILES)?guysbuf[id].e_anim:guysbuf[id].anim;
     int32_t usetile = 0;
     
     switch(anim)
@@ -21427,7 +21433,7 @@ int32_t efrontfacingtile(int32_t id)
 	    
     case aNONE: break;
     case aAQUA:
-        if(!(get_bit(quest_rules,qr_NEWENEMYTILES) && guysbuf[id].misc1))
+        if(!(get_qr(qr_NEWENEMYTILES) && guysbuf[id].misc1))
             break;
             
     case aWALLM:
@@ -21447,7 +21453,7 @@ int32_t efrontfacingtile(int32_t id)
         break;
         
     case aLANM:
-        usetile = !(get_bit(quest_rules,qr_NEWENEMYTILES))?0:4;
+        usetile = !(get_qr(qr_NEWENEMYTILES))?0:4;
         break;
         
     case aNEWDONGO:
@@ -21485,7 +21491,7 @@ int32_t efrontfacingtile(int32_t id)
         break;
         
     case aGLEEOK:
-        if(!get_bit(quest_rules,qr_NEWENEMYTILES))
+        if(!get_qr(qr_NEWENEMYTILES))
             usetile = (guysbuf[id].s_tile - guysbuf[id].tile)+1;
         else
             usetile = (guysbuf[id].misc8);
@@ -21493,7 +21499,7 @@ int32_t efrontfacingtile(int32_t id)
         break;
     }
     
-    return zc_max(get_bit(quest_rules, qr_NEWENEMYTILES) ? -guysbuf[id].e_tile
+    return zc_max(get_qr(qr_NEWENEMYTILES) ? -guysbuf[id].e_tile
                   : -guysbuf[id].tile, usetile);
 }
 
@@ -21549,7 +21555,7 @@ int32_t enelist_proc(int32_t msg,DIALOG *d,int32_t c,bool use_abc_list)
             id = bie[d->d1].i;
         }
         
-        int32_t tile = get_bit(quest_rules, qr_NEWENEMYTILES) ? guysbuf[id].e_tile
+        int32_t tile = get_qr(qr_NEWENEMYTILES) ? guysbuf[id].e_tile
                    : guysbuf[id].tile;
         int32_t cset = guysbuf[id].cset;
         int32_t x = d->x + int32_t(195 * 1.5);
@@ -21650,101 +21656,6 @@ int32_t select_enemy(const char *prompt,int32_t enemy,bool hide,bool is_editor,i
     
     index = elist_dlg[2].d1;
     return bie[index].i;
-}
-
-int32_t select_guy(const char *prompt,int32_t guy)
-{
-    //  if(bie_cnt==-1)
-    {
-        build_big_list(true);
-    }
-    
-    int32_t index=0;
-    
-    for(int32_t j=0; j<big_cnt; j++)
-    {
-        if(big[j].i == guy)
-        {
-            index=j;
-        }
-    }
-    
-    glist_dlg[0].dp=(void *)prompt;
-    glist_dlg[0].dp2=get_zc_font(font_lfont);
-    glist_dlg[2].d1=index;
-    ListData guy_list(guylist, &font);
-    glist_dlg[2].dp=(void *) &guy_list;
-    
-    large_dialog(glist_dlg);
-        
-    int32_t ret;
-    
-    do
-    {
-        ret=zc_popup_dialog(glist_dlg,2);
-        
-        if(ret==5)
-        {
-            int32_t id = big[glist_dlg[2].d1].i;
-            
-            switch(id)
-            {
-            case gABEI:
-                jwin_alert(old_guy_string[id],"The old man. Uses tile 84.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-                break;
-                
-            case gAMA:
-                jwin_alert(old_guy_string[id],"The old woman. Uses tile 85.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-                break;
-                
-            case gDUDE:
-                jwin_alert(old_guy_string[id],"The shopkeeper. Uses tile 86.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-                break;
-                
-            case gMOBLIN:
-                jwin_alert(old_guy_string[id],"The generous Moblin. Uses tile 116.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-                break;
-                
-            case gGORIYA:
-                jwin_alert(old_guy_string[id],"The hungry Goriya. Uses tile 132.","He isn't entirely necessary to make","use of the 'Feed the Goriya' Room Type.","O&K",NULL,'k',0,get_zc_font(font_lfont));
-                break;
-                
-            case gFIRE:
-                jwin_alert(old_guy_string[id],"A sentient flame. Uses tile 65, and","flips horizontally as it animates.",NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-                break;
-                
-            case gFAIRY:
-                jwin_alert(old_guy_string[id],"A fairy. Uses tiles 63 and 64. Even if the","DMap uses 'Special Rooms/Guys In Caves Only'","she will still appear in regular screens.","O&K",NULL,'k',0,get_zc_font(font_lfont));
-                break;
-                
-            case gZELDA:
-                jwin_alert(old_guy_string[id],"The princess. Uses tiles 35 and 36.","Approaching her won't cause the game to end.","(Unless you touch a Zelda combo flag.)","O&K",NULL,'k',0,get_zc_font(font_lfont));
-                break;
-                
-            case gABEI2:
-                jwin_alert(old_guy_string[id],"A different old man. Uses tile 87.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-                break;
-                
-            case gEMPTY:
-                jwin_alert(old_guy_string[id],"An invisible Guy. Uses tile 259, which is","usually empty. Use it when you just want the","String to appear without a visible Guy.","O&K",NULL,'k',0,get_zc_font(font_lfont));
-                break;
-                
-            default:
-                jwin_alert("Help","Select a Guy, then click","Help to find out what it is.",NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-                break;
-            }
-        }
-    }
-    while(ret==5);
-    
-    if(ret==0||ret==4)
-    {
-        return -1;
-    }
-    
-    
-    index = glist_dlg[2].d1;
-    return big[index].i;
 }
 
 uint8_t check[2] = { (uint8_t)'\x81',0 };
@@ -27923,24 +27834,24 @@ int32_t onMapStyles()
     }
     
     mapstyles_dlg[0].dp2 = get_zc_font(font_lfont);
-    //al_trace("onMapStyles() read blueframe_tile as: %d\n", misc.colors.blueframe_tile);
-    mapstyles_dlg[17].d1  = misc.colors.blueframe_tile;
-    mapstyles_dlg[17].fg  = misc.colors.blueframe_cset;
-    //al_trace("onMapStyles() read triforce_tile as: %d\n", misc.colors.triforce_tile);
-    mapstyles_dlg[18].d1  = misc.colors.triforce_tile;
-    mapstyles_dlg[18].fg  = misc.colors.triforce_cset;
-    //al_trace("onMapStyles() read triframe_tile as: %d\n", misc.colors.triframe_tile);
-    mapstyles_dlg[19].d1  = misc.colors.triframe_tile;
-    mapstyles_dlg[19].fg  = misc.colors.triframe_cset;
-    //al_trace("onMapStyles() read overworld_map_tile as: %d\n", misc.colors.overworld_map_tile);
-    mapstyles_dlg[20].d1  = misc.colors.overworld_map_tile;
-    mapstyles_dlg[20].fg  = misc.colors.overworld_map_cset;
-     //al_trace("onMapStyles() read HCpieces_tile as: %d\n", misc.colors.HCpieces_tile);
-    mapstyles_dlg[21].d1 = misc.colors.HCpieces_tile;
-    mapstyles_dlg[21].fg = misc.colors.HCpieces_cset;
-    //al_trace("onMapStyles() read dungeon_map_tile as: %d\n", misc.colors.dungeon_map_tile);
-    mapstyles_dlg[22].d1  = misc.colors.dungeon_map_tile;
-    mapstyles_dlg[22].fg  = misc.colors.dungeon_map_cset;
+    //al_trace("onMapStyles() read blueframe_tile as: %d\n", QMisc.colors.blueframe_tile);
+    mapstyles_dlg[17].d1  = QMisc.colors.blueframe_tile;
+    mapstyles_dlg[17].fg  = QMisc.colors.blueframe_cset;
+    //al_trace("onMapStyles() read triforce_tile as: %d\n", QMisc.colors.triforce_tile);
+    mapstyles_dlg[18].d1  = QMisc.colors.triforce_tile;
+    mapstyles_dlg[18].fg  = QMisc.colors.triforce_cset;
+    //al_trace("onMapStyles() read triframe_tile as: %d\n", QMisc.colors.triframe_tile);
+    mapstyles_dlg[19].d1  = QMisc.colors.triframe_tile;
+    mapstyles_dlg[19].fg  = QMisc.colors.triframe_cset;
+    //al_trace("onMapStyles() read overworld_map_tile as: %d\n", QMisc.colors.overworld_map_tile);
+    mapstyles_dlg[20].d1  = QMisc.colors.overworld_map_tile;
+    mapstyles_dlg[20].fg  = QMisc.colors.overworld_map_cset;
+     //al_trace("onMapStyles() read HCpieces_tile as: %d\n", QMisc.colors.HCpieces_tile);
+    mapstyles_dlg[21].d1 = QMisc.colors.HCpieces_tile;
+    mapstyles_dlg[21].fg = QMisc.colors.HCpieces_cset;
+    //al_trace("onMapStyles() read dungeon_map_tile as: %d\n", QMisc.colors.dungeon_map_tile);
+    mapstyles_dlg[22].d1  = QMisc.colors.dungeon_map_tile;
+    mapstyles_dlg[22].fg  = QMisc.colors.dungeon_map_cset;
     
     large_dialog(mapstyles_dlg,2);
         
@@ -27950,18 +27861,18 @@ int32_t onMapStyles()
     
     if(ret==23)
     {
-        misc.colors.blueframe_tile     = mapstyles_dlg[17].d1;
-        misc.colors.blueframe_cset     = mapstyles_dlg[17].fg;
-        misc.colors.triforce_tile      = mapstyles_dlg[18].d1;
-        misc.colors.triforce_cset      = mapstyles_dlg[18].fg;
-        misc.colors.triframe_tile      = mapstyles_dlg[19].d1;
-        misc.colors.triframe_cset      = mapstyles_dlg[19].fg;
-        misc.colors.overworld_map_tile = mapstyles_dlg[20].d1;
-        misc.colors.overworld_map_cset = mapstyles_dlg[20].fg;
-        misc.colors.HCpieces_tile      = mapstyles_dlg[21].d1;
-        misc.colors.HCpieces_cset      = mapstyles_dlg[21].fg;
-        misc.colors.dungeon_map_tile   = mapstyles_dlg[22].d1;
-        misc.colors.dungeon_map_cset   = mapstyles_dlg[22].fg;
+        QMisc.colors.blueframe_tile     = mapstyles_dlg[17].d1;
+        QMisc.colors.blueframe_cset     = mapstyles_dlg[17].fg;
+        QMisc.colors.triforce_tile      = mapstyles_dlg[18].d1;
+        QMisc.colors.triforce_cset      = mapstyles_dlg[18].fg;
+        QMisc.colors.triframe_tile      = mapstyles_dlg[19].d1;
+        QMisc.colors.triframe_cset      = mapstyles_dlg[19].fg;
+        QMisc.colors.overworld_map_tile = mapstyles_dlg[20].d1;
+        QMisc.colors.overworld_map_cset = mapstyles_dlg[20].fg;
+        QMisc.colors.HCpieces_tile      = mapstyles_dlg[21].d1;
+        QMisc.colors.HCpieces_cset      = mapstyles_dlg[21].fg;
+        QMisc.colors.dungeon_map_tile   = mapstyles_dlg[22].d1;
+        QMisc.colors.dungeon_map_cset   = mapstyles_dlg[22].fg;
         saved=false;
     }
     
@@ -28198,13 +28109,13 @@ int32_t d_misccolors_proc(int32_t msg,DIALOG *d,int32_t c)
 int32_t onMiscColors()
 {
     char buf[17][3];
-    byte *si = &(misc.colors.text);
+    byte *si = &(QMisc.colors.text);
     misccolors_dlg[0].dp2=get_zc_font(font_lfont);
     
     for(int32_t i=0; i<16; i++)
     {
         sprintf(buf[i],"%02X",*(si++));
-        sprintf(buf[16], "%02X", misc.colors.msgtext);
+        sprintf(buf[16], "%02X", QMisc.colors.msgtext);
         misccolors_dlg[i+20].dp = buf[i];
         misccolors_dlg[55].dp = buf[16];
     }
@@ -28214,7 +28125,7 @@ int32_t onMiscColors()
     if(zc_popup_dialog(misccolors_dlg,0)==52)
     {
         saved=false;
-        si = &(misc.colors.text);
+        si = &(QMisc.colors.text);
         
         for(int32_t i=0; i<16; i++)
         {
@@ -28222,7 +28133,7 @@ int32_t onMiscColors()
             ++si;
         }
         
-        misc.colors.msgtext = zc_xtoi(buf[16]);
+        QMisc.colors.msgtext = zc_xtoi(buf[16]);
     }
     
     return D_O_K;
@@ -28241,7 +28152,7 @@ void reset_pal_cycling()
 
 void cycle_palette()
 {
-    if(!get_bit(quest_rules,qr_FADE))
+    if(!get_qr(qr_FADE))
         return;
         
     int32_t level = Map.CurrScr()->color;
@@ -28249,7 +28160,7 @@ void cycle_palette()
     
     for(int32_t i=0; i<3; i++)
     {
-        palcycle c = misc.cycles[level][i];
+        palcycle c = QMisc.cycles[level][i];
         
         if(c.count&0xF0)
         {
@@ -29092,14 +29003,14 @@ static void allocate_crap()
 		memset(sfx_string[i], 0, 36);
 	}
 	
-	for(int32_t i=0; i<WPNCNT; i++)
+	for(int32_t i=0; i<MAXWPNS; i++)
 	{
 		if(weapon_string[i]!=NULL) delete weapon_string[i];
 		weapon_string[i] = new char[64];
 		memset(weapon_string[i], 0, 64);
 	}
 	
-	for(int32_t i=0; i<ITEMCNT; i++)
+	for(int32_t i=0; i<MAXITEMS; i++)
 	{
 		if(item_string[i]!=NULL) delete item_string[i];
 		item_string[i] = new char[64];
@@ -29244,8 +29155,13 @@ int32_t main(int32_t argc,char **argv)
 {
 	common_main_setup(App::zquest, argc, argv);
 	set_should_zprint_cb([]() {
-		return get_bit(quest_rules,qr_SCRIPTERRLOG) || DEVLEVEL > 0;
+		return get_qr(qr_SCRIPTERRLOG) || DEVLEVEL > 0;
 	});
+
+	if (used_switch(argc, argv, "-headless") > 0)
+	{
+		set_headless_mode();
+	}
 
 	int copy_qst_arg = used_switch(argc, argv, "-copy-qst");
 	if (copy_qst_arg > 0)
@@ -29892,11 +29808,30 @@ int32_t main(int32_t argc,char **argv)
 	if (quick_assign_arg > 0)
 	{
 		set_headless_mode();
-		load_quest(argv[1], false);
-		bool success = do_compile_and_slots(true, false);
-		if (success)
-			success = save_quest(argv[1], false) == 0;
-		exit(success ? 0 : 1);
+
+		int load_ret = load_quest(argv[1], false);
+		bool success = load_ret == qe_OK;
+		if (!success)
+		{
+			printf("Failed to load quest: %d\n", load_ret);
+			exit(1);
+		}
+
+		success = do_compile_and_slots(true, false);
+		if (!success)
+		{
+			printf("Failed to compile\n");
+			exit(1);
+		}
+
+		success = save_quest(argv[1], false) == 0;
+		if (!success)
+		{
+			printf("Failed to save quest\n");
+			exit(1);
+		}
+
+		exit(0);
 	}
 	
 	zScript = string();
@@ -30165,8 +30100,8 @@ int32_t main(int32_t argc,char **argv)
 		file_menu[fileSaveAs].flags =
 			commands[cmdSaveAs].flags = disable_saving ? D_DISABLED : 0;
 		
-		fixtools_menu[ftOSFix].flags = (get_bit(quest_rules, qr_OLD_STRING_EDITOR_MARGINS)
-			|| get_bit(quest_rules, qr_STRING_FRAME_OLD_WIDTH_HEIGHT))
+		fixtools_menu[ftOSFix].flags = (get_qr(qr_OLD_STRING_EDITOR_MARGINS)
+			|| get_qr(qr_STRING_FRAME_OLD_WIDTH_HEIGHT))
 				? 0 : D_DISABLED;
 		
 		edit_menu[0].flags =
@@ -30232,7 +30167,7 @@ int32_t main(int32_t argc,char **argv)
 		view_menu[10].flags=(ShowFFCs)?D_SELECTED:0; // Show Squares
 		view_menu[11].flags=(ShowFFScripts)?D_SELECTED:0; // Show Script Names
 		view_menu[12].flags=(ShowGrid)?D_SELECTED:0; // Show Grid
-		view_menu[13].flags=(get_bit(quest_rules,qr_NEW_DARKROOM) && (Flags&cNEWDARK))?D_SELECTED:0; // Show Grid
+		view_menu[13].flags=(get_qr(qr_NEW_DARKROOM) && (Flags&cNEWDARK))?D_SELECTED:0; // Show Grid
 		view_menu[14].flags=(ViewLayer3BG)?D_SELECTED:0; // Show Grid
 		view_menu[15].flags=(ViewLayer2BG)?D_SELECTED:0; // Show Grid
 		
@@ -31064,12 +30999,12 @@ void quit_game()
         delete [] sfx_string[i];
     }
     
-    for(int32_t i=0; i<WPNCNT; i++)
+    for(int32_t i=0; i<MAXWPNS; i++)
     {
         delete [] weapon_string[i];
     }
     
-    for(int32_t i=0; i<ITEMCNT; i++)
+    for(int32_t i=0; i<MAXITEMS; i++)
     {
         delete [] item_string[i];
     }
@@ -31247,12 +31182,12 @@ void quit_game2()
         delete [] sfx_string[i];
     }
     
-    for(int32_t i=0; i<WPNCNT; i++)
+    for(int32_t i=0; i<MAXWPNS; i++)
     {
         delete [] weapon_string[i];
     }
     
-    for(int32_t i=0; i<ITEMCNT; i++)
+    for(int32_t i=0; i<MAXITEMS; i++)
     {
         delete [] item_string[i];
     }
@@ -32669,7 +32604,7 @@ void FFScript::initIncludePaths()
 
 int32_t FFScript::getQRBit(int32_t rule)
 {
-	return ( get_bit(quest_rules,rule) ? 1 : 0 );
+	return ( get_qr(rule) ? 1 : 0 );
 }
 
 int32_t FFScript::getTime(int32_t type)
@@ -32885,7 +32820,7 @@ bool checkCost(int32_t ctr, int32_t amnt)
 		}
 		case crMAGIC: //magic
 		{
-			if (get_bit(quest_rules,qr_ENABLEMAGIC))
+			if (get_qr(qr_ENABLEMAGIC))
 			{
 				return (((current_item_power(itype_magicring) > 0)
 					 ? game->get_maxmagic()
@@ -32897,7 +32832,7 @@ bool checkCost(int32_t ctr, int32_t amnt)
 		{
 			if(current_item_power(itype_quiver))
 				return true;
-			if(!get_bit(quest_rules,qr_TRUEARROWS))
+			if(!get_qr(qr_TRUEARROWS))
 				return checkCost(crMONEY, amnt);
 			break;
 		}

@@ -7,7 +7,7 @@
 
 class item;
 struct itemdata;
-extern char *item_string[ITEMCNT];
+extern char *item_string[MAXITEMS];
 
 extern int32_t fairy_cnt;
 bool addfairy(zfix x, zfix y, int32_t misc3, int32_t id);

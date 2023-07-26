@@ -15,6 +15,8 @@
 
 #include "base/zdefs.h"
 #include "base/zsys.h"
+#include "base/qrs.h"
+#include "base/combo.h"
 #include "tiles.h"
 #include "zc/maps.h"
 #include "items.h"
@@ -23,11 +25,9 @@ extern RGB_MAP rgb_table;
 extern COLOR_MAP trans_table;
 extern itemdata   *itemsbuf;
 extern wpndata    *wpnsbuf;
-extern byte        quest_rules[QUESTRULES_SIZE];
 //extern byte *tilebuf;
 //BITMAP* tilebuf[NEWMAXTILES];
 tiledata *newtilebuf, *grabtilebuf;
-std::vector<newcombo> combobuf;
 int32_t animated_combo_table[MAXCOMBOS][2];                    //[0]=position in act2, [1]=original tile
 int32_t animated_combo_table4[MAXCOMBOS][2];                   //[0]=combo, [1]=clock
 int32_t animated_combos;
@@ -275,7 +275,7 @@ void reset_combo_animations2()
 //Returns true if 'tile' is the LAST tile in the animation defined by the other parameters.
 bool combocheck(newcombo& cdata)
 {
-	if(get_bit(quest_rules, qr_BROKEN_ASKIP_Y_FRAMES))
+	if(get_qr(qr_BROKEN_ASKIP_Y_FRAMES))
 	{
 		//This is the old calculation for this, which is just wrong.
 		return (cdata.tile-(cdata.frames+((cdata.frames-1)*cdata.skipanim)+(cdata.skipanimy*TILES_PER_ROW)) >=cdata.o_tile-1);
@@ -298,7 +298,7 @@ void animate(newcombo& cdata, bool forceNextFrame)
 {
 	if(cdata.aclk>=cdata.speed || forceNextFrame)      //time to animate
 	{
-		if(get_bit(quest_rules, qr_NEW_COMBO_ANIMATION))
+		if(get_qr(qr_NEW_COMBO_ANIMATION))
 		{
 			if(++cdata.cur_frame>=cdata.frames)
 			{
@@ -334,7 +334,7 @@ void animate(newcombo& cdata, bool forceNextFrame)
 	}
 	else
 	{
-		if(get_bit(quest_rules, qr_NEW_COMBO_ANIMATION))
+		if(get_qr(qr_NEW_COMBO_ANIMATION))
 		{
 			cdata.tile = cdata.o_tile + ((1+cdata.skipanim)*cdata.cur_frame);
 			if(int32_t rowoffset = TILEROW(cdata.tile)-TILEROW(cdata.o_tile))

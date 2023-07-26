@@ -3,9 +3,10 @@
 #include "ffc.h"
 #include "tiles.h"
 #include "sprite.h"
+#include "base/qrs.h"
+#include "base/combo.h"
 
 extern sprite_list Lwpns;
-extern byte quest_rules[QUESTRULES_NEW_SIZE];
 
 #ifdef IS_PLAYER
 #include "zc/maps.h"
@@ -14,7 +15,6 @@ extern byte quest_rules[QUESTRULES_NEW_SIZE];
 #include "base/mapscr.h"
 #include "iter.h"
 
-extern std::vector<newcombo> combobuf;
 extern mapscr* tmpscr;
 extern int16_t lensclk;
 extern HeroClass Hero;

@@ -35,6 +35,7 @@
 
 class sprite;
 struct itemdata;
+struct MsgStr;
 
 int32_t isFullScreen();
 int32_t onFullscreen();
@@ -342,7 +343,6 @@ extern int32_t draw_screen_clip_rect_y2;
 
 /*
 extern tiledata *newtilebuf, *grabtilebuf;
-extern std::vector<newcombo> combobuf;
 extern word animated_combo_table[MAXCOMBOS][2];             //[0]=position in act2, [1]=original tile
 extern word animated_combo_table4[MAXCOMBOS][2];            //[0]=combo, [1]=clock
 extern word animated_combos;
@@ -374,7 +374,7 @@ extern int32_t     lensid;
 extern int32_t    Bpos;
 extern byte screengrid[22];
 extern byte screengrid_layer[2][22];
-extern volatile int32_t logic_counter;
+extern byte ffcgrid[MAXFFCS/8];
 extern bool halt;
 extern bool screenscrolling;
 extern int32_t jwin_pal[jcMAX];
@@ -543,16 +543,10 @@ extern void throttleFPS();
 
 // quest file data
 extern zquestheader QHeader;
-extern byte                quest_rules[QUESTRULES_NEW_SIZE];
-extern byte                extra_rules[EXTRARULES_SIZE];
 extern byte                midi_flags[MIDIFLAGS_SIZE];
 extern byte                music_flags[MUSICFLAGS_SIZE];
 extern word                map_count;
-extern MsgStr              *MsgStrings;
 extern int32_t				   msg_strings_size;
-extern DoorComboSet        *DoorComboSets;
-extern dmap                *DMaps;
-extern miscQdata           QMisc;
 extern std::vector<mapscr> TheMaps;
 extern zcmap               *ZCMaps;
 extern byte                *quest_file;

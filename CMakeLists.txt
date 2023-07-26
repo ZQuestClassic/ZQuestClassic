@@ -443,14 +443,22 @@ target_include_directories(fmt PUBLIC include/fmt)
 
 set(zcbase_sources
 	src/base/colors.cpp
+	src/base/combo.cpp
 	src/base/cpos_info.cpp
+	src/base/cpool.cpp
+	src/base/dmap.cpp
 	src/base/fonts.cpp
+	src/base/general.cpp
 	src/base/gui.cpp
 	src/base/handles.cpp
+	src/base/hotkey.cpp
 	src/base/jwinfsel.cpp
 	src/base/mapscr.cpp
+	src/base/misctypes.cpp
 	src/base/module.cpp
+	src/base/msgstr.cpp
 	src/base/process_management.cpp
+	src/base/qrs.cpp
 	src/base/random.cpp
 	src/base/render.cpp
 	src/base/sin1.cpp
@@ -674,7 +682,7 @@ endif()
 if(${BISON_FOUND} AND ${FLEX_FOUND})
 	add_executable(zscript ${ZSCRIPT_CORE_SOURCES} ${PARSER_SOURCES} ${BISON_ZScriptParser_OUTPUTS} ${FLEX_ZScriptLexer_OUTPUTS} ${ZSCRIPT_MODULES})
 	target_include_directories(zscript PRIVATE src)
-	target_link_libraries(zscript PRIVATE allegro_with_legacy zconsolelogger ${ZSCRIPTLIBSEXTRA})
+	target_link_libraries(zscript PRIVATE allegro_with_legacy zcbase zconsolelogger ${ZSCRIPTLIBSEXTRA})
 	target_compile_definitions(zscript PRIVATE IS_PARSER)
 endif()
 

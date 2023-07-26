@@ -6,6 +6,7 @@
 #include "zq/zquest.h"
 #include "gui/use_size.h"
 #include "zq/zq_misc.h"
+#include "base/qrs.h"
 
 extern int32_t cset_count, cset_first;
 extern RGB** gUndoPal;
@@ -75,7 +76,7 @@ std::shared_ptr<GUI::Widget> PalEditDialog::view()
 	using namespace GUI::Props;
 	
 	cls();
-	bool interpfad = get_bit(quest_rules, qr_FADE);
+	bool interpfad = get_qr(qr_FADE);
 	loadPal();
 	
 	return Window(
@@ -269,11 +270,11 @@ std::shared_ptr<GUI::Widget> PalEditDialog::view()
 						loadPal();
 					}
 				),
-				cyclebutton = Button(text = (get_bit(quest_rules,qr_FADE))?"Cycle":"Auto Dark",
+				cyclebutton = Button(text = (get_qr(qr_FADE))?"Cycle":"Auto Dark",
 					minwidth = 90_px,
 					onPressFunc = [&]()
 					{
-						if(!get_bit(quest_rules,qr_FADE))
+						if(!get_qr(qr_FADE))
 						{
 							calc_dark(offset);
 							memcpy(*gUndoPal, pal, sizeof(RGB)*16*cset_count);

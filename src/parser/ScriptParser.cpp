@@ -533,7 +533,7 @@ unique_ptr<IntermediateData> ScriptParser::generateOCode(FunctionData& fdata)
 					addOpcode2(funccode,
 						new OPushRegister(new VarArgument(REFGENERICDATA)));
 				}
-				//else addOpcode2(funccode, new OPushImmediate(new LiteralArgument(0)));
+				else addOpcode2(funccode, new OPushImmediate(new LiteralArgument(0)));
 			}
 			
 			// Push 0s for the local variables.

@@ -11,7 +11,12 @@
 #include <string.h>
 #include <cmath>
 
+#include "base/qrs.h"
+#include "base/dmap.h"
+#include "base/cpool.h"
+#include "base/packfile.h"
 #include "base/gui.h"
+#include "base/combo.h"
 #include "zq/zquestdat.h"
 #include "zq/zq_tiles.h"
 #include "zq/zquest.h"
@@ -31,6 +36,7 @@
 #include "drawing.h"
 #include "colorname.h"
 #include "zq/render.h"
+#include "zinfo.h"
 
 extern zcmodule moduledata;
 
@@ -3367,13 +3373,13 @@ int32_t bestfit_cset_color(int32_t cs, int32_t r, int32_t g, int32_t b)
 			rgbByte = colordata + (CSET((Map.CurrScr()->color) * pdLEVEL + (cs-2) + pdFULL) + i) * 3;
 		else if(cs==9)
 			rgbByte = colordata + (CSET((Map.CurrScr()->color) * pdLEVEL + 3 + pdFULL) + i) * 3;
-		else if(cs==1&&get_bit(quest_rules, qr_CSET1_LEVEL))
+		else if(cs==1&&get_qr(qr_CSET1_LEVEL))
 			rgbByte = colordata + (CSET((Map.CurrScr()->color) * pdLEVEL + poNEWCSETS) + i) * 3;
-		else if(cs==5&&get_bit(quest_rules, qr_CSET5_LEVEL))
+		else if(cs==5&&get_qr(qr_CSET5_LEVEL))
 			rgbByte = colordata + (CSET((Map.CurrScr()->color) * pdLEVEL + poNEWCSETS + 1) + i) * 3;
-		else if(cs==7&&get_bit(quest_rules, qr_CSET7_LEVEL))
+		else if(cs==7&&get_qr(qr_CSET7_LEVEL))
 			rgbByte = colordata + (CSET((Map.CurrScr()->color) * pdLEVEL + poNEWCSETS + 2) + i) * 3;
-		else if(cs==8&&get_bit(quest_rules, qr_CSET8_LEVEL))
+		else if(cs==8&&get_qr(qr_CSET8_LEVEL))
 			rgbByte = colordata + (CSET((Map.CurrScr()->color) * pdLEVEL + poNEWCSETS + 3) + i) * 3;
 		else
 			rgbByte = colordata + (CSET(cs)+i)*3;
@@ -3422,13 +3428,13 @@ int32_t bestfit_cset_color_8bit(int32_t r, int32_t g, int32_t b)
 			rgbByte = colordata + (CSET((Map.CurrScr()->color) * pdLEVEL + (cs-2) + pdFULL) + (i%16)) * 3;
 		else if(cs==9)
 			rgbByte = colordata + (CSET((Map.CurrScr()->color) * pdLEVEL + 3 + pdFULL) + (i%16)) * 3;
-		else if(cs==1&&get_bit(quest_rules, qr_CSET1_LEVEL))
+		else if(cs==1&&get_qr(qr_CSET1_LEVEL))
 			rgbByte = colordata + (CSET((Map.CurrScr()->color) * pdLEVEL + poNEWCSETS) + (i%16)) * 3;
-		else if(cs==5&&get_bit(quest_rules, qr_CSET5_LEVEL))
+		else if(cs==5&&get_qr(qr_CSET5_LEVEL))
 			rgbByte = colordata + (CSET((Map.CurrScr()->color) * pdLEVEL + poNEWCSETS + 1) + (i%16)) * 3;
-		else if(cs==7&&get_bit(quest_rules, qr_CSET7_LEVEL))
+		else if(cs==7&&get_qr(qr_CSET7_LEVEL))
 			rgbByte = colordata + (CSET((Map.CurrScr()->color) * pdLEVEL + poNEWCSETS + 2) + (i%16)) * 3;
-		else if(cs==8&&get_bit(quest_rules, qr_CSET8_LEVEL))
+		else if(cs==8&&get_qr(qr_CSET8_LEVEL))
 			rgbByte = colordata + (CSET((Map.CurrScr()->color) * pdLEVEL + poNEWCSETS + 3) + (i%16)) * 3;
 		else
 			rgbByte = colordata + i * 3;
@@ -4214,7 +4220,7 @@ error2:
 		
 		set_bit(skip_flags,skip_tiles,0);
 		set_bit(skip_flags,skip_header,0);
-		int ret = loadquest(imagepath,&tempheader,&misc,customtunes,true,true,skip_flags);
+		int ret = loadquest(imagepath,&tempheader,&QMisc,customtunes,true,true,skip_flags);
 		if (ret)
 		{
 			imagetype=0;
@@ -6694,7 +6700,7 @@ void register_used_tiles()
 		}
 	}
 	
-	bool BSZ2=get_bit(quest_rules,qr_BSZELDA)!=0;
+	bool BSZ2=get_qr(qr_BSZELDA)!=0;
 	
 	for(int32_t u=0; u<wLast; u++)
 	{
@@ -6807,17 +6813,17 @@ void register_used_tiles()
 	}
 	
 	BSZ2=(zinit.subscreen>2);
-	map_styles_items[0].tile=misc.colors.blueframe_tile;
-	map_styles_items[1].tile=misc.colors.HCpieces_tile;
+	map_styles_items[0].tile=QMisc.colors.blueframe_tile;
+	map_styles_items[1].tile=QMisc.colors.HCpieces_tile;
 	map_styles_items[1].width=zinit.hcp_per_hc;
-	map_styles_items[2].tile=misc.colors.triforce_tile;
+	map_styles_items[2].tile=QMisc.colors.triforce_tile;
 	map_styles_items[2].width=BSZ2?2:1;
 	map_styles_items[2].height=BSZ2?3:1;
-	map_styles_items[3].tile=misc.colors.triframe_tile;
+	map_styles_items[3].tile=QMisc.colors.triframe_tile;
 	map_styles_items[3].width=BSZ2?7:6;
 	map_styles_items[3].height=BSZ2?7:3;
-	map_styles_items[4].tile=misc.colors.overworld_map_tile;
-	map_styles_items[5].tile=misc.colors.dungeon_map_tile;
+	map_styles_items[4].tile=QMisc.colors.overworld_map_tile;
+	map_styles_items[5].tile=QMisc.colors.dungeon_map_tile;
 	
 	for(int32_t u=0; u<6; u++)
 	{
@@ -6832,7 +6838,7 @@ void register_used_tiles()
 	
 	for(int32_t u=0; u<4; u++)
 	{
-		for(int32_t t=zc_max(misc.icons[u],0); t<zc_min(misc.icons[u]+1,NEWMAXTILES); ++t)
+		for(int32_t t=zc_max(QMisc.icons[u],0); t<zc_min(QMisc.icons[u]+1,NEWMAXTILES); ++t)
 		{
 			used_tile_table[t]=true;
 		}
@@ -6861,7 +6867,7 @@ void register_used_tiles()
 		}
 	}
 	
-	bool newtiles=get_bit(quest_rules,qr_NEWENEMYTILES)!=0;
+	bool newtiles=get_qr(qr_NEWENEMYTILES)!=0;
 	int32_t u;
 	
 	for(u=0; u<eMAXGUYS; u++)
@@ -7383,8 +7389,8 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 	
 	int32_t i;
 	bool *move_combo_list = new bool[MAXCOMBOS];
-	bool *move_items_list = new bool[iMax];
-	bool *move_weapons_list = new bool[wMAX];
+	bool *move_items_list = new bool[MAXITEMS];
+	bool *move_weapons_list = new bool[MAXWPNS];
 	bool move_hero_sprites_list[num_hspr];
 	bool move_mapstyles_list[6];
 	//bool move_subscreenobjects_list[MAXCUSTOMSUBSCREENS*MAXSUBSCREENITEMS];
@@ -7517,7 +7523,7 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 				flood=false;
 				build_bii_list(false);
 				
-				for(int32_t u=0; u<iMax; u++)
+				for(int32_t u=0; u<MAXITEMS; u++)
 				{
 					move_items_list[u]=false;
 					
@@ -7602,9 +7608,9 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 				found=false;
 				flood=false;
 				build_biw_list();
-				bool BSZ2=get_bit(quest_rules,qr_BSZELDA)!=0;
+				bool BSZ2=get_qr(qr_BSZELDA)!=0;
 				
-				for(int32_t u=0; u<wMAX; u++)
+				for(int32_t u=0; u<MAXWPNS; u++)
 				{
 					ignore_frames=false;
 					move_weapons_list[u]=false;
@@ -7906,17 +7912,17 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 				found=false;
 				flood=false;
 				bool BSZ2=(zinit.subscreen>2);
-				map_styles_items[0].tile=misc.colors.blueframe_tile;
-				map_styles_items[1].tile=misc.colors.HCpieces_tile;
+				map_styles_items[0].tile=QMisc.colors.blueframe_tile;
+				map_styles_items[1].tile=QMisc.colors.HCpieces_tile;
 				map_styles_items[1].width=zinit.hcp_per_hc;
-				map_styles_items[2].tile=misc.colors.triforce_tile;
+				map_styles_items[2].tile=QMisc.colors.triforce_tile;
 				map_styles_items[2].width=BSZ2?2:1;
 				map_styles_items[2].height=BSZ2?3:1;
-				map_styles_items[3].tile=misc.colors.triframe_tile;
+				map_styles_items[3].tile=QMisc.colors.triframe_tile;
 				map_styles_items[3].width=BSZ2?7:6;
 				map_styles_items[3].height=BSZ2?7:3;
-				map_styles_items[4].tile=misc.colors.overworld_map_tile;
-				map_styles_items[5].tile=misc.colors.dungeon_map_tile;
+				map_styles_items[4].tile=QMisc.colors.overworld_map_tile;
+				map_styles_items[5].tile=QMisc.colors.dungeon_map_tile;
 				
 				for(int32_t u=0; u<6; u++)
 				{
@@ -8013,14 +8019,14 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 					
 					if(rect)
 					{
-						i=move_intersection_sr(misc.icons[u], misc.icons[u], selection_left, selection_top, selection_width, selection_height);
+						i=move_intersection_sr(QMisc.icons[u], QMisc.icons[u], selection_left, selection_top, selection_width, selection_height);
 					}
 					else
 					{
-						i=move_intersection_ss(misc.icons[u], misc.icons[u], selection_first, selection_last);
+						i=move_intersection_ss(QMisc.icons[u], QMisc.icons[u], selection_first, selection_last);
 					}
 					
-					if((i!=ti_none)&&(misc.icons[u]!=0))
+					if((i!=ti_none)&&(QMisc.icons[u]!=0))
 					{
 						if(i==ti_broken || q==0)
 						{
@@ -8217,7 +8223,7 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 				found=false;
 				flood=false;
 				build_bie_list(false);
-				bool newtiles=get_bit(quest_rules,qr_NEWENEMYTILES)!=0;
+				bool newtiles=get_qr(qr_NEWENEMYTILES)!=0;
 				int32_t u;
 				
 				for(u=0; u<eMAXGUYS; u++)
@@ -8611,7 +8617,7 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 				}
 			}
 			
-			for(int32_t u=0; u<iMax; u++)
+			for(int32_t u=0; u<MAXITEMS; u++)
 			{
 				if(move_items_list[u])
 				{
@@ -8619,7 +8625,7 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 				}
 			}
 			
-			for(int32_t u=0; u<wMAX; u++)
+			for(int32_t u=0; u<MAXWPNS; u++)
 			{
 				if(move_weapons_list[u])
 				{
@@ -8636,27 +8642,27 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 					switch(u)
 					{
 					case 0:
-						misc.colors.blueframe_tile+=diff;
+						QMisc.colors.blueframe_tile+=diff;
 						break;
 						
 					case 1:
-						misc.colors.HCpieces_tile+=diff;
+						QMisc.colors.HCpieces_tile+=diff;
 						break;
 						
 					case 2:
-						misc.colors.triforce_tile+=diff;
+						QMisc.colors.triforce_tile+=diff;
 						break;
 						
 					case 3:
-						misc.colors.triframe_tile+=diff;
+						QMisc.colors.triframe_tile+=diff;
 						break;
 						
 					case 4:
-						misc.colors.overworld_map_tile+=diff;
+						QMisc.colors.overworld_map_tile+=diff;
 						break;
 						
 					case 5:
-						misc.colors.dungeon_map_tile+=diff;
+						QMisc.colors.dungeon_map_tile+=diff;
 						break;
 					}
 				}
@@ -8666,7 +8672,7 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 			{
 				if(move_game_icons_list[u])
 				{
-					misc.icons[u]+=diff;
+					QMisc.icons[u]+=diff;
 				}
 			}
 			
@@ -8930,8 +8936,8 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 	
 	int32_t i;
 	bool *move_combo_list = new bool[MAXCOMBOS];
-	bool *move_items_list = new bool[iMax];
-	bool *move_weapons_list = new bool[wMAX];
+	bool *move_items_list = new bool[MAXITEMS];
+	bool *move_weapons_list = new bool[MAXWPNS];
 	bool move_hero_sprites_list[num_hspr];
 	bool move_mapstyles_list[6];
 	//bool move_subscreenobjects_list[MAXCUSTOMSUBSCREENS*MAXSUBSCREENITEMS];
@@ -9064,7 +9070,7 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 				flood=false;
 				build_bii_list(false);
 				
-				for(int32_t u=0; u<iMax; u++)
+				for(int32_t u=0; u<MAXITEMS; u++)
 				{
 					move_items_list[u]=false;
 					
@@ -9149,9 +9155,9 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 				found=false;
 				flood=false;
 				build_biw_list();
-				bool BSZ2=get_bit(quest_rules,qr_BSZELDA)!=0;
+				bool BSZ2=get_qr(qr_BSZELDA)!=0;
 				
-				for(int32_t u=0; u<wMAX; u++)
+				for(int32_t u=0; u<MAXWPNS; u++)
 				{
 					ignore_frames=false;
 					move_weapons_list[u]=false;
@@ -9453,17 +9459,17 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 				found=false;
 				flood=false;
 				bool BSZ2=(zinit.subscreen>2);
-				map_styles_items[0].tile=misc.colors.blueframe_tile;
-				map_styles_items[1].tile=misc.colors.HCpieces_tile;
+				map_styles_items[0].tile=QMisc.colors.blueframe_tile;
+				map_styles_items[1].tile=QMisc.colors.HCpieces_tile;
 				map_styles_items[1].width=zinit.hcp_per_hc;
-				map_styles_items[2].tile=misc.colors.triforce_tile;
+				map_styles_items[2].tile=QMisc.colors.triforce_tile;
 				map_styles_items[2].width=BSZ2?2:1;
 				map_styles_items[2].height=BSZ2?3:1;
-				map_styles_items[3].tile=misc.colors.triframe_tile;
+				map_styles_items[3].tile=QMisc.colors.triframe_tile;
 				map_styles_items[3].width=BSZ2?7:6;
 				map_styles_items[3].height=BSZ2?7:3;
-				map_styles_items[4].tile=misc.colors.overworld_map_tile;
-				map_styles_items[5].tile=misc.colors.dungeon_map_tile;
+				map_styles_items[4].tile=QMisc.colors.overworld_map_tile;
+				map_styles_items[5].tile=QMisc.colors.dungeon_map_tile;
 				
 				for(int32_t u=0; u<6; u++)
 				{
@@ -9560,14 +9566,14 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 					
 					if(rect)
 					{
-						i=move_intersection_sr(misc.icons[u], misc.icons[u], selection_left, selection_top, selection_width, selection_height);
+						i=move_intersection_sr(QMisc.icons[u], QMisc.icons[u], selection_left, selection_top, selection_width, selection_height);
 					}
 					else
 					{
-						i=move_intersection_ss(misc.icons[u], misc.icons[u], selection_first, selection_last);
+						i=move_intersection_ss(QMisc.icons[u], QMisc.icons[u], selection_first, selection_last);
 					}
 					
-					if((i!=ti_none)&&(misc.icons[u]!=0))
+					if((i!=ti_none)&&(QMisc.icons[u]!=0))
 					{
 						if(i==ti_broken || q==0)
 						{
@@ -9764,7 +9770,7 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 				found=false;
 				flood=false;
 				build_bie_list(false);
-				bool newtiles=get_bit(quest_rules,qr_NEWENEMYTILES)!=0;
+				bool newtiles=get_qr(qr_NEWENEMYTILES)!=0;
 				int32_t u;
 				
 				for(u=0; u<eMAXGUYS; u++)
@@ -10158,7 +10164,7 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 				}
 			}
 			
-			for(int32_t u=0; u<iMax; u++)
+			for(int32_t u=0; u<MAXITEMS; u++)
 			{
 				if(move_items_list[u])
 				{
@@ -10166,7 +10172,7 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 				}
 			}
 			
-			for(int32_t u=0; u<wMAX; u++)
+			for(int32_t u=0; u<MAXWPNS; u++)
 			{
 				if(move_weapons_list[u])
 				{
@@ -10183,27 +10189,27 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 					switch(u)
 					{
 					case 0:
-						misc.colors.blueframe_tile+=diff;
+						QMisc.colors.blueframe_tile+=diff;
 						break;
 						
 					case 1:
-						misc.colors.HCpieces_tile+=diff;
+						QMisc.colors.HCpieces_tile+=diff;
 						break;
 						
 					case 2:
-						misc.colors.triforce_tile+=diff;
+						QMisc.colors.triforce_tile+=diff;
 						break;
 						
 					case 3:
-						misc.colors.triframe_tile+=diff;
+						QMisc.colors.triframe_tile+=diff;
 						break;
 						
 					case 4:
-						misc.colors.overworld_map_tile+=diff;
+						QMisc.colors.overworld_map_tile+=diff;
 						break;
 						
 					case 5:
-						misc.colors.dungeon_map_tile+=diff;
+						QMisc.colors.dungeon_map_tile+=diff;
 						break;
 					}
 				}
@@ -10213,7 +10219,7 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 			{
 				if(move_game_icons_list[u])
 				{
-					misc.icons[u]+=diff;
+					QMisc.icons[u]+=diff;
 				}
 			}
 			
@@ -10299,8 +10305,8 @@ bool do_movetile_united(tile_move_data const& tmd)
 	
 	int32_t i;
 	bool *move_combo_list = new bool[MAXCOMBOS];
-	bool *move_items_list = new bool[iMax];
-	bool *move_weapons_list = new bool[wMAX];
+	bool *move_items_list = new bool[MAXITEMS];
+	bool *move_weapons_list = new bool[MAXWPNS];
 	bool *move_enemy_list = new bool[eMAXGUYS];
 	bool move_hero_sprites_list[num_hspr];
 	bool move_mapstyles_list[6];
@@ -10314,7 +10320,7 @@ bool do_movetile_united(tile_move_data const& tmd)
 	int32_t selection_first=0, selection_last=0, selection_left=0, selection_top=0, selection_width=0, selection_height=0;
 	bool done = false;
 	bool first = true;
-	bool newtiles=get_bit(quest_rules,qr_NEWENEMYTILES)!=0;
+	bool newtiles=get_qr(qr_NEWENEMYTILES)!=0;
 	int32_t diff = 0;
 	for(int32_t q=tmd.move?1:0; q>=0 && !done; --q)
 	{
@@ -10437,7 +10443,7 @@ bool do_movetile_united(tile_move_data const& tmd)
 				flood=false;
 				build_bii_list(false);
 				
-				for(int32_t u=0; u<iMax; u++)
+				for(int32_t u=0; u<MAXITEMS; u++)
 				{
 					if(first) move_items_list[u]=false;
 					else if(move_items_list[u]) continue;
@@ -10523,9 +10529,9 @@ bool do_movetile_united(tile_move_data const& tmd)
 				found=false;
 				flood=false;
 				build_biw_list();
-				bool BSZ2=get_bit(quest_rules,qr_BSZELDA)!=0;
+				bool BSZ2=get_qr(qr_BSZELDA)!=0;
 				
-				for(int32_t u=0; u<wMAX; u++)
+				for(int32_t u=0; u<MAXWPNS; u++)
 				{
 					ignore_frames=false;
 					if(first) move_weapons_list[u]=false;
@@ -10830,17 +10836,17 @@ bool do_movetile_united(tile_move_data const& tmd)
 				found=false;
 				flood=false;
 				bool BSZ2=(zinit.subscreen>2);
-				map_styles_items[0].tile=misc.colors.blueframe_tile;
-				map_styles_items[1].tile=misc.colors.HCpieces_tile;
+				map_styles_items[0].tile=QMisc.colors.blueframe_tile;
+				map_styles_items[1].tile=QMisc.colors.HCpieces_tile;
 				map_styles_items[1].width=zinit.hcp_per_hc;
-				map_styles_items[2].tile=misc.colors.triforce_tile;
+				map_styles_items[2].tile=QMisc.colors.triforce_tile;
 				map_styles_items[2].width=BSZ2?2:1;
 				map_styles_items[2].height=BSZ2?3:1;
-				map_styles_items[3].tile=misc.colors.triframe_tile;
+				map_styles_items[3].tile=QMisc.colors.triframe_tile;
 				map_styles_items[3].width=BSZ2?7:6;
 				map_styles_items[3].height=BSZ2?7:3;
-				map_styles_items[4].tile=misc.colors.overworld_map_tile;
-				map_styles_items[5].tile=misc.colors.dungeon_map_tile;
+				map_styles_items[4].tile=QMisc.colors.overworld_map_tile;
+				map_styles_items[5].tile=QMisc.colors.dungeon_map_tile;
 				
 				for(int32_t u=0; u<6; u++)
 				{
@@ -10939,14 +10945,14 @@ bool do_movetile_united(tile_move_data const& tmd)
 					
 					if(tmd.rect)
 					{
-						i=move_intersection_sr(misc.icons[u], misc.icons[u], selection_left, selection_top, selection_width, selection_height);
+						i=move_intersection_sr(QMisc.icons[u], QMisc.icons[u], selection_left, selection_top, selection_width, selection_height);
 					}
 					else
 					{
-						i=move_intersection_ss(misc.icons[u], misc.icons[u], selection_first, selection_last);
+						i=move_intersection_ss(QMisc.icons[u], QMisc.icons[u], selection_first, selection_last);
 					}
 					
-					if((i!=ti_none)&&(misc.icons[u]!=0))
+					if((i!=ti_none)&&(QMisc.icons[u]!=0))
 					{
 						if(i==ti_broken || q==0)
 						{
@@ -11590,7 +11596,7 @@ bool do_movetile_united(tile_move_data const& tmd)
 				}
 			}
 			
-			for(int32_t u=0; u<iMax; u++)
+			for(int32_t u=0; u<MAXITEMS; u++)
 			{
 				if(move_items_list[u])
 				{
@@ -11598,7 +11604,7 @@ bool do_movetile_united(tile_move_data const& tmd)
 				}
 			}
 			
-			for(int32_t u=0; u<wMAX; u++)
+			for(int32_t u=0; u<MAXWPNS; u++)
 			{
 				if(move_weapons_list[u])
 				{
@@ -11615,27 +11621,27 @@ bool do_movetile_united(tile_move_data const& tmd)
 					switch(u)
 					{
 					case 0:
-						misc.colors.blueframe_tile+=diff;
+						QMisc.colors.blueframe_tile+=diff;
 						break;
 						
 					case 1:
-						misc.colors.HCpieces_tile+=diff;
+						QMisc.colors.HCpieces_tile+=diff;
 						break;
 						
 					case 2:
-						misc.colors.triforce_tile+=diff;
+						QMisc.colors.triforce_tile+=diff;
 						break;
 						
 					case 3:
-						misc.colors.triframe_tile+=diff;
+						QMisc.colors.triframe_tile+=diff;
 						break;
 						
 					case 4:
-						misc.colors.overworld_map_tile+=diff;
+						QMisc.colors.overworld_map_tile+=diff;
 						break;
 						
 					case 5:
-						misc.colors.dungeon_map_tile+=diff;
+						QMisc.colors.dungeon_map_tile+=diff;
 						break;
 					}
 				}
@@ -11645,7 +11651,7 @@ bool do_movetile_united(tile_move_data const& tmd)
 			{
 				if(move_game_icons_list[u])
 				{
-					misc.icons[u]+=diff;
+					QMisc.icons[u]+=diff;
 				}
 			}
 			
@@ -11984,8 +11990,8 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 	
 	int32_t i;
 	bool *move_combo_list = new bool[MAXCOMBOS];
-	bool *move_items_list = new bool[iMax];
-	bool *move_weapons_list = new bool[wMAX];
+	bool *move_items_list = new bool[MAXITEMS];
+	bool *move_weapons_list = new bool[MAXWPNS];
 	bool move_hero_sprites_list[num_hspr];
 	bool move_mapstyles_list[6];
 	//bool move_subscreenobjects_list[MAXCUSTOMSUBSCREENS*MAXSUBSCREENITEMS];
@@ -12118,7 +12124,7 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 				flood=false;
 				build_bii_list(false);
 				
-				for(int32_t u=0; u<iMax; u++)
+				for(int32_t u=0; u<MAXITEMS; u++)
 				{
 					move_items_list[u]=false;
 					
@@ -12203,9 +12209,9 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 				found=false;
 				flood=false;
 				build_biw_list();
-				bool BSZ2=get_bit(quest_rules,qr_BSZELDA)!=0;
+				bool BSZ2=get_qr(qr_BSZELDA)!=0;
 				
-				for(int32_t u=0; u<wMAX; u++)
+				for(int32_t u=0; u<MAXWPNS; u++)
 				{
 					ignore_frames=false;
 					move_weapons_list[u]=false;
@@ -12507,17 +12513,17 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 				found=false;
 				flood=false;
 				bool BSZ2=(zinit.subscreen>2);
-				map_styles_items[0].tile=misc.colors.blueframe_tile;
-				map_styles_items[1].tile=misc.colors.HCpieces_tile;
+				map_styles_items[0].tile=QMisc.colors.blueframe_tile;
+				map_styles_items[1].tile=QMisc.colors.HCpieces_tile;
 				map_styles_items[1].width=zinit.hcp_per_hc;
-				map_styles_items[2].tile=misc.colors.triforce_tile;
+				map_styles_items[2].tile=QMisc.colors.triforce_tile;
 				map_styles_items[2].width=BSZ2?2:1;
 				map_styles_items[2].height=BSZ2?3:1;
-				map_styles_items[3].tile=misc.colors.triframe_tile;
+				map_styles_items[3].tile=QMisc.colors.triframe_tile;
 				map_styles_items[3].width=BSZ2?7:6;
 				map_styles_items[3].height=BSZ2?7:3;
-				map_styles_items[4].tile=misc.colors.overworld_map_tile;
-				map_styles_items[5].tile=misc.colors.dungeon_map_tile;
+				map_styles_items[4].tile=QMisc.colors.overworld_map_tile;
+				map_styles_items[5].tile=QMisc.colors.dungeon_map_tile;
 				
 				for(int32_t u=0; u<6; u++)
 				{
@@ -12614,14 +12620,14 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 					
 					if(rect)
 					{
-						i=move_intersection_sr(misc.icons[u], misc.icons[u], selection_left, selection_top, selection_width, selection_height);
+						i=move_intersection_sr(QMisc.icons[u], QMisc.icons[u], selection_left, selection_top, selection_width, selection_height);
 					}
 					else
 					{
-						i=move_intersection_ss(misc.icons[u], misc.icons[u], selection_first, selection_last);
+						i=move_intersection_ss(QMisc.icons[u], QMisc.icons[u], selection_first, selection_last);
 					}
 					
-					if((i!=ti_none)&&(misc.icons[u]!=0))
+					if((i!=ti_none)&&(QMisc.icons[u]!=0))
 					{
 						if(i==ti_broken || q==0)
 						{
@@ -12818,7 +12824,7 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 				found=false;
 				flood=false;
 				build_bie_list(false);
-				bool newtiles=get_bit(quest_rules,qr_NEWENEMYTILES)!=0;
+				bool newtiles=get_qr(qr_NEWENEMYTILES)!=0;
 				int32_t u;
 				
 				for(u=0; u<eMAXGUYS; u++)
@@ -13391,7 +13397,7 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 		flood=false;
 		build_bii_list(false);
 		
-		for(int32_t u=0; u<iMax; u++)
+		for(int32_t u=0; u<MAXITEMS; u++)
 		{
 			i=move_intersection_sr(itemsbuf[bii[u].i].tile, itemsbuf[bii[u].i].tile+zc_max(itemsbuf[bii[u].i].frames,1)-1, dest_left, dest_top, dest_width, dest_height);
 			
@@ -13451,9 +13457,9 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 		found=false;
 		flood=false;
 		build_biw_list();
-		bool BSZ2=get_bit(quest_rules,qr_BSZELDA)!=0;
+		bool BSZ2=get_qr(qr_BSZELDA)!=0;
 		
-		for(int32_t u=0; u<wMAX; u++)
+		for(int32_t u=0; u<MAXWPNS; u++)
 		{
 			ignore_frames=false;
 			int32_t m=0;
@@ -13684,17 +13690,17 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 		found=false;
 		flood=false;
 		bool BSZ2=(zinit.subscreen>2);
-		map_styles_items[0].tile=misc.colors.blueframe_tile;
-		map_styles_items[1].tile=misc.colors.HCpieces_tile;
+		map_styles_items[0].tile=QMisc.colors.blueframe_tile;
+		map_styles_items[1].tile=QMisc.colors.HCpieces_tile;
 		map_styles_items[1].width=zinit.hcp_per_hc;
-		map_styles_items[2].tile=misc.colors.triforce_tile;
+		map_styles_items[2].tile=QMisc.colors.triforce_tile;
 		map_styles_items[2].width=BSZ2?2:1;
 		map_styles_items[2].height=BSZ2?3:1;
-		map_styles_items[3].tile=misc.colors.triframe_tile;
+		map_styles_items[3].tile=QMisc.colors.triframe_tile;
 		map_styles_items[3].width=BSZ2?7:6;
 		map_styles_items[3].height=BSZ2?7:3;
-		map_styles_items[4].tile=misc.colors.overworld_map_tile;
-		map_styles_items[5].tile=misc.colors.dungeon_map_tile;
+		map_styles_items[4].tile=QMisc.colors.overworld_map_tile;
+		map_styles_items[5].tile=QMisc.colors.dungeon_map_tile;
 		
 		for(int32_t u=0; u<6; u++)
 		{
@@ -13762,9 +13768,9 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 		
 		for(int32_t u=0; u<4; u++)
 		{
-			i=move_intersection_sr(misc.icons[u], misc.icons[u], dest_left, dest_top, dest_width, dest_height);
+			i=move_intersection_sr(QMisc.icons[u], QMisc.icons[u], dest_left, dest_top, dest_width, dest_height);
 			
-			if((i!=ti_none)&&(misc.icons[u]!=0))
+			if((i!=ti_none)&&(QMisc.icons[u]!=0))
 			{
 				sprintf(temptext, "%s\n", icon_title[u]);
 				
@@ -13913,7 +13919,7 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 		found=false;
 		flood=false;
 		build_bie_list(false);
-		bool newtiles=get_bit(quest_rules,qr_NEWENEMYTILES)!=0;
+		bool newtiles=get_qr(qr_NEWENEMYTILES)!=0;
 		int32_t u;
 		
 		for(u=0; u<eMAXGUYS; u++)
@@ -14437,8 +14443,8 @@ void do_movecombo(combo_move_data const& cmd)
 	{
 		for(auto p = 0; p < 3; ++p)
 		{
-			if(misc.bottle_shop_types[q].comb[p] >= cmd.copy1 && misc.bottle_shop_types[q].comb[p] < cmd.copy1+cmd.copycnt)
-				misc.bottle_shop_types[q].comb[p] += diff;
+			if(QMisc.bottle_shop_types[q].comb[p] >= cmd.copy1 && QMisc.bottle_shop_types[q].comb[p] < cmd.copy1+cmd.copycnt)
+				QMisc.bottle_shop_types[q].comb[p] += diff;
 		}
 	}
 	
@@ -17470,31 +17476,31 @@ bool select_combo_3(int32_t &cmb,int32_t &cs)
 
 static DIALOG advpaste_dlg[] =
 {
-	/* (dialog proc)     (x)   (y)  (w)    (h)  (fg)(bg)(key)  (flags)   (d1)  (d2)      (dp) */
-	{ jwin_win_proc,       0,    0, 200,   150,   0,  0,   0,   D_EXIT,    0,    0,    (void*)"Advanced Paste", NULL, NULL },
-	{ jwin_button_proc,   27,  125,  61,    21,   0,  0, 'k',   D_EXIT,    0,    0,    (void*)"O&K", NULL, NULL },
-	{ jwin_button_proc,  112,  125,  61,    21,   0,  0,  27,   D_EXIT,    0,    0,    (void*)"Cancel", NULL, NULL },
+	/* (dialog proc)     (x)   (y)  (w)    (h)  (fg)(bg)(key)  (flags)   (d1)  (d2)                     (dp) */
+	{ jwin_win_proc,       0,    0, 200,   150,   0,  0,   0,   D_EXIT,    0,    0,                     (void*)"Advanced Paste", NULL, NULL },
+	{ jwin_button_proc,   27,  125,  61,    21,   0,  0, 'k',   D_EXIT,    0,    0,                     (void*)"O&K", NULL, NULL },
+	{ jwin_button_proc,  112,  125,  61,    21,   0,  0,  27,   D_EXIT,    0,    0,                     (void*)"Cancel", NULL, NULL },
 	
-	{ jwin_check_proc,    10,   20,    33,   9,   0,  0,   0,        0,    1,    0,    (void*)"Tile", NULL, NULL },
-	{ jwin_check_proc,    10,   30,    33,   9,   0,  0,   0,        0,    1,    0,    (void*)"CSet2", NULL, NULL },
-	{ jwin_check_proc,    10,   40,    33,   9,   0,  0,   0,        0,    1,    0,    (void*)"Solidity", NULL, NULL },
-	{ jwin_check_proc,    10,   50,    33,   9,   0,  0,   0,        0,    1,    0,    (void*)"Animation", NULL, NULL },
-	{ jwin_check_proc,    10,   60,    33,   9,   0,  0,   0,        0,    1,    0,    (void*)"Type", NULL, NULL },
-	{ jwin_check_proc,    10,   70,    33,   9,   0,  0,   0,        0,    1,    0,    (void*)"Inherent Flag", NULL, NULL },
-	{ jwin_check_proc,    10,   80,    33,   9,   0,  0,   0,        0,    1,    0,    (void*)"Attribytes", NULL, NULL },
-	{ jwin_check_proc,    10,   90,    33,   9,   0,  0,   0,        0,    1,    0,    (void*)"Attrishorts", NULL, NULL },
-	{ jwin_check_proc,    10,  100,    33,   9,   0,  0,   0,        0,    1,    0,    (void*)"Attributes", NULL, NULL },
-	{ jwin_check_proc,    10,  110,    33,   9,   0,  0,   0,        0,    1,    0,    (void*)"Flags", NULL, NULL },
-	{ jwin_check_proc,   110,   20,    33,   9,   0,  0,   0,        0,    1,    0,    (void*)"Label", NULL, NULL },
-	{ jwin_check_proc,   110,   30,    33,   9,   0,  0,   0,        0,    1,    0,    (void*)"Script", NULL, NULL },
-	{ jwin_check_proc,   110,   40,    33,   9,   0,  0,   0,        0,    1,    0,    (void*)"Effect", NULL, NULL },
-	{ jwin_check_proc,   110,   50,    33,   9,   0,  0,   0,        0,    1,    0,    (void*)"Triggers Tab", NULL, NULL },
-	{ jwin_check_proc,   110,   60,    33,   9,   0,  0,   0,        0,    1,    0,    (void*)"Lifting Tab", NULL, NULL },
-	{ jwin_check_proc,   110,   70,    33,   9,   0,  0,   0,        0,    1,    0,    (void*)"Gen: Movespeed", NULL, NULL },
-	{ jwin_check_proc,   110,   80,    33,   9,   0,  0,   0,        0,    1,    0,    (void*)"Gen: SFX", NULL, NULL },
-	{ jwin_check_proc,   110,   90,    33,   9,   0,  0,   0,        0,    1,    0,    (void*)"Gen: Sprites", NULL, NULL },
+	{ jwin_check_proc,    10,   20,    33,   9,   0,  0,   0,        0,    1,    ADVP_TILE,             (void*)"Tile", NULL, NULL },
+	{ jwin_check_proc,    10,   30,    33,   9,   0,  0,   0,        0,    1,    ADVP_CSET2,            (void*)"CSet2", NULL, NULL },
+	{ jwin_check_proc,    10,   40,    33,   9,   0,  0,   0,        0,    1,    ADVP_SOLIDITY,         (void*)"Solidity", NULL, NULL },
+	{ jwin_check_proc,    10,   50,    33,   9,   0,  0,   0,        0,    1,    ADVP_ANIM,             (void*)"Animation", NULL, NULL },
+	{ jwin_check_proc,    10,   60,    33,   9,   0,  0,   0,        0,    1,    ADVP_TYPE,             (void*)"Type", NULL, NULL },
+	{ jwin_check_proc,    10,   70,    33,   9,   0,  0,   0,        0,    1,    ADVP_INHFLAG,          (void*)"Inherent Flag", NULL, NULL },
+	{ jwin_check_proc,    10,   80,    33,   9,   0,  0,   0,        0,    1,    ADVP_ATTRIBYTE,        (void*)"Attribytes", NULL, NULL },
+	{ jwin_check_proc,    10,   90,    33,   9,   0,  0,   0,        0,    1,    ADVP_ATTRISHORT,       (void*)"Attrishorts", NULL, NULL },
+	{ jwin_check_proc,    10,  100,    33,   9,   0,  0,   0,        0,    1,    ADVP_ATTRIBUTE,        (void*)"Attributes", NULL, NULL },
+	{ jwin_check_proc,    10,  110,    33,   9,   0,  0,   0,        0,    1,    ADVP_FLAGS,            (void*)"Flags", NULL, NULL },
+	{ jwin_check_proc,   110,   20,    33,   9,   0,  0,   0,        0,    1,    ADVP_LABEL,            (void*)"Label", NULL, NULL },
+	{ jwin_check_proc,   110,   30,    33,   9,   0,  0,   0,        0,    1,    ADVP_SCRIPT,           (void*)"Script", NULL, NULL },
+	{ jwin_check_proc,   110,   40,    33,   9,   0,  0,   0,        0,    1,    ADVP_EFFECT,           (void*)"Effect", NULL, NULL },
+	{ jwin_check_proc,   110,   50,    33,   9,   0,  0,   0,        0,    1,    ADVP_TRIGGERS,         (void*)"Triggers Tab", NULL, NULL },
+	{ jwin_check_proc,   110,   60,    33,   9,   0,  0,   0,        0,    1,    ADVP_LIFTING,          (void*)"Lifting Tab", NULL, NULL },
+	{ jwin_check_proc,   110,   70,    33,   9,   0,  0,   0,        0,    1,    ADVP_GEN_MOVESPEED,    (void*)"Gen: Movespeed", NULL, NULL },
+	{ jwin_check_proc,   110,   80,    33,   9,   0,  0,   0,        0,    1,    ADVP_GEN_SFX,          (void*)"Gen: SFX", NULL, NULL },
+	{ jwin_check_proc,   110,   90,    33,   9,   0,  0,   0,        0,    1,    ADVP_GEN_SPRITES,      (void*)"Gen: Sprites", NULL, NULL },
 	
-	{ NULL,                0,    0,     0,   0,   0,  0,   0,        0,    0,    0,    NULL, NULL, NULL }
+	{ NULL,                0,    0,     0,   0,   0,  0,   0,        0,    0,    0,                     NULL, NULL, NULL }
 };
 
 int32_t advpaste(int32_t tile, int32_t tile2, int32_t copy)
@@ -17510,159 +17516,23 @@ int32_t advpaste(int32_t tile, int32_t tile2, int32_t copy)
 	// save original in case it's in paste range
 	newcombo combo=combobuf[copy];
 	
+	//Generate the 'pasteflags'
+	byte pasteflags[ADVP_BYTESZ];
+	for(int q = 3; advpaste_dlg[q].proc; ++q)
+	{
+		set_bit(pasteflags,advpaste_dlg[q].d2,advpaste_dlg[q].flags&D_SELECTED);
+	}
+	
+	//Paste to each combo
 	for(int32_t i=zc_min(tile,tile2); i<=zc_max(tile,tile2); ++i)
 	{
-		if(advpaste_dlg[3].flags & D_SELECTED)   // tile
-		{
-			combobuf[i].tile=combo.tile;
-			combobuf[i].o_tile=combo.o_tile;
-			combobuf[i].flip=combo.flip;
-			setup_combo_animations();
-			setup_combo_animations2();
-		}
-		
-		if(advpaste_dlg[4].flags & D_SELECTED)   // cset2
-		{
-			combobuf[i].csets=combo.csets;
-		}
-		
-		if(advpaste_dlg[5].flags & D_SELECTED)   // walk
-		{
-			combobuf[i].walk=(combobuf[i].walk&0xF0) | (combo.walk&0x0F);
-		}
-		
-		if(advpaste_dlg[6].flags & D_SELECTED)   // anim
-		{
-			combobuf[i].frames=combo.frames;
-			combobuf[i].speed=combo.speed;
-			combobuf[i].nextcombo=combo.nextcombo;
-			combobuf[i].nextcset=combo.nextcset;
-			combobuf[i].skipanim=combo.skipanim;
-			combobuf[i].nexttimer=combo.nexttimer;
-			combobuf[i].skipanimy=combo.skipanimy;
-			combobuf[i].animflags=combo.animflags;
-		}
-		
-		if(advpaste_dlg[7].flags & D_SELECTED)   // type
-		{
-			combobuf[i].type=combo.type;
-		}
-		
-		if(advpaste_dlg[8].flags & D_SELECTED)   // flag
-		{
-			combobuf[i].flag=combo.flag;
-		}
-		
-		if(advpaste_dlg[9].flags & D_SELECTED)   // attribytes
-		{
-			for(int32_t q = 0; q < 8; ++q)
-				combobuf[i].attribytes[q] = combo.attribytes[q];
-		}
-		
-		if(advpaste_dlg[10].flags & D_SELECTED)   // attribytes
-		{
-			for(int32_t q = 0; q < 8; ++q)
-				combobuf[i].attrishorts[q] = combo.attrishorts[q];
-		}
-		
-		if(advpaste_dlg[11].flags & D_SELECTED)   // attributes
-		{
-			for(int32_t q = 0; q < NUM_COMBO_ATTRIBUTES; ++q)
-				combobuf[i].attributes[q] = combo.attributes[q];
-		}
-		
-		if(advpaste_dlg[12].flags & D_SELECTED)   // flags
-		{
-			combobuf[i].usrflags = combo.usrflags;
-		}
-		
-		if(advpaste_dlg[13].flags & D_SELECTED)   // label
-		{
-			combobuf[i].label = combo.label;
-		}
-		
-		if(advpaste_dlg[14].flags & D_SELECTED)   // triggered by
-		{
-			for(int32_t q = 0; q < 6; ++q)
-				combobuf[i].triggerflags[q] = combo.triggerflags[q];
-			combobuf[i].triggerlevel = combo.triggerlevel;
-			combobuf[i].triggerbtn = combo.triggerbtn;
-			combobuf[i].triggeritem = combo.triggeritem;
-			combobuf[i].trigtimer = combo.trigtimer;
-			combobuf[i].trigsfx = combo.trigsfx;
-			combobuf[i].trigchange = combo.trigchange;
-			combobuf[i].trigprox = combo.trigprox;
-			combobuf[i].trigctr = combo.trigctr;
-			combobuf[i].trigctramnt = combo.trigctramnt;
-			combobuf[i].triglbeam = combo.triglbeam;
-			combobuf[i].trigcschange = combo.trigcschange;
-			combobuf[i].spawnitem = combo.spawnitem;
-			combobuf[i].spawnenemy = combo.spawnenemy;
-			combobuf[i].exstate = combo.exstate;
-			combobuf[i].spawnip = combo.spawnip;
-			combobuf[i].trigcopycat = combo.trigcopycat;
-			combobuf[i].trigcooldown = combo.trigcooldown;
-			combobuf[i].trig_lstate = combo.trig_lstate;
-			combobuf[i].trig_gstate = combo.trig_gstate;
-			combobuf[i].trig_statetime = combo.trig_statetime;
-			combobuf[i].trig_genscr = combo.trig_genscr;
-			combobuf[i].trig_group = combo.trig_group;
-			combobuf[i].trig_group_val = combo.trig_group_val;
-		}
-		
-		if(advpaste_dlg[15].flags & D_SELECTED)   // script
-		{
-			combobuf[i].script = combo.script;
-			for(int32_t q = 0; q < 2; ++q)
-				combobuf[i].initd[q] = combo.initd[q];
-		}
-		
-		if(advpaste_dlg[16].flags & D_SELECTED)   // effect
-		{
-			combobuf[i].walk=(combobuf[i].walk&0x0F) | (combo.walk&0xF0);
-		}
-		
-		if(advpaste_dlg[17].flags & D_SELECTED)   // lift
-		{
-			combobuf[i].liftcmb = combo.liftcmb;
-			combobuf[i].liftundercmb = combo.liftundercmb;
-			combobuf[i].liftcs = combo.liftcs;
-			combobuf[i].liftundercs = combo.liftundercs;
-			combobuf[i].liftdmg = combo.liftdmg;
-			combobuf[i].liftlvl = combo.liftlvl;
-			combobuf[i].liftitm = combo.liftitm;
-			combobuf[i].liftflags = combo.liftflags;
-			combobuf[i].liftgfx = combo.liftgfx;
-			combobuf[i].liftsprite = combo.liftsprite;
-			combobuf[i].liftsfx = combo.liftsfx;
-			combobuf[i].liftbreaksprite = combo.liftbreaksprite;
-			combobuf[i].liftbreaksfx = combo.liftbreaksfx;
-			combobuf[i].lifthei = combo.lifthei;
-			combobuf[i].lifttime = combo.lifttime;
-			combobuf[i].lift_parent_item = combo.lift_parent_item;
-		}
-		
-		if(advpaste_dlg[18].flags & D_SELECTED)   // general: movespeed
-		{
-			combobuf[i].speed_mult = combo.speed_mult;
-			combobuf[i].speed_div = combo.speed_div;
-			combobuf[i].speed_add = combo.speed_add;
-		}
-		if(advpaste_dlg[19].flags & D_SELECTED)   // general: sfx
-		{
-			combobuf[i].sfx_appear = combo.sfx_appear;
-			combobuf[i].sfx_disappear = combo.sfx_disappear;
-			combobuf[i].sfx_loop = combo.sfx_loop;
-			combobuf[i].sfx_walking = combo.sfx_walking;
-			combobuf[i].sfx_standing = combo.sfx_standing;
-		}
-		if(advpaste_dlg[20].flags & D_SELECTED)   // general: sprites
-		{
-			combobuf[i].spr_appear = combo.spr_appear;
-			combobuf[i].spr_disappear = combo.spr_disappear;
-			combobuf[i].spr_walking = combo.spr_walking;
-			combobuf[i].spr_standing = combo.spr_standing;
-		}
+		combobuf[i].advpaste(combo,pasteflags);
+	}
+	
+	if(get_bit(pasteflags,ADVP_TILE)) //reset animations if needed
+	{
+		setup_combo_animations();
+		setup_combo_animations2();
 	}
 	
 	return ret;
@@ -18668,7 +18538,7 @@ int32_t onIcons()
 	
 	for(int32_t i=0; i<4; i++)
 	{
-		icon_dlg[i+2].d1 = misc.icons[i];
+		icon_dlg[i+2].d1 = QMisc.icons[i];
 		icon_dlg[i+2].fg = i+6;
 		load_cset(pal, i+6, pSprite(i+spICON1));
 	}
@@ -18683,9 +18553,9 @@ int32_t onIcons()
 	{
 		for(int32_t i=0; i<4; i++)
 		{
-			if(misc.icons[i] != icon_dlg[i+2].d1)
+			if(QMisc.icons[i] != icon_dlg[i+2].d1)
 			{
-				misc.icons[i] = icon_dlg[i+2].d1;
+				QMisc.icons[i] = icon_dlg[i+2].d1;
 				saved=false;
 			}
 		}

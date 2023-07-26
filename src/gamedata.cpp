@@ -17,6 +17,8 @@
 #include "pal.h"
 #include "base/util.h"
 #include "zc/ffscript.h"
+#include "base/qrs.h"
+#include "base/dmap.h"
 
 using namespace util;
 extern FFScript FFCore;
@@ -350,7 +352,7 @@ word gamedata::get_rupies()
 }
 word gamedata::get_spendable_rupies()
 {
-    if(get_bit(quest_rules, qr_SHOPCHEAT) || get_dcounter(1)>=0)
+    if(get_qr(qr_SHOPCHEAT) || get_dcounter(1)>=0)
         return get_counter(1);
     else
         return get_counter(1)+get_dcounter(1);
@@ -1043,5 +1045,5 @@ bool gamedata::should_show_time()
 	if (replay_is_active() && replay_is_debug())
 		return false;
 
-	return get_timevalid() && !did_cheat() && get_bit(quest_rules,qr_TIME);
+	return get_timevalid() && !did_cheat() && get_qr(qr_TIME);
 }

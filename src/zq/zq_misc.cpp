@@ -11,6 +11,8 @@
 //INLINE void SCRFIX() { putpixel(screen,0,0,getpixel(screen,0,0)); }
 //INLINE void SCRFIX() {}
 
+#include "base/qrs.h"
+#include "base/packfile.h"
 #include "zq/zq_misc.h"
 #include "zq/zquestdat.h"
 #include "zq/zquest.h"
@@ -25,6 +27,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <sstream>
+#include "zinfo.h"
 
 #include "metadata/metadata.h"
 
@@ -309,7 +312,7 @@ void loadlvlpal(int32_t level)
 		si+=3;
 	}
 	
-	if (get_bit(quest_rules, qr_CSET1_LEVEL))
+	if (get_qr(qr_CSET1_LEVEL))
 	{
 		si = colordata + CSET(level*pdLEVEL+poNEWCSETS)*3;
 		for(int32_t i=0; i<16; i++)
@@ -318,7 +321,7 @@ void loadlvlpal(int32_t level)
 			si+=3;
 		}
 	}
-	if (get_bit(quest_rules, qr_CSET5_LEVEL))
+	if (get_qr(qr_CSET5_LEVEL))
 	{
 		si = colordata + CSET(level*pdLEVEL+poNEWCSETS+1)*3;
 		for(int32_t i=0; i<16; i++)
@@ -327,7 +330,7 @@ void loadlvlpal(int32_t level)
 			si+=3;
 		}
 	}
-	if (get_bit(quest_rules, qr_CSET7_LEVEL))
+	if (get_qr(qr_CSET7_LEVEL))
 	{
 		si = colordata + CSET(level*pdLEVEL+poNEWCSETS+2)*3;
 		for(int32_t i=0; i<16; i++)
@@ -336,7 +339,7 @@ void loadlvlpal(int32_t level)
 			si+=3;
 		}
 	}
-	if (get_bit(quest_rules, qr_CSET8_LEVEL))
+	if (get_qr(qr_CSET8_LEVEL))
 	{
 		si = colordata + CSET(level*pdLEVEL+poNEWCSETS+3)*3;
 		for(int32_t i=0; i<16; i++)
@@ -379,22 +382,6 @@ void refresh_pal()
 }
 
 char ns_string[4];
-
-// Mirrored in hero.cpp
-const char *roomtype_string[MAXROOMTYPES] =
-{
-    "(None)","Special Item","Pay for Info","Secret Money","Gamble",
-    "Door Repair","Red Potion or Heart Container","Feed the Goriya","Triforce Check",
-    "Potion Shop","Shop","More Bombs","Leave Money or Life","10 Rupees",
-    "3-Stair Warp","Ganon","Zelda", "-<item pond>", "1/2 Magic Upgrade", "Learn Slash", "More Arrows","Take One Item"
-};
-
-const char *catchall_string[MAXROOMTYPES] =
-{
-    "Generic Catchall","Special Item","Info Type","Amount","Generic Catchall","Repair Fee","Generic Catchall","Generic Catchall","Generic Catchall","Shop Type",
-    "Shop Type","Price","Price","Generic Catchall","Warp Ring","Generic Catchall","Generic Catchall", "Generic Catchall", "Generic Catchall",
-    "Generic Catchall", "Price","Shop Type","Bottle Shop Type"
-};
 
 const char *warptype_string[MAXWARPTYPES] =
 {
@@ -1118,7 +1105,7 @@ int32_t onShowCType()
 extern MENU view_menu[];
 int32_t onShowDarkness()
 {
-	if(get_bit(quest_rules,qr_NEW_DARKROOM))
+	if(get_qr(qr_NEW_DARKROOM))
 	{
 		Flags ^= cNEWDARK;
 		refresh(rALL);
@@ -1126,11 +1113,11 @@ int32_t onShowDarkness()
 	else
 	{
 		refresh(rALL);
-		if(get_bit(quest_rules,qr_FADE))
+		if(get_qr(qr_FADE))
 		{
 			int32_t last = CSET(5)-1;
 
-			if(get_bit(quest_rules,qr_FADECS5))
+			if(get_qr(qr_FADECS5))
 				last += 16;
 
 			byte *si = colordata + CSET(Color*pdLEVEL+poFADE1)*3;

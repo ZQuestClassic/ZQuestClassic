@@ -7,6 +7,7 @@
 #include "tiles.h"
 #include "base/zc_alleg.h"
 #include "base/zdefs.h"
+#include "base/msgstr.h"
 #include "zq/zq_custom.h"
 #include "zq/zq_misc.h"
 #include "zq/zq_tiles.h"
@@ -694,10 +695,10 @@ int32_t onStrings()
 					{
 						for(int32_t j=0; j<3; j++)
 						{
-							fix_string(misc.info[i].str[j], index);
+							fix_string(QMisc.info[i].str[j], index);
 						}
 					}
-					fix_string(misc.endstring, index);              //ending string */
+					fix_string(QMisc.endstring, index);              //ending string */
 					// Fix the quick-category menu
 					strlist_dlg[17].d1 = 0;
 					build_bistringcat_list();

@@ -1,6 +1,9 @@
 #include "zc_list_data.h"
+#include "base/dmap.h"
 #include "zq/zquest.h"
 #include "qst.h"
+#include "zinfo.h"
+#include "base/misctypes.h"
 
 extern zcmodule moduledata;
 extern char *weapon_string[];
@@ -8,7 +11,6 @@ extern char *sfx_string[];
 extern char *item_string[];
 extern char *guy_string[eMAXGUYS];
 extern const char *old_guy_string[OLDMAXGUYS];
-extern miscQdata QMisc;
 extern item_drop_object item_drop_sets[MAXITEMDROPSETS];
 
 #ifdef IS_PARSER
@@ -499,7 +501,7 @@ GUI::ListData GUI::ZCListData::miscsprites(bool skipNone, bool inclNegSpecialVal
 	std::map<std::string, int32_t> ids;
 	std::set<std::string> sprnames;
 	
-	for(int32_t i=0; i<wMAX; ++i)
+	for(int32_t i=0; i<MAXWPNS; ++i)
 	{
 		char buf[512];
 		char* ptr = buf;

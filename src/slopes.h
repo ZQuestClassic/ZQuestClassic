@@ -6,6 +6,7 @@
 #include <map>
 
 struct slope_object;
+struct newcombo;
 
 #define SLOPE_ID(index, layer) ((rpos_t)(region_num_rpos * (layer) + (index)))
 extern std::map<rpos_t, slope_object> slopes;
