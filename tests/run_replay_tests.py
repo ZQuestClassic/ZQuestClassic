@@ -486,7 +486,7 @@ def get_replay_data(file):
         'frames': frames,
         'frames_limited': round(frames_limited),
         'estimated_fps': estimated_fps,
-        'estimated_duration': round(estimated_duration),
+        'estimated_duration': estimated_duration,
     }
 
 
@@ -509,9 +509,16 @@ tests.sort(key=lambda test: -get_replay_data(test)['estimated_duration'])
 
 if args.shard and args.print_shards:
     ss = 1
+    format_template = "{: <5} {: <10} {: <20}"
+    print(format_template.format('shard', 'dur (s)', 'replays'), '\n')
     for shard in get_shards(tests, num_shards):
         total_duration = sum(get_replay_data(test)['estimated_duration'] for test in shard)
-        print(ss, total_duration, ' '.join(test.name for test in shard))
+        row = [
+            str(ss),
+            str(round(total_duration)),
+            ' '.join(test.name for test in shard),
+        ]
+        print(format_template.format(*row))
         ss += 1
 
 if args.shard:
