@@ -13274,6 +13274,12 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 
 void reset_scripts()
 {
+#ifdef IS_PLAYER
+	// We can't modify the script data while jit threads are possibly compiling them.
+	void jit_shutdown();
+	jit_shutdown();
+#endif
+
 	next_script_data_debug_id = 0;
 
 	for(int32_t i=0; i<NUMSCRIPTSGENERIC; i++)
