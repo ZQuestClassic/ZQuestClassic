@@ -1636,9 +1636,6 @@ void jit_startup()
 	jit_log_enabled = zc_get_config("ZSCRIPT", "jit_log", false) || is_ci();
 	bool precompile = zc_get_config("ZSCRIPT", "jit_precompile", false);
 	int num_threads = zc_get_config("ZSCRIPT", "jit_threads", -2);
-	// Currently fails somewhat rarely in CI... need to figure out why.
-	if (is_ci())
-		num_threads = 0;
 
 	auto processor_count = std::thread::hardware_concurrency();
 	if (num_threads < 0)
