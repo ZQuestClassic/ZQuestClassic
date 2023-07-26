@@ -384,6 +384,24 @@ struct SW_McGuffin : public SubscrWidget
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs) const override;
 };
 
+#define SUBSCR_TILEBL_OVERLAY  SUBSCRFLAG_SPEC_01
+#define SUBSCR_TILEBL_TRANSP   SUBSCRFLAG_SPEC_02
+struct SW_TileBlock : public SubscrWidget
+{
+	int32_t tile;
+	byte flip;
+	SubscrColorInfo cs;
+	
+	SW_TileBlock() = default;
+	SW_TileBlock(subscreen_object const& old);
+	
+	virtual bool load_old(subscreen_object const& old) override;
+	virtual word getW() const override; //Returns width in pixels
+	virtual word getH() const override; //Returns height in pixels
+	virtual byte getType() const override;
+	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs) const override;
+};
+
 struct SubscrPage
 {
 	std::vector<SubscrWidget> contents;

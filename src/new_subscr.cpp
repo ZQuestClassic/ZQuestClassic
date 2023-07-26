@@ -1011,6 +1011,40 @@ void SW_McGuffin::draw(BITMAP* dest, int32_t xofs, int32_t yofs) const
 		cset,flags&SUBSCR_MCGUF_OVERLAY,flags&SUBSCR_MCGUF_TRANSP,number);
 }
 
+SW_TileBlock::SW_TileBlock(subscreen_object const& old) : SW_TileBlock()
+{
+	load_old(old);
+}
+bool SW_TileBlock::load_old(subscreen_object const& old)
+{
+	if(old.type != ssoTILEBLOCK)
+		return false;
+	SubscrWidget::load_old(old);
+	tile = old.d1;
+	flip = old.d2;
+	SETFLAG(flags,SUBSCR_TILEBL_OVERLAY,old.d3);
+	SETFLAG(flags,SUBSCR_TILEBL_TRANSP,old.d4);
+	cs.load_old(old,1);
+	return true;
+}
+word SW_TileBlock::getW() const
+{
+	return w * 16;
+}
+word SW_TileBlock::getH() const
+{
+	return h * 16;
+}
+byte SW_TileBlock::getType() const
+{
+	return ssoTILEBLOCK;
+}
+void SW_TileBlock::draw(BITMAP* dest, int32_t xofs, int32_t yofs) const
+{
+	draw_block_flip(dest,getX()+xofs,getY()+yofs,tile,cs.get_cset(),
+		w,h,flip,flags&SUBSCR_TILEBL_OVERLAY,flags&SUBSCR_TILEBL_TRANSP);
+}
+
 SubscrWidget SubscrWidget::fromOld(subscreen_object const& old)
 {
 	switch(old.type)
@@ -1052,6 +1086,7 @@ SubscrWidget SubscrWidget::fromOld(subscreen_object const& old)
 		case ssoMCGUFFIN:
 			return SW_McGuffin(old);
 		case ssoTILEBLOCK:
+			return SW_TileBlock(old);
 		case ssoMINITILE:
 		case ssoSELECTOR1:
 		case ssoSELECTOR2:
