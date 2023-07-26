@@ -5,8 +5,10 @@
 #include "base/fonts.h"
 #include "base/zsys.h"
 #include "base/dmap.h"
+#include "base/qrs.h"
 #include "base/mapscr.h"
 #include "tiles.h"
+#include "items.h"
 
 extern gamedata* game; //!TODO ZDEFSCLEAN move to gamedata.h
 extern zinitdata zinit; //!TODO ZDEFSCLEAN move to zinit.h
@@ -14,7 +16,19 @@ int32_t get_dlevel();
 int32_t get_currdmap();
 int32_t get_homescr();
 bool has_item(int32_t item_type, int32_t item);
+
+//!TODO subscr.h/subscr.cpp trim
+extern item *sel_a, *sel_b;
 void subscreenitem(BITMAP *dest, int32_t x, int32_t y, int32_t itemtype);
+int32_t subscreen_color(int32_t c1, int32_t c2);
+void draw_textbox(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, FONT *tempfont, char *thetext, bool wword, int32_t tabsize, int32_t alignment, int32_t textstyle, int32_t color, int32_t shadowcolor, int32_t backcolor);
+int32_t Bweapon(int32_t pos);
+void lifegauge(BITMAP *dest,int32_t x,int32_t y, int32_t container, int32_t notlast_tile, int32_t notlast_cset, bool notlast_mod, int32_t last_tile, int32_t last_cset, bool last_mod,
+			   int32_t cap_tile, int32_t cap_cset, bool cap_mod, int32_t aftercap_tile, int32_t aftercap_cset, bool aftercap_mod, int32_t frames, int32_t speed, int32_t delay, bool unique_last);
+void magicgauge(BITMAP *dest,int32_t x,int32_t y, int32_t container, int32_t notlast_tile, int32_t notlast_cset, bool notlast_mod, int32_t last_tile, int32_t last_cset, bool last_mod,
+				int32_t cap_tile, int32_t cap_cset, bool cap_mod, int32_t aftercap_tile, int32_t aftercap_cset, bool aftercap_mod, int32_t frames, int32_t speed, int32_t delay, bool unique_last, int32_t show);
+int32_t get_subscreenitem_id(int32_t itemtype, bool forceItem);
+
 
 int shadow_x(int shadow)
 {
@@ -68,16 +82,16 @@ int shadow_h(int shadow)
 {
 	switch(shadow)
 	{
-        case sstsSHADOW:
-        case sstsSHADOWU:
-        case sstsOUTLINE8:
-        case sstsOUTLINEPLUS:
-        case sstsOUTLINEX:
-        case sstsSHADOWED:
-        case sstsSHADOWEDU:
-        case sstsOUTLINED8:
-        case sstsOUTLINEDPLUS:
-        case sstsOUTLINEDX:
+		case sstsSHADOW:
+		case sstsSHADOWU:
+		case sstsOUTLINE8:
+		case sstsOUTLINEPLUS:
+		case sstsOUTLINEX:
+		case sstsSHADOWED:
+		case sstsSHADOWEDU:
+		case sstsOUTLINED8:
+		case sstsOUTLINEDPLUS:
+		case sstsOUTLINEDX:
 			return 1;
 	}
 	return 0;
@@ -283,7 +297,11 @@ byte SubscrWidget::getType() const
 {
 	return type;
 }
-void SubscrWidget::draw(BITMAP* dest, int32_t xofs, int32_t yofs) const
+int32_t SubscrWidget::getItemVal() const
+{
+	return -1;
+}
+void SubscrWidget::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
 	
 }
@@ -317,7 +335,7 @@ byte SW_2x2Frame::getType() const
 {
 	return sso2X2FRAME;
 }
-void SW_2x2Frame::draw(BITMAP* dest, int32_t xofs, int32_t yofs) const
+void SW_2x2Frame::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
 	frame2x2(dest, x+xofs, y+yofs, tile, cs.get_cset(), w, h, 0,
 		flags&SUBSCR_2X2FR_OVERLAY, flags&SUBSCR_2X2FR_TRANSP);
@@ -373,7 +391,7 @@ byte SW_Text::getType() const
 {
 	return ssoTEXT;
 }
-void SW_Text::draw(BITMAP* dest, int32_t xofs, int32_t yofs) const
+void SW_Text::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
 	FONT* tempfont = get_zc_font(fontid);
 	textout_styled_aligned_ex(dest,tempfont,text.c_str(),getX()+xofs,getY()+yofs,
@@ -397,7 +415,7 @@ byte SW_Line::getType() const
 {
 	return ssoLINE;
 }
-void SW_Line::draw(BITMAP* dest, int32_t xofs, int32_t yofs) const
+void SW_Line::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
 	if(flags&SUBSCR_LINE_TRANSP)
 		drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
@@ -427,7 +445,7 @@ byte SW_Rect::getType() const
 {
 	return ssoRECT;
 }
-void SW_Rect::draw(BITMAP* dest, int32_t xofs, int32_t yofs) const
+void SW_Rect::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
 	if(flags&SUBSCR_RECT_TRANSP)
 		drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
@@ -503,7 +521,7 @@ byte SW_Time::getType() const
 {
 	return type; //ssoBSTIME,ssoTIME,ssoSSTIME
 }
-void SW_Time::draw(BITMAP* dest, int32_t xofs, int32_t yofs) const
+void SW_Time::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
 	char *ts;
 	auto tm = game ? game->get_time() : 0;
@@ -553,7 +571,7 @@ byte SW_MagicMeter::getType() const
 {
 	return ssoMAGICMETER;
 }
-void SW_MagicMeter::draw(BITMAP* dest, int32_t xofs, int32_t yofs) const
+void SW_MagicMeter::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
 	magicmeter(dest, getX()+xofs, getY()+yofs);
 }
@@ -589,7 +607,7 @@ byte SW_LifeMeter::getType() const
 {
 	return ssoLIFEMETER;
 }
-void SW_LifeMeter::draw(BITMAP* dest, int32_t xofs, int32_t yofs) const
+void SW_LifeMeter::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
 	lifemeter(dest, getX()+xofs, getY()+yofs, 1, flags&SUBSCR_LIFEMET_BOT);
 }
@@ -619,7 +637,7 @@ byte SW_ButtonItem::getType() const
 {
 	return ssoBUTTONITEM;
 }
-void SW_ButtonItem::draw(BITMAP* dest, int32_t xofs, int32_t yofs) const
+void SW_ButtonItem::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
 	if(flags&SUBSCR_BTNITM_TRANSP)
 		drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
@@ -686,7 +704,7 @@ byte SW_Counter::getType() const
 {
 	return ssoCOUNTER;
 }
-void SW_Counter::draw(BITMAP* dest, int32_t xofs, int32_t yofs) const
+void SW_Counter::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
 	FONT* tempfont = get_zc_font(fontid);
 	counter(dest, getX()+xofs,getY()+yofs, tempfont, c_text.get_color(),
@@ -735,7 +753,7 @@ byte SW_Counters::getType() const
 {
 	return ssoCOUNTERS;
 }
-void SW_Counters::draw(BITMAP* dest, int32_t xofs, int32_t yofs) const
+void SW_Counters::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
 	FONT* tempfont = get_zc_font(fontid);
 	defaultcounters(dest, getX()+xofs, getY()+yofs, tempfont, c_text.get_color(),
@@ -783,7 +801,7 @@ byte SW_MMapTitle::getType() const
 {
 	return ssoMINIMAPTITLE;
 }
-void SW_MMapTitle::draw(BITMAP* dest, int32_t xofs, int32_t yofs) const
+void SW_MMapTitle::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
 	FONT* tempfont = get_zc_font(fontid);
 	if(!(flags&SUBSCR_MMAPTIT_REQMAP) || has_item(itype_map, get_dlevel()))
@@ -820,7 +838,7 @@ byte SW_MMap::getType() const
 {
 	return ssoMINIMAP;
 }
-void SW_MMap::draw(BITMAP* dest, int32_t xofs, int32_t yofs) const
+void SW_MMap::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
 	bool showplr = (flags&SUBSCR_MMAP_SHOWPLR) && !(TheMaps[(DMaps[get_currdmap()].map*MAPSCRS)+get_homescr()].flags7&fNOHEROMARK);
 	bool showcmp = (flags&SUBSCR_MMAP_SHOWCMP) && !(DMaps[get_currdmap()].flags&dmfNOCOMPASS);
@@ -857,7 +875,7 @@ byte SW_LMap::getType() const
 {
 	return ssoLARGEMAP;
 }
-void SW_LMap::draw(BITMAP* dest, int32_t xofs, int32_t yofs) const
+void SW_LMap::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
 	putBmap(dest, getX()+xofs, getY()+yofs, flags&SUBSCR_LMAP_SHOWMAP,
 		flags&SUBSCR_LMAP_SHOWROOM, flags&SUBSCR_LMAP_SHOWPLR, c_room.get_color(),
@@ -888,7 +906,7 @@ byte SW_Clear::getType() const
 {
 	return ssoCLEAR;
 }
-void SW_Clear::draw(BITMAP* dest, int32_t xofs, int32_t yofs) const
+void SW_Clear::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
 	clear_to_color(dest,c_bg.get_color());
 }
@@ -926,7 +944,11 @@ byte SW_CurrentItem::getType() const
 {
 	return ssoCURRENTITEM;
 }
-void SW_CurrentItem::draw(BITMAP* dest, int32_t xofs, int32_t yofs) const
+int32_t SW_CurrentItem::getItemVal() const
+{
+	return iid>0 ? ((iid-1) | 0x8000) : iclass;
+}
+void SW_CurrentItem::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
 	#ifdef IS_PLAYER
 	if(flags&SUBSCR_CURITM_INVIS)
@@ -935,7 +957,7 @@ void SW_CurrentItem::draw(BITMAP* dest, int32_t xofs, int32_t yofs) const
 	if((flags&SUBSCR_CURITM_INVIS) && !(zinit.ss_flags&ssflagSHOWINVIS))
 		return;
 	#endif
-	subscreenitem(dest, getX()+xofs,getY()+yofs, iid>0 ? ((iid-1) | 0x8000) : iclass);
+	subscreenitem(dest, getX()+xofs,getY()+yofs, getItemVal());
 }
 
 SW_TriFrame::SW_TriFrame(subscreen_object const& old) : SW_TriFrame()
@@ -970,7 +992,7 @@ byte SW_TriFrame::getType() const
 {
 	return ssoTRIFRAME;
 }
-void SW_TriFrame::draw(BITMAP* dest, int32_t xofs, int32_t yofs) const
+void SW_TriFrame::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
 	puttriframe(dest, getX()+xofs,getY()+yofs, c_outline.get_color(), c_number.get_color(),
 		frame_tile, frame_cset, piece_tile, piece_cset, flags&SUBSCR_TRIFR_SHOWFR,
@@ -1006,7 +1028,7 @@ byte SW_McGuffin::getType() const
 {
 	return ssoMCGUFFIN;
 }
-void SW_McGuffin::draw(BITMAP* dest, int32_t xofs, int32_t yofs) const
+void SW_McGuffin::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
 	puttriforce(dest,getX()+xofs,getY()+yofs,tile,cs.get_cset(),w,h,
 		cset,flags&SUBSCR_MCGUF_OVERLAY,flags&SUBSCR_MCGUF_TRANSP,number);
@@ -1040,7 +1062,7 @@ byte SW_TileBlock::getType() const
 {
 	return ssoTILEBLOCK;
 }
-void SW_TileBlock::draw(BITMAP* dest, int32_t xofs, int32_t yofs) const
+void SW_TileBlock::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
 	draw_block_flip(dest,getX()+xofs,getY()+yofs,tile,cs.get_cset(),
 		w,h,flip,flags&SUBSCR_TILEBL_OVERLAY,flags&SUBSCR_TILEBL_TRANSP);
@@ -1093,7 +1115,7 @@ int32_t SW_MiniTile::get_tile() const
 	}
 	else return tile;
 }
-void SW_MiniTile::draw(BITMAP* dest, int32_t xofs, int32_t yofs) const
+void SW_MiniTile::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
 	auto t = (get_tile()<<2)+crn;
 	auto tx = getX()+xofs, ty = getY()+yofs;
@@ -1114,6 +1136,206 @@ void SW_MiniTile::draw(BITMAP* dest, int32_t xofs, int32_t yofs) const
 	}
 }
 
+
+SW_Temp::SW_Temp(subscreen_object const& old) : SW_Temp()
+{
+	load_old(old);
+}
+bool SW_Temp::load_old(subscreen_object const& _old)
+{
+	type = ssoTEMPOLD;
+	old = _old;
+	if(old.dp1)
+	{
+		old.dp1 = new char[strlen((char*)_old.dp1)+1];
+		strcpy((char*)old.dp1,(char*)_old.dp1);
+	}
+	return true;
+}
+int16_t SW_Temp::getX() const
+{
+	return sso_x(&old);
+}
+int16_t SW_Temp::getY() const
+{
+	return sso_y(&old);
+}
+word SW_Temp::getW() const
+{
+	return sso_w(&old);
+}
+word SW_Temp::getH() const
+{
+	return sso_h(&old);
+}
+int16_t SW_Temp::getXOffs() const
+{
+	switch(get_alignment(&old))
+	{
+		case sstaCENTER:
+			return -getW()/2;
+		case sstaRIGHT:
+			return -getW();
+	}
+	return 0;
+}
+byte SW_Temp::getType() const
+{
+	return ssoTEMPOLD;
+}
+void SW_Temp::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
+{
+	FONT* tempfont = get_zc_font(old.d1);
+	switch(getType())
+	{
+		case ssoTEXTBOX:
+		{
+			draw_textbox(dest, x, y, old.w, old.h, tempfont, (char *)old.dp1, old.d4!=0, old.d5, old.d2, old.d3, subscreen_color(old.colortype1, old.color1), subscreen_color(old.colortype2, old.color2), subscreen_color(old.colortype3, old.color3));
+		}
+		break;
+		
+		case ssoSELECTEDITEMNAME:
+		{
+			int32_t itemid=Bweapon(page.cursor_pos);
+			
+			// If it's a combined bow and arrow, the item ID will have 0xF000 added.
+			if(itemid>=0xF000)
+				itemid-=0xF000;
+			
+			// 0 can mean either the item with index 0 is selected or there's no
+			// valid item to select, so be sure Hero has whatever it would be.
+			if(!game->get_item(itemid))
+				break;
+				
+			itemdata const& itm = itemsbuf[itemid];
+			char itemname[256]="";
+			strncpy(itemname, itm.get_name().c_str(), 255);
+			
+			draw_textbox(dest, x, y, old.w, old.h, tempfont, itemname, old.d4!=0, old.d5, old.d2, old.d3, subscreen_color(old.colortype1, old.color1), subscreen_color(old.colortype2, old.color2), subscreen_color(old.colortype3, old.color3));
+		}
+		break;
+		
+		case ssoSELECTOR1:
+		case ssoSELECTOR2:
+		{
+			int32_t p=-1;
+			
+			SubscrWidget* selitm = nullptr;
+			for(size_t j=0; j < page.contents.size(); ++j)
+			{
+				SubscrWidget& w = page.contents[j];
+				if(w.getType()==ssoCURRENTITEM)
+				{
+					if(w.pos==page.cursor_pos)
+					{
+						p=j;
+						selitm = &w;
+						break;
+					}
+				}
+			}
+			
+			bool big_sel=old.d5 != 0;
+			item *tempsel=(old.type==ssoSELECTOR1)?sel_a:sel_b;
+			int32_t temptile=tempsel->tile;
+			tempsel->drawstyle=0;
+			
+			if(old.d4)
+				tempsel->drawstyle=1;
+			int32_t itemtype = selitm ? selitm->getItemVal() : -1;
+			itemdata const& tmpitm = itemsbuf[get_subscreenitem_id(itemtype, true)];
+			bool oldsel = get_qr(qr_SUBSCR_OLD_SELECTOR);
+			if(!oldsel) big_sel = false;
+			int32_t sw = oldsel ? (tempsel->extend > 2 ? tempsel->txsz*16 : 16) : (tempsel->extend > 2 ? tempsel->hit_width : 16),
+				sh = oldsel ? (tempsel->extend > 2 ? tempsel->txsz*16 : 16) : (tempsel->extend > 2 ? tempsel->hit_height : 16),
+				dw = oldsel ? (tempsel->extend > 2 ? tempsel->txsz*16 : 16) : ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_WIDTH) ? tmpitm.hxsz : 16),
+				dh = oldsel ? (tempsel->extend > 2 ? tempsel->txsz*16 : 16) : ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_HEIGHT) ? tmpitm.hysz : 16);
+			int32_t sxofs = oldsel ? 0 : (tempsel->extend > 2 ? tempsel->hxofs : 0),
+				syofs = oldsel ? 0 : (tempsel->extend > 2 ? tempsel->hyofs : 0),
+				dxofs = oldsel ? (tempsel->extend > 2 ? (int)tempsel->xofs : 0) : ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_X_OFFSET) ? tmpitm.hxofs : 0) + (tempsel->extend > 2 ? (int)tempsel->xofs : 0),
+				dyofs = oldsel ? (tempsel->extend > 2 ? (int)tempsel->yofs : 0) : ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_Y_OFFSET) ? tmpitm.hyofs : 0) + (tempsel->extend > 2 ? (int)tempsel->yofs : 0);
+			BITMAP* tmpbmp = create_bitmap_ex(8,sw,sh);
+			for(int32_t j=0; j<4; ++j)
+			{
+				clear_bitmap(tmpbmp);
+				if(selitm)
+				{
+					tempsel->x=0;
+					tempsel->y=0;
+					int32_t tmpx = selitm->x+xofs+(big_sel?(j%2?8:-8):0);
+					int32_t tmpy = selitm->y+yofs+(big_sel?(j>1?8:-8):0);
+					tempsel->tile+=(zc_max(itemsbuf[tempsel->id].frames,1)*j);
+					
+					if(temptile)
+					{
+						tempsel->drawzcboss(tmpbmp);
+						tempsel->tile=temptile;
+					}
+					masked_stretch_blit(tmpbmp, dest, vbound(sxofs, 0, sw), vbound(syofs, 0, sh), sw-vbound(sxofs, 0, sw), sh-vbound(syofs, 0, sh), tmpx+dxofs, tmpy+dyofs, dw, dh);
+					
+					if(!big_sel)
+						break;
+				}
+			}
+			destroy_bitmap(tmpbmp);
+		}
+		break;
+		
+		case ssoMAGICGAUGE:
+		{
+			magicgauge(dest,x,y, old.d1, old.d2, old.colortype1, ((old.d10&1)?1:0), old.d3, old.color1, ((old.d10&2)?1:0),
+					   old.d4, old.colortype2, ((old.d10&4)?1:0), old.d5, old.color2, ((old.d10&8)?1:0), old.d6, old.d7, old.d8, ((old.d10&16)?1:0),
+					   old.d9);
+		}
+		break;
+		
+		case ssoLIFEGAUGE:
+		{
+			lifegauge(dest,x,y, old.d1, old.d2, old.colortype1, ((old.d10&1)?1:0), old.d3, old.color1, ((old.d10&2)?1:0),
+					  old.d4, old.colortype2, ((old.d10&4)?1:0), old.d5, old.color2, ((old.d10&8)?1:0), old.d6, old.d7, old.d8, ((old.d10&16)?1:0));
+		}
+		break;
+	}
+}
+
+
+
+bool new_widget_type(int ty)
+{
+	switch(ty)
+	{
+		//These have been upgraded
+		case sso2X2FRAME:
+		case ssoTEXT:
+		case ssoLINE:
+		case ssoRECT:
+		case ssoBSTIME:
+		case ssoTIME:
+		case ssoSSTIME:
+		case ssoMAGICMETER:
+		case ssoLIFEMETER:
+		case ssoBUTTONITEM:
+		case ssoCOUNTER:
+		case ssoCOUNTERS:
+		case ssoMINIMAPTITLE:
+		case ssoMINIMAP:
+		case ssoLARGEMAP:
+		case ssoCLEAR:
+		case ssoCURRENTITEM:
+		case ssoTRIFRAME:
+		case ssoMCGUFFIN:
+		case ssoTILEBLOCK:
+		case ssoMINITILE:
+			return true;
+		//These ones are just empty
+		case ssoITEM:
+		case ssoICON:
+		case ssoNULL:
+		case ssoNONE:
+			return true;
+	}
+	return false;
+}
 SubscrWidget SubscrWidget::fromOld(subscreen_object const& old)
 {
 	switch(old.type)
@@ -1171,7 +1393,7 @@ SubscrWidget SubscrWidget::fromOld(subscreen_object const& old)
 		case ssoCURRENTITEMCLASSTEXT:
 		case ssoCURRENTITEMCLASSNAME:
 		case ssoSELECTEDITEMCLASSNAME:
-			break; //!TODO SUBSCR
+			return SW_Temp(old); //!TODO SUBSCR
 		case ssoITEM:
 		{
 			SubscrWidget ret(old);
@@ -1198,7 +1420,7 @@ void SubscrPage::draw(BITMAP* dest, int32_t xofs, int32_t yofs, byte pos, bool s
 	for(SubscrWidget& widg : contents)
 	{
 		if(widg.visible(pos,showtime))
-			widg.draw(dest,xofs,yofs);
+			widg.draw(dest,xofs,yofs,*this);
 	}
 }
 void ZCSubscreen::draw(BITMAP* dest, int32_t xofs, int32_t yofs, byte pos, bool showtime)

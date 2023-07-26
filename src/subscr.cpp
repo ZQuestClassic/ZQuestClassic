@@ -5098,7 +5098,7 @@ void purge_blank_subscreen_objects(subscreen_group *tempss)
 
 
 
-int32_t get_alignment(subscreen_object *tempsso)
+int32_t get_alignment(subscreen_object const* tempsso)
 {
     switch(tempsso->type)
     {
@@ -5179,7 +5179,7 @@ int32_t get_alignment(subscreen_object *tempsso)
 //h+1
 //sstsSHADOW, sstsSHADOWU, sstsOUTLINE8, sstsOUTLINEPLUS, sstsOUTLINEX, sstsSHADOWED, sstsSHADOWEDU, sstsOUTLINED8, sstsOUTLINEDPLUS, sstsOUTLINEDX
 
-int32_t sso_y(subscreen_object *tempsso)
+int32_t sso_y(subscreen_object const* tempsso)
 {
     int32_t y=0;
     
@@ -5259,7 +5259,7 @@ int32_t sso_y(subscreen_object *tempsso)
     return y;
 }
 
-int32_t sso_x(subscreen_object *tempsso)
+int32_t sso_x(subscreen_object const* tempsso)
 {
     int32_t x=0;
     
@@ -5343,7 +5343,7 @@ int32_t sso_x(subscreen_object *tempsso)
 
 
 
-int32_t sso_h(subscreen_object *tempsso)
+int32_t sso_h(subscreen_object const* tempsso)
 {
     int32_t h=0;
     
@@ -5529,7 +5529,7 @@ int32_t sso_h(subscreen_object *tempsso)
     return h;
 }
 
-int32_t sso_w(subscreen_object *tempsso)
+int32_t sso_w(subscreen_object const* tempsso)
 {
     int32_t w=0;
     

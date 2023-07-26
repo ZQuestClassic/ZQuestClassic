@@ -7,7 +7,46 @@
 #include <string>
 #include <vector>
 
-struct subscreen_object;
+struct SubscrPage;
+
+//Old subscreen stuff
+struct subscreen_object
+{
+	byte  type;
+	byte  pos;
+	int16_t  x;
+	int16_t  y;
+	word  w;
+	word  h;
+	byte  colortype1;
+	int16_t color1;
+	byte  colortype2;
+	int16_t color2;
+	byte  colortype3;
+	int16_t color3;
+	int32_t   d1;
+	int32_t   d2;
+	int32_t   d3; //pos
+	int32_t   d4; //up
+	int32_t   d5; //down
+	int32_t   d6; //left
+	int32_t   d7; //right
+	int32_t   d8;
+	int32_t   d9;
+	int32_t   d10;
+	byte  frames;
+	byte  speed;
+	byte  delay;
+	word  frame;
+	void  *dp1;
+};
+struct subscreen_group
+{
+	byte             ss_type;
+	char             name[64];
+	subscreen_object objects[MAXSUBSCREENITEMS];
+};
+//
 
 struct SubscrColorInfo
 {
@@ -29,7 +68,7 @@ enum
 	ssoLIFEGAUGE, ssoTEXTBOX, ssoCURRENTITEMTILE, ssoSELECTEDITEMTILE, 
 	ssoCURRENTITEMTEXT, ssoCURRENTITEMNAME, ssoSELECTEDITEMNAME,
 	ssoCURRENTITEMCLASSTEXT, ssoCURRENTITEMCLASSNAME, ssoSELECTEDITEMCLASSNAME,
-	ssoMAX
+	ssoMAX, ssoTEMPOLD
 };
 #define SUBSCRFLAG_SELECTABLE  0x00000001
 
@@ -84,7 +123,8 @@ struct SubscrWidget
 	virtual int16_t getXOffs() const; //Returns any special x-offset
 	virtual int16_t getYOffs() const; //Returns any special y-offset
 	virtual byte getType() const;
-	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs) const;
+	virtual int32_t getItemVal() const;
+	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const;
 	virtual bool visible(byte pos, bool showtime) const;
 	
 	static SubscrWidget fromOld(subscreen_object const& old);
@@ -106,7 +146,7 @@ struct SW_2x2Frame : public SubscrWidget
 	virtual word getW() const override; //Returns width in pixels
 	virtual word getH() const override; //Returns height in pixels
 	virtual byte getType() const override;
-	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs) const override;
+	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
 };
 
 struct SW_Text : public SubscrWidget
@@ -126,7 +166,7 @@ struct SW_Text : public SubscrWidget
 	virtual word getH() const override; //Returns height in pixels
 	virtual int16_t getXOffs() const override; //Returns any special x-offset
 	virtual byte getType() const override;
-	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs) const override;
+	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
 };
 
 #define SUBSCR_LINE_TRANSP     SUBSCRFLAG_SPEC_01
@@ -139,7 +179,7 @@ struct SW_Line : public SubscrWidget
 	
 	virtual bool load_old(subscreen_object const& old) override;
 	virtual byte getType() const override;
-	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs) const override;
+	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
 };
 
 #define SUBSCR_RECT_TRANSP     SUBSCRFLAG_SPEC_01
@@ -153,7 +193,7 @@ struct SW_Rect : public SubscrWidget
 	
 	virtual bool load_old(subscreen_object const& old) override;
 	virtual byte getType() const override;
-	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs) const override;
+	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
 };
 
 struct SW_Time : public SubscrWidget
@@ -172,7 +212,7 @@ struct SW_Time : public SubscrWidget
 	virtual word getH() const override; //Returns height in pixels
 	virtual int16_t getXOffs() const override; //Returns any special x-offset
 	virtual byte getType() const override;
-	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs) const override;
+	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
 	virtual bool visible(byte pos, bool showtime) const override;
 };
 
@@ -186,7 +226,7 @@ struct SW_MagicMeter : public SubscrWidget
 	virtual word getW() const override; //Returns width in pixels
 	virtual word getH() const override; //Returns height in pixels
 	virtual byte getType() const override;
-	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs) const override;
+	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
 };
 
 #define SUBSCR_LIFEMET_BOT     SUBSCRFLAG_SPEC_01
@@ -201,7 +241,7 @@ struct SW_LifeMeter : public SubscrWidget
 	virtual word getW() const override; //Returns width in pixels
 	virtual word getH() const override; //Returns height in pixels
 	virtual byte getType() const override;
-	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs) const override;
+	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
 };
 
 #define SUBSCR_BTNITM_TRANSP   SUBSCRFLAG_SPEC_01
@@ -215,7 +255,7 @@ struct SW_ButtonItem : public SubscrWidget
 	virtual word getW() const override; //Returns width in pixels
 	virtual word getH() const override; //Returns height in pixels
 	virtual byte getType() const override;
-	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs) const override;
+	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
 };
 
 #define SUBSCR_COUNTER_SHOW0   SUBSCRFLAG_SPEC_01
@@ -240,7 +280,7 @@ struct SW_Counter : public SubscrWidget
 	virtual word getH() const override; //Returns height in pixels
 	virtual int16_t getXOffs() const override; //Returns any special x-offset
 	virtual byte getType() const override;
-	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs) const override;
+	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
 };
 
 #define SUBSCR_COUNTERS_USEX   SUBSCRFLAG_SPEC_01
@@ -262,7 +302,7 @@ struct SW_Counters : public SubscrWidget
 	virtual word getW() const override; //Returns width in pixels
 	virtual word getH() const override; //Returns height in pixels
 	virtual byte getType() const override;
-	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs) const override;
+	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
 };
 
 #define SUBSCR_MMAPTIT_REQMAP  SUBSCRFLAG_SPEC_01
@@ -280,7 +320,7 @@ struct SW_MMapTitle : public SubscrWidget
 	virtual word getH() const override; //Returns height in pixels
 	virtual int16_t getXOffs() const override; //Returns any special x-offset
 	virtual byte getType() const override;
-	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs) const override;
+	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
 };
 
 #define SUBSCR_MMAP_SHOWMAP    SUBSCRFLAG_SPEC_01
@@ -297,7 +337,7 @@ struct SW_MMap : public SubscrWidget
 	virtual word getW() const override; //Returns width in pixels
 	virtual word getH() const override; //Returns height in pixels
 	virtual byte getType() const override;
-	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs) const override;
+	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
 };
 
 #define SUBSCR_LMAP_SHOWMAP    SUBSCRFLAG_SPEC_01
@@ -315,7 +355,7 @@ struct SW_LMap : public SubscrWidget
 	virtual word getW() const override; //Returns width in pixels
 	virtual word getH() const override; //Returns height in pixels
 	virtual byte getType() const override;
-	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs) const override;
+	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
 };
 
 struct SW_Clear : public SubscrWidget
@@ -329,7 +369,7 @@ struct SW_Clear : public SubscrWidget
 	virtual word getW() const override; //Returns width in pixels
 	virtual word getH() const override; //Returns height in pixels
 	virtual byte getType() const override;
-	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs) const override;
+	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
 };
 
 #define SUBSCR_CURITM_INVIS    SUBSCRFLAG_SPEC_01
@@ -345,7 +385,8 @@ struct SW_CurrentItem : public SubscrWidget
 	virtual word getW() const override; //Returns width in pixels
 	virtual word getH() const override; //Returns height in pixels
 	virtual byte getType() const override;
-	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs) const override;
+	virtual int32_t getItemVal() const override;
+	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
 };
 
 #define SUBSCR_TRIFR_SHOWFR    SUBSCRFLAG_SPEC_01
@@ -364,7 +405,7 @@ struct SW_TriFrame : public SubscrWidget
 	virtual word getW() const override; //Returns width in pixels
 	virtual word getH() const override; //Returns height in pixels
 	virtual byte getType() const override;
-	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs) const override;
+	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
 };
 
 #define SUBSCR_MCGUF_OVERLAY   SUBSCRFLAG_SPEC_01
@@ -381,7 +422,7 @@ struct SW_McGuffin : public SubscrWidget
 	virtual word getW() const override; //Returns width in pixels
 	virtual word getH() const override; //Returns height in pixels
 	virtual byte getType() const override;
-	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs) const override;
+	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
 };
 
 #define SUBSCR_TILEBL_OVERLAY  SUBSCRFLAG_SPEC_01
@@ -399,7 +440,7 @@ struct SW_TileBlock : public SubscrWidget
 	virtual word getW() const override; //Returns width in pixels
 	virtual word getH() const override; //Returns height in pixels
 	virtual byte getType() const override;
-	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs) const override;
+	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
 };
 
 #define SUBSCR_MINITL_OVERLAY  SUBSCRFLAG_SPEC_01
@@ -418,12 +459,30 @@ struct SW_MiniTile : public SubscrWidget
 	virtual word getW() const override; //Returns width in pixels
 	virtual word getH() const override; //Returns height in pixels
 	virtual byte getType() const override;
-	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs) const override;
+	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
+};
+
+bool new_widget_type(int ty);
+struct SW_Temp : public SubscrWidget
+{
+	subscreen_object old;
+	SW_Temp() = default;
+	SW_Temp(subscreen_object const& old);
+	
+	virtual bool load_old(subscreen_object const& old) override;
+	virtual int16_t getX() const override; //Returns x in pixels
+	virtual int16_t getY() const override; //Returns y in pixels
+	virtual word getW() const override; //Returns width in pixels
+	virtual word getH() const override; //Returns height in pixels
+	virtual int16_t getXOffs() const override; //Returns any special x-offset
+	virtual byte getType() const override;
+	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
 };
 
 struct SubscrPage
 {
 	std::vector<SubscrWidget> contents;
+	int32_t cursor_pos;
 	
 	void draw(BITMAP* dest, int32_t xofs, int32_t yofs, byte pos, bool showtime);
 };

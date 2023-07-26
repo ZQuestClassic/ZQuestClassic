@@ -152,43 +152,6 @@ struct sso_struct
 extern sso_struct bisso[ssoMAX];
 
 
-struct subscreen_object
-{
-    byte  type;
-    byte  pos;
-    int16_t  x;
-    int16_t  y;
-    word  w;
-    word  h;
-    byte  colortype1;
-    int16_t color1;
-    byte  colortype2;
-    int16_t color2;
-    byte  colortype3;
-    int16_t color3;
-    int32_t   d1;
-    int32_t   d2;
-    int32_t   d3; //pos
-    int32_t   d4; //up
-    int32_t   d5; //down
-    int32_t   d6; //left
-    int32_t   d7; //right
-    int32_t   d8;
-    int32_t   d9;
-    int32_t   d10;
-    byte  frames;
-    byte  speed;
-    byte  delay;
-    word  frame;
-    void  *dp1;
-};
-
-struct subscreen_group
-{
-    byte             ss_type;
-    char             name[64];
-    subscreen_object objects[MAXSUBSCREENITEMS];
-};
 
 
 
@@ -294,11 +257,11 @@ int32_t ss_objects(subscreen_group *tempss);
 void purge_blank_subscreen_objects(subscreen_group *tempss);
 int32_t subscreen_cset(int32_t c1, int32_t c2);
 
-int32_t sso_x(subscreen_object *tempsso);
-int32_t sso_y(subscreen_object *tempsso);
-int32_t sso_h(subscreen_object *tempsso);
-int32_t sso_w(subscreen_object *tempsso);
-int32_t get_alignment(subscreen_object *tempsso);
+int32_t sso_x(subscreen_object const* tempsso);
+int32_t sso_y(subscreen_object const* tempsso);
+int32_t sso_h(subscreen_object const* tempsso);
+int32_t sso_w(subscreen_object const* tempsso);
+int32_t get_alignment(subscreen_object const* tempsso);
 void sso_bounding_box(BITMAP *bmp, subscreen_group *tempss, int32_t index, int32_t color);
 
 
