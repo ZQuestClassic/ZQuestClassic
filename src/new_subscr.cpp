@@ -861,6 +861,35 @@ void SW_LMap::draw(BITMAP* dest, int32_t xofs, int32_t yofs) const
 		c_plr.get_color(), flags&SUBSCR_LMAP_LARGE);
 }
 
+SW_Clear::SW_Clear(subscreen_object const& old) : SW_Clear()
+{
+	load_old(old);
+}
+bool SW_Clear::load_old(subscreen_object const& old)
+{
+	if(old.type != ssoCLEAR)
+		return false;
+	SubscrWidget::load_old(old);
+	c_bg.load_old(old,1);
+	return true;
+}
+word SW_Clear::getW() const
+{
+	return 5;
+}
+word SW_Clear::getH() const
+{
+	return 5;
+}
+byte SW_Clear::getType() const
+{
+	return ssoCLEAR;
+}
+void SW_Clear::draw(BITMAP* dest, int32_t xofs, int32_t yofs) const
+{
+	clear_to_color(dest,c_bg.get_color());
+}
+
 
 SubscrWidget SubscrWidget::fromOld(subscreen_object const& old)
 {
@@ -895,6 +924,7 @@ SubscrWidget SubscrWidget::fromOld(subscreen_object const& old)
 		case ssoLARGEMAP:
 			return SW_LMap(old);
 		case ssoCLEAR:
+			return SW_Clear(old);
 		case ssoCURRENTITEM:
 		case ssoITEM:
 		case ssoTRIFRAME:

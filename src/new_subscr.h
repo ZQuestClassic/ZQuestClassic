@@ -318,6 +318,20 @@ struct SW_LMap : public SubscrWidget
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs) const override;
 };
 
+struct SW_Clear : public SubscrWidget
+{
+	SubscrColorInfo c_bg;
+	
+	SW_Clear() = default;
+	SW_Clear(subscreen_object const& old);
+	
+	virtual bool load_old(subscreen_object const& old) override;
+	virtual word getW() const override; //Returns width in pixels
+	virtual word getH() const override; //Returns height in pixels
+	virtual byte getType() const override;
+	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs) const override;
+};
+
 
 struct SubscrPage
 {
