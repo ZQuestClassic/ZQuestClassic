@@ -8,6 +8,7 @@
 #include <vector>
 
 struct SubscrPage;
+struct PACKFILE;
 
 //Old subscreen stuff
 struct subscreen_object
@@ -55,6 +56,8 @@ struct SubscrColorInfo
 	int32_t get_cset() const;
 	int32_t get_color() const;
 	void load_old(subscreen_object const& old, int indx);
+	int32_t read(PACKFILE *f, word s_version);
+	int32_t write(PACKFILE *f) const;
 };
 
 enum
@@ -113,6 +116,7 @@ struct SubscrWidget
 	//!TODO Generic InitD[]?
 	
 	SubscrWidget() = default;
+	SubscrWidget(byte ty);
 	SubscrWidget(subscreen_object const& old);
 	
 	virtual bool load_old(subscreen_object const& old);
@@ -126,10 +130,15 @@ struct SubscrWidget
 	virtual int32_t getItemVal() const;
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const;
 	virtual bool visible(byte pos, bool showtime) const;
+	virtual SubscrWidget* clone() const;
+	virtual int32_t write(PACKFILE *f) const;
 	
-	static SubscrWidget fromOld(subscreen_object const& old);
+	static SubscrWidget* fromOld(subscreen_object const& old);
+	static SubscrWidget* readWidg(PACKFILE* f, word s_version);
 protected:
 	byte type;
+	
+	virtual int32_t read(PACKFILE *f, word s_version);
 };
 
 #define SUBSCR_2X2FR_TRANSP    SUBSCRFLAG_SPEC_01
@@ -147,6 +156,10 @@ struct SW_2x2Frame : public SubscrWidget
 	virtual word getH() const override; //Returns height in pixels
 	virtual byte getType() const override;
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
+	virtual SubscrWidget* clone() const override;
+	virtual int32_t write(PACKFILE *f) const override;
+protected:
+	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
 
 struct SW_Text : public SubscrWidget
@@ -167,6 +180,10 @@ struct SW_Text : public SubscrWidget
 	virtual int16_t getXOffs() const override; //Returns any special x-offset
 	virtual byte getType() const override;
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
+	virtual SubscrWidget* clone() const override;
+	virtual int32_t write(PACKFILE *f) const override;
+protected:
+	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
 
 #define SUBSCR_LINE_TRANSP     SUBSCRFLAG_SPEC_01
@@ -180,6 +197,10 @@ struct SW_Line : public SubscrWidget
 	virtual bool load_old(subscreen_object const& old) override;
 	virtual byte getType() const override;
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
+	virtual SubscrWidget* clone() const override;
+	virtual int32_t write(PACKFILE *f) const override;
+protected:
+	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
 
 #define SUBSCR_RECT_TRANSP     SUBSCRFLAG_SPEC_01
@@ -194,6 +215,10 @@ struct SW_Rect : public SubscrWidget
 	virtual bool load_old(subscreen_object const& old) override;
 	virtual byte getType() const override;
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
+	virtual SubscrWidget* clone() const override;
+	virtual int32_t write(PACKFILE *f) const override;
+protected:
+	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
 
 struct SW_Time : public SubscrWidget
@@ -203,6 +228,7 @@ struct SW_Time : public SubscrWidget
 	SubscrColorInfo c_text, c_shadow, c_bg;
 	
 	SW_Time() = default;
+	SW_Time(byte ty);
 	SW_Time(subscreen_object const& old);
 	
 	virtual bool load_old(subscreen_object const& old) override;
@@ -214,6 +240,10 @@ struct SW_Time : public SubscrWidget
 	virtual byte getType() const override;
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
 	virtual bool visible(byte pos, bool showtime) const override;
+	virtual SubscrWidget* clone() const override;
+	virtual int32_t write(PACKFILE *f) const override;
+protected:
+	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
 
 struct SW_MagicMeter : public SubscrWidget
@@ -227,6 +257,10 @@ struct SW_MagicMeter : public SubscrWidget
 	virtual word getH() const override; //Returns height in pixels
 	virtual byte getType() const override;
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
+	virtual SubscrWidget* clone() const override;
+	virtual int32_t write(PACKFILE *f) const override;
+protected:
+	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
 
 #define SUBSCR_LIFEMET_BOT     SUBSCRFLAG_SPEC_01
@@ -242,6 +276,10 @@ struct SW_LifeMeter : public SubscrWidget
 	virtual word getH() const override; //Returns height in pixels
 	virtual byte getType() const override;
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
+	virtual SubscrWidget* clone() const override;
+	virtual int32_t write(PACKFILE *f) const override;
+protected:
+	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
 
 #define SUBSCR_BTNITM_TRANSP   SUBSCRFLAG_SPEC_01
@@ -256,6 +294,10 @@ struct SW_ButtonItem : public SubscrWidget
 	virtual word getH() const override; //Returns height in pixels
 	virtual byte getType() const override;
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
+	virtual SubscrWidget* clone() const override;
+	virtual int32_t write(PACKFILE *f) const override;
+protected:
+	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
 
 #define SUBSCR_COUNTER_SHOW0   SUBSCRFLAG_SPEC_01
@@ -281,6 +323,10 @@ struct SW_Counter : public SubscrWidget
 	virtual int16_t getXOffs() const override; //Returns any special x-offset
 	virtual byte getType() const override;
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
+	virtual SubscrWidget* clone() const override;
+	virtual int32_t write(PACKFILE *f) const override;
+protected:
+	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
 
 #define SUBSCR_COUNTERS_USEX   SUBSCRFLAG_SPEC_01
@@ -303,6 +349,10 @@ struct SW_Counters : public SubscrWidget
 	virtual word getH() const override; //Returns height in pixels
 	virtual byte getType() const override;
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
+	virtual SubscrWidget* clone() const override;
+	virtual int32_t write(PACKFILE *f) const override;
+protected:
+	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
 
 #define SUBSCR_MMAPTIT_REQMAP  SUBSCRFLAG_SPEC_01
@@ -321,6 +371,10 @@ struct SW_MMapTitle : public SubscrWidget
 	virtual int16_t getXOffs() const override; //Returns any special x-offset
 	virtual byte getType() const override;
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
+	virtual SubscrWidget* clone() const override;
+	virtual int32_t write(PACKFILE *f) const override;
+protected:
+	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
 
 #define SUBSCR_MMAP_SHOWMAP    SUBSCRFLAG_SPEC_01
@@ -338,6 +392,10 @@ struct SW_MMap : public SubscrWidget
 	virtual word getH() const override; //Returns height in pixels
 	virtual byte getType() const override;
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
+	virtual SubscrWidget* clone() const override;
+	virtual int32_t write(PACKFILE *f) const override;
+protected:
+	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
 
 #define SUBSCR_LMAP_SHOWMAP    SUBSCRFLAG_SPEC_01
@@ -356,6 +414,10 @@ struct SW_LMap : public SubscrWidget
 	virtual word getH() const override; //Returns height in pixels
 	virtual byte getType() const override;
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
+	virtual SubscrWidget* clone() const override;
+	virtual int32_t write(PACKFILE *f) const override;
+protected:
+	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
 
 struct SW_Clear : public SubscrWidget
@@ -370,6 +432,10 @@ struct SW_Clear : public SubscrWidget
 	virtual word getH() const override; //Returns height in pixels
 	virtual byte getType() const override;
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
+	virtual SubscrWidget* clone() const override;
+	virtual int32_t write(PACKFILE *f) const override;
+protected:
+	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
 
 #define SUBSCR_CURITM_INVIS    SUBSCRFLAG_SPEC_01
@@ -387,6 +453,10 @@ struct SW_CurrentItem : public SubscrWidget
 	virtual byte getType() const override;
 	virtual int32_t getItemVal() const override;
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
+	virtual SubscrWidget* clone() const override;
+	virtual int32_t write(PACKFILE *f) const override;
+protected:
+	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
 
 #define SUBSCR_TRIFR_SHOWFR    SUBSCRFLAG_SPEC_01
@@ -406,6 +476,10 @@ struct SW_TriFrame : public SubscrWidget
 	virtual word getH() const override; //Returns height in pixels
 	virtual byte getType() const override;
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
+	virtual SubscrWidget* clone() const override;
+	virtual int32_t write(PACKFILE *f) const override;
+protected:
+	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
 
 #define SUBSCR_MCGUF_OVERLAY   SUBSCRFLAG_SPEC_01
@@ -423,6 +497,10 @@ struct SW_McGuffin : public SubscrWidget
 	virtual word getH() const override; //Returns height in pixels
 	virtual byte getType() const override;
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
+	virtual SubscrWidget* clone() const override;
+	virtual int32_t write(PACKFILE *f) const override;
+protected:
+	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
 
 #define SUBSCR_TILEBL_OVERLAY  SUBSCRFLAG_SPEC_01
@@ -441,6 +519,10 @@ struct SW_TileBlock : public SubscrWidget
 	virtual word getH() const override; //Returns height in pixels
 	virtual byte getType() const override;
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
+	virtual SubscrWidget* clone() const override;
+	virtual int32_t write(PACKFILE *f) const override;
+protected:
+	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
 
 #define SUBSCR_MINITL_OVERLAY  SUBSCRFLAG_SPEC_01
@@ -460,6 +542,10 @@ struct SW_MiniTile : public SubscrWidget
 	virtual word getH() const override; //Returns height in pixels
 	virtual byte getType() const override;
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
+	virtual SubscrWidget* clone() const override;
+	virtual int32_t write(PACKFILE *f) const override;
+protected:
+	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
 
 bool new_widget_type(int ty);
@@ -467,7 +553,9 @@ struct SW_Temp : public SubscrWidget
 {
 	subscreen_object old;
 	SW_Temp() = default;
+	SW_Temp(byte ty);
 	SW_Temp(subscreen_object const& old);
+	~SW_Temp();
 	
 	virtual bool load_old(subscreen_object const& old) override;
 	virtual int16_t getX() const override; //Returns x in pixels
@@ -477,21 +565,37 @@ struct SW_Temp : public SubscrWidget
 	virtual int16_t getXOffs() const override; //Returns any special x-offset
 	virtual byte getType() const override;
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
+	virtual SubscrWidget* clone() const override;
+	virtual int32_t write(PACKFILE *f) const override;
+protected:
+	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
 
 struct SubscrPage
 {
-	std::vector<SubscrWidget> contents;
+	std::vector<SubscrWidget*> contents;
 	int32_t cursor_pos;
 	
+	void clear();
 	void draw(BITMAP* dest, int32_t xofs, int32_t yofs, byte pos, bool showtime);
+	
+	SubscrPage() = default;
+	~SubscrPage();
+	SubscrPage& operator=(SubscrPage const& other);
+	SubscrPage(const SubscrPage& other);
+	
+	int32_t read(PACKFILE *f, word s_version);
+	int32_t write(PACKFILE *f) const;
 };
 struct ZCSubscreen
 {
 	std::vector<SubscrPage> pages;
-	size_t curpage;
+	byte curpage, sub_type;
+	std::string name;
 	
 	void draw(BITMAP* dest, int32_t xofs, int32_t yofs, byte pos, bool showtime);
+	int32_t read(PACKFILE *f, word s_version);
+	int32_t write(PACKFILE *f) const;
 };
 
 #endif
