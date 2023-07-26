@@ -268,7 +268,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 		{
 			case sso2X2FRAME:
 			case ssoCURRENTITEM:
-			case ssoTRIFORCE:
+			case ssoMCGUFFIN:
 			case ssoTILEBLOCK:
 			case ssoTEXTBOX:
 				loadw = local_subref.w;
@@ -505,7 +505,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				col_grid->add(MISC_COLOR_SEL("Number Color", 2));
 				break;
 			}
-			case ssoTRIFORCE:
+			case ssoMCGUFFIN:
 			{
 				col_grid->add(MISC_CSET_SEL("CSet", 1));
 				break;
@@ -1210,7 +1210,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				);
 				break;
 			}
-			case ssoTRIFORCE:
+			case ssoMCGUFFIN:
 			{
 				mergetype = mtLOCTOP;
 				attrib_grid = Rows<2>(padding = 0_px,

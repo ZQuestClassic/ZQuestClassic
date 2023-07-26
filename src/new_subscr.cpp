@@ -937,6 +937,80 @@ void SW_CurrentItem::draw(BITMAP* dest, int32_t xofs, int32_t yofs) const
 	subscreenitem(dest, getX()+xofs,getY()+yofs, iid>0 ? ((iid-1) | 0x8000) : iclass);
 }
 
+SW_TriFrame::SW_TriFrame(subscreen_object const& old) : SW_TriFrame()
+{
+	load_old(old);
+}
+bool SW_TriFrame::load_old(subscreen_object const& old)
+{
+	if(old.type != ssoTRIFRAME)
+		return false;
+	SubscrWidget::load_old(old);
+	frame_tile = old.d1;
+	frame_cset = old.d2;
+	piece_tile = old.d3;
+	piece_cset = old.d4;
+	SETFLAG(flags,SUBSCR_TRIFR_SHOWFR,old.d5);
+	SETFLAG(flags,SUBSCR_TRIFR_SHOWPC,old.d6);
+	SETFLAG(flags,SUBSCR_TRIFR_LGPC,old.d7);
+	c_outline.load_old(old,1);
+	c_number.load_old(old,2);
+	return true;
+}
+word SW_TriFrame::getW() const
+{
+	return 16*((flags&SUBSCR_TRIFR_LGPC)?7:6);
+}
+word SW_TriFrame::getH() const
+{
+	return 16*((flags&SUBSCR_TRIFR_LGPC)?7:3);
+}
+byte SW_TriFrame::getType() const
+{
+	return ssoTRIFRAME;
+}
+void SW_TriFrame::draw(BITMAP* dest, int32_t xofs, int32_t yofs) const
+{
+	puttriframe(dest, getX()+xofs,getY()+yofs, c_outline.get_color(), c_number.get_color(),
+		frame_tile, frame_cset, piece_tile, piece_cset, flags&SUBSCR_TRIFR_SHOWFR,
+		flags&SUBSCR_TRIFR_SHOWPC, flags&SUBSCR_TRIFR_LGPC);
+}
+
+SW_McGuffin::SW_McGuffin(subscreen_object const& old) : SW_McGuffin()
+{
+	load_old(old);
+}
+bool SW_McGuffin::load_old(subscreen_object const& old)
+{
+	if(old.type != ssoMCGUFFIN)
+		return false;
+	SubscrWidget::load_old(old);
+	tile = old.d1;
+	cset = old.d2;
+	number = old.d5;
+	SETFLAG(flags,SUBSCR_MCGUF_OVERLAY,old.d3);
+	SETFLAG(flags,SUBSCR_MCGUF_TRANSP,old.d4);
+	cs.load_old(old,1);
+	return true;
+}
+word SW_McGuffin::getW() const
+{
+	return 16;
+}
+word SW_McGuffin::getH() const
+{
+	return 16;
+}
+byte SW_McGuffin::getType() const
+{
+	return ssoMCGUFFIN;
+}
+void SW_McGuffin::draw(BITMAP* dest, int32_t xofs, int32_t yofs) const
+{
+	puttriforce(dest,getX()+xofs,getY()+yofs,tile,cs.get_cset(),w,h,
+		cset,flags&SUBSCR_MCGUF_OVERLAY,flags&SUBSCR_MCGUF_TRANSP,number);
+}
+
 SubscrWidget SubscrWidget::fromOld(subscreen_object const& old)
 {
 	switch(old.type)
@@ -973,9 +1047,10 @@ SubscrWidget SubscrWidget::fromOld(subscreen_object const& old)
 			return SW_Clear(old);
 		case ssoCURRENTITEM:
 			return SW_CurrentItem(old);
-		case ssoITEM:
 		case ssoTRIFRAME:
-		case ssoTRIFORCE:
+			return SW_TriFrame(old);
+		case ssoMCGUFFIN:
+			return SW_McGuffin(old);
 		case ssoTILEBLOCK:
 		case ssoMINITILE:
 		case ssoSELECTOR1:
@@ -992,6 +1067,13 @@ SubscrWidget SubscrWidget::fromOld(subscreen_object const& old)
 		case ssoCURRENTITEMCLASSNAME:
 		case ssoSELECTEDITEMCLASSNAME:
 			break; //!TODO SUBSCR
+		case ssoITEM:
+		{
+			SubscrWidget ret(old);
+			ret.w = 16;
+			ret.h = 16;
+			return ret;
+		}
 		case ssoICON:
 		{
 			SubscrWidget ret(old);

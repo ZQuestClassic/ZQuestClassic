@@ -24,7 +24,7 @@ enum
 	sso2X2FRAME, ssoTEXT, ssoLINE, ssoRECT, ssoBSTIME,
 	ssoTIME, ssoSSTIME, ssoMAGICMETER, ssoLIFEMETER, ssoBUTTONITEM,
 	ssoICON, ssoCOUNTER, ssoCOUNTERS, ssoMINIMAPTITLE, ssoMINIMAP,
-	ssoLARGEMAP, ssoCLEAR, ssoCURRENTITEM, ssoITEM, ssoTRIFRAME, ssoTRIFORCE,
+	ssoLARGEMAP, ssoCLEAR, ssoCURRENTITEM, ssoITEM, ssoTRIFRAME, ssoMCGUFFIN,
 	ssoTILEBLOCK, ssoMINITILE, ssoSELECTOR1, ssoSELECTOR2, ssoMAGICGAUGE,
 	ssoLIFEGAUGE, ssoTEXTBOX, ssoCURRENTITEMTILE, ssoSELECTEDITEMTILE, 
 	ssoCURRENTITEMTEXT, ssoCURRENTITEMNAME, ssoSELECTEDITEMNAME,
@@ -337,6 +337,7 @@ struct SW_Clear : public SubscrWidget
 struct SW_CurrentItem : public SubscrWidget
 {
 	int32_t iclass, iid;
+	
 	SW_CurrentItem() = default;
 	SW_CurrentItem(subscreen_object const& old);
 	
@@ -347,6 +348,41 @@ struct SW_CurrentItem : public SubscrWidget
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs) const override;
 };
 
+#define SUBSCR_TRIFR_SHOWFR    SUBSCRFLAG_SPEC_01
+#define SUBSCR_TRIFR_SHOWPC    SUBSCRFLAG_SPEC_02
+#define SUBSCR_TRIFR_LGPC      SUBSCRFLAG_SPEC_03
+struct SW_TriFrame : public SubscrWidget
+{
+	int32_t frame_tile, piece_tile;
+	byte frame_cset, piece_cset;
+	SubscrColorInfo c_outline, c_number;
+	
+	SW_TriFrame() = default;
+	SW_TriFrame(subscreen_object const& old);
+	
+	virtual bool load_old(subscreen_object const& old) override;
+	virtual word getW() const override; //Returns width in pixels
+	virtual word getH() const override; //Returns height in pixels
+	virtual byte getType() const override;
+	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs) const override;
+};
+
+#define SUBSCR_MCGUF_OVERLAY   SUBSCRFLAG_SPEC_01
+#define SUBSCR_MCGUF_TRANSP    SUBSCRFLAG_SPEC_02
+struct SW_McGuffin : public SubscrWidget
+{
+	int32_t tile, number;
+	byte cset;
+	SubscrColorInfo cs;
+	SW_McGuffin() = default;
+	SW_McGuffin(subscreen_object const& old);
+	
+	virtual bool load_old(subscreen_object const& old) override;
+	virtual word getW() const override; //Returns width in pixels
+	virtual word getH() const override; //Returns height in pixels
+	virtual byte getType() const override;
+	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs) const override;
+};
 
 struct SubscrPage
 {

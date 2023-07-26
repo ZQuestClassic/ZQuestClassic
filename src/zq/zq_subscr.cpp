@@ -1812,7 +1812,7 @@ int32_t d_ssrt_btn4_proc(int32_t msg,DIALOG *d,int32_t c)
 const char *sso_type[ssoMAX]=
 {
     "ssoNULL", "ssoNONE", "sso2X2FRAME", "ssoTEXT", "ssoLINE", "ssoRECT", "ssoBSTIME", "ssoTIME", "ssoSSTIME", "ssoMAGICMETER", "ssoLIFEMETER", "ssoBUTTONITEM", "ssoICON", "ssoCOUNTER",
-    "ssoCOUNTERS", "ssoMINIMAPTITLE", "ssoMINIMAP", "ssoLARGEMAP", "ssoCLEAR", "ssoCURRENTITEM", "ssoITEM", "ssoTRIFRAME", "ssoTRIFORCE", "ssoTILEBLOCK", "ssoMINITILE", "ssoSELECTOR1", "ssoSELECTOR2",
+    "ssoCOUNTERS", "ssoMINIMAPTITLE", "ssoMINIMAP", "ssoLARGEMAP", "ssoCLEAR", "ssoCURRENTITEM", "ssoITEM", "ssoTRIFRAME", "ssoMCGUFFIN", "ssoTILEBLOCK", "ssoMINITILE", "ssoSELECTOR1", "ssoSELECTOR2",
     "ssoMAGICGAUGE", "ssoLIFEGAUGE", "ssoTEXTBOX", "ssoCURRENTITEMTILE", "ssoSELECTEDITEMTILE", "ssoCURRENTITEMTEXT", "ssoCURRENTITEMNAME", "ssoSELECTEDITEMNAME", "ssoCURRENTITEMCLASSTEXT",
     "ssoCURRENTITEMCLASSNAME", "ssoSELECTEDITEMCLASSNAME"
 };
@@ -1926,7 +1926,7 @@ bool save_subscreen_code(char *path)
             {
                 int32_t t=css->objects[i].type;
                 
-                if(t==sso2X2FRAME||t==ssoCURRENTITEMTILE||t==ssoICON||t==ssoMINITILE||t==ssoSELECTEDITEMTILE||t==ssoSELECTOR1||t==ssoSELECTOR2||t==ssoTRIFORCE||t==ssoTILEBLOCK)
+                if(t==sso2X2FRAME||t==ssoCURRENTITEMTILE||t==ssoICON||t==ssoMINITILE||t==ssoSELECTEDITEMTILE||t==ssoSELECTOR1||t==ssoSELECTOR2||t==ssoMCGUFFIN||t==ssoTILEBLOCK)
                 {
                     sprintf(buf, "%s, ", sso_specialcset[css->objects[i].color1]);
                     pack_fputs(buf, f);
@@ -1988,7 +1988,7 @@ bool save_subscreen_code(char *path)
             {
                 int32_t t=css->objects[i].type;
                 
-                if(t==sso2X2FRAME||t==ssoCURRENTITEMTILE||t==ssoICON||t==ssoMINITILE||t==ssoSELECTEDITEMTILE||t==ssoSELECTOR1||t==ssoSELECTOR2||t==ssoTRIFORCE||t==ssoTILEBLOCK)
+                if(t==sso2X2FRAME||t==ssoCURRENTITEMTILE||t==ssoICON||t==ssoMINITILE||t==ssoSELECTEDITEMTILE||t==ssoSELECTOR1||t==ssoSELECTOR2||t==ssoMCGUFFIN||t==ssoTILEBLOCK)
                 {
                     sprintf(buf, "%s, ", sso_specialcset[css->objects[i].color2]);
                     pack_fputs(buf, f);
@@ -2050,7 +2050,7 @@ bool save_subscreen_code(char *path)
             {
                 int32_t t=css->objects[i].type;
                 
-                if(t==sso2X2FRAME||t==ssoCURRENTITEMTILE||t==ssoICON||t==ssoMINITILE||t==ssoSELECTEDITEMTILE||t==ssoSELECTOR1||t==ssoSELECTOR2||t==ssoTRIFORCE||t==ssoTILEBLOCK)
+                if(t==sso2X2FRAME||t==ssoCURRENTITEMTILE||t==ssoICON||t==ssoMINITILE||t==ssoSELECTEDITEMTILE||t==ssoSELECTOR1||t==ssoSELECTOR2||t==ssoMCGUFFIN||t==ssoTILEBLOCK)
                 {
                     sprintf(buf, "%s, ", sso_specialcset[css->objects[i].color3]);
                     pack_fputs(buf, f);
@@ -2641,7 +2641,7 @@ const char *sso_str[ssoMAX]=
 {
     "NULL", "(None)", "2x2 Frame", "Text", "Line", "Rectangle", "BS-Zelda Time", "Game Time", "Game Time (Quest Rule)", "Magic Meter", "Life Meter",
     "Button Item", "-Icon (Not Implemented)", "Counter", "Counter Block", "Minimap Title", "Minimap", "Large Map", "Background Color", "Current Item", "-Item (Not Implemented)",
-    "Triforce Frame", "Triforce Piece", "Tile Block", "Minitile", "Selector 1", "Selector 2", "Magic Gauge Piece", "Life Gauge Piece", "Text Box", "-Current Item -> Tile (Not Implemented)",
+    "Triangle Frame", "McGuffin Piece", "Tile Block", "Minitile", "Selector 1", "Selector 2", "Magic Gauge Piece", "Life Gauge Piece", "Text Box", "-Current Item -> Tile (Not Implemented)",
     "-Selected Item -> Tile (Not Implemented)", "-Current Item -> Text (Not Implemented)", "-Current Item Name (Not Implemented)", "Selected Item Name",
     "-Current Item Class -> Text (Not Implemented)", "-Current Item Class Name (Not Implemented)", "-Selected Item Class Name (Not Implemented)"
 };
@@ -2801,7 +2801,7 @@ std::string getssname(int32_t type)
 		case ssoCURRENTITEM: return "ssoCURRENTITEM";
 		case ssoITEM: return "ssoITEM";
 		case ssoTRIFRAME: return "ssoTRIFRAME";
-		case ssoTRIFORCE: return "ssoTRIFORCE";
+		case ssoMCGUFFIN: return "ssoMCGUFFIN";
 		case ssoTILEBLOCK: return "ssoTILEBLOCK";
 		case ssoMINITILE: return "ssoMINITILE";
 		case ssoSELECTOR1: return "ssoSELECTOR1";
@@ -4373,7 +4373,7 @@ void copySSOProperties(subscreen_object& src, subscreen_object& dest)
             doCopySSOProperties(src, dest, D1|D2|D3|D4|D5|D6|D7|COLOR1|COLOR2);
             break;
             
-        case ssoTRIFORCE: // Single piece
+        case ssoMCGUFFIN: // Single piece
             doCopySSOProperties(src, dest, D1|D2|D3|D4|COLOR1);
             break;
             
