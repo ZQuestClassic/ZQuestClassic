@@ -4905,6 +4905,13 @@ void clear_darkroom_bitmaps()
 
 void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay=false)
 {
+	if (tmp == 0)
+	{
+		zapp_reporting_set_tag("screen", scr);
+		if (destdmap != -1)
+			zapp_reporting_set_tag("dmap", destdmap);
+	}
+
 	auto oscr = homescr;
 	homescr = scr;
 	if (tmp == 0 && replay_is_active())

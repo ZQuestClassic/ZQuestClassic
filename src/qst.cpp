@@ -22785,6 +22785,10 @@ invalid:
 
 int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctune *tunes, bool show_progress, bool keepall, byte *skip_flags, byte printmetadata, bool report, byte qst_num)
 {
+	const char* basename = get_filename(filename);
+	zapp_reporting_add_breadcrumb("load_quest", basename);
+	zapp_reporting_set_tag("qst.filename", basename);
+
 	loading_qst_name = filename;
 	loading_qst_num = qst_num;
 	// In CI, builds are cached for replay tests, which can result in their build dates being earlier than what it would be locally.
@@ -22796,5 +22800,9 @@ int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, z
 	loading_qst_name = NULL;
 	loadquest_report = false;
 	loading_qst_num = 0;
+
+	zapp_reporting_set_tag("qst.title", Header->title);
+	zapp_reporting_set_tag("qst.zc_version", Header->getVerStr());
+
 	return ret;
 }
