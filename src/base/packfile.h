@@ -29,35 +29,21 @@ INLINE bool pfwrite(void *p,int32_t n,PACKFILE *f)
 	return success;
 }
 
-INLINE bool pfread(void *p,int32_t n,PACKFILE *f,bool keepdata)
+INLINE bool pfread(void *p,int32_t n,PACKFILE *f)
 {
 	bool success;
 	
-	if(keepdata==true)
+	success=(pack_fread(p,n,f)==n);
+	
+	if(success)
 	{
-		success=(pack_fread(p,n,f)==n);
-		
-		if(success)
-		{
-			readsize+=n;
-		}
-		
-		return success;
+		readsize+=n;
 	}
-	else
-	{
-		success=(pack_fseek(f,n)==0);
-		
-		if(success)
-		{
-			readsize+=n;
-		}
-		
-		return success;
-	}
+	
+	return success;
 }
 
-INLINE bool p_getc(void *p,PACKFILE *f,bool keepdata)
+INLINE bool p_getc(void *p,PACKFILE *f)
 {
 	uint8_t *cp = (uint8_t *)p;
 	int32_t c;
@@ -86,10 +72,7 @@ INLINE bool p_getc(void *p,PACKFILE *f,bool keepdata)
 		return false;
 	}
 	
-	if(keepdata==true)
-	{
-		*cp = c;
-	}
+	*cp = c;
 	
 	readsize+=1;
 	return true;
@@ -125,7 +108,7 @@ INLINE bool p_putc(int32_t c,PACKFILE *f)
 	return success;
 }
 
-INLINE bool p_igetw(void *p,PACKFILE *f,bool keepdata)
+INLINE bool p_igetw(void *p,PACKFILE *f)
 {
 	int16_t *cp = (int16_t *)p;
 	int32_t c;
@@ -154,10 +137,7 @@ INLINE bool p_igetw(void *p,PACKFILE *f,bool keepdata)
 		return false;
 	}
 	
-	if(keepdata==true)
-	{
-		*cp = c;
-	}
+	*cp = c;
 	
 	readsize+=2;
 	return true;
@@ -193,7 +173,7 @@ INLINE bool p_iputw(int32_t c,PACKFILE *f)
 	return success;
 }
 
-INLINE bool p_igetl(void *p,PACKFILE *f,bool keepdata)
+INLINE bool p_igetl(void *p,PACKFILE *f)
 {
 	dword *cp = (dword *)p;
 	int32_t c;
@@ -222,16 +202,13 @@ INLINE bool p_igetl(void *p,PACKFILE *f,bool keepdata)
 		return false;
 	}
 	
-	if(keepdata==true)
-	{
-		*cp = c;
-	}
+	*cp = c;
 	
 	readsize+=4;
 	return true;
 }
 
-INLINE bool p_igetzf(void *p,PACKFILE *f,bool keepdata)
+INLINE bool p_igetzf(void *p,PACKFILE *f)
 {
 	zfix *cp = (zfix *)p;
 	int32_t c;
@@ -260,24 +237,22 @@ INLINE bool p_igetzf(void *p,PACKFILE *f,bool keepdata)
 		return false;
 	}
 	
-	if(keepdata==true)
-	{
-		*cp = zslongToFix(c);
-	}
+	*cp = zslongToFix(c);
 	
 	readsize+=4;
 	return true;
 }
 
-INLINE bool p_igetd(void *p, PACKFILE *f, bool keepdata)
+INLINE bool p_igetd(void *p, PACKFILE *f)
 {
 	int32_t temp;
-	bool result = p_igetl(&temp,f,keepdata);
+	bool result = p_igetl(&temp,f);
 	*(int32_t *)p=(int32_t)temp;
 	return result;
 }
 
-INLINE bool p_igetf(void *p,PACKFILE *f,bool keepdata)
+// Floats are not serializable, do not use!
+INLINE bool p_igetf_DO_NOT_USE(void *p,PACKFILE *f)
 {
 	if(!f) return false;
 	
@@ -298,28 +273,25 @@ INLINE bool p_igetf(void *p,PACKFILE *f,bool keepdata)
 	
 	byte tempfloat[sizeof(float)];
 	
-	if(!pfread(tempfloat,sizeof(float),f,true))
+	if(!pfread(tempfloat,sizeof(float),f))
 		return false;
 		
-	if(keepdata)
-	{
-		memset(p, 0,sizeof(float));
+	memset(p, 0,sizeof(float));
 #ifdef ALLEGRO_MACOSX
-		
-		for(int32_t i=0; i<(int32_t)sizeof(float); i++)
-		{
-			((byte *)p)[i] = tempfloat[i];
-		}
-		
-#else
-		
-		for(int32_t i=0; i<(int32_t)sizeof(float); i++)
-		{
-			((byte *)p)[sizeof(float)-i-1] = tempfloat[i];
-		}
-		
-#endif
+	
+	for(int32_t i=0; i<(int32_t)sizeof(float); i++)
+	{
+		((byte *)p)[i] = tempfloat[i];
 	}
+	
+#else
+	
+	for(int32_t i=0; i<(int32_t)sizeof(float); i++)
+	{
+		((byte *)p)[sizeof(float)-i-1] = tempfloat[i];
+	}
+	
+#endif
 	
 	readsize += sizeof(float);
 	return true;
@@ -385,7 +357,7 @@ INLINE bool p_iputzf(zfix const& c,PACKFILE *f)
 	return success;
 }
 
-INLINE bool p_mgetw(void *p,PACKFILE *f,bool keepdata)
+INLINE bool p_mgetw(void *p,PACKFILE *f)
 {
 	int16_t *cp = (int16_t *)p;
 	int32_t c;
@@ -414,10 +386,7 @@ INLINE bool p_mgetw(void *p,PACKFILE *f,bool keepdata)
 		return false;
 	}
 	
-	if(keepdata==true)
-	{
-		*cp = c;
-	}
+	*cp = c;
 	
 	readsize+=2;
 	return true;
@@ -453,7 +422,7 @@ INLINE bool p_mputw(int32_t c,PACKFILE *f)
 	return success;
 }
 
-INLINE bool p_mgetl(void *p,PACKFILE *f,bool keepdata)
+INLINE bool p_mgetl(void *p,PACKFILE *f)
 {
 	dword *cp = (dword *)p;
 	int32_t c;
@@ -482,10 +451,7 @@ INLINE bool p_mgetl(void *p,PACKFILE *f,bool keepdata)
 		return false;
 	}
 	
-	if(keepdata==true)
-	{
-		*cp = c;
-	}
+	*cp = c;
 	
 	readsize+=4;
 	return true;
@@ -521,22 +487,20 @@ INLINE bool p_mputl(int32_t c,PACKFILE *f)
 	return success;
 }
 
-INLINE bool p_getcstr(std::string *str, PACKFILE *f, bool keepdata)
+INLINE bool p_getcstr(std::string *str, PACKFILE *f)
 {
-	if(keepdata)
-		str->clear();
+	str->clear();
 	byte sz = 0;
-	if(!p_getc(&sz,f,true))
+	if(!p_getc(&sz,f))
 		return false;
 	if(sz) //string found
 	{
 		char dummy;
 		for(size_t q = 0; q < sz; ++q)
 		{
-			if(!p_getc(&dummy,f,keepdata))
+			if(!p_getc(&dummy,f))
 				return false;
-			if(keepdata)
-				str->push_back(dummy);
+			str->push_back(dummy);
 		}
 	}
 	return true;
@@ -556,22 +520,20 @@ INLINE bool p_putcstr(std::string const& str, PACKFILE *f)
 	}
 	return true;
 }
-INLINE bool p_getwstr(std::string *str, PACKFILE *f, bool keepdata)
+INLINE bool p_getwstr(std::string *str, PACKFILE *f)
 {
-	if(keepdata)
-		str->clear();
+	str->clear();
 	word sz = 0;
-	if(!p_igetw(&sz,f,true))
+	if(!p_igetw(&sz,f))
 		return false;
 	if(sz) //string found
 	{
 		char dummy;
 		for(size_t q = 0; q < sz; ++q)
 		{
-			if(!p_getc(&dummy,f,keepdata))
+			if(!p_getc(&dummy,f))
 				return false;
-			if(keepdata)
-				str->push_back(dummy);
+			str->push_back(dummy);
 		}
 	}
 	return true;
@@ -593,22 +555,20 @@ INLINE bool p_putwstr(std::string const& str, PACKFILE *f)
 }
 
 template<typename T>
-INLINE bool p_getcvec(std::vector<T> *vec, PACKFILE *f, bool keepdata)
+INLINE bool p_getcvec(std::vector<T> *vec, PACKFILE *f)
 {
-	if(keepdata)
-		vec->clear();
+	vec->clear();
 	byte sz = 0;
-	if(!p_getc(&sz,f,true))
+	if(!p_getc(&sz,f))
 		return false;
 	if(sz) //vec found
 	{
 		T dummy;
 		for(size_t q = 0; q < sz; ++q)
 		{
-			if(!pfread(&dummy,sizeof(T),f,keepdata))
+			if(!pfread(&dummy,sizeof(T),f))
 				return false;
-			if(keepdata)
-				vec->push_back(dummy);
+			vec->push_back(dummy);
 		}
 	}
 	return true;
@@ -630,22 +590,20 @@ INLINE bool p_putcvec(std::vector<T> const& vec, PACKFILE *f)
 	return true;
 }
 template<typename T>
-INLINE bool p_getwvec(std::vector<T> *vec, PACKFILE *f, bool keepdata)
+INLINE bool p_getwvec(std::vector<T> *vec, PACKFILE *f)
 {
-	if(keepdata)
-		vec->clear();
+	vec->clear();
 	word sz = 0;
-	if(!p_igetw(&sz,f,true))
+	if(!p_igetw(&sz,f))
 		return false;
 	if(sz) //vec found
 	{
 		T dummy;
 		for(size_t q = 0; q < sz; ++q)
 		{
-			if(!pfread(&dummy,sizeof(T),f,keepdata))
+			if(!pfread(&dummy,sizeof(T),f))
 				return false;
-			if(keepdata)
-				vec->push_back(dummy);
+			vec->push_back(dummy);
 		}
 	}
 	return true;
@@ -667,22 +625,20 @@ INLINE bool p_putwvec(std::vector<T> const& vec, PACKFILE *f)
 	return true;
 }
 template<typename T>
-INLINE bool p_getlvec(std::vector<T> *vec, PACKFILE *f, bool keepdata)
+INLINE bool p_getlvec(std::vector<T> *vec, PACKFILE *f)
 {
-	if(keepdata)
-		vec->clear();
+	vec->clear();
 	dword sz = 0;
-	if(!p_igetl(&sz,f,true))
+	if(!p_igetl(&sz,f))
 		return false;
 	if(sz) //vec found
 	{
 		T dummy;
 		for(size_t q = 0; q < sz; ++q)
 		{
-			if(!pfread(&dummy,sizeof(T),f,keepdata))
+			if(!pfread(&dummy,sizeof(T),f))
 				return false;
-			if(keepdata)
-				vec->push_back(dummy);
+			vec->push_back(dummy);
 		}
 	}
 	return true;

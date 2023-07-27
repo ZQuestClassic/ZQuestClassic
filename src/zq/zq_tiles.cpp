@@ -4135,14 +4135,14 @@ void load_imagebuf()
 			goto error;
 		}
 		
-		if(!p_mgetl(&section_id,f,true))
+		if(!p_mgetl(&section_id,f))
 		{
 			goto error;
 		}
 		
 		if(section_id==ID_TILES)
 		{
-			if(readtiles(f, grabtilebuf, NULL, ZELDA_VERSION, VERSION_BUILD, 0, NEWMAXTILES, false, true)==0)
+			if(readtiles(f, grabtilebuf, NULL, ZELDA_VERSION, VERSION_BUILD, 0, NEWMAXTILES, false)==0)
 			{
 				goto error;
 			}
@@ -4163,7 +4163,7 @@ error:
 			goto error2;
 		}
 		
-		if(!p_mgetl(&section_id,f,true))
+		if(!p_mgetl(&section_id,f))
 		{
 			goto error2;
 		}
@@ -4174,25 +4174,25 @@ error:
 		}
 		
 		//section version info
-		if(!p_igetw(&section_version,f,true))
+		if(!p_igetw(&section_version,f))
 		{
 			goto error2;
 		}
 		
-		if(!p_igetw(&section_cversion,f,true))
+		if(!p_igetw(&section_cversion,f))
 		{
 			goto error2;
 		}
 		
 		//tiles
-		if(!p_mgetl(&section_id,f,true))
+		if(!p_mgetl(&section_id,f))
 		{
 			goto error2;
 		}
 		
 		if(section_id==ID_TILES)
 		{
-			if(readtiles(f, grabtilebuf, NULL, ZELDA_VERSION, VERSION_BUILD, 0, NEWMAXTILES, false, true)!=0)
+			if(readtiles(f, grabtilebuf, NULL, ZELDA_VERSION, VERSION_BUILD, 0, NEWMAXTILES, false)!=0)
 			{
 				goto error2;
 			}
@@ -4220,7 +4220,7 @@ error2:
 		
 		set_bit(skip_flags,skip_tiles,0);
 		set_bit(skip_flags,skip_header,0);
-		int ret = loadquest(imagepath,&tempheader,&QMisc,customtunes,true,true,skip_flags);
+		int ret = loadquest(imagepath,&tempheader,&QMisc,customtunes,true,skip_flags);
 		if (ret)
 		{
 			imagetype=0;
@@ -14840,19 +14840,19 @@ int32_t readtilefile(PACKFILE *f)
 	int32_t zversion = 0;
 	int32_t zbuild = 0;
 	
-	if(!p_igetl(&zversion,f,true))
+	if(!p_igetl(&zversion,f))
 	{
 		return 0;
 	}
-	if(!p_igetl(&zbuild,f,true))
+	if(!p_igetl(&zbuild,f))
 	{
 		return 0;
 	}
-	if(!p_igetw(&section_version,f,true))
+	if(!p_igetw(&section_version,f))
 	{
 		return 0;
 	}
-	if(!p_igetw(&section_cversion,f,true))
+	if(!p_igetw(&section_cversion,f))
 	{
 		return 0;
 	}
@@ -14880,14 +14880,14 @@ int32_t readtilefile(PACKFILE *f)
 	int32_t count = 0;
 	
 	//tile id
-	if(!p_igetl(&index,f,true))
+	if(!p_igetl(&index,f))
 	{
 		return 0;
 	}
 	al_trace("Reading tile: index(%d)\n", index);
 	
 	//tile count
-	if(!p_igetl(&count,f,true))
+	if(!p_igetl(&count,f))
 	{
 		return 0;
 	}
@@ -14901,14 +14901,14 @@ int32_t readtilefile(PACKFILE *f)
 		byte *temp_tile = new byte[tilesize(tf32Bit)];
 		byte format=tf4Bit;
 		memset(temp_tile, 0, tilesize(tf32Bit));
-		if(!p_getc(&format,f,true))
+		if(!p_getc(&format,f))
 		{
 			delete[] temp_tile;
 			return 0;
 		}
 
 				
-		if(!pfread(temp_tile,tilesize(format),f,true))
+		if(!pfread(temp_tile,tilesize(format),f))
 		{
 			delete[] temp_tile;
 			return 0;
@@ -14936,19 +14936,19 @@ int32_t readtilefile_to_location(PACKFILE *f, int32_t start, int32_t skip)
 	int32_t zversion = 0;
 	int32_t zbuild = 0;
 	
-	if(!p_igetl(&zversion,f,true))
+	if(!p_igetl(&zversion,f))
 	{
 		return 0;
 	}
-	if(!p_igetl(&zbuild,f,true))
+	if(!p_igetl(&zbuild,f))
 	{
 		return 0;
 	}
-	if(!p_igetw(&section_version,f,true))
+	if(!p_igetw(&section_version,f))
 	{
 		return 0;
 	}
-	if(!p_igetw(&section_cversion,f,true))
+	if(!p_igetw(&section_cversion,f))
 	{
 		return 0;
 	}
@@ -14976,14 +14976,14 @@ int32_t readtilefile_to_location(PACKFILE *f, int32_t start, int32_t skip)
 	int32_t count = 0;
 	
 	//tile id
-	if(!p_igetl(&index,f,true))
+	if(!p_igetl(&index,f))
 	{
 		return 0;
 	}
 	al_trace("Reading tile: index(%d)\n", index);
 	
 	//tile count
-	if(!p_igetl(&count,f,true))
+	if(!p_igetl(&count,f))
 	{
 		return 0;
 	}
@@ -14995,14 +14995,14 @@ int32_t readtilefile_to_location(PACKFILE *f, int32_t start, int32_t skip)
 		byte *temp_tile = new byte[tilesize(tf32Bit)];
 		byte format=tf4Bit;
 		memset(temp_tile, 0, tilesize(tf32Bit));
-		if(!p_getc(&format,f,true))
+		if(!p_getc(&format,f))
 		{
 			delete[] temp_tile;
 			return 0;
 		}
 
 				
-		if(!pfread(temp_tile,tilesize(format),f,true))
+		if(!pfread(temp_tile,tilesize(format),f))
 		{
 			delete[] temp_tile;
 			return 0;
@@ -15044,19 +15044,19 @@ int32_t readtilefile_to_location(PACKFILE *f, int32_t start)
 	int32_t zversion = 0;
 	int32_t zbuild = 0;
 	
-	if(!p_igetl(&zversion,f,true))
+	if(!p_igetl(&zversion,f))
 	{
 		return 0;
 	}
-	if(!p_igetl(&zbuild,f,true))
+	if(!p_igetl(&zbuild,f))
 	{
 		return 0;
 	}
-	if(!p_igetw(&section_version,f,true))
+	if(!p_igetw(&section_version,f))
 	{
 		return 0;
 	}
-	if(!p_igetw(&section_cversion,f,true))
+	if(!p_igetw(&section_cversion,f))
 	{
 		return 0;
 	}
@@ -15084,14 +15084,14 @@ int32_t readtilefile_to_location(PACKFILE *f, int32_t start)
 	int32_t count = 0;
 	
 	//tile id
-	if(!p_igetl(&index,f,true))
+	if(!p_igetl(&index,f))
 	{
 		return 0;
 	}
 	al_trace("Reading tile: index(%d)\n", index);
 	
 	//tile count
-	if(!p_igetl(&count,f,true))
+	if(!p_igetl(&count,f))
 	{
 		return 0;
 	}
@@ -15106,14 +15106,14 @@ int32_t readtilefile_to_location(PACKFILE *f, int32_t start)
 		byte format=tf4Bit;
 		memset(temp_tile, 0, tilesize(tf32Bit));
 		
-		if(!p_getc(&format,f,true))
+		if(!p_getc(&format,f))
 		{
 			delete[] temp_tile;
 			return 0;
 		}
 
 				
-		if(!pfread(temp_tile,tilesize(format),f,true))
+		if(!pfread(temp_tile,tilesize(format),f))
 		{
 			delete[] temp_tile;
 			return 0;
@@ -19121,73 +19121,73 @@ int32_t readcombofile_old(PACKFILE *f, int32_t skip, byte nooverwrite, int32_t z
 	for ( int32_t tilect = 0; tilect < count; tilect++ )
 	{
 		temp_combo.clear();
-		if(!p_igetw(&temp_combo.tile,f,true))
+		if(!p_igetw(&temp_combo.tile,f))
 		{
 			return 0;
 		}
 		temp_combo.o_tile = temp_combo.tile;
 			
-		if(!p_getc(&temp_combo.flip,f,true))
+		if(!p_getc(&temp_combo.flip,f))
 		{
 			return 0;
 		}
 			
-		if(!p_getc(&temp_combo.walk,f,true))
+		if(!p_getc(&temp_combo.walk,f))
 		{
 			return 0;
 		}
 			
-		if(!p_getc(&temp_combo.type,f,true))
+		if(!p_getc(&temp_combo.type,f))
 		{
 			return 0;
 		}
 			
-		if(!p_getc(&temp_combo.csets,f,true))
+		if(!p_getc(&temp_combo.csets,f))
 		{
 			return 0;
 		}
 			
-		if(!p_getc(&temp_combo.frames,f,true))
+		if(!p_getc(&temp_combo.frames,f))
 		{
 			return 0;
 		}
 			
-		if(!p_getc(&temp_combo.speed,f,true))
+		if(!p_getc(&temp_combo.speed,f))
 		{
 			return 0;
 		}
 			
-		if(!p_igetw(&temp_combo.nextcombo,f,true))
+		if(!p_igetw(&temp_combo.nextcombo,f))
 		{
 			return 0;
 		}
 			
-		if(!p_getc(&temp_combo.nextcset,f,true))
+		if(!p_getc(&temp_combo.nextcset,f))
 		{
 			return 0;
 		}
 			
-		if(!p_getc(&temp_combo.flag,f,true))
+		if(!p_getc(&temp_combo.flag,f))
 		{
 			return 0;
 		}
 			
-		if(!p_getc(&temp_combo.skipanim,f,true))
+		if(!p_getc(&temp_combo.skipanim,f))
 		{
 			return 0;
 		}
 			
-		if(!p_igetw(&temp_combo.nexttimer,f,true))
+		if(!p_igetw(&temp_combo.nexttimer,f))
 		{
 			return 0;
 		}
 			
-		if(!p_getc(&temp_combo.skipanimy,f,true))
+		if(!p_getc(&temp_combo.skipanimy,f))
 		{
 			return 0;
 		}
 			
-		if(!p_getc(&temp_combo.animflags,f,true))
+		if(!p_getc(&temp_combo.animflags,f))
 		{
 			return 0;
 		}
@@ -19199,30 +19199,30 @@ int32_t readcombofile_old(PACKFILE *f, int32_t skip, byte nooverwrite, int32_t z
 			{
 				for ( int32_t q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
 				{
-					if(!p_igetl(&temp_combo.attributes[q],f,true))
+					if(!p_igetl(&temp_combo.attributes[q],f))
 					{
 						return 0;
 					}
 				}
-				if(!p_igetl(&temp_combo.usrflags,f,true))
+				if(!p_igetl(&temp_combo.usrflags,f))
 				{
 						return 0;
 				}	 
 				for ( int32_t q = 0; q < 3; q++ ) 
 				{
-					if(!p_igetl(&temp_combo.triggerflags[q],f,true))
+					if(!p_igetl(&temp_combo.triggerflags[q],f))
 					{
 						return 0;
 					}
 				}
 				   
-				if(!p_igetl(&temp_combo.triggerlevel,f,true))
+				if(!p_igetl(&temp_combo.triggerlevel,f))
 				{
 						return 0;
 				}
 				if(section_version >= 22)
 				{
-					if(!p_getc(&temp_combo.triggerbtn,f,true))
+					if(!p_getc(&temp_combo.triggerbtn,f))
 					{
 						return 0;
 					}
@@ -19239,18 +19239,18 @@ int32_t readcombofile_old(PACKFILE *f, int32_t skip, byte nooverwrite, int32_t z
 				}
 				if(section_version >= 24)
 				{
-					if(!p_getc(&temp_combo.triggeritem,f,true))
+					if(!p_getc(&temp_combo.triggeritem,f))
 					{
 						return 0;
 					}
-					if(!p_getc(&temp_combo.trigtimer,f,true))
+					if(!p_getc(&temp_combo.trigtimer,f))
 					{
 						return 0;
 					}
 				}
 				if(section_version >= 25)
 				{
-					if(!p_getc(&temp_combo.trigsfx,f,true))
+					if(!p_getc(&temp_combo.trigsfx,f))
 					{
 						return 0;
 					}
@@ -19276,7 +19276,7 @@ int32_t readcombofile_old(PACKFILE *f, int32_t skip, byte nooverwrite, int32_t z
 				}
 				if(section_version >= 27)
 				{
-					if(!p_igetl(&temp_combo.trigchange,f,true))
+					if(!p_igetl(&temp_combo.trigchange,f))
 					{
 						return qe_invalid;
 					}
@@ -19292,15 +19292,15 @@ int32_t readcombofile_old(PACKFILE *f, int32_t skip, byte nooverwrite, int32_t z
 				}
 				if(section_version >= 29)
 				{
-					if(!p_igetw(&temp_combo.trigprox,f,true))
+					if(!p_igetw(&temp_combo.trigprox,f))
 					{
 						return qe_invalid;
 					}
-					if(!p_getc(&temp_combo.trigctr,f,true))
+					if(!p_getc(&temp_combo.trigctr,f))
 					{
 						return qe_invalid;
 					}
-					if(!p_igetl(&temp_combo.trigctramnt,f,true))
+					if(!p_igetl(&temp_combo.trigctramnt,f))
 					{
 						return qe_invalid;
 					}
@@ -19313,7 +19313,7 @@ int32_t readcombofile_old(PACKFILE *f, int32_t skip, byte nooverwrite, int32_t z
 				}
 				if(section_version >= 30)
 				{
-					if(!p_getc(&temp_combo.triglbeam,f,true))
+					if(!p_getc(&temp_combo.triglbeam,f))
 					{
 						return qe_invalid;
 					}
@@ -19321,27 +19321,27 @@ int32_t readcombofile_old(PACKFILE *f, int32_t skip, byte nooverwrite, int32_t z
 				else temp_combo.triglbeam = 0;
 				if(section_version >= 31)
 				{
-					if(!p_getc(&temp_combo.trigcschange,f,true))
+					if(!p_getc(&temp_combo.trigcschange,f))
 					{
 						return qe_invalid;
 					}
-					if(!p_igetw(&temp_combo.spawnitem,f,true))
+					if(!p_igetw(&temp_combo.spawnitem,f))
 					{
 						return qe_invalid;
 					}
-					if(!p_igetw(&temp_combo.spawnenemy,f,true))
+					if(!p_igetw(&temp_combo.spawnenemy,f))
 					{
 						return qe_invalid;
 					}
-					if(!p_getc(&temp_combo.exstate,f,true))
+					if(!p_getc(&temp_combo.exstate,f))
 					{
 						return qe_invalid;
 					}
-					if(!p_igetl(&temp_combo.spawnip,f,true))
+					if(!p_igetl(&temp_combo.spawnip,f))
 					{
 						return qe_invalid;
 					}
-					if(!p_getc(&temp_combo.trigcopycat,f,true))
+					if(!p_getc(&temp_combo.trigcopycat,f))
 					{
 						return qe_invalid;
 					}
@@ -19357,7 +19357,7 @@ int32_t readcombofile_old(PACKFILE *f, int32_t skip, byte nooverwrite, int32_t z
 				}
 				if(section_version >= 32)
 				{
-					if(!p_getc(&temp_combo.trigcooldown,f,true))
+					if(!p_getc(&temp_combo.trigcooldown,f))
 					{
 						return qe_invalid;
 					}
@@ -19370,7 +19370,7 @@ int32_t readcombofile_old(PACKFILE *f, int32_t skip, byte nooverwrite, int32_t z
 				label[11] = '\0';
 				for ( int32_t q = 0; q < 11; q++ ) 
 				{
-					if(!p_getc(&label[q],f,true))
+					if(!p_getc(&label[q],f))
 					{
 						return 0;
 					}
@@ -19381,7 +19381,7 @@ int32_t readcombofile_old(PACKFILE *f, int32_t skip, byte nooverwrite, int32_t z
 			{
 				for ( int32_t q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
 				{
-					if(!p_getc(&temp_combo.attribytes[q],f,true))
+					if(!p_getc(&temp_combo.attribytes[q],f))
 					{
 						return 0;
 					}
@@ -19409,19 +19409,19 @@ int32_t readcombofile(PACKFILE *f, int32_t skip, byte nooverwrite, int32_t start
 	int32_t zversion = 0;
 	int32_t zbuild = 0;
 	
-	if(!p_igetl(&zversion,f,true))
+	if(!p_igetl(&zversion,f))
 	{
 		return 0;
 	}
-	if(!p_igetl(&zbuild,f,true))
+	if(!p_igetl(&zbuild,f))
 	{
 		return 0;
 	}
-	if(!p_igetw(&section_version,f,true))
+	if(!p_igetw(&section_version,f))
 	{
 		return 0;
 	}
-	if(!p_igetw(&section_cversion,f,true))
+	if(!p_igetw(&section_cversion,f))
 	{
 		return 0;
 	}
@@ -19447,7 +19447,7 @@ int32_t readcombofile(PACKFILE *f, int32_t skip, byte nooverwrite, int32_t start
 	int32_t count = 0;
 	
 	//tile id
-	if(!p_igetl(&index,f,true))
+	if(!p_igetl(&index,f))
 	{
 		return 0;
 	}
@@ -19455,7 +19455,7 @@ int32_t readcombofile(PACKFILE *f, int32_t skip, byte nooverwrite, int32_t start
 	// al_trace("Reading combo: index(%d)\n", index);
 	
 	//tile count
-	if(!p_igetl(&count,f,true))
+	if(!p_igetl(&count,f))
 	{
 		return 0;
 	}
@@ -19550,19 +19550,19 @@ int32_t readcomboaliasfile(PACKFILE *f)
 	int32_t zbuild = 0;
 	word tempword = 0;
 	
-	if(!p_igetl(&zversion,f,true))
+	if(!p_igetl(&zversion,f))
 	{
 		return 0;
 	}
-	if(!p_igetl(&zbuild,f,true))
+	if(!p_igetl(&zbuild,f))
 	{
 		return 0;
 	}
-	if(!p_igetw(&section_version,f,true))
+	if(!p_igetw(&section_version,f))
 	{
 		return 0;
 	}
-	if(!p_igetw(&section_cversion,f,true))
+	if(!p_igetw(&section_cversion,f))
 	{
 		return 0;
 	}
@@ -19592,14 +19592,14 @@ int32_t readcomboaliasfile(PACKFILE *f)
 	byte tempcset = 0;
 	
 	//tile id
-	if(!p_igetl(&index,f,true))
+	if(!p_igetl(&index,f))
 	{
 		return 0;
 	}
 	al_trace("Reading combo: index(%d)\n", index);
 	
 	//tile count
-	if(!p_igetl(&count,f,true))
+	if(!p_igetl(&count,f))
 	{
 		return 0;
 	}
@@ -19611,34 +19611,34 @@ int32_t readcomboaliasfile(PACKFILE *f)
 	for ( int32_t tilect = 0; tilect < count; tilect++ )
 	{
 		memset(&temp_alias, 0, sizeof(temp_alias));
-		if(!p_igetw(&temp_alias.combo,f,true))
+		if(!p_igetw(&temp_alias.combo,f))
 			{
 				return 0;
 			}
 			
-			if(!p_getc(&temp_alias.cset,f,true))
+			if(!p_getc(&temp_alias.cset,f))
 			{
 				return 0;
 			}
 			
 			
 		
-		if(!p_igetl(&count2,f,true))
+		if(!p_igetl(&count2,f))
 			{
 				return 0;
 			}
 		al_trace("Read, Combo alias count is: %d\n", count2);
-			if(!p_getc(&temp_alias.width,f,true))
+			if(!p_getc(&temp_alias.width,f))
 			{
 				return 0;
 			}
 			
-			if(!p_getc(&temp_alias.height,f,true))
+			if(!p_getc(&temp_alias.height,f))
 			{
 				return 0;
 			}
 			
-			if(!p_getc(&temp_alias.layermask,f,true))
+			if(!p_getc(&temp_alias.layermask,f))
 			{
 				return 0;
 			}
@@ -19650,7 +19650,7 @@ int32_t readcomboaliasfile(PACKFILE *f)
 		temp_alias.csets = new byte[count2];
 			for(int32_t k=0; k<count2; k++)
 			{
-				if(!p_igetw(&tempword,f,true))
+				if(!p_igetw(&tempword,f))
 				{
 			//al_trace("Could not reas alias.combos[%d]\n",k);
 					return 0;
@@ -19669,8 +19669,8 @@ int32_t readcomboaliasfile(PACKFILE *f)
 			
 			for(int32_t k=0; k<count2; k++)
 			{
-				if(!p_getc(&tempcset,f,true))
-				//if(!p_getc(&temp_alias.csets[k],f,true))
+				if(!p_getc(&tempcset,f))
+				//if(!p_getc(&temp_alias.csets[k],f))
 		{
 					return 0;
 				}
@@ -19701,19 +19701,19 @@ int32_t readcomboaliasfile_to_location(PACKFILE *f, int32_t start)
 	int32_t zversion = 0;
 	int32_t zbuild = 0;
 	
-	if(!p_igetl(&zversion,f,true))
+	if(!p_igetl(&zversion,f))
 	{
 		return 0;
 	}
-	if(!p_igetl(&zbuild,f,true))
+	if(!p_igetl(&zbuild,f))
 	{
 		return 0;
 	}
-	if(!p_igetw(&section_version,f,true))
+	if(!p_igetw(&section_version,f))
 	{
 		return 0;
 	}
-	if(!p_igetw(&section_cversion,f,true))
+	if(!p_igetw(&section_cversion,f))
 	{
 		return 0;
 	}
@@ -19745,14 +19745,14 @@ int32_t readcomboaliasfile_to_location(PACKFILE *f, int32_t start)
 	
 	
 	//tile id
-	if(!p_igetl(&index,f,true))
+	if(!p_igetl(&index,f))
 	{
 		return 0;
 	}
 	al_trace("Reading tile: index(%d)\n", index);
 	
 	//tile count
-	if(!p_igetl(&count,f,true))
+	if(!p_igetl(&count,f))
 	{
 		return 0;
 	}
@@ -19765,34 +19765,34 @@ int32_t readcomboaliasfile_to_location(PACKFILE *f, int32_t start)
 	for ( int32_t tilect = 0; tilect < count; tilect++ )
 	{
 		memset(&temp_alias, 0, sizeof(temp_alias));
-		if(!p_igetw(&temp_alias.combo,f,true))
+		if(!p_igetw(&temp_alias.combo,f))
 			{
 				return 0;
 			}
 			
-			if(!p_getc(&temp_alias.cset,f,true))
+			if(!p_getc(&temp_alias.cset,f))
 			{
 				return 0;
 			}
 			
 			int32_t count2 = 0;
 		
-		if(!p_igetl(&count2,f,true))
+		if(!p_igetl(&count2,f))
 			{
 				return 0;
 			}
 		
-			if(!p_getc(&temp_alias.width,f,true))
+			if(!p_getc(&temp_alias.width,f))
 			{
 				return 0;
 			}
 			
-			if(!p_getc(&temp_alias.height,f,true))
+			if(!p_getc(&temp_alias.height,f))
 			{
 				return 0;
 			}
 			
-			if(!p_getc(&temp_alias.layermask,f,true))
+			if(!p_getc(&temp_alias.layermask,f))
 			{
 				return 0;
 			}
@@ -19805,7 +19805,7 @@ int32_t readcomboaliasfile_to_location(PACKFILE *f, int32_t start)
 		
 			for(int32_t k=0; k<count2; k++)
 			{
-				if(!p_igetw(&tempword,f,true))
+				if(!p_igetw(&tempword,f))
 				{
 					return 0;
 				}
@@ -19817,7 +19817,7 @@ int32_t readcomboaliasfile_to_location(PACKFILE *f, int32_t start)
 			
 			for(int32_t k=0; k<count2; k++)
 			{
-				if(!p_getc(&tempcset,f,true))
+				if(!p_getc(&tempcset,f))
 				{
 					return 0;
 				}

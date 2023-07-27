@@ -357,7 +357,7 @@ int32_t get_version_and_build(PACKFILE *f, word *version, word *build)
         return qe_invalid;
     }
     
-    ret=readheader(f, &tempheader, true);
+    ret=readheader(f, &tempheader);
     
     if(ret)
     {
@@ -417,7 +417,7 @@ bool find_section(PACKFILE *f, int32_t section_id_requested)
     dword section_size;
     
     //section id
-    if(!p_mgetl(&section_id_read,f,true))
+    if(!p_mgetl(&section_id_read,f))
     {
         return false;
     }
@@ -456,7 +456,7 @@ bool find_section(PACKFILE *f, int32_t section_id_requested)
             //section id
             section_id_read=(section_id_read<<8);
             
-            if(!p_getc(&tempbyte,f,true))
+            if(!p_getc(&tempbyte,f))
             {
                 return false;
             }
@@ -471,18 +471,18 @@ bool find_section(PACKFILE *f, int32_t section_id_requested)
         else
         {
             //section version info
-            if(!p_igetw(&dummy,f,true))
+            if(!p_igetw(&dummy,f))
             {
                 return false;
             }
             
-            if(!p_igetw(&dummy,f,true))
+            if(!p_igetw(&dummy,f))
             {
                 return false;
             }
             
             //section size
-            if(!p_igetl(&section_size,f,true))
+            if(!p_igetl(&section_size,f))
             {
                 return false;
             }
@@ -490,20 +490,20 @@ bool find_section(PACKFILE *f, int32_t section_id_requested)
             //pack_fseek(f, section_size);
             while(section_size>65535)
             {
-                pfread(tempbuf,65535,f,true);
+                pfread(tempbuf,65535,f);
                 tempbuf[65535]=0;
                 section_size-=65535;
             }
             
             if(section_size>0)
             {
-                pfread(tempbuf,section_size,f,true);
+                pfread(tempbuf,section_size,f);
                 tempbuf[section_size]=0;
             }
         }
         
         //section id
-        if(!p_mgetl(&section_id_read,f,true))
+        if(!p_mgetl(&section_id_read,f))
         {
             return false;
         }
@@ -533,37 +533,37 @@ bool valid_zqt(PACKFILE *f)
     byte build;
     
     //read the version and make sure it worked
-    if(!p_igetw(&version,f,true))
+    if(!p_igetw(&version,f))
     {
       goto error;
     }
     
     //read the build and make sure it worked
-    if(!p_getc(&build,f,true))
+    if(!p_getc(&build,f))
       goto error;
     
     //read the tile info and make sure it worked
-    if(!p_igetw(&tiles_used,f,true))
+    if(!p_igetw(&tiles_used,f))
     {
       goto error;
     }
     
     for (int32_t i=0; i<tiles_used; i++)
     {
-      if(!pfread(trashbuf,tilesize(tf4Bit),f,true))
+      if(!pfread(trashbuf,tilesize(tf4Bit),f))
       {
         goto error;
       }
     }
     
     //read the combo info and make sure it worked
-    if(!p_igetw(&combos_used,f,true))
+    if(!p_igetw(&combos_used,f))
     {
       goto error;
     }
     for (int32_t i=0; i<combos_used; i++)
     {
-      if(!pfread(trashbuf,sizeof(newcombo),f,true))
+      if(!pfread(trashbuf,sizeof(newcombo),f))
       {
         goto error;
       }
@@ -572,18 +572,18 @@ bool valid_zqt(PACKFILE *f)
     //read the palette info and make sure it worked
     for (int32_t i=0; i<48; i++)
     {
-      if(!pfread(trashbuf,newpdTOTAL,f,true))
+      if(!pfread(trashbuf,newpdTOTAL,f))
       {
         goto error;
       }
     }
-    if(!pfread(trashbuf,sizeof(palcycle)*256*3,f,true))
+    if(!pfread(trashbuf,sizeof(palcycle)*256*3,f))
     {
       goto error;
     }
     for (int32_t i=0; i<MAXLEVELS; i++)
     {
-      if(!pfread(trashbuf,PALNAMESIZE,f,true))
+      if(!pfread(trashbuf,PALNAMESIZE,f))
       {
         goto error;
       }
@@ -592,7 +592,7 @@ bool valid_zqt(PACKFILE *f)
     //read the sprite info and make sure it worked
     for (int32_t i=0; i<MAXITEMS; i++)
     {
-      if(!pfread(trashbuf,sizeof(itemdata),f,true))
+      if(!pfread(trashbuf,sizeof(itemdata),f))
       {
         goto error;
       }
@@ -600,7 +600,7 @@ bool valid_zqt(PACKFILE *f)
     
     for (int32_t i=0; i<MAXWPNS; i++)
     {
-      if(!pfread(trashbuf,sizeof(wpndata),f,true))
+      if(!pfread(trashbuf,sizeof(wpndata),f))
       {
         goto error;
       }
@@ -609,7 +609,7 @@ bool valid_zqt(PACKFILE *f)
     //read the triforce pieces info and make sure it worked
     for (int32_t i=0; i<8; ++i)
     {
-      if(!p_getc(&trashbuf,f,true))
+      if(!p_getc(&trashbuf,f))
       {
         goto error;
       }
@@ -620,27 +620,27 @@ bool valid_zqt(PACKFILE *f)
     //read the game icons info and make sure it worked
     for (int32_t i=0; i<4; ++i)
     {
-      if(!p_igetw(&trashbuf,f,true))
+      if(!p_igetw(&trashbuf,f))
       {
         goto error;
       }
     }
     
     //read the misc colors info and map styles info and make sure it worked
-    if(!pfread(trashbuf,sizeof(zcolors),f,true))
+    if(!pfread(trashbuf,sizeof(zcolors),f))
     {
       goto error;
     }
     
     //read the template screens and make sure it worked
     byte num_maps;
-    if(!p_getc(&num_maps,f,true))
+    if(!p_getc(&num_maps,f))
     {
       goto error;
     }
     for (int32_t i=0; i<TEMPLATES; i++)
     {
-      if(!pfread(trashbuf,sizeof(mapscr),f,true))
+      if(!pfread(trashbuf,sizeof(mapscr),f))
       {
         goto error;
       }
@@ -649,7 +649,7 @@ bool valid_zqt(PACKFILE *f)
     {
       for (int32_t i=0; i<TEMPLATES; i++)
       {
-        if(!pfread(trashbuf,sizeof(mapscr),f,true))
+        if(!pfread(trashbuf,sizeof(mapscr),f))
         {
           goto error;
         }
@@ -1120,106 +1120,106 @@ bool init_section(zquestheader *Header, int32_t section_id, miscQdata *Misc, zct
     {
     case ID_RULES:
         //rules
-        ret=readrules(f, Header, true);
+        ret=readrules(f, Header);
         break;
         
     case ID_STRINGS:
         //strings
-        ret=readstrings(f, Header, true);
+        ret=readstrings(f, Header);
         break;
         
     case ID_MISC:
         //misc data
-        ret=readmisc(f, Header, Misc, true);
+        ret=readmisc(f, Header, Misc);
         break;
         
     case ID_TILES:
         //tiles
-        ret=readtiles(f, newtilebuf, Header, version, build, 0, NEWMAXTILES, true, true);
+        ret=readtiles(f, newtilebuf, Header, version, build, 0, NEWMAXTILES, true);
         break;
         
     case ID_COMBOS:
         //combos
         clear_combos();
-        ret=readcombos(f, Header, version, build, 0, MAXCOMBOS, true);
+        ret=readcombos(f, Header, version, build, 0, MAXCOMBOS);
         combosread=true;
         break;
         
     case ID_COMBOALIASES:
         //combos
-        ret=readcomboaliases(f, Header, version, build, true);
+        ret=readcomboaliases(f, Header, version, build);
         break;
         
     case ID_CSETS:
         //color data
-        ret=readcolordata(f, Misc, version, build, 0, newerpdTOTAL, true);
+        ret=readcolordata(f, Misc, version, build, 0, newerpdTOTAL);
         break;
         
     case ID_MAPS:
         //maps
-        ret=readmaps(f, Header, true);
+        ret=readmaps(f, Header);
         mapsread=true;
         break;
         
     case ID_DMAPS:
         //dmaps
-        ret=readdmaps(f, Header, version, build, 0, MAXDMAPS, true);
+        ret=readdmaps(f, Header, version, build, 0, MAXDMAPS);
         break;
         
     case ID_DOORS:
         //door combo sets
-        ret=readdoorcombosets(f, Header, true);
+        ret=readdoorcombosets(f, Header);
         break;
         
     case ID_ITEMS:
         //items
-        ret=readitems(f, version, build, true);
+        ret=readitems(f, version, build);
         break;
         
     case ID_WEAPONS:
         //weapons
-        ret=readweapons(f, Header, true);
+        ret=readweapons(f, Header);
         break;
         
     case ID_COLORS:
         //misc. colors
-        ret=readmisccolors(f, Header, Misc, true);
+        ret=readmisccolors(f, Header, Misc);
         break;
         
     case ID_ICONS:
         //game icons
-        ret=readgameicons(f, Header, Misc, true);
+        ret=readgameicons(f, Header, Misc);
         break;
         
     case ID_INITDATA:
         //initialization data
-        ret=readinitdata(f, Header, true);
+        ret=readinitdata(f, Header);
         break;
         
     case ID_GUYS:
         //guys
-        ret=readguys(f, Header, true);
+        ret=readguys(f, Header);
         break;
         
     case ID_MIDIS:
         //midis
-        ret=readtunes(f, Header, tunes, true);
+        ret=readtunes(f, Header, tunes);
         break;
         
     case ID_CHEATS:
         //cheat codes
-        ret=readcheatcodes(f, Header, true);
+        ret=readcheatcodes(f, Header);
         break;
         
     case ID_ITEMDROPSETS:
         //item drop sets
         // Why is this one commented out?
-        //ret=readitemdropsets(f, (int32_t)version, (word)build, true);
+        //ret=readitemdropsets(f, (int32_t)version, (word)build);
         break;
         
     case ID_FAVORITES:
         // favorite combos and aliases
-        ret=readfavorites(f, version, build, true);
+        ret=readfavorites(f, version, build);
         break;
         
     default:
@@ -1582,7 +1582,7 @@ bool init_palnames()
     return true;
 }
 
-static void *read_block(PACKFILE *f, int32_t size, int32_t alloc_size, bool keepdata)
+static void *read_block(PACKFILE *f, int32_t size, int32_t alloc_size)
 {
     void *p;
     
@@ -1593,7 +1593,7 @@ static void *read_block(PACKFILE *f, int32_t size, int32_t alloc_size, bool keep
         return NULL;
     }
     
-    if(!pfread(p,size,f,keepdata))
+    if(!pfread(p,size,f))
     {
         _AL_FREE(p);
         return NULL;
@@ -1613,7 +1613,7 @@ static void *read_block(PACKFILE *f, int32_t size, int32_t alloc_size, bool keep
   *  standard midi file format).
   */
 
-static MIDI *read_midi(PACKFILE *f, bool)
+static MIDI *read_midi(PACKFILE *f)
 {
     MIDI *m;
     int32_t c;
@@ -1633,17 +1633,17 @@ static MIDI *read_midi(PACKFILE *f, bool)
         m->track[c].data = NULL;
     }
     
-    p_mgetw(&divisions,f,true);
+    p_mgetw(&divisions,f);
     m->divisions=divisions;
     
     for(c=0; c<MIDI_TRACKS; c++)
     {
-        p_mgetl(&len,f,true);
+        p_mgetl(&len,f);
         m->track[c].len=len;
         
         if(m->track[c].len > 0)
         {
-            m->track[c].data = (byte*)read_block(f, m->track[c].len, 0, true);
+            m->track[c].data = (byte*)read_block(f, m->track[c].len, 0);
             
             if(!m->track[c].data)
             {
@@ -2270,7 +2270,7 @@ void print_quest_metadata(zquestheader const& tempheader, char const* path, byte
 	zprint2("\n");
 }
 
-int32_t readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printmetadata)
+int32_t readheader(PACKFILE *f, zquestheader *Header, byte printmetadata)
 {
 	int32_t dummy;
 	zquestheader tempheader;
@@ -2287,7 +2287,7 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printm
 	
 
 	
-	if(!pfread(tempheader.id_str,sizeof(tempheader.id_str),f,true))      // first read old header
+	if(!pfread(tempheader.id_str,sizeof(tempheader.id_str),f))      // first read old header
 	{
 		Z_message("Unable to read header string\n");
 		return qe_invalid;
@@ -2311,12 +2311,12 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printm
 	{
 		byte padding;
 		
-		if(!p_getc(&padding,f,true))
+		if(!p_getc(&padding,f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_igetw(&tempheader.zelda_version,f,true))
+		if(!p_igetw(&tempheader.zelda_version,f))
 		{
 			return qe_invalid;
 		}
@@ -2340,94 +2340,94 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printm
 			return qe_obsolete;
 		}
 		
-		if(!p_igetw(&tempheader.internal,f,true))
+		if(!p_igetw(&tempheader.internal,f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_getc(&tempheader.quest_number,f,true))
+		if(!p_getc(&tempheader.quest_number,f))
 		{
 			return qe_invalid;
 		}
 		
 		FFCore.quest_format[qQuestNumber] = tempheader.quest_number;
 		
-		if(!pfread(&quest_rules[0],2,f,true))
+		if(!pfread(&quest_rules[0],2,f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_getc(&temp_map_count,f,true))
+		if(!p_getc(&temp_map_count,f))
 		{
 			return qe_invalid;
 		}
 		
 		FFCore.quest_format[qMapCount] = temp_map_count;
 		
-		if(!p_getc(&tempheader.old_str_count,f,true))
+		if(!p_getc(&tempheader.old_str_count,f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_getc(&tempheader.data_flags[ZQ_TILES],f,true))
+		if(!p_getc(&tempheader.data_flags[ZQ_TILES],f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!pfread(temp_midi_flags,4,f,true))
+		if(!pfread(temp_midi_flags,4,f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_getc(&tempheader.data_flags[ZQ_CHEATS2],f,true))
+		if(!p_getc(&tempheader.data_flags[ZQ_CHEATS2],f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!pfread(dummybuf,14,f,true))
+		if(!pfread(dummybuf,14,f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!pfread(&quest_rules[2],2,f,true))
+		if(!pfread(&quest_rules[2],2,f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_getc(&dummybuf,f,true))
+		if(!p_getc(&dummybuf,f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!pfread(tempheader.version,9,f,true))
+		if(!pfread(tempheader.version,9,f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!pfread(tempheader.title,sizeof(tempheader.title),f,true))
+		if(!pfread(tempheader.title,sizeof(tempheader.title),f))
 		{
 			return qe_invalid;
 		}
 		// These fields are expected to end in null bytes!
 		tempheader.title[sizeof(tempheader.title)-1] = 0;
 		
-		if(!pfread(tempheader.author,sizeof(tempheader.author),f,true))
+		if(!pfread(tempheader.author,sizeof(tempheader.author),f))
 		{
 			return qe_invalid;
 		}
 		tempheader.author[sizeof(tempheader.author)-1] = 0;
 		
-		if(!p_getc(&padding,f,true))
+		if(!p_getc(&padding,f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_igetw(&temp_pwdkey,f,true))
+		if(!p_igetw(&temp_pwdkey,f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!pfread(temp_pwd,30,f,true))
+		if(!pfread(temp_pwd,30,f))
 		{
 			return qe_invalid;
 		}
@@ -2448,24 +2448,24 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printm
 		}
 		else
 		{
-			if(!pfread(tempheader.minver,9,f,true))
+			if(!pfread(tempheader.minver,9,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_getc(&tempheader.build,f,true))
+			if(!p_getc(&tempheader.build,f))
 			{
 				return qe_invalid;
 			}
 			
 			FFCore.quest_format[vBuild] = tempheader.build;
 			
-			if(!p_getc(&tempheader.use_keyfile,f,true))
+			if(!p_getc(&tempheader.use_keyfile,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!pfread(dummybuf,9,f,true))
+			if(!pfread(dummybuf,9,f))
 			{
 				return qe_invalid;
 			}
@@ -2477,7 +2477,7 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printm
 		}
 		else
 		{
-			if(!pfread(&quest_rules[4],16,f,true))                      // read new header additions
+			if(!pfread(&quest_rules[4],16,f))                      // read new header additions
 			{
 				return qe_invalid;                                  // starting at rules3
 			}
@@ -2505,12 +2505,12 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printm
 				mf=(byte*)dummybuf;
 			}
 			
-			if(!pfread(mf,32,f,true))                  // read new header additions
+			if(!pfread(mf,32,f))                  // read new header additions
 			{
 				return qe_invalid;                                  // starting at foo2
 			}
 			
-			if(!pfread(dummybuf,18,f,true))                        // read new header additions
+			if(!pfread(dummybuf,18,f))                        // read new header additions
 			{
 				return qe_invalid;                                  // starting at foo2
 			}
@@ -2523,7 +2523,7 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printm
 		}
 		else
 		{
-			if(!pfread(tempheader.templatepath,280,f,true))               // read templatepath
+			if(!pfread(tempheader.templatepath,280,f))               // read templatepath
 			{
 				return qe_invalid;
 			}
@@ -2538,32 +2538,32 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printm
 	else
 	{
 		//section id
-		if(!p_mgetl(&dummy,f,true))
+		if(!p_mgetl(&dummy,f))
 		{
 			return qe_invalid;
 		}
 		
 		//section version info
-		if(!p_igetw(&version,f,true))
+		if(!p_igetw(&version,f))
 		{
 			return qe_invalid;
 		}
 		
 		FFCore.quest_format[vHeader] = version;
 		
-		if(!p_igetw(&dummy,f,true))
+		if(!p_igetw(&dummy,f))
 		{
 			return qe_invalid;
 		}
 		
 		//section size
-		if(!p_igetl(&dummy,f,true))
+		if(!p_igetl(&dummy,f))
 		{
 			return qe_invalid;
 		}
 		
 		//finally...  section data
-		if(!p_igetw(&tempheader.zelda_version,f,true))
+		if(!p_igetw(&tempheader.zelda_version,f))
 		{
 			return qe_invalid;
 		}
@@ -2586,7 +2586,7 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printm
 			return qe_obsolete;
 		}
 		
-		if(!p_getc(&tempheader.build,f,true))
+		if(!p_getc(&tempheader.build,f))
 		{
 			return qe_invalid;
 		}
@@ -2595,12 +2595,12 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printm
 	
 		if(version<3)
 		{
-			if(!pfread(temp_pwd,30,f,true))
+			if(!pfread(temp_pwd,30,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_igetw(&temp_pwdkey,f,true))
+			if(!p_igetw(&temp_pwdkey,f))
 			{
 				return qe_invalid;
 			}
@@ -2612,18 +2612,18 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printm
 		}
 		else
 		{
-			if(!pfread(tempheader.pwd_hash,sizeof(tempheader.pwd_hash),f,true))
+			if(!pfread(tempheader.pwd_hash,sizeof(tempheader.pwd_hash),f))
 			{
 				return qe_invalid;
 			}
 		}
 		
-		if(!p_igetw(&tempheader.internal,f,true))
+		if(!p_igetw(&tempheader.internal,f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_getc(&tempheader.quest_number,f,true))
+		if(!p_getc(&tempheader.quest_number,f))
 		{
 			return qe_invalid;
 		}
@@ -2631,58 +2631,58 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printm
 		FFCore.quest_format[qQuestNumber] = tempheader.quest_number;
 		
 		size_t versz = version < 8 ? 9 : 16;
-		if(!pfread(tempheader.version,versz,f,true))
+		if(!pfread(tempheader.version,versz,f))
 		{
 			return qe_invalid;
 		}
 	
 		//FFCore.quest_format[qQuestVersion] = tempheader.version;
 		//needs to be copied as char[9] or stored as a s.str
-		if(!pfread(tempheader.minver,versz,f,true))
+		if(!pfread(tempheader.minver,versz,f))
 		{
 			return qe_invalid;
 		}
 	
 		//FFCore.quest_format[qMinQuestVersion] = tempheader.minver;
-		if(!pfread(tempheader.title,sizeof(tempheader.title),f,true))
+		if(!pfread(tempheader.title,sizeof(tempheader.title),f))
 		{
 			return qe_invalid;
 		}
 		tempheader.title[sizeof(tempheader.title)-1] = 0;
 		
-		if(!pfread(tempheader.author,sizeof(tempheader.author),f,true))
+		if(!pfread(tempheader.author,sizeof(tempheader.author),f))
 		{
 			return qe_invalid;
 		}
 		tempheader.author[sizeof(tempheader.author)-1] = 0;
 		
-		if(!p_getc(&tempheader.use_keyfile,f,true))
+		if(!p_getc(&tempheader.use_keyfile,f))
 		{
 			return qe_invalid;
 		}
 		
 		/*
-		  if(!pfread(tempheader.data_flags,sizeof(tempheader.data_flags),f,true))
+		  if(!pfread(tempheader.data_flags,sizeof(tempheader.data_flags),f))
 		  {
 		  return qe_invalid;
 		  }
 		  */
-		if(!p_getc(&tempheader.data_flags[ZQ_TILES],f,true))
+		if(!p_getc(&tempheader.data_flags[ZQ_TILES],f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!pfread(&dummybuf,4,f,true))
+		if(!pfread(&dummybuf,4,f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_getc(&tempheader.data_flags[ZQ_CHEATS2],f,true))
+		if(!p_getc(&tempheader.data_flags[ZQ_CHEATS2],f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!pfread(dummybuf,14,f,true))
+		if(!pfread(dummybuf,14,f))
 		{
 			return qe_invalid;
 		}
@@ -2694,123 +2694,123 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printm
 			templatepath_len=280;
 		}
 		
-		if(!pfread(tempheader.templatepath,templatepath_len,f,true))
+		if(!pfread(tempheader.templatepath,templatepath_len,f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_getc(&temp_map_count,f,true))
+		if(!p_getc(&temp_map_count,f))
 		{
 			return qe_invalid;
 		}
 	
 		if(version>=4)
 		{
-			if(!p_igetl(&tempheader.new_version_id_main,f,true))
+			if(!p_igetl(&tempheader.new_version_id_main,f))
 			{
 				return qe_invalid;
 			}
-			if(!p_igetl(&tempheader.new_version_id_second,f,true))
+			if(!p_igetl(&tempheader.new_version_id_second,f))
 			{
 				return qe_invalid;
 			}
-			if(!p_igetl(&tempheader.new_version_id_third,f,true))
+			if(!p_igetl(&tempheader.new_version_id_third,f))
 			{
 				return qe_invalid;
 			}
-			if(!p_igetl(&tempheader.new_version_id_fourth,f,true))
+			if(!p_igetl(&tempheader.new_version_id_fourth,f))
 			{
 				return qe_invalid;
 			}
-			if(!p_igetl(&tempheader.new_version_id_alpha,f,true))
+			if(!p_igetl(&tempheader.new_version_id_alpha,f))
 			{
 				return qe_invalid;
 			}
-			if(!p_igetl(&tempheader.new_version_id_beta,f,true))
+			if(!p_igetl(&tempheader.new_version_id_beta,f))
 			{
 				return qe_invalid;
 			}
-			if(!p_igetl(&tempheader.new_version_id_gamma,f,true))
+			if(!p_igetl(&tempheader.new_version_id_gamma,f))
 			{
 				return qe_invalid;
 			}
-			if(!p_igetl(&tempheader.new_version_id_release,f,true))
+			if(!p_igetl(&tempheader.new_version_id_release,f))
 			{
 				return qe_invalid;
 			}
-			if(!p_igetw(&tempheader.new_version_id_date_year,f,true))
+			if(!p_igetw(&tempheader.new_version_id_date_year,f))
 			{
 				return qe_invalid;
 			}
-			if(!p_getc(&tempheader.new_version_id_date_month,f,true))
+			if(!p_getc(&tempheader.new_version_id_date_month,f))
 			{
 				return qe_invalid;
 			}
-			if(!p_getc(&tempheader.new_version_id_date_day,f,true))
+			if(!p_getc(&tempheader.new_version_id_date_day,f))
 			{
 				return qe_invalid;
 			}
-			if(!p_getc(&tempheader.new_version_id_date_hour,f,true))
+			if(!p_getc(&tempheader.new_version_id_date_hour,f))
 			{
 				return qe_invalid;
 			}
-			if(!p_getc(&tempheader.new_version_id_date_minute,f,true))
+			if(!p_getc(&tempheader.new_version_id_date_minute,f))
 			{
 				return qe_invalid;
 			}
 					
-			if(!pfread(tempheader.new_version_devsig,256,f,true))
+			if(!pfread(tempheader.new_version_devsig,256,f))
 			{
 				return qe_invalid;
 			}
 			if(!strcmp(tempheader.new_version_devsig, "Venrob"))
 				strcpy(tempheader.new_version_devsig, "EmilyV99");
-			if(!pfread(tempheader.new_version_compilername,256,f,true))
+			if(!pfread(tempheader.new_version_compilername,256,f))
 			{
 				return qe_invalid;
 			}
-			if(!pfread(tempheader.new_version_compilerversion,256,f,true))
+			if(!pfread(tempheader.new_version_compilerversion,256,f))
 			{
 				return qe_invalid;
 			}
-			if(!pfread(tempheader.product_name,1024,f,true))
+			if(!pfread(tempheader.product_name,1024,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_getc(&tempheader.compilerid,f,true))
+			if(!p_getc(&tempheader.compilerid,f))
 			{
 				return qe_invalid;
 			}
-			if(!p_igetl(&tempheader.compilerversionnumber_first,f,true))
+			if(!p_igetl(&tempheader.compilerversionnumber_first,f))
 			{
 				return qe_invalid;
 			}
-			if(!p_igetl(&tempheader.compilerversionnumber_second,f,true))
+			if(!p_igetl(&tempheader.compilerversionnumber_second,f))
 			{
 				return qe_invalid;
 			}
-			if(!p_igetl(&tempheader.compilerversionnumber_third,f,true))
+			if(!p_igetl(&tempheader.compilerversionnumber_third,f))
 			{
 				return qe_invalid;
 			}
-			if(!p_igetl(&tempheader.compilerversionnumber_fourth,f,true))
+			if(!p_igetl(&tempheader.compilerversionnumber_fourth,f))
 			{
 				return qe_invalid;
 			}
-			if(!p_igetw(&tempheader.developerid,f,true))
+			if(!p_igetw(&tempheader.developerid,f))
 			{
 				return qe_invalid;
 			}
-			if(!pfread(tempheader.made_in_module_name,1024,f,true))
+			if(!pfread(tempheader.made_in_module_name,1024,f))
 			{
 				return qe_invalid;
 			}
-			if(!pfread(tempheader.build_datestamp,256,f,true))
+			if(!pfread(tempheader.build_datestamp,256,f))
 			{
 				return qe_invalid;
 			}
-			if(!pfread(tempheader.build_timestamp,256,f,true))
+			if(!pfread(tempheader.build_timestamp,256,f))
 			{
 				return qe_invalid;
 			}
@@ -2851,7 +2851,7 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printm
 		
 		if ( version >= 5 )
 		{
-			if(!pfread(tempheader.build_timezone,6,f,true))
+			if(!pfread(tempheader.build_timezone,6,f))
 			{
 				return qe_invalid;
 			}
@@ -2863,7 +2863,7 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printm
 		if ( version >= 6 )
 		{
 			byte b;
-			if(!p_getc(&b,f,true))
+			if(!p_getc(&b,f))
 			{
 				return qe_invalid;
 			}
@@ -2873,7 +2873,7 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printm
 		
 		if(version >= 7)
 		{
-			if(!p_getc(&(tempheader.new_version_is_nightly),f,true))
+			if(!p_getc(&(tempheader.new_version_is_nightly),f))
 			{
 				return qe_invalid;
 			}
@@ -3046,17 +3046,14 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printm
 	
 	read_ext_zinfo = tempheader.external_zinfo;
 	
-	if(keepdata==true)
-	{
-		memcpy(Header, &tempheader, sizeof(tempheader));
-		map_count=temp_map_count;
-		memcpy(midi_flags, temp_midi_flags, MIDIFLAGS_SIZE);
-	}
+	memcpy(Header, &tempheader, sizeof(tempheader));
+	map_count=temp_map_count;
+	memcpy(midi_flags, temp_midi_flags, MIDIFLAGS_SIZE);
 	
 	return 0;
 }
 
-int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
+int32_t readrules(PACKFILE *f, zquestheader *Header)
 {
 	int32_t dummy;
 	zquestheader tempheader;
@@ -3068,21 +3065,21 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	if(tempheader.zelda_version >= 0x193)
 	{
 		//section version info
-		if(!p_igetw(&s_version,f,true))
+		if(!p_igetw(&s_version,f))
 		{
 			return qe_invalid;
 		}
 	
 		FFCore.quest_format[vRules] = s_version;
 		
-		if(!p_igetw(&dummy,f,true))
+		if(!p_igetw(&dummy,f))
 		{
 			return qe_invalid;
 		}
 		
 		if(s_version > 16)
 		{
-			if(!p_igetl(&compatrule_version,f,true))
+			if(!p_igetl(&compatrule_version,f))
 			{
 				return qe_invalid;
 			}
@@ -3090,7 +3087,7 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 		FFCore.quest_format[vCompatRule] = compatrule_version;
 		
 		//section size
-		if(!p_igetl(&dummy,f,true))
+		if(!p_igetl(&dummy,f))
 		{
 			return qe_invalid;
 		}
@@ -3098,7 +3095,7 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 		if ( s_version < 15 )
 		{
 			//finally...  section data
-			if(!pfread(quest_rules,QUESTRULES_SIZE,f,true))
+			if(!pfread(quest_rules,QUESTRULES_SIZE,f))
 			{
 				return qe_invalid;
 			}
@@ -3106,7 +3103,7 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 		else
 		{
 			
-			if(!pfread(quest_rules,QUESTRULES_NEW_SIZE,f,true))
+			if(!pfread(quest_rules,QUESTRULES_NEW_SIZE,f))
 			{
 				return qe_invalid;
 			}
@@ -3779,8 +3776,7 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 	if (s_version < 16)
 		set_qr(qr_BROKEN_HORIZONTAL_WEAPON_ANIM,1);
 	
-	if(keepdata==true)
-		memcpy(Header, &tempheader, sizeof(tempheader));
+	memcpy(Header, &tempheader, sizeof(tempheader));
 	
 	return 0;
 }
@@ -3836,7 +3832,7 @@ void init_msgstrings(int32_t start, int32_t end)
     }
 }
 
-int32_t readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
+int32_t readstrings(PACKFILE *f, zquestheader *Header)
 {
 	MsgStr tempMsgString;
 	init_msgstr(&tempMsgString);
@@ -3869,7 +3865,7 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
 		}
 		else
 		{
-			if(!p_igetw(&temp_msg_count,f,true))
+			if(!p_igetw(&temp_msg_count,f))
 			{
 				return qe_invalid;
 			}
@@ -3895,17 +3891,14 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
 		}
 		
 		//reset the message strings
-		if(keepdata)
-		{
-			init_msgstrings(0,msg_strings_size);
-		}
+		init_msgstrings(0,msg_strings_size);
 		
 		for(int32_t x=0; x<strings_to_read; x++)
 		{
 			init_msgstr(&tempMsgString);
 			tempMsgString.listpos = x;
 			
-			if(!pfread(buf,73,f,true))
+			if(!pfread(buf,73,f))
 			{
 				return qe_invalid;
 			}
@@ -3913,7 +3906,7 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
 			buf[74] = '\0';
 			tempMsgString.s = buf;
 				
-			if(!p_getc(&tempbyte,f,true))
+			if(!p_getc(&tempbyte,f))
 			{
 				return qe_invalid;
 			}
@@ -3923,33 +3916,30 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
 			{
 				tempMsgString.nextstring=tempbyte?x+1:0;
 				
-				if(!p_getc(&tempbyte,f,true))
+				if(!p_getc(&tempbyte,f))
 				{
 					return qe_invalid;
 				}
 				
-				if(!p_getc(&tempbyte,f,true))
+				if(!p_getc(&tempbyte,f))
 				{
 					return qe_invalid;
 				}
 			}
 			else
 			{
-				if(!p_igetw(&tempMsgString.nextstring,f,true))
+				if(!p_igetw(&tempMsgString.nextstring,f))
 				{
 					return qe_invalid;
 				}
 				
-				if(!pfread(temp_expansion,32,f,true))
+				if(!pfread(temp_expansion,32,f))
 				{
 					return qe_invalid;
 				}
 			}
 			
-			if(keepdata==true)
-			{
-				MsgStrings[x] = tempMsgString;
-			}
+			MsgStrings[x] = tempMsgString;
 		}
 	}
 	else
@@ -3959,27 +3949,27 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
 		word s_cversion;
 		
 		//section version info
-		if(!p_igetw(&s_version,f,true))
+		if(!p_igetw(&s_version,f))
 		{
 			return qe_invalid;
 		}
 	
 		FFCore.quest_format[vStrings] = s_version;
 		
-		if(!p_igetw(&s_cversion,f,true))
+		if(!p_igetw(&s_cversion,f))
 		{
 			return qe_invalid;
 		}
 		
 		//al_trace("Strings version %d\n", s_version);
 		//section size
-		if(!p_igetl(&dummy_int,f,true))
+		if(!p_igetl(&dummy_int,f))
 		{
 			return qe_invalid;
 		}
 		
 		//finally...  section data
-		if(!p_igetw(&temp_msg_count,f,true))
+		if(!p_igetw(&temp_msg_count,f))
 		{
 			return qe_invalid;
 		}
@@ -4001,12 +3991,9 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
 		}
 		
 		//reset the message strings
-		if(keepdata)
-		{
-			if(s_version < 7)
-				set_qr(qr_OLD_STRING_EDITOR_MARGINS,true);
-			init_msgstrings(0,msg_strings_size);
-		}
+		if(s_version < 7)
+			set_qr(qr_OLD_STRING_EDITOR_MARGINS,true);
+		init_msgstrings(0,msg_strings_size);
 		
 		int32_t string_length=(s_version<2)?73:145;
 		
@@ -4016,7 +4003,7 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
 			tempMsgString.listpos = i;
 			if(s_version > 8)
 			{
-				if(!p_igetl(&string_length,f,true))
+				if(!p_igetl(&string_length,f))
 				{
 					return qe_invalid;
 				}
@@ -4029,7 +4016,7 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
 
 			if (string_length > 0)
 			{
-				if (!pfread(buf, string_length, f, true))
+				if (!pfread(buf, string_length, f))
 				{
 					return qe_invalid;
 				}
@@ -4039,7 +4026,7 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
 				buf[0] = 0;
 			}
 			
-			if(!p_igetw(&tempMsgString.nextstring,f,true))
+			if(!p_igetw(&tempMsgString.nextstring,f))
 			{
 				return qe_invalid;
 			}
@@ -4066,78 +4053,78 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
 				
 				if ( s_version >= 6 )
 				{
-					if(!p_igetl(&tempMsgString.tile,f,true))
+					if(!p_igetl(&tempMsgString.tile,f))
 					{
 						return qe_invalid;
 					}
 				}
 				else
 				{
-					if(!p_igetw(&tempMsgString.tile,f,true))
+					if(!p_igetw(&tempMsgString.tile,f))
 					{
 						return qe_invalid;
 					}
 				}
 				
-				if(!p_getc(&tempMsgString.cset,f,true))
+				if(!p_getc(&tempMsgString.cset,f))
 				{
 					return qe_invalid;
 				}
 				
 				byte dummy_char;
 				
-				if(!p_getc(&dummy_char,f,true)) // trans is stored as a char...
+				if(!p_getc(&dummy_char,f)) // trans is stored as a char...
 				{
 					return qe_invalid;
 				}
 				
 				tempMsgString.trans=dummy_char!=0;
 				
-				if(!p_getc(&tempMsgString.font,f,true))
+				if(!p_getc(&tempMsgString.font,f))
 				{
 					return qe_invalid;
 				}
 				
 				if(s_version < 5)
 				{
-					if(!p_getc(&tempMsgString.y,f,true))
+					if(!p_getc(&tempMsgString.y,f))
 					{
 						return qe_invalid;
 					}
 				}
 				else
 				{
-					if(!p_igetw(&tempMsgString.x,f,true))
+					if(!p_igetw(&tempMsgString.x,f))
 					{
 						return qe_invalid;
 					}
 					
-					if(!p_igetw(&tempMsgString.y,f,true))
+					if(!p_igetw(&tempMsgString.y,f))
 					{
 						return qe_invalid;
 					}
 					
-					if(!p_igetw(&tempMsgString.w,f,true))
+					if(!p_igetw(&tempMsgString.w,f))
 					{
 						return qe_invalid;
 					}
 					
-					if(!p_igetw(&tempMsgString.h,f,true))
+					if(!p_igetw(&tempMsgString.h,f))
 					{
 						return qe_invalid;
 					}
 					
-					if(!p_getc(&tempMsgString.hspace,f,true))
+					if(!p_getc(&tempMsgString.hspace,f))
 					{
 						return qe_invalid;
 					}
 					
-					if(!p_getc(&tempMsgString.vspace,f,true))
+					if(!p_getc(&tempMsgString.vspace,f))
 					{
 						return qe_invalid;
 					}
 					
-					if(!p_getc(&tempMsgString.stringflags,f,true))
+					if(!p_getc(&tempMsgString.stringflags,f))
 					{
 						return qe_invalid;
 					}
@@ -4147,38 +4134,38 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
 				{
 					for(int32_t q = 0; q < 4; ++q)
 					{
-						if(!p_getc(&tempMsgString.margins[q],f,true))
+						if(!p_getc(&tempMsgString.margins[q],f))
 						{
 							return qe_invalid;
 						}
 					}
 					
-					if(!p_igetl(&tempMsgString.portrait_tile,f,true))
+					if(!p_igetl(&tempMsgString.portrait_tile,f))
 					{
 						return qe_invalid;
 					}
 					
-					if(!p_getc(&tempMsgString.portrait_cset,f,true))
+					if(!p_getc(&tempMsgString.portrait_cset,f))
 					{
 						return qe_invalid;
 					}
 					
-					if(!p_getc(&tempMsgString.portrait_x,f,true))
+					if(!p_getc(&tempMsgString.portrait_x,f))
 					{
 						return qe_invalid;
 					}
 					
-					if(!p_getc(&tempMsgString.portrait_y,f,true))
+					if(!p_getc(&tempMsgString.portrait_y,f))
 					{
 						return qe_invalid;
 					}
 					
-					if(!p_getc(&tempMsgString.portrait_tw,f,true))
+					if(!p_getc(&tempMsgString.portrait_tw,f))
 					{
 						return qe_invalid;
 					}
 					
-					if(!p_getc(&tempMsgString.portrait_th,f,true))
+					if(!p_getc(&tempMsgString.portrait_th,f))
 					{
 						return qe_invalid;
 					}
@@ -4186,12 +4173,12 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
 				
 				if(s_version >= 8)
 				{
-					if(!p_getc(&tempMsgString.shadow_type,f,true))
+					if(!p_getc(&tempMsgString.shadow_type,f))
 					{
 						return qe_invalid;
 					}
 					
-					if(!p_getc(&tempMsgString.shadow_color,f,true))
+					if(!p_getc(&tempMsgString.shadow_color,f))
 					{
 						return qe_invalid;
 					}
@@ -4199,42 +4186,36 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header, bool keepdata)
 				
 				if(s_version >= 10)
 				{
-					if(!p_getc(&tempMsgString.drawlayer,f,true))
+					if(!p_getc(&tempMsgString.drawlayer,f))
 					{
 						return qe_invalid;
 					}
 				}
 				
-				if(!p_getc(&tempMsgString.sfx,f,true))
+				if(!p_getc(&tempMsgString.sfx,f))
 				{
 					return qe_invalid;
 				}
 				
 				if(s_version>3)
 				{
-					if(!p_igetw(&tempMsgString.listpos,f,true))
+					if(!p_igetw(&tempMsgString.listpos,f))
 					{
 						return qe_invalid;
 					}
 				}
 			}
 			
-			if(keepdata==true)
-			{
-				MsgStrings[i].copyAll(tempMsgString);
-			}
+			MsgStrings[i].copyAll(tempMsgString);
 		}
 	}
 	
-	if(keepdata==true)
-	{
-		msg_count=temp_msg_count;
-	}
+	msg_count=temp_msg_count;
 	
 	return 0;
 }
 
-int32_t readdoorcombosets(PACKFILE *f, zquestheader *Header, bool keepdata)
+int32_t readdoorcombosets(PACKFILE *f, zquestheader *Header)
 {
     if((Header->zelda_version < 0x192)||
             ((Header->zelda_version == 0x192)&&(Header->build<158)))
@@ -4249,18 +4230,15 @@ int32_t readdoorcombosets(PACKFILE *f, zquestheader *Header, bool keepdata)
     byte padding;
     int32_t s_version = 0;
     
-    if(keepdata==true)
-    {
-        for(int32_t i=0; i<MAXDOORCOMBOSETS; i++)
-        {
-            memset(DoorComboSets+i, 0, sizeof(DoorComboSet));
-        }
-    }
+	for(int32_t i=0; i<MAXDOORCOMBOSETS; i++)
+	{
+		memset(DoorComboSets+i, 0, sizeof(DoorComboSet));
+	}
     
     if(Header->zelda_version > 0x192)
     {
         //section version info
-        if(!p_igetw(&s_version,f,true))
+        if(!p_igetw(&s_version,f))
         {
             return qe_invalid;
         }
@@ -4268,20 +4246,20 @@ int32_t readdoorcombosets(PACKFILE *f, zquestheader *Header, bool keepdata)
         FFCore.quest_format[vDoors] = s_version;
 	
         //al_trace("Door combo sets version %d\n", dummy_word);
-        if(!p_igetw(&dummy_word,f,true))
+        if(!p_igetw(&dummy_word,f))
         {
             return qe_invalid;
         }
         
         //section size
-        if(!p_igetl(&dummy_long,f,true))
+        if(!p_igetl(&dummy_long,f))
         {
             return qe_invalid;
         }
     }
     
     //finally...  section data
-    if(!p_igetw(&temp_door_combo_set_count,f,true))
+    if(!p_igetw(&temp_door_combo_set_count,f))
     {
         return qe_invalid;
     }
@@ -4296,14 +4274,14 @@ int32_t readdoorcombosets(PACKFILE *f, zquestheader *Header, bool keepdata)
         memset(&tempDoorComboSet, 0, sizeof(DoorComboSet));
         
         //name
-        if(!pfread(&tempDoorComboSet.name,sizeof(tempDoorComboSet.name),f,true))
+        if(!pfread(&tempDoorComboSet.name,sizeof(tempDoorComboSet.name),f))
         {
             return qe_invalid;
         }
         
         if(Header->zelda_version < 0x193)
         {
-            if(!p_getc(&padding,f,true))
+            if(!p_getc(&padding,f))
             {
                 return qe_invalid;
             }
@@ -4314,7 +4292,7 @@ int32_t readdoorcombosets(PACKFILE *f, zquestheader *Header, bool keepdata)
         {
             for(int32_t k=0; k<4; k++)
             {
-                if(!p_igetw(&tempDoorComboSet.doorcombo_u[j][k],f,true))
+                if(!p_igetw(&tempDoorComboSet.doorcombo_u[j][k],f))
                 {
                     return qe_invalid;
                 }
@@ -4325,7 +4303,7 @@ int32_t readdoorcombosets(PACKFILE *f, zquestheader *Header, bool keepdata)
         {
             for(int32_t k=0; k<4; k++)
             {
-                if(!p_getc(&tempDoorComboSet.doorcset_u[j][k],f,true))
+                if(!p_getc(&tempDoorComboSet.doorcset_u[j][k],f))
                 {
                     return qe_invalid;
                 }
@@ -4337,7 +4315,7 @@ int32_t readdoorcombosets(PACKFILE *f, zquestheader *Header, bool keepdata)
         {
             for(int32_t k=0; k<4; k++)
             {
-                if(!p_igetw(&tempDoorComboSet.doorcombo_d[j][k],f,true))
+                if(!p_igetw(&tempDoorComboSet.doorcombo_d[j][k],f))
                 {
                     return qe_invalid;
                 }
@@ -4348,7 +4326,7 @@ int32_t readdoorcombosets(PACKFILE *f, zquestheader *Header, bool keepdata)
         {
             for(int32_t k=0; k<4; k++)
             {
-                if(!p_getc(&tempDoorComboSet.doorcset_d[j][k],f,true))
+                if(!p_getc(&tempDoorComboSet.doorcset_d[j][k],f))
                 {
                     return qe_invalid;
                 }
@@ -4360,7 +4338,7 @@ int32_t readdoorcombosets(PACKFILE *f, zquestheader *Header, bool keepdata)
         {
             for(int32_t k=0; k<6; k++)
             {
-                if(!p_igetw(&tempDoorComboSet.doorcombo_l[j][k],f,true))
+                if(!p_igetw(&tempDoorComboSet.doorcombo_l[j][k],f))
                 {
                     return qe_invalid;
                 }
@@ -4371,7 +4349,7 @@ int32_t readdoorcombosets(PACKFILE *f, zquestheader *Header, bool keepdata)
         {
             for(int32_t k=0; k<6; k++)
             {
-                if(!p_getc(&tempDoorComboSet.doorcset_l[j][k],f,true))
+                if(!p_getc(&tempDoorComboSet.doorcset_l[j][k],f))
                 {
                     return qe_invalid;
                 }
@@ -4383,7 +4361,7 @@ int32_t readdoorcombosets(PACKFILE *f, zquestheader *Header, bool keepdata)
         {
             for(int32_t k=0; k<6; k++)
             {
-                if(!p_igetw(&tempDoorComboSet.doorcombo_r[j][k],f,true))
+                if(!p_igetw(&tempDoorComboSet.doorcombo_r[j][k],f))
                 {
                     return qe_invalid;
                 }
@@ -4394,7 +4372,7 @@ int32_t readdoorcombosets(PACKFILE *f, zquestheader *Header, bool keepdata)
         {
             for(int32_t k=0; k<6; k++)
             {
-                if(!p_getc(&tempDoorComboSet.doorcset_r[j][k],f,true))
+                if(!p_getc(&tempDoorComboSet.doorcset_r[j][k],f))
                 {
                     return qe_invalid;
                 }
@@ -4404,7 +4382,7 @@ int32_t readdoorcombosets(PACKFILE *f, zquestheader *Header, bool keepdata)
         //up bomb rubble
         for(int32_t j=0; j<2; j++)
         {
-            if(!p_igetw(&tempDoorComboSet.bombdoorcombo_u[j],f,true))
+            if(!p_igetw(&tempDoorComboSet.bombdoorcombo_u[j],f))
             {
                 return qe_invalid;
             }
@@ -4412,7 +4390,7 @@ int32_t readdoorcombosets(PACKFILE *f, zquestheader *Header, bool keepdata)
         
         for(int32_t j=0; j<2; j++)
         {
-            if(!p_getc(&tempDoorComboSet.bombdoorcset_u[j],f,true))
+            if(!p_getc(&tempDoorComboSet.bombdoorcset_u[j],f))
             {
                 return qe_invalid;
             }
@@ -4421,7 +4399,7 @@ int32_t readdoorcombosets(PACKFILE *f, zquestheader *Header, bool keepdata)
         //down bomb rubble
         for(int32_t j=0; j<2; j++)
         {
-            if(!p_igetw(&tempDoorComboSet.bombdoorcombo_d[j],f,true))
+            if(!p_igetw(&tempDoorComboSet.bombdoorcombo_d[j],f))
             {
                 return qe_invalid;
             }
@@ -4429,7 +4407,7 @@ int32_t readdoorcombosets(PACKFILE *f, zquestheader *Header, bool keepdata)
         
         for(int32_t j=0; j<2; j++)
         {
-            if(!p_getc(&tempDoorComboSet.bombdoorcset_d[j],f,true))
+            if(!p_getc(&tempDoorComboSet.bombdoorcset_d[j],f))
             {
                 return qe_invalid;
             }
@@ -4438,7 +4416,7 @@ int32_t readdoorcombosets(PACKFILE *f, zquestheader *Header, bool keepdata)
         //left bomb rubble
         for(int32_t j=0; j<3; j++)
         {
-            if(!p_igetw(&tempDoorComboSet.bombdoorcombo_l[j],f,true))
+            if(!p_igetw(&tempDoorComboSet.bombdoorcombo_l[j],f))
             {
                 return qe_invalid;
             }
@@ -4446,7 +4424,7 @@ int32_t readdoorcombosets(PACKFILE *f, zquestheader *Header, bool keepdata)
         
         for(int32_t j=0; j<3; j++)
         {
-            if(!p_getc(&tempDoorComboSet.bombdoorcset_l[j],f,true))
+            if(!p_getc(&tempDoorComboSet.bombdoorcset_l[j],f))
             {
                 return qe_invalid;
             }
@@ -4454,7 +4432,7 @@ int32_t readdoorcombosets(PACKFILE *f, zquestheader *Header, bool keepdata)
         
         if(Header->zelda_version < 0x193)
         {
-            if(!p_getc(&padding,f,true))
+            if(!p_getc(&padding,f))
             {
                 return qe_invalid;
             }
@@ -4464,7 +4442,7 @@ int32_t readdoorcombosets(PACKFILE *f, zquestheader *Header, bool keepdata)
         //right bomb rubble
         for(int32_t j=0; j<3; j++)
         {
-            if(!p_igetw(&tempDoorComboSet.bombdoorcombo_r[j],f,true))
+            if(!p_igetw(&tempDoorComboSet.bombdoorcombo_r[j],f))
             {
                 return qe_invalid;
             }
@@ -4472,7 +4450,7 @@ int32_t readdoorcombosets(PACKFILE *f, zquestheader *Header, bool keepdata)
         
         for(int32_t j=0; j<3; j++)
         {
-            if(!p_getc(&tempDoorComboSet.bombdoorcset_r[j],f,true))
+            if(!p_getc(&tempDoorComboSet.bombdoorcset_r[j],f))
             {
                 return qe_invalid;
             }
@@ -4480,7 +4458,7 @@ int32_t readdoorcombosets(PACKFILE *f, zquestheader *Header, bool keepdata)
         
         if(Header->zelda_version < 0x193)
         {
-            if(!p_getc(&padding,f,true))
+            if(!p_getc(&padding,f))
             {
                 return qe_invalid;
             }
@@ -4489,7 +4467,7 @@ int32_t readdoorcombosets(PACKFILE *f, zquestheader *Header, bool keepdata)
         //walkthrough stuff
         for(int32_t j=0; j<4; j++)
         {
-            if(!p_igetw(&tempDoorComboSet.walkthroughcombo[j],f,true))
+            if(!p_igetw(&tempDoorComboSet.walkthroughcombo[j],f))
             {
                 return qe_invalid;
             }
@@ -4497,7 +4475,7 @@ int32_t readdoorcombosets(PACKFILE *f, zquestheader *Header, bool keepdata)
         
         for(int32_t j=0; j<4; j++)
         {
-            if(!p_getc(&tempDoorComboSet.walkthroughcset[j],f,true))
+            if(!p_getc(&tempDoorComboSet.walkthroughcset[j],f))
             {
                 return qe_invalid;
             }
@@ -4506,7 +4484,7 @@ int32_t readdoorcombosets(PACKFILE *f, zquestheader *Header, bool keepdata)
         //flags
         for(int32_t j=0; j<2; j++)
         {
-            if(!p_getc(&tempDoorComboSet.flags[j],f,true))
+            if(!p_getc(&tempDoorComboSet.flags[j],f))
             {
                 return qe_invalid;
             }
@@ -4514,22 +4492,16 @@ int32_t readdoorcombosets(PACKFILE *f, zquestheader *Header, bool keepdata)
         
         if(Header->zelda_version < 0x193)
         {
-            if(!pfread(&tempDoorComboSet.expansion,sizeof(tempDoorComboSet.expansion),f,true))
+            if(!pfread(&tempDoorComboSet.expansion,sizeof(tempDoorComboSet.expansion),f))
             {
                 return qe_invalid;
             }
         }
         
-        if(keepdata==true)
-        {
-            memcpy(&DoorComboSets[i], &tempDoorComboSet, sizeof(tempDoorComboSet));
-        }
+		memcpy(&DoorComboSets[i], &tempDoorComboSet, sizeof(tempDoorComboSet));
     }
     
-    if(keepdata==true)
-    {
-        door_combo_set_count=temp_door_combo_set_count;
-    }
+	door_combo_set_count=temp_door_combo_set_count;
     
     return 0;
 }
@@ -4708,7 +4680,7 @@ void clear_screen(mapscr *temp_scr)
 	temp_scr->zero_memory();
 }
 
-int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap, word max_dmaps, bool keepdata)
+int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap, word max_dmaps)
 {
 	word dmapstoread=0;
 	dmap tempDMap;
@@ -4717,21 +4689,18 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 	word s_version=0, s_cversion=0;
 	byte padding;
 	
-	if(keepdata==true)
+	for(int32_t i=0; i<max_dmaps; i++)
 	{
-		for(int32_t i=0; i<max_dmaps; i++)
-		{
-			memset(&DMaps[start_dmap+i],0,sizeof(dmap));
-			sprintf(DMaps[start_dmap+i].title,"                    ");
-			sprintf(DMaps[start_dmap+i].intro,"                                                                        ");
-			DMaps[start_dmap+i].type |= dmCAVE;
-		}
+		memset(&DMaps[start_dmap+i],0,sizeof(dmap));
+		sprintf(DMaps[start_dmap+i].title,"                    ");
+		sprintf(DMaps[start_dmap+i].intro,"                                                                        ");
+		DMaps[start_dmap+i].type |= dmCAVE;
 	}
 	
 	if(!Header || Header->zelda_version > 0x192)
 	{
 		//section version info
-		if(!p_igetw(&s_version,f,true))
+		if(!p_igetw(&s_version,f))
 		{
 			return qe_invalid;
 		}
@@ -4740,19 +4709,19 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 		
 		//al_trace("DMaps version %d\n", s_version);
 		
-		if(!p_igetw(&s_cversion,f,true))
+		if(!p_igetw(&s_cversion,f))
 		{
 			return qe_invalid;
 		}
 		
 		//section size
-		if(!p_igetl(&dummy,f,true))
+		if(!p_igetl(&dummy,f))
 		{
 			return qe_invalid;
 		}
 		
 		//finally...  section data
-		if(!p_igetw(&dmapstoread,f,true))
+		if(!p_igetw(&dmapstoread,f))
 		{
 			return qe_invalid;
 		}
@@ -4783,7 +4752,7 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 		sprintf(tempDMap.title,"                    ");
 		sprintf(tempDMap.intro,"                                                                        ");
 		
-		if(!p_getc(&tempDMap.map,f,keepdata))
+		if(!p_getc(&tempDMap.map,f))
 		{
 			return qe_invalid;
 		}
@@ -4792,7 +4761,7 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 		{
 			byte tempbyte;
 			
-			if(!p_getc(&tempbyte,f,keepdata))
+			if(!p_getc(&tempbyte,f))
 			{
 				return qe_invalid;
 			}
@@ -4801,25 +4770,25 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 		}
 		else
 		{
-			if(!p_igetw(&tempDMap.level,f,keepdata))
+			if(!p_igetw(&tempDMap.level,f))
 			{
 				return qe_invalid;
 			}
 		}
 		
-		if(!p_getc(&tempDMap.xoff,f,keepdata))
+		if(!p_getc(&tempDMap.xoff,f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_getc(&tempDMap.compass,f,keepdata))
+		if(!p_getc(&tempDMap.compass,f))
 		{
 			return qe_invalid;
 		}
 		
 		if(s_version > 8) // February 2009
 		{
-			if(!p_igetw(&tempDMap.color,f,true))
+			if(!p_igetw(&tempDMap.color,f))
 			{
 				return qe_invalid;
 			}
@@ -4828,7 +4797,7 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 		{
 			byte tempbyte;
 			
-			if(!p_getc(&tempbyte,f,true))
+			if(!p_getc(&tempbyte,f))
 			{
 				return qe_invalid;
 			}
@@ -4836,17 +4805,17 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 			tempDMap.color = (word)tempbyte;
 		}
 		
-		if(!p_getc(&tempDMap.midi,f,keepdata))
+		if(!p_getc(&tempDMap.midi,f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_getc(&tempDMap.cont,f,keepdata))
+		if(!p_getc(&tempDMap.cont,f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_getc(&tempDMap.type,f,keepdata))
+		if(!p_getc(&tempDMap.type,f))
 		{
 			return qe_invalid;
 		}
@@ -4857,7 +4826,7 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 		
 		for(int32_t j=0; j<8; j++)
 		{
-			if(!p_getc(&tempDMap.grid[j],f,keepdata))
+			if(!p_getc(&tempDMap.grid[j],f))
 			{
 				return qe_invalid;
 			}
@@ -4884,17 +4853,17 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 		}
 		else
 		{
-			if(!pfread(&tempDMap.name,sizeof(DMaps[0].name),f,true))
+			if(!pfread(&tempDMap.name,sizeof(DMaps[0].name),f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!pfread(&tempDMap.title,sizeof(DMaps[0].title),f,true))
+			if(!pfread(&tempDMap.title,sizeof(DMaps[0].title),f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!pfread(&tempDMap.intro,sizeof(DMaps[0].intro),f,true))
+			if(!pfread(&tempDMap.intro,sizeof(DMaps[0].intro),f))
 			{
 				return qe_invalid;
 			}
@@ -4902,44 +4871,41 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 			if(Header && ((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<152))))
 			{
 				if ((tempDMap.type & dmfTYPE) == dmOVERW) tempDMap.flags = dmfCAVES | dmf3STAIR | dmfWHIRLWIND | dmfGUYCAVES;
-				if(keepdata==true)
-				{
-					memcpy(&DMaps[i], &tempDMap, sizeof(tempDMap));
-				}
+				memcpy(&DMaps[i], &tempDMap, sizeof(tempDMap));
 				
 				continue;
 			}
 			
 			if(Header && (Header->zelda_version < 0x193))
 			{
-				if(!p_getc(&padding,f,keepdata))
+				if(!p_getc(&padding,f))
 				{
 					return qe_invalid;
 				}
 			}
 			if ( s_version >= 11 )
 			{
-				if(!p_igetl(&tempDMap.minimap_1_tile,f,keepdata))
+				if(!p_igetl(&tempDMap.minimap_1_tile,f))
 				{
 					return qe_invalid;
 				}
 			}
 			else
 			{
-				if(!p_igetw(&tempDMap.minimap_1_tile,f,keepdata))
+				if(!p_igetw(&tempDMap.minimap_1_tile,f))
 				{
 					return qe_invalid;
 				}
 			}
 			
-			if(!p_getc(&tempDMap.minimap_1_cset,f,keepdata))
+			if(!p_getc(&tempDMap.minimap_1_cset,f))
 			{
 				return qe_invalid;
 			}
 			
 			if(Header && (Header->zelda_version < 0x193))
 			{
-				if(!p_getc(&padding,f,keepdata))
+				if(!p_getc(&padding,f))
 				{
 					return qe_invalid;
 				}
@@ -4947,26 +4913,26 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 			
 			if ( s_version >= 11 )
 			{
-				if(!p_igetl(&tempDMap.minimap_2_tile,f,keepdata))
+				if(!p_igetl(&tempDMap.minimap_2_tile,f))
 				{
 					return qe_invalid;
 				}
 			}
 			else
 			{
-				if(!p_igetw(&tempDMap.minimap_2_tile,f,keepdata))
+				if(!p_igetw(&tempDMap.minimap_2_tile,f))
 				{
 					return qe_invalid;
 				}
 			}
-			if(!p_getc(&tempDMap.minimap_2_cset,f,keepdata))
+			if(!p_getc(&tempDMap.minimap_2_cset,f))
 			{
 				return qe_invalid;
 			}
 			
 			if(Header && (Header->zelda_version < 0x193))
 			{
-				if(!p_getc(&padding,f,keepdata))
+				if(!p_getc(&padding,f))
 				{
 					return qe_invalid;
 				}
@@ -4974,20 +4940,20 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 			
 			if ( s_version >= 11 )
 			{
-				if(!p_igetl(&tempDMap.largemap_1_tile,f,keepdata))
+				if(!p_igetl(&tempDMap.largemap_1_tile,f))
 				{
 					return qe_invalid;
 				}
 			}
 			else
 			{
-				if(!p_igetw(&tempDMap.largemap_1_tile,f,keepdata))
+				if(!p_igetw(&tempDMap.largemap_1_tile,f))
 				{
 					return qe_invalid;
 				}
 			}
 			
-			if(!p_getc(&tempDMap.largemap_1_cset,f,keepdata))
+			if(!p_getc(&tempDMap.largemap_1_cset,f))
 			{
 				return qe_invalid;
 			}
@@ -4995,7 +4961,7 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 			if(Header && (Header->zelda_version < 0x193))
 			{
 			
-				if(!p_getc(&padding,f,keepdata))
+				if(!p_getc(&padding,f))
 				{
 					return qe_invalid;
 				}
@@ -5003,24 +4969,24 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 			
 			if ( s_version >= 11 )
 			{
-				if(!p_igetl(&tempDMap.largemap_2_tile,f,keepdata))
+				if(!p_igetl(&tempDMap.largemap_2_tile,f))
 				{
 					return qe_invalid;
 				}
 			}
 			else
 			{
-				if(!p_igetw(&tempDMap.largemap_2_tile,f,keepdata))
+				if(!p_igetw(&tempDMap.largemap_2_tile,f))
 				{
 					return qe_invalid;
 				}
 			}
-			if(!p_getc(&tempDMap.largemap_2_cset,f,keepdata))
+			if(!p_getc(&tempDMap.largemap_2_cset,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!pfread(&tempDMap.tmusic,sizeof(DMaps[0].tmusic),f,true))
+			if(!pfread(&tempDMap.tmusic,sizeof(DMaps[0].tmusic),f))
 			{
 				return qe_invalid;
 			}
@@ -5028,17 +4994,17 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 		
 		if(s_version>1)
 		{
-			if(!p_getc(&tempDMap.tmusictrack,f,keepdata))
+			if(!p_getc(&tempDMap.tmusictrack,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_getc(&tempDMap.active_subscreen,f,keepdata))
+			if(!p_getc(&tempDMap.active_subscreen,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_getc(&tempDMap.passive_subscreen,f,keepdata))
+			if(!p_getc(&tempDMap.passive_subscreen,f))
 			{
 				return qe_invalid;
 			}
@@ -5048,7 +5014,7 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 		{
 			byte di[32];
 			
-			if(!pfread(&di, 32, f, true)) return qe_invalid;
+			if(!pfread(&di, 32, f)) return qe_invalid;
 			
 			for(int32_t j=0; j<MAXITEMS; j++)
 			{
@@ -5059,7 +5025,7 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 		
 		if(s_version >= 6)
 		{
-			if(!p_igetl(&tempDMap.flags,f,keepdata))
+			if(!p_igetl(&tempDMap.flags,f))
 			{
 				return qe_invalid;
 			}
@@ -5068,7 +5034,7 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 		{
 			char temp;
 			
-			if(!p_getc(&temp,f,keepdata))
+			if(!p_getc(&temp,f))
 			{
 				return qe_invalid;
 			}
@@ -5104,7 +5070,7 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 		if(Header && ((Header->zelda_version > 0x192)||((Header->zelda_version == 0x192)&&(Header->build>=41)))
 				&& (Header->zelda_version < 0x193))
 		{
-			if(!p_getc(&padding,f,keepdata))
+			if(!p_getc(&padding,f))
 			{
 				return qe_invalid;
 			}
@@ -5112,7 +5078,7 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 	
 		if(s_version >= 10)
 		{
-			if(!p_getc(&tempDMap.sideview,f,keepdata))
+			if(!p_getc(&tempDMap.sideview,f))
 			{
 				return qe_invalid;
 			}
@@ -5122,13 +5088,13 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 		//Dmap Scripts
 		if(s_version >= 12)
 		{
-			if(!p_igetw(&tempDMap.script,f,keepdata))
+			if(!p_igetw(&tempDMap.script,f))
 			{
 				return qe_invalid;
 			}
 			for ( int32_t q = 0; q < 8; q++ )
 			{
-				if(!p_igetl(&tempDMap.initD[q],f,keepdata))
+				if(!p_igetl(&tempDMap.initD[q],f))
 				{
 					return qe_invalid;
 				}
@@ -5149,7 +5115,7 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 			{
 				for ( int32_t w = 0; w < 65; w++ )
 				{
-					if(!p_getc(&tempDMap.initD_label[q][w],f,keepdata))
+					if(!p_getc(&tempDMap.initD_label[q][w],f))
 					{
 						return qe_invalid;
 					} 
@@ -5167,17 +5133,17 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 		}
 		if(s_version >= 14)
 		{
-			if(!p_igetw(&tempDMap.active_sub_script,f,keepdata))
+			if(!p_igetw(&tempDMap.active_sub_script,f))
 			{
 				return qe_invalid;
 			}
-			if(!p_igetw(&tempDMap.passive_sub_script,f,keepdata))
+			if(!p_igetw(&tempDMap.passive_sub_script,f))
 			{
 				return qe_invalid;
 			}
 			for ( int32_t q = 0; q < 8; ++q )
 			{
-				if(!p_igetl(&tempDMap.sub_initD[q],f,keepdata))
+				if(!p_igetl(&tempDMap.sub_initD[q],f))
 				{
 					return qe_invalid;
 				}
@@ -5186,7 +5152,7 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 			{
 				for ( int32_t w = 0; w < 65; ++w )
 				{
-					if(!p_getc(&tempDMap.sub_initD_label[q][w],f,keepdata))
+					if(!p_getc(&tempDMap.sub_initD_label[q][w],f))
 					{
 						return qe_invalid;
 					} 
@@ -5206,13 +5172,13 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 		}
 		if(s_version >= 15)
 		{
-			if(!p_igetw(&tempDMap.onmap_script,f,keepdata))
+			if(!p_igetw(&tempDMap.onmap_script,f))
 			{
 				return qe_invalid;
 			}
 			for ( int32_t q = 0; q < 8; ++q )
 			{
-				if(!p_igetl(&tempDMap.onmap_initD[q],f,keepdata))
+				if(!p_igetl(&tempDMap.onmap_initD[q],f))
 				{
 					return qe_invalid;
 				}
@@ -5221,7 +5187,7 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 			{
 				for ( int32_t w = 0; w < 65; ++w )
 				{
-					if(!p_getc(&tempDMap.onmap_initD_label[q][w],f,keepdata))
+					if(!p_getc(&tempDMap.onmap_initD_label[q][w],f))
 					{
 						return qe_invalid;
 					} 
@@ -5242,7 +5208,7 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 		}
 		if(s_version >= 16)
 		{
-			if(!p_igetw(&tempDMap.mirrorDMap,f,keepdata))
+			if(!p_igetw(&tempDMap.mirrorDMap,f))
 			{
 				return qe_invalid;
 			}
@@ -5258,21 +5224,21 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 		}
 		
 		// Enhanced music loop points
-		if (s_version >= 17)
+		if (s_version >= 18)
 		{
-			if (!p_igetl(&tempDMap.tmusic_loop_start, f, keepdata))
+			if (!p_igetl(&tempDMap.tmusic_loop_start, f))
 			{
 				return qe_invalid;
 			}
-			if (!p_igetl(&tempDMap.tmusic_loop_end, f, keepdata))
+			if (!p_igetl(&tempDMap.tmusic_loop_end, f))
 			{
 				return qe_invalid;
 			}
-			if (!p_igetl(&tempDMap.tmusic_xfade_in, f, keepdata))
+			if (!p_igetl(&tempDMap.tmusic_xfade_in, f))
 			{
 				return qe_invalid;
 			}
-			if (!p_igetl(&tempDMap.tmusic_xfade_out, f, keepdata))
+			if (!p_igetl(&tempDMap.tmusic_xfade_out, f))
 			{
 				return qe_invalid;
 			}
@@ -5285,17 +5251,13 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 			tempDMap.tmusic_xfade_out = 0;
 		}
 
-
-		if(keepdata==true)
-		{
-			memcpy(&DMaps[i], &tempDMap, sizeof(tempDMap));
-		}
+		memcpy(&DMaps[i], &tempDMap, sizeof(tempDMap));
 	}
 	
 	return 0;
 }
 
-int32_t readmisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
+int32_t readmisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 {
 	//these are here to bypass compiler warnings about unused arguments
 	Header=Header;
@@ -5308,7 +5270,7 @@ int32_t readmisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool 
 	memcpy(&temp_misc,Misc,sizeof(temp_misc));
 	
 	//section version info
-	if(!p_igetw(&s_version,f,true))
+	if(!p_igetw(&s_version,f))
 	{
 		return qe_invalid;
 	}
@@ -5318,14 +5280,14 @@ int32_t readmisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool 
 	al_trace("Misc Colours section version: %d\n", s_version);
 	
 	//al_trace("Misc. colors version %d\n", s_version);
-	if(!p_igetw(&s_cversion,f,true))
+	if(!p_igetw(&s_cversion,f))
 	{
 		return qe_invalid;
 	}
 	
 	
 	//section size
-	if(!p_igetl(&tempsize,f,true))
+	if(!p_igetl(&tempsize,f))
 	{
 		return qe_invalid;
 	}
@@ -5333,138 +5295,138 @@ int32_t readmisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool 
 	//finally...  section data
 	readsize=0;
 	
-	if(!p_getc(&temp_misc.colors.text,f,true))
+	if(!p_getc(&temp_misc.colors.text,f))
 	{
 		return qe_invalid;
 	}
 	
-	if(!p_getc(&temp_misc.colors.caption,f,true))
+	if(!p_getc(&temp_misc.colors.caption,f))
 	{
 		return qe_invalid;
 	}
 	
-	if(!p_getc(&temp_misc.colors.overw_bg,f,true))
+	if(!p_getc(&temp_misc.colors.overw_bg,f))
 	{
 		return qe_invalid;
 	}
 	
-	if(!p_getc(&temp_misc.colors.dngn_bg,f,true))
+	if(!p_getc(&temp_misc.colors.dngn_bg,f))
 	{
 		return qe_invalid;
 	}
 	
-	if(!p_getc(&temp_misc.colors.dngn_fg,f,true))
+	if(!p_getc(&temp_misc.colors.dngn_fg,f))
 	{
 		return qe_invalid;
 	}
 	
-	if(!p_getc(&temp_misc.colors.cave_fg,f,true))
+	if(!p_getc(&temp_misc.colors.cave_fg,f))
 	{
 		return qe_invalid;
 	}
 	
-	if(!p_getc(&temp_misc.colors.bs_dk,f,true))
+	if(!p_getc(&temp_misc.colors.bs_dk,f))
 	{
 		return qe_invalid;
 	}
 	
-	if(!p_getc(&temp_misc.colors.bs_goal,f,true))
+	if(!p_getc(&temp_misc.colors.bs_goal,f))
 	{
 		return qe_invalid;
 	}
 	
-	if(!p_getc(&temp_misc.colors.compass_lt,f,true))
+	if(!p_getc(&temp_misc.colors.compass_lt,f))
 	{
 		return qe_invalid;
 	}
 	
-	if(!p_getc(&temp_misc.colors.compass_dk,f,true))
+	if(!p_getc(&temp_misc.colors.compass_dk,f))
 	{
 		return qe_invalid;
 	}
 	
-	if(!p_getc(&temp_misc.colors.subscr_bg,f,true))
+	if(!p_getc(&temp_misc.colors.subscr_bg,f))
 	{
 		return qe_invalid;
 	}
 	
-	if(!p_getc(&temp_misc.colors.triframe_color,f,true))
+	if(!p_getc(&temp_misc.colors.triframe_color,f))
 	{
 		return qe_invalid;
 	}
 	
-	if(!p_getc(&temp_misc.colors.hero_dot,f,true))
+	if(!p_getc(&temp_misc.colors.hero_dot,f))
 	{
 		return qe_invalid;
 	}
 	
-	if(!p_getc(&temp_misc.colors.bmap_bg,f,true))
+	if(!p_getc(&temp_misc.colors.bmap_bg,f))
 	{
 		return qe_invalid;
 	}
 	
-	if(!p_getc(&temp_misc.colors.bmap_fg,f,true))
+	if(!p_getc(&temp_misc.colors.bmap_fg,f))
 	{
 		return qe_invalid;
 	}
 	
-	if(!p_getc(&temp_misc.colors.triforce_cset,f,true))
+	if(!p_getc(&temp_misc.colors.triforce_cset,f))
 	{
 		return qe_invalid;
 	}
 	
-	if(!p_getc(&temp_misc.colors.triframe_cset,f,true))
+	if(!p_getc(&temp_misc.colors.triframe_cset,f))
 	{
 		return qe_invalid;
 	}
 	
-	if(!p_getc(&temp_misc.colors.overworld_map_cset,f,true))
+	if(!p_getc(&temp_misc.colors.overworld_map_cset,f))
 	{
 		return qe_invalid;
 	}
 	
-	if(!p_getc(&temp_misc.colors.dungeon_map_cset,f,true))
+	if(!p_getc(&temp_misc.colors.dungeon_map_cset,f))
 	{
 		return qe_invalid;
 	}
 	
-	if(!p_getc(&temp_misc.colors.blueframe_cset,f,true))
+	if(!p_getc(&temp_misc.colors.blueframe_cset,f))
 	{
 		return qe_invalid;
 	}
 	if(s_version < 4)
 	{
-		if(!p_igetw(&dummyw,f,true))
+		if(!p_igetw(&dummyw,f))
 			return qe_invalid;
 		temp_misc.colors.triforce_tile = dummyw;
 		
-		if(!p_igetw(&dummyw,f,true))
+		if(!p_igetw(&dummyw,f))
 			return qe_invalid;
 		temp_misc.colors.triframe_tile = dummyw;
 		
-		if(!p_igetw(&dummyw,f,true))
+		if(!p_igetw(&dummyw,f))
 			return qe_invalid;
 		temp_misc.colors.overworld_map_tile = dummyw;
 		
-		if(!p_igetw(&dummyw,f,true))
+		if(!p_igetw(&dummyw,f))
 			return qe_invalid;
 		temp_misc.colors.dungeon_map_tile = dummyw;
 		
-		if(!p_igetw(&dummyw,f,true))
+		if(!p_igetw(&dummyw,f))
 			return qe_invalid;
 		temp_misc.colors.blueframe_tile = dummyw;
 		
-		if(!p_igetw(&dummyw,f,true))
+		if(!p_igetw(&dummyw,f))
 			return qe_invalid;
 		temp_misc.colors.HCpieces_tile = dummyw;
 	}
 	
-	if(!p_getc(&temp_misc.colors.HCpieces_cset,f,true))
+	if(!p_getc(&temp_misc.colors.HCpieces_cset,f))
 	{
 		return qe_invalid;
 	}
 	
-	if(!p_getc(&temp_misc.colors.subscr_shadow,f,true))
+	if(!p_getc(&temp_misc.colors.subscr_shadow,f))
 	{
 		return qe_invalid;
 	}
@@ -5475,7 +5437,7 @@ int32_t readmisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool 
 	}
 	else
 	{
-		if(!p_getc(&temp_misc.colors.msgtext, f, true))
+		if(!p_getc(&temp_misc.colors.msgtext, f))
 		{
 			return qe_invalid;
 		}
@@ -5483,47 +5445,43 @@ int32_t readmisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool 
 	
 	if ( s_version >= 3 ) //expanded tile pages to 825
 	{
-		if(!p_igetl(&temp_misc.colors.triforce_tile,f,true))
+		if(!p_igetl(&temp_misc.colors.triforce_tile,f))
 		{
 			 return qe_invalid;
 		}
 		
-		if(!p_igetl(&temp_misc.colors.triframe_tile,f,true))
+		if(!p_igetl(&temp_misc.colors.triframe_tile,f))
 		{
 			 return qe_invalid;
 		}
 		
-		if(!p_igetl(&temp_misc.colors.overworld_map_tile,f,true))
+		if(!p_igetl(&temp_misc.colors.overworld_map_tile,f))
 		{
 			 return qe_invalid;
 		}
 		
-		if(!p_igetl(&temp_misc.colors.dungeon_map_tile,f,true))
+		if(!p_igetl(&temp_misc.colors.dungeon_map_tile,f))
 		{
 			 return qe_invalid;
 		}
 		
-		if(!p_igetl(&temp_misc.colors.blueframe_tile,f,true))
+		if(!p_igetl(&temp_misc.colors.blueframe_tile,f))
 		{
 			 return qe_invalid;
 		}
 		
-		if(!p_igetl(&temp_misc.colors.HCpieces_tile,f,true))
+		if(!p_igetl(&temp_misc.colors.HCpieces_tile,f))
 		{
 			 return qe_invalid;
 		}
 	}
 	
-	
-	if(keepdata==true)
-	{
-		memcpy(Misc, &temp_misc, sizeof(temp_misc));
-	}
+	memcpy(Misc, &temp_misc, sizeof(temp_misc));
 	
 	return 0;
 }
 
-int32_t readgameicons(PACKFILE *f, zquestheader *, miscQdata *Misc, bool keepdata)
+int32_t readgameicons(PACKFILE *f, zquestheader *, miscQdata *Misc)
 {
     miscQdata temp_misc;
     word s_version=0, s_cversion=0;
@@ -5533,7 +5491,7 @@ int32_t readgameicons(PACKFILE *f, zquestheader *, miscQdata *Misc, bool keepdat
     memcpy(&temp_misc,Misc,sizeof(temp_misc));
     
     //section version info
-    if(!p_igetw(&s_version,f,true))
+    if(!p_igetw(&s_version,f))
     {
         return qe_invalid;
     }
@@ -5541,14 +5499,14 @@ int32_t readgameicons(PACKFILE *f, zquestheader *, miscQdata *Misc, bool keepdat
     FFCore.quest_format[vIcons] = s_version;
     
     //al_trace("Game icons version %d\n", s_version);
-    if(!p_igetw(&s_cversion,f,true))
+    if(!p_igetw(&s_cversion,f))
     {
         return qe_invalid;
     }
     
     
     //section size
-    if(!p_igetl(&tempsize,f,true))
+    if(!p_igetl(&tempsize,f))
     {
         return qe_invalid;
     }
@@ -5562,7 +5520,7 @@ int32_t readgameicons(PACKFILE *f, zquestheader *, miscQdata *Misc, bool keepdat
     {
 	    for(int32_t i=0; i<icons; i++)
 	    {
-		if(!p_igetl(&temp_misc.icons[i],f,true))
+		if(!p_igetl(&temp_misc.icons[i],f))
 		{
 		    return qe_invalid;
 		}
@@ -5572,21 +5530,19 @@ int32_t readgameicons(PACKFILE *f, zquestheader *, miscQdata *Misc, bool keepdat
     {	    
 	    for(int32_t i=0; i<icons; i++)
 	    {
-		if(!p_igetw(&temp_misc.icons[i],f,true))
+		if(!p_igetw(&temp_misc.icons[i],f))
 		{
 		    return qe_invalid;
 		}
 	    }
     }
-    if(keepdata==true)
-    {
-        memcpy(Misc, &temp_misc, sizeof(temp_misc));
-    }
+
+	memcpy(Misc, &temp_misc, sizeof(temp_misc));
     
     return 0;
 }
 
-int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata)
+int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 {
 	word maxinfos=256;
 	word maxshops=256;
@@ -5613,7 +5569,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 	if(Header->zelda_version > 0x192)
 	{
 		//section version info
-		if(!p_igetw(&s_version,f,true))
+		if(!p_igetw(&s_version,f))
 		{
 			return qe_invalid;
 		}
@@ -5621,14 +5577,14 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 		FFCore.quest_format[vMisc] = s_version;
 		
 		//al_trace("Misc. data version %d\n", s_version);
-		if(!p_igetw(&s_cversion,f,true))
+		if(!p_igetw(&s_cversion,f))
 		{
 			return qe_invalid;
 		}
 		
 		
 		//section size
-		if(!p_igetl(&tempsize,f,true))
+		if(!p_igetl(&tempsize,f))
 		{
 			return qe_invalid;
 		}
@@ -5640,7 +5596,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 	//shops
 	if(Header->zelda_version > 0x192)
 	{
-		if(!p_igetw(&shops,f,true))
+		if(!p_igetw(&shops,f))
 		{
 			return qe_invalid;
 		}
@@ -5655,7 +5611,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 	{
 		if(s_version > 6)
 		{
-			if(!pfread(temp_misc.shop[i].name,sizeof(temp_misc.shop[i].name),f,true))
+			if(!pfread(temp_misc.shop[i].name,sizeof(temp_misc.shop[i].name),f))
 			{
 				return qe_invalid;
 			}
@@ -5663,7 +5619,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 		
 		for(int32_t j=0; j<3; j++)
 		{
-			if(!p_getc(&temp_misc.shop[i].item[j],f,true))
+			if(!p_getc(&temp_misc.shop[i].item[j],f))
 			{
 				return qe_invalid;
 			}
@@ -5676,7 +5632,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 		
 		if(Header->zelda_version < 0x193)
 		{
-			if(!p_getc(&tempbyte,f,true))
+			if(!p_getc(&tempbyte,f))
 			{
 				return qe_invalid;
 			}
@@ -5684,7 +5640,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 		
 		for(int32_t j=0; j<3; j++)
 		{
-			if(!p_igetw(&temp_misc.shop[i].price[j],f,true))
+			if(!p_igetw(&temp_misc.shop[i].price[j],f))
 			{
 				return qe_invalid;
 			}
@@ -5694,7 +5650,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 		{
 			for(int32_t j=0; j<3; j++)
 			{
-				if(!p_getc(&temp_misc.shop[i].hasitem[j],f,true))
+				if(!p_getc(&temp_misc.shop[i].hasitem[j],f))
 					return qe_invalid;
 			}
 		}
@@ -5736,7 +5692,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 	//infos
 	if(Header->zelda_version > 0x192)
 	{
-		if(!p_igetw(&infos,f,true))
+		if(!p_igetw(&infos,f))
 		{
 			return qe_invalid;
 		}
@@ -5746,12 +5702,13 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 	{
 		return qe_invalid;
 	}
+	
 
 	for(int32_t i=0; i<infos; i++)
 	{
 		if(s_version > 6)
 		{
-			if(!pfread(temp_misc.info[i].name,sizeof(temp_misc.info[i].name),f,true))
+			if(!pfread(temp_misc.info[i].name,sizeof(temp_misc.info[i].name),f))
 			{
 				return qe_invalid;
 			}
@@ -5762,7 +5719,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 			if((Header->zelda_version < 0x192)||
 					((Header->zelda_version == 0x192)&&(Header->build<146)))
 			{
-				if(!p_getc(&tempbyte,f,true))
+				if(!p_getc(&tempbyte,f))
 				{
 					return qe_invalid;
 				}
@@ -5771,7 +5728,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 			}
 			else
 			{
-				if(!p_igetw(&temp_misc.info[i].str[j],f,true))
+				if(!p_igetw(&temp_misc.info[i].str[j],f))
 				{
 					return qe_invalid;
 				}
@@ -5780,7 +5737,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 		
 		if(Header->zelda_version < 0x193)
 		{
-			if(!p_getc(&tempbyte,f,true))
+			if(!p_getc(&tempbyte,f))
 			{
 				return qe_invalid;
 			}
@@ -5788,7 +5745,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 		
 		if((Header->zelda_version == 0x192)&&(Header->build>145))
 		{
-			if(!p_getc(&padding,f,true))
+			if(!p_getc(&padding,f))
 			{
 				return qe_invalid;
 			}
@@ -5796,7 +5753,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 		
 		for(int32_t j=0; j<3; j++)
 		{
-			if(!p_igetw(&temp_misc.info[i].price[j],f,true))
+			if(!p_igetw(&temp_misc.info[i].price[j],f))
 			{
 				return qe_invalid;
 			}
@@ -5830,7 +5787,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 		
 	if(Header->zelda_version > 0x192)
 	{
-		if(!p_igetw(&warprings,f,true))
+		if(!p_igetw(&warprings,f))
 		{
 			return qe_invalid;
 		}
@@ -5847,52 +5804,57 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 	for(int32_t i=0; i<warprings; i++)
 	{
 		// See above comment on the `warprings` range check.
-		bool keep_data_before = keepdata;
-		keepdata = keep_data_before && i < NUM_WARP_RINGS;
+		bool keepdata = i < NUM_WARP_RINGS;
 
 		for(int32_t j=0; j<8+((s_version > 5)?1:0); j++)
 		{
 			if(s_version <= 3)
 			{
-				if(!p_getc(&tempbyte,f,keepdata))
+				if(!p_getc(&tempbyte,f))
 				{
 					return qe_invalid;
 				}
-				
+
 				if (keepdata)
 					temp_misc.warp[i].dmap[j]=(word)tempbyte;
 			}
 			else
 			{
-				if(!p_igetw(&temp_misc.warp[i].dmap[j],f,keepdata))
+				word tempword;
+				if(!p_igetw(&tempword,f))
 				{
 					return qe_invalid;
 				}
+
+				if (keepdata)
+					temp_misc.warp[i].dmap[j] = tempword;
 			}
 		}
 		
 		for(int32_t j=0; j<8+((s_version > 5)?1:0); j++)
 		{
-			if(!p_getc(&temp_misc.warp[i].scr[j],f,keepdata))
+			if(!p_getc(&tempbyte,f))
 			{
 				return qe_invalid;
 			}
+			if (keepdata)
+				temp_misc.warp[i].scr[j] = tempbyte;
 		}
-		
-		if(!p_getc(&temp_misc.warp[i].size,f,keepdata))
+
+		if(!p_getc(&tempbyte,f))
 		{
 			return qe_invalid;
 		}
+		if (keepdata)
+			temp_misc.warp[i].size = tempbyte;
 		
 		if(Header->zelda_version < 0x193)
 		{
-			if(!p_getc(&tempbyte,f,keepdata))
+			if(!p_getc(&tempbyte,f))
 			{
 				return qe_invalid;
 			}
 		}
-
-		keepdata = keep_data_before;
 	}
 	
 	//palette cycles
@@ -5918,17 +5880,17 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 		{
 			for(int32_t j=0; j<3; j++)
 			{
-				if(!p_getc(&temp_misc.cycles[i][j].first,f,true))
+				if(!p_getc(&temp_misc.cycles[i][j].first,f))
 				{
 					return qe_invalid;
 				}
 				
-				if(!p_getc(&temp_misc.cycles[i][j].count,f,true))
+				if(!p_getc(&temp_misc.cycles[i][j].count,f))
 				{
 					return qe_invalid;
 				}
 				
-				if(!p_getc(&temp_misc.cycles[i][j].speed,f,true))
+				if(!p_getc(&temp_misc.cycles[i][j].speed,f))
 				{
 					return qe_invalid;
 				}
@@ -5941,7 +5903,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 	{
 		if(Header->zelda_version > 0x192)
 		{
-			if(!p_igetw(&windwarps,f,true))
+			if(!p_igetw(&windwarps,f))
 			{
 				return qe_invalid;
 			}
@@ -5956,7 +5918,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 		{
 			if(s_version <= 3)
 			{
-				if(!p_getc(&tempbyte,f,true))
+				if(!p_getc(&tempbyte,f))
 				{
 					return qe_invalid;
 				}
@@ -5965,13 +5927,13 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 			}
 			else
 			{
-				if(!p_igetw(&temp_misc.warp[8].dmap[i],f,true))
+				if(!p_igetw(&temp_misc.warp[8].dmap[i],f))
 				{
 					return qe_invalid;
 				}
 			}
 			
-			if(!p_getc(&temp_misc.warp[8].scr[i],f,true))
+			if(!p_getc(&temp_misc.warp[8].scr[i],f))
 			{
 				return qe_invalid;
 			}
@@ -5980,7 +5942,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 			
 			if(s_version == 5)
 			{
-				if(!p_getc(&tempbyte,f,true))
+				if(!p_getc(&tempbyte,f))
 				{
 					return qe_invalid;
 				}
@@ -5992,7 +5954,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 	//triforce pieces
 	for(int32_t i=0; i<triforces; i++)
 	{
-		if(!p_getc(&temp_misc.triforce[i],f,true))
+		if(!p_getc(&temp_misc.triforce[i],f))
 		{
 			return qe_invalid;
 		}
@@ -6001,137 +5963,137 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 	//misc color data
 	if(s_version<3)
 	{
-		if(!p_getc(&temp_misc.colors.text,f,true))
+		if(!p_getc(&temp_misc.colors.text,f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_getc(&temp_misc.colors.caption,f,true))
+		if(!p_getc(&temp_misc.colors.caption,f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_getc(&temp_misc.colors.overw_bg,f,true))
+		if(!p_getc(&temp_misc.colors.overw_bg,f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_getc(&temp_misc.colors.dngn_bg,f,true))
+		if(!p_getc(&temp_misc.colors.dngn_bg,f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_getc(&temp_misc.colors.dngn_fg,f,true))
+		if(!p_getc(&temp_misc.colors.dngn_fg,f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_getc(&temp_misc.colors.cave_fg,f,true))
+		if(!p_getc(&temp_misc.colors.cave_fg,f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_getc(&temp_misc.colors.bs_dk,f,true))
+		if(!p_getc(&temp_misc.colors.bs_dk,f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_getc(&temp_misc.colors.bs_goal,f,true))
+		if(!p_getc(&temp_misc.colors.bs_goal,f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_getc(&temp_misc.colors.compass_lt,f,true))
+		if(!p_getc(&temp_misc.colors.compass_lt,f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_getc(&temp_misc.colors.compass_dk,f,true))
+		if(!p_getc(&temp_misc.colors.compass_dk,f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_getc(&temp_misc.colors.subscr_bg,f,true))
+		if(!p_getc(&temp_misc.colors.subscr_bg,f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_getc(&temp_misc.colors.triframe_color,f,true))
+		if(!p_getc(&temp_misc.colors.triframe_color,f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_getc(&temp_misc.colors.hero_dot,f,true))
+		if(!p_getc(&temp_misc.colors.hero_dot,f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_getc(&temp_misc.colors.bmap_bg,f,true))
+		if(!p_getc(&temp_misc.colors.bmap_bg,f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_getc(&temp_misc.colors.bmap_fg,f,true))
+		if(!p_getc(&temp_misc.colors.bmap_fg,f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_getc(&temp_misc.colors.triforce_cset,f,true))
+		if(!p_getc(&temp_misc.colors.triforce_cset,f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_getc(&temp_misc.colors.triframe_cset,f,true))
+		if(!p_getc(&temp_misc.colors.triframe_cset,f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_getc(&temp_misc.colors.overworld_map_cset,f,true))
+		if(!p_getc(&temp_misc.colors.overworld_map_cset,f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_getc(&temp_misc.colors.dungeon_map_cset,f,true))
+		if(!p_getc(&temp_misc.colors.dungeon_map_cset,f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_getc(&temp_misc.colors.blueframe_cset,f,true))
+		if(!p_getc(&temp_misc.colors.blueframe_cset,f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_igetw(&temp_misc.colors.triforce_tile,f,true))
+		if(!p_igetw(&temp_misc.colors.triforce_tile,f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_igetw(&temp_misc.colors.triframe_tile,f,true))
+		if(!p_igetw(&temp_misc.colors.triframe_tile,f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_igetw(&temp_misc.colors.overworld_map_tile,f,true))
+		if(!p_igetw(&temp_misc.colors.overworld_map_tile,f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_igetw(&temp_misc.colors.dungeon_map_tile,f,true))
+		if(!p_igetw(&temp_misc.colors.dungeon_map_tile,f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_igetw(&temp_misc.colors.blueframe_tile,f,true))
+		if(!p_igetw(&temp_misc.colors.blueframe_tile,f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_igetw(&temp_misc.colors.HCpieces_tile,f,true))
+		if(!p_igetw(&temp_misc.colors.HCpieces_tile,f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_getc(&temp_misc.colors.HCpieces_cset,f,true))
+		if(!p_getc(&temp_misc.colors.HCpieces_cset,f))
 		{
 			return qe_invalid;
 		}
@@ -6142,7 +6104,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 		{
 			for(int32_t i=0; i<7; i++)
 			{
-				if(!p_getc(&tempbyte,f,true))
+				if(!p_getc(&tempbyte,f))
 				{
 					return qe_invalid;
 				}
@@ -6153,7 +6115,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 		{
 			for(int32_t i=0; i<256; i++)
 			{
-				if(!p_getc(&tempbyte,f,true))
+				if(!p_getc(&tempbyte,f))
 				{
 					return qe_invalid;
 				}
@@ -6162,7 +6124,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 		
 		if(s_version>1)
 		{
-			if(!p_getc(&temp_misc.colors.subscr_shadow,f,true))
+			if(!p_getc(&temp_misc.colors.subscr_shadow,f))
 			{
 				return qe_invalid;
 			}
@@ -6177,7 +6139,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 		
 		for(int32_t i=0; i<icons; i++)
 		{
-			if(!p_igetw(&temp_misc.icons[i],f,true))
+			if(!p_igetw(&temp_misc.icons[i],f))
 			{
 				return qe_invalid;
 			}
@@ -6187,10 +6149,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 	if((Header->zelda_version < 0x192)||
 			((Header->zelda_version == 0x192)&&(Header->build<30)))
 	{
-		if(keepdata==true)
-		{
-			memcpy(Misc, &temp_misc, sizeof(temp_misc));
-		}
+		memcpy(Misc, &temp_misc, sizeof(temp_misc));
 		
 		return 0;
 	}
@@ -6207,7 +6166,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 		{
 			for(int32_t j=0; j<pondsize; j++)
 			{
-				if(!p_getc(&tempbyte,f,true))
+				if(!p_getc(&tempbyte,f))
 				{
 					return qe_invalid;
 					
@@ -6220,21 +6179,21 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 	if((Header->zelda_version < 0x192)||
 			((Header->zelda_version == 0x192)&&(Header->build<146)))
 	{
-		if(!p_getc(&tempbyte,f,true))
+		if(!p_getc(&tempbyte,f))
 		{
 			return qe_invalid;
 		}
 		
 		temp_misc.endstring=tempbyte;
 		
-		if(!p_getc(&tempbyte,f,true))
+		if(!p_getc(&tempbyte,f))
 		{
 			return qe_invalid;
 		}
 	}
 	else
 	{
-		if(!p_igetw(&temp_misc.endstring,f,true))
+		if(!p_igetw(&temp_misc.endstring,f))
 		{
 			return qe_invalid;
 		}
@@ -6250,7 +6209,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 		
 		for(int32_t i=0; i<expansionsize; i++)
 		{
-			if(!p_getc(&tempbyte,f,true))
+			if(!p_getc(&tempbyte,f))
 			{
 				return qe_invalid;
 			}
@@ -6265,7 +6224,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 		{
 			for(int32_t j=0; j<3; j++)
 			{
-				if(!p_igetw(&temp_misc.shop[i].str[j],f,true))
+				if(!p_igetw(&temp_misc.shop[i].str[j],f))
 					return qe_invalid;
 			}
 		}
@@ -6280,20 +6239,20 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 	{
 		for ( int32_t q = 0; q < 32; q++ ) 
 		{
-			if(!p_igetl(&temp_misc.questmisc[q],f,true))
+			if(!p_igetl(&temp_misc.questmisc[q],f))
 						return qe_invalid;
 		}
 		for ( int32_t q = 0; q < 32; q++ ) 
 		{
 			for ( int32_t j = 0; j < 128; j++ )
-			if(!p_getc(&temp_misc.questmisc_strings[q][j],f,true))
+			if(!p_getc(&temp_misc.questmisc_strings[q][j],f))
 						return qe_invalid;
 		}
 	}
 	
 	if(s_version >= 11 )
 	{
-		if(!p_igetl(&temp_misc.zscript_last_compiled_version,f,true))
+		if(!p_igetl(&temp_misc.zscript_last_compiled_version,f))
 			return qe_invalid;
 	}
 	else if(s_version < 11 )
@@ -6308,7 +6267,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 		byte spr;
 		for(int32_t q = 0; q < sprMAX; ++q)
 		{
-			if(!p_getc(&spr,f,true))
+			if(!p_getc(&spr,f))
 				return qe_invalid;
 			temp_misc.sprites[q] = spr;
 		}
@@ -6324,36 +6283,36 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 		for(size_t q = 0; q < 64; ++q)
 		{
 			bottletype* bt = &(temp_misc.bottle_types[q]);
-            if (!pfread(bt->name, 32, f, true))
+            if (!pfread(bt->name, 32, f))
                 return qe_invalid;
 			for(size_t j = 0; j < 3; ++j)
 			{
-                if (!p_getc(&(bt->counter[j]), f, true))
+                if (!p_getc(&(bt->counter[j]), f))
                     return qe_invalid;
-                if (!p_igetw(&(bt->amount[j]), f, true))
+                if (!p_igetw(&(bt->amount[j]), f))
                     return qe_invalid;
 			}
-            if (!p_getc(&(bt->flags), f, true))
+            if (!p_getc(&(bt->flags), f))
                 return qe_invalid;
-            if (!p_getc(&(bt->next_type), f, true))
+            if (!p_getc(&(bt->next_type), f))
                 return qe_invalid;
 		}
 		for(size_t q = 0; q < 256; ++q)
 		{
 			bottleshoptype* bst = &(temp_misc.bottle_shop_types[q]);
-            if (!pfread(bst->name, 32, f, true))
+            if (!pfread(bst->name, 32, f))
                 return qe_invalid;
 			for(size_t j = 0; j < 3; ++j)
 			{
-                if (!p_getc(&(bst->fill[j]), f, true))
+                if (!p_getc(&(bst->fill[j]), f))
                     return qe_invalid;
-                if (!p_igetw(&(bst->comb[j]), f, true))
+                if (!p_igetw(&(bst->comb[j]), f))
                     return qe_invalid;
-                if (!p_getc(&(bst->cset[j]), f, true))
+                if (!p_getc(&(bst->cset[j]), f))
                     return qe_invalid;
-                if (!p_igetw(&(bst->price[j]), f, true))
+                if (!p_igetw(&(bst->price[j]), f))
                     return qe_invalid;
-                if (!p_igetw(&(bst->str[j]), f, true))
+                if (!p_igetw(&(bst->str[j]), f))
                     return qe_invalid;
 			}
 		}
@@ -6371,7 +6330,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 		byte msfx;
 		for(int32_t q = 0; q < sfxMAX; ++q)
 		{
-			if(!p_getc(&msfx,f,true))
+			if(!p_getc(&msfx,f))
 				return qe_invalid;
 			temp_misc.miscsfx[q] = msfx;
 		}
@@ -6392,10 +6351,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepda
 		temp_misc.miscsfx[sfxDRAIN] = WAV_MSG;
 	}
 	
-	if(keepdata==true)
-	{
-		memcpy(Misc, &temp_misc, sizeof(temp_misc));
-	}
+	memcpy(Misc, &temp_misc, sizeof(temp_misc));
 	
 	return 0;
 }
@@ -6405,7 +6361,7 @@ extern const char *old_item_string[iLast];
 extern char *weapon_string[MAXWPNS];
 extern const char *old_weapon_string[wLast];
 
-int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode)
+int32_t readitems(PACKFILE *f, word version, word build)
 {
     byte padding;
     int32_t  dummy;
@@ -6424,7 +6380,7 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
         items_to_read=0;
         
         //section version info
-        if(!p_igetw(&s_version,f,true))
+        if(!p_igetw(&s_version,f))
         {
             return qe_invalid;
         }
@@ -6432,19 +6388,19 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 	FFCore.quest_format[vItems] = s_version;
         
         //al_trace("Items version %d\n", s_version);
-        if(!p_igetw(&s_cversion,f,true))
+        if(!p_igetw(&s_cversion,f))
         {
             return qe_invalid;
         }
         
         //section size
-        if(!p_igetl(&dummy,f,true))
+        if(!p_igetl(&dummy,f))
         {
             return qe_invalid;
         }
         
         //finally...  section data
-        if(!p_igetw(&items_to_read,f,true))
+        if(!p_igetw(&items_to_read,f))
         {
             return qe_invalid;
         }
@@ -6461,39 +6417,30 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
         {
             char tempname[64];
             
-            if(!pfread(tempname, 64, f, keepdata))
+            if(!pfread(tempname, 64, f))
             {
                 return qe_invalid;
             }
             
-            if(keepdata)
-            {
-                item_string[i][0] = '\0';
-                strncat(item_string[i], tempname, 64 - 1);
-            }
+			item_string[i][0] = '\0';
+			strncat(item_string[i], tempname, 64 - 1);
         }
     }
     else
     {
-        if(keepdata)
-        {
-            for(int32_t i=0; i<MAXITEMS; i++)
-            {
-                reset_itemname(i);
-            }
-        }
-    }
-    
-	if(keepdata)
-	{
 		for(int32_t i=0; i<MAXITEMS; i++)
 		{
-			itemdata& id = itemsbuf[i];
-			memset(&id, 0, sizeof(itemdata));
-			id.count=-1;
-			id.playsound=WAV_SCALE;
-			reset_itembuf(&id,i);
+			reset_itemname(i);
 		}
+    }
+    
+	for(int32_t i=0; i<MAXITEMS; i++)
+	{
+		itemdata& id = itemsbuf[i];
+		memset(&id, 0, sizeof(itemdata));
+		id.count=-1;
+		id.playsound=WAV_SCALE;
+		reset_itembuf(&id,i);
 	}
     
     for(int32_t i=0; i<items_to_read; i++)
@@ -6504,47 +6451,47 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 	    
 		if ( s_version > 35 ) //expanded tiles	
 		{    
-			if(!p_igetl(&tempitem.tile,f,true))
+			if(!p_igetl(&tempitem.tile,f))
 			{
 				return qe_invalid;
 			}
 		}
 		else
 		{
-			if(!p_igetw(&tempitem.tile,f,true))
+			if(!p_igetw(&tempitem.tile,f))
 			{
 				return qe_invalid;
 			}
 		}
 		
-        if(!p_getc(&tempitem.misc_flags,f,true))
+        if(!p_getc(&tempitem.misc_flags,f))
         {
             return qe_invalid;
         }
         
-        if(!p_getc(&tempitem.csets,f,true))
+        if(!p_getc(&tempitem.csets,f))
         {
             return qe_invalid;
         }
         
-        if(!p_getc(&tempitem.frames,f,true))
+        if(!p_getc(&tempitem.frames,f))
         {
             return qe_invalid;
         }
         
-        if(!p_getc(&tempitem.speed,f,true))
+        if(!p_getc(&tempitem.speed,f))
         {
             return qe_invalid;
         }
         
-        if(!p_getc(&tempitem.delay,f,true))
+        if(!p_getc(&tempitem.delay,f))
         {
             return qe_invalid;
         }
         
         if(version < 0x193)
         {
-            if(!p_getc(&padding,f,true))
+            if(!p_getc(&padding,f))
             {
                 return qe_invalid;
             }
@@ -6573,16 +6520,13 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
                 tempitem.playsound=WAV_SCALE;
                 reset_itembuf(&tempitem,i);
                 
-                if(keepdata==true)
-                {
-                    memcpy(&itemsbuf[i], &tempitem, sizeof(itemdata));
-                }
+				memcpy(&itemsbuf[i], &tempitem, sizeof(itemdata));
                 
                 continue;
             }
         }
         
-        if(!p_igetl(&tempitem.ltm,f,true))
+        if(!p_igetl(&tempitem.ltm,f))
         {
             return qe_invalid;
         }
@@ -6591,7 +6535,7 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
         {
             for(int32_t q=0; q<12; q++)
             {
-                if(!p_getc(&padding,f,true))
+                if(!p_getc(&padding,f))
                 {
                     return qe_invalid;
                 }
@@ -6602,14 +6546,14 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
         {
 			if ( s_version >= 31 )
 			{
-				if(!p_igetl(&tempitem.family,f,true))
+				if(!p_igetl(&tempitem.family,f))
 				{
 					return qe_invalid;
 				}    
 			}
             else
 			{		    
-				if(!p_getc(&tempitem.family,f,true))
+				if(!p_getc(&tempitem.family,f))
 				{
 					return qe_invalid;
 				}
@@ -6618,7 +6562,7 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
                 if(tempitem.family == 0xFF)
                     tempitem.family = itype_misc;
                     
-            if(!p_getc(&tempitem.fam_type,f,true))
+            if(!p_getc(&tempitem.fam_type,f))
             {
                 return qe_invalid;
             }
@@ -6627,14 +6571,14 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
             {
 				if(s_version>=31)
 				{
-					if(!p_igetl(&tempitem.power,f,true))
+					if(!p_igetl(&tempitem.power,f))
 					{
 						return qe_invalid;
 					}
 				}
 				else
 				{
-					if(!p_getc(&tempitem.power,f,true))
+					if(!p_getc(&tempitem.power,f))
 					{
 					return qe_invalid;
 					}
@@ -6643,14 +6587,14 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 				//converted flags from 16b to 32b -Z
 				if ( s_version < 41 )
 				{
-					if(!p_igetw(&tempitem.flags,f,true))
+					if(!p_igetw(&tempitem.flags,f))
 					{
 						return qe_invalid;
 					}
 				}
 				else
 				{
-					if(!p_igetl(&tempitem.flags,f,true))
+					if(!p_igetl(&tempitem.flags,f))
 					{
 						return qe_invalid;
 					}
@@ -6661,7 +6605,7 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
                 //tempitem.power = tempitem.fam_type;
                 char tempchar;
                 
-                if(!p_getc(&tempchar,f,true))
+                if(!p_getc(&tempchar,f))
                 {
                     return qe_invalid;
                 }
@@ -6669,7 +6613,7 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
                 tempitem.flags |= (tempchar ? ITEM_GAMEDATA : 0);
             }
             
-            if(!p_igetw(&tempitem.script,f,true))
+            if(!p_igetw(&tempitem.script,f))
             {
                 return qe_invalid;
             }
@@ -6682,17 +6626,17 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
                 }
             }
             
-            if(!p_getc(&tempitem.count,f,true))
+            if(!p_getc(&tempitem.count,f))
             {
                 return qe_invalid;
             }
             
-            if(!p_igetw(&tempitem.amount,f,true))
+            if(!p_igetw(&tempitem.amount,f))
             {
                 return qe_invalid;
             }
             
-            if(!p_igetw(&tempitem.collect_script,f,true))
+            if(!p_igetw(&tempitem.collect_script,f))
             {
                 return qe_invalid;
             }
@@ -6705,24 +6649,24 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
                 }
             }
             
-            if(!p_igetw(&tempitem.setmax,f,true))
+            if(!p_igetw(&tempitem.setmax,f))
             {
                 return qe_invalid;
             }
             
-            if(!p_igetw(&tempitem.max,f,true))
+            if(!p_igetw(&tempitem.max,f))
             {
                 return qe_invalid;
             }
             
-            if(!p_getc(&tempitem.playsound,f,true))
+            if(!p_getc(&tempitem.playsound,f))
             {
                 return qe_invalid;
             }
             
             for(int32_t j=0; j<8; j++)
             {
-                if(!p_igetl(&tempitem.initiald[j],f,true))
+                if(!p_igetl(&tempitem.initiald[j],f))
                 {
                     return qe_invalid;
                 }
@@ -6730,7 +6674,7 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
             
             for(int32_t j=0; j<2; j++)
             {
-                if(!p_getc(&tempitem.initiala[j],f,true))
+                if(!p_getc(&tempitem.initiala[j],f))
                 {
                     return qe_invalid;
                 }
@@ -6740,74 +6684,74 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
             {
                 if(s_version>5)
                 {
-                    if(!p_getc(&tempitem.wpn,f,true))
+                    if(!p_getc(&tempitem.wpn,f))
                     {
                         return qe_invalid;
                     }
                     
-                    if(!p_getc(&tempitem.wpn2,f,true))
+                    if(!p_getc(&tempitem.wpn2,f))
                     {
                         return qe_invalid;
                     }
                     
-                    if(!p_getc(&tempitem.wpn3,f,true))
+                    if(!p_getc(&tempitem.wpn3,f))
                     {
                         return qe_invalid;
                     }
                     
-                    if(!p_getc(&tempitem.wpn4,f,true))
+                    if(!p_getc(&tempitem.wpn4,f))
                     {
                         return qe_invalid;
                     }
                     
                     if(s_version>=15)
                     {
-                        if(!p_getc(&tempitem.wpn5,f,true))
+                        if(!p_getc(&tempitem.wpn5,f))
                         {
                             return qe_invalid;
                         }
                         
-                        if(!p_getc(&tempitem.wpn6,f,true))
+                        if(!p_getc(&tempitem.wpn6,f))
                         {
                             return qe_invalid;
                         }
                         
-                        if(!p_getc(&tempitem.wpn7,f,true))
+                        if(!p_getc(&tempitem.wpn7,f))
                         {
                             return qe_invalid;
                         }
                         
-                        if(!p_getc(&tempitem.wpn8,f,true))
+                        if(!p_getc(&tempitem.wpn8,f))
                         {
                             return qe_invalid;
                         }
                         
-                        if(!p_getc(&tempitem.wpn9,f,true))
+                        if(!p_getc(&tempitem.wpn9,f))
                         {
                             return qe_invalid;
                         }
                         
-                        if(!p_getc(&tempitem.wpn10,f,true))
+                        if(!p_getc(&tempitem.wpn10,f))
                         {
                             return qe_invalid;
                         }
                     }
                     
-                    if(!p_getc(&tempitem.pickup_hearts,f,true))
+                    if(!p_getc(&tempitem.pickup_hearts,f))
                     {
                         return qe_invalid;
                     }
                     
                     if(s_version<15)
                     {
-                        if(!p_igetw(&dummy_word,f,true))
+                        if(!p_igetw(&dummy_word,f))
                         {
                             return qe_invalid;
                         }
                         
                         tempitem.misc1=dummy_word;
                         
-                        if(!p_igetw(&dummy_word,f,true))
+                        if(!p_igetw(&dummy_word,f))
                         {
                             return qe_invalid;
                         }
@@ -6816,12 +6760,12 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
                     }
                     else
                     {
-                        if(!p_igetl(&tempitem.misc1,f,true))
+                        if(!p_igetl(&tempitem.misc1,f))
                         {
                             return qe_invalid;
                         }
                         
-                        if(!p_igetl(&tempitem.misc2,f,true))
+                        if(!p_igetl(&tempitem.misc2,f))
                         {
                             return qe_invalid;
                         }
@@ -6839,7 +6783,7 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 					if(s_version < 53)
 					{
 						byte tempbyte;
-						if(!p_getc(&tempbyte,f,true))
+						if(!p_getc(&tempbyte,f))
 						{
 							return qe_invalid;
 						}
@@ -6849,7 +6793,7 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 					{
 						for(auto q = 0; q < 2; ++q)
 						{
-							if(!p_igetw(&tempitem.cost_amount[q],f,true))
+							if(!p_igetw(&tempitem.cost_amount[q],f))
 							{
 								return qe_invalid;
 							}
@@ -6860,7 +6804,7 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
                 {
                     char tempchar;
                     
-                    if(!p_getc(&tempchar,f,true))
+                    if(!p_getc(&tempchar,f))
                     {
                         return qe_invalid;
                     }
@@ -6873,14 +6817,14 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
                 {
                     if(s_version<15)
                     {
-                        if(!p_igetw(&dummy_word,f,true))
+                        if(!p_igetw(&dummy_word,f))
                         {
                             return qe_invalid;
                         }
                         
                         tempitem.misc3=dummy_word;
                         
-                        if(!p_igetw(&dummy_word,f,true))
+                        if(!p_igetw(&dummy_word,f))
                         {
                             return qe_invalid;
                         }
@@ -6889,55 +6833,55 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
                     }
                     else
                     {
-                        if(!p_igetl(&tempitem.misc3,f,true))
+                        if(!p_igetl(&tempitem.misc3,f))
                         {
                             return qe_invalid;
                         }
                         
-                        if(!p_igetl(&tempitem.misc4,f,true))
+                        if(!p_igetl(&tempitem.misc4,f))
                         {
                             return qe_invalid;
                         }
                         
-                        if(!p_igetl(&tempitem.misc5,f,true))
+                        if(!p_igetl(&tempitem.misc5,f))
                         {
                             return qe_invalid;
                         }
                         
-                        if(!p_igetl(&tempitem.misc6,f,true))
+                        if(!p_igetl(&tempitem.misc6,f))
                         {
                             return qe_invalid;
                         }
                         
-                        if(!p_igetl(&tempitem.misc7,f,true))
+                        if(!p_igetl(&tempitem.misc7,f))
                         {
                             return qe_invalid;
                         }
                         
-                        if(!p_igetl(&tempitem.misc8,f,true))
+                        if(!p_igetl(&tempitem.misc8,f))
                         {
                             return qe_invalid;
                         }
                         
-                        if(!p_igetl(&tempitem.misc9,f,true))
+                        if(!p_igetl(&tempitem.misc9,f))
                         {
                             return qe_invalid;
                         }
                         
-                        if(!p_igetl(&tempitem.misc10,f,true))
+                        if(!p_igetl(&tempitem.misc10,f))
                         {
                             return qe_invalid;
                         }
                     }
                     
-                    if(!p_getc(&tempitem.usesound,f,true))
+                    if(!p_getc(&tempitem.usesound,f))
                     {
                         return qe_invalid;
                     }
 					
 					if(s_version >= 49)
 					{
-						if(!p_getc(&tempitem.usesound2,f,true))
+						if(!p_getc(&tempitem.usesound2,f))
 						{
 							return qe_invalid;
 						}
@@ -6955,25 +6899,25 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 	    
 			if ( s_version >= 26 )  //! New itemdata vars for weapon editor. -Z
 			{			// temp.useweapon, temp.usedefence, temp.weaprange, temp.weap_pattern[ITEM_MOVEMENT_PATTERNS]
-				if(!p_getc(&tempitem.useweapon,f,true))
+				if(!p_getc(&tempitem.useweapon,f))
 				{
 					return qe_invalid;
 				}
-				if(!p_getc(&tempitem.usedefence,f,true))
+				if(!p_getc(&tempitem.usedefence,f))
 				{
 					return qe_invalid;
 				}
-				if(!p_igetl(&tempitem.weaprange,f,true))
+				if(!p_igetl(&tempitem.weaprange,f))
 				{
 					return qe_invalid;
 				}
-				if(!p_igetl(&tempitem.weapduration,f,true))
+				if(!p_igetl(&tempitem.weapduration,f))
 				{
 					return qe_invalid;
 				}
 				for ( int32_t q = 0; q < ITEM_MOVEMENT_PATTERNS; q++ )
 				{
-					if(!p_igetl(&tempitem.weap_pattern[q],f,true))
+					if(!p_igetl(&tempitem.weap_pattern[q],f))
 					{
 						return qe_invalid;
 					}
@@ -6982,99 +6926,99 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 			
 			if ( s_version >= 27 )  //! New itemdata vars for weapon editor. -Z
 			{			// temp.useweapon, temp.usedefence, temp.weaprange, temp.weap_pattern[ITEM_MOVEMENT_PATTERNS]
-				if(!p_igetl(&tempitem.duplicates,f,true))
+				if(!p_igetl(&tempitem.duplicates,f))
 				{
 					return qe_invalid;
 				}
 				for ( int32_t q = 0; q < INITIAL_D; q++ )
 				{
-					if(!p_igetl(&tempitem.weap_initiald[q],f,true))
+					if(!p_igetl(&tempitem.weap_initiald[q],f))
 					{
 						return qe_invalid;
 					}
 				}
 				for ( int32_t q = 0; q < INITIAL_A; q++ )
 				{
-					if(!p_getc(&tempitem.weap_initiala[q],f,true))
+					if(!p_getc(&tempitem.weap_initiala[q],f))
 					{
 						return qe_invalid;
 					}
 				}
 				
-				if(!p_getc(&tempitem.drawlayer,f,true))
+				if(!p_getc(&tempitem.drawlayer,f))
 				{
 					return qe_invalid;
 				}
 				
 				
-				if(!p_igetl(&tempitem.hxofs,f,true))
+				if(!p_igetl(&tempitem.hxofs,f))
 				{
 					return qe_invalid;
 				}
-				if(!p_igetl(&tempitem.hyofs,f,true))
+				if(!p_igetl(&tempitem.hyofs,f))
 				{
 					return qe_invalid;
 				}
-				if(!p_igetl(&tempitem.hxsz,f,true))
+				if(!p_igetl(&tempitem.hxsz,f))
 				{
 					return qe_invalid;
 				}
-				if(!p_igetl(&tempitem.hysz,f,true))
+				if(!p_igetl(&tempitem.hysz,f))
 				{
 					return qe_invalid;
 				}
-				if(!p_igetl(&tempitem.hzsz,f,true))
+				if(!p_igetl(&tempitem.hzsz,f))
 				{
 					return qe_invalid;
 				}
-				if(!p_igetl(&tempitem.xofs,f,true))
+				if(!p_igetl(&tempitem.xofs,f))
 				{
 					return qe_invalid;
 				}
-				if(!p_igetl(&tempitem.yofs,f,true))
+				if(!p_igetl(&tempitem.yofs,f))
 				{
 					return qe_invalid;
 				}
-				if(!p_igetl(&tempitem.weap_hxofs,f,true))
+				if(!p_igetl(&tempitem.weap_hxofs,f))
 				{
 					return qe_invalid;
 				}
-				if(!p_igetl(&tempitem.weap_hyofs,f,true))
+				if(!p_igetl(&tempitem.weap_hyofs,f))
 				{
 					return qe_invalid;
 				}
-				if(!p_igetl(&tempitem.weap_hxsz,f,true))
+				if(!p_igetl(&tempitem.weap_hxsz,f))
 				{
 					return qe_invalid;
 				}
-				if(!p_igetl(&tempitem.weap_hysz,f,true))
+				if(!p_igetl(&tempitem.weap_hysz,f))
 				{
 					return qe_invalid;
 				}
-				if(!p_igetl(&tempitem.weap_hzsz,f,true))
+				if(!p_igetl(&tempitem.weap_hzsz,f))
 				{
 					return qe_invalid;
 				}
-				if(!p_igetl(&tempitem.weap_xofs,f,true))
+				if(!p_igetl(&tempitem.weap_xofs,f))
 				{
 					return qe_invalid;
 				}
-				if(!p_igetl(&tempitem.weap_yofs,f,true))
+				if(!p_igetl(&tempitem.weap_yofs,f))
 				{
 					return qe_invalid;
 				}
-				if(!p_igetw(&tempitem.weaponscript,f,true))
+				if(!p_igetw(&tempitem.weaponscript,f))
 				{
 					return qe_invalid;
 				}
-				if(!p_igetl(&tempitem.wpnsprite,f,true))
+				if(!p_igetl(&tempitem.wpnsprite,f))
 				{
 					return qe_invalid;
 				}
 				auto num_cost_tmr = (s_version > 52 ? 2 : 1);
 				for(auto q = 0; q < num_cost_tmr; ++q)
 				{
-					if(!p_igetl(&tempitem.magiccosttimer[q],f,true))
+					if(!p_igetl(&tempitem.magiccosttimer[q],f))
 					{
 						return qe_invalid;
 					}
@@ -7085,15 +7029,15 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 			if ( s_version >= 28 )  //! New itemdata vars for weapon editor. -Z
 			{
 				//Item Size FLags, TileWidth, TileHeight
-				if(!p_igetl(&tempitem.overrideFLAGS,f,true))
+				if(!p_igetl(&tempitem.overrideFLAGS,f))
 				{
 					return qe_invalid;
 				}
-				if(!p_igetl(&tempitem.tilew,f,true))
+				if(!p_igetl(&tempitem.tilew,f))
 				{
 					return qe_invalid;
 				}
-				if(!p_igetl(&tempitem.tileh,f,true))
+				if(!p_igetl(&tempitem.tileh,f))
 				{
 					return qe_invalid;
 				}
@@ -7101,15 +7045,15 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 			if ( s_version >= 29 )  //! More new vars. 
 			{
 				//Item Size FLags, TileWidth, TileHeight
-				if(!p_igetl(&tempitem.weapoverrideFLAGS,f,true))
+				if(!p_igetl(&tempitem.weapoverrideFLAGS,f))
 				{
 					return qe_invalid;
 				}
-				if(!p_igetl(&tempitem.weap_tilew,f,true))
+				if(!p_igetl(&tempitem.weap_tilew,f))
 				{
 					return qe_invalid;
 				}
-				if(!p_igetl(&tempitem.weap_tileh,f,true))
+				if(!p_igetl(&tempitem.weap_tileh,f))
 				{
 					return qe_invalid;
 				}
@@ -7117,7 +7061,7 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 			if ( s_version >= 30 )  //! More new vars. 
 			{
 				//Pickup Type
-				if(!p_igetl(&tempitem.pickup,f,true))
+				if(!p_igetl(&tempitem.pickup,f))
 				{
 					return qe_invalid;
 				}
@@ -7125,7 +7069,7 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 			if ( s_version >= 32 )  //! More new vars. 
 			{
 				//Pickup Type
-				if(!p_igetw(&tempitem.pstring,f,true))
+				if(!p_igetw(&tempitem.pstring,f))
 				{
 					return qe_invalid;
 				}
@@ -7133,7 +7077,7 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 			if ( s_version >= 33 )  //! More new vars. 
 			{
 				//Pickup Type
-				if(!p_igetw(&tempitem.pickup_string_flags,f,true))
+				if(!p_igetw(&tempitem.pickup_string_flags,f))
 				{
 					return qe_invalid;
 				}
@@ -7142,7 +7086,7 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 			{
 				if(s_version < 53)
 				{
-					if(!p_getc(&tempitem.cost_counter[0],f,true))
+					if(!p_getc(&tempitem.cost_counter[0],f))
 					{
 						return qe_invalid;
 					}
@@ -7151,7 +7095,7 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 				{
 					for(auto q = 0; q < 2; ++q)
 					{
-						if(!p_getc(&tempitem.cost_counter[q],f,true))
+						if(!p_getc(&tempitem.cost_counter[q],f))
 						{
 							return qe_invalid;
 						}
@@ -7164,26 +7108,26 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 				{
 					for ( int32_t w = 0; w < 65; w++ )
 					{
-						if(!p_getc(&(tempitem.initD_label[q][w]),f,keepdata))
+						if(!p_getc(&(tempitem.initD_label[q][w]),f))
 						{
 							return qe_invalid;
 						} 
 					}
 					for ( int32_t w = 0; w < 65; w++ )
 					{
-						if(!p_getc(&(tempitem.weapon_initD_label[q][w]),f,keepdata))
+						if(!p_getc(&(tempitem.weapon_initD_label[q][w]),f))
 						{
 							return qe_invalid;
 						} 
 					}
 					for ( int32_t w = 0; w < 65; w++ )
 					{
-						if(!p_getc(&(tempitem.sprite_initD_label[q][w]),f,keepdata))
+						if(!p_getc(&(tempitem.sprite_initD_label[q][w]),f))
 						{
 							return qe_invalid;
 						} 
 					}
-					if(!p_igetl(&(tempitem.sprite_initiald[q]),f,keepdata))
+					if(!p_igetl(&(tempitem.sprite_initiald[q]),f))
 					{
 						return qe_invalid;
 					}
@@ -7191,20 +7135,20 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 				}
 				for ( int32_t q = 0; q < 2; q++ )
 				{
-					if(!p_getc(&(tempitem.sprite_initiala[q]),f,keepdata))
+					if(!p_getc(&(tempitem.sprite_initiala[q]),f))
 					{
 						return qe_invalid;
 					}
 				}
 				//Pickup Type
-				if(!p_igetw(&tempitem.sprite_script,f,true))
+				if(!p_igetw(&tempitem.sprite_script,f))
 				{
 					return qe_invalid;
 				}
 			}
 			if ( s_version >= 48 )  //! pickup flags
 			{
-				if(!p_getc(&(tempitem.pickupflag),f,keepdata))
+				if(!p_getc(&(tempitem.pickupflag),f))
 				{
 					return qe_invalid;
 				}
@@ -7212,7 +7156,7 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
 			if ( s_version >= 57 )
 			{
 				std::string str;
-				if(!p_getcstr(&str,f,true))
+				if(!p_getcstr(&str,f))
 					return qe_invalid;
 				strncpy(tempitem.display_name,str.c_str(),255);
 			}
@@ -7226,20 +7170,7 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
             reset_itembuf(&tempitem,i);
         }
         
-        if(keepdata==true)
-        {
-            memcpy(&itemsbuf[i], &tempitem, sizeof(itemdata));
-        }
-        else if(zgpmode)
-        {
-            itemsbuf[i].tile=tempitem.tile;
-            itemsbuf[i].misc_flags=tempitem.misc_flags;
-            itemsbuf[i].csets=tempitem.csets;
-            itemsbuf[i].frames=tempitem.frames;
-            itemsbuf[i].speed=tempitem.speed;
-            itemsbuf[i].delay=tempitem.delay;
-            itemsbuf[i].ltm=tempitem.ltm;
-        }
+		memcpy(&itemsbuf[i], &tempitem, sizeof(itemdata));
     }
     
     //////////////////////////////////////////////////////
@@ -7247,2374 +7178,2371 @@ int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgp
     // (These can't be done above because items_to_read
     // might be too low.)
     //////////////////////////////////////////////////////
-    if(keepdata==true)
-    {
-        for(int32_t i=0; i<MAXITEMS; i++)
-        {
-            memcpy(&tempitem, &itemsbuf[i], sizeof(itemdata));
-            
-            //Account for older quests that didn't have an actual item for the used letter
-            if(s_version < 2 && i==iLetterUsed)
-            {
-                reset_itembuf(&tempitem, iLetterUsed);
-                strcpy(item_string[i],old_item_string[i]);
-                tempitem.tile = itemsbuf[iLetter].tile;
-                tempitem.csets = itemsbuf[iLetter].csets;
-                tempitem.misc_flags = itemsbuf[iLetter].misc_flags;
-                tempitem.frames = itemsbuf[iLetter].frames;
-                tempitem.speed = itemsbuf[iLetter].speed;
-                tempitem.ltm = itemsbuf[iLetter].ltm;
-            }
-            
-            if(s_version < 3)
-            {
-                switch(i)
-                {
-					case iRocsFeather:
-					case iHoverBoots:
-					case iSpinScroll:
-					case iL2SpinScroll:
-					case iCrossScroll:
-					case iQuakeScroll:
-					case iL2QuakeScroll:
-					case iWhispRing:
-					case iL2WhispRing:
-					case iChargeRing:
-					case iL2ChargeRing:
-					case iPerilScroll:
-					case iWalletL3:
-					case iQuiverL4:
-					case iBombBagL4:
-					case iBracelet:
-					case iL2Bracelet:
-					case iOldGlove:
-					case iL2Ladder:
-					case iWealthMedal:
-					case iL2WealthMedal:
-					case iL3WealthMedal:
-						reset_itembuf(&tempitem, i);
-						strcpy(item_string[i],old_item_string[i]);
-						break;
-						
-					case iSShield:
-						reset_itembuf(&tempitem, i);
-						strcpy(item_string[i],old_item_string[i]);
-						strcpy(item_string[iShield],old_item_string[iShield]);
-						strcpy(item_string[iMShield],old_item_string[iMShield]);
-						break;
-                }
-            }
-            
-            if(s_version < 5)
-            {
-                switch(i)
-                {
-					case iHeartRing:
-					case iL2HeartRing:
-					case iL3HeartRing:
-					case iMagicRing:
-					case iL2MagicRing:
-					case iL3MagicRing:
-					case iL4MagicRing:
-						reset_itembuf(&tempitem, i);
-						strcpy(item_string[i],old_item_string[i]);
-						break;
-                }
-            }
-            
-            if(s_version < 6)  // April 2007: Advanced item editing capabilities.
-            {
-                if(i!=iBPotion && i!=iRPotion)
-                    tempitem.flags |= get_bit(deprecated_rules,32) ? ITEM_KEEPOLD : 0;
-                    
-                switch(i)
-                {
-					case iTriforce:
-						tempitem.fam_type=1;
-						break;
-						
-					case iBigTri:
-						tempitem.fam_type=0;
-						break;
-						
-					case iBombs:
-						tempitem.fam_type=i_bomb;
-						tempitem.power=4;
-						tempitem.wpn=wBOMB;
-						tempitem.wpn2=wBOOM;
-						tempitem.misc1 = 50;
-						
-						if(get_bit(deprecated_rules,qr_SLOWBOMBFUSES_DEP)) tempitem.misc1 = 200;
-						
-						break;
-						
-					case iSBomb:
-						tempitem.fam_type=i_sbomb;
-						tempitem.power=16;
-						tempitem.wpn=wSBOMB;
-						tempitem.wpn2=wSBOOM;
-						tempitem.misc1 = 50;
-						
-						if(get_bit(deprecated_rules,qr_SLOWBOMBFUSES_DEP)) tempitem.misc1 = 400;
-						
-						break;
-						
-					case iBook:
-						if(get_bit(deprecated_rules, qr_FIREMAGICSPRITE_DEP))
-							tempitem.wpn = wFIREMAGIC;
-							
-						break;
-						
-					case iSArrow:
-						tempitem.wpn2 = get_bit(deprecated_rules,27) ? wSSPARKLE : 0; //qr_SASPARKLES
-						tempitem.power=4;
-						tempitem.flags|=ITEM_GAMEDATA;
-						tempitem.wpn=wSARROW;
-						break;
-						
-					case iGArrow:
-						tempitem.wpn2 = get_bit(deprecated_rules,28) ? wGSPARKLE : 0; //qr_GASPARKLES
-						tempitem.power=8;
-						tempitem.flags|=(ITEM_GAMEDATA|ITEM_FLAG1);
-						tempitem.wpn=wGARROW;
-						break;
-						
-					case iBrang:
-						tempitem.power=0;
-						tempitem.wpn=wBRANG;
-						tempitem.misc1=36;
-						break;
-						
-					case iMBrang:
-						tempitem.wpn2 = get_bit(deprecated_rules,29) ? wMSPARKLE : 0; //qr_MBSPARKLES
-						tempitem.power=0;
-						tempitem.wpn=wMBRANG;
-						break;
-						
-					case iFBrang:
-						tempitem.wpn3 = get_bit(deprecated_rules,30) ? wFSPARKLE : 0; //qr_FBSPARKLES
-						tempitem.power=2;
-						tempitem.wpn=wFBRANG;
-						break;
-						
-					case iBoots:
-						tempitem.cost_amount[0] = get_bit(deprecated_rules,qr_MAGICBOOTS_DEP) ? 1 : 0;
-						tempitem.power=7;
-						break;
-						
-					case iWand:
-						tempitem.cost_amount[0] = get_bit(deprecated_rules,qr_MAGICWAND_DEP) ? 8 : 0;
-						tempitem.power=2;
-						tempitem.wpn=wWAND;
-						tempitem.wpn3=wMAGIC;
-						break;
-						
-					case iBCandle:
-						tempitem.cost_amount[0] = get_bit(deprecated_rules,qr_MAGICCANDLE_DEP) ? 4 : 0;
-						tempitem.power=1;
-						tempitem.flags|=(ITEM_GAMEDATA|ITEM_FLAG1);
-						tempitem.wpn3=wFIRE;
-						break;
-						
-					case iRCandle:
-						tempitem.cost_amount[0] = get_bit(deprecated_rules,qr_MAGICCANDLE_DEP) ? 4 : 0;
-						tempitem.power=1;
-						tempitem.wpn3=wFIRE;
-						break;
-						
-					case iSword:
-						tempitem.power=1;
-						tempitem.flags|= ITEM_FLAG4 |ITEM_FLAG2;
-						tempitem.wpn=tempitem.wpn3=wSWORD;
-						tempitem.wpn2=wSWORDSLASH;
-						break;
-						
-					case iWSword:
-						tempitem.power=2;
-						tempitem.flags|= ITEM_FLAG4 |ITEM_FLAG2;
-						tempitem.wpn=tempitem.wpn3=wWSWORD;
-						tempitem.wpn2=wWSWORDSLASH;
-						break;
-						
-					case iMSword:
-						tempitem.power=4;
-						tempitem.flags|= ITEM_FLAG4 |ITEM_FLAG2;
-						tempitem.wpn=tempitem.wpn3=wMSWORD;
-						tempitem.wpn2=wMSWORDSLASH;
-						break;
-						
-					case iXSword:
-						tempitem.power=8;
-						tempitem.flags|= ITEM_FLAG4 |ITEM_FLAG2;
-						tempitem.wpn=tempitem.wpn3=wXSWORD;
-						tempitem.wpn2=wXSWORDSLASH;
-						break;
-						
-					case iDivineProtection:
-						tempitem.flags |= get_bit(deprecated_rules,qr_FLICKERINGDIVINEPROTECTIONROCKET_DEP) ? ITEM_FLAG1 : 0;
-						tempitem.flags |= get_bit(deprecated_rules,qr_TRANSLUCENTDIVINEPROTECTIONROCKET_DEP) ? ITEM_FLAG2 : 0;
-						tempitem.wpn=wDIVINEPROTECTION1A;
-						tempitem.wpn2=wDIVINEPROTECTION1B;
-						tempitem.wpn3=wDIVINEPROTECTIONS1A;
-						tempitem.wpn4=wDIVINEPROTECTIONS1B;
-						tempitem.wpn6=wDIVINEPROTECTION2A;
-						tempitem.wpn7=wDIVINEPROTECTION2B;
-						tempitem.wpn8=wDIVINEPROTECTIONS2A;
-						tempitem.wpn9=wDIVINEPROTECTIONS2B;
-						tempitem.wpn5 = iwDivineProtectionShieldFront;
-						tempitem.wpn10 = iwDivineProtectionShieldBack;
-						tempitem.misc1=512;
-						tempitem.cost_amount[0]=64;
-						break;
-						
-					case iLens:
-						tempitem.misc1=60;
-						tempitem.flags |= get_qr(qr_ENABLEMAGIC) ? 0 : ITEM_RUPEE_MAGIC;
-						tempitem.cost_amount[0] = get_qr(qr_ENABLEMAGIC) ? 2 : 1;
-						break;
-						
-					case iArrow:
-						tempitem.power=2;
-						tempitem.wpn=wARROW;
-						break;
-						
-					case iHoverBoots:
-						tempitem.misc1=45;
-						tempitem.wpn=iwHover;
-						break;
-						
-					case iDivineFire:
-						tempitem.power=8;
-						tempitem.wpn=wDIVINEFIRE1A;
-						tempitem.wpn2=wDIVINEFIRE1B;
-						tempitem.wpn3=wDIVINEFIRES1A;
-						tempitem.wpn4=wDIVINEFIRES1B;
-						tempitem.misc1 = 32;
-						tempitem.misc2 = 200;
-						tempitem.cost_amount[0]=32;
-						break;
-						
-					case iDivineEscape:
-						tempitem.cost_amount[0]=32;
-						break;
-						
-					case iHookshot:
-						tempitem.power=0;
-						tempitem.flags&=~ITEM_FLAG1;
-						tempitem.wpn=wHSHEAD;
-						tempitem.wpn2=wHSCHAIN_H;
-						tempitem.wpn4=wHSHANDLE;
-						tempitem.wpn3=wHSCHAIN_V;
-						tempitem.misc1=50;
-						tempitem.misc2=100;
-						break;
-						
-					case iLongshot:
-						tempitem.power=0;
-						tempitem.flags&=~ITEM_FLAG1;
-						tempitem.wpn=wLSHEAD;
-						tempitem.wpn2=wLSCHAIN_H;
-						tempitem.wpn4=wLSHANDLE;
-						tempitem.wpn3=wLSCHAIN_V;
-						tempitem.misc1=99;
-						tempitem.misc2=100;
-						break;
-						
-					case iHammer:
-						tempitem.power=4;
-						tempitem.wpn=wHAMMER;
-						tempitem.wpn2=iwHammerSmack;
-						break;
-						
-					case iCByrna:
-						tempitem.power=1;
-						tempitem.wpn=wCBYRNA;
-						tempitem.wpn2=wCBYRNASLASH;
-						tempitem.wpn3=wCBYRNAORB;
-						tempitem.misc1=4;
-						tempitem.misc2=16;
-						tempitem.misc3=1;
-						tempitem.cost_amount[0]=1;
-						break;
-						
-					case iWhistle:
-						tempitem.wpn=wWIND;
-						tempitem.misc1=3;
-						tempitem.flags|=ITEM_FLAG1;
-						break;
-						
-					case iBRing:
-						tempitem.power=2;
-						tempitem.misc1=spBLUE;
-						break;
-						
-					case iRRing:
-						tempitem.power=4;
-						tempitem.misc1=spRED;
-						break;
-						
-					case iGRing:
-						tempitem.power=8;
-						tempitem.misc1=spGOLD;
-						break;
-						
-					case iSpinScroll:
-						tempitem.power = 2;
-						tempitem.misc1 = 1;
-						break;
-						
-					case iL2SpinScroll:
-						tempitem.family=itype_spinscroll2;
-						tempitem.fam_type=1;
-						tempitem.cost_amount[0]=8;
-						tempitem.power=2;
-						tempitem.misc1 = 20;
-						break;
-						
-					case iQuakeScroll:
-						tempitem.misc1=0x10;
-						tempitem.misc2=64;
-						break;
-						
-					case iL2QuakeScroll:
-						tempitem.family=itype_quakescroll2;
-						tempitem.fam_type=1;
-						tempitem.power = 2;
-						tempitem.misc1=0x20;
-						tempitem.misc2=192;
-						tempitem.cost_amount[0]=8;
-						break;
-						
-					case iChargeRing:
-						tempitem.misc1=64;
-						tempitem.misc2=128;
-						break;
-						
-					case iL2ChargeRing:
-						tempitem.misc1=32;
-						tempitem.misc2=64;
-						break;
-						
-					case iOldGlove:
-						tempitem.flags |= ITEM_FLAG1;
-						
-						//fallthrough
-					case iBombBagL4:
-					case iWalletL3:
-					case iQuiverL4:
-					case iBracelet:
-						tempitem.power = 1;
-						break;
-						
-					case iL2Bracelet:
-						tempitem.power = 2;
-						break;
-						
-					case iMKey:
-						tempitem.power=0xFF;
-						tempitem.flags |= ITEM_FLAG1;
-						break;
-                }
-            }
-            
-            if(s_version < 7)
-            {
-                switch(i)
-                {
-					case iStoneAgony:
-					case iStompBoots:
-					case iPerilRing:
-					case iWhimsicalRing:
-					{
-						reset_itembuf(&tempitem, i);
-						strcpy(item_string[i],old_item_string[i]);
-						break;
-					}
-                }
-            }
-            
-            if(s_version < 8) // May 2007: Some corrections.
-            {
-                switch(i)
-                {
-					case iMShield:
-						tempitem.misc1|=shFLAME;
-						tempitem.misc2|=shFIREBALL|shMAGIC;
-						
-						if(get_qr(qr_SWORDMIRROR))
-						{
-							tempitem.misc2 |= shSWORD;
-						}
-						
-						// fallthrough
-					case iShield:
-						tempitem.misc1|=shFIREBALL|shSWORD|shMAGIC;
-						
-						// fallthrough
-					case iSShield:
-						tempitem.misc1|=shROCK|shARROW|shBRANG|shSCRIPT;
-						
-						if(get_bit(deprecated_rules,102))  //qr_REFLECTROCKS
-						{
-							tempitem.misc2 |= shROCK;
-						}
-						
-						break;
-						
-					case iWhispRing:
-						tempitem.power=1;
-						tempitem.flags|=ITEM_GAMEDATA|ITEM_FLAG1;
-						tempitem.misc1 = 3;
-						break;
-						
-					case iL2WhispRing:
-						tempitem.power=0;
-						tempitem.flags|=ITEM_GAMEDATA|ITEM_FLAG1;
-						tempitem.misc1 = 3;
-						break;
-						
-					case iL2Ladder:
-					case iBow:
-					case iCByrna:
-						tempitem.power = 1;
-						break;
-                }
-            }
-            
-            if(s_version < 9 && i==iClock)
-            {
-                tempitem.misc1 = get_bit(deprecated_rules, qr_TEMPCLOCKS_DEP) ? 256 : 0;
-            }
-            
-            //add the misc flag for bomb
-            if(s_version < 10 && tempitem.family == itype_bomb)
-            {
-                tempitem.flags = (tempitem.flags & ~ITEM_FLAG1) | (get_qr(qr_LONGBOMBBOOM_DEP) ? ITEM_FLAG1 : 0);
-            }
-            
-            if(s_version < 11 && tempitem.family == itype_triforcepiece)
-            {
-                tempitem.flags = (tempitem.fam_type ? ITEM_GAMEDATA : 0);
-                tempitem.playsound = (tempitem.fam_type ? WAV_SCALE : WAV_CLEARED);
-            }
-            
-            if(s_version < 12) // June 2007: More Misc. attributes.
-            {
-                switch(i)
-                {
-                case iFBrang:
-                    tempitem.misc4 |= shFIREBALL|shSWORD|shMAGIC;
-                    
-                    //fallthrough
-                case iMBrang:
-                    tempitem.misc3 |= shSWORD|shMAGIC;
-                    
-                    //fallthrough
-                case iHookshot:
-                case iLongshot:
-                    //fallthrough
-                    tempitem.misc3 |= shFIREBALL;
-                    
-                case iBrang:
-                    tempitem.misc3 |= shBRANG|shROCK|shARROW;
-                    break;
-                }
-                
-                switch(tempitem.family)
-                {
-                case itype_hoverboots:
-                    tempitem.usesound = WAV_ZN1HOVER;
-                    break;
-                    
-                case itype_wand:
-                    tempitem.usesound = WAV_WAND;
-                    break;
-                    
-                case itype_book:
-                    tempitem.usesound = WAV_FIRE;
-                    break;
-                    
-                case itype_arrow:
-                    tempitem.usesound = WAV_ARROW;
-                    break;
-                    
-                case itype_hookshot:
-                    tempitem.usesound = WAV_HOOKSHOT;
-                    break;
-                    
-                case itype_brang:
-                    tempitem.usesound = WAV_BRANG;
-                    break;
-                    
-                case itype_shield:
-                    tempitem.usesound = WAV_CHINK;
-                    break;
-                    
-                case itype_sword:
-                    tempitem.usesound = WAV_SWORD;
-                    break;
-                    
-                case itype_whistle:
-                    tempitem.usesound = WAV_WHISTLE;
-                    break;
-                    
-                case itype_hammer:
-                    tempitem.usesound = WAV_HAMMER;
-                    break;
-                    
-                case itype_divinefire:
-                    tempitem.usesound = WAV_ZN1DIVINEFIRE;
-                    break;
-                    
-                case itype_divineescape:
-                    tempitem.usesound = WAV_ZN1DIVINEESCAPE;
-                    break;
-                    
-                case itype_divineprotection:
-                    tempitem.usesound = WAV_ZN1DIVINEPROTECTION1;
-                    break;
-                    
-                case itype_bomb:
-                case itype_sbomb:
-                case itype_quakescroll:
-                case itype_quakescroll2:
-                    tempitem.usesound = WAV_BOMB;
-                    break;
-                    
-                case itype_spinscroll:
-                case itype_spinscroll2:
-                    tempitem.usesound = WAV_ZN1SPINATTACK;
-                    break;
-                }
-            }
-            
-            if(s_version < 13) // July 2007
-            {
-                if(tempitem.family == itype_whistle)
-                {
-                    tempitem.misc1 = (tempitem.power==2 ? 4 : 3);
-                    tempitem.power = 1;
-                    tempitem.flags|=ITEM_FLAG1;
-                }
-                else if(tempitem.family == itype_wand)
-                    tempitem.flags|=ITEM_FLAG1;
-                else if(tempitem.family == itype_book)
-                {
-                    tempitem.flags|=ITEM_FLAG1;
-                    tempitem.power = 2;
-                }
-            }
-            
-            if(s_version < 14) // August 2007
-            {
-                if(tempitem.family == itype_fairy)
-                {
-                    tempitem.usesound = WAV_SCALE;
-                    
-                    if(tempitem.fam_type)
-                        tempitem.misc3=50;
-                }
-                else if(tempitem.family == itype_potion)
-                {
-                    tempitem.flags |= ITEM_GAINOLD;
-                }
-            }
-            
-            if(s_version < 17) // November 2007
-            {
-                if(tempitem.family == itype_candle && !tempitem.wpn3)
-                {
-                    tempitem.wpn3 = wFIRE;
-                }
-                else if(tempitem.family == itype_arrow && tempitem.power>4)
-                {
-                    tempitem.flags|=ITEM_FLAG1;
-                }
-            }
-            
-            if(s_version < 18) // New Year's Eve 2007
-            {
-                if(tempitem.family == itype_whistle)
-                    tempitem.misc2 = 8; // Use the Whistle warp ring
-                else if(tempitem.family == itype_bait)
-                    tempitem.misc1 = 768; // Frames until it goes
-                else if(tempitem.family == itype_triforcepiece)
-                {
-                    if(tempitem.flags & ITEM_GAMEDATA)
-                    {
-                        tempitem.misc2 = 1; // Cutscene 1
-                        tempitem.flags |= ITEM_FLAG1; // Side Warp Out
-                    }
-                }
-            }
-            
-            if(s_version < 19)  // January 2008
-            {
-                if(tempitem.family == itype_divineprotection)
-                {
-                    tempitem.flags |= get_bit(deprecated_rules,qr_NOBOMBPALFLASH+1)?ITEM_FLAG3:0;
-                    tempitem.flags |= get_bit(deprecated_rules,qr_NOBOMBPALFLASH+2)?ITEM_FLAG4:0;
-                }
-            }
-            
-            if(s_version < 20)  // October 2008
-            {
-                if(tempitem.family == itype_divineprotection)
-                {
-                    tempitem.wpn6=wDIVINEPROTECTION2A;
-                    tempitem.wpn7=wDIVINEPROTECTION2B;
-                    tempitem.wpn8=wDIVINEPROTECTIONS2A;
-                    tempitem.wpn9=wDIVINEPROTECTIONS2B;
-                    tempitem.wpn5 = iwDivineProtectionShieldFront;
-                    tempitem.wpn10 = iwDivineProtectionShieldBack;
-                }
-            }
-            
-            if(s_version < 21)  // November 2008
-            {
-                if(tempitem.flags & 0x0100)  // ITEM_SLASH
-                {
-                    tempitem.flags &= ~0x0100;
-                    
-                    if(tempitem.family == itype_sword ||
-                            tempitem.family == itype_wand ||
-                            tempitem.family == itype_candle ||
-                            tempitem.family == itype_cbyrna)
-                    {
-                        tempitem.flags |= ITEM_FLAG4;
-                    }
-                }
-            }
-            
-            if(s_version < 22)  // September 2009
-            {
-                if(tempitem.family == itype_sbomb || tempitem.family == itype_bomb)
-                {
-                    tempitem.misc3 = tempitem.power/2;
-                }
-            }
-            
-            if(s_version < 23)    // March 2011
-            {
-                if(tempitem.family == itype_divinefire)
-                    tempitem.wpn5 = wFIRE;
-                else if(tempitem.family == itype_book)
-                    tempitem.wpn2 = wFIRE;
-            }
-            
-            // Version 25: Bomb bags were acting as though "super bombs also" was checked
-            // whether it was or not, and a lot of existing quests depended on the
-            // incorrect behavior.
-            if(s_version < 25)    // January 2012
-            {
-                if(tempitem.family == itype_bombbag)
-                    tempitem.flags |= 16;
-                    
-                if(tempitem.family == itype_divinefire)
-                    tempitem.flags |= ITEM_FLAG3; // Sideview gravity flag
-            }
-            
-			if( version < 0x254) //Nuke greyed-out flags/values from <=2.53, in case they are used in 2.54/2.55
+	for(int32_t i=0; i<MAXITEMS; i++)
+	{
+		memcpy(&tempitem, &itemsbuf[i], sizeof(itemdata));
+		
+		//Account for older quests that didn't have an actual item for the used letter
+		if(s_version < 2 && i==iLetterUsed)
+		{
+			reset_itembuf(&tempitem, iLetterUsed);
+			strcpy(item_string[i],old_item_string[i]);
+			tempitem.tile = itemsbuf[iLetter].tile;
+			tempitem.csets = itemsbuf[iLetter].csets;
+			tempitem.misc_flags = itemsbuf[iLetter].misc_flags;
+			tempitem.frames = itemsbuf[iLetter].frames;
+			tempitem.speed = itemsbuf[iLetter].speed;
+			tempitem.ltm = itemsbuf[iLetter].ltm;
+		}
+		
+		if(s_version < 3)
+		{
+			switch(i)
 			{
-				switch(tempitem.family)
-				{
-					case itype_sword:
-					{
-						tempitem.flags &= ~(ITEM_FLAG5);
-						tempitem.misc3 = 0;
-						tempitem.misc4 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						tempitem.wpn4 = 0;
-						tempitem.wpn5 = 0;
-						tempitem.wpn6 = 0;
-						tempitem.wpn7 = 0;
-						tempitem.wpn8 = 0;
-						tempitem.wpn9 = 0;
-						tempitem.wpn10 = 0;
-						break;
-					}
-					case itype_brang:
-					{
-						tempitem.flags &= ~(ITEM_FLAG4 | ITEM_FLAG5);
-						tempitem.misc2 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						tempitem.wpn4 = 0;
-						tempitem.wpn5 = 0;
-						tempitem.wpn6 = 0;
-						tempitem.wpn7 = 0;
-						tempitem.wpn8 = 0;
-						tempitem.wpn9 = 0;
-						tempitem.wpn10 = 0;
-						break;
-					}
-					case itype_arrow:
-					{
-						tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-						tempitem.misc2 = 0;
-						tempitem.misc3 = 0;
-						tempitem.misc4 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						tempitem.wpn4 = 0;
-						tempitem.wpn5 = 0;
-						tempitem.wpn6 = 0;
-						tempitem.wpn7 = 0;
-						tempitem.wpn8 = 0;
-						tempitem.wpn9 = 0;
-						tempitem.wpn10 = 0;
-						break;
-					}
-					case itype_candle:
-					{
-						tempitem.flags &= ~ (ITEM_FLAG3 | ITEM_FLAG5);
-						tempitem.misc1 = 0;
-						tempitem.misc2 = 0;
-						tempitem.misc3 = 0;
-						tempitem.misc4 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						tempitem.wpn4 = 0;
-						tempitem.wpn5 = 0;
-						tempitem.wpn6 = 0;
-						tempitem.wpn7 = 0;
-						tempitem.wpn8 = 0;
-						tempitem.wpn9 = 0;
-						tempitem.wpn10 = 0;
-						break;
-					}
-					case itype_whistle:
-					{
-						tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-						tempitem.misc3 = 0;
-						tempitem.misc4 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						tempitem.wpn2 = 0;
-						tempitem.wpn3 = 0;
-						tempitem.wpn4 = 0;
-						tempitem.wpn5 = 0;
-						tempitem.wpn6 = 0;
-						tempitem.wpn7 = 0;
-						tempitem.wpn8 = 0;
-						tempitem.wpn9 = 0;
-						tempitem.wpn10 = 0;
-						break;
-					}
-					case itype_bait:
-					{
-						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-						tempitem.misc2 = 0;
-						tempitem.misc3 = 0;
-						tempitem.misc4 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						tempitem.wpn2 = 0;
-						tempitem.wpn3 = 0;
-						tempitem.wpn4 = 0;
-						tempitem.wpn5 = 0;
-						tempitem.wpn6 = 0;
-						tempitem.wpn7 = 0;
-						tempitem.wpn8 = 0;
-						tempitem.wpn9 = 0;
-						tempitem.wpn10 = 0;
-						break;
-					}
-					case itype_letter:
-					{
-						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-						tempitem.misc1 = 0;
-						tempitem.misc2 = 0;
-						tempitem.misc3 = 0;
-						tempitem.misc4 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						tempitem.wpn = 0;
-						tempitem.wpn2 = 0;
-						tempitem.wpn3 = 0;
-						tempitem.wpn4 = 0;
-						tempitem.wpn5 = 0;
-						tempitem.wpn6 = 0;
-						tempitem.wpn7 = 0;
-						tempitem.wpn8 = 0;
-						tempitem.wpn9 = 0;
-						tempitem.wpn10 = 0;
-						break;
-					}
-					case itype_potion:
-					{
-						tempitem.flags &= ~ (ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-						tempitem.misc3 = 0;
-						tempitem.misc4 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						tempitem.wpn = 0;
-						tempitem.wpn2 = 0;
-						tempitem.wpn3 = 0;
-						tempitem.wpn4 = 0;
-						tempitem.wpn5 = 0;
-						tempitem.wpn6 = 0;
-						tempitem.wpn7 = 0;
-						tempitem.wpn8 = 0;
-						tempitem.wpn9 = 0;
-						tempitem.wpn10 = 0;
-						break;
-					}
-					case itype_wand:
-					{
-						tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG5);
-						tempitem.misc1 = 0;
-						tempitem.misc2 = 0;
-						tempitem.misc3 = 0;
-						tempitem.misc4 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						tempitem.wpn4 = 0;
-						tempitem.wpn5 = 0;
-						tempitem.wpn6 = 0;
-						tempitem.wpn7 = 0;
-						tempitem.wpn8 = 0;
-						tempitem.wpn9 = 0;
-						tempitem.wpn10 = 0;
-						break;
-					}
-					case itype_ring:
-					{
-						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-						tempitem.misc2 = 0;
-						tempitem.misc3 = 0;
-						tempitem.misc4 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						tempitem.wpn = 0;
-						tempitem.wpn2 = 0;
-						tempitem.wpn3 = 0;
-						tempitem.wpn4 = 0;
-						tempitem.wpn5 = 0;
-						tempitem.wpn6 = 0;
-						tempitem.wpn7 = 0;
-						tempitem.wpn8 = 0;
-						tempitem.wpn9 = 0;
-						tempitem.wpn10 = 0;
-						break;
-					}
-					case itype_wallet:
-					{
-						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-						tempitem.misc3 = 0;
-						tempitem.misc4 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						tempitem.wpn = 0;
-						tempitem.wpn2 = 0;
-						tempitem.wpn3 = 0;
-						tempitem.wpn4 = 0;
-						tempitem.wpn5 = 0;
-						tempitem.wpn6 = 0;
-						tempitem.wpn7 = 0;
-						tempitem.wpn8 = 0;
-						tempitem.wpn9 = 0;
-						tempitem.wpn10 = 0;
-						break;
-					}
-					case itype_amulet:
-					{
-						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-						tempitem.misc1 = 0;
-						tempitem.misc2 = 0;
-						tempitem.misc3 = 0;
-						tempitem.misc4 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						tempitem.wpn = 0;
-						tempitem.wpn2 = 0;
-						tempitem.wpn3 = 0;
-						tempitem.wpn4 = 0;
-						tempitem.wpn5 = 0;
-						tempitem.wpn6 = 0;
-						tempitem.wpn7 = 0;
-						tempitem.wpn8 = 0;
-						tempitem.wpn9 = 0;
-						tempitem.wpn10 = 0;
-						break;
-					}
-					case itype_shield:
-					{
-						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-						tempitem.misc3 = 0;
-						tempitem.misc4 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						tempitem.wpn = 0;
-						tempitem.wpn2 = 0;
-						tempitem.wpn3 = 0;
-						tempitem.wpn4 = 0;
-						tempitem.wpn5 = 0;
-						tempitem.wpn6 = 0;
-						tempitem.wpn7 = 0;
-						tempitem.wpn8 = 0;
-						tempitem.wpn9 = 0;
-						tempitem.wpn10 = 0;
-						break;
-					}
-					case itype_bow:
-					{
-						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-						tempitem.misc1 = 0;
-						tempitem.misc2 = 0;
-						tempitem.misc3 = 0;
-						tempitem.misc4 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						tempitem.wpn = 0;
-						tempitem.wpn2 = 0;
-						tempitem.wpn3 = 0;
-						tempitem.wpn4 = 0;
-						tempitem.wpn5 = 0;
-						tempitem.wpn6 = 0;
-						tempitem.wpn7 = 0;
-						tempitem.wpn8 = 0;
-						tempitem.wpn9 = 0;
-						tempitem.wpn10 = 0;
-						break;
-					}
-					case itype_raft:
-					{
-						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-						tempitem.misc1 = 0;
-						tempitem.misc2 = 0;
-						tempitem.misc3 = 0;
-						tempitem.misc4 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						tempitem.wpn = 0;
-						tempitem.wpn2 = 0;
-						tempitem.wpn3 = 0;
-						tempitem.wpn4 = 0;
-						tempitem.wpn5 = 0;
-						tempitem.wpn6 = 0;
-						tempitem.wpn7 = 0;
-						tempitem.wpn8 = 0;
-						tempitem.wpn9 = 0;
-						tempitem.wpn10 = 0;
-						break;
-					}
-					case itype_ladder:
-					{
-						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-						tempitem.misc1 = 0;
-						tempitem.misc2 = 0;
-						tempitem.misc3 = 0;
-						tempitem.misc4 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						tempitem.wpn = 0;
-						tempitem.wpn2 = 0;
-						tempitem.wpn3 = 0;
-						tempitem.wpn4 = 0;
-						tempitem.wpn5 = 0;
-						tempitem.wpn6 = 0;
-						tempitem.wpn7 = 0;
-						tempitem.wpn8 = 0;
-						tempitem.wpn9 = 0;
-						tempitem.wpn10 = 0;
-						break;
-					}
-					case itype_book:
-					{
-						tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-						tempitem.misc1 = 0;
-						tempitem.misc2 = 0;
-						tempitem.misc3 = 0;
-						tempitem.misc4 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						tempitem.wpn3 = 0;
-						tempitem.wpn4 = 0;
-						tempitem.wpn5 = 0;
-						tempitem.wpn6 = 0;
-						tempitem.wpn7 = 0;
-						tempitem.wpn8 = 0;
-						tempitem.wpn9 = 0;
-						tempitem.wpn10 = 0;
-						break;
-					}
-					case itype_magickey:
-					{
-						tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-						tempitem.misc1 = 0;
-						tempitem.misc2 = 0;
-						tempitem.misc3 = 0;
-						tempitem.misc4 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						tempitem.wpn = 0;
-						tempitem.wpn2 = 0;
-						tempitem.wpn3 = 0;
-						tempitem.wpn4 = 0;
-						tempitem.wpn5 = 0;
-						tempitem.wpn6 = 0;
-						tempitem.wpn7 = 0;
-						tempitem.wpn8 = 0;
-						tempitem.wpn9 = 0;
-						tempitem.wpn10 = 0;
-						break;
-					}
-					case itype_bracelet:
-					{
-						tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-						tempitem.misc1 = 0;
-						tempitem.misc2 = 0;
-						tempitem.misc3 = 0;
-						tempitem.misc4 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						tempitem.wpn = 0;
-						tempitem.wpn2 = 0;
-						tempitem.wpn3 = 0;
-						tempitem.wpn4 = 0;
-						tempitem.wpn5 = 0;
-						tempitem.wpn6 = 0;
-						tempitem.wpn7 = 0;
-						tempitem.wpn8 = 0;
-						tempitem.wpn9 = 0;
-						tempitem.wpn10 = 0;
-						break;
-					}
-					case itype_flippers:
-					{
-						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-						tempitem.misc1 = 0;
-						tempitem.misc2 = 0;
-						tempitem.misc3 = 0;
-						tempitem.misc4 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						tempitem.wpn = 0;
-						tempitem.wpn2 = 0;
-						tempitem.wpn3 = 0;
-						tempitem.wpn4 = 0;
-						tempitem.wpn5 = 0;
-						tempitem.wpn6 = 0;
-						tempitem.wpn7 = 0;
-						tempitem.wpn8 = 0;
-						tempitem.wpn9 = 0;
-						tempitem.wpn10 = 0;
-						break;
-					}
-					case itype_boots:
-					{
-						tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-						tempitem.misc1 = 0;
-						tempitem.misc2 = 0;
-						tempitem.misc3 = 0;
-						tempitem.misc4 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						tempitem.wpn = 0;
-						tempitem.wpn2 = 0;
-						tempitem.wpn3 = 0;
-						tempitem.wpn4 = 0;
-						tempitem.wpn5 = 0;
-						tempitem.wpn6 = 0;
-						tempitem.wpn7 = 0;
-						tempitem.wpn8 = 0;
-						tempitem.wpn9 = 0;
-						tempitem.wpn10 = 0;
-						break;
-					}
-					case itype_hookshot:
-					{
-						tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						tempitem.wpn5 = 0;
-						tempitem.wpn6 = 0;
-						tempitem.wpn7 = 0;
-						tempitem.wpn8 = 0;
-						tempitem.wpn9 = 0;
-						tempitem.wpn10 = 0;
-						break;
-					}
-					case itype_lens:
-					{
-						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-						tempitem.misc2 = 0;
-						tempitem.misc3 = 0;
-						tempitem.misc4 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						tempitem.wpn = 0;
-						tempitem.wpn2 = 0;
-						tempitem.wpn3 = 0;
-						tempitem.wpn4 = 0;
-						tempitem.wpn5 = 0;
-						tempitem.wpn6 = 0;
-						tempitem.wpn7 = 0;
-						tempitem.wpn8 = 0;
-						tempitem.wpn9 = 0;
-						tempitem.wpn10 = 0;
-						break;
-					}
-					case itype_hammer:
-					{
-						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-						tempitem.misc1 = 0;
-						tempitem.misc2 = 0;
-						tempitem.misc3 = 0;
-						tempitem.misc4 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						tempitem.wpn3 = 0;
-						tempitem.wpn4 = 0;
-						tempitem.wpn5 = 0;
-						tempitem.wpn6 = 0;
-						tempitem.wpn7 = 0;
-						tempitem.wpn8 = 0;
-						tempitem.wpn9 = 0;
-						tempitem.wpn10 = 0;
-						break;
-					}
-					case itype_divinefire:
-					{
-						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG4 | ITEM_FLAG5);
-						tempitem.misc3 = 0;
-						tempitem.misc4 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						tempitem.wpn6 = 0;
-						tempitem.wpn7 = 0;
-						tempitem.wpn8 = 0;
-						tempitem.wpn9 = 0;
-						tempitem.wpn10 = 0;
-						break;
-					}
-					case itype_divineescape:
-					{
-						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-						tempitem.misc2 = 0;
-						tempitem.misc3 = 0;
-						tempitem.misc4 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						tempitem.wpn = 0;
-						tempitem.wpn2 = 0;
-						tempitem.wpn3 = 0;
-						tempitem.wpn4 = 0;
-						tempitem.wpn5 = 0;
-						tempitem.wpn6 = 0;
-						tempitem.wpn7 = 0;
-						tempitem.wpn8 = 0;
-						tempitem.wpn9 = 0;
-						tempitem.wpn10 = 0;
-						break;
-					}
-					case itype_divineprotection:
-					{
-						tempitem.flags &= ~ (ITEM_FLAG5);
-						tempitem.misc2 = 0;
-						tempitem.misc3 = 0;
-						tempitem.misc4 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						break;
-					}
-					case itype_bomb:
-					{
-						tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-						tempitem.misc4 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						tempitem.wpn3 = 0;
-						tempitem.wpn4 = 0;
-						tempitem.wpn5 = 0;
-						tempitem.wpn6 = 0;
-						tempitem.wpn7 = 0;
-						tempitem.wpn8 = 0;
-						tempitem.wpn9 = 0;
-						tempitem.wpn10 = 0;
-						break;
-					}
-					case itype_sbomb:
-					{
-						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-						tempitem.misc4 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						tempitem.wpn3 = 0;
-						tempitem.wpn4 = 0;
-						tempitem.wpn5 = 0;
-						tempitem.wpn6 = 0;
-						tempitem.wpn7 = 0;
-						tempitem.wpn8 = 0;
-						tempitem.wpn9 = 0;
-						tempitem.wpn10 = 0;
-						break;
-					}
-					case itype_clock:
-					{
-						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-						tempitem.misc2 = 0;
-						tempitem.misc3 = 0;
-						tempitem.misc4 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						tempitem.wpn = 0;
-						tempitem.wpn2 = 0;
-						tempitem.wpn3 = 0;
-						tempitem.wpn4 = 0;
-						tempitem.wpn5 = 0;
-						tempitem.wpn6 = 0;
-						tempitem.wpn7 = 0;
-						tempitem.wpn8 = 0;
-						tempitem.wpn9 = 0;
-						tempitem.wpn10 = 0;
-						break;
-					}
-					case itype_key:
-					{
-						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-						tempitem.misc1 = 0;
-						tempitem.misc2 = 0;
-						tempitem.misc3 = 0;
-						tempitem.misc4 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						tempitem.wpn = 0;
-						tempitem.wpn2 = 0;
-						tempitem.wpn3 = 0;
-						tempitem.wpn4 = 0;
-						tempitem.wpn5 = 0;
-						tempitem.wpn6 = 0;
-						tempitem.wpn7 = 0;
-						tempitem.wpn8 = 0;
-						tempitem.wpn9 = 0;
-						tempitem.wpn10 = 0;
-						break;
-					}
-					case itype_magiccontainer:
-					{
-						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-						tempitem.misc1 = 0;
-						tempitem.misc2 = 0;
-						tempitem.misc3 = 0;
-						tempitem.misc4 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						tempitem.wpn = 0;
-						tempitem.wpn2 = 0;
-						tempitem.wpn3 = 0;
-						tempitem.wpn4 = 0;
-						tempitem.wpn5 = 0;
-						tempitem.wpn6 = 0;
-						tempitem.wpn7 = 0;
-						tempitem.wpn8 = 0;
-						tempitem.wpn9 = 0;
-						tempitem.wpn10 = 0;
-						break;
-					}
-					case itype_triforcepiece:
-					{
-						tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-						tempitem.misc3 = 0;
-						tempitem.misc4 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						tempitem.wpn = 0;
-						tempitem.wpn2 = 0;
-						tempitem.wpn3 = 0;
-						tempitem.wpn4 = 0;
-						tempitem.wpn5 = 0;
-						tempitem.wpn6 = 0;
-						tempitem.wpn7 = 0;
-						tempitem.wpn8 = 0;
-						tempitem.wpn9 = 0;
-						tempitem.wpn10 = 0;
-						break;
-					}
-					case itype_map:	case itype_compass:	case itype_bosskey:
-					{
-						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-						tempitem.misc1 = 0;
-						tempitem.misc2 = 0;
-						tempitem.misc3 = 0;
-						tempitem.misc4 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						tempitem.wpn = 0;
-						tempitem.wpn2 = 0;
-						tempitem.wpn3 = 0;
-						tempitem.wpn4 = 0;
-						tempitem.wpn5 = 0;
-						tempitem.wpn6 = 0;
-						tempitem.wpn7 = 0;
-						tempitem.wpn8 = 0;
-						tempitem.wpn9 = 0;
-						tempitem.wpn10 = 0;
-						break;
-					}
-					case itype_quiver:
-					{
-						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-						tempitem.misc3 = 0;
-						tempitem.misc4 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						tempitem.wpn = 0;
-						tempitem.wpn2 = 0;
-						tempitem.wpn3 = 0;
-						tempitem.wpn4 = 0;
-						tempitem.wpn5 = 0;
-						tempitem.wpn6 = 0;
-						tempitem.wpn7 = 0;
-						tempitem.wpn8 = 0;
-						tempitem.wpn9 = 0;
-						tempitem.wpn10 = 0;
-						break;
-					}
-					case itype_lkey:
-					{
-						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-						tempitem.misc1 = 0;
-						tempitem.misc2 = 0;
-						tempitem.misc3 = 0;
-						tempitem.misc4 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						tempitem.wpn = 0;
-						tempitem.wpn2 = 0;
-						tempitem.wpn3 = 0;
-						tempitem.wpn4 = 0;
-						tempitem.wpn5 = 0;
-						tempitem.wpn6 = 0;
-						tempitem.wpn7 = 0;
-						tempitem.wpn8 = 0;
-						tempitem.wpn9 = 0;
-						tempitem.wpn10 = 0;
-						break;
-					}
-					case itype_cbyrna:
-					{
-						tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG5);
-						tempitem.misc4 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						tempitem.wpn6 = 0;
-						tempitem.wpn7 = 0;
-						tempitem.wpn8 = 0;
-						tempitem.wpn9 = 0;
-						tempitem.wpn10 = 0;
-						break;
-					}
-					case itype_rupee: case itype_arrowammo:
-					{
-						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-						tempitem.misc1 = 0;
-						tempitem.misc2 = 0;
-						tempitem.misc3 = 0;
-						tempitem.misc4 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						tempitem.wpn = 0;
-						tempitem.wpn2 = 0;
-						tempitem.wpn3 = 0;
-						tempitem.wpn4 = 0;
-						tempitem.wpn5 = 0;
-						tempitem.wpn6 = 0;
-						tempitem.wpn7 = 0;
-						tempitem.wpn8 = 0;
-						tempitem.wpn9 = 0;
-						tempitem.wpn10 = 0;
-						break;
-					}
-					case itype_fairy:
-					{
-						tempitem.flags &= ~ (ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-						tempitem.misc4 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						tempitem.wpn = 0;
-						tempitem.wpn2 = 0;
-						tempitem.wpn3 = 0;
-						tempitem.wpn4 = 0;
-						tempitem.wpn5 = 0;
-						tempitem.wpn6 = 0;
-						tempitem.wpn7 = 0;
-						tempitem.wpn8 = 0;
-						tempitem.wpn9 = 0;
-						tempitem.wpn10 = 0;
-						break;
-					}
-					case itype_magic: case itype_heart: case itype_heartcontainer: case itype_heartpiece: case itype_killem: case itype_bombammo:
-					{
-						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-						tempitem.misc1 = 0;
-						tempitem.misc2 = 0;
-						tempitem.misc3 = 0;
-						tempitem.misc4 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						tempitem.wpn = 0;
-						tempitem.wpn2 = 0;
-						tempitem.wpn3 = 0;
-						tempitem.wpn4 = 0;
-						tempitem.wpn5 = 0;
-						tempitem.wpn6 = 0;
-						tempitem.wpn7 = 0;
-						tempitem.wpn8 = 0;
-						tempitem.wpn9 = 0;
-						tempitem.wpn10 = 0;
-						break;
-					}
-					case itype_bombbag:
-					{
-						tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-						tempitem.misc3 = 0;
-						tempitem.misc4 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						tempitem.wpn = 0;
-						tempitem.wpn2 = 0;
-						tempitem.wpn3 = 0;
-						tempitem.wpn4 = 0;
-						tempitem.wpn5 = 0;
-						tempitem.wpn6 = 0;
-						tempitem.wpn7 = 0;
-						tempitem.wpn8 = 0;
-						tempitem.wpn9 = 0;
-						tempitem.wpn10 = 0;
-						break;
-					}
-					case itype_rocs:
-					{
-						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-						tempitem.misc1 = 0;
-						tempitem.misc2 = 0;
-						tempitem.misc3 = 0;
-						tempitem.misc4 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						tempitem.wpn = 0;
-						tempitem.wpn2 = 0;
-						tempitem.wpn3 = 0;
-						tempitem.wpn4 = 0;
-						tempitem.wpn5 = 0;
-						tempitem.wpn6 = 0;
-						tempitem.wpn7 = 0;
-						tempitem.wpn8 = 0;
-						tempitem.wpn9 = 0;
-						tempitem.wpn10 = 0;
-						break;
-					}
-					case itype_hoverboots:
-					{
-						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-						tempitem.misc2 = 0;
-						tempitem.misc3 = 0;
-						tempitem.misc4 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						tempitem.wpn2 = 0;
-						tempitem.wpn3 = 0;
-						tempitem.wpn4 = 0;
-						tempitem.wpn5 = 0;
-						tempitem.wpn6 = 0;
-						tempitem.wpn7 = 0;
-						tempitem.wpn8 = 0;
-						tempitem.wpn9 = 0;
-						tempitem.wpn10 = 0;
-						break;
-					}
-					case itype_spinscroll:
-					{
-						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-						tempitem.misc2 = 0;
-						tempitem.misc3 = 0;
-						tempitem.misc4 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						tempitem.wpn = 0;
-						tempitem.wpn2 = 0;
-						tempitem.wpn3 = 0;
-						tempitem.wpn4 = 0;
-						tempitem.wpn5 = 0;
-						tempitem.wpn6 = 0;
-						tempitem.wpn7 = 0;
-						tempitem.wpn8 = 0;
-						tempitem.wpn9 = 0;
-						tempitem.wpn10 = 0;
-						break;
-					}
-					case itype_crossscroll:
-					{
-						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-						tempitem.misc1 = 0;
-						tempitem.misc2 = 0;
-						tempitem.misc3 = 0;
-						tempitem.misc4 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						tempitem.wpn = 0;
-						tempitem.wpn2 = 0;
-						tempitem.wpn3 = 0;
-						tempitem.wpn4 = 0;
-						tempitem.wpn5 = 0;
-						tempitem.wpn6 = 0;
-						tempitem.wpn7 = 0;
-						tempitem.wpn8 = 0;
-						tempitem.wpn9 = 0;
-						tempitem.wpn10 = 0;
-						break;
-					}
-					case itype_quakescroll:
-					{
-						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-						tempitem.misc3 = 0;
-						tempitem.misc4 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						tempitem.wpn = 0;
-						tempitem.wpn2 = 0;
-						tempitem.wpn3 = 0;
-						tempitem.wpn4 = 0;
-						tempitem.wpn5 = 0;
-						tempitem.wpn6 = 0;
-						tempitem.wpn7 = 0;
-						tempitem.wpn8 = 0;
-						tempitem.wpn9 = 0;
-						tempitem.wpn10 = 0;
-						break;
-					}
-					case itype_whispring:
-					{
-						tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-						tempitem.misc2 = 0;
-						tempitem.misc3 = 0;
-						tempitem.misc4 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						tempitem.wpn = 0;
-						tempitem.wpn2 = 0;
-						tempitem.wpn3 = 0;
-						tempitem.wpn4 = 0;
-						tempitem.wpn5 = 0;
-						tempitem.wpn6 = 0;
-						tempitem.wpn7 = 0;
-						tempitem.wpn8 = 0;
-						tempitem.wpn9 = 0;
-						tempitem.wpn10 = 0;
-						break;
-					}
-					case itype_chargering:
-					{
-						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-						tempitem.misc3 = 0;
-						tempitem.misc4 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						tempitem.wpn = 0;
-						tempitem.wpn2 = 0;
-						tempitem.wpn3 = 0;
-						tempitem.wpn4 = 0;
-						tempitem.wpn5 = 0;
-						tempitem.wpn6 = 0;
-						tempitem.wpn7 = 0;
-						tempitem.wpn8 = 0;
-						tempitem.wpn9 = 0;
-						tempitem.wpn10 = 0;
-						break;
-					}
-					case itype_perilscroll:
-					{
-						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-						tempitem.misc2 = 0;
-						tempitem.misc3 = 0;
-						tempitem.misc4 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						tempitem.wpn = 0;
-						tempitem.wpn2 = 0;
-						tempitem.wpn3 = 0;
-						tempitem.wpn4 = 0;
-						tempitem.wpn5 = 0;
-						tempitem.wpn6 = 0;
-						tempitem.wpn7 = 0;
-						tempitem.wpn8 = 0;
-						tempitem.wpn9 = 0;
-						tempitem.wpn10 = 0;
-						break;
-					}
-					case itype_wealthmedal:
-					{
-						tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-						tempitem.misc2 = 0;
-						tempitem.misc3 = 0;
-						tempitem.misc4 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						tempitem.wpn = 0;
-						tempitem.wpn2 = 0;
-						tempitem.wpn3 = 0;
-						tempitem.wpn4 = 0;
-						tempitem.wpn5 = 0;
-						tempitem.wpn6 = 0;
-						tempitem.wpn7 = 0;
-						tempitem.wpn8 = 0;
-						tempitem.wpn9 = 0;
-						tempitem.wpn10 = 0;
-						break;
-					}
-					case itype_heartring:
-					{
-						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-						tempitem.misc3 = 0;
-						tempitem.misc4 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						tempitem.wpn = 0;
-						tempitem.wpn2 = 0;
-						tempitem.wpn3 = 0;
-						tempitem.wpn4 = 0;
-						tempitem.wpn5 = 0;
-						tempitem.wpn6 = 0;
-						tempitem.wpn7 = 0;
-						tempitem.wpn8 = 0;
-						tempitem.wpn9 = 0;
-						tempitem.wpn10 = 0;
-						break;
-					}
-					case itype_magicring:
-					{
-						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-						tempitem.misc3 = 0;
-						tempitem.misc4 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						tempitem.wpn = 0;
-						tempitem.wpn2 = 0;
-						tempitem.wpn3 = 0;
-						tempitem.wpn4 = 0;
-						tempitem.wpn5 = 0;
-						tempitem.wpn6 = 0;
-						tempitem.wpn7 = 0;
-						tempitem.wpn8 = 0;
-						tempitem.wpn9 = 0;
-						tempitem.wpn10 = 0;
-						break;
-					}
-					case itype_spinscroll2:
-					{
-						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-						tempitem.misc2 = 0;
-						tempitem.misc3 = 0;
-						tempitem.misc4 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						tempitem.wpn = 0;
-						tempitem.wpn2 = 0;
-						tempitem.wpn3 = 0;
-						tempitem.wpn4 = 0;
-						tempitem.wpn5 = 0;
-						tempitem.wpn6 = 0;
-						tempitem.wpn7 = 0;
-						tempitem.wpn8 = 0;
-						tempitem.wpn9 = 0;
-						tempitem.wpn10 = 0;
-						break;
-					}
-					case itype_quakescroll2:
-					{
-						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-						tempitem.misc3 = 0;
-						tempitem.misc4 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						tempitem.wpn = 0;
-						tempitem.wpn2 = 0;
-						tempitem.wpn3 = 0;
-						tempitem.wpn4 = 0;
-						tempitem.wpn5 = 0;
-						tempitem.wpn6 = 0;
-						tempitem.wpn7 = 0;
-						tempitem.wpn8 = 0;
-						tempitem.wpn9 = 0;
-						tempitem.wpn10 = 0;
-						break;
-					}
-					case itype_agony:
-					{
-						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-						tempitem.misc2 = 0;
-						tempitem.misc3 = 0;
-						tempitem.misc4 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						tempitem.wpn = 0;
-						tempitem.wpn2 = 0;
-						tempitem.wpn3 = 0;
-						tempitem.wpn4 = 0;
-						tempitem.wpn5 = 0;
-						tempitem.wpn6 = 0;
-						tempitem.wpn7 = 0;
-						tempitem.wpn8 = 0;
-						tempitem.wpn9 = 0;
-						tempitem.wpn10 = 0;
-						break;
-					}
-					case itype_stompboots:
-					{
-						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-						tempitem.misc1 = 0;
-						tempitem.misc2 = 0;
-						tempitem.misc3 = 0;
-						tempitem.misc4 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						tempitem.wpn = 0;
-						tempitem.wpn2 = 0;
-						tempitem.wpn3 = 0;
-						tempitem.wpn4 = 0;
-						tempitem.wpn5 = 0;
-						tempitem.wpn6 = 0;
-						tempitem.wpn7 = 0;
-						tempitem.wpn8 = 0;
-						tempitem.wpn9 = 0;
-						tempitem.wpn10 = 0;
-						break;
-					}
-					case itype_whimsicalring:
-					{
-						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-						tempitem.misc2 = 0;
-						tempitem.misc3 = 0;
-						tempitem.misc4 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						tempitem.wpn = 0;
-						tempitem.wpn2 = 0;
-						tempitem.wpn3 = 0;
-						tempitem.wpn4 = 0;
-						tempitem.wpn5 = 0;
-						tempitem.wpn6 = 0;
-						tempitem.wpn7 = 0;
-						tempitem.wpn8 = 0;
-						tempitem.wpn9 = 0;
-						tempitem.wpn10 = 0;
-						break;
-					}
-					case itype_perilring:
-					{
-						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-						tempitem.misc2 = 0;
-						tempitem.misc3 = 0;
-						tempitem.misc4 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						tempitem.wpn = 0;
-						tempitem.wpn2 = 0;
-						tempitem.wpn3 = 0;
-						tempitem.wpn4 = 0;
-						tempitem.wpn5 = 0;
-						tempitem.wpn6 = 0;
-						tempitem.wpn7 = 0;
-						tempitem.wpn8 = 0;
-						tempitem.wpn9 = 0;
-						tempitem.wpn10 = 0;
-						break;
-					}
-					case itype_custom1: case itype_custom2: case itype_custom3: case itype_custom4: case itype_custom5:
-					case itype_custom6: case itype_custom7: case itype_custom8: case itype_custom9: case itype_custom10:
-					case itype_custom11: case itype_custom12: case itype_custom13: case itype_custom14: case itype_custom15:
-					case itype_custom16: case itype_custom17: case itype_custom18: case itype_custom19: case itype_custom20:
-					case itype_bowandarrow: case itype_letterpotion: case itype_misc:
-					{
-						tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
-						tempitem.misc1 = 0;
-						tempitem.misc2 = 0;
-						tempitem.misc3 = 0;
-						tempitem.misc4 = 0;
-						tempitem.misc5 = 0;
-						tempitem.misc6 = 0;
-						tempitem.misc7 = 0;
-						tempitem.misc8 = 0;
-						tempitem.misc9 = 0;
-						tempitem.misc10 = 0;
-						tempitem.wpn = 0;
-						tempitem.wpn2 = 0;
-						tempitem.wpn3 = 0;
-						tempitem.wpn4 = 0;
-						tempitem.wpn5 = 0;
-						tempitem.wpn6 = 0;
-						tempitem.wpn7 = 0;
-						tempitem.wpn8 = 0;
-						tempitem.wpn9 = 0;
-						tempitem.wpn10 = 0;
-						break;
-					}
-				}
+				case iRocsFeather:
+				case iHoverBoots:
+				case iSpinScroll:
+				case iL2SpinScroll:
+				case iCrossScroll:
+				case iQuakeScroll:
+				case iL2QuakeScroll:
+				case iWhispRing:
+				case iL2WhispRing:
+				case iChargeRing:
+				case iL2ChargeRing:
+				case iPerilScroll:
+				case iWalletL3:
+				case iQuiverL4:
+				case iBombBagL4:
+				case iBracelet:
+				case iL2Bracelet:
+				case iOldGlove:
+				case iL2Ladder:
+				case iWealthMedal:
+				case iL2WealthMedal:
+				case iL3WealthMedal:
+					reset_itembuf(&tempitem, i);
+					strcpy(item_string[i],old_item_string[i]);
+					break;
+					
+				case iSShield:
+					reset_itembuf(&tempitem, i);
+					strcpy(item_string[i],old_item_string[i]);
+					strcpy(item_string[iShield],old_item_string[iShield]);
+					strcpy(item_string[iMShield],old_item_string[iMShield]);
+					break;
 			}
-			//Port quest rules to items
-			if( s_version <= 31) 
+		}
+		
+		if(s_version < 5)
+		{
+			switch(i)
 			{
-				if(tempitem.family == itype_bomb)
-				{
-					if ( get_qr(qr_OUCHBOMBS) )  tempitem.flags |= ITEM_FLAG2;
-					else tempitem.flags &= ~ ITEM_FLAG2;
-				}
-				else if(tempitem.family == itype_sbomb)
-				{
-					if ( get_qr(qr_OUCHBOMBS) )  tempitem.flags |= ITEM_FLAG2;
-					else tempitem.flags &= ~ ITEM_FLAG2;
-				}
+				case iHeartRing:
+				case iL2HeartRing:
+				case iL3HeartRing:
+				case iMagicRing:
+				case iL2MagicRing:
+				case iL3MagicRing:
+				case iL4MagicRing:
+					reset_itembuf(&tempitem, i);
+					strcpy(item_string[i],old_item_string[i]);
+					break;
+			}
+		}
+		
+		if(s_version < 6)  // April 2007: Advanced item editing capabilities.
+		{
+			if(i!=iBPotion && i!=iRPotion)
+				tempitem.flags |= get_bit(deprecated_rules,32) ? ITEM_KEEPOLD : 0;
 				
-				else if(tempitem.family == itype_brang)
-				{
-					if ( get_qr(qr_BRANGPICKUP) )  tempitem.flags |= ITEM_FLAG4;
-					else tempitem.flags &= ~ ITEM_FLAG4;
-				}	
-				else if(tempitem.family == itype_wand)
-				{
-					if ( get_qr(qr_NOWANDMELEE) )  tempitem.flags |= ITEM_FLAG3;
-					else tempitem.flags &= ~ ITEM_FLAG3;
-				}
-			}
-			
-			//Port quest rules to items
-			if( s_version <= 37) 
+			switch(i)
 			{
-				if(tempitem.family == itype_flippers)
-				{
-					if ( (get_qr(qr_NODIVING)) ) tempitem.flags |= ITEM_FLAG1;
-					else tempitem.flags &= ~ ITEM_FLAG1;
-				}
-				else if(tempitem.family == itype_sword)
-				{
-					if ( (get_qr(qr_QUICKSWORD)) ) tempitem.flags |= ITEM_FLAG5;
-					else tempitem.flags &= ~ ITEM_FLAG5;
-				}
-				else if(tempitem.family == itype_wand)
-				{
-					if ( (get_qr(qr_QUICKSWORD)) ) tempitem.flags |= ITEM_FLAG5;
-					else tempitem.flags &= ~ ITEM_FLAG5;
-				}
-				else if(tempitem.family == itype_book || tempitem.family == itype_candle)
-				{
-					//@Emily: What was qrFIREPROOFHERO2 again, and does that also need to enable this?
-					if ( (get_qr(qr_FIREPROOFHERO)) ) tempitem.flags |= ITEM_FLAG3;
-					else tempitem.flags &= ~ ITEM_FLAG3;
-				}
-			}
-			
-			if( s_version < 38)
-			{
-				if(tempitem.family == itype_brang || tempitem.family == itype_hookshot)
-				{
-					if(get_qr(qr_BRANGPICKUP)) tempitem.flags |= ITEM_FLAG4;
-					else tempitem.flags &= ~ITEM_FLAG4;
+				case iTriforce:
+					tempitem.fam_type=1;
+					break;
 					
-					if(get_qr(qr_Z3BRANG_HSHOT)) tempitem.flags |= ITEM_FLAG5 | ITEM_FLAG6;
-					else tempitem.flags &= ~(ITEM_FLAG5|ITEM_FLAG6);
-				} 
-				else if(tempitem.family == itype_arrow)
-				{
-					if(get_qr(qr_BRANGPICKUP)) tempitem.flags |= ITEM_FLAG4;
-					else tempitem.flags &= ~ITEM_FLAG4;
+				case iBigTri:
+					tempitem.fam_type=0;
+					break;
 					
-					if(get_qr(qr_Z3BRANG_HSHOT)) tempitem.flags &= ~ITEM_FLAG2;
-					else tempitem.flags |= ITEM_FLAG2;
-				}
-			}
-			
-			if( s_version < 39)
-			{
-				if(tempitem.family == itype_divinefire || tempitem.family == itype_book || tempitem.family == itype_candle)
-				{
-					if(get_qr(qr_TEMPCANDLELIGHT)) tempitem.flags |= ITEM_FLAG5;
-					else tempitem.flags &= ~ITEM_FLAG5;
-				}
-				else if(tempitem.family == itype_potion)
-				{
-					if(get_qr(qr_NONBUBBLEMEDICINE))
-					{
-						tempitem.flags &= ~(ITEM_FLAG3|ITEM_FLAG4);
-					}
-					else
-					{
-						tempitem.flags |= ITEM_FLAG3;
-						if(get_qr(qr_ITEMBUBBLE))tempitem.flags |= ITEM_FLAG4;
-						else tempitem.flags &= ~ITEM_FLAG4;
-					}
-				}
-				else if(tempitem.family == itype_triforcepiece)
-				{
-					if(get_qr(qr_NONBUBBLETRIFORCE))
-					{
-						tempitem.flags |= ITEM_FLAG3;
-						if(get_qr(qr_ITEMBUBBLE))tempitem.flags |= ITEM_FLAG4;
-						else tempitem.flags &= ~ITEM_FLAG4;
-					}
-					else
-					{
-						tempitem.flags &= ~(ITEM_FLAG3|ITEM_FLAG4);
-					}
-				}
-			}
-			
-			if( s_version < 40)
-			{
-				if(tempitem.family == itype_ring || tempitem.family == itype_perilring)
-				{
-					if(get_qr(qr_RINGAFFECTDAMAGE))tempitem.flags |= ITEM_FLAG1;
-					else tempitem.flags &= ~ITEM_FLAG1;
-				} 
-				else if(tempitem.family == itype_candle || tempitem.family == itype_sword || tempitem.family == itype_wand || tempitem.family == itype_cbyrna)
-				{
-					if(get_qr(qr_SLASHFLIPFIX))tempitem.flags |= ITEM_FLAG8;
-					else tempitem.flags &= ~ITEM_FLAG8;
-				}
-				if(tempitem.family == itype_sword || tempitem.family == itype_wand || tempitem.family == itype_hammer)
-				{
-					if(get_qr(qr_NOITEMMELEE))tempitem.flags |= ITEM_FLAG7;
-					else tempitem.flags &= ~ITEM_FLAG7;
-				} 
-				else if(tempitem.family == itype_cbyrna)
-				{
-					tempitem.flags |= ITEM_FLAG7;
-				}
-			}
-			
-			if( s_version < 41 )
-			{
-				if(tempitem.family == itype_sword)
-				{
-					if(get_qr(qr_SWORDMIRROR))tempitem.flags |= ITEM_FLAG9;
-					else tempitem.flags &= ~ITEM_FLAG9;
+				case iBombs:
+					tempitem.fam_type=i_bomb;
+					tempitem.power=4;
+					tempitem.wpn=wBOMB;
+					tempitem.wpn2=wBOOM;
+					tempitem.misc1 = 50;
 					
-					if(get_qr(qr_SLOWCHARGINGWALK))tempitem.flags |= ITEM_FLAG10;
-					else tempitem.flags &= ~ITEM_FLAG10;
+					if(get_bit(deprecated_rules,qr_SLOWBOMBFUSES_DEP)) tempitem.misc1 = 200;
+					
+					break;
+					
+				case iSBomb:
+					tempitem.fam_type=i_sbomb;
+					tempitem.power=16;
+					tempitem.wpn=wSBOMB;
+					tempitem.wpn2=wSBOOM;
+					tempitem.misc1 = 50;
+					
+					if(get_bit(deprecated_rules,qr_SLOWBOMBFUSES_DEP)) tempitem.misc1 = 400;
+					
+					break;
+					
+				case iBook:
+					if(get_bit(deprecated_rules, qr_FIREMAGICSPRITE_DEP))
+						tempitem.wpn = wFIREMAGIC;
+						
+					break;
+					
+				case iSArrow:
+					tempitem.wpn2 = get_bit(deprecated_rules,27) ? wSSPARKLE : 0; //qr_SASPARKLES
+					tempitem.power=4;
+					tempitem.flags|=ITEM_GAMEDATA;
+					tempitem.wpn=wSARROW;
+					break;
+					
+				case iGArrow:
+					tempitem.wpn2 = get_bit(deprecated_rules,28) ? wGSPARKLE : 0; //qr_GASPARKLES
+					tempitem.power=8;
+					tempitem.flags|=(ITEM_GAMEDATA|ITEM_FLAG1);
+					tempitem.wpn=wGARROW;
+					break;
+					
+				case iBrang:
+					tempitem.power=0;
+					tempitem.wpn=wBRANG;
+					tempitem.misc1=36;
+					break;
+					
+				case iMBrang:
+					tempitem.wpn2 = get_bit(deprecated_rules,29) ? wMSPARKLE : 0; //qr_MBSPARKLES
+					tempitem.power=0;
+					tempitem.wpn=wMBRANG;
+					break;
+					
+				case iFBrang:
+					tempitem.wpn3 = get_bit(deprecated_rules,30) ? wFSPARKLE : 0; //qr_FBSPARKLES
+					tempitem.power=2;
+					tempitem.wpn=wFBRANG;
+					break;
+					
+				case iBoots:
+					tempitem.cost_amount[0] = get_bit(deprecated_rules,qr_MAGICBOOTS_DEP) ? 1 : 0;
+					tempitem.power=7;
+					break;
+					
+				case iWand:
+					tempitem.cost_amount[0] = get_bit(deprecated_rules,qr_MAGICWAND_DEP) ? 8 : 0;
+					tempitem.power=2;
+					tempitem.wpn=wWAND;
+					tempitem.wpn3=wMAGIC;
+					break;
+					
+				case iBCandle:
+					tempitem.cost_amount[0] = get_bit(deprecated_rules,qr_MAGICCANDLE_DEP) ? 4 : 0;
+					tempitem.power=1;
+					tempitem.flags|=(ITEM_GAMEDATA|ITEM_FLAG1);
+					tempitem.wpn3=wFIRE;
+					break;
+					
+				case iRCandle:
+					tempitem.cost_amount[0] = get_bit(deprecated_rules,qr_MAGICCANDLE_DEP) ? 4 : 0;
+					tempitem.power=1;
+					tempitem.wpn3=wFIRE;
+					break;
+					
+				case iSword:
+					tempitem.power=1;
+					tempitem.flags|= ITEM_FLAG4 |ITEM_FLAG2;
+					tempitem.wpn=tempitem.wpn3=wSWORD;
+					tempitem.wpn2=wSWORDSLASH;
+					break;
+					
+				case iWSword:
+					tempitem.power=2;
+					tempitem.flags|= ITEM_FLAG4 |ITEM_FLAG2;
+					tempitem.wpn=tempitem.wpn3=wWSWORD;
+					tempitem.wpn2=wWSWORDSLASH;
+					break;
+					
+				case iMSword:
+					tempitem.power=4;
+					tempitem.flags|= ITEM_FLAG4 |ITEM_FLAG2;
+					tempitem.wpn=tempitem.wpn3=wMSWORD;
+					tempitem.wpn2=wMSWORDSLASH;
+					break;
+					
+				case iXSword:
+					tempitem.power=8;
+					tempitem.flags|= ITEM_FLAG4 |ITEM_FLAG2;
+					tempitem.wpn=tempitem.wpn3=wXSWORD;
+					tempitem.wpn2=wXSWORDSLASH;
+					break;
+					
+				case iDivineProtection:
+					tempitem.flags |= get_bit(deprecated_rules,qr_FLICKERINGDIVINEPROTECTIONROCKET_DEP) ? ITEM_FLAG1 : 0;
+					tempitem.flags |= get_bit(deprecated_rules,qr_TRANSLUCENTDIVINEPROTECTIONROCKET_DEP) ? ITEM_FLAG2 : 0;
+					tempitem.wpn=wDIVINEPROTECTION1A;
+					tempitem.wpn2=wDIVINEPROTECTION1B;
+					tempitem.wpn3=wDIVINEPROTECTIONS1A;
+					tempitem.wpn4=wDIVINEPROTECTIONS1B;
+					tempitem.wpn6=wDIVINEPROTECTION2A;
+					tempitem.wpn7=wDIVINEPROTECTION2B;
+					tempitem.wpn8=wDIVINEPROTECTIONS2A;
+					tempitem.wpn9=wDIVINEPROTECTIONS2B;
+					tempitem.wpn5 = iwDivineProtectionShieldFront;
+					tempitem.wpn10 = iwDivineProtectionShieldBack;
+					tempitem.misc1=512;
+					tempitem.cost_amount[0]=64;
+					break;
+					
+				case iLens:
+					tempitem.misc1=60;
+					tempitem.flags |= get_qr(qr_ENABLEMAGIC) ? 0 : ITEM_RUPEE_MAGIC;
+					tempitem.cost_amount[0] = get_qr(qr_ENABLEMAGIC) ? 2 : 1;
+					break;
+					
+				case iArrow:
+					tempitem.power=2;
+					tempitem.wpn=wARROW;
+					break;
+					
+				case iHoverBoots:
+					tempitem.misc1=45;
+					tempitem.wpn=iwHover;
+					break;
+					
+				case iDivineFire:
+					tempitem.power=8;
+					tempitem.wpn=wDIVINEFIRE1A;
+					tempitem.wpn2=wDIVINEFIRE1B;
+					tempitem.wpn3=wDIVINEFIRES1A;
+					tempitem.wpn4=wDIVINEFIRES1B;
+					tempitem.misc1 = 32;
+					tempitem.misc2 = 200;
+					tempitem.cost_amount[0]=32;
+					break;
+					
+				case iDivineEscape:
+					tempitem.cost_amount[0]=32;
+					break;
+					
+				case iHookshot:
+					tempitem.power=0;
+					tempitem.flags&=~ITEM_FLAG1;
+					tempitem.wpn=wHSHEAD;
+					tempitem.wpn2=wHSCHAIN_H;
+					tempitem.wpn4=wHSHANDLE;
+					tempitem.wpn3=wHSCHAIN_V;
+					tempitem.misc1=50;
+					tempitem.misc2=100;
+					break;
+					
+				case iLongshot:
+					tempitem.power=0;
+					tempitem.flags&=~ITEM_FLAG1;
+					tempitem.wpn=wLSHEAD;
+					tempitem.wpn2=wLSCHAIN_H;
+					tempitem.wpn4=wLSHANDLE;
+					tempitem.wpn3=wLSCHAIN_V;
+					tempitem.misc1=99;
+					tempitem.misc2=100;
+					break;
+					
+				case iHammer:
+					tempitem.power=4;
+					tempitem.wpn=wHAMMER;
+					tempitem.wpn2=iwHammerSmack;
+					break;
+					
+				case iCByrna:
+					tempitem.power=1;
+					tempitem.wpn=wCBYRNA;
+					tempitem.wpn2=wCBYRNASLASH;
+					tempitem.wpn3=wCBYRNAORB;
+					tempitem.misc1=4;
+					tempitem.misc2=16;
+					tempitem.misc3=1;
+					tempitem.cost_amount[0]=1;
+					break;
+					
+				case iWhistle:
+					tempitem.wpn=wWIND;
+					tempitem.misc1=3;
+					tempitem.flags|=ITEM_FLAG1;
+					break;
+					
+				case iBRing:
+					tempitem.power=2;
+					tempitem.misc1=spBLUE;
+					break;
+					
+				case iRRing:
+					tempitem.power=4;
+					tempitem.misc1=spRED;
+					break;
+					
+				case iGRing:
+					tempitem.power=8;
+					tempitem.misc1=spGOLD;
+					break;
+					
+				case iSpinScroll:
+					tempitem.power = 2;
+					tempitem.misc1 = 1;
+					break;
+					
+				case iL2SpinScroll:
+					tempitem.family=itype_spinscroll2;
+					tempitem.fam_type=1;
+					tempitem.cost_amount[0]=8;
+					tempitem.power=2;
+					tempitem.misc1 = 20;
+					break;
+					
+				case iQuakeScroll:
+					tempitem.misc1=0x10;
+					tempitem.misc2=64;
+					break;
+					
+				case iL2QuakeScroll:
+					tempitem.family=itype_quakescroll2;
+					tempitem.fam_type=1;
+					tempitem.power = 2;
+					tempitem.misc1=0x20;
+					tempitem.misc2=192;
+					tempitem.cost_amount[0]=8;
+					break;
+					
+				case iChargeRing:
+					tempitem.misc1=64;
+					tempitem.misc2=128;
+					break;
+					
+				case iL2ChargeRing:
+					tempitem.misc1=32;
+					tempitem.misc2=64;
+					break;
+					
+				case iOldGlove:
+					tempitem.flags |= ITEM_FLAG1;
+					
+					//fallthrough
+				case iBombBagL4:
+				case iWalletL3:
+				case iQuiverL4:
+				case iBracelet:
+					tempitem.power = 1;
+					break;
+					
+				case iL2Bracelet:
+					tempitem.power = 2;
+					break;
+					
+				case iMKey:
+					tempitem.power=0xFF;
+					tempitem.flags |= ITEM_FLAG1;
+					break;
+			}
+		}
+		
+		if(s_version < 7)
+		{
+			switch(i)
+			{
+				case iStoneAgony:
+				case iStompBoots:
+				case iPerilRing:
+				case iWhimsicalRing:
+				{
+					reset_itembuf(&tempitem, i);
+					strcpy(item_string[i],old_item_string[i]);
+					break;
 				}
 			}
-			
-			if( s_version < 42 )
+		}
+		
+		if(s_version < 8) // May 2007: Some corrections.
+		{
+			switch(i)
 			{
-				if(tempitem.family == itype_wand)
-				{
-					if(get_qr(qr_NOWANDMELEE))tempitem.flags |= ITEM_FLAG3;
-					else tempitem.flags &= ~ITEM_FLAG3;
+				case iMShield:
+					tempitem.misc1|=shFLAME;
+					tempitem.misc2|=shFIREBALL|shMAGIC;
 					
-					tempitem.flags &= ~ITEM_FLAG6;
-				} 
-				else if(tempitem.family == itype_hammer)
+					if(get_qr(qr_SWORDMIRROR))
+					{
+						tempitem.misc2 |= shSWORD;
+					}
+					
+					// fallthrough
+				case iShield:
+					tempitem.misc1|=shFIREBALL|shSWORD|shMAGIC;
+					
+					// fallthrough
+				case iSShield:
+					tempitem.misc1|=shROCK|shARROW|shBRANG|shSCRIPT;
+					
+					if(get_bit(deprecated_rules,102))  //qr_REFLECTROCKS
+					{
+						tempitem.misc2 |= shROCK;
+					}
+					
+					break;
+					
+				case iWhispRing:
+					tempitem.power=1;
+					tempitem.flags|=ITEM_GAMEDATA|ITEM_FLAG1;
+					tempitem.misc1 = 3;
+					break;
+					
+				case iL2WhispRing:
+					tempitem.power=0;
+					tempitem.flags|=ITEM_GAMEDATA|ITEM_FLAG1;
+					tempitem.misc1 = 3;
+					break;
+					
+				case iL2Ladder:
+				case iBow:
+				case iCByrna:
+					tempitem.power = 1;
+					break;
+			}
+		}
+		
+		if(s_version < 9 && i==iClock)
+		{
+			tempitem.misc1 = get_bit(deprecated_rules, qr_TEMPCLOCKS_DEP) ? 256 : 0;
+		}
+		
+		//add the misc flag for bomb
+		if(s_version < 10 && tempitem.family == itype_bomb)
+		{
+			tempitem.flags = (tempitem.flags & ~ITEM_FLAG1) | (get_qr(qr_LONGBOMBBOOM_DEP) ? ITEM_FLAG1 : 0);
+		}
+		
+		if(s_version < 11 && tempitem.family == itype_triforcepiece)
+		{
+			tempitem.flags = (tempitem.fam_type ? ITEM_GAMEDATA : 0);
+			tempitem.playsound = (tempitem.fam_type ? WAV_SCALE : WAV_CLEARED);
+		}
+		
+		if(s_version < 12) // June 2007: More Misc. attributes.
+		{
+			switch(i)
+			{
+			case iFBrang:
+				tempitem.misc4 |= shFIREBALL|shSWORD|shMAGIC;
+				
+				//fallthrough
+			case iMBrang:
+				tempitem.misc3 |= shSWORD|shMAGIC;
+				
+				//fallthrough
+			case iHookshot:
+			case iLongshot:
+				//fallthrough
+				tempitem.misc3 |= shFIREBALL;
+				
+			case iBrang:
+				tempitem.misc3 |= shBRANG|shROCK|shARROW;
+				break;
+			}
+			
+			switch(tempitem.family)
+			{
+			case itype_hoverboots:
+				tempitem.usesound = WAV_ZN1HOVER;
+				break;
+				
+			case itype_wand:
+				tempitem.usesound = WAV_WAND;
+				break;
+				
+			case itype_book:
+				tempitem.usesound = WAV_FIRE;
+				break;
+				
+			case itype_arrow:
+				tempitem.usesound = WAV_ARROW;
+				break;
+				
+			case itype_hookshot:
+				tempitem.usesound = WAV_HOOKSHOT;
+				break;
+				
+			case itype_brang:
+				tempitem.usesound = WAV_BRANG;
+				break;
+				
+			case itype_shield:
+				tempitem.usesound = WAV_CHINK;
+				break;
+				
+			case itype_sword:
+				tempitem.usesound = WAV_SWORD;
+				break;
+				
+			case itype_whistle:
+				tempitem.usesound = WAV_WHISTLE;
+				break;
+				
+			case itype_hammer:
+				tempitem.usesound = WAV_HAMMER;
+				break;
+				
+			case itype_divinefire:
+				tempitem.usesound = WAV_ZN1DIVINEFIRE;
+				break;
+				
+			case itype_divineescape:
+				tempitem.usesound = WAV_ZN1DIVINEESCAPE;
+				break;
+				
+			case itype_divineprotection:
+				tempitem.usesound = WAV_ZN1DIVINEPROTECTION1;
+				break;
+				
+			case itype_bomb:
+			case itype_sbomb:
+			case itype_quakescroll:
+			case itype_quakescroll2:
+				tempitem.usesound = WAV_BOMB;
+				break;
+				
+			case itype_spinscroll:
+			case itype_spinscroll2:
+				tempitem.usesound = WAV_ZN1SPINATTACK;
+				break;
+			}
+		}
+		
+		if(s_version < 13) // July 2007
+		{
+			if(tempitem.family == itype_whistle)
+			{
+				tempitem.misc1 = (tempitem.power==2 ? 4 : 3);
+				tempitem.power = 1;
+				tempitem.flags|=ITEM_FLAG1;
+			}
+			else if(tempitem.family == itype_wand)
+				tempitem.flags|=ITEM_FLAG1;
+			else if(tempitem.family == itype_book)
+			{
+				tempitem.flags|=ITEM_FLAG1;
+				tempitem.power = 2;
+			}
+		}
+		
+		if(s_version < 14) // August 2007
+		{
+			if(tempitem.family == itype_fairy)
+			{
+				tempitem.usesound = WAV_SCALE;
+				
+				if(tempitem.fam_type)
+					tempitem.misc3=50;
+			}
+			else if(tempitem.family == itype_potion)
+			{
+				tempitem.flags |= ITEM_GAINOLD;
+			}
+		}
+		
+		if(s_version < 17) // November 2007
+		{
+			if(tempitem.family == itype_candle && !tempitem.wpn3)
+			{
+				tempitem.wpn3 = wFIRE;
+			}
+			else if(tempitem.family == itype_arrow && tempitem.power>4)
+			{
+				tempitem.flags|=ITEM_FLAG1;
+			}
+		}
+		
+		if(s_version < 18) // New Year's Eve 2007
+		{
+			if(tempitem.family == itype_whistle)
+				tempitem.misc2 = 8; // Use the Whistle warp ring
+			else if(tempitem.family == itype_bait)
+				tempitem.misc1 = 768; // Frames until it goes
+			else if(tempitem.family == itype_triforcepiece)
+			{
+				if(tempitem.flags & ITEM_GAMEDATA)
 				{
-					tempitem.flags &= ~ITEM_FLAG3;
-				} 
-				else if(tempitem.family == itype_cbyrna)
+					tempitem.misc2 = 1; // Cutscene 1
+					tempitem.flags |= ITEM_FLAG1; // Side Warp Out
+				}
+			}
+		}
+		
+		if(s_version < 19)  // January 2008
+		{
+			if(tempitem.family == itype_divineprotection)
+			{
+				tempitem.flags |= get_bit(deprecated_rules,qr_NOBOMBPALFLASH+1)?ITEM_FLAG3:0;
+				tempitem.flags |= get_bit(deprecated_rules,qr_NOBOMBPALFLASH+2)?ITEM_FLAG4:0;
+			}
+		}
+		
+		if(s_version < 20)  // October 2008
+		{
+			if(tempitem.family == itype_divineprotection)
+			{
+				tempitem.wpn6=wDIVINEPROTECTION2A;
+				tempitem.wpn7=wDIVINEPROTECTION2B;
+				tempitem.wpn8=wDIVINEPROTECTIONS2A;
+				tempitem.wpn9=wDIVINEPROTECTIONS2B;
+				tempitem.wpn5 = iwDivineProtectionShieldFront;
+				tempitem.wpn10 = iwDivineProtectionShieldBack;
+			}
+		}
+		
+		if(s_version < 21)  // November 2008
+		{
+			if(tempitem.flags & 0x0100)  // ITEM_SLASH
+			{
+				tempitem.flags &= ~0x0100;
+				
+				if(tempitem.family == itype_sword ||
+						tempitem.family == itype_wand ||
+						tempitem.family == itype_candle ||
+						tempitem.family == itype_cbyrna)
+				{
+					tempitem.flags |= ITEM_FLAG4;
+				}
+			}
+		}
+		
+		if(s_version < 22)  // September 2009
+		{
+			if(tempitem.family == itype_sbomb || tempitem.family == itype_bomb)
+			{
+				tempitem.misc3 = tempitem.power/2;
+			}
+		}
+		
+		if(s_version < 23)    // March 2011
+		{
+			if(tempitem.family == itype_divinefire)
+				tempitem.wpn5 = wFIRE;
+			else if(tempitem.family == itype_book)
+				tempitem.wpn2 = wFIRE;
+		}
+		
+		// Version 25: Bomb bags were acting as though "super bombs also" was checked
+		// whether it was or not, and a lot of existing quests depended on the
+		// incorrect behavior.
+		if(s_version < 25)    // January 2012
+		{
+			if(tempitem.family == itype_bombbag)
+				tempitem.flags |= 16;
+				
+			if(tempitem.family == itype_divinefire)
+				tempitem.flags |= ITEM_FLAG3; // Sideview gravity flag
+		}
+		
+		if( version < 0x254) //Nuke greyed-out flags/values from <=2.53, in case they are used in 2.54/2.55
+		{
+			switch(tempitem.family)
+			{
+				case itype_sword:
+				{
+					tempitem.flags &= ~(ITEM_FLAG5);
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_brang:
+				{
+					tempitem.flags &= ~(ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc2 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_arrow:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_candle:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG3 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_whistle:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_bait:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_letter:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_potion:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_wand:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_ring:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_wallet:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_amulet:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_shield:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_bow:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_raft:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_ladder:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_book:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_magickey:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_bracelet:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_flippers:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_boots:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_hookshot:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_lens:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_hammer:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_divinefire:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_divineescape:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_divineprotection:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG5);
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					break;
+				}
+				case itype_bomb:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_sbomb:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_clock:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_key:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_magiccontainer:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_triforcepiece:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_map:	case itype_compass:	case itype_bosskey:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_quiver:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_lkey:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_cbyrna:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG5);
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_rupee: case itype_arrowammo:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_fairy:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_magic: case itype_heart: case itype_heartcontainer: case itype_heartpiece: case itype_killem: case itype_bombammo:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_bombbag:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_rocs:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_hoverboots:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_spinscroll:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_crossscroll:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_quakescroll:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_whispring:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_chargering:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_perilscroll:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_wealthmedal:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_heartring:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_magicring:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_spinscroll2:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_quakescroll2:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_agony:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_stompboots:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_whimsicalring:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_perilring:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+				case itype_custom1: case itype_custom2: case itype_custom3: case itype_custom4: case itype_custom5:
+				case itype_custom6: case itype_custom7: case itype_custom8: case itype_custom9: case itype_custom10:
+				case itype_custom11: case itype_custom12: case itype_custom13: case itype_custom14: case itype_custom15:
+				case itype_custom16: case itype_custom17: case itype_custom18: case itype_custom19: case itype_custom20:
+				case itype_bowandarrow: case itype_letterpotion: case itype_misc:
+				{
+					tempitem.flags &= ~ (ITEM_FLAG1 | ITEM_FLAG2 | ITEM_FLAG3 | ITEM_FLAG4 | ITEM_FLAG5);
+					tempitem.misc1 = 0;
+					tempitem.misc2 = 0;
+					tempitem.misc3 = 0;
+					tempitem.misc4 = 0;
+					tempitem.misc5 = 0;
+					tempitem.misc6 = 0;
+					tempitem.misc7 = 0;
+					tempitem.misc8 = 0;
+					tempitem.misc9 = 0;
+					tempitem.misc10 = 0;
+					tempitem.wpn = 0;
+					tempitem.wpn2 = 0;
+					tempitem.wpn3 = 0;
+					tempitem.wpn4 = 0;
+					tempitem.wpn5 = 0;
+					tempitem.wpn6 = 0;
+					tempitem.wpn7 = 0;
+					tempitem.wpn8 = 0;
+					tempitem.wpn9 = 0;
+					tempitem.wpn10 = 0;
+					break;
+				}
+			}
+		}
+		//Port quest rules to items
+		if( s_version <= 31) 
+		{
+			if(tempitem.family == itype_bomb)
+			{
+				if ( get_qr(qr_OUCHBOMBS) )  tempitem.flags |= ITEM_FLAG2;
+				else tempitem.flags &= ~ ITEM_FLAG2;
+			}
+			else if(tempitem.family == itype_sbomb)
+			{
+				if ( get_qr(qr_OUCHBOMBS) )  tempitem.flags |= ITEM_FLAG2;
+				else tempitem.flags &= ~ ITEM_FLAG2;
+			}
+			
+			else if(tempitem.family == itype_brang)
+			{
+				if ( get_qr(qr_BRANGPICKUP) )  tempitem.flags |= ITEM_FLAG4;
+				else tempitem.flags &= ~ ITEM_FLAG4;
+			}	
+			else if(tempitem.family == itype_wand)
+			{
+				if ( get_qr(qr_NOWANDMELEE) )  tempitem.flags |= ITEM_FLAG3;
+				else tempitem.flags &= ~ ITEM_FLAG3;
+			}
+		}
+		
+		//Port quest rules to items
+		if( s_version <= 37) 
+		{
+			if(tempitem.family == itype_flippers)
+			{
+				if ( (get_qr(qr_NODIVING)) ) tempitem.flags |= ITEM_FLAG1;
+				else tempitem.flags &= ~ ITEM_FLAG1;
+			}
+			else if(tempitem.family == itype_sword)
+			{
+				if ( (get_qr(qr_QUICKSWORD)) ) tempitem.flags |= ITEM_FLAG5;
+				else tempitem.flags &= ~ ITEM_FLAG5;
+			}
+			else if(tempitem.family == itype_wand)
+			{
+				if ( (get_qr(qr_QUICKSWORD)) ) tempitem.flags |= ITEM_FLAG5;
+				else tempitem.flags &= ~ ITEM_FLAG5;
+			}
+			else if(tempitem.family == itype_book || tempitem.family == itype_candle)
+			{
+				//@Emily: What was qrFIREPROOFHERO2 again, and does that also need to enable this?
+				if ( (get_qr(qr_FIREPROOFHERO)) ) tempitem.flags |= ITEM_FLAG3;
+				else tempitem.flags &= ~ ITEM_FLAG3;
+			}
+		}
+		
+		if( s_version < 38)
+		{
+			if(tempitem.family == itype_brang || tempitem.family == itype_hookshot)
+			{
+				if(get_qr(qr_BRANGPICKUP)) tempitem.flags |= ITEM_FLAG4;
+				else tempitem.flags &= ~ITEM_FLAG4;
+				
+				if(get_qr(qr_Z3BRANG_HSHOT)) tempitem.flags |= ITEM_FLAG5 | ITEM_FLAG6;
+				else tempitem.flags &= ~(ITEM_FLAG5|ITEM_FLAG6);
+			} 
+			else if(tempitem.family == itype_arrow)
+			{
+				if(get_qr(qr_BRANGPICKUP)) tempitem.flags |= ITEM_FLAG4;
+				else tempitem.flags &= ~ITEM_FLAG4;
+				
+				if(get_qr(qr_Z3BRANG_HSHOT)) tempitem.flags &= ~ITEM_FLAG2;
+				else tempitem.flags |= ITEM_FLAG2;
+			}
+		}
+		
+		if( s_version < 39)
+		{
+			if(tempitem.family == itype_divinefire || tempitem.family == itype_book || tempitem.family == itype_candle)
+			{
+				if(get_qr(qr_TEMPCANDLELIGHT)) tempitem.flags |= ITEM_FLAG5;
+				else tempitem.flags &= ~ITEM_FLAG5;
+			}
+			else if(tempitem.family == itype_potion)
+			{
+				if(get_qr(qr_NONBUBBLEMEDICINE))
+				{
+					tempitem.flags &= ~(ITEM_FLAG3|ITEM_FLAG4);
+				}
+				else
 				{
 					tempitem.flags |= ITEM_FLAG3;
-					
-					tempitem.flags &= ~ITEM_FLAG6;
-				} 
-				else if(tempitem.family == itype_sword)
-				{
-					if(get_qr(qr_MELEEMAGICCOST))tempitem.flags |= ITEM_FLAG6;
-					else tempitem.flags &= ~ITEM_FLAG6;
+					if(get_qr(qr_ITEMBUBBLE))tempitem.flags |= ITEM_FLAG4;
+					else tempitem.flags &= ~ITEM_FLAG4;
 				}
 			}
-			
-			if( s_version < 43 )
+			else if(tempitem.family == itype_triforcepiece)
 			{
-				if(tempitem.family == itype_whistle)
+				if(get_qr(qr_NONBUBBLETRIFORCE))
 				{
-					if(get_qr(qr_WHIRLWINDMIRROR))tempitem.flags |= ITEM_FLAG3;
-					else tempitem.flags &= ~ITEM_FLAG3;
+					tempitem.flags |= ITEM_FLAG3;
+					if(get_qr(qr_ITEMBUBBLE))tempitem.flags |= ITEM_FLAG4;
+					else tempitem.flags &= ~ITEM_FLAG4;
+				}
+				else
+				{
+					tempitem.flags &= ~(ITEM_FLAG3|ITEM_FLAG4);
 				}
 			}
-			
-			if( s_version < 45 )
-			{
-				if(tempitem.family == itype_flippers)
-				{
-					tempitem.misc1 = 50; //Dive length, default 50 frames -V
-					tempitem.misc2 = 30; //Dive cooldown, default 30 frames -V
-				}
-			}
-			
-			if( s_version < 46 )
-			{
-				if(tempitem.family == itype_raft)
-				{
-					tempitem.misc1 = 1; //Rafting speed modifier; default 1. Negative slows, positive speeds.
-				}
-			}
-			if ( s_version < 34 )  //! set the default counter for older quests. 
-			{
-				if ( (tempitem.flags & ITEM_RUPEE_MAGIC) )
-				{
-					tempitem.cost_counter[0] = 1;
-				}
-				else 
-				{
-					if(get_qr(qr_ENABLEMAGIC))
-						tempitem.cost_counter[0] = 4;
-					else
-					{
-						tempitem.cost_amount[0] = 0;
-						tempitem.cost_counter[0] = -1;
-					}
-				}
-			}
-			
-			if ( s_version < 35 ) //new Lens of Truth flags		
-			{
-				if ( tempitem.family == itype_lens )
-				{
-					if ( get_qr(qr_RAFTLENS) ) 
-					{
-						tempitem.flags |= ITEM_FLAG4;
-					}
-					if ( get_qr(qr_LENSHINTS) ) 
-					{
-						tempitem.flags |= ITEM_FLAG1;
-					}
-					if ( get_qr(qr_LENSSEESENEMIES) ) 
-					{
-						tempitem.flags |= ITEM_FLAG5;
-					}
-				}
-			}
-			if ( s_version < 44 ) //InitD Labels and Sprite Script Data
-			{
-				for ( int32_t q = 0; q < 8; q++ )
-				{
-					sprintf(tempitem.initD_label[q],"InitD[%d]",q);
-					sprintf(tempitem.weapon_initD_label[q],"InitD[%d]",q);
-					sprintf(tempitem.sprite_initD_label[q],"InitD[%d]",q);
-					tempitem.sprite_initiald[q] = 0;
-				}
-				for ( int32_t q = 0; q < 2; q++ ) tempitem.sprite_initiala[q] = 0;
-				tempitem.sprite_script = 0;
-			}
-			if ( s_version < 47 ) //InitD Labels and Sprite Script Data
-			{
-				tempitem.pickupflag = 0;
-			}
-			
-			if( s_version < 51 )
-			{
-				if( tempitem.family == itype_candle )
-				{
-					tempitem.misc4 = 50; //Step speed
-				}
-			}
-			
-			if( s_version < 52 )
-			{
-				if( tempitem.family == itype_shield )
-					tempitem.flags |= ITEM_FLAG1; //'Block Front' flag
-			}
-			if(s_version < 53)
-			{
-				switch(tempitem.family)
-				{
-					case itype_arrow:
-						tempitem.cost_counter[1] = crARROWS;
-						tempitem.cost_amount[1] = 1;
-						break;
-					case itype_bomb:
-						tempitem.cost_counter[1] = crBOMBS;
-						tempitem.cost_amount[1] = 1;
-						break;
-					case itype_sbomb:
-						tempitem.cost_counter[1] = crSBOMBS;
-						tempitem.cost_amount[1] = 1;
-						break;
-					default:
-						tempitem.cost_counter[1] = crNONE;
-						tempitem.cost_amount[1] = 0;
-				}
-				tempitem.magiccosttimer[1] = 0;
-			}
-			if( s_version < 54 )
-			{
-				if( tempitem.family == itype_flippers )
-					tempitem.misc3 = INT_BTN_A; //'Block Front' flag
-			}
-			if(s_version < 55)
-			{
-				switch(tempitem.family)
-				{
-					case itype_spinscroll:
-					case itype_quakescroll:
-						tempitem.usesound2 = WAV_ZN1CHARGE;
-						break;
-					case itype_spinscroll2:
-					case itype_quakescroll2:
-						tempitem.usesound2 = WAV_ZN1CHARGE2;
-						break;
-				}
-			}
-			if(s_version < 56)
-			{
-				switch(tempitem.family)
-				{
-					case itype_divinefire:
-						SETFLAG(tempitem.flags, ITEM_FLAG9, version < 0x255); //Strong Fire
-						SETFLAG(tempitem.flags, ITEM_FLAG10, version < 0x250); //Magic Fire
-						tempitem.flags |= ITEM_FLAG11; //Divine Fire
-						break;
-					case itype_candle:
-						SETFLAG(tempitem.flags, ITEM_FLAG9, tempitem.fam_type > 1); //Strong Fire
-						tempitem.flags &= ~ITEM_FLAG10; //Magic Fire
-						tempitem.flags &= ~ITEM_FLAG11; //Divine Fire
-						break;
-					case itype_book:
-						tempitem.flags |= ITEM_FLAG9; //Strong Fire
-						tempitem.flags |= ITEM_FLAG10; //Magic Fire
-						tempitem.flags &= ~ITEM_FLAG11; //Divine Fire
-						break;
-				}
-			}
-			
-			if(tempitem.fam_type==0)  // Always do this
-				tempitem.fam_type=1;
-				
-			memcpy(&itemsbuf[i], &tempitem, sizeof(itemdata));
 		}
+		
+		if( s_version < 40)
+		{
+			if(tempitem.family == itype_ring || tempitem.family == itype_perilring)
+			{
+				if(get_qr(qr_RINGAFFECTDAMAGE))tempitem.flags |= ITEM_FLAG1;
+				else tempitem.flags &= ~ITEM_FLAG1;
+			} 
+			else if(tempitem.family == itype_candle || tempitem.family == itype_sword || tempitem.family == itype_wand || tempitem.family == itype_cbyrna)
+			{
+				if(get_qr(qr_SLASHFLIPFIX))tempitem.flags |= ITEM_FLAG8;
+				else tempitem.flags &= ~ITEM_FLAG8;
+			}
+			if(tempitem.family == itype_sword || tempitem.family == itype_wand || tempitem.family == itype_hammer)
+			{
+				if(get_qr(qr_NOITEMMELEE))tempitem.flags |= ITEM_FLAG7;
+				else tempitem.flags &= ~ITEM_FLAG7;
+			} 
+			else if(tempitem.family == itype_cbyrna)
+			{
+				tempitem.flags |= ITEM_FLAG7;
+			}
+		}
+		
+		if( s_version < 41 )
+		{
+			if(tempitem.family == itype_sword)
+			{
+				if(get_qr(qr_SWORDMIRROR))tempitem.flags |= ITEM_FLAG9;
+				else tempitem.flags &= ~ITEM_FLAG9;
+				
+				if(get_qr(qr_SLOWCHARGINGWALK))tempitem.flags |= ITEM_FLAG10;
+				else tempitem.flags &= ~ITEM_FLAG10;
+			}
+		}
+		
+		if( s_version < 42 )
+		{
+			if(tempitem.family == itype_wand)
+			{
+				if(get_qr(qr_NOWANDMELEE))tempitem.flags |= ITEM_FLAG3;
+				else tempitem.flags &= ~ITEM_FLAG3;
+				
+				tempitem.flags &= ~ITEM_FLAG6;
+			} 
+			else if(tempitem.family == itype_hammer)
+			{
+				tempitem.flags &= ~ITEM_FLAG3;
+			} 
+			else if(tempitem.family == itype_cbyrna)
+			{
+				tempitem.flags |= ITEM_FLAG3;
+				
+				tempitem.flags &= ~ITEM_FLAG6;
+			} 
+			else if(tempitem.family == itype_sword)
+			{
+				if(get_qr(qr_MELEEMAGICCOST))tempitem.flags |= ITEM_FLAG6;
+				else tempitem.flags &= ~ITEM_FLAG6;
+			}
+		}
+		
+		if( s_version < 43 )
+		{
+			if(tempitem.family == itype_whistle)
+			{
+				if(get_qr(qr_WHIRLWINDMIRROR))tempitem.flags |= ITEM_FLAG3;
+				else tempitem.flags &= ~ITEM_FLAG3;
+			}
+		}
+		
+		if( s_version < 45 )
+		{
+			if(tempitem.family == itype_flippers)
+			{
+				tempitem.misc1 = 50; //Dive length, default 50 frames -V
+				tempitem.misc2 = 30; //Dive cooldown, default 30 frames -V
+			}
+		}
+		
+		if( s_version < 46 )
+		{
+			if(tempitem.family == itype_raft)
+			{
+				tempitem.misc1 = 1; //Rafting speed modifier; default 1. Negative slows, positive speeds.
+			}
+		}
+		if ( s_version < 34 )  //! set the default counter for older quests. 
+		{
+			if ( (tempitem.flags & ITEM_RUPEE_MAGIC) )
+			{
+				tempitem.cost_counter[0] = 1;
+			}
+			else 
+			{
+				if(get_qr(qr_ENABLEMAGIC))
+					tempitem.cost_counter[0] = 4;
+				else
+				{
+					tempitem.cost_amount[0] = 0;
+					tempitem.cost_counter[0] = -1;
+				}
+			}
+		}
+		
+		if ( s_version < 35 ) //new Lens of Truth flags		
+		{
+			if ( tempitem.family == itype_lens )
+			{
+				if ( get_qr(qr_RAFTLENS) ) 
+				{
+					tempitem.flags |= ITEM_FLAG4;
+				}
+				if ( get_qr(qr_LENSHINTS) ) 
+				{
+					tempitem.flags |= ITEM_FLAG1;
+				}
+				if ( get_qr(qr_LENSSEESENEMIES) ) 
+				{
+					tempitem.flags |= ITEM_FLAG5;
+				}
+			}
+		}
+		if ( s_version < 44 ) //InitD Labels and Sprite Script Data
+		{
+			for ( int32_t q = 0; q < 8; q++ )
+			{
+				sprintf(tempitem.initD_label[q],"InitD[%d]",q);
+				sprintf(tempitem.weapon_initD_label[q],"InitD[%d]",q);
+				sprintf(tempitem.sprite_initD_label[q],"InitD[%d]",q);
+				tempitem.sprite_initiald[q] = 0;
+			}
+			for ( int32_t q = 0; q < 2; q++ ) tempitem.sprite_initiala[q] = 0;
+			tempitem.sprite_script = 0;
+		}
+		if ( s_version < 47 ) //InitD Labels and Sprite Script Data
+		{
+			tempitem.pickupflag = 0;
+		}
+		
+		if( s_version < 51 )
+		{
+			if( tempitem.family == itype_candle )
+			{
+				tempitem.misc4 = 50; //Step speed
+			}
+		}
+		
+		if( s_version < 52 )
+		{
+			if( tempitem.family == itype_shield )
+				tempitem.flags |= ITEM_FLAG1; //'Block Front' flag
+		}
+		if(s_version < 53)
+		{
+			switch(tempitem.family)
+			{
+				case itype_arrow:
+					tempitem.cost_counter[1] = crARROWS;
+					tempitem.cost_amount[1] = 1;
+					break;
+				case itype_bomb:
+					tempitem.cost_counter[1] = crBOMBS;
+					tempitem.cost_amount[1] = 1;
+					break;
+				case itype_sbomb:
+					tempitem.cost_counter[1] = crSBOMBS;
+					tempitem.cost_amount[1] = 1;
+					break;
+				default:
+					tempitem.cost_counter[1] = crNONE;
+					tempitem.cost_amount[1] = 0;
+			}
+			tempitem.magiccosttimer[1] = 0;
+		}
+		if( s_version < 54 )
+		{
+			if( tempitem.family == itype_flippers )
+				tempitem.misc3 = INT_BTN_A; //'Block Front' flag
+		}
+		if(s_version < 55)
+		{
+			switch(tempitem.family)
+			{
+				case itype_spinscroll:
+				case itype_quakescroll:
+					tempitem.usesound2 = WAV_ZN1CHARGE;
+					break;
+				case itype_spinscroll2:
+				case itype_quakescroll2:
+					tempitem.usesound2 = WAV_ZN1CHARGE2;
+					break;
+			}
+		}
+		if(s_version < 56)
+		{
+			switch(tempitem.family)
+			{
+				case itype_divinefire:
+					SETFLAG(tempitem.flags, ITEM_FLAG9, version < 0x255); //Strong Fire
+					SETFLAG(tempitem.flags, ITEM_FLAG10, version < 0x250); //Magic Fire
+					tempitem.flags |= ITEM_FLAG11; //Divine Fire
+					break;
+				case itype_candle:
+					SETFLAG(tempitem.flags, ITEM_FLAG9, tempitem.fam_type > 1); //Strong Fire
+					tempitem.flags &= ~ITEM_FLAG10; //Magic Fire
+					tempitem.flags &= ~ITEM_FLAG11; //Divine Fire
+					break;
+				case itype_book:
+					tempitem.flags |= ITEM_FLAG9; //Strong Fire
+					tempitem.flags |= ITEM_FLAG10; //Magic Fire
+					tempitem.flags &= ~ITEM_FLAG11; //Divine Fire
+					break;
+			}
+		}
+		
+		if(tempitem.fam_type==0)  // Always do this
+			tempitem.fam_type=1;
+			
+		memcpy(&itemsbuf[i], &tempitem, sizeof(itemdata));
 	}
-	
+
 	return 0;
 }
 
@@ -9658,7 +9586,7 @@ void reset_itemname(int32_t id)
         strcpy(item_string[id],old_item_string[id]);
 }
 
-int32_t readweapons(PACKFILE *f, zquestheader *Header, bool keepdata)
+int32_t readweapons(PACKFILE *f, zquestheader *Header)
 {
     word weapons_to_read=MAXWPNS;
     int32_t dummy;
@@ -9682,7 +9610,7 @@ int32_t readweapons(PACKFILE *f, zquestheader *Header, bool keepdata)
         weapons_to_read=0;
         
         //section version info
-        if(!p_igetw(&s_version,f,true))
+        if(!p_igetw(&s_version,f))
         {
             return qe_invalid;
         }
@@ -9690,19 +9618,19 @@ int32_t readweapons(PACKFILE *f, zquestheader *Header, bool keepdata)
 	FFCore.quest_format[vWeaponSprites] = s_version;
         
         //al_trace("Weapons version %d\n", s_version);
-        if(!p_igetw(&s_cversion,f,true))
+        if(!p_igetw(&s_cversion,f))
         {
             return qe_invalid;
         }
         
         //section size
-        if(!p_igetl(&dummy,f,true))
+        if(!p_igetl(&dummy,f))
         {
             return qe_invalid;
         }
         
         //finally...  section data
-        if(!p_igetw(&weapons_to_read,f,true))
+        if(!p_igetw(&weapons_to_read,f))
         {
             return qe_invalid;
         }
@@ -9719,33 +9647,24 @@ int32_t readweapons(PACKFILE *f, zquestheader *Header, bool keepdata)
         {
             char tempname[64];
             
-            if(!pfread(tempname, 64, f, keepdata))
+            if(!pfread(tempname, 64, f))
             {
                 return qe_invalid;
             }
             
-            if(keepdata)
-            {
-                weapon_string[i][0] = '\0';
-                strncat(weapon_string[i], tempname, 64 - 1);
-            }
+			weapon_string[i][0] = '\0';
+			strncat(weapon_string[i], tempname, 64 - 1);
         }
         
         if(s_version<4)
         {
-            if(keepdata)
-            {
-                strcpy(weapon_string[iwHover],old_weapon_string[iwHover]);
-                strcpy(weapon_string[wFIREMAGIC],old_weapon_string[wFIREMAGIC]);
-            }
+			strcpy(weapon_string[iwHover],old_weapon_string[iwHover]);
+			strcpy(weapon_string[wFIREMAGIC],old_weapon_string[wFIREMAGIC]);
         }
         
         if(s_version<5)
         {
-            if(keepdata)
-            {
-                strcpy(weapon_string[iwQuarterHearts],old_weapon_string[iwQuarterHearts]);
-            }
+            strcpy(weapon_string[iwQuarterHearts],old_weapon_string[iwQuarterHearts]);
         }
         
         /*
@@ -9758,9 +9677,8 @@ int32_t readweapons(PACKFILE *f, zquestheader *Header, bool keepdata)
     }
     else
     {
-        if(keepdata)
-            for(int32_t i=0; i<MAXWPNS; i++)
-                reset_weaponname(i);
+		for(int32_t i=0; i<MAXWPNS; i++)
+			reset_weaponname(i);
     }
     
 	for(int32_t i=0; i<weapons_to_read; i++)
@@ -9768,42 +9686,42 @@ int32_t readweapons(PACKFILE *f, zquestheader *Header, bool keepdata)
 		word oldtile = 0;
 		if (s_version < 8)
 		{
-			if (!p_igetw(&oldtile, f, true))
+			if (!p_igetw(&oldtile, f))
 				return qe_invalid;
 		}
 
-		if(!p_getc(&tempweapon.misc,f,true))
+		if(!p_getc(&tempweapon.misc,f))
 		{
 			return qe_invalid;
 		}
         
-		if(!p_getc(&tempweapon.csets,f,true))
+		if(!p_getc(&tempweapon.csets,f))
 		{
 			return qe_invalid;
 		}
         
-		if(!p_getc(&tempweapon.frames,f,true))
+		if(!p_getc(&tempweapon.frames,f))
 		{
 			return qe_invalid;
 		}
         
-		if(!p_getc(&tempweapon.speed,f,true))
+		if(!p_getc(&tempweapon.speed,f))
 		{
 			return qe_invalid;
 		}
         
-		if(!p_getc(&tempweapon.type,f,true))
+		if(!p_getc(&tempweapon.type,f))
 		{
 			return qe_invalid;
 		}
 	
 		if ( s_version >= 7 )
 		{
-			if(!p_igetw(&tempweapon.script,f,true))
+			if(!p_igetw(&tempweapon.script,f))
 			{
 				return qe_invalid;
 			}
-			if(!p_igetl(&tempweapon.tile,f,true))
+			if(!p_igetl(&tempweapon.tile,f))
 			{
 				return qe_invalid;
 			}	    
@@ -9815,7 +9733,7 @@ int32_t readweapons(PACKFILE *f, zquestheader *Header, bool keepdata)
         
 		if(Header->zelda_version < 0x193)
 		{
-			if(!p_getc(&padding,f,true))
+			if(!p_getc(&padding,f))
 			{
 				return qe_invalid;
 			}
@@ -9831,47 +9749,41 @@ int32_t readweapons(PACKFILE *f, zquestheader *Header, bool keepdata)
 				tempweapon.misc &= ~WF_BEHIND;
 		}
         
-		if(keepdata==true)
-		{
-			memcpy(&wpnsbuf[i], &tempweapon, sizeof(tempweapon));
-		}
+		memcpy(&wpnsbuf[i], &tempweapon, sizeof(tempweapon));
 	}
     
-    if(keepdata==true)
-    {
-        if(s_version<2)
-        {
-            wpnsbuf[wSBOOM]=wpnsbuf[wBOOM];
-        }
-        
-        if(s_version<5)
-        {
-            wpnsbuf[iwQuarterHearts].tile=1;
-            wpnsbuf[iwQuarterHearts].csets=1;
-        }
-        
-        if(Header->zelda_version < 0x176)
-        {
-            wpnsbuf[iwSpawn] = *((wpndata*)(itemsbuf + iMisc1));
-            wpnsbuf[iwDeath] = *((wpndata*)(itemsbuf + iMisc2));
-            memset(&itemsbuf[iMisc1],0,sizeof(itemdata));
-            memset(&itemsbuf[iMisc2],0,sizeof(itemdata));
-        }
-        
-        if((Header->zelda_version < 0x192)||
-                ((Header->zelda_version == 0x192)&&(Header->build<129)))
-        {
-            wpnsbuf[wHSCHAIN_V] = wpnsbuf[wHSCHAIN_H];
-        }
-        
-        if((Header->zelda_version < 0x210))
-        {
-            wpnsbuf[wLSHEAD] = wpnsbuf[wHSHEAD];
-            wpnsbuf[wLSCHAIN_H] = wpnsbuf[wHSCHAIN_H];
-            wpnsbuf[wLSHANDLE] = wpnsbuf[wHSHANDLE];
-            wpnsbuf[wLSCHAIN_V] = wpnsbuf[wHSCHAIN_V];
-        }
-    }
+	if(s_version<2)
+	{
+		wpnsbuf[wSBOOM]=wpnsbuf[wBOOM];
+	}
+	
+	if(s_version<5)
+	{
+		wpnsbuf[iwQuarterHearts].tile=1;
+		wpnsbuf[iwQuarterHearts].csets=1;
+	}
+	
+	if(Header->zelda_version < 0x176)
+	{
+		wpnsbuf[iwSpawn] = *((wpndata*)(itemsbuf + iMisc1));
+		wpnsbuf[iwDeath] = *((wpndata*)(itemsbuf + iMisc2));
+		memset(&itemsbuf[iMisc1],0,sizeof(itemdata));
+		memset(&itemsbuf[iMisc2],0,sizeof(itemdata));
+	}
+	
+	if((Header->zelda_version < 0x192)||
+			((Header->zelda_version == 0x192)&&(Header->build<129)))
+	{
+		wpnsbuf[wHSCHAIN_V] = wpnsbuf[wHSCHAIN_H];
+	}
+	
+	if((Header->zelda_version < 0x210))
+	{
+		wpnsbuf[wLSHEAD] = wpnsbuf[wHSHEAD];
+		wpnsbuf[wLSCHAIN_H] = wpnsbuf[wHSCHAIN_H];
+		wpnsbuf[wLSHANDLE] = wpnsbuf[wHSHANDLE];
+		wpnsbuf[wLSCHAIN_V] = wpnsbuf[wHSCHAIN_V];
+	}
     
     return 0;
 }
@@ -10068,19 +9980,16 @@ int32_t init_combo_classes()
     return 0;
 }
 
-int32_t readherosprites2(PACKFILE *f, int32_t v_herosprites, int32_t cv_herosprites, bool keepdata)
+int32_t readherosprites2(PACKFILE *f, int32_t v_herosprites, int32_t cv_herosprites)
 {
 	assert(v_herosprites < 6);
 	//these are here to bypass compiler warnings about unused arguments
 	cv_herosprites=cv_herosprites;
 	
-	if(keepdata)
-	{
-		zinit.hero_swim_speed=67; //default
-		setupherotiles(zinit.heroAnimationStyle);
-		setupherodefenses();
-		setupherooffsets();
-	}
+	zinit.hero_swim_speed=67; //default
+	setupherotiles(zinit.heroAnimationStyle);
+	setupherodefenses();
+	setupherooffsets();
     
     if(v_herosprites>=0)
     {
@@ -10089,183 +9998,162 @@ int32_t readherosprites2(PACKFILE *f, int32_t v_herosprites, int32_t cv_herospri
         
         for(int32_t i=0; i<4; i++)
         {
-            if(!p_igetw(&tile,f,keepdata))
+            if(!p_igetw(&tile,f))
             {
                 return qe_invalid;
             }
             
-            if(!p_getc(&flip,f,keepdata))
+            if(!p_getc(&flip,f))
             {
                 return qe_invalid;
             }
             
-            if(!p_getc(&extend,f,keepdata))
+            if(!p_getc(&extend,f))
             {
                 return qe_invalid;
             }
             
-            if(keepdata)
-            {
-                walkspr[i][spr_tile]=(int32_t)tile;
-                walkspr[i][spr_flip]=(int32_t)flip;
-                walkspr[i][spr_extend]=(int32_t)extend;
-            }
+			walkspr[i][spr_tile]=(int32_t)tile;
+			walkspr[i][spr_flip]=(int32_t)flip;
+			walkspr[i][spr_extend]=(int32_t)extend;
         }
         
         for(int32_t i=0; i<4; i++)
         {
-            if(!p_igetw(&tile,f,keepdata))
+            if(!p_igetw(&tile,f))
             {
                 return qe_invalid;
             }
             
-            if(!p_getc(&flip,f,keepdata))
+            if(!p_getc(&flip,f))
             {
                 return qe_invalid;
             }
             
-            if(!p_getc(&extend,f,keepdata))
+            if(!p_getc(&extend,f))
             {
                 return qe_invalid;
             }
             
-            if(keepdata)
-            {
-                stabspr[i][spr_tile]=(int32_t)tile;
-                stabspr[i][spr_flip]=(int32_t)flip;
-                stabspr[i][spr_extend]=(int32_t)extend;
-            }
+			stabspr[i][spr_tile]=(int32_t)tile;
+			stabspr[i][spr_flip]=(int32_t)flip;
+			stabspr[i][spr_extend]=(int32_t)extend;
         }
         
         for(int32_t i=0; i<4; i++)
         {
-            if(!p_igetw(&tile,f,keepdata))
+            if(!p_igetw(&tile,f))
             {
                 return qe_invalid;
             }
             
-            if(!p_getc(&flip,f,keepdata))
+            if(!p_getc(&flip,f))
             {
                 return qe_invalid;
             }
             
-            if(!p_getc(&extend,f,keepdata))
+            if(!p_getc(&extend,f))
             {
                 return qe_invalid;
             }
             
-            if(keepdata)
-            {
-                slashspr[i][spr_tile]=(int32_t)tile;
-                slashspr[i][spr_flip]=(int32_t)flip;
-                slashspr[i][spr_extend]=(int32_t)extend;
-            }
+			slashspr[i][spr_tile]=(int32_t)tile;
+			slashspr[i][spr_flip]=(int32_t)flip;
+			slashspr[i][spr_extend]=(int32_t)extend;
         }
         
         for(int32_t i=0; i<4; i++)
         {
-            if(!p_igetw(&tile,f,keepdata))
+            if(!p_igetw(&tile,f))
             {
                 return qe_invalid;
             }
             
-            if(!p_getc(&flip,f,keepdata))
+            if(!p_getc(&flip,f))
             {
                 return qe_invalid;
             }
             
-            if(!p_getc(&extend,f,keepdata))
+            if(!p_getc(&extend,f))
             {
                 return qe_invalid;
             }
             
-            if(keepdata)
-            {
-                floatspr[i][spr_tile]=(int32_t)tile;
-                floatspr[i][spr_flip]=(int32_t)flip;
-                floatspr[i][spr_extend]=(int32_t)extend;
-            }
+			floatspr[i][spr_tile]=(int32_t)tile;
+			floatspr[i][spr_flip]=(int32_t)flip;
+			floatspr[i][spr_extend]=(int32_t)extend;
         }
         
         if(v_herosprites>1)
         {
             for(int32_t i=0; i<4; i++)
             {
-                if(!p_igetw(&tile,f,keepdata))
+                if(!p_igetw(&tile,f))
                 {
                     return qe_invalid;
                 }
                 
-                if(!p_getc(&flip,f,keepdata))
+                if(!p_getc(&flip,f))
                 {
                     return qe_invalid;
                 }
                 
-                if(!p_getc(&extend,f,keepdata))
+                if(!p_getc(&extend,f))
                 {
                     return qe_invalid;
                 }
                 
-                if(keepdata)
-                {
-                    swimspr[i][spr_tile]=(int32_t)tile;
-                    swimspr[i][spr_flip]=(int32_t)flip;
-                    swimspr[i][spr_extend]=(int32_t)extend;
-                }
+				swimspr[i][spr_tile]=(int32_t)tile;
+				swimspr[i][spr_flip]=(int32_t)flip;
+				swimspr[i][spr_extend]=(int32_t)extend;
             }
         }
         
         for(int32_t i=0; i<4; i++)
         {
-            if(!p_igetw(&tile,f,keepdata))
+            if(!p_igetw(&tile,f))
             {
                 return qe_invalid;
             }
             
-            if(!p_getc(&flip,f,keepdata))
+            if(!p_getc(&flip,f))
             {
                 return qe_invalid;
             }
             
-            if(!p_getc(&extend,f,keepdata))
+            if(!p_getc(&extend,f))
             {
                 return qe_invalid;
             }
             
-            if(keepdata)
-            {
-                divespr[i][spr_tile]=(int32_t)tile;
-                divespr[i][spr_flip]=(int32_t)flip;
-                divespr[i][spr_extend]=(int32_t)extend;
-            }
+			divespr[i][spr_tile]=(int32_t)tile;
+			divespr[i][spr_flip]=(int32_t)flip;
+			divespr[i][spr_extend]=(int32_t)extend;
         }
         
         for(int32_t i=0; i<4; i++)
         {
-            if(!p_igetw(&tile,f,keepdata))
+            if(!p_igetw(&tile,f))
             {
                 return qe_invalid;
             }
             
-            if(!p_getc(&flip,f,keepdata))
+            if(!p_getc(&flip,f))
             {
                 return qe_invalid;
             }
             
-            if(!p_getc(&extend,f,keepdata))
+            if(!p_getc(&extend,f))
             {
                 return qe_invalid;
             }
             
-            if(keepdata)
-            {
-                poundspr[i][spr_tile]=(int32_t)tile;
-                poundspr[i][spr_flip]=(int32_t)flip;
-                poundspr[i][spr_extend]=(int32_t)extend;
-            }
+			poundspr[i][spr_tile]=(int32_t)tile;
+			poundspr[i][spr_flip]=(int32_t)flip;
+			poundspr[i][spr_extend]=(int32_t)extend;
         }
         
-        if(!p_igetw(&tile,f,keepdata))
+        if(!p_igetw(&tile,f))
         {
             return qe_invalid;
         }
@@ -10274,23 +10162,20 @@ int32_t readherosprites2(PACKFILE *f, int32_t v_herosprites, int32_t cv_herospri
         
         if(v_herosprites>0)
         {
-            if(!p_getc(&flip,f,keepdata))
+            if(!p_getc(&flip,f))
             {
                 return qe_invalid;
             }
         }
         
-        if(!p_getc(&extend,f,keepdata))
+        if(!p_getc(&extend,f))
         {
             return qe_invalid;
         }
         
-        if(keepdata)
-        {
-            castingspr[spr_tile]=(int32_t)tile;
-            castingspr[spr_flip]=(int32_t)flip;
-            castingspr[spr_extend]=(int32_t)extend;
-        }
+		castingspr[spr_tile]=(int32_t)tile;
+		castingspr[spr_flip]=(int32_t)flip;
+		castingspr[spr_extend]=(int32_t)extend;
         
         if(v_herosprites>0)
         {
@@ -10299,27 +10184,24 @@ int32_t readherosprites2(PACKFILE *f, int32_t v_herosprites, int32_t cv_herospri
             {
                 for(int32_t j=0; j<num_holdsprs; j++)
                 {
-                    if(!p_igetw(&tile,f,keepdata))
+                    if(!p_igetw(&tile,f))
                     {
                         return qe_invalid;
                     }
                     
-                    if(!p_getc(&flip,f,keepdata))
+                    if(!p_getc(&flip,f))
                     {
                         return qe_invalid;
                     }
                     
-                    if(!p_getc(&extend,f,keepdata))
+                    if(!p_getc(&extend,f))
                     {
                         return qe_invalid;
                     }
                     
-                    if(keepdata)
-                    {
-                        holdspr[i][j][spr_tile]=(int32_t)tile;
-                        holdspr[i][j][spr_flip]=(int32_t)flip;
-                        holdspr[i][j][spr_extend]=(int32_t)extend;
-                    }
+					holdspr[i][j][spr_tile]=(int32_t)tile;
+					holdspr[i][j][spr_flip]=(int32_t)flip;
+					holdspr[i][j][spr_extend]=(int32_t)extend;
                 }
             }
         }
@@ -10327,30 +10209,27 @@ int32_t readherosprites2(PACKFILE *f, int32_t v_herosprites, int32_t cv_herospri
         {
             for(int32_t i=0; i<2; i++)
             {
-                if(!p_igetw(&tile,f,keepdata))
+                if(!p_igetw(&tile,f))
                 {
                     return qe_invalid;
                 }
                 
-                if(!p_igetw(&tile2,f,keepdata))
+                if(!p_igetw(&tile2,f))
                 {
                     return qe_invalid;
                 }
                 
-                if(!p_getc(&extend,f,keepdata))
+                if(!p_getc(&extend,f))
                 {
                     return qe_invalid;
                 }
                 
-                if(keepdata)
-                {
-                    holdspr[i][spr_hold1][spr_tile]=(int32_t)tile;
-                    holdspr[i][spr_hold1][spr_flip]=(int32_t)flip;
-                    holdspr[i][spr_hold1][spr_extend]=(int32_t)extend;
-                    holdspr[i][spr_hold2][spr_tile]=(int32_t)tile2;
-                    holdspr[i][spr_hold2][spr_flip]=(int32_t)flip;
-                    holdspr[i][spr_hold2][spr_extend]=(int32_t)extend;
-                }
+				holdspr[i][spr_hold1][spr_tile]=(int32_t)tile;
+				holdspr[i][spr_hold1][spr_flip]=(int32_t)flip;
+				holdspr[i][spr_hold1][spr_extend]=(int32_t)extend;
+				holdspr[i][spr_hold2][spr_tile]=(int32_t)tile2;
+				holdspr[i][spr_hold2][spr_flip]=(int32_t)flip;
+				holdspr[i][spr_hold2][spr_extend]=(int32_t)extend;
             }
         }
         
@@ -10358,27 +10237,24 @@ int32_t readherosprites2(PACKFILE *f, int32_t v_herosprites, int32_t cv_herospri
         {
             for(int32_t i=0; i<4; i++)
             {
-                if(!p_igetw(&tile,f,keepdata))
+                if(!p_igetw(&tile,f))
                 {
                     return qe_invalid;
                 }
                 
-                if(!p_getc(&flip,f,keepdata))
+                if(!p_getc(&flip,f))
                 {
                     return qe_invalid;
                 }
                 
-                if(!p_getc(&extend,f,keepdata))
+                if(!p_getc(&extend,f))
                 {
                     return qe_invalid;
                 }
                 
-                if(keepdata)
-                {
-                    jumpspr[i][spr_tile]=(int32_t)tile;
-                    jumpspr[i][spr_flip]=(int32_t)flip;
-                    jumpspr[i][spr_extend]=(int32_t)extend;
-                }
+				jumpspr[i][spr_tile]=(int32_t)tile;
+				jumpspr[i][spr_flip]=(int32_t)flip;
+				jumpspr[i][spr_extend]=(int32_t)extend;
             }
         }
         
@@ -10386,88 +10262,79 @@ int32_t readherosprites2(PACKFILE *f, int32_t v_herosprites, int32_t cv_herospri
         {
             for(int32_t i=0; i<4; i++)
             {
-                if(!p_igetw(&tile,f,keepdata))
+                if(!p_igetw(&tile,f))
                 {
                     return qe_invalid;
                 }
                 
-                if(!p_getc(&flip,f,keepdata))
+                if(!p_getc(&flip,f))
                 {
                     return qe_invalid;
                 }
                 
-                if(!p_getc(&extend,f,keepdata))
+                if(!p_getc(&extend,f))
                 {
                     return qe_invalid;
                 }
                 
-                if(keepdata)
-                {
-                    chargespr[i][spr_tile]=(int32_t)tile;
-                    chargespr[i][spr_flip]=(int32_t)flip;
-                    chargespr[i][spr_extend]=(int32_t)extend;
-                }
+				chargespr[i][spr_tile]=(int32_t)tile;
+				chargespr[i][spr_flip]=(int32_t)flip;
+				chargespr[i][spr_extend]=(int32_t)extend;
             }
         }
         
         if(v_herosprites>4)
         {
-            if(!p_getc(&dummy_byte,f,keepdata))
+            if(!p_getc(&dummy_byte,f))
             {
                 return qe_invalid;
             }
             
-            if(keepdata)
-            {
-                zinit.hero_swim_speed=(byte)dummy_byte;
-            }
+			zinit.hero_swim_speed=(byte)dummy_byte;
         }
 		
-		if(keepdata)
+		memset(frozenspr, 0, sizeof(frozenspr));
+		memset(frozen_waterspr, 0, sizeof(frozen_waterspr));
+		memset(onfirespr, 0, sizeof(onfirespr));
+		memset(onfire_waterspr, 0, sizeof(onfire_waterspr));
+		memset(diggingspr, 0, sizeof(diggingspr));
+		memset(usingrodspr, 0, sizeof(usingrodspr));
+		memset(usingcanespr, 0, sizeof(usingcanespr));
+		memset(pushingspr, 0, sizeof(pushingspr));
+		memset(liftingspr, 0, sizeof(liftingspr));
+		memset(liftingwalkspr, 0, sizeof(liftingwalkspr));
+		memset(stunnedspr, 0, sizeof(stunnedspr));
+		memset(stunned_waterspr, 0, sizeof(stunned_waterspr));
+		memset(fallingspr, 0, sizeof(fallingspr));
+		memset(shockedspr, 0, sizeof(shockedspr));
+		memset(shocked_waterspr, 0, sizeof(shocked_waterspr));
+		memset(pullswordspr, 0, sizeof(pullswordspr));
+		memset(readingspr, 0, sizeof(readingspr));
+		memset(slash180spr, 0, sizeof(slash180spr));
+		memset(slashZ4spr, 0, sizeof(slashZ4spr));
+		memset(dashspr, 0, sizeof(dashspr));
+		memset(bonkspr, 0, sizeof(bonkspr));
+		memset(medallionsprs, 0, sizeof(medallionsprs));
+		memset(holdspr[0][2], 0, sizeof(holdspr[0][2])); //Sword hold (Land)
+		memset(holdspr[1][2], 0, sizeof(holdspr[1][2])); //Sword hold (Water)
+		for(int32_t q = 0; q < 4; ++q)
 		{
-			memset(frozenspr, 0, sizeof(frozenspr));
-			memset(frozen_waterspr, 0, sizeof(frozen_waterspr));
-			memset(onfirespr, 0, sizeof(onfirespr));
-			memset(onfire_waterspr, 0, sizeof(onfire_waterspr));
-			memset(diggingspr, 0, sizeof(diggingspr));
-			memset(usingrodspr, 0, sizeof(usingrodspr));
-			memset(usingcanespr, 0, sizeof(usingcanespr));
-			memset(pushingspr, 0, sizeof(pushingspr));
-			memset(liftingspr, 0, sizeof(liftingspr));
-			memset(liftingwalkspr, 0, sizeof(liftingwalkspr));
-			memset(stunnedspr, 0, sizeof(stunnedspr));
-			memset(stunned_waterspr, 0, sizeof(stunned_waterspr));
-			memset(fallingspr, 0, sizeof(fallingspr));
-			memset(shockedspr, 0, sizeof(shockedspr));
-			memset(shocked_waterspr, 0, sizeof(shocked_waterspr));
-			memset(pullswordspr, 0, sizeof(pullswordspr));
-			memset(readingspr, 0, sizeof(readingspr));
-			memset(slash180spr, 0, sizeof(slash180spr));
-			memset(slashZ4spr, 0, sizeof(slashZ4spr));
-			memset(dashspr, 0, sizeof(dashspr));
-			memset(bonkspr, 0, sizeof(bonkspr));
-			memset(medallionsprs, 0, sizeof(medallionsprs));
-			memset(holdspr[0][2], 0, sizeof(holdspr[0][2])); //Sword hold (Land)
-			memset(holdspr[1][2], 0, sizeof(holdspr[1][2])); //Sword hold (Water)
-			for(int32_t q = 0; q < 4; ++q)
+			for(int32_t p = 0; p < 3; ++p)
 			{
-				for(int32_t p = 0; p < 3; ++p)
-				{
-					drowningspr[q][p] = divespr[q][p];
-					drowning_lavaspr[q][p] = divespr[q][p];
-				}
+				drowningspr[q][p] = divespr[q][p];
+				drowning_lavaspr[q][p] = divespr[q][p];
 			}
-			memset(sideswimspr, 0, sizeof(sideswimspr));
-			memset(sideswimslashspr, 0, sizeof(sideswimslashspr));
-			memset(sideswimstabspr, 0, sizeof(sideswimstabspr));
-			memset(sideswimpoundspr, 0, sizeof(sideswimpoundspr));
-			memset(sideswimchargespr, 0, sizeof(sideswimchargespr));
-			memset(sideswimholdspr, 0, sizeof(sideswimholdspr));
-			memset(sidedrowningspr, 0, sizeof(sidedrowningspr));
 		}
+		memset(sideswimspr, 0, sizeof(sideswimspr));
+		memset(sideswimslashspr, 0, sizeof(sideswimslashspr));
+		memset(sideswimstabspr, 0, sizeof(sideswimstabspr));
+		memset(sideswimpoundspr, 0, sizeof(sideswimpoundspr));
+		memset(sideswimchargespr, 0, sizeof(sideswimchargespr));
+		memset(sideswimholdspr, 0, sizeof(sideswimholdspr));
+		memset(sidedrowningspr, 0, sizeof(sidedrowningspr));
     }
     
-	if(keepdata && FFCore.quest_format[vInitData] < 34)
+	if(FFCore.quest_format[vInitData] < 34)
 	{
 		bool fastswim = zinit.hero_swim_speed > 60;
 		// '2/3' or '1/2'
@@ -10484,18 +10351,15 @@ void setSprite(int32_t* arr, int32_t tile, int32_t flip, int32_t ext)
     arr[spr_extend] = (ext > 2 ? 0 : ext);
 }
 //Used to read the player sprites as int32_t, not word. 
-int32_t readherosprites3(PACKFILE *f, int32_t v_herosprites, int32_t cv_herosprites, bool keepdata)
+int32_t readherosprites3(PACKFILE *f, int32_t v_herosprites, int32_t cv_herosprites)
 {
 	//these are here to bypass compiler warnings about unused arguments
 	cv_herosprites=cv_herosprites;
 	
-	if(keepdata)
-	{
-		zinit.hero_swim_speed=67; //default
-		setupherotiles(zinit.heroAnimationStyle);
-		setupherodefenses();
-		setupherooffsets();
-	}
+	zinit.hero_swim_speed=67; //default
+	setupherotiles(zinit.heroAnimationStyle);
+	setupherodefenses();
+	setupherooffsets();
 	
 	int32_t tile, tile2;
 	byte flip, extend, dummy_byte;
@@ -10505,169 +10369,148 @@ int32_t readherosprites3(PACKFILE *f, int32_t v_herosprites, int32_t cv_herospri
 		
 		for(int32_t i=0; i<4; i++)
 		{
-			if(!p_igetl(&tile,f,keepdata))
+			if(!p_igetl(&tile,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_getc(&flip,f,keepdata))
+			if(!p_getc(&flip,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_getc(&extend,f,keepdata))
+			if(!p_getc(&extend,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(keepdata)
-			{
-				setSprite(walkspr[i], int32_t(tile), int32_t(flip), int32_t(extend));
-			}
+			setSprite(walkspr[i], int32_t(tile), int32_t(flip), int32_t(extend));
 		}
 		
 		for(int32_t i=0; i<4; i++)
 		{
-			if(!p_igetl(&tile,f,keepdata))
+			if(!p_igetl(&tile,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_getc(&flip,f,keepdata))
+			if(!p_getc(&flip,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_getc(&extend,f,keepdata))
+			if(!p_getc(&extend,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(keepdata)
-			{
-				setSprite(stabspr[i], int32_t(tile), int32_t(flip), int32_t(extend));
-			}
+			setSprite(stabspr[i], int32_t(tile), int32_t(flip), int32_t(extend));
 		}
 		
 		for(int32_t i=0; i<4; i++)
 		{
-			if(!p_igetl(&tile,f,keepdata))
+			if(!p_igetl(&tile,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_getc(&flip,f,keepdata))
+			if(!p_getc(&flip,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_getc(&extend,f,keepdata))
+			if(!p_getc(&extend,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(keepdata)
-			{
-				setSprite(slashspr[i], int32_t(tile), int32_t(flip), int32_t(extend));
-			}
+			setSprite(slashspr[i], int32_t(tile), int32_t(flip), int32_t(extend));
 		}
 		
 		for(int32_t i=0; i<4; i++)
 		{
-			if(!p_igetl(&tile,f,keepdata))
+			if(!p_igetl(&tile,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_getc(&flip,f,keepdata))
+			if(!p_getc(&flip,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_getc(&extend,f,keepdata))
+			if(!p_getc(&extend,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(keepdata)
-			{
-				setSprite(floatspr[i], int32_t(tile), int32_t(flip), int32_t(extend));
-			}
+			setSprite(floatspr[i], int32_t(tile), int32_t(flip), int32_t(extend));
 		}
 		
 		if(v_herosprites>1)
 		{
 			for(int32_t i=0; i<4; i++)
 			{
-				if(!p_igetl(&tile,f,keepdata))
+				if(!p_igetl(&tile,f))
 				{
 					return qe_invalid;
 				}
 				
-				if(!p_getc(&flip,f,keepdata))
+				if(!p_getc(&flip,f))
 				{
 					return qe_invalid;
 				}
 				
-				if(!p_getc(&extend,f,keepdata))
+				if(!p_getc(&extend,f))
 				{
 					return qe_invalid;
 				}
 				
-				if(keepdata)
-				{
-					setSprite(swimspr[i], int32_t(tile), int32_t(flip), int32_t(extend));
-				}
+				setSprite(swimspr[i], int32_t(tile), int32_t(flip), int32_t(extend));
 			}
 		}
 		
 		for(int32_t i=0; i<4; i++)
 		{
-			if(!p_igetl(&tile,f,keepdata))
+			if(!p_igetl(&tile,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_getc(&flip,f,keepdata))
+			if(!p_getc(&flip,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_getc(&extend,f,keepdata))
+			if(!p_getc(&extend,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(keepdata)
-			{
-				setSprite(divespr[i], int32_t(tile), int32_t(flip), int32_t(extend));
-			}
+			setSprite(divespr[i], int32_t(tile), int32_t(flip), int32_t(extend));
 		}
 		
 		for(int32_t i=0; i<4; i++)
 		{
-			if(!p_igetl(&tile,f,keepdata))
+			if(!p_igetl(&tile,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_getc(&flip,f,keepdata))
+			if(!p_getc(&flip,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_getc(&extend,f,keepdata))
+			if(!p_getc(&extend,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(keepdata)
-			{
-				setSprite(poundspr[i], int32_t(tile), int32_t(flip), int32_t(extend));
-			}
+			setSprite(poundspr[i], int32_t(tile), int32_t(flip), int32_t(extend));
 		}
 		
-		if(!p_igetl(&tile,f,keepdata))
+		if(!p_igetl(&tile,f))
 		{
 			return qe_invalid;
 		}
@@ -10676,21 +10519,18 @@ int32_t readherosprites3(PACKFILE *f, int32_t v_herosprites, int32_t cv_herospri
 		
 		if(v_herosprites>0)
 		{
-			if(!p_getc(&flip,f,keepdata))
+			if(!p_getc(&flip,f))
 			{
 				return qe_invalid;
 			}
 		}
 		
-		if(!p_getc(&extend,f,keepdata))
+		if(!p_getc(&extend,f))
 		{
 			return qe_invalid;
 		}
 		
-		if(keepdata)
-		{
-			setSprite(castingspr, int32_t(tile), int32_t(flip), int32_t(extend));
-		}
+		setSprite(castingspr, int32_t(tile), int32_t(flip), int32_t(extend));
 		
 		if(v_herosprites>0)
 		{
@@ -10699,25 +10539,22 @@ int32_t readherosprites3(PACKFILE *f, int32_t v_herosprites, int32_t cv_herospri
 			{
 				for(int32_t j=0; j<num_holdsprs; j++)
 				{
-					if(!p_igetl(&tile,f,keepdata))
+					if(!p_igetl(&tile,f))
 					{
 						return qe_invalid;
 					}
 					
-					if(!p_getc(&flip,f,keepdata))
+					if(!p_getc(&flip,f))
 					{
 						return qe_invalid;
 					}
 					
-					if(!p_getc(&extend,f,keepdata))
+					if(!p_getc(&extend,f))
 					{
 						return qe_invalid;
 					}
 					
-					if(keepdata)
-					{
-						setSprite(holdspr[i][j], int32_t(tile), int32_t(flip), int32_t(extend));
-					}
+					setSprite(holdspr[i][j], int32_t(tile), int32_t(flip), int32_t(extend));
 				}
 			}
 		}
@@ -10725,26 +10562,23 @@ int32_t readherosprites3(PACKFILE *f, int32_t v_herosprites, int32_t cv_herospri
 		{
 			for(int32_t i=0; i<2; i++)
 			{
-				if(!p_igetl(&tile,f,keepdata))
+				if(!p_igetl(&tile,f))
 				{
 					return qe_invalid;
 				}
 				
-				if(!p_igetl(&tile2,f,keepdata))
+				if(!p_igetl(&tile2,f))
 				{
 					return qe_invalid;
 				}
 				
-				if(!p_getc(&extend,f,keepdata))
+				if(!p_getc(&extend,f))
 				{
 					return qe_invalid;
 				}
 				
-				if(keepdata)
-				{
-					setSprite(holdspr[i][spr_hold1], int32_t(tile), int32_t(flip), int32_t(extend));
-					setSprite(holdspr[i][spr_hold2], int32_t(tile2), int32_t(flip), int32_t(extend));
-				}
+				setSprite(holdspr[i][spr_hold1], int32_t(tile), int32_t(flip), int32_t(extend));
+				setSprite(holdspr[i][spr_hold2], int32_t(tile2), int32_t(flip), int32_t(extend));
 			}
 		}
 		
@@ -10752,25 +10586,22 @@ int32_t readherosprites3(PACKFILE *f, int32_t v_herosprites, int32_t cv_herospri
 		{
 			for(int32_t i=0; i<4; i++)
 			{
-				if(!p_igetl(&tile,f,keepdata))
+				if(!p_igetl(&tile,f))
 				{
 					return qe_invalid;
 				}
 				
-				if(!p_getc(&flip,f,keepdata))
+				if(!p_getc(&flip,f))
 				{
 					return qe_invalid;
 				}
 				
-				if(!p_getc(&extend,f,keepdata))
+				if(!p_getc(&extend,f))
 				{
 					return qe_invalid;
 				}
 				
-				if(keepdata)
-				{
-					setSprite(jumpspr[i], int32_t(tile), int32_t(flip), int32_t(extend));
-				}
+				setSprite(jumpspr[i], int32_t(tile), int32_t(flip), int32_t(extend));
 			}
 		}
 		
@@ -10778,456 +10609,378 @@ int32_t readherosprites3(PACKFILE *f, int32_t v_herosprites, int32_t cv_herospri
 		{
 			for(int32_t i=0; i<4; i++)
 			{
-				if(!p_igetl(&tile,f,keepdata))
+				if(!p_igetl(&tile,f))
 				{
 					return qe_invalid;
 				}
 				
-				if(!p_getc(&flip,f,keepdata))
+				if(!p_getc(&flip,f))
 				{
 					return qe_invalid;
 				}
 				
-				if(!p_getc(&extend,f,keepdata))
+				if(!p_getc(&extend,f))
 				{
 					return qe_invalid;
 				}
 				
-				if(keepdata)
-				{
-					setSprite(chargespr[i], int32_t(tile), int32_t(flip), int32_t(extend));
-				}
+				setSprite(chargespr[i], int32_t(tile), int32_t(flip), int32_t(extend));
 			}
 		}
 		
 		if(v_herosprites>4)
 		{
-			if(!p_getc(&dummy_byte,f,keepdata))
+			if(!p_getc(&dummy_byte,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(keepdata)
-			{
-				zinit.hero_swim_speed=(byte)dummy_byte;
-			}
+			zinit.hero_swim_speed=(byte)dummy_byte;
 		}
 		
 		if(v_herosprites>6)
 		{
 			for(int32_t q = 0; q < 4; ++q)
 			{
-				if(!p_igetl(&tile,f,keepdata))
+				if(!p_igetl(&tile,f))
 					return qe_invalid;
 				
-				if(!p_getc(&flip,f,keepdata))
+				if(!p_getc(&flip,f))
 					return qe_invalid;
 				
-				if(!p_getc(&extend,f,keepdata))
+				if(!p_getc(&extend,f))
 					return qe_invalid;
 				
-				if(keepdata)
-				{
-					setSprite(frozenspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
-				}
+				setSprite(frozenspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 			}
 			for(int32_t q = 0; q < 4; ++q)
 			{
-				if(!p_igetl(&tile,f,keepdata))
+				if(!p_igetl(&tile,f))
 					return qe_invalid;
 				
-				if(!p_getc(&flip,f,keepdata))
+				if(!p_getc(&flip,f))
 					return qe_invalid;
 				
-				if(!p_getc(&extend,f,keepdata))
+				if(!p_getc(&extend,f))
 					return qe_invalid;
 				
-				if(keepdata)
-				{
-					setSprite(frozen_waterspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
-				}
+				setSprite(frozen_waterspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 			}
 			
 			for(int32_t q = 0; q < 4; ++q)
 			{
-				if(!p_igetl(&tile,f,keepdata))
+				if(!p_igetl(&tile,f))
 					return qe_invalid;
 				
-				if(!p_getc(&flip,f,keepdata))
+				if(!p_getc(&flip,f))
 					return qe_invalid;
 				
-				if(!p_getc(&extend,f,keepdata))
+				if(!p_getc(&extend,f))
 					return qe_invalid;
 				
-				if(keepdata)
-				{
-					setSprite(onfirespr[q], int32_t(tile), int32_t(flip), int32_t(extend));
-				}
+				setSprite(onfirespr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 			}
 			for(int32_t q = 0; q < 4; ++q)
 			{
-				if(!p_igetl(&tile,f,keepdata))
+				if(!p_igetl(&tile,f))
 					return qe_invalid;
 				
-				if(!p_getc(&flip,f,keepdata))
+				if(!p_getc(&flip,f))
 					return qe_invalid;
 				
-				if(!p_getc(&extend,f,keepdata))
+				if(!p_getc(&extend,f))
 					return qe_invalid;
 				
-				if(keepdata)
-				{
-					setSprite(onfire_waterspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
-				}
+				setSprite(onfire_waterspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 			}
 			
 			for(int32_t q = 0; q < 4; ++q)
 			{
-				if(!p_igetl(&tile,f,keepdata))
+				if(!p_igetl(&tile,f))
 					return qe_invalid;
 				
-				if(!p_getc(&flip,f,keepdata))
+				if(!p_getc(&flip,f))
 					return qe_invalid;
 				
-				if(!p_getc(&extend,f,keepdata))
+				if(!p_getc(&extend,f))
 					return qe_invalid;
 				
-				if(keepdata)
-				{
-					setSprite(diggingspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
-				}
+				setSprite(diggingspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 			}
 			
 			for(int32_t q = 0; q < 4; ++q)
 			{
-				if(!p_igetl(&tile,f,keepdata))
+				if(!p_igetl(&tile,f))
 					return qe_invalid;
 				
-				if(!p_getc(&flip,f,keepdata))
+				if(!p_getc(&flip,f))
 					return qe_invalid;
 				
-				if(!p_getc(&extend,f,keepdata))
+				if(!p_getc(&extend,f))
 					return qe_invalid;
 				
-				if(keepdata)
-				{
-					setSprite(usingrodspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
-				}
+				setSprite(usingrodspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 			}
 			
 			for(int32_t q = 0; q < 4; ++q)
 			{
-				if(!p_igetl(&tile,f,keepdata))
+				if(!p_igetl(&tile,f))
 					return qe_invalid;
 				
-				if(!p_getc(&flip,f,keepdata))
+				if(!p_getc(&flip,f))
 					return qe_invalid;
 				
-				if(!p_getc(&extend,f,keepdata))
+				if(!p_getc(&extend,f))
 					return qe_invalid;
 				
-				if(keepdata)
-				{
-					setSprite(usingcanespr[q], int32_t(tile), int32_t(flip), int32_t(extend));
-				}
+				setSprite(usingcanespr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 			}
 			
 			for(int32_t q = 0; q < 4; ++q)
 			{
-				if(!p_igetl(&tile,f,keepdata))
+				if(!p_igetl(&tile,f))
 					return qe_invalid;
 				
-				if(!p_getc(&flip,f,keepdata))
+				if(!p_getc(&flip,f))
 					return qe_invalid;
 				
-				if(!p_getc(&extend,f,keepdata))
+				if(!p_getc(&extend,f))
 					return qe_invalid;
 				
-				if(keepdata)
-				{
-					setSprite(pushingspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
-				}
+				setSprite(pushingspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 			}
 			
 			for(int32_t q = 0; q < 4; ++q)
 			{
-				if(!p_igetl(&tile,f,keepdata))
+				if(!p_igetl(&tile,f))
 					return qe_invalid;
 				
-				if(!p_getc(&flip,f,keepdata))
+				if(!p_getc(&flip,f))
 					return qe_invalid;
 				
-				if(!p_getc(&extend,f,keepdata))
+				if(!p_getc(&extend,f))
 					return qe_invalid;
 				
 				byte frames = 0;
 				if(v_herosprites > 15)
 				{
-					if(!p_getc(&frames,f,keepdata))
+					if(!p_getc(&frames,f))
 						return qe_invalid;
 				}
 				
-				if(keepdata)
-				{
-					setSprite(liftingspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
-					liftingspr[q][spr_frames] = frames;
-				}
+				setSprite(liftingspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
+				liftingspr[q][spr_frames] = frames;
 			}
 			
 			for(int32_t q = 0; q < 4; ++q)
 			{
-				if(!p_igetl(&tile,f,keepdata))
+				if(!p_igetl(&tile,f))
 					return qe_invalid;
 				
-				if(!p_getc(&flip,f,keepdata))
+				if(!p_getc(&flip,f))
 					return qe_invalid;
 				
-				if(!p_getc(&extend,f,keepdata))
+				if(!p_getc(&extend,f))
 					return qe_invalid;
 				
-				if(keepdata)
-				{
-					setSprite(liftingwalkspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
-				}
+				setSprite(liftingwalkspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 			}
 			
 			for(int32_t q = 0; q < 4; ++q)
 			{
-				if(!p_igetl(&tile,f,keepdata))
+				if(!p_igetl(&tile,f))
 					return qe_invalid;
 				
-				if(!p_getc(&flip,f,keepdata))
+				if(!p_getc(&flip,f))
 					return qe_invalid;
 				
-				if(!p_getc(&extend,f,keepdata))
+				if(!p_getc(&extend,f))
 					return qe_invalid;
 				
-				if(keepdata)
-				{
-					setSprite(stunnedspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
-				}
+				setSprite(stunnedspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 			}
 			for(int32_t q = 0; q < 4; ++q)
 			{
-				if(!p_igetl(&tile,f,keepdata))
+				if(!p_igetl(&tile,f))
 					return qe_invalid;
 				
-				if(!p_getc(&flip,f,keepdata))
+				if(!p_getc(&flip,f))
 					return qe_invalid;
 				
-				if(!p_getc(&extend,f,keepdata))
+				if(!p_getc(&extend,f))
 					return qe_invalid;
 				
-				if(keepdata)
-				{
-					setSprite(stunned_waterspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
-				}
+				setSprite(stunned_waterspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 			}
 			
 			for(int32_t q = 0; q < 4; ++q)
 			{
-				if(!p_igetl(&tile,f,keepdata))
+				if(!p_igetl(&tile,f))
 					return qe_invalid;
 				
-				if(!p_getc(&flip,f,keepdata))
+				if(!p_getc(&flip,f))
 					return qe_invalid;
 				
-				if(!p_getc(&extend,f,keepdata))
+				if(!p_getc(&extend,f))
 					return qe_invalid;
 				
-				if(keepdata)
-				{
-					setSprite(drowningspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
-				}
+				setSprite(drowningspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 			}
 			
 			for(int32_t q = 0; q < 4; ++q)
 			{
-				if(!p_igetl(&tile,f,keepdata))
+				if(!p_igetl(&tile,f))
 					return qe_invalid;
 				
-				if(!p_getc(&flip,f,keepdata))
+				if(!p_getc(&flip,f))
 					return qe_invalid;
 				
-				if(!p_getc(&extend,f,keepdata))
+				if(!p_getc(&extend,f))
 					return qe_invalid;
 				
-				if(keepdata)
-				{
-					setSprite(drowning_lavaspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
-				}
+				setSprite(drowning_lavaspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 			}
 			
 			for(int32_t q = 0; q < 4; ++q)
 			{
-				if(!p_igetl(&tile,f,keepdata))
+				if(!p_igetl(&tile,f))
 					return qe_invalid;
 				
-				if(!p_getc(&flip,f,keepdata))
+				if(!p_getc(&flip,f))
 					return qe_invalid;
 				
-				if(!p_getc(&extend,f,keepdata))
+				if(!p_getc(&extend,f))
 					return qe_invalid;
 				
-				if(keepdata)
-				{
-					setSprite(fallingspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
-				}
+				setSprite(fallingspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 			}
 			
 			for(int32_t q = 0; q < 4; ++q)
 			{
-				if(!p_igetl(&tile,f,keepdata))
+				if(!p_igetl(&tile,f))
 					return qe_invalid;
 				
-				if(!p_getc(&flip,f,keepdata))
+				if(!p_getc(&flip,f))
 					return qe_invalid;
 				
-				if(!p_getc(&extend,f,keepdata))
+				if(!p_getc(&extend,f))
 					return qe_invalid;
 				
-				if(keepdata)
-				{
-					setSprite(shockedspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
-				}
+				setSprite(shockedspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 			}
 			for(int32_t q = 0; q < 4; ++q)
 			{
-				if(!p_igetl(&tile,f,keepdata))
+				if(!p_igetl(&tile,f))
 					return qe_invalid;
 				
-				if(!p_getc(&flip,f,keepdata))
+				if(!p_getc(&flip,f))
 					return qe_invalid;
 				
-				if(!p_getc(&extend,f,keepdata))
+				if(!p_getc(&extend,f))
 					return qe_invalid;
 				
-				if(keepdata)
-				{
-					setSprite(shocked_waterspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
-				}
+				setSprite(shocked_waterspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 			}
 			
 			for(int32_t q = 0; q < 4; ++q)
 			{
-				if(!p_igetl(&tile,f,keepdata))
+				if(!p_igetl(&tile,f))
 					return qe_invalid;
 				
-				if(!p_getc(&flip,f,keepdata))
+				if(!p_getc(&flip,f))
 					return qe_invalid;
 				
-				if(!p_getc(&extend,f,keepdata))
+				if(!p_getc(&extend,f))
 					return qe_invalid;
 				
-				if(keepdata)
-				{
-					setSprite(pullswordspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
-				}
+				setSprite(pullswordspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 			}
 			
 			for(int32_t q = 0; q < 4; ++q)
 			{
-				if(!p_igetl(&tile,f,keepdata))
+				if(!p_igetl(&tile,f))
 					return qe_invalid;
 				
-				if(!p_getc(&flip,f,keepdata))
+				if(!p_getc(&flip,f))
 					return qe_invalid;
 				
-				if(!p_getc(&extend,f,keepdata))
+				if(!p_getc(&extend,f))
 					return qe_invalid;
 				
-				if(keepdata)
-				{
-					setSprite(readingspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
-				}
+				setSprite(readingspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 			}
 			
 			for(int32_t q = 0; q < 4; ++q)
 			{
-				if(!p_igetl(&tile,f,keepdata))
+				if(!p_igetl(&tile,f))
 					return qe_invalid;
 				
-				if(!p_getc(&flip,f,keepdata))
+				if(!p_getc(&flip,f))
 					return qe_invalid;
 				
-				if(!p_getc(&extend,f,keepdata))
+				if(!p_getc(&extend,f))
 					return qe_invalid;
 				
-				if(keepdata)
-				{
-					setSprite(slash180spr[q], int32_t(tile), int32_t(flip), int32_t(extend));
-				}
+				setSprite(slash180spr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 			}
 			
 			for(int32_t q = 0; q < 4; ++q)
 			{
-				if(!p_igetl(&tile,f,keepdata))
+				if(!p_igetl(&tile,f))
 					return qe_invalid;
 				
-				if(!p_getc(&flip,f,keepdata))
+				if(!p_getc(&flip,f))
 					return qe_invalid;
 				
-				if(!p_getc(&extend,f,keepdata))
+				if(!p_getc(&extend,f))
 					return qe_invalid;
 				
-				if(keepdata)
-				{
-					setSprite(slashZ4spr[q], int32_t(tile), int32_t(flip), int32_t(extend));
-				}
+				setSprite(slashZ4spr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 			}
 			
 			for(int32_t q = 0; q < 4; ++q)
 			{
-				if(!p_igetl(&tile,f,keepdata))
+				if(!p_igetl(&tile,f))
 					return qe_invalid;
 				
-				if(!p_getc(&flip,f,keepdata))
+				if(!p_getc(&flip,f))
 					return qe_invalid;
 				
-				if(!p_getc(&extend,f,keepdata))
+				if(!p_getc(&extend,f))
 					return qe_invalid;
 				
-				if(keepdata)
-				{
-					setSprite(dashspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
-				}
+				setSprite(dashspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 			}
 			
 			for(int32_t q = 0; q < 4; ++q)
 			{
-				if(!p_igetl(&tile,f,keepdata))
+				if(!p_igetl(&tile,f))
 					return qe_invalid;
 				
-				if(!p_getc(&flip,f,keepdata))
+				if(!p_getc(&flip,f))
 					return qe_invalid;
 				
-				if(!p_getc(&extend,f,keepdata))
+				if(!p_getc(&extend,f))
 					return qe_invalid;
 				
-				if(keepdata)
-				{
-					setSprite(bonkspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
-				}
+				setSprite(bonkspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 			}
 			
 			for(int32_t q = 0; q < 3; ++q) //Not directions; number of medallion sprs
 			{
-				if(!p_igetl(&tile,f,keepdata))
+				if(!p_igetl(&tile,f))
 					return qe_invalid;
 				
-				if(!p_getc(&flip,f,keepdata))
+				if(!p_getc(&flip,f))
 					return qe_invalid;
 				
-				if(!p_getc(&extend,f,keepdata))
+				if(!p_getc(&extend,f))
 					return qe_invalid;
 				
-				if(keepdata)
-				{
-					setSprite(medallionsprs[q], int32_t(tile), int32_t(flip), int32_t(extend));
-				}
+				setSprite(medallionsprs[q], int32_t(tile), int32_t(flip), int32_t(extend));
 			}
 		}
-		else if(keepdata)
+		else
 		{
 			memset(frozenspr, 0, sizeof(frozenspr));
 			memset(frozen_waterspr, 0, sizeof(frozen_waterspr));
@@ -11266,22 +11019,19 @@ int32_t readherosprites3(PACKFILE *f, int32_t v_herosprites, int32_t cv_herospri
 		{
 			for(int32_t q = 0; q < 4; ++q)
 			{
-				if(!p_igetl(&tile,f,keepdata))
+				if(!p_igetl(&tile,f))
 					return qe_invalid;
 				
-				if(!p_getc(&flip,f,keepdata))
+				if(!p_getc(&flip,f))
 					return qe_invalid;
 				
-				if(!p_getc(&extend,f,keepdata))
+				if(!p_getc(&extend,f))
 					return qe_invalid;
 				
-				if(keepdata)
-				{
-					setSprite(sideswimspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
-				}
+				setSprite(sideswimspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 			}
 		}
-		else if (keepdata)
+		else
 		{
 			memset(sideswimspr, 0, sizeof(sideswimspr));
 		}
@@ -11289,70 +11039,58 @@ int32_t readherosprites3(PACKFILE *f, int32_t v_herosprites, int32_t cv_herospri
 		{
 			for(int32_t q = 0; q < 4; ++q)
 			{
-				if(!p_igetl(&tile,f,keepdata))
+				if(!p_igetl(&tile,f))
 					return qe_invalid;
 				
-				if(!p_getc(&flip,f,keepdata))
+				if(!p_getc(&flip,f))
 					return qe_invalid;
 				
-				if(!p_getc(&extend,f,keepdata))
+				if(!p_getc(&extend,f))
 					return qe_invalid;
 				
-				if(keepdata)
-				{
-					setSprite(sideswimslashspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
-				}
+				setSprite(sideswimslashspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 			}
 			for(int32_t q = 0; q < 4; ++q)
 			{
-				if(!p_igetl(&tile,f,keepdata))
+				if(!p_igetl(&tile,f))
 					return qe_invalid;
 				
-				if(!p_getc(&flip,f,keepdata))
+				if(!p_getc(&flip,f))
 					return qe_invalid;
 				
-				if(!p_getc(&extend,f,keepdata))
+				if(!p_getc(&extend,f))
 					return qe_invalid;
 				
-				if(keepdata)
-				{
-					setSprite(sideswimstabspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
-				}
+				setSprite(sideswimstabspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 			}
 			for(int32_t q = 0; q < 4; ++q)
 			{
-				if(!p_igetl(&tile,f,keepdata))
+				if(!p_igetl(&tile,f))
 					return qe_invalid;
 				
-				if(!p_getc(&flip,f,keepdata))
+				if(!p_getc(&flip,f))
 					return qe_invalid;
 				
-				if(!p_getc(&extend,f,keepdata))
+				if(!p_getc(&extend,f))
 					return qe_invalid;
 				
-				if(keepdata)
-				{
-					setSprite(sideswimpoundspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
-				}
+				setSprite(sideswimpoundspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 			}
 			for(int32_t q = 0; q < 4; ++q)
 			{
-				if(!p_igetl(&tile,f,keepdata))
+				if(!p_igetl(&tile,f))
 					return qe_invalid;
 				
-				if(!p_getc(&flip,f,keepdata))
+				if(!p_getc(&flip,f))
 					return qe_invalid;
 				
-				if(!p_getc(&extend,f,keepdata))
+				if(!p_getc(&extend,f))
 					return qe_invalid;
 				
-				if(keepdata)
-				{
-					setSprite(sideswimchargespr[q], int32_t(tile), int32_t(flip), int32_t(extend));
-				}
+				setSprite(sideswimchargespr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 			}
 		}
-		else if (keepdata)
+		else
 		{
 			memset(sideswimslashspr, 0, sizeof(sideswimslashspr));
 			memset(sideswimstabspr, 0, sizeof(sideswimstabspr));
@@ -11364,16 +11102,13 @@ int32_t readherosprites3(PACKFILE *f, int32_t v_herosprites, int32_t cv_herospri
 			for(int32_t q = 0; q < 4; ++q)
 			{
 				int32_t hmr;
-				if(!p_igetl(&hmr,f,keepdata))
+				if(!p_igetl(&hmr,f))
 					return qe_invalid;
 				
-				if(keepdata)
-				{
-					hammeroffsets[q] = hmr;
-				}
+				hammeroffsets[q] = hmr;
 			}
 		}
-		else if (keepdata) 
+		else
 		{
 			for(int32_t q = 0; q < 4; ++q) hammeroffsets[q] = 0;
 		}
@@ -11381,42 +11116,36 @@ int32_t readherosprites3(PACKFILE *f, int32_t v_herosprites, int32_t cv_herospri
 		{
 			for(int32_t q = 0; q < 3; ++q)
 			{
-				if(!p_igetl(&tile,f,keepdata))
+				if(!p_igetl(&tile,f))
 					return qe_invalid;
 				
-				if(!p_getc(&flip,f,keepdata))
+				if(!p_getc(&flip,f))
 					return qe_invalid;
 				
-				if(!p_getc(&extend,f,keepdata))
+				if(!p_getc(&extend,f))
 					return qe_invalid;
 				
-				if(keepdata)
-				{
-					setSprite(sideswimholdspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
-				}
+				setSprite(sideswimholdspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 			}
 		}
-		else if (keepdata)
+		else
 		{
 			memset(sideswimholdspr, 0, sizeof(sideswimholdspr));
 		}
 		if (v_herosprites > 12)
 		{
-			if(!p_igetl(&tile,f,keepdata))
+			if(!p_igetl(&tile,f))
 				return qe_invalid;
 			
-			if(!p_getc(&flip,f,keepdata))
+			if(!p_getc(&flip,f))
 				return qe_invalid;
 			
-			if(!p_getc(&extend,f,keepdata))
+			if(!p_getc(&extend,f))
 				return qe_invalid;
-			if (keepdata)
-			{
-				setSprite(sideswimcastingspr, int32_t(tile), int32_t(flip), int32_t(extend));
-			}
+			setSprite(sideswimcastingspr, int32_t(tile), int32_t(flip), int32_t(extend));
 			
 		}
-		else if (keepdata)
+		else
 		{
 			memset(sideswimcastingspr, 0, sizeof(sideswimcastingspr));
 		}
@@ -11424,22 +11153,19 @@ int32_t readherosprites3(PACKFILE *f, int32_t v_herosprites, int32_t cv_herospri
 		{
 			for(int32_t q = 0; q < 4; ++q)
 			{
-				if(!p_igetl(&tile,f,keepdata))
+				if(!p_igetl(&tile,f))
 					return qe_invalid;
 				
-				if(!p_getc(&flip,f,keepdata))
+				if(!p_getc(&flip,f))
 					return qe_invalid;
 				
-				if(!p_getc(&extend,f,keepdata))
+				if(!p_getc(&extend,f))
 					return qe_invalid;
 				
-				if(keepdata)
-				{
-					setSprite(sidedrowningspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
-				}
+				setSprite(sidedrowningspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 			}
 		}
-		else if (keepdata)
+		else
 		{
 			memset(sidedrowningspr, 0, sizeof(sidedrowningspr));
 		}
@@ -11447,22 +11173,19 @@ int32_t readherosprites3(PACKFILE *f, int32_t v_herosprites, int32_t cv_herospri
 		{
 			for(int32_t q = 0; q < 4; ++q)
 			{
-				if(!p_igetl(&tile,f,keepdata))
+				if(!p_igetl(&tile,f))
 					return qe_invalid;
 				
-				if(!p_getc(&flip,f,keepdata))
+				if(!p_getc(&flip,f))
 					return qe_invalid;
 				
-				if(!p_getc(&extend,f,keepdata))
+				if(!p_getc(&extend,f))
 					return qe_invalid;
 				
-				if(keepdata)
-				{
-					setSprite(revslashspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
-				}
+				setSprite(revslashspr[q], int32_t(tile), int32_t(flip), int32_t(extend));
 			}
 		}
-		else if (keepdata)
+		else
 		{
 			memset(revslashspr, 0, sizeof(revslashspr));
 		}
@@ -11480,16 +11203,13 @@ int32_t readherosprites3(PACKFILE *f, int32_t v_herosprites, int32_t cv_herospri
 
 			for (int32_t q = 0; q < num_defense; q++)
 			{
-				if (!p_getc(&def, f, keepdata))
+				if (!p_getc(&def, f))
 					return qe_invalid;
 
-				if (keepdata)
-				{
-					hero_defence[q] = def;
-				}
+				hero_defence[q] = def;
 			}
 		}
-		else if (keepdata)
+		else
 		{
 			int32_t num_defense = wMax;
 			for (int32_t q = 0; q < num_defense; q++)
@@ -11499,7 +11219,7 @@ int32_t readherosprites3(PACKFILE *f, int32_t v_herosprites, int32_t cv_herospri
 		}
 	}
 	
-	if(keepdata && FFCore.quest_format[vInitData] < 34)
+	if(FFCore.quest_format[vInitData] < 34)
 	{
 		bool fastswim = zinit.hero_swim_speed > 60;
 		// '2/3' or '1/2'
@@ -11510,7 +11230,7 @@ int32_t readherosprites3(PACKFILE *f, int32_t v_herosprites, int32_t cv_herospri
 }
 
 
-int32_t readherosprites(PACKFILE *f, zquestheader *Header, bool keepdata)
+int32_t readherosprites(PACKFILE *f, zquestheader *Header)
 {
     //these are here to bypass compiler warnings about unused arguments
     Header=Header;
@@ -11519,7 +11239,7 @@ int32_t readherosprites(PACKFILE *f, zquestheader *Header, bool keepdata)
     word s_version=0, s_cversion=0;
     
     //section version info
-    if(!p_igetw(&s_version,f,true))
+    if(!p_igetw(&s_version,f))
     {
         return qe_invalid;
     }
@@ -11527,31 +11247,31 @@ int32_t readherosprites(PACKFILE *f, zquestheader *Header, bool keepdata)
     FFCore.quest_format[vHeroSprites] = s_version;
     
     //al_trace("Player sprites version %d\n", s_version);
-    if(!p_igetw(&s_cversion,f,true))
+    if(!p_igetw(&s_cversion,f))
     {
         return qe_invalid;
     }
     
     //section size
-    if(!p_igetl(&dummy,f,true))
+    if(!p_igetl(&dummy,f))
     {
         return qe_invalid;
     }
     if ( s_version >= 6 ) 
     {
 	    //al_trace("Reading Player Sprites v6\n");
-	    return readherosprites3(f, s_version, dummy, keepdata);
+	    return readherosprites3(f, s_version, dummy);
     }
-    else return readherosprites2(f, s_version, dummy, keepdata);
+    else return readherosprites2(f, s_version, dummy);
 }
 
-int32_t readsubscreens(PACKFILE *f, zquestheader *Header, bool keepdata)
+int32_t readsubscreens(PACKFILE *f, zquestheader *Header)
 {
     int32_t dummy;
     word s_version=0, s_cversion=0;
     
     //section version info
-    if(!p_igetw(&s_version,f,true))
+    if(!p_igetw(&s_version,f))
     {
         return qe_invalid;
     }
@@ -11559,13 +11279,13 @@ int32_t readsubscreens(PACKFILE *f, zquestheader *Header, bool keepdata)
     FFCore.quest_format[vSubscreen] = s_version;
     
     //al_trace("Subscreens version %d\n", s_version);
-    if(!p_igetw(&s_cversion,f,true))
+    if(!p_igetw(&s_cversion,f))
     {
         return qe_invalid;
     }
     
     //section size
-    if(!p_igetl(&dummy,f,true))
+    if(!p_igetl(&dummy,f))
     {
         return qe_invalid;
     }
@@ -11573,7 +11293,7 @@ int32_t readsubscreens(PACKFILE *f, zquestheader *Header, bool keepdata)
     //finally...  section data
     for(int32_t i=0; i<MAXCUSTOMSUBSCREENS; i++)
     {
-        int32_t ret = read_one_subscreen(f, Header, keepdata, i, s_version, s_cversion);
+        int32_t ret = read_one_subscreen(f, Header, i, s_version, s_cversion);
         
         if(ret!=0) return ret;
     }
@@ -11581,7 +11301,7 @@ int32_t readsubscreens(PACKFILE *f, zquestheader *Header, bool keepdata)
     return 0;
 }
 
-int32_t read_one_subscreen(PACKFILE *f, zquestheader *, bool keepdata, int32_t i, word s_version, word)
+int32_t read_one_subscreen(PACKFILE *f, zquestheader *, int32_t i, word s_version, word)
 {
     int32_t numsub=0;
     byte temp_ss=0;
@@ -11594,14 +11314,14 @@ int32_t read_one_subscreen(PACKFILE *f, zquestheader *, bool keepdata, int32_t i
 	#define MAX_DP1_LEN 1024
 	char tempdp1[MAX_DP1_LEN];
     
-    if(!pfread(tempname,64,f,true))
+    if(!pfread(tempname,64,f))
     {
         return qe_invalid;
     }
     
     if(s_version > 1)
     {
-        if(!p_getc(&temp_ss,f,keepdata))
+        if(!p_getc(&temp_ss,f))
         {
             return qe_invalid;
         }
@@ -11611,7 +11331,7 @@ int32_t read_one_subscreen(PACKFILE *f, zquestheader *, bool keepdata, int32_t i
     {
         uint8_t tmp=0;
         
-        if(!p_getc(&tmp,f,true))
+        if(!p_getc(&tmp,f))
         {
             return qe_invalid;
         }
@@ -11622,7 +11342,7 @@ int32_t read_one_subscreen(PACKFILE *f, zquestheader *, bool keepdata, int32_t i
     {
         word tmp;
         
-        if(!p_igetw(&tmp, f, true))
+        if(!p_igetw(&tmp, f))
         {
             return qe_invalid;
         }
@@ -11634,31 +11354,28 @@ int32_t read_one_subscreen(PACKFILE *f, zquestheader *, bool keepdata, int32_t i
     
     for(j=0; (j<MAXSUBSCREENITEMS&&j<numsub); j++)
     {
-        if(keepdata)
-        {
-            memset(temp_sub,0,sizeof(subscreen_object));
-            
-            switch(custom_subscreen[i].objects[j].type)
-            {
-            case ssoTEXT:
-            case ssoTEXTBOX:
-            case ssoCURRENTITEMTEXT:
-            case ssoCURRENTITEMCLASSTEXT:
-                if(custom_subscreen[i].objects[j].dp1 != NULL) delete [](char *)custom_subscreen[i].objects[j].dp1;
-                
-                //fall through
-            default:
-                memset(&custom_subscreen[i].objects[j],0,sizeof(subscreen_object));
-                break;
-            }
-        }
+		memset(temp_sub,0,sizeof(subscreen_object));
+		
+		switch(custom_subscreen[i].objects[j].type)
+		{
+		case ssoTEXT:
+		case ssoTEXTBOX:
+		case ssoCURRENTITEMTEXT:
+		case ssoCURRENTITEMCLASSTEXT:
+			if(custom_subscreen[i].objects[j].dp1 != NULL) delete [](char *)custom_subscreen[i].objects[j].dp1;
+			
+			//fall through
+		default:
+			memset(&custom_subscreen[i].objects[j],0,sizeof(subscreen_object));
+			break;
+		}
         
-        if(!p_getc(&(temp_sub->type),f,true))
+        if(!p_getc(&(temp_sub->type),f))
         {
             return qe_invalid;
         }
         
-        if(!p_getc(&(temp_sub->pos),f,keepdata))
+        if(!p_getc(&(temp_sub->pos),f))
         {
             return qe_invalid;
         }
@@ -11684,136 +11401,136 @@ int32_t read_one_subscreen(PACKFILE *f, zquestheader *, bool keepdata, int32_t i
             }
         }
         
-        if(!p_igetw(&(temp_sub->x),f,keepdata))
+        if(!p_igetw(&(temp_sub->x),f))
         {
             return qe_invalid;
         }
         
-        if(!p_igetw(&(temp_sub->y),f,keepdata))
+        if(!p_igetw(&(temp_sub->y),f))
         {
             return qe_invalid;
         }
         
-        if(!p_igetw(&(temp_sub->w),f,keepdata))
+        if(!p_igetw(&(temp_sub->w),f))
         {
             return qe_invalid;
         }
         
-        if(!p_igetw(&(temp_sub->h),f,keepdata))
+        if(!p_igetw(&(temp_sub->h),f))
         {
             return qe_invalid;
         }
         
-        if(!p_getc(&(temp_sub->colortype1),f,keepdata))
+        if(!p_getc(&(temp_sub->colortype1),f))
         {
             return qe_invalid;
         }
         
-        if(!p_igetw(&(temp_sub->color1),f,keepdata))
+        if(!p_igetw(&(temp_sub->color1),f))
         {
             return qe_invalid;
         }
         
-        if(!p_getc(&(temp_sub->colortype2),f,keepdata))
+        if(!p_getc(&(temp_sub->colortype2),f))
         {
             return qe_invalid;
         }
         
-        if(!p_igetw(&(temp_sub->color2),f,keepdata))
+        if(!p_igetw(&(temp_sub->color2),f))
         {
             return qe_invalid;
         }
         
-        if(!p_getc(&(temp_sub->colortype3),f,keepdata))
+        if(!p_getc(&(temp_sub->colortype3),f))
         {
             return qe_invalid;
         }
         
-        if(!p_igetw(&(temp_sub->color3),f,keepdata))
+        if(!p_igetw(&(temp_sub->color3),f))
         {
             return qe_invalid;
         }
         
-        if(!p_igetd(&(temp_sub->d1),f,keepdata))
+        if(!p_igetd(&(temp_sub->d1),f))
         {
             return qe_invalid;
         }
         
-        if(!p_igetd(&(temp_sub->d2),f,keepdata))
+        if(!p_igetd(&(temp_sub->d2),f))
         {
             return qe_invalid;
         }
         
-        if(!p_igetd(&(temp_sub->d3),f,keepdata))
+        if(!p_igetd(&(temp_sub->d3),f))
         {
             return qe_invalid;
         }
         
-        if(!p_igetd(&(temp_sub->d4),f,keepdata))
+        if(!p_igetd(&(temp_sub->d4),f))
         {
             return qe_invalid;
         }
         
-        if(!p_igetd(&(temp_sub->d5),f,keepdata))
+        if(!p_igetd(&(temp_sub->d5),f))
         {
             return qe_invalid;
         }
         
-        if(!p_igetd(&(temp_sub->d6),f,keepdata))
+        if(!p_igetd(&(temp_sub->d6),f))
         {
             return qe_invalid;
         }
         
-        if(!p_igetd(&(temp_sub->d7),f,keepdata))
+        if(!p_igetd(&(temp_sub->d7),f))
         {
             return qe_invalid;
         }
         
-        if(!p_igetd(&(temp_sub->d8),f,keepdata))
+        if(!p_igetd(&(temp_sub->d8),f))
         {
             return qe_invalid;
         }
         
-        if(!p_igetd(&(temp_sub->d9),f,keepdata))
+        if(!p_igetd(&(temp_sub->d9),f))
         {
             return qe_invalid;
         }
         
-        if(!p_igetd(&(temp_sub->d10),f,keepdata))
+        if(!p_igetd(&(temp_sub->d10),f))
         {
             return qe_invalid;
         }
         
         if(s_version < 2)
         {
-            if(!p_igetl(&(temp_sub->speed),f,keepdata))
+            if(!p_igetl(&(temp_sub->speed),f))
             {
                 return qe_invalid;
             }
             
-            if(!p_igetl(&(temp_sub->delay),f,keepdata))
+            if(!p_igetl(&(temp_sub->delay),f))
             {
                 return qe_invalid;
             }
             
-            if(!p_igetl(&(temp_sub->frame),f,keepdata))
+            if(!p_igetl(&(temp_sub->frame),f))
             {
                 return qe_invalid;
             }
         }
         else
         {
-            if(!p_getc(&(temp_sub->speed),f,keepdata))
+            if(!p_getc(&(temp_sub->speed),f))
             {
                 return qe_invalid;
             }
             
-            if(!p_getc(&(temp_sub->delay),f,keepdata))
+            if(!p_getc(&(temp_sub->delay),f))
             {
                 return qe_invalid;
             }
             
-            if(!p_igetw(&(temp_sub->frame),f,keepdata))
+            if(!p_igetw(&(temp_sub->frame),f))
             {
                 return qe_invalid;
             }
@@ -11828,56 +11545,40 @@ int32_t read_one_subscreen(PACKFILE *f, zquestheader *, bool keepdata, int32_t i
         case ssoTEXTBOX:
         case ssoCURRENTITEMTEXT:
         case ssoCURRENTITEMCLASSTEXT:
+		{
             word temptempsize;
-            /*uint8_t temp1;
-            uint8_t temp2;
-            temp2 = 0;
-            if(!p_getc(&temp1,f,true))
-                {
-                  return qe_invalid;
-                }
-            if(temp1)
-            {
             
-            if(!p_getc(&temp2,f,true))
-                {
-                  return qe_invalid;
-                }
-            }*/
-            
-            if(!p_igetw(&temptempsize,f,true))
+            if(!p_igetw(&temptempsize,f))
             {
                 return qe_invalid;
             }
             
             //temptempsize = temp1 + (temp2 << 8);
             temp_size = (int32_t)temptempsize;
-            
-            if(keepdata)
-            {
-                uint32_t char_length = temp_size+2;
-                if (char_length > MAX_DP1_LEN)
-                {
-                    return qe_invalid;
-                }
-                tempdp1[char_length - 1] = '\0';
-            }
-            
-            if(temp_size)
-            {
-                if(!pfread(tempdp1,temp_size+1,f,keepdata))
-                {
-                    return qe_invalid;
-                }
-            }
-            
-            break;
+
+		
+			uint32_t char_length = temp_size+2;
+			if (char_length > MAX_DP1_LEN)
+			{
+				return qe_invalid;
+			}
+			tempdp1[char_length - 1] = '\0';
+			
+			if(temp_size)
+			{
+				if(!pfread(tempdp1,temp_size+1,f))
+				{
+					return qe_invalid;
+				}
+			}
+		}
+        break;
             
         case ssoLIFEMETER:
             if(get_bit(deprecated_rules, 12) != 0) // qr_24HC
                 temp_sub->d3 = 1;
                 
-            if(!p_getc(&(temp_sub->dp1),f,keepdata))
+            if(!p_getc(&(temp_sub->dp1),f))
             {
                 return qe_invalid;
             }
@@ -12118,7 +11819,7 @@ int32_t read_one_subscreen(PACKFILE *f, zquestheader *, bool keepdata, int32_t i
             
             //fall-through
         default:
-            if(!p_getc(&(temp_sub->dp1),f,keepdata))
+            if(!p_getc(&(temp_sub->dp1),f))
             {
                 return qe_invalid;
             }
@@ -12142,59 +11843,53 @@ int32_t read_one_subscreen(PACKFILE *f, zquestheader *, bool keepdata, int32_t i
 			}
 		}
 		
-        if(keepdata)
-        {
-            switch(temp_sub->type)
-            {
-            case ssoTEXT:
-            case ssoTEXTBOX:
-            case ssoCURRENTITEMTEXT:
-            case ssoCURRENTITEMCLASSTEXT:
-                if(custom_subscreen[i].objects[j].dp1 != NULL) delete[](char *)custom_subscreen[i].objects[j].dp1;
-                
-                memcpy(&custom_subscreen[i].objects[j],temp_sub,sizeof(subscreen_object));
-                custom_subscreen[i].objects[j].dp1 = NULL;
-                custom_subscreen[i].objects[j].dp1 = new char[temp_size+2];
-                strcpy((char*)custom_subscreen[i].objects[j].dp1,tempdp1);
-                break;
-                
-            case ssoCOUNTER:
-                if(s_version<3)
-                {
-                    temp_sub->d6=(temp_sub->d6?1:0)+(temp_sub->d8?2:0);
-                    temp_sub->d8=0;
-                }
-                
-            default:
-                memcpy(&custom_subscreen[i].objects[j],temp_sub,sizeof(subscreen_object));
-                break;
-            }
-            
-            custom_subscreen[i].name[0] = '\0';
-            strncat(custom_subscreen[i].name, tempname, 64 - 1);
-            custom_subscreen[i].ss_type = temp_ss;
-        }
+		switch(temp_sub->type)
+		{
+		case ssoTEXT:
+		case ssoTEXTBOX:
+		case ssoCURRENTITEMTEXT:
+		case ssoCURRENTITEMCLASSTEXT:
+			if(custom_subscreen[i].objects[j].dp1 != NULL) delete[](char *)custom_subscreen[i].objects[j].dp1;
+			
+			memcpy(&custom_subscreen[i].objects[j],temp_sub,sizeof(subscreen_object));
+			custom_subscreen[i].objects[j].dp1 = NULL;
+			custom_subscreen[i].objects[j].dp1 = new char[temp_size+2];
+			strcpy((char*)custom_subscreen[i].objects[j].dp1,tempdp1);
+			break;
+			
+		case ssoCOUNTER:
+			if(s_version<3)
+			{
+				temp_sub->d6=(temp_sub->d6?1:0)+(temp_sub->d8?2:0);
+				temp_sub->d8=0;
+			}
+			
+		default:
+			memcpy(&custom_subscreen[i].objects[j],temp_sub,sizeof(subscreen_object));
+			break;
+		}
+		
+		custom_subscreen[i].name[0] = '\0';
+		strncat(custom_subscreen[i].name, tempname, 64 - 1);
+		custom_subscreen[i].ss_type = temp_ss;
     }
     
     for(j=numsub; j<MAXSUBSCREENITEMS; j++)
     {
-        if(keepdata)
-        {
-            //clear all unused object in this subscreen -DD
-            switch(custom_subscreen[i].objects[j].type)
-            {
-            case ssoTEXT:
-            case ssoTEXTBOX:
-            case ssoCURRENTITEMTEXT:
-            case ssoCURRENTITEMCLASSTEXT:
-                if(custom_subscreen[i].objects[j].dp1 != NULL) delete [](char *)custom_subscreen[i].objects[j].dp1;
-                
-                //fall through
-            default:
-                memset(&custom_subscreen[i].objects[j],0,sizeof(subscreen_object));
-                break;
-            }
-        }
+		//clear all unused object in this subscreen -DD
+		switch(custom_subscreen[i].objects[j].type)
+		{
+		case ssoTEXT:
+		case ssoTEXTBOX:
+		case ssoCURRENTITEMTEXT:
+		case ssoCURRENTITEMCLASSTEXT:
+			if(custom_subscreen[i].objects[j].dp1 != NULL) delete [](char *)custom_subscreen[i].objects[j].dp1;
+			
+			//fall through
+		default:
+			memset(&custom_subscreen[i].objects[j],0,sizeof(subscreen_object));
+			break;
+		}
     }
     
     return 0;
@@ -12615,7 +12310,7 @@ extern script_data *comboscripts[NUMSCRIPTSCOMBODATA];
 
 
 
-int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
+int32_t readffscript(PACKFILE *f, zquestheader *Header)
 {
 	int32_t dummy;
 	word s_version=0, s_cversion=0, zmeta_version=0;
@@ -12624,21 +12319,21 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 	int32_t ret;
 	
 	//section version info
-	if(!p_igetw(&s_version,f,true))
+	if(!p_igetw(&s_version,f))
 	{
 		return qe_invalid;
 	}
 	
 	FFCore.quest_format[vFFScript] = s_version;
 	
-	if(!p_igetw(&s_cversion,f,true))
+	if(!p_igetw(&s_cversion,f))
 	{
 		return qe_invalid;
 	}
 	
 	if(s_version >= 18)
 	{
-		if(!p_igetw(&zmeta_version,f,true))
+		if(!p_igetw(&zmeta_version,f))
 		{
 			return qe_invalid;
 		}
@@ -12646,7 +12341,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 	
 	//al_trace("Scripts version %d\n", s_version);
 	//section size
-	if(!p_igetl(&dummy,f,true))
+	if(!p_igetl(&dummy,f))
 	{
 		return qe_invalid;
 	}
@@ -12661,7 +12356,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 	//finally...  section data
 	for(int32_t i = 0; i < ((s_version < 2) ? NUMSCRIPTFFCOLD : NUMSCRIPTFFC); i++)
 	{
-		ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &ffscripts[i], zmeta_version);
+		ret = read_one_ffscript(f, Header, i, s_version, s_cversion, &ffscripts[i], zmeta_version);
 		
 		if (ret)
 		{
@@ -12674,11 +12369,11 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 	* Zoria didn't bump up the versions as liberally as he should have, but thankfully
 	* there was a version bump a week before a change that broke stuff.
 	*/
-	if(((Header->zelda_version < 0x253)||((Header->zelda_version == 0x253)&&(Header->build<33))||((Header->zelda_version > 0x253) && s_version < 12)) && keepdata)
+	if(((Header->zelda_version < 0x253)||((Header->zelda_version == 0x253)&&(Header->build<33))||((Header->zelda_version > 0x253) && s_version < 12)))
 	{
 		set_qr(qr_SPRITE_JUMP_IS_TRUNCATED,1);
 	}
-	if(s_version < 19 && keepdata)
+	if(s_version < 19)
 	{
 		set_qr(qr_FLUCTUATING_ENEMY_JUMP,1);
 	}
@@ -12687,7 +12382,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 	{
 		for(int32_t i = 0; i < NUMSCRIPTITEM; i++)
 		{
-			ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &itemscripts[i], zmeta_version);
+			ret = read_one_ffscript(f, Header, i, s_version, s_cversion, &itemscripts[i], zmeta_version);
 			
 			if (ret)
 			{
@@ -12697,7 +12392,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 		
 		for(int32_t i = 0; i < NUMSCRIPTGUYS; i++)
 		{
-			ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &guyscripts[i], zmeta_version);
+			ret = read_one_ffscript(f, Header, i, s_version, s_cversion, &guyscripts[i], zmeta_version);
 			
 			if (ret)
 			{
@@ -12707,7 +12402,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 		
 		for(int32_t i = 0; i < NUMSCRIPTWEAPONS; i++)
 		{
-			ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &wpnscripts[i], zmeta_version);
+			ret = read_one_ffscript(f, Header, i, s_version, s_cversion, &wpnscripts[i], zmeta_version);
 			
 			if (ret)
 			{
@@ -12718,7 +12413,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 	
 		for(int32_t i = 0; i < NUMSCRIPTSCREEN; i++)
 		{
-			ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &screenscripts[i], zmeta_version);
+			ret = read_one_ffscript(f, Header, i, s_version, s_cversion, &screenscripts[i], zmeta_version);
 			
 			if (ret)
 			{
@@ -12730,7 +12425,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 		{
 			for(int32_t i = 0; i < NUMSCRIPTGLOBAL; ++i)
 			{
-				ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &globalscripts[i], zmeta_version);
+				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, &globalscripts[i], zmeta_version);
 				
 				if (ret)
 				{
@@ -12742,7 +12437,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 		{
 			for(int32_t i = 0; i < NUMSCRIPTGLOBAL255OLD; ++i)
 			{
-				ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &globalscripts[i], zmeta_version);
+				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, &globalscripts[i], zmeta_version);
 				
 				if (ret)
 				{
@@ -12759,7 +12454,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 		{
 			for(int32_t i = 0; i < NUMSCRIPTGLOBAL253; ++i)
 			{
-				ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &globalscripts[i], zmeta_version);
+				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, &globalscripts[i], zmeta_version);
 				
 				if (ret)
 				{
@@ -12791,7 +12486,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 		{
 			for(int32_t i = 0; i < NUMSCRIPTGLOBALOLD; i++)
 			{
-				ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &globalscripts[i], zmeta_version);
+				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, &globalscripts[i], zmeta_version);
 				
 				if (ret)
 				{
@@ -12829,7 +12524,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 		{
 			for(int32_t i = 0; i < NUMSCRIPTPLAYER; i++)
 			{
-				ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &playerscripts[i], zmeta_version);
+				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, &playerscripts[i], zmeta_version);
 				
 				if (ret)
 				{
@@ -12841,7 +12536,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 		{
 			for(int32_t i = 0; i < NUMSCRIPTHEROOLD; i++)
 			{
-				ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &playerscripts[i], zmeta_version);
+				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, &playerscripts[i], zmeta_version);
 				
 				if (ret)
 				{
@@ -12863,7 +12558,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 			
 			for(int32_t i = 0; i < NUMSCRIPTWEAPONS; i++)
 			{
-				ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &ewpnscripts[i], zmeta_version);
+				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, &ewpnscripts[i], zmeta_version);
 				
 				if (ret)
 				{
@@ -12872,7 +12567,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 			}
 			for(int32_t i = 0; i < NUMSCRIPTSDMAP; i++)
 			{
-				ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &dmapscripts[i], zmeta_version);
+				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, &dmapscripts[i], zmeta_version);
 			
 				if (ret)
 				{
@@ -12885,7 +12580,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 		{
 			for(int32_t i = 0; i < NUMSCRIPTWEAPONS; i++)
 			{
-				ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &lwpnscripts[i], zmeta_version);
+				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, &lwpnscripts[i], zmeta_version);
 				
 				if (ret)
 				{
@@ -12894,7 +12589,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 			}
 			for(int32_t i = 0; i < NUMSCRIPTWEAPONS; i++)
 			{
-				ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &ewpnscripts[i], zmeta_version);
+				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, &ewpnscripts[i], zmeta_version);
 				
 				if (ret)
 				{
@@ -12903,7 +12598,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 			}
 			for(int32_t i = 0; i < NUMSCRIPTSDMAP; i++)
 			{
-				ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &dmapscripts[i], zmeta_version);
+				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, &dmapscripts[i], zmeta_version);
 			
 				if (ret)
 				{
@@ -12916,7 +12611,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 		{
 			for(int32_t i = 0; i < NUMSCRIPTSITEMSPRITE; i++)
 			{
-				ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &itemspritescripts[i], zmeta_version);
+				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, &itemspritescripts[i], zmeta_version);
 					
 				if (ret)
 				{
@@ -12928,7 +12623,7 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 		{
 			for(int32_t i = 0; i < NUMSCRIPTSCOMBODATA; i++)
 			{
-				ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &comboscripts[i], zmeta_version);
+				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, &comboscripts[i], zmeta_version);
 					
 				if (ret)
 				{
@@ -12939,13 +12634,13 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 		if(s_version >19)
 		{
 			word numgenscripts = NUMSCRIPTSGENERIC;
-			if(!p_igetw(&numgenscripts,f,true))
+			if(!p_igetw(&numgenscripts,f))
 			{
 				return qe_invalid;
 			}
 			for(int32_t i = 0; i < numgenscripts; i++)
 			{
-				ret = read_one_ffscript(f, Header, keepdata, i, s_version, s_cversion, &genericscripts[i], zmeta_version);
+				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, &genericscripts[i], zmeta_version);
 					
 				if (ret)
 				{
@@ -12974,59 +12669,58 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 	if(s_version > 2)
 	{
 		int32_t bufsize;
-		p_igetl(&bufsize, f, true);
+		p_igetl(&bufsize, f);
 		if (bufsize < 0 || bufsize > 1024*1024*10)
 		{
 			// God help anyone storing more than 10MB of code in the script buffer.
 			return qe_invalid;
 		}
 		char * buf = new char[bufsize+1];
-		pfread(buf, bufsize, f, true);
+		pfread(buf, bufsize, f);
 		buf[bufsize]=0;
 		
-		if(keepdata)
-			zScript = string(buf);
+		zScript = string(buf);
 			
 		delete[] buf;
 		word numffcbindings;
-		p_igetw(&numffcbindings, f, true);
+		p_igetw(&numffcbindings, f);
 		
 		for(int32_t i=0; i<numffcbindings; i++)
 		{
 			word id;
-			p_igetw(&id, f, true);
-			p_igetl(&bufsize, f, true);
+			p_igetw(&id, f);
+			p_igetl(&bufsize, f);
 			if (bufsize < 0 || bufsize > 1024)
 				return qe_invalid;
 			buf = new char[bufsize+1];
-			pfread(buf, bufsize, f, true);
+			pfread(buf, bufsize, f);
 			buf[bufsize]=0;
 			
 			//fix for buggy older saved quests -DD
-			if(keepdata && id < NUMSCRIPTFFC-1)
+			if(id < NUMSCRIPTFFC-1)
 				ffcmap[id].scriptname = buf;
 				
 			delete[] buf;
 		}
 		
 		word numglobalbindings;
-		p_igetw(&numglobalbindings, f, true);
+		p_igetw(&numglobalbindings, f);
 		
 		for(int32_t i=0; i<numglobalbindings; i++)
 		{
 			word id;
-			p_igetw(&id, f, true);
-			p_igetl(&bufsize, f, true);
+			p_igetw(&id, f);
+			p_igetl(&bufsize, f);
 			if (bufsize < 0 || bufsize > 1024)
 				return qe_invalid;
 			buf = new char[bufsize+1];
-			pfread(buf, bufsize, f, true);
+			pfread(buf, bufsize, f);
 			buf[bufsize]=0;
 			
 			// id in principle should be valid, since slot assignment cannot assign a global script to a bogus slot.
 			// However, because of a corruption bug, some 2.50.x quests contain bogus entries in the global bindings table.
 			// Ignore these. -DD
-			if(keepdata && id >= 0 && id < NUMSCRIPTGLOBAL)
+			if(id >= 0 && id < NUMSCRIPTGLOBAL)
 			{
 				//Disable old '~Continue's, they'd wreak havoc. Bit messy, apologies ~Joe
 				if(strcmp(buf,"~Continue") == 0)
@@ -13048,21 +12742,21 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 		if(s_version > 3)
 		{
 			word numitembindings;
-			p_igetw(&numitembindings, f, true);
+			p_igetw(&numitembindings, f);
 			
 			for(int32_t i=0; i<numitembindings; i++)
 			{
 				word id;
-				p_igetw(&id, f, true);
-				p_igetl(&bufsize, f, true);
+				p_igetw(&id, f);
+				p_igetl(&bufsize, f);
 				if (bufsize < 0 || bufsize > 1024)
 					return qe_invalid;
 				buf = new char[bufsize+1];
-				pfread(buf, bufsize, f, true);
+				pfread(buf, bufsize, f);
 				buf[bufsize]=0;
 				
 				//fix this too
-				if(keepdata && id <NUMSCRIPTITEM-1)
+				if(id <NUMSCRIPTITEM-1)
 					itemmap[id].scriptname = buf;
 					
 				delete[] buf;
@@ -13073,126 +12767,126 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 		{
 			//npc scripts
 			word numnpcbindings;
-			p_igetw(&numnpcbindings, f, true);
+			p_igetw(&numnpcbindings, f);
 			
 			for(int32_t i=0; i<numnpcbindings; i++)
 			{
 				word id;
-				p_igetw(&id, f, true);
-				p_igetl(&bufsize, f, true);
+				p_igetw(&id, f);
+				p_igetl(&bufsize, f);
 				if (bufsize < 0 || bufsize > 1024)
 					return qe_invalid;
 				buf = new char[bufsize+1];
-				pfread(buf, bufsize, f, true);
+				pfread(buf, bufsize, f);
 				buf[bufsize]=0;
 				
 				//fix this too
-				if(keepdata && id <NUMSCRIPTGUYS-1)
+				if(id <NUMSCRIPTGUYS-1)
 					npcmap[id].scriptname = buf;
 					
 				delete[] buf;
 			}
 			//lweapon
 			word numlwpnbindings;
-			p_igetw(&numlwpnbindings, f, true);
+			p_igetw(&numlwpnbindings, f);
 			
 			for(int32_t i=0; i<numlwpnbindings; i++)
 			{
 				word id;
-				p_igetw(&id, f, true);
-				p_igetl(&bufsize, f, true);
+				p_igetw(&id, f);
+				p_igetl(&bufsize, f);
 				if (bufsize < 0 || bufsize > 1024)
 					return qe_invalid;
 				buf = new char[bufsize+1];
-				pfread(buf, bufsize, f, true);
+				pfread(buf, bufsize, f);
 				buf[bufsize]=0;
 				
 				//fix this too
-				if(keepdata && id <NUMSCRIPTWEAPONS-1)
+				if(id <NUMSCRIPTWEAPONS-1)
 					lwpnmap[id].scriptname = buf;
 					
 				delete[] buf;
 			}
 			//eweapon
 			word numewpnbindings;
-			p_igetw(&numewpnbindings, f, true);
+			p_igetw(&numewpnbindings, f);
 			
 			for(int32_t i=0; i<numewpnbindings; i++)
 			{
 				word id;
-				p_igetw(&id, f, true);
-				p_igetl(&bufsize, f, true);
+				p_igetw(&id, f);
+				p_igetl(&bufsize, f);
 				if (bufsize < 0 || bufsize > 1024)
 					return qe_invalid;
 				buf = new char[bufsize+1];
-				pfread(buf, bufsize, f, true);
+				pfread(buf, bufsize, f);
 				buf[bufsize]=0;
 				
 				//fix this too
-				if(keepdata && id <NUMSCRIPTWEAPONS-1)
+				if(id <NUMSCRIPTWEAPONS-1)
 					ewpnmap[id].scriptname = buf;
 					
 				delete[] buf;
 			}
 			//hero
 			word numherobindings;
-			p_igetw(&numherobindings, f, true);
+			p_igetw(&numherobindings, f);
 			
 			for(int32_t i=0; i<numherobindings; i++)
 			{
 				word id;
-				p_igetw(&id, f, true);
-				p_igetl(&bufsize, f, true);
+				p_igetw(&id, f);
+				p_igetl(&bufsize, f);
 				if (bufsize < 0 || bufsize > 1024)
 					return qe_invalid;
 				buf = new char[bufsize+1];
-				pfread(buf, bufsize, f, true);
+				pfread(buf, bufsize, f);
 				buf[bufsize]=0;
 				
 				//fix this too
-				if(keepdata && id <NUMSCRIPTPLAYER-1)
+				if(id <NUMSCRIPTPLAYER-1)
 					playermap[id].scriptname = buf;
 					
 				delete[] buf;
 			}
 			//dmaps
 			word numdmapbindings;
-			p_igetw(&numdmapbindings, f, true);
+			p_igetw(&numdmapbindings, f);
 			
 			for(int32_t i=0; i<numdmapbindings; i++)
 			{
 				word id;
-				p_igetw(&id, f, true);
-				p_igetl(&bufsize, f, true);
+				p_igetw(&id, f);
+				p_igetl(&bufsize, f);
 				if (bufsize < 0 || bufsize > 1024)
 					return qe_invalid;
 				buf = new char[bufsize+1];
-				pfread(buf, bufsize, f, true);
+				pfread(buf, bufsize, f);
 				buf[bufsize]=0;
 				
 				//fix this too
-				if(keepdata && id <NUMSCRIPTSDMAP-1)
+				if(id <NUMSCRIPTSDMAP-1)
 					dmapmap[id].scriptname = buf;
 					
 				delete[] buf;
 			}
 			//screen
 			word numscreenbindings;
-			p_igetw(&numscreenbindings, f, true);
+			p_igetw(&numscreenbindings, f);
 			
 			for(int32_t i=0; i<numscreenbindings; i++)
 			{
 				word id;
-				p_igetw(&id, f, true);
-				p_igetl(&bufsize, f, true);
+				p_igetw(&id, f);
+				p_igetl(&bufsize, f);
 				if (bufsize < 0 || bufsize > 1024)
 					return qe_invalid;
 				buf = new char[bufsize+1];
-				pfread(buf, bufsize, f, true);
+				pfread(buf, bufsize, f);
 				buf[bufsize]=0;
 				
 				//fix this too
-				if(keepdata && id <NUMSCRIPTSDMAP-1)
+				if(id <NUMSCRIPTSDMAP-1)
 					screenmap[id].scriptname = buf;
 					
 				delete[] buf;
@@ -13201,21 +12895,21 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 		if(s_version > 11)
 		{
 			word numspritebindings;
-			p_igetw(&numspritebindings, f, true);
+			p_igetw(&numspritebindings, f);
 			
 			for(int32_t i=0; i<numspritebindings; i++)
 			{
 				word id;
-				p_igetw(&id, f, true);
-				p_igetl(&bufsize, f, true);
+				p_igetw(&id, f);
+				p_igetl(&bufsize, f);
 				if (bufsize < 0 || bufsize > 1024)
 					return qe_invalid;
 				buf = new char[bufsize+1];
-				pfread(buf, bufsize, f, true);
+				pfread(buf, bufsize, f);
 				buf[bufsize]=0;
 				
 				//fix this too
-				if(keepdata && id <NUMSCRIPTSDMAP-1)
+				if(id <NUMSCRIPTSDMAP-1)
 					itemspritemap[id].scriptname = buf;
 					
 				delete[] buf;
@@ -13224,21 +12918,21 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 		if(s_version >= 15)
 		{
 			word numcombobindings;
-			p_igetw(&numcombobindings, f, true);
+			p_igetw(&numcombobindings, f);
 			
 			for(int32_t i=0; i<numcombobindings; i++)
 			{
 				word id;
-				p_igetw(&id, f, true);
-				p_igetl(&bufsize, f, true);
+				p_igetw(&id, f);
+				p_igetl(&bufsize, f);
 				if (bufsize < 0 || bufsize > 1024)
 					return qe_invalid;
 				buf = new char[bufsize+1];
-				pfread(buf, bufsize, f, true);
+				pfread(buf, bufsize, f);
 				buf[bufsize]=0;
 				
 				//fix this too
-				if(keepdata && id <NUMSCRIPTSCOMBODATA-1)
+				if(id <NUMSCRIPTSCOMBODATA-1)
 					comboscriptmap[id].scriptname = buf;
 					
 				delete[] buf;
@@ -13247,21 +12941,21 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata)
 		if(s_version > 19)
 		{
 			word numgenericbindings;
-			p_igetw(&numgenericbindings, f, true);
+			p_igetw(&numgenericbindings, f);
 			
 			for(int32_t i=0; i<numgenericbindings; i++)
 			{
 				word id;
-				p_igetw(&id, f, true);
-				p_igetl(&bufsize, f, true);
+				p_igetw(&id, f);
+				p_igetl(&bufsize, f);
 				if (bufsize < 0 || bufsize > 1024)
 					return qe_invalid;
 				buf = new char[bufsize+1];
-				pfread(buf, bufsize, f, true);
+				pfread(buf, bufsize, f);
 				buf[bufsize]=0;
 				
 				//fix this too
-				if(keepdata && id <NUMSCRIPTSGENERIC-1)
+				if(id <NUMSCRIPTSGENERIC-1)
 					genericmap[id].scriptname = buf;
 					
 				delete[] buf;
@@ -13434,7 +13128,7 @@ void reset_scripts()
 }
 
 extern script_command command_list[];
-int32_t read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int32_t script_index, word s_version, word , script_data **script, word zmeta_version)
+int32_t read_one_ffscript(PACKFILE *f, zquestheader *, int32_t script_index, word s_version, word , script_data **script, word zmeta_version)
 {
 	//Please also update loadquest() when modifying this method -DD
 	char b33[34] = {0};
@@ -13444,7 +13138,7 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int32_t sc
 	
 	if(s_version>=2)
 	{
-		if(!p_igetl(&num_commands,f,true))
+		if(!p_igetl(&num_commands,f))
 		{
 			return qe_invalid;
 		}
@@ -13460,32 +13154,30 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int32_t sc
 		return qe_invalid;
 	}
 	
-	if(keepdata)
-	{
-		if((*script) != NULL) //Surely we want to do this regardless of keepdata? //No, we don't -V
-			delete (*script);
-		(*script) = new script_data(num_commands);
-	}
+	if((*script) != NULL)
+		delete (*script);
+	(*script) = new script_data(num_commands);
+
 	if(s_version >= 16)
 	{
 		zasm_meta temp_meta;
 		
-		if(!p_igetw(&(temp_meta.zasm_v),f,true))
+		if(!p_igetw(&(temp_meta.zasm_v),f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_igetw(&(temp_meta.meta_v),f,true))
+		if(!p_igetw(&(temp_meta.meta_v),f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_igetw(&(temp_meta.ffscript_v),f,true))
+		if(!p_igetw(&(temp_meta.ffscript_v),f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_getc(&(temp_meta.script_type),f,true))
+		if(!p_getc(&(temp_meta.script_type),f))
 		{
 			return qe_invalid;
 		}
@@ -13496,7 +13188,7 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int32_t sc
 			{
 				for(int32_t c = 0; c < 33; ++c)
 				{
-					if(!p_getc(&(b33[c]),f,true))
+					if(!p_getc(&(b33[c]),f))
 					{
 						return qe_invalid;
 					}
@@ -13505,7 +13197,7 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int32_t sc
 			}
 			else
 			{
-				if(!p_getcstr(&temp_meta.run_idens[q],f,true))
+				if(!p_getcstr(&temp_meta.run_idens[q],f))
 				{
 					return qe_invalid;
 				}
@@ -13514,33 +13206,33 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int32_t sc
 		
 		for(int32_t q = 0; q < 8; ++q)
 		{
-			if(!p_getc(&(temp_meta.run_types[q]),f,true))
+			if(!p_getc(&(temp_meta.run_types[q]),f))
 			{
 				return qe_invalid;
 			}
 		}
 		
-		if(!p_getc(&(temp_meta.flags),f,true))
+		if(!p_getc(&(temp_meta.flags),f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_igetw(&(temp_meta.compiler_v1),f,true))
+		if(!p_igetw(&(temp_meta.compiler_v1),f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_igetw(&(temp_meta.compiler_v2),f,true))
+		if(!p_igetw(&(temp_meta.compiler_v2),f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_igetw(&(temp_meta.compiler_v3),f,true))
+		if(!p_igetw(&(temp_meta.compiler_v3),f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_igetw(&(temp_meta.compiler_v4),f,true))
+		if(!p_igetw(&(temp_meta.compiler_v4),f))
 		{
 			return qe_invalid;
 		}
@@ -13549,7 +13241,7 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int32_t sc
 		{
 			for(int32_t c = 0; c < 33; ++c)
 			{
-				if(!p_getc(&b33[c],f,true))
+				if(!p_getc(&b33[c],f))
 				{
 					return qe_invalid;
 				}
@@ -13558,7 +13250,7 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int32_t sc
 			
 			for(int32_t c = 0; c < 33; ++c)
 			{
-				if(!p_getc(&b33[c],f,true))
+				if(!p_getc(&b33[c],f))
 				{
 					return qe_invalid;
 				}
@@ -13567,37 +13259,37 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int32_t sc
 		}
 		else if(zmeta_version > 2)
 		{
-			if(!p_getcstr(&temp_meta.script_name,f,true))
+			if(!p_getcstr(&temp_meta.script_name,f))
 				return qe_invalid;
-			if(!p_getcstr(&temp_meta.author,f,true))
+			if(!p_getcstr(&temp_meta.author,f))
 				return qe_invalid;
 			auto num_meta_attrib = (zmeta_version < 5 ? 4 : 10);
 			for(auto q = 0; q < num_meta_attrib; ++q)
 			{
-				if(!p_getcstr(&temp_meta.attributes[q],f,true))
+				if(!p_getcstr(&temp_meta.attributes[q],f))
 					return qe_invalid;
-				if(!p_getwstr(&temp_meta.attributes_help[q],f,true))
-					return qe_invalid;
-			}
-			for(auto q = 0; q < 8; ++q)
-			{
-				if(!p_getcstr(&temp_meta.attribytes[q],f,true))
-					return qe_invalid;
-				if(!p_getwstr(&temp_meta.attribytes_help[q],f,true))
+				if(!p_getwstr(&temp_meta.attributes_help[q],f))
 					return qe_invalid;
 			}
 			for(auto q = 0; q < 8; ++q)
 			{
-				if(!p_getcstr(&temp_meta.attrishorts[q],f,true))
+				if(!p_getcstr(&temp_meta.attribytes[q],f))
 					return qe_invalid;
-				if(!p_getwstr(&temp_meta.attrishorts_help[q],f,true))
+				if(!p_getwstr(&temp_meta.attribytes_help[q],f))
+					return qe_invalid;
+			}
+			for(auto q = 0; q < 8; ++q)
+			{
+				if(!p_getcstr(&temp_meta.attrishorts[q],f))
+					return qe_invalid;
+				if(!p_getwstr(&temp_meta.attrishorts_help[q],f))
 					return qe_invalid;
 			}
 			for(auto q = 0; q < 16; ++q)
 			{
-				if(!p_getcstr(&temp_meta.usrflags[q],f,true))
+				if(!p_getcstr(&temp_meta.usrflags[q],f))
 					return qe_invalid;
-				if(!p_getwstr(&temp_meta.usrflags_help[q],f,true))
+				if(!p_getwstr(&temp_meta.usrflags_help[q],f))
 					return qe_invalid;
 			}
 		}
@@ -13605,14 +13297,14 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int32_t sc
 		{
 			for(auto q = 0; q < 8; ++q)
 			{
-				if(!p_getcstr(&temp_meta.initd[q],f,true))
+				if(!p_getcstr(&temp_meta.initd[q],f))
 					return qe_invalid;
-				if(!p_getwstr(&temp_meta.initd_help[q],f,true))
+				if(!p_getwstr(&temp_meta.initd_help[q],f))
 					return qe_invalid;
 			}
 			for(auto q = 0; q < 8; ++q)
 			{
-				if(!p_getc(&temp_meta.initd_type[q],f,true))
+				if(!p_getc(&temp_meta.initd_type[q],f))
 					return qe_invalid;
 			}
 		}
@@ -13624,32 +13316,30 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int32_t sc
 			}
 		}
 		
-		if(keepdata)
-			(*script)->meta = temp_meta;
+		(*script)->meta = temp_meta;
 	}
 	
 	temp_script.clear();
 	for(int32_t j=0; j<num_commands; j++)
 	{
-		if(!p_igetw(&(temp_script.command),f,true))
+		if(!p_igetw(&(temp_script.command),f))
 		{
 			return qe_invalid;
 		}
 		
 		if(temp_script.command == 0xFFFF)
 		{
-			if(keepdata)
-				(*script)->zasm[j].clear();
+			(*script)->zasm[j].clear();
 			break;
 		}
 		else
 		{
-			if(!p_igetl(&(temp_script.arg1),f,keepdata))
+			if(!p_igetl(&(temp_script.arg1),f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_igetl(&(temp_script.arg2),f,keepdata))
+			if(!p_igetl(&(temp_script.arg2),f))
 			{
 				return qe_invalid;
 			}
@@ -13657,7 +13347,7 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int32_t sc
 			if(s_version >= 21)
 			{
 				uint32_t sz = 0;
-				if(!p_igetl(&sz,f,true))
+				if(!p_igetl(&sz,f))
 				{
 					return qe_invalid;
 				}
@@ -13667,14 +13357,14 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int32_t sc
 					char dummy;
 					for(size_t q = 0; q < sz; ++q)
 					{
-						if(!p_getc(&dummy,f,keepdata))
+						if(!p_getc(&dummy,f))
 						{
 							return qe_invalid;
 						}
 						temp_script.strptr->push_back(dummy);
 					}
 				}
-				if(!p_igetl(&sz,f,true))
+				if(!p_igetl(&sz,f))
 				{
 					return qe_invalid;
 				}
@@ -13684,7 +13374,7 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int32_t sc
 					int32_t dummy;
 					for(size_t q = 0; q < sz; ++q)
 					{
-						if(!p_igetl(&dummy,f,keepdata))
+						if(!p_igetl(&dummy,f))
 						{
 							return qe_invalid;
 						}
@@ -13693,10 +13383,7 @@ int32_t read_one_ffscript(PACKFILE *f, zquestheader *, bool keepdata, int32_t sc
 				}
 			}
 			
-			if(keepdata)
-			{
-				temp_script.give((*script)->zasm[j]);
-			}
+			temp_script.give((*script)->zasm[j]);
 		}
 		temp_script.clear();
 	}
@@ -13725,7 +13412,7 @@ const char *old_sfx_string[Z35] =
 };
 char *sfx_string[WAV_COUNT];
 
-int32_t readsfx(PACKFILE *f, zquestheader *Header, bool keepdata)
+int32_t readsfx(PACKFILE *f, zquestheader *Header)
 {
 	//these are here to bypass compiler warnings about unused arguments
 	Header=Header;
@@ -13739,7 +13426,7 @@ int32_t readsfx(PACKFILE *f, zquestheader *Header, bool keepdata)
 	temp_sample.param=0;
 	
 	//section version info
-	if(!p_igetw(&s_version,f,true))
+	if(!p_igetw(&s_version,f))
 	{
 		return qe_invalid;
 	}
@@ -13747,13 +13434,13 @@ int32_t readsfx(PACKFILE *f, zquestheader *Header, bool keepdata)
 	FFCore.quest_format[vSFX] = s_version;
 	
 	//al_trace("SFX version %d\n", s_version);
-	if(!p_igetw(&s_cversion,f,true))
+	if(!p_igetw(&s_cversion,f))
 	{
 		return qe_invalid;
 	}
 	
 	//section size
-	if(!p_igetl(&dummy,f,true))
+	if(!p_igetl(&dummy,f))
 	{
 		return qe_invalid;
 	}
@@ -13763,7 +13450,7 @@ int32_t readsfx(PACKFILE *f, zquestheader *Header, bool keepdata)
 	 * where the meaning of GOTOLESS changed. It also coincided with V_SFX
 	 * changing from 1 to 2.
 	 */
-	if(s_version < 2 && keepdata)
+	if(s_version < 2)
 		set_qr(qr_GOTOLESSNOTEQUAL,1);
 		
 	/* End highly unorthodox updating thing */
@@ -13786,7 +13473,7 @@ int32_t readsfx(PACKFILE *f, zquestheader *Header, bool keepdata)
 			
 		for(int32_t i=0; i<(wavcount>>3); i++)
 		{
-			p_getc(&tempflag[i], f, true);
+			p_getc(&tempflag[i], f);
 		}
 		
 	}
@@ -13795,13 +13482,10 @@ int32_t readsfx(PACKFILE *f, zquestheader *Header, bool keepdata)
 	{
 		for(int32_t i=1; i<WAV_COUNT; i++)
 		{
-			if(keepdata)
-			{
-				sprintf(sfx_string[i],"s%03d",i);
-				
-				if((i<Z35))
-					strcpy(sfx_string[i], old_sfx_string[i-1]);
-			}
+			sprintf(sfx_string[i],"s%03d",i);
+			
+			if((i<Z35))
+				strcpy(sfx_string[i], old_sfx_string[i-1]);
 			
 			if(i>=wavcount)
 				continue;
@@ -13809,18 +13493,15 @@ int32_t readsfx(PACKFILE *f, zquestheader *Header, bool keepdata)
 			{
 				char tempname[36];
 				
-				if(!pfread(tempname, 36, f, keepdata))
+				if(!pfread(tempname, 36, f))
 				{
 					return qe_invalid;
 				}
 				
-				if(keepdata)
-				{
-					sfx_string[i][0] = '\0';
-					strncat(sfx_string[i], tempname, 36 - 1);
-				}
+				sfx_string[i][0] = '\0';
+				strncat(sfx_string[i], tempname, 36 - 1);
 			}
-			else if(keepdata)
+			else
 			{
 				sprintf(sfx_string[i],"s%03d",i);
 				
@@ -13832,15 +13513,12 @@ int32_t readsfx(PACKFILE *f, zquestheader *Header, bool keepdata)
 	}
 	else
 	{
-		if(keepdata)
+		for(int32_t i=1; i<WAV_COUNT; i++)
 		{
-			for(int32_t i=1; i<WAV_COUNT; i++)
-			{
-				sprintf(sfx_string[i],"s%03d",i);
-				
-				if(i<Z35)
-					strcpy(sfx_string[i], old_sfx_string[i-1]);
-			}
+			sprintf(sfx_string[i],"s%03d",i);
+			
+			if(i<Z35)
+				strcpy(sfx_string[i], old_sfx_string[i-1]);
 		}
 	}
 	
@@ -13850,50 +13528,50 @@ int32_t readsfx(PACKFILE *f, zquestheader *Header, bool keepdata)
 		if(get_bit(tempflag, i-1))
 		{
 			
-			if(!p_igetl(&dummy,f,true))
+			if(!p_igetl(&dummy,f))
 			{
 				return qe_invalid;
 			}
 			
 			(temp_sample.bits) = dummy;
 			
-			if(!p_igetl(&dummy,f,true))
+			if(!p_igetl(&dummy,f))
 			{
 				return qe_invalid;
 			}
 			
 			(temp_sample.stereo) = dummy;
 			
-			if(!p_igetl(&dummy,f,keepdata))
+			if(!p_igetl(&dummy,f))
 			{
 				return qe_invalid;
 			}
 			
 			(temp_sample.freq) = dummy;
 			
-			if(!p_igetl(&dummy,f,keepdata))
+			if(!p_igetl(&dummy,f))
 			{
 				return qe_invalid;
 			}
 			
 			(temp_sample.priority) = dummy;
 			
-			if(!p_igetl(&(temp_sample.len),f,true))
+			if(!p_igetl(&(temp_sample.len),f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_igetl(&(temp_sample.loop_start),f,keepdata))
+			if(!p_igetl(&(temp_sample.loop_start),f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_igetl(&(temp_sample.loop_end),f,keepdata))
+			if(!p_igetl(&(temp_sample.loop_end),f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_igetl(&(temp_sample.param),f,keepdata))
+			if(!p_igetl(&(temp_sample.param),f))
 			{
 				return qe_invalid;
 			}
@@ -13913,7 +13591,7 @@ int32_t readsfx(PACKFILE *f, zquestheader *Header, bool keepdata)
 			//old-style, non-portable loading (Bad Allegro! Bad!!) -DD
 			if(s_version < 2)
 			{
-				if(!pfread(temp_sample.data, len,f,keepdata))
+				if(!pfread(temp_sample.data, len,f))
 				{
 					return qe_invalid;
 				}
@@ -13927,13 +13605,12 @@ int32_t readsfx(PACKFILE *f, zquestheader *Header, bool keepdata)
 				{
 					word temp;
 					
-					if(!p_igetw(&temp, f, keepdata))
+					if(!p_igetw(&temp, f))
 					{
 						return qe_invalid;
 					}
 					
-					if(keepdata)
-						((word *)temp_sample.data)[j] = temp;
+					((word *)temp_sample.data)[j] = temp;
 				}
 			}
 		}
@@ -13948,41 +13625,37 @@ int32_t readsfx(PACKFILE *f, zquestheader *Header, bool keepdata)
 		}
 		else continue;
 		
-		if(keepdata)
+		if(customsfxdata[i].data!=NULL)
 		{
-			if(customsfxdata[i].data!=NULL)
-			{
-				// delete [] customsfxdata[i].data;
-				free(customsfxdata[i].data);
-			}
-			
-			// customsfxdata[i].data = new byte[(temp_sample.bits==8?1:2)*temp_sample.len];
-			int32_t len2 = (temp_sample.bits==8?1:2)*(temp_sample.stereo==0?1:2)*temp_sample.len;
-			customsfxdata[i].data = calloc(len2,1);
-			customsfxdata[i].bits = temp_sample.bits;
-			customsfxdata[i].stereo = temp_sample.stereo;
-			customsfxdata[i].freq = temp_sample.freq;
-			customsfxdata[i].priority = temp_sample.priority;
-			customsfxdata[i].len = temp_sample.len;
-			customsfxdata[i].loop_start = temp_sample.loop_start;
-			customsfxdata[i].loop_end = temp_sample.loop_end;
-			customsfxdata[i].param = temp_sample.param;
-			int32_t cpylen = len2;
-			
-			if(s_version<3)
-			{
-				cpylen = (temp_sample.bits==8?1:2)*temp_sample.len;
-				al_trace("WARNING: Quest SFX %d is in stereo, and may be corrupt.\n",i);
-			}
-			
-			memcpy(customsfxdata[i].data,temp_sample.data,cpylen);
+			// delete [] customsfxdata[i].data;
+			free(customsfxdata[i].data);
 		}
+		
+		// customsfxdata[i].data = new byte[(temp_sample.bits==8?1:2)*temp_sample.len];
+		int32_t len2 = (temp_sample.bits==8?1:2)*(temp_sample.stereo==0?1:2)*temp_sample.len;
+		customsfxdata[i].data = calloc(len2,1);
+		customsfxdata[i].bits = temp_sample.bits;
+		customsfxdata[i].stereo = temp_sample.stereo;
+		customsfxdata[i].freq = temp_sample.freq;
+		customsfxdata[i].priority = temp_sample.priority;
+		customsfxdata[i].len = temp_sample.len;
+		customsfxdata[i].loop_start = temp_sample.loop_start;
+		customsfxdata[i].loop_end = temp_sample.loop_end;
+		customsfxdata[i].param = temp_sample.param;
+		int32_t cpylen = len2;
+		
+		if(s_version<3)
+		{
+			cpylen = (temp_sample.bits==8?1:2)*temp_sample.len;
+			al_trace("WARNING: Quest SFX %d is in stereo, and may be corrupt.\n",i);
+		}
+		
+		memcpy(customsfxdata[i].data,temp_sample.data,cpylen);
 		
 		free(temp_sample.data);
 	}
 	
-	if(keepdata)
-		memcpy(customsfxflag, tempflag, WAV_COUNT>>3);
+	memcpy(customsfxflag, tempflag, WAV_COUNT>>3);
 	
 	sfxdat=0;
 	return 0;
@@ -14034,7 +13707,7 @@ void setupsfx()
 extern char *guy_string[eMAXGUYS];
 extern const char *old_guy_string[OLDMAXGUYS];
 
-int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
+int32_t readguys(PACKFILE *f, zquestheader *Header)
 {
     dword dummy;
     word guy_cversion;
@@ -14043,7 +13716,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
     if(Header->zelda_version >= 0x193)
     {
         //section version info
-        if(!p_igetw(&guyversion,f,true))
+        if(!p_igetw(&guyversion,f))
         {
             return qe_invalid;
         }
@@ -14051,13 +13724,13 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 	FFCore.quest_format[vGuys] = guyversion;
 	
         //al_trace("Guys version %d\n", guyversion);
-        if(!p_igetw(&guy_cversion,f,true))
+        if(!p_igetw(&guy_cversion,f))
         {
             return qe_invalid;
         }
         al_trace("Guy CVersion is: %d\n", guy_cversion);
         //section size
-        if(!p_igetl(&dummy,f,true))
+        if(!p_igetl(&dummy,f))
         {
             return qe_invalid;
         }
@@ -14071,7 +13744,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
             
             // rev. 1511 : guyversion = 23. upped to 512 editable enemies. -Gleeok
             // if guyversion < 23 then there is only 256 enemies in the packfile, so default the rest.
-            if(guyversion < 23 && i >= OLDBETAMAXGUYS && keepdata)
+            if(guyversion < 23 && i >= OLDBETAMAXGUYS)
             {
                 memset(tempname, 0, sizeof(char)*64);
                 sprintf(tempname, "e%03d", i);
@@ -14080,75 +13753,66 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
                 continue;
             }
             
-            if(!pfread(tempname, 64, f, keepdata))
+            if(!pfread(tempname, 64, f))
             {
                 return qe_invalid;
             }
             
             // Don't retain names of uneditable enemy entries!
-            if(keepdata)
-            {
-                // for version upgrade to 2.5
-                if(guyversion < 23 && i >= 177)
-                {
-                    // some of the older builds have names such as 'zz123',
-                    // (this order gets messed up with some eXXX and some zzXXX)
-                    // so let's update to the newer naming convection. -Gleeok
-                    char tmpbuf[64];
-                    memset(tmpbuf, 0, sizeof(char)*64);
-                    sprintf(tmpbuf, "zz%03d", i);
-                    
-                    if(memcmp(tempname, tmpbuf, size_t(5)) == 0)
-                    {
-                        memset(tempname, 0, sizeof(char)*64);
-                        sprintf(tempname, "e%03d", i);
-                    }
-                }
-                
-                if(i >= OLDMAXGUYS || strlen(tempname)<1 || tempname[strlen(tempname)-1]!=' ')
-                {
-                    guy_string[i][0] = '\0';
-                    strncat(guy_string[i], tempname, 64 - 1);
-                }
-                else
-                {
-                    strcpy(guy_string[i],old_guy_string[i]);
-                }
-            }
+			// for version upgrade to 2.5
+			if(guyversion < 23 && i >= 177)
+			{
+				// some of the older builds have names such as 'zz123',
+				// (this order gets messed up with some eXXX and some zzXXX)
+				// so let's update to the newer naming convection. -Gleeok
+				char tmpbuf[64];
+				memset(tmpbuf, 0, sizeof(char)*64);
+				sprintf(tmpbuf, "zz%03d", i);
+				
+				if(memcmp(tempname, tmpbuf, size_t(5)) == 0)
+				{
+					memset(tempname, 0, sizeof(char)*64);
+					sprintf(tempname, "e%03d", i);
+				}
+			}
+			
+			if(i >= OLDMAXGUYS || strlen(tempname)<1 || tempname[strlen(tempname)-1]!=' ')
+			{
+				guy_string[i][0] = '\0';
+				strncat(guy_string[i], tempname, 64 - 1);
+			}
+			else
+			{
+				strcpy(guy_string[i],old_guy_string[i]);
+			}
         }
     }
     else
     {
-        if(keepdata)
-        {
-            for(int32_t i=0; i<eMAXGUYS; i++)
-            {
-                sprintf(guy_string[i],"zz%03d",i);
-            }
-            
-            for(int32_t i=0; i<OLDMAXGUYS; i++)
-            {
-                strcpy(guy_string[i],old_guy_string[i]);
-            }
-        }
+		for(int32_t i=0; i<eMAXGUYS; i++)
+		{
+			sprintf(guy_string[i],"zz%03d",i);
+		}
+		
+		for(int32_t i=0; i<OLDMAXGUYS; i++)
+		{
+			strcpy(guy_string[i],old_guy_string[i]);
+		}
     }
     
     
     //finally...  section data
-    if(keepdata)
-    {
-        init_guys(guyversion);                            //using default data for now...
-        
-        // Goriya guy fix
-        if((Header->zelda_version < 0x211)||((Header->zelda_version == 0x211)&&(Header->build<7)))
-        {
-            if(get_qr(qr_NEWENEMYTILES))
-            {
-                guysbuf[gGORIYA].tile=130;
-                guysbuf[gGORIYA].e_tile=130;
-            }
-        }
-    }
+	init_guys(guyversion);                            //using default data for now...
+	
+	// Goriya guy fix
+	if((Header->zelda_version < 0x211)||((Header->zelda_version == 0x211)&&(Header->build<7)))
+	{
+		if(get_qr(qr_NEWENEMYTILES))
+		{
+			guysbuf[gGORIYA].tile=130;
+			guysbuf[gGORIYA].e_tile=130;
+		}
+	}
     
     if(Header->zelda_version < 0x193)
     {
@@ -14232,7 +13896,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
     
     if(guyversion<=2)
     {
-        return readherosprites2(f, guyversion==2?0:-1, 0, keepdata);
+        return readherosprites2(f, guyversion==2?0:-1, 0);
     }
     
     if(guyversion > 3)
@@ -14241,7 +13905,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
         
         for(int32_t i=0; i<MAXGUYS; i++)
         {
-            if(guyversion < 23 && keepdata)   // May 2012 : 512 max enemies
+            if(guyversion < 23)   // May 2012 : 512 max enemies
             {
                 if(i >= OLDBETAMAXGUYS)
                 {
@@ -14252,96 +13916,96 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
             
             memset(&tempguy, 0, sizeof(guydata));
             
-            if(!p_igetl(&(tempguy.flags),f,keepdata))
+            if(!p_igetl(&(tempguy.flags),f))
             {
                 return qe_invalid;
             }
             
-            if(!p_igetl(&(tempguy.flags2),f,keepdata))
+            if(!p_igetl(&(tempguy.flags2),f))
             {
                 return qe_invalid;
             }
             
 	    if ( guyversion >= 36 ) //expanded tiles
 	    {
-		    if(!p_igetl(&(tempguy.tile),f,keepdata))
+		    if(!p_igetl(&(tempguy.tile),f))
 		    {
 			return qe_invalid;
 		    }
 	    }
 	    else
 	    {
-		    if(!p_igetw(&(tempguy.tile),f,keepdata))
+		    if(!p_igetw(&(tempguy.tile),f))
 		    {
 			return qe_invalid;
 		    }
 	    }    
-            if(!p_getc(&(tempguy.width),f,keepdata))
+            if(!p_getc(&(tempguy.width),f))
             {
                 return qe_invalid;
             }
             
-            if(!p_getc(&(tempguy.height),f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
-	    if ( guyversion >= 36 ) //expanded tiles
-	    {
-		    if(!p_igetl(&(tempguy.s_tile),f,keepdata))
-		    {
-			return qe_invalid;
-		    }
-	    }
-	    else
-	    {
-		    if(!p_igetw(&(tempguy.s_tile),f,keepdata))
-		    {
-			return qe_invalid;
-		    }
-	    }
-	    
-            if(!p_getc(&(tempguy.s_width),f,keepdata))
-            {
-                return qe_invalid;
-            }
-            
-            if(!p_getc(&(tempguy.s_height),f,keepdata))
+            if(!p_getc(&(tempguy.height),f))
             {
                 return qe_invalid;
             }
             
 	    if ( guyversion >= 36 ) //expanded tiles
 	    {
-		    if(!p_igetl(&(tempguy.e_tile),f,keepdata))
+		    if(!p_igetl(&(tempguy.s_tile),f))
 		    {
 			return qe_invalid;
 		    }
 	    }
 	    else
 	    {
-		    if(!p_igetw(&(tempguy.e_tile),f,keepdata))
+		    if(!p_igetw(&(tempguy.s_tile),f))
 		    {
 			return qe_invalid;
 		    }
 	    }
 	    
-            if(!p_getc(&(tempguy.e_width),f,keepdata))
+            if(!p_getc(&(tempguy.s_width),f))
             {
                 return qe_invalid;
             }
             
-            if(!p_getc(&(tempguy.e_height),f,keepdata))
+            if(!p_getc(&(tempguy.s_height),f))
             {
                 return qe_invalid;
             }
             
-            if(!p_igetw(&(tempguy.hp),f,keepdata))
+	    if ( guyversion >= 36 ) //expanded tiles
+	    {
+		    if(!p_igetl(&(tempguy.e_tile),f))
+		    {
+			return qe_invalid;
+		    }
+	    }
+	    else
+	    {
+		    if(!p_igetw(&(tempguy.e_tile),f))
+		    {
+			return qe_invalid;
+		    }
+	    }
+	    
+            if(!p_getc(&(tempguy.e_width),f))
             {
                 return qe_invalid;
             }
             
-            if(!p_igetw(&(tempguy.family),f,keepdata))
+            if(!p_getc(&(tempguy.e_height),f))
+            {
+                return qe_invalid;
+            }
+            
+            if(!p_igetw(&(tempguy.hp),f))
+            {
+                return qe_invalid;
+            }
+            
+            if(!p_igetw(&(tempguy.family),f))
             {
                 return qe_invalid;
             }
@@ -14357,27 +14021,27 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
                 else tempguy.s_tile=860;
             }
             
-            if(!p_igetw(&(tempguy.cset),f,keepdata))
+            if(!p_igetw(&(tempguy.cset),f))
             {
                 return qe_invalid;
             }
             
-            if(!p_igetw(&(tempguy.anim),f,keepdata))
+            if(!p_igetw(&(tempguy.anim),f))
             {
                 return qe_invalid;
             }
             
-            if(!p_igetw(&(tempguy.e_anim),f,keepdata))
+            if(!p_igetw(&(tempguy.e_anim),f))
             {
                 return qe_invalid;
             }
             
-            if(!p_igetw(&(tempguy.frate),f,keepdata))
+            if(!p_igetw(&(tempguy.frate),f))
             {
                 return qe_invalid;
             }
             
-            if(!p_igetw(&(tempguy.e_frate),f,keepdata))
+            if(!p_igetw(&(tempguy.e_frate),f))
             {
                 return qe_invalid;
             }
@@ -14434,7 +14098,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
                 }
             }
             
-            if(!p_igetw(&(tempguy.dp),f,keepdata))
+            if(!p_igetw(&(tempguy.dp),f))
             {
                 return qe_invalid;
             }
@@ -14446,12 +14110,12 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
                     tempguy.dp = 2;
             }
             
-            if(!p_igetw(&(tempguy.wdp),f,keepdata))
+            if(!p_igetw(&(tempguy.wdp),f))
             {
                 return qe_invalid;
             }
             
-            if(!p_igetw(&(tempguy.weapon),f,keepdata))
+            if(!p_igetw(&(tempguy.weapon),f))
             {
                 return qe_invalid;
             }
@@ -14467,17 +14131,17 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
                 }
             }
             
-            if(!p_igetw(&(tempguy.rate),f,keepdata))
+            if(!p_igetw(&(tempguy.rate),f))
             {
                 return qe_invalid;
             }
             
-            if(!p_igetw(&(tempguy.hrate),f,keepdata))
+            if(!p_igetw(&(tempguy.hrate),f))
             {
                 return qe_invalid;
             }
             
-            if(!p_igetw(&(tempguy.step),f,keepdata))
+            if(!p_igetw(&(tempguy.step),f))
             {
                 return qe_invalid;
             }
@@ -14488,69 +14152,69 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
                 tempguy.step /= 2;
             }
             
-            if(!p_igetw(&(tempguy.homing),f,keepdata))
+            if(!p_igetw(&(tempguy.homing),f))
             {
                 return qe_invalid;
             }
             
-            if(!p_igetw(&(tempguy.grumble),f,keepdata))
+            if(!p_igetw(&(tempguy.grumble),f))
             {
                 return qe_invalid;
             }
             
-            if(!p_igetw(&(tempguy.item_set),f,keepdata))
+            if(!p_igetw(&(tempguy.item_set),f))
             {
                 return qe_invalid;
             }
             
             if(guyversion>=22) // Version 22: Expand misc attributes to 32 bits
             {
-                if(!p_igetl(&(tempguy.misc1),f,keepdata))
+                if(!p_igetl(&(tempguy.misc1),f))
                 {
                     return qe_invalid;
                 }
                 
-                if(!p_igetl(&(tempguy.misc2),f,keepdata))
+                if(!p_igetl(&(tempguy.misc2),f))
                 {
                     return qe_invalid;
                 }
                 
-                if(!p_igetl(&(tempguy.misc3),f,keepdata))
+                if(!p_igetl(&(tempguy.misc3),f))
                 {
                     return qe_invalid;
                 }
                 
-                if(!p_igetl(&(tempguy.misc4),f,keepdata))
+                if(!p_igetl(&(tempguy.misc4),f))
                 {
                     return qe_invalid;
                 }
                 
-                if(!p_igetl(&(tempguy.misc5),f,keepdata))
+                if(!p_igetl(&(tempguy.misc5),f))
                 {
                     return qe_invalid;
                 }
                 
-                if(!p_igetl(&(tempguy.misc6),f,keepdata))
+                if(!p_igetl(&(tempguy.misc6),f))
                 {
                     return qe_invalid;
                 }
                 
-                if(!p_igetl(&(tempguy.misc7),f,keepdata))
+                if(!p_igetl(&(tempguy.misc7),f))
                 {
                     return qe_invalid;
                 }
                 
-                if(!p_igetl(&(tempguy.misc8),f,keepdata))
+                if(!p_igetl(&(tempguy.misc8),f))
                 {
                     return qe_invalid;
                 }
                 
-                if(!p_igetl(&(tempguy.misc9),f,keepdata))
+                if(!p_igetl(&(tempguy.misc9),f))
                 {
                     return qe_invalid;
                 }
                 
-                if(!p_igetl(&(tempguy.misc10),f,keepdata))
+                if(!p_igetl(&(tempguy.misc10),f))
                 {
                     return qe_invalid;
                 }
@@ -14559,35 +14223,35 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
             {
                 int16_t tempMisc;
                 
-                if(!p_igetw(&tempMisc,f,keepdata))
+                if(!p_igetw(&tempMisc,f))
                 {
                     return qe_invalid;
                 }
                 
                 tempguy.misc1=tempMisc;
                 
-                if(!p_igetw(&tempMisc,f,keepdata))
+                if(!p_igetw(&tempMisc,f))
                 {
                     return qe_invalid;
                 }
                 
                 tempguy.misc2=tempMisc;
                 
-                if(!p_igetw(&tempMisc,f,keepdata))
+                if(!p_igetw(&tempMisc,f))
                 {
                     return qe_invalid;
                 }
                 
                 tempguy.misc3=tempMisc;
                 
-                if(!p_igetw(&tempMisc,f,keepdata))
+                if(!p_igetw(&tempMisc,f))
                 {
                     return qe_invalid;
                 }
                 
                 tempguy.misc4=tempMisc;
                 
-                if(!p_igetw(&tempMisc,f,keepdata))
+                if(!p_igetw(&tempMisc,f))
                 {
                     return qe_invalid;
                 }
@@ -14600,35 +14264,35 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
                         tempguy.misc5 = 74;
                 }
                 
-                if(!p_igetw(&tempMisc,f,keepdata))
+                if(!p_igetw(&tempMisc,f))
                 {
                     return qe_invalid;
                 }
                 
                 tempguy.misc6=tempMisc;
                 
-                if(!p_igetw(&tempMisc,f,keepdata))
+                if(!p_igetw(&tempMisc,f))
                 {
                     return qe_invalid;
                 }
                 
                 tempguy.misc7=tempMisc;
                 
-                if(!p_igetw(&tempMisc,f,keepdata))
+                if(!p_igetw(&tempMisc,f))
                 {
                     return qe_invalid;
                 }
                 
                 tempguy.misc8=tempMisc;
                 
-                if(!p_igetw(&tempMisc,f,keepdata))
+                if(!p_igetw(&tempMisc,f))
                 {
                     return qe_invalid;
                 }
                 
                 tempguy.misc9=tempMisc;
                 
-                if(!p_igetw(&tempMisc,f,keepdata))
+                if(!p_igetw(&tempMisc,f))
                 {
                     return qe_invalid;
                 }
@@ -14636,17 +14300,17 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
                 tempguy.misc10=tempMisc;
             }
             
-            if(!p_igetw(&(tempguy.bgsfx),f,keepdata))
+            if(!p_igetw(&(tempguy.bgsfx),f))
             {
                 return qe_invalid;
             }
             
-            if(!p_igetw(&(tempguy.bosspal),f,keepdata))
+            if(!p_igetw(&(tempguy.bosspal),f))
             {
                 return qe_invalid;
             }
             
-            if(!p_igetw(&(tempguy.extend),f,keepdata))
+            if(!p_igetw(&(tempguy.extend),f))
             {
                 return qe_invalid;
             }
@@ -14658,7 +14322,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
             {
                 for(int32_t j=0; j<edefLAST; j++)
                 {
-                    if(!p_getc(&(tempguy.defense[j]),f,keepdata))
+                    if(!p_getc(&(tempguy.defense[j]),f))
                     {
                         return qe_invalid;
                     }
@@ -14672,12 +14336,12 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
             
             if(guyversion >= 18)
             {
-                if(!p_getc(&(tempguy.hitsfx),f,keepdata))
+                if(!p_getc(&(tempguy.hitsfx),f))
                 {
                     return qe_invalid;
                 }
                 
-                if(!p_getc(&(tempguy.deadsfx),f,keepdata))
+                if(!p_getc(&(tempguy.deadsfx),f))
                 {
                     return qe_invalid;
                 }
@@ -14685,12 +14349,12 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
             
             if(guyversion >= 22)
             {
-                if(!p_igetl(&(tempguy.misc11),f,keepdata))
+                if(!p_igetl(&(tempguy.misc11),f))
                 {
                     return qe_invalid;
                 }
                 
-                if(!p_igetl(&(tempguy.misc12),f,keepdata))
+                if(!p_igetl(&(tempguy.misc12),f))
                 {
                     return qe_invalid;
                 }
@@ -14699,14 +14363,14 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
             {
                 int16_t tempMisc;
                 
-                if(!p_igetw(&tempMisc,f,keepdata))
+                if(!p_igetw(&tempMisc,f))
                 {
                     return qe_invalid;
                 }
                 
                 tempguy.misc11=tempMisc;
                 
-                if(!p_igetw(&tempMisc,f,keepdata))
+                if(!p_igetw(&tempMisc,f))
                 {
                     return qe_invalid;
                 }
@@ -14719,7 +14383,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
             {
 		for(int32_t j=edefLAST; j<edefLAST255; j++)
                 {
-                    if(!p_getc(&(tempguy.defense[j]),f,keepdata))
+                    if(!p_getc(&(tempguy.defense[j]),f))
                     {
                         return qe_invalid;
                     }
@@ -14737,23 +14401,23 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 	    //tilewidth, tileheight, hitwidth, hitheight, hitzheight, hitxofs, hityofs, hitzofs
 	    if(guyversion > 25)
 	    {
-		    if(!p_igetl(&(tempguy.txsz),f,keepdata))
+		    if(!p_igetl(&(tempguy.txsz),f))
                     {
                         return qe_invalid;
                     }
-		    if(!p_igetl(&(tempguy.tysz),f,keepdata))
+		    if(!p_igetl(&(tempguy.tysz),f))
                     {
                         return qe_invalid;
                     }
-		    if(!p_igetl(&(tempguy.hxsz),f,keepdata))
+		    if(!p_igetl(&(tempguy.hxsz),f))
                     {
                         return qe_invalid;
                     }
-		    if(!p_igetl(&(tempguy.hysz),f,keepdata))
+		    if(!p_igetl(&(tempguy.hysz),f))
                     {
                         return qe_invalid;
                     }
-		    if(!p_igetl(&(tempguy.hzsz),f,keepdata))
+		    if(!p_igetl(&(tempguy.hzsz),f))
                     {
                         return qe_invalid;
                     }
@@ -14764,23 +14428,23 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 	    //More Enemy Editor vars for 2.60
 	    if(guyversion > 26)
 	    {
-		    if(!p_igetl(&(tempguy.hxofs),f,keepdata))
+		    if(!p_igetl(&(tempguy.hxofs),f))
                     {
                         return qe_invalid;
                     }
-		    if(!p_igetl(&(tempguy.hyofs),f,keepdata))
+		    if(!p_igetl(&(tempguy.hyofs),f))
                     {
                         return qe_invalid;
                     }
-		    if(!p_igetl(&(tempguy.xofs),f,keepdata))
+		    if(!p_igetl(&(tempguy.xofs),f))
                     {
                         return qe_invalid;
                     }
-		    if(!p_igetl(&(tempguy.yofs),f,keepdata))
+		    if(!p_igetl(&(tempguy.yofs),f))
                     {
                         return qe_invalid;
                     }
-		    if(!p_igetl(&(tempguy.zofs),f,keepdata))
+		    if(!p_igetl(&(tempguy.zofs),f))
                     {
                         return qe_invalid;
                     }
@@ -14793,7 +14457,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 	    
 	    if(guyversion > 27)
 	    {
-	        if(!p_igetl(&(tempguy.wpnsprite),f,keepdata))
+	        if(!p_igetl(&(tempguy.wpnsprite),f))
                     {
                         return qe_invalid;
                     }
@@ -14804,7 +14468,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
             }
 	    if(guyversion > 28)
 	    {
-		if(!p_igetl(&(tempguy.SIZEflags),f,keepdata))
+		if(!p_igetl(&(tempguy.SIZEflags),f))
 		    {
 			return qe_invalid;
 		    }
@@ -14819,20 +14483,20 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
             }
 	    if(guyversion >= 30)
 	    {
-		if(!p_igetl(&(tempguy.frozentile),f,keepdata))
+		if(!p_igetl(&(tempguy.frozentile),f))
 		{
 			return qe_invalid;
 		}  
-		if(!p_igetl(&(tempguy.frozencset),f,keepdata))
+		if(!p_igetl(&(tempguy.frozencset),f))
 		{
 			return qe_invalid;
 		}  
-		if(!p_igetl(&(tempguy.frozenclock),f,keepdata))
+		if(!p_igetl(&(tempguy.frozenclock),f))
 		{
 			return qe_invalid;
 		}  
 		for ( int32_t q = 0; q < 10; q++ ) {
-			if(!p_igetw(&(tempguy.frozenmisc[q]),f,keepdata))
+			if(!p_igetw(&(tempguy.frozenmisc[q]),f))
 			{
 				return qe_invalid;
 			}
@@ -14842,106 +14506,106 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 	    
 	    if(guyversion >= 34)
 	    {
-		if(!p_igetw(&(tempguy.firesfx),f,keepdata))
+		if(!p_igetw(&(tempguy.firesfx),f))
 		{
 			return qe_invalid;
 		}  
-		if(!p_igetl(&(tempguy.misc16),f,keepdata))
+		if(!p_igetl(&(tempguy.misc16),f))
 		{
 			return qe_invalid;
 		}  
-		if(!p_igetl(&(tempguy.misc17),f,keepdata))
+		if(!p_igetl(&(tempguy.misc17),f))
 		{
 			return qe_invalid;
 		} 
-		if(!p_igetl(&(tempguy.misc18),f,keepdata))
+		if(!p_igetl(&(tempguy.misc18),f))
 		{
 			return qe_invalid;
 		} 
-		if(!p_igetl(&(tempguy.misc19),f,keepdata))
+		if(!p_igetl(&(tempguy.misc19),f))
 		{
 			return qe_invalid;
 		} 
-		if(!p_igetl(&(tempguy.misc20),f,keepdata))
+		if(!p_igetl(&(tempguy.misc20),f))
 		{
 			return qe_invalid;
 		} 
-		if(!p_igetl(&(tempguy.misc21),f,keepdata))
+		if(!p_igetl(&(tempguy.misc21),f))
 		{
 			return qe_invalid;
 		} 
-		if(!p_igetl(&(tempguy.misc22),f,keepdata))
+		if(!p_igetl(&(tempguy.misc22),f))
 		{
 			return qe_invalid;
 		} 
-		if(!p_igetl(&(tempguy.misc23),f,keepdata))
+		if(!p_igetl(&(tempguy.misc23),f))
 		{
 			return qe_invalid;
 		} 
-		if(!p_igetl(&(tempguy.misc24),f,keepdata))
+		if(!p_igetl(&(tempguy.misc24),f))
 		{
 			return qe_invalid;
 		} 
-		if(!p_igetl(&(tempguy.misc25),f,keepdata))
+		if(!p_igetl(&(tempguy.misc25),f))
 		{
 			return qe_invalid;
 		} 
-		if(!p_igetl(&(tempguy.misc26),f,keepdata))
+		if(!p_igetl(&(tempguy.misc26),f))
 		{
 			return qe_invalid;
 		} 
-		if(!p_igetl(&(tempguy.misc27),f,keepdata))
+		if(!p_igetl(&(tempguy.misc27),f))
 		{
 			return qe_invalid;
 		} 
-		if(!p_igetl(&(tempguy.misc28),f,keepdata))
+		if(!p_igetl(&(tempguy.misc28),f))
 		{
 			return qe_invalid;
 		} 
-		if(!p_igetl(&(tempguy.misc29),f,keepdata))
+		if(!p_igetl(&(tempguy.misc29),f))
 		{
 			return qe_invalid;
 		} 
-		if(!p_igetl(&(tempguy.misc30),f,keepdata))
+		if(!p_igetl(&(tempguy.misc30),f))
 		{
 			return qe_invalid;
 		} 
-		if(!p_igetl(&(tempguy.misc31),f,keepdata))
+		if(!p_igetl(&(tempguy.misc31),f))
 		{
 			return qe_invalid;
 		} 
-		if(!p_igetl(&(tempguy.misc32),f,keepdata))
+		if(!p_igetl(&(tempguy.misc32),f))
 		{
 			return qe_invalid;
 		} 
 		
 		for ( int32_t q = 0; q < 32; q++ ) {
-			if(!p_igetl(&(tempguy.movement[q]),f,keepdata))
+			if(!p_igetl(&(tempguy.movement[q]),f))
 			{
 				return qe_invalid;
 			}
 		}
 		for ( int32_t q = 0; q < 32; q++ ) {
-			if(!p_igetl(&(tempguy.new_weapon[q]),f,keepdata))
+			if(!p_igetl(&(tempguy.new_weapon[q]),f))
 			{
 				return qe_invalid;
 			}
 		}
-		if(!p_igetw(&(tempguy.script),f,keepdata))
+		if(!p_igetw(&(tempguy.script),f))
 		{
 			return qe_invalid;
 		} 
                 //al_trace("NPC Script ID is: %d\n",tempguy.script);
 		for ( int32_t q = 0; q < 8; q++ )
 		{
-			if(!p_igetl(&(tempguy.initD[q]),f,keepdata))
+			if(!p_igetl(&(tempguy.initD[q]),f))
 			{
 				return qe_invalid;
 			} 			
 		}
 		for ( int32_t q = 0; q < 2; q++ )
 		{
-			if(!p_igetl(&(tempguy.initA[q]),f,keepdata))
+			if(!p_igetl(&(tempguy.initA[q]),f))
 			{
 				return qe_invalid;
 			} 			
@@ -14951,7 +14615,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 	    
 	    if(guyversion >= 37)
 	    {
-		if(!p_igetl(&(tempguy.editorflags),f,keepdata))
+		if(!p_igetl(&(tempguy.editorflags),f))
 		{
 			return qe_invalid;
 		}     
@@ -14959,15 +14623,15 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 	    if ( guyversion < 37 ) { tempguy.editorflags = 0; }
 	    if(guyversion >= 38)
 	    {
-		if(!p_igetl(&(tempguy.misc13),f,keepdata))
+		if(!p_igetl(&(tempguy.misc13),f))
 		{
 			return qe_invalid;
 		} 
-		if(!p_igetl(&(tempguy.misc14),f,keepdata))
+		if(!p_igetl(&(tempguy.misc14),f))
 		{
 			return qe_invalid;
 		} 
-		if(!p_igetl(&(tempguy.misc15),f,keepdata))
+		if(!p_igetl(&(tempguy.misc15),f))
 		{
 			return qe_invalid;
 		}  
@@ -14986,14 +14650,14 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 		{
 			for ( int32_t w = 0; w < 65; w++ )
 			{
-				if(!p_getc(&(tempguy.initD_label[q][w]),f,keepdata))
+				if(!p_getc(&(tempguy.initD_label[q][w]),f))
 				{
 					return qe_invalid;
 				} 
 			}
 			for ( int32_t w = 0; w < 65; w++ )
 			{
-				if(!p_getc(&(tempguy.weapon_initD_label[q][w]),f,keepdata))
+				if(!p_getc(&(tempguy.weapon_initD_label[q][w]),f))
 				{
 					return qe_invalid;
 				} 
@@ -15012,7 +14676,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 	    }
 	    if ( guyversion >= 40 )
 	    {
-		    if(!p_igetw(&(tempguy.weaponscript),f,keepdata))
+		    if(!p_igetw(&(tempguy.weaponscript),f))
 		    {
 				return qe_invalid;
 		    } 
@@ -15026,7 +14690,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 	    {
 		    for ( int32_t q = 0; q < 8; q++ )
 		    {
-			    if(!p_igetl(&(tempguy.weap_initiald[q]),f,keepdata))
+			    if(!p_igetl(&(tempguy.weap_initiald[q]),f))
 			    {
 					return qe_invalid;
 			    } 
@@ -15569,7 +15233,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 			{
 				if(guyversion >= 47)
 				{
-					if(!p_igetl(&(tempguy.moveflags),f,keepdata))
+					if(!p_igetl(&(tempguy.moveflags),f))
 					{
 						return qe_invalid;
 					}
@@ -15577,7 +15241,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 				else
 				{
 					byte fl;
-					if(!p_getc(&fl,f,keepdata))
+					if(!p_getc(&fl,f))
 					{
 						return qe_invalid;
 					}
@@ -15653,15 +15317,15 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 			}
 			if (guyversion > 44)
 			{
-				if(!p_getc(&(tempguy.spr_shadow),f,keepdata))
+				if(!p_getc(&(tempguy.spr_shadow),f))
 				{
 					return qe_invalid;
 				}
-				if(!p_getc(&(tempguy.spr_death),f,keepdata))
+				if(!p_getc(&(tempguy.spr_death),f))
 				{
 					return qe_invalid;
 				}
-				if(!p_getc(&(tempguy.spr_spawn),f,keepdata))
+				if(!p_getc(&(tempguy.spr_spawn),f))
 				{
 					return qe_invalid;
 				}
@@ -15681,10 +15345,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata)
 				}
 			}
 			
-            if(keepdata)
-            {
-                guysbuf[i] = tempguy;
-            }
+			guysbuf[i] = tempguy;
         }
     }
     
@@ -15941,12 +15602,12 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	byte tempbyte, padding;
 	int32_t extras, secretcombos;
 	//al_trace("readmapscreen Header->zelda_version: %x\n",Header->zelda_version);
-	if(!p_getc(&(temp_mapscr->valid),f,true))
+	if(!p_getc(&(temp_mapscr->valid),f))
 	{
 		return qe_invalid;
 	}
 	
-	if(!p_getc(&(temp_mapscr->guy),f,true))
+	if(!p_getc(&(temp_mapscr->guy),f))
 		return qe_invalid;
 	temp_mapscr->guytile = -1; //signal to use default guy values
 	SETFLAG(temp_mapscr->roomflags,RFL_ALWAYS_GUY,temp_mapscr->guy==gFAIRY);
@@ -15954,7 +15615,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	
 	if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<146)))
 	{
-		if(!p_getc(&tempbyte,f,true))
+		if(!p_getc(&tempbyte,f))
 		{
 			return qe_invalid;
 		}
@@ -15963,18 +15624,18 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	}
 	else
 	{
-		if(!p_igetw(&(temp_mapscr->str),f,true))
+		if(!p_igetw(&(temp_mapscr->str),f))
 		{
 			return qe_invalid;
 		}
 	}
 	
-	if(!p_getc(&(temp_mapscr->room),f,true))
+	if(!p_getc(&(temp_mapscr->room),f))
 	{
 		return qe_invalid;
 	}
 	
-	if(!p_getc(&(temp_mapscr->item),f,true))
+	if(!p_getc(&(temp_mapscr->item),f))
 	{
 		return qe_invalid;
 	}
@@ -15985,27 +15646,27 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	}
 	else
 	{
-		if(!p_getc(&(temp_mapscr->hasitem),f,true))
+		if(!p_getc(&(temp_mapscr->hasitem),f))
 			return qe_invalid;
 	}
 	
 	if((Header->zelda_version < 0x192)||
 		((Header->zelda_version == 0x192)&&(Header->build<154)))
 	{
-		if(!p_getc(&tempbyte,f,true))
+		if(!p_getc(&tempbyte,f))
 		{
 			return qe_invalid;
 		}
 	}
 	
-	if(!p_getc(&(temp_mapscr->tilewarptype[0]),f,true))
+	if(!p_getc(&(temp_mapscr->tilewarptype[0]),f))
 	{
 		return qe_invalid;
 	}
 	
 	if(Header->zelda_version < 0x193)
 	{
-		if(!p_getc(&tempbyte,f,true))
+		if(!p_getc(&tempbyte,f))
 		{
 			return qe_invalid;
 		}
@@ -16015,7 +15676,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	{
 		for(int32_t i=1; i<4; i++)
 		{
-			if(!p_getc(&(temp_mapscr->tilewarptype[i]),f,true))
+			if(!p_getc(&(temp_mapscr->tilewarptype[i]),f))
 			{
 				return qe_invalid;
 			}
@@ -16030,13 +15691,13 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	
 	if((Header->zelda_version > 0x192)||((Header->zelda_version == 0x192)&&(Header->build>153)))
 	{
-		if(!p_igetw(&(temp_mapscr->door_combo_set),f,true))
+		if(!p_igetw(&(temp_mapscr->door_combo_set),f))
 		{
 			return qe_invalid;
 		}
 	}
 	
-	if(!p_getc(&(temp_mapscr->warpreturnx[0]),f,true))
+	if(!p_getc(&(temp_mapscr->warpreturnx[0]),f))
 	{
 		return qe_invalid;
 	}
@@ -16049,14 +15710,14 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	{
 		for(int32_t i=1; i<4; i++)
 		{
-			if(!p_getc(&(temp_mapscr->warpreturnx[i]),f,true))
+			if(!p_getc(&(temp_mapscr->warpreturnx[i]),f))
 			{
 				return qe_invalid;
 			}
 		}
 	}
 	
-	if(!p_getc(&(temp_mapscr->warpreturny[0]),f,true))
+	if(!p_getc(&(temp_mapscr->warpreturny[0]),f))
 	{
 		return qe_invalid;
 	}
@@ -16069,7 +15730,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	{
 		for(int32_t i=1; i<4; i++)
 		{
-			if(!p_getc(&(temp_mapscr->warpreturny[i]),f,true))
+			if(!p_getc(&(temp_mapscr->warpreturny[i]),f))
 			{
 				return qe_invalid;
 			}
@@ -16077,7 +15738,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 		
 		if(version>=18)
 		{
-			if(!p_igetw(&temp_mapscr->warpreturnc,f,true))
+			if(!p_igetw(&temp_mapscr->warpreturnc,f))
 			{
 				return qe_invalid;
 			}
@@ -16086,7 +15747,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 		{
 			byte temp;
 			
-			if(!p_getc(&temp,f,true))
+			if(!p_getc(&temp,f))
 			{
 				return qe_invalid;
 			}
@@ -16095,37 +15756,37 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 		}
 	}
 	
-	if(!p_getc(&(temp_mapscr->stairx),f,true))
+	if(!p_getc(&(temp_mapscr->stairx),f))
 	
 	{
 		return qe_invalid;
 	}
 	
-	if(!p_getc(&(temp_mapscr->stairy),f,true))
+	if(!p_getc(&(temp_mapscr->stairy),f))
 	{
 		return qe_invalid;
 	}
 	
-	if(!p_getc(&(temp_mapscr->itemx),f,true))
+	if(!p_getc(&(temp_mapscr->itemx),f))
 	{
 		return qe_invalid;
 	}
 	
-	if(!p_getc(&(temp_mapscr->itemy),f,true))
+	if(!p_getc(&(temp_mapscr->itemy),f))
 	{
 		return qe_invalid;
 	}
 	
 	if(version > 15) // February 2009
 	{
-		if(!p_igetw(&(temp_mapscr->color),f,true))
+		if(!p_igetw(&(temp_mapscr->color),f))
 		{
 			return qe_invalid;
 		}
 	}
 	else
 	{
-		if(!p_getc(& tempbyte,f,true))
+		if(!p_getc(& tempbyte,f))
 		{
 			return qe_invalid;
 		}
@@ -16133,14 +15794,14 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 		temp_mapscr->color = (word) tempbyte;
 	}
 	
-	if(!p_getc(&(temp_mapscr->enemyflags),f,true))
+	if(!p_getc(&(temp_mapscr->enemyflags),f))
 	{
 		return qe_invalid;
 	}
 	
 	for(int32_t k=0; k<4; k++)
 	{
-		if(!p_getc(&(temp_mapscr->door[k]),f,true))
+		if(!p_getc(&(temp_mapscr->door[k]),f))
 		{
 			return qe_invalid;
 			
@@ -16149,7 +15810,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	
 	if(version <= 11)
 	{
-		if(!p_getc(&(tempbyte),f,true))
+		if(!p_getc(&(tempbyte),f))
 		{
 			return qe_invalid;
 		}
@@ -16160,7 +15821,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 		{
 			for(int32_t i=1; i<4; i++)
 			{
-				if(!p_getc(&(tempbyte),f,true))
+				if(!p_getc(&(tempbyte),f))
 				{
 					return qe_invalid;
 				}
@@ -16179,14 +15840,14 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	{
 		for(int32_t i=0; i<4; i++)
 		{
-			if(!p_igetw(&(temp_mapscr->tilewarpdmap[i]),f,true))
+			if(!p_igetw(&(temp_mapscr->tilewarpdmap[i]),f))
 			{
 				return qe_invalid;
 			}
 		}
 	}
 	
-	if(!p_getc(&(temp_mapscr->tilewarpscr[0]),f,true))
+	if(!p_getc(&(temp_mapscr->tilewarpscr[0]),f))
 	{
 		return qe_invalid;
 	}
@@ -16195,7 +15856,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	{
 		for(int32_t i=1; i<4; i++)
 		{
-			if(!p_getc(&(temp_mapscr->tilewarpscr[i]),f,true))
+			if(!p_getc(&(temp_mapscr->tilewarpscr[i]),f))
 			{
 				return qe_invalid;
 			}
@@ -16210,7 +15871,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	
 	if(version >= 15)
 	{
-		if(!p_getc(&(temp_mapscr->tilewarpoverlayflags),f,true))
+		if(!p_getc(&(temp_mapscr->tilewarpoverlayflags),f))
 		{
 			return qe_invalid;
 		}
@@ -16220,14 +15881,14 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 		temp_mapscr->tilewarpoverlayflags=0;
 	}
 	
-	if(!p_getc(&(temp_mapscr->exitdir),f,true))
+	if(!p_getc(&(temp_mapscr->exitdir),f))
 	{
 		return qe_invalid;
 	}
 	
 	if(Header->zelda_version < 0x193)
 	{
-		if(!p_getc(&tempbyte,f,true))
+		if(!p_getc(&tempbyte,f))
 		{
 			return qe_invalid;
 		}
@@ -16236,7 +15897,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	
 	if((Header->zelda_version == 0x192)&&(Header->build>145)&&(Header->build<154))
 	{
-		if(!p_getc(&padding,f,true))
+		if(!p_getc(&padding,f))
 		{
 			return qe_invalid;
 		}
@@ -16252,7 +15913,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 		*/
 		if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<10)))
 		{
-			if(!p_getc(&tempbyte,f,true))
+			if(!p_getc(&tempbyte,f))
 			{
 				return qe_invalid;
 			}
@@ -16261,7 +15922,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 		}
 		else
 		{
-			if(!p_igetw(&(temp_mapscr->enemy[k]),f,true))
+			if(!p_igetw(&(temp_mapscr->enemy[k]),f))
 			{
 				return qe_invalid;
 			}
@@ -16296,12 +15957,12 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 		}
 	}
 	
-	if(!p_getc(&(temp_mapscr->pattern),f,true))
+	if(!p_getc(&(temp_mapscr->pattern),f))
 	{
 		return qe_invalid;
 	}
 	
-	if(!p_getc(&(temp_mapscr->sidewarptype[0]),f,true))
+	if(!p_getc(&(temp_mapscr->sidewarptype[0]),f))
 	{
 		return qe_invalid;
 	}
@@ -16310,7 +15971,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	{
 		for(int32_t i=1; i<4; i++)
 		{
-			if(!p_getc(&(temp_mapscr->sidewarptype[i]),f,true))
+			if(!p_getc(&(temp_mapscr->sidewarptype[i]),f))
 			{
 				return qe_invalid;
 			}
@@ -16325,7 +15986,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	
 	if(version >= 15)
 	{
-		if(!p_getc(&(temp_mapscr->sidewarpoverlayflags),f,true))
+		if(!p_getc(&(temp_mapscr->sidewarpoverlayflags),f))
 		{
 			return qe_invalid;
 		}
@@ -16335,25 +15996,25 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 		temp_mapscr->sidewarpoverlayflags=0;
 	}
 	
-	if(!p_getc(&(temp_mapscr->warparrivalx),f,true))
+	if(!p_getc(&(temp_mapscr->warparrivalx),f))
 	{
 		return qe_invalid;
 	}
 	
-	if(!p_getc(&(temp_mapscr->warparrivaly),f,true))
+	if(!p_getc(&(temp_mapscr->warparrivaly),f))
 	{
 		return qe_invalid;
 	}
 	
 	for(int32_t k=0; k<4; k++)
 	{
-		if(!p_getc(&(temp_mapscr->path[k]),f,true))
+		if(!p_getc(&(temp_mapscr->path[k]),f))
 		{
 			return qe_invalid;
 		}
 	}
 	
-	if(!p_getc(&(temp_mapscr->sidewarpscr[0]),f,true))
+	if(!p_getc(&(temp_mapscr->sidewarpscr[0]),f))
 	{
 		return qe_invalid;
 	}
@@ -16362,7 +16023,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	{
 		for(int32_t i=1; i<4; i++)
 		{
-			if(!p_getc(&(temp_mapscr->sidewarpscr[i]),f,true))
+			if(!p_getc(&(temp_mapscr->sidewarpscr[i]),f))
 			{
 				return qe_invalid;
 			}
@@ -16377,7 +16038,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	
 	if(version <= 11)
 	{
-		if(!p_getc(&(tempbyte),f,true))
+		if(!p_getc(&(tempbyte),f))
 		{
 			return qe_invalid;
 		}
@@ -16388,7 +16049,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 		{
 			for(int32_t i=1; i<4; i++)
 			{
-				if(!p_getc(&(tempbyte),f,true))
+				if(!p_getc(&(tempbyte),f))
 				{
 					return qe_invalid;
 				}
@@ -16407,7 +16068,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	{
 		for(int32_t i=0; i<4; i++)
 		{
-			if(!p_igetw(&(temp_mapscr->sidewarpdmap[i]),f,true))
+			if(!p_igetw(&(temp_mapscr->sidewarpdmap[i]),f))
 			{
 				return qe_invalid;
 			}
@@ -16416,47 +16077,47 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	
 	if((Header->zelda_version > 0x211)||((Header->zelda_version == 0x211)&&(Header->build>7)))
 	{
-		if(!p_getc(&(temp_mapscr->sidewarpindex),f,true))
+		if(!p_getc(&(temp_mapscr->sidewarpindex),f))
 		{
 			return qe_invalid;
 		}
 	}
 	else temp_mapscr->sidewarpindex = 0;
 	
-	if(!p_igetw(&(temp_mapscr->undercombo),f,true))
+	if(!p_igetw(&(temp_mapscr->undercombo),f))
 	{
 		return qe_invalid;
 	}
 	
 	if(Header->zelda_version < 0x193)
 	{
-		if(!p_getc(&(temp_mapscr->old_cpage),f,true))
+		if(!p_getc(&(temp_mapscr->old_cpage),f))
 		{
 			return qe_invalid;
 		}
 	}
 	
-	if(!p_getc(&(temp_mapscr->undercset),f,true))                //recalculated for older quests
+	if(!p_getc(&(temp_mapscr->undercset),f))                //recalculated for older quests
 	{
 		return qe_invalid;
 	}
 	
-	if(!p_igetw(&(temp_mapscr->catchall),f,true))
+	if(!p_igetw(&(temp_mapscr->catchall),f))
 	{
 		return qe_invalid;
 	}
 	
-	if(!p_getc(&(temp_mapscr->flags),f,true))
+	if(!p_getc(&(temp_mapscr->flags),f))
 	{
 		return qe_invalid;
 	}
 	
-	if(!p_getc(&(temp_mapscr->flags2),f,true))
+	if(!p_getc(&(temp_mapscr->flags2),f))
 	{
 		return qe_invalid;
 	}
 	
-	if(!p_getc(&(temp_mapscr->flags3),f,true))
+	if(!p_getc(&(temp_mapscr->flags3),f))
 	{
 		return qe_invalid;
 	}
@@ -16464,7 +16125,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	if((Header->zelda_version > 0x211)||((Header->zelda_version == 0x211)&&(Header->build>1)))
 		//if (version>2)
 	{
-		if(!p_getc(&(temp_mapscr->flags4),f,true))
+		if(!p_getc(&(temp_mapscr->flags4),f))
 		{
 			return qe_invalid;
 		}
@@ -16472,17 +16133,17 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	
 	if((Header->zelda_version > 0x211)||((Header->zelda_version == 0x211)&&(Header->build>7)))
 	{
-		if(!p_getc(&(temp_mapscr->flags5),f,true))
+		if(!p_getc(&(temp_mapscr->flags5),f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_igetw(&(temp_mapscr->noreset),f,true))
+		if(!p_igetw(&(temp_mapscr->noreset),f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_igetw(&(temp_mapscr->nocarry),f,true))
+		if(!p_igetw(&(temp_mapscr->nocarry),f))
 		{
 			return qe_invalid;
 		}
@@ -16516,7 +16177,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	
 	if((Header->zelda_version > 0x211)||((Header->zelda_version == 0x211)&&(Header->build>9)))
 	{
-		if(!p_getc(&(temp_mapscr->flags6),f,true))
+		if(!p_getc(&(temp_mapscr->flags6),f))
 		{
 			return qe_invalid;
 		}
@@ -16524,27 +16185,27 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	
 	if(version>5)
 	{
-		if(!p_getc(&(temp_mapscr->flags7),f,true))
+		if(!p_getc(&(temp_mapscr->flags7),f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_getc(&(temp_mapscr->flags8),f,true))
+		if(!p_getc(&(temp_mapscr->flags8),f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_getc(&(temp_mapscr->flags9),f,true))
+		if(!p_getc(&(temp_mapscr->flags9),f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_getc(&(temp_mapscr->flags10),f,true))
+		if(!p_getc(&(temp_mapscr->flags10),f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_getc(&(temp_mapscr->csensitive),f,true))
+		if(!p_getc(&(temp_mapscr->csensitive),f))
 		{
 			return qe_invalid;
 		}
@@ -16578,17 +16239,17 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	}
 	else
 	{
-		if(!p_getc(&(temp_mapscr->oceansfx),f,true))
+		if(!p_getc(&(temp_mapscr->oceansfx),f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_getc(&(temp_mapscr->bosssfx),f,true))
+		if(!p_getc(&(temp_mapscr->bosssfx),f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_getc(&(temp_mapscr->secretsfx),f,true))
+		if(!p_getc(&(temp_mapscr->secretsfx),f))
 		{
 			return qe_invalid;
 		}
@@ -16600,7 +16261,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	}
 	else
 	{
-		if(!p_getc(&(temp_mapscr->holdupsfx),f,true))
+		if(!p_getc(&(temp_mapscr->holdupsfx),f))
 		{
 			return qe_invalid;
 		}
@@ -16611,7 +16272,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	{
 		for(int32_t k=0; k<6; k++)
 		{
-			if(!p_getc(&(temp_mapscr->layermap[k]),f,true))
+			if(!p_getc(&(temp_mapscr->layermap[k]),f))
 			{
 				return qe_invalid;
 			}
@@ -16619,7 +16280,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 		
 		for(int32_t k=0; k<6; k++)
 		{
-			if(!p_getc(&(temp_mapscr->layerscreen[k]),f,true))
+			if(!p_getc(&(temp_mapscr->layerscreen[k]),f))
 			{
 				return qe_invalid;
 			}
@@ -16627,22 +16288,22 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	}
 	else if((Header->zelda_version == 0x192)&&(Header->build>23)&&(Header->build<98))
 	{
-		if(!p_getc(&(temp_mapscr->layermap[2]),f,true))
+		if(!p_getc(&(temp_mapscr->layermap[2]),f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_getc(&(temp_mapscr->layerscreen[2]),f,true))
+		if(!p_getc(&(temp_mapscr->layerscreen[2]),f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_getc(&(temp_mapscr->layermap[4]),f,true))
+		if(!p_getc(&(temp_mapscr->layermap[4]),f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_getc(&(temp_mapscr->layerscreen[4]),f,true))
+		if(!p_getc(&(temp_mapscr->layerscreen[4]),f))
 		
 		{
 			return qe_invalid;
@@ -16653,7 +16314,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	{
 		for(int32_t k=0; k<6; k++)
 		{
-			if(!p_getc(&tempbyte,f,true))                          //layerxsize
+			if(!p_getc(&tempbyte,f))                          //layerxsize
 			{
 				return qe_invalid;
 			}
@@ -16661,7 +16322,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 		
 		for(int32_t k=0; k<6; k++)
 		{
-			if(!p_getc(&tempbyte,f,true))                          //layerxspeed
+			if(!p_getc(&tempbyte,f))                          //layerxspeed
 			{
 				return qe_invalid;
 			}
@@ -16669,7 +16330,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 		
 		for(int32_t k=0; k<6; k++)
 		{
-			if(!p_getc(&tempbyte,f,true))                          //layerxdelay
+			if(!p_getc(&tempbyte,f))                          //layerxdelay
 			{
 				return qe_invalid;
 			}
@@ -16677,7 +16338,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 		
 		for(int32_t k=0; k<6; k++)
 		{
-			if(!p_getc(&tempbyte,f,true))                          //layerysize
+			if(!p_getc(&tempbyte,f))                          //layerysize
 			{
 				return qe_invalid;
 			}
@@ -16685,7 +16346,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 		
 		for(int32_t k=0; k<6; k++)
 		{
-			if(!p_getc(&tempbyte,f,true))                          //layeryspeed
+			if(!p_getc(&tempbyte,f))                          //layeryspeed
 			{
 				return qe_invalid;
 			}
@@ -16693,7 +16354,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 		
 		for(int32_t k=0; k<6; k++)
 		{
-			if(!p_getc(&tempbyte,f,true))                          //layerydelay
+			if(!p_getc(&tempbyte,f))                          //layerydelay
 			{
 				return qe_invalid;
 			}
@@ -16704,7 +16365,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	{
 		for(int32_t k=0; k<6; k++)
 		{
-			if(!p_getc(&(temp_mapscr->layeropacity[k]),f,true))
+			if(!p_getc(&(temp_mapscr->layeropacity[k]),f))
 			{
 				return qe_invalid;
 			}
@@ -16715,13 +16376,13 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	{
 		if((Header->zelda_version == 0x192)&&(Header->build>153))
 		{
-			if(!p_getc(&padding,f,true))
+			if(!p_getc(&padding,f))
 			{
 				return qe_invalid;
 			}
 		}
 		
-		if(!p_igetw(&(temp_mapscr->timedwarptics),f,true))
+		if(!p_igetw(&(temp_mapscr->timedwarptics),f))
 		{
 			return qe_invalid;
 		}
@@ -16755,7 +16416,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	
 	for(int32_t k=0; k<extras; k++)
 	{
-		if(!p_getc(&tempbyte,f,true))                            //extra[k]
+		if(!p_getc(&tempbyte,f))                            //extra[k]
 		{
 			return qe_invalid;
 		}
@@ -16764,12 +16425,12 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	if((Header->zelda_version > 0x211)||((Header->zelda_version == 0x211)&&(Header->build>2)))
 		//if (version>3)
 	{
-		if(!p_getc(&(temp_mapscr->nextmap),f,true))
+		if(!p_getc(&(temp_mapscr->nextmap),f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_getc(&(temp_mapscr->nextscr),f,true))
+		if(!p_getc(&(temp_mapscr->nextscr),f))
 		{
 			return qe_invalid;
 		}
@@ -16797,7 +16458,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	{
 		for(int32_t k=0; k<secretcombos; k++)
 		{
-			if(!p_getc(&tempbyte,f,true))
+			if(!p_getc(&tempbyte,f))
 			{
 				return qe_invalid;
 			}
@@ -16812,7 +16473,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	{
 		for(int32_t k=0; k<128; k++)
 		{
-			if(!p_igetw(&(temp_mapscr->secretcombo[k]),f,true))
+			if(!p_igetw(&(temp_mapscr->secretcombo[k]),f))
 			{
 				return qe_invalid;
 			}
@@ -16824,7 +16485,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	{
 		for(int32_t k=0; k<128; k++)
 		{
-			if(!p_getc(&(temp_mapscr->secretcset[k]),f,true))
+			if(!p_getc(&(temp_mapscr->secretcset[k]),f))
 			{
 				return qe_invalid;
 			}
@@ -16832,7 +16493,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 		
 		for(int32_t k=0; k<128; k++)
 		{
-			if(!p_getc(&(temp_mapscr->secretflag[k]),f,true))
+			if(!p_getc(&(temp_mapscr->secretflag[k]),f))
 			{
 				return qe_invalid;
 			}
@@ -16841,7 +16502,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	
 	if((Header->zelda_version == 0x192)&&(Header->build>97)&&(Header->build<154))
 	{
-		if(!p_getc(&padding,f,true))
+		if(!p_getc(&padding,f))
 		{
 			return qe_invalid;
 		}
@@ -16851,7 +16512,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	
 	for(int32_t k=0; k<(temp_map->tileWidth*temp_map->tileHeight); k++)
 	{
-		if(!p_igetw(&(temp_mapscr->data[k]),f,true))
+		if(!p_igetw(&(temp_mapscr->data[k]),f))
 		{
 			return qe_invalid;
 		}
@@ -16859,12 +16520,12 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	
 	if((Header->zelda_version == 0x192)&&(Header->build>20)&&(Header->build<24))
 	{
-		if(!p_getc(&padding,f,true))
+		if(!p_getc(&padding,f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_getc(&padding,f,true))
+		if(!p_getc(&padding,f))
 		{
 			return qe_invalid;
 		}
@@ -16874,24 +16535,24 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	{
 		for(int32_t k=0; k<(temp_map->tileWidth*temp_map->tileHeight); k++)
 		{
-			if(!p_getc(&(temp_mapscr->sflag[k]),f,true))
+			if(!p_getc(&(temp_mapscr->sflag[k]),f))
 			{
 				return qe_invalid;
 			}
 			
 			if((Header->zelda_version == 0x192)&&(Header->build<24))
 			{
-				if(!p_getc(&tempbyte,f,true))
+				if(!p_getc(&tempbyte,f))
 				{
 					return qe_invalid;
 				}
 				
-				if(!p_getc(&tempbyte,f,true))
+				if(!p_getc(&tempbyte,f))
 				{
 					return qe_invalid;
 				}
 				
-				if(!p_getc(&tempbyte,f,true))
+				if(!p_getc(&tempbyte,f))
 				{
 					return qe_invalid;
 				}
@@ -16904,7 +16565,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 		for(int32_t k=0; k<(temp_map->tileWidth*temp_map->tileHeight); k++)
 		{
 		
-			if(!p_getc(&(temp_mapscr->cset[k]),f,true))
+			if(!p_getc(&(temp_mapscr->cset[k]),f))
 			{
 				return qe_invalid;
 			}
@@ -16955,11 +16616,11 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	
 	/*if(version>12)
 	{
-	  if(!p_getc(&(temp_mapscr->scrWidth),f,true))
+	  if(!p_getc(&(temp_mapscr->scrWidth),f))
 	  {
 		return qe_invalid;
 	  }
-	if(!p_getc(&(temp_mapscr->scrHeight),f,true))
+	if(!p_getc(&(temp_mapscr->scrHeight),f))
 	  {
 		return qe_invalid;
 	  }
@@ -16967,7 +16628,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	
 	if(version>4)
 	{
-		if(!p_igetw(&(temp_mapscr->screen_midi),f,true))
+		if(!p_igetw(&(temp_mapscr->screen_midi),f))
 		{
 			return qe_invalid;
 		}
@@ -16979,7 +16640,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	
 	if(version>=17)
 	{
-		if(!p_getc(&(temp_mapscr->lens_layer),f,true))
+		if(!p_getc(&(temp_mapscr->lens_layer),f))
 		{
 			return qe_invalid;
 		}
@@ -16992,7 +16653,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	if(version>6)
 	{
 		dword bits;
-		if(!p_igetl(&bits,f,true))
+		if(!p_igetl(&bits,f))
 		{
 			return qe_invalid;
 		}
@@ -17008,60 +16669,60 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 			tempffc.clear();
 			if((bits>>m)&1)
 			{
-				if(!p_igetw(&tempw,f,true))
+				if(!p_igetw(&tempw,f))
 				{
 					return qe_invalid;
 				}
 				tempffc.setData(tempw);
 				
-				if(!p_getc(&(tempffc.cset),f,true))
+				if(!p_getc(&(tempffc.cset),f))
 				{
 					return qe_invalid;
 				}
 				
-				if(!p_igetw(&(tempffc.delay),f,true))
+				if(!p_igetw(&(tempffc.delay),f))
 				{
 					return qe_invalid;
 				}
 				
 				if(version < 9)
 				{
-					if(!p_igetf(&tempfloat,f,true))
+					if(!p_igetf_DO_NOT_USE(&tempfloat,f))
 					{
 						return qe_invalid;
 					}
 					
 					tempffc.x=zslongToFix(int32_t(tempfloat*10000));
 					
-					if(!p_igetf(&tempfloat,f,true))
+					if(!p_igetf_DO_NOT_USE(&tempfloat,f))
 					{
 						return qe_invalid;
 					}
 					
 					tempffc.y=zslongToFix(int32_t(tempfloat*10000));
 					
-					if(!p_igetf(&tempfloat,f,true))
+					if(!p_igetf_DO_NOT_USE(&tempfloat,f))
 					{
 						return qe_invalid;
 					}
 					
 					tempffc.vx=zslongToFix(int32_t(tempfloat*10000));
 					
-					if(!p_igetf(&tempfloat,f,true))
+					if(!p_igetf_DO_NOT_USE(&tempfloat,f))
 					{
 						return qe_invalid;
 					}
 					
 					tempffc.vy=zslongToFix(int32_t(tempfloat*10000));
 					
-					if(!p_igetf(&tempfloat,f,true))
+					if(!p_igetf_DO_NOT_USE(&tempfloat,f))
 					{
 						return qe_invalid;
 					}
 					
 					tempffc.ax=zslongToFix(int32_t(tempfloat*10000));
 					
-					if(!p_igetf(&tempfloat,f,true))
+					if(!p_igetf_DO_NOT_USE(&tempfloat,f))
 					{
 						return qe_invalid;
 					}
@@ -17070,45 +16731,45 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 				}
 				else
 				{
-					if(!p_igetzf(&(tempffc.x),f,true))
+					if(!p_igetzf(&(tempffc.x),f))
 					{
 						return qe_invalid;
 					}
 					
-					if(!p_igetzf(&(tempffc.y),f,true))
+					if(!p_igetzf(&(tempffc.y),f))
 					{
 						return qe_invalid;
 					}
 					
-					if(!p_igetzf(&(tempffc.vx),f,true))
+					if(!p_igetzf(&(tempffc.vx),f))
 					{
 						return qe_invalid;
 					}
 					
-					if(!p_igetzf(&(tempffc.vy),f,true))
+					if(!p_igetzf(&(tempffc.vy),f))
 					{
 						return qe_invalid;
 					}
 					
-					if(!p_igetzf(&(tempffc.ax),f,true))
+					if(!p_igetzf(&(tempffc.ax),f))
 					{
 						return qe_invalid;
 					}
 					
-					if(!p_igetzf(&(tempffc.ay),f,true))
+					if(!p_igetzf(&(tempffc.ay),f))
 					{
 						return qe_invalid;
 					}
 				}
 				
-				if(!p_getc(&(tempffc.link),f,true))
+				if(!p_getc(&(tempffc.link),f))
 				{
 					return qe_invalid;
 				}
 				
 				if(version>7)
 				{
-					if(!p_getc(&tempbyte,f,true))
+					if(!p_getc(&tempbyte,f))
 					{
 						return qe_invalid;
 					}
@@ -17116,7 +16777,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 					tempffc.hit_width = (tempbyte&0x3F)+1;
 					tempffc.txsz = (tempbyte>>6)+1;
 					
-					if(!p_getc(&tempbyte,f,true))
+					if(!p_getc(&tempbyte,f))
 					{
 						return qe_invalid;
 					}
@@ -17124,7 +16785,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 					tempffc.hit_height = (tempbyte&0x3F)+1;
 					tempffc.tysz = (tempbyte>>6)+1;
 					
-					if(!p_igetl(&(tempffc.flags),f,true))
+					if(!p_igetl(&(tempffc.flags),f))
 					{
 						return qe_invalid;
 					}
@@ -17148,7 +16809,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 				
 				if(version>9)
 				{
-					if(!p_igetw(&(tempffc.script),f,true))
+					if(!p_igetw(&(tempffc.script),f))
 					{
 						return qe_invalid;
 					}
@@ -17160,54 +16821,54 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 				
 				if(version>10)
 				{
-					if(!p_igetl(&(tempffc.initd[0]),f,true))
+					if(!p_igetl(&(tempffc.initd[0]),f))
 					{
 						return qe_invalid;
 					}
 					
-					if(!p_igetl(&(tempffc.initd[1]),f,true))
+					if(!p_igetl(&(tempffc.initd[1]),f))
 					{
 						return qe_invalid;
 					}
 					
-					if(!p_igetl(&(tempffc.initd[2]),f,true))
+					if(!p_igetl(&(tempffc.initd[2]),f))
 					{
 						return qe_invalid;
 					}
 					
-					if(!p_igetl(&(tempffc.initd[3]),f,true))
+					if(!p_igetl(&(tempffc.initd[3]),f))
 					{
 						return qe_invalid;
 					}
 					
-					if(!p_igetl(&(tempffc.initd[4]),f,true))
+					if(!p_igetl(&(tempffc.initd[4]),f))
 					{
 						return qe_invalid;
 					}
 					
-					if(!p_igetl(&(tempffc.initd[5]),f,true))
+					if(!p_igetl(&(tempffc.initd[5]),f))
 					{
 						return qe_invalid;
 					}
 					
-					if(!p_igetl(&(tempffc.initd[6]),f,true))
+					if(!p_igetl(&(tempffc.initd[6]),f))
 					{
 						return qe_invalid;
 					}
 					
-					if(!p_igetl(&(tempffc.initd[7]),f,true))
+					if(!p_igetl(&(tempffc.initd[7]),f))
 					{
 						return qe_invalid;
 					}
 					
-					if(!p_getc(&(tempbyte),f,true))
+					if(!p_getc(&(tempbyte),f))
 					{
 						return qe_invalid;
 					}
 					
 					tempffc.inita[0]=tempbyte*10000;
 					
-					if(!p_getc(&(tempbyte),f,true))
+					if(!p_getc(&(tempbyte),f))
 					{
 						return qe_invalid;
 					}
@@ -17246,28 +16907,28 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	{
 		for ( int32_t q = 0; q < 10; q++ ) 
 		{
-			if(!p_igetl(&(temp_mapscr->npcstrings[q]),f,true))
+			if(!p_igetl(&(temp_mapscr->npcstrings[q]),f))
 			{
 				return qe_invalid;
 			} 
 		}
 		for ( int32_t q = 0; q < 10; q++ ) 
 		{
-			if(!p_igetw(&(temp_mapscr->new_items[q]),f,true))
+			if(!p_igetw(&(temp_mapscr->new_items[q]),f))
 			{
 				return qe_invalid;
 			} 
 		}
 		for ( int32_t q = 0; q < 10; q++ ) 
 		{
-			if(!p_igetw(&(temp_mapscr->new_item_x[q]),f,true))
+			if(!p_igetw(&(temp_mapscr->new_item_x[q]),f))
 			{
 				return qe_invalid;
 			} 
 		}
 		for ( int32_t q = 0; q < 10; q++ ) 
 		{
-			if(!p_igetw(&(temp_mapscr->new_item_y[q]),f,true))
+			if(!p_igetw(&(temp_mapscr->new_item_y[q]),f))
 			{
 				return qe_invalid;
 			} 
@@ -17285,13 +16946,13 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	}
 	if ( version >= 20 && Header->zelda_version > 0x253 )
 	{
-	if(!p_igetw(&(temp_mapscr->script),f,true))
+	if(!p_igetw(&(temp_mapscr->script),f))
 	{
 		return qe_invalid;
 	} 
 	for ( int32_t q = 0; q < 8; q++)
 	{
-		if(!p_igetl(&(temp_mapscr->screeninitd[q]),f,true))
+		if(!p_igetl(&(temp_mapscr->screeninitd[q]),f))
 		{
 			return qe_invalid;
 		}
@@ -17304,7 +16965,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	}
 	if ( version >= 21 && Header->zelda_version > 0x253 )
 	{
-	if(!p_getc(&(temp_mapscr->preloadscript),f,true))
+	if(!p_getc(&(temp_mapscr->preloadscript),f))
 	{
 		return qe_invalid;
 	}       
@@ -17317,11 +16978,11 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	
 	if ( version >= 22 && Header->zelda_version > 0x253 ) //26th June, 2019; Layer Visibility
 	{
-	if(!p_getc(&(temp_mapscr->hidelayers ),f,true))
+	if(!p_getc(&(temp_mapscr->hidelayers ),f))
 	{
 		return qe_invalid;
 	} 
-	if(!p_getc(&(temp_mapscr->hidescriptlayers  ),f,true))
+	if(!p_getc(&(temp_mapscr->hidescriptlayers  ),f))
 	{
 		return qe_invalid;
 	}      
@@ -17355,7 +17016,7 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zc
 	}
 	else
 	{
-		if(!p_getc(&(temp_mapscr->valid),f,true))
+		if(!p_getc(&(temp_mapscr->valid),f))
 			return qe_invalid;
 		if(!(temp_mapscr->valid & mVALID))
 		{
@@ -17375,20 +17036,20 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zc
 			return 0;
 		}
 		uint32_t scr_has_flags;
-		if(!p_igetl(&scr_has_flags,f,true))
+		if(!p_igetl(&scr_has_flags,f))
 			return qe_invalid;
 		
 		if(scr_has_flags & SCRHAS_ROOMDATA)
 		{
-			if(!p_getc(&(temp_mapscr->guy),f,true))
+			if(!p_getc(&(temp_mapscr->guy),f))
 				return qe_invalid;
 			if(version > 26)
 			{
-				if(!p_igetl(&(temp_mapscr->guytile),f,true))
+				if(!p_igetl(&(temp_mapscr->guytile),f))
 					return qe_invalid;
-				if(!p_getc(&(temp_mapscr->guycs),f,true))
+				if(!p_getc(&(temp_mapscr->guycs),f))
 					return qe_invalid;
-				if(!p_igetw(&(temp_mapscr->roomflags),f,true))
+				if(!p_igetw(&(temp_mapscr->roomflags),f))
 					return qe_invalid;
 			}
 			else
@@ -17397,197 +17058,197 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zc
 				SETFLAG(temp_mapscr->roomflags,RFL_ALWAYS_GUY,temp_mapscr->guy==gFAIRY);
 				SETFLAG(temp_mapscr->roomflags,RFL_GUYFIRES,temp_mapscr->guy!=gFAIRY || !get_qr(qr_NOFAIRYGUYFIRES));
 			}
-			if(!p_igetw(&(temp_mapscr->str),f,true))
+			if(!p_igetw(&(temp_mapscr->str),f))
 				return qe_invalid;
-			if(!p_getc(&(temp_mapscr->room),f,true))
+			if(!p_getc(&(temp_mapscr->room),f))
 				return qe_invalid;
-			if(!p_igetw(&(temp_mapscr->catchall),f,true))
+			if(!p_igetw(&(temp_mapscr->catchall),f))
 				return qe_invalid;
 		}
 		if(scr_has_flags & SCRHAS_ITEM)
 		{
-			if(!p_getc(&(temp_mapscr->item),f,true))
+			if(!p_getc(&(temp_mapscr->item),f))
 				return qe_invalid;
-			if(!p_getc(&(temp_mapscr->hasitem),f,true))
+			if(!p_getc(&(temp_mapscr->hasitem),f))
 				return qe_invalid;
-			if(!p_getc(&(temp_mapscr->itemx),f,true))
+			if(!p_getc(&(temp_mapscr->itemx),f))
 				return qe_invalid;
-			if(!p_getc(&(temp_mapscr->itemy),f,true))
+			if(!p_getc(&(temp_mapscr->itemy),f))
 				return qe_invalid;
 		}
 		if(scr_has_flags & (SCRHAS_SWARP|SCRHAS_TWARP))
 		{
-			if(!p_igetw(&temp_mapscr->warpreturnc,f,true))
+			if(!p_igetw(&temp_mapscr->warpreturnc,f))
 				return qe_invalid;
 		}
 		if(scr_has_flags & SCRHAS_TWARP)
 		{
 			for(int32_t i=0; i<4; i++)
 			{
-				if(!p_getc(&(temp_mapscr->tilewarptype[i]),f,true))
+				if(!p_getc(&(temp_mapscr->tilewarptype[i]),f))
 					return qe_invalid;
 			}
 			for(int32_t i=0; i<4; i++)
 			{
-				if(!p_igetw(&(temp_mapscr->tilewarpdmap[i]),f,true))
+				if(!p_igetw(&(temp_mapscr->tilewarpdmap[i]),f))
 					return qe_invalid;
 			}
 			for(int32_t i=0; i<4; i++)
 			{
-				if(!p_getc(&(temp_mapscr->tilewarpscr[i]),f,true))
+				if(!p_getc(&(temp_mapscr->tilewarpscr[i]),f))
 					return qe_invalid;
 			}
-			if(!p_getc(&(temp_mapscr->tilewarpoverlayflags),f,true))
+			if(!p_getc(&(temp_mapscr->tilewarpoverlayflags),f))
 				return qe_invalid;
 		}
 		if(scr_has_flags & SCRHAS_SWARP)
 		{
 			for(int32_t i=0; i<4; i++)
 			{
-				if(!p_getc(&(temp_mapscr->sidewarptype[i]),f,true))
+				if(!p_getc(&(temp_mapscr->sidewarptype[i]),f))
 					return qe_invalid;
 			}
 			for(int32_t i=0; i<4; i++)
 			{
-				if(!p_igetw(&(temp_mapscr->sidewarpdmap[i]),f,true))
+				if(!p_igetw(&(temp_mapscr->sidewarpdmap[i]),f))
 					return qe_invalid;
 			}
 			for(int32_t i=0; i<4; i++)
 			{
-				if(!p_getc(&(temp_mapscr->sidewarpscr[i]),f,true))
+				if(!p_getc(&(temp_mapscr->sidewarpscr[i]),f))
 					return qe_invalid;
 			}
-			if(!p_getc(&(temp_mapscr->sidewarpoverlayflags),f,true))
+			if(!p_getc(&(temp_mapscr->sidewarpoverlayflags),f))
 				return qe_invalid;
-			if(!p_getc(&(temp_mapscr->sidewarpindex),f,true))
+			if(!p_getc(&(temp_mapscr->sidewarpindex),f))
 				return qe_invalid;
 		}
 		if(scr_has_flags & SCRHAS_WARPRET)
 		{
 			for(int32_t i=0; i<4; i++)
 			{
-				if(!p_getc(&(temp_mapscr->warpreturnx[i]),f,true))
+				if(!p_getc(&(temp_mapscr->warpreturnx[i]),f))
 					return qe_invalid;
 			}
 			for(int32_t i=0; i<4; i++)
 			{
-				if(!p_getc(&(temp_mapscr->warpreturny[i]),f,true))
+				if(!p_getc(&(temp_mapscr->warpreturny[i]),f))
 					return qe_invalid;
 			}
-			if(!p_getc(&(temp_mapscr->warparrivalx),f,true))
+			if(!p_getc(&(temp_mapscr->warparrivalx),f))
 				return qe_invalid;
-			if(!p_getc(&(temp_mapscr->warparrivaly),f,true))
+			if(!p_getc(&(temp_mapscr->warparrivaly),f))
 				return qe_invalid;
 		}
 		if(scr_has_flags & SCRHAS_LAYERS)
 		{
 			for(int32_t k=0; k<6; k++)
 			{
-				if(!p_getc(&(temp_mapscr->layermap[k]),f,true))
+				if(!p_getc(&(temp_mapscr->layermap[k]),f))
 					return qe_invalid;
 			}
 			for(int32_t k=0; k<6; k++)
 			{
-				if(!p_getc(&(temp_mapscr->layerscreen[k]),f,true))
+				if(!p_getc(&(temp_mapscr->layerscreen[k]),f))
 					return qe_invalid;
 			}
 			for(int32_t k=0; k<6; k++)
 			{
-				if(!p_getc(&(temp_mapscr->layeropacity[k]),f,true))
+				if(!p_getc(&(temp_mapscr->layeropacity[k]),f))
 					return qe_invalid;
 			}
-			if(!p_getc(&(temp_mapscr->hidelayers),f,true))
+			if(!p_getc(&(temp_mapscr->hidelayers),f))
 				return qe_invalid;
-			if(!p_getc(&(temp_mapscr->hidescriptlayers),f,true))
+			if(!p_getc(&(temp_mapscr->hidescriptlayers),f))
 				return qe_invalid;
 		}
 		if(scr_has_flags & SCRHAS_MAZE)
 		{
 			for(int32_t k=0; k<4; k++)
 			{
-				if(!p_getc(&(temp_mapscr->path[k]),f,true))
+				if(!p_getc(&(temp_mapscr->path[k]),f))
 					return qe_invalid;
 			}
-			if(!p_getc(&(temp_mapscr->exitdir),f,true))
+			if(!p_getc(&(temp_mapscr->exitdir),f))
 				return qe_invalid;
 		}
 		if(scr_has_flags & SCRHAS_D_S_U)
 		{
-			if(!p_igetw(&(temp_mapscr->door_combo_set),f,true))
+			if(!p_igetw(&(temp_mapscr->door_combo_set),f))
 				return qe_invalid;
 			for(int32_t k=0; k<4; k++)
 			{
-				if(!p_getc(&(temp_mapscr->door[k]),f,true))
+				if(!p_getc(&(temp_mapscr->door[k]),f))
 					return qe_invalid;
 			}
 			
-			if(!p_getc(&(temp_mapscr->stairx),f,true))
+			if(!p_getc(&(temp_mapscr->stairx),f))
 				return qe_invalid;
 			
-			if(!p_getc(&(temp_mapscr->stairy),f,true))
+			if(!p_getc(&(temp_mapscr->stairy),f))
 				return qe_invalid;
-			if(!p_igetw(&(temp_mapscr->undercombo),f,true))
+			if(!p_igetw(&(temp_mapscr->undercombo),f))
 				return qe_invalid;
-			if(!p_getc(&(temp_mapscr->undercset),f,true))
+			if(!p_getc(&(temp_mapscr->undercset),f))
 				return qe_invalid;
 		}
 		if(scr_has_flags & SCRHAS_FLAGS)
 		{
-			if(!p_getc(&(temp_mapscr->flags),f,true))
+			if(!p_getc(&(temp_mapscr->flags),f))
 				return qe_invalid;
-			if(!p_getc(&(temp_mapscr->flags2),f,true))
+			if(!p_getc(&(temp_mapscr->flags2),f))
 				return qe_invalid;
-			if(!p_getc(&(temp_mapscr->flags3),f,true))
+			if(!p_getc(&(temp_mapscr->flags3),f))
 				return qe_invalid;
-			if(!p_getc(&(temp_mapscr->flags4),f,true))
+			if(!p_getc(&(temp_mapscr->flags4),f))
 				return qe_invalid;
-			if(!p_getc(&(temp_mapscr->flags5),f,true))
+			if(!p_getc(&(temp_mapscr->flags5),f))
 				return qe_invalid;
-			if(!p_getc(&(temp_mapscr->flags6),f,true))
+			if(!p_getc(&(temp_mapscr->flags6),f))
 				return qe_invalid;
-			if(!p_getc(&(temp_mapscr->flags7),f,true))
+			if(!p_getc(&(temp_mapscr->flags7),f))
 				return qe_invalid;
-			if(!p_getc(&(temp_mapscr->flags8),f,true))
+			if(!p_getc(&(temp_mapscr->flags8),f))
 				return qe_invalid;
-			if(!p_getc(&(temp_mapscr->flags9),f,true))
+			if(!p_getc(&(temp_mapscr->flags9),f))
 				return qe_invalid;
-			if(!p_getc(&(temp_mapscr->flags10),f,true))
+			if(!p_getc(&(temp_mapscr->flags10),f))
 				return qe_invalid;
-			if(!p_getc(&(temp_mapscr->enemyflags),f,true))
+			if(!p_getc(&(temp_mapscr->enemyflags),f))
 				return qe_invalid;
 		}
 		if(scr_has_flags & SCRHAS_ENEMY)
 		{
 			for(int32_t k=0; k<10; k++)
 			{
-				if(!p_igetw(&(temp_mapscr->enemy[k]),f,true))
+				if(!p_igetw(&(temp_mapscr->enemy[k]),f))
 					return qe_invalid;
 				if (unsigned(temp_mapscr->enemy[k]) > MAXGUYS)
 					temp_mapscr->enemy[k] = 0;
 			}
-			if(!p_getc(&(temp_mapscr->pattern),f,true))
+			if(!p_getc(&(temp_mapscr->pattern),f))
 				return qe_invalid;
 		}
 		if(scr_has_flags & SCRHAS_CARRY)
 		{
-			if(!p_igetw(&(temp_mapscr->noreset),f,true))
+			if(!p_igetw(&(temp_mapscr->noreset),f))
 				return qe_invalid;
-			if(!p_igetw(&(temp_mapscr->nocarry),f,true))
+			if(!p_igetw(&(temp_mapscr->nocarry),f))
 				return qe_invalid;
-			if(!p_getc(&(temp_mapscr->nextmap),f,true))
+			if(!p_getc(&(temp_mapscr->nextmap),f))
 				return qe_invalid;
-			if(!p_getc(&(temp_mapscr->nextscr),f,true))
+			if(!p_getc(&(temp_mapscr->nextscr),f))
 				return qe_invalid;
 		}
 		if(scr_has_flags & SCRHAS_SCRIPT)
 		{
-			if(!p_igetw(&(temp_mapscr->script),f,true))
+			if(!p_igetw(&(temp_mapscr->script),f))
 				return qe_invalid;
-			if(!p_getc(&(temp_mapscr->preloadscript),f,true))
+			if(!p_getc(&(temp_mapscr->preloadscript),f))
 				return qe_invalid;
 			for ( int32_t q = 0; q < 8; q++ )
 			{
-				if(!p_igetl(&(temp_mapscr->screeninitd[q]),f,true))
+				if(!p_igetl(&(temp_mapscr->screeninitd[q]),f))
 					return qe_invalid;
 			}
 		}
@@ -17595,22 +17256,22 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zc
 		{
 			for ( int32_t q = 0; q < 10; q++ ) 
 			{
-				if(!p_igetl(&(temp_mapscr->npcstrings[q]),f,true))
+				if(!p_igetl(&(temp_mapscr->npcstrings[q]),f))
 					return qe_invalid;
 			}
 			for ( int32_t q = 0; q < 10; q++ ) 
 			{
-				if(!p_igetw(&(temp_mapscr->new_items[q]),f,true))
+				if(!p_igetw(&(temp_mapscr->new_items[q]),f))
 					return qe_invalid;
 			}
 			for ( int32_t q = 0; q < 10; q++ ) 
 			{
-				if(!p_igetw(&(temp_mapscr->new_item_x[q]),f,true))
+				if(!p_igetw(&(temp_mapscr->new_item_x[q]),f))
 					return qe_invalid;
 			}
 			for ( int32_t q = 0; q < 10; q++ ) 
 			{
-				if(!p_igetw(&(temp_mapscr->new_item_y[q]),f,true))
+				if(!p_igetw(&(temp_mapscr->new_item_y[q]),f))
 					return qe_invalid;
 			}
 		}
@@ -17618,17 +17279,17 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zc
 		{
 			for(int32_t k=0; k<128; k++)
 			{
-				if(!p_igetw(&(temp_mapscr->secretcombo[k]),f,true))
+				if(!p_igetw(&(temp_mapscr->secretcombo[k]),f))
 					return qe_invalid;
 			}
 			for(int32_t k=0; k<128; k++)
 			{
-				if(!p_getc(&(temp_mapscr->secretcset[k]),f,true))
+				if(!p_getc(&(temp_mapscr->secretcset[k]),f))
 					return qe_invalid;
 			}
 			for(int32_t k=0; k<128; k++)
 			{
-				if(!p_getc(&(temp_mapscr->secretflag[k]),f,true))
+				if(!p_getc(&(temp_mapscr->secretflag[k]),f))
 					return qe_invalid;
 			}
 		}
@@ -17636,39 +17297,39 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zc
 		{
 			for(int32_t k=0; k<176; ++k)
 			{
-				if(!p_igetw(&(temp_mapscr->data[k]),f,true))
+				if(!p_igetw(&(temp_mapscr->data[k]),f))
 					return qe_invalid;
 			}
 			for(int32_t k=0; k<176; ++k)
 			{
-				if(!p_getc(&(temp_mapscr->sflag[k]),f,true))
+				if(!p_getc(&(temp_mapscr->sflag[k]),f))
 					return qe_invalid;
 			}
 			for(int32_t k=0; k<176; ++k)
 			{
-				if(!p_getc(&(temp_mapscr->cset[k]),f,true))
+				if(!p_getc(&(temp_mapscr->cset[k]),f))
 					return qe_invalid;
 			}
 		}
 		if(scr_has_flags & SCRHAS_MISC)
 		{
-			if(!p_igetw(&(temp_mapscr->color),f,true))
+			if(!p_igetw(&(temp_mapscr->color),f))
 				return qe_invalid;
-			if(!p_getc(&(temp_mapscr->csensitive),f,true))
+			if(!p_getc(&(temp_mapscr->csensitive),f))
 				return qe_invalid;
-			if(!p_getc(&(temp_mapscr->oceansfx),f,true))
+			if(!p_getc(&(temp_mapscr->oceansfx),f))
 				return qe_invalid;
-			if(!p_getc(&(temp_mapscr->bosssfx),f,true))
+			if(!p_getc(&(temp_mapscr->bosssfx),f))
 				return qe_invalid;
-			if(!p_getc(&(temp_mapscr->secretsfx),f,true))
+			if(!p_getc(&(temp_mapscr->secretsfx),f))
 				return qe_invalid;
-			if(!p_getc(&(temp_mapscr->holdupsfx),f,true))
+			if(!p_getc(&(temp_mapscr->holdupsfx),f))
 				return qe_invalid;
-			if(!p_igetw(&(temp_mapscr->timedwarptics),f,true))
+			if(!p_igetw(&(temp_mapscr->timedwarptics),f))
 				return qe_invalid;
-			if(!p_igetw(&(temp_mapscr->screen_midi),f,true))
+			if(!p_igetw(&(temp_mapscr->screen_midi),f))
 				return qe_invalid;
-			if(!p_getc(&(temp_mapscr->lens_layer),f,true))
+			if(!p_getc(&(temp_mapscr->lens_layer),f))
 				return qe_invalid;
 		}
 		else
@@ -17682,12 +17343,12 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zc
 		word numffc = 32;
 		if(old_ff)
 		{
-			if(!p_igetl(&bits,f,true))
+			if(!p_igetl(&bits,f))
 				return qe_invalid;
 		}
 		else
 		{
-			if(!p_igetw(&numffc,f,true))
+			if(!p_igetw(&numffc,f))
 				return qe_invalid;
 		}
 		byte tempbyte;
@@ -17702,67 +17363,67 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zc
 			tempffc.clear();
 			if(old_ff && !(bits & (1<<m))) continue;
 			
-			if(!p_igetw(&tempw,f,true))
+			if(!p_igetw(&tempw,f))
 				return qe_invalid;
 			if(!old_ff && !tempw) //empty ffc, nothing more to load
 				continue;
 			tempffc.setData(tempw);
 			
-			if(!p_getc(&(tempffc.cset),f,true))
+			if(!p_getc(&(tempffc.cset),f))
 				return qe_invalid;
-			if(!p_igetw(&(tempffc.delay),f,true))
+			if(!p_igetw(&(tempffc.delay),f))
 				return qe_invalid;
-			if(!p_igetzf(&(tempffc.x),f,true))
+			if(!p_igetzf(&(tempffc.x),f))
 				return qe_invalid;
-			if(!p_igetzf(&(tempffc.y),f,true))
+			if(!p_igetzf(&(tempffc.y),f))
 				return qe_invalid;
-			if(!p_igetzf(&(tempffc.vx),f,true))
+			if(!p_igetzf(&(tempffc.vx),f))
 				return qe_invalid;
-			if(!p_igetzf(&(tempffc.vy),f,true))
+			if(!p_igetzf(&(tempffc.vy),f))
 				return qe_invalid;
-			if(!p_igetzf(&(tempffc.ax),f,true))
+			if(!p_igetzf(&(tempffc.ax),f))
 				return qe_invalid;
-			if(!p_igetzf(&(tempffc.ay),f,true))
+			if(!p_igetzf(&(tempffc.ay),f))
 				return qe_invalid;
-			if(!p_getc(&(tempffc.link),f,true))
+			if(!p_getc(&(tempffc.link),f))
 				return qe_invalid;
 			if(version < 24)
 			{
-				if(!p_getc(&tempbyte,f,true))
+				if(!p_getc(&tempbyte,f))
 					return qe_invalid;
 				tempffc.hit_width = (tempbyte&0x3F)+1;
 				tempffc.txsz = (tempbyte>>6)+1;
-				if(!p_getc(&tempbyte,f,true))
+				if(!p_getc(&tempbyte,f))
 					return qe_invalid;
 				tempffc.hit_height = (tempbyte&0x3F)+1;
 				tempffc.tysz = (tempbyte>>6)+1;
 			}
 			else
 			{
-				if(!p_igetl(&(tempffc.hit_width),f,true))
+				if(!p_igetl(&(tempffc.hit_width),f))
 					return qe_invalid;
-				if(!p_igetl(&(tempffc.hit_height),f,true))
+				if(!p_igetl(&(tempffc.hit_height),f))
 					return qe_invalid;
-				if(!p_getc(&(tempffc.txsz),f,true))
+				if(!p_getc(&(tempffc.txsz),f))
 					return qe_invalid;
-				if(!p_getc(&(tempffc.tysz),f,true))
+				if(!p_getc(&(tempffc.tysz),f))
 					return qe_invalid;
 			}
-			if(!p_igetl(&(tempffc.flags),f,true))
+			if(!p_igetl(&(tempffc.flags),f))
 				return qe_invalid;
 			tempffc.updateSolid();
-			if(!p_igetw(&(tempffc.script),f,true))
+			if(!p_igetw(&(tempffc.script),f))
 				return qe_invalid;
 			for(auto q = 0; q < 8; ++q)
 			{
-				if(!p_igetl(&(tempffc.initd[q]),f,true))
+				if(!p_igetl(&(tempffc.initd[q]),f))
 					return qe_invalid;
 			}
-			if(!p_getc(&(tempbyte),f,true))
+			if(!p_getc(&(tempbyte),f))
 				return qe_invalid;
 			tempffc.inita[0]=tempbyte*10000;
 			
-			if(!p_getc(&(tempbyte),f,true))
+			if(!p_getc(&(tempbyte),f))
 				return qe_invalid;
 			tempffc.inita[1]=tempbyte*10000;
 		}
@@ -17776,7 +17437,7 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zc
 }
 
 
-int32_t readmaps(PACKFILE *f, zquestheader *Header, bool keepdata)
+int32_t readmaps(PACKFILE *f, zquestheader *Header)
 {
 	int32_t scr=0;
 	
@@ -17801,7 +17462,7 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header, bool keepdata)
 	if(Header->zelda_version > 0x192)
 	{
 		//section version info
-		if(!p_igetw(&version,f,true))
+		if(!p_igetw(&version,f))
 		{
 			return qe_invalid;
 		}
@@ -17809,19 +17470,19 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header, bool keepdata)
 		FFCore.quest_format[vMaps] = version;
 		
 		//al_trace("Maps version %d\n", version);
-		if(!p_igetw(&dummy,f,true))
+		if(!p_igetw(&dummy,f))
 		{
 			return qe_invalid;
 		}
 		
 		//section size
-		if(!p_igetl(&section_size,f,true))
+		if(!p_igetl(&section_size,f))
 		{
 			return qe_invalid;
 		}
 		
 		//finally...  section data
-		if(!p_igetw(&temp_map_count,f,true))
+		if(!p_igetw(&temp_map_count,f))
 		{
 			return 5;
 		}
@@ -17836,18 +17497,15 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header, bool keepdata)
 		return qe_invalid;
 	}
 
-	if(keepdata)
-	{
-		const int32_t _mapsSize = MAPSCRS*temp_map_count;
-		TheMaps.resize(_mapsSize);
-		map_autolayers.clear();
-		map_autolayers.resize(temp_map_count*6);
-		
-		for(int32_t i(0); i<_mapsSize; i++)
-			TheMaps[i].zero_memory();
-		
-		memset(ZCMaps, 0, sizeof(zcmap)*MAXMAPS2);
-	}
+	const int32_t _mapsSize = MAPSCRS*temp_map_count;
+	TheMaps.resize(_mapsSize);
+	map_autolayers.clear();
+	map_autolayers.resize(temp_map_count*6);
+	
+	for(int32_t i(0); i<_mapsSize; i++)
+		TheMaps[i].zero_memory();
+	
+	memset(ZCMaps, 0, sizeof(zcmap)*MAXMAPS2);
 	
 	temp_mapscr.zero_memory();
 	
@@ -17870,21 +17528,20 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header, bool keepdata)
 	}
 	for(int32_t i=0; i<temp_map_count && i<MAXMAPS2; i++)
 	{
-		if(keepdata==true) //!TODO Trim fully
-		{
-			memcpy(&ZCMaps[i], &temp_map, sizeof(zcmap));
-		}
+		//!TODO Trim fully
+		memcpy(&ZCMaps[i], &temp_map, sizeof(zcmap));
+
 		byte valid=1;
 		if(version > 22)
 		{
-			if(!p_getc(&valid,f,true))
+			if(!p_getc(&valid,f))
 				return qe_invalid;
 		}
 		if(valid && version > 25)
 		{
 			for(int q = 0; q < 6; ++q)
 			{
-				if(!p_igetw(&map_autolayers[i*6+q],f,keepdata))
+				if(!p_igetw(&map_autolayers[i*6+q],f))
 					return qe_invalid;
 			}
 		}
@@ -17895,54 +17552,47 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header, bool keepdata)
 			if(valid)
 				readmapscreen(f, Header, &temp_mapscr, &temp_map, version, scr);
 			
-			if(keepdata==true)
-				TheMaps[scr] = temp_mapscr;
+			TheMaps[scr] = temp_mapscr;
 		}
 		
-		if(keepdata==true)
+		if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<137)))
 		{
-			if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<137)))
-			{
-				int32_t index = (i*MAPSCRS+132);
-				
-				TheMaps[index]=TheMaps[index-1];
-				
-				MEMCPY_ARR(TheMaps[i*MAPSCRS+132].data, TheMaps[i*MAPSCRS+131].data);
-				MEMCPY_ARR(TheMaps[i*MAPSCRS+132].sflag, TheMaps[i*MAPSCRS+131].sflag);
-				MEMCPY_ARR(TheMaps[i*MAPSCRS+132].cset, TheMaps[i*MAPSCRS+131].cset);
-				
-				for(int32_t j=133; j<MAPSCRS; j++)
-				{
-					scr=i*MAPSCRS+j;
-					
-					TheMaps[scr].zero_memory();
-					TheMaps[scr].valid = mVERSION;
-					TheMaps[scr].screen_midi = -1;
-					TheMaps[scr].csensitive = 1;
-				}
-			}
+			int32_t index = (i*MAPSCRS+132);
 			
-			if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<154)))
+			TheMaps[index]=TheMaps[index-1];
+			
+			MEMCPY_ARR(TheMaps[i*MAPSCRS+132].data, TheMaps[i*MAPSCRS+131].data);
+			MEMCPY_ARR(TheMaps[i*MAPSCRS+132].sflag, TheMaps[i*MAPSCRS+131].sflag);
+			MEMCPY_ARR(TheMaps[i*MAPSCRS+132].cset, TheMaps[i*MAPSCRS+131].cset);
+			
+			for(int32_t j=133; j<MAPSCRS; j++)
 			{
-				for(int32_t j=0; j<MAPSCRS; j++)
+				scr=i*MAPSCRS+j;
+				
+				TheMaps[scr].zero_memory();
+				TheMaps[scr].valid = mVERSION;
+				TheMaps[scr].screen_midi = -1;
+				TheMaps[scr].csensitive = 1;
+			}
+		}
+		
+		if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<154)))
+		{
+			for(int32_t j=0; j<MAPSCRS; j++)
+			{
+				scr=i*MAPSCRS+j;
+				TheMaps[scr].door_combo_set=MakeDoors(i, j);
+				
+				for(int32_t k=0; k<128; k++)
 				{
-					scr=i*MAPSCRS+j;
-					TheMaps[scr].door_combo_set=MakeDoors(i, j);
-					
-					for(int32_t k=0; k<128; k++)
-					{
-						TheMaps[scr].secretcset[k]=tcmbcset2(i, TheMaps[scr].secretcombo[k]);
-						TheMaps[scr].secretflag[k]=tcmbflag2(i, TheMaps[scr].secretcombo[k]);
-						TheMaps[scr].secretcombo[k]=tcmbdat2(i, j, TheMaps[scr].secretcombo[k]);
-					}
+					TheMaps[scr].secretcset[k]=tcmbcset2(i, TheMaps[scr].secretcombo[k]);
+					TheMaps[scr].secretflag[k]=tcmbflag2(i, TheMaps[scr].secretcombo[k]);
+					TheMaps[scr].secretcombo[k]=tcmbdat2(i, j, TheMaps[scr].secretcombo[k]);
 				}
 			}
 		}
 	}
-	if(keepdata)
-	{
-		map_count = temp_map_count;
-	}
+	map_count = temp_map_count;
 	clear_screen(&temp_mapscr);
 	return 0;
 }
@@ -17963,7 +17613,7 @@ void update_combo(newcombo& cmb, word section_version)
 		}
 	}
 }
-int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word version, word build, word start_combo, word max_combos, bool keepdata)
+int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word version, word build, word start_combo, word max_combos)
 {
 	reset_combo_animations();
 	reset_combo_animations2();
@@ -17977,16 +17627,13 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 	newcombo temp_combo;
 	//word section_cversion=0;
 
-	if(keepdata==true)
-	{
-		for(int32_t q = start_combo; q < start_combo+max_combos; ++q)
-			combobuf[q].clear();
-	}
+	for(int32_t q = start_combo; q < start_combo+max_combos; ++q)
+		combobuf[q].clear();
 
 	// if(version > 0x192)
 	// {
 		// //section version info
-		// if(!p_igetw(&section_version,f,true))
+		// if(!p_igetw(&section_version,f))
 		// {
 			// return qe_invalid;
 		// }
@@ -17994,13 +17641,13 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 		// FFCore.quest_format[vCombos] = section_version;
 		
 		// //al_trace("Combos version %d\n", section_version);
-		// if(!p_igetw(&section_cversion,f,true))
+		// if(!p_igetw(&section_cversion,f))
 		// {
 			// return qe_invalid;
 		// }
 		
 		// //section size
-		// if(!p_igetl(&dummy,f,true))
+		// if(!p_igetl(&dummy,f))
 		// {
 			// return qe_invalid;
 		// }
@@ -18016,7 +17663,7 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 	}
 	else
 	{
-		if(!p_igetw(&combos_used,f,true))
+		if(!p_igetw(&combos_used,f))
 		{
 			return qe_invalid;
 		}
@@ -18029,45 +17676,45 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 		
 		if ( section_version >= 11 )
 		{
-			if(!p_igetl(&temp_combo.tile,f,true))
+			if(!p_igetl(&temp_combo.tile,f))
 			{
 				return qe_invalid;
 			}
 		}
 		else
 		{
-			if(!p_igetw(&temp_combo.tile,f,true))
+			if(!p_igetw(&temp_combo.tile,f))
 			{
 				return qe_invalid;
 			}
 		}
 		temp_combo.o_tile = temp_combo.tile;
-		if(!p_getc(&temp_combo.flip,f,true))
+		if(!p_getc(&temp_combo.flip,f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_getc(&temp_combo.walk,f,true))
+		if(!p_getc(&temp_combo.walk,f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_getc(&temp_combo.type,f,true))
+		if(!p_getc(&temp_combo.type,f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_getc(&temp_combo.csets,f,true))
+		if(!p_getc(&temp_combo.csets,f))
 		{
 			return qe_invalid;
 		}
 		
 		if(version < 0x193)
 		{
-			if(!p_getc(&padding,f,true))
+			if(!p_getc(&padding,f))
 				return qe_invalid;
 			
-			if(!p_getc(&padding,f,true))
+			if(!p_getc(&padding,f))
 				return qe_invalid;
 			
 			if(version < 0x192)
@@ -18076,7 +17723,7 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 				{
 					for(int32_t tmpcounter=0; tmpcounter<16; tmpcounter++)
 					{
-						if(!p_getc(&padding,f,true))
+						if(!p_getc(&padding,f))
 							return qe_invalid;
 					}
 				}
@@ -18084,39 +17731,39 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 		}
 		if(version >= 0x192)
 		{
-			if(!p_getc(&temp_combo.frames,f,true))
+			if(!p_getc(&temp_combo.frames,f))
 				return qe_invalid;
 			
-			if(!p_getc(&temp_combo.speed,f,true))
+			if(!p_getc(&temp_combo.speed,f))
 				return qe_invalid;
 			
-			if(!p_igetw(&temp_combo.nextcombo,f,true))
+			if(!p_igetw(&temp_combo.nextcombo,f))
 				return qe_invalid;
 			
-			if(!p_getc(&temp_combo.nextcset,f,true))
+			if(!p_getc(&temp_combo.nextcset,f))
 				return qe_invalid;
 			
 			//Base flag
 			if(section_version>=3)
-				if(!p_getc(&temp_combo.flag,f,true))
+				if(!p_getc(&temp_combo.flag,f))
 					return qe_invalid;
 			
 			if(section_version>=4)
 			{
-				if(!p_getc(&temp_combo.skipanim,f,true))
+				if(!p_getc(&temp_combo.skipanim,f))
 					return qe_invalid;
 				
-				if(!p_igetw(&temp_combo.nexttimer,f,true))
+				if(!p_igetw(&temp_combo.nexttimer,f))
 					return qe_invalid;
 			}
 			
 			if(section_version>=5)
-				if(!p_getc(&temp_combo.skipanimy,f,true))
+				if(!p_getc(&temp_combo.skipanimy,f))
 					return qe_invalid;
 			
 			if(section_version>=6)
 			{
-				if(!p_getc(&temp_combo.animflags,f,true))
+				if(!p_getc(&temp_combo.animflags,f))
 					return qe_invalid;
 				
 				if(section_version == 6)
@@ -18126,75 +17773,75 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 			if(section_version>=8) //combo Attributes[4] and userflags.
 			{
 				for ( int32_t q = 0; q < NUM_COMBO_ATTRIBUTES; q++ )
-					if(!p_igetl(&temp_combo.attributes[q],f,true))
+					if(!p_igetl(&temp_combo.attributes[q],f))
 						return qe_invalid;
-				if(!p_igetl(&temp_combo.usrflags,f,true))
+				if(!p_igetl(&temp_combo.usrflags,f))
 					return qe_invalid;
 				if(section_version >= 20)
-					if(!p_igetw(&temp_combo.genflags,f,true))
+					if(!p_igetw(&temp_combo.genflags,f))
 						return qe_invalid;
 			}
 			if(section_version>=10) //combo trigger flags
 			{
 				for ( int32_t q = 0; q < 3; q++ )
-					if(!p_igetl(&temp_combo.triggerflags[q],f,true))
+					if(!p_igetl(&temp_combo.triggerflags[q],f))
 						return qe_invalid;
 			}
 			else if(section_version==9) //combo trigger flags, V9 only had two indices of triggerflags[]
 			{
 				for ( int32_t q = 0; q < 2; q++ )
-					if(!p_igetl(&temp_combo.triggerflags[q],f,true))
+					if(!p_igetl(&temp_combo.triggerflags[q],f))
 						return qe_invalid;
 			}
 			if(section_version >= 9)
-				if(!p_igetl(&temp_combo.triggerlevel,f,true))
+				if(!p_igetl(&temp_combo.triggerlevel,f))
 					return qe_invalid;
 			if(section_version >= 22)
-				if(!p_getc(&temp_combo.triggerbtn,f,true))
+				if(!p_getc(&temp_combo.triggerbtn,f))
 					return qe_invalid;
 			if(section_version >= 24)
 			{
-				if(!p_getc(&temp_combo.triggeritem,f,true))
+				if(!p_getc(&temp_combo.triggeritem,f))
 					return qe_invalid;
-				if(!p_getc(&temp_combo.trigtimer,f,true))
+				if(!p_getc(&temp_combo.trigtimer,f))
 					return qe_invalid;
 			}
 			if(section_version >= 25)
-				if(!p_getc(&temp_combo.trigsfx,f,true))
+				if(!p_getc(&temp_combo.trigsfx,f))
 					return qe_invalid;
 			if(section_version >= 27)
-				if(!p_igetl(&temp_combo.trigchange,f,true))
+				if(!p_igetl(&temp_combo.trigchange,f))
 					return qe_invalid;
 			
 			if(section_version >= 29)
 			{
-				if(!p_igetw(&temp_combo.trigprox,f,true))
+				if(!p_igetw(&temp_combo.trigprox,f))
 					return qe_invalid;
-				if(!p_getc(&temp_combo.trigctr,f,true))
+				if(!p_getc(&temp_combo.trigctr,f))
 					return qe_invalid;
-				if(!p_igetl(&temp_combo.trigctramnt,f,true))
+				if(!p_igetl(&temp_combo.trigctramnt,f))
 					return qe_invalid;
 			}
 			if(section_version >= 30)
-				if(!p_getc(&temp_combo.triglbeam,f,true))
+				if(!p_getc(&temp_combo.triglbeam,f))
 					return qe_invalid;
 			if(section_version >= 31)
 			{
-				if(!p_getc(&temp_combo.trigcschange,f,true))
+				if(!p_getc(&temp_combo.trigcschange,f))
 					return qe_invalid;
-				if(!p_igetw(&temp_combo.spawnitem,f,true))
+				if(!p_igetw(&temp_combo.spawnitem,f))
 					return qe_invalid;
-				if(!p_igetw(&temp_combo.spawnenemy,f,true))
+				if(!p_igetw(&temp_combo.spawnenemy,f))
 					return qe_invalid;
-				if(!p_getc(&temp_combo.exstate,f,true))
+				if(!p_getc(&temp_combo.exstate,f))
 					return qe_invalid;
-				if(!p_igetl(&temp_combo.spawnip,f,true))
+				if(!p_igetl(&temp_combo.spawnip,f))
 					return qe_invalid;
-				if(!p_getc(&temp_combo.trigcopycat,f,true))
+				if(!p_getc(&temp_combo.trigcopycat,f))
 					return qe_invalid;
 			}
 			if(section_version >= 32)
-				if(!p_getc(&temp_combo.trigcooldown,f,true))
+				if(!p_getc(&temp_combo.trigcooldown,f))
 					return qe_invalid;
 			
 			if(section_version>=12) //combo label
@@ -18202,13 +17849,13 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 				char label[12];
 				label[11] = '\0';
 				for ( int32_t q = 0; q < 11; q++ )
-					if(!p_getc(&label[q],f,true))
+					if(!p_getc(&label[q],f))
 						return qe_invalid;
 				temp_combo.label = label;
 			}
 			if(section_version>=13) //attribytes[4]
 				for ( int32_t q = 0; q < 4; q++ )
-					if(!p_getc(&temp_combo.attribytes[q],f,true))
+					if(!p_getc(&temp_combo.attribytes[q],f))
 						return qe_invalid;
 			/* HIGHLY UNORTHODOX UPDATING THING, by Deedee
 			* This fixes a poor implementation of a ->next flag bug thing.
@@ -18222,33 +17869,33 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 			//combo scripts
 			if(section_version>=14) 
 			{
-				if(!p_igetw(&temp_combo.script,f,true))
+				if(!p_igetw(&temp_combo.script,f))
 					return qe_invalid;
 				for ( int32_t q = 0; q < 2; q++ )
-					if(!p_igetl(&temp_combo.initd[q],f,true))
+					if(!p_igetl(&temp_combo.initd[q],f))
 						return qe_invalid;
 			}
 			//al_trace("Read combo script data\n");
 			if(section_version>=15)
 			{
-				if(!p_igetl(&temp_combo.o_tile,f,true)) return qe_invalid;
+				if(!p_igetl(&temp_combo.o_tile,f)) return qe_invalid;
 				if(!temp_combo.o_tile) temp_combo.o_tile = temp_combo.tile;
-				if(!p_getc(&temp_combo.cur_frame,f,true)) return qe_invalid;
-				if(!p_getc(&temp_combo.aclk,f,true)) return qe_invalid;
+				if(!p_getc(&temp_combo.cur_frame,f)) return qe_invalid;
+				if(!p_getc(&temp_combo.aclk,f)) return qe_invalid;
 			}
 			if(section_version>=17) //attribytes[4]
 			{
 				for ( int32_t q = 4; q < 8; q++ ) //bump up attribytes...
-					if(!p_getc(&temp_combo.attribytes[q],f,true))
+					if(!p_getc(&temp_combo.attribytes[q],f))
 						return qe_invalid;
 				for ( int32_t q = 0; q < 8; q++ ) //...and add attrishorts
-					if(!p_igetw(&temp_combo.attrishorts[q],f,true))
+					if(!p_igetw(&temp_combo.attrishorts[q],f))
 						return qe_invalid;
 			}
 			
 			if(version < 0x193)
 				for(int32_t q=0; q<11; q++)
-					if(!p_getc(&dummy,f,true))
+					if(!p_getc(&dummy,f))
 						return qe_invalid;
 		}
 		
@@ -18378,93 +18025,90 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 		
 		update_combo(temp_combo, section_version);
 		
-		if(keepdata==true && i>=start_combo)
+		if(i>=start_combo)
 		{
 			combobuf[i] = temp_combo;
 		}
 	}
 
-	if(keepdata==true)
+	if((version < 0x192)|| ((version == 0x192)&&(build<185)))
 	{
-		if((version < 0x192)|| ((version == 0x192)&&(build<185)))
+		for(int32_t tmpcounter=0; tmpcounter<MAXCOMBOS; tmpcounter++)
 		{
-			for(int32_t tmpcounter=0; tmpcounter<MAXCOMBOS; tmpcounter++)
+			if(combobuf[tmpcounter].type==cHOOKSHOTONLY)
 			{
-				if(combobuf[tmpcounter].type==cHOOKSHOTONLY)
-				{
-					combobuf[tmpcounter].type=cLADDERHOOKSHOT;
-				}
+				combobuf[tmpcounter].type=cLADDERHOOKSHOT;
 			}
 		}
-		
-		//June 3 2012; ladder only is broken in 2.10 and allows the hookshot also. -Gleeok
-		if(version == 0x210 && !is_zquest())
+	}
+	
+	//June 3 2012; ladder only is broken in 2.10 and allows the hookshot also. -Gleeok
+	if(version == 0x210 && !is_zquest())
+	{
+		for(int32_t tmpcounter=0; tmpcounter<MAXCOMBOS; tmpcounter++)
+			if(combobuf[tmpcounter].type == cLADDERONLY)
+				combobuf[tmpcounter].type = cLADDERHOOKSHOT;
+	}
+	
+	if(section_version<7)
+	{
+		for(int32_t tmpcounter=0; tmpcounter<MAXCOMBOS; tmpcounter++)
 		{
-			for(int32_t tmpcounter=0; tmpcounter<MAXCOMBOS; tmpcounter++)
-				if(combobuf[tmpcounter].type == cLADDERONLY)
-					combobuf[tmpcounter].type = cLADDERHOOKSHOT;
-		}
-		
-		if(section_version<7)
-		{
-			for(int32_t tmpcounter=0; tmpcounter<MAXCOMBOS; tmpcounter++)
+			switch(combobuf[tmpcounter].type)
 			{
-				switch(combobuf[tmpcounter].type)
-				{
-				case cSLASH:
-					combobuf[tmpcounter].type=cSLASHTOUCHY;
-					break;
-					
-				case cSLASHITEM:
-					combobuf[tmpcounter].type=cSLASHITEMTOUCHY;
-					break;
-					
-				case cBUSH:
-					combobuf[tmpcounter].type=cBUSHTOUCHY;
-					break;
-					
-				case cFLOWERS:
-					combobuf[tmpcounter].type=cFLOWERSTOUCHY;
-					break;
-					
-				case cTALLGRASS:
-					combobuf[tmpcounter].type=cTALLGRASSTOUCHY;
-					break;
-					
-				case cSLASHNEXT:
-					combobuf[tmpcounter].type=cSLASHNEXTTOUCHY;
-					break;
-					
-				case cSLASHNEXTITEM:
-					combobuf[tmpcounter].type=cSLASHNEXTITEMTOUCHY;
-					break;
-					
-				case cBUSHNEXT:
-					combobuf[tmpcounter].type=cBUSHNEXTTOUCHY;
-					break;
-				}
+			case cSLASH:
+				combobuf[tmpcounter].type=cSLASHTOUCHY;
+				break;
+				
+			case cSLASHITEM:
+				combobuf[tmpcounter].type=cSLASHITEMTOUCHY;
+				break;
+				
+			case cBUSH:
+				combobuf[tmpcounter].type=cBUSHTOUCHY;
+				break;
+				
+			case cFLOWERS:
+				combobuf[tmpcounter].type=cFLOWERSTOUCHY;
+				break;
+				
+			case cTALLGRASS:
+				combobuf[tmpcounter].type=cTALLGRASSTOUCHY;
+				break;
+				
+			case cSLASHNEXT:
+				combobuf[tmpcounter].type=cSLASHNEXTTOUCHY;
+				break;
+				
+			case cSLASHNEXTITEM:
+				combobuf[tmpcounter].type=cSLASHNEXTITEMTOUCHY;
+				break;
+				
+			case cBUSHNEXT:
+				combobuf[tmpcounter].type=cBUSHNEXTTOUCHY;
+				break;
 			}
 		}
-		if (section_version < 16)
+	}
+	if (section_version < 16)
+	{
+		for(int32_t tmpcounter=0; tmpcounter<MAXCOMBOS; tmpcounter++)
 		{
-			for(int32_t tmpcounter=0; tmpcounter<MAXCOMBOS; tmpcounter++)
+			if (combobuf[tmpcounter].type == cWATER)
 			{
-				if (combobuf[tmpcounter].type == cWATER)
-				{
-					combobuf[tmpcounter].attributes[0] = 40000L;
-				}
+				combobuf[tmpcounter].attributes[0] = 40000L;
 			}
 		}
-		if(!get_qr(qr_ALLOW_EDITING_COMBO_0))
-		{
-			combobuf[0].walk = 0xF0;
-			combobuf[0].type = 0;
-			combobuf[0].flag = 0;
-		}
+	}
+	if(!get_qr(qr_ALLOW_EDITING_COMBO_0))
+	{
+		combobuf[0].walk = 0xF0;
+		combobuf[0].type = 0;
+		combobuf[0].flag = 0;
 	}
 
 	//Now for the new combo alias reset
-	if(section_version<2 && keepdata)
+	if(section_version<2)
 	{
 		for(int32_t j=0; j<MAXCOMBOALIASES; j++)
 		{
@@ -18497,7 +18141,7 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 {
 	byte combo_has_flags;
-	if(!p_getc(&combo_has_flags,f,true))
+	if(!p_getc(&combo_has_flags,f))
 		return qe_invalid;
 	
 	temp_combo.clear();
@@ -18505,33 +18149,33 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 	{
 		if(combo_has_flags&CHAS_BASIC)
 		{
-			if(!p_igetl(&temp_combo.tile,f,true))
+			if(!p_igetl(&temp_combo.tile,f))
 			{
 				return qe_invalid;
 			}
 			temp_combo.o_tile = temp_combo.tile;
 			
-			if(!p_getc(&temp_combo.flip,f,true))
+			if(!p_getc(&temp_combo.flip,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_getc(&temp_combo.walk,f,true))
+			if(!p_getc(&temp_combo.walk,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_getc(&temp_combo.type,f,true))
+			if(!p_getc(&temp_combo.type,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_getc(&temp_combo.flag,f,true))
+			if(!p_getc(&temp_combo.flag,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_getc(&temp_combo.csets,f,true))
+			if(!p_getc(&temp_combo.csets,f))
 			{
 				return qe_invalid;
 			}
@@ -18540,7 +18184,7 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 		{
 			if (s_version>=41)
 			{
-				p_getcstr(&temp_combo.label, f, true);
+				p_getcstr(&temp_combo.label, f);
 			}
 			else
 			{
@@ -18548,7 +18192,7 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 				label[11] = '\0';
 				for ( int32_t q = 0; q < 11; q++ )
 				{
-					if(!p_getc(&label[q],f,true))
+					if(!p_getc(&label[q],f))
 					{
 						return qe_invalid;
 					}
@@ -18556,10 +18200,10 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 				temp_combo.label = label;
 			}
 
-			if(!p_igetw(&temp_combo.script,f,true)) return qe_invalid;
+			if(!p_igetw(&temp_combo.script,f)) return qe_invalid;
 			for ( int32_t q = 0; q < 2; q++ )
 			{
-				if(!p_igetl(&temp_combo.initd[q],f,true))
+				if(!p_igetl(&temp_combo.initd[q],f))
 				{
 					return qe_invalid;
 				}
@@ -18567,37 +18211,37 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 		}
 		if(combo_has_flags&CHAS_ANIM)
 		{
-			if(!p_getc(&temp_combo.frames,f,true))
+			if(!p_getc(&temp_combo.frames,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_getc(&temp_combo.speed,f,true))
+			if(!p_getc(&temp_combo.speed,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_igetw(&temp_combo.nextcombo,f,true))
+			if(!p_igetw(&temp_combo.nextcombo,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_getc(&temp_combo.nextcset,f,true))
+			if(!p_getc(&temp_combo.nextcset,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_getc(&temp_combo.skipanim,f,true))
+			if(!p_getc(&temp_combo.skipanim,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_getc(&temp_combo.skipanimy,f,true))
+			if(!p_getc(&temp_combo.skipanimy,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_getc(&temp_combo.animflags,f,true))
+			if(!p_getc(&temp_combo.animflags,f))
 			{
 				return qe_invalid;
 			}
@@ -18606,21 +18250,21 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 		{
 			for ( int32_t q = 0; q < 4; q++ )
 			{
-				if(!p_igetl(&temp_combo.attributes[q],f,true))
+				if(!p_igetl(&temp_combo.attributes[q],f))
 				{
 					return qe_invalid;
 				}
 			}
 			for ( int32_t q = 0; q < 8; q++ )
 			{
-				if(!p_getc(&temp_combo.attribytes[q],f,true))
+				if(!p_getc(&temp_combo.attribytes[q],f))
 				{
 					return qe_invalid;
 				}
 			}
 			for ( int32_t q = 0; q < 8; q++ )
 			{
-				if(!p_igetw(&temp_combo.attrishorts[q],f,true))
+				if(!p_igetw(&temp_combo.attrishorts[q],f))
 				{
 					return qe_invalid;
 				}
@@ -18628,11 +18272,11 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 		}
 		if(combo_has_flags&CHAS_FLAG)
 		{
-			if(!p_igetl(&temp_combo.usrflags,f,true))
+			if(!p_igetl(&temp_combo.usrflags,f))
 			{
 				return qe_invalid;
 			}
-			if(!p_igetw(&temp_combo.genflags,f,true))
+			if(!p_igetw(&temp_combo.genflags,f))
 			{
 				return qe_invalid;
 			}
@@ -18642,127 +18286,127 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 			int numtrigs = s_version < 36 ? 3 : 6;
 			for ( int32_t q = 0; q < numtrigs; q++ )
 			{
-				if(!p_igetl(&temp_combo.triggerflags[q],f,true))
+				if(!p_igetl(&temp_combo.triggerflags[q],f))
 				{
 					return qe_invalid;
 				}
 			}
-			if(!p_igetl(&temp_combo.triggerlevel,f,true))
+			if(!p_igetl(&temp_combo.triggerlevel,f))
 			{
 				return qe_invalid;
 			}
-			if(!p_getc(&temp_combo.triggerbtn,f,true))
+			if(!p_getc(&temp_combo.triggerbtn,f))
 			{
 				return qe_invalid;
 			}
-			if(!p_getc(&temp_combo.triggeritem,f,true))
+			if(!p_getc(&temp_combo.triggeritem,f))
 			{
 				return qe_invalid;
 			}
-			if(!p_getc(&temp_combo.trigtimer,f,true))
+			if(!p_getc(&temp_combo.trigtimer,f))
 			{
 				return qe_invalid;
 			}
-			if(!p_getc(&temp_combo.trigsfx,f,true))
+			if(!p_getc(&temp_combo.trigsfx,f))
 			{
 				return qe_invalid;
 			}
-			if(!p_igetl(&temp_combo.trigchange,f,true))
+			if(!p_igetl(&temp_combo.trigchange,f))
 			{
 				return qe_invalid;
 			}
-			if(!p_igetw(&temp_combo.trigprox,f,true))
+			if(!p_igetw(&temp_combo.trigprox,f))
 			{
 				return qe_invalid;
 			}
-			if(!p_getc(&temp_combo.trigctr,f,true))
+			if(!p_getc(&temp_combo.trigctr,f))
 			{
 				return qe_invalid;
 			}
-			if(!p_igetl(&temp_combo.trigctramnt,f,true))
+			if(!p_igetl(&temp_combo.trigctramnt,f))
 			{
 				return qe_invalid;
 			}
-			if(!p_getc(&temp_combo.triglbeam,f,true))
+			if(!p_getc(&temp_combo.triglbeam,f))
 			{
 				return qe_invalid;
 			}
-			if(!p_getc(&temp_combo.trigcschange,f,true))
+			if(!p_getc(&temp_combo.trigcschange,f))
 			{
 				return qe_invalid;
 			}
-			if(!p_igetw(&temp_combo.spawnitem,f,true))
+			if(!p_igetw(&temp_combo.spawnitem,f))
 			{
 				return qe_invalid;
 			}
-			if(!p_igetw(&temp_combo.spawnenemy,f,true))
+			if(!p_igetw(&temp_combo.spawnenemy,f))
 			{
 				return qe_invalid;
 			}
-			if(!p_getc(&temp_combo.exstate,f,true))
+			if(!p_getc(&temp_combo.exstate,f))
 			{
 				return qe_invalid;
 			}
-			if(!p_igetl(&temp_combo.spawnip,f,true))
+			if(!p_igetl(&temp_combo.spawnip,f))
 			{
 				return qe_invalid;
 			}
-			if(!p_getc(&temp_combo.trigcopycat,f,true))
+			if(!p_getc(&temp_combo.trigcopycat,f))
 			{
 				return qe_invalid;
 			}
-			if(!p_getc(&temp_combo.trigcooldown,f,true))
+			if(!p_getc(&temp_combo.trigcooldown,f))
 			{
 				return qe_invalid;
 			}
 			if(s_version >= 35)
 			{
-				if(!p_igetw(&temp_combo.prompt_cid,f,true))
+				if(!p_igetw(&temp_combo.prompt_cid,f))
 				{
 					return qe_invalid;
 				}
-				if(!p_getc(&temp_combo.prompt_cs,f,true))
+				if(!p_getc(&temp_combo.prompt_cs,f))
 				{
 					return qe_invalid;
 				}
-				if(!p_igetw(&temp_combo.prompt_x,f,true))
+				if(!p_igetw(&temp_combo.prompt_x,f))
 				{
 					return qe_invalid;
 				}
-				if(!p_igetw(&temp_combo.prompt_y,f,true))
+				if(!p_igetw(&temp_combo.prompt_y,f))
 				{
 					return qe_invalid;
 				}
 			}
 			if(s_version >= 36)
 			{
-				if(!p_getc(&temp_combo.trig_lstate,f,true))
+				if(!p_getc(&temp_combo.trig_lstate,f))
 				{
 					return qe_invalid;
 				}
-				if(!p_getc(&temp_combo.trig_gstate,f,true))
+				if(!p_getc(&temp_combo.trig_gstate,f))
 				{
 					return qe_invalid;
 				}
-				if(!p_igetl(&temp_combo.trig_statetime,f,true))
+				if(!p_igetl(&temp_combo.trig_statetime,f))
 				{
 					return qe_invalid;
 				}
 			}
 			if(s_version >= 37)
 			{
-				if(!p_igetw(&temp_combo.trig_genscr,f,true))
+				if(!p_igetw(&temp_combo.trig_genscr,f))
 				{
 					return qe_invalid;
 				}
 			}
 			if(s_version >= 38)
 			{
-				if(!p_getc(&temp_combo.trig_group,f,true))
+				if(!p_getc(&temp_combo.trig_group,f))
 				{
 					return qe_invalid;
 				}
-				if(!p_igetw(&temp_combo.trig_group_val,f,true))
+				if(!p_igetw(&temp_combo.trig_group_val,f))
 				{
 					return qe_invalid;
 				}
@@ -18770,72 +18414,72 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 		}
 		if(combo_has_flags&CHAS_LIFT)
 		{
-			if(!p_igetw(&temp_combo.liftcmb,f,true))
+			if(!p_igetw(&temp_combo.liftcmb,f))
 				return qe_invalid;
-			if(!p_getc(&temp_combo.liftcs,f,true))
+			if(!p_getc(&temp_combo.liftcs,f))
 				return qe_invalid;
-			if(!p_igetw(&temp_combo.liftundercmb,f,true))
+			if(!p_igetw(&temp_combo.liftundercmb,f))
 				return qe_invalid;
-			if(!p_getc(&temp_combo.liftundercs,f,true))
+			if(!p_getc(&temp_combo.liftundercs,f))
 				return qe_invalid;
-			if(!p_getc(&temp_combo.liftdmg,f,true))
+			if(!p_getc(&temp_combo.liftdmg,f))
 				return qe_invalid;
-			if(!p_getc(&temp_combo.liftlvl,f,true))
+			if(!p_getc(&temp_combo.liftlvl,f))
 				return qe_invalid;
-			if(!p_getc(&temp_combo.liftitm,f,true))
+			if(!p_getc(&temp_combo.liftitm,f))
 				return qe_invalid;
-			if(!p_getc(&temp_combo.liftflags,f,true))
+			if(!p_getc(&temp_combo.liftflags,f))
 				return qe_invalid;
-			if(!p_getc(&temp_combo.liftgfx,f,true))
+			if(!p_getc(&temp_combo.liftgfx,f))
 				return qe_invalid;
-			if(!p_getc(&temp_combo.liftsprite,f,true))
+			if(!p_getc(&temp_combo.liftsprite,f))
 				return qe_invalid;
-			if(!p_getc(&temp_combo.liftsfx,f,true))
+			if(!p_getc(&temp_combo.liftsfx,f))
 				return qe_invalid;
-			if(!p_igetw(&temp_combo.liftbreaksprite,f,true))
+			if(!p_igetw(&temp_combo.liftbreaksprite,f))
 				return qe_invalid;
-			if(!p_getc(&temp_combo.liftbreaksfx,f,true))
+			if(!p_getc(&temp_combo.liftbreaksfx,f))
 				return qe_invalid;
 			if(s_version >= 34)
 			{
-				if(!p_getc(&temp_combo.lifthei,f,true))
+				if(!p_getc(&temp_combo.lifthei,f))
 					return qe_invalid;
-				if(!p_getc(&temp_combo.lifttime,f,true))
+				if(!p_getc(&temp_combo.lifttime,f))
 					return qe_invalid;
 			}
 			if(s_version >= 39)
 			{
-				if(!p_getc(&temp_combo.lift_parent_item,f,true))
+				if(!p_getc(&temp_combo.lift_parent_item,f))
 					return qe_invalid;
 			}
 		}
 		if(combo_has_flags&CHAS_GENERAL)
 		{
-			if(!p_getc(&temp_combo.speed_mult,f,true))
+			if(!p_getc(&temp_combo.speed_mult,f))
 				return qe_invalid;
-			if(!p_getc(&temp_combo.speed_div,f,true))
+			if(!p_getc(&temp_combo.speed_div,f))
 				return qe_invalid;
-			if(!p_igetzf(&temp_combo.speed_add,f,true))
+			if(!p_igetzf(&temp_combo.speed_add,f))
 				return qe_invalid;
 			if(s_version >= 42)
 			{
-				if(!p_getc(&temp_combo.sfx_appear,f,true))
+				if(!p_getc(&temp_combo.sfx_appear,f))
 					return qe_invalid;
-				if(!p_getc(&temp_combo.sfx_disappear,f,true))
+				if(!p_getc(&temp_combo.sfx_disappear,f))
 					return qe_invalid;
-				if(!p_getc(&temp_combo.sfx_loop,f,true))
+				if(!p_getc(&temp_combo.sfx_loop,f))
 					return qe_invalid;
-				if(!p_getc(&temp_combo.sfx_walking,f,true))
+				if(!p_getc(&temp_combo.sfx_walking,f))
 					return qe_invalid;
-				if(!p_getc(&temp_combo.sfx_standing,f,true))
+				if(!p_getc(&temp_combo.sfx_standing,f))
 					return qe_invalid;
-				if(!p_getc(&temp_combo.spr_appear,f,true))
+				if(!p_getc(&temp_combo.spr_appear,f))
 					return qe_invalid;
-				if(!p_getc(&temp_combo.spr_disappear,f,true))
+				if(!p_getc(&temp_combo.spr_disappear,f))
 					return qe_invalid;
-				if(!p_getc(&temp_combo.spr_walking,f,true))
+				if(!p_getc(&temp_combo.spr_walking,f))
 					return qe_invalid;
-				if(!p_getc(&temp_combo.spr_standing,f,true))
+				if(!p_getc(&temp_combo.spr_standing,f))
 					return qe_invalid;
 			}
 		}
@@ -18843,7 +18487,7 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 	update_combo(temp_combo, s_version);
 	return 0;
 }
-int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word start_combo, word max_combos, bool keepdata)
+int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word start_combo, word max_combos)
 {
 	word section_version=0;
 	word section_cversion=0;
@@ -18856,26 +18500,23 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 	reset_combo_animations2();
 	init_combo_classes();
 
-	if(keepdata==true) //reset combos
-	{
-		for(int32_t q = start_combo; q < start_combo+max_combos; ++q)
-			combobuf[q].clear();
-	}
+	for(int32_t q = start_combo; q < start_combo+max_combos; ++q)
+		combobuf[q].clear();
 	
 	if(version > 0x192) //Version info
 	{
-		if(!p_igetw(&section_version,f,true))
+		if(!p_igetw(&section_version,f))
 		{
 			return qe_invalid;
 		}
 		FFCore.quest_format[vCombos] = section_version;
-		if(!p_igetw(&section_cversion,f,true))
+		if(!p_igetw(&section_cversion,f))
 		{
 			return qe_invalid;
 		}
 		
 		//section size
-		if(!p_igetl(&dummy,f,true))
+		if(!p_igetl(&dummy,f))
 		{
 			return qe_invalid;
 		}
@@ -18883,7 +18524,7 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 	
 	if(section_version > 32) //Cleanup time!
 	{
-		if(!p_igetw(&combos_used,f,true))
+		if(!p_igetw(&combos_used,f))
 		{
 			return qe_invalid;
 		}
@@ -18891,24 +18532,21 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 		{
 			auto ret = readcombo_loop(f,section_version,temp_combo);
 			if(ret) return ret;
-			if(keepdata==true && i>=start_combo)
+			if(i>=start_combo)
 				combobuf[i] = temp_combo;
 		}
 	}
 	else //Call the old function for all old versions
 	{
-		auto ret = readcombos_old(section_version,f,Header,version,build,start_combo,max_combos,keepdata);
+		auto ret = readcombos_old(section_version,f,Header,version,build,start_combo,max_combos);
 		if(ret) return ret; //error, end read
 	}
 	
-	if(keepdata==true)
+	if(!get_qr(qr_ALLOW_EDITING_COMBO_0))
 	{
-		if(!get_qr(qr_ALLOW_EDITING_COMBO_0))
-		{
-			combobuf[0].walk = 0xF0;
-			combobuf[0].type = 0;
-			combobuf[0].flag = 0;
-		}
+		combobuf[0].walk = 0xF0;
+		combobuf[0].type = 0;
+		combobuf[0].flag = 0;
 	}
 	
 	setup_combo_animations();
@@ -18916,7 +18554,7 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 	return 0;
 }
 
-int32_t readcomboaliases(PACKFILE *f, zquestheader *Header, word version, word build, bool keepdata)
+int32_t readcomboaliases(PACKFILE *f, zquestheader *Header, word version, word build)
 {
     //these are here to bypass compiler warnings about unused arguments
     Header=Header;
@@ -18927,7 +18565,7 @@ int32_t readcomboaliases(PACKFILE *f, zquestheader *Header, word version, word b
     word sversion=0, c_sversion;
     
     //section version info
-    if(!p_igetw(&sversion,f,true))
+    if(!p_igetw(&sversion,f))
     {
         return qe_invalid;
     }
@@ -18935,13 +18573,13 @@ int32_t readcomboaliases(PACKFILE *f, zquestheader *Header, word version, word b
     FFCore.quest_format[vComboAliases] = sversion;
     
     //al_trace("Combo aliases version %d\n", sversion);
-    if(!p_igetw(&c_sversion,f,true))
+    if(!p_igetw(&c_sversion,f))
     {
         return qe_invalid;
     }
     
     //section size
-    if(!p_igetl(&dummy,f,true))
+    if(!p_igetl(&dummy,f))
     {
         return qe_invalid;
     }
@@ -18964,93 +18602,78 @@ int32_t readcomboaliases(PACKFILE *f, zquestheader *Header, word version, word b
         word tempword;
         byte tempbyte;
         
-        if(!p_igetw(&tempword,f,true))
+        if(!p_igetw(&tempword,f))
         {
             return qe_invalid;
         }
         
-        if(keepdata)
-        {
-            combo_aliases[j].combo = tempword;
-        }
+		combo_aliases[j].combo = tempword;
         
-        if(!p_getc(&tempbyte,f,true))
+        if(!p_getc(&tempbyte,f))
         {
             return qe_invalid;
         }
         
-        if(keepdata)
-        {
-            combo_aliases[j].cset = tempbyte;
-        }
+		combo_aliases[j].cset = tempbyte;
         
-        if(!p_getc(&width,f,true))
+        if(!p_getc(&width,f))
         {
             return qe_invalid;
         }
         
-        if(!p_getc(&height,f,true))
+        if(!p_getc(&height,f))
         {
             return qe_invalid;
         }
         
-        if(!p_getc(&mask,f,true))
+        if(!p_getc(&mask,f))
         {
             return qe_invalid;
         }
         
         count=(width+1)*(height+1)*(comboa_lmasktotal(mask)+1);
         
-        if(keepdata)
-        {
-            if(combo_aliases[j].combos != NULL)
-            {
-                delete[] combo_aliases[j].combos;
-            }
-            
-            if(combo_aliases[j].csets != NULL)
-            {
-                delete[] combo_aliases[j].csets;
-            }
-            
-            combo_aliases[j].width = width;
-            combo_aliases[j].height = height;
-            combo_aliases[j].layermask = mask;
-            combo_aliases[j].combos = new word[count];
-            combo_aliases[j].csets = new byte[count];
-        }
+		if(combo_aliases[j].combos != NULL)
+		{
+			delete[] combo_aliases[j].combos;
+		}
+		
+		if(combo_aliases[j].csets != NULL)
+		{
+			delete[] combo_aliases[j].csets;
+		}
+		
+		combo_aliases[j].width = width;
+		combo_aliases[j].height = height;
+		combo_aliases[j].layermask = mask;
+		combo_aliases[j].combos = new word[count];
+		combo_aliases[j].csets = new byte[count];
         
         for(int32_t k=0; k<count; k++)
         {
-            if(!p_igetw(&tempword,f,true))
+            if(!p_igetw(&tempword,f))
             {
                 return qe_invalid;
             }
             
-            if(keepdata)
-            {
-                combo_aliases[j].combos[k] = tempword;
-            }
+			combo_aliases[j].combos[k] = tempword;
         }
         
         for(int32_t k=0; k<count; k++)
         {
-            if(!p_getc(&tempcset,f,true))
+            if(!p_getc(&tempcset,f))
             {
                 return qe_invalid;
             }
             
-            if(keepdata)
-            {
-                combo_aliases[j].csets[k] = tempcset;
-            }
+			combo_aliases[j].csets[k] = tempcset;
         }
     }
     
 	word num_combo_pools = 0;
 	if(sversion >= 4)
 	{
-		if(!p_igetw(&num_combo_pools,f,true))
+		if(!p_igetw(&num_combo_pools,f))
 		{
 			return qe_invalid;
 		}
@@ -19065,7 +18688,7 @@ int32_t readcomboaliases(PACKFILE *f, zquestheader *Header, word version, word b
 	for(word cp = 0; cp < num_combo_pools; ++cp)
 	{
 		int32_t num_combos_in_pool = 0;
-		if(!p_igetl(&num_combos_in_pool,f,true))
+		if(!p_igetl(&num_combos_in_pool,f))
 		{
 			return qe_invalid;
 		}
@@ -19076,31 +18699,28 @@ int32_t readcomboaliases(PACKFILE *f, zquestheader *Header, word version, word b
 		int32_t cp_cid; int8_t cp_cs; word cp_quant;
 		for(auto q = 0; q < num_combos_in_pool; ++q)
 		{
-			if(!p_igetl(&cp_cid,f,true))
+			if(!p_igetl(&cp_cid,f))
 			{
 				return qe_invalid;
 			}
-			if(!p_getc(&cp_cs,f,true))
+			if(!p_getc(&cp_cs,f))
 			{
 				return qe_invalid;
 			}
-			if(!p_igetw(&cp_quant,f,true))
+			if(!p_igetw(&cp_quant,f))
 			{
 				return qe_invalid;
 			}
 			temp_cpool.add(cp_cid, cp_cs, cp_quant);
 		}
-			
-		if(keepdata)
-		{
-			combo_pools[cp] = temp_cpool;
-		}
+		
+		combo_pools[cp] = temp_cpool;
 	}
 	
     return 0;
 }
 
-int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, word start_cset, word max_csets, bool keepdata)
+int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, word start_cset, word max_csets)
 {
 	//these are here to bypass compiler warnings about unused arguments
 	
@@ -19122,7 +18742,7 @@ int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, wo
 	if(version > 0x192)
 	{
 		//section version info
-		if(!p_igetw(&s_version,f,true))
+		if(!p_igetw(&s_version,f))
 		{
 			return qe_invalid;
 		}
@@ -19130,13 +18750,13 @@ int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, wo
 		FFCore.quest_format[vCSets] = s_version;
 		
 		//al_trace("Color data version %d\n", s_version);
-		if(!p_igetw(&dummy,f,true))
+		if(!p_igetw(&dummy,f))
 		{
 			return qe_invalid;
 		}
 		
 		//section size
-		if(!p_igetl(&dummy,f,true))
+		if(!p_igetl(&dummy,f))
 		{
 			return qe_invalid;
 		}
@@ -19152,27 +18772,22 @@ int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, wo
 		{
 			memset(temp_colordata, 0, 48);
 			
-			if(!pfread(temp_colordata,48,f,true))
+			if(!pfread(temp_colordata,48,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(keepdata==true)
-			{
-				memcpy(&colordata[q*48], temp_colordata, 48);
-			}
+			memcpy(&colordata[q*48], temp_colordata, 48);
+
 			++q;
 			if (p > 0 && (p%13)==12 && (i < oldpoSPRITE || !RealOldVerion)) //It's > 0 instead of >= 0 because it should append 
 			{
 				if (s_version < 5) //Bumping up the size of level palettes
 				{
-					if(keepdata==true)
-					{
-						memcpy(&colordata[(q)*48], &colordata[1*48], 48);
-						memcpy(&colordata[(q+1)*48], &colordata[5*48], 48);
-						memcpy(&colordata[(q+2)*48], &colordata[7*48], 48);
-						memcpy(&colordata[(q+3)*48], &colordata[8*48], 48);
-					}
+					memcpy(&colordata[(q)*48], &colordata[1*48], 48);
+					memcpy(&colordata[(q+1)*48], &colordata[5*48], 48);
+					memcpy(&colordata[(q+2)*48], &colordata[7*48], 48);
+					memcpy(&colordata[(q+3)*48], &colordata[8*48], 48);
 					q+=4;
 				}
 				else
@@ -19180,14 +18795,11 @@ int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, wo
 					for(int m = 0; m < 4; ++m)
 					{
 						memset(temp_colordata, 0, 48);
-						if(!pfread(temp_colordata,48,f,true))
+						if(!pfread(temp_colordata,48,f))
 						{
 							return qe_invalid;
 						}
-						if(keepdata==true)
-						{
-							memcpy(&colordata[q*48], temp_colordata, 48);
-						}
+						memcpy(&colordata[q*48], temp_colordata, 48);
 						++q;
 					}
 				}
@@ -19197,15 +18809,12 @@ int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, wo
 		
 		if(RealOldVerion)
 		{
-			if(keepdata==true)
-			{
-				memcpy(colordata+(poSPRITE255*48), colordata+((q-30)*48), 30*16*3);
-				memset(colordata+((q-30)*48), 0, ((poSPRITE255-(q-30))*48));
-				memcpy(colordata+((poSPRITE255+11)*48), colordata+((poSPRITE255+10)*48), 48);
-				memcpy(colordata+((poSPRITE255+10)*48), colordata+((poSPRITE255+9)*48), 48);
-				memcpy(colordata+((poSPRITE255+9)*48), colordata+((poSPRITE255+8)*48), 48);
-				memset(colordata+((poSPRITE255+8)*48), 0, 48);
-			}
+			memcpy(colordata+(poSPRITE255*48), colordata+((q-30)*48), 30*16*3);
+			memset(colordata+((q-30)*48), 0, ((poSPRITE255-(q-30))*48));
+			memcpy(colordata+((poSPRITE255+11)*48), colordata+((poSPRITE255+10)*48), 48);
+			memcpy(colordata+((poSPRITE255+10)*48), colordata+((poSPRITE255+9)*48), 48);
+			memcpy(colordata+((poSPRITE255+9)*48), colordata+((poSPRITE255+8)*48), 48);
+			memset(colordata+((poSPRITE255+8)*48), 0, 48);
 		}
 		else
 		{
@@ -19213,27 +18822,22 @@ int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, wo
 			
 			for(int32_t i=0; i<newpdTOTAL-oldpdTOTAL; ++i)
 			{
-				if(!pfread(temp_colordata,48,f,true))
+				if(!pfread(temp_colordata,48,f))
 				{
 					return qe_invalid;
 				}
-				
-				if(keepdata==true)
-				{
-					memcpy(&colordata[q*48], temp_colordata, 48);
-				}
+
+				memcpy(&colordata[q*48], temp_colordata, 48);
+
 				++q;
 				if (p > 0 && (p%13)==12 && (i < (newpoSPRITE-oldpdTOTAL) || (s_version >= 4))) //It's > 0 instead of >= 0 because it should append 
 				{
 					if (s_version < 5) //Bumping up the size of level palettes
 					{
-						if(keepdata==true)
-						{
-							memcpy(&colordata[(q)*48], &colordata[1*48], 48);
-							memcpy(&colordata[(q+1)*48], &colordata[5*48], 48);
-							memcpy(&colordata[(q+2)*48], &colordata[7*48], 48);
-							memcpy(&colordata[(q+3)*48], &colordata[8*48], 48);
-						}
+						memcpy(&colordata[(q)*48], &colordata[1*48], 48);
+						memcpy(&colordata[(q+1)*48], &colordata[5*48], 48);
+						memcpy(&colordata[(q+2)*48], &colordata[7*48], 48);
+						memcpy(&colordata[(q+3)*48], &colordata[8*48], 48);
 						q+=4;
 					}
 					else
@@ -19241,14 +18845,11 @@ int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, wo
 						for(int m = 0; m < 4; ++m)
 						{
 							memset(temp_colordata, 0, 48);
-							if(!pfread(temp_colordata,48,f,true))
+							if(!pfread(temp_colordata,48,f))
 							{
 								return qe_invalid;
 							}
-							if(keepdata==true)
-							{
-								memcpy(&colordata[q*48], temp_colordata, 48);
-							}
+							memcpy(&colordata[q*48], temp_colordata, 48);
 							++q;
 						}
 					}
@@ -19258,37 +18859,28 @@ int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, wo
 			
 			if(s_version < 4)
 			{
-				if(keepdata==true)
-				{
-					memcpy(colordata+(poSPRITE255*48), colordata+((q-30)*48), 30*16*3);
-					memset(colordata+((q-30)*48), 0, ((poSPRITE255-(q-30))*48));
-				}
+				memcpy(colordata+(poSPRITE255*48), colordata+((q-30)*48), 30*16*3);
+				memset(colordata+((q-30)*48), 0, ((poSPRITE255-(q-30))*48));
 			}
 			else
 			{
 				for(int32_t i=0; i<newerpdTOTAL-newpdTOTAL; ++i)
 				{
-					if(!pfread(temp_colordata,48,f,true))
+					if(!pfread(temp_colordata,48,f))
 					{
 						return qe_invalid;
 					}
 					
-					if(keepdata==true)
-					{
-						memcpy(&colordata[q*48], temp_colordata, 48);
-					}
+					memcpy(&colordata[q*48], temp_colordata, 48);
 					++q;
 					if (p > 0 && (p%13)==12 && i < newerpoSPRITE-newpdTOTAL) //It's > 0 instead of >= 0 because it should append 
 					{
 						if (s_version < 5) //Bumping up the size of level palettes
 						{
-							if(keepdata==true)
-							{
-								memcpy(&colordata[(q)*48], &colordata[1*48], 48);
-								memcpy(&colordata[(q+1)*48], &colordata[5*48], 48);
-								memcpy(&colordata[(q+2)*48], &colordata[7*48], 48);
-								memcpy(&colordata[(q+3)*48], &colordata[8*48], 48);
-							}
+							memcpy(&colordata[(q)*48], &colordata[1*48], 48);
+							memcpy(&colordata[(q+1)*48], &colordata[5*48], 48);
+							memcpy(&colordata[(q+2)*48], &colordata[7*48], 48);
+							memcpy(&colordata[(q+3)*48], &colordata[8*48], 48);
 							q+=4;
 						}
 						else
@@ -19296,14 +18888,11 @@ int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, wo
 							for(int m = 0; m < 4; ++m)
 							{
 								memset(temp_colordata, 0, 48);
-								if(!pfread(temp_colordata,48,f,true))
+								if(!pfread(temp_colordata,48,f))
 								{
 									return qe_invalid;
 								}
-								if(keepdata==true)
-								{
-									memcpy(&colordata[q*48], temp_colordata, 48);
-								}
+								memcpy(&colordata[q*48], temp_colordata, 48);
 								++q;
 							}
 						}
@@ -19321,24 +18910,18 @@ int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, wo
 		{
 			memset(temp_colordata, 0, 48);
 			
-			if(!pfread(temp_colordata,48,f,true))
+			if(!pfread(temp_colordata,48,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(keepdata==true)
-			{
-				memcpy(&colordata[i*48], temp_colordata, 48);
-			}
+			memcpy(&colordata[i*48], temp_colordata, 48);
 		}
 	}
 	
 	if((version < 0x192)||((version == 0x192)&&(build<76)))
 	{
-		if(keepdata==true)
-		{
-			init_palnames();
-		}
+		init_palnames();
 	}
 	else
 	{
@@ -19353,23 +18936,17 @@ int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, wo
 		{
 			memset(temp_palname, 0, PALNAMESIZE);
 			
-			if(!pfread(temp_palname,PALNAMESIZE,f,true))
+			if(!pfread(temp_palname,PALNAMESIZE,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(keepdata==true)
-			{
-				memcpy(palnames[i], temp_palname, PALNAMESIZE);
-			}
+			memcpy(palnames[i], temp_palname, PALNAMESIZE);
 		}
 		
-		if(keepdata)
+		for(int32_t i=palnamestoread; i<MAXLEVELS; i++)
 		{
-			for(int32_t i=palnamestoread; i<MAXLEVELS; i++)
-			{
-				memset(palnames[i], 0, PALNAMESIZE);
-			}
+			memset(palnames[i], 0, PALNAMESIZE);
 		}
 	}
 	
@@ -19385,7 +18962,7 @@ int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, wo
 			}
 		}
 		
-		if(!p_igetw(&palcycles,f,true))
+		if(!p_igetw(&palcycles,f))
 		{
 			return qe_invalid;
 		}
@@ -19399,7 +18976,7 @@ int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, wo
 		{
 			for(int32_t j=0; j<3; j++)
 			{
-				if(!p_getc(&temp_misc.cycles[i][j].first,f,true))
+				if(!p_getc(&temp_misc.cycles[i][j].first,f))
 				{
 					return qe_invalid;
 				}
@@ -19407,7 +18984,7 @@ int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, wo
 			
 			for(int32_t j=0; j<3; j++)
 			{
-				if(!p_getc(&temp_misc.cycles[i][j].count,f,true))
+				if(!p_getc(&temp_misc.cycles[i][j].count,f))
 				{
 					return qe_invalid;
 				}
@@ -19415,23 +18992,20 @@ int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, wo
 			
 			for(int32_t j=0; j<3; j++)
 			{
-				if(!p_getc(&temp_misc.cycles[i][j].speed,f,true))
+				if(!p_getc(&temp_misc.cycles[i][j].speed,f))
 				{
 					return qe_invalid;
 				}
 			}
 		}
 		
-		if(keepdata==true)
-		{
-			memcpy(Misc, &temp_misc, sizeof(temp_misc));
-		}
+		memcpy(Misc, &temp_misc, sizeof(temp_misc));
 	}
 	
 	return 0;
 }
 
-int32_t readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, word build, word start_tile, int32_t max_tiles, bool from_init, bool keepdata)
+int32_t readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, word build, word start_tile, int32_t max_tiles, bool from_init)
 {
     int32_t tiles_used=0;
 	word section_version = 0;
@@ -19451,13 +19025,10 @@ int32_t readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version
 	
     if(Header!=NULL&&(!Header->data_flags[ZQ_TILES]&&!from_init))         //keep for old quests
     {
-        if(keepdata==true)
-        {
-            if(!init_tiles(true, Header))
-            {
-                al_trace("Unable to initialize tiles\n");
-            }
-        }
+		if(!init_tiles(true, Header))
+		{
+			al_trace("Unable to initialize tiles\n");
+		}
         
         delete[] temp_tile;
         temp_tile=NULL;
@@ -19468,7 +19039,7 @@ int32_t readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version
         if(version > 0x192)
         {
             //section version info
-            if(!p_igetw(&section_version,f,true))
+            if(!p_igetw(&section_version,f))
             {
                 delete[] temp_tile;
                 return qe_invalid;
@@ -19476,14 +19047,14 @@ int32_t readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version
             
 			FFCore.quest_format[vTiles] = section_version;
 			
-            if(!p_igetw(&section_cversion,f,true))
+            if(!p_igetw(&section_cversion,f))
             {
                 delete[] temp_tile;
                 return qe_invalid;
             }
             
             //section size
-            if(!p_igetl(&section_size,f,true))
+            if(!p_igetl(&section_size,f))
             {
                 delete[] temp_tile;
                 return qe_invalid;
@@ -19508,7 +19079,7 @@ int32_t readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version
             //finally...  section data
             if ( version >= 0x254 && build >= 41 ) //read and write the size of tiles_used properly
 			{ 
-				if(!p_igetl(&tiles_used,f,true))
+				if(!p_igetl(&tiles_used,f))
 				{
 					delete[] temp_tile;
 					return qe_invalid;
@@ -19516,7 +19087,7 @@ int32_t readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version
 			}
 			else
 			{
-				if(!p_igetw(&tiles_used,f,true))
+				if(!p_igetw(&tiles_used,f))
 				{
 					delete[] temp_tile;
 					return qe_invalid;
@@ -19549,7 +19120,7 @@ int32_t readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version
             
             if((version>0x211)||((version==0x211)&&(build>4)))
             {
-                if(!p_getc(&format,f,true))
+                if(!p_getc(&format,f))
                 {
                     delete[] temp_tile;
                     return qe_invalid;
@@ -19557,32 +19128,26 @@ int32_t readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version
             }
             if(section_version > 2 && !format)
 			{
-				if(keepdata)
-				{
-					reset_tile(buf,start_tile+i,tf4Bit);
-				}
+				reset_tile(buf,start_tile+i,tf4Bit);
 				continue;
 			}
 			
-            if(!pfread(temp_tile,tilesize(format),f,true))
+            if(!pfread(temp_tile,tilesize(format),f))
             {
                 delete[] temp_tile;
                 return qe_invalid;
             }
             
-            if(keepdata==true)
-            {
-                buf[start_tile+i].format=format;
-                
-                if(buf[start_tile+i].data)
-                {
-                    free(buf[start_tile+i].data);
-                    buf[start_tile+i].data=NULL;
-                }
-                
-                buf[start_tile+i].data=(byte *)malloc(tilesize(buf[start_tile+i].format));
-                memcpy(buf[start_tile+i].data,temp_tile,tilesize(buf[start_tile+i].format));
-            }
+			buf[start_tile+i].format=format;
+			
+			if(buf[start_tile+i].data)
+			{
+				free(buf[start_tile+i].data);
+				buf[start_tile+i].data=NULL;
+			}
+			
+			buf[start_tile+i].data=(byte *)malloc(tilesize(buf[start_tile+i].format));
+			memcpy(buf[start_tile+i].data,temp_tile,tilesize(buf[start_tile+i].format));
         }
     }
     
@@ -19612,72 +19177,69 @@ int32_t readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version
 		
 	}
     
-    if(keepdata==true)
-    {
-		if ( version < 0x254 || ( version >= 0x254 && build < 41 ))
+	if ( version < 0x254 || ( version >= 0x254 && build < 41 ))
+	{
+		for(int32_t i=start_tile+tiles_used; i<max_tiles; ++i)
 		{
-			for(int32_t i=start_tile+tiles_used; i<max_tiles; ++i)
+			//al_trace("Resetting tiles for ZC250MAXTILES, iteration: %d\n", i);
+			reset_tile(buf,i,tf4Bit);
+		}
+	}
+	else
+	{
+		for(int32_t i=start_tile+tiles_used; i<max_tiles; ++i)
+		{
+			//al_trace("Resetting tiles for build 41+\n");
+			reset_tile(buf,i,tf4Bit);
+		}
+	}
+	
+	if((version < 0x192)|| ((version == 0x192)&&(build<186)))
+	{
+		if(get_qr(qr_BSZELDA))   //
+		{
+			byte tempbyte;
+			int32_t floattile=wpnsbuf[iwSwim].tile;
+			
+			for(int32_t i=0; i<tilesize(tf4Bit); i++)  //BSZelda tiles are out of order //does this include swim tiles?
 			{
-				//al_trace("Resetting tiles for ZC250MAXTILES, iteration: %d\n", i);
-				reset_tile(buf,i,tf4Bit);
+				tempbyte=buf[23].data[i];
+				buf[23].data[i]=buf[24].data[i];
+				buf[24].data[i]=buf[25].data[i];
+				buf[25].data[i]=buf[26].data[i];
+				buf[26].data[i]=tempbyte;
+			}
+			//swim tiles are out of order, too, but nobody cared? -Z 
+			for(int32_t i=0; i<tilesize(tf4Bit); i++)
+			{
+				tempbyte=buf[floattile+11].data[i];
+				buf[floattile+11].data[i]=buf[floattile+12].data[i];
+				buf[floattile+12].data[i]=tempbyte;
 			}
 		}
-		else
+	}
+	
+	if((version < 0x211)||((version == 0x211)&&(build<7)))   //Goriya tiles are out of order
+	{
+		if(!get_qr(qr_NEWENEMYTILES))
 		{
-			for(int32_t i=start_tile+tiles_used; i<max_tiles; ++i)
+			byte tempbyte;
+			
+			for(int32_t i=0; i<tilesize(tf4Bit); i++)
 			{
-				//al_trace("Resetting tiles for build 41+\n");
-				reset_tile(buf,i,tf4Bit);
+				tempbyte=buf[130].data[i];
+				buf[130].data[i]=buf[132].data[i];
+				buf[132].data[i]=tempbyte;
+				
+				tempbyte=buf[131].data[i];
+				buf[131].data[i]=buf[133].data[i];
+				buf[133].data[i]=tempbyte;
 			}
 		}
-        
-        if((version < 0x192)|| ((version == 0x192)&&(build<186)))
-        {
-            if(get_qr(qr_BSZELDA))   //
-            {
-                byte tempbyte;
-                int32_t floattile=wpnsbuf[iwSwim].tile;
-                
-                for(int32_t i=0; i<tilesize(tf4Bit); i++)  //BSZelda tiles are out of order //does this include swim tiles?
-                {
-                    tempbyte=buf[23].data[i];
-                    buf[23].data[i]=buf[24].data[i];
-                    buf[24].data[i]=buf[25].data[i];
-                    buf[25].data[i]=buf[26].data[i];
-                    buf[26].data[i]=tempbyte;
-                }
-                //swim tiles are out of order, too, but nobody cared? -Z 
-                for(int32_t i=0; i<tilesize(tf4Bit); i++)
-                {
-                    tempbyte=buf[floattile+11].data[i];
-                    buf[floattile+11].data[i]=buf[floattile+12].data[i];
-                    buf[floattile+12].data[i]=tempbyte;
-                }
-            }
-        }
-        
-        if((version < 0x211)||((version == 0x211)&&(build<7)))   //Goriya tiles are out of order
-        {
-            if(!get_qr(qr_NEWENEMYTILES))
-            {
-                byte tempbyte;
-                
-                for(int32_t i=0; i<tilesize(tf4Bit); i++)
-                {
-                    tempbyte=buf[130].data[i];
-                    buf[130].data[i]=buf[132].data[i];
-                    buf[132].data[i]=tempbyte;
-                    
-                    tempbyte=buf[131].data[i];
-                    buf[131].data[i]=buf[133].data[i];
-                    buf[133].data[i]=tempbyte;
-                }
-            }
-        }
-        
-		al_trace("Registering blank tiles\n");
-        register_blank_tiles();
-    }
+	}
+	
+	al_trace("Registering blank tiles\n");
+	register_blank_tiles();
     
     //memset(temp_tile, 0, tilesize(tf32Bit));
     delete[] temp_tile;
@@ -19685,7 +19247,7 @@ int32_t readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version
     return 0;
 }
 
-int32_t readtunes(PACKFILE *f, zquestheader *Header, zctune *tunes /*zcmidi_ *midis*/, bool keepdata)
+int32_t readtunes(PACKFILE *f, zquestheader *Header, zctune *tunes /*zcmidi_ *midis*/)
 {
     byte *mf=midi_flags;
     int32_t dummy;
@@ -19711,7 +19273,7 @@ int32_t readtunes(PACKFILE *f, zquestheader *Header, zctune *tunes /*zcmidi_ *mi
     else
     {
         //section version info
-        if(!p_igetw(&section_version,f,true))
+        if(!p_igetw(&section_version,f))
         {
             return qe_invalid;
         }
@@ -19719,19 +19281,19 @@ int32_t readtunes(PACKFILE *f, zquestheader *Header, zctune *tunes /*zcmidi_ *mi
 	FFCore.quest_format[vMIDIs] = section_version;
         
         //al_trace("Tunes version %d\n", section_version);
-        if(!p_igetw(&dummy2,f,true))
+        if(!p_igetw(&dummy2,f))
         {
             return qe_invalid;
         }
         
         //section size
-        if(!p_igetl(&dummy,f,true))
+        if(!p_igetl(&dummy,f))
         {
             return qe_invalid;
         }
         
         //finally...  section data
-        if(!pfread(midi_flags,sizeof(midi_flags),f,true))
+        if(!pfread(midi_flags,sizeof(midi_flags),f))
         {
             return qe_invalid;
         }
@@ -19747,65 +19309,59 @@ int32_t readtunes(PACKFILE *f, zquestheader *Header, zctune *tunes /*zcmidi_ *mi
         }
     }
     
-    if(keepdata==true)
-    {
-        reset_tunes(tunes); //reset_midis(midis);
-    }
+	reset_tunes(tunes); //reset_midis(midis);
     
     for(int32_t i=0; i<tunes_to_read; i++)
     {
         temp.clear(); //memset(&temp_midi,0,sizeof(zcmidi_));
         
-        if(keepdata==true)
-        {
-            tunes[i].reset(); // reset_midi(midis+i);
-        }
+		tunes[i].reset(); // reset_midi(midis+i);
         
         if(get_bit(mf,i))
         {
             if(section_version < 4)
             {
-                if(!pfread(&temp.title,sizeof(char)*20,f,true))
+                if(!pfread(&temp.title,sizeof(char)*20,f))
                 {
                     return qe_invalid;
                 }
             }
             else
             {
-                if(!pfread(&temp.title,sizeof(temp.title),f,true))
+                if(!pfread(&temp.title,sizeof(temp.title),f))
                 {
                     return qe_invalid;
                 }
             }
             
-            if(!p_igetl(&temp.start,f,true))
+            if(!p_igetl(&temp.start,f))
             {
                 return qe_invalid;
             }
             
-            if(!p_igetl(&temp.loop_start,f,true))
+            if(!p_igetl(&temp.loop_start,f))
             {
                 return qe_invalid;
             }
             
-            if(!p_igetl(&temp.loop_end,f,true))
+            if(!p_igetl(&temp.loop_end,f))
             {
                 return qe_invalid;
             }
             
-            if(!p_igetw(&temp.loop,f,true))
+            if(!p_igetw(&temp.loop,f))
             {
                 return qe_invalid;
             }
             
-            if(!p_igetw(&temp.volume,f,true))
+            if(!p_igetw(&temp.volume,f))
             {
                 return qe_invalid;
             }
             
             if(Header->zelda_version < 0x193)
             {
-                if(!p_igetl(&dummy,f,true))
+                if(!p_igetl(&dummy,f))
                 {
                     return qe_invalid;
                 }
@@ -19813,42 +19369,39 @@ int32_t readtunes(PACKFILE *f, zquestheader *Header, zctune *tunes /*zcmidi_ *mi
             
             if(section_version >= 3)
             {
-                if(!pfread(&temp.flags,sizeof(temp.flags),f,true))
+                if(!pfread(&temp.flags,sizeof(temp.flags),f))
                 {
                     return qe_invalid;
                 }
             }
             
-            if(keepdata==true)
-            {
-                tunes[i].copyfrom(temp); // memcpy(&midis[i], &temp_midi, sizeof(zcmidi_));
-            }
+			tunes[i].copyfrom(temp); // memcpy(&midis[i], &temp_midi, sizeof(zcmidi_));
             
             if(section_version < 2) //= 1 || (Header->zelda_version < 0x211) || (Header->zelda_version == 0x211 && Header->build < 18))
             {
                 // old format - a midi is a midi
-                if(((keepdata==true?tunes[i].data:temp.data)=read_midi(f, true))==NULL)
+                if((tunes[i].data=read_midi(f))==NULL)
                 {
                     return qe_invalid;
                 }
                 
                 //yes you can do this. Isn't the ? operator awesome? :)
-                (keepdata ? tunes[i] : temp).format = MFORMAT_MIDI;
+                tunes[i].format = MFORMAT_MIDI;
             }
             else
             {
                 // 'midi' could be midi or nes, gb, ... music
-                if(!pfread(&(keepdata ? tunes[i] : temp).format,sizeof((keepdata ? tunes[i] : temp).format),f,true))
+                if(!pfread(&tunes[i].format,sizeof(tunes[i].format),f))
                 {
                     return qe_invalid;
                 }
                 
-                zctune *ptr = (keepdata==true)?&(tunes[i]):&temp;
+                zctune *ptr = &tunes[i];
                 
                 switch(temp.format)
                 {
                 case MFORMAT_MIDI:
-                    if((ptr->data=read_midi(f, true))==NULL)
+                    if((ptr->data=read_midi(f))==NULL)
                     {
                         return qe_invalid;
                     }
@@ -19866,7 +19419,7 @@ int32_t readtunes(PACKFILE *f, zquestheader *Header, zctune *tunes /*zcmidi_ *mi
     return 0;
 }
 
-int32_t readcheatcodes(PACKFILE *f, zquestheader *Header, bool keepdata)
+int32_t readcheatcodes(PACKFILE *f, zquestheader *Header)
 {
     int32_t dummy;
     ZCHEATS tempzcheats;
@@ -19877,26 +19430,26 @@ int32_t readcheatcodes(PACKFILE *f, zquestheader *Header, bool keepdata)
     if(Header->zelda_version > 0x192)
     {
         //section version info
-        if(!p_igetw(&s_version,f,true))
+        if(!p_igetw(&s_version,f))
         {
             return qe_invalid;
         }
         
 	FFCore.quest_format[vCheats] = s_version;
         //al_trace("Cheats version %d\n", dummy);
-        if(!p_igetw(&dummy,f,true))
+        if(!p_igetw(&dummy,f))
         {
             return qe_invalid;
         }
         
         //section size
-        if(!p_igetl(&dummy,f,true))
+        if(!p_igetl(&dummy,f))
         {
             return qe_invalid;
         }
         
         //finally...  section data
-        if(!p_getc(&temp_use_cheats,f,true))
+        if(!p_getc(&temp_use_cheats,f))
         {
             return qe_invalid;
         }
@@ -19904,32 +19457,28 @@ int32_t readcheatcodes(PACKFILE *f, zquestheader *Header, bool keepdata)
     
     if(Header->data_flags[ZQ_CHEATS2])
     {
-        if(!p_igetl(&tempzcheats.flags,f,true))
+        if(!p_igetl(&tempzcheats.flags,f))
         {
             return qe_invalid;
         }
         
-        if(!pfread(&tempzcheats.codes, sizeof(tempzcheats.codes), f,true))
+        if(!pfread(&tempzcheats.codes, sizeof(tempzcheats.codes),f))
         {
             return qe_invalid;
         }
     }
     
-    if(keepdata==true)
-    {
-        memcpy(&zcheats, &tempzcheats, sizeof(tempzcheats));
-        Header->data_flags[ZQ_CHEATS2]=temp_use_cheats;
-    }
+	memcpy(&zcheats, &tempzcheats, sizeof(tempzcheats));
+	Header->data_flags[ZQ_CHEATS2]=temp_use_cheats;
     
     return 0;
 }
 
-int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
+int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 {
 	int32_t dummy;
 	word s_version=0, s_cversion=0;
 	byte padding;
-	word tempw;
 	
 	zinitdata temp_zinit;
 	
@@ -19964,7 +19513,7 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 	if(Header->zelda_version > 0x192)
 	{
 		//section version info
-		if(!p_igetw(&s_version,f,true))
+		if(!p_igetw(&s_version,f))
 		{
 			return qe_invalid;
 		}
@@ -19972,13 +19521,13 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 		FFCore.quest_format[vInitData] = s_version;
 		
 		//al_trace("Init data version %d\n", s_version);
-		if(!p_igetw(&s_cversion,f,true))
+		if(!p_igetw(&s_cversion,f))
 		{
 			return qe_invalid;
 		}
 		
 		//section size
-		if(!p_igetl(&dummy,f,true))
+		if(!p_igetl(&dummy,f))
 		{
 			return qe_invalid;
 		}
@@ -19989,7 +19538,7 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 	 * where the speed of Pols Voice changed. It also coincided with V_INITDATA
 	 * changing from 13 to 14.
 	 */
-	if(keepdata && s_version < 14)
+	if(s_version < 14)
 		fixpolsvoice=true;
 		
 	/* End highly unorthodox updating thing */
@@ -20004,7 +19553,7 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 		//new-style items
 		for(int32_t j=0; j<256; j++)
 		{
-			if(!p_getc(&temp,f,true))
+			if(!p_getc(&temp,f))
 				return qe_invalid;
 				
 			temp_zinit.items[j] = (temp != 0);
@@ -20023,42 +19572,42 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 			//OLD-style items... sigh
 			if(s_version < 10)
 			{
-				if(!p_getc(&temp,f,true))
+				if(!p_getc(&temp,f))
 				{
 					return qe_invalid;
 				}
 				
 				temp_zinit.items[iRaft]=(temp != 0);
 				
-				if(!p_getc(&temp,f,true))
+				if(!p_getc(&temp,f))
 				{
 					return qe_invalid;
 				}
 				
 				temp_zinit.items[iLadder]=(temp != 0);
 				
-				if(!p_getc(&temp,f,true))
+				if(!p_getc(&temp,f))
 				{
 					return qe_invalid;
 				}
 				
 				temp_zinit.items[iBook]=(temp != 0);
 				
-				if(!p_getc(&temp,f,true))
+				if(!p_getc(&temp,f))
 				{
 					return qe_invalid;
 				}
 				
 				temp_zinit.items[iMKey]=(temp!=0);
 				
-				if(!p_getc(&temp,f,true))
+				if(!p_getc(&temp,f))
 				{
 					return qe_invalid;
 				}
 				
 				temp_zinit.items[iFlippers]=(temp != 0);
 				
-				if(!p_getc(&temp,f,true))
+				if(!p_getc(&temp,f))
 				{
 					return qe_invalid;
 				}
@@ -20071,37 +19620,37 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 		{
 			char tempring, tempsword, tempshield, tempwallet, tempbracelet, tempamulet, tempbow;
 			
-			if(!p_getc(&tempring,f,true))
+			if(!p_getc(&tempring,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_getc(&tempsword,f,true))
+			if(!p_getc(&tempsword,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_getc(&tempshield,f,true))
+			if(!p_getc(&tempshield,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_getc(&tempwallet,f,true))
+			if(!p_getc(&tempwallet,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_getc(&tempbracelet,f,true))
+			if(!p_getc(&tempbracelet,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_getc(&tempamulet,f,true))
+			if(!p_getc(&tempamulet,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_getc(&tempbow,f,true))
+			if(!p_getc(&tempbow,f))
 			{
 				return qe_invalid;
 			}
@@ -20136,7 +19685,7 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 			{
 				for(int32_t q=0; q<32; q++)
 				{
-					if(!p_getc(&padding,f,true))
+					if(!p_getc(&padding,f))
 					{
 						return qe_invalid;
 					}
@@ -20145,29 +19694,29 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 			
 			char tempcandle, tempboomerang, temparrow, tempwhistle;
 			
-			if(!p_getc(&tempcandle,f,true))
+			if(!p_getc(&tempcandle,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_getc(&tempboomerang,f,true))
+			if(!p_getc(&tempboomerang,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_getc(&temparrow,f,true))
+			if(!p_getc(&temparrow,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_getc(&temp,f,true))
+			if(!p_getc(&temp,f))
 			{
 				return qe_invalid;
 			}
 			
 			addOldStyleFamily(&temp_zinit, itemsbuf, itype_potion, temp);
 			
-			if(!p_getc(&tempwhistle,f,true))
+			if(!p_getc(&tempwhistle,f))
 			{
 				return qe_invalid;
 			}
@@ -20193,11 +19742,11 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 		{
 			//Oh sure, stick these IN THE MIDDLE OF THE ITEMS, just to make me want
 			//to jab out my eye...
-			if(!p_getc(&padding,f,true))
+			if(!p_getc(&padding,f))
 				return qe_invalid;
 			temp_zinit.bombs = padding;
 			
-			if(!p_getc(&padding,f,true))
+			if(!p_getc(&padding,f))
 				return qe_invalid;
 			temp_zinit.super_bombs = padding;
 		}
@@ -20209,70 +19758,70 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 					//new only
 					((Header->zelda_version == 0x192)&&(Header->build>173)))
 			{
-				if(!p_getc(&temp,f,true))
+				if(!p_getc(&temp,f))
 				{
 					return qe_invalid;
 				}
 				
 				addOldStyleFamily(&temp_zinit, itemsbuf, itype_wand, temp);
 				
-				if(!p_getc(&temp,f,true))
+				if(!p_getc(&temp,f))
 				{
 					return qe_invalid;
 				}
 				
 				addOldStyleFamily(&temp_zinit, itemsbuf, itype_letter, temp);
 				
-				if(!p_getc(&temp,f,true))
+				if(!p_getc(&temp,f))
 				{
 					return qe_invalid;
 				}
 				
 				addOldStyleFamily(&temp_zinit, itemsbuf, itype_lens, temp);
 				
-				if(!p_getc(&temp,f,true))
+				if(!p_getc(&temp,f))
 				{
 					return qe_invalid;
 				}
 				
 				addOldStyleFamily(&temp_zinit, itemsbuf, itype_hookshot, temp);
 				
-				if(!p_getc(&temp,f,true))
+				if(!p_getc(&temp,f))
 				{
 					return qe_invalid;
 				}
 				
 				addOldStyleFamily(&temp_zinit, itemsbuf, itype_bait, temp);
 				
-				if(!p_getc(&temp,f,true))
+				if(!p_getc(&temp,f))
 				{
 					return qe_invalid;
 				}
 				
 				addOldStyleFamily(&temp_zinit, itemsbuf, itype_hammer, temp);
 				
-				if(!p_getc(&temp,f,true))
+				if(!p_getc(&temp,f))
 				{
 					return qe_invalid;
 				}
 				
 				addOldStyleFamily(&temp_zinit, itemsbuf, itype_divinefire, temp);
 				
-				if(!p_getc(&temp,f,true))
+				if(!p_getc(&temp,f))
 				{
 					return qe_invalid;
 				}
 				
 				addOldStyleFamily(&temp_zinit, itemsbuf, itype_divineescape, temp);
 				
-				if(!p_getc(&temp,f,true))
+				if(!p_getc(&temp,f))
 				{
 					return qe_invalid;
 				}
 				
 				addOldStyleFamily(&temp_zinit, itemsbuf, itype_divineprotection, temp);
 				
-				if(!p_getc(&temp,f,true))
+				if(!p_getc(&temp,f))
 				{
 					return qe_invalid;
 				}
@@ -20281,7 +19830,7 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 				{
 					for(int32_t q=0; q<32; q++)
 					{
-						if(!p_getc(&padding,f,true))
+						if(!p_getc(&padding,f))
 						{
 							return qe_invalid;
 						}
@@ -20295,7 +19844,7 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 		{
 			byte equipment, items;                                //bit flags
 			
-			if(!p_getc(&equipment,f,true))
+			if(!p_getc(&equipment,f))
 			{
 				return qe_invalid;
 			}
@@ -20308,7 +19857,7 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 			temp_zinit.items[iBoots]=(get_bit(&equipment, idE_BOOTS)!=0);
 			
 			
-			if(!p_getc(&items,f,true))
+			if(!p_getc(&items,f))
 			{
 				return qe_invalid;
 			}
@@ -20321,7 +19870,7 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 			temp_zinit.items[iHammer]=(get_bit(&items, idI_HAMMER)!=0);
 		}
 		
-		if(!p_getc(&temp_zinit.hc,f,true))
+		if(!p_getc(&temp_zinit.hc,f))
 		{
 			return qe_invalid;
 		}
@@ -20330,14 +19879,14 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 		{
 			byte temphp;
 			
-			if(!p_getc(&temphp,f,true))
+			if(!p_getc(&temphp,f))
 			{
 				return qe_invalid;
 			}
 			
 			temp_zinit.start_heart=temphp;
 			
-			if(!p_getc(&temphp,f,true))
+			if(!p_getc(&temphp,f))
 			{
 				return qe_invalid;
 			}
@@ -20346,25 +19895,25 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 		}
 		else
 		{
-			if(!p_igetw(&temp_zinit.start_heart,f,true))
+			if(!p_igetw(&temp_zinit.start_heart,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_igetw(&temp_zinit.cont_heart,f,true))
+			if(!p_igetw(&temp_zinit.cont_heart,f))
 			{
 				return qe_invalid;
 			}
 		}
 		
-		if(!p_getc(&temp_zinit.hcp,f,true))
+		if(!p_getc(&temp_zinit.hcp,f))
 		{
 			return qe_invalid;
 		}
 		
 		if(s_version >= 14)
 		{
-			if(!p_getc(&temp_zinit.hcp_per_hc,f,true))
+			if(!p_getc(&temp_zinit.hcp_per_hc,f))
 			{
 				return qe_invalid;
 			}
@@ -20381,22 +19930,22 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 		
 		if(s_version < 29)
 		{
-			if(!p_getc(&padding,f,true))
+			if(!p_getc(&padding,f))
 				return qe_invalid;
 			temp_zinit.max_bombs = padding;
 		}
 		
-		if(!p_getc(&temp_zinit.keys,f,true))
+		if(!p_getc(&temp_zinit.keys,f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_igetw(&temp_zinit.rupies,f,true))
+		if(!p_igetw(&temp_zinit.rupies,f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_getc(&temp_zinit.triforce,f,true))
+		if(!p_getc(&temp_zinit.triforce,f))
 		{
 			return qe_invalid;
 		}
@@ -20405,7 +19954,7 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 		{
 			for(int32_t i=0; i<64; i++)
 			{
-				if(!p_getc(&temp_zinit.map[i],f,true))
+				if(!p_getc(&temp_zinit.map[i],f))
 				{
 					return qe_invalid;
 				}
@@ -20413,7 +19962,7 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 			
 			for(int32_t i=0; i<64; i++)
 			{
-				if(!p_getc(&temp_zinit.compass[i],f,true))
+				if(!p_getc(&temp_zinit.compass[i],f))
 				{
 					return qe_invalid;
 				}
@@ -20423,7 +19972,7 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 		{
 			for(int32_t i=0; i<32; i++)
 			{
-				if(!p_getc(&temp_zinit.map[i],f,true))
+				if(!p_getc(&temp_zinit.map[i],f))
 				{
 					return qe_invalid;
 				}
@@ -20431,7 +19980,7 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 			
 			for(int32_t i=0; i<32; i++)
 			{
-				if(!p_getc(&temp_zinit.compass[i],f,true))
+				if(!p_getc(&temp_zinit.compass[i],f))
 				{
 					return qe_invalid;
 				}
@@ -20446,7 +19995,7 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 			{
 				for(int32_t i=0; i<64; i++)
 				{
-					if(!p_getc(&temp_zinit.boss_key[i],f,true))
+					if(!p_getc(&temp_zinit.boss_key[i],f))
 					{
 						return qe_invalid;
 					}
@@ -20456,7 +20005,7 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 			{
 				for(int32_t i=0; i<32; i++)
 				{
-					if(!p_getc(&temp_zinit.boss_key[i],f,true))
+					if(!p_getc(&temp_zinit.boss_key[i],f))
 					{
 						return qe_invalid;
 					}
@@ -20466,7 +20015,7 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 		
 		for(int32_t i=0; i<16; i++)
 		{
-			if(!p_getc(&temp_zinit.misc[i],f,true))
+			if(!p_getc(&temp_zinit.misc[i],f))
 			{
 				return qe_invalid;
 			}
@@ -20474,18 +20023,18 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 		
 		if(s_version < 15) for(int32_t i=0; i<4; i++)
 			{
-				if(!p_getc(&sword_hearts[i],f,true))
+				if(!p_getc(&sword_hearts[i],f))
 				{
 					return qe_invalid;
 				}
 			}
 			
-		if(!p_getc(&temp_zinit.last_map,f,true))
+		if(!p_getc(&temp_zinit.last_map,f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_getc(&temp_zinit.last_screen,f,true))
+		if(!p_getc(&temp_zinit.last_screen,f))
 		{
 			return qe_invalid;
 		}
@@ -20494,14 +20043,14 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 		{
 			byte tempmp;
 			
-			if(!p_getc(&tempmp,f,true))
+			if(!p_getc(&tempmp,f))
 			{
 				return qe_invalid;
 			}
 			
 			temp_zinit.max_magic=tempmp;
 			
-			if(!p_getc(&tempmp,f,true))
+			if(!p_getc(&tempmp,f))
 			{
 				return qe_invalid;
 			}
@@ -20510,12 +20059,12 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 		}
 		else
 		{
-			if(!p_igetw(&temp_zinit.max_magic,f,true))
+			if(!p_igetw(&temp_zinit.max_magic,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_igetw(&temp_zinit.magic,f,true))
+			if(!p_igetw(&temp_zinit.magic,f))
 			{
 				return qe_invalid;
 			}
@@ -20531,20 +20080,20 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 			
 			for(int32_t i=0; i<4; i++)
 			{
-				if(!p_getc(&beam_hearts[i],f,true))
+				if(!p_getc(&beam_hearts[i],f))
 				{
 					return qe_invalid;
 				}
 			}
 			
-			if(!p_getc(&beam_percent,f,true))
+			if(!p_getc(&beam_percent,f))
 			{
 				return qe_invalid;
 			}
 		}
 		else
 		{
-			if(!p_getc(&temp_zinit.bomb_ratio,f,true))
+			if(!p_getc(&temp_zinit.bomb_ratio,f))
 			{
 				return qe_invalid;
 			}
@@ -20556,7 +20105,7 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 			
 			for(int32_t i=0; i<4; i++)
 			{
-				if(!(s_version < 14 ? p_getc(&tempbp,f,true) : p_igetw(&tempbp,f,true)))
+				if(!(s_version < 14 ? p_getc(&tempbp,f) : p_igetw(&tempbp,f)))
 				{
 					return qe_invalid;
 				}
@@ -20564,41 +20113,41 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 				beam_power[i]=tempbp;
 			}
 			
-			if(!p_getc(&hookshot_links,f,true))
+			if(!p_getc(&hookshot_links,f))
 			{
 				return qe_invalid;
 			}
 			
 			if(s_version>6)
 			{
-				if(!p_getc(&hookshot_length,f,true))
+				if(!p_getc(&hookshot_length,f))
 				{
 					return qe_invalid;
 				}
 				
-				if(!p_getc(&longshot_links,f,true))
+				if(!p_getc(&longshot_links,f))
 				{
 					return qe_invalid;
 				}
 				
-				if(!p_getc(&longshot_length,f,true))
+				if(!p_getc(&longshot_length,f))
 				{
 					return qe_invalid;
 				}
 			}
 		}
 		
-		if(!p_getc(&temp_zinit.msg_more_x,f,true))
+		if(!p_getc(&temp_zinit.msg_more_x,f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_getc(&temp_zinit.msg_more_y,f,true))
+		if(!p_getc(&temp_zinit.msg_more_y,f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_getc(&temp_zinit.subscreen,f,true))
+		if(!p_getc(&temp_zinit.subscreen,f))
 		{
 			return qe_invalid;
 		}
@@ -20608,7 +20157,7 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 		{
 			for(int32_t i=0; i<32; i++)
 			{
-				if(!p_getc(&temp_zinit.boss_key[i],f,true))
+				if(!p_getc(&temp_zinit.boss_key[i],f))
 				{
 					return qe_invalid;
 				}
@@ -20621,7 +20170,7 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 			{
 				byte tempbyte;
 				
-				if(!p_getc(&tempbyte,f,true))
+				if(!p_getc(&tempbyte,f))
 				{
 					return qe_invalid;
 				}
@@ -20630,13 +20179,13 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 			}
 			else
 			{
-				if(!p_igetw(&temp_zinit.start_dmap,f,true))
+				if(!p_igetw(&temp_zinit.start_dmap,f))
 				{
 					return qe_invalid;
 				}
 			}
 			
-			if(!p_getc(&temp_zinit.heroAnimationStyle,f,true))
+			if(!p_getc(&temp_zinit.heroAnimationStyle,f))
 			{
 				return qe_invalid;
 			}
@@ -20644,11 +20193,11 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 		
 		if(s_version>1 && s_version < 29)
 		{
-			if(!p_getc(&padding,f,true))
+			if(!p_getc(&padding,f))
 				return qe_invalid;
 			temp_zinit.arrows = padding;
 			
-			if(!p_getc(&padding,f,true))
+			if(!p_getc(&padding,f))
 				return qe_invalid;
 			temp_zinit.max_arrows = padding;
 		}
@@ -20659,7 +20208,7 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 			{
 				for(int32_t i=0; i<OLDMAXLEVELS; i++)
 				{
-					if(!p_getc(&(temp_zinit.level_keys[i]),f,true))
+					if(!p_getc(&(temp_zinit.level_keys[i]),f))
 					{
 						return qe_invalid;
 					}
@@ -20669,7 +20218,7 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 			{
 				for(int32_t i=0; i<MAXLEVELS; i++)
 				{
-					if(!p_getc(&(temp_zinit.level_keys[i]),f,true))
+					if(!p_getc(&(temp_zinit.level_keys[i]),f))
 					{
 						return qe_invalid;
 					}
@@ -20679,42 +20228,42 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 		
 		if(s_version>3)
 		{
-			if(!p_igetw(&temp_zinit.ss_grid_x,f,true))
+			if(!p_igetw(&temp_zinit.ss_grid_x,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_igetw(&temp_zinit.ss_grid_y,f,true))
+			if(!p_igetw(&temp_zinit.ss_grid_y,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_igetw(&temp_zinit.ss_grid_xofs,f,true))
+			if(!p_igetw(&temp_zinit.ss_grid_xofs,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_igetw(&temp_zinit.ss_grid_yofs,f,true))
+			if(!p_igetw(&temp_zinit.ss_grid_yofs,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_igetw(&temp_zinit.ss_grid_color,f,true))
+			if(!p_igetw(&temp_zinit.ss_grid_color,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_igetw(&temp_zinit.ss_bbox_1_color,f,true))
+			if(!p_igetw(&temp_zinit.ss_bbox_1_color,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_igetw(&temp_zinit.ss_bbox_2_color,f,true))
+			if(!p_igetw(&temp_zinit.ss_bbox_2_color,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_igetw(&temp_zinit.ss_flags,f,true))
+			if(!p_igetw(&temp_zinit.ss_flags,f))
 			{
 				return qe_invalid;
 			}
@@ -20725,12 +20274,12 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 		
 		if(s_version>4 && s_version<15)
 		{
-			if(!p_getc(&moving_fairy_hearts,f,true))
+			if(!p_getc(&moving_fairy_hearts,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_getc(&moving_fairy_heart_percent,f,true))
+			if(!p_getc(&moving_fairy_heart_percent,f))
 			{
 				return qe_invalid;
 			}
@@ -20738,7 +20287,7 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 		
 		if(s_version>5 && s_version < 10)
 		{
-			if(!p_getc(&temp,f,true))
+			if(!p_getc(&temp,f))
 			{
 				return qe_invalid;
 			}
@@ -20748,72 +20297,72 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 		
 		if(s_version>6 && s_version<15)
 		{
-			if(!p_getc(&stationary_fairy_hearts,f,true))
+			if(!p_getc(&stationary_fairy_hearts,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_getc(&stationary_fairy_heart_percent,f,true))
+			if(!p_getc(&stationary_fairy_heart_percent,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_getc(&moving_fairy_magic,f,true))
+			if(!p_getc(&moving_fairy_magic,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_getc(&moving_fairy_magic_percent,f,true))
+			if(!p_getc(&moving_fairy_magic_percent,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_getc(&stationary_fairy_magic,f,true))
+			if(!p_getc(&stationary_fairy_magic,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_getc(&stationary_fairy_magic_percent,f,true))
+			if(!p_getc(&stationary_fairy_magic_percent,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_getc(&blue_potion_hearts,f,true))
+			if(!p_getc(&blue_potion_hearts,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_getc(&blue_potion_heart_percent,f,true))
+			if(!p_getc(&blue_potion_heart_percent,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_getc(&red_potion_hearts,f,true))
+			if(!p_getc(&red_potion_hearts,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_getc(&red_potion_heart_percent,f,true))
+			if(!p_getc(&red_potion_heart_percent,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_getc(&blue_potion_magic,f,true))
+			if(!p_getc(&blue_potion_magic,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_getc(&blue_potion_magic_percent,f,true))
+			if(!p_getc(&blue_potion_magic_percent,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_getc(&red_potion_magic,f,true))
+			if(!p_getc(&red_potion_magic,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_getc(&red_potion_magic_percent,f,true))
+			if(!p_getc(&red_potion_magic_percent,f))
 			{
 				return qe_invalid;
 			}
@@ -20821,7 +20370,7 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 		
 		if(s_version>6)
 		{
-			if(!p_getc(&temp_zinit.subscreen_style,f,true))
+			if(!p_getc(&temp_zinit.subscreen_style,f))
 			{
 				return qe_invalid;
 			}
@@ -20829,7 +20378,7 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 		
 		if(s_version>7)
 		{
-			if(!p_getc(&temp_zinit.usecustomsfx,f,true))
+			if(!p_getc(&temp_zinit.usecustomsfx,f))
 			{
 				return qe_invalid;
 			}
@@ -20837,12 +20386,12 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 		
 		if(s_version>8)
 		{
-			if(!p_igetw(&temp_zinit.max_rupees,f,true))
+			if(!p_igetw(&temp_zinit.max_rupees,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_igetw(&temp_zinit.max_keys,f,true))
+			if(!p_igetw(&temp_zinit.max_keys,f))
 			{
 				return qe_invalid;
 			}
@@ -20850,27 +20399,27 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 		
 		if(s_version>16)
 		{
-			if(!p_getc(&temp_zinit.gravity,f,true))
+			if(!p_getc(&temp_zinit.gravity,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_igetw(&temp_zinit.terminalv,f,true))
+			if(!p_igetw(&temp_zinit.terminalv,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_getc(&temp_zinit.msg_speed,f,true))
+			if(!p_getc(&temp_zinit.msg_speed,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_getc(&temp_zinit.transition_type,f,true))
+			if(!p_getc(&temp_zinit.transition_type,f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_getc(&temp_zinit.jump_hero_layer_threshold,f,true))
+			if(!p_getc(&temp_zinit.jump_hero_layer_threshold,f))
 			{
 				return qe_invalid;
 			}
@@ -20880,7 +20429,7 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 		
 		if(s_version>17)
 		{
-			if(!p_getc(&temp_zinit.msg_more_is_offset,f,true))
+			if(!p_getc(&temp_zinit.msg_more_is_offset,f))
 			{
 				return qe_invalid;
 			}
@@ -20889,27 +20438,27 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 		//expaned init data for larger values in 2.55
 		if ( s_version >= 19 ) //expand init data bombs, sbombs, and arrows to 0xFFFF
 		{
-			if(!p_igetw(&temp_zinit.bombs,f,true))
+			if(!p_igetw(&temp_zinit.bombs,f))
 			{
 				return qe_invalid;
 			}
-			if(!p_igetw(&temp_zinit.super_bombs,f,true))
+			if(!p_igetw(&temp_zinit.super_bombs,f))
 			{
 				return qe_invalid;
 			}
-			if(!p_igetw(&temp_zinit.max_bombs,f,true))
+			if(!p_igetw(&temp_zinit.max_bombs,f))
 			{
 				return qe_invalid;
 			}
-			if(!p_igetw(&temp_zinit.max_sbombs,f,true))
+			if(!p_igetw(&temp_zinit.max_sbombs,f))
 			{
 				return qe_invalid;
 			}
-			if(!p_igetw(&temp_zinit.arrows,f,true))
+			if(!p_igetw(&temp_zinit.arrows,f))
 			{
 				return qe_invalid;
 			}
-			if(!p_igetw(&temp_zinit.max_arrows,f,true))
+			if(!p_igetw(&temp_zinit.max_arrows,f))
 			{
 				return qe_invalid;
 			}
@@ -20917,7 +20466,7 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 		}
 		if ( s_version >= 20 )
 		{
-			if(!p_igetw(&temp_zinit.heroStep,f,true))
+			if(!p_igetw(&temp_zinit.heroStep,f))
 			{
 				return qe_invalid;
 			}
@@ -20928,7 +20477,7 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 		}
 		if ( s_version >= 21 )
 		{
-			if(!p_igetw(&temp_zinit.subscrSpeed,f,true))
+			if(!p_igetw(&temp_zinit.subscrSpeed,f))
 			{
 				return qe_invalid;
 			}
@@ -20942,7 +20491,7 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 		{
 			byte items2;
 			
-			if(!p_getc(&items2,f,true))
+			if(!p_getc(&items2,f))
 			{
 				return qe_invalid;
 			}
@@ -20956,7 +20505,7 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 		{
 			for(int32_t q=0; q<96; q++)
 			{
-				if(!p_getc(&padding,f,true))
+				if(!p_getc(&padding,f))
 				{
 					return qe_invalid;
 				}
@@ -20965,12 +20514,12 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 			//new only
 			if((Header->zelda_version == 0x192)&&(Header->build>173))
 			{
-				if(!p_getc(&padding,f,true))
+				if(!p_getc(&padding,f))
 				{
 					return qe_invalid;
 				}
 				
-				if(!p_getc(&padding,f,true))
+				if(!p_getc(&padding,f))
 				{
 					return qe_invalid;
 				}
@@ -21155,19 +20704,19 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 	
 	if(s_version > 21)
 	{
-		if(!p_getc(&temp_zinit.hp_per_heart,f,true))
+		if(!p_getc(&temp_zinit.hp_per_heart,f))
 		{
 			return qe_invalid;
 		}
-		if(!p_getc(&temp_zinit.magic_per_block,f,true))
+		if(!p_getc(&temp_zinit.magic_per_block,f))
 		{
 			return qe_invalid;
 		}
-		if(!p_getc(&temp_zinit.hero_damage_multiplier,f,true))
+		if(!p_getc(&temp_zinit.hero_damage_multiplier,f))
 		{
 			return qe_invalid;
 		}
-		if(!p_getc(&temp_zinit.ene_damage_multiplier,f,true))
+		if(!p_getc(&temp_zinit.ene_damage_multiplier,f))
 		{
 			return qe_invalid;
 		}
@@ -21184,14 +20733,14 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 	{
 		for(int32_t q = 0; q < 25; ++q)
 		{
-			if(!p_igetw(&temp_zinit.scrcnt[q],f,true))
+			if(!p_igetw(&temp_zinit.scrcnt[q],f))
 			{
 				return qe_invalid;
 			}
 		}
 		for(int32_t q = 0; q < 25; ++q)
 		{
-			if(!p_igetw(&temp_zinit.scrmaxcnt[q],f,true))
+			if(!p_igetw(&temp_zinit.scrmaxcnt[q],f))
 			{
 				return qe_invalid;
 			}
@@ -21209,23 +20758,23 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 	
 	if(s_version > 23)
 	{
-		if(!p_getc(&temp_zinit.dither_type,f,true))
+		if(!p_getc(&temp_zinit.dither_type,f))
 		{
 			return qe_invalid;
 		}
-		if(!p_getc(&temp_zinit.dither_arg,f,true))
+		if(!p_getc(&temp_zinit.dither_arg,f))
 		{
 			return qe_invalid;
 		}
-		if(!p_getc(&temp_zinit.dither_percent,f,true))
+		if(!p_getc(&temp_zinit.dither_percent,f))
 		{
 			return qe_invalid;
 		}
-		if(!p_getc(&temp_zinit.def_lightrad,f,true))
+		if(!p_getc(&temp_zinit.def_lightrad,f))
 		{
 			return qe_invalid;
 		}
-		if(!p_getc(&temp_zinit.transdark_percent,f,true))
+		if(!p_getc(&temp_zinit.transdark_percent,f))
 		{
 			return qe_invalid;
 		}
@@ -21241,7 +20790,7 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 	
 	if(s_version > 24)
 	{
-		if(!p_getc(&temp_zinit.darkcol,f,true))
+		if(!p_getc(&temp_zinit.darkcol,f))
 		{
 			return qe_invalid;
 		}
@@ -21253,11 +20802,11 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 	
 	if(s_version > 25)
 	{
-		if(!p_igetl(&temp_zinit.gravity2,f,true))
+		if(!p_igetl(&temp_zinit.gravity2,f))
 		{
 			return qe_invalid;
 		}
-		if(!p_igetl(&temp_zinit.swimgravity,f,true))
+		if(!p_igetl(&temp_zinit.swimgravity,f))
 		{
 			return qe_invalid;
 		}
@@ -21270,15 +20819,15 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 	
 	if(s_version > 26)
 	{
-		if(!p_igetw(&temp_zinit.heroSideswimUpStep,f,true))
+		if(!p_igetw(&temp_zinit.heroSideswimUpStep,f))
 		{
 			return qe_invalid;
 		}
-		if(!p_igetw(&temp_zinit.heroSideswimSideStep,f,true))
+		if(!p_igetw(&temp_zinit.heroSideswimSideStep,f))
 		{
 			return qe_invalid;
 		}
-		if(!p_igetw(&temp_zinit.heroSideswimDownStep,f,true))
+		if(!p_igetw(&temp_zinit.heroSideswimDownStep,f))
 		{
 			return qe_invalid;
 		}
@@ -21292,7 +20841,7 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 	
 	if(s_version > 27)
 	{
-		if(!p_igetl(&temp_zinit.exitWaterJump,f,true))
+		if(!p_igetl(&temp_zinit.exitWaterJump,f))
 		{
 			return qe_invalid;
 		}
@@ -21304,7 +20853,7 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 	
 	if(s_version > 29)
 	{
-		if(!p_igetl(&temp_zinit.bunny_ltm,f,true))
+		if(!p_igetl(&temp_zinit.bunny_ltm,f))
 		{
 			return qe_invalid;
 		}
@@ -21316,7 +20865,7 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 	
 	if(s_version > 30)
 	{
-		if(!p_getc(&temp_zinit.switchhookstyle,f,true))
+		if(!p_getc(&temp_zinit.switchhookstyle,f))
 		{
 			return qe_invalid;
 		}
@@ -21328,7 +20877,7 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 	
 	if(s_version > 31)
 	{
-		if(!p_getc(&temp_zinit.magicdrainrate,f,true))
+		if(!p_getc(&temp_zinit.magicdrainrate,f))
 		{
 			return qe_invalid;
 		}
@@ -21343,52 +20892,49 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata)
 	if(s_version > 32)
 	{
 		word numgenscript = 0;
-		if(!p_igetw(&numgenscript,f,true))
+		if(!p_igetw(&numgenscript,f))
 			return qe_invalid;
 		if (!(numgenscript >= 0 && numgenscript <= NUMSCRIPTSGENERIC))
 			return qe_invalid;
 		for(auto q = 1; q < numgenscript; ++q)
 		{
-			if(!p_getc(&padding,f,true))
+			if(!p_getc(&padding,f))
 				return qe_invalid;
 			if(!(padding&2))
 				continue;
 			temp_zinit.gen_doscript[q] = padding&1;
-			if(!p_igetw(&temp_zinit.gen_exitState[q],f,true))
+			if(!p_igetw(&temp_zinit.gen_exitState[q],f))
 				return qe_invalid;
-			if(!p_igetw(&temp_zinit.gen_reloadState[q],f,true))
+			if(!p_igetw(&temp_zinit.gen_reloadState[q],f))
 				return qe_invalid;
 			for(auto p = 0; p < 8; ++p)
-				if(!p_igetl(&temp_zinit.gen_initd[q][p],f,true))
+				if(!p_igetl(&temp_zinit.gen_initd[q][p],f))
 					return qe_invalid;
-			if(!p_igetl(&temp_zinit.gen_dataSize[q],f,true))
+			if(!p_igetl(&temp_zinit.gen_dataSize[q],f))
 				return qe_invalid;
-			if(!p_getlvec<int32_t>(&temp_zinit.gen_data[q],f,true))
+			if(!p_getlvec<int32_t>(&temp_zinit.gen_data[q],f))
 				return qe_invalid;
-			if(!p_igetl(&temp_zinit.gen_eventstate[q],f,true))
+			if(!p_igetl(&temp_zinit.gen_eventstate[q],f))
 				return qe_invalid;
 		}
 	}
 	if(s_version > 33)
 	{
-		if(!p_getc(&temp_zinit.hero_swim_mult,f,true))
+		if(!p_getc(&temp_zinit.hero_swim_mult,f))
 			return qe_invalid;
-		if(!p_getc(&temp_zinit.hero_swim_div,f,true))
+		if(!p_getc(&temp_zinit.hero_swim_div,f))
 			return qe_invalid;
 	}
 	
-	if(keepdata==true)
+	zinit = temp_zinit;
+	
+	if(zinit.heroAnimationStyle==las_zelda3slow)
 	{
-		zinit = temp_zinit;
-		
-		if(zinit.heroAnimationStyle==las_zelda3slow)
-		{
-			hero_animation_speed=2;
-		}
-		else
-		{
-			hero_animation_speed=1;
-		}
+		hero_animation_speed=2;
+	}
+	else
+	{
+		hero_animation_speed=1;
 	}
 	
 	return 0;
@@ -21404,7 +20950,7 @@ void setupitemdropsets()
 }
 */
 
-int32_t readitemdropsets(PACKFILE *f, int32_t version, word build, bool keepdata)
+int32_t readitemdropsets(PACKFILE *f, int32_t version, word build)
 {
     build=build; // here to prevent compiler warnings
     dword dummy_dword;
@@ -21412,20 +20958,17 @@ int32_t readitemdropsets(PACKFILE *f, int32_t version, word build, bool keepdata
     item_drop_object tempitemdrop;
     word s_version=0, s_cversion=0;
     
-    if(keepdata)
-    {
-        for(int32_t i=0; i<MAXITEMDROPSETS; i++)
-        {
-            memset(&item_drop_sets[i], 0, sizeof(item_drop_object));
-        }
-    }
+	for(int32_t i=0; i<MAXITEMDROPSETS; i++)
+	{
+		memset(&item_drop_sets[i], 0, sizeof(item_drop_object));
+	}
     
     if(version > 0x192)
     {
         item_drop_sets_to_read=0;
         
         //section version info
-        if(!p_igetw(&s_version,f,true))
+        if(!p_igetw(&s_version,f))
         {
             return qe_invalid;
         }
@@ -21433,19 +20976,19 @@ int32_t readitemdropsets(PACKFILE *f, int32_t version, word build, bool keepdata
 	FFCore.quest_format[vItemDropsets] = s_version;
         
         //al_trace("Item drop sets version %d\n", s_version);
-        if(!p_igetw(&s_cversion,f,true))
+        if(!p_igetw(&s_cversion,f))
         {
             return qe_invalid;
         }
         
         //section size
-        if(!p_igetl(&dummy_dword,f,true))
+        if(!p_igetl(&dummy_dword,f))
         {
             return qe_invalid;
         }
         
         //finally...  section data
-        if(!p_igetw(&item_drop_sets_to_read,f,true))
+        if(!p_igetw(&item_drop_sets_to_read,f))
         {
             return qe_invalid;
         }
@@ -21457,24 +21000,21 @@ int32_t readitemdropsets(PACKFILE *f, int32_t version, word build, bool keepdata
     }
     else
     {
-        if(keepdata==true)
-        {
-            init_item_drop_sets();
-        }
+		init_item_drop_sets();
     }
     
     if(s_version>=1)
     {
         for(int32_t i=0; i<item_drop_sets_to_read; i++)
         {
-            if(!pfread(tempitemdrop.name,sizeof(tempitemdrop.name),f,true))
+            if(!pfread(tempitemdrop.name,sizeof(tempitemdrop.name),f))
             {
                 return qe_invalid;
             }
             
             for(int32_t j=0; j<10; ++j)
             {
-                if(!p_igetw(&tempitemdrop.item[j],f,true))
+                if(!p_igetw(&tempitemdrop.item[j],f))
                 {
                     return qe_invalid;
                 }
@@ -21482,7 +21022,7 @@ int32_t readitemdropsets(PACKFILE *f, int32_t version, word build, bool keepdata
             
             for(int32_t j=0; j<11; ++j)
             {
-                if(!p_igetw(&tempitemdrop.chance[j],f,true))
+                if(!p_igetw(&tempitemdrop.chance[j],f))
                 {
                     return qe_invalid;
                 }
@@ -21519,17 +21059,14 @@ int32_t readitemdropsets(PACKFILE *f, int32_t version, word build, bool keepdata
                     }
                 }
                 
-            if(keepdata)
-            {
-                memcpy(&item_drop_sets[i], &tempitemdrop, sizeof(item_drop_object));
-            }
+			memcpy(&item_drop_sets[i], &tempitemdrop, sizeof(item_drop_object));
         }
     }
     
     return 0;
 }
 
-int32_t readfavorites(PACKFILE *f, int32_t, word, bool keepdata)
+int32_t readfavorites(PACKFILE *f, int32_t, word)
 {
 	int32_t temp_num;
 	dword dummy_dword;
@@ -21538,30 +21075,30 @@ int32_t readfavorites(PACKFILE *f, int32_t, word, bool keepdata)
 	word s_version=0, s_cversion=0;
 	
 	//section version info
-	if(!p_igetw(&s_version,f,true))
+	if(!p_igetw(&s_version,f))
 	{
 		return qe_invalid;
 	}
 	
 	FFCore.quest_format[vFavourites] = s_version;
 	
-	if(!p_igetw(&s_cversion,f,true))
+	if(!p_igetw(&s_cversion,f))
 	{
 		return qe_invalid;
 	}
 	
 	//section size
-	if(!p_igetl(&dummy_dword,f,true))
+	if(!p_igetl(&dummy_dword,f))
 	{
 		return qe_invalid;
 	}
 	
 	word per_row = FAVORITECOMBO_PER_ROW;
 	if(s_version >= 3)
-		if(!p_igetw(&per_row,f,true))
+		if(!p_igetw(&per_row,f))
 			return qe_invalid;
 	//finally...  section data
-	if(!p_igetw(&num_favorite_combos,f,true))
+	if(!p_igetw(&num_favorite_combos,f))
 	{
 		return qe_invalid;
 	}
@@ -21570,53 +21107,44 @@ int32_t readfavorites(PACKFILE *f, int32_t, word, bool keepdata)
 	if(s_version < 3 && num_favorite_combos == 100)
 		per_row = 13;
 	
-	if(keepdata)
-	{
-		for(int q = 0; q < MAXFAVORITECOMBOS; ++q)
-			favorite_combos[q] = -1;
-		for(int q = 0; q < MAXFAVORITECOMBOALIASES; ++q)
-			favorite_comboaliases[q] = -1;
-	}
+	for(int q = 0; q < MAXFAVORITECOMBOS; ++q)
+		favorite_combos[q] = -1;
+	for(int q = 0; q < MAXFAVORITECOMBOALIASES; ++q)
+		favorite_comboaliases[q] = -1;
 	for(int32_t i=0; i<num_favorite_combos; i++)
 	{
-		if(!p_igetl(&temp_num,f,true))
+		if(!p_igetl(&temp_num,f))
 		{
 			return qe_invalid;
 		}
 		
-		if(keepdata)
+		if(per_row == FAVORITECOMBO_PER_ROW)
+			favorite_combos[i]=temp_num;
+		else
 		{
-			if(per_row == FAVORITECOMBO_PER_ROW)
-				favorite_combos[i]=temp_num;
-			else
-			{
-				int new_i = (i%per_row) + (i/per_row)*FAVORITECOMBO_PER_ROW;
-				favorite_combos[new_i]=temp_num;
-			}
+			int new_i = (i%per_row) + (i/per_row)*FAVORITECOMBO_PER_ROW;
+			favorite_combos[new_i]=temp_num;
 		}
 	}
 	
-	if(!p_igetw(&num_favorite_combo_aliases,f,true))
+	if(!p_igetw(&num_favorite_combo_aliases,f))
 	{
 		return qe_invalid;
 	}
 	
 	for(int32_t i=0; i<num_favorite_combo_aliases; i++)
 	{
-		if(!p_igetl(&temp_num,f,true))
+		if(!p_igetl(&temp_num,f))
 		{
 			return qe_invalid;
 		}
 		
-		if(keepdata)
+		if(per_row == FAVORITECOMBO_PER_ROW)
+			favorite_comboaliases[i]=temp_num;
+		else
 		{
-			if(per_row == FAVORITECOMBO_PER_ROW)
-				favorite_comboaliases[i]=temp_num;
-			else
-			{
-				int new_i = (i%per_row) + (i/per_row)*FAVORITECOMBO_PER_ROW;
-				favorite_comboaliases[new_i]=temp_num;
-			}
+			int new_i = (i%per_row) + (i/per_row)*FAVORITECOMBO_PER_ROW;
+			favorite_comboaliases[new_i]=temp_num;
 		}
 	}
 	
@@ -21624,18 +21152,18 @@ int32_t readfavorites(PACKFILE *f, int32_t, word, bool keepdata)
 	word max_mappages = 0;
 	if(s_version >= 2)
 	{
-		if(!p_igetw(&max_combo_cols,f,true))
+		if(!p_igetw(&max_combo_cols,f))
 			return qe_invalid;
 		int32_t tmp = 0, tmp2 = 0, tmp3 = 0;
 		for(int q = 0; q < max_combo_cols; ++q)
 		{
-			if(!p_igetl(&tmp,f,true))
+			if(!p_igetl(&tmp,f))
 				return qe_invalid;
-			if(!p_igetl(&tmp2,f,true))
+			if(!p_igetl(&tmp2,f))
 				return qe_invalid;
-			if(!p_igetl(&tmp3,f,true))
+			if(!p_igetl(&tmp3,f))
 				return qe_invalid;
-			if(keepdata && q < MAX_COMBO_COLS)
+			if(q < MAX_COMBO_COLS)
 			{
 				First[q] = tmp;
 				combo_alistpos[q] = tmp2;
@@ -21643,34 +21171,32 @@ int32_t readfavorites(PACKFILE *f, int32_t, word, bool keepdata)
 			}
 		}
 		
-		if(!p_igetw(&max_mappages,f,true))
+		if(!p_igetw(&max_mappages,f))
 			return qe_invalid;
 		for(int q = 0; q < max_mappages; ++q)
 		{
-			if(!p_igetl(&tmp,f,true))
+			if(!p_igetl(&tmp,f))
 				return qe_invalid;
-			if(!p_igetl(&tmp2,f,true))
+			if(!p_igetl(&tmp2,f))
 				return qe_invalid;
-			if(keepdata && q < MAX_MAPPAGE_BTNS)
+			if(q < MAX_MAPPAGE_BTNS)
 			{
 				map_page[q].map = tmp;
 				map_page[q].screen = tmp2;
 			}
 		}
 	}
-	if(keepdata)
+
+	for(int q = max_combo_cols; q < MAX_COMBO_COLS; ++q)
 	{
-		for(int q = max_combo_cols; q < MAX_COMBO_COLS; ++q)
-		{
-			First[q] = 0;
-			combo_alistpos[q] = 0;
-			combo_pool_listpos[q] = 0;
-		}
-		for(int q = max_mappages; q < MAX_MAPPAGE_BTNS; ++q)
-		{
-			map_page[q].map = 0;
-			map_page[q].screen = 0;
-		}
+		First[q] = 0;
+		combo_alistpos[q] = 0;
+		combo_pool_listpos[q] = 0;
+	}
+	for(int q = max_mappages; q < MAX_MAPPAGE_BTNS; ++q)
+	{
+		map_page[q].map = 0;
+		map_page[q].screen = 0;
 	}
 	
 	return 0;
@@ -21782,13 +21308,13 @@ static int maybe_skip_section(PACKFILE* f, int section_id, const byte* skip_flag
 	if (skip)
 	{
 		word s_version;
-		if (!p_igetw(&s_version,f,true))
+		if (!p_igetw(&s_version,f))
 		{
 			return qe_invalid;
 		}
 
 		word c_version;
-		if (!p_igetw(&c_version,f,true))
+		if (!p_igetw(&c_version,f))
 		{
 			return qe_invalid;
 		}
@@ -21796,7 +21322,7 @@ static int maybe_skip_section(PACKFILE* f, int section_id, const byte* skip_flag
 		if (section_id == ID_RULES && s_version > 16)
 		{
 			dword dummy;
-			if (!p_igetl(&dummy,f,true))
+			if (!p_igetl(&dummy,f))
 			{
 				return qe_invalid;
 			}
@@ -21805,14 +21331,14 @@ static int maybe_skip_section(PACKFILE* f, int section_id, const byte* skip_flag
 		if (section_id == ID_FFSCRIPT && s_version >= 18)
 		{
 			word dummy;
-			if (!p_igetw(&dummy,f,true))
+			if (!p_igetw(&dummy,f))
 			{
 				return qe_invalid;
 			}
 		}
 
 		dword section_length;
-		if (!p_igetl(&section_length,f,true))
+		if (!p_igetl(&section_length,f))
 		{
 			return qe_invalid;
 		}
@@ -21824,7 +21350,7 @@ static int maybe_skip_section(PACKFILE* f, int section_id, const byte* skip_flag
 
 		if (!pack_feof(f))
 		{
-			if (!p_mgetl(&section_id,f,true))
+			if (!p_mgetl(&section_id,f))
 			{
 				return qe_invalid;
 			}
@@ -21837,14 +21363,12 @@ static int maybe_skip_section(PACKFILE* f, int section_id, const byte* skip_flag
 }
 
 //Internal function for loadquest wrapper
-int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zctune *tunes, bool show_progress, bool keepall, const byte *skip_flags, byte printmetadata)
+int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zctune *tunes, bool show_progress, const byte *skip_flags, byte printmetadata)
 {
     DMapEditorLastMaptileUsed = 0;
     combosread=false;
     mapsread=false;
     fixffcs=false;
-	// TODO: remove keepall.
-	ASSERT(keepall);
     
     //  show_progress=true;
     char tmpfilename[L_tmpnam];
@@ -21858,7 +21382,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
     byte old_extra_rules[EXTRARULES_SIZE] = {0};
     byte old_midi_flags[MIDIFLAGS_SIZE] = {0};
     
-    if(keepall==false||get_bit(skip_flags, skip_rules))
+    if(get_bit(skip_flags, skip_rules))
     {
         memcpy(old_quest_rules, quest_rules, QUESTRULES_NEW_SIZE);
         memcpy(old_extra_rules, extra_rules, EXTRARULES_SIZE);
@@ -21867,13 +21391,13 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
     memset(quest_rules, 0, QUESTRULES_NEW_SIZE); //clear here to prevent any kind of carryover -Z
    // memset(extra_rules, 0, EXTRARULES_SIZE); //clear here to prevent any kind of carryover -Z
    
-    if(keepall==false||get_bit(skip_flags, skip_midis))
+    if(get_bit(skip_flags, skip_midis))
     {
         memcpy(old_midi_flags, midi_flags, MIDIFLAGS_SIZE);
     }
     
     
-	if(keepall&&!get_bit(skip_flags, skip_ffscript))
+	if(!get_bit(skip_flags, skip_ffscript))
 	{
 		zScript.clear();
 		globalmap.clear();
@@ -21972,7 +21496,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
     
     //header
     box_out("Reading Header...");
-    ret=readheader(f, &tempheader, true, printmetadata);
+    ret=readheader(f, &tempheader, printmetadata);
     checkstatus(ret);
     box_out("okay.");
     box_eol();
@@ -22002,7 +21526,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
         dword section_id;
         
         //section id
-        if(!p_mgetl(&section_id,f,true))
+        if(!p_mgetl(&section_id,f))
         {
             return qe_invalid;
         }
@@ -22035,7 +21559,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
                 }
                 
                 box_out("Reading Rules...");
-                ret=readrules(f, &tempheader, true);
+                ret=readrules(f, &tempheader);
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
@@ -22052,7 +21576,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
                 }
                 
                 box_out("Reading Strings...");
-                ret=readstrings(f, &tempheader, true);
+                ret=readstrings(f, &tempheader);
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
@@ -22069,7 +21593,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
                 }
                 
                 box_out("Reading Misc. Data...");
-                ret=readmisc(f, &tempheader, Misc, true);
+                ret=readmisc(f, &tempheader, Misc);
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
@@ -22086,7 +21610,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
                 }
                 
                 box_out("Reading Tiles...");
-                ret=readtiles(f, newtilebuf, &tempheader, tempheader.zelda_version, tempheader.build, 0, NEWMAXTILES, false, true);
+                ret=readtiles(f, newtilebuf, &tempheader, tempheader.zelda_version, tempheader.build, 0, NEWMAXTILES, false);
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
@@ -22103,7 +21627,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
                 }
                 
                 box_out("Reading Combos...");
-                ret=readcombos(f, &tempheader, tempheader.zelda_version, tempheader.build, 0, MAXCOMBOS, true);
+                ret=readcombos(f, &tempheader, tempheader.zelda_version, tempheader.build, 0, MAXCOMBOS);
                 combosread=true;
                 checkstatus(ret);
                 box_out("okay.");
@@ -22121,7 +21645,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
                 }
                 
                 box_out("Reading Combo Aliases...");
-                ret=readcomboaliases(f, &tempheader, tempheader.zelda_version, tempheader.build, true);
+                ret=readcomboaliases(f, &tempheader, tempheader.zelda_version, tempheader.build);
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
@@ -22138,7 +21662,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
                 }
                 
                 box_out("Reading Color Data...");
-                ret=readcolordata(f, Misc, tempheader.zelda_version, tempheader.build, 0, newerpdTOTAL, true);
+                ret=readcolordata(f, Misc, tempheader.zelda_version, tempheader.build, 0, newerpdTOTAL);
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
@@ -22155,7 +21679,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
                 }
                 
                 box_out("Reading Maps...");
-                ret=readmaps(f, &tempheader, true);
+                ret=readmaps(f, &tempheader);
                 mapsread=true;
                 checkstatus(ret);
                 box_out("okay.");
@@ -22173,7 +21697,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
                 }
                 
                 box_out("Reading DMaps...");
-                ret=readdmaps(f, &tempheader, tempheader.zelda_version, tempheader.build, 0, MAXDMAPS, true);
+                ret=readdmaps(f, &tempheader, tempheader.zelda_version, tempheader.build, 0, MAXDMAPS);
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
@@ -22190,7 +21714,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
                 }
                 
                 box_out("Reading Doors...");
-                ret=readdoorcombosets(f, &tempheader, true);
+                ret=readdoorcombosets(f, &tempheader);
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
@@ -22207,7 +21731,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
                 }
                 
                 box_out("Reading Items...");
-                ret=readitems(f, tempheader.zelda_version, tempheader.build, true);
+                ret=readitems(f, tempheader.zelda_version, tempheader.build);
                 checkstatus(ret);
                 
                 box_out("okay.");
@@ -22225,7 +21749,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
                 }
                 
                 box_out("Reading Weapons...");
-                ret=readweapons(f, &tempheader, true);
+                ret=readweapons(f, &tempheader);
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
@@ -22242,7 +21766,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
                 }
                 
                 box_out("Reading Misc. Colors...");
-                ret=readmisccolors(f, &tempheader, Misc, true);
+                ret=readmisccolors(f, &tempheader, Misc);
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
@@ -22259,7 +21783,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
                 }
                 
                 box_out("Reading Game Icons...");
-                ret=readgameicons(f, &tempheader, Misc, true);
+                ret=readgameicons(f, &tempheader, Misc);
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
@@ -22276,12 +21800,12 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
                 }
                 
                 box_out("Reading Init. Data...");
-                ret=readinitdata(f, &tempheader, true);
+                ret=readinitdata(f, &tempheader);
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
                 
-                if(keepall&&!get_bit(skip_flags, skip_subscreens))
+                if(!get_bit(skip_flags, skip_subscreens))
                 {
                     if(zinit.subscreen!=ssdtMAX)  //not using custom subscreens
                     {
@@ -22296,17 +21820,17 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
                     }
                 }
                 
-                if(keepall&&!get_bit(skip_flags, skip_sfx))
+                if(!get_bit(skip_flags, skip_sfx))
                 {
                     setupsfx();
                 }
                 
-                if(keepall&&!get_bit(skip_flags, skip_itemdropsets))
+                if(!get_bit(skip_flags, skip_itemdropsets))
                 {
                     init_item_drop_sets();
                 }
                 
-                if(keepall&&!get_bit(skip_flags, skip_favorites))
+                if(!get_bit(skip_flags, skip_favorites))
                 {
                     init_favorites();
                 }
@@ -22324,7 +21848,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
                 }
                 
                 box_out("Reading Custom Guy Data...");
-                ret=readguys(f, &tempheader, keepall);
+                ret=readguys(f, &tempheader);
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
@@ -22341,7 +21865,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
                 }
                 
                 box_out("Reading Custom Player Sprite Data...");
-                ret=readherosprites(f, &tempheader, keepall);
+                ret=readherosprites(f, &tempheader);
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
@@ -22358,7 +21882,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
                 }
                 
                 box_out("Reading Custom Subscreen Data...");
-                ret=readsubscreens(f, &tempheader, keepall);
+                ret=readsubscreens(f, &tempheader);
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
@@ -22375,7 +21899,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
                 }
                 
                 box_out("Reading FF Script Data...");
-                ret=readffscript(f, &tempheader, keepall);
+                ret=readffscript(f, &tempheader);
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
@@ -22392,7 +21916,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
                 }
                 
                 box_out("Reading SFX Data...");
-                ret=readsfx(f, &tempheader, keepall);
+                ret=readsfx(f, &tempheader);
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
@@ -22409,7 +21933,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
                 }
                 
                 box_out("Reading Tunes...");
-                ret=readtunes(f, &tempheader, tunes, keepall);
+                ret=readtunes(f, &tempheader, tunes);
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
@@ -22426,7 +21950,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
                 }
                 
                 box_out("Reading Cheat Codes...");
-                ret=readcheatcodes(f, &tempheader, keepall);
+                ret=readcheatcodes(f, &tempheader);
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
@@ -22443,7 +21967,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
                 }
                 
                 box_out("Reading Item Drop Sets...");
-                ret=readitemdropsets(f, tempheader.zelda_version, tempheader.build, keepall);
+                ret=readitemdropsets(f, tempheader.zelda_version, tempheader.build);
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
@@ -22460,7 +21984,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
                 }
                 
                 box_out("Reading Favorite Combos...");
-                ret=readfavorites(f, tempheader.zelda_version, tempheader.build, keepall);
+                ret=readfavorites(f, tempheader.zelda_version, tempheader.build);
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();
@@ -22483,7 +22007,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
                 //section id
                 section_id=(section_id<<8);
                 
-                if(!p_getc(&tempbyte,f,true))
+                if(!p_getc(&tempbyte,f))
                 {
                     return qe_invalid;
                 }
@@ -22496,7 +22020,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
                 //section id
                 if(!pack_feof(f))
                 {
-                    if(!p_mgetl(&section_id,f,true))
+                    if(!p_mgetl(&section_id,f))
                     {
                         return qe_invalid;
                     }
@@ -22507,23 +22031,23 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
     else
     {
 		std::vector<std::tuple<std::string, int32_t, std::function<int32_t()>>> hardcoded_sections = {
-			{ "Rules", ID_RULES, [&](){ return readrules(f, &tempheader, true); }},
-			{ "Strings", ID_STRINGS, [&](){ return readstrings(f, &tempheader, true); }},
-			{ "Doors", ID_DOORS, [&](){ return readdoorcombosets(f, &tempheader, true); }},
-			{ "DMaps", ID_DMAPS, [&](){ return readdmaps(f, &tempheader, tempheader.zelda_version, tempheader.build, 0, MAXDMAPS, true); }},
-			{ "Misc. Data", ID_MISC, [&](){ return readmisc(f, &tempheader, Misc, true); }},
-			{ "Items", ID_ITEMS, [&](){ return readitems(f, tempheader.zelda_version, tempheader.build, true); }},
-			{ "Weapons", ID_WEAPONS, [&](){ return readweapons(f, &tempheader, true); }},
-			{ "Custom Guy Data", ID_GUYS, [&](){ return readguys(f, &tempheader, true); }},
-			{ "Maps", ID_MAPS, [&](){ return readmaps(f, &tempheader, true); }},
-			{ "Combos", ID_COMBOS, [&](){ return readcombos(f, &tempheader, tempheader.zelda_version, tempheader.build, 0, MAXCOMBOS, true); }},
-			{ "Color Data", ID_CSETS, [&](){ return readcolordata(f, Misc, tempheader.zelda_version, tempheader.build, 0, newerpdTOTAL, true); }},
-			{ "Tiles", ID_TILES, [&](){ return readtiles(f, newtilebuf, &tempheader, tempheader.zelda_version, tempheader.build, 0, NEWMAXTILES, false, true); }},
-			{ "Tunes", ID_MIDIS, [&](){ return readtunes(f, &tempheader, tunes, true); }},
-			{ "Cheat Codes", ID_CHEATS, [&](){ return readcheatcodes(f, &tempheader, true); }},
-			{ "Init. Data", ID_INITDATA, [&](){ return readinitdata(f, &tempheader, true); }},
-			{ "Custom Player Sprite Data", ID_HEROSPRITES, [&](){ return readherosprites2(f, -1, 0, true); }},
-			{ "Up Default Item Drop Sets", ID_ITEMDROPSETS, [&](){ return readitemdropsets(f, -1, 0, true); }},
+			{ "Rules", ID_RULES, [&](){ return readrules(f, &tempheader); }},
+			{ "Strings", ID_STRINGS, [&](){ return readstrings(f, &tempheader); }},
+			{ "Doors", ID_DOORS, [&](){ return readdoorcombosets(f, &tempheader); }},
+			{ "DMaps", ID_DMAPS, [&](){ return readdmaps(f, &tempheader, tempheader.zelda_version, tempheader.build, 0, MAXDMAPS); }},
+			{ "Misc. Data", ID_MISC, [&](){ return readmisc(f, &tempheader, Misc); }},
+			{ "Items", ID_ITEMS, [&](){ return readitems(f, tempheader.zelda_version, tempheader.build); }},
+			{ "Weapons", ID_WEAPONS, [&](){ return readweapons(f, &tempheader); }},
+			{ "Custom Guy Data", ID_GUYS, [&](){ return readguys(f, &tempheader); }},
+			{ "Maps", ID_MAPS, [&](){ return readmaps(f, &tempheader); }},
+			{ "Combos", ID_COMBOS, [&](){ return readcombos(f, &tempheader, tempheader.zelda_version, tempheader.build, 0, MAXCOMBOS); }},
+			{ "Color Data", ID_CSETS, [&](){ return readcolordata(f, Misc, tempheader.zelda_version, tempheader.build, 0, newerpdTOTAL); }},
+			{ "Tiles", ID_TILES, [&](){ return readtiles(f, newtilebuf, &tempheader, tempheader.zelda_version, tempheader.build, 0, NEWMAXTILES, false); }},
+			{ "Tunes", ID_MIDIS, [&](){ return readtunes(f, &tempheader, tunes); }},
+			{ "Cheat Codes", ID_CHEATS, [&](){ return readcheatcodes(f, &tempheader); }},
+			{ "Init. Data", ID_INITDATA, [&](){ return readinitdata(f, &tempheader); }},
+			{ "Custom Player Sprite Data", ID_HEROSPRITES, [&](){ return readherosprites2(f, -1, 0); }},
+			{ "Up Default Item Drop Sets", ID_ITEMDROPSETS, [&](){ return readitemdropsets(f, -1, 0); }},
 		};
 
 		for (auto& [desc, section_id, fn] : hardcoded_sections)
@@ -22545,7 +22069,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
 			box_eol();
 		}
 
-        if(keepall&&!get_bit(skip_flags, skip_subscreens))
+        if(!get_bit(skip_flags, skip_subscreens))
         {
             setupsubscreens();
             
@@ -22559,7 +22083,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
         
         box_out("Setting Up Default Sound Effects...");
         
-        if(keepall&&!get_bit(skip_flags, skip_sfx))
+        if(!get_bit(skip_flags, skip_sfx))
             setupsfx();
             
         box_out("okay.");
@@ -22610,28 +22134,27 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
     box_eol();
     box_end(false);
     
-//  if (keepall==true||!get_bit(skip_flags, skip_header))
-    if(keepall&&!get_bit(skip_flags, skip_header))
+    if(!get_bit(skip_flags, skip_header))
     {
         memcpy(Header, &tempheader, sizeof(tempheader));
     }
-    if(keepall&&!get_bit(skip_flags, skip_zinfo))
+    if(!get_bit(skip_flags, skip_zinfo))
     {
 		ZI.copyFrom(tempzi);
     }
     
-    if(!keepall||get_bit(skip_flags, skip_maps))
+    if(get_bit(skip_flags, skip_maps))
     {
         map_count=old_map_count;
     }
     
-    if(!keepall||get_bit(skip_flags, skip_rules))
+    if(get_bit(skip_flags, skip_rules))
     {
         memcpy(quest_rules, old_quest_rules, QUESTRULES_NEW_SIZE);
         memcpy(extra_rules, old_extra_rules, EXTRARULES_SIZE);
     }
     
-    if(!keepall||get_bit(skip_flags, skip_midis))
+    if(get_bit(skip_flags, skip_midis))
     {
         memcpy(midi_flags, old_midi_flags, MIDIFLAGS_SIZE);
     }
@@ -22783,7 +22306,7 @@ invalid:
     
 }
 
-int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctune *tunes, bool show_progress, bool keepall, byte *skip_flags, byte printmetadata, bool report, byte qst_num)
+int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctune *tunes, bool show_progress, byte *skip_flags, byte printmetadata, bool report, byte qst_num)
 {
 	const char* basename = get_filename(filename);
 	zapp_reporting_add_breadcrumb("load_quest", basename);
@@ -22795,7 +22318,7 @@ int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, z
 	// So to avoid a more-recently updated .qst file from hitting the "last saved in a newer version" prompt, we disable in CI.
 	if (!is_ci())
 		loadquest_report = report;
-	int32_t ret = _lq_int(filename, Header, Misc, tunes, show_progress, keepall, skip_flags,printmetadata);
+	int32_t ret = _lq_int(filename, Header, Misc, tunes, show_progress, skip_flags, printmetadata);
 	load_tmp_zi = NULL;
 	loading_qst_name = NULL;
 	loadquest_report = false;

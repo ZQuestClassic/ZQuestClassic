@@ -730,47 +730,47 @@ int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr)
 	if(!f)
 		return 0;
 	
-	if(!p_mgetl(&dummy,f,true))
+	if(!p_mgetl(&dummy,f))
 		return qe_invalid;
 	
 	//section version info
-	if(!p_igetw(&section_version,f,true))
+	if(!p_igetw(&section_version,f))
 		return qe_invalid;
 	
-	if(!p_igetw(&section_cversion,f,true))
+	if(!p_igetw(&section_cversion,f))
 		return qe_invalid;
 	
-	if(!p_igetl(&dummy,f,true))
+	if(!p_igetl(&dummy,f))
 		return qe_invalid;
 	
 	word num_itemtypes = 512;
 	if(section_version > 0)
-		if(!p_igetw(&num_itemtypes,f,true))
+		if(!p_igetw(&num_itemtypes,f))
 			return qe_invalid;
 	if (!(num_itemtypes >= 0 && num_itemtypes <= itype_max))
 		return qe_invalid;
 	for(auto q = 0; q < num_itemtypes; ++q)
 	{
 		byte namesize;
-		if(!p_getc(&namesize,f,true))
+		if(!p_getc(&namesize,f))
 			return qe_invalid;
 		if(namesize)
 		{
 			z.ic_name[q] = (char*)malloc(namesize+1);
 			if (!z.ic_name[q]) return qe_nomem;
-			if(!pfread(z.ic_name[q],namesize,f,true))
+			if(!pfread(z.ic_name[q],namesize,f))
 				return qe_invalid;
 			z.ic_name[q][namesize] = 0;
 		}
 		
 		word htxtsz;
-		if(!p_igetw(&htxtsz,f,true))
+		if(!p_igetw(&htxtsz,f))
 			return qe_invalid;
 		if(htxtsz)
 		{
 			char* p = (char*)malloc(htxtsz+1);
 			if (!p) return qe_nomem;
-			if(!pfread(p,htxtsz,f,true))
+			if(!pfread(p,htxtsz,f))
 				return qe_invalid;
 			p[htxtsz] = 0;
 			z.ic_help_string[q] = p;
@@ -780,31 +780,31 @@ int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr)
 	if(section_version > 0)
 	{
 		word num_combotypes;
-		if(!p_igetw(&num_combotypes,f,true))
+		if(!p_igetw(&num_combotypes,f))
 			return qe_invalid;
 		if (!(num_combotypes >= 0 && num_combotypes <= cMAX))
 			return qe_invalid;
 		for(auto q = 0; q < num_combotypes; ++q)
 		{
 			byte namesize;
-			if(!p_getc(&namesize,f,true))
+			if(!p_getc(&namesize,f))
 				return qe_invalid;
 			if(namesize)
 			{
 				char* p = (char*)malloc(namesize+1);
-				if(!pfread(p,namesize,f,true))
+				if(!pfread(p,namesize,f))
 					return qe_invalid;
 				p[namesize] = 0;
 				z.ctype_name[q] = p;
 			}
 			
 			word htxtsz;
-			if(!p_igetw(&htxtsz,f,true))
+			if(!p_igetw(&htxtsz,f))
 				return qe_invalid;
 			if(htxtsz)
 			{
 				char* p = (char*)malloc(htxtsz+1);
-				if(!pfread(p,htxtsz,f,true))
+				if(!pfread(p,htxtsz,f))
 					return qe_invalid;
 				p[htxtsz] = 0;
 				z.ctype_help_string[q] = p;
@@ -812,32 +812,32 @@ int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr)
 		}
 		
 		word num_mapflags;
-		if(!p_igetw(&num_mapflags,f,true))
+		if(!p_igetw(&num_mapflags,f))
 			return qe_invalid;
 		if (!(num_mapflags >= 0 && num_mapflags <= mfMAX))
 			return qe_invalid;
 		for(auto q = 0; q < num_mapflags; ++q)
 		{
 			byte namesize;
-			if(!p_getc(&namesize,f,true))
+			if(!p_getc(&namesize,f))
 				return qe_invalid;
 			if(namesize)
 			{
 				char* p = (char*)malloc(namesize+1);
-				if(!pfread(p,namesize,f,true))
+				if(!pfread(p,namesize,f))
 					return qe_invalid;
 				p[namesize] = 0;
 				z.mf_name[q] = p;
 			}
 			
 			word htxtsz;
-			if(!p_igetw(&htxtsz,f,true))
+			if(!p_igetw(&htxtsz,f))
 				return qe_invalid;
 			if(htxtsz)
 			{
 				char* p = (char*)malloc(htxtsz+1);
 				if (!p) return qe_nomem;
-				if(!pfread(p,htxtsz,f,true))
+				if(!pfread(p,htxtsz,f))
 					return qe_invalid;
 				p[htxtsz] = 0;
 				z.mf_help_string[q] = p;
@@ -871,20 +871,20 @@ int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr)
 	if(section_version > 1)
 	{
 		word num_counters;
-		if(!p_igetw(&num_counters,f,true))
+		if(!p_igetw(&num_counters,f))
 			return qe_invalid;
 		if (!(num_counters >= 0 && num_counters <= MAX_COUNTERS))
 			return qe_invalid;
 		for(auto q = 0; q < num_counters; ++q)
 		{
 			byte namesize;
-			if(!p_getc(&namesize,f,true))
+			if(!p_getc(&namesize,f))
 				return qe_invalid;
 			if(namesize)
 			{
 				char* p = (char*)malloc(namesize+1);
 				if (!p) return qe_nomem;
-				if(!pfread(p,namesize,f,true))
+				if(!pfread(p,namesize,f))
 					return qe_invalid;
 				p[namesize] = 0;
 				z.ctr_name[q] = p;
@@ -894,20 +894,20 @@ int32_t readzinfo(PACKFILE *f, zinfo& z, zquestheader const& hdr)
 	if(section_version > 2)
 	{
 		word num_wpns;
-		if(!p_igetw(&num_wpns,f,true))
+		if(!p_igetw(&num_wpns,f))
 			return qe_invalid;
 		if (!(num_wpns >= 0 && num_wpns <= MAXWPNS))
 			return qe_invalid;
 		for(auto q = 0; q < num_wpns; ++q)
 		{
 			byte namesize;
-			if(!p_getc(&namesize,f,true))
+			if(!p_getc(&namesize,f))
 				return qe_invalid;
 			if(namesize)
 			{
 				char* p = (char*)malloc(namesize+1);
 				if (!p) return qe_nomem;
-				if(!pfread(p,namesize,f,true))
+				if(!pfread(p,namesize,f))
 					return qe_invalid;
 				p[namesize] = 0;
 				z.weap_name[q] = p;
