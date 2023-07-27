@@ -1,3 +1,4 @@
+#include "base/handles.h"
 #include "base/qrs.h"
 #include "base/dmap.h"
 #include "zc/zelda.h"
@@ -2366,7 +2367,7 @@ bool trigger_shooter(newcombo const& cmb, int32_t pos)
 	return trigger_shooter(cmb, COMBOX(pos), COMBOY(pos));
 }
 
-void trigger_save(newcombo const& cmb)
+void trigger_save(newcombo const& cmb, mapscr* screen)
 {
 	if(cmb.type != cSAVE && cmb.type != cSAVE2) return;
 	auto save_type = cmb.type == cSAVE2 ? 1 : 0;
@@ -2388,8 +2389,7 @@ void trigger_save(newcombo const& cmb)
 		if(game->get_magic() < magic)
 			game->set_magic(magic);
 	}
-	// TODO z3 !
-	save_game((tmpscr->flags4&fSAVEROOM) != 0, save_type);
+	save_game((screen->flags4&fSAVEROOM) != 0, save_type);
 }
 
 static byte copycat_id = 0;
@@ -2750,7 +2750,7 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, int32_t special, weapon*
 							return false;
 						break;
 					case cSAVE: case cSAVE2:
-						trigger_save(cmb);
+						trigger_save(cmb, rpos_handle.screen);
 						break;
 					default:
 						used_bit = false;
@@ -3135,7 +3135,7 @@ bool do_trigger_combo_ffc(const ffc_handle_t& ffc_handle, int32_t special, weapo
 							return false;
 						break;
 					case cSAVE: case cSAVE2:
-						trigger_save(cmb);
+						trigger_save(cmb, ffc_handle.screen);
 						break;
 					default:
 						used_bit = false;

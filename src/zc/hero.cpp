@@ -9973,7 +9973,7 @@ heroanimate_skip_liftwpn:;
 			[[fallthrough]];
 		case 1:
 			if(last_savepoint_id)
-				trigger_save(combobuf[last_savepoint_id]);
+				trigger_save(combobuf[last_savepoint_id], hero_screen);
 			else save_game((tmpscr->flags4&fSAVEROOM) != 0, save_type); //sanity? 
 			break;
 		}
