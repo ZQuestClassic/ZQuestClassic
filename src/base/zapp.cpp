@@ -214,10 +214,11 @@ void zc_process_display_events()
 	zc_do_minsize();
 }
 
-void zapp_reporting_add_breadcrumb(const char* type, const char* message)
+void zapp_reporting_add_breadcrumb(const char* category, const char* message)
 {
 #ifdef HAS_SENTRY
-	sentry_value_t crumb = sentry_value_new_breadcrumb(type, message);
+	sentry_value_t crumb = sentry_value_new_breadcrumb("info", message);
+	sentry_value_set_by_key(crumb, "category", sentry_value_new_string(category));
 	sentry_add_breadcrumb(crumb);
 #endif
 }
