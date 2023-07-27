@@ -56,7 +56,6 @@ extern HeroClass Hero;
 // monster spawning code as moving around
 // make sure ffcs work
 // ffc carryovers
-// zscript this->Rpos
 // zscript docs
 
 static std::map<int, std::vector<mapscr*>> temporary_screens;

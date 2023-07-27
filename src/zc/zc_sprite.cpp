@@ -66,7 +66,7 @@ void sprite::check_conveyor()
 void sprite::handle_sprlighting()
 {
 	if(!get_qr(qr_NEW_DARKROOM)) return;
-	// TODO z3 !!
+	// TODO z3 @!!
 	if(!(tmpscr->flags & fDARK)) return;
 
 	handle_lighting(x.getInt()+(hit_width/2), y.getInt()+(hit_height/2) + playing_field_offset,glowShape,glowRad,dir, darkscr_bmp_z3);

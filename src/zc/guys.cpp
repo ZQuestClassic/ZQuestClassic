@@ -10697,7 +10697,6 @@ eTektite::eTektite(zfix X,zfix Y,int32_t Id,int32_t Clk) : enemy(X,Y,Id,Clk)
 	if (  (SIZEflags&guyflagOVERRIDE_DRAW_Z_OFFSET) != 0 ) zofs = (int32_t)d->zofs;
 }
 
-// TODO z3 ! enemy
 bool eTektite::animate(int32_t index)
 {
 	if(switch_hooked) return enemy::animate(index);
