@@ -450,7 +450,7 @@ combined_handle_t get_combined_handle_for_world_xy(int x, int y, int layer)
 		return maybe_ffc_handle.value();
 
 	auto rpos = COMBOPOS_REGION_CHECK_BOUNDS(x, y);
-	if (rpos == rpos_t::NONE)
+	if (rpos == rpos_t::None)
 		return rpos_handle_t();
 	return get_rpos_handle(rpos, layer);
 }
@@ -678,7 +678,7 @@ rpos_t COMBOPOS_REGION(int32_t x, int32_t y)
 rpos_t COMBOPOS_REGION_CHECK_BOUNDS(int32_t x, int32_t y)
 {
 	if (x < 0 || y < 0 || x >= world_w || y >= world_h)
-		return rpos_t::NONE;
+		return rpos_t::None;
 
 	int scr_dx = x / (16*16);
 	int scr_dy = y / (11*16);
@@ -687,7 +687,7 @@ rpos_t COMBOPOS_REGION_CHECK_BOUNDS(int32_t x, int32_t y)
 }
 int32_t RPOS_TO_POS(rpos_t rpos)
 {
-	DCHECK(rpos != rpos_t::NONE);
+	DCHECK(rpos != rpos_t::None);
 	return static_cast<int32_t>(rpos)%176;
 }
 rpos_t POS_TO_RPOS(int32_t pos, int32_t scr_dx, int32_t scr_dy)
@@ -2134,14 +2134,14 @@ bool isSwitchHookable(newcombo const& cmb)
 // TODO z3 rename rpos things here
 bool check_hshot(int32_t layer, int32_t x, int32_t y, bool switchhook, rpos_t *retcpos, ffcdata **ret_ffc)
 {
-	rpos_t cpos = rpos_t::NONE;
+	rpos_t cpos = rpos_t::None;
 	if(retcpos)
 	{
 		int32_t id = MAPCOMBO2(layer-1,x,y);
 		if(id > 0)
 		{
 			newcombo const& cmb = combobuf[id];
-			cpos = (switchhook ? isSwitchHookable(cmb) : isHSGrabbable(cmb)) ? COMBOPOS_REGION(x,y) : rpos_t::NONE;
+			cpos = (switchhook ? isSwitchHookable(cmb) : isHSGrabbable(cmb)) ? COMBOPOS_REGION(x,y) : rpos_t::None;
 		}
 	}
 
@@ -2162,9 +2162,9 @@ bool check_hshot(int32_t layer, int32_t x, int32_t y, bool switchhook, rpos_t *r
 		});
 	}
 
-	if (retcpos && cpos != rpos_t::NONE) *retcpos = cpos;
+	if (retcpos && cpos != rpos_t::None) *retcpos = cpos;
 	if (ret_ffc && ffc) *ret_ffc = ffc;
-	return (cpos != rpos_t::NONE || ffc);
+	return (cpos != rpos_t::None || ffc);
 }
 
 bool ishookshottable(int32_t bx, int32_t by)
@@ -2843,7 +2843,7 @@ static bool has_flag_trigger(int32_t x, int32_t y, int32_t flag, rpos_t& out_rpo
     bool found_cflag = false;
     bool found_nflag = false;
 	bool single16 = false;
-	rpos_t rpos = rpos_t::NONE;
+	rpos_t rpos = rpos_t::None;
 
 	for (int32_t layer = -1; layer < 6; layer++)
 	{
@@ -2903,7 +2903,7 @@ bool trigger_secrets_if_flag(int32_t x, int32_t y, int32_t flag, bool setflag)
 
 	mapscr* scr = NULL;
 	int32_t screen_index = -1;
-	rpos_t trigger_rpos = rpos_t::NONE;
+	rpos_t trigger_rpos = rpos_t::None;
 	bool single16 = false;
 	if (has_flag_trigger(x, y, flag, trigger_rpos, single16))
 	{
@@ -2924,7 +2924,7 @@ bool trigger_secrets_if_flag(int32_t x, int32_t y, int32_t flag, bool setflag)
 	if (screen_index != -1) scr = get_scr(currmap, screen_index);
 	if (!scr) return false;
 
-	if (trigger_rpos == rpos_t::NONE)
+	if (trigger_rpos == rpos_t::None)
 	{
 		checktrigger = true;
 		trigger_secrets_for_screen(TriggerSource::Unspecified, screen_index);
@@ -3350,7 +3350,7 @@ void draw_cmb_pos(BITMAP* dest, int32_t x, int32_t y, rpos_t rpos, int32_t cid,
 	if (!screenscrolling)
 	{
 		rpos_t plrpos = COMBOPOS_REGION_CHECK_BOUNDS(Hero.x+8, Hero.y+8);
-		if (plrpos != rpos_t::NONE)
+		if (plrpos != rpos_t::None)
 		{
 			bool dosw = false;
 			if(rpos == hooked_comborpos && (hooked_layerbits & (1<<layer)))
@@ -3454,7 +3454,7 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen
 					if(mf==mfPUSHUD || mf==mfPUSH4 || mf==mfPUSHED || ((mf>=mfPUSHLR)&&(mf<=mfPUSHRINS))
 						|| mf2==mfPUSHUD || mf2==mfPUSH4 || mf2==mfPUSHED || ((mf2>=mfPUSHLR)&&(mf2<=mfPUSHRINS)))
 					{
-						auto rpos = screenscrolling ? rpos_t::NONE : POS_TO_RPOS(i, screen_handle.index);
+						auto rpos = screenscrolling ? rpos_t::None : POS_TO_RPOS(i, screen_handle.index);
 						draw_cmb_pos(bmp, x + COMBOX(i), y + COMBOY(i), rpos, screen->data[i], screen->cset[i], layer, true, false);
 					}
 				}
@@ -3468,7 +3468,7 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen
 				{
 					if(combo_class_buf[combobuf[screen->data[i]].type].overhead)
 					{
-						auto rpos = screenscrolling ? rpos_t::NONE : POS_TO_RPOS(i, screen_handle.index);
+						auto rpos = screenscrolling ? rpos_t::None : POS_TO_RPOS(i, screen_handle.index);
 						draw_cmb_pos(bmp, x + COMBOX(i), y + COMBOY(i), rpos, screen->data[i], screen->cset[i], layer, true, false);
 					}
 				}
@@ -3531,7 +3531,7 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen
 		for (int cx = start_x; cx < end_x; cx++)
 		{
 			int i = cx + cy*16;
-			auto rpos = screenscrolling ? rpos_t::NONE : POS_TO_RPOS(i, screen_handle.index);
+			auto rpos = screenscrolling ? rpos_t::None : POS_TO_RPOS(i, screen_handle.index);
 			draw_cmb_pos(bmp, x + COMBOX(i), y + COMBOY(i), rpos, screen->data[i], screen->cset[i], layer, over, transp);
 		}
 	}
@@ -6197,7 +6197,7 @@ void putscr(BITMAP* dest,int32_t x,int32_t y, mapscr* screen)
 		for (int cx = start_x; cx < end_x; cx++)
 		{
 			int i = cx + cy*16;
-			auto rpos = screenscrolling ? rpos_t::NONE : POS_TO_RPOS(i, scr);
+			auto rpos = screenscrolling ? rpos_t::None : POS_TO_RPOS(i, scr);
 			draw_cmb_pos(dest, x + COMBOX(i), y + COMBOY(i), rpos, screen->data[i], screen->cset[i], 0, over, false);
 		}
 	}

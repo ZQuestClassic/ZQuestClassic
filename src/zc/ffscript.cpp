@@ -2198,7 +2198,7 @@ rpos_handle_t ResolveMapRef(int32_t mapref, rpos_t rpos, const char* context)
 	{
 		if (BC::checkComboRpos(rpos, context) != SH::_NoError)
 		{
-			return {nullptr, 0, 0, rpos_t::NONE};
+			return {nullptr, 0, 0, rpos_t::None};
 		}
 
 		int layer = -ri->mapsref - 1;
@@ -2209,12 +2209,12 @@ rpos_handle_t ResolveMapRef(int32_t mapref, rpos_t rpos, const char* context)
 	if (!mapRefIsScrolling(mapref) && mapref < 0)
 	{
 		Z_scripterrlog("%s pointer (%d) is either invalid or uninitialised.\n", context, mapref);
-		return {nullptr, 0, 0, rpos_t::NONE};
+		return {nullptr, 0, 0, rpos_t::None};
 	}
 
 	if (BC::checkComboPos((int)rpos, context) != SH::_NoError)
 	{
-		return {nullptr, 0, 0, rpos_t::NONE};
+		return {nullptr, 0, 0, rpos_t::None};
 	}
 
 	return {GetMapscr(mapref), getScreen(mapref), 0, rpos};
@@ -33396,7 +33396,7 @@ j_command:
 				if(GuyH::loadNPC(ri->guyref, "npc->Switch()") == SH::_NoError)
 				{
 					switching_object = guys.spr(GuyH::getNPCIndex(ri->guyref));
-					hooked_comborpos = rpos_t::NONE;
+					hooked_comborpos = rpos_t::None;
 					hooked_layerbits = 0;
 					switching_object->switch_hooked = true;
 					Hero.doSwitchHook(effect);
@@ -33413,7 +33413,7 @@ j_command:
 				if(ItemH::loadItem(ri->itemref, "item->Switch()") == SH::_NoError)
 				{
 					switching_object = items.spr(ItemH::getItemIndex(ri->itemref));
-					hooked_comborpos = rpos_t::NONE;
+					hooked_comborpos = rpos_t::None;
 					hooked_layerbits = 0;
 					switching_object->switch_hooked = true;
 					Hero.doSwitchHook(effect);
@@ -33430,7 +33430,7 @@ j_command:
 				if(LwpnH::loadWeapon(ri->lwpn, "lweapon->Switch()") == SH::_NoError)
 				{
 					switching_object = Lwpns.spr(LwpnH::getLWeaponIndex(ri->lwpn));
-					hooked_comborpos = rpos_t::NONE;
+					hooked_comborpos = rpos_t::None;
 					hooked_layerbits = 0;
 					switching_object->switch_hooked = true;
 					Hero.doSwitchHook(effect);
@@ -33447,7 +33447,7 @@ j_command:
 				if(EwpnH::loadWeapon(ri->ewpn, "eweapon->Switch()") == SH::_NoError)
 				{
 					switching_object = Ewpns.spr(EwpnH::getEWeaponIndex(ri->lwpn));
-					hooked_comborpos = rpos_t::NONE;
+					hooked_comborpos = rpos_t::None;
 					hooked_layerbits = 0;
 					switching_object->switch_hooked = true;
 					Hero.doSwitchHook(effect);

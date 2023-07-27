@@ -5324,7 +5324,7 @@ int32_t enemy::defendNew(int32_t wpnId, int32_t *power, int32_t edef, byte unblo
 				case eeDIG: case eeGHOMA: case eeLANM: case eePATRA: case eeGANON:
 					return 0;
 			}
-			hooked_comborpos = rpos_t::NONE;
+			hooked_comborpos = rpos_t::None;
 			hooked_layerbits = 0;
 			switching_object = this;
 			switch_hooked = true;
@@ -21616,7 +21616,7 @@ rpos_t placeenemy(mapscr* screen, int32_t i, int32_t offx, int32_t offy)
 	if (!freeposcache.empty())
 		return freeposcache[zc_oldrand()%freeposcache.size()];
 
-	return rpos_t::NONE;
+	return rpos_t::None;
 }
 
 // TODO z3 rename to 'screen' everywhere
@@ -21698,7 +21698,7 @@ void spawnEnemy(mapscr* screen, int screen_index, int& pos, int& clk, int offx, 
 		// Final chance: find a random position anywhere onscreen
 		rpos_t rand_rpos = placeenemy(screen, i, offx, offy);
 		
-		if (rand_rpos != rpos_t::NONE)
+		if (rand_rpos != rpos_t::None)
 		{
 			COMBOXY_REGION(rand_rpos, x, y);
 		}
@@ -23637,7 +23637,7 @@ void check_collisions()
 							{
 								if(!Hero.switchhookclk)
 								{
-									hooked_comborpos = rpos_t::NONE;
+									hooked_comborpos = rpos_t::None;
 									hooked_layerbits = 0;
 									switching_object = theItem;
 									theItem->switch_hooked = true;

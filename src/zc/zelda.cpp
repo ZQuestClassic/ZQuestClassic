@@ -461,7 +461,7 @@ bool F12= false,F11= false, F5= false,keyI= false, keyQ= false,
      cheat_superman=false, gofast=false, checkhero=true, didpit=false, heart_beep=true,
      pausenow=false, castnext=false, add_df1asparkle= false, add_df1bsparkle= false, add_nl1asparkle= false, add_nl1bsparkle= false, add_nl2asparkle= false, add_nl2bsparkle= false,
      is_on_conveyor= false, activated_timed_warp=false;
-rpos_t hooked_comborpos = rpos_t::NONE;
+rpos_t hooked_comborpos = rpos_t::None;
 int32_t switchhook_cost_item = -1;
 int32_t is_conveyor_stunned = 0;
 uint16_t hooked_layerbits = 0;

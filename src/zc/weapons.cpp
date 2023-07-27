@@ -5054,7 +5054,7 @@ bool weapon::animate(int32_t index)
 			// Hookshot grab and retract code 
 			//Diagonal Hookshot (2)
 			
-			rpos_t cpos = rpos_t::NONE;
+			rpos_t cpos = rpos_t::None;
 			ffcdata* ffc = nullptr;
 			
 			if(misc==0)
@@ -5134,7 +5134,7 @@ bool weapon::animate(int32_t index)
 			
 			if(hooked)
 			{
-				if (cpos != rpos_t::NONE)
+				if (cpos != rpos_t::None)
 					hooked_comborpos = cpos;
 				misc=sw?2:1;
 				step=0;
@@ -6935,7 +6935,7 @@ offscreenCheck:
 					if(switching_object)
 					{
 						switching_object->switch_hooked = true;
-						hooked_comborpos = rpos_t::NONE;
+						hooked_comborpos = rpos_t::None;
 						hooked_layerbits = 0;
 						misc=2;
 						step=0;

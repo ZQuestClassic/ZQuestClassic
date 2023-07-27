@@ -78,7 +78,7 @@ int32_t combined_handle_t::data() const
 	if (std::holds_alternative<rpos_handle_t>(*this))
 	{
 		auto& rpos_handle = std::get<rpos_handle_t>(*this);
-		if (rpos_handle.rpos == rpos_t::NONE)
+		if (rpos_handle.rpos == rpos_t::None)
 			return 0;
 		return rpos_handle.data();
 	}

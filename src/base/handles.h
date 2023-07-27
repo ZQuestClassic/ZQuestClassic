@@ -5,7 +5,7 @@
 #include <variant>
 
 enum class rpos_t : int32_t {
-	NONE = -1,
+	None = -1,
 };
 
 struct mapscr;
@@ -27,7 +27,7 @@ struct rpos_handle_t
 	int32_t screen_index;
 	// 0 = base screen, 1 = layer 1, etc. Up to 6.
 	int32_t layer;
-	rpos_t rpos = rpos_t::NONE;
+	rpos_t rpos = rpos_t::None;
 
 	int32_t pos() const;
 

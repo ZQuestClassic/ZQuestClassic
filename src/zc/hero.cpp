@@ -1580,7 +1580,7 @@ void HeroClass::init()
     drawstyle=3;
     ffwarp = false;
     stepoutindex=stepoutwr=stepoutdmap=stepoutscr=0;
-    stepnext=stepsecret=rpos_t::NONE;
+    stepnext=stepsecret=rpos_t::None;
     ffpit = false;
     respawn_x=x;
     respawn_y=y;
@@ -6858,7 +6858,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 	}
 	
 	int32_t bestcid=0;
-	rpos_t best_rpos = rpos_t::NONE;
+	rpos_t best_rpos = rpos_t::None;
 	int32_t hp_modtotal=0;
 	rpos_t rposes[] = {COMBOPOS_REGION(dx1,dy1),COMBOPOS_REGION(dx1,dy2),COMBOPOS_REGION(dx2,dy1),COMBOPOS_REGION(dx2,dy2)};
 	if (!_effectflag(dx1,dy1,1, layer)) {hp_mod[0] = 0; hasKB &= ~(1<<0);}
@@ -8440,7 +8440,7 @@ heroanimate_skip_liftwpn:;
 								weapon *w = (weapon*)Lwpns.spr(Lwpns.idFirst(wHookshot)),
 									*hw = (weapon*)Lwpns.spr(Lwpns.idFirst(wHSHandle));
 								
-								if(hooked_comborpos != rpos_t::NONE) //Switching combos
+								if(hooked_comborpos != rpos_t::None) //Switching combos
 								{
 									rpos_t targrpos = hooked_comborpos, plrpos = COMBOPOS_REGION(x+8,y+8);
 									int32_t target_pos = RPOS_TO_POS(targrpos);
@@ -10660,11 +10660,10 @@ void HeroClass::do_liftglove(int32_t liftid, bool passive)
 		}
 		rpos_t rpos = COMBOPOS_REGION_CHECK_BOUNDS(bx, by);
 		rpos_t rpos2 = COMBOPOS_REGION_CHECK_BOUNDS(bx2, by2);
-		// TODO z3 !! ::None ?
 		
 		for(auto lyr = 6; lyr >= 0; --lyr)
 		{
-			if(rpos != rpos_t::NONE)
+			if(rpos != rpos_t::None)
 			{
 				auto rpos_handle = get_rpos_handle(rpos, lyr);
 				newcombo const& cmb = combobuf[rpos_handle.data()];
@@ -10677,7 +10676,7 @@ void HeroClass::do_liftglove(int32_t liftid, bool passive)
 					}
 				}
 			}
-			if(rpos != rpos2 && rpos2 != rpos_t::NONE)
+			if(rpos != rpos2 && rpos2 != rpos_t::None)
 			{
 				auto rpos_handle_2 = get_rpos_handle(rpos2, lyr);
 				newcombo const& cmb2 = combobuf[rpos_handle_2.data()];
@@ -10851,7 +10850,7 @@ void HeroClass::doSwitchHook(byte style)
 		chainlinks.spr(j)->switch_hooked = true;
 	}
 	//}
-	if(hooked_comborpos != rpos_t::NONE)
+	if(hooked_comborpos != rpos_t::None)
 	{
 		rpos_t plrpos = COMBOPOS_REGION(x+8, y+8);
 		int32_t max_layer = get_qr(qr_HOOKSHOTALLLAYER) ? 6 : (get_qr(qr_HOOKSHOTLAYERFIX) ? 2 : 0);
@@ -11001,7 +11000,7 @@ void HeroClass::doSwitchHook(byte style)
 			wpndata const& spr = wpnsbuf[QMisc.sprites[sprSWITCHPOOF]];
 			switchhookmaxtime = switchhookclk = zc_max(spr.frames,1) * zc_max(spr.speed,1);
 			decorations.add(new comboSprite(x, y, dCOMBOSPRITE, 0, QMisc.sprites[sprSWITCHPOOF]));
-			if(hooked_comborpos != rpos_t::NONE)
+			if(hooked_comborpos != rpos_t::None)
 			{
 				int decx, decy;
 				COMBOXY_REGION(hooked_comborpos, decx, decy);
@@ -11776,7 +11775,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			bool use_hookshot=true;
 			bool hit_hs = false, hit_solid = false, insta_switch = false;
 			int32_t max_layer = get_qr(qr_HOOKSHOTALLLAYER) ? 6 : (get_qr(qr_HOOKSHOTLAYERFIX) ? 2 : 0);
-			rpos_t cpos = rpos_t::NONE;
+			rpos_t cpos = rpos_t::None;
 			ffcdata* ffc = nullptr;
 			for(int32_t i=0; i<=max_layer && !hit_hs; ++i)
 			{
@@ -11978,7 +11977,7 @@ bool HeroClass::startwpn(int32_t itemid)
 			if(insta_switch)
 			{
 				weapon* w = (weapon*)Lwpns.spr(Lwpns.idFirst(wHookshot));
-				if (cpos != rpos_t::NONE) hooked_comborpos = cpos;
+				if (cpos != rpos_t::None) hooked_comborpos = cpos;
 				if (ffc)
 				{
 					ffc->switch_hooked = true;
@@ -22907,7 +22906,7 @@ void HeroClass::checkspecial()
 	});
 }
 
-//Gets the 4 rcomboposes indicated by the coordinates, replacing duplicates with rpos_t::NONE
+//Gets the 4 rcomboposes indicated by the coordinates, replacing duplicates with rpos_t::None
 void getRposes(rpos_t* rposes, int32_t x1, int32_t y1, int32_t x2, int32_t y2)
 {
 	x1 %= world_w;
@@ -22920,17 +22919,17 @@ void getRposes(rpos_t* rposes, int32_t x1, int32_t y1, int32_t x2, int32_t y2)
 	
 	tmp = COMBOPOS_REGION(x1,y2);
 	if(tmp == rposes[0])
-		rposes[1] = rpos_t::NONE;
+		rposes[1] = rpos_t::None;
 	else rposes[1] = tmp;
 	
 	tmp = COMBOPOS_REGION(x2,y1);
 	if(tmp == rposes[0] || tmp == rposes[1])
-		rposes[2] = rpos_t::NONE;
+		rposes[2] = rpos_t::None;
 	else rposes[2] = tmp;
 	
 	tmp = COMBOPOS_REGION(x2,y2);
 	if(tmp == rposes[0] || tmp == rposes[1] || tmp == rposes[2])
-		rposes[3] = rpos_t::NONE;
+		rposes[3] = rpos_t::None;
 	else rposes[3] = tmp;
 }
 
@@ -23419,7 +23418,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 		{
 			for(auto lyr = 0; lyr < 7; ++lyr)
 			{
-				newcombo const* cmb = rposes[p]==rpos_t::NONE ? nullptr : &combobuf[FFCore.tempScreens[lyr]->data[RPOS_TO_POS(rposes[p])]];
+				newcombo const* cmb = rposes[p]==rpos_t::None ? nullptr : &combobuf[FFCore.tempScreens[lyr]->data[RPOS_TO_POS(rposes[p])]];
 				if((cmb && (cmb->triggerflags[0] & (combotriggerSTEP|combotriggerSTEPSENS)))
 					|| types[p] == cSTEP)
 				{
@@ -23431,7 +23430,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 		bool canNormalStep = true;
 		for(auto p = 0; p < 4; ++p)
 		{
-			if(rposes[p] == rpos_t::NONE) continue;
+			if(rposes[p] == rpos_t::None) continue;
 			if(!hasStep[p])
 			{
 				canNormalStep = false;
@@ -23442,8 +23441,8 @@ void HeroClass::checkspecial2(int32_t *ls)
 		{
 			for(auto lyr = 0; lyr < 7; ++lyr)
 			{
-				newcombo const* cmb = rposes[p]==rpos_t::NONE ? nullptr : &combobuf[FFCore.tempScreens[lyr]->data[RPOS_TO_POS(rposes[p])]];
-				newcombo const* cmb2 = sensRposes[p]==rpos_t::NONE ? nullptr : &combobuf[FFCore.tempScreens[lyr]->data[RPOS_TO_POS(sensRposes[p])]];
+				newcombo const* cmb = rposes[p]==rpos_t::None ? nullptr : &combobuf[FFCore.tempScreens[lyr]->data[RPOS_TO_POS(rposes[p])]];
+				newcombo const* cmb2 = sensRposes[p]==rpos_t::None ? nullptr : &combobuf[FFCore.tempScreens[lyr]->data[RPOS_TO_POS(sensRposes[p])]];
 				if(canNormalStep && cmb && (cmb->triggerflags[0] & combotriggerSTEP))
 				{
 					do_trigger_combo(get_rpos_handle(rposes[p], lyr));
@@ -23741,7 +23740,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 	}
 	else if(!didstrig)
 	{
-		stepsecret = rpos_t::NONE; 
+		stepsecret = rpos_t::None; 
 	}
 	
 	//Better? Dock collision
@@ -23846,7 +23845,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 	{
 		trigger_stepfx(get_rpos_handle_for_world_xy(tx + 8, ty + 8, 0), true);
 	}
-	else stepnext = rpos_t::NONE;
+	else stepnext = rpos_t::None;
 	
 	detail_int[0]=tx;
 	detail_int[1]=ty;
@@ -31374,7 +31373,7 @@ void HeroClass::reset_hookshot()
 	if(switching_object)
 		switching_object->switch_hooked = false;
 	switching_object = NULL;
-	hooked_comborpos = rpos_t::NONE;
+	hooked_comborpos = rpos_t::None;
 	switchhook_cost_item = -1;
 	hooked_layerbits = 0;
 	for(auto q = 0; q < 7; ++q)
