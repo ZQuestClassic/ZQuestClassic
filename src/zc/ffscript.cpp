@@ -29110,7 +29110,6 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 			if(DMaps[currdmap].color != c)
 				loadlvlpal(DMaps[currdmap].color);
 			
-			currscr = scrID + DMaps[currdmap].xoff; // TODO z3 @!! can rm if lightinginstant does not use
 			lightingInstant(); // Also sets naturaldark
 			loadscr(currdmap, scrID + DMaps[currdmap].xoff, -1, overlay);
 			
