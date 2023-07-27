@@ -211,7 +211,7 @@ void portCandleRules();
 void portBombRules();
 
 int32_t loadquest(const char *filename, zquestheader *Header,
-              miscQdata *Misc, zctune *tunes, bool show_progress, bool keepall, byte *skip_flags, byte printmetadata = 1, bool report = true, byte qst_num = 0);
+              miscQdata *Misc, zctune *tunes, bool show_progress, byte *skip_flags, byte printmetadata = 1, bool report = true, byte qst_num = 0);
 
 char *byte_conversion(int32_t number, int32_t format);
 char *byte_conversion2(int32_t number1, int32_t number2, int32_t format1, int32_t format2);
@@ -236,69 +236,38 @@ void init_msgstrings(int32_t start, int32_t end);
 
 int32_t copyquest(PACKFILE *f);
 void print_quest_metadata(zquestheader const& tempheader, char const* path = NULL, byte qst_num = 0);
-int32_t readheader(PACKFILE *f, zquestheader *Header, bool keepdata, byte printmetadata = 0);
-int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata);
-int32_t readstrings(PACKFILE *f, zquestheader *Header, bool keepdata);
-int32_t readdoorcombosets(PACKFILE *f, zquestheader *Header, bool keepdata);
-int32_t readdmaps(PACKFILE *f, zquestheader *Header, word version, word build, word start_dmap, word max_dmaps, bool keepdata);
-int32_t readmisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata);
-int32_t readgameicons(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata);
-int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc, bool keepdata);
-int32_t readitems(PACKFILE *f, word version, word build, bool keepdata, bool zgpmode=false);
-int32_t readweapons(PACKFILE *f, zquestheader *Header, bool keepdata);
-int32_t readguys(PACKFILE *f, zquestheader *Header, bool keepdata);
+int32_t readheader(PACKFILE *f, zquestheader *Header, byte printmetadata = 0);
+int32_t readrules(PACKFILE *f, zquestheader *Header);
+int32_t readstrings(PACKFILE *f, zquestheader *Header);
+int32_t readdoorcombosets(PACKFILE *f, zquestheader *Header);
+int32_t readdmaps(PACKFILE *f, zquestheader *Header, word version, word build, word start_dmap, word max_dmaps);
+int32_t readmisccolors(PACKFILE *f, zquestheader *Header, miscQdata *Misc);
+int32_t readgameicons(PACKFILE *f, zquestheader *Header, miscQdata *Misc);
+int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc);
+int32_t readitems(PACKFILE *f, word version, word build);
+int32_t readweapons(PACKFILE *f, zquestheader *Header);
+int32_t readguys(PACKFILE *f, zquestheader *Header);
 int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap *temp_map, word version, int scrind = -1);
-int32_t readmaps(PACKFILE *f, zquestheader *Header, bool keepdata);
-int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word start_combo, word max_combos, bool keepdata);
-int32_t readcomboaliases(PACKFILE *f, zquestheader *Header, word version, word build, bool keepdata);
-int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, word start_cset, word max_csets, bool keepdata);
-int32_t readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, word build, word start_tile, int32_t max_tiles, bool from_init, bool keepdata);
-int32_t readtunes(PACKFILE *f, zquestheader *Header, zctune *tunes, bool keepdata);
-int32_t readcheatcodes(PACKFILE *f, zquestheader *Header, bool keepdata);
-int32_t readinitdata(PACKFILE *f, zquestheader *Header, bool keepdata);
-int32_t readsubscreens(PACKFILE *f, zquestheader *Header, bool keepdata);
-int32_t read_one_subscreen(PACKFILE *f, zquestheader *Header, bool keepdata, int32_t i, word s_version, word s_cversion);
-int32_t readffscript(PACKFILE *f, zquestheader *Header, bool keepdata);
-int32_t read_one_ffscript(PACKFILE *f, zquestheader *Header, bool keepdata, int32_t i, word s_version, word s_cversion, script_data **script, word zmeta_version);
-int32_t readsfx(PACKFILE *f, zquestheader *Header, bool keepdata);
-int32_t readitemdropsets(PACKFILE *f, word version, word build, bool keepdata);
-int32_t readfavorites(PACKFILE *f, int32_t, word, bool keepdata);
+int32_t readmaps(PACKFILE *f, zquestheader *Header);
+int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word start_combo, word max_combos);
+int32_t readcomboaliases(PACKFILE *f, zquestheader *Header, word version, word build);
+int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, word start_cset, word max_csets);
+int32_t readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, word build, word start_tile, int32_t max_tiles, bool from_init);
+int32_t readtunes(PACKFILE *f, zquestheader *Header, zctune *tunes);
+int32_t readcheatcodes(PACKFILE *f, zquestheader *Header);
+int32_t readinitdata(PACKFILE *f, zquestheader *Header);
+int32_t readsubscreens(PACKFILE *f, zquestheader *Header);
+int32_t read_one_subscreen(PACKFILE *f, zquestheader *Header, int32_t i, word s_version, word s_cversion);
+int32_t readffscript(PACKFILE *f, zquestheader *Header);
+int32_t read_one_ffscript(PACKFILE *f, zquestheader *Header, int32_t i, word s_version, word s_cversion, script_data **script, word zmeta_version);
+int32_t readsfx(PACKFILE *f, zquestheader *Header);
+int32_t readitemdropsets(PACKFILE *f, word version, word build);
+int32_t readfavorites(PACKFILE *f, int32_t, word);
 
 void init_msgstr(MsgStr *str);
 
 int32_t get_version_and_build(PACKFILE *f, word *version, word *build);
 bool find_section(PACKFILE *f, int32_t section_id_requested);
-
-
-INLINE int32_t skipheader(PACKFILE *f, zquestheader *Header)
-{
-    return readheader(f, Header, false);
-}
-INLINE int32_t skiptiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, word build, word start_tile, word max_tiles)
-{
-    return readtiles(f, buf, Header, version, build, start_tile, max_tiles, false, false);
-}
-INLINE int32_t skipcombos(PACKFILE *f, zquestheader *Header, word version, word build, word start_combo, word max_combos)
-{
-    return readcombos(f, Header, version, build, start_combo, max_combos, false);
-}
-INLINE int32_t skipcolordata(PACKFILE *f, zquestheader *Header, miscQdata *Misc, word version, word build, word start_cset, word max_csets)
-{
-    (void)Header;
-    return readcolordata(f, Misc, version, build, start_cset, max_csets, false);
-}
-INLINE int32_t skipstrings(PACKFILE *f, zquestheader *Header, word version, word build, word start_string, word max_strings)
-{
-    (void)max_strings;
-    (void)start_string;
-    (void)build;
-    (void)version;
-    return readstrings(f, Header, false);
-}
-INLINE int32_t skipdmaps(PACKFILE *f, zquestheader *Header, word version, word build, word start_dmap, word max_dmaps)
-{
-    return readdmaps(f, Header, version, build, start_dmap, max_dmaps, false);
-}
 
 extern void delete_combo_aliases();
 void reset_subscreen(subscreen_group *tempss);

@@ -5533,6 +5533,10 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 	// auto oscr = homescr;
 	// homescr = scr;
 
+	zapp_reporting_set_tag("screen", scr);
+	if (destdmap != -1)
+		zapp_reporting_set_tag("dmap", destdmap);
+
 	int32_t orig_destdmap = destdmap;
 	if (destdmap < 0) destdmap = currdmap;
 

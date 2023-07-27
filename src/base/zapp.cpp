@@ -213,3 +213,25 @@ void zc_process_display_events()
 	doAspectResize();
 	zc_do_minsize();
 }
+
+void zapp_reporting_add_breadcrumb(const char* type, const char* message)
+{
+#ifdef HAS_SENTRY
+	sentry_value_t crumb = sentry_value_new_breadcrumb(type, message);
+	sentry_add_breadcrumb(crumb);
+#endif
+}
+
+void zapp_reporting_set_tag(const char* key, const char* value)
+{
+#ifdef HAS_SENTRY
+	sentry_set_tag(key, value);
+#endif
+}
+
+void zapp_reporting_set_tag(const char* key, int value)
+{
+#ifdef HAS_SENTRY
+	sentry_set_tag(key, std::to_string(value).c_str());
+#endif
+}
