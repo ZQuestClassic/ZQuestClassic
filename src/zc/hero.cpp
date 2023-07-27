@@ -7701,12 +7701,8 @@ heroanimate_skip_liftwpn:;
 				if (b1 && b2 && b3 && b4)
 				{
 					int watercheck_x = x.getInt()+7.5, watercheck_y = y.getInt()+12;
-					auto ffc_handle = getFFCAt(watercheck_x,watercheck_y);
-					int combopos = ffc_handle ? -1 : COMBOPOS(watercheck_x,watercheck_y);
-					if(watercheck_x < 0 || watercheck_x > 255 || watercheck_y < 0 || watercheck_y > 175)
-						combopos = -1;
-					// TODO z3 !!!! tmpscr
-					int waterid = ffc_handle ? ffc_handle->data() : (combopos > -1 ? tmpscr->data[combopos] : 0);
+					auto combined_handle = get_combined_handle_for_world_xy(watercheck_x, watercheck_y, 0);
+					int waterid = combined_handle.data();
 					if(waterid)
 						waterid = iswaterex(waterid, currmap, currscr, -1, watercheck_x,watercheck_y, false, false, true, true);
 					if(waterid)
@@ -7739,8 +7735,8 @@ heroanimate_skip_liftwpn:;
 									ev.push_back(48*10000);
 									ev.push_back(ZSD_COMBODATA*10000);
 									ev.push_back(waterid);
-									ev.push_back((ffc_handle ? ZSD_FFC : ZSD_COMBOPOS)*10000);
-									ev.push_back(ffc_handle ? ffc_handle->id : combopos*10000);
+									ev.push_back((combined_handle.is_ffc() ? ZSD_FFC : ZSD_COMBOPOS)*10000);
+									ev.push_back(combined_handle.id()*10000);
 									
 									throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_1);
 									

@@ -2,6 +2,7 @@
 #define _HANDLES_H_
 
 #include <stdint.h>
+#include <variant>
 
 enum class rpos_t : int32_t {
 	NONE = -1,
@@ -26,7 +27,7 @@ struct rpos_handle_t
 	int32_t screen_index;
 	// 0 = base screen, 1 = layer 1, etc. Up to 6.
 	int32_t layer;
-	rpos_t rpos;
+	rpos_t rpos = rpos_t::NONE;
 
 	int32_t pos() const;
 
@@ -58,6 +59,18 @@ struct ffc_handle_t
 	void set_data(int32_t value) const;
 	void set_cset(int32_t cset) const;
 	void increment_data() const;
+};
+
+// TODO: this may be a tad overengineered for its current usecases. Consider replacing
+// with something simpler if later no use cases really take advantage of it.
+struct combined_handle_t : std::variant<rpos_handle_t, ffc_handle_t>
+{
+	using std::variant<rpos_handle_t, ffc_handle_t>::variant;
+
+	bool is_rpos() const;
+	bool is_ffc() const;
+	int data() const;
+	int id() const;
 };
 
 #endif

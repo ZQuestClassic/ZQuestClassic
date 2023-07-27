@@ -1,6 +1,7 @@
 #include "base/handles.h"
 #include "zc/maps.h"
 #include "ffc.h"
+#include <variant>
 
 int32_t rpos_handle_t::pos() const
 {
@@ -60,4 +61,38 @@ void ffc_handle_t::set_cset(int32_t cset) const
 void ffc_handle_t::increment_data() const
 {
 	ffc->setData(ffc->getData());
+}
+
+bool combined_handle_t::is_rpos() const
+{
+	return std::holds_alternative<rpos_handle_t>(*this);
+}
+
+bool combined_handle_t::is_ffc() const
+{
+	return !std::holds_alternative<rpos_handle_t>(*this);
+}
+
+int32_t combined_handle_t::data() const
+{
+	if (std::holds_alternative<rpos_handle_t>(*this))
+	{
+		auto& rpos_handle = std::get<rpos_handle_t>(*this);
+		if (rpos_handle.rpos == rpos_t::NONE)
+			return 0;
+		return rpos_handle.data();
+	}
+
+	return std::get<ffc_handle_t>(*this).data();
+}
+
+int32_t combined_handle_t::id() const
+{
+	if (std::holds_alternative<rpos_handle_t>(*this))
+	{
+		auto& rpos_handle = std::get<rpos_handle_t>(*this);
+		return (int32_t)rpos_handle.rpos;
+	}
+
+	return std::get<ffc_handle_t>(*this).id;
 }

@@ -8,6 +8,7 @@
 //
 //--------------------------------------------------------
 
+#include "base/handles.h"
 #include "base/zdefs.h"
 #include <string.h>
 #include <assert.h>
@@ -438,6 +439,20 @@ rpos_handle_t get_rpos_handle_for_screen(mapscr* screen, int screen_index, int l
 {
 	DCHECK_LAYER_ZERO_INDEX(layer);
 	return {screen, screen_index, layer, POS_TO_RPOS(pos, screen_index)};
+}
+
+combined_handle_t get_combined_handle_for_world_xy(int x, int y, int layer)
+{
+	DCHECK_LAYER_ZERO_INDEX(layer);
+
+	auto maybe_ffc_handle = getFFCAt(x, y);
+	if (maybe_ffc_handle)
+		return maybe_ffc_handle.value();
+
+	auto rpos = COMBOPOS_REGION_CHECK_BOUNDS(x, y);
+	if (rpos == rpos_t::NONE)
+		return rpos_handle_t();
+	return get_rpos_handle(rpos, layer);
 }
 
 // These functions all return _temporary_ screens. Any modifications made to them (either by the engine

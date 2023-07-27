@@ -19237,7 +19237,6 @@ void set_register(int32_t arg, int32_t value)
 	//Game->SetComboX
 		case COMBODDM:
 		{
-			// TODO z3 !!!
 			int32_t pos = (ri->d[rINDEX])/10000;
 			int32_t sc = (ri->d[rEXP1]/10000);
 			int32_t m = (ri->d[rINDEX2]/10000)-1;
