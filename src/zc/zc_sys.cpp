@@ -815,7 +815,7 @@ void null_quest()
 	
 	byte skip_flags[4] = { 0 };
 	
-	loadquest(qstdat_string,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,true,skip_flags,0,false);
+	loadquest(qstdat_string,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,skip_flags,0,false);
 }
 
 // TODO remove

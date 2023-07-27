@@ -418,21 +418,21 @@ int32_t readoneitem(PACKFILE *f, int32_t index)
    
 	char istring[64]={0};
 	//section version info
-	if(!p_igetl(&zversion,f,true))
+	if(!p_igetl(&zversion,f))
 	{
 		return 0;
 	}
-	if(!p_igetl(&zbuild,f,true))
-	{
-		return 0;
-	}
-	
-	if(!p_igetw(&section_version,f,true))
+	if(!p_igetl(&zbuild,f))
 	{
 		return 0;
 	}
 	
-	if(!p_igetw(&section_cversion,f,true))
+	if(!p_igetw(&section_version,f))
+	{
+		return 0;
+	}
+	
+	if(!p_igetw(&section_cversion,f))
 	{
 		return 0;
 	}
@@ -455,104 +455,104 @@ int32_t readoneitem(PACKFILE *f, int32_t index)
 		al_trace("Reading a .zitem packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
 	}
    
-	if(!pfread(&istring, 64, f,true))
+	if(!pfread(&istring, 64, f))
 	{
 		return 0;
 	}
 	
-	if(!p_igetl(&tempitem.tile,f,true))
+	if(!p_igetl(&tempitem.tile,f))
 	{
 		return 0;
 	}
 	
-	if(!p_getc(&tempitem.misc_flags,f,true))
+	if(!p_getc(&tempitem.misc_flags,f))
 	{
 		return 0;
 	}
 	
-	if(!p_getc(&tempitem.csets,f,true))
+	if(!p_getc(&tempitem.csets,f))
 	{
 		return 0;
 	}
 	
-	if(!p_getc(&tempitem.frames,f,true))
+	if(!p_getc(&tempitem.frames,f))
 	{
 		return 0;
 	}
 	
-	if(!p_getc(&tempitem.speed,f,true))
+	if(!p_getc(&tempitem.speed,f))
 	{
 		return 0;
 	}
 	
-	if(!p_getc(&tempitem.delay,f,true))
+	if(!p_getc(&tempitem.delay,f))
 	{
 		return 0;
 	}
 	
-	if(!p_igetl(&tempitem.ltm,f,true))
+	if(!p_igetl(&tempitem.ltm,f))
 	{	
 		return 0;
 	}
 	
-	if(!p_igetl(&tempitem.family,f,true))
+	if(!p_igetl(&tempitem.family,f))
 	{
 		return 0;
 	}
 	
-	if(!p_getc(&tempitem.fam_type,f,true))
+	if(!p_getc(&tempitem.fam_type,f))
 	{
 		return 0;
 	}
 	
-	if(!p_igetl(&tempitem.power,f,true))
+	if(!p_igetl(&tempitem.power,f))
 	{
 		return 0;
 	}
 	
-	if(!p_igetl(&tempitem.flags,f,true))
+	if(!p_igetl(&tempitem.flags,f))
 	{
 		return 0;
 	}
 	
-	if(!p_igetw(&tempitem.script,f,true))
+	if(!p_igetw(&tempitem.script,f))
 	{
 		return 0;
 	}
 	
-	if(!p_getc(&tempitem.count,f,true))
+	if(!p_getc(&tempitem.count,f))
 	{
 		return 0;
 	}
 	
-	if(!p_igetw(&tempitem.amount,f,true))
+	if(!p_igetw(&tempitem.amount,f))
 	{
 		return 0;
 	}
 	
-	if(!p_igetw(&tempitem.collect_script,f,true))
+	if(!p_igetw(&tempitem.collect_script,f))
 	{
 		return 0;
 	}
 	
-	if(!p_igetw(&tempitem.setmax,f,true))
+	if(!p_igetw(&tempitem.setmax,f))
 	{
 		return 0;
 	}
 	
-	if(!p_igetw(&tempitem.max,f,true))
+	if(!p_igetw(&tempitem.max,f))
 	{
 		return 0;
 	}
 	
-	if(!p_getc(&tempitem.playsound,f,true))
+	if(!p_getc(&tempitem.playsound,f))
 	{
 		return 0;
 	}
 	
 	for(int32_t j=0; j<8; j++)
 	{
-		if(!p_igetl(&tempitem.initiald[j],f,true))
+		if(!p_igetl(&tempitem.initiald[j],f))
 		{
 		return 0;
 		}
@@ -560,73 +560,73 @@ int32_t readoneitem(PACKFILE *f, int32_t index)
 	
 	for(int32_t j=0; j<2; j++)
 	{
-		if(!p_getc(&tempitem.initiala[j],f,true))
+		if(!p_getc(&tempitem.initiala[j],f))
 		{
 			return 0;
 		}
 	}
 	
-	if(!p_getc(&tempitem.wpn,f,true))
+	if(!p_getc(&tempitem.wpn,f))
 	{
 		return 0;
 	}
 	
-	if(!p_getc(&tempitem.wpn2,f,true))
+	if(!p_getc(&tempitem.wpn2,f))
 	{
 		return 0;
 	}
 	
-	if(!p_getc(&tempitem.wpn3,f,true))
+	if(!p_getc(&tempitem.wpn3,f))
 	{
 		return 0;
 	}
 	
-	if(!p_getc(&tempitem.wpn4,f,true))
+	if(!p_getc(&tempitem.wpn4,f))
 	{
 		return 0;
 	}
 	
-	if(!p_getc(&tempitem.wpn5,f,true))
+	if(!p_getc(&tempitem.wpn5,f))
 	{
 		return 0;
 	}
 	
-	if(!p_getc(&tempitem.wpn6,f,true))
+	if(!p_getc(&tempitem.wpn6,f))
 	{
 		return 0;
 	}
 	
-	if(!p_getc(&tempitem.wpn7,f,true))
+	if(!p_getc(&tempitem.wpn7,f))
 	{
 		return 0;
 	}
 	
-	if(!p_getc(&tempitem.wpn8,f,true))
+	if(!p_getc(&tempitem.wpn8,f))
 	{
 		return 0;
 	}
 	
-	if(!p_getc(&tempitem.wpn9,f,true))
+	if(!p_getc(&tempitem.wpn9,f))
 	{
 		return 0;
 	}
 	
-	if(!p_getc(&tempitem.wpn10,f,true))
+	if(!p_getc(&tempitem.wpn10,f))
 	{
 		return 0;
 	}
 	
-	if(!p_getc(&tempitem.pickup_hearts,f,true))
+	if(!p_getc(&tempitem.pickup_hearts,f))
 	{
 		return 0;
 	}
 	
-	if(!p_igetl(&tempitem.misc1,f,true))
+	if(!p_igetl(&tempitem.misc1,f))
 	{
 		return 0;
 	}
 	
-	if(!p_igetl(&tempitem.misc2,f,true))
+	if(!p_igetl(&tempitem.misc2,f))
 	{
 		return 0;
 	}
@@ -634,7 +634,7 @@ int32_t readoneitem(PACKFILE *f, int32_t index)
 	if(section_version < 53)
 	{
 		byte tempbyte;
-		if(!p_getc(&tempbyte,f,true))
+		if(!p_getc(&tempbyte,f))
 		{
 			return 0;
 		}
@@ -654,59 +654,59 @@ int32_t readoneitem(PACKFILE *f, int32_t index)
 	{
 		for(auto q = 0; q < 2; ++q)
 		{
-			if(!p_igetw(&tempitem.cost_amount[q],f,true))
+			if(!p_igetw(&tempitem.cost_amount[q],f))
 			{
 				return 0;
 			}
 		}
 	}
 	
-	if(!p_igetl(&tempitem.misc3,f,true))
+	if(!p_igetl(&tempitem.misc3,f))
 	{
 		return 0;
 	}
 	
-	if(!p_igetl(&tempitem.misc4,f,true))
+	if(!p_igetl(&tempitem.misc4,f))
 	{
 		return 0;
 	}
 	
-	if(!p_igetl(&tempitem.misc5,f,true))
+	if(!p_igetl(&tempitem.misc5,f))
 	{
 		return 0;
 	}
 	
-	if(!p_igetl(&tempitem.misc6,f,true))
+	if(!p_igetl(&tempitem.misc6,f))
 	{
 		return 0;
 	}
 	
-	if(!p_igetl(&tempitem.misc7,f,true))
+	if(!p_igetl(&tempitem.misc7,f))
 	{
 		return 0;
 	}
 	
-	if(!p_igetl(&tempitem.misc8,f,true))
+	if(!p_igetl(&tempitem.misc8,f))
 	{
 		return 0;
 	}
 	
-	if(!p_igetl(&tempitem.misc9,f,true))
+	if(!p_igetl(&tempitem.misc9,f))
 	{
 		return 0;
 	}
 	
-	if(!p_igetl(&tempitem.misc10,f,true))
+	if(!p_igetl(&tempitem.misc10,f))
 	{
 		return 0;
 	}
 	
-	if(!p_getc(&tempitem.usesound,f,true))
+	if(!p_getc(&tempitem.usesound,f))
 	{
 		return 0;
 	}
 	
-	if(!p_getc(&tempitem.usesound2,f,true))
+	if(!p_getc(&tempitem.usesound2,f))
 	{
 		return 0;
 	}
@@ -718,159 +718,159 @@ int32_t readoneitem(PACKFILE *f, int32_t index)
 			//New itemdata vars -Z
 			//! version 27
 			
-		if(!p_getc(&tempitem.useweapon,f,true))
+		if(!p_getc(&tempitem.useweapon,f))
 			{
 			return 0;
 			}
-			if(!p_getc(&tempitem.usedefence,f,true))
+			if(!p_getc(&tempitem.usedefence,f))
 			{
 			return 0;
 			}
-			if(!p_igetl(&tempitem.weaprange,f,true))
+			if(!p_igetl(&tempitem.weaprange,f))
 			{
 			return 0;
 			}
-			if(!p_igetl(&tempitem.weapduration,f,true))
+			if(!p_igetl(&tempitem.weapduration,f))
 			{
 			return 0;
 			}
 			for ( int32_t q = 0; q < ITEM_MOVEMENT_PATTERNS; q++ ) {
-				if(!p_igetl(&tempitem.weap_pattern[q],f,true))
+				if(!p_igetl(&tempitem.weap_pattern[q],f))
 				{
 				return 0;
 				}
 			}
 			//version 28
-			if(!p_igetl(&tempitem.duplicates,f,true))
+			if(!p_igetl(&tempitem.duplicates,f))
 			{
 				return 0;
 			}
 			for ( int32_t q = 0; q < INITIAL_D; q++ )
 			{
-				if(!p_igetl(&tempitem.weap_initiald[q],f,true))
+				if(!p_igetl(&tempitem.weap_initiald[q],f))
 				{
 					return 0;
 				}
 			}
 			for ( int32_t q = 0; q < INITIAL_A; q++ )
 			{
-				if(!p_getc(&tempitem.weap_initiala[q],f,true))
+				if(!p_getc(&tempitem.weap_initiala[q],f))
 				{
 					return 0;
 				}
 			}
 
-			if(!p_getc(&tempitem.drawlayer,f,true))
+			if(!p_getc(&tempitem.drawlayer,f))
 			{
 				return 0;
 			}
 
 
-			if(!p_igetl(&tempitem.hxofs,f,true))
+			if(!p_igetl(&tempitem.hxofs,f))
 			{
 				return 0;
 			}
-			if(!p_igetl(&tempitem.hyofs,f,true))
+			if(!p_igetl(&tempitem.hyofs,f))
 			{
 				return 0;
 			}
-			if(!p_igetl(&tempitem.hxsz,f,true))
+			if(!p_igetl(&tempitem.hxsz,f))
 			{
 				return 0;
 			}
-			if(!p_igetl(&tempitem.hysz,f,true))
+			if(!p_igetl(&tempitem.hysz,f))
 			{
 				return 0;
 			}
-			if(!p_igetl(&tempitem.hzsz,f,true))
+			if(!p_igetl(&tempitem.hzsz,f))
 			{
 				return 0;
 			}
-			if(!p_igetl(&tempitem.xofs,f,true))
+			if(!p_igetl(&tempitem.xofs,f))
 			{
 				return 0;
 			}
-			if(!p_igetl(&tempitem.yofs,f,true))
+			if(!p_igetl(&tempitem.yofs,f))
 			{
 				return 0;
 			}
-			if(!p_igetl(&tempitem.weap_hxofs,f,true))
+			if(!p_igetl(&tempitem.weap_hxofs,f))
 			{
 				return 0;
 			}
-			if(!p_igetl(&tempitem.weap_hyofs,f,true))
+			if(!p_igetl(&tempitem.weap_hyofs,f))
 			{
 				return 0;
 			}
-			if(!p_igetl(&tempitem.weap_hxsz,f,true))
+			if(!p_igetl(&tempitem.weap_hxsz,f))
 			{
 				return 0;
 			}
-			if(!p_igetl(&tempitem.weap_hysz,f,true))
+			if(!p_igetl(&tempitem.weap_hysz,f))
 			{
 				return 0;
 			}
-			if(!p_igetl(&tempitem.weap_hzsz,f,true))
+			if(!p_igetl(&tempitem.weap_hzsz,f))
 			{
 				return 0;
 			}
-			if(!p_igetl(&tempitem.weap_xofs,f,true))
+			if(!p_igetl(&tempitem.weap_xofs,f))
 			{
 				return 0;
 			}
-			if(!p_igetl(&tempitem.weap_yofs,f,true))
+			if(!p_igetl(&tempitem.weap_yofs,f))
 			{
 				return 0;
 			}
-			if(!p_igetw(&tempitem.weaponscript,f,true))
+			if(!p_igetw(&tempitem.weaponscript,f))
 			{
 				return 0;
 			}
-			if(!p_igetl(&tempitem.wpnsprite,f,true))
+			if(!p_igetl(&tempitem.wpnsprite,f))
 			{
 				return 0;
 			}
 			size_t num_cost_tmr = (section_version > 52 ? 2 : 1);
 			for(size_t q = 0; q < num_cost_tmr; ++q)
 			{
-				if(!p_igetl(&tempitem.magiccosttimer[q],f,true))
+				if(!p_igetl(&tempitem.magiccosttimer[q],f))
 				{
 					return 0;
 				}
 			}
-			if(!p_igetl(&tempitem.overrideFLAGS,f,true))
+			if(!p_igetl(&tempitem.overrideFLAGS,f))
 			{
 				return 0;
 			}
-			if(!p_igetl(&tempitem.tilew,f,true))
+			if(!p_igetl(&tempitem.tilew,f))
 			{
 				return 0;
 			}
-			if(!p_igetl(&tempitem.tileh,f,true))
+			if(!p_igetl(&tempitem.tileh,f))
 			{
 				return 0;
 			}
-			if(!p_igetl(&tempitem.weapoverrideFLAGS,f,true))
+			if(!p_igetl(&tempitem.weapoverrideFLAGS,f))
 			{
 				return 0;
 			}
-			if(!p_igetl(&tempitem.weap_tilew,f,true))
+			if(!p_igetl(&tempitem.weap_tilew,f))
 			{
 				return 0;
 			}
-			if(!p_igetl(&tempitem.weap_tileh,f,true))
+			if(!p_igetl(&tempitem.weap_tileh,f))
 			{
 				return 0;
 			}
-			if(!p_igetl(&tempitem.pickup,f,true))
+			if(!p_igetl(&tempitem.pickup,f))
 			{
 				return 0;
 			}
-			if(!p_igetw(&tempitem.pstring,f,true))
+			if(!p_igetw(&tempitem.pstring,f))
 			{
 				return 0;
 			}
-			if(!p_igetw(&tempitem.pickup_string_flags,f,true))
+			if(!p_igetw(&tempitem.pickup_string_flags,f))
 			{
 				return 0;
 			}
@@ -878,7 +878,7 @@ int32_t readoneitem(PACKFILE *f, int32_t index)
 			size_t num_cost_ctr = (section_version > 52 ? 2 : 1);
 			for(size_t q = 0; q < num_cost_ctr; ++q)
 			{
-				if(!p_getc(&tempitem.cost_counter[q],f,true))
+				if(!p_getc(&tempitem.cost_counter[q],f))
 				{
 					return 0;
 				}
@@ -889,46 +889,46 @@ int32_t readoneitem(PACKFILE *f, int32_t index)
 			{
 				for ( int32_t w = 0; w < 65; w++ )
 				{
-					if(!p_getc(&tempitem.initD_label[q][w],f,true))
+					if(!p_getc(&tempitem.initD_label[q][w],f))
 					{
 						return 0;
 					} 
 				}
 				for ( int32_t w = 0; w < 65; w++ )
 				{
-					if(!p_getc(&tempitem.weapon_initD_label[q][w],f,true))
+					if(!p_getc(&tempitem.weapon_initD_label[q][w],f))
 					{
 						return 0;
 					} 
 				}
 				for ( int32_t w = 0; w < 65; w++ )
 				{
-					if(!p_getc(&tempitem.sprite_initD_label[q][w],f,true))
+					if(!p_getc(&tempitem.sprite_initD_label[q][w],f))
 					{
 						return 0;
 					} 
 				}
-				if(!p_igetl(&tempitem.sprite_initiald[q],f,true))
+				if(!p_igetl(&tempitem.sprite_initiald[q],f))
 				{
 					return 0;
 				} 
 			}
 			for ( int32_t q = 0; q < 2; q++ )
 			{
-				if(!p_getc(&tempitem.sprite_initiala[q],f,true))
+				if(!p_getc(&tempitem.sprite_initiala[q],f))
 				{
 					return 0;
 				} 
 				
 			}
-			if(!p_igetw(&tempitem.sprite_script,f,true))
+			if(!p_igetw(&tempitem.sprite_script,f))
 			{
 				return 0;
 			} 
 			
 			if  ( section_version >= 47 )
 			{
-				if(!p_getc(&tempitem.pickupflag,f,true))
+				if(!p_getc(&tempitem.pickupflag,f))
 				{
 					return 0;
 				} 
@@ -5384,21 +5384,21 @@ int32_t readonenpc(PACKFILE *f, int32_t index)
    
 	char npcstring[64]={0}; //guy_string[]
 	//section version info
-	if(!p_igetl(&zversion,f,true))
+	if(!p_igetl(&zversion,f))
 	{
 		return 0;
 	}
-	if(!p_igetl(&zbuild,f,true))
-	{
-		return 0;
-	}
-	
-	if(!p_igetw(&section_version,f,true))
+	if(!p_igetl(&zbuild,f))
 	{
 		return 0;
 	}
 	
-	if(!p_igetw(&section_cversion,f,true))
+	if(!p_igetw(&section_version,f))
+	{
+		return 0;
+	}
+	
+	if(!p_igetw(&section_cversion,f))
 	{
 		return 0;
 	}
@@ -5421,236 +5421,236 @@ int32_t readonenpc(PACKFILE *f, int32_t index)
 		al_trace("Reading a .znpc packfile made in ZC Version: %x, Build: %d\n", zversion, zbuild);
 	}
    
-	if(!pfread(&npcstring, 64, f,true))
+	if(!pfread(&npcstring, 64, f))
 	{
 		return 0;
 	}
 	
 	//section data
-	if(!p_igetl(&tempguy.flags,f,true))
+	if(!p_igetl(&tempguy.flags,f))
 			{
 			return 0;
 			}
 			
-			if(!p_igetl(&tempguy.flags2,f,true))
+			if(!p_igetl(&tempguy.flags2,f))
 			{
 			return 0;
 			}
 			
-			if(!p_igetl(&tempguy.tile,f,true))
+			if(!p_igetl(&tempguy.tile,f))
 			{
 			return 0;
 			}
 			
-			if(!p_getc(&tempguy.width,f,true))
+			if(!p_getc(&tempguy.width,f))
 			{
 			return 0;
 			}
 			
-			if(!p_getc(&tempguy.height,f,true))
+			if(!p_getc(&tempguy.height,f))
 			{
 			return 0;
 			}
 			
-			if(!p_igetl(&tempguy.s_tile,f,true))
+			if(!p_igetl(&tempguy.s_tile,f))
 			{
 			return 0;
 			}
 			
-			if(!p_getc(&tempguy.s_width,f,true))
+			if(!p_getc(&tempguy.s_width,f))
 			{
 			return 0;
 			}
 			
-			if(!p_getc(&tempguy.s_height,f,true))
+			if(!p_getc(&tempguy.s_height,f))
 			{
 			return 0;
 			}
 			
-			if(!p_igetl(&tempguy.e_tile,f,true))
+			if(!p_igetl(&tempguy.e_tile,f))
 			{
 			return 0;
 			}
 			
-			if(!p_getc(&tempguy.e_width,f,true))
+			if(!p_getc(&tempguy.e_width,f))
 			{
 			return 0;
 			}
 			
-			if(!p_getc(&tempguy.e_height,f,true))
+			if(!p_getc(&tempguy.e_height,f))
 			{
 			return 0;
 			}
 			
-			if(!p_igetw(&tempguy.hp,f,true))
+			if(!p_igetw(&tempguy.hp,f))
 			{
 			return 0;
 			}
 			
-			if(!p_igetw(&tempguy.family,f,true))
+			if(!p_igetw(&tempguy.family,f))
 			{
 			return 0;
 			}
 			
-			if(!p_igetw(&tempguy.cset,f,true))
+			if(!p_igetw(&tempguy.cset,f))
 			{
 			return 0;
 			}
 			
-			if(!p_igetw(&tempguy.anim,f,true))
+			if(!p_igetw(&tempguy.anim,f))
 			{
 			return 0;
 			}
 			
-			if(!p_igetw(&tempguy.e_anim,f,true))
+			if(!p_igetw(&tempguy.e_anim,f))
 			{
 			return 0;
 			}
 			
-			if(!p_igetw(&tempguy.frate,f,true))
+			if(!p_igetw(&tempguy.frate,f))
 			{
 			return 0;
 			}
 			
-			if(!p_igetw(&tempguy.e_frate,f,true))
+			if(!p_igetw(&tempguy.e_frate,f))
 			{
 			return 0;
 			}
 			
-			if(!p_igetw(&tempguy.dp,f,true))
+			if(!p_igetw(&tempguy.dp,f))
 			{
 			return 0;
 			}
 			
-			if(!p_igetw(&tempguy.wdp,f,true))
+			if(!p_igetw(&tempguy.wdp,f))
 			{
 			return 0;
 			}
 			
-			if(!p_igetw(&tempguy.weapon,f,true))
+			if(!p_igetw(&tempguy.weapon,f))
 			{
 			return 0;
 			}
 			
-			if(!p_igetw(&tempguy.rate,f,true))
+			if(!p_igetw(&tempguy.rate,f))
 			{
 			return 0;
 			}
 			
-			if(!p_igetw(&tempguy.hrate,f,true))
+			if(!p_igetw(&tempguy.hrate,f))
 			{
 			return 0;
 			}
 			
-			if(!p_igetw(&tempguy.step,f,true))
+			if(!p_igetw(&tempguy.step,f))
 			{
 			return 0;
 			}
 			
-			if(!p_igetw(&tempguy.homing,f,true))
+			if(!p_igetw(&tempguy.homing,f))
 			{
 			return 0;
 			}
 			
-			if(!p_igetw(&tempguy.grumble,f,true))
+			if(!p_igetw(&tempguy.grumble,f))
 			{
 			return 0;
 			}
 			
-			if(!p_igetw(&tempguy.item_set,f,true))
+			if(!p_igetw(&tempguy.item_set,f))
 			{
 			return 0;
 			}
 			
-			if(!p_igetl(&tempguy.misc1,f,true))
+			if(!p_igetl(&tempguy.misc1,f))
 			{
 			return 0;
 			}
 			
-			if(!p_igetl(&tempguy.misc2,f,true))
+			if(!p_igetl(&tempguy.misc2,f))
 			{
 			return 0;
 			}
 			
-			if(!p_igetl(&tempguy.misc3,f,true))
+			if(!p_igetl(&tempguy.misc3,f))
 			{
 			return 0;
 			}
 			
-			if(!p_igetl(&tempguy.misc4,f,true))
+			if(!p_igetl(&tempguy.misc4,f))
 			{
 			return 0;
 			}
 			
-			if(!p_igetl(&tempguy.misc5,f,true))
+			if(!p_igetl(&tempguy.misc5,f))
 			{
 			return 0;
 			}
 			
-			if(!p_igetl(&tempguy.misc6,f,true))
+			if(!p_igetl(&tempguy.misc6,f))
 			{
 			return 0;
 			}
 			
-			if(!p_igetl(&tempguy.misc7,f,true))
+			if(!p_igetl(&tempguy.misc7,f))
 			{
 			return 0;
 			}
 			
-			if(!p_igetl(&tempguy.misc8,f,true))
+			if(!p_igetl(&tempguy.misc8,f))
 			{
 			return 0;
 			}
 			
-			if(!p_igetl(&tempguy.misc9,f,true))
+			if(!p_igetl(&tempguy.misc9,f))
 			{
 			return 0;
 			}
 			
-			if(!p_igetl(&tempguy.misc10,f,true))
+			if(!p_igetl(&tempguy.misc10,f))
 			{
 			return 0;
 			}
 			
-			if(!p_igetw(&tempguy.bgsfx,f,true))
+			if(!p_igetw(&tempguy.bgsfx,f))
 			{
 			return 0;
 			}
 			
-			if(!p_igetw(&tempguy.bosspal,f,true))
+			if(!p_igetw(&tempguy.bosspal,f))
 			{
 			return 0;
 			}
 			
-			if(!p_igetw(&tempguy.extend,f,true))
+			if(!p_igetw(&tempguy.extend,f))
 			{
 			return 0;
 			}
 			
 			for(int32_t j=0; j < edefLAST; j++)
 			{
-			if(!p_getc(&tempguy.defense[j],f,true))
+			if(!p_getc(&tempguy.defense[j],f))
 			{
 			   return 0;
 			}
 			}
 			
-			if(!p_getc(&tempguy.hitsfx,f,true))
+			if(!p_getc(&tempguy.hitsfx,f))
 			{
 			return 0;
 			}
 			
-			if(!p_getc(&tempguy.deadsfx,f,true))
+			if(!p_getc(&tempguy.deadsfx,f))
 			{
 			return 0;
 			}
 			
-			if(!p_igetl(&tempguy.misc11,f,true))
+			if(!p_igetl(&tempguy.misc11,f))
 			{
 			return 0;
 			}
 			
-			if(!p_igetl(&tempguy.misc12,f,true))
+			if(!p_igetl(&tempguy.misc12,f))
 			{
 			return 0;
 			}
@@ -5666,201 +5666,201 @@ int32_t readonenpc(PACKFILE *f, int32_t index)
 			//2.55 starts here
 			for(int32_t j=edefLAST; j < edefLAST255; j++)
 			{
-			if(!p_getc(&tempguy.defense[j],f,true))
+			if(!p_getc(&tempguy.defense[j],f))
 			{
 				return 0;
 			}
 			}
 			
 			//tilewidth, tileheight, hitwidth, hitheight, hitzheight, hitxofs, hityofs, hitzofs
-			if(!p_igetl(&tempguy.txsz,f,true))
+			if(!p_igetl(&tempguy.txsz,f))
 			{
 			return 0;
 			}
-			if(!p_igetl(&tempguy.tysz,f,true))
+			if(!p_igetl(&tempguy.tysz,f))
 			{
 			return 0;
 			}
-			if(!p_igetl(&tempguy.hxsz,f,true))
+			if(!p_igetl(&tempguy.hxsz,f))
 			{
 			return 0;
 			}
-			if(!p_igetl(&tempguy.hysz,f,true))
+			if(!p_igetl(&tempguy.hysz,f))
 			{
 			return 0;
 			}
-			if(!p_igetl(&tempguy.hzsz,f,true))
+			if(!p_igetl(&tempguy.hzsz,f))
 			{
 			return 0;
 			}
 			// These are not fixed types, but ints, so they are safe to use here. 
-			if(!p_igetl(&tempguy.hxofs,f,true))
+			if(!p_igetl(&tempguy.hxofs,f))
 			{
 			return 0;
 			}
-			if(!p_igetl(&tempguy.hyofs,f,true))
+			if(!p_igetl(&tempguy.hyofs,f))
 			{
 			return 0;
 			}
-			if(!p_igetl(&tempguy.xofs,f,true))
+			if(!p_igetl(&tempguy.xofs,f))
 			{
 			return 0;
 			}
-			if(!p_igetl(&tempguy.yofs,f,true))
+			if(!p_igetl(&tempguy.yofs,f))
 			{
 			return 0;
 			}
-			if(!p_igetl(&tempguy.zofs,f,true))
+			if(!p_igetl(&tempguy.zofs,f))
 			{
 			return 0;
 			}
-			if(!p_igetl(&tempguy.wpnsprite,f,true))
+			if(!p_igetl(&tempguy.wpnsprite,f))
 			{
 			return 0;
 			}
-			if(!p_igetl(&tempguy.SIZEflags,f,true))
+			if(!p_igetl(&tempguy.SIZEflags,f))
 			{
 			return 0;
 			}
-			if(!p_igetl(&tempguy.frozentile,f,true))
+			if(!p_igetl(&tempguy.frozentile,f))
 			{
 			return 0;
 			}
-			if(!p_igetl(&tempguy.frozencset,f,true))
+			if(!p_igetl(&tempguy.frozencset,f))
 			{
 			return 0;
 			}
-			if(!p_igetl(&tempguy.frozenclock,f,true))
+			if(!p_igetl(&tempguy.frozenclock,f))
 			{
 			return 0;
 			}
 			
 			for ( int32_t q = 0; q < 10; q++ ) 
 			{
-			if(!p_igetw(&tempguy.frozenmisc[q],f,true))
+			if(!p_igetw(&tempguy.frozenmisc[q],f))
 			{
 				return 0;
 			}
 			}
-			if(!p_igetw(&tempguy.firesfx,f,true))
+			if(!p_igetw(&tempguy.firesfx,f))
 			{
 			return 0;
 			}
 			//misc 16->31
-			if(!p_igetl(&tempguy.misc16,f,true))
+			if(!p_igetl(&tempguy.misc16,f))
 			{
 			return 0;
 			}
-			if(!p_igetl(&tempguy.misc17,f,true))
+			if(!p_igetl(&tempguy.misc17,f))
 			{
 			return 0;
 			}
-			if(!p_igetl(&tempguy.misc18,f,true))
+			if(!p_igetl(&tempguy.misc18,f))
 			{
 			return 0;
 			}
-			if(!p_igetl(&tempguy.misc19,f,true))
+			if(!p_igetl(&tempguy.misc19,f))
 			{
 			return 0;
 			}
-			if(!p_igetl(&tempguy.misc20,f,true))
+			if(!p_igetl(&tempguy.misc20,f))
 			{
 			return 0;
 			}
-			if(!p_igetl(&tempguy.misc21,f,true))
+			if(!p_igetl(&tempguy.misc21,f))
 			{
 			return 0;
 			}
-			if(!p_igetl(&tempguy.misc22,f,true))
+			if(!p_igetl(&tempguy.misc22,f))
 			{
 			return 0;
 			}
-			if(!p_igetl(&tempguy.misc23,f,true))
+			if(!p_igetl(&tempguy.misc23,f))
 			{
 			return 0;
 			}
-			if(!p_igetl(&tempguy.misc24,f,true))
+			if(!p_igetl(&tempguy.misc24,f))
 			{
 			return 0;
 			}
-			if(!p_igetl(&tempguy.misc25,f,true))
+			if(!p_igetl(&tempguy.misc25,f))
 			{
 			return 0;
 			}
-			if(!p_igetl(&tempguy.misc26,f,true))
+			if(!p_igetl(&tempguy.misc26,f))
 			{
 			return 0;
 			}
-			if(!p_igetl(&tempguy.misc27,f,true))
+			if(!p_igetl(&tempguy.misc27,f))
 			{
 			return 0;
 			}
-			if(!p_igetl(&tempguy.misc28,f,true))
+			if(!p_igetl(&tempguy.misc28,f))
 			{
 			return 0;
 			}
-			if(!p_igetl(&tempguy.misc29,f,true))
+			if(!p_igetl(&tempguy.misc29,f))
 			{
 			return 0;
 			}
-			if(!p_igetl(&tempguy.misc30,f,true))
+			if(!p_igetl(&tempguy.misc30,f))
 			{
 			return 0;
 			}
-			if(!p_igetl(&tempguy.misc31,f,true))
+			if(!p_igetl(&tempguy.misc31,f))
 			{
 			return 0;
 			}
-			if(!p_igetl(&tempguy.misc32,f,true))
+			if(!p_igetl(&tempguy.misc32,f))
 			{
 			return 0;
 			}
 			for ( int32_t q = 0; q < 32; q++ )
 			{
-			if(!p_igetl(&tempguy.movement[q],f,true))
+			if(!p_igetl(&tempguy.movement[q],f))
 			{
 				return 0;
 			}
 			}
 			for ( int32_t q = 0; q < 32; q++ )
 			{
-				if(!p_igetl(&tempguy.new_weapon[q],f,true))
+				if(!p_igetl(&tempguy.new_weapon[q],f))
 				{
 				return 0;
 				}
 			}
-			if(!p_igetw(&tempguy.script,f,true))
+			if(!p_igetw(&tempguy.script,f))
 			{
 			return 0;
 			}
 			for ( int32_t q = 0; q < 8; q++ )
 			{
-			if(!p_igetl(&tempguy.initD[q],f,true))
+			if(!p_igetl(&tempguy.initD[q],f))
 			{
 				return 0;
 			}
 			}
 			for ( int32_t q = 0; q < 2; q++ )
 			{
-			if(!p_igetl(&tempguy.initA[q],f,true))
+			if(!p_igetl(&tempguy.initA[q],f))
 			{
 				return 0;
 			}
 			}
-			if(!p_igetl(&tempguy.editorflags,f,true))
+			if(!p_igetl(&tempguy.editorflags,f))
 			{
 			return 0;
 			}
 			//somehow forgot these in the older builds -Z
-			if(!p_igetl(&tempguy.misc13,f,true))
+			if(!p_igetl(&tempguy.misc13,f))
 			{
 			return 0;
 			}
-			if(!p_igetl(&tempguy.misc14,f,true))
+			if(!p_igetl(&tempguy.misc14,f))
 			{
 			return 0;
 			}
-			if(!p_igetl(&tempguy.misc15,f,true))
+			if(!p_igetl(&tempguy.misc15,f))
 			{
 			return 0;
 			}
@@ -5870,27 +5870,27 @@ int32_t readonenpc(PACKFILE *f, int32_t index)
 			{
 				for ( int32_t w = 0; w < 65; w++ )
 				{
-					if(!p_getc(&tempguy.initD_label[q][w],f,true))
+					if(!p_getc(&tempguy.initD_label[q][w],f))
 					{
 						return 0;
 					}
 				}
 				for ( int32_t w = 0; w < 65; w++ )
 				{
-					if(!p_getc(&tempguy.weapon_initD_label[q][w],f,true))
+					if(!p_getc(&tempguy.weapon_initD_label[q][w],f))
 					{
 						return 0;
 					}
 				}
 			}
-			if(!p_igetw(&tempguy.weaponscript,f,true))
+			if(!p_igetw(&tempguy.weaponscript,f))
 			{
 			return 0;
 			}
 			//eweapon initD
 			for ( int32_t q = 0; q < 8; q++ )
 			{
-			if(!p_igetl(&tempguy.weap_initiald[q],f,true))
+			if(!p_igetl(&tempguy.weap_initiald[q],f))
 			{
 				return 0;
 			}

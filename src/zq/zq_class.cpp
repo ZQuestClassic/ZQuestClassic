@@ -269,24 +269,24 @@ bool zmap::reset_templates(bool validate)
     }
     
     //section version info
-    if(!p_igetw(&sversion,f,true))
+    if(!p_igetw(&sversion,f))
     {
         return false;
     }
     
-    if(!p_igetw(&dummy,f,true))
+    if(!p_igetw(&dummy,f))
     {
         return false;
     }
     
     //section size
-    if(!p_igetl(&dummy,f,true))
+    if(!p_igetl(&dummy,f))
     {
         return false;
     }
     
     //finally...  section data
-    if(!p_igetw(&temp_map_count,f,true))
+    if(!p_igetw(&temp_map_count,f))
     {
         return false;
     }
@@ -295,72 +295,72 @@ bool zmap::reset_templates(bool validate)
     
     if(version>12)
     {
-        if(!p_getc(&(temp_map.tileWidth),f,true))
+        if(!p_getc(&(temp_map.tileWidth),f))
         {
             return qe_invalid;
         }
         
-        if(!p_getc(&(temp_map.tileHeight),f,true))
+        if(!p_getc(&(temp_map.tileHeight),f))
         {
             return qe_invalid;
         }
         
-        if(!p_igetw(&(temp_map.subaWidth),f,true))
+        if(!p_igetw(&(temp_map.subaWidth),f))
         {
             return qe_invalid;
         }
         
-        if(!p_igetw(&(temp_map.subaHeight),f,true))
+        if(!p_igetw(&(temp_map.subaHeight),f))
         {
             return qe_invalid;
         }
         
-        if(!p_igetw(&(temp_map.subpWidth),f,true))
+        if(!p_igetw(&(temp_map.subpWidth),f))
         {
             return qe_invalid;
         }
         
-        if(!p_igetw(&(temp_map.subpHeight),f,true))
+        if(!p_igetw(&(temp_map.subpHeight),f))
         {
             return qe_invalid;
         }
         
-        if(!p_igetw(&(temp_map.scrResWidth),f,true))
+        if(!p_igetw(&(temp_map.scrResWidth),f))
         {
             return qe_invalid;
         }
         
-        if(!p_igetw(&(temp_map.scrResHeight),f,true))
+        if(!p_igetw(&(temp_map.scrResHeight),f))
         {
             return qe_invalid;
         }
         
-        if(!p_igetw(&(temp_map.viewWidth),f,true))
+        if(!p_igetw(&(temp_map.viewWidth),f))
         {
             return qe_invalid;
         }
         
-        if(!p_igetw(&(temp_map.viewHeight),f,true))
+        if(!p_igetw(&(temp_map.viewHeight),f))
         {
             return qe_invalid;
         }
         
-        if(!p_igetw(&(temp_map.viewX),f,true))
+        if(!p_igetw(&(temp_map.viewX),f))
         {
             return qe_invalid;
         }
         
-        if(!p_igetw(&(temp_map.viewY),f,true))
+        if(!p_igetw(&(temp_map.viewY),f))
         {
             return qe_invalid;
         }
         
-        if(!p_getc(&(temp_map.subaTrans),f,true))
+        if(!p_getc(&(temp_map.subaTrans),f))
         {
             return qe_invalid;
         }
         
-        if(!p_getc(&(temp_map.subpTrans),f,true))
+        if(!p_getc(&(temp_map.subpTrans),f))
         {
             return qe_invalid;
         }
@@ -398,72 +398,72 @@ bool zmap::reset_templates(bool validate)
     
     if(version>12)
     {
-        if(!p_getc(&(temp_map.tileWidth),f,true))
+        if(!p_getc(&(temp_map.tileWidth),f))
         {
             return qe_invalid;
         }
         
-        if(!p_getc(&(temp_map.tileHeight),f,true))
+        if(!p_getc(&(temp_map.tileHeight),f))
         {
             return qe_invalid;
         }
         
-        if(!p_igetw(&(temp_map.subaWidth),f,true))
+        if(!p_igetw(&(temp_map.subaWidth),f))
         {
             return qe_invalid;
         }
         
-        if(!p_igetw(&(temp_map.subaHeight),f,true))
+        if(!p_igetw(&(temp_map.subaHeight),f))
         {
             return qe_invalid;
         }
         
-        if(!p_igetw(&(temp_map.subpWidth),f,true))
+        if(!p_igetw(&(temp_map.subpWidth),f))
         {
             return qe_invalid;
         }
         
-        if(!p_igetw(&(temp_map.subpHeight),f,true))
+        if(!p_igetw(&(temp_map.subpHeight),f))
         {
             return qe_invalid;
         }
         
-        if(!p_igetw(&(temp_map.scrResWidth),f,true))
+        if(!p_igetw(&(temp_map.scrResWidth),f))
         {
             return qe_invalid;
         }
         
-        if(!p_igetw(&(temp_map.scrResHeight),f,true))
+        if(!p_igetw(&(temp_map.scrResHeight),f))
         {
             return qe_invalid;
         }
         
-        if(!p_igetw(&(temp_map.viewWidth),f,true))
+        if(!p_igetw(&(temp_map.viewWidth),f))
         {
             return qe_invalid;
         }
         
-        if(!p_igetw(&(temp_map.viewHeight),f,true))
+        if(!p_igetw(&(temp_map.viewHeight),f))
         {
             return qe_invalid;
         }
         
-        if(!p_igetw(&(temp_map.viewX),f,true))
+        if(!p_igetw(&(temp_map.viewX),f))
         {
             return qe_invalid;
         }
         
-        if(!p_igetw(&(temp_map.viewY),f,true))
+        if(!p_igetw(&(temp_map.viewY),f))
         {
             return qe_invalid;
         }
         
-        if(!p_getc(&(temp_map.subaTrans),f,true))
+        if(!p_getc(&(temp_map.subaTrans),f))
         {
             return qe_invalid;
         }
         
-        if(!p_getc(&(temp_map.subpTrans),f,true))
+        if(!p_getc(&(temp_map.subpTrans),f))
         {
             return qe_invalid;
         }
@@ -885,13 +885,13 @@ int32_t zmap::load(const char *path)
 	byte build;
 	
 	//get the version
-	if(!p_igetw(&version,f,true))
+	if(!p_igetw(&version,f))
 	{
 		goto file_error;
 	}
 	
 	//get the build
-	if(!p_getc(&build,f,true))
+	if(!p_getc(&build,f))
 	{
 		goto file_error;
 	}
@@ -5747,14 +5747,14 @@ bool load_msgstrs(const char *path, int32_t startstring)
         return false;
     }
     
-    if(!p_mgetl(&section_id,f,true))
+    if(!p_mgetl(&section_id,f))
     {
         return false;
     }
     
     if(section_id==ID_STRINGS)
     {
-        if(readstrings(f, &header, true)==0)
+        if(readstrings(f, &header)==0)
         {
             pack_fclose(f);
             return true;
@@ -5799,15 +5799,14 @@ bool load_pals(const char *path, int32_t startcset)
         return false;
     }
     
-    if(!p_mgetl(&section_id,f,true))
+    if(!p_mgetl(&section_id,f))
     {
         return false;
     }
     
     if(section_id==ID_CSETS)
     {
-        //if(readcolordata(f,  ZELDA_VERSION, VERSION_BUILD, startcset, newerpdTOTAL-startcset, true)==0)
-        if(readcolordata(f, &QMisc, 0x250, 33, startcset, newerpdTOTAL-startcset, true)==0)
+        if(readcolordata(f, &QMisc, 0x250, 33, startcset, newerpdTOTAL-startcset)==0)
         {
             pack_fclose(f);
             loadlvlpal(Color);
@@ -5852,15 +5851,14 @@ bool load_dmaps(const char *path, int32_t startdmap)
         return false;
     }
     
-    if(!p_mgetl(&section_id,f,true))
+    if(!p_mgetl(&section_id,f))
     {
         return false;
     }
     
     if(section_id==ID_DMAPS)
     {
-        //if(readdmaps(f, NULL, ZELDA_VERSION, VERSION_BUILD, startdmap, MAXDMAPS-startdmap, true)==0)
-        if(readdmaps(f, NULL, 0x250, 33, startdmap, MAXDMAPS-startdmap, true)==0)
+        if(readdmaps(f, NULL, 0x250, 33, startdmap, MAXDMAPS-startdmap)==0)
         {
             pack_fclose(f);
             return true;
@@ -5906,15 +5904,14 @@ bool load_combos(const char *path, int32_t startcombo)
         return false;
     }
     
-    if(!p_mgetl(&section_id,f,true))
+    if(!p_mgetl(&section_id,f))
     {
         return false;
     }
     
     if(section_id==ID_COMBOS)
     {
-        //if(readcombos(f, NULL, ZELDA_VERSION, VERSION_BUILD, startcombo, MAXCOMBOS-startcombo, true)==0)
-        if(readcombos(f, NULL, 0x250, 33, startcombo, MAXCOMBOS-startcombo, true)==0)
+        if(readcombos(f, NULL, 0x250, 33, startcombo, MAXCOMBOS-startcombo)==0)
         {
             pack_fclose(f);
             return true;
@@ -5960,15 +5957,14 @@ bool load_tiles(const char *path, int32_t starttile)
         return false;
     }
     
-    if(!p_mgetl(&section_id,f,true))
+    if(!p_mgetl(&section_id,f))
     {
         return false;
     }
     
     if(section_id==ID_TILES)
     {
-        //if(readtiles(f, newtilebuf, NULL, ZELDA_VERSION, VERSION_BUILD, starttile, NEWMAXTILES-starttile, false, true)==0)
-        if(readtiles(f, newtilebuf, NULL, 0x250, 33, starttile, NEWMAXTILES-starttile, false, true)==0)
+        if(readtiles(f, newtilebuf, NULL, 0x250, 33, starttile, NEWMAXTILES-starttile, false)==0)
         {
             pack_fclose(f);
             return true;
@@ -6026,7 +6022,7 @@ bool load_guys(const char *path)
         return false;
     }
     
-    if(!p_mgetl(&section_id,f,true))
+    if(!p_mgetl(&section_id,f))
     {
         pack_fclose(f);
         return false;
@@ -6038,7 +6034,7 @@ bool load_guys(const char *path)
     
     if(section_id==ID_GUYS)
     {
-        if(readguys(f, &h, true)==0)
+        if(readguys(f, &h)==0)
         {
             pack_fclose(f);
             return true;
@@ -6084,7 +6080,7 @@ bool load_combo_alias(const char *path)
         return false;
     }
     
-    if(!p_mgetl(&section_id,f,true))
+    if(!p_mgetl(&section_id,f))
     {
         pack_fclose(f);
         return false;
@@ -6096,7 +6092,7 @@ bool load_combo_alias(const char *path)
     
     if(section_id==ID_COMBOALIASES)
     {
-        if(readcomboaliases(f, &h, 0, 0, true)==0)
+        if(readcomboaliases(f, &h, 0, 0)==0)
         {
             pack_fclose(f);
             return true;
@@ -6118,7 +6114,7 @@ bool load_zgp(const char *path)
     if(!f)
         return false;
         
-    if(!p_mgetl(&section_id,f,true))
+    if(!p_mgetl(&section_id,f))
     {
         pack_fclose(f);
         return false;
@@ -6131,18 +6127,18 @@ bool load_zgp(const char *path)
     }
     
     //section version info
-    if(!p_igetw(&section_version,f,true))
+    if(!p_igetw(&section_version,f))
     {
         return 2;
     }
     
-    if(!p_igetw(&section_cversion,f,true))
+    if(!p_igetw(&section_cversion,f))
     {
         return 3;
     }
     
     //tiles
-    if(!p_mgetl(&section_id,f,true))
+    if(!p_mgetl(&section_id,f))
     {
         pack_fclose(f);
         return false;
@@ -6150,7 +6146,7 @@ bool load_zgp(const char *path)
     
     if(section_id==ID_TILES)
     {
-        if(readtiles(f, newtilebuf, NULL, ZELDA_VERSION, VERSION_BUILD, 0, NEWMAXTILES, false, true)!=0)
+        if(readtiles(f, newtilebuf, NULL, ZELDA_VERSION, VERSION_BUILD, 0, NEWMAXTILES, false)!=0)
         {
             pack_fclose(f);
             init_tiles(true, &header);
@@ -6164,7 +6160,7 @@ bool load_zgp(const char *path)
     }
     
     //combos
-    if(!p_mgetl(&section_id,f,true))
+    if(!p_mgetl(&section_id,f))
     {
         pack_fclose(f);
         return false;
@@ -6172,7 +6168,7 @@ bool load_zgp(const char *path)
     
     if(section_id==ID_COMBOS)
     {
-        if(readcombos(f, NULL, ZELDA_VERSION, VERSION_BUILD, 0, MAXCOMBOS, true)!=0)
+        if(readcombos(f, NULL, ZELDA_VERSION, VERSION_BUILD, 0, MAXCOMBOS)!=0)
         {
             pack_fclose(f);
             //      init_combos(true, &header);
@@ -6186,7 +6182,7 @@ bool load_zgp(const char *path)
     }
     
     //palettes
-    if(!p_mgetl(&section_id,f,true))
+    if(!p_mgetl(&section_id,f))
     {
         pack_fclose(f);
         return false;
@@ -6194,7 +6190,7 @@ bool load_zgp(const char *path)
     
     if(section_id==ID_CSETS)
     {
-        if(readcolordata(f, &QMisc, ZELDA_VERSION, VERSION_BUILD, 0, newerpdTOTAL, true)!=0)
+        if(readcolordata(f, &QMisc, ZELDA_VERSION, VERSION_BUILD, 0, newerpdTOTAL)!=0)
         {
             pack_fclose(f);
             return false;
@@ -6207,7 +6203,7 @@ bool load_zgp(const char *path)
     }
     
     //items
-    if(!p_mgetl(&section_id,f,true))
+    if(!p_mgetl(&section_id,f))
     {
         pack_fclose(f);
         return false;
@@ -6215,7 +6211,7 @@ bool load_zgp(const char *path)
     
     if(section_id==ID_ITEMS)
     {
-        if(readitems(f, ZELDA_VERSION, VERSION_BUILD, false, true)!=0)
+        if(readitems(f, ZELDA_VERSION, VERSION_BUILD)!=0)
         {
             pack_fclose(f);
             return false;
@@ -6228,7 +6224,7 @@ bool load_zgp(const char *path)
     }
     
     //weapons
-    if(!p_mgetl(&section_id,f,true))
+    if(!p_mgetl(&section_id,f))
     {
         pack_fclose(f);
         return false;
@@ -6236,7 +6232,7 @@ bool load_zgp(const char *path)
     
     if(section_id==ID_WEAPONS)
     {
-        if(readweapons(f, &header, true)!=0)
+        if(readweapons(f, &header)!=0)
         {
             pack_fclose(f);
             return false;
@@ -6252,7 +6248,7 @@ bool load_zgp(const char *path)
     //really do this?
     
     //read the game icons info and make sure it worked
-    if(!p_mgetl(&section_id,f,true))
+    if(!p_mgetl(&section_id,f))
     {
         pack_fclose(f);
         return false;
@@ -6260,7 +6256,7 @@ bool load_zgp(const char *path)
     
     if(section_id==ID_ICONS)
     {
-        if(readgameicons(f, &header, &QMisc, true)!=0)
+        if(readgameicons(f, &header, &QMisc)!=0)
         {
             pack_fclose(f);
             return false;
@@ -6273,7 +6269,7 @@ bool load_zgp(const char *path)
     }
     
     //read the misc colors info and map styles info and make sure it worked
-    if(!p_mgetl(&section_id,f,true))
+    if(!p_mgetl(&section_id,f))
     {
         pack_fclose(f);
         return false;
@@ -6281,7 +6277,7 @@ bool load_zgp(const char *path)
     
     if(section_id==ID_COLORS)
     {
-        if(readmisccolors(f, &header, &QMisc, true)!=0)
+        if(readmisccolors(f, &header, &QMisc)!=0)
         {
             pack_fclose(f);
             return false;
@@ -6294,7 +6290,7 @@ bool load_zgp(const char *path)
     }
     
     //read the door combo sets and make sure it worked
-    if(!p_mgetl(&section_id,f,true))
+    if(!p_mgetl(&section_id,f))
     {
         pack_fclose(f);
         return false;
@@ -6302,7 +6298,7 @@ bool load_zgp(const char *path)
     
     if(section_id==ID_DOORS)
     {
-        if(readdoorcombosets(f, &header, true)!=0)
+        if(readdoorcombosets(f, &header)!=0)
         {
             pack_fclose(f);
             return false;
@@ -6544,7 +6540,7 @@ bool load_subscreen(const char *path)
     dword section_cversion;
     
     //section id
-    if(!p_mgetl(&section_id,f,true))
+    if(!p_mgetl(&section_id,f))
     {
         pack_fclose(f);
         return false;
@@ -6557,20 +6553,20 @@ bool load_subscreen(const char *path)
     }
     
     //section version info
-    if(!p_igetw(&section_version,f,true))
+    if(!p_igetw(&section_version,f))
     {
         pack_fclose(f);
         return false;
     }
     
-    if(!p_igetw(&section_cversion,f,true))
+    if(!p_igetw(&section_cversion,f))
     {
         pack_fclose(f);
         return false;
     }
     
     //subscreens
-    if(read_one_subscreen(f,&header,true,sslist_dlg[2].d1,section_version,section_cversion)!=0)
+    if(read_one_subscreen(f,&header,sslist_dlg[2].d1,section_version,section_cversion)!=0)
     {
         pack_fclose(f);
         return false;
@@ -6789,15 +6785,15 @@ int32_t quest_access(const char *filename, zquestheader *hdr)
         PACKFILE *fp = pack_fopen_password(keyfilename, F_READ, "");
         char msg[80];
         memset(msg,0,80);
-        pfread(msg, 80, fp,true);
+        pfread(msg, 80, fp);
         
         if(strcmp(msg,"ZQuest Auto-Generated Quest Password Key File.  DO NOT EDIT!")==0)
         {
             int16_t ver = 0;
             byte  bld = 0;
             int16_t pwd_len;
-            p_igetw(&ver,fp,true);
-            p_getc(&bld,fp,true);
+            p_igetw(&ver,fp);
+            p_getc(&bld,fp);
             memset(password,0,256);
             
             if((ver > 0x211)||((ver == 0x211)&&(bld>1)))
@@ -6809,7 +6805,7 @@ int32_t quest_access(const char *filename, zquestheader *hdr)
                 pwd_len=30;
             }
             
-            pfread(password, pwd_len, fp,true);
+            pfread(password, pwd_len, fp);
             gotfromkey=check_questpwd(hdr, password);
             memset(password,0,256);
             memset(pwd,0,256);
@@ -6823,15 +6819,15 @@ int32_t quest_access(const char *filename, zquestheader *hdr)
         char password[256];
         PACKFILE *fp = pack_fopen_password(pwdfilename, F_READ, "");
         char msg[81] = { 0 };
-        pfread(msg, 80, fp,true);
+        pfread(msg, 80, fp);
         
         if(strcmp(msg,"ZQuest Auto-Generated Quest Password Key File.  DO NOT EDIT!")==0)
         {
             int16_t ver = 0;
             byte  bld = 0;
             int16_t pwd_len;
-            p_igetw(&ver,fp,true);
-            p_getc(&bld,fp,true);
+            p_igetw(&ver,fp);
+            p_getc(&bld,fp);
             memset(password,0,256);
             
             if((ver > 0x211)||((ver == 0x211)&&(bld>1)))
@@ -6843,7 +6839,7 @@ int32_t quest_access(const char *filename, zquestheader *hdr)
                 pwd_len=30;
             }
             
-            pfread(password, pwd_len, fp,true);
+            pfread(password, pwd_len, fp);
             gotfrompwdfile=check_questpwd(hdr, password);
             memset(password,0,256);
             memset(pwd,0,256);
@@ -6965,7 +6961,7 @@ int32_t load_quest(const char *filename, bool show_progress)
 	}
 	for(int32_t i=0; i<qr_MAX; i++)
 				set_qr(i,0);
-	int32_t ret=loadquest(filename,&header,&QMisc,customtunes,show_progress,true,skip_flags);
+	int32_t ret=loadquest(filename,&header,&QMisc,customtunes,show_progress,skip_flags);
 //  setPackfilePassword(NULL);
 
 	if(ret!=qe_OK)

@@ -1596,7 +1596,7 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 			skip_flags[i]=0;
 		}
 		
-		ret = loadquest(qstpath,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,true,skip_flags,printmetadata,report,qst_num);
+		ret = loadquest(qstpath,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,skip_flags,printmetadata,report,qst_num);
 		
 		if(!g->title[0] || g->get_hasplayed() == 0)
 		{
@@ -1860,16 +1860,16 @@ int32_t init_game()
 		PACKFILE *fp = pack_fopen_password(keyfilename, F_READ,"");
 		char msg[80];
 		memset(msg,0,80);
-		pfread(msg, 80, fp,true);
+		pfread(msg, 80, fp);
 		
 		if(strcmp(msg,"ZQuest Auto-Generated Quest Password Key File.  DO NOT EDIT!")==0)
 		{
 			int16_t ver;
 			byte  bld;
-			p_igetw(&ver,fp,true);
-			p_getc(&bld,fp,true);
+			p_igetw(&ver,fp);
+			p_getc(&bld,fp);
 			memset(password,0,32);
-			pfread(password, 30, fp,true);
+			pfread(password, 30, fp);
 			setcheat=check_questpwd(&QHeader, password);
 			memset(password,0,32);
 			memset(pwd,0,32);
@@ -1884,16 +1884,16 @@ int32_t init_game()
 		PACKFILE *fp = pack_fopen_password(keyfilename3, F_READ,"");
 		char msg[80];
 		memset(msg,0,80);
-		pfread(msg, 80, fp,true);
+		pfread(msg, 80, fp);
 		
 		if(strcmp(msg,"ZQuest Auto-Generated Quest Password Key File.  DO NOT EDIT!")==0)
 		{
 			int16_t ver;
 			byte  bld;
-			p_igetw(&ver,fp,true);
-			p_getc(&bld,fp,true);
+			p_igetw(&ver,fp);
+			p_getc(&bld,fp);
 			memset(password,0,32);
-			pfread(password, 30, fp,true);
+			pfread(password, 30, fp);
 			
 			char unhashed_pw[32];
 			memset(unhashed_pw,0,32);
@@ -4313,7 +4313,7 @@ void do_load_and_quit_command(const char* quest_path)
 	}
 
 	byte skip_flags[] = {0, 0, 0, 0};
-	int ret = loadquest(quest_path,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,true,skip_flags,false,false,0xFF);
+	int ret = loadquest(quest_path,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,skip_flags,false,false,0xFF);
 	exit(ret);
 }
 

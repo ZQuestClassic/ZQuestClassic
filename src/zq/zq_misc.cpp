@@ -227,7 +227,7 @@ bool readfile(const char *path,void *buf,int32_t count)
     if(!f)
         return 0;
 
-    bool good=pfread(buf,count,f,true);
+    bool good=pfread(buf,count,f);
     pack_fclose(f);
     return good;
 }
