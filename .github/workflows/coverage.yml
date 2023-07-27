@@ -21,7 +21,7 @@ jobs:
       compiler: clang
       config: Coverage
       # TODO yuurand.zplay rng desyncs on frame 449856, because Debug mode.
-      extra-args: --replay --filter=yuurand.zplay=449855
+      extra-args: --replay --frame=yuurand.zplay=449855
 
   upload-coverage:
     needs: ["collect-coverage"]
