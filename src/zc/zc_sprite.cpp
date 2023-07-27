@@ -66,10 +66,12 @@ void sprite::check_conveyor()
 void sprite::handle_sprlighting()
 {
 	if(!get_qr(qr_NEW_DARKROOM)) return;
-	// TODO z3 @!!
-	if(!(tmpscr->flags & fDARK)) return;
 
-	handle_lighting(x.getInt()+(hit_width/2), y.getInt()+(hit_height/2) + playing_field_offset,glowShape,glowRad,dir, darkscr_bmp_z3);
+	int x0 = x.getInt()+(hit_width/2);
+	int y0 = y.getInt()+(hit_height/2);
+	if(!(get_screen_for_world_xy(x0, y0)->flags & fDARK)) return;
+
+	handle_lighting(x0, y0 + playing_field_offset,glowShape,glowRad,dir, darkscr_bmp_z3);
 }
 
 bool is_conveyor(int32_t type)
