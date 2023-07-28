@@ -14,6 +14,7 @@
 
 #include "base/zdefs.h"
 #include "base/jwinfsel.h"
+#include "zcmusic.h"
 
 extern MENU the_player_menu[];
 extern MENU the_player_menu2[];
@@ -231,6 +232,7 @@ int32_t item_tile_mod();
 int32_t bunny_tile_mod();
 
 bool try_zcmusic(char *filename, int32_t track, int32_t midi);
+bool try_zcmusic_mix(ZCMUSIC* &zcm, char* filename, int32_t track, int32_t midi, int32_t fadevol);
 bool try_zcmusic_ex(char *filename, int32_t track, int32_t midi);
 int32_t get_zcmusicpos();
 void set_zcmusicpos(int32_t position);

@@ -3725,6 +3725,11 @@ string OSetEnhancedMusicLoop::toString() const
 	return "SETENHMUSICLOOP " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
 
+string OCrossfadeEnhancedMusic::toString() const
+{
+	return "ENHCROSSFADE";
+}
+
 string OGetDMapMusicFilename::toString() const
 {
     return "GETMUSICFILE " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();

@@ -623,6 +623,7 @@ char *helpbuf, *zstringshelpbuf;
 string helpstr, zstringshelpstr;
 
 ZCMUSIC *zcmusic = NULL;
+ZCMIXER *zcmixer = NULL;
 int32_t midi_volume = 255;
 extern int32_t prv_mode;
 int32_t prv_warp = 0;
@@ -29524,7 +29525,8 @@ int32_t main(int32_t argc,char **argv)
 	}
 	
 	zcmusic_init();
-	
+	zcmixer = zcmixer_create();
+
 	switch(zqColorDepth) //defaults to 8bit
 	{
 	case 0:

@@ -1168,7 +1168,7 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "SETENHMUSICLOOP", 2, 0, 0, 0 },
 	{ "PLAYSOUNDEX", 0, 0, 0, 0 },
 	{ "GETSFXCOMPLETION", 1, 0, 0, 0 },
-	{ "RESRVD_OP_MOOSH_07", 0, 0, 0, 0 },
+	{ "ENHCROSSFADE", 0, 0, 0, 0 },
 	{ "RESRVD_OP_MOOSH_08", 0, 0, 0, 0 },
 	{ "RESRVD_OP_MOOSH_09", 0, 0, 0, 0 },
 	{ "RESRVD_OP_MOOSH_10", 0, 0, 0, 0 },

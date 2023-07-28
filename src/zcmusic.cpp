@@ -1068,3 +1068,72 @@ int32_t unload_gme_file(GMEFILE* gme)
     return true;
 }
 
+ZCMIXER* zcmixer_create()
+{
+	ZCMIXER *mix = NULL;
+	if ((mix = (ZCMIXER*)malloc(sizeof(ZCMIXER))) == NULL)
+		return NULL;
+
+	mix->fadeinframes = 0;
+	mix->fadeinmaxframes = 0;
+	mix->fadeindelay = 0;
+	mix->fadeoutframes = 0;
+	mix->fadeoutmaxframes = 0;
+
+	mix->newtrack = NULL;
+	mix->oldtrack = NULL;
+
+	return mix;
+}
+void zcmixer_update(ZCMIXER* mix, int32_t basevol, int32_t uservol, bool oldscriptvol)
+{
+	if (mix == NULL)
+		return;
+
+	if (mix->fadeinframes)
+	{
+		--mix->fadeinframes;
+		if (mix->newtrack != NULL)
+		{
+			int32_t frames = vbound(mix->fadeinframes - mix->fadeindelay, 0, mix->fadeinframes);
+			int32_t pct = vbound((uint64_t(frames) * 10000) / uint64_t(mix->fadeinmaxframes), 0, 10000);
+			mix->newtrack->fadevolume = 10000 - pct;
+			int32_t temp_volume = basevol;
+			if (!oldscriptvol)
+				temp_volume = (basevol * uservol) / 10000 / 100;
+			temp_volume = (temp_volume * mix->newtrack->fadevolume) / 10000;
+			zcmusic_play(mix->newtrack, temp_volume);
+		}
+	}
+	if(mix->fadeoutframes)
+	{
+		--mix->fadeoutframes;
+		if (mix->oldtrack != NULL)
+		{
+			int32_t pct = vbound((uint64_t(mix->fadeoutframes) * 10000) / uint64_t(mix->fadeoutmaxframes), 0, 10000);
+			mix->oldtrack->fadevolume = pct;
+			int32_t temp_volume = basevol;
+			if (!oldscriptvol)
+				temp_volume = (basevol * uservol) / 10000 / 100;
+			temp_volume = (temp_volume * mix->oldtrack->fadevolume) / 10000;
+			zcmusic_play(mix->oldtrack, temp_volume);
+		}
+		if (mix->fadeoutframes == 0)
+		{
+			mix->newtrack = NULL;
+			zcmusic_stop(mix->oldtrack);
+			zcmusic_unload_file(mix->oldtrack);
+		}
+	}
+}
+void zcmixer_exit(ZCMIXER* &mix)
+{
+	if (mix == NULL) 
+		return;
+
+	zcmusic_unload_file(mix->oldtrack);
+	// newtrack is just zcmusic
+
+	free(mix);
+	mix = NULL;
+}

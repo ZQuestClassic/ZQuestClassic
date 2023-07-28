@@ -30,6 +30,7 @@ static AccessorTable AudioTable[] =
 	{ "SetMusicLoop",            0,          ZTID_VOID,   -1,                FL_INL,  { ZTID_AUDIO, ZTID_FLOAT, ZTID_FLOAT},{} },
 	{ "PlaySound",               1,          ZTID_VOID,   -1,                FL_INL,   { ZTID_AUDIO, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL },{ 0, -1, 0 } },
 	{ "GetSoundCompletion",      0,         ZTID_FLOAT,   -1,                FL_INL,   { ZTID_AUDIO, ZTID_FLOAT },{ } },
+	{ "CrossfadeEnhancedMusic",  0,          ZTID_BOOL,   -1,                FL_INL,   { ZTID_AUDIO, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ 0, 0 } },
 
 	{ "",                        0,          ZTID_VOID,   -1,          0,  {},{} }
 };
@@ -295,7 +296,7 @@ void AudioSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-	//void PlaySound(game, int32_t,int32_t,int32_t,bool)
+	//void PlaySound(game, int32_t,int32_t,int32_t,int32_t,bool)
 	{
 		Function* function = getFunction("PlaySound", 1);
 		int32_t label = function->getLabel();
@@ -319,6 +320,19 @@ void AudioSymbols::generateCode()
 		//pop pointer, and ignore it
 		POPREF();
 		addOpcode2(code, new OGetSoundCompletion(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void CrossfadeEnhancedMusic(game, int32_t,int32_t,int32_t,int32_t)
+	{
+		Function* function = getFunction("CrossfadeEnhancedMusic", 0);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2(code, new OCrossfadeEnhancedMusic());
+		LABELBACK(label);
+		POP_ARGS(6, NUL);
+		//pop pointer
+		POPREF();
 		RETURN();
 		function->giveCode(code);
 	}
