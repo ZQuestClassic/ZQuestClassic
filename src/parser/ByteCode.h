@@ -4952,6 +4952,17 @@ namespace ZScript
 		}
 	};
 
+	class OCrossfadeEnhancedMusic : public Opcode
+	{
+	public:
+		OCrossfadeEnhancedMusic() : Opcode() {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OCrossfadeEnhancedMusic();
+		}
+	};
+
 	class OGetDMapMusicFilename : public BinaryOpcode
 	{
 	public:

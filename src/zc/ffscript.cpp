@@ -136,6 +136,7 @@ void FFScript::Waitframe(bool allowwavy, bool sfxcleanup)
 	{
 		zcmusic_poll();
 	}
+	zcmixer_update(zcmixer, emusic_volume, FFCore.usr_music_volume, get_bit(quest_rules, qr_OLD_SCRIPT_VOLUME));
 	
 	while(Paused && !Advance && !Quit)
 	{
@@ -159,6 +160,7 @@ void FFScript::Waitframe(bool allowwavy, bool sfxcleanup)
 		{
 			zcmusic_poll();
 		}
+		zcmixer_update(zcmixer, emusic_volume, FFCore.usr_music_volume, get_bit(quest_rules, qr_OLD_SCRIPT_VOLUME));
 
 		update_hw_screen();
 	}
@@ -29526,6 +29528,7 @@ void FFScript::do_adjustvolume(const bool v)
 				int32_t temp_volume = emusic_volume;
 				if (!get_bit(quest_rules, qr_OLD_SCRIPT_VOLUME))
 					temp_volume = (emusic_volume * FFCore.usr_music_volume) / 10000 / 100;
+				temp_volume = (temp_volume * zcmusic->fadevolume) / 10000;
 				zcmusic_play(zcmusic, temp_volume);
 				return;
 			}
@@ -29625,6 +29628,82 @@ void do_enh_music(bool v)
 		ret=try_zcmusic(filename_char, track, -1000);
 		set_register(sarg2, ret ? 10000 : 0);
 	}
+}
+
+void do_enh_music_crossfade()
+{
+	int32_t arrayptr = SH::read_stack(ri->sp + 5) / 10000;
+	int32_t track = SH::read_stack(ri->sp + 4) / 10000;
+	int32_t fadeoutframes = zc_max(SH::read_stack(ri->sp + 3) / 10000, 0);
+	int32_t fadeinframes = zc_max(SH::read_stack(ri->sp + 2) / 10000, 0);
+	int32_t fademiddleframes = zc_max(SH::read_stack(ri->sp + 1) / 10000, 0);
+	int32_t startpos = SH::read_stack(ri->sp);
+
+	double fadeoutpct = 1.0;
+	if (zcmixer->fadeinframes > 0 && zcmixer->fadeinframes <= zcmixer->fadeinmaxframes)
+	{
+		fadeoutpct = (double(zcmixer->fadeinframes) / double(zcmixer->fadeinmaxframes));
+	}
+
+	if (zcmixer->oldtrack != NULL)
+	{
+		zcmusic_unload_file(zcmixer->oldtrack);
+		zcmixer->oldtrack = NULL;
+	}
+
+	if (arrayptr == 0)
+	{
+		zcmixer->oldtrack = zcmusic;
+		zcmixer->newtrack = NULL;
+		
+		zcmusic = zcmixer->newtrack;
+		zcmixer->fadeinframes = fadeinframes + fademiddleframes;
+		zcmixer->fadeinmaxframes = fadeinframes;
+		zcmixer->fadeindelay = fademiddleframes;
+		zcmixer->fadeoutframes = fadeoutframes * fadeoutpct;
+		zcmixer->fadeoutmaxframes = fadeoutframes;
+		if (zcmixer->oldtrack != NULL)
+			zcmixer->oldtrack->fadevolume = 10000;
+		if (zcmixer->newtrack != NULL)
+			zcmixer->newtrack->fadevolume = 0;
+	}
+	else // Pointer to a string..
+	{
+		zcmixer->oldtrack = zcmusic;
+		zcmixer->newtrack = NULL;
+
+		string filename_str;
+		char filename_char[256];
+		bool ret;
+		ArrayH::getString(arrayptr, filename_str, 256);
+		strncpy(filename_char, filename_str.c_str(), 255);
+		filename_char[255] = '\0';
+		ret = try_zcmusic_mix(zcmixer->newtrack, filename_char, track, -1000, 0);
+		if (ret)
+		{
+			zcmusic = zcmixer->newtrack;
+			zcmixer->fadeinframes = fadeinframes + fademiddleframes;
+			zcmixer->fadeinmaxframes = fadeinframes;
+			zcmixer->fadeindelay = fademiddleframes;
+			zcmixer->fadeoutframes = fadeoutframes;
+			zcmixer->fadeoutmaxframes = fadeoutframes;
+			if (startpos > 0)
+				zcmusic_set_curpos(zcmixer->newtrack, startpos);
+			if (zcmixer->oldtrack != NULL)
+				zcmixer->oldtrack->fadevolume = 10000;
+			if (zcmixer->newtrack != NULL)
+				zcmixer->newtrack->fadevolume = 0;
+		}
+		else
+		{
+			zcmusic = zcmixer->oldtrack;
+			zcmixer->newtrack = zcmixer->oldtrack;
+			zcmixer->oldtrack = NULL;
+		}
+		set_register(sarg2, ret ? 10000 : 0);
+	}
+
+
 }
 
 bool FFScript::doing_dmap_enh_music(int32_t dm)
@@ -34410,6 +34489,10 @@ j_command:
 
 			case SETENHMUSICLOOP:
 				FFCore.do_set_music_loop();
+				break;
+
+			case ENHCROSSFADE:
+				do_enh_music_crossfade();
 				break;
 			
 			case DIREXISTS:
@@ -41125,7 +41208,7 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "SETENHMUSICLOOP", 2, 0, 0, 0 },
 	{ "PLAYSOUNDEX", 0, 0, 0, 0 },
 	{ "GETSFXCOMPLETION", 1, 0, 0, 0 },
-	{ "RESRVD_OP_MOOSH_07", 0, 0, 0, 0 },
+	{ "ENHCROSSFADE", 0, 0, 0, 0 },
 	{ "RESRVD_OP_MOOSH_08", 0, 0, 0, 0 },
 	{ "RESRVD_OP_MOOSH_09", 0, 0, 0, 0 },
 	{ "RESRVD_OP_MOOSH_10", 0, 0, 0, 0 },

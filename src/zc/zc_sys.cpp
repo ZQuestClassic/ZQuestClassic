@@ -4586,6 +4586,7 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 	{
 		zcmusic_poll();
 	}
+	zcmixer_update(zcmixer, emusic_volume, FFCore.usr_music_volume, get_bit(quest_rules, qr_OLD_SCRIPT_VOLUME));
 	
 	updatescr(allowwavy);
 
@@ -4614,6 +4615,7 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 		{
 			zcmusic_poll();
 		}
+		zcmixer_update(zcmixer, emusic_volume, FFCore.usr_music_volume, get_bit(quest_rules, qr_OLD_SCRIPT_VOLUME));
 
 		update_hw_screen();
 	}
@@ -7855,6 +7857,10 @@ void music_pause()
 {
 	//al_pause_duh(tmplayer);
 	zcmusic_pause(zcmusic, ZCM_PAUSE);
+	if(zcmixer->oldtrack)
+		zcmusic_pause(zcmixer->oldtrack, ZCM_PAUSE);
+	if (zcmixer->newtrack)
+		zcmusic_pause(zcmixer->newtrack, ZCM_PAUSE);
 	zc_midi_pause();
 }
 
@@ -7862,6 +7868,10 @@ void music_resume()
 {
 	//al_resume_duh(tmplayer);
 	zcmusic_pause(zcmusic, ZCM_RESUME);
+	if (zcmixer->oldtrack)
+		zcmusic_pause(zcmixer->oldtrack, ZCM_RESUME);
+	if (zcmixer->newtrack)
+		zcmusic_pause(zcmixer->newtrack, ZCM_RESUME);
 	zc_midi_resume();
 }
 
@@ -7873,6 +7883,16 @@ void music_stop()
 	//tmplayer=NULL;
 	zcmusic_stop(zcmusic);
 	zcmusic_unload_file(zcmusic);
+	if (zcmixer->oldtrack)
+	{
+		zcmusic_stop(zcmixer->oldtrack);
+		zcmusic_unload_file(zcmixer->oldtrack);
+	}
+	//if (zcmixer->newtrack)
+	//{
+	//	zcmusic_stop(zcmixer->newtrack);
+	//	zcmusic_unload_file(zcmixer->newtrack);
+	//}
 	zc_stop_midi();
 	currmidi=-1;
 }
@@ -8103,6 +8123,9 @@ bool try_zcmusic(char *filename, int32_t track, int32_t midi)
 	// Found it
 	if(newzcmusic!=NULL)
 	{
+		newzcmusic->fadevolume = 10000;
+		zcmixer->newtrack = newzcmusic;
+
 		zcmusic_stop(zcmusic);
 		zcmusic_unload_file(zcmusic);
 		zc_stop_midi();
@@ -8111,6 +8134,7 @@ bool try_zcmusic(char *filename, int32_t track, int32_t midi)
 		int32_t temp_volume = emusic_volume;
 		if (!get_bit(quest_rules, qr_OLD_SCRIPT_VOLUME))
 			temp_volume = (emusic_volume * FFCore.usr_music_volume) / 10000 / 100;
+		temp_volume = (temp_volume * zcmusic->fadevolume) / 10000;
 		zcmusic_play(zcmusic, temp_volume);
 		
 		if(track>0)
@@ -8123,6 +8147,41 @@ bool try_zcmusic(char *filename, int32_t track, int32_t midi)
 	else if(midi>-1000)
 		jukebox(midi);
 		
+	return false;
+}
+
+// Same as above but changes an arbitrary music pointer rather than zcmusic
+// Used for crossfades
+bool try_zcmusic_mix(ZCMUSIC* &zcm, char* filename, int32_t track, int32_t midi, int32_t fadevol)
+{
+	ZCMUSIC* newzcmusic = zcmusic_load_for_quest(filename, qstpath);
+
+	// Found it
+	if (newzcmusic != NULL)
+	{
+		zcmusic_stop(zcm);
+		zcmusic_unload_file(zcm);
+		zc_stop_midi();
+
+		zcm = newzcmusic;
+		zcm->fadevolume = fadevol;
+
+		int32_t temp_volume = emusic_volume;
+		if (!get_bit(quest_rules, qr_OLD_SCRIPT_VOLUME))
+			temp_volume = (emusic_volume * FFCore.usr_music_volume) / 10000 / 100;
+		temp_volume = (temp_volume * zcm->fadevolume) / 10000;
+		zcmusic_play(zcm, temp_volume);
+
+		if (track > 0)
+			zcmusic_change_track(zcm, track);
+
+		return true;
+	}
+
+	// Not found, play MIDI - unless this was called by a script (yay, magic numbers)
+	else if (midi > -1000)
+		jukebox(midi);
+
 	return false;
 }
 

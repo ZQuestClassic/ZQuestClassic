@@ -197,6 +197,7 @@ extern byte Color;
 extern byte compile_tune;
 
 extern ZCMUSIC *zcmusic;
+extern ZCMIXER* zcmixer;
 extern volatile int32_t myvsync;
 
 extern int32_t fill_type;

@@ -43,6 +43,7 @@ typedef struct
     int32_t position;                                           // Only needed to sync Triforce jingle
     char filename[256];
     int32_t track;
+    int32_t fadevolume;
 #ifdef __EMSCRIPTEN__
     Mix_Music* mus;
 #endif
@@ -71,6 +72,22 @@ ZCM_EXTERN int32_t zcmusic_get_length(ZCMUSIC* zcm);
 ZCM_EXTERN void zcmusic_set_loop(ZCMUSIC* zcm, double start, double end);
 ZCM_EXTERN int32_t zcmusic_get_type(ZCMUSIC* zcm);
 
+typedef struct
+{
+    ZCMUSIC *newtrack;
+    ZCMUSIC *oldtrack;
+
+    int32_t fadeinframes;
+    int32_t fadeinmaxframes;
+    int32_t fadeindelay;
+
+    int32_t fadeoutframes;
+    int32_t fadeoutmaxframes;
+} ZCMIXER;
+
+ZCM_EXTERN ZCMIXER* zcmixer_create();
+ZCM_EXTERN void zcmixer_update(ZCMIXER* mix, int32_t basevol, int32_t uservol, bool oldscriptvol);
+ZCM_EXTERN void zcmixer_exit(ZCMIXER* &mix);
+
 #undef ZCM_EXTERN
 #endif
-

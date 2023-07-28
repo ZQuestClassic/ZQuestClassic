@@ -140,6 +140,7 @@ bool dev_timestmp = false;
 #endif
 
 ZCMUSIC *zcmusic = NULL;
+ZCMIXER *zcmixer = NULL;
 zinitdata zinit;
 int32_t colordepth;
 int32_t db=0;
@@ -4690,6 +4691,7 @@ int main(int argc, char **argv)
 	
 	Z_message("Initializing music... ");
 	zcmusic_init();
+	zcmixer = zcmixer_create();
 	Z_message("OK\n");
 	
 	//  int32_t mode = VidMode;                                       // from config file
@@ -5694,6 +5696,7 @@ void quit_game()
 	
 	al_trace("SFX... \n");
 	zcmusic_exit();
+	zcmixer_exit(zcmixer);
 	
 	for(int32_t i=0; i<WAV_COUNT; i++)
 	{
