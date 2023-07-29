@@ -8,6 +8,7 @@ src/items.cpp
 src/zq/questReport.cpp
 src/zq/ffasm.cpp
 src/zq/zquest.cpp
+src/zq/package.cpp
 src/zq/render.cpp
 src/tab_ctl.cpp
 src/tiles.cpp

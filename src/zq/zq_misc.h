@@ -326,5 +326,8 @@ int32_t onToggleDarkness();
 int32_t onIncMap();
 int32_t onDecMap();
 int32_t onDumpScr();
+
+int32_t onExport_Package();
+
 #endif
 

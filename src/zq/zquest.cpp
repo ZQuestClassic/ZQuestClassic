@@ -98,6 +98,7 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "zconsole/ConsoleLogger.h"
 #include "colorname.h"
 #include "zq/zq_hotkey.h"
+#include "zq/package.h"
 
 extern CConsoleLoggerEx parser_console;
 //Windows mmemory tools
@@ -856,7 +857,10 @@ static MENU export_graphics[]=
 
 static MENU export_menu[] =
 {
-    
+#ifdef _WIN32
+	{ (char *)"&Package",                   onExport_Package,             NULL,                     0,            NULL   },
+#endif
+
     { (char *)"&Enemies",                   onExport_Guys,             NULL,                     0,            NULL   },
     { (char *)"&Map",                       onExport_Map,              NULL,                     0,            NULL   },
     { (char *)"&DMaps",                       onExport_DMaps,              NULL,                     0,            NULL   },
@@ -29161,6 +29165,22 @@ int32_t main(int32_t argc,char **argv)
 	if (used_switch(argc, argv, "-headless") > 0)
 	{
 		set_headless_mode();
+	}
+
+	int package_arg = used_switch(argc, argv, "-package");
+	if (package_arg > 0)
+	{
+		if (package_arg + 3 > argc)
+		{
+			printf("%d\n", argc);
+			printf("expected -package <game.qst> <package name>\n");
+			exit(1);
+		}
+
+		const char* input_filename = argv[package_arg + 1];
+		const char* package_name = argv[package_arg + 2];
+		package_create(input_filename, package_name);
+		exit(0);
 	}
 
 	int copy_qst_arg = used_switch(argc, argv, "-copy-qst");

@@ -202,7 +202,7 @@ parser.add_argument('--retries', type=int, default=0,
     help='The number of retries (default 0) to give each replay')
 parser.add_argument('--jit', action=argparse.BooleanOptionalAction, default=True,
     help='Enables JIT compilation')
-parser.add_argument('--debugger', action=argparse.BooleanOptionalAction, default=True,
+parser.add_argument('--debugger', action=argparse.BooleanOptionalAction, default=is_ci,
     help='Run in debugger (uses lldb)')
 parser.add_argument('--headless', action=argparse.BooleanOptionalAction, default=True,
     help='Run without display or sound')

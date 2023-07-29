@@ -1,0 +1,14 @@
+{
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "collect": "TS_NODE_TRANSPILE_ONLY=1 node --experimental-json-modules --loader ts-node/esm collect.ts"
+    },
+    "dependencies": {
+        "@types/decompress": "^4.2.4",
+        "decompress": "^4.2.1",
+        "glob": "^10.3.3",
+        "puppeteer": "^20.9.0",
+        "ts-node": "^10.9.1"
+    }
+}

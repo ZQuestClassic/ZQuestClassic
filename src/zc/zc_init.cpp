@@ -208,40 +208,19 @@ std::string serialize_init_data_delta(zinitdata *base, zinitdata *changed)
 	return fmt::format("{}", fmt::join(tokens, " "));
 }
 
-// https://stackoverflow.com/a/5888676/2788187
-static size_t split(const std::string &txt, std::vector<std::string> &strs, char ch)
-{
-    size_t pos = txt.find( ch );
-    size_t initialPos = 0;
-    strs.clear();
-
-    // Decompose statement
-    while( pos != std::string::npos ) {
-        strs.push_back( txt.substr( initialPos, pos - initialPos ) );
-        initialPos = pos + 1;
-
-        pos = txt.find( ch, initialPos );
-    }
-
-    // Add the last one
-    strs.push_back( txt.substr( initialPos, std::min( pos, txt.size() ) - initialPos + 1 ) );
-
-    return strs.size();
-}
-
 zinitdata *apply_init_data_delta(zinitdata *base, std::string delta)
 {
 	zinitdata *result = new zinitdata(*base);
 
 	std::vector<std::string> tokens;
-	split(delta, tokens, ' ');
+	util::split(delta, tokens, ' ');
 	
 	#define FAIL_IF(x) if (x) { delete result; return nullptr; }
 
 	for (std::string token : tokens)
 	{
 		std::vector<std::string> kv;
-		split(token, kv, '=');
+		util::split(token, kv, '=');
 		FAIL_IF(kv.size() != 2);
 
 		errno = 0;
@@ -251,7 +230,7 @@ zinitdata *apply_init_data_delta(zinitdata *base, std::string delta)
 		if (kv[0].find('[') != kv[0].npos)
 		{
 			std::vector<std::string> name_index;
-			split(kv[0], name_index, '[');
+			util::split(kv[0], name_index, '[');
 
 			errno = 0;
 			int index = std::strtol(name_index[1].data(), nullptr, 10);

@@ -702,6 +702,16 @@ set_property(TARGET zlauncher PROPERTY VS_DPI_AWARE "PerMonitor")
 target_link_libraries(zlauncher PRIVATE allegro_with_legacy zcbase zcgui zconsolelogger ${LAUNCHERLIBSEXTRA})
 
 #############################################################
+# Standalone
+#############################################################
+
+if(WIN32)
+	add_executable(zstandalone src/standalone/standalone.cpp)
+	target_link_options(zstandalone PRIVATE "/SUBSYSTEM:WINDOWS")
+	add_dependencies(zquest zstandalone)
+endif()
+
+#############################################################
 # Emscripten
 #############################################################
 
@@ -770,6 +780,11 @@ if(WANT_FUZZ)
 	endforeach()
 endif()
 
+if (WIN32)
+	list(APPEND zc_targets zconsole zstandalone)
+	add_dependencies(zelda zconsole)
+endif()
+
 if(USE_PCH)
 	foreach(target IN LISTS zc_targets)
 		target_precompile_headers(${target}
@@ -791,10 +806,6 @@ if(USE_PCH)
 	endforeach()
 endif()
 
-if (WIN32)
-	list(APPEND zc_targets zconsole)
-	add_dependencies(zelda zconsole)
-endif()
 foreach(target IN LISTS zc_targets)
 	if(WIN32)
 		target_compile_definitions(${target} PRIVATE __STDC_LIMIT_MACROS)

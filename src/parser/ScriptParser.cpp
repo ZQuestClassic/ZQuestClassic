@@ -670,7 +670,7 @@ void ScriptParser::assemble(IntermediateData *id)
 					op = new OReturn(); //Replace 'Quit();' with 'return;'
 				}
 				else
-					op = op->makeClone(false);
+					op = op->makeClone(true);
 				if(!didlabel)
 				{
 					op->setLabel(funcaddr);

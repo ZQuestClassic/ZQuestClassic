@@ -145,7 +145,10 @@ void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 			case ZTID_SCREEN:
 				function.thisVar =
 					BuiltinConstant::create(functionScope, DataType::SCREEN, "this", 0);
+				break;
 			case ZTID_VOID:
+				function.thisVar =
+					BuiltinVariable::create(functionScope, DataType::ZVOID, "", 0);
 				break;
 			default:
 				DataType const* thisType = scope->getTypeStore().getType(thisTypeId);
