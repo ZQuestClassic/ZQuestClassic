@@ -26,7 +26,7 @@ memory = Memory(tmp_dir / 'memory', verbose=0)
 
 parser = argparse.ArgumentParser(
     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-parser.add_argument('--quest_database', type=Path)
+parser.add_argument('--quest_database', type=Path, default=tmp_dir / 'database/quests')
 parser.add_argument('--no_compat', action='store_true')
 parser.add_argument('--analyze_replay_tests', action='store_true')
 parser.add_argument('--build_folder', default='build/Release')
