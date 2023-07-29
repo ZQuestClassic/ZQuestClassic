@@ -20,6 +20,7 @@
 #include "qst.h"
 #include "base/zsys.h"
 #include "zq/zq_class.h"
+#include "zq/package.h"
 #include "dialog/info.h"
 #include "dialog/about.h"
 #include "drawing.h"
@@ -28,6 +29,7 @@
 #include <stdio.h>
 #include <sstream>
 #include "zinfo.h"
+#include <fmt/format.h>
 
 #include "metadata/metadata.h"
 
@@ -1188,3 +1190,12 @@ int32_t onIncMap();
 int32_t onDecMap();
 
 int32_t onDumpScr();
+
+int32_t onExport_Package()
+{
+    package_create(filepath, header.title);
+    std::string line1 = fmt::format("Package saved to packages/{}", header.title);
+    std::string line2 = "To learn about packaging, read docs/packaging_quests.md";
+    InfoDialog("Packaging Complete", { line1, line2 }).show();
+    return D_O_K;
+}

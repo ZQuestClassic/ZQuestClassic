@@ -3929,6 +3929,13 @@ bool load_custom_game(int32_t file)
 
 int32_t custom_game(int32_t file)
 {
+	if (!only_qstpath.empty())
+	{
+		strcpy(qstpath, only_qstpath.c_str());
+		chosecustomquest = true;
+		return true;
+	}
+
 	zquestheader h;
 	char infostr[200];
 	char path[2048];
@@ -4182,7 +4189,7 @@ static void select_game(bool skip = false)
 				load_qstpath = "";
 			}
 		}
-		
+
 		if(popup_choose_quest)
 		{
 			custom_game(saveslot);
