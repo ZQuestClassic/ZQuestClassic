@@ -633,6 +633,8 @@ gamedata *saves=NULL;
 
 // if set, the titlescreen will automatically create a new save with this quest.
 std::string load_qstpath;
+// if set, no file select is possible for the title screen, and only this quest apply to new saves.
+std::string only_qstpath;
 char header_version_nul_term[17];
 
 volatile int32_t lastfps=0;
@@ -4319,6 +4321,37 @@ void do_load_and_quit_command(const char* quest_path)
 
 int main(int argc, char **argv)
 {
+#ifdef _WIN32
+	// For purposes of packaging a standalone app.
+	if (used_switch(argc, argv, "-package"))
+	{
+		if (!std::filesystem::exists("zc_args.txt"))
+		{
+			Z_error_fatal("zc_args.txt does not exist");
+		}
+
+		auto ss = std::ostringstream{};
+		std::ifstream file("zc_args.txt");
+		ss << file.rdbuf();
+		std::vector<std::string> args;
+		args = util::split_args(ss.str());
+		args.insert(args.begin(), argv[0]);
+
+		argv = new char*[args.size()];
+		for (int index = 0; index < args.size(); index++)
+		{
+			argv[index] = strdup(args[index].c_str());
+		}
+		argc = args.size();
+	}
+#endif
+
+	int only_arg = used_switch(argc, argv, "-only");
+	if (only_arg)
+	{
+		only_qstpath = argv[only_arg+1];
+	}
+
 	common_main_setup(App::zelda, argc, argv);
 	set_should_zprint_cb([]() {
 		return get_qr(qr_SCRIPTERRLOG) || DEVLEVEL > 0;
@@ -4895,7 +4928,7 @@ int main(int argc, char **argv)
 		bool old_sbig2 = (argc>(res_arg+3))? stricmp(argv[res_arg+3],"big2")==0 : 0;
 	}
 	
-	//request_refresh_rate(60);
+	//request_refresh_rate(60);al_trace("Used switch: -fullscreen\n");
 	
 	//is the config file wrong (not zc.cfg!) here? -Z
 	if(used_switch(argc,argv,"-fullscreen") ||
