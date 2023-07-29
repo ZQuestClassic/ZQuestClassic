@@ -21301,7 +21301,7 @@ static int section_id_to_enum(int id)
 	return -1;
 }
 
-static int maybe_skip_section(PACKFILE* f, int section_id, const byte* skip_flags)
+static int maybe_skip_section(PACKFILE* f, dword& section_id, const byte* skip_flags)
 {
 	int section_enum = section_id_to_enum(section_id);
 	bool skip = section_enum >= 0 && get_bit(skip_flags, section_enum);
