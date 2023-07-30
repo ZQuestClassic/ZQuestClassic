@@ -3478,6 +3478,11 @@ void update_trig_group(int oldc, int newc)
 		--trig_groups[oldcmb.trig_group];
 }
 
+// void calculate_trig_groups()
+// {
+
+// }
+
 void calculate_trig_groups()
 {
 	memset(trig_groups, 0, sizeof(trig_groups));
@@ -3554,7 +3559,7 @@ void trig_trigger_groups()
 
 void init_combo_timers()
 {
-	clear_combo_posinfo();
+	// clear_combo_posinfo();
 	ffc_clear_cpos_info();
 }
 

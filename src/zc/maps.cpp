@@ -5564,7 +5564,8 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 	homescr = scr >= 0x80 ? heroscr : cur_origin_screen_index;
 	currscr = cur_origin_screen_index;
 
-	init_combo_timers();
+	// init_combo_timers();
+	clear_combo_posinfo();
 
 	FFCore.clear_script_engine_data_of_type(ScriptType::Screen);
 	FFCore.clear_combo_scripts();
@@ -5612,6 +5613,7 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 	}
 
 	init_ffpos();
+	init_combo_timers();
 
 	heroscr = scr;
 	hero_screen = get_scr_no_load(currmap, scr);
@@ -5625,6 +5627,9 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 		FFCore.reset_script_engine_data(ScriptType::FFC, ffc_handle.id);
 		memset(ffc_handle.ffc->script_misc, 0, 16 * sizeof(int32_t));
 	});
+
+	calculate_trig_groups();
+	trig_trigger_groups();
 
 	update_slope_comboposes();
 
@@ -5817,11 +5822,11 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 		}
 	}
 
-	if (!tmp)
-	{
-		calculate_trig_groups();
-		trig_trigger_groups();
-	}
+	// if (!tmp)
+	// {
+	// 	calculate_trig_groups();
+	// 	trig_trigger_groups();
+	// }
 
 	// Apply perm secrets, if applicable.
 	if(canPermSecret(destdmap,scr)/*||TheMaps[(currmap*MAPSCRS)+currscr].flags6&fTRIGGERFPERM*/)
@@ -5882,11 +5887,11 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 	
 	clear_xstatecombos(screen, scr);
 	
-	if(!tmp)
-	{
-		calculate_trig_groups();
-		trig_trigger_groups();
-	}
+	// if(!tmp)
+	// {
+	// 	calculate_trig_groups();
+	// 	trig_trigger_groups();
+	// }
 	// check doors
 	if(isdungeon(destdmap,scr))
 	{
