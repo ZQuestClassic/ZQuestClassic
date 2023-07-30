@@ -18468,8 +18468,7 @@ void addfires()
 {
 	if(!get_qr(qr_NOGUYFIRES))
 	{
-		int dy = z3_get_region_relative_dy(currscr)*176;
-		int dx = z3_get_region_relative_dx(currscr)*256;
+		auto [dx, dy] = translate_screen_coordinates_to_world(currscr);
 		int32_t bs = get_qr(qr_BSZELDA);
 		addguy(dx+(bs? 64: 72),dy+64,gFIRE,-17,false,nullptr);
 		addguy(dx+(bs?176:168),dy+64,gFIRE,-18,false,nullptr);
@@ -18503,8 +18502,7 @@ void loadguys(mapscr* screen, int screen_index)
 			game->maps[(currmap*MAPSCRSNORMAL)+screen_index] |= mVISITED;          // mark as visited
 	}
 	
-	int dx = z3_get_region_relative_dx(screen_index)*256;
-	int dy = z3_get_region_relative_dy(screen_index)*176;
+	auto [dx, dy] = translate_screen_coordinates_to_world(screen_index);
 
 	bool oldguy = get_qr(qr_OLD_GUY_HANDLING);
 	// The Guy appears if 'Hero is in cave' equals 'Guy is in cave'.
@@ -18845,8 +18843,7 @@ static void activate_fireball_statues(mapscr* screen, int screen_index)
 
 void load_default_enemies(mapscr* screen, int screen_index)
 {
-	int dx = z3_get_region_relative_dx(screen_index)*256;
-	int dy = z3_get_region_relative_dy(screen_index)*176;
+	auto [dx, dy] = translate_screen_coordinates_to_world(screen_index);
 
 	wallm_load_clk=frame-80;
 	
@@ -19107,8 +19104,7 @@ int32_t next_side_pos(int32_t screen_index, bool random)
 {
 	bool blocked;
 	int32_t c=0;
-	int offx = z3_get_region_relative_dx(screen_index)*256;
-	int offy = z3_get_region_relative_dy(screen_index)*176;
+	auto [offx, offy] = translate_screen_coordinates_to_world(screen_index);
 	
 	do
 	{
@@ -19304,8 +19300,7 @@ static void side_load_enemies(mapscr* screen, int screen_index)
 	if((++sle_clk+8)%24 == 0)
 	{
 		int32_t dir = next_side_pos(screen_index, sle_pattern==pSIDESR);
-		int x = sle_x + z3_get_region_relative_dx(screen_index)*256;
-		int y = sle_y + z3_get_region_relative_dy(screen_index)*176;
+		auto [x, y] = translate_screen_coordinates_to_world(screen_index, sle_x, sle_y);
 		
 		if(dir==-1 || tooclose(x,y,32))
 		{
@@ -19847,8 +19842,7 @@ void loadenemies()
 
 void moneysign()
 {
-	int dx = z3_get_region_relative_dx(currscr)*256;
-	int dy = z3_get_region_relative_dy(currscr)*176;
+	auto [dx, dy] = translate_screen_coordinates_to_world(currscr);
 	additem(dx+48,dy+108,iRupy,ipDUMMY);
 	set_clip_state(pricesdisplaybuf, 0);
 	textout_ex(pricesdisplaybuf,get_zc_font(font_zfont),"X",64,112,CSET(0)+1,-1);
@@ -19906,8 +19900,7 @@ void setupscreen()
 
 	word str=base_scr->str;
 
-	int dx = z3_get_region_relative_dx(currscr)*256;
-	int dy = z3_get_region_relative_dy(currscr)*176;
+	auto [dx, dy] = translate_screen_coordinates_to_world(currscr);
 	
 	// Prices are already set to 0 in dowarp()
 	switch(base_scr->room)
@@ -21645,8 +21638,7 @@ static void roaming_item(mapscr* screen, int screen_index)
 		
 		if((!getmapflag(screen_index, mITEM) || (screen->flags9&fITEMRETURN)) && (screen->hasitem != 0))
 		{
-			int x = z3_get_region_relative_dx(screen_index)*256;
-			int y = z3_get_region_relative_dy(screen_index)*176;
+			auto [x, y] = translate_screen_coordinates_to_world(screen_index);
 			additem(x,y,Item,ipENEMY+ipONETIME+ipBIGRANGE
 					+ (((screen->flags3&fHOLDITEM) || (itemsbuf[Item].family==itype_triforcepiece)) ? ipHOLDUP : 0)
 				   );

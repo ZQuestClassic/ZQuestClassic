@@ -614,6 +614,20 @@ ffc_handle_t get_ffc(int id)
 	return {screen, screen_index, id, id % MAXFFCS, ffc};
 }
 
+std::pair<int32_t, int32_t> translate_screen_coordinates_to_world(int screen_index, int x, int y)
+{
+	x += z3_get_region_relative_dx(screen_index) * 256;
+	y += z3_get_region_relative_dy(screen_index) * 176;
+	return {x, y};
+}
+
+std::pair<int32_t, int32_t> translate_screen_coordinates_to_world(int screen_index)
+{
+	int x = z3_get_region_relative_dx(screen_index) * 256;
+	int y = z3_get_region_relative_dy(screen_index) * 176;
+	return {x, y};
+}
+
 // You probably don't want to use these - use COMBOPOS_REGION instead.
 // Only use these EXTENDED functions if you want the index value to go like this:
 //     0 1 2 ... 14 15 (end screen 0x0) (start screen 1x0) 16 17 18 ...
@@ -2208,8 +2222,7 @@ bool reveal_hidden_stairs(mapscr *s, int32_t screen_index, bool redraw)
         
         if (redraw)
 		{
-			int x = s->stairx + z3_get_region_relative_dx(screen_index) * 256;
-			int y = s->stairy + z3_get_region_relative_dy(screen_index) * 176;
+			auto [x, y] = translate_screen_coordinates_to_world(screen_index, s->stairx, s->stairy);
             putcombo(scrollbuf,x,y,s->data[di],s->cset[di]);
 		}
             
@@ -2692,8 +2705,7 @@ void trigger_secrets_for_screen_internal(int32_t screen_index, mapscr *s, bool d
 							
 							if(combobuf[c].type==cSPINTILE1)  //Surely this means we can have spin tiles on layers 3+? Isn't that bad? ~Joe123
 							{
-								int offx = z3_get_region_relative_dx(screen_index) * 256 + COMBOX(i);
-								int offy = z3_get_region_relative_dy(screen_index) * 176 + COMBOY(i);
+								auto [offx, offy] = translate_screen_coordinates_to_world(screen_index, COMBOX(i), COMBOY(i));
 								addenemy(screen_index,offx,offy,(cs<<12)+eSPINTILE1,combobuf[c].o_tile+zc_max(1,combobuf[c].frames));
 							}
 						}
@@ -4161,8 +4173,7 @@ static void for_every_nearby_screen(const std::function <void (std::array<screen
 			mapscr* base_screen = get_scr(currmap, screen_index);
 			if (!(base_screen->valid & mVALID)) continue;
 
-			int offx = z3_get_region_relative_dx(screen_index) * 256;
-			int offy = z3_get_region_relative_dy(screen_index) * 176;
+			auto [offx, offy] = translate_screen_coordinates_to_world(screen_index);
 
 			// Skip processsing screen if out of viewport.
 			if (offx - viewport.x <= -256) continue;
@@ -5512,8 +5523,9 @@ void load_a_screen_and_layers(int dmap, int map, int screen_index, int ldir)
 		base_screen->ffcs[i].screen_index = screen_index;
 		if (is_z3_scrolling_mode())
 		{
-			base_screen->ffcs[i].x += z3_get_region_relative_dx(screen_index) * 256;
-			base_screen->ffcs[i].y += z3_get_region_relative_dy(screen_index) * 176;
+			auto [offx, offy] = translate_screen_coordinates_to_world(screen_index);
+			base_screen->ffcs[i].x += offx;
+			base_screen->ffcs[i].y += offy;
 		}
 	}
 }
@@ -5812,13 +5824,14 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 		}
 	}
 
+	auto [offx, offy] = translate_screen_coordinates_to_world(scr);
 	for (word i = 0; i < MAXFFCS; i++)
 	{
 		screen->ffcs[i].screen_index = scr;
 		if (is_z3_scrolling_mode())
 		{
-			screen->ffcs[i].x += z3_get_region_relative_dx(scr) * 256;
-			screen->ffcs[i].y += z3_get_region_relative_dy(scr) * 176;
+			screen->ffcs[i].x += offx;
+			screen->ffcs[i].y += offy;
 		}
 	}
 

@@ -143,6 +143,9 @@ mapscr* get_layer_scr_for_xy(int x, int y, int layer);
 
 ffc_handle_t get_ffc(int id);
 
+std::pair<int32_t, int32_t> translate_screen_coordinates_to_world(int screen_index, int x, int y);
+std::pair<int32_t, int32_t> translate_screen_coordinates_to_world(int screen_index);
+
 void debugging_box(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
 void clear_dmap(word i);
 void clear_dmaps();

@@ -21168,14 +21168,7 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 	int offx = 0;
 	int offy = 0;
 	if (!foundffc)
-	{
-		// TODO z3 !!!! can we have a better api for this?
-		// auto [x, y] = get_world_position(rpos_t);
-		// auto [x, y] = get_world_position(ffc);
-		// auto [x, y] = get_world_position_for_screen_index(scr);
-		offx = z3_get_region_relative_dx(scr) * 256;
-		offy = z3_get_region_relative_dx(scr) * 176;
-	}
+		std::tie(offx, offy) = translate_screen_coordinates_to_world(scr);
 	
 	byte signInput = 0;
 	bool didsign = false, didprompt = false;
@@ -31202,8 +31195,7 @@ void HeroClass::heroDeathAnimation()
 
 void HeroClass::ganon_intro()
 {
-	int offx = z3_get_region_relative_dx(heroscr)*256;
-	int offy = z3_get_region_relative_dy(heroscr)*176;
+	auto [offx, offy] = translate_screen_coordinates_to_world(heroscr);
 
     /*
     ************************
