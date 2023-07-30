@@ -1,4 +1,4 @@
-/* Zelda Classic Music Library        	*/
+/* ZQuest Classic Music Library        	*/
 /* ------------------------------------ */
 /* Wrapper for transparently extending	*/
 /* supported music file formats.      	*/

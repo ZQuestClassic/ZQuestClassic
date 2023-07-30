@@ -1,5 +1,5 @@
 //--------------------------------------------------------
-//  Zelda Classic
+//  ZQuest Classic
 //  by Jeremy Craner, 1999-2000
 //
 //  zq_class.cc
@@ -72,7 +72,7 @@ using std::pair;
 #define COLOR_LADDER vc(6)
 //#define COLOR_EFFECT vc(10)
 
-//const char zqsheader[30]="Zelda Classic String Table\n\x01";
+//const char zqsheader[30]="ZQuest Classic String Table\n\x01";
 extern char msgbuf[MSG_NEW_SIZE*8];
 
 extern string zScript;
