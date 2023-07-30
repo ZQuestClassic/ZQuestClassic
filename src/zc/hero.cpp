@@ -27637,8 +27637,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 
 	// change Hero's state if entering water
 	int32_t ahead = lookahead(scrolldir);
-	int32_t aheadflag = lookaheadflag(scrolldir);
-	// TODO z3
 	int32_t lookaheadx = vbound(x+8,0,240); //var = vbound(val, n1, n2), not bound(var, n1, n2) -Z
 	int32_t lookaheady = vbound(y + (bigHitbox?8:12),0,160);
 		//bound(cx, 0, 240); //Fix crash during screen scroll when Hero is moving too quickly through a corner - DarkDragon
@@ -27707,9 +27705,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		if(newscr->oceansfx != oldscr->oceansfx)	adjust_sfx(oldscr->oceansfx, 128, false);
 		
 		if(newscr->bosssfx != oldscr->bosssfx)	adjust_sfx(oldscr->bosssfx, 128, false);
-
-		// TODO z3 needed?
-		//homescr=heroscr;
 
 		//Preloaded ffc scripts
 		{

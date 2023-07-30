@@ -2891,17 +2891,15 @@ void show_ffscript_names()
 {
 	int32_t ypos = 8;
 	
-	word c = tmpscr->numFFC();
-	for(word i=0; i< c; i++)
-	{
-		// TODO z3 ffc
-		if(ypos > 224) break;
-		if(tmpscr->ffcs[i].script)
+	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+		if(ypos > 224) return;
+
+		if (ffc_handle.ffc->script)
 		{
-			textout_shadowed_ex(framebuf,font, ffcmap[tmpscr->ffcs[i].script-1].scriptname.c_str(),2,ypos,WHITE,BLACK,-1);
+			textout_shadowed_ex(framebuf,font, ffcmap[ffc_handle.ffc->script-1].scriptname.c_str(),2,ypos,WHITE,BLACK,-1);
 			ypos+=12;
 		}
-	}
+	});
 }
 
 void do_magic_casting()

@@ -1806,7 +1806,6 @@ bool iswater_type(int32_t type)
 
 bool iswater(int32_t combo)
 {
-	// TODO z3
     return iswater_type(combobuf[combo].type) && !DRIEDLAKE;
 }
 int32_t iswaterexzq(int32_t combo, int32_t map, int32_t screen, int32_t layer, int32_t x, int32_t y, bool secrets, bool fullcheck, bool LayerCheck)
@@ -6703,7 +6702,6 @@ bool hit_walkflag(int32_t x,int32_t y,int32_t cnt)
 		if(x<32 || y<40 || (x+(cnt-1)*8)>=world_w-32 || y>=world_h-32)
 			return true;
 	
-	// TODO z3 ?
 	if(blockpath && y<((get_qr(qr_LTTPCOLLISION))?80:88))
 		return true;
 		
