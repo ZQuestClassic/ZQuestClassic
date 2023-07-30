@@ -25,6 +25,7 @@
 #include "base/cpool.h"
 #include "base/packfile.h"
 #include "base/msgstr.h"
+#include "base/render.h"
 #include "base/zc_alleg.h"
 #include "base/misctypes.h"
 
@@ -4704,9 +4705,11 @@ int main(int argc, char **argv)
 	
 	debug_enabled = used_switch(argc,argv,"-d") && !strcmp(zc_get_config("zeldadx","debug",""),zeldapwd);
 	set_debug(debug_enabled);
-	
+
 	skipicon = standalone_mode || used_switch(argc,argv,"-quickload") || zc_get_config("zeldadx","skip_icons",0);
-	
+
+	render_set_debug(zc_get_config("graphics","render_debug",0));
+
 	int32_t load_save=0;
 	
 	load_save = used_switch(argc,argv,"-load");
