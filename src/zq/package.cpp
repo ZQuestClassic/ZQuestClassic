@@ -143,6 +143,7 @@ void package_create(std::string quest_path_, std::string package_name)
 
 	std::ofstream out(data_dir / "zc_args.txt", std::ios::binary);
 	out << "-only " << '"' << quest_path.filename().string() << '"';
+	out << "-window-title " << '"' << package_name << '"';
 	out << " -notitle";
 	out.close();
 

@@ -5029,9 +5029,13 @@ int main(int argc, char **argv)
 	render_zc();
 	
 	set_close_button_callback((void (*)()) hit_close_button);
-	set_window_title("Zelda Classic");
-	
-	
+
+	const char* window_title = "Zelda Classic";
+	int window_title_arg = used_switch(argc, argv, "-window-title");
+	if (window_title_arg > 0)
+		window_title = argv[window_title_arg + 1];
+	set_window_title(window_title);
+
 	fix_dialogs();
 	gui_mouse_focus = FALSE;
 	position_mouse(resx-16,resy-16);
