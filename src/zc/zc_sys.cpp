@@ -103,7 +103,7 @@ extern int32_t cheat_modifier_keys[4]; //two options each, default either contro
 //extern movingblock mblock2; //mblock[4]?
 //extern int32_t db;
 
-static const char *ZC_str = "Zelda Classic";
+static const char *ZC_str = "ZQuest Classic";
 extern char save_file_name[1024];
 #if defined(ALLEGRO_WINDOWS)
 const char *qst_dir_name = "win_qst_dir";
@@ -6163,7 +6163,7 @@ static MENU replay_menu[] =
 static DIALOG credits_dlg[] =
 {
 	/* (dialog proc)	   (x)   (y)   (w)   (h)   (fg)	 (bg)	 (key)	(flags)	(d1)	  (d2)	 (dp)	 (dp2) (dp3) */
-	{ jwin_win_proc,	   40,   38,   241,  173,  vc(14),  vc(1),   0,	   D_EXIT,	0,		0, (void *) "Zelda Classic Credits", NULL,  NULL },
+	{ jwin_win_proc,	   40,   38,   241,  173,  vc(14),  vc(1),   0,	   D_EXIT,	0,		0, (void *) "ZQuest Classic Credits", NULL,  NULL },
 	{ jwin_frame_proc,	 47,   65,   227,  115,  vc(15),  vc(1),   0,	   0,		 FR_DEEP,  0,	   NULL, NULL,  NULL },
 	{ d_bitmap_proc,	   49,   67,   222,  110,  vc(15),  vc(1),   0,	   0,		 0,		0,	   NULL, NULL,  NULL },
 	{ jwin_button_proc,	140,  184,  41,   21,   vc(14),  vc(1),   0,	   D_EXIT,	0,		0, (void *) "OK", NULL,  NULL },
@@ -7048,7 +7048,7 @@ int32_t onReset()
 
 int32_t onExit()
 {
-	if(queding(" Quit Zelda Classic? ",NULL,NULL)==1)
+	if(queding(" Quit ZQuest Classic? ",NULL,NULL)==1)
 	{
 		Quit=qEXIT;
 		return D_CLOSE;
@@ -7418,8 +7418,8 @@ static MENU game_menu[] =
 static MENU title_menu[] =
 {
 	{ (char *)"&Original",				 onTitle_NES,			  NULL,					  0, NULL },
-	{ (char *)"&Zelda Classic",			onTitle_DX,			   NULL,					  0, NULL },
-	{ (char *)"Zelda Classic &2.50",	   onTitle_25,			   NULL,					  0, NULL },
+	{ (char *)"&ZQuest Classic",			onTitle_DX,			   NULL,					  0, NULL },
+	{ (char *)"ZQuest Classic &2.50",	   onTitle_25,			   NULL,					  0, NULL },
 	{ NULL,								NULL,					 NULL,					  0, NULL }
 };
 

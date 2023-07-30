@@ -4922,10 +4922,11 @@ int main(int argc, char **argv)
 		//  if(useCD)
 		//    cd_exit();
 		quit_game();
-		Z_message("Armageddon Games web site: http://www.armageddongames.com\n");
-		Z_message("Zelda Classic web site: http://www.zeldaclassic.com\n");
-		Z_message("Zelda Classic wiki: http://www.shardstorm.com/ZCwiki/\n");
-			
+		//Z_message("Armageddon Games web site: http://www.armageddongames.com\n");
+		Z_message("ZQuest Classic web site: http://www.zeldaclassic.com\n");
+		Z_message("ZQuest Classic old wiki: https://web.archive.org/web/20210910193102/https://zeldaclassic.com/wiki\n");
+		Z_message("ZQuest Classic new wiki: https://github.com/ArmageddonGames/ZQuestClassic/wiki\n");
+		
 		skipcont = 0;
 		if(forceExit) //fix for the allegro at_exit() hang.
 			exit(0);
@@ -4973,7 +4974,7 @@ int main(int argc, char **argv)
 	
 	if(!game_vid_mode(tempmode, wait_ms_on_set_graphics))
 	{
-		al_trace("Fatal Error: could not create a window for Zelda Classic.\n");
+		al_trace("Fatal Error: could not create a window for ZQuest Classic.\n");
 		Z_error_fatal(allegro_error);
 	}
 	else
@@ -5030,7 +5031,7 @@ int main(int argc, char **argv)
 	
 	set_close_button_callback((void (*)()) hit_close_button);
 
-	const char* window_title = "Zelda Classic";
+	const char* window_title = "ZQuest Classic";
 	int window_title_arg = used_switch(argc, argv, "-window-title");
 	if (window_title_arg > 0)
 		window_title = argv[window_title_arg + 1];
@@ -5601,9 +5602,10 @@ reload_for_replay_file:
 	//  if(useCD)
 	//    cd_exit();
 	quit_game();
-	Z_message("Armageddon Games web site: http://www.armageddongames.com\n");
-	Z_message("Zelda Classic web site: http://www.zeldaclassic.com\n");
-	Z_message("Zelda Classic wiki: http://www.shardstorm.com/ZCwiki/\n");
+	//Z_message("Armageddon Games web site: http://www.armageddongames.com\n");
+	Z_message("ZQuest Classic web site: http://www.zeldaclassic.com\n");
+	Z_message("ZQuest Classic old wiki: https://web.archive.org/web/20210910193102/https://zeldaclassic.com/wiki\n");
+	Z_message("ZQuest Classic new wiki: https://github.com/ArmageddonGames/ZQuestClassic/wiki\n");
 	
 	skipcont = 0;
 	
