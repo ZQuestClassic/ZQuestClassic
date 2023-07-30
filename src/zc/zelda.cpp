@@ -63,6 +63,7 @@
 #include "dialog/info.h"
 #include "zc/replay.h"
 #include "zc/cheats.h"
+#include "zc/saves.h"
 #include "base/zc_math.h"
 #include <fmt/format.h>
 #include <fmt/std.h>
@@ -403,7 +404,7 @@ byte forceExit=0,zc_vsync=0;
 byte zc_color_depth=8;
 byte use_win32_proc=1, zasm_debugger = 0, zscript_debugger = 0; //windows-build configs
 int32_t homescr,currscr,frame=0,currmap=0,dlevel,warpscr,worldscr,scrolling_scr=0,scrolling_map=0;
-int32_t newscr_clk=0,opendoors=0,currdmap=0,fadeclk=-1,currgame=0,listpos=0;
+int32_t newscr_clk=0,opendoors=0,currdmap=0,fadeclk=-1,listpos=0;
 int32_t lastentrance=0,lastentrance_dmap=0,prices[3]= {0},loadside = 0, Bwpn = 0, Awpn = 0, Xwpn = 0, Ywpn = 0;
 int32_t digi_volume = 0,midi_volume = 0,sfx_volume = 0,emusic_volume = 0,currmidi = -1,hasitem = 0,whistleclk = 0,pan_style = 0;
 bool analog_movement=true;
@@ -541,14 +542,14 @@ void initZScriptArrayRAM(bool firstplay)
     else
     {
         //allocate from save file
-        game->globalRAM.resize(saves[currgame].globalRAM.size());
+        game->globalRAM.resize(saves_get_data()->globalRAM.size());
         
         for(dword i = 0; i < game->globalRAM.size(); i++)
         {
 #ifdef _DEBUGARRAYALLOC
             al_trace("Global Array: %i\n",i);
 #endif
-            ZScriptArray &from = saves[currgame].globalRAM[i];
+            const ZScriptArray &from = saves_get_data()->globalRAM[i];
             ZScriptArray &to = game->globalRAM[i];
             to.Resize(from.Size());
             
@@ -632,7 +633,6 @@ dword               quest_map_pos[MAPSCRS*MAXMAPS2]={0};
 
 char     *qstpath=NULL;
 char     *qstdir=NULL;
-gamedata *saves=NULL;
 
 // if set, the titlescreen will automatically create a new save with this quest.
 std::string load_qstpath;
@@ -1702,7 +1702,7 @@ int32_t init_game()
 
 	FFCore.user_objects_init();
 	//Copy saved data to RAM data (but not global arrays)
-	game->Copy(saves[currgame]);
+	game->Copy(*saves_get_data());
 	game->load_user_objects();
 	bool firstplay = (game->get_hasplayed() == 0);
 
@@ -1715,7 +1715,7 @@ int32_t init_game()
 	{
 		if (firstplay && replay_new_saves)
 		{
-			std::string replay_path = create_replay_path_for_save(&saves[currgame]);
+			std::string replay_path = create_replay_path_for_save(game);
 			enter_sys_pal();
 			if (jwin_alert("Recording",
 				"You are about to create a new recording at:",
@@ -1723,7 +1723,7 @@ int32_t init_game()
 				"Do you wish to record this save file?",
 				"Yes","No",13,27,get_zc_font(font_lfont))==1)
 			{
-				saves[currgame].replay_file = replay_path;
+				game->replay_file = replay_path;
 				replay_start(ReplayMode::Record, replay_path, -1);
 				replay_set_debug(replay_debug);
 				replay_set_sync_rng(true);
@@ -1733,19 +1733,19 @@ int32_t init_game()
 			}
 			exit_sys_pal();
 		}
-		else if (!firstplay && !saves[currgame].replay_file.empty())
+		else if (!firstplay && !game->replay_file.empty())
 		{
-			if (!std::filesystem::exists(saves[currgame].replay_file))
+			if (!std::filesystem::exists(game->replay_file))
 			{
 				std::string msg = fmt::format("Replay file {} does not exist. Cannot continue recording.",
-					saves[currgame].replay_file);
+					game->replay_file);
 				enter_sys_pal();
 				jwin_alert("Recording",msg.c_str(),NULL,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
 				exit_sys_pal();
 			}
 			else
 			{
-				replay_continue(saves[currgame].replay_file);
+				replay_continue(game->replay_file);
 			}
 		}
 	}
@@ -1817,10 +1817,6 @@ int32_t init_game()
 	flushItemCache();
 	ResetSaveScreenSettings();
 	
-	//ResetSaveScreenSettings();
-	
-	//Load the quest
-	//setPackfilePassword(datapwd);
 	int32_t ret = load_quest(game);
 	if(ret != qe_OK)
 	{
@@ -4925,7 +4921,7 @@ int main(int argc, char **argv)
 		{
 			pan_style = (int32_t)FFCore.usr_panstyle;
 		}
-		save_savedgames();
+		saves_write();
 		save_game_configs();
 		set_gfx_mode(GFX_TEXT,80,25,0,0);
 		//rest(250); // ???
@@ -5209,7 +5205,7 @@ int main(int argc, char **argv)
 		}
 	}
 
-	init_saves();
+	saves_init();
 
 #ifdef __EMSCRIPTEN__
 	QueryParams params = get_query_params();
@@ -5221,7 +5217,7 @@ int main(int argc, char **argv)
 	{
 		std::string qstpath_to_load = std::string("_quests/").append(params.quest);
 
-		if (load_savedgames() != 0)
+		if (saves_load() != 0)
 		{
 			Z_error_fatal("Insufficient memory");
 			quit_game();
@@ -5271,9 +5267,6 @@ int main(int argc, char **argv)
 	
 	rgb_map = &rgb_table;
 	
-	// set up an initial game save slot (for the list_saves function)
-	game = new gamedata();
-	
 	DEBUG_PRINT_ZASM = zc_get_config("ZSCRIPT", "print_zasm", false);
 	DEBUG_JIT_PRINT_ASM = zc_get_config("ZSCRIPT", "jit_print_asm", false);
 	DEBUG_JIT_EXIT_ON_COMPILE_FAIL = zc_get_config("ZSCRIPT", "jit_exit_on_failure", false);
@@ -5312,7 +5305,7 @@ reload_for_replay_file:
 	{
 		// load saved games
 		zprint2("Loading Saved Games\n");
-		if(load_savedgames() != 0)
+		if(saves_load() != 0)
 		{
 			Z_error_fatal("Insufficient memory");
 		}
@@ -5321,29 +5314,30 @@ reload_for_replay_file:
 
 	if (zqtesting_mode || replay_is_active())
 	{
-		currgame = 0;
-		saves[0].Clear();
+		saves_select(0);
+		gamedata* save0 = saves_get_data_mutable(0);
+		save0->Clear();
 		if (use_testingst_start)
 		{
-			saves[0].set_continue_dmap(testingqst_dmap);
-			saves[0].set_continue_scrn(testingqst_screen);
+			save0->set_continue_dmap(testingqst_dmap);
+			save0->set_continue_scrn(testingqst_screen);
 		}
 		else
 		{
-			saves[0].set_continue_scrn(0xFF);
+			save0->set_continue_scrn(0xFF);
 		}
-		strcpy(saves[0].qstpath, testingqst_name.c_str());
-		saves[0].set_quest(0xFF);
+		strcpy(save0->qstpath, testingqst_name.c_str());
+		save0->set_quest(0xFF);
 		if (replay_is_active())
 		{
 			std::string replay_name = replay_get_meta_str("name", "Hero");
-			saves[0].set_name(replay_name.c_str());
+			save0->set_name(replay_name.c_str());
 		}
 		else
 		{
-			saves[0].set_name("Hero");
+			save0->set_name("Hero");
 		}
-		saves[0].set_timevalid(1);
+		save0->set_timevalid(1);
 		if (use_testingst_start)
 			Z_message("Test mode: \"%s\", %d, %d\n", testingqst_name.c_str(), testingqst_dmap, testingqst_screen);
 		if (replay_is_active())
@@ -5614,7 +5608,7 @@ reload_for_replay_file:
 	{
 		pan_style = (int32_t)FFCore.usr_panstyle;
 	}
-	save_savedgames();
+	saves_write();
 	if (replay_get_mode() == ReplayMode::Record) replay_save();
 	save_game_configs();
 	set_gfx_mode(GFX_TEXT,80,25,0,0);
@@ -5668,7 +5662,8 @@ void quit_game()
 	
 	al_trace("Freeing Data: \n");
 	
-	if(game) delete game;
+	free(game);
+	game = NULL;
 	
 	if(datafile) unload_datafile(datafile);
 	

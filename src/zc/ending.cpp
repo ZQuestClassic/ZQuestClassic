@@ -27,8 +27,10 @@
 #include "init.h"
 #include "gamedata.h"
 #include "zc/ffscript.h"
+#include "zc/saves.h"
 #include "zinfo.h"
 #include "base/misctypes.h"
+
 extern FFScript FFCore;
 extern ZModule zcm; //modules
 extern zcmodule moduledata;
@@ -631,27 +633,10 @@ void ending()
 	load_quest(game);
 	//  setPackfilePassword(NULL);
 	game->save_user_objects();
-	saves[currgame] = *game;
-	int32_t ring=0;
-	flushItemCache();
-	int32_t maxringid = getHighestLevelOfFamily(game, itemsbuf, itype_ring);
-	
-	if(maxringid != -1)
-	{
-		ring = itemsbuf[maxringid].fam_type;
-	}
-	
-	if (ring > 0)
-	{
-		--ring;
-	}
-	load_game_icon_to_buffer_manual(false,currgame,ring);
-	load_game_icon(saves+currgame,false,currgame);
-	
 	game->set_continue_dmap(zinit.start_dmap);
 	game->set_continue_scrn(0xFF);
 	game->set_cont_hearts(zinit.cont_heart);
-	save_savedgames();
+	saves_write();
 	if (replay_get_mode() == ReplayMode::Record) replay_save();
 }
 
@@ -760,28 +745,12 @@ void ending_scripted()
 	strncpy(game->title,QHeader.title, sizeof(QHeader.title)-1);
 	//  setPackfilePassword(NULL);
 	game->save_user_objects();
-	saves[currgame] = *game;
-	int32_t ring=0;
-	flushItemCache();
-	int32_t maxringid = getHighestLevelOfFamily(game, itemsbuf, itype_ring);
-	
-	if(maxringid != -1)
-	{
-		ring = itemsbuf[maxringid].fam_type;
-	}
-	
-	if (ring > 0)
-	{
-		--ring;
-	}
-	load_game_icon_to_buffer_manual(false,currgame,ring);
-	load_game_icon(saves+currgame,false,currgame);
     
 	game->set_continue_dmap(zinit.start_dmap);
 	game->set_continue_scrn(0xFF);
 	game->set_cont_hearts(zinit.cont_heart);
 	game->set_hasplayed(false);
-	save_savedgames();
+	saves_write();
 	if (replay_get_mode() == ReplayMode::Record) replay_save();
 }
 
@@ -835,20 +804,4 @@ void inc_quest()
 	game->set_continue_scrn(moduledata.startingscreen[quest-1]);
 	resetItems(game,&zinit,true);
 	load_quest(game);
-	int32_t ring=0;
-	flushItemCache();
-	int32_t maxringid = getHighestLevelOfFamily(game, itemsbuf, itype_ring);
-	
-	if(maxringid != -1)
-	{
-		ring = itemsbuf[maxringid].fam_type;
-	}
-	
-	if (ring > 0)
-	{
-		--ring;
-	}
-	load_game_icon_to_buffer_manual(false,currgame,ring);
-	load_game_icon(saves+currgame,false,currgame);
 }
-

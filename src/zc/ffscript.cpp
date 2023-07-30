@@ -29953,10 +29953,10 @@ void do_setsavename()
 			break;
 		}
 		
-		game->get_name()[j] = str[j];
+		game->get_name_mutable()[j] = str[j];
 	}
 	
-	game->get_name()[j] = '\0';
+	game->get_name_mutable()[j] = '\0';
 }
 
 void do_getmessage(const bool v)

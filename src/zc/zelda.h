@@ -389,7 +389,7 @@ extern int32_t slot_arg, slot_arg2;
 extern char *SAVE_FILE;
 
 extern int32_t homescr,currscr,frame,currmap,dlevel,warpscr,worldscr,scrolling_scr,scrolling_map;
-extern int32_t newscr_clk,opendoors,currdmap,fadeclk,currgame,listpos;
+extern int32_t newscr_clk,opendoors,currdmap,fadeclk,listpos;
 extern int32_t lastentrance,lastentrance_dmap, prices[3],loadside, Bwpn, Awpn, Xwpn, Ywpn;
 extern int32_t digi_volume,midi_volume,sfx_volume,emusic_volume,currmidi,hasitem,whistleclk,pan_style;
 extern bool analog_movement;
@@ -501,7 +501,6 @@ extern int32_t  mouse_down;                                     // used to hold 
 extern int32_t idle_count, active_count;
 extern char *qstpath;
 extern char *qstdir;
-extern gamedata *saves;
 extern gamedata *game;
 
 extern std::string load_qstpath;
