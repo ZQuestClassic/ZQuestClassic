@@ -26701,16 +26701,6 @@ int32_t HeroClass::lookahead(int32_t d2)                       // Helper for scr
         break;
     }
 
-	// TODO z3 !!!!! rm if yuurand works
-	if (!is_z3_scrolling_mode())
-	{
-		int32_t combo = (cy&0xF0)+(cx>>4);
-		if(combo>175)
-			return 0;
-
-		return tmpscr->data[combo];
-	}
-
 	auto [map, screen_index] = nextscr2(d2);
 	if (map == -1)
 		return 0;
