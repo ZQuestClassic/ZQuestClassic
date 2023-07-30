@@ -3,6 +3,8 @@
 
 #include "base/zc_alleg.h"
 #include <vector>
+#include <string>
+
 extern unsigned char info_opacity;
 
 class RenderTreeItemProps
@@ -16,6 +18,7 @@ public:
 class RenderTreeItem
 {
 public:
+	std::string name;
 	RenderTreeItemProps transform;
 	RenderTreeItemProps computed;
 	bool visible = true;
@@ -27,7 +30,8 @@ public:
 	ALLEGRO_COLOR* tint = nullptr;
 	std::vector<RenderTreeItem*> children;
 	bool owned = false;
-	
+
+	RenderTreeItem(std::string name);
 	~RenderTreeItem();
 	
 	int global_to_local_x(int x)
@@ -56,6 +60,16 @@ public:
 	}
 };
 
+enum class TextJustify {
+	left,
+	right,
+};
+enum class TextAlign {
+	top,
+	bottom,
+};
+void render_text_lines(ALLEGRO_FONT* font, std::vector<std::string> lines, TextJustify justify, TextAlign align, int scale);
+
 namespace MouseSprite
 {
 	#define MAX_MOUSESPRITE 35
@@ -73,6 +87,9 @@ void clear_a5_bmp(ALLEGRO_BITMAP* bmp = nullptr);
 void clear_a5_bmp(ALLEGRO_COLOR col, ALLEGRO_BITMAP* bmp = nullptr);
 ALLEGRO_BITMAP* create_a5_bitmap(int w, int h);
 void render_tree_draw(RenderTreeItem* rti);
+void render_tree_draw_debug(RenderTreeItem* rti);
+void render_set_debug(bool debug);
+bool render_get_debug();
 
 void _init_render(int fmt);
 uint32_t get_backend_a5_col(RGB const& c);

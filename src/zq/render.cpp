@@ -5,10 +5,10 @@
 extern int32_t prv_mode;
 extern bool DragAspect;
 
-static RenderTreeItem rti_root;
-static RenderTreeItem rti_screen;
-static RenderTreeItem rti_mmap;
-static RenderTreeItem rti_tooltip;
+static RenderTreeItem rti_root("root");
+static RenderTreeItem rti_screen("screen");
+static RenderTreeItem rti_mmap("mmap");
+static RenderTreeItem rti_tooltip("tooltip");
 
 static int zc_gui_mouse_x()
 {
@@ -136,6 +136,8 @@ void render_zq()
 	al_clear_to_color(al_map_rgb_f(0, 0, 0));
 	
 	render_tree_draw(&rti_root);
+	if (render_get_debug())
+		render_tree_draw_debug(&rti_root);
 
 	al_flip_display();
 	

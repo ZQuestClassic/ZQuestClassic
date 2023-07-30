@@ -214,6 +214,8 @@ int32_t main(int32_t argc, char* argv[])
 	Z_message("Loading configs...");
 	gui_colorset = zc_get_config("ZLAUNCH","gui_colorset",99);
 	Z_message("OK\n");
+
+	render_set_debug(zc_get_config("graphics","render_debug",0));
 	
 	Z_message("Initializing palette...");
 	init_launcher_palette();
@@ -489,8 +491,8 @@ void myvsync_callback()
 }
 END_OF_FUNCTION(myvsync_callback)
 
-static RenderTreeItem rti_root;
-static RenderTreeItem rti_screen;
+static RenderTreeItem rti_root("root");
+static RenderTreeItem rti_screen("screen");
 
 static int zc_gui_mouse_x()
 {
