@@ -1353,7 +1353,7 @@ void HeroSuperDebug()
 
 	return;
 
-	SUPER_DEBUG_(action);
+	// SUPER_DEBUG_(action);
 	SUPER_DEBUG_(active_shield_id);
 	SUPER_DEBUG_(angle);
 	SUPER_DEBUG_(angular);
@@ -1518,7 +1518,7 @@ void HeroSuperDebug()
 	SUPER_DEBUG_(switchhookstyle);
 	SUPER_DEBUG_(swordclk);
 	SUPER_DEBUG_(tapping);
-	SUPER_DEBUG_(tempaction);
+	// SUPER_DEBUG_(tempaction);
 	SUPER_DEBUG_(tile);
 	SUPER_DEBUG_(tliftclk);
 	SUPER_DEBUG_(txsz);
