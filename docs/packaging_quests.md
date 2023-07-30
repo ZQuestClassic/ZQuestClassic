@@ -22,9 +22,12 @@ This is located in the `packages` folder of the root installation folder.
 
 Double clicking `My Game.exe` launches `./data/zelda.exe` with the CLI
 switches listed in `zc_args.txt`. By default, the export tool provides
-these switches: `-only game.qst -notitle`. You can set whatever else
-you like. For example, if you want to skip the save file screen entirely,
-you can use `-standalone` instead of `-only`.
+these switches:
+
+> `-only game.qst -notitle -window-title "My Game"`
+
+You can set whatever else you like. For example, if you want to skip the
+save file screen entirely, you can use `-standalone` instead of `-only`.
 
 Every time a package export is done in ZQuest, the folder is created
 from scratch.

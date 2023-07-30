@@ -84,7 +84,7 @@ def get_build_folder():
             root_dir / 'build/Release',
             root_dir / 'build/Debug',
         ]
-        targets = ['zelda', 'zquest', 'zlauncher', 'zscript']
+        targets = [get_exe_name(x) for x in ['zelda', 'zquest', 'zlauncher', 'zscript']]
         def get_mtime(path: Path):
             if path.exists():
                 return path.stat().st_mtime

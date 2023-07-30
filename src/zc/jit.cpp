@@ -1342,11 +1342,20 @@ static JittedFunction compile_script(script_data *script)
 		{
 			x86::Gp dividend = get_z_register(state, cc, vStackIndex, arg1);
 			x86::Gp divisor = get_z_register(state, cc, vStackIndex, arg2);
+
+			Label do_set_register = cc.newLabel();
+
 			x86::Gp rem = cc.newInt32();
 			zero(cc, rem);
+
+			// Prevent division by zero. Result will be zero.
+			cc.test(divisor, divisor);
+			cc.jz(do_set_register);
+
 			cc.cdq(rem, dividend);
-			// TODO division by zero
 			cc.idiv(rem, dividend, divisor);
+
+			cc.bind(do_set_register);
 			set_z_register(state, cc, vStackIndex, arg1, rem);
 		}
 		break;

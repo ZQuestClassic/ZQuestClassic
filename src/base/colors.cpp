@@ -1,10 +1,10 @@
 //--------------------------------------------------------
-//  Zelda Classic
+//  ZQuest Classic
 //  by Jeremy Craner, 1999-2000
 //
 //  colors.cc
 //
-//  Palette data for Zelda Classic.
+//  Palette data for ZQuest Classic.
 //
 //--------------------------------------------------------
 

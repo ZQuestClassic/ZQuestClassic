@@ -1,11 +1,11 @@
 //--------------------------------------------------------
-//  Zelda Classic
+//  ZQuest Classic
 //  by Jeremy Craner, 1999-2000
 //
 //  zc_sys.h
 //
 //  System functions, input handlers, GUI stuff, etc.
-//  for Zelda Classic.
+//  for ZQuest Classic.
 //
 //--------------------------------------------------------
 
