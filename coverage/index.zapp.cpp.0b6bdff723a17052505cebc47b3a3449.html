@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2023-07-27 08:48:28</td>
+      <td>2023-07-30 03:30:09</td>
     </tr>
   </table>
 </div>
@@ -114,7 +114,7 @@
         <a href="#l95">95</a>
       </td>
       <td>
-        <a href="#l95"> called 24352 times</a>
+        <a href="#l95"> called 23153 times</a>
       </td>
     </tr>
     <tr>
@@ -163,24 +163,24 @@
     </tr>
     <tr>
       <td>
-        <a href="#l225">zapp_reporting_set_tag(char const*, char const*)</a>
+        <a href="#l226">zapp_reporting_set_tag(char const*, char const*)</a>
       </td>
       <td>
-        <a href="#l225">225</a>
+        <a href="#l226">226</a>
       </td>
       <td>
-        <a href="#l225"> called 375 times</a>
+        <a href="#l226"> called 375 times</a>
       </td>
     </tr>
     <tr>
       <td>
-        <a href="#l232">zapp_reporting_set_tag(char const*, int)</a>
+        <a href="#l233">zapp_reporting_set_tag(char const*, int)</a>
       </td>
       <td>
-        <a href="#l232">232</a>
+        <a href="#l233">233</a>
       </td>
       <td>
-        <a href="#l232"> called 20091 times</a>
+        <a href="#l233"> called 20091 times</a>
       </td>
     </tr>
     <tr>
@@ -899,7 +899,7 @@
       <td class="lineno"><a id="l95" href="#l95">95</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">24352</td>
+      <td class="linecount coveredLine">23153</td>
       <td class="src coveredLine"><span class="kt">bool</span><span class="w"> </span><span class="nf">is_ci</span><span class="p">()</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
@@ -923,20 +923,20 @@
         <summary class="linebranchSummary">3/4</summary>
         <div class="linebranchContents">
           <div class="takenBranch">&check; Branch 0 taken 42 times.</div>
-          <div class="takenBranch">&check; Branch 1 taken 24310 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 23111 times.</div>
           <div class="takenBranch">&check; Branch 2 taken 42 times.</div>
           <div class="notTakenBranch">&cross; Branch 3 not taken.</div>
         </div>
         </details>
       </td>
-      <td class="linecount coveredLine">24352</td>
+      <td class="linecount coveredLine">23153</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">static</span><span class="w"> </span><span class="kt">bool</span><span class="w"> </span><span class="n">state</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">getenv</span><span class="p">(</span><span class="s">&quot;CI&quot;</span><span class="p">)</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="k">nullptr</span><span class="p">;</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l99" href="#l99">99</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">24352</td>
+      <td class="linecount coveredLine">23153</td>
       <td class="src coveredLine"><span class="w">	</span><span class="k">return</span><span class="w"> </span><span class="n">state</span><span class="p">;</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
@@ -1770,7 +1770,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">125</td>
-      <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="nf">zapp_reporting_add_breadcrumb</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">type</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">message</span><span class="p">)</span><span class="w"></span></td>
+      <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="nf">zapp_reporting_add_breadcrumb</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">category</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">message</span><span class="p">)</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l218" href="#l218">218</a></td>
@@ -1791,129 +1791,136 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">sentry_value_t</span><span class="w"> </span><span class="n">crumb</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sentry_value_new_breadcrumb</span><span class="p">(</span><span class="n">type</span><span class="p">,</span><span class="w"> </span><span class="n">message</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="n">sentry_value_t</span><span class="w"> </span><span class="n">crumb</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sentry_value_new_breadcrumb</span><span class="p">(</span><span class="s">&quot;info&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">message</span><span class="p">);</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l221" href="#l221">221</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">sentry_add_breadcrumb</span><span class="p">(</span><span class="n">crumb</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="w">	</span><span class="n">sentry_value_set_by_key</span><span class="p">(</span><span class="n">crumb</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;category&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">sentry_value_new_string</span><span class="p">(</span><span class="n">category</span><span class="p">));</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l222" href="#l222">222</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#endif</span></td>
+      <td class="src "><span class="w">	</span><span class="n">sentry_add_breadcrumb</span><span class="p">(</span><span class="n">crumb</span><span class="p">);</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l223" href="#l223">223</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">#endif</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l224" href="#l224">224</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">125</td>
       <td class="src coveredLine"><span class="p">}</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l224" href="#l224">224</a></td>
+      <td class="lineno"><a id="l225" href="#l225">225</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l225" href="#l225">225</a></td>
+      <td class="lineno"><a id="l226" href="#l226">226</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">375</td>
       <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="nf">zapp_reporting_set_tag</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">value</span><span class="p">)</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l226" href="#l226">226</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="p">{</span><span class="w"></span></td>
-    </tr>
-    <tr class="source-line">
       <td class="lineno"><a id="l227" href="#l227">227</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#ifdef HAS_SENTRY</span></td>
+      <td class="src "><span class="p">{</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l228" href="#l228">228</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">	</span><span class="n">sentry_set_tag</span><span class="p">(</span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="cp">#ifdef HAS_SENTRY</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l229" href="#l229">229</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#endif</span></td>
+      <td class="src "><span class="w">	</span><span class="n">sentry_set_tag</span><span class="p">(</span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="n">value</span><span class="p">);</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l230" href="#l230">230</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">#endif</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l231" href="#l231">231</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">375</td>
       <td class="src coveredLine"><span class="p">}</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l231" href="#l231">231</a></td>
+      <td class="lineno"><a id="l232" href="#l232">232</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l232" href="#l232">232</a></td>
+      <td class="lineno"><a id="l233" href="#l233">233</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">20091</td>
       <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="nf">zapp_reporting_set_tag</span><span class="p">(</span><span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="o">*</span><span class="w"> </span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">value</span><span class="p">)</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l233" href="#l233">233</a></td>
+      <td class="lineno"><a id="l234" href="#l234">234</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="p">{</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l234" href="#l234">234</a></td>
+      <td class="lineno"><a id="l235" href="#l235">235</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="cp">#ifdef HAS_SENTRY</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l235" href="#l235">235</a></td>
+      <td class="lineno"><a id="l236" href="#l236">236</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">	</span><span class="n">sentry_set_tag</span><span class="p">(</span><span class="n">key</span><span class="p">,</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">to_string</span><span class="p">(</span><span class="n">value</span><span class="p">).</span><span class="n">c_str</span><span class="p">());</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l236" href="#l236">236</a></td>
+      <td class="lineno"><a id="l237" href="#l237">237</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="cp">#endif</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l237" href="#l237">237</a></td>
+      <td class="lineno"><a id="l238" href="#l238">238</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount coveredLine">20091</td>
       <td class="src coveredLine"><span class="p">}</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l238" href="#l238">238</a></td>
+      <td class="lineno"><a id="l239" href="#l239">239</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
