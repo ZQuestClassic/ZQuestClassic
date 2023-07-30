@@ -206,6 +206,8 @@ parser.add_argument('--debugger', action=argparse.BooleanOptionalAction, default
     help='Run in debugger (uses lldb)')
 parser.add_argument('--headless', action=argparse.BooleanOptionalAction, default=True,
     help='Run without display or sound')
+parser.add_argument('--show', action=argparse.BooleanOptionalAction, default=False,
+    help='Alias for --no-headless and --throttle_fps')
 
 
 mode_group = parser.add_argument_group('Mode','The playback mode')
@@ -231,6 +233,10 @@ parser.add_argument('replays', nargs='*',
     help='If provided, will only run these replays rather than those in tests/replays')
 
 args = parser.parse_args()
+
+if args.show:
+    args.headless = False
+    args.throttle_fps = True
 
 if args.replays:
     tests = [pathlib.Path(x) for x in args.replays]
