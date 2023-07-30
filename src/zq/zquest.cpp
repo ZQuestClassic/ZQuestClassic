@@ -29157,6 +29157,7 @@ template <typename ...Params>
 
 int32_t main(int32_t argc,char **argv)
 {
+	global_z3_hacky_load = used_switch(argc, argv, "-z3");
 	common_main_setup(App::zquest, argc, argv);
 	set_should_zprint_cb([]() {
 		return get_qr(qr_SCRIPTERRLOG) || DEVLEVEL > 0;

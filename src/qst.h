@@ -120,6 +120,8 @@ extern std::map<int32_t, script_slot_data > screenmap;
 extern std::map<int32_t, script_slot_data > itemspritemap;
 extern std::map<int32_t, script_slot_data > comboscriptmap;
 
+extern bool global_z3_hacky_load;
+
 #define MAX_COMBO_COLS 4
 extern int32_t First[MAX_COMBO_COLS],combo_alistpos[MAX_COMBO_COLS],combo_pool_listpos[MAX_COMBO_COLS];
 typedef struct map_and_screen

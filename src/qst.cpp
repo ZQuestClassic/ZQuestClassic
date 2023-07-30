@@ -53,6 +53,8 @@
 #include "base/emscripten_utils.h"
 #endif
 
+bool global_z3_hacky_load;
+
 //FFScript FFCore;
 extern FFScript FFCore;
 extern ZModule zcm;
@@ -5216,7 +5218,11 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 			tempDMap.mirrorDMap = -1;
 		}
 
-		if(s_version >= 17)
+		// TODO z3 !! rm
+		int vc = 18;
+		if (global_z3_hacky_load)
+			vc = 17;
+		if(s_version >= vc)
 		{
 			for(int32_t j=0; j<8; j++)
             {
