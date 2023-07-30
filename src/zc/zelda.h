@@ -395,8 +395,11 @@ extern int32_t currscr;
 // The top-left screen index of the current region.
 // If not currently in a region, this is always the same as currscr.
 extern int32_t cur_origin_screen_index;
+// TODO z3 !!! what if:
+// screen_handle_t hero_screen; {mapsrc, screen_index, map_index}
 // Screen the player is currently on. If in a region, this updates as the player moves around. Otherwise this is equal to currscr.
 extern int32_t heroscr;
+// Screen the player is currently on. If in a region, this updates as the player moves around. Otherwise this is equal to the current screen.
 extern mapscr* hero_screen;
 // If currently on an 0x80+ screen, this is where the player came from. Corresponds to special_warp_return_screen.
 // Otherwise, is equal to initial_region_scr.

@@ -1092,7 +1092,7 @@ static void apply_state_changes_to_screen(mapscr& scr, int32_t map, int32_t scre
 {
 	if ((flags & mSECRET) && canPermSecret(currdmap, screen))
 	{
-		hiddenstair2(&scr, screen, false);
+		reveal_hidden_stairs(&scr, screen, false);
 		bool do_layers = false;
 		trigger_secrets_for_screen_internal(-1, &scr, do_layers, false, -3);
 	}
@@ -2197,8 +2197,7 @@ bool ishookshottable(int32_t bx, int32_t by)
 	return ret;
 }
 
-// TODO z3 !!!
-bool hiddenstair2(mapscr *s, int32_t screen_index, bool redraw)
+bool reveal_hidden_stairs(mapscr *s, int32_t screen_index, bool redraw)
 {
     if((s->stairx || s->stairy) && s->secretcombo[sSTAIRS])
     {
@@ -5384,7 +5383,7 @@ void load_a_screen_and_layers(int dmap, int map, int screen_index, int ldir)
 	{
 		if(game->maps[map*MAPSCRSNORMAL + screen_index] & mSECRET)    // if special stuff done before
 		{
-			hiddenstair2(base_screen, screen_index, false);
+			reveal_hidden_stairs(base_screen, screen_index, false);
 			bool do_layers = true;
 			trigger_secrets_for_screen(TriggerSource::SecretsScreenState, screen_index, false);
 		}
@@ -5829,7 +5828,7 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 	{
 		if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mSECRET)			   // if special stuff done before
 		{
-			hiddenstair2(screen, scr, false);
+			reveal_hidden_stairs(screen, scr, false);
 			trigger_secrets_for_screen_internal(-1, tmp == 0 ? tmpscr : &special_warp_return_screen, true, false, -1);
 		}
 		if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mLIGHTBEAM) // if special stuff done before
@@ -6026,7 +6025,7 @@ void loadscr2(int32_t tmp,int32_t scr,int32_t)
 	{
 		if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mSECRET)			   // if special stuff done before
 		{
-			hiddenstair2(&screen, scr, false);
+			reveal_hidden_stairs(&screen, scr, false);
 			trigger_secrets_for_screen_internal(-1, tmp == 0 ? tmpscr : &special_warp_return_screen, true, false, -1);
 		}
 		if(game->maps[(currmap*MAPSCRSNORMAL)+scr]&mLIGHTBEAM) // if special stuff done before

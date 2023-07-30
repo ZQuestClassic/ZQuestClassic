@@ -810,7 +810,7 @@ bool movingblock::animate(int32_t)
 					}
 				}
 				
-				if (hiddenstair2(rpos_handle.screen, rpos_handle.screen_index, true))
+				if (reveal_hidden_stairs(rpos_handle.screen, rpos_handle.screen_index, true))
 				{
 					sfx(rpos_handle.screen->secretsfx);
 				}
@@ -1044,7 +1044,7 @@ bool movingblock::animate(int32_t)
 					}
 				}
 				
-				if (hiddenstair2(rpos_handle.screen, rpos_handle.screen_index, true))
+				if (reveal_hidden_stairs(rpos_handle.screen, rpos_handle.screen_index, true))
 				{
 					sfx(rpos_handle.screen->secretsfx);
 				}

@@ -233,7 +233,7 @@ bool isHSGrabbable(newcombo const& cmb);
 bool isSwitchHookable(newcombo const& cmb);
 bool check_hshot(int32_t layer, int32_t x, int32_t y, bool switchhook, rpos_t *retcpos = nullptr, ffcdata **ret_ffc = nullptr);
 bool ishookshottable(int32_t bx, int32_t by);
-bool hiddenstair2(mapscr *s, int32_t screen_index, bool redraw);                      
+bool reveal_hidden_stairs(mapscr *s, int32_t screen_index, bool redraw);
 bool remove_screenstatecombos2(mapscr *s, int32_t screen_index, bool do_layers, int32_t what1, int32_t what2);
 
 bool remove_xstatecombos(mapscr *s, int32_t scr, byte xflag, bool triggers = false);

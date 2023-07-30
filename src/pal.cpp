@@ -535,7 +535,6 @@ void lightingInstant()
 
 byte drycolors[11] = {0x12,0x11,0x22,0x21,0x31,0x32,0x33,0x35,0x34,0x36,0x37};
 
-// TODO z3
 void dryuplake()
 {
     if(whistleclk<0 || whistleclk>=88)
@@ -544,11 +543,9 @@ void dryuplake()
     if((++whistleclk)&7)
         return;
 
-    mapscr* screen = get_screen_for_world_xy(HeroX(), HeroY());
-
     if(whistleclk<88)
     {
-        if(screen->flags7 & fWHISTLEPAL)
+        if(hero_screen->flags7 & fWHISTLEPAL)
         {
             if(!usingdrypal)
             {
@@ -563,11 +560,11 @@ void dryuplake()
     }
     else
     {
-        if(screen->flags & fWHISTLE)
+        if(hero_screen->flags & fWHISTLE)
         {
-            if(hiddenstair2(screen, currscr, true))
+            if(reveal_hidden_stairs(hero_screen, heroscr, true))
             {
-                sfx(tmpscr->secretsfx);
+                sfx(hero_screen->secretsfx);
             }
         }
     }
