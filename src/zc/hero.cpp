@@ -26749,21 +26749,6 @@ int32_t HeroClass::lookaheadflag(int32_t d2)
 		return 0;
 	}
 
-	// TODO z3 !!!
-	if (!is_z3_scrolling_mode())
-	{
-		int32_t combo = (cy&0xF0)+(cx>>4);
-		if(combo>175)
-			return 0;
-
-		if(!tmpscr->sflag[combo])
-		{
-			return combobuf[tmpscr->data[combo]].flag;
-		}
-		
-		return tmpscr->sflag[combo];
-	}
-
 	auto [map, screen_index] = nextscr2(d2);
 	if (map == -1)
 		return 0;
