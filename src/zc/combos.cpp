@@ -2935,8 +2935,8 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, int32_t special, weapon*
 				}
 			}
 			
-			update_trig_group(timer.data, rpos_handle.screen->data[pos]);
-			timer.updateData(rpos_handle.screen->data[pos]);
+			update_trig_group(timer.data, rpos_handle.data());
+			timer.updateData(rpos_handle.data());
 			if(cmb.trigcooldown)
 				timer.trig_cd = cmb.trigcooldown;
 		}
@@ -3507,24 +3507,24 @@ void trig_trigger_groups()
 
 	for_every_rpos_in_region([&](const rpos_handle_t& rpos_handle) {
 		int cid = rpos_handle.data();
-		newcombo& cmb = combobuf[cid];
+		cpos_info& timer = get_combo_posinfo(rpos_handle);
+		const newcombo* cmb = &combobuf[cid];
 
 		while (
-			((cmb.triggerflags[3] & combotriggerTGROUP_LESS)
-				&& trig_groups[cmb.trig_group] < cmb.trig_group_val)
-			|| ((cmb.triggerflags[3] & combotriggerTGROUP_GREATER)
-				&& trig_groups[cmb.trig_group] > cmb.trig_group_val)
+			((cmb->triggerflags[3] & combotriggerTGROUP_LESS)
+				&& trig_groups[cmb->trig_group] < cmb->trig_group_val)
+			|| ((cmb->triggerflags[3] & combotriggerTGROUP_GREATER)
+				&& trig_groups[cmb->trig_group] > cmb->trig_group_val)
 			)
 		{
 			do_trigger_combo(rpos_handle);
 			int cid2 = rpos_handle.data();
 			update_trig_group(cid, cid2);
-			cpos_info& timer = get_combo_posinfo(rpos_handle);
 			timer.updateData(cid2);
 
 			if (cid != cid2)
 			{
-				cmb = combobuf[cid2];
+				cmb = &combobuf[cid2];
 				cid = cid2;
 			}
 		}
