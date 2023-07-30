@@ -1,10 +1,10 @@
 //--------------------------------------------------------
-//  Zelda Classic
+//  ZQuest Classic
 //  by Jeremy Craner, 1999-2000
 //
 //  defdata.cc
 //
-//  Default item, weapon, and enemy data for Zelda Classic.
+//  Default item, weapon, and enemy data for ZQuest Classic.
 //
 //  This data was originally hard coded in the item class,
 //  enemy classes, etc. I exctracted it to make generic

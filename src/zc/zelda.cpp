@@ -1,10 +1,10 @@
 //--------------------------------------------------------
-//  Zelda Classic
+//  ZQuest Classic
 //  by Jeremy Craner, 1999-2000
 //
 //  zelda.cc
 //
-//  Main code for Zelda Classic. Originally written in
+//  Main code for ZQuest Classic. Originally written in
 //  SPHINX C--, now rewritten in DJGPP with Allegro.
 //
 //--------------------------------------------------------
