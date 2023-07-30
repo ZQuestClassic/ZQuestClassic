@@ -3878,7 +3878,6 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 	bool ignorescreen=false;
 	bool ignoreffc=false;
 	
-	// TODO z3 !
 	if(get_bit(screengrid, i) != 0)
 	{
 		ignorescreen = true;
@@ -5212,7 +5211,6 @@ void HeroClass::check_pound_block(int bx, int by, weapon* w)
     if(type!=cPOUND && flag!=mfHAMMER && flag!=mfSTRIKE && flag2!=mfHAMMER && flag2!=mfSTRIKE)
         ignorescreen = true; // Affect only FFCs
     
-	// TODO z3
     if(get_bit(grid, pos) != 0)
         ignorescreen = true;
         
@@ -5290,7 +5288,6 @@ void HeroClass::check_pound_block(int bx, int by, weapon* w)
             
         set_bit(grid,pos,1);
         
-		// TODO z3
         set_bit(screengrid,pos,1);
         
         if((flag==mfARMOS_ITEM||flag2==mfARMOS_ITEM) && (!getmapflag((currscr < 128 && get_qr(qr_ITEMPICKUPSETSBELOW)) ? mITEM : mSPECIALITEM) || (tmpscr->flags9&fBELOWRETURN)))

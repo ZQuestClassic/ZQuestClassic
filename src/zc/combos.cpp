@@ -3452,7 +3452,6 @@ static void handle_shooter(newcombo const& cmb, cpos_info& timer, zfix wx, zfix 
 	}
 }
 
-// TODO z3
 static void handle_shooter(newcombo const& cmb, cpos_info& timer, rpos_t rpos)
 {
 	int x, y;
@@ -3477,11 +3476,6 @@ void update_trig_group(int oldc, int newc)
 	if(oldcmb.triggerflags[3] & combotriggerTGROUP_CONTRIB)
 		--trig_groups[oldcmb.trig_group];
 }
-
-// void calculate_trig_groups()
-// {
-
-// }
 
 void calculate_trig_groups()
 {
