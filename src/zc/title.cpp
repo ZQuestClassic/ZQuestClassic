@@ -1100,7 +1100,8 @@ static void v25_titlescreen()
 
 // first the game saving & loading system
 
-static const char *SAVE_HEADER = "Zelda Classic Save File";
+static const char *OLD_SAVE_HEADER = "Zelda Classic Save File";
+static const char *SAVE_HEADER = "ZQuest Classic Save File";
 extern char *SAVE_FILE;
 
 int32_t readsaves(gamedata *savedata, PACKFILE *f)
@@ -2194,6 +2195,7 @@ int32_t load_savedgames()
     }
 #endif
 	ret = decode_file_007(fname, tmpfilename, SAVE_HEADER, ENC_METHOD_MAX-1, strstr(fname, ".dat#")!=NULL, "");
+	if(ret) ret = decode_file_007(fname, tmpfilename, OLD_SAVE_HEADER, ENC_METHOD_MAX-1, strstr(fname, ".dat#")!=NULL, "");
 	
 	if(ret)
 	{
