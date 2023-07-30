@@ -6024,11 +6024,10 @@ void quit_game()
 	//if(ZCMaps != NULL) free(ZCMaps);
 }
 
-// TODO z3
 bool isSideViewGravity(int32_t t)
 {
 	if (t == 1) return (((special_warp_return_screen.flags7 & fSIDEVIEW)!=0) != (DMaps[currdmap].sideview));
-	return (((tmpscr->flags7 & fSIDEVIEW)!=0) != (DMaps[currdmap].sideview));
+	return (((hero_screen->flags7 & fSIDEVIEW)!=0) != (DMaps[currdmap].sideview));
 }
 
 bool isSideViewHero(int32_t t)
