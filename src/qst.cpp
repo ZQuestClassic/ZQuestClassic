@@ -2121,6 +2121,7 @@ void get_questpwd(char *encrypted_pwd, int16_t pwdkey, char *pwd)
 
 bool devpwd()
 {
+	return true; // TODO !!
 	#ifdef _DEBUG
 	return true;
 	#endif

@@ -2656,22 +2656,23 @@ struct gamedata
 	void save_user_objects();
 	void load_user_objects();
 	
-	char *get_name();
+	const char *get_name() const;
+	char *get_name_mutable();
 	void set_name(const char *n);
 	
-	byte get_quest();
+	byte get_quest() const;
 	void set_quest(byte q);
 	void change_quest(int16_t q);
 	
-	word get_counter(byte c);
+	word get_counter(byte c) const;
 	void set_counter(word change, byte c);
 	void change_counter(int16_t change, byte c);
 	
-	word get_maxcounter(byte c);
+	word get_maxcounter(byte c) const;
 	void set_maxcounter(word change, byte c);
 	void change_maxcounter(int16_t change, byte c);
 	
-	int16_t get_dcounter(byte c);
+	int16_t get_dcounter(byte c) const;
 	void set_dcounter(int16_t change, byte c);
 	void change_dcounter(int16_t change, byte c);
 	
@@ -2679,7 +2680,7 @@ struct gamedata
 	void set_life(word l);
 	void change_life(int16_t l);
 	
-	word get_maxlife();
+	word get_maxlife() const;
 	void set_maxlife(word m);
 	void change_maxlife(int16_t m);
 	
@@ -2700,7 +2701,7 @@ struct gamedata
 	void set_arrows(word a);
 	void change_arrows(int16_t a);
 	
-	word get_deaths();
+	word get_deaths() const;
 	void set_deaths(word d);
 	void change_deaths(int16_t d);
 	
@@ -2724,20 +2725,20 @@ struct gamedata
 	void set_wlevel(word l);
 	void change_wlevel(int16_t l);
 	
-	byte get_cheat();
+	byte get_cheat() const;
 	void set_cheat(byte c);
 	void did_cheat(bool set);
-	bool did_cheat();
+	bool did_cheat() const;
 	
-	byte get_hasplayed();
+	byte get_hasplayed() const;
 	void set_hasplayed(byte p);
 	void change_hasplayed(int16_t p);
 	
-	dword get_time();
+	dword get_time() const;
 	void set_time(dword t);
 	void change_time(int64_t t);
 	
-	byte get_timevalid();
+	byte get_timevalid() const;
 	void set_timevalid(byte t);
 	void change_timevalid(int16_t t);
 	
@@ -2754,7 +2755,7 @@ struct gamedata
 	bool get_cont_percent();
 	void set_cont_percent(bool ispercent);
 	
-	byte get_hp_per_heart();
+	byte get_hp_per_heart() const;
 	void set_hp_per_heart(byte val);
 	
 	byte get_mp_per_block();
@@ -2833,7 +2834,7 @@ struct gamedata
 	void set_canslash(byte s);
 	void change_canslash(int16_t s);
 	
-	int32_t get_generic(byte c);
+	int32_t get_generic(byte c) const;
 	void set_generic(int32_t change, byte c);
 	void change_generic(int32_t change, byte c);
 	

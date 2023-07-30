@@ -91,7 +91,11 @@ void gamedata::clear_genscript()
 	}
 }
 
-char *gamedata::get_name()
+const char *gamedata::get_name() const
+{
+    return _name;
+}
+char *gamedata::get_name_mutable()
 {
     return _name;
 }
@@ -102,7 +106,7 @@ void gamedata::set_name(const char *n)
     return;
 }
 
-byte gamedata::get_quest()
+byte gamedata::get_quest() const
 {
     return _quest;
 }
@@ -117,7 +121,7 @@ void gamedata::change_quest(int16_t q)
     return;
 }
 
-word gamedata::get_counter(byte c)
+word gamedata::get_counter(byte c) const
 {
     if(c>=MAX_COUNTERS)  // Sanity check
         return 0;
@@ -172,7 +176,7 @@ void gamedata::change_counter(int16_t change, byte c)
     return;
 }
 
-word gamedata::get_maxcounter(byte c)
+word gamedata::get_maxcounter(byte c) const
 {
     if(c>=MAX_COUNTERS)  // Sanity check
         return 0;
@@ -220,7 +224,7 @@ void gamedata::change_maxcounter(int16_t change, byte c)
     return;
 }
 
-int16_t gamedata::get_dcounter(byte c)
+int16_t gamedata::get_dcounter(byte c) const
 {
     if(c>=MAX_COUNTERS)  // Sanity check
         return 0;
@@ -279,7 +283,7 @@ void gamedata::change_dcounter(int16_t change, byte c)
     return;
 }
 
-int32_t gamedata::get_generic(byte c)
+int32_t gamedata::get_generic(byte c) const
 {
     return _generic[c];
 }
@@ -316,7 +320,7 @@ void gamedata::change_life(int16_t l)
     return;
 }
 
-word gamedata::get_maxlife()
+word gamedata::get_maxlife() const
 {
     return get_maxcounter(0);
 }
@@ -396,7 +400,7 @@ void gamedata::change_arrows(int16_t a)
     return;
 }
 
-word gamedata::get_deaths()
+word gamedata::get_deaths() const
 {
     return _deaths;
 }
@@ -496,7 +500,7 @@ void gamedata::change_wlevel(int16_t l)
     return;
 }
 
-byte gamedata::get_cheat()
+byte gamedata::get_cheat() const
 {
     return _cheat&(~DIDCHEAT_BIT);
 }
@@ -509,12 +513,12 @@ void gamedata::did_cheat(bool set)
 {
 	SETFLAG(_cheat, DIDCHEAT_BIT, set);
 }
-bool gamedata::did_cheat()
+bool gamedata::did_cheat() const
 {
 	return (_cheat&DIDCHEAT_BIT)!=0;
 }
 
-byte gamedata::get_hasplayed()
+byte gamedata::get_hasplayed() const
 {
     return _hasplayed;
 }
@@ -529,7 +533,7 @@ void gamedata::change_hasplayed(int16_t p)
     return;
 }
 
-dword gamedata::get_time()
+dword gamedata::get_time() const
 {
     return _time;
 }
@@ -544,7 +548,7 @@ void gamedata::change_time(int64_t t)
     return;
 }
 
-byte gamedata::get_timevalid()
+byte gamedata::get_timevalid() const
 {
     return _timevalid;
 }
@@ -729,7 +733,7 @@ void gamedata::set_cont_percent(bool ispercent)
 }
 
 
-byte gamedata::get_hp_per_heart()
+byte gamedata::get_hp_per_heart() const
 {
 	byte b = get_generic(genHP_PER_HEART);
 	return b ? b : 16;

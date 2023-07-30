@@ -25,6 +25,7 @@ src/zc/render.cpp
 src/user_object.cpp
 src/ffc.cpp
 src/slopes.cpp
+src/zc/saves.cpp
 
 ## End of Zelda Core module
 )
