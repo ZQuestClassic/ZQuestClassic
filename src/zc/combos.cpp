@@ -3519,8 +3519,9 @@ void trig_trigger_groups()
 		{
 			do_trigger_combo(rpos_handle);
 			int cid2 = rpos_handle.data();
-			update_trig_group(cid, cid2);
-			timer.updateData(cid2);
+			// TODO z3 upstream ? https://discord.com/channels/876899628556091432/876908472728453161/1135099459005579375
+			// update_trig_group(timer.data, cid2);
+			// timer.updateData(cid2);
 
 			if (cid != cid2)
 			{
