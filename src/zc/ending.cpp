@@ -619,6 +619,7 @@ void ending()
 		zcmusic_stop(zcmusic);
 		zcmusic_unload_file(zcmusic);
 		zcmusic = NULL;
+		zcmixer->newtrack = NULL;
 	}
 	FFCore.skip_ending_credits = 0;
 	
@@ -746,6 +747,7 @@ void ending_scripted()
 		zcmusic_stop(zcmusic);
 		zcmusic_unload_file(zcmusic);
 		zcmusic = NULL;
+		zcmixer->newtrack = NULL;
 	}
 	FFCore.skip_ending_credits = 0;
     

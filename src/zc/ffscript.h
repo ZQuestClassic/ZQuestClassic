@@ -1223,6 +1223,7 @@ int32_t do_create_bitmap();
 
 void do_adjustsfxvolume(const bool v);
 void do_adjustvolume(const bool v);
+bool play_enh_music_crossfade(char* name, int32_t track, int32_t fadeinframes, int32_t fadeoutframes, int32_t fademiddleframes = 0, int32_t startpos = 0);
 void do_warp_ex(const bool v);
 //FFScript();
 //static void init();

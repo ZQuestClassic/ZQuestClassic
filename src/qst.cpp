@@ -5259,11 +5259,21 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 			{
 				return qe_invalid;
 			}
+			if (!p_igetl(&tempDMap.tmusic_xfade_in, f, keepdata))
+			{
+				return qe_invalid;
+			}
+			if (!p_igetl(&tempDMap.tmusic_xfade_out, f, keepdata))
+			{
+				return qe_invalid;
+			}
 		}
 		else
 		{
 			tempDMap.tmusic_loop_start = 0;
 			tempDMap.tmusic_loop_end = 0;
+			tempDMap.tmusic_xfade_in = 0;
+			tempDMap.tmusic_xfade_out = 0;
 		}
 
 

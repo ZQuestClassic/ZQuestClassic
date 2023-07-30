@@ -7855,8 +7855,6 @@ void music_pause()
 	zcmusic_pause(zcmusic, ZCM_PAUSE);
 	if(zcmixer->oldtrack)
 		zcmusic_pause(zcmixer->oldtrack, ZCM_PAUSE);
-	if (zcmixer->newtrack)
-		zcmusic_pause(zcmixer->newtrack, ZCM_PAUSE);
 	zc_midi_pause();
 }
 
@@ -7866,8 +7864,6 @@ void music_resume()
 	zcmusic_pause(zcmusic, ZCM_RESUME);
 	if (zcmixer->oldtrack)
 		zcmusic_pause(zcmixer->oldtrack, ZCM_RESUME);
-	if (zcmixer->newtrack)
-		zcmusic_pause(zcmixer->newtrack, ZCM_RESUME);
 	zc_midi_resume();
 }
 
@@ -8112,7 +8108,7 @@ INLINE int32_t mixvol(int32_t v1,int32_t v2)
 }
 
 // Run an NSF, or a MIDI if the NSF is missing somehow.
-bool try_zcmusic(char *filename, int32_t track, int32_t midi)
+bool try_zcmusic(char *filename, int32_t track, int32_t midi, int32_t fadeoutframes)
 {
 	ZCMUSIC *newzcmusic = zcmusic_load_for_quest(filename, qstpath);
 	
@@ -8120,6 +8116,8 @@ bool try_zcmusic(char *filename, int32_t track, int32_t midi)
 	if(newzcmusic!=NULL)
 	{
 		newzcmusic->fadevolume = 10000;
+		newzcmusic->fadeoutframes = fadeoutframes;
+
 		zcmixer->newtrack = newzcmusic;
 
 		zcmusic_stop(zcmusic);
@@ -8143,41 +8141,6 @@ bool try_zcmusic(char *filename, int32_t track, int32_t midi)
 	else if(midi>-1000)
 		jukebox(midi);
 		
-	return false;
-}
-
-// Same as above but changes an arbitrary music pointer rather than zcmusic
-// Used for crossfades
-bool try_zcmusic_mix(ZCMUSIC* &zcm, char* filename, int32_t track, int32_t midi, int32_t fadevol)
-{
-	ZCMUSIC* newzcmusic = zcmusic_load_for_quest(filename, qstpath);
-
-	// Found it
-	if (newzcmusic != NULL)
-	{
-		zcmusic_stop(zcm);
-		zcmusic_unload_file(zcm);
-		zc_stop_midi();
-
-		zcm = newzcmusic;
-		zcm->fadevolume = fadevol;
-
-		int32_t temp_volume = emusic_volume;
-		if (!get_bit(quest_rules, qr_OLD_SCRIPT_VOLUME))
-			temp_volume = (emusic_volume * FFCore.usr_music_volume) / 10000 / 100;
-		temp_volume = (temp_volume * zcm->fadevolume) / 10000;
-		zcmusic_play(zcm, temp_volume);
-
-		if (track > 0)
-			zcmusic_change_track(zcm, track);
-
-		return true;
-	}
-
-	// Not found, play MIDI - unless this was called by a script (yay, magic numbers)
-	else if (midi > -1000)
-		jukebox(midi);
-
 	return false;
 }
 
@@ -8289,43 +8252,67 @@ void play_DmapMusic()
 	static int32_t ttrack=0;
 	bool domidi=false;
 	
+	int32_t fadeoutframes = 0;
+	if (zcmusic != NULL)
+		fadeoutframes = zcmusic->fadeoutframes;
+
 	if(DMaps[currdmap].tmusic[0]!=0)
 	{
 		if(zcmusic==NULL ||
 		   strcmp(zcmusic->filename,DMaps[currdmap].tmusic)!=0 ||
 		   (zcmusic->type==ZCMF_GME && zcmusic->track != DMaps[currdmap].tmusictrack))
 		{
-			if(zcmusic != NULL)
+			if (DMaps[currdmap].tmusic_xfade_in > 0 || fadeoutframes > 0)
 			{
-				zcmusic_stop(zcmusic);
-				zcmusic_unload_file(zcmusic);
-				zcmusic = NULL;
-			}
-			
-			zcmusic = zcmusic_load_for_quest(DMaps[currdmap].tmusic, qstpath);
-			
-			if(zcmusic!=NULL)
-			{
-				zc_stop_midi();
-				strcpy(tfile,DMaps[currdmap].tmusic);
-				zcmusic_play(zcmusic, emusic_volume);
-				int32_t temptracks=0;
-				temptracks=zcmusic_get_tracks(zcmusic);
-				temptracks=(temptracks<2)?1:temptracks;
-				ttrack = vbound(DMaps[currdmap].tmusictrack,0,temptracks-1);
-				zcmusic_change_track(zcmusic,ttrack);
-				zcmusic_set_loop(zcmusic, double(DMaps[currdmap].tmusic_loop_start / 10000.0), double(DMaps[currdmap].tmusic_loop_end / 10000.0));
+				if (FFCore.play_enh_music_crossfade(DMaps[currdmap].tmusic, DMaps[currdmap].tmusictrack, DMaps[currdmap].tmusic_xfade_in, fadeoutframes))
+				{
+					if (zcmusic != NULL)
+						zcmusic->fadeoutframes = DMaps[currdmap].tmusic_xfade_out;
+				}
 			}
 			else
 			{
-				tfile[0] = 0;
-				domidi=true;
+				if (zcmusic != NULL)
+				{
+					zcmusic_stop(zcmusic);
+					zcmusic_unload_file(zcmusic);
+					zcmusic = NULL;
+					zcmixer->newtrack = NULL;
+				}
+
+				zcmusic = zcmusic_load_for_quest(DMaps[currdmap].tmusic, qstpath);
+				zcmixer->newtrack = zcmusic;
+
+				if (zcmusic != NULL)
+				{
+					zc_stop_midi();
+					strcpy(tfile, DMaps[currdmap].tmusic);
+					zcmusic_play(zcmusic, emusic_volume);
+					int32_t temptracks = 0;
+					temptracks = zcmusic_get_tracks(zcmusic);
+					temptracks = (temptracks < 2) ? 1 : temptracks;
+					ttrack = vbound(DMaps[currdmap].tmusictrack, 0, temptracks - 1);
+					zcmusic_change_track(zcmusic, ttrack);
+					zcmusic_set_loop(zcmusic, double(DMaps[currdmap].tmusic_loop_start / 10000.0), double(DMaps[currdmap].tmusic_loop_end / 10000.0));
+				}
+				else
+				{
+					tfile[0] = 0;
+					domidi = true;
+				}
 			}
 		}
 	}
 	else
 	{
-		domidi=true;
+		if (DMaps[currdmap].midi == 0 && fadeoutframes > 0 && zcmusic != NULL && strcmp(zcmusic->filename, DMaps[currdmap].tmusic) != 0)
+		{
+			FFCore.play_enh_music_crossfade(NULL, DMaps[currdmap].tmusictrack, DMaps[currdmap].tmusic_xfade_in, fadeoutframes);
+		}
+		else if(zcmixer->oldtrack == NULL && zcmixer->newtrack == NULL)
+		{
+			domidi = true;
+		}
 	}
 	
 	if(domidi)
