@@ -51,7 +51,6 @@
 
 extern int32_t loadlast;
 extern int32_t skipcont;
-extern int32_t skipicon;
 extern FFScript FFCore;
 extern ZModule zcm; //modules
 extern zcmodule moduledata;

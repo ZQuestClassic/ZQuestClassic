@@ -426,7 +426,6 @@ bool cheats_execute_goto=false, cheats_execute_light=false;
 int32_t checkx = 0, checky = 0;
 int32_t loadlast=0;
 int32_t skipcont=0;
-int32_t skipicon=0;
 
 bool monochrome = false; //GFX are monochrome.
 bool palette_user_tinted = false;
@@ -4694,8 +4693,6 @@ int main(int argc, char **argv)
 	
 	debug_enabled = used_switch(argc,argv,"-d") && !strcmp(zc_get_config("zeldadx","debug",""),zeldapwd);
 	set_debug(debug_enabled);
-
-	skipicon = standalone_mode || used_switch(argc,argv,"-quickload") || zc_get_config("zeldadx","skip_icons",0);
 
 	render_set_debug(zc_get_config("graphics","render_debug",0));
 
