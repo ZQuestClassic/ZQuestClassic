@@ -53,7 +53,7 @@ struct slope_object
 	slope_info get_info() const;
 	
 	void updateslope();
-	slope_object(word* cid = nullptr, ffcdata* ff = nullptr, rpos_t id = rpos_t::None, rpos_t rpos = (rpos_t)0);
+	slope_object(word* cid = nullptr, ffcdata* ff = nullptr, rpos_t id = rpos_t::None, int32_t x = 0, int32_t y = 0);
 	slope_object(slope_object const& other) = delete;
 	slope_object& operator=(slope_object const& other) = delete;
 };

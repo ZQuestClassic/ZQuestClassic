@@ -18950,7 +18950,9 @@ void update_slope_combopos(const rpos_handle_t& rpos_handle)
 	
 	if(isSlope && !wasSlope)
 	{
-		slopes.try_emplace(id, &(s->data[pos]), nullptr, id, rpos_handle.rpos);
+		int x, y;
+		COMBOXY_REGION(rpos_handle.rpos, x, y);
+		slopes.try_emplace(id, &(s->data[pos]), nullptr, id, x, y);
 	}
 	else if(wasSlope && !isSlope)
 	{
