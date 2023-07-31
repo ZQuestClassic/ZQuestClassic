@@ -18,7 +18,6 @@
 
 extern FFScript FFCore;
 extern char *SAVE_FILE;
-extern int32_t skipicon;
 
 static const char *SAVE_HEADER = "Zelda Classic Save File";
 static const char *OLD_SAVE_HEADER = "Zelda Classic Save File";
@@ -1554,30 +1553,6 @@ int32_t saves_load()
 		
 	if(read_saves(saves,f)!=0)
 		goto reset;
-
-	//Load game icons
-	for(int32_t i=0; i<MAXSAVES; i++)
-	{
-		byte showmetadata = zc_get_config("zeldadx","print_metadata_for_each_save_slot",0);
-		//zprint2("Reading Save Slot %d\n", i);
-		
-		if(strlen(saves[i].qstpath))
-		{
-			// TODO delete skipicon
-			// if(skipicon)
-			// {
-			// 	for(int32_t j=0; j<128; j++)
-			// 	{
-			// 		saves[i].icon[j]=0;
-			// 	}
-				
-			// 	for(int32_t j=0; j<48; j++)
-			// 	{
-			// 		saves[i].pal[j]=0;
-			// 	}
-			// }
-		}
-	}
 	
 	pack_fclose(f);
 	delete_file(tmpfilename);
