@@ -18950,7 +18950,7 @@ void update_slope_combopos(const rpos_handle_t& rpos_handle)
 	
 	if(isSlope && !wasSlope)
 	{
-		slopes.try_emplace(id, &(s->data[pos]), nullptr, id, pos);
+		slopes.try_emplace(id, &(s->data[pos]), nullptr, id, rpos_handle.rpos);
 	}
 	else if(wasSlope && !isSlope)
 	{

@@ -102,8 +102,8 @@ void slope_object::updateslope()
 	oy2 = inf.y2;
 }
 
-slope_object::slope_object(word* cid, ffcdata* ff, rpos_t id, word cpos)
-	: cmbid(cid), ffc(ff), id(id)
+slope_object::slope_object(word* cid, ffcdata* ff, rpos_t id, rpos_t rpos)
+	: ffc(ff), cmbid(cid), id(id)
 {
 	if(ffc)
 	{
@@ -113,8 +113,8 @@ slope_object::slope_object(word* cid, ffcdata* ff, rpos_t id, word cpos)
 	}
 	else
 	{
-		xoffs = COMBOX(cpos);
-		yoffs = COMBOY(cpos);
+		xoffs = COMBOX_REGION(rpos);
+		yoffs = COMBOY_REGION(rpos);
 	}
 }
 
