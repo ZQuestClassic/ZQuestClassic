@@ -39,7 +39,7 @@ typedef struct zcMatrixCOLUMN
     int16_t speed, cnt;
 } zcMatrixCOLUMN;
 
-static RenderTreeItem rti_matrix;
+static RenderTreeItem rti_matrix("matrix");
 static BITMAP *target_bitmap = NULL;
 static BITMAP *linebmp = NULL;
 static zcMatrixTRACER tracer[MAX_TRACERS];

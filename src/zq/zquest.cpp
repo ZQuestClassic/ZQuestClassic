@@ -29296,6 +29296,8 @@ int32_t main(int32_t argc,char **argv)
 		initConsole();
 #endif
 
+	render_set_debug(zc_get_config("graphics","render_debug",0));
+
 	if(install_timer() < 0)
 	{
 		Z_error_fatal(allegro_error);

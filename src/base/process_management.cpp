@@ -97,33 +97,72 @@ bool io_manager::ProcessReadFile(HANDLE read_handle, LPVOID buf, DWORD bytes_to_
 	memset(&ov, 0, sizeof(OVERLAPPED));
 	
 	callback_error = false;
+
+	typedef BOOL (WINAPI *GetOverlappedResultExPROC)(HANDLE, LPOVERLAPPED, LPDWORD, DWORD, BOOL);
+	HMODULE kernel32 = LoadLibraryW(L"kernel32");
+	GetOverlappedResultExPROC imp_GetOverlappedResultEx =
+		(GetOverlappedResultExPROC) GetProcAddress(kernel32, "GetOverlappedResultEx");
+
+	// Windows 7 compat: GetOverlappedResultEx was added in Windows 8.
+	if (!kernel32 || kernel32 == INVALID_HANDLE_VALUE)
+	{
+		DWORD num_read = 0;
+		// if(!ReadFile(read_handle, buf, bytes_to_read, &num_read, p_ov))
+		if(!ReadFile(read_handle, buf, bytes_to_read, NULL, NULL))
+		{
+			zprint2("READ FAILURE: %d\n",GetLastError());
+			return false;
+		}
+
+		while(!GetOverlappedResult(read_handle, p_ov, bytes_read, true))
+		{
+			if(!is_alive())
+				throw zc_io_exception::dead();
+			auto error = GetLastError();
+			switch(error)
+			{
+				case WAIT_IO_COMPLETION:
+				case ERROR_IO_INCOMPLETE:
+					continue;
+				default:
+					throw zc_io_exception::unknown();
+			}
+		}
+
+		return !callback_error;
+	}
 	
-	if(!ReadFileEx(read_handle, buf, bytes_to_read, p_ov, callback))
+	if (!ReadFileEx(read_handle, buf, bytes_to_read, p_ov, callback))
 	{
 		zprint2("READ FAILURE: %d\n",GetLastError());
 		return false;
 	}
-	
-	int waitcount = 0;
-	while(!GetOverlappedResultEx(read_handle, p_ov, bytes_read, 30000, true))
+
+	while (!imp_GetOverlappedResultEx(read_handle, p_ov, bytes_read, 30000, true))
 	{
-		if(!is_alive())
+		if (!is_alive())
+		{
+			FreeLibrary(kernel32);
 			throw zc_io_exception::dead();
+		}
 		auto error = GetLastError();
 		switch(error)
 		{
 			case WAIT_TIMEOUT:
 			{
+				FreeLibrary(kernel32);
 				throw zc_io_exception::timeout();
 			}
 			case WAIT_IO_COMPLETION:
 			case ERROR_IO_INCOMPLETE:
 				continue;
 			default:
+				FreeLibrary(kernel32);
 				throw zc_io_exception::unknown();
 		}
 	}
-	
+
+	FreeLibrary(kernel32);
 	return !callback_error;
 }
 bool io_manager::ProcessWriteFile(HANDLE write_handle, LPVOID buf, DWORD bytes_to_write, LPDWORD bytes_written)

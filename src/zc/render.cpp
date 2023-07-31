@@ -14,12 +14,12 @@ extern sprite_list guys;
 extern double aspect_ratio;
 extern byte use_save_indicator;
 
-RenderTreeItem rti_root;
-RenderTreeItem rti_game;
-RenderTreeItem rti_infolayer;
-RenderTreeItem rti_menu;
-RenderTreeItem rti_gui;
-RenderTreeItem rti_screen;
+RenderTreeItem rti_root("root");
+RenderTreeItem rti_game("game");
+RenderTreeItem rti_infolayer("info");
+RenderTreeItem rti_menu("menu");
+RenderTreeItem rti_gui("gui");
+RenderTreeItem rti_screen("screen");
 
 bool use_linear_bitmaps()
 {
@@ -244,60 +244,6 @@ static void configure_render_tree()
 	}
 }
 
-static void render_debug_text(ALLEGRO_FONT* font, std::string text, int x, int y, int scale)
-{
-	ALLEGRO_STATE oldstate;
-	al_store_state(&oldstate, ALLEGRO_STATE_TARGET_BITMAP);
-	
-	int resx = al_get_display_width(all_get_display());
-	int w = al_get_text_width(font, text.c_str());
-	int h = al_get_font_line_height(font);
-
-	static ALLEGRO_BITMAP* text_bitmap;
-	if (text_bitmap == nullptr || resx != al_get_bitmap_width(text_bitmap))
-	{
-		if (text_bitmap)
-			al_destroy_bitmap(text_bitmap);
-		al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE);
-		text_bitmap = al_create_bitmap(resx, h);
-	}
-
-	al_set_target_bitmap(text_bitmap);
-	al_clear_to_color(al_map_rgba(0, 0, 0, 0));
-	al_draw_filled_rectangle(0, 0, w, h, al_map_rgba_f(0, 0, 0, 0.6));
-	al_draw_text(font, al_map_rgb_f(1,1,1), 0, 0, 0, text.c_str());
-
-	al_set_target_backbuffer(all_get_display());
-	al_draw_scaled_bitmap(text_bitmap,
-		0, 0,
-		al_get_bitmap_width(text_bitmap), al_get_bitmap_height(text_bitmap),
-		x, y,
-		al_get_bitmap_width(text_bitmap) * scale, al_get_bitmap_height(text_bitmap) * scale,
-		0
-	);
-	al_restore_state(&oldstate);
-}
-
-enum class TextJustify {
-	left,
-	right,
-};
-static void render_text_lines(ALLEGRO_FONT* font, std::vector<std::string> lines, TextJustify justify, int scale)
-{
-	int resx = al_get_display_width(all_get_display());
-	int resy = al_get_display_height(all_get_display());
-	int font_height = al_get_font_line_height(font);
-	int debug_text_y = resy - scale*font_height - 5;
-	for (std::string line : lines)
-	{
-		int x = justify == TextJustify::left ?
-			5 :
-			resx - al_get_text_width(font, line.c_str())*scale - 5;
-		render_debug_text(font, line.c_str(), x, debug_text_y, scale);
-		debug_text_y -= scale*font_height + 3;
-	}
-}
-
 static ALLEGRO_STATE infobmp_old_state;
 void start_info_bmp()
 {
@@ -360,8 +306,11 @@ void render_zc()
 		});
 	}
 	
-	render_text_lines(a5font, lines_left, TextJustify::left, font_scale);
-	render_text_lines(a5font, lines_right, TextJustify::right, font_scale);
+	render_text_lines(a5font, lines_left, TextJustify::left, TextAlign::bottom, font_scale);
+	render_text_lines(a5font, lines_right, TextJustify::right, TextAlign::bottom, font_scale);
+
+	if (render_get_debug())
+		render_tree_draw_debug(&rti_root);
 
     al_flip_display();
 	

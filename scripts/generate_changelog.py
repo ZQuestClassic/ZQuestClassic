@@ -86,6 +86,76 @@ def get_scope_label(scope: str):
         case _: return scope.capitalize()
 
 
+def split_text_into_logical_markdown_chunks(text: str) -> List[str]:
+    """
+    Splits the input into separate chunks, such that each is a logical markdown chunk
+    (ex: list, code block, paragraph). Allows for constructing a pretty markdown result from
+    git commit messages, without inheriting random line breaks.
+
+    Helps with generating pretty markdown on GitHub.
+    You should test change to this by previewing in a "releases" page markdown preview. Other
+    places on GitHub (like gists) render slightly differently!
+    """
+    lines = []
+
+    inside_paragraph_block = False
+    current_paragraph_block = ''
+
+    inside_code_block = False
+    current_code_block = ''
+
+    inside_list_element = False
+    current_list_element = ''
+
+    # inside_paragraph_block = True
+    for line in text.splitlines():
+        if inside_paragraph_block:
+            current_paragraph_block += line + ' '
+            if line == '':
+                lines.append(current_paragraph_block)
+                inside_paragraph_block = False
+                current_paragraph_block = ''
+            continue
+
+        if inside_code_block:
+            current_code_block += line + '\n'
+            if line == '```':
+                lines.append(current_code_block)
+                inside_code_block = False
+                current_code_block = ''
+            continue
+
+        if inside_list_element:
+            current_list_element += line + '\n'
+            if line == '':
+                lines.append(current_list_element)
+                inside_list_element = False
+                current_list_element = ''
+            continue
+
+        if line.startswith('```'):
+            current_code_block += line + '\n'
+            inside_code_block = True
+            continue
+
+        if line.strip().startswith('-'):
+            current_list_element += line + '\n'
+            inside_list_element = True
+            continue
+
+        inside_paragraph_block = True
+        current_paragraph_block += line + ' '
+
+    if current_paragraph_block:
+        lines.append(current_paragraph_block)
+    if current_code_block:
+        lines.append(current_code_block)
+    if current_list_element:
+        lines.append(current_list_element)
+
+    return lines
+
+
 def generate_changelog(commits_by_type: Dict[str, List[Commit]], format: str):
     lines = []
 
@@ -109,9 +179,11 @@ def generate_changelog(commits_by_type: Dict[str, List[Commit]], format: str):
                     lines.append(f'- {c.oneline} {link}')
                     if c.body:
                         lines.append('   &nbsp;')
-                        for l in c.body.splitlines():
+                        for l in split_text_into_logical_markdown_chunks(c.body):
                             if l:
-                                lines.append(f'   >{l}')
+                                for l2 in l.splitlines():
+                                    lines.append(f'   >{l2}')
+                                lines.append(f'   >')
 
                 lines.append('')
     elif format == 'plaintext':

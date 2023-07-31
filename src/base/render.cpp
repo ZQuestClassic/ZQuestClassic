@@ -1,9 +1,11 @@
 #include "render.h"
 #include "base/zapp.h"
 #include "base/zdefs.h"
+#include "base/fonts.h"
+#include "fmt/core.h"
 #include "jwin_a5.h"
 
-RenderTreeItem rti_dialogs;
+RenderTreeItem rti_dialogs("dialogs");
 
 extern int32_t zq_screen_w, zq_screen_h;
 unsigned char info_opacity = 255;
@@ -58,6 +60,10 @@ ALLEGRO_BITMAP* create_a5_bitmap(int w, int h)
 	ALLEGRO_BITMAP* bitmap = al_create_bitmap(w, h);
 	clear_a5_bmp(bitmap);
 	return bitmap;
+}
+
+RenderTreeItem::RenderTreeItem(std::string name) : name(name)
+{
 }
 
 RenderTreeItem::~RenderTreeItem()
@@ -177,6 +183,59 @@ void render_a4_a5(BITMAP* src,int sx,int sy,int dx,int dy,int w,int h,int maskin
 	al_draw_bitmap(buf, dx, dy, 0);
 }
 
+static void render_text(ALLEGRO_FONT* font, std::string text, int x, int y, int scale)
+{
+	ALLEGRO_STATE oldstate;
+	al_store_state(&oldstate, ALLEGRO_STATE_TARGET_BITMAP);
+
+	int resx = al_get_display_width(all_get_display());
+	int w = al_get_text_width(font, text.c_str());
+	int h = al_get_font_line_height(font);
+
+	static ALLEGRO_BITMAP* text_bitmap;
+	if (text_bitmap == nullptr || resx != al_get_bitmap_width(text_bitmap))
+	{
+		if (text_bitmap)
+			al_destroy_bitmap(text_bitmap);
+		al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE);
+		text_bitmap = al_create_bitmap(resx, h);
+	}
+
+	al_set_target_bitmap(text_bitmap);
+	al_clear_to_color(al_map_rgba(0, 0, 0, 0));
+	al_draw_filled_rectangle(0, 0, w, h, al_map_rgba_f(0, 0, 0, 0.6));
+	al_draw_text(font, al_map_rgb_f(1,1,1), 0, 0, 0, text.c_str());
+
+	al_set_target_backbuffer(all_get_display());
+	al_draw_scaled_bitmap(text_bitmap,
+		0, 0,
+		al_get_bitmap_width(text_bitmap), al_get_bitmap_height(text_bitmap),
+		x, y,
+		al_get_bitmap_width(text_bitmap) * scale, al_get_bitmap_height(text_bitmap) * scale,
+		0
+	);
+	al_restore_state(&oldstate);
+}
+
+void render_text_lines(ALLEGRO_FONT* font, std::vector<std::string> lines, TextJustify justify, TextAlign align, int scale)
+{
+	int resx = al_get_display_width(all_get_display());
+	int resy = al_get_display_height(all_get_display());
+	int font_height = al_get_font_line_height(font);
+	int text_y = align == TextAlign::bottom ?
+		resy - scale*font_height - 5 :
+		// Offset just a bit so it doesn't obscure the title bar.
+		resy*0.04;
+	for (std::string line : lines)
+	{
+		int x = justify == TextJustify::left ?
+			5 :
+			resx - al_get_text_width(font, line.c_str())*scale - 5;
+		render_text(font, line.c_str(), x, text_y, scale);
+		text_y += (scale*font_height + 3) * (align == TextAlign::bottom ? -1 : 1);
+	}
+}
+
 static void render_tree_layout(RenderTreeItem* rti, RenderTreeItem* rti_parent)
 {
 	if (!rti_parent)
@@ -232,10 +291,58 @@ static void render_tree_draw_item(RenderTreeItem* rti)
 	}
 }
 
+static void render_tree_draw_item_debug(RenderTreeItem* rti, int depth, std::vector<std::string>& lines)
+{
+	std::string line;
+	line += fmt::format("{:>{}}", "", depth * 4);
+	line += fmt::format(" > {} ", rti->name);
+	if (!rti->visible)
+		line += "[HIDDEN] ";
+	if (rti->bitmap)
+	{
+		int w = al_get_bitmap_width(rti->bitmap);
+		int h = al_get_bitmap_height(rti->bitmap);
+		line += fmt::format("[BITMAP {}x{}] ", w, h);
+		if (rti->freeze_a4_bitmap_render)
+			line += "[FROZEN] ";
+		if (rti->tint)
+		{
+			unsigned char r, g, b, a;
+			al_unmap_rgba(*rti->tint, &r, &g, &b, &a);
+			line += fmt::format("[TINT rgba {} {} {} {}] ", r, g, b, a);
+		}
+	}
+	lines.push_back(line);
+
+	for (auto rti_child : rti->children)
+	{
+		render_tree_draw_item_debug(rti_child, depth + 1, lines);
+	}
+}
+
 void render_tree_draw(RenderTreeItem* rti)
 {
 	render_tree_layout(rti, nullptr);
 	render_tree_draw_item(rti);
+}
+
+void render_tree_draw_debug(RenderTreeItem* rti)
+{
+	std::vector<std::string> lines;
+	ALLEGRO_FONT* a5font = get_zc_font_a5(font_lfont_l);
+	render_tree_draw_item_debug(rti, 0, lines);
+	int font_scale = 4;
+	render_text_lines(a5font, lines, TextJustify::left, TextAlign::top, font_scale);
+}
+
+static bool render_debug;
+void render_set_debug(bool debug)
+{
+	render_debug = debug;
+}
+bool render_get_debug()
+{
+	return render_debug;
 }
 
 namespace MouseSprite
@@ -355,7 +462,7 @@ void popup_zqdialog_start(int x, int y, int w, int h, int transp)
 		else clear_bitmap(tmp_bmp);
 		screen = tmp_bmp;
 		
-		RenderTreeItem* rti = new RenderTreeItem();
+		RenderTreeItem* rti = new RenderTreeItem("zqdialog");
 		set_bitmap_create_flags(false);
 		rti->bitmap = create_a5_bitmap(w, h);
 		rti->a4_bitmap = tmp_bmp;
@@ -403,7 +510,7 @@ void popup_zqdialog_start_a5()
 	if(!zqdialog_bg_bmp)
 		zqdialog_bg_bmp = screen;
 	
-	RenderTreeItem* rti = new RenderTreeItem();
+	RenderTreeItem* rti = new RenderTreeItem("zqdialog_a5");
 	set_bitmap_create_flags(true);
 	rti->bitmap = create_a5_bitmap(zq_screen_w, zq_screen_h);
 	rti->visible = true;
@@ -450,7 +557,7 @@ RenderTreeItem* add_dlg_layer(int x, int y, int w, int h)
 	if(h<0) h = screen->h-y;
 	set_bitmap_create_flags(true);
 	
-	RenderTreeItem* rti = new RenderTreeItem();
+	RenderTreeItem* rti = new RenderTreeItem("dlg");
 	rti->bitmap = al_create_bitmap(w,h);
 	clear_a5_bmp(rti->bitmap);
 	rti->transform.x = x;
@@ -480,4 +587,3 @@ void remove_dlg_layer(RenderTreeItem* rti)
 	}
 	delete rti;
 }
-
