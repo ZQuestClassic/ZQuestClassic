@@ -104,7 +104,6 @@ extern int32_t cheat_modifier_keys[4]; //two options each, default either contro
 //extern int32_t db;
 
 static const char *ZC_str = "ZQuest Classic";
-extern char save_file_name[1024];
 #if defined(ALLEGRO_WINDOWS)
 const char *qst_dir_name = "win_qst_dir";
 static  const char *qst_module_name = "current_module";
@@ -593,7 +592,6 @@ void save_game_configs()
 	zc_set_config(cfg_sect,"load_last",loadlast);
 	chop_path(qstdir);
 	zc_set_config(cfg_sect,qst_dir_name,qstdir);
-	zc_set_config("SAVEFILE","save_filename",save_file_name);
 	zc_set_config(cfg_sect,"use_sfx_dat",sfxdat);
 	
 	flush_config_file();

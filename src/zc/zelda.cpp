@@ -154,9 +154,6 @@ uint8_t __isZQuest = 0; //shared functions can use this. -
 int32_t strike_hint_timer=0;
 int32_t strike_hint = 0;
 int32_t slot_arg = 0, slot_arg2 = 0;
-char save_file_name[1024] = "zc.sav";
-//char *SAVE_FILE = (char *)"zc.sav";
-char *SAVE_FILE = NULL;
 int32_t previous_DMap = -1;
 CScriptDrawingCommands script_drawing_commands;
 
@@ -4479,15 +4476,6 @@ int main(int argc, char **argv)
 	register_png_file_type();
 
 	three_finger_flag=false;
-
-	for ( int32_t q = 0; q < 1024; ++q ) { save_file_name[q] = 0; }
-	strcpy(save_file_name,zc_get_config("SAVEFILE","save_filename","zc.sav"));
-#ifdef __EMSCRIPTEN__
-	// There was a bug that causes browser zc.cfg files to use the wrong value for the save file.
-	if (strcmp(save_file_name, "zc.sav") == 0)
-		strcpy(save_file_name, "/local/zc.sav");
-#endif
-	SAVE_FILE = (char *)save_file_name;
 	
 	load_game_configs();
 	
@@ -4730,31 +4718,8 @@ int main(int argc, char **argv)
 	
 	int32_t fast_start = debug_enabled || used_switch(argc,argv,"-fast") || (!standalone_mode && (load_save || (slot_arg && (argc>(slot_arg+1)))));
 	skip_title = used_switch(argc, argv, "-notitle") > 0 || zc_get_config("zeldadx","skip_title",0);
-	int32_t save_arg = used_switch(argc,argv,"-savefile");
 	
 	int32_t checked_epilepsy = zc_get_config("zeldadx","checked_epilepsy",0);
-	/*
-	if ( !strcmp(zc_get_config("zeldadx","debug",""),"") )
-	{
-		for ( int32_t q = 0; q < 1024; ++q ) { save_file_name[q] = 0; }
-			strcpy(save_file_name,"zc.sav");
-		SAVE_FILE = (char *)save_file_name;  
-	}
-	else*/ //if ( strcmp(zc_get_config("zeldadx","debug","")) )
-	{	    
-		for ( int32_t q = 0; q < 1024; ++q ) { save_file_name[q] = 0; }
-			strcpy(save_file_name,zc_get_config("SAVEFILE","save_filename","zc.sav"));
-		SAVE_FILE = (char *)save_file_name;
-	}
-	//al_trace("Current save file is: %s\n", save_file_name);
-	
-	if(save_arg && (argc>(save_arg+1)))
-	{
-		SAVE_FILE = (char *)malloc(2048);
-		sprintf(SAVE_FILE, "%s", argv[save_arg+1]);
-		
-		regulate_path(SAVE_FILE);
-	}
 	
 	// load the data files
 	//setPackfilePassword(datapwd);
