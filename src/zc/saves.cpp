@@ -17,12 +17,22 @@
 #endif
 
 extern FFScript FFCore;
-extern char *SAVE_FILE;
 
 static const char *SAVE_HEADER = "Zelda Classic Save File";
 static const char *OLD_SAVE_HEADER = "Zelda Classic Save File";
 static int currgame;
 static gamedata *saves;
+
+static std::string get_save_file_path()
+{
+	std::string save_file_name = zc_get_config("SAVEFILE", "save_filename", "zc.sav");
+#ifdef __EMSCRIPTEN__
+		// There was a bug that causes browser zc.cfg files to use the wrong value for the save file.
+		if (save_file_name == "zc.sav")
+			save_file_name = "/local/zc.sav";
+#endif
+	return save_file_name;
+}
 
 static int32_t read_saves(gamedata *savedata, PACKFILE *f)
 {
@@ -1498,16 +1508,15 @@ int32_t saves_init()
 
 int32_t saves_load()
 {
+	std::string save_file_name = get_save_file_path();
+	const char *fname = save_file_name.c_str();
+
 	FFCore.kb_typing_mode = false;
 	FFCore.skip_ending_credits = 0;
-	char *fname = SAVE_FILE;
-	char *iname = (char *)malloc(2048);
 	int32_t ret;
 	PACKFILE *f=NULL;
-	FILE *f2=NULL;
 	char tmpfilename[L_tmpnam];
 	temp_name(tmpfilename);
-//  const char *passwd = datapwd;
 	
 	// see if it's there
 	if(!exists(fname))
@@ -1555,7 +1564,6 @@ int32_t saves_load()
 	
 	pack_fclose(f);
 	delete_file(tmpfilename);
-	free(iname);
 	return 0;
 	
 newdata:
@@ -1585,7 +1593,7 @@ cantopen:
 	{
 		system_pal();
 		char buf[256];
-		snprintf(buf, 256, "still can't be opened, you'll need to delete %s.", SAVE_FILE);
+		snprintf(buf, 256, "still can't be opened, you'll need to delete %s.", fname);
 		jwin_alert("Can't Open Saved Game File",
 				   "The save file was found, but could not be opened. Wait a moment",
 				   "and try again. If this problem persists, reboot. If the file",
@@ -1631,7 +1639,6 @@ init:
 		saves_do_first_time_stuff(0);
 	}
 
-	free(iname);
 	return 0;
 }
 
@@ -1707,7 +1714,7 @@ void saves_update_icon(int index)
 	}
 }
 
-static int32_t do_save_games()
+static int32_t do_save_games(const char* path)
 {
 	if (saves==NULL)
 		return 1;
@@ -1751,7 +1758,7 @@ static int32_t do_save_games()
 	}
 	
 	pack_fclose(f);
-	int32_t ret = encode_file_007(tmpfilename, SAVE_FILE, 0x413F0000 + (frame&0xffff), SAVE_HEADER, ENC_METHOD_MAX-1);
+	int32_t ret = encode_file_007(tmpfilename, path, 0x413F0000 + (frame&0xffff), SAVE_HEADER, ENC_METHOD_MAX-1);
 	
 	if(ret)
 		ret += 100;
@@ -1769,7 +1776,8 @@ int32_t saves_write()
 {
 	Saving = true;
 	render_zc();
-	int32_t result = do_save_games();
+	std::string save_file_name = get_save_file_path();
+	int32_t result = do_save_games(save_file_name.c_str());
 	Saving = false;
 	return result;
 }
