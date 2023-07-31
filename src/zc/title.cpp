@@ -1176,14 +1176,12 @@ static void selectscreen()
 static byte left_arrow_str[] = {132,0};
 static byte right_arrow_str[] = {133,0};
 
-static int32_t savecnt;
-
 static void list_save(int32_t save_num, int32_t ypos)
 {
 	bool r = refreshpal;
 	const gamedata* save = saves_get_data(save_num);
 
-	if(save_num<savecnt)
+	if (save_num < saves_count())
 	{
 		game->set_maxlife(save->get_maxlife());
 		game->set_life(save->get_maxlife());
@@ -1333,6 +1331,7 @@ static void list_saves()
 	// Fourth Quest turns the menu red.
 	bool red = false;
 	
+	int savecnt = saves_count();
 	for(int32_t i=0; i<savecnt; i++)
 		if(saves_get_data(i)->get_quest()==4)
 			red = true;
@@ -1355,8 +1354,6 @@ static void list_saves()
 			
 		textprintf_ex(framebuf,get_zc_font(font_zfont),112,60,3,0,"%2d - %-2d",listpos+1,listpos+3);
 	}
-	
-	
 }
 
 static void draw_cursor(int32_t pos,int32_t mode)
@@ -1375,26 +1372,27 @@ static void draw_cursor(int32_t pos,int32_t mode)
 
 static bool register_name()
 {
-	if(savecnt>=MAXSAVES)
+	int s = saves_count();
+	if (s >= MAXSAVES)
 		return false;
-		
+
 	if ( moduledata.refresh_title_screen ) //refresh
 	{
 		selectscreen();
 		moduledata.refresh_title_screen = 0;
 	}
 	int32_t NameEntryMode2=NameEntryMode;
-	
-	gamedata* save = saves_get_data_mutable(savecnt);
+
+	gamedata* save = saves_get_data_mutable(s);
+	save->set_quest(0xFF); // Will get set later. Only set now so saves_count() counts this.
 	save->set_maxlife(3*16);
 	save->set_life(3*16);
 	save->set_maxbombs(8);
 	save->set_continue_dmap(0);
 	save->set_continue_scrn(0xFF);
-	
-	const int32_t s=savecnt;
-	++savecnt;
-	listpos=(s/3)*3;
+
+	listpos=((saves_count() - 1)/3)*3;
+
 //  clear_bitmap(framebuf);
 	rectfill(framebuf,32,56,223,151,0);
 	list_saves();
@@ -1808,7 +1806,7 @@ static bool register_name()
 		game->qstpath[0] = 0;
 		byte qst_num = byte(quest-1);
 		
-		int32_t ret = (qst_num < moduledata.max_quest_files) ? load_quest(saves+s) : qe_no_qst;
+		int32_t ret = (qst_num < moduledata.max_quest_files) ? load_quest(save) : qe_no_qst;
 		
 		if(ret==qe_OK)
 		{
@@ -1830,15 +1828,10 @@ static bool register_name()
 	
 	if(x<0 || cancel)
 	{
-		for(int32_t i=s; i<MAXSAVES-1; i++)
-			saves[i]=saves[i+1];
-			
-		saves[MAXSAVES-1].Clear();
-		--savecnt;
-		
-		if(listpos>savecnt-1)
-			listpos=zc_max(listpos-3,0);
+		save->Clear();
 	}
+
+	listpos=((saves_count()-1)/3)*3;
 	
 	SystemKeys=true;
 	selectscreen();
@@ -1849,53 +1842,37 @@ static bool register_name()
 
 static bool copy_file(int32_t file)
 {
+	int savecnt = saves_count();
+
 	if(savecnt<MAXSAVES && file<savecnt)
 	{
-		saves[savecnt]=saves[file];
-		if (!saves[savecnt].replay_file.empty())
-		{
-			if (std::filesystem::exists(saves[file].replay_file))
-			{
-				std::string new_replay_path = create_replay_path_for_save(&saves[savecnt]);
-				saves[savecnt].replay_file = new_replay_path;
-				std::filesystem::copy(saves[file].replay_file, new_replay_path);
-			}
-			else
-			{
-				Z_error("Error copying replay file - %s not found", saves[file].replay_file.c_str());
-				saves[savecnt].replay_file = "";
-			}
-		}
-		++savecnt;
-		listpos=((savecnt-1)/3)*3;
+		saves_copy(file, savecnt);
+
+		listpos=((saves_count()-1)/3)*3;
 		sfx(WAV_SCALE);
 		select_mode();
 		return true;
 	}
-	
+
 	return false;
 }
 
 static bool delete_save(int32_t file)
 {
-	if(file<savecnt)
+	int savecnt = saves_count();
+
+	if (file < savecnt)
 	{
-		for(int32_t i=file; i<MAXSAVES-1; i++)
-		{
-			saves[i]=saves[i+1];
-		}
-		
-		saves[MAXSAVES-1].Clear();
+		saves_delete(file);
 		--savecnt;
-		
 		if(listpos>savecnt-1)
 			listpos=zc_max(listpos-3,0);
-			
+
 		sfx(WAV_OUCH);
 		select_mode();
 		return true;
 	}
-	
+
 	return false;
 }
 
@@ -2216,12 +2193,7 @@ static void select_game(bool skip = false)
 	//  text_mode(0);
 	selectscreen();
 	
-	savecnt=0;
-	
-	while(savecnt < MAXSAVES && saves[savecnt].get_quest()>0)
-		++savecnt;
-		
-	if(savecnt == 0)
+	if (saves_count() == 0)
 		pos=3;
 		
 	bool done=false;
@@ -2246,11 +2218,11 @@ static void select_game(bool skip = false)
 		{
 			if (register_name())
 			{
-				saves_select(savecnt - 1);
+				saves_select(saves_count() - 1);
 				loadlast = saves_current_selection() + 1;
 				strcpy(qstpath, load_qstpath.c_str());
 				chosecustomquest = true;
-				load_custom_game(savecnt - 1);
+				load_custom_game(saves_count() - 1);
 				saves_write();
 				break;
 			}
@@ -2274,7 +2246,7 @@ static void select_game(bool skip = false)
 					pos = 3;
 				else
 				{
-					pos = (savecnt-1)%3;
+					pos = (saves_count()-1)%3;
 					
 					popup_choose_quest = true;
 				}
@@ -2282,6 +2254,8 @@ static void select_game(bool skip = false)
 				break;
 				
 			case 4:
+			{
+				int savecnt = saves_count();
 				if(savecnt && savecnt<MAXSAVES)
 				{
 					mode=2;
@@ -2290,10 +2264,11 @@ static void select_game(bool skip = false)
 				}
 				
 				refreshpal=true;
-				break;
+			}
+			break;
 				
 			case 5:
-				if(savecnt)
+				if(saves_count())
 				{
 					mode=3;
 					pos=0;
@@ -2319,7 +2294,7 @@ static void select_game(bool skip = false)
 					if(copy_file(saveslot))
 					{
 						mode=0;
-						pos=(savecnt-1)%3;
+						pos=(saves_count()-1)%3;
 						refreshpal=true;
 					}
 					
@@ -2364,7 +2339,7 @@ static void select_game(bool skip = false)
 			refreshpal=true;
 		}
 		
-		if(rRight() && listpos+3<savecnt)
+		if(rRight() && listpos+3<saves_count())
 		{
 			listpos+=3;
 			sfx(WAV_CHIME);
@@ -2488,12 +2463,7 @@ if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 			if(slot_arg)
 			{
 				saves_select(slot_arg2 - 1);
-				savecnt=0;
-				
-				while(savecnt < MAXSAVES && saves_get_data(savecnt)->get_quest() > 0)
-					++savecnt;
-					
-				if (saves_current_selection() > savecnt-1)
+				if (saves_current_selection() > saves_count()-1)
 				{
 					slot_arg = 0;
 					saves_select(0);

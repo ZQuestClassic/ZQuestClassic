@@ -3,8 +3,6 @@
 
 #include "gamedata.h"
 
-extern gamedata *saves;
-
 int32_t saves_init();
 int32_t saves_load();
 int32_t saves_write();
@@ -14,6 +12,8 @@ int32_t saves_current_selection();
 const gamedata* saves_get_data(int32_t index);
 gamedata* saves_get_data_mutable(int32_t index);
 const gamedata* saves_get_data();
+void saves_delete(int32_t index);
+void saves_copy(int32_t from_index, int32_t to_index);
 void saves_update_icon(int index);
 void save_game(bool savepoint);
 bool save_game(bool savepoint, int32_t type);

@@ -22,8 +22,7 @@ extern char *SAVE_FILE;
 static const char *SAVE_HEADER = "Zelda Classic Save File";
 static const char *OLD_SAVE_HEADER = "Zelda Classic Save File";
 static int currgame;
-
-gamedata *saves;
+static gamedata *saves;
 
 static int32_t read_saves(gamedata *savedata, PACKFILE *f)
 {
@@ -1786,7 +1785,10 @@ void saves_select(int32_t index)
 
 int32_t saves_count()
 {
-	return MAXSAVES;
+	int count = 0;
+	while (count < MAXSAVES && saves[count].get_quest() > 0)
+		count++;
+	return count;
 }
 
 int32_t saves_current_selection()
@@ -1799,6 +1801,51 @@ const gamedata* saves_get_data(int32_t index)
 	if (index < 0)
 		abort();
 	return &saves[index];
+}
+
+void saves_delete(int32_t index)
+{
+	int savecnt = saves_count();
+
+	if (index < savecnt)
+	{
+		for (int32_t i = index; i < MAXSAVES-1; i++)
+		{
+			saves[i] = saves[i+1];
+		}
+
+		saves[MAXSAVES-1].Clear();
+		--savecnt;
+		if(listpos>savecnt-1)
+			listpos=zc_max(listpos-3,0);
+	}
+}
+
+void saves_copy(int32_t from_index, int32_t to_index)
+{
+	int savecnt = saves_count();
+	if (from_index >= savecnt || to_index >= MAXSAVES || savecnt >= MAXSAVES)
+		abort();
+
+	const gamedata& from_save = saves[from_index];
+	gamedata& to_save = saves[to_index];
+
+	to_save = from_save;
+
+	if (!to_save.replay_file.empty())
+	{
+		if (std::filesystem::exists(from_save.replay_file))
+		{
+			std::string new_replay_path = create_replay_path_for_save(&to_save);
+			to_save.replay_file = new_replay_path;
+			std::filesystem::copy(from_save.replay_file, new_replay_path);
+		}
+		else
+		{
+			Z_error("Error copying replay file - %s not found", from_save.replay_file.c_str());
+			to_save.replay_file = "";
+		}
+	}
 }
 
 gamedata* saves_get_data_mutable(int32_t index)

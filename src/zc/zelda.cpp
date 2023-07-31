@@ -5221,11 +5221,13 @@ int main(int argc, char **argv)
 		}
 
 		int save_index = -1;
-		for (int i = 0; i < MAXSAVES; i++)
+		int savecnt = saves_count();
+		for (int i = 0; i < savecnt; i++)
 		{
-			if (!saves[i].get_quest()) continue;
+			const gamedata* save = saves_get_data(i);
+			if (!save->get_quest()) continue;
 
-			if (qstpath_to_load == saves[i].qstpath)
+			if (qstpath_to_load == save->qstpath)
 			{
 				save_index = i;
 				break;
