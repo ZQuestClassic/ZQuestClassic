@@ -11,6 +11,7 @@
 #include "tiles.h"
 #include "items.h"
 #include "jwin.h"
+#include <vector>
 
 #ifdef __EMSCRIPTEN__
 #include "base/emscripten_utils.h"
@@ -21,7 +22,7 @@ extern FFScript FFCore;
 static const char *SAVE_HEADER = "Zelda Classic Save File";
 static const char *OLD_SAVE_HEADER = "Zelda Classic Save File";
 static int currgame;
-static gamedata *saves;
+static std::vector<gamedata> saves;
 
 static std::string get_save_file_path()
 {
@@ -34,7 +35,7 @@ static std::string get_save_file_path()
 	return save_file_name;
 }
 
-static int32_t read_saves(gamedata *savedata, PACKFILE *f)
+static int32_t read_saves(PACKFILE *f)
 {
 	FFCore.kb_typing_mode = false;
 	if(get_qr(qr_OLD_SCRIPT_VOLUME))
@@ -139,22 +140,27 @@ static int32_t read_saves(gamedata *savedata, PACKFILE *f)
 		}
 		exit_sys_pal();
 	}
-	
+
+	saves.clear();
+	saves.resize(save_count);
+
 	for(int32_t i=0; i<save_count; i++)
 	{
+		gamedata& save = saves[i];
+
 		if(!pfread(name,9,f))
 		{
 			return 6;
 		}
 		
-		savedata[i].set_name(name);
+		save.set_name(name);
 		
 		if(!p_getc(&tempbyte,f))
 		{
 			return 7;
 		}
 		
-		savedata[i].set_quest(tempbyte);
+		save.set_quest(tempbyte);
 		
 		if(section_version<3)
 		{
@@ -163,37 +169,37 @@ static int32_t read_saves(gamedata *savedata, PACKFILE *f)
 				return 8;
 			}
 			
-			savedata[i].set_counter(tempword, 0);
-			savedata[i].set_dcounter(tempword, 0);
+			save.set_counter(tempword, 0);
+			save.set_dcounter(tempword, 0);
 			
 			if(!p_igetw(&tempword,f))
 			{
 				return 9;
 			}
 			
-			savedata[i].set_maxcounter(tempword, 0);
+			save.set_maxcounter(tempword, 0);
 			
 			if(!p_igetw(&tempshort,f))
 			{
 				return 10;
 			}
 			
-			savedata[i].set_dcounter(tempshort, 1);
+			save.set_dcounter(tempshort, 1);
 			
 			if(!p_igetw(&tempword,f))
 			{
 				return 11;
 			}
 			
-			savedata[i].set_counter(tempword, 1);
+			save.set_counter(tempword, 1);
 			
 			if(!p_igetw(&tempword,f))
 			{
 				return 12;
 			}
 			
-			savedata[i].set_counter(tempword, 3);
-			savedata[i].set_dcounter(tempword, 3);
+			save.set_counter(tempword, 3);
+			save.set_dcounter(tempword, 3);
 		}
 		
 		if(!p_igetw(&tempword,f))
@@ -201,7 +207,7 @@ static int32_t read_saves(gamedata *savedata, PACKFILE *f)
 			return 13;
 		}
 		
-		savedata[i].set_deaths(tempword);
+		save.set_deaths(tempword);
 		
 		if(section_version<3)
 		{
@@ -210,15 +216,15 @@ static int32_t read_saves(gamedata *savedata, PACKFILE *f)
 				return 14;
 			}
 			
-			savedata[i].set_counter(tempbyte, 5);
-			savedata[i].set_dcounter(tempbyte, 5);
+			save.set_counter(tempbyte, 5);
+			save.set_dcounter(tempbyte, 5);
 			
 			if(!p_getc(&tempbyte,f))
 			{
 				return 15;
 			}
 			
-			savedata[i].set_maxcounter(tempbyte, 2);
+			save.set_maxcounter(tempbyte, 2);
 		}
 		
 		if(section_version<4)
@@ -228,7 +234,7 @@ static int32_t read_saves(gamedata *savedata, PACKFILE *f)
 				return 16;
 			}
 			
-			savedata[i].set_wlevel(tempbyte);
+			save.set_wlevel(tempbyte);
 		}
 		
 		if(!p_getc(&tempbyte,f))
@@ -237,7 +243,7 @@ static int32_t read_saves(gamedata *savedata, PACKFILE *f)
 		}
 		
 		if (section_version < 24) tempbyte = (tempbyte ? DIDCHEAT_BIT : 0);
-		savedata[i]._cheat = tempbyte;
+		save._cheat = tempbyte;
 		
 		char temp;
 		
@@ -246,16 +252,16 @@ static int32_t read_saves(gamedata *savedata, PACKFILE *f)
 			if(!p_getc(&temp, f))
 				return 18;
 				
-			savedata[i].set_item_no_flush(j, (temp != 0));
+			save.set_item_no_flush(j, (temp != 0));
 		}
 		
 		size_t versz = section_version<31 ? 9 : 16;
-		if(!pfread(savedata[i].version,versz,f))
+		if(!pfread(save.version,versz,f))
 		{
 			return 20;
 		}
 		
-		if(!pfread(savedata[i].title,sizeof(savedata[i].title),f))
+		if(!pfread(save.title,sizeof(save.title),f))
 		{
 			return 21;
 		}
@@ -265,27 +271,27 @@ static int32_t read_saves(gamedata *savedata, PACKFILE *f)
 			return 22;
 		}
 		
-		savedata[i].set_hasplayed(tempbyte);
+		save.set_hasplayed(tempbyte);
 		
 		if(!p_igetl(&tempdword,f))
 		{
 			return 23;
 		}
 		
-		savedata[i].set_time(tempdword);
+		save.set_time(tempdword);
 		
 		if(!p_getc(&tempbyte,f))
 		{
 			return 24;
 		}
 		
-		savedata[i].set_timevalid(tempbyte);
+		save.set_timevalid(tempbyte);
 		
 		if(section_version <= 5)
 		{
 			for(int32_t j=0; j<OLDMAXLEVELS; ++j)
 			{
-				if(!p_getc(&(savedata[i].lvlitems[j]),f))
+				if(!p_getc(&(save.lvlitems[j]),f))
 				{
 					return 25;
 				}
@@ -295,7 +301,7 @@ static int32_t read_saves(gamedata *savedata, PACKFILE *f)
 		{
 			for(int32_t j=0; j<MAXLEVELS; ++j)
 			{
-				if(!p_getc(&(savedata[i].lvlitems[j]),f))
+				if(!p_getc(&(save.lvlitems[j]),f))
 				{
 					return 25;
 				}
@@ -309,7 +315,7 @@ static int32_t read_saves(gamedata *savedata, PACKFILE *f)
 				return 26;
 			}
 			
-			savedata[i].set_HCpieces(tempbyte);
+			save.set_HCpieces(tempbyte);
 		}
 		
 		if(!p_getc(&tempbyte,f))
@@ -317,7 +323,7 @@ static int32_t read_saves(gamedata *savedata, PACKFILE *f)
 			return 27;
 		}
 		
-		savedata[i].set_continue_scrn(tempbyte);
+		save.set_continue_scrn(tempbyte);
 		
 		if(section_version <= 5)
 		{
@@ -326,7 +332,7 @@ static int32_t read_saves(gamedata *savedata, PACKFILE *f)
 				return 28;
 			}
 			
-			savedata[i].set_continue_dmap(tempbyte);
+			save.set_continue_dmap(tempbyte);
 		}
 		else
 		{
@@ -335,7 +341,7 @@ static int32_t read_saves(gamedata *savedata, PACKFILE *f)
 				return 28;
 			}
 			
-			savedata[i].set_continue_dmap(tempword);
+			save.set_continue_dmap(tempword);
 		}
 		
 		if(section_version<3)
@@ -345,21 +351,21 @@ static int32_t read_saves(gamedata *savedata, PACKFILE *f)
 				return 29;
 			}
 			
-			savedata[i].set_counter(tempword, 4);
+			save.set_counter(tempword, 4);
 			
 			if(!p_igetw(&tempword,f))
 			{
 				return 30;
 			}
 			
-			savedata[i].set_maxcounter(tempword, 4);
+			save.set_maxcounter(tempword, 4);
 			
 			if(!p_igetw(&tempshort,f))
 			{
 				return 31;
 			}
 			
-			savedata[i].set_dcounter(tempshort, 4);
+			save.set_dcounter(tempshort, 4);
 		}
 		
 		if(section_version<4)
@@ -369,21 +375,21 @@ static int32_t read_saves(gamedata *savedata, PACKFILE *f)
 				return 32;
 			}
 			
-			savedata[i].set_magicdrainrate(tempbyte);
+			save.set_magicdrainrate(tempbyte);
 			
 			if(!p_getc(&tempbyte,f))
 			{
 				return 33;
 			}
 			
-			savedata[i].set_canslash(tempbyte);
+			save.set_canslash(tempbyte);
 		}
 		
 		if(section_version <= 5)
 		{
 			for(int32_t j=0; j<OLDMAXDMAPS; ++j)
 			{
-				if(!p_getc(&(savedata[i].visited[j]),f))
+				if(!p_getc(&(save.visited[j]),f))
 				{
 					return 34;
 				}
@@ -399,7 +405,7 @@ static int32_t read_saves(gamedata *savedata, PACKFILE *f)
 						return 35;
 					}
 				}
-				std::fill(savedata[i].bmaps, savedata[i].bmaps + MAXDMAPS*128, 0);
+				std::fill(save.bmaps, save.bmaps + MAXDMAPS*128, 0);
 				for(int32_t dm = 0; dm < OLDMAXDMAPS; ++dm)
 				{
 					for(int32_t scr = 0; scr < 128; ++scr)
@@ -410,10 +416,10 @@ static int32_t read_saves(gamedata *savedata, PACKFILE *f)
 						int32_t si = ((dm-1)<<6) + ((scr>>4)<<3) + ((scr&15)-DMaps[dm].xoff); //Old Calculation
 						if(si < 0)
 						{
-							savedata[i].bmaps[di] = savedata[i].visited[512+si]&0x8F; //Replicate bug; OOB indexes
+							save.bmaps[di] = save.visited[512+si]&0x8F; //Replicate bug; OOB indexes
 							continue;
 						}
-						savedata[i].bmaps[di] = tempBMaps[si]&0x8F;
+						save.bmaps[di] = tempBMaps[si]&0x8F;
 					}
 				}
 			}
@@ -422,7 +428,7 @@ static int32_t read_saves(gamedata *savedata, PACKFILE *f)
 		{
 			for(int32_t j=0; j<MAXDMAPS; ++j)
 			{
-				if(!p_getc(&(savedata[i].visited[j]),f))
+				if(!p_getc(&(save.visited[j]),f))
 				{
 					return 34;
 				}
@@ -438,7 +444,7 @@ static int32_t read_saves(gamedata *savedata, PACKFILE *f)
 						return 35;
 					}
 				}
-				std::fill(savedata[i].bmaps, savedata[i].bmaps + MAXDMAPS*128, 0);
+				std::fill(save.bmaps, save.bmaps + MAXDMAPS*128, 0);
 				for(int32_t dm = 0; dm < MAXDMAPS; ++dm)
 				{
 					for(int32_t scr = 0; scr < 128; ++scr)
@@ -449,10 +455,10 @@ static int32_t read_saves(gamedata *savedata, PACKFILE *f)
 						int32_t si = ((dm-1)<<6) + ((scr>>4)<<3) + ((scr&15)-DMaps[dm].xoff); //Old Calculation
 						if(si < 0)
 						{
-							savedata[i].bmaps[di] = savedata[i].visited[512+si]&0x8F; //Replicate bug; OOB indexes
+							save.bmaps[di] = save.visited[512+si]&0x8F; //Replicate bug; OOB indexes
 							continue;
 						}
-						savedata[i].bmaps[di] = tempBMaps[si]&0x8F;
+						save.bmaps[di] = tempBMaps[si]&0x8F;
 					}
 				}
 			}
@@ -460,7 +466,7 @@ static int32_t read_saves(gamedata *savedata, PACKFILE *f)
 			{
 				for(int32_t j=0; j<MAXDMAPS*128; ++j)
 				{
-					if(!p_getc(&(savedata[i].bmaps[j]),f))
+					if(!p_getc(&(save.bmaps[j]),f))
 					{
 						return 35;
 					}
@@ -470,7 +476,7 @@ static int32_t read_saves(gamedata *savedata, PACKFILE *f)
 		
 		for(int32_t j=0; j<MAXMAPS2*MAPSCRSNORMAL; j++)
 		{
-			if(!p_igetw(&savedata[i].maps[j],f))
+			if(!p_igetw(&save.maps[j],f))
 			{
 				return 36;
 			}
@@ -478,7 +484,7 @@ static int32_t read_saves(gamedata *savedata, PACKFILE *f)
 		
 		for(int32_t j=0; j<MAXMAPS2*MAPSCRSNORMAL; ++j)
 		{
-			if(!p_getc(&(savedata[i].guys[j]),f))
+			if(!p_getc(&(save.guys[j]),f))
 			{
 				return 37;
 			}
@@ -489,7 +495,7 @@ static int32_t read_saves(gamedata *savedata, PACKFILE *f)
 			return 38;
 		}
 		
-		if(!pfread(savedata[i].qstpath,qstpath_len,f))
+		if(!pfread(save.qstpath,qstpath_len,f))
 		{
 			return 39;
 		}
@@ -497,7 +503,7 @@ static int32_t read_saves(gamedata *savedata, PACKFILE *f)
 		// TODO: this breaks even if the file is the same but absolute/relative path fails a
 		// strict string compare. should resolve both of these to be absolute ... or match
 		// how load_quest works ...
-		if(standalone_mode && strcmp(savedata[i].qstpath, standalone_quest)!=0)
+		if(standalone_mode && strcmp(save.qstpath, standalone_quest)!=0)
 		{
 			enter_sys_pal();
 			jwin_alert("Invalid save file",
@@ -509,16 +515,16 @@ static int32_t read_saves(gamedata *savedata, PACKFILE *f)
 		}
 		
 		// Convert path separators so save files work across platforms (hopefully)
-		regulate_path(savedata[i].qstpath);
+		regulate_path(save.qstpath);
 		
-		savedata[i].qstpath[qstpath_len]=0;
+		save.qstpath[qstpath_len]=0;
 		
-		if(!pfread(savedata[i].icon,sizeof(savedata[i].icon),f))
+		if(!pfread(save.icon,sizeof(save.icon),f))
 		{
 			return 40;
 		}
 		
-		if(!pfread(savedata[i].pal,sizeof(savedata[i].pal),f))
+		if(!pfread(save.pal,sizeof(save.pal),f))
 		{
 			return 41;
 		}
@@ -527,7 +533,7 @@ static int32_t read_saves(gamedata *savedata, PACKFILE *f)
 		{
 			for(int32_t j=0; j<OLDMAXLEVELS; ++j)
 			{
-				if(!p_getc(&(savedata[i].lvlkeys[j]),f))
+				if(!p_getc(&(save.lvlkeys[j]),f))
 				{
 					return 42;
 				}
@@ -537,7 +543,7 @@ static int32_t read_saves(gamedata *savedata, PACKFILE *f)
 		{
 			for(int32_t j=0; j<MAXLEVELS; ++j)
 			{
-				if(!p_getc(&(savedata[i].lvlkeys[j]),f))
+				if(!p_getc(&(save.lvlkeys[j]),f))
 				{
 					return 42;
 				}
@@ -552,7 +558,7 @@ static int32_t read_saves(gamedata *savedata, PACKFILE *f)
 				{
 					for(int32_t k=0; k<8; k++)
 					{
-						if(!p_igetl(&savedata[i].screen_d[j][k],f))
+						if(!p_igetl(&save.screen_d[j][k],f))
 						{
 							return 43;
 						}
@@ -565,7 +571,7 @@ static int32_t read_saves(gamedata *savedata, PACKFILE *f)
 				{
 					for(int32_t k=0; k<8; k++)
 					{
-						if(!p_igetl(&savedata[i].screen_d[j][k],f))
+						if(!p_igetl(&save.screen_d[j][k],f))
 						{
 							return 43;
 						}
@@ -578,7 +584,7 @@ static int32_t read_saves(gamedata *savedata, PACKFILE *f)
 				{
 					for(int32_t k=0; k<8; k++)
 					{
-						if(!p_igetl(&savedata[i].screen_d[j][k],f))
+						if(!p_igetl(&save.screen_d[j][k],f))
 						{
 							return 43;
 						}
@@ -593,7 +599,7 @@ static int32_t read_saves(gamedata *savedata, PACKFILE *f)
 			{
 				for(int32_t j=0; j<MAX_SCRIPT_REGISTERS; j++)
 				{
-				if(!p_igetl(&savedata[i].global_d[j],f))
+				if(!p_igetl(&save.global_d[j],f))
 				{
 					return 45;
 				}
@@ -603,7 +609,7 @@ static int32_t read_saves(gamedata *savedata, PACKFILE *f)
 			{
 				for(int32_t j=0; j<256; j++)
 				{
-					if(!p_igetl(&savedata[i].global_d[j],f))
+					if(!p_igetl(&save.global_d[j],f))
 					{
 						return 45;
 					}
@@ -620,21 +626,21 @@ static int32_t read_saves(gamedata *savedata, PACKFILE *f)
 					return 46;
 				}
 				
-				savedata[i].set_counter(tempword, j);
+				save.set_counter(tempword, j);
 				
 				if(!p_igetw(&tempword,f))
 				{
 					return 47;
 				}
 				
-				savedata[i].set_maxcounter(tempword, j);
+				save.set_maxcounter(tempword, j);
 				
 				if(!p_igetw(&tempshort,f))
 				{
 					return 48;
 				}
 				
-				savedata[i].set_dcounter(tempshort, j);
+				save.set_dcounter(tempshort, j);
 			}
 		}
 		
@@ -647,7 +653,7 @@ static int32_t read_saves(gamedata *savedata, PACKFILE *f)
 					return 49;
 				}
 				
-				savedata[i].set_generic(templong, j);
+				save.set_generic(templong, j);
 			}
 		}
 		else if(section_version>3)
@@ -659,7 +665,7 @@ static int32_t read_saves(gamedata *savedata, PACKFILE *f)
 					return 49;
 				}
 				
-				savedata[i].set_generic(tempbyte, j);
+				save.set_generic(tempbyte, j);
 			}
 		}
 		
@@ -670,19 +676,19 @@ static int32_t read_saves(gamedata *savedata, PACKFILE *f)
 				return 50;
 			}
 			
-			savedata[i].awpn = tempbyte;
+			save.awpn = tempbyte;
 			
 			if(!p_getc(&tempbyte, f))
 			{
 				return 51;
 			}
 			
-			savedata[i].bwpn = tempbyte;
+			save.bwpn = tempbyte;
 		}
 		else
 		{
-			savedata[i].awpn = 0;
-			savedata[i].bwpn = 0;
+			save.awpn = 0;
+			save.bwpn = 0;
 		}
 		
 		//First we get the size of the vector
@@ -692,11 +698,11 @@ static int32_t read_saves(gamedata *savedata, PACKFILE *f)
 		if(tempdword != 0) //Might not be any at all
 		{
 			//Then we allocate the vector
-			savedata[i].globalRAM.resize(tempdword);
+			save.globalRAM.resize(tempdword);
 			
-			for(dword j = 0; j < savedata[i].globalRAM.size(); j++)
+			for(dword j = 0; j < save.globalRAM.size(); j++)
 			{
-				ZScriptArray& a = savedata[i].globalRAM[j];
+				ZScriptArray& a = save.globalRAM[j];
 				
 				//We get the size of each container
 				if(!p_igetl(&tempdword, f))
@@ -718,19 +724,19 @@ static int32_t read_saves(gamedata *savedata, PACKFILE *f)
 				return 56;
 			}
 			
-			savedata[i].forced_awpn = tempword2;
+			save.forced_awpn = tempword2;
 			
 			if(!p_igetw(&tempword3, f))
 			{
 				return 57;
 			}
 			
-			savedata[i].forced_bwpn = tempword3;
+			save.forced_bwpn = tempword3;
 		}
 		else
 		{
-			savedata[i].forced_awpn = -1;
-			savedata[i].forced_bwpn = -1;
+			save.forced_awpn = -1;
+			save.forced_bwpn = -1;
 		}
 		if (section_version > 17)
 		{
@@ -740,14 +746,14 @@ static int32_t read_saves(gamedata *savedata, PACKFILE *f)
 				return 58;
 			}
 			
-			savedata[i].xwpn = tempbyte;
+			save.xwpn = tempbyte;
 			
 			if(!p_getc(&tempbyte, f))
 			{
 				return 59;
 			}
 			
-			savedata[i].ywpn = tempbyte;
+			save.ywpn = tempbyte;
 		
 			
 			if(!p_igetw(&tempword3, f))
@@ -755,28 +761,28 @@ static int32_t read_saves(gamedata *savedata, PACKFILE *f)
 				return 60;
 			}
 			
-			savedata[i].forced_xwpn = tempword3;
+			save.forced_xwpn = tempword3;
 			
 			if(!p_igetw(&tempword4, f))
 			{
 				return 61;
 			}
 			
-			savedata[i].forced_ywpn = tempword4;
+			save.forced_ywpn = tempword4;
 		}
 		else
 		{
-			savedata[i].xwpn = 0;
-			savedata[i].ywpn = 0;
-			savedata[i].forced_xwpn = -1;
-			savedata[i].forced_ywpn = -1;
+			save.xwpn = 0;
+			save.ywpn = 0;
+			save.forced_xwpn = -1;
+			save.forced_ywpn = -1;
 		}
 		
 		if(section_version >= 19)
 		{
 			for(int32_t j=0; j<MAXLEVELS; ++j)
 			{
-				if(!p_igetl(&(savedata[i].lvlswitches[j]),f))
+				if(!p_igetl(&(save.lvlswitches[j]),f))
 				{
 					return 62;
 				}
@@ -784,13 +790,13 @@ static int32_t read_saves(gamedata *savedata, PACKFILE *f)
 		}
 		else
 		{
-			std::fill(savedata[i].lvlswitches, savedata[i].lvlswitches+MAXLEVELS, 0);
+			std::fill(save.lvlswitches, save.lvlswitches+MAXLEVELS, 0);
 		}
 		if(section_version >= 21)
 		{
 			for(int32_t j=0; j<MAXITEMS; ++j)
 			{
-				if(!p_getc(&(savedata[i].item_messages_played[j]),f))
+				if(!p_getc(&(save.item_messages_played[j]),f))
 				{
 					return 63;
 				}
@@ -798,13 +804,13 @@ static int32_t read_saves(gamedata *savedata, PACKFILE *f)
 		}
 		else 
 		{
-			std::fill(savedata[i].item_messages_played, savedata[i].item_messages_played+MAXITEMS, 0);
+			std::fill(save.item_messages_played, save.item_messages_played+MAXITEMS, 0);
 		}
 		if(section_version >= 22)
 		{
 			for(int32_t j=0; j<256; ++j)
 			{
-				if(!p_getc(&(savedata[i].bottleSlots[j]),f))
+				if(!p_getc(&(save.bottleSlots[j]),f))
 				{
 					return 64;
 				}
@@ -812,54 +818,54 @@ static int32_t read_saves(gamedata *savedata, PACKFILE *f)
 		}
 		else 
 		{
-			memset(savedata[i].bottleSlots, 0, sizeof(savedata[i].bottleSlots));
+			memset(save.bottleSlots, 0, sizeof(save.bottleSlots));
 		}
 		if(section_version >= 23)
 		{
-			if(!p_igetw(&(savedata[i].saved_mirror_portal.destdmap), f))
+			if(!p_igetw(&(save.saved_mirror_portal.destdmap), f))
 			{
 				return 65;
 			}
-			if(!p_igetw(&(savedata[i].saved_mirror_portal.srcdmap), f))
+			if(!p_igetw(&(save.saved_mirror_portal.srcdmap), f))
 			{
 				return 66;
 			}
-			if(!p_getc(&(savedata[i].saved_mirror_portal.srcscr),f))
+			if(!p_getc(&(save.saved_mirror_portal.srcscr),f))
 			{
 				return 67;
 			}
 			if(section_version >= 32)
 			{
-				if(!p_getc(&(savedata[i].saved_mirror_portal.destscr),f))
+				if(!p_getc(&(save.saved_mirror_portal.destscr),f))
 				{
 					return 67;
 				}
 			}
-			else savedata[i].saved_mirror_portal.destscr = savedata[i].saved_mirror_portal.srcscr;
-			if(!p_igetl(&(savedata[i].saved_mirror_portal.x), f))
+			else save.saved_mirror_portal.destscr = save.saved_mirror_portal.srcscr;
+			if(!p_igetl(&(save.saved_mirror_portal.x), f))
 			{
 				return 68;
 			}
-			if(!p_igetl(&(savedata[i].saved_mirror_portal.y), f))
+			if(!p_igetl(&(save.saved_mirror_portal.y), f))
 			{
 				return 69;
 			}
-			if(!p_getc(&(savedata[i].saved_mirror_portal.sfx),f))
+			if(!p_getc(&(save.saved_mirror_portal.sfx),f))
 			{
 				return 70;
 			}
-			if(!p_igetl(&(savedata[i].saved_mirror_portal.warpfx), f))
+			if(!p_igetl(&(save.saved_mirror_portal.warpfx), f))
 			{
 				return 71;
 			}
-			if(!p_igetw(&(savedata[i].saved_mirror_portal.spr), f))
+			if(!p_igetw(&(save.saved_mirror_portal.spr), f))
 			{
 				return 72;
 			}
 		}
-		else savedata[i].saved_mirror_portal.clear();
+		else save.saved_mirror_portal.clear();
 		
-		savedata[i].clear_genscript();
+		save.clear_genscript();
 		
 		word num_gen_scripts;
 		if(section_version >= 25)
@@ -873,21 +879,21 @@ static int32_t read_saves(gamedata *savedata, PACKFILE *f)
 			{
 				if(!p_getc(&dummybyte,f))
 					return 74;
-				savedata[i].gen_doscript[q] = dummybyte!=0;
-				if(!p_igetw(&(savedata[i].gen_exitState[q]),f))
+				save.gen_doscript[q] = dummybyte!=0;
+				if(!p_igetw(&(save.gen_exitState[q]),f))
 					return 75;
-				if(!p_igetw(&(savedata[i].gen_reloadState[q]),f))
+				if(!p_igetw(&(save.gen_reloadState[q]),f))
 					return 76;
 				for(size_t ind = 0; ind < 8; ++ind)
-					if(!p_igetl(&(savedata[i].gen_initd[q][ind]),f))
+					if(!p_igetl(&(save.gen_initd[q][ind]),f))
 						return 77;
 				int32_t sz;
 				if(!p_igetl(&sz,f))
 					return 78;
-				savedata[i].gen_dataSize[q] = sz;
-				savedata[i].gen_data[q].resize(sz, 0);
+				save.gen_dataSize[q] = sz;
+				save.gen_data[q].resize(sz, 0);
 				for(auto ind = 0; ind < sz; ++ind)
-					if(!p_igetl(&(savedata[i].gen_data[q][ind]),f))
+					if(!p_igetl(&(save.gen_data[q][ind]),f))
 						return 79;
 			}
 		}
@@ -896,7 +902,7 @@ static int32_t read_saves(gamedata *savedata, PACKFILE *f)
 		{
 			for(int32_t j=0; j<MAXMAPS2*MAPSCRSNORMAL; j++)
 			{
-				if(!p_igetl(&(savedata[i].xstates[j]),f))
+				if(!p_igetl(&(save.xstates[j]),f))
 				{
 					return 78;
 				}
@@ -904,15 +910,15 @@ static int32_t read_saves(gamedata *savedata, PACKFILE *f)
 		}
 		else
 		{
-			std::fill(savedata[i].xstates, savedata[i].xstates+(MAXMAPS2*MAPSCRSNORMAL), 0);
+			std::fill(save.xstates, save.xstates+(MAXMAPS2*MAPSCRSNORMAL), 0);
 		}
 		
-		std::fill(savedata[i].gen_eventstate, savedata[i].gen_eventstate+NUMSCRIPTSGENERIC, 0);
+		std::fill(save.gen_eventstate, save.gen_eventstate+NUMSCRIPTSGENERIC, 0);
 		if(section_version >= 27)
 		{
 			for(size_t q=0; q<num_gen_scripts; q++)
 			{
-				if(!p_igetl(&savedata[i].gen_eventstate[q],f))
+				if(!p_igetl(&save.gen_eventstate[q],f))
 					return 78;
 			}
 		}
@@ -920,13 +926,13 @@ static int32_t read_saves(gamedata *savedata, PACKFILE *f)
 		{
 			for(size_t q = 0; q < NUM_GSWITCHES; ++q)
 			{
-				if(!p_igetl(&savedata[i].gswitch_timers[q],f))
+				if(!p_igetl(&save.gswitch_timers[q],f))
 					return 79;
 			}
 		}
 		else
 		{
-			std::fill(savedata[i].gswitch_timers, savedata[i].gswitch_timers+NUM_GSWITCHES, 0);
+			std::fill(save.gswitch_timers, save.gswitch_timers+NUM_GSWITCHES, 0);
 		}
 		if(section_version >= 29)
 		{
@@ -938,16 +944,16 @@ static int32_t read_saves(gamedata *savedata, PACKFILE *f)
 			buf[replay_path_len] = '\0';
 			if (!pfread(buf.get(), replay_path_len, f))
 				return 81;
-			savedata[i].replay_file = buf.get();
+			save.replay_file = buf.get();
 
 			// TODO why doesn't this work?
-			// savedata[i].replay_file.reserve(replay_path_len + 1);
-			// if (!pfread(savedata[i].replay_file.data(), replay_path_len, f))
+			// save.replay_file.reserve(replay_path_len + 1);
+			// if (!pfread(save.replay_file.data(), replay_path_len, f))
 			// 	return 81;
 		}
 		else
 		{
-			savedata[i].replay_file = "";
+			save.replay_file = "";
 		}
 		if(section_version >= 30)
 		{
@@ -956,7 +962,7 @@ static int32_t read_saves(gamedata *savedata, PACKFILE *f)
 				return 83;
 			for(uint32_t objind = 0; objind < sz; ++objind)
 			{
-				saved_user_object& s_ob = savedata[i].user_objects.emplace_back();
+				saved_user_object& s_ob = save.user_objects.emplace_back();
 				if(!p_igetl(&s_ob.object_index,f))
 					return 84;
 				//user_object
@@ -1023,7 +1029,7 @@ static int32_t read_saves(gamedata *savedata, PACKFILE *f)
 				return 99;
 			for(uint32_t q = 0; q < sz; ++q)
 			{
-				savedportal& p = savedata[i].user_portals.emplace_back();
+				savedportal& p = save.user_portals.emplace_back();
 				if(!p_igetw(&(p.destdmap), f))
 					return 100;
 				if(!p_igetw(&(p.srcdmap), f))
@@ -1050,7 +1056,7 @@ static int32_t read_saves(gamedata *savedata, PACKFILE *f)
 	return 0;
 }
 
-static int32_t write_saves(gamedata *savedata, PACKFILE *f)
+static int32_t write_saves(PACKFILE *f)
 {
 	int32_t section_id=ID_SAVEGAME;
 	int32_t section_version=V_SAVEGAME;
@@ -1082,101 +1088,105 @@ static int32_t write_saves(gamedata *savedata, PACKFILE *f)
 	
 	//word item_count=MAXITEMS;
 	word qstpath_len=0;
+
+	word count = saves_count();
 	
-	if(!p_iputw(MAXSAVES,f))
+	if(!p_iputw(count,f))
 	{
 		return 5;
 	}
 	
-	for(int32_t i=0; i<MAXSAVES; i++)
+	for(int32_t i=0; i < count; i++)
 	{
-		qstpath_len=(word)strlen(savedata[i].qstpath);
+		gamedata& save = saves[i];
+
+		qstpath_len=(word)strlen(save.qstpath);
 		
-		if(!pfwrite(savedata[i].get_name_mutable(),9,f))
+		if(!pfwrite(save.get_name_mutable(),9,f))
 		{
 			return 6;
 		}
 		
-		if(!p_putc(savedata[i].get_quest(),f))
+		if(!p_putc(save.get_quest(),f))
 		{
 			return 7;
 		}
 		
-		if(!p_iputw(savedata[i].get_deaths(),f))
+		if(!p_iputw(save.get_deaths(),f))
 		{
 			return 13;
 		}
 		
-		if(!p_putc(savedata[i]._cheat,f))
+		if(!p_putc(save._cheat,f))
 		{
 			return 17;
 		}
 		
 		for(int32_t j=0; j<MAXITEMS; j++)
 		{
-			if(!p_putc(savedata[i].get_item(j) ? 1 : 0,f))
+			if(!p_putc(save.get_item(j) ? 1 : 0,f))
 				return 18;
 		}
 		
-		if(!pfwrite(savedata[i].version,16,f))
+		if(!pfwrite(save.version,16,f))
 		{
 			return 20;
 		}
 		
-		if(!pfwrite(savedata[i].title,sizeof(savedata[i].title),f))
+		if(!pfwrite(save.title,sizeof(save.title),f))
 		{
 			return 21;
 		}
 		
-		if(!p_putc(savedata[i].get_hasplayed(),f))
+		if(!p_putc(save.get_hasplayed(),f))
 		{
 			return 22;
 		}
 		
-		if(!p_iputl(savedata[i].get_time(),f))
+		if(!p_iputl(save.get_time(),f))
 		{
 			return 23;
 		}
 		
-		if(!p_putc(savedata[i].get_timevalid(),f))
+		if(!p_putc(save.get_timevalid(),f))
 		{
 			return 24;
 		}
 		
-		if(!pfwrite(savedata[i].lvlitems,MAXLEVELS,f))
+		if(!pfwrite(save.lvlitems,MAXLEVELS,f))
 		{
 			return 25;
 		}
 		
-		if(!p_putc(savedata[i].get_continue_scrn(),f))
+		if(!p_putc(save.get_continue_scrn(),f))
 		{
 			return 27;
 		}
 		
-		if(!p_iputw(savedata[i].get_continue_dmap(),f))
+		if(!p_iputw(save.get_continue_dmap(),f))
 		{
 			return 28;
 		}
 		
-		if(!pfwrite(savedata[i].visited,MAXDMAPS,f))
+		if(!pfwrite(save.visited,MAXDMAPS,f))
 		{
 			return 34;
 		}
 		
-		if(!pfwrite(savedata[i].bmaps,MAXDMAPS*128,f))
+		if(!pfwrite(save.bmaps,MAXDMAPS*128,f))
 		{
 			return 35;
 		}
 		
 		for(int32_t j=0; j<MAXMAPS2*MAPSCRSNORMAL; j++)
 		{
-			if(!p_iputw(savedata[i].maps[j],f))
+			if(!p_iputw(save.maps[j],f))
 			{
 				return 36;
 			}
 		}
 		
-		if(!pfwrite(savedata[i].guys,MAXMAPS2*MAPSCRSNORMAL,f))
+		if(!pfwrite(save.guys,MAXMAPS2*MAPSCRSNORMAL,f))
 		{
 			return 37;
 		}
@@ -1186,22 +1196,22 @@ static int32_t write_saves(gamedata *savedata, PACKFILE *f)
 			return 38;
 		}
 		
-		if(!pfwrite(savedata[i].qstpath,qstpath_len,f))
+		if(!pfwrite(save.qstpath,qstpath_len,f))
 		{
 			return 39;
 		}
 		
-		if(!pfwrite(savedata[i].icon,sizeof(savedata[i].icon),f))
+		if(!pfwrite(save.icon,sizeof(save.icon),f))
 		{
 			return 40;
 		}
 		
-		if(!pfwrite(savedata[i].pal,sizeof(savedata[i].pal),f))
+		if(!pfwrite(save.pal,sizeof(save.pal),f))
 		{
 			return 41;
 		}
 		
-		if(!pfwrite(savedata[i].lvlkeys,MAXLEVELS,f))
+		if(!pfwrite(save.lvlkeys,MAXLEVELS,f))
 		{
 			return 42;
 		}
@@ -1210,7 +1220,7 @@ static int32_t write_saves(gamedata *savedata, PACKFILE *f)
 		{
 			for(int32_t k=0; k<8; k++)
 			{
-				if(!p_iputl(savedata[i].screen_d[j][k],f))
+				if(!p_iputl(save.screen_d[j][k],f))
 				{
 					return 43;
 				}
@@ -1219,7 +1229,7 @@ static int32_t write_saves(gamedata *savedata, PACKFILE *f)
 		
 		for(int32_t j=0; j<MAX_SCRIPT_REGISTERS; j++)
 		{
-			if(!p_iputl(savedata[i].global_d[j],f))
+			if(!p_iputl(save.global_d[j],f))
 			{
 				return 44;
 			}
@@ -1227,17 +1237,17 @@ static int32_t write_saves(gamedata *savedata, PACKFILE *f)
 		
 		for(int32_t j=0; j<32; j++)
 		{
-			if(!p_iputw(savedata[i].get_counter(j), f))
+			if(!p_iputw(save.get_counter(j), f))
 			{
 				return 45;
 			}
 			
-			if(!p_iputw(savedata[i].get_maxcounter(j), f))
+			if(!p_iputw(save.get_maxcounter(j), f))
 			{
 				return 46;
 			}
 			
-			if(!p_iputw(savedata[i].get_dcounter(j), f))
+			if(!p_iputw(save.get_dcounter(j), f))
 			{
 				return 47;
 			}
@@ -1245,29 +1255,29 @@ static int32_t write_saves(gamedata *savedata, PACKFILE *f)
 		
 		for(int32_t j=0; j<256; j++)
 		{
-			if(!p_iputl(savedata[i].get_generic(j), f))
+			if(!p_iputl(save.get_generic(j), f))
 			{
 				return 48;
 			}
 		}
 		
-		if(!p_putc(savedata[i].awpn, f))
+		if(!p_putc(save.awpn, f))
 		{
 			return 49;
 		}
 		
-		if(!p_putc(savedata[i].bwpn, f))
+		if(!p_putc(save.bwpn, f))
 		{
 			return 50;
 		}
 		
 		//First we put the size of the vector
-		if(!p_iputl(savedata[i].globalRAM.size(), f))
+		if(!p_iputl(save.globalRAM.size(), f))
 			return 51;
 			
-		for(dword j = 0; j < savedata[i].globalRAM.size(); j++)
+		for(dword j = 0; j < save.globalRAM.size(); j++)
 		{
-			ZScriptArray& a = savedata[i].globalRAM[j];
+			ZScriptArray& a = save.globalRAM[j];
 			
 			//Then we put the size of each container
 			if(!p_iputl(a.Size(), f))
@@ -1278,78 +1288,78 @@ static int32_t write_saves(gamedata *savedata, PACKFILE *f)
 				if(!p_iputl(a[k], f))
 					return 53;
 		}
-		if(!p_iputw(savedata[i].forced_awpn, f))
+		if(!p_iputw(save.forced_awpn, f))
 		{
 			return 54;
 		}
 		
-		if(!p_iputw(savedata[i].forced_bwpn, f))
+		if(!p_iputw(save.forced_bwpn, f))
 		{
 			return 55;
 		}
 	
-		if(!p_iputw(savedata[i].forced_xwpn, f))
+		if(!p_iputw(save.forced_xwpn, f))
 		{
 			return 56;
 		}
 		
-		if(!p_iputw(savedata[i].forced_ywpn, f))
+		if(!p_iputw(save.forced_ywpn, f))
 		{
 			return 57;
 		}
-		if(!p_putc(savedata[i].xwpn, f))
+		if(!p_putc(save.xwpn, f))
 		{
 			return 58;
 		}
-		if(!p_putc(savedata[i].ywpn, f))
+		if(!p_putc(save.ywpn, f))
 		{
 			return 59;
 		}
-		if(!pfwrite(savedata[i].lvlswitches,MAXLEVELS*sizeof(int32_t),f))
+		if(!pfwrite(save.lvlswitches,MAXLEVELS*sizeof(int32_t),f))
 		{
 			return 60;
 		}
-		if(!pfwrite(savedata[i].item_messages_played,MAXITEMS*sizeof(bool),f))
+		if(!pfwrite(save.item_messages_played,MAXITEMS*sizeof(bool),f))
 		{
 			return 61;
 		}
-		if(!pfwrite(savedata[i].bottleSlots,256*sizeof(byte),f))
+		if(!pfwrite(save.bottleSlots,256*sizeof(byte),f))
 		{
 			return 62;
 		}
-		if(!p_iputw(savedata[i].saved_mirror_portal.destdmap, f))
+		if(!p_iputw(save.saved_mirror_portal.destdmap, f))
 		{
 			return 63;
 		}
-		if(!p_iputw(savedata[i].saved_mirror_portal.srcdmap, f))
+		if(!p_iputw(save.saved_mirror_portal.srcdmap, f))
 		{
 			return 64;
 		}
-		if(!p_putc(savedata[i].saved_mirror_portal.srcscr,f))
+		if(!p_putc(save.saved_mirror_portal.srcscr,f))
 		{
 			return 65;
 		}
-		if(!p_putc(savedata[i].saved_mirror_portal.destscr,f))
+		if(!p_putc(save.saved_mirror_portal.destscr,f))
 		{
 			return 109;
 		}
-		if(!p_iputl(savedata[i].saved_mirror_portal.x, f))
+		if(!p_iputl(save.saved_mirror_portal.x, f))
 		{
 			return 66;
 		}
-		if(!p_iputl(savedata[i].saved_mirror_portal.y, f))
+		if(!p_iputl(save.saved_mirror_portal.y, f))
 		{
 			return 67;
 		}
-		if(!p_putc(savedata[i].saved_mirror_portal.sfx,f))
+		if(!p_putc(save.saved_mirror_portal.sfx,f))
 		{
 			return 68;
 		}
-		if(!p_iputl(savedata[i].saved_mirror_portal.warpfx, f))
+		if(!p_iputl(save.saved_mirror_portal.warpfx, f))
 		{
 			return 69;
 		}
-		if(!p_iputw(savedata[i].saved_mirror_portal.spr, f))
+		if(!p_iputw(save.saved_mirror_portal.spr, f))
 		{
 			return 70;
 		}
@@ -1358,29 +1368,29 @@ static int32_t write_saves(gamedata *savedata, PACKFILE *f)
 		{
 			new_return(71);
 		}
-		save_genscript(savedata[i]); //read the values into the save object
+		save_genscript(save); //read the values into the save object
 		for(size_t q=0; q<NUMSCRIPTSGENERIC; q++)
         {
-			if(!p_putc(savedata[i].gen_doscript[q] ? 1 : 0,f))
+			if(!p_putc(save.gen_doscript[q] ? 1 : 0,f))
 				return 72;
-			if(!p_iputw(savedata[i].gen_exitState[q],f))
+			if(!p_iputw(save.gen_exitState[q],f))
 				return 73;
-			if(!p_iputw(savedata[i].gen_reloadState[q],f))
+			if(!p_iputw(save.gen_reloadState[q],f))
 				return 74;
 			for(size_t ind = 0; ind < 8; ++ind)
-				if(!p_iputl(savedata[i].gen_initd[q][ind],f))
+				if(!p_iputl(save.gen_initd[q][ind],f))
 					return 75;
-			int32_t sz = savedata[i].gen_dataSize[q];
+			int32_t sz = save.gen_dataSize[q];
 			if(!p_iputl(sz,f))
 				return 76;
 			for(auto ind = 0; ind < sz; ++ind)
-				if(!p_iputl(savedata[i].gen_data[q][ind],f))
+				if(!p_iputl(save.gen_data[q][ind],f))
 					return 77;
         }
 		
 		for(int32_t j=0; j<MAXMAPS2*MAPSCRSNORMAL; j++)
 		{
-			if(!p_iputl(savedata[i].xstates[j],f))
+			if(!p_iputl(save.xstates[j],f))
 			{
 				return 78;
 			}
@@ -1388,23 +1398,23 @@ static int32_t write_saves(gamedata *savedata, PACKFILE *f)
 		
 		for(auto q = 0; q < NUMSCRIPTSGENERIC; ++q)
 		{
-			if(!p_iputl(savedata[i].gen_eventstate[q],f))
+			if(!p_iputl(save.gen_eventstate[q],f))
 			{
 				return 79;
 			}
 		}
-		if(!pfwrite(savedata[i].gswitch_timers,NUM_GSWITCHES*sizeof(int32_t),f))
+		if(!pfwrite(save.gswitch_timers,NUM_GSWITCHES*sizeof(int32_t),f))
 		{
 			return 80;
 		}
-		if (!p_iputw(savedata[i].replay_file.length(), f))
+		if (!p_iputw(save.replay_file.length(), f))
 			return 81;
-		if (!pfwrite((void*)savedata[i].replay_file.c_str(), savedata[i].replay_file.length(), f))
+		if (!pfwrite((void*)save.replay_file.c_str(), save.replay_file.length(), f))
 			return 82;
-		uint32_t sz = savedata[i].user_objects.size();
+		uint32_t sz = save.user_objects.size();
 		if(!p_iputl(sz,f))
 			return 83;
-		for(saved_user_object const& s_ob : savedata[i].user_objects)
+		for(saved_user_object const& s_ob : save.user_objects)
 		{
 			if(!p_iputl(s_ob.object_index,f))
 				return 84;
@@ -1455,10 +1465,10 @@ static int32_t write_saves(gamedata *savedata, PACKFILE *f)
 				}
 			}
 		}
-		sz = savedata[i].user_portals.size();
+		sz = save.user_portals.size();
 		if(!p_iputl(sz,f))
 			return 99;
-		for(savedportal const& p : savedata[i].user_portals)
+		for(savedportal const& p : save.user_portals)
 		{
 			if(!p_iputw(p.destdmap, f))
 				return 100;
@@ -1487,22 +1497,9 @@ static int32_t write_saves(gamedata *savedata, PACKFILE *f)
 // call once at startup
 int32_t saves_init()
 {
-	if(saves == NULL)
-	{
-		saves = new gamedata[MAXSAVES];
-		
-		if(saves==NULL)
-			return 1;
-		
-		for(auto q = 0; q < MAXSAVES; ++q)
-		{
-			saves[q].Clear();
-		}
-	}
-
+	saves.clear();
 	currgame = -1;
 	game = new gamedata();
-
 	return 0;
 }
 
@@ -1559,7 +1556,7 @@ int32_t saves_load()
 	if(!f)
 		goto cantopen;
 		
-	if(read_saves(saves,f)!=0)
+	if(read_saves(f)!=0)
 		goto reset;
 	
 	pack_fclose(f);
@@ -1623,14 +1620,12 @@ reset:
 	Z_message("Format error.  Resetting game data... ");
 	
 init:
-
-	for(int32_t i=0; i<MAXSAVES; i++)
-		saves[i].Clear();
+	saves.clear();
 
 	if (standalone_mode)
 	{
 		char *fn=get_filename(standalone_quest);
-		saves[0].set_name(fn);
+		saves.emplace_back().set_name(fn);
 
 		qstpath=(char*)malloc(2048);
 		strncpy(qstpath, standalone_quest, 2047);
@@ -1716,11 +1711,8 @@ void saves_update_icon(int index)
 
 static int32_t do_save_games(const char* path)
 {
-	if (saves==NULL)
-		return 1;
-	
 	// Not sure why this happens, but apparently it does...
-	for(int32_t i=0; i<MAXSAVES; i++)
+	for(int32_t i=0; i<saves_count(); i++)
 	{
 		for(int32_t j=0; j<48; j++)
 		{
@@ -1750,7 +1742,7 @@ static int32_t do_save_games(const char* path)
 		return 2;
 	}
 	
-	if(write_saves(saves, f)!=0)
+	if(write_saves(f)!=0)
 	{
 		pack_fclose(f);
 		delete_file(tmpfilename);
@@ -1793,10 +1785,7 @@ void saves_select(int32_t index)
 
 int32_t saves_count()
 {
-	int count = 0;
-	while (count < MAXSAVES && saves[count].get_quest() > 0)
-		count++;
-	return count;
+	return saves.size();
 }
 
 int32_t saves_current_selection()
@@ -1813,32 +1802,22 @@ const gamedata* saves_get_data(int32_t index)
 
 void saves_delete(int32_t index)
 {
-	int savecnt = saves_count();
-
-	if (index < savecnt)
+	if (index < saves_count())
 	{
-		for (int32_t i = index; i < MAXSAVES-1; i++)
-		{
-			saves[i] = saves[i+1];
-		}
-
-		saves[MAXSAVES-1].Clear();
-		--savecnt;
-		if(listpos>savecnt-1)
+		saves.erase(saves.begin() + index);
+		if(listpos>saves_count()-1)
 			listpos=zc_max(listpos-3,0);
 	}
 }
 
-void saves_copy(int32_t from_index, int32_t to_index)
+void saves_copy(int32_t from_index)
 {
 	int savecnt = saves_count();
-	if (from_index >= savecnt || to_index >= MAXSAVES || savecnt >= MAXSAVES)
+	if (from_index >= savecnt || savecnt >= MAXSAVES)
 		abort();
 
 	const gamedata& from_save = saves[from_index];
-	gamedata& to_save = saves[to_index];
-
-	to_save = from_save;
+	gamedata& to_save = saves.emplace_back(from_save);
 
 	if (!to_save.replay_file.empty())
 	{
@@ -1854,6 +1833,11 @@ void saves_copy(int32_t from_index, int32_t to_index)
 			to_save.replay_file = "";
 		}
 	}
+}
+
+gamedata* saves_create()
+{
+	return &saves.emplace_back();
 }
 
 gamedata* saves_get_data_mutable(int32_t index)

@@ -1340,7 +1340,8 @@ static void list_saves()
 	
 	for(int32_t i=0; i<3; i++)
 	{
-		list_save(listpos+i,i*24+56);
+		if (listpos+i < savecnt)
+			list_save(listpos+i,i*24+56);
 	}
 	
 	// Draw the arrows above the lifemeter!
@@ -1383,7 +1384,7 @@ static bool register_name()
 	}
 	int32_t NameEntryMode2=NameEntryMode;
 
-	gamedata* save = saves_get_data_mutable(s);
+	gamedata* save = saves_create();
 	save->set_quest(0xFF); // Will get set later. Only set now so saves_count() counts this.
 	save->set_maxlife(3*16);
 	save->set_life(3*16);
@@ -1846,7 +1847,7 @@ static bool copy_file(int32_t file)
 
 	if(savecnt<MAXSAVES && file<savecnt)
 	{
-		saves_copy(file, savecnt);
+		saves_copy(file);
 
 		listpos=((saves_count()-1)/3)*3;
 		sfx(WAV_SCALE);

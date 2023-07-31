@@ -5260,6 +5260,7 @@ reload_for_replay_file:
 	{
 		load_replay_file(load_replay_file_mode, load_replay_file_filename, -1);
 		load_replay_file_deffered_called = false;
+		saves_init();
 	}
 
 	current_session_is_replay = replay_is_active();
@@ -5278,8 +5279,7 @@ reload_for_replay_file:
 
 	if (zqtesting_mode || replay_is_active())
 	{
-		saves_select(0);
-		gamedata* save0 = saves_get_data_mutable(0);
+		gamedata* save0 = saves_create();
 		save0->Clear();
 		if (use_testingst_start)
 		{
@@ -5302,6 +5302,7 @@ reload_for_replay_file:
 			save0->set_name("Hero");
 		}
 		save0->set_timevalid(1);
+		saves_select(0);
 		if (use_testingst_start)
 			Z_message("Test mode: \"%s\", %d, %d\n", testingqst_name.c_str(), testingqst_dmap, testingqst_screen);
 		if (replay_is_active())
