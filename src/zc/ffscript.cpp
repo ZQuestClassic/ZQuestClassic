@@ -11098,6 +11098,15 @@ int32_t get_register(const int32_t arg)
 		{
 			ret = (DMaps[ri->dmapsref].tmusic_loop_end); break;
 		}
+		case DMAPDATAXFADEIN:
+		{
+			ret = (DMaps[ri->dmapsref].tmusic_xfade_in * 10000); break;
+		}
+		case DMAPDATAXFADEOUT:
+		{
+			ret = (DMaps[ri->dmapsref].tmusic_xfade_out * 10000); 
+			break;
+		}
 		case DMAPDATAASUBSCRIPT:	//word
 		{
 			ret = (DMaps[ri->dmapsref].active_sub_script) * 10000; break;
@@ -21527,6 +21536,20 @@ void set_register(int32_t arg, int32_t value)
 			}
 			break;
 		}
+		case DMAPDATAXFADEIN:
+		{
+			DMaps[ri->dmapsref].tmusic_xfade_in = (value / 10000);
+			break;
+		}
+		case DMAPDATAXFADEOUT:
+		{
+			DMaps[ri->dmapsref].tmusic_xfade_out = (value / 10000);
+			if (DMaps[currdmap].tmusic[0]!=0 && strcmp(DMaps[ri->dmapsref].tmusic, zcmusic->filename) == 0)
+			{
+				zcmusic->fadeoutframes = (value / 10000);
+			}
+			break;
+		}
 		case DMAPDATAASUBSCRIPT:	//byte
 		{
 			FFScript::deallocateAllArrays(ScriptType::ActiveSubscreen, ri->dmapsref);
@@ -29655,18 +29678,14 @@ void do_enh_music_crossfade()
 bool FFScript::play_enh_music_crossfade(char* name, int32_t track, int32_t fadeinframes, int32_t fadeoutframes, int32_t fademiddleframes, int32_t startpos)
 {
 	double fadeoutpct = 1.0;
-	if (zcmixer->fadeinframes > 0 && zcmixer->fadeinframes <= zcmixer->fadeinmaxframes)
+	// If there was an old fade going, use that as a multiplier for the new fade out
+	if (zcmixer->newtrack != NULL)
 	{
-		fadeoutpct = 1.0 - (double(zcmixer->fadeinframes) / double(zcmixer->fadeinmaxframes));
+		fadeoutpct = double(zcmixer->newtrack->fadevolume) / 10000.0;
 	}
 
-	// If there's already an old track playing, stop it
-	if (zcmixer->oldtrack != NULL)
-	{
-		zcmusic_stop(zcmixer->oldtrack);
-		zcmusic_unload_file(zcmixer->oldtrack);
-		zcmixer->oldtrack = NULL;
-	}
+	ZCMUSIC* oldold = zcmixer->oldtrack;
+	bool ret = false;
 
 	if (name == NULL)
 	{
@@ -29679,7 +29698,7 @@ bool FFScript::play_enh_music_crossfade(char* name, int32_t track, int32_t fadei
 		zcmixer->fadeinframes = fadeinframes + fademiddleframes;
 		zcmixer->fadeinmaxframes = fadeinframes;
 		zcmixer->fadeindelay = fademiddleframes;
-		zcmixer->fadeoutframes = fadeoutframes * fadeoutpct;
+		zcmixer->fadeoutframes = zc_max(fadeoutframes * fadeoutpct, 1);
 		zcmixer->fadeoutmaxframes = fadeoutframes;
 		if (zcmixer->oldtrack != NULL)
 			zcmixer->oldtrack->fadevolume = 10000;
@@ -29693,7 +29712,6 @@ bool FFScript::play_enh_music_crossfade(char* name, int32_t track, int32_t fadei
 		zcmusic = NULL;
 		zcmixer->newtrack = NULL;
 
-		bool ret;
 		ret = try_zcmusic(name, track, -1000, fadeoutframes);
 		// If new music was found
 		if (ret)
@@ -29706,7 +29724,7 @@ bool FFScript::play_enh_music_crossfade(char* name, int32_t track, int32_t fadei
 			zcmixer->fadeinframes = fadeinframes + fademiddleframes;
 			zcmixer->fadeinmaxframes = fadeinframes;
 			zcmixer->fadeindelay = fademiddleframes;
-			zcmixer->fadeoutframes = fadeoutframes * fadeoutpct;
+			zcmixer->fadeoutframes = zc_max(fadeoutframes * fadeoutpct, 1);
 			zcmixer->fadeoutmaxframes = fadeoutframes;
 			if (startpos > 0)
 				zcmusic_set_curpos(zcmixer->newtrack, startpos);
@@ -29715,16 +29733,34 @@ bool FFScript::play_enh_music_crossfade(char* name, int32_t track, int32_t fadei
 			if (zcmixer->newtrack != NULL)
 				zcmixer->newtrack->fadevolume = 0;
 		}
+	}
+	
+	// If there was already an old track playing, stop it
+	if (oldold != NULL)
+	{
+		// Don't allow it to null both tracks if running twice in a row
+		if (zcmixer->newtrack == NULL && zcmixer->oldtrack == NULL)
+		{
+			zcmixer->oldtrack = oldold;
+
+			if (oldold->fadeoutframes > 0)
+			{
+				zcmixer->fadeoutframes = zc_max(oldold->fadeoutframes * fadeoutpct, 1);
+				zcmixer->fadeoutmaxframes = oldold->fadeoutframes;
+				if (zcmixer->oldtrack != NULL)
+					zcmixer->oldtrack->fadevolume = 10000;
+				oldold->fadeoutframes = 0;
+			}
+		}
 		else
 		{
-			// Abort, revert back to the old music
-			zcmusic = zcmixer->oldtrack;
-			zcmixer->newtrack = zcmusic;
-			zcmixer->oldtrack = NULL;
+			zcmusic_stop(oldold);
+			zcmusic_unload_file(oldold);
+			oldold = NULL;
 		}
-		return ret;
 	}
-	return false;
+
+	return ret;
 }
 
 bool FFScript::doing_dmap_enh_music(int32_t dm)
@@ -42635,8 +42671,8 @@ script_variable ZASMVars[]=
 
 	{ "DMAPDATALOOPSTART", DMAPDATALOOPSTART, 0, 0 },
 	{ "DMAPDATALOOPEND", DMAPDATALOOPEND, 0, 0 },
-	{ "RESRVD_VAR_MOOSH03", RESRVD_VAR_MOOSH03, 0, 0 },
-	{ "RESRVD_VAR_MOOSH04", RESRVD_VAR_MOOSH04, 0, 0 },
+	{ "DMAPDATAXFADEIN", DMAPDATAXFADEIN, 0, 0 },
+	{ "DMAPDATAXFADEOUT", DMAPDATAXFADEOUT, 0, 0 },
 	{ "RESRVD_VAR_MOOSH05", RESRVD_VAR_MOOSH05, 0, 0 },
 	{ "RESRVD_VAR_MOOSH06", RESRVD_VAR_MOOSH06, 0, 0 },
 	{ "RESRVD_VAR_MOOSH07", RESRVD_VAR_MOOSH07, 0, 0 },
