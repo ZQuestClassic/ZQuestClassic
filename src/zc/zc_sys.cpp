@@ -5320,12 +5320,12 @@ void j_getbtn(DIALOG *d)
 {
 	d->flags|=D_SELECTED;
 	jwin_button_proc(MSG_DRAW,d,0);
-	jwin_draw_win(gui_bmp, (gui_bmp->w-160)/2, (gui_bmp->h-48)/2, 160, 48, FR_WIN);
+	jwin_draw_win(screen, (screen->w-160)/2, (screen->h-48)/2, 160, 48, FR_WIN);
 	//  text_mode(vc(11));
-	int32_t y = gui_bmp->h/2 - 12;
-	textout_centre_ex(gui_bmp, font, "Press a button", gui_bmp->w/2, y, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-	textout_centre_ex(gui_bmp, font, "ESC to cancel", gui_bmp->w/2, y+8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-	textout_centre_ex(gui_bmp, font, "SPACE to disable", gui_bmp->w/2, y+16, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+	int32_t y = screen->h/2 - 12;
+	textout_centre_ex(screen, font, "Press a button", screen->w/2, y, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+	textout_centre_ex(screen, font, "ESC to cancel", screen->w/2, y+8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+	textout_centre_ex(screen, font, "SPACE to disable", screen->w/2, y+16, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
 	
 	update_hw_screen(true);
 	
