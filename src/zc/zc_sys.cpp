@@ -51,6 +51,7 @@
 #include "zc/hero.h"
 #include "zc/title.h"
 #include "particles.h"
+#include "zcmusic.h"
 #include "zconsole.h"
 #include "zc/ffscript.h"
 #include "dialog/info.h"
@@ -6924,6 +6925,8 @@ int32_t onSound()
 	if(ret==2)
 	{
 		master_volume(digi_volume,midi_volume);
+		if (zcmusic)
+			zcmusic_set_volume(zcmusic, emusic_volume);
 		
 		int32_t temp_volume = sfx_volume;
 		if (!get_bit(quest_rules, qr_OLD_SCRIPT_VOLUME))

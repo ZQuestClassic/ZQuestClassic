@@ -485,29 +485,7 @@ bool zcmusic_play(ZCMUSIC* zcm, int32_t vol) /* = FALSE */
 	
 	if(zcm->playing != ZCM_STOPPED)                         // adjust volume
 	{
-		switch(zcm->type & libflags)
-		{
-		case ZCMF_DUH:
-			if(((DUHFILE*)zcm)->p != NULL)
-				al_duh_set_volume(((DUHFILE*)zcm)->p, (float)vol / (float)255);
-				
-			break;
-			
-		case ZCMF_OGG:
-		case ZCMF_MP3:
-			if(((ALSTREAMFILE*)zcm)->s != NULL)
-			{
-				al_set_audio_stream_gain(((ALSTREAMFILE*)zcm)->s, vol / 255.0);
-				((ALSTREAMFILE*)zcm)->vol = vol;
-			}
-			
-			break;
-			
-		case ZCMF_GME:
-			// need to figure out volume switch
-			break;
-			
-		}
+		ret = zcmusic_set_volume(zcm, vol);
 	}
 	else
 	{
@@ -526,9 +504,9 @@ bool zcmusic_play(ZCMUSIC* zcm, int32_t vol) /* = FALSE */
 		case ZCMF_MP3:
 			if (((ALSTREAMFILE*)zcm)->s != NULL)
 			{
-				ret = al_set_audio_stream_playing(((ALSTREAMFILE*)zcm)->s, true);
 				al_set_audio_stream_gain(((ALSTREAMFILE*)zcm)->s, vol / 255.0);
 				((ALSTREAMFILE*)zcm)->vol = vol;
+				ret = al_set_audio_stream_playing(((ALSTREAMFILE*)zcm)->s, true);
 			}
 			else
 			{
@@ -679,6 +657,39 @@ bool zcmusic_stop(ZCMUSIC* zcm)
 	
 	al_unlock_mutex(playlistmutex);
 	return TRUE;
+}
+
+bool zcmusic_set_volume(ZCMUSIC* zcm, int32_t vol)
+{
+	if(zcm == NULL) return FALSE;
+	
+	if(zcm->playing != ZCM_STOPPED)                         // adjust volume
+	{
+		switch(zcm->type & libflags)
+		{
+		case ZCMF_DUH:
+			if(((DUHFILE*)zcm)->p != NULL)
+				al_duh_set_volume(((DUHFILE*)zcm)->p, (float)vol / (float)255);
+				
+			break;
+			
+		case ZCMF_OGG:
+		case ZCMF_MP3:
+			if(((ALSTREAMFILE*)zcm)->s != NULL)
+			{
+				al_set_audio_stream_gain(((ALSTREAMFILE*)zcm)->s, vol / 255.0);
+				((ALSTREAMFILE*)zcm)->vol = vol;
+			}
+			
+			break;
+			
+		case ZCMF_GME:
+			// need to figure out volume switch
+			break;
+		}
+	}
+	
+	return true;
 }
 
 void zcmusic_unload_file(ZCMUSIC* &zcm)
