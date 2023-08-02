@@ -4372,6 +4372,12 @@ int main(int argc, char **argv)
 		return get_qr(qr_SCRIPTERRLOG) || DEVLEVEL > 0;
 	});
 
+	// Helps to test crash reporting.
+	if (used_switch(argc, argv, "-crash") > 0)
+	{
+		abort();
+	}
+
 	if (used_switch(argc, argv, "-headless") > 0)
 	{
 		set_headless_mode();
