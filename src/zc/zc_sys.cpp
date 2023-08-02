@@ -8682,13 +8682,15 @@ bool joybtn(int32_t b)
 {
 	if(b == 0)
 		return false;
+	if (b-1 >= joy[joystick_index].num_buttons)
+		return false;
 		
 	return joy[joystick_index].button[b-1].b !=0;
 }
 
 const char* joybtn_name(int32_t b)
 {
-	if(b == 0)
+	if (b <= 0 || b > joy[joystick_index].num_buttons)
 		return "";
 
 	return joy[joystick_index].button[b-1].name;
