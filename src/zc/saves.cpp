@@ -19,7 +19,7 @@
 extern FFScript FFCore;
 
 static const char *SAVE_HEADER = "Zelda Classic Save File";
-static const char *OLD_SAVE_HEADER = "Zelda Classic Save File";
+static const char *OLD_SAVE_HEADER = "ZQuest Classic Save File";
 static int currgame;
 static std::vector<gamedata> saves;
 
