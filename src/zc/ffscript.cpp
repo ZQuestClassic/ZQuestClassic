@@ -30638,8 +30638,10 @@ int32_t run_script(ScriptType type, const word script, const int32_t i)
 	// No need to do anything if the script is not valid.
 	// An example of this is found in `playground.qst` player scripts, which have scripts with
 	// a single 0xFFFF command.
-	if (!curscript->valid())
-		return RUNSCRIPT_OK;
+	// Can't actually do this because we must unset `doscript` via the `scommand == 0xFFFF` handling in run_script_int.
+	// Otherwise can get freeze, like in ending.cpp
+	// if (!curscript->valid())
+	// 	return RUNSCRIPT_OK;
 
 	script_funcrun = false;
 
