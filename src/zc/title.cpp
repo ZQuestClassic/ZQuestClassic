@@ -2165,7 +2165,7 @@ static int32_t saveslot = -1;
 
 int32_t getsaveslot()
 {
-	if (saveslot >= 0)
+	if (saveslot >= 0 && saveslot < saves_count())
 	{
 		const gamedata* save = saves_get_data(saveslot);
 		if ((!save->get_quest() || save->get_hasplayed()))
@@ -2277,7 +2277,7 @@ static void select_game(bool skip = false)
 				break;
 				
 			default:
-				switch(mode)
+				if (saveslot < saves_count()) switch(mode)
 				{
 				case 0:
 					saves_select(saveslot);
