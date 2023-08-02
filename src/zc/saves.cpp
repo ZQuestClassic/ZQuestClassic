@@ -125,19 +125,6 @@ static int32_t read_saves(PACKFILE *f)
 				   "OK",NULL,'o',0,get_zc_font(font_lfont));
 		exit(0);
 	}
-	else if(!standalone_mode && save_count==1)
-	{
-		enter_sys_pal();
-		if(jwin_alert3("Standalone save file",
-					   "This save file was created in standalone mode.",
-					   "If you continue, you will no longer be able",
-					   "to use it in standalone mode. Continue anyway?",
-					   "No","Yes",NULL, 'n','y', 0, get_zc_font(font_lfont))!=2)
-		{
-			exit(0);
-		}
-		exit_sys_pal();
-	}
 
 	saves.clear();
 	saves.resize(save_count);
