@@ -2773,12 +2773,12 @@ bool triggerfire(int x, int y, bool setflag, bool any, bool strong, bool magic, 
 	if(divine)
 		ret = ret||findentrance(x,y,mfDIVINEFIRE,setflag);
 	
-	std::set<int> poses({COMBOPOS(x,y),COMBOPOS(x,y+15),COMBOPOS(x+15,y),COMBOPOS(x+15,y+15)});
+	std::set<int> poses({COMBOPOS_B(x,y),COMBOPOS_B(x,y+15),COMBOPOS_B(x+15,y),COMBOPOS_B(x+15,y+15)});
 	for(int q = 0; q < 7; ++q)
 	{
 		mapscr* m = FFCore.tempScreens[q];
 		for(int pos : poses)
-			if(combobuf[m->data[pos]].triggerflags[2] & trigflags)
+			if(pos != -1 && combobuf[m->data[pos]].triggerflags[2] & trigflags)
 			{
 				do_trigger_combo(q,pos);
 				ret = true;
