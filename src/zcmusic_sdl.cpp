@@ -167,6 +167,7 @@ bool zcmusic_play(ZCMUSIC *zcm, int32_t vol)
   }
 
   // In case it was paused.
+  zcmusic_set_volume(zcm, vol);
   Mix_ResumeMusic();
   zcm->playing = ZCM_PLAYING;
 
@@ -208,6 +209,14 @@ bool zcmusic_stop(ZCMUSIC *zcm)
 
   al_unlock_mutex(playlistmutex);
   return true;
+}
+bool zcmusic_set_volume(ZCMUSIC* zcm, int32_t vol)
+{
+	if (zcm == NULL) return false;
+
+	// TODO
+
+	return true;
 }
 void zcmusic_unload_file(ZCMUSIC *&zcm)
 {
