@@ -1,5 +1,9 @@
 // 2.55 Change Log
-// Updated 9th Jul, 2023
+// Updated 1st Aug, 2023
+
+//Alpha 116
+
+See https://github.com/ArmageddonGames/ZQuestClassic/releases/tag/2.55-alpha-116
 
 //Alpha 115
 
