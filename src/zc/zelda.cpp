@@ -59,6 +59,7 @@
 #include "qst.h"
 #include "base/util.h"
 #include "drawing.h"
+#include "dialog/alert.h"
 #include "dialog/info.h"
 #include "zc/replay.h"
 #include "zc/cheats.h"
@@ -5058,6 +5059,16 @@ int main(int argc, char **argv)
 		set_display_switch_callback(SWITCH_OUT, switch_out_callback);
 		set_display_switch_callback(SWITCH_IN, switch_in_callback);
 	}
+
+#ifdef ZC_WIN_32
+	{
+		enter_sys_pal();
+		info_dsa("Windows 32-bit is deprecated!",
+			"There are known issues with the 32 bit version of ZC. Use 64-bit instead, if you can.",
+			"dsa_32bit");
+		exit_sys_pal();
+	}
+#endif
 
 	int32_t test_arg = used_switch(argc,argv,"-test");
 	zqtesting_mode = test_arg > 0;
