@@ -1803,6 +1803,7 @@ void saves_copy(int32_t from_index)
 	if (from_index >= savecnt || savecnt >= MAXSAVES)
 		abort();
 
+	saves.reserve(saves.size() + 1);
 	const gamedata& from_save = saves[from_index];
 	gamedata& to_save = saves.emplace_back(from_save);
 
