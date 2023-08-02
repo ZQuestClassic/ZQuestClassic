@@ -63,8 +63,12 @@ else:
         else:
             break
 
-previous_release_tag = subprocess.check_output(
-    'git describe --tags --abbrev=0', shell=True, encoding='utf-8')
+if args.full_release:
+    previous_release_tag = subprocess.check_output(
+        'git describe --tags --abbrev=0 --match "2.55-*"', shell=True, encoding='utf-8')
+else:
+    previous_release_tag = subprocess.check_output(
+        'git describe --tags --abbrev=0', shell=True, encoding='utf-8')
 
 set_action_output('release-tag', release_tag)
 set_action_output('release-name', release_name)
