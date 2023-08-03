@@ -151,6 +151,17 @@ enum {
 	FFCORE_SCRIPTED_PANSTYLE 	= 0x0010
 };
 
+//Music Update States
+//Used for determining when music should update on warps 
+enum {
+	MUSIC_UPDATE_SCREEN,
+	MUSIC_UPDATE_DMAP,
+	MUSIC_UPDATE_LEVEL,
+	MUSIC_UPDATE_NEVER,
+	MUSIC_UPDATE_NOCUT  = 0x40, //Music persists through things that would normally cut to silence (such as entrance exit warps)
+	MUSIC_UPDATE_REVERT = 0x80 //State reverts to screen on music switch
+};
+
 //SYstem Date and Time Categories for GetSystemTime()
 enum { curyear, curmonth, curday_month, curday_week, curhour, 
 	curminute, cursecond, curdayyear, curDST, curTimeLAST };
@@ -1208,8 +1219,8 @@ int32_t create_user_bitmap_ex(int32_t w, int32_t h, int32_t depth);
 void do_isvalidbitmap();
 void do_isallocatedbitmap();
 
-//OGG Ex --dimi
 bool doing_dmap_enh_music(int32_t dm);
+bool can_dmap_change_music(int32_t dm);
 void do_set_music_position(const bool v);
 void do_get_music_position();
 void do_set_music_speed(const bool v);
@@ -1236,6 +1247,7 @@ byte system_suspend[susptLAST];
 int32_t coreflags;
 int32_t script_UIDs[UID_TYPES];
 int32_t usr_midi_volume, usr_digi_volume, usr_sfx_volume, usr_music_volume, usr_panstyle;
+byte music_update_flags;
 
 byte FF_hero_action; //This way, we can make safe replicas of internal Hero actions to be set by script. 
 bool kb_typing_mode; //script only, for disbaling key presses affecting Hero, etc. 
@@ -4827,7 +4839,7 @@ enum ASM_DEFINE
 #define DMAPDATALOOPEND         0x14A8
 #define DMAPDATAXFADEIN         0x14A9
 #define DMAPDATAXFADEOUT        0x14AA
-#define RESRVD_VAR_MOOSH05      0x14AB
+#define MUSICUPDATECOND         0x14AB
 #define RESRVD_VAR_MOOSH06      0x14AC
 #define RESRVD_VAR_MOOSH07      0x14AD
 #define RESRVD_VAR_MOOSH08      0x14AE

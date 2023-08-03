@@ -4587,7 +4587,7 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 	{
 		zcmusic_poll();
 	}
-	zcmixer_update(zcmixer, emusic_volume, FFCore.usr_music_volume, get_bit(quest_rules, qr_OLD_SCRIPT_VOLUME));
+	zcmixer_update(zcmixer, emusic_volume, FFCore.usr_music_volume, get_qr(qr_OLD_SCRIPT_VOLUME));
 	
 	updatescr(allowwavy);
 
@@ -4616,7 +4616,7 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 		{
 			zcmusic_poll();
 		}
-		zcmixer_update(zcmixer, emusic_volume, FFCore.usr_music_volume, get_bit(quest_rules, qr_OLD_SCRIPT_VOLUME));
+		zcmixer_update(zcmixer, emusic_volume, FFCore.usr_music_volume, get_qr(qr_OLD_SCRIPT_VOLUME));
 
 		update_hw_screen();
 	}
@@ -6865,7 +6865,7 @@ int32_t onCheatKeys()
 
 int32_t onSound()
 {
-	if (get_bit(quest_rules, qr_OLD_SCRIPT_VOLUME))
+	if (get_qr(qr_OLD_SCRIPT_VOLUME))
 	{
 		if (FFCore.coreflags & FFCORE_SCRIPTED_MIDI_VOLUME)
 		{
@@ -6929,7 +6929,7 @@ int32_t onSound()
 			zcmusic_set_volume(zcmusic, emusic_volume);
 		
 		int32_t temp_volume = sfx_volume;
-		if (!get_bit(quest_rules, qr_OLD_SCRIPT_VOLUME))
+		if (!get_qr(qr_OLD_SCRIPT_VOLUME))
 			temp_volume = (sfx_volume * FFCore.usr_sfx_volume) / 10000 / 100;
 		for(int32_t i=0; i<WAV_COUNT; ++i)
 		{
@@ -8131,7 +8131,7 @@ bool try_zcmusic(char *filename, int32_t track, int32_t midi, int32_t fadeoutfra
 		
 		zcmusic=newzcmusic;
 		int32_t temp_volume = emusic_volume;
-		if (!get_bit(quest_rules, qr_OLD_SCRIPT_VOLUME))
+		if (!get_qr(qr_OLD_SCRIPT_VOLUME))
 			temp_volume = (emusic_volume * FFCore.usr_music_volume) / 10000 / 100;
 		temp_volume = (temp_volume * zcmusic->fadevolume) / 10000;
 		zcmusic_play(zcmusic, temp_volume);
@@ -8397,7 +8397,7 @@ void master_volume(int32_t dv,int32_t mv)
 	
 	int32_t i = zc_min(zc_max(currmidi,0),MAXMIDIS-1);
 	int32_t temp_vol = midi_volume;
-	if (!get_bit(quest_rules, qr_OLD_SCRIPT_VOLUME))
+	if (!get_qr(qr_OLD_SCRIPT_VOLUME))
 		temp_vol = (midi_volume * FFCore.usr_music_volume) / 10000 / 100;
 	zc_set_volume(digi_volume,mixvol(tunes[i].volume, temp_vol));
 }
@@ -8475,7 +8475,7 @@ bool sfx_init(int32_t index)
 		}
 		
 		int32_t temp_volume = sfx_volume;
-		if (!get_bit(quest_rules, qr_OLD_SCRIPT_VOLUME))
+		if (!get_qr(qr_OLD_SCRIPT_VOLUME))
 			temp_volume = (sfx_volume * FFCore.usr_sfx_volume) / 10000 / 100;
 		voice_set_volume(sfx_voice[index], temp_volume);
 	}
@@ -8540,7 +8540,7 @@ void sfx(int32_t index,int32_t pan,bool loop, bool restart, int32_t vol, int32_t
 
 		// Only used by ZScript currently
 		int32_t temp_volume = (sfx_volume * vol) / 10000 / 100;
-		if (!get_bit(quest_rules, qr_OLD_SCRIPT_VOLUME))
+		if (!get_qr(qr_OLD_SCRIPT_VOLUME))
 			temp_volume = (temp_volume * FFCore.usr_sfx_volume) / 10000 / 100;
 		voice_set_volume(sfx_voice[index], temp_volume);
 
