@@ -3763,7 +3763,12 @@ int32_t readrules(PACKFILE *f, zquestheader *Header, bool keepdata)
 		set_bit(quest_rules,qr_ENEMIES_DONT_SCRIPT_FIRST_FRAME,1);
 	if(compatrule_version < 46)
 		set_bit(quest_rules,qr_BROKEN_RAFT_SCROLL,1);
-	if (compatrule_version < 47)
+	if(compatrule_version < 47)
+	{
+		set_bit(quest_rules,qr_SENSITIVE_SOLID_DAMAGE,1);
+		set_bit(quest_rules,qr_OLD_CONVEYOR_COLLISION,1);
+	}
+	if (compatrule_version < 48)
 		set_bit(quest_rules, qr_OLD_SCRIPT_VOLUME, 1);
 	
 	set_bit(quest_rules,qr_ANIMATECUSTOMWEAPONS,0);
