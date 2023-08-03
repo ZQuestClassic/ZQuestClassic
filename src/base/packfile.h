@@ -7,12 +7,14 @@
 #include "zfix.h"
 #include <string>
 #include <vector>
+#include <memory>
+
 #define NEWALLEGRO
 
 extern int32_t readsize, writesize;
 extern bool fake_pack_writing;
 
-INLINE bool pfwrite(void *p,int32_t n,PACKFILE *f)
+INLINE bool pfwrite(const void *p,int32_t n,PACKFILE *f)
 {
 	bool success=true;
 	
@@ -487,12 +489,25 @@ INLINE bool p_mputl(int32_t c,PACKFILE *f)
 	return success;
 }
 
+INLINE bool p_getstr(std::string *str, size_t sz, PACKFILE *f)
+{
+	auto buf = std::make_unique<char[]>(sz + 1);
+	buf[sz] = '\0';
+	if (!pfread(buf.get(), sz, f))
+		return false;
+	*str = buf.get();
+	return true;
+}
+
 INLINE bool p_getcstr(std::string *str, PACKFILE *f)
 {
-	str->clear();
 	byte sz = 0;
 	if(!p_getc(&sz,f))
+	{
+		str->clear();
 		return false;
+	}
+
 	if(sz) //string found
 	{
 		char dummy;
@@ -503,6 +518,7 @@ INLINE bool p_getcstr(std::string *str, PACKFILE *f)
 			str->push_back(dummy);
 		}
 	}
+
 	return true;
 }
 INLINE bool p_putcstr(std::string const& str, PACKFILE *f)
@@ -526,15 +542,13 @@ INLINE bool p_getwstr(std::string *str, PACKFILE *f)
 	word sz = 0;
 	if(!p_igetw(&sz,f))
 		return false;
-	if(sz) //string found
+	if(sz)
 	{
-		char dummy;
-		for(size_t q = 0; q < sz; ++q)
-		{
-			if(!p_getc(&dummy,f))
-				return false;
-			str->push_back(dummy);
-		}
+		auto buf = std::make_unique<char[]>(sz + 1);
+		buf[sz] = '\0';
+		if (!pfread(buf.get(), sz, f))
+			return false;
+		*str = buf.get();
 	}
 	return true;
 }

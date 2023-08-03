@@ -187,7 +187,7 @@ int32_t  init_game();
 int32_t  cont_game();
 void restart_level();
 int32_t  load_quest(gamedata *g, bool report=true, byte printmetadata = 0);
-std::string create_replay_path_for_save(const gamedata* save);
+std::string create_replay_path_for_save(const gamedata_header& header);
 //int32_t  init_palnames();
 
 int32_t get_currdmap();

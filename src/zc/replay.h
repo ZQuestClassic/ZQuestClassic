@@ -14,7 +14,7 @@
 //
 // See tests/run_replay_tests.py for the test runner, and instructions for the CLI.
 
-const std::string REPLAY_EXTENSION = "zplay";
+const std::string REPLAY_EXTENSION = ".zplay";
 
 enum ReplayMode
 {

@@ -68,18 +68,18 @@ EM_ASYNC_JS(void, em_fetch_file_, (const char *path), {
     console.error(`error loading ${path}`, e);
   }
 });
-void em_fetch_file(const char *path) {
-  em_fetch_file_(path);
+void em_fetch_file(std::string path) {
+  em_fetch_file_(path.c_str());
 }
 
-bool em_is_lazy_file(const char *path) {
-  if (strncmp("/_quests/", path, strlen("/_quests/")) == 0) {
+bool em_is_lazy_file(std::string path) {
+  if (strncmp("/_quests/", path.c_str(), strlen("/_quests/")) == 0) {
     return true;
   }
 
   return EM_ASM_INT({
     return ZC_Constants.files.includes(UTF8ToString($0));
-  }, path);
+  }, path.c_str());
 }
 
 std::string get_initial_file_dialog_folder() {

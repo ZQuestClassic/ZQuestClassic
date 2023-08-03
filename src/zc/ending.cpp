@@ -732,7 +732,7 @@ void ending_scripted()
     
 	//  setPackfilePassword(datapwd);
 	load_quest(game);
-	strncpy(game->title,QHeader.title, sizeof(QHeader.title)-1);
+	game->header.title = QHeader.title;
 	//  setPackfilePassword(NULL);
 	game->save_user_objects();
     
@@ -783,7 +783,7 @@ void inc_quest()
 	
 	game->set_name(name);
 	game->set_quest(quest);
-	game->qstpath[0] = 0;
+	game->header.qstpath.clear();
 	game->set_deaths(deaths);
 	game->set_maxlife(3*game->get_hp_per_heart());
 	game->set_life(3*game->get_hp_per_heart());

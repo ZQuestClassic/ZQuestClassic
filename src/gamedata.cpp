@@ -91,34 +91,35 @@ void gamedata::clear_genscript()
 	}
 }
 
+const char *gamedata::get_qstpath() const
+{
+	return header.qstpath.c_str();
+}
+
 const char *gamedata::get_name() const
 {
-    return _name;
+    return header.name.c_str();
 }
 char *gamedata::get_name_mutable()
 {
-    return _name;
+    return header.name.data();
 }
-void gamedata::set_name(const char *n)
+void gamedata::set_name(std::string n)
 {
-    strncpy(_name, n, 8);
-    _name[8]='\0';
-    return;
+	header.name = n;
 }
 
 byte gamedata::get_quest() const
 {
-    return _quest;
+    return header.quest;
 }
 void gamedata::set_quest(byte q)
 {
-    _quest=q;
-    return;
+    header.quest = q;
 }
 void gamedata::change_quest(int16_t q)
 {
-    _quest+=q;
-    return;
+    header.quest += q;
 }
 
 word gamedata::get_counter(byte c) const
@@ -300,7 +301,7 @@ void gamedata::change_generic(int32_t change, byte c)
     return;
 }
 
-word gamedata::get_life()
+word gamedata::get_life() const
 {
     return get_counter(0);
 }
@@ -402,17 +403,15 @@ void gamedata::change_arrows(int16_t a)
 
 word gamedata::get_deaths() const
 {
-    return _deaths;
+    return header.deaths;
 }
 void gamedata::set_deaths(word d)
 {
-    _deaths=d;
-    return;
+    header.deaths=d;
 }
 void gamedata::change_deaths(int16_t d)
 {
-    _deaths+=d;
-    return;
+    header.deaths+=d;
 }
 
 word gamedata::get_keys()
@@ -520,47 +519,33 @@ bool gamedata::did_cheat() const
 
 byte gamedata::get_hasplayed() const
 {
-    return _hasplayed;
+    return header.has_played;
 }
 void gamedata::set_hasplayed(byte p)
 {
-    _hasplayed=p;
-    return;
-}
-void gamedata::change_hasplayed(int16_t p)
-{
-    _hasplayed+=p;
-    return;
+    header.has_played=p;
 }
 
 dword gamedata::get_time() const
 {
-    return _time;
+    return header.time;
 }
 void gamedata::set_time(dword t)
 {
-    _time=t;
-    return;
+    header.time=t;
 }
 void gamedata::change_time(int64_t t)
 {
-    _time+=t;
-    return;
+    header.time+=t;
 }
 
 byte gamedata::get_timevalid() const
 {
-    return _timevalid;
+    return header.time_valid;
 }
 void gamedata::set_timevalid(byte t)
 {
-    _timevalid=t;
-    return;
-}
-void gamedata::change_timevalid(int16_t t)
-{
-    _timevalid+=t;
-    return;
+    header.time_valid=t;
 }
 
 byte gamedata::get_HCpieces()
@@ -578,7 +563,7 @@ void gamedata::change_HCpieces(int16_t p)
     return;
 }
 
-byte gamedata::get_continue_scrn()
+byte gamedata::get_continue_scrn() const
 {
     return _continue_scrn;
 }
@@ -597,7 +582,7 @@ void gamedata::change_continue_scrn(int16_t s)
     return;
 }
 
-word gamedata::get_continue_dmap()
+word gamedata::get_continue_dmap() const
 {
     return _continue_dmap;
 }

@@ -2563,61 +2563,49 @@ private:
 #define DIDCHEAT_BIT 0x80
 #define NUM_GSWITCHES 256
 #define MAX_MI (MAXDMAPS*MAPSCRSNORMAL)
+
+// Everything needed by the title screen.
+struct gamedata_header
+{
+	std::string path;
+	std::string qstpath;
+	std::string replay_file;
+	std::string name;
+	std::string title;
+	byte quest;
+	int deaths;
+	int life;
+	int maxlife;
+	int hp_per_heart_container;
+	bool has_played;
+	bool time_valid;
+	bool did_cheat;
+	dword time;
+	byte icon[128];
+	byte pal[48];
+};
+
 struct gamedata
 {
-	//private:
-	char  _name[9];
-	byte  _quest;
-	//10
-	//word _life,_maxlife;
-	//int16_t _drupy;
-	//word _rupies,_arrows,_maxarrows,
-	word _deaths;
-	//20
-	//byte  _keys,_maxbombs,
+	gamedata_header header;
 	byte  /*_wlevel,*/_cheat;
-	//24
 	bool  item[MAXITEMS];
 	byte  items_off[MAXITEMS];
-	//280
 	word _maxcounter[MAX_COUNTERS];	// 0 - life, 1 - rupees, 2 - bombs, 3 - arrows, 4 - magic, 5 - keys, 6-super bombs
 	word _counter[MAX_COUNTERS];
 	int16_t _dcounter[MAX_COUNTERS];
 	
 	char  version[17];
-	char  title[65];
-	//354
-	byte  _hasplayed;
-	//byte  padding;
-	//356
-	dword _time;
-	//360
-	byte  _timevalid;
 	byte  lvlitems[MAXLEVELS];
 	byte  lvlkeys[MAXLEVELS];
 	dword lvlswitches[MAXLEVELS];
-	//byte  _HCpieces;
 	byte  _continue_scrn;
 	word  _continue_dmap;
-	//620
-	/*word  _maxmagic, _magic;
-	int16_t _dmagic;*/
-	//byte  _magicdrainrate;
-	//byte  _canslash;                                           //Hero slashes instead of stabs.
 	int32_t _generic[genMAX];	// Generic gamedata. See enum above this struct for indexes.
-	//byte  padding[2];
-	//636
 	byte  visited[MAXDMAPS];
-	//892 (256)
 	byte  bmaps[MAXDMAPS*128];                                 // the dungeon progress maps
-	//17276 (16384)
 	word  maps[MAXMAPS2*MAPSCRSNORMAL];                       // info on map changes, items taken, etc.
-	//82556 (65280)
 	byte  guys[MAXMAPS2*MAPSCRSNORMAL];                       // guy counts (though dungeon guys are reset on entry)
-	//115196 (32640)
-	char  qstpath[2048];
-	byte  icon[128];
-	byte  pal[48];
 	bool item_messages_played[MAXITEMS];  //Each field is set when an item pickup message plays the first time per session
 	int32_t  screen_d[MAX_MI][8];                // script-controlled screen variables
 	int32_t  global_d[MAX_SCRIPT_REGISTERS];                                      // script-controlled global variables
@@ -2645,7 +2633,6 @@ struct gamedata
 	
 	int32_t gswitch_timers[NUM_GSWITCHES];
 
-	std::string replay_file;
 	std::vector<saved_user_object> user_objects;
 	std::vector<savedportal> user_portals;
 	
@@ -2655,10 +2642,12 @@ struct gamedata
 	
 	void save_user_objects();
 	void load_user_objects();
-	
+
+	const char *get_qstpath() const;
+
 	const char *get_name() const;
 	char *get_name_mutable();
-	void set_name(const char *n);
+	void set_name(std::string n);
 	
 	byte get_quest() const;
 	void set_quest(byte q);
@@ -2676,7 +2665,7 @@ struct gamedata
 	void set_dcounter(int16_t change, byte c);
 	void change_dcounter(int16_t change, byte c);
 	
-	word get_life();
+	word get_life() const;
 	void set_life(word l);
 	void change_life(int16_t l);
 	
@@ -2732,7 +2721,6 @@ struct gamedata
 	
 	byte get_hasplayed() const;
 	void set_hasplayed(byte p);
-	void change_hasplayed(int16_t p);
 	
 	dword get_time() const;
 	void set_time(dword t);
@@ -2740,7 +2728,6 @@ struct gamedata
 	
 	byte get_timevalid() const;
 	void set_timevalid(byte t);
-	void change_timevalid(int16_t t);
 	
 	byte get_HCpieces();
 	void set_HCpieces(byte p);
@@ -2806,11 +2793,11 @@ struct gamedata
 	byte get_switchhookstyle();
 	void set_switchhookstyle(byte val);
 	
-	byte get_continue_scrn();
+	byte get_continue_scrn() const;
 	void set_continue_scrn(byte s);
 	void change_continue_scrn(int16_t s);
 	
-	word get_continue_dmap();
+	word get_continue_dmap() const;
 	void set_continue_dmap(word d);
 	void change_continue_dmap(int16_t d);
 	
@@ -2842,7 +2829,7 @@ struct gamedata
 	
 	void set_item(int32_t id, bool value);
 	void set_item_no_flush(int32_t id, bool value);
-	inline bool get_item(int32_t id)
+	inline bool get_item(int32_t id) const
 	{
 		if ( ((unsigned)id) >= MAXITEMS ) return false;
 			return item[id];

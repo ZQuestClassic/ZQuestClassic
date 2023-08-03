@@ -19,8 +19,10 @@ namespace util
 	void upperstr(std::string& str);
 	void lowerstr(std::string& str);
 	void trimstr(std::string& str);
+	void sanitize(std::string& str);
 	size_t split(const std::string &txt, std::vector<std::string> &strs, char ch);
 	std::vector<std::string> split_args(const std::string &str);
+	std::istream &portable_get_line(std::istream &is, std::string &t);
 	std::string cropPath(std::string filepath);
 	void replstr(std::string& str, std::string const& from, std::string const& to);
 	std::string escape_characters(std::string const& str);

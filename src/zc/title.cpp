@@ -1173,147 +1173,143 @@ static void selectscreen()
 static byte left_arrow_str[] = {132,0};
 static byte right_arrow_str[] = {133,0};
 
-static void list_save(int32_t save_num, int32_t ypos)
+static void list_save(gamedata_header* header, int32_t save_num, int32_t ypos)
 {
 	bool r = refreshpal;
-	const gamedata* save = saves_get_data(save_num);
+	byte quest = header->quest;
 
-	if (save_num < saves_count())
+	game->set_maxlife(header->maxlife);
+	game->set_life(header->maxlife);
+	game->set_hp_per_heart(header->hp_per_heart_container);
+	
+	//wpnsbuf[iwQuarterHearts].tile = moduledata.select_screen_tiles[sels_heart_tile];
+	//Setting the cset does nothing, because it lifemeter() uses overtile8()
+	//Modules should set the cset manually. 
+	//wpnsbuf[iwQuarterHearts].csets = moduledata.select_screen_tile_csets[sels_heart_tilettile_cset];
+	
+	//boogie!
+	lifemeter(framebuf,144,ypos+((game->get_maxlife()>16*(header->hp_per_heart_container))?8:0),8,0);
+	textout_ex(framebuf,get_zc_font(font_zfont),header->name.c_str(),72,ypos+16,1,0);
+	
+	if(quest)
+		textprintf_ex(framebuf,get_zc_font(font_zfont),72,ypos+24,1,0,"%5d",header->deaths);
+		
+	if ( moduledata.select_screen_tiles[draw_hero_first]) 
+		overtile16(framebuf,moduledata.select_screen_tiles[sels_herotile],48,ypos+17,((unsigned)moduledata.select_screen_tile_csets[sels_hero_cset] < 15 ) ? moduledata.select_screen_tile_csets[sels_hero_cset] : (save_num%3)+10,0); 
+
+	if(quest==1)
 	{
-		game->set_maxlife(save->get_maxlife());
-		game->set_life(save->get_maxlife());
-		game->set_hp_per_heart(save->get_hp_per_heart());
+		//hardcoded quest icons -- move to module
+		//overtile16(framebuf,41,56,ypos+14,9,0);             //put sword on second quests
+		if ( moduledata.select_screen_tiles[sels_tile_questicon_1A] > 0 )
+		overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_1A],moduledata.select_screen_tiles[sels_tile_questicon_1A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_1A_cset],0);   
+		if ( moduledata.select_screen_tiles[sels_tile_questicon_1B] > 0 )
+		overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_1B],moduledata.select_screen_tiles[sels_tile_questicon_1B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_1B_cset],0);   
+	}
+	if(quest==2)
+	{
+		//hardcoded quest icons -- move to module
+		//overtile16(framebuf,41,56,ypos+14,9,0);             //put sword on second quests
+		if ( moduledata.select_screen_tiles[sels_tile_questicon_2A] > 0 )
+		overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_2A],moduledata.select_screen_tiles[sels_tile_questicon_2A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_2A_cset],0);   
+		if ( moduledata.select_screen_tiles[sels_tile_questicon_2B] > 0 )
+		overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_2B],moduledata.select_screen_tiles[sels_tile_questicon_2B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_2B_cset],0);   
+	}
 		
-		//wpnsbuf[iwQuarterHearts].tile = moduledata.select_screen_tiles[sels_heart_tile];
-		//Setting the cset does nothing, because it lifemeter() uses overtile8()
-		//Modules should set the cset manually. 
-		//wpnsbuf[iwQuarterHearts].csets = moduledata.select_screen_tile_csets[sels_heart_tilettile_cset];
 		
-		//boogie!
-		lifemeter(framebuf,144,ypos+((game->get_maxlife()>16*(save->get_hp_per_heart()))?8:0),8,0);
-		textout_ex(framebuf,get_zc_font(font_zfont),save->get_name(),72,ypos+16,1,0);
-		
-		if(save->get_quest())
-			textprintf_ex(framebuf,get_zc_font(font_zfont),72,ypos+24,1,0,"%5d",save->get_deaths());
-			
-		if ( moduledata.select_screen_tiles[draw_hero_first]) 
-			overtile16(framebuf,moduledata.select_screen_tiles[sels_herotile],48,ypos+17,((unsigned)moduledata.select_screen_tile_csets[sels_hero_cset] < 15 ) ? moduledata.select_screen_tile_csets[sels_hero_cset] : (save_num%3)+10,0); 
-
-		if(save->get_quest()==1)
-		{
-			//hardcoded quest icons -- move to module
-			//overtile16(framebuf,41,56,ypos+14,9,0);             //put sword on second quests
-			if ( moduledata.select_screen_tiles[sels_tile_questicon_1A] > 0 )
-			overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_1A],moduledata.select_screen_tiles[sels_tile_questicon_1A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_1A_cset],0);   
-			if ( moduledata.select_screen_tiles[sels_tile_questicon_1B] > 0 )
-			overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_1B],moduledata.select_screen_tiles[sels_tile_questicon_1B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_1B_cset],0);   
-		}
-		if(save->get_quest()==2)
-		{
-		   //hardcoded quest icons -- move to module
-			//overtile16(framebuf,41,56,ypos+14,9,0);             //put sword on second quests
-			if ( moduledata.select_screen_tiles[sels_tile_questicon_2A] > 0 )
-			overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_2A],moduledata.select_screen_tiles[sels_tile_questicon_2A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_2A_cset],0);   
-			if ( moduledata.select_screen_tiles[sels_tile_questicon_2B] > 0 )
-			overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_2B],moduledata.select_screen_tiles[sels_tile_questicon_2B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_2B_cset],0);   
-		}
-			
-			
-		if(save->get_quest()==3)
-		{
-			//overtile16(framebuf,41,56,ypos+14,9,0);             //put sword on second quests
-			//overtile16(framebuf,41,41,ypos+14,9,0);             //put sword on third quests
-		
-			if ( moduledata.select_screen_tiles[sels_tile_questicon_3A] > 0 )
-			overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_3A],moduledata.select_screen_tiles[sels_tile_questicon_3A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_3A_cset],0);   
-			if ( moduledata.select_screen_tiles[sels_tile_questicon_3B] > 0 )
-			overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_3B],moduledata.select_screen_tiles[sels_tile_questicon_3B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_3B_cset],0);   
-		}
-		
-		if(save->get_quest()==4)
-		{
-			//overtile16(framebuf,176,52,ypos+14,0,1);             //dust pile
-			//overtile16(framebuf,175,52,ypos+14,9,0);             //triforce
-			if ( moduledata.select_screen_tiles[sels_tile_questicon_4A] > 0 )
-			overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_4A],moduledata.select_screen_tiles[sels_tile_questicon_4A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_4A_cset],0);   
-			if ( moduledata.select_screen_tiles[sels_tile_questicon_4B] > 0 )
-			overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_4B],moduledata.select_screen_tiles[sels_tile_questicon_4B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_4B_cset],0);   
-		}
-
-		if(save->get_quest()==5)
-		{
-			//overtile16(framebuf,176,52,ypos+14,0,1);             //dust pile
-			//overtile16(framebuf,175,52,ypos+14,9,0);             //triforce
-			if ( moduledata.select_screen_tiles[sels_tile_questicon_5A] > 0 )
-			overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_5A],moduledata.select_screen_tiles[sels_tile_questicon_5A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_5A_cset],0);   
-			if ( moduledata.select_screen_tiles[sels_tile_questicon_5B] > 0 )
-			overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_5B],moduledata.select_screen_tiles[sels_tile_questicon_5B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_5B_cset],0);   
-		}
-		
-		if(save->get_quest()==6)
-		{
-			//overtile16(framebuf,176,52,ypos+14,0,1);             //dust pile
-			//overtile16(framebuf,175,52,ypos+14,9,0);             //triforce
-			if ( moduledata.select_screen_tiles[sels_tile_questicon_6A] > 0 )
-			overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_6A],moduledata.select_screen_tiles[sels_tile_questicon_6A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_6A_cset],0);   
-			if ( moduledata.select_screen_tiles[sels_tile_questicon_6B] > 0 )
-			overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_6B],moduledata.select_screen_tiles[sels_tile_questicon_6B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_6B_cset],0);   
-		}
-
-		if(save->get_quest()==7)
-		{
-			//overtile16(framebuf,176,52,ypos+14,0,1);             //dust pile
-			//overtile16(framebuf,175,52,ypos+14,9,0);             //triforce
-			if ( moduledata.select_screen_tiles[sels_tile_questicon_7A] > 0 )
-			overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_7A],moduledata.select_screen_tiles[sels_tile_questicon_7A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_7A_cset],0);   
-			if ( moduledata.select_screen_tiles[sels_tile_questicon_7B] > 0 )
-			overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_7B],moduledata.select_screen_tiles[sels_tile_questicon_7B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_7B_cset],0);   
-		}
-		if(save->get_quest()==8)
-		{
-			//overtile16(framebuf,176,52,ypos+14,0,1);             //dust pile
-			//overtile16(framebuf,175,52,ypos+14,9,0);             //triforce
-			if ( moduledata.select_screen_tiles[sels_tile_questicon_8A] > 0 )
-			overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_8A],moduledata.select_screen_tiles[sels_tile_questicon_8A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_8A_cset],0);   
-			if ( moduledata.select_screen_tiles[sels_tile_questicon_8B] > 0 )
-			overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_8B],moduledata.select_screen_tiles[sels_tile_questicon_8B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_8B_cset],0);   
-		}
-		
-		if(save->get_quest()==9)
-		{
-			//overtile16(framebuf,176,52,ypos+14,0,1);             //dust pile
-			//overtile16(framebuf,175,52,ypos+14,9,0);             //triforce
-			if ( moduledata.select_screen_tiles[sels_tile_questicon_9A] > 0 )
-			overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_9A],moduledata.select_screen_tiles[sels_tile_questicon_9A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_9A_cset],0);   
-			if ( moduledata.select_screen_tiles[sels_tile_questicon_9B] > 0 )
-			overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_9B],moduledata.select_screen_tiles[sels_tile_questicon_9B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_9B_cset],0);   
-		}
-		if(save->get_quest()==10)
-		{
-			//overtile16(framebuf,176,52,ypos+14,0,1);             //dust pile
-			//overtile16(framebuf,175,52,ypos+14,9,0);             //triforce
-			if ( moduledata.select_screen_tiles[sels_tile_questicon_10A] > 0 )
-			overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_10A],moduledata.select_screen_tiles[sels_tile_questicon_10A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_10A_cset],0);   
-			if ( moduledata.select_screen_tiles[sels_tile_questicon_10B] > 0 )
-			overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_10B],moduledata.select_screen_tiles[sels_tile_questicon_10B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_10B_cset],0);   
-		}
-
-		textprintf_ex(framebuf,get_zc_font(font_zfont),72,ypos+16,1,0,"%s",save->get_name());
+	if(quest==3)
+	{
+		//overtile16(framebuf,41,56,ypos+14,9,0);             //put sword on second quests
+		//overtile16(framebuf,41,41,ypos+14,9,0);             //put sword on third quests
+	
+		if ( moduledata.select_screen_tiles[sels_tile_questicon_3A] > 0 )
+		overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_3A],moduledata.select_screen_tiles[sels_tile_questicon_3A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_3A_cset],0);   
+		if ( moduledata.select_screen_tiles[sels_tile_questicon_3B] > 0 )
+		overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_3B],moduledata.select_screen_tiles[sels_tile_questicon_3B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_3B_cset],0);   
 	}
 	
-	auto save_mut = saves_get_data_mutable(save_num);
+	if(quest==4)
+	{
+		//overtile16(framebuf,176,52,ypos+14,0,1);             //dust pile
+		//overtile16(framebuf,175,52,ypos+14,9,0);             //triforce
+		if ( moduledata.select_screen_tiles[sels_tile_questicon_4A] > 0 )
+		overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_4A],moduledata.select_screen_tiles[sels_tile_questicon_4A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_4A_cset],0);   
+		if ( moduledata.select_screen_tiles[sels_tile_questicon_4B] > 0 )
+		overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_4B],moduledata.select_screen_tiles[sels_tile_questicon_4B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_4B_cset],0);   
+	}
+
+	if(quest==5)
+	{
+		//overtile16(framebuf,176,52,ypos+14,0,1);             //dust pile
+		//overtile16(framebuf,175,52,ypos+14,9,0);             //triforce
+		if ( moduledata.select_screen_tiles[sels_tile_questicon_5A] > 0 )
+		overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_5A],moduledata.select_screen_tiles[sels_tile_questicon_5A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_5A_cset],0);   
+		if ( moduledata.select_screen_tiles[sels_tile_questicon_5B] > 0 )
+		overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_5B],moduledata.select_screen_tiles[sels_tile_questicon_5B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_5B_cset],0);   
+	}
+	
+	if(quest==6)
+	{
+		//overtile16(framebuf,176,52,ypos+14,0,1);             //dust pile
+		//overtile16(framebuf,175,52,ypos+14,9,0);             //triforce
+		if ( moduledata.select_screen_tiles[sels_tile_questicon_6A] > 0 )
+		overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_6A],moduledata.select_screen_tiles[sels_tile_questicon_6A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_6A_cset],0);   
+		if ( moduledata.select_screen_tiles[sels_tile_questicon_6B] > 0 )
+		overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_6B],moduledata.select_screen_tiles[sels_tile_questicon_6B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_6B_cset],0);   
+	}
+
+	if(quest==7)
+	{
+		//overtile16(framebuf,176,52,ypos+14,0,1);             //dust pile
+		//overtile16(framebuf,175,52,ypos+14,9,0);             //triforce
+		if ( moduledata.select_screen_tiles[sels_tile_questicon_7A] > 0 )
+		overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_7A],moduledata.select_screen_tiles[sels_tile_questicon_7A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_7A_cset],0);   
+		if ( moduledata.select_screen_tiles[sels_tile_questicon_7B] > 0 )
+		overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_7B],moduledata.select_screen_tiles[sels_tile_questicon_7B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_7B_cset],0);   
+	}
+	if(quest==8)
+	{
+		//overtile16(framebuf,176,52,ypos+14,0,1);             //dust pile
+		//overtile16(framebuf,175,52,ypos+14,9,0);             //triforce
+		if ( moduledata.select_screen_tiles[sels_tile_questicon_8A] > 0 )
+		overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_8A],moduledata.select_screen_tiles[sels_tile_questicon_8A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_8A_cset],0);   
+		if ( moduledata.select_screen_tiles[sels_tile_questicon_8B] > 0 )
+		overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_8B],moduledata.select_screen_tiles[sels_tile_questicon_8B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_8B_cset],0);   
+	}
+	
+	if(quest==9)
+	{
+		//overtile16(framebuf,176,52,ypos+14,0,1);             //dust pile
+		//overtile16(framebuf,175,52,ypos+14,9,0);             //triforce
+		if ( moduledata.select_screen_tiles[sels_tile_questicon_9A] > 0 )
+		overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_9A],moduledata.select_screen_tiles[sels_tile_questicon_9A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_9A_cset],0);   
+		if ( moduledata.select_screen_tiles[sels_tile_questicon_9B] > 0 )
+		overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_9B],moduledata.select_screen_tiles[sels_tile_questicon_9B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_9B_cset],0);   
+	}
+	if(quest==10)
+	{
+		//overtile16(framebuf,176,52,ypos+14,0,1);             //dust pile
+		//overtile16(framebuf,175,52,ypos+14,9,0);             //triforce
+		if ( moduledata.select_screen_tiles[sels_tile_questicon_10A] > 0 )
+		overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_10A],moduledata.select_screen_tiles[sels_tile_questicon_10A_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_10A_cset],0);   
+		if ( moduledata.select_screen_tiles[sels_tile_questicon_10B] > 0 )
+		overtile16(framebuf,moduledata.select_screen_tiles[sels_tile_questicon_10B],moduledata.select_screen_tiles[sels_tile_questicon_10B_X],ypos+14,moduledata.select_screen_tile_csets[sels_tile_questicon_10B_cset],0);   
+	}
+
+	textprintf_ex(framebuf,get_zc_font(font_zfont),72,ypos+16,1,0,"%s",header->name.c_str());
+
 	byte *hold = newtilebuf[0].data;
 	byte holdformat=newtilebuf[0].format;
 	newtilebuf[0].format=tf4Bit;
-	newtilebuf[0].data = save_mut->icon;
-	overtile16(framebuf,(moduledata.select_screen_tiles[sels_herotile] > 1 && save->get_quest() > 0 && save->get_quest() < 255 ) ? moduledata.select_screen_tiles[sels_herotile] : 0,48,ypos+17,
-	((unsigned)moduledata.select_screen_tile_csets[sels_hero_cset] < 15 && save->get_quest() > 0 && save->get_quest() < 255 ) ? (unsigned)moduledata.select_screen_tile_csets[sels_hero_cset] < 15 :
+	newtilebuf[0].data = header->icon;
+	overtile16(framebuf,(moduledata.select_screen_tiles[sels_herotile] > 1 && quest > 0 && quest < 255 ) ? moduledata.select_screen_tiles[sels_herotile] : 0,48,ypos+17,
+	((unsigned)moduledata.select_screen_tile_csets[sels_hero_cset] < 15 && quest > 0 && quest < 255 ) ? (unsigned)moduledata.select_screen_tile_csets[sels_hero_cset] < 15 :
 	(save_num%3)+10,0);               //hero
 	newtilebuf[0].format=holdformat;
 	newtilebuf[0].data = hold;
 	
 	hold = colordata;
-	colordata = save_mut->pal;
+	colordata = header->pal;
 	//if ( moduledata.select_screen_tile_csets[change_cset_on_quest_3] ) loadpalset((save_num%3)+10,0); //quest number changes the palette -- move to module
 	loadpalset((save_num%3)+10,0); //quest number changes the palette -- move to module?
 	colordata = hold;
@@ -1330,15 +1326,15 @@ static void list_saves()
 	
 	int savecnt = saves_count();
 	for(int32_t i=0; i<savecnt; i++)
-		if(saves_get_data(i)->get_quest()==4)
+		if (saves_get_slot(i)->header && saves_get_slot(i)->header->quest == 4)
 			red = true;
-			
+
 	loadpalset(0,red ? pSprite(spPILE) : 0);
 	
 	for(int32_t i=0; i<3; i++)
 	{
 		if (listpos+i < savecnt)
-			list_save(listpos+i,i*24+56);
+			list_save(saves_get_slot(listpos+i)->header, listpos+i, i*24+56);
 	}
 	
 	// Draw the arrows above the lifemeter!
@@ -1381,15 +1377,14 @@ static bool register_name()
 	}
 	int32_t NameEntryMode2=NameEntryMode;
 
-	gamedata* save = saves_create();
-	save->set_quest(0xFF); // Will get set later. Only set now so saves_count() counts this.
-	save->set_maxlife(3*16);
-	save->set_life(3*16);
-	save->set_maxbombs(8);
-	save->set_continue_dmap(0);
-	save->set_continue_scrn(0xFF);
+	gamedata* new_game = new gamedata();
+	new_game->set_maxlife(3*16);
+	new_game->set_life(3*16);
+	new_game->set_maxbombs(8);
+	new_game->set_continue_dmap(0);
+	new_game->set_continue_scrn(0xFF);
 
-	listpos=((saves_count() - 1)/3)*3;
+	listpos=((saves_count())/3)*3;
 
 //  clear_bitmap(framebuf);
 	rectfill(framebuf,32,56,223,151,0);
@@ -1722,10 +1717,9 @@ static bool register_name()
 			}
 		}
 		
-		save->set_name(name);
+		new_game->set_name(name);
 		blit(scrollbuf,framebuf,0,0,0,0,256,224);
-//    list_saves();
-		list_save(s,56+((NameEntryMode2>0)?0:(pos*24)));
+		list_save(&new_game->header, s, 56+((NameEntryMode2>0)?0:(pos*24)));
 		
 		int32_t x2=letter_grid_x + grid_x*letter_grid_spacing;
 		int32_t y2=letter_grid_y + grid_y*letter_grid_spacing;
@@ -1800,34 +1794,39 @@ static bool register_name()
 		if(!stricmp(buf,moduledata.skipnames[4])) // This is what BigJoe wanted. I have no problem with it.
 			quest=5;
 		*/
-		save->set_quest(quest);
-		game->qstpath[0] = 0;
+		new_game->set_quest(quest);
+		game->header.qstpath.clear();
 		byte qst_num = byte(quest-1);
 		
-		int32_t ret = (qst_num < moduledata.max_quest_files) ? load_quest(save) : qe_no_qst;
+		int32_t ret = (qst_num < moduledata.max_quest_files) ? load_quest(new_game) : qe_no_qst;
 		
 		if(ret==qe_OK)
 		{
-			save->set_maxlife(zinit.hc*zinit.hp_per_heart);
-			save->set_life(zinit.hc*zinit.hp_per_heart);
-			save->set_hp_per_heart(zinit.hp_per_heart);
+			new_game->set_maxlife(zinit.hc*zinit.hp_per_heart);
+			new_game->set_life(zinit.hc*zinit.hp_per_heart);
+			new_game->set_hp_per_heart(zinit.hp_per_heart);
 			selectscreen();                                       // refresh palette
-			saves_update_icon(s);
+			saves_create_slot(new_game);
 			ringcolor(false);
 		}
 		else
 		{
 			ringcolor(true);
+			cancel = true;
 		}
 		
 		//setPackfilePassword(NULL);
-		save->set_timevalid(1);
+		new_game->set_timevalid(1);
 	}
 	
-	if(x<0 || cancel)
+	if (x<0 || cancel)
 	{
-		save->Clear();
+		delete new_game;
 	}
+
+	// std::string filename_prefix = fmt::format("{}-{}", save->title, save->header.name);
+	// sanitize(filename_prefix);
+	// return create_new_file_path(replay_file_dir, filename_prefix, REPLAY_EXTENSION).string();
 
 	listpos=((saves_count()-1)/3)*3;
 	
@@ -1945,12 +1944,13 @@ static int32_t get_quest_info(zquestheader *header,char *str)
 
 bool load_custom_game(int32_t file)
 {
-	const gamedata* save = saves_get_data(file);
+	auto save = saves_get_slot(file);
 
-	if (!save->get_hasplayed())
+	if (!save->header->has_played)
 	{
 		if (chosecustomquest || standalone_mode)
 		{
+			save->header->qstpath = qstpath;
 			saves_do_first_time_stuff(file);
 			clear_to_color(screen,BLACK);
 			rest(200); // Formerly 1000 -L
@@ -1978,15 +1978,15 @@ int32_t custom_game(int32_t file)
 	int32_t ret=0; 
 	int32_t focus_obj = 1; //Fixes the issue where the button tied to the enter key is stuck on 'browse'.
 
-	gamedata* save = saves_get_data_mutable(file);
-	
-	if(is_relative_filename(save->qstpath))
+	auto header = saves_get_slot(file)->header;
+
+	if (is_relative_filename(header->qstpath.c_str()))
 	{
-		sprintf(qstpath,"%s%s",qstdir,save->qstpath);
+		sprintf(qstpath, "%s%s", qstdir, header->qstpath.c_str());
 	}
 	else
 	{
-		sprintf(qstpath,"%s", save->qstpath);
+		sprintf(qstpath, "%s", header->qstpath.c_str());
 	}
 	char relpath[2048];
 	relativize_path(relpath, qstpath);
@@ -2005,7 +2005,7 @@ int32_t custom_game(int32_t file)
 		gamemode_dlg[5].flags = D_EXIT;
 	}
 	
-	if(byte(save->get_quest()-1) < moduledata.max_quest_files)
+	if(byte(header->quest-1) < moduledata.max_quest_files)
 		strcpy(qstpath,qstdir);
 	
 	gamemode_dlg[2].d1 = gamemode_dlg[4].d1 = 0;
@@ -2066,15 +2066,14 @@ int32_t custom_game(int32_t file)
 
 static int32_t game_details(int32_t file)
 {
-
 	al_trace("Running game_details(int32_t file)\n");
 	int32_t pos=file%3;
 
-	const gamedata* save = saves_get_data(file);
-	
-	if (save->get_quest()==0)
+	const auto header = saves_get_slot(file)->header;
+
+	if (header->quest==0)
 		return 0;
-		
+
 	BITMAP *info = create_bitmap_ex(8,168,32);
 	clear_bitmap(info);
 	blit(framebuf,info,40,pos*24+70,0,0,168,26);
@@ -2100,33 +2099,33 @@ static int32_t game_details(int32_t file)
 	textout_ex(framebuf,get_zc_font(font_zfont),"QUEST",40,112,3,0);
 	textout_ex(framebuf,get_zc_font(font_zfont),"STATUS",40,120,3,0);
 	
-	if(save->get_quest()<0xFF)
+	if(header->quest<0xFF)
 	{
 		textout_ex(framebuf,get_zc_font(font_zfont),"Normal Game",120,104,1,0);
 		textprintf_ex(framebuf,get_zc_font(font_zfont),120,112,1,0,"%s Quest",
-					  ordinal(save->get_quest()));
+					  ordinal(header->quest));
 	}
 	else
 	{
 		textout_ex(framebuf,get_zc_font(font_zfont),"Custom Quest",120,104,1,0);
 		textprintf_ex(framebuf,get_zc_font(font_zfont),120,112,1,0,"%s",
-					  get_filename(save->qstpath));
+					  get_filename(header->qstpath.c_str()));
 	}
 	
-	if(!save->get_hasplayed())
+	if(!header->has_played)
 		textout_ex(framebuf,get_zc_font(font_zfont),"Empty Game",120,120,1,0);
-	else if(!save->get_timevalid())
+	else if(!header->time_valid)
 		textout_ex(framebuf,get_zc_font(font_zfont),"Time Unknown",120,120,1,0);
 	else
-		textout_ex(framebuf,get_zc_font(font_zfont),time_str_med(save->get_time()),120,120,1,0);
+		textout_ex(framebuf,get_zc_font(font_zfont),time_str_med(header->time),120,120,1,0);
 		
-	if(save->did_cheat())
+	if(header->did_cheat)
 		textout_ex(framebuf,get_zc_font(font_zfont),"Used Cheats",120,128,1,0);
 		
 	textout_ex(framebuf,get_zc_font(font_zfont),"START: PLAY GAME",56,152,1,0);
 	textout_ex(framebuf,get_zc_font(font_zfont),"    B: CANCEL",56,168,1,0);
 	
-	if(!save->get_hasplayed())
+	if(!header->has_played)
 		textout_ex(framebuf,get_zc_font(font_zfont),"    A: CUSTOM QUEST",56,184,1,0);
 		
 	while(!Quit)
@@ -2146,7 +2145,7 @@ static int32_t game_details(int32_t file)
 			return 1;
 		}
 		
-		if(rAbtn() && !save->get_hasplayed())
+		if(rAbtn() && !header->has_played)
 		{
 			(void)custom_game(file);
 		}
@@ -2167,8 +2166,8 @@ int32_t getsaveslot()
 {
 	if (saveslot >= 0 && saveslot < saves_count())
 	{
-		const gamedata* save = saves_get_data(saveslot);
-		if ((!save->get_quest() || save->get_hasplayed()))
+		const auto header = saves_get_slot(saveslot)->header;
+		if (!header->quest || header->has_played)
 		{
 			return -1;
 		}
@@ -2280,10 +2279,11 @@ static void select_game(bool skip = false)
 				if (saveslot < saves_count()) switch(mode)
 				{
 				case 0:
+					// TODO: this is being called too much!
 					saves_select(saveslot);
 					loadlast = saves_current_selection() + 1;
 					
-					if(saves_get_data()->get_quest())
+					if (saves_get_slot(saveslot)->header->quest)
 						done=true;
 						
 					break;
@@ -2361,7 +2361,7 @@ static void select_game(bool skip = false)
 				saves_select(saveslot);
 				loadlast = saves_current_selection() + 1;
 				
-				if(saves_get_data()->get_quest())
+				if (saves_get_slot(saveslot)->header->quest)
 					done=true;
 			}
 		}
@@ -2451,9 +2451,6 @@ if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 		}
 	}
 
-	// if (standalone_mode)
-	// 	load_custom_game(0);
-
 	if(!Quit)
 	{
 		if(lsave<1)
@@ -2477,10 +2474,10 @@ if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 		}
 		else
 		{
-			saves_select(lsave - 1);
-			
-			if(!saves_get_data()->get_quest())
+			int slot = lsave - 1;
+			if (saves_get_slot(slot)->header->quest)
 			{
+				saves_select(slot);
 				select_game();
 			}
 		}

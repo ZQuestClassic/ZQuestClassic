@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <fmt/format.h>
 #include <sys/stat.h>
+#include <regex>
 
 using namespace std;
 
@@ -28,6 +29,13 @@ namespace util
 	{
 		str.erase(0, str.find_first_not_of("\t\n\v\f\r "));
 		str.erase(str.find_last_not_of("\t\n\v\f\r ") + 1);
+	}
+
+	void sanitize(string& str)
+	{
+		trimstr(str);
+		std::regex re(R"([^a-zA-Z0-9_+\-]+)");
+		str = std::regex_replace(str, re, "-");
 	}
 
 	// https://stackoverflow.com/a/5888676/2788187
@@ -62,6 +70,42 @@ namespace util
 		}
 
 		return result;
+	}
+
+	// https://stackoverflow.com/a/6089413/2788187
+	std::istream &portable_get_line(std::istream &is, std::string &t)
+	{
+		t.clear();
+
+		// The characters in the stream are read one-by-one using a std::streambuf.
+		// That is faster than reading them one-by-one using the std::istream.
+		// Code that uses streambuf this way must be guarded by a sentry object.
+		// The sentry object performs various tasks,
+		// such as thread synchronization and updating the stream state.
+
+		std::istream::sentry se(is, true);
+		std::streambuf *sb = is.rdbuf();
+
+		for (;;)
+		{
+			int c = sb->sbumpc();
+			switch (c)
+			{
+			case '\n':
+				return is;
+			case '\r':
+				if (sb->sgetc() == '\n')
+					sb->sbumpc();
+				return is;
+			case std::streambuf::traits_type::eof():
+				// Also handle the case when the last line has no line ending
+				if (t.empty())
+					is.setstate(std::ios::eofbit);
+				return is;
+			default:
+				t += (char)c;
+			}
+		}
 	}
 	
 	string cropPath(string filepath)
@@ -845,13 +889,19 @@ namespace util
 		return q-start+1;
 	}
 
+	// Constructs a filename from `dir`, `filename_prefix`, and `ext` (includes dot) that does not yet exist on disk.
+	// Appends a numeric suffix if necessary.
 	std::filesystem::path create_new_file_path(std::filesystem::path dir, std::string filename_prefix, std::string ext)
 	{
 		auto path_prefix = dir / filename_prefix;
-		std::filesystem::path new_path;
-		int i = 1;
+
+		std::filesystem::path new_path = fmt::format("{}{}", path_prefix.string(), ext);
+		if (!std::filesystem::exists(new_path))
+			return new_path;
+
+		int i = 2;
 		do {
-			new_path = fmt::format("{}-{:03}.{}", path_prefix.string(), i, ext);
+			new_path = fmt::format("{}-{:03}{}", path_prefix.string(), i, ext);
 			i += 1;
 		} while (std::filesystem::exists(new_path));
 		return new_path;

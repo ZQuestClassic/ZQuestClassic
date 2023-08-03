@@ -6080,7 +6080,7 @@ static int32_t handle_on_load_replay(ReplayMode mode)
 		char replay_path[2048];
 		strcpy(replay_path, "replays/");
 		if (jwin_file_select_ex(
-				fmt::format("Load Replay (.{})", REPLAY_EXTENSION).c_str(),
+				fmt::format("Load Replay ({})", REPLAY_EXTENSION).c_str(),
 				replay_path, REPLAY_EXTENSION.c_str(), 2048, -1, -1, get_zc_font(font_lfont)) == 0)
 			return D_CLOSE;
 
@@ -6123,7 +6123,7 @@ int32_t onSaveReplay()
 			char replay_path[2048];
 			strcpy(replay_path, replay_get_replay_path().string().c_str());
 			if (jwin_file_select_ex(
-					fmt::format("Save Replay (.{})", REPLAY_EXTENSION).c_str(),
+					fmt::format("Save Replay ({})", REPLAY_EXTENSION).c_str(),
 					replay_path, REPLAY_EXTENSION.c_str(), 2048, -1, -1, get_zc_font(font_lfont)) == 0)
 				return D_CLOSE;
 
