@@ -3933,4 +3933,13 @@ enum //for Hero->LiftFlags[]
 	LIFTFL_MAX
 };
 
-
+enum
+{
+	MU_SCREEN,
+	MU_DMAP,
+	MU_LEVEL,
+	MU_NEVER,
+	
+	MUF_NOCUT  = 0x40,
+	MUF_REVERT = 0x80
+};

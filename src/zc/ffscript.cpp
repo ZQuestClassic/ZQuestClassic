@@ -136,6 +136,7 @@ void FFScript::Waitframe(bool allowwavy, bool sfxcleanup)
 	{
 		zcmusic_poll();
 	}
+	zcmixer_update(zcmixer, emusic_volume, FFCore.usr_music_volume, get_qr(qr_OLD_SCRIPT_VOLUME));
 	
 	while(Paused && !Advance && !Quit)
 	{
@@ -159,6 +160,7 @@ void FFScript::Waitframe(bool allowwavy, bool sfxcleanup)
 		{
 			zcmusic_poll();
 		}
+		zcmixer_update(zcmixer, emusic_volume, FFCore.usr_music_volume, get_qr(qr_OLD_SCRIPT_VOLUME));
 
 		update_hw_screen();
 	}
@@ -11092,6 +11094,26 @@ int32_t get_register(const int32_t arg)
 		{
 			ret = (DMaps[ri->dmapsref].mirrorDMap) * 10000; break;
 		}
+		case DMAPDATALOOPSTART:
+		{
+			ret = (DMaps[ri->dmapsref].tmusic_loop_start); break;
+		}
+		case DMAPDATALOOPEND:
+		{
+			ret = (DMaps[ri->dmapsref].tmusic_loop_end); break;
+		}
+		case DMAPDATAXFADEIN:
+		{
+			ret = (DMaps[ri->dmapsref].tmusic_xfade_in * 10000); break;
+		}
+		case DMAPDATAXFADEOUT:
+		{
+			ret = (DMaps[ri->dmapsref].tmusic_xfade_out * 10000); break;
+		}
+		case MUSICUPDATECOND:
+		{
+			ret = ((byte)FFCore.music_update_flags) * 10000; break;
+		}
 		case DMAPDATAASUBSCRIPT:	//word
 		{
 			ret = (DMaps[ri->dmapsref].active_sub_script) * 10000; break;
@@ -21497,6 +21519,49 @@ void set_register(int32_t arg, int32_t value)
 		{
 			DMaps[ri->dmapsref].mirrorDMap = vbound(value / 10000, -1, MAXDMAPS); break;
 		}
+		case DMAPDATALOOPSTART:
+		{
+			DMaps[ri->dmapsref].tmusic_loop_start = value; 
+			if (ri->dmapsref == currdmap)
+			{
+				if (FFCore.doing_dmap_enh_music(currdmap))
+				{
+					zcmusic_set_loop(zcmusic, double(DMaps[currdmap].tmusic_loop_start / 10000.0), double(DMaps[currdmap].tmusic_loop_end / 10000.0));
+				}
+			}
+			break;
+		}
+		case DMAPDATALOOPEND:
+		{
+			DMaps[ri->dmapsref].tmusic_loop_end = value;
+			if (ri->dmapsref == currdmap)
+			{
+				if (FFCore.doing_dmap_enh_music(currdmap))
+				{
+					zcmusic_set_loop(zcmusic, double(DMaps[currdmap].tmusic_loop_start / 10000.0), double(DMaps[currdmap].tmusic_loop_end / 10000.0));
+				}
+			}
+			break;
+		}
+		case DMAPDATAXFADEIN:
+		{
+			DMaps[ri->dmapsref].tmusic_xfade_in = (value / 10000);
+			break;
+		}
+		case DMAPDATAXFADEOUT:
+		{
+			DMaps[ri->dmapsref].tmusic_xfade_out = (value / 10000);
+			if (DMaps[currdmap].tmusic[0]!=0 && strcmp(DMaps[ri->dmapsref].tmusic, zcmusic->filename) == 0)
+			{
+				zcmusic->fadeoutframes = (value / 10000);
+			}
+			break;
+		}
+		case MUSICUPDATECOND:
+		{
+			FFCore.music_update_flags = vbound(value / 10000, 0, 255);
+			break;
+		}
 		case DMAPDATAASUBSCRIPT:	//byte
 		{
 			FFScript::deallocateAllArrays(ScriptType::ActiveSubscreen, ri->dmapsref);
@@ -23070,6 +23135,9 @@ void set_register(int32_t arg, int32_t value)
 
 		case AUDIOVOLUME:
 		{
+			if (!get_qr(qr_OLD_SCRIPT_VOLUME))
+				break;
+
 			int32_t indx = ri->d[rINDEX] / 10000;
 			//zprint("Volume[index] is: %d", indx);
 			//int32_t vol = value / 10000;
@@ -28647,6 +28715,42 @@ void do_sfx(const bool v)
 	sfx(ID);
 }
 
+void do_sfx_ex(const bool restart)
+{
+	int32_t ID = SH::read_stack(ri->sp + 4) / 10000;
+	int32_t vol = vbound(SH::read_stack(ri->sp + 3), 0, 10000 * 100);
+	int32_t pan = vbound(SH::read_stack(ri->sp + 2)/10000 + 128, 0, 255);
+	int32_t freq = SH::read_stack(ri->sp + 1);
+	bool loop = SH::read_stack(ri->sp) / 10000;
+
+	if (BC::checkSFXID(ID, restart?"Audio->PlaySound":"Audio->AdjustSound") != SH::_NoError)
+		return;
+
+	if (!restart && !sfx_allocated(ID))
+		return;
+
+	sfx(ID, pan, loop, restart, vol, freq);
+}
+
+void do_get_sfx_completion()
+{
+	int32_t ID = get_register(sarg1) / 10000;
+	
+	// TODO: record results for replays
+
+	uint64_t sample_pos = voice_get_position(sfx_voice[ID]);
+
+	if (!sfx_allocated(ID) || sample_pos < 0)
+	{
+		set_register(sarg1, -10000);
+		return;
+	}
+
+	uint32_t sample_length = sfx_get_length(ID);
+	uint64_t res = (sample_pos * 10000 * 100) / sample_length;
+	set_register(sarg1, int32_t(res));
+}
+
 int32_t FFScript::do_get_internal_uid_npc(int32_t index)
 {
 	return ((int32_t)guys.spr(index)->getUID());
@@ -29389,77 +29493,111 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 
 void FFScript::do_adjustvolume(const bool v)
 {
-	int32_t perc = (SH::get_arg(sarg1, v) / 10000);
-	float pct = perc / 100.0;
-	// zprint("pct is: %f\n",pct);
-	float temp_midi = 0;
-	float temp_digi = 0;
-	float temp_mus = 0;
-	if ( !(coreflags&FFCORE_SCRIPTED_MIDI_VOLUME) ) 
+	if (get_qr(qr_OLD_SCRIPT_VOLUME))
 	{
-		// zprint("FFCORE_SCRIPTED_MIDI_VOLUME: wasn't set\n");
-		temp_midi = do_getMIDI_volume();
-		// zprint("temp_midi is %f\n", temp_midi);
-		usr_midi_volume = do_getMIDI_volume();
-		// zprint("usr_midi_volume stored as %d\n", usr_midi_volume);
-		SetFFEngineFlag(FFCORE_SCRIPTED_MIDI_VOLUME,true);
-	}
-	else 
-	{
-		temp_midi = (float)usr_midi_volume;
-	}
-	if ( !(coreflags&FFCORE_SCRIPTED_DIGI_VOLUME) ) 
-	{
-		temp_digi = do_getDIGI_volume();
-		usr_digi_volume = do_getDIGI_volume();
-		// zprint("usr_music_volume stored as %d\n", usr_digi_volume);
-		SetFFEngineFlag(FFCORE_SCRIPTED_DIGI_VOLUME,true);
+		int32_t perc = (SH::get_arg(sarg1, v) / 10000);
+		float pct = perc / 100.0;
+		// zprint("pct is: %f\n",pct);
+		float temp_midi = 0;
+		float temp_digi = 0;
+		float temp_mus = 0;
+		if (!(coreflags & FFCORE_SCRIPTED_MIDI_VOLUME))
+		{
+			// zprint("FFCORE_SCRIPTED_MIDI_VOLUME: wasn't set\n");
+			temp_midi = do_getMIDI_volume();
+			// zprint("temp_midi is %f\n", temp_midi);
+			usr_midi_volume = do_getMIDI_volume();
+			// zprint("usr_midi_volume stored as %d\n", usr_midi_volume);
+			SetFFEngineFlag(FFCORE_SCRIPTED_MIDI_VOLUME, true);
+		}
+		else
+		{
+			temp_midi = (float)usr_midi_volume;
+		}
+		if (!(coreflags & FFCORE_SCRIPTED_DIGI_VOLUME))
+		{
+			temp_digi = do_getDIGI_volume();
+			usr_digi_volume = do_getDIGI_volume();
+			// zprint("usr_music_volume stored as %d\n", usr_digi_volume);
+			SetFFEngineFlag(FFCORE_SCRIPTED_DIGI_VOLUME, true);
+		}
+		else
+		{
+			temp_digi = (float)usr_digi_volume;
+		}
+		if (!(coreflags & FFCORE_SCRIPTED_MUSIC_VOLUME))
+		{
+			temp_mus = do_getMusic_volume();
+			usr_music_volume = do_getMusic_volume();
+			// zprint("usr_music_volume stored as %d\n", usr_music_volume);
+			SetFFEngineFlag(FFCORE_SCRIPTED_MUSIC_VOLUME, true);
+		}
+		else
+		{
+			temp_mus = (float)usr_music_volume;
+		}
+
+		temp_midi *= pct;
+		temp_digi *= pct;
+		temp_mus *= pct;
+		// zprint("temp_midi is: %f\n",temp_midi);
+		// zprint("temp_digi is: %f\n",temp_digi);
+		// zprint("temp_mus is: %f\n",temp_mus);
+		do_setMIDI_volume((int32_t)temp_midi);
+		do_setDIGI_volume((int32_t)temp_digi);
+		do_setMusic_volume((int32_t)temp_mus);
 	}
 	else
 	{
-		temp_digi = (float)usr_digi_volume;
+		int32_t perc = SH::get_arg(sarg1, v);
+		FFCore.usr_music_volume = vbound(perc, 0, 10000 * 100);
+
+		if (zcmusic != NULL)
+		{
+			if (zcmusic->playing != ZCM_STOPPED)
+			{
+				int32_t temp_volume = emusic_volume;
+				if (!get_qr(qr_OLD_SCRIPT_VOLUME))
+					temp_volume = (emusic_volume * FFCore.usr_music_volume) / 10000 / 100;
+				temp_volume = (temp_volume * zcmusic->fadevolume) / 10000;
+				zcmusic_play(zcmusic, temp_volume);
+				return;
+			}
+		}
+		else if (currmidi > -1)
+		{
+			jukebox(currmidi);
+			master_volume(digi_volume, midi_volume);
+		}
 	}
-	if ( !(coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME) ) 
-	{
-		temp_mus = do_getMusic_volume();
-		usr_music_volume = do_getMusic_volume();
-		// zprint("usr_music_volume stored as %d\n", usr_music_volume);
-		SetFFEngineFlag(FFCORE_SCRIPTED_MUSIC_VOLUME,true);
-	}
-	else
-	{
-		temp_mus = (float)usr_music_volume;
-	}
-	
-	temp_midi *= pct;
-	temp_digi *= pct;
-	temp_mus *= pct;
-	// zprint("temp_midi is: %f\n",temp_midi);
-	// zprint("temp_digi is: %f\n",temp_digi);
-	// zprint("temp_mus is: %f\n",temp_mus);
-	do_setMIDI_volume((int32_t)temp_midi);
-	do_setDIGI_volume((int32_t)temp_digi);
-	do_setMusic_volume((int32_t)temp_mus);
 }
 
 void FFScript::do_adjustsfxvolume(const bool v)
 {
-	int32_t perc = (SH::get_arg(sarg1, v) / 10000);
-	float pct = perc / 100.0;
-	float temp_sfx = 0;
-	if ( !(coreflags&FFCORE_SCRIPTED_SFX_VOLUME) ) 
+	if (get_qr(qr_OLD_SCRIPT_VOLUME))
 	{
-		temp_sfx = do_getSFX_volume();
-		usr_sfx_volume = (int32_t)temp_sfx;
-		// zprint("usr_sfx_volume stored as %d\n", usr_sfx_volume);
-		SetFFEngineFlag(FFCORE_SCRIPTED_SFX_VOLUME,true);
+		int32_t perc = (SH::get_arg(sarg1, v) / 10000);
+		float pct = perc / 100.0;
+		float temp_sfx = 0;
+		if (!(coreflags & FFCORE_SCRIPTED_SFX_VOLUME))
+		{
+			temp_sfx = do_getSFX_volume();
+			usr_sfx_volume = (int32_t)temp_sfx;
+			// zprint("usr_sfx_volume stored as %d\n", usr_sfx_volume);
+			SetFFEngineFlag(FFCORE_SCRIPTED_SFX_VOLUME, true);
+		}
+		else
+		{
+			temp_sfx = (float)usr_sfx_volume;
+		}
+		temp_sfx *= pct;
+		do_setSFX_volume((int32_t)temp_sfx);
 	}
-	else 
+	else
 	{
-		temp_sfx = (float)usr_sfx_volume;
+		int32_t perc = SH::get_arg(sarg1, v);
+		FFCore.usr_sfx_volume = vbound(perc, 0, 10000 * 100);
 	}
-	temp_sfx *= pct;
-	do_setSFX_volume((int32_t)temp_sfx);
 }
 	
 
@@ -29523,45 +29661,194 @@ void do_enh_music(bool v)
 	}
 }
 
-void FFScript::do_playogg_ex(const bool v)
+void do_enh_music_crossfade()
 {
-	int32_t arrayptr = SH::get_arg(sarg1, v) / 10000;
-	int32_t track = (SH::get_arg(sarg2, v) / 10000)-1;
-	
-	if(arrayptr == 0)
-		music_stop();
-	else // Pointer to a string..
+	int32_t arrayptr = SH::read_stack(ri->sp + 5) / 10000;
+	int32_t track = SH::read_stack(ri->sp + 4) / 10000;
+	int32_t fadeoutframes = zc_max(SH::read_stack(ri->sp + 3) / 10000, 0);
+	int32_t fadeinframes = zc_max(SH::read_stack(ri->sp + 2) / 10000, 0);
+	int32_t fademiddleframes = zc_max(SH::read_stack(ri->sp + 1) / 10000, 0);
+	int32_t startpos = SH::read_stack(ri->sp);
+
+	if (arrayptr == 0)
+	{
+		bool ret = FFCore.play_enh_music_crossfade(NULL, track, fadeoutframes, fadeinframes, fademiddleframes, startpos);
+		set_register(sarg2, ret ? 10000 : 0);
+	}
+	else
 	{
 		string filename_str;
 		char filename_char[256];
-		bool ret;
 		ArrayH::getString(arrayptr, filename_str, 256);
 		strncpy(filename_char, filename_str.c_str(), 255);
-		filename_char[255]='\0';
-		ret=try_zcmusic_ex(filename_char, track, -1000);
+		filename_char[255] = '\0';
+		bool ret = FFCore.play_enh_music_crossfade(filename_char, track, fadeoutframes, fadeinframes, fademiddleframes, startpos);
 		set_register(sarg2, ret ? 10000 : 0);
 	}
 }
 
-void FFScript::do_set_oggex_position(const bool v)
+bool FFScript::play_enh_music_crossfade(char* name, int32_t track, int32_t fadeinframes, int32_t fadeoutframes, int32_t fademiddleframes, int32_t startpos)
 {
-	int32_t newposition = SH::get_arg(sarg1, v) / 10;
+	double fadeoutpct = 1.0;
+	// If there was an old fade going, use that as a multiplier for the new fade out
+	if (zcmixer->newtrack != NULL)
+	{
+		fadeoutpct = double(zcmixer->newtrack->fadevolume) / 10000.0;
+	}
+
+	ZCMUSIC* oldold = zcmixer->oldtrack;
+	bool ret = false;
+
+	if (name == NULL)
+	{
+		// Pass currently playing music off to the mixer
+		zcmixer->oldtrack = zcmusic;
+		// Do not play new music
+		zcmusic = NULL;
+		zcmixer->newtrack = NULL;
+
+		zcmixer->fadeinframes = fadeinframes + fademiddleframes;
+		zcmixer->fadeinmaxframes = fadeinframes;
+		zcmixer->fadeindelay = fademiddleframes;
+		zcmixer->fadeoutframes = zc_max(fadeoutframes * fadeoutpct, 1);
+		zcmixer->fadeoutmaxframes = fadeoutframes;
+		if (zcmixer->oldtrack != NULL)
+			zcmixer->oldtrack->fadevolume = 10000;
+		if (zcmixer->newtrack != NULL)
+			zcmixer->newtrack->fadevolume = 0;
+	}
+	else // Pointer to a string..
+	{
+		// Pass currently playing music to the mixer
+		zcmixer->oldtrack = zcmusic;
+		zcmusic = NULL;
+		zcmixer->newtrack = NULL;
+
+		ret = try_zcmusic(name, track, -1000, fadeoutframes);
+		// If new music was found
+		if (ret)
+		{
+			// New music fades in
+			if (zcmusic != NULL)
+				zcmusic->fadevolume = 0;
+
+			zcmixer->newtrack = zcmusic;
+			zcmixer->fadeinframes = fadeinframes + fademiddleframes;
+			zcmixer->fadeinmaxframes = fadeinframes;
+			zcmixer->fadeindelay = fademiddleframes;
+			zcmixer->fadeoutframes = zc_max(fadeoutframes * fadeoutpct, 1);
+			zcmixer->fadeoutmaxframes = fadeoutframes;
+			if (startpos > 0)
+				zcmusic_set_curpos(zcmixer->newtrack, startpos);
+			if (zcmixer->oldtrack != NULL)
+				zcmixer->oldtrack->fadevolume = 10000;
+			if (zcmixer->newtrack != NULL)
+				zcmixer->newtrack->fadevolume = 0;
+		}
+	}
+	
+	// If there was already an old track playing, stop it
+	if (oldold != NULL)
+	{
+		// Don't allow it to null both tracks if running twice in a row
+		if (zcmixer->newtrack == NULL && zcmixer->oldtrack == NULL)
+		{
+			zcmixer->oldtrack = oldold;
+
+			if (oldold->fadeoutframes > 0)
+			{
+				zcmixer->fadeoutframes = zc_max(oldold->fadeoutframes * fadeoutpct, 1);
+				zcmixer->fadeoutmaxframes = oldold->fadeoutframes;
+				if (zcmixer->oldtrack != NULL)
+					zcmixer->oldtrack->fadevolume = 10000;
+				oldold->fadeoutframes = 0;
+			}
+		}
+		else
+		{
+			zcmusic_stop(oldold);
+			zcmusic_unload_file(oldold);
+			oldold = NULL;
+		}
+	}
+
+	return ret;
+}
+
+bool FFScript::doing_dmap_enh_music(int32_t dm)
+{
+	if (DMaps[dm].tmusic[0] != 0)
+	{
+		if (zcmusic != NULL)
+		{
+			if (strcmp(zcmusic->filename, DMaps[dm].tmusic) == 0)
+			{
+				switch (zcmusic_get_type(zcmusic))
+				{
+				case ZCMF_OGG:
+				case ZCMF_MP3:
+					return true;
+				case ZCMF_DUH:
+				case ZCMF_GME:
+					if (zcmusic->track == DMaps[dm].tmusictrack)
+					{
+						return true;
+					}
+				}
+			}
+		}
+	}
+	return false;
+}
+
+bool FFScript::can_dmap_change_music(int32_t dm)
+{
+	switch (music_update_flags & 0xF)
+	{
+	case MUSIC_UPDATE_SCREEN:
+		return true;
+	case MUSIC_UPDATE_DMAP:
+		return dm != -1 && dm != currdmap;
+	case MUSIC_UPDATE_LEVEL:
+		return dm != -1 && DMaps[dm].level != DMaps[currdmap].level;
+	}
+	return false;
+}
+
+void FFScript::do_set_music_position(const bool v)
+{
+	int32_t newposition = SH::get_arg(sarg1, v);
 	
 	set_zcmusicpos(newposition);
 }
 
-void FFScript::go_get_oggex_position()
+void FFScript::do_get_music_position()
 {
-	int32_t pos = get_zcmusicpos()*10;
-	// zprint("ZC OGG Position is %d\n", pos);
+	int32_t pos = get_zcmusicpos();
+
+	// TODO: record results for replays
+
 	set_register(sarg1, pos);
 }
 
-void FFScript::do_set_oggex_speed(const bool v)
+void FFScript::do_set_music_speed(const bool v)
 {
-	int32_t newspeed = SH::get_arg(sarg1, v) / 10;
-	
+	int32_t newspeed = SH::get_arg(sarg1, v);
 	set_zcmusicspeed(newspeed);
+}
+
+void FFScript::do_get_music_length()
+{
+	int32_t len = get_zcmusiclen();
+	set_register(sarg1, len);
+}
+
+void FFScript::do_set_music_loop()
+{
+	double start = (get_register(sarg1) / 10000);
+	double end = (get_register(sarg2) / 10000);
+
+	set_zcmusicloop(start, end);
 }
 
 void do_get_enh_music_filename(const bool v)
@@ -31929,16 +32216,21 @@ j_command:
 
 			case ADJUSTSFX:
 			{
-				// int32_t sound = ri->d[rEXP1]/10000;
-				// int32_t pan = ri->d[rINDEX2];
-				// control_state[6]=((value/10000)!=0)?true:false;
-				// bool loop = ((ri->d[rINDEX]/10000)!=0)?true:false;
-				//SFXBackend.adjust_sfx(sound,pan,loop);
-				
-				//! adjust_sfx was not ported to the new back end!!! -Z
+				do_sfx_ex(false);
 			}
 			break;
 
+			case PLAYSOUNDEX:
+			{
+				do_sfx_ex(true);
+			}
+			break;
+
+			case GETSFXCOMPLETION:
+			{
+				do_get_sfx_completion();
+			}
+			break;
 
 			case CONTINUESFX:
 			{
@@ -34258,19 +34550,32 @@ j_command:
 			}
 			
 			case PLAYENHMUSICEX:
-				FFCore.do_playogg_ex(false);
+				// DEPRECATED
+				do_enh_music(false);
 				break;
 				
 			case GETENHMUSICPOS:
-				FFCore.go_get_oggex_position();
+				FFCore.do_get_music_position();
 				break;
 				
 			case SETENHMUSICPOS:
-				FFCore.do_set_oggex_position(false);
+				FFCore.do_set_music_position(false);
 				break;
 				
 			case SETENHMUSICSPEED:
-				FFCore.do_set_oggex_speed(false);
+				FFCore.do_set_music_speed(false);
+				break;
+
+			case GETENHMUSICLEN:
+				FFCore.do_get_music_length();
+				break;
+
+			case SETENHMUSICLOOP:
+				FFCore.do_set_music_loop();
+				break;
+
+			case ENHCROSSFADE:
+				do_enh_music_crossfade();
 				break;
 			
 			case DIREXISTS:
@@ -37170,15 +37475,18 @@ void FFScript::init()
 	max_ff_rules = qr_MAX;
 	coreflags = 0;
 	skip_ending_credits = 0;
+	music_update_flags = 0;
 	//quest_format : is this properly initialised?
 	for ( int32_t q = 0; q < susptLAST; q++ ) { system_suspend[q] = 0; }
 	for ( int32_t q = 0; q < UID_TYPES; ++q ) { script_UIDs[q] = 0; }
 	//for ( int32_t q = 0; q < 512; q++ ) FF_rules[q] = 0;
 	FFCore.zasm_break_mode = ZASM_BREAK_NONE;
+
 	usr_midi_volume = midi_volume;
 	usr_digi_volume = digi_volume;
 	usr_sfx_volume = sfx_volume;
 	usr_music_volume = emusic_volume;
+
 	usr_panstyle = pan_style;
 	FF_hero_action = 0;
 	enemy_removal_point[spriteremovalY1] = -32767;
@@ -40149,7 +40457,7 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "PAUSESFX",         1,   0,   0,   0},
 	{ "RESUMESFX",         1,   0,   0,   0},
 	{ "CONTINUESFX",         1,   0,   0,   0},
-	{ "ADJUSTSFX",         3,   0,   0,   0},
+	{ "ADJUSTSFX",         0,   0,   0,   0},
 	{ "GETITEMSCRIPT",        1,   0,   0,   0},
 	{ "GETSCREENLAYOP",      1,   0,   0,   0},
 	{ "GETSCREENSECCMB",      1,   0,   0,   0},
@@ -40980,11 +41288,11 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "RESRVD_OP_EMILY_20", 0, 0, 0, 0 },
 	{ "CONVERTFROMRGB", 0, 0, 0, 0 },
 	{ "CONVERTTORGB", 0, 0, 0, 0 },
-	{ "RESRVD_OP_MOOSH_03", 0, 0, 0, 0 },
-	{ "RESRVD_OP_MOOSH_04", 0, 0, 0, 0 },
-	{ "RESRVD_OP_MOOSH_05", 0, 0, 0, 0 },
-	{ "RESRVD_OP_MOOSH_06", 0, 0, 0, 0 },
-	{ "RESRVD_OP_MOOSH_07", 0, 0, 0, 0 },
+	{ "GETENHMUSICLEN", 1, 0, 0, 0 },
+	{ "SETENHMUSICLOOP", 2, 0, 0, 0 },
+	{ "PLAYSOUNDEX", 0, 0, 0, 0 },
+	{ "GETSFXCOMPLETION", 1, 0, 0, 0 },
+	{ "ENHCROSSFADE", 0, 0, 0, 0 },
 	{ "RESRVD_OP_MOOSH_08", 0, 0, 0, 0 },
 	{ "RESRVD_OP_MOOSH_09", 0, 0, 0, 0 },
 	{ "RESRVD_OP_MOOSH_10", 0, 0, 0, 0 },
@@ -42390,11 +42698,11 @@ script_variable ZASMVars[]=
 	{ "PALDATAG", PALDATAG, 0, 0 },
 	{ "PALDATAB", PALDATAB, 0, 0 },
 
-	{ "RESRVD_VAR_MOOSH01", RESRVD_VAR_MOOSH01, 0, 0 },
-	{ "RESRVD_VAR_MOOSH02", RESRVD_VAR_MOOSH02, 0, 0 },
-	{ "RESRVD_VAR_MOOSH03", RESRVD_VAR_MOOSH03, 0, 0 },
-	{ "RESRVD_VAR_MOOSH04", RESRVD_VAR_MOOSH04, 0, 0 },
-	{ "RESRVD_VAR_MOOSH05", RESRVD_VAR_MOOSH05, 0, 0 },
+	{ "DMAPDATALOOPSTART", DMAPDATALOOPSTART, 0, 0 },
+	{ "DMAPDATALOOPEND", DMAPDATALOOPEND, 0, 0 },
+	{ "DMAPDATAXFADEIN", DMAPDATAXFADEIN, 0, 0 },
+	{ "DMAPDATAXFADEOUT", DMAPDATAXFADEOUT, 0, 0 },
+	{ "MUSICUPDATECOND", MUSICUPDATECOND, 0, 0 },
 	{ "RESRVD_VAR_MOOSH06", RESRVD_VAR_MOOSH06, 0, 0 },
 	{ "RESRVD_VAR_MOOSH07", RESRVD_VAR_MOOSH07, 0, 0 },
 	{ "RESRVD_VAR_MOOSH08", RESRVD_VAR_MOOSH08, 0, 0 },

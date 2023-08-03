@@ -14,6 +14,7 @@
 
 #include "base/zdefs.h"
 #include "base/jwinfsel.h"
+#include "zcmusic.h"
 
 extern MENU the_player_menu[];
 extern MENU the_player_menu2[];
@@ -230,11 +231,14 @@ int32_t high_flag(int32_t i, int32_t item_type, bool consecutive);
 int32_t item_tile_mod();
 int32_t bunny_tile_mod();
 
-bool try_zcmusic(char *filename, int32_t track, int32_t midi);
+bool try_zcmusic(char *filename, int32_t track, int32_t midi, int32_t fadeoutframes = 0);
+bool try_zcmusic_mix(ZCMUSIC* &zcm, char* filename, int32_t track, int32_t midi, int32_t fadevol, int32_t fadeoutframes = 0);
 bool try_zcmusic_ex(char *filename, int32_t track, int32_t midi);
 int32_t get_zcmusicpos();
 void set_zcmusicpos(int32_t position);
 void set_zcmusicspeed(int32_t speed);
+int32_t get_zcmusiclen();
+void set_zcmusicloop(double start, double end);
 void jukebox(int32_t index);
 void jukebox(int32_t index,int32_t loop);
 void play_DmapMusic();
@@ -245,7 +249,9 @@ void master_volume(int32_t dv,int32_t mv);
 int32_t  sfx_count();
 void sfx_cleanup();
 bool sfx_init(int32_t index);
-void sfx(int32_t index,int32_t pan,bool loop, bool restart = true);
+void sfx(int32_t index,int32_t pan,bool loop, bool restart = true, int32_t vol = 1000000, int32_t freq = -1);
+int32_t sfx_get_default_freq(int32_t index);
+int32_t sfx_get_length(int32_t index);
 bool sfx_allocated(int32_t index);
 void cont_sfx(int32_t index);
 void stop_sfx(int32_t index);

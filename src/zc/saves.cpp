@@ -4,6 +4,7 @@
 #include "base/misctypes.h"
 #include "base/fonts.h"
 #include "base/dmap.h"
+#include "base/qrs.h"
 #include "zc/zelda.h"
 #include "zc/ffscript.h"
 #include "pal.h"
@@ -37,6 +38,7 @@ static std::string get_save_file_path()
 static int32_t read_saves(PACKFILE *f)
 {
 	FFCore.kb_typing_mode = false;
+	if(get_qr(qr_OLD_SCRIPT_VOLUME))
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 	{
 		Z_scripterrlog("Trying to restore master MIDI volume to: %d\n", FFCore.usr_midi_volume);

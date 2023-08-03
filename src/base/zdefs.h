@@ -231,7 +231,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_COMBOS          42
 #define V_CSETS            5 //palette data
 #define V_MAPS            27
-#define V_DMAPS            17
+#define V_DMAPS            18
 #define V_DOORS            1
 #define V_ITEMS           57
 #define V_WEAPONS          8
@@ -251,7 +251,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_SFX              8
 #define V_FAVORITES        3
 
-#define V_COMPATRULE       48
+#define V_COMPATRULE       49
 #define V_ZINFO            3
 
 //= V_SHOPS is under V_MISC

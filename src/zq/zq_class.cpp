@@ -8001,6 +8001,22 @@ int32_t writedmaps(PACKFILE *f, word version, word build, word start_dmap, word 
 			{
 				new_return(41);
 			}
+            if (!p_iputl(DMaps[i].tmusic_loop_start, f))
+            {
+                new_return(42);
+            }
+            if (!p_iputl(DMaps[i].tmusic_loop_end, f))
+            {
+                new_return(43);
+            }
+            if (!p_iputl(DMaps[i].tmusic_xfade_in, f))
+            {
+                new_return(44);
+            }
+            if (!p_iputl(DMaps[i].tmusic_xfade_out, f))
+            {
+                new_return(45);
+            }
         }
         
         if(writecycle==0)

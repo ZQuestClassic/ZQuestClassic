@@ -913,6 +913,9 @@ static GUI::ListData compatRulesList
 		" If disabled: button presses are eaten when scripts write to button states."},
 	{ "Old Guy Handling", qr_OLD_GUY_HANDLING,
 		"If enabled, several new features relating to room guys will not work, instead using the old version behaviors."},
+	{ "Old (Buggy) ZScript Volume Access", qr_OLD_SCRIPT_VOLUME,
+		"If enabled, Audio->AdjustMusicVolume() and Audio->AdjustSFXVolume() will use their old behavior,"
+		" which was bugged and wrote directly to the volume sliders." },
 };
 
 static GUI::ListData enemiesRulesList

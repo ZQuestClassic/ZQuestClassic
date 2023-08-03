@@ -19,15 +19,21 @@ static AccessorTable AudioTable[] =
 	{ "getPanStyle",             0,         ZTID_FLOAT,   AUDIOPAN,               0,  { ZTID_AUDIO },{} },
 	{ "setPanStyle",             0,          ZTID_VOID,   AUDIOPAN,               0,  { ZTID_AUDIO, ZTID_FLOAT },{} },
 	
-	//Undocumented intentionally
-	{ "AdjustSound",             0,          ZTID_VOID,   -1,               FL_DEPR,  { ZTID_AUDIO, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL },{} },
+	{ "AdjustSound",             0,          ZTID_VOID,   -1,               FL_INL,   { ZTID_AUDIO, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL },{ 0, -1, 0 } },
 	{ "PlayOgg",                 0,          ZTID_BOOL,   -1,               FL_DEPR,  { ZTID_AUDIO, ZTID_FLOAT, ZTID_FLOAT },{} },
-	{ "GetOggPos",               0,         ZTID_FLOAT,   -1,               FL_DEPR,  { ZTID_AUDIO },{} },
-	{ "SetOggPos",               0,          ZTID_VOID,   -1,               FL_DEPR,  { ZTID_AUDIO, ZTID_FLOAT },{} },
-	{ "SetOggSpeed",             0,          ZTID_VOID,   -1,               FL_DEPR,  { ZTID_AUDIO, ZTID_FLOAT },{} },
+	{ "GetMusicPos",             0,         ZTID_FLOAT,   -1,                FL_INL,  { ZTID_AUDIO },{} },
+	{ "SetMusicPos",             0,          ZTID_VOID,   -1,                FL_INL,  { ZTID_AUDIO, ZTID_FLOAT },{} },
+	{ "SetMusicSpeed",           0,          ZTID_VOID,   -1,                FL_INL,  { ZTID_AUDIO, ZTID_FLOAT },{} },
 	{ "getVolume[]",             0,         ZTID_FLOAT,   AUDIOVOLUME,      FL_DEPR,  { ZTID_AUDIO, ZTID_FLOAT },{} },
 	{ "setVolume[]",             0,          ZTID_VOID,   AUDIOVOLUME,      FL_DEPR,  { ZTID_AUDIO, ZTID_FLOAT, ZTID_FLOAT },{} },
-	
+	{ "GetMusicLength",          0,         ZTID_FLOAT,   -1,                FL_INL,  { ZTID_AUDIO },{} },
+	{ "SetMusicLoop",            0,          ZTID_VOID,   -1,                FL_INL,  { ZTID_AUDIO, ZTID_FLOAT, ZTID_FLOAT},{} },
+	{ "PlaySound",               1,          ZTID_VOID,   -1,                FL_INL,   { ZTID_AUDIO, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL },{ 0, -1, 0 } },
+	{ "GetSoundCompletion",      0,         ZTID_FLOAT,   -1,                FL_INL,   { ZTID_AUDIO, ZTID_FLOAT },{ } },
+	{ "CrossfadeEnhancedMusic",  0,          ZTID_BOOL,   -1,                FL_INL,   { ZTID_AUDIO, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ 0, 0 } },
+	{ "getMusicRefresh",         0,         ZTID_FLOAT,   MUSICUPDATECOND,        0,  { ZTID_AUDIO },{} },
+	{ "setMusicRefresh",         0,          ZTID_VOID,   MUSICUPDATECOND,        0,  { ZTID_AUDIO, ZTID_FLOAT },{} },
+
 	{ "",                        0,          ZTID_VOID,   -1,          0,  {},{} }
 };
 
@@ -68,25 +74,22 @@ void AudioSymbols::generateCode()
 		function->giveCode(code);
 	}
 	
-	//void AdjustSound(game, int32_t,int32_t,bool)
+	//void AdjustSound(game, int32_t,int32_t,int32_t,bool)
 	{
 		Function* function = getFunction("AdjustSound");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
-		//pop off the params
-		addOpcode2 (code, new OPopRegister(new VarArgument(SFTEMP)));
+		addOpcode2(code, new OAdjustSound());
 		LABELBACK(label);
-		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX2)));
-		addOpcode2 (code, new OPopRegister(new VarArgument(INDEX)));
-		//pop pointer, and ignore it
+		POP_ARGS(5, NUL);
+		//pop pointer
 		POPREF();
-		addOpcode2 (code, new OSetRegister(new VarArgument(ADJUSTSFX), new VarArgument(SFTEMP)));
 		RETURN();
 		function->giveCode(code);
 	}
 	//void PlaySound(game, int32_t)
 	{
-		Function* function = getFunction("PlaySound");
+		Function* function = getFunction("PlaySound", 0);
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the param
@@ -229,8 +232,8 @@ void AudioSymbols::generateCode()
 		function->giveCode(code);
 	}
 	//int32_t GetEnhancedMusicPos(game)
-{
-		Function* function = getFunction("GetOggPos");
+	{
+		Function* function = getFunction("GetMusicPos");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop pointer, and ignore it
@@ -239,10 +242,10 @@ void AudioSymbols::generateCode()
 		LABELBACK(label);
 		RETURN();
 		function->giveCode(code);
-}
+	}
 	 //void SetEnhancedMusicPos(game, int32_t)
 	{
-		Function* function = getFunction("SetOggPos");
+		Function* function = getFunction("SetMusicPos");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -256,7 +259,7 @@ void AudioSymbols::generateCode()
 	}
 	//void SetEnhancedMusicSpeed(game, int32_t)
 	{
-		Function* function = getFunction("SetOggSpeed");
+		Function* function = getFunction("SetMusicSpeed");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		//pop off the params
@@ -265,6 +268,73 @@ void AudioSymbols::generateCode()
 		//pop pointer, and ignore it
 		POPREF();
 		addOpcode2 (code, new OSetEnhancedMusicSpeed(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//int32_t GetEnhancedMusicLength(game)
+	{
+		Function* function = getFunction("GetMusicLength");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop pointer, and ignore it
+		ASSERT_NUL();
+		addOpcode2(code, new OGetEnhancedMusicLength(new VarArgument(EXP1)));
+		LABELBACK(label);
+		RETURN();
+		function->giveCode(code);
+	}
+	//void SetEnhancedMusicLoop(paldata, int32_t, int32_t)
+	{
+		Function* function = getFunction("SetMusicLoop");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2(code, new OPopRegister(new VarArgument(EXP2)));
+		LABELBACK(label);
+		addOpcode2(code, new OPopRegister(new VarArgument(EXP1)));
+		//pop pointer
+		POPREF();
+		addOpcode2(code, new OSetEnhancedMusicLoop(new VarArgument(EXP1), new VarArgument(EXP2)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void PlaySound(game, int32_t,int32_t,int32_t,int32_t,bool)
+	{
+		Function* function = getFunction("PlaySound", 1);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2(code, new OPlaySoundEX());
+		LABELBACK(label);
+		POP_ARGS(5, NUL);
+		//pop pointer
+		POPREF();
+		RETURN();
+		function->giveCode(code);
+	}
+	//void GetSoundCompletion(game, int32_t)
+	{
+		Function* function = getFunction("GetSoundCompletion");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the params
+		addOpcode2(code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2(code, new OGetSoundCompletion(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void CrossfadeEnhancedMusic(game, int32_t,int32_t,int32_t,int32_t)
+	{
+		Function* function = getFunction("CrossfadeEnhancedMusic", 0);
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2(code, new OCrossfadeEnhancedMusic());
+		LABELBACK(label);
+		POP_ARGS(6, NUL);
+		//pop pointer
+		POPREF();
 		RETURN();
 		function->giveCode(code);
 	}
