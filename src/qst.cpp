@@ -5251,34 +5251,6 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 			tempDMap.tmusic_xfade_in = 0;
 			tempDMap.tmusic_xfade_out = 0;
 		}
-		
-		// Enhanced music loop points
-		if (s_version >= 18)
-		{
-			if (!p_igetl(&tempDMap.tmusic_loop_start, f))
-			{
-				return qe_invalid;
-			}
-			if (!p_igetl(&tempDMap.tmusic_loop_end, f))
-			{
-				return qe_invalid;
-			}
-			if (!p_igetl(&tempDMap.tmusic_xfade_in, f))
-			{
-				return qe_invalid;
-			}
-			if (!p_igetl(&tempDMap.tmusic_xfade_out, f))
-			{
-				return qe_invalid;
-			}
-		}
-		else
-		{
-			tempDMap.tmusic_loop_start = 0;
-			tempDMap.tmusic_loop_end = 0;
-			tempDMap.tmusic_xfade_in = 0;
-			tempDMap.tmusic_xfade_out = 0;
-		}
 
 		memcpy(&DMaps[i], &tempDMap, sizeof(tempDMap));
 	}

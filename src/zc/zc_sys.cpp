@@ -8230,12 +8230,8 @@ void jukebox(int32_t index,int32_t loop)
 	midi_loop_end = tunes[index].loop_end;
 	
 	currmidi=index;
-<<<<<<< HEAD
-	master_volume(digi_volume,midi_volume);
-=======
 	master_volume(digi_volume, midi_volume);
-	midi_paused=false;
->>>>>>> f79537ea0 (fix: AdjustMusicVolume() and AdjustSFXVolume())
+	//midi_paused=false;
 }
 
 void jukebox(int32_t index)
