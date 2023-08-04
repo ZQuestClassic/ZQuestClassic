@@ -28,6 +28,7 @@ namespace GUI::ZCListData
 	GUI::ListData itemdata_script();
 	GUI::ListData itemsprite_script();
 	GUI::ListData ffc_script();
+	GUI::ListData screen_script();
 	GUI::ListData lweapon_script();
 	GUI::ListData eweapon_script();
 	GUI::ListData combodata_script();
