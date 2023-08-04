@@ -2371,6 +2371,22 @@ static void select_game(bool skip = false)
 			load_custom_game(saveslot);
 			selectscreen();
 		}
+
+		if (keypressed())
+		{
+			int32_t k=readkey()>>8;
+			if (k == KEY_ESC)
+			{
+				mode = 0;
+				select_mode();
+				while(key[KEY_ESC])
+				{
+					poll_keyboard();
+					/* do nothing */
+					rest(1);
+				}
+			}
+		}
 	}
 	while(!Quit && !done);
 	
