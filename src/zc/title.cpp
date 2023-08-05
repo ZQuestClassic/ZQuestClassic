@@ -1950,11 +1950,6 @@ bool load_custom_game(int32_t file)
 	{
 		if (chosecustomquest || standalone_mode)
 		{
-			save->header->qstpath = qstpath;
-			saves_do_first_time_stuff(file);
-			clear_to_color(screen,BLACK);
-			rest(200); // Formerly 1000 -L
-			saves_update_icon(file);
 			chosecustomquest = false;
 			return true;
 		}
@@ -2061,7 +2056,7 @@ int32_t custom_game(int32_t file)
 	exit_sys_pal();
 	key[KEY_ESC]=0;
 	chosecustomquest = (ret==5) && customized;
-	return (int32_t)chosecustomquest;
+	return customized;
 }
 
 static int32_t game_details(int32_t file)
@@ -2231,7 +2226,17 @@ static void select_game(bool skip = false)
 
 		if(popup_choose_quest)
 		{
-			custom_game(saveslot);
+			bool is_custom = custom_game(saveslot);
+
+			auto save = saves_get_slot(saveslot);
+			if (!save->header->has_played)
+			{
+				save->header->qstpath = qstpath;
+				saves_do_first_time_stuff(saveslot);
+				if (is_custom)
+					init_NES_mode();
+			}
+
 			popup_choose_quest = false;
 		}
 		
@@ -2369,6 +2374,7 @@ static void select_game(bool skip = false)
 		if(chosecustomquest)
 		{
 			load_custom_game(saveslot);
+			chosecustomquest = false;
 			selectscreen();
 		}
 

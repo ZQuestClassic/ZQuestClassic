@@ -1902,8 +1902,7 @@ int32_t saves_load()
 	return init_from_save_folder();
 }
 
-// TODO call this less
-void saves_update_icon(int index)
+static void update_icon(int index)
 {
 	save_t* save;
 	int ret = get_save(save, index, true);
@@ -1994,7 +1993,7 @@ static int32_t do_save_games()
 	if (currgame >= 0)
 	{
 		saves[currgame].game->Copy(*game);
-		saves_update_icon(currgame);
+		update_icon(currgame);
 	}
 
 	if (disable_save_to_disk)
@@ -2147,7 +2146,6 @@ bool saves_create_slot(gamedata* game, bool save_to_disk)
 	save.game = game;
 	save.header = &game->header;
 	save.path = save_to_disk ? create_path_for_new_save(save.header) : "";
-	saves_update_icon(saves.size() - 1);
 	return do_save_games();
 }
 
@@ -2189,6 +2187,6 @@ void saves_do_first_time_stuff(int index)
 		}
 		
 		rest(200); // Formerly 1000 -L
-		saves_update_icon(index);
+		update_icon(index);
 	}
 }

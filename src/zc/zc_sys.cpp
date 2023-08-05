@@ -817,7 +817,6 @@ void null_quest()
 	loadquest(qstdat_string,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,skip_flags,0,false);
 }
 
-// TODO remove
 void init_NES_mode()
 {
 	null_quest();
