@@ -891,15 +891,20 @@ namespace util
 
 	// Constructs a filename from `dir`, `filename_prefix`, and `ext` (includes dot) that does not yet exist on disk.
 	// Appends a numeric suffix if necessary.
-	std::filesystem::path create_new_file_path(std::filesystem::path dir, std::string filename_prefix, std::string ext)
+	std::filesystem::path create_new_file_path(std::filesystem::path dir, std::string filename_prefix, std::string ext, bool force_suffix)
 	{
 		auto path_prefix = dir / filename_prefix;
+		std::filesystem::path new_path;
+		int i = 1;
 
-		std::filesystem::path new_path = fmt::format("{}{}", path_prefix.string(), ext);
-		if (!std::filesystem::exists(new_path))
-			return new_path;
+		if (!force_suffix)
+		{
+			new_path = fmt::format("{}{}", path_prefix.string(), ext);
+			if (!std::filesystem::exists(new_path))
+				return new_path;
+			i += 1;
+		}
 
-		int i = 2;
 		do {
 			new_path = fmt::format("{}-{:03}{}", path_prefix.string(), i, ext);
 			i += 1;

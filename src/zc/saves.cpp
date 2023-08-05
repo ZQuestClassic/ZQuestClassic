@@ -70,10 +70,14 @@ static fs::path get_deleted_folder_path()
 	return get_save_folder_path() / "deleted";
 }
 
-static int move_to_folder(fs::path path, fs::path dir)
+static int move_to_folder(fs::path path, fs::path dir, std::string stem = "", bool force_suffix = false)
 {
 	fs::create_directories(dir);
-	fs::path dest = create_new_file_path(dir, path.stem().string(), path.extension().string());
+	auto dest = create_new_file_path(
+		dir,
+		stem.empty() ? path.stem().string() : stem,
+		path.extension().string(),
+		force_suffix);
 
 	std::error_code err;
 	fs::copy(path, dest, err);
@@ -1552,6 +1556,10 @@ static int32_t write_save(save_t* save)
 	}
 
 	pack_fclose(f);
+
+	// Move existing save to backup folder.
+	auto backup_folder_path = get_backup_folder_path() / save->path.stem();
+	move_to_folder(save->path, backup_folder_path, save->path.stem().string() + "-backup", true);
 
 	// TODO: ugh, encoding stuff is stupid. Stop doing this.
 	std::string pathStr = save->path.string();
