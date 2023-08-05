@@ -8,3 +8,5 @@ c8e2c861edc73de3ff851d3cbc9bc8d07037d007 fix(zc): npc scripts not running on scr
 0da042ba3b238bba1b468c753f24cce71cefc2a4 fix(zscript): Negative Array rule issues
 dabe7c091b89fa2e09217dfb63c652184b78f65e feat(vscode): create VS Code extension
 6ecf0775afeac108bb4f806b76f9c1835c0a98d1 feat(vscode): update vscode extension keywords
+d82a0d8458b3029283385db04f1d935fd0dbce48 misc: add 'std_zh' scope to changelog generation
+f7228536ad55c2fb4bb20d00bba8b8c06d7e67c2 feat(std_zh): add 'GetLevelSwitchState()'/'SetLevelSwitchState()' helper functions

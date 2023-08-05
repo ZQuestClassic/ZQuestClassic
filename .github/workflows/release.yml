@@ -127,7 +127,7 @@ jobs:
           files: release-packages/**/*
           prerelease: ${{ !inputs.full_release }}
           fail_on_unmatched_files: true
-          generate_release_notes: true
+          generate_release_notes: false
           body_path: new_changelog.md
 
       - name: Setup Sentry CLI

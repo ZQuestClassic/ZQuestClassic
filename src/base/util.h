@@ -19,8 +19,10 @@ namespace util
 	void upperstr(std::string& str);
 	void lowerstr(std::string& str);
 	void trimstr(std::string& str);
+	void sanitize(std::string& str);
 	size_t split(const std::string &txt, std::vector<std::string> &strs, char ch);
 	std::vector<std::string> split_args(const std::string &str);
+	std::istream &portable_get_line(std::istream &is, std::string &t);
 	std::string cropPath(std::string filepath);
 	void replstr(std::string& str, std::string const& from, std::string const& to);
 	std::string escape_characters(std::string const& str);
@@ -56,7 +58,7 @@ namespace util
 	void unstringify_vector(std::vector<int32_t>& vec, std::string const& str, bool dec);
 	void unstringify_vector(std::vector<int32_t>& vec, char const* str, bool dec);
 	size_t vecstr_size(char const* str);
-	std::filesystem::path create_new_file_path(std::filesystem::path dir, std::string filename_prefix, std::string ext);
+	std::filesystem::path create_new_file_path(std::filesystem::path dir, std::string filename_prefix, std::string ext, bool force_suffix = false);
 
 	template <typename T, std::size_t R, std::size_t C>
 	inline void copy_2d_array(T source[R][C] , T dest[R][C])

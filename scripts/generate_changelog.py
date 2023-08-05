@@ -79,6 +79,7 @@ def get_scope_label(scope: str):
     match scope:
         case 'zc': return 'Player'
         case 'zq': return 'Editor'
+        case 'std_zh': return 'ZScript Standard Library (std.zh)'
         case 'zscript': return 'ZScript'
         case 'vscode': return 'Visual Studio Code Extension'
         case 'launcher': return 'ZLauncher'

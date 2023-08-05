@@ -2123,6 +2123,7 @@ void get_questpwd(char *encrypted_pwd, int16_t pwdkey, char *pwd)
 
 bool devpwd()
 {
+	return true; // TODO !!
 	#ifdef _DEBUG
 	return true;
 	#endif
@@ -3771,6 +3772,8 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 	}
 	if(compatrule_version < 48)
 		set_qr(qr_OLD_GUY_HANDLING,1);
+	if(compatrule_version < 49)
+		set_qr(qr_FAIRY_FLAG_COMPAT,1);
 	
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)

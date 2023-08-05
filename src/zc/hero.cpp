@@ -23152,7 +23152,6 @@ void HeroClass::checkspecial2(int32_t *ls)
 	
 	if(types[0]==types[1]&&types[2]==types[3]&&types[1]==types[2])
 		flag = types[0];
-		
 	// 2.10 compatibility...
 	else if(y.getInt()%16==8 && types[0]==types[2] && (types[0]==mfFAIRY || types[0]==mfMAGICFAIRY || types[0]==mfALLFAIRY))
 		flag = types[0];
@@ -23165,6 +23164,8 @@ void HeroClass::checkspecial2(int32_t *ls)
 	
 	if(types[0]==types[1]&&types[2]==types[3]&&types[1]==types[2])
 		flag2 = types[0];
+	else if(!get_qr(qr_FAIRY_FLAG_COMPAT) && y.getInt()%16==8 && types[0]==types[2] && (types[0]==mfFAIRY || types[0]==mfMAGICFAIRY || types[0]==mfALLFAIRY))
+		flag2 = types[0];
 		
 	types[0] = MAPFFCOMBOFLAG(x1,y1);
 	types[1] = MAPFFCOMBOFLAG(x1,y2);
@@ -23175,6 +23176,8 @@ void HeroClass::checkspecial2(int32_t *ls)
 	//
 	
 	if(types[0]==types[1]&&types[2]==types[3]&&types[1]==types[2])
+		flag3 = types[0];
+	else if(!get_qr(qr_FAIRY_FLAG_COMPAT) && y.getInt()%16==8 && types[0]==types[2] && (types[0]==mfFAIRY || types[0]==mfMAGICFAIRY || types[0]==mfALLFAIRY))
 		flag3 = types[0];
 		
 	//

@@ -59,13 +59,14 @@
 #include "qst.h"
 #include "base/util.h"
 #include "drawing.h"
+#include "dialog/alert.h"
 #include "dialog/info.h"
 #include "zc/replay.h"
 #include "zc/cheats.h"
+#include "zc/saves.h"
 #include "base/zc_math.h"
 #include <fmt/format.h>
 #include <fmt/std.h>
-#include <regex>
 #include "zc/render.h"
 #include "zinfo.h"
 #include "iter.h"
@@ -153,9 +154,6 @@ uint8_t __isZQuest = 0; //shared functions can use this. -
 int32_t strike_hint_timer=0;
 int32_t strike_hint = 0;
 int32_t slot_arg = 0, slot_arg2 = 0;
-char save_file_name[1024] = "zc.sav";
-//char *SAVE_FILE = (char *)"zc.sav";
-char *SAVE_FILE = NULL;
 int32_t previous_DMap = -1;
 CScriptDrawingCommands script_drawing_commands;
 
@@ -409,7 +407,7 @@ bool scrolling_use_new_dark_code=false;
 int32_t scrolling_origin_scr=0;
 int32_t currscr_for_passive_subscr;
 direction scrolling_dir;
-int32_t newscr_clk=0,opendoors=0,currdmap=0,fadeclk=-1,currgame=0,listpos=0;
+int32_t newscr_clk=0,opendoors=0,currdmap=0,fadeclk=-1,listpos=0;
 int32_t lastentrance=0,lastentrance_dmap=0,prices[3]= {0},loadside = 0, Bwpn = 0, Awpn = 0, Xwpn = 0, Ywpn = 0;
 int32_t digi_volume = 0,midi_volume = 0,sfx_volume = 0,emusic_volume = 0,currmidi = -1,whistleclk = 0,pan_style = 0;
 bool analog_movement=true;
@@ -433,7 +431,6 @@ bool cheats_execute_goto=false, cheats_execute_light=false;
 int32_t checkx = 0, checky = 0;
 int32_t loadlast=0;
 int32_t skipcont=0;
-int32_t skipicon=0;
 
 bool monochrome = false; //GFX are monochrome.
 bool palette_user_tinted = false;
@@ -552,14 +549,14 @@ void initZScriptArrayRAM(bool firstplay)
     else
     {
         //allocate from save file
-        game->globalRAM.resize(saves[currgame].globalRAM.size());
+        game->globalRAM.resize(saves_get_current_slot()->game->globalRAM.size());
         
         for(dword i = 0; i < game->globalRAM.size(); i++)
         {
 #ifdef _DEBUGARRAYALLOC
             al_trace("Global Array: %i\n",i);
 #endif
-            ZScriptArray &from = saves[currgame].globalRAM[i];
+            const ZScriptArray &from = saves_get_current_slot()->game->globalRAM[i];
             ZScriptArray &to = game->globalRAM[i];
             to.Resize(from.Size());
             
@@ -643,7 +640,6 @@ dword               quest_map_pos[MAPSCRS*MAXMAPS2]={0};
 
 char     *qstpath=NULL;
 char     *qstdir=NULL;
-gamedata *saves=NULL;
 
 // if set, the titlescreen will automatically create a new save with this quest.
 std::string load_qstpath;
@@ -1726,23 +1722,23 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 	tempdir=qstdir;
 #endif
 	byte qst_num = byte(g->get_quest()-1);
-	if(!g->qstpath[0])
+	if(!g->get_qstpath()[0])
 	{
 		if(qst_num<moduledata.max_quest_files)
 		{
 			sprintf(qstpath, moduledata.quests[qst_num], ordinal(qst_num+1));
-			strcpy(g->qstpath, qstpath);
+			g->header.qstpath = qstpath;
 		}
 	}
-	if(g->qstpath[0])
+	if(g->get_qstpath()[0])
 	{
-		if(is_relative_filename(g->qstpath))
+		if(is_relative_filename(g->get_qstpath()))
 		{
-			sprintf(qstpath,"%s%s",qstdir,g->qstpath);
+			sprintf(qstpath,"%s%s",qstdir,g->get_qstpath());
 		}
 		else
 		{
-			sprintf(qstpath,"%s", g->qstpath);
+			sprintf(qstpath,"%s", g->get_qstpath());
 		}
 
 		// ZC paths are retarded.
@@ -1757,14 +1753,14 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 		{
 			Z_error("File not found \"%s\". Searching...\n", qstpath);
 
-			if(exists(g->qstpath)) //not found? -try this place first:
+			if(exists(g->get_qstpath())) //not found? -try this place first:
 			{
-				sprintf(qstpath,"%s", g->qstpath);
+				sprintf(qstpath,"%s", g->get_qstpath());
 				Z_error("Set quest path to \"%s\".\n", qstpath);
 			}
 			else // Howsabout in here?
 			{
-				std::string gQstPath = g->qstpath;
+				std::string gQstPath = g->get_qstpath();
 				size_t bs1 = 0;
 				size_t bs2 = std::string::npos;
 
@@ -1834,16 +1830,17 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 		
 		ret = loadquest(qstpath,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,skip_flags,printmetadata,report,qst_num);
 		
-		if(!g->title[0] || g->get_hasplayed() == 0)
+		const char* title = g->header.title.c_str();
+		if(!title[0] || g->get_hasplayed() == 0)
 		{
-			strncpy(g->title,QHeader.title,sizeof(g->title)-1);
+			g->header.title = QHeader.title;
 			strncpy(g->version,QHeader.version,sizeof(g->version));
 			// Put the fixed-length header version field into a safer string.
 			strncpy(header_version_nul_term,QHeader.version,sizeof(QHeader.version));
 		}
 		else
 		{
-			if(!ret && strncmp(g->title,QHeader.title,sizeof(g->title)))
+			if(!ret && strncmp(title,QHeader.title,sizeof(QHeader.title)))
 			{
 				ret = qe_match;
 			}
@@ -1857,7 +1854,7 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 	}
 	if(ret && report)
 	{
-		if(replay_is_active())
+		if (is_ci())
 		{
 			abort();
 		}
@@ -1887,16 +1884,12 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 	return ret;
 }
 
-std::string create_replay_path_for_save(const gamedata* save)
+std::string create_replay_path_for_save(const gamedata_header& header)
 {
 	std::filesystem::path replay_file_dir = zc_get_config("zeldadx", "replay_file_dir", "replays/");
 	std::filesystem::create_directory(replay_file_dir);
-	std::string filename_prefix = fmt::format("{}-{}", save->title, save->_name);
-	{
-		trimstr(filename_prefix);
-		std::regex re(R"([^a-zA-Z0-9_+\-]+)");
-		filename_prefix = std::regex_replace(filename_prefix, re, "_");
-	}
+	std::string filename_prefix = fmt::format("{}-{}", header.title, header.name);
+	sanitize(filename_prefix);
 	return create_new_file_path(replay_file_dir, filename_prefix, REPLAY_EXTENSION).string();
 }
 
@@ -1934,7 +1927,11 @@ int32_t init_game()
 
 	FFCore.user_objects_init();
 	//Copy saved data to RAM data (but not global arrays)
-	game->Copy(saves[currgame]);
+	// TODO: this is called twice (copying lots of data) when selecting a save slot. See title.cpp
+	if (!saves_select(saves_current_selection()))
+	{
+		Z_error_fatal("Failed to load save file\n");
+	}
 	game->load_user_objects();
 	bool firstplay = (game->get_hasplayed() == 0);
 
@@ -1947,7 +1944,7 @@ int32_t init_game()
 	{
 		if (firstplay && replay_new_saves)
 		{
-			std::string replay_path = create_replay_path_for_save(&saves[currgame]);
+			std::string replay_path = create_replay_path_for_save(game->header);
 			enter_sys_pal();
 			if (jwin_alert("Recording",
 				"You are about to create a new recording at:",
@@ -1955,29 +1952,29 @@ int32_t init_game()
 				"Do you wish to record this save file?",
 				"Yes","No",13,27,get_zc_font(font_lfont))==1)
 			{
-				saves[currgame].replay_file = replay_path;
+				game->header.replay_file = replay_path;
 				replay_start(ReplayMode::Record, replay_path, -1);
 				replay_set_debug(replay_debug);
 				replay_set_sync_rng(true);
-				replay_set_meta("qst", relativize_path(game->qstpath));
+				replay_set_meta("qst", relativize_path(game->header.qstpath));
 				replay_set_meta("name", game->get_name());
 				replay_save();
 			}
 			exit_sys_pal();
 		}
-		else if (!firstplay && !saves[currgame].replay_file.empty())
+		else if (!firstplay && !game->header.replay_file.empty())
 		{
-			if (!std::filesystem::exists(saves[currgame].replay_file))
+			if (!std::filesystem::exists(game->header.replay_file))
 			{
 				std::string msg = fmt::format("Replay file {} does not exist. Cannot continue recording.",
-					saves[currgame].replay_file);
+					game->header.replay_file);
 				enter_sys_pal();
 				jwin_alert("Recording",msg.c_str(),NULL,NULL,"OK",NULL,13,27,get_zc_font(font_lfont));
 				exit_sys_pal();
 			}
 			else
 			{
-				replay_continue(saves[currgame].replay_file);
+				replay_continue(game->header.replay_file);
 			}
 		}
 	}
@@ -2049,13 +2046,10 @@ int32_t init_game()
 	flushItemCache();
 	ResetSaveScreenSettings();
 	
-	//ResetSaveScreenSettings();
-	
-	//Load the quest
-	//setPackfilePassword(datapwd);
 	int32_t ret = load_quest(game);
 	if(ret != qe_OK)
 	{
+		saves_unselect();
 		Quit = qERROR;
 		//setPackfilePassword(NULL);
 		return 1;
@@ -4590,6 +4584,12 @@ int main(int argc, char **argv)
 		return get_qr(qr_SCRIPTERRLOG) || DEVLEVEL > 0;
 	});
 
+	// Helps to test crash reporting.
+	if (used_switch(argc, argv, "-crash") > 0)
+	{
+		abort();
+	}
+
 	if (used_switch(argc, argv, "-headless") > 0)
 	{
 		set_headless_mode();
@@ -4709,15 +4709,6 @@ int main(int argc, char **argv)
 	register_png_file_type();
 
 	three_finger_flag=false;
-
-	for ( int32_t q = 0; q < 1024; ++q ) { save_file_name[q] = 0; }
-	strcpy(save_file_name,zc_get_config("SAVEFILE","save_filename","zc.sav"));
-#ifdef __EMSCRIPTEN__
-	// There was a bug that causes browser zc.cfg files to use the wrong value for the save file.
-	if (strcmp(save_file_name, "zc.sav") == 0)
-		strcpy(save_file_name, "/local/zc.sav");
-#endif
-	SAVE_FILE = (char *)save_file_name;
 	
 	load_game_configs();
 	
@@ -4928,8 +4919,6 @@ int main(int argc, char **argv)
 	debug_enabled = used_switch(argc,argv,"-d") && !strcmp(zc_get_config("zeldadx","debug",""),zeldapwd);
 	set_debug(debug_enabled);
 
-	skipicon = standalone_mode || used_switch(argc,argv,"-quickload") || zc_get_config("zeldadx","skip_icons",0);
-
 	render_set_debug(zc_get_config("graphics","render_debug",0));
 
 	int32_t load_save=0;
@@ -4954,7 +4943,7 @@ int main(int argc, char **argv)
 	}
 	else
 	{
-		slot_arg2 = vbound(atoi(argv[slot_arg+1]), 1, MAXSAVES);
+		slot_arg2 = vbound(atoi(argv[slot_arg+1]), 1, 100000);
 	}
 	
 	if(standalone_mode)
@@ -4966,31 +4955,8 @@ int main(int argc, char **argv)
 	
 	int32_t fast_start = debug_enabled || used_switch(argc,argv,"-fast") || (!standalone_mode && (load_save || (slot_arg && (argc>(slot_arg+1)))));
 	skip_title = used_switch(argc, argv, "-notitle") > 0 || zc_get_config("zeldadx","skip_title",0);
-	int32_t save_arg = used_switch(argc,argv,"-savefile");
 	
 	int32_t checked_epilepsy = zc_get_config("zeldadx","checked_epilepsy",0);
-	/*
-	if ( !strcmp(zc_get_config("zeldadx","debug",""),"") )
-	{
-		for ( int32_t q = 0; q < 1024; ++q ) { save_file_name[q] = 0; }
-			strcpy(save_file_name,"zc.sav");
-		SAVE_FILE = (char *)save_file_name;  
-	}
-	else*/ //if ( strcmp(zc_get_config("zeldadx","debug","")) )
-	{	    
-		for ( int32_t q = 0; q < 1024; ++q ) { save_file_name[q] = 0; }
-			strcpy(save_file_name,zc_get_config("SAVEFILE","save_filename","zc.sav"));
-		SAVE_FILE = (char *)save_file_name;
-	}
-	//al_trace("Current save file is: %s\n", save_file_name);
-	
-	if(save_arg && (argc>(save_arg+1)))
-	{
-		SAVE_FILE = (char *)malloc(2048);
-		sprintf(SAVE_FILE, "%s", argv[save_arg+1]);
-		
-		regulate_path(SAVE_FILE);
-	}
 	
 	// load the data files
 	//setPackfilePassword(datapwd);
@@ -5137,7 +5103,6 @@ int main(int argc, char **argv)
 		{
 			pan_style = (int32_t)FFCore.usr_panstyle;
 		}
-		save_savedgames();
 		save_game_configs();
 		set_gfx_mode(GFX_TEXT,80,25,0,0);
 		//rest(250); // ???
@@ -5295,6 +5260,16 @@ int main(int argc, char **argv)
 		set_display_switch_callback(SWITCH_IN, switch_in_callback);
 	}
 
+#ifdef ZC_WIN_32
+	{
+		enter_sys_pal();
+		info_dsa("Windows 32-bit is deprecated!",
+			"There are known issues with the 32 bit version of ZC. Use 64-bit instead, if you can.",
+			"dsa_32bit");
+		exit_sys_pal();
+	}
+#endif
+
 	int32_t test_arg = used_switch(argc,argv,"-test");
 	zqtesting_mode = test_arg > 0;
 	if(zqtesting_mode)
@@ -5411,7 +5386,7 @@ int main(int argc, char **argv)
 		}
 	}
 
-	init_saves();
+	saves_init();
 
 #ifdef __EMSCRIPTEN__
 	QueryParams params = get_query_params();
@@ -5423,18 +5398,20 @@ int main(int argc, char **argv)
 	{
 		std::string qstpath_to_load = std::string("_quests/").append(params.quest);
 
-		if (load_savedgames() != 0)
+		int ret = saves_load();
+		if (ret)
 		{
-			Z_error_fatal("Insufficient memory");
-			quit_game();
+			Z_error_fatal("Failed to load saves. error: %d", ret);
 		}
 
 		int save_index = -1;
-		for (int i = 0; i < MAXSAVES; i++)
+		int savecnt = saves_count();
+		for (int i = 0; i < savecnt; i++)
 		{
-			if (!saves[i].get_quest()) continue;
+			auto save = saves_get_slot(i);
+			if (!save->header->quest) continue;
 
-			if (qstpath_to_load == saves[i].qstpath)
+			if (qstpath_to_load == save->header->qstpath)
 			{
 				save_index = i;
 				break;
@@ -5473,9 +5450,6 @@ int main(int argc, char **argv)
 	
 	rgb_map = &rgb_table;
 	
-	// set up an initial game save slot (for the list_saves function)
-	game = new gamedata();
-	
 	DEBUG_PRINT_ZASM = zc_get_config("ZSCRIPT", "print_zasm", false);
 	DEBUG_JIT_PRINT_ASM = zc_get_config("ZSCRIPT", "jit_print_asm", false);
 	DEBUG_JIT_EXIT_ON_COMPILE_FAIL = zc_get_config("ZSCRIPT", "jit_exit_on_failure", false);
@@ -5505,6 +5479,7 @@ reload_for_replay_file:
 	{
 		load_replay_file(load_replay_file_mode, load_replay_file_filename, -1);
 		load_replay_file_deffered_called = false;
+		saves_init();
 	}
 
 	current_session_is_replay = replay_is_active();
@@ -5514,38 +5489,40 @@ reload_for_replay_file:
 	{
 		// load saved games
 		zprint2("Loading Saved Games\n");
-		if(load_savedgames() != 0)
+		int ret = saves_load();
+		if (ret)
 		{
-			Z_error_fatal("Insufficient memory");
+			Z_error_fatal("Failed to load saves. error: %d", ret);
 		}
 		zprint2("Finished Loading Saved Games\n");
 	}
 
 	if (zqtesting_mode || replay_is_active())
 	{
-		currgame = 0;
-		saves[0].Clear();
+		gamedata* new_game = new gamedata();
 		if (use_testingst_start)
 		{
-			saves[0].set_continue_dmap(testingqst_dmap);
-			saves[0].set_continue_scrn(testingqst_screen);
+			new_game->set_continue_dmap(testingqst_dmap);
+			new_game->set_continue_scrn(testingqst_screen);
 		}
 		else
 		{
-			saves[0].set_continue_scrn(0xFF);
+			new_game->set_continue_scrn(0xFF);
 		}
-		strcpy(saves[0].qstpath, testingqst_name.c_str());
-		saves[0].set_quest(0xFF);
+		new_game->header.qstpath = testingqst_name;
+		new_game->set_quest(0xFF);
 		if (replay_is_active())
 		{
 			std::string replay_name = replay_get_meta_str("name", "Hero");
-			saves[0].set_name(replay_name.c_str());
+			new_game->set_name(replay_name.c_str());
 		}
 		else
 		{
-			saves[0].set_name("Hero");
+			new_game->set_name("Hero");
 		}
-		saves[0].set_timevalid(1);
+		new_game->set_timevalid(1);
+		saves_create_slot(new_game, false);
+		saves_select(0);
 		if (use_testingst_start)
 			Z_message("Test mode: \"%s\", %d, %d\n", testingqst_name.c_str(), testingqst_dmap, testingqst_screen);
 		if (replay_is_active())
@@ -5810,7 +5787,6 @@ reload_for_replay_file:
 	{
 		pan_style = (int32_t)FFCore.usr_panstyle;
 	}
-	save_savedgames();
 	if (replay_get_mode() == ReplayMode::Record) replay_save();
 	save_game_configs();
 	set_gfx_mode(GFX_TEXT,80,25,0,0);
@@ -5864,7 +5840,8 @@ void quit_game()
 	
 	al_trace("Freeing Data: \n");
 	
-	if(game) delete game;
+	free(game);
+	game = NULL;
 	
 	if(datafile) unload_datafile(datafile);
 	

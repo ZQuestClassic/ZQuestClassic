@@ -4110,4 +4110,21 @@ lweapon FireLWeaponDir(int type, int x, int y, int dir, int step, int dmg, int s
 	return weap;
 }
 
+//Gets a switch state for a given level
+bool GetLevelSwitchState(int level, int switchNum)
+{
+    if(level < 0 || level >= NUM_LEVELS || switchNum < 0 || switchNum > 31)
+        return false;
+    return Game->LSwitches[level]&(1Lb<<switchNum);
+}
+
+//Sets or unsets a switch state for a given level
+void SetLevelSwitchState(int level, int switchNum, bool state)
+{
+    if(level < 0 || level >= NUM_LEVELS) printf("Invalid level (%d) passed to SetLevelSwitchState()\n", level);
+    else if(switchNum < 0 || switchNum > 31) printf("Invalid switchNum (%d) passed to SetLevelSwitchState()\n", switchNum);
+    else if(state) Game->LSwitches[level] |= (1Lb<<switchNum);
+    else Game->LSwitches[level] ~= (1Lb<<switchNum);
+}
+
 

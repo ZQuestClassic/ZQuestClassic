@@ -51,6 +51,7 @@
 #include "zc/hero.h"
 #include "zc/title.h"
 #include "particles.h"
+#include "zcmusic.h"
 #include "zconsole.h"
 #include "zc/ffscript.h"
 #include "dialog/info.h"
@@ -104,7 +105,6 @@ extern int32_t cheat_modifier_keys[4]; //two options each, default either contro
 //extern int32_t db;
 
 static const char *ZC_str = "ZQuest Classic";
-extern char save_file_name[1024];
 #if defined(ALLEGRO_WINDOWS)
 const char *qst_dir_name = "win_qst_dir";
 static  const char *qst_module_name = "current_module";
@@ -593,7 +593,6 @@ void save_game_configs()
 	zc_set_config(cfg_sect,"load_last",loadlast);
 	chop_path(qstdir);
 	zc_set_config(cfg_sect,qst_dir_name,qstdir);
-	zc_set_config("SAVEFILE","save_filename",save_file_name);
 	zc_set_config(cfg_sect,"use_sfx_dat",sfxdat);
 	
 	flush_config_file();
@@ -818,7 +817,6 @@ void null_quest()
 	loadquest(qstdat_string,&QHeader,&QMisc,tunes+ZC_MIDI_COUNT,false,skip_flags,0,false);
 }
 
-// TODO remove
 void init_NES_mode()
 {
 	null_quest();
@@ -5312,12 +5310,12 @@ void j_getbtn(DIALOG *d)
 {
 	d->flags|=D_SELECTED;
 	jwin_button_proc(MSG_DRAW,d,0);
-	jwin_draw_win(gui_bmp, (gui_bmp->w-160)/2, (gui_bmp->h-48)/2, 160, 48, FR_WIN);
+	jwin_draw_win(screen, (screen->w-160)/2, (screen->h-48)/2, 160, 48, FR_WIN);
 	//  text_mode(vc(11));
-	int32_t y = gui_bmp->h/2 - 12;
-	textout_centre_ex(gui_bmp, font, "Press a button", gui_bmp->w/2, y, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-	textout_centre_ex(gui_bmp, font, "ESC to cancel", gui_bmp->w/2, y+8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-	textout_centre_ex(gui_bmp, font, "SPACE to disable", gui_bmp->w/2, y+16, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+	int32_t y = screen->h/2 - 12;
+	textout_centre_ex(screen, font, "Press a button", screen->w/2, y, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+	textout_centre_ex(screen, font, "ESC to cancel", screen->w/2, y+8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+	textout_centre_ex(screen, font, "SPACE to disable", screen->w/2, y+16, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
 	
 	update_hw_screen(true);
 	
@@ -6075,7 +6073,7 @@ static int32_t handle_on_load_replay(ReplayMode mode)
 		char replay_path[2048];
 		strcpy(replay_path, "replays/");
 		if (jwin_file_select_ex(
-				fmt::format("Load Replay (.{})", REPLAY_EXTENSION).c_str(),
+				fmt::format("Load Replay ({})", REPLAY_EXTENSION).c_str(),
 				replay_path, REPLAY_EXTENSION.c_str(), 2048, -1, -1, get_zc_font(font_lfont)) == 0)
 			return D_CLOSE;
 
@@ -6118,7 +6116,7 @@ int32_t onSaveReplay()
 			char replay_path[2048];
 			strcpy(replay_path, replay_get_replay_path().string().c_str());
 			if (jwin_file_select_ex(
-					fmt::format("Save Replay (.{})", REPLAY_EXTENSION).c_str(),
+					fmt::format("Save Replay ({})", REPLAY_EXTENSION).c_str(),
 					replay_path, REPLAY_EXTENSION.c_str(), 2048, -1, -1, get_zc_font(font_lfont)) == 0)
 				return D_CLOSE;
 
@@ -6915,6 +6913,8 @@ int32_t onSound()
 	if(ret==2)
 	{
 		master_volume(digi_volume,midi_volume);
+		if (zcmusic)
+			zcmusic_set_volume(zcmusic, emusic_volume);
 		
 		for(int32_t i=0; i<WAV_COUNT; ++i)
 		{
@@ -8558,13 +8558,15 @@ bool joybtn(int32_t b)
 {
 	if(b == 0)
 		return false;
+	if (b-1 >= joy[joystick_index].num_buttons)
+		return false;
 		
 	return joy[joystick_index].button[b-1].b !=0;
 }
 
 const char* joybtn_name(int32_t b)
 {
-	if(b == 0)
+	if (b <= 0 || b > joy[joystick_index].num_buttons)
 		return "";
 
 	return joy[joystick_index].button[b-1].name;

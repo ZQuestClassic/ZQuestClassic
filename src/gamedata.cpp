@@ -91,33 +91,38 @@ void gamedata::clear_genscript()
 	}
 }
 
-char *gamedata::get_name()
+const char *gamedata::get_qstpath() const
 {
-    return _name;
-}
-void gamedata::set_name(const char *n)
-{
-    strncpy(_name, n, 8);
-    _name[8]='\0';
-    return;
+	return header.qstpath.c_str();
 }
 
-byte gamedata::get_quest()
+const char *gamedata::get_name() const
 {
-    return _quest;
+    return header.name.c_str();
+}
+char *gamedata::get_name_mutable()
+{
+    return header.name.data();
+}
+void gamedata::set_name(std::string n)
+{
+	header.name = n;
+}
+
+byte gamedata::get_quest() const
+{
+    return header.quest;
 }
 void gamedata::set_quest(byte q)
 {
-    _quest=q;
-    return;
+    header.quest = q;
 }
 void gamedata::change_quest(int16_t q)
 {
-    _quest+=q;
-    return;
+    header.quest += q;
 }
 
-word gamedata::get_counter(byte c)
+word gamedata::get_counter(byte c) const
 {
     if(c>=MAX_COUNTERS)  // Sanity check
         return 0;
@@ -172,7 +177,7 @@ void gamedata::change_counter(int16_t change, byte c)
     return;
 }
 
-word gamedata::get_maxcounter(byte c)
+word gamedata::get_maxcounter(byte c) const
 {
     if(c>=MAX_COUNTERS)  // Sanity check
         return 0;
@@ -220,7 +225,7 @@ void gamedata::change_maxcounter(int16_t change, byte c)
     return;
 }
 
-int16_t gamedata::get_dcounter(byte c)
+int16_t gamedata::get_dcounter(byte c) const
 {
     if(c>=MAX_COUNTERS)  // Sanity check
         return 0;
@@ -279,7 +284,7 @@ void gamedata::change_dcounter(int16_t change, byte c)
     return;
 }
 
-int32_t gamedata::get_generic(byte c)
+int32_t gamedata::get_generic(byte c) const
 {
     return _generic[c];
 }
@@ -296,7 +301,7 @@ void gamedata::change_generic(int32_t change, byte c)
     return;
 }
 
-word gamedata::get_life()
+word gamedata::get_life() const
 {
     return get_counter(0);
 }
@@ -316,7 +321,7 @@ void gamedata::change_life(int16_t l)
     return;
 }
 
-word gamedata::get_maxlife()
+word gamedata::get_maxlife() const
 {
     return get_maxcounter(0);
 }
@@ -396,19 +401,17 @@ void gamedata::change_arrows(int16_t a)
     return;
 }
 
-word gamedata::get_deaths()
+word gamedata::get_deaths() const
 {
-    return _deaths;
+    return header.deaths;
 }
 void gamedata::set_deaths(word d)
 {
-    _deaths=d;
-    return;
+    header.deaths=d;
 }
 void gamedata::change_deaths(int16_t d)
 {
-    _deaths+=d;
-    return;
+    header.deaths+=d;
 }
 
 word gamedata::get_keys()
@@ -496,7 +499,7 @@ void gamedata::change_wlevel(int16_t l)
     return;
 }
 
-byte gamedata::get_cheat()
+byte gamedata::get_cheat() const
 {
     return _cheat&(~DIDCHEAT_BIT);
 }
@@ -509,54 +512,40 @@ void gamedata::did_cheat(bool set)
 {
 	SETFLAG(_cheat, DIDCHEAT_BIT, set);
 }
-bool gamedata::did_cheat()
+bool gamedata::did_cheat() const
 {
 	return (_cheat&DIDCHEAT_BIT)!=0;
 }
 
-byte gamedata::get_hasplayed()
+byte gamedata::get_hasplayed() const
 {
-    return _hasplayed;
+    return header.has_played;
 }
 void gamedata::set_hasplayed(byte p)
 {
-    _hasplayed=p;
-    return;
-}
-void gamedata::change_hasplayed(int16_t p)
-{
-    _hasplayed+=p;
-    return;
+    header.has_played=p;
 }
 
-dword gamedata::get_time()
+dword gamedata::get_time() const
 {
-    return _time;
+    return header.time;
 }
 void gamedata::set_time(dword t)
 {
-    _time=t;
-    return;
+    header.time=t;
 }
 void gamedata::change_time(int64_t t)
 {
-    _time+=t;
-    return;
+    header.time+=t;
 }
 
-byte gamedata::get_timevalid()
+byte gamedata::get_timevalid() const
 {
-    return _timevalid;
+    return header.time_valid;
 }
 void gamedata::set_timevalid(byte t)
 {
-    _timevalid=t;
-    return;
-}
-void gamedata::change_timevalid(int16_t t)
-{
-    _timevalid+=t;
-    return;
+    header.time_valid=t;
 }
 
 byte gamedata::get_HCpieces()
@@ -574,7 +563,7 @@ void gamedata::change_HCpieces(int16_t p)
     return;
 }
 
-byte gamedata::get_continue_scrn()
+byte gamedata::get_continue_scrn() const
 {
     return _continue_scrn;
 }
@@ -593,7 +582,7 @@ void gamedata::change_continue_scrn(int16_t s)
     return;
 }
 
-word gamedata::get_continue_dmap()
+word gamedata::get_continue_dmap() const
 {
     return _continue_dmap;
 }
@@ -729,7 +718,7 @@ void gamedata::set_cont_percent(bool ispercent)
 }
 
 
-byte gamedata::get_hp_per_heart()
+byte gamedata::get_hp_per_heart() const
 {
 	byte b = get_generic(genHP_PER_HEART);
 	return b ? b : 16;

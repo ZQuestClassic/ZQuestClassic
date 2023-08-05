@@ -579,42 +579,6 @@ static void do_recording_poll()
 	}
 }
 
-// https://stackoverflow.com/a/6089413/2788187
-static std::istream &portable_get_line(std::istream &is, std::string &t)
-{
-    t.clear();
-
-    // The characters in the stream are read one-by-one using a std::streambuf.
-    // That is faster than reading them one-by-one using the std::istream.
-    // Code that uses streambuf this way must be guarded by a sentry object.
-    // The sentry object performs various tasks,
-    // such as thread synchronization and updating the stream state.
-
-    std::istream::sentry se(is, true);
-    std::streambuf *sb = is.rdbuf();
-
-    for (;;)
-    {
-        int c = sb->sbumpc();
-        switch (c)
-        {
-        case '\n':
-            return is;
-        case '\r':
-            if (sb->sgetc() == '\n')
-                sb->sbumpc();
-            return is;
-        case std::streambuf::traits_type::eof():
-            // Also handle the case when the last line has no line ending
-            if (t.empty())
-                is.setstate(std::ios::eofbit);
-            return is;
-        default:
-            t += (char)c;
-        }
-    }
-}
-
 static void load_replay(std::filesystem::path path)
 {
     std::ifstream file(path);
@@ -630,7 +594,7 @@ static void load_replay(std::filesystem::path path)
 
     bool done_with_meta = false;
     std::string line;
-    while (portable_get_line(file, line))
+    while (util::portable_get_line(file, line))
     {
         if (line.empty())
             continue;
@@ -674,7 +638,7 @@ static void load_replay(std::filesystem::path path)
             std::string value;
             iss >> key;
             iss.ignore(1);
-            portable_get_line(iss, value);
+            util::portable_get_line(iss, value);
 
             ASSERT(meta_map.find(key) == meta_map.end());
             ASSERT(annotation_pos == std::string::npos);
@@ -683,7 +647,7 @@ static void load_replay(std::filesystem::path path)
         else if (type == TypeComment)
         {
             std::string comment;
-            portable_get_line(iss, comment);
+            util::portable_get_line(iss, comment);
             replay_log.push_back(std::make_shared<CommentReplayStep>(frame, comment));
         }
         else if (type == TypeQuit)
@@ -706,7 +670,7 @@ static void load_replay(std::filesystem::path path)
             if (cheat == Cheat::PlayerData)
             {
                 iss.ignore(1);
-                portable_get_line(iss, arg3);
+                util::portable_get_line(iss, arg3);
             }
             else
             {
@@ -748,7 +712,7 @@ static void load_replay(std::filesystem::path path)
                 ASSERT(found_key_map);
 
             std::string text;
-            portable_get_line(iss, text);
+            util::portable_get_line(iss, text);
 
             int button_index;
             int key_index;

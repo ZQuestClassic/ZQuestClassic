@@ -13,6 +13,7 @@ valid_types = [
 valid_scopes = [
     'zc',
     'zq',
+    'std_zh',
     'zscript',
     'vscode',
     'launcher',

@@ -913,6 +913,8 @@ static GUI::ListData compatRulesList
 		" If disabled: button presses are eaten when scripts write to button states."},
 	{ "Old Guy Handling", qr_OLD_GUY_HANDLING,
 		"If enabled, several new features relating to room guys will not work, instead using the old version behaviors."},
+	{ "Inconsistent Fairy Flags", qr_FAIRY_FLAG_COMPAT,
+		"If enabled, fairy flags work differently placed vs inherent."},
 };
 
 static GUI::ListData enemiesRulesList

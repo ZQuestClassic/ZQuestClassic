@@ -260,7 +260,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_SFX              8
 #define V_FAVORITES        3
 
-#define V_COMPATRULE       48
+#define V_COMPATRULE       49
 #define V_ZINFO            3
 
 //= V_SHOPS is under V_MISC
@@ -2577,61 +2577,49 @@ private:
 #define DIDCHEAT_BIT 0x80
 #define NUM_GSWITCHES 256
 #define MAX_MI (MAXDMAPS*MAPSCRSNORMAL)
+
+// Everything needed by the title screen.
+struct gamedata_header
+{
+	std::string path;
+	std::string qstpath;
+	std::string replay_file;
+	std::string name;
+	std::string title;
+	byte quest;
+	int deaths;
+	int life;
+	int maxlife;
+	int hp_per_heart_container;
+	bool has_played;
+	bool time_valid;
+	bool did_cheat;
+	dword time;
+	byte icon[128];
+	byte pal[48];
+};
+
 struct gamedata
 {
-	//private:
-	char  _name[9];
-	byte  _quest;
-	//10
-	//word _life,_maxlife;
-	//int16_t _drupy;
-	//word _rupies,_arrows,_maxarrows,
-	word _deaths;
-	//20
-	//byte  _keys,_maxbombs,
+	gamedata_header header;
 	byte  /*_wlevel,*/_cheat;
-	//24
 	bool  item[MAXITEMS];
 	byte  items_off[MAXITEMS];
-	//280
 	word _maxcounter[MAX_COUNTERS];	// 0 - life, 1 - rupees, 2 - bombs, 3 - arrows, 4 - magic, 5 - keys, 6-super bombs
 	word _counter[MAX_COUNTERS];
 	int16_t _dcounter[MAX_COUNTERS];
 	
 	char  version[17];
-	char  title[65];
-	//354
-	byte  _hasplayed;
-	//byte  padding;
-	//356
-	dword _time;
-	//360
-	byte  _timevalid;
 	byte  lvlitems[MAXLEVELS];
 	byte  lvlkeys[MAXLEVELS];
 	dword lvlswitches[MAXLEVELS];
-	//byte  _HCpieces;
 	byte  _continue_scrn;
 	word  _continue_dmap;
-	//620
-	/*word  _maxmagic, _magic;
-	int16_t _dmagic;*/
-	//byte  _magicdrainrate;
-	//byte  _canslash;                                           //Hero slashes instead of stabs.
 	int32_t _generic[genMAX];	// Generic gamedata. See enum above this struct for indexes.
-	//byte  padding[2];
-	//636
 	byte  visited[MAXDMAPS];
-	//892 (256)
 	byte  bmaps[MAXDMAPS*128];                                 // the dungeon progress maps
-	//17276 (16384)
 	word  maps[MAXMAPS2*MAPSCRSNORMAL];                       // info on map changes, items taken, etc.
-	//82556 (65280)
 	byte  guys[MAXMAPS2*MAPSCRSNORMAL];                       // guy counts (though dungeon guys are reset on entry)
-	//115196 (32640)
-	char  qstpath[2048];
-	byte  icon[128];
-	byte  pal[48];
 	bool item_messages_played[MAXITEMS];  //Each field is set when an item pickup message plays the first time per session
 	int32_t  screen_d[MAX_MI][8];                // script-controlled screen variables
 	int32_t  global_d[MAX_SCRIPT_REGISTERS];                                      // script-controlled global variables
@@ -2659,7 +2647,6 @@ struct gamedata
 	
 	int32_t gswitch_timers[NUM_GSWITCHES];
 
-	std::string replay_file;
 	std::vector<saved_user_object> user_objects;
 	std::vector<savedportal> user_portals;
 	
@@ -2669,31 +2656,34 @@ struct gamedata
 	
 	void save_user_objects();
 	void load_user_objects();
+
+	const char *get_qstpath() const;
+
+	const char *get_name() const;
+	char *get_name_mutable();
+	void set_name(std::string n);
 	
-	char *get_name();
-	void set_name(const char *n);
-	
-	byte get_quest();
+	byte get_quest() const;
 	void set_quest(byte q);
 	void change_quest(int16_t q);
 	
-	word get_counter(byte c);
+	word get_counter(byte c) const;
 	void set_counter(word change, byte c);
 	void change_counter(int16_t change, byte c);
 	
-	word get_maxcounter(byte c);
+	word get_maxcounter(byte c) const;
 	void set_maxcounter(word change, byte c);
 	void change_maxcounter(int16_t change, byte c);
 	
-	int16_t get_dcounter(byte c);
+	int16_t get_dcounter(byte c) const;
 	void set_dcounter(int16_t change, byte c);
 	void change_dcounter(int16_t change, byte c);
 	
-	word get_life();
+	word get_life() const;
 	void set_life(word l);
 	void change_life(int16_t l);
 	
-	word get_maxlife();
+	word get_maxlife() const;
 	void set_maxlife(word m);
 	void change_maxlife(int16_t m);
 	
@@ -2714,7 +2704,7 @@ struct gamedata
 	void set_arrows(word a);
 	void change_arrows(int16_t a);
 	
-	word get_deaths();
+	word get_deaths() const;
 	void set_deaths(word d);
 	void change_deaths(int16_t d);
 	
@@ -2738,22 +2728,20 @@ struct gamedata
 	void set_wlevel(word l);
 	void change_wlevel(int16_t l);
 	
-	byte get_cheat();
+	byte get_cheat() const;
 	void set_cheat(byte c);
 	void did_cheat(bool set);
-	bool did_cheat();
+	bool did_cheat() const;
 	
-	byte get_hasplayed();
+	byte get_hasplayed() const;
 	void set_hasplayed(byte p);
-	void change_hasplayed(int16_t p);
 	
-	dword get_time();
+	dword get_time() const;
 	void set_time(dword t);
 	void change_time(int64_t t);
 	
-	byte get_timevalid();
+	byte get_timevalid() const;
 	void set_timevalid(byte t);
-	void change_timevalid(int16_t t);
 	
 	byte get_HCpieces();
 	void set_HCpieces(byte p);
@@ -2768,7 +2756,7 @@ struct gamedata
 	bool get_cont_percent();
 	void set_cont_percent(bool ispercent);
 	
-	byte get_hp_per_heart();
+	byte get_hp_per_heart() const;
 	void set_hp_per_heart(byte val);
 	
 	byte get_mp_per_block();
@@ -2819,11 +2807,11 @@ struct gamedata
 	byte get_switchhookstyle();
 	void set_switchhookstyle(byte val);
 	
-	byte get_continue_scrn();
+	byte get_continue_scrn() const;
 	void set_continue_scrn(byte s);
 	void change_continue_scrn(int16_t s);
 	
-	word get_continue_dmap();
+	word get_continue_dmap() const;
 	void set_continue_dmap(word d);
 	void change_continue_dmap(int16_t d);
 	
@@ -2847,7 +2835,7 @@ struct gamedata
 	void set_canslash(byte s);
 	void change_canslash(int16_t s);
 	
-	int32_t get_generic(byte c);
+	int32_t get_generic(byte c) const;
 	void set_generic(int32_t change, byte c);
 	void change_generic(int32_t change, byte c);
 	
@@ -2855,7 +2843,7 @@ struct gamedata
 	
 	void set_item(int32_t id, bool value);
 	void set_item_no_flush(int32_t id, bool value);
-	inline bool get_item(int32_t id)
+	inline bool get_item(int32_t id) const
 	{
 		if ( ((unsigned)id) >= MAXITEMS ) return false;
 			return item[id];

@@ -52,6 +52,7 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "dialog/script_rules.h"
 #include "dialog/headerdlg.h"
 #include "dialog/ffc_editor.h"
+#include "dialog/screen_script.h"
 #include "dialog/compilezscript.h"
 
 #include "base/gui.h"
@@ -1469,7 +1470,7 @@ static MENU data_menu[] =
 	{ (char *)"Secret &Combos",             onSecretCombo,             NULL,                     0,            NULL   },
 	{ (char *)"&Under Combo",               onUnderCombo,              NULL,                     0,            NULL   },
 	{ (char *)"&Doors",                     onDoors,                   NULL,                     0,            NULL   },
-	{ (char *)"Ma&ze Path",                 onPath,                    NULL,                     0,            NULL   },
+	{ (char *)"&Maze Path",                 onPath,                    NULL,                     0,            NULL   },
 	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
 	{ (char *)"&Room Data",                 onRoom,                    NULL,                     0,            NULL   },
 
@@ -1478,7 +1479,7 @@ static MENU data_menu[] =
 	{ (char *)"&Enemies",                   onEnemies,                 NULL,                     0,            NULL   },
 	{ (char *)"&Palette",                   onScreenPalette,           NULL,                     0,            NULL   },
 	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-	{ (char *)"Script",                     onScreenScript,                    NULL,                     0,            NULL   },
+	{ (char *)"&ZScript",                   onScreenScript,            NULL,                     0,            NULL   },
 	
 	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
@@ -13651,8 +13652,6 @@ static DIALOG scrdata_dlg[] =
 	{ NULL,                  0,    0,       0,    0,          0,            0,             0,  0,  0,  0,       NULL, NULL,  NULL }
 };
 
-
-
 const char *screenscriptdroplist(int32_t index, int32_t *list_size)
 {
     if(index<0)
@@ -13667,117 +13666,9 @@ const char *screenscriptdroplist(int32_t index, int32_t *list_size)
 //droplist like the dialog proc, naming scheme for this stuff is awful...
 static ListData screenscript_list(screenscriptdroplist, &a4fonts[font_pfont]);
 
-
-#include "zq/zq_files.h"
-//to do: Make string boxes larger, and split into two tabs. 
-static DIALOG screenscript_dlg[] =
-{
-    // (dialog proc)     (x)   (y)   (w)   (h)   (fg)                 (bg)                  (key)    (flags)     (d1)           (d2)     (dp)
-    
-{ jwin_win_proc,       0,   10,  310,  224,  vc(14),              vc(1),                  0,      D_EXIT,     0,             0,       (void *) "Screen Script", NULL, NULL },
-    { d_timer_proc,        0,    0,    0,    0,  0,                   0,                      0,           0,     0,             0,       NULL, NULL, NULL },
-    { d_dummy_proc,         5,   26,   300,  202,    vc(14),   vc(1),      0,      0,          1,             0, (void *) gamemisc_tabs,	NULL, (void *)gamemiscarray_dlg },
-    {  d_dummy_proc,           240,    144,     40,      8,    vc(14),                 vc(1),                   0,    0,           0,    0,  NULL,													       NULL,   NULL                 },
-    {  d_dummy_proc,           240,    144,     40,      8,    vc(14),                 vc(1),                   0,    0,           0,    0,  NULL,													       NULL,   NULL                 },
-    
-    //5
-    { jwin_text_proc,           10,    42+2,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "InitD[0]:",                      NULL,   NULL                  },
-    { jwin_text_proc,           10,    42+20+2,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "InitD[1]:",                      NULL,   NULL                  },
-    { jwin_text_proc,           10,    42+40+2,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "InitD[2]:",                      NULL,   NULL                  },
-    
-    
-    //8
-    { jwin_text_proc,           10,    42+60+2,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "InitD[3]:",                      NULL,   NULL                  },
-    { jwin_text_proc,           10,    42+80+2,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "InitD[4]:",                      NULL,   NULL                  },
-    { jwin_text_proc,           10,    42+100+2,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "InitD[5]:",                      NULL,   NULL                  },
-    { jwin_text_proc,           10,    42+120+2,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "InitD[6]:",                      NULL,   NULL                  },
-    { jwin_text_proc,           10,    42+140+2,     96,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "InitD[7]:",                      NULL,   NULL                  },
-    
-    //13
-     { jwin_numedit_swap_zsint_proc,     60,   42,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-     { jwin_numedit_swap_zsint_proc,     60,   42+20,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_numedit_swap_zsint_proc,     60,   42+40,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_numedit_swap_zsint_proc,     60,   42+60,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_numedit_swap_zsint_proc,     60,   42+80,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    //18
-    { jwin_numedit_swap_zsint_proc,     60,   42+100,   100-12,    16, vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_numedit_swap_zsint_proc,     60,   42+120,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    { jwin_numedit_swap_zsint_proc,     60,   42+140,   100-12,    16,  vc(12),   vc(1),   0,       0,          64,             0,       NULL, NULL, NULL },
-    //21
-    { jwin_text_proc,          112+10+20+34+1-4,    42+2,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Script:",                            NULL,   NULL                  },
-    //22
-    { jwin_droplist_proc,      112+10+20+34-4,    42+10,     120,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &screenscript_list,                   NULL,   NULL 				   },
-   
-    { jwin_button_proc,       70,    202,     61,     21,    vc(14),                 vc(1),                  13,       D_EXIT,      0,    0, (void *) "OK",                                  NULL,   NULL                  },
-    { jwin_button_proc,      170,    202,     61,     21,    vc(14),                 vc(1),                  27,       D_EXIT,      0,    0, (void *) "Cancel",                              NULL,   NULL                  },
-    //25
-    { jwin_check_proc,          112+10+20+34-4,    42+30,     60,      9,    vc(14),                 vc(1),                   0,       0,           1,    0, (void *) "Run On Screen Init",   NULL,   NULL                  },
-	{ jwin_swapbtn_proc,  148,      42,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
-    { jwin_swapbtn_proc,  148,   42+20,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
-    { jwin_swapbtn_proc,  148,   42+40,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
-    { jwin_swapbtn_proc,  148,   42+60,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
-    //30
-	{ jwin_swapbtn_proc,  148,   42+80,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
-    { jwin_swapbtn_proc,  148,  42+100,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
-    { jwin_swapbtn_proc,  148,  42+120,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
-    { jwin_swapbtn_proc,  148,  42+140,   16,    16,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL },
-    
-    { NULL,                0,    0,    0,    0,  0,                   0,                      0,      0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
-void EditScreenScript()
-{
-	screenscript_dlg[0].dp2=get_zc_font(font_lfont);
-	char initd[8][16];
-	int32_t script = 0;
-
-	mapscr *theMap = &TheMaps[Map.getCurrMap()*MAPSCRS+Map.getCurrScr()];
-	
-	build_biscreens_list();
-	memset(initd, 0, sizeof(initd));
-	for ( int32_t q = 0; q < biscreens_cnt; q++)
-	{
-		if(biscreens[q].second == theMap->script -1)
-		{
-			script = q; //sprite script goes after this
-			//al_trace("Item has sprite script: %d\n", q);
-		}
-		
-	}
-	screenscript_dlg[22].d1 = script;
-	screenscript_dlg[25].flags = Map.CurrScr()->preloadscript ? D_SELECTED : 0;
-	
-	for ( int32_t q = 0; q < 8; q++ )
-	{
-		screenscript_dlg[13+q].dp = initd[q];
-		screenscript_dlg[13+q].fg = theMap->screeninitd[q];
-		screenscript_dlg[13+q].dp3 = &(screenscript_dlg[26+q]);
-	}
-	int32_t ret;
-	large_dialog(screenscript_dlg);
-        
-	do
-	{
-		ret = zc_popup_dialog(screenscript_dlg,23);
-		build_biscreens_list();
-		theMap->script = biscreens[screenscript_dlg[22].d1].second + 1;
-		
-		if(screenscript_dlg[25].flags & D_SELECTED)
-			theMap->preloadscript = 1;
-		else 
-			theMap->preloadscript = 0;
-		
-		for(int32_t j=0; j<8; j++)
-			theMap->screeninitd[j] = screenscript_dlg[13+j].fg;
-		
-	}
-	while(ret==22);//press OK
-}
-
 int32_t onScreenScript()
 {
-    EditScreenScript();
-    saved=false;
+    call_screenscript_dialog();
     return D_O_K;
 }
 

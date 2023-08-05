@@ -2989,12 +2989,15 @@ bool triggerfire(int x, int y, bool setflag, bool any, bool strong, bool magic, 
 	if(divine)
 		ret = ret||trigger_secrets_if_flag(x,y,mfDIVINEFIRE,setflag);
 	
-	std::set<rpos_t> rposes({COMBOPOS_REGION(x,y),COMBOPOS_REGION(x,y+15),COMBOPOS_REGION(x+15,y),COMBOPOS_REGION(x+15,y+15)});
+	std::set<rpos_t> rposes({COMBOPOS_REGION_CHECK_BOUNDS(x,y),COMBOPOS_REGION_CHECK_BOUNDS(x,y+15),COMBOPOS_REGION_CHECK_BOUNDS(x+15,y),COMBOPOS_REGION_CHECK_BOUNDS(x+15,y+15)});
 	for(int q = 0; q < 7; ++q)
 	{
 		mapscr* m = FFCore.tempScreens[q];
 		for(rpos_t rpos : rposes)
 		{
+			if (rpos == rpos_t::None)
+				continue;
+
 			auto rpos_handle = get_rpos_handle(rpos, q);
 			int cid = rpos_handle.data();
 			if(combobuf[cid].triggerflags[2] & trigflags)

@@ -60,6 +60,7 @@ ZCM_EXTERN ZCMUSIC * zcmusic_load_file_ex(const char *filename);
 ZCM_EXTERN bool zcmusic_play(ZCMUSIC* zcm, int32_t vol);
 ZCM_EXTERN bool zcmusic_pause(ZCMUSIC* zcm, int32_t pause);
 ZCM_EXTERN bool zcmusic_stop(ZCMUSIC* zcm);
+ZCM_EXTERN bool zcmusic_set_volume(ZCMUSIC* zcm, int32_t vol);
 ZCM_EXTERN void zcmusic_unload_file(ZCMUSIC* &zcm);
 ZCM_EXTERN int32_t zcmusic_get_tracks(ZCMUSIC* zcm);
 ZCM_EXTERN int32_t zcmusic_change_track(ZCMUSIC* zcm, int32_t tracknum);

@@ -53,9 +53,6 @@ extern bool dev_timestmp;
 #define MAX_IDLE      72000                                 // 20 minutes
 #define MAX_ACTIVE    72000                                 // 20 minutes
 
-// saved games
-#define MAXSAVES      (standalone_mode?1:15) // It's constant enough... :p
-
 #define mDOOR_UP         0x0001                               // only dungeons use this
 #define mDOOR_DOWN       0x0002                               //        ''
 #define mDOOR_LEFT       0x0004                               //        ''
@@ -189,7 +186,7 @@ int32_t  init_game();
 int32_t  cont_game();
 void restart_level();
 int32_t  load_quest(gamedata *g, bool report=true, byte printmetadata = 0);
-std::string create_replay_path_for_save(const gamedata* save);
+std::string create_replay_path_for_save(const gamedata_header& header);
 //int32_t  init_palnames();
 
 int32_t get_currdmap();
@@ -388,7 +385,6 @@ extern PALETTE tempbombpal;
 extern bool usebombpal;
 
 extern int32_t slot_arg, slot_arg2;
-extern char *SAVE_FILE;
 
 // The current screen. If in a region, this is equal to cur_origin_screen_index: the top-left screen.
 extern int32_t currscr;
@@ -413,7 +409,7 @@ extern direction scrolling_dir;
 extern int32_t scrolling_origin_scr;
 // See dowarp.
 extern int32_t currscr_for_passive_subscr;
-extern int32_t newscr_clk,opendoors,currdmap,fadeclk,currgame,listpos;
+extern int32_t newscr_clk,opendoors,currdmap,fadeclk,listpos;
 extern int32_t lastentrance,lastentrance_dmap, prices[3],loadside, Bwpn, Awpn, Xwpn, Ywpn;
 extern int32_t digi_volume,midi_volume,sfx_volume,emusic_volume,currmidi,whistleclk,pan_style;
 extern bool analog_movement;
@@ -534,7 +530,6 @@ extern int32_t  mouse_down;                                     // used to hold 
 extern int32_t idle_count, active_count;
 extern char *qstpath;
 extern char *qstdir;
-extern gamedata *saves;
 extern gamedata *game;
 
 extern std::string load_qstpath;

@@ -11,8 +11,8 @@ struct QueryParams
 
 void em_init_fs();
 void em_sync_fs();
-void em_fetch_file(const char *path);
-bool em_is_lazy_file(const char *path);
+void em_fetch_file(std::string path);
+bool em_is_lazy_file(std::string path);
 std::string get_initial_file_dialog_folder();
 QueryParams get_query_params();
 void em_mark_initializing_status();
