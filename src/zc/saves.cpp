@@ -1807,6 +1807,9 @@ static int move_legacy_save_file()
 
 static void do_save_order()
 {
+	if (standalone_mode)
+		return;
+
 	std::ofstream out(get_save_order_path(), std::ios::binary);
 	for (auto& save : saves)
 	{
@@ -1832,6 +1835,9 @@ static int init_from_save_folder()
 			save.path = path;
 		}
 	}
+
+	if (standalone_mode)
+		return 0;
 
 	std::ifstream file(get_save_order_path());
 	std::vector<std::string> lines;
