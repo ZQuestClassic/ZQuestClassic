@@ -1367,8 +1367,6 @@ static void draw_cursor(int32_t pos,int32_t mode)
 static bool register_name()
 {
 	int s = saves_count();
-	if (s >= MAXSAVES)
-		return false;
 
 	if ( moduledata.refresh_title_screen ) //refresh
 	{
@@ -1841,7 +1839,7 @@ static bool copy_file(int32_t file)
 {
 	int savecnt = saves_count();
 
-	if(savecnt<MAXSAVES && file<savecnt)
+	if (file < savecnt)
 	{
 		saves_copy(file);
 
@@ -2258,7 +2256,7 @@ static void select_game(bool skip = false)
 			case 4:
 			{
 				int savecnt = saves_count();
-				if(savecnt && savecnt<MAXSAVES)
+				if (savecnt)
 				{
 					mode=2;
 					pos=0;

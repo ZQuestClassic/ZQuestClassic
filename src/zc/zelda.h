@@ -52,9 +52,6 @@ extern bool dev_timestmp;
 #define MAX_IDLE      72000                                 // 20 minutes
 #define MAX_ACTIVE    72000                                 // 20 minutes
 
-// saved games
-#define MAXSAVES      (standalone_mode?1:15) // It's constant enough... :p
-
 #define mDOOR_UP         0x0001                               // only dungeons use this
 #define mDOOR_DOWN       0x0002                               //        ''
 #define mDOOR_LEFT       0x0004                               //        ''

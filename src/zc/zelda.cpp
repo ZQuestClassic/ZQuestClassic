@@ -4707,7 +4707,7 @@ int main(int argc, char **argv)
 	}
 	else
 	{
-		slot_arg2 = vbound(atoi(argv[slot_arg+1]), 1, MAXSAVES);
+		slot_arg2 = vbound(atoi(argv[slot_arg+1]), 1, 100000);
 	}
 	
 	if(standalone_mode)
