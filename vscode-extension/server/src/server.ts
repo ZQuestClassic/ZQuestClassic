@@ -140,13 +140,21 @@ documents.onDidChangeContent(change => {
 
 let globalTmpDir = '';
 
+function cleanupFile(fname:string)
+{
+	return fname.replace(/\//g, '\\').trim();
+}
+function fileMatches(f1:string, f2:string)
+{
+	return cleanupFile(f1) == cleanupFile(f2);
+}
+
 async function processScript(textDocument: TextDocument): Promise<void> {
 	// In this simple example we get the settings for every validate run.
 	const settings = await getDocumentSettings(textDocument.uri);
-
 	// The validator creates diagnostics for all uppercase words length 2 and more
 	const text = textDocument.getText();
-	let prefix = "";
+	let includeText = "";
 
 	if (!settings.installationFolder) {
 		connection.sendDiagnostics({ uri: textDocument.uri, diagnostics: [{
@@ -167,14 +175,17 @@ async function processScript(textDocument: TextDocument): Promise<void> {
 	if (settings.alwaysInclude)
 	{
 		settings.alwaysInclude.forEach(str =>{
-			prefix += "#include \""+str+"\"\n";
+			includeText += `#include "${str}"\n`;
 		});
 	}
 
-	const tmpInput = `${globalTmpDir}/tmp.zs`;
+	const tmpInput = `${globalTmpDir}/tmp2.zs`;
+	const tmpScript = `${globalTmpDir}/tmp.zs`;
+	includeText += `#include "${tmpScript}"\n`;
 	let stdout = '';
 	let success = false;
-	fs.writeFileSync(tmpInput, prefix+text);
+	fs.writeFileSync(tmpInput, includeText);
+	fs.writeFileSync(tmpScript, text);
 	const exe = os.platform() === 'win32' ? './zscript.exe' : './zscript';
 	try {
 		const cp = await execFile(exe, [
@@ -197,16 +208,33 @@ async function processScript(textDocument: TextDocument): Promise<void> {
 	const diagnostics: Diagnostic[] = [];
 	for (const line of stdout.split('\n')) {
 		if (line.includes('syntax error')) {
-			const m = line.match(/syntax error, (.*) \[.*Line (\d+) Column (\d+).*\].*/);
+			const m = line.match(/syntax error, (.*) \[(.*) Line (\d+) Column (\d+).*\].*/);
 			let message = '';
 			let lineNum = 0;
 			let colNum = 0;
+			let fname = '';
 			if (m) {
-				message = m[1];
-				lineNum = Number(m[2]) - 1;
-				colNum = Number(m[3]);
+				fname = cleanupFile(m[2]);
+				message = m[1].trim();
+				if (fileMatches(fname, "ZQ_BUFFER") || fileMatches(fname, tmpInput))
+				{
+					lineNum = 0;
+					colNum = 0;
+					message = `Syntax error in temp file (check your ZScript Extension settings):\n${message}`;
+				}
+				else if (fileMatches(fname, tmpScript))
+				{
+					lineNum = Number(m[3]) - 1;
+					colNum = Number(m[4]);
+				}
+				else
+				{
+					lineNum = 0;
+					colNum = 0;
+					message = `Syntax error in "${fname}":\n${message}`;
+				}
 			} else {
-				message = line.split('syntax error, ', 2)[1];
+				message = line.split('syntax error, ', 2)[1].trim();
 			}
 
 			const start = textDocument.offsetAt({line: lineNum, character: 0});
@@ -222,24 +250,91 @@ async function processScript(textDocument: TextDocument): Promise<void> {
 			};
 			diagnostics.push(diagnostic);
 		} else if (line.includes('Error') || line.includes('Warning')) {
-			const m = line.match(/.*Line (\d+).*Columns (\d+)-(\d+) - (.*)/);
+			const m = line.match(/(.*)Line (\d+).*Columns (\d+)-(\d+) - (.*)/);
 			let message = '';
 			let lineNum = 0;
 			let colStartNum = 0;
 			let colEndNum = 0;
+			let sev = 'Warning';
+			let fname = '';
 			if (m) {
-				lineNum = Number(m[1]) - 1;
-				colStartNum = Number(m[2]) - 1;
-				colEndNum = Number(m[3]) - 1;
-				message = m[4];
+				fname = cleanupFile(m[1]);
+				message = m[5].trim();
+				if (message.startsWith('Error'))
+					sev = 'Error';
+				if (fname.length == 0 || fileMatches(fname, "ZQ_BUFFER") || fileMatches(fname, tmpInput)) //error in temp file
+				{
+					lineNum = 0;
+					colStartNum = 0;
+					colEndNum = 0;
+					message = `${sev} in temp file (check your ZScript Extension settings):\n${message}`;
+				}
+				else if(fileMatches(fname, tmpScript))
+				{
+					lineNum = Number(m[2]) - 1;
+					colStartNum = Number(m[3]) - 1;
+					colEndNum = Number(m[4]) - 1;
+				}
+				else
+				{
+					lineNum = 0;
+					colStartNum = 0;
+					colEndNum = 0;
+					message = `${sev} in "${fname}":\n${message}`;
+				}
 			} else {
-				message = line;
+				message = line.trim();
 			}
 
-			const start = textDocument.offsetAt({line: lineNum, character: colStartNum});
-			const end = textDocument.offsetAt({line: lineNum, character: colEndNum});
+			const start = textDocument.offsetAt({ line: lineNum, character: colStartNum });
+			const end = textDocument.offsetAt({ line: lineNum, character: colEndNum });
 			const diagnostic: Diagnostic = {
-				severity: message.startsWith('Error') ? DiagnosticSeverity.Error : DiagnosticSeverity.Warning,
+				severity: sev=='Error' ? DiagnosticSeverity.Error : DiagnosticSeverity.Warning,
+				range: {
+					start: textDocument.positionAt(start),
+					end: textDocument.positionAt(end),
+				},
+				message,
+				source: exe,
+			};
+			diagnostics.push(diagnostic);
+		} else if (line.includes('ERROR:') || line.includes('WARNING:')) {
+			const m = line.match(/(.*) \[(.*) Line (\d+) Column (\d+).*/);
+			let message = '';
+			let lineNum = 0;
+			let colNum = 0;
+			let sev = 'Warning';
+			let fname = '';
+			if (m) {
+				fname = cleanupFile(m[2]);
+				message = m[1].trim();
+				if(message.startsWith('ERROR:'))
+					sev = 'Error';
+				if (fileMatches(fname, "ZQ_BUFFER") || fileMatches(fname, tmpInput))
+				{
+					lineNum = 0;
+					colNum = 0;
+					message = `${sev} in temp file (check your ZScript Extension settings):\n${message}`;
+				}
+				else if (fileMatches(fname, tmpScript))
+				{
+					lineNum = Number(m[3]) - 1;
+					colNum = Number(m[4]);
+				}
+				else
+				{
+					lineNum = 0;
+					colNum = 0;
+					message = `${sev} in "${fname}":\n${message}`;
+				}
+			} else {
+				message = line.trim();
+			}
+
+			const start = textDocument.offsetAt({ line: lineNum, character: 0 });
+			const end = textDocument.offsetAt({ line: lineNum, character: colNum });
+			const diagnostic: Diagnostic = {
+				severity: sev=='Error' ? DiagnosticSeverity.Error : DiagnosticSeverity.Warning,
 				range: {
 					start: textDocument.positionAt(start),
 					end: textDocument.positionAt(end),
