@@ -86,6 +86,7 @@ connection.onInitialized(() => {
 interface Settings {
 	installationFolder?: string;
 	printCompilerOutput?: boolean;
+	alwaysInclude?: Array<string>;
 }
 
 // The global settings, used when the `workspace/configuration` request is not supported by the client.
@@ -145,6 +146,7 @@ async function processScript(textDocument: TextDocument): Promise<void> {
 
 	// The validator creates diagnostics for all uppercase words length 2 and more
 	const text = textDocument.getText();
+	let prefix = "";
 
 	if (!settings.installationFolder) {
 		connection.sendDiagnostics({ uri: textDocument.uri, diagnostics: [{
@@ -162,11 +164,17 @@ async function processScript(textDocument: TextDocument): Promise<void> {
 	if (!globalTmpDir) {
 		globalTmpDir = os.tmpdir();
 	}
+	if (settings.alwaysInclude)
+	{
+		settings.alwaysInclude.forEach(str =>{
+			prefix += "#include \""+str+"\"\n";
+		});
+	}
 
 	const tmpInput = `${globalTmpDir}/tmp.zs`;
 	let stdout = '';
 	let success = false;
-	fs.writeFileSync(tmpInput, text);
+	fs.writeFileSync(tmpInput, prefix+text);
 	const exe = os.platform() === 'win32' ? './zscript.exe' : './zscript';
 	try {
 		const cp = await execFile(exe, [
