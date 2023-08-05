@@ -45,6 +45,12 @@
 					"default": false,
 					"description": "Prints the output of the compiler to the Output window"
 				},
+				"zscript.alwaysInclude": {
+					"scope": "window",
+					"type": "array",
+					"default": ["std.zh"],
+					"description": "Global includes, to be added to compile attempts."
+				},
 				"zscript.trace.server": {
 					"scope": "window",
 					"type": "string",
