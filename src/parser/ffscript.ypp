@@ -44,7 +44,7 @@ void trunc_str(std::string& str, size_t sz, std::string const& header, int32_t r
 {
 	if(str.size() > sz)
 	{
-		yyerrmsg(header+": String value '" + str + "' is too long. Max '"+std::to_string(sz)+"' characters.", row, col, txt);
+		yyerrmsg("ERROR: "+header+": String value '" + str + "' is too long. Max '"+std::to_string(sz)+"' characters.", row, col, txt);
 		str = str.substr(0,sz);
 	}
 }
@@ -879,7 +879,7 @@ Class_Block_List :
 		if(user_class->destructor)
 		{
 			auto const& loc = func->location;
-			yyerrmsg("Class can only have one destructor!",loc.first_line,loc.first_column,func->name.c_str());
+			yyerrmsg("ERROR: Class can only have one destructor!",loc.first_line,loc.first_column,func->name.c_str());
 			delete func;
 		}
 		else user_class->destructor = func;
@@ -905,7 +905,7 @@ Class_Block_List :
 		if(user_class->destructor)
 		{
 			auto const& loc = func->location;
-			yyerrmsg("Class can only have one destructor!",loc.first_line,loc.first_column,func->name.c_str());
+			yyerrmsg("ERROR: Class can only have one destructor!",loc.first_line,loc.first_column,func->name.c_str());
 			delete func;
 		}
 		else user_class->destructor = func;
