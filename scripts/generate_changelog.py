@@ -72,6 +72,7 @@ def get_type_label(type: str):
         case 'test': return 'Tests'
         case 'ci': return 'CI'
         case 'misc': return 'Misc.'
+        case 'std_zh': return 'std_zh'
         case _: return type.capitalize()
 
 

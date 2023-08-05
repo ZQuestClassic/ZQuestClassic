@@ -8,6 +8,7 @@ valid_types = [
     'test',
     'ci',
     'misc',
+    'std_zh',
 ]
 
 valid_scopes = [
