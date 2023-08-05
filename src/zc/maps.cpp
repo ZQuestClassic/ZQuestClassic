@@ -3244,38 +3244,37 @@ std::pair<int32_t, int32_t> nextscr2(int32_t dir)
     }
     
     // need to check for screens on other maps, 's' not valid, etc.
-    // TODO z3 ! hero_screen?
-    int32_t index = (tmpscr->sidewarpindex >> (dir*2))&3;
+    int32_t index = (hero_screen->sidewarpindex >> (dir*2))&3;
     
     // Fun fact: when a scrolling warp is triggered, this function
     // is never even called! - Saf
-    if(tmpscr->sidewarptype[index] == 3)                                // scrolling warp
+    if(hero_screen->sidewarptype[index] == 3)                                // scrolling warp
     {
         switch(dir)
         {
         case up:
-            if(!(tmpscr->flags2&wfUP))    goto nowarp;
+            if(!(hero_screen->flags2&wfUP))    goto nowarp;
             
             break;
             
         case down:
-            if(!(tmpscr->flags2&wfDOWN))  goto nowarp;
+            if(!(hero_screen->flags2&wfDOWN))  goto nowarp;
             
             break;
             
         case left:
-            if(!(tmpscr->flags2&wfLEFT))  goto nowarp;
+            if(!(hero_screen->flags2&wfLEFT))  goto nowarp;
             
             break;
             
         case right:
-            if(!(tmpscr->flags2&wfRIGHT)) goto nowarp;
+            if(!(hero_screen->flags2&wfRIGHT)) goto nowarp;
             
             break;
         }
         
-        m = DMaps[tmpscr->sidewarpdmap[index]].map;
-        s = tmpscr->sidewarpscr[index] + DMaps[tmpscr->sidewarpdmap[index]].xoff;
+        m = DMaps[hero_screen->sidewarpdmap[index]].map;
+        s = hero_screen->sidewarpscr[index] + DMaps[hero_screen->sidewarpdmap[index]].xoff;
     }
     
 nowarp:
