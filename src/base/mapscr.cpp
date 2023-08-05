@@ -47,6 +47,7 @@ void mapscr::zero_memory()
 	*this = mapscr();
 }
 
+// TODO z3 ! return uint8_t
 word mapscr::numFFC()
 {
 	if (!ffc_count_dirty)

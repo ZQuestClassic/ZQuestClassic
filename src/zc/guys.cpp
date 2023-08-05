@@ -8354,14 +8354,14 @@ void enemy::removearmos(int32_t ax,int32_t ay, word ffcactive)
 	putcombo(scrollbuf,ax,ay,scr->data[cd],scr->cset[cd]);
 }
 
-void enemy::removearmosffc(int32_t ffc_id)
+void enemy::removearmosffc(uint16_t ffc_id)
 {
 	// TODO z3 !! ugly
-	int i = ffc_id % MAXFFCS;
-	int screen_index_offset = ffc_id / MAXFFCS;
-	int scr_dx = screen_index_offset % region_scr_width;
-	int scr_dy = screen_index_offset / region_scr_width;
-	int screen_index = cur_origin_screen_index + scr_dx + scr_dy*16;
+	uint8_t i = ffc_id % MAXFFCS;
+	uint8_t screen_index_offset = ffc_id / MAXFFCS;
+	uint8_t scr_dx = screen_index_offset % region_scr_width;
+	uint8_t scr_dy = screen_index_offset / region_scr_width;
+	uint8_t screen_index = cur_origin_screen_index + scr_dx + scr_dy*16;
 	mapscr* screen = get_scr(currmap, screen_index);
 	removearmosffc({screen, screen_index, ffc_id, i, &screen->ffcs[i]});
 }

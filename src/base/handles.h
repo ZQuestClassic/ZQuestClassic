@@ -42,17 +42,16 @@ struct rpos_handle_t
 	void set_sflag(uint8_t value) const;
 };
 
-// TODO z3 !! narrow size of fields here.
 struct ffc_handle_t
 {
 	mapscr* screen;
-	int32_t screen_index;
+	uint8_t screen_index;
 	// A unique identifier for this ffc in this region.
 	// Roughly = (region screen index offset) * 128 + i.
 	// For non-regions, or for the top-left screen in a region, this is equal to i.
-	int32_t id;
+	uint16_t id;
 	// The index into mapscr.ffcs
-	int32_t i;
+	uint8_t i;
 	ffcdata* ffc;
 
 	int32_t data() const;
