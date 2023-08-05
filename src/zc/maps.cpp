@@ -2084,6 +2084,7 @@ static bool checkSV(int32_t x, int32_t y, int32_t flag)
 	if(x<0 || x>=world_w || y<0 || y>=world_h)
         return false;
 	
+	// TODO z3 ! refactor
 	int32_t pos = COMBOPOS(x%256, y%176);
 	mapscr* base_scr = get_layer_scr_for_xy(x, y, -1);
 	if (base_scr->sflag[pos] == flag || combobuf[base_scr->data[pos]].flag == flag)

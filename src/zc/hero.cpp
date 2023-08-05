@@ -118,7 +118,7 @@ static inline bool on_sideview_solid(int32_t x, int32_t y, bool ignoreFallthroug
 	if(slopesmisc != 1 && check_slope(x, y+1, 16, 16, (slopesmisc == 3)) < 0) return true;
 	if(slopesmisc == 2) return false;
 	if (_walkflag(x+4,y+16,1) || _walkflag(x+12,y+16,1)) return true;
-	if (y>=160 && currscr>=0x70 && !(s->flags2&wfDOWN)) return true;
+	if (y>=world_h-16 && currscr>=0x70 && !(s->flags2&wfDOWN)) return true;
 	if (platform_fallthrough() && !ignoreFallthrough) return false;
 	if(slopesmisc != 1 && check_slope(x, y+1, 16, 16) < 0) return true;
 	if (y%16==0 && (checkSVLadderPlatform(x+4,y+16) || checkSVLadderPlatform(x+12,y+16)))
@@ -132,7 +132,7 @@ static inline bool on_sideview_solid_oldpos(int32_t x, int32_t y, int32_t oldx, 
 	if(slopesmisc != 1 && check_new_slope(x, y+1, 16, 16, oldx, oldy, (slopesmisc == 3)) < 0) return true;
 	if(slopesmisc == 2) return false;
 	if (_walkflag(x+4,y+16,1) || _walkflag(x+12,y+16,1)) return true;
-	if (y>=160 && currscr>=0x70 && !(s->flags2&wfDOWN)) return true;
+	if (y>=world_h-16 && currscr>=0x70 && !(s->flags2&wfDOWN)) return true;
 	if (platform_fallthrough() && !ignoreFallthrough) return false;
 	if (slopesmisc != 1 && check_new_slope(x, y + 1, 16, 16, oldx, oldy) < 0) return true;
 	if (y%16==0 && (checkSVLadderPlatform(x+4,y+16) || checkSVLadderPlatform(x+12,y+16)))
@@ -1546,11 +1546,11 @@ void HeroClass::init()
     
     if(x==0)   dir=right;
     
-    if(x==240) dir=left;
+    if(x==world_w-16) dir=left;
     
     if(y==0)   dir=down;
     
-    if(y==160) dir=up;
+    if(y==world_h-16) dir=up;
     
     lstep=0;
     skipstep=0;
@@ -9411,9 +9411,9 @@ heroanimate_skip_liftwpn:;
 				exit=true;
 			}
 			else if(y<=0 && dir==up) y=-1;
-			else if(y>=160 && dir==down) y=161;
+			else if(y>=world_h-16 && dir==down) y=world_h-16+1;
 			else if(x<=0 && dir==left) x=-1;
-			else if(x>=240 && dir==right) x=241;
+			else if(x>=world_w-16 && dir==right) x=world_w-16+1;
 			else exit=true;
 			
 			if(exit)
