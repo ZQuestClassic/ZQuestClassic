@@ -1574,6 +1574,7 @@ static int32_t write_save(save_t* save)
 	em_sync_fs();
 #endif
 
+	Z_message("write save: %s\n", save->path.c_str());
 	return ret;
 }
 
@@ -1875,16 +1876,17 @@ int32_t saves_load()
 
 	if (standalone_mode)
 	{
-		auto standalone_path = get_save_folder_path() / "standalone.sav";
-		if (fs::exists(standalone_path))
+		assert(!standalone_save_path.empty());
+		auto path = get_save_folder_path() / standalone_save_path;
+		if (fs::exists(path))
 		{
 			auto& save = saves.emplace_back();
-			save.path = standalone_path;
+			save.path = path;
 			return 0;
 		}
 
 		auto& save = saves.emplace_back();
-		save.path = get_save_folder_path() / "standalone.sav";
+		save.path = path;
 		save.game = new gamedata();
 		save.header = &save.game->header;
 		save.header->qstpath = standalone_quest;
