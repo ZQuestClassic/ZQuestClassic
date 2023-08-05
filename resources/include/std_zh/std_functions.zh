@@ -665,6 +665,14 @@ bool RegionIncludesScreen(int scr)
 	return scr == Game->CurScreen;
 }
 
+// Returns the FFC ID of the screen `scr`, which must be within the current Region.
+// `index` is the screen-specific index of the FFC (what you would see in the editor on that screen).
+int RegionGetFFCId(int scr, int index)
+{
+	int offset = 176 * (RegionRelativeScreenX(scr) + RegionRelativeScreenY(scr)*Region->ScreenWidth);
+	return offset + index;
+}
+
 //Returns a if cond is true, else b. Overloaded.
 float Cond(bool cond, float a, float b)
 {
