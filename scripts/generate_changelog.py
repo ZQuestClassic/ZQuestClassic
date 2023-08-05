@@ -72,7 +72,6 @@ def get_type_label(type: str):
         case 'test': return 'Tests'
         case 'ci': return 'CI'
         case 'misc': return 'Misc.'
-        case 'std_zh': return 'std_zh'
         case _: return type.capitalize()
 
 
@@ -80,6 +79,7 @@ def get_scope_label(scope: str):
     match scope:
         case 'zc': return 'Player'
         case 'zq': return 'Editor'
+        case 'std_zh': return 'ZScript Standard Library (std.zh)'
         case 'zscript': return 'ZScript'
         case 'vscode': return 'Visual Studio Code Extension'
         case 'launcher': return 'ZLauncher'
