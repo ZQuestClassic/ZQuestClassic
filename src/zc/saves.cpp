@@ -2158,7 +2158,6 @@ void saves_do_first_time_stuff(int index)
 
 	if (!save->game->get_hasplayed())
 	{
-		clear_to_color(screen,BLACK);
 		save->game->set_quest(0xFF);
 
 		// Try to make relative to qstdir.
@@ -2185,8 +2184,7 @@ void saves_do_first_time_stuff(int index)
 			save->game->set_continue_scrn(0xFF);
 			save->game->set_hasplayed(false);
 		}
-		
-		rest(200); // Formerly 1000 -L
+
 		update_icon(index);
 	}
 }
