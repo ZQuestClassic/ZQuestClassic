@@ -1597,7 +1597,6 @@ static int load_from_save_file(ReadMode read_mode, fs::path filename, std::vecto
     }
 #endif
 
-	// TODO rm dat# shit
 	if (!exists(filename))
 	{
 		error = "not found";
@@ -1606,9 +1605,9 @@ static int load_from_save_file(ReadMode read_mode, fs::path filename, std::vecto
 	}
 	else
 	{
-		ret = decode_file_007(filenameCStr, tmpfilename, SAVE_HEADER, ENC_METHOD_MAX-1, strstr(filenameCStr, ".dat#")!=NULL, "");
+		ret = decode_file_007(filenameCStr, tmpfilename, SAVE_HEADER, ENC_METHOD_MAX-1, false, "");
 		if (ret)
-			ret = decode_file_007(filenameCStr, tmpfilename, OLD_SAVE_HEADER, ENC_METHOD_MAX-1, strstr(filenameCStr, ".dat#")!=NULL, "");
+			ret = decode_file_007(filenameCStr, tmpfilename, OLD_SAVE_HEADER, ENC_METHOD_MAX-1, false, "");
 		if (ret)
 		{
 			error = "can't decode";
