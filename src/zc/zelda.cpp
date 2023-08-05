@@ -178,6 +178,7 @@ bool is_compact = false;
 
 bool standalone_mode=false;
 char *standalone_quest=NULL;
+std::string standalone_save_path;
 bool skip_title=false;
 bool disable_save_to_disk=false;
 
@@ -4615,20 +4616,19 @@ int main(int argc, char **argv)
 
 	Z_title("ZC Launched: %s, v.%s %s",ZC_PLAYER_NAME, ZC_PLAYER_V, ALPHA_VER_STR);
 	
-	if(used_switch(argc, argv, "-standalone"))
+	int standalone_arg = used_switch(argc, argv, "-standalone");
+	if (standalone_arg)
 	{
 		standalone_mode=true;
 		
-		int32_t arg=used_switch(argc, argv, "-standalone");
-		
-		if(arg==argc-1)
+		if (standalone_arg == argc-1)
 		{
 			Z_error_fatal("-standalone requires a quest file, e.g.\n" \
 					"  -standalone MyQuest.qst\n" \
 					"  -standalone \"Name with spaces.qst\"");
 		}
 		
-		standalone_quest=argv[arg+1];
+		standalone_quest = argv[standalone_arg + 1];
 		
 		if(stricmp(standalone_quest, "1st.qst")==0 ||
 		  stricmp(standalone_quest, "2nd.qst")==0 ||
@@ -4640,6 +4640,15 @@ int main(int argc, char **argv)
 		}
 		
 		regulate_path(standalone_quest);
+
+		if (standalone_arg + 2 < argc && argv[standalone_arg + 2][0] != '-')
+		{
+			standalone_save_path = argv[standalone_arg + 2];
+		}
+		else
+		{
+			standalone_save_path = "standalone-" + std::filesystem::path(standalone_quest).stem().string() + ".sav";
+		}
 	}
 
 	// Before anything else, let's register our custom trace handler:
