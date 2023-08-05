@@ -29723,7 +29723,7 @@ int32_t main(int32_t argc,char **argv)
 	{
 		set_headless_mode();
 
-		int load_ret = load_quest(argv[1], false);
+		int load_ret = load_quest(argv[quick_assign_arg + 1], false);
 		bool success = load_ret == qe_OK;
 		if (!success)
 		{
@@ -29738,7 +29738,7 @@ int32_t main(int32_t argc,char **argv)
 			exit(1);
 		}
 
-		success = save_quest(argv[1], false) == 0;
+		success = save_quest(argv[quick_assign_arg + 1], false) == 0;
 		if (!success)
 		{
 			printf("Failed to save quest\n");
