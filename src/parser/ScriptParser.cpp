@@ -262,16 +262,24 @@ bool ScriptParser::valid_include(ASTImportDecl& decl, string& ret_fname)
 	if(!fname)
 	{
 		// Scan include paths
-		int32_t importfound = importname.find_first_not_of("/\\");
-		if(importfound != string::npos) //If the import is not just `/`'s and `\`'s...
+		auto ss = std::filesystem::path(importname);
+		if (std::filesystem::path(importname).is_absolute())
 		{
-			if(importfound != 0)
-				importname = importname.substr(importfound); //Remove leading `/` and `\`
-			//Convert the include string to a proper import path
-			fname = checkIncludes(includePath, importname, ZQincludePaths);
-			if(!fname)
+			fname = &importname;
+		}
+		else
+		{
+			int32_t importfound = importname.find_first_not_of("/\\");
+			if(importfound != string::npos) //If the import is not just `/`'s and `\`'s...
 			{
-				fname = checkIncludes(includePath, importname, includePaths);
+				if(importfound != 0)
+					importname = importname.substr(importfound); //Remove leading `/` and `\`
+				//Convert the include string to a proper import path
+				fname = checkIncludes(includePath, importname, ZQincludePaths);
+				if(!fname)
+				{
+					fname = checkIncludes(includePath, importname, includePaths);
+				}
 			}
 		}
 	}
