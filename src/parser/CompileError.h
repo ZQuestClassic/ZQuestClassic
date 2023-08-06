@@ -73,6 +73,8 @@ namespace ZScript
 		// Get if strict (an error), or not (a warning).
 		bool isStrict() const;
 		std::string toString() const;
+		void print() const;
+		void handle() const;
 
 	private:
 		CompileError(Impl*);

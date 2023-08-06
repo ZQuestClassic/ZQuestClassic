@@ -20,7 +20,6 @@ extern byte monochrome_console;
 io_manager* ConsoleWrite;
 
 extern uint32_t zscript_failcode;
-extern bool zscript_had_warn_err;
 extern bool zscript_error_out;
 
 const int BUILDTM_YEAR = (
@@ -116,7 +115,6 @@ void zconsole_db(std::string const& str)
 }
 void zconsole_warn(const char *format,...)
 {
-	zscript_had_warn_err = true;
 	//{
 	int32_t ret;
 	char tmp[1024];
@@ -136,12 +134,10 @@ void zconsole_warn(const char *format,...)
 }
 void zconsole_warn(std::string const& str)
 {
-	zscript_had_warn_err = true;
 	_console_print(str.c_str(), ZC_CONSOLE_WARN_CODE);
 }
 void zconsole_error(const char *format,...)
 {
-	zscript_had_warn_err = true;
 	//{
 	int32_t ret;
 	char tmp[1024];
@@ -161,7 +157,6 @@ void zconsole_error(const char *format,...)
 }
 void zconsole_error(std::string const& str)
 {
-	zscript_had_warn_err = true;
 	_console_print(str.c_str(), ZC_CONSOLE_ERROR_CODE);
 }
 void zconsole_info(const char *format,...)
@@ -268,6 +263,7 @@ void updateIncludePaths()
 	ZQincludePaths = split(includePathString, ';');
 }
 
+bool delay_asserts = false, ignore_asserts = false;
 int32_t main(int32_t argc, char **argv)
 {
 	common_main_setup(App::zscript, argc, argv);
@@ -280,6 +276,10 @@ int32_t main(int32_t argc, char **argv)
 		}
 		else return 1;
 	}
+	if(used_switch(argc, argv, "-ignore_cassert"))
+		delay_asserts = ignore_asserts = true;
+	else if(used_switch(argc, argv, "-delay_cassert"))
+		delay_asserts = true;
 
 	int32_t console_path_index = used_switch(argc, argv, "-console");
 	if (linked && !console_path_index)

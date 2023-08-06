@@ -45,6 +45,12 @@
 					"default": false,
 					"description": "Prints the output of the compiler to the Output window"
 				},
+				"zscript.ignoreConstAssert": {
+					"scope": "window",
+					"type": "boolean",
+					"default": false,
+					"description": "Ignores 'CONST_ASSERT' statement errors"
+				},
 				"zscript.alwaysInclude": {
 					"scope": "window",
 					"type": "array",

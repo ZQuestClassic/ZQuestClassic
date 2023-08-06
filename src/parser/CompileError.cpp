@@ -291,6 +291,23 @@ string CompileError::toString() const
 	return oss.str();
 }
 
+void CompileError::print() const
+{
+	if(isStrict())
+		zconsole_error("%s",toString().c_str());
+	else
+		zconsole_warn("%s",toString().c_str());
+}
+extern bool zscript_error_out;
+extern uint32_t zscript_failcode;
+void CompileError::handle() const
+{
+	print();
+	if(!zscript_failcode && isStrict())
+		zscript_failcode = *getId();
+	zscript_error_out = true;
+}
+
 CompileError::CompileError(CompileError::Impl* pimpl) : pimpl_(pimpl) {}
 
 void ZScript::log_error(CompileError const& error)

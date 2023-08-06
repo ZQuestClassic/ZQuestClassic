@@ -87,6 +87,7 @@ interface Settings {
 	installationFolder?: string;
 	printCompilerOutput?: boolean;
 	alwaysInclude?: Array<string>;
+	ignoreConstAssert?: boolean;
 }
 
 // The global settings, used when the `workspace/configuration` request is not supported by the client.
@@ -188,10 +189,14 @@ async function processScript(textDocument: TextDocument): Promise<void> {
 	fs.writeFileSync(tmpScript, text);
 	const exe = os.platform() === 'win32' ? './zscript.exe' : './zscript';
 	try {
-		const cp = await execFile(exe, [
+		const args = [
 			'-unlinked',
 			'-input', tmpInput,
-		], {
+			'-delay_cassert'
+		];
+		if (settings.ignoreConstAssert)
+			args.push('-ignore_cassert');
+		const cp = await execFile(exe, args, {
 			cwd: settings.installationFolder,
 		});
 		success = true;
