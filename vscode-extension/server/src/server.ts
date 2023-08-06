@@ -142,8 +142,11 @@ documents.onDidChangeContent(change => {
 
 let globalTmpDir = '';
 
+// TODO: this should not be necessary. Get path in better OS-agnostic way.
 function cleanupFile(fname:string)
 {
+	if (os.platform() !== 'win32')
+		return fname.trim();
 	return fname.replace(/\//g, '\\').trim();
 }
 function fileMatches(f1:string, f2:string)
