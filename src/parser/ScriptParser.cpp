@@ -54,15 +54,16 @@ void ScriptParser::initialize()
 	includePaths.resize(0);
 }
 extern uint32_t zscript_failcode;
-extern bool zscript_had_warn_err;
 extern bool zscript_error_out;
+extern bool delay_asserts, ignore_asserts;
+vector<ZScript::CompileError> casserts;
 unique_ptr<ScriptsData> ZScript::compile(string const& filename)
 {
 	zscript_failcode = 0;
-	zscript_had_warn_err = false;
 	zscript_error_out = false;
 	ScriptParser::initialize();
-	
+	if(ignore_asserts) delay_asserts = true;
+	casserts.clear();
 	try
 	{
 		zconsole_info("%s", "Pass 1: Parsing");
@@ -120,6 +121,9 @@ unique_ptr<ScriptsData> ZScript::compile(string const& filename)
 		ScriptParser::assemble(id.get());
 
 		unique_ptr<ScriptsData> result(new ScriptsData(program));
+		if(!ignore_asserts)
+			for(CompileError const& error : casserts)
+				error.handle();
 		if(zscript_error_out) return nullptr;
 
 		zconsole_info("%s", "Success!");
@@ -129,7 +133,7 @@ unique_ptr<ScriptsData> ZScript::compile(string const& filename)
 	catch (compile_exception &e)
 	{
 		zconsole_error(fmt::format("An unexpected compile error has occurred:\n{}",e.what()));
-		zscript_had_warn_err = zscript_error_out = true;
+		zscript_error_out = true;
 		return nullptr;
 	}
 #ifndef _DEBUG
@@ -144,7 +148,7 @@ unique_ptr<ScriptsData> ZScript::compile(string const& filename)
 #endif
 
 		zconsole_error(fmt::format("An unexpected runtime error has occurred:\n{}",e.what()));
-		zscript_had_warn_err = zscript_error_out = true;
+		zscript_error_out = true;
 		return nullptr;
 	}
 #endif
