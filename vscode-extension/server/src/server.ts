@@ -146,7 +146,7 @@ let globalTmpDir = '';
 function cleanupFile(fname:string)
 {
 	if (os.platform() !== 'win32')
-		return fname;
+		return fname.trim();
 	return fname.replace(/\//g, '\\').trim();
 }
 function fileMatches(f1:string, f2:string)
