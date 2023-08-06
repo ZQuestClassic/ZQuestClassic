@@ -291,20 +291,29 @@ string CompileError::toString() const
 	return oss.str();
 }
 
-void CompileError::print() const
+BasicCompileError::BasicCompileError(CompileError const& err)
 {
-	if(isStrict())
-		zconsole_error("%s",toString().c_str());
+	errmsg = err.toString();
+	id = *(err.getId());
+	strict = err.isStrict();
+}
+void BasicCompileError::print() const
+{
+	std::string s = errmsg;
+	char const* ptr = s.c_str();
+	while(ptr[0]==' '||ptr[0]=='\r'||ptr[0]=='\n') ++ptr;
+	if(strict)
+		zconsole_error("%s",ptr);
 	else
-		zconsole_warn("%s",toString().c_str());
+		zconsole_warn("%s",ptr);
 }
 extern bool zscript_error_out;
 extern uint32_t zscript_failcode;
-void CompileError::handle() const
+void BasicCompileError::handle() const
 {
 	print();
-	if(!zscript_failcode && isStrict())
-		zscript_failcode = *getId();
+	if(!zscript_failcode && strict)
+		zscript_failcode = id;
 	zscript_error_out = true;
 }
 

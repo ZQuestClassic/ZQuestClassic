@@ -56,9 +56,10 @@ void ScriptParser::initialize()
 extern uint32_t zscript_failcode;
 extern bool zscript_error_out;
 extern bool delay_asserts, ignore_asserts;
-vector<ZScript::CompileError> casserts;
-unique_ptr<ScriptsData> ZScript::compile(string const& filename)
+vector<ZScript::BasicCompileError> casserts;
+static unique_ptr<ScriptsData> _compile_helper(string const& filename)
 {
+	using namespace ZScript;
 	zscript_failcode = 0;
 	zscript_error_out = false;
 	ScriptParser::initialize();
@@ -121,9 +122,7 @@ unique_ptr<ScriptsData> ZScript::compile(string const& filename)
 		ScriptParser::assemble(id.get());
 
 		unique_ptr<ScriptsData> result(new ScriptsData(program));
-		if(!ignore_asserts)
-			for(CompileError const& error : casserts)
-				error.handle();
+		if(!ignore_asserts && casserts.size()) return nullptr;
 		if(zscript_error_out) return nullptr;
 
 		zconsole_info("%s", "Success!");
@@ -152,6 +151,14 @@ unique_ptr<ScriptsData> ZScript::compile(string const& filename)
 		return nullptr;
 	}
 #endif
+}
+unique_ptr<ScriptsData> ZScript::compile(string const& filename)
+{
+	auto ret = _compile_helper(filename);
+	if(!ignore_asserts)
+		for(BasicCompileError const& error : casserts)
+			error.handle();
+	return ret;
 }
 
 int32_t ScriptParser::vid = 0;
