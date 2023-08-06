@@ -8739,15 +8739,6 @@ void load_control_state()
 			raw_control_state[17] = false;
 			// zprint2("Detected 0 joysticks... clearing inputaxis values.\n");
 		}
-		bool did_bad_cutscene_btn = false;
-		for(int q = 0; q < 18; ++q)
-			if(raw_control_state[q] && !active_cutscene.can_button(q))
-			{
-				raw_control_state[q] = false;
-				did_bad_cutscene_btn = true;
-			}
-		if(did_bad_cutscene_btn)
-			active_cutscene.error();
 	}
 	if (replay_is_active())
 	{
@@ -8770,6 +8761,15 @@ void load_control_state()
 		if (botched_input && !control_state[i])
 			down_control_states[i] = false;
 	}
+	bool did_bad_cutscene_btn = false;
+	for(int q = 0; q < 18; ++q)
+		if(control_state[q] && !active_cutscene.can_button(q))
+		{
+			control_state[q] = false;
+			did_bad_cutscene_btn = true;
+		}
+	if(did_bad_cutscene_btn)
+		active_cutscene.error();
 	
 	button_press[0]=rButton(control_state[0],button_hold[0]);
 	button_press[1]=rButton(control_state[1],button_hold[1]);
