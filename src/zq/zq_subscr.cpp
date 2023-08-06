@@ -426,14 +426,7 @@ const char *buttonlist(int32_t index, int32_t *list_size)
     return button_str[index];
 }
 
-const char *icounter_str[sscMAX] =
-{
-    "Rupees", "Bombs", "Super Bombs", "Arrows", "Gen. Keys w/Magic", "Gen. Keys w/o Magic", "Level Keys w/Magic",
-    "Level Keys w/o Magic", "Any Keys w/Magic", "Any Keys w/o Magic", "Custom 1", "Custom 2", "Custom 3", "Custom 4",
-    "Custom 5", "Custom 6", "Custom 7", "Custom 8", "Custom 9", "Custom 10", "Custom 11", "Custom 12", "Custom 13",
-    "Custom 14", "Custom 15", "Custom 16", "Custom 17", "Custom 18", "Custom 19", "Custom 20", "Custom 21",
-    "Custom 22", "Custom 23", "Custom 24", "Custom 25", "Life", "Magic", "Max Life", "Max Magic"
-};
+extern const char *icounter_str2[sscMAX];
 
 const char *icounterlist(int32_t index, int32_t *list_size)
 {
@@ -443,7 +436,7 @@ const char *icounterlist(int32_t index, int32_t *list_size)
         return NULL;
     }
     
-    return icounter_str[index];
+    return icounter_str2[index];
 }
 
 
