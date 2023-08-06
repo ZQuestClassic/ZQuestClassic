@@ -12,7 +12,7 @@ import {
 	TextDocumentSyncKind,
 	InitializeResult
 } from 'vscode-languageserver/node';
-
+import {URI} from 'vscode-uri';
 import {
 	TextDocument
 } from 'vscode-languageserver-textdocument';
@@ -197,10 +197,18 @@ async function processScript(textDocument: TextDocument): Promise<void> {
 		console.log(`Attempting to compile buffer:\n-----\n${includeText}\n-----`);
 	}
 	try {
+		let originPath = URI.parse(textDocument.uri).fsPath;
+		if(originPath.match(/[a-z]:\\.*/))
+		{
+			const letter = originPath.at(0);
+			if(letter) //capitalize drive letters
+				originPath = letter.toUpperCase()+originPath.slice(1);
+		}
 		const args = [
 			'-unlinked',
 			'-delay_cassert',
 			'-input', tmpInput,
+			'-force_ignore', originPath
 		];
 		if (settings.ignoreConstAssert)
 			args.push('-ignore_cassert');

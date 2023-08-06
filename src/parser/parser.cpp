@@ -264,6 +264,7 @@ void updateIncludePaths()
 }
 
 bool delay_asserts = false, ignore_asserts = false;
+std::vector<std::filesystem::path> force_ignores;
 int32_t main(int32_t argc, char **argv)
 {
 	common_main_setup(App::zscript, argc, argv);
@@ -280,7 +281,16 @@ int32_t main(int32_t argc, char **argv)
 		delay_asserts = ignore_asserts = true;
 	else if(used_switch(argc, argv, "-delay_cassert"))
 		delay_asserts = true;
-
+	
+	if(auto index = used_switch(argc, argv, "-force_ignore"))
+	{
+		for(int q = index+1; q < argc; ++q)
+		{
+			if(argv[q][0] == '-') break;
+			force_ignores.push_back(std::filesystem::path(argv[q]).lexically_normal());
+		}
+	}
+	
 	int32_t console_path_index = used_switch(argc, argv, "-console");
 	if (linked && !console_path_index)
 	{
@@ -326,7 +336,7 @@ int32_t main(int32_t argc, char **argv)
 			argv[qr_hex_index + 1] :
 			// TODO: set to defaults in a better way.
 			"B343AFAF01C281A00DA58A4211A608DFDF080001162A0410FC5306FE2A274100381B02044031300000065824000000000000D0030000000000000000000000000000000000000000000000000000000034866C3140320000000000000000000000000000";
-		printf("%s\n", qr_hex.c_str());
+		//printf("%s\n", qr_hex.c_str());
 		if (qr_hex.size() != QUESTRULES_NEW_SIZE * 2)
 		{
 			zconsole_error("Error: -qr hex string must be of length %d", QUESTRULES_NEW_SIZE * 2);
