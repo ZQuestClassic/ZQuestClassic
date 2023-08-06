@@ -24,8 +24,8 @@ class TestReplays(unittest.TestCase):
 
     def quick_assign(self, qst_path):
         args = [
-            qst_path,
             '-quick-assign',
+            qst_path,
         ]
         run_target.check_run('zquest', args)
 
