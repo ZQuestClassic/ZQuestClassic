@@ -27775,6 +27775,26 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	int ffc_offset_x = (-z3_get_region_relative_dx(0) + z3_get_region_relative_dx(0, scrolling_origin_scr)) * 256;
 	int ffc_offset_y = (-z3_get_region_relative_dy(0) + z3_get_region_relative_dy(0, scrolling_origin_scr)) * 176;
 
+	// These mark the top-left coordinate of the new screen and the old screen, relative to the old region coordinates.
+	int nx = 0;
+	int ny = 0;
+	int ox = 0;
+	int oy = 0;
+	for_every_nearby_screen_during_scroll(old_temporary_screens, [&](std::array<screen_handle_t, 7> screen_handles, int scr, int draw_dx, int draw_dy, bool is_new_screen) {
+		int offx = draw_dx * 256;
+		int offy = draw_dy * 176;
+		if (scr == destscr && is_new_screen)
+		{
+			nx = offx;
+			ny = offy;
+		}
+		else if (scr == scrolling_scr && !is_new_screen)
+		{
+			ox = offx;
+			oy = offy;
+		}
+	});
+
 	currdmap = new_dmap;
 	for(word i = 0; (scroll_counter >= 0 && delay != 0) || align_counter; i++, scroll_counter--) //Go!
 	{
@@ -28057,6 +28077,11 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			FFCore.ScrollingData[SCROLLDATA_OY] = 176-sy;
 			break;
 		}
+
+		FFCore.ScrollingData[SCROLLDATA_NX] = nx - viewport.x;
+		FFCore.ScrollingData[SCROLLDATA_NY] = ny - viewport.y;
+		FFCore.ScrollingData[SCROLLDATA_OX] = ox - viewport.x;
+		FFCore.ScrollingData[SCROLLDATA_OY] = oy - viewport.y;
 
 		//FFScript.OnWaitdraw()
 		if (region_scrolling)
