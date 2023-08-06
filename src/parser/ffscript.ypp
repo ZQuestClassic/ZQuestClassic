@@ -28,7 +28,7 @@ extern int32_t yycol;
 extern char* yytext;
 extern int32_t yyleng;
 extern int32_t yylex(void);
-extern FILE *yyin;
+extern FILE *yyin, *yyout;
 extern void resetLexer();
 void yyerror(std::unique_ptr<ASTFile>& root, const char* s);
 void yymsg(string const& message, int32_t row = yyrow, int32_t col = yycol, char const* txt = yytext);
@@ -2269,6 +2269,7 @@ namespace ZScript
 
 		// Read in the file.
 		yyin = fopen(filename.c_str(), "r");
+		yyout = std::tmpfile();
 		if (!yyin)
 		{
 			zconsole_error("Can't open input file");
@@ -2281,6 +2282,7 @@ namespace ZScript
 		{
 			result.reset();
 		}
+		fclose(yyout);
 		fclose(yyin);
 
 		return std::unique_ptr<ASTFile>(result.release());
