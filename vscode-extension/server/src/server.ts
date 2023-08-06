@@ -86,7 +86,8 @@ connection.onInitialized(() => {
 interface Settings {
 	installationFolder?: string;
 	printCompilerOutput?: boolean;
-	alwaysInclude?: Array<string>;
+	defaultIncludeFiles?: Array<string>;
+	defaultIncludePaths?: Array<string>;
 	ignoreConstAssert?: boolean;
 }
 
@@ -151,9 +152,7 @@ function fileMatches(f1:string, f2:string)
 }
 
 async function processScript(textDocument: TextDocument): Promise<void> {
-	// In this simple example we get the settings for every validate run.
 	const settings = await getDocumentSettings(textDocument.uri);
-	// The validator creates diagnostics for all uppercase words length 2 and more
 	const text = textDocument.getText();
 	let includeText = "#option NO_ERROR_HALT on\n#option HEADER_GUARD on\n";
 
@@ -173,9 +172,15 @@ async function processScript(textDocument: TextDocument): Promise<void> {
 	if (!globalTmpDir) {
 		globalTmpDir = os.tmpdir();
 	}
-	if (settings.alwaysInclude)
+	if (settings.defaultIncludePaths)
 	{
-		settings.alwaysInclude.forEach(str =>{
+		settings.defaultIncludePaths.forEach(str => {
+			includeText += `#includepath "${str}"\n`;
+		});
+	}
+	if (settings.defaultIncludeFiles)
+	{
+		settings.defaultIncludeFiles.forEach(str =>{
 			includeText += `#include "${str}"\n`;
 		});
 	}
@@ -188,6 +193,9 @@ async function processScript(textDocument: TextDocument): Promise<void> {
 	fs.writeFileSync(tmpInput, includeText);
 	fs.writeFileSync(tmpScript, text);
 	const exe = os.platform() === 'win32' ? './zscript.exe' : './zscript';
+	if (settings.printCompilerOutput) {
+		console.log(`Attempting to compile buffer:\n-----\n${includeText}\n-----`);
+	}
 	try {
 		const args = [
 			'-unlinked',

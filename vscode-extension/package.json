@@ -51,10 +51,16 @@
 					"default": false,
 					"description": "Ignores 'CONST_ASSERT' statement errors"
 				},
-				"zscript.alwaysInclude": {
+				"zscript.defaultIncludePaths": {
 					"scope": "window",
 					"type": "array",
-					"default": ["std.zh"],
+					"default": ["include"],
+					"description": "Global include paths, to be added to compile attempts."
+				},
+				"zscript.defaultIncludeFiles": {
+					"scope": "window",
+					"type": "array",
+					"default": ["include/std.zh"],
 					"description": "Global includes, to be added to compile attempts."
 				},
 				"zscript.trace.server": {
