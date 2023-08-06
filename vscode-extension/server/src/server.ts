@@ -180,8 +180,8 @@ async function processScript(textDocument: TextDocument): Promise<void> {
 		});
 	}
 
-	const tmpInput = `${globalTmpDir}/tmp2.zs`;
-	const tmpScript = `${globalTmpDir}/tmp.zs`;
+	const tmpInput = cleanupFile(`${globalTmpDir}/tmp2.zs`);
+	const tmpScript = cleanupFile(`${globalTmpDir}/tmp.zs`);
 	includeText += `#include "${tmpScript}"\n`;
 	let stdout = '';
 	let success = false;
@@ -191,8 +191,8 @@ async function processScript(textDocument: TextDocument): Promise<void> {
 	try {
 		const args = [
 			'-unlinked',
+			'-delay_cassert',
 			'-input', tmpInput,
-			'-delay_cassert'
 		];
 		if (settings.ignoreConstAssert)
 			args.push('-ignore_cassert');
