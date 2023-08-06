@@ -155,7 +155,7 @@ async function processScript(textDocument: TextDocument): Promise<void> {
 	const settings = await getDocumentSettings(textDocument.uri);
 	// The validator creates diagnostics for all uppercase words length 2 and more
 	const text = textDocument.getText();
-	let includeText = "";
+	let includeText = "#option NO_ERROR_HALT on\n#option HEADER_GUARD on\n";
 
 	if (!settings.installationFolder) {
 		connection.sendDiagnostics({ uri: textDocument.uri, diagnostics: [{
