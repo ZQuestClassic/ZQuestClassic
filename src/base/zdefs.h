@@ -3247,6 +3247,7 @@ enum //Special hardcoded draw layers
 	SPLAYER_OVERHEAD_FFC, //Overhead ffcs
 	SPLAYER_DARKROOM_UNDER, //Under dark room darkness
 	SPLAYER_DARKROOM_OVER, //Over dark room darkness
+	SPLAYER_FFC_DRAW, //Non-Overhead ffcs
 };
 
 //

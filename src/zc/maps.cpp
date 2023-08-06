@@ -3935,6 +3935,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	draw_msgstr(1, true);
 	
 	do_layer(scrollbuf, -3, 0, this_screen, 0, 0, 2); // freeform combos!
+	do_primitives(temp_buf, SPLAYER_FFC_DRAW, this_screen, 0, playing_field_offset);
 	
 	if(!XOR(this_screen->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))
 	{
