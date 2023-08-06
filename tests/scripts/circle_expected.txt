@@ -1,3 +1,13 @@
+Compiling 'circle.zs'
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+Pass 5: Generating object code
+Pass 6: Assembling
+Success!
+Compile finished with exit code '0' (success)
+
 PUSHR d0
 PUSHR d1
 PUSHR d2
