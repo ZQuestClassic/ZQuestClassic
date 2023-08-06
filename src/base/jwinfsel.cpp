@@ -1269,6 +1269,16 @@ void derelativize_path(char* dest, char const* src_path)
     strcpy(dest, result.string().c_str());
 }
 
+/* derelativize_path:
+  *  Takes a relative path from the root directory, and returns its' absolute path.
+  */
+std::string derelativize_path(std::string src_path)
+{
+	char rootpath[PATH_MAX] = {0};
+	get_root_path(rootpath, PATH_MAX);
+    return (std::filesystem::path(rootpath) / src_path).string();
+}
+
 /* jwin_file_browse_ex:
   *  Same as jwin_file_select but it lets you give it a list of
   *  possible extensions to choose from.

@@ -29,6 +29,40 @@ using std::unique_ptr;
 using std::shared_ptr;
 using namespace ZScript;
 
+#include <allegro/alcompat.h>
+#if (DEVICE_SEPARATOR != 0) && (DEVICE_SEPARATOR != '\0')
+#define HAVE_DIR_LIST
+#endif
+static void get_root_path(char* path, int32_t size)
+{
+#ifdef HAVE_DIR_LIST
+	int32_t drive = _al_getdrive();
+#else
+	int32_t drive = 0;
+#endif
+
+    _al_getdcwd(drive, path, size - ucwidth(OTHER_PATH_SEPARATOR));
+	fix_filename_case(path);
+	fix_filename_slashes(path);
+	put_backslash(path);
+}
+
+static std::filesystem::path relativize_path(std::string src_path)
+{
+	char rootpath[PATH_MAX] = {0};
+	get_root_path(rootpath, PATH_MAX);
+    return std::filesystem::relative(src_path, rootpath);
+}
+
+static std::filesystem::path derelativize_path(std::string src_path)
+{
+	char rootpath[PATH_MAX] = {0};
+	get_root_path(rootpath, PATH_MAX);
+	char buf[PATH_MAX*2] = {0};
+	return (std::filesystem::path(rootpath) / src_path).lexically_normal();
+}
+
+
 extern std::vector<string> ZQincludePaths;
 //#define PARSER_DEBUG
 
@@ -205,6 +239,7 @@ string* ScriptParser::checkIncludes(string& includePath, string const& importnam
 	return NULL;
 }
 
+extern std::vector<std::filesystem::path> force_ignores;
 bool ScriptParser::valid_include(ASTImportDecl& decl, string& ret_fname)
 {
 	if(decl.wasValidated())
@@ -242,10 +277,28 @@ bool ScriptParser::valid_include(ASTImportDecl& decl, string& ret_fname)
 	}
 	string filename = fname ? *fname : prepareFilename(importname); //Check root dir last, if nothing has been found yet.
 	ret_fname = filename;
-	FILE* f = fopen(filename.c_str(), "r");
+	//Note: If the user gives an absolute path, `relpath` will be that absolute path!
+	std::filesystem::path relpath = std::filesystem::path(filename).lexically_normal();
+	std::filesystem::path abspath = derelativize_path(filename);
+	FILE* f = fopen(abspath.string().c_str(), "r");
 	if(f)
 	{
 		fclose(f);
+		if(std::find(force_ignores.begin(), force_ignores.end(), abspath) != force_ignores.end())
+		{
+			decl.disable();
+			return true;
+		}
+	}
+	f = fopen(filename.c_str(), "r");
+	if(f)
+	{
+		fclose(f);
+		if(std::find(force_ignores.begin(), force_ignores.end(), relpath) != force_ignores.end())
+		{
+			decl.disable();
+			return true;
+		}
 		//zconsole_db("Importing filename '%s' successfully", filename.c_str());
 		decl.setFilename(filename);
 		decl.validate();
@@ -262,6 +315,7 @@ bool ScriptParser::preprocess_one(ASTImportDecl& importDecl, int32_t reclimit)
 		log_error(CompileError::CantOpenImport(&importDecl, filename));
 		return false;
 	}
+	if(importDecl.isDisabled()) return true;
 	unique_ptr<ASTFile> imported(parseFile(filename));
 	if (!imported.get())
 	{
