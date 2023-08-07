@@ -6862,21 +6862,24 @@ int32_t onCheatKeys()
 
 int32_t onSound()
 {
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
+	if (get_bit(quest_rules, qr_OLD_SCRIPT_VOLUME))
 	{
-		master_volume(-1,((int32_t)FFCore.usr_midi_volume));
-	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
-	{
-		master_volume((int32_t)(FFCore.usr_digi_volume),1);
-	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
-	{
-		emusic_volume = (int32_t)FFCore.usr_music_volume;
-	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME )
-	{
-		sfx_volume = (int32_t)FFCore.usr_sfx_volume;
+		if (FFCore.coreflags & FFCORE_SCRIPTED_MIDI_VOLUME)
+		{
+			master_volume(-1, ((int32_t)FFCore.usr_midi_volume));
+		}
+		if (FFCore.coreflags & FFCORE_SCRIPTED_DIGI_VOLUME)
+		{
+			master_volume((int32_t)(FFCore.usr_digi_volume), 1);
+		}
+		if (FFCore.coreflags & FFCORE_SCRIPTED_MUSIC_VOLUME)
+		{
+			emusic_volume = (int32_t)FFCore.usr_music_volume;
+		}
+		if (FFCore.coreflags & FFCORE_SCRIPTED_SFX_VOLUME)
+		{
+			sfx_volume = (int32_t)FFCore.usr_sfx_volume;
+		}
 	}
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
 	{
@@ -6922,11 +6925,14 @@ int32_t onSound()
 		if (zcmusic)
 			zcmusic_set_volume(zcmusic, emusic_volume);
 		
+		int32_t temp_volume = sfx_volume;
+		if (!get_bit(quest_rules, qr_OLD_SCRIPT_VOLUME))
+			temp_volume = (sfx_volume * FFCore.usr_sfx_volume) / 10000 / 100;
 		for(int32_t i=0; i<WAV_COUNT; ++i)
 		{
 			//allegro assertion fails when passing in -1 as voice -DD
 			if(sfx_voice[i] > 0)
-				voice_set_volume(sfx_voice[i], sfx_volume);
+				voice_set_volume(sfx_voice[i], temp_volume);
 		}
 		zc_set_config(sfx_sect,"digi",digi_volume);
 		zc_set_config(sfx_sect,"midi",midi_volume);
@@ -8102,7 +8108,10 @@ bool try_zcmusic(char *filename, int32_t track, int32_t midi)
 		zc_stop_midi();
 		
 		zcmusic=newzcmusic;
-		zcmusic_play(zcmusic, emusic_volume);
+		int32_t temp_volume = emusic_volume;
+		if (!get_bit(quest_rules, qr_OLD_SCRIPT_VOLUME))
+			temp_volume = (emusic_volume * FFCore.usr_music_volume) / 10000 / 100;
+		zcmusic_play(zcmusic, temp_volume);
 		
 		if(track>0)
 			zcmusic_change_track(zcmusic,track);
@@ -8187,8 +8196,8 @@ void jukebox(int32_t index,int32_t loop)
 	// stuck notes when a song stops. This fixes it.
 	if(strcmp(midi_driver->name, "DIGMID")==0)
 		zc_set_volume(0, 0);
-		
-	zc_set_volume(-1, mixvol(tunes[index].volume,midi_volume>>1));
+	
+	zc_set_volume(-1, mixvol(tunes[index].volume, midi_volume >>1));
 	zc_play_midi((MIDI*)tunes[index].data,loop);
 	
 	if(tunes[index].start>0)
@@ -8198,7 +8207,7 @@ void jukebox(int32_t index,int32_t loop)
 	midi_loop_end = tunes[index].loop_end;
 	
 	currmidi=index;
-	master_volume(digi_volume,midi_volume);
+	master_volume(digi_volume, midi_volume);
 }
 
 void jukebox(int32_t index)
@@ -8335,7 +8344,10 @@ void master_volume(int32_t dv,int32_t mv)
 	if(mv>=0) midi_volume=zc_max(zc_min(mv,255),0);
 	
 	int32_t i = zc_min(zc_max(currmidi,0),MAXMIDIS-1);
-	zc_set_volume(digi_volume,mixvol(tunes[i].volume,midi_volume));
+	int32_t temp_vol = midi_volume;
+	if (!get_bit(quest_rules, qr_OLD_SCRIPT_VOLUME))
+		temp_vol = (midi_volume * FFCore.usr_music_volume) / 10000 / 100;
+	zc_set_volume(digi_volume,mixvol(tunes[i].volume, temp_vol));
 }
 
 /*****************/
@@ -8410,7 +8422,10 @@ bool sfx_init(int32_t index)
 			sfx_voice[index]=allocate_voice(&customsfxdata[index]);
 		}
 		
-		voice_set_volume(sfx_voice[index], sfx_volume);
+		int32_t temp_volume = sfx_volume;
+		if (!get_bit(quest_rules, qr_OLD_SCRIPT_VOLUME))
+			temp_volume = (sfx_volume * FFCore.usr_sfx_volume) / 10000 / 100;
+		voice_set_volume(sfx_voice[index], temp_volume);
 	}
 	
 	return sfx_voice[index] != -1;

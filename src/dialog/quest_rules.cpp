@@ -915,6 +915,9 @@ static GUI::ListData compatRulesList
 		"If enabled, several new features relating to room guys will not work, instead using the old version behaviors."},
 	{ "Inconsistent Fairy Flags", qr_FAIRY_FLAG_COMPAT,
 		"If enabled, fairy flags work differently placed vs inherent."},
+	{ "Old (Buggy) ZScript Volume Access", qr_OLD_SCRIPT_VOLUME,
+		"If enabled, Audio->AdjustMusicVolume() and Audio->AdjustSFXVolume() will use their old behavior,"
+		" which was bugged and wrote directly to the volume sliders." },
 };
 
 static GUI::ListData enemiesRulesList

@@ -592,30 +592,34 @@ void ending()
 	
 	
 	zc_stop_midi();
-	//restore user volume if it was changed by script
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
+	if (get_bit(quest_rules, qr_OLD_SCRIPT_VOLUME))
 	{
-		Z_scripterrlog("Trying to restore master MIDI volume to: %d\n", FFCore.usr_midi_volume);
-		midi_volume = FFCore.usr_midi_volume;
-//		master_volume(-1,FFCore.usr_midi_volume);
+		//restore user volume if it was changed by script
+		if (FFCore.coreflags & FFCORE_SCRIPTED_MIDI_VOLUME)
+		{
+			Z_scripterrlog("Trying to restore master MIDI volume to: %d\n", FFCore.usr_midi_volume);
+			midi_volume = FFCore.usr_midi_volume;
+			//		master_volume(-1,FFCore.usr_midi_volume);
+		}
+		if (FFCore.coreflags & FFCORE_SCRIPTED_DIGI_VOLUME)
+		{
+			digi_volume = FFCore.usr_digi_volume;
+			//master_volume((int32_t)(FFCore.usr_digi_volume),1);
+		}
+		if (FFCore.coreflags & FFCORE_SCRIPTED_MUSIC_VOLUME)
+		{
+			emusic_volume = (int32_t)FFCore.usr_music_volume;
+		}
+		if (FFCore.coreflags & FFCORE_SCRIPTED_SFX_VOLUME)
+		{
+			sfx_volume = (int32_t)FFCore.usr_sfx_volume;
+		}
 	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
-	{
-		digi_volume = FFCore.usr_digi_volume;
-		//master_volume((int32_t)(FFCore.usr_digi_volume),1);
-	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
-	{
-		emusic_volume = (int32_t)FFCore.usr_music_volume;
-	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME )
-	{
-		sfx_volume = (int32_t)FFCore.usr_sfx_volume;
-	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
+	if (FFCore.coreflags & FFCORE_SCRIPTED_PANSTYLE)
 	{
 		pan_style = (int32_t)FFCore.usr_panstyle;
 	}
+
 	if(zcmusic != NULL)
 	{
 		zcmusic_stop(zcmusic);
@@ -698,26 +702,30 @@ void ending_scripted()
         
         ringcolor(false);
 	zc_stop_midi();
-	//restore user volume if it was changed by script
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
+	if (get_bit(quest_rules, qr_OLD_SCRIPT_VOLUME))
 	{
-		Z_scripterrlog("Trying to restore master MIDI volume to: %d\n", FFCore.usr_midi_volume);
-		midi_volume = FFCore.usr_midi_volume;
-//		master_volume(-1,FFCore.usr_midi_volume);
+		//restore user volume if it was changed by script
+		if (FFCore.coreflags & FFCORE_SCRIPTED_MIDI_VOLUME)
+		{
+			Z_scripterrlog("Trying to restore master MIDI volume to: %d\n", FFCore.usr_midi_volume);
+			midi_volume = FFCore.usr_midi_volume;
+			//		master_volume(-1,FFCore.usr_midi_volume);
+		}
+		if (FFCore.coreflags & FFCORE_SCRIPTED_DIGI_VOLUME)
+		{
+			digi_volume = FFCore.usr_digi_volume;
+			//master_volume((int32_t)(FFCore.usr_digi_volume),1);
+		}
+		if (FFCore.coreflags & FFCORE_SCRIPTED_MUSIC_VOLUME)
+		{
+			emusic_volume = (int32_t)FFCore.usr_music_volume;
+		}
+		if (FFCore.coreflags & FFCORE_SCRIPTED_SFX_VOLUME)
+		{
+			sfx_volume = (int32_t)FFCore.usr_sfx_volume;
+		}
 	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
-	{
-		digi_volume = FFCore.usr_digi_volume;
-		//master_volume((int32_t)(FFCore.usr_digi_volume),1);
-	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
-	{
-		emusic_volume = (int32_t)FFCore.usr_music_volume;
-	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME )
-	{
-		sfx_volume = (int32_t)FFCore.usr_sfx_volume;
-	}
+
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
 	{
 		pan_style = (int32_t)FFCore.usr_panstyle;

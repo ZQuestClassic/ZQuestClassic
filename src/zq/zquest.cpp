@@ -17169,15 +17169,15 @@ int32_t readsomedmaps(PACKFILE *f)
 							}
 						}
 					}
-					if (!p_igetw(&tempdmap.mirrorDMap, f, true))
+					if (!p_igetw(&tempdmap.mirrorDMap, f))
 					{
 						return 0;
 					}
-					if (!p_igetl(&tempdmap.tmusic_loop_start, f, true))
+					if (!p_igetl(&tempdmap.tmusic_loop_start, f))
 					{
 						return 0;
 					}
-					if (!p_igetl(&tempdmap.tmusic_loop_end, f, true))
+					if (!p_igetl(&tempdmap.tmusic_loop_end, f))
 					{
 						return 0;
 					}
@@ -17765,15 +17765,15 @@ int32_t readonedmap(PACKFILE *f, int32_t index)
 						}
 					}
 				}
-				if (!p_igetw(&tempdmap.mirrorDMap, f, true))
+				if (!p_igetw(&tempdmap.mirrorDMap, f))
 				{
 					return 0;
 				}
-				if (!p_igetl(&tempdmap.tmusic_loop_start, f, true))
+				if (!p_igetl(&tempdmap.tmusic_loop_start, f))
 				{
 					return 0;
 				}
-				if (!p_igetl(&tempdmap.tmusic_loop_end, f, true))
+				if (!p_igetl(&tempdmap.tmusic_loop_end, f))
 				{
 					return 0;
 				}

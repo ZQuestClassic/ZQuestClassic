@@ -3772,6 +3772,8 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_OLD_GUY_HANDLING,1);
 	if(compatrule_version < 49)
 		set_qr(qr_FAIRY_FLAG_COMPAT,1);
+	if (compatrule_version < 50)
+		set_qr(qr_OLD_SCRIPT_VOLUME, 1);
 	
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)
