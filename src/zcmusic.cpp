@@ -952,8 +952,8 @@ void unload_alstream_file(ALSTREAMFILE *als)
         if(als->fname != NULL)
         {
             free(als->fname);
-            free(als);
         }
+		free(als);
     }
 }
 
@@ -1114,6 +1114,10 @@ void zcmixer_update(ZCMIXER* mix, int32_t basevol, int32_t uservol, bool oldscri
 				temp_volume = (basevol * uservol) / 10000 / 100;
 			temp_volume = (temp_volume * mix->newtrack->fadevolume) / 10000;
 			zcmusic_play(mix->newtrack, temp_volume);
+			if (mix->fadeinframes == 0)
+			{
+				mix->newtrack->fadevolume = 10000;
+			}
 		}
 	}
 	if(mix->fadeoutframes)
@@ -1131,7 +1135,6 @@ void zcmixer_update(ZCMIXER* mix, int32_t basevol, int32_t uservol, bool oldscri
 		}
 		if (mix->fadeoutframes == 0)
 		{
-			mix->newtrack = NULL;
 			zcmusic_stop(mix->oldtrack);
 			zcmusic_unload_file(mix->oldtrack);
 		}

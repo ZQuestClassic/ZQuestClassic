@@ -58,6 +58,8 @@ struct dmap
 	int16_t mirrorDMap;
 	int32_t tmusic_loop_start;
 	int32_t tmusic_loop_end;
+	int32_t tmusic_xfade_in;
+	int32_t tmusic_xfade_out;
 };
 
 extern dmap *DMaps;

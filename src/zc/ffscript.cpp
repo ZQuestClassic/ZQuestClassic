@@ -29639,24 +29639,47 @@ void do_enh_music_crossfade()
 	int32_t fademiddleframes = zc_max(SH::read_stack(ri->sp + 1) / 10000, 0);
 	int32_t startpos = SH::read_stack(ri->sp);
 
+	if (arrayptr == 0)
+	{
+		bool ret = FFCore.play_enh_music_crossfade(NULL, track, fadeoutframes, fadeinframes, fademiddleframes, startpos);
+		set_register(sarg2, ret ? 10000 : 0);
+	}
+	else
+	{
+		string filename_str;
+		char filename_char[256];
+		ArrayH::getString(arrayptr, filename_str, 256);
+		strncpy(filename_char, filename_str.c_str(), 255);
+		filename_char[255] = '\0';
+		bool ret = FFCore.play_enh_music_crossfade(filename_char, track, fadeoutframes, fadeinframes, fademiddleframes, startpos);
+		set_register(sarg2, ret ? 10000 : 0);
+	}
+}
+
+bool FFScript::play_enh_music_crossfade(char* name, int32_t track, int32_t fadeinframes, int32_t fadeoutframes, int32_t fademiddleframes, int32_t startpos)
+{
 	double fadeoutpct = 1.0;
 	if (zcmixer->fadeinframes > 0 && zcmixer->fadeinframes <= zcmixer->fadeinmaxframes)
 	{
-		fadeoutpct = (double(zcmixer->fadeinframes) / double(zcmixer->fadeinmaxframes));
+		fadeoutpct = 1.0 - (double(zcmixer->fadeinframes) / double(zcmixer->fadeinmaxframes));
 	}
 
+	// If there's already an old track playing, stop it
 	if (zcmixer->oldtrack != NULL)
 	{
+		zcmusic_stop(zcmixer->oldtrack);
 		zcmusic_unload_file(zcmixer->oldtrack);
 		zcmixer->oldtrack = NULL;
 	}
 
-	if (arrayptr == 0)
+	if (name == NULL)
 	{
+		// Pass currently playing music off to the mixer
 		zcmixer->oldtrack = zcmusic;
+		// Do not play new music
+		zcmusic = NULL;
 		zcmixer->newtrack = NULL;
-		
-		zcmusic = zcmixer->newtrack;
+
 		zcmixer->fadeinframes = fadeinframes + fademiddleframes;
 		zcmixer->fadeinmaxframes = fadeinframes;
 		zcmixer->fadeindelay = fademiddleframes;
@@ -29669,23 +29692,25 @@ void do_enh_music_crossfade()
 	}
 	else // Pointer to a string..
 	{
+		// Pass currently playing music to the mixer
 		zcmixer->oldtrack = zcmusic;
+		zcmusic = NULL;
 		zcmixer->newtrack = NULL;
 
-		string filename_str;
-		char filename_char[256];
 		bool ret;
-		ArrayH::getString(arrayptr, filename_str, 256);
-		strncpy(filename_char, filename_str.c_str(), 255);
-		filename_char[255] = '\0';
-		ret = try_zcmusic_mix(zcmixer->newtrack, filename_char, track, -1000, 0);
+		ret = try_zcmusic(name, track, -1000, fadeoutframes);
+		// If new music was found
 		if (ret)
 		{
-			zcmusic = zcmixer->newtrack;
+			// New music fades in
+			if (zcmusic != NULL)
+				zcmusic->fadevolume = 0;
+
+			zcmixer->newtrack = zcmusic;
 			zcmixer->fadeinframes = fadeinframes + fademiddleframes;
 			zcmixer->fadeinmaxframes = fadeinframes;
 			zcmixer->fadeindelay = fademiddleframes;
-			zcmixer->fadeoutframes = fadeoutframes;
+			zcmixer->fadeoutframes = fadeoutframes * fadeoutpct;
 			zcmixer->fadeoutmaxframes = fadeoutframes;
 			if (startpos > 0)
 				zcmusic_set_curpos(zcmixer->newtrack, startpos);
@@ -29696,14 +29721,14 @@ void do_enh_music_crossfade()
 		}
 		else
 		{
+			// Abort, revert back to the old music
 			zcmusic = zcmixer->oldtrack;
-			zcmixer->newtrack = zcmixer->oldtrack;
+			zcmixer->newtrack = zcmusic;
 			zcmixer->oldtrack = NULL;
 		}
-		set_register(sarg2, ret ? 10000 : 0);
+		return ret;
 	}
-
-
+	return false;
 }
 
 bool FFScript::doing_dmap_enh_music(int32_t dm)

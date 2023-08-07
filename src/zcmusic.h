@@ -44,6 +44,7 @@ typedef struct
     char filename[256];
     int32_t track;
     int32_t fadevolume;
+    int32_t fadeoutframes;
 #ifdef __EMSCRIPTEN__
     Mix_Music* mus;
 #endif
