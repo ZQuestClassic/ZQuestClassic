@@ -8250,6 +8250,7 @@ void play_DmapMusic()
 				temptracks=(temptracks<2)?1:temptracks;
 				ttrack = vbound(DMaps[currdmap].tmusictrack,0,temptracks-1);
 				zcmusic_change_track(zcmusic,ttrack);
+				zcmusic_set_loop(zcmusic, double(DMaps[currdmap].tmusic_loop_start / 10000.0), double(DMaps[currdmap].tmusic_loop_end / 10000.0));
 			}
 			else
 			{

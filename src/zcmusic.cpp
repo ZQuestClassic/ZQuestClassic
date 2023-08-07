@@ -952,45 +952,51 @@ void unload_alstream_file(ALSTREAMFILE *als)
     }
 }
 
-int32_t stream_getpos(ALSTREAMFILE* mp3)
+int32_t stream_getpos(ALSTREAMFILE* als)
 {
-	if (mp3->s != NULL)
+	if (als->s != NULL)
 	{
-		return int32_t(al_get_audio_stream_position_secs(mp3->s) * 10000.0);
+		return int32_t(al_get_audio_stream_position_secs(als->s) * 10000.0);
 	}
 	return -10000;
 }
 
-void stream_setpos(ALSTREAMFILE* mp3, int32_t msecs)
+void stream_setpos(ALSTREAMFILE* als, int32_t msecs)
 {
-	if (mp3->s != NULL)
+	if (als->s != NULL)
 	{
-		al_seek_audio_stream_secs(mp3->s, double(msecs) / 10000.0);
+		al_seek_audio_stream_secs(als->s, double(msecs) / 10000.0);
 	}
 }
 
-void stream_setspeed(ALSTREAMFILE* mp3, int32_t speed)
+void stream_setspeed(ALSTREAMFILE* als, int32_t speed)
 {
-	if (mp3->s != NULL)
+	if (als->s != NULL)
 	{
-		al_set_audio_stream_speed(mp3->s, float(speed / 10000.0));
+		al_set_audio_stream_speed(als->s, float(speed / 10000.0));
 	}
 }
 
-int32_t stream_getlength(ALSTREAMFILE* mp3)
+int32_t stream_getlength(ALSTREAMFILE* als)
 {
-	if (mp3->s != NULL)
+	if (als->s != NULL)
 	{
-		return int32_t(al_get_audio_stream_length_secs(mp3->s) * 10000.0);
+		return int32_t(al_get_audio_stream_length_secs(als->s) * 10000.0);
 	}
 	return -10000;
 }
 
-void stream_setloop(ALSTREAMFILE* mp3, double start, double end)
+void stream_setloop(ALSTREAMFILE* als, double start, double end)
 {
-	if (mp3->s != NULL)
+	if (als->s != NULL)
 	{
-		al_set_audio_stream_loop_secs(mp3->s, start, end);
+		// No loop set
+		if (start == 0.0 && end == 0.0)
+			return;
+		// Don't allow end point before start point
+		if (end < start)
+			end = double(stream_getlength(als) / 10000.0);
+		al_set_audio_stream_loop_secs(als->s, start, end);
 	}
 }
 

@@ -15739,7 +15739,7 @@ static int32_t editdmap_appearance_list[] =
 static int32_t editdmap_music_list[] =
 {
     // dialog control number
-    82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, -1
+    82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 215, 216, 217, 218, -1
 };
 
 static int32_t editdmap_subscreenmaps_list[] =
@@ -15982,7 +15982,7 @@ static DIALOG editdmap_dlg[] =
     {  d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  },
     {  jwin_text_proc,               12,     69,     48,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) "Midi:",                                      NULL,                 NULL                  },
     {  jwin_droplist_proc,           35,     65,    153,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           1,             0, (void *) &midi_list,                                   NULL,                 NULL                  },
-    {  jwin_frame_proc,              12,     86,    176,     68,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           FR_ETCHED,     0,  NULL,                                                  NULL,                 NULL                  },
+    {  jwin_frame_proc,              12,     86,    176,     68 + 24,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           FR_ETCHED,     0,  NULL,                                                  NULL,                 NULL                  },
     //85
     {  jwin_text_proc,               20,     83,     48,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) " Enhanced Music ",                           NULL,                 NULL                  },
     {  jwin_frame_proc,              16,     92,    168,     16,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           FR_DEEP,       0,  NULL,                                                  NULL,                 NULL                  },
@@ -15990,8 +15990,8 @@ static DIALOG editdmap_dlg[] =
     {  jwin_text_proc,               16,    114,     48,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) "Track:",                                     NULL,                 NULL                  },
     {  jwin_droplist_proc,           50,    110,    134,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           1,             0, (void *) &dmaptracknum_list,                           NULL,                 NULL                  },
     //90
-    {  jwin_button_proc,             31,    129,     61,     21,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],        13,    D_EXIT,      0,             0, (void *) "Load",                                       NULL,                 NULL                  },
-    {  jwin_button_proc,            108,    129,     61,     21,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],        13,    D_EXIT,      0,             0, (void *) "Clear",                                      NULL,                 NULL                  },
+    {  jwin_button_proc,             31,    110 + 20 + 20,     61,     21,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],        13,    D_EXIT,      0,             0, (void *) "Load",                                       NULL,                 NULL                  },
+    {  jwin_button_proc,            108,    110 + 20 + 20,     61,     21,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],        13,    D_EXIT,      0,             0, (void *) "Clear",                                      NULL,                 NULL                  },
     {  d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  },
     {  d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  },
     {  d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  },
@@ -16152,7 +16152,12 @@ static DIALOG editdmap_dlg[] =
 	{  jwin_check_proc,              12,    215,    113,      9,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           1,             0, (void *) "Mirror Continues instead of Warping",      NULL,                 NULL                  },
     {  jwin_text_proc,              162,    191,     48,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) "Mirror DMap:",                               NULL,                 NULL                  },
     {  jwin_edit_proc,              218,    187,     21,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           2,             0,  NULL,                                                  NULL,                 NULL                  },
-	
+	//215
+	{ jwin_text_proc,               16,    110 + 20 + 2,     48,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void*)"Start:",                                     NULL,                 NULL },
+	{ jwin_text_proc,               100,    110 + 20 + 2,     48,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void*)"End:",                                     NULL,                 NULL },
+	{ jwin_numedit_zscriptint_proc,               16 + 24,     110 + 20,    56,     16,    vc(12),   vc(1),         0,    0,          12,             0,  NULL,                                                  NULL,                 NULL },
+	{ jwin_numedit_zscriptint_proc,               100 + 24,     110 + 20,    56,     16,    vc(12),   vc(1),         0,    0,          12,             0,  NULL,                                                  NULL,                 NULL },
+
     {  NULL,                          0,      0,      0,      0,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  }
 };
 
@@ -16170,6 +16175,7 @@ void editdmap(int32_t index)
 	char initd_labels[8][65];
 	char sub_initd_labels[8][65];
 	char onmap_initd_labels[8][65];
+	char loopvals[2][13];
 	
 	for ( int32_t q = 0; q < 8; q++ )
 	{
@@ -16289,8 +16295,17 @@ void editdmap(int32_t index)
 		dmap_tracks=zcmusic_get_tracks(tempdmapzcmusic);
 		dmap_tracks=(dmap_tracks<2)?0:dmap_tracks;
 	}
-	
+
+	sprintf(loopvals[0], "%ld.%04ld", DMaps[index].tmusic_loop_start / 10000L, DMaps[index].tmusic_loop_start % 10000L);
+	sprintf(loopvals[1], "%ld.%04ld", DMaps[index].tmusic_loop_end / 10000L, DMaps[index].tmusic_loop_end % 10000L);
+
+	editdmap_dlg[217].dp = loopvals[0];
+	editdmap_dlg[217].flags = (tempdmapzcmusic == NULL || !(tempdmapzcmusic->type & (ZCMF_MP3 | ZCMF_OGG))) ? D_DISABLED : 0;
+	editdmap_dlg[218].dp = loopvals[1];
+	editdmap_dlg[218].flags = (tempdmapzcmusic == NULL || !(tempdmapzcmusic->type & (ZCMF_MP3 | ZCMF_OGG))) ? D_DISABLED : 0;
+
 	zcmusic_unload_file(tempdmapzcmusic);
+
 	editdmap_dlg[89].flags=(dmap_tracks<2)?D_DISABLED:0;
 	editdmap_dlg[89].d1=vbound(DMaps[index].tmusictrack,0,dmap_tracks > 0 ? dmap_tracks-1 : 0);
 	
@@ -16387,8 +16402,17 @@ void editdmap(int32_t index)
 						dmap_tracks=zcmusic_get_tracks(tempdmapzcmusic);
 						dmap_tracks=(dmap_tracks<2)?0:dmap_tracks;
 					}
-					
+
+					editdmap_dlg[217].flags = (tempdmapzcmusic == NULL || !(tempdmapzcmusic->type & (ZCMF_MP3 | ZCMF_OGG))) ? D_DISABLED : 0;
+					editdmap_dlg[218].flags = (tempdmapzcmusic == NULL || !(tempdmapzcmusic->type & (ZCMF_MP3 | ZCMF_OGG))) ? D_DISABLED : 0;
+					if (tempdmapzcmusic == NULL || !(tempdmapzcmusic->type & (ZCMF_MP3 | ZCMF_OGG)))
+					{
+						memset(loopvals[0], 0, 8);
+						memset(loopvals[1], 0, 8);
+					}
+
 					zcmusic_unload_file(tempdmapzcmusic);
+					
 					editdmap_dlg[89].flags=(dmap_tracks<2)?D_DISABLED:0;
 					editdmap_dlg[89].d1=0;
 				}
@@ -16398,6 +16422,12 @@ void editdmap(int32_t index)
 		
 		case 91:											  //clear tracker music
 			memset(tmusicstr, 0, 56);
+			memset(loopvals[0], 0, 8);
+			memset(loopvals[1], 0, 8);
+
+			editdmap_dlg[217].flags = D_DISABLED;
+			editdmap_dlg[218].flags = D_DISABLED;
+
 			editdmap_dlg[89].flags=D_DISABLED;
 			editdmap_dlg[89].d1=0;
 			break;
@@ -16455,6 +16485,8 @@ void editdmap(int32_t index)
 		sprintf(DMaps[index].title,"%s",dmap_title);
 		sprintf(DMaps[index].intro,"%s",dmap_intro);
 		DMaps[index].tmusictrack = editdmap_dlg[89].d1;
+		DMaps[index].tmusic_loop_start = atozfix((char*)editdmap_dlg[217].dp);
+		DMaps[index].tmusic_loop_end = atozfix((char*)editdmap_dlg[218].dp);
 		
 		int32_t f=0;
 		f |= editdmap_dlg[110].flags & D_SELECTED ? dmfCAVES:0;
