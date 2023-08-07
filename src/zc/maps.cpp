@@ -314,10 +314,12 @@ std::vector<mapscr*> z3_take_temporary_screens()
 	return screens;
 }
 
+// TODO z3 !!! rm scr
 void z3_calculate_viewport(mapscr* scr, int world_w, int world_h, int hero_x, int hero_y, viewport_t& viewport)
 {
 	viewport.w = 256;
-	viewport.h = 176 + (is_extended_height_mode() ? 56 : 0);
+	// viewport.h = 176 + (is_extended_height_mode() ? 56 : 0);
+	viewport.h = 176 + (global_z3_scrolling_extended_height_mode && world_h > 176 ? 56 : 0);
 
 	if (viewport_mode == ViewportMode::Script)
 	{

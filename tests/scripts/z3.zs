@@ -1,4 +1,5 @@
 #include "std.zh"
+#include "scrolling_debug.zs"
 
 ffc script TriggerOnCursor
 {
