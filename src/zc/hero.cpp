@@ -27319,17 +27319,26 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	int new_region_width;
 	int new_region_height;
 	int new_origin_screen_index;
+	new_hero_x = 0;
+	new_hero_y = 0;
 	{
 		int scr_dx, scr_dy;
 		int ww, wh;
+		int odmap = currdmap;
+		int oscr = currscr;
+		// TODO z3 !!!!
+		currdmap = new_dmap;
+		currscr = destscr;
 		z3_calculate_region(new_dmap, destscr, new_origin_screen_index, new_region_width, new_region_height, scr_dx, scr_dy, ww, wh);
+		currdmap = odmap;
+		currscr = oscr;
 
 		switch(scrolldir)
 		{
 			case up:
 			{
 				new_hero_x.val = (scr_dx*256) * 10000L + x.val%(256*10000L);
-				new_hero_y = world_h - 16;
+				new_hero_y = wh - 16;
 			}
 			break;
 			
@@ -27342,7 +27351,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			
 			case left:
 			{
-				new_hero_x = world_w - 16;
+				new_hero_x = ww - 16;
 				new_hero_y.val = (scr_dy*176) * 10000L + y.val%(176*10000L);
 			}
 			break;
@@ -27361,8 +27370,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			}
 		}
 
-		// global_z3_scrolling_extended_height_mode = true;
-		z3_calculate_viewport(nullptr, ww, wh, new_hero_x, new_hero_y, new_viewport);
+		z3_calculate_viewport(new_dmap, destscr, ww, wh, new_hero_x, new_hero_y, new_viewport);
 	}
 
 	int step = get_scroll_step(scrolldir);
@@ -27439,22 +27447,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	FFCore.ScrollingData[SCROLLDATA_OX] -= viewport.x;
 	FFCore.ScrollingData[SCROLLDATA_OY] -= viewport.y;
 
-	// FFCore.ScrollingData[SCROLLDATA_NY] -= new_viewport.h - viewport.h;
-	// FFCore.ScrollingData[SCROLLDATA_OY] -= new_viewport.h - viewport.h;
-	// FFCore.ScrollingData[SCROLLDATA_NY] += (y.getInt() - viewport.y) - (new_hero_y.getInt() - new_viewport.y);
-	// FFCore.ScrollingData[SCROLLDATA_OY] += (y.getInt() - viewport.y) - (new_hero_y.getInt() - new_viewport.y);
-	// FFCore.ScrollingData[SCROLLDATA_NY] -= new_viewport.h - viewport.h;
-	// FFCore.ScrollingData[SCROLLDATA_OY] -= new_viewport.h - viewport.h;
-	// if (dx)
-	// {
-	// 	FFCore.ScrollingData[SCROLLDATA_NY] += (y.getInt() - viewport.y) - (new_hero_y.getInt() - new_viewport.y);
-	// 	FFCore.ScrollingData[SCROLLDATA_OY] += (y.getInt() - viewport.y) - (new_hero_y.getInt() - new_viewport.y);;
-	// }
-	// else if (dy)
-	// {
-	// 	FFCore.ScrollingData[SCROLLDATA_NX] -= secondary_axis_alignment_amount;
-	// 	FFCore.ScrollingData[SCROLLDATA_OX] -= secondary_axis_alignment_amount;
-	// }
 	FFCore.ScrollingData[SCROLLDATA_NPX] = x.getInt();
 	FFCore.ScrollingData[SCROLLDATA_NPY] = y.getInt();
 
@@ -27694,52 +27686,68 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	// and what the new viewport will be.
 	// zfix new_hero_x, new_hero_y;
 	// viewport_t new_viewport = {0};
-	{
-		new_hero_x = 0; new_hero_y = 0;
-		// The above `loadscr` has loaded the destination screen's region information into these global variables.
-		int new_origin_scr = cur_origin_screen_index;
-		int new_origin_scr_x = new_origin_scr % 16;
-		int new_origin_scr_y = new_origin_scr / 16;
+	// auto before1 = new_viewport;
+	// auto before2 = new_hero_x;
+	// auto before3 = new_hero_y;
+	// {
+	// 	new_viewport = {0};
+	// 	new_hero_x = 0; new_hero_y = 0;
+	// 	// The above `loadscr` has loaded the destination screen's region information into these global variables.
+	// 	int new_origin_scr = cur_origin_screen_index;
+	// 	int new_origin_scr_x = new_origin_scr % 16;
+	// 	int new_origin_scr_y = new_origin_scr / 16;
 
-		switch(scrolldir)
-		{
-			case up:
-			{
-				new_hero_x.val = (region_scr_dx*256) * 10000L + x.val%(256*10000L);
-				new_hero_y = world_h - 16;
-			}
-			break;
+	// 	switch(scrolldir)
+	// 	{
+	// 		case up:
+	// 		{
+	// 			new_hero_x.val = (region_scr_dx*256) * 10000L + x.val%(256*10000L);
+	// 			new_hero_y = world_h - 16;
+	// 		}
+	// 		break;
 			
-			case down:
-			{
-				new_hero_x.val = (region_scr_dx*256) * 10000L + x.val%(256*10000L);
-				new_hero_y = 0;
-			}
-			break;
+	// 		case down:
+	// 		{
+	// 			new_hero_x.val = (region_scr_dx*256) * 10000L + x.val%(256*10000L);
+	// 			new_hero_y = 0;
+	// 		}
+	// 		break;
 			
-			case left:
-			{
-				new_hero_x = world_w - 16;
-				new_hero_y.val = (region_scr_dy*176) * 10000L + y.val%(176*10000L);
-			}
-			break;
+	// 		case left:
+	// 		{
+	// 			new_hero_x = world_w - 16;
+	// 			new_hero_y.val = (region_scr_dy*176) * 10000L + y.val%(176*10000L);
+	// 		}
+	// 		break;
 			
-			case right:
-			{
-				new_hero_x = 0;
-				new_hero_y.val = (region_scr_dy*176) * 10000L + y.val%(176*10000L);
-			}
-			break;
+	// 		case right:
+	// 		{
+	// 			new_hero_x = 0;
+	// 			new_hero_y.val = (region_scr_dy*176) * 10000L + y.val%(176*10000L);
+	// 		}
+	// 		break;
 
-			// Should never happen ...
-			default:
-			{
-				abort();
-			}
-		}
+	// 		// Should never happen ...
+	// 		default:
+	// 		{
+	// 			abort();
+	// 		}
+	// 	}
+	// 	z3_calculate_viewport(new_dmap, destscr, world_w, world_h, new_hero_x, new_hero_y, new_viewport);
+	// }
 
-		z3_calculate_viewport(newscr, world_w, world_h, new_hero_x, new_hero_y, new_viewport);
-	}
+	// if (before1.h != new_viewport.h)
+	// 	abort();
+	// if (before1.w != new_viewport.w)
+	// 	abort();
+	// if (before1.x != new_viewport.x)
+	// 	abort();
+	// if (before1.y != new_viewport.y)
+	// 	abort();
+	// if (before2 != new_hero_x)
+	// 	abort();
+	// if (before3 != new_hero_y)
+	// 	abort();
 
 	FFCore.ScrollingData[SCROLLDATA_NPX] = new_hero_x;
 	FFCore.ScrollingData[SCROLLDATA_NPY] = new_hero_y;
@@ -27781,11 +27789,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 
 	int sx = viewport.x + (scrolldir == left ? viewport.w : 0);
 	int sy = viewport.y + (scrolldir == up ? viewport.h : 0);
-	// TODO z3 !!!!! rm dupe
-	// int sx = viewport.x + (scrolldir == left ? viewport.w : 0);
-	// int sy = viewport.y + (scrolldir == up ? viewport.h : 0);
-	// int sx = (scrolldir == left ? viewport.w : 0);
-	// int sy = (scrolldir == up ? world_h : 0);
 	if (is_unsmooth_vertical_scrolling) sy += 3;
 
 	// change Hero's state if entering water

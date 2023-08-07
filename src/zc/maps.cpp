@@ -187,6 +187,7 @@ int get_current_region_id()
 void z3_calculate_region(int dmap, int screen_index, int& origin_scr, int& region_scr_width, int& region_scr_height, int& region_scr_dx, int& region_scr_dy, int& world_w, int& world_h)
 {
 	if (!is_z3_scrolling_mode() || screen_index >= 0x80)
+	// if (!(is_a_region(dmap, screen_index)) || screen_index >= 0x80)
 	{
 		origin_scr = screen_index;
 		region_scr_dx = 0;
@@ -314,8 +315,7 @@ std::vector<mapscr*> z3_take_temporary_screens()
 	return screens;
 }
 
-// TODO z3 !!! rm scr
-void z3_calculate_viewport(mapscr* scr, int world_w, int world_h, int hero_x, int hero_y, viewport_t& viewport)
+void z3_calculate_viewport(int dmap, int screen_index, int world_w, int world_h, int hero_x, int hero_y, viewport_t& viewport)
 {
 	viewport.w = 256;
 	// viewport.h = 176 + (is_extended_height_mode() ? 56 : 0);
@@ -326,7 +326,7 @@ void z3_calculate_viewport(mapscr* scr, int world_w, int world_h, int hero_x, in
 		return;
 	}
 
-	if (!is_z3_scrolling_mode())
+	if (!is_a_region(dmap, screen_index))
 	{
 		viewport.x = 0;
 		viewport.y = 0;
@@ -346,7 +346,7 @@ void z3_calculate_viewport(mapscr* scr, int world_w, int world_h, int hero_x, in
 
 void z3_update_viewport()
 {
-	z3_calculate_viewport(tmpscr, world_w, world_h, Hero.getX(), Hero.getY(), viewport);
+	z3_calculate_viewport(currdmap, cur_origin_screen_index, world_w, world_h, Hero.getX(), Hero.getY(), viewport);
 }
 
 void playLevelMusic();
