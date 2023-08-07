@@ -3677,9 +3677,6 @@ int GetPointer(bool *ptr[]);
 	* Sets the value of a door on any screen in the game environment.
 
 	void ContinueSound(int sfx); 					
-									
-	void AdjustSound(int sfx, int pan, bool loop);			
-	* Adjusts properties of a sound effect. 
 
 	void PauseMusic()	
 	* Pauses the present, playing MIDI or Enhanced Music file. 
@@ -7832,7 +7829,15 @@ void AdjustSFXVolume(int percent);
  * If the quest rule "Old (Buggy) ZScript Volume Access" is on,
  * this will use deprecated behavior and may not function properly.
 
-void AdjustSound(int, int, bool)
+void PlaySound(int id, int volume, int pan = 0, bool loop = false);
+ * Play a sound with different properties.
+ * Volume ranges from 0 (mute) to 100 (the player's max volume setting)
+ * Pan ranges from -128 (left) to 127 (right)
+ * If loop is true, the sound will repeat infinitely until played again
+ * or terminated with EndSound()
+
+void AdjustSound(int id, int volume, int pan = 0, bool loop = false);
+ * Same as above, but does not restart the sound
 
 void PauseCurMIDI();
  * Pauses the current MIDI in a manner that permits resuming it.

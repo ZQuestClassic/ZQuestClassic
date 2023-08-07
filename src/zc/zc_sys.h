@@ -247,7 +247,7 @@ void master_volume(int32_t dv,int32_t mv);
 int32_t  sfx_count();
 void sfx_cleanup();
 bool sfx_init(int32_t index);
-void sfx(int32_t index,int32_t pan,bool loop, bool restart = true);
+void sfx(int32_t index,int32_t pan,bool loop, bool restart = true, int32_t vol = 1000000);
 bool sfx_allocated(int32_t index);
 void cont_sfx(int32_t index);
 void stop_sfx(int32_t index);

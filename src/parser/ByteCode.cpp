@@ -3668,6 +3668,14 @@ string OAdjustSFXVolumeRegister::toString() const
 {
     return "ADJUSTSFXVOLUMER " + getArgument()->toString();
 }
+string OAdjustSound::toString() const
+{
+	return "ADJUSTSFX";
+}
+string OPlaySoundEX::toString() const
+{
+	return "PLAYSOUNDEX";
+}
 string OPlaySoundRegister::toString() const
 {
     return "PLAYSOUNDR " + getArgument()->toString();
