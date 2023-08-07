@@ -2977,6 +2977,8 @@ bool do_trigger_combo_ffc(int32_t pos, int32_t special, weapon* w)
 	if (get_qr(qr_OLD_FFC_FUNCTIONALITY)) return false;
 	if(unsigned(pos) >= MAXFFCS) return false;
 	ffcdata& ffc = tmpscr->ffcs[pos];
+	if (ffc.flags & ffCHANGER)
+		return false; //Changers can't trigger!
 	cpos_info& timer = tmpscr->ffcs[pos].info;
 	int32_t cid = ffc.getData();
 	int32_t ocs = ffc.cset;
@@ -3513,11 +3515,13 @@ void calculate_trig_groups()
 	}
 	mapscr* ffscr = FFCore.tempScreens[0];
 	dword c = ffscr->numFFC();
-	ffc_clear_cpos_info();
 	for(word ffc = 0; ffc < c; ++ffc)
 	{
-		cpos_info& timer = ffscr->ffcs[ffc].info;
-		int cid = ffscr->ffcs[ffc].getData();
+		ffcdata& f = ffscr->ffcs[ffc];
+		if (f.flags & ffCHANGER)
+			continue; //changers don't contribute
+		cpos_info& timer = f.info;
+		int cid = f.getData();
 		timer.updateData(cid);
 		newcombo const& cmb = combobuf[cid];
 		if(cmb.triggerflags[3] & combotriggerTGROUP_CONTRIB)
@@ -3528,7 +3532,6 @@ void trig_trigger_groups()
 {
 	mapscr* ffscr = FFCore.tempScreens[0];
 	dword c = ffscr->numFFC();
-	ffc_clear_cpos_info();
 	for(auto lyr = 0; lyr < 7; ++lyr)
 	{
 		mapscr* scr = FFCore.tempScreens[lyr];
@@ -3547,17 +3550,25 @@ void trig_trigger_groups()
 			{
 				do_trigger_combo(lyr,pos);
 				int cid2 = scr->data[pos];
-				update_trig_group(cid,cid2);
+				bool recheck = timer.data != cid2;
+				update_trig_group(timer.data,cid2);
 				timer.updateData(cid2);
-				
-				--pos; continue; //check same pos again
+
+				if (recheck) //check same pos again
+				{
+					--pos;
+					continue;
+				}
 			}
 		}
 	}
 	for(word ffc = 0; ffc < c; ++ffc)
 	{
-		cpos_info& timer = ffscr->ffcs[ffc].info;
-		int cid = ffscr->ffcs[ffc].getData();
+		ffcdata& f = ffscr->ffcs[ffc];
+		if (f.flags & ffCHANGER)
+			continue; //changers don't contribute
+		cpos_info& timer = f.info;
+		int cid = f.getData();
 		newcombo const& cmb = combobuf[cid];
 		
 		if(
@@ -3568,11 +3579,16 @@ void trig_trigger_groups()
 			)
 		{
 			do_trigger_combo_ffc(ffc);
-			int cid2 = ffscr->ffcs[ffc].getData();
-			update_trig_group(cid,cid2);
+			int cid2 = f.getData();
+			bool recheck = timer.data != cid2;
+			update_trig_group(timer.data,cid2);
 			timer.updateData(cid2);
 			
-			--ffc; continue; //check same pos again
+			if(recheck) //check same pos again
+			{
+				--ffc;
+				continue;
+			}
 		}
 	}
 }
@@ -3586,7 +3602,6 @@ void update_combo_timers()
 {
 	mapscr* ffscr = FFCore.tempScreens[0];
 	dword c = ffscr->numFFC();
-	ffc_clear_cpos_info();
 	
 	for(auto lyr = 0; lyr < 7; ++lyr)
 	{
@@ -3634,12 +3649,15 @@ void update_combo_timers()
 	}
 	for(word ffc = 0; ffc < c; ++ffc)
 	{
-		cpos_info& timer = ffscr->ffcs[ffc].info;
-		int cid = ffscr->ffcs[ffc].getData();
+		ffcdata& f = ffscr->ffcs[ffc];
+		if (f.flags & ffCHANGER)
+			continue; //changers don't contribute
+		cpos_info& timer = f.info;
+		int cid = f.getData();
 		update_trig_group(timer.data,cid);
 		timer.updateData(cid);
-		zfix wx = ffscr->ffcs[ffc].x;
-		zfix wy = ffscr->ffcs[ffc].y;
+		zfix wx = f.x;
+		zfix wy = f.y;
 		wx += (ffscr->ffTileWidth(ffc)-1)*8;
 		wy += (ffscr->ffTileHeight(ffc)-1)*8;
 		
@@ -3667,7 +3685,7 @@ void update_combo_timers()
 			{
 				timer.clk = 0;
 				do_trigger_combo_ffc(ffc);
-				cid = ffscr->ffcs[ffc].getData();
+				cid = f.getData();
 				update_trig_group(timer.data,cid);
 				timer.updateData(cid);
 			}
