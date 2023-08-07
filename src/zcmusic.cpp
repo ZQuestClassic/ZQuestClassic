@@ -1125,7 +1125,9 @@ void zcmixer_update(ZCMIXER* mix, int32_t basevol, int32_t uservol, bool oldscri
 		--mix->fadeoutframes;
 		if (mix->oldtrack != NULL)
 		{
-			int32_t pct = vbound((uint64_t(mix->fadeoutframes) * 10000) / uint64_t(mix->fadeoutmaxframes), 0, 10000);
+			int32_t pct = 0;
+			if(mix->fadeoutframes > 0)
+				pct = vbound((uint64_t(mix->fadeoutframes) * 10000) / uint64_t(mix->fadeoutmaxframes), 0, 10000);
 			mix->oldtrack->fadevolume = pct;
 			int32_t temp_volume = basevol;
 			if (!oldscriptvol)

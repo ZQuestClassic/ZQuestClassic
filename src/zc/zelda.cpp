@@ -2037,7 +2037,7 @@ int32_t init_game()
 	FFCore.initZScriptActiveSubscreenScript();
 	FFCore.initZScriptItemScripts();
 
-	if (!get_bit(quest_rules, qr_OLD_SCRIPT_VOLUME))
+	if (!get_qr(qr_OLD_SCRIPT_VOLUME))
 	{
 		FFCore.usr_sfx_volume = 10000 * 100;
 		FFCore.usr_music_volume = 10000 * 100;
@@ -2465,7 +2465,7 @@ int32_t cont_game()
 	FFCore.initZScriptActiveSubscreenScript();
 	FFCore.initZScriptItemScripts();
 
-	if (!get_bit(quest_rules, qr_OLD_SCRIPT_VOLUME))
+	if (!get_qr(qr_OLD_SCRIPT_VOLUME))
 	{
 		FFCore.usr_sfx_volume = 10000 * 100;
 		FFCore.usr_music_volume = 10000 * 100;
@@ -4869,7 +4869,7 @@ int main(int argc, char **argv)
 	if(used_switch(argc,argv,"-q"))
 	{
 		printf("-q switch used, quitting program.\n");
-		if (get_bit(quest_rules, qr_OLD_SCRIPT_VOLUME))
+		if (get_qr(qr_OLD_SCRIPT_VOLUME))
 		{
 			//restore user volume settings
 			if (FFCore.coreflags & FFCORE_SCRIPTED_MIDI_VOLUME)
@@ -5433,7 +5433,7 @@ reload_for_replay_file:
 				
 				skipcont = 0;
 				
-				if (get_bit(quest_rules, qr_OLD_SCRIPT_VOLUME))
+				if (get_qr(qr_OLD_SCRIPT_VOLUME))
 				{
 					//restore user volume settings
 					if (FFCore.coreflags & FFCORE_SCRIPTED_MIDI_VOLUME)
@@ -5559,7 +5559,7 @@ reload_for_replay_file:
 	music_stop();
 	kill_sfx();
 	
-	if (get_bit(quest_rules, qr_OLD_SCRIPT_VOLUME))
+	if (get_qr(qr_OLD_SCRIPT_VOLUME))
 	{
 		//restore user volume settings
 		if (FFCore.coreflags & FFCORE_SCRIPTED_MIDI_VOLUME)

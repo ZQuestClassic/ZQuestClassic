@@ -592,7 +592,7 @@ void ending()
 	
 	
 	zc_stop_midi();
-	if (get_bit(quest_rules, qr_OLD_SCRIPT_VOLUME))
+	if (get_qr(qr_OLD_SCRIPT_VOLUME))
 	{
 		//restore user volume if it was changed by script
 		if (FFCore.coreflags & FFCORE_SCRIPTED_MIDI_VOLUME)
@@ -703,7 +703,7 @@ void ending_scripted()
         
         ringcolor(false);
 	zc_stop_midi();
-	if (get_bit(quest_rules, qr_OLD_SCRIPT_VOLUME))
+	if (get_qr(qr_OLD_SCRIPT_VOLUME))
 	{
 		//restore user volume if it was changed by script
 		if (FFCore.coreflags & FFCORE_SCRIPTED_MIDI_VOLUME)

@@ -136,7 +136,7 @@ void FFScript::Waitframe(bool allowwavy, bool sfxcleanup)
 	{
 		zcmusic_poll();
 	}
-	zcmixer_update(zcmixer, emusic_volume, FFCore.usr_music_volume, get_bit(quest_rules, qr_OLD_SCRIPT_VOLUME));
+	zcmixer_update(zcmixer, emusic_volume, FFCore.usr_music_volume, get_qr(qr_OLD_SCRIPT_VOLUME));
 	
 	while(Paused && !Advance && !Quit)
 	{
@@ -160,7 +160,7 @@ void FFScript::Waitframe(bool allowwavy, bool sfxcleanup)
 		{
 			zcmusic_poll();
 		}
-		zcmixer_update(zcmixer, emusic_volume, FFCore.usr_music_volume, get_bit(quest_rules, qr_OLD_SCRIPT_VOLUME));
+		zcmixer_update(zcmixer, emusic_volume, FFCore.usr_music_volume, get_qr(qr_OLD_SCRIPT_VOLUME));
 
 		update_hw_screen();
 	}
@@ -11108,8 +11108,11 @@ int32_t get_register(const int32_t arg)
 		}
 		case DMAPDATAXFADEOUT:
 		{
-			ret = (DMaps[ri->dmapsref].tmusic_xfade_out * 10000); 
-			break;
+			ret = (DMaps[ri->dmapsref].tmusic_xfade_out * 10000); break;
+		}
+		case MUSICUPDATECOND:
+		{
+			ret = ((byte)FFCore.music_update_flags) * 10000; break;
 		}
 		case DMAPDATAASUBSCRIPT:	//word
 		{
@@ -21554,6 +21557,11 @@ void set_register(int32_t arg, int32_t value)
 			}
 			break;
 		}
+		case MUSICUPDATECOND:
+		{
+			FFCore.music_update_flags = vbound(value / 10000, 0, 255);
+			break;
+		}
 		case DMAPDATAASUBSCRIPT:	//byte
 		{
 			FFScript::deallocateAllArrays(ScriptType::ActiveSubscreen, ri->dmapsref);
@@ -23127,7 +23135,7 @@ void set_register(int32_t arg, int32_t value)
 
 		case AUDIOVOLUME:
 		{
-			if (!get_bit(quest_rules, qr_OLD_SCRIPT_VOLUME))
+			if (!get_qr(qr_OLD_SCRIPT_VOLUME))
 				break;
 
 			int32_t indx = ri->d[rINDEX] / 10000;
@@ -29485,7 +29493,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 
 void FFScript::do_adjustvolume(const bool v)
 {
-	if (get_bit(quest_rules, qr_OLD_SCRIPT_VOLUME))
+	if (get_qr(qr_OLD_SCRIPT_VOLUME))
 	{
 		int32_t perc = (SH::get_arg(sarg1, v) / 10000);
 		float pct = perc / 100.0;
@@ -29549,7 +29557,7 @@ void FFScript::do_adjustvolume(const bool v)
 			if (zcmusic->playing != ZCM_STOPPED)
 			{
 				int32_t temp_volume = emusic_volume;
-				if (!get_bit(quest_rules, qr_OLD_SCRIPT_VOLUME))
+				if (!get_qr(qr_OLD_SCRIPT_VOLUME))
 					temp_volume = (emusic_volume * FFCore.usr_music_volume) / 10000 / 100;
 				temp_volume = (temp_volume * zcmusic->fadevolume) / 10000;
 				zcmusic_play(zcmusic, temp_volume);
@@ -29566,7 +29574,7 @@ void FFScript::do_adjustvolume(const bool v)
 
 void FFScript::do_adjustsfxvolume(const bool v)
 {
-	if (get_bit(quest_rules, qr_OLD_SCRIPT_VOLUME))
+	if (get_qr(qr_OLD_SCRIPT_VOLUME))
 	{
 		int32_t perc = (SH::get_arg(sarg1, v) / 10000);
 		float pct = perc / 100.0;
@@ -29789,6 +29797,20 @@ bool FFScript::doing_dmap_enh_music(int32_t dm)
 				}
 			}
 		}
+	}
+	return false;
+}
+
+bool FFScript::can_dmap_change_music(int32_t dm)
+{
+	switch (music_update_flags & 0xF)
+	{
+	case MUSIC_UPDATE_SCREEN:
+		return true;
+	case MUSIC_UPDATE_DMAP:
+		return dm != -1 && dm != currdmap;
+	case MUSIC_UPDATE_LEVEL:
+		return dm != -1 && DMaps[dm].level != DMaps[currdmap].level;
 	}
 	return false;
 }
@@ -37453,6 +37475,7 @@ void FFScript::init()
 	max_ff_rules = qr_MAX;
 	coreflags = 0;
 	skip_ending_credits = 0;
+	music_update_flags = 0;
 	//quest_format : is this properly initialised?
 	for ( int32_t q = 0; q < susptLAST; q++ ) { system_suspend[q] = 0; }
 	for ( int32_t q = 0; q < UID_TYPES; ++q ) { script_UIDs[q] = 0; }
@@ -42679,7 +42702,7 @@ script_variable ZASMVars[]=
 	{ "DMAPDATALOOPEND", DMAPDATALOOPEND, 0, 0 },
 	{ "DMAPDATAXFADEIN", DMAPDATAXFADEIN, 0, 0 },
 	{ "DMAPDATAXFADEOUT", DMAPDATAXFADEOUT, 0, 0 },
-	{ "RESRVD_VAR_MOOSH05", RESRVD_VAR_MOOSH05, 0, 0 },
+	{ "MUSICUPDATECOND", MUSICUPDATECOND, 0, 0 },
 	{ "RESRVD_VAR_MOOSH06", RESRVD_VAR_MOOSH06, 0, 0 },
 	{ "RESRVD_VAR_MOOSH07", RESRVD_VAR_MOOSH07, 0, 0 },
 	{ "RESRVD_VAR_MOOSH08", RESRVD_VAR_MOOSH08, 0, 0 },

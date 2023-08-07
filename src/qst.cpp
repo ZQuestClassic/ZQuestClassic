@@ -5221,11 +5221,11 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 			tempDMap.mirrorDMap = -1;
 		}
 
-		if(s_version >= 17)
+		if (s_version >= 17)
 		{
 			// Reserved for z3.
 		}
-		
+
 		// Enhanced music loop points
 		if (s_version >= 18)
 		{
@@ -5237,11 +5237,11 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 			{
 				return qe_invalid;
 			}
-			if (!p_igetl(&tempDMap.tmusic_xfade_in, f, keepdata))
+			if (!p_igetl(&tempDMap.tmusic_xfade_in, f))
 			{
 				return qe_invalid;
 			}
-			if (!p_igetl(&tempDMap.tmusic_xfade_out, f, keepdata))
+			if (!p_igetl(&tempDMap.tmusic_xfade_out, f))
 			{
 				return qe_invalid;
 			}
@@ -5253,7 +5253,6 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 			tempDMap.tmusic_xfade_in = 0;
 			tempDMap.tmusic_xfade_out = 0;
 		}
-
 
 		memcpy(&DMaps[i], &tempDMap, sizeof(tempDMap));
 	}

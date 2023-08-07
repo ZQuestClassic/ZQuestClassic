@@ -16307,8 +16307,8 @@ void editdmap(int32_t index)
 
 	sprintf(loopvals[0], "%ld.%04ld", DMaps[index].tmusic_loop_start / 10000L, DMaps[index].tmusic_loop_start % 10000L);
 	sprintf(loopvals[1], "%ld.%04ld", DMaps[index].tmusic_loop_end / 10000L, DMaps[index].tmusic_loop_end % 10000L);
-	sprintf(fadevals[0], "%ld", DMaps[index].tmusic_xfade_in);
-	sprintf(fadevals[1], "%ld", DMaps[index].tmusic_xfade_out);
+	sprintf(fadevals[0], "%d", DMaps[index].tmusic_xfade_in);
+	sprintf(fadevals[1], "%d", DMaps[index].tmusic_xfade_out);
 
 	editdmap_dlg[217].dp = loopvals[0];
 	editdmap_dlg[217].flags = (tempdmapzcmusic == NULL || !(tempdmapzcmusic->type & (ZCMF_MP3 | ZCMF_OGG))) ? D_DISABLED : 0;
@@ -17214,11 +17214,11 @@ int32_t readsomedmaps(PACKFILE *f)
 					{
 						return 0;
 					}
-					if (!p_igetl(&tempdmap.tmusic_xfade_in, f, true))
+					if (!p_igetl(&tempdmap.tmusic_xfade_in, f))
 					{
 						return 0;
 					}
-					if (!p_igetl(&tempdmap.tmusic_xfade_out, f, true))
+					if (!p_igetl(&tempdmap.tmusic_xfade_out, f))
 					{
 						return 0;
 					}
@@ -17826,11 +17826,11 @@ int32_t readonedmap(PACKFILE *f, int32_t index)
 				{
 					return 0;
 				}
-				if (!p_igetl(&tempdmap.tmusic_xfade_in, f, true))
+				if (!p_igetl(&tempdmap.tmusic_xfade_in, f))
 				{
 					return 0;
 				}
-				if (!p_igetl(&tempdmap.tmusic_xfade_out, f, true))
+				if (!p_igetl(&tempdmap.tmusic_xfade_out, f))
 				{
 					return 0;
 				}
@@ -32219,6 +32219,7 @@ void FFScript::init()
 	
 	coreflags = 0;
 	skip_ending_credits = 0;
+	music_update_flags = 0;
 	for ( int32_t q = 0; q < susptLAST; q++ ) { system_suspend[q] = 0; }
 	
 	for ( int32_t q = 0; q < UID_TYPES; ++q ) { script_UIDs[q] = 0; }
