@@ -10755,17 +10755,12 @@ void do_bmpdrawlayerciflagr(BITMAP *bmp, int32_t *sdci, int32_t xoffset, int32_t
 // do primitives
 ////////////////////////////////////////////////////////
 
-int primitive_offx;
-int primitive_offy;
-
 // Draw commands are in viewport space. In other words, a draw command at (0, 0) will be drawn at the
 // top-left corner of the combo-area of the screen (right below the subscreen; or if in extended height mode,
 // the top-left pixel of the screen).
 // Users are expected to translate to screen space manually, by using `Viewport->X,Y` and `Game->Scrolling[]`.
 void do_primitives(BITMAP *targetBitmap, int32_t type, mapscr* theScreen, int32_t xoff, int32_t yoff)
 {
-	// xoff += primitive_offx;
-	// yoff += primitive_offy;
 	color_map = &trans_table2;
 	
 	//was this next variable ever used? -- DN

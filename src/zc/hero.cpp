@@ -26883,9 +26883,9 @@ void HeroClass::run_scrolling_script(int32_t scrolldir, int32_t cx, int32_t sx, 
 	switch(scrolldir)
 	{
 	case up:
-		if(y < 160) y = 176;
-		else if(cx > 0 && !end_frames) y = sy + 156;
-		else y = 160;
+		if(y < world_h - 16) y = world_h;
+		else if(cx > 0 && !end_frames) y = sy + world_h - 20;
+		else y = world_h - 16;
 
 		x = new_hero_x;
 		break;
@@ -26899,9 +26899,9 @@ void HeroClass::run_scrolling_script(int32_t scrolldir, int32_t cx, int32_t sx, 
 		break;
 		
 	case left:
-		if(x < 240) x = 256;
-		else if(cx > 0) x = sx + 236;
-		else x = 240;
+		if(x < world_w - 16) x = world_w;
+		else if(cx > 0) x = sx + world_w - 20;
+		else x = world_w - 16;
 
 		y = new_hero_y;
 		break;
@@ -27155,20 +27155,6 @@ static void for_every_nearby_screen_during_scroll(
 					screen_handles[i] = {base_screen, screen, base_map, scr, i};
 				}
 
-				extern int primitive_offx, primitive_offy;
-				if (use_new_screens)
-				{
-					// primitive_offx = dx * 256;
-					// primitive_offy = dy * 176;
-					primitive_offx = 0;
-					primitive_offy = 0;
-				}
-				else
-				{
-					primitive_offx = 0;
-					primitive_offy = 0;
-				}
-
 				fn(screen_handles, scr, dx, dy, use_new_screens);
 			}
 		}
@@ -27321,7 +27307,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	if (destscr == -1)
 	{
 		destscr = heroscr;
-		if (checkmaze(&special_warp_return_screen, true) && !edge_of_dmap(scrolldir)) {
+		if (checkmaze(tmpscr, true) && !edge_of_dmap(scrolldir)) {
 			destscr += dir_to_scr_offset((direction)scrolldir);
 		}
 	}
@@ -27332,8 +27318,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	viewport_t new_viewport = {0}; // TODO z3 !! yofs  should get set in z3_calculate_viewport
 	int new_region_width;
 	int new_region_height;
+	int new_origin_screen_index;
 	{
-		int new_origin_screen_index;
 		int scr_dx, scr_dy;
 		int ww, wh;
 		z3_calculate_region(new_dmap, destscr, new_origin_screen_index, new_region_width, new_region_height, scr_dx, scr_dy, ww, wh);
@@ -27442,6 +27428,10 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			FFCore.ScrollingData[SCROLLDATA_NY] = 0;
 			break;
 	}
+	FFCore.ScrollingData[SCROLLDATA_NRX] = (z3_get_region_relative_dx(new_origin_screen_index, cur_origin_screen_index)) * 256;
+	FFCore.ScrollingData[SCROLLDATA_NRY] = (z3_get_region_relative_dy(new_origin_screen_index, cur_origin_screen_index)) * 176;
+	FFCore.ScrollingData[SCROLLDATA_ORX] = 0;
+	FFCore.ScrollingData[SCROLLDATA_ORY] = 0;
 
 	// Get the screen coords of the top-left of the screen we are scrolling away from.
 	std::tie(FFCore.ScrollingData[SCROLLDATA_OX], FFCore.ScrollingData[SCROLLDATA_OY]) =
@@ -27928,7 +27918,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	int ffc_offset_x = (-z3_get_region_relative_dx(0) + z3_get_region_relative_dx(0, scrolling_origin_scr)) * 256;
 	int ffc_offset_y = (-z3_get_region_relative_dy(0) + z3_get_region_relative_dy(0, scrolling_origin_scr)) * 176;
 
-	// These mark the top-left coordinate of the new screen and the old screen, relative to the old region coordinates.
+	// These mark the top-left coordinate of the new screen and the old screen, relative to the old region world coordinates.
 	int nx = 0;
 	int ny = 0;
 	int ox = 0;
@@ -27947,6 +27937,12 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			oy = offy;
 		}
 	});
+
+	// These mark the top-left coordinate of the new region and the old region, relative to the old region world coordinates.
+	int nrx = (z3_get_region_relative_dx(cur_origin_screen_index, old_origin_scr)) * 256;
+	int nry = (z3_get_region_relative_dy(cur_origin_screen_index, old_origin_scr)) * 176;
+	int orx = 0; // Zero by definition.
+	int ory = 0; // Zero by definition.
 
 	currdmap = new_dmap;
 	for(word i = 0; (scroll_counter >= 0 && delay != 0) || align_counter; i++, scroll_counter--) //Go!
@@ -28201,10 +28197,10 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		FFCore.ScrollingData[SCROLLDATA_NY] = ny - viewport.y;
 		FFCore.ScrollingData[SCROLLDATA_OX] = ox - viewport.x;
 		FFCore.ScrollingData[SCROLLDATA_OY] = oy - viewport.y;
-
-		extern int primitive_offx, primitive_offy;
-		primitive_offx = step * move_counter * dx;
-		primitive_offy = step * move_counter * dy;
+		FFCore.ScrollingData[SCROLLDATA_NRX] = nrx - viewport.x;
+		FFCore.ScrollingData[SCROLLDATA_NRY] = nry - viewport.y;
+		FFCore.ScrollingData[SCROLLDATA_ORX] = orx - viewport.x;
+		FFCore.ScrollingData[SCROLLDATA_ORY] = ory - viewport.y;
 
 		//FFScript.OnWaitdraw()
 		// if (region_scrolling)
@@ -28336,34 +28332,14 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		}
 		
 		for_every_nearby_screen_during_scroll(old_temporary_screens, [&](std::array<screen_handle_t, 7> screen_handles, int scr, int draw_dx, int draw_dy, bool is_new_screen) {
-			// TODO z3 ! badly named?
-			bool is_new_scr = scr == currscr;
+			bool is_dest_scr = scr == destscr;
 			int offx = draw_dx * 256;
 			int offy = draw_dy * 176;
-
-			extern int primitive_offx, primitive_offy;
-			if (is_new_screen)
-			{
-				// primitive_offx = -nx;
-				// primitive_offy = -ny;
-				// primitive_offx = 0;
-				// primitive_offy = 0;
-				primitive_offx = step * move_counter * dx;
-				primitive_offy = step * move_counter * dy;
-			}
-			else
-			{
-				primitive_offx = 0;
-				primitive_offy = 0;
-			}
-
-			// primitive_offx = step * move_counter * dx;
-			// primitive_offy = step * move_counter * dy;
 
 			mapscr* base_screen = screen_handles[0].base_screen;
 			if(!(XOR(base_screen->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)))
 			{
-				bool primitives = is_new_scr && !(XOR(base_screen->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG));
+				bool primitives = is_dest_scr && !(XOR(base_screen->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG));
 				do_layer(framebuf, 0, screen_handles[3], offx, offy, primitives);
 			}
 			
@@ -28374,13 +28350,13 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 				do_layer(framebuf, -1, screen_handles[1], offx, offy); //overhead combos
 				do_layer(framebuf, -1, screen_handles[2], offx, offy); //overhead combos
 			}
-			do_layer(framebuf, 0, screen_handles[5], offx, offy, is_new_scr); //layer 5
+			do_layer(framebuf, 0, screen_handles[5], offx, offy, is_dest_scr); //layer 5
 			{
 				int draw_ffc_x = is_new_screen ? ffc_offset_x : 0;
 				int draw_ffc_y = is_new_screen ? ffc_offset_y : 0;
 				do_layer(framebuf, -4, screen_handles[0], draw_ffc_x, draw_ffc_y); //overhead FFCs
 			}
-			do_layer(framebuf, 0, screen_handles[6], offx, offy, is_new_scr); //layer 6
+			do_layer(framebuf, 0, screen_handles[6], offx, offy, is_dest_scr); //layer 6
 		});
 		
 		// pretty sure this doesn't do anything.
@@ -28404,10 +28380,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 
 		put_passive_subscr(framebuf, 0, passive_subscreen_offset, game->should_show_time(), sspUP);
 
-		// primitive_offx = step * move_counter * dx;
-		// primitive_offy = step * move_counter * dy;
-		primitive_offx = 0;
-		primitive_offy = 0;
 		// switch(scrolldir)
 		// {
 		// case up:
@@ -28434,9 +28406,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		if(get_qr(qr_SUBSCREENOVERSPRITES))
 			do_primitives(framebuf, 7, newscr, 0, playing_field_offset);
 		
-		primitive_offx = 0;
-		primitive_offy = 0;
-		
 		if (draw_dark && get_qr(qr_NEW_DARKROOM) && !get_qr(qr_NEWDARK_L6))
 		{
 			scrollscr_handle_dark(newscr, oldscr, old_temporary_screens);
@@ -28456,10 +28425,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		action=lastaction; FFCore.setHeroAction(lastaction);
 	}//end main scrolling loop (2 spaces tab width makes me sad =( )
 	currdmap = old_dmap;
-
-	extern int primitive_offx, primitive_offy;
-	primitive_offx = 0;
-	primitive_offy = 0;
 
 	// TODO z3 old scrolling code doesn't clear darkscr_bmp_curscr at end of scroll, so first frame will have some lighting from
 	// previous screen... game_loop clears these bitmaps but that should be moved to draw_screen.
