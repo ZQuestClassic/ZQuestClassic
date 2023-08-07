@@ -27498,6 +27498,9 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	int32_t scx = get_qr(qr_FASTDNGN) ? 30 : 0;
 	if(get_qr(qr_VERYFASTSCROLLING)) //just a minor adjustment.
 		scx = 32; //for sideview very fast screolling.
+	
+	auto hero_x_before_scripts = x;
+	auto hero_y_before_scripts = y;
 
 	int32_t lastattackclk = attackclk, lastspins = spins, lastcharging = charging; bool lasttapping = tapping;
 	actiontype lastaction = action;
@@ -27686,106 +27689,109 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	// and what the new viewport will be.
 	// zfix new_hero_x, new_hero_y;
 	// viewport_t new_viewport = {0};
-	// auto before1 = new_viewport;
-	// auto before2 = new_hero_x;
-	// auto before3 = new_hero_y;
-	// {
-	// 	new_viewport = {0};
-	// 	new_hero_x = 0; new_hero_y = 0;
-	// 	// The above `loadscr` has loaded the destination screen's region information into these global variables.
-	// 	int new_origin_scr = cur_origin_screen_index;
-	// 	int new_origin_scr_x = new_origin_scr % 16;
-	// 	int new_origin_scr_y = new_origin_scr / 16;
+	if (hero_x_before_scripts != x || hero_y_before_scripts != y)
+	{
+		auto before1 = new_viewport;
+		auto before2 = new_hero_x;
+		auto before3 = new_hero_y;
+		{
+			new_viewport = {0};
+			new_hero_x = 0; new_hero_y = 0;
+			// The above `loadscr` has loaded the destination screen's region information into these global variables.
+			int new_origin_scr = cur_origin_screen_index;
+			int new_origin_scr_x = new_origin_scr % 16;
+			int new_origin_scr_y = new_origin_scr / 16;
 
-	// 	switch(scrolldir)
-	// 	{
-	// 		case up:
-	// 		{
-	// 			new_hero_x.val = (region_scr_dx*256) * 10000L + x.val%(256*10000L);
-	// 			new_hero_y = world_h - 16;
-	// 		}
-	// 		break;
-			
-	// 		case down:
-	// 		{
-	// 			new_hero_x.val = (region_scr_dx*256) * 10000L + x.val%(256*10000L);
-	// 			new_hero_y = 0;
-	// 		}
-	// 		break;
-			
-	// 		case left:
-	// 		{
-	// 			new_hero_x = world_w - 16;
-	// 			new_hero_y.val = (region_scr_dy*176) * 10000L + y.val%(176*10000L);
-	// 		}
-	// 		break;
-			
-	// 		case right:
-	// 		{
-	// 			new_hero_x = 0;
-	// 			new_hero_y.val = (region_scr_dy*176) * 10000L + y.val%(176*10000L);
-	// 		}
-	// 		break;
+			switch(scrolldir)
+			{
+				case up:
+				{
+					new_hero_x.val = (region_scr_dx*256) * 10000L + x.val%(256*10000L);
+					new_hero_y = world_h - 16;
+				}
+				break;
+				
+				case down:
+				{
+					new_hero_x.val = (region_scr_dx*256) * 10000L + x.val%(256*10000L);
+					new_hero_y = 0;
+				}
+				break;
+				
+				case left:
+				{
+					new_hero_x = world_w - 16;
+					new_hero_y.val = (region_scr_dy*176) * 10000L + y.val%(176*10000L);
+				}
+				break;
+				
+				case right:
+				{
+					new_hero_x = 0;
+					new_hero_y.val = (region_scr_dy*176) * 10000L + y.val%(176*10000L);
+				}
+				break;
 
-	// 		// Should never happen ...
-	// 		default:
-	// 		{
-	// 			abort();
-	// 		}
-	// 	}
-	// 	z3_calculate_viewport(new_dmap, destscr, world_w, world_h, new_hero_x, new_hero_y, new_viewport);
-	// }
+				// Should never happen ...
+				default:
+				{
+					abort();
+				}
+			}
+			z3_calculate_viewport(new_dmap, destscr, world_w, world_h, new_hero_x, new_hero_y, new_viewport);
+		}
 
-	// if (before1.h != new_viewport.h)
-	// 	abort();
-	// if (before1.w != new_viewport.w)
-	// 	abort();
-	// if (before1.x != new_viewport.x)
-	// 	abort();
-	// if (before1.y != new_viewport.y)
-	// 	abort();
-	// if (before2 != new_hero_x)
-	// 	abort();
-	// if (before3 != new_hero_y)
-	// 	abort();
+		// if (before1.h != new_viewport.h)
+		// 	abort();
+		// if (before1.w != new_viewport.w)
+		// 	abort();
+		// if (before1.x != new_viewport.x)
+		// 	abort();
+		// if (before1.y != new_viewport.y)
+		// 	abort();
+		// if (before2 != new_hero_x)
+		// 	abort();
+		// if (before3 != new_hero_y)
+		// 	abort();
+		
+		// TODO z3 !!!!! rm dupe
+		// int scroll_counter, dx, dy;
+		{
+			int scroll_height = std::min(old_viewport.h, new_viewport.h);
+			int scroll_width = std::min(old_viewport.w, new_viewport.w);
+			int scroll_amount = scrolldir == up || scrolldir == down ? scroll_height : scroll_width;
+			scroll_counter = scroll_amount / step;
+
+			dx = 0;
+			dy = 0;
+			if (scrolldir == up)    dy = -1;
+			if (scrolldir == down)  dy = 1;
+			if (scrolldir == left)  dx = -1;
+			if (scrolldir == right) dx = 1;
+		}
+
+		// TODO z3 !!!!! rm dupe
+		// Determine by how much we need to align to the new region's viewport.
+		// This sets `secondary_axis_alignment_amount` to the number of pixels needed to adjust along the secondary axis
+		// to move (the position of link relative to the display) from the old viewport to the new viewport.
+		// int secondary_axis_alignment_amount;
+		{
+			int old_origin_scr_x = old_origin_scr % 16;
+			int old_origin_scr_y = old_origin_scr / 16;
+			int old_hero_screen_x = x.getInt() - old_viewport.x;
+			int old_hero_screen_y = y.getInt() - old_viewport.y + old_original_playing_field_offset;
+			int new_hero_screen_x = new_hero_x - new_viewport.x;
+			int new_hero_screen_y = new_hero_y - new_viewport.y + original_playing_field_offset;
+			if (dx)      secondary_axis_alignment_amount = new_hero_screen_y - old_hero_screen_y;
+			else if (dy) secondary_axis_alignment_amount = new_hero_screen_x - old_hero_screen_x;
+			else         secondary_axis_alignment_amount = 0;
+		}
+	}
 
 	FFCore.ScrollingData[SCROLLDATA_NPX] = new_hero_x;
 	FFCore.ScrollingData[SCROLLDATA_NPY] = new_hero_y;
 	FFCore.ScrollingData[SCROLLDATA_OPX] = x.getInt();
 	FFCore.ScrollingData[SCROLLDATA_OPY] = y.getInt();
-
-	// TODO z3 !!!!! rm dupe
-	// int scroll_counter, dx, dy;
-	{
-		int scroll_height = std::min(old_viewport.h, new_viewport.h);
-		int scroll_width = std::min(old_viewport.w, new_viewport.w);
-		int scroll_amount = scrolldir == up || scrolldir == down ? scroll_height : scroll_width;
-		scroll_counter = scroll_amount / step;
-
-		dx = 0;
-		dy = 0;
-		if (scrolldir == up)    dy = -1;
-		if (scrolldir == down)  dy = 1;
-		if (scrolldir == left)  dx = -1;
-		if (scrolldir == right) dx = 1;
-	}
-
-	// TODO z3 !!!!! rm dupe
-	// Determine by how much we need to align to the new region's viewport.
-	// This sets `secondary_axis_alignment_amount` to the number of pixels needed to adjust along the secondary axis
-	// to move (the position of link relative to the display) from the old viewport to the new viewport.
-	// int secondary_axis_alignment_amount;
-	{
-		int old_origin_scr_x = old_origin_scr % 16;
-		int old_origin_scr_y = old_origin_scr / 16;
-		int old_hero_screen_x = x.getInt() - old_viewport.x;
-		int old_hero_screen_y = y.getInt() - old_viewport.y + old_original_playing_field_offset;
-		int new_hero_screen_x = new_hero_x - new_viewport.x;
-		int new_hero_screen_y = new_hero_y - new_viewport.y + original_playing_field_offset;
-		if (dx)      secondary_axis_alignment_amount = new_hero_screen_y - old_hero_screen_y;
-		else if (dy) secondary_axis_alignment_amount = new_hero_screen_x - old_hero_screen_x;
-		else         secondary_axis_alignment_amount = 0;
-	}
 
 	int sx = viewport.x + (scrolldir == left ? viewport.w : 0);
 	int sy = viewport.y + (scrolldir == up ? viewport.h : 0);
