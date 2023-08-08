@@ -23419,6 +23419,55 @@ void HeroClass::checkspecial2(int32_t *ls)
 			}
 		}
 	}
+	if(isDiving()) //Dive-> triggerflag
+	{
+		int pos = COMBOPOS(x+8,y+8);
+		int x1=x,x2=x+15,y1=y+(bigHitbox?0:8),y2=y+15;
+		int xposes[] = {x1,x1,x2,x2};
+		int yposes[] = {y1,y2,y1,y2};
+		int32_t poses[4];
+		getPoses(poses,x1,y1,x2,y2);
+		for(auto lyr = 0; lyr < 7; ++lyr)
+		{
+			mapscr* s = FFCore.tempScreens[lyr];
+			newcombo const& cmb = combobuf[s->data[pos]];
+			bool didtrig = false;
+			if (cmb.triggerflags[3] & combotriggerDIVETRIG)
+			{
+				do_trigger_combo(lyr,pos);
+				didtrig = true;
+			}
+			for(auto q = 0; q < 4; ++q)
+			{
+				if(poses[q] < 0) continue;
+				if(poses[q] == pos && didtrig) continue;
+				newcombo const& cmb = combobuf[s->data[poses[q]]];
+				if (cmb.triggerflags[3] & combotriggerDIVESENSTRIG)
+					do_trigger_combo(lyr,poses[q]);
+			}
+		}
+		word c = tmpscr->numFFC();
+		for(word i=0; i<c; i++)
+		{
+			ffcdata& ffc = tmpscr->ffcs[i];
+			newcombo const& cmb = combobuf[ffc.getData()];
+			if ((cmb.triggerflags[3] & combotriggerDIVETRIG) && ffcIsAt(i, x+8, y+8))
+			{
+				do_trigger_combo_ffc(i);
+			}
+			else if(cmb.triggerflags[3] & combotriggerDIVESENSTRIG)
+			{
+				for(auto q = 0; q < 4; ++q)
+				{
+					if(ffcIsAt(i, xposes[q], yposes[q]))
+					{
+						do_trigger_combo_ffc(i);
+						break;
+					}
+				}
+			}
+		}
+	}
 	
 	//
 	// Now, let's check for Save combos...
