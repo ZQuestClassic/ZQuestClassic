@@ -70,6 +70,7 @@ rpos_t region_max_rpos;
 int region_num_rpos;
 int scrolling_maze_scr, scrolling_maze_state;
 int scrolling_maze_mode = 0;
+region current_region;
 
 static bool global_z3_scrolling = true;
 
@@ -184,19 +185,22 @@ int get_current_region_id()
 	return get_region_id(currdmap, cur_origin_screen_index);
 }
 
-void z3_calculate_region(int dmap, int screen_index, int& origin_scr, int& region_scr_width, int& region_scr_height, int& region_scr_dx, int& region_scr_dy, int& world_w, int& world_h)
+void z3_calculate_region(int dmap, int screen_index, region& region, int& region_scr_dx, int& region_scr_dy)
 {
+	region.dmap = dmap;
+
 	if (!is_z3_scrolling_mode() || screen_index >= 0x80)
 	// if (!(is_a_region(dmap, screen_index)) || screen_index >= 0x80)
 	{
-		origin_scr = screen_index;
+		region.region_id = 0;
+		region.origin_screen_index = screen_index;
+		region.screen_width = 1;
+		region.screen_height = 1;
+		region.screen_count = 1;
+		region.width = 256;
+		region.height = 176;
 		region_scr_dx = 0;
 		region_scr_dy = 0;
-		region_scr_width = 1;
-		region_scr_height = 1;
-		region_scr_count = 1;
-		world_w = 256;
-		world_h = 176;
 		return;
 	}
 
@@ -206,7 +210,7 @@ void z3_calculate_region(int dmap, int screen_index, int& origin_scr, int& regio
 	// For the given screen, find the top-left corner of its region.
 	int origin_scr_x = input_scr_x;
 	int origin_scr_y = input_scr_y;
-	origin_scr = screen_index;
+	int origin_scr = screen_index;
 	while (origin_scr_x > 0)
 	{
 		if (!is_same_region_id(origin_scr, dmap, scr_xy_to_index(origin_scr_x - 1, origin_scr_y))) break;
@@ -233,16 +237,18 @@ void z3_calculate_region(int dmap, int screen_index, int& origin_scr, int& regio
 		region_scr_bottom++;
 	}
 
-	region_scr_width = region_scr_right - origin_scr_x + 1;
-	region_scr_height = region_scr_bottom - origin_scr_y + 1;
-	region_scr_count = region_scr_width * region_scr_height;
-	world_w = 256*region_scr_width;
-	world_h = 176*region_scr_height;
+	region.region_id = get_region_id(dmap, origin_scr);
+	region.origin_screen_index = origin_scr;
+	region.screen_width = region_scr_right - origin_scr_x + 1;
+	region.screen_height = region_scr_bottom - origin_scr_y + 1;
+	region.screen_count = region.screen_width * region.screen_height;
+	region.width = 256 * region.screen_width;
+	region.height = 176 * region.screen_height;
 	region_scr_dx = input_scr_x - origin_scr_x;
 	region_scr_dy = input_scr_y - origin_scr_y;
 
-	DCHECK_RANGE_INCLUSIVE(region_scr_width, 0, 16);
-	DCHECK_RANGE_INCLUSIVE(region_scr_height, 0, 8);
+	DCHECK_RANGE_INCLUSIVE(region.screen_width, 0, 16);
+	DCHECK_RANGE_INCLUSIVE(region.screen_height, 0, 8);
 }
 
 void z3_load_region(int screen_index, int dmap)
@@ -260,9 +266,16 @@ void z3_load_region(int screen_index, int dmap)
 #endif
 
 	currscr = screen_index;
-	z3_calculate_region(dmap, screen_index, cur_origin_screen_index, region_scr_width, region_scr_height, region_scr_dx, region_scr_dy, world_w, world_h);
-	region_max_rpos = (rpos_t)(region_scr_width*region_scr_height*176 - 1);
-	region_num_rpos = region_scr_width*region_scr_height*176;
+	z3_calculate_region(dmap, screen_index, current_region, region_scr_dx, region_scr_dy);
+	cur_origin_screen_index = current_region.origin_screen_index;
+	world_w = current_region.width;
+	world_h = current_region.height;
+	// TODO z3 !!
+	region_scr_width = current_region.screen_width;
+	region_scr_height = current_region.screen_height;
+	region_scr_count = current_region.screen_count;
+	region_max_rpos = (rpos_t)(current_region.screen_width*current_region.screen_height*176 - 1);
+	region_num_rpos = current_region.screen_width*current_region.screen_height*176;
 	// TODO z3 !! remove initial_region_scr ?
 	initial_region_scr = screen_index;
 	scrolling_maze_state = 0;

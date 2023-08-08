@@ -27317,20 +27317,17 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	// and what the new viewport will be.
 	// zfix new_hero_x, new_hero_y;
 	viewport_t new_viewport = {0}; // TODO z3 !! yofs  should get set in z3_calculate_viewport
-	int new_region_width;
-	int new_region_height;
-	int new_origin_screen_index;
+	region new_region;
 	new_hero_x = 0;
 	new_hero_y = 0;
 	{
 		int scr_dx, scr_dy;
-		int ww, wh;
 		int odmap = currdmap;
 		int oscr = currscr;
 		// TODO z3 !!!!
 		currdmap = new_dmap;
 		currscr = destscr;
-		z3_calculate_region(new_dmap, destscr, new_origin_screen_index, new_region_width, new_region_height, scr_dx, scr_dy, ww, wh);
+		z3_calculate_region(new_dmap, destscr, new_region, scr_dx, scr_dy);
 		currdmap = odmap;
 		currscr = oscr;
 
@@ -27339,7 +27336,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			case up:
 			{
 				new_hero_x.val = (scr_dx*256) * 10000L + x.val%(256*10000L);
-				new_hero_y = wh - 16;
+				new_hero_y = new_region.height - 16;
 			}
 			break;
 			
@@ -27352,7 +27349,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			
 			case left:
 			{
-				new_hero_x = ww - 16;
+				new_hero_x = new_region.width - 16;
 				new_hero_y.val = (scr_dy*176) * 10000L + y.val%(176*10000L);
 			}
 			break;
@@ -27371,7 +27368,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			}
 		}
 
-		z3_calculate_viewport(new_dmap, destscr, ww, wh, new_hero_x, new_hero_y, new_viewport);
+		z3_calculate_viewport(new_dmap, destscr, new_region.width, new_region.height, new_hero_x, new_hero_y, new_viewport);
 	}
 
 	int step = get_scroll_step(scrolldir);
@@ -27437,8 +27434,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			FFCore.ScrollingData[SCROLLDATA_NY] = 0;
 			break;
 	}
-	FFCore.ScrollingData[SCROLLDATA_NRX] = (z3_get_region_relative_dx(new_origin_screen_index, cur_origin_screen_index)) * 256;
-	FFCore.ScrollingData[SCROLLDATA_NRY] = (z3_get_region_relative_dy(new_origin_screen_index, cur_origin_screen_index)) * 176;
+	FFCore.ScrollingData[SCROLLDATA_NRX] = (z3_get_region_relative_dx(new_region.origin_screen_index, cur_origin_screen_index)) * 256;
+	FFCore.ScrollingData[SCROLLDATA_NRY] = (z3_get_region_relative_dy(new_region.origin_screen_index, cur_origin_screen_index)) * 176;
 	FFCore.ScrollingData[SCROLLDATA_ORX] = 0;
 	FFCore.ScrollingData[SCROLLDATA_ORY] = 0;
 
@@ -27454,8 +27451,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	FFCore.ScrollingData[SCROLLDATA_OPX] = x.getInt();
 	FFCore.ScrollingData[SCROLLDATA_OPY] = y.getInt();
 
-	FFCore.ScrollingData[SCROLLDATA_NEW_REGION_WIDTH] = new_region_width;
-	FFCore.ScrollingData[SCROLLDATA_NEW_REGION_HEIGHT] = new_region_height;
+	FFCore.ScrollingData[SCROLLDATA_NEW_REGION_WIDTH] = new_region.screen_width;
+	FFCore.ScrollingData[SCROLLDATA_NEW_REGION_HEIGHT] = new_region.screen_height;
 
 	FFCore.ScrollingData[SCROLLDATA_OLD_REGION_WIDTH] = region_scr_width;
 	FFCore.ScrollingData[SCROLLDATA_OLD_REGION_HEIGHT] = region_scr_height;

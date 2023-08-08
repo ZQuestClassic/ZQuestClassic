@@ -103,11 +103,24 @@ extern int scrolling_maze_scr, scrolling_maze_state;
 // 1 to keep hero in the center.
 extern int scrolling_maze_mode;
 
+struct region
+{
+	int region_id;
+	int dmap;
+	int origin_screen_index;
+	int screen_width;
+	int screen_height;
+	int screen_count;
+	int width;
+	int height;
+};
+extern region current_region;
+
 int get_region_id(int dmap, int screen_index);
 int get_current_region_id();
 bool is_in_current_region(int scr);
 bool is_valid_rpos(rpos_t rpos);
-void z3_calculate_region(int dmap, int screen_index, int& origin_scr, int& region_scr_width, int& region_scr_height, int& region_scr_dx, int& region_scr_dy, int& world_w, int& world_h);
+void z3_calculate_region(int dmap, int screen_index, region& region, int& region_scr_dx, int& region_scr_dy);
 void z3_load_region(int screen_index, int dmap = -1);
 void z3_clear_temporary_screens();
 std::vector<mapscr*> z3_take_temporary_screens();
