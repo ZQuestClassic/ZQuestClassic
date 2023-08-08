@@ -4795,8 +4795,6 @@ int main(int argc, char **argv)
 	
 	mididata = (DATAFILE*)datafile[ZC_MIDI].dat;
 	
-	set_uformat(U_ASCII);
-	
 	allocate_crap();
 	
 	//script drawing bitmap allocation

@@ -77,7 +77,7 @@ static PACKFILE_VTABLE normal_vtable;
 
 static PACKFILE *pack_fopen_special_file(AL_CONST char *filename, AL_CONST char *mode);
 
-static int filename_encoding = U_ASCII;
+static int filename_encoding = U_UTF8;
 
 
 #define FA_DAT_FLAGS  (FA_RDONLY | FA_ARCH)

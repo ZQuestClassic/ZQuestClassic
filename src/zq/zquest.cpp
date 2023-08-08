@@ -28808,9 +28808,6 @@ int32_t main(int32_t argc,char **argv)
 	
 	
 	zc_srand(time(0));
-	
-	
-	set_uformat(U_ASCII);
 
 	Z_message("Initializing Allegro... ");
 	if(!al_init())
