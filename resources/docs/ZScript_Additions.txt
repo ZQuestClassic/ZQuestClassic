@@ -4667,8 +4667,9 @@ int ItemSFX;
 int MIDI;
  * The MIDI that plays on this screen.
 
-int LensLayer;
- * The layer to which Lens of Truth graphics are drawn.
+bool LensShows[7];
+bool LensHides[7];
+ * Arrays of the layers which the lens shows, and hides, respectively.
 
 /************************************************************************************************************/
 
@@ -6915,8 +6916,9 @@ int ItemSFX;
 int MIDI;
  * The MIDI that plays on this screen.
 
-int LensLayer;
- * The layer to which Lens of Truth graphics are drawn.
+bool LensShows[7];
+bool LensHides[7];
+ * Arrays of the layers which the lens shows, and hides, respectively.
 
 int Flags[10];
  * A set of flagsets that contain special data for thiws screen.

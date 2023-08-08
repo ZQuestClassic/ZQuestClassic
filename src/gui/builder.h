@@ -313,6 +313,7 @@ ZCGUI_BUILDER_START(Frame)
 	ZCGUI_ACCEPT_PROP(title, setTitle, std::string)
 	ZCGUI_ACCEPT_PROP(info, setInfo, std::string)
 	ZCGUI_ACCEPT_PROP(style, setStyle, GUI::Frame::style)
+	ZCGUI_ACCEPT_PROP(onInfo, onInfo, Dialog::message)
 	ZCGUI_ACCEPT_ONE_CHILD(setContent)
 
 	ZCGUI_SUGGEST_PROP(text, title)

@@ -3274,7 +3274,13 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, int32_t layer, mapscr* basesc
 	}
 }
 
-
+bool layer_0_lenscheck(mapscr* basescr)
+{
+	if(!get_qr(qr_OLD_LENS_LAYEREFFECT))
+		if((lensclk ? basescr->lens_hide : basescr->lens_show) & (1<<0))
+			return false;
+	return true;
+}
 void do_layer(BITMAP *bmp, int32_t type, int32_t layer, mapscr* basescr, int32_t x, int32_t y, int32_t tempscreen, bool scrolling, bool drawprimitives)
 {
     bool showlayer = true;
@@ -3355,9 +3361,18 @@ void do_layer(BITMAP *bmp, int32_t type, int32_t layer, mapscr* basescr, int32_t
         break;
     }
 	
-    if(!type && (layer==(int32_t)(basescr->lens_layer&7)+1) && ((basescr->lens_layer&llLENSSHOWS && !lensclk) || (basescr->lens_layer&llLENSHIDES && lensclk)))
-    {
-        showlayer = false;
+    if(!type)
+	{
+		if(get_qr(qr_OLD_LENS_LAYEREFFECT))
+		{
+			if((layer==(int32_t)(basescr->lens_layer&7)+1) && ((basescr->lens_layer&llLENSSHOWS && !lensclk) || (basescr->lens_layer&llLENSHIDES && lensclk)))
+				showlayer = false;
+		}
+		else
+		{
+			if((lensclk ? basescr->lens_hide : basescr->lens_show) & (1<<layer))
+				showlayer = false;
+		}
     }
     
 	
@@ -3894,7 +3909,9 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 		draw_msgstr(3);
 	}
 	
-	putscr(scrollbuf,0,playing_field_offset,this_screen);
+	
+	if(layer_0_lenscheck(this_screen))
+		putscr(scrollbuf,0,playing_field_offset,this_screen);
 	
 	// Lens hints, then primitives, then particles.
 	if((lensclk || (get_debug() && zc_getkey(KEY_L))) && !get_qr(qr_OLDLENSORDER))
@@ -3902,7 +3919,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 		draw_lens_under(scrollbuf, false);
 	}
 	
-	if(show_layer_0)
+	if(show_layer_0 && layer_0_lenscheck(this_screen))
 		do_primitives(scrollbuf, 0, this_screen, 0, playing_field_offset);
 		
 	particles.draw(temp_buf, true, -3);
@@ -6640,7 +6657,7 @@ void ViewMap()
 					
 					if(XOR((tmpscr)->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf, 0, 3, tmpscr, -256, playing_field_offset, 2);
 					
-					putscr(scrollbuf,256,0,tmpscr);
+					if(layer_0_lenscheck(tmpscr)) putscr(scrollbuf,256,0,tmpscr);
 					do_layer(scrollbuf, 0, 1, tmpscr, -256, playing_field_offset, 2);
 					
 					if(!XOR(((tmpscr)->flags7&fLAYER2BG), DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf, 0, 2, tmpscr, -256, playing_field_offset, 2);

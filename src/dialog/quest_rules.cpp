@@ -917,6 +917,8 @@ static GUI::ListData compatRulesList
 		"If enabled, several new features relating to room guys will not work, instead using the old version behaviors."},
 	{ "Inconsistent Fairy Flags", qr_FAIRY_FLAG_COMPAT,
 		"If enabled, fairy flags work differently placed vs inherent."},
+	{ "Old Lens Layer Effects", qr_OLD_LENS_LAYEREFFECT,
+		"If enabled, the lens only effects one layer of the screen at maximum, using the old dropdown selection."},
 };
 
 static GUI::ListData enemiesRulesList

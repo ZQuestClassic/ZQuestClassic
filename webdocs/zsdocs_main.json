@@ -2211,8 +2211,8 @@
                             "val": "<h3>int Flags[];</h3>\nArrays containing flag data for each screen.\nTo access these, use the following std_zh functions:\n`int ScreenFlag(int category, int flag);`\n`int ScreenFlag(mapdata m, int category, int flag);`\nUse the `SF_` constants for `category`, and the matching set of either the `SFR_`, `SFV_`, `SFS_`, `SFW_`, `SFI_`, `SFC_`, `SFSV_`, `SFF_`, `SFWH_`, or `SFM_` constants for `flag`.\n\n<h3>int EFlags[];</h3>\nArrays containing flag data for each screen.\nTo access these, use the following std_zh functions:\n`int ScreenEFlag(int category, int flag);`\n`int ScreenEFlag(mapdata md, int category, int flag)`\nUse the `SEF_` constants for `category`, and the matching set of either the `SEFSP_`, `SEFL1_`, or `SEFL2_` constants for `flag`."
                         },
                         {
-                            "name": "LensLayer ;; mapdata::LensLayer / Screen::LensLayer",
-                            "val": "<h3>int LensLayer;</h3>\nContains the special info for how the Lens of Truth affects layers of the screen.\nThe lower 3 bits (`LensLayer&amp;111b`) represent the layer, from 1 to 6, to affect.\nThe 4th bit (`LensLayer&amp;1000b`) indicates that the layer should be HIDDEN when the lens is active.\nThe 5th bit (`LensLayer&amp;10000b`) indicates that the layer should be HIDDEN when the lens is active."
+                            "name": "LensShows / LensHides ;; mapdata::LensShows / mapdata::LensHides / Screen::LensShows / Screen::LensHides",
+                            "val": "<h3>bool LensShows[7];\nbool LensHides[7];</h3>\nArrays of the 7 layer show/hide values for the lens of truth.\nIf a `LensShows[]` index is true, the layer will only be visible while using the lens.\nIf a `LensHides[]` index is true, the layer only be visible when NOT using the lens.\nWriting an index true in one array, forces it false in the other."
                         },
                         {
                             "name": "&lt;&lt;-- Start",

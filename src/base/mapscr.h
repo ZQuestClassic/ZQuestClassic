@@ -105,6 +105,7 @@ struct mapscr
 	byte old_cpage;
 	int16_t screen_midi = -1;
 	byte lens_layer;
+	byte lens_show, lens_hide;
 	
 	//Currently unused
 	int32_t npcstrings[10];

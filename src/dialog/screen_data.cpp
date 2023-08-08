@@ -108,6 +108,28 @@ Checkbox(checked = local_scr.member&flag, __VA_ARGS__, \
 		SETFLAG(local_scr.member, flag, state); \
 	})
 
+#define LENS_CBS(ind) \
+lens_cb[0][ind] = Checkbox(checked = local_scr.lens_show&(1<<ind), \
+	onToggleFunc = [&](bool state) \
+	{ \
+		SETFLAG(local_scr.lens_show, (1<<ind), state); \
+		if(state) \
+		{ \
+			local_scr.lens_hide &= ~(1<<ind); \
+			lens_cb[1][ind]->setChecked(false); \
+		} \
+	}), \
+lens_cb[1][ind] = Checkbox(checked = local_scr.lens_hide&(1<<ind), \
+	onToggleFunc = [&](bool state) \
+	{ \
+		SETFLAG(local_scr.lens_hide, (1<<ind), state); \
+		if(state) \
+		{ \
+			local_scr.lens_show &= ~(1<<ind); \
+			lens_cb[0][ind]->setChecked(false); \
+		} \
+	})
+
 void ScreenDataDialog::refreshScript()
 {
 	std::string label[8], help[8];
@@ -180,7 +202,7 @@ void ScreenDataDialog::refreshTWarp()
 
 void ScreenDataDialog::refreshLensEff()
 {
-	
+	leff_switch->switchTo(get_qr(qr_OLD_LENS_LAYEREFFECT)?0:1);
 }
 
 std::shared_ptr<GUI::Widget> ScreenDataDialog::view()
@@ -484,7 +506,8 @@ std::shared_ptr<GUI::Widget> ScreenDataDialog::view()
 						SCR_CB(flags2,fSECRET,1,"Play Secret SFX on Entry","Play the 'Secret Sound' when entering the screen.")
 					),
 					Frame(title = "Lens Effect",
-						info = "The effect the lens on this screen's layers.",
+						info = "The effect the lens on this screen's layers." + QRHINT({qr_OLD_LENS_LAYEREFFECT}),
+						onInfo = message::REFR_INFO,
 						leff_switch = Switcher(
 							DropDownList(data = list_lenseff,
 								fitParent = true,
@@ -494,7 +517,32 @@ std::shared_ptr<GUI::Widget> ScreenDataDialog::view()
 									local_scr.lens_layer = val;
 								}
 							),
-							Label(text = "More options WIP...")
+							Columns<3>(
+								DummyWidget(),
+								Label(text = "Show:"),
+								Label(text = "Hide:"),
+								//
+								Label(text = "L0"),
+								LENS_CBS(0),
+								//
+								Label(text = "L1"),
+								LENS_CBS(1),
+								//
+								Label(text = "L2"),
+								LENS_CBS(2),
+								//
+								Label(text = "L3"),
+								LENS_CBS(3),
+								//
+								Label(text = "L4"),
+								LENS_CBS(4),
+								//
+								Label(text = "L5"),
+								LENS_CBS(5),
+								//
+								Label(text = "L6"),
+								LENS_CBS(6)
+							)
 						)
 					)
 				)),
