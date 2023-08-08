@@ -214,7 +214,7 @@ void ending()
 	chainlinks.clear();
 	decorations.clear();
 	
-	
+	set_uformat(U_ASCII);
 	kill_sfx();
 	
 	Quit=0;

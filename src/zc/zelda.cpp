@@ -5459,8 +5459,8 @@ reload_for_replay_file:
 				ZScriptVersion::RunScript(ScriptType::Global, GLOBAL_SCRIPT_END, GLOBAL_SCRIPT_END);
 			
 			
-			
 				ending();
+				set_uformat(U_UTF8);
 			}
 			break;
 			
