@@ -27304,10 +27304,11 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	if (!is_z3_scrolling_mode() && maze_enabled_sizewarp(scrolldir))  // dowarp() was called
 		return;
 
+	int original_destscr = destscr;
 	if (destscr == -1)
 	{
 		destscr = heroscr;
-		if (checkmaze(tmpscr, true) && !edge_of_dmap(scrolldir)) {
+		if (checkmaze(tmpscr, false) && !edge_of_dmap(scrolldir)) {
 			destscr += dir_to_scr_offset((direction)scrolldir);
 		}
 	}
@@ -27635,7 +27636,11 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 
 	script_drawing_commands.Clear();
 	FFCore.runGenericPassiveEngine(SCR_TIMING_START_FRAME);
-	
+
+	// Just trying to play the sound.
+	if (original_destscr == -1)
+		checkmaze(tmpscr, true);
+
 	switch(DMaps[currdmap].type&dmfTYPE)
 	{
 		case dmDNGN:
