@@ -27398,9 +27398,9 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		int old_origin_scr_x = cur_origin_screen_index % 16;
 		int old_origin_scr_y = cur_origin_screen_index / 16;
 		int old_hero_screen_x = x.getInt() - viewport.x;
-		int old_hero_screen_y = y.getInt() - viewport.y + viewport.h;
+		int old_hero_screen_y = y.getInt() - viewport.y + (232 - viewport.h);
 		int new_hero_screen_x = new_hero_x - new_viewport.x;
-		int new_hero_screen_y = new_hero_y - new_viewport.y + new_viewport.h;
+		int new_hero_screen_y = new_hero_y - new_viewport.y + (232 - new_viewport.h);
 		if (dx)      secondary_axis_alignment_amount = new_hero_screen_y - old_hero_screen_y;
 		else if (dy) secondary_axis_alignment_amount = new_hero_screen_x - old_hero_screen_x;
 		else         secondary_axis_alignment_amount = 0;

@@ -4288,7 +4288,8 @@ void draw_screen(bool showhero, bool runGeneric)
 	clear_bitmap(scrollbuf);
 
 	// TODO z3 !!! move to game loop?
-	z3_update_viewport();
+	if (!screenscrolling)
+		z3_update_viewport();
 	
 	for_every_nearby_screen([&](std::array<screen_handle_t, 7> screen_handles, int screen_index, int offx, int offy) {
 		mapscr* base_screen = screen_handles[0].base_screen;
