@@ -27472,9 +27472,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	FFCore.ScrollingData[SCROLLDATA_OLD_VIEWPORT_X] = viewport.x;
 	FFCore.ScrollingData[SCROLLDATA_OLD_VIEWPORT_Y] = viewport.y;
 
-
-	FFCore.ScrollingData[SCROLLDATA_NPX] = x.getInt();
-	FFCore.ScrollingData[SCROLLDATA_NPY] = y.getInt();
+	FFCore.ScrollingData[SCROLLDATA_NPX] = new_hero_x.getInt();
+	FFCore.ScrollingData[SCROLLDATA_NPY] = new_hero_y.getInt();
 	FFCore.ScrollingData[SCROLLDATA_OPX] = x.getInt();
 	FFCore.ScrollingData[SCROLLDATA_OPY] = y.getInt();
 
@@ -27690,22 +27689,14 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	playing_field_offset = old_playing_field_offset;
 
 	// TODO z3 !!!!! rm dupe
-	// Determine what the player position will be after scrolling (within the new screen's coordinate system),
-	// and what the new viewport will be.
-	// zfix new_hero_x, new_hero_y;
-	// viewport_t new_viewport = {0};
+	// We must recalculate the new hero position and viewport, if a script run above just change the hero position.
 	if (hero_x_before_scripts != x || hero_y_before_scripts != y)
 	{
-		auto before1 = new_viewport;
-		auto before2 = new_hero_x;
-		auto before3 = new_hero_y;
 		{
 			new_viewport = {0};
 			new_hero_x = 0; new_hero_y = 0;
 			// The above `loadscr` has loaded the destination screen's region information into these global variables.
 			int new_origin_scr = cur_origin_screen_index;
-			int new_origin_scr_x = new_origin_scr % 16;
-			int new_origin_scr_y = new_origin_scr / 16;
 
 			switch(scrolldir)
 			{
@@ -27746,21 +27737,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			z3_calculate_viewport(new_dmap, destscr, world_w, world_h, new_hero_x, new_hero_y, new_viewport);
 		}
 
-		// if (before1.h != new_viewport.h)
-		// 	abort();
-		// if (before1.w != new_viewport.w)
-		// 	abort();
-		// if (before1.x != new_viewport.x)
-		// 	abort();
-		// if (before1.y != new_viewport.y)
-		// 	abort();
-		// if (before2 != new_hero_x)
-		// 	abort();
-		// if (before3 != new_hero_y)
-		// 	abort();
-		
-		// TODO z3 !!!!! rm dupe
-		// int scroll_counter, dx, dy;
 		{
 			int scroll_height = std::min(old_viewport.h, new_viewport.h);
 			int scroll_width = std::min(old_viewport.w, new_viewport.w);
@@ -27775,14 +27751,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			if (scrolldir == right) dx = 1;
 		}
 
-		// TODO z3 !!!!! rm dupe
-		// Determine by how much we need to align to the new region's viewport.
-		// This sets `secondary_axis_alignment_amount` to the number of pixels needed to adjust along the secondary axis
-		// to move (the position of link relative to the display) from the old viewport to the new viewport.
-		// int secondary_axis_alignment_amount;
 		{
-			int old_origin_scr_x = old_origin_scr % 16;
-			int old_origin_scr_y = old_origin_scr / 16;
 			int old_hero_screen_x = x.getInt() - old_viewport.x;
 			int old_hero_screen_y = y.getInt() - old_viewport.y + old_original_playing_field_offset;
 			int new_hero_screen_x = new_hero_x - new_viewport.x;
@@ -27791,12 +27760,16 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			else if (dy) secondary_axis_alignment_amount = new_hero_screen_x - old_hero_screen_x;
 			else         secondary_axis_alignment_amount = 0;
 		}
-	}
 
-	FFCore.ScrollingData[SCROLLDATA_NPX] = new_hero_x;
-	FFCore.ScrollingData[SCROLLDATA_NPY] = new_hero_y;
-	FFCore.ScrollingData[SCROLLDATA_OPX] = x.getInt();
-	FFCore.ScrollingData[SCROLLDATA_OPY] = y.getInt();
+		FFCore.ScrollingData[SCROLLDATA_NEW_VIEWPORT_X] = new_viewport.x;
+		FFCore.ScrollingData[SCROLLDATA_NEW_VIEWPORT_Y] = new_viewport.y;
+
+		FFCore.ScrollingData[SCROLLDATA_OLD_VIEWPORT_X] = viewport.x;
+		FFCore.ScrollingData[SCROLLDATA_OLD_VIEWPORT_Y] = viewport.y;
+
+		FFCore.ScrollingData[SCROLLDATA_NPX] = new_hero_x.getInt();
+		FFCore.ScrollingData[SCROLLDATA_NPY] = new_hero_y.getInt();
+	}
 
 	int sx = viewport.x + (scrolldir == left ? viewport.w : 0);
 	int sy = viewport.y + (scrolldir == up ? viewport.h : 0);
