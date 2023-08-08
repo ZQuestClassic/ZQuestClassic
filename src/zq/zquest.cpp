@@ -1411,14 +1411,14 @@ static MENU tool_menu[] =
 
 int32_t onLayer3BG()
 {
-	if ( ViewLayer3BG ) ViewLayer3BG = 0;
-	else ViewLayer3BG = 1;
+	ViewLayer3BG = ViewLayer3BG ? 0 : 1;
+	zc_set_config("zquest","layer3_bg",ViewLayer3BG);
 	return D_O_K;
 }
 int32_t onLayer2BG()
 {
-	if ( ViewLayer2BG ) ViewLayer2BG = 0;
-	else ViewLayer2BG = 1;
+	ViewLayer2BG = ViewLayer2BG ? 0 : 1;
+	zc_set_config("zquest","layer2_bg",ViewLayer2BG);
 	return D_O_K;
 }
 MENU view_menu[] =
@@ -9938,7 +9938,7 @@ int32_t onCommand(int32_t cmd)
     
     if(ret>=0)
     {
-        saved=false;
+        //saved=false;
     }
     else if(ret == -1)
     {
@@ -29088,6 +29088,8 @@ int32_t main(int32_t argc,char **argv)
 	ShowInfo					   = zc_get_config("zquest","showinfo",1);
 	skipLayerWarning			   = zc_get_config("zquest","skip_layer_warning",0);
 	numericalFlags			  	 = zc_get_config("zquest","numerical_flags",0);
+	ViewLayer2BG = zc_get_config("zquest","layer2_bg",0);
+	ViewLayer3BG = zc_get_config("zquest","layer3_bg",0);
 	
 	OpenLastQuest				  = zc_get_config("zquest","open_last_quest",0);
 	ShowMisalignments			  = zc_get_config("zquest","show_misalignments",0);
