@@ -5,6 +5,7 @@
 
 #include "base/zc_alleg.h" // TODO: why do we get "_malloca macro redefinition" in Windows debug builds without this include?
 #include <string.h>
+#include <algorithm>
 
 #ifdef _DEBUG
 #ifdef _malloca
@@ -1106,8 +1107,8 @@ void zcmixer_update(ZCMIXER* mix, int32_t basevol, int32_t uservol, bool oldscri
 		--mix->fadeinframes;
 		if (mix->newtrack != NULL)
 		{
-			int32_t frames = vbound(mix->fadeinframes - mix->fadeindelay, 0, mix->fadeinframes);
-			int32_t pct = vbound((uint64_t(frames) * 10000) / uint64_t(mix->fadeinmaxframes), 0, 10000);
+			int32_t frames = std::clamp(mix->fadeinframes - mix->fadeindelay, 0, mix->fadeinframes);
+			int32_t pct = std::clamp(int32_t((uint64_t(frames) * 10000) / uint64_t(mix->fadeinmaxframes)), 0, 10000);
 			mix->newtrack->fadevolume = 10000 - pct;
 			int32_t temp_volume = basevol;
 			if (!oldscriptvol)
@@ -1127,7 +1128,7 @@ void zcmixer_update(ZCMIXER* mix, int32_t basevol, int32_t uservol, bool oldscri
 		{
 			int32_t pct = 0;
 			if(mix->fadeoutframes > 0)
-				pct = vbound((uint64_t(mix->fadeoutframes) * 10000) / uint64_t(mix->fadeoutmaxframes), 0, 10000);
+				pct = std::clamp(int32_t((uint64_t(mix->fadeoutframes) * 10000) / uint64_t(mix->fadeoutmaxframes)), 0, 10000);
 			mix->oldtrack->fadevolume = pct;
 			int32_t temp_volume = basevol;
 			if (!oldscriptvol)
