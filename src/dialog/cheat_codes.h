@@ -15,7 +15,7 @@ void call_cheats_dlg();
 class CheatCodesDialog: public GUI::Dialog<CheatCodesDialog>
 {
 public:
-	enum class message { OK, CANCEL };
+	enum class message { REFR_INFO, OK, CANCEL };
 
 	CheatCodesDialog();
 

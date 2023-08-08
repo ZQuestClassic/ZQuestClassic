@@ -30,7 +30,7 @@ class ComboPoolDialog: public GUI::Dialog<ComboPoolDialog>
 public:
 	enum class message
 	{
-		OK, CANCEL, RELOAD
+		REFR_INFO, OK, CANCEL, RELOAD
 	};
 
 	ComboPoolDialog(){}

@@ -1,11 +1,12 @@
-#ifndef ZC_DIALOG_SCREENSCRIPTDLG_H
-#define ZC_DIALOG_SCREENSCRIPTDLG_H
+#ifndef ZC_DIALOG_SCREENDATADLG_H
+#define ZC_DIALOG_SCREENDATADLG_H
 
 #include <gui/dialog.h>
 #include <gui/checkbox.h>
 #include <gui/text_field.h>
 #include <zq/gui/selcombo_swatch.h>
 #include <gui/label.h>
+#include <gui/switcher.h>
 #include <gui/button.h>
 #include <gui/window.h>
 #include <gui/list_data.h>
@@ -14,14 +15,15 @@
 #include <array>
 #include "base/mapscr.h"
 
-void call_screenscript_dialog(mapscr* scr = nullptr);
+void call_screendata_dialog(mapscr* scr = nullptr);
+void call_screendata_dialog(size_t forceTab, mapscr* scr = nullptr);
 
-class ScreenScriptDialog: public GUI::Dialog<ScreenScriptDialog>
+class ScreenDataDialog: public GUI::Dialog<ScreenDataDialog>
 {
 public:
-	enum class message { OK, CANCEL };
+	enum class message { REFR_INFO, OK, CANCEL };
 
-	ScreenScriptDialog(mapscr* scr);
+	ScreenDataDialog(mapscr* scr);
 
 	std::shared_ptr<GUI::Widget> view() override;
 	bool handleMessage(const GUI::DialogMessage<message>& msg);
@@ -29,6 +31,8 @@ public:
 private:
 	std::shared_ptr<GUI::Widget> SCREEN_INITD(int index);
 	void refreshScript();
+	void refreshTWarp();
+	void refreshLensEff();
 	
 	std::shared_ptr<GUI::Window> window;
 	
@@ -37,9 +41,12 @@ private:
 	std::shared_ptr<GUI::Button> ib_initds[8];
 	std::shared_ptr<GUI::Label> l_initds[8];
 	
+	std::shared_ptr<GUI::Label> twarp_lbl;
+	std::shared_ptr<GUI::Switcher> leff_switch;
+	
 	mapscr* thescr;
 	mapscr local_scr;
-	GUI::ListData list_screenscript;
+	GUI::ListData list_screenscript, list_maps, list_screens, list_sfx, list_screenmidi;
 };
 
 #endif

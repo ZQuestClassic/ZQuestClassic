@@ -17,7 +17,7 @@ void displayinfo(std::string title, std::string text);
 class InfoDialog: public GUI::Dialog<InfoDialog>
 {
 public:
-	enum class message { OK, CANCEL, TOGGLE_QR, REFRESH, BTN };
+	enum class message { REFR_INFO, OK, CANCEL, TOGGLE_QR, REFRESH, BTN };
 
 	InfoDialog(std::string title, std::string text);
 	InfoDialog(std::string title, std::vector<std::string_view> lines);

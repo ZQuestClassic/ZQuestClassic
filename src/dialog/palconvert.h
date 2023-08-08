@@ -12,7 +12,7 @@ int32_t onPalFix();
 class PaletteConvertDialog: public GUI::Dialog<PaletteConvertDialog>
 {
 public:
-	enum class message { OK, CANCEL };
+	enum class message { REFR_INFO, OK, CANCEL };
 
 	PaletteConvertDialog();
 

@@ -15,7 +15,7 @@ void call_testqst_dialog();
 class TestQstDialog: public GUI::Dialog<TestQstDialog>
 {
 public:
-	enum class message { OK, CANCEL };
+	enum class message { REFR_INFO, OK, CANCEL };
 
 	TestQstDialog();
 

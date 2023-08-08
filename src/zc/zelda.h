@@ -52,28 +52,6 @@ extern bool dev_timestmp;
 #define MAX_IDLE      72000                                 // 20 minutes
 #define MAX_ACTIVE    72000                                 // 20 minutes
 
-#define mDOOR_UP         0x0001                               // only dungeons use this
-#define mDOOR_DOWN       0x0002                               //        ''
-#define mDOOR_LEFT       0x0004                               //        ''
-#define mDOOR_RIGHT      0x0008                               //        ''
-
-#define mITEM            0x0010                               // item (main screen)
-#define mSPECIALITEM           0x0020                               // special item (underground)
-#define mNEVERRET        0x0040                               // enemy never returns
-#define mTMPNORET        0x0080                               // enemies don't return until you leave the dungeon
-
-#define mLOCKBLOCK       0x0100                               // if the lockblock on the screen has been triggered
-#define mBOSSLOCKBLOCK   0x0200                               // if the bosslockblock on the screen has been triggered
-#define mCHEST           0x0400                               // if the unlocked check on this screen has been opened
-#define mLOCKEDCHEST     0x0800                               // if the locked chest on this screen has been opened
-
-#define mBOSSCHEST       0x1000                               // if the boss chest on this screen has been opened
-#define mSECRET          0x2000                               // only overworld and caves use this
-#define mVISITED         0x4000                               // only overworld uses this
-#define mLIGHTBEAM       0x8000                               // light beam triggers completed
-
-#define mMAXIND          16
-
 /*********************************/
 /******** Enums & Structs ********/
 /*********************************/

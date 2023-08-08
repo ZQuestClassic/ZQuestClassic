@@ -54,6 +54,20 @@ ListData ListData::numbers(bool none, int32_t start, uint32_t count)
 	
 	return ls;
 }
+ListData ListData::numbers(bool none, int32_t start, uint32_t count, std::function<std::string(int)> formatter)
+{
+	ListData ls;
+	if(none)
+	{
+		ls.add("(None)", start>0 ? 0 : start-1);
+	}
+	for(uint32_t i=0; i<count; ++i)
+	{
+		ls.add(formatter(start+i), start+i);
+	}
+	
+	return ls;
+}
 
 void ListData::add(set<string> names, map<string, int32_t> vals)
 {

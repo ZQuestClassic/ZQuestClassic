@@ -18,7 +18,7 @@ void call_init_dlg(zinitdata& sourcezinit, bool zc);
 class InitDataDialog: public GUI::Dialog<InitDataDialog>
 {
 public:
-	enum class message { OK, CANCEL, LEVEL };
+	enum class message { REFR_INFO, OK, CANCEL, LEVEL };
 
 	InitDataDialog(zinitdata const& start, bool zc, std::function<void(zinitdata const&)> setVals);
 
@@ -58,7 +58,7 @@ private:
 class InitGenscriptWizard : public GUI::Dialog<InitGenscriptWizard>
 {
 public:
-	enum class message { OK, CANCEL };
+	enum class message { REFR_INFO, OK, CANCEL };
 
 	InitGenscriptWizard(zinitdata& start, size_t index);
 

@@ -44,7 +44,7 @@ struct ffdata
 class FFCDialog: public GUI::Dialog<FFCDialog>
 {
 public:
-	enum class message { OK, CANCEL, PLUSCS, MINUSCS };
+	enum class message { REFR_INFO, OK, CANCEL, PLUSCS, MINUSCS };
 
 	FFCDialog(mapscr* scr, int32_t ffind);
 	FFCDialog(mapscr* scr, int32_t ffind, ffdata const& init);

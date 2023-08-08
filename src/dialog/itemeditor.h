@@ -58,7 +58,7 @@ std::map<int32_t, ItemNameInfo *> *getItemNameMap();
 class ItemEditorDialog: public GUI::Dialog<ItemEditorDialog>
 {
 public:
-	enum class message { OK, CANCEL, DEFAULT, ITEMCLASS, RELOAD, GFXSIZE };
+	enum class message { REFR_INFO, OK, CANCEL, DEFAULT, ITEMCLASS, RELOAD, GFXSIZE };
 	
 
 	std::shared_ptr<GUI::Widget> view() override;

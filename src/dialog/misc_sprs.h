@@ -11,7 +11,7 @@
 class MiscSprsDialog: public GUI::Dialog<MiscSprsDialog>
 {
 public:
-	enum class message { OK, CANCEL };
+	enum class message { REFR_INFO, OK, CANCEL };
 
 	MiscSprsDialog(byte* vals, size_t vals_per_tab, std::function<void(int32_t*)> setVals);
 

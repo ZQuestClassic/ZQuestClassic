@@ -9,7 +9,7 @@
 class ScaleTileDialog: public GUI::Dialog<ScaleTileDialog>
 {
 public:
-	enum class message { OK, CANCEL };
+	enum class message { REFR_INFO, OK, CANCEL };
 
 	ScaleTileDialog(int32_t *w, int32_t *h);
 

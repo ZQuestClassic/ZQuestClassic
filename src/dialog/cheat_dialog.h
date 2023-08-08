@@ -13,7 +13,7 @@ void call_setcheat_dialog();
 class SetCheatDialog: public GUI::Dialog<SetCheatDialog>
 {
 public:
-	enum class message { OK, CANCEL, CHECK };
+	enum class message { REFR_INFO, OK, CANCEL, CHECK };
 
 	SetCheatDialog();
 

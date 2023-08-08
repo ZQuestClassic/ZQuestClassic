@@ -635,18 +635,22 @@ Button(forceFitH = true, text = "?", \
 	disabled = true)
 #define INFOBTN(inf) \
 Button(forceFitH = true, text = "?", \
+	onClick = message::REFR_INFO, \
 	onPressFunc = [=]() \
 	{ \
 		InfoDialog("Info",inf).show(); \
 	})
 #define INFOBTN_EX(inf, ...) \
-Button(forceFitH = true, text = "?", __VA_ARGS__, \
+Button(text = "?", \
+	onClick = message::REFR_INFO, \
+	__VA_ARGS__, \
 	onPressFunc = [=]() \
 	{ \
 		InfoDialog("Info",inf).show(); \
 	})
 #define INFOBTN_REF(getter) \
 Button(forceFitH = true, text = "?", \
+	onClick = message::REFR_INFO, \
 	onPressFunc = [&]() \
 	{ \
 		InfoDialog("Info",getter).show(); \

@@ -12,7 +12,7 @@ void call_options_dlg();
 class OptionsDialog: public GUI::Dialog<OptionsDialog>
 {
 public:
-	enum class message { OK, CANCEL, RELOAD };
+	enum class message { REFR_INFO, OK, CANCEL, RELOAD };
 
 	OptionsDialog();
 

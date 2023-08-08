@@ -15,7 +15,7 @@ void call_zinf_dlg();
 class ZInfoDialog: public GUI::Dialog<ZInfoDialog>
 {
 public:
-	enum class message { OK, CANCEL, SAVE, LOAD };
+	enum class message { REFR_INFO, OK, CANCEL, SAVE, LOAD };
 
 	ZInfoDialog(zinfo const& cpyfrom);
 	ZInfoDialog();
