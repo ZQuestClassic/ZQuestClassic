@@ -3248,6 +3248,9 @@ enum //Special hardcoded draw layers
 	SPLAYER_DARKROOM_UNDER, //Under dark room darkness
 	SPLAYER_DARKROOM_OVER, //Over dark room darkness
 	SPLAYER_FFC_DRAW, //Non-Overhead ffcs
+	SPLAYER_LENS_UNDER_1, //Lens drawing secrets/revealing things
+	SPLAYER_LENS_UNDER_2, //Lens drawing secrets/revealing things
+	SPLAYER_LENS_OVER, //Lens drawing blackness to cover most of the screen
 };
 
 //

@@ -3917,6 +3917,7 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	if((lensclk || (get_debug() && zc_getkey(KEY_L))) && !get_qr(qr_OLDLENSORDER))
 	{
 		draw_lens_under(scrollbuf, false);
+		do_primitives(scrollbuf, SPLAYER_LENS_UNDER_1, this_screen, 0, playing_field_offset);
 	}
 	
 	if(show_layer_0 && layer_0_lenscheck(this_screen))
@@ -4025,9 +4026,11 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 		if(get_qr(qr_OLDLENSORDER))
 		{
 			draw_lens_under(scrollbuf, false);
+			do_primitives(scrollbuf, SPLAYER_LENS_UNDER_1, this_screen, 0, playing_field_offset);
 		}
 		
 		draw_lens_under(scrollbuf, true);
+		do_primitives(scrollbuf, SPLAYER_LENS_UNDER_2, this_screen, 0, playing_field_offset);
 	}
 	
 	//2. Blit those layers onto framebuf

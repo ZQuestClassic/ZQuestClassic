@@ -3685,6 +3685,7 @@ void draw_lens_over()
 	}
 	
 	masked_blit(lens_scr, framebuf, 288-(HeroX()+8), 240-playing_field_offset-(HeroY()+8), 0, playing_field_offset, 256, 168);
+	do_primitives(framebuf, SPLAYER_LENS_OVER, tmpscr, 0, playing_field_offset);
 }
 
 //----------------------------------------------------------------
