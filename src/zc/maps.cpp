@@ -2970,14 +2970,26 @@ void update_freeform_combos()
 	}
 }
 
-bool hitcombo(int32_t x, int32_t y, int32_t combotype)
+bool hitcombo(int32_t x, int32_t y, int32_t combotype, byte layers)
 {
-    return (COMBOTYPE(x,y)==combotype);
+	for(int q = 0; q < 7; ++q)
+	{
+		if(layers&(1<<q)) //if layer is to be checked
+			if(COMBOTYPE2(q-1,x,y)==combotype) //matching type
+				return true;
+	}
+	return false;
 }
 
-bool hitflag(int32_t x, int32_t y, int32_t flagtype)
+bool hitflag(int32_t x, int32_t y, int32_t flagtype, byte layers)
 {
-    return (MAPFLAG(x,y)==flagtype||MAPCOMBOFLAG(x,y)==flagtype);
+	for(int q = 0; q < 7; ++q)
+	{
+		if(layers&(1<<q)) //if layer is to be checked
+			if(MAPFLAG2(q-1,x,y)==flagtype||MAPCOMBOFLAG2(q-1,x,y)==flagtype) //matching flag
+				return true;
+	}
+	return false;
 }
 
 int32_t nextscr(int32_t dir)

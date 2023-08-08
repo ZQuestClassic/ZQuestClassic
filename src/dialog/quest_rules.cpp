@@ -258,6 +258,8 @@ static GUI::ListData comboRulesList
 		" have those reflect, check the 'Whirlwinds Reflect off"
 		" Prism/Mirror Combos' Item Flag on the whistle item in the"
 		" item editor."},
+	{ "Mirror/Prism Combos Work On All Layers", qr_MIRROR_PRISM_LAYERS,
+		"Mirror and Prism combos work on any layer, instead of only layer 0." },
 	{ "Combo Cycling On Layers", qr_CMBCYCLELAYERS, 
 		"Allows combos to combo cycle when placed on Layers 1-6." },
 	{ "Lesser Damage Combos Take Priority", qr_DMGCOMBOPRI, 
