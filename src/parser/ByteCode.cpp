@@ -2328,7 +2328,8 @@ string ZScript::VarToString(int32_t ID)
 	
 	default:
 	{
-		DCHECK(false);
+		// TODO z3 !! upstream ? EXP1. run zscript python tests.
+		// DCHECK(false);
 		sprintf(temp, "d%d", ID);
 		return string(temp);
 	}

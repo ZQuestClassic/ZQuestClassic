@@ -411,7 +411,7 @@ int32_t main(int32_t argc, char **argv)
 		}
 		else zconsole_info("Compile finished with exit code '0' (success)");
 	}
-	if(!zasm_out.empty())
+	if(!zasm_out.empty() && result)
 	{
 		FILE *outfile = fopen(zasm_out.c_str(), zasm_out_append ? "a" : "w");
 		for(auto& p : result->theScripts)
