@@ -1916,7 +1916,7 @@ void textprintf_styled_aligned_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t
 }
 
 
-void draw_textbox(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, FONT *tempfont, char *thetext, bool wword, int32_t tabsize, int32_t alignment, int32_t textstyle, int32_t color, int32_t shadowcolor, int32_t backcolor)
+void draw_textbox(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, FONT *tempfont, char const* thetext, bool wword, int32_t tabsize, int32_t alignment, int32_t textstyle, int32_t color, int32_t shadowcolor, int32_t backcolor)
 {
     int32_t y1 = y;
     int32_t x1;
@@ -1924,11 +1924,12 @@ void draw_textbox(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, FONT
     char s[16];
     char text[16];
     char space[16];
-    char *printed = text;
-    char *scanned = text;
-    char *oldscan = text;
-    char *ignore = NULL;
-    char *tmp, *ptmp;
+    char const* printed = text;
+    char const* scanned = text;
+    char const* oldscan = text;
+    char const* ignore = NULL;
+    char const* tmp;
+    char const* ptmp;
     int32_t width;
     int32_t i = 0;
     int32_t noignore;
@@ -2043,7 +2044,7 @@ void draw_textbox(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, FONT
         if((y1+text_height(tempfont) <= (y+h)))
         {
             int32_t tempw=0;
-            char *tempprinted=printed;
+            char const* tempprinted=printed;
             
             /* print up to the marked character */
             while(printed != scanned)

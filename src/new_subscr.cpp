@@ -30,7 +30,7 @@ bool has_item(int32_t item_type, int32_t item);
 extern item *sel_a, *sel_b;
 void subscreenitem(BITMAP *dest, int32_t x, int32_t y, int32_t itemtype);
 int32_t subscreen_color(int32_t c1, int32_t c2);
-void draw_textbox(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, FONT *tempfont, char *thetext, bool wword, int32_t tabsize, int32_t alignment, int32_t textstyle, int32_t color, int32_t shadowcolor, int32_t backcolor);
+void draw_textbox(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, FONT *tempfont, char const*thetext, bool wword, int32_t tabsize, int32_t alignment, int32_t textstyle, int32_t color, int32_t shadowcolor, int32_t backcolor);
 void lifegauge(BITMAP *dest,int32_t x,int32_t y, int32_t container, int32_t notlast_tile, int32_t notlast_cset, bool notlast_mod, int32_t last_tile, int32_t last_cset, bool last_mod,
 			   int32_t cap_tile, int32_t cap_cset, bool cap_mod, int32_t aftercap_tile, int32_t aftercap_cset, bool aftercap_mod, int32_t frames, int32_t speed, int32_t delay, bool unique_last);
 void magicgauge(BITMAP *dest,int32_t x,int32_t y, int32_t container, int32_t notlast_tile, int32_t notlast_cset, bool notlast_mod, int32_t last_tile, int32_t last_cset, bool last_mod,
@@ -2453,7 +2453,7 @@ int32_t SW_LifeGaugePiece::write(PACKFILE *f) const
 	if(auto ret = SubscrWidget::write(f))
 		return ret;
 	for(auto q = 0; q < 4; ++q)
-		if(auto ret = mts[q].write(f,s_version))
+		if(auto ret = mts[q].write(f))
 			return ret;
 	if(!p_iputw(frames, f))
 		new_return(1);
@@ -2575,6 +2575,138 @@ int32_t SW_MagicGaugePiece::write(PACKFILE *f) const
 	return 0;
 }
 
+
+SW_TextBox::SW_TextBox(subscreen_object const& old) : SW_TextBox()
+{
+	load_old(old);
+}
+bool SW_TextBox::load_old(subscreen_object const& old)
+{
+	if(old.type != ssoTEXTBOX)
+		return false;
+	SubscrWidget::load_old(old);
+	if(old.dp1) text = (char*)old.dp1;
+	else text.clear();
+	fontid = to_real_font(old.d1);
+	align = old.d2;
+	shadtype = old.d3;
+	c_text.load_old(old,1);
+	c_shadow.load_old(old,2);
+	c_bg.load_old(old,3);
+	SETFLAG(flags,SUBSCR_TEXTBOX_WORDWRAP,old.d4);
+	tabsize = old.d5;
+	
+	//compat
+	x -= shadow_x(shadtype);
+	y -= shadow_y(shadtype);
+	w -= shadow_w(shadtype);
+	h -= shadow_h(shadtype);
+	x -= getXOffs();
+	return true;
+}
+int16_t SW_TextBox::getX() const
+{
+	return x+shadow_x(shadtype);
+}
+int16_t SW_TextBox::getY() const
+{
+	return y+shadow_y(shadtype);
+}
+word SW_TextBox::getW() const
+{
+	return w+shadow_w(shadtype);
+}
+word SW_TextBox::getH() const
+{
+	return h+shadow_h(shadtype);
+}
+int16_t SW_TextBox::getXOffs() const
+{
+	switch(align)
+	{
+		case sstaCENTER:
+			return -getW()/2;
+		case sstaRIGHT:
+			return -getW();
+	}
+	return 0;
+}
+byte SW_TextBox::getType() const
+{
+	return ssoTEXTBOX;
+}
+void SW_TextBox::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
+{
+	FONT* tempfont = get_zc_font(fontid);
+	draw_textbox(dest, getX()+xofs, getY()+yofs, getW(), getH(), tempfont, text.c_str(),
+		flags&SUBSCR_TEXTBOX_WORDWRAP, tabsize, align, shadtype,
+		c_text.get_color(),c_shadow.get_color(),c_bg.get_color());
+}
+SubscrWidget* SW_TextBox::clone() const
+{
+	return new SW_TextBox(*this);
+}
+bool SW_TextBox::copy_prop(SubscrWidget const* src, bool all)
+{
+	if(src->getType() != getType() || src == this)
+		return false;
+	SW_TextBox const* other = dynamic_cast<SW_TextBox const*>(src);
+	SubscrWidget::copy_prop(other,all);
+	fontid = other->fontid;
+	text = other->text;
+	align = other->align;
+	shadtype = other->shadtype;
+	c_text = other->c_text;
+	c_shadow = other->c_shadow;
+	c_bg = other->c_bg;
+	tabsize = other->tabsize;
+	return true;
+}
+int32_t SW_TextBox::read(PACKFILE *f, word s_version)
+{
+	if(auto ret = SubscrWidget::read(f,s_version))
+		return ret;
+	if(!p_igetl(&fontid,f))
+		return qe_invalid;
+	if(!p_getc(&align,f))
+		return qe_invalid;
+	if(!p_getc(&shadtype,f))
+		return qe_invalid;
+	if(!p_getc(&tabsize,f))
+		return qe_invalid;
+	if(!p_getwstr(&text,f))
+		return qe_invalid;
+	if(auto ret = c_text.read(f,s_version))
+		return ret;
+	if(auto ret = c_shadow.read(f,s_version))
+		return ret;
+	if(auto ret = c_bg.read(f,s_version))
+		return ret;
+	return 0;
+}
+int32_t SW_TextBox::write(PACKFILE *f) const
+{
+	if(auto ret = SubscrWidget::write(f))
+		return ret;
+	if(!p_iputl(fontid,f))
+		new_return(1);
+	if(!p_putc(align,f))
+		new_return(2);
+	if(!p_putc(shadtype,f))
+		new_return(3);
+	if(!p_putc(tabsize,f))
+		new_return(4);
+	if(!p_putwstr(text,f))
+		new_return(5);
+	if(auto ret = c_text.write(f))
+		return ret;
+	if(auto ret = c_shadow.write(f))
+		return ret;
+	if(auto ret = c_bg.write(f))
+		return ret;
+	return 0;
+}
+
 SW_Temp::SW_Temp(byte ty) : SubscrWidget(ssoTEMPOLD)
 {
 	old.type = ty;
@@ -2638,12 +2770,6 @@ void SW_Temp::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) c
 	FONT* tempfont = get_zc_font(old.d1);
 	switch(getType())
 	{
-		case ssoTEXTBOX:
-		{
-			draw_textbox(dest, x, y, old.w, old.h, tempfont, (char *)old.dp1, old.d4!=0, old.d5, old.d2, old.d3, subscreen_color(old.colortype1, old.color1), subscreen_color(old.colortype2, old.color2), subscreen_color(old.colortype3, old.color3));
-		}
-		break;
-		
 		case ssoSELECTEDITEMNAME:
 		{
 			int32_t itemid=page.get_sel_item();
@@ -2911,6 +3037,7 @@ SubscrWidget* SubscrWidget::fromOld(subscreen_object const& old)
 		case ssoMAGICGAUGE:
 			return new SW_MagicGaugePiece(old);
 		case ssoTEXTBOX:
+			return new SW_TextBox(old);
 		case ssoSELECTEDITEMNAME:
 			return nullptr;
 			return new SW_Temp(old); //!TODO SUBSCR
@@ -3046,8 +3173,10 @@ SubscrWidget* SubscrWidget::newType(byte ty)
 		case ssoMAGICGAUGE:
 			widg = new SW_MagicGaugePiece();
 			break;
-		case ssoSELECTEDITEMNAME:
 		case ssoTEXTBOX:
+			widg = new SW_TextBox();
+			break;
+		case ssoSELECTEDITEMNAME:
 		{
 			SW_Temp* tmp;
 			widg = tmp = new SW_Temp(ty); //!TODO SUBSCR

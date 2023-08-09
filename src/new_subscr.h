@@ -666,6 +666,32 @@ protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
 
+#define SUBSCR_TEXTBOX_WORDWRAP     SUBSCRFLAG_SPEC_01
+struct SW_TextBox : public SubscrWidget
+{
+	int32_t fontid;
+	std::string text;
+	byte align, shadtype, tabsize = 4;
+	SubscrColorInfo c_text, c_shadow, c_bg;
+	
+	SW_TextBox() = default;
+	SW_TextBox(subscreen_object const& old);
+
+	virtual bool load_old(subscreen_object const& old) override;
+	virtual int16_t getX() const override; //Returns x in pixels
+	virtual int16_t getY() const override; //Returns y in pixels
+	virtual word getW() const override; //Returns width in pixels
+	virtual word getH() const override; //Returns height in pixels
+	virtual int16_t getXOffs() const override; //Returns any special x-offset
+	virtual byte getType() const override;
+	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
+	virtual SubscrWidget* clone() const override;
+	virtual bool copy_prop(SubscrWidget const* src, bool all = false) override;
+	virtual int32_t write(PACKFILE *f) const override;
+protected:
+	virtual int32_t read(PACKFILE *f, word s_version) override;
+};
+
 bool new_widget_type(int ty);
 struct SW_Temp : public SubscrWidget
 {

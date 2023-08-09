@@ -488,11 +488,11 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			}
 			case ssoTEXTBOX:
 			{
-				// SW_* w = dynamic_cast<SW_*>(local_subref);
-				// col_grid->add(MISC_COLOR_SEL(w->c_text, "Text Color", 1));
-				// col_grid->add(MISC_COLOR_SEL(w->c_shadow, "Shadow Color", 2));
-				// col_grid->add(MISC_COLOR_SEL(w->c_bg, "Background Color", 3));
-				break; //!TODO
+				SW_TextBox* w = dynamic_cast<SW_TextBox*>(local_subref);
+				col_grid->add(MISC_COLOR_SEL(w->c_text, "Text Color", 1));
+				col_grid->add(MISC_COLOR_SEL(w->c_shadow, "Shadow Color", 2));
+				col_grid->add(MISC_COLOR_SEL(w->c_bg, "Background Color", 3));
+				break;
 			}
 			case ssoTILEBLOCK:
 			{
@@ -967,39 +967,36 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			}
 			case ssoTEXTBOX:
 			{
-				// SW_* w = dynamic_cast<SW_*>(local_subref);
-				// if(local_subref->dp1) //needs deep copy, not shallow
-				// {
-					// char const* dp1 = (char const*)local_subref->dp1;
-					// repl_escchar(tbuf, dp1, false);
-				// }
-				// attrib_grid = Rows<2>(
-					// Label(text = "Font:", hAlign = 1.0),
-					// DDL_FONT(d1),
-					// Label(text = "Style:", hAlign = 1.0),
-					// DDL(d3, list_shadtype),
-					// Label(text = "Alignment:", hAlign = 1.0),
-					// DDL(d2, list_aligns),
-					// Label(text = "Text:", hAlign = 0.0),
-					// DummyWidget(),
-					// fonttf = TextField(
-						// maxLength = 1024,
-						// colSpan = 2,
-						// text = (local_subref->dp1 ? (char*)local_subref->dp1 : ""),
-						// width = 300_px,
-						// minheight = 15_px,
-						// fitParent = true,
-						// useFont = ss_font(local_subref->d1),
-						// onValChangedFunc = [=](GUI::TextField::type,std::string_view str,int32_t)
-						// {
-							// std::string txt(str);
-							// if(local_subref->dp1)
-								// delete[] (char*)local_subref->dp1;
-							// local_subref->dp1 = new char[txt.size()+1];
-							// strcpy((char*)local_subref->dp1, txt.c_str());
-						// })
-				// );
-				break; //!TODO
+				SW_TextBox* w = dynamic_cast<SW_TextBox*>(local_subref);
+				attrib_grid = Rows<2>(
+					Label(text = "Font:", hAlign = 1.0),
+					DDL_FONT(w->fontid),
+					Label(text = "Style:", hAlign = 1.0),
+					DDL(w->shadtype, list_shadtype),
+					Label(text = "Alignment:", hAlign = 1.0),
+					DDL(w->align, list_aligns),
+					Label(text = "Tabsize:", hAlign = 0.0),
+					NUM_FIELD(w->tabsize,0,99),
+					//
+					CBOX(w->flags,SUBSCR_TEXTBOX_WORDWRAP,"Word Wrap",2),
+					//
+					Label(text = "Text:", hAlign = 0.0),
+					DummyWidget(),
+					fonttf = TextField(
+						maxLength = 1024,
+						colSpan = 2,
+						text = w->text,
+						width = 300_px,
+						minheight = 15_px,
+						fitParent = true,
+						useFont = get_zc_font(w->fontid),
+						onValChangedFunc = [=](GUI::TextField::type,std::string_view str,int32_t)
+						{
+							std::string txt(str);
+							w->text = txt;
+						})
+				);
+				break;
 			}
 			case ssoTILEBLOCK:
 			{
