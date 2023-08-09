@@ -226,7 +226,7 @@ struct SubscrWidget
 	virtual int16_t getXOffs() const; //Returns any special x-offset
 	virtual int16_t getYOffs() const; //Returns any special y-offset
 	virtual byte getType() const;
-	virtual int32_t getItemVal() const;
+	virtual int32_t getItemVal(bool display = false) const;
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const;
 	virtual bool visible(byte pos, bool showtime) const;
 	virtual SubscrWidget* clone() const;
@@ -567,7 +567,7 @@ struct SW_CurrentItem : public SubscrWidget
 	virtual word getW() const override; //Returns width in pixels
 	virtual word getH() const override; //Returns height in pixels
 	virtual byte getType() const override;
-	virtual int32_t getItemVal() const override;
+	virtual int32_t getItemVal(bool display = false) const override;
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
 	virtual SubscrWidget* clone() const override;
 	virtual bool copy_prop(SubscrWidget const* src, bool all = false) override;
@@ -793,7 +793,7 @@ struct SubscrPage
 	SubscrWidget* get_widg_pos(int32_t pos, bool sel_only = true);
 	SubscrWidget* get_sel_widg();
 	int32_t get_item_pos(int32_t pos, bool sel_only = true);
-	int32_t get_sel_item();
+	int32_t get_sel_item(bool display = false);
 	int32_t get_pos_of_item(int32_t itemid);
 	
 	void clear();

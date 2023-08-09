@@ -3216,101 +3216,6 @@ bool displaysubscreenitem(int32_t itemtype, int32_t d, int32_t id)
 	}
 }
 
-int32_t get_subscreenitem_id(int32_t itemtype, bool forceItem)
-{
-	if(forceItem && (itemtype & 0x8000))
-		return itemtype&0xFFF;
-    // We need to do a reverse loop to prevent the Bow from being drawn above the Arrow (Bow & Arrow).
-    int32_t overridecheck = 0xFFFF;
-    
-    for(int32_t i=Sitems.Count()-1; i>=0; i--)
-    {
-        if(itemtype & 0x8000) // if 0x8000, then itemtype is actually an item ID.
-        {
-            if(overridecheck==0xFFFF)
-			{
-                if(Sitems.spr(i)->id == (itemtype&0xFFF) && Sitems.spr(i)->misc==-1) overridecheck = i;
-			}
-        }
-        else if(Sitems.spr(i)->misc!=-1)
-        {
-            int32_t d= itemsbuf[Sitems.spr(i)->id].family;
-            
-            if((d==itemtype)||
-                    (itemtype==itype_letterpotion&&((d==itype_letter && current_item_id(itype_potion)==-1)||d==itype_potion))||
-                    (itemtype==itype_bowandarrow&&(d==itype_bow||d==itype_arrow)))
-            {
-				return Sitems.spr(i)->id;
-            }
-        }
-    }
-    if(forceItem)
-	{
-		bool useLowestID = get_qr(qr_SUBSCR_BACKWARDS_ID_ORDER);
-		int32_t id = -1;
-		for(auto q = 0; q < MAXITEMS; ++q)
-		{
-			if(itemsbuf[q].family == itemtype)
-			{
-				id = q;
-				if(useLowestID) break;
-			}
-		}
-		return id;
-	}
-
-    //Item Override stuff here
-    if((itemtype & 0x8000) && 
-		(!game || game->item[itemtype&0xFFF])
-            && !item_disabled(itemtype&0xFFF) && displaysubscreenitem(itemsbuf[itemtype&0xFFF].family, 0, (itemtype&0xFFF)))
-    {
-		return itemtype&0xFFF;
-    }
-	return -1;
-}
-
-item* get_subscreenitem(int32_t itemtype)
-{
-    // We need to do a reverse loop to prevent the Bow from being drawn above the Arrow (Bow & Arrow).
-    int32_t overridecheck = 0xFFFF;
-    
-    for(int32_t i=Sitems.Count()-1; i>=0; i--)
-    {
-        if(itemtype & 0x8000) // if 0x8000, then itemtype is actually an item ID.
-        {
-            if(overridecheck==0xFFFF)
-			{
-                if(Sitems.spr(i)->id == (itemtype&0xFFF) && Sitems.spr(i)->misc==-1) overridecheck = i;
-			}
-        }
-        else if(Sitems.spr(i)->misc!=-1)
-        {
-            int32_t d= itemsbuf[Sitems.spr(i)->id].family;
-            
-            if((d==itemtype)||
-                    (itemtype==itype_letterpotion&&((d==itype_letter && current_item_id(itype_potion)==-1)||d==itype_potion))||
-                    (itemtype==itype_bowandarrow&&(d==itype_bow||d==itype_arrow)))
-            {
-				return (item*)Sitems.spr(i);
-            }
-        }
-    }
-    
-    //Item Override stuff here
-    if((itemtype & 0x8000) && 
-		(!game || game->item[itemtype&0xFFF])
-            && !item_disabled(itemtype&0xFFF) && displaysubscreenitem(itemsbuf[itemtype&0xFFF].family, 0, (itemtype&0xFFF)))
-    {
-        if(overridecheck == 0xFFFF)
-        {
-            overridecheck = Sitems.Count()-1;
-		}
-		return (item*)Sitems.spr(overridecheck);
-    }
-	return NULL;
-}
-
-
 void subscreenitem(BITMAP *dest, int32_t x, int32_t y, int32_t itemtype)
 {
     // We need to do a reverse loop to prevent the Bow from being drawn above the Arrow (Bow & Arrow).
@@ -3321,11 +3226,11 @@ void subscreenitem(BITMAP *dest, int32_t x, int32_t y, int32_t itemtype)
         if(itemtype & 0x8000) // if 0x8000, then itemtype is actually an item ID.
         {
             if(overridecheck==0xFFFF)
-	    {
-		//al_trace("Found an override item at subscreen.cpp linere 3084, id: %d\n",Sitems.spr(i)->id);
-
-                if(Sitems.spr(i)->id == (itemtype&0xFFF) && Sitems.spr(i)->misc==-1) overridecheck = i;
-	    }
+			{
+				//al_trace("Found an override item at subscreen.cpp linere 3084, id: %d\n",Sitems.spr(i)->id);
+				if(Sitems.spr(i)->id == (itemtype&0xFFF) && Sitems.spr(i)->misc==-1)
+					overridecheck = i;
+			}
         }
         else if(Sitems.spr(i)->misc!=-1)
         {

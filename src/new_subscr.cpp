@@ -35,7 +35,6 @@ void lifegauge(BITMAP *dest,int32_t x,int32_t y, int32_t container, int32_t notl
 			   int32_t cap_tile, int32_t cap_cset, bool cap_mod, int32_t aftercap_tile, int32_t aftercap_cset, bool aftercap_mod, int32_t frames, int32_t speed, int32_t delay, bool unique_last);
 void magicgauge(BITMAP *dest,int32_t x,int32_t y, int32_t container, int32_t notlast_tile, int32_t notlast_cset, bool notlast_mod, int32_t last_tile, int32_t last_cset, bool last_mod,
 				int32_t cap_tile, int32_t cap_cset, bool cap_mod, int32_t aftercap_tile, int32_t aftercap_cset, bool aftercap_mod, int32_t frames, int32_t speed, int32_t delay, bool unique_last, int32_t show);
-int32_t get_subscreenitem_id(int32_t itemtype, bool forceItem);
 
 int32_t to_real_font(int32_t ss_font)
 {
@@ -435,7 +434,7 @@ byte SubscrWidget::getType() const
 {
 	return type;
 }
-int32_t SubscrWidget::getItemVal() const
+int32_t SubscrWidget::getItemVal(bool display) const
 {
 	return -1;
 }
@@ -1785,16 +1784,18 @@ byte SW_CurrentItem::getType() const
 {
 	return ssoCURRENTITEM;
 }
-int32_t SW_CurrentItem::getItemVal() const
+int32_t SW_CurrentItem::getItemVal(bool display) const
 {
-	#ifdef IS_PLAYER
+#ifdef IS_PLAYER
 	if(iid > 0)
 	{
 		bool select = false;
 		switch(itemsbuf[iid-1].family)
 		{
 			case itype_bomb:
-				if((game->get_bombs() ||
+				if(display && get_qr(qr_NEVERDISABLEAMMOONSUBSCREEN))
+					select = true;
+				else if((game->get_bombs() ||
 						// Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
 						(itemsbuf[iid-1].misc1==0 && findWeaponWithParent(iid-1, wLitBomb))) ||
 						current_item_power(itype_bombbag))
@@ -1815,7 +1816,9 @@ int32_t SW_CurrentItem::getItemVal() const
 			{
 				int32_t bombbagid = current_item_id(itype_bombbag);
 				
-				if((game->get_sbombs() ||
+				if(display && get_qr(qr_NEVERDISABLEAMMOONSUBSCREEN))
+					select = true;
+				else if((game->get_sbombs() ||
 						// Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
 						(itemsbuf[iid-1].misc1==0 && findWeaponWithParent(iid-1, wLitSBomb))) ||
 						(current_item_power(itype_bombbag) && bombbagid>-1 && (itemsbuf[bombbagid].flags & ITEM_FLAG1)))
@@ -1838,7 +1841,7 @@ int32_t SW_CurrentItem::getItemVal() const
 		{
 			directItem = iid-1;
 			auto ret = iid-1;
-			if(directItem>-1 && itemsbuf[directItem].family == itype_arrow)
+			if(ret>-1 && itemsbuf[ret].family == itype_arrow)
 				ret += 0xF000; //bow
 			return ret;
 		}
@@ -1851,7 +1854,9 @@ int32_t SW_CurrentItem::getItemVal() const
 		{
 			int32_t bombid = current_item_id(itype_bomb);
 			
-			if((game->get_bombs() ||
+			if(display && get_qr(qr_NEVERDISABLEAMMOONSUBSCREEN))
+				family=itype_bomb;
+			else if((game->get_bombs() ||
 					// Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
 					(bombid>-1 && itemsbuf[bombid].misc1==0 && Lwpns.idCount(wLitBomb)>0)) ||
 					current_item_power(itype_bombbag))
@@ -1878,7 +1883,9 @@ int32_t SW_CurrentItem::getItemVal() const
 			int32_t bombbagid = current_item_id(itype_bombbag);
 			int32_t sbombid = current_item_id(itype_sbomb);
 			
-			if((game->get_sbombs() ||
+			if(display && get_qr(qr_NEVERDISABLEAMMOONSUBSCREEN))
+				family=itype_sbomb;
+			else if((game->get_sbombs() ||
 					// Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
 					(sbombid>-1 && itemsbuf[sbombid].misc1==0 && Lwpns.idCount(wLitSBomb)>0)) ||
 					(current_item_power(itype_bombbag) && bombbagid>-1 && (itemsbuf[bombbagid].flags & ITEM_FLAG1)))
@@ -1899,15 +1906,40 @@ int32_t SW_CurrentItem::getItemVal() const
 	}
 	if(family < 0)
 		return -1;
-	int32_t itemid = current_item_id(family,false);
+	int32_t itemid = current_item_id(family);
 	if(item_disabled(itemid))
 		return -1;
 	if(iclass == itype_bowandarrow)
 		return itemid+0xF000;
 	return itemid;
-	#else
-	return iid>0 ? ((iid-1) | 0x8000) : iclass;
-	#endif
+#else
+	if(iid > 0) return iid;
+	int fam = iclass;
+	switch(fam)
+	{
+		case itype_letterpotion:
+			if(current_item_id(itype_potion)==-1)
+				fam = itype_letter;
+			else fam = itype_potion;
+			break;
+		case itype_bowandarrow:
+			fam = itype_arrow;
+			break;
+		case itype_map:
+			return iMap;
+		case itype_compass:
+			return iCompass;
+		case itype_bosskey:
+			return iBossKey;
+		case itype_heartpiece:
+			return iHCPiece;
+	}
+	int itemid = current_item_id(fam,false);
+	if(itemid == -1) return -1;
+	if(fam == itype_bowandarrow)
+		itemid |= 0xF000;
+	return itemid;
+#endif
 }
 void SW_CurrentItem::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
@@ -1918,7 +1950,7 @@ void SW_CurrentItem::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& 
 	if((flags&SUBSCR_CURITM_INVIS) && !(zinit.ss_flags&ssflagSHOWINVIS))
 		return;
 	#endif
-	subscreenitem(dest, getX()+xofs,getY()+yofs, getItemVal());
+	subscreenitem(dest, getX()+xofs,getY()+yofs, iid ? (iid|0x8000) : iclass);
 }
 SubscrWidget* SW_CurrentItem::clone() const
 {
@@ -2365,8 +2397,8 @@ void SW_Selector::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& pag
 	
 	if(flags&SUBSCR_SELECTOR_TRANSP)
 		tempsel->drawstyle=1;
-	int32_t itemtype = selitm ? selitm->getItemVal() : -1;
-	itemdata const& tmpitm = itemsbuf[get_subscreenitem_id(itemtype, true)];
+	int32_t id = selitm ? selitm->getItemVal() : -1;
+	itemdata const& tmpitm = itemsbuf[id];
 	bool oldsel = get_qr(qr_SUBSCR_OLD_SELECTOR);
 	if(!oldsel) big_sel = false;
 	int32_t sw = oldsel ? (tempsel->extend > 2 ? tempsel->txsz*16 : 16) : (tempsel->extend > 2 ? tempsel->hit_width : 16),
@@ -2764,22 +2796,27 @@ byte SW_SelectedText::getType() const
 void SW_SelectedText::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
 	FONT* tempfont = get_zc_font(fontid);
-	int32_t itemid=page.get_sel_item();
+	std::string str;
 	
-	// If it's a combined bow and arrow, the item ID will have 0xF000 added.
-	if(itemid>=0xF000)
-		itemid-=0xF000;
-	
-	// 0 can mean either the item with index 0 is selected or there's no
-	// valid item to select, so be sure Hero has whatever it would be.
-	if(!game->get_item(itemid))
-		return;
-	
-	itemdata const& itm = itemsbuf[itemid];
-	
-	draw_textbox(dest, getX()+xofs, getY()+yofs, getW(), getH(), tempfont,
-		itm.get_name().c_str(), flags&SUBSCR_SELTEXT_WORDWRAP, tabsize, align, shadtype,
-		c_text.get_color(),c_shadow.get_color(),c_bg.get_color());
+	int32_t itemid=page.get_sel_item(true);
+	if(itemid > -1)
+	{
+		// If it's a combined bow and arrow, the item ID will have 0xF000 added.
+		if(itemid>=0xF000)
+			itemid-=0xF000;
+		
+		// 0 can mean either the item with index 0 is selected or there's no
+		// valid item to select, so be sure Hero has whatever it would be.
+		if(!game->get_item(itemid))
+			return;
+		
+		itemdata const& itm = itemsbuf[itemid];
+		str = itm.get_name();
+	}
+	if(str.size())
+		draw_textbox(dest, getX()+xofs, getY()+yofs, getW(), getH(), tempfont,
+			str.c_str(), flags&SUBSCR_SELTEXT_WORDWRAP, tabsize, align, shadtype,
+			c_text.get_color(),c_shadow.get_color(),c_bg.get_color());
 }
 SubscrWidget* SW_SelectedText::clone() const
 {
@@ -3331,8 +3368,11 @@ SubscrWidget* SubscrPage::get_widg_pos(int32_t pos, bool sel_only)
 {
 	for(size_t q = 0; q < contents.size(); ++q)
 	{
-		if(sel_only && !(contents[q]->flags & SUBSCRFLAG_SELECTABLE))
+		if(!(contents[q]->flags & SUBSCRFLAG_SELECTABLE))
 			continue;
+		if (sel_only && contents[q]->getType() == ssoCURRENTITEM)
+			if (static_cast<SW_CurrentItem*>(contents[q])->flags & SUBSCR_CURITM_NONEQP)
+				continue;
 		if(contents[q]->pos == pos)
 			return contents[q];
 	}
@@ -3349,11 +3389,11 @@ SubscrWidget* SubscrPage::get_sel_widg()
 {
 	return get_widg_pos(cursor_pos);
 }
-int32_t SubscrPage::get_sel_item()
+int32_t SubscrPage::get_sel_item(bool display)
 {
 	auto* w = get_sel_widg();
 	if(w)
-		return w->getItemVal();
+		return w->getItemVal(display);
 	return -1;
 }
 int32_t SubscrPage::get_pos_of_item(int32_t id)
