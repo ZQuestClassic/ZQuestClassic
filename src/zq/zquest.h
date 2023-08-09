@@ -1064,7 +1064,6 @@ int32_t InitPage_7();
 int32_t InitPage_8();
 int32_t onInit();
 int32_t onItemProps();
-int32_t onSubscreen();
 
 void get_cset(int32_t dataset,int32_t row,RGB *pal);
 void draw_edit_dataset_specs(int32_t index,int32_t copy);

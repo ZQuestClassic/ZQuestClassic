@@ -1130,7 +1130,6 @@ static MENU maps_menu[] =
 static MENU misc_menu[] =
 {
     { (char *)"S&ubscreens",                onEditSubscreens,          NULL,                     0,            NULL   },
-    { (char *)"&Master Subscreen Type",     onSubscreen,               NULL,                     0,            NULL   },
     { (char *)"&Shop Types",                onShopTypes,               NULL,                     0,            NULL   },
     { (char *)"&Bottle Types",              onBottleTypes,             NULL,                     0,            NULL   },
     { (char *)"Bottle S&hop Types",         onBottleShopTypes,         NULL,                     0,            NULL   },
@@ -20743,71 +20742,6 @@ int32_t onCheats()
 	return D_O_K;
 }
 
-const char *subscrtype_str[ssdtMAX+1] = { "Original","New Subscreen","Revision 2","BS Zelda Original","BS Zelda Modified","BS Zelda Enhanced","BS Zelda Complete","Zelda 3","Custom" };
-
-const char *subscrtypelist(int32_t index, int32_t *list_size)
-{
-    if(index>=0)
-    {
-        bound(index,0,ssdtMAX);
-        return subscrtype_str[index];
-    }
-    
-    *list_size=ssdtMAX+1;
-    return NULL;
-}
-
-static ListData subscreen_type_dlg_list(subscrtypelist, &font);
-
-static DIALOG subscreen_type_dlg[] =
-{
-    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
-    { jwin_win_proc,     83,   32,   154,  70,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Subscreen Type", NULL, NULL },
-    { jwin_button_proc,     89,  77,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-    { jwin_button_proc,     170,  77,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { jwin_droplist_proc,   107-8,  57,   106+15,  16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          1,             0, (void *) &subscreen_type_dlg_list, NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
-int32_t onSubscreen()
-{
-    int32_t tempsubscreen=zinit.subscreen;
-    subscreen_type_dlg[0].dp2=get_zc_font(font_lfont);
-    subscreen_type_dlg[3].d1=zinit.subscreen;
-    
-    large_dialog(subscreen_type_dlg);
-        
-    int32_t ret = zc_popup_dialog(subscreen_type_dlg,2);
-    
-    if(ret==1)
-    {
-        if(subscreen_type_dlg[3].d1!=tempsubscreen)
-        {
-            zinit.subscreen=subscreen_type_dlg[3].d1;
-            
-            if(zinit.subscreen!=ssdtMAX)  //custom
-            {
-                if(tempsubscreen==ssdtMAX)
-                {
-                    if(jwin_alert("Reset Custom Subscreens","This will delete all of your custom subscreens!","Proceed?",NULL,"&OK","&Cancel",13,27,get_zc_font(font_lfont))==2)
-                    {
-                        zinit.subscreen=ssdtMAX;
-                        return D_O_K;
-                    }
-                }
-                
-                reset_subscreens();
-                setupsubscreens();
-            }
-            
-            saved=false;
-        }
-    }
-    
-    return D_O_K;
-}
-
 bool do_x_button(BITMAP *dest, int32_t x, int32_t y)
 {
     bool over=false;
@@ -30199,7 +30133,6 @@ void center_zquest_dialogs()
     jwin_center_dialog(sfx_edit_dlg);
     jwin_center_dialog(showpal_dlg);
     jwin_center_dialog(strlist_dlg);
-    jwin_center_dialog(subscreen_type_dlg);
     jwin_center_dialog(template_dlg);
     center_zq_tiles_dialog();
     jwin_center_dialog(tp_dlg);
@@ -30787,7 +30720,7 @@ command_pair commands[cmdMAX]=
     { " Map Count",                         0, NULL },
     { "Default Map Styles",                 0, (intF) onDefault_MapStyles },
     { "Map Styles",                         0, (intF) onMapStyles },
-    { "Master Subscreen Type",              0, (intF) onSubscreen },
+    { " Master Subscreen Type",             0, NULL },
     { " Message String",                    0, NULL },
     { "MIDIs",                              0, (intF) onMidis },
     { "Misc Colors",                        0, (intF) onMiscColors },

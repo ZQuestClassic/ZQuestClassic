@@ -6424,7 +6424,7 @@ bool save_zgp(const char *path)
 bool save_subscreen(const char *path, bool *cancel) //!TODO SUBSCR update to use new format
 {
 //  jwin_alert("Error","This feature not yet implemented.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-	return false;
+	return false;/*
     reset_combo_animations();
     reset_combo_animations2();
     *cancel = false;
@@ -6497,12 +6497,12 @@ bool save_subscreen(const char *path, bool *cancel) //!TODO SUBSCR update to use
     }
     
     pack_fclose(f);
-    return true;
+    return true;*/
 }
 
 bool load_subscreen(const char *path) //!TODO SUBSCR update to handle new format
 {
-	return false;
+	return false;/*
     int32_t ret;
     sslist_dlg[0].dp2=get_zc_font(font_lfont);
     char *oldtitlestr=(char*)sslist_dlg[0].dp;
@@ -6574,7 +6574,7 @@ bool load_subscreen(const char *path) //!TODO SUBSCR update to handle new format
     }
     
     pack_fclose(f);
-    return true;
+    return true;*/
 }
 
 bool setMapCount2(int32_t c)

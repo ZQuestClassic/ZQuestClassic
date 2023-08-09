@@ -453,6 +453,8 @@ bool SW_2x2Frame::load_old(subscreen_object const& old)
 	SubscrWidget::load_old(old);
 	tile = old.d1;
 	cs.load_old(old,1);
+	SETFLAG(flags,SUBSCR_2X2FR_TRANSP,old.d4);
+	SETFLAG(flags,SUBSCR_2X2FR_OVERLAY,old.d3);
 	return true;
 }
 word SW_2x2Frame::getW() const
@@ -1108,7 +1110,7 @@ int16_t SW_Counter::getY() const
 }
 word SW_Counter::getW() const
 {
-	return text_length(get_zc_font(fontid), "0")*4 + shadow_w(shadtype);
+	return text_length(get_zc_font(fontid), "0")*zc_max(1,digits) + shadow_w(shadtype);
 }
 word SW_Counter::getH() const
 {
@@ -1344,6 +1346,7 @@ bool SW_MMapTitle::load_old(subscreen_object const& old)
 		return false;
 	SubscrWidget::load_old(old);
 	fontid = to_real_font(old.d1);
+	align = old.d2;
 	SETFLAG(flags,SUBSCR_MMAPTIT_REQMAP,old.d4);
 	shadtype = old.d3;
 	c_text.load_old(old,1);
@@ -2620,14 +2623,15 @@ SubscrWidget* SubscrWidget::fromOld(subscreen_object const& old)
 		case ssoMAGICGAUGE:
 		case ssoLIFEGAUGE:
 		case ssoTEXTBOX:
+		case ssoSELECTEDITEMNAME:
 		case ssoCURRENTITEMTILE:
 		case ssoSELECTEDITEMTILE:
 		case ssoCURRENTITEMTEXT:
 		case ssoCURRENTITEMNAME:
-		case ssoSELECTEDITEMNAME:
 		case ssoCURRENTITEMCLASSTEXT:
 		case ssoCURRENTITEMCLASSNAME:
 		case ssoSELECTEDITEMCLASSNAME:
+			return nullptr;
 			return new SW_Temp(old); //!TODO SUBSCR
 		case ssoITEM:
 		{
@@ -3062,7 +3066,7 @@ int32_t SubscrPage::get_pos_of_item(int32_t id)
 void SubscrPage::clear()
 {
 	cursor_pos = 0;
-	for(SubscrWidget* ptr : contents)
+	for (SubscrWidget* ptr : contents)
 		delete ptr;
 	contents.clear();
 }
@@ -3113,7 +3117,7 @@ int32_t SubscrPage::write(PACKFILE *f) const
 {
     if(!p_iputl(cursor_pos,f))
         new_return(1);
-	word sz = zc_max(65535,contents.size());
+	word sz = zc_min(65535,contents.size());
 	if(!p_iputw(sz,f))
 		new_return(2);
 	for(word q = 0; q < sz; ++q)
@@ -3174,7 +3178,9 @@ void ZCSubscreen::load_old(subscreen_group const& g)
 	SubscrPage& p = pages.emplace_back();
 	for(int ind = 0; ind < MAXSUBSCREENITEMS && g.objects[ind].type != ssoNULL; ++ind)
 	{
-		p.contents.push_back(SubscrWidget::fromOld(g.objects[ind]));
+		auto* w = SubscrWidget::fromOld(g.objects[ind]);
+		if(w)
+			p.contents.push_back(w);
 	}
 }
 void ZCSubscreen::load_old(subscreen_object const* arr)
@@ -3186,7 +3192,10 @@ void ZCSubscreen::load_old(subscreen_object const* arr)
 		SubscrWidget* w = SubscrWidget::fromOld(arr[ind]);
 		if(!w) continue;
 		if(w->getType() == ssoNONE || w->getType() == ssoNULL)
+		{
 			delete w;
+			continue;
+		}
 		p.contents.push_back(w);
 	}
 }
@@ -3214,7 +3223,7 @@ int32_t ZCSubscreen::write(PACKFILE *f) const
         new_return(1);
 	if(!p_putc(sub_type,f))
 		new_return(2);
-	byte pagecnt = zc_max(255,pages.size());
+	byte pagecnt = zc_min(255,pages.size());
 	if(!p_putc(pagecnt,f))
 		new_return(3);
 	for(byte q = 0; q < pagecnt; ++q)

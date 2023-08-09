@@ -11246,9 +11246,11 @@ int32_t read_old_subscreens(PACKFILE *f, word s_version)
     for(int32_t i=0; i<MAXCUSTOMSUBSCREENS; i++)
     {
 		subscreen_group g;
+		memset(&g, 0, sizeof(subscreen_group));
         int32_t ret = read_one_old_subscreen(f, &g, s_version);
         if(ret!=0)
 			return ret;
+		if(g.objects[0].type == ssoNULL) continue;
 		ZCSubscreen& sub = new_subscreen.emplace_back();
 		sub.load_old(g);
     }
@@ -11260,8 +11262,6 @@ int32_t read_one_old_subscreen(PACKFILE *f, subscreen_group* g, word s_version)
 {
     int32_t numsub=0;
     byte temp_ss=0;
-	subscreen_object temp_sub_stack;
-    subscreen_object *temp_sub = &temp_sub_stack;
     
     char tempname[64];
 
@@ -11309,19 +11309,18 @@ int32_t read_one_old_subscreen(PACKFILE *f, subscreen_group* g, word s_version)
     
     for(j=0; (j<MAXSUBSCREENITEMS&&j<numsub); j++)
     {
-		memset(temp_sub,0,sizeof(subscreen_object));
-		
-		switch(g->objects[j].type)
+		subscreen_object* temp_sub = &g->objects[j];
+		switch(temp_sub->type)
 		{
 			case ssoTEXT:
 			case ssoTEXTBOX:
 			case ssoCURRENTITEMTEXT:
 			case ssoCURRENTITEMCLASSTEXT:
-				if(g->objects[j].dp1 != NULL) delete [](char *)g->objects[j].dp1;
+				if(temp_sub->dp1 != NULL) delete [](char *)temp_sub->dp1;
 				
 				//fall through
 			default:
-				memset(&g->objects[j],0,sizeof(subscreen_object));
+				memset(temp_sub,0,sizeof(subscreen_object));
 				break;
 		}
         
@@ -11738,11 +11737,11 @@ int32_t read_one_old_subscreen(PACKFILE *f, subscreen_group* g, word s_version)
 		case ssoTEXTBOX:
 		case ssoCURRENTITEMTEXT:
 		case ssoCURRENTITEMCLASSTEXT:
-			if(g->objects[j].dp1 != NULL) delete[](char *)g->objects[j].dp1;
+			if(temp_sub->dp1 != NULL) delete[](char *)temp_sub->dp1;
 			
 			memcpy(&g->objects[j],temp_sub,sizeof(subscreen_object));
-			g->objects[j].dp1 = new char[temp_size+2];
-			strcpy((char*)g->objects[j].dp1,tempdp1);
+			temp_sub->dp1 = new char[temp_size+2];
+			strcpy((char*)temp_sub->dp1,tempdp1);
 			break;
 			
 		case ssoCOUNTER:
@@ -11751,16 +11750,12 @@ int32_t read_one_old_subscreen(PACKFILE *f, subscreen_group* g, word s_version)
 				temp_sub->d6=(temp_sub->d6?1:0)+(temp_sub->d8?2:0);
 				temp_sub->d8=0;
 			}
-			
-		default:
-			memcpy(&g->objects[j],temp_sub,sizeof(subscreen_object));
 			break;
 		}
-		
-		g->name[0] = '\0';
-		strncat(g->name, tempname, 64 - 1);
-		g->ss_type = temp_ss;
     }
+	g->name[0] = '\0';
+	strncat(g->name, tempname, 64 - 1);
+	g->ss_type = temp_ss;
     
     for(j=numsub; j<MAXSUBSCREENITEMS; j++)
     {
@@ -11838,6 +11833,7 @@ void reset_subscreens()
 int32_t setupsubscreens()
 {
     reset_subscreens();
+	//return 0;
 	for(int q = 0; q < 4; ++q)
 		new_subscreen.emplace_back();
     int32_t tempsubscreen=zinit.subscreen;
