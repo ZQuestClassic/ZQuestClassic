@@ -26862,8 +26862,9 @@ void HeroClass::run_scrolling_script_int(bool waitdraw)
 }
 
 static zfix new_hero_x, new_hero_y;
+static int new_region_offset_x, new_region_offset_y;
 
-//Bit of a messy kludge to give the correct Hero->X/Hero->Y in the script
+// Scripts expect coordinates to be relative to the new screen coordinate system, so we must convert them.
 void HeroClass::run_scrolling_script(int32_t scrolldir, int32_t cx, int32_t sx, int32_t sy, bool end_frames, bool waitdraw)
 {
 	// For rafting (and possibly other esoteric things)
@@ -26880,6 +26881,7 @@ void HeroClass::run_scrolling_script(int32_t scrolldir, int32_t cx, int32_t sx, 
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_FFCS-1);
 	}
 	zfix storex = x, storey = y;
+	auto store_viewport = viewport;
 	switch(scrolldir)
 	{
 	case up:
@@ -26914,9 +26916,14 @@ void HeroClass::run_scrolling_script(int32_t scrolldir, int32_t cx, int32_t sx, 
 		y = new_hero_y;
 		break;
 	}
+
+	viewport.x -= new_region_offset_x;
+	viewport.y -= new_region_offset_y;
+
 	run_scrolling_script_int(waitdraw);
 	
 	x = storex, y = storey;
+	viewport = store_viewport;
 	
 	action=lastaction; FFCore.setHeroAction(lastaction);
 }
@@ -27411,6 +27418,10 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	bool is_unsmooth_vertical_scrolling =
 		(scrolldir == up || scrolldir == down) && get_qr(qr_SMOOTHVERTICALSCROLLING) == 0;
 
+	// These mark the top-left coordinate of the new region and the old region, relative to the old region world coordinates.
+	new_region_offset_x = (z3_get_region_relative_dx(new_region.origin_screen_index, cur_origin_screen_index)) * 256;
+	new_region_offset_y = (z3_get_region_relative_dy(new_region.origin_screen_index, cur_origin_screen_index)) * 176;
+
 	kill_enemy_sfx();
 	stop_sfx(QMisc.miscsfx[sfxLOWHEART]);
 	screenscrolling = true;
@@ -27434,8 +27445,10 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			FFCore.ScrollingData[SCROLLDATA_NY] = 0;
 			break;
 	}
-	FFCore.ScrollingData[SCROLLDATA_NRX] = (z3_get_region_relative_dx(new_region.origin_screen_index, cur_origin_screen_index)) * 256;
-	FFCore.ScrollingData[SCROLLDATA_NRY] = (z3_get_region_relative_dy(new_region.origin_screen_index, cur_origin_screen_index)) * 176;
+	FFCore.ScrollingData[SCROLLDATA_NEW_REGION_OFFSET_X] = new_region_offset_x;
+	FFCore.ScrollingData[SCROLLDATA_NEW_REGION_OFFSET_Y] = new_region_offset_y;
+	FFCore.ScrollingData[SCROLLDATA_NRX] = new_region_offset_x;
+	FFCore.ScrollingData[SCROLLDATA_NRY] = new_region_offset_y;
 	FFCore.ScrollingData[SCROLLDATA_ORX] = 0;
 	FFCore.ScrollingData[SCROLLDATA_ORY] = 0;
 
@@ -27922,12 +27935,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		}
 	});
 
-	// These mark the top-left coordinate of the new region and the old region, relative to the old region world coordinates.
-	int nrx = (z3_get_region_relative_dx(cur_origin_screen_index, old_origin_scr)) * 256;
-	int nry = (z3_get_region_relative_dy(cur_origin_screen_index, old_origin_scr)) * 176;
-	int orx = 0; // Zero by definition.
-	int ory = 0; // Zero by definition.
-
 	currdmap = new_dmap;
 	for(word i = 0; (scroll_counter >= 0 && delay != 0) || align_counter; i++, scroll_counter--) //Go!
 	{
@@ -28032,16 +28039,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			move_counter++;
 			viewport.x = initial_viewport.x + step * move_counter * dx;
 			viewport.y = initial_viewport.y + step * move_counter * dy;
-			// if (is_unsmooth_vertical_scrolling) viewport.y += 3;
-
-			// if (dx) x = vbound(x, viewport.x, viewport.x + viewport.w - 16);
-			// if (dy) y = vbound(y, viewport.y, viewport.y + viewport.h - 16);
-			// if (is_unsmooth_vertical_scrolling) viewport.y += 3;
-
-			// replay_step_comment(fmt::format("hero scroll x y {} {}", x.getInt(), y.getInt()));
-
-			// x -= viewport.x;
-			// y -= viewport.y;
 			
 			//bound Hero when me move him off the screen in the last couple of frames of scrolling
 			if(script_hero_y > old_viewport.y + old_viewport.h - 16) script_hero_y = old_viewport.y + old_viewport.h - 16;
@@ -28181,10 +28178,10 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		FFCore.ScrollingData[SCROLLDATA_NY] = ny - viewport.y;
 		FFCore.ScrollingData[SCROLLDATA_OX] = ox - viewport.x;
 		FFCore.ScrollingData[SCROLLDATA_OY] = oy - viewport.y;
-		FFCore.ScrollingData[SCROLLDATA_NRX] = nrx - viewport.x;
-		FFCore.ScrollingData[SCROLLDATA_NRY] = nry - viewport.y;
-		FFCore.ScrollingData[SCROLLDATA_ORX] = orx - viewport.x;
-		FFCore.ScrollingData[SCROLLDATA_ORY] = ory - viewport.y;
+		FFCore.ScrollingData[SCROLLDATA_NRX] = new_region_offset_x - viewport.x;
+		FFCore.ScrollingData[SCROLLDATA_NRY] = new_region_offset_y - viewport.y;
+		FFCore.ScrollingData[SCROLLDATA_ORX] = -viewport.x;
+		FFCore.ScrollingData[SCROLLDATA_ORY] = -viewport.y;
 
 		//FFScript.OnWaitdraw()
 		// if (region_scrolling)
