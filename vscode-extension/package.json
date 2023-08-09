@@ -4,7 +4,7 @@
 	"description": "ZScript scripting language for ZQuest Classic",
 	"author": "Connor Clark",
 	"license": "MIT",
-	"version": "1.0.5",
+	"version": "1.0.6",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/ArmageddonGames/ZQuestClassic.git"
