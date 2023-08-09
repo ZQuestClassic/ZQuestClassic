@@ -16,8 +16,15 @@ dmapdata script ScrollingDebug
 			Screen->DrawInteger(7, 40, 8, FONT_Z3SMALL, 0x01, 0x0F, -1, -1, Game->Scrolling[SCROLL_NX], 0, 128);
 			Screen->DrawInteger(7, 120, 8, FONT_Z3SMALL, 0x01, 0x0F, -1, -1, Game->Scrolling[SCROLL_NY], 0, 128);
 
+			int x = 0;
+			int y = 0;
+			int w = Viewport->Width - 1;
+			int h = Viewport->Height - 9;
+
+			// Just so don't have to update playground_scrolling_script.zplay
 			if (Region->ID)
 			{
+				Screen->Rectangle(7, x+4, y+4, x+w-4, y+h-4, 0x72, 1, 0, 0, 0, false, 128);
 				printf("ORX/ORY %d %d\n", Game->Scrolling[SCROLL_ORX], Game->Scrolling[SCROLL_ORY]);
 				printf("NRX/NRY %d %d\n", Game->Scrolling[SCROLL_NRX], Game->Scrolling[SCROLL_NRY]);
 			}
@@ -25,8 +32,8 @@ dmapdata script ScrollingDebug
 			if (Game->Scrolling[SCROLL_DIR] != -1)
 			{
 				// This draws where link is.
-				int x = Link->X - Viewport->X;
-				int y = Link->Y - Viewport->Y;
+				x = Link->X - Viewport->X;
+				y = Link->Y - Viewport->Y;
 				Screen->DrawCombo(3, x, y,
 					20,
 					1,
