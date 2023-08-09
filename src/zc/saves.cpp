@@ -1106,6 +1106,21 @@ static int32_t read_saves(ReadMode read_mode, std::string filename, std::vector<
 					return 108;
 			}
 		}
+		if(section_version >= 34)
+		{
+			if(!p_getc(&game.awpnpg,f))
+				return 109;
+			if(!p_getc(&game.bwpnpg,f))
+				return 110;
+			if(!p_getc(&game.xwpnpg,f))
+				return 111;
+			if(!p_getc(&game.ywpnpg,f))
+				return 112;
+		}
+		else
+		{
+			game.awpnpg = game.bwpnpg = game.xwpnpg = game.ywpnpg = 0;
+		}
 	}
 
 	return 0;
@@ -1552,6 +1567,14 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 		if(!p_iputw(p.spr, f))
 			return 108;
 	}
+	if(!p_putc(game.awpnpg, f))
+		return 109;
+	if(!p_putc(game.bwpnpg, f))
+		return 110;
+	if(!p_putc(game.xwpnpg, f))
+		return 111;
+	if(!p_putc(game.ywpnpg, f))
+		return 112;
 	
 	return 0;
 }

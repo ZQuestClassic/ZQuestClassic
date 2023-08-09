@@ -141,6 +141,7 @@ struct SubscrWidget
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const;
 	virtual bool visible(byte pos, bool showtime) const;
 	virtual SubscrWidget* clone() const;
+	virtual bool copy_prop(SubscrWidget const* src, bool all = false);
 	virtual int32_t write(PACKFILE *f) const;
 	
 	static SubscrWidget* fromOld(subscreen_object const& old);
@@ -168,6 +169,7 @@ struct SW_2x2Frame : public SubscrWidget
 	virtual byte getType() const override;
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
 	virtual SubscrWidget* clone() const override;
+	virtual bool copy_prop(SubscrWidget const* src, bool all = false) override;
 	virtual int32_t write(PACKFILE *f) const override;
 protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
@@ -192,6 +194,7 @@ struct SW_Text : public SubscrWidget
 	virtual byte getType() const override;
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
 	virtual SubscrWidget* clone() const override;
+	virtual bool copy_prop(SubscrWidget const* src, bool all = false) override;
 	virtual int32_t write(PACKFILE *f) const override;
 protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
@@ -209,6 +212,7 @@ struct SW_Line : public SubscrWidget
 	virtual byte getType() const override;
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
 	virtual SubscrWidget* clone() const override;
+	virtual bool copy_prop(SubscrWidget const* src, bool all = false) override;
 	virtual int32_t write(PACKFILE *f) const override;
 protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
@@ -227,6 +231,7 @@ struct SW_Rect : public SubscrWidget
 	virtual byte getType() const override;
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
 	virtual SubscrWidget* clone() const override;
+	virtual bool copy_prop(SubscrWidget const* src, bool all = false) override;
 	virtual int32_t write(PACKFILE *f) const override;
 protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
@@ -252,6 +257,7 @@ struct SW_Time : public SubscrWidget
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
 	virtual bool visible(byte pos, bool showtime) const override;
 	virtual SubscrWidget* clone() const override;
+	virtual bool copy_prop(SubscrWidget const* src, bool all = false) override;
 	virtual int32_t write(PACKFILE *f) const override;
 protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
@@ -269,6 +275,7 @@ struct SW_MagicMeter : public SubscrWidget
 	virtual byte getType() const override;
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
 	virtual SubscrWidget* clone() const override;
+	virtual bool copy_prop(SubscrWidget const* src, bool all = false) override;
 	virtual int32_t write(PACKFILE *f) const override;
 protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
@@ -278,6 +285,7 @@ protected:
 struct SW_LifeMeter : public SubscrWidget
 {
 	byte rows;
+	
 	SW_LifeMeter() = default;
 	SW_LifeMeter(subscreen_object const& old);
 	
@@ -288,6 +296,7 @@ struct SW_LifeMeter : public SubscrWidget
 	virtual byte getType() const override;
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
 	virtual SubscrWidget* clone() const override;
+	virtual bool copy_prop(SubscrWidget const* src, bool all = false) override;
 	virtual int32_t write(PACKFILE *f) const override;
 protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
@@ -306,6 +315,7 @@ struct SW_ButtonItem : public SubscrWidget
 	virtual byte getType() const override;
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
 	virtual SubscrWidget* clone() const override;
+	virtual bool copy_prop(SubscrWidget const* src, bool all = false) override;
 	virtual int32_t write(PACKFILE *f) const override;
 protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
@@ -335,6 +345,7 @@ struct SW_Counter : public SubscrWidget
 	virtual byte getType() const override;
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
 	virtual SubscrWidget* clone() const override;
+	virtual bool copy_prop(SubscrWidget const* src, bool all = false) override;
 	virtual int32_t write(PACKFILE *f) const override;
 protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
@@ -361,6 +372,7 @@ struct SW_Counters : public SubscrWidget
 	virtual byte getType() const override;
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
 	virtual SubscrWidget* clone() const override;
+	virtual bool copy_prop(SubscrWidget const* src, bool all = false) override;
 	virtual int32_t write(PACKFILE *f) const override;
 protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
@@ -383,6 +395,7 @@ struct SW_MMapTitle : public SubscrWidget
 	virtual byte getType() const override;
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
 	virtual SubscrWidget* clone() const override;
+	virtual bool copy_prop(SubscrWidget const* src, bool all = false) override;
 	virtual int32_t write(PACKFILE *f) const override;
 protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
@@ -404,6 +417,7 @@ struct SW_MMap : public SubscrWidget
 	virtual byte getType() const override;
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
 	virtual SubscrWidget* clone() const override;
+	virtual bool copy_prop(SubscrWidget const* src, bool all = false) override;
 	virtual int32_t write(PACKFILE *f) const override;
 protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
@@ -426,6 +440,7 @@ struct SW_LMap : public SubscrWidget
 	virtual byte getType() const override;
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
 	virtual SubscrWidget* clone() const override;
+	virtual bool copy_prop(SubscrWidget const* src, bool all = false) override;
 	virtual int32_t write(PACKFILE *f) const override;
 protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
@@ -444,6 +459,7 @@ struct SW_Clear : public SubscrWidget
 	virtual byte getType() const override;
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
 	virtual SubscrWidget* clone() const override;
+	virtual bool copy_prop(SubscrWidget const* src, bool all = false) override;
 	virtual int32_t write(PACKFILE *f) const override;
 protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
@@ -465,6 +481,7 @@ struct SW_CurrentItem : public SubscrWidget
 	virtual int32_t getItemVal() const override;
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
 	virtual SubscrWidget* clone() const override;
+	virtual bool copy_prop(SubscrWidget const* src, bool all = false) override;
 	virtual int32_t write(PACKFILE *f) const override;
 protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
@@ -488,6 +505,7 @@ struct SW_TriFrame : public SubscrWidget
 	virtual byte getType() const override;
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
 	virtual SubscrWidget* clone() const override;
+	virtual bool copy_prop(SubscrWidget const* src, bool all = false) override;
 	virtual int32_t write(PACKFILE *f) const override;
 protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
@@ -500,6 +518,7 @@ struct SW_McGuffin : public SubscrWidget
 	int32_t tile, number;
 	byte cset;
 	SubscrColorInfo cs;
+	
 	SW_McGuffin() = default;
 	SW_McGuffin(subscreen_object const& old);
 	
@@ -509,6 +528,7 @@ struct SW_McGuffin : public SubscrWidget
 	virtual byte getType() const override;
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
 	virtual SubscrWidget* clone() const override;
+	virtual bool copy_prop(SubscrWidget const* src, bool all = false) override;
 	virtual int32_t write(PACKFILE *f) const override;
 protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
@@ -531,6 +551,7 @@ struct SW_TileBlock : public SubscrWidget
 	virtual byte getType() const override;
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
 	virtual SubscrWidget* clone() const override;
+	virtual bool copy_prop(SubscrWidget const* src, bool all = false) override;
 	virtual int32_t write(PACKFILE *f) const override;
 protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
@@ -554,6 +575,7 @@ struct SW_MiniTile : public SubscrWidget
 	virtual byte getType() const override;
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
 	virtual SubscrWidget* clone() const override;
+	virtual bool copy_prop(SubscrWidget const* src, bool all = false) override;
 	virtual int32_t write(PACKFILE *f) const override;
 protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
@@ -563,6 +585,7 @@ bool new_widget_type(int ty);
 struct SW_Temp : public SubscrWidget
 {
 	subscreen_object old;
+	
 	SW_Temp() = default;
 	SW_Temp(byte ty);
 	SW_Temp(subscreen_object const& old);
@@ -577,6 +600,7 @@ struct SW_Temp : public SubscrWidget
 	virtual byte getType() const override;
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
 	virtual SubscrWidget* clone() const override;
+	virtual bool copy_prop(SubscrWidget const* src, bool all = false) override;
 	virtual int32_t write(PACKFILE *f) const override;
 protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
@@ -587,13 +611,13 @@ struct SubscrPage
 	std::vector<SubscrWidget*> contents;
 	int32_t cursor_pos, init_cursor_pos;
 	
-	void move_cursor(int dir, bool item_only);
-	void move_legacy(int dir, int startp, int fp=-1, int fp2=-1, int fp3=-1, bool equip_only=true, bool item_only=true);
+	void move_cursor(int dir, bool item_only = false);
+	int32_t move_legacy(int dir, int startp, int fp=-1, int fp2=-1, int fp3=-1, bool equip_only=true, bool item_only=true);
 	SubscrWidget* get_widg_pos(int32_t pos, bool sel_only = true);
 	SubscrWidget* get_sel_widg();
 	int32_t get_item_pos(int32_t pos, bool sel_only = true);
 	int32_t get_sel_item();
-	int32_t get_item_pos(int32_t itemid);
+	int32_t get_pos_of_item(int32_t itemid);
 	
 	void clear();
 	void draw(BITMAP* dest, int32_t xofs, int32_t yofs, byte pos, bool showtime);
@@ -613,8 +637,13 @@ struct ZCSubscreen
 	std::string name;
 	
 	SubscrPage& cur_page();
+	SubscrPage* get_page(byte ind);
+	bool get_page_pos(int32_t itmid, byte& pg, byte& pos);
+	int32_t get_item_pos(byte pos, byte pg);
 	void clear();
 	void draw(BITMAP* dest, int32_t xofs, int32_t yofs, byte pos, bool showtime);
+	void load_old(subscreen_group const& g);
+	void load_old(subscreen_object const* arr);
 	int32_t read(PACKFILE *f, word s_version);
 	int32_t write(PACKFILE *f) const;
 };

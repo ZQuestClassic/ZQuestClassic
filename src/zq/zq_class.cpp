@@ -6424,7 +6424,7 @@ bool save_zgp(const char *path)
 bool save_subscreen(const char *path, bool *cancel) //!TODO SUBSCR update to use new format
 {
 //  jwin_alert("Error","This feature not yet implemented.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-//  return false;
+	return false;
     reset_combo_animations();
     reset_combo_animations2();
     *cancel = false;
@@ -6490,7 +6490,7 @@ bool save_subscreen(const char *path, bool *cancel) //!TODO SUBSCR update to use
     }
     
     //subscreens
-    if(write_one_subscreen(f,&header,sslist_dlg[2].d1)!=0)
+    //if(write_one_subscreen(f,&header,sslist_dlg[2].d1)!=0)
     {
         pack_fclose(f);
         return false;
@@ -6502,6 +6502,7 @@ bool save_subscreen(const char *path, bool *cancel) //!TODO SUBSCR update to use
 
 bool load_subscreen(const char *path) //!TODO SUBSCR update to handle new format
 {
+	return false;
     int32_t ret;
     sslist_dlg[0].dp2=get_zc_font(font_lfont);
     char *oldtitlestr=(char*)sslist_dlg[0].dp;
@@ -6566,7 +6567,7 @@ bool load_subscreen(const char *path) //!TODO SUBSCR update to handle new format
     }
     
     //subscreens
-    if(read_one_old_subscreen(f,&header,sslist_dlg[2].d1,section_version,section_cversion)!=0)
+    //if(read_one_old_subscreen(f,&header,sslist_dlg[2].d1,section_version,section_cversion)!=0)
     {
         pack_fclose(f);
         return false;
@@ -12246,16 +12247,18 @@ int32_t writesubscreens(PACKFILE *f, zquestheader *Header)
         }
         
         writesize=0;
+		
+		byte sz = new_subscreen.size();
+		if(!p_putc(sz,f))
+			new_return(5);
         
-        for(int32_t i=0; i<MAXCUSTOMSUBSCREENS; i++)
+        for(int32_t i=0; i<sz; i++)
         {
-            int32_t ret = write_one_subscreen(f, Header, i);
+            int32_t ret = new_subscreen[i].write(f);
             fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
-            {
                 new_return(ret);
-            }
         }
         
         if(writecycle==0)
@@ -12269,209 +12272,6 @@ int32_t writesubscreens(PACKFILE *f, zquestheader *Header)
         char ebuf[80];
         sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
         jwin_alert("Error:  writesubscreens()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-    }
-    
-    new_return(0);
-}
-
-int32_t write_one_subscreen(PACKFILE *f, zquestheader *Header, int32_t i)
-{
-    //these are here to bypass compiler warnings about unused arguments
-    Header=Header;
-    
-    int32_t numsub = 0;
-    
-    if(!pfwrite(custom_subscreen[i].name, 64,f))
-    {
-        new_return(28);
-    }
-    
-    if(!p_putc(custom_subscreen[i].ss_type,f))
-    {
-        new_return(29);
-    }
-    
-    for(int32_t k=0; (k<MAXSUBSCREENITEMS&&(custom_subscreen[i].objects[k].type != ssoNULL)); k++)
-    {
-        numsub++;
-    }
-    
-    if(!p_iputw(numsub,f))
-    {
-        new_return(4);
-    }
-    
-    for(int32_t j=0; (j<MAXSUBSCREENITEMS&&j<numsub); j++)
-    {
-        if(!p_putc(custom_subscreen[i].objects[j].type, f))
-        {
-            new_return(5);
-        }
-        
-        if(!p_putc(custom_subscreen[i].objects[j].pos, f))
-        {
-            new_return(6);
-        }
-        
-        if(!p_iputw(custom_subscreen[i].objects[j].x, f))
-        {
-            new_return(7);
-        }
-        
-        if(!p_iputw(custom_subscreen[i].objects[j].y, f))
-        {
-            new_return(8);
-        }
-        
-        if(!p_iputw(custom_subscreen[i].objects[j].w, f))
-        {
-            new_return(9);
-        }
-        
-        if(!p_iputw(custom_subscreen[i].objects[j].h, f))
-        {
-            new_return(10);
-        }
-        
-        if(!p_putc(custom_subscreen[i].objects[j].colortype1, f))
-        {
-            new_return(11);
-        }
-        
-        if(!p_iputw(custom_subscreen[i].objects[j].color1, f))
-        {
-            new_return(12);
-        }
-        
-        if(!p_putc(custom_subscreen[i].objects[j].colortype2, f))
-        {
-            new_return(13);
-        }
-        
-        if(!p_iputw(custom_subscreen[i].objects[j].color2, f))
-        {
-            new_return(14);
-        }
-        
-        if(!p_putc(custom_subscreen[i].objects[j].colortype3, f))
-        {
-            new_return(15);
-        }
-        
-        if(!p_iputw(custom_subscreen[i].objects[j].color3, f))
-        {
-            new_return(16);
-        }
-        
-        if(!p_iputl(custom_subscreen[i].objects[j].d1, f))
-        {
-            new_return(17);
-        }
-        
-        if(!p_iputl(custom_subscreen[i].objects[j].d2, f))
-        {
-            new_return(18);
-        }
-        
-        if(!p_iputl(custom_subscreen[i].objects[j].d3, f))
-        {
-            new_return(19);
-        }
-        
-        if(!p_iputl(custom_subscreen[i].objects[j].d4, f))
-        {
-            new_return(20);
-        }
-        
-        if(!p_iputl(custom_subscreen[i].objects[j].d5, f))
-        {
-            new_return(21);
-        }
-        
-        if(!p_iputl(custom_subscreen[i].objects[j].d6, f))
-        {
-            new_return(22);
-        }
-        
-        if(!p_iputl(custom_subscreen[i].objects[j].d7, f))
-        {
-            new_return(23);
-        }
-        
-        if(!p_iputl(custom_subscreen[i].objects[j].d8, f))
-        {
-            new_return(24);
-        }
-        
-        if(!p_iputl(custom_subscreen[i].objects[j].d9, f))
-        {
-            new_return(25);
-        }
-        
-        if(!p_iputl(custom_subscreen[i].objects[j].d10, f))
-        {
-            new_return(26);
-        }
-        
-        if(!p_putc(custom_subscreen[i].objects[j].speed, f))
-        {
-            new_return(27);
-        }
-        
-        if(!p_putc(custom_subscreen[i].objects[j].delay, f))
-        {
-            new_return(28);
-        }
-        
-        if(!p_iputw(custom_subscreen[i].objects[j].frame, f))
-        {
-            new_return(29);
-        }
-        
-        switch(custom_subscreen[i].objects[j].type)
-        {
-        case ssoTEXT:
-        case ssoTEXTBOX:
-        case ssoCURRENTITEMTEXT:
-        case ssoCURRENTITEMCLASSTEXT:
-            if(custom_subscreen[i].objects[j].dp1 != NULL)
-            {
-                if(strlen((char*)custom_subscreen[i].objects[j].dp1))
-                {
-                    if(!p_iputw((int32_t)strlen((char*)custom_subscreen[i].objects[j].dp1), f))
-                    {
-                        new_return(27);
-                    }
-                    
-                    if(!pfwrite(custom_subscreen[i].objects[j].dp1, (int32_t)strlen((char*)custom_subscreen[i].objects[j].dp1)+1,f))
-                    {
-                        new_return(28);
-                    }
-                }
-                else
-                {
-                    if(!p_iputw(0, f))
-                    {
-                        new_return(27);
-                    }
-                }
-            }
-            else
-            {
-                if(!p_iputw(0, f))
-                {
-                    new_return(27);
-                }
-            }
-            
-            break;
-            
-        default:
-            if(!p_putc(0, f))
-            {
-                new_return(27);
-            }
-        }
     }
     
     new_return(0);

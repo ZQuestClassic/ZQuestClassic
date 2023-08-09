@@ -249,11 +249,11 @@ void load_Sitems();
 void textout_styled_aligned_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t textstyle, int32_t alignment, int32_t color, int32_t shadow, int32_t bg);
 void textprintf_styled_aligned_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t textstyle, int32_t alignment, int32_t color, int32_t shadow, int32_t bg, const char *format, ...);
 void update_subscreens(int32_t dmap=-1);
-void show_custom_subscreen(BITMAP *dest, subscreen_group *css, int32_t xofs, int32_t yofs, bool showtime, int32_t pos2);
+void show_custom_subscreen(BITMAP *dest, ZCSubscreen *subscr, int32_t xofs, int32_t yofs, bool showtime, int32_t pos2);
 FONT *ss_font(int32_t fontnum);
 int32_t to_real_font(int32_t ss_font);
 int32_t to_ss_font(int32_t real_font);
-void purge_blank_subscreen_objects(subscreen_group *tempss);
+void purge_blank_subscreen_objects(SubscrPage& pg);
 int32_t subscreen_cset(int32_t c1, int32_t c2);
 
 int32_t sso_x(subscreen_object const* tempsso);
@@ -261,7 +261,7 @@ int32_t sso_y(subscreen_object const* tempsso);
 int32_t sso_h(subscreen_object const* tempsso);
 int32_t sso_w(subscreen_object const* tempsso);
 int32_t get_alignment(subscreen_object const* tempsso);
-void sso_bounding_box(BITMAP *bmp, subscreen_group *tempss, int32_t index, int32_t color);
+void sso_bounding_box(BITMAP *bmp, SubscrWidget* widg, int32_t color);
 
 
 bool findWeaponWithParent(int32_t id, int32_t type);

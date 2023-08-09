@@ -599,10 +599,6 @@ public:
 	bool stopSubscreenFalling();
 	void stopSubscreenFalling(bool v);
 	
-	//Set the button items by brute force
-	void setAButtonItem(int32_t subscreenslot);
-	void setBButtonItem(int32_t subscreenslot);
-	
 	bool getDiagMove(); //Diagonal movement.
 	void setDiagMove(bool newdiag);
 	bool getBigHitbox(); //Large H-itbox
@@ -657,8 +653,6 @@ bool checkmagiccost(int32_t itemid, bool checkTime = false);
 void paymagiccost(int32_t itemid, bool ignoreTimer = false, bool onlyTimer = false);
 void stopCaneOfByrna();
 //void selectWpn(int32_t xstep, int32_t ystep, bool b);
-int get_subscr_itemind(int32_t pos);
-int32_t selectWpn_new(int32_t type, int32_t startpos, int32_t forbiddenpos = -1, int32_t fp2 = -1, int32_t fp3 = -1, bool equip_only = true, bool checkwpn = true);
 bool isWpnPressed(int32_t wpn);
 int32_t getWpnPressed(int32_t wpn);
 int32_t getRocsPressed();

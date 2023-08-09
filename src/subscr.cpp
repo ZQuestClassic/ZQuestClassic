@@ -2155,7 +2155,6 @@ void draw_textbox(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, FONT
 
 
 //void frame2x2(BITMAP *dest,int32_t x,int32_t y,int32_t xsize,int32_t ysize,int32_t t,int32_t c)
-//draw_block_flip(dest,x,y,css->objects[i].d1,subscreen_cset(css->objects[i].colortype1, css->objects[i].color1),css->objects[i].w,css->objects[i].h,css->objects[i].d2,css->objects[i].d3,css->objects[i].d4);
 void frame2x2(BITMAP *dest,int32_t x,int32_t y,int32_t tile,int32_t cset,int32_t w,int32_t h,int32_t /*flip*/,bool overlay,bool trans)
 {
     /*
@@ -3712,6 +3711,7 @@ void animate_selectors()
 
 void show_custom_subscreen(BITMAP *dest, ZCSubscreen* subscr, int32_t xofs, int32_t yofs, bool showtime, int32_t pos2)
 {
+	if(!subscr) return;
 	//this is not a good place to be clearing the bitmap
 	//other stuff might already have been drawn on it that needs to be kept
 	//(eg the game screen when pulling down the subscreen) -DD
@@ -4229,7 +4229,7 @@ void put_passive_subscr(BITMAP *dest,int32_t x,int32_t y,bool showtime,int32_t p
         return;
     }
     
-    show_custom_subscreen(subscr, current_subscreen_passive, 0, 0, showtime, pos2);
+    show_custom_subscreen(subscr, new_subscreen_passive, 0, 0, showtime, pos2);
     destroy_bitmap(subscr);
 }
 
@@ -4679,22 +4679,6 @@ void update_subscreens(int32_t dmap)
 	}
 	
 	new_subscreen_passive=&new_subscreen[j-1];
-}
-
-void purge_blank_subscreen_objects(SubscrPage& page)
-{
-	for(auto it = page.contents.begin(); it != page.contents.end();)
-	{
-		switch(*it->getType())
-		{
-			case ssoNONE: case ssoNULL:
-				it = page.contents.erase(it);
-				break;
-			default:
-				++it;
-				break;
-		}
-	}
 }
 
 
@@ -5316,32 +5300,15 @@ int32_t sso_w(subscreen_object const* tempsso)
     return w;
 }
 
-void sso_bounding_box(BITMAP *bmp, subscreen_group *tempss, int32_t index, int32_t color)
+void sso_bounding_box(BITMAP *bmp, SubscrWidget* widg, int32_t color)
 {
-    if(index<0)
-    {
-        return;
-    }
+    if(!widg)
+		return;
     
-    int32_t x=sso_x(&tempss->objects[index]);
-    int32_t y=sso_y(&tempss->objects[index]);
-    int32_t w=sso_w(&tempss->objects[index]);
-    int32_t h=sso_h(&tempss->objects[index]);
-    
-    switch(get_alignment(&tempss->objects[index]))
-    {
-    case sstaCENTER:
-        x-=(w/2);
-        break;
-        
-    case sstaRIGHT:
-        x-=w;
-        break;
-        
-    case sstaLEFT:
-    default:
-        break;
-    }
+    int32_t x=widg->getX()+widg->getXOffs();
+    int32_t y=widg->getY();
+    int32_t w=widg->getW();
+    int32_t h=widg->getH();
     
     int32_t c=x+w/2;
     int32_t m=y+h/2;

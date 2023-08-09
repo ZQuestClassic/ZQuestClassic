@@ -1678,7 +1678,7 @@ int32_t init_game()
 {
 	if(clearConsoleOnLoad)
 		clearConsole();
-	current_subscreen_active = nullptr;
+	new_subscreen_active = nullptr;
 
     // Various things use the frame counter to do random stuff (ex: runDrunkRNG).
 	// We only bother setting it to 0 here so that recordings will play back the
@@ -2127,10 +2127,8 @@ int32_t init_game()
 	if(firstplay)
 	{
 		int wval = get_qr(qr_OLD_SUBSCR) ? -1 : 0;
-		game->awpn=wval;
-		game->bwpn=wval;
-		game->ywpn=wval;
-		game->xwpn=wval;
+		game->awpn=game->bwpn=game->ywpn=game->xwpn=wval;
+		game->awpnpg=game->bwpnpg=game->ywpnpg=game->xwpnpg=0;
 		game->forced_awpn = -1; 
 		game->forced_bwpn = -1;  
 		game->forced_xwpn = -1; 
@@ -2151,7 +2149,7 @@ int32_t init_game()
 		bool use_x = get_qr(qr_SET_XBUTTON_ITEMS), use_y = get_qr(qr_SET_YBUTTON_ITEMS);
 		if(get_qr(qr_OLD_SUBSCR))
 		{
-			SubscrPage& pg = new_subscreen_active.cur_page();
+			SubscrPage& pg = new_subscreen_active->cur_page();
 			if(use_x || use_y)
 			{
 				if(!get_qr(qr_SELECTAWPN))
@@ -2239,14 +2237,14 @@ int32_t init_game()
 				reset_subscr_items();
 			}
 		}
-		else
+		else if(new_subscreen_active)
 		{
 			if(get_qr(qr_SELECTAWPN))
-				directItemA = Awpn = game->awpn?game->awpn:-1;
+				directItemA = Awpn = new_subscreen_active->get_item_pos(game->awpn,game->awpnpg);
 			else selectSword();
-			directItemB = Bwpn = game->bwpn?game->bwpn:-1;
-			directItemX = Xwpn = game->xwpn?game->xwpn:-1;
-			directItemY = Ywpn = game->ywpn?game->ywpn:-1;
+			directItemB = Bwpn = new_subscreen_active->get_item_pos(game->bwpn,game->bwpnpg);
+			directItemX = Xwpn = new_subscreen_active->get_item_pos(game->xwpn,game->xwpnpg);
+			directItemY = Ywpn = new_subscreen_active->get_item_pos(game->ywpn,game->ywpnpg);
 		}
 	}
 	

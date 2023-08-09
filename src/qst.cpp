@@ -11242,17 +11242,21 @@ int32_t readherosprites(PACKFILE *f, zquestheader *Header)
 
 int32_t read_old_subscreens(PACKFILE *f, word s_version)
 {
+	new_subscreen.clear();
     for(int32_t i=0; i<MAXCUSTOMSUBSCREENS; i++)
     {
-        int32_t ret = read_one_old_subscreen(f, i, s_version);
-        
-        if(ret!=0) return ret;
+		subscreen_group g;
+        int32_t ret = read_one_old_subscreen(f, &g, s_version);
+        if(ret!=0)
+			return ret;
+		ZCSubscreen& sub = new_subscreen.emplace_back();
+		sub.load_old(g);
     }
     
     return 0;
 }
 
-int32_t read_one_old_subscreen(PACKFILE *f, int32_t i, word s_version)
+int32_t read_one_old_subscreen(PACKFILE *f, subscreen_group* g, word s_version)
 {
     int32_t numsub=0;
     byte temp_ss=0;
@@ -11307,184 +11311,128 @@ int32_t read_one_old_subscreen(PACKFILE *f, int32_t i, word s_version)
     {
 		memset(temp_sub,0,sizeof(subscreen_object));
 		
-		switch(custom_subscreen[i].objects[j].type)
+		switch(g->objects[j].type)
 		{
-		case ssoTEXT:
-		case ssoTEXTBOX:
-		case ssoCURRENTITEMTEXT:
-		case ssoCURRENTITEMCLASSTEXT:
-			if(custom_subscreen[i].objects[j].dp1 != NULL) delete [](char *)custom_subscreen[i].objects[j].dp1;
-			
-			//fall through
-		default:
-			memset(&custom_subscreen[i].objects[j],0,sizeof(subscreen_object));
-			break;
+			case ssoTEXT:
+			case ssoTEXTBOX:
+			case ssoCURRENTITEMTEXT:
+			case ssoCURRENTITEMCLASSTEXT:
+				if(g->objects[j].dp1 != NULL) delete [](char *)g->objects[j].dp1;
+				
+				//fall through
+			default:
+				memset(&g->objects[j],0,sizeof(subscreen_object));
+				break;
 		}
         
         if(!p_getc(&(temp_sub->type),f))
-        {
             return qe_invalid;
-        }
         
         if(!p_getc(&(temp_sub->pos),f))
-        {
             return qe_invalid;
-        }
         
         if(s_version < 5)
         {
             switch(temp_sub->pos)
             {
-            case 0:
-                temp_sub->pos = sspUP | sspDOWN | sspSCROLLING;
-                break;
-                
-            case 1:
-                temp_sub->pos = sspUP;
-                break;
-                
-            case 2:
-                temp_sub->pos = sspDOWN;
-                break;
-                
-            default:
-                temp_sub->pos = 0;
+				case 0:
+					temp_sub->pos = sspUP | sspDOWN | sspSCROLLING;
+					break;
+					
+				case 1:
+					temp_sub->pos = sspUP;
+					break;
+					
+				case 2:
+					temp_sub->pos = sspDOWN;
+					break;
+					
+				default:
+					temp_sub->pos = 0;
             }
         }
         
         if(!p_igetw(&(temp_sub->x),f))
-        {
             return qe_invalid;
-        }
         
         if(!p_igetw(&(temp_sub->y),f))
-        {
             return qe_invalid;
-        }
         
         if(!p_igetw(&(temp_sub->w),f))
-        {
             return qe_invalid;
-        }
         
         if(!p_igetw(&(temp_sub->h),f))
-        {
             return qe_invalid;
-        }
         
         if(!p_getc(&(temp_sub->colortype1),f))
-        {
             return qe_invalid;
-        }
         
         if(!p_igetw(&(temp_sub->color1),f))
-        {
             return qe_invalid;
-        }
         
         if(!p_getc(&(temp_sub->colortype2),f))
-        {
             return qe_invalid;
-        }
         
         if(!p_igetw(&(temp_sub->color2),f))
-        {
             return qe_invalid;
-        }
         
         if(!p_getc(&(temp_sub->colortype3),f))
-        {
             return qe_invalid;
-        }
         
         if(!p_igetw(&(temp_sub->color3),f))
-        {
             return qe_invalid;
-        }
         
         if(!p_igetd(&(temp_sub->d1),f))
-        {
             return qe_invalid;
-        }
         
         if(!p_igetd(&(temp_sub->d2),f))
-        {
             return qe_invalid;
-        }
         
         if(!p_igetd(&(temp_sub->d3),f))
-        {
             return qe_invalid;
-        }
         
         if(!p_igetd(&(temp_sub->d4),f))
-        {
             return qe_invalid;
-        }
         
         if(!p_igetd(&(temp_sub->d5),f))
-        {
             return qe_invalid;
-        }
         
         if(!p_igetd(&(temp_sub->d6),f))
-        {
             return qe_invalid;
-        }
         
         if(!p_igetd(&(temp_sub->d7),f))
-        {
             return qe_invalid;
-        }
         
         if(!p_igetd(&(temp_sub->d8),f))
-        {
             return qe_invalid;
-        }
         
         if(!p_igetd(&(temp_sub->d9),f))
-        {
             return qe_invalid;
-        }
         
         if(!p_igetd(&(temp_sub->d10),f))
-        {
             return qe_invalid;
-        }
         
         if(s_version < 2)
         {
             if(!p_igetl(&(temp_sub->speed),f))
-            {
                 return qe_invalid;
-            }
             
             if(!p_igetl(&(temp_sub->delay),f))
-            {
                 return qe_invalid;
-            }
             
             if(!p_igetl(&(temp_sub->frame),f))
-            {
                 return qe_invalid;
-            }
         }
         else
         {
             if(!p_getc(&(temp_sub->speed),f))
-            {
                 return qe_invalid;
-            }
             
             if(!p_getc(&(temp_sub->delay),f))
-            {
                 return qe_invalid;
-            }
             
             if(!p_igetw(&(temp_sub->frame),f))
-            {
                 return qe_invalid;
-            }
         }
         
         int32_t temp_size=0;
@@ -11506,33 +11454,25 @@ int32_t read_one_old_subscreen(PACKFILE *f, int32_t i, word s_version)
             
             //temptempsize = temp1 + (temp2 << 8);
             temp_size = (int32_t)temptempsize;
-
-		
 			uint32_t char_length = temp_size+2;
 			if (char_length > MAX_DP1_LEN)
 			{
 				return qe_invalid;
 			}
 			tempdp1[char_length - 1] = '\0';
-			
-			if(temp_size)
-			{
-				if(!pfread(tempdp1,temp_size+1,f))
-				{
-					return qe_invalid;
-				}
-			}
+            
+            if(temp_size)
+                if(!pfread(tempdp1,temp_size+1,f))
+                    return qe_invalid;
+            break;
 		}
-        break;
             
         case ssoLIFEMETER:
             if(get_bit(deprecated_rules, 12) != 0) // qr_24HC
                 temp_sub->d3 = 1;
-                
+            
             if(!p_getc(&(temp_sub->dp1),f))
-            {
                 return qe_invalid;
-            }
             
             break;
             
@@ -11771,9 +11711,7 @@ int32_t read_one_old_subscreen(PACKFILE *f, int32_t i, word s_version)
             //fall-through
         default:
             if(!p_getc(&(temp_sub->dp1),f))
-            {
                 return qe_invalid;
-            }
             
             break;
         }
@@ -11800,12 +11738,11 @@ int32_t read_one_old_subscreen(PACKFILE *f, int32_t i, word s_version)
 		case ssoTEXTBOX:
 		case ssoCURRENTITEMTEXT:
 		case ssoCURRENTITEMCLASSTEXT:
-			if(custom_subscreen[i].objects[j].dp1 != NULL) delete[](char *)custom_subscreen[i].objects[j].dp1;
+			if(g->objects[j].dp1 != NULL) delete[](char *)g->objects[j].dp1;
 			
-			memcpy(&custom_subscreen[i].objects[j],temp_sub,sizeof(subscreen_object));
-			custom_subscreen[i].objects[j].dp1 = NULL;
-			custom_subscreen[i].objects[j].dp1 = new char[temp_size+2];
-			strcpy((char*)custom_subscreen[i].objects[j].dp1,tempdp1);
+			memcpy(&g->objects[j],temp_sub,sizeof(subscreen_object));
+			g->objects[j].dp1 = new char[temp_size+2];
+			strcpy((char*)g->objects[j].dp1,tempdp1);
 			break;
 			
 		case ssoCOUNTER:
@@ -11816,34 +11753,61 @@ int32_t read_one_old_subscreen(PACKFILE *f, int32_t i, word s_version)
 			}
 			
 		default:
-			memcpy(&custom_subscreen[i].objects[j],temp_sub,sizeof(subscreen_object));
+			memcpy(&g->objects[j],temp_sub,sizeof(subscreen_object));
 			break;
 		}
 		
-		custom_subscreen[i].name[0] = '\0';
-		strncat(custom_subscreen[i].name, tempname, 64 - 1);
-		custom_subscreen[i].ss_type = temp_ss;
+		g->name[0] = '\0';
+		strncat(g->name, tempname, 64 - 1);
+		g->ss_type = temp_ss;
     }
     
     for(j=numsub; j<MAXSUBSCREENITEMS; j++)
     {
 		//clear all unused object in this subscreen -DD
-		switch(custom_subscreen[i].objects[j].type)
+		switch(g->objects[j].type)
 		{
 		case ssoTEXT:
 		case ssoTEXTBOX:
 		case ssoCURRENTITEMTEXT:
 		case ssoCURRENTITEMCLASSTEXT:
-			if(custom_subscreen[i].objects[j].dp1 != NULL) delete [](char *)custom_subscreen[i].objects[j].dp1;
+			if(g->objects[j].dp1 != NULL) delete [](char *)g->objects[j].dp1;
 			
 			//fall through
 		default:
-			memset(&custom_subscreen[i].objects[j],0,sizeof(subscreen_object));
+			memset(&g->objects[j],0,sizeof(subscreen_object));
 			break;
 		}
     }
     
     return 0;
+}
+
+int32_t readsubscreens(PACKFILE *f)
+{
+	word s_version, s_cversion;
+	dword dummy;
+	if(!p_igetw(&s_version,f))
+		return qe_invalid;
+	FFCore.quest_format[vSubscreen] = s_version;
+	if(!p_igetw(&s_cversion,f))
+		return qe_invalid;
+	if(!p_igetl(&dummy,f)) //section size
+		return qe_invalid;
+	
+	if(s_version < 8)
+		return read_old_subscreens(f,s_version);
+	
+	byte sz;
+	if(!p_getc(&sz,f))
+		return qe_invalid;
+	new_subscreen.clear();
+	for(byte q = 0; q < sz; ++q)
+	{
+		ZCSubscreen& ref = new_subscreen.emplace_back();
+		ref.read(f,s_version);
+	}
+	return 0;
 }
 
 void reset_subscreen(subscreen_group *tempss)
@@ -11868,385 +11832,59 @@ void reset_subscreen(subscreen_group *tempss)
 
 void reset_subscreens()
 {
-    for(int32_t i=0; i<MAXCUSTOMSUBSCREENS; ++i)
-    {
-        reset_subscreen(&custom_subscreen[i]);
-    }
+	new_subscreen.clear();
 }
 
 int32_t setupsubscreens()
 {
     reset_subscreens();
+	for(int q = 0; q < 4; ++q)
+		new_subscreen.emplace_back();
     int32_t tempsubscreen=zinit.subscreen;
-    subscreen_object *tempsub;
     
     if(tempsubscreen>=ssdtMAX)
-    {
         tempsubscreen=0;
-    }
     
     switch(tempsubscreen)
     {
-    case ssdtOLD:
-    case ssdtNEWSUBSCR:
-    case ssdtREV2:
-    case ssdtBSZELDA:
-    case ssdtBSZELDAMODIFIED:
-    case ssdtBSZELDAENHANCED:
-    case ssdtBSZELDACOMPLETE:
-    {
-        tempsub = default_subscreen_active[tempsubscreen][0];
-        int32_t i;
-        
-        for(i=0; (i<MAXSUBSCREENITEMS&&tempsub[i].type!=ssoNULL); i++)
-        {
-            switch(tempsub[i].type)
-            {
-            case ssoTEXT:
-            case ssoTEXTBOX:
-            case ssoCURRENTITEMTEXT:
-            case ssoCURRENTITEMCLASSTEXT:
-                if(custom_subscreen[0].objects[i].dp1 != NULL) delete [](char *)custom_subscreen[0].objects[i].dp1;
-                
-                memcpy(&custom_subscreen[0].objects[i],&tempsub[i],sizeof(subscreen_object));
-                custom_subscreen[0].objects[i].dp1 = NULL;
-                custom_subscreen[0].objects[i].dp1 = new char[strlen((char*)tempsub[i].dp1)+1];
-                strcpy((char*)custom_subscreen[0].objects[i].dp1,(char*)tempsub[i].dp1);
-                break;
-                
-            case ssoLIFEMETER:
-            {
-                memcpy(&custom_subscreen[0].objects[i],&tempsub[i],sizeof(subscreen_object));
-                
-                if(get_bit(deprecated_rules, 12) != 0)
-                    custom_subscreen[0].objects[i].d3=1;
-                else
-                    custom_subscreen[0].objects[i].d3=0;
-                    
-                break;
-            }
-	    /*
-	    case ssoTRIFRAME:
-	    {
-		memcpy(&custom_subscreen[0].objects[i],&tempsub[i],sizeof(subscreen_object));
-		custom_subscreen[0].objects[i].d1 = 8594;
-		custom_subscreen[0].objects[i].d2 = 8;
-		custom_subscreen[0].objects[i].d3 = 8771;
-		custom_subscreen[0].objects[i].d4 = 8;
-		custom_subscreen[0].objects[i].d5 = 1;
-		custom_subscreen[0].objects[i].d6 = 1;
-		break;
-	    }*/
-            
-            default:
-                memcpy(&custom_subscreen[0].objects[i],&tempsub[i],sizeof(subscreen_object));
-                break;
-            }
-        }
-        
-        custom_subscreen[0].ss_type=sstACTIVE;
-        sprintf(custom_subscreen[0].name, "Active Subscreen (Triforce)");
-        tempsub = default_subscreen_active[tempsubscreen][1];
-        
-        for(i=0; (i<MAXSUBSCREENITEMS&&tempsub[i].type!=ssoNULL); i++)
-        {
-            switch(tempsub[i].type)
-            {
-            case ssoTEXT:
-            case ssoTEXTBOX:
-            case ssoCURRENTITEMTEXT:
-            case ssoCURRENTITEMCLASSTEXT:
-                if(custom_subscreen[1].objects[i].dp1 != NULL) delete [](char *)custom_subscreen[1].objects[i].dp1;
-                
-                memcpy(&custom_subscreen[1].objects[i],&tempsub[i],sizeof(subscreen_object));
-                custom_subscreen[1].objects[i].dp1 = NULL;
-                custom_subscreen[1].objects[i].dp1 = new char[strlen((char*)tempsub[i].dp1)+1];
-                strcpy((char*)custom_subscreen[1].objects[i].dp1,(char*)tempsub[i].dp1);
-                break;
-                
-            case ssoLIFEMETER:
-            {
-                memcpy(&custom_subscreen[1].objects[i],&tempsub[i],sizeof(subscreen_object));
-                
-                if(get_bit(deprecated_rules, 12) != 0)
-                    custom_subscreen[1].objects[i].d3=1;
-                else
-                    custom_subscreen[1].objects[i].d3=0;
-                    
-                break;
-            }
-	    /*
-	    case ssoTRIFRAME:
-	    {
-		custom_subscreen[1].objects[i].d1 = 8594;
-		custom_subscreen[1].objects[i].d2 = 8;
-		custom_subscreen[1].objects[i].d3 = 8771;
-		custom_subscreen[1].objects[i].d4 = 8;
-		custom_subscreen[1].objects[i].d5 = 1;
-		custom_subscreen[1].objects[i].d6 = 1;
-		break;
-	    }*/
-            
-            default:
-                memcpy(&custom_subscreen[1].objects[i],&tempsub[i],sizeof(subscreen_object));
-                break;
-            }
-        }
-        
-        custom_subscreen[1].ss_type=sstACTIVE;
-        sprintf(custom_subscreen[1].name, "Active Subscreen (Dungeon Map)");
-//      memset(&custom_subscreen[1].objects[i],0,sizeof(subscreen_object));
-        tempsub = default_subscreen_passive[tempsubscreen][0];
-        
-        for(i=0; (i<MAXSUBSCREENITEMS&&tempsub[i].type!=ssoNULL); i++)
-        {
-            switch(tempsub[i].type)
-            {
-            case ssoTEXT:
-            case ssoTEXTBOX:
-            case ssoCURRENTITEMTEXT:
-            case ssoCURRENTITEMCLASSTEXT:
-                if(custom_subscreen[2].objects[i].dp1 != NULL) delete [](char *)custom_subscreen[2].objects[i].dp1;
-                
-                memcpy(&custom_subscreen[2].objects[i],&tempsub[i],sizeof(subscreen_object));
-                custom_subscreen[2].objects[i].dp1 = NULL;
-                custom_subscreen[2].objects[i].dp1 = new char[strlen((char*)tempsub[i].dp1)+1];
-                strcpy((char*)custom_subscreen[2].objects[i].dp1,(char*)tempsub[i].dp1);
-                break;
-                
-            case ssoLIFEMETER:
-            {
-                memcpy(&custom_subscreen[2].objects[i],&tempsub[i],sizeof(subscreen_object));
-                
-                if(get_bit(deprecated_rules, 12) != 0)
-                    custom_subscreen[2].objects[i].d3=1;
-                else
-                    custom_subscreen[2].objects[i].d3=0;
-                    
-                break;
-            }
-            
-            default:
-                memcpy(&custom_subscreen[2].objects[i],&tempsub[i],sizeof(subscreen_object));
-                break;
-            }
-        }
-        
-        custom_subscreen[2].ss_type=sstPASSIVE;
-        sprintf(custom_subscreen[2].name, "Passive Subscreen (Magic)");
-//      memset(&custom_subscreen[2].objects[i],0,sizeof(subscreen_object));
-        tempsub = default_subscreen_passive[tempsubscreen][1];
-        
-        for(i=0; (i<MAXSUBSCREENITEMS&&tempsub[i].type!=ssoNULL); i++)
-        {
-            switch(tempsub[i].type)
-            {
-            case ssoTEXT:
-            case ssoTEXTBOX:
-            case ssoCURRENTITEMTEXT:
-            case ssoCURRENTITEMCLASSTEXT:
-                if(custom_subscreen[3].objects[i].dp1 != NULL) delete [](char *)custom_subscreen[3].objects[i].dp1;
-                
-                memcpy(&custom_subscreen[3].objects[i],&tempsub[i],sizeof(subscreen_object));
-                custom_subscreen[3].objects[i].dp1 = NULL;
-                custom_subscreen[3].objects[i].dp1 = new char[strlen((char*)tempsub[i].dp1)+1];
-                strcpy((char*)custom_subscreen[3].objects[i].dp1,(char*)tempsub[i].dp1);
-                break;
-                
-            case ssoLIFEMETER:
-            {
-                memcpy(&custom_subscreen[3].objects[i],&tempsub[i],sizeof(subscreen_object));
-                
-                if(get_bit(deprecated_rules, 12) != 0)
-                    custom_subscreen[3].objects[i].d3=1;
-                else
-                    custom_subscreen[3].objects[i].d3=0;
-                    
-                break;
-            }
-            
-            default:
-                memcpy(&custom_subscreen[3].objects[i],&tempsub[i],sizeof(subscreen_object));
-                break;
-            }
-        }
-        
-        custom_subscreen[3].ss_type=sstPASSIVE;
-        sprintf(custom_subscreen[3].name, "Passive Subscreen (No Magic)");
-//      memset(&custom_subscreen[3].objects[i],0,sizeof(subscreen_object));
-        break;
-    }
-    
-    case ssdtZ3:
-    {
-        tempsub = z3_active_a;
-        int32_t i;
-        
-        for(i=0; (i<MAXSUBSCREENITEMS&&tempsub[i].type!=ssoNULL); i++)
-        {
-            switch(tempsub[i].type)
-            {
-            case ssoTEXT:
-            case ssoTEXTBOX:
-            case ssoCURRENTITEMTEXT:
-            case ssoCURRENTITEMCLASSTEXT:
-                if(custom_subscreen[0].objects[i].dp1 != NULL) delete [](char *)custom_subscreen[0].objects[i].dp1;
-                
-                memcpy(&custom_subscreen[0].objects[i],&tempsub[i],sizeof(subscreen_object));
-                custom_subscreen[0].objects[i].dp1 = NULL;
-                custom_subscreen[0].objects[i].dp1 = new char[strlen((char*)tempsub[i].dp1)+1];
-                strcpy((char*)custom_subscreen[0].objects[i].dp1,(char*)tempsub[i].dp1);
-                break;
-                
-            case ssoLIFEMETER:
-            {
-                memcpy(&custom_subscreen[0].objects[i],&tempsub[i],sizeof(subscreen_object));
-                
-                if(get_bit(deprecated_rules, 12) != 0)
-                    custom_subscreen[0].objects[i].d3=1;
-                else
-                    custom_subscreen[0].objects[i].d3=0;
-                    
-                break;
-            }
-            
-            default:
-                memcpy(&custom_subscreen[0].objects[i],&tempsub[i],sizeof(subscreen_object));
-                break;
-            }
-        }
-        
-        custom_subscreen[0].ss_type=sstACTIVE;
-//      memset(&custom_subscreen[0].objects[i],0,sizeof(subscreen_object));
-        tempsub = z3_active_ab;
-        
-        for(i=0; (i<MAXSUBSCREENITEMS&&tempsub[i].type!=ssoNULL); i++)
-        {
-            switch(tempsub[i].type)
-            {
-            case ssoTEXT:
-            case ssoTEXTBOX:
-            case ssoCURRENTITEMTEXT:
-            case ssoCURRENTITEMCLASSTEXT:
-                if(custom_subscreen[1].objects[i].dp1 != NULL) delete [](char *)custom_subscreen[1].objects[i].dp1;
-                
-                memcpy(&custom_subscreen[1].objects[i],&tempsub[i],sizeof(subscreen_object));
-                custom_subscreen[1].objects[i].dp1 = NULL;
-                custom_subscreen[1].objects[i].dp1 = new char[strlen((char*)tempsub[i].dp1)+1];
-                strcpy((char*)custom_subscreen[1].objects[i].dp1,(char*)tempsub[i].dp1);
-                break;
-                
-            case ssoLIFEMETER:
-            {
-                memcpy(&custom_subscreen[1].objects[i],&tempsub[i],sizeof(subscreen_object));
-                
-                if(get_bit(deprecated_rules, 12) != 0)
-                    custom_subscreen[1].objects[i].d3=1;
-                else
-                    custom_subscreen[1].objects[i].d3=0;
-                    
-                break;
-            }
-            
-            default:
-                memcpy(&custom_subscreen[1].objects[i],&tempsub[i],sizeof(subscreen_object));
-                break;
-            }
-        }
-        
-        custom_subscreen[1].ss_type=sstACTIVE;
-//      memset(&custom_subscreen[1].objects[i],0,sizeof(subscreen_object));
-        tempsub = z3_passive_a;
-        
-        for(i=0; (i<MAXSUBSCREENITEMS&&tempsub[i].type!=ssoNULL); i++)
-        {
-            switch(tempsub[i].type)
-            {
-            case ssoTEXT:
-            case ssoTEXTBOX:
-            case ssoCURRENTITEMTEXT:
-            case ssoCURRENTITEMCLASSTEXT:
-                if(custom_subscreen[2].objects[i].dp1 != NULL) delete [](char *)custom_subscreen[2].objects[i].dp1;
-                
-                memcpy(&custom_subscreen[2].objects[i],&tempsub[i],sizeof(subscreen_object));
-                custom_subscreen[2].objects[i].dp1 = NULL;
-                custom_subscreen[2].objects[i].dp1 = new char[strlen((char*)tempsub[i].dp1)+1];
-                strcpy((char*)custom_subscreen[2].objects[i].dp1,(char*)tempsub[i].dp1);
-                break;
-                
-            case ssoLIFEMETER:
-            {
-                memcpy(&custom_subscreen[2].objects[i],&tempsub[i],sizeof(subscreen_object));
-                
-                if(get_bit(deprecated_rules, 12) != 0)
-                    custom_subscreen[2].objects[i].d3=1;
-                else
-                    custom_subscreen[2].objects[i].d3=0;
-                    
-                break;
-            }
-            
-            default:
-                memcpy(&custom_subscreen[2].objects[i],&tempsub[i],sizeof(subscreen_object));
-                break;
-            }
-        }
-        
-        custom_subscreen[2].ss_type=sstPASSIVE;
-//      memset(&custom_subscreen[2].objects[i],0,sizeof(subscreen_object));
-        tempsub = z3_passive_ab;
-        
-        for(i=0; (i<MAXSUBSCREENITEMS&&tempsub[i].type!=ssoNULL); i++)
-        {
-            switch(tempsub[i].type)
-            {
-            case ssoTEXT:
-            case ssoTEXTBOX:
-            case ssoCURRENTITEMTEXT:
-            case ssoCURRENTITEMCLASSTEXT:
-                if(custom_subscreen[3].objects[i].dp1 != NULL) delete [](char *)custom_subscreen[3].objects[i].dp1;
-                
-                memcpy(&custom_subscreen[3].objects[i],&tempsub[i],sizeof(subscreen_object));
-                custom_subscreen[3].objects[i].dp1 = NULL;
-                custom_subscreen[3].objects[i].dp1 = new char[strlen((char*)tempsub[i].dp1)+1];
-                strcpy((char*)custom_subscreen[3].objects[i].dp1,(char*)tempsub[i].dp1);
-                break;
-                
-            case ssoLIFEMETER:
-            {
-                memcpy(&custom_subscreen[3].objects[i],&tempsub[i],sizeof(subscreen_object));
-                
-                if(get_bit(deprecated_rules, 12) != 0)
-                    custom_subscreen[3].objects[i].d3=1;
-                else
-                    custom_subscreen[3].objects[i].d3=0;
-                    
-                break;
-            }
-            
-            default:
-                memcpy(&custom_subscreen[3].objects[i],&tempsub[i],sizeof(subscreen_object));
-                break;
-            }
-        }
-        
-        custom_subscreen[3].ss_type=sstPASSIVE;
-//      memset(&custom_subscreen[3].objects[i],0,sizeof(subscreen_object));
-        break;
-    }
-    }
-    
-    for(int32_t i=0; i<4; ++i)
-    {
-        purge_blank_subscreen_objects(&custom_subscreen[i]);
+		case ssdtOLD:
+		case ssdtNEWSUBSCR:
+		case ssdtREV2:
+		case ssdtBSZELDA:
+		case ssdtBSZELDAMODIFIED:
+		case ssdtBSZELDAENHANCED:
+		case ssdtBSZELDACOMPLETE:
+		{
+			new_subscreen[0].load_old(default_subscreen_active[tempsubscreen][0]);
+			new_subscreen[0].sub_type=sstACTIVE;
+			new_subscreen[0].name = "Active Subscreen (Triforce)";
+			new_subscreen[1].load_old(default_subscreen_active[tempsubscreen][1]);
+			new_subscreen[1].sub_type=sstACTIVE;
+			new_subscreen[1].name = "Active Subscreen (Dungeon Map)";
+			new_subscreen[2].load_old(default_subscreen_passive[tempsubscreen][0]);
+			new_subscreen[2].sub_type=sstPASSIVE;
+			new_subscreen[2].name = "Passive Subscreen (Magic)";
+			new_subscreen[3].load_old(default_subscreen_passive[tempsubscreen][1]);
+			new_subscreen[3].sub_type=sstPASSIVE;
+			new_subscreen[3].name = "Passive Subscreen (No Magic)";
+			break;
+		}
+		
+		case ssdtZ3:
+		{
+			new_subscreen[0].load_old(z3_active_a);
+			new_subscreen[0].sub_type=sstACTIVE;
+			new_subscreen[1].load_old(z3_active_ab);
+			new_subscreen[1].sub_type=sstACTIVE;
+			new_subscreen[2].load_old(z3_passive_a);
+			new_subscreen[2].sub_type=sstPASSIVE;
+			new_subscreen[3].load_old(z3_passive_ab);
+			new_subscreen[3].sub_type=sstPASSIVE;
+			break;
+		}
     }
     
     return 0;
-}
-
-int32_t read_subscreens(PACKFILE *f)
-{
-	
 }
 
 extern script_data *ffscripts[NUMSCRIPTFFC];
@@ -21845,7 +21483,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
                 }
                 
                 box_out("Reading Custom Subscreen Data...");
-                ret=readsubscreens(f, &tempheader);
+                ret=readsubscreens(f);
                 checkstatus(ret);
                 box_out("okay.");
                 box_eol();

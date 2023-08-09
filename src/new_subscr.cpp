@@ -11,6 +11,13 @@
 #include "tiles.h"
 #include "qst.h"
 #include "items.h"
+#include "sprite.h"
+#include <set>
+
+#ifdef IS_PLAYER
+extern int32_t directItem;
+extern sprite_list Lwpns;
+#endif
 
 extern gamedata* game; //!TODO ZDEFSCLEAN move to gamedata.h
 extern zinitdata zinit; //!TODO ZDEFSCLEAN move to zinit.h
@@ -238,9 +245,9 @@ int32_t SubscrColorInfo::get_cset() const
 
 int32_t SubscrColorInfo::read(PACKFILE *f, word s_version)
 {
-	if(!p_getc(&type,f,true))
+	if(!p_getc(&type,f))
 		return qe_invalid;
-	if(!p_igetw(&color,f,true))
+	if(!p_igetw(&color,f))
 		return qe_invalid;
 	return 0;
 }
@@ -335,38 +342,64 @@ SubscrWidget* SubscrWidget::clone() const
 {
 	return new SubscrWidget(*this);
 }
+bool SubscrWidget::copy_prop(SubscrWidget const* src, bool all)
+{
+	if(src->getType() != getType() || src == this)
+		return false;
+	flags = src->flags;
+	posflags &= ~(sspUP|sspDOWN|sspSCROLLING);
+	posflags |= src->posflags&(sspUP|sspDOWN|sspSCROLLING);
+	if(all)
+	{
+		posflags = src->posflags;
+		x = src->x;
+		y = src->y;
+		w = src->w;
+		h = src->h;
+		pos = src->pos;
+		pos_up = src->pos_up;
+		pos_down = src->pos_down;
+		pos_left = src->pos_left;
+		pos_right = src->pos_right;
+		override_text = src->override_text;
+		gen_script_btns = src->gen_script_btns;
+		generic_script = src->generic_script;
+		type = src->type;
+	}
+	return true;
+}
 int32_t SubscrWidget::read(PACKFILE *f, word s_version)
 {
 	//does not 'p_getc(&type)', SubscrWidget::readWidg() handles that
-	if(!p_getc(&posflags,f,true))
+	if(!p_getc(&posflags,f))
 		return qe_invalid;
-	if(!p_igetw(&x,f,true))
+	if(!p_igetw(&x,f))
 		return qe_invalid;
-	if(!p_igetw(&y,f,true))
+	if(!p_igetw(&y,f))
 		return qe_invalid;
-	if(!p_igetw(&w,f,true))
+	if(!p_igetw(&w,f))
 		return qe_invalid;
-	if(!p_igetw(&h,f,true))
+	if(!p_igetw(&h,f))
 		return qe_invalid;
-	if(!p_igetl(&flags,f,true))
+	if(!p_igetl(&flags,f))
 		return qe_invalid;
 	if(flags&SUBSCRFLAG_SELECTABLE)
 	{
-		if(!p_igetl(&pos,f,true))
+		if(!p_igetl(&pos,f))
 			return qe_invalid;
-		if(!p_igetl(&pos_up,f,true))
+		if(!p_igetl(&pos_up,f))
 			return qe_invalid;
-		if(!p_igetl(&pos_down,f,true))
+		if(!p_igetl(&pos_down,f))
 			return qe_invalid;
-		if(!p_igetl(&pos_left,f,true))
+		if(!p_igetl(&pos_left,f))
 			return qe_invalid;
-		if(!p_igetl(&pos_right,f,true))
+		if(!p_igetl(&pos_right,f))
 			return qe_invalid;
-		if(!p_getcstr(&override_text,f,true))
+		if(!p_getcstr(&override_text,f))
 			return qe_invalid;
-		if(!p_getc(&gen_script_btns,f,true))
+		if(!p_getc(&gen_script_btns,f))
 			return qe_invalid;
-		if(!p_igetw(&generic_script,f,true))
+		if(!p_igetw(&generic_script,f))
 			return qe_invalid;
 	}
 	return 0;
@@ -443,11 +476,21 @@ SubscrWidget* SW_2x2Frame::clone() const
 {
 	return new SW_2x2Frame(*this);
 }
+bool SW_2x2Frame::copy_prop(SubscrWidget const* src, bool all)
+{
+	if(src->getType() != getType() || src == this)
+		return false;
+	SW_2x2Frame const* other = dynamic_cast<SW_2x2Frame const*>(src);
+	SubscrWidget::copy_prop(other,all);
+	cs = other->cs;
+	tile = other->tile;
+	return true;
+}
 int32_t SW_2x2Frame::read(PACKFILE *f, word s_version)
 {
 	if(auto ret = SubscrWidget::read(f,s_version))
 		return ret;
-	if(!p_igetl(&tile,f,true))
+	if(!p_igetl(&tile,f))
 		return qe_invalid;
 	if(auto ret = cs.read(f,s_version))
 		return ret;
@@ -524,17 +567,32 @@ SubscrWidget* SW_Text::clone() const
 {
 	return new SW_Text(*this);
 }
+bool SW_Text::copy_prop(SubscrWidget const* src, bool all)
+{
+	if(src->getType() != getType() || src == this)
+		return false;
+	SW_Text const* other = dynamic_cast<SW_Text const*>(src);
+	SubscrWidget::copy_prop(other,all);
+	fontid = other->fontid;
+	text = other->text;
+	align = other->align;
+	shadtype = other->shadtype;
+	c_text = other->c_text;
+	c_shadow = other->c_shadow;
+	c_bg = other->c_bg;
+	return true;
+}
 int32_t SW_Text::read(PACKFILE *f, word s_version)
 {
 	if(auto ret = SubscrWidget::read(f,s_version))
 		return ret;
-	if(!p_igetl(&fontid,f,true))
+	if(!p_igetl(&fontid,f))
 		return qe_invalid;
-	if(!p_getc(&align,f,true))
+	if(!p_getc(&align,f))
 		return qe_invalid;
-	if(!p_getc(&shadtype,f,true))
+	if(!p_getc(&shadtype,f))
 		return qe_invalid;
-	if(!p_getwstr(&text,f,true))
+	if(!p_getwstr(&text,f))
 		return qe_invalid;
 	if(auto ret = c_text.read(f,s_version))
 		return ret;
@@ -596,6 +654,15 @@ SubscrWidget* SW_Line::clone() const
 {
 	return new SW_Line(*this);
 }
+bool SW_Line::copy_prop(SubscrWidget const* src, bool all)
+{
+	if(src->getType() != getType() || src == this)
+		return false;
+	SW_Line const* other = dynamic_cast<SW_Line const*>(src);
+	SubscrWidget::copy_prop(other,all);
+	c_line = other->c_line;
+	return true;
+}
 int32_t SW_Line::read(PACKFILE *f, word s_version)
 {
 	if(auto ret = SubscrWidget::read(f,s_version))
@@ -649,6 +716,16 @@ void SW_Rect::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) c
 SubscrWidget* SW_Rect::clone() const
 {
 	return new SW_Rect(*this);
+}
+bool SW_Rect::copy_prop(SubscrWidget const* src, bool all)
+{
+	if(src->getType() != getType() || src == this)
+		return false;
+	SW_Rect const* other = dynamic_cast<SW_Rect const*>(src);
+	SubscrWidget::copy_prop(other,all);
+	c_fill = other->c_fill;
+	c_outline = other->c_outline;
+	return true;
 }
 int32_t SW_Rect::read(PACKFILE *f, word s_version)
 {
@@ -759,15 +836,29 @@ SubscrWidget* SW_Time::clone() const
 {
 	return new SW_Time(*this);
 }
+bool SW_Time::copy_prop(SubscrWidget const* src, bool all)
+{
+	if(src->getType() != getType() || src == this)
+		return false;
+	SW_Time const* other = dynamic_cast<SW_Time const*>(src);
+	SubscrWidget::copy_prop(other,all);
+	fontid = other->fontid;
+	align = other->align;
+	shadtype = other->shadtype;
+	c_text = other->c_text;
+	c_shadow = other->c_shadow;
+	c_bg = other->c_bg;
+	return true;
+}
 int32_t SW_Time::read(PACKFILE *f, word s_version)
 {
 	if(auto ret = SubscrWidget::read(f,s_version))
 		return ret;
-	if(!p_igetl(&fontid,f,true))
+	if(!p_igetl(&fontid,f))
 		return qe_invalid;
-	if(!p_getc(&align,f,true))
+	if(!p_getc(&align,f))
 		return qe_invalid;
-	if(!p_getc(&shadtype,f,true))
+	if(!p_getc(&shadtype,f))
 		return qe_invalid;
 	if(auto ret = c_text.read(f,s_version))
 		return ret;
@@ -831,6 +922,14 @@ SubscrWidget* SW_MagicMeter::clone() const
 {
 	return new SW_MagicMeter(*this);
 }
+bool SW_MagicMeter::copy_prop(SubscrWidget const* src, bool all)
+{
+	if(src->getType() != getType() || src == this)
+		return false;
+	SW_MagicMeter const* other = dynamic_cast<SW_MagicMeter const*>(src);
+	SubscrWidget::copy_prop(other,all);
+	return true;
+}
 int32_t SW_MagicMeter::read(PACKFILE *f, word s_version)
 {
 	if(auto ret = SubscrWidget::read(f,s_version))
@@ -883,11 +982,20 @@ SubscrWidget* SW_LifeMeter::clone() const
 {
 	return new SW_LifeMeter(*this);
 }
+bool SW_LifeMeter::copy_prop(SubscrWidget const* src, bool all)
+{
+	if(src->getType() != getType() || src == this)
+		return false;
+	SW_LifeMeter const* other = dynamic_cast<SW_LifeMeter const*>(src);
+	SubscrWidget::copy_prop(other,all);
+	rows = other->rows;
+	return true;
+}
 int32_t SW_LifeMeter::read(PACKFILE *f, word s_version)
 {
 	if(auto ret = SubscrWidget::read(f,s_version))
 		return ret;
-	if(!p_getc(&rows,f,true))
+	if(!p_getc(&rows,f))
 		return qe_invalid;
 	return 0;
 }
@@ -939,11 +1047,20 @@ SubscrWidget* SW_ButtonItem::clone() const
 {
 	return new SW_ButtonItem(*this);
 }
+bool SW_ButtonItem::copy_prop(SubscrWidget const* src, bool all)
+{
+	if(src->getType() != getType() || src == this)
+		return false;
+	SW_ButtonItem const* other = dynamic_cast<SW_ButtonItem const*>(src);
+	SubscrWidget::copy_prop(other,all);
+	btn = other->btn;
+	return true;
+}
 int32_t SW_ButtonItem::read(PACKFILE *f, word s_version)
 {
 	if(auto ret = SubscrWidget::read(f,s_version))
 		return ret;
-	if(!p_getc(&btn,f,true))
+	if(!p_getc(&btn,f))
 		return qe_invalid;
 	return 0;
 }
@@ -1024,15 +1141,35 @@ SubscrWidget* SW_Counter::clone() const
 {
 	return new SW_Counter(*this);
 }
+bool SW_Counter::copy_prop(SubscrWidget const* src, bool all)
+{
+	if(src->getType() != getType() || src == this)
+		return false;
+	SW_Counter const* other = dynamic_cast<SW_Counter const*>(src);
+	SubscrWidget::copy_prop(other,all);
+	fontid = other->fontid;
+	align = other->align;
+	shadtype = other->shadtype;
+	c_text = other->c_text;
+	c_shadow = other->c_shadow;
+	c_bg = other->c_bg;
+	ctrs[0] = other->ctrs[0];
+	ctrs[1] = other->ctrs[1];
+	ctrs[2] = other->ctrs[2];
+	digits = other->digits;
+	infitm = other->infitm;
+	infchar = other->infchar;
+	return true;
+}
 int32_t SW_Counter::read(PACKFILE *f, word s_version)
 {
 	if(auto ret = SubscrWidget::read(f,s_version))
 		return ret;
-	if(!p_igetl(&fontid,f,true))
+	if(!p_igetl(&fontid,f))
 		return qe_invalid;
-	if(!p_getc(&align,f,true))
+	if(!p_getc(&align,f))
 		return qe_invalid;
-	if(!p_getc(&shadtype,f,true))
+	if(!p_getc(&shadtype,f))
 		return qe_invalid;
 	if(auto ret = c_text.read(f,s_version))
 		return ret;
@@ -1040,17 +1177,17 @@ int32_t SW_Counter::read(PACKFILE *f, word s_version)
 		return ret;
 	if(auto ret = c_bg.read(f,s_version))
 		return ret;
-	if(!p_igetl(&ctrs[0],f,true))
+	if(!p_igetl(&ctrs[0],f))
 		return qe_invalid;
-	if(!p_igetl(&ctrs[1],f,true))
+	if(!p_igetl(&ctrs[1],f))
 		return qe_invalid;
-	if(!p_igetl(&ctrs[2],f,true))
+	if(!p_igetl(&ctrs[2],f))
 		return qe_invalid;
-	if(!p_getc(&digits,f,true))
+	if(!p_getc(&digits,f))
 		return qe_invalid;
-	if(!p_igetl(&infitm,f,true))
+	if(!p_igetl(&infitm,f))
 		return qe_invalid;
-	if(!p_getc(&infchar,f,true))
+	if(!p_getc(&infchar,f))
 		return qe_invalid;
 	return 0;
 }
@@ -1136,13 +1273,29 @@ SubscrWidget* SW_Counters::clone() const
 {
 	return new SW_Counters(*this);
 }
+bool SW_Counters::copy_prop(SubscrWidget const* src, bool all)
+{
+	if(src->getType() != getType() || src == this)
+		return false;
+	SW_Counters const* other = dynamic_cast<SW_Counters const*>(src);
+	SubscrWidget::copy_prop(other,all);
+	fontid = other->fontid;
+	shadtype = other->shadtype;
+	c_text = other->c_text;
+	c_shadow = other->c_shadow;
+	c_bg = other->c_bg;
+	digits = other->digits;
+	infitm = other->infitm;
+	infchar = other->infchar;
+	return true;
+}
 int32_t SW_Counters::read(PACKFILE *f, word s_version)
 {
 	if(auto ret = SubscrWidget::read(f,s_version))
 		return ret;
-	if(!p_igetl(&fontid,f,true))
+	if(!p_igetl(&fontid,f))
 		return qe_invalid;
-	if(!p_getc(&shadtype,f,true))
+	if(!p_getc(&shadtype,f))
 		return qe_invalid;
 	if(auto ret = c_text.read(f,s_version))
 		return ret;
@@ -1150,11 +1303,11 @@ int32_t SW_Counters::read(PACKFILE *f, word s_version)
 		return ret;
 	if(auto ret = c_bg.read(f,s_version))
 		return ret;
-	if(!p_getc(&digits,f,true))
+	if(!p_getc(&digits,f))
 		return qe_invalid;
-	if(!p_igetl(&infitm,f,true))
+	if(!p_igetl(&infitm,f))
 		return qe_invalid;
-	if(!p_getc(&infchar,f,true))
+	if(!p_getc(&infchar,f))
 		return qe_invalid;
 	return 0;
 }
@@ -1232,15 +1385,29 @@ SubscrWidget* SW_MMapTitle::clone() const
 {
 	return new SW_MMapTitle(*this);
 }
+bool SW_MMapTitle::copy_prop(SubscrWidget const* src, bool all)
+{
+	if(src->getType() != getType() || src == this)
+		return false;
+	SW_MMapTitle const* other = dynamic_cast<SW_MMapTitle const*>(src);
+	SubscrWidget::copy_prop(other,all);
+	fontid = other->fontid;
+	align = other->align;
+	shadtype = other->shadtype;
+	c_text = other->c_text;
+	c_shadow = other->c_shadow;
+	c_bg = other->c_bg;
+	return true;
+}
 int32_t SW_MMapTitle::read(PACKFILE *f, word s_version)
 {
 	if(auto ret = SubscrWidget::read(f,s_version))
 		return ret;
-	if(!p_igetl(&fontid,f,true))
+	if(!p_igetl(&fontid,f))
 		return qe_invalid;
-	if(!p_getc(&align,f,true))
+	if(!p_getc(&align,f))
 		return qe_invalid;
-	if(!p_getc(&shadtype,f,true))
+	if(!p_getc(&shadtype,f))
 		return qe_invalid;
 	if(auto ret = c_text.read(f,s_version))
 		return ret;
@@ -1309,6 +1476,17 @@ SubscrWidget* SW_MMap::clone() const
 {
 	return new SW_MMap(*this);
 }
+bool SW_MMap::copy_prop(SubscrWidget const* src, bool all)
+{
+	if(src->getType() != getType() || src == this)
+		return false;
+	SW_MMap const* other = dynamic_cast<SW_MMap const*>(src);
+	SubscrWidget::copy_prop(other,all);
+	c_plr = other->c_plr;
+	c_cmp_blink = other->c_cmp_blink;
+	c_cmp_off = other->c_cmp_off;
+	return true;
+}
 int32_t SW_MMap::read(PACKFILE *f, word s_version)
 {
 	if(auto ret = SubscrWidget::read(f,s_version))
@@ -1373,6 +1551,16 @@ SubscrWidget* SW_LMap::clone() const
 {
 	return new SW_LMap(*this);
 }
+bool SW_LMap::copy_prop(SubscrWidget const* src, bool all)
+{
+	if(src->getType() != getType() || src == this)
+		return false;
+	SW_LMap const* other = dynamic_cast<SW_LMap const*>(src);
+	SubscrWidget::copy_prop(other,all);
+	c_room = other->c_room;
+	c_plr = other->c_plr;
+	return true;
+}
 int32_t SW_LMap::read(PACKFILE *f, word s_version)
 {
 	if(auto ret = SubscrWidget::read(f,s_version))
@@ -1425,6 +1613,15 @@ void SW_Clear::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) 
 SubscrWidget* SW_Clear::clone() const
 {
 	return new SW_Clear(*this);
+}
+bool SW_Clear::copy_prop(SubscrWidget const* src, bool all)
+{
+	if(src->getType() != getType() || src == this)
+		return false;
+	SW_Clear const* other = dynamic_cast<SW_Clear const*>(src);
+	SubscrWidget::copy_prop(other,all);
+	c_bg = other->c_bg;
+	return true;
 }
 int32_t SW_Clear::read(PACKFILE *f, word s_version)
 {
@@ -1481,7 +1678,7 @@ int32_t SW_CurrentItem::getItemVal() const
 	#ifdef IS_PLAYER
 	if(iid > 0)
 	{
-		bool sel = false;
+		bool select = false;
 		switch(itemsbuf[iid-1].family)
 		{
 			case itype_bomb:
@@ -1615,13 +1812,23 @@ SubscrWidget* SW_CurrentItem::clone() const
 {
 	return new SW_CurrentItem(*this);
 }
+bool SW_CurrentItem::copy_prop(SubscrWidget const* src, bool all)
+{
+	if(src->getType() != getType() || src == this)
+		return false;
+	SW_CurrentItem const* other = dynamic_cast<SW_CurrentItem const*>(src);
+	SubscrWidget::copy_prop(other,all);
+	iid = other->iid;
+	iclass = other->iclass;
+	return true;
+}
 int32_t SW_CurrentItem::read(PACKFILE *f, word s_version)
 {
 	if(auto ret = SubscrWidget::read(f,s_version))
 		return ret;
-	if(!p_igetl(&iclass,f,true))
+	if(!p_igetl(&iclass,f))
 		return qe_invalid;
-	if(!p_igetl(&iid,f,true))
+	if(!p_igetl(&iid,f))
 		return qe_invalid;
 	return 0;
 }
@@ -1678,17 +1885,31 @@ SubscrWidget* SW_TriFrame::clone() const
 {
 	return new SW_TriFrame(*this);
 }
+bool SW_TriFrame::copy_prop(SubscrWidget const* src, bool all)
+{
+	if(src->getType() != getType() || src == this)
+		return false;
+	SW_TriFrame const* other = dynamic_cast<SW_TriFrame const*>(src);
+	SubscrWidget::copy_prop(other,all);
+	frame_tile = other->frame_tile;
+	piece_tile = other->piece_tile;
+	frame_cset = other->frame_cset;
+	piece_cset = other->piece_cset;
+	c_outline = other->c_outline;
+	c_number = other->c_number;
+	return true;
+}
 int32_t SW_TriFrame::read(PACKFILE *f, word s_version)
 {
 	if(auto ret = SubscrWidget::read(f,s_version))
 		return ret;
-	if(!p_igetl(&frame_tile,f,true))
+	if(!p_igetl(&frame_tile,f))
 		return qe_invalid;
-	if(!p_igetl(&piece_tile,f,true))
+	if(!p_igetl(&piece_tile,f))
 		return qe_invalid;
-	if(!p_getc(&frame_cset,f,true))
+	if(!p_getc(&frame_cset,f))
 		return qe_invalid;
-	if(!p_getc(&piece_cset,f,true))
+	if(!p_getc(&piece_cset,f))
 		return qe_invalid;
 	if(auto ret =  c_outline.read(f,s_version))
 		return ret;
@@ -1753,15 +1974,27 @@ SubscrWidget* SW_McGuffin::clone() const
 {
 	return new SW_McGuffin(*this);
 }
+bool SW_McGuffin::copy_prop(SubscrWidget const* src, bool all)
+{
+	if(src->getType() != getType() || src == this)
+		return false;
+	SW_McGuffin const* other = dynamic_cast<SW_McGuffin const*>(src);
+	SubscrWidget::copy_prop(other,all);
+	tile = other->tile;
+	number = other->number;
+	cset = other->cset;
+	cs = other->cs;
+	return true;
+}
 int32_t SW_McGuffin::read(PACKFILE *f, word s_version)
 {
 	if(auto ret = SubscrWidget::read(f,s_version))
 		return ret;
-	if(!p_igetl(&tile,f,true))
+	if(!p_igetl(&tile,f))
 		return qe_invalid;
-	if(!p_igetl(&number,f,true))
+	if(!p_igetl(&number,f))
 		return qe_invalid;
-	if(!p_getc(&cset,f,true))
+	if(!p_getc(&cset,f))
 		return qe_invalid;
 	if(auto ret =  cs.read(f,s_version))
 		return ret;
@@ -1819,13 +2052,24 @@ SubscrWidget* SW_TileBlock::clone() const
 {
 	return new SW_TileBlock(*this);
 }
+bool SW_TileBlock::copy_prop(SubscrWidget const* src, bool all)
+{
+	if(src->getType() != getType() || src == this)
+		return false;
+	SW_TileBlock const* other = dynamic_cast<SW_TileBlock const*>(src);
+	SubscrWidget::copy_prop(other,all);
+	tile = other->tile;
+	flip = other->flip;
+	cs = other->cs;
+	return true;
+}
 int32_t SW_TileBlock::read(PACKFILE *f, word s_version)
 {
 	if(auto ret = SubscrWidget::read(f,s_version))
 		return ret;
-	if(!p_igetl(&tile,f,true))
+	if(!p_igetl(&tile,f))
 		return qe_invalid;
-	if(!p_getc(&flip,f,true))
+	if(!p_getc(&flip,f))
 		return qe_invalid;
 	if(auto ret =  cs.read(f,s_version))
 		return ret;
@@ -1915,17 +2159,30 @@ SubscrWidget* SW_MiniTile::clone() const
 {
 	return new SW_MiniTile(*this);
 }
+bool SW_MiniTile::copy_prop(SubscrWidget const* src, bool all)
+{
+	if(src->getType() != getType() || src == this)
+		return false;
+	SW_MiniTile const* other = dynamic_cast<SW_MiniTile const*>(src);
+	SubscrWidget::copy_prop(other,all);
+	tile = other->tile;
+	special_tile = other->special_tile;
+	crn = other->crn;
+	flip = other->flip;
+	cs = other->cs;
+	return true;
+}
 int32_t SW_MiniTile::read(PACKFILE *f, word s_version)
 {
 	if(auto ret = SubscrWidget::read(f,s_version))
 		return ret;
-	if(!p_igetl(&tile,f,true))
+	if(!p_igetl(&tile,f))
 		return qe_invalid;
-	if(!p_igetl(&special_tile,f,true))
+	if(!p_igetl(&special_tile,f))
 		return qe_invalid;
-	if(!p_getc(&crn,f,true))
+	if(!p_getc(&crn,f))
 		return qe_invalid;
-	if(!p_getc(&flip,f,true))
+	if(!p_getc(&flip,f))
 		return qe_invalid;
 	if(auto ret =  cs.read(f,s_version))
 		return ret;
@@ -2125,71 +2382,80 @@ SubscrWidget* SW_Temp::clone() const
 {
 	return new SW_Temp(*this);
 }
+bool SW_Temp::copy_prop(SubscrWidget const* src, bool all)
+{
+	if(src->getType() != getType() || src == this)
+		return false;
+	SW_Temp const* other = dynamic_cast<SW_Temp const*>(src);
+	SubscrWidget::copy_prop(other,all);
+	old = other->old;
+	return true;
+}
 int32_t SW_Temp::read(PACKFILE *f, word s_version)
 {
 	if(auto ret = SubscrWidget::read(f,s_version))
 		return ret;
-	if(!p_getc(&old.type,f,true))
+	if(!p_getc(&old.type,f))
 		return qe_invalid;
-	if(!p_getc(&old.pos,f,true))
+	if(!p_getc(&old.pos,f))
 		return qe_invalid;
-	if(!p_igetw(&old.x,f,true))
+	if(!p_igetw(&old.x,f))
 		return qe_invalid;
-	if(!p_igetw(&old.y,f,true))
+	if(!p_igetw(&old.y,f))
 		return qe_invalid;
-	if(!p_igetw(&old.w,f,true))
+	if(!p_igetw(&old.w,f))
 		return qe_invalid;
-	if(!p_igetw(&old.h,f,true))
+	if(!p_igetw(&old.h,f))
 		return qe_invalid;
-	if(!p_getc(&old.colortype1,f,true))
+	if(!p_getc(&old.colortype1,f))
 		return qe_invalid;
-	if(!p_igetw(&old.color1,f,true))
+	if(!p_igetw(&old.color1,f))
 		return qe_invalid;
-	if(!p_getc(&old.colortype2,f,true))
+	if(!p_getc(&old.colortype2,f))
 		return qe_invalid;
-	if(!p_igetw(&old.color2,f,true))
+	if(!p_igetw(&old.color2,f))
 		return qe_invalid;
-	if(!p_getc(&old.colortype3,f,true))
+	if(!p_getc(&old.colortype3,f))
 		return qe_invalid;
-	if(!p_igetw(&old.color3,f,true))
+	if(!p_igetw(&old.color3,f))
 		return qe_invalid;
-	if(!p_igetl(&old.d1,f,true))
+	if(!p_igetl(&old.d1,f))
 		return qe_invalid;
-	if(!p_igetl(&old.d2,f,true))
+	if(!p_igetl(&old.d2,f))
 		return qe_invalid;
-	if(!p_igetl(&old.d3,f,true))
+	if(!p_igetl(&old.d3,f))
 		return qe_invalid;
-	if(!p_igetl(&old.d4,f,true))
+	if(!p_igetl(&old.d4,f))
 		return qe_invalid;
-	if(!p_igetl(&old.d5,f,true))
+	if(!p_igetl(&old.d5,f))
 		return qe_invalid;
-	if(!p_igetl(&old.d6,f,true))
+	if(!p_igetl(&old.d6,f))
 		return qe_invalid;
-	if(!p_igetl(&old.d7,f,true))
+	if(!p_igetl(&old.d7,f))
 		return qe_invalid;
-	if(!p_igetl(&old.d8,f,true))
+	if(!p_igetl(&old.d8,f))
 		return qe_invalid;
-	if(!p_igetl(&old.d9,f,true))
+	if(!p_igetl(&old.d9,f))
 		return qe_invalid;
-	if(!p_igetl(&old.d10,f,true))
+	if(!p_igetl(&old.d10,f))
 		return qe_invalid;
-	if(!p_getc(&old.frames,f,true))
+	if(!p_getc(&old.frames,f))
 		return qe_invalid;
-	if(!p_getc(&old.speed,f,true))
+	if(!p_getc(&old.speed,f))
 		return qe_invalid;
-	if(!p_getc(&old.delay,f,true))
+	if(!p_getc(&old.delay,f))
 		return qe_invalid;
-	if(!p_getc(&old.frame,f,true))
+	if(!p_getc(&old.frame,f))
 		return qe_invalid;
 	byte len;
-	if(!p_getc(&len,f,true))
+	if(!p_getc(&len,f))
 		return qe_invalid;
 	char* ptr = len ? new char[len+1] : nullptr;
 	if(len)
 	{
 		for(byte q = 0; q < len; ++q)
 		{
-			if(!p_getc(&ptr[q],f,true))
+			if(!p_getc(&ptr[q],f))
 				return qe_invalid;
 		}
 		ptr[len] = 0;
@@ -2386,7 +2652,7 @@ SubscrWidget* SubscrWidget::fromOld(subscreen_object const& old)
 SubscrWidget* SubscrWidget::readWidg(PACKFILE* f, word s_version)
 {
 	byte ty;
-	if(!p_getc(&ty,f,true))
+	if(!p_getc(&ty,f))
 		return nullptr;
 	SubscrWidget* widg = newType(ty);
 	if(widg && !widg->read(f,s_version))
@@ -2404,7 +2670,7 @@ SubscrWidget* SubscrWidget::newType(byte ty)
 		case ssoTEXT:
 		{
 			SW_Text* tmp;
-			widg = tmp = new SW_Text(ty);
+			widg = tmp = new SW_Text();
 			tmp->c_text.type = ssctMISC;
 			break;
 		}
@@ -2443,14 +2709,14 @@ SubscrWidget* SubscrWidget::newType(byte ty)
 		case ssoCOUNTERS:
 		{
 			SW_Counters* tmp;
-			widg = tmp = new SW_Counters(ty);
+			widg = tmp = new SW_Counters();
 			tmp->c_text.type = ssctMISC;
 			break;
 		}
 		case ssoMINIMAPTITLE:
 		{
 			SW_MMapTitle* tmp;
-			widg = tmp = new SW_MMapTitle(ty);
+			widg = tmp = new SW_MMapTitle();
 			tmp->c_text.type = ssctMISC;
 			break;
 		}
@@ -2541,13 +2807,12 @@ void SubscrPage::move_cursor(int dir, bool item_only)
 	auto& objects = contents;
 	
 	item_only = item_only || !get_qr(qr_FREEFORM_SUBSCREEN_CURSOR);
-	bool verify = type==SEL_VERIFY_RIGHT || type==SEL_VERIFY_LEFT;
+	bool verify = dir==SEL_VERIFY_RIGHT || dir==SEL_VERIFY_LEFT;
 	
 	if(verify)
 	{
 		SubscrWidget* widg = get_widg_pos(cursor_pos);
 		int32_t wpn = widg ? widg->getItemVal() : -1;
-		auto startind = get_subscr_itemind(cursor_pos);
 		if(wpn > 0 && widg->getType() == ssoCURRENTITEM && !(widg->flags&SUBSCR_CURITM_NONEQP))
 			return;
 	}
@@ -2578,7 +2843,7 @@ void SubscrPage::move_cursor(int dir, bool item_only)
 	}
 	
 	//remember we've been here
-	set<int32_t> oldPositions;
+	std::set<int32_t> oldPositions;
 	oldPositions.insert(curpos);
 	
 	//1. Perform any shifts required by the above
@@ -2590,7 +2855,7 @@ void SubscrPage::move_cursor(int dir, bool item_only)
 	for(;;)
 	{
 		//shift
-		switch(type)
+		switch(dir)
 		{
 			case SEL_LEFT:
 			case SEL_VERIFY_LEFT:
@@ -2646,20 +2911,17 @@ int32_t SubscrPage::move_legacy(int dir, int startp, int fp, int fp2, int fp3, b
 	// verify startpos
 	if(startp < 0 || startp >= 0xFF)
 		startp = 0;
-		
-	if(current_subscreen_active == NULL)
-		return failpos;
+	
 	auto& objects = contents;
 	
 	item_only = item_only || !get_qr(qr_FREEFORM_SUBSCREEN_CURSOR);
-	bool verify = type==SEL_VERIFY_RIGHT || type==SEL_VERIFY_LEFT;
+	bool verify = dir==SEL_VERIFY_RIGHT || dir==SEL_VERIFY_LEFT;
 	
 	if(verify)
 	{
 		SubscrWidget* widg = get_widg_pos(startp);
 		int32_t wpn = widg ? widg->getItemVal() : -1;
 		equip_only = item_only = true;
-		auto startind = get_subscr_itemind(startp);
 		if(widg->getType() != ssoCURRENTITEM || (widg->flags&SUBSCR_CURITM_NONEQP))
 			wpn = -1;
 		
@@ -2704,7 +2966,7 @@ int32_t SubscrPage::move_legacy(int dir, int startp, int fp, int fp2, int fp3, b
 	}
 	
 	//remember we've been here
-	set<int32_t> oldPositions;
+	std::set<int32_t> oldPositions;
 	oldPositions.insert(curpos);
 	
 	//1. Perform any shifts required by the above
@@ -2716,7 +2978,7 @@ int32_t SubscrPage::move_legacy(int dir, int startp, int fp, int fp2, int fp3, b
 	for(;;)
 	{
 		//shift
-		switch(type)
+		switch(dir)
 		{
 			case SEL_LEFT:
 			case SEL_VERIFY_LEFT:
@@ -2758,7 +3020,7 @@ int32_t SubscrPage::move_legacy(int dir, int startp, int fp, int fp2, int fp3, b
 						return curpos;
 	}
 }
-SubscrWidget* get_widg_pos(int32_t pos, bool sel_only)
+SubscrWidget* SubscrPage::get_widg_pos(int32_t pos, bool sel_only)
 {
 	for(size_t q = 0; q < contents.size(); ++q)
 	{
@@ -2769,30 +3031,30 @@ SubscrWidget* get_widg_pos(int32_t pos, bool sel_only)
 	}
 	return nullptr;
 }
-int32_t get_item_pos(int32_t pos, bool sel_only)
+int32_t SubscrPage::get_item_pos(int32_t pos, bool sel_only)
 {
 	auto* w = get_widg_pos(pos,sel_only);
 	if(w)
 		return w->getItemVal();
 	return -1;
 }
-SubscrWidget* get_sel_widg()
+SubscrWidget* SubscrPage::get_sel_widg()
 {
 	return get_widg_pos(cursor_pos);
 }
-int32_t get_sel_item()
+int32_t SubscrPage::get_sel_item()
 {
 	auto* w = get_sel_widg();
 	if(w)
 		return w->getItemVal();
 	return -1;
 }
-int32_t get_item_pos(int32_t id)
+int32_t SubscrPage::get_pos_of_item(int32_t id)
 {
 	for(SubscrWidget* widg : contents)
 	{
-		if(id == w->getItemVal())
-			return w->pos;
+		if(id == widg->getItemVal())
+			return widg->pos;
 	}
 	return -1;
 }
@@ -2833,10 +3095,10 @@ SubscrPage::SubscrPage(const SubscrPage& other)
 int32_t SubscrPage::read(PACKFILE *f, word s_version)
 {
 	clear();
-    if(!p_igetl(&cursor_pos,f,true))
+    if(!p_igetl(&cursor_pos,f))
         return qe_invalid;
 	word sz;
-	if(!p_igetw(&sz,f,true))
+	if(!p_igetw(&sz,f))
         return qe_invalid;
 	for(word q = 0; q < sz; ++q)
 	{
@@ -2861,12 +3123,36 @@ int32_t SubscrPage::write(PACKFILE *f) const
 	return 0;
 }
 
-SubscrPage& ZCSubscreen::get_page()
+SubscrPage& ZCSubscreen::cur_page()
 {
 	if(pages.empty())
 		pages.emplace_back();
 	curpage = vbound(curpage,pages.size()-1,0);
 	return pages[curpage];
+}
+SubscrPage* ZCSubscreen::get_page(byte id)
+{
+	if(id >= pages.size()) return nullptr;
+	return &pages[id];
+}
+bool ZCSubscreen::get_page_pos(int32_t itmid, byte& pg, byte& pos)
+{
+	for(byte q = 0; q < pages.size(); ++q)
+	{
+		int p = pages[q].get_pos_of_item(itmid);
+		if(p > -1)
+		{
+			pg = q;
+			pos = p;
+			return true;
+		}
+	}
+	return false;
+}
+int32_t ZCSubscreen::get_item_pos(byte pos, byte pg)
+{
+	if(pg >= pages.size()) return -1;
+	return pages[pg].get_item_pos(pos);
 }
 void ZCSubscreen::clear()
 {
@@ -2880,14 +3166,38 @@ void ZCSubscreen::draw(BITMAP* dest, int32_t xofs, int32_t yofs, byte pos, bool 
 	//!TODO SUBSCR handle animations between multiple pages?
 	pages[page].draw(dest,xofs,yofs,pos,showtime);
 }
+void ZCSubscreen::load_old(subscreen_group const& g)
+{
+	name = g.name;
+	sub_type = g.ss_type;
+	pages.clear();
+	SubscrPage& p = pages.emplace_back();
+	for(int ind = 0; ind < MAXSUBSCREENITEMS && g.objects[ind].type != ssoNULL; ++ind)
+	{
+		p.contents.push_back(SubscrWidget::fromOld(g.objects[ind]));
+	}
+}
+void ZCSubscreen::load_old(subscreen_object const* arr)
+{
+	pages.clear();
+	SubscrPage& p = pages.emplace_back();
+	for(int ind = 0; ind < MAXSUBSCREENITEMS && arr[ind].type != ssoNULL; ++ind)
+	{
+		SubscrWidget* w = SubscrWidget::fromOld(arr[ind]);
+		if(!w) continue;
+		if(w->getType() == ssoNONE || w->getType() == ssoNULL)
+			delete w;
+		p.contents.push_back(w);
+	}
+}
 int32_t ZCSubscreen::read(PACKFILE *f, word s_version)
 {
-    if(!p_getcstr(&name,f,true))
+    if(!p_getcstr(&name,f))
         return qe_invalid;
-	if(!p_getc(&sub_type,f,true))
+	if(!p_getc(&sub_type,f))
         return qe_invalid;
 	byte pagecnt;
-	if(!p_getc(&pagecnt,f,true))
+	if(!p_getc(&pagecnt,f))
         return qe_invalid;
 	pages.clear();
 	for(byte q = 0; q < pagecnt; ++q)
@@ -2911,6 +3221,6 @@ int32_t ZCSubscreen::write(PACKFILE *f) const
 		if(auto ret = pages[q].write(f))
 			return ret;
 	
-	new_return(0);
+	return 0;
 }
 

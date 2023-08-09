@@ -9,31 +9,16 @@
 #include "gui/common.h"
 #include "base/misctypes.h"
 
-void printobj(subscreen_object const& obj)
-{
-	zprint2("PRINTOUT--:\n");
-	zprint2("d1: %d\n", obj.d1);
-	zprint2("d2: %d\n", obj.d2);
-	zprint2("d3: %d\n", obj.d3);
-	zprint2("d4: %d\n", obj.d4);
-	zprint2("d5: %d\n", obj.d5);
-	zprint2("d6: %d\n", obj.d6);
-	zprint2("d7: %d\n", obj.d7);
-	zprint2("d8: %d\n", obj.d8);
-	zprint2("d9: %d\n", obj.d9);
-	zprint2("d10: %d\n", obj.d10);
-}
-
 static bool dlg_retval = false;
-bool call_subscrprop_dialog(subscreen_object *ref, int32_t obj_ind)
+bool call_subscrprop_dialog(SubscrWidget* widg, int32_t obj_ind)
 {
-	SubscrPropDialog(ref,obj_ind).show();
+	SubscrPropDialog(widg,obj_ind).show();
 	return dlg_retval;
 }
 
-SubscrPropDialog::SubscrPropDialog(subscreen_object *ref, int32_t obj_ind) :
-	local_subref(*ref), subref(ref), index(obj_ind),
-	list_font(GUI::ZCListData::fonts(true,true,true)),
+SubscrPropDialog::SubscrPropDialog(SubscrWidget* widg, int32_t obj_ind) :
+	local_subref(widg->clone()), subref(widg), index(obj_ind),
+	list_font(GUI::ZCListData::fonts(false,true,true)),
 	list_shadtype(GUI::ZCListData::shadow_types()),
 	list_aligns(GUI::ZCListData::alignments()),
 	list_buttons(GUI::ZCListData::buttons()),
@@ -44,8 +29,8 @@ SubscrPropDialog::SubscrPropDialog(subscreen_object *ref, int32_t obj_ind) :
 
 static const GUI::ListData two_three_rows
 {
-	{ "Two", 0 },
-	{ "Three", 1 }
+	{ "Two", 2 },
+	{ "Three", 3 }
 };
 static const GUI::ListData special_tile_list
 {
@@ -59,103 +44,103 @@ static const GUI::ListData wrapping_type_list
 	{ "Word", 1 }
 };
 
-#define NUM_FIELD(member,_min,_max) \
+#define NUM_FIELD(var,_min,_max) \
 TextField( \
 	fitParent = true, \
 	type = GUI::TextField::type::INT_DECIMAL, \
-	low = _min, high = _max, val = local_subref.member, \
+	low = _min, high = _max, val = var, \
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
-		local_subref.member = val; \
+		var = val; \
 	})
 
-#define MISC_COLOR_SEL(txt, num) \
+#define MISC_COLOR_SEL(var, txt, num) \
 Frame( \
 	title = txt, \
 	col_sel[num-1] = MiscColorSel( \
-		c1 = local_subref.colortype##num, \
-		c2 = local_subref.color##num, \
+		c1 = var.type, \
+		c2 = var.color, \
 		onUpdate = [&](int32_t c1, int32_t c2) \
 		{ \
-			local_subref.colortype##num = c1; \
-			local_subref.color##num = c2; \
+			var.type = c1; \
+			var.color = c2; \
 			updateColors(); \
 		}) \
 )
 
-#define MISC_CSET_SEL(txt, num) \
+#define MISC_CSET_SEL(var, txt, num) \
 Frame( \
 	title = txt, \
 	cs_sel[num-1] = MiscCSetSel( \
-		c1 = local_subref.colortype##num, \
-		c2 = local_subref.color##num, \
+		c1 = var.type, \
+		c2 = var.color, \
 		onUpdate = [&](int32_t c1, int32_t c2) \
 		{ \
-			local_subref.colortype##num = c1; \
-			local_subref.color##num = c2; \
+			var.type = c1; \
+			var.color = c2; \
 			updateColors(); \
 		}) \
 )
 
-#define CBOX(member, bit, txt, cspan) \
+#define CBOX(var, bit, txt, cspan) \
 Checkbox( \
 	colSpan = cspan, \
 	text = txt, hAlign = 0.0, \
-	checked = local_subref.member & bit, \
+	checked = var & bit, \
 	onToggleFunc = [&](bool state) \
 	{ \
-		SETFLAG(local_subref.member, bit, state); \
+		SETFLAG(var, bit, state); \
 	} \
 )
 
-#define DDL(member, lister) \
+#define DDL(var, lister) \
 DropDownList(data = lister, \
 	fitParent = true, \
-	selectedValue = local_subref.member, \
+	selectedValue = var, \
 	onSelectFunc = [&](int32_t val) \
 	{ \
-		local_subref.member = val; \
+		var = val; \
 	} \
 )
-#define DDL_FONT(member) \
+#define DDL_FONT(var) \
 DropDownList(data = list_font, \
 	fitParent = true, \
-	selectedValue = local_subref.member, \
+	selectedValue = var, \
 	onSelectFunc = [&](int32_t val) \
 	{ \
-		local_subref.member = val; \
-		if(fonttf) fonttf->setFont(ss_font(val)); \
+		var = val; \
+		if(fonttf) fonttf->setFont(get_zc_font(val)); \
 	} \
 )
-#define DDL_MW(member, lister, maxwid) \
+#define DDL_MW(var, lister, maxwid) \
 DropDownList(data = lister, \
 	fitParent = true, \
 	maxwidth = maxwid, \
-	selectedValue = local_subref.member, \
+	selectedValue = var, \
 	onSelectFunc = [&](int32_t val) \
 	{ \
-		local_subref.member = val; \
+		var = val; \
 	} \
 )
 
-#define GAUGE_MINITILE(txt,mem1,mem2,mem3,bit) \
+#define GAUGE_MINITILE(txt,v1,v2,v3,bit) \
 Frame(fitParent = true, Column(fitParent = true, \
 	Label(/*useFont = spfont, */text = txt), \
 	SelTileSwatch( \
 		hAlign = 0.0, \
-		tile = local_subref.mem1>>2, \
-		cset = local_subref.mem2, \
+		tile = v1>>2, \
+		cset = v2, \
 		mini = true, \
-		minicorner = local_subref.mem1 %4, \
+		minicorner = v1 %4, \
 		showvals = false, \
 		onSelectFunc = [&](int32_t t, int32_t c, int32_t,int32_t crn) \
 		{ \
-			local_subref.mem1 = t<<2; \
-			local_subref.mem2 = c; \
-			local_subref.mem1 |= crn; \
+			v1 = t<<2; \
+			v2 = c; \
+			v1 |= crn; \
 		} \
 	), \
-	CBOX(mem3,bit,"Mod",1) \
+	CBOX(v3,bit,"Mod",1) \
 ))
 
 //Tile block max preview tiledim
@@ -230,8 +215,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
 	char titlebuf[512];
-	sprintf(titlebuf, "%s Properties (Object #%d)", sso_name(local_subref.type), index);
-	zprint2("Opening: '%s'\n", titlebuf);
+	sprintf(titlebuf, "%s Properties (Object #%d)", sso_name(local_subref->getType()), index);
 	//Generate the basic window, with a reference to the row
 	std::shared_ptr<GUI::Grid> windowRow;
 	window = Window(
@@ -260,19 +244,19 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 	//Generate 'location' grid
 	{
 		//Generate any type-specific location data (ex special w/h things)
-		word loadw = sso_w(&local_subref);
-		word loadh = sso_h(&local_subref);
+		word loadw = local_subref->getW();
+		word loadh = local_subref->getH();
 		bool show_xy = true;
 		bool show_wh = true;
-		switch(local_subref.type)
+		switch(local_subref->getType())
 		{
 			case sso2X2FRAME:
 			case ssoCURRENTITEM:
 			case ssoMCGUFFIN:
 			case ssoTILEBLOCK:
 			case ssoTEXTBOX:
-				loadw = local_subref.w;
-				loadh = local_subref.h;
+				loadw = local_subref->w;
+				loadh = local_subref->h;
 				break;
 			case ssoMAGICMETER:
 			case ssoLIFEMETER:
@@ -291,42 +275,63 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			default: break;
 		}
 		std::shared_ptr<GUI::Grid> g1;
-		loc_grid = Row(
-				Column(
-					Label(text = "Display:"),
-					Checkbox(
-						text = "Active Up", hAlign = 0.0,
-						checked = local_subref.pos & sspUP,
-						onToggleFunc = [&](bool state)
-						{
-							SETFLAG(local_subref.pos,sspUP,state);
-						}
+		loc_grid = Column(
+				Row(
+					Column(
+						Label(text = "Display:"),
+						Checkbox(
+							text = "Active Up", hAlign = 0.0,
+							checked = local_subref->posflags & sspUP,
+							onToggleFunc = [&](bool state)
+							{
+								SETFLAG(local_subref->posflags,sspUP,state);
+							}
+						),
+						Checkbox(
+							text = "Active Down", hAlign = 0.0,
+							checked = local_subref->posflags & sspDOWN,
+							onToggleFunc = [&](bool state)
+							{
+								SETFLAG(local_subref->posflags,sspDOWN,state);
+							}
+						),
+						Checkbox(
+							text = "Active Scrolling", hAlign = 0.0,
+							checked = local_subref->posflags & sspSCROLLING,
+							onToggleFunc = [&](bool state)
+							{
+								SETFLAG(local_subref->posflags,sspSCROLLING,state);
+							}
+						)
 					),
-					Checkbox(
-						text = "Active Down", hAlign = 0.0,
-						checked = local_subref.pos & sspDOWN,
-						onToggleFunc = [&](bool state)
-						{
-							SETFLAG(local_subref.pos,sspDOWN,state);
-						}
-					),
-					Checkbox(
-						text = "Active Scrolling", hAlign = 0.0,
-						checked = local_subref.pos & sspSCROLLING,
-						onToggleFunc = [&](bool state)
-						{
-							SETFLAG(local_subref.pos,sspSCROLLING,state);
-						}
-					)
+					g1 = Rows<2>()
 				),
-				g1 = Rows<2>()
+				Rows<3>(
+					CBOX(local_subref->flags,SUBSCRFLAG_SELECTABLE,"Selectable",3),
+					//
+					Label(text = "Position:", hAlign = 1.0),
+					NUM_FIELD(local_subref->pos, -9999, 9999),
+					INFOBTN("The unique position ID of this slot"),
+					Label(text = "Up Select:", hAlign = 1.0),
+					NUM_FIELD(local_subref->pos_up, -9999, 9999),
+					INFOBTN("The unique position ID to move to when pressing 'Up'"),
+					Label(text = "Down Select:", hAlign = 1.0),
+					NUM_FIELD(local_subref->pos_down, -9999, 9999),
+					INFOBTN("The unique position ID to move to when pressing 'Down'"),
+					Label(text = "Left Select:", hAlign = 1.0),
+					NUM_FIELD(local_subref->pos_left, -9999, 9999),
+					INFOBTN("The unique position ID to move to when pressing 'Left' / 'L' quickswap"),
+					Label(text = "Right Select:", hAlign = 1.0),
+					NUM_FIELD(local_subref->pos_right, -9999, 9999),
+					INFOBTN("The unique position ID to move to when pressing 'Right' / 'R' quickswap")
+				)
 			);
 		if(show_xy)
 		{
 			g1->add(Label(text = "X:"));
-			g1->add(NUM_FIELD(x,-999,9999));
+			g1->add(NUM_FIELD(local_subref->x,-999,9999));
 			g1->add(Label(text = "Y:"));
-			g1->add(NUM_FIELD(y,-999,9999));
+			g1->add(NUM_FIELD(local_subref->y,-999,9999));
 		}
 		if(show_wh)
 		{
@@ -337,7 +342,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				low = 0, high = 999, val = loadw,
 				onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 				{
-					local_subref.w = val;
+					local_subref->w = val;
 					update_wh();
 				}));
 			g1->add(Label(text = "H:"));
@@ -347,7 +352,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				low = 0, high = 999, val = loadh,
 				onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 				{
-					local_subref.h = val;
+					local_subref->h = val;
 					update_wh();
 				}));
 		}
@@ -362,18 +367,22 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 	bool addcolor = true;
 	//Generate 'color' grid
 	{
-		switch(local_subref.type)
+		switch(local_subref->getType())
 		{
 			case sso2X2FRAME:
 			{
-				col_grid->add(MISC_CSET_SEL("CSet", 1));
+				SW_2x2Frame* w = dynamic_cast<SW_2x2Frame*>(local_subref);
+				col_grid->add(MISC_CSET_SEL(w->cs, "CSet", 1));
 				break;
 			}
 			case ssoBSTIME:
+			case ssoTIME:
+			case ssoSSTIME:
 			{
-				col_grid->add(MISC_COLOR_SEL("Text Color", 1));
-				col_grid->add(MISC_COLOR_SEL("Shadow Color", 2));
-				col_grid->add(MISC_COLOR_SEL("Background Color", 3));
+				SW_Time* w = dynamic_cast<SW_Time*>(local_subref);
+				col_grid->add(MISC_COLOR_SEL(w->c_text, "Text Color", 1));
+				col_grid->add(MISC_COLOR_SEL(w->c_shadow, "Shadow Color", 2));
+				col_grid->add(MISC_COLOR_SEL(w->c_bg, "Background Color", 3));
 				break;
 			}
 			case ssoBUTTONITEM:
@@ -381,16 +390,18 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				break;
 			case ssoCOUNTER:
 			{
-				col_grid->add(MISC_COLOR_SEL("Text Color", 1));
-				col_grid->add(MISC_COLOR_SEL("Shadow Color", 2));
-				col_grid->add(MISC_COLOR_SEL("Background Color", 3));
+				SW_Counter* w = dynamic_cast<SW_Counter*>(local_subref);
+				col_grid->add(MISC_COLOR_SEL(w->c_text, "Text Color", 1));
+				col_grid->add(MISC_COLOR_SEL(w->c_shadow, "Shadow Color", 2));
+				col_grid->add(MISC_COLOR_SEL(w->c_bg, "Background Color", 3));
 				break;
 			}
 			case ssoCOUNTERS:
 			{
-				col_grid->add(MISC_COLOR_SEL("Text Color", 1));
-				col_grid->add(MISC_COLOR_SEL("Shadow Color", 2));
-				col_grid->add(MISC_COLOR_SEL("Background Color", 3));
+				SW_Counters* w = dynamic_cast<SW_Counters*>(local_subref);
+				col_grid->add(MISC_COLOR_SEL(w->c_text, "Text Color", 1));
+				col_grid->add(MISC_COLOR_SEL(w->c_shadow, "Shadow Color", 2));
+				col_grid->add(MISC_COLOR_SEL(w->c_bg, "Background Color", 3));
 				break;
 			}
 			case ssoCURRENTITEM:
@@ -398,27 +409,15 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				break;
 			case ssoCLEAR:
 			{
-				col_grid->add(MISC_COLOR_SEL("Subscreen Color", 1));
-				break;
-			}
-			case ssoTIME:
-			{
-				col_grid->add(MISC_COLOR_SEL("Text Color", 1));
-				col_grid->add(MISC_COLOR_SEL("Shadow Color", 2));
-				col_grid->add(MISC_COLOR_SEL("Background Color", 3));
-				break;
-			}
-			case ssoSSTIME:
-			{
-				col_grid->add(MISC_COLOR_SEL("Text Color", 1));
-				col_grid->add(MISC_COLOR_SEL("Shadow Color", 2));
-				col_grid->add(MISC_COLOR_SEL("Background Color", 3));
+				SW_Clear* w = dynamic_cast<SW_Clear*>(local_subref);
+				col_grid->add(MISC_COLOR_SEL(w->c_bg, "Subscreen Color", 1));
 				break;
 			}
 			case ssoLARGEMAP:
 			{
-				col_grid->add(MISC_COLOR_SEL("Room Color", 1));
-				col_grid->add(MISC_COLOR_SEL("Player Color", 2));
+				SW_LMap* w = dynamic_cast<SW_LMap*>(local_subref);
+				col_grid->add(MISC_COLOR_SEL(w->c_room, "Room Color", 1));
+				col_grid->add(MISC_COLOR_SEL(w->c_plr, "Player Color", 2));
 				break;
 			}
 			case ssoLIFEGAUGE:
@@ -429,7 +428,8 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				break;
 			case ssoLINE:
 			{
-				col_grid->add(MISC_COLOR_SEL("Line Color", 1));
+				SW_Line* w = dynamic_cast<SW_Line*>(local_subref);
+				col_grid->add(MISC_COLOR_SEL(w->c_line, "Line Color", 1));
 				break;
 			}
 			case ssoMAGICGAUGE:
@@ -440,74 +440,86 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				break;
 			case ssoMINIMAP:
 			{
-				col_grid->add(MISC_COLOR_SEL("Player Color", 1));
-				col_grid->add(MISC_COLOR_SEL("Compass Blink Color", 2));
-				col_grid->add(MISC_COLOR_SEL("Compass Const Color", 3));
+				SW_MMap* w = dynamic_cast<SW_MMap*>(local_subref);
+				col_grid->add(MISC_COLOR_SEL(w->c_plr, "Player Color", 1));
+				col_grid->add(MISC_COLOR_SEL(w->c_cmp_blink, "Compass Blink Color", 2));
+				col_grid->add(MISC_COLOR_SEL(w->c_cmp_off, "Compass Const Color", 3));
 				break;
 			}
 			case ssoMINIMAPTITLE:
 			{
-				col_grid->add(MISC_COLOR_SEL("Text Color", 1));
-				col_grid->add(MISC_COLOR_SEL("Shadow Color", 2));
-				col_grid->add(MISC_COLOR_SEL("Background Color", 3));
+				SW_MMapTitle* w = dynamic_cast<SW_MMapTitle*>(local_subref);
+				col_grid->add(MISC_COLOR_SEL(w->c_text, "Text Color", 1));
+				col_grid->add(MISC_COLOR_SEL(w->c_shadow, "Shadow Color", 2));
+				col_grid->add(MISC_COLOR_SEL(w->c_bg, "Background Color", 3));
 				break;
 			}
 			case ssoMINITILE:
 			{
-				col_grid->add(MISC_CSET_SEL("CSet", 1));
+				SW_MiniTile* w = dynamic_cast<SW_MiniTile*>(local_subref);
+				col_grid->add(MISC_CSET_SEL(w->cs, "CSet", 1));
 				break;
 			}
 			case ssoRECT:
 			{
-				col_grid->add(MISC_COLOR_SEL("Outline Color", 1));
-				col_grid->add(MISC_COLOR_SEL("Fill Color", 2));
+				SW_Rect* w = dynamic_cast<SW_Rect*>(local_subref);
+				col_grid->add(MISC_COLOR_SEL(w->c_outline, "Outline Color", 1));
+				col_grid->add(MISC_COLOR_SEL(w->c_fill, "Fill Color", 2));
 				break;
 			}
 			case ssoSELECTEDITEMNAME:
 			{
-				col_grid->add(MISC_COLOR_SEL("Text Color", 1));
-				col_grid->add(MISC_COLOR_SEL("Shadow Color", 2));
-				col_grid->add(MISC_COLOR_SEL("Background Color", 3));
-				break;
+				// SW_* w = dynamic_cast<SW_*>(local_subref);
+				// col_grid->add(MISC_COLOR_SEL(w->c_text, "Text Color", 1));
+				// col_grid->add(MISC_COLOR_SEL(w->c_shadow, "Shadow Color", 2));
+				// col_grid->add(MISC_COLOR_SEL(w->c_bg, "Background Color", 3));
+				break; //!TODO
 			}
 			case ssoSELECTOR1:
 			{
-				col_grid->add(MISC_CSET_SEL("CSet", 1));
-				break;
+				// SW_* w = dynamic_cast<SW_*>(local_subref);
+				// col_grid->add(MISC_CSET_SEL(w->cs, "CSet", 1));
+				break; //!TODO
 			}
 			case ssoSELECTOR2:
 			{
-				col_grid->add(MISC_CSET_SEL("CSet", 1));
-				break;
+				// SW_* w = dynamic_cast<SW_*>(local_subref);
+				// col_grid->add(MISC_CSET_SEL(w->cs, "CSet", 1));
+				break; //!TODO
 			}
 			case ssoTEXT:
 			{
-				col_grid->add(MISC_COLOR_SEL("Text Color", 1));
-				col_grid->add(MISC_COLOR_SEL("Shadow Color", 2));
-				col_grid->add(MISC_COLOR_SEL("Background Color", 3));
+				SW_Text* w = dynamic_cast<SW_Text*>(local_subref);
+				col_grid->add(MISC_COLOR_SEL(w->c_text, "Text Color", 1));
+				col_grid->add(MISC_COLOR_SEL(w->c_shadow, "Shadow Color", 2));
+				col_grid->add(MISC_COLOR_SEL(w->c_bg, "Background Color", 3));
 				break;
 			}
 			case ssoTEXTBOX:
 			{
-				col_grid->add(MISC_COLOR_SEL("Text Color", 1));
-				col_grid->add(MISC_COLOR_SEL("Shadow Color", 2));
-				col_grid->add(MISC_COLOR_SEL("Background Color", 3));
-				break;
+				// SW_* w = dynamic_cast<SW_*>(local_subref);
+				// col_grid->add(MISC_COLOR_SEL(w->c_text, "Text Color", 1));
+				// col_grid->add(MISC_COLOR_SEL(w->c_shadow, "Shadow Color", 2));
+				// col_grid->add(MISC_COLOR_SEL(w->c_bg, "Background Color", 3));
+				break; //!TODO
 			}
 			case ssoTILEBLOCK:
 			{
-				col_grid->add(MISC_CSET_SEL("CSet", 1));
+				SW_TileBlock* w = dynamic_cast<SW_TileBlock*>(local_subref);
+				col_grid->add(MISC_CSET_SEL(w->cs, "CSet", 1));
 				break;
 			}
 			case ssoTRIFRAME:
 			{
-				col_grid->add(MISC_COLOR_SEL("Frame Outline Color", 1));
-				col_grid->add(MISC_COLOR_SEL("Number Color", 2));
+				SW_TriFrame* w = dynamic_cast<SW_TriFrame*>(local_subref);
+				col_grid->add(MISC_COLOR_SEL(w->c_outline, "Frame Outline Color", 1));
+				col_grid->add(MISC_COLOR_SEL(w->c_number, "Number Color", 2));
 				break;
 			}
 			case ssoMCGUFFIN:
 			{
-				col_grid->add(MISC_CSET_SEL("CSet", 1));
+				SW_McGuffin* w = dynamic_cast<SW_McGuffin*>(local_subref);
+				col_grid->add(MISC_CSET_SEL(w->cs, "CSet", 1));
 				break;
 			}
 		}
@@ -519,78 +531,62 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 	int32_t mergetype = mtNONE;
 	//Generate 'attributes' grid
 	{
-		switch(local_subref.type)
+		switch(local_subref->getType())
 		{
 			case sso2X2FRAME:
 			{
+				SW_2x2Frame* w = dynamic_cast<SW_2x2Frame*>(local_subref);
 				attrib_grid = Column(
 					tswatches[0] = SelTileSwatch(
 						hAlign = 0.0,
-						tile = local_subref.d1,
-						cset = subscreen_cset(cs_sel[0]->getC1(), cs_sel[0]->getC2()),
-						//flip = local_subref.d2,
+						tile = w->tile,
+						cset = w->cs.get_cset(),
+						//flip = local_subref->d2,
 						tilewid = 2, tilehei = 2,
 						showvals = false,
 						onSelectFunc = [&](int32_t t, int32_t c, int32_t,int32_t)
 						{
-							local_subref.d1 = t;
-							if(local_subref.colortype1 != ssctMISC)
+							w->tile = t;
+							if(w->cs.type != ssctMISC)
 							{
-								local_subref.colortype1 = c;
+								w->cs.type = c;
 								cs_sel[0]->setC1(c);
 							}
 						}
 					),
-					Checkbox(
-						text = "Overlay", hAlign = 0.0,
-						checked = local_subref.d3,
-						onToggleFunc = [&](bool state)
-						{
-							local_subref.d3 = (state?1:0);
-						}
-					),
-					Checkbox(
-						text = "Transparent", hAlign = 0.0,
-						checked = local_subref.d4,
-						onToggleFunc = [&](bool state)
-						{
-							local_subref.d4 = (state?1:0);
-						}
-					)
+					CBOX(w->flags,SUBSCR_2X2FR_OVERLAY,"Overlay",1),
+					CBOX(w->flags,SUBSCR_2X2FR_TRANSP,"Transparent",1)
 				);
 				break;
 			}
+			case ssoTIME:
+			case ssoSSTIME:
 			case ssoBSTIME:
 			{
+				SW_Time* w = dynamic_cast<SW_Time*>(local_subref);
 				attrib_grid = Columns<3>(
 					Label(text = "Font:", hAlign = 1.0),
 					Label(text = "Style:", hAlign = 1.0),
 					Label(text = "Alignment:", hAlign = 1.0),
-					DDL_FONT(d1),
-					DDL(d3, list_shadtype),
-					DDL(d2, list_aligns)
+					DDL_FONT(w->fontid),
+					DDL(w->shadtype, list_shadtype),
+					DDL(w->align, list_aligns)
 				);
 				break;
 			}
 			case ssoBUTTONITEM:
 			{
+				SW_ButtonItem* w = dynamic_cast<SW_ButtonItem*>(local_subref);
 				attrib_grid = Rows<2>(
 					Label(text = "Button:", hAlign = 1.0),
-					DDL(d1, list_buttons),
-					Checkbox(colSpan = 2,
-						text = "Transparent", hAlign = 0.0,
-						checked = local_subref.d2,
-						onToggleFunc = [&](bool state)
-						{
-							local_subref.d2 = (state?1:0);
-						}
-					)
+					DDL(w->btn, list_buttons),
+					CBOX(w->flags,SUBSCR_BTNITM_TRANSP,"Transparent",2)
 				);
 				break;
 			}
 			case ssoCOUNTER:
 			{
-				printobj(local_subref);
+				SW_Counter* w = dynamic_cast<SW_Counter*>(local_subref);
 				mergetype = mtFORCE_TAB; //too wide to fit!
 				attrib_grid = Columns<6>(
 					Label(text = "Font:", hAlign = 1.0),
@@ -599,134 +595,83 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 					Label(text = "Item 1:", hAlign = 1.0),
 					Label(text = "Item 2:", hAlign = 1.0),
 					Label(text = "Item 3:", hAlign = 1.0),
-					DDL_FONT(d1),
-					DDL(d3, list_shadtype),
-					DDL(d2, list_aligns),
-					DDL(d7, list_counters),
-					DDL(d8, list_counters),
-					DDL(d9, list_counters),
+					DDL_FONT(w->fontid),
+					DDL(w->shadtype, list_shadtype),
+					DDL(w->align, list_aligns),
+					DDL(w->ctrs[0], list_counters),
+					DDL(w->ctrs[1], list_counters),
+					DDL(w->ctrs[2], list_counters),
 					Label(text = "Digits:", hAlign = 1.0),
 					Label(text = "Infinite:", hAlign = 1.0),
 					Label(text = "Inf Character:", hAlign = 1.0),
-					Checkbox(
-						text = "Show Zero", hAlign = 0.0,
-						checked = local_subref.d6 & 0b01,
-						colSpan = 2,
-						onToggleFunc = [&](bool state)
-						{
-							SETFLAG(local_subref.d6, 0b01, state);
-						}
-					),
-					Checkbox(
-						colSpan = 2,
-						text = "Only Selected", hAlign = 0.0,
-						checked = local_subref.d6 & 0b10,
-						onToggleFunc = [&](bool state)
-						{
-							SETFLAG(local_subref.d6, 0b10, state);
-						}
-					),
+					CBOX(w->flags,SUBSCR_COUNTER_SHOW0,"Show Zero",2),
+					CBOX(w->flags,SUBSCR_COUNTER_ONLYSEL,"Only Selected",2),
 					DummyWidget(colSpan = 2),
-					NUM_FIELD(d4,0,5),
-					DDL_MW(d10,list_items,100_px),
+					NUM_FIELD(w->digits,0,5),
+					DDL_MW(w->infitm,list_items,100_px),
 					TextField(maxLength = 1,
 						fitParent = true,
-						text = std::string(1,(char)local_subref.d5),
+						text = std::string(1,(char)w->infchar),
 						onValChangedFunc = [&](GUI::TextField::type,std::string_view str,int32_t)
 						{
-							std::string name(str);
-							if(name.size())
-								local_subref.d5 = name[0];
-							else local_subref.d5 = 0;
+							std::string txt(str);
+							if(txt.size())
+								w->infchar = txt[0];
+							else w->infchar = 0;
 						})
 				);
 				break;
 			}
 			case ssoCOUNTERS:
 			{
+				SW_Counters* w = dynamic_cast<SW_Counters*>(local_subref);
 				attrib_grid = Rows<2>(
 					Label(text = "Font:", hAlign = 1.0),
-					DDL_FONT(d1),
+					DDL_FONT(w->fontid),
 					Label(text = "Style:", hAlign = 1.0),
-					DDL(d3, list_shadtype),
+					DDL(w->shadtype, list_shadtype),
 					Label(text = "Digits:", hAlign = 1.0),
-					NUM_FIELD(d4,0,5),
+					NUM_FIELD(w->digits,0,5),
 					Label(text = "Inf Character:", hAlign = 1.0),
 					TextField(maxLength = 1,
 						fitParent = true,
-						text = std::string(1,(char)local_subref.d5),
+						text = std::string(1,(char)w->infchar),
 						onValChangedFunc = [&](GUI::TextField::type,std::string_view str,int32_t)
 						{
 							std::string name(str);
 							if(name.size())
-								local_subref.d5 = name[0];
-							else local_subref.d5 = 0;
+								w->infchar = name[0];
+							else w->infchar = 0;
 						}),
-					Checkbox(
-						text = "Use X", hAlign = 0.0,
-						checked = local_subref.d2 & 0b1,
-						colSpan = 2,
-						onToggleFunc = [&](bool state)
-						{
-							SETFLAG(local_subref.d2, 0b1, state);
-						}
-					)
+					CBOX(w->flags,SUBSCR_COUNTERS_USEX,"Use X",2)
 				);
 				break;
 			}
 			case ssoCURRENTITEM:
 			{
+				SW_CurrentItem* w = dynamic_cast<SW_CurrentItem*>(local_subref);
 				attrib_grid = Rows<3>(
 					labels[0] = Label(text = "Item Class:", hAlign = 1.0),
-					ddl = DDL(d1, list_itemclass),
+					ddl = DDL(w->iclass, list_itemclass),
 					INFOBTN("The highest level owned of this itemclass will be tied to this item slot."),
 					Label(text = "Item Override:", hAlign = 1.0),
 					DropDownList(data = list_items,
 						fitParent = true,
 						forceFitW = true,
-						selectedValue = local_subref.d8-1,
+						selectedValue = w->iid-1,
 						onSelectFunc = [&](int32_t val)
 						{
-							local_subref.d8 = val+1;
+							w->iid = val+1;
 							ddl->setDisabled(val > -1);
 							labels[0]->setDisabled(val > -1);
 						}
 					),
 					INFOBTN("The specified item ID will be tied to this item slot (OVERRIDES 'Item Class' if set)"),
-					Label(text = "Position:", hAlign = 1.0),
-					NUM_FIELD(d3, -9999, 9999),
-					INFOBTN("The unique position ID of this slot"),
-					Label(text = "Up Select:", hAlign = 1.0),
-					NUM_FIELD(d4, -9999, 9999),
-					INFOBTN("The unique position ID to move to when pressing 'Up'"),
-					Label(text = "Down Select:", hAlign = 1.0),
-					NUM_FIELD(d5, -9999, 9999),
-					INFOBTN("The unique position ID to move to when pressing 'Down'"),
-					Label(text = "Left Select:", hAlign = 1.0),
-					NUM_FIELD(d6, -9999, 9999),
-					INFOBTN("The unique position ID to move to when pressing 'Left' / 'L' quickswap"),
-					Label(text = "Right Select:", hAlign = 1.0),
-					NUM_FIELD(d7, -9999, 9999),
-					INFOBTN("The unique position ID to move to when pressing 'Right' / 'R' quickswap"),
 					DummyWidget(),
-					Checkbox(
-						text = "Invisible", hAlign = 0.0,
-						checked = !(local_subref.d2 & SSCURRITEM_VISIBLE),
-						onToggleFunc = [&](bool state)
-						{
-							SETFLAG(local_subref.d2, SSCURRITEM_VISIBLE, !state);
-						}
-					),
+					CBOX(w->flags,SUBSCR_CURITM_INVIS,"Invisible",1),
 					INFOBTN("If checked, the item is invisible on the subscreen"),
 					DummyWidget(),
-					Checkbox(
-						text = "Non-Equippable", hAlign = 0.0,
-						checked = local_subref.d2 & SSCURRITEM_NONEQUIP,
-						onToggleFunc = [&](bool state)
-						{
-							SETFLAG(local_subref.d2, SSCURRITEM_NONEQUIP, state);
-						}
-					),
+					CBOX(w->flags,SUBSCR_CURITM_NONEQP,"Non-Equippable",1),
 					INFOBTN("If checked, the item cannot be equipped to a button."
 						" 'Always Press To Equip' is recommended if this is used." + QRHINT({qr_SUBSCR_PRESS_TO_EQUIP}))
 				);
@@ -737,125 +682,106 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				addattrib = false;
 				break;
 			}
-			case ssoTIME:
-			{
-				attrib_grid = Columns<3>(
-					Label(text = "Font:", hAlign = 1.0),
-					Label(text = "Style:", hAlign = 1.0),
-					Label(text = "Alignment:", hAlign = 1.0),
-					DDL_FONT(d1),
-					DDL(d3, list_shadtype),
-					DDL(d2, list_aligns)
-				);
-				break;
-			}
-			case ssoSSTIME:
-			{
-				attrib_grid = Columns<3>(
-					Label(text = "Font:", hAlign = 1.0),
-					Label(text = "Style:", hAlign = 1.0),
-					Label(text = "Alignment:", hAlign = 1.0),
-					DDL_FONT(d1),
-					DDL(d3, list_shadtype),
-					DDL(d2, list_aligns)
-				);
-				break;
-			}
 			case ssoLARGEMAP:
 			{
+				SW_LMap* w = dynamic_cast<SW_LMap*>(local_subref);
 				attrib_grid = Column(
-					CBOX(d1, 0b1, "Show Map", 1),
-					CBOX(d2, 0b1, "Show Rooms", 1),
-					CBOX(d3, 0b1, "Show Hero", 1),
-					CBOX(d10, 0b1, "Large", 1)
+					CBOX(w->flags, SUBSCR_LMAP_SHOWMAP, "Show Map", 1),
+					CBOX(w->flags, SUBSCR_LMAP_SHOWROOM, "Show Rooms", 1),
+					CBOX(w->flags, SUBSCR_LMAP_SHOWPLR, "Show Hero", 1),
+					CBOX(w->flags, SUBSCR_LMAP_LARGE, "Large", 1)
 				);
 				break;
 			}
 			case ssoLIFEGAUGE:
 			{
-				attrib_grid = Row(padding = 0_px,
-					Rows<2>(
-						GAUGE_MINITILE("Not Last",d2,colortype1,d10,0x01),
-						GAUGE_MINITILE("Last",d3,color1,d10,0x02),
-						GAUGE_MINITILE("Cap",d4,colortype2,d10,0x04),
-						GAUGE_MINITILE("After Cap",d5,color2,d10,0x08)
-					),
-					Columns<5>(
-						Label(text = "Frames:", hAlign = 1.0),
-						Label(text = "Speed:", hAlign = 1.0),
-						Label(text = "Delay:", hAlign = 1.0),
-						Label(text = "Container:", hAlign = 1.0),
-						CBOX(d10,0x10,"Unique Last",2),
-						NUM_FIELD(d6, 0, 999),
-						NUM_FIELD(d7, 0, 999),
-						NUM_FIELD(d8, 0, 999),
-						NUM_FIELD(d1, 0, 9999),
-						DummyWidget(rowSpan=3),
-						INFOBTN("The container number this piece represents. For a value of n,"
-							"\nIf the Player has exactly n containers, 'Last' displays."
-							"\nIf the Player has > n containers, 'Not Last' displays."
-							"\nIf the Player has exactly n-1 containers, 'Cap' displays."
-							"\nIf the Player has < n-1 containers, 'After Cap' displays."
-							)
-					)
-				);
-				break;
+				// SW_* w = dynamic_cast<SW_*>(local_subref);
+				// attrib_grid = Row(padding = 0_px,
+					// Rows<2>(
+						// GAUGE_MINITILE("Not Last",d2,colortype1,d10,0x01),
+						// GAUGE_MINITILE("Last",d3,color1,d10,0x02),
+						// GAUGE_MINITILE("Cap",d4,colortype2,d10,0x04),
+						// GAUGE_MINITILE("After Cap",d5,color2,d10,0x08)
+					// ),
+					// Columns<5>(
+						// Label(text = "Frames:", hAlign = 1.0),
+						// Label(text = "Speed:", hAlign = 1.0),
+						// Label(text = "Delay:", hAlign = 1.0),
+						// Label(text = "Container:", hAlign = 1.0),
+						// CBOX(d10,0x10,"Unique Last",2),
+						// NUM_FIELD(d6, 0, 999),
+						// NUM_FIELD(d7, 0, 999),
+						// NUM_FIELD(d8, 0, 999),
+						// NUM_FIELD(d1, 0, 9999),
+						// DummyWidget(rowSpan=3),
+						// INFOBTN("The container number this piece represents. For a value of n,"
+							// "\nIf the Player has exactly n containers, 'Last' displays."
+							// "\nIf the Player has > n containers, 'Not Last' displays."
+							// "\nIf the Player has exactly n-1 containers, 'Cap' displays."
+							// "\nIf the Player has < n-1 containers, 'After Cap' displays."
+							// )
+					// )
+				// );
+				break; //!TODO
 			}
 			case ssoLIFEMETER:
 			{
+				SW_LifeMeter* w = dynamic_cast<SW_LifeMeter*>(local_subref);
 				attrib_grid = Rows<2>(
 					Label(text = "Rows:", hAlign = 1.0),
-					DDL(d3, two_three_rows),
-					CBOX(d2, 0b1, "Start at bottom", 2)
+					DDL(w->rows, two_three_rows),
+					CBOX(w->flags, SUBSCR_LIFEMET_BOT, "Start at bottom", 2)
 				);
 				break;
 			}
 			case ssoLINE:
 			{
+				SW_Line* w = dynamic_cast<SW_Line*>(local_subref);
 				attrib_grid = Column(
-					CBOX(d4, 0b1, "Transparent", 1)
+					CBOX(w->flags, SUBSCR_LINE_TRANSP, "Transparent", 1)
 				);
 				break;
 			}
 			case ssoMAGICGAUGE:
 			{
-				attrib_grid = Row(padding = 0_px,
-					Rows<2>(
-						GAUGE_MINITILE("Not Last",d2,colortype1,d10,0x01),
-						GAUGE_MINITILE("Last",d3,color1,d10,0x02),
-						GAUGE_MINITILE("Cap",d4,colortype2,d10,0x04),
-						GAUGE_MINITILE("After Cap",d5,color2,d10,0x08)
-					),
-					Columns<6>(
-						Label(text = "Frames:", hAlign = 1.0),
-						Label(text = "Speed:", hAlign = 1.0),
-						Label(text = "Delay:", hAlign = 1.0),
-						Label(text = "Container:", hAlign = 1.0),
-						Label(text = "Show:", hAlign = 1.0),
-						CBOX(d10,0x10,"Unique Last",2),
-						NUM_FIELD(d6, 0, 999),
-						NUM_FIELD(d7, 0, 999),
-						NUM_FIELD(d8, 0, 999),
-						NUM_FIELD(d1, 0, 9999),
-						NUM_FIELD(d9, -1, 9999),
-						DummyWidget(rowSpan=3),
-						INFOBTN("The container number this piece represents. For a value of n,"
-							"\nIf the Player has exactly n containers, 'Last' displays."
-							"\nIf the Player has > n containers, 'Not Last' displays."
-							"\nIf the Player has exactly n-1 containers, 'Cap' displays."
-							"\nIf the Player has < n-1 containers, 'After Cap' displays."
-							),
-						INFOBTN("If set to -1, piece shows normally."
-							"\nIf set to > -1, piece will only be visible when your"
-							" Magic Drain Rate is equal to the value."
-							"\nEx. With the default of starting at drain rate 2,"
-							" a show value of '1' would be used for a '1/2 magic' icon."
-							"\nWith a starting drain rate of 4, you could"
-							" then have a show value of '2' for a '1/2 magic', and a"
-							" show value of '1' for a '1/4 magic'.")
-					)
-				);
-				break;
+				// SW_* w = dynamic_cast<SW_*>(local_subref);
+				// attrib_grid = Row(padding = 0_px,
+					// Rows<2>(
+						// GAUGE_MINITILE("Not Last",d2,colortype1,d10,0x01),
+						// GAUGE_MINITILE("Last",d3,color1,d10,0x02),
+						// GAUGE_MINITILE("Cap",d4,colortype2,d10,0x04),
+						// GAUGE_MINITILE("After Cap",d5,color2,d10,0x08)
+					// ),
+					// Columns<6>(
+						// Label(text = "Frames:", hAlign = 1.0),
+						// Label(text = "Speed:", hAlign = 1.0),
+						// Label(text = "Delay:", hAlign = 1.0),
+						// Label(text = "Container:", hAlign = 1.0),
+						// Label(text = "Show:", hAlign = 1.0),
+						// CBOX(d10,0x10,"Unique Last",2),
+						// NUM_FIELD(d6, 0, 999),
+						// NUM_FIELD(d7, 0, 999),
+						// NUM_FIELD(d8, 0, 999),
+						// NUM_FIELD(d1, 0, 9999),
+						// NUM_FIELD(d9, -1, 9999),
+						// DummyWidget(rowSpan=3),
+						// INFOBTN("The container number this piece represents. For a value of n,"
+							// "\nIf the Player has exactly n containers, 'Last' displays."
+							// "\nIf the Player has > n containers, 'Not Last' displays."
+							// "\nIf the Player has exactly n-1 containers, 'Cap' displays."
+							// "\nIf the Player has < n-1 containers, 'After Cap' displays."
+							// ),
+						// INFOBTN("If set to -1, piece shows normally."
+							// "\nIf set to > -1, piece will only be visible when your"
+							// " Magic Drain Rate is equal to the value."
+							// "\nEx. With the default of starting at drain rate 2,"
+							// " a show value of '1' would be used for a '1/2 magic' icon."
+							// "\nWith a starting drain rate of 4, you could"
+							// " then have a show value of '2' for a '1/2 magic', and a"
+							// " show value of '1' for a '1/4 magic'.")
+					// )
+				// );
+				break; //!TODO
 			}
 			case ssoMAGICMETER:
 			{
@@ -864,51 +790,54 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			}
 			case ssoMINIMAP:
 			{
+				SW_MMap* w = dynamic_cast<SW_MMap*>(local_subref);
 				attrib_grid = Column(
-					CBOX(d1, 0b1, "Show Map", 1),
-					CBOX(d2, 0b1, "Show Player", 1),
-					CBOX(d3, 0b1, "Show Compass", 1)
+					CBOX(w->flags, SUBSCR_MMAP_SHOWMAP, "Show Map", 1),
+					CBOX(w->flags, SUBSCR_MMAP_SHOWPLR, "Show Player", 1),
+					CBOX(w->flags, SUBSCR_MMAP_SHOWCMP, "Show Compass", 1)
 				);
 				break;
 			}
 			case ssoMINIMAPTITLE:
 			{
+				SW_MMapTitle* w = dynamic_cast<SW_MMapTitle*>(local_subref);
 				attrib_grid = Rows<2>(
 					Label(text = "Font:", hAlign = 1.0),
-					DDL_FONT(d1),
+					DDL_FONT(w->fontid),
 					Label(text = "Style:", hAlign = 1.0),
-					DDL(d3, list_shadtype),
+					DDL(w->shadtype, list_shadtype),
 					Label(text = "Alignment:", hAlign = 1.0),
-					DDL(d2, list_aligns),
-					CBOX(d4, 0b1, "Invisible w/o Map item", 2)
+					DDL(w->align, list_aligns),
+					CBOX(w->flags, SUBSCR_MMAPTIT_REQMAP, "Invisible w/o Map item", 2)
 				);
 				break;
 			}
 			case ssoMINITILE:
 			{
+				SW_MiniTile* w = dynamic_cast<SW_MiniTile*>(local_subref);
 				mergetype = mtLOCTOP; //too wide to fit all 3 horiz, but has vert room
 				int32_t tl, tw = 1, crn;
-				if(local_subref.d1 == -1)
+				if(w->tile == -1)
 				{
-					switch(local_subref.d2)
+					switch(w->special_tile)
 					{
 						case ssmstSSVINETILE:
 							tl = wpnsbuf[iwSubscreenVine].tile;
 							tw = 3;
-							crn = local_subref.d3;
+							crn = w->crn;
 							break;
 						case ssmstMAGICMETER:
 							tl = wpnsbuf[iwMMeter].tile;
 							tw = 9;
-							crn = local_subref.d3;
+							crn = w->crn;
 							break;
 					}
 				}
 				else
 				{
-					tl = local_subref.d1 >> 2;
-					crn = (local_subref.d1 & 0b11);
-					local_subref.d2 = -1;
+					tl = w->tile;
+					crn = w->crn;
+					w->special_tile = -1;
 				}
 				attrib_grid = Rows<2>(
 					Label(text = "Tile:", hAlign = 1.0),
@@ -916,239 +845,223 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 						width = 4_px + (32_px*9),
 						hAlign = 0.0,
 						tile = tl,
-						cset = subscreen_cset(cs_sel[0]->getC1(),cs_sel[0]->getC2()),
+						cset = w->cs.get_cset(),
 						tilewid = tw,
-						minionly = local_subref.d2 != -1,
+						minionly = w->special_tile != -1,
 						mini = true,
 						minicorner = crn,
 						showvals = false,
 						showT0 = true,
 						onSelectFunc = [&](int32_t t, int32_t c, int32_t,int32_t crn)
 						{
-							if(local_subref.d2 != -1)
+							if(w->special_tile != -1)
 							{
-								local_subref.d3 = crn;
+								w->crn = crn;
 								return;
 							}
 							
-							if(local_subref.colortype1 != ssctMISC)
+							if(w->cs.type != ssctMISC)
 							{
-								local_subref.colortype1 = c;
+								w->cs.type = c;
 								cs_sel[0]->setC1(c);
 							}
-							local_subref.d1 = t<<2;
-							local_subref.d1 |= crn&0b11;
+							w->tile = t;
+							w->crn = crn;
 						}
 					),
 					Label(text = "Special Tile:", hAlign = 1.0),
 					ddl = DropDownList(data = special_tile_list,
 						fitParent = true,
-						selectedValue = local_subref.d2,
+						selectedValue = w->special_tile,
 						onSelectFunc = [&](int32_t val)
 						{
-							if(val == local_subref.d2) return;
-							auto oldval = local_subref.d2;
-							local_subref.d2 = val;
-							int32_t newtile = 0, crn = 0;
+							if(val == w->special_tile) return;
+							auto oldval = w->special_tile;
+							w->special_tile = val;
+							int32_t newtile = 0;
 							switch(val)
 							{
 								case -1:
 									tswatches[0]->setTileWid(1);
 									tswatches[0]->setMiniOnly(false);
-									newtile = std::max(0,local_subref.d1>>2);
-									crn = local_subref.d3&0b11;
-									local_subref.d1 = (newtile<<2) | crn;
+									newtile = std::max(0,w->tile);
+									w->tile = newtile;
 									break;
 								case 0:
 									tswatches[0]->setTileWid(3);
 									tswatches[0]->setMiniOnly(true);
 									newtile = wpnsbuf[iwSubscreenVine].tile;
-									crn = (oldval==-1 ? local_subref.d1&0b11 : local_subref.d3);
-									local_subref.d1 = (newtile<<2);
-									local_subref.d3 = crn;
+									w->tile = newtile;
 									break;
 								case 1:
 									tswatches[0]->setTileWid(9);
 									tswatches[0]->setMiniOnly(true);
 									newtile = wpnsbuf[iwMMeter].tile;
-									crn = (oldval==-1 ? local_subref.d1&0b11 : local_subref.d3);
-									local_subref.d1 = (newtile<<2);
-									local_subref.d3 = crn;
+									w->tile = newtile;
 									break;
 							}
 							tswatches[0]->setTile(newtile);
-							tswatches[0]->setMiniCrn(crn);
+							tswatches[0]->setMiniCrn(w->crn);
 						}
 					),
-					CBOX(d5, 0b1, "Overlay", 2),
-					CBOX(d6, 0b1, "Transparent", 2)
+					CBOX(w->flags, SUBSCR_MINITL_OVERLAY, "Overlay", 2),
+					CBOX(w->flags, SUBSCR_MINITL_TRANSP, "Transparent", 2)
 				);
 				break;
 			}
 			case ssoRECT:
 			{
+				SW_Rect* w = dynamic_cast<SW_Rect*>(local_subref);
 				attrib_grid = Column(
-					CBOX(d1, 0b1, "Filled", 1),
-					CBOX(d2, 0b1, "Transparent", 1)
+					CBOX(w->flags, SUBSCR_RECT_FILLED, "Filled", 1),
+					CBOX(w->flags, SUBSCR_RECT_TRANSP, "Transparent", 1)
 				);
 				break;
 			}
 			case ssoSELECTEDITEMNAME:
 			{
-				attrib_grid = Rows<2>(
-					Label(text = "Font:", hAlign = 1.0),
-					DDL_FONT(d1),
-					Label(text = "Style:", hAlign = 1.0),
-					DDL(d3, list_shadtype),
-					Label(text = "Alignment:", hAlign = 1.0),
-					DDL(d2, list_aligns),
-					Label(text = "Wrapping:", hAlign = 1.0),
-					DDL(d4, wrapping_type_list),
-					Label(text = "Tab Size:", hAlign = 1.0),
-					NUM_FIELD(d5,0,99)
-				);
-				break;
+				// SW_* w = dynamic_cast<SW_*>(local_subref);
+				// attrib_grid = Rows<2>(
+					// Label(text = "Font:", hAlign = 1.0),
+					// DDL_FONT(d1),
+					// Label(text = "Style:", hAlign = 1.0),
+					// DDL(d3, list_shadtype),
+					// Label(text = "Alignment:", hAlign = 1.0),
+					// DDL(d2, list_aligns),
+					// Label(text = "Wrapping:", hAlign = 1.0),
+					// DDL(d4, wrapping_type_list),
+					// Label(text = "Tab Size:", hAlign = 1.0),
+					// NUM_FIELD(d5,0,99)
+				// );
+				break; //!TODO
 			}
 			case ssoSELECTOR1:
 			case ssoSELECTOR2:
 			{
-				attrib_grid = Rows<2>(
-					Label(text = "Tile:", hAlign = 1.0),
-					tswatches[0] = SelTileSwatch(
-						hAlign = 0.0,
-						tile = local_subref.d1,
-						cset = subscreen_cset(cs_sel[0]->getC1(), cs_sel[0]->getC2()),
-						flip = local_subref.d2,
-						showvals = false,
-						showFlip = true,
-						onSelectFunc = [&](int32_t t, int32_t c, int32_t f,int32_t)
-						{
-							local_subref.d1 = t;
-							local_subref.d2 = f;
-							if(local_subref.colortype1 != ssctMISC)
-							{
-								local_subref.colortype1 = c;
-								cs_sel[0]->setC1(c);
-							}
-						}
-					),
-					CBOX(d3, 0b1, "Overlay", 2),
-					CBOX(d4, 0b1, "Transparent", 2),
-					CBOX(d5, 0b1, "Large", 2)
-				);
-				break;
+				// SW_* w = dynamic_cast<SW_*>(local_subref);
+				// attrib_grid = Rows<2>(
+					// Label(text = "Tile:", hAlign = 1.0),
+					// tswatches[0] = SelTileSwatch(
+						// hAlign = 0.0,
+						// tile = local_subref->d1,
+						// cset = subscreen_cset(cs_sel[0]->getC1(), cs_sel[0]->getC2()),
+						// flip = local_subref->d2,
+						// showvals = false,
+						// showFlip = true,
+						// onSelectFunc = [&](int32_t t, int32_t c, int32_t f,int32_t)
+						// {
+							// local_subref->d1 = t;
+							// local_subref->d2 = f;
+							// if(local_subref->colortype1 != ssctMISC)
+							// {
+								// local_subref->colortype1 = c;
+								// cs_sel[0]->setC1(c);
+							// }
+						// }
+					// ),
+					// CBOX(d3, 0b1, "Overlay", 2),
+					// CBOX(d4, 0b1, "Transparent", 2),
+					// CBOX(d5, 0b1, "Large", 2)
+				// );
+				break; //!TODO
 			}
 			case ssoTEXT:
 			{
-				if(local_subref.dp1) //needs deep copy, not shallow
-				{
-					strcpy(tbuf, (char const*)local_subref.dp1);
-				}
+				SW_Text* w = dynamic_cast<SW_Text*>(local_subref);
 				attrib_grid = Rows<2>(
 					Label(text = "Font:", hAlign = 1.0),
-					DDL_FONT(d1),
+					DDL_FONT(w->fontid),
 					Label(text = "Style:", hAlign = 1.0),
-					DDL(d3, list_shadtype),
+					DDL(w->shadtype, list_shadtype),
 					Label(text = "Alignment:", hAlign = 1.0),
-					DDL(d2, list_aligns),
+					DDL(w->align, list_aligns),
 					Label(text = "Text:", hAlign = 0.0),
 					DummyWidget(),
 					fonttf = TextField(
 						maxLength = 256,
 						colSpan = 2,
-						text = tbuf,
+						text = w->text,
 						width = 300_px,
 						minheight = 15_px,
 						fitParent = true,
-						useFont = ss_font(local_subref.d1),
+						useFont = get_zc_font(w->fontid),
 						onValChangedFunc = [&](GUI::TextField::type,std::string_view str,int32_t)
 						{
 							std::string txt(str);
-							strcpy(tbuf, txt.c_str());
+							w->text = txt;
 						})
 				);
 				break;
 			}
 			case ssoTEXTBOX:
 			{
-				if(local_subref.dp1) //needs deep copy, not shallow
-				{
-					char const* dp1 = (char const*)local_subref.dp1;
-					repl_escchar(tbuf, dp1, false);
-				}
-				attrib_grid = Rows<2>(
-					Label(text = "Font:", hAlign = 1.0),
-					DDL_FONT(d1),
-					Label(text = "Style:", hAlign = 1.0),
-					DDL(d3, list_shadtype),
-					Label(text = "Alignment:", hAlign = 1.0),
-					DDL(d2, list_aligns),
-					Label(text = "Text:", hAlign = 0.0),
-					DummyWidget(),
-					fonttf = TextField(
-						maxLength = 1024,
-						colSpan = 2,
-						text = (local_subref.dp1 ? (char*)local_subref.dp1 : ""),
-						width = 300_px,
-						minheight = 15_px,
-						fitParent = true,
-						useFont = ss_font(local_subref.d1),
-						onValChangedFunc = [&](GUI::TextField::type,std::string_view str,int32_t)
-						{
-							std::string txt(str);
-							if(local_subref.dp1)
-								delete[] (char*)local_subref.dp1;
-							local_subref.dp1 = new char[txt.size()+1];
-							strcpy((char*)local_subref.dp1, txt.c_str());
-						})
-				);
-				break;
+				// SW_* w = dynamic_cast<SW_*>(local_subref);
+				// if(local_subref->dp1) //needs deep copy, not shallow
+				// {
+					// char const* dp1 = (char const*)local_subref->dp1;
+					// repl_escchar(tbuf, dp1, false);
+				// }
+				// attrib_grid = Rows<2>(
+					// Label(text = "Font:", hAlign = 1.0),
+					// DDL_FONT(d1),
+					// Label(text = "Style:", hAlign = 1.0),
+					// DDL(d3, list_shadtype),
+					// Label(text = "Alignment:", hAlign = 1.0),
+					// DDL(d2, list_aligns),
+					// Label(text = "Text:", hAlign = 0.0),
+					// DummyWidget(),
+					// fonttf = TextField(
+						// maxLength = 1024,
+						// colSpan = 2,
+						// text = (local_subref->dp1 ? (char*)local_subref->dp1 : ""),
+						// width = 300_px,
+						// minheight = 15_px,
+						// fitParent = true,
+						// useFont = ss_font(local_subref->d1),
+						// onValChangedFunc = [&](GUI::TextField::type,std::string_view str,int32_t)
+						// {
+							// std::string txt(str);
+							// if(local_subref->dp1)
+								// delete[] (char*)local_subref->dp1;
+							// local_subref->dp1 = new char[txt.size()+1];
+							// strcpy((char*)local_subref->dp1, txt.c_str());
+						// })
+				// );
+				break; //!TODO
 			}
 			case ssoTILEBLOCK:
 			{
+				SW_TileBlock* w = dynamic_cast<SW_TileBlock*>(local_subref);
 				mergetype = mtLOCTOP; //too wide to fit all 3 horiz, but has vert room
 				attrib_grid = Column(
 					tswatches[0] = SelTileSwatch(
 						hAlign = 0.0,
 						minwidth = 32_px*TB_LA+4_px,
 						minheight = 32_px*TB_LA+4_px,
-						tile = local_subref.d1,
-						cset = subscreen_cset(cs_sel[0]->getC1(), cs_sel[0]->getC2()),
+						tile = w->tile,
+						cset = w->cs.get_cset(),
 						showvals = false,
-						tilewid = std::min(local_subref.w, (word)TB_LA),
-						tilehei = std::min(local_subref.h, (word)TB_LA),
+						tilewid = std::min(local_subref->w, (word)TB_LA),
+						tilehei = std::min(local_subref->h, (word)TB_LA),
 						onSelectFunc = [&](int32_t t, int32_t c, int32_t,int32_t)
 						{
-							local_subref.d1 = t;
-							if(local_subref.colortype1 != ssctMISC)
+							w->tile = t;
+							if(w->cs.type != ssctMISC)
 							{
-								local_subref.colortype1 = c;
+								w->cs.type = c;
 								cs_sel[0]->setC1(c);
 							}
 						}
 					),
 					Label(text = "Note: Preview max size is " + std::to_string(TB_LA) + "x" + std::to_string(TB_LA)),
-					Checkbox(
-						text = "Overlay", hAlign = 0.0,
-						checked = local_subref.d3,
-						onToggleFunc = [&](bool state)
-						{
-							local_subref.d3 = (state?1:0);
-						}
-					),
-					Checkbox(
-						text = "Transparent", hAlign = 0.0,
-						checked = local_subref.d4,
-						onToggleFunc = [&](bool state)
-						{
-							local_subref.d4 = (state?1:0);
-						}
-					)
+					CBOX(w->flags, SUBSCR_TILEBL_OVERLAY, "Overlay", 1),
+					CBOX(w->flags, SUBSCR_TILEBL_TRANSP, "Transparent", 1)
 				);
 				break;
 			}
 			case ssoTRIFRAME:
 			{
+				SW_TriFrame* w = dynamic_cast<SW_TriFrame*>(local_subref);
 				mergetype = mtFORCE_TAB; //Way too wide to fit
 				attrib_grid = Columns<3>(padding = 0_px,
 					Label(text = "Frame Tileblock"),
@@ -1157,17 +1070,17 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 						rowSpan = 2,
 						minwidth = 32_px*7+4_px,
 						minheight = 32_px*7+4_px,
-						tile = local_subref.d1,
-						cset = local_subref.d2,
+						tile = w->frame_tile,
+						cset = w->frame_cset,
 						showvals = false,
-						tilewid = local_subref.d7 ? 7 : 6,
-						tilehei = local_subref.d7 ? 7 : 3,
+						tilewid = (w->flags&SUBSCR_TRIFR_LGPC) ? 7 : 6,
+						tilehei = (w->flags&SUBSCR_TRIFR_LGPC) ? 7 : 3,
 						deftile = QMisc.colors.triframe_tile,
 						defcs = QMisc.colors.triframe_cset,
 						onSelectFunc = [&](int32_t t, int32_t c, int32_t,int32_t)
 						{
-							local_subref.d1 = t;
-							local_subref.d2 = c;
+							w->frame_tile = t;
+							w->frame_cset = c;
 						}
 					),
 					Label(text = "Piece Tile"),
@@ -1175,31 +1088,31 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 						hAlign = 0.0,
 						minwidth = 32_px*2+4_px,
 						minheight = 32_px*3+4_px,
-						tile = local_subref.d3,
-						cset = local_subref.d4,
+						tile = w->piece_tile,
+						cset = w->piece_cset,
 						showvals = false,
-						tilewid = local_subref.d7 ? 2 : 1,
-						tilehei = local_subref.d7 ? 3 : 1,
+						tilewid = (w->flags&SUBSCR_TRIFR_LGPC) ? 2 : 1,
+						tilehei = (w->flags&SUBSCR_TRIFR_LGPC) ? 3 : 1,
 						deftile = QMisc.colors.triforce_tile,
 						defcs = QMisc.colors.triforce_cset,
 						onSelectFunc = [&](int32_t t, int32_t c, int32_t,int32_t)
 						{
-							local_subref.d3 = t;
-							local_subref.d4 = c;
+							w->piece_tile = t;
+							w->piece_cset = c;
 						}
 					),
 					Column(padding = 0_px,
 						colSpan = 2,
 						labels[0] = Label(text = "Tile 0 uses a preset from"
 							"\n'Quest->Graphics->Map Styles'"),
-						CBOX(d5,0b1,"Show Frame",1),
-						CBOX(d6,0b1,"Show Pieces",1),
+						CBOX(w->flags,SUBSCR_TRIFR_SHOWFR,"Show Frame",1),
+						CBOX(w->flags,SUBSCR_TRIFR_SHOWPC,"Show Pieces",1),
 						Checkbox(
 							text = "Large Pieces", hAlign = 0.0,
-							checked = local_subref.d7 & 0b1,
+							checked = w->flags & SUBSCR_TRIFR_LGPC,
 							onToggleFunc = [&](bool state)
 							{
-								SETFLAG(local_subref.d7, 0b1, state);
+								SETFLAG(w->flags, SUBSCR_TRIFR_LGPC, state);
 								tswatches[0]->setTileWid(state ? 7 : 6);
 								tswatches[0]->setTileHei(state ? 7 : 3);
 								tswatches[1]->setTileWid(state ? 2 : 1);
@@ -1212,33 +1125,34 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			}
 			case ssoMCGUFFIN:
 			{
+				SW_McGuffin* w = dynamic_cast<SW_McGuffin*>(local_subref);
 				mergetype = mtLOCTOP;
 				attrib_grid = Rows<2>(padding = 0_px,
 					Label(text = "Tile:", hAlign = 1.0),
 					tswatches[0] = SelTileSwatch(
 						hAlign = 0.0,
-						tile = local_subref.d1,
-						cset = local_subref.d2,
+						tile = w->tile,
+						cset = w->cset,
 						showvals = false,
-						// tilewid = local_subref.d7 ? 2 : 1,
-						// tilehei = local_subref.d7 ? 3 : 1,
+						// tilewid = local_subref->d7 ? 2 : 1,
+						// tilehei = local_subref->d7 ? 3 : 1,
 						deftile = QMisc.colors.triforce_tile,
 						defcs = QMisc.colors.triforce_cset,
 						onSelectFunc = [&](int32_t t, int32_t c, int32_t,int32_t)
 						{
-							local_subref.d1 = t;
-							local_subref.d2 = c;
+							w->tile = t;
+							w->cset = c;
 						}
 					),
 					Column(padding = 0_px,
 						colSpan = 2,
 						labels[0] = Label(text = "Tile 0 uses a preset from"
 							"\n'Quest->Graphics->Map Styles'"),
-						CBOX(d3,0b1,"Overlay",1),
-						CBOX(d4,0b1,"Transparent",1)
+						CBOX(w->flags,SUBSCR_MCGUF_OVERLAY,"Overlay",1),
+						CBOX(w->flags,SUBSCR_MCGUF_TRANSP,"Transparent",1)
 					),
 					Label(text = "Piece #:", hAlign = 1.0),
-					NUM_FIELD(d5,0,999)
+					NUM_FIELD(w->number,0,999)
 				);
 				break;
 			}
@@ -1288,7 +1202,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 
 void SubscrPropDialog::updateColors()
 {
-	switch(local_subref.type)
+	switch(local_subref->getType())
 	{
 		case sso2X2FRAME:
 		case ssoMINITILE:
@@ -1302,49 +1216,11 @@ void SubscrPropDialog::updateColors()
 
 void SubscrPropDialog::update_wh()
 {
-	switch(local_subref.type)
+	switch(local_subref->getType())
 	{
 		case ssoTILEBLOCK:
-			tswatches[0]->setTileWid(std::min(local_subref.w, (word)TB_LA));
-			tswatches[0]->setTileHei(std::min(local_subref.h, (word)TB_LA));
-			break;
-	}
-}
-
-void save_sso(subscreen_object const& src, subscreen_object* dest)
-{
-	printobj(src);
-	switch(src.type) //Special closing handling
-	{
-		case ssoMINITILE:
-		{
-			memcpy(dest, &src, sizeof(subscreen_object));
-			if(dest->d2 != -1)
-			{
-				dest->d1 = -1;
-			}
-			else dest->d2 = 0;
-			break;
-		}
-		case ssoTEXT:
-		{
-			if(dest->dp1)
-				delete[] (char*)dest->dp1;
-			memcpy(dest, &src, sizeof(subscreen_object));
-			dest->dp1 = new char[strlen(tbuf)+1];
-			strcpy((char*)dest->dp1, tbuf);
-			break;
-		}
-		case ssoTEXTBOX:
-		{
-			if(dest->dp1)
-				delete[] (char*)dest->dp1;
-			memcpy(dest, &src, sizeof(subscreen_object));
-			dest->dp1 = repl_escchar(nullptr, tbuf, true);
-			break;
-		}
-		default:
-			memcpy(dest, &src, sizeof(subscreen_object));
+			tswatches[0]->setTileWid(std::min(local_subref->w, (word)TB_LA));
+			tswatches[0]->setTileHei(std::min(local_subref->h, (word)TB_LA));
 			break;
 	}
 }
@@ -1354,7 +1230,7 @@ bool SubscrPropDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 	switch(msg.message)
 	{
 		case message::OK:
-			save_sso(local_subref, subref);
+			subref->copy_prop(local_subref,true);
 			dlg_retval = true;
 			return true;
 		case message::CANCEL:
