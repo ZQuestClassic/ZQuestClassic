@@ -476,17 +476,9 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				break; //!TODO
 			}
 			case ssoSELECTOR1:
-			{
-				// SW_* w = dynamic_cast<SW_*>(local_subref);
-				// col_grid->add(MISC_CSET_SEL(w->cs, "CSet", 1));
-				break; //!TODO
-			}
 			case ssoSELECTOR2:
-			{
-				// SW_* w = dynamic_cast<SW_*>(local_subref);
-				// col_grid->add(MISC_CSET_SEL(w->cs, "CSet", 1));
-				break; //!TODO
-			}
+				addcolor = false;
+				break;
 			case ssoTEXT:
 			{
 				SW_Text* w = dynamic_cast<SW_Text*>(local_subref);
@@ -938,32 +930,13 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			case ssoSELECTOR1:
 			case ssoSELECTOR2:
 			{
-				// SW_* w = dynamic_cast<SW_*>(local_subref);
-				// attrib_grid = Rows<2>(
-					// Label(text = "Tile:", hAlign = 1.0),
-					// tswatches[0] = SelTileSwatch(
-						// hAlign = 0.0,
-						// tile = local_subref->d1,
-						// cset = subscreen_cset(cs_sel[0]->getC1(), cs_sel[0]->getC2()),
-						// flip = local_subref->d2,
-						// showvals = false,
-						// showFlip = true,
-						// onSelectFunc = [=](int32_t t, int32_t c, int32_t f,int32_t)
-						// {
-							// local_subref->d1 = t;
-							// local_subref->d2 = f;
-							// if(local_subref->colortype1 != ssctMISC)
-							// {
-								// local_subref->colortype1 = c;
-								// cs_sel[0]->setC1(c);
-							// }
-						// }
-					// ),
-					// CBOX(d3, 0b1, "Overlay", 2),
-					// CBOX(d4, 0b1, "Transparent", 2),
-					// CBOX(d5, 0b1, "Large", 2)
-				// );
-				break; //!TODO
+				SW_Selector* w = dynamic_cast<SW_Selector*>(local_subref);
+				attrib_grid = Column(
+					CBOX(w->flags, SUBSCR_SELECTOR_TRANSP, "Transparent", 1),
+					CBOX(w->flags, SUBSCR_SELECTOR_LARGE, "Large", 1),
+					CBOX(w->flags, SUBSCR_SELECTOR_USEB, "Use Selector 2", 1)
+				);
+				break;
 			}
 			case ssoTEXT:
 			{

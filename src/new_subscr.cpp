@@ -2215,6 +2215,124 @@ int32_t SW_MiniTile::write(PACKFILE *f) const
 	return 0;
 }
 
+SW_Selector::SW_Selector(byte ty) : SubscrWidget(ty)
+{
+	SETFLAG(flags, SUBSCR_SELECTOR_USEB, ty==ssoSELECTOR2);
+}
+SW_Selector::SW_Selector(subscreen_object const& old) : SW_Selector()
+{
+	load_old(old);
+}
+bool SW_Selector::load_old(subscreen_object const& old)
+{
+	if(old.type != ssoSELECTOR1 && old.type != ssoSELECTOR2)
+		return false;
+	SubscrWidget::load_old(old);
+	SETFLAG(flags,SUBSCR_SELECTOR_TRANSP,old.d4);
+	SETFLAG(flags,SUBSCR_SELECTOR_LARGE,old.d5);
+	SETFLAG(flags,SUBSCR_SELECTOR_USEB,old.type==ssoSELECTOR2);
+	return true;
+}
+word SW_Selector::getW() const
+{
+	return (flags&SUBSCR_SELECTOR_LARGE)?32:16;
+}
+word SW_Selector::getH() const
+{
+	return (flags&SUBSCR_SELECTOR_LARGE)?32:16;
+}
+byte SW_Selector::getType() const
+{
+	return ssoSELECTOR1;
+}
+void SW_Selector::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
+{
+	int32_t p=-1;
+	
+	SubscrWidget* selitm = nullptr;
+	for(size_t j=0; j < page.contents.size(); ++j)
+	{
+		SubscrWidget& w = *page.contents[j];
+		if(w.getType()==ssoCURRENTITEM)
+		{
+			if(w.pos==page.cursor_pos)
+			{
+				p=j;
+				selitm = &w;
+				break;
+			}
+		}
+	}
+	
+	bool big_sel=flags&SUBSCR_SELECTOR_LARGE;
+	item *tempsel=(flags&SUBSCR_SELECTOR_USEB)?sel_b:sel_a;
+	int32_t temptile=tempsel->tile;
+	tempsel->drawstyle=0;
+	
+	if(flags&SUBSCR_SELECTOR_TRANSP)
+		tempsel->drawstyle=1;
+	int32_t itemtype = selitm ? selitm->getItemVal() : -1;
+	itemdata const& tmpitm = itemsbuf[get_subscreenitem_id(itemtype, true)];
+	bool oldsel = get_qr(qr_SUBSCR_OLD_SELECTOR);
+	if(!oldsel) big_sel = false;
+	int32_t sw = oldsel ? (tempsel->extend > 2 ? tempsel->txsz*16 : 16) : (tempsel->extend > 2 ? tempsel->hit_width : 16),
+		sh = oldsel ? (tempsel->extend > 2 ? tempsel->txsz*16 : 16) : (tempsel->extend > 2 ? tempsel->hit_height : 16),
+		dw = oldsel ? (tempsel->extend > 2 ? tempsel->txsz*16 : 16) : ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_WIDTH) ? tmpitm.hxsz : 16),
+		dh = oldsel ? (tempsel->extend > 2 ? tempsel->txsz*16 : 16) : ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_HEIGHT) ? tmpitm.hysz : 16);
+	int32_t sxofs = oldsel ? 0 : (tempsel->extend > 2 ? tempsel->hxofs : 0),
+		syofs = oldsel ? 0 : (tempsel->extend > 2 ? tempsel->hyofs : 0),
+		dxofs = oldsel ? (tempsel->extend > 2 ? (int)tempsel->xofs : 0) : ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_X_OFFSET) ? tmpitm.hxofs : 0) + (tempsel->extend > 2 ? (int)tempsel->xofs : 0),
+		dyofs = oldsel ? (tempsel->extend > 2 ? (int)tempsel->yofs : 0) : ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_Y_OFFSET) ? tmpitm.hyofs : 0) + (tempsel->extend > 2 ? (int)tempsel->yofs : 0);
+	BITMAP* tmpbmp = create_bitmap_ex(8,sw,sh);
+	for(int32_t j=0; j<4; ++j)
+	{
+		clear_bitmap(tmpbmp);
+		if(selitm)
+		{
+			tempsel->x=0;
+			tempsel->y=0;
+			int32_t tmpx = selitm->x+xofs+(big_sel?(j%2?8:-8):0);
+			int32_t tmpy = selitm->y+yofs+(big_sel?(j>1?8:-8):0);
+			tempsel->tile+=(zc_max(itemsbuf[tempsel->id].frames,1)*j);
+			
+			if(temptile)
+			{
+				tempsel->drawzcboss(tmpbmp);
+				tempsel->tile=temptile;
+			}
+			masked_stretch_blit(tmpbmp, dest, vbound(sxofs, 0, sw), vbound(syofs, 0, sh), sw-vbound(sxofs, 0, sw), sh-vbound(syofs, 0, sh), tmpx+dxofs, tmpy+dyofs, dw, dh);
+			
+			if(!big_sel)
+				break;
+		}
+	}
+	destroy_bitmap(tmpbmp);
+}
+SubscrWidget* SW_Selector::clone() const
+{
+	return new SW_Selector(*this);
+}
+bool SW_Selector::copy_prop(SubscrWidget const* src, bool all)
+{
+	if(src->getType() != getType() || src == this)
+		return false;
+	SW_Selector const* other = dynamic_cast<SW_Selector const*>(src);
+	SubscrWidget::copy_prop(other,all);
+	return true;
+}
+int32_t SW_Selector::read(PACKFILE *f, word s_version)
+{
+	if(auto ret = SubscrWidget::read(f,s_version))
+		return ret;
+	return 0;
+}
+int32_t SW_Selector::write(PACKFILE *f) const
+{
+	if(auto ret = SubscrWidget::write(f))
+		return ret;
+	return 0;
+}
+
 
 SW_Temp::SW_Temp(byte ty) : SubscrWidget(ssoTEMPOLD)
 {
@@ -2303,72 +2421,6 @@ void SW_Temp::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) c
 			strncpy(itemname, itm.get_name().c_str(), 255);
 			
 			draw_textbox(dest, x, y, old.w, old.h, tempfont, itemname, old.d4!=0, old.d5, old.d2, old.d3, subscreen_color(old.colortype1, old.color1), subscreen_color(old.colortype2, old.color2), subscreen_color(old.colortype3, old.color3));
-		}
-		break;
-		
-		case ssoSELECTOR1:
-		case ssoSELECTOR2:
-		{
-			int32_t p=-1;
-			
-			SubscrWidget* selitm = nullptr;
-			for(size_t j=0; j < page.contents.size(); ++j)
-			{
-				SubscrWidget& w = *page.contents[j];
-				if(w.getType()==ssoCURRENTITEM)
-				{
-					if(w.pos==page.cursor_pos)
-					{
-						p=j;
-						selitm = &w;
-						break;
-					}
-				}
-			}
-			
-			bool big_sel=old.d5 != 0;
-			item *tempsel=(old.type==ssoSELECTOR1)?sel_a:sel_b;
-			int32_t temptile=tempsel->tile;
-			tempsel->drawstyle=0;
-			
-			if(old.d4)
-				tempsel->drawstyle=1;
-			int32_t itemtype = selitm ? selitm->getItemVal() : -1;
-			itemdata const& tmpitm = itemsbuf[get_subscreenitem_id(itemtype, true)];
-			bool oldsel = get_qr(qr_SUBSCR_OLD_SELECTOR);
-			if(!oldsel) big_sel = false;
-			int32_t sw = oldsel ? (tempsel->extend > 2 ? tempsel->txsz*16 : 16) : (tempsel->extend > 2 ? tempsel->hit_width : 16),
-				sh = oldsel ? (tempsel->extend > 2 ? tempsel->txsz*16 : 16) : (tempsel->extend > 2 ? tempsel->hit_height : 16),
-				dw = oldsel ? (tempsel->extend > 2 ? tempsel->txsz*16 : 16) : ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_WIDTH) ? tmpitm.hxsz : 16),
-				dh = oldsel ? (tempsel->extend > 2 ? tempsel->txsz*16 : 16) : ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_HEIGHT) ? tmpitm.hysz : 16);
-			int32_t sxofs = oldsel ? 0 : (tempsel->extend > 2 ? tempsel->hxofs : 0),
-				syofs = oldsel ? 0 : (tempsel->extend > 2 ? tempsel->hyofs : 0),
-				dxofs = oldsel ? (tempsel->extend > 2 ? (int)tempsel->xofs : 0) : ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_X_OFFSET) ? tmpitm.hxofs : 0) + (tempsel->extend > 2 ? (int)tempsel->xofs : 0),
-				dyofs = oldsel ? (tempsel->extend > 2 ? (int)tempsel->yofs : 0) : ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_Y_OFFSET) ? tmpitm.hyofs : 0) + (tempsel->extend > 2 ? (int)tempsel->yofs : 0);
-			BITMAP* tmpbmp = create_bitmap_ex(8,sw,sh);
-			for(int32_t j=0; j<4; ++j)
-			{
-				clear_bitmap(tmpbmp);
-				if(selitm)
-				{
-					tempsel->x=0;
-					tempsel->y=0;
-					int32_t tmpx = selitm->x+xofs+(big_sel?(j%2?8:-8):0);
-					int32_t tmpy = selitm->y+yofs+(big_sel?(j>1?8:-8):0);
-					tempsel->tile+=(zc_max(itemsbuf[tempsel->id].frames,1)*j);
-					
-					if(temptile)
-					{
-						tempsel->drawzcboss(tmpbmp);
-						tempsel->tile=temptile;
-					}
-					masked_stretch_blit(tmpbmp, dest, vbound(sxofs, 0, sw), vbound(syofs, 0, sh), sw-vbound(sxofs, 0, sw), sh-vbound(syofs, 0, sh), tmpx+dxofs, tmpy+dyofs, dw, dh);
-					
-					if(!big_sel)
-						break;
-				}
-			}
-			destroy_bitmap(tmpbmp);
 		}
 		break;
 		
@@ -2627,17 +2679,11 @@ SubscrWidget* SubscrWidget::fromOld(subscreen_object const& old)
 			return new SW_MiniTile(old);
 		case ssoSELECTOR1:
 		case ssoSELECTOR2:
+			return new SW_Selector(old);
 		case ssoMAGICGAUGE:
 		case ssoLIFEGAUGE:
 		case ssoTEXTBOX:
 		case ssoSELECTEDITEMNAME:
-		case ssoCURRENTITEMTILE:
-		case ssoSELECTEDITEMTILE:
-		case ssoCURRENTITEMTEXT:
-		case ssoCURRENTITEMNAME:
-		case ssoCURRENTITEMCLASSTEXT:
-		case ssoCURRENTITEMCLASSNAME:
-		case ssoSELECTEDITEMCLASSNAME:
 			return nullptr;
 			return new SW_Temp(old); //!TODO SUBSCR
 		case ssoITEM:
@@ -2656,9 +2702,16 @@ SubscrWidget* SubscrWidget::fromOld(subscreen_object const& old)
 		}
 		case ssoNULL:
 		case ssoNONE:
+		case ssoCURRENTITEMTILE:
+		case ssoSELECTEDITEMTILE:
+		case ssoCURRENTITEMTEXT:
+		case ssoCURRENTITEMNAME:
+		case ssoCURRENTITEMCLASSTEXT:
+		case ssoCURRENTITEMCLASSNAME:
+		case ssoSELECTEDITEMCLASSNAME:
 			break; //Nothingness
 	}
-	return new SubscrWidget(old);
+	return nullptr;
 }
 SubscrWidget* SubscrWidget::readWidg(PACKFILE* f, word s_version)
 {
@@ -2757,14 +2810,9 @@ SubscrWidget* SubscrWidget::newType(byte ty)
 			break;
 		case ssoSELECTOR1:
 		case ssoSELECTOR2:
+			widg = new SW_Selector(ty);
+			break;
 		case ssoLIFEGAUGE:
-		case ssoCURRENTITEMTILE:
-		case ssoSELECTEDITEMTILE:
-		case ssoCURRENTITEMTEXT:
-		case ssoCURRENTITEMNAME:
-		case ssoCURRENTITEMCLASSTEXT:
-		case ssoCURRENTITEMCLASSNAME:
-		case ssoSELECTEDITEMCLASSNAME:
 			widg = new SW_Temp(ty); //!TODO SUBSCR
 			break;
 		case ssoMAGICGAUGE:
@@ -2798,6 +2846,13 @@ SubscrWidget* SubscrWidget::newType(byte ty)
 		}
 		case ssoNULL:
 		case ssoNONE:
+		case ssoCURRENTITEMTILE:
+		case ssoSELECTEDITEMTILE:
+		case ssoCURRENTITEMTEXT:
+		case ssoCURRENTITEMNAME:
+		case ssoCURRENTITEMCLASSTEXT:
+		case ssoCURRENTITEMCLASSNAME:
+		case ssoSELECTEDITEMCLASSNAME:
 			widg = new SubscrWidget(ty); //Nothingness
 			break;
 	}

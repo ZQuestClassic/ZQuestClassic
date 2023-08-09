@@ -581,6 +581,27 @@ protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
 
+#define SUBSCR_SELECTOR_TRANSP   SUBSCRFLAG_SPEC_01
+#define SUBSCR_SELECTOR_LARGE    SUBSCRFLAG_SPEC_02
+#define SUBSCR_SELECTOR_USEB     SUBSCRFLAG_SPEC_03
+struct SW_Selector : public SubscrWidget
+{
+	SW_Selector() = default;
+	SW_Selector(byte ty);
+	SW_Selector(subscreen_object const& old);
+
+	virtual bool load_old(subscreen_object const& old) override;
+	virtual word getW() const override; //Returns width in pixels
+	virtual word getH() const override; //Returns height in pixels
+	virtual byte getType() const override;
+	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
+	virtual SubscrWidget* clone() const override;
+	virtual bool copy_prop(SubscrWidget const* src, bool all = false) override;
+	virtual int32_t write(PACKFILE *f) const override;
+protected:
+	virtual int32_t read(PACKFILE *f, word s_version) override;
+};
+
 bool new_widget_type(int ty);
 struct SW_Temp : public SubscrWidget
 {
