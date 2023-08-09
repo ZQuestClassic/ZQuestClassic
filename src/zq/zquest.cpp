@@ -28031,7 +28031,7 @@ static void do_copy_qst_command(const char* input_filename, const char* output_f
 	exit(ret);
 }
 
-int32_t Awpn=0, Bwpn=0, Bpos=0, Xwpn = 0, Ywpn = 0;
+int32_t Awpn=0, Bwpn=0, Xwpn = 0, Ywpn = 0;
 sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations, portals;
 int32_t exittimer = 10000, exittimer2 = 100;
 
@@ -28263,14 +28263,6 @@ int32_t main(int32_t argc,char **argv)
 		FatalConsole("\nIncompatible version of sfx.dat.\nPlease upgrade to %s Build %d",VerStr(SFXDAT_VERSION), SFXDAT_BUILD);
 	
 	Z_message("OK\n");
-	
-	for(int32_t i=0; i<4; i++)
-	{
-		for(int32_t j=0; j<MAXSUBSCREENITEMS; j++)
-		{
-			memset(&custom_subscreen[i].objects[j],0,sizeof(subscreen_object));
-		}
-	}
 	
 	int32_t helpsize = file_size_ex_password("docs/zquest.txt","");
 	
@@ -29875,25 +29867,6 @@ void quit_game()
         }
     }
     
-    al_trace("Cleaning subscreens. \n");
-    
-    for(int32_t i=0; i<4; i++)
-    {
-        for(int32_t j=0; j<MAXSUBSCREENITEMS; j++)
-        {
-            switch(custom_subscreen[i].objects[j].type)
-            {
-            case ssoTEXT:
-            case ssoTEXTBOX:
-            case ssoCURRENTITEMTEXT:
-            case ssoCURRENTITEMCLASSTEXT:
-                if(custom_subscreen[i].objects[j].dp1 != NULL) delete[](char *)custom_subscreen[i].objects[j].dp1;
-                
-                break;
-            }
-        }
-    }
-    
     al_trace("Cleaning sfx. \n");
     
     for(int32_t i=0; i<WAV_COUNT; i++)
@@ -30055,25 +30028,6 @@ void quit_game2()
         if(temp_aliases[i].csets != NULL)
         {
             delete[] temp_aliases[i].csets;
-        }
-    }
-    
-    al_trace("Cleaning subscreens. \n");
-    
-    for(int32_t i=0; i<4; i++)
-    {
-        for(int32_t j=0; j<MAXSUBSCREENITEMS; j++)
-        {
-            switch(custom_subscreen[i].objects[j].type)
-            {
-            case ssoTEXT:
-            case ssoTEXTBOX:
-            case ssoCURRENTITEMTEXT:
-            case ssoCURRENTITEMCLASSTEXT:
-                if(custom_subscreen[i].objects[j].dp1 != NULL) delete[](char *)custom_subscreen[i].objects[j].dp1;
-                
-                break;
-            }
         }
     }
     

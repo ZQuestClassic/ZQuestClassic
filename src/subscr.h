@@ -13,6 +13,7 @@
 
 #include "sprite.h"
 #include "items.h"
+#include "new_subscr.h"
 #include <stdio.h>
 
 #define ssflagSHOWGRID  1
@@ -53,7 +54,6 @@ enum { sstACTIVE, sstPASSIVE, sstMAX };
 
 enum { sssFULLPUSH, sssFULLSLIDEDOWN, sssMAX };
 
-#include "new_subscr.h"
 //ssoCURRENTITEM shows what item of that type you currently have.  if the itemtype is sword, it will show what sword you have
 //ssoBUTTONITEM shows what item is currently assigned to the A or B button
 //ssoITEMTILE shows a requested item
@@ -164,9 +164,9 @@ extern subscreen_object z3_active_a[80];
 extern subscreen_object z3_passive_a[66];
 extern subscreen_object z3_active_ab[82];
 extern subscreen_object z3_passive_ab[75];
-extern subscreen_group custom_subscreen[MAXCUSTOMSUBSCREENS];
-extern subscreen_group *current_subscreen_active;
-extern subscreen_group *current_subscreen_passive;
+extern std::vector<ZCSubscreen> new_subscreen;
+extern ZCSubscreen *new_subscreen_active;
+extern ZCSubscreen *new_subscreen_passive;
 
 extern item *Bitem, *Aitem, *Yitem, *Xitem;
 extern int32_t   Bid, Aid, Xid, Yid;
@@ -253,7 +253,6 @@ void show_custom_subscreen(BITMAP *dest, subscreen_group *css, int32_t xofs, int
 FONT *ss_font(int32_t fontnum);
 int32_t to_real_font(int32_t ss_font);
 int32_t to_ss_font(int32_t real_font);
-int32_t ss_objects(subscreen_group *tempss);
 void purge_blank_subscreen_objects(subscreen_group *tempss);
 int32_t subscreen_cset(int32_t c1, int32_t c2);
 

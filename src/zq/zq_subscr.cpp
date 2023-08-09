@@ -38,7 +38,7 @@ extern void large_dialog(DIALOG *d, float RESIZE_AMT);
 
 int32_t curr_subscreen_object;
 char *str_oname;
-subscreen_group *css;
+ZCSubscreen subscr_edit;
 bool sso_selection[MAXSUBSCREENITEMS];
 static int32_t ss_propCopySrc=-1;
 
@@ -48,6 +48,27 @@ extern int32_t bii_cnt;
 
 void delete_subscreen(int32_t subscreenidx);
 
+SubscrPage& subscr_edit_page()
+{
+	if(subscr_edit.pages.empty())
+		subscr_edit.pages.emplace_back();
+    if(subscr_edit.pages.size() >= subscr_edit.curpage)
+		subscr_edit.curpage = 0;
+	return subscr_edit.pages[subscr_edit.curpage];
+}
+SubscrWidget* subscr_edit_widg()
+{
+	SubscrPage& p = subscr_edit_page();
+	if(p.contents.empty() || curr_subscreen_object < 0)
+	{
+		curr_subscreen_object=-1
+		return nullptr;
+	}
+	if(curr_subscreen_object >= p.contents.size())
+		curr_subscreen_object = 0;
+	
+	return &(p.contents[curr_subscreen_object]);
+}
 
 const char *colortype_str[14] =
 {
@@ -1006,7 +1027,7 @@ int32_t onNewSubscreenObject();
 
 int32_t onDeleteSubscreenObject()
 {
-    int32_t objs=ss_objects(css);
+    int32_t objs=subscr_edit_page().contents.size();
     
     if(objs==0)
     {
@@ -1067,7 +1088,7 @@ int32_t onRemoveFromSelection()
 
 int32_t onInvertSelection()
 {
-    for(int32_t i=0; i<ss_objects(css); ++i)
+    for(int32_t i=0; i<subscr_edit_page().contents.size(); ++i)
     {
         sso_selection[i]=!sso_selection[i];
     }
@@ -1087,7 +1108,7 @@ int32_t onClearSelection()
 
 int32_t onDuplicateSubscreenObject()
 {
-    int32_t objs=ss_objects(css);
+    int32_t objs=subscr_edit_page().contents.size();
     
     if(objs==0)
     {
@@ -1163,7 +1184,7 @@ int32_t d_subscreen_proc(int32_t msg,DIALOG *d,int32_t)
     {
     case MSG_CLICK:
     {
-        for(int32_t i=ss_objects(css)-1; i>=0; --i)
+        for(int32_t i=subscr_edit_page().contents.size()-1; i>=0; --i)
         {
             int32_t x=sso_x(&css->objects[i])*2;
             int32_t y=sso_y(&css->objects[i])*2;
@@ -1609,142 +1630,6 @@ int32_t d_ssrt_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
     return jwin_button_proc(msg, d, c);
 }
 
-int32_t Bweapon(int32_t pos)
-{
-    int32_t p=-1;
-    
-    for(int32_t i=0; css->objects[i].type!=ssoNULL; ++i)
-    {
-        if(css->objects[i].type==ssoCURRENTITEM && css->objects[i].d3==pos)
-        {
-            p=i;
-            break;
-        }
-    }
-    
-    if(p==-1)
-    {
-        return 0;
-    }
-    
-    int32_t family = 0;
-    bool bow = false;
-    
-    switch(css->objects[p].d1)
-    {
-    case itype_arrow:
-    case itype_bowandarrow:
-        if(current_item(itype_bow) && current_item(itype_arrow))
-        {
-            bow=(css->objects[p].d1==itype_bowandarrow);
-            family=itype_arrow;
-        }
-        
-        break;
-        
-    case itype_letterpotion:
-        if(current_item(itype_potion))
-            family=itype_potion;
-        else if(current_item(itype_letter))
-            family=itype_letter;
-        
-        break;
-        
-    case itype_sword:
-    {
-        if(!get_qr(qr_SELECTAWPN))
-            break;
-            
-        family=itype_sword;
-    }
-    break;
-    
-    default:
-        family=css->objects[p].d1;
-    }
-    
-    for(int32_t i=0; i<MAXITEMS; i++)
-    {
-        if(itemsbuf[i].family==family) return i+(bow ? 0xF000 : 0);
-    }
-    
-    return 0;
-}
-
-void selectBwpn(int32_t xstep, int32_t ystep)
-{
-    if((xstep==0)&&(ystep==0))
-    {
-        Bwpn=Bweapon(Bpos);
-        update_subscr_items();
-        
-        if(Bwpn)
-        {
-            return;
-        }
-        
-        xstep=1;
-    }
-    
-    if((xstep==8)&&(ystep==8))
-    {
-        Bwpn=Bweapon(Bpos);
-        update_subscr_items();
-        
-        if(Bwpn)
-        {
-            return;
-        }
-        
-        xstep=-1;
-    }
-    
-    int32_t pos = Bpos;
-    int32_t tries=0;
-    
-    do
-    {
-        int32_t p=-1;
-        
-        for(int32_t i=0; css->objects[i].type!=ssoNULL; ++i)
-        {
-            if(css->objects[i].type==ssoCURRENTITEM)
-            {
-                if(css->objects[i].d3==Bpos)
-                {
-                    p=i;
-                    break;
-                }
-            }
-        }
-        
-        if(p!=-1)
-        {
-            if(xstep!=0)
-            {
-                Bpos=xstep<0?css->objects[p].d6:css->objects[p].d7;
-            }
-            else
-            {
-                Bpos=ystep<0?css->objects[p].d4:css->objects[p].d5;
-            }
-        }
-        
-        Bwpn = Bweapon(Bpos);
-        update_subscr_items();
-        
-        if(Bwpn)
-        {
-            return;
-        }
-    }
-    while(Bpos!=pos && ++tries<0x100);
-    
-    if(!Bwpn)
-        Bpos=0;
-}
-
-
 int32_t d_ssup_btn4_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     switch(msg)
@@ -1752,7 +1637,7 @@ int32_t d_ssup_btn4_proc(int32_t msg,DIALOG *d,int32_t c)
     case MSG_CLICK:
     {
         jwin_button_proc(msg, d, c);
-        selectBwpn(0, -1);
+        subscr_edit.cur_page.move_cursor(SEL_UP);
         return D_O_K;
     }
     break;
@@ -1768,7 +1653,7 @@ int32_t d_ssdn_btn4_proc(int32_t msg,DIALOG *d,int32_t c)
     case MSG_CLICK:
     {
         jwin_button_proc(msg, d, c);
-        selectBwpn(0, 1);
+        subscr_edit.cur_page.move_cursor(SEL_DOWN);
         return D_O_K;
     }
     break;
@@ -1784,7 +1669,7 @@ int32_t d_sslt_btn4_proc(int32_t msg,DIALOG *d,int32_t c)
     case MSG_CLICK:
     {
         jwin_button_proc(msg, d, c);
-        selectBwpn(-1, 0);
+        subscr_edit.cur_page.move_cursor(SEL_LEFT);
         return D_O_K;
     }
     break;
@@ -1800,7 +1685,7 @@ int32_t d_ssrt_btn4_proc(int32_t msg,DIALOG *d,int32_t c)
     case MSG_CLICK:
     {
         jwin_button_proc(msg, d, c);
-        selectBwpn(1, 0);
+        subscr_edit.cur_page.move_cursor(SEL_RIGHT);
         return D_O_K;
     }
     break;
@@ -1868,543 +1753,6 @@ const char *sso_alignment[3]=
     "sstaLEFT", "sstaCENTER", "sstaRIGHT"
 };
 
-
-bool save_subscreen_code(char *path)
-{
-    PACKFILE *f = pack_fopen_password(path,F_WRITE,"");
-    
-    if(!f)
-    {
-        return false;
-    }
-    
-    int32_t ssobjs=ss_objects(css);
-    char buf[512];
-    memset(buf,0,512);
-    sprintf(buf, "subscreen_object exported_subscreen[%d]=\n", ssobjs);
-    pack_fputs(buf, f);
-    
-    if(pack_ferror(f))
-    {
-        pack_fclose(f);
-        return false;
-    }
-    
-    pack_fputs("{\n", f);
-    
-    if(pack_ferror(f))
-    {
-        pack_fclose(f);
-        return false;
-    }
-    
-    for(int32_t i=0; i<ssobjs; ++i)
-    {
-//    pack_fputs("{\n", f);
-        sprintf(buf, "  { %s, %d, %d, %d, %d, %d, ",
-                sso_type[css->objects[i].type], css->objects[i].pos, css->objects[i].x, css->objects[i].y, css->objects[i].w, css->objects[i].h);
-        pack_fputs(buf, f);
-        
-        if(pack_ferror(f))
-        {
-            pack_fclose(f);
-            return false;
-        }
-        
-        if(css->objects[i].colortype1>=ssctSYSTEM)
-        {
-            sprintf(buf, "%s, ", sso_colortype[css->objects[i].colortype1==ssctSYSTEM?0:1]);
-            pack_fputs(buf, f);
-            
-            if(pack_ferror(f))
-            {
-                pack_fclose(f);
-                return false;
-            }
-            
-            if(css->objects[i].colortype1==ssctMISC)
-            {
-                int32_t t=css->objects[i].type;
-                
-                if(t==sso2X2FRAME||t==ssoCURRENTITEMTILE||t==ssoICON||t==ssoMINITILE||t==ssoSELECTEDITEMTILE||t==ssoSELECTOR1||t==ssoSELECTOR2||t==ssoMCGUFFIN||t==ssoTILEBLOCK)
-                {
-                    sprintf(buf, "%s, ", sso_specialcset[css->objects[i].color1]);
-                    pack_fputs(buf, f);
-                    
-                    if(pack_ferror(f))
-                    {
-                        pack_fclose(f);
-                        return false;
-                    }
-                }
-                else
-                {
-                    sprintf(buf, "%s, ", sso_specialcolor[css->objects[i].color1]);
-                    pack_fputs(buf, f);
-                    
-                    if(pack_ferror(f))
-                    {
-                        pack_fclose(f);
-                        return false;
-                    }
-                }
-            }
-            else
-            {
-                sprintf(buf, "%d, ", css->objects[i].color1);
-                pack_fputs(buf, f);
-                
-                if(pack_ferror(f))
-                {
-                    pack_fclose(f);
-                    return false;
-                }
-            }
-        }
-        else
-        {
-            sprintf(buf, "%d, %d, ", css->objects[i].colortype1, css->objects[i].color1);
-            pack_fputs(buf, f);
-            
-            if(pack_ferror(f))
-            {
-                pack_fclose(f);
-                return false;
-            }
-        }
-        
-        if(css->objects[i].colortype2>=ssctSYSTEM)
-        {
-            sprintf(buf, "%s, ", sso_colortype[css->objects[i].colortype2==ssctSYSTEM?0:1]);
-            pack_fputs(buf, f);
-            
-            if(pack_ferror(f))
-            {
-                pack_fclose(f);
-                return false;
-            }
-            
-            if(css->objects[i].colortype2==ssctMISC)
-            {
-                int32_t t=css->objects[i].type;
-                
-                if(t==sso2X2FRAME||t==ssoCURRENTITEMTILE||t==ssoICON||t==ssoMINITILE||t==ssoSELECTEDITEMTILE||t==ssoSELECTOR1||t==ssoSELECTOR2||t==ssoMCGUFFIN||t==ssoTILEBLOCK)
-                {
-                    sprintf(buf, "%s, ", sso_specialcset[css->objects[i].color2]);
-                    pack_fputs(buf, f);
-                    
-                    if(pack_ferror(f))
-                    {
-                        pack_fclose(f);
-                        return false;
-                    }
-                }
-                else
-                {
-                    sprintf(buf, "%s, ", sso_specialcolor[css->objects[i].color2]);
-                    pack_fputs(buf, f);
-                    
-                    if(pack_ferror(f))
-                    {
-                        pack_fclose(f);
-                        return false;
-                    }
-                }
-            }
-            else
-            {
-                sprintf(buf, "%d, ", css->objects[i].color2);
-                pack_fputs(buf, f);
-                
-                if(pack_ferror(f))
-                {
-                    pack_fclose(f);
-                    return false;
-                }
-            }
-        }
-        else
-        {
-            sprintf(buf, "%d, %d, ", css->objects[i].colortype2, css->objects[i].color2);
-            pack_fputs(buf, f);
-            
-            if(pack_ferror(f))
-            {
-                pack_fclose(f);
-                return false;
-            }
-        }
-        
-        if(css->objects[i].colortype3>=ssctSYSTEM)
-        {
-            sprintf(buf, "%s, ", sso_colortype[css->objects[i].colortype3==ssctSYSTEM?0:1]);
-            pack_fputs(buf, f);
-            
-            if(pack_ferror(f))
-            {
-                pack_fclose(f);
-                return false;
-            }
-            
-            if(css->objects[i].colortype3==ssctMISC)
-            {
-                int32_t t=css->objects[i].type;
-                
-                if(t==sso2X2FRAME||t==ssoCURRENTITEMTILE||t==ssoICON||t==ssoMINITILE||t==ssoSELECTEDITEMTILE||t==ssoSELECTOR1||t==ssoSELECTOR2||t==ssoMCGUFFIN||t==ssoTILEBLOCK)
-                {
-                    sprintf(buf, "%s, ", sso_specialcset[css->objects[i].color3]);
-                    pack_fputs(buf, f);
-                    
-                    if(pack_ferror(f))
-                    {
-                        pack_fclose(f);
-                        return false;
-                    }
-                }
-                else
-                {
-                    sprintf(buf, "%s, ", sso_specialcolor[css->objects[i].color3]);
-                    pack_fputs(buf, f);
-                    
-                    if(pack_ferror(f))
-                    {
-                        pack_fclose(f);
-                        return false;
-                    }
-                }
-            }
-            else
-            {
-                sprintf(buf, "%d, ", css->objects[i].color3);
-                pack_fputs(buf, f);
-                
-                if(pack_ferror(f))
-                {
-                    pack_fclose(f);
-                    return false;
-                }
-            }
-        }
-        else
-        {
-            sprintf(buf, "%d, %d, ", css->objects[i].colortype3, css->objects[i].color3);
-            pack_fputs(buf, f);
-            
-            if(pack_ferror(f))
-            {
-                pack_fclose(f);
-                return false;
-            }
-        }
-        
-        switch(css->objects[i].type)
-        {
-        case ssoCURRENTITEM:
-            sprintf(buf, "%s, ", itype_names[css->objects[i].d1]);
-            break;
-            
-        case ssoCOUNTER:
-        case ssoCOUNTERS:
-        case ssoTEXT:
-        case ssoTEXTBOX:
-        case ssoMINIMAPTITLE:
-        case ssoSELECTEDITEMNAME:
-        case ssoTIME:
-        case ssoSSTIME:
-        case ssoBSTIME:
-            sprintf(buf, "%s, ", sso_fontname[css->objects[i].d1]);
-            break;
-            
-        default:
-            sprintf(buf, "%d, ", css->objects[i].d1);
-            break;
-        }
-        
-        pack_fputs(buf, f);
-        
-        if(pack_ferror(f))
-        {
-            pack_fclose(f);
-            return false;
-        }
-        
-        switch(css->objects[i].type)
-        {
-        case ssoCOUNTER:
-        case ssoTEXT:
-        case ssoTEXTBOX:
-        case ssoMINIMAPTITLE:
-        case ssoSELECTEDITEMNAME:
-        case ssoTIME:
-        case ssoSSTIME:
-        case ssoBSTIME:
-            sprintf(buf, "%s, ", sso_alignment[css->objects[i].d2]);
-            break;
-            
-        case ssoMINITILE:
-            if(css->objects[i].d1==-1)
-            {
-                sprintf(buf, "%s, ", sso_specialtile[css->objects[i].d2]);
-            }
-            else
-            {
-                sprintf(buf, "%d, ", css->objects[i].d2);
-            }
-            
-            break;
-            
-        default:
-            sprintf(buf, "%d, ", css->objects[i].d2);
-            break;
-        }
-        
-        pack_fputs(buf, f);
-        
-        if(pack_ferror(f))
-        {
-            pack_fclose(f);
-            return false;
-        }
-        
-        switch(css->objects[i].type)
-        {
-        case ssoCOUNTER:
-        case ssoCOUNTERS:
-        case ssoTEXT:
-        case ssoTEXTBOX:
-        case ssoMINIMAPTITLE:
-        case ssoSELECTEDITEMNAME:
-        case ssoTIME:
-        case ssoSSTIME:
-        case ssoBSTIME:
-            sprintf(buf, "%s, ", (char *)sso_textstyle[css->objects[i].d3]);
-            break;
-            
-        default:
-            sprintf(buf, "%d, ", css->objects[i].d3);
-            break;
-        }
-        
-        pack_fputs(buf, f);
-        
-        if(pack_ferror(f))
-        {
-            pack_fclose(f);
-            return false;
-        }
-        
-        sprintf(buf, "%d, ", css->objects[i].d4);
-        pack_fputs(buf, f);
-        
-        if(pack_ferror(f))
-        {
-            pack_fclose(f);
-            return false;
-        }
-        
-        switch(css->objects[i].type)
-        {
-        case ssoCOUNTER:
-        case ssoCOUNTERS:
-            sprintf(buf, "\'%c\', ", css->objects[i].d5);
-            break;
-            
-        default:
-            sprintf(buf, "%d, ", css->objects[i].d5);
-            break;
-        }
-        
-        pack_fputs(buf, f);
-        
-        if(pack_ferror(f))
-        {
-            pack_fclose(f);
-            return false;
-        }
-        
-        sprintf(buf, "%d, ", css->objects[i].d6);
-        pack_fputs(buf, f);
-        
-        if(pack_ferror(f))
-        {
-            pack_fclose(f);
-            return false;
-        }
-        
-        switch(css->objects[i].type)
-        {
-        case ssoCOUNTER:
-            sprintf(buf, "%s, ", sso_counterobject[css->objects[i].d7]);
-            break;
-            
-        default:
-            sprintf(buf, "%d, ", css->objects[i].d7);
-            break;
-        }
-        
-        pack_fputs(buf, f);
-        
-        if(pack_ferror(f))
-        {
-            pack_fclose(f);
-            return false;
-        }
-        
-        sprintf(buf, "%d, ", css->objects[i].d8);
-        pack_fputs(buf, f);
-        
-        if(pack_ferror(f))
-        {
-            pack_fclose(f);
-            return false;
-        }
-        
-        sprintf(buf, "%d, ", css->objects[i].d9);
-        pack_fputs(buf, f);
-        
-        if(pack_ferror(f))
-        {
-            pack_fclose(f);
-            return false;
-        }
-        
-        sprintf(buf, "%d, ", css->objects[i].d10);
-        pack_fputs(buf, f);
-        
-        if(pack_ferror(f))
-        {
-            pack_fclose(f);
-            return false;
-        }
-        
-        sprintf(buf, "%d, ", css->objects[i].frames);
-        pack_fputs(buf, f);
-        
-        if(pack_ferror(f))
-        {
-            pack_fclose(f);
-            return false;
-        }
-        
-        sprintf(buf, "%d, ", css->objects[i].speed);
-        pack_fputs(buf, f);
-        
-        if(pack_ferror(f))
-        {
-            pack_fclose(f);
-            return false;
-        }
-        
-        sprintf(buf, "%d, ", css->objects[i].delay);
-        pack_fputs(buf, f);
-        
-        if(pack_ferror(f))
-        {
-            pack_fclose(f);
-            return false;
-        }
-        
-        sprintf(buf, "%d, ", css->objects[i].frame);
-        pack_fputs(buf, f);
-        
-        if(pack_ferror(f))
-        {
-            pack_fclose(f);
-            return false;
-        }
-        
-        
-        if(!css->objects[i].dp1)
-        {
-            pack_fputs("NULL", f);
-            
-            if(pack_ferror(f))
-            {
-                pack_fclose(f);
-                return false;
-            }
-        }
-        else
-        {
-            pack_fputs("(void *)\"", f);
-            
-            if(pack_ferror(f))
-            {
-                pack_fclose(f);
-                return false;
-            }
-            
-            pack_fputs((char *)css->objects[i].dp1, f);
-            
-            if(pack_ferror(f))
-            {
-                pack_fclose(f);
-                return false;
-            }
-            
-            pack_fputs("\"", f);
-            
-            if(pack_ferror(f))
-            {
-                pack_fclose(f);
-                return false;
-            }
-        }
-        
-        pack_fputs(" },\n", f);
-        
-        if(pack_ferror(f))
-        {
-            pack_fclose(f);
-            return false;
-        }
-    }
-    
-    pack_fputs("  { ssoNULL }\n", f);
-    
-    if(pack_ferror(f))
-    {
-        pack_fclose(f);
-        return false;
-    }
-    
-    pack_fputs("};\n", f);
-    
-    if(pack_ferror(f))
-    {
-        pack_fclose(f);
-        return false;
-    }
-    
-    pack_fclose(f);
-    return true;
-}
-
-
-
-int32_t onExport_Subscreen_Code()
-{
-    if(!getname("Export Subscreen Code (.zss)","zss",NULL,datapath,false))
-        return D_O_K;
-        
-    char buf[256+20],buf2[256+20],name[256];
-    extract_name(temppath,name,FILENAME8_3);
-    
-    if(save_subscreen_code(temppath))
-    {
-        sprintf(buf,"ZQuest");
-        sprintf(buf2,"Saved %s",name);
-    }
-    else
-    {
-        sprintf(buf,"Error");
-        sprintf(buf2,"Error saving %s",name);
-    }
-    
-    jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-    return D_O_K;
-}
-
 int32_t onActivePassive();
 
 static MENU ss_arrange_menu[] =
@@ -2471,8 +1819,6 @@ static MENU ss_edit_menu[] =
     { (char *)"Switch Active/Passive",              onActivePassive,                      NULL, 0, NULL },
     { (char *)"",                    NULL,                                 NULL, 0, NULL },
     { (char *)"&Take Snapshot\tZ",   onSnapshot,                           NULL, 0, NULL },
-    { (char *)"",                    NULL,                                 NULL, 0, NULL },
-    { (char *)"E&xport as Code\tX",  onExport_Subscreen_Code,              NULL, 0, NULL },
     { NULL,                          NULL,                                 NULL, 0, NULL }
 };
 
@@ -2554,7 +1900,6 @@ static DIALOG subscreen_dlg[] =
     { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                'd',     0,          0,             0, (void *) onDuplicateSubscreenObject, NULL, NULL },
     { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                'e',     0,          0,             0, (void *) onSubscreenObjectProperties, NULL, NULL },
     { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                'z',     0,          0,             0, (void *) onSnapshot, NULL, NULL },
-    { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                'x',     0,          0,             0, (void *) onExport_Subscreen_Code, NULL, NULL },
     { d_vsync_proc,         0,     0,     0,       0,    0,                 0,                0,       0,          0,             0,       NULL, NULL, NULL },
     { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
@@ -2562,16 +1907,16 @@ static DIALOG subscreen_dlg[] =
 
 int32_t onActivePassive()
 {
-    if(css->ss_type == sstACTIVE)
+    if(subscr_edit.sub_type == sstPASSIVE)
     {
-        css->ss_type = sstPASSIVE;
-        subscreen_dlg[3].h=116;
+        subscr_edit.sub_type = sstACTIVE;
+        subscreen_dlg[3].h=172*2-4;
         subscreen_dlg[4].h=subscreen_dlg[3].h-4;
     }
-    else if(css->ss_type == sstPASSIVE)
+	else
     {
-        css->ss_type = sstACTIVE;
-        subscreen_dlg[3].h=172*2-4;
+        subscr_edit.sub_type = sstPASSIVE;
+        subscreen_dlg[3].h=116;
         subscreen_dlg[4].h=subscreen_dlg[3].h-4;
     }
     
@@ -2663,11 +2008,6 @@ char *sso_name(int32_t type)
     return tempname;
 }
 
-char *sso_name(subscreen_object *tempss, int32_t id)
-{
-    return sso_name(tempss[id].type);
-}
-
 sso_struct bisso[ssoMAX];
 int32_t bisso_cnt=-1;
 
@@ -2724,54 +2064,24 @@ static DIALOG ssolist_dlg[] =
 
 void doNewSubscreenObject(int32_t type)
 {
-    subscreen_object tempsso;
-	memset(&tempsso,0,sizeof(subscreen_object));
-	//tempsso.dp1=(char *)malloc(2);
-	tempsso.dp1 = new char[2];
-	((char *)tempsso.dp1)[0]=0;
-	tempsso.type=type;
-	tempsso.pos = sspUP | sspDOWN | sspSCROLLING;
-	tempsso.w=1;
-	tempsso.h=1;
+	SubscrWidget* widg = SubscrWidget::fromType(type);
+	widg->posflags = sspUP | sspDOWN | sspSCROLLING;
+	widg->w=1;
+	widg->h=1;
 	
-	switch(tempsso.type)
-	{
-		case ssoCURRENTITEM:
-			tempsso.d2 = SSCURRITEM_VISIBLE;
-			break;
-		case ssoMAGICGAUGE:
-			tempsso.d9 = -1; // 'Always show' by default
-			break;
-		case ssoCOUNTER:
-			tempsso.d10 = -1; //(None) inf item
-            tempsso.colortype1 = ssctMISC; //Default text color
-			break;
-		
-		case ssoBSTIME: case ssoCOUNTERS: case ssoSSTIME:
-        case ssoTIME: case ssoMINIMAPTITLE: case ssoSELECTEDITEMNAME:
-        case ssoTEXT: case ssoTEXTBOX:
-			tempsso.colortype1 = ssctMISC; //Default text color
-			break;
-	}
-		
 	int32_t temp_cso=curr_subscreen_object;
-	curr_subscreen_object=ss_objects(css);
+	curr_subscreen_object=subscr_edit_page().contents.size();
 	
-	if(sso_properties(&tempsso)!=-1)
+	if(sso_properties(widg)!=-1)
 	{
-		if(css->objects[curr_subscreen_object].dp1!=NULL)
-		{
-			delete [](char *)css->objects[curr_subscreen_object].dp1;
-			css->objects[curr_subscreen_object].dp1=NULL;
-		}
-		
-		css->objects[curr_subscreen_object]=tempsso;
+		subscr_edit_page().contents.push_back(widg);
 		update_sso_name();
 		update_up_dn_btns();
 	}
 	else
 	{
 		curr_subscreen_object=temp_cso;
+		delete widg;
 	}
 }
 
@@ -2841,166 +2151,127 @@ int32_t onNewSubscreenObject()
 }
 
 
-void align_objects(subscreen_group *tempss, bool *selection, int32_t align_type)
+void align_objects(bool *selection, int32_t align_type)
 {
-    int32_t l=sso_x(&tempss->objects[curr_subscreen_object]);
-    int32_t t=sso_y(&tempss->objects[curr_subscreen_object]);
-    int32_t w=sso_w(&tempss->objects[curr_subscreen_object]);
-    int32_t h=sso_h(&tempss->objects[curr_subscreen_object]);
-    
-    switch(get_alignment(&tempss->objects[curr_subscreen_object]))
-    {
-    case sstaCENTER:
-        l-=(w/2);
-        break;
-        
-    case sstaRIGHT:
-        l-=w;
-        break;
-        
-    case sstaLEFT:
-    default:
-        break;
-    }
-    
-    int32_t r=l+w-1;
-    int32_t b=t+h-1;
-    int32_t c=l+w/2;
-    int32_t m=t+h/2;
-    
-    for(int32_t i=0; i<MAXSUBSCREENITEMS; ++i)
-    {
-        if(selection[i]&&i!=curr_subscreen_object)
-        {
-            int32_t tl=sso_x(&tempss->objects[i]);
-            int32_t tt=sso_y(&tempss->objects[i]);
-            int32_t tw=sso_w(&tempss->objects[i]);
-            int32_t th=sso_h(&tempss->objects[i]);
-            
-            switch(get_alignment(&tempss->objects[i]))
-            {
-            case sstaCENTER:
-                tl-=(tw/2);
-                break;
-                
-            case sstaRIGHT:
-                tl-=tw;
-                break;
-                
-            case sstaLEFT:
-            default:
-                break;
-            }
-            
-            int32_t tr=tl+tw-1;
-            int32_t tb=tt+th-1;
-            int32_t tc=tl+tw/2;
-            int32_t tm=tt+th/2;
-            
-            switch(align_type)
-            {
-            case ssoaBOTTOM:
-                tempss->objects[i].y+=b-tb;
-                break;
-                
-            case ssoaMIDDLE:
-                tempss->objects[i].y+=m-tm;
-                break;
-                
-            case ssoaTOP:
-                tempss->objects[i].y+=t-tt;
-                break;
-                
-            case ssoaRIGHT:
-                tempss->objects[i].x+=r-tr;
-                break;
-                
-            case ssoaCENTER:
-                tempss->objects[i].x+=c-tc;
-                break;
-                
-            case ssoaLEFT:
-            default:
-                tempss->objects[i].x+=l-tl;
-                break;
-            }
-        }
-    }
+	auto& pg = subscr_edit_page();
+	auto* curwidg = subscr_edit_widg();
+	if(!curwidg) return;
+	int32_t l=curwidg->getX()+curwidg->getXOffs();
+	int32_t t=curwidg->getY();
+	int32_t w=curwidg->getW();
+	int32_t h=curwidg->getH();
+	
+	int32_t r=l+w-1;
+	int32_t b=t+h-1;
+	int32_t c=l+w/2;
+	int32_t m=t+h/2;
+	
+	for(int32_t i=0; i<pg.contents.size(); ++i)
+	{
+		if(selection[i]&&i!=curr_subscreen_object)
+		{
+			SubscrWidget& widg = pg.contents[i];
+			int32_t tl=widg.getX()+widg.getXOffs();
+			int32_t tt=widg.getY();
+			int32_t tw=widg.getW();
+			int32_t th=widg.getH();
+			
+			int32_t tr=tl+tw-1;
+			int32_t tb=tt+th-1;
+			int32_t tc=tl+tw/2;
+			int32_t tm=tt+th/2;
+			
+			switch(align_type)
+			{
+			case ssoaBOTTOM:
+				widg.y+=b-tb;
+				break;
+				
+			case ssoaMIDDLE:
+				widg.y+=m-tm;
+				break;
+				
+			case ssoaTOP:
+				widg.y+=t-tt;
+				break;
+				
+			case ssoaRIGHT:
+				widg.x+=r-tr;
+				break;
+				
+			case ssoaCENTER:
+				widg.x+=c-tc;
+				break;
+				
+			case ssoaLEFT:
+			default:
+				widg.x+=l-tl;
+				break;
+			}
+		}
+	}
 }
 
-void grid_snap_objects(subscreen_group *tempss, bool *selection, int32_t snap_type)
+void grid_snap_objects(bool *selection, int32_t snap_type)
 {
-    for(int32_t i=0; i<MAXSUBSCREENITEMS; ++i)
-    {
-        if(selection[i]||i==curr_subscreen_object)
-        {
-            int32_t tl=sso_x(&tempss->objects[i]);
-            int32_t tt=sso_y(&tempss->objects[i]);
-            int32_t tw=sso_w(&tempss->objects[i]);
-            int32_t th=sso_h(&tempss->objects[i]);
-            
-            switch(get_alignment(&tempss->objects[i]))
-            {
-            case sstaCENTER:
-                tl-=(tw/2);
-                break;
-                
-            case sstaRIGHT:
-                tl-=tw;
-                break;
-                
-            case sstaLEFT:
-            default:
-                break;
-            }
-            
-            int32_t tr=tl+tw-1;
-            int32_t tb=tt+th-1;
-            int32_t tc=tl+tw/2;
-            int32_t tm=tt+th/2;
-            int32_t l1=(tl-zinit.ss_grid_xofs)/zinit.ss_grid_x*zinit.ss_grid_x+zinit.ss_grid_xofs;
-            int32_t l2=l1+zinit.ss_grid_x;
-            int32_t c1=(tc-zinit.ss_grid_xofs)/zinit.ss_grid_x*zinit.ss_grid_x+zinit.ss_grid_xofs;
-            int32_t c2=c1+zinit.ss_grid_x;
-            int32_t r1=(tr-zinit.ss_grid_xofs)/zinit.ss_grid_x*zinit.ss_grid_x+zinit.ss_grid_xofs;
-            int32_t r2=r1+zinit.ss_grid_x;
-            
-            int32_t t1=(tt-zinit.ss_grid_yofs)/zinit.ss_grid_y*zinit.ss_grid_y+zinit.ss_grid_yofs;
-            int32_t t2=t1+zinit.ss_grid_y;
-            int32_t m1=(tm-zinit.ss_grid_yofs)/zinit.ss_grid_y*zinit.ss_grid_y+zinit.ss_grid_yofs;
-            int32_t m2=m1+zinit.ss_grid_y;
-            int32_t b1=(tb-zinit.ss_grid_yofs)/zinit.ss_grid_y*zinit.ss_grid_y+zinit.ss_grid_yofs;
-            int32_t b2=b1+zinit.ss_grid_y;
-            
-            switch(snap_type)
-            {
-            case ssosBOTTOM:
-                tempss->objects[i].y+=(abs(b1-tb)>abs(b2-tb))?(b2-tb):(b1-tb);
-                break;
-                
-            case ssosMIDDLE:
-                tempss->objects[i].y+=(abs(m1-tm)>abs(m2-tm))?(m2-tm):(m1-tm);
-                break;
-                
-            case ssosTOP:
-                tempss->objects[i].y+=(abs(t1-tt)>abs(t2-tt))?(t2-tt):(t1-tt);
-                break;
-                
-            case ssosRIGHT:
-                tempss->objects[i].x+=(abs(r1-tr)>abs(r2-tr))?(r2-tr):(r1-tr);
-                break;
-                
-            case ssosCENTER:
-                tempss->objects[i].x+=(abs(c1-tc)>abs(c2-tc))?(c2-tc):(c1-tc);
-                break;
-                
-            case ssosLEFT:
-            default:
-                tempss->objects[i].x+=(abs(l1-tl)>abs(l2-tl))?(l2-tl):(l1-tl);
-                break;
-            }
-        }
-    }
+	auto& pg = subscr_edit_page();
+	for(int32_t i=0; i < pg.contents.size(); ++i)
+	{
+		if(selection[i]||i==curr_subscreen_object)
+		{
+			SubscrWidget& widg = pg.contents[i];
+			int32_t tl=widg.getX()+widg.getXOffs();
+			int32_t tt=widg.getY();
+			int32_t tw=widg.getW();
+			int32_t th=widg.getH();
+			
+			int32_t tr=tl+tw-1;
+			int32_t tb=tt+th-1;
+			int32_t tc=tl+tw/2;
+			int32_t tm=tt+th/2;
+			int32_t l1=(tl-zinit.ss_grid_xofs)/zinit.ss_grid_x*zinit.ss_grid_x+zinit.ss_grid_xofs;
+			int32_t l2=l1+zinit.ss_grid_x;
+			int32_t c1=(tc-zinit.ss_grid_xofs)/zinit.ss_grid_x*zinit.ss_grid_x+zinit.ss_grid_xofs;
+			int32_t c2=c1+zinit.ss_grid_x;
+			int32_t r1=(tr-zinit.ss_grid_xofs)/zinit.ss_grid_x*zinit.ss_grid_x+zinit.ss_grid_xofs;
+			int32_t r2=r1+zinit.ss_grid_x;
+			
+			int32_t t1=(tt-zinit.ss_grid_yofs)/zinit.ss_grid_y*zinit.ss_grid_y+zinit.ss_grid_yofs;
+			int32_t t2=t1+zinit.ss_grid_y;
+			int32_t m1=(tm-zinit.ss_grid_yofs)/zinit.ss_grid_y*zinit.ss_grid_y+zinit.ss_grid_yofs;
+			int32_t m2=m1+zinit.ss_grid_y;
+			int32_t b1=(tb-zinit.ss_grid_yofs)/zinit.ss_grid_y*zinit.ss_grid_y+zinit.ss_grid_yofs;
+			int32_t b2=b1+zinit.ss_grid_y;
+			
+			switch(snap_type)
+			{
+			case ssosBOTTOM:
+				widg.y+=(abs(b1-tb)>abs(b2-tb))?(b2-tb):(b1-tb);
+				break;
+				
+			case ssosMIDDLE:
+				widg.y+=(abs(m1-tm)>abs(m2-tm))?(m2-tm):(m1-tm);
+				break;
+				
+			case ssosTOP:
+				widg.y+=(abs(t1-tt)>abs(t2-tt))?(t2-tt):(t1-tt);
+				break;
+				
+			case ssosRIGHT:
+				widg.x+=(abs(r1-tr)>abs(r2-tr))?(r2-tr):(r1-tr);
+				break;
+				
+			case ssosCENTER:
+				widg.x+=(abs(c1-tc)>abs(c2-tc))?(c2-tc):(c1-tc);
+				break;
+				
+			case ssosLEFT:
+			default:
+				widg.x+=(abs(l1-tl)>abs(l2-tl))?(l2-tl):(l1-tl);
+				break;
+			}
+		}
+	}
 }
 
 typedef struct dist_obj
@@ -3016,168 +2287,154 @@ typedef struct dist_obj
     int32_t m;
 } dist_obj;
 
-void distribute_objects(subscreen_group *tempss, bool *selection, int32_t distribute_type)
+void distribute_objects(bool *, int32_t distribute_type)
 {
-    //these are here to bypass compiler warnings about unused arguments
-    selection=selection;
-    
-    int32_t count=0;
-    dist_obj temp_do[MAXSUBSCREENITEMS];
-    
-    for(int32_t i=0; i<MAXSUBSCREENITEMS; ++i)
-    {
-        if(sso_selection[i]==true||i==curr_subscreen_object)
-        {
-            temp_do[count].index=i;
-            temp_do[count].l=sso_x(&tempss->objects[i]);
-            temp_do[count].t=sso_y(&tempss->objects[i]);
-            temp_do[count].w=sso_w(&tempss->objects[i]);
-            temp_do[count].h=sso_h(&tempss->objects[i]);
-            
-            switch(get_alignment(&tempss->objects[i]))
-            {
-            case sstaCENTER:
-                temp_do[count].l-=(temp_do[count].w/2);
-                break;
-                
-            case sstaRIGHT:
-                temp_do[count].l-=temp_do[count].w;
-                break;
-                
-            case sstaLEFT:
-            default:
-                break;
-            }
-            
-            temp_do[count].r=temp_do[count].l+temp_do[count].w-1;
-            temp_do[count].b=temp_do[count].t+temp_do[count].h-1;
-            temp_do[count].c=temp_do[count].l+temp_do[count].w/2;
-            temp_do[count].m=temp_do[count].t+temp_do[count].h/2;
-            ++count;
-        }
-    }
-    
-    if(count<3)
-    {
-        return;
-    }
-    
-    //sort all objects in order of position, then index (yeah, bubble sort; sue me)
-    dist_obj tempdo2;
-    
-    for(int32_t j=0; j<count-1; j++)
-    {
-        for(int32_t k=0; k<count-1-j; k++)
-        {
-            switch(distribute_type)
-            {
-            case ssodBOTTOM:
-                if(temp_do[k+1].b<temp_do[k].b||((temp_do[k+1].b==temp_do[k].b)&&(temp_do[k+1].index<temp_do[k].index)))
-                {
-                    tempdo2=temp_do[k];
-                    temp_do[k]=temp_do[k+1];
-                    temp_do[k+1]=tempdo2;
-                }
-                
-                break;
-                
-            case ssodMIDDLE:
-                if(temp_do[k+1].m<temp_do[k].m||((temp_do[k+1].m==temp_do[k].m)&&(temp_do[k+1].index<temp_do[k].index)))
-                {
-                    tempdo2=temp_do[k];
-                    temp_do[k]=temp_do[k+1];
-                    temp_do[k+1]=tempdo2;
-                }
-                
-                break;
-                
-            case ssodTOP:
-                if(temp_do[k+1].t<temp_do[k].t||((temp_do[k+1].t==temp_do[k].t)&&(temp_do[k+1].index<temp_do[k].index)))
-                {
-                    tempdo2=temp_do[k];
-                    temp_do[k]=temp_do[k+1];
-                    temp_do[k+1]=tempdo2;
-                }
-                
-                break;
-                
-            case ssodRIGHT:
-                if(temp_do[k+1].r<temp_do[k].r||((temp_do[k+1].r==temp_do[k].r)&&(temp_do[k+1].index<temp_do[k].index)))
-                {
-                    tempdo2=temp_do[k];
-                    temp_do[k]=temp_do[k+1];
-                    temp_do[k+1]=tempdo2;
-                }
-                
-                break;
-                
-            case ssodCENTER:
-                if(temp_do[k+1].c<temp_do[k].c||((temp_do[k+1].c==temp_do[k].c)&&(temp_do[k+1].index<temp_do[k].index)))
-                {
-                    tempdo2=temp_do[k];
-                    temp_do[k]=temp_do[k+1];
-                    temp_do[k+1]=tempdo2;
-                }
-                
-                break;
-                
-            case ssodLEFT:
-            default:
-                if(temp_do[k+1].l<temp_do[k].l||((temp_do[k+1].l==temp_do[k].l)&&(temp_do[k+1].index<temp_do[k].index)))
-                {
-                    tempdo2=temp_do[k];
-                    temp_do[k]=temp_do[k+1];
-                    temp_do[k+1]=tempdo2;
-                }
-                
-                break;
-            }
-        }
-    }
-    
-    int32_t ld=temp_do[count-1].l-temp_do[0].l;
-    int32_t td=temp_do[count-1].t-temp_do[0].t;
-    int32_t rd=temp_do[count-1].r-temp_do[0].r;
-    int32_t bd=temp_do[count-1].b-temp_do[0].b;
-    int32_t cd=temp_do[count-1].c-temp_do[0].c;
-    int32_t md=temp_do[count-1].m-temp_do[0].m;
-    
-    for(int32_t i=1; i<count-1; ++i)
-    {
-        switch(distribute_type)
-        {
-        case ssodBOTTOM:
-            tempss->objects[temp_do[i].index].y+=bd*i/(count-1)-temp_do[i].b+temp_do[0].b;
-            break;
-            
-        case ssodMIDDLE:
-            tempss->objects[temp_do[i].index].y+=md*i/(count-1)-temp_do[i].m+temp_do[0].m;
-            break;
-            
-        case ssodTOP:
-            tempss->objects[temp_do[i].index].y+=td*i/(count-1)-temp_do[i].t+temp_do[0].t;
-            break;
-            
-        case ssodRIGHT:
-            tempss->objects[temp_do[i].index].x+=rd*i/(count-1)-temp_do[i].r+temp_do[0].r;
-            break;
-            
-        case ssodCENTER:
-            tempss->objects[temp_do[i].index].x+=cd*i/(count-1)-temp_do[i].c+temp_do[0].c;
-            break;
-            
-        case ssodLEFT:
-        default:
-            tempss->objects[temp_do[i].index].x+=ld*i/(count-1)-temp_do[i].l+temp_do[0].l;
-            break;
-        }
-    }
-    
+	int32_t count=0;
+	dist_obj temp_do[MAXSUBSCREENITEMS];
+	
+	auto& pg = subscr_edit_page();
+	for(int32_t i=0; i < pg.contents.size(); ++i)
+	{
+		if(sso_selection[i]==true||i==curr_subscreen_object)
+		{
+			SubscrWidget& widg = pg.contents[i];
+			temp_do[count].index=i;
+			temp_do[count].l=widg.getX()+widg.getXOffs();
+			temp_do[count].t=widg.getY();
+			temp_do[count].w=widg.getW();
+			temp_do[count].h=widg.getH();
+			
+			temp_do[count].r=temp_do[count].l+temp_do[count].w-1;
+			temp_do[count].b=temp_do[count].t+temp_do[count].h-1;
+			temp_do[count].c=temp_do[count].l+temp_do[count].w/2;
+			temp_do[count].m=temp_do[count].t+temp_do[count].h/2;
+			++count;
+		}
+	}
+	
+	if(count<3)
+	{
+		return;
+	}
+	
+	//sort all objects in order of position, then index (yeah, bubble sort; sue me)
+	dist_obj tempdo2;
+	
+	for(int32_t j=0; j<count-1; j++)
+	{
+		for(int32_t k=0; k<count-1-j; k++)
+		{
+			switch(distribute_type)
+			{
+			case ssodBOTTOM:
+				if(temp_do[k+1].b<temp_do[k].b||((temp_do[k+1].b==temp_do[k].b)&&(temp_do[k+1].index<temp_do[k].index)))
+				{
+					tempdo2=temp_do[k];
+					temp_do[k]=temp_do[k+1];
+					temp_do[k+1]=tempdo2;
+				}
+				
+				break;
+				
+			case ssodMIDDLE:
+				if(temp_do[k+1].m<temp_do[k].m||((temp_do[k+1].m==temp_do[k].m)&&(temp_do[k+1].index<temp_do[k].index)))
+				{
+					tempdo2=temp_do[k];
+					temp_do[k]=temp_do[k+1];
+					temp_do[k+1]=tempdo2;
+				}
+				
+				break;
+				
+			case ssodTOP:
+				if(temp_do[k+1].t<temp_do[k].t||((temp_do[k+1].t==temp_do[k].t)&&(temp_do[k+1].index<temp_do[k].index)))
+				{
+					tempdo2=temp_do[k];
+					temp_do[k]=temp_do[k+1];
+					temp_do[k+1]=tempdo2;
+				}
+				
+				break;
+				
+			case ssodRIGHT:
+				if(temp_do[k+1].r<temp_do[k].r||((temp_do[k+1].r==temp_do[k].r)&&(temp_do[k+1].index<temp_do[k].index)))
+				{
+					tempdo2=temp_do[k];
+					temp_do[k]=temp_do[k+1];
+					temp_do[k+1]=tempdo2;
+				}
+				
+				break;
+				
+			case ssodCENTER:
+				if(temp_do[k+1].c<temp_do[k].c||((temp_do[k+1].c==temp_do[k].c)&&(temp_do[k+1].index<temp_do[k].index)))
+				{
+					tempdo2=temp_do[k];
+					temp_do[k]=temp_do[k+1];
+					temp_do[k+1]=tempdo2;
+				}
+				
+				break;
+				
+			case ssodLEFT:
+			default:
+				if(temp_do[k+1].l<temp_do[k].l||((temp_do[k+1].l==temp_do[k].l)&&(temp_do[k+1].index<temp_do[k].index)))
+				{
+					tempdo2=temp_do[k];
+					temp_do[k]=temp_do[k+1];
+					temp_do[k+1]=tempdo2;
+				}
+				
+				break;
+			}
+		}
+	}
+	
+	int32_t ld=temp_do[count-1].l-temp_do[0].l;
+	int32_t td=temp_do[count-1].t-temp_do[0].t;
+	int32_t rd=temp_do[count-1].r-temp_do[0].r;
+	int32_t bd=temp_do[count-1].b-temp_do[0].b;
+	int32_t cd=temp_do[count-1].c-temp_do[0].c;
+	int32_t md=temp_do[count-1].m-temp_do[0].m;
+	
+	for(int32_t i=1; i<count-1; ++i)
+	{
+		if(unsigned(temp_do[i].index) >= pg.contents.size())
+			continue;
+		SubscrWidget& widg = pg.contents[temp_do[i].index];
+		switch(distribute_type)
+		{
+		case ssodBOTTOM:
+			widg.y+=bd*i/(count-1)-temp_do[i].b+temp_do[0].b;
+			break;
+			
+		case ssodMIDDLE:
+			widg.y+=md*i/(count-1)-temp_do[i].m+temp_do[0].m;
+			break;
+			
+		case ssodTOP:
+			widg.y+=td*i/(count-1)-temp_do[i].t+temp_do[0].t;
+			break;
+			
+		case ssodRIGHT:
+			widg.x+=rd*i/(count-1)-temp_do[i].r+temp_do[0].r;
+			break;
+			
+		case ssodCENTER:
+			widg.x+=cd*i/(count-1)-temp_do[i].c+temp_do[0].c;
+			break;
+			
+		case ssodLEFT:
+		default:
+			widg.x+=ld*i/(count-1)-temp_do[i].l+temp_do[0].l;
+			break;
+		}
+	}
 }
 
 int32_t onBringToFront()
 {
-    while(curr_subscreen_object<ss_objects(css)-1)
+    while(curr_subscreen_object<subscr_edit_page().contents.size()-1)
     {
         onBringForward();
     }
@@ -3197,15 +2454,16 @@ int32_t onSendToBack()
 
 int32_t onReverseArrangement()
 {
+	auto& pg = subscr_edit_page();
     int32_t i=0;
-    int32_t j=MAXSUBSCREENITEMS-1;
+    int32_t j=pg.contents.size()-1;
     subscreen_object tempsso;
     
     sso_selection[curr_subscreen_object]=true;
     
     while(true)
     {
-        while(i<MAXSUBSCREENITEMS && !sso_selection[i])
+        while(i<pg.contents.size() && !sso_selection[i])
             i++;
             
         while(j>=0 && !sso_selection[j])
@@ -3221,10 +2479,8 @@ int32_t onReverseArrangement()
             curr_subscreen_object=j;
         else if(curr_subscreen_object==j)
             curr_subscreen_object=i;
-            
-        tempsso=css->objects[i];
-        css->objects[i]=css->objects[j];
-        css->objects[j]=tempsso;
+		
+		zc_swap(pg.contents[i],pg.contents[j]);
         
         i++;
         j--;
@@ -3233,109 +2489,109 @@ int32_t onReverseArrangement()
 
 int32_t onAlignLeft()
 {
-    align_objects(css, sso_selection, ssoaLEFT);
+    align_objects(sso_selection, ssoaLEFT);
     return D_O_K;
 }
 
 int32_t onAlignCenter()
 {
-    align_objects(css, sso_selection, ssoaCENTER);
+    align_objects(sso_selection, ssoaCENTER);
     return D_O_K;
 }
 
 int32_t onAlignRight()
 {
-    align_objects(css, sso_selection, ssoaRIGHT);
+    align_objects(sso_selection, ssoaRIGHT);
     return D_O_K;
 }
 
 int32_t onAlignTop()
 {
-    align_objects(css, sso_selection, ssoaTOP);
+    align_objects(sso_selection, ssoaTOP);
     return D_O_K;
 }
 
 int32_t onAlignMiddle()
 {
-    align_objects(css, sso_selection, ssoaMIDDLE);
+    align_objects(sso_selection, ssoaMIDDLE);
     return D_O_K;
 }
 
 int32_t onAlignBottom()
 {
-    align_objects(css, sso_selection, ssoaBOTTOM);
+    align_objects(sso_selection, ssoaBOTTOM);
     return D_O_K;
 }
 
 int32_t onDistributeLeft()
 {
-    distribute_objects(css, sso_selection, ssodLEFT);
+    distribute_objects(sso_selection, ssodLEFT);
     return D_O_K;
 }
 
 int32_t onDistributeCenter()
 {
-    distribute_objects(css, sso_selection, ssodCENTER);
+    distribute_objects(sso_selection, ssodCENTER);
     return D_O_K;
 }
 
 int32_t onDistributeRight()
 {
-    distribute_objects(css, sso_selection, ssodRIGHT);
+    distribute_objects(sso_selection, ssodRIGHT);
     return D_O_K;
 }
 
 int32_t onDistributeTop()
 {
-    distribute_objects(css, sso_selection, ssodTOP);
+    distribute_objects(sso_selection, ssodTOP);
     return D_O_K;
 }
 
 int32_t onDistributeMiddle()
 {
-    distribute_objects(css, sso_selection, ssodMIDDLE);
+    distribute_objects(sso_selection, ssodMIDDLE);
     return D_O_K;
 }
 
 int32_t onDistributeBottom()
 {
-    distribute_objects(css, sso_selection, ssodBOTTOM);
+    distribute_objects(sso_selection, ssodBOTTOM);
     return D_O_K;
 }
 
 int32_t onGridSnapLeft()
 {
-    grid_snap_objects(css, sso_selection, ssosLEFT);
+    grid_snap_objects(sso_selection, ssosLEFT);
     return D_O_K;
 }
 
 int32_t onGridSnapCenter()
 {
-    grid_snap_objects(css, sso_selection, ssosCENTER);
+    grid_snap_objects(sso_selection, ssosCENTER);
     return D_O_K;
 }
 
 int32_t onGridSnapRight()
 {
-    grid_snap_objects(css, sso_selection, ssosRIGHT);
+    grid_snap_objects(sso_selection, ssosRIGHT);
     return D_O_K;
 }
 
 int32_t onGridSnapTop()
 {
-    grid_snap_objects(css, sso_selection, ssosTOP);
+    grid_snap_objects(sso_selection, ssosTOP);
     return D_O_K;
 }
 
 int32_t onGridSnapMiddle()
 {
-    grid_snap_objects(css, sso_selection, ssosMIDDLE);
+    grid_snap_objects(sso_selection, ssosMIDDLE);
     return D_O_K;
 }
 
 int32_t onGridSnapBottom()
 {
-    grid_snap_objects(css, sso_selection, ssosBOTTOM);
+    grid_snap_objects(sso_selection, ssosBOTTOM);
     return D_O_K;
 }
 
@@ -3421,7 +2677,7 @@ void update_up_dn_btns()
         subscreen_dlg[10].flags&=~D_DISABLED;
     }
     
-    if(curr_subscreen_object>=ss_objects(css)-1)
+    if(curr_subscreen_object>=subscr_edit_page().contents.size()-1)
     {
         subscreen_dlg[9].flags|=D_DISABLED;
     }
@@ -3446,26 +2702,17 @@ int32_t onSSCtrlPgDn()
 
 int32_t onSendBackward()
 {
-    subscreen_object tempsso;
-    bool tempsel;
-    
-    if(curr_subscreen_object>0)
-    {
-        tempsso=css->objects[curr_subscreen_object];
-        tempsel=sso_selection[curr_subscreen_object];
-        
-        css->objects[curr_subscreen_object]=css->objects[curr_subscreen_object-1];
-        sso_selection[curr_subscreen_object]=sso_selection[curr_subscreen_object-1];
-        
-        css->objects[curr_subscreen_object-1]=tempsso;
-        sso_selection[curr_subscreen_object-1]=tempsel;
-        
-        --curr_subscreen_object;
-        update_sso_name();
-    }
-    
-    update_up_dn_btns();
-    return D_O_K;
+	auto& contents = subscr_edit_page().contents;
+	if(curr_subscreen_object >= 0 && curr_subscreen_object<subscr_edit_page().contents.size()-1)
+	{
+		zc_swap(contents[curr_subscreen_object],contents[curr_subscreen_object-1]);
+		zc_swap(sso_selection[curr_subscreen_object],sso_selection[curr_subscreen_object-1]);
+		++curr_subscreen_object;
+		update_sso_name();
+	}
+	
+	update_up_dn_btns();
+	return D_O_K;
 }
 
 int32_t onSSPgDn()
@@ -3480,7 +2727,7 @@ int32_t onSSPgDn()
         
         if(curr_subscreen_object<0)
         {
-            curr_subscreen_object=ss_objects(css)-1;
+            curr_subscreen_object=subscr_edit_page().contents.size()-1;
         }
         
         update_sso_name();
@@ -3493,26 +2740,17 @@ int32_t onSSPgDn()
 // Send forward
 int32_t onBringForward()
 {
-    subscreen_object tempsso;
-    bool tempsel;
-    
-    if(curr_subscreen_object<ss_objects(css)-1)
-    {
-        tempsso=css->objects[curr_subscreen_object];
-        tempsel=sso_selection[curr_subscreen_object];
-        
-        css->objects[curr_subscreen_object]=css->objects[curr_subscreen_object+1];
-        sso_selection[curr_subscreen_object]=sso_selection[curr_subscreen_object+1];
-        
-        css->objects[curr_subscreen_object+1]=tempsso;
-        sso_selection[curr_subscreen_object+1]=tempsel;
-        
-        ++curr_subscreen_object;
-        update_sso_name();
-    }
-    
-    update_up_dn_btns();
-    return D_O_K;
+	auto& contents = subscr_edit_page().contents;
+	if(curr_subscreen_object<subscr_edit_page().contents.size()-1)
+	{
+		zc_swap(contents[curr_subscreen_object],contents[curr_subscreen_object+1]);
+		zc_swap(sso_selection[curr_subscreen_object],sso_selection[curr_subscreen_object+1]);
+		++curr_subscreen_object;
+		update_sso_name();
+	}
+	
+	update_up_dn_btns();
+	return D_O_K;
 }
 
 
@@ -3524,11 +2762,11 @@ int32_t onSSPgUp()
     }
     else
     {
-        if(ss_objects(css)>0)
+        if(!subscr_edit_page().contents.empty())
         {
             ++curr_subscreen_object;
             
-            if(curr_subscreen_object>=ss_objects(css))
+            if(curr_subscreen_object>=subscr_edit_page().contents.size())
             {
                 curr_subscreen_object=0;
             }
@@ -3605,93 +2843,69 @@ int32_t d_ssrt_btn_proc(int32_t msg,DIALOG *d,int32_t c)
 
 
 
-void edit_subscreen()
+bool edit_subscreen()
 {
-    game = new gamedata();
-    game->set_time(0);
-    resetItems(game,&zinit,true);
-    
-    //so that these will show up on the subscreen -DD
-    if(game->get_bombs() == 0)
-        game->set_bombs(1);
-        
-    if(game->get_sbombs() == 0)
-        game->set_sbombs(1);
-        
-    if(game->get_arrows() == 0)
-        game->set_arrows(1);
-        
-    subscreen_dlg[0].dp2=get_zc_font(font_lfont);
-    load_Sitems();
-    curr_subscreen_object=0;
-    ss_propCopySrc=-1;
-    subscreen_group tempss;
-    memset(&tempss, 0, sizeof(subscreen_group));
-    int32_t i;
-    
-    for(i=0; i<MAXSUBSCREENITEMS; i++)
-    {
-        memcpy(&tempss.objects[i],&css->objects[i],sizeof(subscreen_object));
-        
-        switch(css->objects[i].type)
-        {
-        case ssoTEXT:
-        case ssoTEXTBOX:
-        case ssoCURRENTITEMTEXT:
-        case ssoCURRENTITEMCLASSTEXT:
-            tempss.objects[i].dp1 = NULL;
-            tempss.objects[i].dp1 = new char[strlen((char*)css->objects[i].dp1)+1];
-            strcpy((char*)tempss.objects[i].dp1,(char*)css->objects[i].dp1);
-            break;
-            
-        default:
-            break;
-        }
-    }
-    
-    tempss.ss_type=css->ss_type;
-    strcpy(tempss.name, css->name);
-    
-    if(ss_objects(css)==0)
-    {
-        curr_subscreen_object=-1;
-    }
-    
-    onClearSelection();
-    ss_view_menu[0].flags=zinit.ss_flags&ssflagSHOWINVIS?D_SELECTED:0;
-    ss_view_menu[2].flags=zinit.ss_flags&ssflagSHOWGRID?D_SELECTED:0;
-    
-    if(css->objects[0].type==ssoNULL)
-    {
-        css->objects[0].type=ssoNONE;
-    }
-    
-    subscreen_dlg[4].dp=(void *)css;
-    subscreen_dlg[5].fg=jwin_pal[jcBOX];
-    subscreen_dlg[5].bg=jwin_pal[jcBOX];
-    str_oname=(char *)malloc(255);
-    subscreen_dlg[6].dp=(void *)str_oname;
-    subscreen_dlg[8].dp=(void *)(css->name);
-    update_sso_name();
-    subscreen_dlg[10].flags|=D_DISABLED;
-    
-    if(css->ss_type==sstPASSIVE)
-    {
-        subscreen_dlg[21].flags|=D_DISABLED;
-        subscreen_dlg[22].flags|=D_DISABLED;
-        subscreen_dlg[23].flags|=D_DISABLED;
-        subscreen_dlg[24].flags|=D_DISABLED;
-    }
-    else
-    {
-        subscreen_dlg[21].flags&=~D_DISABLED;
-        subscreen_dlg[22].flags&=~D_DISABLED;
-        subscreen_dlg[23].flags&=~D_DISABLED;
-        subscreen_dlg[24].flags&=~D_DISABLED;
-    }
-    
-    selectBwpn(0, 0);
-    
+	game = new gamedata();
+	game->set_time(0);
+	resetItems(game,&zinit,true);
+	
+	//so that these will show up on the subscreen -DD
+	if(game->get_bombs() == 0)
+		game->set_bombs(1);
+		
+	if(game->get_sbombs() == 0)
+		game->set_sbombs(1);
+		
+	if(game->get_arrows() == 0)
+		game->set_arrows(1);
+		
+	subscreen_dlg[0].dp2=get_zc_font(font_lfont);
+	load_Sitems();
+	curr_subscreen_object=0;
+	ss_propCopySrc=-1;
+	int32_t i;
+	
+	if(subscr_edit.pages.empty())
+		subscr_edit.pages.emplace_back();
+	if(subscr_edit.pages.size() >= subscr_edit.curpage)
+		subscr_edit.curpage = 0;
+	if(subscr_edit.pages[subscr_edit.curpage].contents.empty())
+	{
+		curr_subscreen_object=-1;
+	}
+	
+	onClearSelection();
+	ss_view_menu[0].flags=zinit.ss_flags&ssflagSHOWINVIS?D_SELECTED:0;
+	ss_view_menu[2].flags=zinit.ss_flags&ssflagSHOWGRID?D_SELECTED:0;
+		
+	subscreen_dlg[4].dp=(void *)css;
+	subscreen_dlg[5].fg=jwin_pal[jcBOX];
+	subscreen_dlg[5].bg=jwin_pal[jcBOX];
+	str_oname=(char *)malloc(255);
+	char namebuf[64] = {0};
+	strncpy(namebuf,subscr_edit.name.c_str(),63);
+	subscreen_dlg[6].dp=(void *)str_oname;
+	subscreen_dlg[8].dp=(void *)namebuf;
+	update_sso_name();
+	subscreen_dlg[10].flags|=D_DISABLED;
+	
+	if(subscr_edit.sub_type==sstPASSIVE)
+	{
+		subscreen_dlg[21].flags|=D_DISABLED;
+		subscreen_dlg[22].flags|=D_DISABLED;
+		subscreen_dlg[23].flags|=D_DISABLED;
+		subscreen_dlg[24].flags|=D_DISABLED;
+	}
+	else
+	{
+		subscreen_dlg[21].flags&=~D_DISABLED;
+		subscreen_dlg[22].flags&=~D_DISABLED;
+		subscreen_dlg[23].flags&=~D_DISABLED;
+		subscreen_dlg[24].flags&=~D_DISABLED;
+	}
+	
+	subscr_edit.cur_page.move_cursor(SEL_VERIFY_RIGHT);
+	
 	bool enlarge = subscreen_dlg[0].d1==0;
 	
 	if(enlarge)
@@ -3701,53 +2915,26 @@ void edit_subscreen()
 		subscreen_dlg[3].y-=31;
 		subscreen_dlg[3].x+=1;
 		
-		if(css->ss_type == sstPASSIVE)
+		if(subscr_edit.sub_type == sstPASSIVE)
 			subscreen_dlg[3].h=60*2-4;
-		else if(css->ss_type == sstACTIVE)
+		else if(subscr_edit.sub_type == sstACTIVE)
 			subscreen_dlg[3].h=172*2-4;
 			
 		subscreen_dlg[4].h=subscreen_dlg[3].h-4;
 	}
 	
-    int32_t ret = zc_popup_dialog(subscreen_dlg,2);
-    
-    if(ret==1)
-    {
-        saved=false;
-        zinit.subscreen=ssdtMAX;
-    }
-    else
-    {
-        reset_subscreen(css);
-        int32_t j;
-        
-        for(j=0; j<MAXSUBSCREENITEMS; j++)
-        {
-            memcpy(&css->objects[j],&tempss.objects[j],sizeof(subscreen_object));
-            
-            switch(tempss.objects[j].type)
-            {
-            case ssoTEXT:
-            case ssoTEXTBOX:
-            case ssoCURRENTITEMTEXT:
-            case ssoCURRENTITEMCLASSTEXT:
-                css->objects[j].dp1 = NULL;
-                css->objects[j].dp1 = new char[strlen((char*)tempss.objects[j].dp1)+1];
-                strcpy((char*)css->objects[j].dp1,(char*)tempss.objects[j].dp1);
-                break;
-                
-            default:
-                break;
-            }
-        }
-        
-        css->ss_type=tempss.ss_type;
-        strcpy(css->name, tempss.name);
-        reset_subscreen(&tempss);
-    }
-    
-    delete game;
-    game=NULL;
+	int32_t ret = zc_popup_dialog(subscreen_dlg,2);
+	
+	if(ret==1)
+	{
+		subscr_edit.name = namebuf;
+		saved=false;
+		zinit.subscreen=ssdtMAX;
+	}
+	
+	delete game;
+	game=NULL;
+	return ret == 1;
 }
 
 const char *allsubscrtype_str[30] =
@@ -3987,39 +3174,37 @@ int32_t onEditSubscreens()
     {
         ret=zc_popup_dialog(sslist_dlg,2);
         
+		auto ind = sslist_dlg[2].d1;
         if(ret==4)
         {
             int32_t confirm = jwin_alert("Confirm Delete", "You are about to delete the selected subscreen!", "Are you sure?", NULL, "OK", "Cancel", KEY_ENTER, KEY_ESC, get_zc_font(font_lfont));
             
             if(confirm==1)
             {
-                delete_subscreen(sslist_dlg[2].d1);
+                delete_subscreen(ind);
                 saved=false;
             }
         }
         else if(ret==2 || ret ==3)
         {
-            if(custom_subscreen[sslist_dlg[2].d1].ss_type==sstACTIVE)
-            {
-                subscreen_dlg[3].h=340;
-                subscreen_dlg[4].h=subscreen_dlg[3].h-4;
-            }
-            else if(custom_subscreen[sslist_dlg[2].d1].ss_type==sstPASSIVE)
+			if(ind < new_subscreen.size())
+				subscr_edit = new_subscreen[ind];
+			else subscr_edit.clear();
+            if(subscr_edit.sub_type==sstPASSIVE)
             {
                 subscreen_dlg[3].h=116;
                 subscreen_dlg[4].h=subscreen_dlg[3].h-4;
-                //iu;hukl;kh;
             }
-            else
+			else
             {
-                subscreen_dlg[3].h=40;
+				subscr_edit.sub_type = sstACTIVE;
+                subscreen_dlg[3].h=340;
                 subscreen_dlg[4].h=subscreen_dlg[3].h-4;
             }
             
-            css = &custom_subscreen[sslist_dlg[2].d1];
             bool edit_it=true;
             
-            if(css->objects[0].type==ssoNULL)
+            if(subscr_edit.pages.empty())
             {
                 large_dialog(sstemplatelist_dlg);
                     
@@ -4041,43 +3226,22 @@ int32_t onEditSubscreens()
                             {
                                 tempsub = default_subscreen_passive[(sstemplatelist_dlg[5].d1-1)/2][(sstemplatelist_dlg[5].d1-1)&1];
                             }
-                            
-                            int32_t i;
-                            
-                            for(i=0; (i<MAXSUBSCREENITEMS&&tempsub[i].type!=ssoNULL); i++)
-                            {
-                                switch(tempsub[i].type)
-                                {
-                                case ssoTEXT:
-                                case ssoTEXTBOX:
-                                case ssoCURRENTITEMTEXT:
-                                case ssoCURRENTITEMCLASSTEXT:
-                                    if(css->objects[i].dp1 != NULL) delete [](char *)css->objects[i].dp1;
-                                    
-                                    memcpy(&css->objects[i],&tempsub[i],sizeof(subscreen_object));
-                                    css->objects[i].dp1 = NULL;
-                                    css->objects[i].dp1 = new char[strlen((char*)tempsub[i].dp1)+1];
-                                    strcpy((char*)css->objects[i].dp1,(char*)tempsub[i].dp1);
-                                    break;
-                                    
-                                default:
-                                    memcpy(&css->objects[i],&tempsub[i],sizeof(subscreen_object));
-                                    break;
-                                }
-                            }
+                            SubscrWidget* widg = SubscrWidget::fromOld(*tempsub);
+							subscr_edit = *widg;
+							delete widg;
                         }
                         
                         if(sstemplatelist_dlg[4].d1==0)
                         {
-                            css->ss_type=sstACTIVE;
-                            strcpy(css->name, activesubscrtype_str[sstemplatelist_dlg[5].d1]);
+                            subscr_edit.sub_type=sstACTIVE;
+                            subscr_edit.name = activesubscrtype_str[sstemplatelist_dlg[5].d1];
                             subscreen_dlg[3].h=172*2;
                             subscreen_dlg[4].h=subscreen_dlg[3].h-4;
                         }
                         else
                         {
-                            css->ss_type=sstPASSIVE;
-                            strcpy(css->name, passivesubscrtype_str[sstemplatelist_dlg[5].d1]);
+                            subscr_edit.sub_type=sstPASSIVE;
+                            subscr_edit.name = passivesubscrtype_str[sstemplatelist_dlg[5].d1];
                             subscreen_dlg[3].h=120;
                             subscreen_dlg[4].h=subscreen_dlg[3].h-4;
                         }
@@ -4094,43 +3258,22 @@ int32_t onEditSubscreens()
                         {
                             tempsub = z3_passive_a;
                         }
-                        
-                        int32_t i;
-                        
-                        for(i=0; (i<MAXSUBSCREENITEMS&&tempsub[i].type!=ssoNULL); i++)
-                        {
-                            switch(tempsub[i].type)
-                            {
-                            case ssoTEXT:
-                            case ssoTEXTBOX:
-                            case ssoCURRENTITEMTEXT:
-                            case ssoCURRENTITEMCLASSTEXT:
-                                if(css->objects[i].dp1 != NULL) delete [](char *)css->objects[i].dp1;
-                                
-                                memcpy(&css->objects[i],&tempsub[i],sizeof(subscreen_object));
-                                css->objects[i].dp1 = NULL;
-                                css->objects[i].dp1 = new char[strlen((char*)tempsub[i].dp1)+1];
-                                strcpy((char*)css->objects[i].dp1,(char*)tempsub[i].dp1);
-                                break;
-                                
-                            default:
-                                memcpy(&css->objects[i],&tempsub[i],sizeof(subscreen_object));
-                                break;
-                            }
-                        }
+						SubscrWidget* widg = SubscrWidget::fromOld(*tempsub);
+						subscr_edit = *widg;
+						delete widg;
                         
                         if(sstemplatelist_dlg[4].d1==0)
                         {
-                            css->ss_type=sstACTIVE;
-                            strcpy(css->name, activesubscrtype_str[sstemplatelist_dlg[5].d1]);
+                            subscr_edit.sub_type=sstACTIVE;
+                            subscr_edit.name = activesubscrtype_str[sstemplatelist_dlg[5].d1];
                             subscreen_dlg[3].h=344;
                             subscreen_dlg[4].h=subscreen_dlg[3].h-4;
                             
                         }
                         else
                         {
-                            css->ss_type=sstPASSIVE;
-                            strcpy(css->name, passivesubscrtype_str[sstemplatelist_dlg[5].d1]);
+                            subscr_edit.sub_type=sstPASSIVE;
+                            subscr_edit.name = passivesubscrtype_str[sstemplatelist_dlg[5].d1];
                             subscreen_dlg[3].h=120;
                             subscreen_dlg[4].h=subscreen_dlg[3].h-4;
                         }
@@ -4141,11 +3284,15 @@ int32_t onEditSubscreens()
                     edit_it=false;
                 }
             }
+            if(subscr_edit.pages.empty())
+				subscr_edit.pages.emplace_back();
             
-            if(edit_it)
-            {
-                edit_subscreen();
-            }
+            if(edit_it && edit_subscreen())
+			{
+				if(ind < new_subscreen.size())
+					new_subscreen[ind] = subscr_edit;
+				else new_subscreen.push_back(subscr_edit);
+			}
         }
     }
     
@@ -4155,17 +3302,14 @@ int32_t onEditSubscreens()
 
 void update_sso_name()
 {
-    if(curr_subscreen_object<0)
-    {
-        sprintf(str_oname, "No object selected");
-    }
-    else
-    {
-        sprintf(str_oname, "%3d:  %s", curr_subscreen_object, sso_name(css->objects, curr_subscreen_object));
-    }
-    
-    subscreen_dlg[5].flags|=D_DIRTY;
-    subscreen_dlg[6].flags|=D_DIRTY;
+	SubscrWidget* w = subscr_edit_widg();
+	if(w)
+		sprintf(str_oname, "%3d:  %s", curr_subscreen_object, sso_name(w->getType()));
+	else
+		sprintf(str_oname, "No object selected");
+	
+	subscreen_dlg[5].flags|=D_DIRTY;
+	subscreen_dlg[6].flags|=D_DIRTY;
 }
 
 void center_zq_subscreen_dialogs()
@@ -4180,30 +3324,38 @@ void center_zq_subscreen_dialogs()
 
 void delete_subscreen(int32_t subscreenidx)
 {
-    if(custom_subscreen[subscreenidx].objects[0].type == ssoNULL)
-        return;
-        
-    //delete
-    reset_subscreen(&custom_subscreen[subscreenidx]);
-    
-    //and move all other subscreens up
-    for(int32_t i=subscreenidx+1; i<MAXCUSTOMSUBSCREENS; i++)
-    {
-        memcpy(&custom_subscreen[i-1], &custom_subscreen[i], sizeof(subscreen_group));
-    }
-    
-    //fix dmaps
-    int32_t dmap_count=count_dmaps();
-    
-    for(int32_t i=0; i<dmap_count; i++)
-    {
-        //decrement
-        if(DMaps[i].active_subscreen > subscreenidx)
-            DMaps[i].active_subscreen--;
-            
-        if(DMaps[i].passive_subscreen > subscreenidx)
-            DMaps[i].passive_subscreen--;
-    }
+	if(subscreenidx >= new_subscreen.size())
+		return;
+	
+	int32_t i = 0;
+	int32_t active_ind = 0, passive_ind = 0;
+	for(auto it = new_subscreen.begin(); it != new_subscreen.end(); ++it)
+	{
+		if(i++ == subscreenidx)
+		{
+			if((*it)->sub_type == sstACTIVE) passive_ind = -1;
+			else active_ind = -1;
+			i = -1;
+			new_subscreen.erase(it);
+			break;
+		}
+		if((*it)->sub_type == sstACTIVE) ++active_ind;
+		else ++passive_ind;
+	}
+	if(i != -1) active_ind = passive_ind = -1; //no deletion
+	
+	//fix dmaps
+	int32_t dmap_count=count_dmaps();
+	
+	for(int32_t i=0; i<dmap_count; i++)
+	{
+		//decrement
+		if(active_ind > -1 && DMaps[i].active_subscreen > active_ind)
+			DMaps[i].active_subscreen--;
+			
+		if(passive_ind > -1 && DMaps[i].passive_subscreen > passive_ind)
+			DMaps[i].passive_subscreen--;
+	}
 }
 
 // These were defined in ffscript.h; no need for them here

@@ -344,7 +344,6 @@ extern word     door_combo_set_count;
 extern word     introclk, intropos, dmapmsgclk, linkedmsgclk;
 extern int16_t    lensclk;
 extern int32_t     lensid;
-extern int32_t    Bpos;
 extern byte screengrid[22];
 extern byte screengrid_layer[2][22];
 extern byte ffcgrid[MAXFFCS/8];

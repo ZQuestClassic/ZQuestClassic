@@ -6421,7 +6421,7 @@ bool save_zgp(const char *path)
     return true;
 }
 
-bool save_subscreen(const char *path, bool *cancel)
+bool save_subscreen(const char *path, bool *cancel) //!TODO SUBSCR update to use new format
 {
 //  jwin_alert("Error","This feature not yet implemented.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 //  return false;
@@ -6500,7 +6500,7 @@ bool save_subscreen(const char *path, bool *cancel)
     return true;
 }
 
-bool load_subscreen(const char *path)
+bool load_subscreen(const char *path) //!TODO SUBSCR update to handle new format
 {
     int32_t ret;
     sslist_dlg[0].dp2=get_zc_font(font_lfont);
@@ -6566,7 +6566,7 @@ bool load_subscreen(const char *path)
     }
     
     //subscreens
-    if(read_one_subscreen(f,&header,sslist_dlg[2].d1,section_version,section_cversion)!=0)
+    if(read_one_old_subscreen(f,&header,sslist_dlg[2].d1,section_version,section_cversion)!=0)
     {
         pack_fclose(f);
         return false;

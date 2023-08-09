@@ -11240,35 +11240,11 @@ int32_t readherosprites(PACKFILE *f, zquestheader *Header)
     else return readherosprites2(f, s_version, dummy);
 }
 
-int32_t readsubscreens(PACKFILE *f, zquestheader *Header)
+int32_t read_old_subscreens(PACKFILE *f, word s_version)
 {
-    int32_t dummy;
-    word s_version=0, s_cversion=0;
-    
-    //section version info
-    if(!p_igetw(&s_version,f))
-    {
-        return qe_invalid;
-    }
-    
-    FFCore.quest_format[vSubscreen] = s_version;
-    
-    //al_trace("Subscreens version %d\n", s_version);
-    if(!p_igetw(&s_cversion,f))
-    {
-        return qe_invalid;
-    }
-    
-    //section size
-    if(!p_igetl(&dummy,f))
-    {
-        return qe_invalid;
-    }
-    
-    //finally...  section data
     for(int32_t i=0; i<MAXCUSTOMSUBSCREENS; i++)
     {
-        int32_t ret = read_one_subscreen(f, Header, i, s_version, s_cversion);
+        int32_t ret = read_one_old_subscreen(f, i, s_version);
         
         if(ret!=0) return ret;
     }
@@ -11276,7 +11252,7 @@ int32_t readsubscreens(PACKFILE *f, zquestheader *Header)
     return 0;
 }
 
-int32_t read_one_subscreen(PACKFILE *f, zquestheader *, int32_t i, word s_version, word)
+int32_t read_one_old_subscreen(PACKFILE *f, int32_t i, word s_version)
 {
     int32_t numsub=0;
     byte temp_ss=0;
@@ -12266,6 +12242,11 @@ int32_t setupsubscreens()
     }
     
     return 0;
+}
+
+int32_t read_subscreens(PACKFILE *f)
+{
+	
 }
 
 extern script_data *ffscripts[NUMSCRIPTFFC];

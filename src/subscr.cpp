@@ -35,10 +35,10 @@ extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
 extern HeroClass   Hero;
 extern FFScript FFCore;
 
-subscreen_group *current_subscreen_active;
-subscreen_group *current_subscreen_passive;
+ZCSubscreen *new_subscreen_active;
+ZCSubscreen *new_subscreen_passive;
 
-subscreen_group custom_subscreen[MAXCUSTOMSUBSCREENS];
+std::vector<ZCSubscreen> new_subscreen;
 
 static const int32_t notscrolling = sspUP | sspDOWN;
 static const int32_t pos = notscrolling | sspSCROLLING;
@@ -3710,7 +3710,7 @@ void animate_selectors()
     sel_b->animate(0);
 }
 
-void show_custom_subscreen(BITMAP *dest, subscreen_group *css, int32_t xofs, int32_t yofs, bool showtime, int32_t pos2)
+void show_custom_subscreen(BITMAP *dest, ZCSubscreen* subscr, int32_t xofs, int32_t yofs, bool showtime, int32_t pos2)
 {
 	//this is not a good place to be clearing the bitmap
 	//other stuff might already have been drawn on it that needs to be kept
@@ -3736,377 +3736,8 @@ void show_custom_subscreen(BITMAP *dest, subscreen_group *css, int32_t xofs, int
 	#endif
 	if(animate_sel)
 		animate_selectors();
-		
-	for(int32_t i=0; i<MAXSUBSCREENITEMS&&css->objects[i].type>ssoNULL; ++i)
-	{
-		if((css->objects[i].pos & pos2) != 0)
-		{
-			FONT *tempfont=get_zc_font(font_zfont);
-			int32_t fontnum=css->objects[i].d1;
-			tempfont=ss_font(fontnum);
-			int32_t x=css->objects[i].x+xofs;
-			int32_t y=css->objects[i].y+yofs;
-			
-			switch(css->objects[i].type)
-			{
-				case sso2X2FRAME:
-				{
-					//al_trace("2x2 Frame tile is: %d\n",css->objects[i].d1);
-					//in 1.92 and earlier, the 2x2 frame object was tile 278
-					frame2x2(dest, x, y, css->objects[i].d1, subscreen_cset(css->objects[i].colortype1, css->objects[i].color1), css->objects[i].w, css->objects[i].h, css->objects[i].d2, css->objects[i].d3 != 0, css->objects[i].d4 != 0);
-					//frame2x2(dest, x, y, FFCore.getQuestHeaderInfo(vZelda) < 0x193 ? 278 : css->objects[i].d1, subscreen_cset(css->objects[i].colortype1, css->objects[i].color1), css->objects[i].w, css->objects[i].h, css->objects[i].d2, css->objects[i].d3 != 0, css->objects[i].d4 != 0);
-				}
-				break;
-				
-				case ssoBSTIME:
-				{
-					char *ts;
-					
-					if(game)
-						ts = time_str_short2(game->get_time());
-					else
-						ts = time_str_short2(0);
-						
-					//textout_shadowed_ex(dest,tempfont,ts,x,y,subscreen_color(css->objects[i].colortype1, css->objects[i].color1),subscreen_color(css->objects[i].colortype2, css->objects[i].color2),subscreen_color(css->objects[i].colortype3, css->objects[i].color3));
-					textout_styled_aligned_ex(dest,tempfont,ts,x,y,css->objects[i].d3,css->objects[i].d2,subscreen_color(css->objects[i].colortype1, css->objects[i].color1),subscreen_color(css->objects[i].colortype2, css->objects[i].color2),subscreen_color(css->objects[i].colortype3, css->objects[i].color3));
-				}
-				break;
-				
-				case ssoSSTIME:
-				case ssoTIME:
-				{
-					if(showtime||css->objects[i].type==ssoTIME)
-					{
-						char *ts;
-						
-						if(game)
-							ts = time_str_med(game->get_time());
-						else
-							ts = time_str_med(0);
-							
-						//textout_right_ex(dest,tempfont,ts,x,y,subscreen_color(css->objects[i].colortype1, css->objects[i].color1),subscreen_color(css->objects[i].colortype2, css->objects[i].color2));
-						textout_styled_aligned_ex(dest,tempfont,ts,x,y,css->objects[i].d3,css->objects[i].d2,subscreen_color(css->objects[i].colortype1, css->objects[i].color1),subscreen_color(css->objects[i].colortype2, css->objects[i].color2),subscreen_color(css->objects[i].colortype3, css->objects[i].color3));
-					}
-				}
-				break;
-				
-				case ssoTEXT:
-				{
-					//textout_styled_aligned_ex(bmp, f,       s,                          x,y,textstyle,         alignment,         color,                                                                    shadow,                                                                   bg)
-					textout_styled_aligned_ex(dest,tempfont,(char *)css->objects[i].dp1,x,y,css->objects[i].d3,css->objects[i].d2,subscreen_color(css->objects[i].colortype1, css->objects[i].color1),subscreen_color(css->objects[i].colortype2, css->objects[i].color2),subscreen_color(css->objects[i].colortype3, css->objects[i].color3));
-				}
-				break;
-				
-				case ssoLINE:
-				{
-					if(css->objects[i].d4)
-					{
-						drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
-					}
-					
-					line(dest, x, y, x+css->objects[i].w-1, y+css->objects[i].h-1, subscreen_color(css->objects[i].colortype1, css->objects[i].color1));
-					
-					if(css->objects[i].d4)
-					{
-						drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
-					}
-				}
-				break;
-				
-				case ssoRECT:
-				{
-					if(css->objects[i].d2)
-					{
-						drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
-					}
-					
-					if(css->objects[i].d1!=0)
-					{
-						rectfill(dest, x, y, x+css->objects[i].w-1, y+css->objects[i].h-1, subscreen_color(css->objects[i].colortype2, css->objects[i].color2));
-					}
-					
-					rect(dest, x, y, x+css->objects[i].w-1, y+css->objects[i].h-1, subscreen_color(css->objects[i].colortype1, css->objects[i].color1));
-					
-					if(css->objects[i].d2)
-					{
-						drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
-					}
-				}
-				break;
-				
-				case ssoMAGICMETER:
-				{
-					magicmeter(dest, x, y);
-				}
-				break;
-				
-				case ssoLIFEMETER:
-				{
-					//lifemeter(dest, x, y, css->objects[i].d1, css->objects[i].d2 != 0);
-					lifemeter(dest, x, y, 1, css->objects[i].d2 != 0);
-				}
-				break;
-				
-				case ssoBUTTONITEM:
-				{
-					if(css->objects[i].d2)
-					{
-						drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
-					}
-					//zprint2("Button item ID is: %d\n", css->objects[i].d1);
-					buttonitem(dest, css->objects[i].d1, x, y);
-					
-					if(css->objects[i].d2)
-					{
-						drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
-					}
-				}
-				break;
-				
-				case ssoCOUNTERS:
-				{
-					defaultcounters(dest, x, y, tempfont,subscreen_color(css->objects[i].colortype1, css->objects[i].color1),subscreen_color(css->objects[i].colortype2, css->objects[i].color2),subscreen_color(css->objects[i].colortype3, css->objects[i].color3),css->objects[i].d2 != 0,css->objects[i].d3,css->objects[i].d4,css->objects[i].d5);
-				}
-				break;
-				
-				case ssoCOUNTER:
-				{
-					counter(dest, x, y, tempfont,subscreen_color(css->objects[i].colortype1, css->objects[i].color1),subscreen_color(css->objects[i].colortype2, css->objects[i].color2),subscreen_color(css->objects[i].colortype3, css->objects[i].color3),css->objects[i].d2,css->objects[i].d3,css->objects[i].d4,css->objects[i].d5,css->objects[i].d6&1, css->objects[i].d7, css->objects[i].d8, css->objects[i].d9, css->objects[i].d10, (css->objects[i].d6&2)!=0);
-				}
-				break;
-				
-				case ssoMINIMAPTITLE:
-				{
-					if(!css->objects[i].d4 || has_item(itype_map, get_dlevel()))
-					{
-						minimaptitle(dest, x, y, tempfont, subscreen_color(css->objects[i].colortype1, css->objects[i].color1),subscreen_color(css->objects[i].colortype2, css->objects[i].color2),subscreen_color(css->objects[i].colortype3, css->objects[i].color3), css->objects[i].d2, css->objects[i].d3);
-					}
-				}
-				break;
-				
-				case ssoMINIMAP:
-				{
-					//drawdmap(dest, x, y, showmap,                 showhero,           showcompass,        herocolor,                                                                 lccolor,                                                                   dccolor)
-					drawdmap(dest, x, y, css->objects[i].d1 != 0, css->objects[i].d2 && !(TheMaps[(DMaps[get_currdmap()].map*MAPSCRS)+get_homescr()].flags7&fNOHEROMARK),
-							 css->objects[i].d3 && !(DMaps[get_currdmap()].flags&dmfNOCOMPASS), subscreen_color(css->objects[i].colortype1, css->objects[i].color1), subscreen_color(css->objects[i].colortype2, css->objects[i].color2), subscreen_color(css->objects[i].colortype3, css->objects[i].color3));
-				}
-				break;
-				
-				case ssoLARGEMAP:
-				{
-					//putBmap(dest, x, y, showmap,                 showhero,              showrooms,             roomcolor,                                                                 herocolor,                                                                 large)
-					putBmap(dest, x, y, css->objects[i].d1 != 0, css->objects[i].d2!=0, css->objects[i].d3!=0, subscreen_color(css->objects[i].colortype1, css->objects[i].color1), subscreen_color(css->objects[i].colortype2, css->objects[i].color2), css->objects[i].d10 != 0);
-				}
-				break;
-				
-				case ssoCLEAR:
-				{
-					clear_to_color(dest,subscreen_color(css->objects[i].colortype1, css->objects[i].color1));
-				}
-				break;
-				
-				case ssoCURRENTITEM:
-				{
-					// Shouldn't really be checking is_zquest here, but it's okay for now...
-					if((css->objects[i].d2&SSCURRITEM_VISIBLE) || (is_zquest() && (zinit.ss_flags&ssflagSHOWINVIS)))
-					{
-						subscreenitem(dest, x, y, css->objects[i].d8>0 ? ((css->objects[i].d8-1) | 0x8000) : css->objects[i].d1);
-					}
-				}
-				break;
-				
-				case ssoTEXTBOX:
-				{
-					//draw_textbox(dest, x, y, w,                 h,                 tempfont, thetext,                     wword,                 tabsize,            alignment,          textstyle,          color,                                                                     shadowcolor,                                                               backcolor)
-					draw_textbox(dest, x, y, css->objects[i].w, css->objects[i].h, tempfont, (char *)css->objects[i].dp1, css->objects[i].d4!=0, css->objects[i].d5, css->objects[i].d2, css->objects[i].d3, subscreen_color(css->objects[i].colortype1, css->objects[i].color1), subscreen_color(css->objects[i].colortype2, css->objects[i].color2), subscreen_color(css->objects[i].colortype3, css->objects[i].color3));
-					//draw_textbox(dest, 0, 0, 200, 50, get_zc_font(font_sfont), "This is a test", 1, 4, 0, 0, subscreen_color(css->objects[i].colortype1, css->objects[i].color1), subscreen_color(css->objects[i].colortype2, css->objects[i].color2), subscreen_color(css->objects[i].colortype3, css->objects[i].color3));
-				}
-				break;
-				
-				case ssoSELECTEDITEMNAME:
-				{
-					int32_t itemid=Bweapon(Bpos);
-					
-					// If it's a combined bow and arrow, the item ID will have 0xF000 added.
-					if(itemid>=0xF000)
-						itemid-=0xF000;
-					
-					// 0 can mean either the item with index 0 is selected or there's no
-					// valid item to select, so be sure Hero has whatever it would be.
-					if(!game->get_item(itemid))
-						break;
-						
-					itemdata const& itm = itemsbuf[itemid];
-					char itemname[256]="";
-					strncpy(itemname, itm.get_name().c_str(), 255);
-					
-					draw_textbox(dest, x, y, css->objects[i].w, css->objects[i].h, tempfont, itemname, css->objects[i].d4!=0, css->objects[i].d5, css->objects[i].d2, css->objects[i].d3, subscreen_color(css->objects[i].colortype1, css->objects[i].color1), subscreen_color(css->objects[i].colortype2, css->objects[i].color2), subscreen_color(css->objects[i].colortype3, css->objects[i].color3));
-					// draw_textbox(dest, x, y, w,                 h,                 tempfont, thetext,  wword,                 tabsize,            alignment,          textstyle,          color,                                             shadowcolor,                                       backcolor);
-				}
-				break;
-				
-				case ssoTRIFRAME:
-				{
-					//puttriframe(dest, x, y, triframecolor,                                                             numbercolor,                                                               triframetile,       triframecset,       triforcetile,       triforcecset,       showframe,             showpieces,            largepieces)
-					puttriframe(dest, x, y, subscreen_color(css->objects[i].colortype1, css->objects[i].color1), subscreen_color(css->objects[i].colortype2, css->objects[i].color2), css->objects[i].d1, css->objects[i].d2, css->objects[i].d3, css->objects[i].d4, css->objects[i].d5!=0, css->objects[i].d6!=0, css->objects[i].d7!=0);
-				}
-				break;
-				
-				case ssoMCGUFFIN:
-				{
-					puttriforce(dest,x,y,css->objects[i].d1,subscreen_cset(css->objects[i].colortype1, css->objects[i].color1),css->objects[i].w,css->objects[i].h,css->objects[i].d2,css->objects[i].d3!=0,css->objects[i].d4!=0,css->objects[i].d5);
-				}
-				break;
-				
-				case ssoTILEBLOCK:
-				{
-					draw_block_flip(dest,x,y,css->objects[i].d1,subscreen_cset(css->objects[i].colortype1, css->objects[i].color1),css->objects[i].w,css->objects[i].h,css->objects[i].d2,css->objects[i].d3!=0,css->objects[i].d4!=0);
-				}
-				break;
-				
-				case ssoMINITILE:
-				{
-					int32_t t=css->objects[i].d1;
-					
-					if(t==-1)
-					{
-						switch(css->objects[i].d2)
-						{
-							case ssmstSSVINETILE:
-								t=wpnsbuf[iwSubscreenVine].tile*4;
-								break;
-								
-							case ssmstMAGICMETER:
-								t=wpnsbuf[iwMMeter].tile*4;
-								break;
-								
-							default:
-								t=(zc_oldrand()*100000)%32767;
-								break;
-						}
-					}
-					
-					t+=css->objects[i].d3;
-					
-					if(css->objects[i].d5)
-					{
-						if(css->objects[i].d6)
-						{
-							overtiletranslucent8(dest,t,x,y,subscreen_cset(css->objects[i].colortype1, css->objects[i].color1),css->objects[i].d4,128);
-						}
-						else
-						{
-							overtile8(dest,t,x,y,subscreen_cset(css->objects[i].colortype1, css->objects[i].color1),css->objects[i].d4);
-						}
-					}
-					else
-					{
-						if(css->objects[i].d6)
-						{
-							puttiletranslucent8(dest,t,x,y,subscreen_cset(css->objects[i].colortype1, css->objects[i].color1),css->objects[i].d4,128);
-						}
-						else
-						{
-							oldputtile8(dest,t,x,y,subscreen_cset(css->objects[i].colortype1, css->objects[i].color1),css->objects[i].d4);
-						}
-					}
-				}
-				break;
-				
-				case ssoSELECTOR1:
-				case ssoSELECTOR2:
-				{
-					int32_t p=-1;
-					
-					for(int32_t j=0; j<MAXSUBSCREENITEMS&&css->objects[j].type!=ssoNULL; ++j)
-					{
-						if(css->objects[j].type==ssoCURRENTITEM)
-						{
-							if(css->objects[j].d3==(int32_t)Bpos)
-							{
-								p=j;
-								break;
-							}
-						}
-					}
-					
-					bool big_sel=css->objects[i].d5 != 0;
-					item *tempsel=(css->objects[i].type==ssoSELECTOR1)?sel_a:sel_b;
-					int32_t temptile=tempsel->tile;
-					tempsel->drawstyle=0;
-					
-					if(css->objects[i].d4)
-					{
-						tempsel->drawstyle=1;
-					}
-					int32_t itemtype = css->objects[p].d8>0 ? ((css->objects[p].d8-1) | 0x8000) : css->objects[p].d1;
-					itemdata const& tmpitm = itemsbuf[get_subscreenitem_id(itemtype, true)];
-					bool oldsel = get_qr(qr_SUBSCR_OLD_SELECTOR);
-					if(!oldsel) big_sel = false;
-					int32_t sw = oldsel ? (tempsel->extend > 2 ? tempsel->txsz*16 : 16) : (tempsel->extend > 2 ? tempsel->hit_width : 16),
-						sh = oldsel ? (tempsel->extend > 2 ? tempsel->txsz*16 : 16) : (tempsel->extend > 2 ? tempsel->hit_height : 16),
-						dw = oldsel ? (tempsel->extend > 2 ? tempsel->txsz*16 : 16) : ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_WIDTH) ? tmpitm.hxsz : 16),
-						dh = oldsel ? (tempsel->extend > 2 ? tempsel->txsz*16 : 16) : ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_HEIGHT) ? tmpitm.hysz : 16);
-					int32_t sxofs = oldsel ? 0 : (tempsel->extend > 2 ? tempsel->hxofs : 0),
-						syofs = oldsel ? 0 : (tempsel->extend > 2 ? tempsel->hyofs : 0),
-						dxofs = oldsel ? (tempsel->extend > 2 ? (int)tempsel->xofs : 0) : ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_X_OFFSET) ? tmpitm.hxofs : 0) + (tempsel->extend > 2 ? (int)tempsel->xofs : 0),
-						dyofs = oldsel ? (tempsel->extend > 2 ? (int)tempsel->yofs : 0) : ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_Y_OFFSET) ? tmpitm.hyofs : 0) + (tempsel->extend > 2 ? (int)tempsel->yofs : 0);
-					BITMAP* tmpbmp = create_bitmap_ex(8,sw,sh);
-					for(int32_t j=0; j<4; ++j)
-					{
-						clear_bitmap(tmpbmp);
-						if(p!=-1)
-						{
-							tempsel->x=0;
-							tempsel->y=0;
-							int32_t tmpx = css->objects[p].x+xofs+(big_sel?(j%2?8:-8):0);
-							int32_t tmpy = css->objects[p].y+yofs+(big_sel?(j>1?8:-8):0);
-							tempsel->tile+=(zc_max(itemsbuf[tempsel->id].frames,1)*j);
-							
-							if(temptile)
-							{
-								tempsel->drawzcboss(tmpbmp);
-								tempsel->tile=temptile;
-							}
-							masked_stretch_blit(tmpbmp, dest, vbound(sxofs, 0, sw), vbound(syofs, 0, sh), sw-vbound(sxofs, 0, sw), sh-vbound(syofs, 0, sh), tmpx+dxofs, tmpy+dyofs, dw, dh);
-							
-							if(!big_sel)
-							{
-								break;
-							}
-						}
-					}
-					destroy_bitmap(tmpbmp);
-				}
-				break;
-				
-				case ssoMAGICGAUGE:
-				{
-					//          void magicgauge(BITMAP *dest,int32_t x,int32_t y, int32_t container, int32_t notlast_tile, int32_t notlast_cset, bool notlast_mod, int32_t last_tile, int32_t last_cset, bool last_mod,
-					//                          int32_t cap_tile, int32_t cap_cset, bool cap_mod, int32_t aftercap_tile, int32_t aftercap_cset, bool aftercap_mod, int32_t frames, int32_t speed, int32_t delay, bool unique_last,
-					//                          int32_t show)
-					magicgauge(dest,x,y, css->objects[i].d1, css->objects[i].d2, css->objects[i].colortype1, ((css->objects[i].d10&1)?1:0), css->objects[i].d3, css->objects[i].color1, ((css->objects[i].d10&2)?1:0),
-							   css->objects[i].d4, css->objects[i].colortype2, ((css->objects[i].d10&4)?1:0), css->objects[i].d5, css->objects[i].color2, ((css->objects[i].d10&8)?1:0), css->objects[i].d6, css->objects[i].d7, css->objects[i].d8, ((css->objects[i].d10&16)?1:0),
-							   css->objects[i].d9);
-				}
-				break;
-				
-				case ssoLIFEGAUGE:
-				{
-					lifegauge(dest,x,y, css->objects[i].d1, css->objects[i].d2, css->objects[i].colortype1, ((css->objects[i].d10&1)?1:0), css->objects[i].d3, css->objects[i].color1, ((css->objects[i].d10&2)?1:0),
-							  css->objects[i].d4, css->objects[i].colortype2, ((css->objects[i].d10&4)?1:0), css->objects[i].d5, css->objects[i].color2, ((css->objects[i].d10&8)?1:0), css->objects[i].d6, css->objects[i].d7, css->objects[i].d8, ((css->objects[i].d10&16)?1:0));
-				}
-				break;
-				
-				default:
-				{
-				}
-				break;
-			}
-			
-			//sso_bounding_box(dest, css, i, vc(15));
-		}
-	}
+	
+	subscr->draw(dest,xofs,yofs,showtime,pos2);
 }
 
 std::string get_subscr_arrow_name(int itemid)
@@ -5018,82 +4649,52 @@ void load_Sitems()
 
 void update_subscreens(int32_t dmap)
 {
-    if(dmap<0)
-        dmap=get_currdmap();
-        
-    int32_t index=DMaps[dmap].active_subscreen;
-    
-    int32_t i=-1, j=0;
-    
-    while(custom_subscreen[j].objects[0].type!=ssoNULL&&i!=index)
-    {
-        if(custom_subscreen[j].ss_type==sstACTIVE)
-        {
-            ++i;
-        }
-        
-        ++j;
-    }
-    
-    current_subscreen_active=&custom_subscreen[j-1];
-    
-    index=DMaps[dmap].passive_subscreen;
-    
-    i=-1, j=0;
-    
-    while(custom_subscreen[j].objects[0].type!=ssoNULL&&i!=index)
-    {
-        if(custom_subscreen[j].ss_type==sstPASSIVE)
-        {
-            ++i;
-        }
-        
-        ++j;
-    }
-    
-    current_subscreen_passive=&custom_subscreen[j-1];
+	if(dmap<0)
+		dmap=get_currdmap();
+		
+	int32_t index=DMaps[dmap].active_subscreen;
+	
+	int32_t i=-1, j=0;
+	
+	while(j < new_subscreen.size() && i!=index)
+	{
+		if(new_subscreen[j].sub_type==sstACTIVE)
+			++i;
+		
+		++j;
+	}
+	
+	new_subscreen_active=&new_subscreen[j-1];
+	
+	index=DMaps[dmap].passive_subscreen;
+	
+	i=-1, j=0;
+	
+	while(j < new_subscreen.size() && i!=index)
+	{
+		if(new_subscreen[j].sub_type==sstPASSIVE)
+			++i;
+		
+		++j;
+	}
+	
+	new_subscreen_passive=&new_subscreen[j-1];
 }
 
-int32_t ss_objects(subscreen_group *tempss)
+void purge_blank_subscreen_objects(SubscrPage& page)
 {
-    int32_t i=0;
-    
-    while(i<MAXSUBSCREENITEMS&&tempss->objects[i].type!=ssoNULL)
-    {
-        ++i;
-    }
-    
-    return i;
-}
-
-
-void purge_blank_subscreen_objects(subscreen_group *tempss)
-{
-    int32_t objects=ss_objects(tempss);
-    subscreen_object tempsso;
-    
-    //filter all the ssoNONE items to the end (yeah, bubble sort; sue me)
-    for(int32_t j=0; j<objects-1; j++)
-    {
-        for(int32_t k=0; k<objects-1-j; k++)
-        {
-            if(tempss->objects[k].type==ssoNONE)
-            {
-                tempsso=tempss->objects[k];
-                tempss->objects[k]=tempss->objects[k+1];
-                tempss->objects[k+1]=tempsso;
-            }
-        }
-    }
-    
-    //NULL out the ssoNONE items
-    for(int32_t j=0; j<objects; j++)
-    {
-        if(tempss->objects[j].type==ssoNONE)
-        {
-            tempss->objects[j].type=ssoNULL;
-        }
-    }
+	for(auto it = page.contents.begin(); it != page.contents.end();)
+	{
+		switch(*it->getType())
+		{
+			case ssoNONE: case ssoNULL:
+				it = page.contents.erase(it);
+				break;
+			default:
+				++it;
+				break;
+		}
+	}
 }
 
 

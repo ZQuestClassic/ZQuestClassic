@@ -24,7 +24,6 @@ extern item *sel_a, *sel_b;
 void subscreenitem(BITMAP *dest, int32_t x, int32_t y, int32_t itemtype);
 int32_t subscreen_color(int32_t c1, int32_t c2);
 void draw_textbox(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, FONT *tempfont, char *thetext, bool wword, int32_t tabsize, int32_t alignment, int32_t textstyle, int32_t color, int32_t shadowcolor, int32_t backcolor);
-int32_t Bweapon(int32_t pos);
 void lifegauge(BITMAP *dest,int32_t x,int32_t y, int32_t container, int32_t notlast_tile, int32_t notlast_cset, bool notlast_mod, int32_t last_tile, int32_t last_cset, bool last_mod,
 			   int32_t cap_tile, int32_t cap_cset, bool cap_mod, int32_t aftercap_tile, int32_t aftercap_cset, bool aftercap_mod, int32_t frames, int32_t speed, int32_t delay, bool unique_last);
 void magicgauge(BITMAP *dest,int32_t x,int32_t y, int32_t container, int32_t notlast_tile, int32_t notlast_cset, bool notlast_mod, int32_t last_tile, int32_t last_cset, bool last_mod,
@@ -1479,7 +1478,127 @@ byte SW_CurrentItem::getType() const
 }
 int32_t SW_CurrentItem::getItemVal() const
 {
+	#ifdef IS_PLAYER
+	if(iid > 0)
+	{
+		bool sel = false;
+		switch(itemsbuf[iid-1].family)
+		{
+			case itype_bomb:
+				if((game->get_bombs() ||
+						// Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
+						(itemsbuf[iid-1].misc1==0 && findWeaponWithParent(iid-1, wLitBomb))) ||
+						current_item_power(itype_bombbag))
+				{
+					select=true;
+				}
+				break;
+			case itype_bowandarrow:
+			case itype_arrow:
+				if(current_item_id(itype_bow)>-1)
+				{
+					select=true;
+				}
+				break;
+			case itype_letterpotion:
+				break;
+			case itype_sbomb:
+			{
+				int32_t bombbagid = current_item_id(itype_bombbag);
+				
+				if((game->get_sbombs() ||
+						// Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
+						(itemsbuf[iid-1].misc1==0 && findWeaponWithParent(iid-1, wLitSBomb))) ||
+						(current_item_power(itype_bombbag) && bombbagid>-1 && (itemsbuf[bombbagid].flags & ITEM_FLAG1)))
+				{
+					select=true;
+				}
+				break;
+			}
+			case itype_sword:
+			{
+				if(get_qr(qr_SELECTAWPN))
+					select=true;
+				break;
+			}
+			default:
+				select = true;
+				break;
+		}
+		if(select && !item_disabled(iid-1) && game->get_item(iid-1))
+		{
+			directItem = iid-1;
+			auto ret = iid-1;
+			if(directItem>-1 && itemsbuf[directItem].family == itype_arrow)
+				ret += 0xF000; //bow
+			return ret;
+		}
+		else return -1;
+	}
+	int32_t family = -1;
+	switch(iclass)
+	{
+		case itype_bomb:
+		{
+			int32_t bombid = current_item_id(itype_bomb);
+			
+			if((game->get_bombs() ||
+					// Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
+					(bombid>-1 && itemsbuf[bombid].misc1==0 && Lwpns.idCount(wLitBomb)>0)) ||
+					current_item_power(itype_bombbag))
+			{
+				family=itype_bomb;
+			}
+			break;
+		}
+		case itype_bowandarrow:
+		case itype_arrow:
+			if(current_item_id(itype_bow)>-1 && current_item_id(itype_arrow)>-1)
+			{
+				family=itype_arrow;
+			}
+			break;
+		case itype_letterpotion:
+			if(current_item_id(itype_potion)>-1)
+				family=itype_potion;
+			else if(current_item_id(itype_letter)>-1)
+				family=itype_letter;
+			break;
+		case itype_sbomb:
+		{
+			int32_t bombbagid = current_item_id(itype_bombbag);
+			int32_t sbombid = current_item_id(itype_sbomb);
+			
+			if((game->get_sbombs() ||
+					// Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
+					(sbombid>-1 && itemsbuf[sbombid].misc1==0 && Lwpns.idCount(wLitSBomb)>0)) ||
+					(current_item_power(itype_bombbag) && bombbagid>-1 && (itemsbuf[bombbagid].flags & ITEM_FLAG1)))
+			{
+				family=itype_sbomb;
+			}
+			break;
+		}
+		case itype_sword:
+		{
+			if(get_qr(qr_SELECTAWPN))
+				family=itype_sword;
+			break;
+		}
+		default:
+			family = iclass;
+			break;
+	}
+	if(family < 0)
+		return -1;
+	int32_t itemid = current_item_id(family,false);
+	if(item_disabled(itemid))
+		return -1;
+	if(iclass == itype_bowandarrow)
+		return itemid+0xF000;
+	return itemid;
+	#else
 	return iid>0 ? ((iid-1) | 0x8000) : iclass;
+	#endif
 }
 void SW_CurrentItem::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
@@ -1901,7 +2020,7 @@ void SW_Temp::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) c
 		
 		case ssoSELECTEDITEMNAME:
 		{
-			int32_t itemid=Bweapon(page.cursor_pos);
+			int32_t itemid=page.get_sel_item();
 			
 			// If it's a combined bow and arrow, the item ID will have 0xF000 added.
 			if(itemid>=0xF000)
@@ -2269,6 +2388,13 @@ SubscrWidget* SubscrWidget::readWidg(PACKFILE* f, word s_version)
 	byte ty;
 	if(!p_getc(&ty,f,true))
 		return nullptr;
+	SubscrWidget* widg = newType(ty);
+	if(widg && !widg->read(f,s_version))
+		widg = nullptr;
+	return widg;
+}
+SubscrWidget* SubscrWidget::newType(byte ty)
+{
 	SubscrWidget* widg = nullptr;
 	switch(ty)
 	{
@@ -2276,8 +2402,12 @@ SubscrWidget* SubscrWidget::readWidg(PACKFILE* f, word s_version)
 			widg = new SW_2x2Frame();
 			break;
 		case ssoTEXT:
-			widg = new SW_Text();
+		{
+			SW_Text* tmp;
+			widg = tmp = new SW_Text(ty);
+			tmp->c_text.type = ssctMISC;
 			break;
+		}
 		case ssoLINE:
 			widg = new SW_Line();
 			break;
@@ -2287,8 +2417,12 @@ SubscrWidget* SubscrWidget::readWidg(PACKFILE* f, word s_version)
 		case ssoBSTIME:
 		case ssoTIME:
 		case ssoSSTIME:
-			widg = new SW_Time(ty);
+		{
+			SW_Time* tmp;
+			widg = tmp = new SW_Time(ty);
+			tmp->c_text.type = ssctMISC;
 			break;
+		}
 		case ssoMAGICMETER:
 			widg = new SW_MagicMeter();
 			break;
@@ -2299,14 +2433,27 @@ SubscrWidget* SubscrWidget::readWidg(PACKFILE* f, word s_version)
 			widg = new SW_ButtonItem();
 			break;
 		case ssoCOUNTER:
-			widg = new SW_Counter();
+		{
+			SW_Counter* tmp;
+			widg = tmp = new SW_Counter();
+			tmp->infitm = -1; //(None) inf item
+			tmp->c_text.type = ssctMISC; //Default text color
 			break;
+		}
 		case ssoCOUNTERS:
-			widg = new SW_Counters();
+		{
+			SW_Counters* tmp;
+			widg = tmp = new SW_Counters(ty);
+			tmp->c_text.type = ssctMISC;
 			break;
+		}
 		case ssoMINIMAPTITLE:
-			widg = new SW_MMapTitle();
+		{
+			SW_MMapTitle* tmp;
+			widg = tmp = new SW_MMapTitle(ty);
+			tmp->c_text.type = ssctMISC;
 			break;
+		}
 		case ssoMINIMAP:
 			widg = new SW_MMap();
 			break;
@@ -2333,19 +2480,31 @@ SubscrWidget* SubscrWidget::readWidg(PACKFILE* f, word s_version)
 			break;
 		case ssoSELECTOR1:
 		case ssoSELECTOR2:
-		case ssoMAGICGAUGE:
 		case ssoLIFEGAUGE:
-		case ssoTEXTBOX:
 		case ssoCURRENTITEMTILE:
 		case ssoSELECTEDITEMTILE:
 		case ssoCURRENTITEMTEXT:
 		case ssoCURRENTITEMNAME:
-		case ssoSELECTEDITEMNAME:
 		case ssoCURRENTITEMCLASSTEXT:
 		case ssoCURRENTITEMCLASSNAME:
 		case ssoSELECTEDITEMCLASSNAME:
 			widg = new SW_Temp(ty); //!TODO SUBSCR
 			break;
+		case ssoMAGICGAUGE:
+		{
+			SW_Temp* tmp;
+			widg = tmp = new SW_Temp(ty); //!TODO SUBSCR
+			tmp->old.d9 = -1; // 'Always show' by default
+			break;
+		}
+		case ssoSELECTEDITEMNAME:
+		case ssoTEXTBOX:
+		{
+			SW_Temp* tmp;
+			widg = tmp = new SW_Temp(ty); //!TODO SUBSCR
+			tmp->old.colortype1 = ssctMISC;
+			break;
+		}
 		case ssoITEM:
 		{
 			widg = new SubscrWidget(ty);
@@ -2365,9 +2524,277 @@ SubscrWidget* SubscrWidget::readWidg(PACKFILE* f, word s_version)
 			widg = new SubscrWidget(ty); //Nothingness
 			break;
 	}
-	if(widg && !widg->read(f,s_version))
-		widg = nullptr;
+	if(widg && !widg->type)
+		widg->type = ty;
 	return widg;
+}
+
+void SubscrPage::move_cursor(int dir, bool item_only)
+{
+	//what will be returned when all else fails.
+	//don't return the forbiddenpos... no matter what -DD
+	
+	// verify startpos
+	if(cursor_pos < 0 || cursor_pos >= 0xFF)
+		cursor_pos = 0;
+	
+	auto& objects = contents;
+	
+	item_only = item_only || !get_qr(qr_FREEFORM_SUBSCREEN_CURSOR);
+	bool verify = type==SEL_VERIFY_RIGHT || type==SEL_VERIFY_LEFT;
+	
+	if(verify)
+	{
+		SubscrWidget* widg = get_widg_pos(cursor_pos);
+		int32_t wpn = widg ? widg->getItemVal() : -1;
+		auto startind = get_subscr_itemind(cursor_pos);
+		if(wpn > 0 && widg->getType() == ssoCURRENTITEM && !(widg->flags&SUBSCR_CURITM_NONEQP))
+			return;
+	}
+	
+	int32_t p=-1;
+	int32_t curpos = cursor_pos;
+	int32_t firstValidPos=-1;
+	
+	for(int32_t i=0; i < contents.size(); ++i)
+	{
+		if(contents[i]->flags&SUBSCRFLAG_SELECTABLE)
+		{
+			if(firstValidPos==-1 && contents[i]->pos>=0)
+				firstValidPos=i;
+			
+			if(contents[i]->pos==curpos)
+				p=i;
+			if(p>-1 && firstValidPos>-1)
+				break;
+		}
+	}
+	
+	if(p == -1)
+	{
+		if(firstValidPos>=0)
+			cursor_pos = contents[firstValidPos]->pos;
+		return;
+	}
+	
+	//remember we've been here
+	set<int32_t> oldPositions;
+	oldPositions.insert(curpos);
+	
+	//1. Perform any shifts required by the above
+	//2. If that's not possible, go to position 1 and reset the b weapon.
+	//2a.  -if we arrive at a position we've already visited, give up and stay there
+	//3. Get the weapon at the new slot
+	//4. If it's not possible, go to step 1.
+	
+	for(;;)
+	{
+		//shift
+		switch(type)
+		{
+			case SEL_LEFT:
+			case SEL_VERIFY_LEFT:
+				curpos = contents[p]->pos_left;
+				break;
+				
+			case SEL_RIGHT:
+			case SEL_VERIFY_RIGHT:
+				curpos = contents[p]->pos_right;
+				break;
+				
+			case SEL_DOWN:
+				curpos = contents[p]->pos_down;
+				break;
+				
+			case SEL_UP:
+				curpos = contents[p]->pos_up;
+				break;
+		}
+		
+		//find our new position
+		SubscrWidget* widg = get_widg_pos(curpos,false);
+		
+		if(!widg)
+			return;
+		
+		//if we've already been here, give up
+		if(oldPositions.find(curpos) != oldPositions.end())
+			return;
+		
+		//else, remember we've been here
+		oldPositions.insert(curpos);
+		
+		//Valid stop point?
+		if((widg->flags & SUBSCRFLAG_SELECTABLE) && (!item_only || widg->getItemVal()))
+		{
+			cursor_pos = curpos;
+			return;
+		}
+	}
+}
+int32_t SubscrPage::move_legacy(int dir, int startp, int fp, int fp2, int fp3, bool equip_only, bool item_only)
+{
+	//what will be returned when all else fails.
+	//don't return the forbiddenpos... no matter what -DD
+	
+	int32_t failpos(0);
+	
+	if(startp == fp || startp == fp2 || startp == fp3)
+		failpos = 0xFF;
+	else failpos = startp;
+	
+	// verify startpos
+	if(startp < 0 || startp >= 0xFF)
+		startp = 0;
+		
+	if(current_subscreen_active == NULL)
+		return failpos;
+	auto& objects = contents;
+	
+	item_only = item_only || !get_qr(qr_FREEFORM_SUBSCREEN_CURSOR);
+	bool verify = type==SEL_VERIFY_RIGHT || type==SEL_VERIFY_LEFT;
+	
+	if(verify)
+	{
+		SubscrWidget* widg = get_widg_pos(startp);
+		int32_t wpn = widg ? widg->getItemVal() : -1;
+		equip_only = item_only = true;
+		auto startind = get_subscr_itemind(startp);
+		if(widg->getType() != ssoCURRENTITEM || (widg->flags&SUBSCR_CURITM_NONEQP))
+			wpn = -1;
+		
+		if(wpn > 0 && startp != fp && startp != fp2 && startp != fp3)
+		{
+			return startp;
+		}
+	}
+	
+	int32_t p=-1;
+	int32_t curpos = startp;
+	int32_t firstValidPos=-1, firstValidEquipPos=-1;
+	
+	for(int32_t i=0; i < contents.size(); ++i)
+	{
+		if(contents[i]->getType()==ssoCURRENTITEM && (contents[i]->flags&SUBSCRFLAG_SELECTABLE))
+		{
+			if(firstValidPos==-1 && contents[i]->pos>=0)
+				firstValidPos=i;
+			if(firstValidEquipPos==-1 && contents[i]->pos>=0)
+				if(!equip_only || !(contents[i]->flags&SUBSCR_CURITM_NONEQP))
+					firstValidEquipPos=i;
+			
+			if(contents[i]->pos==curpos)
+				p=i;
+			if(p>-1 && firstValidPos>-1 && firstValidEquipPos>-1)
+				break;
+		}
+	}
+	
+	if(p == -1)
+	{
+		//can't find the current position
+		// Switch to a valid weapon if there is one; otherwise,
+		// the selector can simply disappear
+		if(firstValidEquipPos>=0)
+			return contents[firstValidEquipPos]->pos;
+		if(firstValidPos>=0)
+			return contents[firstValidPos]->pos;
+		//FAILURE
+		else return failpos;
+	}
+	
+	//remember we've been here
+	set<int32_t> oldPositions;
+	oldPositions.insert(curpos);
+	
+	//1. Perform any shifts required by the above
+	//2. If that's not possible, go to position 1 and reset the b weapon.
+	//2a.  -if we arrive at a position we've already visited, give up and stay there
+	//3. Get the weapon at the new slot
+	//4. If it's not possible, go to step 1.
+	
+	for(;;)
+	{
+		//shift
+		switch(type)
+		{
+			case SEL_LEFT:
+			case SEL_VERIFY_LEFT:
+				curpos = contents[p]->pos_left;
+				break;
+				
+			case SEL_RIGHT:
+			case SEL_VERIFY_RIGHT:
+				curpos = contents[p]->pos_right;
+				break;
+				
+			case SEL_DOWN:
+				curpos = contents[p]->pos_down;
+				break;
+				
+			case SEL_UP:
+				curpos = contents[p]->pos_up;
+				break;
+		}
+		
+		//find our new position
+		SubscrWidget* widg = get_widg_pos(curpos,false);
+		
+		if(!widg)
+			return failpos;
+		
+		//if we've already been here, give up
+		if(oldPositions.find(curpos) != oldPositions.end())
+			return failpos;
+		
+		//else, remember we've been here
+		oldPositions.insert(curpos);
+		
+		//Valid stop point?
+		if(widg->flags & SUBSCRFLAG_SELECTABLE)
+			if(curpos != fp && curpos != fp2 && curpos != fp3)
+				if(!equip_only || !(widg->flags & SUBSCR_CURITM_NONEQP))
+					if(!item_only || widg->getItemVal())
+						return curpos;
+	}
+}
+SubscrWidget* get_widg_pos(int32_t pos, bool sel_only)
+{
+	for(size_t q = 0; q < contents.size(); ++q)
+	{
+		if(sel_only && !(contents[q]->flags & SUBSCRFLAG_SELECTABLE))
+			continue;
+		if(contents[q]->pos == pos)
+			return contents[q];
+	}
+	return nullptr;
+}
+int32_t get_item_pos(int32_t pos, bool sel_only)
+{
+	auto* w = get_widg_pos(pos,sel_only);
+	if(w)
+		return w->getItemVal();
+	return -1;
+}
+SubscrWidget* get_sel_widg()
+{
+	return get_widg_pos(cursor_pos);
+}
+int32_t get_sel_item()
+{
+	auto* w = get_sel_widg();
+	if(w)
+		return w->getItemVal();
+	return -1;
+}
+int32_t get_item_pos(int32_t id)
+{
+	for(SubscrWidget* widg : contents)
+	{
+		if(id == w->getItemVal())
+			return w->pos;
+	}
+	return -1;
 }
 
 void SubscrPage::clear()
@@ -2434,6 +2861,17 @@ int32_t SubscrPage::write(PACKFILE *f) const
 	return 0;
 }
 
+SubscrPage& ZCSubscreen::get_page()
+{
+	if(pages.empty())
+		pages.emplace_back();
+	curpage = vbound(curpage,pages.size()-1,0);
+	return pages[curpage];
+}
+void ZCSubscreen::clear()
+{
+	*this = ZCSubscreen();
+}
 void ZCSubscreen::draw(BITMAP* dest, int32_t xofs, int32_t yofs, byte pos, bool showtime)
 {
 	if(pages.empty()) return;

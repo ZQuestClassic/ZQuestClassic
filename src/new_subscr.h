@@ -62,6 +62,16 @@ struct SubscrColorInfo
 
 enum
 {
+	SEL_UP,
+	SEL_LEFT,
+	SEL_DOWN,
+	SEL_RIGHT,
+	SEL_VERIFY_LEFT,
+	SEL_VERIFY_RIGHT
+};
+
+enum
+{
 	ssoNULL, ssoNONE,
 	sso2X2FRAME, ssoTEXT, ssoLINE, ssoRECT, ssoBSTIME,
 	ssoTIME, ssoSSTIME, ssoMAGICMETER, ssoLIFEMETER, ssoBUTTONITEM,
@@ -135,6 +145,7 @@ struct SubscrWidget
 	
 	static SubscrWidget* fromOld(subscreen_object const& old);
 	static SubscrWidget* readWidg(PACKFILE* f, word s_version);
+	static SubscrWidget* newType(byte type);
 protected:
 	byte type;
 	
@@ -574,7 +585,15 @@ protected:
 struct SubscrPage
 {
 	std::vector<SubscrWidget*> contents;
-	int32_t cursor_pos;
+	int32_t cursor_pos, init_cursor_pos;
+	
+	void move_cursor(int dir, bool item_only);
+	void move_legacy(int dir, int startp, int fp=-1, int fp2=-1, int fp3=-1, bool equip_only=true, bool item_only=true);
+	SubscrWidget* get_widg_pos(int32_t pos, bool sel_only = true);
+	SubscrWidget* get_sel_widg();
+	int32_t get_item_pos(int32_t pos, bool sel_only = true);
+	int32_t get_sel_item();
+	int32_t get_item_pos(int32_t itemid);
 	
 	void clear();
 	void draw(BITMAP* dest, int32_t xofs, int32_t yofs, byte pos, bool showtime);
@@ -593,6 +612,8 @@ struct ZCSubscreen
 	byte curpage, sub_type;
 	std::string name;
 	
+	SubscrPage& cur_page();
+	void clear();
 	void draw(BITMAP* dest, int32_t xofs, int32_t yofs, byte pos, bool showtime);
 	int32_t read(PACKFILE *f, word s_version);
 	int32_t write(PACKFILE *f) const;

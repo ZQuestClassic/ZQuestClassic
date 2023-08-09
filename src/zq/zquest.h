@@ -1165,7 +1165,7 @@ int32_t get_bmaps(int32_t si);
 
 bool no_subscreen();
 
-extern int32_t Awpn, Bwpn, Bpos, Xwpn, Ywpn;
+extern int32_t Awpn, Bwpn, Xwpn, Ywpn;
 extern sprite_list Sitems;
 
 int32_t main(int32_t argc,char **argv);
