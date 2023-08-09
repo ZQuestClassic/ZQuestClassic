@@ -575,7 +575,7 @@ GUI::ListData GUI::ZCListData::sfxnames(bool numbered)
 		char const* sfx_name = sfx_string[i];
 		if(numbered)
 			ls.add(fmt::format("{} ({:03})", sfx_name, i), i);
-		else ls.add(sfx_name, q);
+		else ls.add(sfx_name, i);
 	}
 	
 	return ls;
