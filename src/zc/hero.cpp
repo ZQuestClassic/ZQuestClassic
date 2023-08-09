@@ -27447,8 +27447,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	}
 	FFCore.ScrollingData[SCROLLDATA_NEW_REGION_OFFSET_X] = new_region_offset_x;
 	FFCore.ScrollingData[SCROLLDATA_NEW_REGION_OFFSET_Y] = new_region_offset_y;
-	FFCore.ScrollingData[SCROLLDATA_NRX] = new_region_offset_x;
-	FFCore.ScrollingData[SCROLLDATA_NRY] = new_region_offset_y;
+	FFCore.ScrollingData[SCROLLDATA_NRX] = new_region_offset_x - viewport.x;
+	FFCore.ScrollingData[SCROLLDATA_NRY] = new_region_offset_y - viewport.y;
 	FFCore.ScrollingData[SCROLLDATA_ORX] = 0;
 	FFCore.ScrollingData[SCROLLDATA_ORY] = 0;
 
