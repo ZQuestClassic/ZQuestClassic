@@ -2100,10 +2100,17 @@ bool SW_MiniTile::load_old(subscreen_object const& old)
 	if(old.type != ssoMINITILE)
 		return false;
 	SubscrWidget::load_old(old);
-	if(old.d1 == -1) tile = -1;
-	else tile = old.d1>>2;
+	if(old.d1 == -1)
+	{
+		tile = -1;
+		crn = old.d3;
+	}
+	else
+	{
+		tile = old.d1>>2;
+		crn = old.d1&0b11;
+	}
 	special_tile = old.d2;
-	crn = old.d3;
 	flip = old.d4;
 	SETFLAG(flags,SUBSCR_MINITL_OVERLAY,old.d5);
 	SETFLAG(flags,SUBSCR_MINITL_TRANSP,old.d6);
@@ -2659,7 +2666,7 @@ SubscrWidget* SubscrWidget::readWidg(PACKFILE* f, word s_version)
 	if(!p_getc(&ty,f))
 		return nullptr;
 	SubscrWidget* widg = newType(ty);
-	if(widg && !widg->read(f,s_version))
+	if(widg && widg->read(f,s_version))
 		widg = nullptr;
 	return widg;
 }
