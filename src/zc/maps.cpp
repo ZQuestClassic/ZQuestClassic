@@ -3370,11 +3370,11 @@ void do_layer(BITMAP *bmp, int32_t type, int32_t layer, mapscr* basescr, int32_t
         break;
     }
 	
-    if(!type)
+	if(!type || type == -2)
 	{
 		if(!lenscheck(basescr,layer))
 			showlayer = false;
-    }
+	}
     
 	
     if(showlayer)
