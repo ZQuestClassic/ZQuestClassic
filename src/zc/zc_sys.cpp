@@ -5895,7 +5895,6 @@ int32_t zc_load_zmod_module_file()
 		zcm.init(true); //Load the module values.
 		moduledata.refresh_title_screen = 1;
 //		refresh_select_screen = 1;
-		build_biic_list();
 		return D_O_K;
 }
 

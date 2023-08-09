@@ -468,11 +468,11 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			}
 			case ssoSELECTEDITEMNAME:
 			{
-				// SW_* w = dynamic_cast<SW_*>(local_subref);
-				// col_grid->add(MISC_COLOR_SEL(w->c_text, "Text Color", 1));
-				// col_grid->add(MISC_COLOR_SEL(w->c_shadow, "Shadow Color", 2));
-				// col_grid->add(MISC_COLOR_SEL(w->c_bg, "Background Color", 3));
-				break; //!TODO
+				SW_SelectedText* w = dynamic_cast<SW_SelectedText*>(local_subref);
+				col_grid->add(MISC_COLOR_SEL(w->c_text, "Text Color", 1));
+				col_grid->add(MISC_COLOR_SEL(w->c_shadow, "Shadow Color", 2));
+				col_grid->add(MISC_COLOR_SEL(w->c_bg, "Background Color", 3));
+				break;
 			}
 			case ssoSELECTOR1:
 			case ssoSELECTOR2:
@@ -911,20 +911,20 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			}
 			case ssoSELECTEDITEMNAME:
 			{
-				// SW_* w = dynamic_cast<SW_*>(local_subref);
-				// attrib_grid = Rows<2>(
-					// Label(text = "Font:", hAlign = 1.0),
-					// DDL_FONT(d1),
-					// Label(text = "Style:", hAlign = 1.0),
-					// DDL(d3, list_shadtype),
-					// Label(text = "Alignment:", hAlign = 1.0),
-					// DDL(d2, list_aligns),
-					// Label(text = "Wrapping:", hAlign = 1.0),
-					// DDL(d4, wrapping_type_list),
-					// Label(text = "Tab Size:", hAlign = 1.0),
-					// NUM_FIELD(d5,0,99)
-				// );
-				break; //!TODO
+				SW_SelectedText* w = dynamic_cast<SW_SelectedText*>(local_subref);
+				attrib_grid = Rows<2>(
+					Label(text = "Font:", hAlign = 1.0),
+					DDL_FONT(w->fontid),
+					Label(text = "Style:", hAlign = 1.0),
+					DDL(w->shadtype, list_shadtype),
+					Label(text = "Alignment:", hAlign = 1.0),
+					DDL(w->align, list_aligns),
+					Label(text = "Tabsize:", hAlign = 0.0),
+					NUM_FIELD(w->tabsize,0,99),
+					//
+					CBOX(w->flags,SUBSCR_SELTEXT_WORDWRAP,"Word Wrap",2)
+				);
+				break;
 			}
 			case ssoSELECTOR1:
 			case ssoSELECTOR2:
@@ -1177,7 +1177,7 @@ void SubscrPropDialog::updateColors()
 		case ssoMINITILE:
 		case ssoTILEBLOCK:
 		{
-			tswatches[0]->setCSet(subscreen_cset(cs_sel[0]->getC1(), cs_sel[0]->getC2()));
+			tswatches[0]->setCSet(SubscrColorInfo::get_cset(cs_sel[0]->getC1(), cs_sel[0]->getC2()));
 			break;
 		}
 	}

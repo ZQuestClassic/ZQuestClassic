@@ -97,8 +97,6 @@ DIALOG strlist_dlg[] =
 	{ NULL,                  0,      0,      0,      0,        0,     0,     0,      0,       0,             0,       NULL,  NULL,  NULL }
 };
 
-extern ListData shadowstyle_list;
-
 DIALOG editmsg_help_dlg[] =
 {
 	/* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)      (d2)      (dp) */

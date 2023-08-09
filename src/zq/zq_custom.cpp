@@ -39,22 +39,11 @@ extern FFScript FFCore;
 
 extern int32_t ex;
 extern void reset_itembuf(itemdata *item, int32_t id);
-extern const char *item_class_list(int32_t index, int32_t *list_size);
 extern const char *sfxlist(int32_t index, int32_t *list_size);
 // zq_subscr.cpp
-extern int32_t d_qtile_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t d_ctl_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t d_csl_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t d_csl2_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t d_tileblock_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t d_stilelist_proc(int32_t msg,DIALOG *d,int32_t c);
 extern int32_t sstype_drop_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t jwin_fontdrop_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t jwin_tflpcheck_proc(int32_t msg,DIALOG *d,int32_t c);
-extern int32_t jwin_lscheck_proc(int32_t msg,DIALOG *d,int32_t c);
 
 extern int32_t biw_cnt;
-extern int32_t biic_cnt;
 
 extern ZModule zcm;
 extern zcmodule moduledata;
@@ -159,7 +148,7 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 				d[i].w *= 2;
 				d[i].w -= 4;
 			}
-			else if(d[i].proc == d_wflag_proc || d[i].proc==d_bitmap_proc || d[i].proc == d_maptile_proc || d[i].proc==d_qtile_proc ||  d[i].proc==d_tileblock_proc)
+			else if(d[i].proc == d_wflag_proc || d[i].proc==d_bitmap_proc || d[i].proc == d_maptile_proc)
 			{
 				d[i].w *= 2;
 			}
@@ -175,13 +164,13 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 			if((d[i].proc == d_maptile_proc && d[i].dp2!=(void*)1) || d[i].proc==d_intro_edit_proc || d[i].proc==d_title_edit_proc)
 			{
 			}
-			else if(d[i].proc == jwin_edit_proc || d[i].proc == jwin_check_proc || d[i].proc == jwin_checkfont_proc || d[i].proc == jwin_tflpcheck_proc || d[i].proc == jwin_lscheck_proc)
+			else if(d[i].proc == jwin_edit_proc || d[i].proc == jwin_check_proc || d[i].proc == jwin_checkfont_proc)
 			{
 				d[i].h = int32_t((double)d[i].h*1.5);
 			}
 			else if(d[i].proc == jwin_droplist_proc || d[i].proc == d_ndroplist_proc || d[i].proc == d_idroplist_proc || d[i].proc == d_nidroplist_proc || d[i].proc == d_dropdmaplist_proc
-					|| d[i].proc == d_dropdmaptypelist_proc || d[i].proc == jwin_as_droplist_proc  || d[i].proc == d_ffcombolist_proc || d[i].proc == sstype_drop_proc || d[i].proc == d_ctl_proc
-					|| d[i].proc == jwin_fontdrop_proc || d[i].proc == d_csl_proc || d[i].proc == d_csl2_proc || d[i].proc == d_stilelist_proc || d[i].proc == d_comboalist_proc)
+					|| d[i].proc == d_dropdmaptypelist_proc || d[i].proc == jwin_as_droplist_proc  || d[i].proc == d_ffcombolist_proc || d[i].proc == sstype_drop_proc
+					|| d[i].proc == d_comboalist_proc)
 			{
 				d[i].y += int32_t((double)d[i].h*0.25);
 				d[i].h = int32_t((double)d[i].h*1.25);
@@ -191,7 +180,7 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 				d[i].h *= 2;
 				d[i].h -= 4;
 			}
-			else if(d[i].proc == d_wflag_proc || d[i].proc==d_bitmap_proc || d[i].proc == d_maptile_proc || d[i].proc==d_qtile_proc || d[i].proc==d_tileblock_proc)
+			else if(d[i].proc == d_wflag_proc || d[i].proc==d_bitmap_proc || d[i].proc == d_maptile_proc)
 			{
 				d[i].h *= 2;
 			}
@@ -225,8 +214,8 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 		// Bigger font
 		bool bigfontproc = (d[i].proc != jwin_droplist_proc && d[i].proc != jwin_abclist_proc && d[i].proc != d_wlist_proc && d[i].proc != jwin_list_proc && d[i].proc != d_dmaplist_proc
 							&& d[i].proc != d_dropdmaplist_proc && d[i].proc != d_xmaplist_proc && d[i].proc != d_dropdmaptypelist_proc && d[i].proc != d_warplist_proc && d[i].proc != d_warplist_proc && d[i].proc != d_wclist_proc && d[i].proc != d_ndroplist_proc
-							&& d[i].proc != d_idroplist_proc && d[i].proc != d_nidroplist_proc && d[i].proc != jwin_as_droplist_proc && d[i].proc != d_ffcombolist_proc && d[i].proc != d_enelist_proc && d[i].proc != sstype_drop_proc && d[i].proc !=  d_ctl_proc
-							&& d[i].proc != jwin_fontdrop_proc && d[i].proc != d_csl_proc && d[i].proc != d_csl2_proc && d[i].proc != d_stilelist_proc && d[i].proc != d_comboalist_proc);
+							&& d[i].proc != d_idroplist_proc && d[i].proc != d_nidroplist_proc && d[i].proc != jwin_as_droplist_proc && d[i].proc != d_ffcombolist_proc && d[i].proc != d_enelist_proc && d[i].proc != sstype_drop_proc
+							&& d[i].proc != d_comboalist_proc);
 							
 		if(bigfontproc && !d[i].dp2)
 		{

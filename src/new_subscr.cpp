@@ -37,6 +37,78 @@ void magicgauge(BITMAP *dest,int32_t x,int32_t y, int32_t container, int32_t not
 				int32_t cap_tile, int32_t cap_cset, bool cap_mod, int32_t aftercap_tile, int32_t aftercap_cset, bool aftercap_mod, int32_t frames, int32_t speed, int32_t delay, bool unique_last, int32_t show);
 int32_t get_subscreenitem_id(int32_t itemtype, bool forceItem);
 
+int32_t to_real_font(int32_t ss_font)
+{
+	switch(ss_font)
+	{
+		case ssfSMALL: return font_sfont;
+		case ssfSMALLPROP: return font_spfont;
+		case ssfSS1: return font_ssfont1;
+		case ssfSS2: return font_ssfont2;
+		case ssfSS3: return font_ssfont3;
+		case ssfSS4: return font_ssfont4;
+		case ssfZTIME: return font_ztfont;
+		case ssfZELDA: return font_zfont;
+		case ssfZ3: return font_z3font;
+		case ssfZ3SMALL: return font_z3smallfont;
+		case ssfGBLA: return font_gblafont;
+		case ssfGORON: return font_goronfont;
+		case ssfZORAN: return font_zoranfont;
+		case ssfHYLIAN1: return font_hylian1font;
+		case ssfHYLIAN2: return font_hylian2font;
+		case ssfHYLIAN3: return font_hylian3font;
+		case ssfHYLIAN4: return font_hylian4font;
+		case ssfGBORACLE: return font_gboraclefont;
+		case ssfGBORACLEP: return font_gboraclepfont;
+		case ssfDSPHANTOM: return font_dsphantomfont;
+		case ssfDSPHANTOMP: return font_dsphantompfont;
+		case ssfAT800: return font_atari800font;
+		case ssfACORN: return font_acornfont;
+		case ssADOS: return font_adosfont;
+		case ssfALLEG: return font_baseallegrofont;
+		case ssfAPL2: return font_apple2font;
+		case ssfAPL280: return font_apple280colfont;
+		case ssfAPL2GS: return font_apple2gsfont;
+		case ssfAQUA: return font_aquariusfont;
+		case ssfAT400: return font_atari400font;
+		case ssfC64: return font_c64font;
+		case ssfC64HR: return font_c64hiresfont;
+		case ssfCGA: return font_cgafont;
+		case ssfCOCO: return font_cocofont;
+		case ssfCOCO2: return font_coco2font;
+		case ssfCOUPE: return font_coupefont;
+		case ssfCPC: return font_cpcfont;
+		case ssfFANTASY: return font_fantasyfont;
+		case ssfFDSKANA: return font_fdskanafont;
+		case ssfFDSLIKE: return font_fdslikefont;
+		case ssfFDSROM: return font_fdsromanfont;
+		case ssfFF: return font_finalffont;
+		case ssfFUTHARK: return font_futharkfont;
+		case ssfGAIA: return font_gaiafont;
+		case ssfHIRA: return font_hirafont;
+		case ssfJP: return font_jpfont;
+		case ssfKONG: return font_kongfont;
+		case ssfMANA: return font_manafont;
+		case ssfML: return font_mlfont;
+		case ssfMOT: return font_motfont;
+		case ssfMSX0: return font_msxmode0font;
+		case ssfMSX1: return font_msxmode1font;
+		case ssfPET: return font_petfont;
+		case ssfPSTART: return font_pstartfont;
+		case ssfSATURN: return font_saturnfont;
+		case ssfSCIFI: return font_scififont;
+		case ssfSHERW: return font_sherwoodfont;
+		case ssfSINQL: return font_sinqlfont;
+		case ssfSPEC: return font_spectrumfont;
+		case ssfSPECLG: return font_speclgfont;
+		case ssfTI99: return font_ti99font;
+		case ssfTRS: return font_trsfont;
+		case ssfZ2: return font_z2font;
+		case ssfZX: return font_zxfont;
+		case ssfLISA: return font_lisafont;
+	}
+	return font_zfont;
+}
 
 int shadow_x(int shadow)
 {
@@ -106,6 +178,10 @@ int shadow_h(int shadow)
 }
 
 int32_t SubscrColorInfo::get_color() const
+{
+	return get_color(type,color);
+}
+int32_t SubscrColorInfo::get_color(byte type, int16_t color)
 {
 	int32_t ret;
 	
@@ -197,6 +273,10 @@ int32_t SubscrColorInfo::get_color() const
 }
 
 int32_t SubscrColorInfo::get_cset() const
+{
+	return get_cset(type,color);
+}
+int32_t SubscrColorInfo::get_cset(byte type, int16_t color)
 {
 	int32_t ret=type;
 	
@@ -2276,22 +2356,7 @@ byte SW_Selector::getType() const
 }
 void SW_Selector::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
-	int32_t p=-1;
-	
-	SubscrWidget* selitm = nullptr;
-	for(size_t j=0; j < page.contents.size(); ++j)
-	{
-		SubscrWidget& w = *page.contents[j];
-		if(w.getType()==ssoCURRENTITEM)
-		{
-			if(w.pos==page.cursor_pos)
-			{
-				p=j;
-				selitm = &w;
-				break;
-			}
-		}
-	}
+	SubscrWidget* selitm = page.get_sel_widg();
 	
 	bool big_sel=flags&SUBSCR_SELECTOR_LARGE;
 	item *tempsel=(flags&SUBSCR_SELECTOR_USEB)?sel_b:sel_a;
@@ -2595,41 +2660,7 @@ bool SW_TextBox::load_old(subscreen_object const& old)
 	c_bg.load_old(old,3);
 	SETFLAG(flags,SUBSCR_TEXTBOX_WORDWRAP,old.d4);
 	tabsize = old.d5;
-	
-	//compat
-	x -= shadow_x(shadtype);
-	y -= shadow_y(shadtype);
-	w -= shadow_w(shadtype);
-	h -= shadow_h(shadtype);
-	x -= getXOffs();
 	return true;
-}
-int16_t SW_TextBox::getX() const
-{
-	return x+shadow_x(shadtype);
-}
-int16_t SW_TextBox::getY() const
-{
-	return y+shadow_y(shadtype);
-}
-word SW_TextBox::getW() const
-{
-	return w+shadow_w(shadtype);
-}
-word SW_TextBox::getH() const
-{
-	return h+shadow_h(shadtype);
-}
-int16_t SW_TextBox::getXOffs() const
-{
-	switch(align)
-	{
-		case sstaCENTER:
-			return -getW()/2;
-		case sstaRIGHT:
-			return -getW();
-	}
-	return 0;
 }
 byte SW_TextBox::getType() const
 {
@@ -2653,7 +2684,7 @@ bool SW_TextBox::copy_prop(SubscrWidget const* src, bool all)
 	SW_TextBox const* other = dynamic_cast<SW_TextBox const*>(src);
 	SubscrWidget::copy_prop(other,all);
 	fontid = other->fontid;
-	text = other->text;
+	if(all) text = other->text;
 	align = other->align;
 	shadtype = other->shadtype;
 	c_text = other->c_text;
@@ -2707,244 +2738,106 @@ int32_t SW_TextBox::write(PACKFILE *f) const
 	return 0;
 }
 
-SW_Temp::SW_Temp(byte ty) : SubscrWidget(ssoTEMPOLD)
-{
-	old.type = ty;
-}
-SW_Temp::SW_Temp(subscreen_object const& old) : SW_Temp()
+SW_SelectedText::SW_SelectedText(subscreen_object const& old) : SW_SelectedText()
 {
 	load_old(old);
 }
-SW_Temp::~SW_Temp()
+bool SW_SelectedText::load_old(subscreen_object const& old)
 {
-	if(old.dp1)
-	{
-		delete[] old.dp1;
-		old.dp1 = nullptr;
-	}
-}
-bool SW_Temp::load_old(subscreen_object const& _old)
-{
-	type = ssoTEMPOLD;
-	old = _old;
-	if(old.dp1)
-	{
-		old.dp1 = new char[strlen((char*)_old.dp1)+1];
-		strcpy((char*)old.dp1,(char*)_old.dp1);
-	}
+	if(old.type != ssoSELECTEDITEMNAME)
+		return false;
+	SubscrWidget::load_old(old);
+	fontid = to_real_font(old.d1);
+	align = old.d2;
+	shadtype = old.d3;
+	c_text.load_old(old,1);
+	c_shadow.load_old(old,2);
+	c_bg.load_old(old,3);
+	SETFLAG(flags,SUBSCR_SELTEXT_WORDWRAP,old.d4);
+	tabsize = old.d5;
 	return true;
 }
-int16_t SW_Temp::getX() const
+byte SW_SelectedText::getType() const
 {
-	return sso_x(&old);
+	return ssoSELECTEDITEMNAME;
 }
-int16_t SW_Temp::getY() const
+void SW_SelectedText::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
-	return sso_y(&old);
+	FONT* tempfont = get_zc_font(fontid);
+	int32_t itemid=page.get_sel_item();
+	
+	// If it's a combined bow and arrow, the item ID will have 0xF000 added.
+	if(itemid>=0xF000)
+		itemid-=0xF000;
+	
+	// 0 can mean either the item with index 0 is selected or there's no
+	// valid item to select, so be sure Hero has whatever it would be.
+	if(!game->get_item(itemid))
+		return;
+	
+	itemdata const& itm = itemsbuf[itemid];
+	
+	draw_textbox(dest, getX()+xofs, getY()+yofs, getW(), getH(), tempfont,
+		itm.get_name().c_str(), flags&SUBSCR_SELTEXT_WORDWRAP, tabsize, align, shadtype,
+		c_text.get_color(),c_shadow.get_color(),c_bg.get_color());
 }
-word SW_Temp::getW() const
+SubscrWidget* SW_SelectedText::clone() const
 {
-	return sso_w(&old);
+	return new SW_SelectedText(*this);
 }
-word SW_Temp::getH() const
-{
-	return sso_h(&old);
-}
-int16_t SW_Temp::getXOffs() const
-{
-	switch(get_alignment(&old))
-	{
-		case sstaCENTER:
-			return -getW()/2;
-		case sstaRIGHT:
-			return -getW();
-	}
-	return 0;
-}
-byte SW_Temp::getType() const
-{
-	return ssoTEMPOLD;
-}
-void SW_Temp::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
-{
-	FONT* tempfont = get_zc_font(old.d1);
-	switch(getType())
-	{
-		case ssoSELECTEDITEMNAME:
-		{
-			int32_t itemid=page.get_sel_item();
-			
-			// If it's a combined bow and arrow, the item ID will have 0xF000 added.
-			if(itemid>=0xF000)
-				itemid-=0xF000;
-			
-			// 0 can mean either the item with index 0 is selected or there's no
-			// valid item to select, so be sure Hero has whatever it would be.
-			if(!game->get_item(itemid))
-				break;
-				
-			itemdata const& itm = itemsbuf[itemid];
-			char itemname[256]="";
-			strncpy(itemname, itm.get_name().c_str(), 255);
-			
-			draw_textbox(dest, x, y, old.w, old.h, tempfont, itemname, old.d4!=0, old.d5, old.d2, old.d3, subscreen_color(old.colortype1, old.color1), subscreen_color(old.colortype2, old.color2), subscreen_color(old.colortype3, old.color3));
-		}
-		break;
-	}
-}
-SubscrWidget* SW_Temp::clone() const
-{
-	return new SW_Temp(*this);
-}
-bool SW_Temp::copy_prop(SubscrWidget const* src, bool all)
+bool SW_SelectedText::copy_prop(SubscrWidget const* src, bool all)
 {
 	if(src->getType() != getType() || src == this)
 		return false;
-	SW_Temp const* other = dynamic_cast<SW_Temp const*>(src);
+	SW_SelectedText const* other = dynamic_cast<SW_SelectedText const*>(src);
 	SubscrWidget::copy_prop(other,all);
-	old = other->old;
+	fontid = other->fontid;
+	align = other->align;
+	shadtype = other->shadtype;
+	c_text = other->c_text;
+	c_shadow = other->c_shadow;
+	c_bg = other->c_bg;
+	tabsize = other->tabsize;
 	return true;
 }
-int32_t SW_Temp::read(PACKFILE *f, word s_version)
+int32_t SW_SelectedText::read(PACKFILE *f, word s_version)
 {
 	if(auto ret = SubscrWidget::read(f,s_version))
 		return ret;
-	if(!p_getc(&old.type,f))
+	if(!p_igetl(&fontid,f))
 		return qe_invalid;
-	if(!p_getc(&old.pos,f))
+	if(!p_getc(&align,f))
 		return qe_invalid;
-	if(!p_igetw(&old.x,f))
+	if(!p_getc(&shadtype,f))
 		return qe_invalid;
-	if(!p_igetw(&old.y,f))
+	if(!p_getc(&tabsize,f))
 		return qe_invalid;
-	if(!p_igetw(&old.w,f))
-		return qe_invalid;
-	if(!p_igetw(&old.h,f))
-		return qe_invalid;
-	if(!p_getc(&old.colortype1,f))
-		return qe_invalid;
-	if(!p_igetw(&old.color1,f))
-		return qe_invalid;
-	if(!p_getc(&old.colortype2,f))
-		return qe_invalid;
-	if(!p_igetw(&old.color2,f))
-		return qe_invalid;
-	if(!p_getc(&old.colortype3,f))
-		return qe_invalid;
-	if(!p_igetw(&old.color3,f))
-		return qe_invalid;
-	if(!p_igetl(&old.d1,f))
-		return qe_invalid;
-	if(!p_igetl(&old.d2,f))
-		return qe_invalid;
-	if(!p_igetl(&old.d3,f))
-		return qe_invalid;
-	if(!p_igetl(&old.d4,f))
-		return qe_invalid;
-	if(!p_igetl(&old.d5,f))
-		return qe_invalid;
-	if(!p_igetl(&old.d6,f))
-		return qe_invalid;
-	if(!p_igetl(&old.d7,f))
-		return qe_invalid;
-	if(!p_igetl(&old.d8,f))
-		return qe_invalid;
-	if(!p_igetl(&old.d9,f))
-		return qe_invalid;
-	if(!p_igetl(&old.d10,f))
-		return qe_invalid;
-	if(!p_getc(&old.frames,f))
-		return qe_invalid;
-	if(!p_getc(&old.speed,f))
-		return qe_invalid;
-	if(!p_getc(&old.delay,f))
-		return qe_invalid;
-	if(!p_getc(&old.frame,f))
-		return qe_invalid;
-	byte len;
-	if(!p_getc(&len,f))
-		return qe_invalid;
-	char* ptr = len ? new char[len+1] : nullptr;
-	if(len)
-	{
-		for(byte q = 0; q < len; ++q)
-		{
-			if(!p_getc(&ptr[q],f))
-				return qe_invalid;
-		}
-		ptr[len] = 0;
-	}
-	if(old.dp1) delete[] old.dp1;
-	old.dp1 = ptr;
+	if(auto ret = c_text.read(f,s_version))
+		return ret;
+	if(auto ret = c_shadow.read(f,s_version))
+		return ret;
+	if(auto ret = c_bg.read(f,s_version))
+		return ret;
 	return 0;
 }
-int32_t SW_Temp::write(PACKFILE *f) const
+int32_t SW_SelectedText::write(PACKFILE *f) const
 {
 	if(auto ret = SubscrWidget::write(f))
 		return ret;
-	if(!p_putc(old.type,f))
-		return qe_invalid;
-	if(!p_putc(old.pos,f))
-		return qe_invalid;
-	if(!p_iputw(old.x,f))
-		return qe_invalid;
-	if(!p_iputw(old.y,f))
-		return qe_invalid;
-	if(!p_iputw(old.w,f))
-		return qe_invalid;
-	if(!p_iputw(old.h,f))
-		return qe_invalid;
-	if(!p_putc(old.colortype1,f))
-		return qe_invalid;
-	if(!p_iputw(old.color1,f))
-		return qe_invalid;
-	if(!p_putc(old.colortype2,f))
-		return qe_invalid;
-	if(!p_iputw(old.color2,f))
-		return qe_invalid;
-	if(!p_putc(old.colortype3,f))
-		return qe_invalid;
-	if(!p_iputw(old.color3,f))
-		return qe_invalid;
-	if(!p_iputl(old.d1,f))
-		return qe_invalid;
-	if(!p_iputl(old.d2,f))
-		return qe_invalid;
-	if(!p_iputl(old.d3,f))
-		return qe_invalid;
-	if(!p_iputl(old.d4,f))
-		return qe_invalid;
-	if(!p_iputl(old.d5,f))
-		return qe_invalid;
-	if(!p_iputl(old.d6,f))
-		return qe_invalid;
-	if(!p_iputl(old.d7,f))
-		return qe_invalid;
-	if(!p_iputl(old.d8,f))
-		return qe_invalid;
-	if(!p_iputl(old.d9,f))
-		return qe_invalid;
-	if(!p_iputl(old.d10,f))
-		return qe_invalid;
-	if(!p_putc(old.frames,f))
-		return qe_invalid;
-	if(!p_putc(old.speed,f))
-		return qe_invalid;
-	if(!p_putc(old.delay,f))
-		return qe_invalid;
-	if(!p_putc(old.frame,f))
-		return qe_invalid;
-	byte len = 0;
-	char const* ptr = (char*)old.dp1;
-	if(ptr)
-		len = strlen(ptr);
-	if(!p_putc(len,f))
-		return qe_invalid;
-	for(byte q = 0; ptr[q]; ++q)
-	{
-		if(!p_putc(ptr[q],f))
-			return qe_invalid;
-	}
+	if(!p_iputl(fontid,f))
+		new_return(1);
+	if(!p_putc(align,f))
+		new_return(2);
+	if(!p_putc(shadtype,f))
+		new_return(3);
+	if(!p_putc(tabsize,f))
+		new_return(4);
+	if(auto ret = c_text.write(f))
+		return ret;
+	if(auto ret = c_shadow.write(f))
+		return ret;
+	if(auto ret = c_bg.write(f))
+		return ret;
 	return 0;
 }
 
@@ -3039,8 +2932,7 @@ SubscrWidget* SubscrWidget::fromOld(subscreen_object const& old)
 		case ssoTEXTBOX:
 			return new SW_TextBox(old);
 		case ssoSELECTEDITEMNAME:
-			return nullptr;
-			return new SW_Temp(old); //!TODO SUBSCR
+			return new SW_SelectedText(old);
 		case ssoITEM:
 		{
 			SubscrWidget* ret = new SubscrWidget(old);
@@ -3177,12 +3069,8 @@ SubscrWidget* SubscrWidget::newType(byte ty)
 			widg = new SW_TextBox();
 			break;
 		case ssoSELECTEDITEMNAME:
-		{
-			SW_Temp* tmp;
-			widg = tmp = new SW_Temp(ty); //!TODO SUBSCR
-			tmp->old.colortype1 = ssctMISC;
+			widg = new SW_SelectedText();
 			break;
-		}
 		case ssoITEM:
 		{
 			widg = new SubscrWidget(ty);
@@ -3232,7 +3120,7 @@ void SubscrPage::move_cursor(int dir, bool item_only)
 	{
 		SubscrWidget* widg = get_widg_pos(cursor_pos);
 		int32_t wpn = widg ? widg->getItemVal() : -1;
-		if(wpn > 0 && widg->getType() == ssoCURRENTITEM && !(widg->flags&SUBSCR_CURITM_NONEQP))
+		if((widg->flags & SUBSCRFLAG_SELECTABLE) && wpn > 0 && widg->getType() == ssoCURRENTITEM && !(widg->flags&SUBSCR_CURITM_NONEQP))
 			return;
 	}
 	

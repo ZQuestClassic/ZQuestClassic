@@ -491,8 +491,6 @@ SAMPLE customsfxdata[WAV_COUNT];
 uint8_t customsfxflag[WAV_COUNT>>3];
 int32_t sfxdat=1;
 
-extern void deallocate_biic_list();
-
 zinitdata zinit;
 
 int32_t onImport_ComboAlias();
@@ -26092,7 +26090,6 @@ int32_t load_zmod_module_file()
 	    al_trace("New Module Path is: %s \n", moduledata.module_name);
 	    zc_set_config("ZCMODULE","current_module",moduledata.module_name);
 	    zcm.init(true); //Load the module values.
-	    build_biic_list();
 	    build_bief_list();
 	    build_biea_list(); 
 	    build_biew_list();
@@ -29766,9 +29763,6 @@ void destroy_bitmaps_on_exit()
 
 void quit_game()
 {
-    deallocate_biic_list();
-    
-    
     set_last_timed_save(nullptr);
     save_config_file();
     zc_set_palette(black_palette);
@@ -29930,9 +29924,6 @@ void quit_game()
 
 void quit_game2()
 {
-    deallocate_biic_list();
-    
-    
     set_last_timed_save(nullptr);
     save_config_file();
     zc_set_palette(black_palette);

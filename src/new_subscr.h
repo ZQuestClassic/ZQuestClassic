@@ -58,6 +58,8 @@ struct SubscrColorInfo
 	void load_old(subscreen_object const& old, int indx);
 	int32_t read(PACKFILE *f, word s_version);
 	int32_t write(PACKFILE *f) const;
+	static int32_t get_cset(byte c1, int16_t c2);
+	static int32_t get_color(byte c1, int16_t c2);
 };
 
 struct SubscrMTInfo
@@ -73,7 +75,7 @@ struct SubscrMTInfo
 	int32_t write(PACKFILE *f) const;
 };
 
-enum
+enum //selection directions
 {
 	SEL_UP,
 	SEL_LEFT,
@@ -83,7 +85,7 @@ enum
 	SEL_VERIFY_RIGHT
 };
 
-enum
+enum //old subscreen object types
 {
 	ssoNULL, ssoNONE,
 	sso2X2FRAME, ssoTEXT, ssoLINE, ssoRECT, ssoBSTIME,
@@ -96,6 +98,80 @@ enum
 	ssoCURRENTITEMCLASSTEXT, ssoCURRENTITEMCLASSNAME, ssoSELECTEDITEMCLASSNAME,
 	ssoMAX, ssoTEMPOLD
 };
+
+//Misc constants
+enum //text styles
+{
+	sstsNORMAL, sstsSHADOW, sstsSHADOWU, sstsOUTLINE8, sstsOUTLINEPLUS,
+	sstsOUTLINEX, sstsSHADOWED, sstsSHADOWEDU, sstsOUTLINED8, sstsOUTLINEDPLUS,
+	sstsOUTLINEDX, sstsMAX
+};
+enum //subscreen fonts
+{ 
+	ssfZELDA, ssfSS1, ssfSS2, ssfSS3, ssfSS4, ssfZTIME, ssfSMALL, ssfSMALLPROP, ssfZ3SMALL,
+	ssfGBLA, ssfZ3, ssfGORON, ssfZORAN, ssfHYLIAN1, ssfHYLIAN2, ssfHYLIAN3, ssfHYLIAN4,
+	ssfPROP, ssfGBORACLE, ssfGBORACLEP, ssfDSPHANTOM, ssfDSPHANTOMP, ssfAT800, ssfACORN,
+	ssADOS, ssfALLEG, ssfAPL2, ssfAPL280, ssfAPL2GS, ssfAQUA, ssfAT400, ssfC64, ssfC64HR,
+	ssfCGA, ssfCOCO, ssfCOCO2, ssfCOUPE, ssfCPC, ssfFANTASY, ssfFDSKANA, ssfFDSLIKE,
+	ssfFDSROM, ssfFF, ssfFUTHARK, ssfGAIA, ssfHIRA, ssfJP, ssfKONG, ssfMANA, ssfML, ssfMOT,
+	ssfMSX0, ssfMSX1, ssfPET, ssfPSTART, ssfSATURN, ssfSCIFI, ssfSHERW, ssfSINQL, ssfSPEC,
+	ssfSPECLG, ssfTI99, ssfTRS, ssfZ2, ssfZX, ssfLISA,
+	ssfMAX
+};
+enum // subscreen color types
+{
+	ssctSYSTEM=0xFE,
+	ssctMISC=0xFF
+};
+enum // special colors
+{
+	ssctTEXT, ssctCAPTION, ssctOVERWBG, ssctDNGNBG, ssctDNGNFG,
+	ssctCAVEFG, ssctBSDK, ssctBSGOAL, ssctCOMPASSLT, ssctCOMPASSDK,
+	ssctSUBSCRBG, ssctSUBSCRSHADOW, ssctTRIFRAMECOLOR, ssctBMAPBG, ssctBMAPFG,
+	ssctHERODOT, ssctMSGTEXT, ssctMAX
+};
+enum // special csets
+{
+	sscsTRIFORCECSET, sscsTRIFRAMECSET, sscsOVERWORLDMAPCSET, sscsDUNGEONMAPCSET,
+	sscsBLUEFRAMECSET, sscsHCPIECESCSET, sscsSSVINECSET, sscsMAX
+};
+enum // special tiles
+{
+	ssmstSSVINETILE, ssmstMAGICMETER, ssmstMAX
+};
+enum // counter objects
+{
+	sscRUPEES, sscBOMBS, sscSBOMBS, sscARROWS,
+	sscGENKEYMAGIC, sscGENKEYNOMAGIC, sscLEVKEYMAGIC, sscLEVKEYNOMAGIC,
+	sscANYKEYMAGIC, sscANYKEYNOMAGIC, sscSCRIPT1, sscSCRIPT2,
+	sscSCRIPT3, sscSCRIPT4, sscSCRIPT5, sscSCRIPT6,
+	sscSCRIPT7, sscSCRIPT8, sscSCRIPT9, sscSCRIPT10,
+	sscSCRIPT11, sscSCRIPT12, sscSCRIPT13, sscSCRIPT14,
+	sscSCRIPT15, sscSCRIPT16, sscSCRIPT17, sscSCRIPT18,
+	sscSCRIPT19, sscSCRIPT20, sscSCRIPT21, sscSCRIPT22,
+	sscSCRIPT23, sscSCRIPT24, sscSCRIPT25, sscLIFE, sscMAGIC, sscMAXHP, sscMAXMP,
+	sscSCRIPT26, sscSCRIPT27, sscSCRIPT28, sscSCRIPT29, sscSCRIPT30,
+	sscSCRIPT31, sscSCRIPT32, sscSCRIPT33, sscSCRIPT34, sscSCRIPT35,
+	sscSCRIPT36, sscSCRIPT37, sscSCRIPT38, sscSCRIPT39, sscSCRIPT40,
+	sscSCRIPT41, sscSCRIPT42, sscSCRIPT43, sscSCRIPT44, sscSCRIPT45,
+	sscSCRIPT46, sscSCRIPT47, sscSCRIPT48, sscSCRIPT49, sscSCRIPT50,
+	sscSCRIPT51, sscSCRIPT52, sscSCRIPT53, sscSCRIPT54, sscSCRIPT55,
+	sscSCRIPT56, sscSCRIPT57, sscSCRIPT58, sscSCRIPT59, sscSCRIPT60,
+	sscSCRIPT61, sscSCRIPT62, sscSCRIPT63, sscSCRIPT64, sscSCRIPT65,
+	sscSCRIPT66, sscSCRIPT67, sscSCRIPT68, sscSCRIPT69, sscSCRIPT70,
+	sscSCRIPT71, sscSCRIPT72, sscSCRIPT73, sscSCRIPT74, sscSCRIPT75,
+	sscSCRIPT76, sscSCRIPT77, sscSCRIPT78, sscSCRIPT79, sscSCRIPT80,
+	sscSCRIPT81, sscSCRIPT82, sscSCRIPT83, sscSCRIPT84, sscSCRIPT85,
+	sscSCRIPT86, sscSCRIPT87, sscSCRIPT88, sscSCRIPT89, sscSCRIPT90,
+	sscSCRIPT91, sscSCRIPT92, sscSCRIPT93, sscSCRIPT94, sscSCRIPT95,
+	sscSCRIPT96, sscSCRIPT97, sscSCRIPT98, sscSCRIPT99, sscSCRIPT100,
+	sscMAX
+};
+enum //subscreen text alignment
+{
+	sstaLEFT, sstaCENTER, sstaRIGHT
+};
+
 #define SUBSCRFLAG_SELECTABLE  0x00000001
 
 #define SUBSCRFLAG_GENERAL     0x0000FFFF
@@ -678,11 +754,6 @@ struct SW_TextBox : public SubscrWidget
 	SW_TextBox(subscreen_object const& old);
 
 	virtual bool load_old(subscreen_object const& old) override;
-	virtual int16_t getX() const override; //Returns x in pixels
-	virtual int16_t getY() const override; //Returns y in pixels
-	virtual word getW() const override; //Returns width in pixels
-	virtual word getH() const override; //Returns height in pixels
-	virtual int16_t getXOffs() const override; //Returns any special x-offset
 	virtual byte getType() const override;
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
 	virtual SubscrWidget* clone() const override;
@@ -692,22 +763,17 @@ protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
 
-bool new_widget_type(int ty);
-struct SW_Temp : public SubscrWidget
+#define SUBSCR_SELTEXT_WORDWRAP     SUBSCRFLAG_SPEC_01
+struct SW_SelectedText : public SubscrWidget
 {
-	subscreen_object old;
+	int32_t fontid;
+	byte align, shadtype, tabsize = 4;
+	SubscrColorInfo c_text = {ssctMISC,0}, c_shadow, c_bg;
 	
-	SW_Temp() = default;
-	SW_Temp(byte ty);
-	SW_Temp(subscreen_object const& old);
-	~SW_Temp();
+	SW_SelectedText() = default;
+	SW_SelectedText(subscreen_object const& old);
 	
 	virtual bool load_old(subscreen_object const& old) override;
-	virtual int16_t getX() const override; //Returns x in pixels
-	virtual int16_t getY() const override; //Returns y in pixels
-	virtual word getW() const override; //Returns width in pixels
-	virtual word getH() const override; //Returns height in pixels
-	virtual int16_t getXOffs() const override; //Returns any special x-offset
 	virtual byte getType() const override;
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
 	virtual SubscrWidget* clone() const override;
@@ -759,5 +825,6 @@ struct ZCSubscreen
 	int32_t write(PACKFILE *f) const;
 };
 
+bool new_widget_type(int ty);
 #endif
 
