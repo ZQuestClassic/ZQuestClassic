@@ -12214,67 +12214,67 @@ int32_t writeherosprites(PACKFILE *f, zquestheader *Header)
 
 int32_t writesubscreens(PACKFILE *f, zquestheader *Header)
 {
-    dword section_id=ID_SUBSCREEN;
-    dword section_version=V_SUBSCREEN;
-    dword section_cversion=CV_SUBSCREEN;
-    dword section_size=0;
-    
-    //section id
-    if(!p_mputl(section_id,f))
-    {
-        new_return(1);
-    }
-    
-    //section version info
-    if(!p_iputw(section_version,f))
-    {
-        new_return(2);
-    }
-    
-    if(!p_iputw(section_cversion,f))
-    {
-        new_return(3);
-    }
-    
-    for(int32_t writecycle=0; writecycle<2; ++writecycle)
-    {
-        fake_pack_writing=(writecycle==0);
-        
-        //section size
-        if(!p_iputl(section_size,f))
-        {
-            new_return(4);
-        }
-        
-        writesize=0;
+	dword section_id=ID_SUBSCREEN;
+	dword section_version=V_SUBSCREEN;
+	dword section_cversion=CV_SUBSCREEN;
+	dword section_size=0;
+	
+	//section id
+	if(!p_mputl(section_id,f))
+	{
+		new_return(1);
+	}
+	
+	//section version info
+	if(!p_iputw(section_version,f))
+	{
+		new_return(2);
+	}
+	
+	if(!p_iputw(section_cversion,f))
+	{
+		new_return(3);
+	}
+	
+	for(int32_t writecycle=0; writecycle<2; ++writecycle)
+	{
+		fake_pack_writing=(writecycle==0);
+		
+		//section size
+		if(!p_iputl(section_size,f))
+		{
+			new_return(4);
+		}
+		
+		writesize=0;
 		
 		byte sz = new_subscreen.size();
 		if(!p_putc(sz,f))
 			new_return(5);
-        
-        for(int32_t i=0; i<sz; i++)
-        {
-            int32_t ret = new_subscreen[i].write(f);
-            fake_pack_writing=(writecycle==0);
-            
-            if(ret!=0)
-                new_return(ret);
-        }
-        
-        if(writecycle==0)
-        {
-            section_size=writesize;
-        }
-    }
-    
-    if(writesize!=int32_t(section_size) && save_warn)
-    {
-        char ebuf[80];
-        sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
-        jwin_alert("Error:  writesubscreens()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-    }
-    
-    new_return(0);
+		
+		for(int32_t i=0; i<sz; i++)
+		{
+			int32_t ret = new_subscreen[i].write(f);
+			fake_pack_writing=(writecycle==0);
+			
+			if(ret!=0)
+				new_return(ret);
+		}
+		
+		if(writecycle==0)
+		{
+			section_size=writesize;
+		}
+	}
+	
+	if(writesize!=int32_t(section_size) && save_warn)
+	{
+		char ebuf[80];
+		sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
+		jwin_alert("Error:  writesubscreens()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+	}
+	
+	new_return(0);
 }
 
 extern script_data *ffscripts[NUMSCRIPTFFC];
