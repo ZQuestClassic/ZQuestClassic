@@ -1599,6 +1599,7 @@ void HeroClass::init()
 	shield_active = false;
 	shield_forcedir = -1;
 	active_shield_id = -1;
+	conv_forcedir = -1;
 	
     //2.6
 	preventsubscreenfalling = false;  //-Z
@@ -17882,7 +17883,8 @@ bool HeroClass::premove()
 	
 	int32_t wx=x;
 	int32_t wy=y;
-	if((action==none || action==walking) && getOnSideviewLadder() && (get_qr(qr_SIDEVIEWLADDER_FACEUP)!=0)) //Allow DIR to change if standing still on sideview ladder, and force-face up.
+	if(conv_forcedir > -1) dir = conv_forcedir;
+	else if((action==none || action==walking) && getOnSideviewLadder() && (get_qr(qr_SIDEVIEWLADDER_FACEUP)!=0)) //Allow DIR to change if standing still on sideview ladder, and force-face up.
 	{
 		if((xoff==0)||diagonalMovement)
 		{
@@ -18079,8 +18081,8 @@ bool HeroClass::premove()
 	
 	if(attackclk || action==attacking || action==sideswimattacking)
 	{
-		
-		if((attackclk==0) && action!=sideswimattacking && getOnSideviewLadder() && (get_qr(qr_SIDEVIEWLADDER_FACEUP)!=0)) //Allow DIR to change if standing still on sideview ladder, and force-face up.
+		if(conv_forcedir > -1) dir = conv_forcedir;
+		else if((attackclk==0) && action!=sideswimattacking && getOnSideviewLadder() && (get_qr(qr_SIDEVIEWLADDER_FACEUP)!=0)) //Allow DIR to change if standing still on sideview ladder, and force-face up.
 		{
 			if((xoff==0)||diagonalMovement)
 			{
@@ -18098,7 +18100,8 @@ bool HeroClass::premove()
 		bool attacked = doattack();
 		
 		// This section below interferes with script-setting Hero->Dir, so it comes after doattack
-		if(!inlikelike && attackclk>4 && (attackclk&3)==0 && charging==0 && spins==0 && action!=sideswimattacking)
+		if(conv_forcedir > -1) dir = conv_forcedir;
+		else if(!inlikelike && attackclk>4 && (attackclk&3)==0 && charging==0 && spins==0 && action!=sideswimattacking)
 		{
 			if((xoff==0)||diagonalMovement)
 			{
@@ -18390,6 +18393,8 @@ void HeroClass::movehero()
 		}
 		get_move(holddir,dx,dy,dir);
 	}
+	if(conv_forcedir > -1)
+		dir = conv_forcedir;
 	
 	if(!new_engine_move(dx,dy))
 		pushing = push+1;
@@ -31247,6 +31252,7 @@ void HeroClass::check_conveyor()
 		if((cmb->usrflags&cflag5) && HasHeavyBoots())
 			return;
 		is_on_conveyor=false;
+		conv_forcedir=-1;
 		is_conveyor_stunned=0;
 		
 		deltax=combo_class_buf[ctype].conveyor_x_speed;
@@ -31284,11 +31290,11 @@ void HeroClass::check_conveyor()
 		if(forcewalk)
 		{
 			is_conveyor_stunned = rate;
-			if(cmb->usrflags&cflag3)
+			if((cmb->usrflags&cflag3) && !spins)
 			{
 				if(abs(deltax) > abs(deltay))
-					dir = (deltax > 0) ? right : left;
-				else dir = (deltay > 0) ? down : up;
+					conv_forcedir = dir = (deltax > 0) ? right : left;
+				else conv_forcedir = dir = (deltay > 0) ? down : up;
 			}
 			convey_forcex = deltax;
 			convey_forcey = deltay;
@@ -31728,11 +31734,11 @@ void HeroClass::check_conveyor()
 			{
 				if(cmb->usrflags&cflag1)
 					is_conveyor_stunned = rate;
-				if(cmb->usrflags&cflag3)
+				if((cmb->usrflags&cflag3) && !spins)
 				{
 					if(abs(deltax) > abs(deltay))
-						dir = (deltax > 0) ? right : left;
-					else dir = (deltay > 0) ? down : up;
+						conv_forcedir = dir = (deltax > 0) ? right : left;
+					else conv_forcedir = dir = (deltay > 0) ? down : up;
 				}
 			}
 		}
