@@ -60,6 +60,19 @@ struct SubscrColorInfo
 	int32_t write(PACKFILE *f) const;
 };
 
+struct SubscrMTInfo
+{
+	int32_t tilecrn;
+	byte cset;
+	
+	int32_t tile() const;
+	byte crn() const;
+	void setTileCrn(int32_t tile, byte crn);
+	
+	int32_t read(PACKFILE *f, word s_version);
+	int32_t write(PACKFILE *f) const;
+};
+
 enum
 {
 	SEL_UP,
@@ -589,6 +602,57 @@ struct SW_Selector : public SubscrWidget
 	SW_Selector() = default;
 	SW_Selector(byte ty);
 	SW_Selector(subscreen_object const& old);
+
+	virtual bool load_old(subscreen_object const& old) override;
+	virtual word getW() const override; //Returns width in pixels
+	virtual word getH() const override; //Returns height in pixels
+	virtual byte getType() const override;
+	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
+	virtual SubscrWidget* clone() const override;
+	virtual bool copy_prop(SubscrWidget const* src, bool all = false) override;
+	virtual int32_t write(PACKFILE *f) const override;
+protected:
+	virtual int32_t read(PACKFILE *f, word s_version) override;
+};
+
+#define SUBSCR_LGAUGE_MOD1     SUBSCRFLAG_SPEC_01
+#define SUBSCR_LGAUGE_MOD2     SUBSCRFLAG_SPEC_02
+#define SUBSCR_LGAUGE_MOD3     SUBSCRFLAG_SPEC_03
+#define SUBSCR_LGAUGE_MOD4     SUBSCRFLAG_SPEC_04
+#define SUBSCR_LGAUGE_UNQLAST  SUBSCRFLAG_SPEC_05
+struct SW_LifeGaugePiece : public SubscrWidget
+{
+	SubscrMTInfo mts[4];
+	word frames, speed, delay, container;
+	
+	SW_LifeGaugePiece() = default;
+	SW_LifeGaugePiece(subscreen_object const& old);
+
+	virtual bool load_old(subscreen_object const& old) override;
+	virtual word getW() const override; //Returns width in pixels
+	virtual word getH() const override; //Returns height in pixels
+	virtual byte getType() const override;
+	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
+	virtual SubscrWidget* clone() const override;
+	virtual bool copy_prop(SubscrWidget const* src, bool all = false) override;
+	virtual int32_t write(PACKFILE *f) const override;
+protected:
+	virtual int32_t read(PACKFILE *f, word s_version) override;
+};
+
+#define SUBSCR_MGAUGE_MOD1     SUBSCRFLAG_SPEC_01
+#define SUBSCR_MGAUGE_MOD2     SUBSCRFLAG_SPEC_02
+#define SUBSCR_MGAUGE_MOD3     SUBSCRFLAG_SPEC_03
+#define SUBSCR_MGAUGE_MOD4     SUBSCRFLAG_SPEC_04
+#define SUBSCR_MGAUGE_UNQLAST  SUBSCRFLAG_SPEC_05
+struct SW_MagicGaugePiece : public SubscrWidget
+{
+	SubscrMTInfo mts[4];
+	word frames, speed, delay, container;
+	int16_t showdrain = -1;
+	
+	SW_MagicGaugePiece() = default;
+	SW_MagicGaugePiece(subscreen_object const& old);
 
 	virtual bool load_old(subscreen_object const& old) override;
 	virtual word getW() const override; //Returns width in pixels

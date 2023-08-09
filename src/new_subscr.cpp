@@ -280,6 +280,35 @@ void SubscrColorInfo::load_old(subscreen_object const& old, int indx)
 	}
 }
 
+int32_t SubscrMTInfo::tile() const
+{
+	return tilecrn>>2;
+}
+byte SubscrMTInfo::crn() const
+{
+	return tilecrn%2;
+}
+void SubscrMTInfo::setTileCrn(int32_t tile, byte crn)
+{
+	tilecrn = (tile<<2)|(crn%4);
+}
+int32_t SubscrMTInfo::read(PACKFILE *f, word s_version)
+{
+	if(!p_igetl(&tilecrn,f))
+		return qe_invalid;
+	if(!p_getc(&cset,f))
+		return qe_invalid;
+	return 0;
+}
+int32_t SubscrMTInfo::write(PACKFILE *f) const
+{
+	if(!p_iputl(tilecrn,f))
+		new_return(1);
+	if(!p_putc(cset,f))
+		new_return(2);
+	return 0;
+}
+
 SubscrWidget::SubscrWidget(byte ty) : SubscrWidget()
 {
 	type = ty;
@@ -2333,6 +2362,218 @@ int32_t SW_Selector::write(PACKFILE *f) const
 	return 0;
 }
 
+SW_LifeGaugePiece::SW_LifeGaugePiece(subscreen_object const& old) : SW_LifeGaugePiece()
+{
+	load_old(old);
+}
+bool SW_LifeGaugePiece::load_old(subscreen_object const& old)
+{
+	if(old.type != ssoLIFEGAUGE)
+		return false;
+	SubscrWidget::load_old(old);
+	mts[0].tilecrn = old.d2;
+	mts[0].cset = old.colortype1;
+	mts[1].tilecrn = old.d3;
+	mts[1].cset = old.color1;
+	mts[2].tilecrn = old.d4;
+	mts[2].cset = old.colortype2;
+	mts[3].tilecrn = old.d5;
+	mts[3].cset = old.color2;
+	SETFLAG(flags, SUBSCR_LGAUGE_MOD1, old.d10&0x01);
+	SETFLAG(flags, SUBSCR_LGAUGE_MOD2, old.d10&0x02);
+	SETFLAG(flags, SUBSCR_LGAUGE_MOD3, old.d10&0x04);
+	SETFLAG(flags, SUBSCR_LGAUGE_MOD4, old.d10&0x08);
+	SETFLAG(flags, SUBSCR_LGAUGE_UNQLAST, old.d10&0x10);
+	frames = old.d6;
+	speed = old.d7;
+	delay = old.d8;
+	container = old.d1;
+	return true;
+}
+word SW_LifeGaugePiece::getW() const
+{
+	return 8;
+}
+word SW_LifeGaugePiece::getH() const
+{
+	return 8;
+}
+byte SW_LifeGaugePiece::getType() const
+{
+	return ssoLIFEGAUGE;
+}
+void SW_LifeGaugePiece::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
+{
+	lifegauge(dest, x, y, container,
+		mts[0].tilecrn, mts[0].cset, flags&SUBSCR_LGAUGE_MOD1,
+		mts[1].tilecrn, mts[1].cset, flags&SUBSCR_LGAUGE_MOD2,
+		mts[2].tilecrn, mts[2].cset, flags&SUBSCR_LGAUGE_MOD3,
+		mts[3].tilecrn, mts[3].cset, flags&SUBSCR_LGAUGE_MOD4,
+		frames, speed, delay, flags&SUBSCR_LGAUGE_UNQLAST);
+}
+SubscrWidget* SW_LifeGaugePiece::clone() const
+{
+	return new SW_LifeGaugePiece(*this);
+}
+bool SW_LifeGaugePiece::copy_prop(SubscrWidget const* src, bool all)
+{
+	if(src->getType() != getType() || src == this)
+		return false;
+	SW_LifeGaugePiece const* other = dynamic_cast<SW_LifeGaugePiece const*>(src);
+	SubscrWidget::copy_prop(other,all);
+	mts[1] = other->mts[0];
+	mts[2] = other->mts[1];
+	mts[3] = other->mts[2];
+	mts[4] = other->mts[3];
+	frames = other->frames;
+	speed = other->speed;
+	delay = other->delay;
+	if(all) container = other->container;
+	return true;
+}
+int32_t SW_LifeGaugePiece::read(PACKFILE *f, word s_version)
+{
+	if(auto ret = SubscrWidget::read(f,s_version))
+		return ret;
+	for(auto q = 0; q < 4; ++q)
+		if(auto ret = mts[q].read(f,s_version))
+			return ret;
+	if(!p_igetw(&frames, f))
+		return qe_invalid;
+	if(!p_igetw(&speed, f))
+		return qe_invalid;
+	if(!p_igetw(&delay, f))
+		return qe_invalid;
+	if(!p_igetw(&container, f))
+		return qe_invalid;
+	return 0;
+}
+int32_t SW_LifeGaugePiece::write(PACKFILE *f) const
+{
+	if(auto ret = SubscrWidget::write(f))
+		return ret;
+	for(auto q = 0; q < 4; ++q)
+		if(auto ret = mts[q].write(f,s_version))
+			return ret;
+	if(!p_iputw(frames, f))
+		new_return(1);
+	if(!p_iputw(speed, f))
+		new_return(2);
+	if(!p_iputw(delay, f))
+		new_return(3);
+	if(!p_iputw(container, f))
+		new_return(4);
+	return 0;
+}
+
+SW_MagicGaugePiece::SW_MagicGaugePiece(subscreen_object const& old) : SW_MagicGaugePiece()
+{
+	load_old(old);
+}
+bool SW_MagicGaugePiece::load_old(subscreen_object const& old)
+{
+	if(old.type != ssoMAGICGAUGE)
+		return false;
+	SubscrWidget::load_old(old);
+	mts[0].tilecrn = old.d2;
+	mts[0].cset = old.colortype1;
+	mts[1].tilecrn = old.d3;
+	mts[1].cset = old.color1;
+	mts[2].tilecrn = old.d4;
+	mts[2].cset = old.colortype2;
+	mts[3].tilecrn = old.d5;
+	mts[3].cset = old.color2;
+	SETFLAG(flags, SUBSCR_MGAUGE_MOD1, old.d10&0x01);
+	SETFLAG(flags, SUBSCR_MGAUGE_MOD2, old.d10&0x02);
+	SETFLAG(flags, SUBSCR_MGAUGE_MOD3, old.d10&0x04);
+	SETFLAG(flags, SUBSCR_MGAUGE_MOD4, old.d10&0x08);
+	SETFLAG(flags, SUBSCR_MGAUGE_UNQLAST, old.d10&0x10);
+	frames = old.d6;
+	speed = old.d7;
+	delay = old.d8;
+	container = old.d1;
+	showdrain = old.d9;
+	return true;
+}
+word SW_MagicGaugePiece::getW() const
+{
+	return 8;
+}
+word SW_MagicGaugePiece::getH() const
+{
+	return 8;
+}
+byte SW_MagicGaugePiece::getType() const
+{
+	return ssoMAGICGAUGE;
+}
+void SW_MagicGaugePiece::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
+{
+	magicgauge(dest, x, y, container,
+		mts[0].tilecrn, mts[0].cset, flags&SUBSCR_MGAUGE_MOD1,
+		mts[1].tilecrn, mts[1].cset, flags&SUBSCR_MGAUGE_MOD2,
+		mts[2].tilecrn, mts[2].cset, flags&SUBSCR_MGAUGE_MOD3,
+		mts[3].tilecrn, mts[3].cset, flags&SUBSCR_MGAUGE_MOD4,
+		frames, speed, delay, flags&SUBSCR_MGAUGE_UNQLAST, showdrain);
+}
+SubscrWidget* SW_MagicGaugePiece::clone() const
+{
+	return new SW_MagicGaugePiece(*this);
+}
+bool SW_MagicGaugePiece::copy_prop(SubscrWidget const* src, bool all)
+{
+	if(src->getType() != getType() || src == this)
+		return false;
+	SW_MagicGaugePiece const* other = dynamic_cast<SW_MagicGaugePiece const*>(src);
+	SubscrWidget::copy_prop(other,all);
+	mts[1] = other->mts[0];
+	mts[2] = other->mts[1];
+	mts[3] = other->mts[2];
+	mts[4] = other->mts[3];
+	frames = other->frames;
+	speed = other->speed;
+	delay = other->delay;
+	if(all) container = other->container;
+	return true;
+}
+int32_t SW_MagicGaugePiece::read(PACKFILE *f, word s_version)
+{
+	if(auto ret = SubscrWidget::read(f,s_version))
+		return ret;
+	for(auto q = 0; q < 4; ++q)
+		if(auto ret = mts[q].read(f,s_version))
+			return ret;
+	if(!p_igetw(&frames, f))
+		return qe_invalid;
+	if(!p_igetw(&speed, f))
+		return qe_invalid;
+	if(!p_igetw(&delay, f))
+		return qe_invalid;
+	if(!p_igetw(&container, f))
+		return qe_invalid;
+	if(!p_igetw(&showdrain, f))
+		return qe_invalid;
+	return 0;
+}
+int32_t SW_MagicGaugePiece::write(PACKFILE *f) const
+{
+	if(auto ret = SubscrWidget::write(f))
+		return ret;
+	for(auto q = 0; q < 4; ++q)
+		if(auto ret = mts[q].write(f))
+			return ret;
+	if(!p_iputw(frames, f))
+		new_return(1);
+	if(!p_iputw(speed, f))
+		new_return(2);
+	if(!p_iputw(delay, f))
+		new_return(3);
+	if(!p_iputw(container, f))
+		new_return(4);
+	if(!p_iputw(showdrain, f))
+		new_return(5);
+	return 0;
+}
 
 SW_Temp::SW_Temp(byte ty) : SubscrWidget(ssoTEMPOLD)
 {
@@ -2421,21 +2662,6 @@ void SW_Temp::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) c
 			strncpy(itemname, itm.get_name().c_str(), 255);
 			
 			draw_textbox(dest, x, y, old.w, old.h, tempfont, itemname, old.d4!=0, old.d5, old.d2, old.d3, subscreen_color(old.colortype1, old.color1), subscreen_color(old.colortype2, old.color2), subscreen_color(old.colortype3, old.color3));
-		}
-		break;
-		
-		case ssoMAGICGAUGE:
-		{
-			magicgauge(dest,x,y, old.d1, old.d2, old.colortype1, ((old.d10&1)?1:0), old.d3, old.color1, ((old.d10&2)?1:0),
-					   old.d4, old.colortype2, ((old.d10&4)?1:0), old.d5, old.color2, ((old.d10&8)?1:0), old.d6, old.d7, old.d8, ((old.d10&16)?1:0),
-					   old.d9);
-		}
-		break;
-		
-		case ssoLIFEGAUGE:
-		{
-			lifegauge(dest,x,y, old.d1, old.d2, old.colortype1, ((old.d10&1)?1:0), old.d3, old.color1, ((old.d10&2)?1:0),
-					  old.d4, old.colortype2, ((old.d10&4)?1:0), old.d5, old.color2, ((old.d10&8)?1:0), old.d6, old.d7, old.d8, ((old.d10&16)?1:0));
 		}
 		break;
 	}
@@ -2680,8 +2906,10 @@ SubscrWidget* SubscrWidget::fromOld(subscreen_object const& old)
 		case ssoSELECTOR1:
 		case ssoSELECTOR2:
 			return new SW_Selector(old);
-		case ssoMAGICGAUGE:
 		case ssoLIFEGAUGE:
+			return new SW_LifeGaugePiece(old);
+		case ssoMAGICGAUGE:
+			return new SW_MagicGaugePiece(old);
 		case ssoTEXTBOX:
 		case ssoSELECTEDITEMNAME:
 			return nullptr;
@@ -2813,15 +3041,11 @@ SubscrWidget* SubscrWidget::newType(byte ty)
 			widg = new SW_Selector(ty);
 			break;
 		case ssoLIFEGAUGE:
-			widg = new SW_Temp(ty); //!TODO SUBSCR
+			widg = new SW_LifeGaugePiece();
 			break;
 		case ssoMAGICGAUGE:
-		{
-			SW_Temp* tmp;
-			widg = tmp = new SW_Temp(ty); //!TODO SUBSCR
-			tmp->old.d9 = -1; // 'Always show' by default
+			widg = new SW_MagicGaugePiece();
 			break;
-		}
 		case ssoSELECTEDITEMNAME:
 		case ssoTEXTBOX:
 		{

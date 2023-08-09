@@ -123,24 +123,23 @@ DropDownList(data = lister, \
 	} \
 )
 
-#define GAUGE_MINITILE(txt,v1,v2,v3,bit) \
+#define GAUGE_MINITILE(txt,vMTInfo,vModflag,bit) \
 Frame(fitParent = true, Column(fitParent = true, \
 	Label(/*useFont = spfont, */text = txt), \
 	SelTileSwatch( \
 		hAlign = 0.0, \
-		tile = v1>>2, \
-		cset = v2, \
+		tile = vMTInfo.tile(), \
+		cset = vMTInfo.cset, \
 		mini = true, \
-		minicorner = v1 %4, \
+		minicorner = vMTInfo.crn(), \
 		showvals = false, \
 		onSelectFunc = [=](int32_t t, int32_t c, int32_t,int32_t crn) \
 		{ \
-			v1 = t<<2; \
-			v2 = c; \
-			v1 |= crn; \
+			vMTInfo.setTileCrn(t,crn); \
+			vMTInfo.cset = c; \
 		} \
 	), \
-	CBOX(v3,bit,"Mod",1) \
+	CBOX(vModflag,bit,"Mod",1) \
 ))
 
 //Tile block max preview tiledim
@@ -687,34 +686,34 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			}
 			case ssoLIFEGAUGE:
 			{
-				// SW_* w = dynamic_cast<SW_*>(local_subref);
-				// attrib_grid = Row(padding = 0_px,
-					// Rows<2>(
-						// GAUGE_MINITILE("Not Last",d2,colortype1,d10,0x01),
-						// GAUGE_MINITILE("Last",d3,color1,d10,0x02),
-						// GAUGE_MINITILE("Cap",d4,colortype2,d10,0x04),
-						// GAUGE_MINITILE("After Cap",d5,color2,d10,0x08)
-					// ),
-					// Columns<5>(
-						// Label(text = "Frames:", hAlign = 1.0),
-						// Label(text = "Speed:", hAlign = 1.0),
-						// Label(text = "Delay:", hAlign = 1.0),
-						// Label(text = "Container:", hAlign = 1.0),
-						// CBOX(d10,0x10,"Unique Last",2),
-						// NUM_FIELD(d6, 0, 999),
-						// NUM_FIELD(d7, 0, 999),
-						// NUM_FIELD(d8, 0, 999),
-						// NUM_FIELD(d1, 0, 9999),
-						// DummyWidget(rowSpan=3),
-						// INFOBTN("The container number this piece represents. For a value of n,"
-							// "\nIf the Player has exactly n containers, 'Last' displays."
-							// "\nIf the Player has > n containers, 'Not Last' displays."
-							// "\nIf the Player has exactly n-1 containers, 'Cap' displays."
-							// "\nIf the Player has < n-1 containers, 'After Cap' displays."
-							// )
-					// )
-				// );
-				break; //!TODO
+				SW_LifeGaugePiece* w = dynamic_cast<SW_LifeGaugePiece*>(local_subref);
+				attrib_grid = Row(padding = 0_px,
+					Rows<2>(
+						GAUGE_MINITILE("Not Last",w->mts[0],w->flags,SUBSCR_LGAUGE_MOD1),
+						GAUGE_MINITILE("Last",w->mts[1],w->flags,SUBSCR_LGAUGE_MOD2),
+						GAUGE_MINITILE("Cap",w->mts[2],w->flags,SUBSCR_LGAUGE_MOD3),
+						GAUGE_MINITILE("After Cap",w->mts[3],w->flags,SUBSCR_LGAUGE_MOD4)
+					),
+					Columns<5>(
+						Label(text = "Frames:", hAlign = 1.0),
+						Label(text = "Speed:", hAlign = 1.0),
+						Label(text = "Delay:", hAlign = 1.0),
+						Label(text = "Container:", hAlign = 1.0),
+						CBOX(w->flags,SUBSCR_LGAUGE_UNQLAST,"Unique Last",2),
+						NUM_FIELD(w->frames, 0, 999),
+						NUM_FIELD(w->speed, 0, 999),
+						NUM_FIELD(w->delay, 0, 999),
+						NUM_FIELD(w->container, 0, 9999),
+						DummyWidget(rowSpan=3),
+						INFOBTN("The container number this piece represents. For a value of n,"
+							"\nIf the Player has exactly n containers, 'Last' displays."
+							"\nIf the Player has > n containers, 'Not Last' displays."
+							"\nIf the Player has exactly n-1 containers, 'Cap' displays."
+							"\nIf the Player has < n-1 containers, 'After Cap' displays."
+							)
+					)
+				);
+				break;
 			}
 			case ssoLIFEMETER:
 			{
@@ -736,44 +735,44 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			}
 			case ssoMAGICGAUGE:
 			{
-				// SW_* w = dynamic_cast<SW_*>(local_subref);
-				// attrib_grid = Row(padding = 0_px,
-					// Rows<2>(
-						// GAUGE_MINITILE("Not Last",d2,colortype1,d10,0x01),
-						// GAUGE_MINITILE("Last",d3,color1,d10,0x02),
-						// GAUGE_MINITILE("Cap",d4,colortype2,d10,0x04),
-						// GAUGE_MINITILE("After Cap",d5,color2,d10,0x08)
-					// ),
-					// Columns<6>(
-						// Label(text = "Frames:", hAlign = 1.0),
-						// Label(text = "Speed:", hAlign = 1.0),
-						// Label(text = "Delay:", hAlign = 1.0),
-						// Label(text = "Container:", hAlign = 1.0),
-						// Label(text = "Show:", hAlign = 1.0),
-						// CBOX(d10,0x10,"Unique Last",2),
-						// NUM_FIELD(d6, 0, 999),
-						// NUM_FIELD(d7, 0, 999),
-						// NUM_FIELD(d8, 0, 999),
-						// NUM_FIELD(d1, 0, 9999),
-						// NUM_FIELD(d9, -1, 9999),
-						// DummyWidget(rowSpan=3),
-						// INFOBTN("The container number this piece represents. For a value of n,"
-							// "\nIf the Player has exactly n containers, 'Last' displays."
-							// "\nIf the Player has > n containers, 'Not Last' displays."
-							// "\nIf the Player has exactly n-1 containers, 'Cap' displays."
-							// "\nIf the Player has < n-1 containers, 'After Cap' displays."
-							// ),
-						// INFOBTN("If set to -1, piece shows normally."
-							// "\nIf set to > -1, piece will only be visible when your"
-							// " Magic Drain Rate is equal to the value."
-							// "\nEx. With the default of starting at drain rate 2,"
-							// " a show value of '1' would be used for a '1/2 magic' icon."
-							// "\nWith a starting drain rate of 4, you could"
-							// " then have a show value of '2' for a '1/2 magic', and a"
-							// " show value of '1' for a '1/4 magic'.")
-					// )
-				// );
-				break; //!TODO
+				SW_MagicGaugePiece* w = dynamic_cast<SW_MagicGaugePiece*>(local_subref);
+				attrib_grid = Row(padding = 0_px,
+					Rows<2>(
+						GAUGE_MINITILE("Not Last",w->mts[0],w->flags,SUBSCR_MGAUGE_MOD1),
+						GAUGE_MINITILE("Last",w->mts[1],w->flags,SUBSCR_MGAUGE_MOD2),
+						GAUGE_MINITILE("Cap",w->mts[2],w->flags,SUBSCR_MGAUGE_MOD3),
+						GAUGE_MINITILE("After Cap",w->mts[3],w->flags,SUBSCR_MGAUGE_MOD4)
+					),
+					Columns<6>(
+						Label(text = "Frames:", hAlign = 1.0),
+						Label(text = "Speed:", hAlign = 1.0),
+						Label(text = "Delay:", hAlign = 1.0),
+						Label(text = "Container:", hAlign = 1.0),
+						Label(text = "Show:", hAlign = 1.0),
+						CBOX(w->flags,SUBSCR_MGAUGE_UNQLAST,"Unique Last",2),
+						NUM_FIELD(w->frames, 0, 999),
+						NUM_FIELD(w->speed, 0, 999),
+						NUM_FIELD(w->delay, 0, 999),
+						NUM_FIELD(w->container, 0, 9999),
+						NUM_FIELD(w->showdrain, -1, 9999),
+						DummyWidget(rowSpan=3),
+						INFOBTN("The container number this piece represents. For a value of n,"
+							"\nIf the Player has exactly n containers, 'Last' displays."
+							"\nIf the Player has > n containers, 'Not Last' displays."
+							"\nIf the Player has exactly n-1 containers, 'Cap' displays."
+							"\nIf the Player has < n-1 containers, 'After Cap' displays."
+							),
+						INFOBTN("If set to -1, piece shows normally."
+							"\nIf set to > -1, piece will only be visible when your"
+							" Magic Drain Rate is equal to the value."
+							"\nEx. With the default of starting at drain rate 2,"
+							" a show value of '1' would be used for a '1/2 magic' icon."
+							"\nWith a starting drain rate of 4, you could"
+							" then have a show value of '2' for a '1/2 magic', and a"
+							" show value of '1' for a '1/4 magic'.")
+					)
+				);
+				break;
 			}
 			case ssoMAGICMETER:
 			{
