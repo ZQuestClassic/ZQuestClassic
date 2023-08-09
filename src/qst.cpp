@@ -11243,18 +11243,19 @@ int32_t readherosprites(PACKFILE *f, zquestheader *Header)
 int32_t read_old_subscreens(PACKFILE *f, word s_version)
 {
 	new_subscreen.clear();
-    for(int32_t i=0; i<MAXCUSTOMSUBSCREENS; i++)
-    {
+	for(int32_t i=0; i<MAXCUSTOMSUBSCREENS; i++)
+	{
 		subscreen_group g;
-        int32_t ret = read_one_old_subscreen(f, &g, s_version);
-        if(ret!=0)
+		memset(&g,0,sizeof(subscreen_group));
+		int32_t ret = read_one_old_subscreen(f, &g, s_version);
+		if(ret!=0)
 			return ret;
 		if(g.objects[0].type == ssoNULL) continue;
 		ZCSubscreen& sub = new_subscreen.emplace_back();
 		sub.load_old(g);
-    }
-    
-    return 0;
+	}
+	
+	return 0;
 }
 
 int32_t read_one_old_subscreen(PACKFILE *f, subscreen_group* g, word s_version)
