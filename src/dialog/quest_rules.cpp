@@ -238,6 +238,9 @@ static GUI::ListData comboRulesList
 	{ "Moving pushblock switch blocks obey switch toggle", qr_SWITCHES_AFFECT_MOVINGBLOCKS, 
 		"If enabled, when a crystal switch toggles, it will toggle any"
 		" pushblocks that are currently moving, while they are moving."},
+	{ "Pushable Block Sprite Layer", qr_PUSHBLOCK_SPRITE_LAYER,
+		"If enabled, pushable blocks draw to a 'block sprite layer'."
+		" pushblocks that are currently moving, while they are moving."},
 	{ "Burn Flags Are Triggered Instantly", qr_INSTABURNFLAGS, 
 		"Makes it so Fire weapons instantly trigger secrets upon touching"
 		" a burn spot. If this rule is disabled, fire weapons need to linger"

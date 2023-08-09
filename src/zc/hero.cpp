@@ -27712,8 +27712,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf, 3, newscr, sx, sy);
 			
 			combotile_add_y -= sy;
-			if(layer_0_lenscheck(newscr)) putscr(scrollbuf, 0, 0, newscr);
-			if(layer_0_lenscheck(oldscr)) putscr(scrollbuf, 0, 176, oldscr);
+			if(lenscheck(newscr,0)) putscr(scrollbuf, 0, 0, newscr);
+			if(lenscheck(oldscr,0)) putscr(scrollbuf, 0, 176, oldscr);
 			break;
 			
 		case down:
@@ -27730,8 +27730,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf, 3, newscr, sx, sy);
 			
 			combotile_add_y -= sy;
-			if(layer_0_lenscheck(oldscr)) putscr(scrollbuf, 0, 0, oldscr);
-			if(layer_0_lenscheck(newscr)) putscr(scrollbuf, 0, 176, newscr);
+			if(lenscheck(oldscr,0)) putscr(scrollbuf, 0, 0, oldscr);
+			if(lenscheck(newscr,0)) putscr(scrollbuf, 0, 176, newscr);
 			break;
 			
 		case left:
@@ -27748,8 +27748,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf, 3, newscr, sx, sy);
 			
 			combotile_add_x -= sx;
-			if(layer_0_lenscheck(newscr)) putscr(scrollbuf, 0, 0, newscr);
-			if(layer_0_lenscheck(oldscr)) putscr(scrollbuf, 256, 0, oldscr);
+			if(lenscheck(newscr,0)) putscr(scrollbuf, 0, 0, newscr);
+			if(lenscheck(oldscr,0)) putscr(scrollbuf, 256, 0, oldscr);
 			break;
 			
 		case right:
@@ -27766,8 +27766,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf, 3, newscr, sx, sy);
 			
 			combotile_add_x -= sx;
-			if(layer_0_lenscheck(oldscr)) putscr(scrollbuf, 0, 0, oldscr);
-			if(layer_0_lenscheck(newscr)) putscr(scrollbuf, 256, 0, newscr);
+			if(lenscheck(oldscr,0)) putscr(scrollbuf, 0, 0, oldscr);
+			if(lenscheck(newscr,0)) putscr(scrollbuf, 256, 0, newscr);
 			break;
 		}
 
@@ -27775,7 +27775,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		combotile_add_y = 0;
 		
 		blit(scrollbuf, framebuf, sx, sy, 0, playing_field_offset, 256, 168);
-		if(layer_0_lenscheck(newscr))
+		if(lenscheck(newscr,0))
 			do_primitives(framebuf, 0, newscr, 0, playing_field_offset);
 		
 		do_layer(framebuf, 0, 1, oldscr, tx2, ty2, 3);
@@ -27791,14 +27791,18 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		if(!(XOR(newscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))) do_layer(framebuf, 0, 2, newscr, tx, ty, 2, false, !(oldscr->flags7&fLAYER2BG));
 		
 		//push blocks
-		do_layer(framebuf, -2, 0, oldscr, tx2, ty2, 3);
-		do_layer(framebuf, -2, 0, newscr, tx, ty, 2);
-		if(get_qr(qr_PUSHBLOCK_LAYER_1_2))
+		if(get_qr(qr_PUSHBLOCK_SPRITE_LAYER))
 		{
-			do_layer(framebuf, -2, 1, oldscr, tx2, ty2, 3);
-			do_layer(framebuf, -2, 1, newscr, tx, ty, 2);
-			do_layer(framebuf, -2, 2, oldscr, tx2, ty2, 3);
-			do_layer(framebuf, -2, 2, newscr, tx, ty, 2);
+			do_layer(framebuf, -2, 0, oldscr, tx2, ty2, 3);
+			do_layer(framebuf, -2, 0, newscr, tx, ty, 2);
+			if(get_qr(qr_PUSHBLOCK_LAYER_1_2))
+			{
+				do_layer(framebuf, -2, 1, oldscr, tx2, ty2, 3);
+				do_layer(framebuf, -2, 1, newscr, tx, ty, 2);
+				do_layer(framebuf, -2, 2, oldscr, tx2, ty2, 3);
+				do_layer(framebuf, -2, 2, newscr, tx, ty, 2);
+			}
+			do_primitives(framebuf, SPLAYER_PUSHBLOCK, newscr, 0, playing_field_offset);
 		}
 		
 		do_walkflags(oldscr, tx2, ty2,3); //show walkflags if the cheat is on
@@ -30475,19 +30479,22 @@ void setup_red_screen_old()
     
     if(XOR(tmpscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf, 0, 3, tmpscr, 0, playing_field_offset, 2);
     
-    if(layer_0_lenscheck(tmpscr)) putscr(scrollbuf, 0, 0, tmpscr);
+    if(lenscheck(tmpscr,0)) putscr(scrollbuf, 0, 0, tmpscr);
 	putscrdoors(scrollbuf,0,0,tmpscr);
     blit(scrollbuf, framebuf, 0, 0, 0, playing_field_offset, 256, 168);
     do_layer(framebuf, 0, 1, tmpscr, 0, 0, 2);
     
     if(!(XOR(tmpscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))) do_layer(framebuf, 0, 2, tmpscr, 0, 0, 2);
     
-    do_layer(framebuf, -2, 0, tmpscr, 0, 0, 2);
-	if(get_qr(qr_PUSHBLOCK_LAYER_1_2))
+	if(get_qr(qr_PUSHBLOCK_SPRITE_LAYER))
 	{
-		do_layer(framebuf, -2, 1, tmpscr, 0, 0, 2);
-		do_layer(framebuf, -2, 2, tmpscr, 0, 0, 2);
-    }
+		do_layer(framebuf, -2, 0, tmpscr, 0, 0, 2);
+		if(get_qr(qr_PUSHBLOCK_LAYER_1_2))
+		{
+			do_layer(framebuf, -2, 1, tmpscr, 0, 0, 2);
+			do_layer(framebuf, -2, 2, tmpscr, 0, 0, 2);
+		}
+	}
 	
     if(!(msg_bg_display_buf->clip))
     {

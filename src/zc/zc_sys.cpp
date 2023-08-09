@@ -4052,17 +4052,20 @@ int32_t onSaveMapPic()
 				
 				if(XOR((tmpscr+1)->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(_screen_draw_buffer, 0, 3, tmpscr+1, -256, playing_field_offset, 2);
 				
-				if(layer_0_lenscheck(tmpscr+1)) putscr(_screen_draw_buffer,256,0,tmpscr+1);
+				if(lenscheck(tmpscr+1,0)) putscr(_screen_draw_buffer,256,0,tmpscr+1);
 				do_layer(_screen_draw_buffer, 0, 1, tmpscr+1, -256, playing_field_offset, 2);
 				
 				if(!XOR((tmpscr+1)->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(_screen_draw_buffer, 0, 2, tmpscr+1, -256, playing_field_offset, 2);
 				
 				putscrdoors(_screen_draw_buffer,256,0,tmpscr+1);
-				do_layer(_screen_draw_buffer, -2, 0, tmpscr+1, -256, playing_field_offset, 2);
-				if(get_qr(qr_PUSHBLOCK_LAYER_1_2))
+				if(get_qr(qr_PUSHBLOCK_SPRITE_LAYER))
 				{
-					do_layer(_screen_draw_buffer, -2, 1, tmpscr+1, -256, playing_field_offset, 2);
-					do_layer(_screen_draw_buffer, -2, 2, tmpscr+1, -256, playing_field_offset, 2);
+					do_layer(_screen_draw_buffer, -2, 0, tmpscr+1, -256, playing_field_offset, 2);
+					if(get_qr(qr_PUSHBLOCK_LAYER_1_2))
+					{
+						do_layer(_screen_draw_buffer, -2, 1, tmpscr+1, -256, playing_field_offset, 2);
+						do_layer(_screen_draw_buffer, -2, 2, tmpscr+1, -256, playing_field_offset, 2);
+					}
 				}
 				do_layer(_screen_draw_buffer, -3, 0, tmpscr+1, -256, playing_field_offset, 2); // Freeform combos!
 				
