@@ -551,9 +551,9 @@ int32_t SubscrWidget::write(PACKFILE *f) const
 	}
 	return 0;
 }
-void SubscrWidget::replay_rand_compat() const
+void SubscrWidget::replay_rand_compat(byte pos) const
 {
-	if(compat_flags & SUBSCRCOMPAT_FONT_RAND)
+	if((compat_flags & SUBSCRCOMPAT_FONT_RAND) && (posflags&pos))
 		zc_oldrand();
 }
 
@@ -3426,7 +3426,7 @@ void SubscrPage::draw(BITMAP* dest, int32_t xofs, int32_t yofs, byte pos, bool s
 {
 	for(SubscrWidget* widg : contents)
 	{
-		widg->replay_rand_compat();
+		widg->replay_rand_compat(pos);
 		if(widg->visible(pos,showtime))
 			widg->draw(dest,xofs,yofs,*this);
 	}
