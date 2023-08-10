@@ -3487,7 +3487,7 @@ void show_custom_subscreen(BITMAP *dest, ZCSubscreen* subscr, int32_t xofs, int3
 	if(animate_sel)
 		animate_selectors();
 	
-	subscr->draw(dest,xofs,yofs,showtime,pos2);
+	subscr->draw(dest,xofs,yofs,pos2,showtime);
 }
 
 std::string get_subscr_arrow_name(int itemid)

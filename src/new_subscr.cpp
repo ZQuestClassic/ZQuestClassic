@@ -3156,8 +3156,10 @@ void SubscrPage::move_cursor(int dir, bool item_only)
 	if(verify)
 	{
 		SubscrWidget* widg = get_widg_pos(cursor_pos);
-		int32_t wpn = widg ? widg->getItemVal() : -1;
-		if((widg->flags & SUBSCRFLAG_SELECTABLE) && wpn > 0 && widg->getType() == ssoCURRENTITEM && !(widg->flags&SUBSCR_CURITM_NONEQP))
+		if(widg && widg->getType() == ssoCURRENTITEM
+			&& (widg->flags & SUBSCRFLAG_SELECTABLE)
+			&& !(widg->flags & SUBSCR_CURITM_NONEQP)
+			&& widg->getItemVal() > 0)
 			return;
 	}
 	

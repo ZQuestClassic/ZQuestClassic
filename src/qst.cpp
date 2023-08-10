@@ -3774,6 +3774,8 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_OLD_LENS_LAYEREFFECT,1);
 	if(compatrule_version < 51)
 		set_qr(qr_PUSHBLOCK_SPRITE_LAYER,1);
+	if(compatrule_version < 52)
+		set_qr(qr_OLD_SUBSCR,1);
 	
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)
