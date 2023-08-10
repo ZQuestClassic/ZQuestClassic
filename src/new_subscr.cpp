@@ -3181,16 +3181,14 @@ int32_t SubscrPage::move_legacy(int dir, int startp, int fp, int fp2, int fp3, b
 	
 	if(verify)
 	{
-		SubscrWidget* widg = get_widg_pos(startp);
-		int32_t wpn = widg ? widg->getItemVal() : -1;
 		equip_only = item_only = true;
-		if(widg->getType() != widgITEMSLOT || (widg->flags&SUBSCR_CURITM_NONEQP))
-			wpn = -1;
-		
-		if(wpn > 0 && startp != fp && startp != fp2 && startp != fp3)
-		{
-			return startp;
-		}
+		if(startp != fp && startp != fp2 && startp != fp3)
+			if(SubscrWidget* widg = get_widg_pos(startp))
+			{
+				if(widg->getType() == widgITEMSLOT && !(widg->flags&SUBSCR_CURITM_NONEQP)
+					&& widg->getItemVal() > 0)
+					return startp;
+			}
 	}
 	
 	int32_t p=-1;
