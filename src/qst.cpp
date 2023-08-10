@@ -11839,7 +11839,8 @@ int32_t readsubscreens(PACKFILE *f)
 	for(byte q = 0; q < sz; ++q)
 	{
 		ZCSubscreen& ref = new_subscreen.emplace_back();
-		ref.read(f,s_version);
+		if (auto ret = ref.read(f, s_version))
+			return ret;
 	}
 	return 0;
 }
