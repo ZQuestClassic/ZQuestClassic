@@ -434,7 +434,7 @@ int16_t SubscrWidget::getYOffs() const
 }
 byte SubscrWidget::getType() const
 {
-	return type;
+	return widgNULL;
 }
 int32_t SubscrWidget::getItemVal(bool display) const
 {
@@ -582,7 +582,7 @@ word SW_2x2Frame::getH() const
 }
 byte SW_2x2Frame::getType() const
 {
-	return sso2X2FRAME;
+	return widgFRAME;
 }
 void SW_2x2Frame::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
@@ -672,7 +672,7 @@ int16_t SW_Text::getXOffs() const
 }
 byte SW_Text::getType() const
 {
-	return ssoTEXT;
+	return widgTEXT;
 }
 void SW_Text::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
@@ -755,7 +755,7 @@ bool SW_Line::load_old(subscreen_object const& old)
 }
 byte SW_Line::getType() const
 {
-	return ssoLINE;
+	return widgLINE;
 }
 void SW_Line::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
@@ -814,7 +814,7 @@ bool SW_Rect::load_old(subscreen_object const& old)
 }
 byte SW_Rect::getType() const
 {
-	return ssoRECT;
+	return widgRECT;
 }
 void SW_Rect::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
@@ -925,7 +925,7 @@ int16_t SW_Time::getXOffs() const
 }
 byte SW_Time::getType() const
 {
-	return type; //ssoBSTIME,ssoTIME,ssoSSTIME
+	return widgTIME;
 }
 void SW_Time::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
@@ -1029,7 +1029,7 @@ word SW_MagicMeter::getH() const
 }
 byte SW_MagicMeter::getType() const
 {
-	return ssoMAGICMETER;
+	return widgMMETER;
 }
 void SW_MagicMeter::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
@@ -1089,7 +1089,7 @@ word SW_LifeMeter::getH() const
 }
 byte SW_LifeMeter::getType() const
 {
-	return ssoLIFEMETER;
+	return widgLMETER;
 }
 void SW_LifeMeter::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
@@ -1148,7 +1148,7 @@ word SW_ButtonItem::getH() const
 }
 byte SW_ButtonItem::getType() const
 {
-	return ssoBUTTONITEM;
+	return widgBTNITM;
 }
 void SW_ButtonItem::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
@@ -1244,7 +1244,7 @@ int16_t SW_Counter::getXOffs() const
 }
 byte SW_Counter::getType() const
 {
-	return ssoCOUNTER;
+	return widgCOUNTER;
 }
 void SW_Counter::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
@@ -1377,7 +1377,7 @@ word SW_Counters::getH() const
 }
 byte SW_Counters::getType() const
 {
-	return ssoCOUNTERS;
+	return widgOLDCTR;
 }
 void SW_Counters::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
@@ -1490,7 +1490,7 @@ int16_t SW_MMapTitle::getXOffs() const
 }
 byte SW_MMapTitle::getType() const
 {
-	return ssoMINIMAPTITLE;
+	return widgMMAPTITLE;
 }
 void SW_MMapTitle::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
@@ -1581,7 +1581,7 @@ word SW_MMap::getH() const
 }
 byte SW_MMap::getType() const
 {
-	return ssoMINIMAP;
+	return widgMMAP;
 }
 void SW_MMap::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
@@ -1657,7 +1657,7 @@ word SW_LMap::getH() const
 }
 byte SW_LMap::getType() const
 {
-	return ssoLARGEMAP;
+	return widgLMAP;
 }
 void SW_LMap::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
@@ -1722,7 +1722,7 @@ word SW_Clear::getH() const
 }
 byte SW_Clear::getType() const
 {
-	return ssoCLEAR;
+	return widgBGCOLOR;
 }
 void SW_Clear::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
@@ -1789,7 +1789,7 @@ word SW_CurrentItem::getH() const
 }
 byte SW_CurrentItem::getType() const
 {
-	return ssoCURRENTITEM;
+	return widgITEMSLOT;
 }
 int32_t SW_CurrentItem::getItemVal(bool display) const
 {
@@ -2024,7 +2024,7 @@ word SW_TriFrame::getH() const
 }
 byte SW_TriFrame::getType() const
 {
-	return ssoTRIFRAME;
+	return widgMCGUFF_FRAME;
 }
 void SW_TriFrame::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
@@ -2114,7 +2114,7 @@ word SW_McGuffin::getH() const
 }
 byte SW_McGuffin::getType() const
 {
-	return ssoMCGUFFIN;
+	return widgMCGUFF;
 }
 void SW_McGuffin::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
@@ -2192,7 +2192,7 @@ word SW_TileBlock::getH() const
 }
 byte SW_TileBlock::getType() const
 {
-	return ssoTILEBLOCK;
+	return widgTILEBLOCK;
 }
 void SW_TileBlock::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
@@ -2275,7 +2275,7 @@ word SW_MiniTile::getH() const
 }
 byte SW_MiniTile::getType() const
 {
-	return ssoMINITILE;
+	return widgMINITILE;
 }
 int32_t SW_MiniTile::get_tile() const
 {
@@ -2391,7 +2391,7 @@ word SW_Selector::getH() const
 }
 byte SW_Selector::getType() const
 {
-	return ssoSELECTOR1;
+	return widgSELECTOR;
 }
 void SW_Selector::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
@@ -2504,7 +2504,7 @@ word SW_LifeGaugePiece::getH() const
 }
 byte SW_LifeGaugePiece::getType() const
 {
-	return ssoLIFEGAUGE;
+	return widgLGAUGE;
 }
 void SW_LifeGaugePiece::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
@@ -2609,7 +2609,7 @@ word SW_MagicGaugePiece::getH() const
 }
 byte SW_MagicGaugePiece::getType() const
 {
-	return ssoMAGICGAUGE;
+	return widgMGAUGE;
 }
 void SW_MagicGaugePiece::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
@@ -2703,7 +2703,7 @@ bool SW_TextBox::load_old(subscreen_object const& old)
 }
 byte SW_TextBox::getType() const
 {
-	return ssoTEXTBOX;
+	return widgTEXTBOX;
 }
 void SW_TextBox::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
@@ -2798,7 +2798,7 @@ bool SW_SelectedText::load_old(subscreen_object const& old)
 }
 byte SW_SelectedText::getType() const
 {
-	return ssoSELECTEDITEMNAME;
+	return widgSELECTEDTEXT;
 }
 void SW_SelectedText::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
@@ -2886,42 +2886,6 @@ int32_t SW_SelectedText::write(PACKFILE *f) const
 }
 
 
-bool new_widget_type(int ty)
-{
-	switch(ty)
-	{
-		//These have been upgraded
-		case sso2X2FRAME:
-		case ssoTEXT:
-		case ssoLINE:
-		case ssoRECT:
-		case ssoBSTIME:
-		case ssoTIME:
-		case ssoSSTIME:
-		case ssoMAGICMETER:
-		case ssoLIFEMETER:
-		case ssoBUTTONITEM:
-		case ssoCOUNTER:
-		case ssoCOUNTERS:
-		case ssoMINIMAPTITLE:
-		case ssoMINIMAP:
-		case ssoLARGEMAP:
-		case ssoCLEAR:
-		case ssoCURRENTITEM:
-		case ssoTRIFRAME:
-		case ssoMCGUFFIN:
-		case ssoTILEBLOCK:
-		case ssoMINITILE:
-			return true;
-		//These ones are just empty
-		case ssoITEM:
-		case ssoICON:
-		case ssoNULL:
-		case ssoNONE:
-			return true;
-	}
-	return false;
-}
 SubscrWidget* SubscrWidget::fromOld(subscreen_object const& old)
 {
 	switch(old.type)
@@ -3019,130 +2983,79 @@ SubscrWidget* SubscrWidget::newType(byte ty)
 	SubscrWidget* widg = nullptr;
 	switch(ty)
 	{
-		case sso2X2FRAME:
+		case widgFRAME:
 			widg = new SW_2x2Frame();
 			break;
-		case ssoTEXT:
-		{
-			SW_Text* tmp;
-			widg = tmp = new SW_Text();
-			tmp->c_text.type = ssctMISC;
+		case widgTEXT:
+			widg = new SW_Text();
 			break;
-		}
-		case ssoLINE:
+		case widgLINE:
 			widg = new SW_Line();
 			break;
-		case ssoRECT:
+		case widgRECT:
 			widg = new SW_Rect();
 			break;
-		case ssoBSTIME:
-		case ssoTIME:
-		case ssoSSTIME:
-		{
-			SW_Time* tmp;
-			widg = tmp = new SW_Time(ty);
-			tmp->c_text.type = ssctMISC;
+		case widgTIME:
+			widg = new SW_Time(ty);
 			break;
-		}
-		case ssoMAGICMETER:
+		case widgMMETER:
 			widg = new SW_MagicMeter();
 			break;
-		case ssoLIFEMETER:
+		case widgLMETER:
 			widg = new SW_LifeMeter();
 			break;
-		case ssoBUTTONITEM:
+		case widgBTNITM:
 			widg = new SW_ButtonItem();
 			break;
-		case ssoCOUNTER:
-		{
-			SW_Counter* tmp;
-			widg = tmp = new SW_Counter();
-			tmp->infitm = -1; //(None) inf item
-			tmp->c_text.type = ssctMISC; //Default text color
+		case widgCOUNTER:
+			widg = new SW_Counter();
 			break;
-		}
-		case ssoCOUNTERS:
-		{
-			SW_Counters* tmp;
-			widg = tmp = new SW_Counters();
-			tmp->c_text.type = ssctMISC;
+		case widgOLDCTR:
+			widg = new SW_Counters();
 			break;
-		}
-		case ssoMINIMAPTITLE:
-		{
-			SW_MMapTitle* tmp;
-			widg = tmp = new SW_MMapTitle();
-			tmp->c_text.type = ssctMISC;
+		case widgMMAPTITLE:
+			widg = new SW_MMapTitle();
 			break;
-		}
-		case ssoMINIMAP:
+		case widgMMAP:
 			widg = new SW_MMap();
 			break;
-		case ssoLARGEMAP:
+		case widgLMAP:
 			widg = new SW_LMap();
 			break;
-		case ssoCLEAR:
+		case widgBGCOLOR:
 			widg = new SW_Clear();
 			break;
-		case ssoCURRENTITEM:
+		case widgITEMSLOT:
 			widg = new SW_CurrentItem();
 			break;
-		case ssoTRIFRAME:
+		case widgMCGUFF_FRAME:
 			widg = new SW_TriFrame();
 			break;
-		case ssoMCGUFFIN:
+		case widgMCGUFF:
 			widg = new SW_McGuffin();
 			break;
-		case ssoTILEBLOCK:
+		case widgTILEBLOCK:
 			widg = new SW_TileBlock();
 			break;
-		case ssoMINITILE:
+		case widgMINITILE:
 			widg = new SW_MiniTile();
 			break;
-		case ssoSELECTOR1:
-		case ssoSELECTOR2:
+		case widgSELECTOR:
 			widg = new SW_Selector(ty);
 			break;
-		case ssoLIFEGAUGE:
+		case widgLGAUGE:
 			widg = new SW_LifeGaugePiece();
 			break;
-		case ssoMAGICGAUGE:
+		case widgMGAUGE:
 			widg = new SW_MagicGaugePiece();
 			break;
-		case ssoTEXTBOX:
+		case widgTEXTBOX:
 			widg = new SW_TextBox();
 			break;
-		case ssoSELECTEDITEMNAME:
+		case widgSELECTEDTEXT:
 			widg = new SW_SelectedText();
 			break;
-		case ssoITEM:
-		{
-			widg = new SubscrWidget(ty);
-			widg->w = 16;
-			widg->h = 16;
-			break;
-		}
-		case ssoICON:
-		{
-			widg = new SubscrWidget(ty);
-			widg->w = 8;
-			widg->h = 8;
-			break;
-		}
-		case ssoNULL:
-		case ssoNONE:
-		case ssoCURRENTITEMTILE:
-		case ssoSELECTEDITEMTILE:
-		case ssoCURRENTITEMTEXT:
-		case ssoCURRENTITEMNAME:
-		case ssoCURRENTITEMCLASSTEXT:
-		case ssoCURRENTITEMCLASSNAME:
-		case ssoSELECTEDITEMCLASSNAME:
-			widg = new SubscrWidget(ty); //Nothingness
-			break;
 	}
-	if(widg && !widg->type)
-		widg->type = ty;
 	return widg;
 }
 
@@ -3163,7 +3076,7 @@ void SubscrPage::move_cursor(int dir, bool item_only)
 	if(verify)
 	{
 		SubscrWidget* widg = get_widg_pos(cursor_pos);
-		if(widg && widg->getType() == ssoCURRENTITEM
+		if(widg && widg->getType() == widgITEMSLOT
 			&& (widg->flags & SUBSCRFLAG_SELECTABLE)
 			&& !(widg->flags & SUBSCR_CURITM_NONEQP)
 			&& widg->getItemVal() > 0)
@@ -3275,7 +3188,7 @@ int32_t SubscrPage::move_legacy(int dir, int startp, int fp, int fp2, int fp3, b
 		SubscrWidget* widg = get_widg_pos(startp);
 		int32_t wpn = widg ? widg->getItemVal() : -1;
 		equip_only = item_only = true;
-		if(widg->getType() != ssoCURRENTITEM || (widg->flags&SUBSCR_CURITM_NONEQP))
+		if(widg->getType() != widgITEMSLOT || (widg->flags&SUBSCR_CURITM_NONEQP))
 			wpn = -1;
 		
 		if(wpn > 0 && startp != fp && startp != fp2 && startp != fp3)
@@ -3290,7 +3203,7 @@ int32_t SubscrPage::move_legacy(int dir, int startp, int fp, int fp2, int fp3, b
 	
 	for(int32_t i=0; i < contents.size(); ++i)
 	{
-		if(contents[i]->getType()==ssoCURRENTITEM && (contents[i]->flags&SUBSCRFLAG_SELECTABLE))
+		if(contents[i]->getType()==widgITEMSLOT && (contents[i]->flags&SUBSCRFLAG_SELECTABLE))
 		{
 			if(firstValidPos==-1 && contents[i]->pos>=0)
 				firstValidPos=i;
@@ -3379,7 +3292,7 @@ SubscrWidget* SubscrPage::get_widg_pos(int32_t pos, bool sel_only)
 	{
 		if(!(contents[q]->flags & SUBSCRFLAG_SELECTABLE))
 			continue;
-		if (sel_only && contents[q]->getType() == ssoCURRENTITEM)
+		if (sel_only && contents[q]->getType() == widgITEMSLOT)
 			if (static_cast<SW_CurrentItem*>(contents[q])->flags & SUBSCR_CURITM_NONEQP)
 				continue;
 		if(contents[q]->pos == pos)
@@ -3544,7 +3457,7 @@ void ZCSubscreen::load_old(subscreen_object const* arr)
 	{
 		SubscrWidget* w = SubscrWidget::fromOld(arr[ind]);
 		if(!w) continue;
-		if(w->getType() == ssoNONE || w->getType() == ssoNULL)
+		if(arr[ind].type == ssoNONE || arr[ind].type == ssoNULL)
 		{
 			delete w;
 			continue;

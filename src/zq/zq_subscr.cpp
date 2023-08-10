@@ -291,7 +291,7 @@ int32_t d_subscreen_proc(int32_t msg,DIALOG *d,int32_t)
 			object_message(d,MSG_DRAW,0);
 			
 			// Disable "Paste Properties" if the copy source is invalid
-			if(!propCopyWidg || propCopyWidg->getType()==ssoNULL)
+			if(!propCopyWidg || propCopyWidg->getType()==widgNULL)
 				subscreen_rc_menu[2].flags|=D_DISABLED;
 			else
 				subscreen_rc_menu[2].flags&=~D_DISABLED;
@@ -990,7 +990,7 @@ static DIALOG sel_options_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-const char *sso_str[ssoMAX]=
+const char *sso_old_str[ssoMAX]=
 {
     "NULL", "(None)", "2x2 Frame", "Text", "Line", "Rectangle", "BS-Zelda Time", "Game Time", "Game Time (Quest Rule)", "Magic Meter", "Life Meter",
     "Button Item", "-Icon (Not Implemented)", "Counter", "Counter Block", "Minimap Title", "Minimap", "Large Map", "Background Color", "Current Item", "-Item (Not Implemented)",
@@ -998,13 +998,20 @@ const char *sso_str[ssoMAX]=
     "-Selected Item -> Tile (Not Implemented)", "-Current Item -> Text (Not Implemented)", "-Current Item Name (Not Implemented)", "Selected Item Name",
     "-Current Item Class -> Text (Not Implemented)", "-Current Item Class Name (Not Implemented)", "-Selected Item Class Name (Not Implemented)"
 };
+const char *sso_str[widgMAX]=
+{
+    "(None)", "2x2 Frame", "Text", "Line", "Rectangle",
+	"Playtime", "Magic Meter", "Life Meter", "Button Item", "Counter",
+	"Counter Block", "Minimap Title", "Minimap", "Large Map", "Background Color",
+	"Item Slot", "McGuffin Frame", "McGuffin Piece", "Tile Block", "Minitile",
+	"Selector", "Life Gauge Piece", "Magic Gauge Piece", "Text Box", "Selection Text"
+};
 
 char *sso_name(int32_t type)
 {
-    char *tempname;
-    tempname=(char*)malloc(255);
+    static char tempname[256];
     
-    if(type>=0 && type <ssoMAX)
+    if(type>=0 && type <widgMAX)
     {
         sprintf(tempname, "%s", sso_str[type]);
     }
@@ -1016,7 +1023,7 @@ char *sso_name(int32_t type)
     return tempname;
 }
 
-sso_struct bisso[ssoMAX];
+sso_struct bisso[widgMAX];
 int32_t bisso_cnt=-1;
 
 void build_bisso_list()
@@ -1024,7 +1031,7 @@ void build_bisso_list()
     int32_t start=1;
     bisso_cnt=0;
     
-    for(int32_t i=start; i<ssoMAX; i++)
+    for(int32_t i=start; i<widgMAX; i++)
     {
         if(sso_str[i][0]!='-')
         {
@@ -1092,53 +1099,6 @@ void doNewSubscreenObject(int32_t type)
 		curr_subscreen_object=temp_cso;
 		delete widg;
 	}
-}
-
-std::string getssname(int32_t type)
-{
-	switch(type)
-	{
-		case ssoNULL: return "ssoNULL";
-		case ssoNONE: return "ssoNONE";
-		case sso2X2FRAME: return "sso2X2FRAME";
-		case ssoTEXT: return "ssoTEXT";
-		case ssoLINE: return "ssoLINE";
-		case ssoRECT: return "ssoRECT";
-		case ssoBSTIME: return "ssoBSTIME";
-		case ssoTIME: return "ssoTIME";
-		case ssoSSTIME: return "ssoSSTIME";
-		case ssoMAGICMETER: return "ssoMAGICMETER";
-		case ssoLIFEMETER: return "ssoLIFEMETER";
-		case ssoBUTTONITEM: return "ssoBUTTONITEM";
-		case ssoICON: return "ssoICON";
-		case ssoCOUNTER: return "ssoCOUNTER";
-		case ssoCOUNTERS: return "ssoCOUNTERS";
-		case ssoMINIMAPTITLE: return "ssoMINIMAPTITLE";
-		case ssoMINIMAP: return "ssoMINIMAP";
-		case ssoLARGEMAP: return "ssoLARGEMAP";
-		case ssoCLEAR: return "ssoCLEAR";
-		case ssoCURRENTITEM: return "ssoCURRENTITEM";
-		case ssoITEM: return "ssoITEM";
-		case ssoTRIFRAME: return "ssoTRIFRAME";
-		case ssoMCGUFFIN: return "ssoMCGUFFIN";
-		case ssoTILEBLOCK: return "ssoTILEBLOCK";
-		case ssoMINITILE: return "ssoMINITILE";
-		case ssoSELECTOR1: return "ssoSELECTOR1";
-		case ssoSELECTOR2: return "ssoSELECTOR2";
-		case ssoMAGICGAUGE: return "ssoMAGICGAUGE";
-		case ssoLIFEGAUGE: return "ssoLIFEGAUGE";
-		case ssoTEXTBOX: return "ssoTEXTBOX";
-		case ssoCURRENTITEMTILE: return "ssoCURRENTITEMTILE";
-		case ssoSELECTEDITEMTILE: return "ssoSELECTEDITEMTILE";
-		case ssoCURRENTITEMTEXT: return "ssoCURRENTITEMTEXT";
-		case ssoCURRENTITEMNAME: return "ssoCURRENTITEMNAME";
-		case ssoSELECTEDITEMNAME: return "ssoSELECTEDITEMNAME";
-		case ssoCURRENTITEMCLASSTEXT: return "ssoCURRENTITEMCLASSTEXT";
-		case ssoCURRENTITEMCLASSNAME: return "ssoCURRENTITEMCLASSNAME";
-		case ssoSELECTEDITEMCLASSNAME: return "ssoSELECTEDITEMCLASSNAME";
-		case ssoMAX: return "ssoMAX";
-	}
-	return "NIL_UNDEFINED_VAL";
 }
 
 int32_t onNewSubscreenObject()

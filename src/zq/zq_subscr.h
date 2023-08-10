@@ -24,7 +24,6 @@ bool edit_subscreen();
 int32_t onEditSubscreens();
 
 char *sso_name(int32_t type);
-char *sso_name(subscreen_object *tempss, int32_t id);
 void center_zq_subscreen_dialogs();
 void update_sso_name();
 void update_up_dn_btns();

@@ -99,6 +99,16 @@ enum //old subscreen object types
 	ssoMAX, ssoTEMPOLD
 };
 
+enum
+{
+	widgNULL, widgFRAME, widgTEXT, widgLINE, widgRECT,
+	widgTIME, widgMMETER, widgLMETER, widgBTNITM, widgCOUNTER,
+	widgOLDCTR, widgMMAPTITLE, widgMMAP, widgLMAP, widgBGCOLOR,
+	widgITEMSLOT, widgMCGUFF_FRAME, widgMCGUFF, widgTILEBLOCK, widgMINITILE,
+	widgSELECTOR, widgLGAUGE, widgMGAUGE, widgTEXTBOX, widgSELECTEDTEXT,
+	widgMAX
+};
+
 //Misc constants
 enum //text styles
 {
@@ -273,7 +283,7 @@ struct SW_Text : public SubscrWidget
 	int32_t fontid;
 	std::string text;
 	byte align, shadtype;
-	SubscrColorInfo c_text, c_shadow, c_bg;
+	SubscrColorInfo c_text = {ssctMISC,0}, c_shadow, c_bg;
 	
 	SW_Text() = default;
 	SW_Text(subscreen_object const& old);
@@ -334,7 +344,7 @@ struct SW_Time : public SubscrWidget
 {
 	int32_t fontid;
 	byte align, shadtype;
-	SubscrColorInfo c_text, c_shadow, c_bg;
+	SubscrColorInfo c_text = {ssctMISC,0}, c_shadow, c_bg;
 	
 	SW_Time() = default;
 	SW_Time(byte ty);
@@ -420,10 +430,10 @@ struct SW_Counter : public SubscrWidget
 {
 	int32_t fontid;
 	byte align, shadtype;
-	SubscrColorInfo c_text, c_shadow, c_bg;
+	SubscrColorInfo c_text = {ssctMISC,0}, c_shadow, c_bg;
 	int32_t ctrs[3];
 	byte digits;
-	int32_t infitm;
+	int32_t infitm = -1;
 	char infchar;
 	
 	SW_Counter() = default;
@@ -449,9 +459,9 @@ struct SW_Counters : public SubscrWidget
 {
 	int32_t fontid;
 	byte shadtype;
-	SubscrColorInfo c_text, c_shadow, c_bg;
+	SubscrColorInfo c_text = {ssctMISC,0}, c_shadow, c_bg;
 	byte digits;
-	int32_t infitm;
+	int32_t infitm = -1;
 	char infchar;
 	
 	SW_Counters() = default;
@@ -476,7 +486,7 @@ struct SW_MMapTitle : public SubscrWidget
 {
 	int32_t fontid;
 	byte align, shadtype;
-	SubscrColorInfo c_text, c_shadow, c_bg;
+	SubscrColorInfo c_text = {ssctMISC,0}, c_shadow, c_bg;
 	
 	SW_MMapTitle() = default;
 	SW_MMapTitle(subscreen_object const& old);
@@ -828,7 +838,5 @@ struct ZCSubscreen
 	int32_t read(PACKFILE *f, word s_version);
 	int32_t write(PACKFILE *f) const;
 };
-
-bool new_widget_type(int ty);
 #endif
 

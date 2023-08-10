@@ -249,25 +249,24 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 		bool show_wh = true;
 		switch(local_subref->getType())
 		{
-			case sso2X2FRAME:
-			case ssoCURRENTITEM:
-			case ssoMCGUFFIN:
-			case ssoTILEBLOCK:
-			case ssoTEXTBOX:
+			case widgFRAME:
+			case widgITEMSLOT:
+			case widgMCGUFF:
+			case widgTILEBLOCK:
+			case widgTEXTBOX:
 				loadw = local_subref->w;
 				loadh = local_subref->h;
 				break;
-			case ssoMAGICMETER:
-			case ssoLIFEMETER:
-			case ssoMINIMAP:
-			case ssoLARGEMAP:
-			case ssoSELECTOR1:
-			case ssoSELECTOR2:
-			case ssoMINITILE:
-			case ssoTRIFRAME:
+			case widgMMETER:
+			case widgLMETER:
+			case widgMMAP:
+			case widgLMAP:
+			case widgSELECTOR:
+			case widgMINITILE:
+			case widgMCGUFF_FRAME:
 				show_wh = false;
 				break;
-			case ssoCLEAR:
+			case widgBGCOLOR:
 				show_xy = false;
 				show_wh = false;
 				break;
@@ -368,15 +367,13 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 	{
 		switch(local_subref->getType())
 		{
-			case sso2X2FRAME:
+			case widgFRAME:
 			{
 				SW_2x2Frame* w = dynamic_cast<SW_2x2Frame*>(local_subref);
 				col_grid->add(MISC_CSET_SEL(w->cs, "CSet", 1));
 				break;
 			}
-			case ssoBSTIME:
-			case ssoTIME:
-			case ssoSSTIME:
+			case widgTIME:
 			{
 				SW_Time* w = dynamic_cast<SW_Time*>(local_subref);
 				col_grid->add(MISC_COLOR_SEL(w->c_text, "Text Color", 1));
@@ -384,10 +381,10 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				col_grid->add(MISC_COLOR_SEL(w->c_bg, "Background Color", 3));
 				break;
 			}
-			case ssoBUTTONITEM:
+			case widgBTNITM:
 				addcolor = false;
 				break;
-			case ssoCOUNTER:
+			case widgCOUNTER:
 			{
 				SW_Counter* w = dynamic_cast<SW_Counter*>(local_subref);
 				col_grid->add(MISC_COLOR_SEL(w->c_text, "Text Color", 1));
@@ -395,7 +392,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				col_grid->add(MISC_COLOR_SEL(w->c_bg, "Background Color", 3));
 				break;
 			}
-			case ssoCOUNTERS:
+			case widgOLDCTR:
 			{
 				SW_Counters* w = dynamic_cast<SW_Counters*>(local_subref);
 				col_grid->add(MISC_COLOR_SEL(w->c_text, "Text Color", 1));
@@ -403,41 +400,41 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				col_grid->add(MISC_COLOR_SEL(w->c_bg, "Background Color", 3));
 				break;
 			}
-			case ssoCURRENTITEM:
+			case widgITEMSLOT:
 				addcolor = false;
 				break;
-			case ssoCLEAR:
+			case widgBGCOLOR:
 			{
 				SW_Clear* w = dynamic_cast<SW_Clear*>(local_subref);
 				col_grid->add(MISC_COLOR_SEL(w->c_bg, "Subscreen Color", 1));
 				break;
 			}
-			case ssoLARGEMAP:
+			case widgLMAP:
 			{
 				SW_LMap* w = dynamic_cast<SW_LMap*>(local_subref);
 				col_grid->add(MISC_COLOR_SEL(w->c_room, "Room Color", 1));
 				col_grid->add(MISC_COLOR_SEL(w->c_plr, "Player Color", 2));
 				break;
 			}
-			case ssoLIFEGAUGE:
+			case widgLGAUGE:
 				addcolor = false;
 				break;
-			case ssoLIFEMETER:
+			case widgLMETER:
 				addcolor = false;
 				break;
-			case ssoLINE:
+			case widgLINE:
 			{
 				SW_Line* w = dynamic_cast<SW_Line*>(local_subref);
 				col_grid->add(MISC_COLOR_SEL(w->c_line, "Line Color", 1));
 				break;
 			}
-			case ssoMAGICGAUGE:
+			case widgMGAUGE:
 				addcolor = false;
 				break;
-			case ssoMAGICMETER:
+			case widgMMETER:
 				addcolor = false;
 				break;
-			case ssoMINIMAP:
+			case widgMMAP:
 			{
 				SW_MMap* w = dynamic_cast<SW_MMap*>(local_subref);
 				col_grid->add(MISC_COLOR_SEL(w->c_plr, "Player Color", 1));
@@ -445,7 +442,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				col_grid->add(MISC_COLOR_SEL(w->c_cmp_off, "Compass Const Color", 3));
 				break;
 			}
-			case ssoMINIMAPTITLE:
+			case widgMMAPTITLE:
 			{
 				SW_MMapTitle* w = dynamic_cast<SW_MMapTitle*>(local_subref);
 				col_grid->add(MISC_COLOR_SEL(w->c_text, "Text Color", 1));
@@ -453,20 +450,20 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				col_grid->add(MISC_COLOR_SEL(w->c_bg, "Background Color", 3));
 				break;
 			}
-			case ssoMINITILE:
+			case widgMINITILE:
 			{
 				SW_MiniTile* w = dynamic_cast<SW_MiniTile*>(local_subref);
 				col_grid->add(MISC_CSET_SEL(w->cs, "CSet", 1));
 				break;
 			}
-			case ssoRECT:
+			case widgRECT:
 			{
 				SW_Rect* w = dynamic_cast<SW_Rect*>(local_subref);
 				col_grid->add(MISC_COLOR_SEL(w->c_outline, "Outline Color", 1));
 				col_grid->add(MISC_COLOR_SEL(w->c_fill, "Fill Color", 2));
 				break;
 			}
-			case ssoSELECTEDITEMNAME:
+			case widgSELECTEDTEXT:
 			{
 				SW_SelectedText* w = dynamic_cast<SW_SelectedText*>(local_subref);
 				col_grid->add(MISC_COLOR_SEL(w->c_text, "Text Color", 1));
@@ -474,11 +471,10 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				col_grid->add(MISC_COLOR_SEL(w->c_bg, "Background Color", 3));
 				break;
 			}
-			case ssoSELECTOR1:
-			case ssoSELECTOR2:
+			case widgSELECTOR:
 				addcolor = false;
 				break;
-			case ssoTEXT:
+			case widgTEXT:
 			{
 				SW_Text* w = dynamic_cast<SW_Text*>(local_subref);
 				col_grid->add(MISC_COLOR_SEL(w->c_text, "Text Color", 1));
@@ -486,7 +482,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				col_grid->add(MISC_COLOR_SEL(w->c_bg, "Background Color", 3));
 				break;
 			}
-			case ssoTEXTBOX:
+			case widgTEXTBOX:
 			{
 				SW_TextBox* w = dynamic_cast<SW_TextBox*>(local_subref);
 				col_grid->add(MISC_COLOR_SEL(w->c_text, "Text Color", 1));
@@ -494,20 +490,20 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				col_grid->add(MISC_COLOR_SEL(w->c_bg, "Background Color", 3));
 				break;
 			}
-			case ssoTILEBLOCK:
+			case widgTILEBLOCK:
 			{
 				SW_TileBlock* w = dynamic_cast<SW_TileBlock*>(local_subref);
 				col_grid->add(MISC_CSET_SEL(w->cs, "CSet", 1));
 				break;
 			}
-			case ssoTRIFRAME:
+			case widgMCGUFF_FRAME:
 			{
 				SW_TriFrame* w = dynamic_cast<SW_TriFrame*>(local_subref);
 				col_grid->add(MISC_COLOR_SEL(w->c_outline, "Frame Outline Color", 1));
 				col_grid->add(MISC_COLOR_SEL(w->c_number, "Number Color", 2));
 				break;
 			}
-			case ssoMCGUFFIN:
+			case widgMCGUFF:
 			{
 				SW_McGuffin* w = dynamic_cast<SW_McGuffin*>(local_subref);
 				col_grid->add(MISC_CSET_SEL(w->cs, "CSet", 1));
@@ -524,7 +520,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 	{
 		switch(local_subref->getType())
 		{
-			case sso2X2FRAME:
+			case widgFRAME:
 			{
 				SW_2x2Frame* w = dynamic_cast<SW_2x2Frame*>(local_subref);
 				attrib_grid = Column(
@@ -550,9 +546,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				);
 				break;
 			}
-			case ssoTIME:
-			case ssoSSTIME:
-			case ssoBSTIME:
+			case widgTIME:
 			{
 				SW_Time* w = dynamic_cast<SW_Time*>(local_subref);
 				attrib_grid = Columns<3>(
@@ -565,7 +559,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				);
 				break;
 			}
-			case ssoBUTTONITEM:
+			case widgBTNITM:
 			{
 				SW_ButtonItem* w = dynamic_cast<SW_ButtonItem*>(local_subref);
 				attrib_grid = Rows<2>(
@@ -575,7 +569,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				);
 				break;
 			}
-			case ssoCOUNTER:
+			case widgCOUNTER:
 			{
 				SW_Counter* w = dynamic_cast<SW_Counter*>(local_subref);
 				mergetype = mtFORCE_TAB; //too wide to fit!
@@ -613,7 +607,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				);
 				break;
 			}
-			case ssoCOUNTERS:
+			case widgOLDCTR:
 			{
 				SW_Counters* w = dynamic_cast<SW_Counters*>(local_subref);
 				attrib_grid = Rows<2>(
@@ -638,7 +632,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				);
 				break;
 			}
-			case ssoCURRENTITEM:
+			case widgITEMSLOT:
 			{
 				SW_CurrentItem* w = dynamic_cast<SW_CurrentItem*>(local_subref);
 				attrib_grid = Rows<3>(
@@ -668,12 +662,12 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				);
 				break;
 			}
-			case ssoCLEAR:
+			case widgBGCOLOR:
 			{
 				addattrib = false;
 				break;
 			}
-			case ssoLARGEMAP:
+			case widgLMAP:
 			{
 				SW_LMap* w = dynamic_cast<SW_LMap*>(local_subref);
 				attrib_grid = Column(
@@ -684,7 +678,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				);
 				break;
 			}
-			case ssoLIFEGAUGE:
+			case widgLGAUGE:
 			{
 				SW_LifeGaugePiece* w = dynamic_cast<SW_LifeGaugePiece*>(local_subref);
 				attrib_grid = Row(padding = 0_px,
@@ -715,7 +709,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				);
 				break;
 			}
-			case ssoLIFEMETER:
+			case widgLMETER:
 			{
 				SW_LifeMeter* w = dynamic_cast<SW_LifeMeter*>(local_subref);
 				attrib_grid = Rows<2>(
@@ -725,7 +719,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				);
 				break;
 			}
-			case ssoLINE:
+			case widgLINE:
 			{
 				SW_Line* w = dynamic_cast<SW_Line*>(local_subref);
 				attrib_grid = Column(
@@ -733,7 +727,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				);
 				break;
 			}
-			case ssoMAGICGAUGE:
+			case widgMGAUGE:
 			{
 				SW_MagicGaugePiece* w = dynamic_cast<SW_MagicGaugePiece*>(local_subref);
 				attrib_grid = Row(padding = 0_px,
@@ -774,12 +768,12 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				);
 				break;
 			}
-			case ssoMAGICMETER:
+			case widgMMETER:
 			{
 				addattrib = false;
 				break;
 			}
-			case ssoMINIMAP:
+			case widgMMAP:
 			{
 				SW_MMap* w = dynamic_cast<SW_MMap*>(local_subref);
 				attrib_grid = Column(
@@ -789,7 +783,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				);
 				break;
 			}
-			case ssoMINIMAPTITLE:
+			case widgMMAPTITLE:
 			{
 				SW_MMapTitle* w = dynamic_cast<SW_MMapTitle*>(local_subref);
 				attrib_grid = Rows<2>(
@@ -803,7 +797,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				);
 				break;
 			}
-			case ssoMINITILE:
+			case widgMINITILE:
 			{
 				SW_MiniTile* w = dynamic_cast<SW_MiniTile*>(local_subref);
 				mergetype = mtLOCTOP; //too wide to fit all 3 horiz, but has vert room
@@ -900,7 +894,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				);
 				break;
 			}
-			case ssoRECT:
+			case widgRECT:
 			{
 				SW_Rect* w = dynamic_cast<SW_Rect*>(local_subref);
 				attrib_grid = Column(
@@ -909,7 +903,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				);
 				break;
 			}
-			case ssoSELECTEDITEMNAME:
+			case widgSELECTEDTEXT:
 			{
 				SW_SelectedText* w = dynamic_cast<SW_SelectedText*>(local_subref);
 				attrib_grid = Rows<2>(
@@ -926,8 +920,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				);
 				break;
 			}
-			case ssoSELECTOR1:
-			case ssoSELECTOR2:
+			case widgSELECTOR:
 			{
 				SW_Selector* w = dynamic_cast<SW_Selector*>(local_subref);
 				attrib_grid = Column(
@@ -937,7 +930,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				);
 				break;
 			}
-			case ssoTEXT:
+			case widgTEXT:
 			{
 				SW_Text* w = dynamic_cast<SW_Text*>(local_subref);
 				attrib_grid = Rows<2>(
@@ -965,7 +958,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				);
 				break;
 			}
-			case ssoTEXTBOX:
+			case widgTEXTBOX:
 			{
 				SW_TextBox* w = dynamic_cast<SW_TextBox*>(local_subref);
 				attrib_grid = Rows<2>(
@@ -998,7 +991,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				);
 				break;
 			}
-			case ssoTILEBLOCK:
+			case widgTILEBLOCK:
 			{
 				SW_TileBlock* w = dynamic_cast<SW_TileBlock*>(local_subref);
 				mergetype = mtLOCTOP; //too wide to fit all 3 horiz, but has vert room
@@ -1028,7 +1021,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				);
 				break;
 			}
-			case ssoTRIFRAME:
+			case widgMCGUFF_FRAME:
 			{
 				SW_TriFrame* w = dynamic_cast<SW_TriFrame*>(local_subref);
 				mergetype = mtFORCE_TAB; //Way too wide to fit
@@ -1092,7 +1085,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				);
 				break;
 			}
-			case ssoMCGUFFIN:
+			case widgMCGUFF:
 			{
 				SW_McGuffin* w = dynamic_cast<SW_McGuffin*>(local_subref);
 				mergetype = mtLOCTOP;
@@ -1173,9 +1166,9 @@ void SubscrPropDialog::updateColors()
 {
 	switch(local_subref->getType())
 	{
-		case sso2X2FRAME:
-		case ssoMINITILE:
-		case ssoTILEBLOCK:
+		case widgFRAME:
+		case widgMINITILE:
+		case widgTILEBLOCK:
 		{
 			tswatches[0]->setCSet(SubscrColorInfo::get_cset(cs_sel[0]->getC1(), cs_sel[0]->getC2()));
 			break;
@@ -1187,7 +1180,7 @@ void SubscrPropDialog::update_wh()
 {
 	switch(local_subref->getType())
 	{
-		case ssoTILEBLOCK:
+		case widgTILEBLOCK:
 			tswatches[0]->setTileWid(std::min(local_subref->w, (word)TB_LA));
 			tswatches[0]->setTileHei(std::min(local_subref->h, (word)TB_LA));
 			break;
