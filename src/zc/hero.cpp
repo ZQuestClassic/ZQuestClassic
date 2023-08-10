@@ -27449,8 +27449,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	FFCore.ScrollingData[SCROLLDATA_NEW_REGION_OFFSET_Y] = new_region_offset_y;
 	FFCore.ScrollingData[SCROLLDATA_NRX] = new_region_offset_x - viewport.x;
 	FFCore.ScrollingData[SCROLLDATA_NRY] = new_region_offset_y - viewport.y;
-	FFCore.ScrollingData[SCROLLDATA_ORX] = 0;
-	FFCore.ScrollingData[SCROLLDATA_ORY] = 0;
+	FFCore.ScrollingData[SCROLLDATA_ORX] = -viewport.x;
+	FFCore.ScrollingData[SCROLLDATA_ORY] = -viewport.y;
 
 	// Get the screen coords of the top-left of the screen we are scrolling away from.
 	std::tie(FFCore.ScrollingData[SCROLLDATA_OX], FFCore.ScrollingData[SCROLLDATA_OY]) =
@@ -27458,8 +27458,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	FFCore.ScrollingData[SCROLLDATA_OX] -= viewport.x;
 	FFCore.ScrollingData[SCROLLDATA_OY] -= viewport.y;
 
-	FFCore.ScrollingData[SCROLLDATA_NPX] = x.getInt();
-	FFCore.ScrollingData[SCROLLDATA_NPY] = y.getInt();
+	FFCore.ScrollingData[SCROLLDATA_NPX] = new_hero_x.getInt();
+	FFCore.ScrollingData[SCROLLDATA_NPY] = new_hero_y.getInt();
 
 	FFCore.ScrollingData[SCROLLDATA_OPX] = x.getInt();
 	FFCore.ScrollingData[SCROLLDATA_OPY] = y.getInt();
@@ -27481,11 +27481,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 
 	FFCore.ScrollingData[SCROLLDATA_OLD_VIEWPORT_X] = viewport.x;
 	FFCore.ScrollingData[SCROLLDATA_OLD_VIEWPORT_Y] = viewport.y;
-
-	FFCore.ScrollingData[SCROLLDATA_NPX] = new_hero_x.getInt();
-	FFCore.ScrollingData[SCROLLDATA_NPY] = new_hero_y.getInt();
-	FFCore.ScrollingData[SCROLLDATA_OPX] = x.getInt();
-	FFCore.ScrollingData[SCROLLDATA_OPY] = y.getInt();
 
 	FFCore.clear_combo_scripts();
 	
