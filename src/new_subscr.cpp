@@ -670,7 +670,7 @@ byte SW_Text::getType() const
 void SW_Text::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
 	FONT* tempfont = get_zc_font(fontid);
-	textout_styled_aligned_ex(dest,tempfont,text.c_str(),getX()+xofs,getY()+yofs,
+	textout_styled_aligned_ex(dest,tempfont,text.c_str(),x+xofs,y+yofs,
 		shadtype,align,c_text.get_color(),c_shadow.get_color(),c_bg.get_color());
 }
 SubscrWidget* SW_Text::clone() const
@@ -935,7 +935,7 @@ void SW_Time::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) c
 			break;
 	}
 	FONT* tempfont = get_zc_font(fontid);
-	textout_styled_aligned_ex(dest,tempfont,ts,getX()+xofs,getY()+yofs,
+	textout_styled_aligned_ex(dest,tempfont,ts,x+xofs,y+yofs,
 		shadtype,align,c_text.get_color(),c_shadow.get_color(),c_bg.get_color());
 }
 bool SW_Time::visible(byte pos, bool showtime) const
@@ -1070,7 +1070,7 @@ int16_t SW_LifeMeter::getY() const
 {
 	if(flags&SUBSCR_LIFEMET_BOT)
 		return y;
-	return (4-rows)*8;
+	return y+(4-rows)*8;
 }
 word SW_LifeMeter::getW() const
 {
@@ -1086,7 +1086,7 @@ byte SW_LifeMeter::getType() const
 }
 void SW_LifeMeter::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
-	lifemeter(dest, getX()+xofs, getY()+yofs, 1, flags&SUBSCR_LIFEMET_BOT);
+	lifemeter(dest, getX()+xofs, y+yofs, 1, flags&SUBSCR_LIFEMET_BOT);
 }
 SubscrWidget* SW_LifeMeter::clone() const
 {
@@ -1242,7 +1242,7 @@ byte SW_Counter::getType() const
 void SW_Counter::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
 	FONT* tempfont = get_zc_font(fontid);
-	counter(dest, getX()+xofs,getY()+yofs, tempfont, c_text.get_color(),
+	counter(dest, x+xofs,y+yofs, tempfont, c_text.get_color(),
 		c_shadow.get_color(), c_bg.get_color(),align,shadtype,digits,infchar,
 		flags&SUBSCR_COUNTER_SHOW0, ctrs[0], ctrs[1], ctrs[2], infitm,
 		flags&SUBSCR_COUNTER_ONLYSEL);
@@ -1375,7 +1375,7 @@ byte SW_Counters::getType() const
 void SW_Counters::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
 	FONT* tempfont = get_zc_font(fontid);
-	defaultcounters(dest, getX()+xofs, getY()+yofs, tempfont, c_text.get_color(),
+	defaultcounters(dest, x+xofs, y+yofs, tempfont, c_text.get_color(),
 		c_shadow.get_color(), c_bg.get_color(),flags&SUBSCR_COUNTERS_USEX,shadtype,
 		digits,infchar);
 }

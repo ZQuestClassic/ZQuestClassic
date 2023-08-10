@@ -253,7 +253,7 @@ int32_t d_subscreen_proc(int32_t msg,DIALOG *d,int32_t)
 		for(int32_t i=pg.contents.size()-1; i>=0; --i)
 		{
 			SubscrWidget* widg = pg.contents[i];
-			int32_t x=widg->getX()*2+widg->getXOffs();
+			int32_t x=(widg->getX()+widg->getXOffs())*2;
 			int32_t y=widg->getY()*2;
 			int32_t w=widg->getW()*2;
 			int32_t h=widg->getH()*2;
