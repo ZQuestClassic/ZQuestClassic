@@ -480,7 +480,9 @@ bool SubscrWidget::copy_prop(SubscrWidget const* src, bool all)
 }
 int32_t SubscrWidget::read(PACKFILE *f, word s_version)
 {
-	//does not 'p_getc(&type)', SubscrWidget::readWidg() handles that
+	//Intentionally offset by one byte ('getType()') from ::write() -Em
+	if(!p_getc(&type,f))
+		return qe_invalid;
 	if(!p_getc(&posflags,f))
 		return qe_invalid;
 	if(!p_igetw(&x,f))
@@ -516,38 +518,40 @@ int32_t SubscrWidget::read(PACKFILE *f, word s_version)
 }
 int32_t SubscrWidget::write(PACKFILE *f) const
 {
-	if(!p_putc(type,f))
+	if(!p_putc(getType(),f))
 		new_return(1);
-	if(!p_putc(posflags,f))
+	if(!p_putc(type,f))
 		new_return(2);
-	if(!p_iputw(x,f))
+	if(!p_putc(posflags,f))
 		new_return(3);
-	if(!p_iputw(y,f))
+	if(!p_iputw(x,f))
 		new_return(4);
-	if(!p_iputw(w,f))
+	if(!p_iputw(y,f))
 		new_return(5);
-	if(!p_iputw(h,f))
+	if(!p_iputw(w,f))
 		new_return(6);
-	if(!p_iputl(flags,f))
+	if(!p_iputw(h,f))
 		new_return(7);
+	if(!p_iputl(flags,f))
+		new_return(8);
 	if(flags&SUBSCRFLAG_SELECTABLE)
 	{
 		if(!p_iputl(pos,f))
-			new_return(8);
-		if(!p_iputl(pos_up,f))
 			new_return(9);
-		if(!p_iputl(pos_down,f))
+		if(!p_iputl(pos_up,f))
 			new_return(10);
-		if(!p_iputl(pos_left,f))
+		if(!p_iputl(pos_down,f))
 			new_return(11);
-		if(!p_iputl(pos_right,f))
+		if(!p_iputl(pos_left,f))
 			new_return(12);
-		if(!p_putcstr(override_text,f))
+		if(!p_iputl(pos_right,f))
 			new_return(13);
-		if(!p_putc(gen_script_btns,f))
+		if(!p_putcstr(override_text,f))
 			new_return(14);
-		if(!p_iputw(generic_script,f))
+		if(!p_putc(gen_script_btns,f))
 			new_return(15);
+		if(!p_iputw(generic_script,f))
+			new_return(16);
 	}
 	return 0;
 }
