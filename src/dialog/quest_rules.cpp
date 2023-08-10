@@ -13,6 +13,7 @@
 #include "gui/use_size.h"
 #include "zq/zq_files.h"
 #include "base/qrs.h"
+#include "base/mapscr.h"
 
 bool mapcount_will_affect_layers(word newmapcount);
 void update_map_count(word newmapcount);
@@ -925,6 +926,8 @@ static GUI::ListData compatRulesList
 	{ "Old (Buggy) ZScript Volume Access", qr_OLD_SCRIPT_VOLUME,
 		"If enabled, Audio->AdjustMusicVolume() and Audio->AdjustSFXVolume() will use their old behavior,"
 		" which was bugged and wrote directly to the volume sliders." },
+	{ "Old Engine Subscreen Quirks", qr_OLD_SUBSCR,
+		"If enabled, the subscreen behaves in a way needed for compat."},
 };
 
 static GUI::ListData enemiesRulesList

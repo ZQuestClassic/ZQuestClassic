@@ -485,17 +485,6 @@ void HeroClass::stopSubscreenFalling(bool v){
 	preventsubscreenfalling = v;
 }
 
-
-//Set the button items by brute force
-
-void HeroClass::setAButtonItem(int32_t itmslot){
-	game->awpn = itmslot;
-}
-
-void HeroClass::setBButtonItem(int32_t itmslot){
-	game->bwpn = itmslot;
-}
-
 void HeroClass::ClearhitHeroUIDs()
 { 		//Why the flidd doesn't this work?! Clearing this to 0 in a way that doesn't demolish script access is impossible. -Z
 		//All I want, is to clear it at the end of a frame, or at the start of a frame, so that if it changes to non-0
@@ -10154,32 +10143,41 @@ void HeroClass::solid_push(solid_object* obj)
 void HeroClass::deselectbombs(int32_t super)
 {
     if ( get_qr(qr_NEVERDISABLEAMMOONSUBSCREEN) || itemsbuf[game->forced_awpn].family == itype_bomb || itemsbuf[game->forced_bwpn].family == itype_bomb || itemsbuf[game->forced_xwpn].family == itype_bomb || itemsbuf[game->forced_ywpn].family == itype_bomb) return;
-    if(getItemFamily(itemsbuf,Bwpn&0x0FFF)==(super? itype_sbomb : itype_bomb) && (directWpn<0 || Bwpn==directWpn))
+    SubscrPage* pg = nullptr;
+	if(getItemFamily(itemsbuf,Bwpn)==(super? itype_sbomb : itype_bomb) && (directWpn<0 || Bwpn==directWpn))
     {
-        int32_t temp = selectWpn_new(SEL_VERIFY_LEFT, game->bwpn, game->awpn, get_qr(qr_SET_XBUTTON_ITEMS) ? game->xwpn : -1, get_qr(qr_SET_YBUTTON_ITEMS) ? game->ywpn : -1);
-        Bwpn = Bweapon(temp);
+		if(!new_subscreen_active || !(pg = new_subscreen_active->get_page(game->bwpnpg)))
+			return;
+        int32_t temp = pg->move_legacy(SEL_VERIFY_LEFT, game->bwpn, game->awpn, get_qr(qr_SET_XBUTTON_ITEMS) ? game->xwpn : -1, get_qr(qr_SET_YBUTTON_ITEMS) ? game->ywpn : -1);
+        Bwpn = pg->get_item_pos(temp);
         directItemB = directItem;
         game->bwpn = temp;
     }
     
-    else if (getItemFamily(itemsbuf,Xwpn&0x0FFF)==(super? itype_sbomb : itype_bomb) && (directWpn<0 || Xwpn==directWpn))
+    else if (getItemFamily(itemsbuf,Xwpn)==(super? itype_sbomb : itype_bomb) && (directWpn<0 || Xwpn==directWpn))
     {
-        int32_t temp = selectWpn_new(SEL_VERIFY_LEFT, game->xwpn, game->bwpn, game->awpn, get_qr(qr_SET_YBUTTON_ITEMS) ? game->ywpn : -1);
-        Xwpn = Bweapon(temp);
+		if(!new_subscreen_active || !(pg = new_subscreen_active->get_page(game->xwpnpg)))
+			return;
+        int32_t temp = pg->move_legacy(SEL_VERIFY_LEFT, game->xwpn, game->bwpn, game->awpn, get_qr(qr_SET_YBUTTON_ITEMS) ? game->ywpn : -1);
+        Xwpn = pg->get_item_pos(temp);
         directItemX = directItem;
         game->xwpn = temp;
     }
-    else if (getItemFamily(itemsbuf,Ywpn&0x0FFF)==(super? itype_sbomb : itype_bomb) && (directWpn<0 || Ywpn==directWpn))
+    else if (getItemFamily(itemsbuf,Ywpn)==(super? itype_sbomb : itype_bomb) && (directWpn<0 || Ywpn==directWpn))
     {
-        int32_t temp = selectWpn_new(SEL_VERIFY_LEFT, game->ywpn, game->bwpn, get_qr(qr_SET_XBUTTON_ITEMS) ? game->xwpn : -1, game->awpn);
-        Ywpn = Bweapon(temp);
+		if(!new_subscreen_active || !(pg = new_subscreen_active->get_page(game->ywpnpg)))
+			return;
+        int32_t temp = pg->move_legacy(SEL_VERIFY_LEFT, game->ywpn, game->bwpn, get_qr(qr_SET_XBUTTON_ITEMS) ? game->xwpn : -1, game->awpn);
+        Ywpn = pg->get_item_pos(temp);
         directItemY = directItem;
         game->ywpn = temp;
     }
     else
     {
-        int32_t temp = selectWpn_new(SEL_VERIFY_LEFT, game->awpn, game->bwpn, get_qr(qr_SET_XBUTTON_ITEMS) ? game->xwpn : -1, get_qr(qr_SET_YBUTTON_ITEMS) ? game->ywpn : -1);
-        Awpn = Bweapon(temp);
+		if(!new_subscreen_active || !(pg = new_subscreen_active->get_page(game->awpnpg)))
+			return;
+        int32_t temp = pg->move_legacy(SEL_VERIFY_LEFT, game->awpn, game->bwpn, get_qr(qr_SET_XBUTTON_ITEMS) ? game->xwpn : -1, get_qr(qr_SET_YBUTTON_ITEMS) ? game->ywpn : -1);
+        Awpn = pg->get_item_pos(temp);
         directItemA = directItem;
         game->awpn = temp;
     }
@@ -13804,25 +13802,25 @@ void HeroClass::moveheroOld()
 	{
 		if(DrunkrBbtn())
 		{
-			btnwpn=getItemFamily(itemsbuf,Bwpn&0xFFF);
+			btnwpn=getItemFamily(itemsbuf,Bwpn);
 			dowpn = Bwpn&0xFFF;
 			directWpn = directItemB;
 		}
 		else if(DrunkrAbtn())
 		{
-			btnwpn=getItemFamily(itemsbuf,Awpn&0xFFF);
+			btnwpn=getItemFamily(itemsbuf,Awpn);
 			dowpn = Awpn&0xFFF;
 			directWpn = directItemA;
 		}
 		else if(get_qr(qr_SET_XBUTTON_ITEMS) && DrunkrEx1btn())
 		{
-			btnwpn=getItemFamily(itemsbuf,Xwpn&0xFFF);
+			btnwpn=getItemFamily(itemsbuf,Xwpn);
 			dowpn = Xwpn&0xFFF;
 			directWpn = directItemX;
 		}
 		else if(get_qr(qr_SET_YBUTTON_ITEMS) && DrunkrEx2btn())
 		{
-			btnwpn=getItemFamily(itemsbuf,Ywpn&0xFFF);
+			btnwpn=getItemFamily(itemsbuf,Ywpn);
 			dowpn = Ywpn&0xFFF;
 			directWpn = directItemY;
 		}
@@ -17798,25 +17796,25 @@ bool HeroClass::premove()
 	{
 		if(DrunkrBbtn())
 		{
-			btnwpn=getItemFamily(itemsbuf,Bwpn&0xFFF);
+			btnwpn=getItemFamily(itemsbuf,Bwpn);
 			dowpn = Bwpn&0xFFF;
 			directWpn = directItemB;
 		}
 		else if(DrunkrAbtn())
 		{
-			btnwpn=getItemFamily(itemsbuf,Awpn&0xFFF);
+			btnwpn=getItemFamily(itemsbuf,Awpn);
 			dowpn = Awpn&0xFFF;
 			directWpn = directItemA;
 		}
 		else if(get_qr(qr_SET_XBUTTON_ITEMS) && DrunkrEx1btn())
 		{
-			btnwpn=getItemFamily(itemsbuf,Xwpn&0xFFF);
+			btnwpn=getItemFamily(itemsbuf,Xwpn);
 			dowpn = Xwpn&0xFFF;
 			directWpn = directItemX;
 		}
 		else if(get_qr(qr_SET_YBUTTON_ITEMS) && DrunkrEx2btn())
 		{
-			btnwpn=getItemFamily(itemsbuf,Ywpn&0xFFF);
+			btnwpn=getItemFamily(itemsbuf,Ywpn);
 			dowpn = Ywpn&0xFFF;
 			directWpn = directItemY;
 		}
@@ -28439,208 +28437,6 @@ bool checkitem_jinx(int32_t itemid)
 	return HeroItemClk() == 0;
 }
 
-int32_t Bweapon(int32_t pos)
-{
-    if(pos < 0 || current_subscreen_active == NULL)
-    {
-        return 0;
-    }
-    
-    int32_t p=-1;
-    
-    for(int32_t i=0; current_subscreen_active->objects[i].type!=ssoNULL && i < MAXSUBSCREENITEMS; ++i)
-    {
-        if(current_subscreen_active->objects[i].type==ssoCURRENTITEM && current_subscreen_active->objects[i].d3==pos)
-        {
-            p=i;
-            break;
-        }
-    }
-    
-    if(p==-1)
-    {
-        return 0;
-    }
-    
-    int32_t actualItem = current_subscreen_active->objects[p].d8;
-    //int32_t familyCheck = actualItem ? itemsbuf[actualItem].family : current_subscreen_active->objects[p].d1
-    int32_t family = -1;
-    bool bow = false;
-    
-    if(actualItem)
-    {
-        bool select = false;
-        
-        switch(itemsbuf[actualItem-1].family)
-        {
-        case itype_bomb:
-            if((game->get_bombs() ||
-                    // Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
-                    (actualItem-1>-1 && itemsbuf[actualItem-1].misc1==0 && findWeaponWithParent(actualItem-1, wLitBomb))) ||
-                    current_item_power(itype_bombbag))
-            {
-                select=true;
-            }
-            
-            break;
-            
-        case itype_bowandarrow:
-        case itype_arrow:
-            if(actualItem-1>-1 && current_item_id(itype_bow)>-1)
-            {
-                //bow=(current_subscreen_active->objects[p].d1==itype_bowandarrow);
-                select=true;
-            }
-            
-            break;
-            
-        case itype_letterpotion:
-            /*if(current_item_id(itype_potion)>-1)
-            {
-              select=true;
-            }
-            else if(current_item_id(itype_letter)>-1)
-            {
-              select=true;
-            }*/
-            break;
-            
-        case itype_sbomb:
-        {
-            int32_t bombbagid = current_item_id(itype_bombbag);
-            
-            if((game->get_sbombs() ||
-                    // Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
-                    (actualItem-1>-1 && itemsbuf[actualItem-1].misc1==0 && findWeaponWithParent(actualItem-1, wLitSBomb))) ||
-                    (current_item_power(itype_bombbag) && bombbagid>-1 && (itemsbuf[bombbagid].flags & ITEM_FLAG1)))
-            {
-                select=true;
-            }
-            
-            break;
-        }
-        
-        case itype_sword:
-        {
-            if(!get_qr(qr_SELECTAWPN))
-                break;
-                
-            select=true;
-        }
-        break;
-        
-        default:
-            select=true;
-        }
-        
-        if(!item_disabled(actualItem-1) && game->get_item(actualItem-1) && select)
-        {
-            directItem = actualItem-1;
-            
-            if(directItem>-1 && itemsbuf[directItem].family == itype_arrow) bow=true;
-            
-            return actualItem-1+(bow?0xF000:0);
-        }
-        else return 0;
-    }
-    
-    directItem = -1;
-    
-    switch(current_subscreen_active->objects[p].d1)
-    {
-    case itype_bomb:
-    {
-        int32_t bombid = current_item_id(itype_bomb);
-        
-        if((game->get_bombs() ||
-                // Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
-                (bombid>-1 && itemsbuf[bombid].misc1==0 && Lwpns.idCount(wLitBomb)>0)) ||
-                current_item_power(itype_bombbag))
-        {
-            family=itype_bomb;
-        }
-        
-        break;
-    }
-    
-    case itype_bowandarrow:
-    case itype_arrow:
-        if(current_item_id(itype_bow)>-1 && current_item_id(itype_arrow)>-1)
-        {
-            bow=(current_subscreen_active->objects[p].d1==itype_bowandarrow);
-            family=itype_arrow;
-        }
-        
-        break;
-        
-    case itype_letterpotion:
-        if(current_item_id(itype_potion)>-1)
-        {
-            family=itype_potion;
-        }
-        else if(current_item_id(itype_letter)>-1)
-        {
-            family=itype_letter;
-        }
-        
-        break;
-        
-    case itype_sbomb:
-    {
-        int32_t bombbagid = current_item_id(itype_bombbag);
-        int32_t sbombid = current_item_id(itype_sbomb);
-        
-        if((game->get_sbombs() ||
-                // Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
-                (sbombid>-1 && itemsbuf[sbombid].misc1==0 && Lwpns.idCount(wLitSBomb)>0)) ||
-                (current_item_power(itype_bombbag) && bombbagid>-1 && (itemsbuf[bombbagid].flags & ITEM_FLAG1)))
-        {
-            family=itype_sbomb;
-        }
-        
-        break;
-    }
-    
-    case itype_sword:
-    {
-        if(!get_qr(qr_SELECTAWPN))
-            break;
-            
-        family=itype_sword;
-    }
-    break;
-    
-    default:
-        family=current_subscreen_active->objects[p].d1;
-    }
-    
-    if(family==-1)
-        return 0;
-        
-    for(int32_t j=0; j<MAXITEMS; j++)
-    {
-        // Find the item that matches this subscreen object.
-        if(itemsbuf[j].family==family && j == current_item_id(family,false) && !item_disabled(j))
-        {
-            return j+(bow?0xF000:0);
-        }
-    }
-    
-    return 0;
-}
-
-int32_t BWeapon_to_Pos(int32_t bweapon)
-{
-	for (int32_t i = 0; i < MAXSUBSCREENITEMS; ++i)
-	{
-		if (Bweapon(i) == bweapon)
-		{
-			return i;
-		}
-	}
-	return -1;
-}
-
 void stopCaneOfByrna()
 {
 	for(int32_t i=0; i<Lwpns.Count(); i++)
@@ -28691,19 +28487,19 @@ bool isWpnPressed(int32_t itype)
 {
 	//0xFFF for subscreen overrides
 	//Will crash on win10 without it! -Z
-    if((itype==getItemFamily(itemsbuf,Bwpn&0xFFF)) && DrunkcBbtn()) return true;
-    if((itype==getItemFamily(itemsbuf,Awpn&0xFFF)) && DrunkcAbtn()) return true;
-    if((itype==getItemFamily(itemsbuf,Xwpn&0xFFF)) && DrunkcEx1btn()) return true;
-    if((itype==getItemFamily(itemsbuf,Ywpn&0xFFF)) && DrunkcEx2btn()) return true;
+    if((itype==getItemFamily(itemsbuf,Bwpn)) && DrunkcBbtn()) return true;
+    if((itype==getItemFamily(itemsbuf,Awpn)) && DrunkcAbtn()) return true;
+    if((itype==getItemFamily(itemsbuf,Xwpn)) && DrunkcEx1btn()) return true;
+    if((itype==getItemFamily(itemsbuf,Ywpn)) && DrunkcEx2btn()) return true;
     return false;
 }
 
 int32_t getWpnPressed(int32_t itype)
 {
-    if((itype==getItemFamily(itemsbuf,Bwpn&0xFFF)) && DrunkcBbtn()) return Bwpn;
-    if((itype==getItemFamily(itemsbuf,Awpn&0xFFF)) && DrunkcAbtn()) return Awpn;
-    if((itype==getItemFamily(itemsbuf,Xwpn&0xFFF)) && DrunkcEx1btn()) return Xwpn;
-    if((itype==getItemFamily(itemsbuf,Ywpn&0xFFF)) && DrunkcEx2btn()) return Ywpn;
+    if((itype==getItemFamily(itemsbuf,Bwpn)) && DrunkcBbtn()) return Bwpn;
+    if((itype==getItemFamily(itemsbuf,Awpn)) && DrunkcAbtn()) return Awpn;
+    if((itype==getItemFamily(itemsbuf,Xwpn)) && DrunkcEx1btn()) return Xwpn;
+    if((itype==getItemFamily(itemsbuf,Ywpn)) && DrunkcEx2btn()) return Ywpn;
     
     return -1;
 }
@@ -28723,13 +28519,13 @@ int32_t getRocsPressed()
 			return jumpid; //not pressed
 	}
 
-	if((itype_rocs==getItemFamily(itemsbuf,Bwpn&0xFFF)) && DrunkcBbtn())
+	if((itype_rocs==getItemFamily(itemsbuf,Bwpn)) && DrunkcBbtn())
 		return Bwpn;
-	if((itype_rocs==getItemFamily(itemsbuf,Awpn&0xFFF)) && DrunkcAbtn())
+	if((itype_rocs==getItemFamily(itemsbuf,Awpn)) && DrunkcAbtn())
 		return Awpn;
-	if((itype_rocs==getItemFamily(itemsbuf,Xwpn&0xFFF)) && DrunkcEx1btn())
+	if((itype_rocs==getItemFamily(itemsbuf,Xwpn)) && DrunkcEx1btn())
 		return Xwpn;
-	if((itype_rocs==getItemFamily(itemsbuf,Ywpn&0xFFF)) && DrunkcEx2btn())
+	if((itype_rocs==getItemFamily(itemsbuf,Ywpn)) && DrunkcEx2btn())
 		return Ywpn;
 
 	return -1;
@@ -28748,17 +28544,27 @@ void selectNextAWpn(int32_t type)
 {
     if(!get_qr(qr_SELECTAWPN))
         return;
+	if(!new_subscreen_active)
+		return;
+	SubscrPage* pg = new_subscreen_active->get_page(game->awpnpg);
+	if(!pg)
+		return;
         
-    int32_t ret = selectWpn_new(type, game->awpn, game->bwpn, get_qr(qr_SET_XBUTTON_ITEMS) ? game->xwpn : -1, get_qr(qr_SET_YBUTTON_ITEMS) ? game->ywpn : -1);
-    Awpn = Bweapon(ret);
+    int32_t ret = pg->move_legacy(type, game->awpn, game->bwpn, get_qr(qr_SET_XBUTTON_ITEMS) ? game->xwpn : -1, get_qr(qr_SET_YBUTTON_ITEMS) ? game->ywpn : -1);
+    Awpn = pg->get_item_pos(ret);
     directItemA = directItem;
     game->awpn = ret;
 }
 
 void selectNextBWpn(int32_t type)
 {
-	int32_t ret = selectWpn_new(type, game->bwpn, game->awpn, get_qr(qr_SET_XBUTTON_ITEMS) ? game->xwpn : -1, get_qr(qr_SET_YBUTTON_ITEMS) ? game->ywpn : -1);
-	Bwpn = Bweapon(ret);
+	if(!new_subscreen_active)
+		return;
+	SubscrPage* pg = new_subscreen_active->get_page(game->bwpnpg);
+	if(!pg)
+		return;
+	int32_t ret = pg->move_legacy(type, game->bwpn, game->awpn, get_qr(qr_SET_XBUTTON_ITEMS) ? game->xwpn : -1, get_qr(qr_SET_YBUTTON_ITEMS) ? game->ywpn : -1);
+	Bwpn = pg->get_item_pos(ret);
 	directItemB = directItem;
 	game->bwpn = ret;
 }
@@ -28766,8 +28572,13 @@ void selectNextBWpn(int32_t type)
 void selectNextXWpn(int32_t type)
 {
 	if(!get_qr(qr_SET_XBUTTON_ITEMS)) return;
-	int32_t ret = selectWpn_new(type, game->xwpn, game->awpn, game->bwpn, get_qr(qr_SET_YBUTTON_ITEMS) ? game->ywpn : -1);
-	Xwpn = Bweapon(ret);
+	if(!new_subscreen_active)
+		return;
+	SubscrPage* pg = new_subscreen_active->get_page(game->xwpnpg);
+	if(!pg)
+		return;
+	int32_t ret = pg->move_legacy(type, game->xwpn, game->awpn, game->bwpn, get_qr(qr_SET_YBUTTON_ITEMS) ? game->ywpn : -1);
+	Xwpn = pg->get_item_pos(ret);
 	directItemX = directItem;
 	game->xwpn = ret;
 }
@@ -28775,18 +28586,21 @@ void selectNextXWpn(int32_t type)
 void selectNextYWpn(int32_t type)
 {
 	if(!get_qr(qr_SET_YBUTTON_ITEMS)) return;
-	int32_t ret = selectWpn_new(type, game->ywpn, game->awpn, game->bwpn, get_qr(qr_SET_XBUTTON_ITEMS) ? game->xwpn : -1);
-	Ywpn = Bweapon(ret);
+	if(!new_subscreen_active)
+		return;
+	SubscrPage* pg = new_subscreen_active->get_page(game->ywpnpg);
+	if(!pg)
+		return;
+	int32_t ret = pg->move_legacy(type, game->ywpn, game->awpn, game->bwpn, get_qr(qr_SET_XBUTTON_ITEMS) ? game->xwpn : -1);
+	Ywpn = pg->get_item_pos(ret);
 	directItemY = directItem;
 	game->ywpn = ret;
 }
 
 void verifyAWpn()
 {
-	if ( (game->forced_awpn != -1) )
-	{
+	if (game->forced_awpn != -1)
 		return;
-	}
     if(!get_qr(qr_SELECTAWPN))
     {
         Awpn = selectSword();
@@ -28794,46 +28608,60 @@ void verifyAWpn()
     }
     else
     {
-        game->awpn = selectWpn_new(SEL_VERIFY_RIGHT, game->awpn, game->bwpn, game->xwpn, game->ywpn);
-        Awpn = Bweapon(game->awpn);
+		if(!new_subscreen_active)
+			return;
+		SubscrPage* pg = new_subscreen_active->get_page(game->awpnpg);
+		if(!pg)
+			return;
+        game->awpn = pg->move_legacy(SEL_VERIFY_RIGHT, game->awpn, game->bwpn, game->xwpn, game->ywpn);
+        Awpn = pg->get_item_pos(game->awpn);
         directItemA = directItem;
     }
 }
 
 void verifyBWpn()
 {
-	if ( (game->forced_bwpn != -1) )
-	{
+	if (game->forced_bwpn != -1)
 		return;
-	}
-    game->bwpn = selectWpn_new(SEL_VERIFY_RIGHT, game->bwpn, game->awpn, game->xwpn, game->ywpn);
-    Bwpn = Bweapon(game->bwpn);
+	if(!new_subscreen_active)
+		return;
+	SubscrPage* pg = new_subscreen_active->get_page(game->bwpnpg);
+	if(!pg)
+		return;
+    game->bwpn = pg->move_legacy(SEL_VERIFY_RIGHT, game->bwpn, game->awpn, game->xwpn, game->ywpn);
+    Bwpn = pg->get_item_pos(game->bwpn);
     directItemB = directItem;
 }
 
 void verifyXWpn()
 {
-	if ( (game->forced_xwpn != -1) )
-	{
+	if (game->forced_xwpn != -1)
 		return;
-	}
+	if(!new_subscreen_active)
+		return;
+	SubscrPage* pg = new_subscreen_active->get_page(game->xwpnpg);
+	if(!pg)
+		return;
 	if(get_qr(qr_SET_XBUTTON_ITEMS))
-		game->xwpn = selectWpn_new(SEL_VERIFY_RIGHT, game->xwpn, game->awpn, game->bwpn, game->ywpn);
+		game->xwpn = pg->move_legacy(SEL_VERIFY_RIGHT, game->xwpn, game->awpn, game->bwpn, game->ywpn);
 	else game->xwpn = -1;
-    Xwpn = Bweapon(game->xwpn);
+    Xwpn = pg->get_item_pos(game->xwpn);
     directItemX = directItem;
 }
 
 void verifyYWpn()
 {
-	if ( (game->forced_ywpn != -1) )
-	{
+	if (game->forced_ywpn != -1)
 		return;
-	}
+	if(!new_subscreen_active)
+		return;
+	SubscrPage* pg = new_subscreen_active->get_page(game->ywpnpg);
+	if(!pg)
+		return;
 	if(get_qr(qr_SET_YBUTTON_ITEMS))
-		game->ywpn = selectWpn_new(SEL_VERIFY_RIGHT, game->ywpn, game->awpn, game->xwpn, game->bwpn);
+		game->ywpn = pg->move_legacy(SEL_VERIFY_RIGHT, game->ywpn, game->awpn, game->xwpn, game->bwpn);
 	else game->ywpn = -1;
-    Ywpn = Bweapon(game->ywpn);
+    Ywpn = pg->get_item_pos(game->ywpn);
     directItemY = directItem;
 }
 
@@ -28843,152 +28671,6 @@ void verifyBothWeapons()
     verifyBWpn();
     verifyXWpn();
     verifyYWpn();
-}
-
-int get_subscr_itemind(int32_t pos)
-{
-	if(current_subscreen_active == NULL)
-		return -1;
-	auto* objects = current_subscreen_active->objects;
-	for(int32_t i=0; objects[i].type!=ssoNULL; ++i)
-	{
-		if(objects[i].type==ssoCURRENTITEM)
-		{
-			if(objects[i].d3==pos)
-				return i;
-		}
-	}
-	return -1;
-}
-int32_t selectWpn_new(int32_t type, int32_t startpos, int32_t forbiddenpos, int32_t fp2, int32_t fp3, bool equip_only, bool checkwpn)
-{
-	//what will be returned when all else fails.
-	//don't return the forbiddenpos... no matter what -DD
-	
-	int32_t failpos(0);
-	
-	if(startpos == forbiddenpos || startpos == fp2 || startpos == fp3)
-		failpos = 0xFF;
-	else failpos = startpos;
-	
-	// verify startpos
-	if(startpos < 0 || startpos >= 0xFF)
-		startpos = 0;
-		
-	if(current_subscreen_active == NULL)
-		return failpos;
-	auto* objects = current_subscreen_active->objects;
-	
-	checkwpn = checkwpn || !get_qr(qr_FREEFORM_SUBSCREEN_CURSOR);
-	bool verify = type==SEL_VERIFY_RIGHT || type==SEL_VERIFY_LEFT;
-	
-	if(verify)
-	{
-		int32_t wpn = Bweapon(startpos);
-		equip_only = checkwpn = true;
-		auto startind = get_subscr_itemind(startpos);
-		if(objects[startind].type==ssoCURRENTITEM&&(objects[startind].d2&SSCURRITEM_NONEQUIP))
-			wpn = 0;
-		
-		if(wpn != 0 && startpos != forbiddenpos && startpos != fp2 && startpos != fp3)
-		{
-			return startpos;
-		}
-	}
-	
-	int32_t p=-1;
-	int32_t curpos = startpos;
-	int32_t firstValidPos=-1, firstValidEquipPos=-1;
-	
-	for(int32_t i=0; objects[i].type!=ssoNULL; ++i)
-	{
-		if(objects[i].type==ssoCURRENTITEM)
-		{
-			if(firstValidPos==-1 && objects[i].d3>=0)
-				firstValidPos=i;
-			if(firstValidEquipPos==-1 && objects[i].d3>=0)
-				if(!equip_only || !(objects[i].d2&SSCURRITEM_NONEQUIP))
-					firstValidEquipPos=i;
-			
-			if(objects[i].d3==curpos)
-				p=i;
-			if(p>-1 && firstValidPos>-1 && firstValidEquipPos>-1)
-				break;
-		}
-	}
-	
-	if(p == -1)
-	{
-		//can't find the current position
-		// Switch to a valid weapon if there is one; otherwise,
-		// the selector can simply disappear
-		if(firstValidEquipPos>=0)
-			return objects[firstValidEquipPos].d3;
-		if(firstValidPos>=0)
-			return objects[firstValidPos].d3;
-		//FAILURE
-		else return failpos;
-	}
-	
-	//remember we've been here
-	set<int32_t> oldPositions;
-	oldPositions.insert(curpos);
-	
-	//1. Perform any shifts required by the above
-	//2. If that's not possible, go to position 1 and reset the b weapon.
-	//2a.  -if we arrive at a position we've already visited, give up and stay there
-	//3. Get the weapon at the new slot
-	//4. If it's not possible, go to step 1.
-	
-	for(;;)
-	{
-		//shift
-		switch(type)
-		{
-		case SEL_LEFT:
-		case SEL_VERIFY_LEFT:
-			curpos = objects[p].d6;
-			break;
-			
-		case SEL_RIGHT:
-		case SEL_VERIFY_RIGHT:
-			curpos = objects[p].d7;
-			break;
-			
-		case SEL_DOWN:
-			curpos = objects[p].d5;
-			break;
-			
-		case SEL_UP:
-			curpos = objects[p].d4;
-			break;
-		}
-		
-		//find our new position
-		p = get_subscr_itemind(curpos);
-		
-		if(p == -1)
-		{
-			//can't find the current position
-			//FAILURE
-			return failpos;
-		}
-		
-		//if we've already been here, give up
-		if(oldPositions.find(curpos) != oldPositions.end())
-			return failpos;
-		
-		//else, remember we've been here
-		oldPositions.insert(curpos);
-		
-		//see if this weapon is acceptable
-		auto wpn = Bweapon(curpos);
-		if(curpos != forbiddenpos && curpos != fp2 && curpos != fp3)
-			if(!equip_only || !(objects[p].d2 & SSCURRITEM_NONEQUIP))
-				if(!checkwpn || wpn)
-					return curpos;
-		//keep going otherwise
-	}
 }
 
 // Select the sword for the A button if the 'select A button weapon' quest rule isn't set.

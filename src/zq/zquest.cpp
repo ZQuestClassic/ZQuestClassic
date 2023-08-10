@@ -492,8 +492,6 @@ SAMPLE customsfxdata[WAV_COUNT];
 uint8_t customsfxflag[WAV_COUNT>>3];
 int32_t sfxdat=1;
 
-extern void deallocate_biic_list();
-
 zinitdata zinit;
 
 int32_t onImport_ComboAlias();
@@ -718,9 +716,6 @@ END_OF_FUNCTION(myvsync_callback)
 zquestheader header;
 byte                midi_flags[MIDIFLAGS_SIZE];
 byte                music_flags[MUSICFLAGS_SIZE];
-word                map_count;
-vector<mapscr>      TheMaps;
-vector<word>        map_autolayers;
 zcmap               *ZCMaps;
 byte                *quest_file;
 int32_t					msg_strings_size;
@@ -1135,7 +1130,6 @@ static MENU maps_menu[] =
 static MENU misc_menu[] =
 {
     { (char *)"S&ubscreens",                onEditSubscreens,          NULL,                     0,            NULL   },
-    { (char *)"&Master Subscreen Type",     onSubscreen,               NULL,                     0,            NULL   },
     { (char *)"&Shop Types",                onShopTypes,               NULL,                     0,            NULL   },
     { (char *)"&Bottle Types",              onBottleTypes,             NULL,                     0,            NULL   },
     { (char *)"Bottle S&hop Types",         onBottleShopTypes,         NULL,                     0,            NULL   },
@@ -19545,71 +19539,6 @@ int32_t onCheats()
 	return D_O_K;
 }
 
-const char *subscrtype_str[ssdtMAX+1] = { "Original","New Subscreen","Revision 2","BS Zelda Original","BS Zelda Modified","BS Zelda Enhanced","BS Zelda Complete","Zelda 3","Custom" };
-
-const char *subscrtypelist(int32_t index, int32_t *list_size)
-{
-    if(index>=0)
-    {
-        bound(index,0,ssdtMAX);
-        return subscrtype_str[index];
-    }
-    
-    *list_size=ssdtMAX+1;
-    return NULL;
-}
-
-static ListData subscreen_type_dlg_list(subscrtypelist, &font);
-
-static DIALOG subscreen_type_dlg[] =
-{
-    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
-    { jwin_win_proc,     83,   32,   154,  70,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Subscreen Type", NULL, NULL },
-    { jwin_button_proc,     89,  77,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-    { jwin_button_proc,     170,  77,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { jwin_droplist_proc,   107-8,  57,   106+15,  16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          1,             0, (void *) &subscreen_type_dlg_list, NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
-int32_t onSubscreen()
-{
-    int32_t tempsubscreen=zinit.subscreen;
-    subscreen_type_dlg[0].dp2=get_zc_font(font_lfont);
-    subscreen_type_dlg[3].d1=zinit.subscreen;
-    
-    large_dialog(subscreen_type_dlg);
-        
-    int32_t ret = zc_popup_dialog(subscreen_type_dlg,2);
-    
-    if(ret==1)
-    {
-        if(subscreen_type_dlg[3].d1!=tempsubscreen)
-        {
-            zinit.subscreen=subscreen_type_dlg[3].d1;
-            
-            if(zinit.subscreen!=ssdtMAX)  //custom
-            {
-                if(tempsubscreen==ssdtMAX)
-                {
-                    if(jwin_alert("Reset Custom Subscreens","This will delete all of your custom subscreens!","Proceed?",NULL,"&OK","&Cancel",13,27,get_zc_font(font_lfont))==2)
-                    {
-                        zinit.subscreen=ssdtMAX;
-                        return D_O_K;
-                    }
-                }
-                
-                reset_subscreens();
-                setupsubscreens();
-            }
-            
-            saved=false;
-        }
-    }
-    
-    return D_O_K;
-}
-
 bool do_x_button(BITMAP *dest, int32_t x, int32_t y)
 {
     bool over=false;
@@ -24960,7 +24889,6 @@ int32_t load_zmod_module_file()
 	    al_trace("New Module Path is: %s \n", moduledata.module_name);
 	    zc_set_config("ZCMODULE","current_module",moduledata.module_name);
 	    zcm.init(true); //Load the module values.
-	    build_biic_list();
 	    build_bief_list();
 	    build_biea_list(); 
 	    build_biew_list();
@@ -26833,7 +26761,7 @@ static void do_copy_qst_command(const char* input_filename, const char* output_f
 	exit(ret);
 }
 
-int32_t Awpn=0, Bwpn=0, Bpos=0, Xwpn = 0, Ywpn = 0;
+int32_t Awpn=0, Bwpn=0, Xwpn = 0, Ywpn = 0;
 sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations, portals;
 int32_t exittimer = 10000, exittimer2 = 100;
 
@@ -27083,14 +27011,6 @@ int32_t main(int32_t argc,char **argv)
 		FatalConsole("\nIncompatible version of sfx.dat.\nPlease upgrade to %s Build %d",VerStr(SFXDAT_VERSION), SFXDAT_BUILD);
 	
 	Z_message("OK\n");
-	
-	for(int32_t i=0; i<4; i++)
-	{
-		for(int32_t j=0; j<MAXSUBSCREENITEMS; j++)
-		{
-			memset(&custom_subscreen[i].objects[j],0,sizeof(subscreen_object));
-		}
-	}
 	
 	int32_t helpsize = file_size_ex_password("docs/zquest.txt","");
 	
@@ -28665,9 +28585,6 @@ void destroy_bitmaps_on_exit()
 
 void quit_game()
 {
-    deallocate_biic_list();
-    
-    
     set_last_timed_save(nullptr);
     save_config_file();
     zc_set_palette(black_palette);
@@ -28697,25 +28614,6 @@ void quit_game()
         if(temp_aliases[i].csets != NULL)
         {
             delete[] temp_aliases[i].csets;
-        }
-    }
-    
-    al_trace("Cleaning subscreens. \n");
-    
-    for(int32_t i=0; i<4; i++)
-    {
-        for(int32_t j=0; j<MAXSUBSCREENITEMS; j++)
-        {
-            switch(custom_subscreen[i].objects[j].type)
-            {
-            case ssoTEXT:
-            case ssoTEXTBOX:
-            case ssoCURRENTITEMTEXT:
-            case ssoCURRENTITEMCLASSTEXT:
-                if(custom_subscreen[i].objects[j].dp1 != NULL) delete[](char *)custom_subscreen[i].objects[j].dp1;
-                
-                break;
-            }
         }
     }
     
@@ -28848,9 +28746,6 @@ void quit_game()
 
 void quit_game2()
 {
-    deallocate_biic_list();
-    
-    
     set_last_timed_save(nullptr);
     save_config_file();
     zc_set_palette(black_palette);
@@ -28880,25 +28775,6 @@ void quit_game2()
         if(temp_aliases[i].csets != NULL)
         {
             delete[] temp_aliases[i].csets;
-        }
-    }
-    
-    al_trace("Cleaning subscreens. \n");
-    
-    for(int32_t i=0; i<4; i++)
-    {
-        for(int32_t j=0; j<MAXSUBSCREENITEMS; j++)
-        {
-            switch(custom_subscreen[i].objects[j].type)
-            {
-            case ssoTEXT:
-            case ssoTEXTBOX:
-            case ssoCURRENTITEMTEXT:
-            case ssoCURRENTITEMCLASSTEXT:
-                if(custom_subscreen[i].objects[j].dp1 != NULL) delete[](char *)custom_subscreen[i].objects[j].dp1;
-                
-                break;
-            }
         }
     }
     
@@ -29069,7 +28945,6 @@ void center_zquest_dialogs()
     jwin_center_dialog(sfx_edit_dlg);
     jwin_center_dialog(showpal_dlg);
     jwin_center_dialog(strlist_dlg);
-    jwin_center_dialog(subscreen_type_dlg);
     jwin_center_dialog(template_dlg);
     center_zq_tiles_dialog();
     jwin_center_dialog(tp_dlg);
@@ -29657,7 +29532,7 @@ command_pair commands[cmdMAX]=
     { " Map Count",                         0, NULL },
     { "Default Map Styles",                 0, (intF) onDefault_MapStyles },
     { "Map Styles",                         0, (intF) onMapStyles },
-    { "Master Subscreen Type",              0, (intF) onSubscreen },
+    { " Master Subscreen Type",             0, NULL },
     { " Message String",                    0, NULL },
     { "MIDIs",                              0, (intF) onMidis },
     { "Misc Colors",                        0, (intF) onMiscColors },

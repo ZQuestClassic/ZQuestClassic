@@ -20,7 +20,7 @@ enum { ssodLEFT, ssodCENTER, ssodRIGHT, ssodTOP, ssodMIDDLE, ssodBOTTOM };
 //subscreen object snapping
 enum { ssosLEFT, ssosCENTER, ssosRIGHT, ssosTOP, ssosMIDDLE, ssosBOTTOM };
 
-void edit_subscreen();
+bool edit_subscreen();
 int32_t onEditSubscreens();
 
 char *sso_name(int32_t type);

@@ -13,13 +13,11 @@
 
 #include "sprite.h"
 #include "items.h"
+#include "new_subscr.h"
 #include <stdio.h>
 
 #define ssflagSHOWGRID  1
 #define ssflagSHOWINVIS 2
-
-#define SSCURRITEM_VISIBLE  0x01
-#define SSCURRITEM_NONEQUIP 0x02
 
 extern bool show_subscreen_dmap_dots;
 extern bool show_subscreen_numbers;
@@ -53,13 +51,6 @@ enum { sstACTIVE, sstPASSIVE, sstMAX };
 
 enum { sssFULLPUSH, sssFULLSLIDEDOWN, sssMAX };
 
-// subscreen object types
-enum { ssoNULL, ssoNONE, sso2X2FRAME, ssoTEXT,
-       ssoLINE, ssoRECT, ssoBSTIME, ssoTIME, ssoSSTIME, ssoMAGICMETER, ssoLIFEMETER, ssoBUTTONITEM, ssoICON, ssoCOUNTER,
-       ssoCOUNTERS, ssoMINIMAPTITLE, ssoMINIMAP, ssoLARGEMAP, ssoCLEAR, ssoCURRENTITEM, ssoITEM, ssoTRIFRAME, ssoTRIFORCE, ssoTILEBLOCK, ssoMINITILE, ssoSELECTOR1, ssoSELECTOR2,
-       ssoMAGICGAUGE, ssoLIFEGAUGE, ssoTEXTBOX, ssoCURRENTITEMTILE, ssoSELECTEDITEMTILE, ssoCURRENTITEMTEXT, ssoCURRENTITEMNAME, ssoSELECTEDITEMNAME, ssoCURRENTITEMCLASSTEXT,
-       ssoCURRENTITEMCLASSNAME, ssoSELECTEDITEMCLASSNAME, ssoMAX
-     };
 //ssoCURRENTITEM shows what item of that type you currently have.  if the itemtype is sword, it will show what sword you have
 //ssoBUTTONITEM shows what item is currently assigned to the A or B button
 //ssoITEMTILE shows a requested item
@@ -72,65 +63,6 @@ enum { ssoNULL, ssoNONE, sso2X2FRAME, ssoTEXT,
 //ssoCURRENTITEMCLASSNAME shows the name of an item if you have the item requested.  if itemtype is set to boomerang and you have a wooden boomerang, it will show the name of the item "Wooden Boomerang"
 //ssoSELECTEDITEMCLASSNAME shows the name of of the item class that the selection cursor is on.
 
-//text styles
-enum { sstsNORMAL, sstsSHADOW, sstsSHADOWU, sstsOUTLINE8, sstsOUTLINEPLUS, sstsOUTLINEX, sstsSHADOWED, sstsSHADOWEDU, sstsOUTLINED8, sstsOUTLINEDPLUS, sstsOUTLINEDX, sstsMAX };
-
-//subscreen fonts
-enum
-{ 
-	ssfZELDA, ssfSS1, ssfSS2, ssfSS3, ssfSS4, ssfZTIME, ssfSMALL, ssfSMALLPROP, ssfZ3SMALL,
-	ssfGBLA, ssfZ3, ssfGORON, ssfZORAN, ssfHYLIAN1, ssfHYLIAN2, ssfHYLIAN3, ssfHYLIAN4,
-	ssfPROP, ssfGBORACLE, ssfGBORACLEP, ssfDSPHANTOM, ssfDSPHANTOMP, ssfAT800, ssfACORN,
-	ssADOS, ssfALLEG, ssfAPL2, ssfAPL280, ssfAPL2GS, ssfAQUA, ssfAT400, ssfC64, ssfC64HR,
-	ssfCGA, ssfCOCO, ssfCOCO2, ssfCOUPE, ssfCPC, ssfFANTASY, ssfFDSKANA, ssfFDSLIKE,
-	ssfFDSROM, ssfFF, ssfFUTHARK, ssfGAIA, ssfHIRA, ssfJP, ssfKONG, ssfMANA, ssfML, ssfMOT,
-	ssfMSX0, ssfMSX1, ssfPET, ssfPSTART, ssfSATURN, ssfSCIFI, ssfSHERW, ssfSINQL, ssfSPEC,
-	ssfSPECLG, ssfTI99, ssfTRS, ssfZ2, ssfZX, ssfLISA,
-	ssfMAX
-};
-
-// subscreen color types
-enum { ssctSYSTEM=0xFE, ssctMISC=0xFF };
-
-// special colors
-enum { ssctTEXT, ssctCAPTION, ssctOVERWBG, ssctDNGNBG, ssctDNGNFG, ssctCAVEFG, ssctBSDK, ssctBSGOAL, ssctCOMPASSLT, ssctCOMPASSDK, ssctSUBSCRBG, ssctSUBSCRSHADOW,
-       ssctTRIFRAMECOLOR, ssctBMAPBG, ssctBMAPFG, ssctHERODOT, ssctMSGTEXT, ssctMAX
-     };
-
-// special csets
-enum { sscsTRIFORCECSET, sscsTRIFRAMECSET, sscsOVERWORLDMAPCSET, sscsDUNGEONMAPCSET, sscsBLUEFRAMECSET, sscsHCPIECESCSET, sscsSSVINECSET, sscsMAX };
-
-// special tiles
-enum { ssmstSSVINETILE, ssmstMAGICMETER, ssmstMAX };
-
-
-// counter objects
-enum { sscRUPEES, sscBOMBS, sscSBOMBS, sscARROWS,
-	   sscGENKEYMAGIC, sscGENKEYNOMAGIC, sscLEVKEYMAGIC, sscLEVKEYNOMAGIC,
-	   sscANYKEYMAGIC, sscANYKEYNOMAGIC, sscSCRIPT1, sscSCRIPT2,
-	   sscSCRIPT3, sscSCRIPT4, sscSCRIPT5, sscSCRIPT6,
-	   sscSCRIPT7, sscSCRIPT8, sscSCRIPT9, sscSCRIPT10,
-	   sscSCRIPT11, sscSCRIPT12, sscSCRIPT13, sscSCRIPT14,
-	   sscSCRIPT15, sscSCRIPT16, sscSCRIPT17, sscSCRIPT18,
-	   sscSCRIPT19, sscSCRIPT20, sscSCRIPT21, sscSCRIPT22,
-	   sscSCRIPT23, sscSCRIPT24, sscSCRIPT25, sscLIFE, sscMAGIC, sscMAXHP, sscMAXMP,
-	   sscSCRIPT26, sscSCRIPT27, sscSCRIPT28, sscSCRIPT29, sscSCRIPT30,
-	   sscSCRIPT31, sscSCRIPT32, sscSCRIPT33, sscSCRIPT34, sscSCRIPT35,
-	   sscSCRIPT36, sscSCRIPT37, sscSCRIPT38, sscSCRIPT39, sscSCRIPT40,
-	   sscSCRIPT41, sscSCRIPT42, sscSCRIPT43, sscSCRIPT44, sscSCRIPT45,
-	   sscSCRIPT46, sscSCRIPT47, sscSCRIPT48, sscSCRIPT49, sscSCRIPT50,
-	   sscSCRIPT51, sscSCRIPT52, sscSCRIPT53, sscSCRIPT54, sscSCRIPT55,
-	   sscSCRIPT56, sscSCRIPT57, sscSCRIPT58, sscSCRIPT59, sscSCRIPT60,
-	   sscSCRIPT61, sscSCRIPT62, sscSCRIPT63, sscSCRIPT64, sscSCRIPT65,
-	   sscSCRIPT66, sscSCRIPT67, sscSCRIPT68, sscSCRIPT69, sscSCRIPT70,
-	   sscSCRIPT71, sscSCRIPT72, sscSCRIPT73, sscSCRIPT74, sscSCRIPT75,
-	   sscSCRIPT76, sscSCRIPT77, sscSCRIPT78, sscSCRIPT79, sscSCRIPT80,
-	   sscSCRIPT81, sscSCRIPT82, sscSCRIPT83, sscSCRIPT84, sscSCRIPT85,
-	   sscSCRIPT86, sscSCRIPT87, sscSCRIPT88, sscSCRIPT89, sscSCRIPT90,
-	   sscSCRIPT91, sscSCRIPT92, sscSCRIPT93, sscSCRIPT94, sscSCRIPT95,
-	   sscSCRIPT96, sscSCRIPT97, sscSCRIPT98, sscSCRIPT99, sscSCRIPT100,
-	   sscMAX
-     };
 int32_t scounter_to_ctr(int32_t ssc);
 
 
@@ -141,8 +73,6 @@ int32_t scounter_to_ctr(int32_t ssc);
        ssiSPINSCROLL, ssiCROSSSCROLL, ssiQUAKESCROLL, ssiWHISPRING, ssiCHARGERING, ssiPERILSCROLL, ssiWEALTHMEDAL, ssiHEARTRING, ssiMAGICRING, ssiSPINSCROLL2,
        ssiQUAKESCROLL2, ssiAGONY, ssiSTOMPBOOTS, ssiWHIMSICALRING, ssiPERILRING, ssiMAX };*/
 
-//subscreen text alignment
-enum { sstaLEFT, sstaCENTER, sstaRIGHT };
 
 //when to display an element
 #define sspUP 1
@@ -158,43 +88,6 @@ struct sso_struct
 extern sso_struct bisso[ssoMAX];
 
 
-struct subscreen_object
-{
-    byte  type;
-    byte  pos;
-    int16_t  x;
-    int16_t  y;
-    word  w;
-    word  h;
-    byte  colortype1;
-    int16_t color1;
-    byte  colortype2;
-    int16_t color2;
-    byte  colortype3;
-    int16_t color3;
-    int32_t   d1;
-    int32_t   d2;
-    int32_t   d3; //pos
-    int32_t   d4; //up
-    int32_t   d5; //down
-    int32_t   d6; //left
-    int32_t   d7; //right
-    int32_t   d8;
-    int32_t   d9;
-    int32_t   d10;
-    byte  frames;
-    byte  speed;
-    byte  delay;
-    word  frame;
-    void  *dp1;
-};
-
-struct subscreen_group
-{
-    byte             ss_type;
-    char             name[64];
-    subscreen_object objects[MAXSUBSCREENITEMS];
-};
 
 
 
@@ -207,9 +100,9 @@ extern subscreen_object z3_active_a[80];
 extern subscreen_object z3_passive_a[66];
 extern subscreen_object z3_active_ab[82];
 extern subscreen_object z3_passive_ab[75];
-extern subscreen_group custom_subscreen[MAXCUSTOMSUBSCREENS];
-extern subscreen_group *current_subscreen_active;
-extern subscreen_group *current_subscreen_passive;
+extern std::vector<ZCSubscreen> new_subscreen;
+extern ZCSubscreen *new_subscreen_active;
+extern ZCSubscreen *new_subscreen_passive;
 
 extern item *Bitem, *Aitem, *Yitem, *Xitem;
 extern int32_t   Bid, Aid, Xid, Yid;
@@ -292,20 +185,12 @@ void load_Sitems();
 void textout_styled_aligned_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t textstyle, int32_t alignment, int32_t color, int32_t shadow, int32_t bg);
 void textprintf_styled_aligned_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t textstyle, int32_t alignment, int32_t color, int32_t shadow, int32_t bg, const char *format, ...);
 void update_subscreens(int32_t dmap=-1);
-void show_custom_subscreen(BITMAP *dest, subscreen_group *css, int32_t xofs, int32_t yofs, bool showtime, int32_t pos2);
-FONT *ss_font(int32_t fontnum);
-int32_t to_real_font(int32_t ss_font);
-int32_t to_ss_font(int32_t real_font);
-int32_t ss_objects(subscreen_group *tempss);
-void purge_blank_subscreen_objects(subscreen_group *tempss);
+void show_custom_subscreen(BITMAP *dest, ZCSubscreen *subscr, int32_t xofs, int32_t yofs, bool showtime, int32_t pos2);
+
+void purge_blank_subscreen_objects(SubscrPage& pg);
 int32_t subscreen_cset(int32_t c1, int32_t c2);
 
-int32_t sso_x(subscreen_object *tempsso);
-int32_t sso_y(subscreen_object *tempsso);
-int32_t sso_h(subscreen_object *tempsso);
-int32_t sso_w(subscreen_object *tempsso);
-int32_t get_alignment(subscreen_object *tempsso);
-void sso_bounding_box(BITMAP *bmp, subscreen_group *tempss, int32_t index, int32_t color);
+void sso_bounding_box(BITMAP *bmp, SubscrWidget* widg, int32_t color);
 
 
 bool findWeaponWithParent(int32_t id, int32_t type);
