@@ -4532,7 +4532,8 @@ int main(int argc, char **argv)
 	three_finger_flag=false;
 	
 	load_game_configs();
-	
+	if(used_switch(argc, argv, "-no_console"))
+		zscript_debugger = false;
 #ifndef __APPLE__ // Should be done on Mac, too, but I haven't gotten that working
 	// if(!is_only_instance("zc.lck"))
 	// {
