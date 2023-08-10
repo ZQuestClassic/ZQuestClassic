@@ -1,8 +1,13 @@
+#define _ZC_DBRNG
 #include "base/random.h"
 
 #if DEBUG_RAND
 #include "zc/replay.h"
 #include <fmt/format.h>
+
+#undef zc_oldrand
+#undef zc_rand
+#undef zc_srand
 
 static void db_print(char const* fname, int l, std::string const& extra)
 {
