@@ -3926,11 +3926,11 @@ enum //for Hero->LiftFlags[]
 
 enum
 {
-	MU_SCREEN,
-	MU_DMAP,
-	MU_LEVEL,
-	MU_NEVER,
+	MR_SCREEN,
+	MR_DMAP,
+	MR_LEVEL,
+	MR_NEVER,
 	
-	MUF_NOCUT  = 0x40,
-	MUF_REVERT = 0x80
+	MRF_NOCUT  = 0x40,
+	MRF_REVERT = 0x80
 };

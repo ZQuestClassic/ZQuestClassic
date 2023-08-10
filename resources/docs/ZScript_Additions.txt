@@ -6488,6 +6488,12 @@ int MusicLoopStart;
 int MusicLoopEnd;
  * The ending loop point for enhanced music in seconds.
  * CURRENTLY ONLY SUPPORTS MP3 / OGG
+
+int MusicCrossfadeIn;
+ * The number of frames enhanced music fades in for
+
+int MusicCrossfadeOut;
+ * The number of frames enhanced music fades out for
  
 int ActiveSubscreen;
  * The active subscreen ID.
@@ -7882,8 +7888,29 @@ bool PlayEnhancedMusic(int filename[], int track);
 		// If the file is mssing, the game will instead play 
 		// the midi specified as midi_id.
 
+void CrossfadeEnhancedMusic(int filename[], int track, int fadeoutframes, int fadeinframes, 
+				int fademiddleframes = 0, int startpos = 0);
+ * Crossfade to the specified enhanced music if it's available. If the music
+ * cannot be played, the current music will continue. The music will
+ * revert to normal upon leaving the screen.
+ * Returns true if the music file was loaded successfully.
+ * The filename cannot be more than 255 characters. 
+ * Currently only supports OGG, MP3, and some types of trackers.
+
 int PanStyle;
  * Set or get the audio panning. See PAN_* constants in std_constants.zh for valid values.
+
+int MusicRefresh;
+ * Set or get how frequently the currently playing music should update to
+ * the current DMap's music when warping.
+ * Use with the following constants from std_constants.zh
+ *   MR_SCREEN: Refresh on every screen transition (default behavior)
+ *   MR_DMAP: Refresh on dmap change
+ *   MR_LEVEL: Refresh on level change
+ *   MR_NEVER: Never refresh on warps
+ * Also OR with the following flags for extra effects:
+ *   MRF_NOCUT: Warp types that cut to silence, don't do that
+ *   MRF_REVERT: Upon taking a warp that triggers refresh, revert to MR_SCREEN
 
 //int Volume[4]
  * Deprecated; raw access to the UI audio controls. (Now unsupported officially.)
