@@ -35,10 +35,10 @@ extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
 extern HeroClass   Hero;
 extern FFScript FFCore;
 
-subscreen_group *current_subscreen_active;
-subscreen_group *current_subscreen_passive;
+ZCSubscreen *new_subscreen_active;
+ZCSubscreen *new_subscreen_passive;
 
-subscreen_group custom_subscreen[MAXCUSTOMSUBSCREENS];
+std::vector<ZCSubscreen> new_subscreen;
 
 static const int32_t notscrolling = sspUP | sspDOWN;
 static const int32_t pos = notscrolling | sspSCROLLING;
@@ -116,14 +116,14 @@ subscreen_object z3_active_a[80]=
     { ssoTEXT,                             pos,                     17,         105,           0,            0,            ssctMISC,                  ssctTEXT,                          ssctMISC,                  ssctSUBSCRSHADOW,                  ssctSYSTEM,               -1,                                 ssfZ3SMALL,                   sstaLEFT,               sstsSHADOWED,                0,                      0,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0, (void *)"INVENTORY" },
     { ssoTEXT,                             pos,                    177,          57,           0,            0,            ssctMISC,                  ssctTEXT,                          ssctMISC,                  ssctSUBSCRSHADOW,                  ssctSYSTEM,               -1,                                 ssfZ3SMALL,                   sstaLEFT,               sstsSHADOWED,                0,                      0,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0, (void *)"TRIFORCE" },
     { ssoTEXT,                             pos,                    177,         113,           0,            0,            ssctMISC,                  ssctTEXT,                          ssctMISC,                  ssctSUBSCRSHADOW,                  ssctSYSTEM,               -1,                                 ssfZ3SMALL,                   sstaLEFT,               sstsSHADOWED,                0,                      0,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0, (void *)"EQUIPMENT" },
-    { ssoTRIFORCE,                         pos,                    192,          64,           1,            1,            ssctMISC,                  sscsTRIFORCECSET,                  0,                         0,                                 0,                         0,                                 0,                            0,                      1,                           0,                      1,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-    { ssoTRIFORCE,                         pos,                    208,          64,           1,            1,            ssctMISC,                  sscsTRIFORCECSET,                  0,                         0,                                 0,                         0,                                 0,                            1,                      1,                           0,                      2,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-    { ssoTRIFORCE,                         pos,                    176,          80,           1,            1,            ssctMISC,                  sscsTRIFORCECSET,                  0,                         0,                                 0,                         0,                                 0,                            0,                      1,                           0,                      3,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-    { ssoTRIFORCE,                         pos,                    224,          80,           1,            1,            ssctMISC,                  sscsTRIFORCECSET,                  0,                         0,                                 0,                         0,                                 0,                            1,                      1,                           0,                      4,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-    { ssoTRIFORCE,                         pos,                    192,          80,           1,            1,            ssctMISC,                  sscsTRIFORCECSET,                  0,                         0,                                 0,                         0,                                 0,                            2,                      1,                           0,                      5,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-    { ssoTRIFORCE,                         pos,                    192,          80,           1,            1,            ssctMISC,                  sscsTRIFORCECSET,                  0,                         0,                                 0,                         0,                                 0,                            1,                      1,                           0,                      6,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-    { ssoTRIFORCE,                         pos,                    208,          80,           1,            1,            ssctMISC,                  sscsTRIFORCECSET,                  0,                         0,                                 0,                         0,                                 0,                            3,                      1,                           0,                      7,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-    { ssoTRIFORCE,                         pos,                    208,          80,           1,            1,            ssctMISC,                  sscsTRIFORCECSET,                  0,                         0,                                 0,                         0,                                 0,                            0,                      1,                           0,                      8,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+    { ssoMCGUFFIN,                         pos,                    192,          64,           1,            1,            ssctMISC,                  sscsTRIFORCECSET,                  0,                         0,                                 0,                         0,                                 0,                            0,                      1,                           0,                      1,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+    { ssoMCGUFFIN,                         pos,                    208,          64,           1,            1,            ssctMISC,                  sscsTRIFORCECSET,                  0,                         0,                                 0,                         0,                                 0,                            1,                      1,                           0,                      2,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+    { ssoMCGUFFIN,                         pos,                    176,          80,           1,            1,            ssctMISC,                  sscsTRIFORCECSET,                  0,                         0,                                 0,                         0,                                 0,                            0,                      1,                           0,                      3,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+    { ssoMCGUFFIN,                         pos,                    224,          80,           1,            1,            ssctMISC,                  sscsTRIFORCECSET,                  0,                         0,                                 0,                         0,                                 0,                            1,                      1,                           0,                      4,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+    { ssoMCGUFFIN,                         pos,                    192,          80,           1,            1,            ssctMISC,                  sscsTRIFORCECSET,                  0,                         0,                                 0,                         0,                                 0,                            2,                      1,                           0,                      5,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+    { ssoMCGUFFIN,                         pos,                    192,          80,           1,            1,            ssctMISC,                  sscsTRIFORCECSET,                  0,                         0,                                 0,                         0,                                 0,                            1,                      1,                           0,                      6,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+    { ssoMCGUFFIN,                         pos,                    208,          80,           1,            1,            ssctMISC,                  sscsTRIFORCECSET,                  0,                         0,                                 0,                         0,                                 0,                            3,                      1,                           0,                      7,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+    { ssoMCGUFFIN,                         pos,                    208,          80,           1,            1,            ssctMISC,                  sscsTRIFORCECSET,                  0,                         0,                                 0,                         0,                                 0,                            0,                      1,                           0,                      8,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { ssoTILEBLOCK,                        pos,                     16,           8,           1,            1,            1,                         0,                                 0,                         0,                                 0,                         0,                             28201,                            0,                      1,                           0,                      0,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { ssoNULL,                             pos,                      0,           0,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 0,                            0,                      0,                           0,                      0,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL }
 };
@@ -202,14 +202,14 @@ subscreen_object z3_active_ab[82]=
     { ssoTEXT,                             pos,                     17,         105,           0,            0,            ssctMISC,                  ssctTEXT,                          ssctMISC,                  ssctSUBSCRSHADOW,                  ssctSYSTEM,               -1,                                 ssfZ3SMALL,                   sstaLEFT,               sstsSHADOWED,                0,                      0,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0, (void *)"INVENTORY" },
     { ssoTEXT,                             pos,                    177,          57,           0,            0,            ssctMISC,                  ssctTEXT,                          ssctMISC,                  ssctSUBSCRSHADOW,                  ssctSYSTEM,               -1,                                 ssfZ3SMALL,                   sstaLEFT,               sstsSHADOWED,                0,                      0,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0, (void *)"TRIFORCE" },
     { ssoTEXT,                             pos,                    177,         113,           0,            0,            ssctMISC,                  ssctTEXT,                          ssctMISC,                  ssctSUBSCRSHADOW,                  ssctSYSTEM,               -1,                                 ssfZ3SMALL,                   sstaLEFT,               sstsSHADOWED,                0,                      0,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0, (void *)"EQUIPMENT" },
-    { ssoTRIFORCE,                         pos,                    192,          64,           1,            1,            ssctMISC,                  sscsTRIFORCECSET,                  0,                         0,                                 0,                         0,                                 0,                            0,                      1,                           0,                      1,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-    { ssoTRIFORCE,                         pos,                    208,          64,           1,            1,            ssctMISC,                  sscsTRIFORCECSET,                  0,                         0,                                 0,                         0,                                 0,                            1,                      1,                           0,                      2,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-    { ssoTRIFORCE,                         pos,                    176,          80,           1,            1,            ssctMISC,                  sscsTRIFORCECSET,                  0,                         0,                                 0,                         0,                                 0,                            0,                      1,                           0,                      3,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-    { ssoTRIFORCE,                         pos,                    224,          80,           1,            1,            ssctMISC,                  sscsTRIFORCECSET,                  0,                         0,                                 0,                         0,                                 0,                            1,                      1,                           0,                      4,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-    { ssoTRIFORCE,                         pos,                    192,          80,           1,            1,            ssctMISC,                  sscsTRIFORCECSET,                  0,                         0,                                 0,                         0,                                 0,                            2,                      1,                           0,                      5,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-    { ssoTRIFORCE,                         pos,                    192,          80,           1,            1,            ssctMISC,                  sscsTRIFORCECSET,                  0,                         0,                                 0,                         0,                                 0,                            1,                      1,                           0,                      6,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-    { ssoTRIFORCE,                         pos,                    208,          80,           1,            1,            ssctMISC,                  sscsTRIFORCECSET,                  0,                         0,                                 0,                         0,                                 0,                            3,                      1,                           0,                      7,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-    { ssoTRIFORCE,                         pos,                    208,          80,           1,            1,            ssctMISC,                  sscsTRIFORCECSET,                  0,                         0,                                 0,                         0,                                 0,                            0,                      1,                           0,                      8,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+    { ssoMCGUFFIN,                         pos,                    192,          64,           1,            1,            ssctMISC,                  sscsTRIFORCECSET,                  0,                         0,                                 0,                         0,                                 0,                            0,                      1,                           0,                      1,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+    { ssoMCGUFFIN,                         pos,                    208,          64,           1,            1,            ssctMISC,                  sscsTRIFORCECSET,                  0,                         0,                                 0,                         0,                                 0,                            1,                      1,                           0,                      2,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+    { ssoMCGUFFIN,                         pos,                    176,          80,           1,            1,            ssctMISC,                  sscsTRIFORCECSET,                  0,                         0,                                 0,                         0,                                 0,                            0,                      1,                           0,                      3,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+    { ssoMCGUFFIN,                         pos,                    224,          80,           1,            1,            ssctMISC,                  sscsTRIFORCECSET,                  0,                         0,                                 0,                         0,                                 0,                            1,                      1,                           0,                      4,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+    { ssoMCGUFFIN,                         pos,                    192,          80,           1,            1,            ssctMISC,                  sscsTRIFORCECSET,                  0,                         0,                                 0,                         0,                                 0,                            2,                      1,                           0,                      5,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+    { ssoMCGUFFIN,                         pos,                    192,          80,           1,            1,            ssctMISC,                  sscsTRIFORCECSET,                  0,                         0,                                 0,                         0,                                 0,                            1,                      1,                           0,                      6,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+    { ssoMCGUFFIN,                         pos,                    208,          80,           1,            1,            ssctMISC,                  sscsTRIFORCECSET,                  0,                         0,                                 0,                         0,                                 0,                            3,                      1,                           0,                      7,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+    { ssoMCGUFFIN,                         pos,                    208,          80,           1,            1,            ssctMISC,                  sscsTRIFORCECSET,                  0,                         0,                                 0,                         0,                                 0,                            0,                      1,                           0,                      8,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { ssoTILEBLOCK,                        pos,                     16,           8,           1,            1,            1,                         0,                                 0,                         0,                                 0,                         0,                                 28200,                        0,                      1,                           0,                      0,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { ssoNULL,                             pos,                      0,           0,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 0,                            0,                      0,                           0,                      0,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL }
 };
@@ -1916,7 +1916,7 @@ void textprintf_styled_aligned_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t
 }
 
 
-void draw_textbox(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, FONT *tempfont, char *thetext, bool wword, int32_t tabsize, int32_t alignment, int32_t textstyle, int32_t color, int32_t shadowcolor, int32_t backcolor)
+void draw_textbox(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, FONT *tempfont, char const* thetext, bool wword, int32_t tabsize, int32_t alignment, int32_t textstyle, int32_t color, int32_t shadowcolor, int32_t backcolor)
 {
     int32_t y1 = y;
     int32_t x1;
@@ -1924,11 +1924,12 @@ void draw_textbox(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, FONT
     char s[16];
     char text[16];
     char space[16];
-    char *printed = text;
-    char *scanned = text;
-    char *oldscan = text;
-    char *ignore = NULL;
-    char *tmp, *ptmp;
+    char const* printed = text;
+    char const* scanned = text;
+    char const* oldscan = text;
+    char const* ignore = NULL;
+    char const* tmp;
+    char const* ptmp;
     int32_t width;
     int32_t i = 0;
     int32_t noignore;
@@ -2043,7 +2044,7 @@ void draw_textbox(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, FONT
         if((y1+text_height(tempfont) <= (y+h)))
         {
             int32_t tempw=0;
-            char *tempprinted=printed;
+            char const* tempprinted=printed;
             
             /* print up to the marked character */
             while(printed != scanned)
@@ -2155,7 +2156,6 @@ void draw_textbox(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, FONT
 
 
 //void frame2x2(BITMAP *dest,int32_t x,int32_t y,int32_t xsize,int32_t ysize,int32_t t,int32_t c)
-//draw_block_flip(dest,x,y,css->objects[i].d1,subscreen_cset(css->objects[i].colortype1, css->objects[i].color1),css->objects[i].w,css->objects[i].h,css->objects[i].d2,css->objects[i].d3,css->objects[i].d4);
 void frame2x2(BITMAP *dest,int32_t x,int32_t y,int32_t tile,int32_t cset,int32_t w,int32_t h,int32_t /*flip*/,bool overlay,bool trans)
 {
     /*
@@ -3216,101 +3216,6 @@ bool displaysubscreenitem(int32_t itemtype, int32_t d, int32_t id)
 	}
 }
 
-int32_t get_subscreenitem_id(int32_t itemtype, bool forceItem)
-{
-	if(forceItem && (itemtype & 0x8000))
-		return itemtype&0xFFF;
-    // We need to do a reverse loop to prevent the Bow from being drawn above the Arrow (Bow & Arrow).
-    int32_t overridecheck = 0xFFFF;
-    
-    for(int32_t i=Sitems.Count()-1; i>=0; i--)
-    {
-        if(itemtype & 0x8000) // if 0x8000, then itemtype is actually an item ID.
-        {
-            if(overridecheck==0xFFFF)
-			{
-                if(Sitems.spr(i)->id == (itemtype&0xFFF) && Sitems.spr(i)->misc==-1) overridecheck = i;
-			}
-        }
-        else if(Sitems.spr(i)->misc!=-1)
-        {
-            int32_t d= itemsbuf[Sitems.spr(i)->id].family;
-            
-            if((d==itemtype)||
-                    (itemtype==itype_letterpotion&&((d==itype_letter && current_item_id(itype_potion)==-1)||d==itype_potion))||
-                    (itemtype==itype_bowandarrow&&(d==itype_bow||d==itype_arrow)))
-            {
-				return Sitems.spr(i)->id;
-            }
-        }
-    }
-    if(forceItem)
-	{
-		bool useLowestID = get_qr(qr_SUBSCR_BACKWARDS_ID_ORDER);
-		int32_t id = -1;
-		for(auto q = 0; q < MAXITEMS; ++q)
-		{
-			if(itemsbuf[q].family == itemtype)
-			{
-				id = q;
-				if(useLowestID) break;
-			}
-		}
-		return id;
-	}
-
-    //Item Override stuff here
-    if((itemtype & 0x8000) && 
-		(!game || game->item[itemtype&0xFFF])
-            && !item_disabled(itemtype&0xFFF) && displaysubscreenitem(itemsbuf[itemtype&0xFFF].family, 0, (itemtype&0xFFF)))
-    {
-		return itemtype&0xFFF;
-    }
-	return -1;
-}
-
-item* get_subscreenitem(int32_t itemtype)
-{
-    // We need to do a reverse loop to prevent the Bow from being drawn above the Arrow (Bow & Arrow).
-    int32_t overridecheck = 0xFFFF;
-    
-    for(int32_t i=Sitems.Count()-1; i>=0; i--)
-    {
-        if(itemtype & 0x8000) // if 0x8000, then itemtype is actually an item ID.
-        {
-            if(overridecheck==0xFFFF)
-			{
-                if(Sitems.spr(i)->id == (itemtype&0xFFF) && Sitems.spr(i)->misc==-1) overridecheck = i;
-			}
-        }
-        else if(Sitems.spr(i)->misc!=-1)
-        {
-            int32_t d= itemsbuf[Sitems.spr(i)->id].family;
-            
-            if((d==itemtype)||
-                    (itemtype==itype_letterpotion&&((d==itype_letter && current_item_id(itype_potion)==-1)||d==itype_potion))||
-                    (itemtype==itype_bowandarrow&&(d==itype_bow||d==itype_arrow)))
-            {
-				return (item*)Sitems.spr(i);
-            }
-        }
-    }
-    
-    //Item Override stuff here
-    if((itemtype & 0x8000) && 
-		(!game || game->item[itemtype&0xFFF])
-            && !item_disabled(itemtype&0xFFF) && displaysubscreenitem(itemsbuf[itemtype&0xFFF].family, 0, (itemtype&0xFFF)))
-    {
-        if(overridecheck == 0xFFFF)
-        {
-            overridecheck = Sitems.Count()-1;
-		}
-		return (item*)Sitems.spr(overridecheck);
-    }
-	return NULL;
-}
-
-
 void subscreenitem(BITMAP *dest, int32_t x, int32_t y, int32_t itemtype)
 {
     // We need to do a reverse loop to prevent the Bow from being drawn above the Arrow (Bow & Arrow).
@@ -3321,11 +3226,11 @@ void subscreenitem(BITMAP *dest, int32_t x, int32_t y, int32_t itemtype)
         if(itemtype & 0x8000) // if 0x8000, then itemtype is actually an item ID.
         {
             if(overridecheck==0xFFFF)
-	    {
-		//al_trace("Found an override item at subscreen.cpp linere 3084, id: %d\n",Sitems.spr(i)->id);
-
-                if(Sitems.spr(i)->id == (itemtype&0xFFF) && Sitems.spr(i)->misc==-1) overridecheck = i;
-	    }
+			{
+				//al_trace("Found an override item at subscreen.cpp linere 3084, id: %d\n",Sitems.spr(i)->id);
+				if(Sitems.spr(i)->id == (itemtype&0xFFF) && Sitems.spr(i)->misc==-1)
+					overridecheck = i;
+			}
         }
         else if(Sitems.spr(i)->misc!=-1)
         {
@@ -3464,8 +3369,6 @@ int32_t subscreen_color(int32_t c1, int32_t c2)
     return ret;
 }
 
-
-
 int32_t subscreen_cset(int32_t c1, int32_t c2)
 {
     int32_t ret=c1;
@@ -3517,160 +3420,7 @@ int32_t subscreen_cset(int32_t c1, int32_t c2)
     return ret;
 }
 
-int32_t to_real_font(int32_t ss_font)
-{
-	switch(ss_font)
-	{
-		case ssfSMALL: return font_sfont;
-		case ssfSMALLPROP: return font_spfont;
-		case ssfSS1: return font_ssfont1;
-		case ssfSS2: return font_ssfont2;
-		case ssfSS3: return font_ssfont3;
-		case ssfSS4: return font_ssfont4;
-		case ssfZTIME: return font_ztfont;
-		case ssfZELDA: return font_zfont;
-		case ssfZ3: return font_z3font;
-		case ssfZ3SMALL: return font_z3smallfont;
-		case ssfGBLA: return font_gblafont;
-		case ssfGORON: return font_goronfont;
-		case ssfZORAN: return font_zoranfont;
-		case ssfHYLIAN1: return font_hylian1font;
-		case ssfHYLIAN2: return font_hylian2font;
-		case ssfHYLIAN3: return font_hylian3font;
-		case ssfHYLIAN4: return font_hylian4font;
-		case ssfGBORACLE: return font_gboraclefont;
-		case ssfGBORACLEP: return font_gboraclepfont;
-		case ssfDSPHANTOM: return font_dsphantomfont;
-		case ssfDSPHANTOMP: return font_dsphantompfont;
-		case ssfAT800: return font_atari800font;
-		case ssfACORN: return font_acornfont;
-		case ssADOS: return font_adosfont;
-		case ssfALLEG: return font_baseallegrofont;
-		case ssfAPL2: return font_apple2font;
-		case ssfAPL280: return font_apple280colfont;
-		case ssfAPL2GS: return font_apple2gsfont;
-		case ssfAQUA: return font_aquariusfont;
-		case ssfAT400: return font_atari400font;
-		case ssfC64: return font_c64font;
-		case ssfC64HR: return font_c64hiresfont;
-		case ssfCGA: return font_cgafont;
-		case ssfCOCO: return font_cocofont;
-		case ssfCOCO2: return font_coco2font;
-		case ssfCOUPE: return font_coupefont;
-		case ssfCPC: return font_cpcfont;
-		case ssfFANTASY: return font_fantasyfont;
-		case ssfFDSKANA: return font_fdskanafont;
-		case ssfFDSLIKE: return font_fdslikefont;
-		case ssfFDSROM: return font_fdsromanfont;
-		case ssfFF: return font_finalffont;
-		case ssfFUTHARK: return font_futharkfont;
-		case ssfGAIA: return font_gaiafont;
-		case ssfHIRA: return font_hirafont;
-		case ssfJP: return font_jpfont;
-		case ssfKONG: return font_kongfont;
-		case ssfMANA: return font_manafont;
-		case ssfML: return font_mlfont;
-		case ssfMOT: return font_motfont;
-		case ssfMSX0: return font_msxmode0font;
-		case ssfMSX1: return font_msxmode1font;
-		case ssfPET: return font_petfont;
-		case ssfPSTART: return font_pstartfont;
-		case ssfSATURN: return font_saturnfont;
-		case ssfSCIFI: return font_scififont;
-		case ssfSHERW: return font_sherwoodfont;
-		case ssfSINQL: return font_sinqlfont;
-		case ssfSPEC: return font_spectrumfont;
-		case ssfSPECLG: return font_speclgfont;
-		case ssfTI99: return font_ti99font;
-		case ssfTRS: return font_trsfont;
-		case ssfZ2: return font_z2font;
-		case ssfZX: return font_zxfont;
-		case ssfLISA: return font_lisafont;
-	}
-	return font_zfont;
-} 
-int32_t to_ss_font(int32_t real_font)
-{
-	switch(real_font)
-	{
-		case font_sfont: return ssfSMALL;
-		case font_spfont: return ssfSMALLPROP;
-		case font_ssfont1: return ssfSS1;
-		case font_ssfont2: return ssfSS2;
-		case font_ssfont3: return ssfSS3;
-		case font_ssfont4: return ssfSS4;
-		case font_ztfont: return ssfZTIME;
-		case font_zfont: return ssfZELDA;
-		case font_z3font: return ssfZ3;
-		case font_z3smallfont: return ssfZ3SMALL;
-		case font_gblafont: return ssfGBLA;
-		case font_goronfont: return ssfGORON;
-		case font_zoranfont: return ssfZORAN;
-		case font_hylian1font: return ssfHYLIAN1;
-		case font_hylian2font: return ssfHYLIAN2;
-		case font_hylian3font: return ssfHYLIAN3;
-		case font_hylian4font: return ssfHYLIAN4;
-		case font_gboraclefont: return ssfGBORACLE;
-		case font_gboraclepfont: return ssfGBORACLEP;
-		case font_dsphantomfont: return ssfDSPHANTOM;
-		case font_dsphantompfont: return ssfDSPHANTOMP;
-		case font_atari800font: return ssfAT800;
-		case font_acornfont: return ssfACORN;
-		case font_adosfont: return ssADOS;
-		case font_baseallegrofont: return ssfALLEG;
-		case font_apple2font: return ssfAPL2;
-		case font_apple280colfont: return ssfAPL280;
-		case font_apple2gsfont: return ssfAPL2GS;
-		case font_aquariusfont: return ssfAQUA;
-		case font_atari400font: return ssfAT400;
-		case font_c64font: return ssfC64;
-		case font_c64hiresfont: return ssfC64HR;
-		case font_cgafont: return ssfCGA;
-		case font_cocofont: return ssfCOCO;
-		case font_coco2font: return ssfCOCO2;
-		case font_coupefont: return ssfCOUPE;
-		case font_cpcfont: return ssfCPC;
-		case font_fantasyfont: return ssfFANTASY;
-		case font_fdskanafont: return ssfFDSKANA;
-		case font_fdslikefont: return ssfFDSLIKE;
-		case font_fdsromanfont: return ssfFDSROM;
-		case font_finalffont: return ssfFF;
-		case font_futharkfont: return ssfFUTHARK;
-		case font_gaiafont: return ssfGAIA;
-		case font_hirafont: return ssfHIRA;
-		case font_jpfont: return ssfJP;
-		case font_kongfont: return ssfKONG;
-		case font_manafont: return ssfMANA;
-		case font_mlfont: return ssfML;
-		case font_motfont: return ssfMOT;
-		case font_msxmode0font: return ssfMSX0;
-		case font_msxmode1font: return ssfMSX1;
-		case font_petfont: return ssfPET;
-		case font_pstartfont: return ssfPSTART;
-		case font_saturnfont: return ssfSATURN;
-		case font_scififont: return ssfSCIFI;
-		case font_sherwoodfont: return ssfSHERW;
-		case font_sinqlfont: return ssfSINQL;
-		case font_spectrumfont: return ssfSPEC;
-		case font_speclgfont: return ssfSPECLG;
-		case font_ti99font: return ssfTI99;
-		case font_trsfont: return ssfTRS;
-		case font_z2font: return ssfZ2;
-		case font_zxfont: return ssfZX;
-		case font_lisafont: return ssfLISA;
-	}
-	return ssfZELDA;
-} 
-
-FONT *ss_font(int32_t fontnum)
-{
-    if(unsigned(fontnum) >= ssfMAX)
-        fontnum=zc_oldrand()%ssfMAX;
-	
-    return get_zc_font(to_real_font(fontnum));
-}
 item *sel_a=NULL, *sel_b=NULL;
-
 
 void delete_selectors()
 {
@@ -3686,7 +3436,6 @@ void delete_selectors()
         sel_b=NULL;
     }
 }
-
 
 void animate_selectors()
 {
@@ -3710,8 +3459,9 @@ void animate_selectors()
     sel_b->animate(0);
 }
 
-void show_custom_subscreen(BITMAP *dest, subscreen_group *css, int32_t xofs, int32_t yofs, bool showtime, int32_t pos2)
+void show_custom_subscreen(BITMAP *dest, ZCSubscreen* subscr, int32_t xofs, int32_t yofs, bool showtime, int32_t pos2)
 {
+	if(!subscr) return;
 	//this is not a good place to be clearing the bitmap
 	//other stuff might already have been drawn on it that needs to be kept
 	//(eg the game screen when pulling down the subscreen) -DD
@@ -3736,377 +3486,8 @@ void show_custom_subscreen(BITMAP *dest, subscreen_group *css, int32_t xofs, int
 	#endif
 	if(animate_sel)
 		animate_selectors();
-		
-	for(int32_t i=0; i<MAXSUBSCREENITEMS&&css->objects[i].type>ssoNULL; ++i)
-	{
-		if((css->objects[i].pos & pos2) != 0)
-		{
-			FONT *tempfont=get_zc_font(font_zfont);
-			int32_t fontnum=css->objects[i].d1;
-			tempfont=ss_font(fontnum);
-			int32_t x=css->objects[i].x+xofs;
-			int32_t y=css->objects[i].y+yofs;
-			
-			switch(css->objects[i].type)
-			{
-				case sso2X2FRAME:
-				{
-					//al_trace("2x2 Frame tile is: %d\n",css->objects[i].d1);
-					//in 1.92 and earlier, the 2x2 frame object was tile 278
-					frame2x2(dest, x, y, css->objects[i].d1, subscreen_cset(css->objects[i].colortype1, css->objects[i].color1), css->objects[i].w, css->objects[i].h, css->objects[i].d2, css->objects[i].d3 != 0, css->objects[i].d4 != 0);
-					//frame2x2(dest, x, y, FFCore.getQuestHeaderInfo(vZelda) < 0x193 ? 278 : css->objects[i].d1, subscreen_cset(css->objects[i].colortype1, css->objects[i].color1), css->objects[i].w, css->objects[i].h, css->objects[i].d2, css->objects[i].d3 != 0, css->objects[i].d4 != 0);
-				}
-				break;
-				
-				case ssoBSTIME:
-				{
-					char *ts;
-					
-					if(game)
-						ts = time_str_short2(game->get_time());
-					else
-						ts = time_str_short2(0);
-						
-					//textout_shadowed_ex(dest,tempfont,ts,x,y,subscreen_color(css->objects[i].colortype1, css->objects[i].color1),subscreen_color(css->objects[i].colortype2, css->objects[i].color2),subscreen_color(css->objects[i].colortype3, css->objects[i].color3));
-					textout_styled_aligned_ex(dest,tempfont,ts,x,y,css->objects[i].d3,css->objects[i].d2,subscreen_color(css->objects[i].colortype1, css->objects[i].color1),subscreen_color(css->objects[i].colortype2, css->objects[i].color2),subscreen_color(css->objects[i].colortype3, css->objects[i].color3));
-				}
-				break;
-				
-				case ssoSSTIME:
-				case ssoTIME:
-				{
-					if(showtime||css->objects[i].type==ssoTIME)
-					{
-						char *ts;
-						
-						if(game)
-							ts = time_str_med(game->get_time());
-						else
-							ts = time_str_med(0);
-							
-						//textout_right_ex(dest,tempfont,ts,x,y,subscreen_color(css->objects[i].colortype1, css->objects[i].color1),subscreen_color(css->objects[i].colortype2, css->objects[i].color2));
-						textout_styled_aligned_ex(dest,tempfont,ts,x,y,css->objects[i].d3,css->objects[i].d2,subscreen_color(css->objects[i].colortype1, css->objects[i].color1),subscreen_color(css->objects[i].colortype2, css->objects[i].color2),subscreen_color(css->objects[i].colortype3, css->objects[i].color3));
-					}
-				}
-				break;
-				
-				case ssoTEXT:
-				{
-					//textout_styled_aligned_ex(bmp, f,       s,                          x,y,textstyle,         alignment,         color,                                                                    shadow,                                                                   bg)
-					textout_styled_aligned_ex(dest,tempfont,(char *)css->objects[i].dp1,x,y,css->objects[i].d3,css->objects[i].d2,subscreen_color(css->objects[i].colortype1, css->objects[i].color1),subscreen_color(css->objects[i].colortype2, css->objects[i].color2),subscreen_color(css->objects[i].colortype3, css->objects[i].color3));
-				}
-				break;
-				
-				case ssoLINE:
-				{
-					if(css->objects[i].d4)
-					{
-						drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
-					}
-					
-					line(dest, x, y, x+css->objects[i].w-1, y+css->objects[i].h-1, subscreen_color(css->objects[i].colortype1, css->objects[i].color1));
-					
-					if(css->objects[i].d4)
-					{
-						drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
-					}
-				}
-				break;
-				
-				case ssoRECT:
-				{
-					if(css->objects[i].d2)
-					{
-						drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
-					}
-					
-					if(css->objects[i].d1!=0)
-					{
-						rectfill(dest, x, y, x+css->objects[i].w-1, y+css->objects[i].h-1, subscreen_color(css->objects[i].colortype2, css->objects[i].color2));
-					}
-					
-					rect(dest, x, y, x+css->objects[i].w-1, y+css->objects[i].h-1, subscreen_color(css->objects[i].colortype1, css->objects[i].color1));
-					
-					if(css->objects[i].d2)
-					{
-						drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
-					}
-				}
-				break;
-				
-				case ssoMAGICMETER:
-				{
-					magicmeter(dest, x, y);
-				}
-				break;
-				
-				case ssoLIFEMETER:
-				{
-					//lifemeter(dest, x, y, css->objects[i].d1, css->objects[i].d2 != 0);
-					lifemeter(dest, x, y, 1, css->objects[i].d2 != 0);
-				}
-				break;
-				
-				case ssoBUTTONITEM:
-				{
-					if(css->objects[i].d2)
-					{
-						drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
-					}
-					//zprint2("Button item ID is: %d\n", css->objects[i].d1);
-					buttonitem(dest, css->objects[i].d1, x, y);
-					
-					if(css->objects[i].d2)
-					{
-						drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
-					}
-				}
-				break;
-				
-				case ssoCOUNTERS:
-				{
-					defaultcounters(dest, x, y, tempfont,subscreen_color(css->objects[i].colortype1, css->objects[i].color1),subscreen_color(css->objects[i].colortype2, css->objects[i].color2),subscreen_color(css->objects[i].colortype3, css->objects[i].color3),css->objects[i].d2 != 0,css->objects[i].d3,css->objects[i].d4,css->objects[i].d5);
-				}
-				break;
-				
-				case ssoCOUNTER:
-				{
-					counter(dest, x, y, tempfont,subscreen_color(css->objects[i].colortype1, css->objects[i].color1),subscreen_color(css->objects[i].colortype2, css->objects[i].color2),subscreen_color(css->objects[i].colortype3, css->objects[i].color3),css->objects[i].d2,css->objects[i].d3,css->objects[i].d4,css->objects[i].d5,css->objects[i].d6&1, css->objects[i].d7, css->objects[i].d8, css->objects[i].d9, css->objects[i].d10, (css->objects[i].d6&2)!=0);
-				}
-				break;
-				
-				case ssoMINIMAPTITLE:
-				{
-					if(!css->objects[i].d4 || has_item(itype_map, get_dlevel()))
-					{
-						minimaptitle(dest, x, y, tempfont, subscreen_color(css->objects[i].colortype1, css->objects[i].color1),subscreen_color(css->objects[i].colortype2, css->objects[i].color2),subscreen_color(css->objects[i].colortype3, css->objects[i].color3), css->objects[i].d2, css->objects[i].d3);
-					}
-				}
-				break;
-				
-				case ssoMINIMAP:
-				{
-					//drawdmap(dest, x, y, showmap,                 showhero,           showcompass,        herocolor,                                                                 lccolor,                                                                   dccolor)
-					drawdmap(dest, x, y, css->objects[i].d1 != 0, css->objects[i].d2 && !(TheMaps[(DMaps[get_currdmap()].map*MAPSCRS)+get_homescr()].flags7&fNOHEROMARK),
-							 css->objects[i].d3 && !(DMaps[get_currdmap()].flags&dmfNOCOMPASS), subscreen_color(css->objects[i].colortype1, css->objects[i].color1), subscreen_color(css->objects[i].colortype2, css->objects[i].color2), subscreen_color(css->objects[i].colortype3, css->objects[i].color3));
-				}
-				break;
-				
-				case ssoLARGEMAP:
-				{
-					//putBmap(dest, x, y, showmap,                 showhero,              showrooms,             roomcolor,                                                                 herocolor,                                                                 large)
-					putBmap(dest, x, y, css->objects[i].d1 != 0, css->objects[i].d2!=0, css->objects[i].d3!=0, subscreen_color(css->objects[i].colortype1, css->objects[i].color1), subscreen_color(css->objects[i].colortype2, css->objects[i].color2), css->objects[i].d10 != 0);
-				}
-				break;
-				
-				case ssoCLEAR:
-				{
-					clear_to_color(dest,subscreen_color(css->objects[i].colortype1, css->objects[i].color1));
-				}
-				break;
-				
-				case ssoCURRENTITEM:
-				{
-					// Shouldn't really be checking is_zquest here, but it's okay for now...
-					if((css->objects[i].d2&SSCURRITEM_VISIBLE) || (is_zquest() && (zinit.ss_flags&ssflagSHOWINVIS)))
-					{
-						subscreenitem(dest, x, y, css->objects[i].d8>0 ? ((css->objects[i].d8-1) | 0x8000) : css->objects[i].d1);
-					}
-				}
-				break;
-				
-				case ssoTEXTBOX:
-				{
-					//draw_textbox(dest, x, y, w,                 h,                 tempfont, thetext,                     wword,                 tabsize,            alignment,          textstyle,          color,                                                                     shadowcolor,                                                               backcolor)
-					draw_textbox(dest, x, y, css->objects[i].w, css->objects[i].h, tempfont, (char *)css->objects[i].dp1, css->objects[i].d4!=0, css->objects[i].d5, css->objects[i].d2, css->objects[i].d3, subscreen_color(css->objects[i].colortype1, css->objects[i].color1), subscreen_color(css->objects[i].colortype2, css->objects[i].color2), subscreen_color(css->objects[i].colortype3, css->objects[i].color3));
-					//draw_textbox(dest, 0, 0, 200, 50, get_zc_font(font_sfont), "This is a test", 1, 4, 0, 0, subscreen_color(css->objects[i].colortype1, css->objects[i].color1), subscreen_color(css->objects[i].colortype2, css->objects[i].color2), subscreen_color(css->objects[i].colortype3, css->objects[i].color3));
-				}
-				break;
-				
-				case ssoSELECTEDITEMNAME:
-				{
-					int32_t itemid=Bweapon(Bpos);
-					
-					// If it's a combined bow and arrow, the item ID will have 0xF000 added.
-					if(itemid>=0xF000)
-						itemid-=0xF000;
-					
-					// 0 can mean either the item with index 0 is selected or there's no
-					// valid item to select, so be sure Hero has whatever it would be.
-					if(!game->get_item(itemid))
-						break;
-						
-					itemdata const& itm = itemsbuf[itemid];
-					char itemname[256]="";
-					strncpy(itemname, itm.get_name().c_str(), 255);
-					
-					draw_textbox(dest, x, y, css->objects[i].w, css->objects[i].h, tempfont, itemname, css->objects[i].d4!=0, css->objects[i].d5, css->objects[i].d2, css->objects[i].d3, subscreen_color(css->objects[i].colortype1, css->objects[i].color1), subscreen_color(css->objects[i].colortype2, css->objects[i].color2), subscreen_color(css->objects[i].colortype3, css->objects[i].color3));
-					// draw_textbox(dest, x, y, w,                 h,                 tempfont, thetext,  wword,                 tabsize,            alignment,          textstyle,          color,                                             shadowcolor,                                       backcolor);
-				}
-				break;
-				
-				case ssoTRIFRAME:
-				{
-					//puttriframe(dest, x, y, triframecolor,                                                             numbercolor,                                                               triframetile,       triframecset,       triforcetile,       triforcecset,       showframe,             showpieces,            largepieces)
-					puttriframe(dest, x, y, subscreen_color(css->objects[i].colortype1, css->objects[i].color1), subscreen_color(css->objects[i].colortype2, css->objects[i].color2), css->objects[i].d1, css->objects[i].d2, css->objects[i].d3, css->objects[i].d4, css->objects[i].d5!=0, css->objects[i].d6!=0, css->objects[i].d7!=0);
-				}
-				break;
-				
-				case ssoTRIFORCE:
-				{
-					puttriforce(dest,x,y,css->objects[i].d1,subscreen_cset(css->objects[i].colortype1, css->objects[i].color1),css->objects[i].w,css->objects[i].h,css->objects[i].d2,css->objects[i].d3!=0,css->objects[i].d4!=0,css->objects[i].d5);
-				}
-				break;
-				
-				case ssoTILEBLOCK:
-				{
-					draw_block_flip(dest,x,y,css->objects[i].d1,subscreen_cset(css->objects[i].colortype1, css->objects[i].color1),css->objects[i].w,css->objects[i].h,css->objects[i].d2,css->objects[i].d3!=0,css->objects[i].d4!=0);
-				}
-				break;
-				
-				case ssoMINITILE:
-				{
-					int32_t t=css->objects[i].d1;
-					
-					if(t==-1)
-					{
-						switch(css->objects[i].d2)
-						{
-							case ssmstSSVINETILE:
-								t=wpnsbuf[iwSubscreenVine].tile*4;
-								break;
-								
-							case ssmstMAGICMETER:
-								t=wpnsbuf[iwMMeter].tile*4;
-								break;
-								
-							default:
-								t=(zc_oldrand()*100000)%32767;
-								break;
-						}
-					}
-					
-					t+=css->objects[i].d3;
-					
-					if(css->objects[i].d5)
-					{
-						if(css->objects[i].d6)
-						{
-							overtiletranslucent8(dest,t,x,y,subscreen_cset(css->objects[i].colortype1, css->objects[i].color1),css->objects[i].d4,128);
-						}
-						else
-						{
-							overtile8(dest,t,x,y,subscreen_cset(css->objects[i].colortype1, css->objects[i].color1),css->objects[i].d4);
-						}
-					}
-					else
-					{
-						if(css->objects[i].d6)
-						{
-							puttiletranslucent8(dest,t,x,y,subscreen_cset(css->objects[i].colortype1, css->objects[i].color1),css->objects[i].d4,128);
-						}
-						else
-						{
-							oldputtile8(dest,t,x,y,subscreen_cset(css->objects[i].colortype1, css->objects[i].color1),css->objects[i].d4);
-						}
-					}
-				}
-				break;
-				
-				case ssoSELECTOR1:
-				case ssoSELECTOR2:
-				{
-					int32_t p=-1;
-					
-					for(int32_t j=0; j<MAXSUBSCREENITEMS&&css->objects[j].type!=ssoNULL; ++j)
-					{
-						if(css->objects[j].type==ssoCURRENTITEM)
-						{
-							if(css->objects[j].d3==(int32_t)Bpos)
-							{
-								p=j;
-								break;
-							}
-						}
-					}
-					
-					bool big_sel=css->objects[i].d5 != 0;
-					item *tempsel=(css->objects[i].type==ssoSELECTOR1)?sel_a:sel_b;
-					int32_t temptile=tempsel->tile;
-					tempsel->drawstyle=0;
-					
-					if(css->objects[i].d4)
-					{
-						tempsel->drawstyle=1;
-					}
-					int32_t itemtype = css->objects[p].d8>0 ? ((css->objects[p].d8-1) | 0x8000) : css->objects[p].d1;
-					itemdata const& tmpitm = itemsbuf[get_subscreenitem_id(itemtype, true)];
-					bool oldsel = get_qr(qr_SUBSCR_OLD_SELECTOR);
-					if(!oldsel) big_sel = false;
-					int32_t sw = oldsel ? (tempsel->extend > 2 ? tempsel->txsz*16 : 16) : (tempsel->extend > 2 ? tempsel->hit_width : 16),
-						sh = oldsel ? (tempsel->extend > 2 ? tempsel->txsz*16 : 16) : (tempsel->extend > 2 ? tempsel->hit_height : 16),
-						dw = oldsel ? (tempsel->extend > 2 ? tempsel->txsz*16 : 16) : ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_WIDTH) ? tmpitm.hxsz : 16),
-						dh = oldsel ? (tempsel->extend > 2 ? tempsel->txsz*16 : 16) : ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_HEIGHT) ? tmpitm.hysz : 16);
-					int32_t sxofs = oldsel ? 0 : (tempsel->extend > 2 ? tempsel->hxofs : 0),
-						syofs = oldsel ? 0 : (tempsel->extend > 2 ? tempsel->hyofs : 0),
-						dxofs = oldsel ? (tempsel->extend > 2 ? (int)tempsel->xofs : 0) : ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_X_OFFSET) ? tmpitm.hxofs : 0) + (tempsel->extend > 2 ? (int)tempsel->xofs : 0),
-						dyofs = oldsel ? (tempsel->extend > 2 ? (int)tempsel->yofs : 0) : ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_Y_OFFSET) ? tmpitm.hyofs : 0) + (tempsel->extend > 2 ? (int)tempsel->yofs : 0);
-					BITMAP* tmpbmp = create_bitmap_ex(8,sw,sh);
-					for(int32_t j=0; j<4; ++j)
-					{
-						clear_bitmap(tmpbmp);
-						if(p!=-1)
-						{
-							tempsel->x=0;
-							tempsel->y=0;
-							int32_t tmpx = css->objects[p].x+xofs+(big_sel?(j%2?8:-8):0);
-							int32_t tmpy = css->objects[p].y+yofs+(big_sel?(j>1?8:-8):0);
-							tempsel->tile+=(zc_max(itemsbuf[tempsel->id].frames,1)*j);
-							
-							if(temptile)
-							{
-								tempsel->drawzcboss(tmpbmp);
-								tempsel->tile=temptile;
-							}
-							masked_stretch_blit(tmpbmp, dest, vbound(sxofs, 0, sw), vbound(syofs, 0, sh), sw-vbound(sxofs, 0, sw), sh-vbound(syofs, 0, sh), tmpx+dxofs, tmpy+dyofs, dw, dh);
-							
-							if(!big_sel)
-							{
-								break;
-							}
-						}
-					}
-					destroy_bitmap(tmpbmp);
-				}
-				break;
-				
-				case ssoMAGICGAUGE:
-				{
-					//          void magicgauge(BITMAP *dest,int32_t x,int32_t y, int32_t container, int32_t notlast_tile, int32_t notlast_cset, bool notlast_mod, int32_t last_tile, int32_t last_cset, bool last_mod,
-					//                          int32_t cap_tile, int32_t cap_cset, bool cap_mod, int32_t aftercap_tile, int32_t aftercap_cset, bool aftercap_mod, int32_t frames, int32_t speed, int32_t delay, bool unique_last,
-					//                          int32_t show)
-					magicgauge(dest,x,y, css->objects[i].d1, css->objects[i].d2, css->objects[i].colortype1, ((css->objects[i].d10&1)?1:0), css->objects[i].d3, css->objects[i].color1, ((css->objects[i].d10&2)?1:0),
-							   css->objects[i].d4, css->objects[i].colortype2, ((css->objects[i].d10&4)?1:0), css->objects[i].d5, css->objects[i].color2, ((css->objects[i].d10&8)?1:0), css->objects[i].d6, css->objects[i].d7, css->objects[i].d8, ((css->objects[i].d10&16)?1:0),
-							   css->objects[i].d9);
-				}
-				break;
-				
-				case ssoLIFEGAUGE:
-				{
-					lifegauge(dest,x,y, css->objects[i].d1, css->objects[i].d2, css->objects[i].colortype1, ((css->objects[i].d10&1)?1:0), css->objects[i].d3, css->objects[i].color1, ((css->objects[i].d10&2)?1:0),
-							  css->objects[i].d4, css->objects[i].colortype2, ((css->objects[i].d10&4)?1:0), css->objects[i].d5, css->objects[i].color2, ((css->objects[i].d10&8)?1:0), css->objects[i].d6, css->objects[i].d7, css->objects[i].d8, ((css->objects[i].d10&16)?1:0));
-				}
-				break;
-				
-				default:
-				{
-				}
-				break;
-			}
-			
-			//sso_bounding_box(dest, css, i, vc(15));
-		}
-	}
+	
+	subscr->draw(dest,xofs,yofs,pos2,showtime);
 }
 
 std::string get_subscr_arrow_name(int itemid)
@@ -4598,7 +3979,7 @@ void put_passive_subscr(BITMAP *dest,int32_t x,int32_t y,bool showtime,int32_t p
         return;
     }
     
-    show_custom_subscreen(subscr, current_subscreen_passive, 0, 0, showtime, pos2);
+    show_custom_subscreen(subscr, new_subscreen_passive, 0, 0, showtime, pos2);
     destroy_bitmap(subscr);
 }
 
@@ -4779,7 +4160,6 @@ void puttriframe(BITMAP *dest, int32_t x, int32_t y, int32_t triframecolor, int3
     }
 }
 
-
 void puttriforce(BITMAP *dest, int32_t x, int32_t y, int32_t tile, int32_t cset, int32_t w, int32_t h, int32_t flip, bool overlay, bool trans, int32_t trinum)
 {
     if(tile==0)
@@ -4959,7 +4339,6 @@ void putBmap(BITMAP *dest, int32_t x, int32_t y,bool showmap, bool showrooms, bo
     }
 }
 
-
 void load_Sitems()
 {
     Sitems.clear();
@@ -5018,729 +4397,47 @@ void load_Sitems()
 
 void update_subscreens(int32_t dmap)
 {
-    if(dmap<0)
-        dmap=get_currdmap();
-        
-    int32_t index=DMaps[dmap].active_subscreen;
-    
-    int32_t i=-1, j=0;
-    
-    while(custom_subscreen[j].objects[0].type!=ssoNULL&&i!=index)
-    {
-        if(custom_subscreen[j].ss_type==sstACTIVE)
-        {
-            ++i;
-        }
-        
-        ++j;
-    }
-    
-    current_subscreen_active=&custom_subscreen[j-1];
-    
-    index=DMaps[dmap].passive_subscreen;
-    
-    i=-1, j=0;
-    
-    while(custom_subscreen[j].objects[0].type!=ssoNULL&&i!=index)
-    {
-        if(custom_subscreen[j].ss_type==sstPASSIVE)
-        {
-            ++i;
-        }
-        
-        ++j;
-    }
-    
-    current_subscreen_passive=&custom_subscreen[j-1];
+	if(dmap<0)
+		dmap=get_currdmap();
+		
+	int32_t index=DMaps[dmap].active_subscreen;
+	
+	int32_t i=-1, j=0;
+	
+	while(j < new_subscreen.size() && i!=index)
+	{
+		if(new_subscreen[j].sub_type==sstACTIVE)
+			++i;
+		
+		++j;
+	}
+	
+	new_subscreen_active=&new_subscreen[j-1];
+	
+	index=DMaps[dmap].passive_subscreen;
+	
+	i=-1, j=0;
+	
+	while(j < new_subscreen.size() && i!=index)
+	{
+		if(new_subscreen[j].sub_type==sstPASSIVE)
+			++i;
+		
+		++j;
+	}
+	
+	new_subscreen_passive=&new_subscreen[j-1];
 }
 
-int32_t ss_objects(subscreen_group *tempss)
+void sso_bounding_box(BITMAP *bmp, SubscrWidget* widg, int32_t color)
 {
-    int32_t i=0;
+    if(!widg)
+		return;
     
-    while(i<MAXSUBSCREENITEMS&&tempss->objects[i].type!=ssoNULL)
-    {
-        ++i;
-    }
-    
-    return i;
-}
-
-
-void purge_blank_subscreen_objects(subscreen_group *tempss)
-{
-    int32_t objects=ss_objects(tempss);
-    subscreen_object tempsso;
-    
-    //filter all the ssoNONE items to the end (yeah, bubble sort; sue me)
-    for(int32_t j=0; j<objects-1; j++)
-    {
-        for(int32_t k=0; k<objects-1-j; k++)
-        {
-            if(tempss->objects[k].type==ssoNONE)
-            {
-                tempsso=tempss->objects[k];
-                tempss->objects[k]=tempss->objects[k+1];
-                tempss->objects[k+1]=tempsso;
-            }
-        }
-    }
-    
-    //NULL out the ssoNONE items
-    for(int32_t j=0; j<objects; j++)
-    {
-        if(tempss->objects[j].type==ssoNONE)
-        {
-            tempss->objects[j].type=ssoNULL;
-        }
-    }
-}
-
-
-
-int32_t get_alignment(subscreen_object *tempsso)
-{
-    switch(tempsso->type)
-    {
-    case ssoTEXT:
-        return tempsso->d2;
-        break;
-        
-    case ssoBSTIME:
-        return sstaLEFT;
-        break;
-        
-    case ssoTIME:
-        return sstaRIGHT;
-        break;
-        
-    case ssoSSTIME:
-        return sstaRIGHT;
-        break;
-        
-    case ssoCOUNTER:
-        return tempsso->d2;
-        break;
-        
-    case ssoMINIMAPTITLE:
-        return tempsso->d2;
-        break;
-        
-    case ssoCURRENTITEMTEXT:
-    case ssoCURRENTITEMNAME:
-    case ssoSELECTEDITEMNAME:
-    case ssoCURRENTITEMCLASSTEXT:
-    case ssoCURRENTITEMCLASSNAME:
-    case ssoSELECTEDITEMCLASSNAME:
-        return sstaLEFT;
-        break;
-        
-    case ssoNONE:
-    case sso2X2FRAME:
-    case ssoLINE:
-    case ssoRECT:
-    case ssoMAGICMETER:
-    case ssoLIFEMETER:
-    case ssoBUTTONITEM:
-    case ssoICON:
-    case ssoCOUNTERS:
-    case ssoMINIMAP:
-    case ssoLARGEMAP:
-    case ssoCLEAR:
-    case ssoCURRENTITEM:
-    case ssoITEM:
-    case ssoTRIFRAME:
-    case ssoTRIFORCE:
-    case ssoTILEBLOCK:
-    case ssoMINITILE:
-    case ssoSELECTOR1:
-    case ssoSELECTOR2:
-    case ssoMAGICGAUGE:
-    case ssoLIFEGAUGE:
-    case ssoTEXTBOX:
-    case ssoCURRENTITEMTILE:
-    case ssoSELECTEDITEMTILE:
-    default:
-        return sstaLEFT;
-        break;
-    }
-    
-//  return false;//UNREACHABLE
-}
-
-//enum { sstsNORMAL, sstsSHADOW, sstsSHADOWU, sstsOUTLINE8, sstsOUTLINEPLUS, sstsOUTLINEX, sstsSHADOWED, sstsSHADOWEDU, sstsOUTLINED8, sstsOUTLINEDPLUS, sstsOUTLINEDX, sstsMAX };
-//       "None",     "Shadow",   "Shadow (U)","Shadow (O)", "Shadow (+)",    "Shadow (X)", "Shadowed",   "Shadowed (U)","Shadowed (O)","Shadowed (+)",   "Shadowed (X)"
-//x-1
-//sstsSHADOWU, sstsOUTLINE8, sstsOUTLINEPLUS, sstsOUTLINEX, sstsSHADOWEDU, sstsOUTLINED8, sstsOUTLINEDPLUS, sstsOUTLINEDX
-//w+1
-//sstsSHADOW, sstsSHADOWU, sstsOUTLINE8, sstsOUTLINEPLUS, sstsOUTLINEX, sstsSHADOWED, sstsSHADOWEDU, sstsOUTLINED8, sstsOUTLINEDPLUS, sstsOUTLINEDX
-//y-1
-//sstsOUTLINE8, sstsOUTLINEPLUS, sstsOUTLINEX, sstsOUTLINED8, sstsOUTLINEDPLUS, sstsOUTLINEDX
-//h+1
-//sstsSHADOW, sstsSHADOWU, sstsOUTLINE8, sstsOUTLINEPLUS, sstsOUTLINEX, sstsSHADOWED, sstsSHADOWEDU, sstsOUTLINED8, sstsOUTLINEDPLUS, sstsOUTLINEDX
-
-int32_t sso_y(subscreen_object *tempsso)
-{
-    int32_t y=0;
-    
-    switch(tempsso->type)
-    {
-    case ssoLIFEMETER:
-        y=tempsso->y+(tempsso->d2?0:(tempsso->d3?8:16));
-        break;
-        
-    case ssoNONE:
-    case sso2X2FRAME:
-    case ssoTEXT:
-    case ssoLINE:
-    case ssoRECT:
-    case ssoBSTIME:
-    case ssoTIME:
-    case ssoSSTIME:
-    case ssoMAGICMETER:
-    case ssoBUTTONITEM:
-    case ssoICON:
-    case ssoCOUNTER:
-    case ssoCOUNTERS:
-    case ssoMINIMAPTITLE:
-    case ssoMINIMAP:
-    case ssoLARGEMAP:
-    case ssoCLEAR:
-    case ssoCURRENTITEM:
-    case ssoITEM:
-    case ssoTRIFRAME:
-    case ssoTRIFORCE:
-    case ssoTILEBLOCK:
-    case ssoMINITILE:
-    case ssoSELECTOR1:
-    case ssoSELECTOR2:
-    case ssoMAGICGAUGE:
-    case ssoLIFEGAUGE:
-    case ssoTEXTBOX:
-    case ssoCURRENTITEMTILE:
-    case ssoSELECTEDITEMTILE:
-    case ssoCURRENTITEMTEXT:
-    case ssoCURRENTITEMNAME:
-    case ssoSELECTEDITEMNAME:
-    case ssoCURRENTITEMCLASSTEXT:
-    case ssoCURRENTITEMCLASSNAME:
-    case ssoSELECTEDITEMCLASSNAME:
-        y=tempsso->y;
-        break;
-        
-    default:
-        y=(zc_oldrand()*1000)%64;
-        break;
-    }
-    
-    switch(tempsso->type)
-    {
-    case ssoTEXT:
-    case ssoBSTIME:
-    case ssoTIME:
-    case ssoSSTIME:
-    case ssoCOUNTER:
-    case ssoCOUNTERS:
-        switch(tempsso->d3)
-        {
-        case sstsOUTLINE8:
-        case sstsOUTLINEPLUS:
-        case sstsOUTLINEX:
-        case sstsOUTLINED8:
-        case sstsOUTLINEDPLUS:
-        case sstsOUTLINEDX:
-            y-=1;
-            break;
-        }
-        
-        break;
-    }
-    
-    return y;
-}
-
-int32_t sso_x(subscreen_object *tempsso)
-{
-    int32_t x=0;
-    
-    switch(tempsso->type)
-    {
-    case ssoMAGICMETER:
-        x=tempsso->x-10;
-        break;
-        
-    case ssoNONE:
-    case sso2X2FRAME:
-    case ssoTEXT:
-    case ssoLINE:
-    case ssoRECT:
-    case ssoBSTIME:
-    case ssoTIME:
-    case ssoSSTIME:
-    case ssoLIFEMETER:
-    case ssoBUTTONITEM:
-    case ssoICON:
-    case ssoCOUNTER:
-    case ssoCOUNTERS:
-    case ssoMINIMAPTITLE:
-    case ssoMINIMAP:
-    case ssoLARGEMAP:
-    case ssoCLEAR:
-    case ssoCURRENTITEM:
-    case ssoITEM:
-    case ssoTRIFRAME:
-    case ssoTRIFORCE:
-    case ssoTILEBLOCK:
-    case ssoMINITILE:
-    case ssoSELECTOR1:
-    case ssoSELECTOR2:
-    case ssoMAGICGAUGE:
-    case ssoLIFEGAUGE:
-    case ssoTEXTBOX:
-    case ssoCURRENTITEMTILE:
-    case ssoSELECTEDITEMTILE:
-    case ssoCURRENTITEMTEXT:
-    case ssoCURRENTITEMNAME:
-    case ssoSELECTEDITEMNAME:
-    case ssoCURRENTITEMCLASSTEXT:
-    case ssoCURRENTITEMCLASSNAME:
-    case ssoSELECTEDITEMCLASSNAME:
-        x=tempsso->x;
-        break;
-        
-    default:
-        x=(zc_oldrand()*1000)%64;
-        break;
-    }
-    
-    switch(tempsso->type)
-    {
-    case ssoTEXT:
-    case ssoBSTIME:
-    case ssoTIME:
-    case ssoSSTIME:
-    case ssoCOUNTER:
-    case ssoCOUNTERS:
-        switch(tempsso->d3)
-        {
-        case sstsSHADOWU:
-        case sstsOUTLINE8:
-        case sstsOUTLINEPLUS:
-        case sstsOUTLINEX:
-        case sstsSHADOWEDU:
-        case sstsOUTLINED8:
-        case sstsOUTLINEDPLUS:
-        case sstsOUTLINEDX:
-            x-=1;
-            break;
-        }
-        
-        break;
-    }
-    
-    return x;
-}
-
-
-
-int32_t sso_h(subscreen_object *tempsso)
-{
-    int32_t h=0;
-    
-    switch(tempsso->type)
-    {
-    case ssoNONE:
-        h=5;
-        break;
-        
-    case sso2X2FRAME:
-        h=tempsso->h*8;
-        break;
-        
-    case ssoTEXT:
-        h=text_height(ss_font(tempsso->d1));
-        break;
-        
-    case ssoLINE:
-        h=tempsso->h;
-        break;
-        
-    case ssoRECT:
-        h=tempsso->h;
-        break;
-        
-    case ssoBSTIME:
-        h=text_height(ss_font(tempsso->d1));
-        break;
-        
-    case ssoTIME:
-        h=text_height(ss_font(tempsso->d1));
-        break;
-        
-    case ssoSSTIME:
-        h=text_height(ss_font(tempsso->d1));
-        break;
-        
-    case ssoMAGICMETER:
-        h=8;
-        break;
-        
-    case ssoLIFEMETER:
-        h=tempsso->d3?24:16;
-        break;
-        
-    case ssoBUTTONITEM:
-        h=16;
-        break;
-        
-    case ssoICON:
-        h=8;
-        break;
-        
-    case ssoCOUNTER:
-        h=text_height(ss_font(tempsso->d1));
-        break;
-        
-    case ssoCOUNTERS:
-        h=32;
-        break;
-        
-    case ssoMINIMAPTITLE:
-        h=16;
-        break;
-        
-    case ssoMINIMAP:
-        h=48;
-        break;
-        
-    case ssoLARGEMAP:
-        h=80;
-        break;
-        
-    case ssoCLEAR:
-        h=5;
-        break;
-        
-    case ssoCURRENTITEM:
-        h=16;
-        break;
-        
-    case ssoITEM:
-        h=16;
-        break;
-        
-    case ssoTRIFRAME:
-        h=16*((tempsso->d7)?7:3);
-        break;
-        
-    case ssoTRIFORCE:
-        h=16;
-        break;
-        
-    case ssoTILEBLOCK:
-        h=16*(tempsso->h);
-        break;
-        
-    case ssoMINITILE:
-        h=8;
-        break;
-        
-    case ssoSELECTOR1:
-    case ssoSELECTOR2:
-        h=tempsso->d5?32:16;
-        break;
-        
-    case ssoMAGICGAUGE:
-        h=8;
-        break;
-        
-    case ssoLIFEGAUGE:
-        h=8;
-        break;
-        
-    case ssoTEXTBOX:
-        h=tempsso->h;
-        break;
-        
-    case ssoCURRENTITEMTILE:
-        h=16;
-        break;
-        
-    case ssoSELECTEDITEMTILE:
-        h=16;
-        break;
-        
-    case ssoCURRENTITEMTEXT:
-        h=16;
-        break;
-        
-    case ssoCURRENTITEMNAME:
-        h=tempsso->h;
-        break;
-        
-    case ssoSELECTEDITEMNAME:
-        h=tempsso->h;
-        break;
-        
-    case ssoCURRENTITEMCLASSTEXT:
-        h=tempsso->h;
-        break;
-        
-    case ssoCURRENTITEMCLASSNAME:
-        h=tempsso->h;
-        break;
-        
-    case ssoSELECTEDITEMCLASSNAME:
-        h=tempsso->h;
-        break;
-        
-    default:
-        h=(zc_oldrand()*1000)%64;
-        break;
-    }
-    
-    switch(tempsso->type)
-    {
-    case ssoTEXT:
-    case ssoBSTIME:
-    case ssoTIME:
-    case ssoSSTIME:
-    case ssoCOUNTER:
-    case ssoCOUNTERS:
-        switch(tempsso->d3)
-        {
-        case sstsSHADOW:
-        case sstsSHADOWU:
-        case sstsOUTLINE8:
-        case sstsOUTLINEPLUS:
-        case sstsOUTLINEX:
-        case sstsSHADOWED:
-        case sstsSHADOWEDU:
-        case sstsOUTLINED8:
-        case sstsOUTLINEDPLUS:
-        case sstsOUTLINEDX:
-            h+=1;
-            break;
-        }
-        
-        break;
-    }
-    
-    return h;
-}
-
-int32_t sso_w(subscreen_object *tempsso)
-{
-    int32_t w=0;
-    
-    switch(tempsso->type)
-    {
-    case ssoNONE:
-        w=5;
-        break;
-        
-    case sso2X2FRAME:
-        w=tempsso->w*8;
-        break;
-        
-    case ssoTEXT:
-        w=text_length(ss_font(tempsso->d1), (char *)tempsso->dp1);
-        break;
-        
-    case ssoLINE:
-        w=tempsso->w;
-        break;
-        
-    case ssoRECT:
-        w=tempsso->w;
-        break;
-        
-    case ssoBSTIME:
-        w=text_length(ss_font(tempsso->d1), time_str_short2(game->get_time()));
-        break;
-        
-    case ssoTIME:
-        w=text_length(ss_font(tempsso->d1), time_str_med(game->get_time()));
-        break;
-        
-    case ssoSSTIME:
-        w=text_length(ss_font(tempsso->d1), time_str_med(game->get_time()));
-        break;
-        
-    case ssoMAGICMETER:
-        w=82;
-        break;
-        
-    case ssoLIFEMETER:
-        w=64;
-        break;
-        
-    case ssoBUTTONITEM:
-        w=16;
-        break;
-        
-    case ssoICON:
-        w=8;
-        break;
-        
-    case ssoCOUNTER:
-        w=text_length(ss_font(tempsso->d1), "0")*tempsso->d4;
-        break;
-        
-    case ssoCOUNTERS:
-        w=32;
-        break;
-        
-    case ssoMINIMAPTITLE:
-        w=80;
-        break;
-        
-    case ssoMINIMAP:
-        w=80;
-        break;
-        
-    case ssoLARGEMAP:
-        w=16*((tempsso->d4)?9:7);
-        break;
-        
-    case ssoCLEAR:
-        w=5;
-        break;
-        
-    case ssoCURRENTITEM:
-        w=16;
-        break;
-        
-    case ssoITEM:
-        w=16;
-        break;
-        
-    case ssoTRIFRAME:
-        w=16*((tempsso->d7)?7:6);
-        break;
-        
-    case ssoTRIFORCE:
-        w=16;
-        break;
-        
-    case ssoTILEBLOCK:
-        w=16*(tempsso->w);
-        break;
-        
-    case ssoMINITILE:
-        w=8;
-        break;
-        
-    case ssoSELECTOR1:
-    case ssoSELECTOR2:
-        w=tempsso->d5?32:16;
-        break;
-        
-    case ssoMAGICGAUGE:
-        w=8;
-        break;
-        
-    case ssoLIFEGAUGE:
-        w=8;
-        break;
-        
-    case ssoTEXTBOX:
-        w=tempsso->w;
-        break;
-        
-    case ssoCURRENTITEMTILE:
-        w=16;
-        break;
-        
-    case ssoSELECTEDITEMTILE:
-        w=16;
-        break;
-        
-    case ssoCURRENTITEMTEXT:
-        w=16;
-        break;
-        
-    case ssoCURRENTITEMNAME:
-        w=tempsso->w;
-        break;
-        
-    case ssoSELECTEDITEMNAME:
-        w=tempsso->w;
-        break;
-        
-    case ssoCURRENTITEMCLASSTEXT:
-        w=tempsso->w;
-        break;
-        
-    case ssoCURRENTITEMCLASSNAME:
-        w=tempsso->w;
-        break;
-        
-    case ssoSELECTEDITEMCLASSNAME:
-        w=tempsso->w;
-        break;
-        
-    default:
-        w=(zc_oldrand()*1000)%64;
-        break;
-    }
-    
-    switch(tempsso->type)
-    {
-    case ssoTEXT:
-    case ssoBSTIME:
-    case ssoTIME:
-    case ssoSSTIME:
-    case ssoCOUNTER:
-    case ssoCOUNTERS:
-        switch(tempsso->d3)
-        {
-        case sstsSHADOW:
-        case sstsSHADOWU:
-        case sstsOUTLINE8:
-        case sstsOUTLINEPLUS:
-        case sstsOUTLINEX:
-        case sstsSHADOWED:
-        case sstsSHADOWEDU:
-        case sstsOUTLINED8:
-        case sstsOUTLINEDPLUS:
-        case sstsOUTLINEDX:
-            w+=1;
-            break;
-        }
-        
-        break;
-    }
-    
-    return w;
-}
-
-void sso_bounding_box(BITMAP *bmp, subscreen_group *tempss, int32_t index, int32_t color)
-{
-    if(index<0)
-    {
-        return;
-    }
-    
-    int32_t x=sso_x(&tempss->objects[index]);
-    int32_t y=sso_y(&tempss->objects[index]);
-    int32_t w=sso_w(&tempss->objects[index]);
-    int32_t h=sso_h(&tempss->objects[index]);
-    
-    switch(get_alignment(&tempss->objects[index]))
-    {
-    case sstaCENTER:
-        x-=(w/2);
-        break;
-        
-    case sstaRIGHT:
-        x-=w;
-        break;
-        
-    case sstaLEFT:
-    default:
-        break;
-    }
+    int32_t x=widg->getX()+widg->getXOffs();
+    int32_t y=widg->getY();
+    int32_t w=widg->getW();
+    int32_t h=widg->getH();
     
     int32_t c=x+w/2;
     int32_t m=y+h/2;

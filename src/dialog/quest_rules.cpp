@@ -13,6 +13,7 @@
 #include "gui/use_size.h"
 #include "zq/zq_files.h"
 #include "base/qrs.h"
+#include "base/mapscr.h"
 
 bool mapcount_will_affect_layers(word newmapcount);
 void update_map_count(word newmapcount);
@@ -922,6 +923,8 @@ static GUI::ListData compatRulesList
 		"If enabled, fairy flags work differently placed vs inherent."},
 	{ "Old Lens Layer Effects", qr_OLD_LENS_LAYEREFFECT,
 		"If enabled, the lens only effects one layer of the screen at maximum, using the old dropdown selection."},
+	{ "Old Engine Subscreen Quirks", qr_OLD_SUBSCR,
+		"If enabled, the subscreen behaves in a way needed for compat."},
 };
 
 static GUI::ListData enemiesRulesList

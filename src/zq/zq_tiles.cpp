@@ -7892,17 +7892,6 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 			//Check subscreen objects
 			//Tried to have a go at this but I think it's a bit too complicated for me at the moment.
 			//Might come back to it another time and see what I can do ~Joe123
-			/*if(!done){
-				 for(int32_t u=0;u<MAXCUSTOMSUBSCREENS;u++){
-					 if(!custom_subscreen[u].ss_type) continue;
-					 for(int32_t v=0;v<MAXSUBSCREENITEMS;v++){
-						  if(custom_subscreen[u].objects[v].type != ssoTILEBLOCK) continue;
-						  subscreen_items[0].tile = custom_subscreen[u].objects[v].d1;
-						  subscreen_items[0].width = custom_subscreen[u].objects[v].w;
-						  subscreen_items[0].height = custom_subscreen[u].objects[v].h;
-					 }
-				 }
-			}*/
 			
 			//check map styles
 			if(!done)
@@ -9439,17 +9428,6 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 			//Check subscreen objects
 			//Tried to have a go at this but I think it's a bit too complicated for me at the moment.
 			//Might come back to it another time and see what I can do ~Joe123
-			/*if(!done){
-				 for(int32_t u=0;u<MAXCUSTOMSUBSCREENS;u++){
-					 if(!custom_subscreen[u].ss_type) continue;
-					 for(int32_t v=0;v<MAXSUBSCREENITEMS;v++){
-						  if(custom_subscreen[u].objects[v].type != ssoTILEBLOCK) continue;
-						  subscreen_items[0].tile = custom_subscreen[u].objects[v].d1;
-						  subscreen_items[0].width = custom_subscreen[u].objects[v].w;
-						  subscreen_items[0].height = custom_subscreen[u].objects[v].h;
-					 }
-				 }
-			}*/
 			
 			//check map styles
 			if(!done)
@@ -10816,17 +10794,6 @@ bool do_movetile_united(tile_move_data const& tmd)
 			//Check subscreen objects
 			//Tried to have a go at this but I think it's a bit too complicated for me at the moment.
 			//Might come back to it another time and see what I can do ~Joe123
-			/*if(!done){
-				 for(int32_t u=0;u<MAXCUSTOMSUBSCREENS;u++){
-					 if(!custom_subscreen[u].ss_type) continue;
-					 for(int32_t v=0;v<MAXSUBSCREENITEMS;v++){
-						  if(custom_subscreen[u].objects[v].type != ssoTILEBLOCK) continue;
-						  subscreen_items[0].tile = custom_subscreen[u].objects[v].d1;
-						  subscreen_items[0].width = custom_subscreen[u].objects[v].w;
-						  subscreen_items[0].height = custom_subscreen[u].objects[v].h;
-					 }
-				 }
-			}*/
 			
 			//check map styles
 			if(!done)
@@ -12493,17 +12460,6 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 			//Check subscreen objects
 			//Tried to have a go at this but I think it's a bit too complicated for me at the moment.
 			//Might come back to it another time and see what I can do ~Joe123
-			/*if(!done){
-				 for(int32_t u=0;u<MAXCUSTOMSUBSCREENS;u++){
-					 if(!custom_subscreen[u].ss_type) continue;
-					 for(int32_t v=0;v<MAXSUBSCREENITEMS;v++){
-						  if(custom_subscreen[u].objects[v].type != ssoTILEBLOCK) continue;
-						  subscreen_items[0].tile = custom_subscreen[u].objects[v].d1;
-						  subscreen_items[0].width = custom_subscreen[u].objects[v].w;
-						  subscreen_items[0].height = custom_subscreen[u].objects[v].h;
-					 }
-				 }
-			}*/
 			
 			//check map styles
 			if(!done)

@@ -36,7 +36,7 @@ void put_active_subscr(int32_t y, int32_t pos)
 {
     //Don't call Sitems.animate() - that gets called somewhere else, somehow. -L
     animate_selectors();
-    show_custom_subscreen(framebuf, current_subscreen_active, 0, 6-y, game->should_show_time(), pos);
+    show_custom_subscreen(framebuf, new_subscreen_active, 0, 6-y, game->should_show_time(), pos);
 }
 
 void dosubscr()
@@ -44,9 +44,7 @@ void dosubscr()
     PALETTE temppal;
     
     if(tmpscr->flags3&fNOSUBSCR)
-    {
         return;
-    }
     
     if(usebombpal)
     {
@@ -57,7 +55,7 @@ void dosubscr()
     
     int32_t miny;
     bool showtime = game->should_show_time();
-    load_Sitems();
+	flushItemCache();
     
     pause_sfx(WAV_BRANG);
     
@@ -84,16 +82,21 @@ void dosubscr()
 	     use_y = get_qr(qr_SET_YBUTTON_ITEMS);
 	bool b_only = !(use_a||use_x||use_y||get_qr(qr_SUBSCR_PRESS_TO_EQUIP));
 	//Set the selector to the correct position before bringing up the subscreen -DD
+	if(!new_subscreen_active) return;
+	bool compat = get_qr(qr_OLD_SUBSCR);
+	if(compat)
 	{
+		new_subscreen_active->curpage = 0;
+		auto& pg = new_subscreen_active->pages[0];
 		if(Bwpn)
-			Bpos = zc_max(game->bwpn,0);
+			pg.cursor_pos = zc_max(game->bwpn,0);
 		else if(use_a && Awpn)
-			Bpos = zc_max(game->awpn,0);
+			pg.cursor_pos = zc_max(game->awpn,0);
 		else if(use_x && Xwpn)
-			Bpos = zc_max(game->xwpn,0);
+			pg.cursor_pos = zc_max(game->xwpn,0);
 		else if(use_y && Ywpn)
-			Bpos = zc_max(game->ywpn,0);
-		else Bpos = 0;
+			pg.cursor_pos = zc_max(game->ywpn,0);
+		else pg.cursor_pos = 0;
 	}
         
     for(int32_t y=176-2; y>=6; y-=3*Hero.subscr_speed)
@@ -133,167 +136,189 @@ void dosubscr()
 
     do
     {
+		auto& pg = new_subscreen_active->cur_page();
 		if (replay_version_check(0, 11))
 			load_control_state();
-		int32_t pos = Bpos;
+		int32_t pos = pg.cursor_pos;
 		
-		if(rUp())         Bpos = selectWpn_new(SEL_UP, pos, -1, -1, -1, false, false);
-		else if(rDown())  Bpos = selectWpn_new(SEL_DOWN, pos, -1, -1, -1, false, false);
-		else if(rLeft())  Bpos = selectWpn_new(SEL_LEFT, pos, -1, -1, -1, false, false);
-		else if(rRight()) Bpos = selectWpn_new(SEL_RIGHT, pos, -1, -1, -1, false, false);
-		else if(rLbtn())
+		if(rUp())         pg.move_cursor(SEL_UP);
+		else if(rDown())  pg.move_cursor(SEL_DOWN);
+		else if(rLeft())  pg.move_cursor(SEL_LEFT);
+		else if(rRight()) pg.move_cursor(SEL_RIGHT);
+		else if(compat)
 		{
-			if (!get_qr(qr_NO_L_R_BUTTON_INVENTORY_SWAP))
+			if(rLbtn())
 			{
-				Bpos = selectWpn_new(SEL_LEFT, pos, -1, -1, -1, false, true);
+				if (!get_qr(qr_NO_L_R_BUTTON_INVENTORY_SWAP))
+				{
+					pg.cursor_pos = pg.move_legacy(SEL_LEFT, pos, -1, -1, -1, false, true);
+				}
 			}
-		}
-		else if(rRbtn() )
-		{
-			if (!get_qr(qr_NO_L_R_BUTTON_INVENTORY_SWAP)) 
+			else if(rRbtn() )
 			{
-				Bpos = selectWpn_new(SEL_RIGHT, pos, -1, -1, -1, false, true);
+				if (!get_qr(qr_NO_L_R_BUTTON_INVENTORY_SWAP)) 
+				{
+					pg.cursor_pos = pg.move_legacy(SEL_RIGHT, pos, -1, -1, -1, false, true);
+				}
 			}
-		}
-		else if(rEx3btn() )
-		{
-			if ( use_a && get_qr(qr_USE_EX1_EX2_INVENTORYSWAP) )
+			else if(rEx3btn() )
 			{
-				selectNextAWpn(SEL_LEFT);
+				if ( use_a && get_qr(qr_USE_EX1_EX2_INVENTORYSWAP) )
+				{
+					selectNextAWpn(SEL_LEFT);
+				}
 			}
-		}
-		else if(rEx4btn() )
-		{
-			if ( use_a && get_qr(qr_USE_EX1_EX2_INVENTORYSWAP) )
+			else if(rEx4btn() )
 			{
-				selectNextAWpn(SEL_RIGHT);
+				if ( use_a && get_qr(qr_USE_EX1_EX2_INVENTORYSWAP) )
+				{
+					selectNextAWpn(SEL_RIGHT);
+				}
 			}
 		}
 		//Assign items to buttons
 		bool can_equip = true;
-		int p = get_subscr_itemind(Bpos);
-		if(p > -1 && (current_subscreen_active->objects[p].d2 & SSCURRITEM_NONEQUIP))
-			can_equip = false;
-		auto eqwpn = Bweapon(Bpos);
-		if(get_qr(qr_FREEFORM_SUBSCREEN_CURSOR) && !eqwpn)
-			can_equip = false;
-		if(can_equip)
+		
+		SubscrWidget* widg = pg.get_sel_widg();
+		
+		//!TODO SUBSCR If widg needs to respond to other buttons, check them here...
+		if(widg && !(widg->flags & SUBSCR_CURITM_NONEQP))
 		{
-			if(rBbtn() || b_only)
+			auto eqwpn = widg->getItemVal();
+			if(eqwpn > -1)
 			{
-				int32_t t = eqwpn;
-				if(use_a && t == Awpn)
+				if(rBbtn() || b_only)
 				{
-					Awpn = Bwpn;
-					game->awpn = game->bwpn;
-					directItemA = directItemB;
+					int32_t t = eqwpn;
+					if(use_a && t == Awpn)
+					{
+						Awpn = Bwpn;
+						game->awpn = game->bwpn;
+						game->awpnpg = game->bwpnpg;
+						directItemA = directItemB;
+					}
+					else if(use_x && t == Xwpn)
+					{
+						Xwpn = Bwpn;
+						game->xwpn = game->bwpn;
+						game->xwpnpg = game->bwpnpg;
+						directItemX = directItemB;
+					}
+					else if(use_y && t == Ywpn)
+					{
+						Ywpn = Bwpn;
+						game->ywpn = game->bwpn;
+						game->ywpnpg = game->bwpnpg;
+						directItemY = directItemB;
+					}
+					
+					Bwpn = t;
+					game->forced_bwpn = -1; //clear forced if the item is selected using the actual subscreen
+					if(!b_only) sfx(QMisc.miscsfx[sfxSUBSCR_ITEM_ASSIGN]);
+					
+					game->bwpn = pg.cursor_pos;
+					game->bwpnpg = new_subscreen_active->curpage;
+					directItemB = directItem;
 				}
-				else if(use_x && t == Xwpn)
+				else if(use_a && rAbtn())
 				{
-					Xwpn = Bwpn;
-					game->xwpn = game->bwpn;
-					directItemX = directItemB;
+					int32_t t = eqwpn;
+					if(t == Bwpn)
+					{
+						Bwpn = Awpn;
+						game->bwpn = game->awpn;
+						game->bwpnpg = game->awpnpg;
+						directItemB = directItemA;
+					}
+					else if(use_x && t == Xwpn)
+					{
+						Xwpn = Awpn;
+						game->xwpn = game->awpn;
+						game->xwpnpg = game->awpnpg;
+						directItemX = directItemA;
+					}
+					else if(use_y && t == Ywpn)
+					{
+						Ywpn = Awpn;
+						game->ywpn = game->awpn;
+						game->ywpnpg = game->awpnpg;
+						directItemY = directItemA;
+					}
+					
+					Awpn = t;
+					sfx(QMisc.miscsfx[sfxSUBSCR_ITEM_ASSIGN]);
+					game->awpn = pg.cursor_pos;
+					game->awpnpg = new_subscreen_active->curpage;
+					game->forced_awpn = -1; //clear forced if the item is selected using the actual subscreen
+					directItemA = directItem;
 				}
-				else if(use_y && t == Ywpn)
+				else if(use_x && rEx1btn())
 				{
-					Ywpn = Bwpn;
-					game->ywpn = game->bwpn;
-					directItemY = directItemB;
+					int32_t t = eqwpn;
+					if(t == Bwpn)
+					{
+						Bwpn = Xwpn;
+						game->bwpn = game->xwpn;
+						game->bwpnpg = game->xwpnpg;
+						directItemB = directItemX;
+					}
+					else if(use_a && t == Awpn)
+					{
+						Awpn = Xwpn;
+						game->awpn = game->xwpn;
+						game->awpnpg = game->xwpnpg;
+						directItemA = directItemX;
+					}
+					else if(use_y && t == Ywpn)
+					{
+						Ywpn = Xwpn;
+						game->ywpn = game->xwpn;
+						game->ywpnpg = game->xwpnpg;
+						directItemY = directItemX;
+					}
+					
+					Xwpn = t;
+					sfx(QMisc.miscsfx[sfxSUBSCR_ITEM_ASSIGN]);
+					game->xwpn = pg.cursor_pos;
+					game->xwpnpg = new_subscreen_active->curpage;
+					game->forced_xwpn = -1; //clear forced if the item is selected using the actual subscreen
+					directItemX = directItem;
 				}
-				
-				Bwpn = t;
-				game->forced_bwpn = -1; //clear forced if the item is selected using the actual subscreen
-				if(!b_only) sfx(QMisc.miscsfx[sfxSUBSCR_ITEM_ASSIGN]);
-				
-				game->bwpn = Bpos;
-				directItemB = directItem;
-			}
-			else if(use_a && rAbtn())
-			{
-				int32_t t = eqwpn;
-				if(t == Bwpn)
+				else if(use_y && rEx2btn())
 				{
-					Bwpn = Awpn;
-					game->bwpn = game->awpn;
-					directItemB = directItemA;
+					int32_t t = eqwpn;
+					if(t == Bwpn)
+					{
+						Bwpn = Ywpn;
+						game->bwpn = game->ywpn;
+						game->bwpnpg = game->ywpnpg;
+						directItemB = directItemY;
+					}
+					else if(use_a && t == Awpn)
+					{
+						Awpn = Ywpn;
+						game->awpn = game->ywpn;
+						game->awpnpg = game->ywpnpg;
+						directItemA = directItemY;
+					}
+					else if(use_x && t == Xwpn)
+					{
+						Xwpn = Ywpn;
+						game->xwpn = game->ywpn;
+						game->xwpnpg = game->ywpnpg;
+						directItemX = directItemY;
+					}
+					
+					Ywpn = t;
+					sfx(QMisc.miscsfx[sfxSUBSCR_ITEM_ASSIGN]);
+					game->ywpn = pg.cursor_pos;
+					game->ywpnpg = new_subscreen_active->curpage;
+					game->forced_ywpn = -1; //clear forced if the item is selected using the actual subscreen
+					directItemY = directItem;
 				}
-				else if(use_x && t == Xwpn)
-				{
-					Xwpn = Awpn;
-					game->xwpn = game->awpn;
-					directItemX = directItemA;
-				}
-				else if(use_y && t == Ywpn)
-				{
-					Ywpn = Awpn;
-					game->ywpn = game->awpn;
-					directItemY = directItemA;
-				}
-				
-				Awpn = t;
-				sfx(QMisc.miscsfx[sfxSUBSCR_ITEM_ASSIGN]);
-				game->awpn = Bpos;
-				game->forced_awpn = -1; //clear forced if the item is selected using the actual subscreen
-				directItemA = directItem;
-			}
-			else if(use_x && rEx1btn())
-			{
-				int32_t t = eqwpn;
-				if(t == Bwpn)
-				{
-					Bwpn = Xwpn;
-					game->bwpn = game->xwpn;
-					directItemB = directItemX;
-				}
-				else if(use_a && t == Awpn)
-				{
-					Awpn = Xwpn;
-					game->awpn = game->xwpn;
-					directItemA = directItemX;
-				}
-				else if(use_y && t == Ywpn)
-				{
-					Ywpn = Xwpn;
-					game->ywpn = game->xwpn;
-					directItemY = directItemX;
-				}
-				
-				Xwpn = t;
-				sfx(QMisc.miscsfx[sfxSUBSCR_ITEM_ASSIGN]);
-				game->xwpn = Bpos;
-				game->forced_xwpn = -1; //clear forced if the item is selected using the actual subscreen
-				directItemX = directItem;
-			}
-			else if(use_y && rEx2btn())
-			{
-				int32_t t = eqwpn;
-				if(t == Bwpn)
-				{
-					Bwpn = Ywpn;
-					game->bwpn = game->ywpn;
-					directItemB = directItemY;
-				}
-				else if(use_a && t == Awpn)
-				{
-					Awpn = Ywpn;
-					game->awpn = game->ywpn;
-					directItemA = directItemY;
-				}
-				else if(use_x && t == Xwpn)
-				{
-					Xwpn = Ywpn;
-					game->xwpn = game->ywpn;
-					directItemX = directItemY;
-				}
-				
-				Ywpn = t;
-				sfx(QMisc.miscsfx[sfxSUBSCR_ITEM_ASSIGN]);
-				game->ywpn = Bpos;
-				game->forced_ywpn = -1; //clear forced if the item is selected using the actual subscreen
-				directItemY = directItem;
 			}
 		}
-        if(pos!=Bpos)
+        if(pos!=pg.cursor_pos)
             sfx(QMisc.miscsfx[sfxSUBSCR_CURSOR_MOVE]);
             
         do_dcounters();

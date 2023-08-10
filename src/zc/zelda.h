@@ -344,7 +344,6 @@ extern word     door_combo_set_count;
 extern word     introclk, intropos, dmapmsgclk, linkedmsgclk;
 extern int16_t    lensclk;
 extern int32_t     lensid;
-extern int32_t    Bpos;
 extern byte screengrid[22];
 extern byte screengrid_layer[2][22];
 extern byte ffcgrid[MAXFFCS/8];
@@ -489,9 +488,7 @@ extern void throttleFPS();
 extern zquestheader QHeader;
 extern byte                midi_flags[MIDIFLAGS_SIZE];
 extern byte                music_flags[MUSICFLAGS_SIZE];
-extern word                map_count;
 extern int32_t				   msg_strings_size;
-extern std::vector<mapscr> TheMaps;
 extern zcmap               *ZCMaps;
 extern byte                *quest_file;
 

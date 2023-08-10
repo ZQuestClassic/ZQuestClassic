@@ -4,6 +4,7 @@
 #include "qst.h"
 #include "zinfo.h"
 #include "base/misctypes.h"
+#include <fmt/format.h>
 
 extern zcmodule moduledata;
 extern char *weapon_string[];
@@ -81,43 +82,33 @@ GUI::ListData GUI::ZCListData::fonts(bool ss_fonts, bool numbered, bool sorted)
 		for(auto q = 0; ssfont2_str[q][0]; ++q)
 		{
 			char const* fontname = ssfont2_str[q];
+			std::string name;
 			if(numbered)
-			{
-				char* name = new char[strlen(fontname) + 7];
-				sprintf(name, "%s (%03d)", fontname, q);
-				fontname = name;
-			}
-			std::string sname(fontname);
+				name = fmt::format("{} ({:03})", fontname, q);
+			else name = fontname;
 			
 			if(sorted)
 			{
-				ids[sname] = q;
-				names.insert(sname);
+				ids[name] = q;
+				names.insert(name);
 			}
-			else strings.push_back(sname);
-			if(numbered)
-				delete[] fontname;
+			else strings.push_back(name);
 		}
 	}
 	else for(auto q = 0; q < font_max; ++q)
 	{
 		char const* fontname = msgfont_str[q].c_str();
+		std::string name;
 		if(numbered)
-		{
-			char* name = new char[strlen(fontname) + 7];
-			sprintf(name, "%s (%03d)", fontname, q);
-			fontname = name;
-		}
-		std::string sname(fontname);
+			name = fmt::format("{} ({:03})", fontname, q);
+		else name = fontname;
 		
 		if(sorted)
 		{
-			ids[sname] = q;
-			names.insert(sname);
+			ids[name] = q;
+			names.insert(name);
 		}
-		else strings.push_back(sname);
-		if(numbered)
-			delete[] fontname;
+		else strings.push_back(name);
 	}
 	if(!sorted)
 		return GUI::ListData(strings);
@@ -239,18 +230,13 @@ GUI::ListData GUI::ZCListData::enemies(bool numbered, bool defaultFilter)
 				continue; //Guys
 		}
 		char const* npcname = guy_string[q];
+		std::string name;
 		if(numbered)
-		{
-			char* name = new char[strlen(npcname) + 7];
-			sprintf(name, "%s (%03d)", npcname, q);
-			npcname = name;
-		}
-		std::string sname(npcname);
+			name = fmt::format("{} ({:03})", npcname, q);
+		else name = npcname;
 		
-		ids[sname] = q;
-		names.insert(sname);
-		if(numbered)
-			delete[] npcname;
+		ids[name] = q;
+		names.insert(name);
 	}
 	
 	GUI::ListData ls;
@@ -270,18 +256,13 @@ GUI::ListData GUI::ZCListData::items(bool numbered)
 	for(int32_t q=0; q < MAXITEMS; ++q)
 	{
 		char const* itname = item_string[q];
+		std::string name;
 		if(numbered)
-		{
-			char* name = new char[strlen(itname) + 7];
-			sprintf(name, "%s (%03d)", itname, q);
-			itname = name;
-		}
-		std::string sname(itname);
+			name = fmt::format("{} ({:03})", itname, q);
+		else name = itname;
 		
-		ids[sname] = q;
-		names.insert(sname);
-		if(numbered)
-			delete[] itname;
+		ids[name] = q;
+		names.insert(name);
 	}
 	
 	GUI::ListData ls;
@@ -301,18 +282,13 @@ GUI::ListData GUI::ZCListData::dropsets(bool numbered, bool none)
 	for(int32_t q=0; q < MAXITEMDROPSETS; ++q)
 	{
 		char const* dropname = item_drop_sets[q].name;
+		std::string name;
 		if(numbered)
-		{
-			char* name = new char[strlen(dropname) + 7];
-			sprintf(name, "%s (%03d)", dropname, q);
-			dropname = name;
-		}
-		std::string sname(dropname);
+			name = fmt::format("{} ({:03})", dropname, q);
+		else name = dropname;
 		
-		ids[sname] = q;
-		names.insert(sname);
-		if(numbered)
-			delete[] dropname;
+		ids[name] = q;
+		names.insert(name);
 	}
 	
 	GUI::ListData ls;
@@ -337,27 +313,23 @@ GUI::ListData GUI::ZCListData::itemclass(bool numbered, bool zero_none)
 		char const* itname = ZI.getItemClassName(i);
         if(i < itype_last || itname[0])
 		{
-            char* name = new char[strlen(itname) + 7];
-            if(numbered)
-				sprintf(name, "%s (%03d)", itname, i);
-            else strcpy(name, itname);
-			std::string sname(name);
+			std::string name;
+			if(numbered)
+				name = fmt::format("{} ({:03})", itname, i);
+			else name = itname;
 			
-			fams[sname] = i;
-			famnames.insert(sname);
-			delete[] name;
+			fams[name] = i;
+			famnames.insert(name);
 		}
 		else 
 		{
-			char *name = new char[12];
+			std::string name;
 			if(numbered)
-				sprintf(name, "zz%03d (%03d)", i, i);
-			else sprintf(name, "zz%03d", i);
-			std::string sname(name);
+				name = fmt::format("zz{:03} ({:03})", i, i);
+			else name = fmt::format("zz{:03}",i);
 			
-			fams[sname] = i;
-			famnames.insert(sname);
-			delete[] name;
+			fams[name] = i;
+			famnames.insert(name);
 		}
 	}
 	
@@ -385,27 +357,23 @@ GUI::ListData GUI::ZCListData::combotype(bool numbered, bool skipNone)
 		char const* module_str = ZI.getComboTypeName(i);
 		if(module_str[0])
 		{
-			char* name = new char[strlen(module_str) + 7];
+			std::string name;
 			if(numbered)
-				sprintf(name, "%s (%03d)", module_str, i);
-			else strcpy(name, module_str);
-			std::string sname(name);
+				name = fmt::format("{} ({:03})", module_str, i);
+			else name = module_str;
 			
-			types[sname] = i;
-			typenames.insert(sname);
-			delete[] name;
+			types[name] = i;
+			typenames.insert(name);
 		}
 		else 
 		{
-			char *name = new char[12];
+			std::string name;
 			if(numbered)
-				sprintf(name, "zz%03d (%03d)", i, i);
-			else sprintf(name, "zz%03d", i);
-			std::string sname(name);
+				name = fmt::format("zz{:03} ({:03})", i, i);
+			else name = fmt::format("zz{:03}",i);
 			
-			types[sname] = i;
-			typenames.insert(sname);
-			delete[] name;
+			types[name] = i;
+			typenames.insert(name);
 		}
 	}
 
@@ -428,23 +396,18 @@ GUI::ListData GUI::ZCListData::mapflag(int32_t numericalFlags, bool numbered, bo
 		if(!ZI.isUsableMapFlag(q))
 			continue; //Hidden
 		char const* module_str = ZI.getMapFlagName(q);
-		char* name = new char[strlen(module_str) + 7];
+		std::string name;
 		if(numbered)
-			sprintf(name, "%s (%03d)", module_str, q);
-		else strcpy(name, module_str);
+			name = fmt::format("{} ({:03})", module_str, q);
+		else name = module_str;
 		
-		std::string sname(name);
 		if (numericalFlags)
-		{
-			ls.add(sname, q);
-		}
+			ls.add(name, q);
 		else
 		{
-			vals[sname] = q;
-			names.insert(sname);
+			vals[name] = q;
+			names.insert(name);
 		}
-		
-		delete[] name;
 	}
 	if (!numericalFlags)
 	{
@@ -465,12 +428,7 @@ GUI::ListData GUI::ZCListData::dmaps(bool numbered)
 	{
 		char const* dm_str = DMaps[q].name;
 		if(numbered)
-		{
-			char* name = new char[strlen(dm_str) + 7];
-			sprintf(name, "%3d-%s", q, dm_str);
-			ls.add(name, q);
-			delete[] name;
-		}
+			ls.add(fmt::format("{:3}-{}",q,dm_str), q);
 		else ls.add(dm_str, q);
 	}
 	
@@ -489,18 +447,15 @@ GUI::ListData GUI::ZCListData::counters(bool numbered, bool skipNone)
 		if(!ZI.isUsableCtr(q))
 			continue; //Hidden
 		char const* module_str = ZI.getCtrName(q);
-		char* name = new char[strlen(module_str) + 6];
+		std::string sname;
 		if(numbered)
-			sprintf(name, "%s (%02d)", module_str, q);
-		else strcpy(name, module_str);
+			sname = fmt::format("{} ({:02})", module_str, q);
+		else sname = module_str;
 		
-		std::string sname(name);
 		
 		// vals[sname] = q;
 		// names.insert(sname);
 		ls.add(sname, q);
-		
-		delete[] name;
 	}
 	
 	// for(auto it = names.begin(); it != names.end(); ++it)
@@ -518,15 +473,13 @@ GUI::ListData GUI::ZCListData::miscsprites(bool skipNone, bool inclNegSpecialVal
 	
 	for(int32_t i=0; i<MAXWPNS; ++i)
 	{
-		char buf[512];
-		char* ptr = buf;
+		std::string name;
 		if(numbered)
-			sprintf(buf, "%s (%03d)", weapon_string[i], i);
-		else ptr = weapon_string[i];
-		std::string sname(ptr);
+			name = fmt::format("{} ({:03})", weapon_string[i], i);
+		else name = weapon_string[i];
 		
-		ids[sname] = i;
-		sprnames.insert(sname);
+		ids[name] = i;
+		sprnames.insert(name);
 	}
 	
 	GUI::ListData ls;
@@ -564,12 +517,7 @@ GUI::ListData GUI::ZCListData::bottletype()
 		if(QMisc.bottle_types[q].name[0])
 			ls.add(QMisc.bottle_types[q].name,q+1);
 		else
-		{
-			char buf[8] = { 0 };
-			sprintf(buf, "%2d", q+1);
-			
-			ls.add(buf, q+1);
-		}
+			ls.add(fmt::format("{:2}", q+1), q+1);
 	}
 	
 	return ls;
@@ -608,16 +556,9 @@ GUI::ListData GUI::ZCListData::weaptypes(bool numbered)
 		if(!ZI.isUsableWeap(q))
 			continue; //Hidden
 		char const* module_str = ZI.getWeapName(q);
-		char* name = new char[strlen(module_str) + 8];
 		if(numbered)
-			sprintf(name, "%s (%03d)", module_str, q);
-		else strcpy(name, module_str);
-		
-		std::string sname(name);
-		
-		ls.add(sname, q);
-		
-		delete[] name;
+			ls.add(fmt::format("{} ({:03})", module_str, q), q);
+		else ls.add(module_str, q);
 	}
 	
 	return ls;
@@ -632,12 +573,9 @@ GUI::ListData GUI::ZCListData::sfxnames(bool numbered)
 	for(int32_t i=1; i<WAV_COUNT; ++i)
 	{
 		char const* sfx_name = sfx_string[i];
-		char* name = new char[strlen(sfx_name) + 7];
 		if(numbered)
-			sprintf(name, "%s (%03d)", sfx_name, i);
-		else strcpy(name, sfx_name);
-		ls.add(name, i);
-		delete[] name;
+			ls.add(fmt::format("{} ({:03})", sfx_name, i), i);
+		else ls.add(sfx_name, i);
 	}
 	
 	return ls;
@@ -651,12 +589,10 @@ GUI::ListData GUI::ZCListData::midinames(bool numbered)
 	for(int32_t i=0; i<MAXCUSTOMTUNES; ++i)
 	{
 		char const* midi_name = customtunes[i].title;
-		char* name = new char[strlen(midi_name) + 7];
+		std::string name;
 		if(numbered)
-			sprintf(name, "%s (%03d)", midi_name, i+1);
-		else strcpy(name, midi_name);
-		ls.add(name, i+1);
-		delete[] name;
+			ls.add(fmt::format("{} ({:03})", midi_name, i+1), i+1);
+		else ls.add(midi_name, i+1);
 	}
 	
 	return ls;

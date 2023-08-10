@@ -2280,7 +2280,7 @@ int32_t _c_item_id_internal(int32_t itemtype, bool checkmagic, bool jinx_check)
 		if(!(HeroSwordClk() || HeroItemClk()))
 			jinx_check = false; //not jinxed
 	}
-	if(itemtype!=itype_ring && !jinx_check)  // Rings must always be checked, as must jinx checks...
+	if (itemtype != itype_ring && !jinx_check)  // Rings must always be checked, as must jinx checks...
 	{
 		std::map<int32_t,int32_t>::iterator res = itemcache.find(itemtype);
 		
@@ -5895,7 +5895,6 @@ int32_t zc_load_zmod_module_file()
 		zcm.init(true); //Load the module values.
 		moduledata.refresh_title_screen = 1;
 //		refresh_select_screen = 1;
-		build_biic_list();
 		return D_O_K;
 }
 

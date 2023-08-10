@@ -13810,13 +13810,13 @@ void set_register(int32_t arg, int32_t value)
 			//zprint("A is: %d\n", setb);
 				
 			Awpn = seta;
-			game->awpn = seta;
+			game->awpn = game->awpnpg = 0;
 			game->forced_awpn = seta;
 			game->items_off[seta] = 0;
 			directItemA = seta;
 			
 			Bwpn = setb;
-			game->bwpn = setb;
+			game->bwpn = game->bwpnpg = 0;
 			game->forced_bwpn = setb;
 			game->items_off[setb] = 0;
 			directItemB = seta;
@@ -13855,32 +13855,32 @@ void set_register(int32_t arg, int32_t value)
 				switch(slot)
 				{
 					case 0: //b
-					Bwpn = itm;
-					game->items_off[itm] = 0;
-					game->bwpn = itm;
-					game->forced_bwpn = itm;
-					break;
+						Bwpn = itm;
+						game->items_off[itm] = 0;
+						game->bwpn = game->bwpnpg = 0;
+						game->forced_bwpn = itm;
+						break;
 					
 					case 1: //a
-					Awpn = itm;
-					game->items_off[itm] = 0;
-					game->awpn = itm;
-					game->forced_awpn = itm;
-					break;
+						Awpn = itm;
+						game->items_off[itm] = 0;
+						game->awpn = game->awpnpg = 0;
+						game->forced_awpn = itm;
+						break;
 					
 					case 2: //x
-					Xwpn = itm;
-					game->items_off[itm] = 0;
-					game->xwpn = itm;
-					game->forced_xwpn = itm;
-					break;
+						Xwpn = itm;
+						game->items_off[itm] = 0;
+						game->xwpn = game->xwpnpg = 0;
+						game->forced_xwpn = itm;
+						break;
 					
 					case 3: //y
-					Ywpn = itm;
-					game->items_off[itm] = 0;
-					game->ywpn = itm;
-					game->forced_ywpn = itm;
-					break;
+						Ywpn = itm;
+						game->items_off[itm] = 0;
+						game->ywpn = game->ywpnpg = 0;
+						game->forced_ywpn = itm;
+						break;
 				}
 			}
 			else if ( force == 1 )
@@ -13890,32 +13890,32 @@ void set_register(int32_t arg, int32_t value)
 					switch(slot)
 					{
 						case 0: //b
-						Bwpn = itm;
-						game->items_off[itm] = 0;
-						game->bwpn = itm;
-						game->forced_bwpn = itm;
-						break;
+							Bwpn = itm;
+							game->items_off[itm] = 0;
+							game->bwpn = game->bwpnpg = 0;
+							game->forced_bwpn = itm;
+							break;
 						
 						case 1: //a
-						Awpn = itm;
-						game->items_off[itm] = 0;
-						game->awpn = itm;
-						game->forced_awpn = itm;
-						break;
+							Awpn = itm;
+							game->items_off[itm] = 0;
+							game->awpn = game->awpnpg = 0;
+							game->forced_awpn = itm;
+							break;
 						
 						case 2: //x
-						Xwpn = itm;
-						game->items_off[itm] = 0;
-						game->xwpn = itm;
-						game->forced_xwpn = itm;
-						break;
+							Xwpn = itm;
+							game->items_off[itm] = 0;
+							game->xwpn = game->xwpnpg = 0;
+							game->forced_xwpn = itm;
+							break;
 						
 						case 3: //y
-						Ywpn = itm;
-						game->items_off[itm] = 0;
-						game->ywpn = itm;
-						game->forced_ywpn = itm;
-						break;
+							Ywpn = itm;
+							game->items_off[itm] = 0;
+							game->ywpn = game->ywpnpg = 0;
+							game->forced_ywpn = itm;
+							break;
 					}
 				}
 			}
@@ -13924,37 +13924,35 @@ void set_register(int32_t arg, int32_t value)
 				switch(slot)
 				{
 					case 0: //b
-					Bwpn = itm;
-					game->items_off[itm] = 0;
-					game->bwpn = itm;
-					game->forced_bwpn = itm;
-					break;
+						Bwpn = itm;
+						game->items_off[itm] = 0;
+						game->bwpn = game->bwpnpg = 0;
+						game->forced_bwpn = itm;
+						break;
 					
 					case 1: //a
-					{
 						if (get_qr(qr_SELECTAWPN))
 						{
 							Awpn = itm;
 							game->items_off[itm] = 0;
-							game->awpn = itm;
+							game->awpn = game->awpnpg = 0;
 							game->forced_awpn = itm;
 						}
-					break;
-					}
+						break;
 					
 					case 2:  //x
-					Xwpn = itm;
-					game->items_off[itm] = 0;
-					game->xwpn = itm;
-					game->forced_xwpn = itm;
-					break;
+						Xwpn = itm;
+						game->items_off[itm] = 0;
+						game->xwpn = game->xwpnpg = 0;
+						game->forced_xwpn = itm;
+						break;
 					
 					case 3: //y
-					Ywpn = itm;
-					game->items_off[itm] = 0;
-					game->ywpn = itm;
-					game->forced_ywpn = itm;
-					break;
+						Ywpn = itm;
+						game->items_off[itm] = 0;
+						game->ywpn = game->ywpnpg = 0;
+						game->forced_ywpn = itm;
+						break;
 				}
 			}
 			else if ( force == 3 ) //Flag ITM_REQUIRE_INVENTORY + ITM_REQUIRE_SLOT_A_RULE
@@ -13964,37 +13962,35 @@ void set_register(int32_t arg, int32_t value)
 					switch(slot)
 					{
 						case 0: //b
-						Bwpn = itm;
-						game->items_off[itm] = 0;
-						game->bwpn = itm;
-						game->forced_bwpn = itm;
-						break;
+							Bwpn = itm;
+							game->items_off[itm] = 0;
+							game->bwpn = game->bwpnpg = 0;
+							game->forced_bwpn = itm;
+							break;
 						
 						case 1: //a
-						{
 							if (get_qr(qr_SELECTAWPN))
 							{
 								Awpn = itm;
 								game->items_off[itm] = 0;
-								game->awpn = itm;
+								game->awpn = game->awpnpg = 0;
 								game->forced_awpn = itm;
 							}
-						break;
-						}
+							break;
 						
 						case 2: //x
-						Xwpn = itm;
-						game->items_off[itm] = 0;
-						game->xwpn = itm;
-						game->forced_xwpn = itm;
-						break;
+							Xwpn = itm;
+							game->items_off[itm] = 0;
+							game->xwpn = game->xwpnpg = 0;
+							game->forced_xwpn = itm;
+							break;
 						
 						case 3: //y
-						Ywpn = itm;
-						game->items_off[itm] = 0;
-						game->ywpn = itm;
-						game->forced_ywpn = itm;
-						break;
+							Ywpn = itm;
+							game->items_off[itm] = 0;
+							game->ywpn = game->ywpnpg = 0;
+							game->forced_ywpn = itm;
+							break;
 					}
 				}
 			}
@@ -14184,8 +14180,8 @@ void set_register(int32_t arg, int32_t value)
 			if (Bwpn != (value/10000))
 			{
 				Bwpn = value/10000;
-				int32_t wpndummy = BWeapon_to_Pos(Bwpn);
-				if (wpndummy >= 0) game->bwpn = wpndummy;
+				if(new_subscreen_active)
+					new_subscreen_active->get_page_pos(Bwpn, game->bwpn, game->bwpnpg);
 				game->forced_bwpn = value/10000;
 				game->items_off[value/10000] = 0;
 			}
@@ -14210,8 +14206,8 @@ void set_register(int32_t arg, int32_t value)
 			if (Awpn != (value/10000))
 			{
 				Awpn = value/10000;
-				int32_t wpndummy = BWeapon_to_Pos(Awpn);
-				if (wpndummy >= 0) game->awpn = wpndummy;
+				if(new_subscreen_active)
+					new_subscreen_active->get_page_pos(Awpn, game->awpn, game->awpnpg);
 				game->items_off[value/10000] = 0;
 				game->forced_awpn = value/10000;
 			}
@@ -14235,8 +14231,8 @@ void set_register(int32_t arg, int32_t value)
 			if (Xwpn != (value/10000))
 			{
 				Xwpn = value/10000;
-				int32_t wpndummy = BWeapon_to_Pos(Xwpn);
-				if (wpndummy >= 0) game->xwpn = wpndummy;
+				if(new_subscreen_active)
+					new_subscreen_active->get_page_pos(Xwpn, game->xwpn, game->xwpnpg);
 				game->items_off[value/10000] = 0;
 				game->forced_xwpn = value/10000;
 			}
@@ -14259,8 +14255,8 @@ void set_register(int32_t arg, int32_t value)
 			if (Ywpn != (value/10000))
 			{
 				Ywpn = value/10000;
-				int32_t wpndummy = BWeapon_to_Pos(Ywpn);
-				if (wpndummy >= 0) game->ywpn = wpndummy;
+				if(new_subscreen_active)
+					new_subscreen_active->get_page_pos(Ywpn, game->ywpn, game->ywpnpg);
 				game->items_off[value/10000] = 0;
 				game->forced_ywpn = value/10000;
 			}
@@ -14300,8 +14296,8 @@ void set_register(int32_t arg, int32_t value)
 			//int32_t state   = (ri->d[rINDEX2]/10000);
 			//int32_t extend = (ri->d[rINDEX2]/10000);
 			//int32_t dir = (ri->d[rINDEX]/10000);
-			Z_message("Trying to force-set the A-button item().\n");
-			Hero.setAButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
+			// Z_message("Trying to force-set the A-button item().\n");
+			// Hero.setAButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
 		}
 		break;
 		
@@ -14310,8 +14306,8 @@ void set_register(int32_t arg, int32_t value)
 			//int32_t state   = (ri->d[rINDEX2]/10000);
 			//int32_t extend = (ri->d[rINDEX2]/10000);
 			//int32_t dir = (ri->d[rINDEX]/10000);
-			Z_message("Trying to force-set the A-button item().\n");
-			Hero.setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
+			// Z_message("Trying to force-set the A-button item().\n");
+			// Hero.setBButtonItem(vbound((value/10000),0,(MAXITEMS-1)));
 		}
 		break;
 		
