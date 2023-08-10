@@ -85,7 +85,7 @@ struct sso_struct
     int32_t i;
 };
 
-extern sso_struct bisso[ssoMAX];
+extern sso_struct bisso[widgMAX];
 
 
 
