@@ -235,7 +235,7 @@ struct SubscrWidget
 	virtual bool copy_prop(SubscrWidget const* src, bool all = false);
 	virtual int32_t write(PACKFILE *f) const;
 	
-	void replay_rand_compat() const;
+	void replay_rand_compat(byte pos) const;
 	static SubscrWidget* fromOld(subscreen_object const& old);
 	static SubscrWidget* readWidg(PACKFILE* f, word s_version);
 	static SubscrWidget* newType(byte type);
