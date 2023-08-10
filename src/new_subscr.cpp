@@ -3204,7 +3204,7 @@ void SubscrPage::move_cursor(int dir, bool item_only)
 	//2a.  -if we arrive at a position we've already visited, give up and stay there
 	//3. Get the weapon at the new slot
 	//4. If it's not possible, go to step 1.
-	
+	SubscrWidget* widg = contents[p];
 	for(;;)
 	{
 		//shift
@@ -3212,25 +3212,25 @@ void SubscrPage::move_cursor(int dir, bool item_only)
 		{
 			case SEL_LEFT:
 			case SEL_VERIFY_LEFT:
-				curpos = contents[p]->pos_left;
+				curpos = widg->pos_left;
 				break;
 				
 			case SEL_RIGHT:
 			case SEL_VERIFY_RIGHT:
-				curpos = contents[p]->pos_right;
+				curpos = widg->pos_right;
 				break;
 				
 			case SEL_DOWN:
-				curpos = contents[p]->pos_down;
+				curpos = widg->pos_down;
 				break;
 				
 			case SEL_UP:
-				curpos = contents[p]->pos_up;
+				curpos = widg->pos_up;
 				break;
 		}
 		
 		//find our new position
-		SubscrWidget* widg = get_widg_pos(curpos,false);
+		widg = get_widg_pos(curpos,false);
 		
 		if(!widg)
 			return;
@@ -3327,7 +3327,7 @@ int32_t SubscrPage::move_legacy(int dir, int startp, int fp, int fp2, int fp3, b
 	//2a.  -if we arrive at a position we've already visited, give up and stay there
 	//3. Get the weapon at the new slot
 	//4. If it's not possible, go to step 1.
-	
+	SubscrWidget* widg = contents[p];
 	for(;;)
 	{
 		//shift
@@ -3335,25 +3335,25 @@ int32_t SubscrPage::move_legacy(int dir, int startp, int fp, int fp2, int fp3, b
 		{
 			case SEL_LEFT:
 			case SEL_VERIFY_LEFT:
-				curpos = contents[p]->pos_left;
+				curpos = widg->pos_left;
 				break;
 				
 			case SEL_RIGHT:
 			case SEL_VERIFY_RIGHT:
-				curpos = contents[p]->pos_right;
+				curpos = widg->pos_right;
 				break;
 				
 			case SEL_DOWN:
-				curpos = contents[p]->pos_down;
+				curpos = widg->pos_down;
 				break;
 				
 			case SEL_UP:
-				curpos = contents[p]->pos_up;
+				curpos = widg->pos_up;
 				break;
 		}
 		
 		//find our new position
-		SubscrWidget* widg = get_widg_pos(curpos,false);
+		widg = get_widg_pos(curpos,false);
 		
 		if(!widg)
 			return failpos;
@@ -3369,7 +3369,7 @@ int32_t SubscrPage::move_legacy(int dir, int startp, int fp, int fp2, int fp3, b
 		if(widg->flags & SUBSCRFLAG_SELECTABLE)
 			if(curpos != fp && curpos != fp2 && curpos != fp3)
 				if(!equip_only || !(widg->flags & SUBSCR_CURITM_NONEQP))
-					if(!item_only || widg->getItemVal())
+					if(!item_only || widg->getItemVal()>-1)
 						return curpos;
 	}
 }

@@ -10144,7 +10144,7 @@ void HeroClass::deselectbombs(int32_t super)
 {
     if ( get_qr(qr_NEVERDISABLEAMMOONSUBSCREEN) || itemsbuf[game->forced_awpn].family == itype_bomb || itemsbuf[game->forced_bwpn].family == itype_bomb || itemsbuf[game->forced_xwpn].family == itype_bomb || itemsbuf[game->forced_ywpn].family == itype_bomb) return;
     SubscrPage* pg = nullptr;
-	if(getItemFamily(itemsbuf,Bwpn&0x0FFF)==(super? itype_sbomb : itype_bomb) && (directWpn<0 || Bwpn==directWpn))
+	if(getItemFamily(itemsbuf,Bwpn)==(super? itype_sbomb : itype_bomb) && (directWpn<0 || Bwpn==directWpn))
     {
 		if(!new_subscreen_active || !(pg = new_subscreen_active->get_page(game->bwpnpg)))
 			return;
@@ -10154,7 +10154,7 @@ void HeroClass::deselectbombs(int32_t super)
         game->bwpn = temp;
     }
     
-    else if (getItemFamily(itemsbuf,Xwpn&0x0FFF)==(super? itype_sbomb : itype_bomb) && (directWpn<0 || Xwpn==directWpn))
+    else if (getItemFamily(itemsbuf,Xwpn)==(super? itype_sbomb : itype_bomb) && (directWpn<0 || Xwpn==directWpn))
     {
 		if(!new_subscreen_active || !(pg = new_subscreen_active->get_page(game->xwpnpg)))
 			return;
@@ -10163,7 +10163,7 @@ void HeroClass::deselectbombs(int32_t super)
         directItemX = directItem;
         game->xwpn = temp;
     }
-    else if (getItemFamily(itemsbuf,Ywpn&0x0FFF)==(super? itype_sbomb : itype_bomb) && (directWpn<0 || Ywpn==directWpn))
+    else if (getItemFamily(itemsbuf,Ywpn)==(super? itype_sbomb : itype_bomb) && (directWpn<0 || Ywpn==directWpn))
     {
 		if(!new_subscreen_active || !(pg = new_subscreen_active->get_page(game->ywpnpg)))
 			return;
@@ -13799,25 +13799,25 @@ void HeroClass::moveheroOld()
 	{
 		if(DrunkrBbtn())
 		{
-			btnwpn=getItemFamily(itemsbuf,Bwpn&0xFFF);
+			btnwpn=getItemFamily(itemsbuf,Bwpn);
 			dowpn = Bwpn&0xFFF;
 			directWpn = directItemB;
 		}
 		else if(DrunkrAbtn())
 		{
-			btnwpn=getItemFamily(itemsbuf,Awpn&0xFFF);
+			btnwpn=getItemFamily(itemsbuf,Awpn);
 			dowpn = Awpn&0xFFF;
 			directWpn = directItemA;
 		}
 		else if(get_qr(qr_SET_XBUTTON_ITEMS) && DrunkrEx1btn())
 		{
-			btnwpn=getItemFamily(itemsbuf,Xwpn&0xFFF);
+			btnwpn=getItemFamily(itemsbuf,Xwpn);
 			dowpn = Xwpn&0xFFF;
 			directWpn = directItemX;
 		}
 		else if(get_qr(qr_SET_YBUTTON_ITEMS) && DrunkrEx2btn())
 		{
-			btnwpn=getItemFamily(itemsbuf,Ywpn&0xFFF);
+			btnwpn=getItemFamily(itemsbuf,Ywpn);
 			dowpn = Ywpn&0xFFF;
 			directWpn = directItemY;
 		}
@@ -17793,25 +17793,25 @@ bool HeroClass::premove()
 	{
 		if(DrunkrBbtn())
 		{
-			btnwpn=getItemFamily(itemsbuf,Bwpn&0xFFF);
+			btnwpn=getItemFamily(itemsbuf,Bwpn);
 			dowpn = Bwpn&0xFFF;
 			directWpn = directItemB;
 		}
 		else if(DrunkrAbtn())
 		{
-			btnwpn=getItemFamily(itemsbuf,Awpn&0xFFF);
+			btnwpn=getItemFamily(itemsbuf,Awpn);
 			dowpn = Awpn&0xFFF;
 			directWpn = directItemA;
 		}
 		else if(get_qr(qr_SET_XBUTTON_ITEMS) && DrunkrEx1btn())
 		{
-			btnwpn=getItemFamily(itemsbuf,Xwpn&0xFFF);
+			btnwpn=getItemFamily(itemsbuf,Xwpn);
 			dowpn = Xwpn&0xFFF;
 			directWpn = directItemX;
 		}
 		else if(get_qr(qr_SET_YBUTTON_ITEMS) && DrunkrEx2btn())
 		{
-			btnwpn=getItemFamily(itemsbuf,Ywpn&0xFFF);
+			btnwpn=getItemFamily(itemsbuf,Ywpn);
 			dowpn = Ywpn&0xFFF;
 			directWpn = directItemY;
 		}
@@ -28428,19 +28428,19 @@ bool isWpnPressed(int32_t itype)
 {
 	//0xFFF for subscreen overrides
 	//Will crash on win10 without it! -Z
-    if((itype==getItemFamily(itemsbuf,Bwpn&0xFFF)) && DrunkcBbtn()) return true;
-    if((itype==getItemFamily(itemsbuf,Awpn&0xFFF)) && DrunkcAbtn()) return true;
-    if((itype==getItemFamily(itemsbuf,Xwpn&0xFFF)) && DrunkcEx1btn()) return true;
-    if((itype==getItemFamily(itemsbuf,Ywpn&0xFFF)) && DrunkcEx2btn()) return true;
+    if((itype==getItemFamily(itemsbuf,Bwpn)) && DrunkcBbtn()) return true;
+    if((itype==getItemFamily(itemsbuf,Awpn)) && DrunkcAbtn()) return true;
+    if((itype==getItemFamily(itemsbuf,Xwpn)) && DrunkcEx1btn()) return true;
+    if((itype==getItemFamily(itemsbuf,Ywpn)) && DrunkcEx2btn()) return true;
     return false;
 }
 
 int32_t getWpnPressed(int32_t itype)
 {
-    if((itype==getItemFamily(itemsbuf,Bwpn&0xFFF)) && DrunkcBbtn()) return Bwpn;
-    if((itype==getItemFamily(itemsbuf,Awpn&0xFFF)) && DrunkcAbtn()) return Awpn;
-    if((itype==getItemFamily(itemsbuf,Xwpn&0xFFF)) && DrunkcEx1btn()) return Xwpn;
-    if((itype==getItemFamily(itemsbuf,Ywpn&0xFFF)) && DrunkcEx2btn()) return Ywpn;
+    if((itype==getItemFamily(itemsbuf,Bwpn)) && DrunkcBbtn()) return Bwpn;
+    if((itype==getItemFamily(itemsbuf,Awpn)) && DrunkcAbtn()) return Awpn;
+    if((itype==getItemFamily(itemsbuf,Xwpn)) && DrunkcEx1btn()) return Xwpn;
+    if((itype==getItemFamily(itemsbuf,Ywpn)) && DrunkcEx2btn()) return Ywpn;
     
     return -1;
 }
@@ -28460,13 +28460,13 @@ int32_t getRocsPressed()
 			return jumpid; //not pressed
 	}
 
-	if((itype_rocs==getItemFamily(itemsbuf,Bwpn&0xFFF)) && DrunkcBbtn())
+	if((itype_rocs==getItemFamily(itemsbuf,Bwpn)) && DrunkcBbtn())
 		return Bwpn;
-	if((itype_rocs==getItemFamily(itemsbuf,Awpn&0xFFF)) && DrunkcAbtn())
+	if((itype_rocs==getItemFamily(itemsbuf,Awpn)) && DrunkcAbtn())
 		return Awpn;
-	if((itype_rocs==getItemFamily(itemsbuf,Xwpn&0xFFF)) && DrunkcEx1btn())
+	if((itype_rocs==getItemFamily(itemsbuf,Xwpn)) && DrunkcEx1btn())
 		return Xwpn;
-	if((itype_rocs==getItemFamily(itemsbuf,Ywpn&0xFFF)) && DrunkcEx2btn())
+	if((itype_rocs==getItemFamily(itemsbuf,Ywpn)) && DrunkcEx2btn())
 		return Ywpn;
 
 	return -1;
