@@ -208,6 +208,8 @@ parser.add_argument('--headless', action=argparse.BooleanOptionalAction, default
     help='Run without display or sound')
 parser.add_argument('--show', action=argparse.BooleanOptionalAction, default=False,
     help='Alias for --no-headless and --throttle_fps')
+parser.add_argument('--no_console', action='store_true',
+    help='Prevent the debug console from opening')
 
 
 mode_group = parser.add_argument_group('Mode','The playback mode')
@@ -591,7 +593,10 @@ class CLIPlayerInterface:
 
         if args.headless:
             exe_args.append('-headless')
-
+        
+        if args.no_console:
+            exe_args.push('-no_console')
+        
         # Allegro seems to be using free'd memory when shutting down the sound system.
         # For now, just disable sound in CI or when using Asan/Coverage.
         if args.headless and (is_asan or is_coverage or is_ci or mode == 'assert'):
