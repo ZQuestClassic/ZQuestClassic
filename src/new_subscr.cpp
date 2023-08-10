@@ -404,6 +404,8 @@ bool SubscrWidget::load_old(subscreen_object const& old)
 	y = old.y;
 	w = old.w;
 	h = old.h;
+	if(unsigned(old.d1) >= ssfMAX)
+		compat_flags |= SUBSCRCOMPAT_FONT_RAND;
 	return true;
 }
 int16_t SubscrWidget::getX() const
@@ -548,6 +550,11 @@ int32_t SubscrWidget::write(PACKFILE *f) const
 			new_return(15);
 	}
 	return 0;
+}
+void SubscrWidget::replay_rand_compat() const
+{
+	if(compat_flags & SUBSCRCOMPAT_FONT_RAND)
+		zc_oldrand();
 }
 
 SW_2x2Frame::SW_2x2Frame(subscreen_object const& old) : SW_2x2Frame()
@@ -3419,6 +3426,7 @@ void SubscrPage::draw(BITMAP* dest, int32_t xofs, int32_t yofs, byte pos, bool s
 {
 	for(SubscrWidget* widg : contents)
 	{
+		widg->replay_rand_compat();
 		if(widg->visible(pos,showtime))
 			widg->draw(dest,xofs,yofs,*this);
 	}

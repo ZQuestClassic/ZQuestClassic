@@ -193,6 +193,8 @@ enum //subscreen text alignment
 #define SUBSCRFLAG_SPEC_15     0x40000000
 #define SUBSCRFLAG_SPEC_16     0x80000000
 #define SUBSCRFLAG_SPECIFIC    0xFFFF0000
+
+#define SUBSCRCOMPAT_FONT_RAND       0x01
 struct SubscrWidget
 {
 	byte posflags;
@@ -233,11 +235,13 @@ struct SubscrWidget
 	virtual bool copy_prop(SubscrWidget const* src, bool all = false);
 	virtual int32_t write(PACKFILE *f) const;
 	
+	void replay_rand_compat() const;
 	static SubscrWidget* fromOld(subscreen_object const& old);
 	static SubscrWidget* readWidg(PACKFILE* f, word s_version);
 	static SubscrWidget* newType(byte type);
 protected:
 	byte type;
+	byte compat_flags;
 	
 	virtual int32_t read(PACKFILE *f, word s_version);
 };
