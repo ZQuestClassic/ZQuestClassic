@@ -1033,7 +1033,7 @@ byte SW_MagicMeter::getType() const
 }
 void SW_MagicMeter::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
-	magicmeter(dest, getX()+xofs, getY()+yofs);
+	magicmeter(dest, x+xofs, y+yofs);
 }
 SubscrWidget* SW_MagicMeter::clone() const
 {
