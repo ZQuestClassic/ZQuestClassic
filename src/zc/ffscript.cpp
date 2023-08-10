@@ -29673,7 +29673,7 @@ void do_enh_music_crossfade()
 	if (arrayptr == 0)
 	{
 		bool ret = FFCore.play_enh_music_crossfade(NULL, track, fadeoutframes, fadeinframes, fademiddleframes, startpos);
-		set_register(sarg2, ret ? 10000 : 0);
+		ri->d[rEXP1] = ret ? 10000 : 0;
 	}
 	else
 	{
@@ -29682,12 +29682,12 @@ void do_enh_music_crossfade()
 		ArrayH::getString(arrayptr, filename_str, 256);
 		strncpy(filename_char, filename_str.c_str(), 255);
 		filename_char[255] = '\0';
-		bool ret = FFCore.play_enh_music_crossfade(filename_char, track, fadeoutframes, fadeinframes, fademiddleframes, startpos);
-		set_register(sarg2, ret ? 10000 : 0);
+		bool ret = FFCore.play_enh_music_crossfade(filename_char, track, fadeoutframes, fadeinframes, fademiddleframes, startpos, true);
+		ri->d[rEXP1] = ret ? 10000 : 0;
 	}
 }
 
-bool FFScript::play_enh_music_crossfade(char* name, int32_t track, int32_t fadeinframes, int32_t fadeoutframes, int32_t fademiddleframes, int32_t startpos)
+bool FFScript::play_enh_music_crossfade(char* name, int32_t track, int32_t fadeinframes, int32_t fadeoutframes, int32_t fademiddleframes, int32_t startpos, bool revertonfail)
 {
 	double fadeoutpct = 1.0;
 	// If there was an old fade going, use that as a multiplier for the new fade out
@@ -29744,6 +29744,13 @@ bool FFScript::play_enh_music_crossfade(char* name, int32_t track, int32_t fadei
 				zcmixer->oldtrack->fadevolume = 10000;
 			if (zcmixer->newtrack != NULL)
 				zcmixer->newtrack->fadevolume = 0;
+		}
+		else if(revertonfail)
+		{
+			// Switch back to the old music
+			zcmusic = zcmixer->oldtrack;
+			zcmixer->newtrack = NULL;
+			zcmixer->oldtrack = NULL;
 		}
 	}
 	
