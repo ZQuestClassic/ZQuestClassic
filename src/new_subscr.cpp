@@ -15,6 +15,7 @@
 #include <set>
 
 #ifdef IS_PLAYER
+#include "zc/hero.h"
 extern int32_t directItem;
 extern sprite_list Lwpns;
 #endif
@@ -1794,56 +1795,49 @@ byte SW_CurrentItem::getType() const
 int32_t SW_CurrentItem::getItemVal(bool display) const
 {
 #ifdef IS_PLAYER
+	bool checkmagic = !(display && get_qr(qr_NEVERDISABLEAMMOONSUBSCREEN));
 	if(iid > 0)
 	{
 		bool select = false;
 		switch(itemsbuf[iid-1].family)
 		{
 			case itype_bomb:
-				if(display && get_qr(qr_NEVERDISABLEAMMOONSUBSCREEN))
-					select = true;
-				else if((game->get_bombs() ||
-						// Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
-						(itemsbuf[iid-1].misc1==0 && findWeaponWithParent(iid-1, wLitBomb))) ||
-						current_item_power(itype_bombbag))
-				{
-					select=true;
-				}
+				select=true;
+				if(itemsbuf[iid-1].misc1==0 && findWeaponWithParent(iid-1, wLitBomb))
+					checkmagic = false;
 				break;
 			case itype_bowandarrow:
 			case itype_arrow:
+				checkmagic = false;
 				if(current_item_id(itype_bow)>-1)
 				{
 					select=true;
 				}
 				break;
 			case itype_letterpotion:
+				checkmagic = false;
 				break;
 			case itype_sbomb:
 			{
-				int32_t bombbagid = current_item_id(itype_bombbag);
-				
-				if(display && get_qr(qr_NEVERDISABLEAMMOONSUBSCREEN))
-					select = true;
-				else if((game->get_sbombs() ||
-						// Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
-						(itemsbuf[iid-1].misc1==0 && findWeaponWithParent(iid-1, wLitSBomb))) ||
-						(current_item_power(itype_bombbag) && bombbagid>-1 && (itemsbuf[bombbagid].flags & ITEM_FLAG1)))
-				{
-					select=true;
-				}
+				select=true;
+				if(itemsbuf[iid-1].misc1==0 && findWeaponWithParent(iid-1, wLitSBomb))
+					checkmagic = false;
 				break;
 			}
 			case itype_sword:
 			{
+				checkmagic = false;
 				if(get_qr(qr_SELECTAWPN))
 					select=true;
 				break;
 			}
 			default:
+				checkmagic = false;
 				select = true;
 				break;
 		}
+		if(checkmagic && !checkmagiccost(iid-1))
+			select = false;
 		if(select && !item_disabled(iid-1) && game->get_item(iid-1))
 		{
 			directItem = iid-1;
@@ -1859,27 +1853,20 @@ int32_t SW_CurrentItem::getItemVal(bool display) const
 	{
 		case itype_bomb:
 		{
-			int32_t bombid = current_item_id(itype_bomb);
-			
-			if(display && get_qr(qr_NEVERDISABLEAMMOONSUBSCREEN))
-				family=itype_bomb;
-			else if((game->get_bombs() ||
-					// Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
-					(bombid>-1 && itemsbuf[bombid].misc1==0 && Lwpns.idCount(wLitBomb)>0)) ||
-					current_item_power(itype_bombbag))
-			{
-				family=itype_bomb;
-			}
+			family=itype_bomb;
+			int bombid = current_item_id(itype_bomb,false);
+			if(bombid>-1 && itemsbuf[bombid].misc1==0 && Lwpns.idCount(wLitBomb)>0)
+				checkmagic = false;
 			break;
 		}
 		case itype_bowandarrow:
 		case itype_arrow:
+			checkmagic = false;
 			if(current_item_id(itype_bow)>-1 && current_item_id(itype_arrow)>-1)
-			{
 				family=itype_arrow;
-			}
 			break;
 		case itype_letterpotion:
+			checkmagic = false;
 			if(current_item_id(itype_potion)>-1)
 				family=itype_potion;
 			else if(current_item_id(itype_letter)>-1)
@@ -1887,33 +1874,27 @@ int32_t SW_CurrentItem::getItemVal(bool display) const
 			break;
 		case itype_sbomb:
 		{
-			int32_t bombbagid = current_item_id(itype_bombbag);
-			int32_t sbombid = current_item_id(itype_sbomb);
-			
-			if(display && get_qr(qr_NEVERDISABLEAMMOONSUBSCREEN))
-				family=itype_sbomb;
-			else if((game->get_sbombs() ||
-					// Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
-					(sbombid>-1 && itemsbuf[sbombid].misc1==0 && Lwpns.idCount(wLitSBomb)>0)) ||
-					(current_item_power(itype_bombbag) && bombbagid>-1 && (itemsbuf[bombbagid].flags & ITEM_FLAG1)))
-			{
-				family=itype_sbomb;
-			}
+			int bombid = current_item_id(itype_sbomb,false);
+			family=itype_sbomb;
+			if(bombid>-1 && itemsbuf[bombid].misc1==0 && Lwpns.idCount(wLitSBomb)>0)
+				checkmagic = false;
 			break;
 		}
 		case itype_sword:
 		{
+			checkmagic = false;
 			if(get_qr(qr_SELECTAWPN))
 				family=itype_sword;
 			break;
 		}
 		default:
+			checkmagic = false;
 			family = iclass;
 			break;
 	}
 	if(family < 0)
 		return -1;
-	int32_t itemid = current_item_id(family);
+	int32_t itemid = current_item_id(family, checkmagic);
 	if(item_disabled(itemid))
 		return -1;
 	if(iclass == itype_bowandarrow)
@@ -3079,7 +3060,7 @@ void SubscrPage::move_cursor(int dir, bool item_only)
 		if(widg && widg->getType() == widgITEMSLOT
 			&& (widg->flags & SUBSCRFLAG_SELECTABLE)
 			&& !(widg->flags & SUBSCR_CURITM_NONEQP)
-			&& widg->getItemVal() > 0)
+			&& widg->getItemVal() > -1)
 			return;
 	}
 	
@@ -3156,7 +3137,7 @@ void SubscrPage::move_cursor(int dir, bool item_only)
 		oldPositions.insert(curpos);
 		
 		//Valid stop point?
-		if((widg->flags & SUBSCRFLAG_SELECTABLE) && (!item_only || widg->getItemVal()))
+		if((widg->flags & SUBSCRFLAG_SELECTABLE) && (!item_only || widg->getItemVal() > -1))
 		{
 			cursor_pos = curpos;
 			return;
@@ -3190,7 +3171,7 @@ int32_t SubscrPage::move_legacy(int dir, int startp, int fp, int fp2, int fp3, b
 			if(SubscrWidget* widg = get_widg_pos(startp))
 			{
 				if(widg->getType() == widgITEMSLOT && !(widg->flags&SUBSCR_CURITM_NONEQP)
-					&& widg->getItemVal() > 0)
+					&& widg->getItemVal() > -1)
 					return startp;
 			}
 	}
