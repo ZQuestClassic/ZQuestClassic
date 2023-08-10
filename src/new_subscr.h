@@ -340,6 +340,7 @@ protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
 
+#define SUBSCR_TIME_ALTSTR     SUBSCRFLAG_SPEC_01
 struct SW_Time : public SubscrWidget
 {
 	int32_t fontid;

@@ -553,7 +553,7 @@ int32_t SubscrWidget::write(PACKFILE *f) const
 }
 void SubscrWidget::replay_rand_compat(byte pos) const
 {
-	if((compat_flags & SUBSCRCOMPAT_FONT_RAND) && (posflags&pos))
+	if((compat_flags & SUBSCRCOMPAT_FONT_RAND) && (posflags&pos) && replay_version_check(0,19))
 		zc_oldrand();
 }
 
@@ -876,6 +876,7 @@ bool SW_Time::load_old(subscreen_object const& old)
 		&& old.type != ssoSSTIME)
 		return false;
 	SubscrWidget::load_old(old);
+	SETFLAG(flags,SUBSCR_TIME_ALTSTR,old.type == ssoBSTIME);
 	fontid = to_real_font(old.d1);
 	align = old.d2;
 	shadtype = old.d3;
@@ -931,22 +932,17 @@ void SW_Time::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) c
 {
 	char *ts;
 	auto tm = game ? game->get_time() : 0;
-	switch(type)
-	{
-		case ssoBSTIME:
-			ts = time_str_short2(tm);
-			break;
-		case ssoTIME:
-		case ssoSSTIME:
-			ts = time_str_med(tm);
-			break;
-	}
+	if(flags&SUBSCR_TIME_ALTSTR)
+		ts = time_str_short2(tm);
+	else ts = time_str_med(tm);
 	FONT* tempfont = get_zc_font(fontid);
 	textout_styled_aligned_ex(dest,tempfont,ts,x+xofs,y+yofs,
 		shadtype,align,c_text.get_color(),c_shadow.get_color(),c_bg.get_color());
 }
 bool SW_Time::visible(byte pos, bool showtime) const
 {
+	if(type && type != ssoSSTIME && replay_version_check(0,19))
+		showtime = true;
 	return showtime && SubscrWidget::visible(pos,showtime);
 }
 SubscrWidget* SW_Time::clone() const

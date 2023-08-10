@@ -555,7 +555,8 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 					Label(text = "Alignment:", hAlign = 1.0),
 					DDL_FONT(w->fontid),
 					DDL(w->shadtype, list_shadtype),
-					DDL(w->align, list_aligns)
+					DDL(w->align, list_aligns),
+					CBOX(w->flags,SUBSCR_TIME_ALTSTR,"Alt Format",2)
 				);
 				break;
 			}
