@@ -1151,7 +1151,7 @@ static void selectscreen()
 	init_NES_mode();
 	loadfullpal();
 	loadlvlpal(1);
-	Bwpn = 0, Awpn = 0; //the subsreen values
+	Bwpn = -1, Awpn = -1, Xwpn = -1, Ywpn = -1; //the subsreen values
 	clear_bitmap(scrollbuf);
 	
 	framerect(scrollbuf, 27, 51, 26*8-6, 20*8-6,0x03);

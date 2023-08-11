@@ -90,13 +90,13 @@ void dosubscr()
 	{
 		new_subscreen_active->curpage = 0;
 		auto& pg = new_subscreen_active->pages[0];
-		if(Bwpn > 0)
+		if(Bwpn > -1)
 			pg.cursor_pos = zc_max(game->bwpn,0);
-		else if(use_a && Awpn > 0)
+		else if(use_a && Awpn > -1)
 			pg.cursor_pos = zc_max(game->awpn,0);
-		else if(use_x && Xwpn > 0)
+		else if(use_x && Xwpn > -1)
 			pg.cursor_pos = zc_max(game->xwpn,0);
-		else if(use_y && Ywpn > 0)
+		else if(use_y && Ywpn > -1)
 			pg.cursor_pos = zc_max(game->ywpn,0);
 		else pg.cursor_pos = 0;
 	}

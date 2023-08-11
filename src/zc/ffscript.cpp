@@ -13819,7 +13819,7 @@ void set_register(int32_t arg, int32_t value)
 			game->bwpn = game->bwpnpg = 0;
 			game->forced_bwpn = setb;
 			game->items_off[setb] = 0;
-			directItemB = seta;
+			directItemB = setb;
 			break;
 		}
 		
@@ -13859,6 +13859,7 @@ void set_register(int32_t arg, int32_t value)
 						game->items_off[itm] = 0;
 						game->bwpn = game->bwpnpg = 0;
 						game->forced_bwpn = itm;
+						directItemB = itm;
 						break;
 					
 					case 1: //a
@@ -13866,6 +13867,7 @@ void set_register(int32_t arg, int32_t value)
 						game->items_off[itm] = 0;
 						game->awpn = game->awpnpg = 0;
 						game->forced_awpn = itm;
+						directItemA = itm;
 						break;
 					
 					case 2: //x
@@ -13873,6 +13875,7 @@ void set_register(int32_t arg, int32_t value)
 						game->items_off[itm] = 0;
 						game->xwpn = game->xwpnpg = 0;
 						game->forced_xwpn = itm;
+						directItemX = itm;
 						break;
 					
 					case 3: //y
@@ -13880,6 +13883,7 @@ void set_register(int32_t arg, int32_t value)
 						game->items_off[itm] = 0;
 						game->ywpn = game->ywpnpg = 0;
 						game->forced_ywpn = itm;
+						directItemX = itm;
 						break;
 				}
 			}
@@ -13894,6 +13898,7 @@ void set_register(int32_t arg, int32_t value)
 							game->items_off[itm] = 0;
 							game->bwpn = game->bwpnpg = 0;
 							game->forced_bwpn = itm;
+							directItemB = itm;
 							break;
 						
 						case 1: //a
@@ -13901,6 +13906,7 @@ void set_register(int32_t arg, int32_t value)
 							game->items_off[itm] = 0;
 							game->awpn = game->awpnpg = 0;
 							game->forced_awpn = itm;
+							directItemA = itm;
 							break;
 						
 						case 2: //x
@@ -13908,6 +13914,7 @@ void set_register(int32_t arg, int32_t value)
 							game->items_off[itm] = 0;
 							game->xwpn = game->xwpnpg = 0;
 							game->forced_xwpn = itm;
+							directItemX = itm;
 							break;
 						
 						case 3: //y
@@ -13915,6 +13922,7 @@ void set_register(int32_t arg, int32_t value)
 							game->items_off[itm] = 0;
 							game->ywpn = game->ywpnpg = 0;
 							game->forced_ywpn = itm;
+							directItemY = itm;
 							break;
 					}
 				}
@@ -13928,6 +13936,7 @@ void set_register(int32_t arg, int32_t value)
 						game->items_off[itm] = 0;
 						game->bwpn = game->bwpnpg = 0;
 						game->forced_bwpn = itm;
+						directItemB = itm;
 						break;
 					
 					case 1: //a
@@ -13937,6 +13946,7 @@ void set_register(int32_t arg, int32_t value)
 							game->items_off[itm] = 0;
 							game->awpn = game->awpnpg = 0;
 							game->forced_awpn = itm;
+							directItemA = itm;
 						}
 						break;
 					
@@ -13945,6 +13955,7 @@ void set_register(int32_t arg, int32_t value)
 						game->items_off[itm] = 0;
 						game->xwpn = game->xwpnpg = 0;
 						game->forced_xwpn = itm;
+						directItemX = itm;
 						break;
 					
 					case 3: //y
@@ -13952,6 +13963,7 @@ void set_register(int32_t arg, int32_t value)
 						game->items_off[itm] = 0;
 						game->ywpn = game->ywpnpg = 0;
 						game->forced_ywpn = itm;
+						directItemY = itm;
 						break;
 				}
 			}
@@ -13966,6 +13978,7 @@ void set_register(int32_t arg, int32_t value)
 							game->items_off[itm] = 0;
 							game->bwpn = game->bwpnpg = 0;
 							game->forced_bwpn = itm;
+							directItemB = itm;
 							break;
 						
 						case 1: //a
@@ -13975,6 +13988,7 @@ void set_register(int32_t arg, int32_t value)
 								game->items_off[itm] = 0;
 								game->awpn = game->awpnpg = 0;
 								game->forced_awpn = itm;
+								directItemA = itm;
 							}
 							break;
 						
@@ -13983,6 +13997,7 @@ void set_register(int32_t arg, int32_t value)
 							game->items_off[itm] = 0;
 							game->xwpn = game->xwpnpg = 0;
 							game->forced_xwpn = itm;
+							directItemX = itm;
 							break;
 						
 						case 3: //y
@@ -13990,6 +14005,7 @@ void set_register(int32_t arg, int32_t value)
 							game->items_off[itm] = 0;
 							game->ywpn = game->ywpnpg = 0;
 							game->forced_ywpn = itm;
+							directItemY = itm;
 							break;
 					}
 				}

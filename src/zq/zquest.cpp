@@ -27962,7 +27962,7 @@ static void do_copy_qst_command(const char* input_filename, const char* output_f
 	exit(ret);
 }
 
-int32_t Awpn=0, Bwpn=0, Xwpn = 0, Ywpn = 0;
+int32_t Awpn=-1, Bwpn=-1, Xwpn = -1, Ywpn = -1;
 sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations, portals;
 int32_t exittimer = 10000, exittimer2 = 100;
 
