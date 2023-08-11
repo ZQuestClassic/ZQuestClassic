@@ -55,7 +55,9 @@ void dosubscr()
     
     int32_t miny;
     bool showtime = game->should_show_time();
-	flushItemCache();
+	if(replay_version_check(0,19))
+		load_Sitems();
+	else flushItemCache();
     
     pause_sfx(WAV_BRANG);
     

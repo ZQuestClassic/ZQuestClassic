@@ -1768,7 +1768,7 @@ bool SW_CurrentItem::load_old(subscreen_object const& old)
 		return false;
 	SubscrWidget::load_old(old);
 	iclass = old.d1;
-	iid = old.d8;
+	iid = old.d8-1;
 	pos = old.d3;
 	pos_up = old.d4;
 	pos_down = old.d5;
@@ -1794,17 +1794,17 @@ byte SW_CurrentItem::getType() const
 int32_t SW_CurrentItem::getItemVal(bool display) const
 {
 #ifdef IS_PLAYER
-	if(iid > 0)
+	if(iid > -1)
 	{
 		bool select = false;
-		switch(itemsbuf[iid-1].family)
+		switch(itemsbuf[iid].family)
 		{
 			case itype_bomb:
 				if(display && get_qr(qr_NEVERDISABLEAMMOONSUBSCREEN))
 					select = true;
 				else if((game->get_bombs() ||
 						// Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
-						(itemsbuf[iid-1].misc1==0 && findWeaponWithParent(iid-1, wLitBomb))) ||
+						(itemsbuf[iid].misc1==0 && findWeaponWithParent(iid, wLitBomb))) ||
 						current_item_power(itype_bombbag))
 				{
 					select=true;
@@ -1827,7 +1827,7 @@ int32_t SW_CurrentItem::getItemVal(bool display) const
 					select = true;
 				else if((game->get_sbombs() ||
 						// Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
-						(itemsbuf[iid-1].misc1==0 && findWeaponWithParent(iid-1, wLitSBomb))) ||
+						(itemsbuf[iid].misc1==0 && findWeaponWithParent(iid, wLitSBomb))) ||
 						(current_item_power(itype_bombbag) && bombbagid>-1 && (itemsbuf[bombbagid].flags & ITEM_FLAG1)))
 				{
 					select=true;
@@ -1844,10 +1844,10 @@ int32_t SW_CurrentItem::getItemVal(bool display) const
 				select = true;
 				break;
 		}
-		if(select && !item_disabled(iid-1) && game->get_item(iid-1))
+		if(select && !item_disabled(iid) && game->get_item(iid))
 		{
-			directItem = iid-1;
-			auto ret = iid-1;
+			directItem = iid;
+			auto ret = iid;
 			if(ret>-1 && itemsbuf[ret].family == itype_arrow)
 				ret += 0xF000; //bow
 			return ret;
@@ -1920,7 +1920,7 @@ int32_t SW_CurrentItem::getItemVal(bool display) const
 		return itemid+0xF000;
 	return itemid;
 #else
-	if(iid > 0) return iid;
+	if(iid > -1) return iid;
 	int fam = iclass;
 	switch(fam)
 	{
@@ -1957,7 +1957,7 @@ void SW_CurrentItem::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& 
 	if((flags&SUBSCR_CURITM_INVIS) && !(zinit.ss_flags&ssflagSHOWINVIS))
 		return;
 	#endif
-	subscreenitem(dest, getX()+xofs,getY()+yofs, iid ? (iid|0x8000) : iclass);
+	subscreenitem(dest, getX()+xofs,getY()+yofs, iid > -1 ? (iid|0x8000) : iclass);
 }
 SubscrWidget* SW_CurrentItem::clone() const
 {
