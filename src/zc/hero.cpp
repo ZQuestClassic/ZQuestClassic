@@ -27926,23 +27926,11 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	if (freedom_in_chains_hack)
 		pfo_counter = 0;
 
-	if (secondary_axis_alignment_amount && dx)
-	{
-		// secondary_axis_alignment_amount -= new_playing_field_offset - old_original_playing_field_offset;
-	}
-
-	int align_counter = abs(secondary_axis_alignment_amount);
-	if (align_counter)
-	{
-		// pfo_counter = 0;
-		// align_counter = 0;
-		// secondary_axis_alignment_amount = 0;
-	}
-
-	// TODO z3
 	// 0 for align, then scroll.
 	// 1 for scroll, then align.
 	int align_mode = 0;
+	int align_counter = abs(secondary_axis_alignment_amount);
+	// Align first, unless that would show screens outside the old region.
 	if (align_counter)
 	{
 		viewport_t lazy_rect;
@@ -27953,15 +27941,14 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		lazy_rect.h = old_world_h;
 
 		viewport_t old_viewport_aligned = old_viewport;
-		old_viewport_aligned.x += (dy ? secondary_axis_alignment_amount : 0);
-		old_viewport_aligned.y += (dx ? secondary_axis_alignment_amount : 0);
-		// TODO z3 !! better fn
-		if (lazy_rect.intersects_with(old_viewport_aligned.x, old_viewport_aligned.y, old_viewport_aligned.w, old_viewport_aligned.h))
+		old_viewport_aligned.x -= (dy ? secondary_axis_alignment_amount : 0);
+		old_viewport_aligned.y -= (dx ? secondary_axis_alignment_amount : 0);
+		// The playing field offset is changed before aligning, so apply the delta in this check.
+		old_viewport_aligned.y += new_playing_field_offset - old_original_playing_field_offset;
+		if (lazy_rect.contains(old_viewport_aligned))
 			align_mode = 0;
 		else
-		{
 			align_mode = 1;
-		}
 	}
 
 	viewport_t initial_viewport = old_viewport;

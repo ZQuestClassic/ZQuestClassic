@@ -1796,6 +1796,11 @@ bool viewport_t::contains_point(int x0, int y0) const
 	return left() <= x0 && right() >= x0 && top() <= y0 && bottom() >= y0;
 }
 
+bool viewport_t::contains(const viewport_t& other) const
+{
+	return other.right() <= right() && other.left() >= left() && other.top() >= top() && other.bottom() <= bottom();
+}
+
 int32_t viewport_t::left() const
 {
 	return x;
