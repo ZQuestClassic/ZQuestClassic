@@ -12648,7 +12648,7 @@ void do_lens()
 				int i = itemid;
 				FFCore.reset_script_engine_data(ScriptType::Item, i);
 				ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[i].script, i);
-					did_scriptl=true;
+				did_scriptl=true;
 			}
 			
 			if (itemsbuf[itemid].magiccosttimer[0]) lensclk = itemsbuf[itemid].magiccosttimer[0];
@@ -12672,11 +12672,11 @@ void do_lens()
 	}
 	handle_lens_triggers(lensid);
 }
-//Add 2.10 version check to call this
+
 void do_210_lens()
 {
-	int32_t itemid = lensid >= 0 ? lensid : directWpn>-1 ? directWpn : current_item_id(itype_lens);
-	
+	int32_t wpnPressed = getWpnPressed(itype_lens);
+	int32_t itemid = lensid >= 0 ? lensid : wpnPressed>-1 ? wpnPressed : current_item_id(itype_lens);
 	if(itemid<0)
 		return;
 	
@@ -12701,7 +12701,7 @@ void do_210_lens()
 		}
 		
 		if (itemsbuf[itemid].magiccosttimer[0]) lensclk = itemsbuf[itemid].magiccosttimer[0];
-	else lensclk = 12;
+		else lensclk = 12;
 	}
 	else
 	{
@@ -17819,7 +17819,7 @@ bool HeroClass::premove()
 			directWpn = directItemY;
 		}
 		
-		if(directWpn > MAXITEMS) directWpn = -1;
+		if(directWpn >= MAXITEMS) directWpn = -1;
 		
 		// The Quick Sword only allows repeated sword or wand swings.
 		if((action==attacking||action==sideswimattacking) && ((attack==wSword && btnwpn!=itype_sword) || (attack==wWand && btnwpn!=itype_wand)))
