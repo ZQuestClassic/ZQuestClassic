@@ -595,7 +595,7 @@ class CLIPlayerInterface:
             exe_args.append('-headless')
         
         if args.no_console:
-            exe_args.push('-no_console')
+            exe_args.append('-no_console')
         
         # Allegro seems to be using free'd memory when shutting down the sound system.
         # For now, just disable sound in CI or when using Asan/Coverage.
@@ -1060,6 +1060,10 @@ def prompt_to_create_compare_report():
             '--test_results_folder', str(local_baseline_dir),
             *get_args_for_collect_baseline_from_test_results([test_results_path]),
         ]
+        if not args.jit:
+            command_args.append('--no-jit')
+        if args.no_console:
+            command_args.append('--no_console')
         print(f'Collecting baseline locally: {" ".join(command_args)}')
         subprocess.check_call(command_args)
         test_runs.extend(collect_many_test_results_from_dir(local_baseline_dir))
