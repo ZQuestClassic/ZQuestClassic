@@ -925,6 +925,8 @@ static GUI::ListData compatRulesList
 		"If enabled, the lens only effects one layer of the screen at maximum, using the old dropdown selection."},
 	{ "Old Engine Subscreen Quirks", qr_OLD_SUBSCR,
 		"If enabled, the subscreen behaves in a way needed for compat."},
+	{ "Item 0 is invisible on buttons", qr_ITM_0_INVIS_ON_BTNS,
+		"If enabled, Item 0 will not be drawn if equipped to a button."},
 };
 
 static GUI::ListData enemiesRulesList
