@@ -27887,7 +27887,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	int no_move = 0;
 	int move_counter = 0;
 	int align_counter = abs(secondary_axis_alignment_amount);
-	int playing_field_offset_counter = abs(new_playing_field_offset - old_playing_field_offset);
 	bool end_frames = false;
 
 	scroll_counter *= delay;
@@ -27896,6 +27895,14 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	// 0 for align, then scroll.
 	// 1 for scroll, then align.
 	int align_mode = 1;
+
+	// 0 for change playing field offset, then scroll.
+	// 1 for scroll, then change playing field offset.
+	// Prefer changing the playing field offset first then scrolling, except for
+	// when the new region has a large viewport than the old one AND moving down. That scenario can't change the
+	// playing field offset first because it would have to show portions of the screen above the old one, which is bad.
+	int pfo_mode = dy == 1 && sign(new_playing_field_offset - old_playing_field_offset) == -1 ? 1 : 0;
+	int pfo_counter = abs(new_playing_field_offset - old_playing_field_offset);
 
 	viewport_t initial_viewport = old_viewport;
 	// initial_viewport.h = std::max(old_viewport.h, new_viewport.h);
@@ -27933,7 +27940,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	});
 
 	currdmap = new_dmap;
-	for(word i = 0; (scroll_counter >= 0 && delay != 0) || align_counter; i++, scroll_counter--) //Go!
+	for(word i = 0; (scroll_counter >= 0 && delay != 0) || align_counter || pfo_counter; i++, scroll_counter--) //Go!
 	{
 		if (replay_version_check(0, 3))
 		{
@@ -27965,7 +27972,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			no_move--;
 			
 		//Don't want to move things on the first or last iteration, or between delays, or while aligning, or while adjusting playing field offset
-		if(i == 0 || scroll_counter == 0 || scroll_counter % delay != 0 || (align_mode == 0 && align_counter) || playing_field_offset_counter)
+		if(i == 0 || scroll_counter == 0 || scroll_counter % delay != 0 || (align_mode == 0 && align_counter) || (pfo_mode == 0 && pfo_counter))
 			no_move++;
 
 		if(scrolldir == up || scrolldir == down)
@@ -28008,21 +28015,36 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			}
 		}
 
-		if (playing_field_offset_counter)
+		if (pfo_mode == 0)
 		{
-			playing_field_offset_counter = MAX(0, playing_field_offset_counter - 4);
-			if (playing_field_offset_counter)
-				scroll_counter++;
+			if (pfo_counter > 0)
+			{
+				pfo_counter = MAX(0, pfo_counter - 4);
+				if (pfo_counter)
+					scroll_counter++;
+			}
+		}
+		else
+		{
+			if (pfo_counter > 0 && !(scroll_counter >= 0 && delay != 0))
+			{
+				pfo_counter = MAX(0, pfo_counter - 4);
+				no_move = 1;
+			}
+		}
 
+		if (pfo_counter > 0)
+		{
 			int dpfo = sign(new_playing_field_offset - old_playing_field_offset);
-			playing_field_offset = new_playing_field_offset - playing_field_offset_counter * dpfo;
+			playing_field_offset = new_playing_field_offset - pfo_counter * dpfo;
 
-
-			if (dpfo >= 1 && dy == 1)
-				viewport.y = initial_viewport.y + playing_field_offset - old_playing_field_offset;
+			// if (pfo_mode == 0 && dpfo >= 1 && dy == 1)
+//				viewport.y = initial_viewport.y + (playing_field_offset - old_playing_field_offset) * dpfo;
+			if (pfo_mode == 0)
+				viewport.y = initial_viewport.y + step * move_counter * dy + (playing_field_offset - old_playing_field_offset);
 			// int pfo_delta = new_playing_field_offset - old_playing_field_offset;
 			// playing_field_offset = old_playing_field_offset +
-			// 	(playing_field_offset_counter - std::abs(pfo_delta)) * sign(pfo_delta);
+			// 	(pfo_counter - std::abs(pfo_delta)) * sign(pfo_delta);
 			viewport.h = 232 - playing_field_offset;
 		}
 
@@ -28054,7 +28076,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			move_counter++;
 			{
 				viewport.x = initial_viewport.x + step * move_counter * dx;
-				viewport.y = initial_viewport.y + step * move_counter * dy;// + playing_field_offset - old_playing_field_offset;
+				viewport.y = initial_viewport.y + step * move_counter * dy + playing_field_offset - old_playing_field_offset;
 
 
 				// int vertical_amount = step * move_counter;
