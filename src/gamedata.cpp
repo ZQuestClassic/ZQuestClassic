@@ -143,8 +143,7 @@ void gamedata::set_counter(word change, byte c)
 	if(c>=MAX_COUNTERS)  // Sanity check
 		return;
 	
-	if(replay_version_check(0,19))
-		flushItemCache(true);
+	flushItemCache(true);
 	
 	if(game!=NULL)
 	{
@@ -170,8 +169,7 @@ void gamedata::change_counter(int16_t change, byte c)
 	if(c>=MAX_COUNTERS)  // Sanity check
 		return;
 	
-	if(replay_version_check(0,19))
-		flushItemCache(true);
+	flushItemCache(true);
 		
 	if(game!=NULL)
 	{
