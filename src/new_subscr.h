@@ -10,6 +10,8 @@
 struct SubscrPage;
 struct PACKFILE;
 
+#define NEG_OR_MASK(v,mask) (v < 0 ? v : (v&mask))
+
 //Old subscreen stuff
 struct subscreen_object
 {

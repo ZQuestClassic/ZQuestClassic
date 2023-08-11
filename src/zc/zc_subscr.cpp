@@ -220,7 +220,7 @@ void dosubscr()
 					
 					game->bwpn = pg.cursor_pos;
 					game->bwpnpg = new_subscreen_active->curpage;
-					directItemB = directItem;
+					directItemB = eqwpn;
 				}
 				else if(use_a && rAbtn())
 				{
@@ -252,7 +252,7 @@ void dosubscr()
 					game->awpn = pg.cursor_pos;
 					game->awpnpg = new_subscreen_active->curpage;
 					game->forced_awpn = -1; //clear forced if the item is selected using the actual subscreen
-					directItemA = directItem;
+					directItemA = eqwpn;
 				}
 				else if(use_x && rEx1btn())
 				{
@@ -284,7 +284,7 @@ void dosubscr()
 					game->xwpn = pg.cursor_pos;
 					game->xwpnpg = new_subscreen_active->curpage;
 					game->forced_xwpn = -1; //clear forced if the item is selected using the actual subscreen
-					directItemX = directItem;
+					directItemX = eqwpn;
 				}
 				else if(use_y && rEx2btn())
 				{
@@ -316,7 +316,7 @@ void dosubscr()
 					game->ywpn = pg.cursor_pos;
 					game->ywpnpg = new_subscreen_active->curpage;
 					game->forced_ywpn = -1; //clear forced if the item is selected using the actual subscreen
-					directItemY = directItem;
+					directItemY = eqwpn;
 				}
 			}
 		}
