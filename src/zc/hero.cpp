@@ -27688,6 +27688,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 
 	loadscr(destdmap, destscr, scrolldir, overlay);
 	mapscr* newscr = get_scr(destmap, destscr);
+	// TODO Z3 !!!!!!
 	scrolling_extended_height = old_extended_height_mode || is_extended_height_mode();
 	// TODO z3
 	int new_playing_field_offset = playing_field_offset;
@@ -27886,6 +27887,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	int no_move = 0;
 	int move_counter = 0;
 	int align_counter = abs(secondary_axis_alignment_amount);
+	int playing_field_offset_counter = abs(new_playing_field_offset - old_playing_field_offset);
 	bool end_frames = false;
 
 	scroll_counter *= delay;
@@ -27896,7 +27898,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	int align_mode = 1;
 
 	viewport_t initial_viewport = old_viewport;
-	initial_viewport.h = std::max(old_viewport.h, new_viewport.h);
+	// initial_viewport.h = std::max(old_viewport.h, new_viewport.h);
 	viewport = initial_viewport;
 	if (is_unsmooth_vertical_scrolling) viewport.y += 3;
 
@@ -27962,8 +27964,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		if(no_move > 0)
 			no_move--;
 			
-		//Don't want to move things on the first or last iteration, or between delays, or while aligning
-		if(i == 0 || scroll_counter == 0 || scroll_counter % delay != 0 || (align_mode == 0 && align_counter))
+		//Don't want to move things on the first or last iteration, or between delays, or while aligning, or while adjusting playing field offset
+		if(i == 0 || scroll_counter == 0 || scroll_counter % delay != 0 || (align_mode == 0 && align_counter) || playing_field_offset_counter)
 			no_move++;
 
 		if(scrolldir == up || scrolldir == down)
@@ -28006,6 +28008,24 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			}
 		}
 
+		if (playing_field_offset_counter)
+		{
+			playing_field_offset_counter = MAX(0, playing_field_offset_counter - 4);
+			if (playing_field_offset_counter)
+				scroll_counter++;
+
+			int dpfo = sign(new_playing_field_offset - old_playing_field_offset);
+			playing_field_offset = new_playing_field_offset - playing_field_offset_counter * dpfo;
+
+
+			if (dpfo >= 1 && dy == 1)
+				viewport.y = initial_viewport.y + playing_field_offset - old_playing_field_offset;
+			// int pfo_delta = new_playing_field_offset - old_playing_field_offset;
+			// playing_field_offset = old_playing_field_offset +
+			// 	(playing_field_offset_counter - std::abs(pfo_delta)) * sign(pfo_delta);
+			viewport.h = 232 - playing_field_offset;
+		}
+
 		if(!no_move)
 		{
 			switch(scrolldir)
@@ -28032,8 +28052,68 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			}
 
 			move_counter++;
-			viewport.x = initial_viewport.x + step * move_counter * dx;
-			viewport.y = initial_viewport.y + step * move_counter * dy;
+			{
+				viewport.x = initial_viewport.x + step * move_counter * dx;
+				viewport.y = initial_viewport.y + step * move_counter * dy;// + playing_field_offset - old_playing_field_offset;
+
+
+				// int vertical_amount = step * move_counter;
+				// int y_delta = std::min(step * move_counter, initial_viewport.h);
+				// vertical_amount -= y_delta;
+
+				// viewport.y = initial_viewport.y + y_delta * dy;
+
+				// Viewport height changes only towards the end of the scroll.
+				// int y = step * move_counter;
+				// int y_delta = std::min(new_viewport.h, y);
+				// viewport.y = initial_viewport.y + y_delta * dy;
+				// viewport.h = initial_viewport.h + (y - y_delta) * dy;
+
+				// playing_field_offset = std::clamp(playing_field_offset,
+				// 	new_playing_field_offset - viewport.y,
+				// 	new_playing_field_offset + viewport.y);
+				// playing_field_offset = playing_field_offset;
+
+				// int vy_new_region = viewport.y - new_region_offset_y;
+
+				// int dvh = 0;
+				// if (new_playing_field_offset > old_original_playing_field_offset) dvh = 1;
+				// if (new_playing_field_offset < old_original_playing_field_offset) dvh = -1;
+
+				// int pfo_change = std::abs(new_playing_field_offset - old_playing_field_offset);
+				// playing_field_offset = old_playing_field_offset + std::min(move_counter, pfo_change) * dvh;
+
+
+				// playing_field_offset = std::max(0, new_playing_field_offset - (viewport.y + new_viewport.h));
+				// viewport.h = 232 - playing_field_offset;
+
+
+
+
+
+
+
+				// if (playing_field_offset < new_playing_field_offset - vy_new_region)
+				// {
+				// 	playing_field_offset = new_playing_field_offset - vy_new_region;
+				// }
+
+				// int dvh = 0;
+				// if (new_playing_field_offset > old_original_playing_field_offset) dvh = 1;
+				// if (new_playing_field_offset < old_original_playing_field_offset) dvh = -1;
+				// playing_field_offset = old_playing_field_offset + step * move_counter * dvh;
+				// playing_field_offset = std::clamp(playing_field_offset,
+				// 	std::min(old_playing_field_offset, new_playing_field_offset),
+				// 	std::max(old_playing_field_offset, new_playing_field_offset));
+
+				// if (step * move_counter >= new_viewport.h)
+				// {
+				// 	int dvh = 0;
+				// 	if (new_playing_field_offset > old_original_playing_field_offset) dvh = 1;
+				// 	if (new_playing_field_offset < old_original_playing_field_offset) dvh = -1;
+				// 	playing_field_offset = std::min(new_playing_field_offset - old_original_playing_field_offset, dvh * (step * move_counter - new_viewport.h));
+				// }
+			}
 			
 			//bound Hero when me move him off the screen in the last couple of frames of scrolling
 			if(script_hero_y > old_viewport.y + old_viewport.h - 16) script_hero_y = old_viewport.y + old_viewport.h - 16;
@@ -28043,7 +28123,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 
 			// This is the only thing that moves the hero.
 			x.doClamp(viewport.x, viewport.x + viewport.w - 16);
-			int bounds_y = viewport.y + old_viewport.h - new_viewport.h;
+			// int bounds_y = viewport.y + playing_field_offset;
+			int bounds_y = viewport.y;
 			y.doClamp(bounds_y, bounds_y + viewport.h - 16);
 
 			if (is_unsmooth_vertical_scrolling) viewport.y += 3;
@@ -28221,8 +28302,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		if (is_unsmooth_vertical_scrolling) combotile_add_y -= 3;
 		for_every_nearby_screen_during_scroll(old_temporary_screens, [&](std::array<screen_handle_t, 7> screen_handles, int scr, int draw_dx, int draw_dy, bool is_new_screen) {
 			int offx = draw_dx * 256;
-			// TODO z3 !
-			int offy = draw_dy * 176 + (scrolling_extended_height ? playing_field_offset : 0);
+			int offy = draw_dy * 176;
 			putscr(scrollbuf, offx, offy, screen_handles[0].screen);
 		});
 		combotile_add_x = 0;
@@ -28230,7 +28310,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 
 		// Minus 8 because half of the bottom row is not visible.
 		// TODO z3 ?
-		int mapscr_view_y = region_scrolling ? (scrolling_extended_height ? 0 : 56) : playing_field_offset;
+		int mapscr_view_y = playing_field_offset;
 		int mapscr_view_height = viewport.h - 8;
 		blit(scrollbuf, framebuf, 0, 0, 0, mapscr_view_y, viewport.w, mapscr_view_height);
 		do_primitives(framebuf, 0, newscr, 0, playing_field_offset);
@@ -28287,8 +28367,10 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		if (!align_counter || scroll_counter) herostep();
 		
 		{
+			// Must draw with old-region coordinates.
 			auto prev_y = y;
-			y += new_viewport.h - old_viewport.h;
+			auto prev_yofs = yofs;
+			yofs = playing_field_offset;
 			if (is_unsmooth_vertical_scrolling) y += 3;
 
 			if((z > 0 || fakez > 0) && (!get_qr(qr_SHADOWSFLICKER) || frame&1))
@@ -28305,6 +28387,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			}
 
 			y = prev_y;
+			yofs = prev_yofs;
 		}
 		
 		for_every_nearby_screen_during_scroll(old_temporary_screens, [&](std::array<screen_handle_t, 7> screen_handles, int scr, int draw_dx, int draw_dy, bool is_new_screen) {
@@ -28417,9 +28500,13 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	clear_bitmap(msg_portrait_display_buf);
 	set_clip_state(msg_portrait_display_buf, 1);
 
+	new_region_offset_x = 0;
+	new_region_offset_y = 0;
 	viewport = new_viewport;
+	playing_field_offset = new_playing_field_offset;
 	x = new_hero_x;
 	y = new_hero_y;
+	yofs = playing_field_offset;
 	if(ladderx > 0 || laddery > 0)
 	{
 		// If the ladder moves on both axes, the player can

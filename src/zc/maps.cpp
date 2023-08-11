@@ -5680,7 +5680,7 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 	// - drawing offsets for various calls to overtile16 (see bomb weapon explosion)
 	// - lots
 	//
-	// TODO z3 maybe instead- make yofs start as 0 by default, and add playing_field_offset at draw time?
+	// TODO z3 !!! maybe instead- make yofs start as 0 by default, and add playing_field_offset at draw time?
 	if (is_extended_height_mode())
 	{
 		playing_field_offset = 0;
