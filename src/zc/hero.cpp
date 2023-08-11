@@ -187,34 +187,34 @@ int32_t refreshActiveShield()
 	int32_t id = -1;
     if(DrunkcBbtn())
 	{
-		itemdata const& dat = itemsbuf[Bwpn&0xFFF];
+		itemdata const& dat = itemsbuf[NEG_OR_MASK(Bwpn,0xFFF)];
 		if(dat.family == itype_shield && (dat.flags & ITEM_FLAG9))
 		{
-			id = Bwpn&0xFFF;
+			id = NEG_OR_MASK(Bwpn,0xFFF);
 		}
 	}
     if(id < 0 && DrunkcAbtn())
 	{
-		itemdata const& dat = itemsbuf[Awpn&0xFFF];
+		itemdata const& dat = itemsbuf[NEG_OR_MASK(Awpn,0xFFF)];
 		if(dat.family == itype_shield && (dat.flags & ITEM_FLAG9))
 		{
-			id = Awpn&0xFFF;
+			id = NEG_OR_MASK(Awpn,0xFFF);
 		}
 	}
     if(id < 0 && DrunkcEx1btn())
 	{
-		itemdata const& dat = itemsbuf[Xwpn&0xFFF];
+		itemdata const& dat = itemsbuf[NEG_OR_MASK(Xwpn,0xFFF)];
 		if(dat.family == itype_shield && (dat.flags & ITEM_FLAG9))
 		{
-			id = Xwpn&0xFFF;
+			id = NEG_OR_MASK(Xwpn,0xFFF);
 		}
 	}
     if(id < 0 && DrunkcEx2btn())
 	{
-		itemdata const& dat = itemsbuf[Ywpn&0xFFF];
+		itemdata const& dat = itemsbuf[NEG_OR_MASK(Ywpn,0xFFF)];
 		if(dat.family == itype_shield && (dat.flags & ITEM_FLAG9))
 		{
-			id = Ywpn&0xFFF;
+			id = NEG_OR_MASK(Ywpn,0xFFF);
 		}
 	}
 	if(!usingActiveShield(id))
@@ -10150,7 +10150,7 @@ void HeroClass::deselectbombs(int32_t super)
 			return;
         int32_t temp = pg->move_legacy(SEL_VERIFY_LEFT, game->bwpn, game->awpn, get_qr(qr_SET_XBUTTON_ITEMS) ? game->xwpn : -1, get_qr(qr_SET_YBUTTON_ITEMS) ? game->ywpn : -1);
         Bwpn = pg->get_item_pos(temp);
-        directItemB = directItem;
+        directItemB = NEG_OR_MASK(Bwpn,0xFFF);
         game->bwpn = temp;
     }
     
@@ -10160,7 +10160,7 @@ void HeroClass::deselectbombs(int32_t super)
 			return;
         int32_t temp = pg->move_legacy(SEL_VERIFY_LEFT, game->xwpn, game->bwpn, game->awpn, get_qr(qr_SET_YBUTTON_ITEMS) ? game->ywpn : -1);
         Xwpn = pg->get_item_pos(temp);
-        directItemX = directItem;
+        directItemX = NEG_OR_MASK(Xwpn,0xFFF);
         game->xwpn = temp;
     }
     else if (getItemFamily(itemsbuf,Ywpn)==(super? itype_sbomb : itype_bomb) && (directWpn<0 || Ywpn==directWpn))
@@ -10169,7 +10169,7 @@ void HeroClass::deselectbombs(int32_t super)
 			return;
         int32_t temp = pg->move_legacy(SEL_VERIFY_LEFT, game->ywpn, game->bwpn, get_qr(qr_SET_XBUTTON_ITEMS) ? game->xwpn : -1, game->awpn);
         Ywpn = pg->get_item_pos(temp);
-        directItemY = directItem;
+        directItemY = NEG_OR_MASK(Ywpn,0xFFF);
         game->ywpn = temp;
     }
     else
@@ -10178,7 +10178,7 @@ void HeroClass::deselectbombs(int32_t super)
 			return;
         int32_t temp = pg->move_legacy(SEL_VERIFY_LEFT, game->awpn, game->bwpn, get_qr(qr_SET_XBUTTON_ITEMS) ? game->xwpn : -1, get_qr(qr_SET_YBUTTON_ITEMS) ? game->ywpn : -1);
         Awpn = pg->get_item_pos(temp);
-        directItemA = directItem;
+        directItemA = NEG_OR_MASK(Awpn,0xFFF);
         game->awpn = temp;
     }
 }
@@ -13803,29 +13803,29 @@ void HeroClass::moveheroOld()
 		if(DrunkrBbtn())
 		{
 			btnwpn=getItemFamily(itemsbuf,Bwpn);
-			dowpn = Bwpn&0xFFF;
+			dowpn = NEG_OR_MASK(Bwpn,0xFFF);
 			directWpn = directItemB;
 		}
 		else if(DrunkrAbtn())
 		{
 			btnwpn=getItemFamily(itemsbuf,Awpn);
-			dowpn = Awpn&0xFFF;
+			dowpn = NEG_OR_MASK(Awpn,0xFFF);
 			directWpn = directItemA;
 		}
 		else if(get_qr(qr_SET_XBUTTON_ITEMS) && DrunkrEx1btn())
 		{
 			btnwpn=getItemFamily(itemsbuf,Xwpn);
-			dowpn = Xwpn&0xFFF;
+			dowpn = NEG_OR_MASK(Xwpn,0xFFF);
 			directWpn = directItemX;
 		}
 		else if(get_qr(qr_SET_YBUTTON_ITEMS) && DrunkrEx2btn())
 		{
 			btnwpn=getItemFamily(itemsbuf,Ywpn);
-			dowpn = Ywpn&0xFFF;
+			dowpn = NEG_OR_MASK(Ywpn,0xFFF);
 			directWpn = directItemY;
 		}
 		
-		if(directWpn > 255) directWpn = 0;
+		if(directWpn >= MAXITEMS) directWpn = -1;
 		
 		// The Quick Sword only allows repeated sword or wand swings.
 		if((action==attacking||action==sideswimattacking) && ((attack==wSword && btnwpn!=itype_sword) || (attack==wWand && btnwpn!=itype_wand)))
@@ -17797,25 +17797,25 @@ bool HeroClass::premove()
 		if(DrunkrBbtn())
 		{
 			btnwpn=getItemFamily(itemsbuf,Bwpn);
-			dowpn = Bwpn&0xFFF;
+			dowpn = NEG_OR_MASK(Bwpn,0xFFF);
 			directWpn = directItemB;
 		}
 		else if(DrunkrAbtn())
 		{
 			btnwpn=getItemFamily(itemsbuf,Awpn);
-			dowpn = Awpn&0xFFF;
+			dowpn = NEG_OR_MASK(Awpn,0xFFF);
 			directWpn = directItemA;
 		}
 		else if(get_qr(qr_SET_XBUTTON_ITEMS) && DrunkrEx1btn())
 		{
 			btnwpn=getItemFamily(itemsbuf,Xwpn);
-			dowpn = Xwpn&0xFFF;
+			dowpn = NEG_OR_MASK(Xwpn,0xFFF);
 			directWpn = directItemX;
 		}
 		else if(get_qr(qr_SET_YBUTTON_ITEMS) && DrunkrEx2btn())
 		{
 			btnwpn=getItemFamily(itemsbuf,Ywpn);
-			dowpn = Ywpn&0xFFF;
+			dowpn = NEG_OR_MASK(Ywpn,0xFFF);
 			directWpn = directItemY;
 		}
 		
@@ -28533,10 +28533,10 @@ int32_t getRocsPressed()
 
 bool isItmPressed(int32_t itmid)
 {
-    if(itmid==(Bwpn&0xFFF) && DrunkcBbtn()) return true;
-    if(itmid==(Awpn&0xFFF) && DrunkcAbtn()) return true;
-    if(itmid==(Xwpn&0xFFF) && DrunkcEx1btn()) return true;
-    if(itmid==(Ywpn&0xFFF) && DrunkcEx2btn()) return true;
+    if(itmid==(NEG_OR_MASK(Bwpn,0xFFF)) && DrunkcBbtn()) return true;
+    if(itmid==(NEG_OR_MASK(Awpn,0xFFF)) && DrunkcAbtn()) return true;
+    if(itmid==(NEG_OR_MASK(Xwpn,0xFFF)) && DrunkcEx1btn()) return true;
+    if(itmid==(NEG_OR_MASK(Ywpn,0xFFF)) && DrunkcEx2btn()) return true;
     return false;
 }
 
@@ -28549,10 +28549,9 @@ void selectNextAWpn(int32_t type)
 	SubscrPage* pg = new_subscreen_active->get_page(game->awpnpg);
 	if(!pg)
 		return;
-        
     int32_t ret = pg->move_legacy(type, game->awpn, game->bwpn, get_qr(qr_SET_XBUTTON_ITEMS) ? game->xwpn : -1, get_qr(qr_SET_YBUTTON_ITEMS) ? game->ywpn : -1);
     Awpn = pg->get_item_pos(ret);
-    directItemA = directItem;
+    directItemA = NEG_OR_MASK(Awpn,0xFFF);
     game->awpn = ret;
 }
 
@@ -28565,7 +28564,7 @@ void selectNextBWpn(int32_t type)
 		return;
 	int32_t ret = pg->move_legacy(type, game->bwpn, game->awpn, get_qr(qr_SET_XBUTTON_ITEMS) ? game->xwpn : -1, get_qr(qr_SET_YBUTTON_ITEMS) ? game->ywpn : -1);
 	Bwpn = pg->get_item_pos(ret);
-	directItemB = directItem;
+	directItemB = NEG_OR_MASK(Bwpn,0xFFF);
 	game->bwpn = ret;
 }
 
@@ -28579,7 +28578,7 @@ void selectNextXWpn(int32_t type)
 		return;
 	int32_t ret = pg->move_legacy(type, game->xwpn, game->awpn, game->bwpn, get_qr(qr_SET_YBUTTON_ITEMS) ? game->ywpn : -1);
 	Xwpn = pg->get_item_pos(ret);
-	directItemX = directItem;
+	directItemX = NEG_OR_MASK(Xwpn,0xFFF);
 	game->xwpn = ret;
 }
 
@@ -28593,7 +28592,7 @@ void selectNextYWpn(int32_t type)
 		return;
 	int32_t ret = pg->move_legacy(type, game->ywpn, game->awpn, game->bwpn, get_qr(qr_SET_XBUTTON_ITEMS) ? game->xwpn : -1);
 	Ywpn = pg->get_item_pos(ret);
-	directItemY = directItem;
+	directItemY = NEG_OR_MASK(Ywpn,0xFFF);
 	game->ywpn = ret;
 }
 
@@ -28615,7 +28614,7 @@ void verifyAWpn()
 			return;
         game->awpn = pg->move_legacy(SEL_VERIFY_RIGHT, game->awpn, game->bwpn, game->xwpn, game->ywpn);
         Awpn = pg->get_item_pos(game->awpn);
-        directItemA = directItem;
+        directItemA = NEG_OR_MASK(Awpn,0xFFF);
     }
 }
 
@@ -28630,7 +28629,7 @@ void verifyBWpn()
 		return;
     game->bwpn = pg->move_legacy(SEL_VERIFY_RIGHT, game->bwpn, game->awpn, game->xwpn, game->ywpn);
     Bwpn = pg->get_item_pos(game->bwpn);
-    directItemB = directItem;
+    directItemB = NEG_OR_MASK(Bwpn,0xFFF);
 }
 
 void verifyXWpn()
@@ -28646,7 +28645,7 @@ void verifyXWpn()
 		game->xwpn = pg->move_legacy(SEL_VERIFY_RIGHT, game->xwpn, game->awpn, game->bwpn, game->ywpn);
 	else game->xwpn = -1;
     Xwpn = pg->get_item_pos(game->xwpn);
-    directItemX = directItem;
+    directItemX = NEG_OR_MASK(Xwpn,0xFFF);
 }
 
 void verifyYWpn()
@@ -28662,7 +28661,7 @@ void verifyYWpn()
 		game->ywpn = pg->move_legacy(SEL_VERIFY_RIGHT, game->ywpn, game->awpn, game->xwpn, game->bwpn);
 	else game->ywpn = -1;
     Ywpn = pg->get_item_pos(game->ywpn);
-    directItemY = directItem;
+    directItemY = NEG_OR_MASK(Ywpn,0xFFF);
 }
 
 void verifyBothWeapons()
