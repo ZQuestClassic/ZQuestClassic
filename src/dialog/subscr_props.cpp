@@ -644,10 +644,10 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 					DropDownList(data = list_items,
 						fitParent = true,
 						forceFitW = true,
-						selectedValue = w->iid-1,
+						selectedValue = w->iid,
 						onSelectFunc = [=](int32_t val)
 						{
-							w->iid = val+1;
+							w->iid = val;
 							ddl->setDisabled(val > -1);
 							labels[0]->setDisabled(val > -1);
 						}

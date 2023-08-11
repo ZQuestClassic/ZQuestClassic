@@ -3143,7 +3143,7 @@ INLINE void SCRFIX()
 //INLINE int32_t new_return(int32_t x) { fake_pack_writing=false; return x; }
 #define new_return(x) {assert(x == 0); fake_pack_writing = false; return x; }
 
-extern void flushItemCache();
+extern void flushItemCache(bool justcost = false);
 extern void removeFromItemCache(int32_t itemclass);
 
 #define GLOBAL_SCRIPT_INIT 			0

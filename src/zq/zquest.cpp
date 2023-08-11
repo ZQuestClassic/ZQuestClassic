@@ -30573,7 +30573,7 @@ void check_autosave()
     }
 }
 
-void flushItemCache() {}
+void flushItemCache(bool) {}
 void ringcolor(bool forceDefault)
 {
     forceDefault=forceDefault;
