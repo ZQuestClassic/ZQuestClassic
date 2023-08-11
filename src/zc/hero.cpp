@@ -27694,6 +27694,13 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 
 	loadscr(destdmap, destscr, scrolldir, overlay);
 
+	mapscr* newscr = get_scr(destmap, destscr);
+	// TODO Z3 !!!!!!
+	scrolling_extended_height = old_extended_height_mode || is_extended_height_mode();
+	// TODO z3
+	int new_playing_field_offset = playing_field_offset;
+	playing_field_offset = old_original_playing_field_offset;
+
 	// Old scrolling code maintained the previous playing field offset exactly, which only mattered
 	// if during a quake. Just a couple replays show this behavior. It actually looks bad and messes up
 	// the passive subscreen during the entire scroll, but for now let's not update them.
@@ -27702,28 +27709,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	{
 		freedom_in_chains_hack = true;
 		playing_field_offset = old_playing_field_offset;
-		// Suppress playing field offset change.
-		old_original_playing_field_offset = old_playing_field_offset;
-		// new_playing_field_offset = old_playing_field_offset;
 	}
-
-	mapscr* newscr = get_scr(destmap, destscr);
-	// TODO Z3 !!!!!!
-	scrolling_extended_height = old_extended_height_mode || is_extended_height_mode();
-	// TODO z3
-	int new_playing_field_offset = playing_field_offset;
-	playing_field_offset = old_original_playing_field_offset;
-
-	// // Old scrolling code maintained the previous playing field offset exactly, which only mattered
-	// // if during a quake. Just one of our replays shows this behavior. It actually looks bad and messes up
-	// // the passive subscreen during the entire scroll, but for now let's not update the replay.
-	// if (replay_is_active() && replay_get_meta_str("qst") == "freedom_in_chains.qst")
-	// {
-	// 	playing_field_offset = old_playing_field_offset;
-	// 	// Suppress playing field offset change.
-	// 	// old_original_playing_field_offset = old_playing_field_offset;
-	// 	// new_playing_field_offset = old_playing_field_offset;
-	// }
 
 	// TODO z3 !!!!! rm dupe
 	// We must recalculate the new hero position and viewport, if a script run above just change the hero position.
@@ -27937,6 +27923,9 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		pfo_mode = 1;
 	int pfo_counter = abs(new_playing_field_offset - old_original_playing_field_offset);
 
+	if (freedom_in_chains_hack)
+		pfo_counter = 0;
+
 	if (secondary_axis_alignment_amount && dx)
 	{
 		// secondary_axis_alignment_amount -= new_playing_field_offset - old_original_playing_field_offset;
@@ -27957,18 +27946,21 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	if (align_counter)
 	{
 		viewport_t lazy_rect;
+		lazy_rect.yofs = 0;
 		lazy_rect.x = 0;
 		lazy_rect.y = 0;
 		lazy_rect.w = old_world_w;
 		lazy_rect.h = old_world_h;
-		int px = old_viewport.x + (dy ? secondary_axis_alignment_amount : 0);
-		int py = old_viewport.y + (dx ? secondary_axis_alignment_amount : 0);
-		if (lazy_rect.contains_point(px, py))
+
+		viewport_t old_viewport_aligned = old_viewport;
+		old_viewport_aligned.x += (dy ? secondary_axis_alignment_amount : 0);
+		old_viewport_aligned.y += (dx ? secondary_axis_alignment_amount : 0);
+		// TODO z3 !! better fn
+		if (lazy_rect.intersects_with(old_viewport_aligned.x, old_viewport_aligned.y, old_viewport_aligned.w, old_viewport_aligned.h))
 			align_mode = 0;
 		else
 		{
 			align_mode = 1;
-			// pfo_mode = 1;
 		}
 	}
 
@@ -28148,6 +28140,9 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			{
 				viewport.x = initial_viewport.x + step * move_counter * dx;
 				viewport.y = initial_viewport.y + step * move_counter * dy + playing_field_offset - old_original_playing_field_offset;
+				// lol
+				if (freedom_in_chains_hack)
+					viewport.y -= playing_field_offset - old_original_playing_field_offset;
 
 
 				// int vertical_amount = step * move_counter;
@@ -28615,7 +28610,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	new_region_offset_x = 0;
 	new_region_offset_y = 0;
 	viewport = new_viewport;
-	playing_field_offset = new_playing_field_offset;
+	if (!freedom_in_chains_hack)
+		playing_field_offset = new_playing_field_offset;
 	x = new_hero_x;
 	y = new_hero_y;
 	if (!freedom_in_chains_hack)
@@ -28633,7 +28629,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	// TODO z3 ! rm. really should separate quake draw offset from playing field offset.
 	if (scrolling_extended_height)
 		playing_field_offset = is_extended_height_mode() ? 0 : 56;
-	else
+	else if (!freedom_in_chains_hack)
 		playing_field_offset = old_original_playing_field_offset;
 
 	//Move hero to the other side of the screen if scrolling's not turned on
