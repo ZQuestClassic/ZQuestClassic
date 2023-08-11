@@ -26917,6 +26917,9 @@ void HeroClass::run_scrolling_script(int32_t scrolldir, int32_t cx, int32_t sx, 
 		break;
 	}
 
+	// x += 
+	// y += playing_field_offset;
+
 	viewport.x -= new_region_offset_x;
 	viewport.y -= new_region_offset_y;
 
@@ -27898,10 +27901,15 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 
 	// 0 for change playing field offset, then scroll.
 	// 1 for scroll, then change playing field offset.
-	// Prefer changing the playing field offset first then scrolling, except for
-	// when the new region has a large viewport than the old one AND moving down. That scenario can't change the
+	// Prefer changing the playing field offset first then scrolling...
+	int pfo_mode = 0;
+	// ... except for when the new region has a larger viewport than the old one AND moving down. That scenario can't change the
 	// playing field offset first because it would have to show portions of the screen above the old one, which is bad.
-	int pfo_mode = dy == 1 && sign(new_playing_field_offset - old_playing_field_offset) == -1 ? 1 : 0;
+	if (dy == 1 && sign(new_playing_field_offset - old_playing_field_offset) == -1)
+		pfo_mode = 1;
+	// ... or for the inverse.
+	if (dy == -1 && sign(new_playing_field_offset - old_playing_field_offset) == 1)
+		pfo_mode = 1;
 	int pfo_counter = abs(new_playing_field_offset - old_playing_field_offset);
 
 	viewport_t initial_viewport = old_viewport;
@@ -27989,7 +27997,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			else
 			{
 				//4 frames after we've finished scrolling of being still
-				if(scroll_counter == 0 && !end_frames)
+				if (scroll_counter == 0 && pfo_counter == 0 && !end_frames)
 				{
 					scroll_counter += 4;
 					no_move += 4;
@@ -28272,6 +28280,9 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			else                                      viewport.y = initial_viewport.y + delta;
 		}
 
+		// if (pfo_mode == 0)
+		// 	viewport.y = initial_viewport.y + step * move_counter * dy + (playing_field_offset - old_playing_field_offset);
+
 		FFCore.ScrollingData[SCROLLDATA_NX] = nx - viewport.x;
 		FFCore.ScrollingData[SCROLLDATA_NY] = ny - viewport.y;
 		FFCore.ScrollingData[SCROLLDATA_OX] = ox - viewport.x;
@@ -28280,6 +28291,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		FFCore.ScrollingData[SCROLLDATA_NRY] = new_region_offset_y - viewport.y;
 		FFCore.ScrollingData[SCROLLDATA_ORX] = -viewport.x;
 		FFCore.ScrollingData[SCROLLDATA_ORY] = -viewport.y;
+
+		
 
 		//FFScript.OnWaitdraw()
 		// if (region_scrolling)
@@ -28392,8 +28405,14 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			// Must draw with old-region coordinates.
 			auto prev_y = y;
 			auto prev_yofs = yofs;
-			yofs = playing_field_offset;
+
+			// x = viewport.x;
+			// y = viewport.y;
+
+			// y += new_viewport.h - old_viewport.h;
 			if (is_unsmooth_vertical_scrolling) y += 3;
+			// yofs = playing_field_offset - new_playing_field_offset;
+			yofs = playing_field_offset;
 
 			if((z > 0 || fakez > 0) && (!get_qr(qr_SHADOWSFLICKER) || frame&1))
 			{
