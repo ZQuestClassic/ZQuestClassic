@@ -160,7 +160,7 @@ jobs:
       # Simply open ZQuest with the new quest template.
       - if: ${{ matrix.shard_index == 1 && inputs.extra-args == '' && runner.os != 'Windows' && inputs.config != 'Coverage' }}
         name: Test ZQuest File->New
-        run: bash ${{ github.workspace }}/.github/workflows/run_target.sh zquest -headless -s -q 'modules/classic/default.qst'
+        run: bash ${{ github.workspace }}/.github/workflows/run_target.sh zquest -s -q 'modules/classic/default.qst'
       # Resave classic_1st.qst and assert classic_1st.zplay, to make sure the loading/saving code is not introducing bugs.
       - if: ${{ matrix.shard_index == 1 && inputs.extra-args == '' && runner.os != 'Windows' && inputs.config != 'Coverage' }}
         name: Test saving qst

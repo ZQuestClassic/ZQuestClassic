@@ -28633,7 +28633,7 @@ int32_t main(int32_t argc,char **argv)
 
 	zq_screen_w = LARGE_W;
 	zq_screen_h = LARGE_H;
-	int32_t videofail = (set_gfx_mode(tempmode,zq_screen_w,zq_screen_h,0,0));
+	int32_t videofail = is_headless() ? 0 : (set_gfx_mode(tempmode,zq_screen_w,zq_screen_h,0,0));
 
 	//extra block here is intentional
 	if(videofail!=0)
@@ -28651,7 +28651,7 @@ int32_t main(int32_t argc,char **argv)
 	load_size_poses();
 
 #ifndef __EMSCRIPTEN__
-	if (!all_get_fullscreen_flag()) {
+	if (!all_get_fullscreen_flag() && !is_headless()) {
 		// Just in case.
 		while (!all_get_display()) {
 			al_rest(1);
@@ -28706,14 +28706,6 @@ int32_t main(int32_t argc,char **argv)
 		Z_error_fatal("Failed to create system bitmaps!\n");
 		return 1;
 	}
-	
-	zc_set_palette((RGB*)zcdata[PAL_ZQUEST].dat);
-	get_palette(RAMpal);
-	
-	load_colorset(gui_colorset);
-	
-	zc_set_palette(RAMpal);
-	clear_to_color(screen,vc(0));
 
 	int quick_assign_arg = used_switch(argc, argv, "-quick-assign");
 	if (quick_assign_arg > 0)
@@ -28744,7 +28736,16 @@ int32_t main(int32_t argc,char **argv)
 
 		exit(0);
 	}
-	
+
+	if (!is_headless())
+	{
+		zc_set_palette((RGB*)zcdata[PAL_ZQUEST].dat);
+		get_palette(RAMpal);
+		load_colorset(gui_colorset);
+		zc_set_palette(RAMpal);
+		clear_to_color(screen,vc(0));
+	}
+
 	zScript = string();
 	strcpy(zScriptBytes, "0 Bytes in Buffer");
 	for(int32_t i=0; i<MOUSE_BMP_MAX; i++)
@@ -28929,10 +28930,13 @@ int32_t main(int32_t argc,char **argv)
 	fill_menu[1].flags=D_SELECTED;
 	
 	rebuild_trans_table();
-	
-	set_display_switch_mode(SWITCH_BACKGROUND);
-	set_display_switch_callback(SWITCH_OUT, switch_out);
-	set_display_switch_callback(SWITCH_IN, switch_in);
+
+	if (!is_headless())
+	{
+		set_display_switch_mode(SWITCH_BACKGROUND);
+		set_display_switch_callback(SWITCH_OUT, switch_out);
+		set_display_switch_callback(SWITCH_IN, switch_in);
+	}
 	
 	quit=!update_dialog(player2);
 	//clear_keybuf();
