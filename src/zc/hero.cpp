@@ -14,6 +14,7 @@
 
 #include "base/zdefs.h"
 #include "zc/maps.h"
+#include "zc/replay.h"
 #include "zc/zelda.h"
 
 #include <optional>
@@ -27692,12 +27693,37 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	viewport_t old_viewport = viewport;
 
 	loadscr(destdmap, destscr, scrolldir, overlay);
+
+	// Old scrolling code maintained the previous playing field offset exactly, which only mattered
+	// if during a quake. Just a couple replays show this behavior. It actually looks bad and messes up
+	// the passive subscreen during the entire scroll, but for now let's not update them.
+	bool freedom_in_chains_hack = false;
+	if (replay_is_active() && (replay_get_meta_str("qst") == "freedom_in_chains.qst" || replay_get_meta_str("qst") == "yuurand.qst"))
+	{
+		freedom_in_chains_hack = true;
+		playing_field_offset = old_playing_field_offset;
+		// Suppress playing field offset change.
+		old_original_playing_field_offset = old_playing_field_offset;
+		// new_playing_field_offset = old_playing_field_offset;
+	}
+
 	mapscr* newscr = get_scr(destmap, destscr);
 	// TODO Z3 !!!!!!
 	scrolling_extended_height = old_extended_height_mode || is_extended_height_mode();
 	// TODO z3
 	int new_playing_field_offset = playing_field_offset;
-	playing_field_offset = old_playing_field_offset;
+	playing_field_offset = old_original_playing_field_offset;
+
+	// // Old scrolling code maintained the previous playing field offset exactly, which only mattered
+	// // if during a quake. Just one of our replays shows this behavior. It actually looks bad and messes up
+	// // the passive subscreen during the entire scroll, but for now let's not update the replay.
+	// if (replay_is_active() && replay_get_meta_str("qst") == "freedom_in_chains.qst")
+	// {
+	// 	playing_field_offset = old_playing_field_offset;
+	// 	// Suppress playing field offset change.
+	// 	// old_original_playing_field_offset = old_playing_field_offset;
+	// 	// new_playing_field_offset = old_playing_field_offset;
+	// }
 
 	// TODO z3 !!!!! rm dupe
 	// We must recalculate the new hero position and viewport, if a script run above just change the hero position.
@@ -27901,19 +27927,19 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	int pfo_mode = 0;
 	// ... except for when the new region has a larger viewport than the old one AND moving down. That scenario can't change the
 	// playing field offset first because it would have to show portions of the screen above the old one, which is bad.
-	if (dy == 1 && sign(new_playing_field_offset - old_playing_field_offset) == -1)
+	if (dy == 1 && sign(new_playing_field_offset - old_original_playing_field_offset) == -1)
 		pfo_mode = 1;
 	// ... or for the inverse.
-	if (dy == -1 && sign(new_playing_field_offset - old_playing_field_offset) == 1)
+	if (dy == -1 && sign(new_playing_field_offset - old_original_playing_field_offset) == 1)
 		pfo_mode = 1;
 	// Similar.
-	if (dx && old_region_scr_dy == 0 && sign(new_playing_field_offset - old_playing_field_offset) == -1)
+	if (dx && old_region_scr_dy == 0 && sign(new_playing_field_offset - old_original_playing_field_offset) == -1)
 		pfo_mode = 1;
-	int pfo_counter = abs(new_playing_field_offset - old_playing_field_offset);
+	int pfo_counter = abs(new_playing_field_offset - old_original_playing_field_offset);
 
 	if (secondary_axis_alignment_amount && dx)
 	{
-		// secondary_axis_alignment_amount -= new_playing_field_offset - old_playing_field_offset;
+		// secondary_axis_alignment_amount -= new_playing_field_offset - old_original_playing_field_offset;
 	}
 
 	int align_counter = abs(secondary_axis_alignment_amount);
@@ -28079,16 +28105,16 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 
 		if (do_pfo_adjust)
 		{
-			int dpfo = sign(new_playing_field_offset - old_playing_field_offset);
+			int dpfo = sign(new_playing_field_offset - old_original_playing_field_offset);
 			pfo_counter = MAX(0, pfo_counter - 4);
 			playing_field_offset = new_playing_field_offset - pfo_counter * dpfo;
 
 			// if (pfo_mode == 0 && dpfo >= 1 && dy == 1)
-//				viewport.y = initial_viewport.y + (playing_field_offset - old_playing_field_offset) * dpfo;
+//				viewport.y = initial_viewport.y + (playing_field_offset - old_original_playing_field_offset) * dpfo;
 			if (pfo_mode == 0)
-				viewport.y = initial_viewport.y + step * move_counter * dy + (playing_field_offset - old_playing_field_offset);
-			// int pfo_delta = new_playing_field_offset - old_playing_field_offset;
-			// playing_field_offset = old_playing_field_offset +
+				viewport.y = initial_viewport.y + step * move_counter * dy + (playing_field_offset - old_original_playing_field_offset);
+			// int pfo_delta = new_playing_field_offset - old_original_playing_field_offset;
+			// playing_field_offset = old_original_playing_field_offset +
 			// 	(pfo_counter - std::abs(pfo_delta)) * sign(pfo_delta);
 			viewport.h = 232 - playing_field_offset;
 		}
@@ -28121,7 +28147,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			move_counter++;
 			{
 				viewport.x = initial_viewport.x + step * move_counter * dx;
-				viewport.y = initial_viewport.y + step * move_counter * dy + playing_field_offset - old_playing_field_offset;
+				viewport.y = initial_viewport.y + step * move_counter * dy + playing_field_offset - old_original_playing_field_offset;
 
 
 				// int vertical_amount = step * move_counter;
@@ -28147,8 +28173,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 				// if (new_playing_field_offset > old_original_playing_field_offset) dvh = 1;
 				// if (new_playing_field_offset < old_original_playing_field_offset) dvh = -1;
 
-				// int pfo_change = std::abs(new_playing_field_offset - old_playing_field_offset);
-				// playing_field_offset = old_playing_field_offset + std::min(move_counter, pfo_change) * dvh;
+				// int pfo_change = std::abs(new_playing_field_offset - old_original_playing_field_offset);
+				// playing_field_offset = old_original_playing_field_offset + std::min(move_counter, pfo_change) * dvh;
 
 
 				// playing_field_offset = std::max(0, new_playing_field_offset - (viewport.y + new_viewport.h));
@@ -28168,10 +28194,10 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 				// int dvh = 0;
 				// if (new_playing_field_offset > old_original_playing_field_offset) dvh = 1;
 				// if (new_playing_field_offset < old_original_playing_field_offset) dvh = -1;
-				// playing_field_offset = old_playing_field_offset + step * move_counter * dvh;
+				// playing_field_offset = old_original_playing_field_offset + step * move_counter * dvh;
 				// playing_field_offset = std::clamp(playing_field_offset,
-				// 	std::min(old_playing_field_offset, new_playing_field_offset),
-				// 	std::max(old_playing_field_offset, new_playing_field_offset));
+				// 	std::min(old_original_playing_field_offset, new_playing_field_offset),
+				// 	std::max(old_original_playing_field_offset, new_playing_field_offset));
 
 				// if (step * move_counter >= new_viewport.h)
 				// {
@@ -28318,11 +28344,11 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			// TODO z3 ! lets set viewport to initial viewport at top of each loop ...
 			//if (pfo_mode == 0)
 			if (dx)
-				viewport.y += playing_field_offset - old_playing_field_offset;
+				viewport.y += playing_field_offset - old_original_playing_field_offset;
 		}
 
 		// if (pfo_mode == 0)
-		// 	viewport.y = initial_viewport.y + step * move_counter * dy + (playing_field_offset - old_playing_field_offset);
+		// 	viewport.y = initial_viewport.y + step * move_counter * dy + (playing_field_offset - old_original_playing_field_offset);
 
 		FFCore.ScrollingData[SCROLLDATA_NX] = nx - viewport.x;
 		FFCore.ScrollingData[SCROLLDATA_NY] = ny - viewport.y;
@@ -28452,10 +28478,11 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			// y = viewport.y;
 
 			// y += playing_field_offset - new_playing_field_offset;
-			// playing_field_offset += old_playing_field_offset;
+			// playing_field_offset += old_original_playing_field_offset;
 			if (is_unsmooth_vertical_scrolling) y += 3;
 			// yofs = playing_field_offset - new_playing_field_offset;
-			yofs = playing_field_offset;
+			if (!freedom_in_chains_hack)
+				yofs = playing_field_offset;
 
 			if((z > 0 || fakez > 0) && (!get_qr(qr_SHADOWSFLICKER) || frame&1))
 			{
@@ -28591,7 +28618,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	playing_field_offset = new_playing_field_offset;
 	x = new_hero_x;
 	y = new_hero_y;
-	yofs = playing_field_offset;
+	if (!freedom_in_chains_hack)
+		yofs = playing_field_offset;
 	if(ladderx > 0 || laddery > 0)
 	{
 		// If the ladder moves on both axes, the player can
@@ -28606,7 +28634,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	if (scrolling_extended_height)
 		playing_field_offset = is_extended_height_mode() ? 0 : 56;
 	else
-		playing_field_offset = old_playing_field_offset;
+		playing_field_offset = old_original_playing_field_offset;
 
 	//Move hero to the other side of the screen if scrolling's not turned on
 	if(get_qr(qr_NOSCROLL))
