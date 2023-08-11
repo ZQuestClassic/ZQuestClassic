@@ -3175,11 +3175,11 @@ bool displaysubscreenitem(int32_t itemtype, int32_t d, int32_t id)
 		if((itemtype == itype_bomb &&
 				!(game->get_bombs()
 				  // Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
-				  || (itemsbuf[current_item_id(itype_bomb)].misc1==0 && Lwpns.idCount(wLitBomb)>0)
+				  || (itemsbuf[current_item_id(itype_bomb,replay_version_check(0,19))].misc1==0 && Lwpns.idCount(wLitBomb)>0)
 				  || current_item_power(itype_bombbag)))
 				|| (itemtype == itype_sbomb &&
 					!(game->get_sbombs()
-					  || (itemsbuf[current_item_id(itype_sbomb)].misc1==0 && Lwpns.idCount(wLitSBomb)>0)
+					  || (itemsbuf[current_item_id(itype_sbomb,replay_version_check(0,19))].misc1==0 && Lwpns.idCount(wLitSBomb)>0)
 					  || (current_item_power(itype_bombbag)
 						  && itemsbuf[current_item_id(itype_bombbag)].flags & ITEM_FLAG1))))
 			return false;
@@ -3256,7 +3256,7 @@ void subscreenitem(BITMAP *dest, int32_t x, int32_t y, int32_t itemtype)
             }
         }
     }
-
+	
     //Item Override stuff here
     if((itemtype & 0x8000) &&
 		(get_app_id() == App::zelda ? game->item[itemtype&0xFFF] : true) &&
@@ -4341,58 +4341,53 @@ void putBmap(BITMAP *dest, int32_t x, int32_t y,bool showmap, bool showrooms, bo
 
 void load_Sitems()
 {
-    Sitems.clear();
-    
-    // HC Pieces
-    if(QMisc.colors.HCpieces_tile)
-    {
-        //      item *HCP = new item((zfix)(inventory_x[5]-ofs),(zfix)y,MAXITEMS,0,0);
-        item *HCP = new item((zfix)0,(zfix)0,(zfix)0,iHCPiece,0,0);
-        
-        if(HCP)
-        {
-            int32_t hcpphc =  game->get_hcp_per_hc();
-            HCP->tile   = QMisc.colors.HCpieces_tile + vbound(game->get_HCpieces(),0,hcpphc > 0 ? hcpphc-1 : 0);
-            HCP->o_tile = HCP->tile;
-            HCP->cs     = QMisc.colors.HCpieces_cset;
-            HCP->frames = 0;
-            add_subscr_item(HCP);
-        }
-    }
-    
-    if(has_item(itype_map, get_dlevel()))
-    {
-        add_subscr_item(new item((zfix)0,(zfix)0,(zfix)0,iMap,0,0));
-    }
-    
-    if(has_item(itype_compass, get_dlevel()))
-    {
-        add_subscr_item(new item((zfix)0,(zfix)0,(zfix)0,iCompass,0,0));
-    }
-    
-    if(has_item(itype_bosskey, get_dlevel()))
-    {
-        add_subscr_item(new item((zfix)0,(zfix)0,(zfix)0,iBossKey,0,0));
-    }
-    
-    for(int32_t i=0; i<itype_max; i++)
-    {
-        //special case: ignore the dmap-specific items processed above. -DD
-        if(i == itype_map || i == itype_compass || i == itype_bosskey)
-            continue;
-            
-        // Display the ring even if it has run out of magic.
-        if(current_item_id(i,false)>-1)
-        {
-            int32_t j = current_item_id(i,false);
-            //al_trace("About to check itemsbuf[j].tile in subscreen.cpp, line 4634, loop[%d]\n",j);
-            if(itemsbuf[j].tile)
-                add_subscr_item(new item((zfix)0, (zfix)0,(zfix)0,j,0,0));
-        }
-    }
-    //al_trace("Finished load_Sitems(%d)\n",0);
-    
-    new_sel=true;
+	Sitems.clear();
+	
+	// HC Pieces
+	if(QMisc.colors.HCpieces_tile)
+	{
+		//      item *HCP = new item((zfix)(inventory_x[5]-ofs),(zfix)y,MAXITEMS,0,0);
+		item *HCP = new item((zfix)0,(zfix)0,(zfix)0,iHCPiece,0,0);
+		
+		if(HCP)
+		{
+			int32_t hcpphc =  game->get_hcp_per_hc();
+			HCP->tile   = QMisc.colors.HCpieces_tile + vbound(game->get_HCpieces(),0,hcpphc > 0 ? hcpphc-1 : 0);
+			HCP->o_tile = HCP->tile;
+			HCP->cs     = QMisc.colors.HCpieces_cset;
+			HCP->frames = 0;
+			add_subscr_item(HCP);
+		}
+	}
+	
+	if(has_item(itype_map, get_dlevel()))
+	{
+		add_subscr_item(new item((zfix)0,(zfix)0,(zfix)0,iMap,0,0));
+	}
+	
+	if(has_item(itype_compass, get_dlevel()))
+	{
+		add_subscr_item(new item((zfix)0,(zfix)0,(zfix)0,iCompass,0,0));
+	}
+	
+	if(has_item(itype_bosskey, get_dlevel()))
+	{
+		add_subscr_item(new item((zfix)0,(zfix)0,(zfix)0,iBossKey,0,0));
+	}
+	
+	for(int32_t i=0; i<itype_max; i++)
+	{
+		//special case: ignore the dmap-specific items processed above. -DD
+		if(i == itype_map || i == itype_compass || i == itype_bosskey)
+			continue;
+		int j = current_item_id(i,false);
+		// Display the ring even if it has run out of magic.
+		if(j>-1 && itemsbuf[j].tile)
+			add_subscr_item(new item((zfix)0, (zfix)0,(zfix)0,j,0,0));
+	}
+	//al_trace("Finished load_Sitems(%d)\n",0);
+	
+	new_sel=true;
 }
 
 void update_subscreens(int32_t dmap)

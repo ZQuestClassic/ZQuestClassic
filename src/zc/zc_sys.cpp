@@ -2255,7 +2255,6 @@ int32_t current_item(int32_t item_type)		   //item currently being used
 std::map<int32_t, int32_t> itemcache;
 std::map<int32_t, int32_t> itemcache_cost;
 
-// Not actually used by anything at the moment...
 void removeFromItemCache(int32_t itemclass)
 {
 	itemcache.erase(itemclass);
@@ -2264,7 +2263,10 @@ void removeFromItemCache(int32_t itemclass)
 
 void flushItemCache(bool justcost)
 {
-	if(!justcost) itemcache.clear();
+	if(justcost && replay_version_check(0,19))
+		return;
+	if(!justcost)
+		itemcache.clear();
 	itemcache_cost.clear();
 	
 	//also fix the active subscreen if items were deleted -DD
@@ -2278,6 +2280,7 @@ void flushItemCache(bool justcost)
 // This is used often, so it should be as direct as possible.
 int32_t _c_item_id_internal(int32_t itemtype, bool checkmagic, bool jinx_check)
 {
+	auto& cost_cache = replay_version_check(19) ? itemcache_cost : itemcache;
 	if(jinx_check)
 	{
 		if(!(HeroSwordClk() || HeroItemClk()))
@@ -2285,7 +2288,7 @@ int32_t _c_item_id_internal(int32_t itemtype, bool checkmagic, bool jinx_check)
 	}
 	if (itemtype != itype_ring && !jinx_check)  // Rings must always be checked, as must jinx checks...
 	{
-		auto& cache = checkmagic ? itemcache_cost : itemcache;
+		auto& cache = checkmagic ? cost_cache : itemcache;
 		auto res = cache.find(itemtype);
 		
 		if(res != cache.end())
@@ -2323,9 +2326,10 @@ int32_t _c_item_id_internal(int32_t itemtype, bool checkmagic, bool jinx_check)
 	
 	if(!jinx_check) //Can't cache jinx_check results
 	{
-		itemcache[itemtype] = result;
-		if(checkmagic || result < 0 || checkmagiccost(result))
-			itemcache_cost[itemtype] = result;
+		if (!checkmagic)
+			itemcache[itemtype] = result;
+		if (checkmagic || result < 0 || checkmagiccost(result))
+			cost_cache[itemtype] = result;
 	}
 	return result;
 }
