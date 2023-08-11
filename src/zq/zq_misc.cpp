@@ -13,6 +13,7 @@
 
 #include "base/qrs.h"
 #include "base/packfile.h"
+#include "base/zapp.h"
 #include "zq/zq_misc.h"
 #include "zq/zquestdat.h"
 #include "zq/zquest.h"
@@ -105,6 +106,9 @@ int32_t cursorColor(int32_t col)
 
 void load_mice()
 {
+	if (is_headless())
+		return;
+
 	MouseSprite::set(-1);
 	int32_t sz = vbound(int32_t(16*(zc_get_config("zquest","cursor_scale_large",1.5))),16,80);
 	for(int32_t i=0; i<MOUSE_BMP_MAX; i++)

@@ -28087,14 +28087,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			int dpfo = sign(new_playing_field_offset - old_original_playing_field_offset);
 			pfo_counter = MAX(0, pfo_counter - 4);
 			playing_field_offset = new_playing_field_offset - pfo_counter * dpfo;
-
-			// if (pfo_mode == 0 && dpfo >= 1 && dy == 1)
-//				viewport.y = initial_viewport.y + (playing_field_offset - old_original_playing_field_offset) * dpfo;
 			if (pfo_mode == 0)
 				viewport.y = initial_viewport.y + step * move_counter * dy + (playing_field_offset - old_original_playing_field_offset);
-			// int pfo_delta = new_playing_field_offset - old_original_playing_field_offset;
-			// playing_field_offset = old_original_playing_field_offset +
-			// 	(pfo_counter - std::abs(pfo_delta)) * sign(pfo_delta);
 			viewport.h = 232 - playing_field_offset;
 		}
 
