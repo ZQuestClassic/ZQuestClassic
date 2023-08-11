@@ -27406,9 +27406,11 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		int old_origin_scr_x = cur_origin_screen_index % 16;
 		int old_origin_scr_y = cur_origin_screen_index / 16;
 		int old_hero_screen_x = x.getInt() - viewport.x;
-		int old_hero_screen_y = y.getInt() - viewport.y;
+		int old_hero_screen_y = y.getInt() - viewport.y + (232 - viewport.h);
+		// int old_hero_screen_y = y.getInt() - viewport.y;
 		int new_hero_screen_x = new_hero_x - new_viewport.x;
-		int new_hero_screen_y = new_hero_y - new_viewport.y;
+		int new_hero_screen_y = new_hero_y - new_viewport.y + (232 - new_viewport.h);
+		// int new_hero_screen_y = new_hero_y - new_viewport.y;
 		if (dx)      secondary_axis_alignment_amount = new_hero_screen_y - old_hero_screen_y;
 		else if (dy) secondary_axis_alignment_amount = new_hero_screen_x - old_hero_screen_x;
 		else         secondary_axis_alignment_amount = 0;
@@ -27889,15 +27891,9 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 
 	int no_move = 0;
 	int move_counter = 0;
-	int align_counter = abs(secondary_axis_alignment_amount);
 	bool end_frames = false;
 
 	scroll_counter *= delay;
-	
-	// TODO z3
-	// 0 for align, then scroll.
-	// 1 for scroll, then align.
-	int align_mode = 0;
 
 	// 0 for change playing field offset, then scroll.
 	// 1 for scroll, then change playing field offset.
@@ -27910,7 +27906,45 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	// ... or for the inverse.
 	if (dy == -1 && sign(new_playing_field_offset - old_playing_field_offset) == 1)
 		pfo_mode = 1;
+	// Similar.
+	if (dx && old_region_scr_dy == 0 && sign(new_playing_field_offset - old_playing_field_offset) == -1)
+		pfo_mode = 1;
 	int pfo_counter = abs(new_playing_field_offset - old_playing_field_offset);
+
+	if (secondary_axis_alignment_amount && dx)
+	{
+		// secondary_axis_alignment_amount -= new_playing_field_offset - old_playing_field_offset;
+	}
+
+	int align_counter = abs(secondary_axis_alignment_amount);
+	if (align_counter)
+	{
+		// pfo_counter = 0;
+		// align_counter = 0;
+		// secondary_axis_alignment_amount = 0;
+	}
+
+	// TODO z3
+	// 0 for align, then scroll.
+	// 1 for scroll, then align.
+	int align_mode = 0;
+	if (align_counter)
+	{
+		viewport_t lazy_rect;
+		lazy_rect.x = 0;
+		lazy_rect.y = 0;
+		lazy_rect.w = old_world_w;
+		lazy_rect.h = old_world_h;
+		int px = old_viewport.x + (dy ? secondary_axis_alignment_amount : 0);
+		int py = old_viewport.y + (dx ? secondary_axis_alignment_amount : 0);
+		if (lazy_rect.contains_point(px, py))
+			align_mode = 0;
+		else
+		{
+			align_mode = 1;
+			// pfo_mode = 1;
+		}
+	}
 
 	viewport_t initial_viewport = old_viewport;
 	// initial_viewport.h = std::max(old_viewport.h, new_viewport.h);
@@ -28008,7 +28042,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		
 		if (align_mode == 0)
 		{
-			if (align_counter > 0)
+			if (align_counter > 0 && (pfo_counter == 0 || pfo_mode == 1))
 			{
 				align_counter = MAX(0, align_counter - 4);
 				if (align_counter)
@@ -28027,10 +28061,9 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		bool do_pfo_adjust = false;
 		if (pfo_mode == 0)
 		{
-			if (pfo_counter > 0 && align_counter == 0)
+			if (pfo_counter > 0)
 			{
 				do_pfo_adjust = true;
-				pfo_counter = MAX(0, pfo_counter - 4);
 				if (pfo_counter)
 					scroll_counter++;
 			}
@@ -28040,7 +28073,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			if (pfo_counter > 0 && !(scroll_counter >= 0 && delay != 0))
 			{
 				do_pfo_adjust = true;
-				pfo_counter = MAX(0, pfo_counter - 4);
 				no_move = 1;
 			}
 		}
@@ -28048,6 +28080,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		if (do_pfo_adjust)
 		{
 			int dpfo = sign(new_playing_field_offset - old_playing_field_offset);
+			pfo_counter = MAX(0, pfo_counter - 4);
 			playing_field_offset = new_playing_field_offset - pfo_counter * dpfo;
 
 			// if (pfo_mode == 0 && dpfo >= 1 && dy == 1)
@@ -28282,6 +28315,10 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			int delta = (align_counter - abs(secondary_axis_alignment_amount)) * sign(secondary_axis_alignment_amount);
 			if (scrolldir == up || scrolldir == down) viewport.x = initial_viewport.x + delta;
 			else                                      viewport.y = initial_viewport.y + delta;
+			// TODO z3 ! lets set viewport to initial viewport at top of each loop ...
+			//if (pfo_mode == 0)
+			if (dx)
+				viewport.y += playing_field_offset - old_playing_field_offset;
 		}
 
 		// if (pfo_mode == 0)
@@ -28409,11 +28446,13 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			// Must draw with old-region coordinates.
 			auto prev_y = y;
 			auto prev_yofs = yofs;
+			auto prev_pfos = playing_field_offset;
 
 			// x = viewport.x;
 			// y = viewport.y;
 
-			// y += new_viewport.h - old_viewport.h;
+			// y += playing_field_offset - new_playing_field_offset;
+			// playing_field_offset += old_playing_field_offset;
 			if (is_unsmooth_vertical_scrolling) y += 3;
 			// yofs = playing_field_offset - new_playing_field_offset;
 			yofs = playing_field_offset;
@@ -28433,6 +28472,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 
 			y = prev_y;
 			yofs = prev_yofs;
+			playing_field_offset = prev_pfos;
 		}
 		
 		for_every_nearby_screen_during_scroll(old_temporary_screens, [&](std::array<screen_handle_t, 7> screen_handles, int scr, int draw_dx, int draw_dy, bool is_new_screen) {
