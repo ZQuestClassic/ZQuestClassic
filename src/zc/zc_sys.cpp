@@ -2281,7 +2281,7 @@ void flushItemCache(bool justcost)
 // This is used often, so it should be as direct as possible.
 int32_t _c_item_id_internal(int32_t itemtype, bool checkmagic, bool jinx_check)
 {
-	auto& cost_cache = replay_version_check(19) ? itemcache_cost : itemcache;
+	bool use_cost_cache = replay_version_check(19);
 	if(jinx_check)
 	{
 		if(!(HeroSwordClk() || HeroItemClk()))
@@ -2289,7 +2289,7 @@ int32_t _c_item_id_internal(int32_t itemtype, bool checkmagic, bool jinx_check)
 	}
 	if (itemtype != itype_ring && !jinx_check)  // Rings must always be checked, as must jinx checks...
 	{
-		auto& cache = checkmagic ? cost_cache : itemcache;
+		auto& cache = checkmagic && use_cost_cache ? itemcache_cost : itemcache;
 		auto res = cache.find(itemtype);
 		
 		if(res != cache.end())
@@ -2327,10 +2327,14 @@ int32_t _c_item_id_internal(int32_t itemtype, bool checkmagic, bool jinx_check)
 	
 	if(!jinx_check) //Can't cache jinx_check results
 	{
-		if (!checkmagic)
-			itemcache[itemtype] = result;
-		if (checkmagic || result < 0 || checkmagiccost(result))
-			cost_cache[itemtype] = result;
+		if (use_cost_cache)
+		{
+			if (!checkmagic)
+				itemcache[itemtype] = result;
+			if (checkmagic || result < 0 || checkmagiccost(result))
+				itemcache_cost[itemtype] = result;
+		}
+		else itemcache[itemtype] = result;
 	}
 	return result;
 }

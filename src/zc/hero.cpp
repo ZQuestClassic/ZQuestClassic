@@ -12187,28 +12187,28 @@ bool HeroClass::startwpn(int32_t itemid)
 		// Maybe Item Override has allowed the same item in both slots?
 		if(Bwpn == itemid)
 		{
-			Bwpn = 0;
+			Bwpn = -1;
 			game->forced_bwpn = -1;
 			verifyBWpn();
 		}
 		
 		if(Awpn == itemid)
 		{
-			Awpn = 0;
+			Awpn = -1;
 			game->forced_awpn = -1;
 			verifyAWpn();
 		}
 		
 		if(Xwpn == itemid)
 		{
-			Xwpn = 0;
+			Xwpn = -1;
 			game->forced_xwpn = -1;
 			verifyXWpn();
 		}
 		
 		if(Ywpn == itemid)
 		{
-			Ywpn = 0;
+			Ywpn = -1;
 			game->forced_ywpn = -1;
 			verifyYWpn();
 		}
@@ -17819,7 +17819,7 @@ bool HeroClass::premove()
 			directWpn = directItemY;
 		}
 		
-		if(directWpn > 255) directWpn = 0;
+		if(directWpn > MAXITEMS) directWpn = -1;
 		
 		// The Quick Sword only allows repeated sword or wand swings.
 		if((action==attacking||action==sideswimattacking) && ((attack==wSword && btnwpn!=itype_sword) || (attack==wWand && btnwpn!=itype_wand)))
@@ -28485,8 +28485,6 @@ void HeroClass::cleanupByrna()
 // Used to find out if an item family is attached to one of the buttons currently pressed.
 bool isWpnPressed(int32_t itype)
 {
-	//0xFFF for subscreen overrides
-	//Will crash on win10 without it! -Z
     if((itype==getItemFamily(itemsbuf,Bwpn)) && DrunkcBbtn()) return true;
     if((itype==getItemFamily(itemsbuf,Awpn)) && DrunkcAbtn()) return true;
     if((itype==getItemFamily(itemsbuf,Xwpn)) && DrunkcEx1btn()) return true;
@@ -28496,10 +28494,10 @@ bool isWpnPressed(int32_t itype)
 
 int32_t getWpnPressed(int32_t itype)
 {
-    if((itype==getItemFamily(itemsbuf,Bwpn)) && DrunkcBbtn()) return Bwpn;
-    if((itype==getItemFamily(itemsbuf,Awpn)) && DrunkcAbtn()) return Awpn;
-    if((itype==getItemFamily(itemsbuf,Xwpn)) && DrunkcEx1btn()) return Xwpn;
-    if((itype==getItemFamily(itemsbuf,Ywpn)) && DrunkcEx2btn()) return Ywpn;
+    if((itype==getItemFamily(itemsbuf,Bwpn)) && DrunkcBbtn()) return Bwpn&0xFFF;
+    if((itype==getItemFamily(itemsbuf,Awpn)) && DrunkcAbtn()) return Awpn&0xFFF;
+    if((itype==getItemFamily(itemsbuf,Xwpn)) && DrunkcEx1btn()) return Xwpn&0xFFF;
+    if((itype==getItemFamily(itemsbuf,Ywpn)) && DrunkcEx2btn()) return Ywpn&0xFFF;
     
     return -1;
 }
@@ -28675,9 +28673,7 @@ void verifyBothWeapons()
 // Select the sword for the A button if the 'select A button weapon' quest rule isn't set.
 int32_t selectSword()
 {
-	auto ret = current_item_id(itype_sword);
-	if(ret == -1) return 0;
-	return ret;
+	return current_item_id(itype_sword);
 }
 
 // Adding code here for allowing hardcoding a button to a specific itemclass.

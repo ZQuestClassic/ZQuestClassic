@@ -2961,7 +2961,7 @@ void update_subscr_items()
             Bitem = NULL;
         }
         
-        if(Bwpn > 0)
+        if(Bwpn > -1)
         {
             Bitem = new item((zfix)0, (zfix)0, (zfix)0, Bwpn&0x0FFF, 0, 0);
             Bitem->dummy_bool[0]=false;
@@ -2998,7 +2998,7 @@ void update_subscr_items()
             Aitem = NULL;
         }
         
-        if(Awpn > 0)
+        if(Awpn > -1)
         {
             Aitem = new item((zfix)0, (zfix)0,(zfix)0,Awpn&0x0FFF, 0, 0);
             
@@ -3033,7 +3033,7 @@ void update_subscr_items()
             Xitem = NULL;
         }
         
-        if(Xwpn > 0)
+        if(Xwpn > -1)
         {
             Xitem = new item((zfix)0, (zfix)0,(zfix)0,Xwpn&0x0FFF, 0, 0);
             
@@ -3068,7 +3068,7 @@ void update_subscr_items()
             Yitem = NULL;
         }
         
-        if(Ywpn > 0)
+        if(Ywpn > -1)
         {
             Yitem = new item((zfix)0, (zfix)0,(zfix)0,Ywpn&0x0FFF, 0, 0);
             

@@ -612,7 +612,7 @@ void putitem2(BITMAP *dest,int32_t x,int32_t y,int32_t item_id, int32_t &aclk, i
 //some methods for dealing with items
 int32_t getItemFamily(itemdata* items, int32_t item)
 {
-	if(item < 0 || (item&0xFFF) >= MAXITEMS) return -1;
+	if(item < 0 || item >= MAXITEMS) return -1;
 	return items[item&0xFFF].family;
 }
 
