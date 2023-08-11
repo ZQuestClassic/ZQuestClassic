@@ -2951,6 +2951,7 @@ void reset_subscr_items()
 
 void update_subscr_items()
 {
+	int nullval = get_qr(qr_ITM_0_INVIS_ON_BTNS) ? 0 : -1;
     if(Bid != Bwpn)
     {
         Bid = 0;
@@ -2961,7 +2962,7 @@ void update_subscr_items()
             Bitem = NULL;
         }
         
-        if(Bwpn > -1)
+        if(Bwpn > nullval)
         {
             Bitem = new item((zfix)0, (zfix)0, (zfix)0, Bwpn&0x0FFF, 0, 0);
             Bitem->dummy_bool[0]=false;
@@ -2998,7 +2999,7 @@ void update_subscr_items()
             Aitem = NULL;
         }
         
-        if(Awpn > -1)
+        if(Awpn > nullval)
         {
             Aitem = new item((zfix)0, (zfix)0,(zfix)0,Awpn&0x0FFF, 0, 0);
             
@@ -3033,7 +3034,7 @@ void update_subscr_items()
             Xitem = NULL;
         }
         
-        if(Xwpn > -1)
+        if(Xwpn > nullval)
         {
             Xitem = new item((zfix)0, (zfix)0,(zfix)0,Xwpn&0x0FFF, 0, 0);
             
@@ -3068,7 +3069,7 @@ void update_subscr_items()
             Yitem = NULL;
         }
         
-        if(Ywpn > -1)
+        if(Ywpn > nullval)
         {
             Yitem = new item((zfix)0, (zfix)0,(zfix)0,Ywpn&0x0FFF, 0, 0);
             

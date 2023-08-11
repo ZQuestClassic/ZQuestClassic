@@ -3777,7 +3777,10 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 	if (compatrule_version < 52)
 		set_qr(qr_OLD_SCRIPT_VOLUME, 1);
 	if(compatrule_version < 53)
+	{
 		set_qr(qr_OLD_SUBSCR,1);
+		set_qr(qr_ITM_0_INVIS_ON_BTNS,1);
+	}
 	
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)
