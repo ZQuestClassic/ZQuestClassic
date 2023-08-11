@@ -11112,7 +11112,16 @@ int32_t get_register(const int32_t arg)
 		}
 		case MUSICUPDATECOND:
 		{
-			ret = ((byte)FFCore.music_update_flags) * 10000; break;
+			ret = ((byte)FFCore.music_update_cond) * 10000; break;
+		}
+		case MUSICUPDATEFLAGS:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if (indx < 0 || indx > 2)
+			{
+				Z_scripterrlog("Invalid Index passed to Audio->MusicRefreshFlags[]: %d\n", indx);
+			}
+			ret = ((FFCore.music_update_flags >> indx) & 1) ? 10000 : 0; break;
 		}
 		case DMAPDATAASUBSCRIPT:	//word
 		{
@@ -21559,7 +21568,18 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case MUSICUPDATECOND:
 		{
-			FFCore.music_update_flags = vbound(value / 10000, 0, 255);
+			FFCore.music_update_cond = vbound(value / 10000, 0, 255);
+			break;
+		}
+		case MUSICUPDATEFLAGS:
+		{
+			int32_t indx = ri->d[rINDEX] / 10000;
+			if (indx < 0 || indx > 1)
+			{
+				Z_scripterrlog("Invalid Index passed to Audio->MusicRefreshFlags[]: %d\n", indx);
+				break;
+			}
+			SETFLAG(FFCore.music_update_flags, 1 << indx, value);
 			break;
 		}
 		case DMAPDATAASUBSCRIPT:	//byte
@@ -29810,7 +29830,7 @@ bool FFScript::doing_dmap_enh_music(int32_t dm)
 
 bool FFScript::can_dmap_change_music(int32_t dm)
 {
-	switch (music_update_flags & 0xF)
+	switch (music_update_cond)
 	{
 	case MUSIC_UPDATE_SCREEN:
 		return true;
@@ -37482,6 +37502,7 @@ void FFScript::init()
 	max_ff_rules = qr_MAX;
 	coreflags = 0;
 	skip_ending_credits = 0;
+	music_update_cond = 0;
 	music_update_flags = 0;
 	//quest_format : is this properly initialised?
 	for ( int32_t q = 0; q < susptLAST; q++ ) { system_suspend[q] = 0; }
@@ -42710,7 +42731,7 @@ script_variable ZASMVars[]=
 	{ "DMAPDATAXFADEIN", DMAPDATAXFADEIN, 0, 0 },
 	{ "DMAPDATAXFADEOUT", DMAPDATAXFADEOUT, 0, 0 },
 	{ "MUSICUPDATECOND", MUSICUPDATECOND, 0, 0 },
-	{ "RESRVD_VAR_MOOSH06", RESRVD_VAR_MOOSH06, 0, 0 },
+	{ "MUSICUPDATEFLAGS", MUSICUPDATEFLAGS, 0, 0 },
 	{ "RESRVD_VAR_MOOSH07", RESRVD_VAR_MOOSH07, 0, 0 },
 	{ "RESRVD_VAR_MOOSH08", RESRVD_VAR_MOOSH08, 0, 0 },
 	{ "RESRVD_VAR_MOOSH09", RESRVD_VAR_MOOSH09, 0, 0 },

@@ -7908,7 +7908,9 @@ int MusicRefresh;
  *   MR_DMAP: Refresh on dmap change
  *   MR_LEVEL: Refresh on level change
  *   MR_NEVER: Never refresh on warps
- * Also OR with the following flags for extra effects:
+
+int MusicRefreshFlags[2];
+ * A set of flags handling extra effects for MusicRefresh.
  *   MRF_NOCUT: Warp types that cut to silence, don't do that
  *   MRF_REVERT: Upon taking a warp that triggers refresh, revert to MR_SCREEN
 

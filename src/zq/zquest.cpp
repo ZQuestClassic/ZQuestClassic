@@ -32219,6 +32219,7 @@ void FFScript::init()
 	
 	coreflags = 0;
 	skip_ending_credits = 0;
+	music_update_cond = 0;
 	music_update_flags = 0;
 	for ( int32_t q = 0; q < susptLAST; q++ ) { system_suspend[q] = 0; }
 	

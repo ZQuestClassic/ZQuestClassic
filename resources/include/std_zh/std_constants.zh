@@ -3929,8 +3929,11 @@ enum
 	MR_SCREEN,
 	MR_DMAP,
 	MR_LEVEL,
-	MR_NEVER,
-	
-	MRF_NOCUT  = 0x40,
-	MRF_REVERT = 0x80
+	MR_NEVER
+};
+
+enum
+{	
+	MRF_NOCUT,
+	MRF_REVERT
 };

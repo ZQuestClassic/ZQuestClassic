@@ -33,6 +33,8 @@ static AccessorTable AudioTable[] =
 	{ "CrossfadeEnhancedMusic",  0,          ZTID_BOOL,   -1,                FL_INL,   { ZTID_AUDIO, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ 0, 0 } },
 	{ "getMusicRefresh",         0,         ZTID_FLOAT,   MUSICUPDATECOND,        0,  { ZTID_AUDIO },{} },
 	{ "setMusicRefresh",         0,          ZTID_VOID,   MUSICUPDATECOND,        0,  { ZTID_AUDIO, ZTID_FLOAT },{} },
+	{ "getMusicRefreshFlags[]",  0,          ZTID_BOOL,   MUSICUPDATEFLAGS,       0,  { ZTID_AUDIO, ZTID_FLOAT },{} },
+	{ "setMusicRefreshFlags[]",  0,          ZTID_VOID,   MUSICUPDATEFLAGS,       0,  { ZTID_AUDIO, ZTID_FLOAT, ZTID_BOOL },{} },
 
 	{ "",                        0,          ZTID_VOID,   -1,          0,  {},{} }
 };

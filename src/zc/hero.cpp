@@ -24377,8 +24377,8 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 	int32_t olddmap = currdmap;
 	rehydratelake(type!=wtSCROLL);
 	bool updatemusic = FFCore.can_dmap_change_music(wdmap);
-	bool musicnocut = FFCore.music_update_flags & MUSIC_UPDATE_NOCUT;
-	bool musicrevert = FFCore.music_update_flags & MUSIC_UPDATE_REVERT;
+	bool musicnocut = FFCore.music_update_flags & MUSIC_UPDATE_FLAG_NOCUT;
+	bool musicrevert = FFCore.music_update_flags & MUSIC_UPDATE_FLAG_REVERT;
 	
 	switch(wtype)
 	{
@@ -24504,7 +24504,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		{
 			playLevelMusic();
 			if (musicrevert)
-				FFCore.music_update_flags = MUSIC_UPDATE_SCREEN;
+				FFCore.music_update_cond = MUSIC_UPDATE_SCREEN;
 		}
 		break;
 	}
@@ -24790,7 +24790,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		{
 			playLevelMusic();
 			if (musicrevert)
-				FFCore.music_update_flags = MUSIC_UPDATE_SCREEN;
+				FFCore.music_update_cond = MUSIC_UPDATE_SCREEN;
 		}
 		currcset=DMaps[currdmap].color;
 		dointro();
@@ -24889,7 +24889,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		{
 			playLevelMusic();
 			if (musicrevert)
-				FFCore.music_update_flags = MUSIC_UPDATE_SCREEN;
+				FFCore.music_update_cond = MUSIC_UPDATE_SCREEN;
 		}
 		currcset=DMaps[currdmap].color;
 		dointro();
@@ -24911,7 +24911,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		{
 			playLevelMusic();
 			if (musicrevert)
-				FFCore.music_update_flags = MUSIC_UPDATE_SCREEN;
+				FFCore.music_update_cond = MUSIC_UPDATE_SCREEN;
 		}
 		currcset=DMaps[currdmap].color;
 		dointro();
@@ -25128,7 +25128,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 		{
 			playLevelMusic();
 			if (musicrevert)
-				FFCore.music_update_flags = MUSIC_UPDATE_SCREEN;
+				FFCore.music_update_cond = MUSIC_UPDATE_SCREEN;
 		}
 		currcset=DMaps[currdmap].color;
 		dointro();
@@ -25562,7 +25562,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 void HeroClass::exitcave()
 {
 	bool updatemusic = FFCore.can_dmap_change_music(currdmap);
-	bool musicnocut = FFCore.music_update_flags & MUSIC_UPDATE_NOCUT;
+	bool musicnocut = FFCore.music_update_flags & MUSIC_UPDATE_FLAG_NOCUT;
 
     stop_sfx(QMisc.miscsfx[sfxLOWHEART]);
     currscr=homescr;
@@ -26057,7 +26057,7 @@ void HeroClass::walkup2(bool opening) //entering cave2
 void HeroClass::stepout() // Step out of item cellars and passageways
 {
 	bool updatemusic = FFCore.can_dmap_change_music(currdmap);
-	bool musicnocut = FFCore.music_update_flags & MUSIC_UPDATE_NOCUT;
+	bool musicnocut = FFCore.music_update_flags & MUSIC_UPDATE_FLAG_NOCUT;
 	
 	int32_t sc = specialcave; // This gets erased by ALLOFF()
     ALLOFF();
@@ -27156,7 +27156,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	}
 
 	bool updatemusic = FFCore.can_dmap_change_music(destdmap);
-	bool musicrevert = FFCore.music_update_flags & MUSIC_UPDATE_REVERT;
+	bool musicrevert = FFCore.music_update_flags & MUSIC_UPDATE_FLAG_REVERT;
 	
 	if(maze_enabled_sizewarp(scrolldir))  // dowarp() was called
 		return;
@@ -28151,7 +28151,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	{
 		playLevelMusic();
 		if (musicrevert)
-			FFCore.music_update_flags = MUSIC_UPDATE_SCREEN;
+			FFCore.music_update_cond = MUSIC_UPDATE_SCREEN;
 	}
 	
 	newscr_clk = frame;

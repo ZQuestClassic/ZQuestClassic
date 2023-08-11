@@ -157,9 +157,11 @@ enum {
 	MUSIC_UPDATE_SCREEN,
 	MUSIC_UPDATE_DMAP,
 	MUSIC_UPDATE_LEVEL,
-	MUSIC_UPDATE_NEVER,
-	MUSIC_UPDATE_NOCUT  = 0x40, //Music persists through things that would normally cut to silence (such as entrance exit warps)
-	MUSIC_UPDATE_REVERT = 0x80 //State reverts to screen on music switch
+	MUSIC_UPDATE_NEVER
+};
+enum {
+	MUSIC_UPDATE_FLAG_NOCUT  = 0x1, //Music persists through things that would normally cut to silence (such as entrance exit warps)
+	MUSIC_UPDATE_FLAG_REVERT = 0x2 //State reverts to screen on music switch
 };
 
 //SYstem Date and Time Categories for GetSystemTime()
@@ -1247,7 +1249,7 @@ byte system_suspend[susptLAST];
 int32_t coreflags;
 int32_t script_UIDs[UID_TYPES];
 int32_t usr_midi_volume, usr_digi_volume, usr_sfx_volume, usr_music_volume, usr_panstyle;
-byte music_update_flags;
+byte music_update_cond, music_update_flags;
 
 byte FF_hero_action; //This way, we can make safe replicas of internal Hero actions to be set by script. 
 bool kb_typing_mode; //script only, for disbaling key presses affecting Hero, etc. 
@@ -4840,7 +4842,7 @@ enum ASM_DEFINE
 #define DMAPDATAXFADEIN         0x14A9
 #define DMAPDATAXFADEOUT        0x14AA
 #define MUSICUPDATECOND         0x14AB
-#define RESRVD_VAR_MOOSH06      0x14AC
+#define MUSICUPDATEFLAGS        0x14AC
 #define RESRVD_VAR_MOOSH07      0x14AD
 #define RESRVD_VAR_MOOSH08      0x14AE
 #define RESRVD_VAR_MOOSH09      0x14AF
