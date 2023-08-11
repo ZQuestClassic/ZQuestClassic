@@ -27406,9 +27406,9 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		int old_origin_scr_x = cur_origin_screen_index % 16;
 		int old_origin_scr_y = cur_origin_screen_index / 16;
 		int old_hero_screen_x = x.getInt() - viewport.x;
-		int old_hero_screen_y = y.getInt() - viewport.y + (232 - viewport.h);
+		int old_hero_screen_y = y.getInt() - viewport.y;
 		int new_hero_screen_x = new_hero_x - new_viewport.x;
-		int new_hero_screen_y = new_hero_y - new_viewport.y + (232 - new_viewport.h);
+		int new_hero_screen_y = new_hero_y - new_viewport.y;
 		if (dx)      secondary_axis_alignment_amount = new_hero_screen_y - old_hero_screen_y;
 		else if (dy) secondary_axis_alignment_amount = new_hero_screen_x - old_hero_screen_x;
 		else         secondary_axis_alignment_amount = 0;
@@ -27897,7 +27897,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	// TODO z3
 	// 0 for align, then scroll.
 	// 1 for scroll, then align.
-	int align_mode = 1;
+	int align_mode = 0;
 
 	// 0 for change playing field offset, then scroll.
 	// 1 for scroll, then change playing field offset.
@@ -28011,7 +28011,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			if (align_counter > 0)
 			{
 				align_counter = MAX(0, align_counter - 4);
-				scroll_counter++;
+				if (align_counter)
+					scroll_counter++;
 			}
 		}
 		else
@@ -28023,10 +28024,12 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			}
 		}
 
+		bool do_pfo_adjust = false;
 		if (pfo_mode == 0)
 		{
-			if (pfo_counter > 0)
+			if (pfo_counter > 0 && align_counter == 0)
 			{
+				do_pfo_adjust = true;
 				pfo_counter = MAX(0, pfo_counter - 4);
 				if (pfo_counter)
 					scroll_counter++;
@@ -28036,12 +28039,13 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		{
 			if (pfo_counter > 0 && !(scroll_counter >= 0 && delay != 0))
 			{
+				do_pfo_adjust = true;
 				pfo_counter = MAX(0, pfo_counter - 4);
 				no_move = 1;
 			}
 		}
 
-		if (pfo_counter > 0)
+		if (do_pfo_adjust)
 		{
 			int dpfo = sign(new_playing_field_offset - old_playing_field_offset);
 			playing_field_offset = new_playing_field_offset - pfo_counter * dpfo;
