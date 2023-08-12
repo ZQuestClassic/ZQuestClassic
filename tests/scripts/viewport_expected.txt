@@ -1,3 +1,13 @@
+Compiling 'viewport.zs'
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+Pass 5: Generating object code
+Pass 6: Assembling
+Success!
+Compile finished with exit code '0' (success)
+
 PUSHV 0
 PUSHR d2
 PUSHR d2
