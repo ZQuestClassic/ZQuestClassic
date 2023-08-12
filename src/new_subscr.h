@@ -808,9 +808,9 @@ struct SubscrPage
 	
 	void move_cursor(int dir, bool item_only = false);
 	int32_t move_legacy(int dir, int startp, int fp=-1, int fp2=-1, int fp3=-1, bool equip_only=true, bool item_only=true);
-	SubscrWidget* get_widg_pos(int32_t pos, bool sel_only = true);
+	SubscrWidget* get_widg_pos(int32_t pos, bool item_only);
 	SubscrWidget* get_sel_widg();
-	int32_t get_item_pos(int32_t pos, bool sel_only = true);
+	int32_t get_item_pos(int32_t pos, bool item_only);
 	int32_t get_sel_item(bool display = false);
 	int32_t get_pos_of_item(int32_t itemid);
 	

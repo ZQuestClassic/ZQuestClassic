@@ -876,66 +876,66 @@ int32_t d_ssrt_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
 
 int32_t d_ssup_btn4_proc(int32_t msg,DIALOG *d,int32_t c)
 {
-    switch(msg)
-    {
-    case MSG_CLICK:
-    {
-        jwin_iconbutton_proc(msg, d, c);
-        subscr_edit.cur_page().move_cursor(SEL_UP);
-        return D_O_K;
-    }
-    break;
-    }
-    
-    return jwin_iconbutton_proc(msg, d, c);
+	switch(msg)
+	{
+		case MSG_CLICK:
+		{
+			jwin_iconbutton_proc(msg, d, c);
+			subscr_edit.cur_page().move_cursor(SEL_UP);
+			return D_O_K;
+		}
+		break;
+	}
+	
+	return jwin_iconbutton_proc(msg, d, c);
 }
 
 int32_t d_ssdn_btn4_proc(int32_t msg,DIALOG *d,int32_t c)
 {
-    switch(msg)
-    {
-    case MSG_CLICK:
-    {
-        jwin_iconbutton_proc(msg, d, c);
-        subscr_edit.cur_page().move_cursor(SEL_DOWN);
-        return D_O_K;
-    }
-    break;
-    }
-    
-    return jwin_iconbutton_proc(msg, d, c);
+	switch(msg)
+	{
+		case MSG_CLICK:
+		{
+			jwin_iconbutton_proc(msg, d, c);
+			subscr_edit.cur_page().move_cursor(SEL_DOWN);
+			return D_O_K;
+		}
+		break;
+	}
+	
+	return jwin_iconbutton_proc(msg, d, c);
 }
 
 int32_t d_sslt_btn4_proc(int32_t msg,DIALOG *d,int32_t c)
 {
-    switch(msg)
-    {
-    case MSG_CLICK:
-    {
-        jwin_iconbutton_proc(msg, d, c);
-        subscr_edit.cur_page().move_cursor(SEL_LEFT);
-        return D_O_K;
-    }
-    break;
-    }
-    
-    return jwin_iconbutton_proc(msg, d, c);
+	switch(msg)
+	{
+		case MSG_CLICK:
+		{
+			jwin_iconbutton_proc(msg, d, c);
+			subscr_edit.cur_page().move_cursor(SEL_LEFT);
+			return D_O_K;
+		}
+		break;
+	}
+	
+	return jwin_iconbutton_proc(msg, d, c);
 }
 
 int32_t d_ssrt_btn4_proc(int32_t msg,DIALOG *d,int32_t c)
 {
-    switch(msg)
-    {
-    case MSG_CLICK:
-    {
-        jwin_iconbutton_proc(msg, d, c);
-        subscr_edit.cur_page().move_cursor(SEL_RIGHT);
-        return D_O_K;
-    }
-    break;
-    }
-    
-    return jwin_iconbutton_proc(msg, d, c);
+	switch(msg)
+	{
+		case MSG_CLICK:
+		{
+			jwin_iconbutton_proc(msg, d, c);
+			subscr_edit.cur_page().move_cursor(SEL_RIGHT);
+			return D_O_K;
+		}
+		break;
+	}
+	
+	return jwin_iconbutton_proc(msg, d, c);
 }
 
 const char *sso_textstyle[sstsMAX]=
