@@ -157,7 +157,8 @@ def get_args_for_collect_baseline_from_test_results(test_results_paths: List[Pat
             # Capture the very first frame (this covers non-gfx failures).
             failing_segments_by_replay[run.name].append([run.failing_frame, run.failing_frame])
             # ...and all unexpected gfx segments (but, the limited variant).
-            failing_segments_by_replay[run.name].extend(run.unexpected_gfx_segments_limited)
+            if run.unexpected_gfx_segments_limited:
+                failing_segments_by_replay[run.name].extend(run.unexpected_gfx_segments_limited)
 
     args = []
     for replay_name, failing_segments in failing_segments_by_replay.items():

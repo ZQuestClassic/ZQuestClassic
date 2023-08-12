@@ -146,4 +146,13 @@ void Frame::realize(DialogRunner& runner)
 		content->realize(runner);
 }
 
+int32_t Frame::onEvent(int32_t event, MessageDispatcher& sendMessage)
+{
+	assert(event == geCLICK);
+	
+	if(infoMessage >= 0)
+		sendMessage(infoMessage, MessageArg::none);
+	return -1;
+}
+
 }

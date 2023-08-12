@@ -301,6 +301,7 @@ public:
 	bool check_trig() const;
     virtual bool animate(int32_t index);
     virtual void draw(BITMAP *dest);
+    bool draw(BITMAP *dest, int layer);
 };
 
 class portal : public sprite

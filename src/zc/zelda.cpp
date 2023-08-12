@@ -4809,8 +4809,6 @@ int main(int argc, char **argv)
 	
 	mididata = (DATAFILE*)datafile[ZC_MIDI].dat;
 	
-	set_uformat(U_ASCII);
-	
 	allocate_crap();
 	
 	//script drawing bitmap allocation
@@ -5481,8 +5479,8 @@ reload_for_replay_file:
 				ZScriptVersion::RunScript(ScriptType::Global, GLOBAL_SCRIPT_END, GLOBAL_SCRIPT_END);
 			
 			
-			
 				ending();
+				set_uformat(U_UTF8);
 			}
 			break;
 			

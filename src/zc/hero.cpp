@@ -1599,6 +1599,7 @@ void HeroClass::init()
 	shield_active = false;
 	shield_forcedir = -1;
 	active_shield_id = -1;
+	conv_forcedir = -1;
 	
     //2.6
 	preventsubscreenfalling = false;  //-Z
@@ -17882,7 +17883,8 @@ bool HeroClass::premove()
 	
 	int32_t wx=x;
 	int32_t wy=y;
-	if((action==none || action==walking) && getOnSideviewLadder() && (get_qr(qr_SIDEVIEWLADDER_FACEUP)!=0)) //Allow DIR to change if standing still on sideview ladder, and force-face up.
+	if(conv_forcedir > -1) dir = conv_forcedir;
+	else if((action==none || action==walking) && getOnSideviewLadder() && (get_qr(qr_SIDEVIEWLADDER_FACEUP)!=0)) //Allow DIR to change if standing still on sideview ladder, and force-face up.
 	{
 		if((xoff==0)||diagonalMovement)
 		{
@@ -18079,8 +18081,8 @@ bool HeroClass::premove()
 	
 	if(attackclk || action==attacking || action==sideswimattacking)
 	{
-		
-		if((attackclk==0) && action!=sideswimattacking && getOnSideviewLadder() && (get_qr(qr_SIDEVIEWLADDER_FACEUP)!=0)) //Allow DIR to change if standing still on sideview ladder, and force-face up.
+		if(conv_forcedir > -1) dir = conv_forcedir;
+		else if((attackclk==0) && action!=sideswimattacking && getOnSideviewLadder() && (get_qr(qr_SIDEVIEWLADDER_FACEUP)!=0)) //Allow DIR to change if standing still on sideview ladder, and force-face up.
 		{
 			if((xoff==0)||diagonalMovement)
 			{
@@ -18098,7 +18100,8 @@ bool HeroClass::premove()
 		bool attacked = doattack();
 		
 		// This section below interferes with script-setting Hero->Dir, so it comes after doattack
-		if(!inlikelike && attackclk>4 && (attackclk&3)==0 && charging==0 && spins==0 && action!=sideswimattacking)
+		if(conv_forcedir > -1) dir = conv_forcedir;
+		else if(!inlikelike && attackclk>4 && (attackclk&3)==0 && charging==0 && spins==0 && action!=sideswimattacking)
 		{
 			if((xoff==0)||diagonalMovement)
 			{
@@ -18390,6 +18393,8 @@ void HeroClass::movehero()
 		}
 		get_move(holddir,dx,dy,dir);
 	}
+	if(conv_forcedir > -1)
+		dir = conv_forcedir;
 	
 	if(!new_engine_move(dx,dy))
 		pushing = push+1;
@@ -23419,6 +23424,55 @@ void HeroClass::checkspecial2(int32_t *ls)
 			}
 		}
 	}
+	if(isDiving()) //Dive-> triggerflag
+	{
+		int pos = COMBOPOS(x+8,y+8);
+		int x1=x,x2=x+15,y1=y+(bigHitbox?0:8),y2=y+15;
+		int xposes[] = {x1,x1,x2,x2};
+		int yposes[] = {y1,y2,y1,y2};
+		int32_t poses[4];
+		getPoses(poses,x1,y1,x2,y2);
+		for(auto lyr = 0; lyr < 7; ++lyr)
+		{
+			mapscr* s = FFCore.tempScreens[lyr];
+			newcombo const& cmb = combobuf[s->data[pos]];
+			bool didtrig = false;
+			if (cmb.triggerflags[3] & combotriggerDIVETRIG)
+			{
+				do_trigger_combo(lyr,pos);
+				didtrig = true;
+			}
+			for(auto q = 0; q < 4; ++q)
+			{
+				if(poses[q] < 0) continue;
+				if(poses[q] == pos && didtrig) continue;
+				newcombo const& cmb = combobuf[s->data[poses[q]]];
+				if (cmb.triggerflags[3] & combotriggerDIVESENSTRIG)
+					do_trigger_combo(lyr,poses[q]);
+			}
+		}
+		word c = tmpscr->numFFC();
+		for(word i=0; i<c; i++)
+		{
+			ffcdata& ffc = tmpscr->ffcs[i];
+			newcombo const& cmb = combobuf[ffc.getData()];
+			if ((cmb.triggerflags[3] & combotriggerDIVETRIG) && ffcIsAt(i, x+8, y+8))
+			{
+				do_trigger_combo_ffc(i);
+			}
+			else if(cmb.triggerflags[3] & combotriggerDIVESENSTRIG)
+			{
+				for(auto q = 0; q < 4; ++q)
+				{
+					if(ffcIsAt(i, xposes[q], yposes[q]))
+					{
+						do_trigger_combo_ffc(i);
+						break;
+					}
+				}
+			}
+		}
+	}
 	
 	//
 	// Now, let's check for Save combos...
@@ -27714,8 +27768,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf, 3, newscr, sx, sy);
 			
 			combotile_add_y -= sy;
-			putscr(scrollbuf, 0, 0, newscr);
-			putscr(scrollbuf, 0, 176, oldscr);
+			if(lenscheck(newscr,0)) putscr(scrollbuf, 0, 0, newscr);
+			if(lenscheck(oldscr,0)) putscr(scrollbuf, 0, 176, oldscr);
 			break;
 			
 		case down:
@@ -27732,8 +27786,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf, 3, newscr, sx, sy);
 			
 			combotile_add_y -= sy;
-			putscr(scrollbuf, 0, 0, oldscr);
-			putscr(scrollbuf, 0, 176, newscr);
+			if(lenscheck(oldscr,0)) putscr(scrollbuf, 0, 0, oldscr);
+			if(lenscheck(newscr,0)) putscr(scrollbuf, 0, 176, newscr);
 			break;
 			
 		case left:
@@ -27750,8 +27804,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf, 3, newscr, sx, sy);
 			
 			combotile_add_x -= sx;
-			putscr(scrollbuf, 0, 0, newscr);
-			putscr(scrollbuf, 256, 0, oldscr);
+			if(lenscheck(newscr,0)) putscr(scrollbuf, 0, 0, newscr);
+			if(lenscheck(oldscr,0)) putscr(scrollbuf, 256, 0, oldscr);
 			break;
 			
 		case right:
@@ -27768,8 +27822,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			if(XOR((newscr->flags7&fLAYER3BG) || (oldscr->flags7&fLAYER3BG), DMaps[currdmap].flags&dmfLAYER3BG)) do_primitives(scrollbuf, 3, newscr, sx, sy);
 			
 			combotile_add_x -= sx;
-			putscr(scrollbuf, 0, 0, oldscr);
-			putscr(scrollbuf, 256, 0, newscr);
+			if(lenscheck(oldscr,0)) putscr(scrollbuf, 0, 0, oldscr);
+			if(lenscheck(newscr,0)) putscr(scrollbuf, 256, 0, newscr);
 			break;
 		}
 
@@ -27777,7 +27831,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		combotile_add_y = 0;
 		
 		blit(scrollbuf, framebuf, sx, sy, 0, playing_field_offset, 256, 168);
-		do_primitives(framebuf, 0, newscr, 0, playing_field_offset);
+		if(lenscheck(newscr,0))
+			do_primitives(framebuf, 0, newscr, 0, playing_field_offset);
 		
 		do_layer(framebuf, 0, 1, oldscr, tx2, ty2, 3);
 		do_layer(framebuf, 0, 1, newscr, tx, ty, 2, false, true);
@@ -27792,14 +27847,18 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		if(!(XOR(newscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))) do_layer(framebuf, 0, 2, newscr, tx, ty, 2, false, !(oldscr->flags7&fLAYER2BG));
 		
 		//push blocks
-		do_layer(framebuf, -2, 0, oldscr, tx2, ty2, 3);
-		do_layer(framebuf, -2, 0, newscr, tx, ty, 2);
-		if(get_qr(qr_PUSHBLOCK_LAYER_1_2))
+		if(get_qr(qr_PUSHBLOCK_SPRITE_LAYER))
 		{
-			do_layer(framebuf, -2, 1, oldscr, tx2, ty2, 3);
-			do_layer(framebuf, -2, 1, newscr, tx, ty, 2);
-			do_layer(framebuf, -2, 2, oldscr, tx2, ty2, 3);
-			do_layer(framebuf, -2, 2, newscr, tx, ty, 2);
+			do_layer(framebuf, -2, 0, oldscr, tx2, ty2, 3);
+			do_layer(framebuf, -2, 0, newscr, tx, ty, 2);
+			if(get_qr(qr_PUSHBLOCK_LAYER_1_2))
+			{
+				do_layer(framebuf, -2, 1, oldscr, tx2, ty2, 3);
+				do_layer(framebuf, -2, 1, newscr, tx, ty, 2);
+				do_layer(framebuf, -2, 2, oldscr, tx2, ty2, 3);
+				do_layer(framebuf, -2, 2, newscr, tx, ty, 2);
+			}
+			do_primitives(framebuf, SPLAYER_PUSHBLOCK, newscr, 0, playing_field_offset);
 		}
 		
 		do_walkflags(oldscr, tx2, ty2,3); //show walkflags if the cheat is on
@@ -30481,19 +30540,22 @@ void setup_red_screen_old()
     
     if(XOR(tmpscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer(scrollbuf, 0, 3, tmpscr, 0, playing_field_offset, 2);
     
-    putscr(scrollbuf, 0, 0, tmpscr);
-    putscrdoors(scrollbuf,0,0,tmpscr);
+    if(lenscheck(tmpscr,0)) putscr(scrollbuf, 0, 0, tmpscr);
+	putscrdoors(scrollbuf,0,0,tmpscr);
     blit(scrollbuf, framebuf, 0, 0, 0, playing_field_offset, 256, 168);
     do_layer(framebuf, 0, 1, tmpscr, 0, 0, 2);
     
     if(!(XOR(tmpscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG))) do_layer(framebuf, 0, 2, tmpscr, 0, 0, 2);
     
-    do_layer(framebuf, -2, 0, tmpscr, 0, 0, 2);
-	if(get_qr(qr_PUSHBLOCK_LAYER_1_2))
+	if(get_qr(qr_PUSHBLOCK_SPRITE_LAYER))
 	{
-		do_layer(framebuf, -2, 1, tmpscr, 0, 0, 2);
-		do_layer(framebuf, -2, 2, tmpscr, 0, 0, 2);
-    }
+		do_layer(framebuf, -2, 0, tmpscr, 0, 0, 2);
+		if(get_qr(qr_PUSHBLOCK_LAYER_1_2))
+		{
+			do_layer(framebuf, -2, 1, tmpscr, 0, 0, 2);
+			do_layer(framebuf, -2, 2, tmpscr, 0, 0, 2);
+		}
+	}
 	
     if(!(msg_bg_display_buf->clip))
     {
@@ -31201,7 +31263,7 @@ void HeroClass::reset_hookshot()
 
 bool HeroClass::can_deploy_ladder()
 {
-    bool ladderallowed = ((!get_qr(qr_LADDERANYWHERE) && tmpscr->flags&fLADDER) || isdungeon()
+    bool ladderallowed = ((!get_qr(qr_LADDERANYWHERE) && (tmpscr->flags&fLADDER)) || isdungeon()
                           || (get_qr(qr_LADDERANYWHERE) && !(tmpscr->flags&fLADDER)));
     return (current_item_id(itype_ladder)>-1 && ladderallowed && !ilswim && z==0 && fakez==0 &&
             (!isSideViewHero() || on_sideview_solid_oldpos(x,y,old_x,old_y)));
@@ -31246,6 +31308,7 @@ void HeroClass::check_conveyor()
 		if((cmb->usrflags&cflag5) && HasHeavyBoots())
 			return;
 		is_on_conveyor=false;
+		conv_forcedir=-1;
 		is_conveyor_stunned=0;
 		
 		deltax=combo_class_buf[ctype].conveyor_x_speed;
@@ -31283,11 +31346,11 @@ void HeroClass::check_conveyor()
 		if(forcewalk)
 		{
 			is_conveyor_stunned = rate;
-			if(cmb->usrflags&cflag3)
+			if((cmb->usrflags&cflag3) && !spins)
 			{
 				if(abs(deltax) > abs(deltay))
-					dir = (deltax > 0) ? right : left;
-				else dir = (deltay > 0) ? down : up;
+					conv_forcedir = dir = (deltax > 0) ? right : left;
+				else conv_forcedir = dir = (deltay > 0) ? down : up;
 			}
 			convey_forcex = deltax;
 			convey_forcey = deltay;
@@ -31727,11 +31790,11 @@ void HeroClass::check_conveyor()
 			{
 				if(cmb->usrflags&cflag1)
 					is_conveyor_stunned = rate;
-				if(cmb->usrflags&cflag3)
+				if((cmb->usrflags&cflag3) && !spins)
 				{
 					if(abs(deltax) > abs(deltay))
-						dir = (deltax > 0) ? right : left;
-					else dir = (deltay > 0) ? down : up;
+						conv_forcedir = dir = (deltax > 0) ? right : left;
+					else conv_forcedir = dir = (deltay > 0) ? down : up;
 				}
 			}
 		}

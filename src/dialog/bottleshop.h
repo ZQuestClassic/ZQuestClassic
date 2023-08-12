@@ -15,7 +15,7 @@ class BottleShopDialog: public GUI::Dialog<BottleShopDialog>
 public:
 	enum class message
 	{
-		OK, CANCEL
+		REFR_INFO, OK, CANCEL
 	};
 
 	BottleShopDialog(int32_t index);

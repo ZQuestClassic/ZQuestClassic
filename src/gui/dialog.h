@@ -26,7 +26,7 @@ public:
 	
 	inline void show()
 	{
-		if (is_headless())
+		if (is_headless() || is_ci())
 			return;
 
 		clear_keybuf();

@@ -14,7 +14,7 @@ void call_compile_settings();
 class CompileSettingsDlg: public GUI::Dialog<CompileSettingsDlg>
 {
 public:
-	enum class message { OK, CANCEL, TOGGLE_QUEST_CFG };
+	enum class message { REFR_INFO, OK, CANCEL, TOGGLE_QUEST_CFG };
 
 	CompileSettingsDlg();
 

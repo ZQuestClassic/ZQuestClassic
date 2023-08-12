@@ -18,7 +18,7 @@ class SpriteDataDialog: public GUI::Dialog<SpriteDataDialog>
 public:
 	enum class message
 	{
-		OK, CANCEL
+		REFR_INFO, OK, CANCEL
 	};
 
 	SpriteDataDialog(int32_t index);

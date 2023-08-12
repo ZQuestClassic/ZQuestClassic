@@ -11,7 +11,7 @@ void call_foo_dlg();
 class FooDialog: public GUI::Dialog<FooDialog>
 {
 public:
-	enum class message { OK, CANCEL };
+	enum class message { REFR_INFO, OK, CANCEL };
 
 	FooDialog(int32_t v, std::function<void(int32_t,bool)> setVal);
 

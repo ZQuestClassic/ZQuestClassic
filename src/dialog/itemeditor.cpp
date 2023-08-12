@@ -1404,7 +1404,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										local_itemref.magiccosttimer[0] = val;
 									}
 								),
-								INFOBTN_EX("Requires that the cost be met, but does not consume it.", hAlign = 1.0, nopad = true),
+								INFOBTN_EX("Requires that the cost be met, but does not consume it.", hAlign = 1.0, nopad = true, forceFitH = true),
 								Checkbox(
 									hAlign = 0.0,
 									checked = (local_itemref.flags & ITEM_VALIDATEONLY),
@@ -1445,7 +1445,7 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 										local_itemref.magiccosttimer[1] = val;
 									}
 								),
-								INFOBTN_EX("Requires that the cost be met, but does not consume it.", hAlign = 1.0, nopad = true),
+								INFOBTN_EX("Requires that the cost be met, but does not consume it.", hAlign = 1.0, nopad = true, forceFitH = true),
 								Checkbox(
 									hAlign = 0.0,
 									checked = (local_itemref.flags & ITEM_VALIDATEONLY2),

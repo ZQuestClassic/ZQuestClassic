@@ -671,8 +671,6 @@ static void DX_mainscreen(int32_t f)
 	FFCore.skip_ending_credits = 0;
 	for ( int32_t q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
 	
-	set_uformat(U_ASCII);
-	
 	static int32_t pic=0;
 	//char tbuf[80];
 	char tbuf[2048] = {0}; char tbuf2[2048] = {0};
@@ -894,8 +892,6 @@ static void v25_mainscreen(int32_t f)
 	*/
 	FFCore.skip_ending_credits = 0;
 	for ( int32_t q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
-	
-	set_uformat(U_ASCII);
 	
 	static int32_t pic=0;
 	//char tbuf[80];

@@ -221,9 +221,6 @@ static AccessorTable MapDataTable[] =
 	{ "getMIDI",                    0,         ZTID_FLOAT,   MAPDATASCREENMIDI,                0,  { ZTID_MAPDATA },{} },
 	{ "setMIDI",                    0,          ZTID_VOID,   MAPDATASCREENMIDI,                0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	
-	{ "getLensLayer",               0,         ZTID_FLOAT,   MAPDATALENSLAYER,                 0,  { ZTID_MAPDATA },{} },
-	{ "setLensLayer",               0,          ZTID_VOID,   MAPDATALENSLAYER,                 0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
-	
 	{ "getFlags[]",                 0,         ZTID_FLOAT,   MAPDATAFLAGS,                     0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	{ "setFlags[]",                 0,          ZTID_VOID,   MAPDATAFLAGS,                     0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
@@ -257,6 +254,11 @@ static AccessorTable MapDataTable[] =
 	{ "setMap",                     0,         ZTID_FLOAT,   MAPDATAMAP,                       0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	{ "getScreen",                  0,         ZTID_FLOAT,   MAPDATASCREEN,                    0,  { ZTID_MAPDATA },{} },
 	{ "setScreen",                  0,         ZTID_FLOAT,   MAPDATASCREEN,                    0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	
+	{ "getLensShows[]",             0,          ZTID_BOOL,   MAPDATALENSSHOWS,                 0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "setLensShows[]",             0,          ZTID_VOID,   MAPDATALENSSHOWS,                 0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_BOOL },{} },
+	{ "getLensHides[]",             0,          ZTID_BOOL,   MAPDATALENSHIDES,                 0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "setLensHides[]",             0,          ZTID_VOID,   MAPDATALENSHIDES,                 0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_BOOL },{} },
 	
 	//Undocumented intentionally
 	{ "GetFFCInitA",                0,         ZTID_FLOAT,   -1,                          FL_INL,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
@@ -311,6 +313,8 @@ static AccessorTable MapDataTable[] =
 	{ "setScriptOccupancy",         0,          ZTID_VOID,   MAPDATASCRIPTOCCUPANCY,     FL_DEPR,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	{ "getExitScript",              0,         ZTID_FLOAT,   MAPDATASCRIPTEXIT,          FL_DEPR,  { ZTID_MAPDATA },{} },
 	{ "setExitScript",              0,          ZTID_VOID,   MAPDATASCRIPTEXIT,          FL_DEPR,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "getLensLayer",               0,         ZTID_FLOAT,   MAPDATALENSLAYER,           FL_DEPR,  { ZTID_MAPDATA },{} },
+	{ "setLensLayer",               0,          ZTID_VOID,   MAPDATALENSLAYER,           FL_DEPR,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	
 	{ "",                           0,          ZTID_VOID,   -1,                               0,  {},{} }
 };

@@ -12,7 +12,7 @@ int32_t onPitFix();
 class PitConvertDialog: public GUI::Dialog<PitConvertDialog>
 {
 public:
-	enum class message { OK, CANCEL };
+	enum class message { REFR_INFO, OK, CANCEL };
 
 	PitConvertDialog();
 

@@ -2735,6 +2735,10 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 								TRIGFLAG(19,"Invert Proximity Req"),
 								INFOBTN("Triggers when all enemies are defeated"),
 								TRIGFLAG(87, "Enemies->"),
+								INFOBTN("Triggers when the player dives on this combo"),
+								TRIGFLAG(113, "Dive->"),
+								INFOBTN("Triggers when the player dives on this combo (more sensitive hitbox)"),
+								TRIGFLAG(114, "Dive-> (Sensitive)"),
 								INFOBTN("Triggers when screen secrets trigger"),
 								TRIGFLAG(88, "Secrets->")
 							),

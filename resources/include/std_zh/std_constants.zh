@@ -3572,6 +3572,8 @@ enum ComboTrigFlag
 	TRIGFLAG_TGROUP_LESS,
 	TRIGFLAG_TGROUP_GREATER,
 	TRIGFLAG_TRIG_PUSHED,
+	TRIGFLAG_TRIG_DIVE,
+	TRIGFLAG_TRIG_DIVE_SENS,
 	
 	TRIGFLAG_MAX_IN_USE,
 	TRIGFLAG_MAX = 32*6
@@ -3914,7 +3916,10 @@ enum
 	SPLAYER_OVERHEAD_FFC, //Overhead ffcs
 	SPLAYER_DARKROOM_UNDER, //Under dark room darkness
 	SPLAYER_DARKROOM_OVER, //Over dark room darkness
-	SPLAYER_FFC_DRAW //Non-Overhead ffcs
+	SPLAYER_FFC_DRAW, //Non-Overhead ffcs
+	SPLAYER_LENS_UNDER_1, //Lens drawing secrets/revealing things
+	SPLAYER_LENS_UNDER_2, //Lens drawing secrets/revealing things
+	SPLAYER_LENS_OVER //Lens drawing blackness to cover most of the screen
 };
 
 enum //for Hero->LiftFlags[]

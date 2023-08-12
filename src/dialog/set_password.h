@@ -12,7 +12,7 @@ void call_password_dlg();
 class SetPasswordDialog: public GUI::Dialog<SetPasswordDialog>
 {
 public:
-	enum class message { OK, CANCEL };
+	enum class message { REFR_INFO, OK, CANCEL };
 
 	SetPasswordDialog(bool useKeyFile,
 		std::function<void(std::string_view, bool)> setPassword);

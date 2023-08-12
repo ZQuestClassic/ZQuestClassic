@@ -22,7 +22,7 @@ class SubscrPropDialog: public GUI::Dialog<SubscrPropDialog>
 public:
 	enum class message
 	{
-		OK, CANCEL
+		REFR_INFO, OK, CANCEL
 	};
 
 	SubscrPropDialog(subscreen_object *ref, int32_t obj_ind);

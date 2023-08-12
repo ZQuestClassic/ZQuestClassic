@@ -120,6 +120,9 @@ void zq_hide_screen(bool hidden)
 
 void render_zq()
 {
+	if (is_headless())
+		return;
+
 	ALLEGRO_STATE oldstate;
 	al_store_state(&oldstate, ALLEGRO_STATE_TARGET_BITMAP);
 	

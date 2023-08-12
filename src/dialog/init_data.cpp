@@ -526,7 +526,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 									" >-1, that piece will only show up when it's 'Show' value is equal to"
 									" this value (usable for '1/2', '1/4', '1/8' magic icons; as long as"
 									" your starting value is high enough, you can allow stacking several"
-									" levels of lowered magic cost)", bottomPadding = 0_px)
+									" levels of lowered magic cost)", bottomPadding = 0_px, forceFitH = true)
 							),
 							WORD_FIELD(&local_zinit.magic),
 							WORD_FIELD(&local_zinit.max_magic),

@@ -3290,6 +3290,12 @@ untyped EventData[?];
  * Contains event data for use with 'WaitEvent()' in generic scripts.
  * Use the appropriate set of 'GENEV_' constants based on the event.
 
+int TrigGroups[256];
+ * Read-only.
+ * The 256 'Trigger Group' values for the current screen.
+ * These represent a count of combos that 'Contribute to TrigGroup'
+ *     that are present on the screen, layers, and ffcs.
+
 int MouseCursor;
  * Which mouse cursor (ZCM_ constants) should be displayed during gameplay.
  * Default ZCM_BLANK (Resets on visiting title screen)
@@ -4664,8 +4670,9 @@ int ItemSFX;
 int MIDI;
  * The MIDI that plays on this screen.
 
-int LensLayer;
- * The layer to which Lens of Truth graphics are drawn.
+bool LensShows[7];
+bool LensHides[7];
+ * Arrays of the layers which the lens shows, and hides, respectively.
 
 /************************************************************************************************************/
 
@@ -6926,8 +6933,9 @@ int ItemSFX;
 int MIDI;
  * The MIDI that plays on this screen.
 
-int LensLayer;
- * The layer to which Lens of Truth graphics are drawn.
+bool LensShows[7];
+bool LensHides[7];
+ * Arrays of the layers which the lens shows, and hides, respectively.
 
 int Flags[10];
  * A set of flagsets that contain special data for thiws screen.

@@ -13,7 +13,7 @@
 class CheatKeysDialog: public GUI::Dialog<CheatKeysDialog>
 {
 public:
-	enum class message { OK, CANCEL, RELOAD };
+	enum class message { REFR_INFO, OK, CANCEL, RELOAD };
 
 	CheatKeysDialog(bool* confirm);
 

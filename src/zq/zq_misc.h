@@ -27,7 +27,6 @@
 #define MAXCOMBOTYPES  cMAX
 #define MAXFLAGS    mfMAX
 #define MAXPATTERNS  7
-#define MAXCUSTOMMIDIS_ZQ  (4+MAXCUSTOMMIDIS)
 
 #define cWALK         0x001
 #define cFLAGS        0x002

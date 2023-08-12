@@ -14,7 +14,7 @@ void call_vidmode_dlg();
 class VidModeDialog: public GUI::Dialog<VidModeDialog>
 {
 public:
-	enum class message { OK, CANCEL };
+	enum class message { REFR_INFO, OK, CANCEL };
 
 	VidModeDialog();
 

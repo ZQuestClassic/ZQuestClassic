@@ -133,11 +133,12 @@ void hidden_entrance2(mapscr *s, mapscr *t, bool high16only=false,int32_t single
 void update_freeform_combos();
 bool findentrance(int x, int y, int flag, bool setflag);
 bool triggerfire(int x, int y, bool setflag, bool any, bool strong, bool magic, bool divine);
-bool hitcombo(int32_t x, int32_t y, int32_t combotype);
-bool hitflag(int32_t x, int32_t y, int32_t flagtype);
+bool hitcombo(int32_t x, int32_t y, int32_t combotype, byte layers = 0b0000001);
+bool hitflag(int32_t x, int32_t y, int32_t flagtype, byte layers = 0b0000001);
 int32_t nextscr(int32_t dir);
 void bombdoor(int32_t x,int32_t y);
 void do_scrolling_layer(BITMAP *bmp, int32_t type, int32_t layer, mapscr* basescr, int32_t x, int32_t y, bool scrolling, int32_t tempscreen);
+bool lenscheck(mapscr* basescr, int layer);
 void do_layer(BITMAP *bmp, int32_t type, int32_t layer, mapscr* basescr, int32_t x, int32_t y, int32_t tempscreen, bool scrolling = false, bool drawprimitives=false);
 void put_walkflags(BITMAP *dest,int32_t x,int32_t y,int32_t xofs,int32_t yofs, word cmbdat,int32_t lyr);
 void do_walkflags(mapscr* layer,int32_t x, int32_t y, int32_t tempscreen);

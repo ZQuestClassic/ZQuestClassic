@@ -24,6 +24,7 @@ class TestReplays(unittest.TestCase):
 
     def quick_assign(self, qst_path):
         args = [
+            '-headless',
             '-quick-assign',
             qst_path,
         ]
