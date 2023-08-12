@@ -1104,26 +1104,39 @@ void zcmixer_update(ZCMIXER* mix, int32_t basevol, int32_t uservol, bool oldscri
 
 	if (mix->fadeinframes)
 	{
-		--mix->fadeinframes;
-		if (mix->newtrack != NULL)
+		if (mix->fadeindelay)
 		{
-			int32_t frames = std::clamp(mix->fadeinframes - mix->fadeindelay, 0, mix->fadeinframes);
-			int32_t pct = std::clamp(int32_t((uint64_t(frames) * 10000) / uint64_t(mix->fadeinmaxframes)), 0, 10000);
-			mix->newtrack->fadevolume = 10000 - pct;
-			int32_t temp_volume = basevol;
-			if (!oldscriptvol)
-				temp_volume = (basevol * uservol) / 10000 / 100;
-			temp_volume = (temp_volume * mix->newtrack->fadevolume) / 10000;
-			zcmusic_play(mix->newtrack, temp_volume);
-			if (mix->fadeinframes == 0)
+			--mix->fadeindelay;
+			if (mix->newtrack != NULL)
 			{
-				mix->newtrack->fadevolume = 10000;
+				zcmusic_play(mix->newtrack, 0);
+			}
+		}
+		else
+		{
+			--mix->fadeinframes;
+			if (mix->newtrack != NULL)
+			{
+				int32_t pct = std::clamp(int32_t((uint64_t(mix->fadeinframes) * 10000) / uint64_t(mix->fadeinmaxframes)), 0, 10000);
+				mix->newtrack->fadevolume = 10000 - pct;
+				int32_t temp_volume = basevol;
+				if (!oldscriptvol)
+					temp_volume = (basevol * uservol) / 10000 / 100;
+				temp_volume = (temp_volume * mix->newtrack->fadevolume) / 10000;
+				zcmusic_play(mix->newtrack, temp_volume);
+				if (mix->fadeinframes == 0)
+				{
+					mix->newtrack->fadevolume = 10000;
+				}
 			}
 		}
 	}
 	if(mix->fadeoutframes)
 	{
-		--mix->fadeoutframes;
+		if (mix->fadeoutdelay)
+			--mix->fadeoutdelay;
+		else
+			--mix->fadeoutframes;
 		if (mix->oldtrack != NULL)
 		{
 			int32_t pct = 0;

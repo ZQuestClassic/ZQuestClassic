@@ -84,6 +84,7 @@ typedef struct
 
     int32_t fadeoutframes;
     int32_t fadeoutmaxframes;
+    int32_t fadeoutdelay;
 } ZCMIXER;
 
 ZCM_EXTERN ZCMIXER* zcmixer_create();

@@ -29785,7 +29785,7 @@ void do_enh_music_crossfade()
 	int32_t track = SH::read_stack(ri->sp + 4) / 10000;
 	int32_t fadeoutframes = zc_max(SH::read_stack(ri->sp + 3) / 10000, 0);
 	int32_t fadeinframes = zc_max(SH::read_stack(ri->sp + 2) / 10000, 0);
-	int32_t fademiddleframes = zc_max(SH::read_stack(ri->sp + 1) / 10000, 0);
+	int32_t fademiddleframes = SH::read_stack(ri->sp + 1) / 10000;
 	int32_t startpos = SH::read_stack(ri->sp);
 
 	if (arrayptr == 0)
@@ -29825,11 +29825,20 @@ bool FFScript::play_enh_music_crossfade(char* name, int32_t track, int32_t fadei
 		zcmusic = NULL;
 		zcmixer->newtrack = NULL;
 
-		zcmixer->fadeinframes = fadeinframes + fademiddleframes;
+		zcmixer->fadeinframes = fadeinframes;
 		zcmixer->fadeinmaxframes = fadeinframes;
-		zcmixer->fadeindelay = fademiddleframes;
 		zcmixer->fadeoutframes = zc_max(fadeoutframes * fadeoutpct, 1);
 		zcmixer->fadeoutmaxframes = fadeoutframes;
+		if (fademiddleframes < 0)
+		{
+			zcmixer->fadeindelay = 0;
+			zcmixer->fadeoutdelay = -fademiddleframes;
+		}
+		else
+		{
+			zcmixer->fadeindelay = fademiddleframes;
+			zcmixer->fadeoutdelay = 0;
+		}
 		if (zcmixer->oldtrack != NULL)
 			zcmixer->oldtrack->fadevolume = 10000;
 		if (zcmixer->newtrack != NULL)
@@ -29851,11 +29860,20 @@ bool FFScript::play_enh_music_crossfade(char* name, int32_t track, int32_t fadei
 				zcmusic->fadevolume = 0;
 
 			zcmixer->newtrack = zcmusic;
-			zcmixer->fadeinframes = fadeinframes + fademiddleframes;
+			zcmixer->fadeinframes = fadeinframes;
 			zcmixer->fadeinmaxframes = fadeinframes;
-			zcmixer->fadeindelay = fademiddleframes;
 			zcmixer->fadeoutframes = zc_max(fadeoutframes * fadeoutpct, 1);
 			zcmixer->fadeoutmaxframes = fadeoutframes;
+			if (fademiddleframes < 0)
+			{
+				zcmixer->fadeindelay = 0;
+				zcmixer->fadeoutdelay = -fademiddleframes;
+			}
+			else
+			{
+				zcmixer->fadeindelay = fademiddleframes;
+				zcmixer->fadeoutdelay = 0;
+			}
 			if (startpos > 0)
 				zcmusic_set_curpos(zcmixer->newtrack, startpos);
 			if (zcmixer->oldtrack != NULL)
