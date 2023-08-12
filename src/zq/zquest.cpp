@@ -28884,6 +28884,12 @@ int32_t main(int32_t argc,char **argv)
 			first_save=false;
 		}
 	}
+
+	if(used_switch(argc,argv,"-q"))
+	{
+		Z_message("-q switch used, quitting program.\n");
+		exit(0);
+	}
 	
 	for(int32_t x=0; x<MAXITEMS; x++)
 	{
@@ -28972,12 +28978,6 @@ int32_t main(int32_t argc,char **argv)
 	init_ffpos();
 	
 	call_foo_dlg();
-
-	if(used_switch(argc,argv,"-q"))
-	{
-		Z_message("-q switch used, quitting program.\n");
-		exit(0);
-	}
 
 	while(!quit)
 	{
