@@ -2703,6 +2703,7 @@ void game_over(int32_t type)
 			
 			game->save_user_objects();
 			saves_write();
+			replay_step_comment("save game");
 			if (replay_get_mode() == ReplayMode::Record) replay_save();
 		}
 	}

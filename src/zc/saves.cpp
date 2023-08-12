@@ -9,6 +9,7 @@
 #include "base/zdefs.h"
 #include "zc/zelda.h"
 #include "zc/ffscript.h"
+#include "zc/replay.h"
 #include "pal.h"
 #include "tiles.h"
 #include "items.h"
@@ -31,6 +32,7 @@ static const char *SAVE_HEADER = "ZQuest Classic Save File";
 static const char *OLD_SAVE_HEADER = "Zelda Classic Save File";
 static int currgame;
 static std::vector<save_t> saves;
+static bool save_current_replay_games;
 
 save_t::~save_t()
 {
@@ -73,6 +75,9 @@ static fs::path get_deleted_folder_path()
 
 static int move_to_folder(fs::path path, fs::path dir, std::string stem = "", bool force_suffix = false)
 {
+	if (!fs::exists(path))
+		return 0;
+
 	fs::create_directories(dir);
 	auto dest = create_new_file_path(
 		dir,
@@ -2040,6 +2045,14 @@ static int32_t do_save_games()
 		update_icon(currgame);
 	}
 
+	if (currgame >= 0 && save_current_replay_games)
+	{
+		auto dir = get_save_folder_path() / "current_replay";
+		fs::create_directories(dir);
+		saves[currgame].path = create_new_file_path(dir, "zc", ".sav", true);
+		write_save(&saves[currgame]);
+	}
+
 	if (disable_save_to_disk)
 	{
 		return 0;
@@ -2241,4 +2254,9 @@ void saves_do_first_time_stuff(int index)
 
 		update_icon(index);
 	}
+}
+
+void saves_enable_save_current_replay()
+{
+	save_current_replay_games = true;
 }

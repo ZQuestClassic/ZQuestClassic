@@ -242,7 +242,7 @@ if args.replays:
     tests = [pathlib.Path(x) for x in args.replays]
     replays_dir = tests[0].parent
 else:
-    tests = list(replays_dir.glob('*.zplay'))
+    tests = list(replays_dir.rglob('*.zplay'))
 
 mode = 'assert'
 if args.update:
@@ -302,6 +302,9 @@ if 'LAZY_TEST' in os.environ:
     assert group_arg(['1']) == ({}, '1')
     test_expect_error(lambda: group_arg(['1', '2']))
     assert group_arg(['classic_1st.zplay=10']) == ({test_r('classic_1st.zplay'): '10'}, None)
+    assert group_arg(['first_quest_layered/first_quest_layered_01_of_18.zplay=10']) == ({
+        test_r('first_quest_layered/first_quest_layered_01_of_18.zplay'): '10'
+    }, None)
     assert group_arg(['1', 'classic_1st.zplay=10']) == ({test_r('classic_1st.zplay'): '10'}, '1')
     test_expect_error(lambda: group_arg(['1', 'no_exist.zplay=10']))
     test_expect_error(lambda: group_arg(['1', 'classic_1st.zplay=10', 'classic_1st.zplay=20']))
@@ -368,16 +371,22 @@ grouped_frame_arg = group_arg(args.frame)
 
 def apply_test_filter(filter: str):
     filter_as_path = pathlib.Path(filter)
-    if (os.curdir / filter_as_path).exists():
-        filter_as_path = filter_as_path.absolute()
-    if filter_as_path.is_absolute():
+
+    exact_match = next((t for t in tests if t == filter_as_path.absolute()), None)
+    if exact_match:
+        return [exact_match]
+
+    exact_match = next((t for t in tests if t == replays_dir / filter_as_path), None)
+    if exact_match:
+        return [exact_match]
+
+    if filter_as_path.is_relative_to(replays_dir):
         filter_as_path = filter_as_path.relative_to(replays_dir)
 
     filtered = []
     for test in tests:
-        if str(test.relative_to(replays_dir)) == str(filter_as_path):
-            filtered.append(test)
-        if filter in str(test.relative_to(replays_dir)):
+        rel = test.relative_to(replays_dir)
+        if filter_as_path.as_posix() in rel.as_posix():
             filtered.append(test)
     return filtered
 
@@ -433,39 +442,61 @@ def read_last_contentful_line(file):
     return f.readline().decode()
 
 
+def get_replay_qst(replay_path: pathlib.Path):
+    with replay_path.open('r', encoding='utf-8') as f:
+        for line in f:
+            line = line.strip()
+            if not line.startswith('M'):
+                break
+
+            _ , key, value = line.split(' ', 2)
+            if key == 'qst':
+                return value
+
+    return None
+
+
+def get_replay_name(replay_file: pathlib.Path):
+    if replay_file.is_relative_to(replays_dir):
+        return replay_file.relative_to(replays_dir).as_posix()
+    else:
+        return replay_file.name
+
+
 @functools.cache
 def get_replay_data(file):
+    name = get_replay_name(file)
     last_step = read_last_contentful_line(file)
     if not last_step:
-        raise Exception(f'no content found in {file.name}')
+        raise Exception(f'no content found in {name}')
     if not re.match(r'^. \d+ ', last_step):
-        raise Exception(f'unexpected content found in {file.name}:\n  {last_step}\nAre you sure this is a zplay file?')
+        raise Exception(f'unexpected content found in {name}:\n  {last_step}\nAre you sure this is a zplay file?')
 
     frames = int(last_step.split(' ')[1])
 
     # Based on speed found on Windows 64-bit in CI. Should be manually updated occasionally.
     estimated_fps = 1500
     estimated_fps_overrides = {
-        'classic_1st_lvl1.zplay': 3000,
-        'classic_1st.zplay': 3000,
-        'demosp253.zplay': 1600,
-        'dreamy_cambria.zplay': 1100,
-        'first_quest_layered.zplay': 2500,
-        'freedom_in_chains.zplay': 1300,
-        'hell_awaits.zplay': 2800,
-        'hero_of_dreams.zplay': 2400,
-        'hollow_forest.zplay': 500,
-        'lands_of_serenity.zplay': 1700,
-        'link_to_the_zelda.zplay': 2100,
-        'nes-remastered.zplay': 3000,
-        'new2013.zplay': 2800,
-        'solid.zplay': 1400,
-        'ss_jenny.zplay': 1500,
-        'stellar_seas_randomizer.zplay': 500,
-        'yuurand.zplay': 650,
+        'modules/classic/classic_1st.qst': 3000,
+        'demosp253.qst': 1600,
+        'dreamy_cambria.qst': 1100,
+        'first_quest_layered.qst': 2500,
+        'freedom_in_chains.qst': 1300,
+        'hell_awaits.qst': 2800,
+        'hero_of_dreams.qst': 2400,
+        'hollow_forest.qst': 500,
+        'lands_of_serenity.qst': 1700,
+        'link_to_the_zelda.qst': 2100,
+        'nes_remastered.qst': 3000,
+        'new2013.qst': 2800,
+        'solid.qst': 1400,
+        'ss_jenny.qst': 1500,
+        'stellar_seas_randomizer.qst': 500,
+        'yuurand.qst': 650,
     }
-    if file.name in estimated_fps_overrides:
-        estimated_fps = estimated_fps_overrides[file.name]
+    qst = get_replay_qst(file)
+    if qst in estimated_fps_overrides:
+        estimated_fps = estimated_fps_overrides[qst]
     if is_mac_ci:
         estimated_fps /= 2
     if is_web_ci:
@@ -697,8 +728,9 @@ class WebPlayerInterface:
 
 
 def run_replay_test(replay_file: pathlib.Path, output_dir: pathlib.Path) -> RunResult:
-    result = RunResult(name=replay_file.name, directory=output_dir.relative_to(test_results_dir).as_posix())
-    roundtrip_path = output_dir / f'{replay_file.name}.roundtrip'
+    name = get_replay_name(replay_file)
+    result = RunResult(name=name, directory=output_dir.relative_to(test_results_dir).as_posix())
+    roundtrip_path = output_dir / f'{name}.roundtrip'
     allegro_log_path = output_dir / 'allegro.log'
     result_path = output_dir / replay_file.with_suffix('.zplay.result.txt').name
 
@@ -895,7 +927,7 @@ for i in range(args.retries + 1):
     runs: List[RunResult] = []
     test_results.runs.append(runs)
     for test in tests_remaining:
-        print(f'= {test.relative_to(replays_dir)} ... ', end='', flush=True)
+        print(f'= {test.relative_to(replays_dir).as_posix()} ... ', end='', flush=True)
         run_dir = runs_dir / test.with_suffix('').name
         run_dir.mkdir(parents=True)
         result = run_replay_test(test, run_dir)

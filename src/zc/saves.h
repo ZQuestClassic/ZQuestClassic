@@ -50,5 +50,6 @@ const save_t* saves_get_current_slot();
 void saves_delete(int32_t index);
 void saves_copy(int32_t from_index);
 void saves_do_first_time_stuff(int index);
+void saves_enable_save_current_replay();
 
 #endif
