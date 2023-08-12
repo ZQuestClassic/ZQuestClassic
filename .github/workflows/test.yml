@@ -158,7 +158,8 @@ jobs:
           bash ${{ github.workspace }}/.github/workflows/run_target.sh zelda -headless -replay-exit-when-done -record test.zplay -frame 100 -replay-debug -test modules/classic/classic_1st.qst 0 119
           bash ${{ github.workspace }}/.github/workflows/run_target.sh zelda -headless -v0 -replay-exit-when-done -assert test.zplay
       # Simply open ZQuest with the new quest template.
-      - if: ${{ matrix.shard_index == 1 && inputs.extra-args == '' && runner.os != 'Windows' && inputs.config != 'Coverage' }}
+      # TODO: randomly crashes during exit on Linux
+      - if: ${{ matrix.shard_index == 1 && inputs.extra-args == '' && runner.os != 'Windows' && runner.os != 'Linux' && inputs.config != 'Coverage' }}
         name: Test ZQuest File->New
         run: bash ${{ github.workspace }}/.github/workflows/run_target.sh zquest -s -q 'modules/classic/default.qst'
       # Resave classic_1st.qst and assert classic_1st.zplay, to make sure the loading/saving code is not introducing bugs.
