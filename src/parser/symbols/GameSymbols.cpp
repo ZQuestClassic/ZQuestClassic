@@ -176,6 +176,11 @@ static AccessorTable gameTable[] =
 	{ "CreateSavedPortal",          0,     ZTID_SAVPORTAL,   -1,                   FL_INL,  { ZTID_GAME },{} },
 	{ "constSavedPortals",          0,     ZTID_SAVPORTAL,   INTARR_SAVPRTL*10000, FL_ARR,  { ZTID_GAME },{} },
 	
+	{ "getTrigGroups[]",            0,         ZTID_FLOAT,   GAMETRIGGROUPS,            0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "setTrigGroups[]",            0,          ZTID_VOID,   GAMETRIGGROUPS,            0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "getTriggerGroups[]",         0,         ZTID_FLOAT,   GAMETRIGGROUPS,            0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "setTriggerGroups[]",         0,          ZTID_VOID,   GAMETRIGGROUPS,            0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	
 	
 	//Intentionally undocumented
 	{ "getSTD[]",                   0,       ZTID_UNTYPED,   STDARR,                    0,  { ZTID_GAME, ZTID_FLOAT },{} },

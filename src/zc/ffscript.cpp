@@ -8179,6 +8179,14 @@ int32_t get_register(const int32_t arg)
 			ret = game_mouse_index*10000;
 			break;
 		}
+		case GAMETRIGGROUPS:
+		{
+			int32_t ind = (ri->d[rINDEX])/10000;
+			if(unsigned(ind)>255)
+				Z_scripterrlog("Invalid index %d supplied to Game->TrigGroups[]\n",ind);
+			ret = get_trig_group(ind)*10000;
+			break;
+		}
 		
 		case GAMEGRAVITY:
 		{
@@ -18667,6 +18675,8 @@ void set_register(int32_t arg, int32_t value)
 			game_mouse();
 			break;
 		}
+		case GAMETRIGGROUPS:
+			break; //read-only
 		
 		case GAMELKEYSD:
 			game->lvlkeys[(ri->d[rINDEX])/10000]=value/10000;
@@ -42548,7 +42558,7 @@ script_variable ZASMVars[]=
 	{ "MAPDATALENSHIDES", MAPDATALENSHIDES, 0, 0},
 	{ "SCREENLENSSHOWS", SCREENLENSSHOWS, 0, 0},
 	{ "SCREENLENSHIDES", SCREENLENSHIDES, 0, 0},
-	{ "RESRVD_VAR_EMILY42", RESRVD_VAR_EMILY42, 0, 0},
+	{ "GAMETRIGGROUPS", GAMETRIGGROUPS, 0, 0},
 	{ "RESRVD_VAR_EMILY43", RESRVD_VAR_EMILY43, 0, 0},
 	{ "RESRVD_VAR_EMILY44", RESRVD_VAR_EMILY44, 0, 0},
 	{ "RESRVD_VAR_EMILY45", RESRVD_VAR_EMILY45, 0, 0},

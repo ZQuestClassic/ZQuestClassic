@@ -61,6 +61,10 @@ void set_combo_posinfo(int32_t layer, int32_t pos, cpos_info& posinfo)
 }
 
 int trig_groups[256];
+int get_trig_group(int ind)
+{
+	return unsigned(ind)<256 ? trig_groups[ind] : 0;
+}
 
 bool alwaysCTypeEffects(int32_t type)
 {
