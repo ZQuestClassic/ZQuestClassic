@@ -1584,6 +1584,11 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 		}//end hack
 	}
 	else ret = qe_no_qst;
+
+	if (replay_is_active() && !testingqst_name.empty())
+	{
+		sprintf(qstpath, "%s", testingqst_name.c_str());
+	}
 	
 	if(!exists(qstpath)) ret = qe_notfound;
 	
@@ -5287,29 +5292,39 @@ reload_for_replay_file:
 
 	if (zqtesting_mode || replay_is_active())
 	{
-		gamedata* new_game = new gamedata();
-		if (use_testingst_start)
+		if (replay_is_active() && replay_get_meta_str("sav").size())
 		{
-			new_game->set_continue_dmap(testingqst_dmap);
-			new_game->set_continue_scrn(testingqst_screen);
+			auto save_path = replay_get_replay_path().parent_path() / replay_get_meta_str("sav");
+			bool success = saves_create_slot(save_path);
+			if (!success)
+				Z_error_fatal("Failed to load replay's save file");
 		}
 		else
 		{
-			new_game->set_continue_scrn(0xFF);
+			gamedata* new_game = new gamedata();
+			if (use_testingst_start)
+			{
+				new_game->set_continue_dmap(testingqst_dmap);
+				new_game->set_continue_scrn(testingqst_screen);
+			}
+			else
+			{
+				new_game->set_continue_scrn(0xFF);
+			}
+			new_game->header.qstpath = testingqst_name;
+			new_game->set_quest(0xFF);
+			if (replay_is_active())
+			{
+				std::string replay_name = replay_get_meta_str("name", "Hero");
+				new_game->set_name(replay_name.c_str());
+			}
+			else
+			{
+				new_game->set_name("Hero");
+			}
+			new_game->set_timevalid(1);
+			saves_create_slot(new_game, false);
 		}
-		new_game->header.qstpath = testingqst_name;
-		new_game->set_quest(0xFF);
-		if (replay_is_active())
-		{
-			std::string replay_name = replay_get_meta_str("name", "Hero");
-			new_game->set_name(replay_name.c_str());
-		}
-		else
-		{
-			new_game->set_name("Hero");
-		}
-		new_game->set_timevalid(1);
-		saves_create_slot(new_game, false);
 		saves_select(0);
 		if (use_testingst_start)
 			Z_message("Test mode: \"%s\", %d, %d\n", testingqst_name.c_str(), testingqst_dmap, testingqst_screen);

@@ -2193,6 +2193,16 @@ bool saves_create_slot(gamedata* game, bool save_to_disk)
 	return do_save_games();
 }
 
+bool saves_create_slot(fs::path path)
+{
+	if (!fs::exists(path))
+		return false;
+
+	auto& save = saves.emplace_back();
+	save.path = path;
+	return true;
+}
+
 void saves_do_first_time_stuff(int index)
 {
 	save_t* save;
