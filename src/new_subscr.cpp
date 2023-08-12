@@ -2395,7 +2395,8 @@ byte SW_Selector::getType() const
 }
 void SW_Selector::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
-	SubscrWidget* selitm = page.get_sel_widg();
+	SubscrWidget* widg = page.get_sel_widg();
+	if(!widg) return;
 	
 	bool big_sel=flags&SUBSCR_SELECTOR_LARGE;
 	item *tempsel=(flags&SUBSCR_SELECTOR_USEB)?sel_b:sel_a;
@@ -2404,40 +2405,63 @@ void SW_Selector::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& pag
 	
 	if(flags&SUBSCR_SELECTOR_TRANSP)
 		tempsel->drawstyle=1;
-	int32_t id = selitm ? selitm->getItemVal() : -1;
+	int32_t id = widg->getItemVal();
 	itemdata const& tmpitm = itemsbuf[id];
 	bool oldsel = get_qr(qr_SUBSCR_OLD_SELECTOR);
 	if(!oldsel) big_sel = false;
-	int32_t sw = oldsel ? (tempsel->extend > 2 ? tempsel->txsz*16 : 16) : (tempsel->extend > 2 ? tempsel->hit_width : 16),
-		sh = oldsel ? (tempsel->extend > 2 ? tempsel->txsz*16 : 16) : (tempsel->extend > 2 ? tempsel->hit_height : 16),
-		dw = oldsel ? (tempsel->extend > 2 ? tempsel->txsz*16 : 16) : ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_WIDTH) ? tmpitm.hxsz : 16),
-		dh = oldsel ? (tempsel->extend > 2 ? tempsel->txsz*16 : 16) : ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_HEIGHT) ? tmpitm.hysz : 16);
-	int32_t sxofs = oldsel ? 0 : (tempsel->extend > 2 ? tempsel->hxofs : 0),
-		syofs = oldsel ? 0 : (tempsel->extend > 2 ? tempsel->hyofs : 0),
-		dxofs = oldsel ? (tempsel->extend > 2 ? (int)tempsel->xofs : 0) : ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_X_OFFSET) ? tmpitm.hxofs : 0) + (tempsel->extend > 2 ? (int)tempsel->xofs : 0),
-		dyofs = oldsel ? (tempsel->extend > 2 ? (int)tempsel->yofs : 0) : ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_Y_OFFSET) ? tmpitm.hyofs : 0) + (tempsel->extend > 2 ? (int)tempsel->yofs : 0);
+	int sw, sh, dw, dh;
+	int sxofs, syofs, dxofs, dyofs;
+	if(oldsel)
+	{
+		sw = (tempsel->extend > 2 ? tempsel->txsz*16 : 16);
+		sh = (tempsel->extend > 2 ? tempsel->txsz*16 : 16);
+		sxofs = 0;
+		syofs = 0;
+		dw = (tempsel->extend > 2 ? tempsel->txsz*16 : 16);
+		dh = (tempsel->extend > 2 ? tempsel->txsz*16 : 16);
+		dxofs = (tempsel->extend > 2 ? (int)tempsel->xofs : 0);
+		dyofs = (tempsel->extend > 2 ? (int)tempsel->yofs : 0);
+	}
+	else
+	{
+		sw = (tempsel->extend > 2 ? tempsel->hit_width : 16);
+		sh = (tempsel->extend > 2 ? tempsel->hit_height : 16);
+		sxofs = (tempsel->extend > 2 ? tempsel->hxofs : 0);
+		syofs = (tempsel->extend > 2 ? tempsel->hyofs : 0);
+	}
+	if(widg->getType() == widgITEMSLOT)
+	{
+		dw = ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_WIDTH) ? tmpitm.hxsz : 16);
+		dh = ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_HEIGHT) ? tmpitm.hysz : 16);
+		dxofs = widg->getX()+((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_X_OFFSET) ? tmpitm.hxofs : 0) + (tempsel->extend > 2 ? (int)tempsel->xofs : 0);
+		dyofs = widg->getY()+((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_Y_OFFSET) ? tmpitm.hyofs : 0) + (tempsel->extend > 2 ? (int)tempsel->yofs : 0);
+	}
+	else
+	{
+		dw = widg->getW();
+		dh = widg->getH();
+		dxofs = widg->getX()+widg->getXOffs();
+		dyofs = widg->getY()+widg->getYOffs();
+	}
 	BITMAP* tmpbmp = create_bitmap_ex(8,sw,sh);
 	for(int32_t j=0; j<4; ++j)
 	{
 		clear_bitmap(tmpbmp);
-		if(selitm)
+		tempsel->x=0;
+		tempsel->y=0;
+		int32_t tmpx = xofs+(big_sel?(j%2?8:-8):0);
+		int32_t tmpy = yofs+(big_sel?(j>1?8:-8):0);
+		tempsel->tile+=(zc_max(itemsbuf[tempsel->id].frames,1)*j);
+		
+		if(temptile)
 		{
-			tempsel->x=0;
-			tempsel->y=0;
-			int32_t tmpx = selitm->x+xofs+(big_sel?(j%2?8:-8):0);
-			int32_t tmpy = selitm->y+yofs+(big_sel?(j>1?8:-8):0);
-			tempsel->tile+=(zc_max(itemsbuf[tempsel->id].frames,1)*j);
-			
-			if(temptile)
-			{
-				tempsel->drawzcboss(tmpbmp);
-				tempsel->tile=temptile;
-			}
-			masked_stretch_blit(tmpbmp, dest, vbound(sxofs, 0, sw), vbound(syofs, 0, sh), sw-vbound(sxofs, 0, sw), sh-vbound(syofs, 0, sh), tmpx+dxofs, tmpy+dyofs, dw, dh);
-			
-			if(!big_sel)
-				break;
+			tempsel->drawzcboss(tmpbmp);
+			tempsel->tile=temptile;
 		}
+		masked_stretch_blit(tmpbmp, dest, vbound(sxofs, 0, sw), vbound(syofs, 0, sh), sw-vbound(sxofs, 0, sw), sh-vbound(syofs, 0, sh), tmpx+dxofs, tmpy+dyofs, dw, dh);
+		
+		if(!big_sel)
+			break;
 	}
 	destroy_bitmap(tmpbmp);
 }
@@ -3075,7 +3099,7 @@ void SubscrPage::move_cursor(int dir, bool item_only)
 	
 	if(verify)
 	{
-		SubscrWidget* widg = get_widg_pos(cursor_pos);
+		SubscrWidget* widg = get_widg_pos(cursor_pos,item_only);
 		if(widg && widg->getType() == widgITEMSLOT
 			&& (widg->flags & SUBSCRFLAG_SELECTABLE)
 			&& !(widg->flags & SUBSCR_CURITM_NONEQP)
@@ -3143,7 +3167,7 @@ void SubscrPage::move_cursor(int dir, bool item_only)
 		}
 		
 		//find our new position
-		widg = get_widg_pos(curpos,false);
+		widg = get_widg_pos(curpos,true);
 		
 		if(!widg)
 			return;
@@ -3187,7 +3211,7 @@ int32_t SubscrPage::move_legacy(int dir, int startp, int fp, int fp2, int fp3, b
 	{
 		equip_only = item_only = true;
 		if(startp != fp && startp != fp2 && startp != fp3)
-			if(SubscrWidget* widg = get_widg_pos(startp))
+			if(SubscrWidget* widg = get_widg_pos(startp,item_only))
 			{
 				if(widg->getType() == widgITEMSLOT && !(widg->flags&SUBSCR_CURITM_NONEQP)
 					&& widg->getItemVal() > -1)
@@ -3264,7 +3288,7 @@ int32_t SubscrPage::move_legacy(int dir, int startp, int fp, int fp2, int fp3, b
 		}
 		
 		//find our new position
-		widg = get_widg_pos(curpos,false);
+		widg = get_widg_pos(curpos,true);
 		
 		if(!widg)
 			return failpos;
@@ -3284,13 +3308,13 @@ int32_t SubscrPage::move_legacy(int dir, int startp, int fp, int fp2, int fp3, b
 						return curpos;
 	}
 }
-SubscrWidget* SubscrPage::get_widg_pos(int32_t pos, bool sel_only)
+SubscrWidget* SubscrPage::get_widg_pos(int32_t pos, bool item_only)
 {
 	for(size_t q = 0; q < contents.size(); ++q)
 	{
 		if(!(contents[q]->flags & SUBSCRFLAG_SELECTABLE))
 			continue;
-		if (sel_only && contents[q]->getType() == widgITEMSLOT)
+		if (item_only && contents[q]->getType() == widgITEMSLOT)
 			if (static_cast<SW_CurrentItem*>(contents[q])->flags & SUBSCR_CURITM_NONEQP)
 				continue;
 		if(contents[q]->pos == pos)
@@ -3298,16 +3322,16 @@ SubscrWidget* SubscrPage::get_widg_pos(int32_t pos, bool sel_only)
 	}
 	return nullptr;
 }
-int32_t SubscrPage::get_item_pos(int32_t pos, bool sel_only)
+int32_t SubscrPage::get_item_pos(int32_t pos, bool item_only)
 {
-	auto* w = get_widg_pos(pos,sel_only);
+	auto* w = get_widg_pos(pos,item_only);
 	if(w)
 		return w->getItemVal();
 	return -1;
 }
 SubscrWidget* SubscrPage::get_sel_widg()
 {
-	return get_widg_pos(cursor_pos);
+	return get_widg_pos(cursor_pos,false);
 }
 int32_t SubscrPage::get_sel_item(bool display)
 {
@@ -3432,7 +3456,7 @@ bool ZCSubscreen::get_page_pos(int32_t itmid, byte& pg, byte& pos)
 int32_t ZCSubscreen::get_item_pos(byte pos, byte pg)
 {
 	if(pg >= pages.size()) return -1;
-	return pages[pg].get_item_pos(pos);
+	return pages[pg].get_item_pos(pos, false);
 }
 void ZCSubscreen::delete_page(byte id)
 {
