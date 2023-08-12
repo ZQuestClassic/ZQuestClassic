@@ -161,6 +161,7 @@ public:
 		return ListData();
 	}
 	static ListData numbers(bool none, int32_t start, uint32_t count);
+	static ListData numbers(bool none, int32_t start, uint32_t count, std::function<std::string(int)> formatter);
 
 	void add(ListItem item) {listItems.push_back(item);}
 	void add(std::string name, int32_t val) {listItems.emplace_back(name, val);};

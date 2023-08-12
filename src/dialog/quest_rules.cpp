@@ -238,6 +238,9 @@ static GUI::ListData comboRulesList
 	{ "Moving pushblock switch blocks obey switch toggle", qr_SWITCHES_AFFECT_MOVINGBLOCKS, 
 		"If enabled, when a crystal switch toggles, it will toggle any"
 		" pushblocks that are currently moving, while they are moving."},
+	{ "Pushable Block Sprite Layer", qr_PUSHBLOCK_SPRITE_LAYER,
+		"If enabled, pushable blocks draw to a 'block sprite layer'."
+		" pushblocks that are currently moving, while they are moving."},
 	{ "Burn Flags Are Triggered Instantly", qr_INSTABURNFLAGS, 
 		"Makes it so Fire weapons instantly trigger secrets upon touching"
 		" a burn spot. If this rule is disabled, fire weapons need to linger"
@@ -258,6 +261,8 @@ static GUI::ListData comboRulesList
 		" have those reflect, check the 'Whirlwinds Reflect off"
 		" Prism/Mirror Combos' Item Flag on the whistle item in the"
 		" item editor."},
+	{ "Mirror/Prism Combos Work On All Layers", qr_MIRROR_PRISM_LAYERS,
+		"Mirror and Prism combos work on any layer, instead of only layer 0." },
 	{ "Combo Cycling On Layers", qr_CMBCYCLELAYERS, 
 		"Allows combos to combo cycle when placed on Layers 1-6." },
 	{ "Lesser Damage Combos Take Priority", qr_DMGCOMBOPRI, 
@@ -915,6 +920,8 @@ static GUI::ListData compatRulesList
 		"If enabled, several new features relating to room guys will not work, instead using the old version behaviors."},
 	{ "Inconsistent Fairy Flags", qr_FAIRY_FLAG_COMPAT,
 		"If enabled, fairy flags work differently placed vs inherent."},
+	{ "Old Lens Layer Effects", qr_OLD_LENS_LAYEREFFECT,
+		"If enabled, the lens only effects one layer of the screen at maximum, using the old dropdown selection."},
 };
 
 static GUI::ListData enemiesRulesList

@@ -9317,7 +9317,7 @@ int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 		|| screen.oceansfx || screen.bosssfx
 		|| screen.secretsfx || screen.holdupsfx
 		|| screen.timedwarptics || screen.screen_midi != -1
-		|| screen.lens_layer)
+		|| screen.lens_layer || screen.lens_show || screen.lens_hide)
 		scr_has_flags |= SCRHAS_MISC;
 	
 	if(!p_iputl(scr_has_flags,f))
@@ -9608,6 +9608,10 @@ int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 		if(!p_iputw(screen.screen_midi,f))
 			return qe_invalid;
 		if(!p_putc(screen.lens_layer,f))
+			return qe_invalid;
+		if(!p_putc(screen.lens_show,f))
+			return qe_invalid;
+		if(!p_putc(screen.lens_hide,f))
 			return qe_invalid;
 	}
 	

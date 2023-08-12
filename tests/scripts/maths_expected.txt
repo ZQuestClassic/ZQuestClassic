@@ -1,3 +1,14 @@
+Compiling 'maths.zs'
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+Pass 5: Generating object code
+ZQ_BUFFER Line 12 @ Columns 40-48 - Warning C020: Constant 10000000 is too long and has been truncated.
+Pass 6: Assembling
+Success!
+Compile finished with exit code '0' (success)
+
 PUSHR REFFFC
 PUSHR d2
 PUSHR d2

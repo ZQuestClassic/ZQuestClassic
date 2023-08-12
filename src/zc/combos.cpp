@@ -63,6 +63,10 @@ void set_combo_posinfo(const rpos_handle_t& rpos_handle, cpos_info& posinfo)
 }
 
 int trig_groups[256];
+int get_trig_group(int ind)
+{
+	return unsigned(ind)<256 ? trig_groups[ind] : 0;
+}
 
 bool alwaysCTypeEffects(int32_t type)
 {
@@ -2782,6 +2786,7 @@ bool do_trigger_combo(const rpos_handle_t& rpos_handle, int32_t special, weapon*
 				{
 					triggering_generic_switchstate = true;
 					// TODO z3 !
+					game->lvlswitches[dlevel] ^= 1<<cmb.trig_lstate;
 					toggle_switches(1<<cmb.trig_lstate, false);
 					triggering_generic_switchstate = false;
 				}
@@ -2959,6 +2964,9 @@ bool do_trigger_combo_ffc(const ffc_handle_t& ffc_handle, int32_t special, weapo
 	if (get_qr(qr_OLD_FFC_FUNCTIONALITY)) return false;
 
 	ffcdata* ffc = ffc_handle.ffc;
+	if (ffc->flags & ffCHANGER)
+		return false; //Changers can't trigger!
+
 	int32_t cid = ffc->getData();
 	cpos_info& timer = ffc->info;
 	int32_t ocs = ffc->cset;
@@ -3157,6 +3165,43 @@ bool do_trigger_combo_ffc(const ffc_handle_t& ffc_handle, int32_t special, weapo
 				if(canPermSecret(currdmap, ffc_handle.screen_index) && !(ffc_handle.screen->flags5&fTEMPSECRETS))
 					setmapflag(ffc_handle.screen_index, mSECRET);
 				sfx(ffc_handle.screen->secretsfx);
+			}
+			
+			if (cmb.triggerflags[3] & combotriggerLEVELSTATE)
+			{
+				used_bit = true;
+				if(!(special & ctrigSWITCHSTATE) && !triggering_generic_switchstate)
+				{
+					triggering_generic_switchstate = true;
+					game->lvlswitches[dlevel] ^= 1<<cmb.trig_lstate;
+					toggle_switches(1<<cmb.trig_lstate, false);
+					triggering_generic_switchstate = false;
+				}
+			}
+			if (cmb.triggerflags[3] & combotriggerGLOBALSTATE)
+			{
+				used_bit = true;
+				if(!(special & ctrigSWITCHSTATE) && !triggering_generic_switchstate)
+				{
+					int tmr = cmb.trig_statetime, pair = cmb.trig_gstate;
+					bool oldstate = game->gswitch_timers[pair]!=0;
+					if(tmr > 0)
+					{
+						game->gswitch_timers[pair] = tmr;
+					}
+					else
+					{
+						if(game->gswitch_timers[pair])
+							game->gswitch_timers[pair] = 0;
+						else game->gswitch_timers[pair] = -1;
+					}
+					if(oldstate != (game->gswitch_timers[pair] != 0))
+					{
+						triggering_generic_switchstate = true;
+						toggle_gswitches(pair, false);
+						triggering_generic_switchstate = false;
+					}
+				}
 			}
 			
 			if(cmb.trigchange)
@@ -3491,6 +3536,9 @@ void calculate_trig_groups()
 	});
 
 	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+		if (ffc_handle.ffc->flags & ffCHANGER)
+			return; //changers don't contribute
+
 		int cid = ffc_handle.data();
 		ffc_handle.ffc->info.clear();
 		ffc_handle.ffc->info.data = cid;
@@ -3502,7 +3550,8 @@ void calculate_trig_groups()
 
 void trig_trigger_groups()
 {
-	ffc_clear_cpos_info();
+	// TODO z3 !!!! merge. rm now?
+	// ffc_clear_cpos_info();
 
 	for_every_rpos_in_region([&](const rpos_handle_t& rpos_handle) {
 		int cid = rpos_handle.data();
@@ -3518,19 +3567,24 @@ void trig_trigger_groups()
 		{
 			do_trigger_combo(rpos_handle);
 			int cid2 = rpos_handle.data();
+			bool recheck = timer.data != cid2;
+			update_trig_group(timer.data,cid2);
 			// TODO z3 upstream ? https://discord.com/channels/876899628556091432/876908472728453161/1135099459005579375
 			// update_trig_group(timer.data, cid2);
 			// timer.updateData(cid2);
 
-			if (cid != cid2)
-			{
-				cmb = &combobuf[cid2];
-				cid = cid2;
-			}
+			if (!recheck)
+				break;
+
+			cmb = &combobuf[cid2];
+			cid = cid2;
 		}
 	});
 
 	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+		if (ffc_handle.ffc->flags & ffCHANGER)
+			return; //changers don't contribute
+
 		int cid = ffc_handle.data();
 		cpos_info& timer = ffc_handle.ffc->info;
 		const newcombo* cmb = &combobuf[cid];
@@ -3544,9 +3598,15 @@ void trig_trigger_groups()
 		{
 			do_trigger_combo_ffc(ffc_handle);
 			int cid2 = ffc_handle.data();
-			update_trig_group(cid,cid2);
+			bool recheck = timer.data != cid2;
+			update_trig_group(timer.data,cid2);
 			timer.updateData(cid2);
+
+			if (!recheck)
+				break;
+
 			cmb = &combobuf[cid2];
+			cid = cid2;
 		}
 	});
 }
@@ -3601,6 +3661,9 @@ void update_combo_timers()
 	});
 
 	for_every_ffc_in_region([&](const ffc_handle_t& ffc_handle) {
+		if (ffc_handle.ffc->flags & ffCHANGER)
+			return; //changers don't contribute
+
 		cpos_info& timer = ffc_handle.ffc->info;
 		int cid = ffc_handle.data();
 		update_trig_group(timer.data,cid);

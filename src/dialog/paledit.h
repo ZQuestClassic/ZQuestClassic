@@ -15,7 +15,7 @@ bool call_paledit_dlg(char* namebuf, byte* cdata, PALETTE* pal, int32_t offset, 
 class PalEditDialog: public GUI::Dialog<PalEditDialog>
 {
 public:
-	enum class message { OK, CANCEL };
+	enum class message { REFR_INFO, OK, CANCEL };
 
 	PalEditDialog(BITMAP* bmp, byte* cdata, PALETTE* pal, char* namebuf, int32_t offset, int32_t index);
 	void updatePal();

@@ -52,7 +52,7 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "dialog/script_rules.h"
 #include "dialog/headerdlg.h"
 #include "dialog/ffc_editor.h"
-#include "dialog/screen_script.h"
+#include "dialog/screen_data.h"
 #include "dialog/compilezscript.h"
 
 #include "base/gui.h"
@@ -1407,14 +1407,14 @@ static MENU tool_menu[] =
 
 int32_t onLayer3BG()
 {
-	if ( ViewLayer3BG ) ViewLayer3BG = 0;
-	else ViewLayer3BG = 1;
+	ViewLayer3BG = ViewLayer3BG ? 0 : 1;
+	zc_set_config("zquest","layer3_bg",ViewLayer3BG);
 	return D_O_K;
 }
 int32_t onLayer2BG()
 {
-	if ( ViewLayer2BG ) ViewLayer2BG = 0;
-	else ViewLayer2BG = 1;
+	ViewLayer2BG = ViewLayer2BG ? 0 : 1;
+	zc_set_config("zquest","layer2_bg",ViewLayer2BG);
 	return D_O_K;
 }
 MENU view_menu[] =
@@ -1478,8 +1478,6 @@ static MENU data_menu[] =
 	{ (char *)"&Item",                      onItem,                    NULL,                     0,            NULL   },
 	{ (char *)"&Enemies",                   onEnemies,                 NULL,                     0,            NULL   },
 	{ (char *)"&Palette",                   onScreenPalette,           NULL,                     0,            NULL   },
-	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-	{ (char *)"&ZScript",                   onScreenScript,            NULL,                     0,            NULL   },
 	
 	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
@@ -9934,7 +9932,7 @@ int32_t onCommand(int32_t cmd)
     
     if(ret>=0)
     {
-        saved=false;
+        //saved=false;
     }
     else if(ret == -1)
     {
@@ -13345,60 +13343,6 @@ int32_t select_data(const char *prompt,int32_t index,const char *(proc)(int32_t,
     return list_dlg[2].d1;
 }
 
-static int32_t edit_scrdata1[] = // Flags 1
-{
-    //6,8,10,11,12,15,18,19,21,22,24,37,57,59,60,-1
-    118,45,46,57,  119,21,58,22,24,54,55,8,141,142, //Ordered as they are on the dialog
-    120,6,43,47,50,  121,37,42,12,135,23,143,  -1
-};
-
-static int32_t edit_scrdata3[] = // Flags 2
-{
-    //38,39,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,58,61,-1
-    123,15,19,41,51,  124,38,39,48,49, 125,52,53,
-    126,10,59,60,  127,11,44,128,129,130,131,132,  -1
-};
-
-static int32_t edit_scrdata5[] = // Enemies
-{
-    7,16,17,25,36,107,108,109,110,111,112,113,20,114,115,116,144,-1
-};
-
-static int32_t edit_scrdata2[] = // Data 1
-{
-    31,32,33,34,35,62,63,64,65,66,67,68,69,70,71,72,73,
-    74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,
-    93,94,97,98,133,134,-1
-};
-
-static int32_t edit_scrdata4[] = // Data 2
-{
-    14,95,96,99,100,101,102,103,104,105,106,-1
-};
-
-static int32_t edit_scrdata6[] = // Timed Warp
-{
-    26, 27, 28,29,30,40,117,-1
-};
-
-static int32_t edit_scrdata7[] = // Screen flags 3
-{
-    122,18,56,136,137,138,139,140,-1
-};
-
-static TABPANEL scrdata_tabs[] =
-{
-    { (char *)"S.Flags 1", D_SELECTED, edit_scrdata1, 0, NULL },
-    { (char *)"S.Flags 2", 0,          edit_scrdata3, 0, NULL },
-    { (char *)"S.Flags 3", 0,          edit_scrdata7, 0, NULL },
-    { (char *)"E.Flags",   0,          edit_scrdata5, 0, NULL },
-    { (char *)"S.Data 1",  0,          edit_scrdata2, 0, NULL },
-    { (char *)"S.Data 2",  0,          edit_scrdata4, 0, NULL },
-    { (char *)"T.Warp",    0,          edit_scrdata6, 0, NULL },
-    { NULL,                0,                   NULL, 0, NULL }
-};
-
-
 static char sfx_str_buf[42];
 
 const char *sfxlist(int32_t index, int32_t *list_size)
@@ -13414,243 +13358,7 @@ const char *sfxlist(int32_t index, int32_t *list_size)
     return NULL;
 }
 
-static char lenseffect_str_buf[30];
-
-const char *lenseffectlist(int32_t index, int32_t *list_size)
-{
-    if(index>=0)
-    {
-        bound(index,0,12);
-        
-        if(index==0)
-        {
-            sprintf(lenseffect_str_buf,"Normal");
-        }
-        else if(index<7)
-        {
-            sprintf(lenseffect_str_buf,"Hide layer %d", index);
-        }
-        else
-        {
-            sprintf(lenseffect_str_buf,"Reveal layer %d", index-6);
-        }
-        
-        return lenseffect_str_buf;
-    }
-    
-    *list_size=13;
-    return NULL;
-}
-
-static ListData nextmap_list(nextmaplist, &font);
-static ListData ns_list(nslist,&font);
-static ListData screenmidi_list(screenmidilist, &font);
 static ListData sfx_list(sfxlist, &font);
-static ListData lenseffect_list(lenseffectlist, &font);
-
-static DIALOG scrdata_dlg[] =
-{
-    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
-    { jwin_win_proc,       4,    53-29,   304+1+5+6,  156+1+38+7+10, vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Screen Data", NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    // 2
-    { jwin_button_proc,     90,   176+37,  61,   21,   vc(14),  vc(1),  'k',     D_EXIT,     0,             0, (void *) "O&K", NULL, NULL },
-    { jwin_button_proc,     170,  176+37,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { d_keyboard_proc,        0,    0,    0,    0,    0,       0,      0,       0,          KEY_F1,        0, (void *) onHelp, NULL, NULL },
-    { jwin_tab_proc,        7,   46,   295+15,  147+17,    vc(14),   vc(1),      0,      0,          1,             0, (void *) scrdata_tabs, NULL, (void *)scrdata_dlg },
-    // 6
-    { jwin_check_proc,      165,   78,   160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Block->Shutters", NULL, NULL },
-    //Moved to E. Flags
-    { jwin_check_proc,      165,  148,   160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Enemies->Item", NULL, NULL },
-    //8
-    { jwin_check_proc,      15,   178,   160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Dark Room", NULL, NULL },
-    { d_dummy_proc,         160,  56-24,     0,  8,    vc(15),  vc(1),  0,       0,          0,             0,       NULL, NULL, NULL },
-    //S.Flags 2  //10
-    { jwin_check_proc,     165,   78,   160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Whistle->Stairs", NULL, NULL },
-    { jwin_check_proc,     165,   118,   160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Toggle 'Allow Ladder'", NULL, NULL },
-    //12
-    { jwin_check_proc,     165,   148,   160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Use Maze Path", NULL, NULL },
-    { d_dummy_proc,         160,  56-24,     0,  8,    vc(15),  vc(1),  0,       0,          0,             0,       NULL, NULL, NULL },
-    //S.Data 2 //14
-    { jwin_check_proc,     140,   168,   160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Play Secret SFX On Screen Entry", NULL, NULL },
-    //15
-    { jwin_check_proc,      15,   78,   160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Combos Affect Midair Player", NULL, NULL },
-    //E.Flags //16
-    { jwin_check_proc,      15,   178,   160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Traps Ignore Walkability", NULL, NULL },
-    { jwin_check_proc,      165,  158,   160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Enemies->Secret", NULL, NULL },
-    //18
-    { jwin_check_proc,      15,   78,   160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Hold Up Item", NULL, NULL },
-    //S.Flags 2
-    { jwin_check_proc,      15,   88,   160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Cycle Combos On Screen Init", NULL, NULL },
-    //E. Flags //20
-    { jwin_check_proc,      15,   158,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "All Enemies Are Invisible", NULL, NULL },
-    //21
-    { jwin_check_proc,      15,   118,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Invisible Player", NULL, NULL },
-    { jwin_check_proc,      15,   138,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "No Subscreen", NULL, NULL },
-    //23
-    { jwin_check_proc,      165,  168,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Sprites Carry Over In Warps", NULL, NULL },
-    
-    { jwin_check_proc,       15,  148,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "...But Don't Offset Screen", NULL, NULL },
-    //E. Flags
-    { jwin_check_proc,      165,  138,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Enemies Always Return", NULL, NULL },
-    
-    // These five now appear on the Timed Warp tab.
-    { jwin_check_proc,      15,  118,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Timed Warps are Direct", NULL, NULL },
-    { jwin_check_proc,      15,  128,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Secrets Disable Timed Warp", NULL, NULL },
-    // 28
-    { jwin_text_proc,       15,   88,  128,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Timed Warp Ticks:", NULL, NULL },
-    { d_ticsedit_proc,      15,   98,  36,      16,    vc(12),  vc(1),  0,       0,          5,             0,       NULL, NULL, NULL },
-    { jwin_text_proc,17+2+36+1, 98+4,   0,   8,    vc(11),  vc(1),  0,       0,          0,             0,       NULL, NULL, NULL },
-    
-    { jwin_text_proc,          15,   68,     200,    8,    vc(14),   vc(1),      0,      0,          0,             0, (void *) "Screen State Carry Over:", NULL, NULL },
-    { jwin_text_proc,          15,   88,     72,    8,    vc(14),   vc(1),      0,      0,          0,             0, (void *) "Next Map:", NULL, NULL },
-    { jwin_text_proc,          15,   106,     96,    8,   vc(14),   vc(1),      0,      0,          0,             0, (void *) "Next Screen:", NULL, NULL },
-    { jwin_droplist_proc,      90,   84,   54,   16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          1,             0, (void *) &nextmap_list, NULL, NULL },
-//  { jwin_edit_proc,          90,    84,    32-6,   16,  vc(12),   vc(1),  0,       0,          3,             0,   NULL, NULL, NULL },
-    { jwin_droplist_proc,      90,   102,   54,   16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          1,             0, (void *) &ns_list, NULL, NULL },
-// { jwin_edit_proc,       17,   114,   32-6,   16,    vc(12),  vc(1),  0,       0,          2,             0,       NULL, NULL, NULL },
-    // { d_hexedit_proc,      97,   102,   24-3,   16,    vc(12),  vc(1),  0,       0,          2,             0,       NULL, NULL, NULL },
-    
-    //Moved to E Flags
-    { jwin_check_proc,      165,  168,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Enemies->Secret is Permanent", NULL, NULL },
-    
-    { jwin_check_proc,     165,  128,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Auto-Warps are Direct", NULL, NULL },
-    //38
-    { jwin_check_proc,      15,  128,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Save Point->Continue Here", NULL, NULL },
-    { jwin_check_proc,      15,  138,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Save Game On Entry", NULL, NULL },
-    // This now appears on the Timed Warp tab.
-    { jwin_check_proc,      15,  138,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Timed Warp Is Random (A, B, C or D)", NULL, NULL },
-    //41
-    { jwin_check_proc,      15,   98,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Damage Combos Ignore Boots", NULL, NULL },
-    //S.Flags 1
-    { jwin_check_proc,     165,  138,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Sensitive Warps are Direct", NULL, NULL },
-    { jwin_check_proc,     165,   88,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Secrets are Temporary", NULL, NULL },
-    //44
-    { jwin_check_proc,     165,  128,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Toggle 'No Diving'", NULL, NULL },
-    //S.Flags 1
-    //45
-    { jwin_check_proc,      15,   78,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Treat as Interior Screen", NULL, NULL },
-    { jwin_check_proc,      15,   88,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Treat as NES Dungeon Screen", NULL, NULL },
-    { jwin_check_proc,     165,   98,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Hit All Triggers->Perm Secret", NULL, NULL },
-    //48
-    { jwin_check_proc,      15,  148,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Continue Here", NULL, NULL },
-    { jwin_check_proc,      15,  158,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "No Continue Here After Warp", NULL, NULL },
-    //50, S.Flags 1
-    { jwin_check_proc,      165, 108,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Hit All Triggers->16-31", NULL, NULL },
-    //51
-    { jwin_check_proc,       15, 108,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Toggle Rings Affect Combos", NULL, NULL },
-    { jwin_check_proc,       15, 178,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "FF Combos Wrap Around", NULL, NULL },
-    { jwin_check_proc,       15, 188,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "No FFC Carryover", NULL, NULL },
-    //S.Flags 1
-    //54
-    { jwin_check_proc,      15,  168,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Toggle Layer 3 is Background", NULL, NULL },
-    { jwin_check_proc,      15,  158,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Toggle Layer 2 is Background", NULL, NULL },
-    { jwin_check_proc,      15,   88,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Item Falls From Ceiling", NULL, NULL },
-    { jwin_check_proc,      15,    98,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Sideview Gravity", NULL, NULL },
-    { jwin_check_proc,      15,   128,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "No Player Marker in Minimap", NULL, NULL },
-    //S. Flags 2
-    { jwin_check_proc,      165,   88,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Whistle->Palette Change", NULL, NULL },
-    { jwin_check_proc,      165,   98,  160+1,  8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Whistle->Dry Lake", NULL, NULL },
-    { d_dummy_proc,         160,  56-24,     0,  8,    vc(15),  vc(1),  0,       0,          0,             0,       NULL, NULL, NULL },
-    //62
-    { jwin_ctext_proc,       225,   68,  180,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "No Reset     /   No Carry Over", NULL, NULL },
-    { jwin_ctext_proc,       225,   78,  140,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Secrets", NULL, NULL },
-    { jwin_ctext_proc,       225,   88,  140,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Item", NULL, NULL },
-    { jwin_ctext_proc,       225,   98,  140,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Special Item", NULL, NULL },
-    { jwin_ctext_proc,       225,   108,  140,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Lock Block", NULL, NULL },
-    { jwin_ctext_proc,       225,   118,  140,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Boss Lock Block", NULL, NULL },
-    { jwin_ctext_proc,       225,   128,  140,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Chest", NULL, NULL },
-    { jwin_ctext_proc,       225,   138,  140,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Locked Chest", NULL, NULL },
-    { jwin_ctext_proc,       225,   148,  140,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Boss Locked Chest", NULL, NULL },
-    { jwin_ctext_proc,       225,   168,  140,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Door Down(D)", NULL, NULL },
-    { jwin_ctext_proc,       225,   178,  140,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Door Left(D)", NULL, NULL },
-    { jwin_ctext_proc,       225,   188,  140,    8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Door Right(D)", NULL, NULL },
-    //74
-    { jwin_check_proc,      160,  78,  8+1,  8+1,       vc(14),        vc(1),              0,  0,    1,             0,       NULL, NULL, NULL },
-    { jwin_check_proc,      160,  88,  8+1,  8+1,       vc(14),        vc(1),              0,  0,          1,             0,       NULL, NULL, NULL },
-    { jwin_check_proc,      160,  98,  8+1,  8+1,       vc(14),        vc(1),              0,  0,          1,             0,       NULL, NULL, NULL },
-    { jwin_check_proc,      160,  108,  8+1,  8+1,      vc(14),        vc(1),              0,  0,          1,             0,       NULL, NULL, NULL },
-    { jwin_check_proc,      160,  118,  8+1,  8+1,      vc(14),        vc(1),              0,  0,          1,             0,       NULL, NULL, NULL },
-    { jwin_check_proc,      160,  128,  8+1,  8+1,      vc(14),        vc(1),              0,  0,          1,             0,       NULL, NULL, NULL },
-    { jwin_check_proc,      160,  138,  8+1,  8+1,      vc(14),        vc(1),              0,  0,          1,             0,       NULL, NULL, NULL },
-    { jwin_check_proc,      160,  148,  8+1,  8+1,      vc(14),        vc(1),              0,  0,          1,             0,       NULL, NULL, NULL },
-    { jwin_check_proc,      160,  168,  8+1,  8+1,      vc(14),        vc(1),              0,  0,          1,             0,       NULL, NULL, NULL },
-    { jwin_check_proc,      160,  178,  8+1,  8+1,      vc(14),        vc(1),              0,  0,          1,             0,       NULL, NULL, NULL },
-    { jwin_check_proc,      160,  188,  8+1,  8+1,      vc(14),        vc(1),              0,  0,          1,             0,       NULL, NULL, NULL },
-    { jwin_check_proc,      280,  78,  8+1,  8+1,       vc(14),        vc(1),              0,  0,          1,             0,       NULL, NULL, NULL },
-    { jwin_check_proc,      280,  88,  8+1,  8+1,       vc(14),        vc(1),              0,  0,          1,             0,       NULL, NULL, NULL },
-    { jwin_check_proc,      280,  98,  8+1,  8+1,       vc(14),        vc(1),              0,  0,          1,             0,       NULL, NULL, NULL },
-    { jwin_check_proc,      280,  108,  8+1,  8+1,      vc(14),        vc(1),              0,  0,  1,             0,       NULL, NULL, NULL },
-    { jwin_check_proc,      280,  118,  8+1,  8+1,      vc(14),        vc(1),              0,  0,  1,             0,       NULL, NULL, NULL },
-    { jwin_check_proc,      280,  128,  8+1,  8+1,      vc(14),        vc(1),              0,  0,  1,             0,       NULL, NULL, NULL },
-    { jwin_check_proc,      280,  138,  8+1,  8+1,      vc(14),        vc(1),              0,  0,  1,  0,       NULL, NULL, NULL },
-    { jwin_check_proc,      280,  148,  8+1,  8+1,      vc(14),        vc(1),              0,  0,  1,  0,       NULL, NULL, NULL },
-    //93
-    { jwin_text_proc,       17,  130,    120,   8,      vc(11),        vc(1),              0,  0,  0,  0, (void *) "Screen MIDI:", NULL, NULL },
-    { jwin_droplist_proc,   17,  138,   133,   16, jwin_pal[jcTEXTFG], jwin_pal[jcTEXTBG], 0,  0,  1,  0, (void *) &screenmidi_list, NULL, NULL },
-    { jwin_text_proc,       17,   68,   200,    8,      vc(14),        vc(1),              0,  0,  0,  0, (void *) "Damage Combo Sensitivity:", NULL, NULL },
-    { jwin_edit_proc,      140,   66,    40,   16,      vc(12),        vc(1),              0,  0,  1,  0,       NULL, NULL, NULL },
-    //97
-    { jwin_ctext_proc,     225,   158,  140,     8,     vc(14),        vc(1),              0,  0,  0,  0, (void *) "Door Up(D)", NULL, NULL },
-    { jwin_check_proc,     160,   158,  8+1,   8+1,     vc(14),        vc(1),              0,  0,  1,  0,       NULL, NULL, NULL },
-    
-    { jwin_text_proc,       17,   88,   200,     8,     vc(14),         vc(1),             0,  0,  0,  0, (void *) "Ambient Sound:", NULL, NULL },
-    { jwin_droplist_proc,  140,   86,   140,    16,          0,             0,             0,  0,  3,  0, (void *) & sfx_list, NULL, NULL },
-    
-    { jwin_text_proc,       17,   108,   200,    8,     vc(14),         vc(1),             0,  0,  0,  0, (void *) "Boss Roar Sound:", NULL, NULL },
-    { jwin_droplist_proc,  140,   106,   140,   16,         0,             0,              0,  0,  3,  0, (void *) & sfx_list, NULL, NULL },
-    
-    { jwin_text_proc,       17,   148,   200,    8,     vc(14),         vc(1),             0,  0,  0,  0, (void *) "Secret Sound:", NULL, NULL },
-    { jwin_droplist_proc,  140,   146,   140,   16,          0,             0,             0,  0,  3,  0, (void *) & sfx_list, NULL, NULL },
-    { jwin_text_proc,       17,   128,   200,    8,     vc(14),         vc(1),             0,  0,  0,  0, (void *) "Hold Up Item Sound:", NULL, NULL },
-    { jwin_droplist_proc,  140,   126,   140,   16,          0,             0,             0,  0,  3,  0, (void *) & sfx_list, NULL, NULL },
-    //107
-    { jwin_check_proc,      15,   78,   160+1,  8+1,     vc(14),        vc(1),             0,  0,  1,  0,       NULL, NULL, NULL }, // Zora
-    { jwin_check_proc,      15,   88,   160+1,  8+1,     vc(14),        vc(1),             0,  0,  1,  0,       NULL, NULL, NULL }, // Corner Traps
-    { jwin_check_proc,      15,   98,   160+1,  8+1,     vc(14),        vc(1),             0,  0,  1,  0,       NULL, NULL, NULL }, // Middle Traps
-    { jwin_check_proc,      15,   108,  160+1,  8+1,     vc(14),        vc(1),             0,  0,  1,  0,       NULL, NULL, NULL }, // Falling Rocks
-    { jwin_check_proc,      15,   118,  160+1,  8+1,     vc(14),        vc(1),             0,  0,  1,  0,       NULL, NULL, NULL }, // Statue Fire
-    { jwin_check_proc,      15,   138,  160+1,  8+1,     vc(14),        vc(1),             0,  0,  1,  0, (void *) "First Enemy Is 'Ring Leader'", NULL, NULL },
-    { jwin_check_proc,      15,   148,  160+1,  8+1,     vc(14),        vc(1),             0,  0,  1,  0, (void *) "First Enemy Carries Item", NULL, NULL },
-    // 'Invisible Enemies' goes between these two
-    { jwin_check_proc,      15,   168,  160+1,  8+1,     vc(14),        vc(1),             0,  0,  1,  0, (void *) "Dungeon Boss (Don't Return)", NULL, NULL },
-    { jwin_text_proc,       15,   68,     200,    8,     vc(14),        vc(1),             0,  0,  0,  0, (void *) "Environmental Enemies:", NULL, NULL },
-    { jwin_text_proc,       15,   128,    200,    8,     vc(14),        vc(1),             0,  0,  0,  0, (void *) "Enemy Flags:", NULL, NULL },
-    { jwin_text_proc,       15,   68,     200,    8,     vc(14),        vc(1),             0,  0,  0,  0, (void *) "Timed Warp: After a given time, Side Warp A is triggered.", NULL, NULL },
-    //118
-    { jwin_text_proc,       15,   68,     120,    8,     vc(11),        vc(1),             0,  0,  0,  0, (void *) "Room Type", NULL, NULL },
-    { jwin_text_proc,       15,  108,     120,    8,     vc(11),        vc(1),             0,  0,  0,  0, (void *) "View", NULL, NULL },
-    { jwin_text_proc,      165,   68,     120,    8,     vc(11),        vc(1),             0,  0,  0,  0, (void *) "Secrets", NULL, NULL },
-    { jwin_text_proc,      165,  118,     120,    8,     vc(11),        vc(1),             0,  0,  0,  0, (void *) "Warp", NULL, NULL },
-    { jwin_text_proc,       15,   68,     120,    8,     vc(11),        vc(1),             0,  0,  0,  0, (void *) "Items", NULL, NULL },
-    { jwin_text_proc,       15,   68,     120,    8,     vc(11),        vc(1),             0,  0,  0,  0, (void *) "Combos", NULL, NULL },
-    { jwin_text_proc,       15,  118,     120,    8,     vc(11),        vc(1),             0,  0,  0,  0, (void *) "Save", NULL, NULL },
-    { jwin_text_proc,       15,  168,     120,    8,     vc(11),        vc(1),             0,  0,  0,  0, (void *) "FFC", NULL, NULL },
-    { jwin_text_proc,      165,   68,     120,    8,     vc(11),        vc(1),             0,  0,  0,  0, (void *) "Whistle", NULL, NULL },
-    { jwin_text_proc,      165,  108,     120,    8,     vc(11),        vc(1),             0,  0,  0,  0, (void *) "Misc.", NULL, NULL },
-    //128
-    { jwin_check_proc,     165,  138,   160+1,  8+1,     vc(14),        vc(1),             0,  0,  1,  0, (void *) "General Use 1 (Scripts)", NULL, NULL },
-    { jwin_check_proc,     165,  148,   160+1,  8+1,     vc(14),        vc(1),             0,  0,  1,  0, (void *) "General Use 2 (Scripts)", NULL, NULL },
-    { jwin_check_proc,     165,  158,   160+1,  8+1,     vc(14),        vc(1),             0,  0,  1,  0, (void *) "General Use 3 (Scripts)", NULL, NULL },
-    { jwin_check_proc,     165,  168,   160+1,  8+1,     vc(14),        vc(1),             0,  0,  1,  0, (void *) "General Use 4 (Scripts)", NULL, NULL },
-    { jwin_check_proc,     165,  178,   160+1,  8+1,     vc(14),        vc(1),             0,  0,  1,  0, (void *) "General Use 5 (Scripts)", NULL, NULL },
-    //133
-    { jwin_text_proc,       17,  160,     120,    8,     vc(11),        vc(1),             0,  0,  0,  0, (void *) "Lens Effect:", NULL, NULL },
-    { jwin_droplist_proc,   17,  168,     133,   16,          0,            0,             0,  0,  0,  0, (void *) & lenseffect_list, NULL, NULL },
-    //135
-    { jwin_check_proc,     165,  158,   160+1,  8+1,     vc(14),        vc(1),             0,  0,  1,  0, (void *) "Maze Overrides Side Warps", NULL, NULL },
-    { jwin_check_proc,      15,   98,   160+1,  8+1,     vc(14),        vc(1),             0,  0,  1,  0, (void *) "Secrets->Item", NULL, NULL },
-    { jwin_check_proc,      15,  108,   160+1,  8+1,    vc(14),         vc(1),             0,  0,  1,  0, (void *) "Item->Secrets", NULL, NULL },
-    { jwin_check_proc,      15,  118,   160+1,  8+1,    vc(14),         vc(1),             0,  0,  1,  0, (void *) "Item->Secret is permanent", NULL, NULL },
-    { jwin_check_proc,      15,  128,   160+1,  8+1,    vc(14),         vc(1),             0,  0,  1,  0, (void *) "Item always returns", NULL, NULL },
-    //140
-	{ jwin_check_proc,      15,  138,   160+1,  8+1,    vc(14),         vc(1),             0,  0,  1,  0, (void *) "Special Item always returns", NULL, NULL },
-    { jwin_check_proc,      15,  188,   160+1,  8+1,    vc(14),         vc(1),             0,  0,  1,  0, (void *) "...Dithered Darkness", NULL, NULL },
-    { jwin_check_proc,      15,  198,   160+1,  8+1,    vc(14),         vc(1),             0,  0,  1,  0, (void *) "...Transparent Darkness", NULL, NULL },
-    { jwin_check_proc,      165, 178,   160+1,  8+1,    vc(14),         vc(1),             0,  0,  1,  0, (void *) "Disable Magic Mirror", NULL, NULL },
-    { jwin_check_proc,      165, 178,   160+1,  8+1,    vc(14),         vc(1),             0,  0,  1,  0, (void *) "Chain 'Enemies->' triggers", NULL, NULL },
-	{ NULL,                  0,    0,       0,    0,          0,            0,             0,  0,  0,  0,       NULL, NULL,  NULL }
-};
 
 const char *screenscriptdroplist(int32_t index, int32_t *list_size)
 {
@@ -13668,364 +13376,15 @@ static ListData screenscript_list(screenscriptdroplist, &a4fonts[font_pfont]);
 
 int32_t onScreenScript()
 {
-    call_screenscript_dialog();
+    call_screendata_dialog(7);
     return D_O_K;
 }
 
 int32_t onScrData()
 {
 	restore_mouse();
-	char timedstring[6];
-	// char nmapstring[4];
-	// char nscrstring[3];
-	char csensstring[4];
-	char tics_secs_str[80];
-	sprintf(tics_secs_str, "=0.00 seconds");
-	char zora_str[85];
-	char ctraps_str[85];
-	char mtraps_str[85];
-	char fallrocks_str[85];
-	char statues_str[94];
-	
-	sprintf(zora_str, "Zora");
-	sprintf(ctraps_str, "Corner Traps");
-	sprintf(mtraps_str, "Middle Traps");
-	sprintf(fallrocks_str, "Falling Rocks");
-	sprintf(statues_str, "Statues Shoot Fireballs");
-	
-	{
-		bool foundzora = false;
-		bool foundctraps = false;
-		bool foundmtraps = false;
-		bool foundfallrocks = false;
-		bool foundstatues = false;
-		
-		for(int32_t i=0; i<eMAXGUYS && !(foundzora && foundctraps && foundmtraps && foundfallrocks && foundstatues); i++)
-		{
-			if(!foundzora && guysbuf[i].flags2 & eneflag_zora)
-			{
-				sprintf(zora_str, "Zora (1 x %s)", guy_string[i]);
-				foundzora = true;
-			}
-			
-			if(!foundctraps && guysbuf[i].flags2 & eneflag_trap)
-			{
-				sprintf(ctraps_str, "Corner Traps (4 x %s)", guy_string[i]);
-				foundctraps = true;
-			}
-			
-			if(!foundmtraps && guysbuf[i].flags2 & eneflag_trp2)
-			{
-				sprintf(mtraps_str, "Middle Traps (2 x %s)", guy_string[i]);
-				foundmtraps = true;
-			}
-			
-			if(!foundfallrocks && guysbuf[i].flags2 & eneflag_rock)
-			{
-				sprintf(fallrocks_str, "Falling Rocks (3 x %s)", guy_string[i]);
-				foundfallrocks = true;
-			}
-			
-			if(!foundstatues && guysbuf[i].flags2 & eneflag_fire)
-			{
-				sprintf(statues_str, "Shooting Statues (%s per combo)", guy_string[i]);
-				foundstatues = true;
-			}
-		}
-	}
-	scrdata_dlg[107].dp= zora_str;
-	scrdata_dlg[108].dp= ctraps_str;
-	scrdata_dlg[109].dp= mtraps_str;
-	scrdata_dlg[110].dp= fallrocks_str;
-	scrdata_dlg[111].dp= statues_str;
-	
-	scrdata_dlg[0].dp2=get_zc_font(font_lfont);
-	sprintf(timedstring,"%d",Map.CurrScr()->timedwarptics);
-	//  sprintf(nmapstring,"%d",(int32_t)Map.CurrScr()->nextmap);
-	// sprintf(nscrstring,"%x",(int32_t)Map.CurrScr()->nextscr);
-	sprintf(csensstring,"%d",(int32_t)Map.CurrScr()->csensitive);
-	
-	byte f = Map.CurrScr()->flags;
-	
-	for(int32_t i=0; i<8; i++)
-	{
-		scrdata_dlg[i+6].flags = (f&1) ? D_SELECTED : 0;
-		f>>=1;
-	}
-	
-	f = Map.CurrScr()->flags2 >> 4;
-	
-	for(int32_t i=0; i<4; i++)
-	{
-		scrdata_dlg[i+14].flags = (f&1) ? D_SELECTED : 0;
-		f>>=1;
-	}
-	
-	f = Map.CurrScr()->flags3;
-	
-	for(int32_t i=0; i<8; i++)
-	{
-		scrdata_dlg[i+18].flags = (f&1) ? D_SELECTED : 0;
-		f>>=1;
-	}
-	
-	f = Map.CurrScr()->flags4;
-	scrdata_dlg[26].flags = (f&4) ? D_SELECTED : 0;
-	scrdata_dlg[27].flags = (f&8) ? D_SELECTED : 0;
-	scrdata_dlg[29].dp=timedstring;
-	scrdata_dlg[30].dp=tics_secs_str;
-	// scrdata_dlg[34].dp=nmapstring;
-	scrdata_dlg[34].d1 = (Map.CurrScr()->nextmap);
-	// scrdata_dlg[35].dp=nscrstring;
-	scrdata_dlg[35].d1 = (Map.CurrScr()->nextscr);
-	scrdata_dlg[96].dp=csensstring;
-	scrdata_dlg[100].d1= (int32_t)Map.CurrScr()->oceansfx;
-	scrdata_dlg[102].d1= (int32_t)Map.CurrScr()->bosssfx;
-	scrdata_dlg[104].d1= (int32_t)Map.CurrScr()->secretsfx;
-	scrdata_dlg[106].d1= (int32_t)Map.CurrScr()->holdupsfx;
-	scrdata_dlg[36].flags = (f&16) ? D_SELECTED : 0;
-	//scrdata_dlg[37].flags = (f&32) ? D_SELECTED : 0;
-	scrdata_dlg[38].flags = (f&64) ? D_SELECTED : 0;
-	scrdata_dlg[39].flags = (f&128) ? D_SELECTED : 0;
-	f = Map.CurrScr()->flags5;
-	scrdata_dlg[40].flags = (f&1) ? D_SELECTED : 0;
-	scrdata_dlg[41].flags = (f&2) ? D_SELECTED : 0;
-	scrdata_dlg[37].flags = (f&4) ? D_SELECTED : 0;
-	scrdata_dlg[42].flags = (f&8) ? D_SELECTED : 0;
-	scrdata_dlg[43].flags = (f&16) ? D_SELECTED : 0;
-	scrdata_dlg[44].flags = (f&64) ? D_SELECTED : 0;
-	scrdata_dlg[53].flags = (f&128) ? D_SELECTED : 0;
-	f = Map.CurrScr()->flags6;
-	scrdata_dlg[45].flags = (f&1) ? D_SELECTED : 0;
-	scrdata_dlg[46].flags = (f&2) ? D_SELECTED : 0;
-	scrdata_dlg[47].flags = (f&4) ? D_SELECTED : 0;
-	scrdata_dlg[48].flags = (f&8) ? D_SELECTED : 0;
-	scrdata_dlg[49].flags = (f&16) ? D_SELECTED : 0;
-	scrdata_dlg[50].flags = (f&32) ? D_SELECTED : 0;
-	scrdata_dlg[51].flags = (f&64) ? D_SELECTED : 0;
-	scrdata_dlg[52].flags = (f&128) ? D_SELECTED : 0;
-	f = Map.CurrScr()->flags7;
-	scrdata_dlg[54].flags = (f&1) ? D_SELECTED : 0;
-	scrdata_dlg[55].flags = (f&2) ? D_SELECTED : 0;
-	scrdata_dlg[56].flags = (f&4) ? D_SELECTED : 0;
-	scrdata_dlg[57].flags = (f&8) ? D_SELECTED : 0;
-	scrdata_dlg[58].flags = (f&16) ? D_SELECTED : 0;
-	scrdata_dlg[59].flags = (f&64) ? D_SELECTED : 0;
-	scrdata_dlg[60].flags = (f&128) ? D_SELECTED : 0;
-	f = Map.CurrScr()->flags8;
-	scrdata_dlg[128].flags = (f&1) ? D_SELECTED : 0;
-	scrdata_dlg[129].flags = (f&2) ? D_SELECTED : 0;
-	scrdata_dlg[130].flags = (f&4) ? D_SELECTED : 0;
-	scrdata_dlg[131].flags = (f&8) ? D_SELECTED : 0;
-	scrdata_dlg[132].flags = (f&16) ? D_SELECTED : 0;
-	scrdata_dlg[135].flags = (f&32) ? D_SELECTED : 0;
-	scrdata_dlg[136].flags = (f&fSECRETITEM) ? D_SELECTED : 0;
-	scrdata_dlg[137].flags = (f&fITEMSECRET) ? D_SELECTED : 0;
-	f = Map.CurrScr()->flags9;
-	scrdata_dlg[138].flags = (f&fITEMSECRETPERM) ? D_SELECTED : 0;
-	scrdata_dlg[139].flags = (f&fITEMRETURN) ? D_SELECTED : 0;
-	scrdata_dlg[140].flags = (f&fBELOWRETURN) ? D_SELECTED : 0;
-	scrdata_dlg[141].flags = (f&fDARK_DITHER) ? D_SELECTED : 0;
-	scrdata_dlg[142].flags = (f&fDARK_TRANS) ? D_SELECTED : 0;
-	scrdata_dlg[143].flags = (f&fDISABLE_MIRROR) ? D_SELECTED : 0;
-	scrdata_dlg[144].flags = (f&fENEMY_WAVES) ? D_SELECTED : 0;
-	
-	word g = Map.CurrScr()->noreset;
-	scrdata_dlg[74].flags = (g&mSECRET) ? D_SELECTED : 0;
-	scrdata_dlg[75].flags = (g&mITEM) ? D_SELECTED : 0;
-	scrdata_dlg[76].flags = (g&mSPECIALITEM) ? D_SELECTED : 0;
-	scrdata_dlg[77].flags = (g&mLOCKBLOCK) ? D_SELECTED : 0;
-	scrdata_dlg[78].flags = (g&mBOSSLOCKBLOCK) ? D_SELECTED : 0;
-	scrdata_dlg[79].flags = (g&mCHEST) ? D_SELECTED : 0;
-	scrdata_dlg[80].flags = (g&mLOCKEDCHEST) ? D_SELECTED : 0;
-	scrdata_dlg[81].flags = (g&mBOSSCHEST) ? D_SELECTED : 0;
-	scrdata_dlg[82].flags = (g&mDOOR_DOWN) ? D_SELECTED : 0;
-	scrdata_dlg[83].flags = (g&mDOOR_LEFT) ? D_SELECTED : 0;
-	scrdata_dlg[84].flags = (g&mDOOR_RIGHT) ? D_SELECTED : 0;
-	scrdata_dlg[98].flags = (g&mDOOR_UP) ? D_SELECTED : 0;
-	g = Map.CurrScr()->nocarry;
-	scrdata_dlg[85].flags = (g&mSECRET) ? D_SELECTED : 0;
-	scrdata_dlg[86].flags = (g&mITEM) ? D_SELECTED : 0;
-	scrdata_dlg[87].flags = (g&mSPECIALITEM) ? D_SELECTED : 0;
-	scrdata_dlg[88].flags = (g&mLOCKBLOCK) ? D_SELECTED : 0;
-	scrdata_dlg[89].flags = (g&mBOSSLOCKBLOCK) ? D_SELECTED : 0;
-	scrdata_dlg[90].flags = (g&mCHEST) ? D_SELECTED : 0;
-	scrdata_dlg[91].flags = (g&mLOCKEDCHEST) ? D_SELECTED : 0;
-	scrdata_dlg[92].flags = (g&mBOSSCHEST) ? D_SELECTED : 0;
-	
-	scrdata_dlg[94].d1 = (Map.CurrScr()->screen_midi>=0)?(Map.CurrScr()->screen_midi+1):(-(Map.CurrScr()->screen_midi+1));
-	scrdata_dlg[134].d1 = Map.CurrScr()->lens_layer==llNORMAL?0:(Map.CurrScr()->lens_layer&llLENSSHOWS?6:0)+(Map.CurrScr()->lens_layer&7)+1;
-	
-	byte h=Map.CurrScr()->enemyflags;
-	
-	for(int32_t i=0; i<8; i++)
-	{
-		scrdata_dlg[i+107].flags = (h&1)?D_SELECTED:0;
-		h>>=1;
-	}
-	
-	large_dialog(scrdata_dlg);
-		
-	if(zc_popup_dialog(scrdata_dlg,-1)==2)
-	{
-		f=0;
-		
-		for(int32_t i=7; i>=0; i--)
-		{
-			f<<=1;
-			f |= scrdata_dlg[i+6].flags & D_SELECTED ? 1:0;
-		}
-		
-		Map.CurrScr()->flags = f;
-		
-		f=0;
-		
-		for(int32_t i=3; i>=0; i--)
-		{
-			f<<=1;
-			f |= scrdata_dlg[i+14].flags & D_SELECTED ? 1:0;
-		}
-		
-		Map.CurrScr()->flags2 &= 0x0F;
-		Map.CurrScr()->flags2 |= f<<4;
-		
-		f=0;
-		
-		for(int32_t i=7; i>=0; i--)
-		{
-			f<<=1;
-			f |= scrdata_dlg[i+18].flags & D_SELECTED ? 1:0;
-		}
-		
-		Map.CurrScr()->flags3 = f;
-		
-		f=0;
-		f |= scrdata_dlg[26].flags & D_SELECTED ? 4:0;
-		f |= scrdata_dlg[27].flags & D_SELECTED ? 8:0;
-		f |= scrdata_dlg[36].flags & D_SELECTED ? 16:0;
-		//f |= scrdata_dlg[37].flags & D_SELECTED ? 32:0;
-		f |= scrdata_dlg[38].flags & D_SELECTED ? 64:0;
-		f |= scrdata_dlg[39].flags & D_SELECTED ? 128:0;
-		Map.CurrScr()->flags4 = f;
-		
-		f=0;
-		f |= scrdata_dlg[40].flags & D_SELECTED ? 1:0;
-		f |= scrdata_dlg[41].flags & D_SELECTED ? 2:0;
-		f |= scrdata_dlg[37].flags & D_SELECTED ? 4:0;
-		f |= scrdata_dlg[42].flags & D_SELECTED ? 8:0;
-		f |= scrdata_dlg[43].flags & D_SELECTED ? 16:0;
-		f |= scrdata_dlg[44].flags & D_SELECTED ? 64:0;
-		f |= scrdata_dlg[53].flags & D_SELECTED ? 128:0;
-		Map.CurrScr()->flags5 = f;
-		
-		f=0;
-		f |= scrdata_dlg[45].flags & D_SELECTED ? 1:0;
-		f |= scrdata_dlg[46].flags & D_SELECTED ? 2:0;
-		f |= scrdata_dlg[47].flags & D_SELECTED ? 4:0;
-		f |= scrdata_dlg[48].flags & D_SELECTED ? 8:0;
-		f |= scrdata_dlg[49].flags & D_SELECTED ? 16:0;
-		f |= scrdata_dlg[50].flags & D_SELECTED ? 32:0;
-		f |= scrdata_dlg[51].flags & D_SELECTED ? 64:0;
-		f |= scrdata_dlg[52].flags & D_SELECTED ? 128:0;
-		Map.CurrScr()->flags6 = f;
-		
-		f=0;
-		f |= scrdata_dlg[54].flags & D_SELECTED ? 1:0;
-		f |= scrdata_dlg[55].flags & D_SELECTED ? 2:0;
-		f |= scrdata_dlg[56].flags & D_SELECTED ? 4:0;
-		f |= scrdata_dlg[57].flags & D_SELECTED ? 8:0;
-		f |= scrdata_dlg[58].flags & D_SELECTED ? 16:0;
-		f |= scrdata_dlg[59].flags & D_SELECTED ? 64:0;
-		f |= scrdata_dlg[60].flags & D_SELECTED ? 128:0;
-		Map.CurrScr()->flags7 = f;
-		
-		f=0;
-		f |= scrdata_dlg[128].flags & D_SELECTED ? 1:0;
-		f |= scrdata_dlg[129].flags & D_SELECTED ? 2:0;
-		f |= scrdata_dlg[130].flags & D_SELECTED ? 4:0;
-		f |= scrdata_dlg[131].flags & D_SELECTED ? 8:0;
-		f |= scrdata_dlg[132].flags & D_SELECTED ? 16:0;
-		f |= scrdata_dlg[135].flags & D_SELECTED ? 32:0;
-		f |= scrdata_dlg[136].flags & D_SELECTED ? fSECRETITEM:0;
-		f |= scrdata_dlg[137].flags & D_SELECTED ? fITEMSECRET:0;
-		Map.CurrScr()->flags8 = f;
-
-		f=0;
-		f |= scrdata_dlg[138].flags & D_SELECTED ? fITEMSECRETPERM:0;
-		f |= scrdata_dlg[139].flags & D_SELECTED ? fITEMRETURN:0;
-		f |= scrdata_dlg[140].flags & D_SELECTED ? fBELOWRETURN:0;
-		f |= scrdata_dlg[141].flags & D_SELECTED ? fDARK_DITHER:0;
-		f |= scrdata_dlg[142].flags & D_SELECTED ? fDARK_TRANS:0;
-		f |= scrdata_dlg[143].flags & D_SELECTED ? fDISABLE_MIRROR:0;
-		f |= scrdata_dlg[144].flags & D_SELECTED ? fENEMY_WAVES:0;
-		Map.CurrScr()->flags9 = f;
-		
-		g=0;
-		g |= scrdata_dlg[74].flags & D_SELECTED ? mSECRET:0;
-		g |= scrdata_dlg[75].flags & D_SELECTED ? mITEM:0;
-		g |= scrdata_dlg[76].flags & D_SELECTED ? mSPECIALITEM:0;
-		g |= scrdata_dlg[77].flags & D_SELECTED ? mLOCKBLOCK:0;
-		g |= scrdata_dlg[78].flags & D_SELECTED ? mBOSSLOCKBLOCK:0;
-		g |= scrdata_dlg[79].flags & D_SELECTED ? mCHEST:0;
-		g |= scrdata_dlg[80].flags & D_SELECTED ? mLOCKEDCHEST:0;
-		g |= scrdata_dlg[81].flags & D_SELECTED ? mBOSSCHEST:0;
-		g |= scrdata_dlg[82].flags & D_SELECTED ? mDOOR_DOWN:0;
-		g |= scrdata_dlg[83].flags & D_SELECTED ? mDOOR_LEFT:0;
-		g |= scrdata_dlg[84].flags & D_SELECTED ? mDOOR_RIGHT:0;
-		g |= scrdata_dlg[98].flags & D_SELECTED ? mDOOR_UP:0;
-		Map.CurrScr()->noreset = g;
-		
-		g=0;
-		g |= scrdata_dlg[85].flags & D_SELECTED ? mSECRET:0;
-		g |= scrdata_dlg[86].flags & D_SELECTED ? mITEM:0;
-		g |= scrdata_dlg[87].flags & D_SELECTED ? mSPECIALITEM:0;
-		g |= scrdata_dlg[88].flags & D_SELECTED ? mLOCKBLOCK:0;
-		g |= scrdata_dlg[89].flags & D_SELECTED ? mBOSSLOCKBLOCK:0;
-		g |= scrdata_dlg[90].flags & D_SELECTED ? mCHEST:0;
-		g |= scrdata_dlg[91].flags & D_SELECTED ? mLOCKEDCHEST:0;
-		g |= scrdata_dlg[92].flags & D_SELECTED ? mBOSSCHEST:0;
-		Map.CurrScr()->nocarry = g;
-		
-		Map.CurrScr()->screen_midi = (scrdata_dlg[94].d1>1)?(scrdata_dlg[94].d1-1):(-(scrdata_dlg[94].d1+1));
-		Map.CurrScr()->lens_layer = scrdata_dlg[134].d1==0?0:(scrdata_dlg[134].d1>=7?(llLENSSHOWS|(scrdata_dlg[134].d1-7)):(llLENSHIDES|(scrdata_dlg[134].d1-1)));
-		Map.CurrScr()->nextmap = scrdata_dlg[34].d1;
-		Map.CurrScr()->nextscr = scrdata_dlg[35].d1;
-		
-		refresh(rMAP+rSCRMAP+rMENU);
-		Map.CurrScr()->timedwarptics=atoi(timedstring);
-		Map.CurrScr()->csensitive=(atoi(csensstring)<=8?zc_max(1,atoi(csensstring)):Map.CurrScr()->csensitive);
-		Map.CurrScr()->oceansfx=scrdata_dlg[100].d1;
-		Map.CurrScr()->bosssfx=scrdata_dlg[102].d1;
-		Map.CurrScr()->secretsfx=scrdata_dlg[104].d1;
-		Map.CurrScr()->holdupsfx=scrdata_dlg[106].d1;
-		
-		h=0;
-		
-		for(int32_t i=7; i>=0; i--)
-		{
-			h<<=1;
-			h |= scrdata_dlg[107+i].flags & D_SELECTED ? 1:0;
-		}
-		
-		Map.CurrScr()->enemyflags=h;
-		
-		saved=false;
-	}
-	
+	call_screendata_dialog();
 	return D_O_K;
-}
-
-const char *nslist(int32_t index, int32_t *list_size)
-{
-    if(index>=0)
-    {
-        bound(index,0,MAXSCREENS);
-        sprintf(ns_string, " %02X", index);
-        return ns_string;
-    }
-    
-    *list_size=MAXSCREENS;
-    return NULL;
 }
 
 const char *roomslist(int32_t index, int32_t *list_size)
@@ -14115,19 +13474,6 @@ const char *gotomaplist(int32_t index, int32_t *list_size)
     return NULL;
 }
 
-const char *nextmaplist(int32_t index, int32_t *list_size)
-{
-    if(index>=0)
-    {
-        bound(index,0,map_count);
-        sprintf(number_str_buf,"%3d",index);
-        return number_str_buf;
-    }
-    
-    *list_size = map_count+1;
-    return NULL;
-}
-
 const char *midilist(int32_t index, int32_t *list_size)
 {
     if(index>=0)
@@ -14138,19 +13484,6 @@ const char *midilist(int32_t index, int32_t *list_size)
     }
     
     *list_size=MAXCUSTOMMIDIS_ZQ;
-    return NULL;
-}
-
-const char *screenmidilist(int32_t index, int32_t *list_size)
-{
-    if(index>=0)
-    
-    {
-        bound(index,0,MAXCUSTOMMIDIS_ZQ);
-        return screen_midi_string[index];
-    }
-    
-    *list_size=MAXCUSTOMMIDIS_ZQ+1;
     return NULL;
 }
 
@@ -21165,23 +20498,9 @@ int32_t onPattern()
     return D_O_K;
 }
 
-// Now just calls onScrData()
 int32_t onEnemyFlags()
 {
-	int32_t i=-1;
-	
-	bool found = false;
-	while(scrdata_tabs[++i].text != NULL)
-	{
-		if(!strcmp(scrdata_tabs[i].text, "E.Flags"))
-		{
-			found = true;
-			scrdata_tabs[i].flags = D_SELECTED;
-		}
-		else scrdata_tabs[i].flags = 0;
-	}
-	if(!found) scrdata_tabs[3].flags = D_SELECTED;
-	onScrData();
+	call_screendata_dialog(3);
 	return D_O_K;
 }
 
@@ -29129,9 +28448,6 @@ int32_t main(int32_t argc,char **argv)
 	
 	
 	zc_srand(time(0));
-	
-	
-	set_uformat(U_ASCII);
 
 	Z_message("Initializing Allegro... ");
 	if(!al_init())
@@ -29412,6 +28728,8 @@ int32_t main(int32_t argc,char **argv)
 	ShowInfo					   = zc_get_config("zquest","showinfo",1);
 	skipLayerWarning			   = zc_get_config("zquest","skip_layer_warning",0);
 	numericalFlags			  	 = zc_get_config("zquest","numerical_flags",0);
+	ViewLayer2BG = zc_get_config("zquest","layer2_bg",0);
+	ViewLayer3BG = zc_get_config("zquest","layer3_bg",0);
 	
 	OpenLastQuest				  = zc_get_config("zquest","open_last_quest",0);
 	ShowMisalignments			  = zc_get_config("zquest","show_misalignments",0);
@@ -29887,6 +29205,12 @@ int32_t main(int32_t argc,char **argv)
 			first_save=false;
 		}
 	}
+
+	if(used_switch(argc,argv,"-q"))
+	{
+		Z_message("-q switch used, quitting program.\n");
+		exit(0);
+	}
 	
 	for(int32_t x=0; x<MAXITEMS; x++)
 	{
@@ -29975,12 +29299,6 @@ int32_t main(int32_t argc,char **argv)
 	init_ffpos();
 	
 	call_foo_dlg();
-
-	if(used_switch(argc,argv,"-q"))
-	{
-		Z_message("-q switch used, quitting program.\n");
-		exit(0);
-	}
 
 	while(!quit)
 	{
@@ -31246,7 +30564,6 @@ void center_zquest_dialogs()
     jwin_center_dialog(orgcomboa_dlg);
     jwin_center_dialog(path_dlg);
     jwin_center_dialog(pattern_dlg);
-    jwin_center_dialog(scrdata_dlg);
     jwin_center_dialog(screen_pal_dlg);
     jwin_center_dialog(secret_dlg);
     jwin_center_dialog(selectdmap_dlg);

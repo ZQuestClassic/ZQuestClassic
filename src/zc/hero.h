@@ -296,7 +296,7 @@ public:
 	int32_t prompt_combo, prompt_x, prompt_y;
 	byte prompt_cset;
 	bool shield_active;
-	int8_t shield_forcedir;
+	int8_t shield_forcedir, conv_forcedir;
 	int32_t active_shield_id;
 	word coyotetime;
 	

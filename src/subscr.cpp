@@ -4312,6 +4312,140 @@ bool is_counter_item(int32_t itemtype, int32_t countertype)
     return false;
 }
 
+void add_ssc_ctr(int itemtype, bool& infinite, int32_t& value, bool alt)
+{
+	switch(itemtype)
+	{
+		case -3:
+		case -2:
+			break;
+		case sscRUPEES:
+			if(alt) break;
+			if(current_item_power(itype_wallet))
+				infinite=true;
+				
+			value+=game->get_rupies();
+			break;
+		
+		case sscBOMBS:
+			if(current_item_power(itype_bombbag))
+				infinite=true;
+				
+			value+=game->get_bombs();
+			break;
+		
+		case sscSBOMBS:
+		{
+			int32_t itemid = current_item_id(itype_bombbag);
+			
+			if(itemid>-1 && itemsbuf[itemid].power>0 && itemsbuf[itemid].flags & ITEM_FLAG1)
+				infinite=true;
+				
+			value+=game->get_sbombs();
+			break;
+		}
+		
+		case sscLIFE:
+		{
+			if(alt) break;
+			value+=game->get_life();
+			break;
+		}
+		case sscMAGIC:
+		{
+			value+=game->get_magic();
+			break;
+		}
+		
+		case sscMAXHP:
+		{
+			value+=game->get_maxlife();
+			break;
+		}
+		case sscMAXMP:
+		{
+			value+=game->get_maxmagic();
+			break;
+		}
+		
+		case sscARROWS:
+			if((!get_qr(qr_TRUEARROWS) && current_item_power(itype_wallet)) || current_item_power(itype_quiver))
+				infinite=true;
+				
+			// If Hero somehow got ammunition before getting the arrow,
+			// or if the arrow was disabled in a DMap,
+			// we shouldn't put the value as zero.
+			// if(/*current_item_id(itype_arrow)>-1*/ true)
+			{
+				if(get_qr(qr_TRUEARROWS))
+				{
+					value+=game->get_arrows();
+				}
+				else
+				{
+					value+=game->get_rupies();
+				}
+			}
+			break;
+			
+		case sscGENKEYMAGIC:
+		case sscLEVKEYMAGIC:
+		case sscANYKEYMAGIC:
+		{
+			int32_t itemid = current_item_id(itype_magickey);
+			
+			if(itemid>-1 && !infinite)
+			{
+				if(itemsbuf[itemid].flags&ITEM_FLAG1)
+					infinite = itemsbuf[itemid].power>=get_dlevel();
+				else
+					infinite = itemsbuf[itemid].power==get_dlevel();
+			}
+		}
+		
+		//fall through
+		case sscANYKEYNOMAGIC:
+		case sscLEVKEYNOMAGIC:
+		case sscGENKEYNOMAGIC:
+			if(itemtype == sscGENKEYNOMAGIC || itemtype == sscANYKEYNOMAGIC
+					|| itemtype == sscGENKEYMAGIC || itemtype == sscANYKEYMAGIC)
+				value += game->get_keys();
+				
+			if(itemtype == sscLEVKEYNOMAGIC || itemtype == sscANYKEYNOMAGIC
+					|| itemtype == sscLEVKEYMAGIC || itemtype == sscANYKEYMAGIC)
+				value += game->get_lkeys();
+				
+			break;
+			
+		case sscSCRIPT1: case sscSCRIPT2: case sscSCRIPT3: case sscSCRIPT4: case sscSCRIPT5:
+		case sscSCRIPT6: case sscSCRIPT7: case sscSCRIPT8: case sscSCRIPT9: case sscSCRIPT10:
+		case sscSCRIPT11: case sscSCRIPT12: case sscSCRIPT13: case sscSCRIPT14: case sscSCRIPT15:
+		case sscSCRIPT16: case sscSCRIPT17: case sscSCRIPT18: case sscSCRIPT19: case sscSCRIPT20:
+		case sscSCRIPT21: case sscSCRIPT22: case sscSCRIPT23: case sscSCRIPT24: case sscSCRIPT25:
+			value += game->get_counter(itemtype-3);
+			break;
+		case sscSCRIPT26: case sscSCRIPT27: case sscSCRIPT28: case sscSCRIPT29: case sscSCRIPT30:
+		case sscSCRIPT31: case sscSCRIPT32: case sscSCRIPT33: case sscSCRIPT34: case sscSCRIPT35:
+		case sscSCRIPT36: case sscSCRIPT37: case sscSCRIPT38: case sscSCRIPT39: case sscSCRIPT40:
+		case sscSCRIPT41: case sscSCRIPT42: case sscSCRIPT43: case sscSCRIPT44: case sscSCRIPT45:
+		case sscSCRIPT46: case sscSCRIPT47: case sscSCRIPT48: case sscSCRIPT49: case sscSCRIPT50:
+		case sscSCRIPT51: case sscSCRIPT52: case sscSCRIPT53: case sscSCRIPT54: case sscSCRIPT55:
+		case sscSCRIPT56: case sscSCRIPT57: case sscSCRIPT58: case sscSCRIPT59: case sscSCRIPT60:
+		case sscSCRIPT61: case sscSCRIPT62: case sscSCRIPT63: case sscSCRIPT64: case sscSCRIPT65:
+		case sscSCRIPT66: case sscSCRIPT67: case sscSCRIPT68: case sscSCRIPT69: case sscSCRIPT70:
+		case sscSCRIPT71: case sscSCRIPT72: case sscSCRIPT73: case sscSCRIPT74: case sscSCRIPT75:
+		case sscSCRIPT76: case sscSCRIPT77: case sscSCRIPT78: case sscSCRIPT79: case sscSCRIPT80:
+		case sscSCRIPT81: case sscSCRIPT82: case sscSCRIPT83: case sscSCRIPT84: case sscSCRIPT85:
+		case sscSCRIPT86: case sscSCRIPT87: case sscSCRIPT88: case sscSCRIPT89: case sscSCRIPT90:
+		case sscSCRIPT91: case sscSCRIPT92: case sscSCRIPT93: case sscSCRIPT94: case sscSCRIPT95:
+		case sscSCRIPT96: case sscSCRIPT97: case sscSCRIPT98: case sscSCRIPT99: case sscSCRIPT100:
+			value += game->get_counter(itemtype-7);
+			break;
+			
+		default:
+			break;
+	}
+}
 // itemtype1, itemtype2, itemtype3: Only itemtype1 is used. I'm unsure who made these, who disabled the code
 // for them, and when each occurred. They should probably be hidden, but some very old 2.11/2.50b quests
 // may have used this and we'd need to edit the uest to fix it as-is, so perrhaps hide them only conditionally?
@@ -4366,145 +4500,14 @@ void counter(BITMAP *dest, int32_t x, int32_t y, FONT *tempfont, int32_t color, 
     */
     
     
-    switch(itemtype)
-    {
-    case sscRUPEES:
-        if(current_item_power(itype_wallet))
-            infinite=true;
-            
-        value+=game->get_rupies();
-        break;
-        
-    case sscBOMBS:
-        if(current_item_power(itype_bombbag))
-            infinite=true;
-            
-        value+=game->get_bombs();
-        break;
-        
-    case sscSBOMBS:
-    {
-        int32_t itemid = current_item_id(itype_bombbag);
-        
-        if(itemid>-1 && itemsbuf[itemid].power>0 && itemsbuf[itemid].flags & ITEM_FLAG1)
-            infinite=true;
-            
-        value+=game->get_sbombs();
-        break;
-    }
-    
-    case sscLIFE:
-    {
-	value+=game->get_life();
-        break;
-    }
-    case sscMAGIC:
-    {
-	value+=game->get_magic();
-        break;
-    }
-    
-    case sscMAXHP:
-    {
-	value+=game->get_maxlife();
-        break;
-    }
-    case sscMAXMP:
-    {
-	value+=game->get_maxmagic();
-        break;
-    }
-    
-    case sscARROWS:
-        if((!get_qr(qr_TRUEARROWS) && current_item_power(itype_wallet)) || current_item_power(itype_quiver))
-            infinite=true;
-            
-        // If Hero somehow got ammunition before getting the arrow,
-        // or if the arrow was disabled in a DMap,
-        // we shouldn't put the value as zero.
-//        if(/*current_item_id(itype_arrow)>-1*/ true)
-        {
-            if(get_qr(qr_TRUEARROWS))
-            {
-                value+=game->get_arrows();
-            }
-            else
-            {
-                value+=game->get_rupies();
-            }
-        }
-        break;
-        
-    case sscGENKEYMAGIC:
-    case sscLEVKEYMAGIC:
-    case sscANYKEYMAGIC:
-    {
-        int32_t itemid = current_item_id(itype_magickey);
-        
-        if(itemid>-1 && !infinite)
-        {
-            if(itemsbuf[itemid].flags&ITEM_FLAG1)
-                infinite = itemsbuf[itemid].power>=get_dlevel();
-            else
-                infinite = itemsbuf[itemid].power==get_dlevel();
-        }
-    }
-    
-    //fall through
-    case sscANYKEYNOMAGIC:
-    case sscLEVKEYNOMAGIC:
-    case sscGENKEYNOMAGIC:
-        if(itemtype == sscGENKEYNOMAGIC || itemtype == sscANYKEYNOMAGIC
-                || itemtype == sscGENKEYMAGIC || itemtype == sscANYKEYMAGIC)
-            value += game->get_keys();
-            
-        if(itemtype == sscLEVKEYNOMAGIC || itemtype == sscANYKEYNOMAGIC
-                || itemtype == sscLEVKEYMAGIC || itemtype == sscANYKEYMAGIC)
-            value += game->get_lkeys();
-            
-        break;
-        
-    case sscSCRIPT1:
-    case sscSCRIPT2:
-    case sscSCRIPT3:
-    case sscSCRIPT4:
-    case sscSCRIPT5:
-    case sscSCRIPT6:
-    case sscSCRIPT7:
-    case sscSCRIPT8:
-    case sscSCRIPT9:
-    case sscSCRIPT10:
-    case sscSCRIPT11:
-    case sscSCRIPT12:
-    case sscSCRIPT13:
-    case sscSCRIPT14:
-    case sscSCRIPT15:
-    case sscSCRIPT16:
-    case sscSCRIPT17:
-    case sscSCRIPT18:
-    case sscSCRIPT19:
-    case sscSCRIPT20:
-    case sscSCRIPT21:
-    case sscSCRIPT22:
-    case sscSCRIPT23:
-    case sscSCRIPT24:
-    case sscSCRIPT25:
-        value += game->get_counter(itemtype-3);
-        break;
-        
-    default:
-        break;
-    }
-    
-    //Re-implement item2 and item3 stacking counters. -Z 26-Jan-2020
+	add_ssc_ctr(itemtype1,infinite,value,false);
+	//Re-implement item2 and item3 stacking counters. -Z 26-Jan-2020
 	if ( /*get_qr(qrSTACKSUBSCREENCOUNTERS) || (*/( FFCore.getQuestHeaderInfo(vZelda) == 0x250 && FFCore.getQuestHeaderInfo(vBuild) >= 33 ) //this ishowit looks in 2.53.1, Beta 25
 		|| ( FFCore.getQuestHeaderInfo(vZelda) > 0x250  ) ) /*)*/
-    
 	{
 		//add item2 and item3 values to item1 values
 		for (int32_t i=1; i<3; ++i)
 		{
-		    
 			switch (i)
 			{
 				case 1:
@@ -4535,146 +4538,7 @@ void counter(BITMAP *dest, int32_t x, int32_t y, FONT *tempfont, int32_t color, 
 				  
 				}
 			}
-		      
-			switch(itemtype)
-			{
-				case -3:
-				case -2:
-				case sscLIFE:
-				case sscRUPEES:
-				{
-					//do nothing if any of these three. -Z
-					//value+=game->get_life(); Life cannot stack. It's NULL. :/
-					break;
-				}
-				//case sscRUPEES:
-				//{
-				//	if(current_item_power(itype_wallet))
-				//	infinite=true;
-				//	value+=game->get_rupies();
-				//	break;
-				//}
-				case sscBOMBS:
-				{
-					if(current_item_power(itype_bombbag))
-					infinite=true;
-					value+=game->get_bombs();
-					break;
-				}
-				case sscSBOMBS:
-				{
-					int32_t itemid = current_item_id(itype_bombbag);
-					if(itemid>-1 && itemsbuf[itemid].power>0 && itemsbuf[itemid].flags & ITEM_FLAG1)
-					infinite=true;
-					value+=game->get_sbombs();
-					break;
-				}
-				case sscMAGIC:
-				{
-					value+=game->get_magic();
-					break;
-				}
-				case sscMAXHP:
-				{
-					value+=game->get_maxlife();
-					break;
-				}
-				case sscMAXMP:
-				{
-					value+=game->get_maxmagic();
-					break;
-				}
-				case sscARROWS:
-					if((!get_qr(qr_TRUEARROWS) && current_item_power(itype_wallet)) || current_item_power(itype_quiver))
-					infinite=true;
-			    
-					// If Hero somehow got ammunition before getting the arrow,
-					// or if the arrow was disabled in a DMap,
-					// we shouldn't put the value as zero.
-					//        if(/*current_item_id(itype_arrow)>-1*/ true)
-				{
-					if(get_qr(qr_TRUEARROWS))
-					{
-						value+=game->get_arrows();
-					}
-					else
-					{
-						value+=game->get_rupies();
-					}
-				}
-				break;
-
-				case sscGENKEYMAGIC:
-				case sscLEVKEYMAGIC:
-				case sscANYKEYMAGIC:
-				{
-					int32_t itemid = current_item_id(itype_magickey);	
-					if(itemid>-1 && !infinite)
-					{
-						if(itemsbuf[itemid].flags&ITEM_FLAG1)
-						{
-							infinite = itemsbuf[itemid].power>=get_dlevel();
-						}
-						else
-						{
-							infinite = itemsbuf[itemid].power==get_dlevel();
-						}
-					}
-				}
-		    
-				//fall through
-				case sscANYKEYNOMAGIC:
-				case sscLEVKEYNOMAGIC:
-				case sscGENKEYNOMAGIC:
-					if(itemtype == sscGENKEYNOMAGIC || itemtype == sscANYKEYNOMAGIC
-						|| itemtype == sscGENKEYMAGIC || itemtype == sscANYKEYMAGIC)
-					{
-						value += game->get_keys();
-					}
-			    
-					if(itemtype == sscLEVKEYNOMAGIC || itemtype == sscANYKEYNOMAGIC
-						|| itemtype == sscLEVKEYMAGIC || itemtype == sscANYKEYMAGIC)
-					{
-						value += game->get_lkeys();
-					}
-				break;
-			
-				case sscSCRIPT1:
-				case sscSCRIPT2:
-				case sscSCRIPT3:
-				case sscSCRIPT4:
-				case sscSCRIPT5:
-				case sscSCRIPT6:
-				case sscSCRIPT7:
-				case sscSCRIPT8:
-				case sscSCRIPT9:
-				case sscSCRIPT10:
-				case sscSCRIPT11:
-				case sscSCRIPT12:
-				case sscSCRIPT13:
-				case sscSCRIPT14:
-				case sscSCRIPT15:
-				case sscSCRIPT16:
-				case sscSCRIPT17:
-				case sscSCRIPT18:
-				case sscSCRIPT19:
-				case sscSCRIPT20:
-				case sscSCRIPT21:
-				case sscSCRIPT22:
-				case sscSCRIPT23:
-				case sscSCRIPT24:
-				case sscSCRIPT25:
-				{
-					value += game->get_counter(itemtype-3);
-					break;
-				}
-			
-				default:
-				{
-					break;
-				}
-			}
-	      
+			add_ssc_ctr(itemtype,infinite,value,true);
 		}
 	}
     
@@ -5972,36 +5836,33 @@ int32_t scounter_to_ctr(int32_t ssc)
 		case sscBOMBS: return crBOMBS;
 		case sscSBOMBS: return crSBOMBS;
 		case sscARROWS: return crARROWS;
-		case sscSCRIPT1: return crCUSTOM1;
-		case sscSCRIPT2: return crCUSTOM2;
-		case sscSCRIPT3: return crCUSTOM3;
-		case sscSCRIPT4: return crCUSTOM4;
-		case sscSCRIPT5: return crCUSTOM5;
-		case sscSCRIPT6: return crCUSTOM6;
-		case sscSCRIPT7: return crCUSTOM7;
-		case sscSCRIPT8: return crCUSTOM8;
-		case sscSCRIPT9: return crCUSTOM9;
-		case sscSCRIPT10: return crCUSTOM10;
-		case sscSCRIPT11: return crCUSTOM11;
-		case sscSCRIPT12: return crCUSTOM12;
-		case sscSCRIPT13: return crCUSTOM13;
-		case sscSCRIPT14: return crCUSTOM14;
-		case sscSCRIPT15: return crCUSTOM15;
-		case sscSCRIPT16: return crCUSTOM16;
-		case sscSCRIPT17: return crCUSTOM17;
-		case sscSCRIPT18: return crCUSTOM18;
-		case sscSCRIPT19: return crCUSTOM19;
-		case sscSCRIPT20: return crCUSTOM20;
-		case sscSCRIPT21: return crCUSTOM21;
-		case sscSCRIPT22: return crCUSTOM22;
-		case sscSCRIPT23: return crCUSTOM23;
-		case sscSCRIPT24: return crCUSTOM24;
-		case sscSCRIPT25: return crCUSTOM25;
 		case sscLIFE: return crLIFE;
 		case sscMAGIC: return crMAGIC;
 		case sscGENKEYMAGIC: case sscGENKEYNOMAGIC:
 		case sscANYKEYMAGIC: case sscANYKEYNOMAGIC:
 			return crKEYS;
+		case sscSCRIPT1: case sscSCRIPT2: case sscSCRIPT3: case sscSCRIPT4: case sscSCRIPT5:
+		case sscSCRIPT6: case sscSCRIPT7: case sscSCRIPT8: case sscSCRIPT9: case sscSCRIPT10:
+		case sscSCRIPT11: case sscSCRIPT12: case sscSCRIPT13: case sscSCRIPT14: case sscSCRIPT15:
+		case sscSCRIPT16: case sscSCRIPT17: case sscSCRIPT18: case sscSCRIPT19: case sscSCRIPT20:
+		case sscSCRIPT21: case sscSCRIPT22: case sscSCRIPT23: case sscSCRIPT24: case sscSCRIPT25:
+			return ssc-3;
+		case sscSCRIPT26: case sscSCRIPT27: case sscSCRIPT28: case sscSCRIPT29: case sscSCRIPT30:
+		case sscSCRIPT31: case sscSCRIPT32: case sscSCRIPT33: case sscSCRIPT34: case sscSCRIPT35:
+		case sscSCRIPT36: case sscSCRIPT37: case sscSCRIPT38: case sscSCRIPT39: case sscSCRIPT40:
+		case sscSCRIPT41: case sscSCRIPT42: case sscSCRIPT43: case sscSCRIPT44: case sscSCRIPT45:
+		case sscSCRIPT46: case sscSCRIPT47: case sscSCRIPT48: case sscSCRIPT49: case sscSCRIPT50:
+		case sscSCRIPT51: case sscSCRIPT52: case sscSCRIPT53: case sscSCRIPT54: case sscSCRIPT55:
+		case sscSCRIPT56: case sscSCRIPT57: case sscSCRIPT58: case sscSCRIPT59: case sscSCRIPT60:
+		case sscSCRIPT61: case sscSCRIPT62: case sscSCRIPT63: case sscSCRIPT64: case sscSCRIPT65:
+		case sscSCRIPT66: case sscSCRIPT67: case sscSCRIPT68: case sscSCRIPT69: case sscSCRIPT70:
+		case sscSCRIPT71: case sscSCRIPT72: case sscSCRIPT73: case sscSCRIPT74: case sscSCRIPT75:
+		case sscSCRIPT76: case sscSCRIPT77: case sscSCRIPT78: case sscSCRIPT79: case sscSCRIPT80:
+		case sscSCRIPT81: case sscSCRIPT82: case sscSCRIPT83: case sscSCRIPT84: case sscSCRIPT85:
+		case sscSCRIPT86: case sscSCRIPT87: case sscSCRIPT88: case sscSCRIPT89: case sscSCRIPT90:
+		case sscSCRIPT91: case sscSCRIPT92: case sscSCRIPT93: case sscSCRIPT94: case sscSCRIPT95:
+		case sscSCRIPT96: case sscSCRIPT97: case sscSCRIPT98: case sscSCRIPT99: case sscSCRIPT100:
+			return ssc-7;
 	}
 	return crNONE;
 }

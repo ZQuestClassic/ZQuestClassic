@@ -19,7 +19,6 @@ void* const RecursiveVisitor::paramWrite = new tag();
 void* const RecursiveVisitor::paramReadWrite = new tag();
 
 uint32_t zscript_failcode = 0;
-bool zscript_had_warn_err = false;
 bool zscript_error_out = false;
 
 ////////////////////////////////////////////////////////////////
@@ -70,8 +69,6 @@ void RecursiveVisitor::handleError(CompileError const& error, std::string const*
 	std::string err_str = error.toString();
 	char const* err_str_ptr = err_str.c_str();
 	while(err_str_ptr[0]==' '||err_str_ptr[0]=='\r'||err_str_ptr[0]=='\n') ++err_str_ptr;
-	
-	zscript_had_warn_err = true;
 	
 	if (error.isStrict())
 	{

@@ -313,6 +313,7 @@ ZCGUI_BUILDER_START(Frame)
 	ZCGUI_ACCEPT_PROP(title, setTitle, std::string)
 	ZCGUI_ACCEPT_PROP(info, setInfo, std::string)
 	ZCGUI_ACCEPT_PROP(style, setStyle, GUI::Frame::style)
+	ZCGUI_ACCEPT_PROP(onInfo, onInfo, Dialog::message)
 	ZCGUI_ACCEPT_ONE_CHILD(setContent)
 
 	ZCGUI_SUGGEST_PROP(text, title)
@@ -635,18 +636,22 @@ Button(forceFitH = true, text = "?", \
 	disabled = true)
 #define INFOBTN(inf) \
 Button(forceFitH = true, text = "?", \
+	onClick = message::REFR_INFO, \
 	onPressFunc = [=]() \
 	{ \
 		InfoDialog("Info",inf).show(); \
 	})
 #define INFOBTN_EX(inf, ...) \
-Button(forceFitH = true, text = "?", __VA_ARGS__, \
+Button(text = "?", \
+	onClick = message::REFR_INFO, \
+	__VA_ARGS__, \
 	onPressFunc = [=]() \
 	{ \
 		InfoDialog("Info",inf).show(); \
 	})
 #define INFOBTN_REF(getter) \
 Button(forceFitH = true, text = "?", \
+	onClick = message::REFR_INFO, \
 	onPressFunc = [&]() \
 	{ \
 		InfoDialog("Info",getter).show(); \

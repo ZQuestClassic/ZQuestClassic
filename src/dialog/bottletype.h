@@ -15,7 +15,7 @@ class BottleTypeDialog: public GUI::Dialog<BottleTypeDialog>
 public:
 	enum class message
 	{
-		OK, CANCEL
+		REFR_INFO, OK, CANCEL
 	};
 
 	BottleTypeDialog(int32_t index);

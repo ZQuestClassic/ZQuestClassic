@@ -66,6 +66,7 @@ bool do_trigger_combo_ffc(const ffc_handle_t& ffc_handle, int32_t special = 0, w
 
 bool do_lift_combo(const rpos_handle_t&, int32_t gloveid);
 
+int get_trig_group(int ind);
 void update_trig_group(int oldc, int newc);
 void calculate_trig_groups();
 void trig_trigger_groups();

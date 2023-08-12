@@ -4,7 +4,7 @@
 	"description": "ZScript scripting language for ZQuest Classic",
 	"author": "Connor Clark",
 	"license": "MIT",
-	"version": "1.0.5",
+	"version": "1.0.6",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/ArmageddonGames/ZQuestClassic.git"
@@ -44,6 +44,24 @@
 					"type": "boolean",
 					"default": false,
 					"description": "Prints the output of the compiler to the Output window"
+				},
+				"zscript.ignoreConstAssert": {
+					"scope": "window",
+					"type": "boolean",
+					"default": false,
+					"description": "Ignores 'CONST_ASSERT' statement errors"
+				},
+				"zscript.defaultIncludePaths": {
+					"scope": "window",
+					"type": "array",
+					"default": ["include"],
+					"description": "Global include paths, to be added to compile attempts."
+				},
+				"zscript.defaultIncludeFiles": {
+					"scope": "window",
+					"type": "array",
+					"default": ["include/std.zh"],
+					"description": "Global includes, to be added to compile attempts."
 				},
 				"zscript.trace.server": {
 					"scope": "window",

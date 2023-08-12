@@ -929,6 +929,9 @@ void enlarge_file_selector(int32_t width, int32_t height)
   */
 int32_t jwin_file_select_ex(AL_CONST char *message, char *path, AL_CONST char *ext, int32_t size, int32_t width, int32_t height, FONT *title_font)
 {
+    if (ext && ext[0] == '.' && strlen(ext) > 1)
+        ext = &ext[1];
+
 	// Z_message("jwin_file_select_ex\n");
     static attrb_state_t default_attrb_state[ATTRB_MAX] = DEFAULT_ATTRB_STATE;
     int32_t ret;
@@ -1267,6 +1270,16 @@ void derelativize_path(char* dest, char const* src_path)
 	get_root_path(rootpath, PATH_MAX);
     auto result = std::filesystem::path(rootpath) / src_path;
     strcpy(dest, result.string().c_str());
+}
+
+/* derelativize_path:
+  *  Takes a relative path from the root directory, and returns its' absolute path.
+  */
+std::string derelativize_path(std::string src_path)
+{
+	char rootpath[PATH_MAX] = {0};
+	get_root_path(rootpath, PATH_MAX);
+    return (std::filesystem::path(rootpath) / src_path).string();
 }
 
 /* jwin_file_browse_ex:

@@ -19,7 +19,7 @@ class SCCDialog: public GUI::Dialog<SCCDialog>
 public:
 	enum class message
 	{
-		OK, CANCEL, RELOAD, COPY, PASTE
+		REFR_INFO, OK, CANCEL, RELOAD, COPY, PASTE
 	};
 
 	SCCDialog();

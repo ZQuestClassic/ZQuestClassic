@@ -13,7 +13,7 @@
 class ZQHotkeyDialog: public GUI::Dialog<ZQHotkeyDialog>
 {
 public:
-	enum class message { OK, CANCEL, RELOAD };
+	enum class message { REFR_INFO, OK, CANCEL, RELOAD };
 
 	ZQHotkeyDialog(bool* confirm);
 

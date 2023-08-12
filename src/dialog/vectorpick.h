@@ -14,7 +14,7 @@ class VectorPickDialog: public GUI::Dialog<VectorPickDialog>
 public:
 	enum class message
 	{
-		OK, CANCEL, RELOAD
+		REFR_INFO, OK, CANCEL, RELOAD
 	};
 
 	VectorPickDialog(std::vector<int32_t>& vec, bool zsint, size_t min, size_t max);

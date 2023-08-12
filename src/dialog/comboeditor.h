@@ -27,7 +27,7 @@ int32_t solidity_to_flag(int32_t val);
 class ComboEditorDialog: public GUI::Dialog<ComboEditorDialog>
 {
 public:
-	enum class message { OK, CANCEL, COMBOTYPE, COMBOFLAG, HFLIP, VFLIP,
+	enum class message { REFR_INFO, OK, CANCEL, COMBOTYPE, COMBOFLAG, HFLIP, VFLIP,
 		ROTATE, PLUSCS, MINUSCS, CLEAR, DEFAULT, TILESEL, WIZARD };
 	
 

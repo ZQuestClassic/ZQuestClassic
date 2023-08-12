@@ -12,12 +12,12 @@
 class AboutDialog: public GUI::Dialog<AboutDialog>
 {
 public:
-	using message = int32_t;
+	enum class message { REFR_INFO, OK };
 
 	AboutDialog(std::string title, std::string text);
 
 	std::shared_ptr<GUI::Widget> view() override;
-	virtual bool handleMessage(const GUI::DialogMessage<int32_t>& msg);
+	virtual bool handleMessage(const GUI::DialogMessage<message>& msg);
 
 protected:
 	std::string dlgTitle;

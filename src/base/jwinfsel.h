@@ -76,6 +76,7 @@ void get_root_path(char* path, int32_t size);
 void relativize_path(char* dest, char const* path);
 std::string relativize_path(std::string src_path);
 void derelativize_path(char* dest, char const* path);
+std::string derelativize_path(std::string src_path);
 
 typedef struct EXT_LIST
 {

@@ -20,7 +20,6 @@ extern byte monochrome_console;
 io_manager* ConsoleWrite;
 
 extern uint32_t zscript_failcode;
-extern bool zscript_had_warn_err;
 extern bool zscript_error_out;
 
 const int BUILDTM_YEAR = (
@@ -116,7 +115,6 @@ void zconsole_db(std::string const& str)
 }
 void zconsole_warn(const char *format,...)
 {
-	zscript_had_warn_err = true;
 	//{
 	int32_t ret;
 	char tmp[1024];
@@ -136,12 +134,10 @@ void zconsole_warn(const char *format,...)
 }
 void zconsole_warn(std::string const& str)
 {
-	zscript_had_warn_err = true;
 	_console_print(str.c_str(), ZC_CONSOLE_WARN_CODE);
 }
 void zconsole_error(const char *format,...)
 {
-	zscript_had_warn_err = true;
 	//{
 	int32_t ret;
 	char tmp[1024];
@@ -161,7 +157,6 @@ void zconsole_error(const char *format,...)
 }
 void zconsole_error(std::string const& str)
 {
-	zscript_had_warn_err = true;
 	_console_print(str.c_str(), ZC_CONSOLE_ERROR_CODE);
 }
 void zconsole_info(const char *format,...)
@@ -268,6 +263,8 @@ void updateIncludePaths()
 	ZQincludePaths = split(includePathString, ';');
 }
 
+bool delay_asserts = false, ignore_asserts = false;
+std::vector<std::filesystem::path> force_ignores;
 int32_t main(int32_t argc, char **argv)
 {
 	common_main_setup(App::zscript, argc, argv);
@@ -280,7 +277,20 @@ int32_t main(int32_t argc, char **argv)
 		}
 		else return 1;
 	}
-
+	if(used_switch(argc, argv, "-ignore_cassert"))
+		delay_asserts = ignore_asserts = true;
+	else if(used_switch(argc, argv, "-delay_cassert"))
+		delay_asserts = true;
+	
+	if(auto index = used_switch(argc, argv, "-force_ignore"))
+	{
+		for(int q = index+1; q < argc; ++q)
+		{
+			if(argv[q][0] == '-') break;
+			force_ignores.push_back(std::filesystem::path(argv[q]).lexically_normal());
+		}
+	}
+	
 	int32_t console_path_index = used_switch(argc, argv, "-console");
 	if (linked && !console_path_index)
 	{
@@ -326,7 +336,7 @@ int32_t main(int32_t argc, char **argv)
 			argv[qr_hex_index + 1] :
 			// TODO: set to defaults in a better way.
 			"B343AFAF01C281A00DA58A4211A608DFDF080001162A0410FC5306FE2A274100381B02044031300000065824000000000000D0030000000000000000000000000000000000000000000000000000000034866C3140320000000000000000000000000000";
-		printf("%s\n", qr_hex.c_str());
+		//printf("%s\n", qr_hex.c_str());
 		if (qr_hex.size() != QUESTRULES_NEW_SIZE * 2)
 		{
 			zconsole_error("Error: -qr hex string must be of length %d", QUESTRULES_NEW_SIZE * 2);

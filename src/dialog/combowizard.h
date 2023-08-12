@@ -14,7 +14,7 @@ bool do_combo_default(newcombo& ref);
 class ComboWizardDialog: public GUI::Dialog<ComboWizardDialog>
 {
 public:
-	enum class message { OK, CANCEL, UPDATE, DEFAULT,
+	enum class message { REFR_INFO, OK, CANCEL, UPDATE, DEFAULT,
 		RSET0,RSET1,RSET2,RSET3,RSET4,RSET5,RSET6,RSET7,RSET8,RSET9 };
 	
 	std::shared_ptr<GUI::Widget> view() override;

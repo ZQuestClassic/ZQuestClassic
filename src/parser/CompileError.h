@@ -79,7 +79,17 @@ namespace ZScript
 		
 		Impl* pimpl_;
 	};
-
+	
+	class BasicCompileError
+	{
+	public:
+		std::string errmsg;
+		bool strict;
+		CompileError::Id id;
+		BasicCompileError(CompileError const& err);
+		void print() const;
+		void handle() const;
+	};
 	void log_error(CompileError const&);
 	void logDebugMessage(const char* msg);
 

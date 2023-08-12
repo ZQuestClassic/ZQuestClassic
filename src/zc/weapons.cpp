@@ -4130,7 +4130,8 @@ bool weapon::animate(int32_t index)
 					posx=checkx;
 					posy=checky;
 				}
-				if(hitcombo(checkx, checky, cMIRROR))
+				byte layers = get_qr(qr_MIRROR_PRISM_LAYERS) ? 0b1111111 : 0b0000001;
+				if(hitcombo(checkx, checky, cMIRROR, layers))
 				{
 					id = wRefBeam;
 					dir ^= 1;
@@ -4146,7 +4147,7 @@ bool weapon::animate(int32_t index)
 					y=(int32_t)TRUNCATE_TILE(posy)+check_y_ofs;
 				}
 				
-				if(hitcombo(checkx, checky, cMIRRORSLASH))
+				if(hitcombo(checkx, checky, cMIRRORSLASH, layers))
 				{
 					id = wRefBeam;
 					if ( do_animation ) 
@@ -4183,7 +4184,7 @@ bool weapon::animate(int32_t index)
 					y=(int32_t)TRUNCATE_TILE(posy)+check_y_ofs;
 				}
 				
-				if(hitcombo(checkx, checky, cMIRRORBACKSLASH))
+				if(hitcombo(checkx, checky, cMIRRORBACKSLASH, layers))
 				{
 					id = wRefBeam;
 					dir ^= 2;
@@ -4222,7 +4223,7 @@ bool weapon::animate(int32_t index)
 					y=(int32_t)TRUNCATE_TILE(posy)+check_y_ofs;
 				}
 				
-				if(hitcombo(checkx, checky, cMAGICPRISM))
+				if(hitcombo(checkx, checky, cMAGICPRISM, layers))
 				{
 					int32_t newx, newy;
 					newx=(int32_t)TRUNCATE_TILE(posx)+check_x_ofs;
@@ -4300,7 +4301,7 @@ bool weapon::animate(int32_t index)
 					dead=0;
 				}
 				
-				if(hitcombo(checkx, checky, cMAGICPRISM4))
+				if(hitcombo(checkx, checky, cMAGICPRISM4, layers))
 				{
 					int32_t newx, newy;
 					newx=(int32_t)TRUNCATE_TILE(posx)+check_x_ofs;
@@ -5644,7 +5645,8 @@ bool weapon::animate(int32_t index)
 			
 			if(ignorecombo!=((int32_t(checky)&0xF0)+(int32_t(checkx)>>4)))
 			{
-				if(hitcombo(checkx, checky, cMIRROR))
+				byte layers = get_qr(qr_MIRROR_PRISM_LAYERS) ? 0b1111111 : 0b0000001;
+				if(hitcombo(checkx, checky, cMIRROR, layers))
 				{
 					weapon *w=NULL;
 					
@@ -5677,7 +5679,7 @@ bool weapon::animate(int32_t index)
 					w->x=(int32_t(checkx)&0xF0)+check_x_ofs;
 				}
 				
-				if(hitcombo(checkx, checky, cMIRRORSLASH))
+				if(hitcombo(checkx, checky, cMIRRORSLASH, layers))
 				{
 					weapon *w=NULL;
 					
@@ -5728,7 +5730,7 @@ bool weapon::animate(int32_t index)
 					w->x=(int32_t(checkx)&0xF0)+check_x_ofs;
 				}
 				
-				if(hitcombo(checkx, checky, cMIRRORBACKSLASH))
+				if(hitcombo(checkx, checky, cMIRRORBACKSLASH, layers))
 				{
 					weapon *w = NULL;
 					
@@ -5782,7 +5784,7 @@ bool weapon::animate(int32_t index)
 					w->x=(int32_t(checkx)&0xF0)+check_x_ofs;
 				}
 				
-				if(hitcombo(checkx, checky, cMAGICPRISM) && (id != wWind))
+				if(hitcombo(checkx, checky, cMAGICPRISM, layers) && (id != wWind))
 				{
 					int32_t newx, newy;
 					newy=(int32_t(checky)&0xF0)+check_y_ofs;
@@ -5852,7 +5854,7 @@ bool weapon::animate(int32_t index)
 					dead=0;
 				}
 				
-				if(hitcombo(checkx, checky, cMAGICPRISM4) && (id != wWind))
+				if(hitcombo(checkx, checky, cMAGICPRISM4, layers) && (id != wWind))
 				{
 					int32_t newx, newy;
 					newy=(int32_t(checky)&0xF0)+check_y_ofs;
@@ -5974,7 +5976,8 @@ bool weapon::animate(int32_t index)
 			
 			if(ignorecombo!=((int32_t(checky)&0xF0)+(int32_t(checkx)>>4)))
 			{
-				if(hitcombo(checkx, checky, cMIRROR))
+				byte layers = get_qr(qr_MIRROR_PRISM_LAYERS) ? 0b1111111 : 0b0000001;
+				if(hitcombo(checkx, checky, cMIRROR, layers))
 				{
 					weapon *w=NULL;
 					
@@ -6008,7 +6011,7 @@ bool weapon::animate(int32_t index)
 					w->x=(int32_t(checkx)&0xF0)+check_x_ofs;
 				}
 				
-				if(hitcombo(checkx, checky, cMIRRORSLASH))
+				if(hitcombo(checkx, checky, cMIRRORSLASH, layers))
 				{
 					weapon *w=NULL;
 					
@@ -6059,7 +6062,7 @@ bool weapon::animate(int32_t index)
 					w->x=(int32_t(checkx)&0xF0)+check_x_ofs;
 				}
 				
-				if(hitcombo(checkx, checky, cMIRRORBACKSLASH))
+				if(hitcombo(checkx, checky, cMIRRORBACKSLASH, layers))
 				{
 					weapon *w=NULL;
 					
@@ -6113,7 +6116,7 @@ bool weapon::animate(int32_t index)
 					w->x=(int32_t(checkx)&0xF0)+check_x_ofs;
 				}
 				
-				if(hitcombo(checkx, checky, cMAGICPRISM) && (id != wWind))
+				if(hitcombo(checkx, checky, cMAGICPRISM, layers) && (id != wWind))
 				{
 					int32_t newx, newy;
 					newy=(int32_t(checky)&0xF0)+check_y_ofs;
@@ -6183,7 +6186,7 @@ bool weapon::animate(int32_t index)
 					dead=0;
 				}
 				
-				if(hitcombo(checkx, checky, cMAGICPRISM4) && (id != wWind))
+				if(hitcombo(checkx, checky, cMAGICPRISM4, layers) && (id != wWind))
 				{
 					int32_t newx, newy;
 					newy=(int32_t(checky)&0xF0)+check_y_ofs;

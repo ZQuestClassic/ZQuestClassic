@@ -3774,6 +3774,10 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_OLD_GUY_HANDLING,1);
 	if(compatrule_version < 49)
 		set_qr(qr_FAIRY_FLAG_COMPAT,1);
+	if(compatrule_version < 50)
+		set_qr(qr_OLD_LENS_LAYEREFFECT,1);
+	if(compatrule_version < 51)
+		set_qr(qr_PUSHBLOCK_SPRITE_LAYER,1);
 	
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)
@@ -17318,6 +17322,13 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zc
 				return qe_invalid;
 			if(!p_getc(&(temp_mapscr->lens_layer),f))
 				return qe_invalid;
+			if(version > 27)
+			{
+				if(!p_getc(&(temp_mapscr->lens_show),f))
+					return qe_invalid;
+				if(!p_getc(&(temp_mapscr->lens_hide),f))
+					return qe_invalid;
+			}
 		}
 		else
 		{

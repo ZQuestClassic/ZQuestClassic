@@ -78,6 +78,7 @@ void set_bitl(int32_t bitstr,int32_t bit,byte val);
 #define MAXSCREENS                 128
 #define MAXCUSTOMMIDIS192b177      32   // uses bit string for midi flags, so 32 bytes
 #define MAXCUSTOMMIDIS             252  // uses bit string for midi flags, so 32 bytes
+#define MAXCUSTOMMIDIS_ZQ          (4+MAXCUSTOMMIDIS)
 #define MIDIFLAGS_SIZE             ((MAXCUSTOMMIDIS+7)>>3)
 #define MAXCUSTOMTUNES             252
 //Midi offsets

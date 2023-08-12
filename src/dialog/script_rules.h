@@ -13,7 +13,7 @@
 class ScriptRulesDialog: public GUI::Dialog<ScriptRulesDialog>
 {
 public:
-	enum class message { OK, CANCEL, TOGGLE_QR };
+	enum class message { REFR_INFO, OK, CANCEL, TOGGLE_QR };
 
 	ScriptRulesDialog(byte const* qrs, size_t qrs_per_tab, std::function<void(byte*)> setQRs);
 

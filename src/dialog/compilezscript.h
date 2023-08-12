@@ -14,7 +14,7 @@ bool do_compile_and_slots(bool quick_compile, bool delay);
 class CompileZScriptDialog: public GUI::Dialog<CompileZScriptDialog>
 {
 public:
-	enum class message { LOAD, EXPORT, EDIT, DOCS, STD_ZH, COMPILE, CANCEL, SETTINGS };
+	enum class message { REFR_INFO, LOAD, EXPORT, EDIT, DOCS, STD_ZH, COMPILE, CANCEL, SETTINGS };
 
 	CompileZScriptDialog();
 

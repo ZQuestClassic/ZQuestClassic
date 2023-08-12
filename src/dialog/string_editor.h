@@ -16,7 +16,7 @@ void call_stringedit_dialog(size_t ind, int32_t templateID, int32_t addAfter);
 class StringEditorDialog: public GUI::Dialog<StringEditorDialog>
 {
 public:
-	enum class message { OK, CANCEL };
+	enum class message { REFR_INFO, OK, CANCEL };
 
 	StringEditorDialog(size_t ind, int32_t templateID, int32_t addAfter);
 

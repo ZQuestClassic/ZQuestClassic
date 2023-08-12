@@ -13,7 +13,7 @@ void call_header_dlg();
 class HeaderDialog: public GUI::Dialog<HeaderDialog>
 {
 public:
-	enum class message { OK, CANCEL, TITLE, AUTHOR };
+	enum class message { REFR_INFO, OK, CANCEL, TITLE, AUTHOR };
 
 	HeaderDialog(std::string verstr, std::string initVals[5], std::function<void(std::string_view[5])> setVals);
 

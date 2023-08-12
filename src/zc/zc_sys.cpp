@@ -3686,6 +3686,7 @@ void draw_lens_over()
 	}
 	
 	masked_blit(lens_scr, framebuf, 288-(HeroX()+8), 240-playing_field_offset-(HeroY()+8), 0, playing_field_offset, 256, 168);
+	do_primitives(framebuf, SPLAYER_LENS_OVER, tmpscr, 0, playing_field_offset);
 }
 
 //----------------------------------------------------------------
@@ -4053,17 +4054,20 @@ int32_t onSaveMapPic()
 				
 				if(XOR(scr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer_old(_screen_draw_buffer, 0, 3, &special_warp_return_screen, 256, -playing_field_offset, 2);
 				
-				putscr(_screen_draw_buffer,256,0,&special_warp_return_screen);
+				if(lenscheck(&special_warp_return_screen,0)) putscr(_screen_draw_buffer,256,0,&special_warp_return_screen);
 				do_layer_old(_screen_draw_buffer, 0, 1, &special_warp_return_screen, 256, -playing_field_offset, 2);
 				
 				if(!XOR(scr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer_old(_screen_draw_buffer, 0, 2, &special_warp_return_screen, 256, -playing_field_offset, 2);
 				
 				putscrdoors(_screen_draw_buffer,256,0,&special_warp_return_screen);
-				do_layer_old(_screen_draw_buffer, -2, 0, &special_warp_return_screen, 256, -playing_field_offset, 2);
-				if(get_qr(qr_PUSHBLOCK_LAYER_1_2))
+				if(get_qr(qr_PUSHBLOCK_SPRITE_LAYER))
 				{
-					do_layer_old(_screen_draw_buffer, -2, 1, &special_warp_return_screen, 256, -playing_field_offset, 2);
-					do_layer_old(_screen_draw_buffer, -2, 2, &special_warp_return_screen, 256, -playing_field_offset, 2);
+					do_layer_old(_screen_draw_buffer, -2, 0, &special_warp_return_screen, 256, -playing_field_offset, 2);
+					if(get_qr(qr_PUSHBLOCK_LAYER_1_2))
+					{
+						do_layer_old(_screen_draw_buffer, -2, 1, &special_warp_return_screen, 256, -playing_field_offset, 2);
+						do_layer_old(_screen_draw_buffer, -2, 2, &special_warp_return_screen, 256, -playing_field_offset, 2);
+					}
 				}
 				do_layer_old(_screen_draw_buffer, -3, 0, &special_warp_return_screen, 256, -playing_field_offset, 2); // Freeform combos!
 				
@@ -8736,15 +8740,6 @@ void load_control_state()
 			raw_control_state[17] = false;
 			// zprint2("Detected 0 joysticks... clearing inputaxis values.\n");
 		}
-		bool did_bad_cutscene_btn = false;
-		for(int q = 0; q < 18; ++q)
-			if(raw_control_state[q] && !active_cutscene.can_button(q))
-			{
-				raw_control_state[q] = false;
-				did_bad_cutscene_btn = true;
-			}
-		if(did_bad_cutscene_btn)
-			active_cutscene.error();
 	}
 	if (replay_is_active())
 	{
@@ -8767,6 +8762,15 @@ void load_control_state()
 		if (botched_input && !control_state[i])
 			down_control_states[i] = false;
 	}
+	bool did_bad_cutscene_btn = false;
+	for(int q = 0; q < 18; ++q)
+		if(control_state[q] && !active_cutscene.can_button(q))
+		{
+			control_state[q] = false;
+			did_bad_cutscene_btn = true;
+		}
+	if(did_bad_cutscene_btn)
+		active_cutscene.error();
 	
 	button_press[0]=rButton(control_state[0],button_hold[0]);
 	button_press[1]=rButton(control_state[1],button_hold[1]);

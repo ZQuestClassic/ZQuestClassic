@@ -12,7 +12,7 @@ void call_ruleset_dlg();
 class PickRulesetDialog: public GUI::Dialog<PickRulesetDialog>
 {
 public:
-	enum class message { OK, CANCEL, RULESET };
+	enum class message { REFR_INFO, OK, CANCEL, RULESET };
 
 	PickRulesetDialog(std::function<void(int32_t)> setRuleset);
 

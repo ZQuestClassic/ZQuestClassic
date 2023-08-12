@@ -673,9 +673,15 @@ static int32_t read_saves(ReadMode read_mode, std::string filename, std::vector<
 			}
 		}
 		
-		if(section_version>2)
+		if(section_version>2) //read counters
 		{
-			for(int32_t j=0; j<32; j++)
+			word num_ctr = 32;
+			if(section_version > 32)
+			{
+				if(!p_igetw(&num_ctr,f))
+					return 109;
+			}
+			for(int32_t j=0; j<num_ctr; j++)
 			{
 				if(!p_igetw(&tempword,f))
 				{
@@ -697,6 +703,12 @@ static int32_t read_saves(ReadMode read_mode, std::string filename, std::vector<
 				}
 				
 				game.set_dcounter(tempshort, j);
+			}
+			for(auto j = num_ctr; j < MAX_COUNTERS; ++j)
+			{
+				game.set_counter(0,j);
+				game.set_maxcounter(0,j);
+				game.set_dcounter(0,j);
 			}
 		}
 		
@@ -1274,7 +1286,19 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 		}
 	}
 	
-	for(int32_t j=0; j<32; j++)
+	word num_ctr = 0;
+	for(auto c = MAX_COUNTERS-1; c >= 0; --c)
+	{
+		//Find the last counter that isn't unused
+		if(game.get_counter(c) || game.get_maxcounter(c) || game.get_dcounter(c))
+		{
+			num_ctr = c+1;
+			break;
+		}
+	}
+	if(!p_iputw(num_ctr, f))
+		return 109;
+	for(int32_t j=0; j<num_ctr; j++)
 	{
 		if(!p_iputw(game.get_counter(j), f))
 		{

@@ -8307,6 +8307,14 @@ int32_t get_register(const int32_t arg)
 			ret = game_mouse_index*10000;
 			break;
 		}
+		case GAMETRIGGROUPS:
+		{
+			int32_t ind = (ri->d[rINDEX])/10000;
+			if(unsigned(ind)>255)
+				Z_scripterrlog("Invalid index %d supplied to Game->TrigGroups[]\n",ind);
+			ret = get_trig_group(ind)*10000;
+			break;
+		}
 		
 		case GAMEGRAVITY:
 		{
@@ -8365,6 +8373,22 @@ int32_t get_register(const int32_t arg)
 			ret=((game->xstates[mi]>>((ri->d[rINDEX]/10000)))&1)?10000:0;
 		}
 		break;
+		case SCREENLENSSHOWS:
+		{
+			int ind = ri->d[rINDEX]/10000;
+			if(ind < 0 || ind > 6)
+				Z_scripterrlog("Bad index Screen->LensShows[%d]\n",ind);
+			else ret = (tmpscr->lens_show & (1<<ind)) ? 10000 : 0;
+			break;
+		}
+		case SCREENLENSHIDES:
+		{
+			int ind = ri->d[rINDEX]/10000;
+			if(ind < 0 || ind > 6)
+				Z_scripterrlog("Bad index Screen->LensHides[%d]\n",ind);
+			else ret = (tmpscr->lens_hide & (1<<ind)) ? 10000 : 0;
+			break;
+		}
 		
 		case DISTANCE: 
 		{
@@ -10860,6 +10884,28 @@ int32_t get_register(const int32_t arg)
 				Z_scripterrlog("Mapdata->%s pointer (%d) is either invalid or uninitialised.\n","State[]", ri->mapsref);
 				ret = 0;
 			}
+			break;
+		}
+		case MAPDATALENSSHOWS:
+		{
+			ret = 0;
+			int ind = ri->d[rINDEX]/10000;
+			if(ind < 0 || ind > 6)
+				Z_scripterrlog("Bad index mapdata->LensShows[%d]\n",ind);
+			else if(mapscr *m = GetMapscr(ri->mapsref))
+				ret = (m->lens_show & (1<<ind)) ? 10000 : 0;
+			else Z_scripterrlog("mapdata->LensShows[] pointer (%d) is either invalid or uninitialised.\n", ri->mapsref);
+			break;
+		}
+		case MAPDATALENSHIDES:
+		{
+			ret = 0;
+			int ind = ri->d[rINDEX]/10000;
+			if(ind < 0 || ind > 6)
+				Z_scripterrlog("Bad index mapdata->LensHides[%d]\n",ind);
+			else if(mapscr *m = GetMapscr(ri->mapsref))
+				ret = (m->lens_hide & (1<<ind)) ? 10000 : 0;
+			else Z_scripterrlog("mapdata->LensHides[] pointer (%d) is either invalid or uninitialised.\n", ri->mapsref);
 			break;
 		}
 		case MAPDATASCREENFLAGSD:
@@ -18744,6 +18790,8 @@ void set_register(int32_t arg, int32_t value)
 			game_mouse();
 			break;
 		}
+		case GAMETRIGGROUPS:
+			break; //read-only
 		
 		case GAMELKEYSD:
 			game->lvlkeys[(ri->d[rINDEX])/10000]=value/10000;
@@ -18786,6 +18834,30 @@ void set_register(int32_t arg, int32_t value)
 			(value)?setxmapflag_mi(mi2, 1<<((ri->d[rINDEX])/10000)) : unsetxmapflag_mi(mi2, 1 << ((ri->d[rINDEX]) / 10000));
 		}
 		break;
+		case SCREENLENSSHOWS:
+		{
+			int ind = ri->d[rINDEX]/10000;
+			if(ind < 0 || ind > 6)
+				Z_scripterrlog("Bad index Screen->LensShows[%d]\n",ind);
+			else
+			{
+				SETFLAG(tmpscr->lens_show, 1<<ind, value);
+				if(value) tmpscr->lens_hide &= ~(1<<ind);
+			}
+			break;
+		}
+		case SCREENLENSHIDES:
+		{
+			int ind = ri->d[rINDEX]/10000;
+			if(ind < 0 || ind > 6)
+				Z_scripterrlog("Bad index Screen->LensHides[%d]\n",ind);
+			else
+			{
+				SETFLAG(tmpscr->lens_hide, 1<<ind, value);
+				if(value) tmpscr->lens_show &= ~(1<<ind);
+			}
+			break;
+		}
 		
 		case SCREENSTATEDD:
 		{
@@ -21318,8 +21390,34 @@ void set_register(int32_t arg, int32_t value)
 			{
 				Z_scripterrlog("Script attempted to use a mapdata->%s on an invalid pointer\n","State[]");
 			}
+			break;
 		}
-		break;
+		case MAPDATALENSSHOWS:
+		{
+			int ind = ri->d[rINDEX]/10000;
+			if(ind < 0 || ind > 6)
+				Z_scripterrlog("Bad index mapdata->LensShows[%d]\n",ind);
+			else if(mapscr *m = GetMapscr(ri->mapsref))
+			{
+				SETFLAG(m->lens_show, 1<<ind, value);
+				if(value) m->lens_hide &= ~(1<<ind);
+			}
+			else Z_scripterrlog("mapdata->LensShows[] pointer (%d) is either invalid or uninitialised.\n", ri->mapsref);
+			break;
+		}
+		case MAPDATALENSHIDES:
+		{
+			int ind = ri->d[rINDEX]/10000;
+			if(ind < 0 || ind > 6)
+				Z_scripterrlog("Bad index mapdata->LensHides[%d]\n",ind);
+			else if(mapscr *m = GetMapscr(ri->mapsref))
+			{
+				SETFLAG(m->lens_hide, 1<<ind, value);
+				if(value) m->lens_show &= ~(1<<ind);
+			}
+			else Z_scripterrlog("mapdata->LensHides[] pointer (%d) is either invalid or uninitialised.\n", ri->mapsref);
+			break;
+		}
 		
 	///----------------------------------------------------------------------------------------------------//
 	//shopdata sd-> Variables
@@ -42494,11 +42592,11 @@ script_variable ZASMVars[]=
 	{ "EWPNLIFTTIME", EWPNLIFTTIME, 0, 0},
 	{ "EWPNLIFTHEIGHT", EWPNLIFTHEIGHT, 0, 0},
 	{ "HEROSHIELDJINX", HEROSHIELDJINX, 0, 0},
-	{ "RESRVD_VAR_EMILY38", RESRVD_VAR_EMILY38, 0, 0},
-	{ "RESRVD_VAR_EMILY39", RESRVD_VAR_EMILY39, 0, 0},
-	{ "RESRVD_VAR_EMILY40", RESRVD_VAR_EMILY40, 0, 0},
-	{ "RESRVD_VAR_EMILY41", RESRVD_VAR_EMILY41, 0, 0},
-	{ "RESRVD_VAR_EMILY42", RESRVD_VAR_EMILY42, 0, 0},
+	{ "MAPDATALENSSHOWS", MAPDATALENSSHOWS, 0, 0},
+	{ "MAPDATALENSHIDES", MAPDATALENSHIDES, 0, 0},
+	{ "SCREENLENSSHOWS", SCREENLENSSHOWS, 0, 0},
+	{ "SCREENLENSHIDES", SCREENLENSHIDES, 0, 0},
+	{ "GAMETRIGGROUPS", GAMETRIGGROUPS, 0, 0},
 	{ "RESRVD_VAR_EMILY43", RESRVD_VAR_EMILY43, 0, 0},
 	{ "RESRVD_VAR_EMILY44", RESRVD_VAR_EMILY44, 0, 0},
 	{ "RESRVD_VAR_EMILY45", RESRVD_VAR_EMILY45, 0, 0},

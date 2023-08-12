@@ -16,7 +16,7 @@ extern int lister_index;
 class BasicListerDialog: public GUI::Dialog<BasicListerDialog>
 {
 public:
-	enum class message { OK, EDIT, EXIT, COPY, PASTE, SAVE, LOAD, CONFIRM };
+	enum class message { REFR_INFO, OK, EDIT, EXIT, COPY, PASTE, SAVE, LOAD, CONFIRM };
 	
 	BasicListerDialog(std::string title, int start_ind = 0, bool selecting = false) :
 		titleTxt(title), start_ind(start_ind), selected_index(start_ind), selecting(selecting){};

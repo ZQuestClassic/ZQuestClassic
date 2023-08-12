@@ -1094,6 +1094,8 @@ void SemanticAnalyzer::caseImportCondDecl(ASTImportCondDecl& host, void* param)
 	RecursiveVisitor::caseImportCondDecl(host, param);
 }
 
+extern vector<BasicCompileError> casserts;
+extern bool delay_asserts;
 void SemanticAnalyzer::caseAssert(ASTAssert& host, void* param)
 {
 	visit(host.expr.get(), param);
@@ -1102,14 +1104,12 @@ void SemanticAnalyzer::caseAssert(ASTAssert& host, void* param)
 	if(val == 0)
 	{
 		ASTString* str = host.msg.get();
-		if(str)
-		{
-			handleError(CompileError::AssertFail(&host, str->getValue().c_str()));
-		}
-		else
-		{
-			handleError(CompileError::AssertFail(&host, ""));
-		}
+		CompileError cassert = str
+			? CompileError::AssertFail(&host, str->getValue().c_str())
+			: CompileError::AssertFail(&host, "");
+		if(delay_asserts)
+			casserts.emplace_back(cassert);
+		else handleError(cassert);
 	}
 }
 

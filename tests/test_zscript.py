@@ -37,20 +37,27 @@ class TestReplays(unittest.TestCase):
             str(root_dir / 'resources/include'),
             str(root_dir / 'resources/headers'),
         ]
+        zasm_path = run_target.get_build_folder() / 'out.zasm'
+        zasm_path.unlink(missing_ok=True)
         args = [
             '-input', script_path,
             '-zasm', 'out.zasm',
             '-include', ';'.join(include_paths),
-            '-unlinked'
+            '-unlinked',
+            '-delay_cassert',
         ]
-        run_target.check_run('zscript', args)
-        zasm = Path(run_target.get_build_folder() / 'out.zasm').read_text()
+        p = run_target.run('zscript', args)
+        stdout = p.stdout.replace(str(script_path), script_path.name)
+        if p.returncode:
+            return stdout
+
+        zasm = zasm_path.read_text()
 
         # Remove metadata.
         zasm = '\n'.join([l.strip() for l in zasm.splitlines()
                          if not l.startswith('#')]).strip()
 
-        return zasm
+        return '\n'.join([stdout, zasm])
 
     def test_zscript_compiler_expected_zasm(self):
         for script_path in test_scripts_dir.glob('*.zs'):

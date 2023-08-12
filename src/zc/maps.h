@@ -286,11 +286,12 @@ void trigger_secrets_for_screen_internal(int32_t screen_index, mapscr *s, bool d
 void update_freeform_combos();
 bool trigger_secrets_if_flag(int32_t x, int32_t y, int32_t flag, bool setflag);
 bool triggerfire(int x, int y, bool setflag, bool any, bool strong, bool magic, bool divine);
-bool hitcombo(int32_t x, int32_t y, int32_t combotype);
-bool hitflag(int32_t x, int32_t y, int32_t flagtype);
+bool hitcombo(int32_t x, int32_t y, int32_t combotype, byte layers = 0b0000001);
+bool hitflag(int32_t x, int32_t y, int32_t flagtype, byte layers = 0b0000001);
 int32_t nextscr(int32_t dir);
 std::pair<int32_t, int32_t> nextscr2(int32_t dir);
 void bombdoor(int32_t x,int32_t y);
+bool lenscheck(mapscr* basescr, int layer);
 void do_scrolling_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen_handle, int32_t x, int32_t y);
 void do_layer_old(BITMAP *bmp, int32_t type, int32_t layer, mapscr* basescr, int32_t x, int32_t y, int32_t tempscreen, bool scrolling=false, bool drawprimitives=false);
 void do_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen_handle, int32_t x, int32_t y, bool drawprimitives=false);

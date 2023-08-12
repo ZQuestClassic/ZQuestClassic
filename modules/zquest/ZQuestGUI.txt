@@ -62,7 +62,7 @@ src/dialog/scaletile.cpp
 src/dialog/palconvert.cpp
 src/dialog/zinfodlg.cpp
 src/dialog/ffc_editor.cpp
-src/dialog/screen_script.cpp
+src/dialog/screen_data.cpp
 src/dialog/test_quest_dlg.cpp
 src/dialog/string_editor.cpp
 src/dialog/stringcontrolcode.cpp

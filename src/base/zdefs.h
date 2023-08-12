@@ -239,7 +239,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_TILES            3 //2 is a int32_t, max 214500 tiles (ZScript upper limit)
 #define V_COMBOS          42
 #define V_CSETS            5 //palette data
-#define V_MAPS            27
+#define V_MAPS            28
 #define V_DMAPS            18
 #define V_DOORS            1
 #define V_ITEMS           57
@@ -251,7 +251,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_GUYS            47
 #define V_MIDIS            4
 #define V_CHEATS           1
-#define V_SAVEGAME        32
+#define V_SAVEGAME        33
 #define V_COMBOALIASES     4
 #define V_HEROSPRITES      16
 #define V_SUBSCREEN        7
@@ -260,7 +260,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_SFX              8
 #define V_FAVORITES        3
 
-#define V_COMPATRULE       49
+#define V_COMPATRULE       51
 #define V_ZINFO            3
 
 //= V_SHOPS is under V_MISC
@@ -2544,7 +2544,22 @@ enum
 	crCUSTOM9, crCUSTOM10, crCUSTOM11, crCUSTOM12, crCUSTOM13,
 	crCUSTOM14, crCUSTOM15, crCUSTOM16, crCUSTOM17, crCUSTOM18,
 	crCUSTOM19, crCUSTOM20, crCUSTOM21, crCUSTOM22, crCUSTOM23,
-	crCUSTOM24, crCUSTOM25, MAX_COUNTERS
+	crCUSTOM24, crCUSTOM25, crCUSTOM26, crCUSTOM27, crCUSTOM28,
+	crCUSTOM29, crCUSTOM30, crCUSTOM31, crCUSTOM32, crCUSTOM33,
+	crCUSTOM34, crCUSTOM35, crCUSTOM36, crCUSTOM37, crCUSTOM38,
+	crCUSTOM39, crCUSTOM40, crCUSTOM41, crCUSTOM42, crCUSTOM43,
+	crCUSTOM44, crCUSTOM45, crCUSTOM46, crCUSTOM47, crCUSTOM48,
+	crCUSTOM49, crCUSTOM50, crCUSTOM51, crCUSTOM52, crCUSTOM53,
+	crCUSTOM54, crCUSTOM55, crCUSTOM56, crCUSTOM57, crCUSTOM58,
+	crCUSTOM59, crCUSTOM60, crCUSTOM61, crCUSTOM62, crCUSTOM63,
+	crCUSTOM64, crCUSTOM65, crCUSTOM66, crCUSTOM67, crCUSTOM68,
+	crCUSTOM69, crCUSTOM70, crCUSTOM71, crCUSTOM72, crCUSTOM73,
+	crCUSTOM74, crCUSTOM75, crCUSTOM76, crCUSTOM77, crCUSTOM78,
+	crCUSTOM79, crCUSTOM80, crCUSTOM81, crCUSTOM82, crCUSTOM83,
+	crCUSTOM84, crCUSTOM85, crCUSTOM86, crCUSTOM87, crCUSTOM88,
+	crCUSTOM89, crCUSTOM90, crCUSTOM91, crCUSTOM92, crCUSTOM93,
+	crCUSTOM94, crCUSTOM95, crCUSTOM96, crCUSTOM97, crCUSTOM98,
+	crCUSTOM99, crCUSTOM100, MAX_COUNTERS
 };
 
 #define MAX_SAVED_PORTALS 10000
@@ -3278,6 +3293,10 @@ enum //Special hardcoded draw layers
 	SPLAYER_OVERHEAD_FFC, //Overhead ffcs
 	SPLAYER_DARKROOM_UNDER, //Under dark room darkness
 	SPLAYER_DARKROOM_OVER, //Over dark room darkness
+	SPLAYER_FFC_DRAW, //Non-Overhead ffcs
+	SPLAYER_LENS_UNDER_1, //Lens drawing secrets/revealing things
+	SPLAYER_LENS_UNDER_2, //Lens drawing secrets/revealing things
+	SPLAYER_LENS_OVER, //Lens drawing blackness to cover most of the screen
 };
 
 //

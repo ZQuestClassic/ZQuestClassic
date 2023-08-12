@@ -17,7 +17,7 @@ GUI::ListData const& combinedZSRList();
 class QRDialog: public GUI::Dialog<QRDialog>
 {
 public:
-	enum class message { OK, CANCEL, TOGGLE_QR, HEADER, RULESET,
+	enum class message { REFR_INFO, OK, CANCEL, TOGGLE_QR, HEADER, RULESET,
 		CHEATS, RULETMP, QRSTR_CPY, QRSTR_LOAD, RERUN, SEARCH };
 
 	QRDialog(byte const* qrs, size_t qrs_per_tab, std::function<void(byte*)> setQRs);

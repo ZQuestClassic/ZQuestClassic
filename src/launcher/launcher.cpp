@@ -84,7 +84,6 @@ int32_t main(int32_t argc, char* argv[])
 {
 	common_main_setup(App::launcher, argc, argv);
 
-	set_uformat(U_ASCII);
 	zc_srand(time(0));
 	
 	

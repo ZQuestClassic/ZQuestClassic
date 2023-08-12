@@ -13,7 +13,7 @@ void call_ruletemplate_dlg();
 class PickRuleTemplateDialog: public GUI::Dialog<PickRuleTemplateDialog>
 {
 public:
-	enum class message { OK, CANCEL };
+	enum class message { REFR_INFO, OK, CANCEL };
 
 	PickRuleTemplateDialog(std::function<void(int32_t)> setRuleTemplate);
 

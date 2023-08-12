@@ -28,7 +28,7 @@ extern int32_t yycol;
 extern char* yytext;
 extern int32_t yyleng;
 extern int32_t yylex(void);
-extern FILE *yyin;
+extern FILE *yyin, *yyout;
 extern void resetLexer();
 void yyerror(std::unique_ptr<ASTFile>& root, const char* s);
 void yymsg(string const& message, int32_t row = yyrow, int32_t col = yycol, char const* txt = yytext);
@@ -44,7 +44,7 @@ void trunc_str(std::string& str, size_t sz, std::string const& header, int32_t r
 {
 	if(str.size() > sz)
 	{
-		yyerrmsg(header+": String value '" + str + "' is too long. Max '"+std::to_string(sz)+"' characters.", row, col, txt);
+		yyerrmsg("ERROR: "+header+": String value '" + str + "' is too long. Max '"+std::to_string(sz)+"' characters.", row, col, txt);
 		str = str.substr(0,sz);
 	}
 }
@@ -879,7 +879,7 @@ Class_Block_List :
 		if(user_class->destructor)
 		{
 			auto const& loc = func->location;
-			yyerrmsg("Class can only have one destructor!",loc.first_line,loc.first_column,func->name.c_str());
+			yyerrmsg("ERROR: Class can only have one destructor!",loc.first_line,loc.first_column,func->name.c_str());
 			delete func;
 		}
 		else user_class->destructor = func;
@@ -905,7 +905,7 @@ Class_Block_List :
 		if(user_class->destructor)
 		{
 			auto const& loc = func->location;
-			yyerrmsg("Class can only have one destructor!",loc.first_line,loc.first_column,func->name.c_str());
+			yyerrmsg("ERROR: Class can only have one destructor!",loc.first_line,loc.first_column,func->name.c_str());
 			delete func;
 		}
 		else user_class->destructor = func;
@@ -2269,6 +2269,7 @@ namespace ZScript
 
 		// Read in the file.
 		yyin = fopen(filename.c_str(), "r");
+		yyout = std::tmpfile();
 		if (!yyin)
 		{
 			zconsole_error("Can't open input file");
@@ -2281,6 +2282,7 @@ namespace ZScript
 		{
 			result.reset();
 		}
+		fclose(yyout);
 		fclose(yyin);
 
 		return std::unique_ptr<ASTFile>(result.release());

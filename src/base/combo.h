@@ -271,6 +271,8 @@ struct newcombo
 #define combotriggerTGROUP_LESS         0x00004000
 #define combotriggerTGROUP_GREATER      0x00008000
 #define combotriggerPUSHEDTRIG          0x00010000
+#define combotriggerDIVETRIG            0x00020000
+#define combotriggerDIVESENSTRIG        0x00040000
 
 #define ctrigNONE                       0x00
 #define ctrigIGNORE_SIGN                0x01

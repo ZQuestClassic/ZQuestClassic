@@ -264,9 +264,6 @@ static AccessorTable ScreenTable[] =
 	{ "getMIDI",                    0,         ZTID_FLOAT,   SCREENDATASCREENMIDI,              0,  { ZTID_SCREEN },{} },
 	{ "setMIDI",                    0,          ZTID_VOID,   SCREENDATASCREENMIDI,              0,  { ZTID_SCREEN, ZTID_FLOAT },{} },
 	
-	{ "getLensLayer",               0,         ZTID_FLOAT,   SCREENDATALENSLAYER,               0,  { ZTID_SCREEN },{} },
-	{ "setLensLayer",               0,          ZTID_VOID,   SCREENDATALENSLAYER,               0,  { ZTID_SCREEN, ZTID_FLOAT },{} },
-	
 	{ "getScript",                  0,         ZTID_FLOAT,   SCREENSCRIPT,                      0,  { ZTID_SCREEN },{} },
 	{ "setScript",                  0,          ZTID_VOID,   SCREENSCRIPT,                      0,  { ZTID_SCREEN, ZTID_FLOAT },{} },
 	
@@ -294,6 +291,11 @@ static AccessorTable ScreenTable[] =
 	{ "DrawLightSquare",            0,          ZTID_VOID,   -1,                                0,  { ZTID_SCREEN, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ -10000, -10000, -10000, -10000, -10000 } },
 	{ "DrawLightCircle",            0,          ZTID_VOID,   -1,                                0,  { ZTID_SCREEN, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ -10000, -10000, -10000, -10000, -10000 } },
 	{ "DrawLightCone",              0,          ZTID_VOID,   -1,                                0,  { ZTID_SCREEN, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ -10000, -10000, -10000, -10000, -10000 } },
+	
+	{ "getLensShows[]",             0,          ZTID_BOOL,   SCREENLENSSHOWS,                   0,  { ZTID_SCREEN, ZTID_FLOAT },{} },
+	{ "setLensShows[]",             0,          ZTID_VOID,   SCREENLENSSHOWS,                   0,  { ZTID_SCREEN, ZTID_FLOAT, ZTID_BOOL },{} },
+	{ "getLensHides[]",             0,          ZTID_BOOL,   SCREENLENSHIDES,                   0,  { ZTID_SCREEN, ZTID_FLOAT },{} },
+	{ "setLensHides[]",             0,          ZTID_VOID,   SCREENLENSHIDES,                   0,  { ZTID_SCREEN, ZTID_FLOAT, ZTID_BOOL },{} },
 	
 	//Undocumented intentionally
 	//Renamed to AmbientSFX
@@ -361,6 +363,8 @@ static AccessorTable ScreenTable[] =
 	{ "setEntryX",                  0,          ZTID_VOID,   SCREENDATAENTRYX,            FL_DEPR,  { ZTID_SCREEN, ZTID_FLOAT },{},0,"Use 'Hero->RespawnX' instead!" },
 	{ "getEntryY",                  0,         ZTID_FLOAT,   SCREENDATAENTRYY,            FL_DEPR,  { ZTID_SCREEN },{},0,"Use 'Hero->RespawnY' instead!" },
 	{ "setEntryY",                  0,          ZTID_VOID,   SCREENDATAENTRYY,            FL_DEPR,  { ZTID_SCREEN, ZTID_FLOAT },{},0,"Use 'Hero->RespawnY' instead!" },
+	{ "getLensLayer",               0,         ZTID_FLOAT,   SCREENDATALENSLAYER,         FL_DEPR,  { ZTID_SCREEN },{} },
+	{ "setLensLayer",               0,          ZTID_VOID,   SCREENDATALENSLAYER,         FL_DEPR,  { ZTID_SCREEN, ZTID_FLOAT },{} },
 	
 	{ "",                           0,          ZTID_VOID,   -1,                        0,  {},{} }
 };

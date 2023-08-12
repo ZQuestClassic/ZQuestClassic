@@ -63,6 +63,11 @@ static void a5_sys_get_executable_name(char *output, int size)
             al_uninstall_system();
         }
     }
+    else
+    {
+        // local edit
+        output[0] = '\0';
+    }
 }
 
 static void a5_sys_set_window_title(AL_CONST char * name)

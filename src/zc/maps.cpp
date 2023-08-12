@@ -3218,14 +3218,26 @@ void update_freeform_combos()
 	}
 }
 
-bool hitcombo(int32_t x, int32_t y, int32_t combotype)
+bool hitcombo(int32_t x, int32_t y, int32_t combotype, byte layers)
 {
-    return (COMBOTYPE(x,y)==combotype);
+	for(int q = 0; q < 7; ++q)
+	{
+		if(layers&(1<<q)) //if layer is to be checked
+			if(COMBOTYPE2(q-1,x,y)==combotype) //matching type
+				return true;
+	}
+	return false;
 }
 
-bool hitflag(int32_t x, int32_t y, int32_t flagtype)
+bool hitflag(int32_t x, int32_t y, int32_t flagtype, byte layers)
 {
-    return (MAPFLAG(x,y)==flagtype||MAPCOMBOFLAG(x,y)==flagtype);
+	for(int q = 0; q < 7; ++q)
+	{
+		if(layers&(1<<q)) //if layer is to be checked
+			if(MAPFLAG2(q-1,x,y)==flagtype||MAPCOMBOFLAG2(q-1,x,y)==flagtype) //matching flag
+				return true;
+	}
+	return false;
 }
 
 int32_t nextscr(int32_t dir)
@@ -3565,6 +3577,23 @@ void do_scrolling_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen
 	}
 }
 
+bool lenscheck(mapscr* basescr, int layer)
+{
+	if(layer < 0 || layer > 6) return true;
+	if(get_qr(qr_OLD_LENS_LAYEREFFECT))
+	{
+		if(!layer) return true;
+		if((layer==(int32_t)(basescr->lens_layer&7)+1) && ((basescr->lens_layer&llLENSSHOWS && !lensclk) || (basescr->lens_layer&llLENSHIDES && lensclk)))
+			return false;
+	}
+	else
+	{
+		if((lensclk ? basescr->lens_hide : basescr->lens_show) & (1<<layer))
+			return false;
+	}
+	return true;
+}
+
 // TODO z3 ! remove
 void do_layer_old(BITMAP *bmp, int32_t type, int32_t layer, mapscr* basescr, int32_t x, int32_t y, int32_t tempscreen, bool scrolling, bool drawprimitives)
 {
@@ -3657,13 +3686,19 @@ void do_layer(BITMAP *bmp, int32_t type, const screen_handle_t& screen_handle, i
 	
     if(!type && (layer==(int32_t)(base_screen->lens_layer&7)+1) && ((base_screen->lens_layer&llLENSSHOWS && !lensclk) || (base_screen->lens_layer&llLENSHIDES && lensclk)))
     {
-        showlayer = false;
+		if(!lenscheck(base_screen,layer))
+        	showlayer = false;
     }
     
     if(showlayer)
     {
 		if(type || !(base_screen->hidelayers & (1 << (layer))))
+		{
 			do_scrolling_layer(bmp, type, screen_handle, x, y);
+			if(!type && !get_qr(qr_PUSHBLOCK_SPRITE_LAYER))
+				if(mblock2.draw(bmp,layer))
+					do_primitives(bmp, SPLAYER_MOVINGBLOCK, base_screen, 0, playing_field_offset);
+		}
         
         if(!type && drawprimitives && layer > 0 && layer <= 6)
         {
@@ -4320,7 +4355,16 @@ void draw_screen(bool showhero, bool runGeneric)
 			if (screen_index == currscr) draw_msgstr(3);
 		}
 	});
-	
+
+	// TODO z3 !!!!! recent merge
+	if (lenscheck(hero_screen,0))
+	{
+		putscr(scrollbuf,0,playing_field_offset,hero_screen);
+		if(!get_qr(qr_PUSHBLOCK_SPRITE_LAYER))
+			if(mblock2.draw(scrollbuf,0))
+				do_primitives(scrollbuf, SPLAYER_MOVINGBLOCK, hero_screen, 0, playing_field_offset);
+	}
+
 	for_every_nearby_screen([&](std::array<screen_handle_t, 7> screen_handles, int screen_index, int offx, int offy) {
 		mapscr* base_screen = screen_handles[0].base_screen;
 		putscr(scrollbuf, offx, offy + playing_field_offset, base_screen);
@@ -4330,9 +4374,10 @@ void draw_screen(bool showhero, bool runGeneric)
 	if((lensclk || (get_debug() && zc_getkey(KEY_L))) && !get_qr(qr_OLDLENSORDER))
 	{
 		draw_lens_under(scrollbuf, false);
+		do_primitives(scrollbuf, SPLAYER_LENS_UNDER_1, this_screen, 0, playing_field_offset);
 	}
 	
-	if(show_layer_0)
+	if(show_layer_0 && lenscheck(this_screen,0))
 		do_primitives(scrollbuf, 0, this_screen, 0, playing_field_offset);
 		
 	particles.draw(temp_buf, true, -3);
@@ -4393,7 +4438,10 @@ void draw_screen(bool showhero, bool runGeneric)
 			}
 		}
 	});
-	
+
+	// TODO z3 !!!!! recent merge
+	do_primitives(temp_buf, SPLAYER_FFC_DRAW, hero_screen, 0, playing_field_offset);
+
 	if(get_qr(qr_LAYER12UNDERCAVE))
 	{
 		if(showhero &&
@@ -4428,14 +4476,17 @@ void draw_screen(bool showhero, bool runGeneric)
 	for_every_nearby_screen([&](std::array<screen_handle_t, 7> screen_handles, int screen_index, int offx, int offy) {
 		mapscr* base_screen = screen_handles[0].base_screen;
 
-		do_layer(scrollbuf, -2, screen_handles[0], offx, offy); // push blocks!
-		if(get_qr(qr_PUSHBLOCK_LAYER_1_2))
+		if (get_qr(qr_PUSHBLOCK_SPRITE_LAYER))
 		{
-			do_layer(scrollbuf, -2, screen_handles[1], offx, offy); // push blocks!
-			do_layer(scrollbuf, -2, screen_handles[2], offx, offy); // push blocks!
+			do_layer(scrollbuf, -2, screen_handles[0], offx, offy); // push blocks!
+			if(get_qr(qr_PUSHBLOCK_LAYER_1_2))
+			{
+				do_layer(scrollbuf, -2, screen_handles[1], offx, offy); // push blocks!
+				do_layer(scrollbuf, -2, screen_handles[2], offx, offy); // push blocks!
+			}
+			// TODO z3 ?
+			do_primitives(scrollbuf, SPLAYER_PUSHBLOCK, base_screen, offx, offy + playing_field_offset);
 		}
-		// TODO z3 ?
-		do_primitives(scrollbuf, SPLAYER_PUSHBLOCK, base_screen, offx, offy + playing_field_offset);
 
 		// Show walkflags cheat
 		do_walkflags(base_screen, offx, offy, 2);
@@ -4450,9 +4501,11 @@ void draw_screen(bool showhero, bool runGeneric)
 		if(get_qr(qr_OLDLENSORDER))
 		{
 			draw_lens_under(scrollbuf, false);
+			do_primitives(scrollbuf, SPLAYER_LENS_UNDER_1, this_screen, 0, playing_field_offset);
 		}
 		
 		draw_lens_under(scrollbuf, true);
+		do_primitives(scrollbuf, SPLAYER_LENS_UNDER_2, this_screen, 0, playing_field_offset);
 	}
 	
 	//2. Blit those layers onto framebuf
@@ -4588,9 +4641,11 @@ void draw_screen(bool showhero, bool runGeneric)
 	
 	if(showhero && ((Hero.getAction()!=climbcovertop)&& (Hero.getAction()!=climbcoverbottom)))
 	{
-		mblock2.draw(framebuf);
-		do_primitives(framebuf, SPLAYER_MOVINGBLOCK, this_screen, 0, playing_field_offset);
-		
+		if(get_qr(qr_PUSHBLOCK_SPRITE_LAYER))
+		{
+			mblock2.draw(framebuf,-1);
+			do_primitives(framebuf, SPLAYER_MOVINGBLOCK, this_screen, 0, playing_field_offset);
+		}
 		if(!Hero.isSwimming())
 		{
 			if((Hero.getZ()>0 || Hero.getFakeZ()>0) &&(!get_qr(qr_SHADOWSFLICKER)||frame&1))
@@ -7186,18 +7241,21 @@ void ViewMap()
 					
 					if(XOR(tmpscr->flags7&fLAYER3BG, DMaps[currdmap].flags&dmfLAYER3BG)) do_layer_old(scrollbuf_old, 0, 3, tmpscr, 256, -playing_field_offset, 2);
 					
-					putscr(scrollbuf_old,256,0,tmpscr);
+					if(lenscheck(tmpscr,0)) putscr(scrollbuf_old,256,0,tmpscr);
 					// TODO z3 !!!!! python3 tests/run_replay_tests.py --filter tests/replays/first_quest_layered.zplay --frame 300
 					do_layer_old(scrollbuf_old, 0, 1, tmpscr, 256, -playing_field_offset, 2);
 					
 					if(!XOR((tmpscr->flags7&fLAYER2BG), DMaps[currdmap].flags&dmfLAYER2BG)) do_layer_old(scrollbuf_old, 0, 2, tmpscr, 256, -playing_field_offset, 2);
 					
 					putscrdoors(scrollbuf_old,256,0,tmpscr);
-					do_layer_old(scrollbuf_old,-2, 0, tmpscr, 256, -playing_field_offset, 2);
-					if(get_qr(qr_PUSHBLOCK_LAYER_1_2))
+					if (get_qr(qr_PUSHBLOCK_SPRITE_LAYER))
 					{
-						do_layer_old(scrollbuf_old,-2, 1, tmpscr, 256, -playing_field_offset, 2);
-						do_layer_old(scrollbuf_old,-2, 2, tmpscr, 256, -playing_field_offset, 2);
+						do_layer_old(scrollbuf_old,-2, 0, tmpscr, 256, -playing_field_offset, 2);
+						if(get_qr(qr_PUSHBLOCK_LAYER_1_2))
+						{
+							do_layer_old(scrollbuf_old,-2, 1, tmpscr, 256, -playing_field_offset, 2);
+							do_layer_old(scrollbuf_old,-2, 2, tmpscr, 256, -playing_field_offset, 2);
+						}
 					}
 					// TODO z3 !! offx,y 0,0?
 					do_layer_old(scrollbuf_old,-3, 0, tmpscr, 256, -playing_field_offset, 2); // Freeform combos!

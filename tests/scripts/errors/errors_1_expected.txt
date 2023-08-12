@@ -1,0 +1,9 @@
+Compiling 'errors_1.zs'
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+ZQ_BUFFER Line 3 @ Column 1 - Line 10 @ Column 2 - Error S011: Script Global needs a void run() function.
+ZQ_BUFFER Line 8 @ Columns 37-48 - Error S009: Variable number_oops has not been declared.
+Failure!
+Compile finished with exit code '11' (compiled with errors)

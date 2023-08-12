@@ -11,7 +11,7 @@ class MyDialog: public GUI::Dialog<MyDialog>
 public:
     enum class message
     {
-        OK, CANCEL
+        REFR_INFO, OK, CANCEL
     };
 
     std::shared_ptr<GUI::Widget> view() override;

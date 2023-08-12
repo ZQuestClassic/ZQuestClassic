@@ -29,6 +29,40 @@ using std::unique_ptr;
 using std::shared_ptr;
 using namespace ZScript;
 
+#include <allegro/alcompat.h>
+#if (DEVICE_SEPARATOR != 0) && (DEVICE_SEPARATOR != '\0')
+#define HAVE_DIR_LIST
+#endif
+static void get_root_path(char* path, int32_t size)
+{
+#ifdef HAVE_DIR_LIST
+	int32_t drive = _al_getdrive();
+#else
+	int32_t drive = 0;
+#endif
+
+    _al_getdcwd(drive, path, size - ucwidth(OTHER_PATH_SEPARATOR));
+	fix_filename_case(path);
+	fix_filename_slashes(path);
+	put_backslash(path);
+}
+
+static std::filesystem::path relativize_path(std::string src_path)
+{
+	char rootpath[PATH_MAX] = {0};
+	get_root_path(rootpath, PATH_MAX);
+    return std::filesystem::relative(src_path, rootpath);
+}
+
+static std::filesystem::path derelativize_path(std::string src_path)
+{
+	char rootpath[PATH_MAX] = {0};
+	get_root_path(rootpath, PATH_MAX);
+	char buf[PATH_MAX*2] = {0};
+	return (std::filesystem::path(rootpath) / src_path).lexically_normal();
+}
+
+
 extern std::vector<string> ZQincludePaths;
 //#define PARSER_DEBUG
 
@@ -54,15 +88,17 @@ void ScriptParser::initialize()
 	includePaths.resize(0);
 }
 extern uint32_t zscript_failcode;
-extern bool zscript_had_warn_err;
 extern bool zscript_error_out;
-unique_ptr<ScriptsData> ZScript::compile(string const& filename)
+extern bool delay_asserts, ignore_asserts;
+vector<ZScript::BasicCompileError> casserts;
+static unique_ptr<ScriptsData> _compile_helper(string const& filename)
 {
+	using namespace ZScript;
 	zscript_failcode = 0;
-	zscript_had_warn_err = false;
 	zscript_error_out = false;
 	ScriptParser::initialize();
-	
+	if(ignore_asserts) delay_asserts = true;
+	casserts.clear();
 	try
 	{
 		zconsole_info("%s", "Pass 1: Parsing");
@@ -120,6 +156,7 @@ unique_ptr<ScriptsData> ZScript::compile(string const& filename)
 		ScriptParser::assemble(id.get());
 
 		unique_ptr<ScriptsData> result(new ScriptsData(program));
+		if(!ignore_asserts && casserts.size()) return nullptr;
 		if(zscript_error_out) return nullptr;
 
 		zconsole_info("%s", "Success!");
@@ -129,7 +166,7 @@ unique_ptr<ScriptsData> ZScript::compile(string const& filename)
 	catch (compile_exception &e)
 	{
 		zconsole_error(fmt::format("An unexpected compile error has occurred:\n{}",e.what()));
-		zscript_had_warn_err = zscript_error_out = true;
+		zscript_error_out = true;
 		return nullptr;
 	}
 #ifndef _DEBUG
@@ -144,10 +181,18 @@ unique_ptr<ScriptsData> ZScript::compile(string const& filename)
 #endif
 
 		zconsole_error(fmt::format("An unexpected runtime error has occurred:\n{}",e.what()));
-		zscript_had_warn_err = zscript_error_out = true;
+		zscript_error_out = true;
 		return nullptr;
 	}
 #endif
+}
+unique_ptr<ScriptsData> ZScript::compile(string const& filename)
+{
+	auto ret = _compile_helper(filename);
+	if(!ignore_asserts)
+		for(BasicCompileError const& error : casserts)
+			error.handle();
+	return ret;
 }
 
 int32_t ScriptParser::vid = 0;
@@ -194,6 +239,7 @@ string* ScriptParser::checkIncludes(string& includePath, string const& importnam
 	return NULL;
 }
 
+extern std::vector<std::filesystem::path> force_ignores;
 bool ScriptParser::valid_include(ASTImportDecl& decl, string& ret_fname)
 {
 	if(decl.wasValidated())
@@ -216,25 +262,51 @@ bool ScriptParser::valid_include(ASTImportDecl& decl, string& ret_fname)
 	if(!fname)
 	{
 		// Scan include paths
-		int32_t importfound = importname.find_first_not_of("/\\");
-		if(importfound != string::npos) //If the import is not just `/`'s and `\`'s...
+		auto ss = std::filesystem::path(importname);
+		if (std::filesystem::path(importname).is_absolute())
 		{
-			if(importfound != 0)
-				importname = importname.substr(importfound); //Remove leading `/` and `\`
-			//Convert the include string to a proper import path
-			fname = checkIncludes(includePath, importname, ZQincludePaths);
-			if(!fname)
+			fname = &importname;
+		}
+		else
+		{
+			int32_t importfound = importname.find_first_not_of("/\\");
+			if(importfound != string::npos) //If the import is not just `/`'s and `\`'s...
 			{
-				fname = checkIncludes(includePath, importname, includePaths);
+				if(importfound != 0)
+					importname = importname.substr(importfound); //Remove leading `/` and `\`
+				//Convert the include string to a proper import path
+				fname = checkIncludes(includePath, importname, ZQincludePaths);
+				if(!fname)
+				{
+					fname = checkIncludes(includePath, importname, includePaths);
+				}
 			}
 		}
 	}
 	string filename = fname ? *fname : prepareFilename(importname); //Check root dir last, if nothing has been found yet.
 	ret_fname = filename;
-	FILE* f = fopen(filename.c_str(), "r");
+	//Note: If the user gives an absolute path, `relpath` will be that absolute path!
+	std::filesystem::path relpath = std::filesystem::path(filename).lexically_normal();
+	std::filesystem::path abspath = derelativize_path(filename);
+	FILE* f = fopen(abspath.string().c_str(), "r");
 	if(f)
 	{
 		fclose(f);
+		if(std::find(force_ignores.begin(), force_ignores.end(), abspath) != force_ignores.end())
+		{
+			decl.disable();
+			return true;
+		}
+	}
+	f = fopen(filename.c_str(), "r");
+	if(f)
+	{
+		fclose(f);
+		if(std::find(force_ignores.begin(), force_ignores.end(), relpath) != force_ignores.end())
+		{
+			decl.disable();
+			return true;
+		}
 		//zconsole_db("Importing filename '%s' successfully", filename.c_str());
 		decl.setFilename(filename);
 		decl.validate();
@@ -251,6 +323,7 @@ bool ScriptParser::preprocess_one(ASTImportDecl& importDecl, int32_t reclimit)
 		log_error(CompileError::CantOpenImport(&importDecl, filename));
 		return false;
 	}
+	if(importDecl.isDisabled()) return true;
 	unique_ptr<ASTFile> imported(parseFile(filename));
 	if (!imported.get())
 	{

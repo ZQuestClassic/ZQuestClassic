@@ -1,3 +1,13 @@
+Compiling 'modify_input.zs'
+Pass 1: Parsing
+Pass 2: Preprocessing
+Pass 3: Registration
+Pass 4: Analyzing Code
+Pass 5: Generating object code
+Pass 6: Assembling
+Success!
+Compile finished with exit code '0' (success)
+
 PUSHR REFFFC
 SETR d4,SP
 SETR d2,INPUTPRESSA
