@@ -549,14 +549,16 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			case widgTIME:
 			{
 				SW_Time* w = dynamic_cast<SW_Time*>(local_subref);
-				attrib_grid = Columns<3>(
+				attrib_grid = Columns<4>(
 					Label(text = "Font:", hAlign = 1.0),
 					Label(text = "Style:", hAlign = 1.0),
 					Label(text = "Alignment:", hAlign = 1.0),
+					INFOBTN("Changes the format the time displays in from 'H:MM:SS' to 'HH;MM'"
+						" (where the ';' flickers back and forth between ':' and ';' twice/second)"),
 					DDL_FONT(w->fontid),
 					DDL(w->shadtype, list_shadtype),
 					DDL(w->align, list_aligns),
-					CBOX(w->flags,SUBSCR_TIME_ALTSTR,"Alt Format",2)
+					CBOX(w->flags,SUBSCR_TIME_ALTSTR,"Alt Format",1)
 				);
 				break;
 			}

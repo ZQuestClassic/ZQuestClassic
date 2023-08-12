@@ -3325,7 +3325,13 @@ int32_t SubscrPage::get_pos_of_item(int32_t id)
 	}
 	return -1;
 }
-
+SubscrWidget* SubscrPage::get_widget(int indx)
+{
+	if(unsigned(indx) >= contents.size())
+		return nullptr;
+	
+	return contents[indx];
+}
 void SubscrPage::clear()
 {
 	cursor_pos = 0;
@@ -3401,7 +3407,7 @@ SubscrPage& ZCSubscreen::cur_page()
 {
 	if(pages.empty())
 		pages.emplace_back();
-	curpage = vbound(curpage,0, pages.size() - 1);
+	curpage = vbound(curpage,0,pages.size()-1);
 	return pages[curpage];
 }
 SubscrPage* ZCSubscreen::get_page(byte id)
@@ -3457,15 +3463,9 @@ void ZCSubscreen::add_page(byte id)
 	}
 	else
 	{
-		curpage = id;
-		for(auto it = pages.begin(); it != pages.end(); ++it)
-		{
-			if(id-- == 0)
-			{
-				pages.insert(it,{});
-				break;
-			}
-		}
+		pages.emplace_back();
+		for(byte ind = pages.size()-1; ind > id; --ind)
+			swap_pages(ind,ind-1);
 	}
 }
 void ZCSubscreen::swap_pages(byte ind1, byte ind2)

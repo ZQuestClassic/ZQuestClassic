@@ -26,6 +26,7 @@ int32_t onEditSubscreens();
 char *sso_name(int32_t type);
 void center_zq_subscreen_dialogs();
 void update_sso_name();
+void update_sscpy_name();
 void update_up_dn_btns();
 extern bool show_new_ss;
 extern DIALOG sslist_dlg[];
