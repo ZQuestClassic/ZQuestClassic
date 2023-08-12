@@ -306,9 +306,12 @@ int jwin_cset_proc(int msg, DIALOG* d, int c)
 			rectfill(screen,d->x,d->y + d->h + 3,d->x + d->w - 1,d->y + d->h + 48,jwin_pal[jcBOX]);
 			
 			if(color_copy>=0)
-				textout_ex(screen,(get_zc_font(font_lfont_l)),"\x81",color_copy*cs_hei+d->x,d->y + d->h + 3,jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+			{
+				jwin_draw_icon(screen, color_copy*cs_hei+d->x+cs_hei/2, d->y + d->h + 3,jwin_pal[jcBOXFG],BTNICON_ARROW_UP,4,true);
+				jwin_draw_icon(screen, color_copy*cs_hei+d->x+cs_hei/2, d->y + d->h + 3 + 4,jwin_pal[jcBOXFG],BTNICON_ARROW_UP,4,true);
+			}
 			
-			textout_ex(screen,(get_zc_font(font_lfont_l)),"\x88",color_index*cs_hei+d->x,d->y + d->h + 3,jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+			jwin_draw_icon(screen,color_index*cs_hei+d->x+cs_hei/2,d->y + d->h + 3,jwin_pal[jcBOXFG],BTNICON_ARROW_UP,4,true);
 			
 			if((edit_cset_dlg[19].flags & D_SELECTED))
 			{

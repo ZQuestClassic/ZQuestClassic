@@ -496,14 +496,14 @@ int32_t d_ssup_btn2_proc(int32_t msg,DIALOG *d,int32_t c)
 	{
 		case MSG_CLICK:
 		{
-			jwin_button_proc(msg, d, c);
+			jwin_iconbutton_proc(msg, d, c);
 			onSSUp();
 			return D_O_K;
 		}
 		break;
 	}
 	
-	return jwin_button_proc(msg, d, c);
+	return jwin_iconbutton_proc(msg, d, c);
 }
 
 int32_t d_ssdn_btn2_proc(int32_t msg,DIALOG *d,int32_t c)
@@ -512,14 +512,14 @@ int32_t d_ssdn_btn2_proc(int32_t msg,DIALOG *d,int32_t c)
 	{
 		case MSG_CLICK:
 		{
-			jwin_button_proc(msg, d, c);
+			jwin_iconbutton_proc(msg, d, c);
 			onSSDown();
 			return D_O_K;
 		}
 		break;
 	}
 	
-	return jwin_button_proc(msg, d, c);
+	return jwin_iconbutton_proc(msg, d, c);
 }
 
 int32_t d_sslt_btn2_proc(int32_t msg,DIALOG *d,int32_t c)
@@ -528,14 +528,14 @@ int32_t d_sslt_btn2_proc(int32_t msg,DIALOG *d,int32_t c)
 	{
 		case MSG_CLICK:
 		{
-			jwin_button_proc(msg, d, c);
+			jwin_iconbutton_proc(msg, d, c);
 			onSSLeft();
 			return D_O_K;
 		}
 		break;
 	}
 	
-	return jwin_button_proc(msg, d, c);
+	return jwin_iconbutton_proc(msg, d, c);
 }
 
 int32_t d_ssrt_btn2_proc(int32_t msg,DIALOG *d,int32_t c)
@@ -544,14 +544,14 @@ int32_t d_ssrt_btn2_proc(int32_t msg,DIALOG *d,int32_t c)
 	{
 		case MSG_CLICK:
 		{
-			jwin_button_proc(msg, d, c);
+			jwin_iconbutton_proc(msg, d, c);
 			onSSRight();
 			return D_O_K;
 		}
 		break;
 	}
 	
-	return jwin_button_proc(msg, d, c);
+	return jwin_iconbutton_proc(msg, d, c);
 }
 
 int32_t d_ssup_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
@@ -560,7 +560,7 @@ int32_t d_ssup_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
 	{
 		case MSG_CLICK:
 		{
-			jwin_button_proc(msg, d, c);
+			jwin_iconbutton_proc(msg, d, c);
 			SubscrPage& pg = subscr_edit_page();
 			for(int32_t i=0; i<pg.contents.size(); ++i)
 			{
@@ -574,7 +574,7 @@ int32_t d_ssup_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
 		break;
 	}
 	
-	return jwin_button_proc(msg, d, c);
+	return jwin_iconbutton_proc(msg, d, c);
 }
 
 int32_t d_ssdn_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
@@ -583,7 +583,7 @@ int32_t d_ssdn_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
 	{
 		case MSG_CLICK:
 		{
-			jwin_button_proc(msg, d, c);
+			jwin_iconbutton_proc(msg, d, c);
 			SubscrPage& pg = subscr_edit_page();
 			for(int32_t i=0; i<pg.contents.size(); ++i)
 			{
@@ -597,7 +597,7 @@ int32_t d_ssdn_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
 		break;
 	}
 	
-	return jwin_button_proc(msg, d, c);
+	return jwin_iconbutton_proc(msg, d, c);
 }
 
 int32_t d_sslt_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
@@ -606,7 +606,7 @@ int32_t d_sslt_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
 	{
 		case MSG_CLICK:
 		{
-			jwin_button_proc(msg, d, c);
+			jwin_iconbutton_proc(msg, d, c);
 			SubscrPage& pg = subscr_edit_page();
 			for(int32_t i=0; i<pg.contents.size(); ++i)
 			{
@@ -620,7 +620,7 @@ int32_t d_sslt_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
 		break;
 	}
 	
-	return jwin_button_proc(msg, d, c);
+	return jwin_iconbutton_proc(msg, d, c);
 }
 
 int32_t d_ssrt_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
@@ -629,7 +629,7 @@ int32_t d_ssrt_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
 	{
 		case MSG_CLICK:
 		{
-			jwin_button_proc(msg, d, c);
+			jwin_iconbutton_proc(msg, d, c);
 			SubscrPage& pg = subscr_edit_page();
 			for(int32_t i=0; i<pg.contents.size(); ++i)
 			{
@@ -643,7 +643,7 @@ int32_t d_ssrt_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
 		break;
 	}
 	
-	return jwin_button_proc(msg, d, c);
+	return jwin_iconbutton_proc(msg, d, c);
 }
 
 int32_t d_ssup_btn4_proc(int32_t msg,DIALOG *d,int32_t c)
@@ -652,14 +652,14 @@ int32_t d_ssup_btn4_proc(int32_t msg,DIALOG *d,int32_t c)
     {
     case MSG_CLICK:
     {
-        jwin_button_proc(msg, d, c);
+        jwin_iconbutton_proc(msg, d, c);
         subscr_edit.cur_page().move_cursor(SEL_UP);
         return D_O_K;
     }
     break;
     }
     
-    return jwin_button_proc(msg, d, c);
+    return jwin_iconbutton_proc(msg, d, c);
 }
 
 int32_t d_ssdn_btn4_proc(int32_t msg,DIALOG *d,int32_t c)
@@ -668,14 +668,14 @@ int32_t d_ssdn_btn4_proc(int32_t msg,DIALOG *d,int32_t c)
     {
     case MSG_CLICK:
     {
-        jwin_button_proc(msg, d, c);
+        jwin_iconbutton_proc(msg, d, c);
         subscr_edit.cur_page().move_cursor(SEL_DOWN);
         return D_O_K;
     }
     break;
     }
     
-    return jwin_button_proc(msg, d, c);
+    return jwin_iconbutton_proc(msg, d, c);
 }
 
 int32_t d_sslt_btn4_proc(int32_t msg,DIALOG *d,int32_t c)
@@ -684,14 +684,14 @@ int32_t d_sslt_btn4_proc(int32_t msg,DIALOG *d,int32_t c)
     {
     case MSG_CLICK:
     {
-        jwin_button_proc(msg, d, c);
+        jwin_iconbutton_proc(msg, d, c);
         subscr_edit.cur_page().move_cursor(SEL_LEFT);
         return D_O_K;
     }
     break;
     }
     
-    return jwin_button_proc(msg, d, c);
+    return jwin_iconbutton_proc(msg, d, c);
 }
 
 int32_t d_ssrt_btn4_proc(int32_t msg,DIALOG *d,int32_t c)
@@ -700,14 +700,14 @@ int32_t d_ssrt_btn4_proc(int32_t msg,DIALOG *d,int32_t c)
     {
     case MSG_CLICK:
     {
-        jwin_button_proc(msg, d, c);
+        jwin_iconbutton_proc(msg, d, c);
         subscr_edit.cur_page().move_cursor(SEL_RIGHT);
         return D_O_K;
     }
     break;
     }
     
-    return jwin_button_proc(msg, d, c);
+    return jwin_iconbutton_proc(msg, d, c);
 }
 
 const char *sso_textstyle[sstsMAX]=
@@ -857,60 +857,63 @@ static MENU subscreen_menu[] =
     { NULL,                         NULL,                                 NULL, 0, NULL }
 };
 
-
 static DIALOG subscreen_dlg[] =
 {
-    // (dialog proc)       (x)   (y)    (w)     (h)   (fg)                (bg)              (key)    (flags)     (d1)           (d2)     (dp)
-    { jwin_win_proc,        0,    0,      320,    240,  vc(0),              vc(11),           0,       D_EXIT,     0,             0, (void *) "Subscreen Editor", NULL, NULL },
-    { jwin_button_proc,     192,  215,    61,     21,   vc(0),              vc(11),           13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-    { jwin_button_proc,     255,  215,    61,     21,   vc(0),              vc(11),           27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { jwin_frame_proc,      4,    37,     260,    172,  0,                  0,                0,       0,          FR_DEEP,       0,       NULL, NULL, NULL },
-    { d_subscreen_proc,     6,    39,     256,    168,  0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
-    // 5
-    { d_box_proc,           11,   211,    181,    8,    0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
-    { jwin_text_proc,       11,   211,    181,    16,   0,                  0,                0,       0,          0,             0,       NULL, NULL, NULL },
-    { jwin_text_proc,       4,    225,    30,     16,   0,                  0,                0,       0,          0,             0, (void *) "Name:", NULL, NULL },
-    { jwin_edit_proc,       34,   221,    155,    16,   0,                  0,                0,       0,          64,            0,       NULL, NULL, NULL },
-    
-    { d_ssup_btn_proc,      284,  23,     15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0, (void *) "\x88", NULL, NULL },
-    { d_ssdn_btn_proc,      284,  53,     15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0, (void *) "\x89", NULL, NULL },
-    { d_sslt_btn_proc,      269,  38,     15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0, (void *) "\x8A", NULL, NULL },
-    { d_ssrt_btn_proc,      299,  38,     15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0, (void *) "\x8B", NULL, NULL },
-    
-    { d_ssup_btn2_proc,     284,  70,     15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0, (void *) "\x88", NULL, NULL },
-    { d_ssdn_btn2_proc,     284,  100,    15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0, (void *) "\x89", NULL, NULL },
-    { d_sslt_btn2_proc,     269,  85,     15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0, (void *) "\x8A", NULL, NULL },
-    { d_ssrt_btn2_proc,     299,  85,     15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0, (void *) "\x8B", NULL, NULL },
-    
-    { d_ssup_btn3_proc,     284,  117,    15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0, (void *) "\x98", NULL, NULL },
-    { d_ssdn_btn3_proc,     284,  147,    15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0, (void *) "\x99", NULL, NULL },
-    { d_sslt_btn3_proc,     269,  132,    15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0, (void *) "\x9A", NULL, NULL },
-    { d_ssrt_btn3_proc,     299,  132,    15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0, (void *) "\x9B", NULL, NULL },
-    
-    { d_ssup_btn4_proc,     284,  164,    15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0, (void *) "\x88", NULL, NULL },
-    { d_ssdn_btn4_proc,     284,  194,    15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0, (void *) "\x89", NULL, NULL },
-    { d_sslt_btn4_proc,     269,  179,    15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0, (void *) "\x8A", NULL, NULL },
-    { d_ssrt_btn4_proc,     299,  179,    15,     15,   vc(0),              vc(11),           13,      D_EXIT,     0,             0, (void *) "\x8B", NULL, NULL },
-    
-    { jwin_menu_proc,       4,    23,     0,      13,    0,                 0,                0,       0,          0,             0, (void *) subscreen_menu, NULL, NULL },
-    { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                0,       0,          KEY_UP,        0, (void *) onSSUp, NULL, NULL },
-    { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                0,       0,          KEY_DOWN,      0, (void *) onSSDown, NULL, NULL },
-    { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                0,       0,          KEY_LEFT,      0, (void *) onSSLeft, NULL, NULL },
-    { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                0,       0,          KEY_RIGHT,     0, (void *) onSSRight, NULL, NULL },
-    { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                0,       0,          KEY_PGUP,      0, (void *) onSSPgUp, NULL, NULL },
-    { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                0,       0,          KEY_PGDN,      0, (void *) onSSPgDn, NULL, NULL },
-    { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                'a',     0,          0,             0, (void *) onAddToSelection, NULL, NULL },
-    { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                'r',     0,          0,             0, (void *) onRemoveFromSelection, NULL, NULL },
-    { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                'i',     0,          0,             0, (void *) onInvertSelection, NULL, NULL },
-    { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                'c',     0,          0,             0, (void *) onClearSelection, NULL, NULL },
-    { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                0,       0,          KEY_INSERT,    0, (void *) onNewSubscreenObject, NULL, NULL },
-    { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                0,       0,          KEY_DEL,       0, (void *) onDeleteSubscreenObject, NULL, NULL },
-    { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                'd',     0,          0,             0, (void *) onDuplicateSubscreenObject, NULL, NULL },
-    { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                'e',     0,          0,             0, (void *) onSubscreenObjectProperties, NULL, NULL },
-    { d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                'z',     0,          0,             0, (void *) onSnapshot, NULL, NULL },
-    { d_vsync_proc,         0,     0,     0,       0,    0,                 0,                0,       0,          0,             0,       NULL, NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
+	// (dialog proc)       (x)   (y)    (w)     (h)   (fg)                (bg)              (key)    (flags)     (d1)                    (d2)     (dp)
+	{ jwin_win_proc,        0,    0,      320,    240,  vc(0),              vc(11),           0,       D_EXIT,     0,                      0, (void *) "Subscreen Editor", NULL, NULL },
+	{ jwin_button_proc,     192,  215,    61,     21,   vc(0),              vc(11),           13,      D_EXIT,     0,                      0, (void *) "OK", NULL, NULL },
+	{ jwin_button_proc,     255,  215,    61,     21,   vc(0),              vc(11),           27,      D_EXIT,     0,                      0, (void *) "Cancel", NULL, NULL },
+	{ jwin_frame_proc,      4,    37,     260,    172,  0,                  0,                0,       0,          FR_DEEP,                0, NULL, NULL, NULL },
+	{ d_subscreen_proc,     6,    39,     256,    168,  0,                  0,                0,       0,          0,                      0, NULL, NULL, NULL },
+	// 5
+	{ d_box_proc,           11,   211,    181,    8,    0,                  0,                0,       0,          0,                      0, NULL, NULL, NULL },
+	{ jwin_text_proc,       34,   211,    181,    16,   0,                  0,                0,       0,          0,                      0, NULL, NULL, NULL },
+	{ jwin_rtext_proc,      32,   225,    30,     16,   0,                  0,                0,       0,          0,                      0, (void *) "Name:", NULL, NULL },
+	{ jwin_edit_proc,       34,   221,    155,    16,   0,                  0,                0,       0,          64,                     0, NULL, NULL, NULL },
+	// 9
+	{ d_ssup_btn_proc,      284,  23,     15,     15,   vc(0),              vc(11),           13,      D_EXIT,     BTNICON_ARROW_UP,       0, NULL, NULL, NULL },
+	{ d_ssdn_btn_proc,      284,  53,     15,     15,   vc(0),              vc(11),           13,      D_EXIT,     BTNICON_ARROW_DOWN,     0, NULL, NULL, NULL },
+	{ d_sslt_btn_proc,      269,  38,     15,     15,   vc(0),              vc(11),           13,      D_EXIT,     BTNICON_ARROW_LEFT,     0, NULL, NULL, NULL },
+	{ d_ssrt_btn_proc,      299,  38,     15,     15,   vc(0),              vc(11),           13,      D_EXIT,     BTNICON_ARROW_RIGHT,    0, NULL, NULL, NULL },
+	// 13
+	{ d_ssup_btn2_proc,     284,  70,     15,     15,   vc(0),              vc(11),           13,      D_EXIT,     BTNICON_ARROW_UP,       0, NULL, NULL, NULL },
+	{ d_ssdn_btn2_proc,     284,  100,    15,     15,   vc(0),              vc(11),           13,      D_EXIT,     BTNICON_ARROW_DOWN,     0, NULL, NULL, NULL },
+	{ d_sslt_btn2_proc,     269,  85,     15,     15,   vc(0),              vc(11),           13,      D_EXIT,     BTNICON_ARROW_LEFT,     0, NULL, NULL, NULL },
+	{ d_ssrt_btn2_proc,     299,  85,     15,     15,   vc(0),              vc(11),           13,      D_EXIT,     BTNICON_ARROW_RIGHT,    0, NULL, NULL, NULL },
+	// 17
+	{ d_ssup_btn3_proc,     284,  117,    15,     15,   vc(0),              vc(11),           13,      D_EXIT,     BTNICON_CONTRACT_VERT,  0, NULL, NULL, NULL },
+	{ d_ssdn_btn3_proc,     284,  147,    15,     15,   vc(0),              vc(11),           13,      D_EXIT,     BTNICON_EXPAND_VERT,    0, NULL, NULL, NULL },
+	{ d_sslt_btn3_proc,     269,  132,    15,     15,   vc(0),              vc(11),           13,      D_EXIT,     BTNICON_CONTRACT_HORZ,  0, NULL, NULL, NULL },
+	{ d_ssrt_btn3_proc,     299,  132,    15,     15,   vc(0),              vc(11),           13,      D_EXIT,     BTNICON_EXPAND_HORZ,    0, NULL, NULL, NULL },
+	// 21
+	{ d_ssup_btn4_proc,     284,  164,    15,     15,   vc(0),              vc(11),           13,      D_EXIT,     BTNICON_ARROW_UP,       0, NULL, NULL, NULL },
+	{ d_ssdn_btn4_proc,     284,  194,    15,     15,   vc(0),              vc(11),           13,      D_EXIT,     BTNICON_ARROW_DOWN,     0, NULL, NULL, NULL },
+	{ d_sslt_btn4_proc,     269,  179,    15,     15,   vc(0),              vc(11),           13,      D_EXIT,     BTNICON_ARROW_LEFT,     0, NULL, NULL, NULL },
+	{ d_ssrt_btn4_proc,     299,  179,    15,     15,   vc(0),              vc(11),           13,      D_EXIT,     BTNICON_ARROW_RIGHT,    0, NULL, NULL, NULL },
+	// 25
+	{ jwin_menu_proc,       4,    23,     0,      13,    0,                 0,                0,       0,          0,                      0, (void *) subscreen_menu, NULL, NULL },
+	{ d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                0,       0,          KEY_UP,                 0, (void *) onSSUp, NULL, NULL },
+	{ d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                0,       0,          KEY_DOWN,               0, (void *) onSSDown, NULL, NULL },
+	{ d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                0,       0,          KEY_LEFT,               0, (void *) onSSLeft, NULL, NULL },
+	{ d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                0,       0,          KEY_RIGHT,              0, (void *) onSSRight, NULL, NULL },
+	// 30
+	{ d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                0,       0,          KEY_PGUP,               0, (void *) onSSPgUp, NULL, NULL },
+	{ d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                0,       0,          KEY_PGDN,               0, (void *) onSSPgDn, NULL, NULL },
+	{ d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                'a',     0,          0,                      0, (void *) onAddToSelection, NULL, NULL },
+	{ d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                'r',     0,          0,                      0, (void *) onRemoveFromSelection, NULL, NULL },
+	{ d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                'i',     0,          0,                      0, (void *) onInvertSelection, NULL, NULL },
+	// 35
+	{ d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                'c',     0,          0,                      0, (void *) onClearSelection, NULL, NULL },
+	{ d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                0,       0,          KEY_INSERT,             0, (void *) onNewSubscreenObject, NULL, NULL },
+	{ d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                0,       0,          KEY_DEL,                0, (void *) onDeleteSubscreenObject, NULL, NULL },
+	{ d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                'd',     0,          0,                      0, (void *) onDuplicateSubscreenObject, NULL, NULL },
+	{ d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                'e',     0,          0,                      0, (void *) onSubscreenObjectProperties, NULL, NULL },
+	// 40
+	{ d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                'z',     0,          0,                      0, (void *) onSnapshot, NULL, NULL },
+	
+	{ d_vsync_proc,         0,    0,      0,       0,    0,                 0,                0,       0,          0,                      0, NULL, NULL, NULL },
+	{ d_timer_proc,         0,    0,      0,       0,    0,                 0,                0,       0,          0,                      0, NULL, NULL, NULL },
+	{ NULL,                 0,    0,      0,       0,    0,                 0,                0,       0,          0,                      0, NULL, NULL, NULL }
 };
 
 int32_t onActivePassive()
@@ -1754,13 +1757,13 @@ int32_t d_ssup_btn_proc(int32_t msg,DIALOG *d,int32_t c)
     {
     case MSG_CLICK:
     {
-        jwin_button_proc(msg, d, c);
+        jwin_iconbutton_proc(msg, d, c);
         return onSSCtrlPgUp();
     }
     break;
     }
     
-    return jwin_button_proc(msg, d, c);
+    return jwin_iconbutton_proc(msg, d, c);
 }
 
 int32_t d_ssdn_btn_proc(int32_t msg,DIALOG *d,int32_t c)
@@ -1769,13 +1772,13 @@ int32_t d_ssdn_btn_proc(int32_t msg,DIALOG *d,int32_t c)
     {
     case MSG_CLICK:
     {
-        jwin_button_proc(msg, d, c);
+        jwin_iconbutton_proc(msg, d, c);
         return onSSCtrlPgDn();
     }
     break;
     }
     
-    return jwin_button_proc(msg, d, c);
+    return jwin_iconbutton_proc(msg, d, c);
 }
 
 int32_t d_sslt_btn_proc(int32_t msg,DIALOG *d,int32_t c)
@@ -1784,14 +1787,14 @@ int32_t d_sslt_btn_proc(int32_t msg,DIALOG *d,int32_t c)
     {
     case MSG_CLICK:
     {
-        jwin_button_proc(msg, d, c);
+        jwin_iconbutton_proc(msg, d, c);
         onSSPgDn();
         return D_O_K;
     }
     break;
     }
     
-    return jwin_button_proc(msg, d, c);
+    return jwin_iconbutton_proc(msg, d, c);
 }
 
 int32_t d_ssrt_btn_proc(int32_t msg,DIALOG *d,int32_t c)
@@ -1800,14 +1803,14 @@ int32_t d_ssrt_btn_proc(int32_t msg,DIALOG *d,int32_t c)
     {
     case MSG_CLICK:
     {
-        jwin_button_proc(msg, d, c);
+        jwin_iconbutton_proc(msg, d, c);
         onSSPgUp();
         return D_O_K;
     }
     break;
     }
     
-    return jwin_button_proc(msg, d, c);
+    return jwin_iconbutton_proc(msg, d, c);
 }
 
 

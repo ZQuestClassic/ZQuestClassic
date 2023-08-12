@@ -211,17 +211,17 @@ static ListData qtlist_dlg_list(qtlist, &font);
 
 static DIALOG qtlist_dlg[] =
 {
-    // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
-    { jwin_win_proc,          0,      0,    303,    149,    vc(14),                vc(1),                  0,    D_EXIT,     0,           0, (void *) "Pick Quest Template",   NULL,   NULL  },
-    { d_timer_proc,           0,      0,      0,      0,    0,                     0,                      0,    0,          0,           0,  NULL,                             NULL,   NULL  },
-    { jwin_list_proc,         5,     26,    271,     87,    jwin_pal[jcBOXFG],     jwin_pal[jcLIGHT],      0,    D_EXIT,     0,           0, (void *) &qtlist_dlg_list,        NULL,   NULL  },
-    { jwin_button_proc,     278,     44,     21,     21,    vc(14),                vc(1),                 13,    D_EXIT,     0,           0, (void *) "\x88",                  NULL,   NULL  },
-    { jwin_button_proc,     278,     73,     21,     21,    vc(14),                vc(1),                 13,    D_EXIT,     0,           0, (void *) "\x89",                  NULL,   NULL  },
-    { jwin_button_proc,      30,    120,     61,     21,    vc(14),                vc(1),                 13,    D_EXIT,     0,           0, (void *) "Edit",                  NULL,   NULL  },
-    { jwin_button_proc,     110,    120,     61,     21,    vc(14),                vc(1),                 27,    D_EXIT,     0,           0, (void *) "OK",                    NULL,   NULL  },
-    { jwin_button_proc,     190,    120,     61,     21,    vc(14),                vc(1),                 27,    D_EXIT,     0,           0, (void *) "Cancel",                NULL,   NULL  },
-    { d_keyboard_proc,        0,      0,      0,      0,    0,                     0,                      0,    0,          KEY_DEL,     0, (void *) qtlist_del,              NULL,   NULL  },
-    { NULL,                   0,      0,      0,      0,    0,                     0,                      0,    0,          0,           0,  NULL,                             NULL,   NULL  }
+    // (dialog proc)        (x)     (y)     (w)      (h)    (fg)                   (bg)                (key)    (flags)     (d1)               (d2)  (dp)
+    { jwin_win_proc,          0,      0,    303,    149,    vc(14),                vc(1),                  0,    D_EXIT,     0,                  0, (void *) "Pick Quest Template",   NULL,   NULL  },
+    { d_timer_proc,           0,      0,      0,      0,    0,                     0,                      0,    0,          0,                  0,  NULL,                             NULL,   NULL  },
+    { jwin_list_proc,         5,     26,    271,     87,    jwin_pal[jcBOXFG],     jwin_pal[jcLIGHT],      0,    D_EXIT,     0,                  0, (void *) &qtlist_dlg_list,        NULL,   NULL  },
+    { jwin_iconbutton_proc, 278,     44,     21,     21,    vc(14),                vc(1),                 13,    D_EXIT,     BTNICON_ARROW_UP,   0, NULL,                             NULL,   NULL  },
+    { jwin_iconbutton_proc, 278,     73,     21,     21,    vc(14),                vc(1),                 13,    D_EXIT,     BTNICON_ARROW_DOWN, 0, NULL,                             NULL,   NULL  },
+    { jwin_button_proc,      30,    120,     61,     21,    vc(14),                vc(1),                 13,    D_EXIT,     0,                  0, (void *) "Edit",                  NULL,   NULL  },
+    { jwin_button_proc,     110,    120,     61,     21,    vc(14),                vc(1),                 27,    D_EXIT,     0,                  0, (void *) "OK",                    NULL,   NULL  },
+    { jwin_button_proc,     190,    120,     61,     21,    vc(14),                vc(1),                 27,    D_EXIT,     0,                  0, (void *) "Cancel",                NULL,   NULL  },
+    { d_keyboard_proc,        0,      0,      0,      0,    0,                     0,                      0,    0,          KEY_DEL,            0, (void *) qtlist_del,              NULL,   NULL  },
+    { NULL,                   0,      0,      0,      0,    0,                     0,                      0,    0,          0,                  0,  NULL,                             NULL,   NULL  }
 };
 
 int32_t qtlist_del()
