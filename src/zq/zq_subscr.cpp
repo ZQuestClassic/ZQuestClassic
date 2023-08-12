@@ -39,37 +39,30 @@ extern void large_dialog(DIALOG *d);
 extern void large_dialog(DIALOG *d, float RESIZE_AMT);
 
 int32_t curr_subscreen_object;
-char str_oname[256];
-char subscr_namebuf[256];
+char str_oname[512];
+char str_cpyname[512];
+char subscr_namebuf[512];
 ZCSubscreen subscr_edit;
 bool sso_selection[MAXSUBSCREENITEMS];
 SubscrWidget* propCopyWidg = nullptr;
+int copied_page = -1;
+enum
+{
+	ssmouCLASSIC,
+	ssmouMODERN,
+	ssmouMAX
+};
+int ssmouse_type = ssmouMODERN;
+int clicked_obj = -1;
+byte ssmouse_flags = 0;
+int dragx, dragy;
+#define ssmflCLICKED   0x01
+#define ssmflDRAG      0x02
+#define ssmflRCLICK    0x04
 
 gamedata *game;
 
 void delete_subscreen(int32_t subscreenidx);
-
-SubscrPage& subscr_edit_page()
-{
-	if(subscr_edit.pages.empty())
-		subscr_edit.pages.emplace_back();
-    if(subscr_edit.pages.size() >= subscr_edit.curpage)
-		subscr_edit.curpage = 0;
-	return subscr_edit.pages[subscr_edit.curpage];
-}
-SubscrWidget* subscr_edit_widg()
-{
-	SubscrPage& p = subscr_edit_page();
-	if(p.contents.empty() || curr_subscreen_object < 0)
-	{
-		curr_subscreen_object=-1;
-		return nullptr;
-	}
-	if(curr_subscreen_object >= p.contents.size())
-		curr_subscreen_object = 0;
-	
-	return p.contents[curr_subscreen_object];
-}
 
 static ListData item_list(itemlist_num, &font);
 
@@ -103,32 +96,155 @@ int32_t onGridSnapMiddle();
 int32_t onGridSnapBottom();
 void copySSOProperties(SubscrWidget const* src, SubscrWidget* dest);
 
-int32_t onSubscreenObjectProperties()
+void subscr_properties(int indx)
 {
-	SubscrPage& pg = subscr_edit_page();
-	SubscrWidget* widg = subscr_edit_widg();
-    if(widg)
+	SubscrPage& pg = subscr_edit.cur_page();
+	if(unsigned(indx) < pg.contents.size())
+	{
+		SubscrWidget* widg = pg.contents[indx];
+		if(sso_properties(widg,indx)!=-1)
+		{
+			for(int32_t i=0; i<pg.contents.size(); i++)
+			{
+				if(!sso_selection[i] || i==indx)
+					continue;
+				
+				copySSOProperties(widg, pg.contents[i]);
+			}
+		}
+	}
+}
+
+void copy_properties(int indx)
+{
+	SubscrPage& pg = subscr_edit.cur_page();
+	if(unsigned(indx) < pg.contents.size())
+	{
+		SubscrWidget* widg = pg.contents[indx];
+		if(propCopyWidg)
+			delete propCopyWidg;
+		if(widg)
+		{
+			propCopyWidg = widg->clone();
+			copied_page = subscr_edit.curpage;
+		}
+		else
+		{
+			propCopyWidg = nullptr;
+			copied_page = -1;
+		}
+		update_sso_name();
+	}
+}
+void paste_properties(int indx)
+{
+	SubscrPage& pg = subscr_edit.cur_page();
+	if(propCopyWidg) // Hopefully unnecessary
+	{
+		SubscrPage& pg = subscr_edit.cur_page();
+		for(int32_t i=0; i<pg.contents.size(); i++)
+		{
+			if(i == indx || sso_selection[i])
+				copySSOProperties(propCopyWidg, pg.contents[i]);
+		}
+	}
+}
+void paste_widget(int indx)
+{
+	if(propCopyWidg)
+	{
+		SubscrWidget* targ = subscr_edit.cur_page().contents[indx];
+		auto tx = targ->x, ty = targ->y;
+		targ->copy_prop(propCopyWidg,true);
+		targ->x = tx; targ->y = ty;
+	}
+}
+SubscrWidget* paste_widg_from_cb()
+{
+	if(!propCopyWidg) return nullptr;
+	SubscrPage& pg = subscr_edit.cur_page();
+    
+	SubscrWidget* widg = propCopyWidg->clone();
+	if(!widg) return nullptr;
+	
+	if(copied_page == subscr_edit.curpage)
+	{
+		widg->x+=zc_max(zinit.ss_grid_x,8);
+		widg->y+=zc_max(zinit.ss_grid_y,8);
+	}
+	pg.contents.push_back(widg);
+    
+    update_sso_name();
+    update_up_dn_btns();
+	return widg;
+}
+int32_t onDuplCopiedSubscreenObject()
+{
+    paste_widg_from_cb();
+    return D_O_K;
+}
+int32_t onDuplicateSubscreenObject()
+{
+	SubscrPage& pg = subscr_edit.cur_page();
+    size_t objs = pg.contents.size();
+    
+    if(objs==0 || (key_shifts&KB_SHIFT_FLAG))
+		return onDuplCopiedSubscreenObject();
+    
+    for(int32_t i=0; i<objs; ++i)
     {
-        if(sso_properties(widg,pg.cursor_pos)!=-1)
+        if(sso_selection[i] || i==curr_subscreen_object)
         {
-            for(int32_t i=0; i<pg.contents.size(); i++)
-            {
-                if(!sso_selection[i])
-                    continue;
-                
-                copySSOProperties(widg, pg.contents[i]);
-            }
+			SubscrWidget* widg = pg.contents[i]->clone();
+			if(!widg) continue;
+			
+            widg->x+=zc_max(zinit.ss_grid_x,8);
+            widg->y+=zc_max(zinit.ss_grid_y,8);
+			pg.contents.push_back(widg);
         }
     }
     
+    update_sso_name();
+    update_up_dn_btns();
+    
     return D_O_K;
+}
+
+int32_t onSubscreenObjectProperties()
+{
+	subscr_properties(curr_subscreen_object);
+	return D_O_K;
+}
+int32_t onSubscrCopy()
+{
+	copy_properties(curr_subscreen_object);
+	return D_O_K;
+}
+int32_t onSubscrPaste()
+{
+	if(subscr_edit.cur_page().contents.empty())
+		return onDuplCopiedSubscreenObject();
+	if(key_shifts & KB_CTRL_FLAG)
+		paste_widget(curr_subscreen_object);
+	else paste_properties(curr_subscreen_object);
+	return D_O_K;
+}
+int32_t onSubscrPasteAll()
+{
+	paste_widget(curr_subscreen_object);
+	return D_O_K;
+}
+int32_t onSubscrPasteProps()
+{
+	paste_properties(curr_subscreen_object);
+	return D_O_K;
 }
 
 int32_t onNewSubscreenObject();
 
 int32_t onDeleteSubscreenObject()
 {
-	SubscrPage& pg = subscr_edit_page();
+	SubscrPage& pg = subscr_edit.cur_page();
     size_t objs=pg.contents.size();
     
     if(objs==0)
@@ -185,7 +301,7 @@ int32_t onRemoveFromSelection()
 
 int32_t onInvertSelection()
 {
-    for(int32_t i=0; i<subscr_edit_page().contents.size(); ++i)
+    for(int32_t i=0; i<subscr_edit.cur_page().contents.size(); ++i)
     {
         sso_selection[i]=!sso_selection[i];
     }
@@ -203,34 +319,6 @@ int32_t onClearSelection()
     return D_O_K;
 }
 
-int32_t onDuplicateSubscreenObject()
-{
-	SubscrPage& pg = subscr_edit_page();
-    size_t objs = pg.contents.size();
-    
-    if(objs==0)
-        return D_O_K;
-    
-    int32_t counter=0;
-    
-    for(int32_t i=0; i<objs; ++i)
-    {
-        if(sso_selection[i] || i==curr_subscreen_object)
-        {
-			SubscrWidget* widg = pg.contents[i]->clone();
-			if(!widg) continue;
-			
-            widg->x+=zc_max(zinit.ss_grid_x,8);
-            widg->y+=zc_max(zinit.ss_grid_y,8);
-        }
-    }
-    
-    update_sso_name();
-    update_up_dn_btns();
-    
-    return D_O_K;
-}
-
 static int32_t onToggleInvis();
 static int32_t onEditGrid();
 static int32_t onSelectionOptions();
@@ -240,152 +328,289 @@ static int32_t onShowHideGrid();
 static MENU subscreen_rc_menu[] =
 {
     { (char *)"Properties ",       NULL,  NULL, 0, NULL },
-    { (char *)"Copy Properties ",  NULL,  NULL, 0, NULL },
+    { (char *)"Copy Widget ",      NULL,  NULL, 0, NULL },
+    { (char *)"Duplicate Widget ", NULL,  NULL, 0, NULL },
     { (char *)"Paste Properties ", NULL,  NULL, 0, NULL },
+    { (char *)"Paste All ",        NULL,  NULL, 0, NULL },
+    { (char *)"",                  NULL,  NULL, 0, NULL },
+    { (char *)"Paste New ",        NULL,  NULL, 0, NULL },
     { NULL,                        NULL,  NULL, 0, NULL }
 };
-
-
+void update_subscr_dlg(bool start);
 int32_t d_subscreen_proc(int32_t msg,DIALOG *d,int32_t)
 {
+	SubscrPage& pg = subscr_edit.cur_page();
 	switch(msg)
 	{
-	case MSG_CLICK:
-	{
-		SubscrPage& pg = subscr_edit_page();
-		for(int32_t i=pg.contents.size()-1; i>=0; --i)
-		{
-			SubscrWidget* widg = pg.contents[i];
-			int32_t x=(widg->getX()+widg->getXOffs())*2;
-			int32_t y=widg->getY()*2;
-			int32_t w=widg->getW()*2;
-			int32_t h=widg->getH()*2;
+		case MSG_START:
+			clicked_obj = -1;
+			ssmouse_flags = 0;
+			onClearSelection();
+			curr_subscreen_object=0;
+			update_sso_name();
+			update_up_dn_btns();
+			return D_O_K;
+		
+		case MSG_VSYNC:
+			d->flags|=D_DIRTY;
+			break;
 			
-			if(isinRect(gui_mouse_x(),gui_mouse_y(),d->x+x, d->y+y, d->x+x+w-1, d->y+y+h-1))
+		case MSG_DRAW:
+		{
+			Sitems.animate();
+			int hei = subscr_edit.sub_type==sstPASSIVE ? 56 : 168;
+			BITMAP *buf = create_bitmap_ex(8,256,hei);
+			
+			if(buf)
 			{
-				if(key[KEY_LSHIFT]||key[KEY_RSHIFT])
+				clear_bitmap(buf);
+				ZCSubscreen* subs = (ZCSubscreen*)(d->dp);
+				show_custom_subscreen(buf, subs, 0, 0, true, sspUP | sspDOWN | sspSCROLLING);
+				
+				SubscrPage& pg = subs->cur_page();
+				int cur_object = (unsigned(clicked_obj)<pg.contents.size())
+					? clicked_obj
+					: curr_subscreen_object;
+				for(int32_t i=0; i<pg.contents.size(); ++i)
 				{
-					if(sso_selection[i]==true)
+					if(sso_selection[i] || i == cur_object)
 					{
-						sso_selection[i]=false;
+						auto c = i != cur_object
+							? vc(zinit.ss_bbox_2_color)
+							: vc(zinit.ss_bbox_1_color);
+						sso_bounding_box(buf, pg.contents[i], c);
 					}
-					else
-					{
-						sso_selection[curr_subscreen_object]=true;
-						curr_subscreen_object=i;
-						update_sso_name();
-						update_up_dn_btns();
-					}
-				}
-				else
-				{
-					onClearSelection();
-					curr_subscreen_object=i;
-					update_sso_name();
-					update_up_dn_btns();
 				}
 				
-				break;
+				if(zinit.ss_flags&ssflagSHOWGRID)
+				{
+					for(int32_t x=zinit.ss_grid_xofs; x<256; x+=zinit.ss_grid_x)
+					{
+						for(int32_t y=zinit.ss_grid_yofs; y<hei; y+=zinit.ss_grid_y)
+						{
+							buf->line[y][x]=vc(zinit.ss_grid_color);
+						}
+					}
+				}
+				
+				stretch_blit(buf,screen,0,0,256,hei,d->x,d->y,d->w,d->h);
+				
+				destroy_bitmap(buf);
 			}
 		}
+		return D_O_K;
 		
-		if(gui_mouse_b()&2) //right mouse button
+		case MSG_WANTFOCUS:
+			return D_WANTFOCUS;
+	}
+	
+	bool rclick = false;
+	bool shift = key[KEY_LSHIFT]||key[KEY_RSHIFT];
+	int rclickobj = curr_subscreen_object;
+	int scaled_mouse_x = gui_mouse_x(), scaled_mouse_y = gui_mouse_y();
+	if(isinRect(scaled_mouse_x,scaled_mouse_y,d->x, d->y, d->x+d->w-1, d->y+d->h-1))
+	{
+		scaled_mouse_x = round((scaled_mouse_x - d->x) * (256.0/d->w));
+		scaled_mouse_y = round((scaled_mouse_y - d->y) * (168.0/d->h));
+	}
+	else scaled_mouse_x = scaled_mouse_y = -999;
+	switch(ssmouse_type)
+	{
+		case ssmouCLASSIC:
 		{
-			object_message(d,MSG_DRAW,0);
-			
-			// Disable "Paste Properties" if the copy source is invalid
-			if(!propCopyWidg || propCopyWidg->getType()==widgNULL)
-				subscreen_rc_menu[2].flags|=D_DISABLED;
-			else
-				subscreen_rc_menu[2].flags&=~D_DISABLED;
-			
-			int32_t m = popup_menu(subscreen_rc_menu,gui_mouse_x(),gui_mouse_y());
-			
-			switch(m)
+			if(msg==MSG_CLICK)
 			{
+				SubscrPage& pg = subscr_edit.cur_page();
+				for(int32_t i=pg.contents.size()-1; i>=0; --i)
+				{
+					SubscrWidget* widg = pg.contents[i];
+					int32_t x=(widg->getX()+widg->getXOffs())*2;
+					int32_t y=widg->getY()*2;
+					int32_t w=widg->getW()*2;
+					int32_t h=widg->getH()*2;
+					
+					if(isinRect(gui_mouse_x(),gui_mouse_y(),d->x+x, d->y+y, d->x+x+w-1, d->y+y+h-1))
+					{
+						if(shift)
+						{
+							if(sso_selection[i]==true)
+							{
+								sso_selection[i]=false;
+							}
+							else
+							{
+								sso_selection[curr_subscreen_object]=true;
+								curr_subscreen_object=i;
+								update_sso_name();
+								update_up_dn_btns();
+							}
+						}
+						else
+						{
+							onClearSelection();
+							curr_subscreen_object=i;
+							update_sso_name();
+							update_up_dn_btns();
+						}
+						break;
+					}
+				}
+				
+				if(gui_mouse_b()&2) //right mouse button
+					rclick = true;
+			}
+			break;
+		}
+		case ssmouMODERN:
+		{
+			switch(msg)
+			{
+				case MSG_CLICK:
+				{
+					if(clicked_obj >= pg.contents.size())
+						clicked_obj = -1;
+					if(shift) ssmouse_flags &= ~ssmflDRAG;
+					if(ssmouse_flags&ssmflDRAG)
+					{
+						if(clicked_obj > -1)
+						{
+							SubscrWidget* widg = pg.contents[clicked_obj];
+							int diffx = (scaled_mouse_x + dragx) - widg->x;
+							int diffy = (scaled_mouse_y + dragy) - widg->y;
+							widg->x += diffx;
+							widg->y += diffy;
+							for(int32_t i=pg.contents.size()-1; i>=0; --i)
+							{
+								if(i==clicked_obj) continue;
+								SubscrWidget* widg = pg.contents[i];
+								if(sso_selection[i])
+								{
+									widg->x += diffx;
+									widg->y += diffy;
+								}
+							}
+						}
+					}
+					else //Select hovered object
+					{
+						for(int32_t i=pg.contents.size()-1; i>=0; --i)
+						{
+							SubscrWidget* widg = pg.contents[i];
+							int32_t x=widg->getX()+widg->getXOffs();
+							int32_t y=widg->getY();
+							int32_t w=widg->getW();
+							int32_t h=widg->getH();
+							
+							if(isinRect(scaled_mouse_x,scaled_mouse_y,x,y,x+w-1, y+h-1))
+							{
+								clicked_obj = i;
+								break;
+							}
+						}
+					}
+					if(!(ssmouse_flags&ssmflCLICKED))
+					{
+						if(clicked_obj > -1)
+						{
+							if(shift) //multiselect
+							{
+								if(sso_selection[clicked_obj]==true)
+								{
+									sso_selection[clicked_obj]=false;
+									clicked_obj = -1;
+								}
+								else
+								{
+									sso_selection[curr_subscreen_object]=true;
+									curr_subscreen_object=clicked_obj;
+									update_sso_name();
+									update_up_dn_btns();
+								}
+							}
+							else if(sso_selection[clicked_obj])
+							{
+								sso_selection[curr_subscreen_object]=true;
+								curr_subscreen_object=clicked_obj;
+								update_sso_name();
+								update_up_dn_btns();
+							}
+							else
+							{
+								onClearSelection();
+								curr_subscreen_object=clicked_obj;
+								update_sso_name();
+								update_up_dn_btns();
+							}
+						}
+						if(gui_mouse_b()&2) //rmouse
+							ssmouse_flags |= ssmflRCLICK;
+						else if(clicked_obj > -1 && (gui_mouse_b()&1))
+						{
+							ssmouse_flags |= ssmflDRAG;
+							SubscrWidget* widg = pg.contents[clicked_obj];
+							dragx = widg->x - scaled_mouse_x;
+							dragy = widg->y - scaled_mouse_y;
+						}
+					}
+					ssmouse_flags |= ssmflCLICKED;
+					break;
+				}
+				case MSG_RRELEASE:
+					if(ssmouse_flags&ssmflRCLICK)
+					{
+						rclick = true;
+						rclickobj = clicked_obj;
+						ssmouse_flags &= ~ssmflRCLICK;
+					}
+					[[fallthrough]];
+				case MSG_LRELEASE:
+					if((ssmouse_flags&ssmflCLICKED) && !(gui_mouse_b()&3)) //released click
+					{
+						clicked_obj = -1;
+						ssmouse_flags = 0;
+					}
+					break;
+			}
+			break;
+		}
+	}
+	if(rclick && unsigned(rclickobj) < pg.contents.size())
+	{
+		curr_subscreen_object = rclickobj;
+		object_message(d,MSG_DRAW,0);
+		
+		update_subscr_dlg(false);
+		int32_t m = popup_menu(subscreen_rc_menu,gui_mouse_x(),gui_mouse_y());
+		
+		switch(m)
+		{
 			case 0: // Properties
-				onSubscreenObjectProperties();
+				subscr_properties(rclickobj);
 				break;
 			case 1: // Copy Properties
-			{
-				SubscrWidget* w = subscr_edit_widg();
-				if(w)
-					propCopyWidg = w->clone();
-				else
+				copy_properties(rclickobj);
+				break;
+			case 2: //Duplicate object
+				onDuplicateSubscreenObject();
+				break;
+			case 3: // Paste Properties
+				paste_properties(rclickobj);
+				break;
+			case 4: //Paste All
+				paste_widget(rclickobj);
+				break;
+			case 6: //Paste New
+				if(SubscrWidget* widg = paste_widg_from_cb())
 				{
-					delete propCopyWidg;
-					propCopyWidg = nullptr;
+					widg->x = scaled_mouse_x;
+					widg->y = scaled_mouse_y;
 				}
 				break;
-			}
-			case 2: // Paste Properties
-				if(propCopyWidg) // Hopefully unnecessary)
-				{
-					SubscrPage& pg = subscr_edit_page();
-					for(int32_t i=0; i<pg.contents.size(); i++)
-					{
-						if(i == curr_subscreen_object || sso_selection[i])
-							copySSOProperties(propCopyWidg, pg.contents[i]);
-					}
-				}
-				break;
-			}
 		}
 		
-		return D_O_K;
+		clicked_obj = -1;
+		ssmouse_flags = 0;
 	}
-	break;
-	
-	case MSG_VSYNC:
-		d->flags|=D_DIRTY;
-		break;
-		
-	case MSG_DRAW:
-	{
-		Sitems.animate();
-		BITMAP *buf = create_bitmap_ex(8,d->w,d->h);//In Large Mode, this is actually 2x as large as needed, but whatever.
-		
-		if(buf)
-		{
-			clear_bitmap(buf);
-			ZCSubscreen* subs = (ZCSubscreen*)(d->dp);
-			show_custom_subscreen(buf, subs, 0, 0, true, sspUP | sspDOWN | sspSCROLLING);
-			
-			SubscrPage& pg = subs->cur_page();
-			for(int32_t i=0; i<pg.contents.size(); ++i)
-			{
-				if(sso_selection[i] || i == curr_subscreen_object)
-				{
-					auto c = i != curr_subscreen_object
-						? vc(zinit.ss_bbox_2_color)
-						: vc(zinit.ss_bbox_1_color);
-					sso_bounding_box(buf, pg.contents[i], c);
-				}
-			}
-			
-			if(zinit.ss_flags&ssflagSHOWGRID)
-			{
-				for(int32_t x=zinit.ss_grid_xofs; x<d->w; x+=zinit.ss_grid_x)
-				{
-					for(int32_t y=zinit.ss_grid_yofs; y<d->h; y+=zinit.ss_grid_y)
-					{
-						buf->line[y][x]=vc(zinit.ss_grid_color);
-					}
-				}
-			}
-			
-			stretch_blit(buf,screen,0,0,d->w/2,d->h/2,d->x,d->y,d->w,d->h);
-			
-			destroy_bitmap(buf);
-		}
-	}
-	break;
-	
-	case MSG_WANTFOCUS:
-		return D_WANTFOCUS;
-		break;
-	}
-	
 	return D_O_K;
 }
 
@@ -405,7 +630,7 @@ int32_t onSSUp()
 {
 	int32_t delta=(key[KEY_LSHIFT]||key[KEY_RSHIFT])?-zinit.ss_grid_y:-1;
 	
-	SubscrPage& pg = subscr_edit_page();
+	SubscrPage& pg = subscr_edit.cur_page();
 	for(int32_t i=0; i<pg.contents.size(); ++i)
 	{
 		if(sso_selection[i] || i==curr_subscreen_object)
@@ -428,7 +653,7 @@ int32_t onSSDown()
 {
 	int32_t delta=(key[KEY_LSHIFT]||key[KEY_RSHIFT])?zinit.ss_grid_y:1;
 	
-	SubscrPage& pg = subscr_edit_page();
+	SubscrPage& pg = subscr_edit.cur_page();
 	for(int32_t i=0; i<pg.contents.size(); ++i)
 	{
 		if(sso_selection[i] || i==curr_subscreen_object)
@@ -451,7 +676,7 @@ int32_t onSSLeft()
 {
 	int32_t delta=(key[KEY_LSHIFT]||key[KEY_RSHIFT])?-zinit.ss_grid_x:-1;
 	
-	SubscrPage& pg = subscr_edit_page();
+	SubscrPage& pg = subscr_edit.cur_page();
 	for(int32_t i=0; i<pg.contents.size(); ++i)
 	{
 		if(sso_selection[i] || i==curr_subscreen_object)
@@ -474,7 +699,7 @@ int32_t onSSRight()
 {
 	int32_t delta=(key[KEY_LSHIFT]||key[KEY_RSHIFT])?zinit.ss_grid_x:1;
 	
-	SubscrPage& pg = subscr_edit_page();
+	SubscrPage& pg = subscr_edit.cur_page();
 	for(int32_t i=0; i<pg.contents.size(); ++i)
 	{
 		if(sso_selection[i] || i==curr_subscreen_object)
@@ -564,7 +789,7 @@ int32_t d_ssup_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
 		case MSG_CLICK:
 		{
 			jwin_iconbutton_proc(msg, d, c);
-			SubscrPage& pg = subscr_edit_page();
+			SubscrPage& pg = subscr_edit.cur_page();
 			for(int32_t i=0; i<pg.contents.size(); ++i)
 			{
 				if(sso_selection[i] || i==curr_subscreen_object)
@@ -587,7 +812,7 @@ int32_t d_ssdn_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
 		case MSG_CLICK:
 		{
 			jwin_iconbutton_proc(msg, d, c);
-			SubscrPage& pg = subscr_edit_page();
+			SubscrPage& pg = subscr_edit.cur_page();
 			for(int32_t i=0; i<pg.contents.size(); ++i)
 			{
 				if(sso_selection[i] || i==curr_subscreen_object)
@@ -610,7 +835,7 @@ int32_t d_sslt_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
 		case MSG_CLICK:
 		{
 			jwin_iconbutton_proc(msg, d, c);
-			SubscrPage& pg = subscr_edit_page();
+			SubscrPage& pg = subscr_edit.cur_page();
 			for(int32_t i=0; i<pg.contents.size(); ++i)
 			{
 				if(sso_selection[i] || i==curr_subscreen_object)
@@ -633,7 +858,7 @@ int32_t d_ssrt_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
 		case MSG_CLICK:
 		{
 			jwin_iconbutton_proc(msg, d, c);
-			SubscrPage& pg = subscr_edit_page();
+			SubscrPage& pg = subscr_edit.cur_page();
 			for(int32_t i=0; i<pg.contents.size(); ++i)
 			{
 				if(sso_selection[i] || i==curr_subscreen_object)
@@ -816,21 +1041,28 @@ static MENU ss_distribute_menu[] =
 
 static MENU ss_edit_menu[] =
 {
-    { (char *)"&New\tIns",           onNewSubscreenObject,                 NULL, 0, NULL },
-    { (char *)"&Delete\tDel",        onDeleteSubscreenObject,              NULL, 0, NULL },
-    { (char *)"",                    NULL,                                 NULL, 0, NULL },
-    { (char *)"&Duplicate",          onDuplicateSubscreenObject,           NULL, 0, NULL },
-    { (char *)"",                    NULL,                                 NULL, 0, NULL },
-    { (char *)"&Properties",         onSubscreenObjectProperties,          NULL, 0, NULL },
-    { (char *)"",                    NULL,                                 NULL, 0, NULL },
-    { (char *)"&Arrange",            NULL,                                 ss_arrange_menu, 0, NULL },
-    { (char *)"Al&ign",              NULL,                                 ss_align_menu, 0, NULL },
-    { (char *)"Dis&tribute",         NULL,                                 ss_distribute_menu, 0, NULL },
-    { (char *)"",                    NULL,                                 NULL, 0, NULL },
-    { (char *)"Switch Active/Passive",              onActivePassive,                      NULL, 0, NULL },
-    { (char *)"",                    NULL,                                 NULL, 0, NULL },
-    { (char *)"&Take Snapshot\tZ",   onSnapshot,                           NULL, 0, NULL },
-    { NULL,                          NULL,                                 NULL, 0, NULL }
+	{ (char *)"&New\tIns",                       onNewSubscreenObject,                 NULL, 0, NULL },
+	{ (char *)"&Delete\tDel",                    onDeleteSubscreenObject,              NULL, 0, NULL },
+	{ (char *)"",                                NULL,                                 NULL, 0, NULL },
+	{ (char *)"&Duplicate\tD",                   onDuplicateSubscreenObject,           NULL, 0, NULL },
+	{ (char *)"&Copy Widget\tC",                 onSubscrCopy,                         NULL, 0, NULL },
+	//5
+	{ (char *)"Paste Properties (to)\t&V",       onSubscrPasteProps,                   NULL, 0, NULL },
+	{ (char *)"Paste All (to)\tCtrl+V",          onSubscrPasteAll,                     NULL, 0, NULL },
+	{ (char *)"Paste New Widget\tShift+D",       onDuplCopiedSubscreenObject,          NULL, 0, NULL },
+	{ (char *)"",                                NULL,                                 NULL, 0, NULL },
+	{ (char *)"&Properties\tE",                  onSubscreenObjectProperties,          NULL, 0, NULL },
+	//10
+	{ (char *)"",                                NULL,                                 NULL, 0, NULL },
+	{ (char *)"&Arrange",                        NULL,                                 ss_arrange_menu, 0, NULL },
+	{ (char *)"Al&ign",                          NULL,                                 ss_align_menu, 0, NULL },
+	{ (char *)"Dis&tribute",                     NULL,                                 ss_distribute_menu, 0, NULL },
+	{ (char *)"",                                NULL,                                 NULL, 0, NULL },
+	//15
+	{ (char *)"Switch Active/Passive",           onActivePassive,                      NULL, 0, NULL },
+	{ (char *)"",                                NULL,                                 NULL, 0, NULL },
+	{ (char *)"&Take Snapshot\tZ",               onSnapshot,                           NULL, 0, NULL },
+	{ NULL,                                      NULL,                                 NULL, 0, NULL }
 };
 
 static MENU ss_view_menu[] =
@@ -847,8 +1079,48 @@ static MENU ss_selection_menu[] =
     { (char *)"&Remove from Selection\tR",  onRemoveFromSelection,            NULL, 0, NULL },
     { (char *)"&Invert Selection\tI",       onInvertSelection,                NULL, 0, NULL },
     { (char *)"&Clear Selection\tC",        onClearSelection,                 NULL, 0, NULL },
-    { (char *)"",                           NULL,                             NULL, 0, NULL },
-    { (char *)"&Options",                   onSelectionOptions,               NULL, 0, NULL },
+    { NULL,                                 NULL,                             NULL, 0, NULL }
+};
+
+int32_t set_ssmouse(int ty);
+int32_t onSSMouseClassic()
+{
+	return set_ssmouse(0);
+}
+int32_t onSSMouseModern()
+{
+	return set_ssmouse(1);
+}
+int32_t onSSMouseInfo()
+{
+	InfoDialog("Subscreen Editor Mouse Settings",
+		"In 'Classic' mode, the subscreen editor works as it always used to."
+		"\nIn 'Modern' mode, it can click-and-drag objects around.").show();
+	return D_O_K;
+}
+static MENU ss_mouseset_menu[] =
+{
+    { (char *)"&Classic",             onSSMouseClassic,        NULL, 0,          NULL },
+    { (char *)"&Modern",              onSSMouseModern,         NULL, D_SELECTED, NULL },
+    { (char *)"",                     NULL,                    NULL, 0,          NULL },
+    { (char *)"&Help",                onSSMouseInfo,           NULL, 0,          NULL },
+    { NULL,                           NULL,                    NULL, 0,          NULL }
+};
+int32_t set_ssmouse(int ty)
+{
+	ty = vbound(ty, 0, ssmouMAX-1);
+	ssmouse_type = ty;
+	for(int q = 0; q<ssmouMAX; ++q)
+	{
+		SETFLAG(ss_mouseset_menu[q].flags,D_SELECTED,q==ty);
+	}
+	return D_O_K;
+}
+
+static MENU ss_settings_menu[] =
+{
+    { (char *)"&Selection Settings",        onSelectionOptions,               NULL, 0, NULL },
+    { (char *)"&Mouse Settings",            NULL,                 ss_mouseset_menu, 0, NULL },
     { NULL,                                 NULL,                             NULL, 0, NULL }
 };
 
@@ -857,7 +1129,8 @@ static MENU subscreen_menu[] =
     { (char *)"&Edit",               NULL,                                 ss_edit_menu, 0, NULL },
     { (char *)"&View",               NULL,                                 ss_view_menu, 0, NULL },
     { (char *)"&Selection",          NULL,                                 ss_selection_menu, 0, NULL },
-    { NULL,                         NULL,                                 NULL, 0, NULL }
+    { (char *)"&Options",            NULL,                                 ss_settings_menu, 0, NULL },
+    { NULL,                          NULL,                                 NULL, 0, NULL }
 };
 
 static std::string arrow_infos[5] =
@@ -919,7 +1192,7 @@ static DIALOG subscreen_dlg[] =
 	{ d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                'r',     0,          0,                      0, (void *) onRemoveFromSelection, NULL, NULL },
 	{ d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                'i',     0,          0,                      0, (void *) onInvertSelection, NULL, NULL },
 	// 35
-	{ d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                'c',     0,          0,                      0, (void *) onClearSelection, NULL, NULL },
+	{ d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                'l',     0,          0,                      0, (void *) onClearSelection, NULL, NULL },
 	{ d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                0,       0,          KEY_INSERT,             0, (void *) onNewSubscreenObject, NULL, NULL },
 	{ d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                0,       0,          KEY_DEL,                0, (void *) onDeleteSubscreenObject, NULL, NULL },
 	{ d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                'd',     0,          0,                      0, (void *) onDuplicateSubscreenObject, NULL, NULL },
@@ -943,6 +1216,9 @@ static DIALOG subscreen_dlg[] =
 	{ jwin_iconbutton_proc,  0,   0,      15,     15,    0,                 0,                0,       D_EXIT,     BTNICON_EXPAND_HORZ,    0, NULL, NULL, NULL },
 	{ jwin_infobtn_proc,     0,   0,      15,     15,    0,                 0,                0,       0,          0,                      0, (void*)&arrow_infos[4], NULL, NULL },
 	// 55
+	{ jwin_text_proc,       0,    0,     181,     16,   0,                  0,                0,       0,          0,                      0, NULL, NULL, NULL },
+	{ d_keyboard_proc,      0,    0,      0,       0,    0,                 0,                'v',     0,          0,                      0, (void *) onSubscrPaste, NULL, NULL },
+	{ d_keyboard_proc,      0,    0,      0,       0,    0,                 0,                'c',     0,          0,                      0, (void *) onSubscrCopy, NULL, NULL },
 	{ d_vsync_proc,         0,    0,      0,       0,    0,                 0,                0,       0,          0,                      0, NULL, NULL, NULL },
 	{ d_timer_proc,         0,    0,      0,       0,    0,                 0,                0,       0,          0,                      0, NULL, NULL, NULL },
 	{ NULL,                 0,    0,      0,       0,    0,                 0,                0,       0,          0,                      0, NULL, NULL, NULL }
@@ -1120,9 +1396,9 @@ void doNewSubscreenObject(int32_t type)
 	widg->h=1;
 	
 	int32_t temp_cso=curr_subscreen_object;
-	curr_subscreen_object=subscr_edit_page().contents.size();
+	curr_subscreen_object=subscr_edit.cur_page().contents.size();
 	
-	SubscrPage& pg = subscr_edit_page();
+	SubscrPage& pg = subscr_edit.cur_page();
 	if(sso_properties(widg,pg.contents.size())!=-1)
 	{
 		pg.contents.push_back(widg);
@@ -1157,9 +1433,13 @@ int32_t onNewSubscreenObject()
 
 void align_objects(bool *selection, int32_t align_type)
 {
-	auto& pg = subscr_edit_page();
-	auto* curwidg = subscr_edit_widg();
-	if(!curwidg) return;
+	auto& pg = subscr_edit.cur_page();
+	auto* curwidg = pg.get_widget(curr_subscreen_object);
+	if(!curwidg)
+	{
+		curr_subscreen_object = -1;
+		return;
+	}
 	int32_t l=curwidg->getX()+curwidg->getXOffs();
 	int32_t t=curwidg->getY();
 	int32_t w=curwidg->getW();
@@ -1218,7 +1498,7 @@ void align_objects(bool *selection, int32_t align_type)
 
 void grid_snap_objects(bool *selection, int32_t snap_type)
 {
-	auto& pg = subscr_edit_page();
+	auto& pg = subscr_edit.cur_page();
 	for(int32_t i=0; i < pg.contents.size(); ++i)
 	{
 		if(selection[i]||i==curr_subscreen_object)
@@ -1296,7 +1576,7 @@ void distribute_objects(bool *, int32_t distribute_type)
 	int32_t count=0;
 	dist_obj temp_do[MAXSUBSCREENITEMS];
 	
-	auto& pg = subscr_edit_page();
+	auto& pg = subscr_edit.cur_page();
 	for(int32_t i=0; i < pg.contents.size(); ++i)
 	{
 		if(sso_selection[i]==true||i==curr_subscreen_object)
@@ -1438,7 +1718,7 @@ void distribute_objects(bool *, int32_t distribute_type)
 
 int32_t onBringToFront()
 {
-    while(curr_subscreen_object<subscr_edit_page().contents.size()-1)
+    while(curr_subscreen_object<subscr_edit.cur_page().contents.size()-1)
     {
         onBringForward();
     }
@@ -1458,7 +1738,7 @@ int32_t onSendToBack()
 
 int32_t onReverseArrangement()
 {
-	auto& pg = subscr_edit_page();
+	auto& pg = subscr_edit.cur_page();
     int32_t i=0;
     int32_t j=pg.contents.size()-1;
     subscreen_object tempsso;
@@ -1681,7 +1961,7 @@ void update_up_dn_btns()
         subscreen_dlg[10].flags&=~D_DISABLED;
     }
     
-    if(curr_subscreen_object>=subscr_edit_page().contents.size()-1)
+    if(curr_subscreen_object>=subscr_edit.cur_page().contents.size()-1)
     {
         subscreen_dlg[9].flags|=D_DISABLED;
     }
@@ -1706,8 +1986,8 @@ int32_t onSSCtrlPgDn()
 
 int32_t onSendBackward()
 {
-	auto& contents = subscr_edit_page().contents;
-	if(curr_subscreen_object >= 0 && curr_subscreen_object<subscr_edit_page().contents.size()-1)
+	auto& contents = subscr_edit.cur_page().contents;
+	if(curr_subscreen_object >= 0 && curr_subscreen_object<subscr_edit.cur_page().contents.size()-1)
 	{
 		zc_swap(contents[curr_subscreen_object],contents[curr_subscreen_object-1]);
 		zc_swap(sso_selection[curr_subscreen_object],sso_selection[curr_subscreen_object-1]);
@@ -1731,7 +2011,7 @@ int32_t onSSPgDn()
         
         if(curr_subscreen_object<0)
         {
-            curr_subscreen_object=subscr_edit_page().contents.size()-1;
+            curr_subscreen_object=subscr_edit.cur_page().contents.size()-1;
         }
         
         update_sso_name();
@@ -1744,8 +2024,8 @@ int32_t onSSPgDn()
 // Send forward
 int32_t onBringForward()
 {
-	auto& contents = subscr_edit_page().contents;
-	if(curr_subscreen_object<subscr_edit_page().contents.size()-1)
+	auto& contents = subscr_edit.cur_page().contents;
+	if(curr_subscreen_object<subscr_edit.cur_page().contents.size()-1)
 	{
 		zc_swap(contents[curr_subscreen_object],contents[curr_subscreen_object+1]);
 		zc_swap(sso_selection[curr_subscreen_object],sso_selection[curr_subscreen_object+1]);
@@ -1766,11 +2046,11 @@ int32_t onSSPgUp()
     }
     else
     {
-        if(!subscr_edit_page().contents.empty())
+        if(!subscr_edit.cur_page().contents.empty())
         {
             ++curr_subscreen_object;
             
-            if(curr_subscreen_object>=subscr_edit_page().contents.size())
+            if(curr_subscreen_object>=subscr_edit.cur_page().contents.size())
             {
                 curr_subscreen_object=0;
             }
@@ -1884,7 +2164,14 @@ void update_subscr_dlg(bool start)
 		subscreen_dlg[5].bg=jwin_pal[jcBOX];
 		strncpy(subscr_namebuf,subscr_edit.name.c_str(),63);
 		subscreen_dlg[6].dp=(void *)str_oname;
+		subscreen_dlg[55].dp=(void *)str_cpyname;
 		subscreen_dlg[8].dp=(void *)subscr_namebuf;
+		if(propCopyWidg)
+		{
+			delete propCopyWidg;
+			propCopyWidg = nullptr;
+			copied_page = -1;
+		}
 		update_sso_name();
 		subscreen_dlg[10].flags|=D_DISABLED;
 		
@@ -1933,13 +2220,41 @@ void update_subscr_dlg(bool start)
 					subscreen_dlg[q].dp2 = (void*)get_custom_font(CFONT_GUI);
 				}
 			}
+			subscreen_dlg[0].h = 474 + 2 + dlg_fontheight(subscreen_dlg[6]) + dlg_fontheight(subscreen_dlg[55]);
 			subscreen_dlg[8].y = subscreen_dlg[0].y + subscreen_dlg[0].h - 6 - subscreen_dlg[8].h;
 			subscreen_dlg[8].x = subscreen_dlg[7].x + dlg_fontlen(subscreen_dlg[7]) + 2;
 			subscreen_dlg[7].y = subscreen_dlg[8].y + (subscreen_dlg[8].h/2)
 				- dlg_fontheight(subscreen_dlg[7])/2;
 			subscreen_dlg[6].y = subscreen_dlg[8].y - 2 - dlg_fontheight(subscreen_dlg[6]);
-			subscreen_dlg[6].x = subscreen_dlg[8].x;
-			
+			subscreen_dlg[55].y = subscreen_dlg[6].y-dlg_fontheight(subscreen_dlg[55]);
+			{ //complex maths- line up strings by their first ':'
+				subscreen_dlg[55].x = subscreen_dlg[6].x = subscreen_dlg[8].x;
+				DIALOG* dlgs[] = {&subscreen_dlg[6],&subscreen_dlg[55]};
+				char tmpstr[512] = {0};
+				int maxlen=0;
+				int lens[2];
+				for(int ind = 0; ind < 2; ++ind)
+				{
+					char const* str = (char const*)dlgs[ind]->dp;
+					for(int q = 0; str[q]; ++q)
+					{
+						tmpstr[q]=str[q];
+						if(tmpstr[q] == ':')
+						{
+							tmpstr[q+1] = 0;
+							break;
+						}
+					}
+					int len = text_length((FONT*)dlgs[ind]->dp2,tmpstr);
+					lens[ind] = len;
+					if(len > maxlen)
+						maxlen = len;
+				}
+				for(int ind = 0; ind < 2; ++ind)
+				{
+					dlgs[ind]->x += maxlen-lens[ind];
+				}
+			}
 			subscreen_dlg[49].y = subscreen_dlg[48].y = subscreen_dlg[47].y =
 				subscreen_dlg[46].y = subscreen_dlg[45].y =
 				subscreen_dlg[3].y+subscreen_dlg[3].h;
@@ -1970,6 +2285,15 @@ void update_subscr_dlg(bool start)
 	SETFLAG(subscreen_dlg[52].flags,D_DISABLED,subscr_edit.curpage<1);
 	SETFLAG(subscreen_dlg[51].flags,D_DISABLED,subscr_edit.curpage>=subscr_edit.pages.size()-1);
 	SETFLAG(subscreen_dlg[53].flags,D_DISABLED,subscr_edit.curpage>=subscr_edit.pages.size()-1);
+	// Disable pastes if no copies
+	bool nocopies = (!propCopyWidg || propCopyWidg->getType()==widgNULL);
+	SETFLAG(subscreen_rc_menu[3].flags,D_DISABLED,nocopies);
+	SETFLAG(subscreen_rc_menu[4].flags,D_DISABLED,nocopies);
+	SETFLAG(subscreen_rc_menu[6].flags,D_DISABLED,nocopies);
+	SETFLAG(ss_edit_menu[5].flags,D_DISABLED,nocopies);
+	SETFLAG(ss_edit_menu[6].flags,D_DISABLED,nocopies);
+	SETFLAG(ss_edit_menu[7].flags,D_DISABLED,nocopies);
+	zprint2("TXTFLD Y H %d %d\n",subscreen_dlg[8].y,subscreen_dlg[53].y+subscreen_dlg[53].h);
 }
 void broadcast_dialog_message(DIALOG* dialog, int32_t msg, int32_t c);
 bool edit_subscreen()
@@ -1994,13 +2318,15 @@ bool edit_subscreen()
 			switch(ret)
 			{
 				case 46: // Page Left
-					--subscr_edit.curpage;
+					if(subscr_edit.curpage > 0)
+						--subscr_edit.curpage;
 					break;
 				case 50: // Page Start
 					subscr_edit.curpage = 0;
 					break;
 				case 47: // Page Right
-					++subscr_edit.curpage;
+					if(subscr_edit.curpage < subscr_edit.pages.size()-1)
+						++subscr_edit.curpage;
 					break;
 				case 51: // Page End
 					subscr_edit.curpage = subscr_edit.pages.size()-1;
@@ -2377,14 +2703,19 @@ int32_t onEditSubscreens()
 
 void update_sso_name()
 {
-	SubscrWidget* w = subscr_edit_widg();
+	auto* w = subscr_edit.cur_page().get_widget(curr_subscreen_object);
 	if(w)
 		sprintf(str_oname, "%3d:  %s", curr_subscreen_object, sso_name(w->getType()));
 	else
+	{
+		curr_subscreen_object = -1;
 		sprintf(str_oname, "No object selected");
-	
-	subscreen_dlg[5].flags|=D_DIRTY;
-	subscreen_dlg[6].flags|=D_DIRTY;
+	}
+	if(propCopyWidg)
+		sprintf(str_cpyname, "Copied:  '%s' from pg %d", sso_name(propCopyWidg->getType()), copied_page);
+	else sprintf(str_cpyname, "Copied:  Nothing");
+	update_subscr_dlg(false);
+	broadcast_dialog_message(MSG_DRAW, 0);
 }
 
 void center_zq_subscreen_dialogs()

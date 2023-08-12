@@ -814,6 +814,7 @@ struct SubscrPage
 	int32_t get_sel_item(bool display = false);
 	int32_t get_pos_of_item(int32_t itemid);
 	
+	SubscrWidget* get_widget(int indx);
 	void clear();
 	void draw(BITMAP* dest, int32_t xofs, int32_t yofs, byte pos, bool showtime);
 	void swap(SubscrPage& other);
