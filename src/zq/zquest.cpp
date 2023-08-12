@@ -5027,6 +5027,15 @@ void draw_sqr_btn(size_and_pos const& sqr, const char* txt, int flags, FONT* f =
 	draw_text_button(menu1, sqr.x, sqr.y, sqr.tw(), sqr.th(), txt, 0, 0, flags, true);
 	font = tfont;
 }
+void draw_sqr_btn(size_and_pos const& sqr, int icon, int flags, FONT* f = nullptr)
+{
+	if(sqr.x < 0) return;
+	FONT* tfont = font;
+	if(f)
+		font = f;
+	draw_icon_button(menu1, sqr.x, sqr.y, sqr.tw(), sqr.th(), icon, 0, 0, flags, true);
+	font = tfont;
+}
 
 void drawpanel()
 {
@@ -5052,8 +5061,8 @@ void drawpanel()
 		if(compact_square_panels)
 		{
 			textprintf_centre_ex(menu1,font,squarepanel_up_btn.cx(),squarepanel_up_btn.y-text_height(font)-2,jwin_pal[jcBOXFG],-1,"%d",compact_active_panel);
-			draw_sqr_btn(squarepanel_up_btn, "\x88", 0);
-			draw_sqr_btn(squarepanel_down_btn, "\x89", 0);
+			draw_sqr_btn(squarepanel_up_btn, BTNICON_ARROW_UP, 0);
+			draw_sqr_btn(squarepanel_down_btn, BTNICON_ARROW_DOWN, 0);
 		}
 		font = tfont;
 		
@@ -17179,11 +17188,11 @@ static DIALOG editmidi_dlg[] =
     // 8
     { jwin_check_proc,      176,  124+12-4,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Loop", NULL, NULL },
     // 9
-    { jwin_button_proc,     50,   72-24,   57,   21,   vc(14),  vc(1),  'l',     D_EXIT,     0,             0, (void *) "&Load", NULL, NULL },
-    { jwin_button_proc,     116,  72-24,   33,   21,   vc(14),  vc(1),  0,       D_EXIT,     0,             0, (void *) "\x8D", NULL, NULL },
-    { jwin_button_proc,     156,  72-24,   33,   21,   vc(14),  vc(1),  0,       D_EXIT,     0,             0, (void *) "\x8B", NULL, NULL },
-    { jwin_button_proc,     196,  72-24,   33,   21,   vc(14),  vc(1),  0,       D_EXIT,     0,             0, (void *) "\x8B\x8B", NULL, NULL },
-    { jwin_button_proc,     236,  72-24,   33,   21,   vc(14),  vc(1),  0,       D_EXIT,     0,             0, (void *) "\x8B\x8B\x8B", NULL, NULL },
+    { jwin_button_proc,     50,   72-24,   57,   21,   vc(14),  vc(1),  'l',     D_EXIT,     0,                     0, (void *) "&Load", NULL, NULL },
+    { jwin_iconbutton_proc, 116,  72-24,   33,   21,   vc(14),  vc(1),  0,       D_EXIT,     BTNICON_STOPSQUARE,    0, NULL, NULL, NULL },
+    { jwin_iconbutton_proc, 156,  72-24,   33,   21,   vc(14),  vc(1),  0,       D_EXIT,     BTNICON_ARROW_RIGHT,   0, NULL, NULL, NULL },
+    { jwin_iconbutton_proc, 196,  72-24,   33,   21,   vc(14),  vc(1),  0,       D_EXIT,     BTNICON_ARROW_RIGHT2,  0, NULL, NULL, NULL },
+    { jwin_iconbutton_proc, 236,  72-24,   33,   21,   vc(14),  vc(1),  0,       D_EXIT,     BTNICON_ARROW_RIGHT3,  0, NULL, NULL, NULL },
     // 14
     { jwin_text_proc,       56,   134+4+12,  48,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Start:", NULL, NULL },
     { jwin_edit_proc,       112,  134+12,  32,   16,   vc(12),  vc(1),  0,       0,          5,             0,       NULL, NULL, NULL },
@@ -17456,18 +17465,32 @@ int32_t d_midilist_proc(int32_t msg,DIALOG *d,int32_t c)
         int32_t i = d->d1;
         int32_t x = d->x+d->w+8;
         int32_t y = d->y+4;
+        int lh = text_height(font);
+		char const* strs[] = {
+			"Volume:",
+			"Loop:",
+			"Start:",
+			"Loop Start:",
+			"Loop End:"
+		};
+		int tw = 0;
+		for(auto str : strs)
+		{
+			int w = text_length(font,str);
+			if(w > tw)
+				tw = w;
+		}
+		int tx = x+tw;
+		for(int q = 0; q < 5; ++q)
+		{
+			textout_right_ex(screen,font,strs[q],tx,y+13+(lh*q),jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+		}
         
-        textout_right_ex(screen,font,"Volume:",x+51,y+8+5,jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-        textout_right_ex(screen,font,"Loop:",x+51,y+16+5,jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-        textout_right_ex(screen,font,"Start:",x+51,y+24+5,jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-        textout_right_ex(screen,font,"Loop Start:",x+51,y+32+5,jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-        textout_right_ex(screen,font,"Loop End:",x+51,y+40+5,jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-        
-        textprintf_ex(screen,font,x+56,y+8+5,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-3d",customtunes[i].volume);
-        textprintf_ex(screen,font,x+56,y+16+5,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%s",customtunes[i].loop?"On ":"Off");
-        textprintf_ex(screen,font,x+56,y+24+5,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-5d",customtunes[i].start);
-        textprintf_ex(screen,font,x+56,y+32+5,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-5d",customtunes[i].loop_start);
-        textprintf_ex(screen,font,x+56,y+40+5,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-5d",customtunes[i].loop_end);
+        textprintf_ex(screen,font,tx+5,y+13+(lh*0),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-3d",customtunes[i].volume);
+        textprintf_ex(screen,font,tx+5,y+13+(lh*1),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%s",customtunes[i].loop?"On ":"Off");
+        textprintf_ex(screen,font,tx+5,y+13+(lh*2),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-5d",customtunes[i].start);
+        textprintf_ex(screen,font,tx+5,y+13+(lh*3),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-5d",customtunes[i].loop_start);
+        textprintf_ex(screen,font,tx+5,y+13+(lh*4),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-5d",customtunes[i].loop_end);
     }
     
     return jwin_list_proc(msg,d,c);
@@ -17555,10 +17578,10 @@ static DIALOG editmusic_dlg[] =
     { jwin_check_proc,      176,  124+12-4,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Loop", NULL, NULL },
     // 9
     { jwin_button_proc,     50,   72-24,   57,   21,   vc(14),  vc(1),  'l',     D_EXIT,     0,             0, (void *) "&Load", NULL, NULL },
-    { jwin_button_proc,     116,  72-24,   33,   21,   vc(14),  vc(1),  0,       D_EXIT,     0,             0, (void *) "\x8D", NULL, NULL },
-    { jwin_button_proc,     156,  72-24,   33,   21,   vc(14),  vc(1),  0,       D_EXIT,     0,             0, (void *) "\x8B", NULL, NULL },
-    { jwin_button_proc,     196,  72-24,   33,   21,   vc(14),  vc(1),  0,       D_EXIT,     0,             0, (void *) "\x8B\x8B", NULL, NULL },
-    { jwin_button_proc,     236,  72-24,   33,   21,   vc(14),  vc(1),  0,       D_EXIT,     0,             0, (void *) "\x8B\x8B\x8B", NULL, NULL },
+    { jwin_iconbutton_proc, 116,  72-24,   33,   21,   vc(14),  vc(1),  0,       D_EXIT,     BTNICON_STOPSQUARE,    0, NULL, NULL, NULL },
+    { jwin_iconbutton_proc, 156,  72-24,   33,   21,   vc(14),  vc(1),  0,       D_EXIT,     BTNICON_ARROW_RIGHT,   0, NULL, NULL, NULL },
+    { jwin_iconbutton_proc, 196,  72-24,   33,   21,   vc(14),  vc(1),  0,       D_EXIT,     BTNICON_ARROW_RIGHT2,  0, NULL, NULL, NULL },
+    { jwin_iconbutton_proc, 236,  72-24,   33,   21,   vc(14),  vc(1),  0,       D_EXIT,     BTNICON_ARROW_RIGHT3,  0, NULL, NULL, NULL },
     // 14
     { jwin_text_proc,       56,   134+4+12,  48,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Start:", NULL, NULL },
     { jwin_edit_proc,       112,  134+12,  32,   16,   vc(12),  vc(1),  0,       0,          5,             0,       NULL, NULL, NULL },

@@ -196,6 +196,47 @@ bool do_text_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *te
     
     return over;
 }
+bool do_icon_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,int icon,int32_t bg,int32_t fg)
+{
+    bool over=false;
+    
+    while(gui_mouse_b())
+    {
+        vsync();
+        
+        if(is_in_rect(gui_mouse_x(),gui_mouse_y(),x,y,x+w-1,y+h-1))
+        {
+            if(!over)
+            {
+                draw_button(screen,x,y,w,h,"",bg,fg,D_SELECTED);
+                jwin_draw_icon(screen,x+w/2,y+h/2,fg,icon,icon_proportion(w,h),true);
+                over=true;
+            }
+        }
+        else
+        {
+            if(over)
+            {
+                draw_button(screen,x,y,w,h,"",bg,fg,0);
+                jwin_draw_icon(screen,x+w/2,y+h/2,fg,icon,icon_proportion(w,h),true);
+                over=false;
+            }
+        }
+        
+		update_hw_screen(false);
+    }
+    
+    if(over)
+    {
+        vsync();
+        draw_button(screen,x,y,w,h,"",bg,fg,0);
+		jwin_draw_icon(screen,x+w/2,y+h/2,fg,icon,icon_proportion(w,h),true);
+        
+		update_hw_screen(false);
+    }
+    
+    return over;
+}
 
 int32_t tab_count(TABPANEL *panel)
 {
@@ -496,8 +537,8 @@ int32_t d_tab_proc(int32_t msg, DIALOG *d, int32_t c)
                 
                 if(uses_tab_arrows(panel, d->w))
                 {
-                    draw_button(screen,d->x+d->w-28,d->y+2, 14, 14, "\x8A", vc2(15), vc2(0), 0);
-                    draw_button(screen,d->x+d->w-14,d->y+2, 14, 14, "\x8B", vc2(15), vc2(0), 0);
+					jwin_draw_icon_button(screen,d->x+d->w-28,d->y+2, 14, 14, BTNICON_ARROW_LEFT, 0, false);
+					jwin_draw_icon_button(screen,d->x+d->w-14,d->y+2, 14, 14, BTNICON_ARROW_RIGHT, 0, false);
                 }
             }
             
@@ -566,7 +607,7 @@ int32_t d_tab_proc(int32_t msg, DIALOG *d, int32_t c)
         {
             if(is_in_rect(gui_mouse_x(),gui_mouse_y(), d->x+d->w-28, d->y+2, d->x+d->w-15, d->y+15))
             {
-                if(do_text_button_reset(d->x+d->w-28, d->y+2, 14, 14, "\x8A",d->bg,d->fg))
+                if(do_icon_button_reset(d->x+d->w-28, d->y+2, 14, 14, BTNICON_ARROW_LEFT,d->bg,d->fg))
                 {
                     temp_d=((d->d1&0xFF00)>>8);
                     temp_d2=(d->d1&0x00FF);
@@ -582,7 +623,7 @@ int32_t d_tab_proc(int32_t msg, DIALOG *d, int32_t c)
             }
             else if(is_in_rect(gui_mouse_x(),gui_mouse_y(), d->x+d->w-14, d->y+2, d->x+d->w-1, d->y+15))
             {
-                if(do_text_button_reset(d->x+d->w-14, d->y+2, 14, 14, "\x8B",d->bg,d->fg))
+                if(do_icon_button_reset(d->x+d->w-14, d->y+2, 14, 14, BTNICON_ARROW_RIGHT,d->bg,d->fg))
                 {
                     temp_d=((d->d1&0xFF00)>>8);
                     temp_d2=(d->d1&0x00FF);
