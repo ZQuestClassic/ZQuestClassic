@@ -185,6 +185,10 @@ enum
 	BTNICON_ARROW_RIGHT2, //0x8B 0x8B
 	BTNICON_ARROW_RIGHT3, //0x8B 0x8B 0x8B
 	BTNICON_STOPSQUARE, //0x8D
+	BTNICON_MINUS,
+	BTNICON_PLUS,
+	BTNICON_ARROW_LEFT2,
+	BTNICON_ARROW_LEFT3,
 	BTNICON_MAX
 };
 
@@ -318,6 +322,7 @@ void _handle_jwin_scrollable_scroll_click(DIALOG *d, int32_t listsize, int32_t *
 
 extern int32_t  popup_zqdialog(DIALOG *dialog, int32_t focus_obj);
 extern int32_t  do_zqdialog(DIALOG *dialog, int32_t focus_obj);
+extern int32_t  do_zqdialog_custom(DIALOG *dialog, int32_t focus_obj, std::function<bool(int)> proc);
 
 int32_t d_jslider_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t d_jwinbutton_proc(int32_t msg, DIALOG *d, int32_t c);
@@ -340,6 +345,6 @@ void box_eol();
 
 void jwin_draw_icon(BITMAP *dest, int x, int y, int col, int icon, int asz, bool center);
 void jwin_draw_icon(BITMAP *dest, int x, int y, int col, int icon, int aw, int ah, bool center);
-int icon_proportion(int s1,int s2);
+int icon_proportion(int icon,int s1,int s2);
 
 #endif                                                      // _JWIN_H_

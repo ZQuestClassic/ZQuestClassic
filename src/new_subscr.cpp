@@ -3342,6 +3342,12 @@ void SubscrPage::draw(BITMAP* dest, int32_t xofs, int32_t yofs, byte pos, bool s
 			widg->draw(dest,xofs,yofs,*this);
 	}
 }
+void SubscrPage::swap(SubscrPage& other)
+{
+	contents.swap(other.contents);
+	zc_swap(cursor_pos,other.cursor_pos);
+	zc_swap(init_cursor_pos,other.init_cursor_pos);
+}
 SubscrPage::~SubscrPage()
 {
 	clear();
@@ -3395,7 +3401,7 @@ SubscrPage& ZCSubscreen::cur_page()
 {
 	if(pages.empty())
 		pages.emplace_back();
-	curpage = vbound(curpage,pages.size()-1,0);
+	curpage = vbound(curpage,0, pages.size() - 1);
 	return pages[curpage];
 }
 SubscrPage* ZCSubscreen::get_page(byte id)
@@ -3421,6 +3427,54 @@ int32_t ZCSubscreen::get_item_pos(byte pos, byte pg)
 {
 	if(pg >= pages.size()) return -1;
 	return pages[pg].get_item_pos(pos);
+}
+void ZCSubscreen::delete_page(byte id)
+{
+	if(id >= pages.size()) return;
+	
+	if(pages.size()==1)
+		pages[0].clear();
+	else
+	{
+		if(curpage >= id)
+			--curpage;
+		for(auto it = pages.begin(); it != pages.end(); ++it)
+		{
+			if(id-- == 0)
+			{
+				pages.erase(it);
+				break;
+			}
+		}
+	}
+}
+void ZCSubscreen::add_page(byte id)
+{
+	if(id >= pages.size())
+	{
+		pages.emplace_back();
+		curpage = pages.size()-1;
+	}
+	else
+	{
+		curpage = id;
+		for(auto it = pages.begin(); it != pages.end(); ++it)
+		{
+			if(id-- == 0)
+			{
+				pages.insert(it,{});
+				break;
+			}
+		}
+	}
+}
+void ZCSubscreen::swap_pages(byte ind1, byte ind2)
+{
+	if(ind1 >= pages.size() || ind2 >= pages.size())
+		return;
+	pages[ind1].swap(pages[ind2]);
+	if(curpage == ind1) curpage = ind2;
+	else if(curpage == ind2) curpage = ind1;
 }
 void ZCSubscreen::clear()
 {

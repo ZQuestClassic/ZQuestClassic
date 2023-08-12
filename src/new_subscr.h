@@ -800,6 +800,7 @@ protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
 
+#define MAX_SUBSCR_PAGES 50
 struct SubscrPage
 {
 	std::vector<SubscrWidget*> contents;
@@ -815,6 +816,7 @@ struct SubscrPage
 	
 	void clear();
 	void draw(BITMAP* dest, int32_t xofs, int32_t yofs, byte pos, bool showtime);
+	void swap(SubscrPage& other);
 	
 	SubscrPage() = default;
 	~SubscrPage();
@@ -834,6 +836,9 @@ struct ZCSubscreen
 	SubscrPage* get_page(byte ind);
 	bool get_page_pos(int32_t itmid, byte& pg, byte& pos);
 	int32_t get_item_pos(byte pos, byte pg);
+	void delete_page(byte ind);
+	void add_page(byte ind);
+	void swap_pages(byte ind1, byte ind2);
 	void clear();
 	void draw(BITMAP* dest, int32_t xofs, int32_t yofs, byte pos, bool showtime);
 	void load_old(subscreen_group const& g);

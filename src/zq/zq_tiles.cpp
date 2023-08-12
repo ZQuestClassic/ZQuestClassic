@@ -903,7 +903,7 @@ void draw_icon_button(BITMAP *dest,int32_t x,int32_t y,int32_t w,int32_t h,int i
 		rect(dest,x+1,y+1,x+w-1,y+h-1,fg);
 		rectfill(dest,x+1,y+1,x+w-3,y+h-3,bg);
 		rect(dest,x,y,x+w-2,y+h-2,fg);
-		jwin_draw_icon(dest,x+w/2,y+h/2,fg,icon,icon_proportion(w,h),true);
+		jwin_draw_icon(dest,x+w/2,y+h/2,fg,icon,icon_proportion(icon,w,h),true);
 	}
 	else
 	{
