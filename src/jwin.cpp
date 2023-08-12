@@ -1090,9 +1090,20 @@ void jwin_draw_text_button(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_
         dotted_rect(dest, x+4, y+4, x+w-5, y+h-5, palette_color[scheme[jcDARK]], palette_color[scheme[jcBOX]]);
 }
 
-int icon_proportion(int s1,int s2)
+int icon_proportion(int icon,int s1,int s2)
 {
-	return round(sqrt(zc_min(s1,s2))*1.25);
+	int sz = round(sqrt(zc_min(s1,s2))*1.25);
+	switch(icon)
+	{
+		case BTNICON_STOPSQUARE:
+			sz += 4;
+			break;
+		case BTNICON_PLUS:
+		case BTNICON_MINUS:
+			sz += 4;
+			break;
+	}
+	return sz;
 }
 void jwin_draw_icon_button(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, int icon, int32_t flags, bool show_dotted_rect)
 {
@@ -1109,7 +1120,7 @@ void jwin_draw_icon_button(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_
     }
     
 	int col = jwin_pal[(flags & D_DISABLED) ? jcLIGHT : jcBOXFG];
-	jwin_draw_icon(dest,x+w/2,y+h/2,col,icon,icon_proportion(w,h),true);
+	jwin_draw_icon(dest,x+w/2,y+h/2,col,icon,icon_proportion(icon,w,h),true);
 	
     if(show_dotted_rect&&(flags & D_GOTFOCUS))
         dotted_rect(dest, x+4, y+4, x+w-5, y+h-5, palette_color[scheme[jcDARK]], palette_color[scheme[jcBOX]]);
@@ -1121,12 +1132,15 @@ void jwin_draw_icon(BITMAP *dest, int x, int y, int col, int icon, int asz, bool
 void jwin_draw_icon(BITMAP *dest, int x, int y, int col, int icon, int aw, int ah, bool center)
 {
 	int w2 = aw, h2 = ah;
+	int sz = zc_min(aw,ah);
 	switch(icon)
 	{
+		case BTNICON_ARROW_LEFT2:
 		case BTNICON_ARROW_RIGHT2:
 			aw *= 2;
 			ah = aw*2-1;
 			break;
+		case BTNICON_ARROW_LEFT3:
 		case BTNICON_ARROW_RIGHT3:
 			aw *= 3;
 			ah = aw*2-1;
@@ -1144,7 +1158,21 @@ void jwin_draw_icon(BITMAP *dest, int x, int y, int col, int icon, int aw, int a
 			ah = aw*2-1;
 			break;
 		case BTNICON_STOPSQUARE:
-			aw = ah = zc_min(aw,ah);
+			aw = ah = sz;
+			break;
+		case BTNICON_PLUS:
+			if(!(sz%2)) ++sz;
+			aw = ah = w2 = h2 = sz;
+			w2 /= 3;
+			h2 /= 3;
+			if(!(h2%2)) ++h2;
+			if(!(w2%2)) ++w2;
+			break;
+		case BTNICON_MINUS:
+			if(!(sz%2)) ++sz;
+			aw = ah = w2 = h2 = sz;
+			h2 /= 3;
+			if(!(h2%2)) ++h2;
 			break;
 	}
 	int woff = (aw/2)+1, hoff = (ah/2)+1;
@@ -1180,6 +1208,15 @@ void jwin_draw_icon(BITMAP *dest, int x, int y, int col, int icon, int aw, int a
 			draw_arrow_horz(dest, col, cx-woff, y, aw, true, center);
 			draw_arrow_horz(dest, col, cx+woff, y, aw, false, center);
 			break;
+		case BTNICON_ARROW_LEFT2:
+			draw_arrow_horz(dest, col, cx, y, w2, true, center);
+			draw_arrow_horz(dest, col, cx+w2, y, w2, true, center);
+			break;
+		case BTNICON_ARROW_LEFT3:
+			draw_arrow_horz(dest, col, cx, y, w2, true, center);
+			draw_arrow_horz(dest, col, cx+w2, y, w2, true, center);
+			draw_arrow_horz(dest, col, cx+w2*2, y, w2, true, center);
+			break;
 		case BTNICON_ARROW_RIGHT2:
 			draw_arrow_horz(dest, col, cx, y, w2, false, center);
 			draw_arrow_horz(dest, col, cx+w2, y, w2, false, center);
@@ -1192,8 +1229,14 @@ void jwin_draw_icon(BITMAP *dest, int x, int y, int col, int icon, int aw, int a
 		case BTNICON_STOPSQUARE:
 			rectfill(dest, cx, cy, cx+aw-1, cy+ah-1, col);
 			break;
+		case BTNICON_MINUS:
+			rectfill(dest, cx, cy+(ah/2)-(h2/2), cx+aw-1, cy+(ah/2)+(h2/2), col);
+			break;
+		case BTNICON_PLUS:
+			rectfill(dest, cx, cy+(ah/2)-(h2/2), cx+aw-1, cy+(ah/2)+(h2/2), col);
+			rectfill(dest, cx+(aw/2)-(w2/2), cy, cx+(aw/2)+(w2/2), cy+ah-1, col);
+			break;
 	}
-    
 }
 /* draw_graphics_button:
   *  Helper for jwin_button_proc.

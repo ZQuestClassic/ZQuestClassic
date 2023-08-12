@@ -21,7 +21,9 @@
 #include "qst.h"
 #include "init.h"
 #include <assert.h>
+#include <fmt/format.h>
 #include "dialog/info.h"
+#include "dialog/alert.h"
 #include "dialog/subscr_props.h"
 
 #ifndef _MSC_VER
@@ -37,7 +39,8 @@ extern void large_dialog(DIALOG *d);
 extern void large_dialog(DIALOG *d, float RESIZE_AMT);
 
 int32_t curr_subscreen_object;
-char *str_oname;
+char str_oname[256];
+char subscr_namebuf[256];
 ZCSubscreen subscr_edit;
 bool sso_selection[MAXSUBSCREENITEMS];
 SubscrWidget* propCopyWidg = nullptr;
@@ -857,6 +860,19 @@ static MENU subscreen_menu[] =
     { NULL,                         NULL,                                 NULL, 0, NULL }
 };
 
+static std::string arrow_infos[5] =
+{
+	"L/R: Change selected object (-1/+1)"
+		"\nU/D: Reorder selected object (-1/+1)",
+	"Move selected object by 1 pixel",
+	"Decrease/Increase selected object's width/height",
+	"Move preview of item selector",
+	"L/R: Change Page (-1/+1)"
+		"\n-/+: Delete/Add Page"
+		"\nLL/RR: Change Page (Home/End)"
+		"\n<>: Swap Pages (left/right)"
+};
+static char pgbuf[16] = "Pg 1/1";
 static DIALOG subscreen_dlg[] =
 {
 	// (dialog proc)       (x)   (y)    (w)     (h)   (fg)                (bg)              (key)    (flags)     (d1)                    (d2)     (dp)
@@ -866,9 +882,9 @@ static DIALOG subscreen_dlg[] =
 	{ jwin_frame_proc,      4,    37,     260,    172,  0,                  0,                0,       0,          FR_DEEP,                0, NULL, NULL, NULL },
 	{ d_subscreen_proc,     6,    39,     256,    168,  0,                  0,                0,       0,          0,                      0, NULL, NULL, NULL },
 	// 5
-	{ d_box_proc,           11,   211,    181,    8,    0,                  0,                0,       0,          0,                      0, NULL, NULL, NULL },
+	{ d_dummy_proc,         11,   211,    181,    8,    0,                  0,                0,       0,          0,                      0, NULL, NULL, NULL },
 	{ jwin_text_proc,       34,   211,    181,    16,   0,                  0,                0,       0,          0,                      0, NULL, NULL, NULL },
-	{ jwin_rtext_proc,      32,   225,    30,     16,   0,                  0,                0,       0,          0,                      0, (void *) "Name:", NULL, NULL },
+	{ jwin_text_proc,        4,   225,    30,     16,   0,                  0,                0,       0,          0,                      0, (void *) "Name:", NULL, NULL },
 	{ jwin_edit_proc,       34,   221,    155,    16,   0,                  0,                0,       0,          64,                     0, NULL, NULL, NULL },
 	// 9
 	{ d_ssup_btn_proc,      284,  23,     15,     15,   vc(0),              vc(11),           13,      D_EXIT,     BTNICON_ARROW_UP,       0, NULL, NULL, NULL },
@@ -910,7 +926,23 @@ static DIALOG subscreen_dlg[] =
 	{ d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                'e',     0,          0,                      0, (void *) onSubscreenObjectProperties, NULL, NULL },
 	// 40
 	{ d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                'z',     0,          0,                      0, (void *) onSnapshot, NULL, NULL },
-	
+	{ jwin_infobtn_proc,    284,  38,     15,     15,    0,                 0,                0,       0,          0,                      0, (void*)&arrow_infos[0], NULL, NULL },
+	{ jwin_infobtn_proc,    284,  85,     15,     15,    0,                 0,                0,       0,          0,                      0, (void*)&arrow_infos[1], NULL, NULL },
+	{ jwin_infobtn_proc,    284,  132,    15,     15,    0,                 0,                0,       0,          0,                      0, (void*)&arrow_infos[2], NULL, NULL },
+	{ jwin_infobtn_proc,    284,  179,    15,     15,    0,                 0,                0,       0,          0,                      0, (void*)&arrow_infos[3], NULL, NULL },
+	// 45
+	{ jwin_ctext_proc,      134,  0,      30,     16,    0,                 0,                0,       0,          0,                      0, pgbuf, NULL, NULL },
+	{ jwin_iconbutton_proc,  0,   0,      15,     15,    0,                 0,                0,       D_EXIT,     BTNICON_ARROW_LEFT,     0, NULL, NULL, NULL },
+	{ jwin_iconbutton_proc,  0,   0,      15,     15,    0,                 0,                0,       D_EXIT,     BTNICON_ARROW_RIGHT,    0, NULL, NULL, NULL },
+	{ jwin_iconbutton_proc,  0,   0,      15,     15,    0,                 0,                0,       D_EXIT,     BTNICON_MINUS,          0, NULL, NULL, NULL },
+	{ jwin_iconbutton_proc,  0,   0,      15,     15,    0,                 0,                0,       D_EXIT,     BTNICON_PLUS,           0, NULL, NULL, NULL },
+	// 50
+	{ jwin_iconbutton_proc,  0,   0,      15,     15,    0,                 0,                0,       D_EXIT,     BTNICON_ARROW_LEFT2,    0, NULL, NULL, NULL },
+	{ jwin_iconbutton_proc,  0,   0,      15,     15,    0,                 0,                0,       D_EXIT,     BTNICON_ARROW_RIGHT2,   0, NULL, NULL, NULL },
+	{ jwin_iconbutton_proc,  0,   0,      15,     15,    0,                 0,                0,       D_EXIT,     BTNICON_EXPAND_HORZ,    0, NULL, NULL, NULL },
+	{ jwin_iconbutton_proc,  0,   0,      15,     15,    0,                 0,                0,       D_EXIT,     BTNICON_EXPAND_HORZ,    0, NULL, NULL, NULL },
+	{ jwin_infobtn_proc,     0,   0,      15,     15,    0,                 0,                0,       0,          0,                      0, (void*)&arrow_infos[4], NULL, NULL },
+	// 55
 	{ d_vsync_proc,         0,    0,      0,       0,    0,                 0,                0,       0,          0,                      0, NULL, NULL, NULL },
 	{ d_timer_proc,         0,    0,      0,       0,    0,                 0,                0,       0,          0,                      0, NULL, NULL, NULL },
 	{ NULL,                 0,    0,      0,       0,    0,                 0,                0,       0,          0,                      0, NULL, NULL, NULL }
@@ -1813,8 +1845,133 @@ int32_t d_ssrt_btn_proc(int32_t msg,DIALOG *d,int32_t c)
     return jwin_iconbutton_proc(msg, d, c);
 }
 
-
-
+int dlg_fontheight(DIALOG const& d)
+{
+	if(d.dp2)
+		return text_height((FONT*)d.dp2);
+	return text_height(font);
+}
+int dlg_fontlen(DIALOG const& d,char const* ptr = nullptr)
+{
+	if(!ptr) ptr = (char const*)d.dp;
+	if(d.dp2)
+		return text_length((FONT*)d.dp2,ptr);
+	return text_length(font,ptr);
+}
+void update_subscr_dlg(bool start)
+{
+	if(start)
+	{	
+		subscreen_dlg[0].dp2=get_zc_font(font_lfont);
+		load_Sitems();
+		curr_subscreen_object=0;
+		
+		if(subscr_edit.pages.empty())
+			subscr_edit.pages.emplace_back();
+		if(subscr_edit.pages.size() >= subscr_edit.curpage)
+			subscr_edit.curpage = 0;
+		if(subscr_edit.pages[subscr_edit.curpage].contents.empty())
+		{
+			curr_subscreen_object=-1;
+		}
+		
+		onClearSelection();
+		ss_view_menu[0].flags=zinit.ss_flags&ssflagSHOWINVIS?D_SELECTED:0;
+		ss_view_menu[2].flags=zinit.ss_flags&ssflagSHOWGRID?D_SELECTED:0;
+			
+		subscreen_dlg[4].dp=(void *)&subscr_edit;
+		subscreen_dlg[5].fg=jwin_pal[jcBOX];
+		subscreen_dlg[5].bg=jwin_pal[jcBOX];
+		strncpy(subscr_namebuf,subscr_edit.name.c_str(),63);
+		subscreen_dlg[6].dp=(void *)str_oname;
+		subscreen_dlg[8].dp=(void *)subscr_namebuf;
+		update_sso_name();
+		subscreen_dlg[10].flags|=D_DISABLED;
+		
+		if(subscr_edit.sub_type==sstPASSIVE)
+		{
+			subscreen_dlg[21].flags|=D_DISABLED;
+			subscreen_dlg[22].flags|=D_DISABLED;
+			subscreen_dlg[23].flags|=D_DISABLED;
+			subscreen_dlg[24].flags|=D_DISABLED;
+		}
+		else
+		{
+			subscreen_dlg[21].flags&=~D_DISABLED;
+			subscreen_dlg[22].flags&=~D_DISABLED;
+			subscreen_dlg[23].flags&=~D_DISABLED;
+			subscreen_dlg[24].flags&=~D_DISABLED;
+		}
+		
+		subscr_edit.cur_page().move_cursor(SEL_VERIFY_RIGHT);
+		
+		bool enlarge = subscreen_dlg[0].d1==0;
+		
+		if(enlarge)
+		{
+			large_dialog(subscreen_dlg,2);
+			subscreen_dlg[4].y-=32;
+			subscreen_dlg[3].y-=31;
+			subscreen_dlg[3].x+=1;
+			
+			if(subscr_edit.sub_type == sstPASSIVE)
+				subscreen_dlg[3].h=60*2-4;
+			else if(subscr_edit.sub_type == sstACTIVE)
+				subscreen_dlg[3].h=172*2-4;
+				
+			subscreen_dlg[4].h=subscreen_dlg[3].h-4;
+		}
+		
+		//Some fancier stuff for the subscreen update
+		{
+			for(int q = 0; subscreen_dlg[q].proc; ++q)
+			{
+				if(subscreen_dlg[q].proc == jwin_text_proc
+					|| subscreen_dlg[q].proc == jwin_rtext_proc
+					|| subscreen_dlg[q].proc == jwin_ctext_proc)
+				{
+					subscreen_dlg[q].dp2 = (void*)get_custom_font(CFONT_GUI);
+				}
+			}
+			subscreen_dlg[8].y = subscreen_dlg[0].y + subscreen_dlg[0].h - 6 - subscreen_dlg[8].h;
+			subscreen_dlg[8].x = subscreen_dlg[7].x + dlg_fontlen(subscreen_dlg[7]) + 2;
+			subscreen_dlg[7].y = subscreen_dlg[8].y + (subscreen_dlg[8].h/2)
+				- dlg_fontheight(subscreen_dlg[7])/2;
+			subscreen_dlg[6].y = subscreen_dlg[8].y - 2 - dlg_fontheight(subscreen_dlg[6]);
+			subscreen_dlg[6].x = subscreen_dlg[8].x;
+			
+			subscreen_dlg[49].y = subscreen_dlg[48].y = subscreen_dlg[47].y =
+				subscreen_dlg[46].y = subscreen_dlg[45].y =
+				subscreen_dlg[3].y+subscreen_dlg[3].h;
+			subscreen_dlg[45].y += (subscreen_dlg[46].h-dlg_fontheight(subscreen_dlg[45]))/2;
+			
+			subscreen_dlg[50].y = subscreen_dlg[51].y = subscreen_dlg[52].y =
+				subscreen_dlg[53].y = subscreen_dlg[54].y =
+				subscreen_dlg[49].y+subscreen_dlg[49].h;
+			
+			subscreen_dlg[1].y = subscreen_dlg[2].y =
+				subscreen_dlg[8].y+subscreen_dlg[8].h-subscreen_dlg[1].h;
+			subscreen_dlg[2].x = subscreen_dlg[12].x+subscreen_dlg[12].w-subscreen_dlg[2].w;
+			subscreen_dlg[1].x = subscreen_dlg[2].x-subscreen_dlg[1].w;
+			subscreen_dlg[8].w = subscreen_dlg[1].x-subscreen_dlg[8].x-2;
+		}
+	}
+	sprintf(pgbuf, "Pg %d/%zd", subscr_edit.curpage+1,subscr_edit.pages.size());
+	int tw = 8+dlg_fontlen(subscreen_dlg[45]);
+	subscreen_dlg[50].x = subscreen_dlg[46].x = subscreen_dlg[45].x-(tw/2)-subscreen_dlg[46].w;
+	subscreen_dlg[51].x = subscreen_dlg[47].x = subscreen_dlg[45].x+(tw/2);
+	subscreen_dlg[52].x = subscreen_dlg[48].x = subscreen_dlg[46].x - subscreen_dlg[48].w;
+	subscreen_dlg[53].x = subscreen_dlg[49].x = subscreen_dlg[47].x + subscreen_dlg[47].w;
+	subscreen_dlg[54].x = subscreen_dlg[45].x - subscreen_dlg[54].w/2;
+	SETFLAG(subscreen_dlg[46].flags,D_DISABLED,subscr_edit.curpage<1);
+	SETFLAG(subscreen_dlg[47].flags,D_DISABLED,subscr_edit.curpage>=subscr_edit.pages.size()-1);
+	SETFLAG(subscreen_dlg[49].flags,D_DISABLED,subscr_edit.pages.size()>=MAX_SUBSCR_PAGES);
+	SETFLAG(subscreen_dlg[50].flags,D_DISABLED,subscr_edit.curpage<1);
+	SETFLAG(subscreen_dlg[52].flags,D_DISABLED,subscr_edit.curpage<1);
+	SETFLAG(subscreen_dlg[51].flags,D_DISABLED,subscr_edit.curpage>=subscr_edit.pages.size()-1);
+	SETFLAG(subscreen_dlg[53].flags,D_DISABLED,subscr_edit.curpage>=subscr_edit.pages.size()-1);
+}
+void broadcast_dialog_message(DIALOG* dialog, int32_t msg, int32_t c);
 bool edit_subscreen()
 {
 	game = new gamedata();
@@ -1830,82 +1987,69 @@ bool edit_subscreen()
 		
 	if(game->get_arrows() == 0)
 		game->set_arrows(1);
-		
-	subscreen_dlg[0].dp2=get_zc_font(font_lfont);
-	load_Sitems();
-	curr_subscreen_object=0;
-	int32_t i;
 	
-	if(subscr_edit.pages.empty())
-		subscr_edit.pages.emplace_back();
-	if(subscr_edit.pages.size() >= subscr_edit.curpage)
-		subscr_edit.curpage = 0;
-	if(subscr_edit.pages[subscr_edit.curpage].contents.empty())
+	update_subscr_dlg(true);
+	int dlg_ret = do_zqdialog_custom(subscreen_dlg,2,[&](int ret)
+		{
+			switch(ret)
+			{
+				case 46: // Page Left
+					--subscr_edit.curpage;
+					break;
+				case 50: // Page Start
+					subscr_edit.curpage = 0;
+					break;
+				case 47: // Page Right
+					++subscr_edit.curpage;
+					break;
+				case 51: // Page End
+					subscr_edit.curpage = subscr_edit.pages.size()-1;
+					break;
+				case 52: // Swap Left
+					subscr_edit.swap_pages(subscr_edit.curpage,subscr_edit.curpage-1);
+					break;
+				case 53: // Swap Right
+					subscr_edit.swap_pages(subscr_edit.curpage,subscr_edit.curpage+1);
+					break;
+				case 48: // Del Page
+				{
+					auto count = subscr_edit.cur_page().contents.size();
+					bool del = !count;
+					if(!del)
+					{
+						AlertDialog("Delete Current Page",
+							fmt::format("Are you sure you want to delete the current page {},"
+								" including {}?", subscr_edit.curpage,
+								count==1?"its 1 widget":fmt::format("all its {} widgets",count)),
+							[&](bool ret,bool)
+							{
+								del = ret;
+							}).show();
+					}
+					if(del)
+						subscr_edit.delete_page(subscr_edit.curpage);
+					break;
+				}
+				case 49: // New Page
+					subscr_edit.add_page(subscr_edit.curpage+1);
+					break;
+			}
+			if(ret < 3)
+				return true;
+			update_subscr_dlg(false);
+			return false;
+		});
+	
+	if(dlg_ret==1)
 	{
-		curr_subscreen_object=-1;
-	}
-	
-	onClearSelection();
-	ss_view_menu[0].flags=zinit.ss_flags&ssflagSHOWINVIS?D_SELECTED:0;
-	ss_view_menu[2].flags=zinit.ss_flags&ssflagSHOWGRID?D_SELECTED:0;
-		
-	subscreen_dlg[4].dp=(void *)&subscr_edit;
-	subscreen_dlg[5].fg=jwin_pal[jcBOX];
-	subscreen_dlg[5].bg=jwin_pal[jcBOX];
-	str_oname=(char *)malloc(255);
-	char namebuf[64] = {0};
-	strncpy(namebuf,subscr_edit.name.c_str(),63);
-	subscreen_dlg[6].dp=(void *)str_oname;
-	subscreen_dlg[8].dp=(void *)namebuf;
-	update_sso_name();
-	subscreen_dlg[10].flags|=D_DISABLED;
-	
-	if(subscr_edit.sub_type==sstPASSIVE)
-	{
-		subscreen_dlg[21].flags|=D_DISABLED;
-		subscreen_dlg[22].flags|=D_DISABLED;
-		subscreen_dlg[23].flags|=D_DISABLED;
-		subscreen_dlg[24].flags|=D_DISABLED;
-	}
-	else
-	{
-		subscreen_dlg[21].flags&=~D_DISABLED;
-		subscreen_dlg[22].flags&=~D_DISABLED;
-		subscreen_dlg[23].flags&=~D_DISABLED;
-		subscreen_dlg[24].flags&=~D_DISABLED;
-	}
-	
-	subscr_edit.cur_page().move_cursor(SEL_VERIFY_RIGHT);
-	
-	bool enlarge = subscreen_dlg[0].d1==0;
-	
-	if(enlarge)
-	{
-		large_dialog(subscreen_dlg,2);
-		subscreen_dlg[4].y-=32;
-		subscreen_dlg[3].y-=31;
-		subscreen_dlg[3].x+=1;
-		
-		if(subscr_edit.sub_type == sstPASSIVE)
-			subscreen_dlg[3].h=60*2-4;
-		else if(subscr_edit.sub_type == sstACTIVE)
-			subscreen_dlg[3].h=172*2-4;
-			
-		subscreen_dlg[4].h=subscreen_dlg[3].h-4;
-	}
-	
-	int32_t ret = zc_popup_dialog(subscreen_dlg,2);
-	
-	if(ret==1)
-	{
-		subscr_edit.name = namebuf;
+		subscr_edit.name = subscr_namebuf;
 		saved=false;
 		zinit.subscreen=ssdtMAX;
 	}
 	
 	delete game;
 	game=NULL;
-	return ret == 1;
+	return dlg_ret == 1;
 }
 
 const char *allsubscrtype_str[30] =
