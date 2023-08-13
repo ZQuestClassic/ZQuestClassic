@@ -645,6 +645,13 @@ Button(forceFitH = true, text = "?", \
 	{ \
 		InfoDialog("Info",inf).show(); \
 	})
+#define INFOBTN_F(inf,...) \
+Button(forceFitH = true, text = "?", \
+	onClick = message::REFR_INFO, \
+	onPressFunc = [=]() \
+	{ \
+		InfoDialog("Info",fmt::format(inf,__VA_ARGS__)).show(); \
+	})
 #define INFOBTN_EX(inf, ...) \
 Button(text = "?", \
 	onClick = message::REFR_INFO, \

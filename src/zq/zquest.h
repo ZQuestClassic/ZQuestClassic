@@ -750,6 +750,8 @@ enum
 	cmdDrawingModePool,
 	cmdQRSearch,
 	cmdQuickCompile,
+	cmdRuleset,
+	cmdRuleTemplate,
     cmdMAX
 };
 
@@ -1165,7 +1167,6 @@ int32_t get_bmaps(int32_t si);
 bool no_subscreen();
 
 extern int32_t Awpn, Bwpn, Xwpn, Ywpn;
-extern sprite_list Sitems;
 
 int32_t main(int32_t argc,char **argv);
 int32_t d_nbmenu_proc(int32_t msg,DIALOG *d,int32_t c);

@@ -3,6 +3,7 @@
 #include "info.h"
 #include <utility>
 #include <sstream>
+#include <fmt/format.h>
 #include "zq/zq_subscr.h"
 #include "zc_list_data.h"
 #include "gui/use_size.h"
@@ -10,6 +11,7 @@
 #include "base/misctypes.h"
 
 extern script_data *genericscripts[NUMSCRIPTSGENERIC];
+extern ZCSubscreen subscr_edit;
 
 static bool dlg_retval = false;
 bool call_subscrprop_dialog(SubscrWidget* widg, int32_t obj_ind)
@@ -18,6 +20,7 @@ bool call_subscrprop_dialog(SubscrWidget* widg, int32_t obj_ind)
 	return dlg_retval;
 }
 
+static const int btn_flags[4] = {INT_BTN_A,INT_BTN_B,INT_BTN_X,INT_BTN_Y};
 SubscrPropDialog::SubscrPropDialog(SubscrWidget* widg, int32_t obj_ind) :
 	local_subref(widg->clone()), subref(widg), index(obj_ind),
 	list_font(GUI::ZCListData::fonts(false,true,true)),
@@ -28,7 +31,20 @@ SubscrPropDialog::SubscrPropDialog(SubscrWidget* widg, int32_t obj_ind) :
 	list_counters(GUI::ZCListData::ss_counters()),
 	list_itemclass(GUI::ZCListData::itemclass(true)),
 	list_genscr(GUI::ZCListData::generic_script())
-{}
+{
+	byte pg = subscr_edit.curpage, ind = index;
+	start_default_btnslot = 0;
+	if(widg->getType() == widgITEMSLOT)
+	{
+		for(int q = 0; q < 4; ++q)
+		{
+			if((subscr_edit.def_btns[q]&0xFF) == pg
+				&& (subscr_edit.def_btns[q]>>8) == ind)
+				start_default_btnslot |= btn_flags[q];
+		}
+	}
+	set_default_btnslot = start_default_btnslot;
+}
 
 static const GUI::ListData two_three_rows
 {
@@ -96,6 +112,18 @@ Checkbox( \
 	} \
 )
 
+#define _EX_RBOX hAlign = 1.0,boxPlacement = GUI::Checkbox::boxPlacement::RIGHT
+#define CBOX_EX(var, bit, txt, ...) \
+Checkbox( \
+	__VA_ARGS__, \
+	text = txt, \
+	checked = var & bit, \
+	onToggleFunc = [=](bool state) \
+	{ \
+		SETFLAG(var, bit, state); \
+	} \
+)
+
 #define DDL(var, lister) \
 DropDownList(data = lister, \
 	fitParent = true, \
@@ -144,6 +172,27 @@ Frame(fitParent = true, Column(fitParent = true, \
 	), \
 	CBOX(vModflag,bit,"Mod",1) \
 ))
+
+#define DEFEQUP_CBOX(ind,btnstr,qrhint) \
+def_eqp_cboxes[ind] = Checkbox( \
+	text = fmt::format("Default {} Equipment",btnstr), hAlign = 0.0, \
+	checked = set_default_btnslot&btn_flags[ind], \
+	onToggleFunc = [=](bool state) \
+	{ \
+		if(state) \
+			set_default_btnslot = btn_flags[ind]; \
+		else set_default_btnslot &= ~btn_flags[ind]; \
+		for(int cb = 0; cb < 4; ++cb) \
+		{ \
+			if(cb==ind) continue; \
+			def_eqp_cboxes[cb]->setChecked(false); \
+		} \
+	}), \
+INFOBTN_F("Sets this ItemSlot to be the default equipped to the '{0}' button." \
+	" This applies only for the active subscreen on the Starting DMap." \
+	" Setting this will unset it for all other ItemSlots." \
+	"\nThis can only be set if items can be equipped to the {0} button," \
+	" and 'qr_OLD_SUBSCR' is disabled.{1}",btnstr,qrhint)
 
 //Tile block max preview tiledim
 #define TB_LA 12
@@ -626,7 +675,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			}
 			case widgITEMSLOT:
 			{
-				SW_CurrentItem* w = dynamic_cast<SW_CurrentItem*>(local_subref);
+				SW_ItemSlot* w = dynamic_cast<SW_ItemSlot*>(local_subref);
 				attrib_grid = Rows<3>(
 					labels[0] = Label(text = "Item Class:", hAlign = 1.0),
 					ddl = DDL(w->iclass, list_itemclass),
@@ -644,13 +693,25 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 						}
 					),
 					INFOBTN("The specified item ID will be tied to this item slot (OVERRIDES 'Item Class' if set)"),
-					DummyWidget(),
-					CBOX(w->flags,SUBSCR_CURITM_INVIS,"Invisible",1),
+					//
+					Rows<2>(rowSpan = 4, padding = 0_px,
+						DEFEQUP_CBOX(0,"A",QRHINT({qr_OLD_SUBSCR,qr_SELECTAWPN})+RULETMPL_HINT({ruletemplateNewSubscreen})),
+						DEFEQUP_CBOX(1,"B",QRHINT({qr_OLD_SUBSCR})+RULETMPL_HINT({ruletemplateNewSubscreen})),
+						DEFEQUP_CBOX(2,"X",QRHINT({qr_OLD_SUBSCR,qr_SET_XBUTTON_ITEMS})+RULETMPL_HINT({ruletemplateNewSubscreen})),
+						DEFEQUP_CBOX(3,"Y",QRHINT({qr_OLD_SUBSCR,qr_SET_YBUTTON_ITEMS})+RULETMPL_HINT({ruletemplateNewSubscreen}))
+					),
+					//
+					CBOX_EX(w->flags,SUBSCR_CURITM_INVIS,"Invisible",_EX_RBOX),
 					INFOBTN("If checked, the item is invisible on the subscreen"),
-					DummyWidget(),
-					CBOX(w->flags,SUBSCR_CURITM_NONEQP,"Non-Equippable",1),
+					CBOX_EX(w->flags,SUBSCR_CURITM_NONEQP,"Non-Equippable",_EX_RBOX),
 					INFOBTN("If checked, the item cannot be equipped to a button."
-						" 'Always Press To Equip' is recommended if this is used." + QRHINT({qr_SUBSCR_PRESS_TO_EQUIP}))
+						" 'Always Press To Equip' is recommended if this is used." + QRHINT({qr_SUBSCR_PRESS_TO_EQUIP})),
+					CBOX_EX(w->flags,SUBSCR_CURITM_IGNR_SP_SELTEXT,"Ignore Special Selection Text",_EX_RBOX),
+					INFOBTN("If checked, special selection text (like heart piece count on the"
+						" heart piece display, or bow name on bow&arrow) will not be added for this widget."),
+					CBOX_EX(w->flags,SUBSCR_CURITM_IGNR_SP_DISPLAY,"Ignore Special Display",_EX_RBOX),
+					INFOBTN("If checked, special display properties (like the hardcoded map, compass, boss key"
+						" displays and changing heart pieces into the heart piece display) will not occur for this widget.")
 				);
 				break;
 			}
@@ -686,8 +747,8 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 						Label(text = "Delay:", hAlign = 1.0),
 						Label(text = "Container:", hAlign = 1.0),
 						CBOX(w->flags,SUBSCR_LGAUGE_UNQLAST,"Unique Last",2),
-						NUM_FIELD(w->frames, 0, 999),
-						NUM_FIELD(w->speed, 0, 999),
+						NUM_FIELD(w->frames, 1, 999),
+						NUM_FIELD(w->speed, 1, 999),
 						NUM_FIELD(w->delay, 0, 999),
 						NUM_FIELD(w->container, 0, 9999),
 						DummyWidget(rowSpan=3),
@@ -736,8 +797,8 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 						Label(text = "Container:", hAlign = 1.0),
 						Label(text = "Show:", hAlign = 1.0),
 						CBOX(w->flags,SUBSCR_MGAUGE_UNQLAST,"Unique Last",2),
-						NUM_FIELD(w->frames, 0, 999),
-						NUM_FIELD(w->speed, 0, 999),
+						NUM_FIELD(w->frames, 1, 999),
+						NUM_FIELD(w->speed, 1, 999),
 						NUM_FIELD(w->delay, 0, 999),
 						NUM_FIELD(w->container, 0, 9999),
 						NUM_FIELD(w->showdrain, -1, 9999),
@@ -1166,19 +1227,20 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 						}),
 					selgs[0] = Rows<3>(
 						Label(text = "Position:", hAlign = 1.0),
-						NUM_FIELD(local_subref->pos, -9999, 9999),
-						INFOBTN("The unique position ID of this slot"),
+						NUM_FIELD(local_subref->pos, 0, 254),
+						INFOBTN("The unique position ID of this slot. Setting this to a number"
+							" that is already in use on this page may cause buggy behavior."),
 						Label(text = "Up Select:", hAlign = 1.0),
-						NUM_FIELD(local_subref->pos_up, -9999, 9999),
+						NUM_FIELD(local_subref->pos_up, 0, 254),
 						INFOBTN("The unique position ID to move to when pressing 'Up'"),
 						Label(text = "Down Select:", hAlign = 1.0),
-						NUM_FIELD(local_subref->pos_down, -9999, 9999),
+						NUM_FIELD(local_subref->pos_down, 0, 254),
 						INFOBTN("The unique position ID to move to when pressing 'Down'"),
 						Label(text = "Left Select:", hAlign = 1.0),
-						NUM_FIELD(local_subref->pos_left, -9999, 9999),
+						NUM_FIELD(local_subref->pos_left, 0, 254),
 						INFOBTN("The unique position ID to move to when pressing 'Left' / 'L' quickswap"),
 						Label(text = "Right Select:", hAlign = 1.0),
-						NUM_FIELD(local_subref->pos_right, -9999, 9999),
+						NUM_FIELD(local_subref->pos_right, 0, 254),
 						INFOBTN("The unique position ID to move to when pressing 'Right' / 'R' quickswap")
 					)
 				)
@@ -1248,6 +1310,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 		)
 	);
 	updateSelectable();
+	refr_info();
 	return window;
 }
 
@@ -1298,12 +1361,52 @@ void SubscrPropDialog::update_wh()
 	}
 }
 
+void SubscrPropDialog::refr_info()
+{
+	switch(local_subref->getType())
+	{
+		case widgITEMSLOT:
+		{
+			bool dis = get_qr(qr_OLD_SUBSCR);
+			def_eqp_cboxes[0]->setDisabled(dis || !get_qr(qr_SELECTAWPN));
+			def_eqp_cboxes[1]->setDisabled(dis);
+			def_eqp_cboxes[2]->setDisabled(dis || !get_qr(qr_SET_XBUTTON_ITEMS));
+			def_eqp_cboxes[3]->setDisabled(dis || !get_qr(qr_SET_YBUTTON_ITEMS));
+			break;
+		}
+	}	
+}
 bool SubscrPropDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 {
 	switch(msg.message)
 	{
+		case message::REFR_INFO:
+			refr_info();
+			break;
 		case message::OK:
 			subref->copy_prop(local_subref,true);
+			if(set_default_btnslot != start_default_btnslot) //Changed default equipment
+			{
+				byte pg = subscr_edit.curpage, ind = index;
+				for(int q = 0; q < 4; ++q)
+				{
+					if((start_default_btnslot&btn_flags[q])
+						&& !(set_default_btnslot&btn_flags[q]))
+					{ //Unset it entirely
+						subscr_edit.def_btns[q] = 255;
+					}
+					else if(!(start_default_btnslot&btn_flags[q])
+						&& (set_default_btnslot&btn_flags[q]))
+					{ //Set this to be the default
+						subscr_edit.def_btns[q] = pg | (byte(subref->pos)<<8);
+					}
+					else if((start_default_btnslot&btn_flags[q])
+						&& byte(subref->pos)!=subscr_edit.def_btns[q]>>8)
+					{ //Update the 'pos' value
+						subscr_edit.def_btns[q] = pg | (byte(subref->pos)<<8);
+					}
+				}
+			}
 			dlg_retval = true;
 			return true;
 		case message::CANCEL:

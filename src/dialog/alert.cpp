@@ -106,7 +106,7 @@ bool AlertDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		case message::OK:
 			onEnd(true,dontshowagain);
 			return true;
-		case message::CANCEL
+		case message::CANCEL:
 			onEnd(false,dontshowagain);
 			return true;
 	}

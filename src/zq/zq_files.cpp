@@ -565,7 +565,7 @@ void alwaysOnRules()
 }
 
 int32_t onStrFix();
-void applyRuleset(int32_t newRuleset)
+void applyRuleset(int32_t newRuleset, byte *qrptr)
 {
 	ruleset = newRuleset;
 	for(int32_t i=0; i<qr_MAX; ++i)
@@ -586,171 +586,105 @@ void applyRuleset(int32_t newRuleset)
 				//These get their own fix in 'onStrFix()'
 				break;
 			default:
-				set_qr(i,0);
+				set_qr(i,0,qrptr);
 		}
 	}
 	onStrFix();
 	
 	alwaysOnRules(); //Set on things that should ALWAYS be on.
 	
-	int32_t fixesrules[] =
-	{
+	static const int r_FIXES[] = {
 		qr_FREEFORM, qr_SAFEENEMYFADE, qr_ITEMSONEDGES, qr_HERODUNGEONPOSFIX, qr_RLFIX,
 		qr_NOLEVEL3FIX, qr_BOMBHOLDFIX, qr_HOLDNOSTOPMUSIC, qr_CAVEEXITNOSTOPMUSIC,
 		qr_OVERWORLDTUNIC, qr_SWORDWANDFLIPFIX, /*qr_WPNANIMFIX,*/ qr_PUSHBLOCKCSETFIX,
-		qr_TRAPPOSFIX, qr_NOBORDER, qr_OLDPICKUP, qr_SUBSCREENOVERSPRITES,
+		qr_TRAPPOSFIX, qr_NOBORDER, qr_SUBSCREENOVERSPRITES,
 		qr_BOMBDARKNUTFIX, qr_OFFSETEWPNCOLLISIONFIX, qr_ITEMSINPASSAGEWAYS, qr_NOFLICKER, qr_FIREPROOFHERO2,
 		qr_NOITEMOFFSET, qr_LADDERANYWHERE, qr_TRUEFIXEDBOMBSHIELD, qr_NOTMPNORET, qr_NOFLASHDEATH, qr_BROKENSTATUES, 
 		qr_DYING_ENEMIES_IGNORE_STUN, qr_SHOP_ITEMS_VANISH, qr_EXPANDEDLTM, qr_CORRECTED_EW_BRANG_ANIM, -1
 	};
-	if(ruleset != rulesetNES) //Rules for all non-'Authentic NES' rulesets
-	{
-		for(int32_t i=0; fixesrules[i]!=-1; ++i)
-		{
-			if(fixesrules[i]!=qr_OLDPICKUP)
-				set_qr(fixesrules[i], 1);
-		}
-	}
-	
+	static const int rNES[] = {
+		qr_OLDPICKUP, qr_OLDSTYLEWARP, qr_OLDSPRITEDRAWS,
+	};
+	static const int rBSZ[] = {
+		qr_TIME, qr_NOBOMBPALFLASH, qr_NEWENEMYTILES, qr_FASTDNGN, qr_SMOOTHVERTICALSCROLLING,
+		qr_COOLSCROLL, qr_BSZELDA, qr_SOLIDBLK, qr_HESITANTPUSHBLOCKS, qr_INSTABURNFLAGS,
+		qr_FADE, qr_EXPANDEDLTM, qr_OLDSPRITEDRAWS,
+	};
+	static const int rZ3[] = {
+		qr_DROWN, qr_HIDECARRIEDITEMS, qr_ALLOWMSGBYPASS, qr_ALLOWFASTMSG, qr_MSGDISAPPEAR,
+		qr_MSGFREEZE, qr_ENABLEMAGIC, qr_NOWANDMELEE, qr_TRUEARROWS, qr_Z3BRANG_HSHOT,
+		qr_TRANSSHADOWS, qr_SHADOWS, qr_LTTPWALK, qr_MORESOUNDS, qr_NEVERDISABLEAMMOONSUBSCREEN,
+	};
+	static const int rMODERN[] = {
+		qr_NO_SCROLL_WHILE_IN_AIR, qr_DUNGEON_DMAPS_PERM_SECRETS,
+		qr_ANGULAR_REFLECTED_WEAPONS, qr_MIRRORS_USE_WEAPON_CENTER,
+		qr_SPRITEXY_IS_FLOAT, qr_SIDEVIEWLADDER_FACEUP,
+		qr_ITEMSHADOWS, qr_WEAPONSHADOWS,
+		qr_NEW_HERO_MOVEMENT, qr_STEP_IS_FLOAT,
+		qr_HOLDITEMANIMATION, qr_DISABLE_4WAY_GRIDLOCK,
+		qr_NO_HOPPING, qr_NO_SOLID_SWIM,
+		qr_WATER_ON_LAYER_1, qr_WATER_ON_LAYER_2,
+		qr_SHALLOW_SENSITIVE, qr_NONHEAVY_BLOCKTRIGGER_PERM,
+		qr_CORRECTED_EW_BRANG_ANIM, qr_OVERHEAD_COMBOS_L1_L2,
+		qr_AUTOCOMBO_LAYER_1, qr_AUTOCOMBO_LAYER_2,
+		qr_AUTOCOMBO_ANY_LAYER, qr_NEW_DARKROOM,
+		qr_PUSHBLOCK_LAYER_1_2, qr_HOOKSHOTALLLAYER,
+		qr_ITEMCOMBINE_NEW_PSTR, qr_ITEMCOMBINE_CONTINUOUS,
+		qr_FAIRYDIR, qr_BLOCKS_DONT_LOCK_OTHER_LAYERS,
+		qr_CONVEYORS_L1_L2,
+	};
+	static const int rMODERN_O[] = {
+		qr_OLDSPRITEDRAWS
+	};
+	static const int rMODERN_TMPL[] = {
+		ruletemplateFixCompat, ruletemplateNewSubscreen,
+	};
 	switch(ruleset)
 	{
 		case rulesetNES: // Authentic NES
 		{
-			set_qr(qr_OLDPICKUP, 1);
-			set_qr(qr_OLDSTYLEWARP, 1);
-			set_qr(qr_OLDSPRITEDRAWS, 1);
+			for(auto qr : rNES)
+				set_qr(qr, 1, qrptr);
 			break;
 		}
 		case rulesetFixedNES: // Fixed NES
 		{
-			//Nothing to put here; NES fixes are checked above the switch.
+			for(auto qr : r_FIXES)
+				set_qr(qr, 1, qrptr);
 			break;
 		}
 		case rulesetBSZ: // BS Zelda
 		{
-			set_qr(qr_TIME, 1);
-			set_qr(qr_NOBOMBPALFLASH, 1);
-			set_qr(qr_NEWENEMYTILES, 1);
-			set_qr(qr_FASTDNGN, 1);
-			set_qr(qr_SMOOTHVERTICALSCROLLING, 1);
-			set_qr(qr_COOLSCROLL, 1);
-			set_qr(qr_BSZELDA, 1);
-			set_qr(qr_SOLIDBLK, 1);
-			set_qr(qr_HESITANTPUSHBLOCKS, 1);
-			set_qr(qr_INSTABURNFLAGS, 1);
-			set_qr(qr_FADE, 1); // Interpolated fading
-			set_qr(qr_EXPANDEDLTM, 1);
-			set_qr(qr_OLDSPRITEDRAWS, 1);
+			for(auto qr : r_FIXES)
+				set_qr(qr, 1, qrptr);
+			for(auto qr : rBSZ)
+				set_qr(qr, 1, qrptr);
 			break;
 		}
 		case rulesetZ3: // Zelda 3-esque
 		{
-			//{From BSZ
-			set_qr(qr_TIME, 1);
-			set_qr(qr_NOBOMBPALFLASH, 1);
-			set_qr(qr_NEWENEMYTILES, 1);
-			set_qr(qr_FASTDNGN, 1);
-			set_qr(qr_SMOOTHVERTICALSCROLLING, 1);
-			set_qr(qr_COOLSCROLL, 1);
-			set_qr(qr_BSZELDA, 1);
-			set_qr(qr_SOLIDBLK, 1);
-			set_qr(qr_HESITANTPUSHBLOCKS, 1);
-			set_qr(qr_INSTABURNFLAGS, 1);
-			set_qr(qr_FADE, 1); // Interpolated fading
-			set_qr(qr_EXPANDEDLTM, 1);
-			set_qr(qr_OLDSPRITEDRAWS, 1);
-			//}
-			//{Z3
-			//Make water drownable
-			set_qr(qr_DROWN, 1);
-			set_qr(qr_HIDECARRIEDITEMS, 1);
-			set_qr(qr_ALLOWMSGBYPASS, 1);
-			set_qr(qr_ALLOWFASTMSG, 1);
-			set_qr(qr_MSGDISAPPEAR, 1);
-			set_qr(qr_MSGFREEZE, 1);
-			//set_qr(qr_VERYFASTSCROLLING, 1); //People apparently do not like this one.
-			set_qr(qr_ENABLEMAGIC, 1);
-			set_qr(qr_NOWANDMELEE, 1);
-			set_qr(qr_TRUEARROWS, 1);
-			set_qr(qr_Z3BRANG_HSHOT, 1);
-			set_qr(qr_TRANSSHADOWS, 1);
-			set_qr(qr_SHADOWS, 1);
-			set_qr(qr_LTTPWALK, 1);
-			set_qr(qr_MORESOUNDS, 1);
-			set_qr(qr_NEVERDISABLEAMMOONSUBSCREEN, 1);
-			//}
+			for(auto qr : r_FIXES)
+				set_qr(qr, 1, qrptr);
+			for(auto qr : rBSZ)
+				set_qr(qr, 1, qrptr);
+			for(auto qr : rZ3)
+				set_qr(qr, 1, qrptr);
 			break;
 		}
 		case rulesetModern: // Modern-style
 		{
-			//{from BSZ
-			set_qr(qr_TIME, 1);
-			set_qr(qr_NOBOMBPALFLASH, 1);
-			set_qr(qr_NEWENEMYTILES, 1);
-			set_qr(qr_FASTDNGN, 1);
-			set_qr(qr_SMOOTHVERTICALSCROLLING, 1);
-			set_qr(qr_COOLSCROLL, 1);
-			set_qr(qr_BSZELDA, 1);
-			set_qr(qr_SOLIDBLK, 1);
-			set_qr(qr_HESITANTPUSHBLOCKS, 1);
-			set_qr(qr_INSTABURNFLAGS, 1);
-			set_qr(qr_FADE, 1); // Interpolated fading
-			set_qr(qr_EXPANDEDLTM, 1);
-			set_qr(qr_OLDSPRITEDRAWS, 1);
-			//}
-			//{from Z3
-			//Make water drownable
-			set_qr(qr_DROWN, 1);
-			set_qr(qr_HIDECARRIEDITEMS, 1);
-			set_qr(qr_ALLOWMSGBYPASS, 1);
-			set_qr(qr_ALLOWFASTMSG, 1);
-			set_qr(qr_MSGDISAPPEAR, 1);
-			set_qr(qr_MSGFREEZE, 1);
-			//set_qr(qr_VERYFASTSCROLLING, 1); //People apparently do not like this one.
-			set_qr(qr_ENABLEMAGIC, 1);
-			set_qr(qr_NOWANDMELEE, 1);
-			set_qr(qr_TRUEARROWS, 1);
-			set_qr(qr_Z3BRANG_HSHOT, 1);
-			set_qr(qr_TRANSSHADOWS, 1);
-			set_qr(qr_SHADOWS, 1);
-			set_qr(qr_LTTPWALK, 1);
-			set_qr(qr_MORESOUNDS, 1);
-			set_qr(qr_NEVERDISABLEAMMOONSUBSCREEN, 1);
-			//}
-			//{Modern
-			set_qr(qr_OLDSPRITEDRAWS, 0);
-			set_qr(qr_NO_SCROLL_WHILE_IN_AIR, 1);
-			set_qr(qr_DUNGEON_DMAPS_PERM_SECRETS, 1);
-			set_qr(qr_ANGULAR_REFLECTED_WEAPONS, 1);
-			set_qr(qr_MIRRORS_USE_WEAPON_CENTER, 1);
-			set_qr(qr_SPRITEXY_IS_FLOAT, 1);
-			set_qr(qr_SIDEVIEWLADDER_FACEUP, 1);
-			set_qr(qr_ITEMSHADOWS, 1);
-			set_qr(qr_WEAPONSHADOWS, 1);
-			set_qr(qr_NEW_HERO_MOVEMENT, 1);
-			//set_qr(qr_STEP_IS_FLOAT, 1); //Step is broken in A72, needs to be fixed before we can use this. 
-			set_qr(qr_HOLDITEMANIMATION, 1);
-			set_qr(qr_DISABLE_4WAY_GRIDLOCK, 1);
-			set_qr(qr_NO_HOPPING, 1);
-			set_qr(qr_NO_SOLID_SWIM, 1);
-			set_qr(qr_WATER_ON_LAYER_1, 1);
-			set_qr(qr_WATER_ON_LAYER_2, 1);
-			set_qr(qr_SHALLOW_SENSITIVE, 1);
-			set_qr(qr_NONHEAVY_BLOCKTRIGGER_PERM, 1);
-			set_qr(qr_CORRECTED_EW_BRANG_ANIM, 1);
-			set_qr(qr_OVERHEAD_COMBOS_L1_L2, 1);
-			set_qr(qr_AUTOCOMBO_LAYER_1, 1);
-			set_qr(qr_AUTOCOMBO_LAYER_2, 1);
-			set_qr(qr_AUTOCOMBO_ANY_LAYER, 1);
-			set_qr(qr_NEW_DARKROOM, 1);
-			set_qr(qr_PUSHBLOCK_LAYER_1_2, 1);
-			set_qr(qr_HOOKSHOTALLLAYER, 1);
-			set_qr(qr_ITEMCOMBINE_NEW_PSTR, 1);
-			set_qr(qr_ITEMCOMBINE_CONTINUOUS, 1);
-			set_qr(qr_FAIRYDIR, 1);
-			set_qr(qr_BLOCKS_DONT_LOCK_OTHER_LAYERS, 1);
-			set_qr(qr_CONVEYORS_L1_L2, 1);
-			//}
+			for(auto qr : r_FIXES)
+				set_qr(qr, 1, qrptr);
+			for(auto qr : rBSZ)
+				set_qr(qr, 1, qrptr);
+			for(auto qr : rZ3)
+				set_qr(qr, 1, qrptr);
+			for(auto qr : rMODERN_O)
+				set_qr(qr, 0, qrptr);
+			for(auto qr : rMODERN)
+				set_qr(qr, 1, qrptr);
+			for(auto tmpl : rMODERN_TMPL)
+				applyRuleTemplate(tmpl, qrptr);
 			break;
 		}
 	}
@@ -792,7 +726,7 @@ int32_t onNew()
 	}
 	if(zc_get_config("zquest","auto_filenew_bugfixes",1))
 	{
-		applyRuleTemplate(ruletemplateCompat);
+		applyRuleTemplate(ruletemplateFixCompat);
 	}
 	return D_O_K;
 }

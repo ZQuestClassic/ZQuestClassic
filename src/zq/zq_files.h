@@ -24,8 +24,8 @@ int32_t qtlist_del();
 int32_t onQuestTemplates();
 int32_t NewQuestFile(int32_t template_slot);
 int32_t onNew();
-void applyRuleset(int32_t ruleset);
-void applyRuleTemplate(int32_t ruleTemplate);
+void applyRuleset(int32_t ruleset, byte* qrptr = nullptr);
+void applyRuleTemplate(int32_t ruleTemplate, byte* qrptr = nullptr);
 bool hasCompatRulesEnabled();
 int32_t PickRuleset();
 int32_t PickRuleTemplate();
@@ -75,17 +75,6 @@ int32_t readonezdoorset(PACKFILE *f, int32_t index);
 
 int32_t onExport_Doorset();
 int32_t onImport_Doorset();
-
-enum
-{
-	rulesetNONE, rulesetNES, rulesetFixedNES, rulesetBSZ, rulesetZ3, rulesetModern, rulesetLast
-};
-
-enum
-{
-	ruletemplateCompat,	ruletemplateZSCompat,
-	sz_ruletemplate
-};
 
 #endif
  

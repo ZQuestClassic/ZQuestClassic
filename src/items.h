@@ -18,6 +18,8 @@ int32_t item_pits(zfix& x, zfix& y, int32_t& fallclk);
 int32_t select_dropitem(int32_t item_set);
 int32_t select_dropitem(int32_t item_set, int32_t x, int32_t y);
 int32_t get_progressive_item(itemdata const& itm, bool lastOwned = false);
+bool checkmagiccost(int32_t itemid, bool checkTime = false);
+void paymagiccost(int32_t itemid, bool ignoreTimer = false, bool onlyTimer = false);
 
 class item : public sprite
 {
@@ -79,6 +81,8 @@ private:
 // easy way to draw an item
 void putitem(BITMAP *dest,int32_t x,int32_t y,int32_t item_id);
 void putitem2(BITMAP *dest,int32_t x,int32_t y,int32_t item_id, int32_t &aclk, int32_t &aframe, int32_t flash);
+void putitem3(BITMAP *dest,int32_t x,int32_t y,int32_t item_id, int32_t clk);
+void dummyitem_animate(item* dummy, int32_t clk);
 
 //Now itemdata lives here too!
 
@@ -218,7 +222,7 @@ struct itemdata
 	
 	char display_name[256];
 	
-	std::string get_name(bool init = false) const;
+	std::string get_name(bool init = false, bool plain = false) const;
 	//helper functions because stupid shit
 	int32_t misc(size_t ind) const
 	{

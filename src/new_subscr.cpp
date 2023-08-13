@@ -13,6 +13,7 @@
 #include "items.h"
 #include "sprite.h"
 #include <set>
+#include <fmt/format.h>
 
 #ifdef IS_PLAYER
 extern int32_t directItem;
@@ -27,14 +28,39 @@ int32_t get_homescr();
 bool has_item(int32_t item_type, int32_t item);
 
 //!TODO subscr.h/subscr.cpp trim
-extern item *sel_a, *sel_b;
-void subscreenitem(BITMAP *dest, int32_t x, int32_t y, int32_t itemtype);
 int32_t subscreen_color(int32_t c1, int32_t c2);
 void draw_textbox(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, FONT *tempfont, char const*thetext, bool wword, int32_t tabsize, int32_t alignment, int32_t textstyle, int32_t color, int32_t shadowcolor, int32_t backcolor);
-void lifegauge(BITMAP *dest,int32_t x,int32_t y, int32_t container, int32_t notlast_tile, int32_t notlast_cset, bool notlast_mod, int32_t last_tile, int32_t last_cset, bool last_mod,
-			   int32_t cap_tile, int32_t cap_cset, bool cap_mod, int32_t aftercap_tile, int32_t aftercap_cset, bool aftercap_mod, int32_t frames, int32_t speed, int32_t delay, bool unique_last);
 void magicgauge(BITMAP *dest,int32_t x,int32_t y, int32_t container, int32_t notlast_tile, int32_t notlast_cset, bool notlast_mod, int32_t last_tile, int32_t last_cset, bool last_mod,
 				int32_t cap_tile, int32_t cap_cset, bool cap_mod, int32_t aftercap_tile, int32_t aftercap_cset, bool aftercap_mod, int32_t frames, int32_t speed, int32_t delay, bool unique_last, int32_t show);
+
+int subscr_item_clk = 0;
+int btnitem_clks[4] = {0};
+int btnitem_ids[4] = {0};
+
+void reset_subscr_items()
+{
+	for(int q = 0; q < 4; ++q)
+	{
+		btnitem_clks[q] = 0;
+		btnitem_ids[q] = -1;
+	}
+}
+
+void update_subscr_items()
+{
+	int nullval = get_qr(qr_ITM_0_INVIS_ON_BTNS) ? 0 : -1;
+	int ids[] = {Awpn,Bwpn,Xwpn,Ywpn};
+	for(int q = 0; q < 4; ++q)
+	{
+		if(btnitem_ids[q] != ids[1])
+		{
+			btnitem_ids[q] = ids[q];
+			btnitem_clks[q] = 0;
+		}
+		if(ids[q] > nullval)
+			++btnitem_clks[q];
+	}
+}
 
 int32_t to_real_font(int32_t ss_font)
 {
@@ -335,7 +361,7 @@ int32_t SubscrColorInfo::write(PACKFILE *f) const
 	if(!p_putc(type,f))
 		new_return(1);
 	if(!p_iputw(color,f))
-		new_return(2);
+		new_return(1);
 	return 0;
 }
 
@@ -384,7 +410,7 @@ int32_t SubscrMTInfo::write(PACKFILE *f) const
 	if(!p_iputl(tilecrn,f))
 		new_return(1);
 	if(!p_putc(cset,f))
-		new_return(2);
+		new_return(1);
 	return 0;
 }
 
@@ -436,7 +462,11 @@ byte SubscrWidget::getType() const
 {
 	return widgNULL;
 }
-int32_t SubscrWidget::getItemVal(bool display) const
+int32_t SubscrWidget::getItemVal() const
+{
+	return -1;
+}
+int32_t SubscrWidget::getDisplayItem() const
 {
 	return -1;
 }
@@ -529,42 +559,42 @@ int32_t SubscrWidget::write(PACKFILE *f) const
 	if(!p_putc(getType(),f))
 		new_return(1);
 	if(!p_putc(type,f))
-		new_return(2);
+		new_return(1);
 	if(!p_putc(posflags,f))
-		new_return(3);
+		new_return(1);
 	if(!p_iputw(x,f))
-		new_return(4);
+		new_return(1);
 	if(!p_iputw(y,f))
-		new_return(5);
+		new_return(1);
 	if(!p_iputw(w,f))
-		new_return(6);
+		new_return(1);
 	if(!p_iputw(h,f))
-		new_return(7);
+		new_return(1);
 	if(!p_iputl(flags,f))
-		new_return(8);
+		new_return(1);
 	if(flags&SUBSCRFLAG_SELECTABLE)
 	{
 		if(!p_iputl(pos,f))
-			new_return(9);
+			new_return(1);
 		if(!p_iputl(pos_up,f))
-			new_return(10);
+			new_return(1);
 		if(!p_iputl(pos_down,f))
-			new_return(11);
+			new_return(1);
 		if(!p_iputl(pos_left,f))
-			new_return(12);
+			new_return(1);
 		if(!p_iputl(pos_right,f))
-			new_return(13);
+			new_return(1);
 		if(!p_putwstr(override_text,f))
-			new_return(14);
+			new_return(1);
 		if(!p_iputw(generic_script,f))
-			new_return(15);
+			new_return(1);
 		if(generic_script)
 		{
 			if(!p_putc(gen_script_btns,f))
-				new_return(16);
+				new_return(1);
 			for(int q = 0; q < 8; ++q)
 				if(!p_iputl(generic_initd[q],f))
-					new_return(17);
+					new_return(1);
 		}
 	}
 	return 0;
@@ -744,11 +774,11 @@ int32_t SW_Text::write(PACKFILE *f) const
 	if(!p_iputl(fontid,f))
 		new_return(1);
 	if(!p_putc(align,f))
-		new_return(2);
+		new_return(1);
 	if(!p_putc(shadtype,f))
-		new_return(3);
+		new_return(1);
 	if(!p_putwstr(text,f))
-		new_return(4);
+		new_return(1);
 	if(auto ret = c_text.write(f))
 		return ret;
 	if(auto ret = c_shadow.write(f))
@@ -1000,9 +1030,9 @@ int32_t SW_Time::write(PACKFILE *f) const
 	if(!p_iputl(fontid,f))
 		new_return(1);
 	if(!p_putc(align,f))
-		new_return(2);
+		new_return(1);
 	if(!p_putc(shadtype,f))
-		new_return(3);
+		new_return(1);
 	if(auto ret = c_text.write(f))
 		return ret;
 	if(auto ret = c_shadow.write(f))
@@ -1163,7 +1193,30 @@ void SW_ButtonItem::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& p
 	if(flags&SUBSCR_BTNITM_TRANSP)
 		drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
 	
-	buttonitem(dest, btn, x, y);
+	int nullval = get_qr(qr_ITM_0_INVIS_ON_BTNS) ? 0 : -1;
+	int ids[] = {Awpn,Bwpn,Xwpn,Ywpn};
+	
+	if(ids[btn] > nullval)
+	{
+		bool dodraw = true;
+		switch(itemsbuf[ids[btn]].family)
+		{
+			case itype_arrow:
+				if(ids[btn]&0xF000)
+				{
+					int bow = current_item_id(itype_bow);
+					if(bow>-1)
+					{
+						putitem3(dest,x,y,bow,subscr_item_clk);
+						if(!get_qr(qr_NEVERDISABLEAMMOONSUBSCREEN)
+							&& !checkmagiccost(ids[btn]&0xFF))
+							dodraw = false;
+					}
+				}
+				break;
+		}
+		putitem3(dest,x,y,ids[btn]&0xFF,btnitem_clks[btn]);
+	}
 	
 	if(flags&SUBSCR_BTNITM_TRANSP)
 		drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
@@ -1323,9 +1376,9 @@ int32_t SW_Counter::write(PACKFILE *f) const
 	if(!p_iputl(fontid,f))
 		new_return(1);
 	if(!p_putc(align,f))
-		new_return(2);
+		new_return(1);
 	if(!p_putc(shadtype,f))
-		new_return(3);
+		new_return(1);
 	if(auto ret = c_text.write(f))
 		return ret;
 	if(auto ret = c_shadow.write(f))
@@ -1333,17 +1386,17 @@ int32_t SW_Counter::write(PACKFILE *f) const
 	if(auto ret = c_bg.write(f))
 		return ret;
 	if(!p_iputl(ctrs[0],f))
-		new_return(4);
+		new_return(1);
 	if(!p_iputl(ctrs[1],f))
-		new_return(5);
+		new_return(1);
 	if(!p_iputl(ctrs[2],f))
-		new_return(6);
+		new_return(1);
 	if(!p_putc(digits,f))
-		new_return(7);
+		new_return(1);
 	if(!p_iputl(infitm,f))
-		new_return(8);
+		new_return(1);
 	if(!p_putc(infchar,f))
-		new_return(9);
+		new_return(1);
 	return 0;
 }
 
@@ -1443,7 +1496,7 @@ int32_t SW_Counters::write(PACKFILE *f) const
 	if(!p_iputl(fontid,f))
 		new_return(1);
 	if(!p_putc(shadtype,f))
-		new_return(2);
+		new_return(1);
 	if(auto ret = c_text.write(f))
 		return ret;
 	if(auto ret = c_shadow.write(f))
@@ -1451,11 +1504,11 @@ int32_t SW_Counters::write(PACKFILE *f) const
 	if(auto ret = c_bg.write(f))
 		return ret;
 	if(!p_putc(digits,f))
-		new_return(3);
+		new_return(1);
 	if(!p_iputl(infitm,f))
-		new_return(4);
+		new_return(1);
 	if(!p_putc(infchar,f))
-		new_return(5);
+		new_return(1);
 	return 0;
 }
 
@@ -1550,9 +1603,9 @@ int32_t SW_MMapTitle::write(PACKFILE *f) const
 	if(!p_iputl(fontid,f))
 		new_return(1);
 	if(!p_putc(align,f))
-		new_return(2);
+		new_return(1);
 	if(!p_putc(shadtype,f))
-		new_return(3);
+		new_return(1);
 	if(auto ret = c_text.write(f))
 		return ret;
 	if(auto ret = c_shadow.write(f))
@@ -1766,11 +1819,11 @@ int32_t SW_Clear::write(PACKFILE *f) const
 	return 0;
 }
 
-SW_CurrentItem::SW_CurrentItem(subscreen_object const& old) : SW_CurrentItem()
+SW_ItemSlot::SW_ItemSlot(subscreen_object const& old) : SW_ItemSlot()
 {
 	load_old(old);
 }
-bool SW_CurrentItem::load_old(subscreen_object const& old)
+bool SW_ItemSlot::load_old(subscreen_object const& old)
 {
 	if(old.type != ssoCURRENTITEM)
 		return false;
@@ -1787,19 +1840,19 @@ bool SW_CurrentItem::load_old(subscreen_object const& old)
 	SETFLAG(flags,SUBSCR_CURITM_NONEQP,old.d2&0x2);
 	return true;
 }
-word SW_CurrentItem::getW() const
+word SW_ItemSlot::getW() const
 {
 	return 16;
 }
-word SW_CurrentItem::getH() const
+word SW_ItemSlot::getH() const
 {
 	return 16;
 }
-byte SW_CurrentItem::getType() const
+byte SW_ItemSlot::getType() const
 {
 	return widgITEMSLOT;
 }
-int32_t SW_CurrentItem::getItemVal(bool display) const
+int32_t SW_ItemSlot::getItemVal() const
 {
 #ifdef IS_PLAYER
 	if(iid > -1)
@@ -1808,7 +1861,157 @@ int32_t SW_CurrentItem::getItemVal(bool display) const
 		switch(itemsbuf[iid].family)
 		{
 			case itype_bomb:
-				if(display && get_qr(qr_NEVERDISABLEAMMOONSUBSCREEN))
+				if((game->get_bombs() ||
+						// Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
+						(itemsbuf[iid].misc1==0 && findWeaponWithParent(iid, wLitBomb))) ||
+						current_item_power(itype_bombbag))
+				{
+					select=true;
+				}
+				break;
+			case itype_bowandarrow:
+			case itype_arrow:
+				if(current_item_id(itype_bow)>-1)
+				{
+					select=true;
+				}
+				break;
+			case itype_letterpotion:
+				break;
+			case itype_sbomb:
+			{
+				int32_t bombbagid = current_item_id(itype_bombbag);
+				
+				if((game->get_sbombs() ||
+						// Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
+						(itemsbuf[iid].misc1==0 && findWeaponWithParent(iid, wLitSBomb))) ||
+						(current_item_power(itype_bombbag) && bombbagid>-1 && (itemsbuf[bombbagid].flags & ITEM_FLAG1)))
+				{
+					select=true;
+				}
+				break;
+			}
+			case itype_sword:
+			{
+				if(get_qr(qr_SELECTAWPN))
+					select=true;
+				break;
+			}
+			default:
+				select = true;
+				break;
+		}
+		if(select && !item_disabled(iid) && game->get_item(iid))
+		{
+			directItem = iid;
+			auto ret = iid;
+			if(ret>-1 && itemsbuf[ret].family == itype_arrow)
+				ret += 0xF000; //bow
+			return ret;
+		}
+		else return -1;
+	}
+	int32_t family = -1;
+	switch(iclass)
+	{
+		case itype_bomb:
+		{
+			int32_t bombid = current_item_id(itype_bomb);
+			
+			if((game->get_bombs() ||
+					// Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
+					(bombid>-1 && itemsbuf[bombid].misc1==0 && Lwpns.idCount(wLitBomb)>0)) ||
+					current_item_power(itype_bombbag))
+			{
+				family=itype_bomb;
+			}
+			break;
+		}
+		case itype_bowandarrow:
+		case itype_arrow:
+			if(current_item_id(itype_bow)>-1 && current_item_id(itype_arrow)>-1)
+			{
+				family=itype_arrow;
+			}
+			break;
+		case itype_letterpotion:
+			if(current_item_id(itype_potion)>-1)
+				family=itype_potion;
+			else if(current_item_id(itype_letter)>-1)
+				family=itype_letter;
+			break;
+		case itype_sbomb:
+		{
+			int32_t bombbagid = current_item_id(itype_bombbag);
+			int32_t sbombid = current_item_id(itype_sbomb);
+			
+			if((game->get_sbombs() ||
+					// Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
+					(sbombid>-1 && itemsbuf[sbombid].misc1==0 && Lwpns.idCount(wLitSBomb)>0)) ||
+					(current_item_power(itype_bombbag) && bombbagid>-1 && (itemsbuf[bombbagid].flags & ITEM_FLAG1)))
+			{
+				family=itype_sbomb;
+			}
+			break;
+		}
+		case itype_sword:
+		{
+			if(get_qr(qr_SELECTAWPN))
+				family=itype_sword;
+			break;
+		}
+		default:
+			family = iclass;
+			break;
+	}
+	if(family < 0)
+		return -1;
+	int32_t itemid = current_item_id(family, false);
+	if(item_disabled(itemid))
+		return -1;
+	if(iclass == itype_bowandarrow)
+		return itemid|0xF000;
+	return itemid;
+#else
+	if(iid > -1) return iid;
+	int fam = iclass;
+	switch(fam)
+	{
+		case itype_letterpotion:
+			if(current_item_id(itype_potion)==-1)
+				fam = itype_letter;
+			else fam = itype_potion;
+			break;
+		case itype_bowandarrow:
+			fam = itype_arrow;
+			break;
+		case itype_map:
+			return iMap;
+		case itype_compass:
+			return iCompass;
+		case itype_bosskey:
+			return iBossKey;
+		case itype_heartpiece:
+			return iHCPiece;
+	}
+	int itemid = current_item_id(fam,false);
+	if(itemid == -1) return -1;
+	if(fam == itype_bowandarrow)
+		itemid |= 0xF000;
+	return itemid;
+#endif
+}
+int32_t SW_ItemSlot::getDisplayItem() const
+{
+	bool nosp = flags&SUBSCR_CURITM_IGNR_SP_DISPLAY;
+#ifdef IS_PLAYER
+	if(iid > -1)
+	{
+		bool select = false;
+		switch(itemsbuf[iid].family)
+		{
+			case itype_bomb:
+				if(get_qr(qr_NEVERDISABLEAMMOONSUBSCREEN))
 					select = true;
 				else if((game->get_bombs() ||
 						// Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
@@ -1831,7 +2034,7 @@ int32_t SW_CurrentItem::getItemVal(bool display) const
 			{
 				int32_t bombbagid = current_item_id(itype_bombbag);
 				
-				if(display && get_qr(qr_NEVERDISABLEAMMOONSUBSCREEN))
+				if(get_qr(qr_NEVERDISABLEAMMOONSUBSCREEN))
 					select = true;
 				else if((game->get_sbombs() ||
 						// Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
@@ -1869,7 +2072,7 @@ int32_t SW_CurrentItem::getItemVal(bool display) const
 		{
 			int32_t bombid = current_item_id(itype_bomb);
 			
-			if(display && get_qr(qr_NEVERDISABLEAMMOONSUBSCREEN))
+			if(get_qr(qr_NEVERDISABLEAMMOONSUBSCREEN))
 				family=itype_bomb;
 			else if((game->get_bombs() ||
 					// Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
@@ -1898,7 +2101,7 @@ int32_t SW_CurrentItem::getItemVal(bool display) const
 			int32_t bombbagid = current_item_id(itype_bombbag);
 			int32_t sbombid = current_item_id(itype_sbomb);
 			
-			if(display && get_qr(qr_NEVERDISABLEAMMOONSUBSCREEN))
+			if(get_qr(qr_NEVERDISABLEAMMOONSUBSCREEN))
 				family=itype_sbomb;
 			else if((game->get_sbombs() ||
 					// Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
@@ -1915,6 +2118,22 @@ int32_t SW_CurrentItem::getItemVal(bool display) const
 				family=itype_sword;
 			break;
 		}
+		//Super Special Cases for display
+		case itype_map:
+			if(nosp) break;
+			return has_item(itype_map, get_dlevel()) ? iMap : -1;
+		case itype_compass:
+			if(nosp) break;
+			return has_item(itype_compass, get_dlevel()) ? iCompass : -1;
+		case itype_bosskey:
+			if(nosp) break;
+			return has_item(itype_bosskey, get_dlevel()) ? iBossKey : -1;
+		case itype_heartpiece:
+			if(nosp) break;
+			if(QMisc.colors.HCpieces_tile)
+				return iHCPiece;
+			break;
+		
 		default:
 			family = iclass;
 			break;
@@ -1925,7 +2144,7 @@ int32_t SW_CurrentItem::getItemVal(bool display) const
 	if(item_disabled(itemid))
 		return -1;
 	if(iclass == itype_bowandarrow)
-		return itemid+0xF000;
+		return itemid|0xF000;
 	return itemid;
 #else
 	if(iid > -1) return iid;
@@ -1941,12 +2160,16 @@ int32_t SW_CurrentItem::getItemVal(bool display) const
 			fam = itype_arrow;
 			break;
 		case itype_map:
+			if(nosp) break;
 			return iMap;
 		case itype_compass:
+			if(nosp) break;
 			return iCompass;
 		case itype_bosskey:
+			if(nosp) break;
 			return iBossKey;
 		case itype_heartpiece:
+			if(nosp) break;
 			return iHCPiece;
 	}
 	int itemid = current_item_id(fam,false);
@@ -1956,7 +2179,7 @@ int32_t SW_CurrentItem::getItemVal(bool display) const
 	return itemid;
 #endif
 }
-void SW_CurrentItem::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
+void SW_ItemSlot::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
 	#ifdef IS_PLAYER
 	if(flags&SUBSCR_CURITM_INVIS)
@@ -1965,23 +2188,44 @@ void SW_CurrentItem::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& 
 	if((flags&SUBSCR_CURITM_INVIS) && !(zinit.ss_flags&ssflagSHOWINVIS))
 		return;
 	#endif
-	subscreenitem(dest, getX()+xofs,getY()+yofs, iid > -1 ? (iid|0x8000) : iclass);
+	int id = getDisplayItem();
+	if(id > -1)
+	{
+		bool nosp = flags&SUBSCR_CURITM_IGNR_SP_DISPLAY;
+		if(!nosp && QMisc.colors.HCpieces_tile && id == iHCPiece)
+		{
+			int hcpphc =  game->get_hcp_per_hc();
+			int numhpc = vbound(game->get_HCpieces(),0,hcpphc > 0 ? hcpphc-1 : 0);
+			int t = QMisc.colors.HCpieces_tile + numhpc;
+			overtile16(dest,t,x+xofs,y+yofs,QMisc.colors.HCpieces_cset,0);
+		}
+		else
+		{
+			putitem3(dest,x+xofs,y+yofs,id&0xFF,subscr_item_clk);
+			if(!nosp && (id&0xF000))
+			{
+				int id2 = current_item_id(itype_bow,false);
+				if(id2 > -1)
+					putitem3(dest,x+xofs,y+yofs,id2,subscr_item_clk);
+			}
+		}
+	}
 }
-SubscrWidget* SW_CurrentItem::clone() const
+SubscrWidget* SW_ItemSlot::clone() const
 {
-	return new SW_CurrentItem(*this);
+	return new SW_ItemSlot(*this);
 }
-bool SW_CurrentItem::copy_prop(SubscrWidget const* src, bool all)
+bool SW_ItemSlot::copy_prop(SubscrWidget const* src, bool all)
 {
 	if(src->getType() != getType() || src == this)
 		return false;
-	SW_CurrentItem const* other = dynamic_cast<SW_CurrentItem const*>(src);
+	SW_ItemSlot const* other = dynamic_cast<SW_ItemSlot const*>(src);
 	SubscrWidget::copy_prop(other,all);
 	iid = other->iid;
 	iclass = other->iclass;
 	return true;
 }
-int32_t SW_CurrentItem::read(PACKFILE *f, word s_version)
+int32_t SW_ItemSlot::read(PACKFILE *f, word s_version)
 {
 	if(auto ret = SubscrWidget::read(f,s_version))
 		return ret;
@@ -1991,14 +2235,14 @@ int32_t SW_CurrentItem::read(PACKFILE *f, word s_version)
 		return qe_invalid;
 	return 0;
 }
-int32_t SW_CurrentItem::write(PACKFILE *f) const
+int32_t SW_ItemSlot::write(PACKFILE *f) const
 {
 	if(auto ret = SubscrWidget::write(f))
 		return ret;
 	if(!p_iputl(iclass,f))
 		new_return(1);
 	if(!p_iputl(iid,f))
-		new_return(2);
+		new_return(1);
 	return 0;
 }
 
@@ -2083,11 +2327,11 @@ int32_t SW_TriFrame::write(PACKFILE *f) const
 	if(!p_iputl(frame_tile,f))
 		new_return(1);
 	if(!p_iputl(piece_tile,f))
-		new_return(2);
+		new_return(1);
 	if(!p_putc(frame_cset,f))
-		new_return(3);
+		new_return(1);
 	if(!p_putc(piece_cset,f))
-		new_return(4);
+		new_return(1);
 	if(auto ret =  c_outline.write(f))
 		return ret;
 	if(auto ret =  c_number.write(f))
@@ -2166,9 +2410,9 @@ int32_t SW_McGuffin::write(PACKFILE *f) const
 	if(!p_iputl(tile,f))
 		new_return(1);
 	if(!p_iputl(number,f))
-		new_return(2);
+		new_return(1);
 	if(!p_putc(cset,f))
-		new_return(3);
+		new_return(1);
 	if(auto ret =  cs.write(f))
 		return ret;
 	return 0;
@@ -2241,7 +2485,7 @@ int32_t SW_TileBlock::write(PACKFILE *f) const
 	if(!p_iputl(tile,f))
 		new_return(1);
 	if(!p_putc(flip,f))
-		new_return(2);
+		new_return(1);
 	if(auto ret =  cs.write(f))
 		return ret;
 	return 0;
@@ -2361,11 +2605,11 @@ int32_t SW_MiniTile::write(PACKFILE *f) const
 	if(!p_iputl(tile,f))
 		new_return(1);
 	if(!p_iputl(special_tile,f))
-		new_return(2);
+		new_return(1);
 	if(!p_putc(crn,f))
-		new_return(3);
+		new_return(1);
 	if(!p_putc(flip,f))
-		new_return(4);
+		new_return(1);
 	if(auto ret =  cs.write(f))
 		return ret;
 	return 0;
@@ -2407,12 +2651,12 @@ void SW_Selector::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& pag
 	if(!widg) return;
 	
 	bool big_sel=flags&SUBSCR_SELECTOR_LARGE;
-	item *tempsel=(flags&SUBSCR_SELECTOR_USEB)?sel_b:sel_a;
-	int32_t temptile=tempsel->tile;
-	tempsel->drawstyle=0;
-	
-	if(flags&SUBSCR_SELECTOR_TRANSP)
-		tempsel->drawstyle=1;
+	item tempsel(0,0,0,(flags&SUBSCR_SELECTOR_USEB)?iSelectB:iSelectA,0,0,true);
+	tempsel.hide_hitbox = true;
+	tempsel.yofs = 0;
+	dummyitem_animate(&tempsel,subscr_item_clk);
+	if(!tempsel.tile) return;
+	tempsel.drawstyle = (flags&SUBSCR_SELECTOR_TRANSP) ? 1 : 0;
 	int32_t id = widg->getItemVal();
 	itemdata const& tmpitm = itemsbuf[id];
 	bool oldsel = get_qr(qr_SUBSCR_OLD_SELECTOR);
@@ -2421,28 +2665,28 @@ void SW_Selector::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& pag
 	int sxofs, syofs, dxofs, dyofs;
 	if(oldsel)
 	{
-		sw = (tempsel->extend > 2 ? tempsel->txsz*16 : 16);
-		sh = (tempsel->extend > 2 ? tempsel->txsz*16 : 16);
+		sw = (tempsel.extend > 2 ? tempsel.txsz*16 : 16);
+		sh = (tempsel.extend > 2 ? tempsel.txsz*16 : 16);
 		sxofs = 0;
 		syofs = 0;
-		dw = (tempsel->extend > 2 ? tempsel->txsz*16 : 16);
-		dh = (tempsel->extend > 2 ? tempsel->txsz*16 : 16);
-		dxofs = (tempsel->extend > 2 ? (int)tempsel->xofs : 0);
-		dyofs = (tempsel->extend > 2 ? (int)tempsel->yofs : 0);
+		dw = (tempsel.extend > 2 ? tempsel.txsz*16 : 16);
+		dh = (tempsel.extend > 2 ? tempsel.txsz*16 : 16);
+		dxofs = (tempsel.extend > 2 ? (int)tempsel.xofs : 0);
+		dyofs = (tempsel.extend > 2 ? (int)tempsel.yofs : 0);
 	}
 	else
 	{
-		sw = (tempsel->extend > 2 ? tempsel->hit_width : 16);
-		sh = (tempsel->extend > 2 ? tempsel->hit_height : 16);
-		sxofs = (tempsel->extend > 2 ? tempsel->hxofs : 0);
-		syofs = (tempsel->extend > 2 ? tempsel->hyofs : 0);
+		sw = (tempsel.extend > 2 ? tempsel.hit_width : 16);
+		sh = (tempsel.extend > 2 ? tempsel.hit_height : 16);
+		sxofs = (tempsel.extend > 2 ? tempsel.hxofs : 0);
+		syofs = (tempsel.extend > 2 ? tempsel.hyofs : 0);
 	}
 	if(widg->getType() == widgITEMSLOT)
 	{
 		dw = ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_WIDTH) ? tmpitm.hxsz : 16);
 		dh = ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_HEIGHT) ? tmpitm.hysz : 16);
-		dxofs = widg->getX()+((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_X_OFFSET) ? tmpitm.hxofs : 0) + (tempsel->extend > 2 ? (int)tempsel->xofs : 0);
-		dyofs = widg->getY()+((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_Y_OFFSET) ? tmpitm.hyofs : 0) + (tempsel->extend > 2 ? (int)tempsel->yofs : 0);
+		dxofs = widg->getX()+((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_X_OFFSET) ? tmpitm.hxofs : 0) + (tempsel.extend > 2 ? (int)tempsel.xofs : 0);
+		dyofs = widg->getY()+((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_Y_OFFSET) ? tmpitm.hyofs : 0) + (tempsel.extend > 2 ? (int)tempsel.yofs : 0);
 	}
 	else
 	{
@@ -2455,23 +2699,20 @@ void SW_Selector::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& pag
 	for(int32_t j=0; j<4; ++j)
 	{
 		clear_bitmap(tmpbmp);
-		tempsel->x=0;
-		tempsel->y=0;
+		tempsel.x=0;
+		tempsel.y=0;
+		tempsel.draw(tmpbmp);
+		tempsel.tile+=zc_max(itemsbuf[tempsel.id].frames,1);
+		
 		int32_t tmpx = xofs+(big_sel?(j%2?8:-8):0);
 		int32_t tmpy = yofs+(big_sel?(j>1?8:-8):0);
-		tempsel->tile+=(zc_max(itemsbuf[tempsel->id].frames,1)*j);
-		
-		if(temptile)
-		{
-			tempsel->drawzcboss(tmpbmp);
-			tempsel->tile=temptile;
-		}
 		masked_stretch_blit(tmpbmp, dest, vbound(sxofs, 0, sw), vbound(syofs, 0, sh), sw-vbound(sxofs, 0, sw), sh-vbound(syofs, 0, sh), tmpx+dxofs, tmpy+dyofs, dw, dh);
 		
 		if(!big_sel)
 			break;
 	}
 	destroy_bitmap(tmpbmp);
+	tempsel.unget_UID();
 }
 SubscrWidget* SW_Selector::clone() const
 {
@@ -2520,9 +2761,9 @@ bool SW_LifeGaugePiece::load_old(subscreen_object const& old)
 	SETFLAG(flags, SUBSCR_LGAUGE_MOD3, old.d10&0x04);
 	SETFLAG(flags, SUBSCR_LGAUGE_MOD4, old.d10&0x08);
 	SETFLAG(flags, SUBSCR_LGAUGE_UNQLAST, old.d10&0x10);
-	frames = old.d6;
-	speed = old.d7;
-	delay = old.d8;
+	frames = 1;
+	speed = 0;
+	delay = 0;
 	container = old.d1;
 	return true;
 }
@@ -2540,12 +2781,58 @@ byte SW_LifeGaugePiece::getType() const
 }
 void SW_LifeGaugePiece::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
-	lifegauge(dest, x, y, container,
-		mts[0].tilecrn, mts[0].cset, flags&SUBSCR_LGAUGE_MOD1,
-		mts[1].tilecrn, mts[1].cset, flags&SUBSCR_LGAUGE_MOD2,
-		mts[2].tilecrn, mts[2].cset, flags&SUBSCR_LGAUGE_MOD3,
-		mts[3].tilecrn, mts[3].cset, flags&SUBSCR_LGAUGE_MOD4,
-		frames, speed, delay, flags&SUBSCR_LGAUGE_UNQLAST);
+	if(replay_version_check(0,19))
+	{
+		zc_oldrand();zc_oldrand();zc_oldrand();
+	}
+	
+	int32_t containers=game->get_maxlife()/game->get_hp_per_heart();
+	int32_t tile, cset;
+	bool mod_value;
+	
+	int ind = 3;
+	if(container<containers)
+		ind = 0;
+	else if(container==containers)
+		ind = 1;
+	else if(container==containers+1)
+		ind = 2;
+	//else if (container>containers+1)
+	
+	int mtile=mts[ind].tilecrn;
+	cset=mts[ind].cset;
+	mod_value=(flags&(SUBSCR_LGAUGE_MOD1<<ind));
+	tile = mtile>>2;
+	
+	int hp_ofs = 0;
+	if(mod_value) //Change the tile based on HP
+	{
+		if(game->get_life()>=container*game->get_hp_per_heart())
+		{
+			if((flags&SUBSCR_LGAUGE_UNQLAST) && game->get_life()==container*game->get_hp_per_heart())
+				hp_ofs=game->get_hp_per_heart()+3;
+		}
+		else
+		{
+			if(((container-1)*game->get_hp_per_heart())>game->get_life())
+				hp_ofs=4;
+			else
+				hp_ofs=4+((game->get_life()-((container-1)*game->get_hp_per_heart()))%game->get_hp_per_heart());
+		}
+	}
+	
+	int anim_offs = 0;
+	int fr = frames ? frames : 1;
+	int spd = speed ? speed : 1;
+	// if(fr > 1)
+	// {
+		// auto t = (subscritem_frame%((spd*fr)+(spd*delay)))-(delay*spd);
+		// if(t > -1)
+			// anim_offs = t/spd;
+	// }
+	int offs = (hp_ofs*fr)+anim_offs;
+	
+	overtile8(dest,mtile+offs,x,y,cset,0);
 }
 SubscrWidget* SW_LifeGaugePiece::clone() const
 {
@@ -2594,11 +2881,11 @@ int32_t SW_LifeGaugePiece::write(PACKFILE *f) const
 	if(!p_iputw(frames, f))
 		new_return(1);
 	if(!p_iputw(speed, f))
-		new_return(2);
+		new_return(1);
 	if(!p_iputw(delay, f))
-		new_return(3);
+		new_return(1);
 	if(!p_iputw(container, f))
-		new_return(4);
+		new_return(1);
 	return 0;
 }
 
@@ -2701,13 +2988,13 @@ int32_t SW_MagicGaugePiece::write(PACKFILE *f) const
 	if(!p_iputw(frames, f))
 		new_return(1);
 	if(!p_iputw(speed, f))
-		new_return(2);
+		new_return(1);
 	if(!p_iputw(delay, f))
-		new_return(3);
+		new_return(1);
 	if(!p_iputw(container, f))
-		new_return(4);
+		new_return(1);
 	if(!p_iputw(showdrain, f))
-		new_return(5);
+		new_return(1);
 	return 0;
 }
 
@@ -2793,13 +3080,13 @@ int32_t SW_TextBox::write(PACKFILE *f) const
 	if(!p_iputl(fontid,f))
 		new_return(1);
 	if(!p_putc(align,f))
-		new_return(2);
+		new_return(1);
 	if(!p_putc(shadtype,f))
-		new_return(3);
+		new_return(1);
 	if(!p_putc(tabsize,f))
-		new_return(4);
+		new_return(1);
 	if(!p_putwstr(text,f))
-		new_return(5);
+		new_return(1);
 	if(auto ret = c_text.write(f))
 		return ret;
 	if(auto ret = c_shadow.write(f))
@@ -2842,7 +3129,7 @@ void SW_SelectedText::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage&
 		str = widg->override_text;
 	else
 	{
-		int32_t itemid=widg->getItemVal(true);
+		int32_t itemid=widg->getDisplayItem();
 		if(itemid > -1)
 		{
 			// If it's a combined bow and arrow, the item ID will have 0xF000 added.
@@ -2851,16 +3138,22 @@ void SW_SelectedText::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage&
 				itemid&=~0xF000;
 			
 			#if IS_PLAYER
-			// 0 can mean either the item with index 0 is selected or there's no
-			// valid item to select, so be sure Hero has whatever it would be.
-			if(!game->get_item(itemid))
+			if(replay_version_check(0,19) && !game->get_item(itemid))
 				return;
 			#endif
 			
 			itemdata const& itm = itemsbuf[itemid];
-			str = itm.get_name();
-			if(bowarrow)
-				str = "Bow & " + str;
+			str = itm.get_name(false,itm.family==itype_arrow && !bowarrow);
+			if(widg->getType() == widgITEMSLOT && (widg->flags&SUBSCR_CURITM_IGNR_SP_SELTEXT))
+			{
+				//leave the name as-is
+			}
+			else if(QMisc.colors.HCpieces_tile && itemid == iHCPiece)
+			{
+				int hcpphc =  game->get_hcp_per_hc();
+				int numhpc = vbound(game->get_HCpieces(),0,hcpphc > 0 ? hcpphc-1 : 0);
+				str = fmt::format("{}/{} {}{}", numhpc, hcpphc, str, hcpphc==1?"":"s");
+			}
 		}
 	}
 	if(str.size())
@@ -2914,11 +3207,11 @@ int32_t SW_SelectedText::write(PACKFILE *f) const
 	if(!p_iputl(fontid,f))
 		new_return(1);
 	if(!p_putc(align,f))
-		new_return(2);
+		new_return(1);
 	if(!p_putc(shadtype,f))
-		new_return(3);
+		new_return(1);
 	if(!p_putc(tabsize,f))
-		new_return(4);
+		new_return(1);
 	if(auto ret = c_text.write(f))
 		return ret;
 	if(auto ret = c_shadow.write(f))
@@ -2964,7 +3257,7 @@ SubscrWidget* SubscrWidget::fromOld(subscreen_object const& old)
 		case ssoCLEAR:
 			return new SW_Clear(old);
 		case ssoCURRENTITEM:
-			return new SW_CurrentItem(old);
+			return new SW_ItemSlot(old);
 		case ssoTRIFRAME:
 			return new SW_TriFrame(old);
 		case ssoMCGUFFIN:
@@ -3069,7 +3362,7 @@ SubscrWidget* SubscrWidget::newType(byte ty)
 			widg = new SW_Clear();
 			break;
 		case widgITEMSLOT:
-			widg = new SW_CurrentItem();
+			widg = new SW_ItemSlot();
 			break;
 		case widgMCGUFF_FRAME:
 			widg = new SW_TriFrame();
@@ -3102,11 +3395,9 @@ SubscrWidget* SubscrWidget::newType(byte ty)
 	return widg;
 }
 
+//For moving on the subscreen. Never called with 'VERIFY' options, so don't worry about them.
 void SubscrPage::move_cursor(int dir, bool item_only)
 {
-	//what will be returned when all else fails.
-	//don't return the forbiddenpos... no matter what -DD
-	
 	// verify startpos
 	if(cursor_pos < 0 || cursor_pos >= 0xFF)
 		cursor_pos = 0;
@@ -3114,17 +3405,9 @@ void SubscrPage::move_cursor(int dir, bool item_only)
 	auto& objects = contents;
 	
 	item_only = item_only || !get_qr(qr_FREEFORM_SUBSCREEN_CURSOR);
-	bool verify = dir==SEL_VERIFY_RIGHT || dir==SEL_VERIFY_LEFT;
 	
-	if(verify)
-	{
-		SubscrWidget* widg = get_widg_pos(cursor_pos,item_only);
-		if(widg && widg->getType() == widgITEMSLOT
-			&& (widg->flags & SUBSCRFLAG_SELECTABLE)
-			&& !(widg->flags & SUBSCR_CURITM_NONEQP)
-			&& widg->getItemVal() > -1)
-			return;
-	}
+	if(dir==SEL_VERIFY_RIGHT || dir==SEL_VERIFY_LEFT)
+		return;
 	
 	int32_t p=-1;
 	int32_t curpos = cursor_pos;
@@ -3206,20 +3489,20 @@ void SubscrPage::move_cursor(int dir, bool item_only)
 		}
 	}
 }
-int32_t SubscrPage::move_legacy(int dir, int startp, int fp, int fp2, int fp3, bool equip_only, bool item_only)
+int32_t SubscrPage::movepos_legacy(int dir, word startp, word fp, word fp2, word fp3, bool equip_only, bool item_only)
 {
 	//what will be returned when all else fails.
 	//don't return the forbiddenpos... no matter what -DD
-	
 	int32_t failpos(0);
-	
-	if(startp == fp || startp == fp2 || startp == fp3)
+	bool start_empty = (startp&0xFF)==0xFF;
+	if(start_empty)
+	{
+		failpos = startp;
+		startp = 0;
+	}
+	else if(startp == fp || startp == fp2 || startp == fp3)
 		failpos = 0xFF;
 	else failpos = startp;
-	
-	// verify startpos
-	if(startp < 0 || startp >= 0xFF)
-		startp = 0;
 	
 	auto& objects = contents;
 	
@@ -3228,18 +3511,21 @@ int32_t SubscrPage::move_legacy(int dir, int startp, int fp, int fp2, int fp3, b
 	
 	if(verify)
 	{
-		equip_only = item_only = true;
+		equip_only = true;
+		item_only = !get_qr(qr_NO_BUTTON_VERIFY);
+		if(start_empty && !item_only)
+			return startp; //empty is valid
 		if(startp != fp && startp != fp2 && startp != fp3)
-			if(SubscrWidget* widg = get_widg_pos(startp,item_only))
-			{
-				if(widg->getType() == widgITEMSLOT && !(widg->flags&SUBSCR_CURITM_NONEQP)
-					&& widg->getItemVal() > -1)
-					return startp;
-			}
+			if(SubscrWidget* widg = get_widg_pos(startp>>8,item_only))
+				if(widg->getType() == widgITEMSLOT
+					&& !(widg->flags&SUBSCR_CURITM_NONEQP)
+					&& (widg->flags & SUBSCRFLAG_SELECTABLE)
+					&& (!item_only || widg->getItemVal() > -1))
+					return startp; //Valid selectable slot
 	}
 	
 	int32_t p=-1;
-	int32_t curpos = startp;
+	int32_t curpos = startp>>8;
 	int32_t firstValidPos=-1, firstValidEquipPos=-1;
 	
 	for(int32_t i=0; i < contents.size(); ++i)
@@ -3265,9 +3551,9 @@ int32_t SubscrPage::move_legacy(int dir, int startp, int fp, int fp2, int fp3, b
 		// Switch to a valid weapon if there is one; otherwise,
 		// the selector can simply disappear
 		if(firstValidEquipPos>=0)
-			return contents[firstValidEquipPos]->pos;
+			return (contents[firstValidEquipPos]->pos<<8)|index;
 		if(firstValidPos>=0)
-			return contents[firstValidPos]->pos;
+			return (contents[firstValidPos]->pos<<8)|index;
 		//FAILURE
 		else return failpos;
 	}
@@ -3322,26 +3608,30 @@ int32_t SubscrPage::move_legacy(int dir, int startp, int fp, int fp2, int fp3, b
 		//Valid stop point?
 		if(widg->flags & SUBSCRFLAG_SELECTABLE)
 			if(curpos != fp && curpos != fp2 && curpos != fp3)
-				if(!equip_only || !(widg->flags & SUBSCR_CURITM_NONEQP))
+				if(!equip_only || widg->getType()!=widgITEMSLOT || !(widg->flags & SUBSCR_CURITM_NONEQP))
 					if(!item_only || widg->getItemVal()>-1)
-						return curpos;
+						return (curpos<<8)|index;
 	}
 }
-SubscrWidget* SubscrPage::get_widg_pos(int32_t pos, bool item_only)
+void SubscrPage::move_legacy(int dir, bool equip_only, bool item_only)
+{
+	cursor_pos = movepos_legacy(dir,(cursor_pos<<8)|index,255,255,255,equip_only,item_only);
+}
+SubscrWidget* SubscrPage::get_widg_pos(byte pos, bool item_only)
 {
 	for(size_t q = 0; q < contents.size(); ++q)
 	{
 		if(!(contents[q]->flags & SUBSCRFLAG_SELECTABLE))
 			continue;
 		if (item_only && contents[q]->getType() == widgITEMSLOT)
-			if (static_cast<SW_CurrentItem*>(contents[q])->flags & SUBSCR_CURITM_NONEQP)
+			if (static_cast<SW_ItemSlot*>(contents[q])->flags & SUBSCR_CURITM_NONEQP)
 				continue;
 		if(contents[q]->pos == pos)
 			return contents[q];
 	}
 	return nullptr;
 }
-int32_t SubscrPage::get_item_pos(int32_t pos, bool item_only)
+int32_t SubscrPage::get_item_pos(byte pos, bool item_only)
 {
 	auto* w = get_widg_pos(pos,item_only);
 	if(w)
@@ -3356,7 +3646,7 @@ int32_t SubscrPage::get_sel_item(bool display)
 {
 	auto* w = get_sel_widg();
 	if(w)
-		return w->getItemVal(display);
+		return display ? w->getDisplayItem() : w->getItemVal();
 	return -1;
 }
 int32_t SubscrPage::get_pos_of_item(int32_t id)
@@ -3368,6 +3658,7 @@ int32_t SubscrPage::get_pos_of_item(int32_t id)
 	}
 	return -1;
 }
+
 SubscrWidget* SubscrPage::get_widget(int indx)
 {
 	if(unsigned(indx) >= contents.size())
@@ -3375,6 +3666,29 @@ SubscrWidget* SubscrPage::get_widget(int indx)
 	
 	return contents[indx];
 }
+void SubscrPage::delete_widg(word ind)
+{
+	if(ind >= contents.size())
+		return;
+	for(auto it = contents.begin(); it != contents.end();)
+	{
+		if(ind--) ++it;
+		else
+		{
+			it = contents.erase(it);
+			break;
+		}
+	}
+	//curr_subscreen_object is handled outside of here
+}
+void SubscrPage::swap_widg(word ind1, word ind2)
+{
+	if(ind1 >= contents.size() || ind2 >= contents.size())
+		return;
+	zc_swap(contents[ind1],contents[ind2]);
+	//curr_subscreen_object is handled outside of here
+}
+
 void SubscrPage::clear()
 {
 	cursor_pos = 0;
@@ -3396,6 +3710,7 @@ void SubscrPage::swap(SubscrPage& other)
 	contents.swap(other.contents);
 	zc_swap(cursor_pos,other.cursor_pos);
 	zc_swap(init_cursor_pos,other.init_cursor_pos);
+	zc_swap(index,other.index);
 }
 SubscrPage::~SubscrPage()
 {
@@ -3438,12 +3753,16 @@ int32_t SubscrPage::write(PACKFILE *f) const
         new_return(1);
 	word sz = zc_min(65535,contents.size());
 	if(!p_iputw(sz,f))
-		new_return(2);
+		new_return(1);
 	for(word q = 0; q < sz; ++q)
 		if(auto ret = contents[q]->write(f))
 			return ret;
 	
 	return 0;
+}
+word SubscrPage::getIndex() const
+{
+	return index;
 }
 
 SubscrPage& ZCSubscreen::cur_page()
@@ -3458,58 +3777,68 @@ SubscrPage* ZCSubscreen::get_page(byte id)
 	if(id >= pages.size()) return nullptr;
 	return &pages[id];
 }
-bool ZCSubscreen::get_page_pos(int32_t itmid, byte& pg, byte& pos)
+bool ZCSubscreen::get_page_pos(int32_t itmid, word& pgpos)
 {
 	for(byte q = 0; q < pages.size(); ++q)
 	{
-		int p = pages[q].get_pos_of_item(itmid);
+		byte p = pages[q].get_pos_of_item(itmid);
 		if(p > -1)
 		{
-			pg = q;
-			pos = p;
+			pgpos = q | (p<<8);
 			return true;
 		}
 	}
+	pgpos = 255;
 	return false;
 }
-int32_t ZCSubscreen::get_item_pos(byte pos, byte pg)
+int32_t ZCSubscreen::get_item_pos(word pgpos)
 {
-	if(pg >= pages.size()) return -1;
-	return pages[pg].get_item_pos(pos, false);
+	if(pgpos&0xFF >= pages.size()) return -1;
+	return pages[pgpos&0xFF].get_item_pos(pgpos>>8, false);
 }
 void ZCSubscreen::delete_page(byte id)
 {
 	if(id >= pages.size()) return;
 	
 	if(pages.size()==1)
+	{
 		pages[0].clear();
+		pages[0].index = 0;
+	}
 	else
 	{
 		if(curpage >= id)
 			--curpage;
-		for(auto it = pages.begin(); it != pages.end(); ++it)
+		for(int q = 0; q < 4; ++q)
 		{
-			if(id-- == 0)
-			{
-				pages.erase(it);
-				break;
-			}
+			if((def_btns[q]&0xFF) > id)
+				--def_btns[q];
+			else if((def_btns[q]&0xFF) == id)
+				def_btns[q] = 255;
+		}
+		auto ind = 0;
+		for(auto it = pages.begin(); it != pages.end();)
+		{
+			if(ind < id)
+				++it;
+			else if(ind == id)
+				it = pages.erase(it);
+			else it->index--;
+			++ind;
 		}
 	}
 }
 void ZCSubscreen::add_page(byte id)
 {
 	if(id >= pages.size())
-	{
-		pages.emplace_back();
-		curpage = pages.size()-1;
-	}
-	else
-	{
-		pages.emplace_back();
-		for(byte ind = pages.size()-1; ind > id; --ind)
-			swap_pages(ind,ind-1);
-	}
+		id = pages.size()-1; //add new page at end
+	if(id >= MAX_SUBSCR_PAGES) //no more room!
+		return;
+	auto& pg = pages.emplace_back();
+	pg.index = pages.size()-1;
+	for(byte ind = pages.size()-1; ind > id; --ind)
+		swap_pages(ind,ind-1);
+	curpage = id;
 }
 void ZCSubscreen::swap_pages(byte ind1, byte ind2)
 {
@@ -3518,6 +3847,13 @@ void ZCSubscreen::swap_pages(byte ind1, byte ind2)
 	pages[ind1].swap(pages[ind2]);
 	if(curpage == ind1) curpage = ind2;
 	else if(curpage == ind2) curpage = ind1;
+	for(int q = 0; q < 4; ++q)
+	{
+		if((def_btns[q]&0xFF) == ind1)
+			def_btns[q] = (def_btns[q]&0xFF00)|ind2;
+		else if((def_btns[q]&0xFF) == ind2)
+			def_btns[q] = (def_btns[q]&0xFF00)|ind1;
+	}
 }
 void ZCSubscreen::clear()
 {
@@ -3537,6 +3873,7 @@ void ZCSubscreen::load_old(subscreen_group const& g)
 	sub_type = g.ss_type;
 	pages.clear();
 	SubscrPage& p = pages.emplace_back();
+	p.index = 0;
 	for(int ind = 0; ind < MAXSUBSCREENITEMS && g.objects[ind].type != ssoNULL; ++ind)
 	{
 		auto* w = SubscrWidget::fromOld(g.objects[ind]);
@@ -3548,6 +3885,7 @@ void ZCSubscreen::load_old(subscreen_object const* arr)
 {
 	pages.clear();
 	SubscrPage& p = pages.emplace_back();
+	p.index = 0;
 	for(int ind = 0; ind < MAXSUBSCREENITEMS && arr[ind].type != ssoNULL; ++ind)
 	{
 		SubscrWidget* w = SubscrWidget::fromOld(arr[ind]);
@@ -3566,6 +3904,9 @@ int32_t ZCSubscreen::read(PACKFILE *f, word s_version)
         return qe_invalid;
 	if(!p_getc(&sub_type,f))
         return qe_invalid;
+	for(int q = 0; q < 4; ++q)
+		if(!p_igetw(&def_btns[q],f))
+			return qe_invalid;
 	if(!p_igetw(&script,f))
         return qe_invalid;
 	if(script)
@@ -3581,6 +3922,7 @@ int32_t ZCSubscreen::read(PACKFILE *f, word s_version)
 	for(byte q = 0; q < pagecnt; ++q)
 	{
 		SubscrPage& pg = pages.emplace_back();
+		pg.index = pages.size()-1;
 		if(auto ret = pg.read(f, s_version))
 			return ret;
 	}
@@ -3591,18 +3933,21 @@ int32_t ZCSubscreen::write(PACKFILE *f) const
     if(!p_putcstr(name,f))
         new_return(1);
 	if(!p_putc(sub_type,f))
-		new_return(2);
+		new_return(1);
+	for(int q = 0; q < 4; ++q)
+		if(!p_iputw(def_btns[q],f))
+			new_return(1);
 	if(!p_iputw(script,f))
-		new_return(3);
+		new_return(1);
 	if(script)
 	{
 		for(int q = 0; q < 8; ++q)
 			if(!p_iputl(initd[q],f))
-				new_return(4);
+				new_return(1);
 	}
 	byte pagecnt = zc_min(255,pages.size());
 	if(!p_putc(pagecnt,f))
-		new_return(5);
+		new_return(1);
 	for(byte q = 0; q < pagecnt; ++q)
 		if(auto ret = pages[q].write(f))
 			return ret;

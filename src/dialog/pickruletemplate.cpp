@@ -10,15 +10,20 @@ void call_ruletemplate_dlg()
 	PickRuleTemplateDialog(applyRuleTemplate).show();
 }
 
-static const GUI::ListData ruletemplatesList
+const GUI::ListData ruletemplatesList
 {
-	{ "Bugfix", ruletemplateCompat,
+	{ "Bugfix", ruletemplateFixCompat,
 		"Removes all 'Compat' rules" },
-	{ "ZScript Bugfix", ruletemplateZSCompat,
-		"Remove ZScript compatibility rules" }
+	{ "ZScript Bugfix", ruletemplateFixZSCompat,
+		"Remove ZScript compatibility rules" },
+	{ "New Subscreen", ruletemplateNewSubscreen,
+		"Set a variety of rules for newer engine subscreen functionality." },
+	{ "Old Subscreen", ruletemplateOldSubscreen,
+		"The exact opposite of 'New Subscreen', reverts to old"
+		" engine subscreen functionality." },
 };
 
-PickRuleTemplateDialog::PickRuleTemplateDialog(std::function<void(int32_t)> setRuleTemplate):
+PickRuleTemplateDialog::PickRuleTemplateDialog(std::function<void(int32_t,byte*)> setRuleTemplate):
 	setRuleTemplate(setRuleTemplate)
 {}
 
@@ -86,7 +91,7 @@ bool PickRuleTemplateDialog::handleMessage(const GUI::DialogMessage<message>& ms
 			for(size_t q = 0; q < ruletemplatesList.size(); ++q)
 			{
 				if(templates[q]->getChecked())
-					setRuleTemplate(ruletemplatesList.getValue(q));
+					setRuleTemplate(ruletemplatesList.getValue(q),nullptr);
 			}
 			return true;
 		case message::CANCEL:

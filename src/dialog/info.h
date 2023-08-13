@@ -3,6 +3,7 @@
 
 #include "base/qrs.h"
 #include <gui/dialog.h>
+#include <gui/window.h>
 #include <gui/checkbox.h>
 #include <gui/text_field.h>
 #include <initializer_list>
@@ -17,7 +18,7 @@ void displayinfo(std::string title, std::string text);
 class InfoDialog: public GUI::Dialog<InfoDialog>
 {
 public:
-	enum class message { REFR_INFO, OK, CANCEL, TOGGLE_QR, REFRESH, BTN };
+	enum class message { REFR_INFO, OK, CANCEL, TOGGLE_QR, BTN };
 
 	InfoDialog(std::string title, std::string text);
 	InfoDialog(std::string title, std::vector<std::string_view> lines);
@@ -26,12 +27,17 @@ public:
 	virtual bool handleMessage(const GUI::DialogMessage<message>& msg);
 
 protected:
+	std::shared_ptr<GUI::Window> window;
 	std::string dlgTitle;
 	std::string dlgText;
-	std::set<int> qrs;
+	
+	std::set<int> qrs; //related qrs
+	std::set<int> ruleTemplates; //related rule templates
+	
 	byte local_qrs[QR_SZ];
 	byte* dest_qrs;
 	byte* old_dest_qrs;
+	bool on_templates[sz_ruletemplate] = {false};
 	
 	void postinit();
 };

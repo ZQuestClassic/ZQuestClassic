@@ -2626,8 +2626,7 @@ struct gamedata
 	int32_t  global_d[MAX_SCRIPT_REGISTERS];                                      // script-controlled global variables
 	std::vector< ZCArray <int32_t> > globalRAM;
 	
-	byte awpn, bwpn, xwpn, ywpn;											// Currently selected weapon slots
-	byte awpnpg, bwpnpg, xwpnpg, ywpnpg;
+	word awpn = 255, bwpn = 255, xwpn = 255, ywpn = 255;
 	int16_t abtn_itm = -1, bbtn_itm = -1, xbtn_itm = -1, ybtn_itm = -1;
 	int16_t forced_awpn = -1, forced_bwpn = -1, forced_xwpn = -1, forced_ywpn = -1;
 	bool isclearing; // The gamedata is being cleared
@@ -3036,6 +3035,8 @@ enum controls //Args for 'getInput()'
 #define INT_BTN_EX2 0x20
 #define INT_BTN_EX3 0x40
 #define INT_BTN_EX4 0x80
+#define INT_BTN_X   INT_BTN_EX1
+#define INT_BTN_Y   INT_BTN_EX2
 
 ///////////////
 /// MODULES ///

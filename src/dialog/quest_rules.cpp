@@ -40,6 +40,7 @@ enum
 	rules_misc,
 	rules_nesfix,
 	rules_player,
+	rules_subscr,
 	rules_weapon,
 	rules_zs_script,
 	rules_zs_instruction,
@@ -856,11 +857,6 @@ static GUI::ListData compatRulesList
 		" they will use the Z axis up to 40 pixels away and go higher up than before, but still be hittable when close to the Player."},
 	{ "No Pols Voice/Vire Shadows with Z axis", qr_POLVIRE_NO_SHADOW,
 		"If enabled, Pols Voice and Vires won't have shadows when jumping in the Z axis."},
-	{ "Old Subscreen Selector", qr_SUBSCR_OLD_SELECTOR,
-		"If disabled, the subscreen selector will stretch to fit the item it is selecting." },
-	{ "Old Subscreen Item ID order", qr_SUBSCR_BACKWARDS_ID_ORDER,
-		"If enabled, the subscreen will prioritize lower-ID items when there is a 'Level' tie, instead"
-		" of prioritizing higher-ID items like everything else in the engine." },
 	{ "Decorations -2 yoffset", qr_DECO_2_YOFFSET,
 		"If enabled, all 'decoration' type objects will have a yoffset of '-2' instead of '0'." },
 	{ "Screen->State[] 0x80 bug", qr_SCREENSTATE_80s_BUG,
@@ -923,10 +919,6 @@ static GUI::ListData compatRulesList
 		"If enabled, fairy flags work differently placed vs inherent."},
 	{ "Old Lens Layer Effects", qr_OLD_LENS_LAYEREFFECT,
 		"If enabled, the lens only effects one layer of the screen at maximum, using the old dropdown selection."},
-	{ "Old Engine Subscreen Quirks", qr_OLD_SUBSCR,
-		"If enabled, the subscreen behaves in a way needed for compat."},
-	{ "Item 0 is invisible on buttons", qr_ITM_0_INVIS_ON_BTNS,
-		"If enabled, Item 0 will not be drawn if equipped to a button."},
 };
 
 static GUI::ListData enemiesRulesList
@@ -1119,21 +1111,6 @@ static GUI::ListData itemRulesList
 
 static GUI::ListData miscRulesList
 {
-	{ "Allow Setting A Button Items", qr_SELECTAWPN,
-		"If enabled, you can select what item goes on the A button on the subscreen."
-		" If disabled, the A Button is hardcoded to the highest leveled Sword item"
-		" that you possess, and you are prevented from equipping Sword-class items"
-		" on the B button."},
-	{ "Allow Setting X Button Items", qr_SET_XBUTTON_ITEMS,
-		"If enabled, allows setting items to the X (Ex1) button. If disabled, the"
-		" X/Ex1 button has no usage outside of scripting."},
-	{ "Allow Setting Y Button Items", qr_SET_YBUTTON_ITEMS,
-		"If enabled, allows setting items to the Y (Ex2) button. If disabled, the"
-		" Y/Ex2 button has no usage outside of scripting."},
-	{ "Freeform Subscreen Cursor", qr_FREEFORM_SUBSCREEN_CURSOR,
-		"If enabled, the subscreen cursor can move freely even to empty spots."},
-	{ "Always Press To Equip", qr_SUBSCR_PRESS_TO_EQUIP,
-		"If enabled, you must always press a button to equip an item, even if only B items are enabled."},
 	{ "Messages Can Be Sped Up With The A Button", qr_ALLOWFASTMSG,
 		"If enabled, holding the A button will prevent any message delay from occuring, displaying"
 		" 60 characters per second."},
@@ -1167,9 +1144,6 @@ static GUI::ListData miscRulesList
 	{ "Fast Heart Refill", qr_FASTFILL,
 		"If enabled, potions and fairy rings will restore half a heart every 6 frames while healing."
 		" If disabled, they will restore half a heart every 22 frames."},
-	{ "Enable 1/4 Heart Life Bar", qr_QUARTERHEART,
-		"If enabled, the Life Meter subscreen item will display quarter hearts if the Player"
-		" has that much life. Otherwise, it will only display half and full hearts, rounding up."},
 	{ "Show Time On Subscreen", qr_TIME,
 		"If enabled, current Game Time can be shown on the subscreen. This displays how long you've"
 		" been playing on that save file. Note that having cheats turned on will prevent the Game Time"
@@ -1236,14 +1210,6 @@ static GUI::ListData miscRulesList
 	{ "Screen->Wavy Speed is not affected by Epilepsy Protection", qr_WAVY_NO_EPILEPSY_2,
 		"If enabled, the speed of wavy effects is not halved by epilepsy protection. Epilepsy protection normally halves"
 		" the speed of wavy effects; enabling this will bypass this behavior."},
-	{ "No L/R Inventory Shifting", qr_NO_L_R_BUTTON_INVENTORY_SWAP,
-		"If enabled, L/R item switching is disabled. Normally, you can quickly change what item is selected to the B button"
-		" by pressing L and R to shift the selection left and right. Enabling this disables this behavior, allowing the usage"
-		" of L and R for more scripted purposes."},
-	{ "Ex3 and Ex4 Shift A-Button Items", qr_USE_EX1_EX2_INVENTORYSWAP,
-		"If enabled, Ex3 and Ex4 will shift the item equipped on the A button to whatever item is left or right of it on the"
-		" subscreen, without having to open the subscreen. This is similar to the existing L/R B-Button shifting, but for the"
-		" A button. Disabling this leaves Ex3 and Ex4 open for scripted usage."},
 	{ "Disable Fast Mode (Uncap)", qr_NOFASTMODE,
 		"If enabled, the built in fast-forward key ('~', or Tilde) is prevented from working while the quest is loaded,"
 		" and FPS is forced to be throttled at 60 FPS. Many players fast forward to speed things up, especially during"
@@ -1262,9 +1228,6 @@ static GUI::ListData miscRulesList
 		"If enabled, you cannot scroll the screen while the player is carrying something with a Lift Glove."},
 	{ "Carryables Can't Leave Screen", qr_CARRYABLE_NO_ACROSS_SCREEN,
 		"If enabled, leaving a screen while carrying something with a Lift Glove will delete the carried object."},
-	{ "Higher Maximum Playtime", qr_GREATER_MAX_TIME, 
-		"Bumps up the Max Playtime from 99 hours, 5 minutes, and 54 seconds, to 9000 hours."
-		"Has no downsides, is only here for compatibility sake."},
 	{ "New Dark Rooms", qr_NEW_DARKROOM,
 		"If enabled, Dark Rooms behave less like Z1 and more like LttP/Minish Cap, having light circles around torches and giving a customizeable"
 		" spotlight around the Player. If disabled, Z1-styled dark rooms are used, which only darken the screen until lit up with a candle."},
@@ -1456,6 +1419,54 @@ static GUI::ListData playerRulesList
 		"If enabled, the Player will flicker when invincible or after taking damage instead of flashing colors."}
 };
 
+static GUI::ListData subscrRulesList
+{
+	//Compat stuff first
+	{ "Old Engine Subscreen Quirks", qr_OLD_SUBSCR,
+		"If enabled, the subscreen behaves in a way needed for compat."},
+	{ "Old Subscreen Selector", qr_SUBSCR_OLD_SELECTOR,
+		"If disabled, the subscreen selector will stretch to fit the item it is selecting." },
+	{ "Old Subscreen Item ID order", qr_SUBSCR_BACKWARDS_ID_ORDER,
+		"If enabled, the subscreen will prioritize lower-ID items when there is a 'Level' tie, instead"
+		" of prioritizing higher-ID items like everything else in the engine." },
+	//Then more option-y stuff
+	{ "Item 0 is invisible on buttons", qr_ITM_0_INVIS_ON_BTNS,
+		"If enabled, Item 0 will not be drawn if equipped to a button."},
+	{ "Freeform Subscreen Cursor", qr_FREEFORM_SUBSCREEN_CURSOR,
+		"If enabled, the subscreen cursor can move freely even to empty spots."},
+	{ "Always Press To Equip", qr_SUBSCR_PRESS_TO_EQUIP,
+		"If enabled, you must always press a button to equip an item, even if only B items are enabled."},
+	{ "No Button Verification", qr_NO_BUTTON_VERIFY,
+		"If enabled, the engine won't attempt to forcibly fill empty buttons with items."
+		"\nAlso allows unequipping items by trying to equip it to the same button again."},
+	
+	{ "Allow Setting A Button Items", qr_SELECTAWPN,
+		"If enabled, you can select what item goes on the A button on the subscreen."
+		" If disabled, the A Button is hardcoded to the highest leveled Sword item"
+		" that you possess, and you are prevented from equipping Sword-class items"
+		" on the B button."},
+	{ "Allow Setting X Button Items", qr_SET_XBUTTON_ITEMS,
+		"If enabled, allows setting items to the X (Ex1) button. If disabled, the"
+		" X/Ex1 button has no usage outside of scripting."},
+	{ "Allow Setting Y Button Items", qr_SET_YBUTTON_ITEMS,
+		"If enabled, allows setting items to the Y (Ex2) button. If disabled, the"
+		" Y/Ex2 button has no usage outside of scripting."},
+	{ "Enable 1/4 Heart Life Bar", qr_QUARTERHEART,
+		"If enabled, the Life Meter subscreen widget will display quarter hearts if the Player"
+		" has that much life. Otherwise, it will only display half and full hearts, rounding up."},
+	{ "No L/R Inventory Shifting", qr_NO_L_R_BUTTON_INVENTORY_SWAP,
+		"If enabled, L/R item switching is disabled. Normally, you can quickly change what item is selected to the B button"
+		" by pressing L and R to shift the selection left and right. Enabling this disables this behavior, allowing the usage"
+		" of L and R for more scripted purposes."},
+	{ "Ex3 and Ex4 Shift A-Button Items", qr_USE_EX1_EX2_INVENTORYSWAP,
+		"If enabled, Ex3 and Ex4 will shift the item equipped on the A button to whatever item is left or right of it on the"
+		" subscreen, without having to open the subscreen. This is similar to the existing L/R B-Button shifting, but for the"
+		" A button. Disabling this leaves Ex3 and Ex4 open for scripted usage."},
+	{ "Higher Maximum Playtime", qr_GREATER_MAX_TIME, 
+		"Bumps up the Max Playtime from 99 hours, 5 minutes, and 54 seconds, to 9000 hours."
+		"Has no downsides, is only here for compatibility sake."},
+};
+
 static GUI::ListData weaponsRulesList
 {
 	{ "Prisms Reflect Angular Weapons At Angles", qr_ANGULAR_REFLECTED_WEAPONS,
@@ -1524,11 +1535,12 @@ GUI::ListData const& combinedQRList()
 		miscRulesList.tag(rules_misc);
 		nesfixesRulesList.tag(rules_nesfix);
 		playerRulesList.tag(rules_player);
+		subscrRulesList.tag(rules_subscr);
 		weaponsRulesList.tag(rules_weapon);
 		
 		combinedRulesList = animRulesList + comboRulesList + compatRulesList
 			+ enemiesRulesList + itemRulesList + miscRulesList + nesfixesRulesList
-			+ playerRulesList + weaponsRulesList;
+			+ playerRulesList + subscrRulesList + weaponsRulesList;
 		combinedRulesList.alphabetize();
 		inited_combined_rules = true;
 	}
@@ -1642,11 +1654,12 @@ bool hasCompatRulesEnabled()
 	}
 	return false;
 }
-void applyRuleTemplate(int32_t ruleTemplate)
+void applyRuleTemplate(int32_t ruleTemplate, byte* qrptr)
 {
+	bool inv = false;
 	switch(ruleTemplate)
 	{
-		case ruletemplateCompat:
+		case ruletemplateFixCompat:
 		{
 			for(size_t q = 0; q < compatRulesList.size(); ++q)
 			{
@@ -1657,14 +1670,14 @@ void applyRuleTemplate(int32_t ruleTemplate)
 					case qr_STRING_FRAME_OLD_WIDTH_HEIGHT:
 						continue; //Don't auto-unset, use 'onStrFix()' instead
 				}
-				set_qr(rule, 0);
+				set_qr(rule, 0, qrptr);
 			}
 			onStrFix();
 			break;
 		}
-		case ruletemplateZSCompat:
+		case ruletemplateFixZSCompat:
 		{
-			int32_t zsOnRules[] = {
+			int zsOnRules[] = {
 				qr_PARSER_SHORT_CIRCUIT, qr_PARSER_TRUE_INT_SIZE,
 				qr_ITEMSCRIPTSKEEPRUNNING, qr_CLEARINITDONSCRIPTCHANGE,
 				qr_COMBOSCRIPTS_LAYER_0, qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN,
@@ -1673,7 +1686,7 @@ void applyRuleTemplate(int32_t ruleTemplate)
 				qr_SPRITEXY_IS_FLOAT, qr_WEAPONS_EXTRA_FRAME, qr_FIXSCRIPTSDURINGSCROLLING,
 				qr_ALWAYS_DEALLOCATE_ARRAYS,
 			};
-			int32_t zsOffRules[] = {
+			int zsOffRules[] = {
 				qr_PARSER_250DIVISION, qr_PARSER_NO_LOGGING, qr_PARSER_BOOL_TRUE_DECIMAL,
 				qr_PARSER_BINARY_32BIT,
 				qr_OLD_INIT_SCRIPT_TIMING, qr_NOITEMWAITDRAW, qr_NOFFCWAITDRAW,
@@ -1684,19 +1697,36 @@ void applyRuleTemplate(int32_t ruleTemplate)
 				qr_OLDQUESTMISC, qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS,
 				qr_BROKEN_GETPIXEL_VALUE, qr_ZS_NO_NEG_ARRAY,
 			};
-			for(int32_t qr : zsOnRules)
-			{
-				set_qr(qr, 1);
-			}
-			for(int32_t qr : zsOffRules)
-			{
-				set_qr(qr, 0);
-			}
+			for(int qr : zsOnRules)
+				set_qr(qr, 1, qrptr);
+			for(int qr : zsOffRules)
+				set_qr(qr, 0, qrptr);
+			break;
+		}
+		case ruletemplateOldSubscreen:
+			inv = true;
+			[[fallthrough]];
+		case ruletemplateNewSubscreen:
+		{
+			int subscr_rules_off[] = {
+				qr_OLD_SUBSCR, qr_ITM_0_INVIS_ON_BTNS,
+				qr_SUBSCR_OLD_SELECTOR, qr_SUBSCR_BACKWARDS_ID_ORDER,
+			};
+			int subscr_rules_on[] = {
+				qr_SUBSCR_PRESS_TO_EQUIP, qr_FREEFORM_SUBSCREEN_CURSOR,
+				qr_NO_BUTTON_VERIFY,
+			};
+			//'inv' inverts the selection, to reverse to the old subscreen setup.
+			for(int qr : subscr_rules_off)
+				set_qr(qr,inv?1:0, qrptr);
+			for(int qr : subscr_rules_on)
+				set_qr(qr,inv?0:1, qrptr);
 			break;
 		}
 		default: return;
 	}
-	saved = false;
+	if(qrptr == quest_rules)
+		saved = false;
 }
 
 void QRDialog::reloadQRs()
@@ -1960,6 +1990,16 @@ std::shared_ptr<GUI::Widget> QRDialog::view()
 							initializer = local_qrs,
 							count = qrs_per_tab,
 							data = playerRulesList
+						)
+					),
+					TabRef(
+						name = "Subscreen",
+						QRPanel(
+							padding = 3_px,
+							onToggle = message::TOGGLE_QR,
+							initializer = local_qrs,
+							count = qrs_per_tab,
+							data = subscrRulesList
 						)
 					),
 					TabRef(

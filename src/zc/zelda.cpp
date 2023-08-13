@@ -1122,7 +1122,7 @@ bool blockmoving;
 movingblock mblock2;                                        //mblock[4]?
 portal mirror_portal;
 
-sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations, portals;
+sprite_list  guys, items, Ewpns, Lwpns, chainlinks, decorations, portals;
 particle_list particles;
 
 #include "zc/zc_custom.h"
@@ -2127,13 +2127,19 @@ int32_t init_game()
 	
 	if(firstplay)
 	{
-		int wval = get_qr(qr_OLD_SUBSCR) ? -1 : 0;
-		game->awpn=game->bwpn=game->ywpn=game->xwpn=wval;
-		game->awpnpg=game->bwpnpg=game->ywpnpg=game->xwpnpg=0;
-		game->forced_awpn = -1; 
-		game->forced_bwpn = -1;  
-		game->forced_xwpn = -1; 
-		game->forced_ywpn = -1;	
+		if(!get_qr(qr_OLD_SUBSCR) && new_subscreen_active)
+		{
+			game->awpn = new_subscreen_active->def_btns[0];
+			game->bwpn = new_subscreen_active->def_btns[1];
+			game->xwpn = new_subscreen_active->def_btns[2];
+			game->ywpn = new_subscreen_active->def_btns[3];
+		}
+		else
+		{
+			game->awpn=game->bwpn=game->ywpn=game->xwpn=255;
+		}
+		game->forced_awpn = game->forced_bwpn =
+			game->forced_xwpn = game->forced_ywpn = -1;
 	}
 		
 	update_subscreens();
@@ -2143,7 +2149,7 @@ int32_t init_game()
 	//load the previous weapons -DD	
 	
 	bool usesaved = (game->get_quest() == 0xFF); //What was wrong with firstplay?
-	int32_t apos = -1, bpos = -1, xpos = -1, ypos = -1;
+	int32_t apos = 0xFF, bpos = 0xFF, xpos = 0xFF, ypos = 0xFF;
 	
 	//Setup button items
 	{
@@ -2156,48 +2162,39 @@ int32_t init_game()
 				if(!get_qr(qr_SELECTAWPN))
 				{
 					Awpn = selectSword();
-					bpos = pg.move_legacy(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF);
+					bpos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF);
 					if(use_x)
-						xpos = pg.move_legacy(SEL_VERIFY_RIGHT, usesaved ? game->xwpn : 0xFF, bpos);
+						xpos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->xwpn : 0xFF, bpos);
 					if(use_y)
-						ypos = pg.move_legacy(SEL_VERIFY_RIGHT, usesaved ? game->ywpn : 0xFF, bpos, xpos);
+						ypos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->ywpn : 0xFF, bpos, xpos);
 					directItem = -1;
 					directItemA = -1; 
 				}
 				else
 				{
-					apos = pg.move_legacy(SEL_VERIFY_RIGHT, usesaved ? game->awpn : 0xFF);
-					bpos = pg.move_legacy(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, apos);
+					apos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->awpn : 0xFF);
+					bpos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, apos);
 					if(use_x)
-						xpos = pg.move_legacy(SEL_VERIFY_RIGHT, usesaved ? game->xwpn : 0xFF, apos, bpos);
+						xpos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->xwpn : 0xFF, apos, bpos);
 					if(use_y)
-						ypos = pg.move_legacy(SEL_VERIFY_RIGHT, usesaved ? game->ywpn : 0xFF, apos, bpos, xpos);
+						ypos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->ywpn : 0xFF, apos, bpos, xpos);
 					
-					if(bpos==0xFF)
-						bpos=-1;
-					if(apos==0xFF)
-						apos=-1;
-					if(xpos==0xFF)
-						xpos=-1;
-					if(ypos==0xFF)
-						ypos=-1;
-					
-					Awpn = pg.get_item_pos(apos);
+					Awpn = pg.get_item_pos(apos>>8);
 					directItemA = NEG_OR_MASK(Awpn,0xFF);
 				}
 
 				game->awpn = apos;
 				
 				game->bwpn = bpos;
-				Bwpn = pg.get_item_pos(bpos);
+				Bwpn = pg.get_item_pos(bpos>>8);
 				directItemB = NEG_OR_MASK(Bwpn,0xFF);
 				
 				game->xwpn = xpos;
-				Xwpn = pg.get_item_pos(xpos);
+				Xwpn = pg.get_item_pos(xpos>>8);
 				directItemX = NEG_OR_MASK(Xwpn,0xFF);
 				
 				game->ywpn = ypos;
-				Ywpn = pg.get_item_pos(ypos);
+				Ywpn = pg.get_item_pos(ypos>>8);
 				directItemY = NEG_OR_MASK(Ywpn,0xFF);
 				
 				update_subscr_items();
@@ -2209,28 +2206,28 @@ int32_t init_game()
 				if(!get_qr(qr_SELECTAWPN))
 				{
 					Awpn = selectSword();
-					apos = -1;
-					bpos = pg.move_legacy(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, -1);
+					apos = 0xFF;
+					bpos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF);
 					directItemA = directItem = -1; 
 				}
 				else
 				{
-					apos = pg.move_legacy(SEL_VERIFY_RIGHT, usesaved ? game->awpn : 0xFF);
-					bpos = pg.move_legacy(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, apos);
+					apos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->awpn : 0xFF);
+					bpos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, apos);
 					
 					if(bpos==0xFF)
 					{
 						bpos=apos;
-						apos=-1;
+						apos=0xFF;
 					}
 					
-					Awpn = pg.get_item_pos(apos);
+					Awpn = pg.get_item_pos(apos>>8);
 					directItemA = NEG_OR_MASK(Awpn,0xFF);
 				}
 
 				game->awpn = apos;
 				game->bwpn = bpos;
-				Bwpn = pg.get_item_pos(bpos);
+				Bwpn = pg.get_item_pos(bpos>>8);
 				directItemB = NEG_OR_MASK(Bwpn,0xFF);
 				update_subscr_items();
 
@@ -2239,17 +2236,14 @@ int32_t init_game()
 		}
 		else if(new_subscreen_active)
 		{
-			if(get_qr(qr_SELECTAWPN))
-			{
-				Awpn = new_subscreen_active->get_item_pos(game->awpn,game->awpnpg);
-				directItemA = NEG_OR_MASK(Awpn,0xFF);
-			}
-			else selectSword();
-			Bwpn = new_subscreen_active->get_item_pos(game->bwpn,game->bwpnpg);
+			Awpn = get_qr(qr_SELECTAWPN) ? new_subscreen_active->get_item_pos(game->awpn)
+				: selectSword();
+			directItemA = NEG_OR_MASK(Awpn,0xFF);
+			Bwpn = new_subscreen_active->get_item_pos(game->bwpn);
 			directItemB = NEG_OR_MASK(Bwpn,0xFF);
-			Xwpn = new_subscreen_active->get_item_pos(game->xwpn,game->xwpnpg);
+			Xwpn = new_subscreen_active->get_item_pos(game->xwpn);
 			directItemX = NEG_OR_MASK(Xwpn,0xFF);
-			Ywpn = new_subscreen_active->get_item_pos(game->ywpn,game->ywpnpg);
+			Ywpn = new_subscreen_active->get_item_pos(game->ywpn);
 			directItemY = NEG_OR_MASK(Ywpn,0xFF);
 		}
 	}
@@ -5600,9 +5594,6 @@ void delete_everything_else() //blarg.
 {
     delete_combo_aliases();
     reset_subscr_items();
-    delete_selectors();
-    Sitems.clear();
-    
 }
 
 void quit_game()

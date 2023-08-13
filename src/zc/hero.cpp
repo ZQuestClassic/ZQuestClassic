@@ -10138,48 +10138,57 @@ void HeroClass::solid_push(solid_object* obj)
 	obj->setTempNonsolid(t);
 }
 
+#define COND_AWPN (get_qr(qr_SELECTAWPN) ? game->awpn : 255)
+#define COND_BWPN (game->bwpn)
+#define COND_XWPN (get_qr(qr_SET_XBUTTON_ITEMS) ? game->xwpn : 255)
+#define COND_YWPN (get_qr(qr_SET_YBUTTON_ITEMS) ? game->ywpn : 255)
+//Helper function
+static void deselectbombsWPN(word& wpos, int32_t& BTNwpn, int32_t& directItemBTN,
+	word f1 = 255, word f2 = 255, word f3 = 255)
+{
+	byte pgn = wpos&0xFF, pos = wpos>>8;
+	bool empty = pgn==255;
+	if(empty && get_qr(qr_NO_BUTTON_VERIFY)) return; //intentional nothingness
+	SubscrPage* pg = new_subscreen_active->get_page(pgn==255?new_subscreen_active->curpage:pgn);
+	if(!pg)
+	{
+		wpos = 255; //set to nothingness
+		return;
+	}
+	
+	auto temp = pg->movepos_legacy(SEL_VERIFY_LEFT, wpos, f1, f2, f3);
+	BTNwpn = pg->get_item_pos(temp>>8);
+	directItemBTN = NEG_OR_MASK(BTNwpn,0xFFF);
+	wpos = temp;
+}
 // A routine used exclusively by startwpn,
 // to switch Hero's weapon if his current weapon (bombs) was depleted.
 void HeroClass::deselectbombs(int32_t super)
 {
     if ( get_qr(qr_NEVERDISABLEAMMOONSUBSCREEN) || itemsbuf[game->forced_awpn].family == itype_bomb || itemsbuf[game->forced_bwpn].family == itype_bomb || itemsbuf[game->forced_xwpn].family == itype_bomb || itemsbuf[game->forced_ywpn].family == itype_bomb) return;
-    SubscrPage* pg = nullptr;
-	if(getItemFamily(itemsbuf,Bwpn)==(super? itype_sbomb : itype_bomb) && (directWpn<0 || Bwpn==directWpn))
+    if(getItemFamily(itemsbuf,Bwpn)==(super? itype_sbomb : itype_bomb) && (directWpn<0 || Bwpn==directWpn))
     {
-		if(!new_subscreen_active || !(pg = new_subscreen_active->get_page(game->bwpnpg)))
+		if(!new_subscreen_active)
 			return;
-        int32_t temp = pg->move_legacy(SEL_VERIFY_LEFT, game->bwpn, game->awpn, get_qr(qr_SET_XBUTTON_ITEMS) ? game->xwpn : -1, get_qr(qr_SET_YBUTTON_ITEMS) ? game->ywpn : -1);
-        Bwpn = pg->get_item_pos(temp);
-        directItemB = NEG_OR_MASK(Bwpn,0xFFF);
-        game->bwpn = temp;
+		deselectbombsWPN(game->bwpn, Bwpn, directItemB, COND_AWPN, COND_XWPN, COND_YWPN);
     }
-    
     else if (getItemFamily(itemsbuf,Xwpn)==(super? itype_sbomb : itype_bomb) && (directWpn<0 || Xwpn==directWpn))
     {
-		if(!new_subscreen_active || !(pg = new_subscreen_active->get_page(game->xwpnpg)))
+		if(!new_subscreen_active)
 			return;
-        int32_t temp = pg->move_legacy(SEL_VERIFY_LEFT, game->xwpn, game->bwpn, game->awpn, get_qr(qr_SET_YBUTTON_ITEMS) ? game->ywpn : -1);
-        Xwpn = pg->get_item_pos(temp);
-        directItemX = NEG_OR_MASK(Xwpn,0xFFF);
-        game->xwpn = temp;
+        deselectbombsWPN(game->xwpn, Xwpn, directItemX, COND_AWPN, COND_BWPN, COND_YWPN);
     }
     else if (getItemFamily(itemsbuf,Ywpn)==(super? itype_sbomb : itype_bomb) && (directWpn<0 || Ywpn==directWpn))
     {
-		if(!new_subscreen_active || !(pg = new_subscreen_active->get_page(game->ywpnpg)))
+		if(!new_subscreen_active)
 			return;
-        int32_t temp = pg->move_legacy(SEL_VERIFY_LEFT, game->ywpn, game->bwpn, get_qr(qr_SET_XBUTTON_ITEMS) ? game->xwpn : -1, game->awpn);
-        Ywpn = pg->get_item_pos(temp);
-        directItemY = NEG_OR_MASK(Ywpn,0xFFF);
-        game->ywpn = temp;
+        deselectbombsWPN(game->ywpn, Ywpn, directItemY, COND_AWPN, COND_XWPN, COND_BWPN);
     }
     else
     {
-		if(!new_subscreen_active || !(pg = new_subscreen_active->get_page(game->awpnpg)))
+		if(!new_subscreen_active)
 			return;
-        int32_t temp = pg->move_legacy(SEL_VERIFY_LEFT, game->awpn, game->bwpn, get_qr(qr_SET_XBUTTON_ITEMS) ? game->xwpn : -1, get_qr(qr_SET_YBUTTON_ITEMS) ? game->ywpn : -1);
-        Awpn = pg->get_item_pos(temp);
-        directItemA = NEG_OR_MASK(Awpn,0xFFF);
-        game->awpn = temp;
+        deselectbombsWPN(game->awpn, Awpn, directItemA, COND_BWPN, COND_XWPN, COND_YWPN);
     }
 }
 
@@ -28479,32 +28488,35 @@ bool isItmPressed(int32_t itmid)
     return false;
 }
 
+//helper function
+static void selectNextBTNWpn(int32_t type, word& wpos, int32_t& BTNwpn,
+	int32_t& directItemBTN, word f1 = 255, word f2 = 255, word f3 = 255)
+{
+	if(!new_subscreen_active)
+		return;
+	byte pgn = wpos&0xFF, pos = wpos>>8;
+	bool empty = pgn==255;
+	if(empty && get_qr(qr_NO_BUTTON_VERIFY)) return; //intentional nothingness
+	SubscrPage* pg = new_subscreen_active->get_page(pgn==255?new_subscreen_active->curpage:pgn);
+	if(!pg)
+		return;
+    auto ret = pg->movepos_legacy(type, wpos, f1, f2, f3);
+    BTNwpn = pg->get_item_pos(ret>>8);
+    directItemBTN = NEG_OR_MASK(BTNwpn,0xFFF);
+    wpos = ret;
+}
 void selectNextAWpn(int32_t type)
 {
     if(!get_qr(qr_SELECTAWPN))
         return;
-	if(!new_subscreen_active)
-		return;
-	SubscrPage* pg = new_subscreen_active->get_page(game->awpnpg);
-	if(!pg)
-		return;
-    int32_t ret = pg->move_legacy(type, game->awpn, game->bwpn, get_qr(qr_SET_XBUTTON_ITEMS) ? game->xwpn : -1, get_qr(qr_SET_YBUTTON_ITEMS) ? game->ywpn : -1);
-    Awpn = pg->get_item_pos(ret);
-    directItemA = NEG_OR_MASK(Awpn,0xFFF);
-    game->awpn = ret;
+	selectNextBTNWpn(type, game->awpn, Awpn, directItemA, COND_BWPN, COND_XWPN, COND_YWPN);
 }
 
 void selectNextBWpn(int32_t type)
 {
 	if(!new_subscreen_active)
 		return;
-	SubscrPage* pg = new_subscreen_active->get_page(game->bwpnpg);
-	if(!pg)
-		return;
-	int32_t ret = pg->move_legacy(type, game->bwpn, game->awpn, get_qr(qr_SET_XBUTTON_ITEMS) ? game->xwpn : -1, get_qr(qr_SET_YBUTTON_ITEMS) ? game->ywpn : -1);
-	Bwpn = pg->get_item_pos(ret);
-	directItemB = NEG_OR_MASK(Bwpn,0xFFF);
-	game->bwpn = ret;
+	selectNextBTNWpn(type, game->bwpn, Bwpn, directItemB, COND_AWPN, COND_XWPN, COND_YWPN);
 }
 
 void selectNextXWpn(int32_t type)
@@ -28512,13 +28524,7 @@ void selectNextXWpn(int32_t type)
 	if(!get_qr(qr_SET_XBUTTON_ITEMS)) return;
 	if(!new_subscreen_active)
 		return;
-	SubscrPage* pg = new_subscreen_active->get_page(game->xwpnpg);
-	if(!pg)
-		return;
-	int32_t ret = pg->move_legacy(type, game->xwpn, game->awpn, game->bwpn, get_qr(qr_SET_YBUTTON_ITEMS) ? game->ywpn : -1);
-	Xwpn = pg->get_item_pos(ret);
-	directItemX = NEG_OR_MASK(Xwpn,0xFFF);
-	game->xwpn = ret;
+	selectNextBTNWpn(type, game->xwpn, Xwpn, directItemX, COND_BWPN, COND_AWPN, COND_YWPN);
 }
 
 void selectNextYWpn(int32_t type)
@@ -28526,13 +28532,26 @@ void selectNextYWpn(int32_t type)
 	if(!get_qr(qr_SET_YBUTTON_ITEMS)) return;
 	if(!new_subscreen_active)
 		return;
-	SubscrPage* pg = new_subscreen_active->get_page(game->ywpnpg);
+	selectNextBTNWpn(type, game->ywpn, Ywpn, directItemY, COND_BWPN, COND_XWPN, COND_AWPN);
+}
+
+//helper function
+static void verifyWpn(word& wpos, int32_t& BTNwpn, int32_t& directItemBTN, word f1 = 255, word f2 = 255, word f3 = 255)
+{
+	if(!new_subscreen_active)
+		return;
+	byte pgn = wpos&0xFF, pos = wpos>>8;
+	bool empty = pgn==255;
+	if(empty && get_qr(qr_NO_BUTTON_VERIFY)) return; //intentional nothingness
+	SubscrPage* pg = new_subscreen_active->get_page(pgn==255?new_subscreen_active->curpage:pgn);
 	if(!pg)
 		return;
-	int32_t ret = pg->move_legacy(type, game->ywpn, game->awpn, game->bwpn, get_qr(qr_SET_XBUTTON_ITEMS) ? game->xwpn : -1);
-	Ywpn = pg->get_item_pos(ret);
-	directItemY = NEG_OR_MASK(Ywpn,0xFFF);
-	game->ywpn = ret;
+	auto fp1 = ((f1&0xFF)==255) ? 255 : ((empty || (f1&0xFF)==(wpos&0xFF)) ? f1>>8 : 255);
+	auto fp2 = ((f2&0xFF)==255) ? 255 : ((empty || (f2&0xFF)==(wpos&0xFF)) ? f2>>8 : 255);
+	auto fp3 = ((f3&0xFF)==255) ? 255 : ((empty || (f3&0xFF)==(wpos&0xFF)) ? f3>>8 : 255);
+	wpos = pg->movepos_legacy(SEL_VERIFY_RIGHT, wpos, fp1, fp2, fp3);
+	BTNwpn = pg->get_item_pos(wpos>>8);
+	directItemBTN = NEG_OR_MASK(BTNwpn,0xFFF);
 }
 
 void verifyAWpn()
@@ -28542,18 +28561,11 @@ void verifyAWpn()
     if(!get_qr(qr_SELECTAWPN))
     {
         Awpn = selectSword();
-        game->awpn = 0xFF;
+        game->awpn = 255;
     }
     else
     {
-		if(!new_subscreen_active)
-			return;
-		SubscrPage* pg = new_subscreen_active->get_page(game->awpnpg);
-		if(!pg)
-			return;
-        game->awpn = pg->move_legacy(SEL_VERIFY_RIGHT, game->awpn, game->bwpn, game->xwpn, game->ywpn);
-        Awpn = pg->get_item_pos(game->awpn);
-        directItemA = NEG_OR_MASK(Awpn,0xFFF);
+		verifyWpn(game->awpn, Awpn, directItemA, COND_BWPN, COND_XWPN, COND_YWPN);
     }
 }
 
@@ -28561,46 +28573,25 @@ void verifyBWpn()
 {
 	if (game->forced_bwpn != -1)
 		return;
-	if(!new_subscreen_active)
-		return;
-	SubscrPage* pg = new_subscreen_active->get_page(game->bwpnpg);
-	if(!pg)
-		return;
-    game->bwpn = pg->move_legacy(SEL_VERIFY_RIGHT, game->bwpn, game->awpn, game->xwpn, game->ywpn);
-    Bwpn = pg->get_item_pos(game->bwpn);
-    directItemB = NEG_OR_MASK(Bwpn,0xFFF);
+	verifyWpn(game->bwpn, Bwpn, directItemB, COND_AWPN, COND_XWPN, COND_YWPN);
 }
 
 void verifyXWpn()
 {
 	if (game->forced_xwpn != -1)
 		return;
-	if(!new_subscreen_active)
+	if(!get_qr(qr_SET_XBUTTON_ITEMS))
 		return;
-	SubscrPage* pg = new_subscreen_active->get_page(game->xwpnpg);
-	if(!pg)
-		return;
-	if(get_qr(qr_SET_XBUTTON_ITEMS))
-		game->xwpn = pg->move_legacy(SEL_VERIFY_RIGHT, game->xwpn, game->awpn, game->bwpn, game->ywpn);
-	else game->xwpn = -1;
-    Xwpn = pg->get_item_pos(game->xwpn);
-    directItemX = NEG_OR_MASK(Xwpn,0xFFF);
+	verifyWpn(game->xwpn, Xwpn, directItemX, COND_BWPN, COND_AWPN, COND_YWPN);
 }
 
 void verifyYWpn()
 {
 	if (game->forced_ywpn != -1)
 		return;
-	if(!new_subscreen_active)
+	if(!get_qr(qr_SET_YBUTTON_ITEMS))
 		return;
-	SubscrPage* pg = new_subscreen_active->get_page(game->ywpnpg);
-	if(!pg)
-		return;
-	if(get_qr(qr_SET_YBUTTON_ITEMS))
-		game->ywpn = pg->move_legacy(SEL_VERIFY_RIGHT, game->ywpn, game->awpn, game->xwpn, game->bwpn);
-	else game->ywpn = -1;
-    Ywpn = pg->get_item_pos(game->ywpn);
-    directItemY = NEG_OR_MASK(Ywpn,0xFFF);
+	verifyWpn(game->ywpn, Ywpn, directItemY, COND_BWPN, COND_XWPN, COND_AWPN);
 }
 
 void verifyBothWeapons()
@@ -29902,7 +29893,6 @@ void HeroClass::getTriforce(int32_t id2)
 	items.clear();
 	Ewpns.clear();
 	Lwpns.clear();
-	Sitems.clear();
 	chainlinks.clear();
     
 	//decorations.clear();
@@ -30358,7 +30348,6 @@ void HeroClass::heroDeathAnimation()
 				items.clear();
 				Ewpns.clear();
 				Lwpns.clear();
-				Sitems.clear();
 				chainlinks.clear();
 				decorations.clear();
 				Playing = false;
