@@ -77,7 +77,7 @@ extern byte monochrome_console;
 extern HeroClass Hero;
 extern ZModule zcm;
 extern zcmodule moduledata;
-extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
+extern sprite_list  guys, items, Ewpns, Lwpns, chainlinks, decorations;
 extern particle_list particles;
 extern int32_t loadlast;
 extern char *sfx_string[WAV_COUNT];

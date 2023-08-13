@@ -36,7 +36,7 @@
 #include <vector>
 
 extern movingblock mblock2;                                 //mblock[4]?
-extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations, portals;
+extern sprite_list  guys, items, Ewpns, Lwpns, chainlinks, decorations, portals;
 
 extern byte lsteps[8];
 
@@ -649,8 +649,6 @@ int32_t lwpn_dp(int32_t index);
 bool checkbunny(int32_t itemid);
 bool usesSwordJinx(int32_t itemid);
 bool checkitem_jinx(int32_t itemid);
-bool checkmagiccost(int32_t itemid, bool checkTime = false);
-void paymagiccost(int32_t itemid, bool ignoreTimer = false, bool onlyTimer = false);
 void stopCaneOfByrna();
 //void selectWpn(int32_t xstep, int32_t ystep, bool b);
 bool isWpnPressed(int32_t wpn);

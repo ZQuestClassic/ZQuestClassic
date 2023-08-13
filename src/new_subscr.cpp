@@ -1196,26 +1196,31 @@ void SW_ButtonItem::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& p
 	int nullval = get_qr(qr_ITM_0_INVIS_ON_BTNS) ? 0 : -1;
 	int ids[] = {Awpn,Bwpn,Xwpn,Ywpn};
 	
-	if(ids[btn] > nullval)
+	if(replay_version_check(19) && btnitem_ids[btn] != ids[btn])
+	{
+		btnitem_ids[btn] = ids[btn];
+		btnitem_clks[btn] = 0;
+	}
+	if(btnitem_ids[btn] > nullval)
 	{
 		bool dodraw = true;
-		switch(itemsbuf[ids[btn]].family)
+		switch(itemsbuf[btnitem_ids[btn]].family)
 		{
 			case itype_arrow:
-				if(ids[btn]&0xF000)
+				if(btnitem_ids[btn]&0xF000)
 				{
 					int bow = current_item_id(itype_bow);
 					if(bow>-1)
 					{
 						putitem3(dest,x,y,bow,subscr_item_clk);
 						if(!get_qr(qr_NEVERDISABLEAMMOONSUBSCREEN)
-							&& !checkmagiccost(ids[btn]&0xFF))
+							&& !checkmagiccost(btnitem_ids[btn]&0xFF))
 							dodraw = false;
 					}
 				}
 				break;
 		}
-		putitem3(dest,x,y,ids[btn]&0xFF,btnitem_clks[btn]);
+		putitem3(dest,x,y,btnitem_ids[btn]&0xFF,btnitem_clks[btn]);
 	}
 	
 	if(flags&SUBSCR_BTNITM_TRANSP)
@@ -3515,7 +3520,7 @@ int32_t SubscrPage::movepos_legacy(int dir, word startp, word fp, word fp2, word
 		item_only = !get_qr(qr_NO_BUTTON_VERIFY);
 		if(start_empty && !item_only)
 			return startp; //empty is valid
-		if(startp != fp && startp != fp2 && startp != fp3)
+		if(!start_empty && startp != fp && startp != fp2 && startp != fp3)
 			if(SubscrWidget* widg = get_widg_pos(startp>>8,item_only))
 				if(widg->getType() == widgITEMSLOT
 					&& !(widg->flags&SUBSCR_CURITM_NONEQP)
