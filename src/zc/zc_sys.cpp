@@ -76,7 +76,6 @@ int32_t d_midilist_proc(int32_t msg,DIALOG *d,int32_t c);
 extern byte monochrome_console;
 
 extern HeroClass Hero;
-extern FFScript FFCore;
 extern ZModule zcm;
 extern zcmodule moduledata;
 extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;

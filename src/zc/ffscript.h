@@ -991,7 +991,7 @@ void runF6Engine();
 void runOnDeathEngine();
 void runOnLaunchEngine();
 void runGenericPassiveEngine(int32_t scrtm);
-bool runGenericFrozenEngine(const word script);
+bool runGenericFrozenEngine(const word script, const int32_t* init_data = nullptr);
 bool runActiveSubscreenScriptEngine();
 bool runOnMapScriptEngine();
 void doScriptMenuDraws();

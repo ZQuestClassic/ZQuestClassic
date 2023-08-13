@@ -9,6 +9,8 @@
 #include "gui/common.h"
 #include "base/misctypes.h"
 
+extern script_data *genericscripts[NUMSCRIPTSGENERIC];
+
 static bool dlg_retval = false;
 bool call_subscrprop_dialog(SubscrWidget* widg, int32_t obj_ind)
 {
@@ -24,7 +26,8 @@ SubscrPropDialog::SubscrPropDialog(SubscrWidget* widg, int32_t obj_ind) :
 	list_buttons(GUI::ZCListData::buttons()),
 	list_items(GUI::ZCListData::items(true)),
 	list_counters(GUI::ZCListData::ss_counters()),
-	list_itemclass(GUI::ZCListData::itemclass(true))
+	list_itemclass(GUI::ZCListData::itemclass(true)),
+	list_genscr(GUI::ZCListData::generic_script())
 {}
 
 static const GUI::ListData two_three_rows
@@ -207,6 +210,34 @@ char* repl_escchar(char* buf, char const* ptr, bool compact)
 	}
 }
 
+#define INITD_LAB_WIDTH 12_em
+std::shared_ptr<GUI::Widget> SubscrPropDialog::GEN_INITD(int ind)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
+	std::string lbl = local_gen_meta.initd[ind];
+	if(lbl.empty())
+		lbl = "InitD["+std::to_string(ind)+"]:";
+	return Row(padding = 0_px, hAlign = 1.0,
+		geninitd_lbl[ind] = Label(minwidth = INITD_LAB_WIDTH, text = lbl, textAlign = 2),
+		geninitd_btn[ind] = Button(forceFitH = true, text = "?",
+			hPadding = 0_px,
+			disabled = local_gen_meta.initd_help[ind].empty(),
+			onPressFunc = [&, ind]()
+			{
+				InfoDialog("InitD Info",local_gen_meta.initd_help[ind]).show();
+			}),
+		TextField(
+			fitParent = true, minwidth = 8_em,
+			type = GUI::TextField::type::SWAP_ZSINT2,
+			val = local_subref->generic_initd[ind], swap_type = local_gen_meta.initd_type[ind],
+			onValChangedFunc = [&, ind](GUI::TextField::type,std::string_view,int32_t val)
+			{
+				local_subref->generic_initd[ind] = val;
+			})
+	);
+}
+
 static size_t sprop_tab = 0;
 static char tbuf[1025] = {0};
 std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
@@ -215,29 +246,6 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 	using namespace GUI::Props;
 	char titlebuf[512];
 	sprintf(titlebuf, "%s Properties (Object #%d)", sso_name(local_subref->getType()), index);
-	//Generate the basic window, with a reference to the row
-	std::shared_ptr<GUI::Grid> windowRow;
-	window = Window(
-		title = titlebuf,
-		onClose = message::CANCEL,
-		hPadding = 0_px, 
-		Column(
-			windowRow = Row(padding = 0_px),
-			Row(
-				Button(
-					text = "&OK",
-					topPadding = 0.5_em,
-					minwidth = 90_px,
-					onClick = message::OK,
-					focused = true),
-				Button(
-					text = "&Cancel",
-					topPadding = 0.5_em,
-					minwidth = 90_px,
-					onClick = message::CANCEL)
-			)
-		)
-	);
 	
 	std::shared_ptr<GUI::Grid> loc_grid;
 	//Generate 'location' grid
@@ -303,25 +311,6 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 						)
 					),
 					g1 = Rows<2>()
-				),
-				Rows<3>(
-					CBOX(local_subref->flags,SUBSCRFLAG_SELECTABLE,"Cursor Selectable",3),
-					//
-					Label(text = "Position:", hAlign = 1.0),
-					NUM_FIELD(local_subref->pos, -9999, 9999),
-					INFOBTN("The unique position ID of this slot"),
-					Label(text = "Up Select:", hAlign = 1.0),
-					NUM_FIELD(local_subref->pos_up, -9999, 9999),
-					INFOBTN("The unique position ID to move to when pressing 'Up'"),
-					Label(text = "Down Select:", hAlign = 1.0),
-					NUM_FIELD(local_subref->pos_down, -9999, 9999),
-					INFOBTN("The unique position ID to move to when pressing 'Down'"),
-					Label(text = "Left Select:", hAlign = 1.0),
-					NUM_FIELD(local_subref->pos_left, -9999, 9999),
-					INFOBTN("The unique position ID to move to when pressing 'Left' / 'L' quickswap"),
-					Label(text = "Right Select:", hAlign = 1.0),
-					NUM_FIELD(local_subref->pos_right, -9999, 9999),
-					INFOBTN("The unique position ID to move to when pressing 'Right' / 'R' quickswap")
 				)
 			);
 		if(show_xy)
@@ -1124,47 +1113,166 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			default: attrib_grid = Column(Label(text = "ERROR")); break;
 		}
 	}
+	
+	std::shared_ptr<GUI::Grid> g;
+	std::shared_ptr<GUI::TabPanel> tpan = TabPanel(ptr = &sprop_tab);
 	switch(mergetype)
 	{
 		default:
 		case mtNONE: //3 in horz row
 		{
-			windowRow->add(Frame(title = "Location", fitParent = true, loc_grid));
+			tpan->add(TabRef(name = "Basic", g = Rows<2>(padding = 0_px)));
+			g->add(Frame(title = "Location", fitParent = true, loc_grid));
 			if(addcolor)
-				windowRow->add(Frame(title = "Color", fitParent = true, col_grid));
+				g->add(Frame(title = "Color", fitParent = true, col_grid));
 			if(addattrib)
-				windowRow->add(Frame(title = "Attributes", fitParent = true, attrib_grid));
+				g->add(Frame(title = "Attributes", fitParent = true, attrib_grid));
 			break;
 		}
 		case mtFORCE_TAB: //3 separate tabs
 		{
-			std::shared_ptr<GUI::TabPanel> tp;
-			windowRow->add(
-				tp = TabPanel(
-					ptr = &sprop_tab
-				));
-			tp->add(TabRef(name = "Location", loc_grid));
-			if(addcolor) tp->add(TabRef(name = "Color", col_grid));
-			if(addattrib) tp->add(TabRef(name = "Attributes", attrib_grid));
+			tpan->add(TabRef(name = "Location", loc_grid));
+			if(addcolor) tpan->add(TabRef(name = "Color", col_grid));
+			if(addattrib) tpan->add(TabRef(name = "Attributes", attrib_grid));
 			break;
 		}
 		case mtLOCTOP:
 		{
+			tpan->add(TabRef(name = "Basic", g = Row(padding = 0_px)));
 			if(addcolor)
 			{
-				windowRow->add(Column(padding = 0_px,
+				g->add(Column(padding = 0_px,
 					Frame(title = "Location", fitParent = true, loc_grid),
 					Frame(title = "Color", fitParent = true, col_grid)));
 			}
-			else windowRow->add(Frame(title = "Location", fitParent = true, loc_grid));
+			else g->add(Frame(title = "Location", fitParent = true, loc_grid));
 			if(addattrib)
-				windowRow->add(Frame(title = "Attributes", fitParent = true, attrib_grid));
+				g->add(Frame(title = "Attributes", fitParent = true, attrib_grid));
 			break;
 		}
 	}
+	tpan->add(TabRef(name = "Selection", Rows<2>(
+			Frame(title = "Cursor Selectable", info = "If the subscreen cursor can select this"
+				" widget, and the selectable position information for selecting it.",
+				fitParent = true,
+				Column(padding = 0_px,
+					Checkbox(
+						text = "Is Selectable",
+						checked = local_subref->flags & SUBSCRFLAG_SELECTABLE,
+						onToggleFunc = [&](bool state)
+						{
+							SETFLAG(local_subref->flags, SUBSCRFLAG_SELECTABLE, state);
+							updateSelectable();
+						}),
+					selgs[0] = Rows<3>(
+						Label(text = "Position:", hAlign = 1.0),
+						NUM_FIELD(local_subref->pos, -9999, 9999),
+						INFOBTN("The unique position ID of this slot"),
+						Label(text = "Up Select:", hAlign = 1.0),
+						NUM_FIELD(local_subref->pos_up, -9999, 9999),
+						INFOBTN("The unique position ID to move to when pressing 'Up'"),
+						Label(text = "Down Select:", hAlign = 1.0),
+						NUM_FIELD(local_subref->pos_down, -9999, 9999),
+						INFOBTN("The unique position ID to move to when pressing 'Down'"),
+						Label(text = "Left Select:", hAlign = 1.0),
+						NUM_FIELD(local_subref->pos_left, -9999, 9999),
+						INFOBTN("The unique position ID to move to when pressing 'Left' / 'L' quickswap"),
+						Label(text = "Right Select:", hAlign = 1.0),
+						NUM_FIELD(local_subref->pos_right, -9999, 9999),
+						INFOBTN("The unique position ID to move to when pressing 'Right' / 'R' quickswap")
+					)
+				)
+			),
+			selframes[0] = Frame(title = "Generic Frozen Script",
+				info = "Run a Generic Frozen Script when a button is pressed."
+					"\nThe script will run before any other effects that occur from"
+					" pressing the button (such as equipping an item to a button).",
+					fitParent = true,
+					Row(
+						selgs[1] = Column(padding = 0_px,
+							GEN_INITD(0),
+							GEN_INITD(1),
+							GEN_INITD(2),
+							GEN_INITD(3),
+							GEN_INITD(4),
+							GEN_INITD(5),
+							GEN_INITD(6),
+							GEN_INITD(7)
+						),
+						Column(
+							Label(text = "Script:", hAlign = 0.0),
+							DropDownList(data = list_genscr,
+								vPadding = 0_px,
+								fitParent = true, selectedValue = local_subref->generic_script,
+								onSelectFunc = [&](int32_t val)
+								{
+									local_subref->generic_script = val;
+									updateSelectable();
+								}),
+							selgs[2] = INTBTN_PANEL2(local_subref->gen_script_btns,"Run Button:")
+						)
+					)
+				),
+			selframes[1] = Frame(title = "Selection Text",
+				info = "If not blank, use this text for 'Selection Text' widgets.",
+					fitParent = true, colSpan = 2,
+					TextField(
+						type = GUI::TextField::type::TEXT,
+						maxLength = 255,
+						text = local_subref->override_text,
+						onValChangedFunc = [&](GUI::TextField::type,std::string_view text,int32_t)
+						{
+							local_subref->override_text = text;
+						})
+				)
+		)));
+	window = Window(
+		title = titlebuf,
+		onClose = message::CANCEL,
+		hPadding = 0_px, 
+		Column(
+			tpan,
+			Row(
+				Button(
+					text = "&OK",
+					topPadding = 0.5_em,
+					minwidth = 90_px,
+					onClick = message::OK,
+					focused = true),
+				Button(
+					text = "&Cancel",
+					topPadding = 0.5_em,
+					minwidth = 90_px,
+					onClick = message::CANCEL)
+			)
+		)
+	);
+	updateSelectable();
 	return window;
 }
 
+void SubscrPropDialog::updateSelectable()
+{
+	bool seldis = !(local_subref->flags & SUBSCRFLAG_SELECTABLE);
+	selgs[0]->setDisabled(seldis);
+	selframes[0]->setDisabled(seldis);
+	selframes[1]->setDisabled(seldis);
+	selgs[1]->setDisabled(seldis || !local_subref->generic_script);
+	selgs[2]->setDisabled(seldis || !local_subref->generic_script);
+	
+	if(local_subref->generic_script)
+		local_gen_meta = genericscripts[local_subref->generic_script]->meta;
+	else local_gen_meta.zero();
+	
+	for(int q = 0; q < 8; ++q)
+	{
+		std::string lbl = local_gen_meta.initd[q];
+		if(lbl.empty())
+			lbl = "InitD["+std::to_string(q)+"]";
+		geninitd_lbl[q]->setText(lbl);
+		geninitd_btn[q]->setDisabled(local_gen_meta.initd_help[q].empty());
+	}
+}
 void SubscrPropDialog::updateColors()
 {
 	switch(local_subref->getType())

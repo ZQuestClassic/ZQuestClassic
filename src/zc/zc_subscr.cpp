@@ -23,7 +23,8 @@
 #include "base/mapscr.h"
 #include "base/misctypes.h"
 
-extern HeroClass   Hero;
+extern HeroClass Hero;
+extern FFScript FFCore;
 extern int32_t directItem;
 extern int32_t directItemA;
 extern int32_t directItemB;
@@ -141,6 +142,7 @@ void dosubscr()
 		auto& pg = new_subscreen_active->cur_page();
 		if (replay_version_check(0, 11))
 			load_control_state();
+		byte btn_press = getIntBtnInput(0xFF, true, false, false, false, true);
 		int32_t pos = pg.cursor_pos;
 		
 		if(rUp())         pg.move_cursor(SEL_UP);
@@ -183,14 +185,15 @@ void dosubscr()
 		
 		SubscrWidget* widg = pg.get_sel_widg();
 		
-		//!TODO SUBSCR If widg needs to respond to other buttons, check them here...
-		byte btn_press = getIntBtnInput(0xFF, true, false, false, false, true);
 		if(widg)
 		{
+			if(widg->generic_script && (btn_press&widg->gen_script_btns))
+			{
+				FFCore.runGenericFrozenEngine(widg->generic_script, widg->generic_initd);
+			}
 			bool can_equip = true;
-			if(widg->getType() == widgITEMSLOT && !(widg->flags & SUBSCR_CURITM_NONEQP))
+			if(widg->getType() == widgITEMSLOT && (widg->flags & SUBSCR_CURITM_NONEQP))
 				can_equip = false;
-			//
 			
 			if(can_equip)
 			{
@@ -329,8 +332,7 @@ void dosubscr()
 				}
 			}
 		}
-        getIntBtnInput(btn_press, true, false, false, true); //eat input
-		if(pos!=pg.cursor_pos)
+        if(pos!=pg.cursor_pos)
             sfx(QMisc.miscsfx[sfxSUBSCR_CURSOR_MOVE]);
             
         do_dcounters();
