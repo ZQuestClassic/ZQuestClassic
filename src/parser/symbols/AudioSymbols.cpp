@@ -28,7 +28,7 @@ static AccessorTable AudioTable[] =
 	{ "setVolume[]",             0,          ZTID_VOID,   AUDIOVOLUME,      FL_DEPR,  { ZTID_AUDIO, ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "GetMusicLength",          0,         ZTID_FLOAT,   -1,                FL_INL,  { ZTID_AUDIO },{} },
 	{ "SetMusicLoop",            0,          ZTID_VOID,   -1,                FL_INL,  { ZTID_AUDIO, ZTID_FLOAT, ZTID_FLOAT},{} },
-	{ "PlaySound",               1,          ZTID_VOID,   -1,                FL_INL,   { ZTID_AUDIO, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL },{ 0, -1, 0 } },
+	{ "PlaySoundEx",               0,          ZTID_VOID,   -1,                FL_INL,   { ZTID_AUDIO, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_BOOL },{ 0, -1, 0 } },
 	{ "GetSoundCompletion",      0,         ZTID_FLOAT,   -1,                FL_INL,   { ZTID_AUDIO, ZTID_FLOAT },{ } },
 	{ "CrossfadeEnhancedMusic",  0,          ZTID_BOOL,   -1,                FL_INL,   { ZTID_AUDIO, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ 0, 0 } },
 	{ "getMusicRefresh",         0,         ZTID_FLOAT,   MUSICUPDATECOND,        0,  { ZTID_AUDIO },{} },
@@ -302,7 +302,7 @@ void AudioSymbols::generateCode()
 	}
 	//void PlaySound(game, int32_t,int32_t,int32_t,int32_t,bool)
 	{
-		Function* function = getFunction("PlaySound", 1);
+		Function* function = getFunction("PlaySoundEx");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		addOpcode2(code, new OPlaySoundEX());

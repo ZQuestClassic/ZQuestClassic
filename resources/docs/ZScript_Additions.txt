@@ -7843,7 +7843,7 @@ void AdjustSFXVolume(int percent);
  * If the quest rule "Old (Buggy) ZScript Volume Access" is on,
  * this will use deprecated behavior and may not function properly.
 
-void PlaySound(int id, int volume, int pan = 0, long freq = -1L, bool loop = false);
+void PlaySoundEx(int id, int volume, int pan = 0, long freq = -1L, bool loop = false);
  * Play a sound with different properties.
  * Volume ranges from 0 (mute) to 100 (the player's max volume setting)
  * Pan ranges from -128 (left) to 127 (right)
