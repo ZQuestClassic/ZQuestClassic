@@ -6930,7 +6930,7 @@ void popup_bugfix_dlg(const char* cfg)
 			{
 				if(ret)
 				{
-					applyRuleTemplate(ruletemplateCompat);
+					applyRuleTemplate(ruletemplateFixCompat);
 				}
 				if(dsa)
 				{

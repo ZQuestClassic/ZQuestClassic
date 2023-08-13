@@ -1050,24 +1050,32 @@ void zc_trace_clear()
     ASSERT(trace_file);
 }
 
-std::string QRHINT(std::vector<int> qrs)
+static std::string HINT_TY(std::vector<int> vals, dword ty)
 {
-	if(qrs.empty()) return "";
+	if(vals.empty()) return "";
 	std::ostringstream oss;
 	bool comma = false;
-	oss << "$";
-	for(int qr : qrs)
+	oss << "$#" << ty << "#";
+	for(int v : vals)
 	{
 		if(comma)
-			oss << "," << qr;
+			oss << "," << v;
 		else
 		{
 			comma = true;
-			oss << qr;
+			oss << v;
 		}
 	}
 	oss << "$";
 	return oss.str();
+}
+std::string QRHINT(std::vector<int> qrs)
+{
+	return HINT_TY(qrs,INFOHINT_T_QR);
+}
+std::string RULETMPL_HINT(std::vector<int> tmpls)
+{
+	return HINT_TY(tmpls,INFOHINT_T_RULETMPL);
 }
 
 int binary_search_int(int b1, int b2, std::function<int(int,int&)> proc, int defval)

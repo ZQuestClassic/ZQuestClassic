@@ -31,7 +31,7 @@ bool show_subscreen_items=true;
 bool show_subscreen_life=true;
 bool new_sel=false;
 
-extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
+extern sprite_list  guys, items, Ewpns, Lwpns, chainlinks, decorations;
 extern HeroClass   Hero;
 extern FFScript FFCore;
 
@@ -2759,74 +2759,6 @@ void magicgauge(BITMAP *dest,int32_t x,int32_t y, int32_t container, int32_t not
     
 }
 
-void lifegauge(BITMAP *dest,int32_t x,int32_t y, int32_t container, int32_t notlast_tile, int32_t notlast_cset, bool notlast_mod, int32_t last_tile, int32_t last_cset, bool last_mod,
-               int32_t cap_tile, int32_t cap_cset, bool cap_mod, int32_t aftercap_tile, int32_t aftercap_cset, bool aftercap_mod, int32_t frames, int32_t speed, int32_t delay, bool unique_last)
-{
-    //these are here to bypass compiler warnings about unused arguments
-    frames=frames;
-    speed=speed;
-    delay=delay;
-    
-    int32_t containers=game->get_maxlife()/game->get_hp_per_heart();
-    int32_t tile=zc_oldrand()%32767, cset=zc_oldrand()%15;
-    bool mod_value=(zc_oldrand()%2)!=0;
-    
-    if(container<containers)
-    {
-        tile=notlast_tile;
-        cset=notlast_cset;
-        mod_value=notlast_mod;
-    }
-    else if(container==containers)
-    {
-        tile=last_tile;
-        cset=last_cset;
-        mod_value=last_mod;
-    }
-    else if(container==containers+1)
-    {
-        tile=cap_tile;
-        cset=cap_cset;
-        mod_value=cap_mod;
-    }
-    else //if (container>containers+1)
-    {
-        tile=aftercap_tile;
-        cset=aftercap_cset;
-        mod_value=aftercap_mod;
-    }
-    
-    if(mod_value)
-    {
-        if(game->get_life()>=container*game->get_hp_per_heart())
-        {
-            //tile=tile;                                        //full block
-            if(game->get_life()==container*game->get_hp_per_heart())
-            {
-                if(unique_last)
-                {
-                    tile+=game->get_hp_per_heart()+3;
-                }
-            }
-        }
-        else
-        {
-            if(((container-1)*game->get_hp_per_heart())>game->get_life())
-            {
-                tile+=4;                                //empty block
-            }
-            else
-            {
-                tile+=4+((game->get_life()-((container-1)*game->get_hp_per_heart()))%game->get_hp_per_heart());
-            }
-        }
-    }
-    
-    overtile8(dest,tile,x,y,cset,0);
-    
-}
-
-
 void magicmeter(BITMAP *dest,int32_t x,int32_t y)
 {
     if(!get_qr(qr_ENABLEMAGIC)) return;
@@ -2915,206 +2847,6 @@ void putxnum(BITMAP *dest,int32_t x,int32_t y,int32_t num,FONT *tempfont,int32_t
   }
   */
 
-/****  Subscr items code  ****/
-
-item *Bitem = NULL, *Aitem = NULL, *Yitem = NULL, *Xitem = NULL;
-int32_t   Bid = 0, Aid = 0, Xid = 0, Yid = 0;
-
-void reset_subscr_items()
-{
-    if(Aitem)
-    {
-        delete Aitem;
-        Aitem = NULL;
-    }
-    
-    if(Bitem)
-    {
-        delete Bitem;
-        Bitem = NULL;
-    }
-    if(Yitem)
-    {
-        delete Yitem;
-        Yitem = NULL;
-    }
-    
-    if(Xitem)
-    {
-        delete Xitem;
-        Xitem = NULL;
-    }
-    
-    Aid = Bid = Yid = Xid = 0;
-}
-
-
-void update_subscr_items()
-{
-	int nullval = get_qr(qr_ITM_0_INVIS_ON_BTNS) ? 0 : -1;
-    if(Bid != Bwpn)
-    {
-        Bid = 0;
-        
-        if(Bitem)
-        {
-            delete Bitem;
-            Bitem = NULL;
-        }
-        
-        if(Bwpn > nullval)
-        {
-            Bitem = new item((zfix)0, (zfix)0, (zfix)0, Bwpn&0x0FFF, 0, 0);
-            Bitem->dummy_bool[0]=false;
-            
-            switch(itemsbuf[Bwpn&0x0FFF].family)
-            {
-            case itype_arrow:
-                if((Bwpn&0xF000)==0xF000)
-                {
-                    Bitem->dummy_bool[0]=true;
-                }
-                
-                break;
-		//default: break;
-            }
-            
-            //      Bitem = new item((zfix)(zinit.subscreen<ssdtBSZELDA?124:136), (zfix)24,(zfix)0, Bwpn, 0, 0);
-            if(Bitem != NULL)
-            {
-                Bid = Bwpn;
-                Bitem->yofs = 0;
-                Bitem->pickup |= ipDUMMY;
-            }
-        }
-    }
-    
-    if(Aid != Awpn)
-    {
-        Aid = 0;
-        
-        if(Aitem)
-        {
-            delete Aitem;
-            Aitem = NULL;
-        }
-        
-        if(Awpn > nullval)
-        {
-            Aitem = new item((zfix)0, (zfix)0,(zfix)0,Awpn&0x0FFF, 0, 0);
-            
-            switch(itemsbuf[Awpn&0x0FFF].family)
-            {
-            case itype_arrow:
-                if((Awpn&0xF000)==0xF000)
-                {
-                    Aitem->dummy_bool[0]=true;
-                }
-                
-                break;
-		//default: break;
-            }
-            
-            if(Aitem != NULL)
-            {
-                Aid = Awpn;
-                Aitem->yofs = 0;
-                Aitem->pickup |= ipDUMMY;
-            }
-        }
-    }
-    
-    if(Xid != Xwpn)
-    {
-        Xid = 0;
-        
-        if(Xitem)
-        {
-            delete Xitem;
-            Xitem = NULL;
-        }
-        
-        if(Xwpn > nullval)
-        {
-            Xitem = new item((zfix)0, (zfix)0,(zfix)0,Xwpn&0x0FFF, 0, 0);
-            
-            switch(itemsbuf[Xwpn&0x0FFF].family)
-            {
-            case itype_arrow:
-                if((Xwpn&0xF000)==0xF000)
-                {
-                    Xitem->dummy_bool[0]=true;
-                }
-                
-                break;
-		//default: break;
-            }
-            
-            if(Xitem != NULL)
-            {
-                Xid = Xwpn;
-                Xitem->yofs = 0;
-                Xitem->pickup |= ipDUMMY;
-            }
-        }
-    }
-    
-    if(Yid != Ywpn)
-    {
-        Yid = 0;
-        
-        if(Yitem)
-        {
-            delete Yitem;
-            Yitem = NULL;
-        }
-        
-        if(Ywpn > nullval)
-        {
-            Yitem = new item((zfix)0, (zfix)0,(zfix)0,Ywpn&0x0FFF, 0, 0);
-            
-            switch(itemsbuf[Ywpn&0x0FFF].family)
-            {
-            case itype_arrow:
-                if((Ywpn&0xF000)==0xF000)
-                {
-                    Yitem->dummy_bool[0]=true;
-                }
-                
-                break;
-		//default: break;
-            }
-            
-            if(Yitem != NULL)
-            {
-                Yid = Ywpn;
-                Yitem->yofs = 0;
-                Yitem->pickup |= ipDUMMY;
-            }
-        }
-    }
-    
-    if(Bitem)
-        Bitem->animate(0);
-        
-    if(Aitem)
-        Aitem->animate(0);
-    
-    if(Xitem)
-        Xitem->animate(0);
-        
-    if(Yitem)
-        Yitem->animate(0);
-}
-
-void add_subscr_item(item *newItem)
-{
-	//al_trace("Adding a subscreen item, ID: %d\n",newItem->id); //Logging stuff to remove, later.
-    newItem->subscreenItem=true;
-    newItem->hide_hitbox=true;
-    Sitems.add(newItem);
-}
-
 /****/
 int32_t stripspaces(char *source, char *target, int32_t stop)
 {
@@ -3160,123 +2892,6 @@ int32_t countWeaponWithParent(int32_t id, int32_t type)
 		++count;
 	}
 	return count;
-}
-
-// The conditions on which a subcreen item should be displayed.
-bool displaysubscreenitem(int32_t itemtype, int32_t d, int32_t id)
-{
-	if(game==NULL)  //ZQuest
-		return true;
-	if (get_qr(qr_NEVERDISABLEAMMOONSUBSCREEN)) return true;
-	//Okay, so the problem is that remote bombs are getting flagged with misc1 50, because
-	//current item id is referring to your highest levelled item instead of the actual item.
-	//Solution here is to have code for override items.
-	if (id < 0)
-	{
-		if((itemtype == itype_bomb &&
-				!(game->get_bombs()
-				  // Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
-				  || (itemsbuf[current_item_id(itype_bomb,replay_version_check(0,19))].misc1==0 && Lwpns.idCount(wLitBomb)>0)
-				  || current_item_power(itype_bombbag)))
-				|| (itemtype == itype_sbomb &&
-					!(game->get_sbombs()
-					  || (itemsbuf[current_item_id(itype_sbomb,replay_version_check(0,19))].misc1==0 && Lwpns.idCount(wLitSBomb)>0)
-					  || (current_item_power(itype_bombbag)
-						  && itemsbuf[current_item_id(itype_bombbag)].flags & ITEM_FLAG1))))
-			return false;
-			
-		if(itemtype!=itype_bowandarrow ||
-				d!=itype_arrow ||
-				((get_qr(qr_TRUEARROWS)&&game->get_arrows()) ||
-				 (!get_qr(qr_TRUEARROWS)&&game->get_rupies())))
-			return true;
-			
-		return false;
-	}
-	else
-	{
-		if((itemtype == itype_bomb &&
-				!(game->get_bombs()
-				  // Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
-				  || (itemsbuf[id].misc1==0 && findWeaponWithParent(id, wLitBomb))
-				  || current_item_power(itype_bombbag)))
-				|| (itemtype == itype_sbomb &&
-					!(game->get_sbombs()
-					  || (itemsbuf[id].misc1==0 && findWeaponWithParent(id, wLitSBomb))
-					  || (current_item_power(itype_bombbag)
-						  && itemsbuf[current_item_id(itype_bombbag)].flags & ITEM_FLAG1))))
-			return false;
-			
-		if(itemtype!=itype_bowandarrow ||
-				d!=itype_arrow ||
-				((get_qr(qr_TRUEARROWS)&&game->get_arrows()) ||
-				 (!get_qr(qr_TRUEARROWS)&&game->get_rupies())))
-			return true;
-			
-		return false;
-	}
-}
-
-void subscreenitem(BITMAP *dest, int32_t x, int32_t y, int32_t itemtype)
-{
-    // We need to do a reverse loop to prevent the Bow from being drawn above the Arrow (Bow & Arrow).
-    int32_t overridecheck = 0xFFFF;
-    
-    for(int32_t i=Sitems.Count()-1; i>=0; i--)
-    {
-        if(itemtype & 0x8000) // if 0x8000, then itemtype is actually an item ID.
-        {
-            if(overridecheck==0xFFFF)
-			{
-				//al_trace("Found an override item at subscreen.cpp linere 3084, id: %d\n",Sitems.spr(i)->id);
-				if(Sitems.spr(i)->id == (itemtype&0xFFF) && Sitems.spr(i)->misc==-1)
-					overridecheck = i;
-			}
-        }
-        else if(Sitems.spr(i)->misc!=-1)
-        {
-            int32_t d= itemsbuf[Sitems.spr(i)->id].family;
-            
-            if((d==itemtype)||
-                    (itemtype==itype_letterpotion&&((d==itype_letter && current_item_id(itype_potion)==-1)||d==itype_potion))||
-                    (itemtype==itype_bowandarrow&&(d==itype_bow||d==itype_arrow)))
-            {
-                Sitems.spr(i)->x = x;
-                Sitems.spr(i)->y = y;
-                Sitems.spr(i)->yofs=0;
-                
-                if(displaysubscreenitem(itemtype, d, -1))
-                {
-                    Sitems.spr(i)->drawzcboss(dest);
-                }
-                
-                if(itemtype!=itype_bowandarrow)
-                {
-                    return;
-                }
-            }
-        }
-    }
-	
-    //Item Override stuff here
-    if((itemtype & 0x8000) &&
-		(get_app_id() == App::zelda ? game->item[itemtype&0xFFF] : true) &&
-        !item_disabled(itemtype&0xFFF) && displaysubscreenitem(itemsbuf[itemtype&0xFFF].family, 0, (itemtype&0xFFF)))
-    {
-        if(overridecheck == 0xFFFF)
-        {
-	    //al_trace("Found an override item at subscreen.cpp linere 3120, itemtype: %d\n",itemtype);
-
-            add_subscr_item(new item((zfix)x,(zfix)y,(zfix)0,(itemtype&0xFFF),0,0));
-            overridecheck = Sitems.Count()-1;
-            Sitems.spr(overridecheck)->misc = -1;
-        }
-        
-        Sitems.spr(overridecheck)->x = x;
-        Sitems.spr(overridecheck)->y = y;
-        Sitems.spr(overridecheck)->yofs=0;
-        Sitems.spr(overridecheck)->drawzcboss(dest);
-    }
 }
 
 int32_t subscreen_color(int32_t c1, int32_t c2)
@@ -3421,45 +3036,6 @@ int32_t subscreen_cset(int32_t c1, int32_t c2)
     return ret;
 }
 
-item *sel_a=NULL, *sel_b=NULL;
-
-void delete_selectors()
-{
-    if(sel_a)
-    {
-        delete sel_a;
-        sel_a=NULL;
-    }
-    
-    if(sel_b)
-    {
-        delete sel_b;
-        sel_b=NULL;
-    }
-}
-
-void animate_selectors()
-{
-    if(new_sel)
-    {
-        delete_selectors();
-        new_sel = false;
-    }
-    
-    if(!sel_a)
-        sel_a = new item((zfix)0, (zfix)0, (zfix)0, iSelectA, 0, 0);
-        
-    if(!sel_b)
-        sel_b = new item((zfix)0, (zfix)0, (zfix)0, iSelectB, 0, 0);
-        
-    sel_a->yofs=0;
-	sel_a->subscreenItem=true;
-    sel_a->animate(0);
-    sel_b->yofs=0;
-	sel_b->subscreenItem=true;
-    sel_b->animate(0);
-}
-
 void show_custom_subscreen(BITMAP *dest, ZCSubscreen* subscr, int32_t xofs, int32_t yofs, bool showtime, int32_t pos2)
 {
 	if(!subscr) return;
@@ -3471,165 +3047,14 @@ void show_custom_subscreen(BITMAP *dest, ZCSubscreen* subscr, int32_t xofs, int3
 	set_trans_blender(0, 0, 0, 128);
 	
 	#ifdef IS_ZQUEST
-	bool animate_sel = true; //ZQ needs to always animate -Em
-	/* ZQ also has no 'advanceframe' to increment the global frame counter,
+	/* ZQ has no 'advanceframe' to increment the global frame counter,
 	 * so we need to increment that here, as flashing items use it for their draw.
 	 * -Em
-	 */
+	 */ //!TODO SUBSCR change this to subscr_item_clk?
 	++frame;
-	#else
-	/* Animating in ZC every frame causes doubled animation speed, due to
-	 * animating both for the passive and active subscreen.
-	 * So, only call it if new selectors are needed. ZC doesn't use 'bool new_sel'.
-	 * -Em
-	 */
-	bool animate_sel = !sel_a || !sel_b;
 	#endif
-	if(animate_sel)
-		animate_selectors();
 	
 	subscr->draw(dest,xofs,yofs,pos2,showtime);
-}
-
-std::string get_subscr_arrow_name(int itemid)
-{
-	char itemname[256]="";
-	if(Bitem && Bitem->dummy_bool[0]==true)  //if we also have a bow
-	{
-		if(current_item_id(itype_bow)>-1)
-		{
-			bool hasarrows=checkmagiccost(itemid);
-			sprintf(itemname, "%s%s%s", item_string[current_item_id(itype_bow)], hasarrows?" & ":"",hasarrows?item_string[Bitem->id]:"");
-		}
-	}
-	return std::string(itemname);
-}
-
-void buttonitem(BITMAP *dest, int32_t button, int32_t x, int32_t y)
-{
-    switch(button)
-    {
-    case 0:  //A button
-        if(Aitem&&show_subscreen_items)
-        {
-            Aitem->x=x;
-            Aitem->y=y;
-            Aitem->hide_hitbox = true;
-            
-            switch(itemsbuf[Aitem->id].family)
-            {
-            case itype_arrow:
-                if(Aitem->dummy_bool[0]==true)
-                {
-                    if(current_item_id(itype_bow)>-1)
-                    {
-                        subscreenitem(dest, x, y, itype_bow);
-						if(get_qr(qr_NEVERDISABLEAMMOONSUBSCREEN)) break;
-                        if(!checkmagiccost(Aitem->id)) return;
-                    }
-                }
-                
-                break;
-            }
-            
-            Aitem->drawzcboss(dest);
-        }
-        
-        break;
-        
-    case 1:  //B button
-        if(Bitem&&show_subscreen_items)
-        {
-            Bitem->x=x;
-            Bitem->y=y;
-            Bitem->hide_hitbox = true;
-            
-            switch(itemsbuf[Bitem->id].family)
-            {
-            case itype_arrow:
-                if(Bitem && Bitem->dummy_bool[0]==true)
-                {
-                    if(current_item_id(itype_bow)>-1)
-                    {
-                        subscreenitem(dest, x, y, itype_bow);
-						if(get_qr(qr_NEVERDISABLEAMMOONSUBSCREEN)) break;
-                        if(!checkmagiccost(Bitem->id)) return;
-                    }
-                }
-                
-                break;
-            }
-            
-            Bitem->drawzcboss(dest);
-        }
-        
-        break;
-	
-	case 2:  //X button
-        if(Xitem&&show_subscreen_items)
-        {
-		//Y button
-		//zprint2("Drawing X Item\n");
-            Xitem->x=x;
-            Xitem->y=y;
-            Xitem->hide_hitbox = true;
-            
-            switch(itemsbuf[Xitem->id].family)
-            {
-            case itype_arrow:
-                if(Xitem && Xitem->dummy_bool[0]==true)
-                {
-                    if(current_item_id(itype_bow)>-1)
-                    {
-                        subscreenitem(dest, x, y, itype_bow);
-						if(get_qr(qr_NEVERDISABLEAMMOONSUBSCREEN)) break;
-                        if(!checkmagiccost(Xitem->id)) return;
-                    }
-                }
-                
-                break;
-            }
-            
-            Xitem->drawzcboss(dest);
-        }
-	//else zprint2("Xitem is NULL\n");
-        
-        break;
-        
-	case 3:  
-        if(Yitem&&show_subscreen_items)
-        {
-		//Y button
-		//zprint2("Drawing Y Item\n");
-            Yitem->x=x;
-            Yitem->y=y;
-            Yitem->hide_hitbox = true;
-            
-            switch(itemsbuf[Yitem->id].family)
-            {
-            case itype_arrow:
-                if(Yitem && Yitem->dummy_bool[0]==true)
-                {
-                    if(current_item_id(itype_bow)>-1)
-                    {
-                        subscreenitem(dest, x, y, itype_bow);
-						if(get_qr(qr_NEVERDISABLEAMMOONSUBSCREEN)) break;
-                        if(!checkmagiccost(Yitem->id)) return;
-                    }
-                }
-                
-                break;
-            }
-            
-            Yitem->drawzcboss(dest);
-        }
-	//else zprint2("Yitem is NULL\n");
-        
-        break;
-        
-    default:
-        break;
-    }
 }
 
 void defaultcounters(BITMAP *dest, int32_t x, int32_t y, FONT *tempfont, int32_t color, int32_t shadowcolor, int32_t bgcolor, bool usex, int32_t textstyle, int32_t digits, char idigit)
@@ -3839,10 +3264,13 @@ void counter(BITMAP *dest, int32_t x, int32_t y, FONT *tempfont, int32_t color, 
     sprintf(valstring,"01234567890123456789");
     sprintf(formatstring, "%%0%dd", digits);
     
-    if(onlyselected && !(((Bitem&&(is_counter_item(Bitem->id,itemtype1)||is_counter_item(Bitem->id,itemtype2)||is_counter_item(Bitem->id,itemtype3)))||(Aitem&&(is_counter_item(Aitem->id,itemtype1)||is_counter_item(Aitem->id,itemtype2)||is_counter_item(Aitem->id,itemtype3))))))
-    {
+    if(onlyselected && !(
+		   (Bwpn>-1&&(is_counter_item(Bwpn&0xFF,itemtype1)||is_counter_item(Bwpn&0xFF,itemtype2)||is_counter_item(Bwpn&0xFF,itemtype3)))
+		|| (Awpn>-1&&(is_counter_item(Awpn&0xFF,itemtype1)||is_counter_item(Awpn&0xFF,itemtype2)||is_counter_item(Awpn&0xFF,itemtype3)))
+		|| (Xwpn>-1&&(is_counter_item(Xwpn&0xFF,itemtype1)||is_counter_item(Xwpn&0xFF,itemtype2)||is_counter_item(Xwpn&0xFF,itemtype3)))
+		|| (Ywpn>-1&&(is_counter_item(Ywpn&0xFF,itemtype1)||is_counter_item(Ywpn&0xFF,itemtype2)||is_counter_item(Ywpn&0xFF,itemtype3)))
+		))
         return;
-    }
     
     int32_t itemtype;
     /*
@@ -3967,9 +3395,7 @@ void minimaptitle(BITMAP *dest, int32_t x, int32_t y, FONT *tempfont, int32_t co
 
 void put_passive_subscr(BITMAP *dest,int32_t x,int32_t y,bool showtime,int32_t pos2)
 {
-    // uncomment this?
-    //  load_Sitems();
-    Sitems.animate();
+	++subscr_item_clk;
     update_subscr_items();
     BITMAP *subscr = create_sub_bitmap(dest,x,y,256,passive_subscreen_height);
     
@@ -4342,52 +3768,7 @@ void putBmap(BITMAP *dest, int32_t x, int32_t y,bool showmap, bool showrooms, bo
 
 void load_Sitems()
 {
-	Sitems.clear();
-	
-	// HC Pieces
-	if(QMisc.colors.HCpieces_tile)
-	{
-		//      item *HCP = new item((zfix)(inventory_x[5]-ofs),(zfix)y,MAXITEMS,0,0);
-		item *HCP = new item((zfix)0,(zfix)0,(zfix)0,iHCPiece,0,0);
-		
-		if(HCP)
-		{
-			int32_t hcpphc =  game->get_hcp_per_hc();
-			HCP->tile   = QMisc.colors.HCpieces_tile + vbound(game->get_HCpieces(),0,hcpphc > 0 ? hcpphc-1 : 0);
-			HCP->o_tile = HCP->tile;
-			HCP->cs     = QMisc.colors.HCpieces_cset;
-			HCP->frames = 0;
-			add_subscr_item(HCP);
-		}
-	}
-	
-	if(has_item(itype_map, get_dlevel()))
-	{
-		add_subscr_item(new item((zfix)0,(zfix)0,(zfix)0,iMap,0,0));
-	}
-	
-	if(has_item(itype_compass, get_dlevel()))
-	{
-		add_subscr_item(new item((zfix)0,(zfix)0,(zfix)0,iCompass,0,0));
-	}
-	
-	if(has_item(itype_bosskey, get_dlevel()))
-	{
-		add_subscr_item(new item((zfix)0,(zfix)0,(zfix)0,iBossKey,0,0));
-	}
-	
-	for(int32_t i=0; i<itype_max; i++)
-	{
-		//special case: ignore the dmap-specific items processed above. -DD
-		if(i == itype_map || i == itype_compass || i == itype_bosskey)
-			continue;
-		int j = current_item_id(i,false);
-		// Display the ring even if it has run out of magic.
-		if(j>-1 && itemsbuf[j].tile)
-			add_subscr_item(new item((zfix)0, (zfix)0,(zfix)0,j,0,0));
-	}
-	//al_trace("Finished load_Sitems(%d)\n",0);
-	
+	subscr_item_clk = 0;
 	new_sel=true;
 }
 

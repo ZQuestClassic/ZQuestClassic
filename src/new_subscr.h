@@ -12,6 +12,8 @@ struct PACKFILE;
 
 #define NEG_OR_MASK(v,mask) (v < 0 ? v : (v&mask))
 
+extern int subscr_item_clk;
+
 //Old subscreen stuff
 struct subscreen_object
 {
@@ -217,6 +219,8 @@ struct SubscrWidget
 	dword flags;
 	
 	//if SUBSCRFLAG_SELECTABLE...
+	//...storing these as ints, but they could probably be bytes?
+	//...might expand size later, so I'll leave it as ints.
 	int32_t pos;
 	int32_t pos_up;
 	int32_t pos_down;
@@ -240,7 +244,8 @@ struct SubscrWidget
 	virtual int16_t getXOffs() const; //Returns any special x-offset
 	virtual int16_t getYOffs() const; //Returns any special y-offset
 	virtual byte getType() const;
-	virtual int32_t getItemVal(bool display = false) const;
+	virtual int32_t getItemVal() const;
+	virtual int32_t getDisplayItem() const;
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const;
 	virtual bool visible(byte pos, bool showtime) const;
 	virtual SubscrWidget* clone() const;
@@ -571,20 +576,23 @@ protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
 
-#define SUBSCR_CURITM_INVIS    SUBSCRFLAG_SPEC_01
-#define SUBSCR_CURITM_NONEQP   SUBSCRFLAG_SPEC_02
-struct SW_CurrentItem : public SubscrWidget
+#define SUBSCR_CURITM_INVIS             SUBSCRFLAG_SPEC_01
+#define SUBSCR_CURITM_NONEQP            SUBSCRFLAG_SPEC_02
+#define SUBSCR_CURITM_IGNR_SP_SELTEXT   SUBSCRFLAG_SPEC_03
+#define SUBSCR_CURITM_IGNR_SP_DISPLAY   SUBSCRFLAG_SPEC_04
+struct SW_ItemSlot : public SubscrWidget
 {
 	int32_t iclass, iid;
 	
-	SW_CurrentItem() = default;
-	SW_CurrentItem(subscreen_object const& old);
+	SW_ItemSlot() = default;
+	SW_ItemSlot(subscreen_object const& old);
 	
 	virtual bool load_old(subscreen_object const& old) override;
 	virtual word getW() const override; //Returns width in pixels
 	virtual word getH() const override; //Returns height in pixels
 	virtual byte getType() const override;
-	virtual int32_t getItemVal(bool display = false) const override;
+	virtual int32_t getItemVal() const override;
+	virtual int32_t getDisplayItem() const override;
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
 	virtual SubscrWidget* clone() const override;
 	virtual bool copy_prop(SubscrWidget const* src, bool all = false) override;
@@ -713,6 +721,7 @@ protected:
 #define SUBSCR_LGAUGE_MOD3     SUBSCRFLAG_SPEC_03
 #define SUBSCR_LGAUGE_MOD4     SUBSCRFLAG_SPEC_04
 #define SUBSCR_LGAUGE_UNQLAST  SUBSCRFLAG_SPEC_05
+#define SUBSCR_LGAUGE_FULLTILE SUBSCRFLAG_SPEC_06
 struct SW_LifeGaugePiece : public SubscrWidget
 {
 	SubscrMTInfo mts[4];
@@ -800,21 +809,25 @@ protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
 
-#define MAX_SUBSCR_PAGES 50
+#define MAX_SUBSCR_PAGES 254
 struct SubscrPage
 {
 	std::vector<SubscrWidget*> contents;
 	int32_t cursor_pos, init_cursor_pos;
 	
 	void move_cursor(int dir, bool item_only = false);
-	int32_t move_legacy(int dir, int startp, int fp=-1, int fp2=-1, int fp3=-1, bool equip_only=true, bool item_only=true);
-	SubscrWidget* get_widg_pos(int32_t pos, bool item_only);
+	int32_t movepos_legacy(int dir, word startp, word fp = 255, word fp2 = 255, word fp3 = 255, bool equip_only=true, bool item_only=true);
+	void move_legacy(int dir, bool equip_only=true, bool item_only=true);
+	SubscrWidget* get_widg_pos(byte pos, bool item_only);
 	SubscrWidget* get_sel_widg();
-	int32_t get_item_pos(int32_t pos, bool item_only = true);
+	int32_t get_item_pos(byte pos, bool item_only = true);
 	int32_t get_sel_item(bool display = false);
 	int32_t get_pos_of_item(int32_t itemid);
 	
 	SubscrWidget* get_widget(int indx);
+	void delete_widg(word ind);
+	//add_widg?
+	void swap_widg(word ind1, word ind2);
 	void clear();
 	void draw(BITMAP* dest, int32_t xofs, int32_t yofs, byte pos, bool showtime);
 	void swap(SubscrPage& other);
@@ -826,6 +839,11 @@ struct SubscrPage
 	
 	int32_t read(PACKFILE *f, word s_version);
 	int32_t write(PACKFILE *f) const;
+	
+	word getIndex() const;
+private:
+	word index;
+	friend struct ZCSubscreen;
 };
 struct ZCSubscreen
 {
@@ -833,14 +851,17 @@ struct ZCSubscreen
 	byte curpage, sub_type;
 	std::string name;
 	
+	word def_btns[4]={255,255,255,255};
+	
 	//!TODO Subscreen Scripts
 	word script;
 	int32_t initd[8];
 	
+	
 	SubscrPage& cur_page();
 	SubscrPage* get_page(byte ind);
-	bool get_page_pos(int32_t itmid, byte& pg, byte& pos);
-	int32_t get_item_pos(byte pos, byte pg);
+	bool get_page_pos(int32_t itmid, word& pgpos);
+	int32_t get_item_pos(word pgpos);
 	void delete_page(byte ind);
 	void add_page(byte ind);
 	void swap_pages(byte ind1, byte ind2);

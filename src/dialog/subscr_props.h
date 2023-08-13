@@ -47,9 +47,13 @@ protected:
 	
 	std::shared_ptr<GUI::Label> geninitd_lbl[8];
 	std::shared_ptr<GUI::Button> geninitd_btn[8];
+	
+	std::shared_ptr<GUI::Checkbox> def_eqp_cboxes[4];
 	SubscrWidget* subref;
 	SubscrWidget* local_subref;
 	int32_t index;
+	byte set_default_btnslot;
+	byte start_default_btnslot;
 	
 	zasm_meta local_gen_meta;
 	
@@ -59,6 +63,7 @@ protected:
 	void updateSelectable();
 	void updateColors();
 	void update_wh();
+	void refr_info();
 };
 
 #endif

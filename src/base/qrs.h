@@ -177,6 +177,8 @@ enum
 	//52
 	qr_FREEFORM_SUBSCREEN_CURSOR, qr_SUBSCR_PRESS_TO_EQUIP, qr_FAIRY_FLAG_COMPAT, qr_MIRROR_PRISM_LAYERS,
 	qr_OLD_LENS_LAYEREFFECT, qr_PUSHBLOCK_SPRITE_LAYER, qr_OLD_SUBSCR, qr_ITM_0_INVIS_ON_BTNS,
+	//53
+	qr_NO_BUTTON_VERIFY,
 	//EMILY SPOT
 	//60
 	//CONNOR SPOT qr_ = 60*8,
@@ -221,10 +223,25 @@ enum extraRules
 	er_MAX
 };
 
-bool get_qr(int index);
-void set_qr(int index,bool state);
+enum //Rulesets
+{
+	rulesetNONE, rulesetNES, rulesetFixedNES, rulesetBSZ, rulesetZ3, rulesetModern, rulesetLast
+};
+
+enum //Rule Templates
+{
+	ruletemplateFixCompat,	ruletemplateFixZSCompat,
+	ruletemplateNewSubscreen, ruletemplateOldSubscreen,
+	sz_ruletemplate
+};
+
+bool get_qr(int index,byte* qrptr = nullptr);
+void set_qr(int index,bool state,byte* qrptr = nullptr);
 bool get_er(int index);
 void set_er(int index,bool state);
+//Want to move these here, but looks complicated...
+// void applyRuleset(int32_t ruleset, byte* qrptr = nullptr);
+// void applyRuleTemplate(int32_t ruleTemplate, byte* qrptr = nullptr);
 
 #endif
 

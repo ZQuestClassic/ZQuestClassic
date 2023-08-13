@@ -13849,13 +13849,13 @@ void set_register(int32_t arg, int32_t value)
 			//zprint("A is: %d\n", setb);
 				
 			Awpn = seta;
-			game->awpn = game->awpnpg = 0;
+			game->awpn = 255;
 			game->forced_awpn = seta;
 			game->items_off[seta] = 0;
 			directItemA = seta;
 			
 			Bwpn = setb;
-			game->bwpn = game->bwpnpg = 0;
+			game->bwpn = 255;
 			game->forced_bwpn = setb;
 			game->items_off[setb] = 0;
 			directItemB = setb;
@@ -13896,7 +13896,7 @@ void set_register(int32_t arg, int32_t value)
 					case 0: //b
 						Bwpn = itm;
 						game->items_off[itm] = 0;
-						game->bwpn = game->bwpnpg = 0;
+						game->bwpn = 255;
 						game->forced_bwpn = itm;
 						directItemB = itm;
 						break;
@@ -13904,7 +13904,7 @@ void set_register(int32_t arg, int32_t value)
 					case 1: //a
 						Awpn = itm;
 						game->items_off[itm] = 0;
-						game->awpn = game->awpnpg = 0;
+						game->awpn = 255;
 						game->forced_awpn = itm;
 						directItemA = itm;
 						break;
@@ -13912,7 +13912,7 @@ void set_register(int32_t arg, int32_t value)
 					case 2: //x
 						Xwpn = itm;
 						game->items_off[itm] = 0;
-						game->xwpn = game->xwpnpg = 0;
+						game->xwpn = 255;
 						game->forced_xwpn = itm;
 						directItemX = itm;
 						break;
@@ -13920,7 +13920,7 @@ void set_register(int32_t arg, int32_t value)
 					case 3: //y
 						Ywpn = itm;
 						game->items_off[itm] = 0;
-						game->ywpn = game->ywpnpg = 0;
+						game->ywpn = 255;
 						game->forced_ywpn = itm;
 						directItemX = itm;
 						break;
@@ -13935,7 +13935,7 @@ void set_register(int32_t arg, int32_t value)
 						case 0: //b
 							Bwpn = itm;
 							game->items_off[itm] = 0;
-							game->bwpn = game->bwpnpg = 0;
+							game->bwpn = 255;
 							game->forced_bwpn = itm;
 							directItemB = itm;
 							break;
@@ -13943,7 +13943,7 @@ void set_register(int32_t arg, int32_t value)
 						case 1: //a
 							Awpn = itm;
 							game->items_off[itm] = 0;
-							game->awpn = game->awpnpg = 0;
+							game->awpn = 255;
 							game->forced_awpn = itm;
 							directItemA = itm;
 							break;
@@ -13951,7 +13951,7 @@ void set_register(int32_t arg, int32_t value)
 						case 2: //x
 							Xwpn = itm;
 							game->items_off[itm] = 0;
-							game->xwpn = game->xwpnpg = 0;
+							game->xwpn = 255;
 							game->forced_xwpn = itm;
 							directItemX = itm;
 							break;
@@ -13959,7 +13959,7 @@ void set_register(int32_t arg, int32_t value)
 						case 3: //y
 							Ywpn = itm;
 							game->items_off[itm] = 0;
-							game->ywpn = game->ywpnpg = 0;
+							game->ywpn = 255;
 							game->forced_ywpn = itm;
 							directItemY = itm;
 							break;
@@ -13973,7 +13973,7 @@ void set_register(int32_t arg, int32_t value)
 					case 0: //b
 						Bwpn = itm;
 						game->items_off[itm] = 0;
-						game->bwpn = game->bwpnpg = 0;
+						game->bwpn = 255;
 						game->forced_bwpn = itm;
 						directItemB = itm;
 						break;
@@ -13983,7 +13983,7 @@ void set_register(int32_t arg, int32_t value)
 						{
 							Awpn = itm;
 							game->items_off[itm] = 0;
-							game->awpn = game->awpnpg = 0;
+							game->awpn = 255;
 							game->forced_awpn = itm;
 							directItemA = itm;
 						}
@@ -13992,7 +13992,7 @@ void set_register(int32_t arg, int32_t value)
 					case 2:  //x
 						Xwpn = itm;
 						game->items_off[itm] = 0;
-						game->xwpn = game->xwpnpg = 0;
+						game->xwpn = 255;
 						game->forced_xwpn = itm;
 						directItemX = itm;
 						break;
@@ -14000,7 +14000,7 @@ void set_register(int32_t arg, int32_t value)
 					case 3: //y
 						Ywpn = itm;
 						game->items_off[itm] = 0;
-						game->ywpn = game->ywpnpg = 0;
+						game->ywpn = 255;
 						game->forced_ywpn = itm;
 						directItemY = itm;
 						break;
@@ -14015,7 +14015,7 @@ void set_register(int32_t arg, int32_t value)
 						case 0: //b
 							Bwpn = itm;
 							game->items_off[itm] = 0;
-							game->bwpn = game->bwpnpg = 0;
+							game->bwpn = 255;
 							game->forced_bwpn = itm;
 							directItemB = itm;
 							break;
@@ -14025,7 +14025,7 @@ void set_register(int32_t arg, int32_t value)
 							{
 								Awpn = itm;
 								game->items_off[itm] = 0;
-								game->awpn = game->awpnpg = 0;
+								game->awpn = 255;
 								game->forced_awpn = itm;
 								directItemA = itm;
 							}
@@ -14034,7 +14034,7 @@ void set_register(int32_t arg, int32_t value)
 						case 2: //x
 							Xwpn = itm;
 							game->items_off[itm] = 0;
-							game->xwpn = game->xwpnpg = 0;
+							game->xwpn = 255;
 							game->forced_xwpn = itm;
 							directItemX = itm;
 							break;
@@ -14042,7 +14042,7 @@ void set_register(int32_t arg, int32_t value)
 						case 3: //y
 							Ywpn = itm;
 							game->items_off[itm] = 0;
-							game->ywpn = game->ywpnpg = 0;
+							game->ywpn = 255;
 							game->forced_ywpn = itm;
 							directItemY = itm;
 							break;
@@ -14236,7 +14236,7 @@ void set_register(int32_t arg, int32_t value)
 			{
 				Bwpn = value/10000;
 				if(new_subscreen_active)
-					new_subscreen_active->get_page_pos(Bwpn, game->bwpn, game->bwpnpg);
+					new_subscreen_active->get_page_pos(Bwpn, game->bwpn);
 				game->forced_bwpn = value/10000;
 				game->items_off[value/10000] = 0;
 			}
@@ -14262,7 +14262,7 @@ void set_register(int32_t arg, int32_t value)
 			{
 				Awpn = value/10000;
 				if(new_subscreen_active)
-					new_subscreen_active->get_page_pos(Awpn, game->awpn, game->awpnpg);
+					new_subscreen_active->get_page_pos(Awpn, game->awpn);
 				game->items_off[value/10000] = 0;
 				game->forced_awpn = value/10000;
 			}
@@ -14287,7 +14287,7 @@ void set_register(int32_t arg, int32_t value)
 			{
 				Xwpn = value/10000;
 				if(new_subscreen_active)
-					new_subscreen_active->get_page_pos(Xwpn, game->xwpn, game->xwpnpg);
+					new_subscreen_active->get_page_pos(Xwpn, game->xwpn);
 				game->items_off[value/10000] = 0;
 				game->forced_xwpn = value/10000;
 			}
@@ -14311,7 +14311,7 @@ void set_register(int32_t arg, int32_t value)
 			{
 				Ywpn = value/10000;
 				if(new_subscreen_active)
-					new_subscreen_active->get_page_pos(Ywpn, game->ywpn, game->ywpnpg);
+					new_subscreen_active->get_page_pos(Ywpn, game->ywpn);
 				game->items_off[value/10000] = 0;
 				game->forced_ywpn = value/10000;
 			}

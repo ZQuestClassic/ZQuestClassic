@@ -26785,7 +26785,7 @@ static void do_copy_qst_command(const char* input_filename, const char* output_f
 }
 
 int32_t Awpn=-1, Bwpn=-1, Xwpn = -1, Ywpn = -1;
-sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations, portals;
+sprite_list  guys, items, Ewpns, Lwpns, chainlinks, decorations, portals;
 int32_t exittimer = 10000, exittimer2 = 100;
 
 template <typename ...Params>
@@ -29654,7 +29654,9 @@ command_pair commands[cmdMAX]=
     { "Redo",                               0, (intF) onRedo },
     { "Combo Pool Mode",                    0, (intF) onDrawingModePool },
     { "Quest Rules Search",                 0, (intF) onRulesSearch },
-    { "Quick Compile ZScript",              0, (intF) onQuickCompile }
+    { "Quick Compile ZScript",              0, (intF) onQuickCompile },
+    { "Rulesets",                           0, (intF) PickRuleset },
+    { "Rule Templates",                     0, (intF) PickRuleTemplate },
 };
 
 /********************************/

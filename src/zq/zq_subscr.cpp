@@ -250,17 +250,7 @@ int32_t onDeleteSubscreenObject()
     if(objs==0)
         return D_O_K;
     
-	//erase the one object
-	auto cnt = curr_subscreen_object;
-	for(auto it = pg.contents.begin(); it != pg.contents.end();)
-	{
-		if(cnt--) ++it;
-		else
-		{
-			it = pg.contents.erase(it);
-			break;
-		}
-	}
+	pg.delete_widg(curr_subscreen_object);
 	
 	//...shift the selection array
     for(int32_t i=curr_subscreen_object; i<objs-1; ++i)
@@ -358,7 +348,7 @@ int32_t d_subscreen_proc(int32_t msg,DIALOG *d,int32_t)
 			
 		case MSG_DRAW:
 		{
-			Sitems.animate();
+			++subscr_item_clk;
 			BITMAP *buf = create_bitmap_ex(8,256,hei);
 			
 			if(buf)
@@ -2003,10 +1993,10 @@ int32_t onSSCtrlPgDn()
 
 int32_t onSendBackward()
 {
-	auto& contents = subscr_edit.cur_page().contents;
-	if(curr_subscreen_object >= 0 && curr_subscreen_object<subscr_edit.cur_page().contents.size()-1)
+	auto& pg = subscr_edit.cur_page();
+	if(curr_subscreen_object > 0 && curr_subscreen_object<subscr_edit.cur_page().contents.size()-1)
 	{
-		zc_swap(contents[curr_subscreen_object],contents[curr_subscreen_object-1]);
+		pg.swap_widg(curr_subscreen_object,curr_subscreen_object-1);
 		zc_swap(sso_selection[curr_subscreen_object],sso_selection[curr_subscreen_object-1]);
 		++curr_subscreen_object;
 		update_sso_name();
@@ -2041,10 +2031,10 @@ int32_t onSSPgDn()
 // Send forward
 int32_t onBringForward()
 {
-	auto& contents = subscr_edit.cur_page().contents;
+	auto& pg = subscr_edit.cur_page();
 	if(curr_subscreen_object<subscr_edit.cur_page().contents.size()-1)
 	{
-		zc_swap(contents[curr_subscreen_object],contents[curr_subscreen_object+1]);
+		pg.swap_widg(curr_subscreen_object,curr_subscreen_object+1);
 		zc_swap(sso_selection[curr_subscreen_object],sso_selection[curr_subscreen_object+1]);
 		++curr_subscreen_object;
 		update_sso_name();
@@ -2207,7 +2197,7 @@ void update_subscr_dlg(bool start)
 			subscreen_dlg[24].flags&=~D_DISABLED;
 		}
 		
-		subscr_edit.cur_page().move_cursor(SEL_VERIFY_RIGHT);
+		subscr_edit.cur_page().move_legacy(SEL_VERIFY_RIGHT);
 		
 		bool enlarge = subscreen_dlg[0].d1==0;
 		

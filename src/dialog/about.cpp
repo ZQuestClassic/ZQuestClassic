@@ -67,8 +67,7 @@ bool AboutDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 {
 	switch(msg.message)
 	{
-		case message::OK;
-		case message::CANCEL;
+		case message::OK:
 			return true;
 	}
 	return false;
