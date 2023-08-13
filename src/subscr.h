@@ -36,8 +36,6 @@ void putxnum(BITMAP *dest,int32_t x,int32_t y,int32_t num,FONT *tempfont,int32_t
 void defaultcounters(BITMAP *dest, int32_t x, int32_t y, FONT *tempfont, int32_t color, int32_t shadowcolor, int32_t bgcolor, bool usex, int32_t textstyle, int32_t digits, char idigit);
 void counter(BITMAP *dest, int32_t x, int32_t y, FONT *tempfont, int32_t color, int32_t shadowcolor, int32_t bgcolor, int32_t alignment, int32_t textstyle, int32_t digits, char idigit, bool showzero, int32_t itemtype1, int32_t itemtype2, int32_t itemtype3, int32_t infiniteitem, bool onlyselected);
 void minimaptitle(BITMAP *dest, int32_t x, int32_t y, FONT *tempfont, int32_t color, int32_t shadowcolor, int32_t bgcolor, int32_t alignment, int32_t textstyle);
-void animate_selectors();
-void delete_selectors();
 
 INLINE void putdot(BITMAP *dest,int32_t x,int32_t y,int32_t c)
 {
@@ -104,8 +102,6 @@ extern std::vector<ZCSubscreen> new_subscreen;
 extern ZCSubscreen *new_subscreen_active;
 extern ZCSubscreen *new_subscreen_passive;
 
-extern item *Bitem, *Aitem, *Yitem, *Xitem;
-extern int32_t   Bid, Aid, Xid, Yid;
 const byte tripiece[2][8][3] =
 {
     //  112,112,0, 128,112,1, 96,128,0, 144,128,1,
@@ -173,7 +169,6 @@ const byte bmaptiles_bs[5][6] =
 
 void reset_subscr_items();
 void update_subscr_items();
-void add_subscr_item(item *newItem);
 int32_t stripspaces(char *source, char *target, int32_t stop);
 void put_passive_subscr(BITMAP *dest,int32_t x,int32_t y,bool showtime,int32_t pos2);
 void puttriframe(BITMAP *dest, int32_t x, int32_t y, int32_t triframecolor, int32_t numbercolor, int32_t triframetile, int32_t triframecset, int32_t triforcetile, int32_t triforcecset, bool showframe, bool showpieces, bool largepieces);
@@ -195,8 +190,6 @@ void sso_bounding_box(BITMAP *bmp, SubscrWidget* widg, int32_t color);
 
 bool findWeaponWithParent(int32_t id, int32_t type);
 int32_t countWeaponWithParent(int32_t id, int32_t type);
-
-std::string get_subscr_arrow_name(int itemid);
 
 #endif
 

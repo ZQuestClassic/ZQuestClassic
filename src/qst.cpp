@@ -58,7 +58,7 @@ extern FFScript FFCore;
 extern ZModule zcm;
 extern zcmodule moduledata;
 extern uint8_t __isZQuest;
-extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
+extern sprite_list  guys, items, Ewpns, Lwpns, chainlinks, decorations;
 extern particle_list particles;
 extern void setZScriptVersion(int32_t s_version);
 //FFSCript   FFEngine;
@@ -1265,7 +1265,6 @@ void init_spritelists()
 		items.setMax(255);
 		Ewpns.setMax(255);
 		Lwpns.setMax(255);
-		Sitems.setMax(255);
 		chainlinks.setMax(255);
 		decorations.setMax(255);
 		particles.setMax(255);
@@ -1276,7 +1275,6 @@ void init_spritelists()
 		items.setMax(255);
 		Ewpns.setMax(255);
 		Lwpns.setMax(255);
-		Sitems.setMax(255);
 		chainlinks.setMax(255);
 		decorations.setMax(255);
 		particles.setMax(255*((255*4)+1)); //255 per sprite that can use particles; guys, items, ewpns, lwpns, +HERO
