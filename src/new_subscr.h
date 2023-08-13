@@ -224,9 +224,9 @@ struct SubscrWidget
 	int32_t pos_right;
 	std::string override_text;
 	
-	byte gen_script_btns;
 	word generic_script;
-	//!TODO Generic InitD[]?
+	int32_t generic_initd[8];
+	byte gen_script_btns;
 	
 	SubscrWidget() = default;
 	SubscrWidget(byte ty);
@@ -810,7 +810,7 @@ struct SubscrPage
 	int32_t move_legacy(int dir, int startp, int fp=-1, int fp2=-1, int fp3=-1, bool equip_only=true, bool item_only=true);
 	SubscrWidget* get_widg_pos(int32_t pos, bool item_only);
 	SubscrWidget* get_sel_widg();
-	int32_t get_item_pos(int32_t pos, bool item_only);
+	int32_t get_item_pos(int32_t pos, bool item_only = true);
 	int32_t get_sel_item(bool display = false);
 	int32_t get_pos_of_item(int32_t itemid);
 	
@@ -832,6 +832,10 @@ struct ZCSubscreen
 	std::vector<SubscrPage> pages;
 	byte curpage, sub_type;
 	std::string name;
+	
+	//!TODO Subscreen Scripts
+	word script;
+	int32_t initd[8];
 	
 	SubscrPage& cur_page();
 	SubscrPage* get_page(byte ind);

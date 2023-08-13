@@ -37820,10 +37820,17 @@ void FFScript::runOnLaunchEngine()
 	//script_drawing_commands.push_commands(tmpDrawCommands);
 	GameFlags &= ~GAMEFLAG_SCRIPTMENU_ACTIVE;
 }
-bool FFScript::runGenericFrozenEngine(const word script)
+bool FFScript::runGenericFrozenEngine(const word script, const int32_t *init_data)
 {
 	static int32_t local_i = 0;
 	if(script < 1 || script >= NUMSCRIPTSGENERIC) return false;
+	if(init_data)
+	{
+		for(int q = 0; q < 8; ++q)
+		{
+			user_scripts[script].initd[q] = init_data[q];
+		}
+	}
 	if(!genericscripts[script]->valid()) return false; //No script to run
 	//Store script refinfo
 	push_ri();

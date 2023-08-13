@@ -340,6 +340,7 @@ void update_subscr_dlg(bool start);
 int32_t d_subscreen_proc(int32_t msg,DIALOG *d,int32_t)
 {
 	SubscrPage& pg = subscr_edit.cur_page();
+	int hei = subscr_edit.sub_type==sstPASSIVE ? 56 : 168;
 	switch(msg)
 	{
 		case MSG_START:
@@ -358,7 +359,6 @@ int32_t d_subscreen_proc(int32_t msg,DIALOG *d,int32_t)
 		case MSG_DRAW:
 		{
 			Sitems.animate();
-			int hei = subscr_edit.sub_type==sstPASSIVE ? 56 : 168;
 			BITMAP *buf = create_bitmap_ex(8,256,hei);
 			
 			if(buf)
@@ -411,7 +411,7 @@ int32_t d_subscreen_proc(int32_t msg,DIALOG *d,int32_t)
 	if(isinRect(scaled_mouse_x,scaled_mouse_y,d->x, d->y, d->x+d->w-1, d->y+d->h-1))
 	{
 		scaled_mouse_x = round((scaled_mouse_x - d->x) * (256.0/d->w));
-		scaled_mouse_y = round((scaled_mouse_y - d->y) * (168.0/d->h));
+		scaled_mouse_y = round((scaled_mouse_y - d->y) * (double(hei)/d->h));
 	}
 	else scaled_mouse_x = scaled_mouse_y = -999;
 	switch(ssmouse_type)
@@ -1226,6 +1226,21 @@ static DIALOG subscreen_dlg[] =
 
 int32_t onActivePassive()
 {
+	bool run = true;
+	if(subscr_edit.sub_type == sstACTIVE && subscr_edit.pages.size()>1)
+	{
+		bool singular = subscr_edit.pages.size()==2;
+		std::string pgs = singular ? "page 2" : fmt::format("pages 2-{}",subscr_edit.pages.size());
+		AlertDialog(fmt::format("Delete Page{}",singular?"":"s"),
+			fmt::format("Are you sure you want to delete {} by"
+				" switching to a passive subscreen?", pgs),
+			[&](bool ret,bool)
+			{
+				run = ret;
+			}).show();
+	}
+	if(!run) return D_O_K;
+	
     if(subscr_edit.sub_type == sstPASSIVE)
     {
         subscr_edit.sub_type = sstACTIVE;
@@ -1237,8 +1252,10 @@ int32_t onActivePassive()
         subscr_edit.sub_type = sstPASSIVE;
         subscreen_dlg[3].h=116;
         subscreen_dlg[4].h=subscreen_dlg[3].h-4;
+		while(subscr_edit.pages.size() > 1)
+			subscr_edit.delete_page(1);
     }
-    
+    update_subscr_dlg(false);
     return D_REDRAW;
 }
 
@@ -2257,7 +2274,7 @@ void update_subscr_dlg(bool start)
 			}
 			subscreen_dlg[49].y = subscreen_dlg[48].y = subscreen_dlg[47].y =
 				subscreen_dlg[46].y = subscreen_dlg[45].y =
-				subscreen_dlg[3].y+subscreen_dlg[3].h;
+				subscreen_dlg[3].y+168*2+2;
 			subscreen_dlg[45].y += (subscreen_dlg[46].h-dlg_fontheight(subscreen_dlg[45]))/2;
 			
 			subscreen_dlg[50].y = subscreen_dlg[51].y = subscreen_dlg[52].y =
@@ -2271,20 +2288,26 @@ void update_subscr_dlg(bool start)
 			subscreen_dlg[8].w = subscreen_dlg[1].x-subscreen_dlg[8].x-2;
 		}
 	}
-	sprintf(pgbuf, "Pg %d/%zd", subscr_edit.curpage+1,subscr_edit.pages.size());
-	int tw = 8+dlg_fontlen(subscreen_dlg[45]);
-	subscreen_dlg[50].x = subscreen_dlg[46].x = subscreen_dlg[45].x-(tw/2)-subscreen_dlg[46].w;
-	subscreen_dlg[51].x = subscreen_dlg[47].x = subscreen_dlg[45].x+(tw/2);
-	subscreen_dlg[52].x = subscreen_dlg[48].x = subscreen_dlg[46].x - subscreen_dlg[48].w;
-	subscreen_dlg[53].x = subscreen_dlg[49].x = subscreen_dlg[47].x + subscreen_dlg[47].w;
-	subscreen_dlg[54].x = subscreen_dlg[45].x - subscreen_dlg[54].w/2;
-	SETFLAG(subscreen_dlg[46].flags,D_DISABLED,subscr_edit.curpage<1);
-	SETFLAG(subscreen_dlg[47].flags,D_DISABLED,subscr_edit.curpage>=subscr_edit.pages.size()-1);
-	SETFLAG(subscreen_dlg[49].flags,D_DISABLED,subscr_edit.pages.size()>=MAX_SUBSCR_PAGES);
-	SETFLAG(subscreen_dlg[50].flags,D_DISABLED,subscr_edit.curpage<1);
-	SETFLAG(subscreen_dlg[52].flags,D_DISABLED,subscr_edit.curpage<1);
-	SETFLAG(subscreen_dlg[51].flags,D_DISABLED,subscr_edit.curpage>=subscr_edit.pages.size()-1);
-	SETFLAG(subscreen_dlg[53].flags,D_DISABLED,subscr_edit.curpage>=subscr_edit.pages.size()-1);
+	bool nopages = subscr_edit.sub_type==sstPASSIVE;
+	for(int q = 45; q <= 54; ++q)
+		SETFLAG(subscreen_dlg[q].flags,D_HIDDEN,nopages);
+	if(!nopages)
+	{
+		sprintf(pgbuf, "Pg %d/%zd", subscr_edit.curpage+1,subscr_edit.pages.size());
+		SETFLAG(subscreen_dlg[46].flags,D_DISABLED,subscr_edit.curpage<1);
+		SETFLAG(subscreen_dlg[47].flags,D_DISABLED,subscr_edit.curpage>=subscr_edit.pages.size()-1);
+		SETFLAG(subscreen_dlg[49].flags,D_DISABLED,subscr_edit.pages.size()>=MAX_SUBSCR_PAGES);
+		SETFLAG(subscreen_dlg[50].flags,D_DISABLED,subscr_edit.curpage<1);
+		SETFLAG(subscreen_dlg[52].flags,D_DISABLED,subscr_edit.curpage<1);
+		SETFLAG(subscreen_dlg[51].flags,D_DISABLED,subscr_edit.curpage>=subscr_edit.pages.size()-1);
+		SETFLAG(subscreen_dlg[53].flags,D_DISABLED,subscr_edit.curpage>=subscr_edit.pages.size()-1);
+		int tw = 8+dlg_fontlen(subscreen_dlg[45]);
+		subscreen_dlg[50].x = subscreen_dlg[46].x = subscreen_dlg[45].x-(tw/2)-subscreen_dlg[46].w;
+		subscreen_dlg[51].x = subscreen_dlg[47].x = subscreen_dlg[45].x+(tw/2);
+		subscreen_dlg[52].x = subscreen_dlg[48].x = subscreen_dlg[46].x - subscreen_dlg[48].w;
+		subscreen_dlg[53].x = subscreen_dlg[49].x = subscreen_dlg[47].x + subscreen_dlg[47].w;
+		subscreen_dlg[54].x = subscreen_dlg[45].x - subscreen_dlg[54].w/2;
+	}
 	// Disable pastes if no copies
 	bool nocopies = (!propCopyWidg || propCopyWidg->getType()==widgNULL);
 	SETFLAG(subscreen_rc_menu[3].flags,D_DISABLED,nocopies);
@@ -2293,7 +2316,6 @@ void update_subscr_dlg(bool start)
 	SETFLAG(ss_edit_menu[5].flags,D_DISABLED,nocopies);
 	SETFLAG(ss_edit_menu[6].flags,D_DISABLED,nocopies);
 	SETFLAG(ss_edit_menu[7].flags,D_DISABLED,nocopies);
-	zprint2("TXTFLD Y H %d %d\n",subscreen_dlg[8].y,subscreen_dlg[53].y+subscreen_dlg[53].h);
 }
 void broadcast_dialog_message(DIALOG* dialog, int32_t msg, int32_t c);
 bool edit_subscreen()

@@ -474,6 +474,8 @@ bool SubscrWidget::copy_prop(SubscrWidget const* src, bool all)
 		override_text = src->override_text;
 		gen_script_btns = src->gen_script_btns;
 		generic_script = src->generic_script;
+		for(int q = 0; q < 8; ++q)
+			generic_initd[q] = src->generic_initd[q];
 		type = src->type;
 	}
 	return true;
@@ -507,12 +509,18 @@ int32_t SubscrWidget::read(PACKFILE *f, word s_version)
 			return qe_invalid;
 		if(!p_igetl(&pos_right,f))
 			return qe_invalid;
-		if(!p_getcstr(&override_text,f))
-			return qe_invalid;
-		if(!p_getc(&gen_script_btns,f))
+		if(!p_getwstr(&override_text,f))
 			return qe_invalid;
 		if(!p_igetw(&generic_script,f))
 			return qe_invalid;
+		if(generic_script)
+		{
+			if(!p_getc(&gen_script_btns,f))
+				return qe_invalid;
+			for(int q = 0; q < 8; ++q)
+				if(!p_igetl(&generic_initd[q],f))
+					return qe_invalid;
+		}
 	}
 	return 0;
 }
@@ -546,12 +554,18 @@ int32_t SubscrWidget::write(PACKFILE *f) const
 			new_return(12);
 		if(!p_iputl(pos_right,f))
 			new_return(13);
-		if(!p_putcstr(override_text,f))
+		if(!p_putwstr(override_text,f))
 			new_return(14);
-		if(!p_putc(gen_script_btns,f))
-			new_return(15);
 		if(!p_iputw(generic_script,f))
-			new_return(16);
+			new_return(15);
+		if(generic_script)
+		{
+			if(!p_putc(gen_script_btns,f))
+				new_return(16);
+			for(int q = 0; q < 8; ++q)
+				if(!p_iputl(generic_initd[q],f))
+					new_return(17);
+		}
 	}
 	return 0;
 }
@@ -901,16 +915,10 @@ word SW_Time::getW() const
 {
 	char *ts;
 	auto tm = game ? game->get_time() : 0;
-	switch(type)
-	{
-		case ssoBSTIME:
-			ts = time_str_short2(tm);
-			break;
-		case ssoTIME:
-		case ssoSSTIME:
-			ts = time_str_med(tm);
-			break;
-	}
+	if(flags&SUBSCR_TIME_ALTSTR)
+		ts = time_str_short2(tm);
+	else
+		ts = time_str_med(tm);
 	return text_length(get_zc_font(fontid), ts) + shadow_w(shadtype);
 }
 word SW_Time::getH() const
@@ -2826,23 +2834,34 @@ byte SW_SelectedText::getType() const
 }
 void SW_SelectedText::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
+	SubscrWidget* widg = page.get_sel_widg();
+	if(!widg) return;
 	FONT* tempfont = get_zc_font(fontid);
 	std::string str;
-	
-	int32_t itemid=page.get_sel_item(true);
-	if(itemid > -1)
+	if(widg->override_text.size())
+		str = widg->override_text;
+	else
 	{
-		// If it's a combined bow and arrow, the item ID will have 0xF000 added.
-		if(itemid>=0xF000)
-			itemid-=0xF000;
-		
-		// 0 can mean either the item with index 0 is selected or there's no
-		// valid item to select, so be sure Hero has whatever it would be.
-		if(!game->get_item(itemid))
-			return;
-		
-		itemdata const& itm = itemsbuf[itemid];
-		str = itm.get_name();
+		int32_t itemid=widg->getItemVal(true);
+		if(itemid > -1)
+		{
+			// If it's a combined bow and arrow, the item ID will have 0xF000 added.
+			bool bowarrow = itemid&0xF000;
+			if(bowarrow)
+				itemid&=~0xF000;
+			
+			#if IS_PLAYER
+			// 0 can mean either the item with index 0 is selected or there's no
+			// valid item to select, so be sure Hero has whatever it would be.
+			if(!game->get_item(itemid))
+				return;
+			#endif
+			
+			itemdata const& itm = itemsbuf[itemid];
+			str = itm.get_name();
+			if(bowarrow)
+				str = "Bow & " + str;
+		}
 	}
 	if(str.size())
 		draw_textbox(dest, getX()+xofs, getY()+yofs, getW(), getH(), tempfont,
@@ -3547,6 +3566,14 @@ int32_t ZCSubscreen::read(PACKFILE *f, word s_version)
         return qe_invalid;
 	if(!p_getc(&sub_type,f))
         return qe_invalid;
+	if(!p_igetw(&script,f))
+        return qe_invalid;
+	if(script)
+	{
+		for(int q = 0; q < 8; ++q)
+			if(!p_igetl(&initd[q],f))
+				return qe_invalid;
+	}
 	byte pagecnt;
 	if(!p_getc(&pagecnt,f))
         return qe_invalid;
@@ -3565,9 +3592,17 @@ int32_t ZCSubscreen::write(PACKFILE *f) const
         new_return(1);
 	if(!p_putc(sub_type,f))
 		new_return(2);
+	if(!p_iputw(script,f))
+		new_return(3);
+	if(script)
+	{
+		for(int q = 0; q < 8; ++q)
+			if(!p_iputl(initd[q],f))
+				new_return(4);
+	}
 	byte pagecnt = zc_min(255,pages.size());
 	if(!p_putc(pagecnt,f))
-		new_return(3);
+		new_return(5);
 	for(byte q = 0; q < pagecnt; ++q)
 		if(auto ret = pages[q].write(f))
 			return ret;
