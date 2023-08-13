@@ -7,6 +7,16 @@ from dataclasses import dataclass, field, replace
 from typing import Dict, List
 from git_hooks.common import valid_types, valid_scopes
 
+def str2bool(v):
+    if isinstance(v, bool):
+        return v
+    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif v.lower() in ('no', 'false', 'f', 'n', '0', ''):
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Boolean value expected.')
+
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 
 parser = argparse.ArgumentParser()
@@ -14,9 +24,9 @@ parser.add_argument(
     '--format', choices=['plaintext', 'markdown'], default='plaintext')
 parser.add_argument('--from')
 parser.add_argument('--to', default='HEAD')
+parser.add_argument('--for-nightly', type=str2bool, default=False)
 
 args = parser.parse_args()
-from_sha = getattr(args, 'from', None)
 
 commit_url_prefix = 'https://github.com/ArmageddonGames/ZQuestClassic/commit'
 
@@ -206,7 +216,7 @@ def split_text_into_logical_markdown_chunks(text: str) -> List[str]:
     return lines
 
 
-def generate_changelog(commits_by_type: Dict[str, List[Commit]], format: str):
+def stringify_changelog(commits_by_type: Dict[str, List[Commit]], format: str) -> str:
     lines = []
 
     if format == 'markdown':
@@ -273,77 +283,94 @@ def generate_changelog(commits_by_type: Dict[str, List[Commit]], format: str):
     return '\n'.join(lines)
 
 
+def generate_changelog(from_sha: str, to_sha: str) -> str:
+    commits_text = subprocess.check_output(f'git log {from_sha}...{to_sha} --reverse --format="%h %H %s"',
+        shell=True,
+        encoding='utf-8').strip()
+
+    commits: List[Commit] = []
+    for commit_text in commits_text.splitlines():
+        short_hash, hash, subject = commit_text.split(' ', 2)
+        body = subprocess.check_output(
+            f'git log -1 {hash} --format="%b"', shell=True, encoding='utf-8').strip()
+        m = re.search(r'end changelog', body, re.IGNORECASE)
+        if m:
+            body = body[0:m.start()].strip()
+        type, scope, oneline = parse_scope_and_type(subject)
+        commits.append(Commit(type, scope, short_hash, hash, subject, oneline, body))
+
+    # Squash commits.
+    squashed_hashes = []
+    for commit in commits:
+        if commit.hash not in overrides_squashes:
+            continue
+
+        squash_list = overrides_squashes[commit.hash]
+        squashed_hashes.extend(squash_list)
+        commit.squashed_commits = [c for c in commits if c.hash in squash_list]
+        commit.squashed_commits.insert(0, Commit(**commit.__dict__))
+        commit.squashed_commits.sort(key=lambda c: (get_type_index(c.type), get_scope_index(c.scope)))
+    commits = [c for c in commits if c.hash not in squashed_hashes]
+
+    # Replace commit messages with overrides.
+    for commit in commits:
+        hash = commit.hash
+        if hash in overrides and overrides[hash][0] == 'subject':
+            commit.subject = overrides[hash][1]
+        elif hash in overrides and overrides[hash][0] == 'reword':
+            lines = overrides[hash][1].splitlines()
+            commit.subject = lines[0]
+            commit.body = '\n'.join(lines[1:])
+        else:
+            continue
+
+        type, scope, oneline = parse_scope_and_type(commit.subject)
+        commit.type = type
+        commit.scope = scope
+        commit.oneline = oneline
+
+    commits_by_type: Dict[str, List[Commit]] = {}
+    for type in valid_types:
+        commits_by_type[type] = []
+
+    for commit in commits:
+        by_type = commits_by_type.get(commit.type, [])
+        commits_by_type[commit.type] = by_type
+        by_type.append(commit)
+
+    to_remove = []
+    for type, commits in commits_by_type.items():
+        if not commits:
+            to_remove.append(type)
+
+        commits.sort(key=lambda c: get_scope_index(c.scope))
+
+    for key in to_remove:
+        del commits_by_type[key]
+
+    return stringify_changelog(commits_by_type, args.format)
+
+
 for path in (script_dir / 'changelog_overrides').rglob('*.md'):
     if path.name != 'README.md':
         parse_override_file(path)
 
+from_sha = getattr(args, 'from', None)
 if from_sha:
     branch = from_sha
 else:
     branch = subprocess.check_output(
         'git describe --tags --abbrev=0', shell=True, encoding='utf-8').strip()
 
-commits_text = subprocess.check_output(
-    f'git log {branch}...{args.to} --reverse --format="%h %H %s"', shell=True, encoding='utf-8').strip()
+if args.for_nightly:
+    print(f'The following are the changes since {branch}:\n\n')
+    print(generate_changelog(branch, args.to))
 
-commits: List[Commit] = []
-for commit_text in commits_text.splitlines():
-    short_hash, hash, subject = commit_text.split(' ', 2)
-    body = subprocess.check_output(
-        f'git log -1 {hash} --format="%b"', shell=True, encoding='utf-8').strip()
-    m = re.search(r'end changelog', body, re.IGNORECASE)
-    if m:
-        body = body[0:m.start()].strip()
-    type, scope, oneline = parse_scope_and_type(subject)
-    commits.append(Commit(type, scope, short_hash, hash, subject, oneline, body))
-
-# Squash commits.
-squashed_hashes = []
-for commit in commits:
-    if commit.hash not in overrides_squashes:
-        continue
-
-    squash_list = overrides_squashes[commit.hash]
-    squashed_hashes.extend(squash_list)
-    commit.squashed_commits = [c for c in commits if c.hash in squash_list]
-    commit.squashed_commits.insert(0, Commit(**commit.__dict__))
-    commit.squashed_commits.sort(key=lambda c: (get_type_index(c.type), get_scope_index(c.scope)))
-commits = [c for c in commits if c.hash not in squashed_hashes]
-
-# Replace commit messages with overrides.
-for commit in commits:
-    hash = commit.hash
-    if hash in overrides and overrides[hash][0] == 'subject':
-        commit.subject = overrides[hash][1]
-    elif hash in overrides and overrides[hash][0] == 'reword':
-        lines = overrides[hash][1].splitlines()
-        commit.subject = lines[0]
-        commit.body = '\n'.join(lines[1:])
-    else:
-        continue
-
-    type, scope, oneline = parse_scope_and_type(commit.subject)
-    commit.type = type
-    commit.scope = scope
-    commit.oneline = oneline
-
-commits_by_type: Dict[str, List[Commit]] = {}
-for type in valid_types:
-    commits_by_type[type] = []
-
-for commit in commits:
-    by_type = commits_by_type.get(commit.type, [])
-    commits_by_type[commit.type] = by_type
-    by_type.append(commit)
-
-to_remove = []
-for type, commits in commits_by_type.items():
-    if not commits:
-        to_remove.append(type)
-
-    commits.sort(key=lambda c: get_scope_index(c.scope))
-
-for key in to_remove:
-    del commits_by_type[key]
-
-print(generate_changelog(commits_by_type, args.format))
+    previous_full_release_tag = subprocess.check_output(
+        'git describe --tags --abbrev=0 --match "2.55-*"', shell=True, encoding='utf-8').strip()
+    if previous_full_release_tag != branch:
+        print('-------')
+        print(f'The following are the changes since {previous_full_release_tag}:\n\n')
+        print(generate_changelog(previous_full_release_tag, args.to))
+else:
+    print(generate_changelog(branch, args.to))
