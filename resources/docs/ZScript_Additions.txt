@@ -6488,11 +6488,11 @@ int Type;
 int MusicTrack;
  * The enhanced music tracker file track ID.
 
-int MusicLoopStart;
+float MusicLoopStart;
  * The starting loop point for enhanced music in seconds.
  * CURRENTLY ONLY SUPPORTS MP3 / OGG
 
-int MusicLoopEnd;
+float MusicLoopEnd;
  * The ending loop point for enhanced music in seconds.
  * CURRENTLY ONLY SUPPORTS MP3 / OGG
 
@@ -7851,7 +7851,7 @@ void PlaySoundEx(int id, int volume, int pan = 0, long freq = -1L, bool loop = f
  * If loop is true, the sound will repeat infinitely until played again
  * or terminated with EndSound()
 
-void AdjustSound(int id, int volume, int pan = 0, bool loop = false);
+void AdjustSound(int id, int volume, int pan = 0, long freq = -1L, bool loop = false);
  * Same as above, but does not restart the sound
 
 float GetSoundCompletion(int id);
@@ -7897,7 +7897,7 @@ bool PlayEnhancedMusic(int filename[], int track);
 		// the midi specified as midi_id.
 
 void CrossfadeEnhancedMusic(int filename[], int track, int fadeoutframes, int fadeinframes, 
-				int fademiddleframes = 0, int startpos = 0);
+				int delayframes = 0, float startpos = 0);
  * Crossfade to the specified enhanced music if it's available. If the music
  * cannot be played, the current music will continue. The music will
  * revert to normal upon leaving the screen.
@@ -7917,7 +7917,7 @@ int MusicRefresh;
  *   MR_LEVEL: Refresh on level change
  *   MR_NEVER: Never refresh on warps
 
-int MusicRefreshFlags[2];
+bool MusicRefreshFlags[2];
  * A set of flags handling extra effects for MusicRefresh.
  *   MRF_NOCUT: Warp types that cut to silence, don't do that
  *   MRF_REVERT: Upon taking a warp that triggers refresh, revert to MR_SCREEN
