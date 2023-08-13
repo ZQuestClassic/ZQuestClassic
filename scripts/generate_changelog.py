@@ -249,6 +249,7 @@ def stringify_changelog(commits_by_type: Dict[str, List[Commit]], format: str) -
                                 lines.append(f'   >')
 
                     if c.squashed_commits:
+                        lines.append('   >&nbsp;')
                         lines.append('   >Relevant changes:')
                         for squashed in c.squashed_commits:
                             # TODO: also show body?
