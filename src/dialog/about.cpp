@@ -42,7 +42,7 @@ std::shared_ptr<GUI::Widget> AboutDialog::view()
 				Button(
 					text = "&Close",
 					topPadding = 0.5_em,
-					onClick = 0,
+					onClick = message::OK,
 					focused = true)
 			)
 		)
@@ -65,6 +65,12 @@ std::shared_ptr<GUI::Widget> AboutDialog::view()
 
 bool AboutDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 {
-	return true;
+	switch(msg.message)
+	{
+		case message::OK;
+		case message::CANCEL;
+			return true;
+	}
+	return false;
 }
 

@@ -3054,79 +3054,8 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 								),
 								INFOBTN("Cannot be activated standing to the right side if checked")
 							),
-							Column(padding = 0_px,
-								Row(padding = 0_px,
-									Label(text = "Buttons:"),
-									INFOBTN("Which buttons should interact with the chest?"
-										"\nIf no buttons are selected, walking into the chest will interact with it.")
-								),
-								Columns<4>(
-									Checkbox(
-										text = "A", hAlign = 0.0,
-										checked = openbtn&0x1,
-										onToggleFunc = [&](bool state)
-										{
-											SETFLAG(openbtn,0x1,state);
-										}
-									),
-									Checkbox(
-										text = "B", hAlign = 0.0,
-										checked = openbtn&0x2,
-										onToggleFunc = [&](bool state)
-										{
-											SETFLAG(openbtn,0x2,state);
-										}
-									),
-									Checkbox(
-										text = "L", hAlign = 0.0,
-										checked = openbtn&0x4,
-										onToggleFunc = [&](bool state)
-										{
-											SETFLAG(openbtn,0x4,state);
-										}
-									),
-									Checkbox(
-										text = "R", hAlign = 0.0,
-										checked = openbtn&0x8,
-										onToggleFunc = [&](bool state)
-										{
-											SETFLAG(openbtn,0x8,state);
-										}
-									),
-									Checkbox(
-										text = "Ex1", hAlign = 0.0,
-										checked = openbtn&0x10,
-										onToggleFunc = [&](bool state)
-										{
-											SETFLAG(openbtn,0x10,state);
-										}
-									),
-									Checkbox(
-										text = "Ex2", hAlign = 0.0,
-										checked = openbtn&0x20,
-										onToggleFunc = [&](bool state)
-										{
-											SETFLAG(openbtn,0x20,state);
-										}
-									),
-									Checkbox(
-										text = "Ex3", hAlign = 0.0,
-										checked = openbtn&0x40,
-										onToggleFunc = [&](bool state)
-										{
-											SETFLAG(openbtn,0x40,state);
-										}
-									),
-									Checkbox(
-										text = "Ex4", hAlign = 0.0,
-										checked = openbtn&0x80,
-										onToggleFunc = [&](bool state)
-										{
-											SETFLAG(openbtn,0x80,state);
-										}
-									)
-								)
-							)
+							INTBTN_PANEL(openbtn,"Buttons:","Which buttons should interact with the chest?"
+									"\nIf no buttons are selected, walking into the chest will interact with it.")
 						),
 						Row(
 							Label(text = "Open SFX:"),
@@ -4140,7 +4069,6 @@ bool ComboWizardDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			return rerun_dlg;
 		}
 		case message::CANCEL:
-		default:
 			return true;
 		
 		case message::RSET0: case message::RSET1: case message::RSET2: case message::RSET3: case message::RSET4:

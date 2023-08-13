@@ -628,7 +628,6 @@ bool ScreenDataDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			saved = false;
 			[[fallthrough]];
 		case message::CANCEL:
-		default:
 			return true;
 	}
 	return false;

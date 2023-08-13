@@ -117,7 +117,7 @@ bool SetCheatDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			return true;
 
 		case message::CANCEL:
-		default:
 			return true;
 	}
+	return false;
 }

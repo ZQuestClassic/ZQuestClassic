@@ -248,7 +248,6 @@ bool CompileSettingsDlg::handleMessage(const GUI::DialogMessage<message>& msg)
 			saved = false;
 			return true;
 		case message::CANCEL:
-		default:
 			return true;
 	}
 	return false;
