@@ -330,7 +330,7 @@ bool PalEditDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			}
 			return true;
 		case message::OK:
-		default:
 			return true;
 	}
+	return false;
 }

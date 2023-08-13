@@ -77,7 +77,6 @@ bool FooDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		case message::CANCEL:
 			setVal(0,true);
 			return true;
-		default:
-			return true;
 	}
+	return false;
 }

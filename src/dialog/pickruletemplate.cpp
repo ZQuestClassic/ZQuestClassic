@@ -90,7 +90,7 @@ bool PickRuleTemplateDialog::handleMessage(const GUI::DialogMessage<message>& ms
 			}
 			return true;
 		case message::CANCEL:
-		default:
 			return true;
 	}
+	return false;
 }

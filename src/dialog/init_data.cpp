@@ -671,9 +671,9 @@ bool InitDataDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		return true;
 
 		case message::CANCEL:
-		default:
 			return true;
 	}
+	return false;
 }
 
 
@@ -1082,8 +1082,8 @@ bool InitGenscriptWizard::handleMessage(const GUI::DialogMessage<message>& msg)
 		return true;
 
 		case message::CANCEL:
-		default:
 			return true;
 	}
+	return false;
 }
 

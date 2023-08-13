@@ -117,7 +117,7 @@ bool PickRulesetDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			setRuleset(rulesetChoice->getChecked());
 			return true;
 		case message::CANCEL:
-		default:
 			return true;
 	}
+	return false;
 }

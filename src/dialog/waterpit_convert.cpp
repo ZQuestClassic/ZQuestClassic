@@ -133,7 +133,7 @@ bool PitConvertDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			setPitDamage(Type_Checked, lowcombo, highcombo, damage);
 			return true;
 		case message::CANCEL:
-		default:
 			return true;
 	}
+	return false;
 }

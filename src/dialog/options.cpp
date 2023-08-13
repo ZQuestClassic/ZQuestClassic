@@ -944,7 +944,7 @@ bool OptionsDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		case message::OK:
 			saveOptions();
 			[[fallthrough]];
-		default:
+		case message::CANCEL:
 			//cleanup
 			setup_combo_animations();
 			setup_combo_animations2();
@@ -955,4 +955,5 @@ bool OptionsDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			rerun_dlg = true;
 			return true;
 	}
+	return false;
 }

@@ -2084,8 +2084,8 @@ bool QRDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		}
 		[[fallthrough]];
 		case message::CANCEL:
-		default:
 			return true;
 	}
+	return false;
 }
 

@@ -115,6 +115,7 @@ bool WhateverDialog::handleMessage(const GUI::DialogMessage<message>& msg)
     case message::CANCEL:
         return true;
     }
+	return false;
 }
 ```
 
