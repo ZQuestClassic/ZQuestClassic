@@ -28856,9 +28856,15 @@ void do_get_sfx_completion()
 	
 	// TODO: record results for replays
 
+	if (!sfx_allocated(ID))
+	{
+		set_register(sarg1, -10000);
+		return;
+	}
+
 	uint64_t sample_pos = voice_get_position(sfx_voice[ID]);
 
-	if (!sfx_allocated(ID) || sample_pos < 0)
+	if (sample_pos < 0)
 	{
 		set_register(sarg1, -10000);
 		return;
