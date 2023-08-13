@@ -23,6 +23,7 @@ int32_t mapind(int32_t map, int32_t scr);
 bool ffcIsAt(int32_t index, int32_t x, int32_t y);
 
 extern bool triggered_screen_secrets;
+extern int32_t view_map_show_mode;
 
 void debugging_box(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
 void clear_dmap(word i);

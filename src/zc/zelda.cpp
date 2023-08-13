@@ -1697,6 +1697,7 @@ int32_t init_game()
 
 	// Initialize some other values.
 	loadside = 0;
+	view_map_show_mode = 3;
 
 	FFCore.user_objects_init();
 	//Copy saved data to RAM data (but not global arrays)
