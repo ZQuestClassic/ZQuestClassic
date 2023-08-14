@@ -6242,7 +6242,7 @@ void HeroClass::checkhit()
 	for(int32_t i=0; i<Lwpns.Count(); i++)
 	{
 		sprite *s = Lwpns.spr(i);
-	int32_t itemid = ((weapon*)(Lwpns.spr(i)))->parentitem;
+		int32_t itemid = ((weapon*)(Lwpns.spr(i)))->parentitem;
 		//if ( itemdbuf[parentitem].flags&ITEM_FLAGS3 ) //can damage Hero
 		//if ( itemsbuf[parentitem].misc1 > 0 ) //damages Hero by this amount. 
 		if((!(itemid==-1&&get_qr(qr_FIREPROOFHERO)||((itemid>-1&&itemsbuf[itemid].family==itype_candle||itemsbuf[itemid].family==itype_book)&&(itemsbuf[itemid].flags & ITEM_FLAG3)))) && (scriptcoldet&1) && !fallclk && (!superman || !get_qr(qr_FIREPROOFHERO2)))
@@ -6279,26 +6279,38 @@ void HeroClass::checkhit()
 				int32_t iframes = ev[4] / 10000;
 				ev.clear();
 				if(nullhit) return;
+				if (Lwpns.spr(i) != s)
+				{
+					auto hit = Lwpns.find(s);
+					if (hit < 0)
+						s = nullptr;
+					else
+					{
+						s = Lwpns.spr(hit);
+						i = hit;
+					}
+				}
 				if(!divineprot)
 				{
 					game->set_life(zc_max(game->get_life()-dmg,0));
-					if (!get_qr(qr_BROKENHITBY))
+					weapon* w = (weapon*)s;
+					if (!get_qr(qr_BROKENHITBY) && w)
 					{
 						sethitHeroUID(HIT_BY_LWEAPON,(i+1));
 						if (get_qr(qr_BROKENHITBY))
 						{
-							sethitHeroUID(HIT_BY_LWEAPON_UID,((weapon*)(Lwpns.spr(i)))->getUID());
+							sethitHeroUID(HIT_BY_LWEAPON_UID,w->getUID());
 						}
 						else
 						{
 							
-							sethitHeroUID(HIT_BY_LWEAPON_UID,((weapon*)(Lwpns.spr(i)))->getScriptUID());
+							sethitHeroUID(HIT_BY_LWEAPON_UID,w->getScriptUID());
 						}
-						sethitHeroUID(HIT_BY_LWEAPON_ENGINE_UID,((weapon*)(Lwpns.spr(i)))->getUID());
-						sethitHeroUID(HIT_BY_LWEAPON_TYPE, ((weapon*)(Lwpns.spr(i)))->id);
-						if (((weapon*)(Lwpns.spr(i)))->parentitem > -1) sethitHeroUID(HIT_BY_LWEAPON_PARENT_ID, ((weapon*)(Lwpns.spr(i)))->parentitem);
+						sethitHeroUID(HIT_BY_LWEAPON_ENGINE_UID,w->getUID());
+						sethitHeroUID(HIT_BY_LWEAPON_TYPE, w->id);
+						if (w->parentitem > -1) sethitHeroUID(HIT_BY_LWEAPON_PARENT_ID, w->parentitem);
 						else sethitHeroUID(HIT_BY_LWEAPON_PARENT_ID, -1);
-						sethitHeroUID(HIT_BY_LWEAPON_PARENT_FAMILY, itemsbuf[((weapon*)(Lwpns.spr(i)))->parentitem].family);
+						sethitHeroUID(HIT_BY_LWEAPON_PARENT_FAMILY, itemsbuf[w->parentitem].family);
 					}
 				}
 				
@@ -6450,13 +6462,13 @@ killweapon:
 				{
 					std::vector<int32_t> &ev = FFCore.eventData;
 					ev.clear();
-					ev.push_back(((((weapon*)s)->parentitem>-1 ? itemsbuf[((weapon*)s)->parentitem].misc3 : ((weapon*)s)->power) *game->get_hp_per_heart())*10000);
-					ev.push_back(s->hitdir(x,y,16,16,dir)*10000);
+					ev.push_back(((w->parentitem>-1 ? itemsbuf[w->parentitem].misc3 : w->power) *game->get_hp_per_heart())*10000);
+					ev.push_back(w->hitdir(x,y,16,16,dir)*10000);
 					ev.push_back(0);
 					ev.push_back(DivineProtectionShieldClk>0?10000:0);
 					ev.push_back(48*10000);
 					ev.push_back(ZSD_LWPN*10000);
-					ev.push_back(s->getUID());
+					ev.push_back(w->getUID());
 					ev.push_back(ZSD_NONE*10000);
 					ev.push_back(0);
 					
@@ -6477,26 +6489,38 @@ killweapon:
 					int32_t iframes = ev[4] / 10000;
 					ev.clear();
 					if(nullhit) return;
+					if (Lwpns.spr(i) != w)
+					{
+						auto hit = Lwpns.find(w);
+						if (hit < 0)
+							s = nullptr;
+						else
+						{
+							s = Lwpns.spr(hit);
+							i = hit;
+						}
+						w = (weapon*)s;
+					}
 					if(!divineprot)
 					{
 						game->set_life(zc_min(game->get_maxlife(), zc_max(game->get_life()-dmg,0)));
-						if (!get_qr(qr_BROKENHITBY))
+						if (!get_qr(qr_BROKENHITBY) && w)
 						{
 							sethitHeroUID(HIT_BY_LWEAPON,(i+1));
 							if (get_qr(qr_BROKENHITBY))
 							{
-								sethitHeroUID(HIT_BY_LWEAPON_UID,((weapon*)(Lwpns.spr(i)))->getUID());
+								sethitHeroUID(HIT_BY_LWEAPON_UID,w->getUID());
 							}
 							else
 							{
 								
-								sethitHeroUID(HIT_BY_LWEAPON_UID,((weapon*)(Lwpns.spr(i)))->getScriptUID());
+								sethitHeroUID(HIT_BY_LWEAPON_UID,w->getScriptUID());
 							}
-							sethitHeroUID(HIT_BY_LWEAPON_ENGINE_UID,((weapon*)(Lwpns.spr(i)))->getUID());
-							sethitHeroUID(HIT_BY_LWEAPON_TYPE, ((weapon*)(Lwpns.spr(i)))->id);
-							if (((weapon*)(Lwpns.spr(i)))->parentitem > -1) sethitHeroUID(HIT_BY_LWEAPON_PARENT_ID, ((weapon*)(Lwpns.spr(i)))->parentitem);
+							sethitHeroUID(HIT_BY_LWEAPON_ENGINE_UID,w->getUID());
+							sethitHeroUID(HIT_BY_LWEAPON_TYPE, w->id);
+							if (w->parentitem > -1) sethitHeroUID(HIT_BY_LWEAPON_PARENT_ID, w->parentitem);
 							else sethitHeroUID(HIT_BY_LWEAPON_PARENT_ID, -1);
-							sethitHeroUID(HIT_BY_LWEAPON_PARENT_FAMILY, itemsbuf[((weapon*)(Lwpns.spr(i)))->parentitem].family);
+							sethitHeroUID(HIT_BY_LWEAPON_PARENT_FAMILY, itemsbuf[w->parentitem].family);
 						}
 					}
 					
@@ -6554,17 +6578,29 @@ killweapon:
 			nullhit = ev[2] != 0;
 			ev.clear();
 			if(nullhit) return;
+			if (Lwpns.spr(i) != s)
+			{
+				auto hit = Lwpns.find(s);
+				if (hit < 0)
+					s = nullptr;
+				else
+				{
+					s = Lwpns.spr(hit);
+					i = hit;
+				}
+			}
 			
 			reset_hookshot();
 			xofs=1000;
 			action=inwind; FFCore.setHeroAction(inwind);
-			dir=s->dir=hdir;
+			dir = hdir;
+			if(s) s->dir = hdir;
 			spins = charging = attackclk = 0;
 			
 			// In case Hero used two whistles in a row, summoning two whirlwinds,
 			// check which whistle's whirlwind picked him up so the correct
 			// warp ring will be used
-			int32_t whistle=((weapon*)s)->parentitem;
+			int32_t whistle=s ? ((weapon*)s)->parentitem : -1;
 			
 			if(whistle>-1 && itemsbuf[whistle].family==itype_whistle)
 				whistleitem=whistle;
@@ -6623,28 +6659,39 @@ killweapon:
 		int32_t iframes = ev[4] / 10000;
 		ev.clear();
 		if(nullhit) return;
-		if(!divineprot)
+		if (Lwpns.spr(hit2) != lwpnspr)
 		{
-			game->set_life(zc_max(game->get_life()-dmg,0));
-			sethitHeroUID(HIT_BY_LWEAPON,(hit2+1));
-			if (get_qr(qr_BROKENHITBY))
+			hit2 = Lwpns.find(lwpnspr);
+			if (hit2 < 0)
+				lwpnspr = nullptr;
+			else lwpnspr = (weapon*)Lwpns.spr(hit2);
+		}
+		if (!divineprot)
+		{
+			game->set_life(zc_max(game->get_life() - dmg, 0));
+			if (lwpnspr)
 			{
-				sethitHeroUID(HIT_BY_LWEAPON_UID,lwpnspr->getUID());
+				sethitHeroUID(HIT_BY_LWEAPON, (hit2 + 1));
+				if (get_qr(qr_BROKENHITBY))
+				{
+					sethitHeroUID(HIT_BY_LWEAPON_UID, lwpnspr->getUID());
+				}
+				else
+				{
+
+					sethitHeroUID(HIT_BY_LWEAPON_UID, lwpnspr->getScriptUID());
+				}
+				sethitHeroUID(HIT_BY_LWEAPON_ENGINE_UID, lwpnspr->getUID());
+				sethitHeroUID(HIT_BY_LWEAPON_TYPE, lwpnspr->id);
+				if (lwpnspr->parentitem > -1) sethitHeroUID(HIT_BY_LWEAPON_PARENT_ID, lwpnspr->parentitem);
+				else sethitHeroUID(HIT_BY_LWEAPON_PARENT_ID, -1);
+				sethitHeroUID(HIT_BY_LWEAPON_PARENT_FAMILY, itemsbuf[lwpnspr->parentitem].family);
 			}
-			else
-			{
-				
-				sethitHeroUID(HIT_BY_LWEAPON_UID,lwpnspr->getScriptUID());
-			}
-			sethitHeroUID(HIT_BY_LWEAPON_ENGINE_UID,lwpnspr->getUID());
-			sethitHeroUID(HIT_BY_LWEAPON_TYPE, lwpnspr->id);
-			if (lwpnspr->parentitem > -1) sethitHeroUID(HIT_BY_LWEAPON_PARENT_ID, lwpnspr->parentitem);
-			else sethitHeroUID(HIT_BY_LWEAPON_PARENT_ID, -1);
-			sethitHeroUID(HIT_BY_LWEAPON_PARENT_FAMILY, itemsbuf[lwpnspr->parentitem].family);
 		}
 		
 		hitdir = hdir;
-		lwpnspr->onhit(false);
+		if(lwpnspr)
+			lwpnspr->onhit(false);
 		
 		if (IsSideSwim())
 		{
@@ -6688,8 +6735,8 @@ killweapon:
 		ev.push_back(48*10000);
 		ev.push_back(ZSD_EWPN*10000);
 		ev.push_back(ewpnspr->getUID());
-	ev.push_back(ZSD_NONE*10000);
-	ev.push_back(0);
+		ev.push_back(ZSD_NONE*10000);
+		ev.push_back(0);
 		
 		throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_1);
 		int32_t dmg = ev[0]/10000;
@@ -6707,26 +6754,37 @@ killweapon:
 		bool divineprot = ev[3] != 0;
 		int32_t iframes = ev[4] / 10000;
 		ev.clear();
-		if(nullhit) return;
-		if(!divineprot)
+		if (nullhit) return;
+		if (Ewpns.spr(hit2) != ewpnspr)
 		{
-			game->set_life(zc_max(game->get_life()-dmg,0));
-			sethitHeroUID(HIT_BY_EWEAPON,(hit2+1));
-			if (get_qr(qr_BROKENHITBY))
+			hit2 = Ewpns.find(ewpnspr);
+			if (hit2 < 0)
+				ewpnspr = nullptr;
+			else ewpnspr = (weapon*)Ewpns.spr(hit2);
+		}
+		if (!divineprot)
+		{
+			game->set_life(zc_max(game->get_life() - dmg, 0));
+			if (ewpnspr)
 			{
-				sethitHeroUID(HIT_BY_EWEAPON_UID,ewpnspr->getUID());
+				sethitHeroUID(HIT_BY_EWEAPON, (hit2 + 1));
+				if (get_qr(qr_BROKENHITBY))
+				{
+					sethitHeroUID(HIT_BY_EWEAPON_UID, ewpnspr->getUID());
+				}
+				else
+				{
+
+					sethitHeroUID(HIT_BY_EWEAPON_UID, ewpnspr->getScriptUID());
+				}
+				sethitHeroUID(HIT_BY_EWEAPON_ENGINE_UID, ewpnspr->getUID());
+				sethitHeroUID(HIT_BY_EWEAPON_TYPE, ewpnspr->id);
 			}
-			else
-			{
-				
-				sethitHeroUID(HIT_BY_EWEAPON_UID,ewpnspr->getScriptUID());
-			}
-			sethitHeroUID(HIT_BY_EWEAPON_ENGINE_UID,ewpnspr->getUID());
-			sethitHeroUID(HIT_BY_EWEAPON_TYPE, ewpnspr->id);
 		}
 		
 		hitdir = hdir;
-		ewpnspr->onhit(false);
+		if(ewpnspr)
+			ewpnspr->onhit(false);
 		
 		if (IsSideSwim())
 		{
@@ -6763,7 +6821,7 @@ killweapon:
 	int32_t dy2 = (int32_t)y+(bigHitbox?8:12)+(bigHitbox?tmpscr->csensitive-1:((tmpscr->csensitive+1)/2)-1);
 	
 	for(int32_t i=get_qr(qr_DMGCOMBOLAYERFIX) ? 1 : -1; i>=-1; i--)  // Layers 0, 1 and 2!!
-		(void)checkdamagecombos(dx1,dx2,dy1,dy2,i);
+		checkdamagecombos(dx1,dx2,dy1,dy2,i);
 }
 
 bool HeroClass::checkdamagecombos(int32_t dx, int32_t dy)
