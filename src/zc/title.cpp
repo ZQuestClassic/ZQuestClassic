@@ -1123,24 +1123,27 @@ static void framerect(BITMAP* dest, int32_t x, int32_t y, int32_t w, int32_t h, 
 static void selectscreen()
 {
 	FFCore.kb_typing_mode = false;
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
+	if (get_qr(qr_OLD_SCRIPT_VOLUME))
 	{
-		Z_scripterrlog("Trying to restore master MIDI volume to: %d\n", FFCore.usr_midi_volume);
-		midi_volume = FFCore.usr_midi_volume;
-		//master_volume(-1,FFCore.usr_midi_volume);
-	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
-	{
-		digi_volume = FFCore.usr_digi_volume;
+		if (FFCore.coreflags & FFCORE_SCRIPTED_MIDI_VOLUME)
+		{
+			Z_scripterrlog("Trying to restore master MIDI volume to: %d\n", FFCore.usr_midi_volume);
+			midi_volume = FFCore.usr_midi_volume;
+			//master_volume(-1,FFCore.usr_midi_volume);
+		}
+		if (FFCore.coreflags & FFCORE_SCRIPTED_DIGI_VOLUME)
+		{
+			digi_volume = FFCore.usr_digi_volume;
 			//master_volume((int32_t)(FFCore.usr_digi_volume),1);
-	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
-	{
-		emusic_volume = (int32_t)FFCore.usr_music_volume;
-	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME )
-	{
-		sfx_volume = (int32_t)FFCore.usr_sfx_volume;
+		}
+		if (FFCore.coreflags & FFCORE_SCRIPTED_MUSIC_VOLUME)
+		{
+			emusic_volume = (int32_t)FFCore.usr_music_volume;
+		}
+		if (FFCore.coreflags & FFCORE_SCRIPTED_SFX_VOLUME)
+		{
+			sfx_volume = (int32_t)FFCore.usr_sfx_volume;
+		}
 	}
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
 	{
@@ -2046,7 +2049,9 @@ int32_t custom_game(int32_t file)
 		blit(tmp_scr,screen,0,0,scrx,scry,320,240);
 	}
 	if(!customized) strcpy(qstpath, relpath);
-	
+	else
+		saves_get_slot(file, true)->game->set_qstpath(relativize_path(qstpath));
+
 	exit_sys_pal();
 	key[KEY_ESC]=0;
 	chosecustomquest = (ret==5) && customized;
@@ -2055,6 +2060,9 @@ int32_t custom_game(int32_t file)
 
 static int32_t game_details(int32_t file)
 {
+	if (file >= saves_count())
+		return 0;
+
 	al_trace("Running game_details(int32_t file)\n");
 	int32_t pos=file%3;
 
@@ -2160,9 +2168,10 @@ int32_t getsaveslot()
 		{
 			return -1;
 		}
+		return saveslot;
 	}
 	
-	return saveslot;
+	return -1;
 }
 
 static void select_game(bool skip = false)
@@ -2700,6 +2709,7 @@ void game_over(int32_t type)
 			
 			game->save_user_objects();
 			saves_write();
+			replay_step_comment("save game");
 			if (replay_get_mode() == ReplayMode::Record) replay_save();
 		}
 	}

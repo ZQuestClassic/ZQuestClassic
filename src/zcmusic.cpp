@@ -5,6 +5,7 @@
 
 #include "base/zc_alleg.h" // TODO: why do we get "_malloca macro redefinition" in Windows debug builds without this include?
 #include <string.h>
+#include <algorithm>
 
 #ifdef _DEBUG
 #ifdef _malloca
@@ -900,6 +901,11 @@ void zcmusic_set_loop(ZCMUSIC* zcm, double start, double end)
 	return;
 }
 
+int32_t zcmusic_get_type(ZCMUSIC* zcm)
+{
+	return zcm->type & libflags;
+}
+
 
 ALSTREAMFILE *load_alstream_file(const char *filename)
 {
@@ -947,50 +953,56 @@ void unload_alstream_file(ALSTREAMFILE *als)
         if(als->fname != NULL)
         {
             free(als->fname);
-            free(als);
         }
+		free(als);
     }
 }
 
-int32_t stream_getpos(ALSTREAMFILE* mp3)
+int32_t stream_getpos(ALSTREAMFILE* als)
 {
-	if (mp3->s != NULL)
+	if (als->s != NULL)
 	{
-		return int32_t(al_get_audio_stream_position_secs(mp3->s) * 10000.0);
+		return int32_t(al_get_audio_stream_position_secs(als->s) * 10000.0);
 	}
 	return -10000;
 }
 
-void stream_setpos(ALSTREAMFILE* mp3, int32_t msecs)
+void stream_setpos(ALSTREAMFILE* als, int32_t msecs)
 {
-	if (mp3->s != NULL)
+	if (als->s != NULL)
 	{
-		al_seek_audio_stream_secs(mp3->s, double(msecs) / 10000.0);
+		al_seek_audio_stream_secs(als->s, double(msecs) / 10000.0);
 	}
 }
 
-void stream_setspeed(ALSTREAMFILE* mp3, int32_t speed)
+void stream_setspeed(ALSTREAMFILE* als, int32_t speed)
 {
-	if (mp3->s != NULL)
+	if (als->s != NULL)
 	{
-		al_set_audio_stream_speed(mp3->s, float(speed / 10000.0));
+		al_set_audio_stream_speed(als->s, float(speed / 10000.0));
 	}
 }
 
-int32_t stream_getlength(ALSTREAMFILE* mp3)
+int32_t stream_getlength(ALSTREAMFILE* als)
 {
-	if (mp3->s != NULL)
+	if (als->s != NULL)
 	{
-		return int32_t(al_get_audio_stream_length_secs(mp3->s) * 10000.0);
+		return int32_t(al_get_audio_stream_length_secs(als->s) * 10000.0);
 	}
 	return -10000;
 }
 
-void stream_setloop(ALSTREAMFILE* mp3, double start, double end)
+void stream_setloop(ALSTREAMFILE* als, double start, double end)
 {
-	if (mp3->s != NULL)
+	if (als->s != NULL)
 	{
-		al_set_audio_stream_loop_secs(mp3->s, start, end);
+		// No loop set
+		if (start == 0.0 && end == 0.0)
+			return;
+		// Don't allow end point before start point
+		if (end < start)
+			end = double(stream_getlength(als) / 10000.0);
+		al_set_audio_stream_loop_secs(als->s, start, end);
 	}
 }
 
@@ -1068,3 +1080,90 @@ int32_t unload_gme_file(GMEFILE* gme)
     return true;
 }
 
+ZCMIXER* zcmixer_create()
+{
+	ZCMIXER *mix = NULL;
+	if ((mix = (ZCMIXER*)malloc(sizeof(ZCMIXER))) == NULL)
+		return NULL;
+
+	mix->fadeinframes = 0;
+	mix->fadeinmaxframes = 0;
+	mix->fadeindelay = 0;
+	mix->fadeoutframes = 0;
+	mix->fadeoutmaxframes = 0;
+
+	mix->newtrack = NULL;
+	mix->oldtrack = NULL;
+
+	return mix;
+}
+void zcmixer_update(ZCMIXER* mix, int32_t basevol, int32_t uservol, bool oldscriptvol)
+{
+	if (mix == NULL)
+		return;
+
+	if (mix->fadeinframes)
+	{
+		if (mix->fadeindelay)
+		{
+			--mix->fadeindelay;
+			if (mix->newtrack != NULL)
+			{
+				zcmusic_play(mix->newtrack, 0);
+			}
+		}
+		else
+		{
+			--mix->fadeinframes;
+			if (mix->newtrack != NULL)
+			{
+				int32_t pct = std::clamp(int32_t((uint64_t(mix->fadeinframes) * 10000) / uint64_t(mix->fadeinmaxframes)), 0, 10000);
+				mix->newtrack->fadevolume = 10000 - pct;
+				int32_t temp_volume = basevol;
+				if (!oldscriptvol)
+					temp_volume = (basevol * uservol) / 10000 / 100;
+				temp_volume = (temp_volume * mix->newtrack->fadevolume) / 10000;
+				zcmusic_play(mix->newtrack, temp_volume);
+				if (mix->fadeinframes == 0)
+				{
+					mix->newtrack->fadevolume = 10000;
+				}
+			}
+		}
+	}
+	if(mix->fadeoutframes)
+	{
+		if (mix->fadeoutdelay)
+			--mix->fadeoutdelay;
+		else
+			--mix->fadeoutframes;
+		if (mix->oldtrack != NULL)
+		{
+			int32_t pct = 0;
+			if(mix->fadeoutframes > 0)
+				pct = std::clamp(int32_t((uint64_t(mix->fadeoutframes) * 10000) / uint64_t(mix->fadeoutmaxframes)), 0, 10000);
+			mix->oldtrack->fadevolume = pct;
+			int32_t temp_volume = basevol;
+			if (!oldscriptvol)
+				temp_volume = (basevol * uservol) / 10000 / 100;
+			temp_volume = (temp_volume * mix->oldtrack->fadevolume) / 10000;
+			zcmusic_play(mix->oldtrack, temp_volume);
+		}
+		if (mix->fadeoutframes == 0)
+		{
+			zcmusic_stop(mix->oldtrack);
+			zcmusic_unload_file(mix->oldtrack);
+		}
+	}
+}
+void zcmixer_exit(ZCMIXER* &mix)
+{
+	if (mix == NULL) 
+		return;
+
+	zcmusic_unload_file(mix->oldtrack);
+	// newtrack is just zcmusic
+
+	free(mix);
+	mix = NULL;
+}

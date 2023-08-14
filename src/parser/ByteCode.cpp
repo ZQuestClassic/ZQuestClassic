@@ -2292,12 +2292,12 @@ string ZScript::VarToString(int32_t ID)
 	case PALDATAR: return "PALDATAR";
 	case PALDATAG: return "PALDATAG";
 	case PALDATAB: return "PALDATAB";
-	case RESRVD_VAR_MOOSH01: return "RESRVD_VAR_MOOSH01";
-	case RESRVD_VAR_MOOSH02: return "RESRVD_VAR_MOOSH02";
-	case RESRVD_VAR_MOOSH03: return "RESRVD_VAR_MOOSH03";
-	case RESRVD_VAR_MOOSH04: return "RESRVD_VAR_MOOSH04";
-	case RESRVD_VAR_MOOSH05: return "RESRVD_VAR_MOOSH05";
-	case RESRVD_VAR_MOOSH06: return "RESRVD_VAR_MOOSH06";
+	case DMAPDATALOOPSTART: return "DMAPDATALOOPSTART";
+	case DMAPDATALOOPEND: return "DMAPDATALOOPEND";
+	case DMAPDATAXFADEIN: return "DMAPDATAXFADEIN";
+	case DMAPDATAXFADEOUT: return "DMAPDATAXFADEOUT";
+	case MUSICUPDATECOND: return "MUSICUPDATECOND";
+	case MUSICUPDATEFLAGS: return "MUSICUPDATEFLAGS";
 	case RESRVD_VAR_MOOSH07: return "RESRVD_VAR_MOOSH07";
 	case RESRVD_VAR_MOOSH08: return "RESRVD_VAR_MOOSH08";
 	case RESRVD_VAR_MOOSH09: return "RESRVD_VAR_MOOSH09";
@@ -3692,6 +3692,18 @@ string OAdjustSFXVolumeRegister::toString() const
 {
     return "ADJUSTSFXVOLUMER " + getArgument()->toString();
 }
+string OAdjustSound::toString() const
+{
+	return "ADJUSTSFX";
+}
+string OPlaySoundEX::toString() const
+{
+	return "PLAYSOUNDEX";
+}
+string OGetSoundCompletion::toString() const
+{
+	return "GETSFXCOMPLETION " + getArgument()->toString();
+}
 string OPlaySoundRegister::toString() const
 {
     return "PLAYSOUNDR " + getArgument()->toString();
@@ -3725,6 +3737,21 @@ string OSetEnhancedMusicPos::toString() const
 string OSetEnhancedMusicSpeed::toString() const
 {
     return "SETENHMUSICSPEED " + getArgument()->toString();
+}
+
+string OGetEnhancedMusicLength::toString() const
+{
+	return "GETENHMUSICLEN " + getArgument()->toString();
+}
+
+string OSetEnhancedMusicLoop::toString() const
+{
+	return "SETENHMUSICLOOP " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+string OCrossfadeEnhancedMusic::toString() const
+{
+	return "ENHCROSSFADE";
 }
 
 string OGetDMapMusicFilename::toString() const

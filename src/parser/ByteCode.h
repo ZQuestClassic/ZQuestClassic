@@ -1476,12 +1476,12 @@
 #define PALDATAG                1391
 #define PALDATAB                1392
 
-#define RESRVD_VAR_MOOSH01      1393
-#define RESRVD_VAR_MOOSH02      1394
-#define RESRVD_VAR_MOOSH03      1395
-#define RESRVD_VAR_MOOSH04      1396
-#define RESRVD_VAR_MOOSH05      1397
-#define RESRVD_VAR_MOOSH06      1398
+#define DMAPDATALOOPSTART       1393
+#define DMAPDATALOOPEND         1394
+#define DMAPDATAXFADEIN         1395
+#define DMAPDATAXFADEOUT        1396
+#define MUSICUPDATECOND         1397
+#define MUSICUPDATEFLAGS        1398
 #define RESRVD_VAR_MOOSH07      1399
 #define RESRVD_VAR_MOOSH08      1400
 #define RESRVD_VAR_MOOSH09      1401
@@ -4737,6 +4737,38 @@ namespace ZScript
 		}
 	};
 
+	class OAdjustSound : public Opcode
+	{
+	public:
+		OAdjustSound() : Opcode() {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OAdjustSound();
+		}
+	};
+
+	class OPlaySoundEX : public Opcode
+	{
+	public:
+		OPlaySoundEX() : Opcode() {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OPlaySoundEX();
+		}
+	};
+
+	class OGetSoundCompletion : public UnaryOpcode
+	{
+	public:
+		OGetSoundCompletion(Argument *A) : UnaryOpcode(A) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OGetSoundCompletion(a->clone());
+		}
+	};
 
 	class OEndSoundRegister : public UnaryOpcode
 	{
@@ -4894,6 +4926,39 @@ namespace ZScript
 		Opcode* clone() const
 		{
 			return new OSetEnhancedMusicSpeed(a->clone());
+		}
+	};
+
+	class OGetEnhancedMusicLength : public UnaryOpcode
+	{
+	public:
+		OGetEnhancedMusicLength(Argument *A) : UnaryOpcode(A) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OGetEnhancedMusicLength(a->clone());
+		}
+	};
+
+	class OSetEnhancedMusicLoop : public BinaryOpcode
+	{
+	public:
+		OSetEnhancedMusicLoop(Argument* A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OSetEnhancedMusicLoop(a->clone(), b->clone());
+		}
+	};
+
+	class OCrossfadeEnhancedMusic : public Opcode
+	{
+	public:
+		OCrossfadeEnhancedMusic() : Opcode() {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OCrossfadeEnhancedMusic();
 		}
 	};
 

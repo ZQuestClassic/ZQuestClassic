@@ -116,7 +116,7 @@ jobs:
           path: release-packages
 
       - name: Generate changelog
-        run: python scripts/generate_changelog.py --format markdown --from ${{ needs.create-tag.outputs.previous-release-tag }} > new_changelog.md
+        run: python scripts/generate_changelog.py --format markdown --from ${{ needs.create-tag.outputs.previous-release-tag }} --for-nightly=${{ github.event.inputs.full_release != 'true' }} > new_changelog.md
 
       - name: Release
         uses: softprops/action-gh-release@v1

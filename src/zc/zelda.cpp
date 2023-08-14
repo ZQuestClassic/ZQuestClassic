@@ -141,6 +141,7 @@ bool dev_timestmp = false;
 #endif
 
 ZCMUSIC *zcmusic = NULL;
+ZCMIXER *zcmixer = NULL;
 zinitdata zinit;
 int32_t colordepth;
 int32_t db=0;
@@ -1816,6 +1817,11 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 		}//end hack
 	}
 	else ret = qe_no_qst;
+
+	if (replay_is_active() && !testingqst_name.empty())
+	{
+		sprintf(qstpath, "%s", testingqst_name.c_str());
+	}
 	
 	if(!exists(qstpath)) ret = qe_notfound;
 	
@@ -1925,6 +1931,7 @@ int32_t init_game()
 	// Initialize some other values.
 	viewport_mode = ViewportMode::CenterAndBound;
 	loadside = 0;
+	view_map_show_mode = 3;
 
 	FFCore.user_objects_init();
 	//Copy saved data to RAM data (but not global arrays)
@@ -2269,6 +2276,12 @@ int32_t init_game()
 	FFCore.initZScriptDMapScripts();
 	FFCore.initZScriptActiveSubscreenScript();
 	FFCore.initZScriptItemScripts();
+
+	if (!get_qr(qr_OLD_SCRIPT_VOLUME))
+	{
+		FFCore.usr_sfx_volume = 10000 * 100;
+		FFCore.usr_music_volume = 10000 * 100;
+	}
 	
 	//show quest metadata when loading it
 	print_quest_metadata(QHeader, qstpath, byte(game->get_quest()-1));
@@ -2691,7 +2704,13 @@ int32_t cont_game()
 	FFCore.initZScriptDMapScripts();
 	FFCore.initZScriptActiveSubscreenScript();
 	FFCore.initZScriptItemScripts();
-	
+
+	if (!get_qr(qr_OLD_SCRIPT_VOLUME))
+	{
+		FFCore.usr_sfx_volume = 10000 * 100;
+		FFCore.usr_music_volume = 10000 * 100;
+	}
+
 	update_subscreens();
 	Playing=true;
 	map_bkgsfx(true);
@@ -4914,6 +4933,7 @@ int main(int argc, char **argv)
 	
 	Z_message("Initializing music... ");
 	zcmusic_init();
+	zcmixer = zcmixer_create();
 	Z_message("OK\n");
 	
 	//  int32_t mode = VidMode;                                       // from config file
@@ -5089,22 +5109,25 @@ int main(int argc, char **argv)
 	if(used_switch(argc,argv,"-q"))
 	{
 		printf("-q switch used, quitting program.\n");
-		//restore user volume settings
-		if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
+		if (get_qr(qr_OLD_SCRIPT_VOLUME))
 		{
-			master_volume(-1,((int32_t)FFCore.usr_midi_volume));
-		}
-		if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
-		{
-			master_volume((int32_t)(FFCore.usr_digi_volume),1);
-		}
-		if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
-		{
-			emusic_volume = (int32_t)FFCore.usr_music_volume;
-		}
-		if ( FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME )
-		{
-			sfx_volume = (int32_t)FFCore.usr_sfx_volume;
+			//restore user volume settings
+			if (FFCore.coreflags & FFCORE_SCRIPTED_MIDI_VOLUME)
+			{
+				master_volume(-1, ((int32_t)FFCore.usr_midi_volume));
+			}
+			if (FFCore.coreflags & FFCORE_SCRIPTED_DIGI_VOLUME)
+			{
+				master_volume((int32_t)(FFCore.usr_digi_volume), 1);
+			}
+			if (FFCore.coreflags & FFCORE_SCRIPTED_MUSIC_VOLUME)
+			{
+				emusic_volume = (int32_t)FFCore.usr_music_volume;
+			}
+			if (FFCore.coreflags & FFCORE_SCRIPTED_SFX_VOLUME)
+			{
+				sfx_volume = (int32_t)FFCore.usr_sfx_volume;
+			}
 		}
 		if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
 		{
@@ -5323,6 +5346,9 @@ int main(int argc, char **argv)
 	if (used_switch(argc, argv, "-replay-exit-when-done") > 0)
 		replay_enable_exit_when_done();
 
+	if (used_switch(argc, argv, "-replay-save-games") > 0)
+		saves_enable_save_current_replay();
+
 	int replay_arg = used_switch(argc, argv, "-replay");
 	int snapshot_arg = used_switch(argc, argv, "-snapshot");
 	int record_arg = used_switch(argc, argv, "-record");
@@ -5506,29 +5532,39 @@ reload_for_replay_file:
 
 	if (zqtesting_mode || replay_is_active())
 	{
-		gamedata* new_game = new gamedata();
-		if (use_testingst_start)
+		if (replay_is_active() && replay_get_meta_str("sav").size())
 		{
-			new_game->set_continue_dmap(testingqst_dmap);
-			new_game->set_continue_scrn(testingqst_screen);
+			auto save_path = replay_get_replay_path().parent_path() / replay_get_meta_str("sav");
+			bool success = saves_create_slot(save_path);
+			if (!success)
+				Z_error_fatal("Failed to load replay's save file");
 		}
 		else
 		{
-			new_game->set_continue_scrn(0xFF);
+			gamedata* new_game = new gamedata();
+			if (use_testingst_start)
+			{
+				new_game->set_continue_dmap(testingqst_dmap);
+				new_game->set_continue_scrn(testingqst_screen);
+			}
+			else
+			{
+				new_game->set_continue_scrn(0xFF);
+			}
+			new_game->header.qstpath = testingqst_name;
+			new_game->set_quest(0xFF);
+			if (replay_is_active())
+			{
+				std::string replay_name = replay_get_meta_str("name", "Hero");
+				new_game->set_name(replay_name.c_str());
+			}
+			else
+			{
+				new_game->set_name("Hero");
+			}
+			new_game->set_timevalid(1);
+			saves_create_slot(new_game, false);
 		}
-		new_game->header.qstpath = testingqst_name;
-		new_game->set_quest(0xFF);
-		if (replay_is_active())
-		{
-			std::string replay_name = replay_get_meta_str("name", "Hero");
-			new_game->set_name(replay_name.c_str());
-		}
-		else
-		{
-			new_game->set_name("Hero");
-		}
-		new_game->set_timevalid(1);
-		saves_create_slot(new_game, false);
 		saves_select(0);
 		if (use_testingst_start)
 			Z_message("Test mode: \"%s\", %d, %d\n", testingqst_name.c_str(), testingqst_dmap, testingqst_screen);
@@ -5650,22 +5686,25 @@ reload_for_replay_file:
 				
 				skipcont = 0;
 				
-				//restore user volume settings
-				if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
+				if (get_qr(qr_OLD_SCRIPT_VOLUME))
 				{
-					master_volume(-1,((int32_t)FFCore.usr_midi_volume));
-				}
-				if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
-				{
-					master_volume((int32_t)(FFCore.usr_digi_volume),1);
-				}
-				if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
-				{
-					emusic_volume = (int32_t)FFCore.usr_music_volume;
-				}
-				if ( FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME )
-				{
-					sfx_volume = (int32_t)FFCore.usr_sfx_volume;
+					//restore user volume settings
+					if (FFCore.coreflags & FFCORE_SCRIPTED_MIDI_VOLUME)
+					{
+						master_volume(-1, ((int32_t)FFCore.usr_midi_volume));
+					}
+					if (FFCore.coreflags & FFCORE_SCRIPTED_DIGI_VOLUME)
+					{
+						master_volume((int32_t)(FFCore.usr_digi_volume), 1);
+					}
+					if (FFCore.coreflags & FFCORE_SCRIPTED_MUSIC_VOLUME)
+					{
+						emusic_volume = (int32_t)FFCore.usr_music_volume;
+					}
+					if (FFCore.coreflags & FFCORE_SCRIPTED_SFX_VOLUME)
+					{
+						sfx_volume = (int32_t)FFCore.usr_sfx_volume;
+					}
 				}
 				if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
 				{
@@ -5773,22 +5812,25 @@ reload_for_replay_file:
 	music_stop();
 	kill_sfx();
 	
-	//restore user volume settings
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
+	if (get_qr(qr_OLD_SCRIPT_VOLUME))
 	{
-		master_volume(-1,((int32_t)FFCore.usr_midi_volume));
-	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
-	{
-		master_volume((int32_t)(FFCore.usr_digi_volume),1);
-	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
-	{
-		emusic_volume = (int32_t)FFCore.usr_music_volume;
-	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME )
-	{
-		sfx_volume = (int32_t)FFCore.usr_sfx_volume;
+		//restore user volume settings
+		if (FFCore.coreflags & FFCORE_SCRIPTED_MIDI_VOLUME)
+		{
+			master_volume(-1, ((int32_t)FFCore.usr_midi_volume));
+		}
+		if (FFCore.coreflags & FFCORE_SCRIPTED_DIGI_VOLUME)
+		{
+			master_volume((int32_t)(FFCore.usr_digi_volume), 1);
+		}
+		if (FFCore.coreflags & FFCORE_SCRIPTED_MUSIC_VOLUME)
+		{
+			emusic_volume = (int32_t)FFCore.usr_music_volume;
+		}
+		if (FFCore.coreflags & FFCORE_SCRIPTED_SFX_VOLUME)
+		{
+			sfx_volume = (int32_t)FFCore.usr_sfx_volume;
+		}
 	}
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
 	{
@@ -5909,6 +5951,7 @@ void quit_game()
 	
 	al_trace("SFX... \n");
 	zcmusic_exit();
+	zcmixer_exit(zcmixer);
 	
 	for(int32_t i=0; i<WAV_COUNT; i++)
 	{

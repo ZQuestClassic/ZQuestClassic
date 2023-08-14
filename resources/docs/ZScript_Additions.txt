@@ -3683,9 +3683,6 @@ int GetPointer(bool *ptr[]);
 	* Sets the value of a door on any screen in the game environment.
 
 	void ContinueSound(int sfx); 					
-									
-	void AdjustSound(int sfx, int pan, bool loop);			
-	* Adjusts properties of a sound effect. 
 
 	void PauseMusic()	
 	* Pauses the present, playing MIDI or Enhanced Music file. 
@@ -6490,6 +6487,20 @@ int Type;
  
 int MusicTrack;
  * The enhanced music tracker file track ID.
+
+float MusicLoopStart;
+ * The starting loop point for enhanced music in seconds.
+ * CURRENTLY ONLY SUPPORTS MP3 / OGG
+
+float MusicLoopEnd;
+ * The ending loop point for enhanced music in seconds.
+ * CURRENTLY ONLY SUPPORTS MP3 / OGG
+
+int MusicCrossfadeIn;
+ * The number of frames enhanced music fades in for
+
+int MusicCrossfadeOut;
+ * The number of frames enhanced music fades out for
  
 int ActiveSubscreen;
  * The active subscreen ID.
@@ -7776,19 +7787,25 @@ rgb ConvertRGBFrom(float[] buf, int color_space)
 ///  Audio->  ///
 /////////////////								// Audio
 
-bool PlayOgg(int filename[], int track);
- * Similar to PlayEnhancedMusic(), but only for OGG files.
- * Supports seeking, and other special instructions.
+int GetMusicPos();
+ * Returns the current seek position of the currently playing enhanced music in seconds.
+ * CURRENTLY ONLY SUPPORTS MP3 / OGG
 
-int GetOggPos();
- * Returns the current seek position of an OGG started with PlayOgg, in ms.
+void SetMusicPos(int new_pos);
+ * Sets the play position for the currently playing enhanced music in seconds.
+ * CURRENTLY ONLY SUPPORTS MP3 / OGG
+ 
+void SetMusicSpeed(int newspeed);
+ * Sets the playback speed of the currently playing enhanced music.
+ * CURRENTLY ONLY SUPPORTS MP3 / OGG
 
-void SetOggPos(int new_pos);
- * Sets the play position for an OGG started with PlayOgg(), in ms.
+void GetMusicLength();
+ * Returns the length of the current playing enhanced music in seconds.
+ * CURRENTLY ONLY SUPPORTS MP3 / OGG
  
-void SetOggSpeed(int newspeed);
- * Sets the playback speed of an OGG started with PlayOgg();
- 
+void SetMusicLoop(float start, float end);
+ * Loops the currently playing enhanced music between two timestamps in seconds.
+ * CURRENTLY ONLY SUPPORTS MP3 / OGG
 
 void PlaySound(int soundid);	ZASM Instruction: 
 					PLAYSOUNDR
@@ -7813,18 +7830,33 @@ void ContinueSound(int soundid);
  * Resumes a sound effect with an ID of sfx_id, that has been paused.
 
 void AdjustMusicVolume(int percent); 
- * Adjusts the volume of all MIDI, DIGI, and Enhanced Music.
+ * Adjusts a multiplier for the volume of all MIDI, DIGI, and Enhanced Music.
  * The parameter 'int percent' is the percentage of its present volume.
- * To double the volume, you would pass '200' to parameter 1; to reduce it by half, you
- *	would pass '50' to parameter 1.
+ * Values range from 0 (mute) to 100 (the player's max volume setting).
+ * If the quest rule "Old (Buggy) ZScript Volume Access" is on,
+ * this will use deprecated behavior and may not function properly.
 
 void AdjustSFXVolume(int percent);
- * Adjusts the volume of all Soune Effects (WAV).
+ * Adjusts a multiplier for the volume of all Sound Effects (WAV).
  * The parameter 'int percent' is the percentage of its present volume.
- * To double the volume, you would pass '200' to parameter 1; to reduce it by half, you
- *	would pass '50' to parameter 1.
+ * Values range from 0 (mute) to 100 (the player's max volume setting).
+ * If the quest rule "Old (Buggy) ZScript Volume Access" is on,
+ * this will use deprecated behavior and may not function properly.
 
-void AdjustSound(int, int, bool)
+void PlaySoundEx(int id, int volume, int pan = 0, long freq = -1L, bool loop = false);
+ * Play a sound with different properties.
+ * Volume ranges from 0 (mute) to 100 (the player's max volume setting)
+ * Pan ranges from -128 (left) to 127 (right)
+ * If freq is <0, will use the sound's default frequency
+ * If loop is true, the sound will repeat infinitely until played again
+ * or terminated with EndSound()
+
+void AdjustSound(int id, int volume, int pan = 0, long freq = -1L, bool loop = false);
+ * Same as above, but does not restart the sound
+
+float GetSoundCompletion(int id);
+ * Returns a rough completion percentage (0-100) for how much of a sound has played.
+ * Returns -1 if the sound is not currently playing. 
 
 void PauseCurMIDI();
  * Pauses the current MIDI in a manner that permits resuming it.
@@ -7864,8 +7896,31 @@ bool PlayEnhancedMusic(int filename[], int track);
 		// If the file is mssing, the game will instead play 
 		// the midi specified as midi_id.
 
+void CrossfadeEnhancedMusic(int filename[], int track, int fadeoutframes, int fadeinframes, 
+				int delayframes = 0, float startpos = 0);
+ * Crossfade to the specified enhanced music if it's available. If the music
+ * cannot be played, the current music will continue. The music will
+ * revert to normal upon leaving the screen.
+ * Returns true if the music file was loaded successfully.
+ * The filename cannot be more than 255 characters. 
+ * Currently only supports OGG, MP3, and some types of trackers.
+
 int PanStyle;
  * Set or get the audio panning. See PAN_* constants in std_constants.zh for valid values.
+
+int MusicRefresh;
+ * Set or get how frequently the currently playing music should update to
+ * the current DMap's music when warping.
+ * Use with the following constants from std_constants.zh
+ *   MR_SCREEN: Refresh on every screen transition (default behavior)
+ *   MR_DMAP: Refresh on dmap change
+ *   MR_LEVEL: Refresh on level change
+ *   MR_NEVER: Never refresh on warps
+
+bool MusicRefreshFlags[2];
+ * A set of flags handling extra effects for MusicRefresh.
+ *   MRF_NOCUT: Warp types that cut to silence, don't do that
+ *   MRF_REVERT: Upon taking a warp that triggers refresh, revert to MR_SCREEN
 
 //int Volume[4]
  * Deprecated; raw access to the UI audio controls. (Now unsupported officially.)

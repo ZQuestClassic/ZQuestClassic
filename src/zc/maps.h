@@ -42,6 +42,7 @@ int32_t mapind(int32_t map, int32_t scr);
 bool ffcIsAt(const ffc_handle_t& ffc_handle, int32_t x, int32_t y);
 
 extern bool triggered_screen_secrets;
+extern int32_t view_map_show_mode;
 
 /*
     Z3-style scrolling is implemented via "Regions".

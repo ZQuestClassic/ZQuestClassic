@@ -641,6 +641,7 @@ char *helpbuf, *zstringshelpbuf;
 string helpstr, zstringshelpstr;
 
 ZCMUSIC *zcmusic = NULL;
+ZCMIXER *zcmixer = NULL;
 int32_t midi_volume = 255;
 extern int32_t prv_mode;
 int32_t prv_warp = 0;
@@ -3942,6 +3943,7 @@ int32_t playMusic()
 			zcmusic_stop(zcmusic);
 			zcmusic_unload_file(zcmusic);
 			zcmusic = NULL;
+			zcmixer->newtrack = NULL;
 		}
 		
 		if(ismidi)
@@ -4073,6 +4075,7 @@ int32_t playTune(int32_t pos)
         zcmusic_stop(zcmusic);
         zcmusic_unload_file(zcmusic);
         zcmusic = NULL;
+		zcmixer->newtrack = NULL;
     }
     
     if(zc_play_midi((MIDI*)zcdata[THETRAVELSOFLINK_MID].dat,true)==0)
@@ -4101,6 +4104,7 @@ int32_t stopMusic()
         zcmusic_stop(zcmusic);
         zcmusic_unload_file(zcmusic);
         zcmusic = NULL;
+		zcmixer->newtrack = NULL;
     }
     
     media_menu[0].flags =
@@ -15358,7 +15362,7 @@ static int32_t editdmap_appearance_list[] =
 static int32_t editdmap_music_list[] =
 {
     // dialog control number
-    82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, -1
+    82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 215, 216, 217, 218, 219, 220, 221, 222, -1
 };
 
 static int32_t editdmap_subscreenmaps_list[] =
@@ -15417,7 +15421,7 @@ static int32_t editdmap_scripts_list[] =
 static int32_t editdmap_regions_list[] =
 {
     // dialog control number
-	215, 216, -1
+	223, 224, -1
 };
 
 static TABPANEL editdmap_tabs[] =
@@ -15608,7 +15612,7 @@ static DIALOG editdmap_dlg[] =
     {  d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  },
     {  jwin_text_proc,               12,     69,     48,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) "Midi:",                                      NULL,                 NULL                  },
     {  jwin_droplist_proc,           35,     65,    153,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           1,             0, (void *) &midi_list,                                   NULL,                 NULL                  },
-    {  jwin_frame_proc,              12,     86,    176,     68,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           FR_ETCHED,     0,  NULL,                                                  NULL,                 NULL                  },
+    {  jwin_frame_proc,              12,     86,    176,     68 + 64,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           FR_ETCHED,     0,  NULL,                                                  NULL,                 NULL                  },
     //85
     {  jwin_text_proc,               20,     83,     48,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) " Enhanced Music ",                           NULL,                 NULL                  },
     {  jwin_frame_proc,              16,     92,    168,     16,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           FR_DEEP,       0,  NULL,                                                  NULL,                 NULL                  },
@@ -15616,8 +15620,8 @@ static DIALOG editdmap_dlg[] =
     {  jwin_text_proc,               16,    114,     48,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) "Track:",                                     NULL,                 NULL                  },
     {  jwin_droplist_proc,           50,    110,    134,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           1,             0, (void *) &dmaptracknum_list,                           NULL,                 NULL                  },
     //90
-    {  jwin_button_proc,             31,    129,     61,     21,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],        13,    D_EXIT,      0,             0, (void *) "Load",                                       NULL,                 NULL                  },
-    {  jwin_button_proc,            108,    129,     61,     21,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],        13,    D_EXIT,      0,             0, (void *) "Clear",                                      NULL,                 NULL                  },
+    {  jwin_button_proc,             31,    110 + 80,     61,     21,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],        13,    D_EXIT,      0,             0, (void *) "Load",                                       NULL,                 NULL                  },
+    {  jwin_button_proc,            108,    110 + 80,     61,     21,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],        13,    D_EXIT,      0,             0, (void *) "Clear",                                      NULL,                 NULL                  },
     {  d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  },
     {  d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  },
     {  d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  },
@@ -15778,11 +15782,21 @@ static DIALOG editdmap_dlg[] =
 	{  jwin_check_proc,              12,    215,    113,      9,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           1,             0, (void *) "Mirror Continues instead of Warping",      NULL,                 NULL                  },
     {  jwin_text_proc,              162,    191,     48,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) "Mirror DMap:",                               NULL,                 NULL                  },
     {  jwin_edit_proc,              218,    187,     21,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           2,             0,  NULL,                                                  NULL,                 NULL                  },
-    //215
+	//215
+	{ jwin_text_proc,               16,    110 + 20 + 2,     48,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void*)"Start:",                                     NULL,                 NULL },
+	{ jwin_text_proc,               100,    110 + 20 + 2,     48,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void*)"End:",                                     NULL,                 NULL },
+	{ jwin_numedit_zscriptint_proc,               16 + 24,     110 + 20,    56,     16,    vc(12),   vc(1),         0,    0,          12,             0,  NULL,                                                  NULL,                 NULL },
+	{ jwin_numedit_zscriptint_proc,               100 + 24,     110 + 20,    56,     16,    vc(12),   vc(1),         0,    0,          12,             0,  NULL,                                                  NULL,                 NULL },
+	//219
+	{ jwin_text_proc,               16,    110 + 40 + 2,     48,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void*)"Crossfade In:",                                     NULL,                 NULL },
+	{ jwin_text_proc,               16,    110 + 60 + 2,     48,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void*)"Crossfade Out:",                                     NULL,                 NULL },
+	{ jwin_numedit_zscriptint_proc,               16 + 56,     110 + 40,    56,     16,    vc(12),   vc(1),         0,    0,          12,             0,  NULL,                                                  NULL,                 NULL },
+	{ jwin_numedit_zscriptint_proc,               16 + 56,     110 + 60,    56,     16,    vc(12),   vc(1),         0,    0,          12,             0,  NULL,                                                  NULL,                 NULL },
+	//223
     {  d_region_grid_proc,           12,     65,     310,     145,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  },
 	{  jwin_button_proc,             12,    210,     61,     12,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],        0,    D_EXIT,      0,             0, (void *) "Z3 User Guide",                                       NULL,                 NULL                  },
 	
-    {  NULL,                          0,      0,      0,      0,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  }
+	{  NULL,                          0,      0,      0,      0,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  }
 };
 
 void editdmap(int32_t index)
@@ -15800,6 +15814,8 @@ void editdmap(int32_t index)
 	char initd_labels[8][65];
 	char sub_initd_labels[8][65];
 	char onmap_initd_labels[8][65];
+	char loopvals[2][13];
+	char fadevals[2][13];
 	
 	for ( int32_t q = 0; q < 8; q++ )
 	{
@@ -15911,7 +15927,7 @@ void editdmap(int32_t index)
 	editdmap_dlg[77].d1=DMaps[index].passive_subscreen;
 	editdmap_dlg[83].d1=DMaps[index].midi;
 	editdmap_dlg[87].dp=tmusicstr;
-	editdmap_dlg[215].dp=region_indices;
+	editdmap_dlg[223].dp=region_indices;
 	dmap_tracks=0;
 	ZCMUSIC *tempdmapzcmusic = (ZCMUSIC*)zcmusic_load_file(tmusicstr);
 	
@@ -15928,8 +15944,23 @@ void editdmap(int32_t index)
 		dmap_tracks=zcmusic_get_tracks(tempdmapzcmusic);
 		dmap_tracks=(dmap_tracks<2)?0:dmap_tracks;
 	}
-	
+
+	sprintf(loopvals[0], "%ld.%04ld", DMaps[index].tmusic_loop_start / 10000L, DMaps[index].tmusic_loop_start % 10000L);
+	sprintf(loopvals[1], "%ld.%04ld", DMaps[index].tmusic_loop_end / 10000L, DMaps[index].tmusic_loop_end % 10000L);
+	sprintf(fadevals[0], "%d", DMaps[index].tmusic_xfade_in);
+	sprintf(fadevals[1], "%d", DMaps[index].tmusic_xfade_out);
+
+	editdmap_dlg[217].dp = loopvals[0];
+	editdmap_dlg[217].flags = (tempdmapzcmusic == NULL || !(tempdmapzcmusic->type & (ZCMF_MP3 | ZCMF_OGG))) ? D_DISABLED : 0;
+	editdmap_dlg[218].dp = loopvals[1];
+	editdmap_dlg[218].flags = (tempdmapzcmusic == NULL || !(tempdmapzcmusic->type & (ZCMF_MP3 | ZCMF_OGG))) ? D_DISABLED : 0;
+	editdmap_dlg[221].dp = fadevals[0];
+	editdmap_dlg[221].flags = (tempdmapzcmusic == NULL || !(tempdmapzcmusic->type & (ZCMF_MP3 | ZCMF_OGG))) ? D_DISABLED : 0;
+	editdmap_dlg[222].dp = fadevals[1];
+	editdmap_dlg[222].flags = (tempdmapzcmusic == NULL || !(tempdmapzcmusic->type & (ZCMF_MP3 | ZCMF_OGG))) ? D_DISABLED : 0;
+
 	zcmusic_unload_file(tempdmapzcmusic);
+
 	editdmap_dlg[89].flags=(dmap_tracks<2)?D_DISABLED:0;
 	editdmap_dlg[89].d1=vbound(DMaps[index].tmusictrack,0,dmap_tracks > 0 ? dmap_tracks-1 : 0);
 	
@@ -16026,8 +16057,21 @@ void editdmap(int32_t index)
 						dmap_tracks=zcmusic_get_tracks(tempdmapzcmusic);
 						dmap_tracks=(dmap_tracks<2)?0:dmap_tracks;
 					}
-					
+
+					editdmap_dlg[217].flags = (tempdmapzcmusic == NULL || !(tempdmapzcmusic->type & (ZCMF_MP3 | ZCMF_OGG))) ? D_DISABLED : 0;
+					editdmap_dlg[218].flags = (tempdmapzcmusic == NULL || !(tempdmapzcmusic->type & (ZCMF_MP3 | ZCMF_OGG))) ? D_DISABLED : 0;
+					editdmap_dlg[221].flags = (tempdmapzcmusic == NULL || !(tempdmapzcmusic->type & (ZCMF_MP3 | ZCMF_OGG))) ? D_DISABLED : 0;
+					editdmap_dlg[222].flags = (tempdmapzcmusic == NULL || !(tempdmapzcmusic->type & (ZCMF_MP3 | ZCMF_OGG))) ? D_DISABLED : 0;
+					if (tempdmapzcmusic == NULL || !(tempdmapzcmusic->type & (ZCMF_MP3 | ZCMF_OGG)))
+					{
+						memset(loopvals[0], 0, 13);
+						memset(loopvals[1], 0, 13);
+						memset(fadevals[0], 0, 13);
+						memset(fadevals[1], 0, 13);
+					}
+
 					zcmusic_unload_file(tempdmapzcmusic);
+					
 					editdmap_dlg[89].flags=(dmap_tracks<2)?D_DISABLED:0;
 					editdmap_dlg[89].d1=0;
 				}
@@ -16037,6 +16081,16 @@ void editdmap(int32_t index)
 		
 		case 91:											  //clear tracker music
 			memset(tmusicstr, 0, 56);
+			memset(loopvals[0], 0, 13);
+			memset(loopvals[1], 0, 13);
+			memset(fadevals[0], 0, 13);
+			memset(fadevals[1], 0, 13);
+
+			editdmap_dlg[217].flags = D_DISABLED;
+			editdmap_dlg[218].flags = D_DISABLED;
+			editdmap_dlg[221].flags = D_DISABLED;
+			editdmap_dlg[222].flags = D_DISABLED;
+
 			editdmap_dlg[89].flags=D_DISABLED;
 			editdmap_dlg[89].d1=0;
 			break;
@@ -16108,6 +16162,10 @@ void editdmap(int32_t index)
 		sprintf(DMaps[index].title,"%s",dmap_title);
 		sprintf(DMaps[index].intro,"%s",dmap_intro);
 		DMaps[index].tmusictrack = editdmap_dlg[89].d1;
+		DMaps[index].tmusic_loop_start = atozfix((char*)editdmap_dlg[217].dp);
+		DMaps[index].tmusic_loop_end = atozfix((char*)editdmap_dlg[218].dp);
+		DMaps[index].tmusic_xfade_in = zc_max(atoi((char*)editdmap_dlg[221].dp), 0);
+		DMaps[index].tmusic_xfade_out = zc_max(atoi((char*)editdmap_dlg[222].dp), 0);
 		
 		int32_t f=0;
 		f |= editdmap_dlg[110].flags & D_SELECTED ? dmfCAVES:0;
@@ -16456,6 +16514,26 @@ int32_t writesomedmaps(PACKFILE *f, int32_t first, int32_t last, int32_t max)
 				}
 			}
 		}
+		if (!p_iputw(DMaps[i].mirrorDMap, f))
+		{
+			new_return(38);
+		}
+		if (!p_iputl(DMaps[i].tmusic_loop_start, f))
+		{
+			new_return(39);
+		}
+		if (!p_iputl(DMaps[i].tmusic_loop_end, f))
+		{
+			new_return(40);
+		}
+		if (!p_iputl(DMaps[i].tmusic_xfade_in, f))
+		{
+			new_return(41);
+		}
+		if (!p_iputl(DMaps[i].tmusic_xfade_out, f))
+		{
+			new_return(42);
+		}
 	}
 
 	return 1;
@@ -16778,6 +16856,26 @@ int32_t readsomedmaps(PACKFILE *f)
 							}
 						}
 					}
+					if (!p_igetw(&tempdmap.mirrorDMap, f))
+					{
+						return 0;
+					}
+					if (!p_igetl(&tempdmap.tmusic_loop_start, f))
+					{
+						return 0;
+					}
+					if (!p_igetl(&tempdmap.tmusic_loop_end, f))
+					{
+						return 0;
+					}
+					if (!p_igetl(&tempdmap.tmusic_xfade_in, f))
+					{
+						return 0;
+					}
+					if (!p_igetl(&tempdmap.tmusic_xfade_out, f))
+					{
+						return 0;
+					}
 				}
 			}
 		::memcpy(&DMaps[i], &tempdmap, sizeof(dmap));
@@ -17038,7 +17136,26 @@ int32_t writeonedmap(PACKFILE *f, int32_t i)
 				}
 			}
 		}
-	    
+		if (!p_iputw(DMaps[i].mirrorDMap, f))
+		{
+			new_return(38);
+		}
+		if (!p_iputl(DMaps[i].tmusic_loop_start, f))
+		{
+			new_return(39);
+		}
+		if (!p_iputl(DMaps[i].tmusic_loop_end, f))
+		{
+			new_return(40);
+		}
+		if (!p_iputl(DMaps[i].tmusic_xfade_in, f))
+		{
+			new_return(41);
+		}
+		if (!p_iputl(DMaps[i].tmusic_xfade_out, f))
+		{
+			new_return(42);
+		}
 
 	return 1;
 }
@@ -17350,6 +17467,26 @@ int32_t readonedmap(PACKFILE *f, int32_t index)
 							return 0;
 						}
 					}
+				}
+				if (!p_igetw(&tempdmap.mirrorDMap, f))
+				{
+					return 0;
+				}
+				if (!p_igetl(&tempdmap.tmusic_loop_start, f))
+				{
+					return 0;
+				}
+				if (!p_igetl(&tempdmap.tmusic_loop_end, f))
+				{
+					return 0;
+				}
+				if (!p_igetl(&tempdmap.tmusic_xfade_in, f))
+				{
+					return 0;
+				}
+				if (!p_igetl(&tempdmap.tmusic_xfade_out, f))
+				{
+					return 0;
 				}
 			}
 		}
@@ -26598,7 +26735,7 @@ bool sfx_init(int32_t index)
 }
 
 // plays an sfx sample
-void sfx(int32_t index,int32_t pan,bool loop,bool restart)
+void sfx(int32_t index,int32_t pan,bool loop,bool restart,int32_t vol,int32_t freq)
 {
     if(!sfx_init(index))
         return;
@@ -28908,7 +29045,8 @@ int32_t main(int32_t argc,char **argv)
 	}
 	
 	zcmusic_init();
-	
+	zcmixer = zcmixer_create();
+
 	switch(zqColorDepth) //defaults to 8bit
 	{
 	case 0:
@@ -31724,6 +31862,8 @@ void FFScript::init()
 	
 	coreflags = 0;
 	skip_ending_credits = 0;
+	music_update_cond = 0;
+	music_update_flags = 0;
 	for ( int32_t q = 0; q < susptLAST; q++ ) { system_suspend[q] = 0; }
 	
 	for ( int32_t q = 0; q < UID_TYPES; ++q ) { script_UIDs[q] = 0; }

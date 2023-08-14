@@ -264,6 +264,7 @@ void update_hw_screen(bool force);
 
 
 extern ZCMUSIC *zcmusic;
+extern ZCMIXER* zcmixer;
 
 extern int32_t colordepth;
 extern int32_t db;

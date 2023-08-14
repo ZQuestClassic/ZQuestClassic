@@ -3778,6 +3778,8 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_OLD_LENS_LAYEREFFECT,1);
 	if(compatrule_version < 51)
 		set_qr(qr_PUSHBLOCK_SPRITE_LAYER,1);
+	if (compatrule_version < 52)
+		set_qr(qr_OLD_SCRIPT_VOLUME, 1);
 	
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)
@@ -5225,10 +5227,38 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 			tempDMap.mirrorDMap = -1;
 		}
 
+		// Enhanced music loop points
+		if (s_version >= 18 && !global_z3_hacky_load)
+		{
+			if (!p_igetl(&tempDMap.tmusic_loop_start, f))
+			{
+				return qe_invalid;
+			}
+			if (!p_igetl(&tempDMap.tmusic_loop_end, f))
+			{
+				return qe_invalid;
+			}
+			if (!p_igetl(&tempDMap.tmusic_xfade_in, f))
+			{
+				return qe_invalid;
+			}
+			if (!p_igetl(&tempDMap.tmusic_xfade_out, f))
+			{
+				return qe_invalid;
+			}
+		}
+		else
+		{
+			tempDMap.tmusic_loop_start = 0;
+			tempDMap.tmusic_loop_end = 0;
+			tempDMap.tmusic_xfade_in = 0;
+			tempDMap.tmusic_xfade_out = 0;
+		}
+
 		// TODO z3 !! rm
-		int vc = 18;
+		int vc = 19;
 		if (global_z3_hacky_load)
-			vc = 17;
+			vc = 18;
 		if(s_version >= vc)
 		{
 			for(int32_t j=0; j<8; j++)
@@ -5242,7 +5272,7 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 				}
 			}
 		}
-		
+
 		memcpy(&DMaps[i], &tempDMap, sizeof(tempDMap));
 	}
 	

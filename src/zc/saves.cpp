@@ -4,10 +4,12 @@
 #include "base/misctypes.h"
 #include "base/fonts.h"
 #include "base/dmap.h"
+#include "base/qrs.h"
 #include "base/util.h"
 #include "base/zdefs.h"
 #include "zc/zelda.h"
 #include "zc/ffscript.h"
+#include "zc/replay.h"
 #include "pal.h"
 #include "tiles.h"
 #include "items.h"
@@ -30,6 +32,7 @@ static const char *SAVE_HEADER = "ZQuest Classic Save File";
 static const char *OLD_SAVE_HEADER = "Zelda Classic Save File";
 static int currgame;
 static std::vector<save_t> saves;
+static bool save_current_replay_games;
 
 save_t::~save_t()
 {
@@ -72,6 +75,9 @@ static fs::path get_deleted_folder_path()
 
 static int move_to_folder(fs::path path, fs::path dir, std::string stem = "", bool force_suffix = false)
 {
+	if (!fs::exists(path))
+		return 0;
+
 	fs::create_directories(dir);
 	auto dest = create_new_file_path(
 		dir,
@@ -124,24 +130,27 @@ static int32_t read_saves(ReadMode read_mode, std::string filename, std::vector<
 		return 1;
 
 	FFCore.kb_typing_mode = false;
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
+	if (get_qr(qr_OLD_SCRIPT_VOLUME))
 	{
-		Z_scripterrlog("Trying to restore master MIDI volume to: %d\n", FFCore.usr_midi_volume);
-		midi_volume = FFCore.usr_midi_volume;
-		//	master_volume(-1,FFCore.usr_midi_volume);
-	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
-	{
-		digi_volume = FFCore.usr_digi_volume;
-		//master_volume((int32_t)(FFCore.usr_digi_volume),1);
-	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
-	{
-		emusic_volume = (int32_t)FFCore.usr_music_volume;
-	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME )
-	{
-		sfx_volume = (int32_t)FFCore.usr_sfx_volume;
+		if (FFCore.coreflags & FFCORE_SCRIPTED_MIDI_VOLUME)
+		{
+			Z_scripterrlog("Trying to restore master MIDI volume to: %d\n", FFCore.usr_midi_volume);
+			midi_volume = FFCore.usr_midi_volume;
+			//	master_volume(-1,FFCore.usr_midi_volume);
+		}
+		if (FFCore.coreflags & FFCORE_SCRIPTED_DIGI_VOLUME)
+		{
+			digi_volume = FFCore.usr_digi_volume;
+			//master_volume((int32_t)(FFCore.usr_digi_volume),1);
+		}
+		if (FFCore.coreflags & FFCORE_SCRIPTED_MUSIC_VOLUME)
+		{
+			emusic_volume = (int32_t)FFCore.usr_music_volume;
+		}
+		if (FFCore.coreflags & FFCORE_SCRIPTED_SFX_VOLUME)
+		{
+			sfx_volume = (int32_t)FFCore.usr_sfx_volume;
+		}
 	}
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
 	{
@@ -2036,6 +2045,14 @@ static int32_t do_save_games()
 		update_icon(currgame);
 	}
 
+	if (currgame >= 0 && save_current_replay_games)
+	{
+		auto dir = get_save_folder_path() / "current_replay";
+		fs::create_directories(dir);
+		saves[currgame].path = create_new_file_path(dir, "zc", ".sav", true);
+		write_save(&saves[currgame]);
+	}
+
 	if (disable_save_to_disk)
 	{
 		return 0;
@@ -2189,6 +2206,16 @@ bool saves_create_slot(gamedata* game, bool save_to_disk)
 	return do_save_games();
 }
 
+bool saves_create_slot(fs::path path)
+{
+	if (!fs::exists(path))
+		return false;
+
+	auto& save = saves.emplace_back();
+	save.path = path;
+	return true;
+}
+
 void saves_do_first_time_stuff(int index)
 {
 	save_t* save;
@@ -2227,4 +2254,9 @@ void saves_do_first_time_stuff(int index)
 
 		update_icon(index);
 	}
+}
+
+void saves_enable_save_current_replay()
+{
+	save_current_replay_games = true;
 }

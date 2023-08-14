@@ -9,6 +9,8 @@
 #include <math.h>
 #include <limits>
 #include <assert.h>
+#include <string.h>
+
 #define FIX_NAN 0
 //std::numeric_limits<t>::quiet_NaN()
 
@@ -45,6 +47,31 @@ inline zfix abs(zfix const& fx);
 inline zfix pow(zfix const& fx, int exp);
 inline zfix dist(zfix const& x1, zfix const& y1, zfix const& x2, zfix const& y2);
 
+static inline int32_t atozfix(char* str)
+{
+	int32_t ret;
+	if (char* ptr = strchr(str, '.'))
+	{
+		char tempstr[32] = { 0 };
+		strcpy(tempstr, str);
+		for (int32_t q = 0; q < 4; ++q)
+			tempstr[strlen(str) + q] = '0';
+		ptr = strchr(tempstr, '.');
+		*ptr = 0; ++ptr; *(ptr + 4) = 0; //Nullchar at 2 positions to limit strings
+		ret = atoi(tempstr);
+		ret *= 10000;
+		if (tempstr[0] == '-')
+			ret -= atoi(ptr);
+		else ret += atoi(ptr);
+	}
+	else
+	{
+		ret = atoi(str);
+		ret *= 10000;
+	}
+	return ret;
+}
+
 static int32_t zfixvbound(ZLong x, int32_t low, int32_t high)
 {
 	assert(low <= high);
@@ -52,9 +79,9 @@ static int32_t zfixvbound(ZLong x, int32_t low, int32_t high)
 	if(x>high) return high;
 	return x;
 }
+
 //inline int32_t vbound(int32_t x,int32_t low,int32_t high);
 //inline float vbound(float x,float low,float high);
-
 
 
 class zfix

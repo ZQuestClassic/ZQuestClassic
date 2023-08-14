@@ -922,6 +922,9 @@ static GUI::ListData compatRulesList
 		"If enabled, fairy flags work differently placed vs inherent."},
 	{ "Old Lens Layer Effects", qr_OLD_LENS_LAYEREFFECT,
 		"If enabled, the lens only effects one layer of the screen at maximum, using the old dropdown selection."},
+	{ "Old (Buggy) ZScript Volume Access", qr_OLD_SCRIPT_VOLUME,
+		"If enabled, Audio->AdjustMusicVolume() and Audio->AdjustSFXVolume() will use their old behavior,"
+		" which was bugged and wrote directly to the volume sliders." },
 };
 
 static GUI::ListData enemiesRulesList

@@ -3945,3 +3945,17 @@ enum
 	VIEW_MODE_CENTER,
 	VIEW_MODE_SCRIPT
 };
+
+enum
+{
+	MR_SCREEN,
+	MR_DMAP,
+	MR_LEVEL,
+	MR_NEVER
+};
+
+enum
+{	
+	MRF_NOCUT,
+	MRF_REVERT
+};

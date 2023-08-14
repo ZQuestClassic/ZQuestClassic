@@ -33,6 +33,7 @@
 #include "dialog/cheatkeys.h"
 #include "metadata/metadata.h"
 #include "zc/zelda.h"
+#include "zc/saves.h"
 #include "tiles.h"
 #include "base/colors.h"
 #include "pal.h"
@@ -4587,6 +4588,7 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 	{
 		zcmusic_poll();
 	}
+	zcmixer_update(zcmixer, emusic_volume, FFCore.usr_music_volume, get_qr(qr_OLD_SCRIPT_VOLUME));
 	
 	updatescr(allowwavy);
 
@@ -6860,21 +6862,24 @@ int32_t onCheatKeys()
 
 int32_t onSound()
 {
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
+	if (get_qr(qr_OLD_SCRIPT_VOLUME))
 	{
-		master_volume(-1,((int32_t)FFCore.usr_midi_volume));
-	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
-	{
-		master_volume((int32_t)(FFCore.usr_digi_volume),1);
-	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
-	{
-		emusic_volume = (int32_t)FFCore.usr_music_volume;
-	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME )
-	{
-		sfx_volume = (int32_t)FFCore.usr_sfx_volume;
+		if (FFCore.coreflags & FFCORE_SCRIPTED_MIDI_VOLUME)
+		{
+			master_volume(-1, ((int32_t)FFCore.usr_midi_volume));
+		}
+		if (FFCore.coreflags & FFCORE_SCRIPTED_DIGI_VOLUME)
+		{
+			master_volume((int32_t)(FFCore.usr_digi_volume), 1);
+		}
+		if (FFCore.coreflags & FFCORE_SCRIPTED_MUSIC_VOLUME)
+		{
+			emusic_volume = (int32_t)FFCore.usr_music_volume;
+		}
+		if (FFCore.coreflags & FFCORE_SCRIPTED_SFX_VOLUME)
+		{
+			sfx_volume = (int32_t)FFCore.usr_sfx_volume;
+		}
 	}
 	if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
 	{
@@ -6920,11 +6925,14 @@ int32_t onSound()
 		if (zcmusic)
 			zcmusic_set_volume(zcmusic, emusic_volume);
 		
+		int32_t temp_volume = sfx_volume;
+		if (!get_qr(qr_OLD_SCRIPT_VOLUME))
+			temp_volume = (sfx_volume * FFCore.usr_sfx_volume) / 10000 / 100;
 		for(int32_t i=0; i<WAV_COUNT; ++i)
 		{
 			//allegro assertion fails when passing in -1 as voice -DD
 			if(sfx_voice[i] > 0)
-				voice_set_volume(sfx_voice[i], sfx_volume);
+				voice_set_volume(sfx_voice[i], temp_volume);
 		}
 		zc_set_config(sfx_sect,"digi",digi_volume);
 		zc_set_config(sfx_sect,"midi",midi_volume);
@@ -7847,6 +7855,8 @@ void music_pause()
 {
 	//al_pause_duh(tmplayer);
 	zcmusic_pause(zcmusic, ZCM_PAUSE);
+	if(zcmixer->oldtrack)
+		zcmusic_pause(zcmixer->oldtrack, ZCM_PAUSE);
 	zc_midi_pause();
 }
 
@@ -7854,6 +7864,8 @@ void music_resume()
 {
 	//al_resume_duh(tmplayer);
 	zcmusic_pause(zcmusic, ZCM_RESUME);
+	if (zcmixer->oldtrack)
+		zcmusic_pause(zcmixer->oldtrack, ZCM_RESUME);
 	zc_midi_resume();
 }
 
@@ -7865,6 +7877,16 @@ void music_stop()
 	//tmplayer=NULL;
 	zcmusic_stop(zcmusic);
 	zcmusic_unload_file(zcmusic);
+	if (zcmixer->oldtrack)
+	{
+		zcmusic_stop(zcmixer->oldtrack);
+		zcmusic_unload_file(zcmixer->oldtrack);
+	}
+	//if (zcmixer->newtrack)
+	//{
+	//	zcmusic_stop(zcmixer->newtrack);
+	//	zcmusic_unload_file(zcmixer->newtrack);
+	//}
 	zc_stop_midi();
 	currmidi=-1;
 }
@@ -8088,19 +8110,28 @@ INLINE int32_t mixvol(int32_t v1,int32_t v2)
 }
 
 // Run an NSF, or a MIDI if the NSF is missing somehow.
-bool try_zcmusic(char *filename, int32_t track, int32_t midi)
+bool try_zcmusic(char *filename, int32_t track, int32_t midi, int32_t fadeoutframes)
 {
 	ZCMUSIC *newzcmusic = zcmusic_load_for_quest(filename, qstpath);
 	
 	// Found it
 	if(newzcmusic!=NULL)
 	{
+		newzcmusic->fadevolume = 10000;
+		newzcmusic->fadeoutframes = fadeoutframes;
+
+		zcmixer->newtrack = newzcmusic;
+
 		zcmusic_stop(zcmusic);
 		zcmusic_unload_file(zcmusic);
 		zc_stop_midi();
 		
 		zcmusic=newzcmusic;
-		zcmusic_play(zcmusic, emusic_volume);
+		int32_t temp_volume = emusic_volume;
+		if (!get_qr(qr_OLD_SCRIPT_VOLUME))
+			temp_volume = (emusic_volume * FFCore.usr_music_volume) / 10000 / 100;
+		temp_volume = (temp_volume * zcmusic->fadevolume) / 10000;
+		zcmusic_play(zcmusic, temp_volume);
 		
 		if(track>0)
 			zcmusic_change_track(zcmusic,track);
@@ -8155,8 +8186,17 @@ void set_zcmusicpos(int32_t position)
 
 void set_zcmusicspeed(int32_t speed)
 {
-	int32_t newspeed = vbound(speed, 0, 10000);
-	zcmusic_set_speed(zcmusic, newspeed);
+	zcmusic_set_speed(zcmusic, speed);
+}
+
+int32_t get_zcmusiclen()
+{
+	return zcmusic_get_length(zcmusic);
+}
+
+void set_zcmusicloop(double start, double end)
+{
+	zcmusic_set_loop(zcmusic, start, end);
 }
 
 void jukebox(int32_t index,int32_t loop)
@@ -8176,8 +8216,8 @@ void jukebox(int32_t index,int32_t loop)
 	// stuck notes when a song stops. This fixes it.
 	if(strcmp(midi_driver->name, "DIGMID")==0)
 		zc_set_volume(0, 0);
-		
-	zc_set_volume(-1, mixvol(tunes[index].volume,midi_volume>>1));
+	
+	zc_set_volume(-1, mixvol(tunes[index].volume, midi_volume >>1));
 	zc_play_midi((MIDI*)tunes[index].data,loop);
 	
 	if(tunes[index].start>0)
@@ -8187,7 +8227,8 @@ void jukebox(int32_t index,int32_t loop)
 	midi_loop_end = tunes[index].loop_end;
 	
 	currmidi=index;
-	master_volume(digi_volume,midi_volume);
+	master_volume(digi_volume, midi_volume);
+	//midi_paused=false;
 }
 
 void jukebox(int32_t index)
@@ -8214,42 +8255,67 @@ void play_DmapMusic()
 	static int32_t ttrack=0;
 	bool domidi=false;
 	
+	int32_t fadeoutframes = 0;
+	if (zcmusic != NULL)
+		fadeoutframes = zcmusic->fadeoutframes;
+
 	if(DMaps[currdmap].tmusic[0]!=0)
 	{
 		if(zcmusic==NULL ||
 		   strcmp(zcmusic->filename,DMaps[currdmap].tmusic)!=0 ||
 		   (zcmusic->type==ZCMF_GME && zcmusic->track != DMaps[currdmap].tmusictrack))
 		{
-			if(zcmusic != NULL)
+			if (DMaps[currdmap].tmusic_xfade_in > 0 || fadeoutframes > 0)
 			{
-				zcmusic_stop(zcmusic);
-				zcmusic_unload_file(zcmusic);
-				zcmusic = NULL;
-			}
-			
-			zcmusic = zcmusic_load_for_quest(DMaps[currdmap].tmusic, qstpath);
-			
-			if(zcmusic!=NULL)
-			{
-				zc_stop_midi();
-				strcpy(tfile,DMaps[currdmap].tmusic);
-				zcmusic_play(zcmusic, emusic_volume);
-				int32_t temptracks=0;
-				temptracks=zcmusic_get_tracks(zcmusic);
-				temptracks=(temptracks<2)?1:temptracks;
-				ttrack = vbound(DMaps[currdmap].tmusictrack,0,temptracks-1);
-				zcmusic_change_track(zcmusic,ttrack);
+				if (FFCore.play_enh_music_crossfade(DMaps[currdmap].tmusic, DMaps[currdmap].tmusictrack, DMaps[currdmap].tmusic_xfade_in, fadeoutframes))
+				{
+					if (zcmusic != NULL)
+						zcmusic->fadeoutframes = DMaps[currdmap].tmusic_xfade_out;
+				}
 			}
 			else
 			{
-				tfile[0] = 0;
-				domidi=true;
+				if (zcmusic != NULL)
+				{
+					zcmusic_stop(zcmusic);
+					zcmusic_unload_file(zcmusic);
+					zcmusic = NULL;
+					zcmixer->newtrack = NULL;
+				}
+
+				zcmusic = zcmusic_load_for_quest(DMaps[currdmap].tmusic, qstpath);
+				zcmixer->newtrack = zcmusic;
+
+				if (zcmusic != NULL)
+				{
+					zc_stop_midi();
+					strcpy(tfile, DMaps[currdmap].tmusic);
+					zcmusic_play(zcmusic, emusic_volume);
+					int32_t temptracks = 0;
+					temptracks = zcmusic_get_tracks(zcmusic);
+					temptracks = (temptracks < 2) ? 1 : temptracks;
+					ttrack = vbound(DMaps[currdmap].tmusictrack, 0, temptracks - 1);
+					zcmusic_change_track(zcmusic, ttrack);
+					zcmusic_set_loop(zcmusic, double(DMaps[currdmap].tmusic_loop_start / 10000.0), double(DMaps[currdmap].tmusic_loop_end / 10000.0));
+				}
+				else
+				{
+					tfile[0] = 0;
+					domidi = true;
+				}
 			}
 		}
 	}
 	else
 	{
-		domidi=true;
+		if (DMaps[currdmap].midi == 0 && fadeoutframes > 0 && zcmusic != NULL && strcmp(zcmusic->filename, DMaps[currdmap].tmusic) != 0)
+		{
+			FFCore.play_enh_music_crossfade(NULL, DMaps[currdmap].tmusictrack, DMaps[currdmap].tmusic_xfade_in, fadeoutframes);
+		}
+		else if(zcmixer->oldtrack == NULL && zcmixer->newtrack == NULL)
+		{
+			domidi = true;
+		}
 	}
 	
 	if(domidi)
@@ -8323,7 +8389,10 @@ void master_volume(int32_t dv,int32_t mv)
 	if(mv>=0) midi_volume=zc_max(zc_min(mv,255),0);
 	
 	int32_t i = zc_min(zc_max(currmidi,0),MAXMIDIS-1);
-	zc_set_volume(digi_volume,mixvol(tunes[i].volume,midi_volume));
+	int32_t temp_vol = midi_volume;
+	if (!get_qr(qr_OLD_SCRIPT_VOLUME))
+		temp_vol = (midi_volume * FFCore.usr_music_volume) / 10000 / 100;
+	zc_set_volume(digi_volume,mixvol(tunes[i].volume, temp_vol));
 }
 
 /*****************/
@@ -8398,28 +8467,81 @@ bool sfx_init(int32_t index)
 			sfx_voice[index]=allocate_voice(&customsfxdata[index]);
 		}
 		
-		voice_set_volume(sfx_voice[index], sfx_volume);
+		int32_t temp_volume = sfx_volume;
+		if (!get_qr(qr_OLD_SCRIPT_VOLUME))
+			temp_volume = (sfx_volume * FFCore.usr_sfx_volume) / 10000 / 100;
+		voice_set_volume(sfx_voice[index], temp_volume);
 	}
 	
 	return sfx_voice[index] != -1;
 }
 
+int32_t sfx_get_default_freq(int32_t index)
+{
+	if (sfxdat)
+	{
+		if (index < Z35)
+		{
+			return ((SAMPLE*)sfxdata[index].dat)->freq;
+		}
+		else
+		{
+			return ((SAMPLE*)sfxdata[Z35].dat)->freq;
+		}
+	}
+	else
+	{
+		return customsfxdata[index].freq;
+	}
+}
+
+int32_t sfx_get_length(int32_t index)
+{
+	if (sfxdat)
+	{
+		if (index < Z35)
+		{
+			return int32_t(((SAMPLE*)sfxdata[index].dat)->len);
+		}
+		else
+		{
+			return int32_t(((SAMPLE*)sfxdata[Z35].dat)->len);
+		}
+	}
+	else
+	{
+		return int32_t(customsfxdata[index].len);
+	}
+}
+
 // plays an sfx sample
-void sfx(int32_t index,int32_t pan,bool loop, bool restart)
+void sfx(int32_t index,int32_t pan,bool loop, bool restart, int32_t vol, int32_t freq)
 {
 	if(!sfx_init(index))
 		return;
-	
 	if (!is_headless())
 	{
-		voice_set_playmode(sfx_voice[index],loop?PLAYMODE_LOOP:PLAYMODE_PLAY);
-		voice_set_pan(sfx_voice[index],pan);
-		
+		voice_set_playmode(sfx_voice[index], loop ? PLAYMODE_LOOP : PLAYMODE_PLAY);
+		voice_set_pan(sfx_voice[index], pan);
+
+		// Only used by ZScript currently
+		if (freq <= -1)
+		{
+			freq = sfx_get_default_freq(index);
+		}
+		voice_set_frequency(sfx_voice[index], freq);
+
+		// Only used by ZScript currently
+		int32_t temp_volume = (sfx_volume * vol) / 10000 / 100;
+		if (!get_qr(qr_OLD_SCRIPT_VOLUME))
+			temp_volume = (temp_volume * FFCore.usr_sfx_volume) / 10000 / 100;
+		voice_set_volume(sfx_voice[index], temp_volume);
+
 		int32_t pos = voice_get_position(sfx_voice[index]);
-		
-		if(restart) voice_set_position(sfx_voice[index],0);
-		
-		if(pos<=0)
+
+		if (restart) voice_set_position(sfx_voice[index], 0);
+
+		if (pos <= 0)
 			voice_start(sfx_voice[index]);
 	}
 

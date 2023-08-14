@@ -7142,6 +7142,7 @@ void onload_gswitch_timers() //Reset all timers that were counting down, no trig
 
 //BITMAP *mappic = NULL;
 int32_t mapres = 0;
+int32_t view_map_show_mode = 3;
 
 bool displayOnMap(int32_t x, int32_t y)
 {
@@ -7291,7 +7292,6 @@ void ViewMap()
 	
 	// view it
 	int32_t delay = 0;
-	static int32_t show  = 3;
 	
 	do
 	{
@@ -7384,7 +7384,7 @@ void ViewMap()
 		}
 		
 		if(rPbtn())
-			--show;
+			--view_map_show_mode;
 			
 		px = vbound(px,-4096,4096);
 		py = vbound(py,-1408,1408);
@@ -7409,7 +7409,7 @@ void ViewMap()
 		int32_t x = int32_t(256+(px-((2048-int64_t(lx))*2))*scale)/2;
 		int32_t y = int32_t(224+(py-((704-int64_t(ly))*2))*scale)/2;
 		
-		if(show&1)
+		if(view_map_show_mode&1)
 		{
 			line(framebuf,x-7,y-7,x+7,y+7,(frame&3)+252);
 			line(framebuf,x+7,y-7,x-7,y+7,(frame&3)+252);
@@ -7417,7 +7417,7 @@ void ViewMap()
 		
 		//    text_mode(BLACK);
 		
-		if(show&2 || r)
+		if(view_map_show_mode&2 || r)
 			textprintf_ex(framebuf,font,224,216,WHITE,BLACK,"%1.2f",scale);
 			
 		if(r)
