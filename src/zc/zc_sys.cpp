@@ -8276,7 +8276,10 @@ void play_DmapMusic()
 				if (FFCore.play_enh_music_crossfade(DMaps[currdmap].tmusic, DMaps[currdmap].tmusictrack, DMaps[currdmap].tmusic_xfade_in, fadeoutframes))
 				{
 					if (zcmusic != NULL)
+					{
 						zcmusic->fadeoutframes = DMaps[currdmap].tmusic_xfade_out;
+						zcmusic_set_loop(zcmusic, double(DMaps[currdmap].tmusic_loop_start / 10000.0), double(DMaps[currdmap].tmusic_loop_end / 10000.0));
+					}
 				}
 			}
 			else
