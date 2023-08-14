@@ -208,6 +208,7 @@ parser.add_argument('--headless', action=argparse.BooleanOptionalAction, default
     help='Run without display or sound')
 parser.add_argument('--show', action=argparse.BooleanOptionalAction, default=False,
     help='Alias for --no-headless and --throttle_fps')
+parser.add_argument('--emoji', action=argparse.BooleanOptionalAction, default=True)
 
 
 mode_group = parser.add_argument_group('Mode','The playback mode')
@@ -932,6 +933,9 @@ for i in range(args.retries + 1):
         run_dir.mkdir(parents=True)
         result = run_replay_test(test, run_dir)
         status_emoji = '✅' if result.success else '❌'
+        # Can't figure out how to enable UTF-8 for VS output log.
+        if not args.emoji:
+            status_emoji = 'PASS' if result.success else 'FAIL'
 
         message = f'{status_emoji} {time_format(result.duration)}'
         if result.fps != None:

@@ -868,6 +868,32 @@ if(COPY_RESOURCES)
 	endforeach()
 endif()
 
+# Add some targets for running replay tests.
+# TODO: Visual Studio can't cancel custom commands from CMake
+# https://gitlab.kitware.com/cmake/cmake/-/issues/25183
+# https://stackoverflow.com/q/43364914
+function (create_replay_tests_target target_name)
+	list(SUBLIST ARGV 1 -1 command_args)
+	add_custom_command(
+		USES_TERMINAL
+		COMMAND ${PYTHON} -Xutf8 ${CMAKE_CURRENT_SOURCE_DIR}/tests/run_replay_tests.py --no-emoji --build_folder "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>" ${command_args}
+		OUTPUT ${target_name}.stamp
+		DEPENDS zelda
+	)
+	add_custom_target(${target_name} DEPENDS ${target_name}.stamp)
+	set_source_files_properties(${target_name}.stamp PROPERTIES SYMBOLIC 1)
+endfunction()
+
+# Run everything.
+create_replay_tests_target(run_replay_tests_all --assert)
+# Run just the short ones.
+create_replay_tests_target(run_replay_tests_basic --assert --filter playground --filter classic_1st.zplay --filter dark)
+# Don't use jit, just because there is lots of overhead to compilation that will make it a waste when
+# running just a few seconds.
+create_replay_tests_target(run_replay_tests_all_1s --assert --no-jit --max_duration 1)
+create_replay_tests_target(run_replay_tests_all_10s --assert --no-jit --max_duration 10)
+create_replay_tests_target(run_replay_tests_all_100s --assert --no-jit --max_duration 100)
+
 #############################################################
 # Visual Studio
 #############################################################
@@ -886,6 +912,7 @@ if(CMAKE_GENERATOR MATCHES "Visual Studio")
 	# Organize into folders
 	set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 	set_target_properties(zelda zquest zscript zlauncher package package_no_archive PROPERTIES FOLDER "")
+	set_target_properties(run_replay_tests_all run_replay_tests_basic run_replay_tests_all_1s run_replay_tests_all_10s run_replay_tests_all_100s PROPERTIES FOLDER "Replay Tests")
 	set_target_properties(zcbase zcgui zcsound PROPERTIES FOLDER "Our Libraries")
 	set_target_properties(gme dumb aldmb PROPERTIES FOLDER Sound)
 	set_target_properties(allegro allegro_audio allegro_acodec allegro_image allegro_font allegro_main allegro_primitives allegro_dialog allegro-legacy al5img algif alpng PROPERTIES FOLDER Allegro)
