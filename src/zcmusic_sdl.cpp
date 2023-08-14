@@ -258,6 +258,22 @@ int32_t zcmusic_change_track(ZCMUSIC *zcm, int32_t tracknum) {
   Mix_StartTrack(zcm->mus, tracknum);
   return 0;
 }
+
+// TODO implement
 int32_t zcmusic_get_curpos(ZCMUSIC *zcm) { return 0; }
 void zcmusic_set_curpos(ZCMUSIC *zcm, int32_t value) {}
 void zcmusic_set_speed(ZCMUSIC *zcm, int32_t value) {}
+int32_t zcmusic_get_length(ZCMUSIC* zcm) { return 0; }
+void zcmusic_set_loop(ZCMUSIC* zcm, double start, double end) {}
+int32_t zcmusic_get_type(ZCMUSIC* zcm)
+{
+	return zcm->type;
+}
+
+// TODO implement
+ZCMIXER* zcmixer_create()
+{
+	return nullptr;
+}
+void zcmixer_update(ZCMIXER* mix, int32_t basevol, int32_t uservol, bool oldscriptvol) {}
+void zcmixer_exit(ZCMIXER* &mix) {}
