@@ -52,7 +52,7 @@ void update_subscr_items()
 	int ids[] = {Awpn,Bwpn,Xwpn,Ywpn};
 	for(int q = 0; q < 4; ++q)
 	{
-		if(btnitem_ids[q] != ids[1])
+		if(btnitem_ids[q] != ids[q])
 		{
 			btnitem_ids[q] = ids[q];
 			btnitem_clks[q] = 0;
