@@ -681,6 +681,9 @@ class WebPlayerInterface:
 
         url = f'zelda.html?{mode}=test_replays/{replay_path}&replayExitWhenDone&showFps'
 
+        if args.headless:
+            url += f'&headless'
+
         snapshot_arg = get_arg_for_replay(replay_path, grouped_snapshot_arg)
         if snapshot_arg is not None:
             url += f'&snapshot={snapshot_arg}'

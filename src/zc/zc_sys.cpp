@@ -4698,6 +4698,20 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 		sfx_cleanup();
 	
 	jit_poll();
+
+#ifdef __EMSCRIPTEN__
+	// Yield the main thread back to the browser occasionally.
+	if (is_headless())
+	{
+		static int rate = 10000;
+		static int force_yield = rate;
+		if (force_yield++ >= rate)
+		{
+			force_yield = 0;
+			emscripten_sleep(0);
+		}
+	}
+#endif
 }
 
 void zapout()
