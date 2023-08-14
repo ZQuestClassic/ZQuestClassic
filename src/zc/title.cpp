@@ -2049,7 +2049,9 @@ int32_t custom_game(int32_t file)
 		blit(tmp_scr,screen,0,0,scrx,scry,320,240);
 	}
 	if(!customized) strcpy(qstpath, relpath);
-	
+	else
+		saves_get_slot(file, true)->game->set_qstpath(relativize_path(qstpath));
+
 	exit_sys_pal();
 	key[KEY_ESC]=0;
 	chosecustomquest = (ret==5) && customized;
@@ -2058,6 +2060,9 @@ int32_t custom_game(int32_t file)
 
 static int32_t game_details(int32_t file)
 {
+	if (file >= saves_count())
+		return 0;
+
 	al_trace("Running game_details(int32_t file)\n");
 	int32_t pos=file%3;
 
@@ -2163,9 +2168,10 @@ int32_t getsaveslot()
 		{
 			return -1;
 		}
+		return saveslot;
 	}
 	
-	return saveslot;
+	return -1;
 }
 
 static void select_game(bool skip = false)

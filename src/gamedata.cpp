@@ -96,6 +96,11 @@ const char *gamedata::get_qstpath() const
 	return header.qstpath.c_str();
 }
 
+void gamedata::set_qstpath(std::string qstpath)
+{
+	header.qstpath = qstpath;
+}
+
 const char *gamedata::get_name() const
 {
     return header.name.c_str();

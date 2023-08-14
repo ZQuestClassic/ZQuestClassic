@@ -2659,6 +2659,7 @@ struct gamedata
 	void load_user_objects();
 
 	const char *get_qstpath() const;
+	void set_qstpath(std::string qstpath);
 
 	const char *get_name() const;
 	char *get_name_mutable();

@@ -33,6 +33,7 @@
 #include "dialog/cheatkeys.h"
 #include "metadata/metadata.h"
 #include "zc/zelda.h"
+#include "zc/saves.h"
 #include "tiles.h"
 #include "base/colors.h"
 #include "pal.h"
