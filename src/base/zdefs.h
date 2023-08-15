@@ -3229,7 +3229,7 @@ struct viewport_t
 	int32_t y;
 	int32_t w;
 	int32_t h;
-	int32_t yofs;
+	int32_t centering_y_offset;
 
 	bool intersects_with(int x, int y, int w, int h) const;
 	bool contains_point(int x, int y) const;

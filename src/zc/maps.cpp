@@ -347,12 +347,12 @@ void z3_calculate_viewport(int dmap, int screen_index, int world_w, int world_h,
 	{
 		// Clamp the viewport to the edges of the region.
 		viewport.x = CLAMP(0, world_w - viewport.w, hero_x - viewport.w/2);
-		viewport.y = CLAMP(0, world_h - viewport.h, hero_y - viewport.h/2 + viewport.yofs + 16);
+		viewport.y = CLAMP(0, world_h - viewport.h, hero_y - viewport.h/2 + viewport.centering_y_offset + 16);
 	}
 	else if (viewport_mode == ViewportMode::Center)
 	{
 		viewport.x = hero_x - viewport.w/2;
-		viewport.y = hero_y - viewport.h/2 + viewport.yofs + 16;
+		viewport.y = hero_y - viewport.h/2 + viewport.centering_y_offset + 16;
 	}
 }
 

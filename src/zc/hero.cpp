@@ -26006,7 +26006,7 @@ void HeroClass::walkdown(bool opening) //entering cave
     Ewpns.clear();
     items.clear();
     
-	viewport.yofs = 0;
+	viewport.centering_y_offset = 0;
     for(int32_t i=0; i<64; i++)
     {
         herostep();
@@ -26017,7 +26017,7 @@ void HeroClass::walkdown(bool opening) //entering cave
         if((i&3)==3)
 		{
             ++y;
-			--viewport.yofs;
+			--viewport.centering_y_offset;
 		}
 
         draw_screen();
@@ -26026,7 +26026,7 @@ void HeroClass::walkdown(bool opening) //entering cave
         if(Quit)
             break;
     }
-	viewport.yofs = 0;
+	viewport.centering_y_offset = 0;
     
     action=none; FFCore.setHeroAction(none);
 }
@@ -26068,7 +26068,7 @@ void HeroClass::walkdown2(bool opening) //exiting cave 2
     Ewpns.clear();
     items.clear();
     
-	viewport.yofs = 16;
+	viewport.centering_y_offset = 16;
     for(int32_t i=0; i<64; i++)
     {
         herostep();
@@ -26079,7 +26079,7 @@ void HeroClass::walkdown2(bool opening) //exiting cave 2
         if((i&3)==3)
 		{
             ++y;
-			--viewport.yofs;
+			--viewport.centering_y_offset;
 		}
             
         draw_screen();
@@ -26088,7 +26088,7 @@ void HeroClass::walkdown2(bool opening) //exiting cave 2
         if(Quit)
             break;
     }
-	viewport.yofs = 0;
+	viewport.centering_y_offset = 0;
     
 	
     action=none; FFCore.setHeroAction(none);
@@ -26129,7 +26129,7 @@ void HeroClass::walkup(bool opening) //exiting cave
     Ewpns.clear();
     items.clear();
     
-	viewport.yofs = -16;
+	viewport.centering_y_offset = -16;
     for(int32_t i=0; i<64; i++)
     {
         herostep();
@@ -26140,7 +26140,7 @@ void HeroClass::walkup(bool opening) //exiting cave
         if((i&3)==0)
 		{
             --y;
-			++viewport.yofs;
+			++viewport.centering_y_offset;
 		}
             
         draw_screen();
@@ -26149,7 +26149,7 @@ void HeroClass::walkup(bool opening) //exiting cave
         if(Quit)
             break;
     }
-	viewport.yofs = 0;
+	viewport.centering_y_offset = 0;
     map_bkgsfx(true);
     loadside=dir^1;
     action=none; FFCore.setHeroAction(none);
@@ -27426,7 +27426,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	// Determine what the player position will be after scrolling (within the new screen's coordinate system),
 	// and what the new viewport will be.
 	// zfix new_hero_x, new_hero_y;
-	viewport_t new_viewport = {0}; // TODO z3 !! yofs  should get set in z3_calculate_viewport
+	viewport_t new_viewport = {0};
 	region new_region;
 	new_hero_x = 0;
 	new_hero_y = 0;
@@ -28032,19 +28032,18 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	// Align first, unless that would show screens outside the old region.
 	if (align_counter)
 	{
-		viewport_t lazy_rect;
-		lazy_rect.yofs = 0;
-		lazy_rect.x = 0;
-		lazy_rect.y = 0;
-		lazy_rect.w = old_world_w;
-		lazy_rect.h = old_world_h;
+		viewport_t old_world_rect;
+		old_world_rect.x = 0;
+		old_world_rect.y = 0;
+		old_world_rect.w = old_world_w;
+		old_world_rect.h = old_world_h;
 
 		viewport_t old_viewport_aligned = old_viewport;
 		old_viewport_aligned.x -= (dy ? secondary_axis_alignment_amount : 0);
 		old_viewport_aligned.y -= (dx ? secondary_axis_alignment_amount : 0);
 		// The playing field offset is changed before aligning, so apply the delta in this check.
 		old_viewport_aligned.y += new_playing_field_offset - old_original_playing_field_offset;
-		if (lazy_rect.contains(old_viewport_aligned))
+		if (old_world_rect.contains(old_viewport_aligned))
 			align_mode = 0;
 		else
 			align_mode = 1;
