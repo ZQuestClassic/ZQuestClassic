@@ -87,6 +87,7 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 								if (smol != wassmol)
 								{
 									dmap_mmap->setSmallDMap(smol);
+									dmap_grid->setSmallDMap(smol);
 									dmap_slider->setDisabled(!smol);
 									if (smol)
 									{
@@ -102,25 +103,43 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 							}),
 						Label(text = "Level:"),
 						TextField(
-							fitParent = true, minwidth = 8_em,
+							fitParent = true, minwidth = 3_em,
 							type = GUI::TextField::type::INT_DECIMAL,
 							low = 0, high = 511, val = local_dmap.level,
 							onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
 							{
 								local_dmap.level = val;
-							}),
+							})
+					),
+					Rows<2>(
 						dmap_mmap = DMapMinimap(
-							colSpan = 3,
+							rightMargin = 6_px,
 							curMap = local_dmap.map + 1,
 							smallDMap = sm_dmap(local_dmap.type),
 							offset = local_dmap.xoff
 						),
-						Label(
-							colSpan = 3, 
-							text = "Placeholder"
-						),
+						dmap_grid = DMapMapGrid(
+							leftMargin = 6_px,
+							mapGridPtr = &local_dmap.grid[0],
+							continueScreen = local_dmap.cont, compassScreen = local_dmap.compass,
+							smallDMap = sm_dmap(local_dmap.type),
+							onUpdate = [&](byte* byteptr, byte compassScreen, byte continueScreen)
+							{
+								if (compassScreen != local_dmap.compass)
+								{
+									local_dmap.compass = compassScreen;
+									compass_field->setVal(compassScreen);
+								}
+								if (continueScreen != local_dmap.cont)
+								{
+									local_dmap.cont = continueScreen;
+									continue_field->setVal(continueScreen);
+								}
+							})
+					),
+					Rows<4>(
 						dmap_slider = Slider(
-							colSpan = 3, fitParent = true,
+							colSpan = 2, fitParent = true, 
 							disabled = !sm_dmap(local_dmap.type),
 							offset = local_dmap.xoff,
 							minOffset = -7, maxOffset = 15,
@@ -128,6 +147,45 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 							{
 								local_dmap.xoff = offset;
 								dmap_mmap->setOffset(offset);
+							}),
+						Label(text = "Compass: 0x", hAlign = 1.0, rightPadding = 0_px),
+						compass_field = TextField(
+							hAlign = 0.0,
+							fitParent = true, minwidth = 2_em,
+							type = GUI::TextField::type::INT_HEX,
+							low = 0x00, high = 0x7F, val = local_dmap.compass,
+							onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
+							{
+								dmap_grid->setCompassScreen(val);
+								local_dmap.compass = val;
+							}),
+						Checkbox(checked = local_dmap.type & dmfCONTINUE,
+							colSpan = 2, text = "Continue here",
+							onToggleFunc = [&](bool state)
+							{
+								SETFLAG(local_dmap.type, dmfCONTINUE, state);
+							}),
+						Label(text = "Continue: 0x", hAlign = 1.0, rightPadding = 0_px),
+						continue_field = TextField(
+							hAlign = 0.0,
+							fitParent = true, minwidth = 2_em,
+							type = GUI::TextField::type::INT_HEX,
+							low = 0, high = 127, val = local_dmap.cont,
+							onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
+							{
+								dmap_grid->setContinueScreen(val);
+								local_dmap.cont = val;
+							}),
+						DummyWidget(colSpan = 2),
+						Label(text = "Mirror DMap:", hAlign = 1.0),
+						TextField(
+							hAlign = 0.0,
+							fitParent = true, minwidth = 3_em,
+							type = GUI::TextField::type::INT_DECIMAL,
+							low = -1, high = 511, val = local_dmap.mirrorDMap,
+							onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
+							{
+								local_dmap.mirrorDMap = val;
 							})
 					)
 				)),

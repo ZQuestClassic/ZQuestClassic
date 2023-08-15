@@ -44,8 +44,8 @@ namespace GUI
 			int32_t header_height = int32_t(6 * 1.5);
 			int32_t cols = widg->small_dmap ? 8 : 16;
 			int32_t col_width = widg->small_dmap ? 22 : 11;
-			int32_t x = d->x + 6;
-			int32_t y = d->y + 9;
+			int32_t x = d->x + 6 + 3;
+			int32_t y = d->y + 9 + 3;
 			int32_t j = 0;
 			rectfill(screen, x, y - header_height - frame_thickness - 1, int32_t(x + 116 * 1.5 - 1), y - 1, jwin_pal[jcBOX]);
 
