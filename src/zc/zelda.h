@@ -378,12 +378,8 @@ extern int32_t heroscr;
 // Screen the player is currently on. If in a region, this updates as the player moves around. Otherwise this is equal to the current screen.
 extern mapscr* hero_screen;
 // If currently on an 0x80+ screen, this is where the player came from. Corresponds to special_warp_return_screen.
-// Otherwise, is equal to initial_region_scr.
+// Otherwise, is equal to currscr.
 extern int32_t homescr;
-// The initial screen that the player loads into when entering a region. If not in a region, this is equal to currscr.
-// Corresponds to tmpscr and tmpscr2.
-// This is the screen given to loadscr.
-extern int32_t initial_region_scr;
 extern int32_t frame,currmap,dlevel,warpscr,worldscr,scrolling_scr,scrolling_map,scrolling_dmap,scrolling_destdmap;
 extern direction scrolling_dir;
 extern int32_t scrolling_origin_scr;

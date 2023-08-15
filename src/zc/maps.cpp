@@ -277,8 +277,6 @@ void z3_load_region(int screen_index, int dmap)
 	region_scr_count = current_region.screen_count;
 	region_max_rpos = (rpos_t)(current_region.screen_width*current_region.screen_height*176 - 1);
 	region_num_rpos = current_region.screen_width*current_region.screen_height*176;
-	// TODO z3 !! remove initial_region_scr ?
-	initial_region_scr = screen_index;
 	scrolling_maze_state = 0;
 	scrolling_maze_scr = 0;
 	z3_clear_temporary_screens();
