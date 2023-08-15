@@ -21,13 +21,14 @@ await new Promise(resolve => server.server.once('listening', resolve));
 const replayUrl = new URL(urlPath, server.url);
 replayUrl.searchParams.append('storage', 'idb');
 const zplay = replayUrl.searchParams.get('assert') || replayUrl.searchParams.get('replay');
+const headless = replayUrl.searchParams.has('headless');
 
 async function runReplay(zplay) {
   const zplaySplit = zplay.split('/');
   const zplayName = zplaySplit[zplaySplit.length - 1];
 
   const browser = await puppeteer.launch({
-    headless: !process.env.HEADFULL,
+    headless: headless ? 'new' : false,
   });
   const page = await browser.newPage();
 
@@ -47,7 +48,7 @@ async function runReplay(zplay) {
   });
 
   await page.goto(replayUrl, {
-    waitUntil: 'networkidle0',
+    waitUntil: 'networkidle2',
   });
 
   let hasExited = false;
@@ -57,14 +58,7 @@ async function runReplay(zplay) {
     exitCode = Number(text.replace('exit with code:', ''));
   });
 
-  await new Promise(resolve => setTimeout(resolve, 5000));
-
-  const zplayExists = await page.evaluate((zplay) => {
-    return !!FS.findObject(zplay);
-  }, zplay);
-  if (!zplayExists) {
-    throw new Error(`could not find replay: ${zplay}`);
-  }
+  await consoleListener.waitFor(/Replay is active/);
 
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'zc-replays-'));
   async function getResultFile() {

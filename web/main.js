@@ -120,6 +120,7 @@ async function main() {
       if (params.has('v0')) args.push('-v0');
       if (params.has('v1')) args.push('-v1');
       if (params.has('showFps')) args.push('-show-fps');
+      if (params.has('headless')) args.push('-headless');
     }
 
     // window.Module = await initModule({

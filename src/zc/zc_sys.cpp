@@ -4695,6 +4695,20 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 		sfx_cleanup();
 	
 	jit_poll();
+
+#ifdef __EMSCRIPTEN__
+	// Yield the main thread back to the browser occasionally.
+	if (is_headless())
+	{
+		static int rate = 10000;
+		static int force_yield = rate;
+		if (force_yield++ >= rate)
+		{
+			force_yield = 0;
+			emscripten_sleep(0);
+		}
+	}
+#endif
 }
 
 void zapout()
@@ -8270,7 +8284,10 @@ void play_DmapMusic()
 				if (FFCore.play_enh_music_crossfade(DMaps[currdmap].tmusic, DMaps[currdmap].tmusictrack, DMaps[currdmap].tmusic_xfade_in, fadeoutframes))
 				{
 					if (zcmusic != NULL)
+					{
 						zcmusic->fadeoutframes = DMaps[currdmap].tmusic_xfade_out;
+						zcmusic_set_loop(zcmusic, double(DMaps[currdmap].tmusic_loop_start / 10000.0), double(DMaps[currdmap].tmusic_loop_end / 10000.0));
+					}
 				}
 			}
 			else
