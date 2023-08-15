@@ -163,6 +163,7 @@ bool is_extended_height_mode()
 	return global_z3_scrolling_extended_height_mode && region_scr_height > 1;
 }
 
+// Returns 0 if this is not a region.
 int get_region_id(int dmap, int scr)
 {
 	if (!global_z3_scrolling) return 0;

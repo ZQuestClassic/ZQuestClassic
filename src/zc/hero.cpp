@@ -27165,9 +27165,6 @@ void HeroClass::calc_darkroom_hero(int32_t x1, int32_t y1, BITMAP* bmp)
 	handle_lighting(hx, hy, lamp.misc1, lamp.misc2, dir, bmp);
 }
 
-// TODO z3 scrolling between extended height ON and OFF is not working right now
-static bool scrolling_extended_height;
-
 static void for_every_nearby_screen_during_scroll(
 	const std::vector<mapscr*>& old_temporary_screens,
 	const std::function <void (std::array<screen_handle_t, 7>, int, int, int, bool)>& fn)
@@ -27178,11 +27175,8 @@ static void for_every_nearby_screen_during_scroll(
 
 	int start_dy = -1;
 	int end_dy = 1;
-	if (scrolling_extended_height)
-	{
-		if (scrolling_dir == up) start_dy -= 1;
-		if (scrolling_dir == down) end_dy += 1;
-	}
+	if (scrolling_dir == up) start_dy -= 1;
+	if (scrolling_dir == down) end_dy += 1;
 
 	// First handle the old screens, then the new screens.
 	std::vector<std::pair<int, int>> old_screen_deltas;
@@ -27240,37 +27234,37 @@ static void for_every_nearby_screen_during_scroll(
 		int scr = scr_x + scr_y * 16;
 		if (!is_region_scrolling && scr != heroscr && scr != scrolling_scr) continue;
 
+		// Only show screens that are in the old or the new regions.
 		int region = get_region_id(base_dmap, scr);
-		// TODO z3
-		// if (scr == scrolling_scr || scr == currscr || (old_region && old_region == region) || (new_region && region == new_region))
+		if (!(scr == scrolling_scr || scr == currscr || (old_region && old_region == region) || (new_region && region == new_region)))
+			continue;
+
+		mapscr* base_screen = use_new_screens ?
+			get_scr(base_map, scr) :
+			old_temporary_screens[scr*7];
+		if (base_screen)
 		{
-			mapscr* base_screen = use_new_screens ?
-				get_scr(base_map, scr) :
-				old_temporary_screens[scr*7];
-			if (base_screen)
+			int dx = draw_dx + z3_get_region_relative_dx(scrolling_scr, scrolling_origin_scr);
+			int dy = draw_dy + z3_get_region_relative_dy(scrolling_scr, scrolling_origin_scr);
+			// int dx = draw_dx;
+			// int dy = draw_dy;
+
+			// if (scrolling_dir == up)    dy += 1;
+			// if (scrolling_dir == down)  dy -= 1;
+			// if (scrolling_dir == left)  dx += 1;
+			// if (scrolling_dir == right) dx -= 1;
+
+			std::array<screen_handle_t, 7> screen_handles;
+			screen_handles[0] = {base_screen, base_screen, base_map, scr, 0};
+			for (int i = 1; i < 7; i++)
 			{
-				int dx = draw_dx + z3_get_region_relative_dx(scrolling_scr, scrolling_origin_scr);
-				int dy = draw_dy + z3_get_region_relative_dy(scrolling_scr, scrolling_origin_scr);
-				// int dx = draw_dx;
-				// int dy = draw_dy;
-
-				// if (scrolling_dir == up)    dy += 1;
-				// if (scrolling_dir == down)  dy -= 1;
-				// if (scrolling_dir == left)  dx += 1;
-				// if (scrolling_dir == right) dx -= 1;
-
-				std::array<screen_handle_t, 7> screen_handles;
-				screen_handles[0] = {base_screen, base_screen, base_map, scr, 0};
-				for (int i = 1; i < 7; i++)
-				{
-					mapscr* screen = use_new_screens ?
-						get_layer_scr(base_map, scr, i - 1) :
-						old_temporary_screens[scr*7 + i];
-					screen_handles[i] = {base_screen, screen, base_map, scr, i};
-				}
-
-				fn(screen_handles, scr, dx, dy, use_new_screens);
+				mapscr* screen = use_new_screens ?
+					get_layer_scr(base_map, scr, i - 1) :
+					old_temporary_screens[scr*7 + i];
+				screen_handles[i] = {base_screen, screen, base_map, scr, i};
 			}
+
+			fn(screen_handles, scr, dx, dy, use_new_screens);
 		}
 	}
 }
@@ -27801,8 +27795,8 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	loadscr(destdmap, destscr, scrolldir, overlay);
 
 	mapscr* newscr = get_scr(destmap, destscr);
-	// TODO Z3 !!!!!!
-	scrolling_extended_height = old_extended_height_mode || is_extended_height_mode();
+	// TODO z3 !! remove
+	bool scrolling_extended_height = old_extended_height_mode || is_extended_height_mode();
 	// TODO z3
 	int new_playing_field_offset = playing_field_offset;
 	playing_field_offset = old_original_playing_field_offset;

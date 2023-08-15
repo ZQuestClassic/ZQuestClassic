@@ -3550,9 +3550,6 @@ void calculate_trig_groups()
 
 void trig_trigger_groups()
 {
-	// TODO z3 !!!! merge. rm now?
-	// ffc_clear_cpos_info();
-
 	for_every_rpos_in_region([&](const rpos_handle_t& rpos_handle) {
 		int cid = rpos_handle.data();
 		cpos_info& timer = get_combo_posinfo(rpos_handle);
@@ -3569,9 +3566,6 @@ void trig_trigger_groups()
 			int cid2 = rpos_handle.data();
 			bool recheck = timer.data != cid2;
 			update_trig_group(timer.data,cid2);
-			// TODO z3 upstream ? https://discord.com/channels/876899628556091432/876908472728453161/1135099459005579375
-			// update_trig_group(timer.data, cid2);
-			// timer.updateData(cid2);
 
 			if (!recheck)
 				break;
