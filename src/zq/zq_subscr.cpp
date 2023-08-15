@@ -2150,7 +2150,7 @@ void update_subscr_dlg(bool start)
 	if(start)
 	{	
 		subscreen_dlg[0].dp2=get_zc_font(font_lfont);
-		load_Sitems();
+		refresh_subscr_items();
 		curr_subscreen_object=0;
 		
 		if(subscr_edit.pages.empty())

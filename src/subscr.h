@@ -167,8 +167,10 @@ const byte bmaptiles_bs[5][6] =
     {40,41,42,43,43,44}
 };
 
-void reset_subscr_items();
-void update_subscr_items();
+void refresh_subscr_buttonitems();
+void animate_subscr_buttonitems();
+void refresh_subscr_items();
+void kill_subscr_items();
 int32_t stripspaces(char *source, char *target, int32_t stop);
 void put_passive_subscr(BITMAP *dest,int32_t x,int32_t y,bool showtime,int32_t pos2);
 void puttriframe(BITMAP *dest, int32_t x, int32_t y, int32_t triframecolor, int32_t numbercolor, int32_t triframetile, int32_t triframecset, int32_t triforcetile, int32_t triforcecset, bool showframe, bool showpieces, bool largepieces);
@@ -176,7 +178,6 @@ void puttriforce(BITMAP *dest, int32_t x, int32_t y, int32_t tile, int32_t cset,
 void draw_block(BITMAP *dest,int32_t x,int32_t y,int32_t tile,int32_t cset,int32_t w,int32_t h);
 void draw_block_flip(BITMAP *dest,int32_t x,int32_t y,int32_t tile,int32_t cset,int32_t w,int32_t h,int32_t flip,bool overlay,bool trans);
 void putBmap(BITMAP *dest, int32_t x, int32_t y,bool showmap, bool showrooms, bool showhero, int32_t roomcolor, int32_t herocolor, bool large);
-void load_Sitems();
 void textout_styled_aligned_ex(BITMAP *bmp, const FONT *f, const char *s, int32_t x, int32_t y, int32_t textstyle, int32_t alignment, int32_t color, int32_t shadow, int32_t bg);
 void textprintf_styled_aligned_ex(BITMAP *bmp, const FONT *f, int32_t x, int32_t y, int32_t textstyle, int32_t alignment, int32_t color, int32_t shadow, int32_t bg, const char *format, ...);
 void update_subscreens(int32_t dmap=-1);

@@ -34,10 +34,11 @@ void magicgauge(BITMAP *dest,int32_t x,int32_t y, int32_t container, int32_t not
 				int32_t cap_tile, int32_t cap_cset, bool cap_mod, int32_t aftercap_tile, int32_t aftercap_cset, bool aftercap_mod, int32_t frames, int32_t speed, int32_t delay, bool unique_last, int32_t show);
 
 int subscr_item_clk = 0;
+bool subscr_itemless = false;
 int btnitem_clks[4] = {0};
 int btnitem_ids[4] = {0};
 
-void reset_subscr_items()
+void refresh_subscr_buttonitems()
 {
 	for(int q = 0; q < 4; ++q)
 	{
@@ -46,7 +47,7 @@ void reset_subscr_items()
 	}
 }
 
-void update_subscr_items()
+void animate_subscr_buttonitems()
 {
 	int nullval = get_qr(qr_ITM_0_INVIS_ON_BTNS) ? 0 : -1;
 	int ids[] = {Awpn,Bwpn,Xwpn,Ywpn};
@@ -60,6 +61,17 @@ void update_subscr_items()
 		if(ids[q] > nullval)
 			++btnitem_clks[q];
 	}
+}
+
+void refresh_subscr_items()
+{
+	subscr_item_clk = 0;
+	subscr_itemless = false;
+}
+
+void kill_subscr_items()
+{
+	subscr_itemless = true;
 }
 
 int32_t to_real_font(int32_t ss_font)
@@ -1190,6 +1202,7 @@ byte SW_ButtonItem::getType() const
 }
 void SW_ButtonItem::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
+	if(!show_subscreen_items) return;
 	if(flags&SUBSCR_BTNITM_TRANSP)
 		drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
 	
@@ -2186,6 +2199,7 @@ int32_t SW_ItemSlot::getDisplayItem() const
 }
 void SW_ItemSlot::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
+	if(subscr_itemless) return;
 	#ifdef IS_PLAYER
 	if(flags&SUBSCR_CURITM_INVIS)
 		return;

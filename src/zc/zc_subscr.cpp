@@ -55,7 +55,7 @@ void dosubscr()
     int32_t miny;
     bool showtime = game->should_show_time();
 	if(replay_version_check(0,19))
-		load_Sitems();
+		refresh_subscr_items();
 	else flushItemCache();
     
     pause_sfx(WAV_BRANG);
@@ -154,14 +154,14 @@ void dosubscr()
 			{
 				if (!get_qr(qr_NO_L_R_BUTTON_INVENTORY_SWAP))
 				{
-					pg.cursor_pos = pg.movepos_legacy(SEL_LEFT, (pos<<8)|pg.getIndex(), -1, -1, -1, false, true);
+					pg.cursor_pos = pg.movepos_legacy(SEL_LEFT, (pos<<8)|pg.getIndex(), 255, 255, 255, false, true);
 				}
 			}
 			else if(rRbtn() )
 			{
 				if (!get_qr(qr_NO_L_R_BUTTON_INVENTORY_SWAP)) 
 				{
-					pg.cursor_pos = pg.movepos_legacy(SEL_RIGHT, (pos<<8)|pg.getIndex(), -1, -1, -1, false, true);
+					pg.cursor_pos = pg.movepos_legacy(SEL_RIGHT, (pos<<8)|pg.getIndex(), 255, 255, 255, false, true);
 				}
 			}
 			else if(rEx3btn() )

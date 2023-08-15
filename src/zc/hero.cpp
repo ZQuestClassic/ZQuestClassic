@@ -10214,7 +10214,10 @@ static void deselectbombsWPN(word& wpos, int32_t& BTNwpn, int32_t& directItemBTN
 		return;
 	}
 	
-	auto temp = pg->movepos_legacy(SEL_VERIFY_LEFT, wpos, f1, f2, f3);
+	auto fp1 = ((f1&0xFF)==255) ? 255 : ((empty || (f1&0xFF)==(wpos&0xFF)) ? f1 : 255);
+	auto fp2 = ((f2&0xFF)==255) ? 255 : ((empty || (f2&0xFF)==(wpos&0xFF)) ? f2 : 255);
+	auto fp3 = ((f3&0xFF)==255) ? 255 : ((empty || (f3&0xFF)==(wpos&0xFF)) ? f3 : 255);
+	auto temp = pg->movepos_legacy(SEL_VERIFY_LEFT, wpos, fp1, fp2, fp3);
 	BTNwpn = pg->get_item_pos(temp>>8);
 	directItemBTN = NEG_OR_MASK(BTNwpn,0xFFF);
 	wpos = temp;
@@ -28558,10 +28561,13 @@ static void selectNextBTNWpn(int32_t type, word& wpos, int32_t& BTNwpn,
 	SubscrPage* pg = new_subscreen_active->get_page(pgn==255?new_subscreen_active->curpage:pgn);
 	if(!pg)
 		return;
-    auto ret = pg->movepos_legacy(type, wpos, f1, f2, f3);
-    BTNwpn = pg->get_item_pos(ret>>8);
-    directItemBTN = NEG_OR_MASK(BTNwpn,0xFFF);
-    wpos = ret;
+	auto fp1 = ((f1&0xFF)==255) ? 255 : ((empty || (f1&0xFF)==(wpos&0xFF)) ? f1 : 255);
+	auto fp2 = ((f2&0xFF)==255) ? 255 : ((empty || (f2&0xFF)==(wpos&0xFF)) ? f2 : 255);
+	auto fp3 = ((f3&0xFF)==255) ? 255 : ((empty || (f3&0xFF)==(wpos&0xFF)) ? f3 : 255);
+	auto ret = pg->movepos_legacy(type, wpos, fp1, fp2, fp3);
+	BTNwpn = pg->get_item_pos(ret>>8);
+	directItemBTN = NEG_OR_MASK(BTNwpn,0xFFF);
+	wpos = ret;
 }
 void selectNextAWpn(int32_t type)
 {
@@ -28604,9 +28610,9 @@ static void verifyWpn(word& wpos, int32_t& BTNwpn, int32_t& directItemBTN, word 
 	SubscrPage* pg = new_subscreen_active->get_page(pgn==255?new_subscreen_active->curpage:pgn);
 	if(!pg)
 		return;
-	auto fp1 = ((f1&0xFF)==255) ? 255 : ((empty || (f1&0xFF)==(wpos&0xFF)) ? f1>>8 : 255);
-	auto fp2 = ((f2&0xFF)==255) ? 255 : ((empty || (f2&0xFF)==(wpos&0xFF)) ? f2>>8 : 255);
-	auto fp3 = ((f3&0xFF)==255) ? 255 : ((empty || (f3&0xFF)==(wpos&0xFF)) ? f3>>8 : 255);
+	auto fp1 = ((f1&0xFF)==255) ? 255 : ((empty || (f1&0xFF)==(wpos&0xFF)) ? f1 : 255);
+	auto fp2 = ((f2&0xFF)==255) ? 255 : ((empty || (f2&0xFF)==(wpos&0xFF)) ? f2 : 255);
+	auto fp3 = ((f3&0xFF)==255) ? 255 : ((empty || (f3&0xFF)==(wpos&0xFF)) ? f3 : 255);
 	wpos = pg->movepos_legacy(SEL_VERIFY_RIGHT, wpos, fp1, fp2, fp3);
 	BTNwpn = pg->get_item_pos(wpos>>8);
 	directItemBTN = NEG_OR_MASK(BTNwpn,0xFFF);
@@ -29138,7 +29144,7 @@ void getitem(int32_t id, bool nosound, bool doRunPassive)
 	
 	flushItemCache();
 	update_subscreens();
-	load_Sitems();
+	refresh_subscr_items();
 	verifyBothWeapons();
 }
 
@@ -29953,6 +29959,8 @@ void HeroClass::getTriforce(int32_t id2)
 	Lwpns.clear();
 	chainlinks.clear();
     
+	kill_subscr_items();
+	
 	//decorations.clear();
 	if(!COOLSCROLL)
 	{
@@ -30408,6 +30416,9 @@ void HeroClass::heroDeathAnimation()
 				Lwpns.clear();
 				chainlinks.clear();
 				decorations.clear();
+				
+				kill_subscr_items();
+				
 				Playing = false;
 					
 				game->set_deaths(zc_min(game->get_deaths()+1,USHRT_MAX));
