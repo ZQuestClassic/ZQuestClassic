@@ -2263,24 +2263,24 @@ void removeFromItemCache(int32_t itemclass)
 
 void flushItemCache(bool justcost)
 {
-	if(justcost && replay_version_check(0,19))
-		return;
+	itemcache_cost.clear();
 	if(!justcost)
 		itemcache.clear();
-	itemcache_cost.clear();
+	else if(replay_version_check(0,19))
+		return;
 	
 	//also fix the active subscreen if items were deleted -DD
 	if(game != NULL)
 	{
 		verifyBothWeapons();
-		load_Sitems();
+		refresh_subscr_items();
 	}
 }
 
 // This is used often, so it should be as direct as possible.
 int32_t _c_item_id_internal(int32_t itemtype, bool checkmagic, bool jinx_check)
 {
-	bool use_cost_cache = replay_version_check(19);
+	bool use_cost_cache = true;//replay_version_check(19);
 	if(jinx_check)
 	{
 		if(!(HeroSwordClk() || HeroItemClk()))
@@ -2329,11 +2329,16 @@ int32_t _c_item_id_internal(int32_t itemtype, bool checkmagic, bool jinx_check)
 		if (use_cost_cache)
 		{
 			if (!checkmagic)
+			{
 				itemcache[itemtype] = result;
+			}
 			if (checkmagic || result < 0 || checkmagiccost(result))
 				itemcache_cost[itemtype] = result;
 		}
-		else itemcache[itemtype] = result;
+		else
+		{
+			itemcache[itemtype] = result;
+		}
 	}
 	return result;
 }

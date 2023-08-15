@@ -13,6 +13,7 @@ struct PACKFILE;
 #define NEG_OR_MASK(v,mask) (v < 0 ? v : (v&mask))
 
 extern int subscr_item_clk;
+extern bool subscr_itemless;
 
 //Old subscreen stuff
 struct subscreen_object

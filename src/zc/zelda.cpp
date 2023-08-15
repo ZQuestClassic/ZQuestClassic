@@ -2170,7 +2170,7 @@ int32_t init_game()
 		
 	update_subscreens();
 	
-	load_Sitems();
+	refresh_subscr_items();
 	
 	//load the previous weapons -DD	
 	
@@ -2223,9 +2223,9 @@ int32_t init_game()
 				Ywpn = pg.get_item_pos(ypos>>8);
 				directItemY = NEG_OR_MASK(Ywpn,0xFF);
 				
-				update_subscr_items();
+				animate_subscr_buttonitems();
 
-				reset_subscr_items();
+				refresh_subscr_buttonitems();
 			}
 			else
 			{
@@ -2255,9 +2255,9 @@ int32_t init_game()
 				game->bwpn = bpos;
 				Bwpn = pg.get_item_pos(bpos>>8);
 				directItemB = NEG_OR_MASK(Bwpn,0xFF);
-				update_subscr_items();
+				animate_subscr_buttonitems();
 
-				reset_subscr_items();
+				refresh_subscr_buttonitems();
 			}
 		}
 		else if(new_subscreen_active)
@@ -5671,7 +5671,8 @@ void remove_installed_timers()
 void delete_everything_else() //blarg.
 {
     delete_combo_aliases();
-    reset_subscr_items();
+    refresh_subscr_buttonitems();
+	kill_subscr_items();
 }
 
 void quit_game()

@@ -212,6 +212,7 @@ void ending()
 	Lwpns.clear();
 	chainlinks.clear();
 	decorations.clear();
+	kill_subscr_items();
 	
 	set_uformat(U_ASCII);
 	kill_sfx();
@@ -648,6 +649,7 @@ void ending_scripted()
 	guys.clear();
 	chainlinks.clear();
 	decorations.clear();
+	kill_subscr_items();
 	clear_bitmap(msg_txt_display_buf);
 	clear_bitmap(msg_bg_display_buf);
 	dismissmsg();

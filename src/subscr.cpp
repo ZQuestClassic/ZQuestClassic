@@ -29,7 +29,6 @@ bool show_subscreen_dmap_dots=true;
 bool show_subscreen_numbers=true;
 bool show_subscreen_items=true;
 bool show_subscreen_life=true;
-bool new_sel=false;
 
 extern sprite_list  guys, items, Ewpns, Lwpns, chainlinks, decorations;
 extern HeroClass   Hero;
@@ -3396,7 +3395,7 @@ void minimaptitle(BITMAP *dest, int32_t x, int32_t y, FONT *tempfont, int32_t co
 void put_passive_subscr(BITMAP *dest,int32_t x,int32_t y,bool showtime,int32_t pos2)
 {
 	++subscr_item_clk;
-    update_subscr_items();
+    animate_subscr_buttonitems();
     BITMAP *subscr = create_sub_bitmap(dest,x,y,256,passive_subscreen_height);
     
     if(no_subscreen())
@@ -3764,12 +3763,6 @@ void putBmap(BITMAP *dest, int32_t x, int32_t y,bool showmap, bool showrooms, bo
             putdot(dest,(((get_homescr()&15)-xoff)<<3)+x+(large?34:18)+(maptile?8:0),((get_homescr()&0xF0)>>1)+y+11,herocolor);
         }
     }
-}
-
-void load_Sitems()
-{
-	subscr_item_clk = 0;
-	new_sel=true;
 }
 
 void update_subscreens(int32_t dmap)
