@@ -13691,7 +13691,6 @@ void HeroClass::mod_steps(std::vector<zfix*>& v)
 			int cid = get_rpos_handle(slow_rpos, q).data();
 			newcombo const& cmb = combobuf[cid];
 
-			// TODO z3 !!! upstream
 			if (cmb.speed_mult != 1 || cmb.speed_div || cmb.speed_add)
 			{
 				for (zfix* stp : v)
@@ -27997,7 +27996,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		mapscr* base_screen = screen_handles[0].base_screen;
 		draw_dark = draw_dark || (base_screen->flags&fDARK);
 	});
-	// TODO z3 remove old dark code
+	// TODO z3 !! remove old dark code
 	// scrolling_use_new_dark_code = region_scrolling;
 	scrolling_use_new_dark_code = true;
 

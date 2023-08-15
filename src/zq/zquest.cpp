@@ -14782,27 +14782,64 @@ static bool should_allow_regions()
 	return true;
 }
 
-int32_t d_region_grid_proc(int32_t msg,DIALOG *d,int32_t)
+static int rg_current_region_index = 0;
+static int rg_frame_thickness = 5;
+static int rg_button_thickness = 2;
+static int rg_header_width = 6;
+static int rg_header_height = 9;
+static int rg_cols = 16;
+static int rg_col_width = 27;
+static int rg_l = 25;
+
+static void draw_region_square(BITMAP* bmp, int region_index, int x, int y, FONT* f, int text_height)
+{
+	int color = vc(region_index);
+	int frame = FR_MEDDARK;
+	jwin_draw_frame(bmp, x, y, rg_col_width, rg_l, frame);
+
+	int x0 = x+rg_button_thickness;
+	int y0 = y+rg_button_thickness;
+	rectfill(bmp, x0, y0,
+				x+rg_col_width-rg_button_thickness-1, y+rg_l-rg_button_thickness-1, color);
+	
+	// if (region_index == 0)
+	// 	return;
+
+	// Ideally would just use `getHighlightColor(color)` but the method isn't good enough yet.
+	int text_color;
+	switch (region_index) {
+		case 2:
+		case 3:
+		case 5:
+		case 7:
+		case 9:
+			// getHighlightColor currently looks awfule for these colors, so just use black.
+			text_color = vc(0);
+			break;
+		default:
+			text_color = getHighlightColor(color);
+	}
+	textprintf_centre_ex(bmp, f, x0+rg_col_width/2-rg_button_thickness, y0+rg_l/2-text_height/2, text_color, -1, "%d", region_index);
+}
+
+int32_t d_region_grid_proc(int32_t msg,DIALOG *d,int32_t c)
 {
 	if (msg == MSG_DRAW && !should_allow_regions())
 	{
-		// InfoDialog("Regions are disabled because of QRs", "You must disable all of the following compat QRs to use regions." + QRHINT(qrs_that_prevent_regions)).show();
-		// return D_O_K;
+		InfoDialog("Regions are disabled because of QRs", "You must disable all of the following compat QRs to use regions." + QRHINT(qrs_that_prevent_regions)).show();
+		return D_O_K;
 	}
 
-    int32_t frame_thickness = 5;
-    int32_t button_thickness = 2;
-    int32_t header_width = 6;
-    int32_t header_height = 9;
-    int32_t cols = 16;
-    int32_t col_width = 27;
-    int32_t l = 25;
 	FONT* nf = get_zc_font(font_nfont);
 
     byte* region_index_data = (byte *)d->dp;
     
     switch(msg)
     {
+	case MSG_START:
+	case MSG_WANTFOCUS:
+		return D_WANTFOCUS;
+
     case MSG_DRAW:
     {
         BITMAP *tempbmp = create_bitmap_ex(8,SCREEN_W,SCREEN_H);
@@ -14810,102 +14847,85 @@ int32_t d_region_grid_proc(int32_t msg,DIALOG *d,int32_t)
         int32_t x=d->x;
         int32_t y=d->y;
         int32_t j=0, k=0;
-        rectfill(tempbmp,x,y,x+d->w-18,y+header_height-1,jwin_pal[jcBOX]);
+        rectfill(tempbmp,x,y,x+d->w-18,y+rg_header_height-1,jwin_pal[jcBOX]);
         
         for(j=0; j<8; ++j)
         {
-            textprintf_ex(tempbmp,nf,x,y+header_height+frame_thickness+1+(j*l),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",j);
+            textprintf_ex(tempbmp,nf,x,y+rg_header_height+rg_frame_thickness+1+(j*rg_l),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",j);
         }
         
-        for(j=0; j<cols; ++j)
+        for(j=0; j<rg_cols; ++j)
         {
-            textprintf_ex(tempbmp,nf,x+header_width+frame_thickness+((col_width+1)/2)-(header_width/2)+(j*col_width),y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%X",j);
+            textprintf_ex(tempbmp,nf,x+rg_header_width+rg_frame_thickness+((rg_col_width+1)/2)-(rg_header_width/2)+(j*rg_col_width),y,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%X",j);
         }
         
         // why this not look good
-        // jwin_draw_frame(tempbmp, x+header_width+is_large, y+header_height+is_large, (is_large?180:116)*2, (is_large?84:60)*2, FR_DEEP);
+        // jwin_draw_frame(tempbmp, x+header_width+is_large, y+rg_header_height+is_large, (is_large?180:116)*2, (is_large?84:60)*2, FR_DEEP);
         
         int txtheight = text_height(nf);
         for(j=0; j<8; ++j)
         {
-            for(k=0; k<cols; ++k)
+            for(k=0; k<rg_cols; ++k)
             {
-                byte region_index = getNibble(region_index_data[j*8 + k/2], k % 2 == 0);
-                int color = vc(region_index);
-                int frame = FR_MEDDARK;
-                jwin_draw_frame(tempbmp, x+header_width+(k*col_width)+frame_thickness, y+header_height+(j*l)+frame_thickness, col_width, l, frame);
+				if (!Map.isValid(j*16 + k))
+					continue;
 
-                int x0 = x+header_width+(k*col_width)+frame_thickness+button_thickness;
-                int y0 = y+header_height+(j*l)+frame_thickness+button_thickness;
-                rectfill(tempbmp, x0, y0,
-                         x+header_width+(k*col_width)+frame_thickness+col_width-button_thickness-1, y+header_height+(j*l)+frame_thickness+l-button_thickness-1, color);
-                if (region_index > 0)
-                {
-                    // Ideally would just use `getHighlightColor(color)` but the method isn't good enough yet.
-                    int text_color;
-                    switch (region_index) {
-                        case 2:
-                        case 3:
-                        case 5:
-                        case 7:
-                        case 9:
-                            // getHighlightColor currently looks awfule for these colors, so just use black.
-                            text_color = vc(0);
-                            break;
-                        default:
-                            text_color = getHighlightColor(color);
-                    }
-                    textprintf_centre_ex(tempbmp, nf, x0+col_width/2-button_thickness, y0+l/2-txtheight/2, text_color, -1, "%d", region_index);
-                }
+                byte region_index = getNibble(region_index_data[j*8 + k/2], k % 2 == 0);
+				
+				int x2 = x+rg_header_width+(k*rg_col_width)+rg_frame_thickness;
+				int y2 = y+rg_header_height+(j*rg_l)+rg_frame_thickness;
+				draw_region_square(tempbmp, region_index, x2, y2, nf, txtheight);
             }
         }
+
+		draw_region_square(tempbmp, rg_current_region_index, x + 100, y + 215, nf, txtheight);
         
         masked_blit(tempbmp,screen,0,0,0,0,SCREEN_W,SCREEN_H);
         destroy_bitmap(tempbmp);
     }
     break;
+
+	case MSG_CHAR:
+	{
+        int32_t k=c>>8;
+
+		int num = -1;
+		if ((k >= KEY_0_PAD) && (k <= KEY_9_PAD)) {
+			num = k - KEY_0_PAD;
+		} else if ((k >= KEY_0) && (k <= KEY_9)) {
+			num = k - KEY_0;
+		}
+
+		if (num != -1)
+		{
+			rg_current_region_index = num;
+			d->flags |= D_DIRTY;
+			return D_USED_CHAR;
+		}
+	}
+	break;
     
     case MSG_LPRESS:
     {
         int32_t xx = -1;
         int32_t yy = -1;
-        bool sticky_mode = key[KEY_LSHIFT] || key[KEY_RSHIFT];
-        byte sticky_value = 255;
-        
+
         while(gui_mouse_b())  // Drag across to select multiple
         {
-            int32_t x=(gui_mouse_x()-(d->x)-frame_thickness-header_width)/col_width;
-            int32_t y=(gui_mouse_y()-(d->y)-frame_thickness-header_height)/l;
+            int32_t x=(gui_mouse_x()-(d->x)-rg_frame_thickness-rg_header_width)/rg_col_width;
+            int32_t y=(gui_mouse_y()-(d->y)-rg_frame_thickness-rg_header_height)/rg_l;
             
             if(xx != x || yy != y)
             {
                 xx = x;
                 yy = y;
-                
-                if(y>=0 && y<8 && x>=0 && x<cols)
+
+                if(y>=0 && y<8 && x>=0 && x<rg_cols && Map.isValid(y*16 + x))
                 {
                     byte old_region_datum = region_index_data[y*8 + x/2];
-                    byte current_region_index = getNibble(old_region_datum, x % 2 == 0);
-                    if (sticky_value == 255) sticky_value = current_region_index;
-                    
-                    // Only allow 10 choices, 0 being "not a region".
-                    byte new_region_index;
-                    if (sticky_mode)
-                    {
-                        new_region_index = sticky_value;
-                    }
-                    else if (key[KEY_ALT])
-                    {
-                        new_region_index = current_region_index == 0 ? 9 : current_region_index - 1;
-                    }
-                    else
-                    {
-                        new_region_index = (current_region_index + 1) % 10;
-                    }
-
                     region_index_data[y*8 + x/2] = x%2==0 ?
-                        setUpperNibble(old_region_datum, new_region_index) :
-                        setLowerNibble(old_region_datum, new_region_index);
+                        setUpperNibble(old_region_datum, rg_current_region_index) :
+                        setLowerNibble(old_region_datum, rg_current_region_index);
                 }
             }
             
@@ -14914,8 +14934,6 @@ int32_t d_region_grid_proc(int32_t msg,DIALOG *d,int32_t)
             unscare_mouse();
             rest(16);
             custom_vsync();
-
-            if (!sticky_mode) break;
         }
     }
     break;

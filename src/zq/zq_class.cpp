@@ -596,6 +596,11 @@ bool zmap::isDark()
     return (screens[currscr].flags&fDARK)!=0;
 }
 
+bool zmap::isValid(int32_t scr)
+{
+    return (screens[scr].valid&mVALID)!=0;
+}
+
 void zmap::setCurrentView(int32_t map, int32_t scr)
 {
     bool change_view = map != Map.getCurrMap() || scr != Map.getCurrScr();
