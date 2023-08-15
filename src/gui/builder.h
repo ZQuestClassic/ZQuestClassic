@@ -37,6 +37,7 @@ extern int32_t zq_screen_w, zq_screen_h;
 #include "zq/gui/misc_cset_sel.h"
 #include "zq/gui/misc_color_sel.h"
 #include "zq/gui/misc_color_row.h"
+#include "zq/gui/dmap_minimap.h"
 #endif
 
 #include <initializer_list>
@@ -235,6 +236,11 @@ inline std::shared_ptr<MiscColorSel> makeMiscColorSel()
 inline std::shared_ptr<MiscColorRow> makeMiscColorRow()
 {
 	return std::make_shared<MiscColorRow>();
+}
+
+inline std::shared_ptr<DMapMinimap> makeDMapMinimap()
+{
+	return std::make_shared<DMapMinimap>();
 }
 #endif
 
@@ -542,6 +548,13 @@ ZCGUI_BUILDER_START(MiscColorRow)
 	ZCGUI_ACCEPT_PROP(onUpdate, setOnUpdate, std::function<void(int32_t)>)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(MiscColorRow, MiscColorRow, makeMiscColorRow)
+
+ZCGUI_BUILDER_START(DMapMinimap)
+	ZCGUI_ACCEPT_PROP(curMap, setCurMap, int32_t)
+	ZCGUI_ACCEPT_PROP(smallDMap, setSmallDMap, bool)
+	ZCGUI_ACCEPT_PROP(offset, setOffset, int32_t)
+ZCGUI_BUILDER_END()
+ZCGUI_BUILDER_FUNCTION(DMapMinimap, DMapMinimap, makeDMapMinimap)
 #endif
 
 } // namespace GUI::builder
