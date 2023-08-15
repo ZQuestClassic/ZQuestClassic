@@ -876,8 +876,10 @@ int32_t d_dmaplist_proc(int32_t msg,DIALOG *d,int32_t c);
 int32_t d_dropdmaplist_proc(int32_t msg,DIALOG *d,int32_t c);
 int32_t d_dropdmaptypelist_proc(int32_t msg,DIALOG *d,int32_t c);
 int32_t d_grid_proc(int32_t msg,DIALOG *d,int32_t c);
-void drawxmap(int32_t map,int32_t xoff,bool large);
-int32_t d_xmaplist_proc(int32_t msg,DIALOG *d,int32_t c);
+void REMOVE_drawxmap(int32_t map,int32_t xoff,bool large);
+int32_t REMOVE_d_xmaplist_proc(int32_t msg,DIALOG *d,int32_t c);
+void drawxmap(int32_t map, int32_t xoff, bool large);
+int32_t d_xmaplist_proc(int32_t msg, DIALOG* d, int32_t c);
 
 //int32_t xmapspecs[4] = {0,0,84+58,118+32+5};
 

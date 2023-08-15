@@ -58,6 +58,7 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "dialog/headerdlg.h"
 #include "dialog/ffc_editor.h"
 #include "dialog/screen_data.h"
+#include "dialog/edit_dmap.h"
 #include "dialog/compilezscript.h"
 
 #include "base/gui.h"
@@ -14638,7 +14639,7 @@ int32_t d_grid_proc(int32_t msg,DIALOG *d,int32_t)
     return D_O_K;
 }
 
-void drawxmap(ALLEGRO_BITMAP* dest, int32_t themap, int32_t xoff, bool large, int dx, int dy)
+void REMOVE_drawxmap(ALLEGRO_BITMAP* dest, int32_t themap, int32_t xoff, bool large, int dx, int dy)
 {
 	ALLEGRO_STATE old_state;
 	al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP);
@@ -14670,7 +14671,7 @@ void drawxmap(ALLEGRO_BITMAP* dest, int32_t themap, int32_t xoff, bool large, in
 	al_restore_state(&old_state);
 }
 
-int32_t d_xmaplist_proc(int32_t msg,DIALOG *d,int32_t c)
+int32_t REMOVE_d_xmaplist_proc(int32_t msg,DIALOG *d,int32_t c)
 {
 	static RenderTreeItem* xmap_overlay = nullptr;
 	static bool xmap_drawn = false;
@@ -14723,7 +14724,7 @@ int32_t d_xmaplist_proc(int32_t msg,DIALOG *d,int32_t c)
 			}
 			
 			jwin_draw_frame(screen, (x-frame_thickness)+1, (y-frame_thickness)+1, 180, 84, FR_DEEP);
-			drawxmap(xmap_overlay->bitmap,xy[0],xy[1],small_dmap,x,y);
+			REMOVE_drawxmap(xmap_overlay->bitmap,xy[0],xy[1],small_dmap,x,y);
 			xmap_drawn = true;
 		}
 		
@@ -14733,6 +14734,99 @@ int32_t d_xmaplist_proc(int32_t msg,DIALOG *d,int32_t c)
 		object_message(d+1, MSG_DRAW, 0);
 	}
 	
+	return ret;
+}
+
+void drawxmap(ALLEGRO_BITMAP* dest, int32_t themap, int32_t xoff, bool large, int dx, int dy)
+{
+	ALLEGRO_STATE old_state;
+	al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP);
+
+	al_set_target_bitmap(dest);
+	al_clear_to_color(al_map_rgba(0, 0, 0, 0));
+
+	int32_t cols = (large ? 8 : 16);
+	int32_t col_width = large ? 22 : 11;
+	int32_t dot_width = (large ? 6 : 4);
+	int32_t dot_offset = (large ? 7 : 3);
+	int32_t l = 10;
+
+	for (int32_t y = 0; y < 8; y++)
+	{
+		for (int32_t x = 0; x < cols; x++)
+		{
+			if (x + xoff < 0 || x + xoff > 15)
+				continue;
+			mapscr* scr = &TheMaps[themap * MAPSCRS + y * 16 + x + (large ? xoff : 0)];
+			if (!(scr->valid & mVALID))
+				continue;
+			al_draw_filled_rectangle(dx + (x * col_width), dy + (y * l), dx + (x * col_width + col_width), dy + ((y * l) + l), real_lc1(scr->color));
+
+			al_draw_filled_rectangle(dx + (x * col_width + dot_offset), dy + (y * l + 3), dx + (x * col_width + dot_offset + dot_width), dy + (y * l + l - 3), real_lc2(scr->color));
+		}
+	}
+
+	al_restore_state(&old_state);
+}
+
+int32_t d_xmaplist_proc(int32_t msg, DIALOG* d, int32_t c)
+{
+	static RenderTreeItem* xmap_overlay = nullptr;
+	static bool xmap_drawn = false;
+	int32_t d1 = d->d1;
+	int32_t ret = jwin_droplist_proc(msg, d, c);
+
+	if (msg == MSG_START && !xmap_overlay)
+	{
+		xmap_overlay = add_dlg_layer();
+	}
+	else if (msg == MSG_END && xmap_overlay)
+	{
+		remove_dlg_layer(xmap_overlay);
+		xmap_overlay = nullptr;
+	}
+	if (!xmap_overlay)
+		return ret;
+
+	xmap_overlay->visible = !(d->flags & D_HIDDEN);
+
+	if (d->flags & D_HIDDEN)
+		return ret;
+
+	if (msg == MSG_DRAW || d->d1 != d1)
+	{
+		int32_t* xy = (int32_t*)(d->dp3);
+		xy[0] = d->d1;
+
+		if (xy[2] || xy[3])
+		{
+			int32_t frame_thickness = int32_t(2 * 1.5);
+			int32_t header_width = int32_t(4 * 1.5);
+			int32_t header_height = int32_t(6 * 1.5);
+			int32_t cols = small_dmap ? 8 : 16;
+			int32_t col_width = small_dmap ? 22 : 11;
+			int32_t x = d->x + 4;// +xy[2];
+			int32_t y = d->y + 6;// +xy[3];
+			int32_t j = 0;
+			rectfill(screen, x, y - header_height - frame_thickness - 1, int32_t(x + 116 * 1.5 - 1), y - 1, jwin_pal[jcBOX]);
+
+			FONT* nf = get_zc_font(font_nfont);
+			for (j = 0; j < 8; ++j)
+			{
+				textprintf_ex(screen, nf, x - header_width - frame_thickness, y + 1 + (j * 10), jwin_pal[jcBOXFG], jwin_pal[jcBOX], "%d", j);
+			}
+
+			for (j = 0; j < cols; ++j)
+			{
+				textprintf_ex(screen, nf, x + ((col_width + 1) / 2) - (header_width / 2) + (j * col_width), y - header_height - frame_thickness, jwin_pal[jcBOXFG], jwin_pal[jcBOX], "%X", j);
+			}
+
+			jwin_draw_frame(screen, (x - frame_thickness) + 1, (y - frame_thickness) + 1, 180, 84, FR_DEEP);
+			drawxmap(xmap_overlay->bitmap, xy[0], xy[1], small_dmap, x, y);
+			xmap_drawn = true;
+		}
+	}
+
 	return ret;
 }
 
@@ -15243,7 +15337,7 @@ static DIALOG editdmap_dlg[] =
     {  d_maptile_proc,              135,     97,    144,     80,    0,                      0,                       0,    0,           0,             0,  NULL, (void*)0,             NULL                  },
     {  jwin_text_proc,               12,     69,     48,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) "Map:",                                       NULL,                 NULL                  },
     //20
-    {  d_xmaplist_proc,              36,     65,     54,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           1,             0, (void *) &gotomap_list,                                NULL,                 xmapspecs             },
+    {  REMOVE_d_xmaplist_proc,              36,     65,     54,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           1,             0, (void *) &gotomap_list,                                NULL,                 xmapspecs             },
     {  jwin_slider_proc,             38,    151,    111,     10,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,          22,             0,  NULL, (void *) onXslider,   NULL                  },
     {  jwin_text_proc,              103,     69,     64,      8,    vc(14),                 vc(1),                   0,    0,           0,             0, (void *) "Type: ",                                     NULL,                 NULL                  },
     {  d_dropdmaptypelist_proc,     132,     65,     99,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           1,             0, (void *) &type_list,                                   NULL,                 NULL                  },
@@ -17293,7 +17387,7 @@ int32_t onDmaps()
         }
         else
         {
-            editdmap(d);
+			call_editdmap_dialog(d);
         }
         
         ret=zc_popup_dialog(selectdmap_dlg,2);

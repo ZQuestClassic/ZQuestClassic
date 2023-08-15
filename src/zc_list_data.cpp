@@ -880,5 +880,19 @@ GUI::ListData const& GUI::ZCListData::screenstate()
 	return screen_state;
 }
 
+static const GUI::ListData dmap_types
+{
+	{ "NES Dungeon", dmDNGN },
+	{ "Overworld", dmOVERW },
+	{ "Interior", dmCAVE },
+	{ "BS Overworld", dmBSOVERW }
+};
+
+GUI::ListData const& GUI::ZCListData::dmaptypes()
+{
+	return dmap_types;
+}
+
+
 
 
