@@ -18,6 +18,7 @@ extern int32_t zq_screen_w, zq_screen_h;
 #include "gui/radio.h"
 #include "gui/radioset.h"
 #include "gui/size.h"
+#include "gui/slider.h"
 #include "gui/switcher.h"
 #include "gui/tabpanel.h"
 #include "gui/tabref.h"
@@ -117,6 +118,11 @@ inline std::shared_ptr<TextField> makeTextField()
 inline std::shared_ptr<ColorSel> makeColorSel()
 {
 	return std::make_shared<ColorSel>();
+}
+
+inline std::shared_ptr<Slider> makeSlider()
+{
+	return std::make_shared<Slider>();
 }
 
 // Containers
@@ -440,6 +446,14 @@ ZCGUI_BUILDER_START(ColorSel)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(ColorSel, ColorSel, makeColorSel)
 
+ZCGUI_BUILDER_START(Slider)
+	ZCGUI_ACCEPT_PROP(onValueChanged, onValueChanged, Dialog::message)
+	ZCGUI_ACCEPT_PROP(offset, setOffset, int32_t)
+	ZCGUI_ACCEPT_PROP(minOffset, setMinOffset, int32_t)
+	ZCGUI_ACCEPT_PROP(maxOffset, setMaxOffset, int32_t)
+	ZCGUI_ACCEPT_PROP(onValChangedFunc, setOnValChanged, std::function<void(int32_t)>)
+ZCGUI_BUILDER_END()
+ZCGUI_BUILDER_FUNCTION(Slider, Slider, makeSlider)
 
 ZCGUI_BUILDER_START(Window)
 	ZCGUI_ACCEPT_PROP(title, setTitle, std::string)

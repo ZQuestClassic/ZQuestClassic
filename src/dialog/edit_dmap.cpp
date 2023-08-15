@@ -81,8 +81,24 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 							selectedValue = local_dmap.type & dmfTYPE,
 							onSelectFunc = [&](int32_t val)
 							{
+								bool wassmol = sm_dmap(local_dmap.type);
 								local_dmap.type = (local_dmap.type & ~dmfTYPE) | (val & dmfTYPE);
-								dmap_mmap->setSmallDMap(sm_dmap(local_dmap.type));
+								bool smol = sm_dmap(local_dmap.type);
+								if (smol != wassmol)
+								{
+									dmap_mmap->setSmallDMap(smol);
+									dmap_slider->setDisabled(!smol);
+									if (smol)
+									{
+										local_dmap.xoff = dmap_slider->getOffset();
+										dmap_mmap->setOffset(local_dmap.xoff);
+									}
+									else
+									{
+										local_dmap.xoff = 0;
+										dmap_mmap->setOffset(0);
+									}
+								}
 							}),
 						Label(text = "Level:"),
 						TextField(
@@ -102,7 +118,17 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 						Label(
 							colSpan = 3, 
 							text = "Placeholder"
-						)
+						),
+						dmap_slider = Slider(
+							colSpan = 3, fitParent = true,
+							disabled = !sm_dmap(local_dmap.type),
+							offset = local_dmap.xoff,
+							minOffset = -7, maxOffset = 15,
+							onValChangedFunc = [&](int32_t offset)
+							{
+								local_dmap.xoff = offset;
+								dmap_mmap->setOffset(offset);
+							})
 					)
 				)),
 				TabRef(name = "Appearance", Column(

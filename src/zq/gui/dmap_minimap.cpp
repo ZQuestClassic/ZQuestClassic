@@ -102,10 +102,4 @@ namespace GUI
 			NULL, NULL, this // dp, dp2, dp3
 			});
 	}
-
-	void DMapMinimap::calculateSize()
-	{
-		Widget::calculateSize();
-	}
-
 }

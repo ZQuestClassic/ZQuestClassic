@@ -508,6 +508,7 @@ add_library(zcgui STATIC
 	src/gui/top_level.cpp
 	src/gui/widget.cpp
 	src/gui/window.cpp
+	src/gui/slider.cpp
 )
 target_link_libraries(zcgui PUBLIC allegro_with_legacy)
 target_include_directories(zcgui PRIVATE src)

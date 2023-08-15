@@ -28,6 +28,7 @@ src/zq/gui/cornerselect.cpp
 src/zq/gui/misc_cset_sel.cpp
 src/zq/gui/misc_color_sel.cpp
 src/zq/gui/misc_color_row.cpp
+src/zq/gui/dmap_minimap.cpp
 
 src/zc_list_data.cpp
 
@@ -73,6 +74,7 @@ src/dialog/compilezscript.cpp
 src/dialog/compilesetting.cpp
 src/dialog/vectorpick.cpp
 src/dialog/zqhotkeys.cpp
+src/dialog/edit_dmap.cpp
 
 
 ## End of ZQuest GUI module
