@@ -7,6 +7,7 @@
 #include <gui/slider.h>
 #include <zq/gui/selcombo_swatch.h>
 #include <zq/gui/dmap_minimap.h>
+#include <zq/gui/dmap_mapgrid.h>
 #include <gui/label.h>
 #include <gui/switcher.h>
 #include <gui/button.h>
@@ -34,6 +35,9 @@ private:
 	std::shared_ptr<GUI::Window> window;
 	std::shared_ptr<GUI::DMapMinimap> dmap_mmap;
 	std::shared_ptr<GUI::Slider> dmap_slider;
+	std::shared_ptr<GUI::DMapMapGrid> dmap_grid;
+	std::shared_ptr<GUI::TextField> compass_field;
+	std::shared_ptr<GUI::TextField> continue_field;
 	
 	int32_t dmapslot;
 	dmap* thedmap;
