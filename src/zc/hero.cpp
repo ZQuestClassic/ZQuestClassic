@@ -30271,10 +30271,7 @@ void HeroClass::handle_triforce(int32_t id)
 
 // Attempt to pick up an item. (-1 = check items touching Hero.)
 void HeroClass::checkitems(int32_t index)
-{
-	// TODO z3 !!
-	mapscr& scr = currscr >= 128 ? special_warp_return_screen : *tmpscr;
-	
+{	
 	if(index==-1)
 	{
 		for(auto ind = items.Count()-1; ind >= 0; --ind)
@@ -30294,9 +30291,7 @@ void HeroClass::checkitems(int32_t index)
 	
 	if(index==-1)
 		return;
-		
-	// if (scr.room==rSHOP && boughtsomething==true)
-	//   return;
+
 	item* ptr = (item*)items.spr(index);
 	int32_t pickup = ptr->pickup;
 	int8_t exstate = ptr->pickupexstate;
@@ -30306,7 +30301,14 @@ void HeroClass::checkitems(int32_t index)
 	int32_t pstr = ptr->pstring;
 	int32_t pstr_flags = ptr->pickup_string_flags;
 	int32_t linked_parent = ptr->linked_parent;
+	// `screen_index_spawned` is probably same as `heroscr`, but could not be if the item moved around.
 	int32_t item_screen_index = ptr->screen_index_spawned;
+	mapscr* item_screen = get_scr(currmap, item_screen_index);
+
+	// For items grabbed while in a special screen.
+	if (currscr >= 128)
+		item_screen = &special_warp_return_screen;
+
 	if(ptr->fallclk > 0) return; //Don't pick up a falling item
 	
 	if(itemsbuf[id2].family == itype_progressive_itm)
@@ -30321,7 +30323,7 @@ void HeroClass::checkitems(int32_t index)
 		}
 	}
 	
-	bool bottledummy = (pickup&ipCHECK) && scr.room == rBOTTLESHOP;
+	bool bottledummy = (pickup&ipCHECK) && item_screen->room == rBOTTLESHOP;
 	
 	if(bottledummy) //Dummy bullshit! 
 	{
@@ -30350,7 +30352,7 @@ void HeroClass::checkitems(int32_t index)
 		
 		for(int32_t i=0; i<3; i++)
 		{
-			if(QMisc.bottle_shop_types[scr.catchall].fill[i] != 0)
+			if(QMisc.bottle_shop_types[item_screen->catchall].fill[i] != 0)
 			{
 				++count;
 			}
@@ -30362,7 +30364,7 @@ void HeroClass::checkitems(int32_t index)
 				((item*)items.spr(i))->pickup=ipDUMMY+ipFADE;
 		}
 		
-		int32_t slot = game->fillBottle(QMisc.bottle_shop_types[scr.catchall].fill[PriceIndex]);
+		int32_t slot = game->fillBottle(QMisc.bottle_shop_types[item_screen->catchall].fill[PriceIndex]);
 		id2 = find_bottle_for_slot(slot);
 		ptr->id = id2;
 		pstr = 0;
@@ -30445,7 +30447,7 @@ void HeroClass::checkitems(int32_t index)
 		} while(nextitem > -1);
 		
 		if(pickup&ipCHECK)                                        // check restrictions
-			switch(scr.room)
+			switch(item_screen->room)
 			{
 			case rSP_ITEM:                                        // special item
 				if(!canget(id2)) // These ones always need the Hearts Required check
@@ -30481,7 +30483,7 @@ void HeroClass::checkitems(int32_t index)
 				
 				for(int32_t i=0; i<3; i++)
 				{
-					if(QMisc.shop[scr.catchall].hasitem[i] != 0)
+					if(QMisc.shop[item_screen->catchall].hasitem[i] != 0)
 					{
 						++count;
 					}
@@ -30530,14 +30532,13 @@ void HeroClass::checkitems(int32_t index)
 		{
 			setxmapflag(item_screen_index, 1<<exstate);
 		}
-		
+
 		if(pickup&ipSECRETS)                                // Trigger secrets if this item has the secret pickup
 		{
-			// TODO z3 !
-			if (tmpscr->flags9&fITEMSECRETPERM) setmapflag(item_screen_index, mSECRET);
-			trigger_secrets_for_screen(TriggerSource::ItemsSecret, false);
+			if (item_screen->flags9&fITEMSECRETPERM) setmapflag(item_screen_index, mSECRET);
+			trigger_secrets_for_screen(TriggerSource::ItemsSecret, item_screen_index, false);
 		}
-			
+
 		collectitem_script(id2);
 		getitem(id2, false, true);
 	}
@@ -30557,8 +30558,8 @@ void HeroClass::checkitems(int32_t index)
 		
 		clear_bitmap(pricesdisplaybuf);
 		
-		if(get_qr(qr_OLDPICKUP) || ((scr.room==rSP_ITEM || scr.room==rRP_HC || scr.room==rTAKEONE) && (pickup&ipONETIME2)) || 
-		(get_qr(qr_SHOP_ITEMS_VANISH) && (scr.room==rBOTTLESHOP || scr.room==rSHOP) && (pickup&ipCHECK)))
+		if(get_qr(qr_OLDPICKUP) || ((item_screen->room==rSP_ITEM || item_screen->room==rRP_HC || item_screen->room==rTAKEONE) && (pickup&ipONETIME2)) || 
+		(get_qr(qr_SHOP_ITEMS_VANISH) && (item_screen->room==rBOTTLESHOP || item_screen->room==rSHOP) && (pickup&ipCHECK)))
 		{
 			fadeclk=66;
 		}
@@ -30611,13 +30612,13 @@ void HeroClass::checkitems(int32_t index)
 			int32_t shop_pstr = 0;
 			if (PriceIndex > -1) 
 			{
-				switch(scr.room)
+				switch(item_screen->room)
 				{
 					case rSHOP:
-						shop_pstr = QMisc.shop[scr.catchall].str[PriceIndex];
+						shop_pstr = QMisc.shop[item_screen->catchall].str[PriceIndex];
 						break;
 					case rBOTTLESHOP:
-						shop_pstr = QMisc.bottle_shop_types[scr.catchall].str[PriceIndex];
+						shop_pstr = QMisc.bottle_shop_types[item_screen->catchall].str[PriceIndex];
 						break;
 				}
 			}
@@ -30729,7 +30730,7 @@ void HeroClass::checkitems(int32_t index)
 		//show the info string
 		//non-held
 		//if ( pstr > 0 ) //&& itemsbuf[index].pstring < msg_count && ( ( itemsbuf[index].pickup_string_flags&itemdataPSTRING_ALWAYS || (!(FFCore.GetItemMessagePlayed(index))) ) ) )
-		int32_t shop_pstr = ( scr.room == rSHOP && PriceIndex>=0 && QMisc.shop[scr.catchall].str[PriceIndex] > 0 ) ? QMisc.shop[scr.catchall].str[PriceIndex] : 0;
+		int32_t shop_pstr = ( item_screen->room == rSHOP && PriceIndex>=0 && QMisc.shop[item_screen->catchall].str[PriceIndex] > 0 ) ? QMisc.shop[item_screen->catchall].str[PriceIndex] : 0;
 		if ( (pstr > 0 && pstr < msg_count) || (shop_pstr > 0 && shop_pstr < msg_count) )
 		{
 			if ( (pstr > 0 && pstr < msg_count) && ( (!(pstr_flags&itemdataPSTRING_IP_HOLDUP)) && ( pstr_flags&itemdataPSTRING_NOMARK || pstr_flags&itemdataPSTRING_ALWAYS || (!(FFCore.GetItemMessagePlayed(id2))) ) ) )
