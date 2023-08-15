@@ -9252,6 +9252,8 @@ int32_t d_jslider_proc(int32_t msg, DIALOG *d, int32_t c)
                     proc = (SLIDER_TYPE)(d->dp2);
                     retval |= (*proc)(d->dp3, d->d2);
                 }
+
+				GUI_EVENT(d, geCHANGE_VALUE);
                 
                 object_message(d, MSG_DRAW, 0);
             }
@@ -9275,6 +9277,7 @@ int32_t d_jslider_proc(int32_t msg, DIALOG *d, int32_t c)
                 retval |= (*proc)(d->dp3, d->d2);
             }
             
+			GUI_EVENT(d, geCHANGE_VALUE);
             object_message(d, MSG_DRAW, 0);
 			retval |= D_REDRAWME;
         }
@@ -9317,13 +9320,13 @@ int32_t d_jslider_proc(int32_t msg, DIALOG *d, int32_t c)
                     retval |= (*proc)(d->dp3, d->d2);
                 }
                 
+				GUI_EVENT(d, geCHANGE_VALUE);
                 object_message(d, MSG_DRAW, 0);
-                
-				update_hw_screen();
             }
             
             /* let other objects continue to animate */
             broadcast_dialog_message(MSG_IDLE, 0);
+			update_hw_screen();
         }
         
         break;

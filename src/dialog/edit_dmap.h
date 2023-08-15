@@ -4,6 +4,7 @@
 #include <gui/dialog.h>
 #include <gui/checkbox.h>
 #include <gui/text_field.h>
+#include <gui/slider.h>
 #include <zq/gui/selcombo_swatch.h>
 #include <zq/gui/dmap_minimap.h>
 #include <gui/label.h>
@@ -32,6 +33,7 @@ public:
 private:
 	std::shared_ptr<GUI::Window> window;
 	std::shared_ptr<GUI::DMapMinimap> dmap_mmap;
+	std::shared_ptr<GUI::Slider> dmap_slider;
 	
 	int32_t dmapslot;
 	dmap* thedmap;

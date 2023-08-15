@@ -60,7 +60,6 @@ namespace GUI
 		void applyVisibility(bool visible) override;
 		void applyDisabled(bool dis) override;
 		void realize(DialogRunner& runner) override;
-		void calculateSize() override;
 
 		friend int32_t new_xmaplist_proc(int32_t msg, DIALOG* d, int32_t c);
 	};
