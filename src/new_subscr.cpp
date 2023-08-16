@@ -2687,7 +2687,7 @@ void SW_Selector::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& pag
 	item tempsel(0,0,0,(flags&SUBSCR_SELECTOR_USEB)?iSelectB:iSelectA,0,0,true);
 	tempsel.subscreenItem=true;
 	tempsel.hide_hitbox = true;
-	tempsel.yofs = 0;
+	tempsel.xofs = tempsel.yofs = 0;
 	dummyitem_animate(&tempsel,subscr_item_clk);
 	if(!tempsel.tile) return;
 	tempsel.drawstyle = (flags&SUBSCR_SELECTOR_TRANSP) ? 1 : 0;
@@ -2705,8 +2705,8 @@ void SW_Selector::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& pag
 		syofs = 0;
 		dw = (tempsel.extend > 2 ? tempsel.txsz*16 : 16);
 		dh = (tempsel.extend > 2 ? tempsel.tysz*16 : 16);
-		dxofs = (tempsel.extend > 2 ? (int)tempsel.xofs : 0);
-		dyofs = (tempsel.extend > 2 ? (int)tempsel.yofs : 0);
+		dxofs = widg->getX()+(tempsel.extend > 2 ? (int)tempsel.xofs : 0);
+		dyofs = widg->getY()+(tempsel.extend > 2 ? (int)tempsel.yofs : 0);
 		if(replay_version_check(0,19) && tempsel.extend > 2)
 			sh = dh = tempsel.txsz*16;
 	}
@@ -2739,8 +2739,8 @@ void SW_Selector::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& pag
 		tempsel.y=0;
 		tempsel.draw(tmpbmp);
 		
-		int32_t tmpx = widg->x+xofs+(big_sel?(j%2?8:-8):0);
-		int32_t tmpy = widg->y+yofs+(big_sel?(j>1?8:-8):0);
+		int32_t tmpx = xofs+(big_sel?(j%2?8:-8):0);
+		int32_t tmpy = yofs+(big_sel?(j>1?8:-8):0);
 		masked_stretch_blit(tmpbmp, dest, vbound(sxofs, 0, sw), vbound(syofs, 0, sh), sw-vbound(sxofs, 0, sw), sh-vbound(syofs, 0, sh), tmpx+dxofs, tmpy+dyofs, dw, dh);
 		
 		if(!big_sel)

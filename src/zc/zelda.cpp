@@ -1968,6 +1968,7 @@ int32_t init_game()
 	timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
 	timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
 	previous_DMap = currdmap = warpscr = worldscr=game->get_continue_dmap();
+	new_subscreen_active = new_subscreen_passive = nullptr;
 	init_dmap();
 	
 	if(game->get_continue_scrn() >= 0x80)

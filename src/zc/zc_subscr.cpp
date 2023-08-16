@@ -90,13 +90,13 @@ void dosubscr()
 	{
 		new_subscreen_active->curpage = 0;
 		auto& pg = new_subscreen_active->pages[0];
-		if(Bwpn > -1)
+		if((game->bwpn&0xFF) == 0)
 			pg.cursor_pos = game->bwpn>>8;
-		else if(use_a && Awpn > -1)
+		else if((game->awpn&0xFF) == 0)
 			pg.cursor_pos = game->awpn>>8;
-		else if(use_x && Xwpn > -1)
+		else if((game->xwpn&0xFF) == 0)
 			pg.cursor_pos = game->xwpn>>8;
-		else if(use_y && Ywpn > -1)
+		else if((game->ywpn&0xFF) == 0)
 			pg.cursor_pos = game->ywpn>>8;
 		else pg.cursor_pos = 0;
 	}
@@ -154,14 +154,14 @@ void dosubscr()
 			{
 				if (!get_qr(qr_NO_L_R_BUTTON_INVENTORY_SWAP))
 				{
-					pg.cursor_pos = pg.movepos_legacy(SEL_LEFT, (pos<<8)|pg.getIndex(), 255, 255, 255, false, true);
+					pg.cursor_pos = pg.movepos_legacy(SEL_LEFT, (pos<<8)|pg.getIndex(), 255, 255, 255, false, true)>>8;
 				}
 			}
 			else if(rRbtn() )
 			{
 				if (!get_qr(qr_NO_L_R_BUTTON_INVENTORY_SWAP)) 
 				{
-					pg.cursor_pos = pg.movepos_legacy(SEL_RIGHT, (pos<<8)|pg.getIndex(), 255, 255, 255, false, true);
+					pg.cursor_pos = pg.movepos_legacy(SEL_RIGHT, (pos<<8)|pg.getIndex(), 255, 255, 255, false, true)>>8;
 				}
 			}
 			else if(rEx3btn() )
