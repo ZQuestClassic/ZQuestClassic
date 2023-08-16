@@ -67,6 +67,21 @@ void refresh_subscr_items()
 {
 	subscr_item_clk = 0;
 	subscr_itemless = false;
+	if(replay_version_check(0,19))
+	{
+		//This needs to be here for the item cache to be correct...
+		for(int i = 0; i < itype_max; ++i)
+		{
+			switch(i)
+			{
+				case itype_map:
+				case itype_compass:
+				case itype_bosskey:
+					continue;
+			}
+			current_item_id(i,false);
+		}
+	}
 }
 
 void kill_subscr_items()

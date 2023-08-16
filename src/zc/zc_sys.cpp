@@ -2287,7 +2287,7 @@ int32_t _c_item_id_internal(int32_t itemtype, bool checkmagic, bool jinx_check)
 			jinx_check = false; //not jinxed
 	}
 	if(itemtype == itype_ring) checkmagic = true;
-	if (!jinx_check)
+	if (!jinx_check && (use_cost_cache || itemtype != itype_ring))
 	{
 		auto& cache = checkmagic && use_cost_cache ? itemcache_cost : itemcache;
 		auto res = cache.find(itemtype);
@@ -2305,8 +2305,7 @@ int32_t _c_item_id_internal(int32_t itemtype, bool checkmagic, bool jinx_check)
 		{
 			if(checkmagic && itemtype != itype_magicring)
 				if(!checkmagiccost(i))
-					if ( !get_qr(qr_NEVERDISABLEAMMOONSUBSCREEN) )
-						continue; //don't make items with a magic cost vanish!! -Z
+					continue;
 			if(jinx_check && (usesSwordJinx(i) ? HeroSwordClk() : HeroItemClk()))
 				if(!(itemsbuf[i].flags & ITEM_JINX_IMMUNE))
 					continue;
