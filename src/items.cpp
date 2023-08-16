@@ -643,8 +643,9 @@ void dummyitem_animate(item* dummy, int32_t clk)
 void putitem3(BITMAP *dest,int32_t x,int32_t y,int32_t item_id, int32_t clk)
 {
 	item temp((zfix)x,(zfix)y,(zfix)0,item_id,0,0,true);
-	temp.yofs=0;
+	temp.xofs=temp.yofs=0;
 	temp.hide_hitbox = true;
+	temp.subscreenItem = true;
 	
 	dummyitem_animate(&temp, clk);
 	temp.draw(dest);

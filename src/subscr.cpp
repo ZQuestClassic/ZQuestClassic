@@ -3782,7 +3782,7 @@ void update_subscreens(int32_t dmap)
 		++j;
 	}
 	
-	new_subscreen_active=&new_subscreen[j-1];
+	auto next_active = &new_subscreen[j-1];
 	
 	index=DMaps[dmap].passive_subscreen;
 	
@@ -3796,7 +3796,16 @@ void update_subscreens(int32_t dmap)
 		++j;
 	}
 	
-	new_subscreen_passive=&new_subscreen[j-1];
+	auto next_passive = &new_subscreen[j-1];
+	
+	if(get_qr(qr_OLD_SUBSCR) && new_subscreen_active)
+	{
+		next_active->curpage = new_subscreen_active->curpage;
+		next_active->cur_page().cursor_pos = new_subscreen_active->cur_page().cursor_pos;
+	}
+	
+	new_subscreen_passive = next_passive;
+	new_subscreen_active = next_active;
 }
 
 void sso_bounding_box(BITMAP *bmp, SubscrWidget* widg, int32_t color)

@@ -2103,7 +2103,7 @@ int32_t SW_ItemSlot::getDisplayItem() const
 		}
 		case itype_bowandarrow:
 		case itype_arrow:
-			if(current_item_id(itype_bow)>-1 && current_item_id(itype_arrow)>-1)
+			if(current_item_id(itype_arrow,false)>-1)
 			{
 				family=itype_arrow;
 			}
@@ -2132,8 +2132,7 @@ int32_t SW_ItemSlot::getDisplayItem() const
 		}
 		case itype_sword:
 		{
-			if(get_qr(qr_SELECTAWPN))
-				family=itype_sword;
+			family=itype_sword;
 			break;
 		}
 		//Super Special Cases for display
@@ -2671,6 +2670,7 @@ void SW_Selector::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& pag
 	
 	bool big_sel=flags&SUBSCR_SELECTOR_LARGE;
 	item tempsel(0,0,0,(flags&SUBSCR_SELECTOR_USEB)?iSelectB:iSelectA,0,0,true);
+	tempsel.subscreenItem=true;
 	tempsel.hide_hitbox = true;
 	tempsel.yofs = 0;
 	dummyitem_animate(&tempsel,subscr_item_clk);
@@ -2685,13 +2685,15 @@ void SW_Selector::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& pag
 	if(oldsel)
 	{
 		sw = (tempsel.extend > 2 ? tempsel.txsz*16 : 16);
-		sh = (tempsel.extend > 2 ? tempsel.txsz*16 : 16);
+		sh = (tempsel.extend > 2 ? tempsel.tysz*16 : 16);
 		sxofs = 0;
 		syofs = 0;
 		dw = (tempsel.extend > 2 ? tempsel.txsz*16 : 16);
-		dh = (tempsel.extend > 2 ? tempsel.txsz*16 : 16);
+		dh = (tempsel.extend > 2 ? tempsel.tysz*16 : 16);
 		dxofs = (tempsel.extend > 2 ? (int)tempsel.xofs : 0);
 		dyofs = (tempsel.extend > 2 ? (int)tempsel.yofs : 0);
+		if(replay_version_check(0,19) && tempsel.extend > 2)
+			sh = dh = tempsel.txsz*16;
 	}
 	else
 	{
@@ -2699,20 +2701,20 @@ void SW_Selector::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& pag
 		sh = (tempsel.extend > 2 ? tempsel.hit_height : 16);
 		sxofs = (tempsel.extend > 2 ? tempsel.hxofs : 0);
 		syofs = (tempsel.extend > 2 ? tempsel.hyofs : 0);
-	}
-	if(widg->getType() == widgITEMSLOT)
-	{
-		dw = ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_WIDTH) ? tmpitm.hxsz : 16);
-		dh = ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_HEIGHT) ? tmpitm.hysz : 16);
-		dxofs = widg->getX()+((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_X_OFFSET) ? tmpitm.hxofs : 0) + (tempsel.extend > 2 ? (int)tempsel.xofs : 0);
-		dyofs = widg->getY()+((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_Y_OFFSET) ? tmpitm.hyofs : 0) + (tempsel.extend > 2 ? (int)tempsel.yofs : 0);
-	}
-	else
-	{
-		dw = widg->getW();
-		dh = widg->getH();
-		dxofs = widg->getX()+widg->getXOffs();
-		dyofs = widg->getY()+widg->getYOffs();
+		if(widg->getType() == widgITEMSLOT)
+		{
+			dw = ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_WIDTH) ? tmpitm.hxsz : 16);
+			dh = ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_HEIGHT) ? tmpitm.hysz : 16);
+			dxofs = widg->getX()+((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_X_OFFSET) ? tmpitm.hxofs : 0) + (tempsel.extend > 2 ? (int)tempsel.xofs : 0);
+			dyofs = widg->getY()+((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_Y_OFFSET) ? tmpitm.hyofs : 0) + (tempsel.extend > 2 ? (int)tempsel.yofs : 0);
+		}
+		else
+		{
+			dw = widg->getW();
+			dh = widg->getH();
+			dxofs = widg->getX()+widg->getXOffs();
+			dyofs = widg->getY()+widg->getYOffs();
+		}
 	}
 	BITMAP* tmpbmp = create_bitmap_ex(8,sw,sh);
 	for(int32_t j=0; j<4; ++j)
@@ -2721,14 +2723,14 @@ void SW_Selector::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& pag
 		tempsel.x=0;
 		tempsel.y=0;
 		tempsel.draw(tmpbmp);
-		tempsel.tile+=zc_max(itemsbuf[tempsel.id].frames,1);
 		
-		int32_t tmpx = xofs+(big_sel?(j%2?8:-8):0);
-		int32_t tmpy = yofs+(big_sel?(j>1?8:-8):0);
+		int32_t tmpx = widg->x+xofs+(big_sel?(j%2?8:-8):0);
+		int32_t tmpy = widg->y+yofs+(big_sel?(j>1?8:-8):0);
 		masked_stretch_blit(tmpbmp, dest, vbound(sxofs, 0, sw), vbound(syofs, 0, sh), sw-vbound(sxofs, 0, sw), sh-vbound(syofs, 0, sh), tmpx+dxofs, tmpy+dyofs, dw, dh);
 		
 		if(!big_sel)
 			break;
+		tempsel.tile+=zc_max(itemsbuf[tempsel.id].frames,1);
 	}
 	destroy_bitmap(tmpbmp);
 	tempsel.unget_UID();
@@ -3418,7 +3420,7 @@ SubscrWidget* SubscrWidget::newType(byte ty)
 void SubscrPage::move_cursor(int dir, bool item_only)
 {
 	// verify startpos
-	if(cursor_pos < 0 || cursor_pos >= 0xFF)
+	if(cursor_pos == 0xFF)
 		cursor_pos = 0;
 	
 	auto& objects = contents;
@@ -3508,7 +3510,7 @@ void SubscrPage::move_cursor(int dir, bool item_only)
 		}
 	}
 }
-int32_t SubscrPage::movepos_legacy(int dir, word startp, word fp, word fp2, word fp3, bool equip_only, bool item_only)
+int32_t SubscrPage::movepos_legacy(int dir, word startp, word fp, word fp2, word fp3, bool equip_only, bool item_only, bool stay_on_page)
 {
 	//what will be returned when all else fails.
 	//don't return the forbiddenpos... no matter what -DD
@@ -3523,8 +3525,6 @@ int32_t SubscrPage::movepos_legacy(int dir, word startp, word fp, word fp2, word
 		failpos = 0xFF;
 	else failpos = startp;
 	
-	auto& objects = contents;
-	
 	item_only = item_only || !get_qr(qr_FREEFORM_SUBSCREEN_CURSOR);
 	bool verify = dir==SEL_VERIFY_RIGHT || dir==SEL_VERIFY_LEFT;
 	
@@ -3534,7 +3534,7 @@ int32_t SubscrPage::movepos_legacy(int dir, word startp, word fp, word fp2, word
 		item_only = !get_qr(qr_NO_BUTTON_VERIFY);
 		if(start_empty && !item_only)
 			return startp; //empty is valid
-		if(!start_empty && startp != fp && startp != fp2 && startp != fp3)
+		if(startp != fp && startp != fp2 && startp != fp3)
 			if(SubscrWidget* widg = get_widg_pos(startp>>8,item_only))
 				if(widg->getType() == widgITEMSLOT
 					&& !(widg->flags&SUBSCR_CURITM_NONEQP)
@@ -3544,7 +3544,8 @@ int32_t SubscrPage::movepos_legacy(int dir, word startp, word fp, word fp2, word
 	}
 	
 	int32_t p=-1;
-	int32_t curpos = startp>>8;
+	byte curpos = startp>>8;
+	word cp2 = (curpos<<8)|index; //curpos is the index for this page, cp2 includes the page index
 	int32_t firstValidPos=-1, firstValidEquipPos=-1;
 	
 	for(int32_t i=0; i < contents.size(); ++i)
@@ -3579,16 +3580,18 @@ int32_t SubscrPage::movepos_legacy(int dir, word startp, word fp, word fp2, word
 	
 	//remember we've been here
 	std::set<int32_t> oldPositions;
-	oldPositions.insert(curpos);
+	oldPositions.insert(cp2);
 	
 	//1. Perform any shifts required by the above
 	//2. If that's not possible, go to position 1 and reset the b weapon.
 	//2a.  -if we arrive at a position we've already visited, give up and stay there
 	//3. Get the weapon at the new slot
 	//4. If it's not possible, go to step 1.
-	SubscrWidget* widg = contents[p];
+	SubscrPage const* pg = this;
+	SubscrWidget const* widg = contents[p];
 	for(;;)
 	{
+		//stay_on_page currently unused; nothing changes the current pg in a cycle yet.
 		//shift
 		switch(dir)
 		{
@@ -3610,33 +3613,34 @@ int32_t SubscrPage::movepos_legacy(int dir, word startp, word fp, word fp2, word
 				curpos = widg->pos_up;
 				break;
 		}
-		
+		cp2 = (curpos<<8)|pg->index;
 		//find our new position
-		widg = get_widg_pos(curpos,true);
+		widg = pg->get_widg_pos(curpos,true);
 		
 		if(!widg)
 			return failpos;
 		
 		//if we've already been here, give up
-		if(oldPositions.find(curpos) != oldPositions.end())
+		if(oldPositions.find(cp2) != oldPositions.end())
 			return failpos;
 		
 		//else, remember we've been here
-		oldPositions.insert(curpos);
+		oldPositions.insert(cp2);
 		
 		//Valid stop point?
-		if(widg->flags & SUBSCRFLAG_SELECTABLE)
-			if(curpos != fp && curpos != fp2 && curpos != fp3)
-				if(!equip_only || widg->getType()!=widgITEMSLOT || !(widg->flags & SUBSCR_CURITM_NONEQP))
-					if(!item_only || widg->getItemVal()>-1)
-						return (curpos<<8)|index;
+		if((!stay_on_page||(cp2&0xFF)==index)
+			&& (widg->flags & SUBSCRFLAG_SELECTABLE)
+			&& cp2 != fp && cp2 != fp2 && cp2 != fp3
+			&& (!equip_only || widg->getType()!=widgITEMSLOT || !(widg->flags & SUBSCR_CURITM_NONEQP))
+			&& (!item_only || widg->getItemVal()>-1))
+			return cp2;
 	}
 }
 void SubscrPage::move_legacy(int dir, bool equip_only, bool item_only)
 {
-	cursor_pos = movepos_legacy(dir,(cursor_pos<<8)|index,255,255,255,equip_only,item_only);
+	cursor_pos = movepos_legacy(dir,(cursor_pos<<8)|index,255,255,255,equip_only,item_only,true)>>8;
 }
-SubscrWidget* SubscrPage::get_widg_pos(byte pos, bool item_only)
+SubscrWidget* SubscrPage::get_widg_pos(byte pos, bool item_only) const
 {
 	for(size_t q = 0; q < contents.size(); ++q)
 	{
@@ -3657,7 +3661,7 @@ int32_t SubscrPage::get_item_pos(byte pos, bool item_only)
 		return w->getItemVal();
 	return -1;
 }
-SubscrWidget* SubscrPage::get_sel_widg()
+SubscrWidget* SubscrPage::get_sel_widg() const
 {
 	return get_widg_pos(cursor_pos,false);
 }

@@ -814,13 +814,13 @@ protected:
 struct SubscrPage
 {
 	std::vector<SubscrWidget*> contents;
-	int32_t cursor_pos, init_cursor_pos;
+	byte cursor_pos, init_cursor_pos;
 	
 	void move_cursor(int dir, bool item_only = false);
-	int32_t movepos_legacy(int dir, word startp, word fp = 255, word fp2 = 255, word fp3 = 255, bool equip_only=true, bool item_only=true);
+	int32_t movepos_legacy(int dir, word startp, word fp = 255, word fp2 = 255, word fp3 = 255, bool equip_only=true, bool item_only=true, bool stay_on_page = false);
 	void move_legacy(int dir, bool equip_only=true, bool item_only=true);
-	SubscrWidget* get_widg_pos(byte pos, bool item_only);
-	SubscrWidget* get_sel_widg();
+	SubscrWidget* get_widg_pos(byte pos, bool item_only) const;
+	SubscrWidget* get_sel_widg() const;
 	int32_t get_item_pos(byte pos, bool item_only = true);
 	int32_t get_sel_item(bool display = false);
 	int32_t get_pos_of_item(int32_t itemid);
