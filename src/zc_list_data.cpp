@@ -893,6 +893,51 @@ GUI::ListData const& GUI::ZCListData::dmaptypes()
 	return dmap_types;
 }
 
+GUI::ListData GUI::ZCListData::lpals()
+{
+	GUI::ListData ls;
+	char buf[50];
+	for (int q = 0; q < 0x1FF; ++q)
+	{
+		sprintf(buf, "%.3X - %s", q, palnames[q]);
+		ls.add(buf, q + 1);
+	}
+	return ls;
+}
+
+GUI::ListData GUI::ZCListData::activesubscreens()
+{
+	GUI::ListData ls;
+	int32_t i = 0, j = 0;
+	while (custom_subscreen[j].objects[0].type != ssoNULL)
+	{
+		if (custom_subscreen[j].ss_type == sstACTIVE)
+		{
+			ls.add(custom_subscreen[j].name, i + 1);
+			++i;
+		}
+
+		++j;
+	}
+	return ls;
+}
+
+GUI::ListData GUI::ZCListData::passivesubscreens()
+{
+	GUI::ListData ls;
+	int32_t i = 0, j = 0;
+	while (custom_subscreen[j].objects[0].type != ssoNULL)
+	{
+		if (custom_subscreen[j].ss_type == sstPASSIVE)
+		{
+			ls.add(custom_subscreen[j].name, i + 1);
+			++i;
+		}
+
+		++j;
+	}
+	return ls;
+}
 
 
 

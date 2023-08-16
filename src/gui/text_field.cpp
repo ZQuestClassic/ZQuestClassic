@@ -12,6 +12,8 @@
 #include <string>
 #include <utility>
 
+int32_t d_legacy_edit_proc(int32_t msg, DIALOG* d, int32_t c);
+
 namespace GUI
 {
 
@@ -479,6 +481,18 @@ void TextField::realize(DialogRunner& runner)
 			swap_cb->realize(runner);
 		}
 		alDialog->dp3 = (void*)this;
+	}
+	else if (tfType == type::TEXT_LEGACY)
+	{
+		alDialog = runner.push(shared_from_this(), DIALOG{
+			newGUIProc<d_legacy_edit_proc>,
+			x, y, getWidth(), getHeight(),
+			fgColor, bgColor,
+			0, // key
+			getFlags(), // flags
+			static_cast<int32_t>(maxLength), 0, // d1, d2
+			buffer.get(), widgFont, nullptr // dp, dp2, dp3
+			});
 	}
 	else
 	{

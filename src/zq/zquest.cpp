@@ -14540,7 +14540,7 @@ int32_t d_dropdmaptypelist_proc(int32_t msg,DIALOG *d,int32_t c)
     return ret;
 }
 
-int32_t d_grid_proc(int32_t msg,DIALOG *d,int32_t)
+int32_t REMOVE_d_grid_proc(int32_t msg,DIALOG *d,int32_t)
 {
     int32_t frame_thickness=int32_t(2*1.5);
     int32_t button_thickness=2;
@@ -14858,7 +14858,168 @@ const char *typelist(int32_t index, int32_t *list_size)
 
 bool edit_ins_mode=true;
 
-void put_title_str(char *s,int32_t x,int32_t y,int32_t fg,int32_t bg,int32_t pos,int32_t lines,int32_t cpl)
+void put_legacy_edit_str(char* s, int32_t x, int32_t y, int32_t w, int32_t h, int32_t fg, int32_t bg, int32_t pos)
+{
+	int32_t i = 0;
+	char buf[2] = { 0, 0 };
+	FONT* fnt = get_zc_font(font_zfont);
+
+	// text_mode(bg);
+	for (int32_t dy = 0; dy < h; dy++)
+		for (int32_t dx = 0; dx < w; dx++)
+		{
+			if (edit_ins_mode)
+			{
+				buf[0] = *(s + i);
+				textout_ex(screen, fnt, buf, x + (dx << 3), y + (dy << 3), fg, bg);
+			}
+			else
+			{
+				//     text_mode(i==pos?vc(15):bg);
+				buf[0] = *(s + i);
+				textout_ex(screen, fnt, buf, x + (dx << 3), y + (dy << 3), fg, bg);
+			}
+
+			++i;
+		}
+
+	if (edit_ins_mode && pos > -1)
+	{
+		//   text_mode(-1);
+		buf[0] = '_';
+		textout_ex(screen, fnt, buf, x + ((pos % w) << 3), y + ((pos / w) << 3), vc(15), -1);
+	}
+}
+
+// Old proc used by the dmap editor for fixed size strings
+int32_t d_legacy_edit_proc(int32_t msg, DIALOG* d, int32_t c)
+{
+	char* s = (char*)(d->dp);
+
+	int32_t cw = (d->w-4) / 8;
+	int32_t ch = (d->h-4) / 8;
+	int32_t len = d->d1;
+	int32_t x = d->x+3;
+	int32_t y = d->y+3;
+
+	switch (msg)
+	{
+	case MSG_WANTFOCUS:
+		return D_WANTFOCUS;
+
+	case MSG_CLICK:
+		d->d2 = ((gui_mouse_x() - x) >> 3) + ((gui_mouse_y() - y) >> 3) * cw;
+		bound(d->d2, 0, len - 1);
+		//put_legacy_edit_str(s, x, y, cw, ch, jwin_pal[jcTEXTBG], jwin_pal[jcTEXTFG], d->d2);
+		d->flags |= D_DIRTY;
+
+		while (gui_mouse_b())
+		{
+			/* do nothing */
+			rest(1);
+		}
+
+		break;
+
+	case MSG_DRAW:
+		if (!(d->flags & D_GOTFOCUS))
+		{
+			d->d2 = -1;
+		}
+
+		rectfill(screen, x - 3, y - 3, x -3 + d->w - 1, y -3 + d->h - 1, scheme[jcTEXTBG]);
+		jwin_draw_frame(screen, x-3, y-3, d->w, d->h, FR_DEEP);
+		put_legacy_edit_str(s, x, y, cw, ch, scheme[jcTEXTFG], scheme[jcTEXTBG], d->d2);
+		break;
+
+	case MSG_CHAR:
+		bool used = false;
+		int32_t k = c >> 8;
+
+		switch (k)
+		{
+		case KEY_INSERT:
+			edit_ins_mode = !edit_ins_mode;
+			used = true;
+			break;
+
+		case KEY_HOME:
+			d->d2 -= d->d2 % cw;
+			d->flags |= D_DIRTY;
+			used = true;
+			break;
+
+		case KEY_END:
+			d->d2 -= d->d2 % cw;
+			d->d2 += cw - 1;
+			d->flags |= D_DIRTY;
+			used = true;
+			break;
+
+		case KEY_UP:
+			if (d->d2 >= cw) d->d2 -= cw;
+			d->flags |= D_DIRTY;
+			used = true;
+			break;
+
+		case KEY_DOWN:
+			if (d->d2 < cw * (ch - 1)) d->d2 += cw;
+			d->flags |= D_DIRTY;
+			used = true;
+			break;
+
+		case KEY_LEFT:
+			if (d->d2 > 0) --d->d2;
+			d->flags |= D_DIRTY;
+			used = true;
+			break;
+
+		case KEY_RIGHT:
+			if (d->d2 < len - 1) ++d->d2;
+			d->flags |= D_DIRTY;
+			used = true;
+			break;
+
+		case KEY_BACKSPACE:
+			if (d->d2 > 0)
+				--d->d2;
+
+		case KEY_DEL:
+			strcpy(s + d->d2, s + d->d2 + 1);
+			s[len - 1] = ' ';
+			s[len] = 0;
+			used = true;
+			d->flags |= D_DIRTY;
+			GUI_EVENT(d, geCHANGE_VALUE);
+			break;
+
+		default:
+			if (isprint(c & 255))
+			{
+				if (edit_ins_mode)
+				{
+					for (int32_t i = len - 1; i > d->d2; i--)
+						s[i] = s[i - 1];
+				}
+
+				s[d->d2] = c & 255;
+
+				if (d->d2 < len - 1)
+					++d->d2;
+
+				d->flags |= D_DIRTY;
+				GUI_EVENT(d, geCHANGE_VALUE);
+				used = true;
+			}
+		}
+
+		return used ? D_USED_CHAR : D_O_K;
+	}
+
+	return D_O_K;
+}
+
+void REMOVE_put_title_str(char *s,int32_t x,int32_t y,int32_t fg,int32_t bg,int32_t pos,int32_t lines,int32_t cpl)
 {
     int32_t i=0;
     
@@ -14887,7 +15048,7 @@ void put_title_str(char *s,int32_t x,int32_t y,int32_t fg,int32_t bg,int32_t pos
     }
 }
 
-int32_t d_title_edit_proc(int32_t msg,DIALOG *d,int32_t c)
+int32_t REMOVE_d_title_edit_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     char *s=(char*)(d->dp);
     
@@ -14899,7 +15060,7 @@ int32_t d_title_edit_proc(int32_t msg,DIALOG *d,int32_t c)
     case MSG_CLICK:
         d->d2=((gui_mouse_x()-d->x)>>3)+((gui_mouse_y()-d->y)>>3)*10;
         bound(d->d2,0,19);
-        put_title_str(s,d->x,d->y,jwin_pal[jcTEXTBG],jwin_pal[jcTEXTFG],d->d2,2,10);
+		REMOVE_put_title_str(s,d->x,d->y,jwin_pal[jcTEXTBG],jwin_pal[jcTEXTFG],d->d2,2,10);
         
         while(gui_mouse_b())
         {
@@ -14915,7 +15076,7 @@ int32_t d_title_edit_proc(int32_t msg,DIALOG *d,int32_t c)
             d->d2=-1;
         }
         
-        put_title_str(s,d->x,d->y,jwin_pal[jcTEXTBG],jwin_pal[jcTEXTFG],d->d2,2,10);
+		REMOVE_put_title_str(s,d->x,d->y,jwin_pal[jcTEXTBG],jwin_pal[jcTEXTFG],d->d2,2,10);
         break;
         
     case MSG_CHAR:
@@ -14993,14 +15154,14 @@ int32_t d_title_edit_proc(int32_t msg,DIALOG *d,int32_t c)
             }
         }
         
-        put_title_str(s,d->x,d->y,jwin_pal[jcTEXTBG],jwin_pal[jcTEXTFG],d->d2,2,10);
+		REMOVE_put_title_str(s,d->x,d->y,jwin_pal[jcTEXTBG],jwin_pal[jcTEXTFG],d->d2,2,10);
         return used?D_USED_CHAR:D_O_K;
     }
     
     return D_O_K;
 }
 
-void put_intro_str(char *s,int32_t x,int32_t y,int32_t fg,int32_t bg,int32_t pos)
+void REMOVE_put_intro_str(char *s,int32_t x,int32_t y,int32_t fg,int32_t bg,int32_t pos)
 {
     int32_t i=0;
     
@@ -15028,7 +15189,7 @@ void put_intro_str(char *s,int32_t x,int32_t y,int32_t fg,int32_t bg,int32_t pos
     }
 }
 
-int32_t d_intro_edit_proc(int32_t msg,DIALOG *d,int32_t c)
+int32_t REMOVE_d_intro_edit_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     char *s=(char*)(d->dp);
     
@@ -15040,7 +15201,7 @@ int32_t d_intro_edit_proc(int32_t msg,DIALOG *d,int32_t c)
     case MSG_CLICK:
         d->d2=((gui_mouse_x()-d->x)>>3)+((gui_mouse_y()-d->y)>>3)*24;
         bound(d->d2,0,71);
-        put_intro_str(s,d->x,d->y,jwin_pal[jcTEXTBG],jwin_pal[jcTEXTFG],d->d2);
+		REMOVE_put_intro_str(s,d->x,d->y,jwin_pal[jcTEXTBG],jwin_pal[jcTEXTFG],d->d2);
         
         while(gui_mouse_b())
         {
@@ -15058,7 +15219,7 @@ int32_t d_intro_edit_proc(int32_t msg,DIALOG *d,int32_t c)
             
         }
         
-        put_intro_str(s,d->x,d->y,jwin_pal[jcTEXTBG],jwin_pal[jcTEXTFG],d->d2);
+		REMOVE_put_intro_str(s,d->x,d->y,jwin_pal[jcTEXTBG],jwin_pal[jcTEXTFG],d->d2);
         break;
         
     case MSG_CHAR:
@@ -15136,7 +15297,7 @@ int32_t d_intro_edit_proc(int32_t msg,DIALOG *d,int32_t c)
             }
         }
         
-        put_intro_str(s,d->x,d->y,jwin_pal[jcTEXTBG],jwin_pal[jcTEXTFG],d->d2);
+		REMOVE_put_intro_str(s,d->x,d->y,jwin_pal[jcTEXTBG],jwin_pal[jcTEXTFG],d->d2);
         return used?D_USED_CHAR:D_O_K;
     }
     
@@ -15382,7 +15543,7 @@ static DIALOG editdmap_dlg[] =
     {  d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  },
     {  d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  },
     {  d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  },
-    {  d_grid_proc,                 162,     83,    124,     66,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  },
+    {  REMOVE_d_grid_proc,                 162,     83,    124,     66,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  },
     {  jwin_text_proc,              162,    155,     48,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) "Compass: 0x",                                NULL,                 NULL                  },
     //60
     {  jwin_edit_proc,              218,    151,     21,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           2,             0,  NULL,                                                  NULL,                 NULL                  },
@@ -15394,11 +15555,11 @@ static DIALOG editdmap_dlg[] =
     {  jwin_droplist_proc,           42,     65,    161,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,    0,           1,             0, (void *) &levelnum_list,                               NULL,                 NULL                  },
     {  jwin_ctext_proc,              55,     85,      0,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) "DMap Title",                                 NULL,                 NULL                  },
     {  jwin_frame_proc,              13,     93,     84,     20,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           FR_DEEP,       0,  NULL,                                                  NULL,                 NULL                  },
-    {  d_title_edit_proc,            15,     95,     80,     16,    jwin_pal[jcTEXTBG],     jwin_pal[jcTEXTFG],      0,    0,           0,             0, (void *) dmap_title,                                   NULL,                 NULL                  },
+    {  REMOVE_d_title_edit_proc,            15,     95,     80,     16,    jwin_pal[jcTEXTBG],     jwin_pal[jcTEXTFG],      0,    0,           0,             0, (void *) dmap_title,                                   NULL,                 NULL                  },
     {  jwin_ctext_proc,             201,     85,      0,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) "DMap Intro",                                 NULL,                 NULL                  },
     //70
     {  jwin_frame_proc,             103,     93,    196,     28,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           FR_DEEP,       0,  NULL,                                                  NULL,                 NULL                  },
-    {  d_intro_edit_proc,           105,     95,    192,     24,    jwin_pal[jcTEXTBG],     jwin_pal[jcTEXTFG],      0,    0,           0,             0, (void *) dmap_intro,                                   NULL,                 NULL                  },
+    {  REMOVE_d_intro_edit_proc,           105,     95,    192,     24,    jwin_pal[jcTEXTBG],     jwin_pal[jcTEXTFG],      0,    0,           0,             0, (void *) dmap_intro,                                   NULL,                 NULL                  },
     {  jwin_frame_proc,              12,    127,    223,     44,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           FR_ETCHED,     0,  NULL,                                                  NULL,                 NULL                  },
     {  jwin_text_proc,               20,    124,     48,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) " Subscreens ",                               NULL,                 NULL                  },
     {  jwin_text_proc,               16,    137,     48,      8,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           0,             0, (void *) "Active:",                                    NULL,                 NULL                  },
