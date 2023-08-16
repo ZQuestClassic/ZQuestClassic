@@ -138,12 +138,12 @@ void gamedata::set_counter(word change, byte c)
 	if(c>=MAX_COUNTERS)  // Sanity check
 		return;
 	
-	flushItemCache(true);
-	
 	if(game!=NULL)
 	{
 		int32_t ringID=current_item_id(itype_ring, true);
 		_counter[c]=zc_max(change, 0);
+		
+		flushItemCache(true);
 		
 		// ringcolor is very slow, so make sure the ring has actually changed
 		if(ringID!=current_item_id(itype_ring, true))
@@ -163,13 +163,13 @@ void gamedata::change_counter(int16_t change, byte c)
 	
 	if(c>=MAX_COUNTERS)  // Sanity check
 		return;
-	
-	flushItemCache(true);
 		
 	if(game!=NULL)
 	{
 		int32_t ringID=current_item_id(itype_ring, true);
 		_counter[c]=vbound(_counter[c]+change, 0, _maxcounter[c]);
+		
+		flushItemCache(true);
 		
 		if(ringID!=current_item_id(itype_ring, true))
 			ringcolor(false);
