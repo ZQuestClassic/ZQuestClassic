@@ -101,6 +101,7 @@ bool use_testingst_start = false;
 static uint16_t testingqst_dmap = 0;
 static uint8_t testingqst_screen = 0;
 static uint8_t testingqst_retsqr = 0;
+static std::string testingqst_init_data;
 static bool replay_debug = false;
 
 extern CConsoleLoggerEx zscript_coloured_console;
@@ -145,7 +146,6 @@ ZCMIXER *zcmixer = NULL;
 zinitdata zinit;
 int32_t colordepth;
 int32_t db=0;
-//zinitdata  zinit;
 int32_t detail_int[10];                                         //temporary holder for things you want to detail
 int32_t lens_hint_item[MAXITEMS][2]= {{0,0},{0,0}};                            //aclk, aframe
 int32_t lens_hint_weapon[MAXWPNS][5] = {{0,0},{0,0}};                           //aclk, aframe, dir, x, y
@@ -2061,6 +2061,19 @@ int32_t init_game()
 		Quit = qERROR;
 		//setPackfilePassword(NULL);
 		return 1;
+	}
+
+	if (testingqst_init_data.size())
+	{
+		zinit.clear();
+		zinitdata* new_init = apply_init_data_delta(&zinit, testingqst_init_data);
+		if (new_init)
+		{
+			zinit = *new_init;
+			resetItems(game, new_init, false);
+			ringcolor(false);
+			delete new_init;
+		}
 	}
 
 	FFCore.SetNegArray();
@@ -4425,6 +4438,7 @@ static void load_replay_file(ReplayMode mode, std::string replay_file, int frame
 		testingqst_dmap = replay_get_meta_int("starting_dmap");
 		testingqst_screen = replay_get_meta_int("starting_scr");
 		testingqst_retsqr = replay_get_meta_int("starting_retsqr");
+		testingqst_init_data = "";
 		use_testingst_start = true;
 	}
 	else
@@ -5299,6 +5313,10 @@ int main(int argc, char **argv)
 		exit_sys_pal();
 	}
 #endif
+
+	int32_t test_init_data_arg = used_switch(argc,argv,"-test-init-data");
+	if (test_init_data_arg > 0)
+		testingqst_init_data = argv[test_init_data_arg + 1];
 
 	int32_t test_arg = used_switch(argc,argv,"-test");
 	zqtesting_mode = test_arg > 0;

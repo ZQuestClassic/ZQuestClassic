@@ -2,9 +2,11 @@
 #include "test_quest_dlg.h"
 #include "alertfunc.h"
 #include "base/process_management.h"
+#include "zc/zelda.h"
 #include "zq/zq_class.h"
 #include "gui/builder.h"
 #include "zc_list_data.h"
+#include "init.h"
 #include <fmt/format.h>
 #include <filesystem>
 
@@ -17,7 +19,9 @@ int32_t onSaveAs();
 extern char *filepath;
 extern bool saved, first_save;
 
-static int32_t test_start_dmap = 0, test_start_screen = 0, test_ret_sqr = 0;
+static int32_t test_start_dmap = 0, test_start_screen = 0, test_ret_sqr = 0, test_init_data_val = 0;
+static std::vector<std::string> test_init_data;
+static std::vector<std::string> test_init_data_names;
 static process_killer test_killer;
 
 static const GUI::ListData retsqrlist
@@ -27,6 +31,8 @@ static const GUI::ListData retsqrlist
 	{ "C", 2 },
 	{ "D", 3 }
 };
+
+static GUI::ListData init_data_list;
 
 static bool do_save()
 {
@@ -95,6 +101,25 @@ std::shared_ptr<GUI::Widget> TestQstDialog::view()
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
 
+	init_data_list = GUI::ListData();
+	init_data_list.add("<default>", 0);
+
+	test_init_data.clear();
+	test_init_data_names.clear();
+	int i = 1;
+	std::string qst_cfg_header = relativize_path(filepath);
+	while (strlen(zc_get_config(qst_cfg_header.c_str(), fmt::format("test_init_data_{}", i).c_str(), "")))
+	{
+		std::string init_data = zc_get_config(qst_cfg_header.c_str(), fmt::format("test_init_data_{}", i).c_str(), "");
+		std::string name = zc_get_config(qst_cfg_header.c_str(), fmt::format("test_init_data_{}_name", i).c_str(), "");
+		if (name.empty())
+			name = fmt::format("Init Data {}", i);
+		test_init_data.push_back(std::move(init_data));
+		test_init_data_names.push_back(name);
+		init_data_list.add(name, i);
+		i += 1;
+	}
+
 	return Window(
 		title = "Test Quest",
 		onClose = message::CANCEL,
@@ -128,6 +153,16 @@ std::shared_ptr<GUI::Widget> TestQstDialog::view()
 					{
 						test_ret_sqr = val;
 					}
+				),
+				Label(text = "Init Data:"),
+				DropDownList(
+					maxwidth = 10_em,
+					data = init_data_list,
+					selectedValue = test_init_data_val,
+					onSelectFunc = [&](int32_t val)
+					{
+						test_init_data_val = val;
+					}
 				)
 			),
 			Row(
@@ -142,15 +177,76 @@ std::shared_ptr<GUI::Widget> TestQstDialog::view()
 					text = "Cancel",
 					minwidth = 90_px,
 					onClick = message::CANCEL)
+			),
+			Row(
+				vAlign = 1.0,
+				spacing = 2_em,
+				Button(
+					text = "Edit Test Init Data",
+					minwidth = 90_px,
+					onClick = message::EDIT_INIT_DATA,
+					focused = true),
+				Button(
+					text = "Create Test Init Data",
+					minwidth = 90_px,
+					onClick = message::CREATE_INIT_DATA,
+					focused = true)
 			)
 		)
 	);
+}
+
+static void save_test_init_data(int i)
+{
+	std::string qst_cfg_header = relativize_path(filepath);
+	zc_set_config(qst_cfg_header.c_str(), fmt::format("test_init_data_{}", i + 1).c_str(), test_init_data[i].c_str());
+	zc_set_config(qst_cfg_header.c_str(), fmt::format("test_init_data_{}_name", i + 1).c_str(), test_init_data_names[i].c_str());
 }
 
 bool TestQstDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 {
 	switch(msg.message)
 	{
+		// TODO: calling `zinit.clear` should really be done in ctor...
+		case message::CREATE_INIT_DATA:
+		{
+			zinitdata zinit_test = zinit;
+			doInit(&zinit_test, false);
+
+			zinitdata zinit_base;
+			zinit_base.clear();
+			std::string delta = serialize_init_data_delta(&zinit_base, &zinit_test);
+
+			int i = test_init_data.size();
+			test_init_data.push_back(delta);
+			test_init_data_names.push_back(fmt::format("Init Data {}", i + 1));
+			save_test_init_data(i);
+			rerun_dlg = true;
+			test_init_data_val = i + 1;
+			return true;
+		}
+		break;
+
+		case message::EDIT_INIT_DATA:
+		{
+			if (test_init_data_val == 0)
+				return false;
+
+			zinitdata zinit_base;
+			zinit_base.clear();
+			zinitdata* zinit_test = apply_init_data_delta(&zinit_base, test_init_data[test_init_data_val - 1]);
+
+			doInit(zinit_test, false);
+
+			std::string delta = serialize_init_data_delta(&zinit_base, zinit_test);
+			test_init_data[test_init_data_val - 1] = delta;
+			save_test_init_data(test_init_data_val - 1);
+
+			delete zinit_test;
+			return false;
+		}
+		break;
+
 		case message::OK:
 		{
 #ifdef __EMSCRIPTEN__
@@ -175,6 +271,11 @@ bool TestQstDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 				fmt::format("{}", test_start_screen),
 				fmt::format("{}", test_ret_sqr),
 			};
+			if (test_init_data_val)
+			{
+				args.push_back("-test-init-data");
+				args.push_back(test_init_data[test_init_data_val - 1]);
+			}
 			if (should_record)
 			{
 				args.push_back("-record");
