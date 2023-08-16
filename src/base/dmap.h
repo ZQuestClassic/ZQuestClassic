@@ -82,7 +82,7 @@ extern dmap *DMaps;
 #define dmfNEWCELLARENEMIES 0x080000
 #define dmfBUNNYIFNOPEARL   0x100000
 #define dmfMIRRORCONTINUE   0x200000
-#define dmfZ3_RESERVERD_1   0x400000
+#define dmfEXTENDEDVIEWPORT 0x400000
 #define dmfZ3_RESERVERD_2   0x800000
 
 // dmap types

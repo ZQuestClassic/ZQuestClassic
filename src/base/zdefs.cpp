@@ -14,9 +14,6 @@ using namespace util;
 extern PALETTE RAMpal;
 extern bool update_hw_pal;
 
-// TODO z3 ! make this a property of the passive subscreen
-bool global_z3_scrolling_extended_height_mode = true;
-
 volatile bool close_button_quit = false;
 
 int next_script_data_debug_id = 0;

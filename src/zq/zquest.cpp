@@ -14775,7 +14775,7 @@ static bool should_allow_regions()
 	{
 		if (get_bit(quest_rules, qr))
 		{
-			return false;
+			// return false;
 		}
 	}
 
@@ -15397,7 +15397,7 @@ static int32_t editdmap_disableitems_list[] =
 
 static int32_t editdmap_flags_list[] =
 {
-    110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,127,128,129,168,211,212,-1
+    110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,127,128,129,168,211,212,225,-1
 };
 
 static int32_t editdmap_script_active[] =
@@ -15674,15 +15674,15 @@ static DIALOG editdmap_dlg[] =
     {  jwin_check_proc,              12,    155,    113,      9,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           1,             0, (void *) "...But Only Show Screens Marked In Minimap",      NULL,                 NULL                  },
     {  jwin_check_proc,              12,    165,    113,      9,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           1,             0, (void *) "Use Minimap Foreground Color 2",      NULL,                 NULL                  },
     //121
-    {  jwin_check_proc,             230,     65,    113,      9,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           1,             0, (void *) "Script 1",        					   NULL,                 NULL                  },
-    {  jwin_check_proc,             230,     75,    113,      9,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           1,             0, (void *) "Script 2",        					   NULL,                 NULL                  },
-    {  jwin_check_proc,             230,     85,    113,      9,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           1,             0, (void *) "Script 3",        					   NULL,                 NULL                  },
-    {  jwin_check_proc,             230,     95,    113,      9,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           1,             0, (void *) "Script 4",        					   NULL,                 NULL                  },
-    {  jwin_check_proc,             230,    105,    113,      9,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           1,             0, (void *) "Script 5",        					   NULL,                 NULL                  },
+    {  jwin_check_proc,             200,     65,    113,      9,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           1,             0, (void *) "Script 1",        					   NULL,                 NULL                  },
+    {  jwin_check_proc,             200,     75,    113,      9,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           1,             0, (void *) "Script 2",        					   NULL,                 NULL                  },
+    {  jwin_check_proc,             200,     85,    113,      9,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           1,             0, (void *) "Script 3",        					   NULL,                 NULL                  },
+    {  jwin_check_proc,             200,     95,    113,      9,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           1,             0, (void *) "Script 4",        					   NULL,                 NULL                  },
+    {  jwin_check_proc,             200,    105,    113,      9,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           1,             0, (void *) "Script 5",        					   NULL,                 NULL                  },
     {  d_timer_proc,                  0,      0,      0,      0,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  },
     
     //127
-    {  jwin_check_proc,              230,    115,    113,      9,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           1,             0, (void *) "Sideview",      NULL,                 NULL                  },
+    {  jwin_check_proc,              200,    115,    113,     9,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           1,             0, (void *) "Sideview",      NULL,                 NULL                  },
     {  jwin_check_proc,              12,    185,    113,      9,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           1,             0, (void *) "Layer 3 is Background on All Screens",      NULL,                 NULL                  },
     {  jwin_check_proc,              12,    195,    113,      9,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           1,             0, (void *) "Layer 2 is Background on All Screens",      NULL,                 NULL                  },
     //130
@@ -15814,6 +15814,9 @@ static DIALOG editdmap_dlg[] =
     {  d_region_grid_proc,           12,     65,     310,     145,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  },
 	{  jwin_button_proc,             12,    210,     61,     12,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],        0,    D_EXIT,      0,             0, (void *) "Z3 User Guide",                                       NULL,                 NULL                  },
 	
+	//225
+	{  jwin_check_proc,              200,    125,    113,      9,    jwin_pal[jcBOXFG],      jwin_pal[jcBOX],         0,    0,           1,             0, (void *) "Extended Viewport Height",      NULL,                 NULL                  },
+
 	{  NULL,                          0,      0,      0,      0,    0,                      0,                       0,    0,           0,             0,  NULL,                                                  NULL,                 NULL                  }
 };
 
@@ -16015,6 +16018,7 @@ void editdmap(int32_t index)
 	editdmap_dlg[168].flags = (DMaps[index].flags& dmfNEWCELLARENEMIES)? D_SELECTED : 0;
 	editdmap_dlg[211].flags = (DMaps[index].flags& dmfBUNNYIFNOPEARL) ? D_SELECTED : 0;
 	editdmap_dlg[212].flags = (DMaps[index].flags& dmfMIRRORCONTINUE) ? D_SELECTED : 0;
+	editdmap_dlg[225].flags = (DMaps[index].flags& dmfEXTENDEDVIEWPORT) ? D_SELECTED : 0;
 	
 	if(!editdmap_dlg[0].d1)
 	{
@@ -16208,6 +16212,7 @@ void editdmap(int32_t index)
 		f |= editdmap_dlg[168].flags & D_SELECTED ? dmfNEWCELLARENEMIES:0;
 		f |= editdmap_dlg[211].flags & D_SELECTED ? dmfBUNNYIFNOPEARL:0;
 		f |= editdmap_dlg[212].flags & D_SELECTED ? dmfMIRRORCONTINUE:0;
+		f |= editdmap_dlg[225].flags & D_SELECTED ? dmfEXTENDEDVIEWPORT:0;
 		DMaps[index].flags = f;
 	
 		DMaps[index].sideview = editdmap_dlg[127].flags & D_SELECTED ? 1:0;

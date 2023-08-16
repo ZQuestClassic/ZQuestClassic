@@ -160,7 +160,7 @@ bool is_z3_scrolling_mode()
 
 bool is_extended_height_mode()
 {
-	return global_z3_scrolling_extended_height_mode && region_scr_height > 1;
+	return (DMaps[currdmap].flags & dmfEXTENDEDVIEWPORT) && region_scr_height > 1;
 }
 
 // Returns 0 if this is not a region.
@@ -329,9 +329,9 @@ std::vector<mapscr*> z3_take_temporary_screens()
 
 void z3_calculate_viewport(int dmap, int screen_index, int world_w, int world_h, int hero_x, int hero_y, viewport_t& viewport)
 {
+	bool extended_height_mode = (DMaps[dmap].flags & dmfEXTENDEDVIEWPORT) && world_h > 176;
 	viewport.w = 256;
-	// viewport.h = 176 + (is_extended_height_mode() ? 56 : 0);
-	viewport.h = 176 + (global_z3_scrolling_extended_height_mode && world_h > 176 ? 56 : 0);
+	viewport.h = 176 + (extended_height_mode ? 56 : 0);
 
 	if (viewport_mode == ViewportMode::Script)
 	{
