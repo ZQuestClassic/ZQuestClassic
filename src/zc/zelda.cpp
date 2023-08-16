@@ -3986,8 +3986,9 @@ void game_loop()
 		al_trace("game_loop is calling: %s\n", "if(quakeclk)\n");
 		#endif
 
-			playing_field_offset = 56;
-			if (is_extended_height_mode()) playing_field_offset = 0;
+			// By default, this is 56 pixels tall. In extended height mode it is 0. Scripts might set their own viewport
+			// height, so this math also supports that.
+			playing_field_offset = std::max(0, 232 - viewport.h);
 
 			// Earthquake!
 			if(quakeclk>0 && !FFCore.system_suspend[susptQUAKE] )
