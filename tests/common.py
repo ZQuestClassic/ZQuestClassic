@@ -202,8 +202,8 @@ def download_release(gh: Github, repo_str: str, channel: str, tag: str):
             dest / 'zc-mounted')], stdout=subprocess.DEVNULL)
         (dest / 'ZeldaClassic.dmg').unlink()
     elif url.endswith('.tar.gz'):
-        tf = tarfile.open(fileobj=io.BytesIO(r.content), mode='r:gz')
-        tf.extractall(dest)
+        tf = tarfile.open(fileobj=io.BytesIO(r.content), mode='r')
+        tf.extractall(dest, filter='data')
         tf.close()
     else:
         zip = zipfile.ZipFile(io.BytesIO(r.content))

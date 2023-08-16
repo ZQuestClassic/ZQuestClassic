@@ -27,6 +27,8 @@ void sentry_atexit()
 }
 #endif
 
+namespace fs = std::filesystem;
+
 static App app_id = App::undefined;
 
 bool is_in_osx_application_bundle()
@@ -85,6 +87,11 @@ void common_main_setup(App id, int argc, char **argv)
 #ifdef ALLEGRO_SDL
 	SDL_LogSetAllPriority(SDL_LOG_PRIORITY_DEBUG);
 #endif
+
+	// The updater has to move some actively used files to a temporary location, but cannot delete them itself.
+	auto update_active_files = fs::path(".updater-active-files");
+	std::error_code ec;
+	fs::remove_all(update_active_files, ec);
 }
 
 App get_app_id()
