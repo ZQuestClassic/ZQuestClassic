@@ -150,7 +150,7 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 			d[i].x = int32_t(d[0].x + (xpc*double(d[0].w)));
 			
 			// Horizontally resize elements
-			if((d[i].proc == d_maptile_proc && d[i].dp2!=(void*)1) || d[i].proc==d_intro_edit_proc || d[i].proc==d_title_edit_proc)
+			if((d[i].proc == d_maptile_proc && d[i].dp2!=(void*)1) || d[i].proc== REMOVE_d_intro_edit_proc || d[i].proc== REMOVE_d_title_edit_proc)
 			{
 				d[i].x += (int32_t)(float(d[i].w)/4.f);
 			}
@@ -172,7 +172,7 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 			d[i].y = int32_t(d[0].y + (ypc*double(d[0].h)));
 			
 			// Vertically resize elements
-			if((d[i].proc == d_maptile_proc && d[i].dp2!=(void*)1) || d[i].proc==d_intro_edit_proc || d[i].proc==d_title_edit_proc)
+			if((d[i].proc == d_maptile_proc && d[i].dp2!=(void*)1) || d[i].proc== REMOVE_d_intro_edit_proc || d[i].proc==REMOVE_d_title_edit_proc)
 			{
 			}
 			else if(d[i].proc == jwin_edit_proc || d[i].proc == jwin_check_proc || d[i].proc == jwin_checkfont_proc || d[i].proc == jwin_tflpcheck_proc || d[i].proc == jwin_lscheck_proc)

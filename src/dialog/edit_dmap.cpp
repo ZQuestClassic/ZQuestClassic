@@ -5,6 +5,7 @@
 #include "zq/zq_class.h"
 #include "zc_list_data.h"
 #include <fmt/format.h>
+#include <base/qrs.h>
 
 static size_t editdmap_tab = 0;
 void call_editdmap_dialog(int32_t slot)
@@ -20,8 +21,25 @@ void call_editdmap_dialog(size_t forceTab, int32_t slot)
 EditDMapDialog::EditDMapDialog(int32_t slot) :
 	thedmap(&DMaps[slot]), local_dmap(DMaps[slot]), dmapslot(slot),
 	list_maps(GUI::ListData::numbers(false, 1, map_count)),
-	list_types(GUI::ZCListData::dmaptypes())
+	list_types(GUI::ZCListData::dmaptypes()),
+	list_lpals(GUI::ZCListData::lpals()),
+	list_strings(GUI::ZCListData::strings()),
+	list_activesub(GUI::ZCListData::activesubscreens()),
+	list_passivesub(GUI::ZCListData::passivesubscreens())
 {}
+
+// trims spaces at the end of a string
+char* strip_whitespace(char* title, int bufsz)
+{
+	for (int q = bufsz-1; q >0; --q)
+	{
+		if (title[q] == ' ')
+			title[q] = 0;
+		else
+			break;
+	}
+	return title;
+}
 
 bool sm_dmap(int dmaptype)
 {
@@ -32,6 +50,11 @@ bool sm_dmap(int dmaptype)
 		default:
 			return true;
 	}
+}
+
+void EditDMapDialog::refreshDMapStrings()
+{
+	//string_switch->switchTo(get_qr(qr_OLD_DMAP_INTRO_STRINGS) ? 0 : 1);
 }
 
 std::shared_ptr<GUI::Widget> EditDMapDialog::view()
@@ -139,7 +162,7 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 					),
 					Rows<4>(
 						dmap_slider = Slider(
-							colSpan = 2, fitParent = true, 
+							colSpan = 2, fitParent = true, rightMargin = 64_px,
 							disabled = !sm_dmap(local_dmap.type),
 							offset = local_dmap.xoff,
 							minOffset = -7, maxOffset = 15,
@@ -190,8 +213,83 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 					)
 				)),
 				TabRef(name = "Appearance", Column(
-					Row(
-						Label(text = "Placeholder")
+					Rows<2>(
+						Label(text = "Level Palette:"),
+						DropDownList(data = list_lpals,
+							fitParent = true,
+							selectedValue = local_dmap.color + 1,
+							onSelectFunc = [&](int32_t val)
+							{
+								local_dmap.color = val - 1;
+							})
+					),
+					string_switch = Switcher(
+						Rows<2>(
+							Label(text = "DMap Title"),
+							Label(text = "DMap Intro"),
+							TextField(
+								width = 86_px, height = 22_px,
+								maxLength = 20, type = GUI::TextField::type::TEXT_LEGACY,
+								text = local_dmap.title,
+								onValChangedFunc = [&](GUI::TextField::type, std::string_view text, int32_t)
+								{
+									zprint2("Title: %s\n", text);
+									std::string str;
+									str.assign(text);
+									strncpy(local_dmap.title, str.c_str(), 20);
+									local_dmap.title[20] = 0;
+								}),
+							TextField(
+								width = 198_px, height = 30_px,
+								maxLength = 72, type = GUI::TextField::type::TEXT_LEGACY,
+								text = local_dmap.intro,
+								onValChangedFunc = [&](GUI::TextField::type, std::string_view text, int32_t)
+								{
+									std::string str;
+									str.assign(text);
+									strncpy(local_dmap.intro, str.c_str(), 72);
+									local_dmap.intro[72] = 0;
+								})
+						),
+						Rows<2>(
+							Label(text = "DMap Title:"),
+							TextField(
+								fitParent = true, 
+								type = GUI::TextField::type::TEXT,
+								text = local_dmap.title,
+								onValChangedFunc = [&](GUI::TextField::type, std::string_view text, int32_t)
+								{
+									//TODO
+								}),
+							Label(text = "DMap Intro:"),
+							DropDownList(data = list_strings,
+								fitParent = true,
+								width = 256_px,
+								selectedValue = 1,
+								onSelectFunc = [&](int32_t val)
+								{
+									//TODO
+								})
+						)
+					),
+					Rows<2>(
+						framed = true, frameText = "Subscreens",
+						Label(text = "Active:"),
+						DropDownList(data = list_activesub,
+							fitParent = true,
+							selectedValue = local_dmap.active_subscreen + 1,
+							onSelectFunc = [&](int32_t val)
+							{
+								local_dmap.active_subscreen = val - 1;
+							}),
+						Label(text = "Passive:"),
+						DropDownList(data = list_passivesub,
+							fitParent = true,
+							selectedValue = local_dmap.passive_subscreen + 1,
+							onSelectFunc = [&](int32_t val)
+							{
+								local_dmap.passive_subscreen = val - 1;
+							})
 					)
 				)),
 				TabRef(name = "Music", Column(
@@ -236,6 +334,7 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 			)
 		)
 	);
+	refreshDMapStrings();
 	return window;
 }
 

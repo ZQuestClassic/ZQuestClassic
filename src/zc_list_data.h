@@ -37,6 +37,9 @@ namespace GUI::ZCListData
     GUI::ListData const& warpeffects();
     GUI::ListData const& screenstate();
 	GUI::ListData const& dmaptypes();
+	GUI::ListData lpals();
+	GUI::ListData activesubscreens();
+	GUI::ListData passivesubscreens();
 }
 
 #endif

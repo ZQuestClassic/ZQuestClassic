@@ -67,8 +67,6 @@ namespace GUI
 			onUpdateFunc = std::move(newfunc);
 		}
 
-		int32_t onEvent(int32_t event, MessageDispatcher& sendMessage);
-
 	private:
 		int32_t message;
 		std::function<void(byte*, byte, byte)> onUpdateFunc;
@@ -83,6 +81,8 @@ namespace GUI
 		void applyVisibility(bool visible) override;
 		void applyDisabled(bool dis) override;
 		void realize(DialogRunner& runner) override;
+
+		int32_t onEvent(int32_t event, MessageDispatcher& sendMessage) override;
 
 		friend int32_t new_d_grid_proc(int32_t msg, DIALOG* d, int32_t);
 	};

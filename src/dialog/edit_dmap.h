@@ -28,6 +28,7 @@ public:
 
 	EditDMapDialog(int32_t slot);
 
+	void refreshDMapStrings();
 	std::shared_ptr<GUI::Widget> view() override;
 	bool handleMessage(const GUI::DialogMessage<message>& msg);
 
@@ -38,12 +39,15 @@ private:
 	std::shared_ptr<GUI::DMapMapGrid> dmap_grid;
 	std::shared_ptr<GUI::TextField> compass_field;
 	std::shared_ptr<GUI::TextField> continue_field;
+
+	std::shared_ptr<GUI::Switcher> string_switch;
 	
 	int32_t dmapslot;
 	dmap* thedmap;
 	dmap local_dmap;
 
 	GUI::ListData list_maps, list_types;
+	GUI::ListData list_lpals, list_activesub, list_passivesub, list_strings;
 };
 
 #endif
