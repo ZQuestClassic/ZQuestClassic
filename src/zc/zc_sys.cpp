@@ -2280,13 +2280,14 @@ void flushItemCache(bool justcost)
 // This is used often, so it should be as direct as possible.
 int32_t _c_item_id_internal(int32_t itemtype, bool checkmagic, bool jinx_check)
 {
-	bool use_cost_cache = true;//replay_version_check(19);
+	bool use_cost_cache = replay_version_check(19);
 	if(jinx_check)
 	{
 		if(!(HeroSwordClk() || HeroItemClk()))
 			jinx_check = false; //not jinxed
 	}
-	if (itemtype != itype_ring && !jinx_check)  // Rings must always be checked, as must jinx checks...
+	if(itemtype == itype_ring) checkmagic = true;
+	if (!jinx_check)
 	{
 		auto& cache = checkmagic && use_cost_cache ? itemcache_cost : itemcache;
 		auto res = cache.find(itemtype);
@@ -2302,19 +2303,13 @@ int32_t _c_item_id_internal(int32_t itemtype, bool checkmagic, bool jinx_check)
 	{
 		if(game->get_item(i) && itemsbuf[i].family==itemtype && !item_disabled(i))
 		{
-			if((checkmagic || itemtype == itype_ring) && itemtype != itype_magicring)
-			{
-				//printf("Checkmagic for %d: %d (%d %d)\n",i,checkmagiccost(i),itemsbuf[i].magic*game->get_magicdrainrate(),game->get_magic());
+			if(checkmagic && itemtype != itype_magicring)
 				if(!checkmagiccost(i))
-				{
-					if ( !get_qr(qr_NEVERDISABLEAMMOONSUBSCREEN) ) continue; //don't make items with a magic cost vanish!! -Z
-				}
-			}
+					if ( !get_qr(qr_NEVERDISABLEAMMOONSUBSCREEN) )
+						continue; //don't make items with a magic cost vanish!! -Z
 			if(jinx_check && (usesSwordJinx(i) ? HeroSwordClk() : HeroItemClk()))
-			{
 				if(!(itemsbuf[i].flags & ITEM_JINX_IMMUNE))
 					continue;
-			}
 			
 			if(itemsbuf[i].fam_type >= highestlevel)
 			{
@@ -2329,9 +2324,7 @@ int32_t _c_item_id_internal(int32_t itemtype, bool checkmagic, bool jinx_check)
 		if (use_cost_cache)
 		{
 			if (!checkmagic)
-			{
 				itemcache[itemtype] = result;
-			}
 			if (checkmagic || result < 0 || checkmagiccost(result))
 				itemcache_cost[itemtype] = result;
 		}
@@ -2361,6 +2354,7 @@ int32_t current_item_id(int32_t itemtype, bool checkmagic, bool jinx_check)
 	}
 	return ret;
 }
+
 int32_t current_item_power(int32_t itemtype)
 {
 	int32_t result = current_item_id(itemtype,true);
