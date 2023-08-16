@@ -3988,7 +3988,7 @@ void game_loop()
 
 			// By default, this is 56 pixels tall. In extended height mode it is 0. Scripts might set their own viewport
 			// height, so this math also supports that.
-			playing_field_offset = std::max(0, 232 - viewport.h);
+			playing_field_offset = std::max(0, 224 - viewport.h);
 
 			// Earthquake!
 			if(quakeclk>0 && !FFCore.system_suspend[susptQUAKE] )

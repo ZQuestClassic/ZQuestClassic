@@ -335,6 +335,7 @@ void z3_calculate_viewport(int dmap, int screen_index, int world_w, int world_h,
 
 	if (viewport_mode == ViewportMode::Script)
 	{
+		viewport.h -= 8;
 		return;
 	}
 
@@ -354,6 +355,9 @@ void z3_calculate_viewport(int dmap, int screen_index, int world_w, int world_h,
 		viewport.x = hero_x - viewport.w/2;
 		viewport.y = hero_y - viewport.h/2 + viewport.centering_y_offset + 16;
 	}
+
+	// The viewport has never been tall enough to show the bottom 8 pixels of a screen.
+	viewport.h -= 8;
 }
 
 void z3_update_viewport()

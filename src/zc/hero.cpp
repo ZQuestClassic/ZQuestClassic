@@ -28289,7 +28289,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			}
 			
 			//bound Hero when me move him off the screen in the last couple of frames of scrolling
-			if(script_hero_y > old_viewport.y + old_viewport.h - 16) script_hero_y = old_viewport.y + old_viewport.h - 16;
+			if(script_hero_y > old_viewport.y + old_viewport.h - 16 + 8) script_hero_y = old_viewport.y + old_viewport.h - 16 + 8;
 			if(script_hero_y < 0)   script_hero_y = 0;
 			if(script_hero_x > old_viewport.x + old_viewport.w - 16) script_hero_x = old_viewport.x + old_viewport.w - 16;
 			if(script_hero_x < 0)   script_hero_x = 0;
@@ -28298,7 +28298,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			x.doClamp(viewport.x, viewport.x + viewport.w - 16);
 			// int bounds_y = viewport.y + playing_field_offset;
 			int bounds_y = viewport.y;
-			y.doClamp(bounds_y, bounds_y + viewport.h - 16);
+			y.doClamp(bounds_y, bounds_y + viewport.h - 16 + 8);
 
 			if (is_unsmooth_vertical_scrolling) viewport.y += 3;
 
@@ -28494,7 +28494,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		// Minus 8 because half of the bottom row is not visible.
 		// TODO z3 ?
 		int mapscr_view_y = playing_field_offset;
-		int mapscr_view_height = viewport.h - 8;
+		int mapscr_view_height = viewport.h;
 		blit(scrollbuf, framebuf, 0, 0, 0, mapscr_view_y, viewport.w, mapscr_view_height);
 		if (lenscheck(newscr, 0))
 			do_primitives(framebuf, 0, newscr, 0, playing_field_offset);
@@ -31191,7 +31191,8 @@ void red_shift()
     }
     
     // color scale the game screen
-    for(int32_t y=0; y<viewport.h-8; y++)
+	int max_y = std::max(framebuf->h - original_playing_field_offset, viewport.h);
+    for(int32_t y=0; y<max_y; y++)
     {
         for(int32_t x=0; x<256; x++)
         {
