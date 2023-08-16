@@ -12,7 +12,7 @@ Note: current limitations require that regions 1) must be rectangular with no ho
 
 The traditional viewport for ZQuest has been 256 pixels wide by 176 pixels tall - or 16x11 combos.
 
-In a region, the viewport pans across the region. By default the viewport centers the player in the middle, but this is bounded by the edges of the border. This behavior can be customized in via scripting.
+In a region, the viewport pans across the region. By default the viewport centers the player in the middle, but this is bounded by the edges of the border. This behavior can be customized via scripting.
 
 For a region taller than one screen, there is the option to have an extended height viewport. This makes the viewport 232 pixels (or 3.5 combos) taller - the same height as the passive subscreen. This effectively centers the player as if the passive subscreen did not exist. This is controlled by a DMap flag. When using an extended height viewport, the passive subscreen should be configured to have no background color. Without a transparent passive subscreen, it will look very odd. Similarly, if not using an extended height viewport, the passive subscreen should be opaque.
 

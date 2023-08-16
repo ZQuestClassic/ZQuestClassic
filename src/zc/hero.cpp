@@ -28024,6 +28024,12 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 
 	if (freedom_in_chains_hack)
 		pfo_counter = 0;
+	
+	if (get_qr(qr_NOSCROLL))
+	{
+		secondary_axis_alignment_amount = 0;
+		pfo_counter = 0;
+	}
 
 	// 0 for align, then scroll.
 	// 1 for scroll, then align.
@@ -28724,7 +28730,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 		switch(scrolldir)
 		{
 		case up:
-			y = viewport.h - 16;
+			y = world_h - 16;
 			break;
 			
 		case down:
@@ -28732,7 +28738,7 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 			break;
 			
 		case left:
-			x = viewport.w - 16;
+			x = world_w - 16;
 			break;
 			
 		case right:
