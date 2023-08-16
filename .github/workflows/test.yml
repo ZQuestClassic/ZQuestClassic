@@ -148,6 +148,16 @@ jobs:
         name: Test zquest
         run: bash .github/workflows/run_python.sh tests/test_zquest.py
 
+      - if: ${{ matrix.shard_index == 1 && inputs.extra-args == '' && inputs.config != 'Coverage' }}
+        name: Updater cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ github.workspace }}/.tmp/test_updater/cache
+          key: updater-cache-${{ runner.runs-on }}-${{ runner.arch }}
+      - if: ${{ matrix.shard_index == 1 && inputs.extra-args == '' && inputs.config != 'Coverage' }}
+        name: Test zupdater
+        run: bash .github/workflows/run_python.sh tests/test_updater.py
+
         # TODO why does this result in "could not open file: test.zplay" on Windows?
       - if: ${{ matrix.shard_index == 1 && inputs.extra-args == '' && runner.os != 'Windows' && inputs.config != 'Coverage' }}
         name: Test recording

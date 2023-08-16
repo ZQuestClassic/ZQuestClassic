@@ -201,8 +201,8 @@ def download_release(tag: str):
             dest / 'zc-mounted')], stdout=subprocess.DEVNULL)
         (dest / 'ZeldaClassic.dmg').unlink()
     elif url.endswith('.tar.gz'):
-        tf = tarfile.open(fileobj=io.BytesIO(r.content), mode='r:gz')
-        tf.extractall(dest)
+        tf = tarfile.open(fileobj=io.BytesIO(r.content), mode='r')
+        tf.extractall(dest, filter='data')
         tf.close()
     else:
         zip = zipfile.ZipFile(io.BytesIO(r.content))
@@ -271,8 +271,8 @@ def download_test_build(workflow_run: WorkflowRun):
             dest / 'zc-mounted')], stdout=subprocess.DEVNULL)
         (dest / 'ZeldaClassic.dmg').unlink(missing_ok=True)
     elif archive_path.suffix.endswith('.tar.gz'):
-        tf = tarfile.open(name=archive_path, mode='r:gz')
-        tf.extractall(dest)
+        tf = tarfile.open(name=archive_path, mode='r')
+        tf.extractall(dest, filter='data')
         tf.close()
     else:
         zip = zipfile.ZipFile(archive_path)

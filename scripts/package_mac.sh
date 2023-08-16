@@ -39,8 +39,8 @@ contents="$mac_package_dir/ZeldaClassic.app/Contents"
 
 rm -rf "$mac_package_dir"
 mkdir -p "$contents/MacOS"
+cp "$DIR/mac_entry.sh" "$contents/MacOS"
 cp "$DIR/Info.plist" "$contents"
-mv "$package_dir/zlauncher" "$contents/MacOS"
 mv "$package_dir" "$contents/Resources"
 
 # Generate icon.
@@ -70,16 +70,18 @@ find "$contents/Resources" -name "*.dylib" -exec mv {} "$tmp_libs_dir" \;
 
 # Correct the library paths in the executable, and codesign.
 dylibbundler -od -b -d "$contents/libs/" -s "$tmp_libs_dir" \
-    -x "$contents/MacOS/zlauncher" -x "$contents/Resources/zquest" \
-    -x "$contents/Resources/zelda" -x "$contents/Resources/zscript"
+    -x "$contents/Resources/zlauncher" -x "$contents/Resources/zquest" \
+    -x "$contents/Resources/zelda" -x "$contents/Resources/zscript" \
+    -x "$contents/Resources/zupdater" -x "$contents/MacOS/mac_entry.sh"
 rm -rf "$tmp_libs_dir"
 
 if test "${PACKAGE_DEBUG_INFO+x}"; then
   xcrun dsymutil \
-    "$contents/MacOS/zlauncher" \
+    "$contents/Resources/zlauncher" \
     "$contents/Resources/zelda" \
     "$contents/Resources/zquest" \
     "$contents/Resources/zscript" \
+    "$contents/Resources/zupdater" \
     $(find "$contents/libs" -name '*.dylib' -type f) \
     -o "$mac_package_dir/ZeldaClassic.app.dSYM"
 fi

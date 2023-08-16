@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
   <key>CFBundleExecutable</key>
-  <string>zlauncher</string>
+  <string>mac_entry.sh</string>
   <key>CFBundleIdentifier</key>
   <string>com.zeldaclassic.www</string>
   <key>CFBundleName</key>

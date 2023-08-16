@@ -203,7 +203,10 @@ void Button::setHotkeyIndx(size_t indx)
 }
 void Button::setText(std::string newText)
 {
-	text = std::move(newText);
+	// text = std::move(newText);
+	// TODO If we don't move, we can enable a hack where we don't reallocate string data.
+	// See launcher_dialog.cpp `btn_download_update`.
+	text = newText;
 }
 
 void Button::setOnPress(std::function<void()> newOnPress)
