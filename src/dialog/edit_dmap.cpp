@@ -4,6 +4,7 @@
 #include "zq/zquest.h"
 #include "zq/zq_class.h"
 #include "zc_list_data.h"
+#include "info.h"
 #include <fmt/format.h>
 #include <base/qrs.h>
 
@@ -68,6 +69,26 @@ bool sm_dmap(int dmaptype)
 			return true;
 	}
 }
+
+#define DMAP_CB(member, flag, cspan, txt, inf) \
+INFOBTN(inf), \
+Checkbox(checked = local_dmap.member&flag, \
+	text = txt, fitParent = true, \
+	colSpan = cspan, \
+	onToggleFunc = [&](bool state) \
+	{ \
+		SETFLAG(local_dmap.member, flag, state); \
+	})
+
+#define DMAP_CB_SV(member, cspan, txt, inf) \
+INFOBTN(inf), \
+Checkbox(checked = local_dmap.sideview, \
+	text = txt, fitParent = true, \
+	colSpan = cspan, \
+	onToggleFunc = [&](bool state) \
+	{ \
+		local_dmap.sideview = state; \
+	})
 
 void EditDMapDialog::refreshDMapStrings()
 {
@@ -424,7 +445,7 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 												std::string str;
 												str.assign(tempdmapzcmusic->filename);
 												strncpy(local_dmap.tmusic, str.c_str(), 56);
-												local_dmap.name[56] = 0;
+												local_dmap.tmusic[56] = 0;
 
 												zcmusic_unload_file(tempdmapzcmusic);
 											}
@@ -473,7 +494,6 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 									Label(text = "\n")
 								),
 								SelTileSwatch(
-									topMargin = 0_px,
 									tile = local_dmap.largemap_1_tile,
 									cset = local_dmap.largemap_1_cset,
 									tilewid = 9, tilehei = 5,
@@ -517,8 +537,49 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 					)
 				)),
 				TabRef(name = "Flags", Column(
-					Row(
-						Label(text = "Placeholder")
+					TabPanel(
+						TabRef(name = "Mechanical", Column(hAlign = 0.0, topMargin = 0_px,
+							Label(text = "These flags have to do with game mechanics.", hAlign = 0.0, topMargin = 0_px),
+							Rows<2>(hAlign = 0.0,
+								DMAP_CB(flags, dmfWHIRLWIND, 1, "Allow Whistle Whirlwinds", "Check to enable warping whirlwinds spawned by the whistle."),
+								DMAP_CB(flags, dmfWHIRLWINDRET, 1, "Whistle Whirlwinds Return Player To Start", "If checked, whirlwinds will take the player back to their continue point. Otherwise it will use the warp ring specified by the item."),
+								DMAP_CB(flags, dmfALWAYSMSG, 1, "Always Display Intro String", "If checked, the DMap's intro string will play every time the player enters."),
+								DMAP_CB(flags, dmfVIEWMAP, 1, "View Overworld Map By Pressing Map", "If checked, spacebar will open a map view of the entire map. "),
+								DMAP_CB(flags, dmfDMAPMAP, 1, "...But Only Show Screens Marked In Minimap", "Combined with the previous flag, this will mask out any screens not checked in the grid in the 'Mechanics' tab."),
+								DMAP_CB_SV(flags, 1, "Sideview", "If checked, the default state of the 'Toggle Sideview Gravity' screen flag will be inverted. All screens will default to sideview and the screen flag turns it off."),
+								DMAP_CB(flags, dmfBUNNYIFNOPEARL, 1, "Become Bunny With No Pearl", "If checked, the player will be transformed on this DMap if not carrying a Pearl item. See the 'Pearls' itemclass for more details."),
+								DMAP_CB(flags, dmfMIRRORCONTINUE, 1, "Mirror Continues Instead Of Warping", "If checked, using the mirror on this DMap will return the player to the entrance, as if they used 'Divine Escape' or F6 based on the item's flags.")
+								)
+						)),
+						TabRef(name = "Visual", Column(hAlign = 0.0, topMargin = 0_px,
+							Label(text = "These flags are for purely visual effects.", hAlign = 0.0, topMargin = 0_px),
+							Rows<2>(hAlign = 0.0,
+								DMAP_CB(flags, dmfWAVY, 1, "Underwater Wave Effect", "Draws a wavy effect over the whole screen."),
+								DMAP_CB(flags, dmfMINIMAPCOLORFIX, 1, "Use Minimap Foreground Color 2", "If checked, the NES and Interior minimap squares will use 'Minimap Foreground 2' from misc colors."),
+								DMAP_CB(flags, dmfLAYER3BG, 1, "Layer 3 Is Background On All Screens", "If checked, the default state of the 'Toggle Layer 3 is Background' screen flag will be inverted. All screens will default to background and the screen flag turns it off."),
+								DMAP_CB(flags, dmfLAYER2BG, 1, "Layer 2 Is Background On All Screens", "If checked, the default state of the 'Toggle Layer 2 is Background' screen flag will be inverted. All screens will default to background and the screen flag turns it off."),
+								DMAP_CB(flags, dmfNOCOMPASS, 1, "Don't Display Compass Marker In Minimap", "If checked, no compass marker will appear on the subscreen minimap.")
+							)
+						)),
+						TabRef(name = "NES", Column(hAlign = 0.0, topMargin = 0_px,
+							Label(text = "These flags relate to screen 80 and 81.", hAlign = 0.0, topMargin = 0_px),
+							Rows<2>(hAlign = 0.0,
+								DMAP_CB(flags, dmfCAVES, 1, "Use Caves Instead Of Item Cellars", "if checked, all Cave/Item cellars will use the cave palette and behavior rather than the item cellar one."),
+								DMAP_CB(flags, dmf3STAIR, 1, "Allow 3-Stair Warp Rooms", "Enables 3-Stair Warps on Screen 81."),
+								DMAP_CB(flags, dmfGUYCAVES, 1, "Special Rooms And Guys Are In Caves Only", "Makes it so Guys (shopkeepers, hints, ect) can only appear on Screen 80."),
+								DMAP_CB(flags, dmfNEWCELLARENEMIES, 1, "Use Enemy List For Cellar Enemies", "If checked, the enemy list for passageways and item cellars will use that screen's enemy list. Othwise, it will only spawn the first four and default to Keese if they're not placed.")
+							)
+						)),
+						TabRef(name = "Script", Column(hAlign = 0.0, topMargin = 0_px,
+							Label(text = "These flags are for use with scripts. They have no inherent behavior.", hAlign = 0.0, topMargin = 0_px),
+							Rows<2>(hAlign = 0.0,
+								DMAP_CB(flags, dmfSCRIPT1, 1, "Script 1", "This is used for scripts and has no inherent effect."),
+								DMAP_CB(flags, dmfSCRIPT2, 1, "Script 2", "This is used for scripts and has no inherent effect."),
+								DMAP_CB(flags, dmfSCRIPT3, 1, "Script 3", "This is used for scripts and has no inherent effect."),
+								DMAP_CB(flags, dmfSCRIPT4, 1, "Script 4", "This is used for scripts and has no inherent effect."),
+								DMAP_CB(flags, dmfSCRIPT5, 1, "Script 5", "This is used for scripts and has no inherent effect.")
+							)
+						))
 					)
 				)),
 				TabRef(name = "Disable", Column(
