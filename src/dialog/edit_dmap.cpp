@@ -25,20 +25,37 @@ EditDMapDialog::EditDMapDialog(int32_t slot) :
 	list_lpals(GUI::ZCListData::lpals()),
 	list_strings(GUI::ZCListData::strings()),
 	list_activesub(GUI::ZCListData::activesubscreens()),
-	list_passivesub(GUI::ZCListData::passivesubscreens())
-{}
+	list_passivesub(GUI::ZCListData::passivesubscreens()),
+	list_midis(GUI::ZCListData::midinames()),
+	list_tracks(GUI::ListData::numbers(false, 1, 1))
+{
+	ZCMUSIC* tempdmapzcmusic = zcmusic_load_for_quest(local_dmap.tmusic, filepath);
+
+	int32_t numtracks = 1;
+	if (tempdmapzcmusic != NULL)
+	{
+		numtracks = zcmusic_get_tracks(tempdmapzcmusic);
+		numtracks = (numtracks < 2) ? 1 : numtracks;
+		list_tracks = GUI::ListData::numbers(false, 1, numtracks);
+
+		zcmusic_unload_file(tempdmapzcmusic);
+	}
+}
 
 // trims spaces at the end of a string
-char* strip_whitespace(char* title, int bufsz)
+bool EditDMapDialog::disableEnhancedMusic()
 {
-	for (int q = bufsz-1; q >0; --q)
-	{
-		if (title[q] == ' ')
-			title[q] = 0;
-		else
-			break;
-	}
-	return title;
+	if (local_dmap.tmusic[0] == 0)
+		return true;
+	return false;
+}
+
+bool EditDMapDialog::disableMusicTracks()
+{
+	zprint2("listtracksize %d\n", list_tracks.size());
+	if (list_tracks.size() < 2)
+		return true;
+	return disableEnhancedMusic();
 }
 
 bool sm_dmap(int dmaptype)
@@ -293,8 +310,146 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 					)
 				)),
 				TabRef(name = "Music", Column(
-					Row(
-						Label(text = "Placeholder")
+					Rows<2>(
+						Label(text = "Midi:"),
+						DropDownList(data = list_midis,
+							fitParent = true,
+							selectedValue = local_dmap.midi + 1,
+							onSelectFunc = [&](int32_t val)
+							{
+								local_dmap.midi = val - 1;
+							})
+					),
+					Column(
+						framed = true, frameText = "Enhanced Music",
+						Rows<2>(
+							tmusic_field = TextField(
+								colSpan = 2,
+								fitParent = true,
+								type = GUI::TextField::type::TEXT,
+								read_only = true, disabled = disableEnhancedMusic(),
+								text = local_dmap.tmusic,
+								onValChangedFunc = [&](GUI::TextField::type, std::string_view text, int32_t)
+								{
+									
+								}),
+							Label(text = "Track:"),
+							tmusic_track_list = DropDownList(data = list_tracks,
+								fitParent = true,
+								selectedValue = local_dmap.tmusictrack + 1,
+								disabled = disableMusicTracks(),
+								onSelectFunc = [&](int32_t val)
+								{
+									local_dmap.tmusictrack = val - 1;
+								})
+						),
+						Rows<2>(
+							Rows<2>(framed = true, frameText = "Loop Points",
+								Label(text = "Start:", hAlign = 1.0),
+								tmusic_start_field = TextField(
+									fitParent = true, hAlign = 0.0,
+									type = GUI::TextField::type::FIXED_DECIMAL,
+									disabled = disableEnhancedMusic(),
+									low = 0, high = 2147479999,
+									val = local_dmap.tmusic_loop_start,
+									onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
+									{
+										local_dmap.tmusic_loop_start = val;
+									}),
+								Label(text = "End:", hAlign = 1.0),
+								tmusic_end_field = TextField(
+									fitParent = true, hAlign = 0.0,
+									type = GUI::TextField::type::FIXED_DECIMAL,
+									disabled = disableEnhancedMusic(),
+									val = local_dmap.tmusic_loop_end,
+									low = 0, high = 2147479999,
+									onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
+									{
+										local_dmap.tmusic_loop_end = val;
+									})
+							),
+							Rows<2>(framed = true, frameText = "Crossfades",
+								Label(text = "In:", hAlign = 1.0),
+								tmusic_xfadein_field = TextField(
+									fitParent = true, hAlign = 0.0,
+									type = GUI::TextField::type::INT_DECIMAL,
+									disabled = disableEnhancedMusic(),
+									val = local_dmap.tmusic_xfade_in,
+									low = 0, high = 65535,
+									onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
+									{
+										local_dmap.tmusic_xfade_in = val;
+									}),
+								Label(text = "Out:", hAlign = 1.0),
+								tmusic_xfadeout_field = TextField(
+									fitParent = true, hAlign = 0.0,
+									type = GUI::TextField::type::INT_DECIMAL,
+									disabled = disableEnhancedMusic(),
+									val = local_dmap.tmusic_xfade_out,
+									low = 0, high = 65535,
+									onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
+									{
+										local_dmap.tmusic_xfade_out = val;
+									})
+							)
+						),
+						Rows<2>(
+							Button(text = "Load",
+								onPressFunc = [&]()
+								{
+									if (getname("Load DMap Music", (char*)zcmusic_types, NULL, tmusicpath, false))
+									{
+										strcpy(tmusicpath, temppath);
+										char* tmfname = get_filename(tmusicpath);
+										zprint2("tmfname %s\n", tmfname);
+
+										if (strlen(tmfname) > 55)
+										{
+											jwin_alert("Error", "Filename too long", "(>55 characters", NULL, "O&K", NULL, 'k', 0, get_zc_font(font_lfont));
+											temppath[0] = 0;
+										}
+										else
+										{
+											ZCMUSIC* tempdmapzcmusic = zcmusic_load_for_quest(tmfname, filepath);
+
+											int32_t numtracks = 1;
+											if (tempdmapzcmusic != NULL)
+											{
+												numtracks = zcmusic_get_tracks(tempdmapzcmusic);
+												numtracks = (numtracks < 2) ? 1 : numtracks;
+												list_tracks = GUI::ListData::numbers(false, 1, numtracks);
+												tmusic_track_list->setSelectedValue(1);
+												zprint2("Loaded music %s %d\n", tempdmapzcmusic->filename, numtracks);
+
+												std::string str;
+												str.assign(tempdmapzcmusic->filename);
+												strncpy(local_dmap.tmusic, str.c_str(), 56);
+												local_dmap.name[56] = 0;
+
+												zcmusic_unload_file(tempdmapzcmusic);
+											}
+
+											tmusic_field->setText(local_dmap.tmusic);
+											tmusic_track_list->setDisabled(disableMusicTracks());
+											tmusic_start_field->setDisabled(disableEnhancedMusic());
+											tmusic_end_field->setDisabled(disableEnhancedMusic());
+											tmusic_xfadein_field->setDisabled(disableEnhancedMusic());
+											tmusic_xfadeout_field->setDisabled(disableEnhancedMusic());
+										}
+									}
+								}),
+							Button(text = "Clear",
+								onPressFunc = [&]()
+								{
+									memset(local_dmap.tmusic, 0, 56);
+									tmusic_field->setText("");
+									tmusic_track_list->setDisabled(true);
+									tmusic_start_field->setDisabled(true);
+									tmusic_end_field->setDisabled(true);
+									tmusic_xfadein_field->setDisabled(true);
+									tmusic_xfadeout_field->setDisabled(true);
+								})
+						)
 					)
 				)),
 				TabRef(name = "Maps", Column(
