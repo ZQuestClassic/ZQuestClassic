@@ -20,6 +20,7 @@ extern int32_t directItem;
 extern sprite_list Lwpns;
 #endif
 
+
 extern gamedata* game; //!TODO ZDEFSCLEAN move to gamedata.h
 extern zinitdata zinit; //!TODO ZDEFSCLEAN move to zinit.h
 int32_t get_dlevel();
@@ -34,6 +35,7 @@ void magicgauge(BITMAP *dest,int32_t x,int32_t y, int32_t container, int32_t not
 				int32_t cap_tile, int32_t cap_cset, bool cap_mod, int32_t aftercap_tile, int32_t aftercap_cset, bool aftercap_mod, int32_t frames, int32_t speed, int32_t delay, bool unique_last, int32_t show);
 
 int subscr_item_clk = 0;
+int subscr_override_clkoffsets[MAXITEMS];
 bool subscr_itemless = false;
 int btnitem_clks[4] = {0};
 int btnitem_ids[4] = {0};
@@ -87,6 +89,10 @@ void refresh_subscr_items()
 void kill_subscr_items()
 {
 	subscr_itemless = true;
+	for(int q = 0; q < MAXITEMS; ++q)
+	{
+		subscr_override_clkoffsets[q] = -1;
+	}
 }
 
 int32_t to_real_font(int32_t ss_font)
@@ -2213,7 +2219,7 @@ int32_t SW_ItemSlot::getDisplayItem() const
 }
 void SW_ItemSlot::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
-	if(subscr_itemless) return;
+	if(subscr_itemless && iid < 0) return;
 	#ifdef IS_PLAYER
 	if(flags&SUBSCR_CURITM_INVIS)
 		return;
@@ -2224,7 +2230,7 @@ void SW_ItemSlot::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& pag
 	int id = getDisplayItem();
 	if(id > -1)
 	{
-		bool nosp = flags&SUBSCR_CURITM_IGNR_SP_DISPLAY;
+		bool nosp = iid > -1 || (flags&SUBSCR_CURITM_IGNR_SP_DISPLAY);
 		if(!nosp && QMisc.colors.HCpieces_tile && id == iHCPiece)
 		{
 			int hcpphc =  game->get_hcp_per_hc();
@@ -2234,12 +2240,20 @@ void SW_ItemSlot::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& pag
 		}
 		else
 		{
-			putitem3(dest,x+xofs,y+yofs,id&0xFF,subscr_item_clk);
+			auto clk = subscr_item_clk;
+			auto itemid = id&0xFF;
+			if(iid > -1 && replay_version_check(0,19))
+			{
+				if(subscr_override_clkoffsets[itemid] < 0)
+					subscr_override_clkoffsets[itemid] = subscr_item_clk;
+				clk -= subscr_override_clkoffsets[itemid];
+			}
+			putitem3(dest,x+xofs,y+yofs,itemid,clk);
 			if(!nosp && (id&0xF000))
 			{
 				int id2 = current_item_id(itype_bow,false);
 				if(id2 > -1)
-					putitem3(dest,x+xofs,y+yofs,id2,subscr_item_clk);
+					putitem3(dest,x+xofs,y+yofs,id2,clk);
 			}
 		}
 	}
@@ -2705,8 +2719,8 @@ void SW_Selector::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& pag
 		syofs = 0;
 		dw = (tempsel.extend > 2 ? tempsel.txsz*16 : 16);
 		dh = (tempsel.extend > 2 ? tempsel.tysz*16 : 16);
-		dxofs = widg->getX()+(tempsel.extend > 2 ? (int)tempsel.xofs : 0);
-		dyofs = widg->getY()+(tempsel.extend > 2 ? (int)tempsel.yofs : 0);
+		dxofs = (tempsel.extend > 2 ? (int)tempsel.xofs : 0);
+		dyofs = (tempsel.extend > 2 ? (int)tempsel.yofs : 0);
 		if(replay_version_check(0,19) && tempsel.extend > 2)
 			sh = dh = tempsel.txsz*16;
 	}
@@ -2739,8 +2753,8 @@ void SW_Selector::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& pag
 		tempsel.y=0;
 		tempsel.draw(tmpbmp);
 		
-		int32_t tmpx = xofs+(big_sel?(j%2?8:-8):0);
-		int32_t tmpy = yofs+(big_sel?(j>1?8:-8):0);
+		int32_t tmpx = widg->x+xofs+(big_sel?(j%2?8:-8):0);
+		int32_t tmpy = widg->y+yofs+(big_sel?(j>1?8:-8):0);
 		masked_stretch_blit(tmpbmp, dest, vbound(sxofs, 0, sw), vbound(syofs, 0, sh), sw-vbound(sxofs, 0, sw), sh-vbound(syofs, 0, sh), tmpx+dxofs, tmpy+dyofs, dw, dh);
 		
 		if(!big_sel)
