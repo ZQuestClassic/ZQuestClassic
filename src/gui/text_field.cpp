@@ -5,14 +5,13 @@
 #include "jwin.h"
 #include "base/zdefs.h"
 #include "base/zsys.h"
+#include "zq/zquest.h"
 #include <gui/builder.h>
 #include <algorithm>
 #include <cassert>
 #include <cstring>
 #include <string>
 #include <utility>
-
-int32_t d_legacy_edit_proc(int32_t msg, DIALOG* d, int32_t c);
 
 namespace GUI
 {
