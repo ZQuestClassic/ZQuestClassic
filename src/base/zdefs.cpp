@@ -1025,6 +1025,24 @@ char const* getReleaseTag()
 #endif
 }
 
+char const* getReleaseChannel()
+{
+#ifdef RELEASE_CHANNEL
+	return RELEASE_CHANNEL;
+#else
+	return "none";
+#endif
+}
+
+char const* getRepo()
+{
+#ifdef REPO
+	return REPO;
+#else
+	return "none";
+#endif
+}
+
 //double ddir=atan2(double(fakey-(Hero.y)),double(Hero.x-fakex));
 double WrapAngle( double radians ) 
 {

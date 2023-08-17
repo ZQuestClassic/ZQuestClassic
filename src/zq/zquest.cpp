@@ -28443,6 +28443,24 @@ int32_t main(int32_t argc,char **argv)
 		return get_qr(qr_SCRIPTERRLOG) || DEVLEVEL > 0;
 	});
 
+	if (used_switch(argc, argv, "-version"))
+	{
+		printf("version %s\n", getReleaseTag());
+		return 0;
+	}
+
+	if (used_switch(argc, argv, "-channel"))
+	{
+		printf("channel %s\n", getReleaseChannel());
+		return 0;
+	}
+
+	if (used_switch(argc, argv, "-repo"))
+	{
+		printf("repo %s\n", getRepo());
+		return 0;
+	}
+
 	if (used_switch(argc, argv, "-headless") > 0)
 	{
 		set_headless_mode();
