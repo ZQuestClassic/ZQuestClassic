@@ -3778,6 +3778,7 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 	{
 		set_qr(qr_OLD_SUBSCR,1);
 		set_qr(qr_ITM_0_INVIS_ON_BTNS,1);
+		set_qr(qr_OLD_GAUGE_TILE_LAYOUT,1);
 	}
 	
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);

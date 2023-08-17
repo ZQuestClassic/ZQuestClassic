@@ -2822,28 +2822,37 @@ bool SW_LifeGaugePiece::load_old(subscreen_object const& old)
 	container = old.d1;
 	return true;
 }
+int16_t SW_LifeGaugePiece::getX() const
+{
+	return x + (grid_xoff < 0 ? gauge_hei*grid_xoff : 0);
+}
+int16_t SW_LifeGaugePiece::getY() const
+{
+	auto sz = ((flags&SUBSCR_LGAUGE_FULLTILE)?16:8);
+	return y + (grid_yoff < 0 ? gauge_hei*grid_yoff : 0);
+}
 word SW_LifeGaugePiece::getW() const
 {
-	return 8;
+	auto sz = ((flags&SUBSCR_LGAUGE_FULLTILE)?16:8);
+	return (gauge_wid+1) * sz + gauge_wid * hspace + gauge_hei * abs(grid_xoff);
 }
 word SW_LifeGaugePiece::getH() const
 {
-	return 8;
+	auto sz = ((flags&SUBSCR_LGAUGE_FULLTILE)?16:8);
+	return (gauge_hei+1) * sz + gauge_hei * vspace + gauge_wid * abs(grid_yoff);
 }
 byte SW_LifeGaugePiece::getType() const
 {
 	return widgLGAUGE;
 }
-void SW_LifeGaugePiece::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
+void SW_LifeGaugePiece::draw_piece(BITMAP* dest, int dx, int dy, SubscrPage& page, int container, int anim_offs) const
 {
-	if(replay_version_check(0,19))
-	{
-		zc_oldrand();zc_oldrand();zc_oldrand();
-	}
-	
-	int32_t containers=game->get_maxlife()/game->get_hp_per_heart();
-	int32_t tile, cset;
+	int containers=game->get_maxlife()/game->get_hp_per_heart();
+	int fr = frames ? frames : 1;
+	int spd = speed ? speed : 1;
+	int tile, cset;
 	bool mod_value;
+	bool fulltile = flags&SUBSCR_LGAUGE_FULLTILE;
 	
 	int ind = 3;
 	if(container<containers)
@@ -2862,32 +2871,146 @@ void SW_LifeGaugePiece::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPag
 	int hp_ofs = 0;
 	if(mod_value) //Change the tile based on HP
 	{
-		if(game->get_life()>=container*game->get_hp_per_heart())
+		auto hp = game->get_life();
+		auto hpph = game->get_hp_per_heart();
+		bool full = false;
+		if(!fulltile && get_qr(qr_OLD_GAUGE_TILE_LAYOUT))
 		{
-			if((flags&SUBSCR_LGAUGE_UNQLAST) && game->get_life()==container*game->get_hp_per_heart())
-				hp_ofs=game->get_hp_per_heart()+3;
+			int offs_0 = (fr + (4-(fr%4)));
+			if(hp>=container*hpph)
+				full = true;
+			else if(((container-1)*hpph)>hp)
+				hp_ofs=0;
+			else
+				hp_ofs=((hp-((container-1)*hpph))%hpph);
+			
+			hp_ofs /= (unit_per_frame+1);
+			if(full)
+			{
+				if((flags&SUBSCR_LGAUGE_UNQLAST) && hp==container*hpph)
+					hp_ofs = hpph / (unit_per_frame+1) + 3 + offs_0;
+			}
+			else hp_ofs += offs_0;
 		}
 		else
 		{
-			if(((container-1)*game->get_hp_per_heart())>game->get_life())
-				hp_ofs=4;
+			if(((container-1)*hpph)>hp)
+				hp_ofs = 0;
+			else if(full = hp>=container*hpph)
+				hp_ofs = hpph+unit_per_frame;
 			else
-				hp_ofs=4+((game->get_life()-((container-1)*game->get_hp_per_heart()))%game->get_hp_per_heart());
+				hp_ofs = (hp-((container-1)*hpph))%hpph;
+			hp_ofs /= (unit_per_frame+1);
+			if(full && (flags&SUBSCR_LGAUGE_UNQLAST) && hp==container*hpph)
+				++hp_ofs;
 		}
 	}
 	
-	int anim_offs = 0;
-	int fr = frames ? frames : 1;
-	int spd = speed ? speed : 1;
-	// if(fr > 1)
-	// {
-		// auto t = (subscritem_frame%((spd*fr)+(spd*delay)))-(delay*spd);
-		// if(t > -1)
-			// anim_offs = t/spd;
-	// }
 	int offs = (hp_ofs*fr)+anim_offs;
 	
-	overtile8(dest,mtile+offs,x,y,cset,0);
+	if(fulltile)
+		overtile16(dest,tile+offs,dx,dy,cset,0);
+	else overtile8(dest,mtile+offs,dx,dy,cset,0);
+}
+void SW_LifeGaugePiece::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
+{
+	if(replay_version_check(0,19))
+	{
+		zc_oldrand();zc_oldrand();zc_oldrand();
+	}
+	
+	int anim_offs = 0;
+	bool animate = true;
+	auto hp = game->get_life();
+	auto mhp = game->get_maxlife();
+	bool skipanim = frames > 1 && (flags&SUBSCR_LGAUGE_ANIM_SKIP);
+	if(flags&SUBSCR_LGAUGE_ANIM_PERCENT)
+	{
+		if((flags&SUBSCR_LGAUGE_ANIM_UNDER) && ((1000*hp)/mhp) > (10*anim_val))
+			animate = false;
+		if((flags&SUBSCR_LGAUGE_ANIM_OVER) && ((1000*hp)/mhp) < (10*anim_val))
+			animate = false;
+	}
+	else
+	{
+		if((flags&SUBSCR_LGAUGE_ANIM_UNDER) && hp > anim_val)
+			animate = false;
+		if((flags&SUBSCR_LGAUGE_ANIM_OVER) && hp < anim_val)
+			animate = false;
+	}
+	if(animate)
+	{
+		int fr = frames ? frames : 1;
+		int spd = speed ? speed : 1;
+		if(skipanim) --fr;
+		if(fr > 1)
+		{
+			int clkwid = spd*(fr+delay);
+			auto t = (subscr_item_clk%clkwid)-(delay*spd);
+			if(t > -1)
+				anim_offs = t/spd;
+		}
+		if(skipanim) ++anim_offs;
+	}
+	
+	if(!gauge_hei && !gauge_wid) //1x1
+	{
+		draw_piece(dest, x+xofs, y+yofs, page, container, anim_offs);
+	}
+	else
+	{
+		bool colbased = (gridflags&LGAUGE_GRID_COLUMN1ST) || !gauge_wid;
+		bool rtol = (gridflags&LGAUGE_GRID_RTOL), ttob = (gridflags&LGAUGE_GRID_TTOB),
+			snake = (gridflags&LGAUGE_GRID_SNAKE);
+		auto sz = (flags&SUBSCR_LGAUGE_FULLTILE)?16:8;
+		bool snakeoffs = false;
+		if(colbased) //columns then rows
+		{
+			for(int x2 = 0, offs = 0; x2 <= gauge_wid; ++x2)
+			{
+				if(snakeoffs)
+					for(int y2 = gauge_hei; y2 >= 0; --y2, ++offs)
+					{
+						auto curx = (rtol ? gauge_wid-x2 : x2), cury = (ttob ? y2 : gauge_hei-y2);
+						int xo = ((sz+hspace) * curx) + (grid_xoff * cury);
+						int yo = ((sz+vspace) * cury) + (grid_yoff * curx);
+						draw_piece(dest, x+xofs+xo, y+yofs+yo, page, container+offs, anim_offs);
+					}
+				else
+					for(int y2 = 0; y2 <= gauge_hei; ++y2, ++offs)
+					{
+						auto curx = (rtol ? gauge_wid-x2 : x2), cury = (ttob ? y2 : gauge_hei-y2);
+						int xo = ((sz+hspace) * curx) + (grid_xoff * cury);
+						int yo = ((sz+vspace) * cury) + (grid_yoff * curx);
+						draw_piece(dest, x+xofs+xo, y+yofs+yo, page, container+offs, anim_offs);
+					}
+				if(snake) snakeoffs = !snakeoffs;
+			}
+		}
+		else
+		{
+			for(int y2 = 0, offs = 0; y2 <= gauge_hei; ++y2)
+			{
+				if(snakeoffs)
+					for(int x2 = gauge_wid; x2 >= 0; --x2, ++offs)
+					{
+						auto curx = (rtol ? gauge_wid-x2 : x2), cury = (ttob ? y2 : gauge_hei-y2);
+						int xo = ((sz+hspace) * curx) + (grid_xoff * cury);
+						int yo = ((sz+vspace) * cury) + (grid_yoff * curx);
+						draw_piece(dest, x+xofs+xo, y+yofs+yo, page, container+offs, anim_offs);
+					}
+				else
+					for(int x2 = 0; x2 <= gauge_wid; ++x2, ++offs)
+					{
+						auto curx = (rtol ? gauge_wid-x2 : x2), cury = (ttob ? y2 : gauge_hei-y2);
+						int xo = ((sz+hspace) * curx) + (grid_xoff * cury);
+						int yo = ((sz+vspace) * cury) + (grid_yoff * curx);
+						draw_piece(dest, x+xofs+xo, y+yofs+yo, page, container+offs, anim_offs);
+					}
+				if(snake) snakeoffs = !snakeoffs;
+			}
+		}
+	}
 }
 SubscrWidget* SW_LifeGaugePiece::clone() const
 {
@@ -2906,7 +3029,38 @@ bool SW_LifeGaugePiece::copy_prop(SubscrWidget const* src, bool all)
 	frames = other->frames;
 	speed = other->speed;
 	delay = other->delay;
-	if(all) container = other->container;
+	unit_per_frame = other->unit_per_frame;
+	gauge_wid = other->gauge_wid;
+	gauge_hei = other->gauge_hei;
+	hspace = other->hspace;
+	vspace = other->vspace;
+	grid_xoff = other->grid_xoff;
+	grid_yoff = other->grid_yoff;
+	anim_val = other->anim_val;
+	if(all)
+	{
+		container = other->container;
+		gridflags = other->gridflags;
+	}
+	bool frcond = frames <= 1;
+	bool acond = !(frcond || (flags & (SUBSCR_LGAUGE_ANIM_UNDER|SUBSCR_LGAUGE_ANIM_OVER)));
+	bool frcond2 = frcond || (!acond && frames <= 2 && (flags & SUBSCR_LGAUGE_ANIM_SKIP));
+	if(frcond)
+	{
+		SETFLAG(flags, SUBSCR_LGAUGE_ANIM_UNDER, false);
+		SETFLAG(flags, SUBSCR_LGAUGE_ANIM_OVER, false);
+		SETFLAG(flags, SUBSCR_LGAUGE_ANIM_PERCENT, false);
+		SETFLAG(flags, SUBSCR_LGAUGE_ANIM_SKIP, false);
+	}
+	if(acond)
+	{
+		anim_val = 0;
+	}
+	if(frcond2)
+	{
+		speed = 1;
+		delay = 0;
+	}
 	return true;
 }
 int32_t SW_LifeGaugePiece::read(PACKFILE *f, word s_version)
@@ -2918,16 +3072,49 @@ int32_t SW_LifeGaugePiece::read(PACKFILE *f, word s_version)
 			return ret;
 	if(!p_igetw(&frames, f))
 		return qe_invalid;
-	if(!p_igetw(&speed, f))
-		return qe_invalid;
-	if(!p_igetw(&delay, f))
-		return qe_invalid;
+	bool frcond = frames <= 1;
+	bool acond = !(frcond || (flags & (SUBSCR_LGAUGE_ANIM_UNDER|SUBSCR_LGAUGE_ANIM_OVER)));
+	bool frcond2 = frcond || (!acond && frames <= 2 && (flags & SUBSCR_LGAUGE_ANIM_SKIP));
+	if(!frcond2)
+	{
+		if(!p_igetw(&speed, f))
+			return qe_invalid;
+		if(!p_igetw(&delay, f))
+			return qe_invalid;
+	}
 	if(!p_igetw(&container, f))
 		return qe_invalid;
+	if(!p_getc(&unit_per_frame, f))
+		return qe_invalid;
+	if(!p_getc(&gauge_wid, f))
+		return qe_invalid;
+	if(!p_getc(&gauge_hei, f))
+		return qe_invalid;
+	if(gauge_wid || gauge_hei)
+	{
+		if(!p_getc(&gridflags, f))
+			return qe_invalid;
+		if(!p_getc(&hspace, f))
+			return qe_invalid;
+		if(!p_getc(&vspace, f))
+			return qe_invalid;
+		if(!p_igetw(&grid_xoff, f))
+			return qe_invalid;
+		if(!p_igetw(&grid_yoff, f))
+			return qe_invalid;
+	}
+	if(!acond)
+	{
+		if(!p_igetw(&anim_val, f))
+			return qe_invalid;
+	}
 	return 0;
 }
 int32_t SW_LifeGaugePiece::write(PACKFILE *f) const
 {
+	bool frcond = frames <= 1;
+	bool acond = !(frcond || (flags & (SUBSCR_LGAUGE_ANIM_UNDER|SUBSCR_LGAUGE_ANIM_OVER)));
+	bool frcond2 = frcond || (!acond && frames <= 2 && (flags & SUBSCR_LGAUGE_ANIM_SKIP));
 	if(auto ret = SubscrWidget::write(f))
 		return ret;
 	for(auto q = 0; q < 4; ++q)
@@ -2935,12 +3122,39 @@ int32_t SW_LifeGaugePiece::write(PACKFILE *f) const
 			return ret;
 	if(!p_iputw(frames, f))
 		new_return(1);
-	if(!p_iputw(speed, f))
-		new_return(1);
-	if(!p_iputw(delay, f))
-		new_return(1);
+	if(!frcond2)
+	{
+		if(!p_iputw(speed, f))
+			new_return(1);
+		if(!p_iputw(delay, f))
+			new_return(1);
+	}
 	if(!p_iputw(container, f))
 		new_return(1);
+	if(!p_putc(unit_per_frame, f))
+		new_return(1);
+	if(!p_putc(gauge_wid, f))
+		new_return(1);
+	if(!p_putc(gauge_hei, f))
+		new_return(1);
+	if(gauge_wid || gauge_hei)
+	{
+		if(!p_putc(gridflags, f))
+			new_return(1);
+		if(!p_putc(hspace, f))
+			new_return(1);
+		if(!p_putc(vspace, f))
+			new_return(1);
+		if(!p_iputw(grid_xoff, f))
+			new_return(1);
+		if(!p_iputw(grid_yoff, f))
+			new_return(1);
+	}
+	if(!acond)
+	{
+		if(!p_iputw(anim_val, f))
+			new_return(1);
+	}
 	return 0;
 }
 
@@ -3772,7 +3986,6 @@ void SubscrPage::swap(SubscrPage& other)
 {
 	contents.swap(other.contents);
 	zc_swap(cursor_pos,other.cursor_pos);
-	zc_swap(init_cursor_pos,other.init_cursor_pos);
 	zc_swap(index,other.index);
 }
 SubscrPage::~SubscrPage()

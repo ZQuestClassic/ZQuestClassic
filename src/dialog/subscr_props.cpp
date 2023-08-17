@@ -73,6 +73,16 @@ TextField( \
 		var = val; \
 	})
 
+#define NUM_FIELD_OFFS(var,_min,_max,offs) \
+TextField( \
+	fitParent = true, \
+	type = GUI::TextField::type::INT_DECIMAL, \
+	low = _min, high = _max, val = var+offs, \
+	onValChangedFunc = [=](GUI::TextField::type,std::string_view,int32_t val) \
+	{ \
+		var = val-offs; \
+	})
+
 #define MISC_COLOR_SEL(var, txt, num) \
 Frame( \
 	title = txt, \
@@ -154,10 +164,10 @@ DropDownList(data = lister, \
 	} \
 )
 
-#define GAUGE_MINITILE(txt,vMTInfo,vModflag,bit) \
+#define GAUGE_MINITILE(ind,txt,vMTInfo,vModflag,bit) \
 Frame(fitParent = true, Column(fitParent = true, \
 	Label(/*useFont = spfont, */text = txt), \
-	SelTileSwatch( \
+	gauge_tswatches[ind] = SelTileSwatch( \
 		hAlign = 0.0, \
 		tile = vMTInfo.tile(), \
 		cset = vMTInfo.cset, \
@@ -325,6 +335,10 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				break;
 			case widgBGCOLOR:
 				show_xy = false;
+				show_wh = false;
+				break;
+			case widgLGAUGE:
+			case widgMGAUGE:
 				show_wh = false;
 				break;
 			default: break;
@@ -733,31 +747,177 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			}
 			case widgLGAUGE:
 			{
+				mergetype = mtFORCE_TAB;
 				SW_LifeGaugePiece* w = dynamic_cast<SW_LifeGaugePiece*>(local_subref);
+				int g = 0;
 				attrib_grid = Row(padding = 0_px,
 					Rows<2>(
-						GAUGE_MINITILE("Not Last",w->mts[0],w->flags,SUBSCR_LGAUGE_MOD1),
-						GAUGE_MINITILE("Last",w->mts[1],w->flags,SUBSCR_LGAUGE_MOD2),
-						GAUGE_MINITILE("Cap",w->mts[2],w->flags,SUBSCR_LGAUGE_MOD3),
-						GAUGE_MINITILE("After Cap",w->mts[3],w->flags,SUBSCR_LGAUGE_MOD4)
+						Row(colSpan = 2,
+							Label(text = "Gauge Tiles"),
+							INFOBTN("The tiles used by the gauge. Which tile is used depends on the 'Container' value."
+								"\nThe 'Mod' checkbox determines if the tile should be adjusted based on current HP."
+									" The tile layout 'Mod' uses is determined by the 'Full Tile' flag and 'Old Gauge Tile Layout'"
+									" quest rule."
+								"\nIf 'Full Tile' is checked, the layout is as follows: The selected tile appears if the"
+									" container has < 'Units per frame' hp, with any animation frames after it. The next tile appears"
+									" if the container has < 'Units per frame *2' hp, etc. If the container is the last"
+									" full container, and 'Unique Last' is checked, it uses the tile after the full tile."
+								"\nIf 'Full Tile' is not checked but 'Old Gauge Tile Layout' is off, it uses the same layout as"
+									" the 'Full Tile' layout, but uses minitiles in that order instead."
+								"\nIf 'Full Tile' is not checked and 'Old Gauge Tile Layout' is on, then: The full container uses the"
+									" first minitile, plus animation frames. The empty container is the top-left minitile of the tile"
+									" after the end of the full container, and the layout continues in this way until the just-before-full tile."
+									" The last full container with 'Unique Last' checked uses the bottom-right minitile of the tile after the end of this."
+								+ QRHINT({qr_OLD_GAUGE_TILE_LAYOUT}))
+						),
+						GAUGE_MINITILE(0,"Not Last",w->mts[0],w->flags,SUBSCR_LGAUGE_MOD1),
+						GAUGE_MINITILE(1,"Last",w->mts[1],w->flags,SUBSCR_LGAUGE_MOD2),
+						GAUGE_MINITILE(2,"Cap",w->mts[2],w->flags,SUBSCR_LGAUGE_MOD3),
+						GAUGE_MINITILE(3,"After Cap",w->mts[3],w->flags,SUBSCR_LGAUGE_MOD4)
 					),
-					Columns<5>(
-						Label(text = "Frames:", hAlign = 1.0),
-						Label(text = "Speed:", hAlign = 1.0),
-						Label(text = "Delay:", hAlign = 1.0),
-						Label(text = "Container:", hAlign = 1.0),
-						CBOX(w->flags,SUBSCR_LGAUGE_UNQLAST,"Unique Last",2),
-						NUM_FIELD(w->frames, 1, 999),
-						NUM_FIELD(w->speed, 1, 999),
-						NUM_FIELD(w->delay, 0, 999),
-						NUM_FIELD(w->container, 0, 9999),
-						DummyWidget(rowSpan=3),
-						INFOBTN("The container number this piece represents. For a value of n,"
-							"\nIf the Player has exactly n containers, 'Last' displays."
-							"\nIf the Player has > n containers, 'Not Last' displays."
-							"\nIf the Player has exactly n-1 containers, 'Cap' displays."
-							"\nIf the Player has < n-1 containers, 'After Cap' displays."
+					Column(padding = 0_px,
+						Row(padding = 0_px,
+							Rows<6>(
+								Label(text = "Units per frame:", hAlign = 1.0),
+								TextField(
+									fitParent = true,
+									type = GUI::TextField::type::INT_DECIMAL,
+									low = 1, high = 256, val = w->unit_per_frame+1,
+									onValChangedFunc = [&, w](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										w->unit_per_frame = val-1;
+										refr_info();
+									}),
+								INFOBTN("How many HP should be allocated to each tile. Ex. If you have 32"
+									" HP per heart container, but only want to show 1/8 hearts, you can use"
+									" 2 units per frame (2 = 16/8) and only set up 1/8 heart tiles."),
+								Label(text = "Container:", hAlign = 1.0),
+								NUM_FIELD(w->container, 0, 9999),
+								INFOBTN("The container number this piece represents. For a value of n,"
+									"\nIf the Player has exactly n containers, 'Last' displays."
+									"\nIf the Player has > n containers, 'Not Last' displays."
+									"\nIf the Player has exactly n-1 containers, 'Cap' displays."
+									"\nIf the Player has < n-1 containers, 'After Cap' displays."
+									),
+								//
+								Label(text = "Frames:", hAlign = 1.0),
+								TextField(
+									fitParent = true,
+									type = GUI::TextField::type::INT_DECIMAL,
+									low = 1, high = 999, val = w->frames,
+									onValChangedFunc = [&, w](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										w->frames = val;
+										refr_info();
+									}),
+								INFOBTN("Each container tile is an animation of this many frames. 1 = no animation."),
+								Label(text = "Anim Cond:", hAlign = 1.0),
+								tfs[0] = NUM_FIELD(w->anim_val, 0, 65535),
+								INFOBTN("Used by flags 'Animate Only Under...', 'Animate Only Over...' below."),
+								//
+								Label(text = "Speed:", hAlign = 1.0),
+								tfs[1] = NUM_FIELD(w->speed, 1, 999),
+								INFOBTN("If animated, the speed at which the animation moves."),
+								Label(text = "Delay:", hAlign = 1.0),
+								tfs[2] = NUM_FIELD(w->delay, 0, 999),
+								INFOBTN("If animated, the delay at each start of the animation."),
+								//
+								Label(text = "Gauge Width:", hAlign = 1.0),
+								TextField(
+									fitParent = true,
+									type = GUI::TextField::type::INT_DECIMAL,
+									low = 1, high = 32, val = w->gauge_wid+1,
+									onValChangedFunc = [&, w](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										w->gauge_wid = val-1;
+										refr_info();
+									}),
+								INFOBTN("If >1, displays multiple gauge pieces width-wise."),
+								Label(text = "Gauge Height:", hAlign = 1.0),
+								TextField(
+									fitParent = true,
+									type = GUI::TextField::type::INT_DECIMAL,
+									low = 1, high = 32, val = w->gauge_hei+1,
+									onValChangedFunc = [&, w](GUI::TextField::type,std::string_view,int32_t val)
+									{
+										w->gauge_hei = val-1;
+										refr_info();
+									}),
+								INFOBTN("If >1, displays multiple gauge pieces height-wise."),
+								//
+								Label(text = "HSpace:", hAlign = 1.0),
+								gauge_gw[g++] = NUM_FIELD(w->hspace, 0, 255),
+								INFOBTN("Extra space between gauge pieces width-wise."),
+								Label(text = "VSpace:", hAlign = 1.0),
+								gauge_gw[g++] = NUM_FIELD(w->vspace, 0, 255),
+								INFOBTN("Extra space between gauge pieces height-wise."),
+								//
+								Label(text = "Grid XOffset:", hAlign = 1.0),
+								gauge_gw[g++] = NUM_FIELD(w->grid_xoff, -999, 999),
+								INFOBTN("Each row is offset by this much x."),
+								Label(text = "Grid YOffset:", hAlign = 1.0),
+								gauge_gw[g++] = NUM_FIELD(w->grid_yoff, -999, 999),
+								INFOBTN("Each column is offset by this much y.")
 							)
+						),
+						Row(padding = 0_px,
+							Rows<2>(vAlign = 0.0,
+								INFOBTN("Animates only when HP is <= 'Anim Cond'"),
+								cbs[0] = Checkbox(
+									text = "Animate Only Under...", hAlign = 0.0,
+									checked = w->flags & SUBSCR_LGAUGE_ANIM_UNDER,
+									onToggleFunc = [&, w](bool state)
+									{
+										SETFLAG(w->flags, SUBSCR_LGAUGE_ANIM_UNDER, state);
+										refr_info();
+									}
+								),
+								INFOBTN("Animates only when HP is >= 'Anim Cond'"),
+								cbs[1] = Checkbox(
+									text = "Animate Only Over...", hAlign = 0.0,
+									checked = w->flags & SUBSCR_LGAUGE_ANIM_OVER,
+									onToggleFunc = [&, w](bool state)
+									{
+										SETFLAG(w->flags, SUBSCR_LGAUGE_ANIM_OVER, state);
+										refr_info();
+									}
+								),
+								INFOBTN("The 'Anim Cond' value is treated as a percentage of max HP."),
+								cbs[2] = CBOX(w->flags,SUBSCR_LGAUGE_ANIM_PERCENT,"Anim Cond is Percent",1),
+								INFOBTN("When animating, skip the first frame."),
+								cbs[3] = Checkbox(
+									text = "Skip First Frame", hAlign = 0.0,
+									checked = w->flags & SUBSCR_LGAUGE_ANIM_SKIP,
+									onToggleFunc = [&, w](bool state)
+									{
+										SETFLAG(w->flags, SUBSCR_LGAUGE_ANIM_SKIP, state);
+										refr_info();
+									}
+								)
+							),
+							Rows<2>(vAlign = 0.0,
+								INFOBTN("If a unique tile should be used for the last container when full."),
+								CBOX(w->flags,SUBSCR_LGAUGE_UNQLAST,"Unique Last",1),
+								INFOBTN("Use full tiles instead of mini-tiles"),
+								Checkbox(
+									text = "Full Tile", hAlign = 0.0,
+									checked = w->flags & SUBSCR_LGAUGE_FULLTILE,
+									onToggleFunc = [&, w](bool state)
+									{
+										SETFLAG(w->flags, SUBSCR_LGAUGE_FULLTILE, state);
+										refr_info();
+									}
+								),
+								INFOBTN("If the grid order should go right-to-left instead of left-to-right"),
+								gauge_gw[g++] = CBOX(w->gridflags, LGAUGE_GRID_RTOL, "Grid Right to Left", 1),
+								INFOBTN("If the grid order should go top-to-bottom instead of bottom-to-top"),
+								gauge_gw[g++] = CBOX(w->gridflags, LGAUGE_GRID_TTOB, "Grid Top to Bottom", 1),
+								INFOBTN("If the grid should grow in the columns before the rows"),
+								gauge_gw[g++] = CBOX(w->gridflags, LGAUGE_GRID_COLUMN1ST, "Grid Column First", 1),
+								INFOBTN("If the grid should alternate direction when finishing a row (or column)"),
+								gauge_gw[g++] = CBOX(w->gridflags, LGAUGE_GRID_SNAKE, "Grid Snake Pattern", 1)
+							)
+						)
 					)
 				);
 				break;
@@ -785,10 +945,29 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				SW_MagicGaugePiece* w = dynamic_cast<SW_MagicGaugePiece*>(local_subref);
 				attrib_grid = Row(padding = 0_px,
 					Rows<2>(
-						GAUGE_MINITILE("Not Last",w->mts[0],w->flags,SUBSCR_MGAUGE_MOD1),
-						GAUGE_MINITILE("Last",w->mts[1],w->flags,SUBSCR_MGAUGE_MOD2),
-						GAUGE_MINITILE("Cap",w->mts[2],w->flags,SUBSCR_MGAUGE_MOD3),
-						GAUGE_MINITILE("After Cap",w->mts[3],w->flags,SUBSCR_MGAUGE_MOD4)
+						Row(colSpan = 2,
+							Label(text = "Gauge Tiles"),
+							INFOBTN("The tiles used by the gauge. Which tile is used depends on the 'Container' value."
+								"\nThe 'Mod' checkbox determines if the tile should be adjusted based on current HP."
+									" The tile layout 'Mod' uses is determined by the 'Full Tile' flag and 'Old Gauge Tile Layout'"
+									" quest rule."
+								"\nIf 'Full Tile' is checked, the layout is as follows: The selected tile appears if the"
+									" container has < 'Units per frame' mp, with any animation frames after it. The next tile appears"
+									" if the container has < 'Units per frame *2' mp, etc. If the container is the last container,"
+									" and is full, and 'Unique Last' is checked, it uses the tile after the full tile."
+								"\nIf 'Full Tile' is not checked but 'Old Gauge Tile Layout' is off, it uses the same layout as"
+									" the 'Full Tile' layout, but uses minitiles in that order instead."
+								"\nIf 'Full Tile' is not checked and 'Old Gauge Tile Layout' is on, then: The full container uses the"
+									" first minitile, plus animation frames. The empty container is the top-left minitile of the tile"
+									" after the end of the full container, and the layout continues as before from here until the"
+									" just-before-full tile. The final full container with 'Unique Last' checked uses the"
+									" bottom-right minitile of the tile after the end of this."
+								+ QRHINT({qr_OLD_GAUGE_TILE_LAYOUT}))
+						),
+						GAUGE_MINITILE(0,"Not Last",w->mts[0],w->flags,SUBSCR_MGAUGE_MOD1),
+						GAUGE_MINITILE(1,"Last",w->mts[1],w->flags,SUBSCR_MGAUGE_MOD2),
+						GAUGE_MINITILE(2,"Cap",w->mts[2],w->flags,SUBSCR_MGAUGE_MOD3),
+						GAUGE_MINITILE(3,"After Cap",w->mts[3],w->flags,SUBSCR_MGAUGE_MOD4)
 					),
 					Columns<6>(
 						Label(text = "Frames:", hAlign = 1.0),
@@ -1372,6 +1551,25 @@ void SubscrPropDialog::refr_info()
 			def_eqp_cboxes[1]->setDisabled(dis);
 			def_eqp_cboxes[2]->setDisabled(dis || !get_qr(qr_SET_XBUTTON_ITEMS));
 			def_eqp_cboxes[3]->setDisabled(dis || !get_qr(qr_SET_YBUTTON_ITEMS));
+			break;
+		}
+		case widgLGAUGE:
+		{
+			SW_LifeGaugePiece* w = dynamic_cast<SW_LifeGaugePiece*>(local_subref);
+			bool frcond = w->frames <= 1;
+			bool acond = !(frcond || (w->flags & (SUBSCR_LGAUGE_ANIM_UNDER|SUBSCR_LGAUGE_ANIM_OVER)));
+			bool frcond2 = frcond || (!acond && w->frames <= 2 && (w->flags & SUBSCR_LGAUGE_ANIM_SKIP));
+			for(int q = 0; q < 8; ++q)
+				gauge_gw[q]->setDisabled(!(w->gauge_wid || w->gauge_hei));
+			for(int q = 0; q < 4; ++q)
+				gauge_tswatches[q]->setIsMini(!(local_subref->flags & SUBSCR_LGAUGE_FULLTILE));
+			tfs[0]->setDisabled(acond);
+			tfs[1]->setDisabled(frcond2);
+			tfs[2]->setDisabled(frcond2);
+			cbs[0]->setDisabled(frcond);
+			cbs[1]->setDisabled(frcond);
+			cbs[2]->setDisabled(acond);
+			cbs[3]->setDisabled(acond);
 			break;
 		}
 	}	
