@@ -4375,6 +4375,24 @@ int main(int argc, char **argv)
 	}
 #endif
 
+	if (used_switch(argc, argv, "-version"))
+	{
+		printf("version %s\n", getReleaseTag());
+		return 0;
+	}
+
+	if (used_switch(argc, argv, "-channel"))
+	{
+		printf("channel %s\n", getReleaseChannel());
+		return 0;
+	}
+
+	if (used_switch(argc, argv, "-repo"))
+	{
+		printf("repo %s\n", getRepo());
+		return 0;
+	}
+
 	int only_arg = used_switch(argc, argv, "-only");
 	if (only_arg)
 	{
