@@ -176,6 +176,7 @@ extern CConsoleLoggerEx zscript_coloured_console;
 
 uint8_t console_is_open = 0;
 uint8_t __isZQuest = 1; //Shared functionscan reference this. -Z
+bool is_zq_replay_test = false;
 
 #include "base/util.h"
 
@@ -28661,6 +28662,7 @@ int32_t main(int32_t argc,char **argv)
 	int quick_assign_arg = used_switch(argc, argv, "-quick-assign");
 	if (quick_assign_arg > 0)
 	{
+		is_zq_replay_test = true;
 		set_headless_mode();
 
 		int load_ret = load_quest(argv[quick_assign_arg + 1], false);
