@@ -961,13 +961,13 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 									}
 								),
 								INFOBTN("If the grid order should go right-to-left instead of left-to-right"),
-								gauge_gw[g++] = CBOX(w->gridflags, GAUGE_GRID_RTOL, "Grid Right to Left", 1),
+								gauge_gw[g++] = CBOX(w->flags, SUBSCR_GAUGE_GRID_RTOL, "Grid Right to Left", 1),
 								INFOBTN("If the grid order should go top-to-bottom instead of bottom-to-top"),
-								gauge_gw[g++] = CBOX(w->gridflags, GAUGE_GRID_TTOB, "Grid Top to Bottom", 1),
+								gauge_gw[g++] = CBOX(w->flags, SUBSCR_GAUGE_GRID_TTOB, "Grid Top to Bottom", 1),
 								INFOBTN("If the grid should grow in the columns before the rows"),
-								gauge_gw[g++] = CBOX(w->gridflags, GAUGE_GRID_COLUMN1ST, "Grid Column First", 1),
+								gauge_gw[g++] = CBOX(w->flags, SUBSCR_GAUGE_GRID_COLUMN1ST, "Grid Column First", 1),
 								INFOBTN("If the grid should alternate direction when finishing a row (or column)"),
-								gauge_gw[g++] = CBOX(w->gridflags, GAUGE_GRID_SNAKE, "Grid Snake Pattern", 1)
+								gauge_gw[g++] = CBOX(w->flags, SUBSCR_GAUGE_GRID_SNAKE, "Grid Snake Pattern", 1)
 							)
 						)
 					)
@@ -1430,10 +1430,10 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				Column(padding = 0_px,
 					Checkbox(
 						text = "Is Selectable",
-						checked = local_subref->flags & SUBSCRFLAG_SELECTABLE,
+						checked = local_subref->genflags & SUBSCRFLAG_SELECTABLE,
 						onToggleFunc = [&](bool state)
 						{
-							SETFLAG(local_subref->flags, SUBSCRFLAG_SELECTABLE, state);
+							SETFLAG(local_subref->genflags, SUBSCRFLAG_SELECTABLE, state);
 							updateSelectable();
 						}),
 					selgs[0] = Rows<3>(
@@ -1527,7 +1527,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 
 void SubscrPropDialog::updateSelectable()
 {
-	bool seldis = !(local_subref->flags & SUBSCRFLAG_SELECTABLE);
+	bool seldis = !(local_subref->genflags & SUBSCRFLAG_SELECTABLE);
 	selgs[0]->setDisabled(seldis);
 	selframes[0]->setDisabled(seldis);
 	selframes[1]->setDisabled(seldis);

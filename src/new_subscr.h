@@ -169,25 +169,38 @@ enum //subscreen text alignment
 
 #define SUBSCRFLAG_SELECTABLE  0x00000001
 
-#define SUBSCRFLAG_GENERAL     0x0000FFFF
-
-#define SUBSCRFLAG_SPEC_01     0x00010000
-#define SUBSCRFLAG_SPEC_02     0x00020000
-#define SUBSCRFLAG_SPEC_03     0x00040000
-#define SUBSCRFLAG_SPEC_04     0x00080000
-#define SUBSCRFLAG_SPEC_05     0x00100000
-#define SUBSCRFLAG_SPEC_06     0x00200000
-#define SUBSCRFLAG_SPEC_07     0x00400000
-#define SUBSCRFLAG_SPEC_08     0x00800000
-#define SUBSCRFLAG_SPEC_09     0x01000000
-#define SUBSCRFLAG_SPEC_10     0x02000000
-#define SUBSCRFLAG_SPEC_11     0x04000000
-#define SUBSCRFLAG_SPEC_12     0x08000000
-#define SUBSCRFLAG_SPEC_13     0x10000000
-#define SUBSCRFLAG_SPEC_14     0x20000000
-#define SUBSCRFLAG_SPEC_15     0x40000000
-#define SUBSCRFLAG_SPEC_16     0x80000000
-#define SUBSCRFLAG_SPECIFIC    0xFFFF0000
+#define SUBSCRFLAG_SPEC_01     0x00000001
+#define SUBSCRFLAG_SPEC_02     0x00000002
+#define SUBSCRFLAG_SPEC_03     0x00000004
+#define SUBSCRFLAG_SPEC_04     0x00000008
+#define SUBSCRFLAG_SPEC_05     0x00000010
+#define SUBSCRFLAG_SPEC_06     0x00000020
+#define SUBSCRFLAG_SPEC_07     0x00000040
+#define SUBSCRFLAG_SPEC_08     0x00000080
+#define SUBSCRFLAG_SPEC_09     0x00000100
+#define SUBSCRFLAG_SPEC_10     0x00000200
+#define SUBSCRFLAG_SPEC_11     0x00000400
+#define SUBSCRFLAG_SPEC_12     0x00000800
+#define SUBSCRFLAG_SPEC_13     0x00001000
+#define SUBSCRFLAG_SPEC_14     0x00002000
+#define SUBSCRFLAG_SPEC_15     0x00004000
+#define SUBSCRFLAG_SPEC_16     0x00008000
+#define SUBSCRFLAG_SPEC_17     0x00010000
+#define SUBSCRFLAG_SPEC_18     0x00020000
+#define SUBSCRFLAG_SPEC_19     0x00040000
+#define SUBSCRFLAG_SPEC_20     0x00080000
+#define SUBSCRFLAG_SPEC_21     0x00100000
+#define SUBSCRFLAG_SPEC_22     0x00200000
+#define SUBSCRFLAG_SPEC_23     0x00400000
+#define SUBSCRFLAG_SPEC_24     0x00800000
+#define SUBSCRFLAG_SPEC_25     0x01000000
+#define SUBSCRFLAG_SPEC_26     0x02000000
+#define SUBSCRFLAG_SPEC_27     0x04000000
+#define SUBSCRFLAG_SPEC_28     0x08000000
+#define SUBSCRFLAG_SPEC_29     0x10000000
+#define SUBSCRFLAG_SPEC_30     0x20000000
+#define SUBSCRFLAG_SPEC_31     0x40000000
+#define SUBSCRFLAG_SPEC_32     0x80000000
 
 #define SUBSCRCOMPAT_FONT_RAND       0x01
 struct SubscrWidget
@@ -197,7 +210,7 @@ struct SubscrWidget
 	int16_t y;
 	word w;
 	word h;
-	dword flags;
+	dword flags, genflags;
 	
 	//if SUBSCRFLAG_SELECTABLE...
 	//...storing these as ints, but they could probably be bytes?
@@ -709,16 +722,15 @@ protected:
 #define SUBSCR_GAUGE_ANIM_SKIP         SUBSCRFLAG_SPEC_10
 #define SUBSCR_GAUGE_INFITM_REQ        SUBSCRFLAG_SPEC_11
 #define SUBSCR_GAUGE_INFITM_BAN        SUBSCRFLAG_SPEC_12
-
-#define GAUGE_GRID_RTOL        0x01
-#define GAUGE_GRID_TTOB        0x02
-#define GAUGE_GRID_COLUMN1ST   0x04
-#define GAUGE_GRID_SNAKE       0x08
+#define SUBSCR_GAUGE_GRID_RTOL         SUBSCRFLAG_SPEC_13
+#define SUBSCR_GAUGE_GRID_TTOB         SUBSCRFLAG_SPEC_14
+#define SUBSCR_GAUGE_GRID_COLUMN1ST    SUBSCRFLAG_SPEC_15
+#define SUBSCR_GAUGE_GRID_SNAKE        SUBSCRFLAG_SPEC_16
 struct SW_GaugePiece : public SubscrWidget
 {
 	SubscrMTInfo mts[4];
 	word frames = 1, speed = 1, delay, container;
-	byte gauge_wid, gauge_hei, gridflags;
+	byte gauge_wid, gauge_hei;
 	byte hspace, vspace, unit_per_frame;
 	int16_t grid_xoff, grid_yoff;
 	word anim_val;
