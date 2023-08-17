@@ -37,6 +37,9 @@
 
 extern void large_dialog(DIALOG *d);
 extern void large_dialog(DIALOG *d, float RESIZE_AMT);
+extern bool zq_ignore_item_ownership;
+bool zq_view_fullctr = false, zq_view_maxctr = false,
+	zq_view_noinf = false, zq_view_allinf = false;
 
 int32_t curr_subscreen_object;
 char str_oname[512];
@@ -94,7 +97,6 @@ int32_t onGridSnapRight();
 int32_t onGridSnapTop();
 int32_t onGridSnapMiddle();
 int32_t onGridSnapBottom();
-void copySSOProperties(SubscrWidget const* src, SubscrWidget* dest);
 
 void subscr_properties(int indx)
 {
@@ -109,7 +111,7 @@ void subscr_properties(int indx)
 				if(!sso_selection[i] || i==indx)
 					continue;
 				
-				copySSOProperties(widg, pg.contents[i]);
+				pg.contents[i]->copy_prop(widg);
 			}
 		}
 	}
@@ -145,7 +147,7 @@ void paste_properties(int indx)
 		for(int32_t i=0; i<pg.contents.size(); i++)
 		{
 			if(i == indx || sso_selection[i])
-				copySSOProperties(propCopyWidg, pg.contents[i]);
+				pg.contents[i]->copy_prop(propCopyWidg);
 		}
 	}
 }
@@ -310,6 +312,11 @@ int32_t onClearSelection()
 }
 
 static int32_t onToggleInvis();
+static int32_t onToggleShowUnowned();
+static int32_t onToggleMaxCtr();
+static int32_t onToggleMaxMaxCtr();
+static int32_t onToggleNoInf();
+static int32_t onToggleAllInf();
 static int32_t onEditGrid();
 static int32_t onSelectionOptions();
 static int32_t onShowHideGrid();
@@ -967,13 +974,6 @@ const char *sso_specialtile[ssmstMAX]=
     "ssmstSSVINETILE", "ssmstMAGICMETER"
 };
 
-const char *sso_counterobject[sscMAX]=
-{
-    "sscRUPEES", "sscBOMBS", "sscSBOMBS", "sscARROWS", "sscGENKEYMAGIC", "sscGENKEYNOMAGIC", "sscLEVKEYMAGIC",
-    "sscLEVKEYNOMAGIC", "sscANYKEYMAGIC", "sscANYKEYNOMAGIC", "sscSCRIPT1", "sscSCRIPT2", "sscSCRIPT3", "sscSCRIPT4",
-    "sscSCRIPT5", "sscSCRIPT6", "sscSCRIPT7", "sscSCRIPT8", "sscSCRIPT9", "sscSCRIPT10"
-};
-
 const char *sso_alignment[3]=
 {
     "sstaLEFT", "sstaCENTER", "sstaRIGHT"
@@ -1055,12 +1055,34 @@ static MENU ss_edit_menu[] =
 	{ NULL,                                      NULL,                                 NULL, 0, NULL }
 };
 
+int32_t onSubscrViewInfo()
+{
+	InfoDialog("Subscreen Editor View Menu",
+		"\"Edit/Show Grid\" affects the background/placement grid."
+		"\n\"Show Invisible Items\" makes items with the 'Invisible' flag checked show up."
+		"\n\"Show Unowned Items\" views the subscreen with every item marked 'owned'."
+			" This does NOT cause counters to show as infinite, even if it normally would."
+		"\n\"Max Out Counters\" views the subscreen with every counter set to its' max."
+		"\n\"Max Out Max Counters\" additionally sets every max counter to 65535."
+		"\n\"Don't Show 'Infinite's\" makes all counter-related 'Infinite' checks show false."
+		"\n\"Show Everything 'Infinite'\" makes all counter-related 'Infinite' checks show true.").show();
+	return D_O_K;
+}
 static MENU ss_view_menu[] =
 {
-    { (char *)"Show in&visible items",           onToggleInvis,                 NULL, 0, NULL },
-    { (char *)"&Edit grid",                      onEditGrid,                    NULL, 0, NULL },
-    { (char *)"&Show grid",                      onShowHideGrid,                NULL, 0, NULL },
-    { NULL,                                 NULL,                          NULL, 0, NULL }
+	{ (char *)"&Edit Grid",                      onEditGrid,                    NULL, 0, NULL },
+	{ (char *)"&Show Grid",                      onShowHideGrid,                NULL, 0, NULL },
+	{ (char *)"",                                NULL,                          NULL, 0, NULL },
+	{ (char *)"Show In&visible Items",           onToggleInvis,                 NULL, 0, NULL },
+	{ (char *)"Show Unowned Items",              onToggleShowUnowned,           NULL, 0, NULL },
+	{ (char *)"",                                NULL,                          NULL, 0, NULL },
+	{ (char *)"Max Out Counters",                onToggleMaxCtr,                NULL, 0, NULL },
+	{ (char *)"Max Out Max Counters",            onToggleMaxMaxCtr,             NULL, 0, NULL },
+	{ (char *)"Don't Show 'Infinite's",          onToggleNoInf,                 NULL, 0, NULL },
+	{ (char *)"Show Everything 'Infinite'",      onToggleAllInf,                NULL, 0, NULL },
+	{ (char *)"",                                NULL,                          NULL, 0, NULL },
+	{ (char *)"&Help",                           onSubscrViewInfo,              NULL, 0, NULL },
+	{ NULL,                                      NULL,                          NULL, 0, NULL }
 };
 
 static MENU ss_selection_menu[] =
@@ -1322,7 +1344,8 @@ const char *sso_str[widgMAX]=
 	"Playtime", "Magic Meter", "Life Meter", "Button Item", "Counter",
 	"Counter Block", "Minimap Title", "Minimap", "Large Map", "Background Color",
 	"Item Slot", "McGuffin Frame", "McGuffin Piece", "Tile Block", "Minitile",
-	"Selector", "Life Gauge Piece", "Magic Gauge Piece", "Text Box", "Selection Text"
+	"Selector", "Gauge Piece: Life", "Gauge Piece: Magic", "Text Box", "Selection Text",
+	"Gauge Piece: Counter"
 };
 
 char *sso_name(int32_t type)
@@ -1888,10 +1911,48 @@ int32_t onGridSnapBottom()
 
 static int32_t onToggleInvis()
 {
-    bool show=!(zinit.ss_flags&ssflagSHOWINVIS);
-    zinit.ss_flags&=~ssflagSHOWINVIS;
-    zinit.ss_flags|=(show?ssflagSHOWINVIS:0);
-    ss_view_menu[0].flags=zinit.ss_flags&ssflagSHOWINVIS?D_SELECTED:0;
+	bool show=!(zinit.ss_flags&ssflagSHOWINVIS);
+	SETFLAG(zinit.ss_flags,ssflagSHOWINVIS,show);
+	SETFLAG(ss_view_menu[3].flags,D_SELECTED,show);
+	return D_O_K;
+}
+static int32_t onToggleShowUnowned()
+{
+	zq_ignore_item_ownership = !zq_ignore_item_ownership;
+	SETFLAG(ss_view_menu[4].flags, D_SELECTED, zq_ignore_item_ownership);
+	zc_set_config("editsubscr","show_all_items",zq_ignore_item_ownership?1:0);
+    return D_O_K;
+}
+static int32_t onToggleMaxCtr()
+{
+	zq_view_fullctr = !zq_view_fullctr;
+	SETFLAG(ss_view_menu[6].flags, D_SELECTED, zq_view_fullctr);
+	zc_set_config("editsubscr","show_full_counters",zq_view_fullctr?1:0);
+    return D_O_K;
+}
+static int32_t onToggleMaxMaxCtr()
+{
+	zq_view_maxctr = !zq_view_maxctr;
+	SETFLAG(ss_view_menu[7].flags, D_SELECTED, zq_view_maxctr);
+	zc_set_config("editsubscr","show_maxed_maxcounters",zq_view_maxctr?1:0);
+    return D_O_K;
+}
+static int32_t onToggleNoInf()
+{
+	if(zq_view_allinf)
+		onToggleAllInf();
+	zq_view_noinf = !zq_view_noinf;
+	SETFLAG(ss_view_menu[8].flags, D_SELECTED, zq_view_noinf);
+	zc_set_config("editsubscr","show_no_infinites",zq_view_noinf?1:0);
+    return D_O_K;
+}
+static int32_t onToggleAllInf()
+{
+	if(zq_view_noinf)
+		onToggleNoInf();
+	zq_view_allinf = !zq_view_allinf;
+	SETFLAG(ss_view_menu[9].flags, D_SELECTED, zq_view_allinf);
+	zc_set_config("editsubscr","show_all_infinites",zq_view_allinf?1:0);
     return D_O_K;
 }
 
@@ -1933,7 +1994,7 @@ static int32_t onShowHideGrid()
     bool show=!(zinit.ss_flags&ssflagSHOWGRID);
     zinit.ss_flags&=~ssflagSHOWGRID;
     zinit.ss_flags|=(show?ssflagSHOWGRID:0);
-    ss_view_menu[2].flags=zinit.ss_flags&ssflagSHOWGRID?D_SELECTED:0;
+    ss_view_menu[1].flags=zinit.ss_flags&ssflagSHOWGRID?D_SELECTED:0;
     return D_O_K;
 }
 
@@ -2163,8 +2224,8 @@ void update_subscr_dlg(bool start)
 		}
 		
 		onClearSelection();
-		ss_view_menu[0].flags=zinit.ss_flags&ssflagSHOWINVIS?D_SELECTED:0;
-		ss_view_menu[2].flags=zinit.ss_flags&ssflagSHOWGRID?D_SELECTED:0;
+		ss_view_menu[3].flags=zinit.ss_flags&ssflagSHOWINVIS?D_SELECTED:0;
+		ss_view_menu[1].flags=zinit.ss_flags&ssflagSHOWGRID?D_SELECTED:0;
 			
 		subscreen_dlg[4].dp=(void *)&subscr_edit;
 		subscreen_dlg[5].fg=jwin_pal[jcBOX];
@@ -2310,19 +2371,21 @@ void update_subscr_dlg(bool start)
 void broadcast_dialog_message(DIALOG* dialog, int32_t msg, int32_t c);
 bool edit_subscreen()
 {
+	bool b = zq_ignore_item_ownership;
+	zq_ignore_item_ownership = zc_get_config("editsubscr","show_all_items_edit_subscr",1);
+	zq_view_fullctr = zc_get_config("editsubscr","show_full_counters",0);
+	zq_view_maxctr = zc_get_config("editsubscr","show_maxed_maxcounters",0);
+	zq_view_noinf = zc_get_config("editsubscr","show_no_infinites",0);
+	zq_view_allinf = zc_get_config("editsubscr","show_all_infinites",0);
 	game = new gamedata();
 	game->set_time(0);
 	resetItems(game,&zinit,true);
 	
-	//so that these will show up on the subscreen -DD
-	if(game->get_bombs() == 0)
-		game->set_bombs(1);
-		
-	if(game->get_sbombs() == 0)
-		game->set_sbombs(1);
-		
-	if(game->get_arrows() == 0)
-		game->set_arrows(1);
+	SETFLAG(ss_view_menu[4].flags, D_SELECTED, zq_ignore_item_ownership);
+	SETFLAG(ss_view_menu[6].flags, D_SELECTED, zq_view_fullctr);
+	SETFLAG(ss_view_menu[7].flags, D_SELECTED, zq_view_maxctr);
+	SETFLAG(ss_view_menu[8].flags, D_SELECTED, zq_view_noinf);
+	SETFLAG(ss_view_menu[9].flags, D_SELECTED, zq_view_allinf);
 	
 	update_subscr_dlg(true);
 	int dlg_ret = do_zqdialog_custom(subscreen_dlg,2,[&](int ret)
@@ -2387,6 +2450,7 @@ bool edit_subscreen()
 	
 	delete game;
 	game=NULL;
+	zq_ignore_item_ownership = b;
 	return dlg_ret == 1;
 }
 
@@ -2774,11 +2838,4 @@ void delete_subscreen(int32_t subscreenidx)
 		if(passive_ind > -1 && DMaps[i].passive_subscreen > passive_ind)
 			DMaps[i].passive_subscreen--;
 	}
-}
-
-void copySSOProperties(SubscrWidget const* src, SubscrWidget* dest)
-{
-    if(src->getType()!=dest->getType() || src==dest)
-        return;
-	dest->copy_prop(src);
 }

@@ -72,15 +72,15 @@ subscreen_object z3_active_a[80]=
     { ssoCURRENTITEM,                      pos,                    124,         144,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_quiver,                 1,                     -1,                           0,                      0,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { ssoSELECTOR2,                        pos,                      0,           0,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 0,                            0,                      0,                           0,                      0,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { ssoCURRENTITEM,                      pos,                     32,          16,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_bowandarrow,            1,                      0,                          10,                      5,                     14,                      1,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-    { ssoCOUNTER,                          pos,                     44,          26,           0,            0,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfZ3SMALL,                   sstaCENTER,             sstsOUTLINEDPLUS,            2,                      '~',                    0,                      sscARROWS,              0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+    { ssoCOUNTER,                          pos,                     44,          26,           0,            0,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfZ3SMALL,                   sstaCENTER,             sstsOUTLINEDPLUS,            2,                      '~',                    0,                      crARROWS,               0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { ssoCURRENTITEM,                      pos,                     56,          16,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_brang,                  1,                      1,                          11,                      6,                      0,                      2,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { ssoCURRENTITEM,                      pos,                     80,          16,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_hookshot,               1,                      2,                          12,                      7,                      1,                      3,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { ssoCURRENTITEM,                      pos,                    104,          16,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_bomb,                   1,                      3,                          13,                      8,                      2,                      4,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-    { ssoCOUNTER,                          pos,                    116,          26,           0,            0,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfZ3SMALL,                   sstaCENTER,             sstsOUTLINEDPLUS,            2,                      '~',                    0,                      sscBOMBS,               0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+    { ssoCOUNTER,                          pos,                    116,          26,           0,            0,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfZ3SMALL,                   sstaCENTER,             sstsOUTLINEDPLUS,            2,                      '~',                    0,                      crBOMBS,                0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { ssoCURRENTITEM,                      pos,                    128,          16,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_letterpotion,           1,                      4,                          14,                      9,                      3,                      5,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { ssoCURRENTITEM,                      pos,                     32,          40,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_wand,                   1,                      5,                           0,                     10,                      4,                      6,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { ssoCURRENTITEM,                      pos,                     56,          40,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_sbomb,                  1,                      6,                           1,                     11,                      5,                      7,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-    { ssoCOUNTER,                          pos,                     68,          50,           0,            0,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfZ3SMALL,                   sstaCENTER,             sstsOUTLINEDPLUS,            2,                      '~',                    0,                      sscSBOMBS,              0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+    { ssoCOUNTER,                          pos,                     68,          50,           0,            0,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfZ3SMALL,                   sstaCENTER,             sstsOUTLINEDPLUS,            2,                      '~',                    0,                      crSBOMBS,               0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { ssoCURRENTITEM,                      pos,                     80,          40,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_divinefire,               1,                      7,                           2,                     12,                      6,                      8,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { ssoCURRENTITEM,                      pos,                    104,          40,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_divineprotection,             1,                      8,                           3,                     13,                      7,                      9,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { ssoCURRENTITEM,                      pos,                    128,          40,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_divineescape,            1,                      9,                           4,                     14,                      8,                     10,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
@@ -106,9 +106,9 @@ subscreen_object z3_active_a[80]=
     { ssoLINE,                             pos,                    233,         139,           2,            1,            ssctMISC,                  ssctTEXT,                          0,                         0,                                 0,                         0,                                 0,                            0,                      0,                           0,                      0,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { ssoLINE,                             pos,                    237,         139,           2,            1,            ssctMISC,                  ssctTEXT,                          0,                         0,                                 0,                         0,                                 0,                            0,                      0,                           0,                      0,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { ssoBUTTONITEM,                       pos,                    200,           8,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 1,                            0,                      0,                           0,                      0,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-    { ssoCOUNTER,                          pos,                    212,          18,           0,            0,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfZ3SMALL,                   sstaCENTER,             sstsOUTLINEDPLUS,            2,                      '~',                    2,                      sscARROWS,              0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-    { ssoCOUNTER,                          pos,                    212,          18,           0,            0,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfZ3SMALL,                   sstaCENTER,             sstsOUTLINEDPLUS,            2,                      '~',                    2,                      sscBOMBS,               0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-    { ssoCOUNTER,                          pos,                    212,          18,           0,            0,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfZ3SMALL,                   sstaCENTER,             sstsOUTLINEDPLUS,            2,                      '~',                    2,                      sscSBOMBS,              0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+    { ssoCOUNTER,                          pos,                    212,          18,           0,            0,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfZ3SMALL,                   sstaCENTER,             sstsOUTLINEDPLUS,            2,                      '~',                    2,                      crARROWS,               0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+    { ssoCOUNTER,                          pos,                    212,          18,           0,            0,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfZ3SMALL,                   sstaCENTER,             sstsOUTLINEDPLUS,            2,                      '~',                    2,                      crBOMBS,                0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+    { ssoCOUNTER,                          pos,                    212,          18,           0,            0,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfZ3SMALL,                   sstaCENTER,             sstsOUTLINEDPLUS,            2,                      '~',                    2,                      crSBOMBS,               0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { ssoSELECTEDITEMNAME,                 pos,                    173,          24,          70,           16,            ssctMISC,                  ssctTEXT,                          ssctMISC,                  ssctSUBSCRSHADOW,                  ssctSYSTEM,               -1,                                 ssfPROP,                      sstaCENTER,             sstsSHADOWED,                1,                      4,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { ssoRECT,                             pos,                     24,           1,          16,            6,            0,                         0,                                 0,                         0,                                 0,                         0,                                 1,                            0,                      0,                           0,                      0,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { ssoTEXT,                             pos,                     24,           1,           0,            0,            ssctMISC,                  ssctTEXT,                          ssctMISC,                  ssctSUBSCRSHADOW,                  ssctSYSTEM,               -1,                                 ssfZ3SMALL,                   sstaLEFT,               sstsSHADOWED,                0,                      0,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0, (void *)"ITEM" },
@@ -156,18 +156,18 @@ subscreen_object z3_active_ab[82]=
     { ssoCURRENTITEM,                      pos,                    124,         144,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_quiver,                 1,                     -1,                           0,                      0,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { ssoSELECTOR2,                        pos,                      0,           0,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 0,                            0,                      0,                           0,                      0,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { ssoCURRENTITEM,                      pos,                     32,          16,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_bowandarrow,            1,                      0,                          10,                      5,                     15,                      1,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-    { ssoCOUNTER,                          pos,                     44,          26,           0,            0,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfZ3SMALL,                   sstaCENTER,             sstsOUTLINEDPLUS,            2,                      '~',                    0,                      sscARROWS,              0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+    { ssoCOUNTER,                          pos,                     44,          26,           0,            0,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfZ3SMALL,                   sstaCENTER,             sstsOUTLINEDPLUS,            2,                      '~',                    0,                      crARROWS,               0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { ssoCURRENTITEM,                      pos,                     56,          16,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_brang,                  1,                      1,                          11,                      6,                      0,                      2,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { ssoCURRENTITEM,                      pos,                     80,          16,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_hookshot,               1,                      2,                          12,                      7,                      1,                      3,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { ssoCURRENTITEM,                      pos,                    104,          16,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_bomb,                   1,                      3,                          13,                      8,                      2,                      4,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-    { ssoCOUNTER,                          pos,                    116,          26,           0,            0,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfZ3SMALL,                   sstaCENTER,             sstsOUTLINEDPLUS,            2,                      '~',                    0,                      sscBOMBS,               0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+    { ssoCOUNTER,                          pos,                    116,          26,           0,            0,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfZ3SMALL,                   sstaCENTER,             sstsOUTLINEDPLUS,            2,                      '~',                    0,                      crBOMBS,                0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { ssoCURRENTITEM,                      pos,                    128,          16,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_letterpotion,           1,                      4,                          14,                      9,                      3,                      5,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { ssoCURRENTITEM,                      pos,                     32,          40,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_wand,                   1,                      5,                           0,                     10,                      4,                      6,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { ssoCURRENTITEM,                      pos,                     56,          40,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_sbomb,                  1,                      6,                           1,                     11,                      5,                      7,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-    { ssoCOUNTER,                          pos,                     68,          50,           0,            0,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfZ3SMALL,                   sstaCENTER,             sstsOUTLINEDPLUS,            2,                      '~',                    0,                      sscSBOMBS,              0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-    { ssoCURRENTITEM,                      pos,                     80,          40,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_divinefire,               1,                      7,                           2,                     12,                      6,                      8,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-    { ssoCURRENTITEM,                      pos,                    104,          40,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_divineprotection,             1,                      8,                           3,                     13,                      7,                      9,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-    { ssoCURRENTITEM,                      pos,                    128,          40,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_divineescape,            1,                      9,                           4,                     14,                      8,                     10,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+    { ssoCOUNTER,                          pos,                     68,          50,           0,            0,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfZ3SMALL,                   sstaCENTER,             sstsOUTLINEDPLUS,            2,                      '~',                    0,                      crSBOMBS,               0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+    { ssoCURRENTITEM,                      pos,                     80,          40,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_divinefire,             1,                      7,                           2,                     12,                      6,                      8,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+    { ssoCURRENTITEM,                      pos,                    104,          40,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_divineprotection,       1,                      8,                           3,                     13,                      7,                      9,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+    { ssoCURRENTITEM,                      pos,                    128,          40,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_divineescape,           1,                      9,                           4,                     14,                      8,                     10,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { ssoCURRENTITEM,                      pos,                     32,          64,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_candle,                 1,                     10,                           5,                      0,                      9,                     11,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { ssoCURRENTITEM,                      pos,                     56,          64,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_hammer,                 1,                     11,                           6,                      1,                     10,                     12,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { ssoCURRENTITEM,                      pos,                     80,          64,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 itype_whistle,                1,                     12,                           7,                      2,                     11,                     13,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
@@ -191,9 +191,9 @@ subscreen_object z3_active_ab[82]=
     { ssoLINE,                             pos,                    233,         139,           2,            1,            ssctMISC,                  ssctTEXT,                          0,                         0,                                 0,                         0,                                 0,                            0,                      0,                           0,                      0,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { ssoLINE,                             pos,                    237,         139,           2,            1,            ssctMISC,                  ssctTEXT,                          0,                         0,                                 0,                         0,                                 0,                            0,                      0,                           0,                      0,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { ssoBUTTONITEM,                       pos,                    200,           8,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 1,                            0,                      0,                           0,                      0,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-    { ssoCOUNTER,                          pos,                    212,          18,           0,            0,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfZ3SMALL,                   sstaCENTER,             sstsOUTLINEDPLUS,            2,                      '~',                    2,                      sscARROWS,              0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-    { ssoCOUNTER,                          pos,                    212,          18,           0,            0,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfZ3SMALL,                   sstaCENTER,             sstsOUTLINEDPLUS,            2,                      '~',                    2,                      sscBOMBS,               0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-    { ssoCOUNTER,                          pos,                    212,          18,           0,            0,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfZ3SMALL,                   sstaCENTER,             sstsOUTLINEDPLUS,            2,                      '~',                    2,                      sscSBOMBS,              0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+    { ssoCOUNTER,                          pos,                    212,          18,           0,            0,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfZ3SMALL,                   sstaCENTER,             sstsOUTLINEDPLUS,            2,                      '~',                    2,                      crARROWS,               0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+    { ssoCOUNTER,                          pos,                    212,          18,           0,            0,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfZ3SMALL,                   sstaCENTER,             sstsOUTLINEDPLUS,            2,                      '~',                    2,                      crBOMBS,                0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+    { ssoCOUNTER,                          pos,                    212,          18,           0,            0,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfZ3SMALL,                   sstaCENTER,             sstsOUTLINEDPLUS,            2,                      '~',                    2,                      crSBOMBS,               0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { ssoSELECTEDITEMNAME,                 pos,                    173,          24,          70,           16,            ssctMISC,                  ssctTEXT,                          ssctMISC,                  ssctSUBSCRSHADOW,                  ssctSYSTEM,               -1,                                 ssfPROP,                      sstaCENTER,             sstsSHADOWED,                1,                      4,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { ssoRECT,                             pos,                     24,           1,          16,            6,            0,                         0,                                 0,                         0,                                 0,                         0,                                 1,                            0,                      0,                           0,                      0,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { ssoTEXT,                             pos,                     24,           1,           0,            0,            ssctMISC,                  ssctTEXT,                          ssctMISC,                  ssctSUBSCRSHADOW,                  ssctSYSTEM,               -1,                                 ssfZ3SMALL,                   sstaLEFT,               sstsSHADOWED,                0,                      0,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0, (void *)"ITEM" },
@@ -244,9 +244,9 @@ subscreen_object z3_passive_a[66]=
     { ssoMAGICGAUGE,                       pos,                     24,          44,           8,            8,            5,                         5,                                 5,                         0,                                 0,                         0,                                 0,                       100403,                 100260,                      100262,                 100263,                      1,                      0,                      0,                      1,                      0,                      0,             0,            0,            0,             NULL },
     { sso2X2FRAME,                         pos,                     32,           4,           4,            4,            7,                         0,                                 0,                         0,                                 0,                         0,                             20040,                            0,                      1,                           0,                      0,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { ssoBUTTONITEM,                       pos,                     40,          12,          16,           16,            0,                         0,                                 0,                         0,                                 0,                         0,                                 1,                            0,                      0,                           0,                      0,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-    { ssoCOUNTER,                          pos,                     52,          22,           9,            7,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfZ3SMALL,                   sstaCENTER,             sstsOUTLINEDPLUS,            2,                      '~',                    2,                      sscARROWS,              0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-    { ssoCOUNTER,                          pos,                     52,          22,           9,            7,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfZ3SMALL,                   sstaCENTER,             sstsOUTLINEDPLUS,            2,                      '~',                    2,                      sscBOMBS,               0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-    { ssoCOUNTER,                          pos,                     52,          22,           9,            7,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfZ3SMALL,                   sstaCENTER,             sstsOUTLINEDPLUS,            2,                      '~',                    2,                      sscSBOMBS,              0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+    { ssoCOUNTER,                          pos,                     52,          22,           9,            7,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfZ3SMALL,                   sstaCENTER,             sstsOUTLINEDPLUS,            2,                      '~',                    2,                      crARROWS,               0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+    { ssoCOUNTER,                          pos,                     52,          22,           9,            7,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfZ3SMALL,                   sstaCENTER,             sstsOUTLINEDPLUS,            2,                      '~',                    2,                      crBOMBS,                0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+    { ssoCOUNTER,                          pos,                     52,          22,           9,            7,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfZ3SMALL,                   sstaCENTER,             sstsOUTLINEDPLUS,            2,                      '~',                    2,                      crSBOMBS,               0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { ssoTEXT,                             pos,                    200,           6,           0,            0,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfSS4,                       sstaCENTER,             sstsSHADOWED,                0,                      0,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0, (void *)"LIFE" },
     { ssoRECT,                             pos,                    178,           8,          12,            2,            0,                         15,                                0,                        15,                                 0,                         0,                                 1,                            0,                      0,                           0,                      0,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { ssoLINE,                             pos,                    179,           8,          10,            1,            ssctMISC,                  ssctTEXT,                          0,                         0,                                 0,                         0,                                 0,                            0,                      0,                           0,                      0,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
@@ -276,9 +276,9 @@ subscreen_object z3_passive_a[66]=
     { ssoLIFEGAUGE,                        pos,                    209,          31,           8,            8,            1,                         1,                                 1,                         1,                                 0,                         0,                                22,                       100240,                 100240,                      100261,                 100261,                      1,                      0,                      0,                      0,                      3,                      0,             0,            0,            0,             NULL },
     { ssoLIFEGAUGE,                        pos,                    217,          31,           8,            8,            1,                         1,                                 1,                         1,                                 0,                         0,                                23,                       100240,                 100240,                      100261,                 100261,                      1,                      0,                      0,                      0,                      3,                      0,             0,            0,            0,             NULL },
     { ssoLIFEGAUGE,                        pos,                    225,          31,           8,            8,            1,                         1,                                 1,                         1,                                 0,                         0,                                24,                       100240,                 100240,                      100261,                 100261,                      1,                      0,                      0,                      0,                      3,                      0,             0,            0,            0,             NULL },
-    { ssoCOUNTER,                          pos,                     77,          15,          25,            9,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfSS4,                       sstaCENTER,             sstsSHADOWED,                3,                      '~',                    1,                      sscRUPEES,              0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-    { ssoCOUNTER,                          pos,                    105,          15,           0,            0,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfSS4,                       sstaCENTER,             sstsSHADOWED,                2,                      '~',                    1,                      sscBOMBS,               0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-    { ssoCOUNTER,                          pos,                    129,          15,           0,            0,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfSS4,                       sstaCENTER,             sstsSHADOWED,                2,                      '~',                    1,                      sscARROWS,              0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+    { ssoCOUNTER,                          pos,                     77,          15,          25,            9,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfSS4,                       sstaCENTER,             sstsSHADOWED,                3,                      '~',                    1,                      crMONEY,                0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+    { ssoCOUNTER,                          pos,                    105,          15,           0,            0,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfSS4,                       sstaCENTER,             sstsSHADOWED,                2,                      '~',                    1,                      crBOMBS,                0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+    { ssoCOUNTER,                          pos,                    129,          15,           0,            0,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfSS4,                       sstaCENTER,             sstsSHADOWED,                2,                      '~',                    1,                      crARROWS,               0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { ssoCOUNTER,                          pos,                    148,          15,           9,            9,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfSS4,                       sstaCENTER,             sstsSHADOWED,                1,                      '~',                    1,                      sscGENKEYMAGIC,         0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { ssoNULL,                             pos,                      0,           0,           0,            0,            0,                         0,                                 0,                         0,                                 0,                         0,                                 0,                            0,                      0,                           0,                      0,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL }
 };
@@ -315,13 +315,13 @@ subscreen_object z3_passive_ab[75]=
     { sso2X2FRAME,                         pos,                     32,          26,           4,            4,            8,                         0,                                 0,                         0,                                 0,                         0,                             20040,                            0,                      0,                           0,                      0,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { sso2X2FRAME,                         pos,                     32,           0,           4,            4,            7,                         0,                                 0,                         0,                                 0,                         0,                             20040,                            0,                      1,                           0,                      0,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { ssoBUTTONITEM,                       pos,                     40,           8,          16,           16,            0,                         0,                                 0,                         0,                                 0,                         0,                                 0,                            0,                      0,                           0,                      0,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-    { ssoCOUNTER,                          pos,                     52,          18,           9,            7,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfZ3SMALL,                   sstaCENTER,             sstsOUTLINEDPLUS,            2,                      '~',                    2,                      sscARROWS,              0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-    { ssoCOUNTER,                          pos,                     52,          18,           9,            7,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfZ3SMALL,                   sstaCENTER,             sstsOUTLINEDPLUS,            2,                      '~',                    2,                      sscBOMBS,               0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-    { ssoCOUNTER,                          pos,                     52,          18,           9,            7,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfZ3SMALL,                   sstaCENTER,             sstsOUTLINEDPLUS,            2,                      '~',                    2,                      sscSBOMBS,              0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+    { ssoCOUNTER,                          pos,                     52,          18,           9,            7,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfZ3SMALL,                   sstaCENTER,             sstsOUTLINEDPLUS,            2,                      '~',                    2,                      crARROWS,               0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+    { ssoCOUNTER,                          pos,                     52,          18,           9,            7,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfZ3SMALL,                   sstaCENTER,             sstsOUTLINEDPLUS,            2,                      '~',                    2,                      crBOMBS,                0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+    { ssoCOUNTER,                          pos,                     52,          18,           9,            7,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfZ3SMALL,                   sstaCENTER,             sstsOUTLINEDPLUS,            2,                      '~',                    2,                      crSBOMBS,               0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { ssoBUTTONITEM,                       pos,                     40,          34,          16,           16,            0,                         0,                                 0,                         0,                                 0,                         0,                                 1,                            0,                      0,                           0,                      0,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-    { ssoCOUNTER,                          pos,                     52,          44,           9,            7,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfZ3SMALL,                   sstaCENTER,             sstsOUTLINEDPLUS,            2,                      '~',                    2,                      sscARROWS,              0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-    { ssoCOUNTER,                          pos,                     52,          44,           9,            7,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfZ3SMALL,                   sstaCENTER,             sstsOUTLINEDPLUS,            2,                      '~',                    2,                      sscBOMBS,               0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-    { ssoCOUNTER,                          pos,                     52,          44,           9,            7,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfZ3SMALL,                   sstaCENTER,             sstsOUTLINEDPLUS,            2,                      '~',                    2,                      sscSBOMBS,              0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+    { ssoCOUNTER,                          pos,                     52,          44,           9,            7,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfZ3SMALL,                   sstaCENTER,             sstsOUTLINEDPLUS,            2,                      '~',                    2,                      crARROWS,               0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+    { ssoCOUNTER,                          pos,                     52,          44,           9,            7,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfZ3SMALL,                   sstaCENTER,             sstsOUTLINEDPLUS,            2,                      '~',                    2,                      crBOMBS,                0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+    { ssoCOUNTER,                          pos,                     52,          44,           9,            7,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfZ3SMALL,                   sstaCENTER,             sstsOUTLINEDPLUS,            2,                      '~',                    2,                      crSBOMBS,               0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { ssoTEXT,                             pos,                    200,           6,           0,            0,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfSS4,                       sstaCENTER,             sstsSHADOWED,                0,                      0,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0, (void *)"LIFE" },
     { ssoRECT,                             pos,                    178,           8,          12,            2,            0,                         15,                                0,                        15,                                 0,                         0,                                 1,                            0,                      0,                           0,                      0,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { ssoLINE,                             pos,                    179,           8,          10,            1,            ssctMISC,                  ssctTEXT,                          0,                         0,                                 0,                         0,                                 0,                            0,                      0,                           0,                      0,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
@@ -351,9 +351,9 @@ subscreen_object z3_passive_ab[75]=
     { ssoLIFEGAUGE,                        pos,                    209,          31,           8,            8,            1,                         1,                                 1,                         1,                                 0,                         0,                                22,                       100240,                 100240,                      100261,                 100261,                      1,                      0,                      0,                      0,                      3,                      0,             0,            0,            0,             NULL },
     { ssoLIFEGAUGE,                        pos,                    217,          31,           8,            8,            1,                         1,                                 1,                         1,                                 0,                         0,                                23,                       100240,                 100240,                      100261,                 100261,                      1,                      0,                      0,                      0,                      3,                      0,             0,            0,            0,             NULL },
     { ssoLIFEGAUGE,                        pos,                    225,          31,           8,            8,            1,                         1,                                 1,                         1,                                 0,                         0,                                24,                       100240,                 100240,                      100261,                 100261,                      1,                      0,                      0,                      0,                      3,                      0,             0,            0,            0,             NULL },
-    { ssoCOUNTER,                          pos,                     83,          15,          25,            9,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfSS4,                       sstaCENTER,             sstsSHADOWED,                3,                      '~',                    1,                      sscRUPEES,              0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-    { ssoCOUNTER,                          pos,                    111,          15,           0,            0,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfSS4,                       sstaCENTER,             sstsSHADOWED,                2,                      '~',                    1,                      sscBOMBS,               0,                      0,                      0,                      0,             0,            0,            0,             NULL },
-    { ssoCOUNTER,                          pos,                    135,          15,           0,            0,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfSS4,                       sstaCENTER,             sstsSHADOWED,                2,                      '~',                    1,                      sscARROWS,              0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+    { ssoCOUNTER,                          pos,                     83,          15,          25,            9,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfSS4,                       sstaCENTER,             sstsSHADOWED,                3,                      '~',                    1,                      crMONEY,                0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+    { ssoCOUNTER,                          pos,                    111,          15,           0,            0,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfSS4,                       sstaCENTER,             sstsSHADOWED,                2,                      '~',                    1,                      crBOMBS,                0,                      0,                      0,                      0,             0,            0,            0,             NULL },
+    { ssoCOUNTER,                          pos,                    135,          15,           0,            0,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfSS4,                       sstaCENTER,             sstsSHADOWED,                2,                      '~',                    1,                      crARROWS,               0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { ssoCOUNTER,                          pos,                    154,          15,           9,            9,            ssctMISC,                  ssctTEXT,                          0,                        15,                                 ssctSYSTEM,               -1,                                 ssfSS4,                       sstaCENTER,             sstsSHADOWED,                1,                      '~',                    1,                      sscGENKEYMAGIC,         0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { ssoRECT,                             pos,                     59,          11,           4,           10,            0,                         0,                                 0,                         0,                                 0,                         0,                                 1,                            0,                      0,                           0,                      0,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
     { ssoRECT,                             pos,                     59,          37,           4,           10,            0,                         0,                                 0,                         0,                                 0,                         0,                                 1,                            0,                      0,                           0,                      0,                      0,                      0,                      0,                      0,                      0,                      0,             0,            0,            0,             NULL },
@@ -3097,270 +3097,6 @@ void defaultcounters(BITMAP *dest, int32_t x, int32_t y, FONT *tempfont, int32_t
     }
 }
 
-bool is_counter_item(int32_t itemtype, int32_t countertype)
-{
-	itemdata const& itm = itemsbuf[itemtype];
-	int32_t ctr = scounter_to_ctr(countertype);
-	if(ctr == crNONE) return false;
-	if(ctr == itm.cost_counter[0] ||
-		ctr == itm.cost_counter[1])
-		return true;
-    return false;
-}
-
-void add_ssc_ctr(int itemtype, bool& infinite, int32_t& value, bool alt)
-{
-	switch(itemtype)
-	{
-		case -3:
-		case -2:
-			break;
-		case sscRUPEES:
-			if(alt) break;
-			if(current_item_power(itype_wallet))
-				infinite=true;
-				
-			value+=game->get_rupies();
-			break;
-		
-		case sscBOMBS:
-			if(current_item_power(itype_bombbag))
-				infinite=true;
-				
-			value+=game->get_bombs();
-			break;
-		
-		case sscSBOMBS:
-		{
-			int32_t itemid = current_item_id(itype_bombbag);
-			
-			if(itemid>-1 && itemsbuf[itemid].power>0 && itemsbuf[itemid].flags & ITEM_FLAG1)
-				infinite=true;
-				
-			value+=game->get_sbombs();
-			break;
-		}
-		
-		case sscLIFE:
-		{
-			if(alt) break;
-			value+=game->get_life();
-			break;
-		}
-		case sscMAGIC:
-		{
-			value+=game->get_magic();
-			break;
-		}
-		
-		case sscMAXHP:
-		{
-			value+=game->get_maxlife();
-			break;
-		}
-		case sscMAXMP:
-		{
-			value+=game->get_maxmagic();
-			break;
-		}
-		
-		case sscARROWS:
-			if((!get_qr(qr_TRUEARROWS) && current_item_power(itype_wallet)) || current_item_power(itype_quiver))
-				infinite=true;
-				
-			// If Hero somehow got ammunition before getting the arrow,
-			// or if the arrow was disabled in a DMap,
-			// we shouldn't put the value as zero.
-			// if(/*current_item_id(itype_arrow)>-1*/ true)
-			{
-				if(get_qr(qr_TRUEARROWS))
-				{
-					value+=game->get_arrows();
-				}
-				else
-				{
-					value+=game->get_rupies();
-				}
-			}
-			break;
-			
-		case sscGENKEYMAGIC:
-		case sscLEVKEYMAGIC:
-		case sscANYKEYMAGIC:
-		{
-			int32_t itemid = current_item_id(itype_magickey);
-			
-			if(itemid>-1 && !infinite)
-			{
-				if(itemsbuf[itemid].flags&ITEM_FLAG1)
-					infinite = itemsbuf[itemid].power>=get_dlevel();
-				else
-					infinite = itemsbuf[itemid].power==get_dlevel();
-			}
-		}
-		
-		//fall through
-		case sscANYKEYNOMAGIC:
-		case sscLEVKEYNOMAGIC:
-		case sscGENKEYNOMAGIC:
-			if(itemtype == sscGENKEYNOMAGIC || itemtype == sscANYKEYNOMAGIC
-					|| itemtype == sscGENKEYMAGIC || itemtype == sscANYKEYMAGIC)
-				value += game->get_keys();
-				
-			if(itemtype == sscLEVKEYNOMAGIC || itemtype == sscANYKEYNOMAGIC
-					|| itemtype == sscLEVKEYMAGIC || itemtype == sscANYKEYMAGIC)
-				value += game->get_lkeys();
-				
-			break;
-			
-		case sscSCRIPT1: case sscSCRIPT2: case sscSCRIPT3: case sscSCRIPT4: case sscSCRIPT5:
-		case sscSCRIPT6: case sscSCRIPT7: case sscSCRIPT8: case sscSCRIPT9: case sscSCRIPT10:
-		case sscSCRIPT11: case sscSCRIPT12: case sscSCRIPT13: case sscSCRIPT14: case sscSCRIPT15:
-		case sscSCRIPT16: case sscSCRIPT17: case sscSCRIPT18: case sscSCRIPT19: case sscSCRIPT20:
-		case sscSCRIPT21: case sscSCRIPT22: case sscSCRIPT23: case sscSCRIPT24: case sscSCRIPT25:
-			value += game->get_counter(itemtype-3);
-			break;
-		case sscSCRIPT26: case sscSCRIPT27: case sscSCRIPT28: case sscSCRIPT29: case sscSCRIPT30:
-		case sscSCRIPT31: case sscSCRIPT32: case sscSCRIPT33: case sscSCRIPT34: case sscSCRIPT35:
-		case sscSCRIPT36: case sscSCRIPT37: case sscSCRIPT38: case sscSCRIPT39: case sscSCRIPT40:
-		case sscSCRIPT41: case sscSCRIPT42: case sscSCRIPT43: case sscSCRIPT44: case sscSCRIPT45:
-		case sscSCRIPT46: case sscSCRIPT47: case sscSCRIPT48: case sscSCRIPT49: case sscSCRIPT50:
-		case sscSCRIPT51: case sscSCRIPT52: case sscSCRIPT53: case sscSCRIPT54: case sscSCRIPT55:
-		case sscSCRIPT56: case sscSCRIPT57: case sscSCRIPT58: case sscSCRIPT59: case sscSCRIPT60:
-		case sscSCRIPT61: case sscSCRIPT62: case sscSCRIPT63: case sscSCRIPT64: case sscSCRIPT65:
-		case sscSCRIPT66: case sscSCRIPT67: case sscSCRIPT68: case sscSCRIPT69: case sscSCRIPT70:
-		case sscSCRIPT71: case sscSCRIPT72: case sscSCRIPT73: case sscSCRIPT74: case sscSCRIPT75:
-		case sscSCRIPT76: case sscSCRIPT77: case sscSCRIPT78: case sscSCRIPT79: case sscSCRIPT80:
-		case sscSCRIPT81: case sscSCRIPT82: case sscSCRIPT83: case sscSCRIPT84: case sscSCRIPT85:
-		case sscSCRIPT86: case sscSCRIPT87: case sscSCRIPT88: case sscSCRIPT89: case sscSCRIPT90:
-		case sscSCRIPT91: case sscSCRIPT92: case sscSCRIPT93: case sscSCRIPT94: case sscSCRIPT95:
-		case sscSCRIPT96: case sscSCRIPT97: case sscSCRIPT98: case sscSCRIPT99: case sscSCRIPT100:
-			value += game->get_counter(itemtype-7);
-			break;
-			
-		default:
-			break;
-	}
-}
-// itemtype1, itemtype2, itemtype3: Only itemtype1 is used. I'm unsure who made these, who disabled the code
-// for them, and when each occurred. They should probably be hidden, but some very old 2.11/2.50b quests
-// may have used this and we'd need to edit the uest to fix it as-is, so perrhaps hide them only conditionally?
-// or make them flipping work?
-// It seems that the original intent was to be able  to display a sum of multipe counters as one value. -Z (26th Jan, 2020).
-void counter(BITMAP *dest, int32_t x, int32_t y, FONT *tempfont, int32_t color, int32_t shadowcolor, int32_t bgcolor, int32_t alignment, int32_t textstyle, int32_t digits, char idigit, bool showzero, int32_t itemtype1, int32_t itemtype2, int32_t itemtype3, int32_t infiniteitem, bool onlyselected)
-{
-    int32_t value=0;
-    bool infinite=false;
-	int32_t itemtypes[3]={itemtype1, itemtype2, itemtype3};
-    
-    if(game != NULL && game->get_item(infiniteitem) && !item_disabled(infiniteitem))
-    {
-        infinite=true;
-    }
-    
-    char valstring[80];
-    char formatstring[80];
-    sprintf(valstring,"01234567890123456789");
-    sprintf(formatstring, "%%0%dd", digits);
-    
-    if(onlyselected && !(
-		   (Bwpn>-1&&(is_counter_item(Bwpn&0xFF,itemtype1)||is_counter_item(Bwpn&0xFF,itemtype2)||is_counter_item(Bwpn&0xFF,itemtype3)))
-		|| (Awpn>-1&&(is_counter_item(Awpn&0xFF,itemtype1)||is_counter_item(Awpn&0xFF,itemtype2)||is_counter_item(Awpn&0xFF,itemtype3)))
-		|| (Xwpn>-1&&(is_counter_item(Xwpn&0xFF,itemtype1)||is_counter_item(Xwpn&0xFF,itemtype2)||is_counter_item(Xwpn&0xFF,itemtype3)))
-		|| (Ywpn>-1&&(is_counter_item(Ywpn&0xFF,itemtype1)||is_counter_item(Ywpn&0xFF,itemtype2)||is_counter_item(Ywpn&0xFF,itemtype3)))
-		))
-        return;
-    
-    int32_t itemtype;
-    /*
-    for (int32_t i=0; i<3; ++i)
-    {
-      switch (i)
-      {
-        case 0:
-          itemtype=itemtype1;
-          break;
-        case 1:
-          itemtype=itemtype2;
-          break;
-        case 2:
-          itemtype=itemtype3;
-          break;
-      }
-    */
-    itemtype=itemtype1;
-    /* commented out until I find out what it does - it's messing up custom subscreens now as
-    itemtype2 and 3 are zero - so hero's life gets added to the counters */
-    
-    /*	
-	Not sure who did that, but I implemented it in its own section, ignoring counter0] for now.
-	It will need a format change to counter lists in order to allow stacking LIFE on other counters.
-	For the present, counter 0 for item2 and item3 is NULL. -Z (26-Jan-2020)
-    */
-    
-    
-	add_ssc_ctr(itemtype1,infinite,value,false);
-	//Re-implement item2 and item3 stacking counters. -Z 26-Jan-2020
-	if ( /*get_qr(qrSTACKSUBSCREENCOUNTERS) || (*/( FFCore.getQuestHeaderInfo(vZelda) == 0x250 && FFCore.getQuestHeaderInfo(vBuild) >= 33 ) //this ishowit looks in 2.53.1, Beta 25
-		|| ( FFCore.getQuestHeaderInfo(vZelda) > 0x250  ) ) /*)*/
-	{
-		//add item2 and item3 values to item1 values
-		for (int32_t i=1; i<3; ++i)
-		{
-			switch (i)
-			{
-				case 1:
-				{
-					if ( itemtypes[i] == itemtypes[i-1] )
-					{
-						itemtype = -2;
-						break;
-					}
-					else
-					{
-						itemtype=itemtype2;
-						break;
-					}
-				}
-				case 2:
-				{
-					if ( ( itemtypes[i] == itemtypes[i-1] ) || ( itemtypes[i] == itemtypes[i-2] ) )
-					{
-						itemtype = -3;
-						break;
-					}
-					else
-					{
-						itemtype=itemtype3;
-						break;
-					}
-				  
-				}
-			}
-			add_ssc_ctr(itemtype,infinite,value,true);
-		}
-	}
-    
-    // (for loop) }
-    if(!showzero&&!value&&!infinite)
-    {
-        return;
-    }
-    
-    if(infinite)
-    {
-        sprintf(valstring, "%c", idigit);
-    }
-    else
-    {
-        sprintf(valstring, formatstring, value);
-    }
-    
-    textout_styled_aligned_ex(dest,tempfont,valstring,x,y,textstyle,alignment,color,shadowcolor,bgcolor);
-    
-    //  putxnum(dest,x+8,y,game->get_rupies(),tempfont,color,shadowcolor,bgcolor,shadowed,usex,digits,0,idigit);
-}
-
 void minimaptitle(BITMAP *dest, int32_t x, int32_t y, FONT *tempfont, int32_t color, int32_t shadowcolor, int32_t bgcolor, int32_t alignment, int32_t textstyle)
 {
     char dmaptitlesource[2][11];
@@ -3873,45 +3609,5 @@ void sso_bounding_box(BITMAP *bmp, SubscrWidget* widg, int32_t color)
             _allegro_vline(bmp, x+w-1, y+2,  y+h-3, color);
         }
     }
-}
-
-
-int32_t scounter_to_ctr(int32_t ssc)
-{
-	switch(ssc)
-	{
-		case sscRUPEES: return crMONEY;
-		case sscBOMBS: return crBOMBS;
-		case sscSBOMBS: return crSBOMBS;
-		case sscARROWS: return crARROWS;
-		case sscLIFE: return crLIFE;
-		case sscMAGIC: return crMAGIC;
-		case sscGENKEYMAGIC: case sscGENKEYNOMAGIC:
-		case sscANYKEYMAGIC: case sscANYKEYNOMAGIC:
-			return crKEYS;
-		case sscSCRIPT1: case sscSCRIPT2: case sscSCRIPT3: case sscSCRIPT4: case sscSCRIPT5:
-		case sscSCRIPT6: case sscSCRIPT7: case sscSCRIPT8: case sscSCRIPT9: case sscSCRIPT10:
-		case sscSCRIPT11: case sscSCRIPT12: case sscSCRIPT13: case sscSCRIPT14: case sscSCRIPT15:
-		case sscSCRIPT16: case sscSCRIPT17: case sscSCRIPT18: case sscSCRIPT19: case sscSCRIPT20:
-		case sscSCRIPT21: case sscSCRIPT22: case sscSCRIPT23: case sscSCRIPT24: case sscSCRIPT25:
-			return ssc-3;
-		case sscSCRIPT26: case sscSCRIPT27: case sscSCRIPT28: case sscSCRIPT29: case sscSCRIPT30:
-		case sscSCRIPT31: case sscSCRIPT32: case sscSCRIPT33: case sscSCRIPT34: case sscSCRIPT35:
-		case sscSCRIPT36: case sscSCRIPT37: case sscSCRIPT38: case sscSCRIPT39: case sscSCRIPT40:
-		case sscSCRIPT41: case sscSCRIPT42: case sscSCRIPT43: case sscSCRIPT44: case sscSCRIPT45:
-		case sscSCRIPT46: case sscSCRIPT47: case sscSCRIPT48: case sscSCRIPT49: case sscSCRIPT50:
-		case sscSCRIPT51: case sscSCRIPT52: case sscSCRIPT53: case sscSCRIPT54: case sscSCRIPT55:
-		case sscSCRIPT56: case sscSCRIPT57: case sscSCRIPT58: case sscSCRIPT59: case sscSCRIPT60:
-		case sscSCRIPT61: case sscSCRIPT62: case sscSCRIPT63: case sscSCRIPT64: case sscSCRIPT65:
-		case sscSCRIPT66: case sscSCRIPT67: case sscSCRIPT68: case sscSCRIPT69: case sscSCRIPT70:
-		case sscSCRIPT71: case sscSCRIPT72: case sscSCRIPT73: case sscSCRIPT74: case sscSCRIPT75:
-		case sscSCRIPT76: case sscSCRIPT77: case sscSCRIPT78: case sscSCRIPT79: case sscSCRIPT80:
-		case sscSCRIPT81: case sscSCRIPT82: case sscSCRIPT83: case sscSCRIPT84: case sscSCRIPT85:
-		case sscSCRIPT86: case sscSCRIPT87: case sscSCRIPT88: case sscSCRIPT89: case sscSCRIPT90:
-		case sscSCRIPT91: case sscSCRIPT92: case sscSCRIPT93: case sscSCRIPT94: case sscSCRIPT95:
-		case sscSCRIPT96: case sscSCRIPT97: case sscSCRIPT98: case sscSCRIPT99: case sscSCRIPT100:
-			return ssc-7;
-	}
-	return crNONE;
 }
 

@@ -40,7 +40,7 @@ protected:
 	std::shared_ptr<GUI::SelTileSwatch> tswatches[2];
 	std::shared_ptr<GUI::DropDownList> ddl;
 	std::shared_ptr<GUI::TextField> fonttf;
-	std::shared_ptr<GUI::Label> labels[2];
+	std::shared_ptr<GUI::Label> labels[5];
 	std::shared_ptr<GUI::TextField> tfs[3];
 	std::shared_ptr<GUI::Checkbox> cbs[4];
 	
@@ -63,7 +63,7 @@ protected:
 	zasm_meta local_gen_meta;
 	
 	GUI::ListData list_font, list_shadtype, list_aligns, list_buttons, list_items,
-		list_counters, list_itemclass, list_genscr;
+		list_counters, list_counters2, list_itemclass, list_genscr;
 	
 	void updateSelectable();
 	void updateColors();
