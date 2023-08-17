@@ -453,8 +453,67 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 					)
 				)),
 				TabRef(name = "Maps", Column(
-					Row(
-						Label(text = "Placeholder")
+					TabPanel(
+						ptr = &editdmap_tab,
+						TabRef(name = "Without Map",
+							Rows<2>(
+								Label(text = "Minimap"),
+								Label(text = "Large"),
+								Column(
+									SelTileSwatch(
+										tile = local_dmap.minimap_1_tile,
+										cset = local_dmap.minimap_1_cset,
+										tilewid = 5, tilehei = 3,
+										showvals = false,
+										onSelectFunc = [&](int32_t t, int32_t c, int32_t, int32_t)
+										{
+											local_dmap.minimap_1_tile = t;
+											cset = local_dmap.minimap_1_cset = c;
+										}),
+									Label(text = "\n")
+								),
+								SelTileSwatch(
+									topMargin = 0_px,
+									tile = local_dmap.largemap_1_tile,
+									cset = local_dmap.largemap_1_cset,
+									tilewid = 9, tilehei = 5,
+									showvals = false,
+									onSelectFunc = [&](int32_t t, int32_t c, int32_t, int32_t)
+									{
+										local_dmap.largemap_1_tile = t;
+										local_dmap.largemap_1_cset = c;
+									})
+							)
+						),
+						TabRef(name = "With Map",
+							Rows<2>(
+								Label(text = "Minimap"),
+								Label(text = "Large"),
+								Column(
+									SelTileSwatch(
+										tile = local_dmap.minimap_2_tile,
+										cset = local_dmap.minimap_2_cset,
+										tilewid = 5, tilehei = 3,
+										showvals = false,
+										onSelectFunc = [&](int32_t t, int32_t c, int32_t, int32_t)
+										{
+											local_dmap.minimap_2_tile = t;
+											local_dmap.minimap_2_cset = c;
+										}),
+									Label(text = "Setting this tile disables\nthe classic NES minimap.")
+								),
+								SelTileSwatch(
+									tile = local_dmap.largemap_2_tile,
+									cset = local_dmap.largemap_2_cset,
+									tilewid = 9, tilehei = 5,
+									showvals = false,
+									onSelectFunc = [&](int32_t t, int32_t c, int32_t, int32_t)
+									{
+										local_dmap.largemap_2_tile = t;
+										local_dmap.largemap_2_cset = c;
+									})
+							)
+						)
 					)
 				)),
 				TabRef(name = "Flags", Column(

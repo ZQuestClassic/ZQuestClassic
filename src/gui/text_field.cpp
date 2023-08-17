@@ -5,13 +5,14 @@
 #include "jwin.h"
 #include "base/zdefs.h"
 #include "base/zsys.h"
-#include "zq/zquest.h"
 #include <gui/builder.h>
 #include <algorithm>
 #include <cassert>
 #include <cstring>
 #include <string>
 #include <utility>
+
+int32_t d_legacy_edit_proc(int32_t msg, DIALOG* d, int32_t c);
 
 namespace GUI
 {
@@ -483,6 +484,7 @@ void TextField::realize(DialogRunner& runner)
 	}
 	else if (tfType == type::TEXT_LEGACY)
 	{
+		#ifdef IS_ZQUEST
 		alDialog = runner.push(shared_from_this(), DIALOG{
 			newGUIProc<d_legacy_edit_proc>,
 			x, y, getWidth(), getHeight(),
@@ -492,6 +494,7 @@ void TextField::realize(DialogRunner& runner)
 			static_cast<int32_t>(maxLength), 0, // d1, d2
 			buffer.get(), widgFont, nullptr // dp, dp2, dp3
 			});
+		#endif // IS_ZQUEST
 	}
 	else
 	{
