@@ -18,16 +18,21 @@
 #ifdef IS_PLAYER
 extern int32_t directItem;
 extern sprite_list Lwpns;
+bool zq_ignore_item_ownership = true, zq_view_fullctr = false, zq_view_maxctr = false,
+	zq_view_noinf = false, zq_view_allinf = false;
 
 #define ALLOW_NULL_WIDGET replay_version_check(0,19)
 #else
 #define ALLOW_NULL_WIDGET is_zq_replay_test
 extern bool is_zq_replay_test;
+extern bool zq_ignore_item_ownership, zq_view_fullctr, zq_view_maxctr,
+	zq_view_noinf, zq_view_allinf;
 #endif
 
 
 extern gamedata* game; //!TODO ZDEFSCLEAN move to gamedata.h
 extern zinitdata zinit; //!TODO ZDEFSCLEAN move to zinit.h
+extern FFScript FFCore;
 int32_t get_dlevel();
 int32_t get_currdmap();
 int32_t get_homescr();
@@ -98,6 +103,184 @@ void kill_subscr_items()
 	{
 		subscr_override_clkoffsets[q] = -1;
 	}
+}
+
+bool is_counter_item(int32_t itmid, int32_t ctr)
+{
+	itemdata const& itm = itemsbuf[itmid];
+	if(ctr == crNONE) return false;
+	if(ctr == itm.cost_counter[0] ||
+		ctr == itm.cost_counter[1])
+		return true;
+    return false;
+}
+
+int old_ssc_to_new_ctr(int ssc)
+{
+	switch(ssc)
+	{
+		case 0: return crMONEY;
+		case 1: return crBOMBS;
+		case 2: return crSBOMBS;
+		case 3: return crARROWS;
+		case 4: return sscGENKEYMAGIC;
+		case 5: return sscGENKEYNOMAGIC;
+		case 6: return sscLEVKEYMAGIC;
+		case 7: return sscLEVKEYNOMAGIC;
+		case 8: return sscANYKEYMAGIC;
+		case 9: return sscANYKEYNOMAGIC;
+		case 35: return crLIFE;
+		case 36: return crMAGIC;
+		case 37: return sscMAXHP;
+		case 38: return sscMAXMP;
+		default:
+			if(ssc < 0) return ssc;
+			if(ssc >= 10 && ssc <= 34)
+				return crCUSTOM1+(ssc-10);
+			if(ssc >= 39 && ssc <= 104)
+				return crCUSTOM26+(ssc-39);
+			return crNONE;
+	}
+}
+word get_ssc_ctrmax(int ctr)
+{
+	if(ctr == crNONE)
+		return 0;
+	if(zq_view_maxctr)
+		return 65535;
+	dword ret = 0;
+	switch(ctr)
+	{
+		case crARROWS:
+			if(!get_qr(qr_TRUEARROWS))
+				ctr = crMONEY;
+			break;
+		
+		case sscMAXHP:
+		{
+			ret = game->get_maxlife();
+			break;
+		}
+		case sscMAXMP:
+		{
+			ret = game->get_maxmagic();
+			break;
+		}
+		case sscGENKEYMAGIC:
+		case sscLEVKEYMAGIC:
+		case sscANYKEYMAGIC:
+		case sscANYKEYNOMAGIC:
+		case sscLEVKEYNOMAGIC:
+		case sscGENKEYNOMAGIC:
+			if(ctr == sscGENKEYNOMAGIC || ctr == sscANYKEYNOMAGIC
+					|| ctr == sscGENKEYMAGIC || ctr == sscANYKEYMAGIC)
+				ret = game->get_maxcounter(crKEYS);
+				
+			if(ctr == sscLEVKEYNOMAGIC || ctr == sscANYKEYNOMAGIC
+					|| ctr == sscLEVKEYMAGIC || ctr == sscANYKEYMAGIC)
+				ret = 65535;
+				
+			break;
+	}
+	if(ctr > -1)
+		return game->get_maxcounter(ctr);
+	return zc_min(65535,ret);
+}
+word get_ssc_ctr(int ctr, bool* infptr = nullptr)
+{
+	if(ctr == crNONE)
+		return 0;
+	dword ret = 0;
+	bool inf = false;
+	switch(ctr)
+	{
+		case crMONEY:
+			if(current_item_power(itype_wallet))
+				inf = true;
+			break;
+		case crBOMBS:
+			if(current_item_power(itype_bombbag))
+				inf = true;
+			break;
+		case crSBOMBS:
+		{
+			int32_t itemid = current_item_id(itype_bombbag);
+			if(itemid>-1 && itemsbuf[itemid].power>0 && itemsbuf[itemid].flags & ITEM_FLAG1)
+				inf = true;
+			break;
+		}
+		case crARROWS:
+			if(current_item_power(itype_quiver))
+				inf = true;
+			if(!get_qr(qr_TRUEARROWS))
+			{
+				if(current_item_power(itype_wallet))
+					inf = true;
+				ctr = crMONEY;
+			}
+			break;
+		
+		case sscMAXHP:
+		{
+			ret = game->get_maxlife();
+			break;
+		}
+		case sscMAXMP:
+		{
+			ret = game->get_maxmagic();
+			break;
+		}
+		case sscGENKEYMAGIC:
+		case sscLEVKEYMAGIC:
+		case sscANYKEYMAGIC:
+		{
+			int32_t itemid = current_item_id(itype_magickey);
+			if(itemid>-1)
+			{
+				if(itemsbuf[itemid].flags&ITEM_FLAG1)
+					inf = itemsbuf[itemid].power>=get_dlevel();
+				else
+					inf = itemsbuf[itemid].power==get_dlevel();
+			}
+		}
+		[[fallthrough]];
+		case sscANYKEYNOMAGIC:
+		case sscLEVKEYNOMAGIC:
+		case sscGENKEYNOMAGIC:
+			if(ctr == sscGENKEYNOMAGIC || ctr == sscANYKEYNOMAGIC
+					|| ctr == sscGENKEYMAGIC || ctr == sscANYKEYMAGIC)
+				ret += game->get_keys();
+				
+			if(ctr == sscLEVKEYNOMAGIC || ctr == sscANYKEYNOMAGIC
+					|| ctr == sscLEVKEYMAGIC || ctr == sscANYKEYMAGIC)
+				ret += game->get_lkeys();
+				
+			break;
+	}
+	if(infptr)
+		*infptr = inf;
+	if(zq_view_fullctr) return get_ssc_ctrmax(ctr);
+	if(ctr > -1)
+		return inf ? game->get_maxcounter(ctr) : game->get_counter(ctr);
+	return inf ? 65535 : zc_min(65535,ret);
+}
+void add_ssc_ctr(int ctr, bool& infinite, int32_t& value)
+{
+	bool inf = false;
+	value += get_ssc_ctr(ctr, &inf);
+	if(inf) infinite = true;
+}
+bool can_inf(int ctr, int infitm = -1)
+{
+	switch(ctr)
+	{
+		case crMONEY:
+		case crBOMBS:
+		case crSBOMBS:
+		case crARROWS:
+			return true;
+	}
+	return unsigned(infitm < MAXITEMS);
 }
 
 int32_t to_real_font(int32_t ss_font)
@@ -522,7 +705,7 @@ SubscrWidget* SubscrWidget::clone() const
 }
 bool SubscrWidget::copy_prop(SubscrWidget const* src, bool all)
 {
-	if(src->getType() != getType() || src == this)
+	if((src->getType() == widgNULL && getType() != widgNULL) || src == this)
 		return false;
 	flags = src->flags;
 	posflags &= ~(sspUP|sspDOWN|sspSCROLLING);
@@ -684,7 +867,8 @@ bool SW_2x2Frame::copy_prop(SubscrWidget const* src, bool all)
 	if(src->getType() != getType() || src == this)
 		return false;
 	SW_2x2Frame const* other = dynamic_cast<SW_2x2Frame const*>(src);
-	SubscrWidget::copy_prop(other,all);
+	if(!SubscrWidget::copy_prop(other,all))
+		return false;
 	cs = other->cs;
 	tile = other->tile;
 	return true;
@@ -775,7 +959,8 @@ bool SW_Text::copy_prop(SubscrWidget const* src, bool all)
 	if(src->getType() != getType() || src == this)
 		return false;
 	SW_Text const* other = dynamic_cast<SW_Text const*>(src);
-	SubscrWidget::copy_prop(other,all);
+	if(!SubscrWidget::copy_prop(other,all))
+		return false;
 	fontid = other->fontid;
 	text = other->text;
 	align = other->align;
@@ -862,7 +1047,8 @@ bool SW_Line::copy_prop(SubscrWidget const* src, bool all)
 	if(src->getType() != getType() || src == this)
 		return false;
 	SW_Line const* other = dynamic_cast<SW_Line const*>(src);
-	SubscrWidget::copy_prop(other,all);
+	if(!SubscrWidget::copy_prop(other,all))
+		return false;
 	c_line = other->c_line;
 	return true;
 }
@@ -925,7 +1111,8 @@ bool SW_Rect::copy_prop(SubscrWidget const* src, bool all)
 	if(src->getType() != getType() || src == this)
 		return false;
 	SW_Rect const* other = dynamic_cast<SW_Rect const*>(src);
-	SubscrWidget::copy_prop(other,all);
+	if(!SubscrWidget::copy_prop(other,all))
+		return false;
 	c_fill = other->c_fill;
 	c_outline = other->c_outline;
 	return true;
@@ -1034,7 +1221,8 @@ bool SW_Time::copy_prop(SubscrWidget const* src, bool all)
 	if(src->getType() != getType() || src == this)
 		return false;
 	SW_Time const* other = dynamic_cast<SW_Time const*>(src);
-	SubscrWidget::copy_prop(other,all);
+	if(!SubscrWidget::copy_prop(other,all))
+		return false;
 	fontid = other->fontid;
 	align = other->align;
 	shadtype = other->shadtype;
@@ -1120,7 +1308,8 @@ bool SW_MagicMeter::copy_prop(SubscrWidget const* src, bool all)
 	if(src->getType() != getType() || src == this)
 		return false;
 	SW_MagicMeter const* other = dynamic_cast<SW_MagicMeter const*>(src);
-	SubscrWidget::copy_prop(other,all);
+	if(!SubscrWidget::copy_prop(other,all))
+		return false;
 	return true;
 }
 int32_t SW_MagicMeter::read(PACKFILE *f, word s_version)
@@ -1180,7 +1369,8 @@ bool SW_LifeMeter::copy_prop(SubscrWidget const* src, bool all)
 	if(src->getType() != getType() || src == this)
 		return false;
 	SW_LifeMeter const* other = dynamic_cast<SW_LifeMeter const*>(src);
-	SubscrWidget::copy_prop(other,all);
+	if(!SubscrWidget::copy_prop(other,all))
+		return false;
 	rows = other->rows;
 	return true;
 }
@@ -1274,7 +1464,8 @@ bool SW_ButtonItem::copy_prop(SubscrWidget const* src, bool all)
 	if(src->getType() != getType() || src == this)
 		return false;
 	SW_ButtonItem const* other = dynamic_cast<SW_ButtonItem const*>(src);
-	SubscrWidget::copy_prop(other,all);
+	if(!SubscrWidget::copy_prop(other,all))
+		return false;
 	btn = other->btn;
 	return true;
 }
@@ -1307,12 +1498,16 @@ bool SW_Counter::load_old(subscreen_object const& old)
 	fontid = to_real_font(old.d1);
 	align = old.d2;
 	shadtype = old.d3;
-	ctrs[0] = old.d7;
-	ctrs[1] = old.d8;
-	ctrs[2] = old.d9;
+	ctrs[0] = old_ssc_to_new_ctr(old.d7);
+	ctrs[1] = old_ssc_to_new_ctr(old.d8);
+	ctrs[2] = old_ssc_to_new_ctr(old.d9);
+	if(ctrs[1] == crMONEY)
+		ctrs[1] = crNONE;
+	if(ctrs[2] == crMONEY)
+		ctrs[2] = crNONE;
 	SETFLAG(flags,SUBSCR_COUNTER_SHOW0,old.d6&0b01);
 	SETFLAG(flags,SUBSCR_COUNTER_ONLYSEL,old.d6&0b10);
-	digits = old.d4;
+	mindigits = old.d4;
 	infitm = old.d10;
 	infchar = old.d5;
 	c_text.load_old(old,1);
@@ -1330,7 +1525,7 @@ int16_t SW_Counter::getY() const
 }
 word SW_Counter::getW() const
 {
-	return text_length(get_zc_font(fontid), "0")*zc_max(1,digits) + shadow_w(shadtype);
+	return text_length(get_zc_font(fontid), "0")*(maxdigits>0?maxdigits:zc_max(1,mindigits)) + shadow_w(shadtype);
 }
 word SW_Counter::getH() const
 {
@@ -1354,10 +1549,85 @@ byte SW_Counter::getType() const
 void SW_Counter::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
 	FONT* tempfont = get_zc_font(fontid);
-	counter(dest, x+xofs,y+yofs, tempfont, c_text.get_color(),
-		c_shadow.get_color(), c_bg.get_color(),align,shadtype,digits,infchar,
-		flags&SUBSCR_COUNTER_SHOW0, ctrs[0], ctrs[1], ctrs[2], infitm,
-		flags&SUBSCR_COUNTER_ONLYSEL);
+	auto b = zq_ignore_item_ownership;
+	zq_ignore_item_ownership = false;
+	
+	{
+		int32_t value=0;
+		bool infinite = false, draw = true;
+		
+		if(zq_view_allinf && (can_inf(ctrs[0],infitm)||can_inf(ctrs[1])||can_inf(ctrs[2])))
+			infinite = true;
+		else if(game != NULL && infitm > -1 && game->get_item(infitm) && !item_disabled(infitm))
+			infinite = true;
+		
+		char valstring[80];
+		char formatstring[80];
+		sprintf(valstring,"01234567890123456789");
+		sprintf(formatstring, "%%0%dd", mindigits);
+		
+		if(flags&SUBSCR_COUNTER_ONLYSEL)
+		{
+			draw = false;
+			for(int q = 0; q < 3; ++q)
+			{
+				if((Bwpn>-1&&is_counter_item(Bwpn&0xFF,ctrs[q]))
+					|| (Awpn>-1&&is_counter_item(Awpn&0xFF,ctrs[q]))
+					|| (Xwpn>-1&&is_counter_item(Xwpn&0xFF,ctrs[q]))
+					|| (Ywpn>-1&&is_counter_item(Ywpn&0xFF,ctrs[q])))
+				{
+					draw = true;
+					break;
+				}
+			}
+		}
+		
+		if(draw)
+		{
+			int maxty = 1;
+			if (( FFCore.getQuestHeaderInfo(vZelda) == 0x250 && FFCore.getQuestHeaderInfo(vBuild) >= 33 )
+					|| ( FFCore.getQuestHeaderInfo(vZelda) > 0x250  ) )
+				maxty = 3;
+			
+			for(int q = 0; q < maxty; ++q)
+			{
+				int ty = ctrs[q];
+				for(int p = 0; p < q; ++p) //prune duplicates
+					if(ctrs[p]==ty)
+						ty = crNONE;
+				if(q>0 && get_qr(qr_OLD_SUBSCR))
+					switch(ctrs[q])
+					{
+						case crMONEY:
+						case crLIFE:
+							continue;
+					}
+				add_ssc_ctr(ctrs[q],infinite,value);
+			}
+			
+			if(zq_view_noinf)
+				infinite = false;
+			
+			if(!(flags&SUBSCR_COUNTER_SHOW0)&&!value&&!infinite)
+				return;
+			
+			if(infinite)
+				sprintf(valstring, "%c", infchar);
+			else
+			{
+				if(maxdigits)
+				{
+					auto mval = pow(10,maxdigits);
+					if(value >= mval)
+						value = mval-1;
+				}
+				sprintf(valstring, formatstring, value);
+			}
+			textout_styled_aligned_ex(dest,tempfont,valstring,x+xofs,y+yofs,shadtype,align,c_text.get_color(),c_shadow.get_color(),c_bg.get_color());
+		}
+	}
+	
+	zq_ignore_item_ownership = b;
 }
 SubscrWidget* SW_Counter::clone() const
 {
@@ -1368,7 +1638,8 @@ bool SW_Counter::copy_prop(SubscrWidget const* src, bool all)
 	if(src->getType() != getType() || src == this)
 		return false;
 	SW_Counter const* other = dynamic_cast<SW_Counter const*>(src);
-	SubscrWidget::copy_prop(other,all);
+	if(!SubscrWidget::copy_prop(other,all))
+		return false;
 	fontid = other->fontid;
 	align = other->align;
 	shadtype = other->shadtype;
@@ -1378,7 +1649,8 @@ bool SW_Counter::copy_prop(SubscrWidget const* src, bool all)
 	ctrs[0] = other->ctrs[0];
 	ctrs[1] = other->ctrs[1];
 	ctrs[2] = other->ctrs[2];
-	digits = other->digits;
+	mindigits = other->mindigits;
+	maxdigits = other->maxdigits;
 	infitm = other->infitm;
 	infchar = other->infchar;
 	return true;
@@ -1405,7 +1677,9 @@ int32_t SW_Counter::read(PACKFILE *f, word s_version)
 		return qe_invalid;
 	if(!p_igetl(&ctrs[2],f))
 		return qe_invalid;
-	if(!p_getc(&digits,f))
+	if(!p_getc(&mindigits,f))
+		return qe_invalid;
+	if(!p_getc(&maxdigits,f))
 		return qe_invalid;
 	if(!p_igetl(&infitm,f))
 		return qe_invalid;
@@ -1435,7 +1709,9 @@ int32_t SW_Counter::write(PACKFILE *f) const
 		new_return(1);
 	if(!p_iputl(ctrs[2],f))
 		new_return(1);
-	if(!p_putc(digits,f))
+	if(!p_putc(mindigits,f))
+		new_return(1);
+	if(!p_putc(maxdigits,f))
 		new_return(1);
 	if(!p_iputl(infitm,f))
 		new_return(1);
@@ -1500,7 +1776,8 @@ bool SW_Counters::copy_prop(SubscrWidget const* src, bool all)
 	if(src->getType() != getType() || src == this)
 		return false;
 	SW_Counters const* other = dynamic_cast<SW_Counters const*>(src);
-	SubscrWidget::copy_prop(other,all);
+	if(!SubscrWidget::copy_prop(other,all))
+		return false;
 	fontid = other->fontid;
 	shadtype = other->shadtype;
 	c_text = other->c_text;
@@ -1613,7 +1890,8 @@ bool SW_MMapTitle::copy_prop(SubscrWidget const* src, bool all)
 	if(src->getType() != getType() || src == this)
 		return false;
 	SW_MMapTitle const* other = dynamic_cast<SW_MMapTitle const*>(src);
-	SubscrWidget::copy_prop(other,all);
+	if(!SubscrWidget::copy_prop(other,all))
+		return false;
 	fontid = other->fontid;
 	align = other->align;
 	shadtype = other->shadtype;
@@ -1704,7 +1982,8 @@ bool SW_MMap::copy_prop(SubscrWidget const* src, bool all)
 	if(src->getType() != getType() || src == this)
 		return false;
 	SW_MMap const* other = dynamic_cast<SW_MMap const*>(src);
-	SubscrWidget::copy_prop(other,all);
+	if(!SubscrWidget::copy_prop(other,all))
+		return false;
 	c_plr = other->c_plr;
 	c_cmp_blink = other->c_cmp_blink;
 	c_cmp_off = other->c_cmp_off;
@@ -1779,7 +2058,8 @@ bool SW_LMap::copy_prop(SubscrWidget const* src, bool all)
 	if(src->getType() != getType() || src == this)
 		return false;
 	SW_LMap const* other = dynamic_cast<SW_LMap const*>(src);
-	SubscrWidget::copy_prop(other,all);
+	if(!SubscrWidget::copy_prop(other,all))
+		return false;
 	c_room = other->c_room;
 	c_plr = other->c_plr;
 	return true;
@@ -1842,7 +2122,8 @@ bool SW_Clear::copy_prop(SubscrWidget const* src, bool all)
 	if(src->getType() != getType() || src == this)
 		return false;
 	SW_Clear const* other = dynamic_cast<SW_Clear const*>(src);
-	SubscrWidget::copy_prop(other,all);
+	if(!SubscrWidget::copy_prop(other,all))
+		return false;
 	c_bg = other->c_bg;
 	return true;
 }
@@ -2272,7 +2553,8 @@ bool SW_ItemSlot::copy_prop(SubscrWidget const* src, bool all)
 	if(src->getType() != getType() || src == this)
 		return false;
 	SW_ItemSlot const* other = dynamic_cast<SW_ItemSlot const*>(src);
-	SubscrWidget::copy_prop(other,all);
+	if(!SubscrWidget::copy_prop(other,all))
+		return false;
 	iid = other->iid;
 	iclass = other->iclass;
 	return true;
@@ -2345,7 +2627,8 @@ bool SW_TriFrame::copy_prop(SubscrWidget const* src, bool all)
 	if(src->getType() != getType() || src == this)
 		return false;
 	SW_TriFrame const* other = dynamic_cast<SW_TriFrame const*>(src);
-	SubscrWidget::copy_prop(other,all);
+	if(!SubscrWidget::copy_prop(other,all))
+		return false;
 	frame_tile = other->frame_tile;
 	piece_tile = other->piece_tile;
 	frame_cset = other->frame_cset;
@@ -2434,7 +2717,8 @@ bool SW_McGuffin::copy_prop(SubscrWidget const* src, bool all)
 	if(src->getType() != getType() || src == this)
 		return false;
 	SW_McGuffin const* other = dynamic_cast<SW_McGuffin const*>(src);
-	SubscrWidget::copy_prop(other,all);
+	if(!SubscrWidget::copy_prop(other,all))
+		return false;
 	tile = other->tile;
 	number = other->number;
 	cset = other->cset;
@@ -2512,7 +2796,8 @@ bool SW_TileBlock::copy_prop(SubscrWidget const* src, bool all)
 	if(src->getType() != getType() || src == this)
 		return false;
 	SW_TileBlock const* other = dynamic_cast<SW_TileBlock const*>(src);
-	SubscrWidget::copy_prop(other,all);
+	if(!SubscrWidget::copy_prop(other,all))
+		return false;
 	tile = other->tile;
 	flip = other->flip;
 	cs = other->cs;
@@ -2626,7 +2911,8 @@ bool SW_MiniTile::copy_prop(SubscrWidget const* src, bool all)
 	if(src->getType() != getType() || src == this)
 		return false;
 	SW_MiniTile const* other = dynamic_cast<SW_MiniTile const*>(src);
-	SubscrWidget::copy_prop(other,all);
+	if(!SubscrWidget::copy_prop(other,all))
+		return false;
 	tile = other->tile;
 	special_tile = other->special_tile;
 	crn = other->crn;
@@ -2785,7 +3071,8 @@ bool SW_Selector::copy_prop(SubscrWidget const* src, bool all)
 	if(src->getType() != getType() || src == this)
 		return false;
 	SW_Selector const* other = dynamic_cast<SW_Selector const*>(src);
-	SubscrWidget::copy_prop(other,all);
+	if(!SubscrWidget::copy_prop(other,all))
+		return false;
 	return true;
 }
 int32_t SW_Selector::read(PACKFILE *f, word s_version)
@@ -2801,65 +3088,36 @@ int32_t SW_Selector::write(PACKFILE *f) const
 	return 0;
 }
 
-SW_LifeGaugePiece::SW_LifeGaugePiece(subscreen_object const& old) : SW_LifeGaugePiece()
+bool SW_GaugePiece::infinite() const
 {
-	load_old(old);
+	return (inf_item > -1 && (!game || (game->get_item(inf_item) && !item_disabled(inf_item))));
 }
-bool SW_LifeGaugePiece::load_old(subscreen_object const& old)
-{
-	if(old.type != ssoLIFEGAUGE)
-		return false;
-	SubscrWidget::load_old(old);
-	mts[0].tilecrn = old.d2;
-	mts[0].cset = old.colortype1;
-	mts[1].tilecrn = old.d3;
-	mts[1].cset = old.color1;
-	mts[2].tilecrn = old.d4;
-	mts[2].cset = old.colortype2;
-	mts[3].tilecrn = old.d5;
-	mts[3].cset = old.color2;
-	SETFLAG(flags, SUBSCR_LGAUGE_MOD1, old.d10&0x01);
-	SETFLAG(flags, SUBSCR_LGAUGE_MOD2, old.d10&0x02);
-	SETFLAG(flags, SUBSCR_LGAUGE_MOD3, old.d10&0x04);
-	SETFLAG(flags, SUBSCR_LGAUGE_MOD4, old.d10&0x08);
-	SETFLAG(flags, SUBSCR_LGAUGE_UNQLAST, old.d10&0x10);
-	frames = 1;
-	speed = 0;
-	delay = 0;
-	container = old.d1;
-	return true;
-}
-int16_t SW_LifeGaugePiece::getX() const
+int16_t SW_GaugePiece::getX() const
 {
 	return x + (grid_xoff < 0 ? gauge_hei*grid_xoff : 0);
 }
-int16_t SW_LifeGaugePiece::getY() const
+int16_t SW_GaugePiece::getY() const
 {
-	auto sz = ((flags&SUBSCR_LGAUGE_FULLTILE)?16:8);
+	auto sz = ((flags&SUBSCR_GAUGE_FULLTILE)?16:8);
 	return y + (grid_yoff < 0 ? gauge_hei*grid_yoff : 0);
 }
-word SW_LifeGaugePiece::getW() const
+word SW_GaugePiece::getW() const
 {
-	auto sz = ((flags&SUBSCR_LGAUGE_FULLTILE)?16:8);
+	auto sz = ((flags&SUBSCR_GAUGE_FULLTILE)?16:8);
 	return (gauge_wid+1) * sz + gauge_wid * hspace + gauge_hei * abs(grid_xoff);
 }
-word SW_LifeGaugePiece::getH() const
+word SW_GaugePiece::getH() const
 {
-	auto sz = ((flags&SUBSCR_LGAUGE_FULLTILE)?16:8);
+	auto sz = ((flags&SUBSCR_GAUGE_FULLTILE)?16:8);
 	return (gauge_hei+1) * sz + gauge_hei * vspace + gauge_wid * abs(grid_yoff);
 }
-byte SW_LifeGaugePiece::getType() const
+
+void SW_GaugePiece::draw_piece(BITMAP* dest, int dx, int dy, int container, int anim_offs) const
 {
-	return widgLGAUGE;
-}
-void SW_LifeGaugePiece::draw_piece(BITMAP* dest, int dx, int dy, SubscrPage& page, int container, int anim_offs) const
-{
-	int containers=game->get_maxlife()/game->get_hp_per_heart();
+	word ctr_cur = get_ctr(), ctr_max = get_ctr_max(),
+		ctr_per_cont = get_per_container();
+	int containers=ctr_max/ctr_per_cont;
 	int fr = frames ? frames : 1;
-	int spd = speed ? speed : 1;
-	int tile, cset;
-	bool mod_value;
-	bool fulltile = flags&SUBSCR_LGAUGE_FULLTILE;
 	
 	int ind = 3;
 	if(container<containers)
@@ -2870,79 +3128,84 @@ void SW_LifeGaugePiece::draw_piece(BITMAP* dest, int dx, int dy, SubscrPage& pag
 		ind = 2;
 	//else if (container>containers+1)
 	
-	int mtile=mts[ind].tilecrn;
-	cset=mts[ind].cset;
-	mod_value=(flags&(SUBSCR_LGAUGE_MOD1<<ind));
-	tile = mtile>>2;
+	int mtile = mts[ind].tilecrn;
+	int cset = mts[ind].cset;
+	bool mod_value = (flags&(SUBSCR_GAUGE_MOD1<<ind));
+	int tile = mtile>>2;
 	
-	int hp_ofs = 0;
-	if(mod_value) //Change the tile based on HP
+	bool fulltile = (flags&SUBSCR_GAUGE_FULLTILE);
+	
+	int ctr_ofs = 0;
+	if(mod_value) //Change the tile based on ctr
 	{
-		auto hp = game->get_life();
-		auto hpph = game->get_hp_per_heart();
 		bool full = false;
 		if(!fulltile && get_qr(qr_OLD_GAUGE_TILE_LAYOUT))
 		{
 			int offs_0 = (fr + (4-(fr%4)));
-			if(hp>=container*hpph)
+			if(ctr_cur>=container*ctr_per_cont)
 				full = true;
-			else if(((container-1)*hpph)>hp)
-				hp_ofs=0;
+			else if(((container-1)*ctr_per_cont)>ctr_cur)
+				ctr_ofs=0;
 			else
-				hp_ofs=((hp-((container-1)*hpph))%hpph);
+				ctr_ofs=((ctr_cur-((container-1)*ctr_per_cont))%ctr_per_cont);
 			
-			hp_ofs /= (unit_per_frame+1);
+			ctr_ofs /= (unit_per_frame+1);
 			if(full)
 			{
-				if((flags&SUBSCR_LGAUGE_UNQLAST) && hp==container*hpph)
-					hp_ofs = hpph / (unit_per_frame+1) + 3 + offs_0;
+				if((flags&SUBSCR_GAUGE_UNQLAST) && ctr_cur==container*ctr_per_cont)
+					ctr_ofs = ctr_per_cont / (unit_per_frame+1) + 3 + offs_0;
 			}
-			else hp_ofs += offs_0;
+			else ctr_ofs += offs_0;
 		}
 		else
 		{
-			if(((container-1)*hpph)>hp)
-				hp_ofs = 0;
-			else if(full = hp>=container*hpph)
-				hp_ofs = hpph+unit_per_frame;
+			if(((container-1)*ctr_per_cont)>ctr_cur)
+				ctr_ofs = 0;
+			else if(full = ctr_cur>=container*ctr_per_cont)
+				ctr_ofs = ctr_per_cont+unit_per_frame;
 			else
-				hp_ofs = (hp-((container-1)*hpph))%hpph;
-			hp_ofs /= (unit_per_frame+1);
-			if(full && (flags&SUBSCR_LGAUGE_UNQLAST) && hp==container*hpph)
-				++hp_ofs;
+				ctr_ofs = (ctr_cur-((container-1)*ctr_per_cont))%ctr_per_cont;
+			ctr_ofs /= (unit_per_frame+1);
+			if(full && (flags&SUBSCR_GAUGE_UNQLAST) && ctr_cur==container*ctr_per_cont)
+				++ctr_ofs;
 		}
 	}
 	
-	int offs = (hp_ofs*fr)+anim_offs;
+	int offs = (ctr_ofs*fr)+anim_offs;
 	
 	if(fulltile)
 		overtile16(dest,tile+offs,dx,dy,cset,0);
 	else overtile8(dest,mtile+offs,dx,dy,cset,0);
 }
-void SW_LifeGaugePiece::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
+void SW_GaugePiece::draw(BITMAP* dest, int xofs, int yofs, SubscrPage& page) const
 {
-	if(replay_version_check(0,19))
+	auto b = zq_ignore_item_ownership;
+	zq_ignore_item_ownership = false;
+	
+	bool inf = infinite();
+	if(flags & (inf ? SUBSCR_GAUGE_INFITM_BAN : SUBSCR_GAUGE_INFITM_REQ))
 	{
-		zc_oldrand();zc_oldrand();zc_oldrand();
+		zq_ignore_item_ownership = b;
+		return;
 	}
 	
 	int anim_offs = 0;
 	bool animate = true;
-	auto hp = game->get_life();
-	auto mhp = game->get_maxlife();
-	bool skipanim = frames > 1 && (flags&SUBSCR_LGAUGE_ANIM_SKIP);
-	if(flags&SUBSCR_LGAUGE_ANIM_PERCENT)
+	auto ctr = get_ctr();
+	auto ctr_max = get_ctr_max();
+	bool skipanim = frames > 1 && (flags&SUBSCR_GAUGE_ANIM_SKIP);
+	if(flags&SUBSCR_GAUGE_ANIM_PERCENT)
 	{
-		if((flags&SUBSCR_LGAUGE_ANIM_UNDER) && ((1000*hp)/mhp) > (10*anim_val))
+		if((flags&SUBSCR_GAUGE_ANIM_UNDER) && ((1000*ctr)/ctr_max) > (10*anim_val))
 			animate = false;
-		if((flags&SUBSCR_LGAUGE_ANIM_OVER) && ((1000*hp)/mhp) < (10*anim_val))
+		if((flags&SUBSCR_GAUGE_ANIM_OVER) && ((1000*ctr)/ctr_max) < (10*anim_val))
 			animate = false;
 	}
 	else
 	{
-		if((flags&SUBSCR_LGAUGE_ANIM_UNDER) && hp > anim_val)
+		if((flags&SUBSCR_GAUGE_ANIM_UNDER) && ctr > anim_val)
 			animate = false;
-		if((flags&SUBSCR_LGAUGE_ANIM_OVER) && hp < anim_val)
+		if((flags&SUBSCR_GAUGE_ANIM_OVER) && ctr < anim_val)
 			animate = false;
 	}
 	if(animate)
@@ -2962,14 +3225,14 @@ void SW_LifeGaugePiece::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPag
 	
 	if(!gauge_hei && !gauge_wid) //1x1
 	{
-		draw_piece(dest, x+xofs, y+yofs, page, container, anim_offs);
+		draw_piece(dest, x+xofs, y+yofs, container, anim_offs);
 	}
 	else
 	{
-		bool colbased = (gridflags&LGAUGE_GRID_COLUMN1ST) || !gauge_wid;
-		bool rtol = (gridflags&LGAUGE_GRID_RTOL), ttob = (gridflags&LGAUGE_GRID_TTOB),
-			snake = (gridflags&LGAUGE_GRID_SNAKE);
-		auto sz = (flags&SUBSCR_LGAUGE_FULLTILE)?16:8;
+		bool colbased = (gridflags&GAUGE_GRID_COLUMN1ST) || !gauge_wid;
+		bool rtol = (gridflags&GAUGE_GRID_RTOL), ttob = (gridflags&GAUGE_GRID_TTOB),
+			snake = (gridflags&GAUGE_GRID_SNAKE);
+		auto sz = (flags&SUBSCR_GAUGE_FULLTILE)?16:8;
 		bool snakeoffs = false;
 		if(colbased) //columns then rows
 		{
@@ -2981,7 +3244,7 @@ void SW_LifeGaugePiece::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPag
 						auto curx = (rtol ? gauge_wid-x2 : x2), cury = (ttob ? y2 : gauge_hei-y2);
 						int xo = ((sz+hspace) * curx) + (grid_xoff * cury);
 						int yo = ((sz+vspace) * cury) + (grid_yoff * curx);
-						draw_piece(dest, x+xofs+xo, y+yofs+yo, page, container+offs, anim_offs);
+						draw_piece(dest, x+xofs+xo, y+yofs+yo, container+offs, anim_offs);
 					}
 				else
 					for(int y2 = 0; y2 <= gauge_hei; ++y2, ++offs)
@@ -2989,7 +3252,7 @@ void SW_LifeGaugePiece::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPag
 						auto curx = (rtol ? gauge_wid-x2 : x2), cury = (ttob ? y2 : gauge_hei-y2);
 						int xo = ((sz+hspace) * curx) + (grid_xoff * cury);
 						int yo = ((sz+vspace) * cury) + (grid_yoff * curx);
-						draw_piece(dest, x+xofs+xo, y+yofs+yo, page, container+offs, anim_offs);
+						draw_piece(dest, x+xofs+xo, y+yofs+yo, container+offs, anim_offs);
 					}
 				if(snake) snakeoffs = !snakeoffs;
 			}
@@ -3004,7 +3267,7 @@ void SW_LifeGaugePiece::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPag
 						auto curx = (rtol ? gauge_wid-x2 : x2), cury = (ttob ? y2 : gauge_hei-y2);
 						int xo = ((sz+hspace) * curx) + (grid_xoff * cury);
 						int yo = ((sz+vspace) * cury) + (grid_yoff * curx);
-						draw_piece(dest, x+xofs+xo, y+yofs+yo, page, container+offs, anim_offs);
+						draw_piece(dest, x+xofs+xo, y+yofs+yo, container+offs, anim_offs);
 					}
 				else
 					for(int x2 = 0; x2 <= gauge_wid; ++x2, ++offs)
@@ -3012,23 +3275,30 @@ void SW_LifeGaugePiece::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPag
 						auto curx = (rtol ? gauge_wid-x2 : x2), cury = (ttob ? y2 : gauge_hei-y2);
 						int xo = ((sz+hspace) * curx) + (grid_xoff * cury);
 						int yo = ((sz+vspace) * cury) + (grid_yoff * curx);
-						draw_piece(dest, x+xofs+xo, y+yofs+yo, page, container+offs, anim_offs);
+						draw_piece(dest, x+xofs+xo, y+yofs+yo, container+offs, anim_offs);
 					}
 				if(snake) snakeoffs = !snakeoffs;
 			}
 		}
 	}
+	zq_ignore_item_ownership = b;
 }
-SubscrWidget* SW_LifeGaugePiece::clone() const
+bool SW_GaugePiece::copy_prop(SubscrWidget const* src, bool all)
 {
-	return new SW_LifeGaugePiece(*this);
-}
-bool SW_LifeGaugePiece::copy_prop(SubscrWidget const* src, bool all)
-{
-	if(src->getType() != getType() || src == this)
+	if(src == this)
 		return false;
-	SW_LifeGaugePiece const* other = dynamic_cast<SW_LifeGaugePiece const*>(src);
-	SubscrWidget::copy_prop(other,all);
+	switch(src->getType())
+	{
+		case widgLGAUGE:
+		case widgMGAUGE:
+		case widgMISCGAUGE:
+			break;
+		default:
+			return false;
+	}
+	SW_GaugePiece const* other = dynamic_cast<SW_GaugePiece const*>(src);
+	if(!SubscrWidget::copy_prop(other,all))
+		return false;
 	mts[0] = other->mts[0];
 	mts[1] = other->mts[1];
 	mts[2] = other->mts[2];
@@ -3039,25 +3309,27 @@ bool SW_LifeGaugePiece::copy_prop(SubscrWidget const* src, bool all)
 	unit_per_frame = other->unit_per_frame;
 	gauge_wid = other->gauge_wid;
 	gauge_hei = other->gauge_hei;
-	hspace = other->hspace;
-	vspace = other->vspace;
-	grid_xoff = other->grid_xoff;
-	grid_yoff = other->grid_yoff;
 	anim_val = other->anim_val;
+	inf_item = other->inf_item;
 	if(all)
 	{
 		container = other->container;
+		hspace = other->hspace;
+		vspace = other->vspace;
+		grid_xoff = other->grid_xoff;
+		grid_yoff = other->grid_yoff;
 		gridflags = other->gridflags;
 	}
 	bool frcond = frames <= 1;
-	bool acond = !(frcond || (flags & (SUBSCR_LGAUGE_ANIM_UNDER|SUBSCR_LGAUGE_ANIM_OVER)));
-	bool frcond2 = frcond || (!acond && frames <= 2 && (flags & SUBSCR_LGAUGE_ANIM_SKIP));
+	bool acond = frcond || !(flags & (SUBSCR_GAUGE_ANIM_UNDER|SUBSCR_GAUGE_ANIM_OVER));
+	bool frcond2 = frcond || (!acond && frames <= 2 && (flags & SUBSCR_GAUGE_ANIM_SKIP));
+	bool infcond = !(flags & (SUBSCR_GAUGE_INFITM_REQ|SUBSCR_GAUGE_INFITM_BAN));
 	if(frcond)
 	{
-		SETFLAG(flags, SUBSCR_LGAUGE_ANIM_UNDER, false);
-		SETFLAG(flags, SUBSCR_LGAUGE_ANIM_OVER, false);
-		SETFLAG(flags, SUBSCR_LGAUGE_ANIM_PERCENT, false);
-		SETFLAG(flags, SUBSCR_LGAUGE_ANIM_SKIP, false);
+		SETFLAG(flags, SUBSCR_GAUGE_ANIM_UNDER, false);
+		SETFLAG(flags, SUBSCR_GAUGE_ANIM_OVER, false);
+		SETFLAG(flags, SUBSCR_GAUGE_ANIM_PERCENT, false);
+		SETFLAG(flags, SUBSCR_GAUGE_ANIM_SKIP, false);
 	}
 	if(acond)
 	{
@@ -3068,9 +3340,11 @@ bool SW_LifeGaugePiece::copy_prop(SubscrWidget const* src, bool all)
 		speed = 1;
 		delay = 0;
 	}
+	if(infcond)
+		inf_item = -1;
 	return true;
 }
-int32_t SW_LifeGaugePiece::read(PACKFILE *f, word s_version)
+int32_t SW_GaugePiece::read(PACKFILE* f, word s_version)
 {
 	if(auto ret = SubscrWidget::read(f,s_version))
 		return ret;
@@ -3080,8 +3354,9 @@ int32_t SW_LifeGaugePiece::read(PACKFILE *f, word s_version)
 	if(!p_igetw(&frames, f))
 		return qe_invalid;
 	bool frcond = frames <= 1;
-	bool acond = !(frcond || (flags & (SUBSCR_LGAUGE_ANIM_UNDER|SUBSCR_LGAUGE_ANIM_OVER)));
-	bool frcond2 = frcond || (!acond && frames <= 2 && (flags & SUBSCR_LGAUGE_ANIM_SKIP));
+	bool acond = frcond || !(flags & (SUBSCR_GAUGE_ANIM_UNDER|SUBSCR_GAUGE_ANIM_OVER));
+	bool frcond2 = frcond || (!acond && frames <= 2 && (flags & SUBSCR_GAUGE_ANIM_SKIP));
+	bool infcond = !(flags & (SUBSCR_GAUGE_INFITM_REQ|SUBSCR_GAUGE_INFITM_BAN));
 	if(!frcond2)
 	{
 		if(!p_igetw(&speed, f))
@@ -3115,13 +3390,19 @@ int32_t SW_LifeGaugePiece::read(PACKFILE *f, word s_version)
 		if(!p_igetw(&anim_val, f))
 			return qe_invalid;
 	}
+	if(!infcond)
+	{
+		if(!p_igetw(&inf_item, f))
+			return qe_invalid;
+	}
 	return 0;
 }
-int32_t SW_LifeGaugePiece::write(PACKFILE *f) const
+int32_t SW_GaugePiece::write(PACKFILE* f) const
 {
 	bool frcond = frames <= 1;
-	bool acond = !(frcond || (flags & (SUBSCR_LGAUGE_ANIM_UNDER|SUBSCR_LGAUGE_ANIM_OVER)));
-	bool frcond2 = frcond || (!acond && frames <= 2 && (flags & SUBSCR_LGAUGE_ANIM_SKIP));
+	bool acond = frcond || !(flags & (SUBSCR_GAUGE_ANIM_UNDER|SUBSCR_GAUGE_ANIM_OVER));
+	bool frcond2 = frcond || (!acond && frames <= 2 && (flags & SUBSCR_GAUGE_ANIM_SKIP));
+	bool infcond = !(flags & (SUBSCR_GAUGE_INFITM_REQ|SUBSCR_GAUGE_INFITM_BAN));
 	if(auto ret = SubscrWidget::write(f))
 		return ret;
 	for(auto q = 0; q < 4; ++q)
@@ -3162,7 +3443,89 @@ int32_t SW_LifeGaugePiece::write(PACKFILE *f) const
 		if(!p_iputw(anim_val, f))
 			new_return(1);
 	}
+	if(!infcond)
+	{
+		if(!p_iputw(inf_item, f))
+			new_return(1);
+	}
 	return 0;
+}
+
+SW_LifeGaugePiece::SW_LifeGaugePiece(subscreen_object const& old) : SW_LifeGaugePiece()
+{
+	load_old(old);
+}
+bool SW_LifeGaugePiece::load_old(subscreen_object const& old)
+{
+	if(old.type != ssoLIFEGAUGE)
+		return false;
+	SubscrWidget::load_old(old);
+	mts[0].tilecrn = old.d2;
+	mts[0].cset = old.colortype1;
+	mts[1].tilecrn = old.d3;
+	mts[1].cset = old.color1;
+	mts[2].tilecrn = old.d4;
+	mts[2].cset = old.colortype2;
+	mts[3].tilecrn = old.d5;
+	mts[3].cset = old.color2;
+	SETFLAG(flags, SUBSCR_GAUGE_MOD1, old.d10&0x01);
+	SETFLAG(flags, SUBSCR_GAUGE_MOD2, old.d10&0x02);
+	SETFLAG(flags, SUBSCR_GAUGE_MOD3, old.d10&0x04);
+	SETFLAG(flags, SUBSCR_GAUGE_MOD4, old.d10&0x08);
+	SETFLAG(flags, SUBSCR_GAUGE_UNQLAST, old.d10&0x10);
+	frames = 1;
+	speed = 0;
+	delay = 0;
+	container = old.d1;
+	return true;
+}
+byte SW_LifeGaugePiece::getType() const
+{
+	return widgLGAUGE;
+}
+
+word SW_LifeGaugePiece::get_ctr() const
+{
+	return get_ssc_ctr(crLIFE);
+}
+word SW_LifeGaugePiece::get_ctr_max() const
+{
+	return get_ssc_ctrmax(crLIFE);
+}
+bool SW_LifeGaugePiece::infinite() const
+{
+	if(zq_view_allinf && can_inf(crLIFE,inf_item)) return true;
+	if(zq_view_noinf) return false;
+	return SW_GaugePiece::infinite();
+}
+word SW_LifeGaugePiece::get_per_container() const
+{
+	return game->get_hp_per_heart();
+}
+void SW_LifeGaugePiece::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
+{
+	if(replay_version_check(0,19))
+	{
+		zc_oldrand();zc_oldrand();zc_oldrand();
+	}
+	
+	SW_GaugePiece::draw(dest, xofs, yofs, page);
+}
+SubscrWidget* SW_LifeGaugePiece::clone() const
+{
+	return new SW_LifeGaugePiece(*this);
+}
+bool SW_LifeGaugePiece::copy_prop(SubscrWidget const* src, bool all)
+{
+	return SW_GaugePiece::copy_prop(src,all);
+}
+int32_t SW_LifeGaugePiece::read(PACKFILE *f, word s_version)
+{
+	return SW_GaugePiece::read(f, s_version);
+}
+int32_t SW_LifeGaugePiece::write(PACKFILE *f) const
+{
+	return SW_GaugePiece::write(f);
 }
 
 SW_MagicGaugePiece::SW_MagicGaugePiece(subscreen_object const& old) : SW_MagicGaugePiece()
@@ -3182,11 +3545,11 @@ bool SW_MagicGaugePiece::load_old(subscreen_object const& old)
 	mts[2].cset = old.colortype2;
 	mts[3].tilecrn = old.d5;
 	mts[3].cset = old.color2;
-	SETFLAG(flags, SUBSCR_MGAUGE_MOD1, old.d10&0x01);
-	SETFLAG(flags, SUBSCR_MGAUGE_MOD2, old.d10&0x02);
-	SETFLAG(flags, SUBSCR_MGAUGE_MOD3, old.d10&0x04);
-	SETFLAG(flags, SUBSCR_MGAUGE_MOD4, old.d10&0x08);
-	SETFLAG(flags, SUBSCR_MGAUGE_UNQLAST, old.d10&0x10);
+	SETFLAG(flags, SUBSCR_GAUGE_MOD1, old.d10&0x01);
+	SETFLAG(flags, SUBSCR_GAUGE_MOD2, old.d10&0x02);
+	SETFLAG(flags, SUBSCR_GAUGE_MOD3, old.d10&0x04);
+	SETFLAG(flags, SUBSCR_GAUGE_MOD4, old.d10&0x08);
+	SETFLAG(flags, SUBSCR_GAUGE_UNQLAST, old.d10&0x10);
 	frames = old.d6;
 	speed = old.d7;
 	delay = old.d8;
@@ -3194,26 +3557,42 @@ bool SW_MagicGaugePiece::load_old(subscreen_object const& old)
 	showdrain = old.d9;
 	return true;
 }
-word SW_MagicGaugePiece::getW() const
-{
-	return 8;
-}
-word SW_MagicGaugePiece::getH() const
-{
-	return 8;
-}
 byte SW_MagicGaugePiece::getType() const
 {
 	return widgMGAUGE;
 }
+
+word SW_MagicGaugePiece::get_ctr() const
+{
+	return get_ssc_ctr(crMAGIC);
+}
+word SW_MagicGaugePiece::get_ctr_max() const
+{
+	return get_ssc_ctrmax(crMAGIC);
+}
+bool SW_MagicGaugePiece::infinite() const
+{
+	if(zq_view_allinf && can_inf(crMAGIC,inf_item)) return true;
+	if(zq_view_noinf) return false;
+	bool b = false;
+	get_ssc_ctr(crMAGIC, &b);
+	return b || SW_GaugePiece::infinite();
+}
+word SW_MagicGaugePiece::get_per_container() const
+{
+	return game->get_mp_per_block();
+}
 void SW_MagicGaugePiece::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
-	magicgauge(dest, x, y, container,
-		mts[0].tilecrn, mts[0].cset, flags&SUBSCR_MGAUGE_MOD1,
-		mts[1].tilecrn, mts[1].cset, flags&SUBSCR_MGAUGE_MOD2,
-		mts[2].tilecrn, mts[2].cset, flags&SUBSCR_MGAUGE_MOD3,
-		mts[3].tilecrn, mts[3].cset, flags&SUBSCR_MGAUGE_MOD4,
-		frames, speed, delay, flags&SUBSCR_MGAUGE_UNQLAST, showdrain);
+	if(showdrain > -1 && showdrain != game->get_magicdrainrate())
+		return;
+	
+	if(replay_version_check(0,19))
+	{
+		zc_oldrand();zc_oldrand();zc_oldrand();
+	}
+	
+	SW_GaugePiece::draw(dest, xofs, yofs, page);
 }
 SubscrWidget* SW_MagicGaugePiece::clone() const
 {
@@ -3221,59 +3600,95 @@ SubscrWidget* SW_MagicGaugePiece::clone() const
 }
 bool SW_MagicGaugePiece::copy_prop(SubscrWidget const* src, bool all)
 {
+	if(!SW_GaugePiece::copy_prop(src,all))
+		return false;
 	if(src->getType() != getType() || src == this)
 		return false;
 	SW_MagicGaugePiece const* other = dynamic_cast<SW_MagicGaugePiece const*>(src);
-	SubscrWidget::copy_prop(other,all);
-	mts[0] = other->mts[0];
-	mts[1] = other->mts[1];
-	mts[2] = other->mts[2];
-	mts[3] = other->mts[3];
-	frames = other->frames;
-	speed = other->speed;
-	delay = other->delay;
-	if(all) container = other->container;
+	showdrain = other->showdrain;
 	return true;
 }
 int32_t SW_MagicGaugePiece::read(PACKFILE *f, word s_version)
 {
-	if(auto ret = SubscrWidget::read(f,s_version))
+	if(auto ret = SW_GaugePiece::read(f, s_version))
 		return ret;
-	for(auto q = 0; q < 4; ++q)
-		if(auto ret = mts[q].read(f,s_version))
-			return ret;
-	if(!p_igetw(&frames, f))
-		return qe_invalid;
-	if(!p_igetw(&speed, f))
-		return qe_invalid;
-	if(!p_igetw(&delay, f))
-		return qe_invalid;
-	if(!p_igetw(&container, f))
-		return qe_invalid;
 	if(!p_igetw(&showdrain, f))
 		return qe_invalid;
 	return 0;
 }
 int32_t SW_MagicGaugePiece::write(PACKFILE *f) const
 {
-	if(auto ret = SubscrWidget::write(f))
+	if(auto ret = SW_GaugePiece::write(f))
 		return ret;
-	for(auto q = 0; q < 4; ++q)
-		if(auto ret = mts[q].write(f))
-			return ret;
-	if(!p_iputw(frames, f))
-		new_return(1);
-	if(!p_iputw(speed, f))
-		new_return(1);
-	if(!p_iputw(delay, f))
-		new_return(1);
-	if(!p_iputw(container, f))
-		new_return(1);
-	if(!p_iputw(showdrain, f))
+	if(!p_iputw(showdrain,f))
 		new_return(1);
 	return 0;
 }
 
+byte SW_MiscGaugePiece::getType() const
+{
+	return widgMISCGAUGE;
+}
+
+word SW_MiscGaugePiece::get_ctr() const
+{
+	return get_ssc_ctr(counter);
+}
+word SW_MiscGaugePiece::get_ctr_max() const
+{
+	return get_ssc_ctrmax(counter);
+}
+bool SW_MiscGaugePiece::infinite() const
+{
+	if(zq_view_allinf && can_inf(counter,inf_item)) return true;
+	if(zq_view_noinf) return false;
+	bool b = false;
+	get_ssc_ctr(counter, &b);
+	return b || SW_GaugePiece::infinite();
+}
+word SW_MiscGaugePiece::get_per_container() const
+{
+	return per_container;
+}
+void SW_MiscGaugePiece::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
+{
+	SW_GaugePiece::draw(dest, xofs, yofs, page);
+}
+SubscrWidget* SW_MiscGaugePiece::clone() const
+{
+	return new SW_MiscGaugePiece(*this);
+}
+bool SW_MiscGaugePiece::copy_prop(SubscrWidget const* src, bool all)
+{
+	if(!SW_GaugePiece::copy_prop(src,all))
+		return false;
+	if(src->getType() != getType() || src == this)
+		return false;
+	SW_MiscGaugePiece const* other = dynamic_cast<SW_MiscGaugePiece const*>(src);
+	counter = other->counter;
+	per_container = other->per_container;
+	return true;
+}
+int32_t SW_MiscGaugePiece::read(PACKFILE *f, word s_version)
+{
+	if(auto ret = SW_GaugePiece::read(f, s_version))
+		return ret;
+	if(!p_getc(&counter, f))
+		return qe_invalid;
+	if(!p_igetw(&per_container,f))
+		return qe_invalid;
+	return 0;
+}
+int32_t SW_MiscGaugePiece::write(PACKFILE *f) const
+{
+	if(auto ret = SW_GaugePiece::write(f))
+		return ret;
+	if(!p_putc(counter, f))
+		new_return(1);
+	if(!p_iputw(per_container,f))
+		new_return(1);
+	return 0;
+}
 
 SW_TextBox::SW_TextBox(subscreen_object const& old) : SW_TextBox()
 {
@@ -3316,7 +3731,8 @@ bool SW_TextBox::copy_prop(SubscrWidget const* src, bool all)
 	if(src->getType() != getType() || src == this)
 		return false;
 	SW_TextBox const* other = dynamic_cast<SW_TextBox const*>(src);
-	SubscrWidget::copy_prop(other,all);
+	if(!SubscrWidget::copy_prop(other,all))
+		return false;
 	fontid = other->fontid;
 	if(all) text = other->text;
 	align = other->align;
@@ -3446,7 +3862,8 @@ bool SW_SelectedText::copy_prop(SubscrWidget const* src, bool all)
 	if(src->getType() != getType() || src == this)
 		return false;
 	SW_SelectedText const* other = dynamic_cast<SW_SelectedText const*>(src);
-	SubscrWidget::copy_prop(other,all);
+	if(!SubscrWidget::copy_prop(other,all))
+		return false;
 	fontid = other->fontid;
 	align = other->align;
 	shadtype = other->shadtype;
@@ -3662,6 +4079,9 @@ SubscrWidget* SubscrWidget::newType(byte ty)
 			break;
 		case widgMGAUGE:
 			widg = new SW_MagicGaugePiece();
+			break;
+		case widgMISCGAUGE:
+			widg = new SW_MiscGaugePiece();
 			break;
 		case widgTEXTBOX:
 			widg = new SW_TextBox();

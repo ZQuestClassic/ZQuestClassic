@@ -111,6 +111,7 @@ enum
 	widgOLDCTR, widgMMAPTITLE, widgMMAP, widgLMAP, widgBGCOLOR,
 	widgITEMSLOT, widgMCGUFF_FRAME, widgMCGUFF, widgTILEBLOCK, widgMINITILE,
 	widgSELECTOR, widgLGAUGE, widgMGAUGE, widgTEXTBOX, widgSELECTEDTEXT,
+	widgMISCGAUGE,
 	widgMAX
 };
 
@@ -154,33 +155,12 @@ enum // special tiles
 {
 	ssmstSSVINETILE, ssmstMAGICMETER, ssmstMAX
 };
-enum // counter objects
+int old_ssc_to_new_ctr(int ssc);
+enum // custom negative counters
 {
-	sscRUPEES, sscBOMBS, sscSBOMBS, sscARROWS,
+	sscMIN = -10,
 	sscGENKEYMAGIC, sscGENKEYNOMAGIC, sscLEVKEYMAGIC, sscLEVKEYNOMAGIC,
-	sscANYKEYMAGIC, sscANYKEYNOMAGIC, sscSCRIPT1, sscSCRIPT2,
-	sscSCRIPT3, sscSCRIPT4, sscSCRIPT5, sscSCRIPT6,
-	sscSCRIPT7, sscSCRIPT8, sscSCRIPT9, sscSCRIPT10,
-	sscSCRIPT11, sscSCRIPT12, sscSCRIPT13, sscSCRIPT14,
-	sscSCRIPT15, sscSCRIPT16, sscSCRIPT17, sscSCRIPT18,
-	sscSCRIPT19, sscSCRIPT20, sscSCRIPT21, sscSCRIPT22,
-	sscSCRIPT23, sscSCRIPT24, sscSCRIPT25, sscLIFE, sscMAGIC, sscMAXHP, sscMAXMP,
-	sscSCRIPT26, sscSCRIPT27, sscSCRIPT28, sscSCRIPT29, sscSCRIPT30,
-	sscSCRIPT31, sscSCRIPT32, sscSCRIPT33, sscSCRIPT34, sscSCRIPT35,
-	sscSCRIPT36, sscSCRIPT37, sscSCRIPT38, sscSCRIPT39, sscSCRIPT40,
-	sscSCRIPT41, sscSCRIPT42, sscSCRIPT43, sscSCRIPT44, sscSCRIPT45,
-	sscSCRIPT46, sscSCRIPT47, sscSCRIPT48, sscSCRIPT49, sscSCRIPT50,
-	sscSCRIPT51, sscSCRIPT52, sscSCRIPT53, sscSCRIPT54, sscSCRIPT55,
-	sscSCRIPT56, sscSCRIPT57, sscSCRIPT58, sscSCRIPT59, sscSCRIPT60,
-	sscSCRIPT61, sscSCRIPT62, sscSCRIPT63, sscSCRIPT64, sscSCRIPT65,
-	sscSCRIPT66, sscSCRIPT67, sscSCRIPT68, sscSCRIPT69, sscSCRIPT70,
-	sscSCRIPT71, sscSCRIPT72, sscSCRIPT73, sscSCRIPT74, sscSCRIPT75,
-	sscSCRIPT76, sscSCRIPT77, sscSCRIPT78, sscSCRIPT79, sscSCRIPT80,
-	sscSCRIPT81, sscSCRIPT82, sscSCRIPT83, sscSCRIPT84, sscSCRIPT85,
-	sscSCRIPT86, sscSCRIPT87, sscSCRIPT88, sscSCRIPT89, sscSCRIPT90,
-	sscSCRIPT91, sscSCRIPT92, sscSCRIPT93, sscSCRIPT94, sscSCRIPT95,
-	sscSCRIPT96, sscSCRIPT97, sscSCRIPT98, sscSCRIPT99, sscSCRIPT100,
-	sscMAX
+	sscANYKEYMAGIC, sscANYKEYNOMAGIC, sscMAXHP, sscMAXMP, sscNONE = -1
 };
 enum //subscreen text alignment
 {
@@ -441,7 +421,7 @@ struct SW_Counter : public SubscrWidget
 	byte align, shadtype;
 	SubscrColorInfo c_text = {ssctMISC,0}, c_shadow, c_bg;
 	int32_t ctrs[3];
-	byte digits;
+	byte mindigits, maxdigits;
 	int32_t infitm = -1;
 	char infchar;
 	
@@ -717,67 +697,105 @@ protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
 
-#define SUBSCR_LGAUGE_MOD1              SUBSCRFLAG_SPEC_01
-#define SUBSCR_LGAUGE_MOD2              SUBSCRFLAG_SPEC_02
-#define SUBSCR_LGAUGE_MOD3              SUBSCRFLAG_SPEC_03
-#define SUBSCR_LGAUGE_MOD4              SUBSCRFLAG_SPEC_04
-#define SUBSCR_LGAUGE_UNQLAST           SUBSCRFLAG_SPEC_05
-#define SUBSCR_LGAUGE_FULLTILE          SUBSCRFLAG_SPEC_06
-#define SUBSCR_LGAUGE_ANIM_UNDER        SUBSCRFLAG_SPEC_07
-#define SUBSCR_LGAUGE_ANIM_OVER         SUBSCRFLAG_SPEC_08
-#define SUBSCR_LGAUGE_ANIM_PERCENT      SUBSCRFLAG_SPEC_09
-#define SUBSCR_LGAUGE_ANIM_SKIP         SUBSCRFLAG_SPEC_10
+#define SUBSCR_GAUGE_MOD1              SUBSCRFLAG_SPEC_01
+#define SUBSCR_GAUGE_MOD2              SUBSCRFLAG_SPEC_02
+#define SUBSCR_GAUGE_MOD3              SUBSCRFLAG_SPEC_03
+#define SUBSCR_GAUGE_MOD4              SUBSCRFLAG_SPEC_04
+#define SUBSCR_GAUGE_UNQLAST           SUBSCRFLAG_SPEC_05
+#define SUBSCR_GAUGE_FULLTILE          SUBSCRFLAG_SPEC_06
+#define SUBSCR_GAUGE_ANIM_UNDER        SUBSCRFLAG_SPEC_07
+#define SUBSCR_GAUGE_ANIM_OVER         SUBSCRFLAG_SPEC_08
+#define SUBSCR_GAUGE_ANIM_PERCENT      SUBSCRFLAG_SPEC_09
+#define SUBSCR_GAUGE_ANIM_SKIP         SUBSCRFLAG_SPEC_10
+#define SUBSCR_GAUGE_INFITM_REQ        SUBSCRFLAG_SPEC_11
+#define SUBSCR_GAUGE_INFITM_BAN        SUBSCRFLAG_SPEC_12
 
-#define LGAUGE_GRID_RTOL        0x01
-#define LGAUGE_GRID_TTOB        0x02
-#define LGAUGE_GRID_COLUMN1ST   0x04
-#define LGAUGE_GRID_SNAKE       0x08
-struct SW_LifeGaugePiece : public SubscrWidget
+#define GAUGE_GRID_RTOL        0x01
+#define GAUGE_GRID_TTOB        0x02
+#define GAUGE_GRID_COLUMN1ST   0x04
+#define GAUGE_GRID_SNAKE       0x08
+struct SW_GaugePiece : public SubscrWidget
 {
 	SubscrMTInfo mts[4];
-	word frames, speed, delay, container;
+	word frames = 1, speed = 1, delay, container;
 	byte gauge_wid, gauge_hei, gridflags;
 	byte hspace, vspace, unit_per_frame;
 	int16_t grid_xoff, grid_yoff;
 	word anim_val;
+	int16_t inf_item = -1;
 	
-	SW_LifeGaugePiece() = default;
-	SW_LifeGaugePiece(subscreen_object const& old);
-
-	virtual bool load_old(subscreen_object const& old) override;
+	SW_GaugePiece() = default;
+	
+	virtual word get_ctr() const = 0;
+	virtual word get_ctr_max() const = 0;
+	virtual word get_per_container() const = 0;
+	virtual bool infinite() const;
+	
 	virtual int16_t getX() const override; //Returns x in pixels
 	virtual int16_t getY() const override; //Returns y in pixels
 	virtual word getW() const override; //Returns width in pixels
 	virtual word getH() const override; //Returns height in pixels
+	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
+	virtual bool copy_prop(SubscrWidget const* src, bool all = false) override;
+	virtual int32_t write(PACKFILE *f) const override;
+protected:
+	virtual int32_t read(PACKFILE *f, word s_version) override;
+	virtual void draw_piece(BITMAP* dest, int dx, int dy, int container, int anim_offs) const;
+};
+
+struct SW_LifeGaugePiece : public SW_GaugePiece
+{
+	SW_LifeGaugePiece() = default;
+	SW_LifeGaugePiece(subscreen_object const& old);
+
+	virtual bool load_old(subscreen_object const& old) override;
 	virtual byte getType() const override;
+	virtual word get_ctr() const override;
+	virtual word get_ctr_max() const override;
+	virtual word get_per_container() const override;
+	virtual bool infinite() const override;
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
 	virtual SubscrWidget* clone() const override;
 	virtual bool copy_prop(SubscrWidget const* src, bool all = false) override;
 	virtual int32_t write(PACKFILE *f) const override;
 protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
-private:
-	virtual void draw_piece(BITMAP* dest, int dx, int dy, SubscrPage& page, int container, int anim_offs) const;
 };
 
-#define SUBSCR_MGAUGE_MOD1     SUBSCRFLAG_SPEC_01
-#define SUBSCR_MGAUGE_MOD2     SUBSCRFLAG_SPEC_02
-#define SUBSCR_MGAUGE_MOD3     SUBSCRFLAG_SPEC_03
-#define SUBSCR_MGAUGE_MOD4     SUBSCRFLAG_SPEC_04
-#define SUBSCR_MGAUGE_UNQLAST  SUBSCRFLAG_SPEC_05
-struct SW_MagicGaugePiece : public SubscrWidget
+struct SW_MagicGaugePiece : public SW_GaugePiece
 {
-	SubscrMTInfo mts[4];
-	word frames, speed, delay, container;
 	int16_t showdrain = -1;
 	
 	SW_MagicGaugePiece() = default;
 	SW_MagicGaugePiece(subscreen_object const& old);
 
 	virtual bool load_old(subscreen_object const& old) override;
-	virtual word getW() const override; //Returns width in pixels
-	virtual word getH() const override; //Returns height in pixels
 	virtual byte getType() const override;
+	virtual word get_ctr() const override;
+	virtual word get_ctr_max() const override;
+	virtual word get_per_container() const override;
+	virtual bool infinite() const override;
+	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
+	virtual SubscrWidget* clone() const override;
+	virtual bool copy_prop(SubscrWidget const* src, bool all = false) override;
+	virtual int32_t write(PACKFILE *f) const override;
+protected:
+	virtual int32_t read(PACKFILE *f, word s_version) override;
+};
+
+struct SW_MiscGaugePiece : public SW_GaugePiece
+{
+	byte counter;
+	word per_container = 1;
+	
+	SW_MiscGaugePiece() = default;
+
+	virtual bool load_old(subscreen_object const& old) override {return false;};
+	virtual byte getType() const override;
+	virtual word get_ctr() const override;
+	virtual word get_ctr_max() const override;
+	virtual word get_per_container() const override;
+	virtual bool infinite() const override;
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
 	virtual SubscrWidget* clone() const override;
 	virtual bool copy_prop(SubscrWidget const* src, bool all = false) override;

@@ -37,28 +37,11 @@ const char *ssfont2_str[] =
 	"Mr. Saturn", "Sci-Fi", "Sherwood", "Sinclair QL", "Spectrum", "Spectrum Large", "TI99", "TRS",
 	"Zelda 2", "ZX", "Lisa", ""
 };
-const char *icounter_str2[sscMAX]=
+const char *icounter_str2[-(sscMIN+1)]=
 {
-    "Rupees", "Bombs", "Super Bombs", "Arrows", "Gen. Keys w/Magic", "Gen. Keys w/o Magic", "Level Keys w/Magic",
-    "Level Keys w/o Magic", "Any Keys w/Magic", "Any Keys w/o Magic", "Custom 1", "Custom 2", "Custom 3", "Custom 4",
-    "Custom 5", "Custom 6", "Custom 7", "Custom 8", "Custom 9", "Custom 10", "Custom 11", "Custom 12", "Custom 13",
-    "Custom 14", "Custom 15", "Custom 16", "Custom 17", "Custom 18", "Custom 19", "Custom 20", "Custom 21",
-    "Custom 22", "Custom 23", "Custom 24", "Custom 25", "Life", "Magic", "Max Life", "Max Magic",
-	"Custom 26", "Custom 27", "Custom 28", "Custom 29", "Custom 30",
-	"Custom 31", "Custom 32", "Custom 33", "Custom 34", "Custom 35",
-	"Custom 36", "Custom 37", "Custom 38", "Custom 39", "Custom 40",
-	"Custom 41", "Custom 42", "Custom 43", "Custom 44", "Custom 45",
-	"Custom 46", "Custom 47", "Custom 48", "Custom 49", "Custom 50",
-	"Custom 51", "Custom 52", "Custom 53", "Custom 54", "Custom 55",
-	"Custom 56", "Custom 57", "Custom 58", "Custom 59", "Custom 60",
-	"Custom 61", "Custom 62", "Custom 63", "Custom 64", "Custom 65",
-	"Custom 66", "Custom 67", "Custom 68", "Custom 69", "Custom 70",
-	"Custom 71", "Custom 72", "Custom 73", "Custom 74", "Custom 75",
-	"Custom 76", "Custom 77", "Custom 78", "Custom 79", "Custom 80",
-	"Custom 81", "Custom 82", "Custom 83", "Custom 84", "Custom 85",
-	"Custom 86", "Custom 87", "Custom 88", "Custom 89", "Custom 90",
-	"Custom 91", "Custom 92", "Custom 93", "Custom 94", "Custom 95",
-	"Custom 96", "Custom 97", "Custom 98", "Custom 99", "Custom 100"
+    "Gen. Keys w/Magic", "Gen. Keys w/o Magic", "Level Keys w/Magic",
+    "Level Keys w/o Magic", "Any Keys w/Magic", "Any Keys w/o Magic",
+	"Max Life", "Max Magic"
 };
 
 
@@ -161,15 +144,27 @@ GUI::ListData GUI::ZCListData::strings(bool combostr, bool respect_order, bool n
 	return ls;
 }
 
-GUI::ListData GUI::ZCListData::ss_counters()
+GUI::ListData GUI::ZCListData::ss_counters(bool numbered, bool skipNone)
 {
 	GUI::ListData ls;
 	
-	ls.add("(None)", -1);
-	for(int32_t q = 0; q < sscMAX; ++q)
+	if(!skipNone) ls.add("(None)", -1);
+	auto sscstr_sz = -(sscMIN+1);
+	for(int32_t q = sscMIN+1; q < MAX_COUNTERS; ++q)
 	{
-		char const* module_str = icounter_str2[q];
-		std::string name(module_str);
+		if(q == crNONE) continue;
+		char const* str;
+		if(q > crNONE)
+		{
+			if(!ZI.isUsableCtr(q))
+				continue; //Hidden
+			str = ZI.getCtrName(q);
+		}
+		else str = icounter_str2[sscstr_sz + q];
+		std::string name;
+		if(numbered)
+			name = fmt::format("{} ({:03})", str, q);
+		else name = str;
 		ls.add(name, q);
 	}
 	
@@ -450,9 +445,8 @@ GUI::ListData GUI::ZCListData::counters(bool numbered, bool skipNone)
 		char const* module_str = ZI.getCtrName(q);
 		std::string sname;
 		if(numbered)
-			sname = fmt::format("{} ({:02})", module_str, q);
+			sname = fmt::format("{} ({:03})", module_str, q);
 		else sname = module_str;
-		
 		
 		// vals[sname] = q;
 		// names.insert(sname);

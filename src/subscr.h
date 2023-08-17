@@ -61,9 +61,6 @@ enum { sssFULLPUSH, sssFULLSLIDEDOWN, sssMAX };
 //ssoCURRENTITEMCLASSNAME shows the name of an item if you have the item requested.  if itemtype is set to boomerang and you have a wooden boomerang, it will show the name of the item "Wooden Boomerang"
 //ssoSELECTEDITEMCLASSNAME shows the name of of the item class that the selection cursor is on.
 
-int32_t scounter_to_ctr(int32_t ssc);
-
-
 //subscreen items
 /*enum { ssiBOMB, ssiSWORD, ssiSHIELD, ssiCANDLE, ssiLETTER, ssiPOTION, ssiLETTERPOTION, ssiBOW, ssiARROW, ssiBOWANDARROW, ssiBAIT, ssiRING, ssiBRACELET, ssiMAP,
        ssiCOMPASS, ssiBOSSKEY, ssiMAGICKEY, ssiBRANG, ssiWAND, ssiRAFT, ssiLADDER, ssiWHISTLE, ssiBOOK, ssiWALLET, ssiSBOMB, ssiHCPIECE, ssiAMULET, ssiFLIPPERS,

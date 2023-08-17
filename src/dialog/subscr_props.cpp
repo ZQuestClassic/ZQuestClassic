@@ -28,7 +28,8 @@ SubscrPropDialog::SubscrPropDialog(SubscrWidget* widg, int32_t obj_ind) :
 	list_aligns(GUI::ZCListData::alignments()),
 	list_buttons(GUI::ZCListData::buttons()),
 	list_items(GUI::ZCListData::items(true)),
-	list_counters(GUI::ZCListData::ss_counters()),
+	list_counters(GUI::ZCListData::ss_counters(true)), //All counters
+	list_counters2(GUI::ZCListData::ss_counters(true,true)), //All counters, no (None)
 	list_itemclass(GUI::ZCListData::itemclass(true)),
 	list_genscr(GUI::ZCListData::generic_script())
 {
@@ -153,10 +154,10 @@ DropDownList(data = list_font, \
 		if(fonttf) fonttf->setFont(get_zc_font(val)); \
 	} \
 )
-#define DDL_MW(var, lister, maxwid) \
+#define DDL_EX(var, lister, ...) \
 DropDownList(data = lister, \
 	fitParent = true, \
-	maxwidth = maxwid, \
+	__VA_ARGS__, \
 	selectedValue = var, \
 	onSelectFunc = [=](int32_t val) \
 	{ \
@@ -297,7 +298,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::GEN_INITD(int ind)
 	);
 }
 
-static size_t sprop_tab = 0;
+static size_t sprop_tabs[widgMAX] = {0};
 static char tbuf[1025] = {0};
 std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 {
@@ -413,8 +414,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 		
 	}
 	
-	std::shared_ptr<GUI::Grid> col_grid = Column();
-	bool addcolor = true;
+	std::shared_ptr<GUI::Grid> col_grid;
 	//Generate 'color' grid
 	{
 		switch(local_subref->getType())
@@ -422,155 +422,160 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			case widgFRAME:
 			{
 				SW_2x2Frame* w = dynamic_cast<SW_2x2Frame*>(local_subref);
-				col_grid->add(MISC_CSET_SEL(w->cs, "CSet", 1));
+				col_grid = Column(MISC_CSET_SEL(w->cs, "CSet", 1));
 				break;
 			}
 			case widgTIME:
 			{
 				SW_Time* w = dynamic_cast<SW_Time*>(local_subref);
-				col_grid->add(MISC_COLOR_SEL(w->c_text, "Text Color", 1));
-				col_grid->add(MISC_COLOR_SEL(w->c_shadow, "Shadow Color", 2));
-				col_grid->add(MISC_COLOR_SEL(w->c_bg, "Background Color", 3));
+				col_grid = Column(
+					MISC_COLOR_SEL(w->c_text, "Text Color", 1),
+					MISC_COLOR_SEL(w->c_shadow, "Shadow Color", 2),
+					MISC_COLOR_SEL(w->c_bg, "Background Color", 3));
 				break;
 			}
 			case widgBTNITM:
-				addcolor = false;
 				break;
 			case widgCOUNTER:
 			{
 				SW_Counter* w = dynamic_cast<SW_Counter*>(local_subref);
-				col_grid->add(MISC_COLOR_SEL(w->c_text, "Text Color", 1));
-				col_grid->add(MISC_COLOR_SEL(w->c_shadow, "Shadow Color", 2));
-				col_grid->add(MISC_COLOR_SEL(w->c_bg, "Background Color", 3));
+				col_grid = Column(
+					MISC_COLOR_SEL(w->c_text, "Text Color", 1),
+					MISC_COLOR_SEL(w->c_shadow, "Shadow Color", 2),
+					MISC_COLOR_SEL(w->c_bg, "Background Color", 3));
 				break;
 			}
 			case widgOLDCTR:
 			{
 				SW_Counters* w = dynamic_cast<SW_Counters*>(local_subref);
-				col_grid->add(MISC_COLOR_SEL(w->c_text, "Text Color", 1));
-				col_grid->add(MISC_COLOR_SEL(w->c_shadow, "Shadow Color", 2));
-				col_grid->add(MISC_COLOR_SEL(w->c_bg, "Background Color", 3));
+				col_grid = Column(
+					MISC_COLOR_SEL(w->c_text, "Text Color", 1),
+					MISC_COLOR_SEL(w->c_shadow, "Shadow Color", 2),
+					MISC_COLOR_SEL(w->c_bg, "Background Color", 3));
 				break;
 			}
 			case widgITEMSLOT:
-				addcolor = false;
 				break;
 			case widgBGCOLOR:
 			{
 				SW_Clear* w = dynamic_cast<SW_Clear*>(local_subref);
-				col_grid->add(MISC_COLOR_SEL(w->c_bg, "Subscreen Color", 1));
+				col_grid = Column(MISC_COLOR_SEL(w->c_bg, "Subscreen Color", 1));
 				break;
 			}
 			case widgLMAP:
 			{
 				SW_LMap* w = dynamic_cast<SW_LMap*>(local_subref);
-				col_grid->add(MISC_COLOR_SEL(w->c_room, "Room Color", 1));
-				col_grid->add(MISC_COLOR_SEL(w->c_plr, "Player Color", 2));
+				col_grid = Column(
+					MISC_COLOR_SEL(w->c_room, "Room Color", 1),
+					MISC_COLOR_SEL(w->c_plr, "Player Color", 2));
 				break;
 			}
 			case widgLGAUGE:
-				addcolor = false;
 				break;
 			case widgLMETER:
-				addcolor = false;
 				break;
 			case widgLINE:
 			{
 				SW_Line* w = dynamic_cast<SW_Line*>(local_subref);
-				col_grid->add(MISC_COLOR_SEL(w->c_line, "Line Color", 1));
+				col_grid = Column(MISC_COLOR_SEL(w->c_line, "Line Color", 1));
 				break;
 			}
 			case widgMGAUGE:
-				addcolor = false;
 				break;
 			case widgMMETER:
-				addcolor = false;
 				break;
 			case widgMMAP:
 			{
 				SW_MMap* w = dynamic_cast<SW_MMap*>(local_subref);
-				col_grid->add(MISC_COLOR_SEL(w->c_plr, "Player Color", 1));
-				col_grid->add(MISC_COLOR_SEL(w->c_cmp_blink, "Compass Blink Color", 2));
-				col_grid->add(MISC_COLOR_SEL(w->c_cmp_off, "Compass Const Color", 3));
+				col_grid = Column(
+					MISC_COLOR_SEL(w->c_plr, "Player Color", 1),
+					MISC_COLOR_SEL(w->c_cmp_blink, "Compass Blink Color", 2),
+					MISC_COLOR_SEL(w->c_cmp_off, "Compass Const Color", 3));
 				break;
 			}
 			case widgMMAPTITLE:
 			{
 				SW_MMapTitle* w = dynamic_cast<SW_MMapTitle*>(local_subref);
-				col_grid->add(MISC_COLOR_SEL(w->c_text, "Text Color", 1));
-				col_grid->add(MISC_COLOR_SEL(w->c_shadow, "Shadow Color", 2));
-				col_grid->add(MISC_COLOR_SEL(w->c_bg, "Background Color", 3));
+				col_grid = Column(
+					MISC_COLOR_SEL(w->c_text, "Text Color", 1),
+					MISC_COLOR_SEL(w->c_shadow, "Shadow Color", 2),
+					MISC_COLOR_SEL(w->c_bg, "Background Color", 3));
 				break;
 			}
 			case widgMINITILE:
 			{
 				SW_MiniTile* w = dynamic_cast<SW_MiniTile*>(local_subref);
-				col_grid->add(MISC_CSET_SEL(w->cs, "CSet", 1));
+				col_grid = Column(MISC_CSET_SEL(w->cs, "CSet", 1));
 				break;
 			}
 			case widgRECT:
 			{
 				SW_Rect* w = dynamic_cast<SW_Rect*>(local_subref);
-				col_grid->add(MISC_COLOR_SEL(w->c_outline, "Outline Color", 1));
-				col_grid->add(MISC_COLOR_SEL(w->c_fill, "Fill Color", 2));
+				col_grid = Column(
+					MISC_COLOR_SEL(w->c_outline, "Outline Color", 1),
+					MISC_COLOR_SEL(w->c_fill, "Fill Color", 2));
 				break;
 			}
 			case widgSELECTEDTEXT:
 			{
 				SW_SelectedText* w = dynamic_cast<SW_SelectedText*>(local_subref);
-				col_grid->add(MISC_COLOR_SEL(w->c_text, "Text Color", 1));
-				col_grid->add(MISC_COLOR_SEL(w->c_shadow, "Shadow Color", 2));
-				col_grid->add(MISC_COLOR_SEL(w->c_bg, "Background Color", 3));
+				col_grid = Column(
+					MISC_COLOR_SEL(w->c_text, "Text Color", 1),
+					MISC_COLOR_SEL(w->c_shadow, "Shadow Color", 2),
+					MISC_COLOR_SEL(w->c_bg, "Background Color", 3));
 				break;
 			}
 			case widgSELECTOR:
-				addcolor = false;
 				break;
 			case widgTEXT:
 			{
 				SW_Text* w = dynamic_cast<SW_Text*>(local_subref);
-				col_grid->add(MISC_COLOR_SEL(w->c_text, "Text Color", 1));
-				col_grid->add(MISC_COLOR_SEL(w->c_shadow, "Shadow Color", 2));
-				col_grid->add(MISC_COLOR_SEL(w->c_bg, "Background Color", 3));
+				col_grid = Column(
+					MISC_COLOR_SEL(w->c_text, "Text Color", 1),
+					MISC_COLOR_SEL(w->c_shadow, "Shadow Color", 2),
+					MISC_COLOR_SEL(w->c_bg, "Background Color", 3));
 				break;
 			}
 			case widgTEXTBOX:
 			{
 				SW_TextBox* w = dynamic_cast<SW_TextBox*>(local_subref);
-				col_grid->add(MISC_COLOR_SEL(w->c_text, "Text Color", 1));
-				col_grid->add(MISC_COLOR_SEL(w->c_shadow, "Shadow Color", 2));
-				col_grid->add(MISC_COLOR_SEL(w->c_bg, "Background Color", 3));
+				col_grid = Column(
+					MISC_COLOR_SEL(w->c_text, "Text Color", 1),
+					MISC_COLOR_SEL(w->c_shadow, "Shadow Color", 2),
+					MISC_COLOR_SEL(w->c_bg, "Background Color", 3));
 				break;
 			}
 			case widgTILEBLOCK:
 			{
 				SW_TileBlock* w = dynamic_cast<SW_TileBlock*>(local_subref);
-				col_grid->add(MISC_CSET_SEL(w->cs, "CSet", 1));
+				col_grid = Column(MISC_CSET_SEL(w->cs, "CSet", 1));
 				break;
 			}
 			case widgMCGUFF_FRAME:
 			{
 				SW_TriFrame* w = dynamic_cast<SW_TriFrame*>(local_subref);
-				col_grid->add(MISC_COLOR_SEL(w->c_outline, "Frame Outline Color", 1));
-				col_grid->add(MISC_COLOR_SEL(w->c_number, "Number Color", 2));
+				col_grid = Column(
+					MISC_COLOR_SEL(w->c_outline, "Frame Outline Color", 1),
+					MISC_COLOR_SEL(w->c_number, "Number Color", 2));
 				break;
 			}
 			case widgMCGUFF:
 			{
 				SW_McGuffin* w = dynamic_cast<SW_McGuffin*>(local_subref);
-				col_grid->add(MISC_CSET_SEL(w->cs, "CSet", 1));
+				col_grid = Column(MISC_CSET_SEL(w->cs, "CSet", 1));
 				break;
 			}
 		}
 	}
 	
 	std::shared_ptr<GUI::Grid> attrib_grid;
-	bool addattrib = true;
+	std::map<std::string, std::shared_ptr<GUI::Grid>> extra_grids;
 	enum { mtNONE, mtFORCE_TAB, mtLOCTOP };
 	int32_t mergetype = mtNONE;
 	//Generate 'attributes' grid
 	{
-		switch(local_subref->getType())
+		auto widgty = local_subref->getType();
+		switch(widgty)
 		{
 			case widgFRAME:
 			{
@@ -641,14 +646,15 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 					DDL(w->ctrs[0], list_counters),
 					DDL(w->ctrs[1], list_counters),
 					DDL(w->ctrs[2], list_counters),
-					Label(text = "Digits:", hAlign = 1.0),
+					Label(text = "Min Digits:", hAlign = 1.0),
+					Label(text = "Max Digits:", hAlign = 1.0),
 					Label(text = "Infinite:", hAlign = 1.0),
 					Label(text = "Inf Character:", hAlign = 1.0),
 					CBOX(w->flags,SUBSCR_COUNTER_SHOW0,"Show Zero",2),
 					CBOX(w->flags,SUBSCR_COUNTER_ONLYSEL,"Only Selected",2),
-					DummyWidget(colSpan = 2),
-					NUM_FIELD(w->digits,0,5),
-					DDL_MW(w->infitm,list_items,100_px),
+					NUM_FIELD(w->mindigits,0,5),
+					NUM_FIELD(w->maxdigits,0,5),
+					DDL_EX(w->infitm,list_items,maxwidth=100_px),
 					TextField(maxLength = 1,
 						fitParent = true,
 						text = std::string(1,(char)w->infchar),
@@ -731,7 +737,6 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			}
 			case widgBGCOLOR:
 			{
-				addattrib = false;
 				break;
 			}
 			case widgLMAP:
@@ -746,34 +751,57 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				break;
 			}
 			case widgLGAUGE:
+			case widgMGAUGE:
+			case widgMISCGAUGE:
 			{
+				std::string ctrname;
+				switch(widgty)
+				{
+					case widgLGAUGE:
+						ctrname = "HP";
+						break;
+					case widgMGAUGE:
+						ctrname = "MP";
+						break;
+					case widgMISCGAUGE:
+						ctrname = "counter";
+						break;
+				}
 				mergetype = mtFORCE_TAB;
-				SW_LifeGaugePiece* w = dynamic_cast<SW_LifeGaugePiece*>(local_subref);
+				SW_GaugePiece* w = dynamic_cast<SW_GaugePiece*>(local_subref);
 				int g = 0;
-				attrib_grid = Row(padding = 0_px,
-					Rows<2>(
-						Row(colSpan = 2,
-							Label(text = "Gauge Tiles"),
-							INFOBTN("The tiles used by the gauge. Which tile is used depends on the 'Container' value."
-								"\nThe 'Mod' checkbox determines if the tile should be adjusted based on current HP."
-									" The tile layout 'Mod' uses is determined by the 'Full Tile' flag and 'Old Gauge Tile Layout'"
-									" quest rule."
-								"\nIf 'Full Tile' is checked, the layout is as follows: The selected tile appears if the"
-									" container has < 'Units per frame' hp, with any animation frames after it. The next tile appears"
-									" if the container has < 'Units per frame *2' hp, etc. If the container is the last"
-									" full container, and 'Unique Last' is checked, it uses the tile after the full tile."
-								"\nIf 'Full Tile' is not checked but 'Old Gauge Tile Layout' is off, it uses the same layout as"
-									" the 'Full Tile' layout, but uses minitiles in that order instead."
-								"\nIf 'Full Tile' is not checked and 'Old Gauge Tile Layout' is on, then: The full container uses the"
-									" first minitile, plus animation frames. The empty container is the top-left minitile of the tile"
-									" after the end of the full container, and the layout continues in this way until the just-before-full tile."
-									" The last full container with 'Unique Last' checked uses the bottom-right minitile of the tile after the end of this."
-								+ QRHINT({qr_OLD_GAUGE_TILE_LAYOUT}))
+				extra_grids["Gauge"] = Row(padding = 0_px,
+					Column(padding = 0_px,
+						Rows<2>(padding = 0_px,
+							Row(colSpan = 2,
+								Label(text = "Gauge Tiles"),
+								INFOBTN("The tiles used by the gauge. Which tile is used depends on the 'Container' value."
+									"\nThe 'Mod' checkbox determines if the tile should be adjusted based on current HP."
+										" The tile layout 'Mod' uses is determined by the 'Full Tile' flag and 'Old Gauge Tile Layout'"
+										" quest rule."
+									"\nIf 'Full Tile' is checked, the layout is as follows: The selected tile appears if the"
+										" container has < 'Units per frame' hp, with any animation frames after it. The next tile appears"
+										" if the container has < 'Units per frame *2' hp, etc. If the container is the last"
+										" full container, and 'Unique Last' is checked, it uses the tile after the full tile."
+									"\nIf 'Full Tile' is not checked but 'Old Gauge Tile Layout' is off, it uses the same layout as"
+										" the 'Full Tile' layout, but uses minitiles in that order instead."
+									"\nIf 'Full Tile' is not checked and 'Old Gauge Tile Layout' is on, then: The full container uses the"
+										" first minitile, plus animation frames. The empty container is the top-left minitile of the tile"
+										" after the end of the full container, and the layout continues in this way until the just-before-full tile."
+										" The last full container with 'Unique Last' checked uses the bottom-right minitile of the tile after the end of this."
+									+ QRHINT({qr_OLD_GAUGE_TILE_LAYOUT}))
+							),
+							GAUGE_MINITILE(0,"Not Last",w->mts[0],w->flags,SUBSCR_GAUGE_MOD1),
+							GAUGE_MINITILE(1,"Last",w->mts[1],w->flags,SUBSCR_GAUGE_MOD2),
+							GAUGE_MINITILE(2,"Cap",w->mts[2],w->flags,SUBSCR_GAUGE_MOD3),
+							GAUGE_MINITILE(3,"After Cap",w->mts[3],w->flags,SUBSCR_GAUGE_MOD4)
 						),
-						GAUGE_MINITILE(0,"Not Last",w->mts[0],w->flags,SUBSCR_LGAUGE_MOD1),
-						GAUGE_MINITILE(1,"Last",w->mts[1],w->flags,SUBSCR_LGAUGE_MOD2),
-						GAUGE_MINITILE(2,"Cap",w->mts[2],w->flags,SUBSCR_LGAUGE_MOD3),
-						GAUGE_MINITILE(3,"After Cap",w->mts[3],w->flags,SUBSCR_LGAUGE_MOD4)
+						Rows<2>(padding = 0_px,
+							labels[3] = Label(text = "Infinite Item:"),
+							INFOBTN("Having this item counts as having 'infinite' of this counter,"
+								" as far as the infinite-related flags are concerned."),
+							ddl = DDL_EX(w->inf_item, list_items, colSpan = 2)
+						)
 					),
 					Column(padding = 0_px,
 						Row(padding = 0_px,
@@ -788,8 +816,8 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 										w->unit_per_frame = val-1;
 										refr_info();
 									}),
-								INFOBTN("How many HP should be allocated to each tile. Ex. If you have 32"
-									" HP per heart container, but only want to show 1/8 hearts, you can use"
+								INFOBTN("How many points should be allocated to each tile. Ex. If you have 32"
+									" HP per container, but only want to show 1/8 hearts, you can use"
 									" 2 units per frame (2 = 16/8) and only set up 1/8 heart tiles."),
 								Label(text = "Container:", hAlign = 1.0),
 								NUM_FIELD(w->container, 0, 9999),
@@ -811,14 +839,14 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 										refr_info();
 									}),
 								INFOBTN("Each container tile is an animation of this many frames. 1 = no animation."),
-								Label(text = "Anim Cond:", hAlign = 1.0),
+								labels[0] = Label(text = "Anim Cond:", hAlign = 1.0),
 								tfs[0] = NUM_FIELD(w->anim_val, 0, 65535),
 								INFOBTN("Used by flags 'Animate Only Under...', 'Animate Only Over...' below."),
 								//
-								Label(text = "Speed:", hAlign = 1.0),
+								labels[1] = Label(text = "Speed:", hAlign = 1.0),
 								tfs[1] = NUM_FIELD(w->speed, 1, 999),
 								INFOBTN("If animated, the speed at which the animation moves."),
-								Label(text = "Delay:", hAlign = 1.0),
+								labels[2] = Label(text = "Delay:", hAlign = 1.0),
 								tfs[2] = NUM_FIELD(w->delay, 0, 999),
 								INFOBTN("If animated, the delay at each start of the animation."),
 								//
@@ -862,64 +890,124 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 						),
 						Row(padding = 0_px,
 							Rows<2>(vAlign = 0.0,
-								INFOBTN("Animates only when HP is <= 'Anim Cond'"),
+								INFOBTN("Animates only when "+ctrname+" is <= 'Anim Cond'"),
 								cbs[0] = Checkbox(
 									text = "Animate Only Under...", hAlign = 0.0,
-									checked = w->flags & SUBSCR_LGAUGE_ANIM_UNDER,
+									checked = w->flags & SUBSCR_GAUGE_ANIM_UNDER,
 									onToggleFunc = [&, w](bool state)
 									{
-										SETFLAG(w->flags, SUBSCR_LGAUGE_ANIM_UNDER, state);
+										SETFLAG(w->flags, SUBSCR_GAUGE_ANIM_UNDER, state);
 										refr_info();
 									}
 								),
-								INFOBTN("Animates only when HP is >= 'Anim Cond'"),
+								INFOBTN("Animates only when "+ctrname+" is >= 'Anim Cond'"),
 								cbs[1] = Checkbox(
 									text = "Animate Only Over...", hAlign = 0.0,
-									checked = w->flags & SUBSCR_LGAUGE_ANIM_OVER,
+									checked = w->flags & SUBSCR_GAUGE_ANIM_OVER,
 									onToggleFunc = [&, w](bool state)
 									{
-										SETFLAG(w->flags, SUBSCR_LGAUGE_ANIM_OVER, state);
+										SETFLAG(w->flags, SUBSCR_GAUGE_ANIM_OVER, state);
 										refr_info();
 									}
 								),
-								INFOBTN("The 'Anim Cond' value is treated as a percentage of max HP."),
-								cbs[2] = CBOX(w->flags,SUBSCR_LGAUGE_ANIM_PERCENT,"Anim Cond is Percent",1),
+								INFOBTN("The 'Anim Cond' value is treated as a percentage of max "+ctrname+"."),
+								cbs[2] = CBOX(w->flags,SUBSCR_GAUGE_ANIM_PERCENT,"Anim Cond is Percent",1),
 								INFOBTN("When animating, skip the first frame."),
 								cbs[3] = Checkbox(
 									text = "Skip First Frame", hAlign = 0.0,
-									checked = w->flags & SUBSCR_LGAUGE_ANIM_SKIP,
+									checked = w->flags & SUBSCR_GAUGE_ANIM_SKIP,
 									onToggleFunc = [&, w](bool state)
 									{
-										SETFLAG(w->flags, SUBSCR_LGAUGE_ANIM_SKIP, state);
+										SETFLAG(w->flags, SUBSCR_GAUGE_ANIM_SKIP, state);
+										refr_info();
+									}
+								),
+								INFOBTN("Will be invisible if infinite of the counter IS possessed."
+									" Counts owning the 'Infinite Item', or hardcoded infinities like"
+									" wallets granting infinite money."),
+								Checkbox(
+									text = "No Infinite", hAlign = 0.0,
+									checked = w->flags & SUBSCR_GAUGE_INFITM_BAN,
+									onToggleFunc = [&, w](bool state)
+									{
+										SETFLAG(w->flags, SUBSCR_GAUGE_INFITM_BAN, state);
+										refr_info();
+									}
+								),
+								INFOBTN("Will be invisible if infinite of the counter IS NOT possessed."
+									" Counts owning the 'Infinite Item', or hardcoded infinities like"
+									" wallets granting infinite money."),
+								Checkbox(
+									text = "Require Infinite", hAlign = 0.0,
+									checked = w->flags & SUBSCR_GAUGE_INFITM_REQ,
+									onToggleFunc = [&, w](bool state)
+									{
+										SETFLAG(w->flags, SUBSCR_GAUGE_INFITM_REQ, state);
 										refr_info();
 									}
 								)
 							),
 							Rows<2>(vAlign = 0.0,
 								INFOBTN("If a unique tile should be used for the last container when full."),
-								CBOX(w->flags,SUBSCR_LGAUGE_UNQLAST,"Unique Last",1),
+								CBOX(w->flags,SUBSCR_GAUGE_UNQLAST,"Unique Last",1),
 								INFOBTN("Use full tiles instead of mini-tiles"),
 								Checkbox(
 									text = "Full Tile", hAlign = 0.0,
-									checked = w->flags & SUBSCR_LGAUGE_FULLTILE,
+									checked = w->flags & SUBSCR_GAUGE_FULLTILE,
 									onToggleFunc = [&, w](bool state)
 									{
-										SETFLAG(w->flags, SUBSCR_LGAUGE_FULLTILE, state);
+										SETFLAG(w->flags, SUBSCR_GAUGE_FULLTILE, state);
 										refr_info();
 									}
 								),
 								INFOBTN("If the grid order should go right-to-left instead of left-to-right"),
-								gauge_gw[g++] = CBOX(w->gridflags, LGAUGE_GRID_RTOL, "Grid Right to Left", 1),
+								gauge_gw[g++] = CBOX(w->gridflags, GAUGE_GRID_RTOL, "Grid Right to Left", 1),
 								INFOBTN("If the grid order should go top-to-bottom instead of bottom-to-top"),
-								gauge_gw[g++] = CBOX(w->gridflags, LGAUGE_GRID_TTOB, "Grid Top to Bottom", 1),
+								gauge_gw[g++] = CBOX(w->gridflags, GAUGE_GRID_TTOB, "Grid Top to Bottom", 1),
 								INFOBTN("If the grid should grow in the columns before the rows"),
-								gauge_gw[g++] = CBOX(w->gridflags, LGAUGE_GRID_COLUMN1ST, "Grid Column First", 1),
+								gauge_gw[g++] = CBOX(w->gridflags, GAUGE_GRID_COLUMN1ST, "Grid Column First", 1),
 								INFOBTN("If the grid should alternate direction when finishing a row (or column)"),
-								gauge_gw[g++] = CBOX(w->gridflags, LGAUGE_GRID_SNAKE, "Grid Snake Pattern", 1)
+								gauge_gw[g++] = CBOX(w->gridflags, GAUGE_GRID_SNAKE, "Grid Snake Pattern", 1)
 							)
 						)
 					)
 				);
+				switch(widgty)
+				{
+					case widgLGAUGE:
+						break; //nothing else
+					case widgMGAUGE:
+					{
+						SW_MagicGaugePiece* w = dynamic_cast<SW_MagicGaugePiece*>(local_subref);
+						attrib_grid = Row(
+							Label(text = "Show when Magic Drain =", hAlign = 1.0),
+							NUM_FIELD(w->showdrain, -1, 9999),
+							INFOBTN("If set to -1, piece shows normally."
+								"\nIf set to > -1, piece will only be visible when your"
+								" Magic Drain Rate is equal to the value."
+								"\nEx. With the default of starting at drain rate 2,"
+								" a show value of '1' would be used for a '1/2 magic' icon."
+								"\nWith a starting drain rate of 4, you could"
+								" then have a show value of '2' for a '1/2 magic', and a"
+								" show value of '1' for a '1/4 magic'.")
+						);
+						break;
+					}
+					case widgMISCGAUGE:
+					{
+						SW_MiscGaugePiece* w = dynamic_cast<SW_MiscGaugePiece*>(local_subref);
+						attrib_grid = Row(
+							Label(text = "Counter", hAlign = 1.0),
+							DDL(w->counter, list_counters),
+							INFOBTN("The counter for this gauge."),
+							Label(text = "Per Container", hAlign = 1.0),
+							NUM_FIELD(w->per_container, 1, 65535),
+							INFOBTN("The number of the counter 'per container' of the gauge.")
+						);
+						break;
+					}
+				}
+				
 				break;
 			}
 			case widgLMETER:
@@ -940,69 +1028,8 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				);
 				break;
 			}
-			case widgMGAUGE:
-			{
-				SW_MagicGaugePiece* w = dynamic_cast<SW_MagicGaugePiece*>(local_subref);
-				attrib_grid = Row(padding = 0_px,
-					Rows<2>(
-						Row(colSpan = 2,
-							Label(text = "Gauge Tiles"),
-							INFOBTN("The tiles used by the gauge. Which tile is used depends on the 'Container' value."
-								"\nThe 'Mod' checkbox determines if the tile should be adjusted based on current HP."
-									" The tile layout 'Mod' uses is determined by the 'Full Tile' flag and 'Old Gauge Tile Layout'"
-									" quest rule."
-								"\nIf 'Full Tile' is checked, the layout is as follows: The selected tile appears if the"
-									" container has < 'Units per frame' mp, with any animation frames after it. The next tile appears"
-									" if the container has < 'Units per frame *2' mp, etc. If the container is the last container,"
-									" and is full, and 'Unique Last' is checked, it uses the tile after the full tile."
-								"\nIf 'Full Tile' is not checked but 'Old Gauge Tile Layout' is off, it uses the same layout as"
-									" the 'Full Tile' layout, but uses minitiles in that order instead."
-								"\nIf 'Full Tile' is not checked and 'Old Gauge Tile Layout' is on, then: The full container uses the"
-									" first minitile, plus animation frames. The empty container is the top-left minitile of the tile"
-									" after the end of the full container, and the layout continues as before from here until the"
-									" just-before-full tile. The final full container with 'Unique Last' checked uses the"
-									" bottom-right minitile of the tile after the end of this."
-								+ QRHINT({qr_OLD_GAUGE_TILE_LAYOUT}))
-						),
-						GAUGE_MINITILE(0,"Not Last",w->mts[0],w->flags,SUBSCR_MGAUGE_MOD1),
-						GAUGE_MINITILE(1,"Last",w->mts[1],w->flags,SUBSCR_MGAUGE_MOD2),
-						GAUGE_MINITILE(2,"Cap",w->mts[2],w->flags,SUBSCR_MGAUGE_MOD3),
-						GAUGE_MINITILE(3,"After Cap",w->mts[3],w->flags,SUBSCR_MGAUGE_MOD4)
-					),
-					Columns<6>(
-						Label(text = "Frames:", hAlign = 1.0),
-						Label(text = "Speed:", hAlign = 1.0),
-						Label(text = "Delay:", hAlign = 1.0),
-						Label(text = "Container:", hAlign = 1.0),
-						Label(text = "Show:", hAlign = 1.0),
-						CBOX(w->flags,SUBSCR_MGAUGE_UNQLAST,"Unique Last",2),
-						NUM_FIELD(w->frames, 1, 999),
-						NUM_FIELD(w->speed, 1, 999),
-						NUM_FIELD(w->delay, 0, 999),
-						NUM_FIELD(w->container, 0, 9999),
-						NUM_FIELD(w->showdrain, -1, 9999),
-						DummyWidget(rowSpan=3),
-						INFOBTN("The container number this piece represents. For a value of n,"
-							"\nIf the Player has exactly n containers, 'Last' displays."
-							"\nIf the Player has > n containers, 'Not Last' displays."
-							"\nIf the Player has exactly n-1 containers, 'Cap' displays."
-							"\nIf the Player has < n-1 containers, 'After Cap' displays."
-							),
-						INFOBTN("If set to -1, piece shows normally."
-							"\nIf set to > -1, piece will only be visible when your"
-							" Magic Drain Rate is equal to the value."
-							"\nEx. With the default of starting at drain rate 2,"
-							" a show value of '1' would be used for a '1/2 magic' icon."
-							"\nWith a starting drain rate of 4, you could"
-							" then have a show value of '2' for a '1/2 magic', and a"
-							" show value of '1' for a '1/4 magic'.")
-					)
-				);
-				break;
-			}
 			case widgMMETER:
 			{
-				addattrib = false;
 				break;
 			}
 			case widgMMAP:
@@ -1355,7 +1382,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 	}
 	
 	std::shared_ptr<GUI::Grid> g;
-	std::shared_ptr<GUI::TabPanel> tpan = TabPanel(ptr = &sprop_tab);
+	std::shared_ptr<GUI::TabPanel> tpan = TabPanel(ptr = &sprop_tabs[local_subref->getType()]);
 	switch(mergetype)
 	{
 		default:
@@ -1363,33 +1390,38 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 		{
 			tpan->add(TabRef(name = "Basic", g = Rows<2>(padding = 0_px)));
 			g->add(Frame(title = "Location", fitParent = true, loc_grid));
-			if(addcolor)
+			if(col_grid)
 				g->add(Frame(title = "Color", fitParent = true, col_grid));
-			if(addattrib)
+			if(attrib_grid)
 				g->add(Frame(title = "Attributes", fitParent = true, attrib_grid));
 			break;
 		}
 		case mtFORCE_TAB: //3 separate tabs
 		{
 			tpan->add(TabRef(name = "Location", loc_grid));
-			if(addcolor) tpan->add(TabRef(name = "Color", col_grid));
-			if(addattrib) tpan->add(TabRef(name = "Attributes", attrib_grid));
+			if(col_grid) tpan->add(TabRef(name = "Color", col_grid));
+			if(attrib_grid) tpan->add(TabRef(name = "Attributes", attrib_grid));
 			break;
 		}
 		case mtLOCTOP:
 		{
 			tpan->add(TabRef(name = "Basic", g = Row(padding = 0_px)));
-			if(addcolor)
+			if(col_grid)
 			{
 				g->add(Column(padding = 0_px,
 					Frame(title = "Location", fitParent = true, loc_grid),
 					Frame(title = "Color", fitParent = true, col_grid)));
 			}
 			else g->add(Frame(title = "Location", fitParent = true, loc_grid));
-			if(addattrib)
+			if(attrib_grid)
 				g->add(Frame(title = "Attributes", fitParent = true, attrib_grid));
 			break;
 		}
+	}
+	if(extra_grids.size())
+	{
+		for(auto& ref : extra_grids)
+			tpan->add(TabRef(name = ref.first, ref.second));
 	}
 	tpan->add(TabRef(name = "Selection", Rows<2>(
 			Frame(title = "Cursor Selectable", info = "If the subscreen cursor can select this"
@@ -1554,18 +1586,26 @@ void SubscrPropDialog::refr_info()
 			break;
 		}
 		case widgLGAUGE:
+		case widgMGAUGE:
+		case widgMISCGAUGE:
 		{
-			SW_LifeGaugePiece* w = dynamic_cast<SW_LifeGaugePiece*>(local_subref);
+			SW_GaugePiece* w = dynamic_cast<SW_GaugePiece*>(local_subref);
 			bool frcond = w->frames <= 1;
-			bool acond = !(frcond || (w->flags & (SUBSCR_LGAUGE_ANIM_UNDER|SUBSCR_LGAUGE_ANIM_OVER)));
-			bool frcond2 = frcond || (!acond && w->frames <= 2 && (w->flags & SUBSCR_LGAUGE_ANIM_SKIP));
+			bool acond = frcond || !(w->flags & (SUBSCR_GAUGE_ANIM_UNDER|SUBSCR_GAUGE_ANIM_OVER));
+			bool frcond2 = frcond || (!acond && w->frames <= 2 && (w->flags & SUBSCR_GAUGE_ANIM_SKIP));
+			bool infcond = !(w->flags & (SUBSCR_GAUGE_INFITM_REQ|SUBSCR_GAUGE_INFITM_BAN));
 			for(int q = 0; q < 8; ++q)
 				gauge_gw[q]->setDisabled(!(w->gauge_wid || w->gauge_hei));
 			for(int q = 0; q < 4; ++q)
-				gauge_tswatches[q]->setIsMini(!(local_subref->flags & SUBSCR_LGAUGE_FULLTILE));
+				gauge_tswatches[q]->setIsMini(!(local_subref->flags & SUBSCR_GAUGE_FULLTILE));
 			tfs[0]->setDisabled(acond);
+			labels[0]->setDisabled(acond);
 			tfs[1]->setDisabled(frcond2);
+			labels[1]->setDisabled(frcond2);
 			tfs[2]->setDisabled(frcond2);
+			labels[2]->setDisabled(frcond2);
+			ddl->setDisabled(infcond);
+			labels[3]->setDisabled(infcond);
 			cbs[0]->setDisabled(frcond);
 			cbs[1]->setDisabled(frcond);
 			cbs[2]->setDisabled(acond);

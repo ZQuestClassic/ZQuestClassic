@@ -215,6 +215,7 @@ bool disable_saving=false, OverwriteProtection;
 bool halt=false;
 bool show_sprites=true;
 bool show_hitboxes = false;
+bool zq_ignore_item_ownership = true;
 
 // Used to find FFC script names
 vector<string> asffcscripts;
@@ -26556,14 +26557,34 @@ int32_t current_item(int32_t item_type)
 
 int32_t current_item_power(int32_t itemtype)
 {
-    itemtype=itemtype;
+	if (game)
+	{
+		int32_t result = current_item_id(itemtype, true);
+		return (result < 0) ? 0 : itemsbuf[result].power;
+	}
     return 1;
 }
 
 int32_t current_item_id(int32_t itemtype, bool checkmagic, bool smart_jinx)
 {
-    checkmagic=checkmagic;
-    
+	if (game)
+	{
+		int32_t result = -1;
+		int32_t highestlevel = -1;
+
+		for (int32_t i = 0; i < MAXITEMS; i++)
+		{
+			if ((zq_ignore_item_ownership || game->get_item(i)) && itemsbuf[i].family == itemtype)
+			{
+				if (itemsbuf[i].fam_type >= highestlevel)
+				{
+					highestlevel = itemsbuf[i].fam_type;
+					result = i;
+				}
+			}
+		}
+		return result;
+	}
     for(int32_t i=0; i<MAXITEMS; i++)
     {
         if(itemsbuf[i].family==itemtype)
