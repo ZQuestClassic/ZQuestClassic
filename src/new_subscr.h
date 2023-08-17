@@ -717,21 +717,36 @@ protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
 
-#define SUBSCR_LGAUGE_MOD1     SUBSCRFLAG_SPEC_01
-#define SUBSCR_LGAUGE_MOD2     SUBSCRFLAG_SPEC_02
-#define SUBSCR_LGAUGE_MOD3     SUBSCRFLAG_SPEC_03
-#define SUBSCR_LGAUGE_MOD4     SUBSCRFLAG_SPEC_04
-#define SUBSCR_LGAUGE_UNQLAST  SUBSCRFLAG_SPEC_05
-#define SUBSCR_LGAUGE_FULLTILE SUBSCRFLAG_SPEC_06
+#define SUBSCR_LGAUGE_MOD1              SUBSCRFLAG_SPEC_01
+#define SUBSCR_LGAUGE_MOD2              SUBSCRFLAG_SPEC_02
+#define SUBSCR_LGAUGE_MOD3              SUBSCRFLAG_SPEC_03
+#define SUBSCR_LGAUGE_MOD4              SUBSCRFLAG_SPEC_04
+#define SUBSCR_LGAUGE_UNQLAST           SUBSCRFLAG_SPEC_05
+#define SUBSCR_LGAUGE_FULLTILE          SUBSCRFLAG_SPEC_06
+#define SUBSCR_LGAUGE_ANIM_UNDER        SUBSCRFLAG_SPEC_07
+#define SUBSCR_LGAUGE_ANIM_OVER         SUBSCRFLAG_SPEC_08
+#define SUBSCR_LGAUGE_ANIM_PERCENT      SUBSCRFLAG_SPEC_09
+#define SUBSCR_LGAUGE_ANIM_SKIP         SUBSCRFLAG_SPEC_10
+
+#define LGAUGE_GRID_RTOL        0x01
+#define LGAUGE_GRID_TTOB        0x02
+#define LGAUGE_GRID_COLUMN1ST   0x04
+#define LGAUGE_GRID_SNAKE       0x08
 struct SW_LifeGaugePiece : public SubscrWidget
 {
 	SubscrMTInfo mts[4];
 	word frames, speed, delay, container;
+	byte gauge_wid, gauge_hei, gridflags;
+	byte hspace, vspace, unit_per_frame;
+	int16_t grid_xoff, grid_yoff;
+	word anim_val;
 	
 	SW_LifeGaugePiece() = default;
 	SW_LifeGaugePiece(subscreen_object const& old);
 
 	virtual bool load_old(subscreen_object const& old) override;
+	virtual int16_t getX() const override; //Returns x in pixels
+	virtual int16_t getY() const override; //Returns y in pixels
 	virtual word getW() const override; //Returns width in pixels
 	virtual word getH() const override; //Returns height in pixels
 	virtual byte getType() const override;
@@ -741,6 +756,8 @@ struct SW_LifeGaugePiece : public SubscrWidget
 	virtual int32_t write(PACKFILE *f) const override;
 protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
+private:
+	virtual void draw_piece(BITMAP* dest, int dx, int dy, SubscrPage& page, int container, int anim_offs) const;
 };
 
 #define SUBSCR_MGAUGE_MOD1     SUBSCRFLAG_SPEC_01
@@ -814,7 +831,7 @@ protected:
 struct SubscrPage
 {
 	std::vector<SubscrWidget*> contents;
-	byte cursor_pos, init_cursor_pos;
+	byte cursor_pos;
 	
 	void move_cursor(int dir, bool item_only = false);
 	int32_t movepos_legacy(int dir, word startp, word fp = 255, word fp2 = 255, word fp3 = 255, bool equip_only=true, bool item_only=true, bool stay_on_page = false);

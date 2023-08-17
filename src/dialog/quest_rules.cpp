@@ -1439,6 +1439,8 @@ static GUI::ListData subscrRulesList
 	{ "No Button Verification", qr_NO_BUTTON_VERIFY,
 		"If enabled, the engine won't attempt to forcibly fill empty buttons with items."
 		"\nAlso allows unequipping items by trying to equip it to the same button again."},
+	{ "Old Gauge Tile Layout", qr_OLD_GAUGE_TILE_LAYOUT,
+		"If enabled, 'Gauge' type widgets on the subscreen will use the old-style layout."},
 	
 	{ "Allow Setting A Button Items", qr_SELECTAWPN,
 		"If enabled, you can select what item goes on the A button on the subscreen."

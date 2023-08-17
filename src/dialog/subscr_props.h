@@ -41,6 +41,8 @@ protected:
 	std::shared_ptr<GUI::DropDownList> ddl;
 	std::shared_ptr<GUI::TextField> fonttf;
 	std::shared_ptr<GUI::Label> labels[2];
+	std::shared_ptr<GUI::TextField> tfs[3];
+	std::shared_ptr<GUI::Checkbox> cbs[4];
 	
 	std::shared_ptr<GUI::Grid> selgs[3];
 	std::shared_ptr<GUI::Frame> selframes[2];
@@ -49,6 +51,9 @@ protected:
 	std::shared_ptr<GUI::Button> geninitd_btn[8];
 	
 	std::shared_ptr<GUI::Checkbox> def_eqp_cboxes[4];
+	
+	std::shared_ptr<GUI::SelTileSwatch> gauge_tswatches[4];
+	std::shared_ptr<GUI::Widget> gauge_gw[8];
 	SubscrWidget* subref;
 	SubscrWidget* local_subref;
 	int32_t index;
