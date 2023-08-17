@@ -8,6 +8,7 @@
 #include <zq/gui/selcombo_swatch.h>
 #include <zq/gui/dmap_minimap.h>
 #include <zq/gui/dmap_mapgrid.h>
+#include <gui/list.h>
 #include <gui/drop_down_list.h>
 #include <gui/label.h>
 #include <gui/switcher.h>
@@ -48,6 +49,8 @@ private:
 	std::shared_ptr<GUI::TextField> tmusic_end_field;
 	std::shared_ptr<GUI::TextField> tmusic_xfadein_field;
 	std::shared_ptr<GUI::TextField> tmusic_xfadeout_field;
+	std::shared_ptr<GUI::List> disabled_list;
+	std::shared_ptr<GUI::List> item_list;
 
 	std::shared_ptr<GUI::Switcher> string_switch;
 	
@@ -58,6 +61,7 @@ private:
 	GUI::ListData list_maps, list_types;
 	GUI::ListData list_lpals, list_activesub, list_passivesub, list_strings;
 	GUI::ListData list_midis, list_tracks;
+	GUI::ListData list_disableditems, list_items;
 };
 
 #endif
