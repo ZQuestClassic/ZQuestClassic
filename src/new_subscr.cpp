@@ -746,9 +746,11 @@ int32_t SubscrWidget::read(PACKFILE *f, word s_version)
 		return qe_invalid;
 	if(!p_igetw(&h,f))
 		return qe_invalid;
+	if(!p_igetl(&genflags,f))
+		return qe_invalid;
 	if(!p_igetl(&flags,f))
 		return qe_invalid;
-	if(flags&SUBSCRFLAG_SELECTABLE)
+	if(genflags&SUBSCRFLAG_SELECTABLE)
 	{
 		if(!p_igetl(&pos,f))
 			return qe_invalid;
@@ -791,9 +793,11 @@ int32_t SubscrWidget::write(PACKFILE *f) const
 		new_return(1);
 	if(!p_iputw(h,f))
 		new_return(1);
+	if(!p_iputl(genflags,f))
+		new_return(1);
 	if(!p_iputl(flags,f))
 		new_return(1);
-	if(flags&SUBSCRFLAG_SELECTABLE)
+	if(genflags&SUBSCRFLAG_SELECTABLE)
 	{
 		if(!p_iputl(pos,f))
 			new_return(1);
@@ -2160,7 +2164,7 @@ bool SW_ItemSlot::load_old(subscreen_object const& old)
 	pos_down = old.d5;
 	pos_left = old.d6;
 	pos_right = old.d7;
-	SETFLAG(flags,SUBSCRFLAG_SELECTABLE,pos>=0);
+	SETFLAG(genflags,SUBSCRFLAG_SELECTABLE,pos>=0);
 	SETFLAG(flags,SUBSCR_CURITM_INVIS,!(old.d2&0x1));
 	SETFLAG(flags,SUBSCR_CURITM_NONEQP,old.d2&0x2);
 	return true;
@@ -3229,9 +3233,9 @@ void SW_GaugePiece::draw(BITMAP* dest, int xofs, int yofs, SubscrPage& page) con
 	}
 	else
 	{
-		bool colbased = (gridflags&GAUGE_GRID_COLUMN1ST) || !gauge_wid;
-		bool rtol = (gridflags&GAUGE_GRID_RTOL), ttob = (gridflags&GAUGE_GRID_TTOB),
-			snake = (gridflags&GAUGE_GRID_SNAKE);
+		bool colbased = (flags&SUBSCR_GAUGE_GRID_COLUMN1ST) || !gauge_wid;
+		bool rtol = (flags&SUBSCR_GAUGE_GRID_RTOL), ttob = (flags&SUBSCR_GAUGE_GRID_TTOB),
+			snake = (flags&SUBSCR_GAUGE_GRID_SNAKE);
 		auto sz = (flags&SUBSCR_GAUGE_FULLTILE)?16:8;
 		bool snakeoffs = false;
 		if(colbased) //columns then rows
@@ -3318,7 +3322,6 @@ bool SW_GaugePiece::copy_prop(SubscrWidget const* src, bool all)
 		vspace = other->vspace;
 		grid_xoff = other->grid_xoff;
 		grid_yoff = other->grid_yoff;
-		gridflags = other->gridflags;
 	}
 	bool frcond = frames <= 1;
 	bool acond = frcond || !(flags & (SUBSCR_GAUGE_ANIM_UNDER|SUBSCR_GAUGE_ANIM_OVER));
@@ -3374,8 +3377,6 @@ int32_t SW_GaugePiece::read(PACKFILE* f, word s_version)
 		return qe_invalid;
 	if(gauge_wid || gauge_hei)
 	{
-		if(!p_getc(&gridflags, f))
-			return qe_invalid;
 		if(!p_getc(&hspace, f))
 			return qe_invalid;
 		if(!p_getc(&vspace, f))
@@ -3427,8 +3428,6 @@ int32_t SW_GaugePiece::write(PACKFILE* f) const
 		new_return(1);
 	if(gauge_wid || gauge_hei)
 	{
-		if(!p_putc(gridflags, f))
-			new_return(1);
 		if(!p_putc(hspace, f))
 			new_return(1);
 		if(!p_putc(vspace, f))
@@ -4117,7 +4116,7 @@ void SubscrPage::move_cursor(int dir, bool item_only)
 	
 	for(int32_t i=0; i < contents.size(); ++i)
 	{
-		if(contents[i]->flags&SUBSCRFLAG_SELECTABLE)
+		if(contents[i]->genflags&SUBSCRFLAG_SELECTABLE)
 		{
 			if(firstValidPos==-1 && contents[i]->pos>=0)
 				firstValidPos=i;
@@ -4184,7 +4183,7 @@ void SubscrPage::move_cursor(int dir, bool item_only)
 		oldPositions.insert(curpos);
 		
 		//Valid stop point?
-		if((widg->flags & SUBSCRFLAG_SELECTABLE) && (!item_only || widg->getItemVal() > -1))
+		if((widg->genflags & SUBSCRFLAG_SELECTABLE) && (!item_only || widg->getItemVal() > -1))
 		{
 			cursor_pos = curpos;
 			return;
@@ -4219,7 +4218,7 @@ int32_t SubscrPage::movepos_legacy(int dir, word startp, word fp, word fp2, word
 			if(SubscrWidget* widg = get_widg_pos(startp>>8,item_only))
 				if(widg->getType() == widgITEMSLOT
 					&& !(widg->flags&SUBSCR_CURITM_NONEQP)
-					&& (widg->flags & SUBSCRFLAG_SELECTABLE)
+					&& (widg->genflags & SUBSCRFLAG_SELECTABLE)
 					&& (!item_only || widg->getItemVal() > -1))
 					return startp; //Valid selectable slot
 	}
@@ -4231,7 +4230,7 @@ int32_t SubscrPage::movepos_legacy(int dir, word startp, word fp, word fp2, word
 	
 	for(int32_t i=0; i < contents.size(); ++i)
 	{
-		if(contents[i]->getType()==widgITEMSLOT && (contents[i]->flags&SUBSCRFLAG_SELECTABLE))
+		if(contents[i]->getType()==widgITEMSLOT && (contents[i]->genflags&SUBSCRFLAG_SELECTABLE))
 		{
 			if(firstValidPos==-1 && contents[i]->pos>=0)
 				firstValidPos=i;
@@ -4310,7 +4309,7 @@ int32_t SubscrPage::movepos_legacy(int dir, word startp, word fp, word fp2, word
 		
 		//Valid stop point?
 		if((!stay_on_page||(cp2&0xFF)==index)
-			&& (widg->flags & SUBSCRFLAG_SELECTABLE)
+			&& (widg->genflags & SUBSCRFLAG_SELECTABLE)
 			&& cp2 != fp && cp2 != fp2 && cp2 != fp3
 			&& (!equip_only || widg->getType()!=widgITEMSLOT || !(widg->flags & SUBSCR_CURITM_NONEQP))
 			&& (!item_only || widg->getItemVal()>-1))
@@ -4325,7 +4324,7 @@ SubscrWidget* SubscrPage::get_widg_pos(byte pos, bool item_only) const
 {
 	for(size_t q = 0; q < contents.size(); ++q)
 	{
-		if(!(contents[q]->flags & SUBSCRFLAG_SELECTABLE))
+		if(!(contents[q]->genflags & SUBSCRFLAG_SELECTABLE))
 			continue;
 		if (item_only && contents[q]->getType() == widgITEMSLOT)
 			if (static_cast<SW_ItemSlot*>(contents[q])->flags & SUBSCR_CURITM_NONEQP)
