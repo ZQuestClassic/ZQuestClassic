@@ -18,6 +18,11 @@
 #ifdef IS_PLAYER
 extern int32_t directItem;
 extern sprite_list Lwpns;
+
+#define ALLOW_NULL_WIDGET replay_version_check(0,19)
+#else
+#define ALLOW_NULL_WIDGET is_zq_replay_test
+extern bool is_zq_replay_test;
 #endif
 
 
@@ -3329,6 +3334,7 @@ SubscrWidget* SubscrWidget::fromOld(subscreen_object const& old)
 			return new SW_SelectedText(old);
 		case ssoITEM:
 		{
+			if(!ALLOW_NULL_WIDGET) break;
 			SubscrWidget* ret = new SubscrWidget(old);
 			ret->w = 16;
 			ret->h = 16;
@@ -3336,6 +3342,7 @@ SubscrWidget* SubscrWidget::fromOld(subscreen_object const& old)
 		}
 		case ssoICON:
 		{
+			if(!ALLOW_NULL_WIDGET) break;
 			SubscrWidget* ret = new SubscrWidget(old);
 			ret->w = 8;
 			ret->h = 8;
@@ -3440,6 +3447,10 @@ SubscrWidget* SubscrWidget::newType(byte ty)
 			break;
 		case widgSELECTEDTEXT:
 			widg = new SW_SelectedText();
+			break;
+		case widgNULL:
+			if(!ALLOW_NULL_WIDGET) break;
+			widg = new SubscrWidget();
 			break;
 	}
 	return widg;
