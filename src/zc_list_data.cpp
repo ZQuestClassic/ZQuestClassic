@@ -262,7 +262,7 @@ GUI::ListData GUI::ZCListData::enemies(bool numbered, bool defaultFilter)
 	return ls;
 }
 
-GUI::ListData GUI::ZCListData::items(bool numbered)
+GUI::ListData GUI::ZCListData::items(bool numbered, bool none)
 {
 	map<std::string, int32_t> ids;
 	std::set<std::string> names;
@@ -285,7 +285,8 @@ GUI::ListData GUI::ZCListData::items(bool numbered)
 	}
 	
 	GUI::ListData ls;
-	ls.add("(None)", -1);
+	if(none)
+		ls.add("(None)", -1);
 	for(auto it = names.begin(); it != names.end(); ++it)
 	{
 		ls.add(*it, ids[*it]);
@@ -939,5 +940,22 @@ GUI::ListData GUI::ZCListData::passivesubscreens()
 	return ls;
 }
 
-
+GUI::ListData GUI::ZCListData::disableditems(byte* disabledarray)
+{
+	GUI::ListData ls;
+	for (int q = 0; q < MAXITEMS; ++q)
+	{
+		if (disabledarray[q] & 1)
+		{
+			char const* itname = item_string[q];
+			ls.add(itname, q);
+		}
+	}
+	if (ls.size() == 0)
+	{
+		ls.add("", -1);
+	}
+	ls.alphabetize();
+	return ls;
+}
 

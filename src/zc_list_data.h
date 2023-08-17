@@ -12,7 +12,7 @@ namespace GUI::ZCListData
     GUI::ListData const& alignments();
     GUI::ListData const& buttons();
 	GUI::ListData enemies(bool numbered = false, bool defaultFilter = true);
-	GUI::ListData items(bool numbered = false);
+	GUI::ListData items(bool numbered = false, bool none = true);
 	GUI::ListData dropsets(bool numbered = false, bool none = false);
     GUI::ListData itemclass(bool numbered = false, bool zero_none = false);
 	GUI::ListData combotype(bool numbered = false, bool skipNone = false);
@@ -40,6 +40,7 @@ namespace GUI::ZCListData
 	GUI::ListData lpals();
 	GUI::ListData activesubscreens();
 	GUI::ListData passivesubscreens();
+	GUI::ListData disableditems(byte* disabledarray);
 }
 
 #endif
