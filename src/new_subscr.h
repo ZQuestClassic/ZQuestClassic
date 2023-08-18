@@ -11,9 +11,15 @@ struct SubscrPage;
 struct PACKFILE;
 
 #define NEG_OR_MASK(v,mask) (v < 0 ? v : (v&mask))
+struct SubscrTransition;
+struct ZCSubscreen;
 
-extern int subscr_item_clk;
-extern bool subscr_itemless;
+extern SubscrTransition subscr_pg_transition;
+extern int subscr_item_clk, subscr_pg_clk;
+extern bool subscr_itemless, subscr_pg_animating;
+
+void subscrpg_clear_animation();
+bool subscrpg_animate(byte from, byte to, SubscrTransition const& transition, ZCSubscreen& parent);
 
 //Old subscreen stuff
 struct subscreen_object
@@ -78,6 +84,22 @@ struct SubscrMTInfo
 	
 	int32_t read(PACKFILE *f, word s_version);
 	int32_t write(PACKFILE *f) const;
+};
+
+struct SubscrTransition
+{
+	byte type;
+	byte tr_sfx;
+	int32_t arg[3];
+	
+	void clear();
+	int32_t read(PACKFILE *f, word s_version);
+	int32_t write(PACKFILE *f) const;
+};
+
+enum //Transition types
+{
+	sstrINSTANT
 };
 
 enum //selection directions
@@ -576,7 +598,7 @@ protected:
 #define SUBSCR_CURITM_IGNR_SP_DISPLAY   SUBSCRFLAG_SPEC_04
 struct SW_ItemSlot : public SubscrWidget
 {
-	int32_t iclass, iid;
+	int32_t iclass, iid = -1;
 	
 	SW_ItemSlot() = default;
 	SW_ItemSlot(subscreen_object const& old);
@@ -893,6 +915,7 @@ private:
 	word index;
 	friend struct ZCSubscreen;
 };
+#define SUBFLAG_NOPAGEWRAP   0x00000001
 struct ZCSubscreen
 {
 	std::vector<SubscrPage> pages;
@@ -901,10 +924,13 @@ struct ZCSubscreen
 	
 	word def_btns[4]={255,255,255,255};
 	
+	byte btn_left, btn_right;
+	SubscrTransition page_transition;
+	dword flags;
+	
 	//!TODO Subscreen Scripts
 	word script;
 	int32_t initd[8];
-	
 	
 	SubscrPage& cur_page();
 	SubscrPage* get_page(byte ind);
@@ -914,11 +940,14 @@ struct ZCSubscreen
 	void add_page(byte ind);
 	void swap_pages(byte ind1, byte ind2);
 	void clear();
+	void copy_settings(const ZCSubscreen& src);
 	void draw(BITMAP* dest, int32_t xofs, int32_t yofs, byte pos, bool showtime);
 	void load_old(subscreen_group const& g);
 	void load_old(subscreen_object const* arr);
 	int32_t read(PACKFILE *f, word s_version);
 	int32_t write(PACKFILE *f) const;
+	
+	void check_btns(byte btnflgs);
 };
 #endif
 

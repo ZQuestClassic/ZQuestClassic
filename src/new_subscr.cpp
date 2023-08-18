@@ -44,9 +44,13 @@ void draw_textbox(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, FONT
 void magicgauge(BITMAP *dest,int32_t x,int32_t y, int32_t container, int32_t notlast_tile, int32_t notlast_cset, bool notlast_mod, int32_t last_tile, int32_t last_cset, bool last_mod,
 				int32_t cap_tile, int32_t cap_cset, bool cap_mod, int32_t aftercap_tile, int32_t aftercap_cset, bool aftercap_mod, int32_t frames, int32_t speed, int32_t delay, bool unique_last, int32_t show);
 
-int subscr_item_clk = 0;
+SubscrTransition subscr_pg_transition;
+int subscr_item_clk = 0, subscr_pg_clk = 0;
+static byte subscr_pg_from, subscr_pg_to;
+static ZCSubscreen* subscr_anim = nullptr;
+
 int subscr_override_clkoffsets[MAXITEMS];
-bool subscr_itemless = false;
+bool subscr_itemless = false, subscr_pg_animating = false;
 int btnitem_clks[4] = {0};
 int btnitem_ids[4] = {0};
 
@@ -423,6 +427,34 @@ int shadow_h(int shadow)
 	return 0;
 }
 
+void subscrpg_clear_animation()
+{
+	subscr_pg_animating = false;
+	subscr_pg_clk = subscr_pg_from = subscr_pg_to = 0;
+	subscr_pg_transition.clear();
+	subscr_anim = nullptr;
+}
+
+bool subscrpg_animate(byte from, byte to, SubscrTransition const& transition, ZCSubscreen& parent)
+{
+	if(subscr_pg_animating)
+		return false;
+	subscrpg_clear_animation();
+	if(transition.tr_sfx)
+		sfx(transition.tr_sfx);
+	if(transition.type == sstrINSTANT) //just change the page
+	{
+		parent.curpage = to;
+		return true;
+	}
+	subscr_pg_from = from;
+	subscr_pg_to = to;
+	subscr_pg_transition = transition;
+	subscr_pg_animating = true;
+	subscr_anim = &parent;
+	return true;
+}
+
 int32_t SubscrColorInfo::get_color() const
 {
 	return get_color(type,color);
@@ -635,6 +667,33 @@ int32_t SubscrMTInfo::write(PACKFILE *f) const
 	return 0;
 }
 
+void SubscrTransition::clear()
+{
+	*this = SubscrTransition();
+}
+int32_t SubscrTransition::read(PACKFILE *f, word s_version)
+{
+	if(!p_getc(&type,f))
+		return qe_invalid;
+	if(!p_getc(&tr_sfx,f))
+		return qe_invalid;
+	for(int q = 0; q < 3; ++q)
+		if(!p_igetl(&arg[q],f))
+			return qe_invalid;
+	return 0;
+}
+int32_t SubscrTransition::write(PACKFILE *f) const
+{
+	if(!p_putc(type,f))
+		new_return(1);
+	if(!p_putc(tr_sfx,f))
+		new_return(1);
+	for(int q = 0; q < 3; ++q)
+		if(!p_iputl(arg[q],f))
+			new_return(1);
+	return 0;
+}
+
 SubscrWidget::SubscrWidget(byte ty) : SubscrWidget()
 {
 	type = ty;
@@ -708,6 +767,7 @@ bool SubscrWidget::copy_prop(SubscrWidget const* src, bool all)
 	if((src->getType() == widgNULL && getType() != widgNULL) || src == this)
 		return false;
 	flags = src->flags;
+	genflags = src->genflags;
 	posflags &= ~(sspUP|sspDOWN|sspSCROLLING);
 	posflags |= src->posflags&(sspUP|sspDOWN|sspSCROLLING);
 	if(all)
@@ -4571,6 +4631,16 @@ void ZCSubscreen::clear()
 {
 	*this = ZCSubscreen();
 }
+void ZCSubscreen::copy_settings(const ZCSubscreen& src)
+{
+	script = src.script;
+	for(int q = 0; q < 8; ++q)
+		initd[q] = src.initd[q];
+	btn_left = src.btn_left;
+	btn_right = src.btn_right;
+	flags = src.flags;
+	page_transition = src.page_transition;
+}
 void ZCSubscreen::draw(BITMAP* dest, int32_t xofs, int32_t yofs, byte pos, bool showtime)
 {
 	if(pages.empty()) return;
@@ -4619,6 +4689,14 @@ int32_t ZCSubscreen::read(PACKFILE *f, word s_version)
 	for(int q = 0; q < 4; ++q)
 		if(!p_igetw(&def_btns[q],f))
 			return qe_invalid;
+	if(!p_getc(&btn_left,f))
+		new_return(1);
+	if(!p_getc(&btn_right,f))
+		new_return(1);
+	if(auto ret = page_transition.read(f, s_version))
+		return ret;
+	if(!p_igetl(&flags,f))
+		new_return(1);
 	if(!p_igetw(&script,f))
         return qe_invalid;
 	if(script)
@@ -4649,6 +4727,14 @@ int32_t ZCSubscreen::write(PACKFILE *f) const
 	for(int q = 0; q < 4; ++q)
 		if(!p_iputw(def_btns[q],f))
 			new_return(1);
+	if(!p_putc(btn_left,f))
+		new_return(1);
+	if(!p_putc(btn_right,f))
+		new_return(1);
+	if(auto ret = page_transition.write(f))
+		return ret;
+	if(!p_iputl(flags,f))
+		new_return(1);
 	if(!p_iputw(script,f))
 		new_return(1);
 	if(script)
@@ -4665,5 +4751,28 @@ int32_t ZCSubscreen::write(PACKFILE *f) const
 			return ret;
 	
 	return 0;
+}
+
+void ZCSubscreen::check_btns(byte btnflgs)
+{
+	int pg = curpage;
+	if(btn_right&btnflgs)
+		++pg;
+	else if(btn_left&btnflgs)
+		--pg;
+	else return;
+	if(pg < 0)
+	{
+		if(flags&SUBFLAG_NOPAGEWRAP)
+			return;
+		pg = pages.size()-1;
+	}
+	else if(pg >= pages.size())
+	{
+		if(flags&SUBFLAG_NOPAGEWRAP)
+			return;
+		pg = 0;
+	}
+	subscrpg_animate(curpage,pg,page_transition,*this);
 }
 
