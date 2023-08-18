@@ -126,7 +126,7 @@ enum //old subscreen object types
 	ssoMAX, ssoTEMPOLD
 };
 
-enum
+enum //new subscreen object types
 {
 	widgNULL, widgFRAME, widgTEXT, widgLINE, widgRECT,
 	widgTIME, widgMMETER, widgLMETER, widgBTNITM, widgCOUNTER,
@@ -189,42 +189,51 @@ enum //subscreen text alignment
 	sstaLEFT, sstaCENTER, sstaRIGHT
 };
 
-#define SUBSCRFLAG_SELECTABLE  0x00000001
+enum //PGGOTO modes
+{
+	PGGOTO_NONE,
+	PGGOTO_NEXT,
+	PGGOTO_PREV,
+	PGGOTO_TRG
+};
 
-#define SUBSCRFLAG_SPEC_01     0x00000001
-#define SUBSCRFLAG_SPEC_02     0x00000002
-#define SUBSCRFLAG_SPEC_03     0x00000004
-#define SUBSCRFLAG_SPEC_04     0x00000008
-#define SUBSCRFLAG_SPEC_05     0x00000010
-#define SUBSCRFLAG_SPEC_06     0x00000020
-#define SUBSCRFLAG_SPEC_07     0x00000040
-#define SUBSCRFLAG_SPEC_08     0x00000080
-#define SUBSCRFLAG_SPEC_09     0x00000100
-#define SUBSCRFLAG_SPEC_10     0x00000200
-#define SUBSCRFLAG_SPEC_11     0x00000400
-#define SUBSCRFLAG_SPEC_12     0x00000800
-#define SUBSCRFLAG_SPEC_13     0x00001000
-#define SUBSCRFLAG_SPEC_14     0x00002000
-#define SUBSCRFLAG_SPEC_15     0x00004000
-#define SUBSCRFLAG_SPEC_16     0x00008000
-#define SUBSCRFLAG_SPEC_17     0x00010000
-#define SUBSCRFLAG_SPEC_18     0x00020000
-#define SUBSCRFLAG_SPEC_19     0x00040000
-#define SUBSCRFLAG_SPEC_20     0x00080000
-#define SUBSCRFLAG_SPEC_21     0x00100000
-#define SUBSCRFLAG_SPEC_22     0x00200000
-#define SUBSCRFLAG_SPEC_23     0x00400000
-#define SUBSCRFLAG_SPEC_24     0x00800000
-#define SUBSCRFLAG_SPEC_25     0x01000000
-#define SUBSCRFLAG_SPEC_26     0x02000000
-#define SUBSCRFLAG_SPEC_27     0x04000000
-#define SUBSCRFLAG_SPEC_28     0x08000000
-#define SUBSCRFLAG_SPEC_29     0x10000000
-#define SUBSCRFLAG_SPEC_30     0x20000000
-#define SUBSCRFLAG_SPEC_31     0x40000000
-#define SUBSCRFLAG_SPEC_32     0x80000000
+#define SUBSCRFLAG_SELECTABLE         0x00000001
+#define SUBSCRFLAG_PGGOTO_NOWRAP      0x00000002
 
-#define SUBSCRCOMPAT_FONT_RAND       0x01
+#define SUBSCRFLAG_SPEC_01            0x00000001
+#define SUBSCRFLAG_SPEC_02            0x00000002
+#define SUBSCRFLAG_SPEC_03            0x00000004
+#define SUBSCRFLAG_SPEC_04            0x00000008
+#define SUBSCRFLAG_SPEC_05            0x00000010
+#define SUBSCRFLAG_SPEC_06            0x00000020
+#define SUBSCRFLAG_SPEC_07            0x00000040
+#define SUBSCRFLAG_SPEC_08            0x00000080
+#define SUBSCRFLAG_SPEC_09            0x00000100
+#define SUBSCRFLAG_SPEC_10            0x00000200
+#define SUBSCRFLAG_SPEC_11            0x00000400
+#define SUBSCRFLAG_SPEC_12            0x00000800
+#define SUBSCRFLAG_SPEC_13            0x00001000
+#define SUBSCRFLAG_SPEC_14            0x00002000
+#define SUBSCRFLAG_SPEC_15            0x00004000
+#define SUBSCRFLAG_SPEC_16            0x00008000
+#define SUBSCRFLAG_SPEC_17            0x00010000
+#define SUBSCRFLAG_SPEC_18            0x00020000
+#define SUBSCRFLAG_SPEC_19            0x00040000
+#define SUBSCRFLAG_SPEC_20            0x00080000
+#define SUBSCRFLAG_SPEC_21            0x00100000
+#define SUBSCRFLAG_SPEC_22            0x00200000
+#define SUBSCRFLAG_SPEC_23            0x00400000
+#define SUBSCRFLAG_SPEC_24            0x00800000
+#define SUBSCRFLAG_SPEC_25            0x01000000
+#define SUBSCRFLAG_SPEC_26            0x02000000
+#define SUBSCRFLAG_SPEC_27            0x04000000
+#define SUBSCRFLAG_SPEC_28            0x08000000
+#define SUBSCRFLAG_SPEC_29            0x10000000
+#define SUBSCRFLAG_SPEC_30            0x20000000
+#define SUBSCRFLAG_SPEC_31            0x40000000
+#define SUBSCRFLAG_SPEC_32            0x80000000
+
+#define SUBSCRCOMPAT_FONT_RAND        0x01
 struct SubscrWidget
 {
 	byte posflags;
@@ -248,6 +257,9 @@ struct SubscrWidget
 	int32_t generic_initd[8];
 	byte gen_script_btns;
 	
+	byte pg_btns, pg_mode, pg_targ;
+	SubscrTransition pg_trans;
+	
 	SubscrWidget() = default;
 	SubscrWidget(byte ty);
 	SubscrWidget(subscreen_object const& old);
@@ -267,6 +279,8 @@ struct SubscrWidget
 	virtual SubscrWidget* clone() const;
 	virtual bool copy_prop(SubscrWidget const* src, bool all = false);
 	virtual int32_t write(PACKFILE *f) const;
+	
+	void check_btns(byte btnflgs, ZCSubscreen& parent) const;
 	
 	void replay_rand_compat(byte pos) const;
 	static SubscrWidget* fromOld(subscreen_object const& old);
@@ -596,6 +610,7 @@ protected:
 #define SUBSCR_CURITM_NONEQP            SUBSCRFLAG_SPEC_02
 #define SUBSCR_CURITM_IGNR_SP_SELTEXT   SUBSCRFLAG_SPEC_03
 #define SUBSCR_CURITM_IGNR_SP_DISPLAY   SUBSCRFLAG_SPEC_04
+#define SUBSCR_CURITM_NO_INTER_WO_ITEM  SUBSCRFLAG_SPEC_05
 struct SW_ItemSlot : public SubscrWidget
 {
 	int32_t iclass, iid = -1;
@@ -879,6 +894,7 @@ protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
 
+
 #define MAX_SUBSCR_PAGES 254
 struct SubscrPage
 {
@@ -921,12 +937,12 @@ struct ZCSubscreen
 	std::vector<SubscrPage> pages;
 	byte curpage, sub_type;
 	std::string name;
+	dword flags;
 	
 	word def_btns[4]={255,255,255,255};
 	
 	byte btn_left, btn_right;
 	SubscrTransition page_transition;
-	dword flags;
 	
 	//!TODO Subscreen Scripts
 	word script;
@@ -948,6 +964,9 @@ struct ZCSubscreen
 	int32_t write(PACKFILE *f) const;
 	
 	void check_btns(byte btnflgs);
+	void page_change(byte mode, byte targ, SubscrTransition const& trans, bool nowrap);
+private:
+	bool wrap_pg(int& pg, bool nowrap);
 };
 #endif
 

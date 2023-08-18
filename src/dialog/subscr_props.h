@@ -8,6 +8,7 @@
 #include <gui/label.h>
 #include <gui/frame.h>
 #include <gui/button.h>
+#include <gui/tabpanel.h>
 #include <zq/gui/misc_color_sel.h>
 #include <zq/gui/misc_cset_sel.h>
 #include <zq/gui/seltile_swatch.h>
@@ -45,6 +46,9 @@ protected:
 	
 	std::shared_ptr<GUI::Grid> selgs[3];
 	std::shared_ptr<GUI::Frame> selframes[2];
+	std::shared_ptr<GUI::TabRef> seltabs[1];
+	std::shared_ptr<GUI::TextField> seltfs[1];
+	std::shared_ptr<GUI::DropDownList> selddls[1];
 	
 	std::shared_ptr<GUI::Label> geninitd_lbl[8];
 	std::shared_ptr<GUI::Button> geninitd_btn[8];
@@ -62,7 +66,7 @@ protected:
 	zasm_meta local_gen_meta;
 	
 	GUI::ListData list_font, list_shadtype, list_aligns, list_buttons, list_items,
-		list_counters, list_counters2, list_itemclass, list_genscr;
+		list_counters, list_counters2, list_itemclass, list_genscr, list_sfx;
 	
 	void updateSelectable();
 	void updateColors();

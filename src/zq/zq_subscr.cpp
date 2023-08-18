@@ -356,6 +356,7 @@ int32_t d_subscreen_proc(int32_t msg,DIALOG *d,int32_t)
 		case MSG_DRAW:
 		{
 			++subscr_item_clk;
+			animate_subscr_buttonitems();
 			BITMAP *buf = create_bitmap_ex(8,256,hei);
 			
 			if(buf)
@@ -1755,8 +1756,7 @@ void distribute_objects(bool *, int32_t distribute_type)
 
 int32_t onBringToFront()
 {
-	while (curr_subscreen_object >= 0 &&
-		curr_subscreen_object < subscr_edit.cur_page().contents.size()-1)
+    while(curr_subscreen_object<subscr_edit.cur_page().contents.size()-1)
     {
         onBringForward();
     }
@@ -1766,8 +1766,7 @@ int32_t onBringToFront()
 
 int32_t onSendToBack()
 {
-    while(curr_subscreen_object > 0 &&
-		curr_subscreen_object < subscr_edit.cur_page().contents.size())
+    while(curr_subscreen_object>0)
     {
         onSendBackward();
     }
@@ -1780,6 +1779,7 @@ int32_t onReverseArrangement()
 	auto& pg = subscr_edit.cur_page();
     int32_t i=0;
     int32_t j=pg.contents.size()-1;
+    subscreen_object tempsso;
     
     sso_selection[curr_subscreen_object]=true;
     
@@ -2063,7 +2063,7 @@ int32_t onSSCtrlPgDn()
 int32_t onSendBackward()
 {
 	auto& pg = subscr_edit.cur_page();
-	if(curr_subscreen_object > 0 && curr_subscreen_object<subscr_edit.cur_page().contents.size())
+	if(curr_subscreen_object > 0 && curr_subscreen_object<subscr_edit.cur_page().contents.size()-1)
 	{
 		pg.swap_widg(curr_subscreen_object,curr_subscreen_object-1);
 		zc_swap(sso_selection[curr_subscreen_object],sso_selection[curr_subscreen_object-1]);
