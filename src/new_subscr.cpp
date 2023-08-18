@@ -1663,6 +1663,10 @@ bool SW_Counter::copy_prop(SubscrWidget const* src, bool all)
 	maxdigits = other->maxdigits;
 	infitm = other->infitm;
 	infchar = other->infchar;
+	for(int q = 0; q < 3; ++q)
+		for(int p = 0; p < q; ++p) //prune duplicates
+			if(ctrs[p]==ctrs[q])
+				ctrs[q] = crNONE;
 	return true;
 }
 int32_t SW_Counter::read(PACKFILE *f, word s_version)
