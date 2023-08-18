@@ -623,6 +623,8 @@ class CLIPlayerInterface:
 
         if args.headless:
             exe_args.append('-headless')
+        elif is_mac_ci:
+            exe_args.append('-s')
 
         # Allegro seems to be using free'd memory when shutting down the sound system.
         # For now, just disable sound in CI or when using Asan/Coverage.
@@ -866,6 +868,7 @@ def run_replay_test(replay_file: pathlib.Path, output_dir: pathlib.Path) -> RunR
             break
         except ReplayTimeoutException:
             # Will try again.
+            print(allegro_log_path.read_text('utf-8'))
             logging.exception('replay timed out')
             player_interface.stop()
         except KeyboardInterrupt:
