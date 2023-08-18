@@ -4602,8 +4602,8 @@ void ZCSubscreen::delete_page(byte id)
 }
 void ZCSubscreen::add_page(byte id)
 {
-	if(id >= pages.size())
-		id = pages.size()-1; //add new page at end
+	if(id > pages.size())
+		id = pages.size(); //add new page at end
 	if(id >= MAX_SUBSCR_PAGES) //no more room!
 		return;
 	auto& pg = pages.emplace_back();
