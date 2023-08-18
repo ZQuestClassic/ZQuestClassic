@@ -52,7 +52,7 @@ static ZCSubscreen* subscr_anim = nullptr;
 int subscr_override_clkoffsets[MAXITEMS];
 bool subscr_itemless = false, subscr_pg_animating = false;
 int btnitem_clks[4] = {0};
-int btnitem_ids[4] = {0};
+int btnitem_ids[4] = {-1,-1,-1,-1};
 
 void refresh_subscr_buttonitems()
 {
@@ -788,6 +788,18 @@ bool SubscrWidget::copy_prop(SubscrWidget const* src, bool all)
 		for(int q = 0; q < 8; ++q)
 			generic_initd[q] = src->generic_initd[q];
 		type = src->type;
+		pg_btns = src->pg_btns;
+		pg_mode = src->pg_mode;
+		if(!pg_mode || !pg_btns)
+		{
+			pg_mode = pg_btns = pg_targ = 0;
+			pg_trans.clear();
+		}
+		else
+		{
+			pg_targ = src->pg_targ;
+			pg_trans = src->pg_trans;
+		}
 	}
 	return true;
 }
@@ -833,6 +845,17 @@ int32_t SubscrWidget::read(PACKFILE *f, word s_version)
 			for(int q = 0; q < 8; ++q)
 				if(!p_igetl(&generic_initd[q],f))
 					return qe_invalid;
+		}
+		if(!p_getc(&pg_mode,f))
+			return qe_invalid;
+		if(pg_mode)
+		{
+			if(!p_getc(&pg_btns,f))
+				return qe_invalid;
+			if(!p_getc(&pg_targ,f))
+				return qe_invalid;
+			if(auto ret = pg_trans.read(f, s_version))
+				return ret;
 		}
 	}
 	return 0;
@@ -881,8 +904,24 @@ int32_t SubscrWidget::write(PACKFILE *f) const
 				if(!p_iputl(generic_initd[q],f))
 					new_return(1);
 		}
+		if(!p_putc(pg_mode,f))
+			new_return(1);
+		if(pg_mode)
+		{
+			if(!p_putc(pg_btns,f))
+				new_return(1);
+			if(!p_putc(pg_targ,f))
+				new_return(1);
+			if(auto ret = pg_trans.write(f))
+				return ret;
+		}
 	}
 	return 0;
+}
+void SubscrWidget::check_btns(byte btnflgs, ZCSubscreen& parent) const
+{
+	if(pg_mode && (btnflgs&pg_btns))
+		parent.page_change(pg_mode, pg_targ, pg_trans, genflags&SUBSCRFLAG_PGGOTO_NOWRAP);
 }
 void SubscrWidget::replay_rand_compat(byte pos) const
 {
@@ -4686,24 +4725,28 @@ int32_t ZCSubscreen::read(PACKFILE *f, word s_version)
         return qe_invalid;
 	if(!p_getc(&sub_type,f))
         return qe_invalid;
-	for(int q = 0; q < 4; ++q)
-		if(!p_igetw(&def_btns[q],f))
-			return qe_invalid;
-	if(!p_getc(&btn_left,f))
-		new_return(1);
-	if(!p_getc(&btn_right,f))
-		new_return(1);
-	if(auto ret = page_transition.read(f, s_version))
-		return ret;
 	if(!p_igetl(&flags,f))
 		new_return(1);
-	if(!p_igetw(&script,f))
-        return qe_invalid;
-	if(script)
+	bool passive = sub_type == sstPASSIVE;
+	if(!passive)
 	{
-		for(int q = 0; q < 8; ++q)
-			if(!p_igetl(&initd[q],f))
+		for(int q = 0; q < 4; ++q)
+			if(!p_igetw(&def_btns[q],f))
 				return qe_invalid;
+		if(!p_getc(&btn_left,f))
+			new_return(1);
+		if(!p_getc(&btn_right,f))
+			new_return(1);
+		if(auto ret = page_transition.read(f, s_version))
+			return ret;
+		if(!p_igetw(&script,f))
+			return qe_invalid;
+		if(script)
+		{
+			for(int q = 0; q < 8; ++q)
+				if(!p_igetl(&initd[q],f))
+					return qe_invalid;
+		}
 	}
 	byte pagecnt;
 	if(!p_getc(&pagecnt,f))
@@ -4724,26 +4767,32 @@ int32_t ZCSubscreen::write(PACKFILE *f) const
         new_return(1);
 	if(!p_putc(sub_type,f))
 		new_return(1);
-	for(int q = 0; q < 4; ++q)
-		if(!p_iputw(def_btns[q],f))
-			new_return(1);
-	if(!p_putc(btn_left,f))
-		new_return(1);
-	if(!p_putc(btn_right,f))
-		new_return(1);
-	if(auto ret = page_transition.write(f))
-		return ret;
 	if(!p_iputl(flags,f))
 		new_return(1);
-	if(!p_iputw(script,f))
-		new_return(1);
-	if(script)
+	bool passive = sub_type == sstPASSIVE;
+	if(!passive)
 	{
-		for(int q = 0; q < 8; ++q)
-			if(!p_iputl(initd[q],f))
+		for(int q = 0; q < 4; ++q)
+			if(!p_iputw(def_btns[q],f))
 				new_return(1);
+		if(!p_putc(btn_left,f))
+			new_return(1);
+		if(!p_putc(btn_right,f))
+			new_return(1);
+		if(auto ret = page_transition.write(f))
+			return ret;
+		if(!p_iputw(script,f))
+			new_return(1);
+		if(script)
+		{
+			for(int q = 0; q < 8; ++q)
+				if(!p_iputl(initd[q],f))
+					new_return(1);
+		}
 	}
-	byte pagecnt = zc_min(255,pages.size());
+	byte pagecnt = zc_min(MAX_SUBSCR_PAGES,pages.size());
+	if(pagecnt && passive)
+		pagecnt = 1;
 	if(!p_putc(pagecnt,f))
 		new_return(1);
 	for(byte q = 0; q < pagecnt; ++q)
@@ -4753,6 +4802,22 @@ int32_t ZCSubscreen::write(PACKFILE *f) const
 	return 0;
 }
 
+bool ZCSubscreen::wrap_pg(int& pg, bool nowrap)
+{
+	if(pg < 0)
+	{
+		if(nowrap)
+			return false;
+		pg = pages.size()-1;
+	}
+	else if(pg >= pages.size())
+	{
+		if(nowrap)
+			return false;
+		pg = 0;
+	}
+	return true;
+}
 void ZCSubscreen::check_btns(byte btnflgs)
 {
 	int pg = curpage;
@@ -4761,18 +4826,30 @@ void ZCSubscreen::check_btns(byte btnflgs)
 	else if(btn_left&btnflgs)
 		--pg;
 	else return;
-	if(pg < 0)
-	{
-		if(flags&SUBFLAG_NOPAGEWRAP)
-			return;
-		pg = pages.size()-1;
-	}
-	else if(pg >= pages.size())
-	{
-		if(flags&SUBFLAG_NOPAGEWRAP)
-			return;
-		pg = 0;
-	}
+	if(!wrap_pg(pg,flags&SUBFLAG_NOPAGEWRAP))
+		return;
 	subscrpg_animate(curpage,pg,page_transition,*this);
+}
+void ZCSubscreen::page_change(byte mode, byte targ, SubscrTransition const& trans, bool nowrap)
+{
+	int pg = curpage;
+	switch(mode)
+	{
+		case PGGOTO_NEXT:
+			++pg;
+			break;
+		case PGGOTO_PREV:
+			--pg;
+			break;
+		case PGGOTO_TRG:
+			if(targ < pages.size())
+				pg = targ;
+			break;
+	}
+	if(pg == curpage)
+		return;
+	if(!wrap_pg(pg,nowrap))
+		return;
+	subscrpg_animate(curpage,pg,trans,*this);
 }
 

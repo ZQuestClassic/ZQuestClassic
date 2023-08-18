@@ -139,6 +139,7 @@ void dosubscr()
 	
 	do
 	{
+		auto pgnum = new_subscreen_active->curpage;
 		auto& pg = new_subscreen_active->cur_page();
 		if (replay_version_check(0, 11))
 			load_control_state();
@@ -183,6 +184,10 @@ void dosubscr()
 					}
 				}
 			}
+			
+			if(pos!=pg.cursor_pos)
+				sfx(QMisc.miscsfx[sfxSUBSCR_CURSOR_MOVE]);
+			
 			//Assign items to buttons
 			bool can_equip = true;
 			
@@ -190,181 +195,188 @@ void dosubscr()
 			
 			if(widg)
 			{
-				if(widg->generic_script && (btn_press&widg->gen_script_btns))
-				{
-					FFCore.runGenericFrozenEngine(widg->generic_script, widg->generic_initd);
-				}
-				bool can_equip = true;
-				if(widg->getType() == widgITEMSLOT && (widg->flags & SUBSCR_CURITM_NONEQP))
-					can_equip = false;
+				bool can_interact = true;
+				if(widg->getType() == widgITEMSLOT
+					&& (widg->flags & SUBSCR_CURITM_NO_INTER_WO_ITEM)
+					&& widg->getDisplayItem() < 0)
+					can_interact = false;
 				
-				if(can_equip)
+				if(can_interact)
 				{
-					auto eqwpn = widg->getItemVal();
-					if(eqwpn > -1)
+					if(widg->generic_script && (btn_press&widg->gen_script_btns))
+						FFCore.runGenericFrozenEngine(widg->generic_script, widg->generic_initd);
+					bool can_equip = true;
+					if(widg->getType() == widgITEMSLOT && (widg->flags & SUBSCR_CURITM_NONEQP))
+						can_equip = false;
+					
+					if(can_equip)
 					{
-						if(b_only || (btn_press&INT_BTN_B))
+						auto eqwpn = widg->getItemVal();
+						if(eqwpn > -1)
 						{
-							if(noverify && !b_only && eqwpn == Bwpn)
+							if(b_only || (btn_press&INT_BTN_B))
 							{
-								Bwpn = -1;
-								game->forced_bwpn = -1;
-								sfx(QMisc.miscsfx[sfxSUBSCR_ITEM_ASSIGN]);
-								
-								game->bwpn = 255;
-								directItemB = -1;
+								if(noverify && !b_only && eqwpn == Bwpn)
+								{
+									Bwpn = -1;
+									game->forced_bwpn = -1;
+									sfx(QMisc.miscsfx[sfxSUBSCR_ITEM_ASSIGN]);
+									
+									game->bwpn = 255;
+									directItemB = -1;
+								}
+								else
+								{
+									if(use_a && eqwpn == Awpn)
+									{
+										Awpn = Bwpn;
+										game->awpn = game->bwpn;
+										directItemA = directItemB;
+									}
+									else if(use_x && eqwpn == Xwpn)
+									{
+										Xwpn = Bwpn;
+										game->xwpn = game->bwpn;
+										directItemX = directItemB;
+									}
+									else if(use_y && eqwpn == Ywpn)
+									{
+										Ywpn = Bwpn;
+										game->ywpn = game->bwpn;
+										directItemY = directItemB;
+									}
+									
+									Bwpn = eqwpn;
+									game->forced_bwpn = -1; //clear forced if the item is selected using the actual subscreen
+									if(!b_only) sfx(QMisc.miscsfx[sfxSUBSCR_ITEM_ASSIGN]);
+									game->bwpn = ((pg.cursor_pos)<<8) | new_subscreen_active->curpage;
+									directItemB = eqwpn;
+								}
 							}
-							else
+							else if(use_a && (btn_press&INT_BTN_A))
 							{
-								if(use_a && eqwpn == Awpn)
+								if(noverify && eqwpn == Awpn)
 								{
-									Awpn = Bwpn;
-									game->awpn = game->bwpn;
-									directItemA = directItemB;
+									Awpn = -1;
+									game->forced_awpn = -1;
+									sfx(QMisc.miscsfx[sfxSUBSCR_ITEM_ASSIGN]);
+									
+									game->awpn = 255;
+									directItemA = -1;
 								}
-								else if(use_x && eqwpn == Xwpn)
+								else
 								{
-									Xwpn = Bwpn;
-									game->xwpn = game->bwpn;
-									directItemX = directItemB;
+									if(eqwpn == Bwpn)
+									{
+										Bwpn = Awpn;
+										game->bwpn = game->awpn;
+										directItemB = directItemA;
+									}
+									else if(use_x && eqwpn == Xwpn)
+									{
+										Xwpn = Awpn;
+										game->xwpn = game->awpn;
+										directItemX = directItemA;
+									}
+									else if(use_y && eqwpn == Ywpn)
+									{
+										Ywpn = Awpn;
+										game->ywpn = game->awpn;
+										directItemY = directItemA;
+									}
+									
+									Awpn = eqwpn;
+									sfx(QMisc.miscsfx[sfxSUBSCR_ITEM_ASSIGN]);
+									game->awpn = ((pg.cursor_pos)<<8) | new_subscreen_active->curpage;
+									game->forced_awpn = -1; //clear forced if the item is selected using the actual subscreen
+									directItemA = eqwpn;
 								}
-								else if(use_y && eqwpn == Ywpn)
-								{
-									Ywpn = Bwpn;
-									game->ywpn = game->bwpn;
-									directItemY = directItemB;
-								}
-								
-								Bwpn = eqwpn;
-								game->forced_bwpn = -1; //clear forced if the item is selected using the actual subscreen
-								if(!b_only) sfx(QMisc.miscsfx[sfxSUBSCR_ITEM_ASSIGN]);
-								game->bwpn = ((pg.cursor_pos)<<8) | new_subscreen_active->curpage;
-								directItemB = eqwpn;
 							}
-						}
-						else if(use_a && (btn_press&INT_BTN_A))
-						{
-							if(noverify && eqwpn == Awpn)
+							else if(use_x && (btn_press&INT_BTN_EX1))
 							{
-								Awpn = -1;
-								game->forced_awpn = -1;
-								sfx(QMisc.miscsfx[sfxSUBSCR_ITEM_ASSIGN]);
-								
-								game->awpn = 255;
-								directItemA = -1;
+								if(noverify && eqwpn == Xwpn)
+								{
+									Xwpn = -1;
+									game->forced_xwpn = -1;
+									sfx(QMisc.miscsfx[sfxSUBSCR_ITEM_ASSIGN]);
+									
+									game->xwpn = 255;
+									directItemX = -1;
+								}
+								else
+								{
+									if(eqwpn == Bwpn)
+									{
+										Bwpn = Xwpn;
+										game->bwpn = game->xwpn;
+										directItemB = directItemX;
+									}
+									else if(use_a && eqwpn == Awpn)
+									{
+										Awpn = Xwpn;
+										game->awpn = game->xwpn;
+										directItemA = directItemX;
+									}
+									else if(use_y && eqwpn == Ywpn)
+									{
+										Ywpn = Xwpn;
+										game->ywpn = game->xwpn;
+										directItemY = directItemX;
+									}
+									
+									Xwpn = eqwpn;
+									sfx(QMisc.miscsfx[sfxSUBSCR_ITEM_ASSIGN]);
+									game->xwpn = ((pg.cursor_pos)<<8) | new_subscreen_active->curpage;
+									game->forced_xwpn = -1; //clear forced if the item is selected using the actual subscreen
+									directItemX = eqwpn;
+								}
 							}
-							else
+							else if(use_y && (btn_press&INT_BTN_EX2))
 							{
-								if(eqwpn == Bwpn)
+								if(noverify && eqwpn == Ywpn)
 								{
-									Bwpn = Awpn;
-									game->bwpn = game->awpn;
-									directItemB = directItemA;
+									Ywpn = -1;
+									game->forced_ywpn = -1;
+									sfx(QMisc.miscsfx[sfxSUBSCR_ITEM_ASSIGN]);
+									
+									game->ywpn = 255;
+									directItemY = -1;
 								}
-								else if(use_x && eqwpn == Xwpn)
+								else
 								{
-									Xwpn = Awpn;
-									game->xwpn = game->awpn;
-									directItemX = directItemA;
+									if(eqwpn == Bwpn)
+									{
+										Bwpn = Ywpn;
+										game->bwpn = game->ywpn;
+										directItemB = directItemY;
+									}
+									else if(use_a && eqwpn == Awpn)
+									{
+										Awpn = Ywpn;
+										game->awpn = game->ywpn;
+										directItemA = directItemY;
+									}
+									else if(use_x && eqwpn == Xwpn)
+									{
+										Xwpn = Ywpn;
+										game->xwpn = game->ywpn;
+										directItemX = directItemY;
+									}
+									
+									Ywpn = eqwpn;
+									sfx(QMisc.miscsfx[sfxSUBSCR_ITEM_ASSIGN]);
+									game->ywpn = ((pg.cursor_pos)<<8) | new_subscreen_active->curpage;
+									game->forced_ywpn = -1; //clear forced if the item is selected using the actual subscreen
+									directItemY = eqwpn;
 								}
-								else if(use_y && eqwpn == Ywpn)
-								{
-									Ywpn = Awpn;
-									game->ywpn = game->awpn;
-									directItemY = directItemA;
-								}
-								
-								Awpn = eqwpn;
-								sfx(QMisc.miscsfx[sfxSUBSCR_ITEM_ASSIGN]);
-								game->awpn = ((pg.cursor_pos)<<8) | new_subscreen_active->curpage;
-								game->forced_awpn = -1; //clear forced if the item is selected using the actual subscreen
-								directItemA = eqwpn;
-							}
-						}
-						else if(use_x && (btn_press&INT_BTN_EX1))
-						{
-							if(noverify && eqwpn == Xwpn)
-							{
-								Xwpn = -1;
-								game->forced_xwpn = -1;
-								sfx(QMisc.miscsfx[sfxSUBSCR_ITEM_ASSIGN]);
-								
-								game->xwpn = 255;
-								directItemX = -1;
-							}
-							else
-							{
-								if(eqwpn == Bwpn)
-								{
-									Bwpn = Xwpn;
-									game->bwpn = game->xwpn;
-									directItemB = directItemX;
-								}
-								else if(use_a && eqwpn == Awpn)
-								{
-									Awpn = Xwpn;
-									game->awpn = game->xwpn;
-									directItemA = directItemX;
-								}
-								else if(use_y && eqwpn == Ywpn)
-								{
-									Ywpn = Xwpn;
-									game->ywpn = game->xwpn;
-									directItemY = directItemX;
-								}
-								
-								Xwpn = eqwpn;
-								sfx(QMisc.miscsfx[sfxSUBSCR_ITEM_ASSIGN]);
-								game->xwpn = ((pg.cursor_pos)<<8) | new_subscreen_active->curpage;
-								game->forced_xwpn = -1; //clear forced if the item is selected using the actual subscreen
-								directItemX = eqwpn;
-							}
-						}
-						else if(use_y && (btn_press&INT_BTN_EX2))
-						{
-							if(noverify && eqwpn == Ywpn)
-							{
-								Ywpn = -1;
-								game->forced_ywpn = -1;
-								sfx(QMisc.miscsfx[sfxSUBSCR_ITEM_ASSIGN]);
-								
-								game->ywpn = 255;
-								directItemY = -1;
-							}
-							else
-							{
-								if(eqwpn == Bwpn)
-								{
-									Bwpn = Ywpn;
-									game->bwpn = game->ywpn;
-									directItemB = directItemY;
-								}
-								else if(use_a && eqwpn == Awpn)
-								{
-									Awpn = Ywpn;
-									game->awpn = game->ywpn;
-									directItemA = directItemY;
-								}
-								else if(use_x && eqwpn == Xwpn)
-								{
-									Xwpn = Ywpn;
-									game->xwpn = game->ywpn;
-									directItemX = directItemY;
-								}
-								
-								Ywpn = eqwpn;
-								sfx(QMisc.miscsfx[sfxSUBSCR_ITEM_ASSIGN]);
-								game->ywpn = ((pg.cursor_pos)<<8) | new_subscreen_active->curpage;
-								game->forced_ywpn = -1; //clear forced if the item is selected using the actual subscreen
-								directItemY = eqwpn;
 							}
 						}
 					}
+					widg->check_btns(btn_press,*new_subscreen_active);
 				}
 			}
-			new_subscreen_active->check_btns(btn_press);
-			if(pos!=pg.cursor_pos)
-				sfx(QMisc.miscsfx[sfxSUBSCR_CURSOR_MOVE]);
+			if(new_subscreen_active->curpage == pgnum)
+				new_subscreen_active->check_btns(btn_press);
 		}
 		
 		do_dcounters();

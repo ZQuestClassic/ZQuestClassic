@@ -31,7 +31,8 @@ SubscrPropDialog::SubscrPropDialog(SubscrWidget* widg, int32_t obj_ind) :
 	list_counters(GUI::ZCListData::ss_counters(true)), //All counters
 	list_counters2(GUI::ZCListData::ss_counters(true,true)), //All counters, no (None)
 	list_itemclass(GUI::ZCListData::itemclass(true)),
-	list_genscr(GUI::ZCListData::generic_script())
+	list_genscr(GUI::ZCListData::generic_script()),
+	list_sfx(GUI::ZCListData::sfxnames(true))
 {
 	byte pg = subscr_edit.curpage, ind = index;
 	start_default_btnslot = 0;
@@ -62,6 +63,13 @@ static const GUI::ListData wrapping_type_list
 {
 	{ "Character", 0 },
 	{ "Word", 1 }
+};
+static const GUI::ListData list_pgmode
+{
+	{ "None", PGGOTO_NONE },
+	{ "Next", PGGOTO_NEXT },
+	{ "Prev", PGGOTO_PREV },
+	{ "Target", PGGOTO_TRG },
 };
 
 #define NUM_FIELD(var,_min,_max) \
@@ -299,6 +307,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::GEN_INITD(int ind)
 }
 
 static size_t sprop_tabs[widgMAX] = {0};
+static size_t sprop_tab_sel = 0;
 static char tbuf[1025] = {0};
 std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 {
@@ -731,7 +740,12 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 						" heart piece display, or bow name on bow&arrow) will not be added for this widget."),
 					CBOX_EX(w->flags,SUBSCR_CURITM_IGNR_SP_DISPLAY,"Ignore Special Display",_EX_RBOX),
 					INFOBTN("If checked, special display properties (like the hardcoded map, compass, boss key"
-						" displays and changing heart pieces into the heart piece display) will not occur for this widget.")
+						" displays and changing heart pieces into the heart piece display) will not occur for this widget."),
+					//
+					DummyWidget(),
+					CBOX_EX(w->flags,SUBSCR_CURITM_NO_INTER_WO_ITEM,"No Interact Without Item",_EX_RBOX),
+					INFOBTN("If checked, effects using buttons such as changing pages or running frozen generic scripts"
+						" on this widget will not trigger unless there is a valid item displayed.")
 				);
 				break;
 			}
@@ -1425,44 +1439,110 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 		for(auto& ref : extra_grids)
 			tpan->add(TabRef(name = ref.first, ref.second));
 	}
-	tpan->add(TabRef(name = "Selection", Rows<2>(
-			Frame(title = "Cursor Selectable", info = "If the subscreen cursor can select this"
-				" widget, and the selectable position information for selecting it.",
-				fitParent = true,
-				Column(padding = 0_px,
-					Checkbox(
-						text = "Is Selectable",
-						checked = local_subref->genflags & SUBSCRFLAG_SELECTABLE,
-						onToggleFunc = [&](bool state)
-						{
-							SETFLAG(local_subref->genflags, SUBSCRFLAG_SELECTABLE, state);
-							updateSelectable();
-						}),
-					selgs[0] = Rows<3>(
-						Label(text = "Position:", hAlign = 1.0),
-						NUM_FIELD(local_subref->pos, 0, 254),
-						INFOBTN("The unique position ID of this slot. Setting this to a number"
-							" that is already in use on this page may cause buggy behavior."),
-						Label(text = "Up Select:", hAlign = 1.0),
-						NUM_FIELD(local_subref->pos_up, 0, 254),
-						INFOBTN("The unique position ID to move to when pressing 'Up'"),
-						Label(text = "Down Select:", hAlign = 1.0),
-						NUM_FIELD(local_subref->pos_down, 0, 254),
-						INFOBTN("The unique position ID to move to when pressing 'Down'"),
-						Label(text = "Left Select:", hAlign = 1.0),
-						NUM_FIELD(local_subref->pos_left, 0, 254),
-						INFOBTN("The unique position ID to move to when pressing 'Left' / 'L' quickswap"),
-						Label(text = "Right Select:", hAlign = 1.0),
-						NUM_FIELD(local_subref->pos_right, 0, 254),
-						INFOBTN("The unique position ID to move to when pressing 'Right' / 'R' quickswap")
-					)
+	tpan->add(TabRef(name = "Selection",
+		TabPanel(ptr = &sprop_tab_sel,
+			TabRef(name = "Basic",
+				Rows<2>(
+					Frame(title = "Cursor Selectable", info = "If the subscreen cursor can select this"
+						" widget, and the selectable position information for selecting it.",
+						fitParent = true,
+						Column(padding = 0_px,
+							Checkbox(
+								text = "Is Selectable",
+								checked = local_subref->genflags & SUBSCRFLAG_SELECTABLE,
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_subref->genflags, SUBSCRFLAG_SELECTABLE, state);
+									updateSelectable();
+								}),
+							selgs[0] = Rows<3>(
+								Label(text = "Position:", hAlign = 1.0),
+								NUM_FIELD(local_subref->pos, 0, 254),
+								INFOBTN("The unique position ID of this slot. Setting this to a number"
+									" that is already in use on this page may cause buggy behavior."),
+								Label(text = "Up Select:", hAlign = 1.0),
+								NUM_FIELD(local_subref->pos_up, 0, 254),
+								INFOBTN("The unique position ID to move to when pressing 'Up'"),
+								Label(text = "Down Select:", hAlign = 1.0),
+								NUM_FIELD(local_subref->pos_down, 0, 254),
+								INFOBTN("The unique position ID to move to when pressing 'Down'"),
+								Label(text = "Left Select:", hAlign = 1.0),
+								NUM_FIELD(local_subref->pos_left, 0, 254),
+								INFOBTN("The unique position ID to move to when pressing 'Left' / 'L' quickswap"),
+								Label(text = "Right Select:", hAlign = 1.0),
+								NUM_FIELD(local_subref->pos_right, 0, 254),
+								INFOBTN("The unique position ID to move to when pressing 'Right' / 'R' quickswap")
+							)
+						)
+					),
+					selframes[0] = Frame(title = "Page Change",
+						info = "Change the current subscreen page when a button is pressed.",
+							fitParent = true,
+							Column(
+								Rows<3>(
+									Label(text = "Mode:",hAlign = 1.0),
+									DropDownList(data = list_pgmode,
+										fitParent = true, selectedValue = local_subref->pg_mode,
+										onSelectFunc = [&](int32_t val)
+										{
+											local_subref->pg_mode = val;
+											updateSelectable();
+										}),
+									INFOBTN("Which mode to use for page swapping."
+										"\nPrev/Next move to the previous or next page."
+										"\nTarget moves to a specific page number."
+										"\nNone disables page swapping altogether."),
+									//
+									Label(text = "Target:",hAlign = 1.0),
+									seltfs[0] = TextField(
+										fitParent = true,
+										type = GUI::TextField::type::INT_DECIMAL,
+										low = 0, high = MAX_SUBSCR_PAGES, val = local_subref->pg_targ,
+										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+										{
+											local_subref->pg_targ = val;
+										}),
+									INFOBTN("The target page for 'Target' mode."
+										" If set to an invalid page, no page change occurs."),
+									//
+									Label(text = "Transition SFX:"),
+									selddls[0] = DropDownList(data = list_sfx,
+										fitParent = true, maxwidth = 200_px,
+										selectedValue = local_subref->pg_trans.tr_sfx,
+										onSelectFunc = [&](int32_t val)
+										{
+											local_subref->pg_trans.tr_sfx = val;
+										}
+									),
+									INFOBTN("SFX to play when changing pages"),
+									//
+									DummyWidget(),
+									CBOX(local_subref->genflags,SUBSCRFLAG_PGGOTO_NOWRAP,"No Wrap",1),
+									INFOBTN("If checked, trying to page left from page 0 or"
+										" right from the final page will do nothing.")
+								),
+								INTBTN_PANEL2(local_subref->pg_btns,"Page Button:")
+							)
+						),
+					selframes[1] = Frame(title = "Selection Text",
+						info = "If not blank, use this text for 'Selection Text' widgets.",
+							fitParent = true, colSpan = 2,
+							TextField(
+								type = GUI::TextField::type::TEXT,
+								maxLength = 255,
+								text = local_subref->override_text,
+								onValChangedFunc = [&](GUI::TextField::type,std::string_view text,int32_t)
+								{
+									local_subref->override_text = text;
+								})
+						)
 				)
 			),
-			selframes[0] = Frame(title = "Generic Frozen Script",
-				info = "Run a Generic Frozen Script when a button is pressed."
-					"\nThe script will run before any other effects that occur from"
-					" pressing the button (such as equipping an item to a button).",
-					fitParent = true,
+			seltabs[0] = TabRef(name = "Script",
+				Frame(title = "Generic Frozen Script",
+					info = "Run a Generic Frozen Script when a button is pressed."
+						"\nThe script will run before any other effects that occur from"
+						" pressing the button (such as equipping an item to a button).",
 					Row(
 						selgs[1] = Column(padding = 0_px,
 							GEN_INITD(0),
@@ -1487,19 +1567,8 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 							selgs[2] = INTBTN_PANEL2(local_subref->gen_script_btns,"Run Button:")
 						)
 					)
-				),
-			selframes[1] = Frame(title = "Selection Text",
-				info = "If not blank, use this text for 'Selection Text' widgets.",
-					fitParent = true, colSpan = 2,
-					TextField(
-						type = GUI::TextField::type::TEXT,
-						maxLength = 255,
-						text = local_subref->override_text,
-						onValChangedFunc = [&](GUI::TextField::type,std::string_view text,int32_t)
-						{
-							local_subref->override_text = text;
-						})
 				)
+			)
 		)));
 	window = Window(
 		title = titlebuf,
@@ -1530,11 +1599,17 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 void SubscrPropDialog::updateSelectable()
 {
 	bool seldis = !(local_subref->genflags & SUBSCRFLAG_SELECTABLE);
+	bool scrdis = seldis || !local_subref->generic_script;
+	bool pgdis = seldis || !local_subref->pg_mode;
 	selgs[0]->setDisabled(seldis);
 	selframes[0]->setDisabled(seldis);
 	selframes[1]->setDisabled(seldis);
-	selgs[1]->setDisabled(seldis || !local_subref->generic_script);
-	selgs[2]->setDisabled(seldis || !local_subref->generic_script);
+	seltabs[0]->setDisabled(seldis);
+	selgs[1]->setDisabled(scrdis);
+	selgs[2]->setDisabled(scrdis);
+	seltfs[0]->setDisabled(pgdis || local_subref->pg_mode != PGGOTO_TRG);
+	selddls[0]->setDisabled(pgdis);
+	
 	
 	if(local_subref->generic_script)
 		local_gen_meta = genericscripts[local_subref->generic_script]->meta;
