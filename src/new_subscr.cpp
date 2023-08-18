@@ -280,7 +280,7 @@ bool can_inf(int ctr, int infitm = -1)
 		case crARROWS:
 			return true;
 	}
-	return unsigned(infitm < MAXITEMS);
+	return infitm > -1 && infitm < MAXITEMS;
 }
 
 int32_t to_real_font(int32_t ss_font)
@@ -1505,6 +1505,10 @@ bool SW_Counter::load_old(subscreen_object const& old)
 	ctrs[0] = old_ssc_to_new_ctr(old.d7);
 	ctrs[1] = old_ssc_to_new_ctr(old.d8);
 	ctrs[2] = old_ssc_to_new_ctr(old.d9);
+	for(int q = 0; q < 3; ++q)
+		for(int p = 0; p < q; ++p) //prune duplicates
+			if(ctrs[p]==ctrs[q])
+				ctrs[q] = crNONE;
 	if(ctrs[1] == crMONEY)
 		ctrs[1] = crNONE;
 	if(ctrs[2] == crMONEY)
@@ -1599,6 +1603,8 @@ void SW_Counter::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page
 				for(int p = 0; p < q; ++p) //prune duplicates
 					if(ctrs[p]==ty)
 						ty = crNONE;
+				if (ty == crNONE)
+					continue;
 				if(q>0 && get_qr(qr_OLD_SUBSCR))
 					switch(ctrs[q])
 					{

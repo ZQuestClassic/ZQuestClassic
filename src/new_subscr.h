@@ -433,7 +433,7 @@ struct SW_Counter : public SubscrWidget
 	int32_t fontid;
 	byte align, shadtype;
 	SubscrColorInfo c_text = {ssctMISC,0}, c_shadow, c_bg;
-	int32_t ctrs[3];
+	int32_t ctrs[3] = {crNONE,crNONE,crNONE};
 	byte mindigits, maxdigits;
 	int32_t infitm = -1;
 	char infchar;
