@@ -717,6 +717,19 @@ GUI::ListData GUI::ZCListData::ffc_script()
 	return ls;
 }
 
+GUI::ListData GUI::ZCListData::dmap_script()
+{
+	std::map<std::string, int32_t> vals;
+	std::set<std::string> names;
+
+	load_scriptnames(names, vals, dmapmap, NUMSCRIPTSDMAP - 1);
+
+	GUI::ListData ls;
+	ls.add("(None)", 0);
+	ls.add(names, vals);
+	return ls;
+}
+
 GUI::ListData GUI::ZCListData::screen_script()
 {
 	std::map<std::string, int32_t> vals;
