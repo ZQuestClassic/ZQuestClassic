@@ -40,7 +40,7 @@ SubscrPropDialog::SubscrPropDialog(SubscrWidget* widg, int32_t obj_ind) :
 		for(int q = 0; q < 4; ++q)
 		{
 			if((subscr_edit.def_btns[q]&0xFF) == pg
-				&& (subscr_edit.def_btns[q]>>8) == ind)
+				&& (subscr_edit.def_btns[q]>>8) == subref->pos)
 				start_default_btnslot |= btn_flags[q];
 		}
 	}
