@@ -37,6 +37,8 @@ public:
 	bool handleMessage(const GUI::DialogMessage<message>& msg);
 
 private:
+	void refreshScripts();
+
 	std::shared_ptr<GUI::Window> window;
 	std::shared_ptr<GUI::DMapMinimap> dmap_mmap;
 	std::shared_ptr<GUI::Slider> dmap_slider;
@@ -51,6 +53,21 @@ private:
 	std::shared_ptr<GUI::TextField> tmusic_xfadeout_field;
 	std::shared_ptr<GUI::List> disabled_list;
 	std::shared_ptr<GUI::List> item_list;
+	std::shared_ptr<GUI::Widget> DMAP_AC_INITD(int index);
+	std::shared_ptr<GUI::Label> l_ac_initds[8];
+	std::shared_ptr<GUI::Button> ib_ac_initds[8];
+	std::shared_ptr<GUI::TextField> tf_ac_initds[8];
+	std::string h_ac_initds[8];
+	std::shared_ptr<GUI::Widget> DMAP_SS_INITD(int index);
+	std::shared_ptr<GUI::Label> l_ss_initds[8];
+	std::shared_ptr<GUI::Button> ib_ss_initds[8];
+	std::shared_ptr<GUI::TextField> tf_ss_initds[8];
+	std::string h_ss_initds[8];
+	std::shared_ptr<GUI::Widget> DMAP_MAP_INITD(int index);
+	std::shared_ptr<GUI::Label> l_map_initds[8];
+	std::shared_ptr<GUI::Button> ib_map_initds[8];
+	std::shared_ptr<GUI::TextField> tf_map_initds[8];
+	std::string h_map_initds[8];
 
 	std::shared_ptr<GUI::Switcher> string_switch;
 	
@@ -62,6 +79,7 @@ private:
 	GUI::ListData list_lpals, list_activesub, list_passivesub, list_strings;
 	GUI::ListData list_midis, list_tracks;
 	GUI::ListData list_disableditems, list_items;
+	GUI::ListData list_dmapscript;
 };
 
 #endif

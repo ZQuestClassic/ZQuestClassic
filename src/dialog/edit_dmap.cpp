@@ -9,8 +9,15 @@
 #include <base/qrs.h>
 
 static size_t editdmap_tab = 0;
+static int32_t dmap_use_script_data = 2;
+extern script_data* dmapscripts[NUMSCRIPTSDMAP];
+#define DSCRDATA_NONE    0x00
+#define DSCRDATA_ACTIVE  0x01
+#define DSCRDATA_PASSIVE 0x02
+#define DSCRDATA_ALL     0x03
 void call_editdmap_dialog(int32_t slot)
 {
+	dmap_use_script_data = zc_get_config("zquest", "show_dmapscript_meta_type", DSCRDATA_ALL) & DSCRDATA_ALL;
 	EditDMapDialog(slot).show();
 }
 void call_editdmap_dialog(size_t forceTab, int32_t slot)
@@ -18,6 +25,14 @@ void call_editdmap_dialog(size_t forceTab, int32_t slot)
 	editdmap_tab = forceTab;
 	call_editdmap_dialog(slot);
 }
+
+static const GUI::ListData ScriptDataList
+{
+	{ "None", DSCRDATA_NONE },
+	{ "All", DSCRDATA_ALL },
+	{ "Active", DSCRDATA_ACTIVE },
+	{ "Passive", DSCRDATA_PASSIVE }
+};
 
 EditDMapDialog::EditDMapDialog(int32_t slot) :
 	thedmap(&DMaps[slot]), local_dmap(DMaps[slot]), dmapslot(slot),
@@ -30,7 +45,8 @@ EditDMapDialog::EditDMapDialog(int32_t slot) :
 	list_midis(GUI::ZCListData::midinames()),
 	list_tracks(GUI::ListData::numbers(false, 1, 1)),
 	list_disableditems(GUI::ZCListData::disableditems(local_dmap.disableditems)),
-	list_items(GUI::ZCListData::items(false, false))
+	list_items(GUI::ZCListData::items(false, false)),
+	list_dmapscript(GUI::ZCListData::dmap_script())
 {
 	ZCMUSIC* tempdmapzcmusic = zcmusic_load_for_quest(local_dmap.tmusic, filepath);
 
@@ -90,6 +106,78 @@ Checkbox(checked = local_dmap.sideview, \
 	{ \
 		local_dmap.sideview = state; \
 	})
+
+std::shared_ptr<GUI::Widget> EditDMapDialog::DMAP_AC_INITD(int index)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
+
+	return Row(padding = 0_px,
+		l_ac_initds[index] = Label(minwidth = 12_em, textAlign = 2),
+		ib_ac_initds[index] = Button(forceFitH = true, text = "?",
+			disabled = true,
+			onPressFunc = [&, index]()
+			{
+				InfoDialog("InitD Info", h_ac_initds[index]).show();
+			}),
+		tf_ac_initds[index] = TextField(
+			fitParent = true, minwidth = 8_em,
+			type = GUI::TextField::type::SWAP_ZSINT,
+			val = local_dmap.initD[index],
+			onValChangedFunc = [&, index](GUI::TextField::type, std::string_view, int32_t val)
+			{
+				local_dmap.initD[index] = val;
+			})
+				);
+}
+
+std::shared_ptr<GUI::Widget> EditDMapDialog::DMAP_SS_INITD(int index)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
+
+	return Row(padding = 0_px,
+		l_ss_initds[index] = Label(minwidth = 12_em, textAlign = 2),
+		ib_ss_initds[index] = Button(forceFitH = true, text = "?",
+			disabled = true,
+			onPressFunc = [&, index]()
+			{
+				InfoDialog("InitD Info", h_ss_initds[index]).show();
+			}),
+		tf_ss_initds[index] = TextField(
+			fitParent = true, minwidth = 8_em,
+			type = GUI::TextField::type::SWAP_ZSINT,
+			val = local_dmap.sub_initD[index],
+			onValChangedFunc = [&, index](GUI::TextField::type, std::string_view, int32_t val)
+			{
+				local_dmap.sub_initD[index] = val;
+			})
+				);
+}
+
+std::shared_ptr<GUI::Widget> EditDMapDialog::DMAP_MAP_INITD(int index)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
+
+	return Row(padding = 0_px,
+		l_map_initds[index] = Label(minwidth = 12_em, textAlign = 2),
+		ib_map_initds[index] = Button(forceFitH = true, text = "?",
+			disabled = true,
+			onPressFunc = [&, index]()
+			{
+				InfoDialog("InitD Info", h_map_initds[index]).show();
+			}),
+		tf_map_initds[index] = TextField(
+			fitParent = true, minwidth = 8_em,
+			type = GUI::TextField::type::SWAP_ZSINT,
+			val = local_dmap.onmap_initD[index],
+			onValChangedFunc = [&, index](GUI::TextField::type, std::string_view, int32_t val)
+			{
+				local_dmap.onmap_initD[index] = val;
+			})
+				);
+}
 
 void EditDMapDialog::refreshDMapStrings()
 {
@@ -619,8 +707,78 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 					)
 				)),
 				TabRef(name = "Scripts", Column(
-					Row(
-						Label(text = "Placeholder")
+					TabPanel(
+						TabRef(name = "Active", Column(
+							Rows<2>(
+								Column(
+									DMAP_AC_INITD(0),
+									DMAP_AC_INITD(1),
+									DMAP_AC_INITD(2),
+									DMAP_AC_INITD(3),
+									DMAP_AC_INITD(4),
+									DMAP_AC_INITD(5),
+									DMAP_AC_INITD(6),
+									DMAP_AC_INITD(7)
+								),
+								Column(padding = 0_px, fitParent = true,
+									Rows<2>(vAlign = 0.0,
+										SCRIPT_LIST_PROC("Script:", list_dmapscript, local_dmap.script, refreshScripts)
+									)
+								)
+							)
+						)),
+						TabRef(name = "Subscreen", Column(
+							Rows<2>(
+								Column(
+									DMAP_SS_INITD(0),
+									DMAP_SS_INITD(1),
+									DMAP_SS_INITD(2),
+									DMAP_SS_INITD(3),
+									DMAP_SS_INITD(4),
+									DMAP_SS_INITD(5),
+									DMAP_SS_INITD(6),
+									DMAP_SS_INITD(7)
+								),
+								Column(padding = 0_px, fitParent = true,
+									Rows<2>(vAlign = 0.0,
+										SCRIPT_LIST_PROC("Active Subscreen Script:", list_dmapscript, local_dmap.active_sub_script, refreshScripts),
+										SCRIPT_LIST_PROC("Passive Subscreen Script:", list_dmapscript, local_dmap.passive_sub_script, refreshScripts)
+									),
+									Row(hAlign = 1.0,
+										Label(text = "Script Info:"),
+										DropDownList(
+											maxwidth = 10_em,
+											data = ScriptDataList,
+											selectedValue = dmap_use_script_data,
+											onSelectFunc = [&](int32_t val)
+											{
+												dmap_use_script_data = val;
+												zc_set_config("zquest", "show_dmapscript_meta_type", val);
+												refreshScripts();
+											})
+									)
+								)
+							)
+						)),
+						TabRef(name = "Map", Column(
+							Rows<2>(
+								Column(
+									DMAP_MAP_INITD(0),
+									DMAP_MAP_INITD(1),
+									DMAP_MAP_INITD(2),
+									DMAP_MAP_INITD(3),
+									DMAP_MAP_INITD(4),
+									DMAP_MAP_INITD(5),
+									DMAP_MAP_INITD(6),
+									DMAP_MAP_INITD(7)
+								),
+								Column(padding = 0_px, fitParent = true,
+									Rows<2>(vAlign = 0.0,
+										SCRIPT_LIST_PROC("OnMap Script:", list_dmapscript, local_dmap.onmap_script, refreshScripts)
+									)
+								)
+							)
+						))
 					)
 				))
 			),
@@ -640,8 +798,118 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 			)
 		)
 	);
+	refreshScripts();
 	refreshDMapStrings();
 	return window;
+}
+
+void EditDMapDialog::refreshScripts()
+{
+	std::string ac_initds[8];
+	std::string ss_initds[8];
+	std::string map_initds[8];
+	int32_t ty_ac_initds[8];
+	int32_t ty_ss_initds[8];
+	int32_t ty_map_initds[8];
+	for (auto q = 0; q < 8; ++q)
+	{
+		ac_initds[q] = "InitD[" + std::to_string(q) + "]";
+		h_ac_initds[q].clear();
+		ty_ac_initds[q] = -1;
+		ss_initds[q] = "InitD[" + std::to_string(q) + "]";
+		h_ss_initds[q].clear();
+		ty_ss_initds[q] = -1;
+		map_initds[q] = "InitD[" + std::to_string(q) + "]";
+		h_map_initds[q].clear();
+		ty_map_initds[q] = -1;
+	}
+	bool did_dmap_scr = false;
+	auto iscd = dmap_use_script_data;
+	if (!iscd) iscd = DSCRDATA_ALL;
+	if (local_dmap.script)
+	{
+		zasm_meta const& meta = dmapscripts[local_dmap.script]->meta;
+		for (auto q = 0; q < 8; ++q)
+		{
+			if (meta.initd[q].size())
+				ac_initds[q] = meta.initd[q];
+			if (meta.initd_help[q].size())
+				h_ac_initds[q] = meta.initd_help[q];
+			if (meta.initd_type[q] > -1)
+				ty_ac_initds[q] = meta.initd_type[q];
+		}
+	}
+	else
+	{
+		for (auto q = 0; q < 8; ++q)
+			ty_ac_initds[q] = nswapDEC;
+	}
+	if (local_dmap.active_sub_script && (iscd & DSCRDATA_ACTIVE))
+	{
+		did_dmap_scr = true;
+		zasm_meta const& meta = dmapscripts[local_dmap.active_sub_script]->meta;
+		for (auto q = 0; q < 8; ++q)
+		{
+			if (meta.initd[q].size())
+				ss_initds[q] = meta.initd[q];
+			if (meta.initd_help[q].size())
+				h_ss_initds[q] = meta.initd_help[q];
+			if (meta.initd_type[q] > -1)
+				ty_ss_initds[q] = meta.initd_type[q];
+		}
+	}
+	if (local_dmap.passive_sub_script && (iscd & DSCRDATA_PASSIVE))
+	{
+		did_dmap_scr = true;
+		zasm_meta const& meta = dmapscripts[local_dmap.passive_sub_script]->meta;
+		for (auto q = 0; q < 8; ++q)
+		{
+			if (meta.initd[q].size())
+				ss_initds[q] = meta.initd[q];
+			if (meta.initd_help[q].size())
+				h_ss_initds[q] = meta.initd_help[q];
+			if (meta.initd_type[q] > -1)
+				ty_ss_initds[q] = meta.initd_type[q];
+		}
+	}
+	if (!did_dmap_scr)
+	{
+		for (auto q = 0; q < 8; ++q)
+			ty_ss_initds[q] = nswapDEC;
+	}
+	if (local_dmap.onmap_script)
+	{
+		zasm_meta const& meta = dmapscripts[local_dmap.onmap_script]->meta;
+		for (auto q = 0; q < 8; ++q)
+		{
+			if (meta.initd[q].size())
+				map_initds[q] = meta.initd[q];
+			if (meta.initd_help[q].size())
+				h_map_initds[q] = meta.initd_help[q];
+			if (meta.initd_type[q] > -1)
+				ty_map_initds[q] = meta.initd_type[q];
+		}
+	}
+	else
+	{
+		for (auto q = 0; q < 8; ++q)
+			ty_map_initds[q] = nswapDEC;
+	}
+	for (auto q = 0; q < 8; ++q)
+	{
+		if (ty_ac_initds[q] > -1)
+			tf_ac_initds[q]->setSwapType(ty_ac_initds[q]);
+		if (ty_ss_initds[q] > -1)
+			tf_ss_initds[q]->setSwapType(ty_ss_initds[q]);
+		if (ty_map_initds[q] > -1)
+			tf_map_initds[q]->setSwapType(ty_map_initds[q]);
+		l_ac_initds[q]->setText(ac_initds[q]);
+		l_ss_initds[q]->setText(ss_initds[q]);
+		l_map_initds[q]->setText(map_initds[q]);
+		ib_ac_initds[q]->setDisabled(h_ac_initds[q].empty());
+		ib_ss_initds[q]->setDisabled(h_ss_initds[q].empty());
+		ib_map_initds[q]->setDisabled(h_map_initds[q].empty());
+	}
 }
 
 bool EditDMapDialog::handleMessage(const GUI::DialogMessage<message>& msg)
