@@ -1129,9 +1129,16 @@ int32_t set_ssmouse(int ty)
 	return D_O_K;
 }
 
+void call_subscrsettings_dialog();
+static int32_t onSubscreenSettings()
+{
+	call_subscrsettings_dialog();
+	return D_O_K;
+}
 static MENU ss_settings_menu[] =
 {
-    { (char *)"&Selection Settings",        onSelectionOptions,               NULL, 0, NULL },
+    { (char *)"&Subscreen Settings",        onSubscreenSettings,              NULL, 0, NULL },
+    { (char *)"Se&lection Settings",        onSelectionOptions,               NULL, 0, NULL },
     { (char *)"&Mouse Settings",            NULL,                 ss_mouseset_menu, 0, NULL },
     { NULL,                                 NULL,                             NULL, 0, NULL }
 };
@@ -1748,7 +1755,8 @@ void distribute_objects(bool *, int32_t distribute_type)
 
 int32_t onBringToFront()
 {
-    while(curr_subscreen_object<subscr_edit.cur_page().contents.size()-1)
+	while (curr_subscreen_object >= 0 &&
+		curr_subscreen_object < subscr_edit.cur_page().contents.size()-1)
     {
         onBringForward();
     }
@@ -1758,7 +1766,8 @@ int32_t onBringToFront()
 
 int32_t onSendToBack()
 {
-    while(curr_subscreen_object>0)
+    while(curr_subscreen_object > 0 &&
+		curr_subscreen_object < subscr_edit.cur_page().contents.size())
     {
         onSendBackward();
     }
@@ -1771,7 +1780,6 @@ int32_t onReverseArrangement()
 	auto& pg = subscr_edit.cur_page();
     int32_t i=0;
     int32_t j=pg.contents.size()-1;
-    subscreen_object tempsso;
     
     sso_selection[curr_subscreen_object]=true;
     
@@ -2055,11 +2063,11 @@ int32_t onSSCtrlPgDn()
 int32_t onSendBackward()
 {
 	auto& pg = subscr_edit.cur_page();
-	if(curr_subscreen_object > 0 && curr_subscreen_object<subscr_edit.cur_page().contents.size()-1)
+	if(curr_subscreen_object > 0 && curr_subscreen_object<subscr_edit.cur_page().contents.size())
 	{
 		pg.swap_widg(curr_subscreen_object,curr_subscreen_object-1);
 		zc_swap(sso_selection[curr_subscreen_object],sso_selection[curr_subscreen_object-1]);
-		++curr_subscreen_object;
+		--curr_subscreen_object;
 		update_sso_name();
 	}
 	

@@ -18,7 +18,6 @@
 
 bool call_subscrprop_dialog(SubscrWidget* widg, int32_t obj_ind);
 
-// A basic dialog that just shows some lines of text and a close button.
 class SubscrPropDialog: public GUI::Dialog<SubscrPropDialog>
 {
 public:
