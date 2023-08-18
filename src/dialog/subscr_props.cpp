@@ -767,7 +767,6 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 						ctrname = "counter";
 						break;
 				}
-				mergetype = mtFORCE_TAB;
 				SW_GaugePiece* w = dynamic_cast<SW_GaugePiece*>(local_subref);
 				int g = 0;
 				extra_grids["Gauge"] = Row(padding = 0_px,
@@ -996,7 +995,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 					case widgMISCGAUGE:
 					{
 						SW_MiscGaugePiece* w = dynamic_cast<SW_MiscGaugePiece*>(local_subref);
-						attrib_grid = Row(
+						attrib_grid = Rows<3>(
 							Label(text = "Counter", hAlign = 1.0),
 							DDL(w->counter, list_counters),
 							INFOBTN("The counter for this gauge."),
@@ -1382,30 +1381,33 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 	}
 	
 	std::shared_ptr<GUI::Grid> g;
-	std::shared_ptr<GUI::TabPanel> tpan = TabPanel(ptr = &sprop_tabs[local_subref->getType()]);
+	std::shared_ptr<GUI::TabPanel> tpan = TabPanel(ptr = &sprop_tabs[local_subref->getType()],
+			TabRef(name = "Basic", g = Rows<2>(padding = 0_px))
+		);
 	switch(mergetype)
 	{
 		default:
 		case mtNONE: //3 in horz row
 		{
-			tpan->add(TabRef(name = "Basic", g = Rows<2>(padding = 0_px)));
 			g->add(Frame(title = "Location", fitParent = true, loc_grid));
 			if(col_grid)
 				g->add(Frame(title = "Color", fitParent = true, col_grid));
 			if(attrib_grid)
-				g->add(Frame(title = "Attributes", fitParent = true, attrib_grid));
+				g->add(Frame(title = "Attributes", fitParent = true,
+					colSpan = col_grid ? 2 : 1, attrib_grid));
 			break;
 		}
 		case mtFORCE_TAB: //3 separate tabs
 		{
-			tpan->add(TabRef(name = "Location", loc_grid));
-			if(col_grid) tpan->add(TabRef(name = "Color", col_grid));
-			if(attrib_grid) tpan->add(TabRef(name = "Attributes", attrib_grid));
+			g->add(Frame(title = "Location", fitParent = true, loc_grid));
+			if(col_grid)
+				g->add(Frame(title = "Color", fitParent = true, col_grid));
+			if(attrib_grid)
+				tpan->add(TabRef(name = "Attributes", attrib_grid));
 			break;
 		}
 		case mtLOCTOP:
 		{
-			tpan->add(TabRef(name = "Basic", g = Row(padding = 0_px)));
 			if(col_grid)
 			{
 				g->add(Column(padding = 0_px,
