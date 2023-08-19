@@ -179,11 +179,6 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::DMAP_MAP_INITD(int index)
 				);
 }
 
-void EditDMapDialog::refreshDMapStrings()
-{
-	//string_switch->switchTo(get_qr(qr_OLD_DMAP_INTRO_STRINGS) ? 0 : 1);
-}
-
 std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 {
 	using namespace GUI::Builder;
@@ -214,6 +209,10 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 			),
 			TabPanel(
 				ptr = &editdmap_tab,
+				onSwitch = [&](size_t, size_t)
+				{
+					refreshGridSquares();
+				},
 				TabRef(name = "Mechanics", Column(
 					Rows<6>(
 						Label(text = "Map:"),
@@ -249,6 +248,7 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 										local_dmap.xoff = 0;
 										dmap_mmap->setOffset(0);
 									}
+									refreshGridSquares();
 								}
 							}),
 						Label(text = "Level:"),
@@ -314,6 +314,7 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 							onToggleFunc = [&](bool state)
 							{
 								SETFLAG(local_dmap.type, dmfCONTINUE, state);
+								refreshGridSquares();
 							}),
 						Label(text = "Continue: 0x", hAlign = 1.0, rightPadding = 0_px),
 						continue_field = TextField(
@@ -437,11 +438,7 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 								fitParent = true,
 								type = GUI::TextField::type::TEXT,
 								read_only = true, disabled = disableEnhancedMusic(),
-								text = local_dmap.tmusic,
-								onValChangedFunc = [&](GUI::TextField::type, std::string_view text, int32_t)
-								{
-									
-								}),
+								text = local_dmap.tmusic),
 							Label(text = "Track:"),
 							tmusic_track_list = DropDownList(data = list_tracks,
 								fitParent = true,
@@ -741,8 +738,8 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 								),
 								Column(padding = 0_px, fitParent = true,
 									Rows<2>(vAlign = 0.0,
-										SCRIPT_LIST_PROC("Active Subscreen Script:", list_dmapscript, local_dmap.active_sub_script, refreshScripts),
-										SCRIPT_LIST_PROC("Passive Subscreen Script:", list_dmapscript, local_dmap.passive_sub_script, refreshScripts)
+										SCRIPT_LIST_PROC("Active:", list_dmapscript, local_dmap.active_sub_script, refreshScripts),
+										SCRIPT_LIST_PROC("Passive:", list_dmapscript, local_dmap.passive_sub_script, refreshScripts)
 									),
 									Row(hAlign = 1.0,
 										Label(text = "Script Info:"),
@@ -774,7 +771,7 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 								),
 								Column(padding = 0_px, fitParent = true,
 									Rows<2>(vAlign = 0.0,
-										SCRIPT_LIST_PROC("OnMap Script:", list_dmapscript, local_dmap.onmap_script, refreshScripts)
+										SCRIPT_LIST_PROC("On Map:", list_dmapscript, local_dmap.onmap_script, refreshScripts)
 									)
 								)
 							)
@@ -798,9 +795,21 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 			)
 		)
 	);
-	refreshScripts();
+	refreshGridSquares();
 	refreshDMapStrings();
+	refreshScripts();
 	return window;
+}
+
+void EditDMapDialog::refreshGridSquares()
+{
+	dmap_grid->setShowSquares(local_dmap.type & dmfCONTINUE, 
+		!(local_dmap.flags & dmfNOCOMPASS) && (local_dmap.type & dmfTYPE) != dmOVERW);
+}
+
+void EditDMapDialog::refreshDMapStrings()
+{
+	//string_switch->switchTo(get_qr(qr_OLD_DMAP_INTRO_STRINGS) ? 0 : 1);
 }
 
 void EditDMapDialog::refreshScripts()

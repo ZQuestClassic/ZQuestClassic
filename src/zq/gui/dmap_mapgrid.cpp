@@ -79,12 +79,12 @@ namespace GUI
 				}
 			}
 
-			if (widg->getCompassScreen() > -1)
+			if (widg->getCompassScreen() > -1 && widg->getShowCompass())
 			{
 				drawdmapscreenmarker(tempbmp, widg->getCompassScreen(), d->d1, d->x + header_width + 2, d->y + header_height + 2, 0xE4, 0xEC);
 			}
 
-			if (widg->getContinueScreen() > -1)
+			if (widg->getContinueScreen() > -1 && widg->getShowContinue())
 			{
 				drawdmapscreenmarker(tempbmp, widg->getContinueScreen(), d->d1, d->x + header_width + 2, d->y + header_height + 2, 0xE2, 0xEA);
 			}
@@ -147,7 +147,8 @@ namespace GUI
 	}
 
 	DMapMapGrid::DMapMapGrid() : 
-		continueScreen(0), compassScreen(0)
+		continueScreen(0), compassScreen(0),
+		show_continue(false), show_compass(false)
 		
 	{
 		setPreferredWidth(187_px);
