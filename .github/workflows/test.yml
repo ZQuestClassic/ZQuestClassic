@@ -137,26 +137,15 @@ jobs:
           --no-headless
 
       - if: ${{ matrix.shard_index == 1 && inputs.extra-args == '' && inputs.config != 'Coverage' }}
-        name: Test replay system
-        run: bash .github/workflows/run_python.sh tests/test_replays.py
-
-      - if: ${{ matrix.shard_index == 1 && inputs.extra-args == '' && inputs.config != 'Coverage' }}
-        name: Test zscript
-        run: bash .github/workflows/run_python.sh tests/test_zscript.py
-
-      - if: ${{ matrix.shard_index == 1 && inputs.extra-args == '' && inputs.config != 'Coverage' }}
-        name: Test zquest
-        run: bash .github/workflows/run_python.sh tests/test_zquest.py
-
-      - if: ${{ matrix.shard_index == 1 && inputs.extra-args == '' && inputs.config != 'Coverage' }}
         name: Updater cache
         uses: actions/cache@v3
         with:
           path: ${{ github.workspace }}/.tmp/test_updater/cache
           key: updater-cache-${{ runner.runs-on }}-${{ runner.arch }}
+
       - if: ${{ matrix.shard_index == 1 && inputs.extra-args == '' && inputs.config != 'Coverage' }}
-        name: Test zupdater
-        run: bash .github/workflows/run_python.sh tests/test_updater.py
+        name: Run Python tests
+        run: bash .github/workflows/run_python.sh -m unittest discover tests
 
       - name: Generate coverage json
         if: inputs.config == 'Coverage'
