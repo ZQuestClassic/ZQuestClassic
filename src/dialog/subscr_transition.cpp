@@ -17,11 +17,6 @@ void call_subscrtransition_dlg(SubscrTransition& tr, std::string title)
 	SubscrTransitionDialog(tr, title).show();
 }
 
-void transfer_args(int32_t *dest, int32_t *src)
-{
-	for(int q = 0; q < SUBSCR_TRANSITION_MAXARG; ++q)
-		*dest = *src;
-}
 SubscrTransitionDialog::SubscrTransitionDialog(SubscrTransition& src, std::string const& title) :
 	src_transition(&src), local_trans(src), windowTitle(title),
 	list_sfx(GUI::ZCListData::sfxnames(true))
