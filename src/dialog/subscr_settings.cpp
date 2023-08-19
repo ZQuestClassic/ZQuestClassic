@@ -9,10 +9,10 @@
 #include "zc_list_data.h"
 #include "gui/use_size.h"
 #include "gui/common.h"
+#include "subscr_transition.h"
 
 extern ZCSubscreen subscr_edit;
 
-static bool dlg_retval = false;
 void call_subscrsettings_dialog()
 {
 	SubscrSettingsDialog().show();
@@ -56,10 +56,30 @@ std::shared_ptr<GUI::Widget> SubscrSettingsDialog::view()
 	if(active)
 	{
 		tabs["Basic"] = Rows<3>(
-			INTBTN_FRAME(local_subref.btn_left,"Page Left Btn",
-				"Pressing this button will change the page of the subscreen by '-1'."),
-			INTBTN_FRAME(local_subref.btn_right,"Page Right Btn",
-				"Pressing this button will change the page of the subscreen by '+1'."),
+			Frame(title = "Page Left",
+				info = "Pressing this button will change the page of the subscreen by '-1'.",
+				Column(padding = 0_px,
+					_INTBTN_PANEL_HELPER(local_subref.btn_left),
+					Button(text = "Edit Transition",
+						maxheight = 2_em,
+						onPressFunc = [&]()
+						{
+							call_subscrtransition_dlg(local_subref.trans_left,"Transition Editor: Page Left Btn");
+						})
+				)
+			),
+			Frame(title = "Page Right",
+				info = "Pressing this button will change the page of the subscreen by '+1'.",
+				Column(padding = 0_px,
+					_INTBTN_PANEL_HELPER(local_subref.btn_right),
+					Button(text = "Edit Transition",
+						maxheight = 2_em,
+						onPressFunc = [&]()
+						{
+							call_subscrtransition_dlg(local_subref.trans_right,"Transition Editor: Page Left Btn");
+						})
+				)
+			),
 			Frame(title = "Flags", fitParent = true,
 				Rows<2>(
 					INFOBTN("If checked, trying to page left from page 0 or"
@@ -73,21 +93,12 @@ std::shared_ptr<GUI::Widget> SubscrSettingsDialog::view()
 						}
 					)
 				)
-			),
-			Frame(title = "Attribs", fitParent = true, colSpan = 3,
-				Rows<3>(
-					Label(text = "Page SFX:"),
-					DropDownList(data = list_sfx,
-						fitParent = true,
-						selectedValue = local_subref.page_transition.tr_sfx,
-						onSelectFunc = [&](int32_t val)
-						{
-							local_subref.page_transition.tr_sfx = val;
-						}
-					),
-					INFOBTN("SFX to play when changing pages with 'Page Left Btn'/'Page Right Btn'")
-				)
 			)
+			// Frame(title = "Attribs", fitParent = true, colSpan = 3,
+				// Rows<3>(
+					
+				// )
+			// )
 		);
 	}
 	else

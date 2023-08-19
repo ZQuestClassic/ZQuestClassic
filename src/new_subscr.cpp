@@ -8,6 +8,7 @@
 #include "base/qrs.h"
 #include "base/mapscr.h"
 #include "base/packfile.h"
+#include "drawing.h"
 #include "tiles.h"
 #include "qst.h"
 #include "items.h"
@@ -53,6 +54,7 @@ int subscr_override_clkoffsets[MAXITEMS];
 bool subscr_itemless = false, subscr_pg_animating = false;
 int btnitem_clks[4] = {0};
 int btnitem_ids[4] = {-1,-1,-1,-1};
+BITMAP *subscr_pg_bmp1 = nullptr, *subscr_pg_bmp2 = nullptr, *subscr_pg_subbmp = nullptr;
 
 void refresh_subscr_buttonitems()
 {
@@ -433,8 +435,17 @@ void subscrpg_clear_animation()
 	subscr_pg_clk = subscr_pg_from = subscr_pg_to = 0;
 	subscr_pg_transition.clear();
 	subscr_anim = nullptr;
+	if(subscr_pg_bmp1)
+		destroy_bitmap(subscr_pg_bmp1);
+	if(subscr_pg_bmp2)
+		destroy_bitmap(subscr_pg_bmp2);
+	if(subscr_pg_subbmp)
+		destroy_bitmap(subscr_pg_subbmp);
+	subscr_pg_bmp1 = subscr_pg_bmp2 = subscr_pg_subbmp = nullptr;
 }
 
+#define SUBSCR_ACTIVE_WIDTH 256
+#define SUBSCR_ACTIVE_HEIGHT 168
 bool subscrpg_animate(byte from, byte to, SubscrTransition const& transition, ZCSubscreen& parent)
 {
 	if(subscr_pg_animating)
@@ -442,16 +453,17 @@ bool subscrpg_animate(byte from, byte to, SubscrTransition const& transition, ZC
 	subscrpg_clear_animation();
 	if(transition.tr_sfx)
 		sfx(transition.tr_sfx);
-	if(transition.type == sstrINSTANT) //just change the page
-	{
-		parent.curpage = to;
-		return true;
-	}
 	subscr_pg_from = from;
 	subscr_pg_to = to;
 	subscr_pg_transition = transition;
 	subscr_pg_animating = true;
 	subscr_anim = &parent;
+	if(transition.type != sstrINSTANT)
+	{
+		subscr_pg_bmp1 = create_bitmap_ex(8,SUBSCR_ACTIVE_WIDTH,SUBSCR_ACTIVE_HEIGHT);
+		subscr_pg_bmp2 = create_bitmap_ex(8,SUBSCR_ACTIVE_WIDTH,SUBSCR_ACTIVE_HEIGHT);
+		subscr_pg_subbmp = create_bitmap_ex(8,SUBSCR_ACTIVE_WIDTH,SUBSCR_ACTIVE_HEIGHT);
+	}
 	return true;
 }
 
@@ -667,6 +679,79 @@ int32_t SubscrMTInfo::write(PACKFILE *f) const
 	return 0;
 }
 
+bool SubscrTransition::draw(BITMAP* dest, BITMAP* p1, BITMAP* p2, int dx, int dy)
+{	//Returns true for failure/end of animation
+	if(type <= 0 || type >= sstrMAX)
+		return true; //invalid animation
+	if(!subscr_pg_subbmp)
+		subscr_pg_subbmp = create_bitmap_ex(8,SUBSCR_ACTIVE_WIDTH,SUBSCR_ACTIVE_HEIGHT);
+	clear_bitmap(subscr_pg_subbmp);
+	switch(type)
+	{
+		case sstrSLIDE:
+		{
+			zfix spd = zslongToFix(arg[1]);
+			int dir = NORMAL_DIR(arg[0]);
+			int diff = subscr_pg_clk*spd;
+			int x1=0, y1=0, x2=0, y2=0;
+			switch(dir)
+			{
+				case up:
+					if(diff >= SUBSCR_ACTIVE_HEIGHT)
+						return true; //end of animation
+					y1 = -diff;
+					y2 = SUBSCR_ACTIVE_HEIGHT - diff;
+					break;
+				case down:
+					if(diff >= SUBSCR_ACTIVE_HEIGHT)
+						return true; //end of animation
+					y1 = diff;
+					y2 = diff - SUBSCR_ACTIVE_HEIGHT;
+					break;
+				case left:
+					if(diff >= SUBSCR_ACTIVE_WIDTH)
+						return true; //end of animation
+					x1 = -diff;
+					x2 = SUBSCR_ACTIVE_WIDTH - diff;
+					break;
+				case right:
+					if(diff >= SUBSCR_ACTIVE_WIDTH)
+						return true; //end of animation
+					x1 = diff;
+					x2 = diff - SUBSCR_ACTIVE_WIDTH;
+					break;
+			}
+			blit(p1, subscr_pg_subbmp, 0, 0, x1, y1, SUBSCR_ACTIVE_WIDTH, SUBSCR_ACTIVE_HEIGHT);
+			blit(p2, subscr_pg_subbmp, 0, 0, x2, y2, SUBSCR_ACTIVE_WIDTH, SUBSCR_ACTIVE_HEIGHT);
+			break;
+		}
+		case sstrPIXEL:
+		{
+			int dur = arg[1];
+			if(subscr_pg_clk > dur)
+				return true;
+			int pat_xofs = arg[2], pat_yofs = arg[3];
+			double perc = subscr_pg_clk / double(dur+1);
+			double iperc = 1.0-perc;
+			bool inv = arg[0]&TR_PIXELATE_INVERT;
+			if(inv)
+				zc_swap(perc,iperc);
+			custom_bmp_dither(subscr_pg_subbmp, p1, [&](int x, int y, int, int)
+				{
+					return !dither_staticcheck(x+pat_xofs,y+pat_yofs,iperc) != !inv;
+				});
+			custom_bmp_dither(subscr_pg_subbmp, p2, [&](int x, int y, int, int)
+				{
+					return !dither_staticcheck(x+pat_xofs,y+pat_yofs,perc) != !inv;
+				});
+			break;
+		}
+		default:
+			return true; //unrecognized animation type
+	}
+	blit(subscr_pg_subbmp, dest, 0, 0, dx, dy, SUBSCR_ACTIVE_WIDTH, SUBSCR_ACTIVE_HEIGHT);
+	return false;
+}
 void SubscrTransition::clear()
 {
 	*this = SubscrTransition();
@@ -677,9 +762,16 @@ int32_t SubscrTransition::read(PACKFILE *f, word s_version)
 		return qe_invalid;
 	if(!p_getc(&tr_sfx,f))
 		return qe_invalid;
-	for(int q = 0; q < 3; ++q)
+	if(!p_igetw(&flags,f))
+		return qe_invalid;
+	byte args = 3;
+	if(!p_getc(&args,f))
+		return qe_invalid;
+	for(int q = 0; q < args; ++q)
 		if(!p_igetl(&arg[q],f))
 			return qe_invalid;
+	for(int q = args; q < SUBSCR_TRANSITION_MAXARG; ++q)
+		arg[q] = 0;
 	return 0;
 }
 int32_t SubscrTransition::write(PACKFILE *f) const
@@ -688,9 +780,27 @@ int32_t SubscrTransition::write(PACKFILE *f) const
 		new_return(1);
 	if(!p_putc(tr_sfx,f))
 		new_return(1);
-	for(int q = 0; q < 3; ++q)
+	if(!p_iputw(flags,f))
+		new_return(1);
+	byte args = num_args(type);
+	if(!p_putc(args,f))
+		new_return(1);
+	for(int q = 0; q < args; ++q)
 		if(!p_iputl(arg[q],f))
 			new_return(1);
+	return 0;
+}
+byte SubscrTransition::num_args(byte ty)
+{
+	switch(ty)
+	{
+		case sstrINSTANT:
+			return 0;
+		case sstrSLIDE:
+			return 2;
+		case sstrPIXEL:
+			return 4;
+	}
 	return 0;
 }
 
@@ -3098,6 +3208,8 @@ byte SW_Selector::getType() const
 }
 void SW_Selector::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
+	if(subscr_pg_animating && !(subscr_pg_transition.flags&SUBSCR_TRANS_NOHIDESELECTOR))
+		return;
 	SubscrWidget* widg = page.get_sel_widg();
 	if(!widg)
 	{
@@ -4678,14 +4790,42 @@ void ZCSubscreen::copy_settings(const ZCSubscreen& src)
 	btn_left = src.btn_left;
 	btn_right = src.btn_right;
 	flags = src.flags;
-	page_transition = src.page_transition;
+	trans_left = src.trans_left;
+	trans_right = src.trans_right;
 }
 void ZCSubscreen::draw(BITMAP* dest, int32_t xofs, int32_t yofs, byte pos, bool showtime)
 {
 	if(pages.empty()) return;
-	size_t page = curpage;
-	if(page >= pages.size()) page = 0;
-	//!TODO SUBSCR handle animations between multiple pages?
+	if(sub_type == sstACTIVE && subscr_pg_animating && subscr_anim == this)
+	{
+		if(subscr_pg_to >= pages.size())
+			; //fail animation
+		else if(subscr_pg_transition.type == sstrINSTANT)
+			curpage = subscr_pg_to; //instant anim
+		else if(subscr_pg_from >= pages.size() || !subscr_pg_bmp1
+			|| !subscr_pg_bmp2 || !subscr_pg_subbmp)
+			; //fail animation
+		else //progress through animation
+		{
+			clear_bitmap(subscr_pg_bmp1);
+			clear_bitmap(subscr_pg_bmp2);
+			//Draw both pages to their respective subbitmaps
+			pages[subscr_pg_from].draw(subscr_pg_bmp1,0,0,pos,showtime);
+			pages[subscr_pg_to].draw(subscr_pg_bmp2,0,0,pos,showtime);
+			//Draw to the screen animation-dependently
+			if(subscr_pg_transition.draw(dest,subscr_pg_bmp1,subscr_pg_bmp2,xofs,yofs))
+				//animation finished
+				curpage = subscr_pg_to;
+			else
+			{
+				++subscr_pg_clk;
+				return;
+			}
+		}
+		subscrpg_clear_animation();
+	}
+	
+	size_t page = curpage >= pages.size() ? 0 : curpage;
 	pages[page].draw(dest,xofs,yofs,pos,showtime);
 }
 void ZCSubscreen::load_old(subscreen_group const& g)
@@ -4737,7 +4877,9 @@ int32_t ZCSubscreen::read(PACKFILE *f, word s_version)
 			new_return(1);
 		if(!p_getc(&btn_right,f))
 			new_return(1);
-		if(auto ret = page_transition.read(f, s_version))
+		if(auto ret = trans_left.read(f, s_version))
+			return ret;
+		if(auto ret = trans_right.read(f, s_version))
 			return ret;
 		if(!p_igetw(&script,f))
 			return qe_invalid;
@@ -4779,7 +4921,9 @@ int32_t ZCSubscreen::write(PACKFILE *f) const
 			new_return(1);
 		if(!p_putc(btn_right,f))
 			new_return(1);
-		if(auto ret = page_transition.write(f))
+		if(auto ret = trans_left.write(f))
+			return ret;
+		if(auto ret = trans_right.write(f))
 			return ret;
 		if(!p_iputw(script,f))
 			new_return(1);
@@ -4820,18 +4964,27 @@ bool ZCSubscreen::wrap_pg(int& pg, bool nowrap)
 }
 void ZCSubscreen::check_btns(byte btnflgs)
 {
+	if(subscr_pg_animating) return;
 	int pg = curpage;
+	SubscrTransition* tr = nullptr;
 	if(btn_right&btnflgs)
+	{
 		++pg;
+		tr = &trans_right;
+	}
 	else if(btn_left&btnflgs)
+	{
 		--pg;
+		tr = &trans_left;
+	}
 	else return;
 	if(!wrap_pg(pg,flags&SUBFLAG_NOPAGEWRAP))
 		return;
-	subscrpg_animate(curpage,pg,page_transition,*this);
+	subscrpg_animate(curpage,pg,*tr,*this);
 }
 void ZCSubscreen::page_change(byte mode, byte targ, SubscrTransition const& trans, bool nowrap)
 {
+	if(subscr_pg_animating) return;
 	int pg = curpage;
 	switch(mode)
 	{
