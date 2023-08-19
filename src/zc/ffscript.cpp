@@ -28850,29 +28850,34 @@ void do_sfx_ex(const bool restart)
 	sfx(ID, pan, loop, restart, vol, freq);
 }
 
-void do_get_sfx_completion()
+static int get_sfx_completion()
 {
 	int32_t ID = get_register(sarg1) / 10000;
-	
-	// TODO: record results for replays
 
 	if (!sfx_allocated(ID))
 	{
-		set_register(sarg1, -10000);
-		return;
+		return -10000;
 	}
 
 	uint64_t sample_pos = voice_get_position(sfx_voice[ID]);
 
 	if (sample_pos < 0)
 	{
-		set_register(sarg1, -10000);
-		return;
+		return -10000;
 	}
 
 	uint32_t sample_length = sfx_get_length(ID);
 	uint64_t res = (sample_pos * 10000 * 100) / sample_length;
-	set_register(sarg1, int32_t(res));
+	return int32_t(res);
+}
+
+void do_get_sfx_completion()
+{
+	int32_t ID = get_register(sarg1) / 10000;
+	if (replay_is_active())
+		replay_step_comment(fmt::format("ID {}", ID));
+	int32_t value = replay_get_state(ReplayStateType::SfxPosition, get_sfx_completion);
+	set_register(sarg1, value);
 }
 
 int32_t FFScript::do_get_internal_uid_npc(int32_t index)
@@ -29973,10 +29978,9 @@ void FFScript::do_set_music_position(const bool v)
 
 void FFScript::do_get_music_position()
 {
-	int32_t pos = get_zcmusicpos();
-
-	// TODO: record results for replays
-
+	int32_t pos = replay_get_state(ReplayStateType::MusicPosition, [](){
+		return zcmusic_get_curpos(zcmusic);
+	});
 	set_register(sarg1, pos);
 }
 
