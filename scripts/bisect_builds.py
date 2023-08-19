@@ -192,14 +192,14 @@ def download_release(tag: str):
 
     r = requests.get(url)
     if channel == 'mac':
-        (dest / 'ZQuestClassic.dmg').write_bytes(r.content)
+        (dest / 'ZeldaClassic.dmg').write_bytes(r.content)
         subprocess.check_call(['hdiutil', 'attach', '-mountpoint',
-                              str(dest / 'zc-mounted'), str(dest / 'ZQuestClassic.dmg')], stdout=subprocess.DEVNULL)
-        zc_app_path = next((dest / 'zc-mounted').glob('*.app'))
-        shutil.copytree(zc_app_path, dest / zc_app_path.name)
+                              str(dest / 'zc-mounted'), str(dest / 'ZeldaClassic.dmg')], stdout=subprocess.DEVNULL)
+        shutil.copytree(dest / 'zc-mounted/ZeldaClassic.app',
+                        dest / 'ZeldaClassic.app')
         subprocess.check_call(['hdiutil', 'unmount', str(
             dest / 'zc-mounted')], stdout=subprocess.DEVNULL)
-        (dest / 'ZQuestClassic.dmg').unlink()
+        (dest / 'ZeldaClassic.dmg').unlink()
     elif url.endswith('.tar.gz'):
         tf = tarfile.open(fileobj=io.BytesIO(r.content), mode='r')
         tf.extractall(dest, filter='data')
@@ -265,11 +265,11 @@ def download_test_build(workflow_run: WorkflowRun):
         dmg_path = archive_path
         subprocess.check_call(['hdiutil', 'attach', '-mountpoint',
                               str(dest / 'zc-mounted'), str(dmg_path)], stdout=subprocess.DEVNULL)
-        zc_app_path = next((dest / 'zc-mounted').glob('*.app'))
-        shutil.copytree(zc_app_path, dest / zc_app_path.name)
+        shutil.copytree(dest / 'zc-mounted/ZeldaClassic.app',
+                        dest / 'ZeldaClassic.app')
         subprocess.check_call(['hdiutil', 'unmount', str(
             dest / 'zc-mounted')], stdout=subprocess.DEVNULL)
-        (dest / 'ZQuestClassic.dmg').unlink(missing_ok=True)
+        (dest / 'ZeldaClassic.dmg').unlink(missing_ok=True)
     elif archive_path.suffix.endswith('.tar.gz'):
         tf = tarfile.open(name=archive_path, mode='r')
         tf.extractall(dest, filter='data')
@@ -290,10 +290,9 @@ def get_revision_binaries(revision: Revision):
 
     binaries = {'dir': dir}
     if channel == 'mac':
-        zc_app_path = next(dir.glob('*.app'))
-        binaries['zc'] = zc_app_path / 'Contents/Resources/zelda'
-        binaries['zq'] = zc_app_path / 'Contents/Resources/zquest'
-        binaries['zl'] = zc_app_path / 'Contents/MacOS/zlauncher'
+        binaries['zc'] = dir / 'ZeldaClassic.app/Contents/Resources/zelda'
+        binaries['zq'] = dir / 'ZeldaClassic.app/Contents/Resources/zquest'
+        binaries['zl'] = dir / 'ZeldaClassic.app/Contents/MacOS/zlauncher'
     elif channel == 'windows':
         binaries['zc'] = dir / 'zelda.exe'
         binaries['zq'] = dir / 'zquest.exe'

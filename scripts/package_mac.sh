@@ -4,7 +4,7 @@
 # First, install these tools:
 #     brew install dylibbundler create-dmg
 #
-# Does not need user input. When the Finder ZQuestClassic.app -> Applications window opens
+# Does not need user input. When the Finder ZeldaClassic.app -> Applications window opens
 # don't do anything - just wait.
 
 set -e
@@ -15,7 +15,7 @@ ROOT=$( dirname "$DIR" )
 build_dir="${1:-${ROOT}/build/Release}"
 packages_dir="$build_dir/packages"
 package_dir="$packages_dir/zc"
-mac_package_dir="$build_dir/packages/zc-mac"
+mac_package_dir="$build_dir/packages/zelda-classic-mac"
 
 set -eu
 cd "$ROOT"
@@ -35,7 +35,7 @@ if test "${SKIP_APP_BUNDLE+x}"; then
 fi
 
 # Prepare the Mac application bundle.
-contents="$mac_package_dir/ZQuestClassic.app/Contents"
+contents="$mac_package_dir/ZeldaClassic.app/Contents"
 
 rm -rf "$mac_package_dir"
 mkdir -p "$contents/MacOS"
@@ -86,24 +86,24 @@ if test "${PACKAGE_DEBUG_INFO+x}"; then
     "$contents/Resources/zscript" \
     "$contents/Resources/zupdater" \
     $(find "$contents/libs" -name '*.dylib' -type f) \
-    -o "$mac_package_dir/ZQuestClassic.app.dSYM"
+    -o "$mac_package_dir/ZeldaClassic.app.dSYM"
 else
   echo "verifying code signing ..."
-  codesign --verify --verbose=4 "$mac_package_dir/ZQuestClassic.app"
+  codesign --verify --verbose=4 "$mac_package_dir/ZeldaClassic.app"
 fi
 
 cd "$packages_dir"
-rm -f ZQuestClassic.dmg
+rm -f ZeldaClassic.dmg
 create-dmg \
-  --volname "ZQuestClassic" \
+  --volname "ZeldaClassic" \
   --volicon "$contents/Resources/icons.icns" \
   --window-pos 200 120 \
   --window-size 800 400 \
   --icon-size 100 \
-  --icon "ZQuestClassic.app" 200 190 \
-  --hide-extension "ZQuestClassic.app" \
+  --icon "ZeldaClassic.app" 200 190 \
+  --hide-extension "ZeldaClassic.app" \
   --app-drop-link 600 185 \
-  ZQuestClassic.dmg \
+  ZeldaClassic.dmg \
   "$mac_package_dir"
 
 echo "Done!"
