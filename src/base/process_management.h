@@ -4,7 +4,6 @@
 #include <cstdio>
 #include <string>
 #include <vector>
-#include <map>
 
 static uint32_t __dummy_;
 
@@ -22,16 +21,10 @@ static uint32_t __dummy_;
 	#define ZELDA_FILE "zelda.exe"
 	#define ZQUEST_FILE "zquest.exe"
 	#define ZSCRIPT_FILE "zscript.exe"
-	#define ZLAUNCHER_FILE "zlauncher.exe"
-	#define ZUPDATER_FILE "zupdater.exe"
-	#define PYTHON "pythonw"
 #else
-	#define ZELDA_FILE "./zelda"
-	#define ZQUEST_FILE "./zquest"
-	#define ZSCRIPT_FILE "./zscript"
-	#define ZLAUNCHER_FILE "./zlauncher"
-	#define ZUPDATER_FILE "./zupdater"
-	#define PYTHON "python"
+	#define ZELDA_FILE "zelda"
+	#define ZQUEST_FILE "zquest"
+	#define ZSCRIPT_FILE "zscript"
 #endif
 
 class zc_io_exception : public std::exception
@@ -185,8 +178,6 @@ struct child_process_handler : public io_manager
 process_killer launch_process(std::string file, const std::vector<std::string>& args = {});
 process_manager* launch_piped_process(std::string file, std::string pipename, const std::vector<std::string>& args = {});
 void launch_file(std::string const& file);
-bool run_and_get_output(std::string file, const std::vector<std::string>& args, std::string& output);
-std::map<std::string, std::string> parse_output_map(std::string output);
 
 #endif
 

@@ -1,16 +1,11 @@
 #include "base/process_management.h"
 #include "base/util.h"
 #include <fmt/format.h>
-#include <sstream>
-
 #ifndef _WIN32
 	#include <csignal>
 	#include <sys/types.h>
-	#include <sys/wait.h>
 	#include <spawn.h>
-	#include <pstream.h>
 #endif
-
 using namespace util;
 
 #define ERR_EXIT(str, pm, errcode) \
@@ -42,13 +37,14 @@ bool process_killer::is_alive() const
 #ifdef _WIN32
 	return process_handle && WaitForSingleObject(process_handle,0) == WAIT_TIMEOUT;
 #else
-	waitpid(pid, nullptr, WNOHANG);
-	if(::kill(pid,0) == -1)
-	{
-		if(errno != ESRCH)
-			return true;
-		return false;
-	}
+	//!TODO non-windows process stuff
+	// waitpid(pid, nullptr, WNOHANG);
+	// if(::kill(pid,0) == -1)
+	// {
+		// if(errno != ESRCH)
+			// return true;
+		// return false;
+	// }
 	return true;
 #endif
 }
@@ -157,8 +153,6 @@ bool io_manager::ProcessReadFile(HANDLE read_handle, LPVOID buf, DWORD bytes_to_
 				FreeLibrary(kernel32);
 				throw zc_io_exception::timeout();
 			}
-			break;
-
 			case WAIT_IO_COMPLETION:
 			case ERROR_IO_INCOMPLETE:
 				continue;
@@ -210,19 +204,14 @@ process_manager::~process_manager()
 bool process_manager::read(void* buf, uint32_t bytes_to_read, uint32_t* bytes_read)
 {
 #ifdef _WIN32
-	if(!bytes_read) bytes_read = &__dummy_;
-	*bytes_read = 0;
-
 	if(!read_handle) return false;
-
 	if(!is_alive())
 		throw zc_io_exception::dead();
-
+	if(!bytes_read) bytes_read = &__dummy_;
 	bool ret = ProcessReadFile((HANDLE)read_handle, (LPVOID)buf, (DWORD)bytes_to_read, (LPDWORD)bytes_read);
 	
 	if(!is_alive())
 		throw zc_io_exception::dead();
-
 	return ret;
 #else
 	if(!read_handle) return false;
@@ -320,137 +309,6 @@ static std::vector<char*> create_argv_unix(std::string file, const std::vector<s
 	return argv;
 }
 
-#ifdef _WIN32
-/******************************************************************
-* https://groups.google.com/g/microsoft.public.win32.programmer.kernel/c/5UX78EXhyz0/m/oA-_hfk3_A0J
-*
-* BOOL RunOneShot(UseDos, szCmd)
-*
-* Spawn a child process and capture the redirect output.
-*
-* UseDos = Set TRUE to use OS command interpreter
-* cmd = command to run (if DOS command, set UseDos=TRUE)
-*
-* return TRUE if successful. Otherwise FALSE, read extended error.
-******************************************************************/
-
-BOOL RunOneShot(const char *szCmd, const BOOL UseDos, std::string& output) {
-  SECURITY_ATTRIBUTES sa;
-  ZeroMemory(&sa, sizeof(sa));
-  sa.nLength = sizeof(sa);
-  sa.bInheritHandle = TRUE;
-
-  HANDLE hOut = INVALID_HANDLE_VALUE;
-  HANDLE hRedir = INVALID_HANDLE_VALUE;
-
-  // Create Temp File for redirection
-
-  char szTempPath[MAX_PATH];
-  char szOutput[MAX_PATH];
-  GetTempPath(sizeof(szTempPath), szTempPath);
-  GetTempFileName(szTempPath, "tmp", 0, szOutput);
-
-  // setup redirection handles
-  // output handle must be WRITE mode, share READ
-  // redirect handle must be READ mode, share WRITE
-
-  hOut = CreateFile(szOutput, GENERIC_WRITE, FILE_SHARE_READ, &sa,
-                    CREATE_ALWAYS, FILE_ATTRIBUTE_TEMPORARY, 0);
-
-  if (hOut == INVALID_HANDLE_VALUE) {
-    return FALSE;
-  }
-
-  hRedir = CreateFile(szOutput, GENERIC_READ, FILE_SHARE_WRITE, 0,
-                      OPEN_EXISTING, 0, 0);
-
-  if (hRedir == INVALID_HANDLE_VALUE) {
-    CloseHandle(hOut);
-    return FALSE;
-  }
-
-  // setup startup info, set std out/err handles
-  // hide window
-
-  STARTUPINFO si;
-  ZeroMemory(&si, sizeof(si));
-  si.cb = sizeof(si);
-  if (hOut != INVALID_HANDLE_VALUE) {
-    si.dwFlags |= STARTF_USESTDHANDLES;
-    si.hStdOutput = hOut;
-    si.hStdError = hOut;
-    si.wShowWindow = SW_HIDE;
-  }
-
-  // use the current OS comspec for DOS commands, i.e., DIR
-
-  char cmd[MAX_PATH] = {0};
-  if (UseDos) {
-    strcpy(cmd, getenv("comspec"));
-    strcat(cmd, " /c ");
-  }
-  strcat(cmd, szCmd);
-  printf("-Process: %s\n", cmd);
-
-  PROCESS_INFORMATION pi;
-  ZeroMemory(&pi, sizeof(pi));
-
-  DWORD dwFlags = CREATE_NO_WINDOW; // NT/2000 only
-
-  if (!CreateProcess(NULL, (char *)cmd, NULL, NULL, TRUE, dwFlags, NULL, NULL,
-                     &si, &pi)) {
-
-    int err = GetLastError(); // preserve the CreateProcess error
-
-    if (hOut != INVALID_HANDLE_VALUE) {
-      CloseHandle(hOut);
-      CloseHandle(hRedir);
-    }
-
-    SetLastError(err);
-    return FALSE;
-  }
-
-  // let go of the child thread
-  CloseHandle(pi.hThread);
-
-  // wait for process to finish, capture redirection and
-  // send it to the parent window/console
-
-  std::stringstream ss;
-
-  DWORD dw;
-  char buf[256];
-  do {
-    ZeroMemory(&buf, sizeof(buf));
-    while (ReadFile(hRedir, &buf, sizeof(buf) - 1, &dw, NULL)) {
-      if (dw == 0)
-        break;
-	  ss << buf;
-      ZeroMemory(&buf, sizeof(buf));
-    }
-  } while (WaitForSingleObject(pi.hProcess, 0) != WAIT_OBJECT_0);
-
-  // perform any final flushing
-
-  while (ReadFile(hRedir, &buf, sizeof(buf) - 1, &dw, NULL)) {
-    if (dw == 0)
-      break;
-    ss << buf;
-    ZeroMemory(&buf, sizeof(buf));
-  }
-
-  WaitForSingleObject(pi.hProcess, INFINITE);
-  CloseHandle(pi.hProcess);
-  CloseHandle(hOut);
-  CloseHandle(hRedir);
-  DeleteFile(szOutput);
-
-  output = ss.str();
-  return true;
-}
-#endif
-
 process_killer launch_process(std::string file, const std::vector<std::string>& args)
 {
 #ifdef _WIN32
@@ -475,11 +333,10 @@ process_killer launch_process(std::string file, const std::vector<std::string>& 
 #ifdef ALLEGRO_LINUX
 	int s = posix_spawnp(&pid, file.c_str(), NULL, NULL, argv.data(), environ);
 #else
-	extern char** environ;
-	int s = posix_spawnp(&pid, file.c_str(), NULL, NULL, argv.data(), environ);
+	int s = posix_spawn(&pid, file.c_str(), NULL, NULL, argv.data(), NULL);
 #endif
 	for (auto arg : argv) free(arg);
-	if (s != 0) ERR_EXIT("Failed posix_spawnp", (process_manager*)0, 0);
+	if (s != 0) ERR_EXIT("Failed posix_spawn", (process_manager*)0, 0);
 	return process_killer(pid);
 #endif
 }
@@ -587,18 +444,17 @@ process_manager* launch_piped_process(std::string file, std::string pipename, co
 	std::vector<char*> argv = create_argv_unix(file, args);
 	pid_t child_pid;
 #ifdef ALLEGRO_LINUX
-	s = posix_spawnp(&child_pid, file.c_str(), &file_actions, NULL, argv.data(), environ);
+	s = posix_spawn(&child_pid, file.c_str(), &file_actions, NULL, argv.data(), environ);
 #else
-	extern char** environ;
-	s = posix_spawnp(&child_pid, file.c_str(), &file_actions, NULL, argv.data(), environ);
+	s = posix_spawn(&child_pid, file.c_str(), &file_actions, NULL, argv.data(), NULL);
 #endif
-	if (s != 0) ERR_EXIT("Failed posix_spawnp", pm, 0);
+	if (s != 0) ERR_EXIT("Failed posix_spawn", pm, 0);
 	
 	pm->read_handle = pdes_r[0];
 	pm->write_handle = pdes_w[1];
 	close(pdes_r[1]);
 	close(pdes_w[0]);
-	pm->init_process(child_pid);
+	pm->init_process(pid);
 	return pm;
 #endif
 }
@@ -624,64 +480,4 @@ void launch_file(std::string const& file)
 	std::string command = "open " + file;
 	system(command.c_str());
 #endif
-}
-
-// TODO: also need to read stderr in windows
-bool run_and_get_output(std::string file, const std::vector<std::string>& args, std::string& output)
-{
-#ifndef _WIN32
-	// For unix, bypass the whole pipe thing (which breaks terribly when zlauncher calls zupdater) by
-	// using pstream library. Bonus, gives us stderr too.
-	std::stringstream result;
-	std::vector args2 = args;
-	args2.insert(args2.begin(), file);
-	redi::ipstream proc(file, args2, redi::pstreams::pstdout | redi::pstreams::pstderr);
-	if (proc.bad())
-		return false;
-
-	std::string line;
-	while (std::getline(proc.out(), line))
-		result << line << '\n';
-	if (proc.eof() && proc.fail())
-		proc.clear();
-	while (std::getline(proc.err(), line))
-		result << "[stderr] " << line << '\n';
-
-	output = result.str();
-	return true;
-#else
-	char path_buf[2048];
-	sprintf(path_buf, "\"%s\"", file.c_str());
-	for (auto q : args)
-	{
-		strcat(path_buf, " \"");
-		strcat(path_buf, q.c_str());
-		strcat(path_buf, "\"");
-	}
-	return RunOneShot(path_buf, false, output);
-#endif
-}
-
-// Utility function for parsing structured data from process output.
-// Example usage is updater.py
-std::map<std::string, std::string> parse_output_map(std::string output)
-{
-	std::map<std::string, std::string> result;
-
-	util::removechar(output, '\r');
-	std::vector<std::string> lines;
-	util::split(output, lines, '\n');
-
-	for (auto line : lines)
-	{
-		size_t pos = line.find_first_of(' ');
-		if (pos != std::string::npos)
-		{
-			auto key = line.substr(0, pos);
-			auto value = line.substr(pos + 1);
-			result[key] = value;
-		}
-	}
-
-	return result;
 }

@@ -142,7 +142,6 @@ def get_scope_label(scope: str):
         case 'vscode': return 'Visual Studio Code Extension'
         case 'launcher': return 'ZLauncher'
         case 'zconsole': return 'ZConsole'
-        case 'zupdater': return 'ZUpdater'
         case _: return scope.capitalize()
 
 

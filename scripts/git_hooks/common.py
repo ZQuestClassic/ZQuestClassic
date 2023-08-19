@@ -18,6 +18,5 @@ valid_scopes = [
     'vscode',
     'launcher',
     'zconsole',
-    'zupdater',
     'web',
 ]

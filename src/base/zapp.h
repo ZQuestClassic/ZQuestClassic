@@ -7,7 +7,6 @@ enum App {
     zquest,
     launcher,
     zscript,
-	updater,
 };
 
 void common_main_setup(App id, int argc, char **argv);
