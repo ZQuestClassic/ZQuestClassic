@@ -73,7 +73,7 @@ def split_replay(replay_path: Path, output_folder: Path, skip_save_file_generati
 	if not skip_save_file_generation:
 		if saves_folder.exists():
 			shutil.rmtree(saves_folder)
-		run_target.run('zelda', [
+		run_target.run('zplayer', [
 			'-v0',
 			'-replay-exit-when-done',
 			'-replay-save-games',

@@ -39,7 +39,7 @@ for file in itertools.chain(results_dir.rglob('crashes/id:*'), results_dir.rglob
 
     timed_out = False
     try:
-        output = subprocess.run(['./zelda', '-load-and-quit', file],
+        output = subprocess.run(['./zplayer', '-load-and-quit', file],
                                 env={**os.environ, 'CI': '1'}, timeout=5,
                                 cwd=build_dir, encoding='utf-8', stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
         if output.returncode >= 0:
@@ -50,7 +50,7 @@ for file in itertools.chain(results_dir.rglob('crashes/id:*'), results_dir.rglob
     except subprocess.TimeoutExpired as e:
         timed_out = True
 
-    command = f'{build_dir}/zelda -load-and-quit {file}'
+    command = f'{build_dir}/zplayer -load-and-quit {file}'
 
     if timed_out:
         print('TIMEOUT!')

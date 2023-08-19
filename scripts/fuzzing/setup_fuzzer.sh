@@ -33,7 +33,7 @@ if [ ! -d build_fuzz ]
 then
     CC=afl-cc CCX=afl-cc++ cmake -B build_fuzz -S . -DWANT_FUZZ=ON
 fi
-cmake --build build_fuzz -t zelda
+cmake --build build_fuzz -t zplayer
 cd build_fuzz
 cp -r RelWithDebInfo/* .
 cd -

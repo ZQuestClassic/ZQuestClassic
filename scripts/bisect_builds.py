@@ -282,6 +282,14 @@ def download_test_build(workflow_run: WorkflowRun):
     return dest
 
 
+def find_path(dir: Path, one_of: List[str]):
+    for p in one_of:
+        if (dir / p).exists():
+            return dir / p
+
+    raise Exception(f'could not find one of {one_of} in {dir}')
+
+
 def get_revision_binaries(revision: Revision):
     if revision.workflow_run:
         dir = download_test_build(revision.workflow_run)
@@ -291,15 +299,15 @@ def get_revision_binaries(revision: Revision):
     binaries = {'dir': dir}
     if channel == 'mac':
         zc_app_path = next(dir.glob('*.app'))
-        binaries['zc'] = zc_app_path / 'Contents/Resources/zelda'
+        binaries['zc'] = find_path(zc_app_path / 'Contents/Resources', ['zplayer', 'zelda'])
         binaries['zq'] = zc_app_path / 'Contents/Resources/zquest'
         binaries['zl'] = zc_app_path / 'Contents/MacOS/zlauncher'
     elif channel == 'windows':
-        binaries['zc'] = dir / 'zelda.exe'
+        binaries['zc'] = find_path(dir, ['zplayer.exe', 'zelda.exe'])
         binaries['zq'] = dir / 'zquest.exe'
         binaries['zl'] = dir / 'zlauncher.exe'
     elif channel == 'linux':
-        binaries['zc'] = dir / 'zelda'
+        binaries['zc'] = find_path(dir, ['zplayer', 'zelda'])
         binaries['zq'] = dir / 'zquest'
         binaries['zl'] = dir / 'zlauncher'
 

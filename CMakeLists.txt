@@ -610,18 +610,18 @@ if(UNITY_BUILD)
 	enable_unity_build(ZeldaSubscreen ZELDA_SUBSCREEN_SOURCES)
 endif()
 
-add_executable(zelda ${ZELDA_CORE_SOURCES} ${ZELDA_GUI_SOURCES} ${ZELDA_SPRITE_SOURCES} ${ZELDA_SUBSCREEN_SOURCES} ${ZELDA_SCRIPTING_SOURCES} ${ZELDAEXTRASOURCES} ${ZELDA_MODULES})
-target_compile_definitions(zelda PRIVATE IS_PLAYER)
-set_property(TARGET zelda PROPERTY VS_DPI_AWARE "PerMonitor")
-target_include_directories(zelda PRIVATE include/xxhash)
-target_link_libraries(zelda PRIVATE allegro_with_legacy)
+add_executable(zplayer ${ZELDA_CORE_SOURCES} ${ZELDA_GUI_SOURCES} ${ZELDA_SPRITE_SOURCES} ${ZELDA_SUBSCREEN_SOURCES} ${ZELDA_SCRIPTING_SOURCES} ${ZELDAEXTRASOURCES} ${ZELDA_MODULES})
+target_compile_definitions(zplayer PRIVATE IS_PLAYER)
+set_property(TARGET zplayer PROPERTY VS_DPI_AWARE "PerMonitor")
+target_include_directories(zplayer PRIVATE include/xxhash)
+target_link_libraries(zplayer PRIVATE allegro_with_legacy)
 
 if(WIN32)
-	target_link_libraries(zelda PRIVATE zconsolelogger zcbase zcgui zcsound winmm ${IMAGELIBS} ${ZELDALIBSEXTRA})
+	target_link_libraries(zplayer PRIVATE zconsolelogger zcbase zcgui zcsound winmm ${IMAGELIBS} ${ZELDALIBSEXTRA})
 elseif(LINUX)
-	target_link_libraries(zelda PRIVATE zconsolelogger zcbase zcgui zcsound ${IMAGELIBS} ${ZELDALIBSEXTRA})
+	target_link_libraries(zplayer PRIVATE zconsolelogger zcbase zcgui zcsound ${IMAGELIBS} ${ZELDALIBSEXTRA})
 elseif(APPLE)
-	target_link_libraries(zelda PRIVATE zconsolelogger zcbase zcgui zcsound ${IMAGELIBS} ${ZELDALIBSEXTRA})
+	target_link_libraries(zplayer PRIVATE zconsolelogger zcbase zcgui zcsound ${IMAGELIBS} ${ZELDALIBSEXTRA})
 endif()
 
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
@@ -633,8 +633,8 @@ if(CMAKE_SIZEOF_VOID_P EQUAL 8)
 			e13642567393a4bfc8c5607b33337b2ed3b0d01e
 	)
 	FetchContent_MakeAvailable(asmjit)
-	target_link_libraries(zelda PRIVATE asmjit)
-	target_compile_definitions(zelda PRIVATE ZC_JIT)
+	target_link_libraries(zplayer PRIVATE asmjit)
+	target_compile_definitions(zplayer PRIVATE ZC_JIT)
 
 	get_target_property(asm_compile_options asmjit COMPILE_OPTIONS)
 	string(REPLACE "$<NOT:$<CONFIG:Debug>>" "$<NOT:$<CONFIG:Debug,Asan>>" asm_compile_options "${asm_compile_options}")
@@ -642,7 +642,7 @@ if(CMAKE_SIZEOF_VOID_P EQUAL 8)
 endif()
 
 if(CMAKE_SIZEOF_VOID_P EQUAL 4 AND WIN32)
-	target_compile_definitions(zelda PRIVATE ZC_WIN_32)
+	target_compile_definitions(zplayer PRIVATE ZC_WIN_32)
 endif()
 
 #############################################################
@@ -670,7 +670,7 @@ target_include_directories(zquest PRIVATE src)
 
 if(MSVC)
 	target_compile_definitions(zcsound PRIVATE ZCM_DLL)
-	target_compile_definitions(zelda PRIVATE ZCM_DLL_IMPORT)
+	target_compile_definitions(zplayer PRIVATE ZCM_DLL_IMPORT)
 	target_compile_definitions(zquest PRIVATE ZCM_DLL_IMPORT)
 endif()
 target_compile_definitions(zquest PRIVATE IS_ZQUEST)
@@ -746,7 +746,7 @@ endif()
 #############################################################
 
 if (EMSCRIPTEN)
-	target_link_options(zelda PRIVATE "SHELL:-s EXPORTED_FUNCTIONS=_main,_get_shareable_url,_create_synthetic_key_event")
+	target_link_options(zplayer PRIVATE "SHELL:-s EXPORTED_FUNCTIONS=_main,_get_shareable_url,_create_synthetic_key_event")
 	target_link_options(zquest PRIVATE "SHELL:-s EXPORTED_FUNCTIONS=_main,_get_shareable_url,_create_synthetic_key_event,_open_test_mode")
 	target_link_options(zscript PRIVATE "SHELL:-s PTHREAD_POOL_SIZE=1" "SHELL:-s EXTRA_EXPORTED_RUNTIME_METHODS=['FS','PROXYFS']")
 	set_target_properties(zscript PROPERTIES SUFFIX ".mjs")
@@ -756,7 +756,7 @@ endif()
 # Misc.
 #############################################################
 
-set(zc_targets zquest zelda zlauncher zcbase zcgui zcsound zscript zconsolelogger zupdater)
+set(zc_targets zquest zplayer zlauncher zcbase zcgui zcsound zscript zconsolelogger zupdater)
 set(zc_clang_errors
 	-Werror=array-bounds
 	-Werror=format
@@ -819,7 +819,7 @@ endif()
 
 if (WIN32)
 	list(APPEND zc_targets zconsole zstandalone)
-	add_dependencies(zelda zconsole)
+	add_dependencies(zplayer zconsole)
 endif()
 
 if(USE_PCH)
@@ -949,7 +949,7 @@ if(CMAKE_GENERATOR MATCHES "Visual Studio")
 
 	# Organize into folders
 	set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-	set_target_properties(zelda zquest zscript zlauncher zupdater package package_no_archive PROPERTIES FOLDER "")
+	set_target_properties(zplayer zquest zscript zlauncher zupdater package package_no_archive PROPERTIES FOLDER "")
 	set_target_properties(run_replay_tests_all run_replay_tests_basic run_replay_tests_all_1s run_replay_tests_all_10s run_replay_tests_all_100s PROPERTIES FOLDER "Replay Tests")
 	set_target_properties(zcbase zcgui zcsound PROPERTIES FOLDER "Our Libraries")
 	set_target_properties(gme dumb aldmb PROPERTIES FOLDER Sound)

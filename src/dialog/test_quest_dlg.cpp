@@ -252,9 +252,9 @@ bool TestQstDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 #ifdef __EMSCRIPTEN__
 			em_open_test_mode(filepath, test_start_dmap, test_start_screen, test_ret_sqr);
 #else
-			if(!fileexists(ZELDA_FILE))
+			if(!fileexists(ZPLAYER_FILE))
 			{
-				InfoDialog("Error", ZELDA_FILE " not found!").show();
+				InfoDialog("Error", ZPLAYER_FILE " not found!").show();
 				return true;
 			}
 			test_killer.kill();
@@ -281,7 +281,7 @@ bool TestQstDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 				args.push_back("-record");
 				args.push_back(replay_path.string().c_str());
 			}
-			test_killer = launch_process(ZELDA_FILE, args);
+			test_killer = launch_process(ZPLAYER_FILE, args);
 #endif
 		}
 		return true;

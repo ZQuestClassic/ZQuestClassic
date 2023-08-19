@@ -888,7 +888,7 @@ bool LauncherDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 	switch(msg.message)
 	{
 		case message::ZC:
-			launch_process(ZELDA_FILE);
+			launch_process(ZPLAYER_FILE);
 			break;
 		case message::ZQ:
 			launch_process(ZQUEST_FILE);

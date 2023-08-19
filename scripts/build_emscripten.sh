@@ -195,7 +195,7 @@ bash ../web/patches/apply.sh
 embuilder build sdl2-mt
 embuilder build sdl2_mixer_gme_mid_mod_mp3_ogg
 
-TARGETS="${@:-zelda zquest zscript}"
+TARGETS="${@:-zplayer zquest zscript}"
 cmake --build . --config $CONFIG -t $TARGETS
 cd $CONFIG
 
@@ -238,7 +238,7 @@ function insert_css {
   mv tmp.html "$1"
 }
 
-if [[ "${TARGETS[*]}" =~ "zelda" ]]; then
+if [[ "${TARGETS[*]}" =~ "zplayer" ]]; then
   cp ../../web/index.html zelda.html
   sed -i -e 's/__TARGET__/zelda/' zelda.html
   if [[ "$ZC_PACKAGE_REPLAYS" ]]; then
@@ -249,6 +249,7 @@ if [[ "${TARGETS[*]}" =~ "zelda" ]]; then
   sed -i -e 's|__SCRIPT__|<script async src="zelda.js"></script>|' zelda.html
   set_files zelda.html
   insert_css zelda.html
+  mv zplayer.js zelda.js
   sed -i -e 's|if(SDL2.audio.scriptProcessorNode|if(SDL2.audio?.scriptProcessorNode|' zelda.js
   if [[ "$ZC_PACKAGE_REPLAYS" ]]; then
     sed -i -e 's/__IS_CI__/true/' zelda.html
@@ -279,7 +280,7 @@ build_js
 
 echo "done configuring emscripten build."
 echo ""
-echo "run the ninja build rule (ex: ninja -f build-$CONFIG.ninja $CONFIG/zelda.js) to rebuild a target"
+echo "run the ninja build rule (ex: ninja -f build-$CONFIG.ninja $CONFIG/zplayer.js) to rebuild a target"
 echo "you only need to re-run build_emscripten.sh if something in this file is changed"
 echo ""
 echo "be sure to start a local webserver in the build_emscripten folder:"
