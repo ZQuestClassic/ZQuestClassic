@@ -14,7 +14,7 @@ class LauncherDialog: public GUI::Dialog<LauncherDialog>
 public:
 	enum class message
 	{
-		ZC, ZQ, ZU, ZU_RELEASE_NOTES, EXIT
+		ZC, ZQ, EXIT
 	};
 
 	LauncherDialog();
@@ -29,8 +29,6 @@ private:
 	std::shared_ptr<GUI::TextField> tf_module_zc, tf_module_zq, tf_module_zcl, tf_savefile;
 	std::shared_ptr<GUI::TextField> tf_theme[3];
 	std::shared_ptr<GUI::Button> btn_save[3];
-	std::shared_ptr<GUI::Button> btn_download_update;
-	std::shared_ptr<GUI::Button> btn_release_notes;
 	std::shared_ptr<GUI::Label> lbl_theme_error;
 	std::shared_ptr<GUI::DropDownList> ddl_res;
 };

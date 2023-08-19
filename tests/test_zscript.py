@@ -26,7 +26,7 @@ sys.path.append(str((root_dir / 'scripts').absolute()))
 import run_target
 
 
-class TestZScript(unittest.TestCase):
+class TestReplays(unittest.TestCase):
     def setUp(self):
         self.maxDiff = None
 

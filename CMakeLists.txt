@@ -15,8 +15,6 @@ set(WANT_MAC_DEBUG_FILES FALSE CACHE BOOL "Generate .dSYM debug files on Mac")
 set(WANT_FUZZ FALSE CACHE BOOL "Set FUZZ CXX definition")
 set(WANT_GIT_HOOKS TRUE CACHE BOOL "Install git hooks")
 set(RELEASE_TAG "" CACHE STRING "Release tag")
-set(RELEASE_CHANNEL "" CACHE STRING "Release channel")
-set(REPO "" CACHE STRING "Repo URL")
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -444,7 +442,6 @@ add_library(fmt STATIC
 target_include_directories(fmt PUBLIC include/fmt)
 
 set(zcbase_sources
-	src/base/about.cpp
 	src/base/colors.cpp
 	src/base/combo.cpp
 	src/base/cpos_info.cpp
@@ -478,10 +475,6 @@ endif()
 add_library(zcbase STATIC ${zcbase_sources})
 target_link_libraries(zcbase PUBLIC allegro_with_legacy fmt)
 target_include_directories(zcbase PUBLIC src)
-if(NOT WIN32)
-	target_include_directories(zcbase PUBLIC include/pstream)
-endif()
-
 if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 	target_link_options(zcbase PRIVATE "/WHOLEARCHIVE")
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -724,25 +717,6 @@ if(WIN32)
 endif()
 
 #############################################################
-# ZUpdater
-#############################################################
-
-# TODO give zupdater its own icon.
-if(MSVC)
-	list(APPEND UPDATEREXTRASOURCES zl_icon.rc)
-elseif(LINUX)
-	list(APPEND UPDATEREXTRASOURCES zl_icon.c)
-endif()
-
-add_executable(zupdater src/zupdater/zupdater.cpp src/zconfig.cpp ${UPDATEREXTRASOURCES})
-target_compile_definitions(zupdater PRIVATE ZUPDATER)
-target_link_libraries(zupdater PRIVATE allegro_with_legacy fmt zcbase)
-target_include_directories(zupdater PRIVATE src)
-if(WIN32)
-	target_link_options(zupdater PRIVATE "/SUBSYSTEM:WINDOWS")
-endif()
-
-#############################################################
 # Emscripten
 #############################################################
 
@@ -757,7 +731,7 @@ endif()
 # Misc.
 #############################################################
 
-set(zc_targets zquest zelda zlauncher zcbase zcgui zcsound zscript zconsolelogger zupdater)
+set(zc_targets zquest zelda zlauncher zcbase zcgui zcsound zscript zconsolelogger)
 set(zc_clang_errors
 	-Werror=array-bounds
 	-Werror=format
@@ -797,18 +771,6 @@ endif()
 if(RELEASE_TAG)
 	foreach(target IN LISTS zc_targets)
 		target_compile_definitions(${target} PRIVATE RELEASE_TAG="${RELEASE_TAG}")
-	endforeach()
-endif()
-
-if(RELEASE_CHANNEL)
-	foreach(target IN LISTS zc_targets)
-		target_compile_definitions(${target} PRIVATE RELEASE_CHANNEL="${RELEASE_CHANNEL}")
-	endforeach()
-endif()
-
-if(REPO)
-	foreach(target IN LISTS zc_targets)
-		target_compile_definitions(${target} PRIVATE REPO="${REPO}")
 	endforeach()
 endif()
 
@@ -950,7 +912,7 @@ if(CMAKE_GENERATOR MATCHES "Visual Studio")
 
 	# Organize into folders
 	set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-	set_target_properties(zelda zquest zscript zlauncher zupdater package package_no_archive PROPERTIES FOLDER "")
+	set_target_properties(zelda zquest zscript zlauncher package package_no_archive PROPERTIES FOLDER "")
 	set_target_properties(run_replay_tests_all run_replay_tests_basic run_replay_tests_all_1s run_replay_tests_all_10s run_replay_tests_all_100s PROPERTIES FOLDER "Replay Tests")
 	set_target_properties(zcbase zcgui zcsound PROPERTIES FOLDER "Our Libraries")
 	set_target_properties(gme dumb aldmb PROPERTIES FOLDER Sound)

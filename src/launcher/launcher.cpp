@@ -6,7 +6,6 @@
 #include "base/render.h"
 #include "dialog/alert.h"
 #include "launcher/launcher_dialog.h"
-#include "base/process_management.h"
 #include "base/zapp.h"
 #include "fontsdat.h"
 #include "zinfo.h"
@@ -84,15 +83,6 @@ void hit_close_button()
 int32_t main(int32_t argc, char* argv[])
 {
 	common_main_setup(App::launcher, argc, argv);
-
-	if (used_switch(argc, argv, "-update"))
-	{
-		std::string output;
-		bool success = run_and_get_output(ZUPDATER_FILE, {"-headless", "-cache"}, output);
-		success &= output.find("success!") != std::string::npos;
-		printf("%s\n", output.c_str());
-		exit(success ? 0 : 1);
-	}
 
 	zc_srand(time(0));
 	
