@@ -19328,7 +19328,7 @@ void set_register(int32_t arg, int32_t value)
 	case VIEWPORT_HEIGHT:
 	{
 		int val = value / 10000;
-		if (BC::checkBounds(val, 0, 240, "Viewport->Height") != SH::_NoError)
+		if (BC::checkBounds(val, 0, 232, "Viewport->Height") != SH::_NoError)
 		{
 			return;
 		}
