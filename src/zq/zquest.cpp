@@ -28973,7 +28973,7 @@ int32_t main(int32_t argc,char **argv)
 	
 	Z_message("Initializing sound driver... ");
 	
-	if(used_switch(argc,argv,"-s") || zc_get_config("zquest","nosound",0))
+	if(used_switch(argc,argv,"-s") || zc_get_config("zquest","nosound",0) || is_headless())
 	{
 		Z_message("skipped\n");
 	}
