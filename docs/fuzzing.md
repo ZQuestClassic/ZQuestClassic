@@ -11,11 +11,11 @@ Scripts for fuzzing are located in `scripts/fuzzing`.
 sh ./scripts/fuzzing/setup_fuzzer.sh
 
 # Then start the main fuzzer instance
-sh ./scripts/fuzzing/start_fuzzer_instance.sh -M main -m 512 -t 3000 -i ../.tmp/fuzz_corpus -o ../.tmp/fuzz_results -- ./zplayer -load-and-quit @@
+sh ./scripts/fuzzing/start_fuzzer_instance.sh -M main -m 512 -t 3000 -i ../.tmp/fuzz_corpus -o ../.tmp/fuzz_results -- ./zelda -load-and-quit @@
 
 # Then start additional fuzzer instances, with a unique value of `-S` and perhaps different options
-sh ./scripts/fuzzing/start_fuzzer_instance.sh -S variant-1 -m 512 -t 3000 -i ../.tmp/fuzz_corpus -o ../.tmp/fuzz_results -- ./zplayer -load-and-quit @@
-sh ./scripts/fuzzing/start_fuzzer_instance.sh -S variant-2 -m 512 -t 3000 -i ../.tmp/fuzz_corpus -o ../.tmp/fuzz_results -- ./zplayer -load-and-quit @@
+sh ./scripts/fuzzing/start_fuzzer_instance.sh -S variant-1 -m 512 -t 3000 -i ../.tmp/fuzz_corpus -o ../.tmp/fuzz_results -- ./zelda -load-and-quit @@
+sh ./scripts/fuzzing/start_fuzzer_instance.sh -S variant-2 -m 512 -t 3000 -i ../.tmp/fuzz_corpus -o ../.tmp/fuzz_results -- ./zelda -load-and-quit @@
 ```
 
 Bump up your Docker resources first to however much memory / cores make sense. You can run multiple fuzzers (each on a dedicated core) by running.
@@ -23,12 +23,12 @@ Bump up your Docker resources first to however much memory / cores make sense. Y
 When crashes are found the input file that caused them will be saved to `.tmp/fuzz_results`. You can debug it (outside of Docker):
 
 ```sh
-./zplayer -load-and-quit .tmp/fuzz_results/ebd8aa410fae-main/crashes/id:000000,sig:11,src:000000,time:14618,execs:26,op:havoc,rep:2
+./zelda -load-and-quit .tmp/fuzz_results/ebd8aa410fae-main/crashes/id:000000,sig:11,src:000000,time:14618,execs:26,op:havoc,rep:2
 ```
 
 You likely want to enable ASAN to help debug:
 ```sh
-cmake --build build --config Asan -t zplayer
+cmake --build build --config Asan -t zelda
 ```
 
 This script is helpful for 1) getting a stack trace of the program crashing with the bad inputs and 2) verifying changes no longer result in a crash:
@@ -40,7 +40,7 @@ python scripts/process_fuzz_results.py --build_folder build/Asan
 Each crashing input will generate a file in `.tmp/fuzz_debugging/outputs` that looks something like this:
 
 ```cpp
-build/Asan/zplayer -load-and-quit /Users/connorclark/code/ZeldaClassic-secondary/.tmp/fuzz_results/main/hangs/id:000080,src:000787+000076,time:26346082,execs:78378,op:splice,rep:11
+build/Asan/zelda -load-and-quit /Users/connorclark/code/ZeldaClassic-secondary/.tmp/fuzz_results/main/hangs/id:000080,src:000787+000076,time:26346082,execs:78378,op:splice,rep:11
 
 =================================================================
 ==10193==ERROR: AddressSanitizer: stack-buffer-overflow on address 0x700003bff22e at pc 0x00010c6489f5 bp 0x700003bfd790 sp 0x700003bfcf50
@@ -49,8 +49,8 @@ READ of size 31 at 0x700003bff22e thread T3
     #1 0x10311e7a7 in readheader(PACKFILE*, zquestheader*, bool, unsigned char) qst.cpp:2605
     #2 0x1031eecf4 in _lq_int(char const*, zquestheader*, miscQdata*, zctune*, bool, bool, unsigned char const*, unsigned char) qst.cpp:21630
     #3 0x1031f5d14 in loadquest(char const*, zquestheader*, miscQdata*, zctune*, bool, bool, unsigned char*, unsigned char, bool, unsigned char) qst.cpp:22516
-    #4 0x103091f14 in do_load_and_quit_command(char const*) zplayer.cpp:4435
-    #5 0x103093103 in _al_mangled_main zplayer.cpp:4449
+    #4 0x103091f14 in do_load_and_quit_command(char const*) zelda.cpp:4435
+    #5 0x103093103 in _al_mangled_main zelda.cpp:4449
     #6 0x10c391b7d in call_user_main osx_app_delegate.m:217
     #7 0x10c391b58 in +[AllegroAppDelegate app_main:] osx_app_delegate.m:228
     #8 0x7ff81abe6993 in __NSThread__start__+0x3f0 (Foundation:x86_64+0x58993)

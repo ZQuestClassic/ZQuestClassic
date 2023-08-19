@@ -175,7 +175,7 @@ else:
 
     if not args.skip_binaries:
         files.extend([
-            binary_file(build_dir / 'zplayer'),
+            binary_file(build_dir / 'zelda'),
             binary_file(build_dir / 'zquest'),
             binary_file(build_dir / 'zscript'),
             binary_file(build_dir / 'zlauncher'),

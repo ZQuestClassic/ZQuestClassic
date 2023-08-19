@@ -19,14 +19,14 @@ static uint32_t __dummy_;
 #endif
 
 #ifdef _WIN32
-	#define ZPLAYER_FILE "zplayer.exe"
+	#define ZELDA_FILE "zelda.exe"
 	#define ZQUEST_FILE "zquest.exe"
 	#define ZSCRIPT_FILE "zscript.exe"
 	#define ZLAUNCHER_FILE "zlauncher.exe"
 	#define ZUPDATER_FILE "zupdater.exe"
 	#define PYTHON "pythonw"
 #else
-	#define ZPLAYER_FILE "./zplayer"
+	#define ZELDA_FILE "./zelda"
 	#define ZQUEST_FILE "./zquest"
 	#define ZSCRIPT_FILE "./zscript"
 	#define ZLAUNCHER_FILE "./zlauncher"

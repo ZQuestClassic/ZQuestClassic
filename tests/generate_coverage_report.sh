@@ -2,7 +2,7 @@
 
 # You should first run something like:
 #   cmake -S . -B build -G 'Ninja Multi-Config'
-#   cmake --build build --config Coverage -t zplayer
+#   cmake --build build --config Coverage -t zelda
 #   python tests/run_replay_tests.py --build_folder build/Coverage --replay --ci
 
 set -e

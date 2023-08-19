@@ -84,7 +84,7 @@ Typically, on Windows you want to use Visual Studio as the cmake generator, but 
 > 1. Launch `cmd.exe` and configure the environment to use the Microsoft toolchain: `"C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvars64.bat"`
 Change 64 to 32 if you want to build 32bit.
 > 1. Configure: `cmake -S . -B build -G "Ninja Multi-Config" -DCMAKE_WIN32_EXECUTABLE=1`
-> 1. Build: `cmake --build build --config Debug -t zplayer`
+> 1. Build: `cmake --build build --config Debug -t zelda`
 
 One reason to use Ninja is to use clang instead of MSVC (just skip the environment configuration above);
 or to use `ccache` for faster builds.
