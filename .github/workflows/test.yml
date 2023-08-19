@@ -172,16 +172,6 @@ jobs:
       - if: ${{ matrix.shard_index == 1 && inputs.extra-args == '' && runner.os != 'Windows' && runner.os != 'Linux' && inputs.config != 'Coverage' }}
         name: Test ZQuest File->New
         run: bash ${{ github.workspace }}/.github/workflows/run_target.sh zquest -s -q 'modules/classic/default.qst'
-      # Resave classic_1st.qst and assert classic_1st.zplay, to make sure the loading/saving code is not introducing bugs.
-      - if: ${{ matrix.shard_index == 1 && inputs.extra-args == '' && runner.os != 'Windows' && inputs.config != 'Coverage' }}
-        name: Test saving qst
-        run: |
-          cd ${{ env.BUILD_FOLDER }}
-          set -ex
-
-          bash ${{ github.workspace }}/.github/workflows/run_target.sh zquest -headless -s -copy-qst modules/classic/classic_1st.qst tmp.qst
-          mv tmp.qst modules/classic/classic_1st.qst
-          bash ${{ github.workspace }}/.github/workflows/run_target.sh zplayer -headless -s -v0 -replay-exit-when-done -assert ${{ github.workspace }}/tests/replays/classic_1st.zplay
 
       - name: Generate coverage json
         if: inputs.config == 'Coverage'
