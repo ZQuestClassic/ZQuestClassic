@@ -10,9 +10,9 @@ from common import ReplayTestResults
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent
-test_dir = root_dir / '.tmp/test_replays'
-failing_replay = test_dir / 'failing.zplay'
-output_dir = test_dir / 'output'
+tmp_dir = root_dir / '.tmp/test_replays'
+failing_replay = tmp_dir / 'failing.zplay'
+output_dir = tmp_dir / 'output'
 
 sys.path.append(str((root_dir / 'scripts').absolute()))
 import run_target
@@ -23,9 +23,9 @@ def get_frame_from_snapshot_index(path: str) -> int:
 
 
 def create_test_replay(contents):
-    if test_dir.exists():
-        shutil.rmtree(test_dir)
-    test_dir.mkdir(parents=True)
+    if tmp_dir.exists():
+        shutil.rmtree(tmp_dir)
+    tmp_dir.mkdir(parents=True)
     failing_replay.write_text(contents)
 
 
@@ -49,7 +49,7 @@ class TestReplays(unittest.TestCase):
         ]
         args.append(failing_replay)
         output = subprocess.run(args, stdout=subprocess.PIPE, encoding='utf-8')
-        test_results_path = test_dir / 'output/test_results.json'
+        test_results_path = tmp_dir / 'output/test_results.json'
         if not test_results_path.exists():
             print(output.stdout)
             raise Exception('could not find test_results.json')
@@ -241,6 +241,26 @@ class TestReplays(unittest.TestCase):
         snapshots = get_snapshots()
         self.assertEqual(snapshots, [
             '0/failing/failing.zplay.1-unexpected.png',
+        ])
+    
+    def test_recording(self):
+        replay_path =  tmp_dir / 'recorded.zplay'
+        if replay_path.exists():
+            replay_path.unlink()
+        run_target.check_run('zplayer', [
+            '-headless',
+            '-v0',
+            '-replay-exit-when-done',
+            '-record', replay_path,
+            '-replay-debug',
+            '-frame', '100',
+            '-test', 'modules/classic/classic_1st.qst', '0', '119',
+        ])
+        run_target.check_run('zplayer', [
+            '-headless',
+            '-v0',
+            '-replay-exit-when-done',
+            '-assert', replay_path,
         ])
 
 
