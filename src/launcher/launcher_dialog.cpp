@@ -826,13 +826,8 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 							CONFIG_CHECKBOX_I("Check for updates on startup",App::launcher,"ZLAUNCH","check_for_updates",0,"Check for updates when starting ZLauncher. When a new version is available, ZLauncher will focus the Update tab on startup.")
 						)
 					),
-					Label(text = fmt::format("Current version: {}", getReleaseTag())),
-					Button(
-						text = "View Release Notes",
-						onClick = message::ZU_RELEASE_NOTES
-					),
 					Row(
-						Rows<2>(fitParent = true,
+						Rows<1>(fitParent = true,
 							btn_download_update = Button(
 								// TODO: Will change button text dynamically, but that breaks an assumption in Button::realize
 								// re: usage of its `text.data()`. So let's reserve a large enough string to workaround that.
@@ -841,8 +836,8 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 								onClick = message::ZU
 							),
 							btn_release_notes = Button(
-								text = "View Latest Release Notes",
-								onClick = message::ZU_RELEASE_NOTES_NEXT
+								text = "View Release Notes",
+								onClick = message::ZU_RELEASE_NOTES
 							)
 						)
 					),
@@ -916,19 +911,6 @@ bool LauncherDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		}
 		break;
 		case message::ZU_RELEASE_NOTES:
-		{
-			std::string url = fmt::format("https://www.github.com/{}/releases/tag/{}", getRepo(), getReleaseTag());
-#ifdef _WIN32
-			std::string cmd = "start " + url;
-			system(cmd.c_str());
-#elif defined(__APPLE__)
-			launch_process("open", {url});
-#else
-			launch_process("xdg-open", {url});
-#endif
-		}
-		break;
-		case message::ZU_RELEASE_NOTES_NEXT:
 		{
 			std::string url = fmt::format("https://www.github.com/{}/releases/tag/{}", getRepo(), next_version);
 #ifdef _WIN32
