@@ -107,11 +107,10 @@ std::shared_ptr<GUI::Widget> TestQstDialog::view()
 	test_init_data.clear();
 	test_init_data_names.clear();
 	int i = 1;
-	std::string qst_cfg_header = relativize_path(filepath);
-	while (strlen(zc_get_config(qst_cfg_header.c_str(), fmt::format("test_init_data_{}", i).c_str(), "")))
+	while (strlen(zc_get_config("zquest", fmt::format("test_init_data_{}", i).c_str(), "")))
 	{
-		std::string init_data = zc_get_config(qst_cfg_header.c_str(), fmt::format("test_init_data_{}", i).c_str(), "");
-		std::string name = zc_get_config(qst_cfg_header.c_str(), fmt::format("test_init_data_{}_name", i).c_str(), "");
+		std::string init_data = zc_get_config("zquest", fmt::format("test_init_data_{}", i).c_str(), "");
+		std::string name = zc_get_config("zquest", fmt::format("test_init_data_{}_name", i).c_str(), "");
 		if (name.empty())
 			name = fmt::format("Init Data {}", i);
 		test_init_data.push_back(std::move(init_data));
@@ -198,9 +197,8 @@ std::shared_ptr<GUI::Widget> TestQstDialog::view()
 
 static void save_test_init_data(int i)
 {
-	std::string qst_cfg_header = relativize_path(filepath);
-	zc_set_config(qst_cfg_header.c_str(), fmt::format("test_init_data_{}", i + 1).c_str(), test_init_data[i].c_str());
-	zc_set_config(qst_cfg_header.c_str(), fmt::format("test_init_data_{}_name", i + 1).c_str(), test_init_data_names[i].c_str());
+	zc_set_config("zquest", fmt::format("test_init_data_{}", i + 1).c_str(), test_init_data[i].c_str());
+	zc_set_config("zquest", fmt::format("test_init_data_{}_name", i + 1).c_str(), test_init_data_names[i].c_str());
 }
 
 bool TestQstDialog::handleMessage(const GUI::DialogMessage<message>& msg)
