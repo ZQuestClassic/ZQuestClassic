@@ -1,6 +1,6 @@
-# ZQuest Classic
+# Zelda Classic
 
-ZQuest Classic is an engine for making games similar to the original NES Zelda.
+Zelda Classic is a game and editing tool that lets you create custom Legend of Zelda quests.
 
 Homepage:
 https://www.zeldaclassic.com/
@@ -17,7 +17,7 @@ We support Windows, OSX, and Linux. There is also an experimental [web version](
 
 See [`docs/building.md`](./docs/building.md).
 
-ZQuest Classic builds Allegro 5 from source. The code base still uses Allegro 4 APIs, but uses [Allegro-Legacy](https://github.com/NewCreature/Allegro-Legacy) to translate into Allegro 5.
+Zelda Classic builds Allegro 5 from source. The code base still uses Allegro 4 APIs, but uses [Allegro-Legacy](https://github.com/NewCreature/Allegro-Legacy) to translate into Allegro 5.
 
 The compiled binaries require a number of resource files to be available at runtime. By default, building the project will copy those files to the correct location. They will only be copied if they do not already exist–so you can modify these files (like the various `.cfg` files) in your build directory to your liking. To completely refresh the resources file, build the `copy_resources` target (ex: `cmake --build build -t copy_resources`)
 
@@ -31,9 +31,9 @@ python3 tests/run_replay_tests.py --filter tests/replays/classic_1st.zplay
 
 See [`docs/replays.md`](./docs/replays.md) for more.
 
-## Contributing to ZQuest Classic
+## Contributing to Zelda Classic
 
-We encourage third-party submission of patches and new features! If you're interesting in contributing to ZQuest Classic's development, please read the CONTRIBUTE file.
+We encourage third-party submission of patches and new features! If you're interesting in contributing to Zelda Classic's development, please read the CONTRIBUTE file.
 
 ## License
 
