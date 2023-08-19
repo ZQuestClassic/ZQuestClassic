@@ -67,7 +67,7 @@ jobs:
         uses: nschloe/action-cached-lfs-checkout@d6efedcb8fc03d006e1e77743718e26234ed2c97
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.10' 
+          python-version: '3.11.4'
       - if: ${{ !contains(inputs.runs-on, 'ubuntu') }}
         run: pip install requests PyGithub==1.58.2 requests discord.py watchdog Pillow intervaltree cutie
       - if: ${{ contains(inputs.runs-on, 'ubuntu') }}
