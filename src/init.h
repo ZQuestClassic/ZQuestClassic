@@ -14,8 +14,8 @@
 #include "base/zc_alleg.h"
 #include <string>
 
-struct gamedata;
-struct zinitdata;
+class gamedata;
+class zinitdata;
 
 #define MAXINITTABS 5
 
