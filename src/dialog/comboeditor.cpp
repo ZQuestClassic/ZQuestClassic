@@ -1,6 +1,5 @@
 #include "comboeditor.h"
 #include "combowizard.h"
-#include "gui/key.h"
 #include "info.h"
 #include "alert.h"
 #include "base/zsys.h"
@@ -2265,10 +2264,6 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 			MinusPad=message::MINUSCS,
 			Minus=message::MINUSCS,
 			T=message::TILESEL,
-			Shift+Minus=message::MINUSCOMBO,
-			Shift+MinusPad=message::MINUSCOMBO,
-			Shift+Equals=message::PLUSCOMBO,
-			Shift+PlusPad=message::PLUSCOMBO,
 		},
 		Column(
 			Rows<4>(padding = 0_px,
@@ -3770,16 +3765,6 @@ void ComboEditorDialog::updateFlip(int nflip)
 
 	local_comboref.flip = nflip;
 }
-
-void ComboEditorDialog::apply_combo()
-{
-	if(!hasCTypeEffects(local_comboref.type))
-		local_comboref.triggerflags[0] &= ~combotriggerCMBTYPEFX;
-	combobuf[index] = local_comboref;
-	saved = false;
-	edited = true;
-}
-
 bool ComboEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 {
 	switch(msg.message)
@@ -3836,32 +3821,6 @@ bool ComboEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			updateCSet();
 			return false;
 		}
-		case message::PLUSCOMBO:
-		{
-			// We could remove this check, but user would not really know what combo they were editing any more.
-			// If we showed the current tile in the corner somewhere, we could remove this.
-			if(cmb_tab1) break;
-			if(index == combobuf.size() - 1) break;
-
-			apply_combo();
-			index += 1;
-			local_comboref = combobuf[index];
-			rerun_dlg = true;
-			return true;
-		}
-		case message::MINUSCOMBO:
-		{
-			// We could remove this check, but user would not really know what combo they were editing any more.
-			// If we showed the current tile in the corner somewhere, we could remove this.
-			if(cmb_tab1) break;
-			if(index==0) break;
-
-			apply_combo();
-			index -= 1;
-			local_comboref = combobuf[index];
-			rerun_dlg = true;
-			return true;
-		}
 		case message::TILESEL:
 		{
 			if(cmb_tab1) break;
@@ -3902,7 +3861,11 @@ bool ComboEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			break;
 		
 		case message::OK:
-			apply_combo();
+			saved = false;
+			if(!hasCTypeEffects(local_comboref.type))
+				local_comboref.triggerflags[0] &= ~combotriggerCMBTYPEFX;
+			combobuf[index] = local_comboref;
+			edited = true;
 			return true;
 
 		case message::CANCEL:

@@ -28,7 +28,7 @@ class ComboEditorDialog: public GUI::Dialog<ComboEditorDialog>
 {
 public:
 	enum class message { REFR_INFO, OK, CANCEL, COMBOTYPE, COMBOFLAG, HFLIP, VFLIP,
-		ROTATE, PLUSCS, MINUSCS, MINUSCOMBO, PLUSCOMBO, CLEAR, DEFAULT, TILESEL, WIZARD };
+		ROTATE, PLUSCS, MINUSCS, CLEAR, DEFAULT, TILESEL, WIZARD };
 	
 
 	std::shared_ptr<GUI::Widget> view() override;
@@ -44,7 +44,6 @@ private:
 	void updateAnimation();
 	void flipSwatches(int rot, int hflip, int vflip);
 	void updateFlip(int nflip);
-	void apply_combo();
 	std::shared_ptr<GUI::Window> window;
 	std::shared_ptr<GUI::TextField> tf_initd[2];
 	std::shared_ptr<GUI::Label> l_initds[2];
