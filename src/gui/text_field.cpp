@@ -484,7 +484,6 @@ void TextField::realize(DialogRunner& runner)
 	}
 	else if (tfType == type::TEXT_LEGACY)
 	{
-		#ifdef IS_ZQUEST
 		alDialog = runner.push(shared_from_this(), DIALOG{
 			newGUIProc<d_legacy_edit_proc>,
 			x, y, getWidth(), getHeight(),
@@ -494,7 +493,6 @@ void TextField::realize(DialogRunner& runner)
 			static_cast<int32_t>(maxLength), 0, // d1, d2
 			buffer.get(), widgFont, nullptr // dp, dp2, dp3
 			});
-		#endif // IS_ZQUEST
 	}
 	else
 	{
