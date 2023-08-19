@@ -9,6 +9,7 @@
 #include <zq/gui/dmap_minimap.h>
 #include <zq/gui/dmap_mapgrid.h>
 #include <gui/list.h>
+#include <gui/frame.h>
 #include <gui/drop_down_list.h>
 #include <gui/label.h>
 #include <gui/switcher.h>
@@ -68,6 +69,8 @@ private:
 	std::shared_ptr<GUI::Label> l_map_initds[8];
 	std::shared_ptr<GUI::Button> ib_map_initds[8];
 	std::shared_ptr<GUI::TextField> tf_map_initds[8];
+	std::shared_ptr<GUI::Frame> compass_frame;
+	std::shared_ptr<GUI::Frame> continue_frame;
 	std::string h_map_initds[8];
 
 	std::shared_ptr<GUI::Switcher> string_switch;

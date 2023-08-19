@@ -11,17 +11,18 @@ using namespace GUI;
 
 void custom_vsync();
 
-void drawdmapscreenmarker(BITMAP* dest, int32_t pos, bool large, int dx, int dy, byte c1, byte c2)
+void drawdmapscreenmarker(BITMAP* dest, int32_t pos, bool large, int dx, int dy, byte c1, byte c2, bool inner)
 {
 	int32_t cols = (large ? 8 : 16);
 	int32_t col_width = large ? 22 : 11;
 	int32_t l = 10;
 	int32_t x = pos % 16;
 	int32_t y = pos / 16;
+	int32_t offs = inner ? 2 : 0;
 	if (x < cols)
 	{
-		rect(dest, dx + (x * col_width) - 1, dy + (y * l) - 1, dx + (x * col_width + col_width) + 1, dy + ((y * l) + l) + 1, c1);
-		rect(dest, dx + (x * col_width), dy + (y * l), dx + (x * col_width + col_width), dy + ((y * l) + l), c2);
+		rect(dest, dx + (x * col_width) - 1 + offs, dy + (y * l) - 1 + offs, dx + (x * col_width + col_width) + 1 - offs, dy + ((y * l) + l) + 1 - offs, c1);
+		rect(dest, dx + (x * col_width) + offs, dy + (y * l) + offs, dx + (x * col_width + col_width) - offs, dy + ((y * l) + l) - offs, c2);
 	}
 }
 
@@ -79,14 +80,17 @@ namespace GUI
 				}
 			}
 
-			if (widg->getCompassScreen() > -1 && widg->getShowCompass())
+			auto compass_screen = widg->getShowCompass() ? widg->getCompassScreen() : -1;
+			auto continue_screen = widg->getShowContinue() ? widg->getContinueScreen() : -1;
+
+			if (compass_screen > -1)
 			{
-				drawdmapscreenmarker(tempbmp, widg->getCompassScreen(), d->d1, d->x + header_width + 2, d->y + header_height + 2, 0xE4, 0xEC);
+				drawdmapscreenmarker(tempbmp, compass_screen, d->d1, d->x + header_width + 2, d->y + header_height + 2, 0xE4, 0xEC, compass_screen == continue_screen);
 			}
 
-			if (widg->getContinueScreen() > -1 && widg->getShowContinue())
+			if (continue_screen > -1)
 			{
-				drawdmapscreenmarker(tempbmp, widg->getContinueScreen(), d->d1, d->x + header_width + 2, d->y + header_height + 2, 0xE2, 0xEA);
+				drawdmapscreenmarker(tempbmp, continue_screen, d->d1, d->x + header_width + 2, d->y + header_height + 2, 0xE2, 0xEA, false);
 			}
 
 			masked_blit(tempbmp, screen, 0, 0, 0, 0, screen->w, screen->h);

@@ -214,7 +214,7 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 					refreshGridSquares();
 				},
 				TabRef(name = "Mechanics", Column(
-					Rows<6>(
+					Row(
 						Label(text = "Map:"),
 						DropDownList(data = list_maps,
 							fitParent = true,
@@ -261,14 +261,16 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 								local_dmap.level = val;
 							})
 					),
-					Rows<2>(
+					Rows<4>(
 						dmap_mmap = DMapMinimap(
+							colSpan = 2,
 							rightMargin = 6_px,
 							curMap = local_dmap.map + 1,
 							smallDMap = sm_dmap(local_dmap.type),
 							offset = local_dmap.xoff
 						),
 						dmap_grid = DMapMapGrid(
+							colSpan = 2,
 							leftMargin = 6_px,
 							mapGridPtr = &local_dmap.grid[0],
 							continueScreen = local_dmap.cont, compassScreen = local_dmap.compass,
@@ -285,59 +287,82 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 									local_dmap.cont = continueScreen;
 									continue_field->setVal(continueScreen);
 								}
-							})
-					),
-					Rows<4>(
+							}),
 						dmap_slider = Slider(
-							colSpan = 2, fitParent = true, rightMargin = 64_px,
+							colSpan = 2, fitParent = true, 
 							disabled = !sm_dmap(local_dmap.type),
 							offset = local_dmap.xoff,
+							maxheight = 16_px,
 							minOffset = -7, maxOffset = 15,
 							onValChangedFunc = [&](int32_t offset)
 							{
 								local_dmap.xoff = offset;
 								dmap_mmap->setOffset(offset);
 							}),
-						Label(text = "Compass: 0x", hAlign = 1.0, rightPadding = 0_px),
-						compass_field = TextField(
-							hAlign = 0.0,
-							fitParent = true, minwidth = 2_em,
-							type = GUI::TextField::type::INT_HEX,
-							low = 0x00, high = 0x7F, val = local_dmap.compass,
-							onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
-							{
-								dmap_grid->setCompassScreen(val);
-								local_dmap.compass = val;
-							}),
-						Checkbox(checked = local_dmap.type & dmfCONTINUE,
-							colSpan = 2, text = "Continue here",
-							onToggleFunc = [&](bool state)
-							{
-								SETFLAG(local_dmap.type, dmfCONTINUE, state);
-								refreshGridSquares();
-							}),
-						Label(text = "Continue: 0x", hAlign = 1.0, rightPadding = 0_px),
-						continue_field = TextField(
-							hAlign = 0.0,
-							fitParent = true, minwidth = 2_em,
-							type = GUI::TextField::type::INT_HEX,
-							low = 0, high = 127, val = local_dmap.cont,
-							onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
-							{
-								dmap_grid->setContinueScreen(val);
-								local_dmap.cont = val;
-							}),
-						DummyWidget(colSpan = 2),
-						Label(text = "Mirror DMap:", hAlign = 1.0),
-						TextField(
-							hAlign = 0.0,
-							fitParent = true, minwidth = 3_em,
-							type = GUI::TextField::type::INT_DECIMAL,
-							low = -1, high = 511, val = local_dmap.mirrorDMap,
-							onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
-							{
-								local_dmap.mirrorDMap = val;
-							})
+						Row(colSpan = 2,
+							Label(text = "Mirror DMap:", hAlign = 1.0),
+							TextField(
+								hAlign = 0.0,
+								minwidth = 3_em,
+								type = GUI::TextField::type::INT_DECIMAL,
+								low = -1, high = 511, val = local_dmap.mirrorDMap,
+								onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
+								{
+									local_dmap.mirrorDMap = val;
+								})
+						),
+						Row(colSpan = 2, hAlign = 0.0,
+							INFOBTN("Sets the player's continue point to the continue screen when entering this DMap in most circumstances."),
+							Checkbox(checked = local_dmap.type & dmfCONTINUE,
+								text = "Continue here",
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_dmap.type, dmfCONTINUE, state);
+									refreshGridSquares();
+								})
+						),
+						continue_frame = Frame(colSpan = 2, style = GUI::Frame::style::GREEN,
+							Row(padding = 0_px,
+								Label(text = "Continue: 0x", hAlign = 1.0, rightPadding = 0_px),
+								continue_field = TextField(
+									hAlign = 0.0,
+									fitParent = true, minwidth = 2_em,
+									type = GUI::TextField::type::INT_HEX,
+									low = 0, high = 127, val = local_dmap.cont,
+									onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
+									{
+										dmap_grid->setContinueScreen(val);
+										local_dmap.cont = val;
+									}),
+								INFOBTN("The screen where the player spawns in the map in some circumstances.\nCtrl + Click to place.")
+							)
+						),
+						Row(colSpan = 2, hAlign = 0.0,
+							INFOBTN("If checked, no compass marker will appear on the subscreen minimap."),
+							Checkbox(checked = local_dmap.flags & dmfNOCOMPASS,
+								text = "No Compass",
+								onToggleFunc = [&](bool state)
+								{
+									SETFLAG(local_dmap.flags, dmfNOCOMPASS, state);
+									refreshGridSquares();
+								})
+						),
+						compass_frame = Frame(colSpan = 2, style = GUI::Frame::style::RED,
+							Row(padding = 0_px,
+								Label(text = "Compass: 0x", hAlign = 1.0, rightPadding = 0_px),
+								compass_field = TextField(
+									hAlign = 0.0,
+									fitParent = true, minwidth = 2_em,
+									type = GUI::TextField::type::INT_HEX,
+									low = 0x00, high = 0x7F, val = local_dmap.compass,
+									onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
+									{
+										dmap_grid->setCompassScreen(val);
+										local_dmap.compass = val;
+									}),
+								INFOBTN("The screen where the compass marker appears on the map. \nAlt + Click to place.")
+							)
+						)
 					)
 				)),
 				TabRef(name = "Appearance", Column(
@@ -430,129 +455,130 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 								local_dmap.midi = val - 1;
 							})
 					),
-					Column(
-						framed = true, frameText = "Enhanced Music",
-						Rows<2>(
-							tmusic_field = TextField(
-								colSpan = 2,
-								fitParent = true,
-								type = GUI::TextField::type::TEXT,
-								read_only = true, disabled = disableEnhancedMusic(),
-								text = local_dmap.tmusic),
-							Label(text = "Track:"),
-							tmusic_track_list = DropDownList(data = list_tracks,
-								fitParent = true,
-								selectedValue = local_dmap.tmusictrack + 1,
-								disabled = disableMusicTracks(),
-								onSelectFunc = [&](int32_t val)
-								{
-									local_dmap.tmusictrack = val - 1;
-								})
-						),
-						Rows<2>(
-							Rows<2>(framed = true, frameText = "Loop Points",
-								Label(text = "Start:", hAlign = 1.0),
-								tmusic_start_field = TextField(
-									fitParent = true, hAlign = 0.0,
-									type = GUI::TextField::type::FIXED_DECIMAL,
-									disabled = disableEnhancedMusic(),
-									low = 0, high = 2147479999,
-									val = local_dmap.tmusic_loop_start,
-									onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
+					Frame(title = "Enhanced Music",
+						Column(
+							Rows<2>(
+								tmusic_field = TextField(
+									colSpan = 2,
+									fitParent = true,
+									type = GUI::TextField::type::TEXT,
+									read_only = true, disabled = disableEnhancedMusic(),
+									text = local_dmap.tmusic),
+								Label(text = "Track:"),
+								tmusic_track_list = DropDownList(data = list_tracks,
+									fitParent = true,
+									selectedValue = local_dmap.tmusictrack + 1,
+									disabled = disableMusicTracks(),
+									onSelectFunc = [&](int32_t val)
 									{
-										local_dmap.tmusic_loop_start = val;
-									}),
-								Label(text = "End:", hAlign = 1.0),
-								tmusic_end_field = TextField(
-									fitParent = true, hAlign = 0.0,
-									type = GUI::TextField::type::FIXED_DECIMAL,
-									disabled = disableEnhancedMusic(),
-									val = local_dmap.tmusic_loop_end,
-									low = 0, high = 2147479999,
-									onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
-									{
-										local_dmap.tmusic_loop_end = val;
+										local_dmap.tmusictrack = val - 1;
 									})
 							),
-							Rows<2>(framed = true, frameText = "Crossfades",
-								Label(text = "In:", hAlign = 1.0),
-								tmusic_xfadein_field = TextField(
-									fitParent = true, hAlign = 0.0,
-									type = GUI::TextField::type::INT_DECIMAL,
-									disabled = disableEnhancedMusic(),
-									val = local_dmap.tmusic_xfade_in,
-									low = 0, high = 65535,
-									onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
+							Rows<2>(
+								Rows<2>(framed = true, frameText = "Loop Points",
+									Label(text = "Start:", hAlign = 1.0),
+									tmusic_start_field = TextField(
+										fitParent = true, hAlign = 0.0,
+										type = GUI::TextField::type::FIXED_DECIMAL,
+										disabled = disableEnhancedMusic(),
+										low = 0, high = 2147479999,
+										val = local_dmap.tmusic_loop_start,
+										onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
+										{
+											local_dmap.tmusic_loop_start = val;
+										}),
+									Label(text = "End:", hAlign = 1.0),
+									tmusic_end_field = TextField(
+										fitParent = true, hAlign = 0.0,
+										type = GUI::TextField::type::FIXED_DECIMAL,
+										disabled = disableEnhancedMusic(),
+										val = local_dmap.tmusic_loop_end,
+										low = 0, high = 2147479999,
+										onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
+										{
+											local_dmap.tmusic_loop_end = val;
+										})
+								),
+								Rows<2>(framed = true, frameText = "Crossfades",
+									Label(text = "In:", hAlign = 1.0),
+									tmusic_xfadein_field = TextField(
+										fitParent = true, hAlign = 0.0,
+										type = GUI::TextField::type::INT_DECIMAL,
+										disabled = disableEnhancedMusic(),
+										val = local_dmap.tmusic_xfade_in,
+										low = 0, high = 65535,
+										onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
+										{
+											local_dmap.tmusic_xfade_in = val;
+										}),
+									Label(text = "Out:", hAlign = 1.0),
+									tmusic_xfadeout_field = TextField(
+										fitParent = true, hAlign = 0.0,
+										type = GUI::TextField::type::INT_DECIMAL,
+										disabled = disableEnhancedMusic(),
+										val = local_dmap.tmusic_xfade_out,
+										low = 0, high = 65535,
+										onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
+										{
+											local_dmap.tmusic_xfade_out = val;
+										})
+								)
+							),
+							Rows<2>(
+								Button(text = "Load",
+									onPressFunc = [&]()
 									{
-										local_dmap.tmusic_xfade_in = val;
+										if (getname("Load DMap Music", (char*)zcmusic_types, NULL, tmusicpath, false))
+										{
+											strcpy(tmusicpath, temppath);
+											char* tmfname = get_filename(tmusicpath);
+
+											if (strlen(tmfname) > 55)
+											{
+												jwin_alert("Error", "Filename too long", "(>55 characters", NULL, "O&K", NULL, 'k', 0, get_zc_font(font_lfont));
+												temppath[0] = 0;
+											}
+											else
+											{
+												ZCMUSIC* tempdmapzcmusic = zcmusic_load_for_quest(tmfname, filepath);
+
+												int32_t numtracks = 1;
+												if (tempdmapzcmusic != NULL)
+												{
+													numtracks = zcmusic_get_tracks(tempdmapzcmusic);
+													numtracks = (numtracks < 2) ? 1 : numtracks;
+													list_tracks = GUI::ListData::numbers(false, 1, numtracks);
+													tmusic_track_list->setSelectedValue(1);
+												
+													std::string str;
+													str.assign(tempdmapzcmusic->filename);
+													strncpy(local_dmap.tmusic, str.c_str(), 56);
+													local_dmap.tmusic[55] = 0;
+
+													zcmusic_unload_file(tempdmapzcmusic);
+												}
+
+												tmusic_field->setText(local_dmap.tmusic);
+												tmusic_track_list->setDisabled(disableMusicTracks());
+												tmusic_start_field->setDisabled(disableEnhancedMusic());
+												tmusic_end_field->setDisabled(disableEnhancedMusic());
+												tmusic_xfadein_field->setDisabled(disableEnhancedMusic());
+												tmusic_xfadeout_field->setDisabled(disableEnhancedMusic());
+											}
+										}
 									}),
-								Label(text = "Out:", hAlign = 1.0),
-								tmusic_xfadeout_field = TextField(
-									fitParent = true, hAlign = 0.0,
-									type = GUI::TextField::type::INT_DECIMAL,
-									disabled = disableEnhancedMusic(),
-									val = local_dmap.tmusic_xfade_out,
-									low = 0, high = 65535,
-									onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
+								Button(text = "Clear",
+									onPressFunc = [&]()
 									{
-										local_dmap.tmusic_xfade_out = val;
+										memset(local_dmap.tmusic, 0, 56);
+										tmusic_field->setText("");
+										tmusic_track_list->setDisabled(true);
+										tmusic_start_field->setDisabled(true);
+										tmusic_end_field->setDisabled(true);
+										tmusic_xfadein_field->setDisabled(true);
+										tmusic_xfadeout_field->setDisabled(true);
 									})
 							)
-						),
-						Rows<2>(
-							Button(text = "Load",
-								onPressFunc = [&]()
-								{
-									if (getname("Load DMap Music", (char*)zcmusic_types, NULL, tmusicpath, false))
-									{
-										strcpy(tmusicpath, temppath);
-										char* tmfname = get_filename(tmusicpath);
-
-										if (strlen(tmfname) > 55)
-										{
-											jwin_alert("Error", "Filename too long", "(>55 characters", NULL, "O&K", NULL, 'k', 0, get_zc_font(font_lfont));
-											temppath[0] = 0;
-										}
-										else
-										{
-											ZCMUSIC* tempdmapzcmusic = zcmusic_load_for_quest(tmfname, filepath);
-
-											int32_t numtracks = 1;
-											if (tempdmapzcmusic != NULL)
-											{
-												numtracks = zcmusic_get_tracks(tempdmapzcmusic);
-												numtracks = (numtracks < 2) ? 1 : numtracks;
-												list_tracks = GUI::ListData::numbers(false, 1, numtracks);
-												tmusic_track_list->setSelectedValue(1);
-												
-												std::string str;
-												str.assign(tempdmapzcmusic->filename);
-												strncpy(local_dmap.tmusic, str.c_str(), 56);
-												local_dmap.tmusic[55] = 0;
-
-												zcmusic_unload_file(tempdmapzcmusic);
-											}
-
-											tmusic_field->setText(local_dmap.tmusic);
-											tmusic_track_list->setDisabled(disableMusicTracks());
-											tmusic_start_field->setDisabled(disableEnhancedMusic());
-											tmusic_end_field->setDisabled(disableEnhancedMusic());
-											tmusic_xfadein_field->setDisabled(disableEnhancedMusic());
-											tmusic_xfadeout_field->setDisabled(disableEnhancedMusic());
-										}
-									}
-								}),
-							Button(text = "Clear",
-								onPressFunc = [&]()
-								{
-									memset(local_dmap.tmusic, 0, 56);
-									tmusic_field->setText("");
-									tmusic_track_list->setDisabled(true);
-									tmusic_start_field->setDisabled(true);
-									tmusic_end_field->setDisabled(true);
-									tmusic_xfadein_field->setDisabled(true);
-									tmusic_xfadeout_field->setDisabled(true);
-								})
 						)
 					)
 				)),
@@ -560,23 +586,22 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 					TabPanel(
 						ptr = &editdmap_tab,
 						TabRef(name = "Without Map",
-							Rows<2>(
+							Columns<3>(
 								Label(text = "Minimap"),
-								Label(text = "Large"),
-								Column(
-									SelTileSwatch(
-										tile = local_dmap.minimap_1_tile,
-										cset = local_dmap.minimap_1_cset,
-										tilewid = 5, tilehei = 3,
-										showvals = false,
-										onSelectFunc = [&](int32_t t, int32_t c, int32_t, int32_t)
-										{
-											local_dmap.minimap_1_tile = t;
-											cset = local_dmap.minimap_1_cset = c;
-										}),
-									Label(text = "\n")
-								),
 								SelTileSwatch(
+									tile = local_dmap.minimap_1_tile,
+									cset = local_dmap.minimap_1_cset,
+									tilewid = 5, tilehei = 3,
+									showvals = false,
+									onSelectFunc = [&](int32_t t, int32_t c, int32_t, int32_t)
+									{
+										local_dmap.minimap_1_tile = t;
+										cset = local_dmap.minimap_1_cset = c;
+									}),
+								DummyWidget(),
+									Label(text = "Large"),
+									SelTileSwatch(
+										rowSpan = 2,
 									tile = local_dmap.largemap_1_tile,
 									cset = local_dmap.largemap_1_cset,
 									tilewid = 9, tilehei = 5,
@@ -589,23 +614,22 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 							)
 						),
 						TabRef(name = "With Map",
-							Rows<2>(
+							Columns<3>(
 								Label(text = "Minimap"),
-								Label(text = "Large"),
-								Column(
-									SelTileSwatch(
-										tile = local_dmap.minimap_2_tile,
-										cset = local_dmap.minimap_2_cset,
-										tilewid = 5, tilehei = 3,
-										showvals = false,
-										onSelectFunc = [&](int32_t t, int32_t c, int32_t, int32_t)
-										{
-											local_dmap.minimap_2_tile = t;
-											local_dmap.minimap_2_cset = c;
-										}),
-									Label(text = "Setting this tile disables\nthe classic NES minimap.")
-								),
 								SelTileSwatch(
+									tile = local_dmap.minimap_2_tile,
+									cset = local_dmap.minimap_2_cset,
+									tilewid = 5, tilehei = 3,
+									showvals = false,
+									onSelectFunc = [&](int32_t t, int32_t c, int32_t, int32_t)
+									{
+										local_dmap.minimap_2_tile = t;
+										local_dmap.minimap_2_cset = c;
+									}),
+								Label(text = "Setting this tile disables\nthe classic NES minimap.", vAlign = 0.0),
+								Label(text = "Large"),
+								SelTileSwatch(
+									rowSpan = 2,
 									tile = local_dmap.largemap_2_tile,
 									cset = local_dmap.largemap_2_cset,
 									tilewid = 9, tilehei = 5,
@@ -640,8 +664,7 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 								DMAP_CB(flags, dmfWAVY, 1, "Underwater Wave Effect", "Draws a wavy effect over the whole screen."),
 								DMAP_CB(flags, dmfMINIMAPCOLORFIX, 1, "Use Minimap Foreground Color 2", "If checked, the NES and Interior minimap squares will use 'Minimap Foreground 2' from misc colors."),
 								DMAP_CB(flags, dmfLAYER3BG, 1, "Layer 3 Is Background On All Screens", "If checked, the default state of the 'Toggle Layer 3 is Background' screen flag will be inverted. All screens will default to background and the screen flag turns it off."),
-								DMAP_CB(flags, dmfLAYER2BG, 1, "Layer 2 Is Background On All Screens", "If checked, the default state of the 'Toggle Layer 2 is Background' screen flag will be inverted. All screens will default to background and the screen flag turns it off."),
-								DMAP_CB(flags, dmfNOCOMPASS, 1, "Don't Display Compass Marker In Minimap", "If checked, no compass marker will appear on the subscreen minimap.")
+								DMAP_CB(flags, dmfLAYER2BG, 1, "Layer 2 Is Background On All Screens", "If checked, the default state of the 'Toggle Layer 2 is Background' screen flag will be inverted. All screens will default to background and the screen flag turns it off.")
 							)
 						)),
 						TabRef(name = "NES", Column(hAlign = 0.0, vAlign = 0.0,
@@ -803,8 +826,12 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 
 void EditDMapDialog::refreshGridSquares()
 {
-	dmap_grid->setShowSquares(local_dmap.type & dmfCONTINUE, 
-		!(local_dmap.flags & dmfNOCOMPASS) && (local_dmap.type & dmfTYPE) != dmOVERW);
+	bool showcont = true; 
+	bool showcomp = !(local_dmap.flags & dmfNOCOMPASS) && (local_dmap.type & dmfTYPE) != dmOVERW;
+	dmap_grid->setShowSquares(showcont, showcomp);
+	continue_frame->setStyle(showcont ? GUI::Frame::style::GREEN : GUI::Frame::style::INVIS);
+	compass_frame->setStyle(showcomp ? GUI::Frame::style::RED : GUI::Frame::style::INVIS);
+	pendDraw();
 }
 
 void EditDMapDialog::refreshDMapStrings()
