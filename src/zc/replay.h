@@ -84,4 +84,12 @@ void replay_sync_rng();
 int replay_get_mouse(int index);
 void replay_set_mouse(int index, int value);
 
+enum ReplayStateType
+{
+	MusicPosition = 1,
+	SfxPosition,
+};
+
+int replay_get_state(ReplayStateType state_type, int fn());
+
 #endif
