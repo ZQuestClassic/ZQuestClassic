@@ -193,14 +193,14 @@ def download_release(gh: Github, repo_str: str, channel: str, tag: str):
     url = get_release_package_url(gh, repo_str, channel, tag)
     r = requests.get(url)
     if channel == 'mac':
-        (dest / 'ZeldaClassic.dmg').write_bytes(r.content)
+        (dest / 'ZQuestClassic.dmg').write_bytes(r.content)
         subprocess.check_call(['hdiutil', 'attach', '-mountpoint',
-                              str(dest / 'zc-mounted'), str(dest / 'ZeldaClassic.dmg')], stdout=subprocess.DEVNULL)
-        shutil.copytree(dest / 'zc-mounted/ZeldaClassic.app',
-                        dest / 'ZeldaClassic.app')
+                              str(dest / 'zc-mounted'), str(dest / 'ZQuestClassic.dmg')], stdout=subprocess.DEVNULL)
+        zc_app_path = next((dest / 'zc-mounted').glob('*.app'))
+        shutil.copytree(zc_app_path, dest / zc_app_path.name)
         subprocess.check_call(['hdiutil', 'unmount', str(
             dest / 'zc-mounted')], stdout=subprocess.DEVNULL)
-        (dest / 'ZeldaClassic.dmg').unlink()
+        (dest / 'ZQuestClassic.dmg').unlink()
     elif url.endswith('.tar.gz'):
         tf = tarfile.open(fileobj=io.BytesIO(r.content), mode='r')
         tf.extractall(dest, filter='data')

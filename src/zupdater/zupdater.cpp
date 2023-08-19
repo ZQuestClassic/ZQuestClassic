@@ -98,7 +98,7 @@ static std::pair<std::string, std::map<std::string, std::string>> get_output_map
 static bool is_in_osx_application_bundle()
 {
 #ifdef __APPLE__
-    return fs::current_path().string().find("/ZeldaClassic.app/") != std::string::npos;
+    return fs::current_path().string().find("/ZQuestClassic.app/") != std::string::npos;
 #else
     return false;
 #endif
