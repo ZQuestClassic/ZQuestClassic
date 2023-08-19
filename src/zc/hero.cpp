@@ -13687,16 +13687,13 @@ void HeroClass::mod_steps(std::vector<zfix*>& v)
 		if(!m->valid) continue;
 		newcombo const& cmb = combobuf[m->data[slow_cpos]];
 		
-		if (cmb.speed_mult != 1 || cmb.speed_div || cmb.speed_add)
+		for(zfix* stp : v)
 		{
-			for(zfix* stp : v)
-			{
-				zfix& pix = *stp;
-				pix *= cmb.speed_mult;
-				if(cmb.speed_div)
-					pix /= cmb.speed_div;
-				pix += cmb.speed_add;
-			}
+			zfix& pix = *stp;
+			pix *= cmb.speed_mult;
+			if(cmb.speed_div)
+				pix /= cmb.speed_div;
+			pix += cmb.speed_add;
 		}
 		if(q > 0 && cmb.type == cBRIDGE)
 		{
