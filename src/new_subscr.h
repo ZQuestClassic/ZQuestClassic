@@ -86,21 +86,30 @@ struct SubscrMTInfo
 	int32_t write(PACKFILE *f) const;
 };
 
+#define SUBSCR_TRANSITION_MAXARG 4
+#define SUBSCR_TRANS_NOHIDESELECTOR  0x0001
 struct SubscrTransition
 {
 	byte type;
 	byte tr_sfx;
-	int32_t arg[3];
+	word flags;
+	int32_t arg[SUBSCR_TRANSITION_MAXARG];
 	
 	void clear();
+	bool draw(BITMAP* dest, BITMAP* p1, BITMAP* p2, int dx, int dy);
 	int32_t read(PACKFILE *f, word s_version);
 	int32_t write(PACKFILE *f) const;
+	static byte num_args(byte ty);
 };
 
 enum //Transition types
-{
-	sstrINSTANT
+{	//args in [], arg types int-based or listed in {}
+	sstrINSTANT, //Occurs instantly, []
+	sstrSLIDE, //Slide out, [dir4, spd{zfix}]
+	sstrPIXEL, //Pixellate between, [flags(inv), duration, xofs, yofs]
+	sstrMAX
 };
+#define TR_PIXELATE_INVERT 0x01
 
 enum //selection directions
 {
@@ -611,6 +620,7 @@ protected:
 #define SUBSCR_CURITM_IGNR_SP_SELTEXT   SUBSCRFLAG_SPEC_03
 #define SUBSCR_CURITM_IGNR_SP_DISPLAY   SUBSCRFLAG_SPEC_04
 #define SUBSCR_CURITM_NO_INTER_WO_ITEM  SUBSCRFLAG_SPEC_05
+#define SUBSCR_CURITM_NO_INTER_WO_EQUIP SUBSCRFLAG_SPEC_06
 struct SW_ItemSlot : public SubscrWidget
 {
 	int32_t iclass, iid = -1;
@@ -942,7 +952,7 @@ struct ZCSubscreen
 	word def_btns[4]={255,255,255,255};
 	
 	byte btn_left, btn_right;
-	SubscrTransition page_transition;
+	SubscrTransition trans_left, trans_right;
 	
 	//!TODO Subscreen Scripts
 	word script;

@@ -188,33 +188,54 @@ void dosubscr()
 			if(pos!=pg.cursor_pos)
 				sfx(QMisc.miscsfx[sfxSUBSCR_CURSOR_MOVE]);
 			
-			//Assign items to buttons
-			bool can_equip = true;
-			
 			SubscrWidget* widg = pg.get_sel_widg();
 			
 			if(widg)
 			{
-				bool can_interact = true;
-				if(widg->getType() == widgITEMSLOT
-					&& (widg->flags & SUBSCR_CURITM_NO_INTER_WO_ITEM)
-					&& widg->getDisplayItem() < 0)
+				bool can_interact = true, can_equip = true,
+					must_equip = false;
+				auto eqwpn = widg->getItemVal();
+				if(widg->getType() == widgITEMSLOT)
+				{
+					if((widg->flags & SUBSCR_CURITM_NO_INTER_WO_ITEM)
+						&& widg->getDisplayItem() < 0)
+						can_interact = false;
+					if(widg->flags & SUBSCR_CURITM_NONEQP)
+						can_equip = false;
+					must_equip = !b_only && (widg->flags & SUBSCR_CURITM_NO_INTER_WO_EQUIP);
+				}
+				if(must_equip && (!can_equip || eqwpn < 0))
 					can_interact = false;
 				
 				if(can_interact)
 				{
-					if(widg->generic_script && (btn_press&widg->gen_script_btns))
+					auto bpress = btn_press;
+					if(must_equip)
+					{
+						bpress &= (Bwpn!=eqwpn ? INT_BTN_B : 0)
+							| ((use_a && Awpn!=eqwpn) ? INT_BTN_A : 0)
+							| ((use_x && Xwpn!=eqwpn) ? INT_BTN_X : 0)
+							| ((use_y && Ywpn!=eqwpn) ? INT_BTN_Y : 0);
+					}
+					if(widg->generic_script && (bpress&widg->gen_script_btns))
+					{
 						FFCore.runGenericFrozenEngine(widg->generic_script, widg->generic_initd);
-					bool can_equip = true;
-					if(widg->getType() == widgITEMSLOT && (widg->flags & SUBSCR_CURITM_NONEQP))
-						can_equip = false;
+						eqwpn = widg->getItemVal(); //update incase script changed
+						if(must_equip) //update values depending on eqwpn
+						{
+							bpress = btn_press;
+							bpress &= (Bwpn!=eqwpn ? INT_BTN_B : 0)
+								| ((use_a && Awpn!=eqwpn) ? INT_BTN_A : 0)
+								| ((use_x && Xwpn!=eqwpn) ? INT_BTN_X : 0)
+								| ((use_y && Ywpn!=eqwpn) ? INT_BTN_Y : 0);
+						}
+					}
 					
 					if(can_equip)
 					{
-						auto eqwpn = widg->getItemVal();
 						if(eqwpn > -1)
 						{
-							if(b_only || (btn_press&INT_BTN_B))
+							if(b_only || (bpress&INT_BTN_B))
 							{
 								if(noverify && !b_only && eqwpn == Bwpn)
 								{
@@ -253,7 +274,7 @@ void dosubscr()
 									directItemB = eqwpn;
 								}
 							}
-							else if(use_a && (btn_press&INT_BTN_A))
+							else if(use_a && (bpress&INT_BTN_A))
 							{
 								if(noverify && eqwpn == Awpn)
 								{
@@ -292,7 +313,7 @@ void dosubscr()
 									directItemA = eqwpn;
 								}
 							}
-							else if(use_x && (btn_press&INT_BTN_EX1))
+							else if(use_x && (bpress&INT_BTN_EX1))
 							{
 								if(noverify && eqwpn == Xwpn)
 								{
@@ -331,7 +352,7 @@ void dosubscr()
 									directItemX = eqwpn;
 								}
 							}
-							else if(use_y && (btn_press&INT_BTN_EX2))
+							else if(use_y && (bpress&INT_BTN_EX2))
 							{
 								if(noverify && eqwpn == Ywpn)
 								{
@@ -372,7 +393,8 @@ void dosubscr()
 							}
 						}
 					}
-					widg->check_btns(btn_press,*new_subscreen_active);
+					if(!must_equip || eqwpn > -1)
+						widg->check_btns(bpress,*new_subscreen_active);
 				}
 			}
 			if(new_subscreen_active->curpage == pgnum)
@@ -382,28 +404,15 @@ void dosubscr()
 		do_dcounters();
 		Hero.refill();
 		
-		//put_passive_subscr(framebuf,0,174-miny,showtime,true);
-		//blit(scrollbuf,framebuf,0,6,0,6-miny,256,168);
-		//put_active_subscr(miny,true);
-		
-		//fill in the screen with black to prevent the hall of mirrors effect
 		rectfill(framebuf, 0, 0, 255, 223, 0);
 		
-		if(COOLSCROLL)
-		{
-			//copy the playing field back onto the screen
+		if(compat && COOLSCROLL) //copy the playing field back onto the screen
 			blit(scrollbuf,framebuf,0,176,0,passive_subscreen_height,256,176);
-		}
-		else
-		{
-			//nothing to do; the playing field has scrolled off the screen
-		}
+		//else nothing to do; the playing field has scrolled off the screen
 		
-		//throw the passive subscreen onto the screen
+		//draw the passive and active subscreen
 		put_passive_subscr(framebuf,0,176-2-miny,showtime,sspDOWN);
-		//put the active subscreen above the passive subscreen
 		put_active_subscr(miny,sspDOWN);
-		
 		
 		advanceframe(false);
 		if (replay_version_check(11))

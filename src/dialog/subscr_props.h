@@ -48,7 +48,7 @@ protected:
 	std::shared_ptr<GUI::Frame> selframes[2];
 	std::shared_ptr<GUI::TabRef> seltabs[1];
 	std::shared_ptr<GUI::TextField> seltfs[1];
-	std::shared_ptr<GUI::DropDownList> selddls[1];
+	std::shared_ptr<GUI::Button> selbtns[1];
 	
 	std::shared_ptr<GUI::Label> geninitd_lbl[8];
 	std::shared_ptr<GUI::Button> geninitd_btn[8];

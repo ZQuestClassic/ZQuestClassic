@@ -825,6 +825,11 @@ Frame(title = ltxt, \
 Column(padding = 0_px, __VA_ARGS__, _INTBTN_PANEL_HELPER2(var,ltxt)
 #define INTBTN_PANEL2(var,ltxt) \
 Column(padding = 0_px, _INTBTN_PANEL_HELPER2(var,ltxt)
+
+//
+
+#define _EX_RBOX hAlign = 1.0,boxPlacement = GUI::Checkbox::boxPlacement::RIGHT
+
 //}
 
 #endif

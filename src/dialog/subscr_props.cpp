@@ -9,6 +9,7 @@
 #include "gui/use_size.h"
 #include "gui/common.h"
 #include "base/misctypes.h"
+#include "subscr_transition.h"
 
 extern script_data *genericscripts[NUMSCRIPTSGENERIC];
 extern ZCSubscreen subscr_edit;
@@ -131,7 +132,6 @@ Checkbox( \
 	} \
 )
 
-#define _EX_RBOX hAlign = 1.0,boxPlacement = GUI::Checkbox::boxPlacement::RIGHT
 #define CBOX_EX(var, bit, txt, ...) \
 Checkbox( \
 	__VA_ARGS__, \
@@ -745,7 +745,11 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 					DummyWidget(),
 					CBOX_EX(w->flags,SUBSCR_CURITM_NO_INTER_WO_ITEM,"No Interact Without Item",_EX_RBOX),
 					INFOBTN("If checked, effects using buttons such as changing pages or running frozen generic scripts"
-						" on this widget will not trigger unless there is a valid item displayed.")
+						" on this widget will not trigger unless there is a valid item displayed."),
+					DummyWidget(),
+					CBOX_EX(w->flags,SUBSCR_CURITM_NO_INTER_WO_EQUIP,"No Interact Without Equip",_EX_RBOX),
+					INFOBTN("If checked, effects using buttons such as changing pages or running frozen generic scripts"
+						" on this widget will not trigger unless the buttonpress equips (or intends to equip) the item to a button.")
 				);
 				break;
 			}
@@ -1505,16 +1509,14 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 									INFOBTN("The target page for 'Target' mode."
 										" If set to an invalid page, no page change occurs."),
 									//
-									Label(text = "Transition SFX:"),
-									selddls[0] = DropDownList(data = list_sfx,
-										fitParent = true, maxwidth = 200_px,
-										selectedValue = local_subref->pg_trans.tr_sfx,
-										onSelectFunc = [&](int32_t val)
+									Label(text = "Transition Effects:"),
+									selbtns[0] = Button(text = "Edit",
+										maxheight = 2_em,
+										onPressFunc = [&]()
 										{
-											local_subref->pg_trans.tr_sfx = val;
-										}
-									),
-									INFOBTN("SFX to play when changing pages"),
+											call_subscrtransition_dlg(local_subref->pg_trans,"Transition Editor: Page Change FX");
+										}),
+									DummyWidget(),
 									//
 									DummyWidget(),
 									CBOX(local_subref->genflags,SUBSCRFLAG_PGGOTO_NOWRAP,"No Wrap",1),
@@ -1608,7 +1610,7 @@ void SubscrPropDialog::updateSelectable()
 	selgs[1]->setDisabled(scrdis);
 	selgs[2]->setDisabled(scrdis);
 	seltfs[0]->setDisabled(pgdis || local_subref->pg_mode != PGGOTO_TRG);
-	selddls[0]->setDisabled(pgdis);
+	selbtns[0]->setDisabled(pgdis);
 	
 	
 	if(local_subref->generic_script)
