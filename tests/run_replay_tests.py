@@ -868,7 +868,8 @@ def run_replay_test(replay_file: pathlib.Path, output_dir: pathlib.Path) -> RunR
             break
         except ReplayTimeoutException:
             # Will try again.
-            print(allegro_log_path.read_text('utf-8'))
+            if allegro_log_path.exists():
+                print(allegro_log_path.read_text('utf-8'))
             logging.exception('replay timed out')
             player_interface.stop()
         except KeyboardInterrupt:
