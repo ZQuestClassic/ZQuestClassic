@@ -331,6 +331,8 @@ void z3_calculate_viewport(int dmap, int screen_index, int world_w, int world_h,
 {
 	bool extended_height_mode = (DMaps[dmap].flags & dmfEXTENDEDVIEWPORT) && world_h > 176;
 	viewport.w = 256;
+	// Note: the viewport height does not take into account that the bottom 8 pixels are not visible, for historical reasons.
+	// For that to be the case a few things must change in hero.cpp scrollscr and red_shift.
 	viewport.h = 176 + (extended_height_mode ? 56 : 0);
 
 	if (viewport_mode == ViewportMode::Script)
