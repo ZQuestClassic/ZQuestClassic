@@ -71,7 +71,7 @@ find "$contents/Resources" -name "*.dylib" -exec mv {} "$tmp_libs_dir" \;
 # Correct the library paths in the executable, and codesign.
 dylibbundler -od -b -d "$contents/libs/" -s "$tmp_libs_dir" \
     -x "$contents/Resources/zlauncher" -x "$contents/Resources/zquest" \
-    -x "$contents/Resources/zelda" -x "$contents/Resources/zscript" \
+    -x "$contents/Resources/zplayer" -x "$contents/Resources/zscript" \
     -x "$contents/Resources/zupdater"
 rm -rf "$tmp_libs_dir"
 
@@ -81,7 +81,7 @@ codesign --force --deep --preserve-metadata=entitlements,requirements,flags,runt
 if test "${PACKAGE_DEBUG_INFO+x}"; then
   xcrun dsymutil \
     "$contents/Resources/zlauncher" \
-    "$contents/Resources/zelda" \
+    "$contents/Resources/zplayer" \
     "$contents/Resources/zquest" \
     "$contents/Resources/zscript" \
     "$contents/Resources/zupdater" \

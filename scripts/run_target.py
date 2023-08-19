@@ -84,7 +84,7 @@ def get_build_folder():
             root_dir / 'build/Release',
             root_dir / 'build/Debug',
         ]
-        targets = [get_exe_name(x) for x in ['zelda', 'zquest', 'zlauncher', 'zscript', 'zupdater']]
+        targets = [get_exe_name(x) for x in ['zplayer', 'zquest', 'zlauncher', 'zscript', 'zupdater']]
         def get_mtime(path: Path):
             if path.exists():
                 return path.stat().st_mtime
@@ -178,7 +178,7 @@ def _run(target_name: str, args: List, build_folder: Optional[str] = None):
 
 def run(target_name: str, args: List, build_folder: Optional[Path] = None, **kwargs):
     """
-    Runs target (ec: zelda, zscript, zquest, zlauncher), from env.BUILD_FOLDER or the provided build_folder.
+    Runs target (ex: zplayer, zscript, zquest, zlauncher), from env.BUILD_FOLDER or the provided build_folder.
 
     Returns subprocess.CompletedProcess[str], even if command fails.
 

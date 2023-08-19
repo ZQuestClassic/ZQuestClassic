@@ -106,7 +106,7 @@ void package_create(std::string quest_path_, std::string package_name)
 	fs::create_directories(data_dir);
 
 	fs::copy(quest_path, data_dir);
-	fs::copy(root_dir / "zelda.exe", data_dir / "zelda.exe");
+	fs::copy(root_dir / "zplayer.exe", data_dir / "zplayer.exe");
 	fs::copy(root_dir / "zconsole.exe", data_dir / "zconsole.exe");
 	fs::copy(root_dir / "allegro5.cfg", data_dir / "allegro5.cfg");
 	fs::copy(root_dir / "sfx.dat", data_dir / "sfx.dat");

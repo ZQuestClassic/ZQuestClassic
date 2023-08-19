@@ -36,14 +36,14 @@ find "$TEST_DIR" -name '*.qst' \
 
 # Minify inputs.
 cd "$ROOT/build_fuzz"
-afl-cmin -i "$TEST_DIR" -o "$ROOT/.tmp/fuzz_corpus_unique" -t 3000 -- ./zelda -load-and-quit @@
+afl-cmin -i "$TEST_DIR" -o "$ROOT/.tmp/fuzz_corpus_unique" -t 3000 -- ./zplayer -load-and-quit @@
 rm -rf "$TEST_DIR"
 mv "$ROOT/.tmp/fuzz_corpus_unique" "$TEST_DIR"
 
 # This takes too long!
 # export AFL_MAP_SIZE=258173
 # for i in "$TEST_DIR"/*; do
-#   afl-tmin -i "$i" -o "$ROOT/.tmp/fuzz_corpus_minify" -t 3000 -- ./zelda -load-and-quit @@
+#   afl-tmin -i "$i" -o "$ROOT/.tmp/fuzz_corpus_minify" -t 3000 -- ./zplayer -load-and-quit @@
 # done
 # rm -rf "$TEST_DIR"
 # mv "$ROOT/.tmp/fuzz_corpus_minify" "$TEST_DIR"
