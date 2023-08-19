@@ -32,7 +32,7 @@ TODO: there's a lot more to say about how it actually works. replay versions, zp
 
 - `pip install gcovr`
 - `cmake -S . -B build -G 'Ninja Multi-Config'` (can skip if already configured a ninja multi-config build)
-- `cmake --build build --config Coverage -t zplayer`
+- `cmake --build build --config Coverage -t zelda`
 - `python tests/run_replay_tests.py --build_folder build/Coverage --replay --ci`
 - `bash tests/generate_coverage_report.sh`
 - `open tests/.coverage/report/index.html`

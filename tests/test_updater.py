@@ -23,8 +23,6 @@ class TestUpdater(unittest.TestCase):
 		# TODO: support mac
 		if is_mac:
 			return
-		# TODO: re-enable once latest release has `zplayer` in package.
-		return
 
 		build_folder = run_target.get_build_folder()
 		if 'CI' in os.environ:
@@ -55,7 +53,7 @@ class TestUpdater(unittest.TestCase):
 				files = [
 					resource_folder / 'zc.png',
 					resource_folder / 'base_config/zc.cfg',
-					resource_folder / run_target.get_exe_name('zplayer'),
+					resource_folder / run_target.get_exe_name('zelda'),
 					resource_folder / run_target.get_exe_name('zquest'),
 					resource_folder / run_target.get_exe_name('zlauncher'),
 					resource_folder / run_target.get_exe_name('zscript'),
@@ -76,7 +74,7 @@ class TestUpdater(unittest.TestCase):
 					},
 				}
 
-				before_version = run_target.check_run('zplayer', ['-version'], resource_folder, **run_args).stdout.strip()
+				before_version = run_target.check_run('zelda', ['-version'], resource_folder, **run_args).stdout.strip()
 				before_mod_times = [f.stat().st_mtime for f in files]
 
 				updater_log_path = resource_folder / 'updater.log'
@@ -98,7 +96,7 @@ class TestUpdater(unittest.TestCase):
 					raise Exception(f'failed with exit code: {p.returncode}\n{p.stdout}\nupdater.log:\n{updater_log}')
 				print(updater_log)
 
-				after_version = run_target.check_run('zplayer', ['-version'], resource_folder, **run_args).stdout.strip()
+				after_version = run_target.check_run('zelda', ['-version'], resource_folder, **run_args).stdout.strip()
 				after_mod_times = [f.stat().st_mtime for f in files]
 
 				files_not_updated = ''
@@ -109,7 +107,7 @@ class TestUpdater(unittest.TestCase):
 					raise Exception(files_not_updated)
 
 				if before_version == after_version:
-					raise Exception('`zplayer -version` did not update')
+					raise Exception('`zelda -version` did not update')
 
 
 if __name__ == '__main__':

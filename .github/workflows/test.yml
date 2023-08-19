@@ -165,8 +165,8 @@ jobs:
           cd ${{ env.BUILD_FOLDER }}
           set -ex
 
-          bash ${{ github.workspace }}/.github/workflows/run_target.sh zplayer -headless -replay-exit-when-done -record test.zplay -frame 100 -replay-debug -test modules/classic/classic_1st.qst 0 119
-          bash ${{ github.workspace }}/.github/workflows/run_target.sh zplayer -headless -v0 -replay-exit-when-done -assert test.zplay
+          bash ${{ github.workspace }}/.github/workflows/run_target.sh zelda -headless -replay-exit-when-done -record test.zplay -frame 100 -replay-debug -test modules/classic/classic_1st.qst 0 119
+          bash ${{ github.workspace }}/.github/workflows/run_target.sh zelda -headless -v0 -replay-exit-when-done -assert test.zplay
       # Simply open ZQuest with the new quest template.
       # TODO: randomly crashes during exit on Linux
       - if: ${{ matrix.shard_index == 1 && inputs.extra-args == '' && runner.os != 'Windows' && runner.os != 'Linux' && inputs.config != 'Coverage' }}
@@ -181,7 +181,7 @@ jobs:
 
           bash ${{ github.workspace }}/.github/workflows/run_target.sh zquest -headless -s -copy-qst modules/classic/classic_1st.qst tmp.qst
           mv tmp.qst modules/classic/classic_1st.qst
-          bash ${{ github.workspace }}/.github/workflows/run_target.sh zplayer -headless -s -v0 -replay-exit-when-done -assert ${{ github.workspace }}/tests/replays/classic_1st.zplay
+          bash ${{ github.workspace }}/.github/workflows/run_target.sh zelda -headless -s -v0 -replay-exit-when-done -assert ${{ github.workspace }}/tests/replays/classic_1st.zplay
 
       - name: Generate coverage json
         if: inputs.config == 'Coverage'
