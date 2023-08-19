@@ -90,11 +90,11 @@ jobs:
             cd zc-extracted
             7z x ../${{ needs.build.outputs.artifact-name }}/${{ needs.build.outputs.package-name }}
           macos: |
-            echo "BUILD_FOLDER=$PWD/zc-extracted/ZQuestClassic.app/Contents/Resources" >> "$GITHUB_ENV"
+            echo "BUILD_FOLDER=$PWD/zc-extracted/ZeldaClassic.app/Contents/Resources" >> "$GITHUB_ENV"
             hdiutil attach -mountpoint zc-mounted ${{ needs.build.outputs.artifact-name }}/${{ needs.build.outputs.package-name }}
             mkdir zc-extracted
-            cp -r zc-mounted/ZQuestClassic.app zc-extracted
-            cp -r zc-mounted/ZQuestClassic.app.dSYM zc-extracted
+            cp -r zc-mounted/ZeldaClassic.app zc-extracted
+            cp -r zc-mounted/ZeldaClassic.app.dSYM zc-extracted
             hdiutil unmount zc-mounted
           linux: |
             echo "BUILD_FOLDER=$PWD/zc-extracted" >> "$GITHUB_ENV"
