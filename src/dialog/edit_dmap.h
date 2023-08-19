@@ -30,13 +30,14 @@ public:
 
 	EditDMapDialog(int32_t slot);
 
-	void refreshDMapStrings();
 	bool disableEnhancedMusic();
 	bool disableMusicTracks();
 	std::shared_ptr<GUI::Widget> view() override;
 	bool handleMessage(const GUI::DialogMessage<message>& msg);
 
 private:
+	void refreshGridSquares();
+	void refreshDMapStrings();
 	void refreshScripts();
 
 	std::shared_ptr<GUI::Window> window;

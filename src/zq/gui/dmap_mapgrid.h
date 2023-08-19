@@ -45,6 +45,19 @@ namespace GUI
 			return compassScreen;
 		}
 
+		void setShowSquares(bool newcontinue, bool newcompass)
+		{
+			show_continue = newcontinue;
+			show_compass = newcompass;
+		}
+		bool getShowCompass()
+		{
+			return show_compass;
+		}
+		bool getShowContinue() {
+			return show_continue;
+		}
+
 		void setSmallDMap(bool value)
 		{
 			if (getSmallDMap() != value)
@@ -75,6 +88,7 @@ namespace GUI
 		byte continueScreen;
 		byte compassScreen;
 		bool small_dmap;
+		bool show_continue, show_compass;
 
 		DialogRef alDialog;
 
