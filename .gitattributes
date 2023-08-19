@@ -1,3 +1,2 @@
 tests/replays/**/*.zplay filter=lfs diff=lfs merge=lfs -text
 tests/replays/**/*.qst filter=lfs diff=lfs merge=lfs -text
-tests/replays/**/*.sav filter=lfs diff=lfs merge=lfs -text
