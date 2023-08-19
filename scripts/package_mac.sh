@@ -72,8 +72,11 @@ find "$contents/Resources" -name "*.dylib" -exec mv {} "$tmp_libs_dir" \;
 dylibbundler -od -b -d "$contents/libs/" -s "$tmp_libs_dir" \
     -x "$contents/Resources/zlauncher" -x "$contents/Resources/zquest" \
     -x "$contents/Resources/zelda" -x "$contents/Resources/zscript" \
-    -x "$contents/Resources/zupdater" -x "$contents/MacOS/mac_entry.sh"
+    -x "$contents/Resources/zupdater"
 rm -rf "$tmp_libs_dir"
+
+# Sign the app.
+codesign --force --deep --preserve-metadata=entitlements,requirements,flags,runtime --sign - "$contents/MacOS/mac_entry.sh"
 
 if test "${PACKAGE_DEBUG_INFO+x}"; then
   xcrun dsymutil \
@@ -84,6 +87,9 @@ if test "${PACKAGE_DEBUG_INFO+x}"; then
     "$contents/Resources/zupdater" \
     $(find "$contents/libs" -name '*.dylib' -type f) \
     -o "$mac_package_dir/ZeldaClassic.app.dSYM"
+else
+  echo "verifying code signing ..."
+  codesign --verify --verbose=4 "$mac_package_dir/ZeldaClassic.app"
 fi
 
 cd "$packages_dir"
