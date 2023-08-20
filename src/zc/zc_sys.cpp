@@ -2336,16 +2336,37 @@ int32_t _c_item_id_internal(int32_t itemtype, bool checkmagic, bool jinx_check)
 }
 
 // 'jinx_check' indicates that the highest level item *immune to jinxes* should be returned.
-int32_t current_item_id(int32_t itemtype, bool checkmagic, bool jinx_check)
+int32_t current_item_id(int32_t itype, bool checkmagic, bool jinx_check)
 {
-	auto ret = _c_item_id_internal(itemtype,checkmagic,jinx_check);
+	if(itype < 0 || itype >= itype_max) return -1;
+	if(game->OverrideItems[itype] > -2)
+	{
+		auto ovid = game->OverrideItems[itype];
+		if(ovid < 0 || ovid >= MAXITEMS)
+			return -1;
+		if(itemsbuf[ovid].family == itype)
+		{
+			if(itype == itype_magicring)
+				checkmagic = false;
+			else if(itype == itype_ring)
+				checkmagic = true;
+			
+			if(checkmagic && !checkmagiccost(ovid))
+				return -1;
+			if(jinx_check && !(itemsbuf[ovid].flags & ITEM_JINX_IMMUNE)
+				&& (usesSwordJinx(ovid) ? HeroSwordClk() : HeroItemClk()))
+				return -1;
+			return ovid;
+		}
+	}
+	auto ret = _c_item_id_internal(itype,checkmagic,jinx_check);
 	if(!jinx_check) //If not already a jinx-immune-only check...
 	{
 		//And the player IS jinxed...
 		if(HeroSwordClk() || HeroItemClk())
 		{
 			//Then do a jinx-immune-only check here
-			auto ret2 = _c_item_id_internal(itemtype,checkmagic,true);
+			auto ret2 = _c_item_id_internal(itype,checkmagic,true);
 			//And *IF IT FINDS A VALID ITEM*, return that one instead! -Em
 			//Should NOT need a compat rule, as this should always return -1 in old quests.
 			if(ret2 > -1) return ret2;

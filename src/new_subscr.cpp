@@ -15,10 +15,12 @@
 #include "sprite.h"
 #include <set>
 #include <fmt/format.h>
+#include "zc_list_data.h"
 
 #ifdef IS_PLAYER
 extern int32_t directItem;
 extern sprite_list Lwpns;
+void verifyBothWeapons();
 bool zq_ignore_item_ownership = true, zq_view_fullctr = false, zq_view_maxctr = false,
 	zq_view_noinf = false, zq_view_allinf = false;
 
@@ -34,6 +36,9 @@ extern bool zq_ignore_item_ownership, zq_view_fullctr, zq_view_maxctr,
 extern gamedata* game; //!TODO ZDEFSCLEAN move to gamedata.h
 extern zinitdata zinit; //!TODO ZDEFSCLEAN move to zinit.h
 extern FFScript FFCore;
+
+extern const GUI::ListData subscrWidgets;
+
 int32_t get_dlevel();
 int32_t get_currdmap();
 int32_t get_homescr();
@@ -1033,6 +1038,10 @@ void SubscrWidget::check_btns(byte btnflgs, ZCSubscreen& parent) const
 	if(pg_mode && (btnflgs&pg_btns))
 		parent.page_change(pg_mode, pg_targ, pg_trans, genflags&SUBSCRFLAG_PGGOTO_NOWRAP);
 }
+std::string SubscrWidget::getTypeName() const
+{
+	return GUI::ZCListData::subscr_widgets().findText(getType());
+}
 void SubscrWidget::replay_rand_compat(byte pos) const
 {
 	if((compat_flags & SUBSCRCOMPAT_FONT_RAND) && (posflags&pos) && replay_version_check(0,19))
@@ -1636,6 +1645,10 @@ void SW_ButtonItem::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& p
 		drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
 	
 	int nullval = get_qr(qr_ITM_0_INVIS_ON_BTNS) ? 0 : -1;
+#ifdef IS_PLAYER
+	if(replay_version_check(19))
+		verifyBothWeapons();
+#endif
 	int ids[] = {Awpn,Bwpn,Xwpn,Ywpn};
 	
 	if(replay_version_check(19) && btnitem_ids[btn] != ids[btn])

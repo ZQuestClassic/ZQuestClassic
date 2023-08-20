@@ -8166,6 +8166,17 @@ int32_t get_register(const int32_t arg)
 			}
 			break;
 		}
+		case GAMEOVERRIDEITEMS:
+		{
+			int32_t ind = (ri->d[rINDEX])/10000;
+			if(unsigned(ind) >= itype_max)
+			{
+				Z_scripterrlog("Invalid index %d supplied to Game->OverrideItems[].\n", ind);
+				ret = -20000;
+			}
+			else ret = game->OverrideItems[ind] * 10000;
+			break;
+		}
 		case GAMEEVENTDATA:
 		{
 			int32_t inx = (ri->d[rINDEX])/10000;
@@ -18697,6 +18708,20 @@ void set_register(int32_t arg, int32_t value)
 			else
 			{
 				QMisc.miscsfx[inx] = vbound(value/10000, 0, 255);
+			}
+			break;
+		}
+		case GAMEOVERRIDEITEMS:
+		{
+			int32_t ind = (ri->d[rINDEX])/10000;
+			if(unsigned(ind) >= itype_max)
+			{
+				Z_scripterrlog("Invalid index %d supplied to Game->OverrideItems[].\n", ind);
+			}
+			else
+			{
+				auto val = value/10000;
+				game->OverrideItems[ind] = (val < -1 || val >= MAXITEMS) ? -2 : val;
 			}
 			break;
 		}
@@ -42942,7 +42967,7 @@ script_variable ZASMVars[]=
 	{ "SCREENLENSSHOWS", SCREENLENSSHOWS, 0, 0},
 	{ "SCREENLENSHIDES", SCREENLENSHIDES, 0, 0},
 	{ "GAMETRIGGROUPS", GAMETRIGGROUPS, 0, 0},
-	{ "RESRVD_VAR_EMILY43", RESRVD_VAR_EMILY43, 0, 0},
+	{ "GAMEOVERRIDEITEMS", GAMEOVERRIDEITEMS, 0, 0},
 	{ "RESRVD_VAR_EMILY44", RESRVD_VAR_EMILY44, 0, 0},
 	{ "RESRVD_VAR_EMILY45", RESRVD_VAR_EMILY45, 0, 0},
 	{ "RESRVD_VAR_EMILY46", RESRVD_VAR_EMILY46, 0, 0},

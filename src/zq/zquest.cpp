@@ -13813,12 +13813,12 @@ int32_t onItem()
     int32_t current_item=Map.CurrScr()->hasitem != 0 ? Map.CurrScr()->item : -1;
     
 	ItemListerDialog(current_item,true).show();
-	if(current_item != lister_index)
+	if(current_item != lister_sel_val)
 	{
-		if(lister_index>=0)
+		if(lister_sel_val>=0)
 		{
 			saved = false;
-			Map.CurrScr()->item = lister_index;
+			Map.CurrScr()->item = lister_sel_val;
 			Map.CurrScr()->hasitem = true;
 		}
 		else

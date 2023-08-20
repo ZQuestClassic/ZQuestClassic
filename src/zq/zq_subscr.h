@@ -23,7 +23,6 @@ enum { ssosLEFT, ssosCENTER, ssosRIGHT, ssosTOP, ssosMIDDLE, ssosBOTTOM };
 bool edit_subscreen();
 int32_t onEditSubscreens();
 
-char *sso_name(int32_t type);
 void center_zq_subscreen_dialogs();
 void update_sso_name();
 void update_sscpy_name();

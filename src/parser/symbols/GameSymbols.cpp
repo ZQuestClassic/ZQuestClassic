@@ -181,6 +181,8 @@ static AccessorTable gameTable[] =
 	{ "getTriggerGroups[]",         0,         ZTID_FLOAT,   GAMETRIGGROUPS,            0,  { ZTID_GAME, ZTID_FLOAT },{} },
 	{ "setTriggerGroups[]",         0,          ZTID_VOID,   GAMETRIGGROUPS,            0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
+	{ "getOverrideItems[]",         0,         ZTID_FLOAT,   GAMEOVERRIDEITEMS,         0,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "setOverrideItems[]",         0,          ZTID_VOID,   GAMEOVERRIDEITEMS,         0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
 	//Intentionally undocumented
 	{ "getSTD[]",                   0,       ZTID_UNTYPED,   STDARR,                    0,  { ZTID_GAME, ZTID_FLOAT },{} },
