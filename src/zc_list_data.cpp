@@ -262,7 +262,7 @@ GUI::ListData GUI::ZCListData::enemies(bool numbered, bool defaultFilter)
 	return ls;
 }
 
-GUI::ListData GUI::ZCListData::items(bool numbered)
+GUI::ListData GUI::ZCListData::items(bool numbered, bool none)
 {
 	map<std::string, int32_t> ids;
 	std::set<std::string> names;
@@ -285,7 +285,8 @@ GUI::ListData GUI::ZCListData::items(bool numbered)
 	}
 	
 	GUI::ListData ls;
-	ls.add("(None)", -1);
+	if(none)
+		ls.add("(None)", -1);
 	for(auto it = names.begin(); it != names.end(); ++it)
 	{
 		ls.add(*it, ids[*it]);
@@ -716,6 +717,19 @@ GUI::ListData GUI::ZCListData::ffc_script()
 	return ls;
 }
 
+GUI::ListData GUI::ZCListData::dmap_script()
+{
+	std::map<std::string, int32_t> vals;
+	std::set<std::string> names;
+
+	load_scriptnames(names, vals, dmapmap, NUMSCRIPTSDMAP - 1);
+
+	GUI::ListData ls;
+	ls.add("(None)", 0);
+	ls.add(names, vals);
+	return ls;
+}
+
 GUI::ListData GUI::ZCListData::screen_script()
 {
 	std::map<std::string, int32_t> vals;
@@ -880,5 +894,81 @@ GUI::ListData const& GUI::ZCListData::screenstate()
 	return screen_state;
 }
 
+static const GUI::ListData dmap_types
+{
+	{ "NES Dungeon", dmDNGN },
+	{ "Overworld", dmOVERW },
+	{ "Interior", dmCAVE },
+	{ "BS Overworld", dmBSOVERW }
+};
 
+GUI::ListData const& GUI::ZCListData::dmaptypes()
+{
+	return dmap_types;
+}
+
+GUI::ListData GUI::ZCListData::lpals()
+{
+	GUI::ListData ls;
+	char buf[50];
+	for (int q = 0; q < 0x1FF; ++q)
+	{
+		sprintf(buf, "%.3X - %s", q, palnames[q]);
+		ls.add(buf, q + 1);
+	}
+	return ls;
+}
+
+GUI::ListData GUI::ZCListData::activesubscreens()
+{
+	GUI::ListData ls;
+	int32_t i = 0, j = 0;
+	while (custom_subscreen[j].objects[0].type != ssoNULL)
+	{
+		if (custom_subscreen[j].ss_type == sstACTIVE)
+		{
+			ls.add(custom_subscreen[j].name, i + 1);
+			++i;
+		}
+
+		++j;
+	}
+	return ls;
+}
+
+GUI::ListData GUI::ZCListData::passivesubscreens()
+{
+	GUI::ListData ls;
+	int32_t i = 0, j = 0;
+	while (custom_subscreen[j].objects[0].type != ssoNULL)
+	{
+		if (custom_subscreen[j].ss_type == sstPASSIVE)
+		{
+			ls.add(custom_subscreen[j].name, i + 1);
+			++i;
+		}
+
+		++j;
+	}
+	return ls;
+}
+
+GUI::ListData GUI::ZCListData::disableditems(byte* disabledarray)
+{
+	GUI::ListData ls;
+	for (int q = 0; q < MAXITEMS; ++q)
+	{
+		if (disabledarray[q] & 1)
+		{
+			char const* itname = item_string[q];
+			ls.add(itname, q);
+		}
+	}
+	if (ls.size() == 0)
+	{
+		ls.add("", -1);
+	}
+	ls.alphabetize();
+	return ls;
+}
 

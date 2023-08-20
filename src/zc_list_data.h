@@ -12,7 +12,7 @@ namespace GUI::ZCListData
     GUI::ListData const& alignments();
     GUI::ListData const& buttons();
 	GUI::ListData enemies(bool numbered = false, bool defaultFilter = true);
-	GUI::ListData items(bool numbered = false);
+	GUI::ListData items(bool numbered = false, bool none = true);
 	GUI::ListData dropsets(bool numbered = false, bool none = false);
     GUI::ListData itemclass(bool numbered = false, bool zero_none = false);
 	GUI::ListData combotype(bool numbered = false, bool skipNone = false);
@@ -28,6 +28,7 @@ namespace GUI::ZCListData
 	GUI::ListData itemdata_script();
 	GUI::ListData itemsprite_script();
 	GUI::ListData ffc_script();
+	GUI::ListData dmap_script();
 	GUI::ListData screen_script();
 	GUI::ListData lweapon_script();
 	GUI::ListData eweapon_script();
@@ -36,6 +37,11 @@ namespace GUI::ZCListData
     GUI::ListData const& deftypes();
     GUI::ListData const& warpeffects();
     GUI::ListData const& screenstate();
+	GUI::ListData const& dmaptypes();
+	GUI::ListData lpals();
+	GUI::ListData activesubscreens();
+	GUI::ListData passivesubscreens();
+	GUI::ListData disableditems(byte* disabledarray);
 }
 
 #endif

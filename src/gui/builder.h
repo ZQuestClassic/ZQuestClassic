@@ -18,6 +18,7 @@ extern int32_t zq_screen_w, zq_screen_h;
 #include "gui/radio.h"
 #include "gui/radioset.h"
 #include "gui/size.h"
+#include "gui/slider.h"
 #include "gui/switcher.h"
 #include "gui/tabpanel.h"
 #include "gui/tabref.h"
@@ -37,6 +38,8 @@ extern int32_t zq_screen_w, zq_screen_h;
 #include "zq/gui/misc_cset_sel.h"
 #include "zq/gui/misc_color_sel.h"
 #include "zq/gui/misc_color_row.h"
+#include "zq/gui/dmap_minimap.h"
+#include "zq/gui/dmap_mapgrid.h"
 #endif
 
 #include <initializer_list>
@@ -116,6 +119,11 @@ inline std::shared_ptr<TextField> makeTextField()
 inline std::shared_ptr<ColorSel> makeColorSel()
 {
 	return std::make_shared<ColorSel>();
+}
+
+inline std::shared_ptr<Slider> makeSlider()
+{
+	return std::make_shared<Slider>();
 }
 
 // Containers
@@ -235,6 +243,16 @@ inline std::shared_ptr<MiscColorSel> makeMiscColorSel()
 inline std::shared_ptr<MiscColorRow> makeMiscColorRow()
 {
 	return std::make_shared<MiscColorRow>();
+}
+
+inline std::shared_ptr<DMapMinimap> makeDMapMinimap()
+{
+	return std::make_shared<DMapMinimap>();
+}
+
+inline std::shared_ptr<DMapMapGrid> makeDMapMapGrid()
+{
+	return std::make_shared<DMapMapGrid>();
 }
 #endif
 
@@ -434,6 +452,14 @@ ZCGUI_BUILDER_START(ColorSel)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(ColorSel, ColorSel, makeColorSel)
 
+ZCGUI_BUILDER_START(Slider)
+	ZCGUI_ACCEPT_PROP(onValueChanged, onValueChanged, Dialog::message)
+	ZCGUI_ACCEPT_PROP(offset, setOffset, int32_t)
+	ZCGUI_ACCEPT_PROP(minOffset, setMinOffset, int32_t)
+	ZCGUI_ACCEPT_PROP(maxOffset, setMaxOffset, int32_t)
+	ZCGUI_ACCEPT_PROP(onValChangedFunc, setOnValChanged, std::function<void(int32_t)>)
+ZCGUI_BUILDER_END()
+ZCGUI_BUILDER_FUNCTION(Slider, Slider, makeSlider)
 
 ZCGUI_BUILDER_START(Window)
 	ZCGUI_ACCEPT_PROP(title, setTitle, std::string)
@@ -542,6 +568,22 @@ ZCGUI_BUILDER_START(MiscColorRow)
 	ZCGUI_ACCEPT_PROP(onUpdate, setOnUpdate, std::function<void(int32_t)>)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(MiscColorRow, MiscColorRow, makeMiscColorRow)
+
+ZCGUI_BUILDER_START(DMapMinimap)
+	ZCGUI_ACCEPT_PROP(curMap, setCurMap, int32_t)
+	ZCGUI_ACCEPT_PROP(smallDMap, setSmallDMap, bool)
+	ZCGUI_ACCEPT_PROP(offset, setOffset, int32_t)
+ZCGUI_BUILDER_END()
+ZCGUI_BUILDER_FUNCTION(DMapMinimap, DMapMinimap, makeDMapMinimap)
+
+ZCGUI_BUILDER_START(DMapMapGrid)
+	ZCGUI_ACCEPT_PROP(mapGridPtr, setMapGridPtr, byte*)
+	ZCGUI_ACCEPT_PROP(continueScreen, setContinueScreen, int32_t)
+	ZCGUI_ACCEPT_PROP(compassScreen, setCompassScreen, bool)
+	ZCGUI_ACCEPT_PROP(smallDMap, setSmallDMap, bool)
+	ZCGUI_ACCEPT_PROP(onUpdate, setOnUpdate, std::function<void(byte*, byte, byte)>)
+ZCGUI_BUILDER_END()
+ZCGUI_BUILDER_FUNCTION(DMapMapGrid, DMapMapGrid, makeDMapMapGrid)
 #endif
 
 } // namespace GUI::builder

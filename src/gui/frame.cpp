@@ -34,6 +34,15 @@ void Frame::setInfo(const std::string& newInfo)
 	info = newInfo;
 }
 
+void Frame::setStyle(style newStyle)
+{
+	frameStyle = newStyle;
+	if (alDialog)
+	{
+		alDialog->d1 = int(newStyle);
+	}
+}
+
 void Frame::applyVisibility(bool visible)
 {
 	Widget::applyVisibility(visible);
