@@ -5259,7 +5259,11 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 			tempDMap.tmusic_xfade_in = 0;
 			tempDMap.tmusic_xfade_out = 0;
 		}
-
+		
+		if(s_version >= 19)
+			if(!p_getc(&tempDMap.overlay_subscreen, f))
+				return qe_invalid;
+		
 		memcpy(&DMaps[i], &tempDMap, sizeof(tempDMap));
 	}
 	
@@ -11276,7 +11280,9 @@ int32_t readherosprites(PACKFILE *f, zquestheader *Header)
 
 int32_t read_old_subscreens(PACKFILE *f, word s_version)
 {
-	new_subscreen.clear();
+	subscreens_active.clear();
+	subscreens_passive.clear();
+	subscreens_overlay.clear();
 	for(int32_t i=0; i<MAXCUSTOMSUBSCREENS; i++)
 	{
 		subscreen_group g;
@@ -11285,7 +11291,8 @@ int32_t read_old_subscreens(PACKFILE *f, word s_version)
 		if(ret!=0)
 			return ret;
 		if(g.objects[0].type == ssoNULL) continue;
-		ZCSubscreen& sub = new_subscreen.emplace_back();
+		auto& vec = g.ss_type == sstPASSIVE ? subscreens_passive : subscreens_active;
+		ZCSubscreen& sub = vec.emplace_back();
 		sub.load_old(g);
 	}
 	
@@ -11834,14 +11841,33 @@ int32_t readsubscreens(PACKFILE *f)
 	if(s_version < 8)
 		return read_old_subscreens(f,s_version);
 	
+	subscreens_active.clear();
+	subscreens_passive.clear();
+	subscreens_overlay.clear();
+	
 	byte sz;
 	if(!p_getc(&sz,f))
 		return qe_invalid;
-	new_subscreen.clear();
 	for(byte q = 0; q < sz; ++q)
 	{
-		ZCSubscreen& ref = new_subscreen.emplace_back();
-		if (auto ret = ref.read(f, s_version))
+		ZCSubscreen& tmp = subscreens_active.emplace_back();
+		if (auto ret = tmp.read(f, s_version))
+			return ret;
+	}
+	if(!p_getc(&sz,f))
+		return qe_invalid;
+	for(byte q = 0; q < sz; ++q)
+	{
+		ZCSubscreen& tmp = subscreens_passive.emplace_back();
+		if (auto ret = tmp.read(f, s_version))
+			return ret;
+	}
+	if(!p_getc(&sz,f))
+		return qe_invalid;
+	for(byte q = 0; q < sz; ++q)
+	{
+		ZCSubscreen& tmp = subscreens_overlay.emplace_back();
+		if (auto ret = tmp.read(f, s_version))
 			return ret;
 	}
 	return 0;
@@ -11869,15 +11895,20 @@ void reset_subscreen(subscreen_group *tempss)
 
 void reset_subscreens()
 {
-	new_subscreen.clear();
+	subscreens_active.clear();
+	subscreens_passive.clear();
+	subscreens_overlay.clear();
 }
 
 int32_t setupsubscreens()
 {
     reset_subscreens();
 	//return 0;
-	for(int q = 0; q < 4; ++q)
-		new_subscreen.emplace_back();
+	for(int q = 0; q < 2; ++q)
+	{
+		subscreens_active.emplace_back();
+		subscreens_passive.emplace_back();
+	}
     int32_t tempsubscreen=zinit.subscreen;
     
     if(tempsubscreen>=ssdtMAX)
@@ -11893,31 +11924,31 @@ int32_t setupsubscreens()
 		case ssdtBSZELDAENHANCED:
 		case ssdtBSZELDACOMPLETE:
 		{
-			new_subscreen[0].load_old(default_subscreen_active[tempsubscreen][0]);
-			new_subscreen[0].sub_type=sstACTIVE;
-			new_subscreen[0].name = "Active Subscreen (Triforce)";
-			new_subscreen[1].load_old(default_subscreen_active[tempsubscreen][1]);
-			new_subscreen[1].sub_type=sstACTIVE;
-			new_subscreen[1].name = "Active Subscreen (Dungeon Map)";
-			new_subscreen[2].load_old(default_subscreen_passive[tempsubscreen][0]);
-			new_subscreen[2].sub_type=sstPASSIVE;
-			new_subscreen[2].name = "Passive Subscreen (Magic)";
-			new_subscreen[3].load_old(default_subscreen_passive[tempsubscreen][1]);
-			new_subscreen[3].sub_type=sstPASSIVE;
-			new_subscreen[3].name = "Passive Subscreen (No Magic)";
+			subscreens_active[0].load_old(default_subscreen_active[tempsubscreen][0]);
+			subscreens_active[0].sub_type=sstACTIVE;
+			subscreens_active[0].name = "Active Subscreen (Triforce)";
+			subscreens_active[1].load_old(default_subscreen_active[tempsubscreen][1]);
+			subscreens_active[1].sub_type=sstACTIVE;
+			subscreens_active[1].name = "Active Subscreen (Dungeon Map)";
+			subscreens_passive[0].load_old(default_subscreen_passive[tempsubscreen][0]);
+			subscreens_passive[0].sub_type=sstPASSIVE;
+			subscreens_passive[0].name = "Passive Subscreen (Magic)";
+			subscreens_passive[1].load_old(default_subscreen_passive[tempsubscreen][1]);
+			subscreens_passive[1].sub_type=sstPASSIVE;
+			subscreens_passive[1].name = "Passive Subscreen (No Magic)";
 			break;
 		}
 		
 		case ssdtZ3:
 		{
-			new_subscreen[0].load_old(z3_active_a);
-			new_subscreen[0].sub_type=sstACTIVE;
-			new_subscreen[1].load_old(z3_active_ab);
-			new_subscreen[1].sub_type=sstACTIVE;
-			new_subscreen[2].load_old(z3_passive_a);
-			new_subscreen[2].sub_type=sstPASSIVE;
-			new_subscreen[3].load_old(z3_passive_ab);
-			new_subscreen[3].sub_type=sstPASSIVE;
+			subscreens_active[0].load_old(z3_active_a);
+			subscreens_active[0].sub_type=sstACTIVE;
+			subscreens_active[1].load_old(z3_active_ab);
+			subscreens_active[1].sub_type=sstACTIVE;
+			subscreens_passive[0].load_old(z3_passive_a);
+			subscreens_passive[0].sub_type=sstPASSIVE;
+			subscreens_passive[1].load_old(z3_passive_ab);
+			subscreens_passive[1].sub_type=sstPASSIVE;
 			break;
 		}
     }

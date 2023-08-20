@@ -11109,13 +11109,17 @@ int32_t get_register(const int32_t arg)
 		{
 			ret = ((byte)DMaps[ri->dmapsref].tmusictrack) * 10000; break;
 		}
-		case DMAPDATASUBSCRA:	 //byte, active subscreen
+		case DMAPDATASUBSCRA:
 		{
 			ret = ((byte)DMaps[ri->dmapsref].active_subscreen) * 10000; break;
 		}
-		case DMAPDATASUBSCRP:	 //byte, passive subscreen
+		case DMAPDATASUBSCRP:
 		{
 			ret = ((byte)DMaps[ri->dmapsref].passive_subscreen) * 10000; break;
+		}
+		case DMAPDATASUBSCRO:
+		{
+			ret = ((byte)DMaps[ri->dmapsref].overlay_subscreen) * 10000; break;
 		}
 		case DMAPDATADISABLEDITEMS:	 //byte[MAXITEMS]
 		{
@@ -21614,7 +21618,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			DMaps[ri->dmapsref].tmusictrack= ((byte)(value / 10000)); break;
 		}
-		case DMAPDATASUBSCRA:	 //byte, active subscreen
+		case DMAPDATASUBSCRA:
 		{
 			bool changed = DMaps[ri->dmapsref].active_subscreen != ((byte)(value / 10000));
 			DMaps[ri->dmapsref].active_subscreen= ((byte)(value / 10000));
@@ -21622,10 +21626,18 @@ void set_register(int32_t arg, int32_t value)
 				update_subscreens();
 			break;
 		}
-		case DMAPDATASUBSCRP:	 //byte, passive subscreen
+		case DMAPDATASUBSCRP:
 		{
 			bool changed = DMaps[ri->dmapsref].passive_subscreen != ((byte)(value / 10000));
 			DMaps[ri->dmapsref].passive_subscreen= ((byte)(value / 10000));
+			if(changed&&ri->dmapsref==currdmap)
+				update_subscreens();
+			break;
+		}
+		case DMAPDATASUBSCRO:
+		{
+			bool changed = DMaps[ri->dmapsref].overlay_subscreen != ((byte)(value / 10000));
+			DMaps[ri->dmapsref].overlay_subscreen = ((byte)(value / 10000));
 			if(changed&&ri->dmapsref==currdmap)
 				update_subscreens();
 			break;
@@ -42968,7 +42980,7 @@ script_variable ZASMVars[]=
 	{ "SCREENLENSHIDES", SCREENLENSHIDES, 0, 0},
 	{ "GAMETRIGGROUPS", GAMETRIGGROUPS, 0, 0},
 	{ "GAMEOVERRIDEITEMS", GAMEOVERRIDEITEMS, 0, 0},
-	{ "RESRVD_VAR_EMILY44", RESRVD_VAR_EMILY44, 0, 0},
+	{ "DMAPDATASUBSCRO", DMAPDATASUBSCRO, 0, 0},
 	{ "RESRVD_VAR_EMILY45", RESRVD_VAR_EMILY45, 0, 0},
 	{ "RESRVD_VAR_EMILY46", RESRVD_VAR_EMILY46, 0, 0},
 	{ "RESRVD_VAR_EMILY47", RESRVD_VAR_EMILY47, 0, 0},

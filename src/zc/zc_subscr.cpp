@@ -38,6 +38,19 @@ void put_active_subscr(int32_t y, int32_t pos)
     show_custom_subscreen(framebuf, new_subscreen_active, 0, 6-y, game->should_show_time(), pos);
 }
 
+void draw_subscrs(BITMAP* dest, int x, int y, bool showtime, int pos)
+{
+	if(get_qr(qr_OLD_SUBSCR))
+	{
+		put_passive_subscr(dest,x,176-2-y,showtime,pos);
+		put_active_subscr(y,pos);
+	}
+	else
+	{
+		put_active_subscr(y,pos);
+		put_passive_subscr(dest,x,176-2-y,showtime,pos);
+	}
+}
 void dosubscr()
 {
 	PALETTE temppal;
@@ -120,10 +133,7 @@ void dosubscr()
 			blit(scrollbuf,framebuf,256,0,0,176-2-y+passive_subscreen_height,256,y);
 		}
 		
-		//throw the passive subscreen onto the screen
-		put_passive_subscr(framebuf,0,176-2-y,showtime,sspSCROLLING);
-		//put the active subscreen above the passive subscreen
-		put_active_subscr(y,sspSCROLLING);
+		draw_subscrs(framebuf,0,y,showtime,sspSCROLLING);
 		
 		advanceframe(false);
 		
@@ -411,8 +421,7 @@ void dosubscr()
 		//else nothing to do; the playing field has scrolled off the screen
 		
 		//draw the passive and active subscreen
-		put_passive_subscr(framebuf,0,176-2-miny,showtime,sspDOWN);
-		put_active_subscr(miny,sspDOWN);
+		draw_subscrs(framebuf,0,miny,showtime,sspDOWN);
 		
 		advanceframe(false);
 		if (replay_version_check(11))
@@ -450,10 +459,7 @@ void dosubscr()
 			blit(scrollbuf,framebuf,256,0,0,176-2-y+passive_subscreen_height,256,y);
 		}
 		
-		//throw the passive subscreen onto the screen
-		put_passive_subscr(framebuf,0,176-2-y,showtime,sspSCROLLING);
-		//put the active subscreen above the passive subscreen
-		put_active_subscr(y,sspSCROLLING);
+		draw_subscrs(framebuf,0,y,showtime,sspSCROLLING);
 		advanceframe(false);
 		
 		if(Quit)

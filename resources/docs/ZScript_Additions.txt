@@ -6515,6 +6515,9 @@ int ActiveSubscreen;
  
 int PassiveSubscreen;
  * The passive subscreen ID.
+
+int OverlaySubscreen;
+ * The overlay subscreen ID.
  
 int Grid[8];
  * The rooms displayed either when the player has the map item,

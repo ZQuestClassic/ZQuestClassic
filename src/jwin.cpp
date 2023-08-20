@@ -9284,33 +9284,49 @@ int32_t new_tab_proc(int32_t msg, DIALOG *d, int32_t c)
 
 
 
-int32_t jwin_hline_proc(int32_t msg, DIALOG *d, int32_t c)
+int32_t jwin_hline_proc(int32_t msg, DIALOG *d, int32_t)
 {
-    //these are here to bypass compiler warnings about unused arguments
-    c=c;
-    
     ASSERT(d);
     
     if(msg==MSG_DRAW)
     {
-        _allegro_hline(screen, d->x, d->y,   d->x+d->w-1, scheme[jcMEDDARK]);
-        _allegro_hline(screen, d->x, d->y+1, d->x+d->w-1, scheme[jcLIGHT]);
+		if(d->w < 1) return D_O_K;
+		for(int q = 0; q <= d->d1; ++q)
+		{
+			if(d->d2&1)
+			{
+				_allegro_hline(screen, d->x, d->y+q, d->x+d->w-1, d->fg);
+			}
+			else
+			{
+				_allegro_hline(screen, d->x, d->y-q,   d->x+d->w-1, scheme[jcMEDDARK]);
+				_allegro_hline(screen, d->x, d->y+1+q, d->x+d->w-1, scheme[jcLIGHT]);
+			}
+		}
     }
     
     return D_O_K;
 }
 
-int32_t jwin_vline_proc(int32_t msg, DIALOG *d, int32_t c)
+int32_t jwin_vline_proc(int32_t msg, DIALOG *d, int32_t)
 {
-    //these are here to bypass compiler warnings about unused arguments
-    c=c;
-    
     ASSERT(d);
     
     if(msg==MSG_DRAW)
     {
-        _allegro_vline(screen, d->x,   d->y, d->y+d->h-1, scheme[jcMEDDARK]);
-        _allegro_vline(screen, d->x+1, d->y, d->y+d->h-1, scheme[jcLIGHT]);
+		if(d->h < 1) return D_O_K;
+		for(int q = 0; q <= d->d1; ++q)
+		{
+			if(d->d2&1)
+			{
+				_allegro_vline(screen, d->x+q,   d->y, d->y+d->h-1, d->fg);
+			}
+			else
+			{
+				_allegro_vline(screen, d->x+q,   d->y, d->y+d->h-1, scheme[jcMEDDARK]);
+				_allegro_vline(screen, d->x+1-q, d->y, d->y+d->h-1, scheme[jcLIGHT]);
+			}
+		}
     }
     
     return D_O_K;

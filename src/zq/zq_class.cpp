@@ -8018,7 +8018,9 @@ int32_t writedmaps(PACKFILE *f, word version, word build, word start_dmap, word 
             {
                 new_return(45);
             }
-        }
+			if(!p_putc(DMaps[i].overlay_subscreen, f))
+				new_return(46);
+		}
         
         if(writecycle==0)
         {
@@ -12264,13 +12266,36 @@ int32_t writesubscreens(PACKFILE *f, zquestheader *Header)
 		
 		writesize=0;
 		
-		byte sz = new_subscreen.size();
+		byte sz = subscreens_active.size();
 		if(!p_putc(sz,f))
 			new_return(5);
-		
 		for(int32_t i=0; i<sz; i++)
 		{
-			int32_t ret = new_subscreen[i].write(f);
+			int32_t ret = subscreens_active[i].write(f);
+			fake_pack_writing=(writecycle==0);
+			
+			if(ret!=0)
+				new_return(ret);
+		}
+		
+		sz = subscreens_passive.size();
+		if(!p_putc(sz,f))
+			new_return(5);
+		for(int32_t i=0; i<sz; i++)
+		{
+			int32_t ret = subscreens_passive[i].write(f);
+			fake_pack_writing=(writecycle==0);
+			
+			if(ret!=0)
+				new_return(ret);
+		}
+		
+		sz = subscreens_overlay.size();
+		if(!p_putc(sz,f))
+			new_return(5);
+		for(int32_t i=0; i<sz; i++)
+		{
+			int32_t ret = subscreens_overlay[i].write(f);
 			fake_pack_writing=(writecycle==0);
 			
 			if(ret!=0)

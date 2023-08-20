@@ -34,10 +34,10 @@ extern sprite_list  guys, items, Ewpns, Lwpns, chainlinks, decorations;
 extern HeroClass   Hero;
 extern FFScript FFCore;
 
-ZCSubscreen *new_subscreen_active;
-ZCSubscreen *new_subscreen_passive;
+ZCSubscreen *new_subscreen_active = nullptr, *new_subscreen_passive = nullptr,
+	*new_subscreen_overlay = nullptr;
 
-std::vector<ZCSubscreen> new_subscreen;
+std::vector<ZCSubscreen> subscreens_active, subscreens_passive, subscreens_overlay;
 
 static const int32_t notscrolling = sspUP | sspDOWN;
 static const int32_t pos = notscrolling | sspSCROLLING;
@@ -3143,6 +3143,12 @@ void put_passive_subscr(BITMAP *dest,int32_t x,int32_t y,bool showtime,int32_t p
     
     show_custom_subscreen(subscr, new_subscreen_passive, 0, 0, showtime, pos2);
     destroy_bitmap(subscr);
+	if(new_subscreen_overlay)
+	{
+		subscr = create_sub_bitmap(dest,x,0,256,224);
+		show_custom_subscreen(subscr, new_subscreen_overlay, 0, 0, showtime, pos2);
+		destroy_bitmap(subscr);
+	}
 }
 
 /*
@@ -3505,34 +3511,17 @@ void update_subscreens(int32_t dmap)
 {
 	if(dmap<0)
 		dmap=get_currdmap();
-		
-	int32_t index=DMaps[dmap].active_subscreen;
 	
-	int32_t i=-1, j=0;
-	
-	while(j < new_subscreen.size() && i!=index)
-	{
-		if(new_subscreen[j].sub_type==sstACTIVE)
-			++i;
-		
-		++j;
-	}
-	
-	auto next_active = &new_subscreen[j-1];
-	
-	index=DMaps[dmap].passive_subscreen;
-	
-	i=-1, j=0;
-	
-	while(j < new_subscreen.size() && i!=index)
-	{
-		if(new_subscreen[j].sub_type==sstPASSIVE)
-			++i;
-		
-		++j;
-	}
-	
-	auto next_passive = &new_subscreen[j-1];
+	ZCSubscreen *next_active = nullptr, *next_passive = nullptr, *next_overlay = nullptr;
+	int indx = DMaps[dmap].active_subscreen;
+	if(unsigned(indx) < subscreens_active.size())
+		next_active = &subscreens_active[indx];
+	indx = DMaps[dmap].passive_subscreen;
+	if(unsigned(indx) < subscreens_passive.size())
+		next_passive = &subscreens_passive[indx];
+	indx = DMaps[dmap].overlay_subscreen;
+	if(unsigned(indx) < subscreens_overlay.size())
+		next_overlay = &subscreens_overlay[indx];
 	
 	if(get_qr(qr_OLD_SUBSCR) && new_subscreen_active)
 	{
@@ -3542,6 +3531,7 @@ void update_subscreens(int32_t dmap)
 	
 	new_subscreen_passive = next_passive;
 	new_subscreen_active = next_active;
+	new_subscreen_overlay = next_overlay;
 }
 
 void sso_bounding_box(BITMAP *bmp, SubscrWidget* widg, int32_t color)

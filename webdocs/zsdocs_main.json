@@ -701,8 +701,8 @@
                             "val": "$0$6"
                         },
                         {
-                            "name": "Subscreens ;; dmapdata::ActiveSubscreen / dmapdata::PassiveSubscreen / dmapdata::ASubScript / dmapdata::PSubScript / dmapdata::SubInitD",
-                            "val": "<h3>int ActiveSubscreen;</h3>\nWhich engine active subscreen to use on this dmap.\n\n<h3>int PassiveSubscreen;</h3>\nWhich engine passive subscreen to use on this dmap.\n\n<h3>int ASubScript;</h3>\nWhich dmapdata script to use as a replacement for the engine active subscreen (0 for none).\n\n<h3>int PSubScript;</h3>\nWhich dmapdata script to run for passive subscreen draws.\n\n<h3>untyped SubInitD[8];</h3>\nThe 8 InitD values shared by the Active and Passive Subscreen Scripts."
+                            "name": "Subscreens ;; dmapdata::ActiveSubscreen / dmapdata::PassiveSubscreen / dmapdata::OverlaySubscreen / dmapdata::ASubScript / dmapdata::PSubScript / dmapdata::SubInitD",
+                            "val": "<h3>int ActiveSubscreen;</h3>\nWhich engine active subscreen to use on this dmap.\n\n<h3>int PassiveSubscreen;</h3>\nWhich engine passive subscreen to use on this dmap.\n\n<h3>int OverlaySubscreen;</h3>\nWhich engine overlay subscreen to use on this dmap.\n\n<h3>int ASubScript;</h3>\nWhich dmapdata script to use as a replacement for the engine active subscreen (0 for none).\n\n<h3>int PSubScript;</h3>\nWhich dmapdata script to run for passive subscreen draws.\n\n<h3>untyped SubInitD[8];</h3>\nThe 8 InitD values shared by the Active and Passive Subscreen Scripts."
                         },
                         {
                             "name": "Map Script ;; dmapdata::MapScript / dmapdata::MapInitD",

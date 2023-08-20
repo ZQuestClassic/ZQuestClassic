@@ -3906,7 +3906,7 @@ int32_t SW_MiscGaugePiece::read(PACKFILE *f, word s_version)
 {
 	if(auto ret = SW_GaugePiece::read(f, s_version))
 		return ret;
-	if(!p_getc(&counter, f))
+	if(!p_igetw(&counter, f))
 		return qe_invalid;
 	if(!p_igetw(&per_container,f))
 		return qe_invalid;
@@ -3916,7 +3916,7 @@ int32_t SW_MiscGaugePiece::write(PACKFILE *f) const
 {
 	if(auto ret = SW_GaugePiece::write(f))
 		return ret;
-	if(!p_putc(counter, f))
+	if(!p_iputw(counter, f))
 		new_return(1);
 	if(!p_iputw(per_container,f))
 		new_return(1);
@@ -4880,8 +4880,8 @@ int32_t ZCSubscreen::read(PACKFILE *f, word s_version)
         return qe_invalid;
 	if(!p_igetl(&flags,f))
 		new_return(1);
-	bool passive = sub_type == sstPASSIVE;
-	if(!passive)
+	bool active = sub_type == sstACTIVE;
+	if(active)
 	{
 		for(int q = 0; q < 4; ++q)
 			if(!p_igetw(&def_btns[q],f))
@@ -4924,8 +4924,8 @@ int32_t ZCSubscreen::write(PACKFILE *f) const
 		new_return(1);
 	if(!p_iputl(flags,f))
 		new_return(1);
-	bool passive = sub_type == sstPASSIVE;
-	if(!passive)
+	bool active = sub_type == sstACTIVE;
+	if(active)
 	{
 		for(int q = 0; q < 4; ++q)
 			if(!p_iputw(def_btns[q],f))
@@ -4948,7 +4948,7 @@ int32_t ZCSubscreen::write(PACKFILE *f) const
 		}
 	}
 	byte pagecnt = zc_min(MAX_SUBSCR_PAGES,pages.size());
-	if(pagecnt && passive)
+	if(pagecnt && !active)
 		pagecnt = 1;
 	if(!p_putc(pagecnt,f))
 		new_return(1);

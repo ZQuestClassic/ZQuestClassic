@@ -778,8 +778,8 @@ struct SW_GaugePiece : public SubscrWidget
 {
 	SubscrMTInfo mts[4];
 	word frames = 1, speed = 1, delay, container;
-	byte gauge_wid, gauge_hei;
-	byte hspace, vspace, unit_per_frame;
+	byte gauge_wid, gauge_hei, unit_per_frame;
+	int8_t hspace, vspace;
 	int16_t grid_xoff, grid_yoff;
 	word anim_val;
 	int16_t inf_item = -1;
@@ -845,7 +845,7 @@ protected:
 
 struct SW_MiscGaugePiece : public SW_GaugePiece
 {
-	byte counter;
+	int16_t counter;
 	word per_container = 1;
 	
 	SW_MiscGaugePiece() = default;

@@ -43,6 +43,7 @@ src/dialog/about.cpp
 src/dialog/subscr_props.cpp
 src/dialog/subscr_settings.cpp
 src/dialog/subscr_transition.cpp
+src/dialog/subscr_lists_edit.cpp
 src/dialog/room.cpp
 src/dialog/foodlg.cpp
 src/dialog/quest_rules.cpp

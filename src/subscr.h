@@ -45,7 +45,7 @@ INLINE void putdot(BITMAP *dest,int32_t x,int32_t y,int32_t c)
 // subscreen default types
 enum { ssdtOLD, ssdtNEWSUBSCR, ssdtREV2, ssdtBSZELDA, ssdtBSZELDAMODIFIED, ssdtBSZELDAENHANCED, ssdtBSZELDACOMPLETE, ssdtZ3, ssdtMAX };
 
-enum { sstACTIVE, sstPASSIVE, sstMAX };
+enum { sstACTIVE, sstPASSIVE, sstOVERLAY, sstMAX };
 
 enum { sssFULLPUSH, sssFULLSLIDEDOWN, sssMAX };
 
@@ -95,9 +95,10 @@ extern subscreen_object z3_active_a[80];
 extern subscreen_object z3_passive_a[66];
 extern subscreen_object z3_active_ab[82];
 extern subscreen_object z3_passive_ab[75];
-extern std::vector<ZCSubscreen> new_subscreen;
+extern std::vector<ZCSubscreen> subscreens_active, subscreens_passive, subscreens_overlay;
 extern ZCSubscreen *new_subscreen_active;
 extern ZCSubscreen *new_subscreen_passive;
+extern ZCSubscreen *new_subscreen_overlay;
 
 const byte tripiece[2][8][3] =
 {

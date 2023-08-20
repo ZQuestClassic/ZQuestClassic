@@ -356,8 +356,9 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 		std::shared_ptr<GUI::Grid> g1;
 		loc_grid = Column(
 				Row(
-					Column(
-						Label(text = "Display:"),
+					Rows<2>(
+						Label(text = "Display:", colSpan = 2),
+						INFOBTN("Draws while the active subscreen is UP (closed)"),
 						Checkbox(
 							text = "Active Up", hAlign = 0.0,
 							checked = local_subref->posflags & sspUP,
@@ -366,6 +367,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 								SETFLAG(local_subref->posflags,sspUP,state);
 							}
 						),
+						INFOBTN("Draws while the active subscreen is DOWN (open)"),
 						Checkbox(
 							text = "Active Down", hAlign = 0.0,
 							checked = local_subref->posflags & sspDOWN,
@@ -374,6 +376,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 								SETFLAG(local_subref->posflags,sspDOWN,state);
 							}
 						),
+						INFOBTN("Draws while the active subscreen is SCROLLING (opening/closing)"),
 						Checkbox(
 							text = "Active Scrolling", hAlign = 0.0,
 							checked = local_subref->posflags & sspSCROLLING,
@@ -893,10 +896,10 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 								INFOBTN("If >1, displays multiple gauge pieces height-wise."),
 								//
 								Label(text = "HSpace:", hAlign = 1.0),
-								gauge_gw[g++] = NUM_FIELD(w->hspace, 0, 255),
+								gauge_gw[g++] = NUM_FIELD(w->hspace, -128, 127),
 								INFOBTN("Extra space between gauge pieces width-wise."),
 								Label(text = "VSpace:", hAlign = 1.0),
-								gauge_gw[g++] = NUM_FIELD(w->vspace, 0, 255),
+								gauge_gw[g++] = NUM_FIELD(w->vspace, -128, 127),
 								INFOBTN("Extra space between gauge pieces height-wise."),
 								//
 								Label(text = "Grid XOffset:", hAlign = 1.0),
