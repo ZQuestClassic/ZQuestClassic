@@ -1,12 +1,19 @@
+#include "allegro5/allegro_native_dialog.h"
 #include "base/zc_alleg.h"
 #include "launcher/launcher_dialog.h"
+#include "base/zdefs.h"
 #include "dialog/common.h"
 #include "dialog/alert.h"
 #include "dialog/alertfunc.h"
+#include "dialog/info.h"
+#include "gui/button.h"
+#include "gui/tabpanel.h"
 #include "launcher/theme_editor.h"
 #include "launcher/launcher.h"
 #include "base/process_management.h"
+#include "launcher/launcher_dialog.h"
 #include "gui/builder.h"
+#include <fmt/format.h>
 
 LauncherDialog::LauncherDialog(){}
 
@@ -396,12 +403,50 @@ bool LauncherDialog::load_theme(char const* themefile)
 	return false;
 }
 
+static bool has_checked_for_updates = false;
+static bool found_new_update = false;
+static std::string next_version;
+static std::string next_asset_url;
+
+static bool check_for_updates()
+{
+	if (has_checked_for_updates)
+		return found_new_update;
+
+	has_checked_for_updates = true;
+
+	std::string output;
+	bool success = run_and_get_output(PYTHON, {
+		"tools/updater.py",
+		"--repo", getRepo(),
+		"--channel", getReleaseChannel(),
+		"--print-next-release",
+	}, output);
+
+	if (!success)
+		return found_new_update = false;
+
+	auto output_map = parse_output_map(output);
+	if (!output_map.contains("tag_name"))
+		return found_new_update = false;
+	if (!output_map.contains("asset_url"))
+		return found_new_update = false;
+
+	next_version = output_map["tag_name"];
+	next_asset_url = output_map["asset_url"];
+	return found_new_update = next_version != getReleaseTag();
+}
+
 std::shared_ptr<GUI::Widget> LauncherDialog::view()
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Key;
 	using namespace GUI::Props;
 	using namespace GUI::Lists;
+
+	if (zc_get_config("ZLAUNCH", "check_for_updates", false, App::launcher))
+		check_for_updates();
+
 	queue_revert = 0;
 	int32_t scale_large = zc_get_config("zquest","scale_large",1,App::zquest);
 	int32_t def_large_w = LARGE_W*scale_large;
@@ -409,6 +454,8 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 	int rightmost;
 	int bottommost;
 	ALLEGRO_MONITOR_INFO info;
+
+	std::shared_ptr<GUI::TabPanel> tabPanel;
 
 	al_get_monitor_info(0, &info);
 	rightmost = info.x2 - info.x1;
@@ -424,13 +471,21 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 		use_vsync = true,
 		onTick = [&](){return launcher_on_tick();},
 		Column(
-			TabPanel(
+			tabPanel = TabPanel(
 				focused = true,
 				minwidth = zq_screen_w - 60_px,
 				minheight = zq_screen_h - 100_px,
 				onSwitch = [&](size_t oldind, size_t newind)
 				{
-					if(newind < 3) //not a theme tab
+					if (newind == 6)
+					{
+						check_for_updates();
+						btn_download_update->setText(found_new_update ? "Update to " + next_version : "No update found");
+						btn_download_update->setDisabled(!found_new_update);
+						btn_release_notes->setDisabled(!found_new_update);
+					}
+
+					if(newind < 3 || newind >= 6) //not a theme tab
 					{
 						if(oldind < 3) return; //Already not a theme tab
 						//Load the ZCL theme
@@ -764,6 +819,34 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 							strcpy(tmp_themefile, theme_saved_filepath);
 						}
 					})
+				)),
+				TabRef(name = "Update", Column(padding = 0_px,
+					Row(framed = true,
+						Rows<2>(fitParent = true,
+							CONFIG_CHECKBOX_I("Check for updates on startup",App::launcher,"ZLAUNCH","check_for_updates",0,"Check for updates when starting ZLauncher. When a new version is available, ZLauncher will focus the Update tab on startup.")
+						)
+					),
+					Label(text = fmt::format("Current version: {}", getReleaseTag())),
+					Button(
+						text = "View Release Notes",
+						onClick = message::ZU_RELEASE_NOTES
+					),
+					Row(
+						Rows<2>(fitParent = true,
+							btn_download_update = Button(
+								// TODO: Will change button text dynamically, but that breaks an assumption in Button::realize
+								// re: usage of its `text.data()`. So let's reserve a large enough string to workaround that.
+								text = std::string(200, ' '),
+								maxwidth = 250_px,
+								onClick = message::ZU
+							),
+							btn_release_notes = Button(
+								text = "View Latest Release Notes",
+								onClick = message::ZU_RELEASE_NOTES_NEXT
+							)
+						)
+					),
+					Label(text = "Note: the updater requires Python 3 to be installed and configured in PATH")
 				))
 			),
 			Row(
@@ -780,6 +863,15 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 			)
 		)
 	);
+
+	if (found_new_update)
+	{
+		// Note: the onSwitch callback above does not run when calling `switchTo` below because the dialog has not been realized yet.
+		btn_download_update->setText("Update to " + next_version);
+		btn_download_update->setDisabled(false);
+		btn_release_notes->setDisabled(false);
+		tabPanel->switchTo(6);
+	}
 	
 	char path[4096] = {0};
 	relativize_path(path, zc_get_config("ZCMODULE", "current_module", "modules/classic.zmod", App::zelda));
@@ -796,11 +888,59 @@ bool LauncherDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 	switch(msg.message)
 	{
 		case message::ZC:
-			launch_process(ZELDA_FILE);
+			launch_process(ZPLAYER_FILE);
 			break;
 		case message::ZQ:
 			launch_process(ZQUEST_FILE);
 			break;
+		case message::ZU:
+		{
+			std::string output;
+			bool success = run_and_get_output(PYTHON, {
+				"tools/updater.py",
+				"--repo", getRepo(),
+				"--channel", getReleaseChannel(),
+				"--asset-url", next_asset_url,
+			}, output);
+			success &= output.find("success!") != std::string::npos;
+			al_trace("%s\n", output.c_str());
+			if (success)
+			{
+				InfoDialog("Updated!", fmt::format("Updated to {}! Restarting ZLauncher...", next_version)).show();
+				close_button_quit = true;
+			}
+			else
+			{
+				InfoDialog("Updater Error", output).show();
+			}
+		}
+		break;
+		case message::ZU_RELEASE_NOTES:
+		{
+			std::string url = fmt::format("https://www.github.com/{}/releases/tag/{}", getRepo(), getReleaseTag());
+#ifdef _WIN32
+			std::string cmd = "start " + url;
+			system(cmd.c_str());
+#elif defined(__APPLE__)
+			launch_process("open", {url});
+#else
+			launch_process("xdg-open", {url});
+#endif
+		}
+		break;
+		case message::ZU_RELEASE_NOTES_NEXT:
+		{
+			std::string url = fmt::format("https://www.github.com/{}/releases/tag/{}", getRepo(), next_version);
+#ifdef _WIN32
+			std::string cmd = "start " + url;
+			system(cmd.c_str());
+#elif defined(__APPLE__)
+			launch_process("open", {url});
+#else
+			launch_process("xdg-open", {url});
+#endif
+		}
+		break;
 		case message::EXIT:
 			close_button_quit = true;
 			return false;

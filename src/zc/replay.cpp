@@ -38,6 +38,7 @@ static const char TypeCheat = 'X';
 static const char TypeRng = 'R';
 static const char TypeKeyMap = 'K';
 static const char TypeMouse = 'V';
+static const char TypeState = 'S';
 
 static ReplayMode mode = ReplayMode::Off;
 static int version;
@@ -57,6 +58,7 @@ static int loadscr_count;
 static int failed_loadscr_count_frame;
 static size_t replay_log_current_index;
 static size_t replay_log_current_quit_index;
+static size_t replay_log_current_state_index;
 static size_t assert_current_index;
 static size_t manual_takeover_start_index;
 static bool has_assert_failed;
@@ -369,6 +371,26 @@ struct MouseReplayStep : ReplayStep
 	}
 };
 
+struct StateReplayStep : ReplayStep
+{
+	ReplayStateType state_type;
+    int value;
+
+	StateReplayStep(int frame, ReplayStateType state_type, int value) : ReplayStep(frame, TypeState), state_type(state_type), value(value)
+	{
+	}
+
+	void run()
+	{
+		// current_mouse_state = state;
+	}
+
+	std::string print()
+	{
+		return fmt::format("{} {} {} {}", type, frame, (int)state_type, value);
+	}
+};
+
 static int get_rng_index(zc_randgen *rng)
 {
     auto it = std::find(rngs.begin(), rngs.end(), rng);
@@ -475,6 +497,15 @@ static bool steps_are_equal(const ReplayStep* step1, const ReplayStep* step2)
 			auto mouse_replay_step = static_cast<const MouseReplayStep *>(step1);
 			auto mouse_record_step = static_cast<const MouseReplayStep *>(step2);
 			are_equal = mouse_replay_step->state == mouse_record_step->state;
+		}
+		break;
+		case TypeState:
+		{
+			auto state_replay_step = static_cast<const StateReplayStep *>(step1);
+			auto state_record_step = static_cast<const StateReplayStep *>(step2);
+			are_equal =
+				state_replay_step->state_type == state_record_step->state_type &&
+				state_replay_step->value == state_record_step->value;
 		}
 		break;
 		}
@@ -747,6 +778,13 @@ static void load_replay(std::filesystem::path path)
             std::array<int, 4> state = {x, y, z, b};
             replay_log.push_back(std::make_shared<MouseReplayStep>(frame, state));
         }
+        else if (type == TypeState)
+        {
+            int state_type, value;
+            iss >> state_type;
+            iss >> value;
+            replay_log.push_back(std::make_shared<StateReplayStep>(frame, (ReplayStateType)state_type, value));
+        }
 
         if (frame_arg != -1 && replay_log.size() && replay_log.back()->frame > frame_arg && mode != ReplayMode::Update)
         {
@@ -758,6 +796,7 @@ static void load_replay(std::filesystem::path path)
     file.close();
     replay_log_current_index = 0;
     replay_log_current_quit_index = 0;
+    replay_log_current_state_index = 0;
     version = replay_get_meta_int("version", 1);
     debug = replay_get_meta_bool("debug");
     sync_rng = replay_get_meta_bool("sync_rng");
@@ -946,6 +985,7 @@ static void do_replaying_poll()
     }
 
     replay_log_current_quit_index = replay_log_current_index;
+    replay_log_current_state_index = replay_log_current_index;
 }
 
 static void check_assert()
@@ -2067,4 +2107,40 @@ int replay_get_mouse(int index)
 void replay_set_mouse(int index, int value)
 {
 	current_mouse_state[index] = value;
+}
+
+
+int replay_get_state(ReplayStateType state_type, int fn())
+{
+	int value = 0;
+	if (replay_is_replaying())
+	{
+		value = 0;
+		while (replay_log_current_state_index < replay_log.size() && replay_log[replay_log_current_state_index]->frame == frame_count)
+		{
+			size_t i = replay_log_current_state_index;
+			replay_log_current_state_index += 1;
+
+			if (replay_log[i]->type == TypeState)
+			{
+				auto state_replay_step = static_cast<StateReplayStep *>(replay_log[i].get());
+				if (state_replay_step->state_type == state_type)
+					value = state_replay_step->value;
+				else
+					fail_replay(fmt::format("state desync: {}", (int)state_type));
+				break;
+			}
+		}
+	}
+	else
+	{
+		value = fn();
+	}
+
+	if (replay_is_recording())
+	{
+		record_log.push_back(std::make_shared<StateReplayStep>(frame_count, state_type, value));
+	}
+
+	return value;
 }

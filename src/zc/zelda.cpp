@@ -5092,7 +5092,7 @@ int main(int argc, char **argv)
 	// initialize sound driver
 	Z_message("Initializing sound driver... ");
 	
-	if(used_switch(argc,argv,"-s") || used_switch(argc,argv,"-nosound") || zc_get_config("zeldadx","nosound",0))
+	if(used_switch(argc,argv,"-s") || used_switch(argc,argv,"-nosound") || zc_get_config("zeldadx","nosound",0) || is_headless())
 	{
 		Z_message("skipped\n");
 	}

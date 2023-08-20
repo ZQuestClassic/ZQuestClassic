@@ -14,7 +14,7 @@
 # If any fail, a comparison report is generated for you.
 
 # To create a new replay test, run:
-#    ./zelda -record path_to_file.zplay -test path_to_game.qst dmap screen
+#    ./zplayer -record path_to_file.zplay -test path_to_game.qst dmap screen
 #
 # When done recording, just do Quit from the system menu.
 
@@ -594,10 +594,11 @@ class CLIPlayerInterface:
         # TODO: fix this common-ish error, and whatever else is causing random failures.
         # Assertion failed: (mutex), function al_lock_mutex, file threads.Assertion failed: (mutex), function al_lock_mutex, file threads.c, line 324.
         # Assertion failed: (mutex), function al_lock_mutex, file threads.c, line 324.
-        exe_name = 'zelda.exe' if os.name == 'nt' else 'zelda'
-        exe_path = args.build_folder / exe_name
+        exe_path = args.build_folder / ('zplayer.exe' if os.name == 'nt' else 'zplayer')
         if not exe_path.exists():
-            print(f'could not find executable at: {exe_path}\nYou may need to set the --build_folder arg (defaults to build/Release)')
+            exe_path = args.build_folder / ('zelda.exe' if os.name == 'nt' else 'zelda')
+        if not exe_path.exists():
+            print(f'could not find executable at: {args.build_folder}\nYou may need to set the --build_folder arg (defaults to build/Release)')
             os._exit(1)
 
         exe_args = [
@@ -609,7 +610,7 @@ class CLIPlayerInterface:
         ]
 
         if args.debugger:
-            exe_args = [sys.executable, root_dir / 'scripts/run_target.py', 'zelda'] + exe_args[1:]
+            exe_args = [sys.executable, root_dir / 'scripts/run_target.py', exe_path.stem] + exe_args[1:]
 
         snapshot_arg = get_arg_for_replay(replay_path, grouped_snapshot_arg)
         if snapshot_arg is not None:
@@ -623,6 +624,8 @@ class CLIPlayerInterface:
 
         if args.headless:
             exe_args.append('-headless')
+        elif is_mac_ci:
+            exe_args.append('-s')
 
         # Allegro seems to be using free'd memory when shutting down the sound system.
         # For now, just disable sound in CI or when using Asan/Coverage.
@@ -866,6 +869,8 @@ def run_replay_test(replay_file: pathlib.Path, output_dir: pathlib.Path) -> RunR
             break
         except ReplayTimeoutException:
             # Will try again.
+            if allegro_log_path.exists():
+                print(allegro_log_path.read_text('utf-8'))
             logging.exception('replay timed out')
             player_interface.stop()
         except KeyboardInterrupt:
@@ -1085,7 +1090,8 @@ def prompt_to_create_compare_report():
             gh, repo = prompt_for_gh_auth()
             build_dir = download_release(gh, repo, channel, tag)
         if channel == 'mac':
-            build_dir = build_dir / 'ZeldaClassic.app/Contents/Resources'
+            zc_app_path = next(build_dir).glob('*.app')
+            build_dir = zc_app_path / 'Contents/Resources'
 
         command_args = [
             sys.executable,

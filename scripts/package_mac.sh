@@ -4,7 +4,7 @@
 # First, install these tools:
 #     brew install dylibbundler create-dmg
 #
-# Does not need user input. When the Finder ZeldaClassic.app -> Applications window opens
+# Does not need user input. When the Finder ZQuestClassic.app -> Applications window opens
 # don't do anything - just wait.
 
 set -e
@@ -15,7 +15,7 @@ ROOT=$( dirname "$DIR" )
 build_dir="${1:-${ROOT}/build/Release}"
 packages_dir="$build_dir/packages"
 package_dir="$packages_dir/zc"
-mac_package_dir="$build_dir/packages/zelda-classic-mac"
+mac_package_dir="$build_dir/packages/zc-mac"
 
 set -eu
 cd "$ROOT"
@@ -35,12 +35,12 @@ if test "${SKIP_APP_BUNDLE+x}"; then
 fi
 
 # Prepare the Mac application bundle.
-contents="$mac_package_dir/ZeldaClassic.app/Contents"
+contents="$mac_package_dir/ZQuestClassic.app/Contents"
 
 rm -rf "$mac_package_dir"
 mkdir -p "$contents/MacOS"
+cp "$DIR/mac_entry.sh" "$contents/MacOS"
 cp "$DIR/Info.plist" "$contents"
-mv "$package_dir/zlauncher" "$contents/MacOS"
 mv "$package_dir" "$contents/Resources"
 
 # Generate icon.
@@ -70,32 +70,40 @@ find "$contents/Resources" -name "*.dylib" -exec mv {} "$tmp_libs_dir" \;
 
 # Correct the library paths in the executable, and codesign.
 dylibbundler -od -b -d "$contents/libs/" -s "$tmp_libs_dir" \
-    -x "$contents/MacOS/zlauncher" -x "$contents/Resources/zquest" \
-    -x "$contents/Resources/zelda" -x "$contents/Resources/zscript"
+    -x "$contents/Resources/zlauncher" -x "$contents/Resources/zquest" \
+    -x "$contents/Resources/zplayer" -x "$contents/Resources/zscript" \
+    -x "$contents/Resources/zupdater"
 rm -rf "$tmp_libs_dir"
+
+# Sign the app.
+codesign --force --deep --preserve-metadata=entitlements,requirements,flags,runtime --sign - "$contents/MacOS/mac_entry.sh"
 
 if test "${PACKAGE_DEBUG_INFO+x}"; then
   xcrun dsymutil \
-    "$contents/MacOS/zlauncher" \
-    "$contents/Resources/zelda" \
+    "$contents/Resources/zlauncher" \
+    "$contents/Resources/zplayer" \
     "$contents/Resources/zquest" \
     "$contents/Resources/zscript" \
+    "$contents/Resources/zupdater" \
     $(find "$contents/libs" -name '*.dylib' -type f) \
-    -o "$mac_package_dir/ZeldaClassic.app.dSYM"
+    -o "$mac_package_dir/ZQuestClassic.app.dSYM"
+else
+  echo "verifying code signing ..."
+  codesign --verify --verbose=4 "$mac_package_dir/ZQuestClassic.app"
 fi
 
 cd "$packages_dir"
-rm -f ZeldaClassic.dmg
+rm -f ZQuestClassic.dmg
 create-dmg \
-  --volname "ZeldaClassic" \
+  --volname "ZQuestClassic" \
   --volicon "$contents/Resources/icons.icns" \
   --window-pos 200 120 \
   --window-size 800 400 \
   --icon-size 100 \
-  --icon "ZeldaClassic.app" 200 190 \
-  --hide-extension "ZeldaClassic.app" \
+  --icon "ZQuestClassic.app" 200 190 \
+  --hide-extension "ZQuestClassic.app" \
   --app-drop-link 600 185 \
-  ZeldaClassic.dmg \
+  ZQuestClassic.dmg \
   "$mac_package_dir"
 
 echo "Done!"

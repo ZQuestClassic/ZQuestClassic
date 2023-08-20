@@ -120,6 +120,7 @@
 #include "base/ints.h"
 
 #include "metadata/metadata.h"
+#include "base/about.h"
 #include "base/zc_alleg.h"
 #include "base/general.h"
 #include "gamedata.h"
@@ -2295,11 +2296,6 @@ struct zquestheader
 };
 
 int8_t getProgramAlphaState();
-char const* getProgramAlphaVerStr();
-char const* getProgramVerStr();
-char const* getReleaseTag();
-char const* getReleaseChannel();
-char const* getRepo();
 
 #define MFORMAT_MIDI 0
 #define MFORMAT_NSF  1

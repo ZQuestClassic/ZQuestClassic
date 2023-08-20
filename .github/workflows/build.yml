@@ -62,7 +62,7 @@ env:
   CCACHE_DIR: ${{ github.workspace }}/.ccache
   CCACHE_MAXSIZE: 400M
   CCACHE_SLOPPINESS: time_macros
-  TARGET: zelda zquest zscript zlauncher
+  TARGET: zplayer zquest zscript zlauncher zupdater
 
 jobs:
   build:
@@ -76,7 +76,7 @@ jobs:
 
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: '3.11.4'
 
       - if: ${{ contains(inputs.runs-on, 'windows') }}
         uses: ilammy/msvc-dev-cmd@v1
@@ -149,10 +149,10 @@ jobs:
         run: |
           echo "CC=gcc" >> "$GITHUB_ENV"
           echo "CXX=g++" >> "$GITHUB_ENV"
-      # Coverage builds only need zelda.
+      # Coverage builds only need zplayer.
       - name: Set environment variables
         if: inputs.config == 'Coverage'
-        run: echo "TARGET=zelda" >> "$GITHUB_ENV"
+        run: echo "TARGET=zplayer" >> "$GITHUB_ENV"
       - run: cp src/metadata/*.h.sig src/metadata/sigs/
       - run: bash .github/workflows/configure-signatures.sh ${{ inputs.compiler }} ${{ inputs.versiontype }} ${{ inputs.full_release }} ${{ inputs.number }}
         if: ${{ inputs.versiontype }}
@@ -226,7 +226,7 @@ jobs:
             mv build/${{ inputs.config }}/packages/zc.zip build/${{ inputs.config }}/packages/${{ steps.set-package-name.outputs.package-name }}
           macos: |
             sh scripts/package_mac.sh ${{ github.workspace }}/build/${{ inputs.config }}
-            mv build/${{ inputs.config }}/packages/ZeldaClassic.dmg build/${{ inputs.config }}/packages/${{ steps.set-package-name.outputs.package-name }}
+            mv build/${{ inputs.config }}/packages/ZQuestClassic.dmg build/${{ inputs.config }}/packages/${{ steps.set-package-name.outputs.package-name }}
           linux: |
             python scripts/package.py --build_folder build/${{ inputs.config }}
             mv build/${{ inputs.config }}/packages/zc.tar.gz build/${{ inputs.config }}/packages/${{ steps.set-package-name.outputs.package-name }}

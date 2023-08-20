@@ -1,4 +1,4 @@
-// Very thin executable that just launches zelda.exe located in a folder called "data"
+// Very thin executable that just launches zplayer.exe located in a folder called "data"
 // next to this exe. Used by the basic standalone packaging feature.
 
 #include <windows.h>
@@ -11,10 +11,10 @@ int APIENTRY WinMain(HINSTANCE, HINSTANCE, PSTR, int)
     si.cb = sizeof(si);
     ZeroMemory(&pi, sizeof(pi));
 
-	TCHAR cmdArgs[] = "zelda.exe -package";
+	TCHAR cmdArgs[] = "zplayer.exe -package";
 
     CreateProcessA(
-        "data/zelda.exe",
+        "data/zplayer.exe",
         cmdArgs,
         NULL,
         NULL,

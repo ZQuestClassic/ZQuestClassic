@@ -12,7 +12,7 @@ All following examples assume a qst file `game.qst` with a title "My Game" (as s
 - My Game
 	- My Game.exe
 	- data/
-		- zelda.exe
+		- zplayer.exe
 		- zc_args.txt
 		- game.qst
 		- ... all support files ...
@@ -20,7 +20,7 @@ All following examples assume a qst file `game.qst` with a title "My Game" (as s
 
 This is located in the `packages` folder of the root installation folder.
 
-Double clicking `My Game.exe` launches `./data/zelda.exe` with the CLI
+Double clicking `My Game.exe` launches `./data/zplayer.exe` with the CLI
 switches listed in `zc_args.txt`. By default, the export tool provides
 these switches:
 

@@ -67,7 +67,7 @@ jobs:
         uses: nschloe/action-cached-lfs-checkout@d6efedcb8fc03d006e1e77743718e26234ed2c97
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.10' 
+          python-version: '3.11.4'
       - if: ${{ !contains(inputs.runs-on, 'ubuntu') }}
         run: pip install requests PyGithub==1.58.2 requests discord.py watchdog Pillow intervaltree cutie
       - if: ${{ contains(inputs.runs-on, 'ubuntu') }}
@@ -90,11 +90,11 @@ jobs:
             cd zc-extracted
             7z x ../${{ needs.build.outputs.artifact-name }}/${{ needs.build.outputs.package-name }}
           macos: |
-            echo "BUILD_FOLDER=$PWD/zc-extracted/ZeldaClassic.app/Contents/Resources" >> "$GITHUB_ENV"
+            echo "BUILD_FOLDER=$PWD/zc-extracted/ZQuestClassic.app/Contents/Resources" >> "$GITHUB_ENV"
             hdiutil attach -mountpoint zc-mounted ${{ needs.build.outputs.artifact-name }}/${{ needs.build.outputs.package-name }}
             mkdir zc-extracted
-            cp -r zc-mounted/ZeldaClassic.app zc-extracted
-            cp -r zc-mounted/ZeldaClassic.app.dSYM zc-extracted
+            cp -r zc-mounted/ZQuestClassic.app zc-extracted
+            cp -r zc-mounted/ZQuestClassic.app.dSYM zc-extracted
             hdiutil unmount zc-mounted
           linux: |
             echo "BUILD_FOLDER=$PWD/zc-extracted" >> "$GITHUB_ENV"
@@ -148,6 +148,16 @@ jobs:
         name: Test zquest
         run: bash .github/workflows/run_python.sh tests/test_zquest.py
 
+      - if: ${{ matrix.shard_index == 1 && inputs.extra-args == '' && inputs.config != 'Coverage' }}
+        name: Updater cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ github.workspace }}/.tmp/test_updater/cache
+          key: updater-cache-${{ runner.runs-on }}-${{ runner.arch }}
+      - if: ${{ matrix.shard_index == 1 && inputs.extra-args == '' && inputs.config != 'Coverage' }}
+        name: Test zupdater
+        run: bash .github/workflows/run_python.sh tests/test_updater.py
+
         # TODO why does this result in "could not open file: test.zplay" on Windows?
       - if: ${{ matrix.shard_index == 1 && inputs.extra-args == '' && runner.os != 'Windows' && inputs.config != 'Coverage' }}
         name: Test recording
@@ -155,8 +165,8 @@ jobs:
           cd ${{ env.BUILD_FOLDER }}
           set -ex
 
-          bash ${{ github.workspace }}/.github/workflows/run_target.sh zelda -headless -replay-exit-when-done -record test.zplay -frame 100 -replay-debug -test modules/classic/classic_1st.qst 0 119
-          bash ${{ github.workspace }}/.github/workflows/run_target.sh zelda -headless -v0 -replay-exit-when-done -assert test.zplay
+          bash ${{ github.workspace }}/.github/workflows/run_target.sh zplayer -headless -replay-exit-when-done -record test.zplay -frame 100 -replay-debug -test modules/classic/classic_1st.qst 0 119
+          bash ${{ github.workspace }}/.github/workflows/run_target.sh zplayer -headless -v0 -replay-exit-when-done -assert test.zplay
       # Simply open ZQuest with the new quest template.
       # TODO: randomly crashes during exit on Linux
       - if: ${{ matrix.shard_index == 1 && inputs.extra-args == '' && runner.os != 'Windows' && runner.os != 'Linux' && inputs.config != 'Coverage' }}
@@ -171,7 +181,7 @@ jobs:
 
           bash ${{ github.workspace }}/.github/workflows/run_target.sh zquest -headless -s -copy-qst modules/classic/classic_1st.qst tmp.qst
           mv tmp.qst modules/classic/classic_1st.qst
-          bash ${{ github.workspace }}/.github/workflows/run_target.sh zelda -headless -s -v0 -replay-exit-when-done -assert ${{ github.workspace }}/tests/replays/classic_1st.zplay
+          bash ${{ github.workspace }}/.github/workflows/run_target.sh zplayer -headless -s -v0 -replay-exit-when-done -assert ${{ github.workspace }}/tests/replays/classic_1st.zplay
 
       - name: Generate coverage json
         if: inputs.config == 'Coverage'
