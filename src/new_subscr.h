@@ -290,6 +290,7 @@ struct SubscrWidget
 	virtual int32_t write(PACKFILE *f) const;
 	
 	void check_btns(byte btnflgs, ZCSubscreen& parent) const;
+	std::string getTypeName() const;
 	
 	void replay_rand_compat(byte pos) const;
 	static SubscrWidget* fromOld(subscreen_object const& old);

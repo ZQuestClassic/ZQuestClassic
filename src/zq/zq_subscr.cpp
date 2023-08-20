@@ -25,6 +25,7 @@
 #include "dialog/info.h"
 #include "dialog/alert.h"
 #include "dialog/subscr_props.h"
+#include "dialog/info_lister.h"
 
 #ifndef _MSC_VER
 #include <strings.h>
@@ -40,8 +41,9 @@ extern void large_dialog(DIALOG *d, float RESIZE_AMT);
 extern bool zq_ignore_item_ownership;
 bool zq_view_fullctr = false, zq_view_maxctr = false,
 	zq_view_noinf = false, zq_view_allinf = false;
+bool subscr_confirm_delete = true;
 
-int32_t curr_subscreen_object;
+int32_t curr_widg;
 char str_oname[512];
 char str_cpyname[512];
 char subscr_namebuf[512];
@@ -66,6 +68,8 @@ int dragx, dragy;
 gamedata *game;
 
 void delete_subscreen(int32_t subscreenidx);
+SubscrWidget* create_new_widget_of(int32_t type, int x = 0, int y = 0);
+SubscrWidget* create_new_widget(int x = 0, int y = 0);
 
 static ListData item_list(itemlist_num, &font);
 
@@ -97,6 +101,7 @@ int32_t onGridSnapRight();
 int32_t onGridSnapTop();
 int32_t onGridSnapMiddle();
 int32_t onGridSnapBottom();
+static int32_t onToggleConfDelete();
 
 void subscr_properties(int indx)
 {
@@ -151,7 +156,7 @@ void paste_properties(int indx)
 		}
 	}
 }
-void paste_widget(int indx)
+void paste_widget_to(int indx)
 {
 	if(propCopyWidg)
 	{
@@ -161,7 +166,7 @@ void paste_widget(int indx)
 		targ->x = tx; targ->y = ty;
 	}
 }
-SubscrWidget* paste_widg_from_cb()
+SubscrWidget* paste_widget_new()
 {
 	if(!propCopyWidg) return nullptr;
 	SubscrPage& pg = subscr_edit.cur_page();
@@ -180,22 +185,42 @@ SubscrWidget* paste_widg_from_cb()
     update_up_dn_btns();
 	return widg;
 }
-int32_t onDuplCopiedSubscreenObject()
+SubscrWidget* paste_widget_new_at(int x, int y)
 {
-    paste_widg_from_cb();
+	SubscrWidget* widg = nullptr;
+	if(widg = paste_widget_new())
+	{
+		widg->x = x;
+		widg->y = y;
+	}
+	return widg;
+}
+int* force_paste_xy = nullptr;
+int32_t onDuplCopiedWidget()
+{
+	if(force_paste_xy)
+		paste_widget_new_at(force_paste_xy[0],force_paste_xy[1]);
+    else paste_widget_new();
     return D_O_K;
 }
-int32_t onDuplicateSubscreenObject()
+int32_t onNewWidget()
+{
+	if(force_paste_xy)
+		create_new_widget(force_paste_xy[0],force_paste_xy[1]);
+    else create_new_widget();
+    return D_O_K;
+}
+int32_t onDuplicateWidget()
 {
 	SubscrPage& pg = subscr_edit.cur_page();
     size_t objs = pg.contents.size();
     
     if(objs==0 || (key_shifts&KB_SHIFT_FLAG))
-		return onDuplCopiedSubscreenObject();
+		return onDuplCopiedWidget();
     
     for(int32_t i=0; i<objs; ++i)
     {
-        if(sso_selection[i] || i==curr_subscreen_object)
+        if(sso_selection[i] || i==curr_widg)
         {
 			SubscrWidget* widg = pg.contents[i]->clone();
 			if(!widg) continue;
@@ -212,70 +237,102 @@ int32_t onDuplicateSubscreenObject()
     return D_O_K;
 }
 
-int32_t onSubscreenObjectProperties()
+int32_t onWidgetProperties()
 {
-	subscr_properties(curr_subscreen_object);
+	subscr_properties(curr_widg);
 	return D_O_K;
 }
 int32_t onSubscrCopy()
 {
-	copy_properties(curr_subscreen_object);
+	copy_properties(curr_widg);
 	return D_O_K;
 }
 int32_t onSubscrPaste()
 {
 	if(subscr_edit.cur_page().contents.empty())
-		return onDuplCopiedSubscreenObject();
+		return onDuplCopiedWidget();
 	if(key_shifts & KB_CTRL_FLAG)
-		paste_widget(curr_subscreen_object);
-	else paste_properties(curr_subscreen_object);
+		paste_widget_to(curr_widg);
+	else paste_properties(curr_widg);
 	return D_O_K;
 }
 int32_t onSubscrPasteAll()
 {
-	paste_widget(curr_subscreen_object);
+	paste_widget_to(curr_widg);
 	return D_O_K;
 }
 int32_t onSubscrPasteProps()
 {
-	paste_properties(curr_subscreen_object);
+	paste_properties(curr_widg);
 	return D_O_K;
 }
 
 int32_t onNewSubscreenObject();
 
-int32_t onDeleteSubscreenObject()
+bool delete_widget()
 {
 	SubscrPage& pg = subscr_edit.cur_page();
     size_t objs=pg.contents.size();
     
     if(objs==0)
-        return D_O_K;
+        return false;
     
-	pg.delete_widg(curr_subscreen_object);
+	pg.delete_widg(curr_widg);
 	
 	//...shift the selection array
-    for(int32_t i=curr_subscreen_object; i<objs-1; ++i)
+    for(int32_t i=curr_widg; i<objs-1; ++i)
     {
         sso_selection[i]=sso_selection[i+1];
     }
     
     sso_selection[objs-1]=false;
     
-    if(curr_subscreen_object==objs-1)
-        --curr_subscreen_object;
+    if(curr_widg==objs-1)
+        --curr_widg;
     
     update_sso_name();
     update_up_dn_btns();
     
-    return D_O_K;
+    return true;
 }
-
+int32_t onDeleteWidgetC()
+{
+	SubscrPage& pg = subscr_edit.cur_page();
+    size_t objs=pg.contents.size();
+    
+    if(objs==0)
+        return D_O_K;
+	auto* widg = pg.get_widget(curr_widg);
+	if(widg)
+	{
+		bool run = true;
+		if(subscr_confirm_delete)
+		{
+			run = false;
+			AlertDialog("Delete Widget?",
+				fmt::format("Are you sure you want to delete widget {}, {}?",
+					curr_widg, widg->getTypeName()),
+				[&](bool ret,bool dsa)
+				{
+					run = ret;
+					if(dsa)
+						onToggleConfDelete();
+				},
+				"Yes","No",
+				0,false, //timeout - none
+				true //"Don't show this again"
+			).show();
+		}
+		if(run)
+			delete_widget();
+	}
+	return D_O_K;
+}
 int32_t onAddToSelection()
 {
-    if(curr_subscreen_object >= 0)
+    if(curr_widg >= 0)
     {
-        sso_selection[curr_subscreen_object]=true;
+        sso_selection[curr_widg]=true;
     }
     
     return D_O_K;
@@ -283,9 +340,9 @@ int32_t onAddToSelection()
 
 int32_t onRemoveFromSelection()
 {
-    if(curr_subscreen_object >= 0)
+    if(curr_widg >= 0)
     {
-        sso_selection[curr_subscreen_object]=false;
+        sso_selection[curr_widg]=false;
     }
     
     return D_O_K;
@@ -321,17 +378,82 @@ static int32_t onEditGrid();
 static int32_t onSelectionOptions();
 static int32_t onShowHideGrid();
 
+static MENU ss_arrange_menu[] =
+{
+    { (char *)"Bring to Front",       onBringToFront,          NULL, 0, NULL },
+    { (char *)"Bring Forward",        onBringForward,          NULL, 0, NULL },
+    { (char *)"Send Backward",        onSendBackward,          NULL, 0, NULL },
+    { (char *)"Send to Back",         onSendToBack,            NULL, 0, NULL },
+    { (char *)"Reverse",              onReverseArrangement,    NULL, 0, NULL },
+    { NULL,                           NULL,                    NULL, 0, NULL }
+};
 
+static MENU ss_grid_snap_menu[] =
+{
+    { (char *)"Left Edges",           onGridSnapLeft,          NULL, 0, NULL },
+    { (char *)"Horizontal Centers",   onGridSnapCenter,        NULL, 0, NULL },
+    { (char *)"Right Edges",          onGridSnapRight,         NULL, 0, NULL },
+    { (char *)"",                     NULL,                    NULL, 0, NULL },
+    { (char *)"Top Edges",            onGridSnapTop,           NULL, 0, NULL },
+    { (char *)"Vertical Centers",     onGridSnapMiddle,        NULL, 0, NULL },
+    { (char *)"Bottom Edges",         onGridSnapBottom,        NULL, 0, NULL },
+    { NULL,                           NULL,                    NULL, 0, NULL }
+};
+
+static MENU ss_align_menu[] =
+{
+    { (char *)"Left Edges",           onAlignLeft,             NULL, 0, NULL },
+    { (char *)"Horizontal Centers",   onAlignCenter,           NULL, 0, NULL },
+    { (char *)"Right Edges",          onAlignRight,            NULL, 0, NULL },
+    { (char *)"",                     NULL,                    NULL, 0, NULL },
+    { (char *)"Top Edges",            onAlignTop,              NULL, 0, NULL },
+    { (char *)"Vertical Centers",     onAlignMiddle,           NULL, 0, NULL },
+    { (char *)"Bottom Edges",         onAlignBottom,           NULL, 0, NULL },
+    { (char *)"",                     NULL,                    NULL, 0, NULL },
+    { (char *)"To Grid",              NULL,                    ss_grid_snap_menu, 0, NULL },
+    { NULL,                           NULL,                    NULL, 0, NULL }
+};
+
+static MENU ss_distribute_menu[] =
+{
+    { (char *)"Left Edges",           onDistributeLeft,             NULL, 0, NULL },
+    { (char *)"Horizontal Centers",   onDistributeCenter,           NULL, 0, NULL },
+    { (char *)"Right Edges",          onDistributeRight,            NULL, 0, NULL },
+    { (char *)"",                     NULL,                         NULL, 0, NULL },
+    { (char *)"Top Edges",            onDistributeTop,              NULL, 0, NULL },
+    { (char *)"Vertical Centers",     onDistributeMiddle,           NULL, 0, NULL },
+    { (char *)"Bottom Edges",         onDistributeBottom,           NULL, 0, NULL },
+    { NULL,                           NULL,                         NULL, 0, NULL }
+};
+
+static MENU ss_copypaste_menu[] =
+{
+	{ (char *)"&Copy Widget ",          onSubscrCopy,          NULL, 0, NULL },
+    { (char *)"&Duplicate Widget ",     onDuplicateWidget,     NULL, 0, NULL },
+    { (char *)"Paste Properties\t&V",   onSubscrPasteProps,    NULL, 0, NULL },
+    { (char *)"Paste All ",             onSubscrPasteAll,      NULL, 0, NULL },
+    { (char *)"",                       NULL,                  NULL, 0, NULL },
+    { (char *)"Paste New ",             onDuplCopiedWidget,    NULL, 0, NULL },
+    { NULL,                             NULL,                  NULL, 0, NULL }
+};
 static MENU subscreen_rc_menu[] =
 {
-    { (char *)"Properties ",       NULL,  NULL, 0, NULL },
-    { (char *)"Copy Widget ",      NULL,  NULL, 0, NULL },
-    { (char *)"Duplicate Widget ", NULL,  NULL, 0, NULL },
-    { (char *)"Paste Properties ", NULL,  NULL, 0, NULL },
-    { (char *)"Paste All ",        NULL,  NULL, 0, NULL },
-    { (char *)"",                  NULL,  NULL, 0, NULL },
-    { (char *)"Paste New ",        NULL,  NULL, 0, NULL },
-    { NULL,                        NULL,  NULL, 0, NULL }
+    { (char *)"Properties ",            onWidgetProperties,    NULL, 0, NULL },
+    { (char *)"New ",                   onNewWidget,           NULL, 0, NULL },
+    { (char *)"Delete ",                onDeleteWidgetC,       NULL, 0, NULL },
+    { (char *)"",                       NULL,                  NULL, 0, NULL },
+    { (char *)"&Copy/Paste   ",         NULL,     ss_copypaste_menu, 0, NULL },
+    { (char *)"",                       NULL,                  NULL, 0, NULL },
+    { (char *)"&Arrange ",              NULL,       ss_arrange_menu, 0, NULL },
+	{ (char *)"&Align ",                NULL,         ss_align_menu, 0, NULL },
+	{ (char *)"&Distribute ",           NULL,    ss_distribute_menu, 0, NULL },
+    { NULL,                             NULL,                  NULL, 0, NULL }
+};
+static MENU subscreen_rc_menu_nowidg[] =
+{
+    { (char *)"New ",                   onNewWidget,           NULL, 0, NULL },
+    { (char *)"Paste New ",             onDuplCopiedWidget,    NULL, 0, NULL },
+    { NULL,                             NULL,                  NULL, 0, NULL }
 };
 void update_subscr_dlg(bool start);
 int32_t d_subscreen_proc(int32_t msg,DIALOG *d,int32_t)
@@ -344,7 +466,7 @@ int32_t d_subscreen_proc(int32_t msg,DIALOG *d,int32_t)
 			clicked_obj = -1;
 			ssmouse_flags = 0;
 			onClearSelection();
-			curr_subscreen_object=0;
+			curr_widg=0;
 			update_sso_name();
 			update_up_dn_btns();
 			return D_O_K;
@@ -368,7 +490,7 @@ int32_t d_subscreen_proc(int32_t msg,DIALOG *d,int32_t)
 				SubscrPage& pg = subs->cur_page();
 				int cur_object = (unsigned(clicked_obj)<pg.contents.size())
 					? clicked_obj
-					: curr_subscreen_object;
+					: curr_widg;
 				for(int32_t i=0; i<pg.contents.size(); ++i)
 				{
 					if(sso_selection[i] || i == cur_object)
@@ -404,7 +526,7 @@ int32_t d_subscreen_proc(int32_t msg,DIALOG *d,int32_t)
 	
 	bool rclick = false;
 	bool shift = key[KEY_LSHIFT]||key[KEY_RSHIFT];
-	int rclickobj = curr_subscreen_object;
+	int rclickobj = curr_widg;
 	int scaled_mouse_x = gui_mouse_x(), scaled_mouse_y = gui_mouse_y();
 	if(isinRect(scaled_mouse_x,scaled_mouse_y,d->x, d->y, d->x+d->w-1, d->y+d->h-1))
 	{
@@ -437,8 +559,8 @@ int32_t d_subscreen_proc(int32_t msg,DIALOG *d,int32_t)
 							}
 							else
 							{
-								sso_selection[curr_subscreen_object]=true;
-								curr_subscreen_object=i;
+								sso_selection[curr_widg]=true;
+								curr_widg=i;
 								update_sso_name();
 								update_up_dn_btns();
 							}
@@ -446,7 +568,7 @@ int32_t d_subscreen_proc(int32_t msg,DIALOG *d,int32_t)
 						else
 						{
 							onClearSelection();
-							curr_subscreen_object=i;
+							curr_widg=i;
 							update_sso_name();
 							update_up_dn_btns();
 						}
@@ -519,23 +641,23 @@ int32_t d_subscreen_proc(int32_t msg,DIALOG *d,int32_t)
 								}
 								else
 								{
-									sso_selection[curr_subscreen_object]=true;
-									curr_subscreen_object=clicked_obj;
+									sso_selection[curr_widg]=true;
+									curr_widg=clicked_obj;
 									update_sso_name();
 									update_up_dn_btns();
 								}
 							}
 							else if(sso_selection[clicked_obj])
 							{
-								sso_selection[curr_subscreen_object]=true;
-								curr_subscreen_object=clicked_obj;
+								sso_selection[curr_widg]=true;
+								curr_widg=clicked_obj;
 								update_sso_name();
 								update_up_dn_btns();
 							}
 							else
 							{
 								onClearSelection();
-								curr_subscreen_object=clicked_obj;
+								curr_widg=clicked_obj;
 								update_sso_name();
 								update_up_dn_btns();
 							}
@@ -572,42 +694,34 @@ int32_t d_subscreen_proc(int32_t msg,DIALOG *d,int32_t)
 			break;
 		}
 	}
-	if(rclick && unsigned(rclickobj) < pg.contents.size())
+	if(rclick)
 	{
-		curr_subscreen_object = rclickobj;
-		object_message(d,MSG_DRAW,0);
-		
-		update_subscr_dlg(false);
-		int32_t m = popup_menu(subscreen_rc_menu,gui_mouse_x(),gui_mouse_y());
-		
-		switch(m)
+		int xy[2] = {scaled_mouse_x,scaled_mouse_y};
+		force_paste_xy = xy;
+		if(unsigned(rclickobj) < pg.contents.size())
 		{
-			case 0: // Properties
-				subscr_properties(rclickobj);
-				break;
-			case 1: // Copy Properties
-				copy_properties(rclickobj);
-				break;
-			case 2: //Duplicate object
-				onDuplicateSubscreenObject();
-				break;
-			case 3: // Paste Properties
-				paste_properties(rclickobj);
-				break;
-			case 4: //Paste All
-				paste_widget(rclickobj);
-				break;
-			case 6: //Paste New
-				if(SubscrWidget* widg = paste_widg_from_cb())
-				{
-					widg->x = scaled_mouse_x;
-					widg->y = scaled_mouse_y;
-				}
-				break;
+			curr_widg = rclickobj;
+			object_message(d,MSG_DRAW,0);
+			
+			update_subscr_dlg(false);
+			popup_menu(subscreen_rc_menu,gui_mouse_x(),gui_mouse_y());
+			
+			clicked_obj = -1;
+			ssmouse_flags = 0;
 		}
-		
-		clicked_obj = -1;
-		ssmouse_flags = 0;
+		else
+		{
+			curr_widg = -1;
+			object_message(d,MSG_DRAW,0);
+			
+			update_subscr_dlg(false);
+			popup_menu(subscreen_rc_menu_nowidg,gui_mouse_x(),gui_mouse_y());
+			
+			clicked_obj = -1;
+			ssmouse_flags = 0;
+		}
+		force_paste_xy = nullptr;
+		return D_REDRAW;
 	}
 	return D_O_K;
 }
@@ -631,7 +745,7 @@ int32_t onSSUp()
 	SubscrPage& pg = subscr_edit.cur_page();
 	for(int32_t i=0; i<pg.contents.size(); ++i)
 	{
-		if(sso_selection[i] || i==curr_subscreen_object)
+		if(sso_selection[i] || i==curr_widg)
 		{
 			if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
 			{
@@ -654,7 +768,7 @@ int32_t onSSDown()
 	SubscrPage& pg = subscr_edit.cur_page();
 	for(int32_t i=0; i<pg.contents.size(); ++i)
 	{
-		if(sso_selection[i] || i==curr_subscreen_object)
+		if(sso_selection[i] || i==curr_widg)
 		{
 			if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
 			{
@@ -677,7 +791,7 @@ int32_t onSSLeft()
 	SubscrPage& pg = subscr_edit.cur_page();
 	for(int32_t i=0; i<pg.contents.size(); ++i)
 	{
-		if(sso_selection[i] || i==curr_subscreen_object)
+		if(sso_selection[i] || i==curr_widg)
 		{
 			if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
 			{
@@ -700,7 +814,7 @@ int32_t onSSRight()
 	SubscrPage& pg = subscr_edit.cur_page();
 	for(int32_t i=0; i<pg.contents.size(); ++i)
 	{
-		if(sso_selection[i] || i==curr_subscreen_object)
+		if(sso_selection[i] || i==curr_widg)
 		{
 			if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
 			{
@@ -790,7 +904,7 @@ int32_t d_ssup_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
 			SubscrPage& pg = subscr_edit.cur_page();
 			for(int32_t i=0; i<pg.contents.size(); ++i)
 			{
-				if(sso_selection[i] || i==curr_subscreen_object)
+				if(sso_selection[i] || i==curr_widg)
 				{
 					--pg.contents[i]->h;
 				}
@@ -813,7 +927,7 @@ int32_t d_ssdn_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
 			SubscrPage& pg = subscr_edit.cur_page();
 			for(int32_t i=0; i<pg.contents.size(); ++i)
 			{
-				if(sso_selection[i] || i==curr_subscreen_object)
+				if(sso_selection[i] || i==curr_widg)
 				{
 					++pg.contents[i]->h;
 				}
@@ -836,7 +950,7 @@ int32_t d_sslt_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
 			SubscrPage& pg = subscr_edit.cur_page();
 			for(int32_t i=0; i<pg.contents.size(); ++i)
 			{
-				if(sso_selection[i] || i==curr_subscreen_object)
+				if(sso_selection[i] || i==curr_widg)
 				{
 					--pg.contents[i]->w;
 				}
@@ -859,7 +973,7 @@ int32_t d_ssrt_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
 			SubscrPage& pg = subscr_edit.cur_page();
 			for(int32_t i=0; i<pg.contents.size(); ++i)
 			{
-				if(sso_selection[i] || i==curr_subscreen_object)
+				if(sso_selection[i] || i==curr_widg)
 				{
 					++pg.contents[i]->w;
 				}
@@ -982,74 +1096,21 @@ const char *sso_alignment[3]=
 
 int32_t onActivePassive();
 
-static MENU ss_arrange_menu[] =
-{
-    { (char *)"Bring to Front",       onBringToFront,          NULL, 0, NULL },
-    { (char *)"Bring Forward",        onBringForward,          NULL, 0, NULL },
-    { (char *)"Send Backward",        onSendBackward,          NULL, 0, NULL },
-    { (char *)"Send to Back",         onSendToBack,            NULL, 0, NULL },
-    { (char *)"Reverse",              onReverseArrangement,    NULL, 0, NULL },
-    { NULL,                           NULL,                    NULL, 0, NULL }
-};
-
-static MENU ss_grid_snap_menu[] =
-{
-    { (char *)"Left Edges",           onGridSnapLeft,          NULL, 0, NULL },
-    { (char *)"Horizontal Centers",   onGridSnapCenter,        NULL, 0, NULL },
-    { (char *)"Right Edges",          onGridSnapRight,         NULL, 0, NULL },
-    { (char *)"",                     NULL,                    NULL, 0, NULL },
-    { (char *)"Top Edges",            onGridSnapTop,           NULL, 0, NULL },
-    { (char *)"Vertical Centers",     onGridSnapMiddle,        NULL, 0, NULL },
-    { (char *)"Bottom Edges",         onGridSnapBottom,        NULL, 0, NULL },
-    { NULL,                           NULL,                    NULL, 0, NULL }
-};
-
-static MENU ss_align_menu[] =
-{
-    { (char *)"Left Edges",           onAlignLeft,             NULL, 0, NULL },
-    { (char *)"Horizontal Centers",   onAlignCenter,           NULL, 0, NULL },
-    { (char *)"Right Edges",          onAlignRight,            NULL, 0, NULL },
-    { (char *)"",                     NULL,                    NULL, 0, NULL },
-    { (char *)"Top Edges",            onAlignTop,              NULL, 0, NULL },
-    { (char *)"Vertical Centers",     onAlignMiddle,           NULL, 0, NULL },
-    { (char *)"Bottom Edges",         onAlignBottom,           NULL, 0, NULL },
-    { (char *)"",                     NULL,                    NULL, 0, NULL },
-    { (char *)"To Grid",              NULL,                    ss_grid_snap_menu, 0, NULL },
-    { NULL,                           NULL,                    NULL, 0, NULL }
-};
-
-static MENU ss_distribute_menu[] =
-{
-    { (char *)"Left Edges",           onDistributeLeft,             NULL, 0, NULL },
-    { (char *)"Horizontal Centers",   onDistributeCenter,           NULL, 0, NULL },
-    { (char *)"Right Edges",          onDistributeRight,            NULL, 0, NULL },
-    { (char *)"",                     NULL,                         NULL, 0, NULL },
-    { (char *)"Top Edges",            onDistributeTop,              NULL, 0, NULL },
-    { (char *)"Vertical Centers",     onDistributeMiddle,           NULL, 0, NULL },
-    { (char *)"Bottom Edges",         onDistributeBottom,           NULL, 0, NULL },
-    { NULL,                           NULL,                         NULL, 0, NULL }
-};
-
 static MENU ss_edit_menu[] =
 {
 	{ (char *)"&New\tIns",                       onNewSubscreenObject,                 NULL, 0, NULL },
-	{ (char *)"&Delete\tDel",                    onDeleteSubscreenObject,              NULL, 0, NULL },
+	{ (char *)"&Delete\tDel",                    onDeleteWidgetC,                      NULL, 0, NULL },
 	{ (char *)"",                                NULL,                                 NULL, 0, NULL },
-	{ (char *)"&Duplicate\tD",                   onDuplicateSubscreenObject,           NULL, 0, NULL },
-	{ (char *)"&Copy Widget\tC",                 onSubscrCopy,                         NULL, 0, NULL },
+	{ (char *)"&Copy/Paste",                     NULL,                    ss_copypaste_menu, 0, NULL },
+	{ (char *)"",                                NULL,                                 NULL, 0, NULL },
 	//5
-	{ (char *)"Paste Properties (to)\t&V",       onSubscrPasteProps,                   NULL, 0, NULL },
-	{ (char *)"Paste All (to)\tCtrl+V",          onSubscrPasteAll,                     NULL, 0, NULL },
-	{ (char *)"Paste New Widget\tShift+D",       onDuplCopiedSubscreenObject,          NULL, 0, NULL },
+	{ (char *)"&Properties\tE",                  onWidgetProperties,                   NULL, 0, NULL },
 	{ (char *)"",                                NULL,                                 NULL, 0, NULL },
-	{ (char *)"&Properties\tE",                  onSubscreenObjectProperties,          NULL, 0, NULL },
+	{ (char *)"&Arrange",                        NULL,                      ss_arrange_menu, 0, NULL },
+	{ (char *)"Al&ign",                          NULL,                        ss_align_menu, 0, NULL },
+	{ (char *)"Dis&tribute",                     NULL,                   ss_distribute_menu, 0, NULL },
 	//10
 	{ (char *)"",                                NULL,                                 NULL, 0, NULL },
-	{ (char *)"&Arrange",                        NULL,                                 ss_arrange_menu, 0, NULL },
-	{ (char *)"Al&ign",                          NULL,                                 ss_align_menu, 0, NULL },
-	{ (char *)"Dis&tribute",                     NULL,                                 ss_distribute_menu, 0, NULL },
-	{ (char *)"",                                NULL,                                 NULL, 0, NULL },
-	//15
 	{ (char *)"Switch Active/Passive",           onActivePassive,                      NULL, 0, NULL },
 	{ (char *)"",                                NULL,                                 NULL, 0, NULL },
 	{ (char *)"&Take Snapshot\tZ",               onSnapshot,                           NULL, 0, NULL },
@@ -1141,6 +1202,7 @@ static MENU ss_settings_menu[] =
     { (char *)"&Subscreen Settings",        onSubscreenSettings,              NULL, 0, NULL },
     { (char *)"Se&lection Settings",        onSelectionOptions,               NULL, 0, NULL },
     { (char *)"&Mouse Settings",            NULL,                 ss_mouseset_menu, 0, NULL },
+    { (char *)"Confirm Delete",             onToggleConfDelete,               NULL, 0, NULL },
     { NULL,                                 NULL,                             NULL, 0, NULL }
 };
 
@@ -1214,9 +1276,9 @@ static DIALOG subscreen_dlg[] =
 	// 35
 	{ d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                'l',     0,          0,                      0, (void *) onClearSelection, NULL, NULL },
 	{ d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                0,       0,          KEY_INSERT,             0, (void *) onNewSubscreenObject, NULL, NULL },
-	{ d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                0,       0,          KEY_DEL,                0, (void *) onDeleteSubscreenObject, NULL, NULL },
-	{ d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                'd',     0,          0,                      0, (void *) onDuplicateSubscreenObject, NULL, NULL },
-	{ d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                'e',     0,          0,                      0, (void *) onSubscreenObjectProperties, NULL, NULL },
+	{ d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                0,       0,          KEY_DEL,                0, (void *) onDeleteWidgetC, NULL, NULL },
+	{ d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                'd',     0,          0,                      0, (void *) onDuplicateWidget, NULL, NULL },
+	{ d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                'e',     0,          0,                      0, (void *) onWidgetProperties, NULL, NULL },
 	// 40
 	{ d_keyboard_proc,      0,     0,     0,       0,    0,                 0,                'z',     0,          0,                      0, (void *) onSnapshot, NULL, NULL },
 	{ jwin_infobtn_proc,    284,  38,     15,     15,    0,                 0,                0,       0,          0,                      0, (void*)&arrow_infos[0], NULL, NULL },
@@ -1338,103 +1400,18 @@ static DIALOG sel_options_dlg[] =
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-const char *sso_old_str[ssoMAX]=
-{
-    "NULL", "(None)", "2x2 Frame", "Text", "Line", "Rectangle", "BS-Zelda Time", "Game Time", "Game Time (Quest Rule)", "Magic Meter", "Life Meter",
-    "Button Item", "-Icon (Not Implemented)", "Counter", "Counter Block", "Minimap Title", "Minimap", "Large Map", "Background Color", "Current Item", "-Item (Not Implemented)",
-    "Triangle Frame", "McGuffin Piece", "Tile Block", "Minitile", "Selector 1", "Selector 2", "Magic Gauge Piece", "Life Gauge Piece", "Text Box", "-Current Item -> Tile (Not Implemented)",
-    "-Selected Item -> Tile (Not Implemented)", "-Current Item -> Text (Not Implemented)", "-Current Item Name (Not Implemented)", "Selected Item Name",
-    "-Current Item Class -> Text (Not Implemented)", "-Current Item Class Name (Not Implemented)", "-Selected Item Class Name (Not Implemented)"
-};
-const char *sso_str[widgMAX]=
-{
-    "(None)", "2x2 Frame", "Text", "Line", "Rectangle",
-	"Playtime", "Magic Meter", "Life Meter", "Button Item", "Counter",
-	"Counter Block", "Minimap Title", "Minimap", "Large Map", "Background Color",
-	"Item Slot", "McGuffin Frame", "McGuffin Piece", "Tile Block", "Minitile",
-	"Selector", "Gauge Piece: Life", "Gauge Piece: Magic", "Text Box", "Selection Text",
-	"Gauge Piece: Counter"
-};
-
-char *sso_name(int32_t type)
-{
-    static char tempname[256];
-    
-    if(type>=0 && type <widgMAX)
-    {
-        sprintf(tempname, "%s", sso_str[type]);
-    }
-    else
-    {
-        sprintf(tempname, "INVALID OBJECT!  type=%d", type);
-    }
-    
-    return tempname;
-}
-
-sso_struct bisso[widgMAX];
-int32_t bisso_cnt=-1;
-
-void build_bisso_list()
-{
-    int32_t start=1;
-    bisso_cnt=0;
-    
-    for(int32_t i=start; i<widgMAX; i++)
-    {
-        if(sso_str[i][0]!='-')
-        {
-            bisso[bisso_cnt].s = (char *)sso_str[i];
-            bisso[bisso_cnt].i = i;
-            ++bisso_cnt;
-        }
-    }
-    
-    for(int32_t i=start; i<bisso_cnt-1; i++)
-    {
-        for(int32_t j=i+1; j<bisso_cnt; j++)
-        {
-            if(stricmp(bisso[i].s,bisso[j].s)>0)
-            {
-                std::swap(bisso[i],bisso[j]);
-            }
-        }
-    }
-}
-
-const char *ssolist(int32_t index, int32_t *list_size)
-{
-    if(index<0)
-    {
-        *list_size = bisso_cnt;
-        return NULL;
-    }
-    
-    return bisso[index].s;
-}
-
-static ListData sso_list(ssolist, &font);
-
-static DIALOG ssolist_dlg[] =
-{
-    // (dialog proc)      (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
-    { jwin_win_proc,        0,    0,   255,  148,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Select Object Type", NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { jwin_abclist_proc,    4,   24,   247,  95,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       D_EXIT,     0,             0, (void *) &sso_list, NULL, NULL },
-    { jwin_button_proc,    65,  123,  61,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-    { jwin_button_proc,   128,  123,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
-void doNewSubscreenObject(int32_t type)
+SubscrWidget* create_new_widget_of(int32_t type, int x, int y)
 {
 	SubscrWidget* widg = SubscrWidget::newType(type);
+	if(!widg) return nullptr;
 	widg->posflags = sspUP | sspDOWN | sspSCROLLING;
+	widg->x = x;
+	widg->y = y;
 	widg->w=1;
 	widg->h=1;
 	
-	int32_t temp_cso=curr_subscreen_object;
-	curr_subscreen_object=subscr_edit.cur_page().contents.size();
+	int32_t temp_cso=curr_widg;
+	curr_widg=subscr_edit.cur_page().contents.size();
 	
 	SubscrPage& pg = subscr_edit.cur_page();
 	if(sso_properties(widg,pg.contents.size())!=-1)
@@ -1442,29 +1419,26 @@ void doNewSubscreenObject(int32_t type)
 		pg.contents.push_back(widg);
 		update_sso_name();
 		update_up_dn_btns();
+		return widg;
 	}
 	else
 	{
-		curr_subscreen_object=temp_cso;
+		curr_widg=temp_cso;
 		delete widg;
+		return nullptr;
 	}
+}
+
+SubscrWidget* create_new_widget(int x, int y)
+{
+	SubscrWidgListerDialog().show(); //pick an index!
+    
+	return create_new_widget_of(lister_sel_val, x, y);
 }
 
 int32_t onNewSubscreenObject()
 {
-    int32_t ret=-1;
-    ssolist_dlg[0].dp2=get_zc_font(font_lfont);
-    build_bisso_list();
-    
-    large_dialog(ssolist_dlg);
-        
-    ret=zc_popup_dialog(ssolist_dlg,2);
-    
-    if(ret!=0&&ret!=4)
-    {
-		doNewSubscreenObject(bisso[ssolist_dlg[2].d1].i);
-    }
-    
+	create_new_widget();
     return D_O_K;
 }
 
@@ -1472,10 +1446,10 @@ int32_t onNewSubscreenObject()
 void align_objects(bool *selection, int32_t align_type)
 {
 	auto& pg = subscr_edit.cur_page();
-	auto* curwidg = pg.get_widget(curr_subscreen_object);
+	auto* curwidg = pg.get_widget(curr_widg);
 	if(!curwidg)
 	{
-		curr_subscreen_object = -1;
+		curr_widg = -1;
 		return;
 	}
 	int32_t l=curwidg->getX()+curwidg->getXOffs();
@@ -1490,7 +1464,7 @@ void align_objects(bool *selection, int32_t align_type)
 	
 	for(int32_t i=0; i<pg.contents.size(); ++i)
 	{
-		if(selection[i]&&i!=curr_subscreen_object)
+		if(selection[i]&&i!=curr_widg)
 		{
 			SubscrWidget& widg = *pg.contents[i];
 			int32_t tl=widg.getX()+widg.getXOffs();
@@ -1539,7 +1513,7 @@ void grid_snap_objects(bool *selection, int32_t snap_type)
 	auto& pg = subscr_edit.cur_page();
 	for(int32_t i=0; i < pg.contents.size(); ++i)
 	{
-		if(selection[i]||i==curr_subscreen_object)
+		if(selection[i]||i==curr_widg)
 		{
 			SubscrWidget& widg = *pg.contents[i];
 			int32_t tl=widg.getX()+widg.getXOffs();
@@ -1617,7 +1591,7 @@ void distribute_objects(bool *, int32_t distribute_type)
 	auto& pg = subscr_edit.cur_page();
 	for(int32_t i=0; i < pg.contents.size(); ++i)
 	{
-		if(sso_selection[i]==true||i==curr_subscreen_object)
+		if(sso_selection[i]==true||i==curr_widg)
 		{
 			SubscrWidget& widg = *pg.contents[i];
 			temp_do[count].index=i;
@@ -1754,25 +1728,6 @@ void distribute_objects(bool *, int32_t distribute_type)
 	}
 }
 
-int32_t onBringToFront()
-{
-    while(curr_subscreen_object<subscr_edit.cur_page().contents.size()-1)
-    {
-        onBringForward();
-    }
-    
-    return D_O_K;
-}
-
-int32_t onSendToBack()
-{
-    while(curr_subscreen_object>0)
-    {
-        onSendBackward();
-    }
-    
-    return D_O_K;
-}
 
 int32_t onReverseArrangement()
 {
@@ -1781,7 +1736,7 @@ int32_t onReverseArrangement()
     int32_t j=pg.contents.size()-1;
     subscreen_object tempsso;
     
-    sso_selection[curr_subscreen_object]=true;
+    sso_selection[curr_widg]=true;
     
     while(true)
     {
@@ -1793,14 +1748,14 @@ int32_t onReverseArrangement()
             
         if(i>=j)
         {
-            sso_selection[curr_subscreen_object]=false;
+            sso_selection[curr_widg]=false;
             return D_O_K;
         }
         
-        if(curr_subscreen_object==i)
-            curr_subscreen_object=j;
-        else if(curr_subscreen_object==j)
-            curr_subscreen_object=i;
+        if(curr_widg==i)
+            curr_widg=j;
+        else if(curr_widg==j)
+            curr_widg=i;
 		
 		zc_swap(pg.contents[i],pg.contents[j]);
         
@@ -1963,6 +1918,13 @@ static int32_t onToggleAllInf()
 	zc_set_config("editsubscr","show_all_infinites",zq_view_allinf?1:0);
     return D_O_K;
 }
+static int32_t onToggleConfDelete()
+{
+	subscr_confirm_delete = !subscr_confirm_delete;
+	SETFLAG(ss_settings_menu[3].flags, D_SELECTED, subscr_confirm_delete);
+	zc_set_config("editsubscr","confirm_delete",subscr_confirm_delete?1:0);
+    return D_O_K;
+}
 
 static int32_t onEditGrid()
 {
@@ -2028,7 +1990,7 @@ int32_t onSelectionOptions()
 
 void update_up_dn_btns()
 {
-    if(curr_subscreen_object<1)
+    if(curr_widg<1)
     {
         subscreen_dlg[10].flags|=D_DISABLED;
     }
@@ -2037,7 +1999,7 @@ void update_up_dn_btns()
         subscreen_dlg[10].flags&=~D_DISABLED;
     }
     
-    if(curr_subscreen_object>=subscr_edit.cur_page().contents.size()-1)
+    if(curr_widg>=subscr_edit.cur_page().contents.size()-1)
     {
         subscreen_dlg[9].flags|=D_DISABLED;
     }
@@ -2060,21 +2022,68 @@ int32_t onSSCtrlPgDn()
     return onSendBackward();
 }
 
-int32_t onSendBackward()
+static bool send_backwd()
 {
 	auto& pg = subscr_edit.cur_page();
-	if(curr_subscreen_object > 0 && curr_subscreen_object<subscr_edit.cur_page().contents.size()-1)
+	if(curr_widg > 0 && curr_widg < pg.contents.size())
 	{
-		pg.swap_widg(curr_subscreen_object,curr_subscreen_object-1);
-		zc_swap(sso_selection[curr_subscreen_object],sso_selection[curr_subscreen_object-1]);
-		--curr_subscreen_object;
-		update_sso_name();
+		pg.swap_widg(curr_widg,curr_widg-1);
+		zc_swap(sso_selection[curr_widg],sso_selection[curr_widg-1]);
+		--curr_widg;
+		return true;
 	}
-	
+	return false;
+}
+static bool send_fwd()
+{
+	auto& pg = subscr_edit.cur_page();
+	if(curr_widg<subscr_edit.cur_page().contents.size()-1)
+	{
+		pg.swap_widg(curr_widg,curr_widg+1);
+		zc_swap(sso_selection[curr_widg],sso_selection[curr_widg+1]);
+		++curr_widg;
+		return true;
+	}
+	return false;
+}
+
+int32_t onSendBackward()
+{
+	if(send_backwd())
+		update_sso_name();
 	update_up_dn_btns();
 	return D_O_K;
 }
 
+int32_t onBringForward()
+{
+	if(send_fwd())
+		update_sso_name();
+	update_up_dn_btns();
+	return D_O_K;
+}
+
+int32_t onBringToFront()
+{
+	if(send_fwd())
+	{
+		while(send_fwd());
+		update_sso_name();
+	}
+	update_up_dn_btns();
+    return D_O_K;
+}
+
+int32_t onSendToBack()
+{
+	if(send_backwd())
+	{
+		while(send_backwd());
+		update_sso_name();
+	}
+	update_up_dn_btns();
+    return D_O_K;
+}
 int32_t onSSPgDn()
 {
     if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
@@ -2083,11 +2092,11 @@ int32_t onSSPgDn()
     }
     else
     {
-        --curr_subscreen_object;
+        --curr_widg;
         
-        if(curr_subscreen_object<0)
+        if(curr_widg<0)
         {
-            curr_subscreen_object=subscr_edit.cur_page().contents.size()-1;
+            curr_widg=subscr_edit.cur_page().contents.size()-1;
         }
         
         update_sso_name();
@@ -2096,23 +2105,6 @@ int32_t onSSPgDn()
     
     return D_O_K;
 }
-
-// Send forward
-int32_t onBringForward()
-{
-	auto& pg = subscr_edit.cur_page();
-	if(curr_subscreen_object<subscr_edit.cur_page().contents.size()-1)
-	{
-		pg.swap_widg(curr_subscreen_object,curr_subscreen_object+1);
-		zc_swap(sso_selection[curr_subscreen_object],sso_selection[curr_subscreen_object+1]);
-		++curr_subscreen_object;
-		update_sso_name();
-	}
-	
-	update_up_dn_btns();
-	return D_O_K;
-}
-
 
 int32_t onSSPgUp()
 {
@@ -2124,11 +2116,11 @@ int32_t onSSPgUp()
     {
         if(!subscr_edit.cur_page().contents.empty())
         {
-            ++curr_subscreen_object;
+            ++curr_widg;
             
-            if(curr_subscreen_object>=subscr_edit.cur_page().contents.size())
+            if(curr_widg>=subscr_edit.cur_page().contents.size())
             {
-                curr_subscreen_object=0;
+                curr_widg=0;
             }
         }
         
@@ -2220,7 +2212,7 @@ void update_subscr_dlg(bool start)
 	{	
 		subscreen_dlg[0].dp2=get_zc_font(font_lfont);
 		refresh_subscr_items();
-		curr_subscreen_object=0;
+		curr_widg=0;
 		
 		if(subscr_edit.pages.empty())
 			subscr_edit.pages.emplace_back();
@@ -2228,7 +2220,7 @@ void update_subscr_dlg(bool start)
 			subscr_edit.curpage = 0;
 		if(subscr_edit.pages[subscr_edit.curpage].contents.empty())
 		{
-			curr_subscreen_object=-1;
+			curr_widg=-1;
 		}
 		
 		onClearSelection();
@@ -2369,12 +2361,10 @@ void update_subscr_dlg(bool start)
 	}
 	// Disable pastes if no copies
 	bool nocopies = (!propCopyWidg || propCopyWidg->getType()==widgNULL);
-	SETFLAG(subscreen_rc_menu[3].flags,D_DISABLED,nocopies);
-	SETFLAG(subscreen_rc_menu[4].flags,D_DISABLED,nocopies);
-	SETFLAG(subscreen_rc_menu[6].flags,D_DISABLED,nocopies);
-	SETFLAG(ss_edit_menu[5].flags,D_DISABLED,nocopies);
-	SETFLAG(ss_edit_menu[6].flags,D_DISABLED,nocopies);
-	SETFLAG(ss_edit_menu[7].flags,D_DISABLED,nocopies);
+	SETFLAG(ss_copypaste_menu[2].flags,D_DISABLED,nocopies);
+	SETFLAG(ss_copypaste_menu[3].flags,D_DISABLED,nocopies);
+	SETFLAG(ss_copypaste_menu[5].flags,D_DISABLED,nocopies);
+	SETFLAG(subscreen_rc_menu_nowidg[1].flags,D_DISABLED,nocopies);
 }
 void broadcast_dialog_message(DIALOG* dialog, int32_t msg, int32_t c);
 bool edit_subscreen()
@@ -2385,6 +2375,7 @@ bool edit_subscreen()
 	zq_view_maxctr = zc_get_config("editsubscr","show_maxed_maxcounters",0);
 	zq_view_noinf = zc_get_config("editsubscr","show_no_infinites",0);
 	zq_view_allinf = zc_get_config("editsubscr","show_all_infinites",0);
+	subscr_confirm_delete = zc_get_config("editsubscr","confirm_delete",0);
 	game = new gamedata();
 	game->set_time(0);
 	resetItems(game,&zinit,true);
@@ -2394,6 +2385,7 @@ bool edit_subscreen()
 	SETFLAG(ss_view_menu[7].flags, D_SELECTED, zq_view_maxctr);
 	SETFLAG(ss_view_menu[8].flags, D_SELECTED, zq_view_noinf);
 	SETFLAG(ss_view_menu[9].flags, D_SELECTED, zq_view_allinf);
+	SETFLAG(ss_settings_menu[3].flags, D_SELECTED, subscr_confirm_delete);
 	
 	update_subscr_dlg(true);
 	int dlg_ret = do_zqdialog_custom(subscreen_dlg,2,[&](int ret)
@@ -2787,16 +2779,16 @@ int32_t onEditSubscreens()
 
 void update_sso_name()
 {
-	auto* w = subscr_edit.cur_page().get_widget(curr_subscreen_object);
+	auto* w = subscr_edit.cur_page().get_widget(curr_widg);
 	if(w)
-		sprintf(str_oname, "%3d:  %s", curr_subscreen_object, sso_name(w->getType()));
+		sprintf(str_oname, "%3d:  %s", curr_widg, w->getTypeName().c_str());
 	else
 	{
-		curr_subscreen_object = -1;
+		curr_widg = -1;
 		sprintf(str_oname, "No object selected");
 	}
 	if(propCopyWidg)
-		sprintf(str_cpyname, "Copied:  '%s' from pg %d", sso_name(propCopyWidg->getType()), copied_page);
+		sprintf(str_cpyname, "Copied:  '%s' from pg %d", propCopyWidg->getTypeName().c_str(), copied_page);
 	else sprintf(str_cpyname, "Copied:  Nothing");
 	update_subscr_dlg(false);
 	broadcast_dialog_message(MSG_DRAW, 0);
@@ -2807,7 +2799,6 @@ void center_zq_subscreen_dialogs()
     jwin_center_dialog(grid_dlg);
     jwin_center_dialog(sel_options_dlg);
     jwin_center_dialog(sslist_dlg);
-    jwin_center_dialog(ssolist_dlg);
     jwin_center_dialog(sstemplatelist_dlg);
     jwin_center_dialog(subscreen_dlg);
 }

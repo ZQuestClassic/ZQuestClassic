@@ -313,8 +313,8 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
-	char titlebuf[512];
-	sprintf(titlebuf, "%s Properties (Object #%d)", sso_name(local_subref->getType()), index);
+	std::string titlebuf = fmt::format("{} Properties (Object #{})",
+		local_subref->getTypeName(), index);
 	
 	std::shared_ptr<GUI::Grid> loc_grid;
 	//Generate 'location' grid
@@ -615,6 +615,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			case widgTIME:
 			{
 				SW_Time* w = dynamic_cast<SW_Time*>(local_subref);
+				mergetype = mtFORCE_TAB;
 				attrib_grid = Columns<4>(
 					Label(text = "Font:", hAlign = 1.0),
 					Label(text = "Style:", hAlign = 1.0),
@@ -680,6 +681,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			case widgOLDCTR:
 			{
 				SW_Counters* w = dynamic_cast<SW_Counters*>(local_subref);
+				mergetype = mtFORCE_TAB;
 				attrib_grid = Rows<2>(
 					Label(text = "Font:", hAlign = 1.0),
 					DDL_FONT(w->fontid),
@@ -1052,6 +1054,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			case widgMMAP:
 			{
 				SW_MMap* w = dynamic_cast<SW_MMap*>(local_subref);
+				mergetype = mtFORCE_TAB;
 				attrib_grid = Column(
 					CBOX(w->flags, SUBSCR_MMAP_SHOWMAP, "Show Map", 1),
 					CBOX(w->flags, SUBSCR_MMAP_SHOWPLR, "Show Player", 1),
@@ -1062,6 +1065,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			case widgMMAPTITLE:
 			{
 				SW_MMapTitle* w = dynamic_cast<SW_MMapTitle*>(local_subref);
+				mergetype = mtFORCE_TAB;
 				attrib_grid = Rows<2>(
 					Label(text = "Font:", hAlign = 1.0),
 					DDL_FONT(w->fontid),
@@ -1182,6 +1186,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			case widgSELECTEDTEXT:
 			{
 				SW_SelectedText* w = dynamic_cast<SW_SelectedText*>(local_subref);
+				mergetype = mtFORCE_TAB;
 				attrib_grid = Rows<2>(
 					Label(text = "Font:", hAlign = 1.0),
 					DDL_FONT(w->fontid),
@@ -1209,6 +1214,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			case widgTEXT:
 			{
 				SW_Text* w = dynamic_cast<SW_Text*>(local_subref);
+				mergetype = mtFORCE_TAB;
 				attrib_grid = Rows<2>(
 					Label(text = "Font:", hAlign = 1.0),
 					DDL_FONT(w->fontid),
@@ -1237,6 +1243,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			case widgTEXTBOX:
 			{
 				SW_TextBox* w = dynamic_cast<SW_TextBox*>(local_subref);
+				mergetype = mtFORCE_TAB;
 				attrib_grid = Rows<2>(
 					Label(text = "Font:", hAlign = 1.0),
 					DDL_FONT(w->fontid),

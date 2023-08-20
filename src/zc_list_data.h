@@ -36,6 +36,7 @@ namespace GUI::ZCListData
     GUI::ListData const& deftypes();
     GUI::ListData const& warpeffects();
     GUI::ListData const& screenstate();
+    GUI::ListData const& subscr_widgets();
 }
 
 #endif

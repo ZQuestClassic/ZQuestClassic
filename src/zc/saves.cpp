@@ -1095,8 +1095,12 @@ static int32_t read_saves(ReadMode read_mode, std::string filename, std::vector<
 					return 108;
 			}
 		}
+		if(section_version >= 35)
+			for(int q = 0; q < itype_max; ++q)
+				if(!p_igetw(&game.OverrideItems[q],f))
+					return 113;
 	}
-
+	
 	return 0;
 }
 
@@ -1541,7 +1545,9 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 		if(!p_iputw(p.spr, f))
 			return 108;
 	}
-	
+	for(int q = 0; q < itype_max; ++q)
+		if(!p_iputw(game.OverrideItems[q],f))
+			return 109;
 	return 0;
 }
 

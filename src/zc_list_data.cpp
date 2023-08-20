@@ -810,5 +810,42 @@ GUI::ListData const& GUI::ZCListData::screenstate()
 	return screen_state;
 }
 
+static const GUI::ListData subscrWidgets =
+{
+	{ "(None)", widgNULL, "No Widget" },
+	{ "2x2 Frame", widgFRAME, "Draws a frame made up of 8x8 sections of a 2x2 of tiles" },
+	{ "Text", widgTEXT, "Displays some fixed text on the screen" },
+	{ "Line", widgLINE, "Draws a line" },
+	{ "Rectangle", widgRECT, "Draws a rectangle" },
+	{ "Playtime", widgTIME, "Draws the current playtime" },
+	{ "Magic Meter", widgMMETER, "Draws the old, hardcoded magic meter" },
+	{ "Life Meter", widgLMETER, "Draws the old, hardcoded life meter" },
+	{ "Button Item", widgBTNITM, "Draws the item currently equipped to a given button" },
+	{ "Counter", widgCOUNTER, "Draws a counter value (or sum of up to 3 counter values)" },
+	{ "Counter Block", widgOLDCTR, "Draws the classic counter block" },
+	{ "Minimap Title", widgMMAPTITLE, "Displays the title of the minimap" },
+	{ "Minimap", widgMMAP, "Draws the minimap, showing your location and surroundings" },
+	{ "Large Map", widgLMAP, "Draws the big map, showing more detailed location information" },
+	{ "Background Color", widgBGCOLOR, "Draws a color that covers the whole screen" },
+	{ "Item Slot", widgITEMSLOT, "A slot for an item, whether equippable or not." },
+	{ "McGuffin Frame", widgMCGUFF_FRAME, "A frame for showing off the McGuffins" },
+	{ "McGuffin Piece", widgMCGUFF, "A single McGuffin piece on display" },
+	{ "Tile Block", widgTILEBLOCK, "Draws a block of tiles" },
+	{ "Minitile", widgMINITILE, "Draws a quarter-tile" },
+	{ "Selector", widgSELECTOR, "Draws the selector cursor on the currently selected widget" },
+	{ "Gauge Piece: Life", widgLGAUGE, "Allows building highly customizable life gauges" },
+	{ "Gauge Piece: Magic", widgMGAUGE, "Allows building highly customizable magic gauges" },
+	{ "Text Box", widgTEXTBOX, "Displays some fixed text in a formatted box" },
+	{ "Selection Text", widgSELECTEDTEXT, "Displays text that changes based on the widget"
+		" currently selected by the cursor" },
+	{ "Gauge Piece: Counter", widgMISCGAUGE, "Allows building highly customizable gauges"
+		" for any counter" },
+};
+
+GUI::ListData const& GUI::ZCListData::subscr_widgets()
+{
+	return subscrWidgets;
+}
+
 
 
