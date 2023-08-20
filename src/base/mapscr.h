@@ -3,6 +3,7 @@
 
 #include "base/zdefs.h"
 #include "ffc.h"
+#include <vector>
 
 struct mapscr
 {
@@ -293,6 +294,10 @@ enum
 	rBOTTLESHOP,
 	rMAX
 };
+
+extern std::vector<mapscr> TheMaps;
+extern std::vector<word>   map_autolayers;
+extern word map_count;
 
 #endif
 

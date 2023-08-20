@@ -78,10 +78,10 @@ DIALOG strlist_dlg[] =
 	{ jwin_text_proc,       32, 165+22,    128,      8,   vc(15),  vc(1),   0,       0,       0,             0, (void *) "Default Text Speed: ", NULL, NULL },
 	{ jwin_edit_proc,      128, 165+18,     26,     16,   vc(12),  vc(1),   0,       0,       3,             0,       NULL, NULL, NULL },
 	
-	{ jwin_button_proc,    266,     74,     16,     16,   vc(14),  vc(1),  27,  D_EXIT,       0,             0, (void *) "\x88", NULL, NULL },
-	{ jwin_button_proc,    266,     99,     16,     16,   vc(14),  vc(1),  27,  D_EXIT,       0,             0, (void *) "\x89", NULL, NULL },
-	{ jwin_button_proc,    266,     44,     16,     16,   vc(14),  vc(1),  27,  D_EXIT,       0,             0, (void *) "\x88", NULL, NULL },
-	{ jwin_button_proc,    266,    129,     16,     16,   vc(14),  vc(1),  27,  D_EXIT,       0,             0, (void *) "\x89", NULL, NULL },
+	{ jwin_iconbutton_proc,266,     74,     16,     16,   vc(14),  vc(1),  27,  D_EXIT, BTNICON_ARROW_UP,    0, NULL, NULL, NULL },
+	{ jwin_iconbutton_proc,266,     99,     16,     16,   vc(14),  vc(1),  27,  D_EXIT, BTNICON_ARROW_DOWN,  0, NULL, NULL, NULL },
+	{ jwin_iconbutton_proc,266,     44,     16,     16,   vc(14),  vc(1),  27,  D_EXIT, BTNICON_ARROW_UP,    0, NULL, NULL, NULL },
+	{ jwin_iconbutton_proc,266,    129,     16,     16,   vc(14),  vc(1),  27,  D_EXIT, BTNICON_ARROW_DOWN,  0, NULL, NULL, NULL },
 	//15
 	{ jwin_check_proc,     188,    168,     0,      9,   vc(14),  vc(1),   0,       0,        1,             0, (void *) "Y is Offset", NULL, NULL },
 	{ jwin_button_proc,    120, 163+36,     71,     21,   vc(14),  vc(1),  13,  D_EXIT,       0,             0, (void *) "Add New Here", NULL, NULL },
@@ -96,8 +96,6 @@ DIALOG strlist_dlg[] =
 	{ jwin_check_proc,     213,     18,      0,      9,   vc(14),  vc(1),   0,  D_EXIT,       1,             0, (void *) "Sort Numerically", NULL, NULL },
 	{ NULL,                  0,      0,      0,      0,        0,     0,     0,      0,       0,             0,       NULL,  NULL,  NULL }
 };
-
-extern ListData shadowstyle_list;
 
 DIALOG editmsg_help_dlg[] =
 {

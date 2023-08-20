@@ -762,7 +762,7 @@ int32_t mapind(int32_t map, int32_t scr)
 
 FONT *get_zc_font(int index);
 
-extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
+extern sprite_list  guys, items, Ewpns, Lwpns, chainlinks, decorations;
 extern particle_list particles;
 extern movingblock mblock2;                                 //mblock[4]?
 extern portal mirror_portal;

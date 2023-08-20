@@ -25,10 +25,7 @@
 #include "zq/zquest.h"
 
 extern void restore_mouse();
-extern std::vector<mapscr> TheMaps;
-extern std::vector<word>   map_autolayers;
 extern zquestheader header;
-extern word map_count;
 
 extern int32_t onHelp();
 extern int32_t jwin_pal[jcMAX];

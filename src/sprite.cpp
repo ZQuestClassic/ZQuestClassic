@@ -2785,7 +2785,6 @@ bool movingblock::draw(BITMAP* dest, int layer)
 	if(!(fallclk || drownclk || clk)) return false;
 	if(layer < 0 || blockLayer == layer)
 	{
-		zprint2("mblock2.draw for layer %d\n", layer);
 		draw(dest);
 		return true;
 	}

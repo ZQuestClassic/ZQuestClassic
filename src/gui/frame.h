@@ -15,7 +15,7 @@ public:
 	// Ordered to match the old jwin enum
 	enum class style
 	{
-		RAISED, RAISED_2, SUNKEN_2, SUNKEN, THICK_LINE, ETCHED, LINE
+		INVIS = -1, RAISED, RAISED_2, SUNKEN_2, SUNKEN, THICK_LINE, ETCHED, LINE, RED, GREEN
 	};
 
 	Frame();
@@ -25,10 +25,7 @@ public:
 	void setInfo(const std::string& str);
 
 	/* Sets the frame's style. */
-	inline void setStyle(style newStyle)
-	{
-		frameStyle = newStyle;
-	}
+	void setStyle(style newStyle);
 
 	/* Sets the widget that will appear in the frame. */
 	void setContent(std::shared_ptr<Widget> newContent) noexcept

@@ -746,26 +746,26 @@ static int32_t read_saves(ReadMode read_mode, std::string filename, std::vector<
 			}
 		}
 		
-		if(section_version>6)
+		if(section_version >= 34)
+		{
+			if(!p_igetw(&game.awpn,f))
+				return 109;
+			if(!p_igetw(&game.bwpn,f))
+				return 110;
+		}
+		else if(section_version>6)
 		{
 			if(!p_getc(&tempbyte, f))
-			{
-				return 50;
-			}
-			
-			game.awpn = tempbyte;
-			
-			if(!p_getc(&tempbyte, f))
-			{
-				return 51;
-			}
-			
-			game.bwpn = tempbyte;
+				return 58;
+			game.awpn = tempbyte<<8;
+			if(!p_getc(&tempbyte,f))
+				return 59;
+			game.bwpn = tempbyte<<8;
 		}
 		else
 		{
-			game.awpn = 0;
-			game.bwpn = 0;
+			game.awpn = 255;
+			game.bwpn = 255;
 		}
 		
 		//First we get the size of the vector
@@ -815,37 +815,26 @@ static int32_t read_saves(ReadMode read_mode, std::string filename, std::vector<
 			game.forced_awpn = -1;
 			game.forced_bwpn = -1;
 		}
-		if (section_version > 17)
+		if(section_version >= 34)
 		{
-			
+			if(!p_igetw(&game.xwpn,f))
+				return 111;
+			if(!p_igetw(&game.ywpn,f))
+				return 112;
+		}
+		else if (section_version > 17)
+		{
 			if(!p_getc(&tempbyte, f))
-			{
 				return 58;
-			}
-			
-			game.xwpn = tempbyte;
-			
-			if(!p_getc(&tempbyte, f))
-			{
+			game.xwpn = tempbyte<<8;
+			if(!p_getc(&tempbyte,f))
 				return 59;
-			}
-			
-			game.ywpn = tempbyte;
-		
-			
-			if(!p_igetw(&tempword3, f))
-			{
+			game.ywpn = tempbyte<<8;
+			if(!p_igetw(&game.forced_xwpn, f))
 				return 60;
-			}
 			
-			game.forced_xwpn = tempword3;
-			
-			if(!p_igetw(&tempword4, f))
-			{
+			if(!p_igetw(&game.forced_ywpn, f))
 				return 61;
-			}
-			
-			game.forced_ywpn = tempword4;
 		}
 		else
 		{
@@ -1115,8 +1104,12 @@ static int32_t read_saves(ReadMode read_mode, std::string filename, std::vector<
 					return 108;
 			}
 		}
+		if(section_version >= 35)
+			for(int q = 0; q < itype_max; ++q)
+				if(!p_igetw(&game.OverrideItems[q],f))
+					return 113;
 	}
-
+	
 	return 0;
 }
 
@@ -1333,12 +1326,12 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 		}
 	}
 	
-	if(!p_putc(game.awpn, f))
+	if(!p_iputw(game.awpn, f))
 	{
 		return 49;
 	}
 	
-	if(!p_putc(game.bwpn, f))
+	if(!p_iputw(game.bwpn, f))
 	{
 		return 50;
 	}
@@ -1379,11 +1372,11 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 	{
 		return 57;
 	}
-	if(!p_putc(game.xwpn, f))
+	if(!p_iputw(game.xwpn, f))
 	{
 		return 58;
 	}
-	if(!p_putc(game.ywpn, f))
+	if(!p_iputw(game.ywpn, f))
 	{
 		return 59;
 	}
@@ -1561,7 +1554,9 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 		if(!p_iputw(p.spr, f))
 			return 108;
 	}
-	
+	for(int q = 0; q < itype_max; ++q)
+		if(!p_iputw(game.OverrideItems[q],f))
+			return 109;
 	return 0;
 }
 

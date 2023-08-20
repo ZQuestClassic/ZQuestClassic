@@ -2,6 +2,10 @@
 #include "base/zsys.h"
 #include "base/qrs.h"
 
+std::vector<mapscr> TheMaps;
+std::vector<word> map_autolayers;
+word map_count = 0;
+
 byte mapscr::ffEffectWidth(size_t ind) const
 {
 	return (byte)ffcs[ind].hit_width;

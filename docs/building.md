@@ -34,15 +34,15 @@ Download CMake and run the CMake GUI. It will prompt your for the location of th
 
 Click "Generate." This will create a Visual Studio project file for you in the build directory. You can then open up the project file in MSVC and do editing/compilation/debugging in MSVC. You do not need to touch CMake again unless you want to change project configuration options or add/remove source files.
 
-# Building on Ubuntu
+# Building on Linux
+
+These instructions are specific to Ubuntu.
 
 ```sh
 sudo apt update
 sudo apt install build-essential gcc-multilib g++-multilib libx11-dev libglu1-mesa-dev freeglut3-dev mesa-common-dev libxcursor1 libasound2-dev libgtk-3-dev flex bison
 
-# Configure build for GCC
-cmake -B build -S .
-# Or: configure for clang
+# Note: We do not build or test with gcc, so gcc is not guarenteed to work. clang 14+ is advised.
 CC=clang CXX=clang++ cmake -B build -S .
 
 # Build!

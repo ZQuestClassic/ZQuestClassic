@@ -111,9 +111,10 @@ bool AlertFuncDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 	switch(msg.message)
 	{
 		case message::OK:
+		case message::CANCEL:
 			return true;
 		case message::BTN:
 			return didend;
 	}
-	return true;
+	return false;
 }

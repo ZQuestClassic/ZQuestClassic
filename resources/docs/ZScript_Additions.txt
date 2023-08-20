@@ -3286,6 +3286,14 @@ int MiscSprites[MISCSPR_MAX];
 int MiscSFX[MISCSFX_MAX];
  * The quest's misc sfx. Use the 'MISCSFX_' constants to access this array.
 
+int OverrideItems[IC_MAX];
+ * The override values for each itemclass.
+ * Default value is `-2`. If set to `-2`, no override occurs.
+ * If > -2, anything that checks for the "highest level item" of this class,
+ *     uses this ID instead.
+ * A value of '-1' indicates forcing it to return "no item".
+ * If set to an item ID that is of the wrong itemclass, has no effect.
+
 untyped EventData[?];
  * Contains event data for use with 'WaitEvent()' in generic scripts.
  * Use the appropriate set of 'GENEV_' constants based on the event.
@@ -6507,6 +6515,9 @@ int ActiveSubscreen;
  
 int PassiveSubscreen;
  * The passive subscreen ID.
+
+int OverlaySubscreen;
+ * The overlay subscreen ID.
  
 int Grid[8];
  * The rooms displayed either when the player has the map item,

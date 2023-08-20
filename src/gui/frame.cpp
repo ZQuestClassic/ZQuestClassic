@@ -34,6 +34,15 @@ void Frame::setInfo(const std::string& newInfo)
 	info = newInfo;
 }
 
+void Frame::setStyle(style newStyle)
+{
+	frameStyle = newStyle;
+	if (alDialog)
+	{
+		alDialog->d1 = int(newStyle);
+	}
+}
+
 void Frame::applyVisibility(bool visible)
 {
 	Widget::applyVisibility(visible);
@@ -68,7 +77,12 @@ void Frame::calculateSize()
 		int extraHeight = 8;
 		if(!title.empty())
 			extraHeight += text_height(widgFont);
-		setPreferredWidth(Size::pixels(content->getTotalWidth()+8));
+		
+		int title_wid = title.empty() ? 0 : (text_length(widgFont,title.c_str())+10);
+		if(!info.empty())
+			title_wid += text_length(widgFont,"?")*3+2;
+		int content_wid = content->getTotalWidth()+8;
+		setPreferredWidth(Size::pixels(zc_max(title_wid,content_wid)));
 		setPreferredHeight(Size::pixels(content->getTotalHeight()+extraHeight));
 	}
 	else
@@ -88,6 +102,7 @@ void Frame::arrange(int32_t contX, int32_t contY, int32_t contW, int32_t contH)
 		int extraHeight = 8;
 		if(!title.empty())
 			extraHeight += text_height(widgFont);
+		
 		content->arrange(x+4, cnt_y, getWidth()-8, getHeight()-extraHeight);
 	}
 }

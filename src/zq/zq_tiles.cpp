@@ -891,6 +891,26 @@ void draw_text_button(BITMAP *dest,int32_t x,int32_t y,int32_t w,int32_t h,const
 	}
 }
 
+void draw_icon_button(BITMAP *dest,int32_t x,int32_t y,int32_t w,int32_t h,int icon,int32_t bg,int32_t fg,int32_t flags,bool jwin)
+{
+	if(!jwin)
+	{
+		if(flags&D_SELECTED)
+		{
+			zc_swap(fg,bg);
+		}
+		
+		rect(dest,x+1,y+1,x+w-1,y+h-1,fg);
+		rectfill(dest,x+1,y+1,x+w-3,y+h-3,bg);
+		rect(dest,x,y,x+w-2,y+h-2,fg);
+		jwin_draw_icon(dest,x+w/2,y+h/2,fg,icon,icon_proportion(icon,w,h),true);
+	}
+	else
+	{
+		jwin_draw_icon_button(dest, x, y, w, h, icon, flags, true);
+	}
+}
+
 void draw_layer_button(BITMAP *dest,int32_t x,int32_t y,int32_t w,int32_t h,const char *text,int32_t flags)
 {
 	if(flags&D_SELECTED)
@@ -5805,10 +5825,10 @@ void tile_info_0(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copy
 	draw_text_button(screen2,(150+28*3)*mul,213*mul+yofs,28*mul,21*mul,"Recolor",jwin_pal[jcBOXFG],jwin_pal[jcBOX],0,true);
 	draw_text_button(screen2,(150+28*4)*mul,213*mul+yofs,28*mul,21*mul,"Done",jwin_pal[jcBOXFG],jwin_pal[jcBOX],0,true);
 	
-	textprintf_ex(screen2,font,305*mul,212*mul+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"\x88");
+	jwin_draw_icon(screen2,(305*mul+4),220*mul-6+yofs,jwin_pal[jcBOXFG],BTNICON_ARROW_UP,6,true);
 	textprintf_ex(screen2,tfont,293*mul,220*mul+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"p:");
 	textprintf_centre_ex(screen2,tfont,(305*mul+4),220*mul+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",page);
-	textprintf_ex(screen2,font,305*mul,228*mul+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"\x89");
+	jwin_draw_icon(screen2,(305*mul+4),228*mul+3+yofs,jwin_pal[jcBOXFG],BTNICON_ARROW_DOWN,6,true);
 	
 	font = tf;
 
@@ -5897,10 +5917,10 @@ void tile_info_1(int32_t oldtile,int32_t oldflip,int32_t oldcs,int32_t tile,int3
 		textprintf_ex(screen2,tfont,205*mul,228*mul+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",flip);
 	}
 	
-	textprintf_ex(screen2,font,305*mul,212*mul+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"\x88");
+	jwin_draw_icon(screen2,(305*mul+4),220*mul-6+yofs,jwin_pal[jcBOXFG],BTNICON_ARROW_UP,6,true);
 	textprintf_ex(screen2,tfont,293*mul,220*mul+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"p:");
 	textprintf_centre_ex(screen2,tfont,309*mul,220*mul+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",page);
-	textprintf_ex(screen2,font,305*mul,228*mul+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"\x89");
+	jwin_draw_icon(screen2,(305*mul+4),228*mul+3+yofs,jwin_pal[jcBOXFG],BTNICON_ARROW_DOWN,6,true);
 	
 
 	int32_t w = 640;
@@ -7892,17 +7912,6 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 			//Check subscreen objects
 			//Tried to have a go at this but I think it's a bit too complicated for me at the moment.
 			//Might come back to it another time and see what I can do ~Joe123
-			/*if(!done){
-				 for(int32_t u=0;u<MAXCUSTOMSUBSCREENS;u++){
-					 if(!custom_subscreen[u].ss_type) continue;
-					 for(int32_t v=0;v<MAXSUBSCREENITEMS;v++){
-						  if(custom_subscreen[u].objects[v].type != ssoTILEBLOCK) continue;
-						  subscreen_items[0].tile = custom_subscreen[u].objects[v].d1;
-						  subscreen_items[0].width = custom_subscreen[u].objects[v].w;
-						  subscreen_items[0].height = custom_subscreen[u].objects[v].h;
-					 }
-				 }
-			}*/
 			
 			//check map styles
 			if(!done)
@@ -9439,17 +9448,6 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 			//Check subscreen objects
 			//Tried to have a go at this but I think it's a bit too complicated for me at the moment.
 			//Might come back to it another time and see what I can do ~Joe123
-			/*if(!done){
-				 for(int32_t u=0;u<MAXCUSTOMSUBSCREENS;u++){
-					 if(!custom_subscreen[u].ss_type) continue;
-					 for(int32_t v=0;v<MAXSUBSCREENITEMS;v++){
-						  if(custom_subscreen[u].objects[v].type != ssoTILEBLOCK) continue;
-						  subscreen_items[0].tile = custom_subscreen[u].objects[v].d1;
-						  subscreen_items[0].width = custom_subscreen[u].objects[v].w;
-						  subscreen_items[0].height = custom_subscreen[u].objects[v].h;
-					 }
-				 }
-			}*/
 			
 			//check map styles
 			if(!done)
@@ -10816,17 +10814,6 @@ bool do_movetile_united(tile_move_data const& tmd)
 			//Check subscreen objects
 			//Tried to have a go at this but I think it's a bit too complicated for me at the moment.
 			//Might come back to it another time and see what I can do ~Joe123
-			/*if(!done){
-				 for(int32_t u=0;u<MAXCUSTOMSUBSCREENS;u++){
-					 if(!custom_subscreen[u].ss_type) continue;
-					 for(int32_t v=0;v<MAXSUBSCREENITEMS;v++){
-						  if(custom_subscreen[u].objects[v].type != ssoTILEBLOCK) continue;
-						  subscreen_items[0].tile = custom_subscreen[u].objects[v].d1;
-						  subscreen_items[0].width = custom_subscreen[u].objects[v].w;
-						  subscreen_items[0].height = custom_subscreen[u].objects[v].h;
-					 }
-				 }
-			}*/
 			
 			//check map styles
 			if(!done)
@@ -12493,17 +12480,6 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 			//Check subscreen objects
 			//Tried to have a go at this but I think it's a bit too complicated for me at the moment.
 			//Might come back to it another time and see what I can do ~Joe123
-			/*if(!done){
-				 for(int32_t u=0;u<MAXCUSTOMSUBSCREENS;u++){
-					 if(!custom_subscreen[u].ss_type) continue;
-					 for(int32_t v=0;v<MAXSUBSCREENITEMS;v++){
-						  if(custom_subscreen[u].objects[v].type != ssoTILEBLOCK) continue;
-						  subscreen_items[0].tile = custom_subscreen[u].objects[v].d1;
-						  subscreen_items[0].width = custom_subscreen[u].objects[v].w;
-						  subscreen_items[0].height = custom_subscreen[u].objects[v].h;
-					 }
-				 }
-			}*/
 			
 			//check map styles
 			if(!done)
@@ -17006,10 +16982,10 @@ void combo_info(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copyc
 	
 	font = tf;
 	
-	textprintf_ex(screen2,font,(305*mul),(212*mul)+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"\x88");
+	jwin_draw_icon(screen2,(305*mul+4),220*mul-6+yofs,jwin_pal[jcBOXFG],BTNICON_ARROW_UP,6,true);
 	textprintf_ex(screen2,tfont,(293*mul),(220*mul)+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"p:");
 	textprintf_centre_ex(screen2,tfont,(309*mul),(220*mul)+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%d",page);
-	textprintf_ex(screen2,font,(305*mul),(228*mul)+yofs,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"\x89");
+	jwin_draw_icon(screen2,(305*mul+4),228*mul+3+yofs,jwin_pal[jcBOXFG],BTNICON_ARROW_DOWN,6,true);
 
 	int32_t w = 640;
 	int32_t h = 480;

@@ -111,7 +111,7 @@ bool ScriptRulesDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			setQRs(local_qrs);
 			[[fallthrough]];
 		case message::CANCEL:
-		default:
 			return true;
 	}
+	return false;
 }

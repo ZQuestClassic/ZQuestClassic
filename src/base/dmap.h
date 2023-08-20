@@ -38,6 +38,7 @@ struct dmap
 	byte tmusictrack;
 	byte active_subscreen;
 	byte passive_subscreen;
+	byte overlay_subscreen;
 	byte disableditems[MAXITEMS];
 	int32_t flags;
 	char sideview;

@@ -39,6 +39,8 @@ static AccessorTable DMapDataTable[] =
 	{ "setActiveSubscreen",         0,          ZTID_VOID,   DMAPDATASUBSCRA,           0,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },
 	{ "getPassiveSubscreen",        0,         ZTID_FLOAT,   DMAPDATASUBSCRP,           0,  { ZTID_DMAPDATA },{} },
 	{ "setPassiveSubscreen",        0,          ZTID_VOID,   DMAPDATASUBSCRP,           0,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },
+	{ "getOverlaySubscreen",        0,         ZTID_FLOAT,   DMAPDATASUBSCRO,           0,  { ZTID_DMAPDATA },{} },
+	{ "setOverlaySubscreen",        0,          ZTID_VOID,   DMAPDATASUBSCRO,           0,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },
 	{ "getGrid[]",                  0,         ZTID_FLOAT,   DMAPDATAGRID,              0,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },
 	{ "setGrid[]",                  0,          ZTID_VOID,   DMAPDATAGRID,              0,  { ZTID_DMAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "getMiniMapTile[]",           0,         ZTID_FLOAT,   DMAPDATAMINIMAPTILE,       0,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },

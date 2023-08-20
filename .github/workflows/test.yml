@@ -137,51 +137,15 @@ jobs:
           --no-headless
 
       - if: ${{ matrix.shard_index == 1 && inputs.extra-args == '' && inputs.config != 'Coverage' }}
-        name: Test replay system
-        run: bash .github/workflows/run_python.sh tests/test_replays.py
-
-      - if: ${{ matrix.shard_index == 1 && inputs.extra-args == '' && inputs.config != 'Coverage' }}
-        name: Test zscript
-        run: bash .github/workflows/run_python.sh tests/test_zscript.py
-
-      - if: ${{ matrix.shard_index == 1 && inputs.extra-args == '' && inputs.config != 'Coverage' }}
-        name: Test zquest
-        run: bash .github/workflows/run_python.sh tests/test_zquest.py
-
-      - if: ${{ matrix.shard_index == 1 && inputs.extra-args == '' && inputs.config != 'Coverage' }}
         name: Updater cache
         uses: actions/cache@v3
         with:
           path: ${{ github.workspace }}/.tmp/test_updater/cache
           key: updater-cache-${{ runner.runs-on }}-${{ runner.arch }}
+
       - if: ${{ matrix.shard_index == 1 && inputs.extra-args == '' && inputs.config != 'Coverage' }}
-        name: Test zupdater
-        run: bash .github/workflows/run_python.sh tests/test_updater.py
-
-        # TODO why does this result in "could not open file: test.zplay" on Windows?
-      - if: ${{ matrix.shard_index == 1 && inputs.extra-args == '' && runner.os != 'Windows' && inputs.config != 'Coverage' }}
-        name: Test recording
-        run: |
-          cd ${{ env.BUILD_FOLDER }}
-          set -ex
-
-          bash ${{ github.workspace }}/.github/workflows/run_target.sh zplayer -headless -replay-exit-when-done -record test.zplay -frame 100 -replay-debug -test modules/classic/classic_1st.qst 0 119
-          bash ${{ github.workspace }}/.github/workflows/run_target.sh zplayer -headless -v0 -replay-exit-when-done -assert test.zplay
-      # Simply open ZQuest with the new quest template.
-      # TODO: randomly crashes during exit on Linux
-      - if: ${{ matrix.shard_index == 1 && inputs.extra-args == '' && runner.os != 'Windows' && runner.os != 'Linux' && inputs.config != 'Coverage' }}
-        name: Test ZQuest File->New
-        run: bash ${{ github.workspace }}/.github/workflows/run_target.sh zquest -s -q 'modules/classic/default.qst'
-      # Resave classic_1st.qst and assert classic_1st.zplay, to make sure the loading/saving code is not introducing bugs.
-      - if: ${{ matrix.shard_index == 1 && inputs.extra-args == '' && runner.os != 'Windows' && inputs.config != 'Coverage' }}
-        name: Test saving qst
-        run: |
-          cd ${{ env.BUILD_FOLDER }}
-          set -ex
-
-          bash ${{ github.workspace }}/.github/workflows/run_target.sh zquest -headless -s -copy-qst modules/classic/classic_1st.qst tmp.qst
-          mv tmp.qst modules/classic/classic_1st.qst
-          bash ${{ github.workspace }}/.github/workflows/run_target.sh zplayer -headless -s -v0 -replay-exit-when-done -assert ${{ github.workspace }}/tests/replays/classic_1st.zplay
+        name: Run Python tests
+        run: bash .github/workflows/run_python.sh -m unittest discover tests
 
       - name: Generate coverage json
         if: inputs.config == 'Coverage'

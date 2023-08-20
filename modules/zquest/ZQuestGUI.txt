@@ -28,6 +28,8 @@ src/zq/gui/cornerselect.cpp
 src/zq/gui/misc_cset_sel.cpp
 src/zq/gui/misc_color_sel.cpp
 src/zq/gui/misc_color_row.cpp
+src/zq/gui/dmap_minimap.cpp
+src/zq/gui/dmap_mapgrid.cpp
 
 src/zc_list_data.cpp
 
@@ -39,6 +41,9 @@ src/dialog/info.cpp
 src/dialog/info_lister.cpp
 src/dialog/about.cpp
 src/dialog/subscr_props.cpp
+src/dialog/subscr_settings.cpp
+src/dialog/subscr_transition.cpp
+src/dialog/subscr_lists_edit.cpp
 src/dialog/room.cpp
 src/dialog/foodlg.cpp
 src/dialog/quest_rules.cpp
@@ -73,6 +78,7 @@ src/dialog/compilezscript.cpp
 src/dialog/compilesetting.cpp
 src/dialog/vectorpick.cpp
 src/dialog/zqhotkeys.cpp
+src/dialog/edit_dmap.cpp
 
 
 ## End of ZQuest GUI module

@@ -611,7 +611,6 @@ bool ZInfoDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			saved = false;
 			[[fallthrough]];
 		case message::CANCEL:
-		default:
 			lzinfo.clear(); //ensure memory cleared
 			return true;
 		case message::SAVE:
@@ -640,5 +639,6 @@ bool ZInfoDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			return false;
 		}
 	}
+	return false;
 }
 

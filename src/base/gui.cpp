@@ -220,6 +220,54 @@ int32_t do_zqdialog(DIALOG *dialog, int32_t focus_obj)
 	popup_zqdialog_end();
 	return ret;
 }
+int32_t do_zqdialog_custom(DIALOG *dialog, int32_t focus_obj, std::function<bool(int)> proc)
+{
+	DIALOG_PLAYER *player2;
+	ASSERT(dialog);
+	int ret;
+	
+	popup_zqdialog_start();
+	
+	while(true)
+	{
+		player2 = init_dialog(dialog, focus_obj);
+		
+		bool should_draw = true;
+		int num_idle_frames = 0;
+		while(update_dialog(player2))
+		{
+			if (player2->res & D_REDRAWME)
+			{
+				player2->res &= ~D_REDRAWME;
+				should_draw = true;
+			}
+			if (should_draw)
+			{
+				should_draw = false;
+				num_idle_frames = 0;
+				update_hw_screen(true);
+				al_rest(1. / 60);
+				continue;
+			}
+
+			// Not perfect, but beats using 100% of CPU.
+			// The above may miss things, so draw at least a few times a second.
+			if (num_idle_frames++ == 15)
+			{
+				should_draw = 1;
+			}
+			al_rest(1. / 60);
+		}
+		
+		ret = shutdown_dialog(player2);
+		
+		if(proc(ret))
+			break;
+	}
+	
+	popup_zqdialog_end();
+	return ret;
+}
 
 
 

@@ -4,6 +4,7 @@
 #include "qst.h"
 #include "zinfo.h"
 #include "base/misctypes.h"
+#include <fmt/format.h>
 
 extern zcmodule moduledata;
 extern char *weapon_string[];
@@ -36,28 +37,11 @@ const char *ssfont2_str[] =
 	"Mr. Saturn", "Sci-Fi", "Sherwood", "Sinclair QL", "Spectrum", "Spectrum Large", "TI99", "TRS",
 	"Zelda 2", "ZX", "Lisa", ""
 };
-const char *icounter_str2[sscMAX]=
+const char *icounter_str2[-(sscMIN+1)]=
 {
-    "Rupees", "Bombs", "Super Bombs", "Arrows", "Gen. Keys w/Magic", "Gen. Keys w/o Magic", "Level Keys w/Magic",
-    "Level Keys w/o Magic", "Any Keys w/Magic", "Any Keys w/o Magic", "Custom 1", "Custom 2", "Custom 3", "Custom 4",
-    "Custom 5", "Custom 6", "Custom 7", "Custom 8", "Custom 9", "Custom 10", "Custom 11", "Custom 12", "Custom 13",
-    "Custom 14", "Custom 15", "Custom 16", "Custom 17", "Custom 18", "Custom 19", "Custom 20", "Custom 21",
-    "Custom 22", "Custom 23", "Custom 24", "Custom 25", "Life", "Magic", "Max Life", "Max Magic",
-	"Custom 26", "Custom 27", "Custom 28", "Custom 29", "Custom 30",
-	"Custom 31", "Custom 32", "Custom 33", "Custom 34", "Custom 35",
-	"Custom 36", "Custom 37", "Custom 38", "Custom 39", "Custom 40",
-	"Custom 41", "Custom 42", "Custom 43", "Custom 44", "Custom 45",
-	"Custom 46", "Custom 47", "Custom 48", "Custom 49", "Custom 50",
-	"Custom 51", "Custom 52", "Custom 53", "Custom 54", "Custom 55",
-	"Custom 56", "Custom 57", "Custom 58", "Custom 59", "Custom 60",
-	"Custom 61", "Custom 62", "Custom 63", "Custom 64", "Custom 65",
-	"Custom 66", "Custom 67", "Custom 68", "Custom 69", "Custom 70",
-	"Custom 71", "Custom 72", "Custom 73", "Custom 74", "Custom 75",
-	"Custom 76", "Custom 77", "Custom 78", "Custom 79", "Custom 80",
-	"Custom 81", "Custom 82", "Custom 83", "Custom 84", "Custom 85",
-	"Custom 86", "Custom 87", "Custom 88", "Custom 89", "Custom 90",
-	"Custom 91", "Custom 92", "Custom 93", "Custom 94", "Custom 95",
-	"Custom 96", "Custom 97", "Custom 98", "Custom 99", "Custom 100"
+    "Gen. Keys w/Magic", "Gen. Keys w/o Magic", "Level Keys w/Magic",
+    "Level Keys w/o Magic", "Any Keys w/Magic", "Any Keys w/o Magic",
+	"Max Life", "Max Magic"
 };
 
 
@@ -81,43 +65,33 @@ GUI::ListData GUI::ZCListData::fonts(bool ss_fonts, bool numbered, bool sorted)
 		for(auto q = 0; ssfont2_str[q][0]; ++q)
 		{
 			char const* fontname = ssfont2_str[q];
+			std::string name;
 			if(numbered)
-			{
-				char* name = new char[strlen(fontname) + 7];
-				sprintf(name, "%s (%03d)", fontname, q);
-				fontname = name;
-			}
-			std::string sname(fontname);
+				name = fmt::format("{} ({:03})", fontname, q);
+			else name = fontname;
 			
 			if(sorted)
 			{
-				ids[sname] = q;
-				names.insert(sname);
+				ids[name] = q;
+				names.insert(name);
 			}
-			else strings.push_back(sname);
-			if(numbered)
-				delete[] fontname;
+			else strings.push_back(name);
 		}
 	}
 	else for(auto q = 0; q < font_max; ++q)
 	{
 		char const* fontname = msgfont_str[q].c_str();
+		std::string name;
 		if(numbered)
-		{
-			char* name = new char[strlen(fontname) + 7];
-			sprintf(name, "%s (%03d)", fontname, q);
-			fontname = name;
-		}
-		std::string sname(fontname);
+			name = fmt::format("{} ({:03})", fontname, q);
+		else name = fontname;
 		
 		if(sorted)
 		{
-			ids[sname] = q;
-			names.insert(sname);
+			ids[name] = q;
+			names.insert(name);
 		}
-		else strings.push_back(sname);
-		if(numbered)
-			delete[] fontname;
+		else strings.push_back(name);
 	}
 	if(!sorted)
 		return GUI::ListData(strings);
@@ -170,15 +144,27 @@ GUI::ListData GUI::ZCListData::strings(bool combostr, bool respect_order, bool n
 	return ls;
 }
 
-GUI::ListData GUI::ZCListData::ss_counters()
+GUI::ListData GUI::ZCListData::ss_counters(bool numbered, bool skipNone)
 {
 	GUI::ListData ls;
 	
-	ls.add("(None)", -1);
-	for(int32_t q = 0; q < sscMAX; ++q)
+	if(!skipNone) ls.add("(None)", -1);
+	auto sscstr_sz = -(sscMIN+1);
+	for(int32_t q = sscMIN+1; q < MAX_COUNTERS; ++q)
 	{
-		char const* module_str = icounter_str2[q];
-		std::string name(module_str);
+		if(q == crNONE) continue;
+		char const* str;
+		if(q > crNONE)
+		{
+			if(!ZI.isUsableCtr(q))
+				continue; //Hidden
+			str = ZI.getCtrName(q);
+		}
+		else str = icounter_str2[sscstr_sz + q];
+		std::string name;
+		if(numbered)
+			name = fmt::format("{} ({:03})", str, q);
+		else name = str;
 		ls.add(name, q);
 	}
 	
@@ -195,31 +181,6 @@ GUI::ListData GUI::ZCListData::shadow_types()
 	}
 
 	return GUI::ListData(strings);
-}
-
-static const GUI::ListData aligns
-{
-	{ "Left", 0 },
-	{ "Center", 1 },
-	{ "Right", 2 }
-};
-
-GUI::ListData const& GUI::ZCListData::alignments()
-{
-	return aligns;
-}
-
-static const GUI::ListData button
-{
-	{ "A", 0 },
-	{ "B", 1 },
-	{ "X", 2 },
-	{ "Y", 3 }
-};
-
-GUI::ListData const& GUI::ZCListData::buttons()
-{
-	return button;
 }
 
 GUI::ListData GUI::ZCListData::enemies(bool numbered, bool defaultFilter)
@@ -239,18 +200,13 @@ GUI::ListData GUI::ZCListData::enemies(bool numbered, bool defaultFilter)
 				continue; //Guys
 		}
 		char const* npcname = guy_string[q];
+		std::string name;
 		if(numbered)
-		{
-			char* name = new char[strlen(npcname) + 7];
-			sprintf(name, "%s (%03d)", npcname, q);
-			npcname = name;
-		}
-		std::string sname(npcname);
+			name = fmt::format("{} ({:03})", npcname, q);
+		else name = npcname;
 		
-		ids[sname] = q;
-		names.insert(sname);
-		if(numbered)
-			delete[] npcname;
+		ids[name] = q;
+		names.insert(name);
 	}
 	
 	GUI::ListData ls;
@@ -262,7 +218,7 @@ GUI::ListData GUI::ZCListData::enemies(bool numbered, bool defaultFilter)
 	return ls;
 }
 
-GUI::ListData GUI::ZCListData::items(bool numbered)
+GUI::ListData GUI::ZCListData::items(bool numbered, bool none)
 {
 	map<std::string, int32_t> ids;
 	std::set<std::string> names;
@@ -270,22 +226,18 @@ GUI::ListData GUI::ZCListData::items(bool numbered)
 	for(int32_t q=0; q < MAXITEMS; ++q)
 	{
 		char const* itname = item_string[q];
+		std::string name;
 		if(numbered)
-		{
-			char* name = new char[strlen(itname) + 7];
-			sprintf(name, "%s (%03d)", itname, q);
-			itname = name;
-		}
-		std::string sname(itname);
+			name = fmt::format("{} ({:03})", itname, q);
+		else name = itname;
 		
-		ids[sname] = q;
-		names.insert(sname);
-		if(numbered)
-			delete[] itname;
+		ids[name] = q;
+		names.insert(name);
 	}
 	
 	GUI::ListData ls;
-	ls.add("(None)", -1);
+	if(none)
+		ls.add("(None)", -1);
 	for(auto it = names.begin(); it != names.end(); ++it)
 	{
 		ls.add(*it, ids[*it]);
@@ -301,18 +253,13 @@ GUI::ListData GUI::ZCListData::dropsets(bool numbered, bool none)
 	for(int32_t q=0; q < MAXITEMDROPSETS; ++q)
 	{
 		char const* dropname = item_drop_sets[q].name;
+		std::string name;
 		if(numbered)
-		{
-			char* name = new char[strlen(dropname) + 7];
-			sprintf(name, "%s (%03d)", dropname, q);
-			dropname = name;
-		}
-		std::string sname(dropname);
+			name = fmt::format("{} ({:03})", dropname, q);
+		else name = dropname;
 		
-		ids[sname] = q;
-		names.insert(sname);
-		if(numbered)
-			delete[] dropname;
+		ids[name] = q;
+		names.insert(name);
 	}
 	
 	GUI::ListData ls;
@@ -337,27 +284,23 @@ GUI::ListData GUI::ZCListData::itemclass(bool numbered, bool zero_none)
 		char const* itname = ZI.getItemClassName(i);
         if(i < itype_last || itname[0])
 		{
-            char* name = new char[strlen(itname) + 7];
-            if(numbered)
-				sprintf(name, "%s (%03d)", itname, i);
-            else strcpy(name, itname);
-			std::string sname(name);
+			std::string name;
+			if(numbered)
+				name = fmt::format("{} ({:03})", itname, i);
+			else name = itname;
 			
-			fams[sname] = i;
-			famnames.insert(sname);
-			delete[] name;
+			fams[name] = i;
+			famnames.insert(name);
 		}
 		else 
 		{
-			char *name = new char[12];
+			std::string name;
 			if(numbered)
-				sprintf(name, "zz%03d (%03d)", i, i);
-			else sprintf(name, "zz%03d", i);
-			std::string sname(name);
+				name = fmt::format("zz{:03} ({:03})", i, i);
+			else name = fmt::format("zz{:03}",i);
 			
-			fams[sname] = i;
-			famnames.insert(sname);
-			delete[] name;
+			fams[name] = i;
+			famnames.insert(name);
 		}
 	}
 	
@@ -385,27 +328,23 @@ GUI::ListData GUI::ZCListData::combotype(bool numbered, bool skipNone)
 		char const* module_str = ZI.getComboTypeName(i);
 		if(module_str[0])
 		{
-			char* name = new char[strlen(module_str) + 7];
+			std::string name;
 			if(numbered)
-				sprintf(name, "%s (%03d)", module_str, i);
-			else strcpy(name, module_str);
-			std::string sname(name);
+				name = fmt::format("{} ({:03})", module_str, i);
+			else name = module_str;
 			
-			types[sname] = i;
-			typenames.insert(sname);
-			delete[] name;
+			types[name] = i;
+			typenames.insert(name);
 		}
 		else 
 		{
-			char *name = new char[12];
+			std::string name;
 			if(numbered)
-				sprintf(name, "zz%03d (%03d)", i, i);
-			else sprintf(name, "zz%03d", i);
-			std::string sname(name);
+				name = fmt::format("zz{:03} ({:03})", i, i);
+			else name = fmt::format("zz{:03}",i);
 			
-			types[sname] = i;
-			typenames.insert(sname);
-			delete[] name;
+			types[name] = i;
+			typenames.insert(name);
 		}
 	}
 
@@ -428,23 +367,18 @@ GUI::ListData GUI::ZCListData::mapflag(int32_t numericalFlags, bool numbered, bo
 		if(!ZI.isUsableMapFlag(q))
 			continue; //Hidden
 		char const* module_str = ZI.getMapFlagName(q);
-		char* name = new char[strlen(module_str) + 7];
+		std::string name;
 		if(numbered)
-			sprintf(name, "%s (%03d)", module_str, q);
-		else strcpy(name, module_str);
+			name = fmt::format("{} ({:03})", module_str, q);
+		else name = module_str;
 		
-		std::string sname(name);
 		if (numericalFlags)
-		{
-			ls.add(sname, q);
-		}
+			ls.add(name, q);
 		else
 		{
-			vals[sname] = q;
-			names.insert(sname);
+			vals[name] = q;
+			names.insert(name);
 		}
-		
-		delete[] name;
 	}
 	if (!numericalFlags)
 	{
@@ -465,12 +399,7 @@ GUI::ListData GUI::ZCListData::dmaps(bool numbered)
 	{
 		char const* dm_str = DMaps[q].name;
 		if(numbered)
-		{
-			char* name = new char[strlen(dm_str) + 7];
-			sprintf(name, "%3d-%s", q, dm_str);
-			ls.add(name, q);
-			delete[] name;
-		}
+			ls.add(fmt::format("{:3}-{}",q,dm_str), q);
 		else ls.add(dm_str, q);
 	}
 	
@@ -489,18 +418,14 @@ GUI::ListData GUI::ZCListData::counters(bool numbered, bool skipNone)
 		if(!ZI.isUsableCtr(q))
 			continue; //Hidden
 		char const* module_str = ZI.getCtrName(q);
-		char* name = new char[strlen(module_str) + 6];
+		std::string sname;
 		if(numbered)
-			sprintf(name, "%s (%02d)", module_str, q);
-		else strcpy(name, module_str);
-		
-		std::string sname(name);
+			sname = fmt::format("{} ({:03})", module_str, q);
+		else sname = module_str;
 		
 		// vals[sname] = q;
 		// names.insert(sname);
 		ls.add(sname, q);
-		
-		delete[] name;
 	}
 	
 	// for(auto it = names.begin(); it != names.end(); ++it)
@@ -518,15 +443,13 @@ GUI::ListData GUI::ZCListData::miscsprites(bool skipNone, bool inclNegSpecialVal
 	
 	for(int32_t i=0; i<MAXWPNS; ++i)
 	{
-		char buf[512];
-		char* ptr = buf;
+		std::string name;
 		if(numbered)
-			sprintf(buf, "%s (%03d)", weapon_string[i], i);
-		else ptr = weapon_string[i];
-		std::string sname(ptr);
+			name = fmt::format("{} ({:03})", weapon_string[i], i);
+		else name = weapon_string[i];
 		
-		ids[sname] = i;
-		sprnames.insert(sname);
+		ids[name] = i;
+		sprnames.insert(name);
 	}
 	
 	GUI::ListData ls;
@@ -564,12 +487,7 @@ GUI::ListData GUI::ZCListData::bottletype()
 		if(QMisc.bottle_types[q].name[0])
 			ls.add(QMisc.bottle_types[q].name,q+1);
 		else
-		{
-			char buf[8] = { 0 };
-			sprintf(buf, "%2d", q+1);
-			
-			ls.add(buf, q+1);
-		}
+			ls.add(fmt::format("{:2}", q+1), q+1);
 	}
 	
 	return ls;
@@ -608,16 +526,9 @@ GUI::ListData GUI::ZCListData::weaptypes(bool numbered)
 		if(!ZI.isUsableWeap(q))
 			continue; //Hidden
 		char const* module_str = ZI.getWeapName(q);
-		char* name = new char[strlen(module_str) + 8];
 		if(numbered)
-			sprintf(name, "%s (%03d)", module_str, q);
-		else strcpy(name, module_str);
-		
-		std::string sname(name);
-		
-		ls.add(sname, q);
-		
-		delete[] name;
+			ls.add(fmt::format("{} ({:03})", module_str, q), q);
+		else ls.add(module_str, q);
 	}
 	
 	return ls;
@@ -632,36 +543,93 @@ GUI::ListData GUI::ZCListData::sfxnames(bool numbered)
 	for(int32_t i=1; i<WAV_COUNT; ++i)
 	{
 		char const* sfx_name = sfx_string[i];
-		char* name = new char[strlen(sfx_name) + 7];
 		if(numbered)
-			sprintf(name, "%s (%03d)", sfx_name, i);
-		else strcpy(name, sfx_name);
-		ls.add(name, i);
-		delete[] name;
+			ls.add(fmt::format("{} ({:03})", sfx_name, i), i);
+		else ls.add(sfx_name, i);
 	}
 	
 	return ls;
 }
-GUI::ListData GUI::ZCListData::midinames(bool numbered)
+GUI::ListData GUI::ZCListData::midinames(bool numbered, bool incl_engine)
 {
 	std::map<std::string, int32_t> vals;
 	
 	GUI::ListData ls;
 	ls.add("(None)", 0);
+	auto ofs = 1;
+	if (incl_engine)
+	{
+		ls.add("Overworld", 1);
+		ls.add("Dungeon", 2);
+		ls.add("Level 9", 3);
+		ofs = 4;
+	}
 	for(int32_t i=0; i<MAXCUSTOMTUNES; ++i)
 	{
 		char const* midi_name = customtunes[i].title;
-		char* name = new char[strlen(midi_name) + 7];
 		if(numbered)
-			sprintf(name, "%s (%03d)", midi_name, i+1);
-		else strcpy(name, midi_name);
-		ls.add(name, i+1);
-		delete[] name;
+			ls.add(fmt::format("{} ({:03})", midi_name, i+1), i+ofs);
+		else ls.add(midi_name, i+ofs);
 	}
 	
 	return ls;
 }
 
+
+
+GUI::ListData GUI::ZCListData::lpals()
+{
+	GUI::ListData ls;
+	char buf[50];
+	for (int q = 0; q < 0x1FF; ++q)
+	{
+		sprintf(buf, "%.3X - %s", q, palnames[q]);
+		ls.add(buf, q + 1);
+	}
+	return ls;
+}
+
+GUI::ListData GUI::ZCListData::subscreens(byte type, bool numbered)
+{
+	std::vector<ZCSubscreen>& vec =
+		(type == sstACTIVE ? subscreens_active
+		: (type == sstPASSIVE ? subscreens_passive
+		: subscreens_overlay));
+	GUI::ListData ls;
+	for(int q = 0; q < vec.size(); ++q)
+	{
+		if(numbered)
+			ls.add(fmt::format("{} ({:03})",vec[q].name,q), q);
+		else ls.add(vec[q].name,q);
+	}
+	if(!ls.size())
+	{
+		ls.add("[None Available]",0);
+		ls.setInvalid(true);
+	}
+	return ls;
+}
+
+GUI::ListData GUI::ZCListData::disableditems(byte* disabledarray)
+{
+	GUI::ListData ls;
+	for (int q = 0; q < MAXITEMS; ++q)
+	{
+		if (disabledarray[q] & 1)
+		{
+			char const* itname = item_string[q];
+			ls.add(itname, q);
+		}
+	}
+	if (ls.size() == 0)
+	{
+		ls.add("", -1);
+	}
+	ls.alphabetize();
+	return ls;
+}
+
+//SCRIPTS
 static void load_scriptnames(std::set<std::string> &names, std::map<std::string, int32_t> &vals,
 	std::map<int32_t, script_slot_data> scrmap, int32_t count)
 {
@@ -713,6 +681,19 @@ GUI::ListData GUI::ZCListData::ffc_script()
 	GUI::ListData ls;
 	ls.add("(None)", 0);
 	ls.add(names,vals);
+	return ls;
+}
+
+GUI::ListData GUI::ZCListData::dmap_script()
+{
+	std::map<std::string, int32_t> vals;
+	std::set<std::string> names;
+
+	load_scriptnames(names, vals, dmapmap, NUMSCRIPTSDMAP - 1);
+
+	GUI::ListData ls;
+	ls.add("(None)", 0);
+	ls.add(names, vals);
 	return ls;
 }
 
@@ -780,6 +761,8 @@ GUI::ListData GUI::ZCListData::generic_script()
 	ls.add(names,vals);
 	return ls;
 }
+
+//CONST& RETURNS
 
 static const GUI::ListData defense_types
 {
@@ -880,5 +863,79 @@ GUI::ListData const& GUI::ZCListData::screenstate()
 	return screen_state;
 }
 
+static const GUI::ListData subscrWidgets =
+{
+	{ "(None)", widgNULL, "No Widget" },
+	{ "2x2 Frame", widgFRAME, "Draws a frame made up of 8x8 sections of a 2x2 of tiles" },
+	{ "Text", widgTEXT, "Displays some fixed text on the screen" },
+	{ "Line", widgLINE, "Draws a line" },
+	{ "Rectangle", widgRECT, "Draws a rectangle" },
+	{ "Playtime", widgTIME, "Draws the current playtime" },
+	{ "Magic Meter", widgMMETER, "Draws the old, hardcoded magic meter" },
+	{ "Life Meter", widgLMETER, "Draws the old, hardcoded life meter" },
+	{ "Button Item", widgBTNITM, "Draws the item currently equipped to a given button" },
+	{ "Counter", widgCOUNTER, "Draws a counter value (or sum of up to 3 counter values)" },
+	{ "Counter Block", widgOLDCTR, "Draws the classic counter block" },
+	{ "Minimap Title", widgMMAPTITLE, "Displays the title of the minimap" },
+	{ "Minimap", widgMMAP, "Draws the minimap, showing your location and surroundings" },
+	{ "Large Map", widgLMAP, "Draws the big map, showing more detailed location information" },
+	{ "Background Color", widgBGCOLOR, "Draws a color that covers the whole screen" },
+	{ "Item Slot", widgITEMSLOT, "A slot for an item, whether equippable or not." },
+	{ "McGuffin Frame", widgMCGUFF_FRAME, "A frame for showing off the McGuffins" },
+	{ "McGuffin Piece", widgMCGUFF, "A single McGuffin piece on display" },
+	{ "Tile Block", widgTILEBLOCK, "Draws a block of tiles" },
+	{ "Minitile", widgMINITILE, "Draws a quarter-tile" },
+	{ "Selector", widgSELECTOR, "Draws the selector cursor on the currently selected widget" },
+	{ "Gauge Piece: Life", widgLGAUGE, "Allows building highly customizable life gauges" },
+	{ "Gauge Piece: Magic", widgMGAUGE, "Allows building highly customizable magic gauges" },
+	{ "Text Box", widgTEXTBOX, "Displays some fixed text in a formatted box" },
+	{ "Selection Text", widgSELECTEDTEXT, "Displays text that changes based on the widget"
+		" currently selected by the cursor" },
+	{ "Gauge Piece: Counter", widgMISCGAUGE, "Allows building highly customizable gauges"
+		" for any counter" },
+};
 
+GUI::ListData const& GUI::ZCListData::subscr_widgets()
+{
+	return subscrWidgets;
+}
+
+static const GUI::ListData dmap_types
+{
+	{ "NES Dungeon", dmDNGN },
+	{ "Overworld", dmOVERW },
+	{ "Interior", dmCAVE },
+	{ "BS Overworld", dmBSOVERW }
+};
+
+GUI::ListData const& GUI::ZCListData::dmaptypes()
+{
+	return dmap_types;
+}
+
+
+static const GUI::ListData aligns
+{
+	{ "Left", 0 },
+	{ "Center", 1 },
+	{ "Right", 2 }
+};
+
+GUI::ListData const& GUI::ZCListData::alignments()
+{
+	return aligns;
+}
+
+static const GUI::ListData button
+{
+	{ "A", 0 },
+	{ "B", 1 },
+	{ "X", 2 },
+	{ "Y", 3 }
+};
+
+GUI::ListData const& GUI::ZCListData::buttons()
+{
+	return button;
+}
 

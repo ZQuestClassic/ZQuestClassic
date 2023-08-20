@@ -209,6 +209,8 @@ parser.add_argument('--headless', action=argparse.BooleanOptionalAction, default
 parser.add_argument('--show', action=argparse.BooleanOptionalAction, default=False,
     help='Alias for --no-headless and --throttle_fps')
 parser.add_argument('--emoji', action=argparse.BooleanOptionalAction, default=True)
+parser.add_argument('--no_console', action='store_true',
+    help='Prevent the debug console from opening')
 
 
 mode_group = parser.add_argument_group('Mode','The playback mode')
@@ -626,7 +628,10 @@ class CLIPlayerInterface:
             exe_args.append('-headless')
         elif is_mac_ci:
             exe_args.append('-s')
-
+        
+        if args.no_console:
+            exe_args.append('-no_console')
+        
         # Allegro seems to be using free'd memory when shutting down the sound system.
         # For now, just disable sound in CI or when using Asan/Coverage.
         if args.headless and (is_asan or is_coverage or is_ci or mode == 'assert'):
@@ -1090,7 +1095,8 @@ def prompt_to_create_compare_report():
             gh, repo = prompt_for_gh_auth()
             build_dir = download_release(gh, repo, channel, tag)
         if channel == 'mac':
-            zc_app_path = next(build_dir).glob('*.app')
+            # TODO z3 !!! upstream
+            zc_app_path = next(build_dir.glob('*.app'))
             build_dir = zc_app_path / 'Contents/Resources'
 
         command_args = [
@@ -1101,6 +1107,10 @@ def prompt_to_create_compare_report():
             '--test_results_folder', str(local_baseline_dir),
             *get_args_for_collect_baseline_from_test_results([test_results_path]),
         ]
+        if not args.jit:
+            command_args.append('--no-jit')
+        if args.no_console:
+            command_args.append('--no_console')
         print(f'Collecting baseline locally: {" ".join(command_args)}')
         subprocess.check_call(command_args)
         test_runs.extend(collect_many_test_results_from_dir(local_baseline_dir))

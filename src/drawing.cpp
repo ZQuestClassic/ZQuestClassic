@@ -190,6 +190,16 @@ void do_torch_combo(newcombo const& cmb, int cx, int cy, BITMAP* dest, BITMAP* t
 	handle_lighting(cx, cy, cmb.attribytes[1], cmb.attribytes[0], cmb.attribytes[2], dest, transdest);
 }
 
+bool dither_staticcheck(int x, int y, double percentage)
+{
+#ifdef IS_PLAYER
+	double diff = abs(zc::math::Sin((double)((x*double(x))+(y*double(y)))) - (zc::math::Cos((double(x)*y))));
+#else
+	double diff = abs(sin((double)((x*double(x))+(y*double(y)))) - (cos((double(x)*y))));
+#endif
+	double filt = (percentage*(2000))/1000.0;
+	return diff < filt;
+}
 static inline bool dithercheck(byte type, byte arg, int32_t x, int32_t y, int32_t wid=256, int32_t hei=168)
 {
 	bool ret = false,
@@ -231,30 +241,15 @@ static inline bool dithercheck(byte type, byte arg, int32_t x, int32_t y, int32_
 		case dithGrid:
 			ret = !(x%arg) || !(y%arg);
 			break;
-		case dithStatic2: //changes centering of the formula
-		{
-			x-=(wid/2);
-			y-=(hei/2);
-			goto dthr_static;
-		}
-		case dithStatic3: //changes centering of the formula
-		{
-			x+=(wid/2);
-			y+=(hei/2);
-			goto dthr_static;
-		}
 		case dithStatic:
-		{
-		dthr_static:
-#ifdef IS_PLAYER
-			double diff = abs(zc::math::Sin((double)((x*double(x))+(y*double(y)))) - (zc::math::Cos((double(x)*y))));
-#else
-			double diff = abs(sin((double)((x*double(x))+(y*double(y)))) - (cos((double(x)*y))));
-#endif
-			double filt = ((arg/255.0)*(2000))/1000.0;
-			ret = diff < filt;
+			ret = dither_staticcheck(x,y,(arg/255.0));
 			break;
-		}
+		case dithStatic2: //changes centering of the formula
+			ret = dither_staticcheck(x-(wid/2),y-(hei/2),(arg/255.0));
+			break;
+		case dithStatic3: //changes centering of the formula
+			ret = dither_staticcheck(x+(wid/2),y+(hei/2),(arg/255.0));
+			break;
 		
 		default:
 			//don't dither if invalid type found,
@@ -372,6 +367,44 @@ void ditherblit(BITMAP* dest, BITMAP* src, int32_t color, byte dType, byte dArg,
 			if(bmp_read8(read_addr+tx) && dithercheck(dType,dArg,tx+xoffs,ty+yoffs,wid,hei))
 			{
 				bmp_write8(write_addr+tx, color);
+			}
+		}
+	}
+	bmp_unwrite_line(src);
+	bmp_unwrite_line(dest);
+}
+void bmp_dither(BITMAP* dest, BITMAP* src, byte dType, byte dArg, int32_t xoffs, int32_t yoffs)
+{
+	int32_t wid = zc_min(dest->w, src->w);
+	int32_t hei = zc_min(dest->h, src->h);
+	for(int32_t ty = 0; ty < hei; ++ty)
+	{
+		uintptr_t read_addr = bmp_read_line(src, ty);
+		uintptr_t write_addr = bmp_write_line(dest, ty);
+		for(int32_t tx = 0; tx < wid; ++tx)
+		{
+			if(dithercheck(dType,dArg,tx+xoffs,ty+yoffs,wid,hei))
+			{
+				bmp_write8(write_addr+tx, bmp_read8(read_addr+tx));
+			}
+		}
+	}
+	bmp_unwrite_line(src);
+	bmp_unwrite_line(dest);
+}
+void custom_bmp_dither(BITMAP* dest, BITMAP* src, std::function<bool(int,int,int,int)> proc)
+{
+	int32_t wid = zc_min(dest->w, src->w);
+	int32_t hei = zc_min(dest->h, src->h);
+	for(int32_t ty = 0; ty < hei; ++ty)
+	{
+		uintptr_t read_addr = bmp_read_line(src, ty);
+		uintptr_t write_addr = bmp_write_line(dest, ty);
+		for(int32_t tx = 0; tx < wid; ++tx)
+		{
+			if(proc(tx,ty,wid,hei))
+			{
+				bmp_write8(write_addr+tx, bmp_read8(read_addr+tx));
 			}
 		}
 	}

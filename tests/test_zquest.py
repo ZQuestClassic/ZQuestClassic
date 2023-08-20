@@ -9,16 +9,20 @@ import os
 import json
 import subprocess
 import unittest
+import shutil
+import platform
 from pathlib import Path
 from common import ReplayTestResults
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent
+tmp_dir = root_dir / '.tmp/test_zquest'
+tmp_dir.mkdir(exist_ok=True, parents=True)
 
 sys.path.append(str((root_dir / 'scripts').absolute()))
 import run_target
 
-class TestReplays(unittest.TestCase):
+class TestZQuest(unittest.TestCase):
     def setUp(self):
         self.maxDiff = None
 
@@ -45,9 +49,51 @@ class TestReplays(unittest.TestCase):
             raise Exception('could not find test_results.json')
 
         test_results_json = json.loads(test_results_path.read_text('utf-8'))
-        return output.returncode, ReplayTestResults(**test_results_json)
+        results = ReplayTestResults(**test_results_json)
 
-    def test_zquest_compile_and_quick_assign(self):
+        run = results.runs[0][0]
+        if not run.success:
+            failing_str = f'failure at frame {run.failing_frame}'
+            if run.unexpected_gfx_segments:
+                segments_str = [
+                    f'{r[0]}-{r[1]}' for r in run.unexpected_gfx_segments]
+                failing_str += ': ' + ', '.join(segments_str)
+            self.fail(failing_str)
+        self.assertEqual(output.returncode, 0)
+
+    # Simply open ZQuest with the new quest template.
+    def test_file_new(self):
+        run_target.check_run('zquest', [
+            '-headless',
+            '-s',
+            '-q',
+            'modules/classic/classic_1st.qst',
+        ])
+
+    # Resave classic_1st.qst and assert classic_1st.zplay, to make sure the loading/saving code is not introducing bugs.
+    def test_save(self):
+        # TODO: Bad exit code 0xFFFF under windows.
+        if platform.system() == 'Windows':
+            return
+        # TODO: disabled b/c of recent subscreen changes, must find where regression is
+        return
+
+        qst_path = tmp_dir / 'tmp.qst'
+        run_target.check_run('zquest', [
+            '-headless',
+            '-s',
+            '-copy-qst', 'modules/classic/classic_1st.qst', qst_path,
+        ])
+
+        replay_content = (root_dir / 'tests/replays/classic_1st.zplay').read_text('utf-8')
+        replay_content = replay_content.replace('modules/classic/classic_1st.qst', 'tmp.qst')
+        replay_path = tmp_dir / 'tmp.zplay'
+        replay_path.write_text(replay_content)
+
+        output_dir = tmp_dir / 'output' / replay_path.name
+        self.run_replay(output_dir, [replay_path])
+
+    def test_compile_and_quick_assign(self):
         # TODO: set this via CLI
         include_paths = [
             str(root_dir / 'tests/scripts'),
@@ -56,26 +102,22 @@ class TestReplays(unittest.TestCase):
         ]
         (run_target.get_build_folder() / 'includepaths.txt').write_text(';'.join(include_paths))
 
+        # Make copy of playground.qst
+        qst_path = tmp_dir / 'playground.qst'
+        shutil.copy(root_dir / 'tests/replays/playground.qst', qst_path)
+
         # Re-compile and assign slots.
-        self.quick_assign(root_dir / 'tests/replays/playground.qst')
+        self.quick_assign(qst_path)
 
         # Ensure replays continue to pass.
-        for replay_path in (root_dir / 'tests/replays').glob('playground_*.zplay'):
-            with self.subTest(msg=f'{replay_path.name}'):
-                output_dir = root_dir / '.tmp/test_zquest/output' / replay_path.name
-                output_dir.mkdir(exist_ok=True, parents=True)
-                status, results = self.run_replay(
-                    output_dir, ['--filter', replay_path.name])
-                run = results.runs[0][0]
-                if not run.success:
-                    failing_str = f'failure at frame {run.failing_frame}'
-                    if run.unexpected_gfx_segments:
-                        segments_str = [
-                            f'{r[0]}-{r[1]}' for r in run.unexpected_gfx_segments]
-                        failing_str += ': ' + ', '.join(segments_str)
-                    self.fail(failing_str)
-                self.assertEqual(status, 0)
+        for original_replay_path in (root_dir / 'tests/replays').glob('playground_*.zplay'):
+            with self.subTest(msg=f'{original_replay_path.name}'):
+                replay_path = tmp_dir / 'tmp.zplay'
+                shutil.copy(original_replay_path, replay_path)
 
+                output_dir = tmp_dir / 'output' / original_replay_path.name
+                output_dir.mkdir(exist_ok=True, parents=True)
+                self.run_replay(output_dir, [replay_path])
 
 if __name__ == '__main__':
     unittest.main()

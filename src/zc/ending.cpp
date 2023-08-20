@@ -36,7 +36,7 @@ extern ZModule zcm; //modules
 extern zcmodule moduledata;
 
 extern HeroClass   Hero;
-extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
+extern sprite_list  guys, items, Ewpns, Lwpns, chainlinks, decorations;
 
 namespace
 {
@@ -210,9 +210,9 @@ void ending()
 	items.clear();
 	Ewpns.clear();
 	Lwpns.clear();
-	Sitems.clear();
 	chainlinks.clear();
 	decorations.clear();
+	kill_subscr_items();
 	
 	set_uformat(U_ASCII);
 	kill_sfx();
@@ -647,9 +647,9 @@ void ending_scripted()
 	Ewpns.clear();
 	Lwpns.clear();
 	guys.clear();
-	Sitems.clear();
 	chainlinks.clear();
 	decorations.clear();
+	kill_subscr_items();
 	clear_bitmap(msg_txt_display_buf);
 	clear_bitmap(msg_bg_display_buf);
 	dismissmsg();

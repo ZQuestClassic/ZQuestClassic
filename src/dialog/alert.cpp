@@ -101,6 +101,14 @@ std::shared_ptr<GUI::Widget> AlertDialog::view()
 
 bool AlertDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 {
-	onEnd(((message)msg.message)==message::OK,dontshowagain);
-	return true;
+	switch(msg.message)
+	{
+		case message::OK:
+			onEnd(true,dontshowagain);
+			return true;
+		case message::CANCEL:
+			onEnd(false,dontshowagain);
+			return true;
+	}
+	return false;
 }

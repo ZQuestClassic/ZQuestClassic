@@ -35,13 +35,25 @@ void List::setSelectedValue(int32_t value)
 	}
 }
 
-void List::setSelectedIndex(int32_t index)
+int32_t List::getSelectedIndex() const
+{
+	if (alDialog)
+	{
+		int32_t index = alDialog->d1;
+		return index;
+	}
+	else
+		return selectedIndex;
+}
+
+void List::setSelectedIndex(int32_t index, bool offset)
 {
 	selectedIndex = index;
 	if(alDialog)
 	{
 		alDialog->d1 = selectedIndex;
-		alDialog->d2 = selectedIndex;
+		if(offset)
+			alDialog->d2 = selectedIndex;
 	}
 }
 
@@ -58,6 +70,7 @@ int32_t List::getSelectedValue() const
 
 void List::setIndex()
 {
+	if (!listData || !listData->size()) return;
 	// Find a valid selection. We'll take the first thing with a matching
 	// value. If nothing matches exactly, take the one that's closest to
 	// the selected value.

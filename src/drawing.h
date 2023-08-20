@@ -27,12 +27,15 @@ enum dithType
 	dithStatic3, dithStatic3Inv,
 	dithMax
 };
+bool dither_staticcheck(int x, int y, double percentage);
 void mask_colorfill(BITMAP* dest, BITMAP* src, int32_t color);
 void mask_colorfill(BITMAP* dest, BITMAP* src, int32_t color, int32_t targStart, int32_t targEnd);
 void mask_blit(BITMAP* dest, BITMAP* mask, BITMAP* pattern, bool repeats);
 void mask_blit(BITMAP* dest, BITMAP* mask, BITMAP* pattern, bool repeats, int32_t targStart, int32_t targEnd);
 void ditherblit(BITMAP* dest, BITMAP* src, int32_t color, byte dType, byte dArg, int32_t xoffs=0, int32_t yoffs=0);
 void ditherblit_clipped(BITMAP* dest, BITMAP* src, int32_t color, byte dType, byte dArg, int32_t xoffs=0, int32_t yoffs=0);
+void bmp_dither(BITMAP* dest, BITMAP* src, byte dType, byte dArg, int32_t xoffs=0, int32_t yoffs=0);
+void custom_bmp_dither(BITMAP* dest, BITMAP* src, std::function<bool(int,int,int,int)> proc);
 void dithercircfill(BITMAP* dest, int32_t x, int32_t y, int32_t rad, int32_t color, byte ditherType, byte ditherArg, int32_t xoffs=0, int32_t yoffs=0);
 void ditherrectfill(BITMAP* dest, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t color, byte ditherType, byte ditherArg, int32_t xoffs=0, int32_t yoffs=0);
 

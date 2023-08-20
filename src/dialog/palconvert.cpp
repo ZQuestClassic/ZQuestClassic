@@ -120,7 +120,7 @@ bool PaletteConvertDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			setColorPalette(CSet_Checked, lowpal, highpal);
 			return true;
 		case message::CANCEL:
-		default:
 			return true;
 	}
+	return false;
 }

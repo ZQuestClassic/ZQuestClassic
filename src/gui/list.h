@@ -31,10 +31,12 @@ public:
 	void setSelectedValue(int32_t value);
 
 	/* Selects the list item with the given index. */
-	void setSelectedIndex(int32_t index);
+	void setSelectedIndex(int32_t index, bool offset = true);
 
 	/* Returns the value of the currently selected item. */
 	int32_t getSelectedValue() const;
+
+	int32_t getSelectedIndex() const;
 
 	void setOnSelectFunc(std::function<void(int32_t)> newFunc)
 	{

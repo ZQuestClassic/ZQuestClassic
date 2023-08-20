@@ -228,9 +228,6 @@ void set_debug(bool d);
 extern zquestheader        header;
 extern byte                midi_flags[MIDIFLAGS_SIZE];
 extern byte                music_flags[MUSICFLAGS_SIZE];
-extern word                map_count;
-extern std::vector<mapscr> TheMaps;
-extern std::vector<word>   map_autolayers;
 extern zcmap               *ZCMaps;
 extern int32_t				   msg_strings_size;
 extern class zctune        *customtunes;
@@ -755,6 +752,8 @@ enum
 	cmdDrawingModePool,
 	cmdQRSearch,
 	cmdQuickCompile,
+	cmdRuleset,
+	cmdRuleTemplate,
     cmdMAX
 };
 
@@ -875,28 +874,10 @@ void drawgrid_s(BITMAP *dest,int32_t x,int32_t y,int32_t grid,int32_t fg,int32_t
 void drawdmap(int32_t dmap);
 int32_t d_dmaplist_proc(int32_t msg,DIALOG *d,int32_t c);
 int32_t d_dropdmaplist_proc(int32_t msg,DIALOG *d,int32_t c);
-int32_t d_dropdmaptypelist_proc(int32_t msg,DIALOG *d,int32_t c);
-int32_t d_grid_proc(int32_t msg,DIALOG *d,int32_t c);
-void drawxmap(int32_t map,int32_t xoff,bool large);
-int32_t d_xmaplist_proc(int32_t msg,DIALOG *d,int32_t c);
+void drawxmap(ALLEGRO_BITMAP* dest, int32_t map, int32_t xoff, bool large, int dx, int dy);
 
-//int32_t xmapspecs[4] = {0,0,84+58,118+32+5};
-
-int32_t onXslider(void *dp3,int32_t d2);
-
-//char *dmaptype_str[dmMAX] = { "Dngn","Overw","Cave","BS-Ow" };
-
-const char *typelist(int32_t index, int32_t *list_size);
-void put_title_str(char *s,int32_t x,int32_t y,int32_t fg,int32_t bg,int32_t pos,int32_t lines,int32_t cpl);
-int32_t d_title_edit_proc(int32_t msg,DIALOG *d,int32_t c);
-void put_intro_str(char *s,int32_t x,int32_t y,int32_t fg,int32_t bg,int32_t pos);
-int32_t d_intro_edit_proc(int32_t msg,DIALOG *d,int32_t c);
-
-//char dmap_title[21];
-//char dmap_name[33];
-//char dmap_intro[73];
-
-void editdmap(int32_t index);
+void put_legacy_edit_str(char* s, int32_t x, int32_t y, int32_t w, int32_t h, int32_t fg, int32_t bg, int32_t pos);
+int32_t d_legacy_edit_proc(int32_t msg, DIALOG* d, int32_t c);
 
 //int32_t selectdmapxy[6] = {164-74,108+8+24,164,80+44+24,164,90+44+24};
 
@@ -1069,7 +1050,6 @@ int32_t InitPage_7();
 int32_t InitPage_8();
 int32_t onInit();
 int32_t onItemProps();
-int32_t onSubscreen();
 
 void get_cset(int32_t dataset,int32_t row,RGB *pal);
 void draw_edit_dataset_specs(int32_t index,int32_t copy);
@@ -1170,8 +1150,7 @@ int32_t get_bmaps(int32_t si);
 
 bool no_subscreen();
 
-extern int32_t Awpn, Bwpn, Bpos, Xwpn, Ywpn;
-extern sprite_list Sitems;
+extern int32_t Awpn, Bwpn, Xwpn, Ywpn;
 
 int32_t main(int32_t argc,char **argv);
 int32_t d_nbmenu_proc(int32_t msg,DIALOG *d,int32_t c);

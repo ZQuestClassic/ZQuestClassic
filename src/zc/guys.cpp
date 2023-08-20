@@ -38,7 +38,7 @@ extern particle_list particles;
 extern FFScript FFCore;
 extern ZModule zcm;
 extern HeroClass   Hero;
-extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
+extern sprite_list  guys, items, Ewpns, Lwpns, chainlinks, decorations;
 extern zinitdata    zinit;
 
 int32_t repaircharge=0;

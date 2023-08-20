@@ -12,6 +12,169 @@
 #include <string>
 #include <utility>
 
+bool edit_ins_mode = true;
+
+void put_legacy_edit_str(char* s, int32_t x, int32_t y, int32_t w, int32_t h, int32_t fg, int32_t bg, int32_t pos)
+{
+	int32_t i = 0;
+	char buf[2] = { 0, 0 };
+	FONT* fnt = get_zc_font(font_zfont);
+
+	// text_mode(bg);
+	for (int32_t dy = 0; dy < h; dy++)
+		for (int32_t dx = 0; dx < w; dx++)
+		{
+			if (edit_ins_mode)
+			{
+				buf[0] = *(s + i);
+				textout_ex(screen, fnt, buf, x + (dx << 3), y + (dy << 3), fg, bg);
+			}
+			else
+			{
+				//     text_mode(i==pos?vc(15):bg);
+				buf[0] = *(s + i);
+				textout_ex(screen, fnt, buf, x + (dx << 3), y + (dy << 3), fg, bg);
+			}
+
+			++i;
+		}
+
+	if (edit_ins_mode && pos > -1)
+	{
+		//   text_mode(-1);
+		buf[0] = '_';
+		textout_ex(screen, fnt, buf, x + ((pos % w) << 3), y + ((pos / w) << 3), vc(15), -1);
+	}
+}
+
+// Old proc used by the dmap editor for fixed size strings
+int32_t d_legacy_edit_proc(int32_t msg, DIALOG* d, int32_t c)
+{
+	char* s = (char*)(d->dp);
+
+	int32_t cw = (d->w - 4) / 8;
+	int32_t ch = (d->h - 4) / 8;
+	int32_t len = d->d1;
+	int32_t x = d->x + 3;
+	int32_t y = d->y + 3;
+
+	switch (msg)
+	{
+	case MSG_WANTFOCUS:
+		return D_WANTFOCUS;
+
+	case MSG_CLICK:
+		d->d2 = ((gui_mouse_x() - x) >> 3) + ((gui_mouse_y() - y) >> 3) * cw;
+		bound(d->d2, 0, len - 1);
+		//put_legacy_edit_str(s, x, y, cw, ch, jwin_pal[jcTEXTBG], jwin_pal[jcTEXTFG], d->d2);
+		d->flags |= D_DIRTY;
+
+		while (gui_mouse_b())
+		{
+			/* do nothing */
+			rest(1);
+		}
+
+		break;
+
+	case MSG_DRAW:
+		if (!(d->flags & D_GOTFOCUS))
+		{
+			d->d2 = -1;
+		}
+
+		rectfill(screen, x - 3, y - 3, x - 3 + d->w - 1, y - 3 + d->h - 1, scheme[jcTEXTBG]);
+		jwin_draw_frame(screen, x - 3, y - 3, d->w, d->h, FR_DEEP);
+		put_legacy_edit_str(s, x, y, cw, ch, scheme[jcTEXTFG], scheme[jcTEXTBG], d->d2);
+		break;
+
+	case MSG_CHAR:
+		bool used = false;
+		int32_t k = c >> 8;
+
+		switch (k)
+		{
+		case KEY_INSERT:
+			edit_ins_mode = !edit_ins_mode;
+			used = true;
+			break;
+
+		case KEY_HOME:
+			d->d2 -= d->d2 % cw;
+			d->flags |= D_DIRTY;
+			used = true;
+			break;
+
+		case KEY_END:
+			d->d2 -= d->d2 % cw;
+			d->d2 += cw - 1;
+			d->flags |= D_DIRTY;
+			used = true;
+			break;
+
+		case KEY_UP:
+			if (d->d2 >= cw) d->d2 -= cw;
+			d->flags |= D_DIRTY;
+			used = true;
+			break;
+
+		case KEY_DOWN:
+			if (d->d2 < cw * (ch - 1)) d->d2 += cw;
+			d->flags |= D_DIRTY;
+			used = true;
+			break;
+
+		case KEY_LEFT:
+			if (d->d2 > 0) --d->d2;
+			d->flags |= D_DIRTY;
+			used = true;
+			break;
+
+		case KEY_RIGHT:
+			if (d->d2 < len - 1) ++d->d2;
+			d->flags |= D_DIRTY;
+			used = true;
+			break;
+
+		case KEY_BACKSPACE:
+			if (d->d2 > 0)
+				--d->d2;
+
+		case KEY_DEL:
+			strcpy(s + d->d2, s + d->d2 + 1);
+			s[len - 1] = ' ';
+			s[len] = 0;
+			used = true;
+			d->flags |= D_DIRTY;
+			GUI_EVENT(d, geCHANGE_VALUE);
+			break;
+
+		default:
+			if (isprint(c & 255))
+			{
+				if (edit_ins_mode)
+				{
+					for (int32_t i = len - 1; i > d->d2; i--)
+						s[i] = s[i - 1];
+				}
+
+				s[d->d2] = c & 255;
+
+				if (d->d2 < len - 1)
+					++d->d2;
+
+				d->flags |= D_DIRTY;
+				GUI_EVENT(d, geCHANGE_VALUE);
+				used = true;
+			}
+		}
+
+		return used ? D_USED_CHAR : D_O_K;
+	}
+
+	return D_O_K;
+}
+
 namespace GUI
 {
 
@@ -479,6 +642,18 @@ void TextField::realize(DialogRunner& runner)
 			swap_cb->realize(runner);
 		}
 		alDialog->dp3 = (void*)this;
+	}
+	else if (tfType == type::TEXT_LEGACY)
+	{
+		alDialog = runner.push(shared_from_this(), DIALOG{
+			newGUIProc<d_legacy_edit_proc>,
+			x, y, getWidth(), getHeight(),
+			fgColor, bgColor,
+			0, // key
+			getFlags(), // flags
+			static_cast<int32_t>(maxLength), 0, // d1, d2
+			buffer.get(), widgFont, nullptr // dp, dp2, dp3
+			});
 	}
 	else
 	{

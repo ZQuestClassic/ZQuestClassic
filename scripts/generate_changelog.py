@@ -40,7 +40,7 @@ def parse_override_file(file: Path):
     for line in file.read_text().splitlines():
         line = line.rstrip()
 
-        if last_override and last_override[0] == 'reword' and not re.match(r'^(reword|subject|squash|pick)', line):
+        if last_override and last_override[0] == 'reword' and not re.match(r'^(reword|subject|squash|drop|pick)', line):
             if line == '=end':
                 last_override = None
                 continue
@@ -293,6 +293,9 @@ def generate_changelog(from_sha: str, to_sha: str) -> str:
     commits: List[Commit] = []
     for commit_text in commits_text.splitlines():
         short_hash, hash, subject = commit_text.split(' ', 2)
+        if hash in overrides and overrides[hash][0] == 'drop':
+            continue
+
         body = subprocess.check_output(
             f'git log -1 {hash} --format="%b"', shell=True, encoding='utf-8').strip()
         m = re.search(r'end changelog', body, re.IGNORECASE)
@@ -300,6 +303,23 @@ def generate_changelog(from_sha: str, to_sha: str) -> str:
             body = body[0:m.start()].strip()
         type, scope, oneline = parse_scope_and_type(subject)
         commits.append(Commit(type, scope, short_hash, hash, subject, oneline, body))
+
+    # Replace commit messages with overrides.
+    for commit in commits:
+        hash = commit.hash
+        if hash in overrides and overrides[hash][0] in ['subject', 'squash']:
+            commit.subject = overrides[hash][1]
+        elif hash in overrides and overrides[hash][0] == 'reword':
+            lines = overrides[hash][1].splitlines()
+            commit.subject = lines[0]
+            commit.body = '\n'.join(lines[1:])
+        else:
+            continue
+
+        type, scope, oneline = parse_scope_and_type(commit.subject)
+        commit.type = type
+        commit.scope = scope
+        commit.oneline = oneline
 
     # Squash commits.
     squashed_hashes = []
@@ -313,23 +333,6 @@ def generate_changelog(from_sha: str, to_sha: str) -> str:
         commit.squashed_commits.insert(0, Commit(**commit.__dict__))
         commit.squashed_commits.sort(key=lambda c: (get_type_index(c.type), get_scope_index(c.scope)))
     commits = [c for c in commits if c.hash not in squashed_hashes]
-
-    # Replace commit messages with overrides.
-    for commit in commits:
-        hash = commit.hash
-        if hash in overrides and overrides[hash][0] == 'subject':
-            commit.subject = overrides[hash][1]
-        elif hash in overrides and overrides[hash][0] == 'reword':
-            lines = overrides[hash][1].splitlines()
-            commit.subject = lines[0]
-            commit.body = '\n'.join(lines[1:])
-        else:
-            continue
-
-        type, scope, oneline = parse_scope_and_type(commit.subject)
-        commit.type = type
-        commit.scope = scope
-        commit.oneline = oneline
 
     commits_by_type: Dict[str, List[Commit]] = {}
     for type in valid_types:

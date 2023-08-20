@@ -1003,7 +1003,7 @@ void runF6Engine();
 void runOnDeathEngine();
 void runOnLaunchEngine();
 void runGenericPassiveEngine(int32_t scrtm);
-bool runGenericFrozenEngine(const word script);
+bool runGenericFrozenEngine(const word script, const int32_t* init_data = nullptr);
 bool runActiveSubscreenScriptEngine();
 bool runOnMapScriptEngine();
 void doScriptMenuDraws();
@@ -4917,8 +4917,8 @@ enum ASM_DEFINE
 #define SCREENLENSSHOWS      0x14EB
 #define SCREENLENSHIDES      0x14EC
 #define GAMETRIGGROUPS      0x14ED
-#define RESRVD_VAR_EMILY43      0x14EE
-#define RESRVD_VAR_EMILY44      0x14EF
+#define GAMEOVERRIDEITEMS      0x14EE
+#define DMAPDATASUBSCRO      0x14EF
 #define RESRVD_VAR_EMILY45      0x14F0
 #define RESRVD_VAR_EMILY46      0x14F1
 #define RESRVD_VAR_EMILY47      0x14F2

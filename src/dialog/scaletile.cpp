@@ -67,7 +67,7 @@ bool ScaleTileDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			*thei = th;
 			return true;
 		case message::CANCEL:
-		default:
 			return true;
 	}
+	return false;
 }

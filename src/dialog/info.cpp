@@ -5,6 +5,9 @@
 
 #ifdef IS_ZQUEST
 #include "quest_rules.h"
+#include "zq/zq_files.h"
+
+extern const GUI::ListData ruletemplatesList;
 #endif
 
 void displayinfo(std::string title, std::string text)
@@ -59,6 +62,17 @@ void InfoDialog::postinit()
 		std::string sub = dlgText.substr(pos+1,nextpos-pos-1);
 		dlgText.erase(pos,nextpos-pos+1);
 		#ifdef IS_ZQUEST
+		dword special_type = 0; //qr by default
+		if(sub[0] == '#') //Special type id given
+		{
+			auto nexthash = sub.find_first_of("#",1);
+			if(nexthash == std::string::npos || nexthash == 1)
+				continue; //invalid
+			if(sub.find_first_not_of("0123456789",1) != nexthash)
+				continue; //invalid
+			special_type = atoi(sub.substr(1,nexthash).c_str());
+			sub.erase(0,nexthash+1);
+		}
 		bool running = true;
 		while(running)
 		{
@@ -77,12 +91,21 @@ void InfoDialog::postinit()
 			if(sub2.size() < 1 || sub2.find_first_not_of("0123456789") != std::string::npos)
 				continue; //invalid
 			int val = atoi(sub2.c_str());
-			qrs.insert(val);
+			
+			switch(special_type)
+			{
+				case INFOHINT_T_QR:
+					qrs.insert(val);
+					break;
+				case INFOHINT_T_RULETMPL:
+					ruleTemplates.insert(val);
+					break;
+			}
 		}
 		#endif
 	}
 	
-	if(qrs.size())
+	if(qrs.size() || ruleTemplates.size())
 	{
 		dest_qrs = next_dest_qr;
 		next_dest_qr = local_qrs;
@@ -94,29 +117,64 @@ std::shared_ptr<GUI::Widget> InfoDialog::view()
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
-	std::shared_ptr<GUI::Widget> widg;
+	std::shared_ptr<GUI::Grid> gr;
 	std::shared_ptr<GUI::Grid> closeRow;
-	
+	bool add_grid = false, addok = false;
 	#ifdef IS_ZQUEST
+	add_grid = addok = qrs.size() || ruleTemplates.size();
+	if(add_grid)
+		gr = Row(padding = 0_px);
 	if(qrs.size())
 	{
-		GUI::ListData tosearch = combinedQRList()+combinedZSRList();
-		widg = Frame(title = "Related QRs",
-			QRPanel(
-				padding = 3_px,
-				onToggle = message::TOGGLE_QR,
-				onCloseInfo = message::REFRESH,
-				initializer = local_qrs,
-				count = 0,
-				data = tosearch.filter(
-					[&](GUI::ListItem& itm)
+		GUI::ListData tosearch = (combinedQRList()+combinedZSRList()).filter(
+			[&](GUI::ListItem& itm)
+			{
+				if(qrs.contains(itm.value))
+					return true;
+				return false;
+			});
+		if(tosearch.size())
+		{
+			gr->add(Frame(title = "Related QRs",
+				QRPanel(
+					padding = 3_px,
+					onToggle = message::TOGGLE_QR,
+					onCloseInfo = message::REFR_INFO,
+					initializer = local_qrs,
+					count = 0,
+					data = tosearch
+				)
+			));
+		}
+	}
+	if(ruleTemplates.size())
+	{
+		std::shared_ptr<GUI::Grid> cboxes = Rows<2>();
+		cboxes->add(Label(colSpan = 2, text = "Note: Selecting a rule template"
+			"\nwill write to numerous QRs."));
+		int cnt = 0;
+		for(size_t q = 0; q < ruletemplatesList.size(); ++q)
+		{
+			if(!ruleTemplates.contains(q))
+				continue;
+			std::string infostr = ruletemplatesList.getInfo(q);
+			cboxes->add(infostr.size() ? INFOBTN(infostr) : DINFOBTN());
+			cboxes->add(Checkbox(
+					hAlign = 0.0, checked = false,
+					text = ruletemplatesList.getText(q),
+					onToggleFunc = [=](bool state)
 					{
-						if(qrs.contains(itm.value))
-							return true;
-						return false;
-					})
-			)
-		);
+						on_templates[q] = state;
+					}
+				));
+			++cnt;
+		}
+		if(cnt)
+			gr->add(Frame(title = "Related Rule Templates",cboxes));
+	}
+	#endif
+	if(addok)
+	{
 		closeRow = Row(padding = 0_px,
 			Button(
 				text = "OK",
@@ -130,9 +188,7 @@ std::shared_ptr<GUI::Widget> InfoDialog::view()
 		);
 	}
 	else
-	#endif
 	{
-		widg = DummyWidget(padding=0_px);
 		closeRow = Row(padding = 0_px,
 			Button(
 				text = "&Close",
@@ -141,23 +197,26 @@ std::shared_ptr<GUI::Widget> InfoDialog::view()
 				focused = true)
 		);
 	}
-
-	return Window(
+	
+	std::shared_ptr<GUI::Grid> main_col;
+	window = Window(
 		title = dlgTitle,
-		onClose = 0,
+		onClose = message::CANCEL,
 		hPadding = 0_px, 
-		Column(
+		main_col = Column(
 			hPadding = 0_px, 
 			Label(noHLine = true,
 				hPadding = 2_em,
 				maxLines = 20,
 				maxwidth = Size::pixels(zq_screen_w)-12_px-5_em,
 				textAlign = 1,
-				text = dlgText),
-			widg,
-			closeRow
+				text = dlgText)
 		)
 	);
+	if(add_grid)
+		main_col->add(gr);
+	main_col->add(closeRow);
+	return window;
 }
 
 bool InfoDialog::handleMessage(const GUI::DialogMessage<message>& msg)
@@ -168,10 +227,20 @@ bool InfoDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			toggle_bit(local_qrs, msg.argument);
 			return false;
 		case message::OK:
+			#ifdef IS_ZQUEST
 			if(dest_qrs)
 			{
+				if(ruleTemplates.size())
+				{
+					for(int q = 0; q < sz_ruletemplate; ++q)
+					{
+						if(on_templates[q])
+							applyRuleTemplate(q,local_qrs);
+					}
+				}
 				memcpy(dest_qrs, local_qrs, sizeof(local_qrs));
 			}
+			#endif
 		[[fallthrough]];
 		case message::CANCEL:
 			if(dest_qrs)
@@ -179,7 +248,7 @@ bool InfoDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 				next_dest_qr = dest_qrs;
 			}
 			return true;
-		case message::REFRESH:
+		case message::REFR_INFO:
 			rerun_dlg = true;
 			return true;
 	}

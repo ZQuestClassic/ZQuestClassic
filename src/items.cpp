@@ -612,10 +612,54 @@ void putitem2(BITMAP *dest,int32_t x,int32_t y,int32_t item_id, int32_t &aclk, i
 	temp.unget_UID();
 }
 
+void dummyitem_animate(item* dummy, int32_t clk)
+{
+	int fr = dummy->frames, spd = dummy->o_speed, del = dummy->o_delay;
+	if(fr < 1) fr = 1;
+	if(spd < 1) spd = 1;
+	int clkwid = spd*(fr+del);
+	clk %= clkwid;
+	
+	//To counter needing to call animate, calculate one clk back
+	clk = clk ? clk-1 : clkwid-1;
+	
+	dummy->aframe = clk < (del*spd) ? 0 : (clk-del*spd)/spd;
+	dummy->aclk=dummy->aframe ? (clk-del*spd)%spd : clk;
+	
+	auto item_id = dummy->id;
+	if ( itemsbuf[item_id].overrideFLAGS > 0 )
+	{
+		dummy->extend = 3;
+		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_TILEWIDTH ) {dummy->txsz = itemsbuf[item_id].tilew;}
+		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_TILEHEIGHT ) {dummy->tysz = itemsbuf[item_id].tileh;}
+		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_HIT_WIDTH ) {dummy->hit_width = itemsbuf[item_id].hxsz;}
+		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_HIT_HEIGHT ) {dummy->hit_height = itemsbuf[item_id].hysz;}
+		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_HIT_Z_HEIGHT ) {dummy->hzsz = itemsbuf[item_id].hzsz;}
+		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_HIT_X_OFFSET ) {dummy->hxofs = itemsbuf[item_id].hxofs;}
+		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_HIT_Y_OFFSET ) {dummy->hyofs = itemsbuf[item_id].hyofs;}
+		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_DRAW_X_OFFSET ) {dummy->xofs = itemsbuf[item_id].xofs;}
+		if ( itemsbuf[item_id].overrideFLAGS&itemdataOVERRIDE_DRAW_Y_OFFSET ) {dummy->yofs = itemsbuf[item_id].yofs;}
+	}	    
+	
+	dummy->animate(0);
+}
+void putitem3(BITMAP *dest,int32_t x,int32_t y,int32_t item_id, int32_t clk)
+{
+	item temp((zfix)x,(zfix)y,(zfix)0,item_id,0,0,true);
+	temp.xofs=temp.yofs=0;
+	temp.hide_hitbox = true;
+	temp.subscreenItem = true;
+	
+	dummyitem_animate(&temp, clk);
+	temp.draw(dest);
+	temp.unget_UID();
+}
+
 //some methods for dealing with items
 int32_t getItemFamily(itemdata* items, int32_t item)
 {
-	return items[item].family;
+	if(item < 0 || item >= MAXITEMS) return -1;
+	return items[item&0xFFF].family;
 }
 
 void removeItemsOfFamily(gamedata *g, itemdata *items, int32_t family)
@@ -877,8 +921,7 @@ ALLEGRO_COLOR item::hitboxColor(byte opacity) const
 	return al_map_rgba(0,255,255,opacity);
 }
 
-std::string get_subscr_arrow_name(int itemid);
-std::string itemdata::get_name(bool init) const
+std::string itemdata::get_name(bool init, bool plain) const
 {
 	std::string name;
 	if(display_name[0])
@@ -925,22 +968,27 @@ std::string itemdata::get_name(bool init) const
 			}
 		}
 		name = id > -1 ? item_string[id] : "";
-		std::string overname;
-		switch(family)
+		if(!plain)
 		{
-			case itype_arrow:
-				overname = get_subscr_arrow_name(id);
-				break;
-			case itype_bottle:
+			std::string overname;
+			switch(family)
+			{
+				case itype_arrow:
+				{
+					auto bowid = current_item_id(itype_bow,false);
+					if(bowid>-1 && checkmagiccost(id))
+						overname = itemsbuf[bowid].get_name() + " & " + name;
+					break;
+				}
+				case itype_bottle:
 #ifndef IS_ZQUEST
-				overname = bottle_slot_name(misc1,"");
-#else
-				overname = "";
+					overname = bottle_slot_name(misc1,"");
 #endif
-				break;
+					break;
+			}
+			if(!overname.empty())
+				return overname;
 		}
-		if(!overname.empty())
-			return overname;
 	}
 	return name;
 }

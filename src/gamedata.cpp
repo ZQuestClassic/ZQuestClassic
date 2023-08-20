@@ -27,7 +27,6 @@ extern portal mirror_portal;
 extern sprite_list portals;
 #endif
 extern int32_t dlevel;
-extern void flushItemCache();
 extern zinitdata zinit;
 extern void Z_eventlog(char *format,...);
 extern void ringcolor(bool forceDefault);
@@ -138,48 +137,52 @@ word gamedata::get_counter(byte c) const
 void gamedata::set_counter(word change, byte c)
 {
 #ifdef DEBUG_GD_COUNTERS
-    al_trace("Changing counter %i from %i to %i\n", c, _counter[c], change);
+	al_trace("Changing counter %i from %i to %i\n", c, _counter[c], change);
 #endif
-    
-    if(c>=MAX_COUNTERS)  // Sanity check
-        return;
-        
-    if(game!=NULL)
-    {
-        int32_t ringID=current_item_id(itype_ring, true);
-        _counter[c]=zc_max(change, 0);
-        
-        // ringcolor is very slow, so make sure the ring has actually changed
-        if(ringID!=current_item_id(itype_ring, true))
-            ringcolor(false);
-    }
-    else
-        _counter[c]=zc_max(change, 0);
-        
-    return;
+	
+	if(c>=MAX_COUNTERS)  // Sanity check
+		return;
+	
+	if(game!=NULL)
+	{
+		int32_t ringID=current_item_id(itype_ring, true);
+		_counter[c]=zc_max(change, 0);
+		
+		flushItemCache(true);
+		
+		// ringcolor is very slow, so make sure the ring has actually changed
+		if(ringID!=current_item_id(itype_ring, true))
+			ringcolor(false);
+	}
+	else
+		_counter[c]=zc_max(change, 0);
+		
+	return;
 }
 
 void gamedata::change_counter(int16_t change, byte c)
 {
 #ifdef DEBUG_GD_COUNTERS
-    al_trace("Changing counter %i from %i by %i\n", c, _counter[c], change);
+	al_trace("Changing counter %i from %i by %i\n", c, _counter[c], change);
 #endif
-    
-    if(c>=MAX_COUNTERS)  // Sanity check
-        return;
-        
-    if(game!=NULL)
-    {
-        int32_t ringID=current_item_id(itype_ring, true);
-        _counter[c]=vbound(_counter[c]+change, 0, _maxcounter[c]);
-        
-        if(ringID!=current_item_id(itype_ring, true))
-            ringcolor(false);
-    }
-    else
-        _counter[c]=vbound(_counter[c]+change, 0, _maxcounter[c]);
-        
-    return;
+	
+	if(c>=MAX_COUNTERS)  // Sanity check
+		return;
+		
+	if(game!=NULL)
+	{
+		int32_t ringID=current_item_id(itype_ring, true);
+		_counter[c]=vbound(_counter[c]+change, 0, _maxcounter[c]);
+		
+		flushItemCache(true);
+		
+		if(ringID!=current_item_id(itype_ring, true))
+			ringcolor(false);
+	}
+	else
+		_counter[c]=vbound(_counter[c]+change, 0, _maxcounter[c]);
+		
+	return;
 }
 
 word gamedata::get_maxcounter(byte c) const

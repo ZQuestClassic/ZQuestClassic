@@ -76,10 +76,9 @@ int32_t d_midilist_proc(int32_t msg,DIALOG *d,int32_t c);
 extern byte monochrome_console;
 
 extern HeroClass Hero;
-extern FFScript FFCore;
 extern ZModule zcm;
 extern zcmodule moduledata;
-extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations;
+extern sprite_list  guys, items, Ewpns, Lwpns, chainlinks, decorations;
 extern particle_list particles;
 extern int32_t loadlast;
 extern char *sfx_string[WAV_COUNT];
@@ -2253,38 +2252,46 @@ int32_t current_item(int32_t item_type)		   //item currently being used
 }
 
 std::map<int32_t, int32_t> itemcache;
+std::map<int32_t, int32_t> itemcache_cost;
 
-// Not actually used by anything at the moment...
 void removeFromItemCache(int32_t itemclass)
 {
 	itemcache.erase(itemclass);
+	itemcache_cost.erase(itemclass);
 }
 
-void flushItemCache()
+void flushItemCache(bool justcost)
 {
-	itemcache.clear();
+	itemcache_cost.clear();
+	if(!justcost)
+		itemcache.clear();
+	else if(replay_version_check(0,19))
+		return;
 	
 	//also fix the active subscreen if items were deleted -DD
 	if(game != NULL)
 	{
 		verifyBothWeapons();
-		load_Sitems();
+		refresh_subscr_items();
 	}
 }
 
 // This is used often, so it should be as direct as possible.
 int32_t _c_item_id_internal(int32_t itemtype, bool checkmagic, bool jinx_check)
 {
+	bool use_cost_cache = replay_version_check(19);
 	if(jinx_check)
 	{
 		if(!(HeroSwordClk() || HeroItemClk()))
 			jinx_check = false; //not jinxed
 	}
-	if(itemtype!=itype_ring && !jinx_check)  // Rings must always be checked, as must jinx checks...
+	if(itemtype == itype_ring) checkmagic = true;
+	if (!jinx_check && (use_cost_cache || itemtype != itype_ring))
 	{
-		std::map<int32_t,int32_t>::iterator res = itemcache.find(itemtype);
+		auto& cache = checkmagic && use_cost_cache ? itemcache_cost : itemcache;
+		auto res = cache.find(itemtype);
 		
-		if(res != itemcache.end())
+		if(res != cache.end())
 			return res->second;
 	}
 	
@@ -2295,19 +2302,12 @@ int32_t _c_item_id_internal(int32_t itemtype, bool checkmagic, bool jinx_check)
 	{
 		if(game->get_item(i) && itemsbuf[i].family==itemtype && !item_disabled(i))
 		{
-			if((checkmagic || itemtype == itype_ring) && itemtype != itype_magicring)
-			{
-				//printf("Checkmagic for %d: %d (%d %d)\n",i,checkmagiccost(i),itemsbuf[i].magic*game->get_magicdrainrate(),game->get_magic());
+			if(checkmagic && itemtype != itype_magicring)
 				if(!checkmagiccost(i))
-				{
-					if ( !get_qr(qr_NEVERDISABLEAMMOONSUBSCREEN) ) continue; //don't make items with a magic cost vanish!! -Z
-				}
-			}
+					continue;
 			if(jinx_check && (usesSwordJinx(i) ? HeroSwordClk() : HeroItemClk()))
-			{
 				if(!(itemsbuf[i].flags & ITEM_JINX_IMMUNE))
 					continue;
-			}
 			
 			if(itemsbuf[i].fam_type >= highestlevel)
 			{
@@ -2318,21 +2318,54 @@ int32_t _c_item_id_internal(int32_t itemtype, bool checkmagic, bool jinx_check)
 	}
 	
 	if(!jinx_check) //Can't cache jinx_check results
-		itemcache[itemtype] = result;
+	{
+		if (use_cost_cache)
+		{
+			if (!checkmagic)
+				itemcache[itemtype] = result;
+			if (checkmagic || result < 0 || checkmagiccost(result))
+				itemcache_cost[itemtype] = result;
+		}
+		else
+		{
+			itemcache[itemtype] = result;
+		}
+	}
 	return result;
 }
 
 // 'jinx_check' indicates that the highest level item *immune to jinxes* should be returned.
-int32_t current_item_id(int32_t itemtype, bool checkmagic, bool jinx_check)
+int32_t current_item_id(int32_t itype, bool checkmagic, bool jinx_check)
 {
-	auto ret = _c_item_id_internal(itemtype,checkmagic,jinx_check);
+	if(itype < 0 || itype >= itype_max) return -1;
+	if(game->OverrideItems[itype] > -2)
+	{
+		auto ovid = game->OverrideItems[itype];
+		if(ovid < 0 || ovid >= MAXITEMS)
+			return -1;
+		if(itemsbuf[ovid].family == itype)
+		{
+			if(itype == itype_magicring)
+				checkmagic = false;
+			else if(itype == itype_ring)
+				checkmagic = true;
+			
+			if(checkmagic && !checkmagiccost(ovid))
+				return -1;
+			if(jinx_check && !(itemsbuf[ovid].flags & ITEM_JINX_IMMUNE)
+				&& (usesSwordJinx(ovid) ? HeroSwordClk() : HeroItemClk()))
+				return -1;
+			return ovid;
+		}
+	}
+	auto ret = _c_item_id_internal(itype,checkmagic,jinx_check);
 	if(!jinx_check) //If not already a jinx-immune-only check...
 	{
 		//And the player IS jinxed...
 		if(HeroSwordClk() || HeroItemClk())
 		{
 			//Then do a jinx-immune-only check here
-			auto ret2 = _c_item_id_internal(itemtype,checkmagic,true);
+			auto ret2 = _c_item_id_internal(itype,checkmagic,true);
 			//And *IF IT FINDS A VALID ITEM*, return that one instead! -Em
 			//Should NOT need a compat rule, as this should always return -1 in old quests.
 			if(ret2 > -1) return ret2;
@@ -2340,6 +2373,7 @@ int32_t current_item_id(int32_t itemtype, bool checkmagic, bool jinx_check)
 	}
 	return ret;
 }
+
 int32_t current_item_power(int32_t itemtype)
 {
 	int32_t result = current_item_id(itemtype,true);
@@ -5905,7 +5939,6 @@ int32_t zc_load_zmod_module_file()
 		zcm.init(true); //Load the module values.
 		moduledata.refresh_title_screen = 1;
 //		refresh_select_screen = 1;
-		build_biic_list();
 		return D_O_K;
 }
 

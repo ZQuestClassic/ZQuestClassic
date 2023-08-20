@@ -241,7 +241,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_COMBOS          42
 #define V_CSETS            5 //palette data
 #define V_MAPS            28
-#define V_DMAPS            19
+#define V_DMAPS           20
 #define V_DOORS            1
 #define V_ITEMS           57
 #define V_WEAPONS          8
@@ -252,16 +252,16 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_GUYS            47
 #define V_MIDIS            4
 #define V_CHEATS           1
-#define V_SAVEGAME        33
+#define V_SAVEGAME        35
 #define V_COMBOALIASES     4
 #define V_HEROSPRITES      16
-#define V_SUBSCREEN        7
+#define V_SUBSCREEN        8
 #define V_ITEMDROPSETS     2
 #define V_FFSCRIPT         21
 #define V_SFX              8
 #define V_FAVORITES        3
 
-#define V_COMPATRULE       52
+#define V_COMPATRULE       53
 #define V_ZINFO            3
 
 //= V_SHOPS is under V_MISC
@@ -2638,7 +2638,8 @@ struct gamedata
 	int32_t  global_d[MAX_SCRIPT_REGISTERS];                                      // script-controlled global variables
 	std::vector< ZCArray <int32_t> > globalRAM;
 	
-	byte awpn, bwpn, xwpn, ywpn;											// Currently selected weapon slots
+	word awpn = 255, bwpn = 255, xwpn = 255, ywpn = 255;
+	int16_t abtn_itm = -1, bbtn_itm = -1, xbtn_itm = -1, ybtn_itm = -1;
 	int16_t forced_awpn = -1, forced_bwpn = -1, forced_xwpn = -1, forced_ywpn = -1;
 	bool isclearing; // The gamedata is being cleared
 	//115456 (260)
@@ -2659,6 +2660,28 @@ struct gamedata
 	uint32_t xstates[MAXMAPS2*MAPSCRSNORMAL];
 	
 	int32_t gswitch_timers[NUM_GSWITCHES];
+	int16_t OverrideItems[itype_max] = {-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,
+		-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,
+		-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,
+		-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,
+		-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,
+		-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,
+		-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,
+		-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,
+		-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,
+		-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,
+		-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,
+		-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,
+		-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,
+		-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,
+		-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,
+		-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,
+		-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,
+		-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,
+		-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,
+		-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,
+		-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,
+		-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2};
 
 	std::vector<saved_user_object> user_objects;
 	std::vector<savedportal> user_portals;
@@ -3047,6 +3070,8 @@ enum controls //Args for 'getInput()'
 #define INT_BTN_EX2 0x20
 #define INT_BTN_EX3 0x40
 #define INT_BTN_EX4 0x80
+#define INT_BTN_X   INT_BTN_EX1
+#define INT_BTN_Y   INT_BTN_EX2
 
 ///////////////
 /// MODULES ///
@@ -3161,7 +3186,7 @@ INLINE void SCRFIX()
 //INLINE int32_t new_return(int32_t x) { fake_pack_writing=false; return x; }
 #define new_return(x) {assert(x == 0); fake_pack_writing = false; return x; }
 
-extern void flushItemCache();
+extern void flushItemCache(bool justcost = false);
 extern void removeFromItemCache(int32_t itemclass);
 
 #define GLOBAL_SCRIPT_INIT 			0
