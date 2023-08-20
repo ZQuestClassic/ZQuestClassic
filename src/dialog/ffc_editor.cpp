@@ -451,7 +451,6 @@ bool FFCDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			edited = true;
 			[[fallthrough]];
 		case message::CANCEL:
-		default:
 			return true;
 		
 		case message::MINUSCS:

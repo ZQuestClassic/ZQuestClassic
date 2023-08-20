@@ -76,10 +76,6 @@ extern int32_t onHelp();
 extern int32_t startdmapxy[6];
 extern void onInitOK();
 
-std::map<int32_t, int32_t> listidx2biic;
-//sorted by family id
-static std::map<int32_t, std::vector<Family> > families;
-
 int32_t d_line_proc(int32_t msg, DIALOG *d, int32_t c)
 {
     //these are here to bypass compiler warnings about unused arguments
@@ -966,92 +962,13 @@ const char *itype_names[itype_max] = { "Swords", "Boomerangs", "Arrows", "Candle
 //New Item Classes dfor 2.54 andd above. 
 const char *itype_new_names[itype_max] = { "Script 1","Script 2","Script 3","Script 4","Script 5","Script 6","Script 7","Script 8","Script 9","Script 10", "Ice Rod"
                                      };
-				     
-const char *familylist(int32_t index, int32_t *list_size);
 
-
-item_class_struct biic[itype_max];
-int32_t biic_cnt=-1;
-
-void build_biic_list()
-{
-	int32_t start=biic_cnt=0;
-	std::map<std::string, int32_t> fams;
-	std::set<std::string> famnames;
-	
-	for(int32_t i=start; i<itype_max; ++i)
-	{
-		if(!ZI.isUsableItemclass(i))
-			continue; //Hidden
-		char const* itname = ZI.getItemClassName(i);
-        if(i < itype_last || itname[0] != 0 )
-		{
-            char* name = new char[strlen(itname) + 7];
-            sprintf(name, "%s (%03d)", itname, i);
-            std::string sname(name);
-
-			fams[sname] = i;
-			famnames.insert(sname);
-			delete[] name;
-		}
-		else 
-		{
-			char *name = new char[12];
-			sprintf(name, "zz%03d (%03d)", i, i);
-			std::string sname(name);
-			
-			fams[sname] = i;
-			famnames.insert(sname);
-			delete[] name;
-		}
-	}
-	
-	for(std::set<std::string>::iterator it = famnames.begin(); it != famnames.end(); ++it)
-	{
-		biic[biic_cnt].s = new char[(*it).length() + 1];
-		strcpy(biic[biic_cnt].s, it->c_str()); //The user could do this, with an editor panel, to rename them, but saving the user strings would be an ordeal. -Z
-		biic[biic_cnt].i = fams[*it];
-		++biic_cnt;
-	}
-}
-
-void deallocate_biic_list()
-{
-    for(int32_t i(0); i < 255; i++) //I don't know what this really is.
-    {
-        if(biic[i].s)
-            delete [] biic[i].s;
-    }
-}
-
-const char *item_class_list(int32_t index, int32_t *list_size)
-{
-    if(index<0)
-    {
-        *list_size = biic_cnt;
-        return NULL;
-    }
-    
-    return biic[index].s;
-}
 
 #include "dialog/init_data.h"
 int32_t doInit(zinitdata *local_zinit, bool isZC)
 {
 	call_init_dlg(*local_zinit, isZC);
     return D_O_K;
-}
-
-
-const char *familylist(int32_t index, int32_t *list_size)
-{
-    if(index<0)
-    {
-        *list_size = (int32_t)listidx2biic.size();
-        return NULL;
-    }
-    
-    return biic[listidx2biic[index]].s;
 }
 
 // NOTE: This method has been severely hacked to fix an annoying problem at game start:
@@ -1079,6 +996,8 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool freshquest)
 #ifndef IS_ZQUEST
             if (!game2->get_item(i))
                 getitem(i,true,false);
+#else
+            game2->set_item_no_flush(i, true);
 #endif
         }
         else

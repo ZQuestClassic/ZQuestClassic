@@ -227,9 +227,6 @@ void set_debug(bool d);
 extern zquestheader        header;
 extern byte                midi_flags[MIDIFLAGS_SIZE];
 extern byte                music_flags[MUSICFLAGS_SIZE];
-extern word                map_count;
-extern std::vector<mapscr> TheMaps;
-extern std::vector<word>   map_autolayers;
 extern zcmap               *ZCMaps;
 extern int32_t				   msg_strings_size;
 extern class zctune        *customtunes;
@@ -754,6 +751,8 @@ enum
 	cmdDrawingModePool,
 	cmdQRSearch,
 	cmdQuickCompile,
+	cmdRuleset,
+	cmdRuleTemplate,
     cmdMAX
 };
 
@@ -1050,7 +1049,6 @@ int32_t InitPage_7();
 int32_t InitPage_8();
 int32_t onInit();
 int32_t onItemProps();
-int32_t onSubscreen();
 
 void get_cset(int32_t dataset,int32_t row,RGB *pal);
 void draw_edit_dataset_specs(int32_t index,int32_t copy);
@@ -1151,8 +1149,7 @@ int32_t get_bmaps(int32_t si);
 
 bool no_subscreen();
 
-extern int32_t Awpn, Bwpn, Bpos, Xwpn, Ywpn;
-extern sprite_list Sitems;
+extern int32_t Awpn, Bwpn, Xwpn, Ywpn;
 
 int32_t main(int32_t argc,char **argv);
 int32_t d_nbmenu_proc(int32_t msg,DIALOG *d,int32_t c);

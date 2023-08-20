@@ -177,6 +177,7 @@ extern CConsoleLoggerEx zscript_coloured_console;
 
 uint8_t console_is_open = 0;
 uint8_t __isZQuest = 1; //Shared functionscan reference this. -Z
+bool is_zq_replay_test = false;
 
 #include "base/util.h"
 
@@ -214,6 +215,7 @@ bool disable_saving=false, OverwriteProtection;
 bool halt=false;
 bool show_sprites=true;
 bool show_hitboxes = false;
+bool zq_ignore_item_ownership = true;
 
 // Used to find FFC script names
 vector<string> asffcscripts;
@@ -492,8 +494,6 @@ SAMPLE customsfxdata[WAV_COUNT];
 uint8_t customsfxflag[WAV_COUNT>>3];
 int32_t sfxdat=1;
 
-extern void deallocate_biic_list();
-
 zinitdata zinit;
 
 int32_t onImport_ComboAlias();
@@ -718,9 +718,6 @@ END_OF_FUNCTION(myvsync_callback)
 zquestheader header;
 byte                midi_flags[MIDIFLAGS_SIZE];
 byte                music_flags[MUSICFLAGS_SIZE];
-word                map_count;
-vector<mapscr>      TheMaps;
-vector<word>        map_autolayers;
 zcmap               *ZCMaps;
 byte                *quest_file;
 int32_t					msg_strings_size;
@@ -814,7 +811,6 @@ static MENU import_menu[] =
     { (char *)"&Enemies",                   onImport_Guys,             NULL,                     0,            NULL   },
     { (char *)"&Map",                       onImport_Map,              NULL,                     0,            NULL   },
     { (char *)"&DMaps",                     onImport_DMaps,            NULL,                     0,            NULL   },
-    { (char *)"Su&bscreen",                 onImport_Subscreen,        NULL,                     0,            NULL   },
     { (char *)"&String Table",              onImport_Msgs,             NULL,                     0,            NULL   },
     // { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
     // { (char *)"ZASM Script",           onExport_ZASM,   NULL,                     0,            NULL   },
@@ -871,7 +867,6 @@ static MENU export_menu[] =
     { (char *)"&Enemies",                   onExport_Guys,             NULL,                     0,            NULL   },
     { (char *)"&Map",                       onExport_Map,              NULL,                     0,            NULL   },
     { (char *)"&DMaps",                       onExport_DMaps,              NULL,                     0,            NULL   },
-    { (char *)"Su&bscreen",                 onExport_Subscreen,        NULL,                     0,            NULL   },
     { (char *)"",                           NULL,                      NULL,                     0,            NULL   },
        
     { (char *)"&String Table",              onExport_Msgs,             NULL,                     0,            NULL   },
@@ -1135,7 +1130,6 @@ static MENU maps_menu[] =
 static MENU misc_menu[] =
 {
     { (char *)"S&ubscreens",                onEditSubscreens,          NULL,                     0,            NULL   },
-    { (char *)"&Master Subscreen Type",     onSubscreen,               NULL,                     0,            NULL   },
     { (char *)"&Shop Types",                onShopTypes,               NULL,                     0,            NULL   },
     { (char *)"&Bottle Types",              onBottleTypes,             NULL,                     0,            NULL   },
     { (char *)"Bottle S&hop Types",         onBottleShopTypes,         NULL,                     0,            NULL   },
@@ -5038,6 +5032,15 @@ void draw_sqr_btn(size_and_pos const& sqr, const char* txt, int flags, FONT* f =
 	draw_text_button(menu1, sqr.x, sqr.y, sqr.tw(), sqr.th(), txt, 0, 0, flags, true);
 	font = tfont;
 }
+void draw_sqr_btn(size_and_pos const& sqr, int icon, int flags, FONT* f = nullptr)
+{
+	if(sqr.x < 0) return;
+	FONT* tfont = font;
+	if(f)
+		font = f;
+	draw_icon_button(menu1, sqr.x, sqr.y, sqr.tw(), sqr.th(), icon, 0, 0, flags, true);
+	font = tfont;
+}
 
 void drawpanel()
 {
@@ -5063,8 +5066,8 @@ void drawpanel()
 		if(compact_square_panels)
 		{
 			textprintf_centre_ex(menu1,font,squarepanel_up_btn.cx(),squarepanel_up_btn.y-text_height(font)-2,jwin_pal[jcBOXFG],-1,"%d",compact_active_panel);
-			draw_sqr_btn(squarepanel_up_btn, "\x88", 0);
-			draw_sqr_btn(squarepanel_down_btn, "\x89", 0);
+			draw_sqr_btn(squarepanel_up_btn, BTNICON_ARROW_UP, 0);
+			draw_sqr_btn(squarepanel_down_btn, BTNICON_ARROW_DOWN, 0);
 		}
 		font = tfont;
 		
@@ -13808,12 +13811,12 @@ int32_t onItem()
     int32_t current_item=Map.CurrScr()->hasitem != 0 ? Map.CurrScr()->item : -1;
     
 	ItemListerDialog(current_item,true).show();
-	if(current_item != lister_index)
+	if(current_item != lister_sel_val)
 	{
-		if(lister_index>=0)
+		if(lister_sel_val>=0)
 		{
 			saved = false;
-			Map.CurrScr()->item = lister_index;
+			Map.CurrScr()->item = lister_sel_val;
 			Map.CurrScr()->hasitem = true;
 		}
 		else
@@ -15984,11 +15987,11 @@ static DIALOG editmidi_dlg[] =
     // 8
     { jwin_check_proc,      176,  124+12-4,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Loop", NULL, NULL },
     // 9
-    { jwin_button_proc,     50,   72-24,   57,   21,   vc(14),  vc(1),  'l',     D_EXIT,     0,             0, (void *) "&Load", NULL, NULL },
-    { jwin_button_proc,     116,  72-24,   33,   21,   vc(14),  vc(1),  0,       D_EXIT,     0,             0, (void *) "\x8D", NULL, NULL },
-    { jwin_button_proc,     156,  72-24,   33,   21,   vc(14),  vc(1),  0,       D_EXIT,     0,             0, (void *) "\x8B", NULL, NULL },
-    { jwin_button_proc,     196,  72-24,   33,   21,   vc(14),  vc(1),  0,       D_EXIT,     0,             0, (void *) "\x8B\x8B", NULL, NULL },
-    { jwin_button_proc,     236,  72-24,   33,   21,   vc(14),  vc(1),  0,       D_EXIT,     0,             0, (void *) "\x8B\x8B\x8B", NULL, NULL },
+    { jwin_button_proc,     50,   72-24,   57,   21,   vc(14),  vc(1),  'l',     D_EXIT,     0,                     0, (void *) "&Load", NULL, NULL },
+    { jwin_iconbutton_proc, 116,  72-24,   33,   21,   vc(14),  vc(1),  0,       D_EXIT,     BTNICON_STOPSQUARE,    0, NULL, NULL, NULL },
+    { jwin_iconbutton_proc, 156,  72-24,   33,   21,   vc(14),  vc(1),  0,       D_EXIT,     BTNICON_ARROW_RIGHT,   0, NULL, NULL, NULL },
+    { jwin_iconbutton_proc, 196,  72-24,   33,   21,   vc(14),  vc(1),  0,       D_EXIT,     BTNICON_ARROW_RIGHT2,  0, NULL, NULL, NULL },
+    { jwin_iconbutton_proc, 236,  72-24,   33,   21,   vc(14),  vc(1),  0,       D_EXIT,     BTNICON_ARROW_RIGHT3,  0, NULL, NULL, NULL },
     // 14
     { jwin_text_proc,       56,   134+4+12,  48,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Start:", NULL, NULL },
     { jwin_edit_proc,       112,  134+12,  32,   16,   vc(12),  vc(1),  0,       0,          5,             0,       NULL, NULL, NULL },
@@ -16261,18 +16264,32 @@ int32_t d_midilist_proc(int32_t msg,DIALOG *d,int32_t c)
         int32_t i = d->d1;
         int32_t x = d->x+d->w+8;
         int32_t y = d->y+4;
+        int lh = text_height(font);
+		char const* strs[] = {
+			"Volume:",
+			"Loop:",
+			"Start:",
+			"Loop Start:",
+			"Loop End:"
+		};
+		int tw = 0;
+		for(auto str : strs)
+		{
+			int w = text_length(font,str);
+			if(w > tw)
+				tw = w;
+		}
+		int tx = x+tw;
+		for(int q = 0; q < 5; ++q)
+		{
+			textout_right_ex(screen,font,strs[q],tx,y+13+(lh*q),jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+		}
         
-        textout_right_ex(screen,font,"Volume:",x+51,y+8+5,jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-        textout_right_ex(screen,font,"Loop:",x+51,y+16+5,jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-        textout_right_ex(screen,font,"Start:",x+51,y+24+5,jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-        textout_right_ex(screen,font,"Loop Start:",x+51,y+32+5,jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-        textout_right_ex(screen,font,"Loop End:",x+51,y+40+5,jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
-        
-        textprintf_ex(screen,font,x+56,y+8+5,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-3d",customtunes[i].volume);
-        textprintf_ex(screen,font,x+56,y+16+5,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%s",customtunes[i].loop?"On ":"Off");
-        textprintf_ex(screen,font,x+56,y+24+5,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-5d",customtunes[i].start);
-        textprintf_ex(screen,font,x+56,y+32+5,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-5d",customtunes[i].loop_start);
-        textprintf_ex(screen,font,x+56,y+40+5,jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-5d",customtunes[i].loop_end);
+        textprintf_ex(screen,font,tx+5,y+13+(lh*0),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-3d",customtunes[i].volume);
+        textprintf_ex(screen,font,tx+5,y+13+(lh*1),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%s",customtunes[i].loop?"On ":"Off");
+        textprintf_ex(screen,font,tx+5,y+13+(lh*2),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-5d",customtunes[i].start);
+        textprintf_ex(screen,font,tx+5,y+13+(lh*3),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-5d",customtunes[i].loop_start);
+        textprintf_ex(screen,font,tx+5,y+13+(lh*4),jwin_pal[jcBOXFG],jwin_pal[jcBOX],"%-5d",customtunes[i].loop_end);
     }
     
     return jwin_list_proc(msg,d,c);
@@ -16360,10 +16377,10 @@ static DIALOG editmusic_dlg[] =
     { jwin_check_proc,      176,  124+12-4,  80+1,   8+1,    vc(14),  vc(1),  0,       0,          1,             0, (void *) "Loop", NULL, NULL },
     // 9
     { jwin_button_proc,     50,   72-24,   57,   21,   vc(14),  vc(1),  'l',     D_EXIT,     0,             0, (void *) "&Load", NULL, NULL },
-    { jwin_button_proc,     116,  72-24,   33,   21,   vc(14),  vc(1),  0,       D_EXIT,     0,             0, (void *) "\x8D", NULL, NULL },
-    { jwin_button_proc,     156,  72-24,   33,   21,   vc(14),  vc(1),  0,       D_EXIT,     0,             0, (void *) "\x8B", NULL, NULL },
-    { jwin_button_proc,     196,  72-24,   33,   21,   vc(14),  vc(1),  0,       D_EXIT,     0,             0, (void *) "\x8B\x8B", NULL, NULL },
-    { jwin_button_proc,     236,  72-24,   33,   21,   vc(14),  vc(1),  0,       D_EXIT,     0,             0, (void *) "\x8B\x8B\x8B", NULL, NULL },
+    { jwin_iconbutton_proc, 116,  72-24,   33,   21,   vc(14),  vc(1),  0,       D_EXIT,     BTNICON_STOPSQUARE,    0, NULL, NULL, NULL },
+    { jwin_iconbutton_proc, 156,  72-24,   33,   21,   vc(14),  vc(1),  0,       D_EXIT,     BTNICON_ARROW_RIGHT,   0, NULL, NULL, NULL },
+    { jwin_iconbutton_proc, 196,  72-24,   33,   21,   vc(14),  vc(1),  0,       D_EXIT,     BTNICON_ARROW_RIGHT2,  0, NULL, NULL, NULL },
+    { jwin_iconbutton_proc, 236,  72-24,   33,   21,   vc(14),  vc(1),  0,       D_EXIT,     BTNICON_ARROW_RIGHT3,  0, NULL, NULL, NULL },
     // 14
     { jwin_text_proc,       56,   134+4+12,  48,   8,    vc(14),  vc(1),  0,       0,          0,             0, (void *) "Start:", NULL, NULL },
     { jwin_edit_proc,       112,  134+12,  32,   16,   vc(12),  vc(1),  0,       0,          5,             0,       NULL, NULL, NULL },
@@ -19543,71 +19560,6 @@ int32_t onCheats()
 {
 	call_cheats_dlg();
 	return D_O_K;
-}
-
-const char *subscrtype_str[ssdtMAX+1] = { "Original","New Subscreen","Revision 2","BS Zelda Original","BS Zelda Modified","BS Zelda Enhanced","BS Zelda Complete","Zelda 3","Custom" };
-
-const char *subscrtypelist(int32_t index, int32_t *list_size)
-{
-    if(index>=0)
-    {
-        bound(index,0,ssdtMAX);
-        return subscrtype_str[index];
-    }
-    
-    *list_size=ssdtMAX+1;
-    return NULL;
-}
-
-static ListData subscreen_type_dlg_list(subscrtypelist, &font);
-
-static DIALOG subscreen_type_dlg[] =
-{
-    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
-    { jwin_win_proc,     83,   32,   154,  70,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "Subscreen Type", NULL, NULL },
-    { jwin_button_proc,     89,  77,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-    { jwin_button_proc,     170,  77,  61,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { jwin_droplist_proc,   107-8,  57,   106+15,  16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,       0,          1,             0, (void *) &subscreen_type_dlg_list, NULL, NULL },
-    { d_timer_proc,         0,    0,     0,    0,    0,       0,       0,       0,          0,          0,         NULL, NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
-int32_t onSubscreen()
-{
-    int32_t tempsubscreen=zinit.subscreen;
-    subscreen_type_dlg[0].dp2=get_zc_font(font_lfont);
-    subscreen_type_dlg[3].d1=zinit.subscreen;
-    
-    large_dialog(subscreen_type_dlg);
-        
-    int32_t ret = zc_popup_dialog(subscreen_type_dlg,2);
-    
-    if(ret==1)
-    {
-        if(subscreen_type_dlg[3].d1!=tempsubscreen)
-        {
-            zinit.subscreen=subscreen_type_dlg[3].d1;
-            
-            if(zinit.subscreen!=ssdtMAX)  //custom
-            {
-                if(tempsubscreen==ssdtMAX)
-                {
-                    if(jwin_alert("Reset Custom Subscreens","This will delete all of your custom subscreens!","Proceed?",NULL,"&OK","&Cancel",13,27,get_zc_font(font_lfont))==2)
-                    {
-                        zinit.subscreen=ssdtMAX;
-                        return D_O_K;
-                    }
-                }
-                
-                reset_subscreens();
-                setupsubscreens();
-            }
-            
-            saved=false;
-        }
-    }
-    
-    return D_O_K;
 }
 
 bool do_x_button(BITMAP *dest, int32_t x, int32_t y)
@@ -24960,7 +24912,6 @@ int32_t load_zmod_module_file()
 	    al_trace("New Module Path is: %s \n", moduledata.module_name);
 	    zc_set_config("ZCMODULE","current_module",moduledata.module_name);
 	    zcm.init(true); //Load the module values.
-	    build_biic_list();
 	    build_bief_list();
 	    build_biea_list(); 
 	    build_biew_list();
@@ -26604,14 +26555,34 @@ int32_t current_item(int32_t item_type)
 
 int32_t current_item_power(int32_t itemtype)
 {
-    itemtype=itemtype;
+	if (game)
+	{
+		int32_t result = current_item_id(itemtype, true);
+		return (result < 0) ? 0 : itemsbuf[result].power;
+	}
     return 1;
 }
 
 int32_t current_item_id(int32_t itemtype, bool checkmagic, bool smart_jinx)
 {
-    checkmagic=checkmagic;
-    
+	if (game)
+	{
+		int32_t result = -1;
+		int32_t highestlevel = -1;
+
+		for (int32_t i = 0; i < MAXITEMS; i++)
+		{
+			if ((zq_ignore_item_ownership || game->get_item(i)) && itemsbuf[i].family == itemtype)
+			{
+				if (itemsbuf[i].fam_type >= highestlevel)
+				{
+					highestlevel = itemsbuf[i].fam_type;
+					result = i;
+				}
+			}
+		}
+		return result;
+	}
     for(int32_t i=0; i<MAXITEMS; i++)
     {
         if(itemsbuf[i].family==itemtype)
@@ -26833,8 +26804,8 @@ static void do_copy_qst_command(const char* input_filename, const char* output_f
 	exit(ret);
 }
 
-int32_t Awpn=0, Bwpn=0, Bpos=0, Xwpn = 0, Ywpn = 0;
-sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations, portals;
+int32_t Awpn=-1, Bwpn=-1, Xwpn = -1, Ywpn = -1;
+sprite_list  guys, items, Ewpns, Lwpns, chainlinks, decorations, portals;
 int32_t exittimer = 10000, exittimer2 = 100;
 
 template <typename ...Params>
@@ -27083,14 +27054,6 @@ int32_t main(int32_t argc,char **argv)
 		FatalConsole("\nIncompatible version of sfx.dat.\nPlease upgrade to %s Build %d",VerStr(SFXDAT_VERSION), SFXDAT_BUILD);
 	
 	Z_message("OK\n");
-	
-	for(int32_t i=0; i<4; i++)
-	{
-		for(int32_t j=0; j<MAXSUBSCREENITEMS; j++)
-		{
-			memset(&custom_subscreen[i].objects[j],0,sizeof(subscreen_object));
-		}
-	}
 	
 	int32_t helpsize = file_size_ex_password("docs/zquest.txt","");
 	
@@ -27528,6 +27491,7 @@ int32_t main(int32_t argc,char **argv)
 	int quick_assign_arg = used_switch(argc, argv, "-quick-assign");
 	if (quick_assign_arg > 0)
 	{
+		is_zq_replay_test = true;
 		set_headless_mode();
 
 		int load_ret = load_quest(argv[quick_assign_arg + 1], false);
@@ -28665,9 +28629,6 @@ void destroy_bitmaps_on_exit()
 
 void quit_game()
 {
-    deallocate_biic_list();
-    
-    
     set_last_timed_save(nullptr);
     save_config_file();
     zc_set_palette(black_palette);
@@ -28697,25 +28658,6 @@ void quit_game()
         if(temp_aliases[i].csets != NULL)
         {
             delete[] temp_aliases[i].csets;
-        }
-    }
-    
-    al_trace("Cleaning subscreens. \n");
-    
-    for(int32_t i=0; i<4; i++)
-    {
-        for(int32_t j=0; j<MAXSUBSCREENITEMS; j++)
-        {
-            switch(custom_subscreen[i].objects[j].type)
-            {
-            case ssoTEXT:
-            case ssoTEXTBOX:
-            case ssoCURRENTITEMTEXT:
-            case ssoCURRENTITEMCLASSTEXT:
-                if(custom_subscreen[i].objects[j].dp1 != NULL) delete[](char *)custom_subscreen[i].objects[j].dp1;
-                
-                break;
-            }
         }
     }
     
@@ -28848,9 +28790,6 @@ void quit_game()
 
 void quit_game2()
 {
-    deallocate_biic_list();
-    
-    
     set_last_timed_save(nullptr);
     save_config_file();
     zc_set_palette(black_palette);
@@ -28880,25 +28819,6 @@ void quit_game2()
         if(temp_aliases[i].csets != NULL)
         {
             delete[] temp_aliases[i].csets;
-        }
-    }
-    
-    al_trace("Cleaning subscreens. \n");
-    
-    for(int32_t i=0; i<4; i++)
-    {
-        for(int32_t j=0; j<MAXSUBSCREENITEMS; j++)
-        {
-            switch(custom_subscreen[i].objects[j].type)
-            {
-            case ssoTEXT:
-            case ssoTEXTBOX:
-            case ssoCURRENTITEMTEXT:
-            case ssoCURRENTITEMCLASSTEXT:
-                if(custom_subscreen[i].objects[j].dp1 != NULL) delete[](char *)custom_subscreen[i].objects[j].dp1;
-                
-                break;
-            }
         }
     }
     
@@ -29069,7 +28989,6 @@ void center_zquest_dialogs()
     jwin_center_dialog(sfx_edit_dlg);
     jwin_center_dialog(showpal_dlg);
     jwin_center_dialog(strlist_dlg);
-    jwin_center_dialog(subscreen_type_dlg);
     jwin_center_dialog(template_dlg);
     center_zq_tiles_dialog();
     jwin_center_dialog(tp_dlg);
@@ -29519,7 +29438,7 @@ void check_autosave()
     }
 }
 
-void flushItemCache() {}
+void flushItemCache(bool) {}
 void ringcolor(bool forceDefault)
 {
     forceDefault=forceDefault;
@@ -29614,7 +29533,7 @@ command_pair commands[cmdMAX]=
     { "Export Palettes",                    0, (intF) onExport_Pals },
     { "<UNUSED>",                           0, NULL },
     { "Export Strings",                     0, (intF) onExport_Msgs },
-    { "Export Subscreen",                   0, (intF) onExport_Subscreen },
+    { " Export Subscreen",                  0, NULL },
     { "Export Tiles",                       0, (intF) onExport_Tiles },
     { "<UNUSED>",                           0, NULL },
     { "Export Graphics Pack",               0, (intF) onExport_ZGP },
@@ -29638,7 +29557,7 @@ command_pair commands[cmdMAX]=
     { "Import Palettes",                    0, (intF) onImport_Pals },
     { "<UNUSED>",                           0, NULL },
     { "Import Strings",                     0, (intF) onImport_Msgs },
-    { "Import Subscreen",                   0, (intF) onImport_Subscreen },
+    { " Import Subscreen",                  0, NULL },
     { "Import Tiles",                       0, (intF) onImport_Tiles },
     { "<UNUSED>",                           0, NULL },
     { "Info Types",                         0, (intF) onInfoTypes },
@@ -29657,7 +29576,7 @@ command_pair commands[cmdMAX]=
     { " Map Count",                         0, NULL },
     { "Default Map Styles",                 0, (intF) onDefault_MapStyles },
     { "Map Styles",                         0, (intF) onMapStyles },
-    { "Master Subscreen Type",              0, (intF) onSubscreen },
+    { " Master Subscreen Type",             0, NULL },
     { " Message String",                    0, NULL },
     { "MIDIs",                              0, (intF) onMidis },
     { "Misc Colors",                        0, (intF) onMiscColors },
@@ -29756,7 +29675,9 @@ command_pair commands[cmdMAX]=
     { "Redo",                               0, (intF) onRedo },
     { "Combo Pool Mode",                    0, (intF) onDrawingModePool },
     { "Quest Rules Search",                 0, (intF) onRulesSearch },
-    { "Quick Compile ZScript",              0, (intF) onQuickCompile }
+    { "Quick Compile ZScript",              0, (intF) onQuickCompile },
+    { "Rulesets",                           0, (intF) PickRuleset },
+    { "Rule Templates",                     0, (intF) PickRuleTemplate },
 };
 
 /********************************/

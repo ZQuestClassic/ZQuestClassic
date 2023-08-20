@@ -11,17 +11,19 @@
 #include <set>
 #include <string_view>
 
-extern int lister_index;
+extern int lister_sel_val;
 
 class BasicListerDialog: public GUI::Dialog<BasicListerDialog>
 {
 public:
 	enum class message { REFR_INFO, OK, EDIT, EXIT, COPY, PASTE, SAVE, LOAD, CONFIRM };
 	
-	BasicListerDialog(std::string title, int start_ind = 0, bool selecting = false) :
-		titleTxt(title), start_ind(start_ind), selected_index(start_ind), selecting(selecting){};
-	BasicListerDialog(std::string title, GUI::ListData lister, int start_ind = 0, bool selecting = false) :
-		titleTxt(title), start_ind(start_ind), selected_index(start_ind), selecting(selecting), lister(lister){};
+	BasicListerDialog(std::string title, int start_val = 0, bool selecting = false) :
+		titleTxt(title), start_val(start_val), selected_val(start_val), selecting(selecting),
+		use_preview(false), editable(true){};
+	BasicListerDialog(std::string title, GUI::ListData lister, int start_val = 0, bool selecting = false) :
+		titleTxt(title), start_val(start_val), selected_val(start_val), selecting(selecting),
+		use_preview(false), editable(true), lister(lister){};
 	
 	std::shared_ptr<GUI::Widget> view() override;
 	virtual bool handleMessage(const GUI::DialogMessage<message>& msg);
@@ -38,8 +40,8 @@ protected:
 	
 	std::string titleTxt;
 	GUI::ListData lister;
-	int selected_index, start_ind;
-	bool selecting;
+	int selected_val, start_val;
+	bool selecting, use_preview, editable;
 	
 	std::shared_ptr<GUI::List> widgList;
 	std::shared_ptr<GUI::Label> widgInfo;
@@ -62,6 +64,17 @@ protected:
 	bool paste() override;
 	void save() override;
 	bool load() override;
+};
+
+class SubscrWidgListerDialog: public BasicListerDialog
+{
+public:
+	SubscrWidgListerDialog();
+	
+protected:
+	void preinit() override;
+	void postinit() override;
+	void update() override;
 };
 
 #endif

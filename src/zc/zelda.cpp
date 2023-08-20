@@ -378,7 +378,6 @@ word     door_combo_set_count;
 word     introclk  = 0, intropos = 0, dmapmsgclk = 0, linkedmsgclk = 0;
 int16_t    lensclk = 0;
 int32_t     lensid = 0; // Lens's item id. -1 if lens is off.
-int32_t    Bpos = 0;
 byte screengrid[22]={0};
 byte screengrid_layer[2][22]={0};
 byte ffcgrid[MAXFFCS/8]={0};
@@ -402,7 +401,7 @@ byte zc_color_depth=8;
 byte use_win32_proc=1, zasm_debugger = 0, zscript_debugger = 0; //windows-build configs
 int32_t homescr,currscr,frame=0,currmap=0,dlevel,warpscr,worldscr,scrolling_scr=0,scrolling_map=0;
 int32_t newscr_clk=0,opendoors=0,currdmap=0,fadeclk=-1,listpos=0;
-int32_t lastentrance=0,lastentrance_dmap=0,prices[3]= {0},loadside = 0, Bwpn = 0, Awpn = 0, Xwpn = 0, Ywpn = 0;
+int32_t lastentrance=0,lastentrance_dmap=0,prices[3]= {0},loadside = 0, Bwpn = -1, Awpn = -1, Xwpn = -1, Ywpn = -1;
 int32_t digi_volume = 0,midi_volume = 0,sfx_volume = 0,emusic_volume = 0,currmidi = -1,hasitem = 0,whistleclk = 0,pan_style = 0;
 bool analog_movement=true;
 int32_t joystick_index=0,Akey = 0,Bkey = 0,Skey = 0,Lkey = 0,Rkey = 0,Pkey = 0,Exkey1 = 0,Exkey2 = 0,Exkey3 = 0,Exkey4 = 0,Abtn = 0,Bbtn = 0,Sbtn = 0,Mbtn = 0,Lbtn = 0,Rbtn = 0,Pbtn = 0,Exbtn1 = 0,Exbtn2 = 0,Exbtn3 = 0,Exbtn4 = 0,Quit=0;
@@ -619,10 +618,7 @@ int32_t idle_count=0, active_count=0;
 zquestheader QHeader;
 byte                midi_flags[MIDIFLAGS_SIZE];
 byte                music_flags[MUSICFLAGS_SIZE];
-word                map_count=0;
 int32_t					msg_strings_size=0;
-std::vector<mapscr> TheMaps;
-std::vector<word>   map_autolayers;
 zcmap               *ZCMaps;
 byte                *quest_file;
 dword               quest_map_pos[MAPSCRS*MAXMAPS2]={0};
@@ -1127,7 +1123,7 @@ bool blockmoving;
 movingblock mblock2;                                        //mblock[4]?
 portal mirror_portal;
 
-sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations, portals;
+sprite_list  guys, items, Ewpns, Lwpns, chainlinks, decorations, portals;
 particle_list particles;
 
 #include "zc/zc_custom.h"
@@ -1688,7 +1684,7 @@ int32_t init_game()
 {
 	if(clearConsoleOnLoad)
 		clearConsole();
-	current_subscreen_active = nullptr;
+	new_subscreen_active = nullptr;
 
     // Various things use the frame counter to do random stuff (ex: runDrunkRNG).
 	// We only bother setting it to 0 here so that recordings will play back the
@@ -1992,6 +1988,7 @@ int32_t init_game()
 	timeExitAllGenscript(GENSCR_ST_CHANGE_DMAP);
 	timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
 	previous_DMap = currdmap = warpscr = worldscr=game->get_continue_dmap();
+	new_subscreen_active = new_subscreen_passive = new_subscreen_overlay = nullptr;
 	init_dmap();
 	
 	if(game->get_continue_scrn() >= 0x80)
@@ -2016,7 +2013,8 @@ int32_t init_game()
 	lastentrance_dmap = currdmap;
 	currmap = DMaps[currdmap].map;
 	dlevel = DMaps[currdmap].level;
-	sle_x=sle_y=newscr_clk=opendoors=Bwpn=Bpos=0;
+	sle_x=sle_y=newscr_clk=opendoors=0;
+	Bwpn=Awpn=Xwpn=Ywpn=-1;
 	fadeclk=-1;
 	
 	if(currscr < 0x80 && (DMaps[currdmap].flags&dmfVIEWMAP))
@@ -2156,126 +2154,124 @@ int32_t init_game()
 	
 	if(firstplay)
 	{
-		game->awpn=-1;
-		game->bwpn=-1;
-		game->ywpn=-1;
-		game->xwpn=-1;
-		game->forced_awpn = -1; 
-		game->forced_bwpn = -1;  
-		game->forced_xwpn = -1; 
-		game->forced_ywpn = -1;	
+		if(!get_qr(qr_OLD_SUBSCR) && new_subscreen_active)
+		{
+			game->awpn = new_subscreen_active->def_btns[0];
+			game->bwpn = new_subscreen_active->def_btns[1];
+			game->xwpn = new_subscreen_active->def_btns[2];
+			game->ywpn = new_subscreen_active->def_btns[3];
+		}
+		else
+		{
+			game->awpn=game->bwpn=game->ywpn=game->xwpn=255;
+		}
+		game->forced_awpn = game->forced_bwpn =
+			game->forced_xwpn = game->forced_ywpn = -1;
 	}
 		
 	update_subscreens();
 	
-	load_Sitems();
+	refresh_subscr_items();
 	
 	//load the previous weapons -DD	
 	
 	bool usesaved = (game->get_quest() == 0xFF); //What was wrong with firstplay?
-	int32_t apos = 0, bpos = 0, xpos = 0, ypos = 0;
+	int32_t apos = 0xFF, bpos = 0xFF, xpos = 0xFF, ypos = 0xFF;
 	
 	//Setup button items
 	{
 		bool use_x = get_qr(qr_SET_XBUTTON_ITEMS), use_y = get_qr(qr_SET_YBUTTON_ITEMS);
-		if(use_x || use_y)
+		if(get_qr(qr_OLD_SUBSCR))
 		{
-			if(!get_qr(qr_SELECTAWPN))
+			SubscrPage& pg = new_subscreen_active->cur_page();
+			if(use_x || use_y)
 			{
-				Awpn = selectSword();
-				apos = -1;
-				bpos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF);
-				if(use_x)
-					xpos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, bpos);
-				else xpos = -1;
-				if(use_y)
-					ypos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, bpos, xpos);
-				else ypos = -1;
-				directItem = -1;
-				directItemA = directItem; 
+				if(!get_qr(qr_SELECTAWPN))
+				{
+					Awpn = selectSword();
+					bpos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF);
+					if(use_x)
+						xpos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->xwpn : 0xFF, bpos);
+					if(use_y)
+						ypos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->ywpn : 0xFF, bpos, xpos);
+					directItem = -1;
+					directItemA = -1; 
+				}
+				else
+				{
+					apos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->awpn : 0xFF);
+					bpos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, apos);
+					if(use_x)
+						xpos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->xwpn : 0xFF, apos, bpos);
+					if(use_y)
+						ypos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->ywpn : 0xFF, apos, bpos, xpos);
+					
+					Awpn = pg.get_item_pos(apos>>8);
+					directItemA = NEG_OR_MASK(Awpn,0xFF);
+				}
+
+				game->awpn = apos;
+				
+				game->bwpn = bpos;
+				Bwpn = pg.get_item_pos(bpos>>8);
+				directItemB = NEG_OR_MASK(Bwpn,0xFF);
+				
+				game->xwpn = xpos;
+				Xwpn = pg.get_item_pos(xpos>>8);
+				directItemX = NEG_OR_MASK(Xwpn,0xFF);
+				
+				game->ywpn = ypos;
+				Ywpn = pg.get_item_pos(ypos>>8);
+				directItemY = NEG_OR_MASK(Ywpn,0xFF);
+				
+				animate_subscr_buttonitems();
+
+				refresh_subscr_buttonitems();
 			}
 			else
 			{
-				apos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->awpn : 0xFF);
-				bpos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, apos);
-				if(use_x)
-					xpos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, apos, bpos);
-				else xpos = -1;
-				if(use_y)
-					ypos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, apos, bpos, xpos);
-				else ypos = -1;
-				
-				if(bpos==0xFF)
+				if(!get_qr(qr_SELECTAWPN))
 				{
-					bpos=-1;
+					Awpn = selectSword();
+					apos = 0xFF;
+					bpos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF);
+					directItemA = directItem = -1; 
 				}
-				if(apos==0xFF)
+				else
 				{
-					apos=-1;
+					apos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->awpn : 0xFF);
+					bpos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, apos);
+					
+					if(bpos==0xFF)
+					{
+						bpos=apos;
+						apos=0xFF;
+					}
+					
+					Awpn = pg.get_item_pos(apos>>8);
+					directItemA = NEG_OR_MASK(Awpn,0xFF);
 				}
-				if(xpos==0xFF)
-				{
-					xpos=-1;
-				}
-				if(bpos==0xFF)
-				{
-					ypos=-1;
-				}
-				
-				Awpn = Bweapon(apos); //Bweapon() sets directItem
-				directItemA = directItem;
+
+				game->awpn = apos;
+				game->bwpn = bpos;
+				Bwpn = pg.get_item_pos(bpos>>8);
+				directItemB = NEG_OR_MASK(Bwpn,0xFF);
+				animate_subscr_buttonitems();
+
+				refresh_subscr_buttonitems();
 			}
-
-			game->awpn = apos;
-			
-			game->bwpn = bpos;
-			Bwpn = Bweapon(bpos);
-			directItemB = directItem;
-			
-			game->xwpn = xpos;
-			Xwpn = Bweapon(xpos);
-			directItemX = directItem;
-			
-			game->ywpn = ypos;
-			Ywpn = Bweapon(ypos);
-			directItemY = directItem;
-			
-			update_subscr_items();
-
-			reset_subscr_items();
 		}
-		else
+		else if(new_subscreen_active)
 		{
-			if(!get_qr(qr_SELECTAWPN))
-			{
-				Awpn = selectSword();
-				apos = -1;
-				bpos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, -1);
-				directItem = -1;
-				directItemA = directItem; 
-			}
-			else
-			{
-				apos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->awpn : 0xFF);
-				bpos = selectWpn_new(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, apos);
-				
-				if(bpos==0xFF)
-				{
-					bpos=apos;
-					apos=-1;
-				}
-				
-				Awpn = Bweapon(apos); //Bweapon() sets directItem
-				directItemA = directItem;
-			}
-
-			game->awpn = apos;
-			game->bwpn = bpos;
-			Bwpn = Bweapon(bpos);
-			directItemB = directItem;
-			update_subscr_items();
-
-			reset_subscr_items();
+			Awpn = get_qr(qr_SELECTAWPN) ? new_subscreen_active->get_item_pos(game->awpn)
+				: selectSword();
+			directItemA = NEG_OR_MASK(Awpn,0xFF);
+			Bwpn = new_subscreen_active->get_item_pos(game->bwpn);
+			directItemB = NEG_OR_MASK(Bwpn,0xFF);
+			Xwpn = new_subscreen_active->get_item_pos(game->xwpn);
+			directItemX = NEG_OR_MASK(Xwpn,0xFF);
+			Ywpn = new_subscreen_active->get_item_pos(game->ywpn);
+			directItemY = NEG_OR_MASK(Ywpn,0xFF);
 		}
 	}
 	
@@ -3437,8 +3433,6 @@ void game_loop()
 					{
 						if(!Quit)
 						{
-							//set a B item hack
-							//Bwpn = Bweapon(Bpos);
 							replay_step_comment("hero died");
 							Quit = qGAMEOVER;
 						}
@@ -4539,7 +4533,8 @@ int main(int argc, char **argv)
 	three_finger_flag=false;
 	
 	load_game_configs();
-	
+	if(used_switch(argc, argv, "-no_console"))
+		zscript_debugger = false;
 #ifndef __APPLE__ // Should be done on Mac, too, but I haven't gotten that working
 	// if(!is_only_instance("zc.lck"))
 	// {
@@ -5396,7 +5391,17 @@ reload_for_replay_file:
 			else if(init_game())
 			{
 				//Failed initializing? Keep trying.
-				do Quit = 0; while(init_game());
+				while (Quit != qEXIT)
+				{
+					if (close_button_quit)
+					{
+						close_button_quit = false;
+						f_Quit(qEXIT);
+						if (Quit == qEXIT) break;
+					}
+					Quit = 0;
+					init_game();
+				}
 			}
 			game_pal();
 		}
@@ -5447,10 +5452,6 @@ reload_for_replay_file:
 			case qQUIT:
 			case qGAMEOVER:
 			case qRELOAD:
-				//set a B item hack
-				//Bwpn = Bweapon(Bpos);
-				//game->bwpn = Bpos;
-				//directItemB = directItem;
 			case qCONT:
 			case qSAVECONT:
 			{
@@ -5671,10 +5672,8 @@ void remove_installed_timers()
 void delete_everything_else() //blarg.
 {
     delete_combo_aliases();
-    reset_subscr_items();
-    delete_selectors();
-    Sitems.clear();
-    
+    refresh_subscr_buttonitems();
+	kill_subscr_items();
 }
 
 void quit_game()
@@ -5729,24 +5728,7 @@ void quit_game()
 	destroy_bitmap(darkscr_bmp_scrollscr);
 	destroy_bitmap(darkscr_bmp_scrollscr_trans);
 	destroy_bitmap(lightbeam_bmp);
-	
-	al_trace("Subscreens... \n");
-	
-	for(int32_t i=0; i<4; i++)
-	{
-		for(int32_t j=0; j<MAXSUBSCREENITEMS; j++)
-		{
-			switch(custom_subscreen[i].objects[j].type)
-			{
-			case ssoTEXT:
-			case ssoTEXTBOX:
-			case ssoCURRENTITEMTEXT:
-			case ssoCURRENTITEMCLASSTEXT:
-				if(custom_subscreen[i].objects[j].dp1 != NULL) delete[](char *)custom_subscreen[i].objects[j].dp1;
-			}
-		}
-	}
-	
+		
 	al_trace("SFX... \n");
 	zcmusic_exit();
 	zcmixer_exit(zcmixer);

@@ -172,6 +172,26 @@ enum
 	ONTICK_EXIT = -1, ONTICK_CONTINUE, ONTICK_CLOSE, ONTICK_REDRAW
 };
 
+enum
+{
+	BTNICON_ARROW_UP, //0x88
+	BTNICON_ARROW_DOWN, //0x89
+	BTNICON_ARROW_LEFT, //0x8A
+	BTNICON_ARROW_RIGHT, //0x8B
+	BTNICON_CONTRACT_VERT, //0x98
+	BTNICON_EXPAND_VERT, //0x99
+	BTNICON_CONTRACT_HORZ, //0x9A
+	BTNICON_EXPAND_HORZ, //0x9B
+	BTNICON_ARROW_RIGHT2, //0x8B 0x8B
+	BTNICON_ARROW_RIGHT3, //0x8B 0x8B 0x8B
+	BTNICON_STOPSQUARE, //0x8D
+	BTNICON_MINUS,
+	BTNICON_PLUS,
+	BTNICON_ARROW_LEFT2,
+	BTNICON_ARROW_LEFT3,
+	BTNICON_MAX
+};
+
 #define GUI_EVENT(dlg, event)                  \
 do                                             \
 {                                              \
@@ -204,6 +224,7 @@ void draw_question_button(BITMAP *dest, int32_t x, int32_t y, int32_t state);
 char *shorten_string(char *dest, char const* src, FONT *usefont, int32_t maxchars, int32_t maxwidth);
 void jwin_draw_titlebar(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, const char *str, bool draw_button, bool helpbtn = false);
 void jwin_draw_text_button(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, const char *str, int32_t flags, bool show_dotted_rect);
+void jwin_draw_icon_button(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, int icon, int32_t flags, bool show_dotted_rect);
 void jwin_draw_graphics_button(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, BITMAP *bmp, BITMAP *bmp2, int32_t flags, bool show_dotted_rect, bool overlay);
 
 /* Allegro DIALOG procedures */
@@ -211,6 +232,7 @@ int32_t jwin_win_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t jwin_frame_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t jwin_guitest_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t jwin_button_proc(int32_t msg, DIALOG *d, int32_t c);
+int32_t jwin_iconbutton_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t jwin_infobtn_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t jwin_func_button_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t jwin_text_proc(int32_t msg, DIALOG *d, int32_t c);
@@ -284,6 +306,7 @@ void dither_rect(BITMAP *bmp, PALETTE *pal, int32_t x1, int32_t y1, int32_t x2, 
                  int32_t src_color1, int32_t src_color2, uint8_t dest_color1,
                  uint8_t dest_color2);
 bool do_text_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *text);
+bool do_icon_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,int icon);
 void jwin_center_dialog(DIALOG *dialog);
 void jwin_ulalign_dialog(DIALOG *dialog);
 
@@ -299,6 +322,7 @@ void _handle_jwin_scrollable_scroll_click(DIALOG *d, int32_t listsize, int32_t *
 
 extern int32_t  popup_zqdialog(DIALOG *dialog, int32_t focus_obj);
 extern int32_t  do_zqdialog(DIALOG *dialog, int32_t focus_obj);
+extern int32_t  do_zqdialog_custom(DIALOG *dialog, int32_t focus_obj, std::function<bool(int)> proc);
 
 int32_t d_jslider_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t d_jwinbutton_proc(int32_t msg, DIALOG *d, int32_t c);
@@ -318,4 +342,9 @@ void box_eol();
 #ifdef __cplusplus
 }
 #endif
+
+void jwin_draw_icon(BITMAP *dest, int x, int y, int col, int icon, int asz, bool center);
+void jwin_draw_icon(BITMAP *dest, int x, int y, int col, int icon, int aw, int ah, bool center);
+int icon_proportion(int icon,int s1,int s2);
+
 #endif                                                      // _JWIN_H_

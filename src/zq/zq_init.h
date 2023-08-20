@@ -13,6 +13,5 @@
 
 int32_t onInit();
 void center_zq_init_dialog();
-const char *familylist(int32_t index, int32_t *list_size);
 #endif
  

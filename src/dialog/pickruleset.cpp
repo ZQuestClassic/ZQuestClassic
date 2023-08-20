@@ -39,7 +39,7 @@ static const GUI::ListData rulesetsList
 		"All but a few rules are off.\n" }
 };
 
-PickRulesetDialog::PickRulesetDialog(std::function<void(int32_t)> setRuleset):
+PickRulesetDialog::PickRulesetDialog(std::function<void(int32_t,byte*)> setRuleset):
 	setRuleset(setRuleset)
 {}
 
@@ -114,10 +114,10 @@ bool PickRulesetDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		}	
 		//Exiting messages
 		case message::OK:
-			setRuleset(rulesetChoice->getChecked());
+			setRuleset(rulesetChoice->getChecked(),nullptr);
 			return true;
 		case message::CANCEL:
-		default:
 			return true;
 	}
+	return false;
 }

@@ -187,34 +187,34 @@ int32_t refreshActiveShield()
 	int32_t id = -1;
     if(DrunkcBbtn())
 	{
-		itemdata const& dat = itemsbuf[Bwpn&0xFFF];
+		itemdata const& dat = itemsbuf[NEG_OR_MASK(Bwpn,0xFFF)];
 		if(dat.family == itype_shield && (dat.flags & ITEM_FLAG9))
 		{
-			id = Bwpn&0xFFF;
+			id = NEG_OR_MASK(Bwpn,0xFFF);
 		}
 	}
     if(id < 0 && DrunkcAbtn())
 	{
-		itemdata const& dat = itemsbuf[Awpn&0xFFF];
+		itemdata const& dat = itemsbuf[NEG_OR_MASK(Awpn,0xFFF)];
 		if(dat.family == itype_shield && (dat.flags & ITEM_FLAG9))
 		{
-			id = Awpn&0xFFF;
+			id = NEG_OR_MASK(Awpn,0xFFF);
 		}
 	}
     if(id < 0 && DrunkcEx1btn())
 	{
-		itemdata const& dat = itemsbuf[Xwpn&0xFFF];
+		itemdata const& dat = itemsbuf[NEG_OR_MASK(Xwpn,0xFFF)];
 		if(dat.family == itype_shield && (dat.flags & ITEM_FLAG9))
 		{
-			id = Xwpn&0xFFF;
+			id = NEG_OR_MASK(Xwpn,0xFFF);
 		}
 	}
     if(id < 0 && DrunkcEx2btn())
 	{
-		itemdata const& dat = itemsbuf[Ywpn&0xFFF];
+		itemdata const& dat = itemsbuf[NEG_OR_MASK(Ywpn,0xFFF)];
 		if(dat.family == itype_shield && (dat.flags & ITEM_FLAG9))
 		{
-			id = Ywpn&0xFFF;
+			id = NEG_OR_MASK(Ywpn,0xFFF);
 		}
 	}
 	if(!usingActiveShield(id))
@@ -483,17 +483,6 @@ bool HeroClass::stopSubscreenFalling(){
 
 void HeroClass::stopSubscreenFalling(bool v){
 	preventsubscreenfalling = v;
-}
-
-
-//Set the button items by brute force
-
-void HeroClass::setAButtonItem(int32_t itmslot){
-	game->awpn = itmslot;
-}
-
-void HeroClass::setBButtonItem(int32_t itmslot){
-	game->bwpn = itmslot;
 }
 
 void HeroClass::ClearhitHeroUIDs()
@@ -6253,7 +6242,7 @@ void HeroClass::checkhit()
 	for(int32_t i=0; i<Lwpns.Count(); i++)
 	{
 		sprite *s = Lwpns.spr(i);
-	int32_t itemid = ((weapon*)(Lwpns.spr(i)))->parentitem;
+		int32_t itemid = ((weapon*)(Lwpns.spr(i)))->parentitem;
 		//if ( itemdbuf[parentitem].flags&ITEM_FLAGS3 ) //can damage Hero
 		//if ( itemsbuf[parentitem].misc1 > 0 ) //damages Hero by this amount. 
 		if((!(itemid==-1&&get_qr(qr_FIREPROOFHERO)||((itemid>-1&&itemsbuf[itemid].family==itype_candle||itemsbuf[itemid].family==itype_book)&&(itemsbuf[itemid].flags & ITEM_FLAG3)))) && (scriptcoldet&1) && !fallclk && (!superman || !get_qr(qr_FIREPROOFHERO2)))
@@ -6290,26 +6279,38 @@ void HeroClass::checkhit()
 				int32_t iframes = ev[4] / 10000;
 				ev.clear();
 				if(nullhit) return;
+				if (Lwpns.spr(i) != s)
+				{
+					auto hit = Lwpns.find(s);
+					if (hit < 0)
+						s = nullptr;
+					else
+					{
+						s = Lwpns.spr(hit);
+						i = hit;
+					}
+				}
 				if(!divineprot)
 				{
 					game->set_life(zc_max(game->get_life()-dmg,0));
-					if (!get_qr(qr_BROKENHITBY))
+					weapon* w = (weapon*)s;
+					if (!get_qr(qr_BROKENHITBY) && w)
 					{
 						sethitHeroUID(HIT_BY_LWEAPON,(i+1));
 						if (get_qr(qr_BROKENHITBY))
 						{
-							sethitHeroUID(HIT_BY_LWEAPON_UID,((weapon*)(Lwpns.spr(i)))->getUID());
+							sethitHeroUID(HIT_BY_LWEAPON_UID,w->getUID());
 						}
 						else
 						{
 							
-							sethitHeroUID(HIT_BY_LWEAPON_UID,((weapon*)(Lwpns.spr(i)))->getScriptUID());
+							sethitHeroUID(HIT_BY_LWEAPON_UID,w->getScriptUID());
 						}
-						sethitHeroUID(HIT_BY_LWEAPON_ENGINE_UID,((weapon*)(Lwpns.spr(i)))->getUID());
-						sethitHeroUID(HIT_BY_LWEAPON_TYPE, ((weapon*)(Lwpns.spr(i)))->id);
-						if (((weapon*)(Lwpns.spr(i)))->parentitem > -1) sethitHeroUID(HIT_BY_LWEAPON_PARENT_ID, ((weapon*)(Lwpns.spr(i)))->parentitem);
+						sethitHeroUID(HIT_BY_LWEAPON_ENGINE_UID,w->getUID());
+						sethitHeroUID(HIT_BY_LWEAPON_TYPE, w->id);
+						if (w->parentitem > -1) sethitHeroUID(HIT_BY_LWEAPON_PARENT_ID, w->parentitem);
 						else sethitHeroUID(HIT_BY_LWEAPON_PARENT_ID, -1);
-						sethitHeroUID(HIT_BY_LWEAPON_PARENT_FAMILY, itemsbuf[((weapon*)(Lwpns.spr(i)))->parentitem].family);
+						sethitHeroUID(HIT_BY_LWEAPON_PARENT_FAMILY, itemsbuf[w->parentitem].family);
 					}
 				}
 				
@@ -6461,13 +6462,13 @@ killweapon:
 				{
 					std::vector<int32_t> &ev = FFCore.eventData;
 					ev.clear();
-					ev.push_back(((((weapon*)s)->parentitem>-1 ? itemsbuf[((weapon*)s)->parentitem].misc3 : ((weapon*)s)->power) *game->get_hp_per_heart())*10000);
-					ev.push_back(s->hitdir(x,y,16,16,dir)*10000);
+					ev.push_back(((w->parentitem>-1 ? itemsbuf[w->parentitem].misc3 : w->power) *game->get_hp_per_heart())*10000);
+					ev.push_back(w->hitdir(x,y,16,16,dir)*10000);
 					ev.push_back(0);
 					ev.push_back(DivineProtectionShieldClk>0?10000:0);
 					ev.push_back(48*10000);
 					ev.push_back(ZSD_LWPN*10000);
-					ev.push_back(s->getUID());
+					ev.push_back(w->getUID());
 					ev.push_back(ZSD_NONE*10000);
 					ev.push_back(0);
 					
@@ -6488,26 +6489,38 @@ killweapon:
 					int32_t iframes = ev[4] / 10000;
 					ev.clear();
 					if(nullhit) return;
+					if (Lwpns.spr(i) != w)
+					{
+						auto hit = Lwpns.find(w);
+						if (hit < 0)
+							s = nullptr;
+						else
+						{
+							s = Lwpns.spr(hit);
+							i = hit;
+						}
+						w = (weapon*)s;
+					}
 					if(!divineprot)
 					{
 						game->set_life(zc_min(game->get_maxlife(), zc_max(game->get_life()-dmg,0)));
-						if (!get_qr(qr_BROKENHITBY))
+						if (!get_qr(qr_BROKENHITBY) && w)
 						{
 							sethitHeroUID(HIT_BY_LWEAPON,(i+1));
 							if (get_qr(qr_BROKENHITBY))
 							{
-								sethitHeroUID(HIT_BY_LWEAPON_UID,((weapon*)(Lwpns.spr(i)))->getUID());
+								sethitHeroUID(HIT_BY_LWEAPON_UID,w->getUID());
 							}
 							else
 							{
 								
-								sethitHeroUID(HIT_BY_LWEAPON_UID,((weapon*)(Lwpns.spr(i)))->getScriptUID());
+								sethitHeroUID(HIT_BY_LWEAPON_UID,w->getScriptUID());
 							}
-							sethitHeroUID(HIT_BY_LWEAPON_ENGINE_UID,((weapon*)(Lwpns.spr(i)))->getUID());
-							sethitHeroUID(HIT_BY_LWEAPON_TYPE, ((weapon*)(Lwpns.spr(i)))->id);
-							if (((weapon*)(Lwpns.spr(i)))->parentitem > -1) sethitHeroUID(HIT_BY_LWEAPON_PARENT_ID, ((weapon*)(Lwpns.spr(i)))->parentitem);
+							sethitHeroUID(HIT_BY_LWEAPON_ENGINE_UID,w->getUID());
+							sethitHeroUID(HIT_BY_LWEAPON_TYPE, w->id);
+							if (w->parentitem > -1) sethitHeroUID(HIT_BY_LWEAPON_PARENT_ID, w->parentitem);
 							else sethitHeroUID(HIT_BY_LWEAPON_PARENT_ID, -1);
-							sethitHeroUID(HIT_BY_LWEAPON_PARENT_FAMILY, itemsbuf[((weapon*)(Lwpns.spr(i)))->parentitem].family);
+							sethitHeroUID(HIT_BY_LWEAPON_PARENT_FAMILY, itemsbuf[w->parentitem].family);
 						}
 					}
 					
@@ -6565,17 +6578,29 @@ killweapon:
 			nullhit = ev[2] != 0;
 			ev.clear();
 			if(nullhit) return;
+			if (Lwpns.spr(i) != s)
+			{
+				auto hit = Lwpns.find(s);
+				if (hit < 0)
+					s = nullptr;
+				else
+				{
+					s = Lwpns.spr(hit);
+					i = hit;
+				}
+			}
 			
 			reset_hookshot();
 			xofs=1000;
 			action=inwind; FFCore.setHeroAction(inwind);
-			dir=s->dir=hdir;
+			dir = hdir;
+			if(s) s->dir = hdir;
 			spins = charging = attackclk = 0;
 			
 			// In case Hero used two whistles in a row, summoning two whirlwinds,
 			// check which whistle's whirlwind picked him up so the correct
 			// warp ring will be used
-			int32_t whistle=((weapon*)s)->parentitem;
+			int32_t whistle=s ? ((weapon*)s)->parentitem : -1;
 			
 			if(whistle>-1 && itemsbuf[whistle].family==itype_whistle)
 				whistleitem=whistle;
@@ -6634,28 +6659,39 @@ killweapon:
 		int32_t iframes = ev[4] / 10000;
 		ev.clear();
 		if(nullhit) return;
-		if(!divineprot)
+		if (Lwpns.spr(hit2) != lwpnspr)
 		{
-			game->set_life(zc_max(game->get_life()-dmg,0));
-			sethitHeroUID(HIT_BY_LWEAPON,(hit2+1));
-			if (get_qr(qr_BROKENHITBY))
+			hit2 = Lwpns.find(lwpnspr);
+			if (hit2 < 0)
+				lwpnspr = nullptr;
+			else lwpnspr = (weapon*)Lwpns.spr(hit2);
+		}
+		if (!divineprot)
+		{
+			game->set_life(zc_max(game->get_life() - dmg, 0));
+			if (lwpnspr)
 			{
-				sethitHeroUID(HIT_BY_LWEAPON_UID,lwpnspr->getUID());
+				sethitHeroUID(HIT_BY_LWEAPON, (hit2 + 1));
+				if (get_qr(qr_BROKENHITBY))
+				{
+					sethitHeroUID(HIT_BY_LWEAPON_UID, lwpnspr->getUID());
+				}
+				else
+				{
+
+					sethitHeroUID(HIT_BY_LWEAPON_UID, lwpnspr->getScriptUID());
+				}
+				sethitHeroUID(HIT_BY_LWEAPON_ENGINE_UID, lwpnspr->getUID());
+				sethitHeroUID(HIT_BY_LWEAPON_TYPE, lwpnspr->id);
+				if (lwpnspr->parentitem > -1) sethitHeroUID(HIT_BY_LWEAPON_PARENT_ID, lwpnspr->parentitem);
+				else sethitHeroUID(HIT_BY_LWEAPON_PARENT_ID, -1);
+				sethitHeroUID(HIT_BY_LWEAPON_PARENT_FAMILY, itemsbuf[lwpnspr->parentitem].family);
 			}
-			else
-			{
-				
-				sethitHeroUID(HIT_BY_LWEAPON_UID,lwpnspr->getScriptUID());
-			}
-			sethitHeroUID(HIT_BY_LWEAPON_ENGINE_UID,lwpnspr->getUID());
-			sethitHeroUID(HIT_BY_LWEAPON_TYPE, lwpnspr->id);
-			if (lwpnspr->parentitem > -1) sethitHeroUID(HIT_BY_LWEAPON_PARENT_ID, lwpnspr->parentitem);
-			else sethitHeroUID(HIT_BY_LWEAPON_PARENT_ID, -1);
-			sethitHeroUID(HIT_BY_LWEAPON_PARENT_FAMILY, itemsbuf[lwpnspr->parentitem].family);
 		}
 		
 		hitdir = hdir;
-		lwpnspr->onhit(false);
+		if(lwpnspr)
+			lwpnspr->onhit(false);
 		
 		if (IsSideSwim())
 		{
@@ -6699,8 +6735,8 @@ killweapon:
 		ev.push_back(48*10000);
 		ev.push_back(ZSD_EWPN*10000);
 		ev.push_back(ewpnspr->getUID());
-	ev.push_back(ZSD_NONE*10000);
-	ev.push_back(0);
+		ev.push_back(ZSD_NONE*10000);
+		ev.push_back(0);
 		
 		throwGenScriptEvent(GENSCR_EVENT_HERO_HIT_1);
 		int32_t dmg = ev[0]/10000;
@@ -6718,26 +6754,37 @@ killweapon:
 		bool divineprot = ev[3] != 0;
 		int32_t iframes = ev[4] / 10000;
 		ev.clear();
-		if(nullhit) return;
-		if(!divineprot)
+		if (nullhit) return;
+		if (Ewpns.spr(hit2) != ewpnspr)
 		{
-			game->set_life(zc_max(game->get_life()-dmg,0));
-			sethitHeroUID(HIT_BY_EWEAPON,(hit2+1));
-			if (get_qr(qr_BROKENHITBY))
+			hit2 = Ewpns.find(ewpnspr);
+			if (hit2 < 0)
+				ewpnspr = nullptr;
+			else ewpnspr = (weapon*)Ewpns.spr(hit2);
+		}
+		if (!divineprot)
+		{
+			game->set_life(zc_max(game->get_life() - dmg, 0));
+			if (ewpnspr)
 			{
-				sethitHeroUID(HIT_BY_EWEAPON_UID,ewpnspr->getUID());
+				sethitHeroUID(HIT_BY_EWEAPON, (hit2 + 1));
+				if (get_qr(qr_BROKENHITBY))
+				{
+					sethitHeroUID(HIT_BY_EWEAPON_UID, ewpnspr->getUID());
+				}
+				else
+				{
+
+					sethitHeroUID(HIT_BY_EWEAPON_UID, ewpnspr->getScriptUID());
+				}
+				sethitHeroUID(HIT_BY_EWEAPON_ENGINE_UID, ewpnspr->getUID());
+				sethitHeroUID(HIT_BY_EWEAPON_TYPE, ewpnspr->id);
 			}
-			else
-			{
-				
-				sethitHeroUID(HIT_BY_EWEAPON_UID,ewpnspr->getScriptUID());
-			}
-			sethitHeroUID(HIT_BY_EWEAPON_ENGINE_UID,ewpnspr->getUID());
-			sethitHeroUID(HIT_BY_EWEAPON_TYPE, ewpnspr->id);
 		}
 		
 		hitdir = hdir;
-		ewpnspr->onhit(false);
+		if(ewpnspr)
+			ewpnspr->onhit(false);
 		
 		if (IsSideSwim())
 		{
@@ -6774,7 +6821,7 @@ killweapon:
 	int32_t dy2 = (int32_t)y+(bigHitbox?8:12)+(bigHitbox?tmpscr->csensitive-1:((tmpscr->csensitive+1)/2)-1);
 	
 	for(int32_t i=get_qr(qr_DMGCOMBOLAYERFIX) ? 1 : -1; i>=-1; i--)  // Layers 0, 1 and 2!!
-		(void)checkdamagecombos(dx1,dx2,dy1,dy2,i);
+		checkdamagecombos(dx1,dx2,dy1,dy2,i);
 }
 
 bool HeroClass::checkdamagecombos(int32_t dx, int32_t dy)
@@ -10149,39 +10196,60 @@ void HeroClass::solid_push(solid_object* obj)
 	obj->setTempNonsolid(t);
 }
 
+#define COND_AWPN (get_qr(qr_SELECTAWPN) ? game->awpn : 255)
+#define COND_BWPN (game->bwpn)
+#define COND_XWPN (get_qr(qr_SET_XBUTTON_ITEMS) ? game->xwpn : 255)
+#define COND_YWPN (get_qr(qr_SET_YBUTTON_ITEMS) ? game->ywpn : 255)
+//Helper function
+static void deselectbombsWPN(word& wpos, int32_t& BTNwpn, int32_t& directItemBTN,
+	word f1 = 255, word f2 = 255, word f3 = 255)
+{
+	byte pgn = wpos&0xFF, pos = wpos>>8;
+	bool empty = pgn==255;
+	if(empty && get_qr(qr_NO_BUTTON_VERIFY)) return; //intentional nothingness
+	SubscrPage* pg = new_subscreen_active->get_page(pgn==255?new_subscreen_active->curpage:pgn);
+	if(!pg)
+	{
+		wpos = 255; //set to nothingness
+		return;
+	}
+	
+	auto fp1 = ((f1&0xFF)==255) ? 255 : ((empty || (f1&0xFF)==(wpos&0xFF)) ? f1 : 255);
+	auto fp2 = ((f2&0xFF)==255) ? 255 : ((empty || (f2&0xFF)==(wpos&0xFF)) ? f2 : 255);
+	auto fp3 = ((f3&0xFF)==255) ? 255 : ((empty || (f3&0xFF)==(wpos&0xFF)) ? f3 : 255);
+	auto temp = pg->movepos_legacy(SEL_VERIFY_LEFT, wpos, fp1, fp2, fp3);
+	BTNwpn = pg->get_item_pos(temp>>8);
+	directItemBTN = NEG_OR_MASK(BTNwpn,0xFFF);
+	wpos = temp;
+}
 // A routine used exclusively by startwpn,
 // to switch Hero's weapon if his current weapon (bombs) was depleted.
 void HeroClass::deselectbombs(int32_t super)
 {
     if ( get_qr(qr_NEVERDISABLEAMMOONSUBSCREEN) || itemsbuf[game->forced_awpn].family == itype_bomb || itemsbuf[game->forced_bwpn].family == itype_bomb || itemsbuf[game->forced_xwpn].family == itype_bomb || itemsbuf[game->forced_ywpn].family == itype_bomb) return;
-    if(getItemFamily(itemsbuf,Bwpn&0x0FFF)==(super? itype_sbomb : itype_bomb) && (directWpn<0 || Bwpn==directWpn))
+    if(getItemFamily(itemsbuf,Bwpn)==(super? itype_sbomb : itype_bomb) && (directWpn<0 || Bwpn==directWpn))
     {
-        int32_t temp = selectWpn_new(SEL_VERIFY_LEFT, game->bwpn, game->awpn, get_qr(qr_SET_XBUTTON_ITEMS) ? game->xwpn : -1, get_qr(qr_SET_YBUTTON_ITEMS) ? game->ywpn : -1);
-        Bwpn = Bweapon(temp);
-        directItemB = directItem;
-        game->bwpn = temp;
+		if(!new_subscreen_active)
+			return;
+		deselectbombsWPN(game->bwpn, Bwpn, directItemB, COND_AWPN, COND_XWPN, COND_YWPN);
     }
-    
-    else if (getItemFamily(itemsbuf,Xwpn&0x0FFF)==(super? itype_sbomb : itype_bomb) && (directWpn<0 || Xwpn==directWpn))
+    else if (getItemFamily(itemsbuf,Xwpn)==(super? itype_sbomb : itype_bomb) && (directWpn<0 || Xwpn==directWpn))
     {
-        int32_t temp = selectWpn_new(SEL_VERIFY_LEFT, game->xwpn, game->bwpn, game->awpn, get_qr(qr_SET_YBUTTON_ITEMS) ? game->ywpn : -1);
-        Xwpn = Bweapon(temp);
-        directItemX = directItem;
-        game->xwpn = temp;
+		if(!new_subscreen_active)
+			return;
+        deselectbombsWPN(game->xwpn, Xwpn, directItemX, COND_AWPN, COND_BWPN, COND_YWPN);
     }
-    else if (getItemFamily(itemsbuf,Ywpn&0x0FFF)==(super? itype_sbomb : itype_bomb) && (directWpn<0 || Ywpn==directWpn))
+    else if (getItemFamily(itemsbuf,Ywpn)==(super? itype_sbomb : itype_bomb) && (directWpn<0 || Ywpn==directWpn))
     {
-        int32_t temp = selectWpn_new(SEL_VERIFY_LEFT, game->ywpn, game->bwpn, get_qr(qr_SET_XBUTTON_ITEMS) ? game->xwpn : -1, game->awpn);
-        Ywpn = Bweapon(temp);
-        directItemY = directItem;
-        game->ywpn = temp;
+		if(!new_subscreen_active)
+			return;
+        deselectbombsWPN(game->ywpn, Ywpn, directItemY, COND_AWPN, COND_XWPN, COND_BWPN);
     }
     else
     {
-        int32_t temp = selectWpn_new(SEL_VERIFY_LEFT, game->awpn, game->bwpn, get_qr(qr_SET_XBUTTON_ITEMS) ? game->xwpn : -1, get_qr(qr_SET_YBUTTON_ITEMS) ? game->ywpn : -1);
-        Awpn = Bweapon(temp);
-        directItemA = directItem;
-        game->awpn = temp;
+		if(!new_subscreen_active)
+			return;
+        deselectbombsWPN(game->awpn, Awpn, directItemA, COND_BWPN, COND_XWPN, COND_YWPN);
     }
 }
 
@@ -12189,28 +12257,28 @@ bool HeroClass::startwpn(int32_t itemid)
 		// Maybe Item Override has allowed the same item in both slots?
 		if(Bwpn == itemid)
 		{
-			Bwpn = 0;
+			Bwpn = -1;
 			game->forced_bwpn = -1;
 			verifyBWpn();
 		}
 		
 		if(Awpn == itemid)
 		{
-			Awpn = 0;
+			Awpn = -1;
 			game->forced_awpn = -1;
 			verifyAWpn();
 		}
 		
 		if(Xwpn == itemid)
 		{
-			Xwpn = 0;
+			Xwpn = -1;
 			game->forced_xwpn = -1;
 			verifyXWpn();
 		}
 		
 		if(Ywpn == itemid)
 		{
-			Ywpn = 0;
+			Ywpn = -1;
 			game->forced_ywpn = -1;
 			verifyYWpn();
 		}
@@ -12650,7 +12718,7 @@ void do_lens()
 				int i = itemid;
 				FFCore.reset_script_engine_data(ScriptType::Item, i);
 				ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[i].script, i);
-					did_scriptl=true;
+				did_scriptl=true;
 			}
 			
 			if (itemsbuf[itemid].magiccosttimer[0]) lensclk = itemsbuf[itemid].magiccosttimer[0];
@@ -12674,11 +12742,11 @@ void do_lens()
 	}
 	handle_lens_triggers(lensid);
 }
-//Add 2.10 version check to call this
+
 void do_210_lens()
 {
-	int32_t itemid = lensid >= 0 ? lensid : directWpn>-1 ? directWpn : current_item_id(itype_lens);
-	
+	int32_t wpnPressed = getWpnPressed(itype_lens);
+	int32_t itemid = lensid >= 0 ? lensid : wpnPressed>-1 ? wpnPressed : current_item_id(itype_lens);
 	if(itemid<0)
 		return;
 	
@@ -12703,7 +12771,7 @@ void do_210_lens()
 		}
 		
 		if (itemsbuf[itemid].magiccosttimer[0]) lensclk = itemsbuf[itemid].magiccosttimer[0];
-	else lensclk = 12;
+		else lensclk = 12;
 	}
 	else
 	{
@@ -13804,30 +13872,30 @@ void HeroClass::moveheroOld()
 	{
 		if(DrunkrBbtn())
 		{
-			btnwpn=getItemFamily(itemsbuf,Bwpn&0xFFF);
-			dowpn = Bwpn&0xFFF;
+			btnwpn=getItemFamily(itemsbuf,Bwpn);
+			dowpn = NEG_OR_MASK(Bwpn,0xFFF);
 			directWpn = directItemB;
 		}
 		else if(DrunkrAbtn())
 		{
-			btnwpn=getItemFamily(itemsbuf,Awpn&0xFFF);
-			dowpn = Awpn&0xFFF;
+			btnwpn=getItemFamily(itemsbuf,Awpn);
+			dowpn = NEG_OR_MASK(Awpn,0xFFF);
 			directWpn = directItemA;
 		}
 		else if(get_qr(qr_SET_XBUTTON_ITEMS) && DrunkrEx1btn())
 		{
-			btnwpn=getItemFamily(itemsbuf,Xwpn&0xFFF);
-			dowpn = Xwpn&0xFFF;
+			btnwpn=getItemFamily(itemsbuf,Xwpn);
+			dowpn = NEG_OR_MASK(Xwpn,0xFFF);
 			directWpn = directItemX;
 		}
 		else if(get_qr(qr_SET_YBUTTON_ITEMS) && DrunkrEx2btn())
 		{
-			btnwpn=getItemFamily(itemsbuf,Ywpn&0xFFF);
-			dowpn = Ywpn&0xFFF;
+			btnwpn=getItemFamily(itemsbuf,Ywpn);
+			dowpn = NEG_OR_MASK(Ywpn,0xFFF);
 			directWpn = directItemY;
 		}
 		
-		if(directWpn > 255) directWpn = 0;
+		if(directWpn >= MAXITEMS) directWpn = -1;
 		
 		// The Quick Sword only allows repeated sword or wand swings.
 		if((action==attacking||action==sideswimattacking) && ((attack==wSword && btnwpn!=itype_sword) || (attack==wWand && btnwpn!=itype_wand)))
@@ -17798,30 +17866,30 @@ bool HeroClass::premove()
 	{
 		if(DrunkrBbtn())
 		{
-			btnwpn=getItemFamily(itemsbuf,Bwpn&0xFFF);
-			dowpn = Bwpn&0xFFF;
+			btnwpn=getItemFamily(itemsbuf,Bwpn);
+			dowpn = NEG_OR_MASK(Bwpn,0xFFF);
 			directWpn = directItemB;
 		}
 		else if(DrunkrAbtn())
 		{
-			btnwpn=getItemFamily(itemsbuf,Awpn&0xFFF);
-			dowpn = Awpn&0xFFF;
+			btnwpn=getItemFamily(itemsbuf,Awpn);
+			dowpn = NEG_OR_MASK(Awpn,0xFFF);
 			directWpn = directItemA;
 		}
 		else if(get_qr(qr_SET_XBUTTON_ITEMS) && DrunkrEx1btn())
 		{
-			btnwpn=getItemFamily(itemsbuf,Xwpn&0xFFF);
-			dowpn = Xwpn&0xFFF;
+			btnwpn=getItemFamily(itemsbuf,Xwpn);
+			dowpn = NEG_OR_MASK(Xwpn,0xFFF);
 			directWpn = directItemX;
 		}
 		else if(get_qr(qr_SET_YBUTTON_ITEMS) && DrunkrEx2btn())
 		{
-			btnwpn=getItemFamily(itemsbuf,Ywpn&0xFFF);
-			dowpn = Ywpn&0xFFF;
+			btnwpn=getItemFamily(itemsbuf,Ywpn);
+			dowpn = NEG_OR_MASK(Ywpn,0xFFF);
 			directWpn = directItemY;
 		}
 		
-		if(directWpn > 255) directWpn = 0;
+		if(directWpn >= MAXITEMS) directWpn = -1;
 		
 		// The Quick Sword only allows repeated sword or wand swings.
 		if((action==attacking||action==sideswimattacking) && ((attack==wSword && btnwpn!=itype_sword) || (attack==wWand && btnwpn!=itype_wand)))
@@ -28439,208 +28507,6 @@ bool checkitem_jinx(int32_t itemid)
 	return HeroItemClk() == 0;
 }
 
-int32_t Bweapon(int32_t pos)
-{
-    if(pos < 0 || current_subscreen_active == NULL)
-    {
-        return 0;
-    }
-    
-    int32_t p=-1;
-    
-    for(int32_t i=0; current_subscreen_active->objects[i].type!=ssoNULL && i < MAXSUBSCREENITEMS; ++i)
-    {
-        if(current_subscreen_active->objects[i].type==ssoCURRENTITEM && current_subscreen_active->objects[i].d3==pos)
-        {
-            p=i;
-            break;
-        }
-    }
-    
-    if(p==-1)
-    {
-        return 0;
-    }
-    
-    int32_t actualItem = current_subscreen_active->objects[p].d8;
-    //int32_t familyCheck = actualItem ? itemsbuf[actualItem].family : current_subscreen_active->objects[p].d1
-    int32_t family = -1;
-    bool bow = false;
-    
-    if(actualItem)
-    {
-        bool select = false;
-        
-        switch(itemsbuf[actualItem-1].family)
-        {
-        case itype_bomb:
-            if((game->get_bombs() ||
-                    // Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
-                    (actualItem-1>-1 && itemsbuf[actualItem-1].misc1==0 && findWeaponWithParent(actualItem-1, wLitBomb))) ||
-                    current_item_power(itype_bombbag))
-            {
-                select=true;
-            }
-            
-            break;
-            
-        case itype_bowandarrow:
-        case itype_arrow:
-            if(actualItem-1>-1 && current_item_id(itype_bow)>-1)
-            {
-                //bow=(current_subscreen_active->objects[p].d1==itype_bowandarrow);
-                select=true;
-            }
-            
-            break;
-            
-        case itype_letterpotion:
-            /*if(current_item_id(itype_potion)>-1)
-            {
-              select=true;
-            }
-            else if(current_item_id(itype_letter)>-1)
-            {
-              select=true;
-            }*/
-            break;
-            
-        case itype_sbomb:
-        {
-            int32_t bombbagid = current_item_id(itype_bombbag);
-            
-            if((game->get_sbombs() ||
-                    // Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
-                    (actualItem-1>-1 && itemsbuf[actualItem-1].misc1==0 && findWeaponWithParent(actualItem-1, wLitSBomb))) ||
-                    (current_item_power(itype_bombbag) && bombbagid>-1 && (itemsbuf[bombbagid].flags & ITEM_FLAG1)))
-            {
-                select=true;
-            }
-            
-            break;
-        }
-        
-        case itype_sword:
-        {
-            if(!get_qr(qr_SELECTAWPN))
-                break;
-                
-            select=true;
-        }
-        break;
-        
-        default:
-            select=true;
-        }
-        
-        if(!item_disabled(actualItem-1) && game->get_item(actualItem-1) && select)
-        {
-            directItem = actualItem-1;
-            
-            if(directItem>-1 && itemsbuf[directItem].family == itype_arrow) bow=true;
-            
-            return actualItem-1+(bow?0xF000:0);
-        }
-        else return 0;
-    }
-    
-    directItem = -1;
-    
-    switch(current_subscreen_active->objects[p].d1)
-    {
-    case itype_bomb:
-    {
-        int32_t bombid = current_item_id(itype_bomb);
-        
-        if((game->get_bombs() ||
-                // Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
-                (bombid>-1 && itemsbuf[bombid].misc1==0 && Lwpns.idCount(wLitBomb)>0)) ||
-                current_item_power(itype_bombbag))
-        {
-            family=itype_bomb;
-        }
-        
-        break;
-    }
-    
-    case itype_bowandarrow:
-    case itype_arrow:
-        if(current_item_id(itype_bow)>-1 && current_item_id(itype_arrow)>-1)
-        {
-            bow=(current_subscreen_active->objects[p].d1==itype_bowandarrow);
-            family=itype_arrow;
-        }
-        
-        break;
-        
-    case itype_letterpotion:
-        if(current_item_id(itype_potion)>-1)
-        {
-            family=itype_potion;
-        }
-        else if(current_item_id(itype_letter)>-1)
-        {
-            family=itype_letter;
-        }
-        
-        break;
-        
-    case itype_sbomb:
-    {
-        int32_t bombbagid = current_item_id(itype_bombbag);
-        int32_t sbombid = current_item_id(itype_sbomb);
-        
-        if((game->get_sbombs() ||
-                // Remote Bombs: the bomb icon can still be used when an undetonated bomb is onscreen.
-                (sbombid>-1 && itemsbuf[sbombid].misc1==0 && Lwpns.idCount(wLitSBomb)>0)) ||
-                (current_item_power(itype_bombbag) && bombbagid>-1 && (itemsbuf[bombbagid].flags & ITEM_FLAG1)))
-        {
-            family=itype_sbomb;
-        }
-        
-        break;
-    }
-    
-    case itype_sword:
-    {
-        if(!get_qr(qr_SELECTAWPN))
-            break;
-            
-        family=itype_sword;
-    }
-    break;
-    
-    default:
-        family=current_subscreen_active->objects[p].d1;
-    }
-    
-    if(family==-1)
-        return 0;
-        
-    for(int32_t j=0; j<MAXITEMS; j++)
-    {
-        // Find the item that matches this subscreen object.
-        if(itemsbuf[j].family==family && j == current_item_id(family,false) && !item_disabled(j))
-        {
-            return j+(bow?0xF000:0);
-        }
-    }
-    
-    return 0;
-}
-
-int32_t BWeapon_to_Pos(int32_t bweapon)
-{
-	for (int32_t i = 0; i < MAXSUBSCREENITEMS; ++i)
-	{
-		if (Bweapon(i) == bweapon)
-		{
-			return i;
-		}
-	}
-	return -1;
-}
-
 void stopCaneOfByrna()
 {
 	for(int32_t i=0; i<Lwpns.Count(); i++)
@@ -28689,21 +28555,19 @@ void HeroClass::cleanupByrna()
 // Used to find out if an item family is attached to one of the buttons currently pressed.
 bool isWpnPressed(int32_t itype)
 {
-	//0xFFF for subscreen overrides
-	//Will crash on win10 without it! -Z
-    if((itype==getItemFamily(itemsbuf,Bwpn&0xFFF)) && DrunkcBbtn()) return true;
-    if((itype==getItemFamily(itemsbuf,Awpn&0xFFF)) && DrunkcAbtn()) return true;
-    if((itype==getItemFamily(itemsbuf,Xwpn&0xFFF)) && DrunkcEx1btn()) return true;
-    if((itype==getItemFamily(itemsbuf,Ywpn&0xFFF)) && DrunkcEx2btn()) return true;
+    if((itype==getItemFamily(itemsbuf,Bwpn)) && DrunkcBbtn()) return true;
+    if((itype==getItemFamily(itemsbuf,Awpn)) && DrunkcAbtn()) return true;
+    if((itype==getItemFamily(itemsbuf,Xwpn)) && DrunkcEx1btn()) return true;
+    if((itype==getItemFamily(itemsbuf,Ywpn)) && DrunkcEx2btn()) return true;
     return false;
 }
 
 int32_t getWpnPressed(int32_t itype)
 {
-    if((itype==getItemFamily(itemsbuf,Bwpn&0xFFF)) && DrunkcBbtn()) return Bwpn;
-    if((itype==getItemFamily(itemsbuf,Awpn&0xFFF)) && DrunkcAbtn()) return Awpn;
-    if((itype==getItemFamily(itemsbuf,Xwpn&0xFFF)) && DrunkcEx1btn()) return Xwpn;
-    if((itype==getItemFamily(itemsbuf,Ywpn&0xFFF)) && DrunkcEx2btn()) return Ywpn;
+    if((itype==getItemFamily(itemsbuf,Bwpn)) && DrunkcBbtn()) return Bwpn&0xFFF;
+    if((itype==getItemFamily(itemsbuf,Awpn)) && DrunkcAbtn()) return Awpn&0xFFF;
+    if((itype==getItemFamily(itemsbuf,Xwpn)) && DrunkcEx1btn()) return Xwpn&0xFFF;
+    if((itype==getItemFamily(itemsbuf,Ywpn)) && DrunkcEx2btn()) return Ywpn&0xFFF;
     
     return -1;
 }
@@ -28723,13 +28587,13 @@ int32_t getRocsPressed()
 			return jumpid; //not pressed
 	}
 
-	if((itype_rocs==getItemFamily(itemsbuf,Bwpn&0xFFF)) && DrunkcBbtn())
+	if((itype_rocs==getItemFamily(itemsbuf,Bwpn)) && DrunkcBbtn())
 		return Bwpn;
-	if((itype_rocs==getItemFamily(itemsbuf,Awpn&0xFFF)) && DrunkcAbtn())
+	if((itype_rocs==getItemFamily(itemsbuf,Awpn)) && DrunkcAbtn())
 		return Awpn;
-	if((itype_rocs==getItemFamily(itemsbuf,Xwpn&0xFFF)) && DrunkcEx1btn())
+	if((itype_rocs==getItemFamily(itemsbuf,Xwpn)) && DrunkcEx1btn())
 		return Xwpn;
-	if((itype_rocs==getItemFamily(itemsbuf,Ywpn&0xFFF)) && DrunkcEx2btn())
+	if((itype_rocs==getItemFamily(itemsbuf,Ywpn)) && DrunkcEx2btn())
 		return Ywpn;
 
 	return -1;
@@ -28737,104 +28601,120 @@ int32_t getRocsPressed()
 
 bool isItmPressed(int32_t itmid)
 {
-    if(itmid==(Bwpn&0xFFF) && DrunkcBbtn()) return true;
-    if(itmid==(Awpn&0xFFF) && DrunkcAbtn()) return true;
-    if(itmid==(Xwpn&0xFFF) && DrunkcEx1btn()) return true;
-    if(itmid==(Ywpn&0xFFF) && DrunkcEx2btn()) return true;
+    if(itmid==(NEG_OR_MASK(Bwpn,0xFFF)) && DrunkcBbtn()) return true;
+    if(itmid==(NEG_OR_MASK(Awpn,0xFFF)) && DrunkcAbtn()) return true;
+    if(itmid==(NEG_OR_MASK(Xwpn,0xFFF)) && DrunkcEx1btn()) return true;
+    if(itmid==(NEG_OR_MASK(Ywpn,0xFFF)) && DrunkcEx2btn()) return true;
     return false;
 }
 
+//helper function
+static void selectNextBTNWpn(int32_t type, word& wpos, int32_t& BTNwpn,
+	int32_t& directItemBTN, word f1 = 255, word f2 = 255, word f3 = 255)
+{
+	if(!new_subscreen_active)
+		return;
+	byte pgn = wpos&0xFF, pos = wpos>>8;
+	bool empty = pgn==255;
+	if(empty && get_qr(qr_NO_BUTTON_VERIFY)) return; //intentional nothingness
+	SubscrPage* pg = new_subscreen_active->get_page(pgn==255?new_subscreen_active->curpage:pgn);
+	if(!pg)
+		return;
+	auto fp1 = ((f1&0xFF)==255) ? 255 : ((empty || (f1&0xFF)==(wpos&0xFF)) ? f1 : 255);
+	auto fp2 = ((f2&0xFF)==255) ? 255 : ((empty || (f2&0xFF)==(wpos&0xFF)) ? f2 : 255);
+	auto fp3 = ((f3&0xFF)==255) ? 255 : ((empty || (f3&0xFF)==(wpos&0xFF)) ? f3 : 255);
+	auto ret = pg->movepos_legacy(type, wpos, fp1, fp2, fp3);
+	BTNwpn = pg->get_item_pos(ret>>8);
+	directItemBTN = NEG_OR_MASK(BTNwpn,0xFFF);
+	wpos = ret;
+}
 void selectNextAWpn(int32_t type)
 {
     if(!get_qr(qr_SELECTAWPN))
         return;
-        
-    int32_t ret = selectWpn_new(type, game->awpn, game->bwpn, get_qr(qr_SET_XBUTTON_ITEMS) ? game->xwpn : -1, get_qr(qr_SET_YBUTTON_ITEMS) ? game->ywpn : -1);
-    Awpn = Bweapon(ret);
-    directItemA = directItem;
-    game->awpn = ret;
+	selectNextBTNWpn(type, game->awpn, Awpn, directItemA, COND_BWPN, COND_XWPN, COND_YWPN);
 }
 
 void selectNextBWpn(int32_t type)
 {
-	int32_t ret = selectWpn_new(type, game->bwpn, game->awpn, get_qr(qr_SET_XBUTTON_ITEMS) ? game->xwpn : -1, get_qr(qr_SET_YBUTTON_ITEMS) ? game->ywpn : -1);
-	Bwpn = Bweapon(ret);
-	directItemB = directItem;
-	game->bwpn = ret;
+	if(!new_subscreen_active)
+		return;
+	selectNextBTNWpn(type, game->bwpn, Bwpn, directItemB, COND_AWPN, COND_XWPN, COND_YWPN);
 }
 
 void selectNextXWpn(int32_t type)
 {
 	if(!get_qr(qr_SET_XBUTTON_ITEMS)) return;
-	int32_t ret = selectWpn_new(type, game->xwpn, game->awpn, game->bwpn, get_qr(qr_SET_YBUTTON_ITEMS) ? game->ywpn : -1);
-	Xwpn = Bweapon(ret);
-	directItemX = directItem;
-	game->xwpn = ret;
+	if(!new_subscreen_active)
+		return;
+	selectNextBTNWpn(type, game->xwpn, Xwpn, directItemX, COND_BWPN, COND_AWPN, COND_YWPN);
 }
 
 void selectNextYWpn(int32_t type)
 {
 	if(!get_qr(qr_SET_YBUTTON_ITEMS)) return;
-	int32_t ret = selectWpn_new(type, game->ywpn, game->awpn, game->bwpn, get_qr(qr_SET_XBUTTON_ITEMS) ? game->xwpn : -1);
-	Ywpn = Bweapon(ret);
-	directItemY = directItem;
-	game->ywpn = ret;
+	if(!new_subscreen_active)
+		return;
+	selectNextBTNWpn(type, game->ywpn, Ywpn, directItemY, COND_BWPN, COND_XWPN, COND_AWPN);
+}
+
+//helper function
+static void verifyWpn(word& wpos, int32_t& BTNwpn, int32_t& directItemBTN, word f1 = 255, word f2 = 255, word f3 = 255)
+{
+	if(!new_subscreen_active)
+		return;
+	byte pgn = wpos&0xFF, pos = wpos>>8;
+	bool empty = pgn==255;
+	if(empty && get_qr(qr_NO_BUTTON_VERIFY)) return; //intentional nothingness
+	SubscrPage* pg = new_subscreen_active->get_page(pgn==255?new_subscreen_active->curpage:pgn);
+	if(!pg)
+		return;
+	auto fp1 = ((f1&0xFF)==255) ? 255 : ((empty || (f1&0xFF)==(wpos&0xFF)) ? f1 : 255);
+	auto fp2 = ((f2&0xFF)==255) ? 255 : ((empty || (f2&0xFF)==(wpos&0xFF)) ? f2 : 255);
+	auto fp3 = ((f3&0xFF)==255) ? 255 : ((empty || (f3&0xFF)==(wpos&0xFF)) ? f3 : 255);
+	wpos = pg->movepos_legacy(SEL_VERIFY_RIGHT, wpos, fp1, fp2, fp3);
+	BTNwpn = pg->get_item_pos(wpos>>8);
+	directItemBTN = NEG_OR_MASK(BTNwpn,0xFFF);
 }
 
 void verifyAWpn()
 {
-	if ( (game->forced_awpn != -1) )
-	{
+	if (game->forced_awpn != -1)
 		return;
-	}
     if(!get_qr(qr_SELECTAWPN))
     {
         Awpn = selectSword();
-        game->awpn = 0xFF;
+        game->awpn = 255;
     }
     else
     {
-        game->awpn = selectWpn_new(SEL_VERIFY_RIGHT, game->awpn, game->bwpn, game->xwpn, game->ywpn);
-        Awpn = Bweapon(game->awpn);
-        directItemA = directItem;
+		verifyWpn(game->awpn, Awpn, directItemA, COND_BWPN, COND_XWPN, COND_YWPN);
     }
 }
 
 void verifyBWpn()
 {
-	if ( (game->forced_bwpn != -1) )
-	{
+	if (game->forced_bwpn != -1)
 		return;
-	}
-    game->bwpn = selectWpn_new(SEL_VERIFY_RIGHT, game->bwpn, game->awpn, game->xwpn, game->ywpn);
-    Bwpn = Bweapon(game->bwpn);
-    directItemB = directItem;
+	verifyWpn(game->bwpn, Bwpn, directItemB, COND_AWPN, COND_XWPN, COND_YWPN);
 }
 
 void verifyXWpn()
 {
-	if ( (game->forced_xwpn != -1) )
-	{
+	if (game->forced_xwpn != -1)
 		return;
-	}
-	if(get_qr(qr_SET_XBUTTON_ITEMS))
-		game->xwpn = selectWpn_new(SEL_VERIFY_RIGHT, game->xwpn, game->awpn, game->bwpn, game->ywpn);
-	else game->xwpn = -1;
-    Xwpn = Bweapon(game->xwpn);
-    directItemX = directItem;
+	if(!get_qr(qr_SET_XBUTTON_ITEMS))
+		return;
+	verifyWpn(game->xwpn, Xwpn, directItemX, COND_BWPN, COND_AWPN, COND_YWPN);
 }
 
 void verifyYWpn()
 {
-	if ( (game->forced_ywpn != -1) )
-	{
+	if (game->forced_ywpn != -1)
 		return;
-	}
-	if(get_qr(qr_SET_YBUTTON_ITEMS))
-		game->ywpn = selectWpn_new(SEL_VERIFY_RIGHT, game->ywpn, game->awpn, game->xwpn, game->bwpn);
-	else game->ywpn = -1;
-    Ywpn = Bweapon(game->ywpn);
-    directItemY = directItem;
+	if(!get_qr(qr_SET_YBUTTON_ITEMS))
+		return;
+	verifyWpn(game->ywpn, Ywpn, directItemY, COND_BWPN, COND_XWPN, COND_AWPN);
 }
 
 void verifyBothWeapons()
@@ -28845,158 +28725,10 @@ void verifyBothWeapons()
     verifyYWpn();
 }
 
-int get_subscr_itemind(int32_t pos)
-{
-	if(current_subscreen_active == NULL)
-		return -1;
-	auto* objects = current_subscreen_active->objects;
-	for(int32_t i=0; objects[i].type!=ssoNULL; ++i)
-	{
-		if(objects[i].type==ssoCURRENTITEM)
-		{
-			if(objects[i].d3==pos)
-				return i;
-		}
-	}
-	return -1;
-}
-int32_t selectWpn_new(int32_t type, int32_t startpos, int32_t forbiddenpos, int32_t fp2, int32_t fp3, bool equip_only, bool checkwpn)
-{
-	//what will be returned when all else fails.
-	//don't return the forbiddenpos... no matter what -DD
-	
-	int32_t failpos(0);
-	
-	if(startpos == forbiddenpos || startpos == fp2 || startpos == fp3)
-		failpos = 0xFF;
-	else failpos = startpos;
-	
-	// verify startpos
-	if(startpos < 0 || startpos >= 0xFF)
-		startpos = 0;
-		
-	if(current_subscreen_active == NULL)
-		return failpos;
-	auto* objects = current_subscreen_active->objects;
-	
-	checkwpn = checkwpn || !get_qr(qr_FREEFORM_SUBSCREEN_CURSOR);
-	bool verify = type==SEL_VERIFY_RIGHT || type==SEL_VERIFY_LEFT;
-	
-	if(verify)
-	{
-		int32_t wpn = Bweapon(startpos);
-		equip_only = checkwpn = true;
-		auto startind = get_subscr_itemind(startpos);
-		if(objects[startind].type==ssoCURRENTITEM&&(objects[startind].d2&SSCURRITEM_NONEQUIP))
-			wpn = 0;
-		
-		if(wpn != 0 && startpos != forbiddenpos && startpos != fp2 && startpos != fp3)
-		{
-			return startpos;
-		}
-	}
-	
-	int32_t p=-1;
-	int32_t curpos = startpos;
-	int32_t firstValidPos=-1, firstValidEquipPos=-1;
-	
-	for(int32_t i=0; objects[i].type!=ssoNULL; ++i)
-	{
-		if(objects[i].type==ssoCURRENTITEM)
-		{
-			if(firstValidPos==-1 && objects[i].d3>=0)
-				firstValidPos=i;
-			if(firstValidEquipPos==-1 && objects[i].d3>=0)
-				if(!equip_only || !(objects[i].d2&SSCURRITEM_NONEQUIP))
-					firstValidEquipPos=i;
-			
-			if(objects[i].d3==curpos)
-				p=i;
-			if(p>-1 && firstValidPos>-1 && firstValidEquipPos>-1)
-				break;
-		}
-	}
-	
-	if(p == -1)
-	{
-		//can't find the current position
-		// Switch to a valid weapon if there is one; otherwise,
-		// the selector can simply disappear
-		if(firstValidEquipPos>=0)
-			return objects[firstValidEquipPos].d3;
-		if(firstValidPos>=0)
-			return objects[firstValidPos].d3;
-		//FAILURE
-		else return failpos;
-	}
-	
-	//remember we've been here
-	set<int32_t> oldPositions;
-	oldPositions.insert(curpos);
-	
-	//1. Perform any shifts required by the above
-	//2. If that's not possible, go to position 1 and reset the b weapon.
-	//2a.  -if we arrive at a position we've already visited, give up and stay there
-	//3. Get the weapon at the new slot
-	//4. If it's not possible, go to step 1.
-	
-	for(;;)
-	{
-		//shift
-		switch(type)
-		{
-		case SEL_LEFT:
-		case SEL_VERIFY_LEFT:
-			curpos = objects[p].d6;
-			break;
-			
-		case SEL_RIGHT:
-		case SEL_VERIFY_RIGHT:
-			curpos = objects[p].d7;
-			break;
-			
-		case SEL_DOWN:
-			curpos = objects[p].d5;
-			break;
-			
-		case SEL_UP:
-			curpos = objects[p].d4;
-			break;
-		}
-		
-		//find our new position
-		p = get_subscr_itemind(curpos);
-		
-		if(p == -1)
-		{
-			//can't find the current position
-			//FAILURE
-			return failpos;
-		}
-		
-		//if we've already been here, give up
-		if(oldPositions.find(curpos) != oldPositions.end())
-			return failpos;
-		
-		//else, remember we've been here
-		oldPositions.insert(curpos);
-		
-		//see if this weapon is acceptable
-		auto wpn = Bweapon(curpos);
-		if(curpos != forbiddenpos && curpos != fp2 && curpos != fp3)
-			if(!equip_only || !(objects[p].d2 & SSCURRITEM_NONEQUIP))
-				if(!checkwpn || wpn)
-					return curpos;
-		//keep going otherwise
-	}
-}
-
 // Select the sword for the A button if the 'select A button weapon' quest rule isn't set.
 int32_t selectSword()
 {
-	auto ret = current_item_id(itype_sword);
-	if(ret == -1) return 0;
-	return ret;
+	return current_item_id(itype_sword);
 }
 
 // Adding code here for allowing hardcoding a button to a specific itemclass.
@@ -29471,7 +29203,7 @@ void getitem(int32_t id, bool nosound, bool doRunPassive)
 	
 	flushItemCache();
 	update_subscreens();
-	load_Sitems();
+	refresh_subscr_items();
 	verifyBothWeapons();
 }
 
@@ -30284,9 +30016,10 @@ void HeroClass::getTriforce(int32_t id2)
 	items.clear();
 	Ewpns.clear();
 	Lwpns.clear();
-	Sitems.clear();
 	chainlinks.clear();
     
+	kill_subscr_items();
+	
 	//decorations.clear();
 	if(!COOLSCROLL)
 	{
@@ -30740,9 +30473,11 @@ void HeroClass::heroDeathAnimation()
 				items.clear();
 				Ewpns.clear();
 				Lwpns.clear();
-				Sitems.clear();
 				chainlinks.clear();
 				decorations.clear();
+				
+				kill_subscr_items();
+				
 				Playing = false;
 					
 				game->set_deaths(zc_min(game->get_deaths()+1,USHRT_MAX));

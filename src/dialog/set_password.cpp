@@ -62,7 +62,7 @@ bool SetPasswordDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		setPassword(pwField->getText(), saveKeyFileCB->getChecked());
 		[[fallthrough]];
 	case message::CANCEL:
-	default:
 		return true;
 	}
+	return false;
 }

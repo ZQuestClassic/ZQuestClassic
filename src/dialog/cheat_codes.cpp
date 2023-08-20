@@ -80,7 +80,7 @@ bool CheatCodesDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		}
 
 		case message::CANCEL:
-		default:
 			return true;
 	}
+	return false;
 }

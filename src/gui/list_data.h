@@ -44,15 +44,15 @@ struct ListItem
 class ListData
 {
 public:
-	ListData() {}
+	ListData() : _invalid(false) {}
 	ListData(const ListData& other) = default;
 	ListData(ListData&& other) = default;
-	ListData(std::initializer_list<ListItem> listItems): listItems(listItems)
+	ListData(std::initializer_list<ListItem> listItems) : _invalid(false), listItems(listItems)
 	{}
 
-	ListData(std::vector<ListItem> listItems): listItems(std::move(listItems))
+	ListData(std::vector<ListItem> listItems) : _invalid(false), listItems(std::move(listItems))
 	{}
-	ListData(std::vector<std::string> strings)
+	ListData(std::vector<std::string> strings) : _invalid(false)
 	{
 		for(int i = 0; i < strings.size(); i++)
 		{
@@ -81,6 +81,21 @@ public:
 	inline size_t size() const
 	{
 		return listItems.size();
+	}
+
+	inline bool empty() const
+	{
+		return !listItems.size();
+	}
+	
+	inline bool invalid() const
+	{
+		return _invalid;
+	}
+	
+	inline void setInvalid(bool b)
+	{
+		_invalid = b;
 	}
 
 	inline const std::string& getText(size_t index) const
@@ -185,6 +200,7 @@ public:
 	
 private:
 	std::vector<ListItem> listItems;
+	bool _invalid;
 	
 	static const char* jwinWrapper(int32_t index, int32_t* size, void* owner);
 };

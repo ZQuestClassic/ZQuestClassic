@@ -387,11 +387,11 @@ bool StringEditorDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		return true;
 
 		case message::CANCEL:
-		default:
 		{
 			if(addAfter != -1)
 				MsgStrings[strIndex].listpos = msg_count;
 		}
 		return true;
 	}
+	return false;
 }

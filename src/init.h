@@ -25,14 +25,8 @@ typedef struct item_class_struct
     int32_t i;
 } item_class_struct;
 
-extern item_class_struct biic[itype_max];
 extern const char *itype_names[itype_max];
 extern const char *itype_new_names[itype_max];
-
-extern int32_t biic_cnt;
-void build_biic_list();
-void deallocate_biic_list();
-const char *item_class_list(int32_t index, int32_t *list_size);
 
 int32_t d_line_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t d_maxbombsedit_proc(int32_t msg,DIALOG *d,int32_t c);

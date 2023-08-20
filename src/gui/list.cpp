@@ -70,6 +70,7 @@ int32_t List::getSelectedValue() const
 
 void List::setIndex()
 {
+	if (!listData || !listData->size()) return;
 	// Find a valid selection. We'll take the first thing with a matching
 	// value. If nothing matches exactly, take the one that's closest to
 	// the selected value.

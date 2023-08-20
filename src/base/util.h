@@ -84,6 +84,13 @@ int32_t zc_trace_handler(const char *);
 void zc_trace_clear();
 
 std::string QRHINT(std::vector<int> qrs);
+std::string RULETMPL_HINT(std::vector<int> tmpls);
+enum //special insert types
+{
+	INFOHINT_T_QR,
+	INFOHINT_T_RULETMPL,
+	INFOHINT_T_MAX
+};
 
 enum
 {

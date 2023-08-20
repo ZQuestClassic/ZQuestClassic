@@ -1111,6 +1111,154 @@ void jwin_draw_text_button(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_
         dotted_rect(dest, x+4, y+4, x+w-5, y+h-5, palette_color[scheme[jcDARK]], palette_color[scheme[jcBOX]]);
 }
 
+int icon_proportion(int icon,int s1,int s2)
+{
+	int sz = round(sqrt(zc_min(s1,s2))*1.25);
+	switch(icon)
+	{
+		case BTNICON_STOPSQUARE:
+			sz += 4;
+			break;
+		case BTNICON_PLUS:
+		case BTNICON_MINUS:
+			sz += 4;
+			break;
+	}
+	return sz;
+}
+void jwin_draw_icon_button(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, int icon, int32_t flags, bool show_dotted_rect)
+{
+    int32_t g = (flags & D_SELECTED) ? 1 : 0;
+    
+    if(flags & D_SELECTED)
+        jwin_draw_button(dest, x, y, w, h, 2, 0);
+    else if(!(flags & D_GOTFOCUS))
+        jwin_draw_button(dest, x, y, w, h, 0, 0);
+    else
+    {
+        rect(dest, x, y, x+w-1, y+h-1, palette_color[scheme[jcDARK]]);
+        jwin_draw_button(dest, x+1, y+1, w-2, h-2, 0, 0);
+    }
+    
+	int col = jwin_pal[(flags & D_DISABLED) ? jcLIGHT : jcBOXFG];
+	jwin_draw_icon(dest,x+w/2,y+h/2,col,icon,icon_proportion(icon,w,h),true);
+	
+    if(show_dotted_rect&&(flags & D_GOTFOCUS))
+        dotted_rect(dest, x+4, y+4, x+w-5, y+h-5, palette_color[scheme[jcDARK]], palette_color[scheme[jcBOX]]);
+}
+void jwin_draw_icon(BITMAP *dest, int x, int y, int col, int icon, int asz, bool center)
+{
+	jwin_draw_icon(dest,x,y,col,icon,asz,asz,center);
+}
+void jwin_draw_icon(BITMAP *dest, int x, int y, int col, int icon, int aw, int ah, bool center)
+{
+	int w2 = aw, h2 = ah;
+	int sz = zc_min(aw,ah);
+	switch(icon)
+	{
+		case BTNICON_ARROW_LEFT2:
+		case BTNICON_ARROW_RIGHT2:
+			aw *= 2;
+			ah = aw*2-1;
+			break;
+		case BTNICON_ARROW_LEFT3:
+		case BTNICON_ARROW_RIGHT3:
+			aw *= 3;
+			ah = aw*2-1;
+			break;
+		case BTNICON_ARROW_UP:
+		case BTNICON_ARROW_DOWN:
+		case BTNICON_CONTRACT_VERT:
+		case BTNICON_EXPAND_VERT:
+			aw = ah*2-1;
+			break;
+		case BTNICON_ARROW_LEFT:
+		case BTNICON_ARROW_RIGHT:
+		case BTNICON_CONTRACT_HORZ:
+		case BTNICON_EXPAND_HORZ:
+			ah = aw*2-1;
+			break;
+		case BTNICON_STOPSQUARE:
+			aw = ah = sz;
+			break;
+		case BTNICON_PLUS:
+			if(!(sz%2)) ++sz;
+			aw = ah = w2 = h2 = sz;
+			w2 /= 3;
+			h2 /= 3;
+			if(!(h2%2)) ++h2;
+			if(!(w2%2)) ++w2;
+			break;
+		case BTNICON_MINUS:
+			if(!(sz%2)) ++sz;
+			aw = ah = w2 = h2 = sz;
+			h2 /= 3;
+			if(!(h2%2)) ++h2;
+			break;
+	}
+	int woff = (aw/2)+1, hoff = (ah/2)+1;
+	int cx = center ? (x-aw/2) : x,
+		cy = center ? (y-ah/2) : y;
+	switch(icon)
+	{
+		case BTNICON_ARROW_UP:
+			draw_arrow(dest, col, x, cy, ah, true, center);
+			break;
+		case BTNICON_ARROW_DOWN:
+			draw_arrow(dest, col, x, cy, ah, false, center);
+			break;
+		case BTNICON_ARROW_LEFT:
+			draw_arrow_horz(dest, col, cx, y, aw, true, center);
+			break;
+		case BTNICON_ARROW_RIGHT:
+			draw_arrow_horz(dest, col, cx, y, aw, false, center);
+			break;
+		case BTNICON_CONTRACT_VERT:
+			draw_arrow(dest, col, x, cy-hoff, ah, false, center);
+			draw_arrow(dest, col, x, cy+hoff, ah, true, center);
+			break;
+		case BTNICON_EXPAND_VERT:
+			draw_arrow(dest, col, x, cy-hoff, ah, true, center);
+			draw_arrow(dest, col, x, cy+hoff, ah, false, center);
+			break;
+		case BTNICON_CONTRACT_HORZ:
+			draw_arrow_horz(dest, col, cx-woff, y, aw, false, center);
+			draw_arrow_horz(dest, col, cx+woff, y, aw, true, center);
+			break;
+		case BTNICON_EXPAND_HORZ:
+			draw_arrow_horz(dest, col, cx-woff, y, aw, true, center);
+			draw_arrow_horz(dest, col, cx+woff, y, aw, false, center);
+			break;
+		case BTNICON_ARROW_LEFT2:
+			draw_arrow_horz(dest, col, cx, y, w2, true, center);
+			draw_arrow_horz(dest, col, cx+w2, y, w2, true, center);
+			break;
+		case BTNICON_ARROW_LEFT3:
+			draw_arrow_horz(dest, col, cx, y, w2, true, center);
+			draw_arrow_horz(dest, col, cx+w2, y, w2, true, center);
+			draw_arrow_horz(dest, col, cx+w2*2, y, w2, true, center);
+			break;
+		case BTNICON_ARROW_RIGHT2:
+			draw_arrow_horz(dest, col, cx, y, w2, false, center);
+			draw_arrow_horz(dest, col, cx+w2, y, w2, false, center);
+			break;
+		case BTNICON_ARROW_RIGHT3:
+			draw_arrow_horz(dest, col, cx, y, w2, false, center);
+			draw_arrow_horz(dest, col, cx+w2, y, w2, false, center);
+			draw_arrow_horz(dest, col, cx+w2*2, y, w2, false, center);
+			break;
+		case BTNICON_STOPSQUARE:
+			rectfill(dest, cx, cy, cx+aw-1, cy+ah-1, col);
+			break;
+		case BTNICON_MINUS:
+			rectfill(dest, cx, cy+(ah/2)-(h2/2), cx+aw-1, cy+(ah/2)+(h2/2), col);
+			break;
+		case BTNICON_PLUS:
+			rectfill(dest, cx, cy+(ah/2)-(h2/2), cx+aw-1, cy+(ah/2)+(h2/2), col);
+			rectfill(dest, cx+(aw/2)-(w2/2), cy, cx+(aw/2)+(w2/2), cy+ah-1, col);
+			break;
+	}
+}
 /* draw_graphics_button:
   *  Helper for jwin_button_proc.
   */
@@ -1170,11 +1318,8 @@ void jwin_draw_graphics_button(BITMAP *dest, int32_t x, int32_t y, int32_t w, in
   *  keyboard shortcut. If the D_EXIT flag is set, selecting it will close
   *  the dialog, otherwise it will toggle on and off.
   */
-int32_t jwin_button_proc(int32_t msg, DIALOG *d, int32_t c)
+int32_t jwin_button_proc(int32_t msg, DIALOG *d, int32_t)
 {
-    //these are here to bypass compiler warnings about unused arguments
-    c=c;
-    
     int32_t down=0;
     int32_t selected=(d->flags&D_SELECTED)?1:0;
     int32_t last_draw;
@@ -1192,6 +1337,104 @@ int32_t jwin_button_proc(int32_t msg, DIALOG *d, int32_t c)
 			
 			jwin_draw_text_button(screen, d->x, d->y, d->w, d->h, (char*)d->dp, d->flags, true);
 			font = oldfont;
+		}
+		break;
+		
+		case MSG_WANTFOCUS:
+			return D_WANTFOCUS;
+			
+		case MSG_KEY:
+			/* close dialog? */
+			if(d->flags & D_EXIT)
+			{
+				return D_CLOSE;
+			}
+			if(d->d2 == 1) //Insta-button
+			{
+				GUI_EVENT(d, geCLICK);
+				break;
+			}
+			/* or just toggle */
+			d->flags ^= D_SELECTED;
+			GUI_EVENT(d, geCLICK);
+			object_message(d, MSG_DRAW, 0);
+			break;
+			
+		case MSG_CLICK:
+		{
+			if(d->d2 == 1) //Insta-button
+			{
+				if(mouse_in_rect(d->x, d->y, d->w, d->h))
+				{
+					GUI_EVENT(d, geCLICK);
+					if(d->flags & D_EXIT)
+						return D_CLOSE;
+				}
+			}
+			else
+			{
+				last_draw = 0;
+				
+				/* track the mouse until it is released */
+				while(gui_mouse_b())
+				{
+					down = mouse_in_rect(d->x, d->y, d->w, d->h);
+					
+					/* redraw? */
+					bool should_redraw = false;
+					if(last_draw != down)
+					{
+						if(down != selected)
+							d->flags |= D_SELECTED;
+						else
+							d->flags &= ~D_SELECTED;
+							
+						object_message(d, MSG_DRAW, 0);
+						last_draw = down;
+						should_redraw = true;
+					}
+					
+					/* let other objects continue to animate */
+					int r = broadcast_dialog_message(MSG_IDLE, 0);
+					if (r & D_REDRAWME) should_redraw = true;
+
+					if (should_redraw)
+					{
+						update_hw_screen();
+					}
+				}
+				
+				/* redraw in normal state */
+				if(down)
+				{
+					GUI_EVENT(d, geCLICK);
+					if(d->flags&D_EXIT)
+					{
+						d->flags &= ~D_SELECTED;
+						object_message(d, MSG_DRAW, 0);
+					}
+				}
+				
+				/* should we close the dialog? */
+				if(down && (d->flags & D_EXIT))
+					return D_CLOSE;
+			}
+		}
+		break;
+	}
+	return D_O_K;
+}
+int32_t jwin_iconbutton_proc(int32_t msg, DIALOG *d, int32_t)
+{
+    int32_t down=0;
+    int32_t selected=(d->flags&D_SELECTED)?1:0;
+    int32_t last_draw;
+    
+    switch(msg)
+    {
+		case MSG_DRAW:
+		{
+			jwin_draw_icon_button(screen, d->x, d->y, d->w, d->h, d->d1, d->flags, true);
 		}
 		break;
 		
@@ -7627,8 +7870,10 @@ int32_t new_check_proc(int32_t msg, DIALOG *d, int32_t)
 	{
 		case MSG_DRAW:
 		{
-			int32_t tx = 2, ty = 2, tx2 = 0;
+			const int box_spacing = 4;
+			int32_t tx = 2, ty = 2, tx2 = 2;
 			int fh = text_height(font);
+			auto txt_y = ty+(d->h-fh)/2;
 			BITMAP* tmp = create_bitmap_ex(8, d->w+4, d->h+4);
 			clear_bitmap(tmp);
 			set_clip_rect(tmp, tx, ty, tmp->w-tx, tmp->h-ty);
@@ -7638,14 +7883,14 @@ int32_t new_check_proc(int32_t msg, DIALOG *d, int32_t)
 				{
 					if(d->flags & D_DISABLED)
 					{
-						gui_textout_ln(tmp, str, tx+1, ty+1+(d->h-(fh-gui_font_baseline))/2, scheme[jcLIGHT], scheme[jcBOX], 0);
-						tl=gui_textout_ln(tmp, str, tx, ty+(d->h-(fh-gui_font_baseline))/2, scheme[jcDISABLED_FG], -1, 0);
-						bx=tl+fh/2;
+						gui_textout_ln(tmp, str, tx+1, txt_y+1, scheme[jcLIGHT], scheme[jcBOX], 0);
+						tl=gui_textout_ln(tmp, str, tx, txt_y, scheme[jcDISABLED_FG], -1, 0);
+						bx=tl+box_spacing;
 					}
 					else
 					{
-						tl=gui_textout_ln(tmp, str, tx, ty+(d->h-(fh-gui_font_baseline))/2, scheme[jcBOXFG], scheme[jcBOX], 0);
-						bx=tl+fh/2;
+						tl=gui_textout_ln(tmp, str, tx, txt_y, scheme[jcBOXFG], scheme[jcBOX], 0);
+						bx=tl+box_spacing;
 					}
 				}
 			}
@@ -7659,22 +7904,18 @@ int32_t new_check_proc(int32_t msg, DIALOG *d, int32_t)
 			
 			if(d->d1)
 			{
-				tx2=tx+bx+d->h-1+(fh/2);
+				tx2=tx+bx+d->h-1+box_spacing;
 				
 				if(has_text)
 				{
-					int txty = ty+(d->h-(fh-gui_font_baseline))/2;
-                    int __min = 2, __max = (d->h - 2 - fh) - ((d->flags & D_DISABLED) ? 1 : 0);
-                    if (__max < __min) __max = __min;
-					txty = vbound(txty, __min, __max);
 					if(d->flags & D_DISABLED)
 					{
-						gui_textout_ln(tmp, str, tx2+1, txty+1, scheme[jcLIGHT], scheme[jcBOX], 0);
-						tl=gui_textout_ln(tmp, str, tx2, txty, scheme[jcDISABLED_FG], -1, 0);
+						gui_textout_ln(tmp, str, tx2+1, txt_y+1, scheme[jcLIGHT], scheme[jcBOX], 0);
+						tl=gui_textout_ln(tmp, str, tx2, txt_y, scheme[jcDISABLED_FG], -1, 0);
 					}
 					else
 					{
-						tl=gui_textout_ln(tmp, str, tx2, txty, scheme[jcBOXFG], scheme[jcBOX], 0);
+						tl=gui_textout_ln(tmp, str, tx2, txt_y, scheme[jcBOXFG], scheme[jcBOX], 0);
 					}
 				}
 			}
@@ -7688,7 +7929,7 @@ int32_t new_check_proc(int32_t msg, DIALOG *d, int32_t)
 			set_clip_rect(tmp, 0, 0, tmp->w, tmp->h);
 			if(has_text)
 			{
-				dotted_rect(tmp, tx2-1, ty-1, tx2+tl, ty+fh, (d->flags & D_GOTFOCUS)?scheme[jcDARK]:scheme[jcBOX], scheme[jcBOX]);
+				dotted_rect(tmp, tx2-1, txt_y-1, tx2+tl, txt_y+fh, (d->flags & D_GOTFOCUS)?scheme[jcDARK]:scheme[jcBOX], scheme[jcBOX]);
 			}
 			
 			masked_blit(tmp, screen, 0, 0, d->x-tx, d->y-ty, d->w+tx+tx, d->h+ty+ty);
@@ -8438,6 +8679,48 @@ bool do_text_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *te
     
     return over;
 }
+bool do_icon_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,int icon)
+{
+    bool over=false;
+    
+    while(gui_mouse_b())
+    {
+        //vsync();
+        if(mouse_in_rect(x,y,w,h))
+        {
+            if(!over)
+            {
+                vsync();
+                jwin_draw_icon_button(screen, x, y, w, h, icon, D_SELECTED, true);
+                over=true;
+                
+				update_hw_screen();
+            }
+        }
+        else
+        {
+            if(over)
+            {
+                vsync();
+                jwin_draw_icon_button(screen, x, y, w, h, icon, 0, true);
+                over=false;
+                
+				update_hw_screen();
+            }
+        }
+        
+    }
+    
+    if(over)
+    {
+        vsync();
+        jwin_draw_icon_button(screen, x, y, w, h, icon, 0, true);
+        
+		update_hw_screen();
+    }
+    
+    return over;
+}
 
 int32_t jwin_tab_proc(int32_t msg, DIALOG *d, int32_t c)
 {
@@ -8571,8 +8854,8 @@ int32_t jwin_tab_proc(int32_t msg, DIALOG *d, int32_t c)
 				
 				if(((d->d1&0xFF00)>>8)!=0||last_visible_tab(panel,((d->d1&0xFF00)>>8),d->w)+1<tab_count(panel))
 				{
-					jwin_draw_text_button(screen,d->x+d->w-14,d->y+2, 14, 14, "\x8B", 0, true);
-					jwin_draw_text_button(screen,d->x+d->w-28,d->y+2, 14, 14, "\x8A", 0, true);
+					jwin_draw_icon_button(screen,d->x+d->w-14,d->y+2, 14, 14, BTNICON_ARROW_RIGHT, 0, true);
+					jwin_draw_icon_button(screen,d->x+d->w-28,d->y+2, 14, 14, BTNICON_ARROW_LEFT, 0, true);
 				}
 			}
 			
@@ -8631,7 +8914,7 @@ int32_t jwin_tab_proc(int32_t msg, DIALOG *d, int32_t c)
 		{
 			if(mouse_in_rect(d->x+d->w-28, d->y+2, 14, 14))
 			{
-				if(do_text_button_reset(d->x+d->w-28, d->y+2, 14, 14, "\x8A"))
+				if(do_icon_button_reset(d->x+d->w-28, d->y+2, 14, 14, BTNICON_ARROW_LEFT))
 				{
 					temp_d=((d->d1&0xFF00)>>8);
 					temp_d2=(d->d1&0x00FF);
@@ -8647,7 +8930,7 @@ int32_t jwin_tab_proc(int32_t msg, DIALOG *d, int32_t c)
 			}
 			else if(mouse_in_rect(d->x+d->w-14, d->y+2, 14, 14))
 			{
-				if(do_text_button_reset(d->x+d->w-14, d->y+2, 14, 14, "\x8B"))
+				if(do_icon_button_reset(d->x+d->w-14, d->y+2, 14, 14, BTNICON_ARROW_RIGHT))
 				{
 					temp_d=((d->d1&0xFF00)>>8);
 					temp_d2=(d->d1&0x00FF);
@@ -8881,8 +9164,8 @@ int32_t new_tab_proc(int32_t msg, DIALOG *d, int32_t c)
 					
 					if(d->d1!=0||last_visible_tab(panel,d->d1,d->w)+1<panel->getSize())
 					{
-						jwin_draw_text_button(screen,d->x+d->w-14,d->y+2, 14, 14, "\x8B", 0, true);
-						jwin_draw_text_button(screen,d->x+d->w-28,d->y+2, 14, 14, "\x8A", 0, true);
+						jwin_draw_icon_button(screen,d->x+d->w-14,d->y+2, 14, 14, BTNICON_ARROW_RIGHT, 0, true);
+						jwin_draw_icon_button(screen,d->x+d->w-28,d->y+2, 14, 14, BTNICON_ARROW_LEFT, 0, true);
 					}
 				}
 				
@@ -8956,7 +9239,7 @@ int32_t new_tab_proc(int32_t msg, DIALOG *d, int32_t c)
 			{
 				if(mouse_in_rect(d->x+d->w-28, d->y+2, 14, 14))
 				{
-					if(do_text_button_reset(d->x+d->w-28, d->y+2, 14, 14, "\x8A"))
+					if(do_icon_button_reset(d->x+d->w-28, d->y+2, 14, 14, BTNICON_ARROW_LEFT))
 					{
 						if(d->d1>0)
 						{
@@ -8968,7 +9251,7 @@ int32_t new_tab_proc(int32_t msg, DIALOG *d, int32_t c)
 				}
 				else if(mouse_in_rect(d->x+d->w-14, d->y+2, 14, 14))
 				{
-					if(do_text_button_reset(d->x+d->w-14, d->y+2, 14, 14, "\x8B"))
+					if(do_icon_button_reset(d->x+d->w-14, d->y+2, 14, 14, BTNICON_ARROW_RIGHT))
 					{
 						size_t t = last_visible_tab(panel, d->d1, d->w);
 						if(t<(panel->getSize()-1))
@@ -9001,33 +9284,49 @@ int32_t new_tab_proc(int32_t msg, DIALOG *d, int32_t c)
 
 
 
-int32_t jwin_hline_proc(int32_t msg, DIALOG *d, int32_t c)
+int32_t jwin_hline_proc(int32_t msg, DIALOG *d, int32_t)
 {
-    //these are here to bypass compiler warnings about unused arguments
-    c=c;
-    
     ASSERT(d);
     
     if(msg==MSG_DRAW)
     {
-        _allegro_hline(screen, d->x, d->y,   d->x+d->w-1, scheme[jcMEDDARK]);
-        _allegro_hline(screen, d->x, d->y+1, d->x+d->w-1, scheme[jcLIGHT]);
+		if(d->w < 1) return D_O_K;
+		for(int q = 0; q <= d->d1; ++q)
+		{
+			if(d->d2&1)
+			{
+				_allegro_hline(screen, d->x, d->y+q, d->x+d->w-1, d->fg);
+			}
+			else
+			{
+				_allegro_hline(screen, d->x, d->y-q,   d->x+d->w-1, scheme[jcMEDDARK]);
+				_allegro_hline(screen, d->x, d->y+1+q, d->x+d->w-1, scheme[jcLIGHT]);
+			}
+		}
     }
     
     return D_O_K;
 }
 
-int32_t jwin_vline_proc(int32_t msg, DIALOG *d, int32_t c)
+int32_t jwin_vline_proc(int32_t msg, DIALOG *d, int32_t)
 {
-    //these are here to bypass compiler warnings about unused arguments
-    c=c;
-    
     ASSERT(d);
     
     if(msg==MSG_DRAW)
     {
-        _allegro_vline(screen, d->x,   d->y, d->y+d->h-1, scheme[jcMEDDARK]);
-        _allegro_vline(screen, d->x+1, d->y, d->y+d->h-1, scheme[jcLIGHT]);
+		if(d->h < 1) return D_O_K;
+		for(int q = 0; q <= d->d1; ++q)
+		{
+			if(d->d2&1)
+			{
+				_allegro_vline(screen, d->x+q,   d->y, d->y+d->h-1, d->fg);
+			}
+			else
+			{
+				_allegro_vline(screen, d->x+q,   d->y, d->y+d->h-1, scheme[jcMEDDARK]);
+				_allegro_vline(screen, d->x+1-q, d->y, d->y+d->h-1, scheme[jcLIGHT]);
+			}
+		}
     }
     
     return D_O_K;

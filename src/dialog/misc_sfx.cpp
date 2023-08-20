@@ -70,9 +70,9 @@ bool MiscSFXDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 	{
 		case message::OK:
 			setVals(local_sfx);
-		[[fallthrough]];
+			return true;
 		case message::CANCEL:
-		default:
 			return true;
 	}
+	return false;
 }

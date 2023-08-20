@@ -64,9 +64,9 @@ bool MiscSprsDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 	{
 		case message::OK:
 			setVals(local_sprs);
-		[[fallthrough]];
+			return true;
 		case message::CANCEL:
-		default:
 			return true;
 	}
+	return false;
 }

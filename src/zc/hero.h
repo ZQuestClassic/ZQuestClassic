@@ -36,7 +36,7 @@
 #include <vector>
 
 extern movingblock mblock2;                                 //mblock[4]?
-extern sprite_list  guys, items, Ewpns, Lwpns, Sitems, chainlinks, decorations, portals;
+extern sprite_list  guys, items, Ewpns, Lwpns, chainlinks, decorations, portals;
 
 extern byte lsteps[8];
 
@@ -599,10 +599,6 @@ public:
 	bool stopSubscreenFalling();
 	void stopSubscreenFalling(bool v);
 	
-	//Set the button items by brute force
-	void setAButtonItem(int32_t subscreenslot);
-	void setBButtonItem(int32_t subscreenslot);
-	
 	bool getDiagMove(); //Diagonal movement.
 	void setDiagMove(bool newdiag);
 	bool getBigHitbox(); //Large H-itbox
@@ -653,20 +649,8 @@ int32_t lwpn_dp(int32_t index);
 bool checkbunny(int32_t itemid);
 bool usesSwordJinx(int32_t itemid);
 bool checkitem_jinx(int32_t itemid);
-bool checkmagiccost(int32_t itemid, bool checkTime = false);
-void paymagiccost(int32_t itemid, bool ignoreTimer = false, bool onlyTimer = false);
-int32_t Bweapon(int32_t pos);
-int32_t BWeapon_to_Pos(int32_t bweapon);
 void stopCaneOfByrna();
 //void selectWpn(int32_t xstep, int32_t ystep, bool b);
-const int32_t SEL_UP = 0;
-const int32_t SEL_LEFT = 1;
-const int32_t SEL_DOWN = 2;
-const int32_t SEL_RIGHT = 3;
-const int32_t SEL_VERIFY_LEFT = 4;
-const int32_t SEL_VERIFY_RIGHT = 5;
-int get_subscr_itemind(int32_t pos);
-int32_t selectWpn_new(int32_t type, int32_t startpos, int32_t forbiddenpos = -1, int32_t fp2 = -1, int32_t fp3 = -1, bool equip_only = true, bool checkwpn = true);
 bool isWpnPressed(int32_t wpn);
 int32_t getWpnPressed(int32_t wpn);
 int32_t getRocsPressed();

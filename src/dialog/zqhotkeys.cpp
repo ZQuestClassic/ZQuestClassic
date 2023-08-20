@@ -92,7 +92,6 @@ bool ZQHotkeyDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 				*confirm_ptr = true;
 			return true;
 		case message::CANCEL:
-		default:
 			if(confirm_ptr)
 				*confirm_ptr = false;
 			return true;

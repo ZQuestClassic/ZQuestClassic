@@ -49,6 +49,7 @@
 #include "drawing.h"
 #include "zinfo.h"
 #include "base/mapscr.h"
+#include <fmt/format.h>
 
 #ifdef __EMSCRIPTEN__
 #include "base/emscripten_utils.h"
@@ -6421,44 +6422,8 @@ bool save_zgp(const char *path)
     return true;
 }
 
-bool save_subscreen(const char *path, bool *cancel)
+bool save_subscreen(const char *path, ZCSubscreen const& savefrom)
 {
-//  jwin_alert("Error","This feature not yet implemented.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-//  return false;
-    reset_combo_animations();
-    reset_combo_animations2();
-    *cancel = false;
-    
-    int32_t ret;
-    sslist_dlg[0].dp2=get_zc_font(font_lfont);
-    char *oldtitlestr=(char*)sslist_dlg[0].dp;
-    char *editstr=(char*)sslist_dlg[3].dp;
-    char *donestr=(char*)sslist_dlg[5].dp;
-    const char *newtitlestr="Export Subscreen";
-    const char *okstr="OK";
-    const char *cancelstr="Cancel";
-    sslist_dlg[0].dp=(void *)newtitlestr;
-    sslist_dlg[3].dp=(void *)okstr;
-    sslist_dlg[4].proc = d_dummy_proc;
-    sslist_dlg[5].dp=(void *)cancelstr;
-    show_new_ss=false;
-    //strcpy((char*)sslist_dlg[3].dp,"Save");
-    //strcpy((char*)sslist_dlg[4].dp,"Cancel");
-    ret = zc_popup_dialog(sslist_dlg,2);
-    //strcpy((char*)sslist_dlg[3].dp,"Edit");
-    //strcpy((char*)sslist_dlg[4].dp,"Done");
-    sslist_dlg[0].dp=oldtitlestr;
-    sslist_dlg[3].dp=editstr;
-    sslist_dlg[4].proc = jwin_button_proc;
-    sslist_dlg[5].dp=donestr;
-    show_new_ss=true;
-    
-    if(ret==0||ret==5)
-    {
-        *cancel=true;
-        return true;
-    }
-    
     //open the file
     PACKFILE *f=pack_fopen_password(path,F_WRITE, "");
     
@@ -6466,31 +6431,28 @@ bool save_subscreen(const char *path, bool *cancel)
         return false;
         
     dword section_id=ID_SUBSCREEN;
-    dword section_version=V_SUBSCREEN;
-    dword section_cversion=CV_SUBSCREEN;
+    dword s_version=V_SUBSCREEN;
+    dword s_cversion=CV_SUBSCREEN;
     
-    //section id
     if(!p_mputl(section_id,f))
     {
         pack_fclose(f);
         return false;
     }
     
-    //section version info
-    if(!p_iputw(section_version,f))
+    if(!p_iputw(s_version,f))
     {
         pack_fclose(f);
         return false;
     }
     
-    if(!p_iputw(section_cversion,f))
+    if(!p_iputw(s_cversion,f))
     {
         pack_fclose(f);
         return false;
     }
     
-    //subscreens
-    if(write_one_subscreen(f,&header,sslist_dlg[2].d1)!=0)
+    if(savefrom.write(f))
     {
         pack_fclose(f);
         return false;
@@ -6500,35 +6462,8 @@ bool save_subscreen(const char *path, bool *cancel)
     return true;
 }
 
-bool load_subscreen(const char *path)
+bool load_subscreen(const char *path, ZCSubscreen& loadto)
 {
-    int32_t ret;
-    sslist_dlg[0].dp2=get_zc_font(font_lfont);
-    char *oldtitlestr=(char*)sslist_dlg[0].dp;
-    char *editstr=(char*)sslist_dlg[3].dp;
-    char *donestr=(char*)sslist_dlg[5].dp;
-    const char *newtitlestr="Import Subscreen";
-    const char *okstr="OK";
-    const char *cancelstr="Cancel";
-    sslist_dlg[0].dp=(void *)newtitlestr;
-    sslist_dlg[3].dp=(void *)okstr;
-    sslist_dlg[4].proc = d_dummy_proc;
-    sslist_dlg[5].dp=(void *)cancelstr;
-    //strcpy((char*)sslist_dlg[3].dp,"Write");
-    //strcpy((char*)sslist_dlg[4].dp,"Cancel");
-    ret = zc_popup_dialog(sslist_dlg,2);
-    //strcpy((char*)sslist_dlg[3].dp,"Edit");
-    //strcpy((char*)sslist_dlg[4].dp,"Done");
-    sslist_dlg[0].dp=(void *)oldtitlestr;
-    sslist_dlg[3].dp=(void *)editstr;
-    sslist_dlg[4].proc = jwin_button_proc;
-    sslist_dlg[5].dp=(void *)donestr;
-    
-    if(ret==0||ret==5)
-    {
-        return true;
-    }
-    
     //open the file
     PACKFILE *f=pack_fopen_password(path,F_READ, "");
     
@@ -6536,10 +6471,9 @@ bool load_subscreen(const char *path)
         return false;
         
     dword section_id;
-    dword section_version;
-    dword section_cversion;
+    dword s_version;
+    dword s_cversion;
     
-    //section id
     if(!p_mgetl(&section_id,f))
     {
         pack_fclose(f);
@@ -6552,25 +6486,56 @@ bool load_subscreen(const char *path)
         return false;
     }
     
-    //section version info
-    if(!p_igetw(&section_version,f))
+    if(!p_igetw(&s_version,f))
     {
         pack_fclose(f);
         return false;
     }
     
-    if(!p_igetw(&section_cversion,f))
+    if(!p_igetw(&s_cversion,f))
     {
         pack_fclose(f);
         return false;
     }
     
-    //subscreens
-    if(read_one_subscreen(f,&header,sslist_dlg[2].d1,section_version,section_cversion)!=0)
-    {
-        pack_fclose(f);
-        return false;
-    }
+	if(s_version < 8)
+	{
+		subscreen_group g;
+		memset(&g,0,sizeof(subscreen_group));
+		if(read_one_old_subscreen(f,&g,s_version)!=0)
+		{
+			pack_fclose(f);
+			return false;
+		}
+		if(g.ss_type != loadto.sub_type)
+		{
+			pack_fclose(f);
+			displayinfo("Failure!",fmt::format("Found subscreen type '{}', expecting type '{}'",
+				subscr_names[g.ss_type], subscr_names[loadto.sub_type]));
+			return false;
+		}
+		loadto.clear();
+		if(g.objects[0].type != ssoNULL)
+			loadto.load_old(g);
+	}
+	else
+	{
+		ZCSubscreen tmp = ZCSubscreen();
+		if (tmp.read(f, s_version))
+		{
+			pack_fclose(f);
+			return false;
+		}
+		if(tmp.sub_type != loadto.sub_type)
+		{
+			pack_fclose(f);
+			displayinfo("Failure!",fmt::format("Found subscreen type '{}', expecting type '{}'",
+				subscr_names[tmp.sub_type], subscr_names[loadto.sub_type]));
+			return false;
+		}
+		loadto.clear();
+		loadto = tmp;
+	}
     
     pack_fclose(f);
     return true;
@@ -6929,7 +6894,7 @@ void popup_bugfix_dlg(const char* cfg)
 			{
 				if(ret)
 				{
-					applyRuleTemplate(ruletemplateCompat);
+					applyRuleTemplate(ruletemplateFixCompat);
 				}
 				if(dsa)
 				{
@@ -8017,7 +7982,9 @@ int32_t writedmaps(PACKFILE *f, word version, word build, word start_dmap, word 
             {
                 new_return(45);
             }
-        }
+			if(!p_putc(DMaps[i].overlay_subscreen, f))
+				new_return(46);
+		}
         
         if(writecycle==0)
         {
@@ -12229,268 +12196,90 @@ int32_t writeherosprites(PACKFILE *f, zquestheader *Header)
 
 int32_t writesubscreens(PACKFILE *f, zquestheader *Header)
 {
-    dword section_id=ID_SUBSCREEN;
-    dword section_version=V_SUBSCREEN;
-    dword section_cversion=CV_SUBSCREEN;
-    dword section_size=0;
-    
-    //section id
-    if(!p_mputl(section_id,f))
-    {
-        new_return(1);
-    }
-    
-    //section version info
-    if(!p_iputw(section_version,f))
-    {
-        new_return(2);
-    }
-    
-    if(!p_iputw(section_cversion,f))
-    {
-        new_return(3);
-    }
-    
-    for(int32_t writecycle=0; writecycle<2; ++writecycle)
-    {
-        fake_pack_writing=(writecycle==0);
-        
-        //section size
-        if(!p_iputl(section_size,f))
-        {
-            new_return(4);
-        }
-        
-        writesize=0;
-        
-        for(int32_t i=0; i<MAXCUSTOMSUBSCREENS; i++)
-        {
-            int32_t ret = write_one_subscreen(f, Header, i);
-            fake_pack_writing=(writecycle==0);
-            
-            if(ret!=0)
-            {
-                new_return(ret);
-            }
-        }
-        
-        if(writecycle==0)
-        {
-            section_size=writesize;
-        }
-    }
-    
-    if(writesize!=int32_t(section_size) && save_warn)
-    {
-        char ebuf[80];
-        sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
-        jwin_alert("Error:  writesubscreens()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-    }
-    
-    new_return(0);
-}
-
-int32_t write_one_subscreen(PACKFILE *f, zquestheader *Header, int32_t i)
-{
-    //these are here to bypass compiler warnings about unused arguments
-    Header=Header;
-    
-    int32_t numsub = 0;
-    
-    if(!pfwrite(custom_subscreen[i].name, 64,f))
-    {
-        new_return(28);
-    }
-    
-    if(!p_putc(custom_subscreen[i].ss_type,f))
-    {
-        new_return(29);
-    }
-    
-    for(int32_t k=0; (k<MAXSUBSCREENITEMS&&(custom_subscreen[i].objects[k].type != ssoNULL)); k++)
-    {
-        numsub++;
-    }
-    
-    if(!p_iputw(numsub,f))
-    {
-        new_return(4);
-    }
-    
-    for(int32_t j=0; (j<MAXSUBSCREENITEMS&&j<numsub); j++)
-    {
-        if(!p_putc(custom_subscreen[i].objects[j].type, f))
-        {
-            new_return(5);
-        }
-        
-        if(!p_putc(custom_subscreen[i].objects[j].pos, f))
-        {
-            new_return(6);
-        }
-        
-        if(!p_iputw(custom_subscreen[i].objects[j].x, f))
-        {
-            new_return(7);
-        }
-        
-        if(!p_iputw(custom_subscreen[i].objects[j].y, f))
-        {
-            new_return(8);
-        }
-        
-        if(!p_iputw(custom_subscreen[i].objects[j].w, f))
-        {
-            new_return(9);
-        }
-        
-        if(!p_iputw(custom_subscreen[i].objects[j].h, f))
-        {
-            new_return(10);
-        }
-        
-        if(!p_putc(custom_subscreen[i].objects[j].colortype1, f))
-        {
-            new_return(11);
-        }
-        
-        if(!p_iputw(custom_subscreen[i].objects[j].color1, f))
-        {
-            new_return(12);
-        }
-        
-        if(!p_putc(custom_subscreen[i].objects[j].colortype2, f))
-        {
-            new_return(13);
-        }
-        
-        if(!p_iputw(custom_subscreen[i].objects[j].color2, f))
-        {
-            new_return(14);
-        }
-        
-        if(!p_putc(custom_subscreen[i].objects[j].colortype3, f))
-        {
-            new_return(15);
-        }
-        
-        if(!p_iputw(custom_subscreen[i].objects[j].color3, f))
-        {
-            new_return(16);
-        }
-        
-        if(!p_iputl(custom_subscreen[i].objects[j].d1, f))
-        {
-            new_return(17);
-        }
-        
-        if(!p_iputl(custom_subscreen[i].objects[j].d2, f))
-        {
-            new_return(18);
-        }
-        
-        if(!p_iputl(custom_subscreen[i].objects[j].d3, f))
-        {
-            new_return(19);
-        }
-        
-        if(!p_iputl(custom_subscreen[i].objects[j].d4, f))
-        {
-            new_return(20);
-        }
-        
-        if(!p_iputl(custom_subscreen[i].objects[j].d5, f))
-        {
-            new_return(21);
-        }
-        
-        if(!p_iputl(custom_subscreen[i].objects[j].d6, f))
-        {
-            new_return(22);
-        }
-        
-        if(!p_iputl(custom_subscreen[i].objects[j].d7, f))
-        {
-            new_return(23);
-        }
-        
-        if(!p_iputl(custom_subscreen[i].objects[j].d8, f))
-        {
-            new_return(24);
-        }
-        
-        if(!p_iputl(custom_subscreen[i].objects[j].d9, f))
-        {
-            new_return(25);
-        }
-        
-        if(!p_iputl(custom_subscreen[i].objects[j].d10, f))
-        {
-            new_return(26);
-        }
-        
-        if(!p_putc(custom_subscreen[i].objects[j].speed, f))
-        {
-            new_return(27);
-        }
-        
-        if(!p_putc(custom_subscreen[i].objects[j].delay, f))
-        {
-            new_return(28);
-        }
-        
-        if(!p_iputw(custom_subscreen[i].objects[j].frame, f))
-        {
-            new_return(29);
-        }
-        
-        switch(custom_subscreen[i].objects[j].type)
-        {
-        case ssoTEXT:
-        case ssoTEXTBOX:
-        case ssoCURRENTITEMTEXT:
-        case ssoCURRENTITEMCLASSTEXT:
-            if(custom_subscreen[i].objects[j].dp1 != NULL)
-            {
-                if(strlen((char*)custom_subscreen[i].objects[j].dp1))
-                {
-                    if(!p_iputw((int32_t)strlen((char*)custom_subscreen[i].objects[j].dp1), f))
-                    {
-                        new_return(27);
-                    }
-                    
-                    if(!pfwrite(custom_subscreen[i].objects[j].dp1, (int32_t)strlen((char*)custom_subscreen[i].objects[j].dp1)+1,f))
-                    {
-                        new_return(28);
-                    }
-                }
-                else
-                {
-                    if(!p_iputw(0, f))
-                    {
-                        new_return(27);
-                    }
-                }
-            }
-            else
-            {
-                if(!p_iputw(0, f))
-                {
-                    new_return(27);
-                }
-            }
-            
-            break;
-            
-        default:
-            if(!p_putc(0, f))
-            {
-                new_return(27);
-            }
-        }
-    }
-    
-    new_return(0);
+	dword section_id=ID_SUBSCREEN;
+	dword section_version=V_SUBSCREEN;
+	dword section_cversion=CV_SUBSCREEN;
+	dword section_size=0;
+	
+	//section id
+	if(!p_mputl(section_id,f))
+	{
+		new_return(1);
+	}
+	
+	//section version info
+	if(!p_iputw(section_version,f))
+	{
+		new_return(2);
+	}
+	
+	if(!p_iputw(section_cversion,f))
+	{
+		new_return(3);
+	}
+	
+	for(int32_t writecycle=0; writecycle<2; ++writecycle)
+	{
+		fake_pack_writing=(writecycle==0);
+		
+		//section size
+		if(!p_iputl(section_size,f))
+		{
+			new_return(4);
+		}
+		
+		writesize=0;
+		
+		byte sz = subscreens_active.size();
+		if(!p_putc(sz,f))
+			new_return(5);
+		for(int32_t i=0; i<sz; i++)
+		{
+			int32_t ret = subscreens_active[i].write(f);
+			fake_pack_writing=(writecycle==0);
+			
+			if(ret!=0)
+				new_return(ret);
+		}
+		
+		sz = subscreens_passive.size();
+		if(!p_putc(sz,f))
+			new_return(5);
+		for(int32_t i=0; i<sz; i++)
+		{
+			int32_t ret = subscreens_passive[i].write(f);
+			fake_pack_writing=(writecycle==0);
+			
+			if(ret!=0)
+				new_return(ret);
+		}
+		
+		sz = subscreens_overlay.size();
+		if(!p_putc(sz,f))
+			new_return(5);
+		for(int32_t i=0; i<sz; i++)
+		{
+			int32_t ret = subscreens_overlay[i].write(f);
+			fake_pack_writing=(writecycle==0);
+			
+			if(ret!=0)
+				new_return(ret);
+		}
+		
+		if(writecycle==0)
+		{
+			section_size=writesize;
+		}
+	}
+	
+	if(writesize!=int32_t(section_size) && save_warn)
+	{
+		char ebuf[80];
+		sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
+		jwin_alert("Error:  writesubscreens()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+	}
+	
+	new_return(0);
 }
 
 extern script_data *ffscripts[NUMSCRIPTFFC];
