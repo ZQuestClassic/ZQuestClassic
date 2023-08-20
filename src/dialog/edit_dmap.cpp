@@ -42,7 +42,7 @@ EditDMapDialog::EditDMapDialog(int32_t slot) :
 	list_strings(GUI::ZCListData::strings()),
 	list_activesub(GUI::ZCListData::activesubscreens()),
 	list_passivesub(GUI::ZCListData::passivesubscreens()),
-	list_midis(GUI::ZCListData::midinames()),
+	list_midis(GUI::ZCListData::midinames(false, true)),
 	list_tracks(GUI::ListData::numbers(false, 1, 1)),
 	list_disableditems(GUI::ZCListData::disableditems(local_dmap.disableditems)),
 	list_items(GUI::ZCListData::items(false, false)),
@@ -449,10 +449,10 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 						Label(text = "Midi:"),
 						DropDownList(data = list_midis,
 							fitParent = true,
-							selectedValue = local_dmap.midi + 1,
+							selectedValue = local_dmap.midi,
 							onSelectFunc = [&](int32_t val)
 							{
-								local_dmap.midi = val - 1;
+								local_dmap.midi = val;
 							})
 					),
 					Frame(title = "Enhanced Music",

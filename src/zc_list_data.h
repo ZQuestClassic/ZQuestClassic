@@ -24,7 +24,7 @@ namespace GUI::ZCListData
 	GUI::ListData lweaptypes();
 	GUI::ListData weaptypes(bool numbered = false);
 	GUI::ListData sfxnames(bool numbered = false);
-	GUI::ListData midinames(bool numbered = false);
+	GUI::ListData midinames(bool numbered = false, bool incl_engine = false);
 	GUI::ListData itemdata_script();
 	GUI::ListData itemsprite_script();
 	GUI::ListData ffc_script();
