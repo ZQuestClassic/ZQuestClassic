@@ -550,19 +550,26 @@ GUI::ListData GUI::ZCListData::sfxnames(bool numbered)
 	
 	return ls;
 }
-GUI::ListData GUI::ZCListData::midinames(bool numbered)
+GUI::ListData GUI::ZCListData::midinames(bool numbered, bool incl_engine)
 {
 	std::map<std::string, int32_t> vals;
 	
 	GUI::ListData ls;
 	ls.add("(None)", 0);
+	auto ofs = 1;
+	if (incl_engine)
+	{
+		ls.add("Overworld", 1);
+		ls.add("Dungeon", 2);
+		ls.add("Level 9", 3);
+		ofs = 4;
+	}
 	for(int32_t i=0; i<MAXCUSTOMTUNES; ++i)
 	{
 		char const* midi_name = customtunes[i].title;
-		std::string name;
 		if(numbered)
-			ls.add(fmt::format("{} ({:03})", midi_name, i+1), i+1);
-		else ls.add(midi_name, i+1);
+			ls.add(fmt::format("{} ({:03})", midi_name, i+1), i+ofs);
+		else ls.add(midi_name, i+ofs);
 	}
 	
 	return ls;
