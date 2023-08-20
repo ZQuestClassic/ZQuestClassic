@@ -2,6 +2,7 @@
 #define ZC_PROCESS_MANAGEMENT_H
 
 #include <cstdio>
+#include <stdint.h>
 #include <string>
 #include <vector>
 #include <map>

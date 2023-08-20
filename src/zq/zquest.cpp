@@ -13561,7 +13561,7 @@ const char *bottlelist(int32_t index, int32_t *list_size)
     if(index>=0)
     {
         bound(index,0,bottle_list_size-1);
-		sprintf(bottle_str_buf,"%2d:  %s",index+1,QMisc.bottle_types[index].name);
+		sprintf(bottle_str_buf,"%2hhd:  %s",index+1,QMisc.bottle_types[index].name);
         return bottle_str_buf;
     }
     
@@ -21712,7 +21712,7 @@ const char *ffscriptlist2(int32_t index, int32_t *list_size)
             buf[19]='\0';
         }
         
-        sprintf(ffscript_str_buf2,"%d: %s",index+1, buf);
+        sprintf(ffscript_str_buf2,"%hhd: %s",index+1, buf);
         return ffscript_str_buf2;
     }
     
@@ -21737,7 +21737,7 @@ const char *itemscriptlist2(int32_t index, int32_t *list_size)
             buf[19]='\0';
         }
         
-        sprintf(itemscript_str_buf2,"%d: %s",index+1, buf);
+        sprintf(itemscript_str_buf2,"%hhd: %s",index+1, buf);
         return itemscript_str_buf2;
     }
     
@@ -21762,7 +21762,7 @@ const char *comboscriptlist2(int32_t index, int32_t *list_size)
             buf[19]='\0';
         }
         
-        sprintf(comboscript_str_buf2,"%d: %s",index+1, buf);
+        sprintf(comboscript_str_buf2,"%hhd: %s",index+1, buf);
         return comboscript_str_buf2;
     }
     
@@ -22473,7 +22473,7 @@ const char *npcscriptlist2(int32_t index, int32_t *list_size)
             buf[19]='\0';
         }
         
-        sprintf(npcscript_str_buf2,"%d: %s",index+1, buf);
+        sprintf(npcscript_str_buf2,"%hhd: %s",index+1, buf);
         return npcscript_str_buf2;
     }
     
@@ -22497,7 +22497,7 @@ const char *lweaponscriptlist2(int32_t index, int32_t *list_size)
             buf[19]='\0';
         }
         
-        sprintf(lweaponscript_str_buf2,"%d: %s",index+1, buf);
+        sprintf(lweaponscript_str_buf2,"%hhd: %s",index+1, buf);
         return lweaponscript_str_buf2;
     }
     
@@ -22521,7 +22521,7 @@ const char *eweaponscriptlist2(int32_t index, int32_t *list_size)
             buf[19]='\0';
         }
         
-        sprintf(eweaponscript_str_buf2,"%d: %s",index+1, buf);
+        sprintf(eweaponscript_str_buf2,"%hhd: %s",index+1, buf);
         return eweaponscript_str_buf2;
     }
     
@@ -22578,7 +22578,7 @@ const char *itemspritescriptlist2(int32_t index, int32_t *list_size)
             buf[19]='\0';
         }
         
-        sprintf(itemspritescript_str_buf2,"%d: %s",index+1, buf);
+        sprintf(itemspritescript_str_buf2,"%hhd: %s",index+1, buf);
         return itemspritescript_str_buf2;
     }
     
@@ -22602,7 +22602,7 @@ const char *dmapscriptlist2(int32_t index, int32_t *list_size)
             buf[19]='\0';
         }
         
-        sprintf(dmapscript_str_buf2,"%d: %s",index+1, buf);
+        sprintf(dmapscript_str_buf2,"%hhd: %s",index+1, buf);
         return dmapscript_str_buf2;
     }
     
@@ -22627,7 +22627,7 @@ const char *screenscriptlist2(int32_t index, int32_t *list_size)
             buf[19]='\0';
         }
         
-        sprintf(screenscript_str_buf2,"%d: %s",index+1, buf);
+        sprintf(screenscript_str_buf2,"%hhd: %s",index+1, buf);
         return screenscript_str_buf2;
     }
     

@@ -11,6 +11,8 @@
 #include "base/zsys.h"
 #include "base/util.h"
 #include "dialog/info.h"
+#include <string>
+#include <sstream>
 using namespace util;
 
 #include <sstream>
@@ -3258,12 +3260,20 @@ int32_t parse_script_file(script_data **script, FILE* fscript, bool report_succe
 				char vstrbuf[64] = {0};
 				if(has_str || has_vec)
 					sprintf(vstrbuf," (%s%s%s)",has_str ? "str" : "", has_str&&has_vec ? "," : "", has_vec ? "vec" : "");
-				sprintf(buf,"Unable to parse instruction %d from script %s"
+
+				std::string buffer;
+				std::ostringstream stream(buffer);
+				stream << "Unable to parse instruction " << i + 1;
+				stream << "  from script " << name;
+				stream << "\nThe error was: " << errstrbuf[parse_err];
+				stream << "\nThe command was " << combuf << arg1buf << arg2buf << vstrbuf;
+				strcpy(buf, buffer.c_str());
+				/*sprintf(buf,"Unable to parse instruction %hhd from script %s"
 					"\nThe error was: %s"
 					"\nThe command was (%s) (%s,%s)%s"
 					,i+1,name
 					,errstrbuf[parse_err]
-					,combuf,arg1buf,arg2buf,vstrbuf);
+					,combuf,arg1buf,arg2buf,vstrbuf);*/
 				// sprintf(buf,"Unable to parse instruction %d from script %s",i+1,name);
 				// sprintf(buf2,"The error was: %s",errstrbuf[parse_err]);
 				// sprintf(buf3,"The command was (%s) (%s,%s)",combuf,arg1buf,arg2buf);
@@ -3746,12 +3756,22 @@ int32_t parse_script_string(script_data **script, std::string const& scriptstr, 
 				char vstrbuf[64] = {0};
 				if(has_str || has_vec)
 					sprintf(vstrbuf," (%s%s%s)",has_str ? "str" : "", has_str&&has_vec ? "," : "", has_vec ? "vec" : "");
-				sprintf(buf,"Unable to parse instruction %d from script %s"
+				
+				std::string buffer;
+				std::ostringstream stream(buffer);
+				stream << "Unable to parse instruction " << i + 1;
+				stream << "  from script " << name;
+				stream << "\nThe error was: " << errstrbuf[parse_err];
+				stream << "\nThe command was " << combuf << arg1buf << arg2buf << vstrbuf;
+				strcpy(buf, buffer.c_str());
+
+				/*sprintf(buf,"Unable to parse instruction %hhd from script %s"
 					"\nThe error was: %s"
 					"\nThe command was (%s) (%s,%s)%s"
 					,i+1,name
 					,errstrbuf[parse_err]
-					,combuf,arg1buf,arg2buf,vstrbuf);
+					,combuf,arg1buf,arg2buf,vstrbuf);*/
+				
 				// sprintf(buf,"Unable to parse instruction %d from script %s",i+1,name);
 				// sprintf(buf2,"The error was: %s",errstrbuf[parse_err]);
 				// sprintf(buf3,"The command was (%s) (%s,%s)",combuf,arg1buf,arg2buf);

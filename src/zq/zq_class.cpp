@@ -14588,12 +14588,12 @@ int32_t save_quest(const char *filename, bool timed_save)
 		
 		for(int32_t i=retention-1; i>0; --i)
 		{
-			sprintf(ext, "%s%d", ext1, i-1);
+			sprintf(ext, "%s%hhd", ext1, i-1);
 			replace_extension(backupname, filepath, ext, 2047);
 			
 			if(exists(backupname))
 			{
-				sprintf(ext, "%s%d", ext1, i);
+				sprintf(ext, "%s%hhd", ext1, i);
 				replace_extension(backupname2, filepath, ext, 2047);
 				
 				if(exists(backupname2))

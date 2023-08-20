@@ -25,7 +25,8 @@
 #include <vector>
 #include <assert.h>
 #include <fmt/format.h>
-
+#include <sstream>
+#include <string>
 
 #include "metadata/sigs/devsig.h.sig"
 #include "metadata/sigs/compilersig.h.sig"
@@ -4843,7 +4844,12 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 		{
 			if(tempDMap.level>0&&tempDMap.level<10)
 			{
-				sprintf(tempDMap.title,"LEVEL-%d             ", tempDMap.level);
+				std::string levelString;
+				std::ostringstream stream(levelString);
+
+				stream << "LEVEL-" << tempDMap.level << "             ";
+				strcpy(tempDMap.title, levelString.c_str());
+				//sprintf(tempDMap.title,"LEVEL-%d             ", tempDMap.level);
 			}
 			
 			if(i==0 && Header->zelda_version <= 0x190)

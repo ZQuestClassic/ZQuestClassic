@@ -30661,7 +30661,7 @@ int32_t run_script(ScriptType type, const word script, const int32_t i)
 
 	if (!(type >= ScriptType::First && type <= ScriptType::Last))
 	{
-		al_trace("Invalid script type: %d\n", type);
+		al_trace("Invalid script type: %d\n", static_cast<int>(type));
 		return RUNSCRIPT_ERROR;
 	}
 
@@ -43105,8 +43105,8 @@ std::string ZASMVarToString(int32_t arg)
 					
 					char buf[64+1];
 					if(strcmp(ZASMVars[q].name, "A")==0)
-						sprintf(buf, "%s%d", ZASMVars[q].name, w+1);
-					else sprintf(buf, "%s%d", ZASMVars[q].name, w);
+						sprintf(buf, "%s%hhd", ZASMVars[q].name, static_cast<char>(w+1));
+					else sprintf(buf, "%s%hhd", ZASMVars[q].name, static_cast<char>(w));
 					return string(buf);
 				}
 			}
