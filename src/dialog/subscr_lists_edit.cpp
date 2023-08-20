@@ -6,23 +6,22 @@
 #include <fmt/format.h>
 #include "new_subscr.h"
 #include "zq/zq_subscr.h"
+#include "zq/zq_misc.h"
+#include "zq/zq_files.h"
+#include "zq/zquest.h"
+#include "zq/zq_class.h"
 #include "zc_list_data.h"
 #include "gui/use_size.h"
 #include "gui/common.h"
 
 extern ZCSubscreen subscr_edit;
 extern DIALOG *subscreen_dlg;
+extern bool saved;
 
 void delete_subscreen(size_t ind, byte ty);
 void do_edit_subscr(size_t ind, byte ty);
 
 static std::vector<ZCSubscreen>* subscr_vecs[sstMAX];
-static const std::string _titles[sstMAX] = {"Active","Passive","Overlay"};
-static const std::string _infos[sstMAX] = {
-	"The subscreen that actively opens when you press 'Start'",
-	"The subscreen visible at the top of the screen normally, which moves down when the active opens.",
-	"Like the passive, but visible across the whole screen and does NOT move down for the active opening."
-	};
 
 void call_subscr_listedit_dlg()
 {
@@ -64,18 +63,25 @@ std::shared_ptr<GUI::Widget> SubscrListEditDialog::view()
 				return fmt::format("{} ({:03d})",(*vec)[ind].name,ind);
 			},
 			[&](size_t ind){return int32_t(ind);});
-		subscr_lists[q].add(fmt::format("<New {} Subscreen>",_titles[q]),vec->size());
+		subscr_lists[q].add(fmt::format("<New {} Subscreen>",subscr_names[q]),vec->size());
 		message edit_msg = message(int(message::EDIT0)+q),
 			del_msg = message(int(message::DEL0)+q);
-		g->add(TabRef(name = _titles[q],
+		g->add(TabRef(name = subscr_names[q],
 				Column(
-					INFOBTN_EX(_infos[q], maxheight = 1.5_em),
+					INFOBTN_EX(subscr_infos[q], maxheight = 1.5_em),
 					List(data = subscr_lists[q],
 						selectedValue = sel_inds[q],
 						onDClick = edit_msg,
+						onRClick = message::REFRESH,
 						onSelectFunc = [&,q](int32_t val)
 						{
 							sel_inds[q] = val;
+						},
+						onRClickFunc = [&,q](int32_t val, int32_t mx, int32_t my)
+						{
+							sel_inds[q] = val;
+							forceDraw();
+							rclick_menu(q,mx,my);
 						}),
 					Row(
 						Button(
@@ -93,7 +99,71 @@ std::shared_ptr<GUI::Widget> SubscrListEditDialog::view()
 	
 	return window;
 }
-
+static MENU subscr_rclick_menu[] =
+{
+	{ "&Copy",    NULL, NULL, 0, NULL },
+	{ "Paste &v", NULL, NULL, 0, NULL },
+	{ "&Save",    NULL, NULL, 0, NULL },
+	{ "&Load",    NULL, NULL, 0, NULL },
+	{ NULL,       NULL, NULL, 0, NULL }
+};
+void SubscrListEditDialog::rclick_menu(size_t cur_type, int mx, int my)
+{
+	auto& ci = copy_inds[cur_type];
+	auto& si = sel_inds[cur_type];
+	auto& vec = *subscr_vecs[cur_type];
+	if(ci >= vec.size()) //bad copy index
+		ci = -1;
+	bool newslot = si>=vec.size();
+	SETFLAG(subscr_rclick_menu[0].flags,D_DISABLED,newslot);
+	SETFLAG(subscr_rclick_menu[1].flags,D_DISABLED,ci<0 || ci==si);
+	SETFLAG(subscr_rclick_menu[2].flags,D_DISABLED,newslot);
+	
+	int ret = popup_menu(subscr_rclick_menu, mx, my);
+	
+	if(ret==0) //copy
+		ci = si;
+	else if(ret==1 && ci > -1 && ci != si) //paste
+	{
+		bool run = true;
+		if(!newslot)
+			AlertDialog(fmt::format("Overwrite {} Subscreen?",subscr_names[cur_type]),
+				fmt::format("Are you sure you want to overwrite {0} Subscreen {1} '{2}'"
+					" with {0} Subscreen {3} '{4}'? This cannot be undone!", subscr_names[cur_type], si,
+					vec[si].name, ci, vec[ci].name),
+				[&](bool ret,bool)
+				{
+					run = ret;
+				}).show();
+		if(run)
+		{
+			if(newslot)
+				vec.emplace_back(vec[ci]); //copy constructor
+			else vec[si] = vec[ci];
+			saved=false;
+		}
+	}
+	else if(ret==2) //Save
+	{
+		if(!getname("Export Subscreen (.sub)","sub",NULL,datapath,false))
+			return;
+		save_subscreen(temppath, vec[si]);
+	}
+	else if(ret==3) //Load
+	{
+		if(!getname("Import Subscreen (.sub)","sub",NULL,datapath,false))
+			return;
+		ZCSubscreen tmp = ZCSubscreen();
+		tmp.sub_type = cur_type;
+		if(load_subscreen(temppath, tmp))
+		{
+			if(newslot)
+				vec.emplace_back(tmp); //copy constructor
+			else vec[si] = tmp;
+			saved=false;
+		}
+	}
+}
 bool SubscrListEditDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 {
 	bool refresh = false;
@@ -119,9 +189,9 @@ bool SubscrListEditDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			if(sel_inds[cur_type] >= vec.size())
 				return false;
 			bool run = false;
-			AlertDialog(fmt::format("Delete {} Subscreen?",_titles[cur_type]),
+			AlertDialog(fmt::format("Delete {} Subscreen?",subscr_names[cur_type]),
 				fmt::format("Are you sure you want to delete {} Subscreen {} '{}'?"
-					" This cannot be undone!", _titles[cur_type], sel_inds[cur_type],
+					" This cannot be undone!", subscr_names[cur_type], sel_inds[cur_type],
 					vec[sel_inds[cur_type]].name),
 				[&](bool ret,bool)
 				{

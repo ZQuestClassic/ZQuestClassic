@@ -45,29 +45,7 @@ INLINE void putdot(BITMAP *dest,int32_t x,int32_t y,int32_t c)
 // subscreen default types
 enum { ssdtOLD, ssdtNEWSUBSCR, ssdtREV2, ssdtBSZELDA, ssdtBSZELDAMODIFIED, ssdtBSZELDAENHANCED, ssdtBSZELDACOMPLETE, ssdtZ3, ssdtMAX };
 
-enum { sstACTIVE, sstPASSIVE, sstOVERLAY, sstMAX };
-
 enum { sssFULLPUSH, sssFULLSLIDEDOWN, sssMAX };
-
-//ssoCURRENTITEM shows what item of that type you currently have.  if the itemtype is sword, it will show what sword you have
-//ssoBUTTONITEM shows what item is currently assigned to the A or B button
-//ssoITEMTILE shows a requested item
-//ssoCURRENTITEMTILE shows a tile (or animation) if you have the item requested.  if itemtype is set to wooden boomerang and you have a wooden boomerang, it will show the tile you choose
-//ssoSELECTEDITEMTILE shows a tile (or animation) if the selection cursor is on the item requested.
-//ssoCURRENTITEMTEXT shows the requested text if you have the item requested.  if itemtype is set to wooden boomerang and you have a wooden boomerang, it will show the text you choose, "Curved stick", for instance.
-//ssoCURRENTITEMNAME shows the name of an item if you have the item requested.  if itemtype is set to wooden boomerang and you have a wooden boomerang, it will show the name of the item "Wooden Boomerang"
-//ssoSELECTEDITEMNAME shows the name of of the item that the selection cursor is on.
-//ssoCURRENTITEMCLASSTEXT shows the requested text if you have the item requested.  if itemtype is set to boomerang and you have a wooden boomerang, it will show the text you choose, "Curved stick", for instance.
-//ssoCURRENTITEMCLASSNAME shows the name of an item if you have the item requested.  if itemtype is set to boomerang and you have a wooden boomerang, it will show the name of the item "Wooden Boomerang"
-//ssoSELECTEDITEMCLASSNAME shows the name of of the item class that the selection cursor is on.
-
-//subscreen items
-/*enum { ssiBOMB, ssiSWORD, ssiSHIELD, ssiCANDLE, ssiLETTER, ssiPOTION, ssiLETTERPOTION, ssiBOW, ssiARROW, ssiBOWANDARROW, ssiBAIT, ssiRING, ssiBRACELET, ssiMAP,
-       ssiCOMPASS, ssiBOSSKEY, ssiMAGICKEY, ssiBRANG, ssiWAND, ssiRAFT, ssiLADDER, ssiWHISTLE, ssiBOOK, ssiWALLET, ssiSBOMB, ssiHCPIECE, ssiAMULET, ssiFLIPPERS,
-       ssiHOOKSHOT, ssiLENS, ssiHAMMER, ssiBOOTS, ssiDIVINEFIRE, ssiDIVINEESCAPE, ssiDIVINEPROTECTION, ssiQUIVER, ssiBOMBBAG, ssiCBYRNA, ssiROCS, ssiHOVERBOOTS,
-       ssiSPINSCROLL, ssiCROSSSCROLL, ssiQUAKESCROLL, ssiWHISPRING, ssiCHARGERING, ssiPERILSCROLL, ssiWEALTHMEDAL, ssiHEARTRING, ssiMAGICRING, ssiSPINSCROLL2,
-       ssiQUAKESCROLL2, ssiAGONY, ssiSTOMPBOOTS, ssiWHIMSICALRING, ssiPERILRING, ssiMAX };*/
-
 
 //when to display an element
 #define sspUP 1

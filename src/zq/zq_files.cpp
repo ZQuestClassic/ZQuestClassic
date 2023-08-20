@@ -1754,58 +1754,6 @@ int32_t onExport_ZGP()
     return D_O_K;
 }
 
-int32_t onImport_Subscreen()
-{
-    if(!getname("Import Subscreen (.sub)","sub",NULL,datapath,false))
-        return D_O_K;
-        
-    saved=false;
-    
-    // usetiles=true;
-    if(!load_subscreen(temppath))
-    {
-        char buf[256+20],name[256];
-        extract_name(temppath,name,FILENAMEALL);
-        sprintf(buf,"Unable to load %s",name);
-        jwin_alert("Error",buf,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-    }
-    
-    refresh(rALL);
-    return D_O_K;
-}
-
-int32_t onExport_Subscreen()
-{
-    if(!getname("Export Subscreen (.sub)","sub",NULL,datapath,false))
-        return D_O_K;
-        
-    bool cancel;
-    char buf[256+20],buf2[256+20],name[256];
-    extract_name(temppath,name,FILENAMEALL);
-    
-    if(save_subscreen(temppath, &cancel))
-    {
-        if(!cancel)
-        {
-            sprintf(buf,"ZQuest");
-            sprintf(buf2,"Saved %s",name);
-        }
-        else
-        {
-            sprintf(buf,"ZQuest");
-            sprintf(buf2,"Did not save %s",name);
-        }
-    }
-    else
-    {
-        sprintf(buf,"Error");
-        sprintf(buf2,"Error saving %s",name);
-    }
-    
-    jwin_alert(buf,buf2,NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-    return D_O_K;
-}
-
 //Doorsets
 int32_t readzdoorsets(PACKFILE *f, int32_t first, int32_t count, int32_t deststart)
 {

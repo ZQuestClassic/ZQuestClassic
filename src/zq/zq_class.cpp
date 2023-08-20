@@ -49,6 +49,7 @@
 #include "drawing.h"
 #include "zinfo.h"
 #include "base/mapscr.h"
+#include <fmt/format.h>
 
 #ifdef __EMSCRIPTEN__
 #include "base/emscripten_utils.h"
@@ -6421,44 +6422,8 @@ bool save_zgp(const char *path)
     return true;
 }
 
-bool save_subscreen(const char *path, bool *cancel) //!TODO SUBSCR update to use new format
+bool save_subscreen(const char *path, ZCSubscreen const& savefrom)
 {
-//  jwin_alert("Error","This feature not yet implemented.",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-	return false;/*
-    reset_combo_animations();
-    reset_combo_animations2();
-    *cancel = false;
-    
-    int32_t ret;
-    sslist_dlg[0].dp2=get_zc_font(font_lfont);
-    char *oldtitlestr=(char*)sslist_dlg[0].dp;
-    char *editstr=(char*)sslist_dlg[3].dp;
-    char *donestr=(char*)sslist_dlg[5].dp;
-    const char *newtitlestr="Export Subscreen";
-    const char *okstr="OK";
-    const char *cancelstr="Cancel";
-    sslist_dlg[0].dp=(void *)newtitlestr;
-    sslist_dlg[3].dp=(void *)okstr;
-    sslist_dlg[4].proc = d_dummy_proc;
-    sslist_dlg[5].dp=(void *)cancelstr;
-    show_new_ss=false;
-    //strcpy((char*)sslist_dlg[3].dp,"Save");
-    //strcpy((char*)sslist_dlg[4].dp,"Cancel");
-    ret = zc_popup_dialog(sslist_dlg,2);
-    //strcpy((char*)sslist_dlg[3].dp,"Edit");
-    //strcpy((char*)sslist_dlg[4].dp,"Done");
-    sslist_dlg[0].dp=oldtitlestr;
-    sslist_dlg[3].dp=editstr;
-    sslist_dlg[4].proc = jwin_button_proc;
-    sslist_dlg[5].dp=donestr;
-    show_new_ss=true;
-    
-    if(ret==0||ret==5)
-    {
-        *cancel=true;
-        return true;
-    }
-    
     //open the file
     PACKFILE *f=pack_fopen_password(path,F_WRITE, "");
     
@@ -6466,70 +6431,39 @@ bool save_subscreen(const char *path, bool *cancel) //!TODO SUBSCR update to use
         return false;
         
     dword section_id=ID_SUBSCREEN;
-    dword section_version=V_SUBSCREEN;
-    dword section_cversion=CV_SUBSCREEN;
+    dword s_version=V_SUBSCREEN;
+    dword s_cversion=CV_SUBSCREEN;
     
-    //section id
     if(!p_mputl(section_id,f))
     {
         pack_fclose(f);
         return false;
     }
     
-    //section version info
-    if(!p_iputw(section_version,f))
+    if(!p_iputw(s_version,f))
     {
         pack_fclose(f);
         return false;
     }
     
-    if(!p_iputw(section_cversion,f))
+    if(!p_iputw(s_cversion,f))
     {
         pack_fclose(f);
         return false;
     }
     
-    //subscreens
-    //if(write_one_subscreen(f,&header,sslist_dlg[2].d1)!=0)
+    if(savefrom.write(f))
     {
         pack_fclose(f);
         return false;
     }
     
     pack_fclose(f);
-    return true;*/
+    return true;
 }
 
-bool load_subscreen(const char *path) //!TODO SUBSCR update to handle new format
+bool load_subscreen(const char *path, ZCSubscreen& loadto)
 {
-	return false;/*
-    int32_t ret;
-    sslist_dlg[0].dp2=get_zc_font(font_lfont);
-    char *oldtitlestr=(char*)sslist_dlg[0].dp;
-    char *editstr=(char*)sslist_dlg[3].dp;
-    char *donestr=(char*)sslist_dlg[5].dp;
-    const char *newtitlestr="Import Subscreen";
-    const char *okstr="OK";
-    const char *cancelstr="Cancel";
-    sslist_dlg[0].dp=(void *)newtitlestr;
-    sslist_dlg[3].dp=(void *)okstr;
-    sslist_dlg[4].proc = d_dummy_proc;
-    sslist_dlg[5].dp=(void *)cancelstr;
-    //strcpy((char*)sslist_dlg[3].dp,"Write");
-    //strcpy((char*)sslist_dlg[4].dp,"Cancel");
-    ret = zc_popup_dialog(sslist_dlg,2);
-    //strcpy((char*)sslist_dlg[3].dp,"Edit");
-    //strcpy((char*)sslist_dlg[4].dp,"Done");
-    sslist_dlg[0].dp=(void *)oldtitlestr;
-    sslist_dlg[3].dp=(void *)editstr;
-    sslist_dlg[4].proc = jwin_button_proc;
-    sslist_dlg[5].dp=(void *)donestr;
-    
-    if(ret==0||ret==5)
-    {
-        return true;
-    }
-    
     //open the file
     PACKFILE *f=pack_fopen_password(path,F_READ, "");
     
@@ -6537,10 +6471,9 @@ bool load_subscreen(const char *path) //!TODO SUBSCR update to handle new format
         return false;
         
     dword section_id;
-    dword section_version;
-    dword section_cversion;
+    dword s_version;
+    dword s_cversion;
     
-    //section id
     if(!p_mgetl(&section_id,f))
     {
         pack_fclose(f);
@@ -6553,28 +6486,59 @@ bool load_subscreen(const char *path) //!TODO SUBSCR update to handle new format
         return false;
     }
     
-    //section version info
-    if(!p_igetw(&section_version,f))
+    if(!p_igetw(&s_version,f))
     {
         pack_fclose(f);
         return false;
     }
     
-    if(!p_igetw(&section_cversion,f))
+    if(!p_igetw(&s_cversion,f))
     {
         pack_fclose(f);
         return false;
     }
     
-    //subscreens
-    //if(read_one_old_subscreen(f,&header,sslist_dlg[2].d1,section_version,section_cversion)!=0)
-    {
-        pack_fclose(f);
-        return false;
-    }
+	if(s_version < 8)
+	{
+		subscreen_group g;
+		memset(&g,0,sizeof(subscreen_group));
+		if(read_one_old_subscreen(f,&g,s_version)!=0)
+		{
+			pack_fclose(f);
+			return false;
+		}
+		if(g.ss_type != loadto.sub_type)
+		{
+			pack_fclose(f);
+			displayinfo("Failure!",fmt::format("Found subscreen type '{}', expecting type '{}'",
+				subscr_names[g.ss_type], subscr_names[loadto.sub_type]));
+			return false;
+		}
+		loadto.clear();
+		if(g.objects[0].type != ssoNULL)
+			loadto.load_old(g);
+	}
+	else
+	{
+		ZCSubscreen tmp = ZCSubscreen();
+		if (tmp.read(f, s_version))
+		{
+			pack_fclose(f);
+			return false;
+		}
+		if(tmp.sub_type != loadto.sub_type)
+		{
+			pack_fclose(f);
+			displayinfo("Failure!",fmt::format("Found subscreen type '{}', expecting type '{}'",
+				subscr_names[tmp.sub_type], subscr_names[loadto.sub_type]));
+			return false;
+		}
+		loadto.clear();
+		loadto = tmp;
+	}
     
     pack_fclose(f);
-    return true;*/
+    return true;
 }
 
 bool setMapCount2(int32_t c)

@@ -20,6 +20,8 @@
 #include <stack>
 #include <array>
 
+struct ZCSubscreen;
+
 int32_t COMBOPOS(int32_t x, int32_t y);
 int32_t COMBOPOS_B(int32_t x, int32_t y);
 int32_t COMBOX(int32_t pos);
@@ -410,8 +412,8 @@ bool load_guys(const char *path);
 bool load_zgp(const char *path);
 bool save_zgp(const char *path);
 
-bool load_subscreen(const char *path);
-bool save_subscreen(const char *path, bool *cancel);
+bool save_subscreen(const char *path, ZCSubscreen const& savefrom);
+bool load_subscreen(const char *path, ZCSubscreen& loadto);
 
 bool load_zqt(const char *path);
 bool save_zqt(const char *path);

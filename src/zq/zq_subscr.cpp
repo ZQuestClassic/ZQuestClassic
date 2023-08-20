@@ -2191,7 +2191,7 @@ void update_subscr_dlg(bool start)
 		
 		if(subscr_edit.pages.empty())
 			subscr_edit.pages.emplace_back();
-		if(subscr_edit.pages.size() >= subscr_edit.curpage)
+		if(subscr_edit.pages.size() <= subscr_edit.curpage)
 			subscr_edit.curpage = 0;
 		if(subscr_edit.pages[subscr_edit.curpage].contents.empty())
 		{
@@ -2583,10 +2583,10 @@ void do_edit_subscr(size_t ind, byte ty)
 		(ty == sstACTIVE ? subscreens_active
 		: (ty == sstPASSIVE ? subscreens_passive
 		: subscreens_overlay));
-	
+
+	subscr_edit.clear();
 	if(ind < vec.size())
 		subscr_edit = vec[ind];
-	else subscr_edit.clear();
 	subscr_edit.sub_type = ty;
 	
 	bool edit_it=true;

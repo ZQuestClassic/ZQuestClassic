@@ -28,8 +28,9 @@ protected:
 	
 	GUI::ListData subscr_lists[sstMAX];
 	size_t sel_inds[sstMAX];
+	int copy_inds[sstMAX] = {-1,-1,-1};
 	
-	void refr_info();
+	void rclick_menu(size_t cur_type, int mx, int my);
 };
 
 #endif

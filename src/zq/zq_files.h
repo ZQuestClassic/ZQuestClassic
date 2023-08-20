@@ -49,8 +49,6 @@ int32_t onImport_Combos();
 int32_t onExport_Combos();
 int32_t onImport_Tiles();
 int32_t onExport_Tiles();
-int32_t onImport_Subscreen();
-int32_t onExport_Subscreen();
 int32_t onImport_ZGP();
 int32_t onExport_ZGP();
 int32_t onAbout_Module();

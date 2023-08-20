@@ -50,6 +50,13 @@ void draw_textbox(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, FONT
 void magicgauge(BITMAP *dest,int32_t x,int32_t y, int32_t container, int32_t notlast_tile, int32_t notlast_cset, bool notlast_mod, int32_t last_tile, int32_t last_cset, bool last_mod,
 				int32_t cap_tile, int32_t cap_cset, bool cap_mod, int32_t aftercap_tile, int32_t aftercap_cset, bool aftercap_mod, int32_t frames, int32_t speed, int32_t delay, bool unique_last, int32_t show);
 
+const std::string subscr_names[sstMAX] = {"Active","Passive","Overlay"};
+const std::string subscr_infos[sstMAX] = {
+	"The subscreen that actively opens when you press 'Start'",
+	"The subscreen visible at the top of the screen normally, which moves down when the active opens.",
+	"Like the passive, but visible across the whole screen and does NOT move down for the active opening."
+	};
+
 SubscrTransition subscr_pg_transition;
 int subscr_item_clk = 0, subscr_pg_clk = 0;
 static byte subscr_pg_from, subscr_pg_to;
@@ -60,6 +67,7 @@ bool subscr_itemless = false, subscr_pg_animating = false;
 int btnitem_clks[4] = {0};
 int btnitem_ids[4] = {-1,-1,-1,-1};
 BITMAP *subscr_pg_bmp1 = nullptr, *subscr_pg_bmp2 = nullptr, *subscr_pg_subbmp = nullptr;
+
 
 void refresh_subscr_buttonitems()
 {

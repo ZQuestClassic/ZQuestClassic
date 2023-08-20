@@ -146,6 +146,10 @@ enum //new subscreen object types
 	widgMAX
 };
 
+enum { sstACTIVE, sstPASSIVE, sstOVERLAY, sstMAX };
+extern const std::string subscr_names[sstMAX];
+extern const std::string subscr_infos[sstMAX];
+
 //Misc constants
 enum //text styles
 {
@@ -971,6 +975,9 @@ struct ZCSubscreen
 	void draw(BITMAP* dest, int32_t xofs, int32_t yofs, byte pos, bool showtime);
 	void load_old(subscreen_group const& g);
 	void load_old(subscreen_object const* arr);
+	
+	ZCSubscreen() = default;
+	
 	int32_t read(PACKFILE *f, word s_version);
 	int32_t write(PACKFILE *f) const;
 	
