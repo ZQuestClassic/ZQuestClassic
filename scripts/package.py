@@ -29,7 +29,8 @@ args = parser.parse_args()
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent
 resources_dir = root_dir / 'resources'
-build_dir = Path.cwd() / args.build_folder
+#build_dir = Path.cwd() / args.build_folder
+build_dir = Path.cwd()
 packages_dir = build_dir / 'packages'
 
 
@@ -173,6 +174,7 @@ else:
         copy_files_to_package(resources_dir, files, build_dir)
         exit(0)
 
+    print(f'build_dir={build_dir}')
     if not args.skip_binaries:
         files.extend([
             binary_file(build_dir / 'zplayer'),
