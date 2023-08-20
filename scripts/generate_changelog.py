@@ -40,7 +40,7 @@ def parse_override_file(file: Path):
     for line in file.read_text().splitlines():
         line = line.rstrip()
 
-        if last_override and last_override[0] == 'reword' and not re.match(r'^(reword|subject|squash|pick)', line):
+        if last_override and last_override[0] == 'reword' and not re.match(r'^(reword|subject|squash|drop|pick)', line):
             if line == '=end':
                 last_override = None
                 continue
@@ -293,6 +293,9 @@ def generate_changelog(from_sha: str, to_sha: str) -> str:
     commits: List[Commit] = []
     for commit_text in commits_text.splitlines():
         short_hash, hash, subject = commit_text.split(' ', 2)
+        if hash in overrides and overrides[hash][0] == 'drop':
+            continue
+
         body = subprocess.check_output(
             f'git log -1 {hash} --format="%b"', shell=True, encoding='utf-8').strip()
         m = re.search(r'end changelog', body, re.IGNORECASE)
