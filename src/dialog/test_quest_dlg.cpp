@@ -184,13 +184,11 @@ std::shared_ptr<GUI::Widget> TestQstDialog::view()
 				Button(
 					text = "Edit Test Init Data",
 					minwidth = 90_px,
-					onClick = message::EDIT_INIT_DATA,
-					focused = true),
+					onClick = message::EDIT_INIT_DATA),
 				Button(
 					text = "Create Test Init Data",
 					minwidth = 90_px,
-					onClick = message::CREATE_INIT_DATA,
-					focused = true)
+					onClick = message::CREATE_INIT_DATA)
 			)
 		)
 	);
