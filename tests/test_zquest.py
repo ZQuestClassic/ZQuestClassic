@@ -91,13 +91,20 @@ class TestReplays(unittest.TestCase):
         ]
         (run_target.get_build_folder() / 'includepaths.txt').write_text(';'.join(include_paths))
 
+        # Make copy of playground.qst
+        qst_path = tmp_dir / 'playground.qst'
+        shutil.copy(root_dir / 'tests/replays/playground.qst', qst_path)
+
         # Re-compile and assign slots.
-        self.quick_assign(root_dir / 'tests/replays/playground.qst')
+        self.quick_assign(qst_path)
 
         # Ensure replays continue to pass.
-        for replay_path in (root_dir / 'tests/replays').glob('playground_*.zplay'):
-            with self.subTest(msg=f'{replay_path.name}'):
-                output_dir = tmp_dir / 'output' / replay_path.name
+        for original_replay_path in (root_dir / 'tests/replays').glob('playground_*.zplay'):
+            with self.subTest(msg=f'{original_replay_path.name}'):
+                replay_path = tmp_dir / 'tmp.zplay'
+                shutil.copy(original_replay_path, replay_path)
+
+                output_dir = tmp_dir / 'output' / original_replay_path.name
                 output_dir.mkdir(exist_ok=True, parents=True)
                 self.run_replay(output_dir, [replay_path])
 
