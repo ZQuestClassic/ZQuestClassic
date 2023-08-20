@@ -295,8 +295,7 @@ int32_t onHelp()
     //  doHelp(vc(15),vc(0));
     return D_O_K;
 }
-int32_t 
-(int32_t ,DIALOG *,int32_t)
+int32_t d_dropdmaplist_proc(int32_t ,DIALOG *,int32_t)
 {
     return D_O_K;
 }
