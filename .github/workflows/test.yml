@@ -158,12 +158,6 @@ jobs:
         name: Test zupdater
         run: bash .github/workflows/run_python.sh tests/test_updater.py
 
-      # Simply open ZQuest with the new quest template.
-      # TODO: randomly crashes during exit on Linux
-      - if: ${{ matrix.shard_index == 1 && inputs.extra-args == '' && runner.os != 'Windows' && runner.os != 'Linux' && inputs.config != 'Coverage' }}
-        name: Test ZQuest File->New
-        run: bash ${{ github.workspace }}/.github/workflows/run_target.sh zquest -s -q 'modules/classic/default.qst'
-
       - name: Generate coverage json
         if: inputs.config == 'Coverage'
         run: bash tests/generate_coverage_report.sh

@@ -22,7 +22,7 @@ tmp_dir.mkdir(exist_ok=True, parents=True)
 sys.path.append(str((root_dir / 'scripts').absolute()))
 import run_target
 
-class TestReplays(unittest.TestCase):
+class TestZQuest(unittest.TestCase):
     def setUp(self):
         self.maxDiff = None
 
@@ -61,8 +61,17 @@ class TestReplays(unittest.TestCase):
             self.fail(failing_str)
         self.assertEqual(output.returncode, 0)
 
+    # Simply open ZQuest with the new quest template.
+    def test_file_new(self):
+        run_target.check_run('zquest', [
+            '-headless',
+            '-s',
+            '-q',
+            'modules/classic/classic_1st.qst',
+        ])
+
     # Resave classic_1st.qst and assert classic_1st.zplay, to make sure the loading/saving code is not introducing bugs.
-    def test_zquest_save(self):
+    def test_save(self):
         # TODO: Bad exit code 0xFFFF under windows.
         if platform.system() == 'Windows':
             return
@@ -82,7 +91,7 @@ class TestReplays(unittest.TestCase):
         output_dir = tmp_dir / 'output' / replay_path.name
         self.run_replay(output_dir, [replay_path])
 
-    def test_zquest_compile_and_quick_assign(self):
+    def test_compile_and_quick_assign(self):
         # TODO: set this via CLI
         include_paths = [
             str(root_dir / 'tests/scripts'),
