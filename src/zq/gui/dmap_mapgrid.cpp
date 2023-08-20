@@ -151,7 +151,9 @@ namespace GUI
 	}
 
 	DMapMapGrid::DMapMapGrid() : 
+		message(-1), mapspace(nullptr),
 		continueScreen(0), compassScreen(0),
+		small_dmap(false),
 		show_continue(false), show_compass(false)
 		
 	{

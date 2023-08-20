@@ -150,7 +150,7 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 			d[i].x = int32_t(d[0].x + (xpc*double(d[0].w)));
 			
 			// Horizontally resize elements
-			if((d[i].proc == d_maptile_proc && d[i].dp2!=(void*)1) || d[i].proc== REMOVE_d_intro_edit_proc || d[i].proc== REMOVE_d_title_edit_proc)
+			if((d[i].proc == d_maptile_proc && d[i].dp2!=(void*)1))
 			{
 				d[i].x += (int32_t)(float(d[i].w)/4.f);
 			}
@@ -172,7 +172,7 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 			d[i].y = int32_t(d[0].y + (ypc*double(d[0].h)));
 			
 			// Vertically resize elements
-			if((d[i].proc == d_maptile_proc && d[i].dp2!=(void*)1) || d[i].proc== REMOVE_d_intro_edit_proc || d[i].proc==REMOVE_d_title_edit_proc)
+			if((d[i].proc == d_maptile_proc && d[i].dp2!=(void*)1))
 			{
 			}
 			else if(d[i].proc == jwin_edit_proc || d[i].proc == jwin_check_proc || d[i].proc == jwin_checkfont_proc || d[i].proc == jwin_tflpcheck_proc || d[i].proc == jwin_lscheck_proc)
@@ -180,7 +180,7 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 				d[i].h = int32_t((double)d[i].h*1.5);
 			}
 			else if(d[i].proc == jwin_droplist_proc || d[i].proc == d_ndroplist_proc || d[i].proc == d_idroplist_proc || d[i].proc == d_nidroplist_proc || d[i].proc == d_dropdmaplist_proc
-					|| d[i].proc == d_dropdmaptypelist_proc || d[i].proc == jwin_as_droplist_proc  || d[i].proc == d_ffcombolist_proc || d[i].proc == sstype_drop_proc || d[i].proc == d_ctl_proc
+					|| d[i].proc == jwin_as_droplist_proc  || d[i].proc == d_ffcombolist_proc || d[i].proc == sstype_drop_proc || d[i].proc == d_ctl_proc
 					|| d[i].proc == jwin_fontdrop_proc || d[i].proc == d_csl_proc || d[i].proc == d_csl2_proc || d[i].proc == d_stilelist_proc || d[i].proc == d_comboalist_proc)
 			{
 				d[i].y += int32_t((double)d[i].h*0.25);
@@ -224,7 +224,7 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 			
 		// Bigger font
 		bool bigfontproc = (d[i].proc != jwin_droplist_proc && d[i].proc != jwin_abclist_proc && d[i].proc != d_wlist_proc && d[i].proc != jwin_list_proc && d[i].proc != d_dmaplist_proc
-							&& d[i].proc != d_dropdmaplist_proc && d[i].proc != d_xmaplist_proc && d[i].proc != d_dropdmaptypelist_proc && d[i].proc != d_warplist_proc && d[i].proc != d_warplist_proc && d[i].proc != d_wclist_proc && d[i].proc != d_ndroplist_proc
+							&& d[i].proc != d_dropdmaplist_proc && d[i].proc != d_warplist_proc && d[i].proc != d_warplist_proc && d[i].proc != d_wclist_proc && d[i].proc != d_ndroplist_proc
 							&& d[i].proc != d_idroplist_proc && d[i].proc != d_nidroplist_proc && d[i].proc != jwin_as_droplist_proc && d[i].proc != d_ffcombolist_proc && d[i].proc != d_enelist_proc && d[i].proc != sstype_drop_proc && d[i].proc !=  d_ctl_proc
 							&& d[i].proc != jwin_fontdrop_proc && d[i].proc != d_csl_proc && d[i].proc != d_csl2_proc && d[i].proc != d_stilelist_proc && d[i].proc != d_comboalist_proc);
 							
