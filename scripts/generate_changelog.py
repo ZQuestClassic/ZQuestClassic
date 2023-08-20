@@ -304,23 +304,10 @@ def generate_changelog(from_sha: str, to_sha: str) -> str:
         type, scope, oneline = parse_scope_and_type(subject)
         commits.append(Commit(type, scope, short_hash, hash, subject, oneline, body))
 
-    # Squash commits.
-    squashed_hashes = []
-    for commit in commits:
-        if commit.hash not in overrides_squashes:
-            continue
-
-        squash_list = overrides_squashes[commit.hash]
-        squashed_hashes.extend(squash_list)
-        commit.squashed_commits = [c for c in commits if c.hash in squash_list]
-        commit.squashed_commits.insert(0, Commit(**commit.__dict__))
-        commit.squashed_commits.sort(key=lambda c: (get_type_index(c.type), get_scope_index(c.scope)))
-    commits = [c for c in commits if c.hash not in squashed_hashes]
-
     # Replace commit messages with overrides.
     for commit in commits:
         hash = commit.hash
-        if hash in overrides and overrides[hash][0] == 'subject':
+        if hash in overrides and overrides[hash][0] in ['subject', 'squash']:
             commit.subject = overrides[hash][1]
         elif hash in overrides and overrides[hash][0] == 'reword':
             lines = overrides[hash][1].splitlines()
@@ -333,6 +320,19 @@ def generate_changelog(from_sha: str, to_sha: str) -> str:
         commit.type = type
         commit.scope = scope
         commit.oneline = oneline
+
+    # Squash commits.
+    squashed_hashes = []
+    for commit in commits:
+        if commit.hash not in overrides_squashes:
+            continue
+
+        squash_list = overrides_squashes[commit.hash]
+        squashed_hashes.extend(squash_list)
+        commit.squashed_commits = [c for c in commits if c.hash in squash_list]
+        commit.squashed_commits.insert(0, Commit(**commit.__dict__))
+        commit.squashed_commits.sort(key=lambda c: (get_type_index(c.type), get_scope_index(c.scope)))
+    commits = [c for c in commits if c.hash not in squashed_hashes]
 
     commits_by_type: Dict[str, List[Commit]] = {}
     for type in valid_types:
