@@ -7,14 +7,14 @@ namespace GUI
 
 ListData::ListData(size_t numItems,
 	function<string(size_t)> getString,
-	function<int32_t(size_t)> getValue)
+	function<int32_t(size_t)> getValue) : _invalid(false)
 {
 	listItems.reserve(numItems);
 	for(size_t index = 0; index < numItems; ++index)
 		listItems.emplace_back(move(getString(index)), getValue(index));
 }
 
-ListData::ListData(::ListData const& jwinldata, int32_t valoffs)
+ListData::ListData(::ListData const& jwinldata, int32_t valoffs) : _invalid(false)
 {
 	int32_t sz;
 	jwinldata.listFunc(-1, &sz);

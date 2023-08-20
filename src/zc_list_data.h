@@ -24,8 +24,7 @@ namespace GUI::ZCListData
 	GUI::ListData sfxnames(bool numbered = false);
 	GUI::ListData midinames(bool numbered = false);
 	GUI::ListData lpals();
-	GUI::ListData activesubscreens();
-	GUI::ListData passivesubscreens();
+	GUI::ListData subscreens(byte type, bool numbered = false);
 	GUI::ListData disableditems(byte* disabledarray);
 	//Scripts
 	GUI::ListData itemdata_script();

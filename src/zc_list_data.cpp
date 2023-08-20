@@ -183,31 +183,6 @@ GUI::ListData GUI::ZCListData::shadow_types()
 	return GUI::ListData(strings);
 }
 
-static const GUI::ListData aligns
-{
-	{ "Left", 0 },
-	{ "Center", 1 },
-	{ "Right", 2 }
-};
-
-GUI::ListData const& GUI::ZCListData::alignments()
-{
-	return aligns;
-}
-
-static const GUI::ListData button
-{
-	{ "A", 0 },
-	{ "B", 1 },
-	{ "X", 2 },
-	{ "Y", 3 }
-};
-
-GUI::ListData const& GUI::ZCListData::buttons()
-{
-	return button;
-}
-
 GUI::ListData GUI::ZCListData::enemies(bool numbered, bool defaultFilter)
 {
 	map<std::string, int32_t> ids;
@@ -593,6 +568,61 @@ GUI::ListData GUI::ZCListData::midinames(bool numbered)
 	return ls;
 }
 
+
+
+GUI::ListData GUI::ZCListData::lpals()
+{
+	GUI::ListData ls;
+	char buf[50];
+	for (int q = 0; q < 0x1FF; ++q)
+	{
+		sprintf(buf, "%.3X - %s", q, palnames[q]);
+		ls.add(buf, q + 1);
+	}
+	return ls;
+}
+
+GUI::ListData GUI::ZCListData::subscreens(byte type, bool numbered)
+{
+	std::vector<ZCSubscreen>& vec =
+		(type == sstACTIVE ? subscreens_active
+		: (type == sstPASSIVE ? subscreens_passive
+		: subscreens_overlay));
+	GUI::ListData ls;
+	for(int q = 0; q < vec.size(); ++q)
+	{
+		if(numbered)
+			ls.add(fmt::format("{} ({:03})",vec[q].name,q), q);
+		else ls.add(vec[q].name,q);
+	}
+	if(!ls.size())
+	{
+		ls.add("[None Available]",0);
+		ls.setInvalid(true);
+	}
+	return ls;
+}
+
+GUI::ListData GUI::ZCListData::disableditems(byte* disabledarray)
+{
+	GUI::ListData ls;
+	for (int q = 0; q < MAXITEMS; ++q)
+	{
+		if (disabledarray[q] & 1)
+		{
+			char const* itname = item_string[q];
+			ls.add(itname, q);
+		}
+	}
+	if (ls.size() == 0)
+	{
+		ls.add("", -1);
+	}
+	ls.alphabetize();
+	return ls;
+}
+
+//SCRIPTS
 static void load_scriptnames(std::set<std::string> &names, std::map<std::string, int32_t> &vals,
 	std::map<int32_t, script_slot_data> scrmap, int32_t count)
 {
@@ -724,6 +754,8 @@ GUI::ListData GUI::ZCListData::generic_script()
 	ls.add(names,vals);
 	return ls;
 }
+
+//CONST& RETURNS
 
 static const GUI::ListData defense_types
 {
@@ -874,68 +906,29 @@ GUI::ListData const& GUI::ZCListData::dmaptypes()
 	return dmap_types;
 }
 
-GUI::ListData GUI::ZCListData::lpals()
+
+static const GUI::ListData aligns
 {
-	GUI::ListData ls;
-	char buf[50];
-	for (int q = 0; q < 0x1FF; ++q)
-	{
-		sprintf(buf, "%.3X - %s", q, palnames[q]);
-		ls.add(buf, q + 1);
-	}
-	return ls;
+	{ "Left", 0 },
+	{ "Center", 1 },
+	{ "Right", 2 }
+};
+
+GUI::ListData const& GUI::ZCListData::alignments()
+{
+	return aligns;
 }
 
-GUI::ListData GUI::ZCListData::activesubscreens()
+static const GUI::ListData button
 {
-	GUI::ListData ls;
-	int32_t i = 0, j = 0;
-	while (custom_subscreen[j].objects[0].type != ssoNULL)
-	{
-		if (custom_subscreen[j].ss_type == sstACTIVE)
-		{
-			ls.add(custom_subscreen[j].name, i + 1);
-			++i;
-		}
+	{ "A", 0 },
+	{ "B", 1 },
+	{ "X", 2 },
+	{ "Y", 3 }
+};
 
-		++j;
-	}
-	return ls;
-}
-
-GUI::ListData GUI::ZCListData::passivesubscreens()
+GUI::ListData const& GUI::ZCListData::buttons()
 {
-	GUI::ListData ls;
-	int32_t i = 0, j = 0;
-	while (custom_subscreen[j].objects[0].type != ssoNULL)
-	{
-		if (custom_subscreen[j].ss_type == sstPASSIVE)
-		{
-			ls.add(custom_subscreen[j].name, i + 1);
-			++i;
-		}
-
-		++j;
-	}
-	return ls;
-}
-
-GUI::ListData GUI::ZCListData::disableditems(byte* disabledarray)
-{
-	GUI::ListData ls;
-	for (int q = 0; q < MAXITEMS; ++q)
-	{
-		if (disabledarray[q] & 1)
-		{
-			char const* itname = item_string[q];
-			ls.add(itname, q);
-		}
-	}
-	if (ls.size() == 0)
-	{
-		ls.add("", -1);
-	}
-	ls.alphabetize();
-	return ls;
+	return button;
 }
 

@@ -5,6 +5,7 @@
 #include "zq/zq_class.h"
 #include "zc_list_data.h"
 #include "info.h"
+#include "subscr.h"
 #include <fmt/format.h>
 #include <base/qrs.h>
 
@@ -40,8 +41,9 @@ EditDMapDialog::EditDMapDialog(int32_t slot) :
 	list_types(GUI::ZCListData::dmaptypes()),
 	list_lpals(GUI::ZCListData::lpals()),
 	list_strings(GUI::ZCListData::strings()),
-	list_activesub(GUI::ZCListData::activesubscreens()),
-	list_passivesub(GUI::ZCListData::passivesubscreens()),
+	list_activesub(GUI::ZCListData::subscreens(sstACTIVE, true)),
+	list_passivesub(GUI::ZCListData::subscreens(sstPASSIVE, true)),
+	list_overlaysub(GUI::ZCListData::subscreens(sstOVERLAY, true)),
 	list_midis(GUI::ZCListData::midinames()),
 	list_tracks(GUI::ListData::numbers(false, 1, 1)),
 	list_disableditems(GUI::ZCListData::disableditems(local_dmap.disableditems)),
@@ -309,7 +311,8 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 								onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
 								{
 									local_dmap.mirrorDMap = val;
-								})
+								}),
+							INFOBTN("If '> -1', the Mirror will warp you to the specified dmap from this dmap.")
 						),
 						Row(colSpan = 2, hAlign = 0.0,
 							INFOBTN("Sets the player's continue point to the continue screen when entering this DMap in most circumstances."),
@@ -424,24 +427,41 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 								})
 						)
 					),
-					Rows<2>(
+					Rows<3>(
 						framed = true, frameText = "Subscreens",
 						Label(text = "Active:"),
 						DropDownList(data = list_activesub,
-							fitParent = true,
-							selectedValue = local_dmap.active_subscreen + 1,
+							fitParent = true, hAlign = 1.0,
+							selectedValue = local_dmap.active_subscreen,
+							disabled = list_activesub.invalid(),
 							onSelectFunc = [&](int32_t val)
 							{
-								local_dmap.active_subscreen = val - 1;
+								local_dmap.active_subscreen = val;
 							}),
+						INFOBTN("The active subscreen to use on this dmap. This is "
+							" the menu that appears when you press 'Start'."),
 						Label(text = "Passive:"),
 						DropDownList(data = list_passivesub,
-							fitParent = true,
-							selectedValue = local_dmap.passive_subscreen + 1,
+							fitParent = true, hAlign = 1.0,
+							selectedValue = local_dmap.passive_subscreen,
+							disabled = list_passivesub.invalid(),
 							onSelectFunc = [&](int32_t val)
 							{
-								local_dmap.passive_subscreen = val - 1;
-							})
+								local_dmap.passive_subscreen = val;
+							}),
+						INFOBTN("The passive subscreen to use on this dmap. This is "
+							" the menu that draws at the top of the screen."),
+						Label(text = "Overlay:"),
+						DropDownList(data = list_overlaysub,
+							fitParent = true, hAlign = 1.0,
+							selectedValue = local_dmap.overlay_subscreen,
+							disabled = list_overlaysub.invalid(),
+							onSelectFunc = [&](int32_t val)
+							{
+								local_dmap.overlay_subscreen = val;
+							}),
+						INFOBTN("The overlay subscreen to use on this dmap. This is "
+							" the menu that draws OVER the entire screen.")
 					)
 				)),
 				TabRef(name = "Music", Column(
@@ -760,9 +780,14 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 									DMAP_SS_INITD(7)
 								),
 								Column(padding = 0_px, fitParent = true,
-									Rows<2>(vAlign = 0.0,
+									Rows<3>(vAlign = 0.0,
 										SCRIPT_LIST_PROC("Active:", list_dmapscript, local_dmap.active_sub_script, refreshScripts),
-										SCRIPT_LIST_PROC("Passive:", list_dmapscript, local_dmap.passive_sub_script, refreshScripts)
+										INFOBTN("If a script is assigned to this slot, it will run when you press 'Start'."
+											" This script runs INSTEAD of the engine's Active Subscreen opening,"
+											" and all action is frozen including other scripts until this script exits."),
+										SCRIPT_LIST_PROC("Passive:", list_dmapscript, local_dmap.passive_sub_script, refreshScripts),
+										INFOBTN("Runs at timings consistent with the engine passive subscreen."
+											" Useful for drawing custom UI draws.")
 									),
 									Row(hAlign = 1.0,
 										Label(text = "Script Info:"),
@@ -793,8 +818,11 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 									DMAP_MAP_INITD(7)
 								),
 								Column(padding = 0_px, fitParent = true,
-									Rows<2>(vAlign = 0.0,
-										SCRIPT_LIST_PROC("On Map:", list_dmapscript, local_dmap.onmap_script, refreshScripts)
+									Rows<3>(vAlign = 0.0,
+										SCRIPT_LIST_PROC("On Map:", list_dmapscript, local_dmap.onmap_script, refreshScripts),
+										INFOBTN("If a script is assigned to this slot, it will run when you press 'Map'."
+											" This script runs INSTEAD of the engine's Map opening,"
+											" and all action is frozen including other scripts until this script exits.")
 									)
 								)
 							)

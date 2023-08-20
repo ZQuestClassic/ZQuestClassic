@@ -2570,36 +2570,6 @@ static DIALOG sstemplatelist_dlg[] =
 
 bool show_new_ss=true;
 
-const char *subscreenlist_either(int32_t index, int32_t *list_size, byte type)
-{
-	std::vector<ZCSubscreen>& vec =
-		(type == sstACTIVE ? subscreens_active
-		: (type == sstPASSIVE ? subscreens_passive
-		: subscreens_overlay));
-	if(index<0)
-	{
-		*list_size = vec.size();
-		return NULL;
-	}
-	
-	return vec[index].name.c_str();
-}
-
-const char *subscreenlist_active(int32_t index, int32_t *list_size)
-{
-	return subscreenlist_either(index,list_size,sstACTIVE);
-}
-
-const char *subscreenlist_passive(int32_t index, int32_t *list_size)
-{
-	return subscreenlist_either(index,list_size,sstPASSIVE);
-}
-
-const char *subscreenlist_overlay(int32_t index, int32_t *list_size)
-{
-	return subscreenlist_either(index,list_size,sstOVERLAY);
-}
-
 void call_subscr_listedit_dlg();
 int32_t onEditSubscreens()
 {
