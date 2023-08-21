@@ -344,6 +344,7 @@ ZCMUSIC * zcmusic_load_file(const char *filename)
 		strcpy(p->fname, filename);
 		p->type = ZCMF_OGG;
 		p->playing = ZCM_STOPPED;
+		p->fadeoutframes = 0;
 		ZCMUSIC *music=(ZCMUSIC*)p;
 		zcm_extract_name(filename, music->filename, FILENAMEALL);
 		music->filename[255]='\0';
@@ -372,6 +373,7 @@ ZCMUSIC * zcmusic_load_file(const char *filename)
 		strcpy(p->fname, filename);
 		p->type = ZCMF_MP3;
 		p->playing = ZCM_STOPPED;
+		p->fadeoutframes = 0;
 		ZCMUSIC *music=(ZCMUSIC*)p;
 		zcm_extract_name(filename, music->filename, FILENAMEALL);
 		music->filename[255]='\0';
@@ -427,6 +429,7 @@ ZCMUSIC * zcmusic_load_file(const char *filename)
 			p->playing = ZCM_STOPPED;
 			p->s = d;
 			p->p = NULL;
+			p->fadeoutframes = 0;
 			ZCMUSIC *music=(ZCMUSIC*)p;
 			zcm_extract_name(filename, music->filename, FILENAMEALL);
 			music->filename[255]='\0';
@@ -453,6 +456,7 @@ ZCMUSIC * zcmusic_load_file(const char *filename)
 				p->type = ZCMF_GME;
 				p->playing = ZCM_STOPPED;
 				p->emu = emu;
+				p->fadeoutframes = 0;
 				ZCMUSIC *music=(ZCMUSIC*)p;
 				zcm_extract_name(filename, music->filename, FILENAMEALL);
 				music->filename[255]='\0';
@@ -929,6 +933,7 @@ ALSTREAMFILE *load_alstream_file(const char *filename)
 	al_set_audio_stream_playmode(stream, ALLEGRO_PLAYMODE_LOOP);
 
 	p->s = stream;
+	p->fadeoutframes = 0;
 
 	return p;
 
