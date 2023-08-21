@@ -40,6 +40,7 @@ extern int32_t zq_screen_w, zq_screen_h;
 #include "zq/gui/misc_color_row.h"
 #include "zq/gui/dmap_minimap.h"
 #include "zq/gui/dmap_mapgrid.h"
+#include "zq/gui/dmap_regiongrid.h"
 #endif
 
 #include <initializer_list>
@@ -253,6 +254,11 @@ inline std::shared_ptr<DMapMinimap> makeDMapMinimap()
 inline std::shared_ptr<DMapMapGrid> makeDMapMapGrid()
 {
 	return std::make_shared<DMapMapGrid>();
+}
+
+inline std::shared_ptr<DMapRegionGrid> makeDMapRegionGrid()
+{
+	return std::make_shared<DMapRegionGrid>();
 }
 #endif
 
@@ -584,6 +590,13 @@ ZCGUI_BUILDER_START(DMapMapGrid)
 	ZCGUI_ACCEPT_PROP(onUpdate, setOnUpdate, std::function<void(byte*, byte, byte)>)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(DMapMapGrid, DMapMapGrid, makeDMapMapGrid)
+
+ZCGUI_BUILDER_START(DMapRegionGrid)
+	ZCGUI_ACCEPT_PROP(regionMapPtr, setRegionMapPtr, zmap*)
+	ZCGUI_ACCEPT_PROP(regionDataPtr, setRegionDataPtr, byte*)
+	ZCGUI_ACCEPT_PROP(onUpdate, setOnUpdate, std::function<void()>)
+ZCGUI_BUILDER_END()
+ZCGUI_BUILDER_FUNCTION(DMapRegionGrid, DMapRegionGrid, makeDMapRegionGrid)
 #endif
 
 } // namespace GUI::builder

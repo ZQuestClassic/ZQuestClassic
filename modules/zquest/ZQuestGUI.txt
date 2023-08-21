@@ -30,6 +30,7 @@ src/zq/gui/misc_color_sel.cpp
 src/zq/gui/misc_color_row.cpp
 src/zq/gui/dmap_minimap.cpp
 src/zq/gui/dmap_mapgrid.cpp
+src/zq/gui/dmap_regiongrid.cpp
 
 src/zc_list_data.cpp
 
