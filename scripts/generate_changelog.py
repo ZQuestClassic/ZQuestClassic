@@ -404,6 +404,8 @@ if args.for_nightly:
     if previous_full_release_tag != branch:
         print('-------')
         print(f'The following are the changes since {previous_full_release_tag}:\n\n')
+        print('<details>\n<summary>Expand changelog</summary>\n')
         print(generate_changelog(previous_full_release_tag, args.to))
+        print('\n</details>')
 else:
     print(generate_changelog(branch, args.to))
