@@ -8362,7 +8362,7 @@ void play_DmapMusic()
 		{
 			FFCore.play_enh_music_crossfade(NULL, DMaps[currdmap].tmusictrack, DMaps[currdmap].tmusic_xfade_in, fadeoutframes);
 		}
-		else if(zcmixer->oldtrack == NULL && zcmixer->newtrack == NULL)
+		else
 		{
 			domidi = true;
 		}

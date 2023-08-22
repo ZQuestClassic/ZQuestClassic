@@ -40,7 +40,7 @@ def parse_override_file(file: Path):
     for line in file.read_text().splitlines():
         line = line.rstrip()
 
-        if last_override and last_override[0] == 'reword' and not re.match(r'^(reword|subject|squash|drop|pick)', line):
+        if last_override and last_override[0] in ['reword','section'] and not re.match(r'^(reword|section|subject|squash|drop|pick)', line):
             if line == '=end':
                 last_override = None
                 continue
@@ -222,6 +222,18 @@ def stringify_changelog(commits_by_type: Dict[str, List[Commit]], format: str) -
 
     if format == 'markdown':
         for type, commits in commits_by_type.items():
+            if type == 'CustomSection':
+                for c in commits:
+                    lines.append(f'{c.body}\n')
+                    if c.squashed_commits:
+                        lines.append('   >&nbsp;')
+                        lines.append('   >Relevant changes:')
+                        for squashed in c.squashed_commits:
+                            # TODO: also show body?
+                            link = f'[`{squashed.short_hash}`]({commit_url_prefix}/{squashed.hash})'
+                            lines.append(f'   > - {squashed.subject} {link}')
+                continue
+            
             label = get_type_label(type)
             lines.append(f'# {label}\n')
 
@@ -259,6 +271,15 @@ def stringify_changelog(commits_by_type: Dict[str, List[Commit]], format: str) -
                 lines.append('')
     elif format == 'plaintext':
         for type, commits in commits_by_type.items():
+            if type == 'CustomSection':
+                for c in commits:
+                    lines.append(f'{c.body}\n')
+                    if c.squashed_commits:
+                        lines.append('\n  Relevant changes:')
+                        for squashed in c.squashed_commits:
+                            # TODO: also show body?
+                            lines.append('    ' + squashed.subject)
+                continue
             label = get_type_label(type)
             lines.append(f'# {label}\n')
             prev_had_body = False
@@ -313,6 +334,12 @@ def generate_changelog(from_sha: str, to_sha: str) -> str:
             lines = overrides[hash][1].splitlines()
             commit.subject = lines[0]
             commit.body = '\n'.join(lines[1:])
+        elif hash in overrides and overrides[hash][0] == 'section':
+            commit.type = 'CustomSection'
+            commit.body = overrides[hash][1].strip()
+            if commit.body[0] != '#':
+                commit.body = f'# {commit.body}'
+            continue
         else:
             continue
 
@@ -337,6 +364,7 @@ def generate_changelog(from_sha: str, to_sha: str) -> str:
     commits_by_type: Dict[str, List[Commit]] = {}
     for type in valid_types:
         commits_by_type[type] = []
+    commits_by_type['CustomSection'] = []
 
     for commit in commits:
         by_type = commits_by_type.get(commit.type, [])
@@ -376,6 +404,8 @@ if args.for_nightly:
     if previous_full_release_tag != branch:
         print('-------')
         print(f'The following are the changes since {previous_full_release_tag}:\n\n')
+        print('<details>\n<summary>Expand changelog</summary>\n')
         print(generate_changelog(previous_full_release_tag, args.to))
+        print('\n</details>')
 else:
     print(generate_changelog(branch, args.to))

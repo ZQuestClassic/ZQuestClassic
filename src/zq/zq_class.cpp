@@ -9179,7 +9179,7 @@ int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 		scr_has_flags |= SCRHAS_SWARP;
 	else for(auto q = 0; q < 4; ++q)
 	{
-		if(screen.sidewarptype[q]
+		if(screen.sidewarptype[q] != wtSCROLL
 			|| screen.sidewarpdmap[q]
 			|| screen.sidewarpscr[q])
 		{

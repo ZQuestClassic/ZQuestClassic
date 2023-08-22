@@ -16847,11 +16847,9 @@ static DIALOG warpring_warp_dlg[] =
 };
 
 // Side warp flag procedure
-int32_t d_wflag_proc(int32_t msg,DIALOG *d,int32_t c)
+int32_t d_wflag_proc(int32_t msg,DIALOG *d,int32_t)
 {
-    //these are here to bypass compiler warnings about unused arguments
-    c=c;
-    
+	int32_t ret = D_O_K;
     switch(msg)
     {
     case MSG_DRAW:
@@ -16889,12 +16887,15 @@ int32_t d_wflag_proc(int32_t msg,DIALOG *d,int32_t c)
     {
 		if(d->flags & D_DISABLED)
 			return D_O_K;
+		bool rclick = gui_mouse_b() & 2;
         if(d->d1==1)
         {
             if(!(d->flags&D_SELECTED))
             {
                 d->flags|=D_SELECTED;
                 d->d2&=0x80;
+				if (rclick)
+					d->d2 |= 3;
                 int32_t g;
                 
                 if(d==&warp_dlg[10]||d==&warp_dlg[25]||d==&warp_dlg[37]||d==&warp_dlg[49]) g=0;
@@ -16913,7 +16914,7 @@ int32_t d_wflag_proc(int32_t msg,DIALOG *d,int32_t c)
             }
             else
             {
-                if((d->d2&3)==3)
+                if((d->d2&3)==(rclick?0:3))
                 {
                     d->flags^=D_SELECTED;
                     d->d2&=0x80;
@@ -16937,7 +16938,7 @@ int32_t d_wflag_proc(int32_t msg,DIALOG *d,int32_t c)
                 {
                     int32_t f=d->d2&3;
                     d->d2&=0x80;
-                    f++;
+                    f+=rclick?-1:1;
                     d->d2|=f;
                     int32_t g;
                     
@@ -16956,7 +16957,7 @@ int32_t d_wflag_proc(int32_t msg,DIALOG *d,int32_t c)
                     warp_dlg[49+g].d2 = d->d2;
                 }
             }
-        }
+		}
         else
         {
             d->flags^=D_SELECTED;
@@ -16990,11 +16991,12 @@ int32_t d_wflag_proc(int32_t msg,DIALOG *d,int32_t c)
             /* do nothing */
             rest(1);
         }
+		ret = D_REDRAWME;
     }
     break;
     }
     
-    return D_O_K;
+    return ret;
 }
 
 #if 0

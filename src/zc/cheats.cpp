@@ -308,12 +308,17 @@ static void cheats_execute(Cheat cheat, int arg1, int arg2, std::string arg3)
     case PlayerData:
     {
 		zinitdata* base = copyIntoZinit(game);
-		zinitdata* new_init = apply_init_data_delta(base, arg3);
+		std::string error;
+		zinitdata* new_init = apply_init_data_delta(base, arg3, error);
 		if (new_init)
 		{
 			resetItems(game, new_init, false);
 			ringcolor(false);
 			delete new_init;
+		}
+		else
+		{
+			Z_error("error applying init data delta: %s\n", error.c_str());
 		}
 		delete base;
     }

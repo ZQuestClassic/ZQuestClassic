@@ -1,4 +1,5 @@
 #include "base/dmap.h"
+#include "dialog/info.h"
 #include "test_quest_dlg.h"
 #include "alertfunc.h"
 #include "base/process_management.h"
@@ -232,7 +233,13 @@ bool TestQstDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 
 			zinitdata zinit_base;
 			zinit_base.clear();
-			zinitdata* zinit_test = apply_init_data_delta(&zinit_base, test_init_data[test_init_data_val - 1]);
+			std::string error;
+			zinitdata* zinit_test = apply_init_data_delta(&zinit_base, test_init_data[test_init_data_val - 1], error);
+			if (!zinit_test)
+			{
+				InfoDialog("Error applying init data delta", error).show();
+				return false;
+			}
 
 			doInit(zinit_test, false);
 

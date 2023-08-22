@@ -76,7 +76,7 @@ std::shared_ptr<GUI::Widget> SubscrSettingsDialog::view()
 						maxheight = 2_em,
 						onPressFunc = [&]()
 						{
-							call_subscrtransition_dlg(local_subref.trans_right,"Transition Editor: Page Left Btn");
+							call_subscrtransition_dlg(local_subref.trans_right,"Transition Editor: Page Right Btn");
 						})
 				)
 			),

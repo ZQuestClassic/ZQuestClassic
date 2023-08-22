@@ -34,7 +34,7 @@ struct mapscr
 	byte exitdir;
 	word enemy[10]; //GetSetScreenEnemies()
 	byte pattern; // Enemy loading pattern.
-	byte sidewarptype[4];
+	byte sidewarptype[4] = { wtSCROLL,wtSCROLL,wtSCROLL,wtSCROLL };
 	byte sidewarpoverlayflags;
 	byte warparrivalx;
 	byte warparrivaly;
@@ -282,6 +282,9 @@ private:
 #define mSECRET          0x2000 // secrets on permanently. only overworld and caves use this
 #define mVISITED         0x4000 // only overworld uses this
 #define mLIGHTBEAM       0x8000 // light beam triggers completed
+
+#define mNORESET         0x3F3F // all 'no reset' flags set
+#define mNOCARRYOVER     0x3F30 // all 'no carryover' flags set
 
 #define mMAXIND          16
 
