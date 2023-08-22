@@ -1114,12 +1114,16 @@ constexpr std::size_t countof(T(&)[N]) { return N; }
 	PROP(dither_type) \
 	PROP(ene_damage_multiplier) \
 	PROP(exitWaterJump) \
-	PROP(gravity) \
+	PROP(gravity) \ 
 	PROP(gravity2) \
 	PROP(hc) \
-	PROP(hcp_per_hc) \
 	PROP(hcp) \
+	PROP(hcp_per_hc) \
 	PROP(hero_damage_multiplier) \
+	PROP(hero_swim_div) \
+	PROP(hero_swim_mult) \
+	PROP(hero_swim_speed) \
+	PROP(heroAnimationStyle) \
 	PROP(heroSideswimDownStep) \
 	PROP(heroSideswimSideStep) \
 	PROP(heroSideswimUpStep) \
@@ -1127,8 +1131,10 @@ constexpr std::size_t countof(T(&)[N]) { return N; }
 	PROP(hp_per_heart) \
 	PROP(jump_hero_layer_threshold) \
 	PROP(keys) \
-	PROP(magic_per_block) \
+	PROP(last_map) \
+	PROP(last_screen) \
 	PROP(magic) \
+	PROP(magic_per_block) \
 	PROP(magicdrainrate) \
 	PROP(max_arrows) \
 	PROP(max_bombs) \
@@ -1136,27 +1142,51 @@ constexpr std::size_t countof(T(&)[N]) { return N; }
 	PROP(max_magic) \
 	PROP(max_rupees) \
 	PROP(max_sbombs) \
+	PROP(msg_more_is_offset) \
+	PROP(msg_more_x) \
+	PROP(msg_more_y) \
+	PROP(msg_speed) \
 	PROP(rupies) \
+	PROP(ss_bbox_1_color) \
+	PROP(ss_bbox_2_color) \
+	PROP(ss_flags) \
+	PROP(ss_grid_color) \
+	PROP(ss_grid_x) \
+	PROP(ss_grid_xofs) \
+	PROP(ss_grid_y) \
+	PROP(ss_grid_yofs) \
+	PROP(start_dmap) \
 	PROP(start_heart) \
+	PROP(subscreen) \
+	PROP(subscreen_style) \
 	PROP(subscrSpeed) \
 	PROP(super_bombs) \
 	PROP(swimgravity) \
 	PROP(switchhookstyle) \
 	PROP(terminalv) \
 	PROP(transdark_percent) \
+	PROP(transition_type) \
 	PROP(triforce) \
-	PROP(hero_swim_mult) \
-	PROP(hero_swim_div)
+	PROP(usecustomsfx)
 
 #define LIST_ARRAY_PROPS \
 	ARRAY_PROP(boss_key) \
 	ARRAY_PROP(compass) \
+	ARRAY_PROP(gen_dataSize) \
+	ARRAY_PROP(gen_doscript) \
+	ARRAY_PROP(gen_eventstate) \
+	ARRAY_PROP(gen_exitState) \
+	ARRAY_PROP(gen_reloadState) \
 	ARRAY_PROP(items) \
 	ARRAY_PROP(level_keys) \
 	ARRAY_PROP(map) \
 	ARRAY_PROP(misc) \
 	ARRAY_PROP(scrcnt) \
 	ARRAY_PROP(scrmaxcnt)
+
+// TODO gen_data[i][j]
+// ARRAY_PROP(gen_data) \
+// ARRAY_PROP(gen_initd) \
 
 std::string serialize_init_data_delta(zinitdata *base, zinitdata *changed)
 {
