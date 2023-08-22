@@ -11,7 +11,7 @@
 
 using std::map;
 using std::vector;
-extern ListData dmap_list;
+
 extern bool saved;
 extern itemdata *itemsbuf;
 extern zcmodule moduledata;
@@ -34,7 +34,7 @@ void call_init_dlg(zinitdata& sourcezinit, bool zc)
 
 InitDataDialog::InitDataDialog(zinitdata const& start, bool zc, std::function<void(zinitdata const&)> setVals):
 	local_zinit(start), setVals(setVals), levelsOffset(0), isZC(zc),
-	list_dmaps(dmap_list),
+	list_dmaps(GUI::ZCListData::dmaps(true)),
 	list_items(GUI::ZCListData::itemclass(false)),
 	list_genscr(GUI::ZCListData::generic_script())
 {}
