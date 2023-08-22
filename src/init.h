@@ -36,6 +36,6 @@ int32_t doInit(zinitdata *zinit, bool isZC);
 void resetItems(gamedata *data, zinitdata *zinit, bool freshquest);
 
 std::string serialize_init_data_delta(zinitdata *base, zinitdata *changed);
-zinitdata *apply_init_data_delta(zinitdata *base, std::string delta);
+zinitdata *apply_init_data_delta(zinitdata *base, std::string delta, std::string& out_error);
 #endif
 

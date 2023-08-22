@@ -1102,60 +1102,60 @@ template<std::size_t N, class T>
 constexpr std::size_t countof(T(&)[N]) { return N; }
 
 #define LIST_PROPS \
-	PROP(arrows); \
-	PROP(bomb_ratio); \
-	PROP(bombs); \
-	PROP(bunny_ltm); \
-	PROP(cont_heart); \
-	PROP(darkcol); \
-	PROP(def_lightrad); \
-	PROP(dither_arg); \
-	PROP(dither_percent); \
-	PROP(dither_type); \
-	PROP(ene_damage_multiplier); \
-	PROP(exitWaterJump); \
-	PROP(gravity); \
-	PROP(gravity2); \
-	PROP(hc); \
-	PROP(hcp_per_hc); \
-	PROP(hcp); \
-	PROP(hero_damage_multiplier); \
-	PROP(heroSideswimDownStep); \
-	PROP(heroSideswimSideStep); \
-	PROP(heroSideswimUpStep); \
-	PROP(heroStep); \
-	PROP(hp_per_heart); \
-	PROP(jump_hero_layer_threshold); \
-	PROP(keys); \
-	PROP(magic_per_block); \
-	PROP(magic); \
-	PROP(magicdrainrate); \
-	PROP(max_arrows); \
-	PROP(max_bombs); \
-	PROP(max_keys); \
-	PROP(max_magic); \
-	PROP(max_rupees); \
-	PROP(max_sbombs); \
-	PROP(rupies); \
-	PROP(start_heart); \
-	PROP(subscrSpeed); \
-	PROP(super_bombs); \
-	PROP(swimgravity); \
-	PROP(switchhookstyle); \
-	PROP(terminalv); \
-	PROP(transdark_percent); \
+	PROP(arrows) \
+	PROP(bomb_ratio) \
+	PROP(bombs) \
+	PROP(bunny_ltm) \
+	PROP(cont_heart) \
+	PROP(darkcol) \
+	PROP(def_lightrad) \
+	PROP(dither_arg) \
+	PROP(dither_percent) \
+	PROP(dither_type) \
+	PROP(ene_damage_multiplier) \
+	PROP(exitWaterJump) \
+	PROP(gravity) \
+	PROP(gravity2) \
+	PROP(hc) \
+	PROP(hcp_per_hc) \
+	PROP(hcp) \
+	PROP(hero_damage_multiplier) \
+	PROP(heroSideswimDownStep) \
+	PROP(heroSideswimSideStep) \
+	PROP(heroSideswimUpStep) \
+	PROP(heroStep) \
+	PROP(hp_per_heart) \
+	PROP(jump_hero_layer_threshold) \
+	PROP(keys) \
+	PROP(magic_per_block) \
+	PROP(magic) \
+	PROP(magicdrainrate) \
+	PROP(max_arrows) \
+	PROP(max_bombs) \
+	PROP(max_keys) \
+	PROP(max_magic) \
+	PROP(max_rupees) \
+	PROP(max_sbombs) \
+	PROP(rupies) \
+	PROP(start_heart) \
+	PROP(subscrSpeed) \
+	PROP(super_bombs) \
+	PROP(swimgravity) \
+	PROP(switchhookstyle) \
+	PROP(terminalv) \
+	PROP(transdark_percent) \
 	PROP(triforce) \
 	PROP(hero_swim_mult) \
 	PROP(hero_swim_div)
 
 #define LIST_ARRAY_PROPS \
-	ARRAY_PROP(boss_key); \
-	ARRAY_PROP(compass); \
-	ARRAY_PROP(items); \
-	ARRAY_PROP(level_keys); \
-	ARRAY_PROP(map); \
-	ARRAY_PROP(misc); \
-	ARRAY_PROP(scrcnt); \
+	ARRAY_PROP(boss_key) \
+	ARRAY_PROP(compass) \
+	ARRAY_PROP(items) \
+	ARRAY_PROP(level_keys) \
+	ARRAY_PROP(map) \
+	ARRAY_PROP(misc) \
+	ARRAY_PROP(scrcnt) \
 	ARRAY_PROP(scrmaxcnt)
 
 std::string serialize_init_data_delta(zinitdata *base, zinitdata *changed)
@@ -1170,7 +1170,7 @@ std::string serialize_init_data_delta(zinitdata *base, zinitdata *changed)
 	#define ARRAY_PROP(name) \
 		for (int i = 0; i < countof(base->name); i++) \
 			if (base->name[i] != changed->name[i]) \
-				tokens.push_back(fmt::format("{}[{}]={}", #name, i, (int)changed->name[i]))
+				tokens.push_back(fmt::format("{}[{}]={}", #name, i, (int)changed->name[i]));
 	LIST_ARRAY_PROPS;
 	#undef ARRAY_PROP
 
@@ -1178,24 +1178,28 @@ std::string serialize_init_data_delta(zinitdata *base, zinitdata *changed)
 }
 
 // TODO use out param instead of allocating new zinitdata
-zinitdata *apply_init_data_delta(zinitdata *base, std::string delta)
+zinitdata *apply_init_data_delta(zinitdata *base, std::string delta, std::string& out_error)
 {
 	zinitdata *result = new zinitdata(*base);
 
 	std::vector<std::string> tokens;
 	util::split(delta, tokens, ' ');
 	
-	#define FAIL_IF(x) if (x) { delete result; return nullptr; }
+	#define FAIL_IF(x, y) if (x) { \
+		out_error = y; \
+		delete result; \
+		return nullptr; \
+	}
 
 	for (std::string token : tokens)
 	{
 		std::vector<std::string> kv;
 		util::split(token, kv, '=');
-		FAIL_IF(kv.size() != 2);
+		FAIL_IF(kv.size() != 2, fmt::format("invalid token '{}': expected one =", token));
 
 		errno = 0;
 		int as_int = std::strtol(kv[1].data(), nullptr, 10);
-		FAIL_IF(errno);
+		FAIL_IF(errno, fmt::format("invalid token '{}': expected integer", token));
 
 		if (kv[0].find('[') != kv[0].npos)
 		{
@@ -1204,22 +1208,28 @@ zinitdata *apply_init_data_delta(zinitdata *base, std::string delta)
 
 			errno = 0;
 			int index = std::strtol(name_index[1].data(), nullptr, 10);
-			FAIL_IF(errno);
+			FAIL_IF(errno, fmt::format("invalid token '{}': expected integer", token));
 
 			#define ARRAY_PROP(name) if (name_index[0] == #name) \
 			{ \
-				FAIL_IF(index >= countof(result->name)); \
+				FAIL_IF(index >= countof(result->name), fmt::format("invalid token '{}': integer too big", token)); \
 				result->name[index] = as_int; \
 			} else
-			LIST_ARRAY_PROPS;
+			LIST_ARRAY_PROPS
+			{
+				FAIL_IF(true, fmt::format("invalid token '{}': unknown property", token));
+			}
 			#undef LIST_ARRAY_PROPS
-	
+
 			continue;
 		}
 
 		#define PROP(name) if (kv[0] == #name) \
 			result->name = as_int; else
-		LIST_PROPS;
+		LIST_PROPS
+		{
+			FAIL_IF(true, fmt::format("invalid token '{}': unknown property", token));
+		}
 		#undef PROP
 	}
 
