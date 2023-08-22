@@ -133,12 +133,12 @@ void dosubscr()
 		if(COOLSCROLL)
 		{
 			//copy the playing field back onto the screen
-			blit(subscr_scrolling_bitmap,framebuf,0,176,0,offy,256,176);
+			blit(subscr_scrolling_bitmap,framebuf,0,h,0,offy,256,h);
 		}
 		else
 		{
 			//scroll the playing field (copy the copy we made)
-			blit(subscr_scrolling_bitmap,framebuf,256,0,0,176-2-y+offy,256,y);
+			blit(subscr_scrolling_bitmap,framebuf,256,0,0,h-2-y+offy,256,y);
 		}
 		
 		draw_subscrs(framebuf,0,y,showtime,sspSCROLLING);
@@ -425,7 +425,7 @@ void dosubscr()
 		rectfill(framebuf, 0, 0, 255, 223, 0);
 		
 		if(compat && COOLSCROLL) //copy the playing field back onto the screen
-			blit(subscr_scrolling_bitmap,framebuf,0,176,0,passive_subscreen_height,256,176);
+			blit(subscr_scrolling_bitmap,framebuf,0,h,0,offy,256,h);
 		//else nothing to do; the playing field has scrolled off the screen
 		
 		//draw the passive and active subscreen
@@ -459,12 +459,12 @@ void dosubscr()
 		if(COOLSCROLL)
 		{
 			//copy the playing field back onto the screen
-			blit(subscr_scrolling_bitmap,framebuf,0,176,0,passive_subscreen_height,256,176);
+			blit(subscr_scrolling_bitmap,framebuf,0,h,0,offy,256,h);
 		}
 		else
 		{
 			//scroll the playing field (copy the copy we made)
-			blit(subscr_scrolling_bitmap,framebuf,256,0,0,176-2-y+passive_subscreen_height,256,y);
+			blit(subscr_scrolling_bitmap,framebuf,256,0,0,h-2-y+offy,256,y);
 		}
 		
 		draw_subscrs(framebuf,0,y,showtime,sspSCROLLING);
