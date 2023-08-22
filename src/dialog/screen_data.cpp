@@ -102,7 +102,7 @@ Checkbox(checked = local_scr.member&flag, \
 	})
 
 #define PLAIN_CB(member,flag,...) \
-Checkbox(checked = local_scr.member&flag, __VA_ARGS__, \
+Checkbox(checked = local_scr.member&flag __VA_OPT__(,) __VA_ARGS__, \
 	onToggleFunc = [&](bool state) \
 	{ \
 		SETFLAG(local_scr.member, flag, state); \
