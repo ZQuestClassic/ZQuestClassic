@@ -34,7 +34,7 @@ struct mapscr
 	byte exitdir;
 	word enemy[10]; //GetSetScreenEnemies()
 	byte pattern;
-	byte sidewarptype[4];
+	byte sidewarptype[4] = { wtSCROLL,wtSCROLL,wtSCROLL,wtSCROLL };
 	byte sidewarpoverlayflags;
 	byte warparrivalx;
 	byte warparrivaly;

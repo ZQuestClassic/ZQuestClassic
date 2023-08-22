@@ -855,10 +855,6 @@ void zmap::putdoor2(int32_t side,int32_t door)
 void zmap::clearscr(int32_t scr)
 {
     screens[scr].zero_memory();
-	for (int q = 0; q < 4; ++q)
-	{
-		screens[scr].sidewarptype[q] = wtSCROLL;
-	}
     screens[scr].valid=mVERSION;
 	for(int q = 0; q < 6; ++q)
 	{
@@ -9184,7 +9180,7 @@ int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 		scr_has_flags |= SCRHAS_SWARP;
 	else for(auto q = 0; q < 4; ++q)
 	{
-		if(screen.sidewarptype[q]
+		if(screen.sidewarptype[q] != wtSCROLL
 			|| screen.sidewarpdmap[q]
 			|| screen.sidewarpscr[q])
 		{
