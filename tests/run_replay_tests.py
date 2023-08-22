@@ -826,7 +826,7 @@ def run_replay_test(replay_file: pathlib.Path, output_dir: pathlib.Path) -> RunR
 
                 retcode = player_interface.poll()
                 if retcode != None:
-                    raise ReplayTimeoutException(f'process finished before replay started, exit code: {retcode}')
+                    raise Exception(f'process finished before replay started, exit code: {retcode}')
 
                 sleep(0.1)
 
