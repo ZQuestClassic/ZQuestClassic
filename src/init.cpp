@@ -1114,7 +1114,7 @@ constexpr std::size_t countof(T(&)[N]) { return N; }
 	PROP(dither_type) \
 	PROP(ene_damage_multiplier) \
 	PROP(exitWaterJump) \
-	PROP(gravity) \ 
+	PROP(gravity) \
 	PROP(gravity2) \
 	PROP(hc) \
 	PROP(hcp) \
@@ -1185,8 +1185,8 @@ constexpr std::size_t countof(T(&)[N]) { return N; }
 	ARRAY_PROP(scrmaxcnt)
 
 // TODO gen_data[i][j]
-// ARRAY_PROP(gen_data) \
-// ARRAY_PROP(gen_initd) \
+// ARRAY_PROP(gen_data)
+// ARRAY_PROP(gen_initd)
 
 std::string serialize_init_data_delta(zinitdata *base, zinitdata *changed)
 {
