@@ -42,7 +42,9 @@ private:
 	std::shared_ptr<GUI::Label> l_initds[8];
 	
 	std::shared_ptr<GUI::Label> twarp_lbl;
-	
+
+	std::shared_ptr<GUI::Checkbox> carryover_cb[2][12];
+
 	std::shared_ptr<GUI::Switcher> leff_switch;
 	std::shared_ptr<GUI::Checkbox> lens_cb[2][7];
 	

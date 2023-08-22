@@ -283,6 +283,9 @@ private:
 #define mVISITED         0x4000 // only overworld uses this
 #define mLIGHTBEAM       0x8000 // light beam triggers completed
 
+#define mNORESET         0x3F3F // all 'no reset' flags set
+#define mNOCARRYOVER     0x3F30 // all 'no carryover' flags set
+
 #define mMAXIND          16
 
 // room types
