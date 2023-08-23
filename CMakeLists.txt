@@ -874,22 +874,29 @@ endif()
 
 find_program(PYTHON python3 python REQUIRED)
 
+get_property(is_multi_config GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+if(is_multi_config)
+	set(BUILD_FOLDER "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>")
+else()
+	set(BUILD_FOLDER "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
+endif()
+
 add_custom_command(
-	COMMAND ${PYTHON} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/package.py --skip_binaries --copy_to_build_folder --build_folder "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>" --keep_existing_files
+	COMMAND ${PYTHON} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/package.py --skip_binaries --copy_to_build_folder --build_folder "${BUILD_FOLDER}" --keep_existing_files
 	OUTPUT copy_resources_if_not_exist.stamp
 )
 add_custom_target(copy_resources_if_not_exist DEPENDS copy_resources_if_not_exist.stamp)
 set_source_files_properties(copy_resources_if_not_exist.stamp PROPERTIES SYMBOLIC 1)
 
 add_custom_command(
-	COMMAND ${PYTHON} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/package.py --skip_binaries --copy_to_build_folder --build_folder "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>"
+	COMMAND ${PYTHON} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/package.py --skip_binaries --copy_to_build_folder --build_folder "${BUILD_FOLDER}"
 	OUTPUT copy_resources.stamp
 )
 add_custom_target(copy_resources DEPENDS copy_resources.stamp)
 set_source_files_properties(copy_resources.stamp PROPERTIES SYMBOLIC 1)
 
 add_custom_command(
-	COMMAND ${PYTHON} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/package.py --build_folder "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>" --clean_first
+	COMMAND ${PYTHON} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/package.py --build_folder "${BUILD_FOLDER}" --clean_first
 	OUTPUT package.stamp
 	DEPENDS ${zc_targets}
 )
@@ -897,7 +904,7 @@ add_custom_target(package DEPENDS package.stamp)
 set_source_files_properties(package.stamp PROPERTIES SYMBOLIC 1)
 
 add_custom_command(
-	COMMAND ${PYTHON} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/package.py --build_folder "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>" --clean_first --skip_archive
+	COMMAND ${PYTHON} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/package.py --build_folder "${BUILD_FOLDER}" --clean_first --skip_archive
 	OUTPUT package_no_archive.stamp
 	DEPENDS ${zc_targets}
 )
@@ -918,7 +925,7 @@ function (create_replay_tests_target target_name)
 	list(SUBLIST ARGV 1 -1 command_args)
 	add_custom_command(
 		USES_TERMINAL
-		COMMAND ${PYTHON} -Xutf8 ${CMAKE_CURRENT_SOURCE_DIR}/tests/run_replay_tests.py --no-emoji --build_folder "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>" ${command_args}
+		COMMAND ${PYTHON} -Xutf8 ${CMAKE_CURRENT_SOURCE_DIR}/tests/run_replay_tests.py --no-emoji --build_folder "${BUILD_FOLDER}" ${command_args}
 		OUTPUT ${target_name}.stamp
 		DEPENDS zelda
 	)
