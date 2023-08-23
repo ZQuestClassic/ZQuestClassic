@@ -534,6 +534,7 @@ protected:
 };
 
 #define SUBSCR_MMAPTIT_REQMAP  SUBSCRFLAG_SPEC_01
+#define SUBSCR_MMAPTIT_ONELINE SUBSCRFLAG_SPEC_02
 struct SW_MMapTitle : public SubscrWidget
 {
 	int32_t fontid;
@@ -554,6 +555,8 @@ struct SW_MMapTitle : public SubscrWidget
 	virtual int32_t write(PACKFILE *f) const override;
 protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
+private:
+	byte get_strs(char* line1, char* line2) const;
 };
 
 #define SUBSCR_MMAP_SHOWMAP    SUBSCRFLAG_SPEC_01
@@ -910,7 +913,7 @@ protected:
 };
 
 
-#define MAX_SUBSCR_PAGES 254
+#define MAX_SUBSCR_PAGES 255
 struct SubscrPage
 {
 	std::vector<SubscrWidget*> contents;
@@ -968,7 +971,7 @@ struct ZCSubscreen
 	bool get_page_pos(int32_t itmid, word& pgpos);
 	int32_t get_item_pos(word pgpos);
 	void delete_page(byte ind);
-	void add_page(byte ind);
+	bool add_page(byte ind);
 	void swap_pages(byte ind1, byte ind2);
 	void clear();
 	void copy_settings(const ZCSubscreen& src);

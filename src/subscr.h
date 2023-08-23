@@ -28,14 +28,12 @@ void textout_styled_aligned_ex(BITMAP *bmp, const FONT *f, const char *s, int32_
 void frame2x2(BITMAP *dest,int32_t x,int32_t y,int32_t tile,int32_t cset,int32_t w,int32_t h,int32_t flip,bool overlay,bool trans);
 void drawgrid(BITMAP *dest,int32_t x,int32_t y,int32_t c1,int32_t c2);
 void draw_block(BITMAP *dest,int32_t x,int32_t y,int32_t tile,int32_t cset,int32_t w,int32_t h);
-void drawdmap(BITMAP *dest, int32_t x, int32_t y, bool showmap, int32_t showhero, int32_t showcompass, int32_t herocolor, int32_t lccolor, int32_t dccolor);
 void lifemeter(BITMAP *dest,int32_t x,int32_t y,int32_t tile,bool bs_style);
 void magicmeter(BITMAP *dest,int32_t x,int32_t y);
 void buttonitem(BITMAP *dest, int32_t button, int32_t x, int32_t y);
 void putxnum(BITMAP *dest,int32_t x,int32_t y,int32_t num,FONT *tempfont,int32_t color,int32_t shadowcolor,int32_t bgcolor,int32_t textstyle,bool usex,int32_t digits,bool infinite,char idigit);
 void defaultcounters(BITMAP *dest, int32_t x, int32_t y, FONT *tempfont, int32_t color, int32_t shadowcolor, int32_t bgcolor, bool usex, int32_t textstyle, int32_t digits, char idigit);
 void counter(BITMAP *dest, int32_t x, int32_t y, FONT *tempfont, int32_t color, int32_t shadowcolor, int32_t bgcolor, int32_t alignment, int32_t textstyle, int32_t digits, char idigit, bool showzero, int32_t itemtype1, int32_t itemtype2, int32_t itemtype3, int32_t infiniteitem, bool onlyselected);
-void minimaptitle(BITMAP *dest, int32_t x, int32_t y, FONT *tempfont, int32_t color, int32_t shadowcolor, int32_t bgcolor, int32_t alignment, int32_t textstyle);
 
 INLINE void putdot(BITMAP *dest,int32_t x,int32_t y,int32_t c)
 {

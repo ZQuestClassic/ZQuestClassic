@@ -31,6 +31,7 @@ bool zq_ignore_item_ownership = true, zq_view_fullctr = false, zq_view_maxctr = 
 extern bool is_zq_replay_test;
 extern bool zq_ignore_item_ownership, zq_view_fullctr, zq_view_maxctr,
 	zq_view_noinf, zq_view_allinf;
+extern int zq_subscr_override_dmap;
 #endif
 
 
@@ -441,6 +442,15 @@ int shadow_h(int shadow)
 			return 1;
 	}
 	return 0;
+}
+
+int get_sub_dmap()
+{
+#if IS_ZQUEST
+	if(zq_subscr_override_dmap > -1)
+		return zq_subscr_override_dmap;
+#endif
+	return get_currdmap();
 }
 
 void subscrpg_clear_animation()
@@ -2098,11 +2108,24 @@ bool SW_MMapTitle::load_old(subscreen_object const& old)
 }
 word SW_MMapTitle::getW() const
 {
-	return 80;
+	word ret = (flags&SUBSCR_MMAPTIT_ONELINE)?100:50;
+	char bufs[2][21] = {0};
+	auto linecnt = get_strs(bufs[0],bufs[1]);
+	if(linecnt)
+	{
+		FONT* tfont = get_zc_font(fontid);
+		word len1 = text_length(tfont, bufs[0]);
+		word len2 = text_length(tfont, bufs[1]);
+		if(len1 > ret)
+			ret = len1;
+		if(len2 > ret)
+			ret = len2;
+	}
+	return ret;
 }
 word SW_MMapTitle::getH() const
 {
-	return 16;
+	return ((flags&SUBSCR_MMAPTIT_ONELINE)?1:2)*text_height(get_zc_font(fontid));
 }
 int16_t SW_MMapTitle::getXOffs() const
 {
@@ -2119,12 +2142,70 @@ byte SW_MMapTitle::getType() const
 {
 	return widgMMAPTITLE;
 }
+byte SW_MMapTitle::get_strs(char* line1, char* line2) const
+{
+	line1[0] = line2[0] = 0;
+	char dmaptitlesource[2][11];
+	char dmaptitle[2][11];
+	char* title = DMaps[get_sub_dmap()].title;
+	sprintf(dmaptitlesource[0], "%.10s", title);
+	sprintf(dmaptitlesource[1], "%.10s", title+10);
+	bool l1 = stripspaces(dmaptitlesource[0], dmaptitle[0], 10) > 0;
+	bool l2 = stripspaces(dmaptitlesource[1], dmaptitle[1], 10) > 0;
+	int linecnt = (l1 ? 1 : 0) + (l2 ? 1 : 0);
+	switch(linecnt)
+	{
+		default:
+		case 0:
+			return 0;
+		case 1:
+			sprintf(line1,"%s",dmaptitle[l1?0:1]);
+			return 1;
+		case 2:
+			if(flags&SUBSCR_MMAPTIT_ONELINE)
+			{
+				char spacebuf[2] = {0};
+				if(dmaptitlesource[0][9]==' '||dmaptitlesource[1][9]==' ')
+					spacebuf[0] = ' ';
+				sprintf(line1,"%s%s%s",dmaptitle[0],spacebuf,dmaptitle[1]);
+				return 1;
+			}
+			else
+			{
+				sprintf(line1,"%s",dmaptitle[0]);
+				sprintf(line2,"%s",dmaptitle[1]);
+				return 2;
+			}
+	}
+}
 void SW_MMapTitle::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
 	FONT* tempfont = get_zc_font(fontid);
 	if(!(flags&SUBSCR_MMAPTIT_REQMAP) || has_item(itype_map, get_dlevel()))
-		minimaptitle(dest, getX()+xofs, getY()+yofs, tempfont, c_text.get_color(),
-			c_shadow.get_color(),c_bg.get_color(), align, shadtype);
+	{
+		auto y2 = y+yofs+text_height(tempfont), y1 = y+yofs;
+		if(flags&SUBSCR_MMAPTIT_ONELINE)
+			y2 = y1;
+		if(replay_version_check(0,19))
+			y2 = y1+8;
+		char bufs[2][21] = {0};
+		auto linecnt = get_strs(bufs[0],bufs[1]);
+		if(linecnt == 1)
+		{
+			textprintf_styled_aligned_ex(dest,tempfont,x+xofs,y2,shadtype,
+				align,c_text.get_color(),c_shadow.get_color(),c_bg.get_color(),
+				"%s",bufs[0]);
+		}
+		else if(linecnt == 2)
+		{
+			textprintf_styled_aligned_ex(dest,tempfont,x+xofs,y2,shadtype,
+				align,c_text.get_color(),c_shadow.get_color(),c_bg.get_color(),
+				"%s",bufs[1]);
+			textprintf_styled_aligned_ex(dest,tempfont,x+xofs,y1,shadtype,
+				align,c_text.get_color(),c_shadow.get_color(),c_bg.get_color(),
+				"%s",bufs[0]);
+		}
+	}
 }
 SubscrWidget* SW_MMapTitle::clone() const
 {
@@ -2211,12 +2292,114 @@ byte SW_MMap::getType() const
 {
 	return widgMMAP;
 }
+
 void SW_MMap::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
-	bool showplr = (flags&SUBSCR_MMAP_SHOWPLR) && !(TheMaps[(DMaps[get_currdmap()].map*MAPSCRS)+get_homescr()].flags7&fNOHEROMARK);
-	bool showcmp = (flags&SUBSCR_MMAP_SHOWCMP) && !(DMaps[get_currdmap()].flags&dmfNOCOMPASS);
-	drawdmap(dest, getX()+xofs, getY()+yofs, flags&SUBSCR_MMAP_SHOWMAP, showplr,
-		showcmp, c_plr.get_color(), c_cmp_blink.get_color(), c_cmp_off.get_color());
+	auto const& thedmap = DMaps[get_sub_dmap()];
+	bool showplr = (flags&SUBSCR_MMAP_SHOWPLR) && !(TheMaps[(thedmap.map*MAPSCRS)+get_homescr()].flags7&fNOHEROMARK);
+	bool showcmp = (flags&SUBSCR_MMAP_SHOWCMP) && !(thedmap.flags&dmfNOCOMPASS);
+    zcolors const& c = QMisc.colors;
+    int32_t type = (thedmap.type&dmfTYPE);
+    
+	auto tx = x+xofs, ty = y+yofs;
+    if(flags&SUBSCR_MMAP_SHOWMAP)
+    {
+        switch(type)
+        {
+        case dmOVERW:
+        case dmBSOVERW:
+		{
+            int32_t maptile=(!get_qr(qr_BROKEN_OVERWORLD_MINIMAP) && has_item(itype_map, get_dlevel()))?thedmap.minimap_2_tile:thedmap.minimap_1_tile;
+            int32_t mapcset=(!get_qr(qr_BROKEN_OVERWORLD_MINIMAP) && has_item(itype_map, get_dlevel()))?thedmap.minimap_2_cset:thedmap.minimap_1_cset;
+            //What a mess. The map drawing is based on a variable that can change states during a scrolling transition when warping. -Z
+            if(maptile)
+            {
+                draw_block(dest,tx,ty,maptile,mapcset,5,3);
+            }
+            else if(c.overworld_map_tile || c.overworld_map_tile)
+            {
+                draw_block(dest,tx,ty,(c.overworld_map_tile!=0?c.overworld_map_tile:c.overworld_map_tile),c.overworld_map_cset,5,3);
+            }
+            else
+            {
+                rectfill(dest,tx+8,ty+8,tx+71,ty+39,c.overw_bg);
+            }
+            
+            if(!thedmap.minimap_1_tile && ((thedmap.type&dmfTYPE) == dmBSOVERW))
+            {
+                drawgrid(dest,tx+8,ty+8,c.bs_goal,c.bs_dk);
+            }
+            
+            break;
+        }
+        case dmDNGN:
+        case dmCAVE:
+		{
+            int32_t maptile=has_item(itype_map, get_dlevel())?thedmap.minimap_2_tile:thedmap.minimap_1_tile;
+            int32_t mapcset=has_item(itype_map, get_dlevel())?thedmap.minimap_2_cset:thedmap.minimap_1_cset;
+            //What a mess. The map drawing is based on a variable that can change states during a scrolling transition when warping. -Z
+            if(maptile)
+            {
+                draw_block(dest,tx,ty,maptile,mapcset,5,3);
+            }
+            else if(c.dungeon_map_tile||c.dungeon_map_tile)
+            {
+                draw_block(dest,tx,ty,(c.dungeon_map_tile!=0?c.dungeon_map_tile:c.dungeon_map_tile),c.dungeon_map_cset,5,3);
+            }
+            else
+            {
+                rectfill(dest,tx+8,ty+8,tx+71,ty+39,c.dngn_bg);
+            }
+            //Marking this as a possible area for the scrolling warp map bug reported by Lut. -Z
+            if(!thedmap.minimap_2_tile && has_item(itype_map, get_dlevel()))
+            {
+                if((thedmap.flags&dmfMINIMAPCOLORFIX) != 0)
+                {
+                    drawgrid(dest,tx+8,ty+8,c.cave_fg,-1);
+                }
+                else
+                {
+                    drawgrid(dest,tx+8,ty+8,c.dngn_fg,-1);
+                }
+            }
+            
+            break;
+		}
+        }
+    }
+    
+    if(showcmp)
+    {
+        if(type==dmDNGN || type==dmCAVE)
+        {
+            if(show_subscreen_dmap_dots&&has_item(itype_compass, get_dlevel()))
+            {
+                int32_t c2 = c_cmp_off.get_color();
+                
+                if(!has_item(itype_triforcepiece, get_dlevel()) && (frame&16))
+                    c2 = c_cmp_blink.get_color();
+                    
+                int32_t cx = ((thedmap.compass&15)<<3)+tx+10;
+                int32_t cy = ((thedmap.compass&0xF0)>>2)+ty+8;
+                putdot(dest,cx,cy,c2);
+            }
+        }
+    }
+    
+    if(showplr)
+    {
+        if(show_subscreen_dmap_dots && c_plr.get_color() != 255)
+        {
+            if(type==dmOVERW)
+            {
+                putdot(dest,((get_homescr()&15)<<2)+tx+9,((get_homescr()&0xF0)>>2)+ty+8,c_plr.get_color());
+            }
+            else if(type==dmBSOVERW || ((type==dmDNGN || type==dmCAVE) && get_currscr()<128))
+            {
+                putdot(dest,(((get_homescr()&15)-thedmap.xoff)<<3)+tx+10,((get_homescr()&0xF0)>>2)+ty+8,c_plr.get_color());
+            }
+        }
+    }
 }
 SubscrWidget* SW_MMap::clone() const
 {
@@ -4773,17 +4956,18 @@ void ZCSubscreen::delete_page(byte id)
 		}
 	}
 }
-void ZCSubscreen::add_page(byte id)
+bool ZCSubscreen::add_page(byte id)
 {
 	if(id > pages.size())
 		id = pages.size(); //add new page at end
 	if(id >= MAX_SUBSCR_PAGES) //no more room!
-		return;
+		return false;
 	auto& pg = pages.emplace_back();
 	pg.index = pages.size()-1;
 	for(byte ind = pages.size()-1; ind > id; --ind)
 		swap_pages(ind,ind-1);
 	curpage = id;
+	return true;
 }
 void ZCSubscreen::swap_pages(byte ind1, byte ind2)
 {

@@ -341,14 +341,13 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			case widgSELECTOR:
 			case widgMINITILE:
 			case widgMCGUFF_FRAME:
+			case widgMMAPTITLE:
+			case widgLGAUGE:
+			case widgMGAUGE:
 				show_wh = false;
 				break;
 			case widgBGCOLOR:
 				show_xy = false;
-				show_wh = false;
-				break;
-			case widgLGAUGE:
-			case widgMGAUGE:
 				show_wh = false;
 				break;
 			default: break;
@@ -1076,7 +1075,8 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 					DDL(w->shadtype, list_shadtype),
 					Label(text = "Alignment:", hAlign = 1.0),
 					DDL(w->align, list_aligns),
-					CBOX(w->flags, SUBSCR_MMAPTIT_REQMAP, "Invisible w/o Map item", 2)
+					CBOX(w->flags, SUBSCR_MMAPTIT_REQMAP, "Invisible w/o Map item", 2),
+					CBOX(w->flags, SUBSCR_MMAPTIT_ONELINE, "Show as one line", 2)
 				);
 				break;
 			}
@@ -1511,7 +1511,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 									seltfs[0] = TextField(
 										fitParent = true,
 										type = GUI::TextField::type::INT_DECIMAL,
-										low = 1, high = MAX_SUBSCR_PAGES+1, val = local_subref->pg_targ+1,
+										low = 1, high = MAX_SUBSCR_PAGES, val = local_subref->pg_targ+1,
 										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_subref->pg_targ = val-1;
