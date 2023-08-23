@@ -10918,7 +10918,7 @@ int32_t get_register(const int32_t arg)
 			{ 
 				if ( isInfo ) 
 				{ 
-					ret = ((int32_t)(QMisc.info[ref].price[indx]) * 10000); 
+					ret = ((int32_t)(QMisc.info[ref - NUMSHOPS].price[indx]) * 10000); 
 				} 
 				else 
 				{ 
@@ -10933,14 +10933,14 @@ int32_t get_register(const int32_t arg)
 		//Pay for info
 		case SHOPDATASTRING:
 		{
-			if (((unsigned)ri->shopsref) > NUMINFOSHOPS)
+			int32_t ref = ri->shopsref;
+			if (ref < NUMSHOPS || ref > NUMINFOSHOPS)
 			{
-				Z_scripterrlog("Invalid shop pointer passed to shopdata->String[]: %d\n", ri->shopsref); 
+				Z_scripterrlog("Invalid shop pointer passed to shopdata->String[]: %d\n", ref); 
 				ret = -10000;
 			}
 			else 
 			{
-				int32_t ref = ri->shopsref; 
 				bool isInfo = ( ref > NUMSHOPS && ref <= NUMINFOSHOPS ); 
 				int32_t indx = ri->d[rINDEX] / 10000; 
 				if ( indx < 0 || indx > 2 ) 
@@ -10951,7 +10951,7 @@ int32_t get_register(const int32_t arg)
 				{ 
 					if ( isInfo ) 
 					{ 
-						ret = ((int32_t)(QMisc.info[ref].str[indx]) * 10000); 
+						ret = ((int32_t)(QMisc.info[ref - NUMSHOPS].str[indx]) * 10000); 
 					} 
 					else 
 					{ 
@@ -21430,7 +21430,7 @@ void set_register(int32_t arg, int32_t value)
 			{ 
 				if ( isInfo ) 
 				{ 
-					QMisc.info[ref].price[indx] = (word)(vbound((value/10000), 0, 65535));
+					QMisc.info[ref - NUMSHOPS].price[indx] = (word)(vbound((value/10000), 0, 65535));
 					break;
 				} 
 				else 
@@ -21445,14 +21445,14 @@ void set_register(int32_t arg, int32_t value)
 		case SHOPDATASTRING:
 		{
 			{
-				if ( ri->shopsref < NUMSHOPS || ri->shopsref > NUMINFOSHOPS )
+				int32_t ref = ri->shopsref;
+				if ( ref < NUMSHOPS || ref > NUMINFOSHOPS )
 				{
-					Z_scripterrlog("Invalid Info Shop ID passed to shopdata->String[]: %d\n", ri->shopsref); 
+					Z_scripterrlog("Invalid Info Shop ID passed to shopdata->String[]: %d\n", ref); 
 					break;
 				}
 				else 
 				{
-					int32_t ref = ri->shopsref; 
 					bool isInfo = ( ref > NUMSHOPS && ref <= NUMINFOSHOPS ); 
 					int32_t indx = ri->d[rINDEX] / 10000; 
 					if ( indx < 0 || indx > 2 ) 
@@ -21464,7 +21464,7 @@ void set_register(int32_t arg, int32_t value)
 					{ 
 						if ( isInfo ) 
 						{ 
-							QMisc.info[ref].str[indx] = (word)(vbound((value/10000), 0, 32767));
+							QMisc.info[ref - NUMSHOPS].str[indx] = (word)(vbound((value/10000), 0, 32767));
 							break;
 						} 
 						else 
@@ -30710,7 +30710,7 @@ int32_t run_script(ScriptType type, const word script, const int32_t i)
 
 	if (!(type >= ScriptType::First && type <= ScriptType::Last))
 	{
-		al_trace("Invalid script type: %d\n", type);
+		al_trace("Invalid script type: %d\n", (int)type);
 		return RUNSCRIPT_ERROR;
 	}
 
