@@ -533,3 +533,29 @@ void markBmap(int32_t dir)
     markBmap(dir, get_currscr());
 }
 
+void put_passive_subscr(BITMAP *dest,int32_t x,int32_t y,bool showtime,int32_t pos2)
+{
+	++subscr_item_clk;
+	animate_subscr_buttonitems();
+	BITMAP *subscr = create_sub_bitmap(dest,x,y,256,passive_subscreen_height);
+	
+	if(no_subscreen())
+	{
+		clear_to_color(subscr,0);
+		destroy_bitmap(subscr);
+		return;
+	}
+	
+	show_custom_subscreen(subscr, new_subscreen_passive, 0, 0, showtime, pos2);
+	destroy_bitmap(subscr);
+	if(new_subscreen_overlay)
+	{
+		if(!(msg_onscreen && (new_subscreen_overlay->flags&SUBFLAG_OVR_HIDEFORSTR)))
+		{
+			subscr = create_sub_bitmap(dest,x,0,256,224);
+			show_custom_subscreen(subscr, new_subscreen_overlay, 0, 0, showtime, pos2);
+			destroy_bitmap(subscr);
+		}
+	}
+}
+

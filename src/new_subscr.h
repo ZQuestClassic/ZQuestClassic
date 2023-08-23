@@ -949,7 +949,9 @@ private:
 	word index;
 	friend struct ZCSubscreen;
 };
-#define SUBFLAG_NOPAGEWRAP   0x00000001
+#define SUBFLAG_ACT_NOPAGEWRAP   0x00000001
+
+#define SUBFLAG_OVR_HIDEFORSTR   0x00000001
 struct ZCSubscreen
 {
 	std::vector<SubscrPage> pages;

@@ -25,7 +25,7 @@ public:
 
 protected:
 	std::shared_ptr<GUI::Window> window;
-	bool active;
+	byte ty;
 	ZCSubscreen local_subref;
 	
 	GUI::ListData list_sfx;

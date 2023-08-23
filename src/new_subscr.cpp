@@ -5183,7 +5183,7 @@ void ZCSubscreen::check_btns(byte btnflgs)
 		tr = &trans_left;
 	}
 	else return;
-	if(!wrap_pg(pg,flags&SUBFLAG_NOPAGEWRAP))
+	if(!wrap_pg(pg,flags&SUBFLAG_ACT_NOPAGEWRAP))
 		return;
 	subscrpg_animate(curpage,pg,*tr,*this);
 }
