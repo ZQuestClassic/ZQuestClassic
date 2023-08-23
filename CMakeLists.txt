@@ -774,7 +774,9 @@ set(zc_clang_errors
 set(zc_gcc_errors
 	-Werror=array-bounds
 	-Werror=format
-	-Werror=format-overflow
+	# GCC currently gives some false positives for format-overflow.
+	# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=108091
+	-Wno-error=format-overflow
 	-Werror=return-type
 	-Werror=unreachable-code
 	# -Werror=unused
