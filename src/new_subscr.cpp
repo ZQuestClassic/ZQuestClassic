@@ -20,6 +20,7 @@
 #ifdef IS_PLAYER
 extern int32_t directItem;
 extern sprite_list Lwpns;
+extern bool msg_onscreen;
 void verifyBothWeapons();
 bool zq_ignore_item_ownership = true, zq_view_fullctr = false, zq_view_maxctr = false,
 	zq_view_noinf = false, zq_view_allinf = false;
@@ -838,7 +839,7 @@ SubscrWidget::SubscrWidget(subscreen_object const& old) : SubscrWidget()
 bool SubscrWidget::load_old(subscreen_object const& old)
 {
 	type = old.type;
-	posflags = old.pos;
+	posflags = old.pos&0x7;
 	x = old.x;
 	y = old.y;
 	w = old.w;
@@ -889,6 +890,10 @@ void SubscrWidget::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& pa
 }
 bool SubscrWidget::visible(byte pos, bool showtime) const
 {
+	#ifdef IS_PLAYER
+	if(msg_onscreen && (posflags&sspNOMSGSTR))
+		return false;
+	#endif
 	return posflags&pos;
 }
 SubscrWidget* SubscrWidget::clone() const
@@ -901,11 +906,9 @@ bool SubscrWidget::copy_prop(SubscrWidget const* src, bool all)
 		return false;
 	flags = src->flags;
 	genflags = src->genflags;
-	posflags &= ~(sspUP|sspDOWN|sspSCROLLING);
-	posflags |= src->posflags&(sspUP|sspDOWN|sspSCROLLING);
+	posflags = src->posflags;
 	if(all)
 	{
-		posflags = src->posflags;
 		x = src->x;
 		y = src->y;
 		w = src->w;

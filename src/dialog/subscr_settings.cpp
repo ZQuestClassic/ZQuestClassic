@@ -111,17 +111,7 @@ std::shared_ptr<GUI::Widget> SubscrSettingsDialog::view()
 		}
 		case sstOVERLAY:
 		{
-			tabs["Basic"] = Rows<2>(
-				INFOBTN("Hides the overlay while a message string is being displayed"),
-				Checkbox(
-					text = "Hide for Message String",
-					checked = local_subref.flags & SUBFLAG_OVR_HIDEFORSTR,
-					onToggleFunc = [&](bool state)
-					{
-						SETFLAG(local_subref.flags,SUBFLAG_OVR_HIDEFORSTR,state);
-					}
-				)
-			);
+			tabs["Basic"] = Label(text = "No settings for overlay subscreens yet!");
 			break;
 		}
 	}

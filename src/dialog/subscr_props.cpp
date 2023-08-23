@@ -383,6 +383,15 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 							{
 								SETFLAG(local_subref->posflags,sspSCROLLING,state);
 							}
+						),
+						INFOBTN("Hide if a message string is showing."),
+						Checkbox(
+							text = "Hide for String", hAlign = 0.0,
+							checked = local_subref->posflags & sspNOMSGSTR,
+							onToggleFunc = [=](bool state)
+							{
+								SETFLAG(local_subref->posflags,sspNOMSGSTR,state);
+							}
 						)
 					),
 					g1 = Rows<2>()

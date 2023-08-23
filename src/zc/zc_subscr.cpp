@@ -550,12 +550,9 @@ void put_passive_subscr(BITMAP *dest,int32_t x,int32_t y,bool showtime,int32_t p
 	destroy_bitmap(subscr);
 	if(new_subscreen_overlay)
 	{
-		if(!(msg_onscreen && (new_subscreen_overlay->flags&SUBFLAG_OVR_HIDEFORSTR)))
-		{
-			subscr = create_sub_bitmap(dest,x,0,256,224);
-			show_custom_subscreen(subscr, new_subscreen_overlay, 0, 0, showtime, pos2);
-			destroy_bitmap(subscr);
-		}
+		subscr = create_sub_bitmap(dest,x,0,256,224);
+		show_custom_subscreen(subscr, new_subscreen_overlay, 0, 0, showtime, pos2);
+		destroy_bitmap(subscr);
 	}
 }
 

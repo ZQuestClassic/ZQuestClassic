@@ -45,11 +45,6 @@ enum { ssdtOLD, ssdtNEWSUBSCR, ssdtREV2, ssdtBSZELDA, ssdtBSZELDAMODIFIED, ssdtB
 
 enum { sssFULLPUSH, sssFULLSLIDEDOWN, sssMAX };
 
-//when to display an element
-#define sspUP 1
-#define sspDOWN 2
-#define sspSCROLLING 4
-
 struct sso_struct
 {
     char *s;

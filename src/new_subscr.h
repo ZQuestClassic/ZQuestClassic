@@ -210,6 +210,12 @@ enum //PGGOTO modes
 	PGGOTO_TRG
 };
 
+//when to display an element
+#define sspUP                         0x01
+#define sspDOWN                       0x02
+#define sspSCROLLING                  0x04
+#define sspNOMSGSTR                   0x08
+
 #define SUBSCRFLAG_SELECTABLE         0x00000001
 #define SUBSCRFLAG_PGGOTO_NOWRAP      0x00000002
 
@@ -950,8 +956,6 @@ private:
 	friend struct ZCSubscreen;
 };
 #define SUBFLAG_ACT_NOPAGEWRAP   0x00000001
-
-#define SUBFLAG_OVR_HIDEFORSTR   0x00000001
 struct ZCSubscreen
 {
 	std::vector<SubscrPage> pages;
