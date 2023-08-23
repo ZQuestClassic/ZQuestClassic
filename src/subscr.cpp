@@ -34,6 +34,8 @@ extern sprite_list  guys, items, Ewpns, Lwpns, chainlinks, decorations;
 extern HeroClass   Hero;
 extern FFScript FFCore;
 
+int get_sub_dmap();
+
 ZCSubscreen *new_subscreen_active = nullptr, *new_subscreen_passive = nullptr,
 	*new_subscreen_overlay = nullptr;
 
@@ -2293,7 +2295,7 @@ void drawgrid(BITMAP *dest,int32_t x,int32_t y,int32_t c1,int32_t c2)
     
     for(int32_t y2=0; y2<=7; ++y2)
     {
-        byte dl = DMaps[get_currdmap()].grid[si];
+        byte dl = DMaps[get_sub_dmap()].grid[si];
         
         for(int32_t x2=0; x2<=7; ++x2)
         {
@@ -2526,111 +2528,6 @@ void draw_block_flip(BITMAP *dest,int32_t x,int32_t y,int32_t tile,int32_t cset,
             }
             
             break;
-        }
-    }
-}
-
-void drawdmap(BITMAP *dest, int32_t x, int32_t y, bool showmap, int32_t showhero, int32_t showcompass, int32_t herocolor, int32_t lccolor, int32_t dccolor)
-{
-    zcolors c=QMisc.colors;
-    int32_t type = (DMaps[get_currdmap()].type&dmfTYPE);
-    
-    if(showmap)
-    {
-        switch(type)
-        {
-        case dmOVERW:
-        case dmBSOVERW:
-		{
-            int32_t maptile=(!get_qr(qr_BROKEN_OVERWORLD_MINIMAP) && has_item(itype_map, get_dlevel()))?DMaps[get_currdmap()].minimap_2_tile:DMaps[get_currdmap()].minimap_1_tile;
-            int32_t mapcset=(!get_qr(qr_BROKEN_OVERWORLD_MINIMAP) && has_item(itype_map, get_dlevel()))?DMaps[get_currdmap()].minimap_2_cset:DMaps[get_currdmap()].minimap_1_cset;
-            //What a mess. The map drawing is based on a variable that can change states during a scrolling transition when warping. -Z
-            if(maptile)
-            {
-                draw_block(dest,x,y,maptile,mapcset,5,3);
-            }
-            else if(c.overworld_map_tile || c.overworld_map_tile)
-            {
-                draw_block(dest,x,y,(c.overworld_map_tile!=0?c.overworld_map_tile:c.overworld_map_tile),c.overworld_map_cset,5,3);
-            }
-            else
-            {
-                rectfill(dest,x+8,y+8,x+71,y+39,c.overw_bg);
-            }
-            
-            if(!DMaps[get_currdmap()].minimap_1_tile && ((DMaps[get_currdmap()].type&dmfTYPE) == dmBSOVERW))
-            {
-                drawgrid(dest,x+8,y+8,c.bs_goal,c.bs_dk);
-            }
-            
-            break;
-        }
-        case dmDNGN:
-        case dmCAVE:
-		{
-            int32_t maptile=has_item(itype_map, get_dlevel())?DMaps[get_currdmap()].minimap_2_tile:DMaps[get_currdmap()].minimap_1_tile;
-            int32_t mapcset=has_item(itype_map, get_dlevel())?DMaps[get_currdmap()].minimap_2_cset:DMaps[get_currdmap()].minimap_1_cset;
-            //What a mess. The map drawing is based on a variable that can change states during a scrolling transition when warping. -Z
-            if(maptile)
-            {
-                draw_block(dest,x,y,maptile,mapcset,5,3);
-            }
-            else if(c.dungeon_map_tile||c.dungeon_map_tile)
-            {
-                draw_block(dest,x,y,(c.dungeon_map_tile!=0?c.dungeon_map_tile:c.dungeon_map_tile),c.dungeon_map_cset,5,3);
-            }
-            else
-            {
-                rectfill(dest,x+8,y+8,x+71,y+39,c.dngn_bg);
-            }
-            //Marking this as a possible area for the scrolling warp map bug reported by Lut. -Z
-            if(!DMaps[get_currdmap()].minimap_2_tile && has_item(itype_map, get_dlevel()))
-            {
-                if((DMaps[get_currdmap()].flags&dmfMINIMAPCOLORFIX) != 0)
-                {
-                    drawgrid(dest,x+8,y+8,c.cave_fg,-1);
-                }
-                else
-                {
-                    drawgrid(dest,x+8,y+8,c.dngn_fg,-1);
-                }
-            }
-            
-            break;
-		}
-        }
-    }
-    
-    if(showcompass)
-    {
-        if(type==dmDNGN || type==dmCAVE)
-        {
-            if(show_subscreen_dmap_dots&&has_item(itype_compass, get_dlevel()))
-            {
-                int32_t c2 = dccolor;
-                
-                if(!has_item(itype_triforcepiece, get_dlevel()) && (frame&16))
-                    c2 = lccolor;
-                    
-                int32_t cx = ((DMaps[get_currdmap()].compass&15)<<3)+x+10;
-                int32_t cy = ((DMaps[get_currdmap()].compass&0xF0)>>2)+y+8;
-                putdot(dest,cx,cy,c2);
-            }
-        }
-    }
-    
-    if(showhero)
-    {
-        if(show_subscreen_dmap_dots && herocolor != 255)
-        {
-            if(type==dmOVERW)
-            {
-                putdot(dest,((get_homescr()&15)<<2)+x+9,((get_homescr()&0xF0)>>2)+y+8,herocolor);
-            }
-            else if(type==dmBSOVERW || ((type==dmDNGN || type==dmCAVE) && get_currscr()<128))
-            {
-                putdot(dest,(((get_homescr()&15)-DMaps[get_currdmap()].xoff)<<3)+x+10,((get_homescr()&0xF0)>>2)+y+8,herocolor);
-            }
         }
     }
 }
@@ -3097,37 +2994,6 @@ void defaultcounters(BITMAP *dest, int32_t x, int32_t y, FONT *tempfont, int32_t
     }
 }
 
-void minimaptitle(BITMAP *dest, int32_t x, int32_t y, FONT *tempfont, int32_t color, int32_t shadowcolor, int32_t bgcolor, int32_t alignment, int32_t textstyle)
-{
-    char dmaptitlesource[2][11];
-    char dmaptitle[2][11];
-    sprintf(dmaptitlesource[0], "%.10s", DMaps[get_currdmap()].title);
-    sprintf(dmaptitlesource[1], "%.10s", DMaps[get_currdmap()].title+10);
-    
-    int32_t title_len1=stripspaces(dmaptitlesource[0], dmaptitle[0], 10);
-    int32_t title_len2=stripspaces(dmaptitlesource[1], dmaptitle[1], 10);
-    
-    if((title_len1>0)||(title_len2>0))
-    {
-        if((title_len1>0)&&(title_len2>0))
-        {
-            textprintf_styled_aligned_ex(dest,tempfont,x,y+8,textstyle,alignment,color,shadowcolor,bgcolor,"%s",dmaptitle[1]);
-            textprintf_styled_aligned_ex(dest,tempfont,x,y,textstyle,alignment,color,shadowcolor,bgcolor,"%s",dmaptitle[0]);
-        }
-        else
-        {
-            if(title_len1>0)
-            {
-                textprintf_styled_aligned_ex(dest,tempfont,x,y+8,textstyle,alignment,color,shadowcolor,bgcolor,"%s",dmaptitle[0]);
-            }
-            else
-            {
-                textprintf_styled_aligned_ex(dest,tempfont,x,y+8,textstyle,alignment,color,shadowcolor,bgcolor,"%s",dmaptitle[1]);
-            }
-        }
-    }
-}
-
 void put_passive_subscr(BITMAP *dest,int32_t x,int32_t y,bool showtime,int32_t pos2)
 {
 	++subscr_item_clk;
@@ -3381,10 +3247,11 @@ void puttriforce(BITMAP *dest, int32_t x, int32_t y, int32_t tile, int32_t cset,
 void draw_block(BITMAP *dest,int32_t x,int32_t y,int32_t tile,int32_t cset,int32_t w,int32_t h);
 void putBmap(BITMAP *dest, int32_t x, int32_t y,bool showmap, bool showrooms, bool showhero, int32_t roomcolor, int32_t herocolor, bool large)
 {
+	auto const& thedmap = DMaps[get_sub_dmap()];
     int32_t si=0;
     
-    int32_t maptile=has_item(itype_map, get_dlevel())?DMaps[get_currdmap()].largemap_2_tile:DMaps[get_currdmap()].largemap_1_tile;
-    int32_t mapcset=has_item(itype_map, get_dlevel())?DMaps[get_currdmap()].largemap_2_cset:DMaps[get_currdmap()].largemap_1_cset;
+    int32_t maptile=has_item(itype_map, get_dlevel())?thedmap.largemap_2_tile:thedmap.largemap_1_tile;
+    int32_t mapcset=has_item(itype_map, get_dlevel())?thedmap.largemap_2_cset:thedmap.largemap_1_cset;
     
     if(showmap)
     {
@@ -3456,13 +3323,13 @@ void putBmap(BITMAP *dest, int32_t x, int32_t y,bool showmap, bool showrooms, bo
             roomcolor = QMisc.colors.bmap_fg;
         }
         
-        si=(get_currdmap() << 7);
+        si=(get_sub_dmap() << 7);
         
         for(int32_t y2=y+8; y2<y+72; y2+=8)
         {
-			while(((unsigned)((si&0xF)-DMaps[get_currdmap()].xoff))>7)
+			while(((unsigned)((si&0xF)-thedmap.xoff))>7)
 				++si;
-			int32_t xoffs = DMaps[get_currdmap()].xoff;
+			int32_t xoffs = thedmap.xoff;
             for(int32_t x2=x+(large?32:16)+(maptile?8:0); x2<x+(large?96:80)+(maptile?8:0); x2+=8)
             {
 				if(xoffs < 0)
@@ -3485,9 +3352,9 @@ void putBmap(BITMAP *dest, int32_t x, int32_t y,bool showmap, bool showrooms, bo
                 
                 ++si;
             }
-			if(DMaps[get_currdmap()].xoff < 0)
+			if(thedmap.xoff < 0)
 			{
-				si -= DMaps[get_currdmap()].xoff;
+				si -= thedmap.xoff;
 			}
 		}
     }
@@ -3501,7 +3368,7 @@ void putBmap(BITMAP *dest, int32_t x, int32_t y,bool showmap, bool showrooms, bo
                 herocolor=QMisc.colors.hero_dot;
             }
             
-            int32_t xoff = (((DMaps[get_currdmap()].type&dmfTYPE)==dmOVERW) ? 0 : DMaps[get_currdmap()].xoff);
+            int32_t xoff = (((thedmap.type&dmfTYPE)==dmOVERW) ? 0 : thedmap.xoff);
             putdot(dest,(((get_homescr()&15)-xoff)<<3)+x+(large?34:18)+(maptile?8:0),((get_homescr()&0xF0)>>1)+y+11,herocolor);
         }
     }
@@ -3510,7 +3377,7 @@ void putBmap(BITMAP *dest, int32_t x, int32_t y,bool showmap, bool showrooms, bo
 void update_subscreens(int32_t dmap)
 {
 	if(dmap<0)
-		dmap=get_currdmap();
+		dmap=get_sub_dmap();
 	
 	ZCSubscreen *next_active = nullptr, *next_passive = nullptr, *next_overlay = nullptr;
 	int indx = DMaps[dmap].active_subscreen;

@@ -534,6 +534,7 @@ protected:
 };
 
 #define SUBSCR_MMAPTIT_REQMAP  SUBSCRFLAG_SPEC_01
+#define SUBSCR_MMAPTIT_ONELINE SUBSCRFLAG_SPEC_02
 struct SW_MMapTitle : public SubscrWidget
 {
 	int32_t fontid;
@@ -554,6 +555,8 @@ struct SW_MMapTitle : public SubscrWidget
 	virtual int32_t write(PACKFILE *f) const override;
 protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
+private:
+	byte get_strs(char* line1, char* line2) const;
 };
 
 #define SUBSCR_MMAP_SHOWMAP    SUBSCRFLAG_SPEC_01

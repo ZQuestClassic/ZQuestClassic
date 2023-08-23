@@ -42,6 +42,7 @@ extern bool zq_ignore_item_ownership;
 bool zq_view_fullctr = false, zq_view_maxctr = false,
 	zq_view_noinf = false, zq_view_allinf = false;
 bool subscr_confirm_delete = true;
+int zq_subscr_override_dmap = -1;
 
 int32_t curr_widg;
 char str_oname[512];
@@ -101,6 +102,7 @@ int32_t onGridSnapTop();
 int32_t onGridSnapMiddle();
 int32_t onGridSnapBottom();
 static int32_t onToggleConfDelete();
+static int32_t onSetSubscrDmap();
 
 void subscr_properties(int indx)
 {
@@ -1144,11 +1146,12 @@ static MENU ss_view_menu[] =
 	{ (char *)"",                                NULL,                          NULL, 0, NULL },
 	{ (char *)"Show In&visible Items",           onToggleInvis,                 NULL, 0, NULL },
 	{ (char *)"Show Unowned Items",              onToggleShowUnowned,           NULL, 0, NULL },
-	{ (char *)"",                                NULL,                          NULL, 0, NULL },
 	{ (char *)"Max Out Counters",                onToggleMaxCtr,                NULL, 0, NULL },
 	{ (char *)"Max Out Max Counters",            onToggleMaxMaxCtr,             NULL, 0, NULL },
 	{ (char *)"Don't Show 'Infinite's",          onToggleNoInf,                 NULL, 0, NULL },
 	{ (char *)"Show Everything 'Infinite'",      onToggleAllInf,                NULL, 0, NULL },
+	{ (char *)"",                                NULL,                          NULL, 0, NULL },
+	{ (char *)"Set Preview &DMap",               onSetSubscrDmap,               NULL, 0, NULL },
 	{ (char *)"",                                NULL,                          NULL, 0, NULL },
 	{ (char *)"&Help",                           onSubscrViewInfo,              NULL, 0, NULL },
 	{ NULL,                                      NULL,                          NULL, 0, NULL }
@@ -1897,6 +1900,11 @@ static int32_t onToggleConfDelete()
 	subscr_confirm_delete = !subscr_confirm_delete;
 	SETFLAG(ss_settings_menu[3].flags, D_SELECTED, subscr_confirm_delete);
 	zc_set_config("editsubscr","confirm_delete",subscr_confirm_delete?1:0);
+	return D_O_K;
+}
+static int32_t onSetSubscrDmap()
+{
+	zq_subscr_override_dmap = getnumber("Preview DMap?",zq_subscr_override_dmap);
 	return D_O_K;
 }
 
