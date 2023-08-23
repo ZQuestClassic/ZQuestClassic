@@ -49,9 +49,11 @@ char str_oname[512];
 char str_cpyname[512];
 char subscr_namebuf[512];
 ZCSubscreen subscr_edit;
+SubscrPage subscr_copied_page;
+bool has_copied_page = false;
 bool sso_selection[MAXSUBSCREENITEMS];
-SubscrWidget* propCopyWidg = nullptr;
-int copied_page = -1;
+SubscrWidget* subscr_copied_widget = nullptr;
+int copied_widget_page = -1;
 enum
 {
 	ssmouCLASSIC,
@@ -129,17 +131,17 @@ void copy_properties(int indx)
 	if(unsigned(indx) < pg.contents.size())
 	{
 		SubscrWidget* widg = pg.contents[indx];
-		if(propCopyWidg)
-			delete propCopyWidg;
+		if(subscr_copied_widget)
+			delete subscr_copied_widget;
 		if(widg)
 		{
-			propCopyWidg = widg->clone();
-			copied_page = subscr_edit.curpage;
+			subscr_copied_widget = widg->clone();
+			copied_widget_page = subscr_edit.curpage;
 		}
 		else
 		{
-			propCopyWidg = nullptr;
-			copied_page = -1;
+			subscr_copied_widget = nullptr;
+			copied_widget_page = -1;
 		}
 		update_sso_name();
 	}
@@ -147,35 +149,35 @@ void copy_properties(int indx)
 void paste_properties(int indx)
 {
 	SubscrPage& pg = subscr_edit.cur_page();
-	if(propCopyWidg) // Hopefully unnecessary
+	if(subscr_copied_widget) // Hopefully unnecessary
 	{
 		SubscrPage& pg = subscr_edit.cur_page();
 		for(int32_t i=0; i<pg.contents.size(); i++)
 		{
 			if(i == indx || sso_selection[i])
-				pg.contents[i]->copy_prop(propCopyWidg);
+				pg.contents[i]->copy_prop(subscr_copied_widget);
 		}
 	}
 }
 void paste_widget_to(int indx)
 {
-	if(propCopyWidg)
+	if(subscr_copied_widget)
 	{
 		SubscrWidget* targ = subscr_edit.cur_page().contents[indx];
 		auto tx = targ->x, ty = targ->y;
-		targ->copy_prop(propCopyWidg,true);
+		targ->copy_prop(subscr_copied_widget,true);
 		targ->x = tx; targ->y = ty;
 	}
 }
 SubscrWidget* paste_widget_new()
 {
-	if(!propCopyWidg) return nullptr;
+	if(!subscr_copied_widget) return nullptr;
 	SubscrPage& pg = subscr_edit.cur_page();
     
-	SubscrWidget* widg = propCopyWidg->clone();
+	SubscrWidget* widg = subscr_copied_widget->clone();
 	if(!widg) return nullptr;
 	
-	if(copied_page == subscr_edit.curpage)
+	if(copied_widget_page == subscr_edit.curpage)
 	{
 		widg->x+=zc_max(zinit.ss_grid_x,8);
 		widg->y+=zc_max(zinit.ss_grid_y,8);
@@ -1310,7 +1312,9 @@ DIALOG subscreen_dlg[] =
 	{ jwin_iconbutton_proc,  0,   0,      15,     15,    0,                 0,                0,       D_EXIT,     BTNICON_EXPAND_HORZ,    0, NULL, NULL, NULL },
 	// 55
 	{ jwin_infobtn_proc,     0,   0,      15,     15,    0,                 0,                0,       0,          0,                      0, (void*)&arrow_infos[4], NULL, NULL },
-	{ jwin_text_proc,       0,    0,     181,     16,    0,                  0,                0,       0,          0,                      0, NULL, NULL, NULL },
+	{ jwin_text_proc,        0,   0,     181,     16,    0,                 0,                0,       0,          0,                      0, NULL, NULL, NULL },
+	{ jwin_button_proc,      0,   0,      15,     15,    0,                 0,                0,       D_EXIT,     0,                      0, (void*)"Copy Pg", NULL, NULL },
+	{ jwin_button_proc,      0,   0,      15,     15,    0,                 0,                0,       D_EXIT,     0,                      0, (void*)"Paste New Pg", NULL, NULL },
 	
 	{ d_keyboard_proc,      0,    0,      0,       0,    0,                 0,                'v',     0,          0,                      0, (void *) onSubscrPaste, NULL, NULL },
 	{ d_keyboard_proc,      0,    0,      0,       0,    0,                 0,                'c',     0,          0,                      0, (void *) onSubscrCopy, NULL, NULL },
@@ -2217,7 +2221,7 @@ void update_subscr_dlg(bool start)
 		subscreen_dlg[7].dp=(void *)str_oname;
 		subscreen_dlg[56].dp=(void *)str_cpyname;
 		subscreen_dlg[9].dp=(void *)subscr_namebuf;
-		copied_page = -1;
+		copied_widget_page = -1;
 		update_sso_name();
 		subscreen_dlg[11].flags|=D_DISABLED;
 		
@@ -2252,7 +2256,8 @@ void update_subscr_dlg(bool start)
 			{
 				if(subscreen_dlg[q].proc == jwin_text_proc
 					|| subscreen_dlg[q].proc == jwin_rtext_proc
-					|| subscreen_dlg[q].proc == jwin_ctext_proc)
+					|| subscreen_dlg[q].proc == jwin_ctext_proc
+					|| subscreen_dlg[q].proc == jwin_button_proc)
 				{
 					subscreen_dlg[q].dp2 = (void*)get_custom_font(CFONT_GUI);
 				}
@@ -2318,8 +2323,8 @@ void update_subscr_dlg(bool start)
 				}
 			}
 			subscreen_dlg[50].y = subscreen_dlg[49].y = subscreen_dlg[48].y =
-				subscreen_dlg[47].y = subscreen_dlg[46].y =
-				subscreen_dlg[4].y+168*2+2;
+				subscreen_dlg[47].y = subscreen_dlg[46].y = subscreen_dlg[57].y =
+				subscreen_dlg[58].y = subscreen_dlg[4].y+168*2+2;
 			subscreen_dlg[46].y += (subscreen_dlg[47].h-dlg_fh(subscreen_dlg[46]))/2;
 			
 			subscreen_dlg[51].y = subscreen_dlg[52].y = subscreen_dlg[53].y =
@@ -2346,6 +2351,8 @@ void update_subscr_dlg(bool start)
 	bool nopages = subty!=sstACTIVE;
 	for(int q = 46; q <= 55; ++q)
 		SETFLAG(subscreen_dlg[q].flags,D_HIDDEN,nopages);
+	SETFLAG(subscreen_dlg[57].flags,D_HIDDEN,nopages);
+	SETFLAG(subscreen_dlg[58].flags,D_HIDDEN,nopages);
 	if(!nopages)
 	{
 		sprintf(pgbuf, "Pg %d/%zd", subscr_edit.curpage+1,subscr_edit.pages.size());
@@ -2356,15 +2363,24 @@ void update_subscr_dlg(bool start)
 		SETFLAG(subscreen_dlg[53].flags,D_DISABLED,subscr_edit.curpage<1);
 		SETFLAG(subscreen_dlg[52].flags,D_DISABLED,subscr_edit.curpage>=subscr_edit.pages.size()-1);
 		SETFLAG(subscreen_dlg[54].flags,D_DISABLED,subscr_edit.curpage>=subscr_edit.pages.size()-1);
+		SETFLAG(subscreen_dlg[58].flags,D_DISABLED,subscr_edit.pages.size()>=MAX_SUBSCR_PAGES || !has_copied_page);
 		int tw = 8+dlg_fontlen(subscreen_dlg[46]);
 		subscreen_dlg[51].x = subscreen_dlg[47].x = subscreen_dlg[46].x-(tw/2)-subscreen_dlg[47].w;
 		subscreen_dlg[52].x = subscreen_dlg[48].x = subscreen_dlg[46].x+(tw/2);
 		subscreen_dlg[53].x = subscreen_dlg[49].x = subscreen_dlg[47].x - subscreen_dlg[49].w;
 		subscreen_dlg[54].x = subscreen_dlg[50].x = subscreen_dlg[48].x + subscreen_dlg[48].w;
 		subscreen_dlg[55].x = subscreen_dlg[46].x - subscreen_dlg[55].w/2;
+		
+		subscreen_dlg[57].w = 8+dlg_fontlen(subscreen_dlg[57]);
+		subscreen_dlg[57].h = std::max(30,8+dlg_fh(subscreen_dlg[57]));
+		subscreen_dlg[58].w = 8+dlg_fontlen(subscreen_dlg[58]);
+		subscreen_dlg[58].h = std::max(30,8+dlg_fh(subscreen_dlg[58]));
+		
+		subscreen_dlg[57].x = subscreen_dlg[49].x - subscreen_dlg[57].w;
+		subscreen_dlg[58].x = subscreen_dlg[50].x + subscreen_dlg[50].w;
 	}
 	// Disable pastes if no copies
-	bool nocopies = (!propCopyWidg || propCopyWidg->getType()==widgNULL);
+	bool nocopies = (!subscr_copied_widget || subscr_copied_widget->getType()==widgNULL);
 	SETFLAG(ss_copypaste_menu[2].flags,D_DISABLED,nocopies);
 	SETFLAG(ss_copypaste_menu[3].flags,D_DISABLED,nocopies);
 	SETFLAG(ss_copypaste_menu[5].flags,D_DISABLED,nocopies);
@@ -2436,7 +2452,20 @@ bool edit_subscreen()
 					break;
 				}
 				case 50: // New Page
-					subscr_edit.add_page(subscr_edit.curpage+1);
+					if(!subscr_edit.add_page(subscr_edit.curpage+1))
+						displayinfo("Error","Could not add new page; page limit reached");
+					break;
+				case 57: // Copy Page
+					subscr_copied_page = subscr_edit.cur_page();
+					has_copied_page = true;
+					break;
+				case 58: // Paste New Page
+					if(has_copied_page)
+					{
+						if(subscr_edit.add_page(subscr_edit.curpage+1))
+							subscr_edit.cur_page() = subscr_copied_page;
+						else displayinfo("Error","Could not add new page; page limit reached");
+					}
 					break;
 			}
 			if(ret < 3)
@@ -2695,8 +2724,8 @@ void update_sso_name()
 		curr_widg = -1;
 		sprintf(str_oname, "No object selected");
 	}
-	if(propCopyWidg)
-		sprintf(str_cpyname, "Copied:  '%s' from pg %d", propCopyWidg->getTypeName().c_str(), copied_page);
+	if(subscr_copied_widget)
+		sprintf(str_cpyname, "Copied:  '%s' from pg %d", subscr_copied_widget->getTypeName().c_str(), copied_widget_page);
 	else sprintf(str_cpyname, "Copied:  Nothing");
 	update_subscr_dlg(false);
 	broadcast_dialog_message(MSG_DRAW, 0);

@@ -4955,17 +4955,18 @@ void ZCSubscreen::delete_page(byte id)
 		}
 	}
 }
-void ZCSubscreen::add_page(byte id)
+bool ZCSubscreen::add_page(byte id)
 {
 	if(id > pages.size())
 		id = pages.size(); //add new page at end
 	if(id >= MAX_SUBSCR_PAGES) //no more room!
-		return;
+		return false;
 	auto& pg = pages.emplace_back();
 	pg.index = pages.size()-1;
 	for(byte ind = pages.size()-1; ind > id; --ind)
 		swap_pages(ind,ind-1);
 	curpage = id;
+	return true;
 }
 void ZCSubscreen::swap_pages(byte ind1, byte ind2)
 {

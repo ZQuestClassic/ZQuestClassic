@@ -913,7 +913,7 @@ protected:
 };
 
 
-#define MAX_SUBSCR_PAGES 254
+#define MAX_SUBSCR_PAGES 255
 struct SubscrPage
 {
 	std::vector<SubscrWidget*> contents;
@@ -971,7 +971,7 @@ struct ZCSubscreen
 	bool get_page_pos(int32_t itmid, word& pgpos);
 	int32_t get_item_pos(word pgpos);
 	void delete_page(byte ind);
-	void add_page(byte ind);
+	bool add_page(byte ind);
 	void swap_pages(byte ind1, byte ind2);
 	void clear();
 	void copy_settings(const ZCSubscreen& src);

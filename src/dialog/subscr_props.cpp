@@ -1511,7 +1511,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 									seltfs[0] = TextField(
 										fitParent = true,
 										type = GUI::TextField::type::INT_DECIMAL,
-										low = 1, high = MAX_SUBSCR_PAGES+1, val = local_subref->pg_targ+1,
+										low = 1, high = MAX_SUBSCR_PAGES, val = local_subref->pg_targ+1,
 										onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 										{
 											local_subref->pg_targ = val-1;
