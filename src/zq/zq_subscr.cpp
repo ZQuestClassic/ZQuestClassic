@@ -1904,7 +1904,7 @@ static int32_t onToggleConfDelete()
 }
 static int32_t onSetSubscrDmap()
 {
-	zq_subscr_override_dmap = getnumber("Preview DMap?",zq_subscr_override_dmap);
+	zq_subscr_override_dmap = vbound(getnumber("Preview DMap?",zq_subscr_override_dmap),-1,MAXDMAPS-1);
 	return D_O_K;
 }
 
