@@ -2167,7 +2167,7 @@ byte SW_MMapTitle::get_strs(char* line1, char* line2) const
 			if(flags&SUBSCR_MMAPTIT_ONELINE)
 			{
 				char spacebuf[2] = {0};
-				if(dmaptitlesource[0][9]==' '||dmaptitlesource[1][9]==' ')
+				if(dmaptitlesource[0][9]==' '||dmaptitlesource[1][0]==' ')
 					spacebuf[0] = ' ';
 				sprintf(line1,"%s%s%s",dmaptitle[0],spacebuf,dmaptitle[1]);
 				return 1;
