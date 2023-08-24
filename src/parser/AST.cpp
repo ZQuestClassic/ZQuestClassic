@@ -2656,7 +2656,7 @@ DataType const& ASTDataType::resolve(ZScript::Scope& scope, CompileErrorHandler*
 			}
 			else result = resolved->clone();
 			type.reset(result);
-			wasResolved_ = true;
+			wasResolved_ = result && result->isResolved();
 		}
 	}
 	return *type;
