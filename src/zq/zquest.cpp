@@ -49,6 +49,7 @@ void setZScriptVersion(int32_t) { } //bleh...
 
 #include <al5img.h>
 #include <loadpng.h>
+#include <fmt/format.h>
 
 #include "dialog/cheat_codes.h"
 #include "dialog/set_password.h"
@@ -197,7 +198,7 @@ zcmodule moduledata;
 
 void load_size_poses();
 void do_previewtext();
-bool do_slots(map<string, disassembled_script_data> &scripts, bool quick_assign);
+bool do_slots(map<string, disassembled_script_data> &scripts, int assign_mode);
 void do_script_disassembly(map<string, disassembled_script_data>& scripts, bool fromCompile);
 
 int32_t startdmapxy[6] = {-1000, -1000, -1000, -1000, -1000, -1000};
@@ -11675,6 +11676,7 @@ int32_t onWaterSolidity()
 {
 	AlertFuncDialog("Water Conversion",
 		"Forcibly set the solidity of all 'Liquid' combos in the quest?",
+		"",
 		3, 2, //3 buttons, where buttons[2] is focused
 		"Solid", doAllSolidWater,
 		"Non-Solid", doNoSolidWater,
@@ -11707,6 +11709,7 @@ int32_t onEffectFix()
 {
 	AlertFuncDialog("Effect Square Conversion",
 		"Forcibly fill the green effect square of all combos in the quest?",
+		"",
 		3, 2, //3 buttons, where buttons[2] is focused
 		"All", doAllEffectSquare,
 		"Blank Only", doBlankEffectSquare,
@@ -23237,7 +23240,7 @@ bool checkSkip(int32_t format, byte flags)
 }
 void clearAllSlots(int32_t type, byte flags = 0)
 {
-	bound(type,0,10);
+	bound(type,0,num_types-1);
 	switch(type)
 	{
 		case type_ffc:
@@ -23397,6 +23400,22 @@ void setup_scriptslot_dlg(char* buf, byte flags)
 	//}
 }
 
+std::string global_slotnames[NUMSCRIPTGLOBAL] = {
+	"Init",
+	"Active",
+	"onExit",
+	"onSaveLoad",
+	"onLaunch",
+	"onContGame",
+	"onF6Menu",
+	"onSave",
+};
+std::string player_slotnames[NUMSCRIPTPLAYER-1] = {
+	"Init",
+	"Active",
+	"onDeath",
+	"onWin",
+};
 byte reload_scripts(map<string, disassembled_script_data> &scripts)
 {
 	byte slotflags = 0;
@@ -23426,25 +23445,7 @@ byte reload_scripts(map<string, disassembled_script_data> &scripts)
 	}
 	for(int32_t i = 0; i < NUMSCRIPTGLOBAL; i++)
 	{
-		switch(i)
-		{
-			case GLOBAL_SCRIPT_INIT:
-				globalmap[i].slotname="Init:"; break;
-			case GLOBAL_SCRIPT_GAME:
-				globalmap[i].slotname="Active:"; break;
-			case GLOBAL_SCRIPT_END:
-				globalmap[i].slotname="onExit:"; break;
-			case GLOBAL_SCRIPT_ONSAVELOAD:
-				globalmap[i].slotname="onSaveLoad:"; break;
-			case GLOBAL_SCRIPT_ONLAUNCH:
-				globalmap[i].slotname="onLaunch:"; break;
-			case GLOBAL_SCRIPT_ONCONTGAME:
-				globalmap[i].slotname="onContGame:"; break;
-			case GLOBAL_SCRIPT_F6:
-				globalmap[i].slotname="onF6Menu:"; break;
-			case GLOBAL_SCRIPT_ONSAVE:
-				globalmap[i].slotname="onSave:"; break;
-		}
+		globalmap[i].slotname=fmt::format("{}:",global_slotnames[i]);
 		if(!globalmap[i].isEmpty())
 		{
 			if(globalmap[i].isZASM())
@@ -23556,13 +23557,7 @@ byte reload_scripts(map<string, disassembled_script_data> &scripts)
 	}
 	for(int32_t i = 0; i < NUMSCRIPTPLAYER-1; i++)
 	{
-		switch(i)
-		{
-			case 0: playermap[i].slotname="Init:"; break;
-			case 1: playermap[i].slotname="Active:"; break;
-			case 2: playermap[i].slotname="onDeath:"; break;
-			case 3: playermap[i].slotname="onWin:"; break;
-		}
+		playermap[i].slotname=fmt::format("{}:",player_slotnames[i]);
 		if(!playermap[i].isEmpty())
 		{
 			if(playermap[i].isZASM())
@@ -23732,7 +23727,81 @@ bool handle_slot_map(map<int32_t, script_slot_data>& mp, int offs, script_data**
 	return true;
 }
 
-bool do_slots(map<string, disassembled_script_data> &scripts, bool quick_assign)
+void smart_slot_named(map<string, disassembled_script_data> &scripts,
+	vector<string> const& scriptnames, map<int32_t, script_slot_data>& mp,
+	std::string* slotnames, int slotstart, int slotend)
+{
+	for(int q = slotstart; q < slotend; ++q)
+	{
+		auto& lval = mp[q];
+		if(!lval.isEmpty())
+			continue; //occupied, leave alone
+		bool done = false;
+		if(!done) //Check case-sensitive
+			for(size_t rind = 0; rind < scriptnames.size(); ++rind)
+			{
+				auto const& rval = scriptnames[rind];
+				if(rval == "<none>") continue;
+				if(rval == slotnames[q])
+				{ //Perfect match
+					lval.updateName(rval);
+					lval.format = scripts[lval.scriptname].format;
+					done = true;
+					break;
+				}
+			}
+		if(!done) //Check case-insensitive
+			for(size_t rind = 0; rind < scriptnames.size(); ++rind)
+			{
+				auto const& rval = scriptnames[rind];
+				if(rval == "<none>") continue;
+				string lc_rv = rval, lc_slot = slotnames[q];
+				lowerstr(lc_rv);
+				lowerstr(lc_slot);
+				if(lc_rv == lc_slot)
+				{ //Insensitive match
+					lval.updateName(rval);
+					lval.format = scripts[lval.scriptname].format;
+					break;
+				}
+			}
+	}
+}
+void smart_slot_type(map<string, disassembled_script_data> &scripts,
+	vector<string> const& scriptnames, map<int32_t, script_slot_data>& mp,
+	int slotcount)
+{
+	for(size_t rind = 0; rind < scriptnames.size(); ++rind)
+	{
+		auto const& rval = scriptnames[rind];
+		if(rval == "<none>") continue;
+		script_slot_data* first_open_slot = nullptr;
+		bool done = false;
+		for(int q = 0; q < slotcount; ++q)
+		{
+			auto& lval = mp[q];
+			if(lval.isEmpty())
+			{
+				if(!first_open_slot)
+					first_open_slot = &lval;
+			}
+			else if(lval.scriptname == rval)
+			{
+				done = true;
+				break;
+			}
+		}
+		if(!done)
+		{
+			if(!first_open_slot)
+				break; //no slots left to assign to!
+			first_open_slot->updateName(rval);
+			first_open_slot->format = scripts[first_open_slot->scriptname].format;
+		}
+	}
+}
+
+bool do_slots(map<string, disassembled_script_data> &scripts, int assign_mode)
 {
 	large_dialog(assignscript_dlg);
 	int32_t ret = 3;
@@ -23742,7 +23811,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts, bool quick_assign)
 	bool retval = false;
 	
     popup_zqdialog_start();
-	while(!quick_assign)
+	while(!assign_mode)
 	{
 		slotflags = reload_scripts(scripts);
         ret = do_zqdialog(assignscript_dlg, ret);
@@ -24253,6 +24322,23 @@ bool do_slots(map<string, disassembled_script_data> &scripts, bool quick_assign)
 			}
 		}
 	}
+	if(assign_mode == 2) //Smart Assign
+	{
+		//For global/hero scripts, match slot names if unoccupied
+		smart_slot_named(scripts, asglobalscripts, globalmap, global_slotnames, 1, NUMSCRIPTGLOBAL);
+		smart_slot_named(scripts, asplayerscripts, playermap, player_slotnames, 0, NUMSCRIPTPLAYER-1);
+		//For other scripts, assign all un-assigned scripts
+		smart_slot_type(scripts, asffcscripts, ffcmap, NUMSCRIPTFFC-1);
+		smart_slot_type(scripts, asitemscripts, itemmap, NUMSCRIPTITEM-1);
+		smart_slot_type(scripts, asnpcscripts, npcmap, NUMSCRIPTGUYS-1);
+		smart_slot_type(scripts, aslweaponscripts, lwpnmap, NUMSCRIPTWEAPONS-1);
+		smart_slot_type(scripts, aseweaponscripts, ewpnmap, NUMSCRIPTWEAPONS-1);
+		smart_slot_type(scripts, asscreenscripts, screenmap, NUMSCRIPTSCREEN-1);
+		smart_slot_type(scripts, asdmapscripts, dmapmap, NUMSCRIPTSDMAP-1);
+		smart_slot_type(scripts, asitemspritescripts, itemspritemap, NUMSCRIPTSITEMSPRITE-1);
+		smart_slot_type(scripts, ascomboscripts, comboscriptmap, NUMSCRIPTSCOMBODATA-1);
+		smart_slot_type(scripts, asgenericscripts, genericmap, NUMSCRIPTSGENERIC-1);
+	}
 auto_do_slots:
 	doslots_log_output = (assignscript_dlg[13].flags == D_SELECTED);
 	doslot_scripts = &scripts;
@@ -24302,7 +24388,7 @@ auto_do_slots:
 			//kill_sfx();
 			voice_start(sfx_voice[compile_finish_sample]);
 		}
-		if(!quick_assign)
+		if(!assign_mode)
 			InfoDialog("Slots Assigned",buf).show();
 		if ( compile_finish_sample > 0 )
 		{
@@ -27504,7 +27590,7 @@ int32_t main(int32_t argc,char **argv)
 			exit(1);
 		}
 
-		success = do_compile_and_slots(true, false);
+		success = do_compile_and_slots(1, false);
 		if (!success)
 		{
 			printf("Failed to compile\n");
@@ -29485,7 +29571,7 @@ int32_t onCmdExit()
 
 int32_t onQuickCompile()
 {
-	if(do_compile_and_slots(true,false))
+	if(do_compile_and_slots(1,false))
 	{
 		saved = false;
 		InfoDialog("Quick Compile","Success!").show();
@@ -29493,6 +29579,19 @@ int32_t onQuickCompile()
 	else
 	{
 		InfoDialog("Quick Compile","Failure!").show();
+	}
+	return 0;
+}
+int32_t onSmartCompile()
+{
+	if(do_compile_and_slots(2,false))
+	{
+		saved = false;
+		InfoDialog("Smart Compile","Success!").show();
+	}
+	else
+	{
+		InfoDialog("Smart Compile","Failure!").show();
 	}
 	return 0;
 }
@@ -29680,6 +29779,7 @@ command_pair commands[cmdMAX]=
     { "Quick Compile ZScript",              0, (intF) onQuickCompile },
     { "Rulesets",                           0, (intF) PickRuleset },
     { "Rule Templates",                     0, (intF) PickRuleTemplate },
+    { "Smart Compile ZScript",              0, (intF) onSmartCompile },
 };
 
 /********************************/

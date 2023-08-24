@@ -4044,6 +4044,7 @@ bool do_combo_default(newcombo& ref)
 	_instance = &ref;
 	AlertFuncDialog("Are you sure?",
 		"Reset the combo to default?",
+		"",
 		3, 2, //3 buttons, where buttons[2] is focused
 		"Whole Combo", def_all,
 		"Only attributes/flags", def_some,

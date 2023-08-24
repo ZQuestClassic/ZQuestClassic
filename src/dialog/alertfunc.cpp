@@ -5,8 +5,8 @@
 #include <gui/size.h>
 extern int32_t zq_screen_w;
 
-AlertFuncDialog::AlertFuncDialog(std::string title, std::string text, uint32_t numButtons, uint32_t focused_button, ...):
-	InfoDialog(title,text), didend(false)
+AlertFuncDialog::AlertFuncDialog(std::string title, std::string text, std::string info, uint32_t numButtons, uint32_t focused_button, ...):
+	InfoDialog(title,text), didend(false), helptxt(info)
 {
 	va_list args;
 	va_start(args, focused_button);
@@ -14,8 +14,8 @@ AlertFuncDialog::AlertFuncDialog(std::string title, std::string text, uint32_t n
 	va_end(args);
 }
 
-AlertFuncDialog::AlertFuncDialog(std::string title, std::vector<std::string_view> lines, uint32_t numButtons, uint32_t focused_button,  ...):
-	InfoDialog(title,lines), didend(false)
+AlertFuncDialog::AlertFuncDialog(std::string title, std::vector<std::string_view> lines, std::string info, uint32_t numButtons, uint32_t focused_button,  ...):
+	InfoDialog(title,lines), didend(false), helptxt(info)
 {
 	va_list args;
 	va_start(args, focused_button);
@@ -27,9 +27,32 @@ std::shared_ptr<GUI::Widget> AlertFuncDialog::view()
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
-
+	auto sz = buttons.size();
+	switch(sz)
+	{
+		case 0:
+			buttonRow = Row(DummyWidget());
+			break;
+		case 1: case 2: case 3:
+			buttonRow = Row(topPadding = 0.5_em,spacing = 10_px);
+			break;
+		default:
+		{
+			size_t s = (sz+1)/2;
+			buttonRow = GUI::Internal::makeRows(s);
+			buttonRow->setTopPadding(0.5_em);
+			buttonRow->setSpacing(10_px);
+			break;
+		}
+	}
+	for(std::shared_ptr<GUI::Button>& btn : buttons)
+	{
+		buttonRow->add(btn);
+	}
+	
 	std::shared_ptr<GUI::Window> window = Window(
 		title = std::move(dlgTitle),
+		info = helptxt,
 		onClose = message::OK,
 		Column(
 			Label(noHLine = true,
@@ -38,17 +61,9 @@ std::shared_ptr<GUI::Widget> AlertFuncDialog::view()
 				maxLines = 30,
 				textAlign = 1,
 				text = std::move(dlgText)),
-			buttonRow = Row(
-				topPadding = 0.5_em,
-				vAlign = 1.0,
-				spacing = 2_em
-			)
+			buttonRow
 		)
 	);
-	for(std::shared_ptr<GUI::Button>& btn : buttons)
-	{
-		buttonRow->add(btn);
-	}
 	return window;
 }
 

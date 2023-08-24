@@ -753,6 +753,7 @@ enum
 	cmdQuickCompile,
 	cmdRuleset,
 	cmdRuleTemplate,
+	cmdSmartCompile,
     cmdMAX
 };
 
