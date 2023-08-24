@@ -351,6 +351,13 @@ public:
         return next_index;
     }
 	
+	void PopLast()
+	{
+		if(count < 1) return;
+		auto ind = --count;
+		memset((void*)&commands[ind], 0, sizeof(CScriptDrawingCommandVars));
+	}
+	
 	bool is_dirty(int lyr)
 	{
 		return dirty_layers.contains(lyr);

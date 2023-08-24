@@ -787,6 +787,7 @@ static int32_t read_saves(ReadMode read_mode, std::string filename, std::vector<
 					
 				//We allocate the container
 				a.Resize(tempdword);
+				a.setValid(true); //should always be valid
 				
 				//And then fill in the contents
 				for(dword k = 0; k < a.Size(); k++)
@@ -1066,6 +1067,7 @@ static int32_t read_saves(ReadMode read_mode, std::string filename, std::vector<
 						return 97;
 					ZScriptArray zsarr;
 					zsarr.Resize(arrsz);
+					zsarr.setValid(true); //should always be valid
 					for(uint32_t q = 0; q < arrsz; ++q)
 					{
 						if(!p_igetl(&templong,f))

@@ -2618,7 +2618,7 @@ public:
 	static int32_t strlen(const int32_t ptr)
 	{
 		ArrayManager am(ptr);
-		if (am.invalid())
+		if (am.invalid() || am.size() == 0)
 			return -1;
 			
 		word count;
@@ -24137,7 +24137,7 @@ void do_internal_stricmp()
 
 void do_resize_array()
 {
-	int32_t size = vbound(get_register(sarg2) / 10000, 1, 214748);
+	int32_t size = vbound(get_register(sarg2) / 10000, 0, 214748);
 	dword ptrval = get_register(sarg1) / 10000;
 	ArrayManager am(ptrval);
 	am.resize(size);
@@ -24207,7 +24207,7 @@ void do_allocatemem(const bool v, const bool local, ScriptType type, const uint3
 	const int32_t size = SH::get_arg(sarg2, v) / 10000;
 	dword ptrval;
 	
-	if(size <= 0)
+	if(size < 0)
 	{
 		Z_scripterrlog("Array initialized to invalid size of %d\n", size);
 		set_register(sarg1, 0); //Pass back NULL
@@ -24229,7 +24229,7 @@ void do_allocatemem(const bool v, const bool local, ScriptType type, const uint3
 			ZScriptArray &a = localRAM[ptrval]; //marginally faster for large arrays if we use a reference
 			
 			a.Resize(size);
-			a.setValidZero(false);
+			a.setValid(true);
 			
 			for(dword j = 0; j < (dword)size; j++)
 				a[j] = 0; //initialize array
@@ -24256,6 +24256,7 @@ void do_allocatemem(const bool v, const bool local, ScriptType type, const uint3
 		ZScriptArray &a = game->globalRAM[ptrval];
 		
 		a.Resize(size);
+		a.setValid(true);
 		
 		for(dword j = 0; j < (dword)size; j++)
 			a[j] = 0;
@@ -28279,6 +28280,11 @@ void do_drawing_command(const int32_t script_command)
 			}
 			//zprint("Pixelarray array pointer is: %d\n", arrayptr);
 			int32_t sz = ArrayH::getSize(arrayptr);
+			if(!sz)
+			{
+				script_drawing_commands.PopLast();
+				return;
+			}
 			//ArrayH::getSize(script_drawing_commands[j][2]/10000);
 			//zprint("Pixelarray size is: %d\n", sz);
 			v->resize(sz, 0);
@@ -28305,6 +28311,11 @@ void do_drawing_command(const int32_t script_command)
 			}
 			//zprint("Pixelarray array pointer is: %d\n", arrayptr);
 			int32_t sz = ArrayH::getSize(arrayptr);
+			if(!sz)
+			{
+				script_drawing_commands.PopLast();
+				return;
+			}
 			//ArrayH::getSize(script_drawing_commands[j][2]/10000);
 			//zprint("Pixelarray size is: %d\n", sz);
 			v->resize(sz, 0);
@@ -28331,6 +28342,11 @@ void do_drawing_command(const int32_t script_command)
 			}
 			//zprint("Pixelarray array pointer is: %d\n", arrayptr);
 			int32_t sz = ArrayH::getSize(arrayptr);
+			if(!sz)
+			{
+				script_drawing_commands.PopLast();
+				return;
+			}
 			//ArrayH::getSize(script_drawing_commands[j][2]/10000);
 			//zprint("Pixelarray size is: %d\n", sz);
 			v->resize(sz, 0);
@@ -28380,6 +28396,11 @@ void do_drawing_command(const int32_t script_command)
 			}
 			//zprint("Pixelarray array pointer is: %d\n", arrayptr);
 			int32_t sz = ArrayH::getSize(arrayptr);
+			if(!sz)
+			{
+				script_drawing_commands.PopLast();
+				return;
+			}
 			//ArrayH::getSize(script_drawing_commands[j][2]/10000);
 			//zprint("Pixelarray size is: %d\n", sz);
 			v->resize(sz, 0);
@@ -28400,6 +28421,11 @@ void do_drawing_command(const int32_t script_command)
 				break;
 			}
 			int32_t sz = ArrayH::getSize(arrayptr);
+			if(!sz)
+			{
+				script_drawing_commands.PopLast();
+				return;
+			}
 				
 			std::vector<int32_t> *v = script_drawing_commands.GetVector();
 			v->resize(sz, 0);
@@ -28483,6 +28509,11 @@ void do_drawing_command(const int32_t script_command)
 			sz += ArrayH::getSize(arrayptr);
 			arrayptr = script_drawing_commands[j][5]/10000;
 			sz += ArrayH::getSize(arrayptr);
+			if(sz < 25)
+			{
+				script_drawing_commands.PopLast();
+				return;
+			}
 			std::vector<int32_t> *v = script_drawing_commands.GetVector();
 			v->resize(sz, 0);
 			
@@ -28513,6 +28544,11 @@ void do_drawing_command(const int32_t script_command)
 			sz += ArrayH::getSize(arrayptr);
 			arrayptr = script_drawing_commands[j][5]/10000;
 			sz += ArrayH::getSize(arrayptr);
+			if(sz < 19)
+			{
+				script_drawing_commands.PopLast();
+				return;
+			}
 			
 			std::vector<int32_t> *v = script_drawing_commands.GetVector();
 			v->resize(sz, 0);
@@ -28595,7 +28631,11 @@ void do_drawing_command(const int32_t script_command)
 				break;
 			}
 			int32_t sz = ArrayH::getSize(arrayptr);
-				
+			if(!sz)
+			{
+				script_drawing_commands.PopLast();
+				return;
+			}
 			std::vector<int32_t> *v = script_drawing_commands.GetVector();
 			v->resize(sz, 0);
 			
@@ -30539,6 +30579,7 @@ int32_t get_object_arr(size_t sz)
 	}
 	ZScriptArray arr;
 	arr.Resize(sz);
+	arr.setValid(true);
 	objectRAM[free_ptr] = arr;
 	// auto res = objectRAM.emplace(free_ptr);
 	// ZScriptArray& arr = res.first->second;
@@ -35799,7 +35840,7 @@ void FFScript::do_file_readchars()
 		int32_t arrayptr = get_register(sarg1) / 10000;
 		ArrayManager am(arrayptr);
 		int32_t sz = am.size();
-		if(sz < 0)
+		if(sz <= 0)
 			return;
 		if(pos >= sz)
 		{
@@ -35844,7 +35885,7 @@ void FFScript::do_file_readbytes()
 		int32_t arrayptr = get_register(sarg1) / 10000;
 		ArrayManager am(arrayptr);
 		int32_t sz = am.size();
-		if(sz < 0)
+		if(sz <= 0)
 			return;
 		if(pos >= sz)
 		{
@@ -35870,7 +35911,7 @@ void FFScript::do_file_readstring()
 		int32_t arrayptr = get_register(sarg1) / 10000;
 		ArrayManager am(arrayptr);
 		int32_t sz = am.size();
-		if(sz < 0)
+		if(sz <= 0)
 			return;
 		int32_t limit = sz;
 		int32_t c;
@@ -35914,7 +35955,7 @@ void FFScript::do_file_readints()
 		int32_t arrayptr = get_register(sarg1) / 10000;
 		ArrayManager am(arrayptr);
 		int32_t sz = am.size();
-		if(sz < 0)
+		if(sz <= 0)
 			return;
 		if(pos >= sz) 
 		{
@@ -35971,7 +36012,7 @@ void FFScript::do_file_writebytes()
 		ArrayManager am(arrayptr);
 		if(am.invalid()) return;
 		int32_t sz = am.size();
-		if(sz < 0)
+		if(sz <= 0)
 			return;
 		if(pos >= sz)
 		{
@@ -36020,7 +36061,7 @@ void FFScript::do_file_writeints()
 		ArrayManager am(arrayptr);
 		if(am.invalid()) return;
 		int32_t sz = am.size();
-		if(sz < 0)
+		if(sz <= 0)
 			return;
 		if(pos >= sz) 
 		{
@@ -43825,7 +43866,7 @@ void FFScript::do_varg_makearray(ScriptType type, const uint32_t UID)
 		ZScriptArray &a = localRAM[ptrval]; //marginally faster for large arrays if we use a reference
 		
 		a.Resize(num_args);
-		a.setValidZero(true);
+		a.setValid(true);
 		
 		for(size_t j = 0; j < num_args; ++j)
 			a[j] = zs_vargs[j]; //initialize array

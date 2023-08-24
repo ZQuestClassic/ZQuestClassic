@@ -547,6 +547,7 @@ void initZScriptArrayRAM(bool firstplay)
             const ZScriptArray &from = saves_get_current_slot()->game->globalRAM[i];
             ZScriptArray &to = game->globalRAM[i];
             to.Resize(from.Size());
+			to.setValid(from.Valid());
             
             for(dword j = 0; j < from.Size(); j++)
             {

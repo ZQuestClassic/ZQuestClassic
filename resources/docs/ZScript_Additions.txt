@@ -3217,7 +3217,7 @@ int SizeOfArray(untyped[]);
 
 void ResizeArray(untyped[] arr, int size);
  * Resizes the array 'arr' to size 'size'.
- * If size is <1, the array will be resized to size '1'.
+ * If size is <0, the array will be resized to size '0'.
 
 void OwnArray(untyped[] arr);
  * Grants ownership of the array to the calling script.
