@@ -3791,6 +3791,7 @@ int32_t onPgUp()
 			break;
 		case dm_auto:
 			scrollup(current_cautolist);
+			break;
 		default:
 			scrollup(current_combolist);
 			break;
@@ -6207,6 +6208,8 @@ void draw_screenunit(int32_t unit, int32_t flags)
 
 						auto& list = comboaliaslist[j];
 						cid = ca.getDisplay();
+						if (cid == 0)
+							cid = -1;
 						auto cx = (i % list.w) * list.xscale + list.x;
 						auto cy = (i / list.w) * list.yscale + list.y;
 						put_combo(menu1, cx, cy, cid, cs, Flags & (cFLAGS | cWALK), 0, list.xscale / 16);
@@ -11675,8 +11678,8 @@ domouse_doneclick:
 				{
 					if (mouse_z < 0)  //scroll down
 					{
-						combo_auto_listpos[current_cpoollist] = zc_min(MAXAUTOCOMBOS - comboaliaslist[j].w * comboaliaslist[j].h,
-							combo_auto_listpos[current_cpoollist] + comboaliaslist[j].w * z);
+						combo_auto_listpos[current_cautolist] = zc_min(MAXAUTOCOMBOS - comboaliaslist[j].w * comboaliaslist[j].h,
+							combo_auto_listpos[current_cautolist] + comboaliaslist[j].w * z);
 					}
 					else //scroll up
 					{
@@ -28793,6 +28796,7 @@ void load_size_poses()
 	current_combolist=vbound(current_combolist,0,num_combo_cols-1);
 	current_comboalist=vbound(current_comboalist,0,num_combo_cols-1);
 	current_cpoollist=vbound(current_cpoollist,0,num_combo_cols-1);
+	current_cautolist = vbound(current_cautolist, 0, num_combo_cols - 1);
 	
 	//Generate bitmaps
 	init_bitmap(&mapscreenbmp,16*(showedges?18:16),16*(showedges?13:11));

@@ -50,7 +50,8 @@ void AutoComboDialog::addCombos(int32_t engrave_offset, int32_t count, uint32_t 
 void AutoComboDialog::refreshPanels()
 {
 	int32_t val = typedropdown->getSelectedValue();
-	templatepane->setDisabled(val == AUTOCOMBO_NONE);
+	iconpane->setDisabled(val == AUTOCOMBO_NONE);
+	templatebtn->setDisabled(val == AUTOCOMBO_NONE);
 	temp_autocombo.clear();
 	temp_autocombo.setType(val);
 	temp_autocombo.updateValid();
@@ -104,8 +105,8 @@ std::shared_ptr<GUI::Widget> AutoComboDialog::view()
 						}
 					}),
 				Label(text = "Display Combo:", vAlign = 0.0),
-				templatepane = SelComboSwatch(vAlign = 0.0,
-					combo = temp_autocombo.getTemplateDisplay(),
+				iconpane = SelComboSwatch(vAlign = 0.0,
+					combo = temp_autocombo.getIconDisplay(),
 					cset = CSet,
 					showvals = true,
 					disabled = temp_autocombo.getType() == AUTOCOMBO_NONE,
@@ -113,10 +114,10 @@ std::shared_ptr<GUI::Widget> AutoComboDialog::view()
 					{
 						temp_autocombo.setDisplay(cmb);
 					}),
-				Button(vAlign = 1.0,
-					focused = true,
+				templatebtn = Button(vAlign = 1.0,
 					text = "Auto Generate",
 					minwidth = 90_px,
+					disabled = temp_autocombo.getType() == AUTOCOMBO_NONE,
 					onClick = message::RELOAD,
 					onPressFunc = [&]() {
 						int32_t cmb, cs;

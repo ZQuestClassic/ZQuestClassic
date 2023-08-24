@@ -18,11 +18,6 @@ void call_autocombo_dlg(int32_t index);
 
 struct autocombo_widg
 {
-	// std::shared_ptr<GUI::Button> xbtn;
-	// std::shared_ptr<GUI::Button> left_btn;
-	// std::shared_ptr<GUI::Button> right_btn;
-	// std::shared_ptr<GUI::Button> plus_btn;
-	// std::shared_ptr<GUI::Button> minus_btn;
 	int32_t slot = -1;
 	std::shared_ptr<GUI::SelComboSwatch> cpane;
 	autocombo_entry* entry;
@@ -48,10 +43,11 @@ public:
 private:
 	std::vector<autocombo_widg> widgs;
 	std::shared_ptr<GUI::Window> window;
-	std::shared_ptr<GUI::Button> pastebtn;
+	//std::shared_ptr<GUI::Button> pastebtn;
 
 	std::shared_ptr<GUI::DropDownList> typedropdown;
-	std::shared_ptr<GUI::SelComboSwatch> templatepane;
+	std::shared_ptr<GUI::SelComboSwatch> iconpane;
+	std::shared_ptr<GUI::Button> templatebtn;
 
 	GUI::ListData list_autocombotypes;
 };

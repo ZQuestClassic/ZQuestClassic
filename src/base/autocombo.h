@@ -58,7 +58,7 @@ struct combo_auto
 	}
 
 	int32_t getDisplay() const;
-	int32_t getTemplateDisplay()
+	int32_t getIconDisplay()
 	{
 		return cid_display;
 	}
