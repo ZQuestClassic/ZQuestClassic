@@ -340,9 +340,6 @@ if(MSVC)
 	# Build in parallel - speeds up the build on multicore machines.
 	add_compile_options(/MP)
 
-	# Yes MSVC, we want C++ 20 features. https://devblogs.microsoft.com/cppblog/announcing-full-support-for-a-c-c-conformant-preprocessor-in-msvc/
-	add_compile_options(/Zc:preprocessor)
-
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 	
 	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:LIBCD /SUBSYSTEM:WINDOWS /LARGEADDRESSAWARE /OPT:NOICF")
@@ -827,6 +824,13 @@ endif()
 if (WIN32)
 	list(APPEND zc_targets zconsole zstandalone)
 	add_dependencies(zplayer zconsole)
+endif()
+
+if (MSVC)
+	foreach(target IN LISTS zc_targets)
+		# Yes MSVC, we want C++ 20 features. https://devblogs.microsoft.com/cppblog/announcing-full-support-for-a-c-c-conformant-preprocessor-in-msvc/
+		target_compile_options(${target} PRIVATE /Zc:preprocessor)
+	endforeach()
 endif()
 
 if(USE_PCH)
