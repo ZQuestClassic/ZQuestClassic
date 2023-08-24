@@ -30,6 +30,7 @@ private:
 	char run_str[21];
 	char include_str[MAX_INCLUDE_PATH_CHARS];
 	byte qst_cfg[4];
+	word timeout_secs, old_timeout_secs;
 	
 	void load();
 	void save();

@@ -149,6 +149,7 @@ bool do_compile_and_slots(int assign_mode, bool delay)
 	if(delay)
 		args.push_back("-delay");
 	process_manager* pm = launch_piped_process(ZSCRIPT_FILE, "zq_parser_pipe", args);
+	pm->timeout_seconds = zc_get_config("Compiler","compiler_timeout",30,App::zscript);
 	if(!pm)
 	{
 		InfoDialog("Parser","Failed to launch " ZSCRIPT_FILE).show();
