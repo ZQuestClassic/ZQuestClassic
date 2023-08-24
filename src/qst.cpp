@@ -69,7 +69,7 @@ static bool loadquest_report = false;
 static char const* loading_qst_name = NULL;
 static byte loading_qst_num = 0;
 
-int32_t First[MAX_COMBO_COLS]={0},combo_alistpos[MAX_COMBO_COLS]={0},combo_pool_listpos[MAX_COMBO_COLS]={0};
+int32_t First[MAX_COMBO_COLS]={0},combo_alistpos[MAX_COMBO_COLS]={0},combo_pool_listpos[MAX_COMBO_COLS]={0},combo_auto_listpos[MAX_COMBO_COLS]={0};
 map_and_screen map_page[MAX_MAPPAGE_BTNS]= {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}};
 
 #ifdef _MSC_VER

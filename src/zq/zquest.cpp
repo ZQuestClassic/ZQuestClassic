@@ -38,6 +38,7 @@
 #include "base/msgstr.h"
 #include "base/packfile.h"
 #include "base/cpool.h"
+#include "base/autocombo.h"
 #include "base/misctypes.h"
 #include "parser/Compiler.h"
 #include "base/zc_alleg.h"
@@ -564,7 +565,7 @@ static int32_t do_NewQuest()
 }
 
 int32_t alignment_arrow_timer=0;
-int32_t  Flip=0,Combo=0,CSet=2,current_combolist=0,current_comboalist=0,current_cpoollist=0,current_mappage=0;
+int32_t  Flip=0,Combo=0,CSet=2,current_combolist=0,current_comboalist=0,current_cpoollist=0,current_cautolist=0,current_mappage=0;
 int32_t  Flags=0,Flag=0,menutype=(m_block);
 int32_t MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, GridColor = 15, CmbCursorCol = 15, TilePgCursorCol = 15, CmbPgCursorCol = 15,
 	TileProtection = 0, InvalidStatic = 0, NoScreenPreview = 0, MMapCursorStyle = 0,
@@ -635,6 +636,8 @@ int32_t alias_cset_mod=0;
 static int32_t combo_pool_pos=0; //currently selected combo pool
 bool weighted_cpool = true;
 bool cpool_prev_visible = false;
+
+static int32_t combo_auto_pos=0; //currently selected autocombo
 
 bool trip=false;
 
@@ -1173,6 +1176,7 @@ static MENU defs_menu[] =
 
 int32_t onEditComboAlias();
 int32_t onEditComboPool();
+int32_t onEditAutoCombo();
 
 static MENU graphics_menu[] =
 {
@@ -1309,7 +1313,8 @@ static MENU drawing_mode_menu[] =
     { (char *)"&Dungeon Carving",           onDrawingModeDungeon,      NULL,                     0,            NULL   },
     { (char *)"&Combo Alias",               onDrawingModeAlias,        NULL,                     0,            NULL   },
     { (char *)"&Pool",                      onDrawingModePool,         NULL,                     0,            NULL   },
-    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
+	{ (char *)"&Auto Combo",                onDrawingModeAuto,         NULL,                     0,            NULL   },
+	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
 static MENU integrity_check_menu[] =
@@ -3033,14 +3038,15 @@ int32_t onOptions()
     return D_O_K;
 }
 
-enum {dm_normal, dm_relational, dm_dungeon, dm_alias, dm_cpool, dm_max};
+enum {dm_normal, dm_relational, dm_dungeon, dm_alias, dm_cpool, dm_auto, dm_max};
 const char *dm_names[dm_max]=
 {
     "Normal",
     "Relational",
     "Dungeon",
     "Alias",
-	"Pool"
+	"Pool",
+	"Auto"
 };
 
 byte relational_tile_grid[11+(rtgyo*2)][16+(rtgxo*2)];
@@ -3133,6 +3139,20 @@ int32_t onDrawingModePool()
     fix_drawing_mode_menu();
     restore_mouse();
     return D_O_K;
+}
+
+int32_t onDrawingModeAuto()
+{
+	if (draw_mode == dm_auto)
+	{
+		return onDrawingModeNormal();
+	}
+
+	draw_mode = dm_auto;
+	reset_relational_tile_grid();
+	fix_drawing_mode_menu();
+	restore_mouse();
+	return D_O_K;
 }
 
 int32_t onReTemplate()
@@ -3499,7 +3519,7 @@ int onScrollScreen(int dir, bool warp)
 
 int32_t onComboColLeft()
 {
-	if(draw_mode==dm_cpool)
+	if(draw_mode==dm_cpool||draw_mode==dm_auto)
 		;
 	else if((First[current_combolist]>0)&&(draw_mode!=dm_alias))
 	{
@@ -3521,7 +3541,7 @@ int32_t onComboColLeft()
 int32_t onComboColRight()
 {
 	auto& sqr = (draw_mode == dm_alias ? comboaliaslist[current_comboalist] : combolist[current_combolist]);
-	if(draw_mode==dm_cpool)
+	if(draw_mode==dm_cpool||draw_mode==dm_auto)
 		;
 	else if((First[current_combolist]<(MAXCOMBOS-(sqr.w*sqr.h)))&&(draw_mode!=dm_alias))
 	{
@@ -3543,7 +3563,7 @@ int32_t onComboColRight()
 int32_t onComboColUp()
 {
 	auto& sqr = (draw_mode == dm_alias ? comboaliaslist[current_comboalist] : combolist[current_combolist]);
-	if(draw_mode==dm_cpool)
+	if(draw_mode==dm_cpool||draw_mode==dm_auto)
 		;
 	else if((First[current_combolist]>0)&&(draw_mode!=dm_alias))
 	{
@@ -3567,7 +3587,7 @@ int32_t onComboColDown()
 {
 	auto& sqr = (draw_mode == dm_alias ? comboaliaslist[current_comboalist] : combolist[current_combolist]);
 	
-	if(draw_mode==dm_cpool)
+	if(draw_mode==dm_cpool||draw_mode==dm_auto)
 		;
 	else if((First[current_combolist]<(MAXCOMBOS-(sqr.w*sqr.h)))&&(draw_mode!=dm_alias))
 	{
@@ -3626,6 +3646,26 @@ void scrollup(int j)
 					clear_tooltip();
 				}
 				
+				refresh(rCOMBOS);
+			}
+			break;
+		}
+		case dm_auto:
+		{
+			auto& sqr = comboaliaslist[j];
+			if (combo_auto_listpos[j] > 0)
+			{
+				if (key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+				{
+					combo_auto_listpos[j] = 0;
+					clear_tooltip();
+				}
+				else
+				{
+					combo_auto_listpos[j] -= zc_min(combo_auto_listpos[j], (sqr.w * sqr.h));
+					clear_tooltip();
+				}
+
 				refresh(rCOMBOS);
 			}
 			break;
@@ -3696,6 +3736,26 @@ void scrolldown(int j)
 			}
 			break;
 		}
+		case dm_auto:
+		{
+			auto& sqr = comboaliaslist[j];
+			if (combo_auto_listpos[j] < (MAXCOMBOALIASES - (sqr.w * sqr.h)))
+			{
+				if (key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+				{
+					combo_auto_listpos[j] = MAXCOMBOALIASES - (sqr.w * sqr.h);
+					clear_tooltip();
+				}
+				else
+				{
+					combo_auto_listpos[j] = zc_min((MAXCOMBOALIASES - (sqr.w * sqr.h)), combo_pool_listpos[j] + (sqr.w * sqr.h));
+					clear_tooltip();
+				}
+
+				refresh(rCOMBOS);
+			}
+			break;
+		}
 		default:
 		{
 			auto& sqr = combolist[j];
@@ -3729,6 +3789,8 @@ int32_t onPgUp()
 		case dm_cpool:
 			scrollup(current_cpoollist);
 			break;
+		case dm_auto:
+			scrollup(current_cautolist);
 		default:
 			scrollup(current_combolist);
 			break;
@@ -3745,6 +3807,9 @@ int32_t onPgDn()
 			break;
 		case dm_cpool:
 			scrolldown(current_cpoollist);
+			break;
+		case dm_auto:
+			scrolldown(current_cautolist);
 			break;
 		default:
 			scrolldown(current_combolist);
@@ -3798,6 +3863,12 @@ int32_t onGotoPage()
 			int32_t page=(vbound(choosepage,0,((MAXCOMBOPOOLS/96))));
 			//First[current_comboalist]=page<<8;
 			combo_pool_listpos[current_cpoollist] = vbound(page*96, 0, MAXCOMBOPOOLS-97);
+		}
+		else if (draw_mode == dm_auto) // This will need to suffice. It jumps a full page bank, and only the last 1/4 page cannot be jumped into. 
+		{
+			int32_t page = (vbound(choosepage, 0, ((MAXAUTOCOMBOS / 96))));
+			//First[current_comboalist]=page<<8;
+			combo_auto_listpos[current_cautolist] = vbound(page * 96, 0, MAXAUTOCOMBOS - 97);
 		}
 		else
 		{
@@ -5758,7 +5829,20 @@ void draw_screenunit(int32_t unit, int32_t flags)
 					}
 					else clear_bitmap(brushbmp);
 				}
-				
+				else if (draw_mode == dm_auto)
+				{
+					BrushWidth = BrushHeight = 1;
+					/*combo_auto const& pool = combo_autos[combo_auto_pos];
+					if (pool.valid())
+					{
+						int32_t cid = Combo;
+						int8_t cset = CSet;
+						pool.get_w_wrap(cid, cset, cpoolbrush_index / 16); //divide to reduce speed
+						put_combo(brushbmp, 0, 0, cid, cset, Flags & (cFLAGS | cWALK), 0);
+					}
+					else clear_bitmap(brushbmp);*/
+				}
+
 				if((FloatBrush)&&(draw_mode!=dm_alias))
 				{
 					stretch_blit(brushbmp, brushscreen, 0, 0, BrushWidth*16, BrushHeight*16, mx-(SHADOW_DEPTH*mapscreensize), my-(SHADOW_DEPTH*mapscreensize), BrushWidth*mgridscale, BrushHeight*mgridscale);
@@ -6083,6 +6167,64 @@ void draw_screenunit(int32_t unit, int32_t flags)
 					}
 				}
 			}
+			else if (draw_mode == dm_auto)
+			{
+				if (LinkedScroll)
+				{
+					int tmp = current_cautolist;
+					for (int q = tmp - 1; q >= 0; --q)
+					{
+						combo_auto_listpos[q] = combo_auto_listpos[q + 1] - (comboaliaslist[q].w * comboaliaslist[q].h);
+						if (combo_auto_listpos[q] < 0)
+						{
+							tmp = 0;
+							combo_auto_listpos[0] = 0;
+							break;
+						}
+					}
+					for (int q = tmp + 1; q < num_combo_cols; ++q)
+						combo_auto_listpos[q] = combo_auto_listpos[q - 1] + (comboaliaslist[q - 1].w * comboaliaslist[q - 1].h);
+					for (int q = 0; q < num_combo_cols; ++q)
+						if (combo_auto_pos >= combo_auto_listpos[q] && combo_auto_pos < combo_auto_listpos[q] + (comboaliaslist[q].w * comboaliaslist[q].h))
+						{
+							current_cautolist = q;
+							break;
+						}
+				}
+				for (int32_t c = 0; c < num_combo_cols; ++c)
+				{
+					auto& pos = comboaliaslist[c];
+					rectfill(menu1, pos.x, pos.y, pos.x + (pos.w * pos.xscale) - 1, pos.y + (pos.h * pos.yscale) - 1, 0);
+					jwin_draw_frame(menu1, pos.x - 2, pos.y - 2, (pos.w * comboaliaslist[c].xscale) + 4, (pos.h * comboaliaslist[c].yscale) + 4, FR_DEEP);
+				}
+
+				for (int32_t j = 0; j < num_combo_cols; ++j) //the actual panes
+				{
+					for (int32_t i = 0; i < (comboaliaslist[j].w * comboaliaslist[j].h); i++)
+					{
+						int32_t cid = -1; int8_t cs = CSet;
+						combo_auto const& ca = combo_autos[combo_auto_listpos[j] + i];
+
+						auto& list = comboaliaslist[j];
+						cid = ca.getDisplay();
+						auto cx = (i % list.w) * list.xscale + list.x;
+						auto cy = (i / list.w) * list.yscale + list.y;
+						put_combo(menu1, cx, cy, cid, cs, Flags & (cFLAGS | cWALK), 0, list.xscale / 16);
+						if (!ca.valid() && cid > 0)
+							put_engraving(menu1, cx, cy, 15, list.xscale / 16);
+					}
+				}
+				int32_t rect_pos = combo_auto_pos - combo_auto_listpos[current_cautolist];
+
+				if ((rect_pos >= 0) && (rect_pos < (combo_auto_listpos[current_cautolist] + (comboaliaslist[current_cautolist].w * comboaliaslist[current_cautolist].h))))
+				{
+					int selw = comboaliaslist[current_cautolist].xscale;
+					int selh = comboaliaslist[current_cautolist].yscale;
+					int x1 = (rect_pos & (comboaliaslist[current_cautolist].w - 1)) * comboaliaslist[current_cautolist].xscale + comboaliaslist[current_cautolist].x;
+					int y1 = (rect_pos / comboaliaslist[current_cautolist].w) * comboaliaslist[current_cautolist].yscale + comboaliaslist[current_cautolist].y;
+					safe_rect(menu1, x1, y1, x1 + selw - 1, y1 + selh - 1, vc(CmbCursorCol), 2);
+				}
+			}
 			else
 			{
 				if(LinkedScroll)
@@ -6160,6 +6302,11 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				cid = 0;
 				cpool.get_w(cid,cs,0);
 			}
+			else if (draw_mode == dm_auto)
+			{
+				combo_auto const& cauto = combo_autos[combo_auto_pos];
+				cid = cauto.getDisplay();
+			}
 			static BITMAP *combo_preview_bmp=create_bitmap_ex(8,32,32);
 			static BITMAP *cycle_preview_bmp=create_bitmap_ex(8,32,32);
 			// Combo
@@ -6216,7 +6363,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 			{
 				int32_t NextCombo=combobuf[Combo].nextcombo;
 				int32_t NextCSet=(combobuf[Combo].animflags & AF_CYCLENOCSET) ? CSet : combobuf[Combo].nextcset;
-				bool normal_dm = draw_mode != dm_alias && draw_mode != dm_cpool;
+				bool normal_dm = draw_mode != dm_alias && draw_mode != dm_cpool && draw_mode != dm_auto;
 				jwin_draw_frame(menu1,combo_preview2.x-2,combo_preview2.y-2,combo_preview2.w+4,combo_preview2.h+4, FR_DEEP);
 				if(NextCombo>0 && normal_dm)
 				{
@@ -7248,6 +7395,37 @@ void select_combop(int32_t clist)
     }
     
     ComboBrush=tempcb;
+}
+
+void select_autocombo(int32_t clist)
+{
+	current_cautolist = clist;
+	int32_t tempcb = ComboBrush;
+	ComboBrush = 0;
+
+	auto& curlist = comboaliaslist[current_cautolist];
+	while (gui_mouse_b())
+	{
+		int32_t x = gui_mouse_x();
+
+		if (x < curlist.x) x = curlist.x;
+
+		if (x > curlist.x + (curlist.w * curlist.xscale) - 1)
+			x = curlist.x + (curlist.w * curlist.xscale) - 1;
+
+		int32_t y = gui_mouse_y();
+
+		if (y < curlist.y) y = curlist.y;
+
+		if (y > curlist.y + (curlist.h * curlist.yscale) - 1)
+			y = curlist.y + (curlist.h * curlist.yscale) - 1;
+
+		combo_auto_pos = (((y - curlist.y) / curlist.yscale) * curlist.w) + ((x - curlist.x) / curlist.xscale) + combo_auto_listpos[current_cautolist];
+		custom_vsync();
+		refresh(rALL);
+	}
+
+	ComboBrush = tempcb;
 }
 
 void update_combobrush()
@@ -10252,6 +10430,21 @@ void domouse()
 			}
 		}
 	}
+	else if (draw_mode == dm_auto)
+	{
+		for (int32_t j = 0; j < num_combo_cols; ++j)
+		{
+			auto& sqr = comboaliaslist[j];
+			auto ind = sqr.rectind(x, y);
+			if (ind > -1)
+			{
+				auto c2 = ind + combo_auto_listpos[j];
+				char msg[80];
+				sprintf(msg, "Auto Combo %d", c2);
+				update_tooltip(x, y, sqr.subsquare(ind), msg);
+			}
+		}
+	}
 	else
 	{
 		if(favorites_list.rect(x,y))
@@ -11111,6 +11304,32 @@ void domouse()
 				}
 			}
 		}
+		else if (draw_mode == dm_auto)
+		{
+			for (int32_t j = 0; j < num_combo_cols; ++j)
+			{
+				if (combolistscrollers[j].rectind(x, y) == 0 && (combo_auto_listpos[j] < (MAXCOMBOPOOLS - (comboaliaslist[j].w * comboaliaslist[j].h))) && !mouse_down)
+				{
+					scrollup(j);
+					goto domouse_doneclick;
+				}
+				else if (combolistscrollers[j].rectind(x, y) == 1 && (combo_auto_listpos[j] > 0) && !mouse_down)
+				{
+					scrolldown(j);
+					goto domouse_doneclick;
+				}
+				else if (comboaliaslist[j].rect(x, y))
+				{
+					select_autocombo(j);
+
+					if (rclick && comboaliaslist[j].rect(gui_mouse_x(), gui_mouse_y()))
+					{
+						onEditAutoCombo();
+					}
+					goto domouse_doneclick;
+				}
+			}
+		}
 		else
 		{
 			for(int32_t j=0; j<num_combo_cols; ++j)
@@ -11257,6 +11476,7 @@ void domouse()
 						switch(draw_mode)
 						{
 							case dm_cpool:
+							case dm_auto:
 								break;
 							case dm_alias:
 								combo_alistpos[current_comboalist]=scrollto_alias(combo_apos);
@@ -11444,6 +11664,25 @@ domouse_doneclick:
 						if(combo_pool_listpos[current_cpoollist]>0)
 						{
 							combo_pool_listpos[current_cpoollist]-=zc_min(combo_pool_listpos[current_cpoollist],comboaliaslist[j].w*z);
+						}
+					}
+					goto domouse_donez;
+				}
+			}
+			else if (draw_mode == dm_auto)
+			{
+				if (comboaliaslist[j].rect(x, y))
+				{
+					if (mouse_z < 0)  //scroll down
+					{
+						combo_auto_listpos[current_cpoollist] = zc_min(MAXAUTOCOMBOS - comboaliaslist[j].w * comboaliaslist[j].h,
+							combo_auto_listpos[current_cpoollist] + comboaliaslist[j].w * z);
+					}
+					else //scroll up
+					{
+						if (combo_auto_listpos[current_cautolist] > 0)
+						{
+							combo_auto_listpos[current_cautolist] -= zc_min(combo_auto_listpos[current_cautolist], comboaliaslist[j].w * z);
 						}
 					}
 					goto domouse_donez;
@@ -20720,9 +20959,15 @@ int32_t set_comboaradio(byte layermask)
 }
 
 void call_cpool_dlg(int32_t index);
+void call_autocombo_dlg(int32_t index);
 int32_t onEditComboPool()
 {
 	call_cpool_dlg(combo_pool_pos);
+	return D_O_K;
+}
+int32_t onEditAutoCombo()
+{
+	call_autocombo_dlg(combo_auto_pos);
 	return D_O_K;
 }
 int32_t onEditComboAlias()

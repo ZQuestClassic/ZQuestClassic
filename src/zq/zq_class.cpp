@@ -1658,6 +1658,12 @@ void put_combo(BITMAP *dest,int32_t x,int32_t y,word cmbdat,int32_t cset,int32_t
 		textprintf_ex(dest,get_zc_font(font_z3smallfont),x+1,y+9,inv?vc(0):vc(15),inv?vc(15):vc(0),"%d",c.type);
 	}
 }
+void put_engraving(BITMAP* dest, int32_t x, int32_t y, int32_t slot, int32_t scale)
+{
+	auto blitx = 1 + (slot % 16) * 17;
+	auto blity = 1 + (slot / 16) * 17;
+	masked_stretch_blit((BITMAP*)zcdata[BMP_ENGRAVINGS].dat, dest, blitx, blity, 16, 16, x, y, 16 * scale, 16 * scale);
+}
 
 
 void copy_mapscr(mapscr *dest, const mapscr *src)

@@ -130,6 +130,7 @@ void set_bitl(int32_t bitstr,int32_t bit,byte val);
 #define MAX250COMBOALIASES         2048
 #define MAXCOMBOALIASES            8192
 #define MAXCOMBOPOOLS              8192
+#define MAXAUTOCOMBOS              8192
 
 #define PALNAMESIZE                17
 

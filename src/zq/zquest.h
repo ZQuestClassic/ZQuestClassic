@@ -297,6 +297,7 @@ int32_t onDrawingModeRelational();
 int32_t onDrawingModeDungeon();
 int32_t onDrawingModeAlias();
 int32_t onDrawingModePool();
+int32_t onDrawingModeAuto();
 int32_t onReTemplate();
 int32_t onUndo();
 int32_t onRedo();

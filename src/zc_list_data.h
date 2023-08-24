@@ -44,6 +44,7 @@ namespace GUI::ZCListData
 	GUI::ListData const& dmaptypes();
 	GUI::ListData const& alignments();
 	GUI::ListData const& buttons();
+	GUI::ListData const& autocombotypes();
 }
 
 #endif

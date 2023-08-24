@@ -4,6 +4,7 @@
 #include "qst.h"
 #include "zinfo.h"
 #include "base/misctypes.h"
+#include "base/autocombo.h"
 #include <fmt/format.h>
 
 extern zcmodule moduledata;
@@ -939,3 +940,16 @@ GUI::ListData const& GUI::ZCListData::buttons()
 	return button;
 }
 
+static const GUI::ListData autocombo_types
+{
+	{ "(None)", AUTOCOMBO_NONE },
+	{ "Basic", AUTOCOMBO_BASIC },
+	{ "Flat Mountain", AUTOCOMBO_Z1 },
+	{ "Pancake Mountain", AUTOCOMBO_Z4 },
+	{ "Fence", AUTOCOMBO_FENCE }
+};
+
+GUI::ListData const& GUI::ZCListData::autocombotypes()
+{
+	return autocombo_types;
+};
