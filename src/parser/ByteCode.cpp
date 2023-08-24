@@ -2636,9 +2636,9 @@ string OSPrintfArr::toString() const
 {
 	return "SPRINTFA";
 }
-string OResrvdOpEmily14::toString() const
+string OCurrentItemID::toString() const
 {
-	return "RESRVD_OP_EMILY_14";
+	return "CURRENTITEMID";
 }
 string OResrvdOpEmily15::toString() const
 {

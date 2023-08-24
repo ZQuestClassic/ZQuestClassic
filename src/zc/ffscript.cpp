@@ -33619,6 +33619,16 @@ j_command:
 				}
 				break;
 			}
+			case CURRENTITEMID:
+			{
+				int ity = SH::read_stack(ri->sp + 1) / 10000;
+				int flags = SH::read_stack(ri->sp + 0) / 10000;
+				bool checkcost = flags&0x01;
+				bool checkjinx = flags&0x02;
+				bool check_bunny = flags&0x04;
+				ri->d[rEXP1] = current_item_id(ity,checkcost,checkjinx,checkbunny) * 10000;
+				break;
+			}
 			
 			case GAMECONTINUE:
 				if ( using_SRAM )
@@ -41531,7 +41541,7 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "MAKEVARGARRAY", 0, 0, 0, 0 },
 	{ "PRINTFA", 0, 0, 0, 0 },
 	{ "SPRINTFA", 0, 0, 0, 0 },
-	{ "RESRVD_OP_EMILY_14", 0, 0, 0, 0 },
+	{ "CURRENTITEMID", 0, 0, 0, 0 },
 	{ "RESRVD_OP_EMILY_15", 0, 0, 0, 0 },
 	{ "RESRVD_OP_EMILY_16", 0, 0, 0, 0 },
 	{ "RESRVD_OP_EMILY_17", 0, 0, 0, 0 },

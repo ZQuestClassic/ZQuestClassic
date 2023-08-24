@@ -1155,7 +1155,7 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "MAKEVARGARRAY", 0, 0, 0, 0 },
 	{ "PRINTFA", 0, 0, 0, 0 },
 	{ "SPRINTFA", 0, 0, 0, 0 },
-	{ "RESRVD_OP_EMILY_14", 0, 0, 0, 0 },
+	{ "CURRENTITEMID", 0, 0, 0, 0 },
 	{ "RESRVD_OP_EMILY_15", 0, 0, 0, 0 },
 	{ "RESRVD_OP_EMILY_16", 0, 0, 0, 0 },
 	{ "RESRVD_OP_EMILY_17", 0, 0, 0, 0 },

@@ -2456,13 +2456,13 @@ namespace ZScript
 			return new OSPrintfArr();
 		}
 	};
-	class OResrvdOpEmily14 : public Opcode
+	class OCurrentItemID : public Opcode
 	{
 	public:
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OResrvdOpEmily14();
+			return new OCurrentItemID();
 		}
 	};
 	class OResrvdOpEmily15 : public Opcode

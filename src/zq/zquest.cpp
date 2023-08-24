@@ -26565,7 +26565,7 @@ int32_t current_item_power(int32_t itemtype)
     return 1;
 }
 
-int32_t current_item_id(int32_t itemtype, bool checkmagic, bool smart_jinx)
+int32_t current_item_id(int32_t itemtype, bool, bool, bool)
 {
 	if (game)
 	{
