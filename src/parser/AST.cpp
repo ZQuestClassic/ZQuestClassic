@@ -1227,21 +1227,21 @@ void ASTDataDecl::setInitializer(ASTExpr* initializer)
 	}
 }
 
-DataType const* ASTDataDecl::resolveType(ZScript::Scope* scope, CompileErrorHandler* errorHandler)
+DataType const& ASTDataDecl::resolveType(ZScript::Scope* scope, CompileErrorHandler* errorHandler)
 {
 	TypeStore& typeStore = scope->getTypeStore();
 
 	// First resolve the base type.
 	ASTDataType* baseTypeNode = list ? list->baseType.get() : baseType.get();
-	DataType const* type = baseTypeNode->resolve_ornull(*scope, errorHandler);
+	DataType const* type = &baseTypeNode->resolve(*scope, errorHandler);
 	if(baseTypeNode->errorDisabled)
 	{
 		errorDisabled = true;
-		return type;
+		return *type;
 	}
-	if (!type)
-		return nullptr;
-
+	if (!type->isResolved())
+		return *type;
+	
 	// If we have any arrays, tack them onto the base type.
 	for (vector<ASTDataDeclExtraArray*>::const_iterator it = extraArrays.begin();
 		 it != extraArrays.end(); ++it)
@@ -1250,7 +1250,7 @@ DataType const* ASTDataDecl::resolveType(ZScript::Scope* scope, CompileErrorHand
 		type = typeStore.getCanonicalType(arrayType);
 	}
 
-	return type;
+	return *type;
 }
 
 bool ZScript::hasSize(ASTDataDecl const& decl)

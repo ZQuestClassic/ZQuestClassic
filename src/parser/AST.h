@@ -950,7 +950,7 @@ namespace ZScript
 
 		// Resolves the type, using either the list's or this node's own base type
 		// as appropriate.
-		DataType const* resolveType(Scope* scope, CompileErrorHandler* errorHandler);
+		DataType const& resolveType(Scope* scope, CompileErrorHandler* errorHandler);
 
 		// The list containing this declaration. Should be set by that list when
 		// this is added.

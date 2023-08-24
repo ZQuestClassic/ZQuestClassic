@@ -556,8 +556,8 @@ namespace ZScript
 		DataTypeUnresolved* clone() const;
 		
 		virtual bool isResolved() const {return false;}
-		virtual DataType* resolve(ZScript::Scope& scope, CompileErrorHandler* errorHandler) override;
-		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler) override;
+		virtual DataType* resolve(ZScript::Scope& scope, CompileErrorHandler* errorHandler);
+		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler);
 		
 		virtual std::string getName() const;
 		ASTExprIdentifier const* getIdentifier() const {return iden;}
@@ -586,7 +586,7 @@ namespace ZScript
 
 		int32_t getId() const {return simpleId;}
 		
-		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler) override;
+		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler);
 
 	protected:
 		int32_t simpleId;
@@ -601,7 +601,7 @@ namespace ZScript
 		DataTypeSimpleConst(int32_t simpleId, std::string const& name);
 		DataTypeSimpleConst* clone() const {return new DataTypeSimpleConst(*this);}
 		
-		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler) override;
+		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler);
 		
 		virtual bool isConstant() const {return true;}
 	};
@@ -613,7 +613,7 @@ namespace ZScript
 		DataTypeClass(int32_t classId, std::string const& className, DataType* constType);
 		DataTypeClass* clone() const {return new DataTypeClass(*this);}
 
-		virtual DataType* resolve(ZScript::Scope& scope, CompileErrorHandler* errorHandler) override;
+		virtual DataType* resolve(ZScript::Scope& scope, CompileErrorHandler* errorHandler);
 		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler);
 
 		virtual std::string getName() const;
@@ -638,7 +638,7 @@ namespace ZScript
 		DataTypeClassConst(int32_t classId, std::string const& name);
 		DataTypeClassConst* clone() const {return new DataTypeClassConst(*this);}
 		
-		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler) override;
+		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler);
 		
 		virtual bool isConstant() const {return true;}
 	};
@@ -658,7 +658,7 @@ namespace ZScript
 		virtual bool isResolved() const {return elementType.isResolved();}
 
 		DataType const& getElementType() const {return elementType;}
-		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler) override;
+		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler);
 
 	private:
 		DataType const& elementType;
@@ -682,7 +682,7 @@ namespace ZScript
 		virtual std::string getName() const {return name;}
 		virtual bool canCastTo(DataType const& target) const;
 		int32_t getCustomId() const {return id;}
-		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler) override;
+		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler);
 		
 	protected:
 		int32_t id;
@@ -700,7 +700,7 @@ namespace ZScript
 		{}
 		DataTypeCustomConst* clone() const {return new DataTypeCustomConst(*this);}
 		
-		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler) override;
+		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler);
 		
 		virtual bool isConstant() const {return true;}
 	};
