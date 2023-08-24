@@ -532,29 +532,30 @@ void RegistrationVisitor::caseDataDecl(ASTDataDecl& host, void* param)
 	if (breakRecursion(host)) return;
 	if(!(registered(host, host.extraArrays) && (!host.getInitializer() || registered(host.getInitializer())))) return;
 	// Then resolve the type.
-	DataType const& type = *host.resolveType(scope, this);
+	DataType const* type = host.resolveType(scope, this);
 	if (breakRecursion(host)) return;
-	if (!type.isResolved()) return;
+	if (!type) return;
+	DataType const& ty = *type;
 	
 	doRegister(host);
 
 	// Don't allow void type.
-	if (type == DataType::ZVOID)
+	if (ty == DataType::ZVOID)
 	{
 		handleError(CompileError::VoidVar(&host, host.name));
 		return;
 	}
 
 	// Check for disallowed global types.
-	if (scope->isGlobal() && !type.canBeGlobal())
+	if (scope->isGlobal() && !ty.canBeGlobal())
 	{
 		handleError(CompileError::RefVar(
-				            &host, type.getName() + " " + host.name));
+				            &host, ty.getName() + " " + host.name));
 		return;
 	}
 
 	// Currently disabled syntaxes:
-	if (getArrayDepth(type) > 1)
+	if (getArrayDepth(ty) > 1)
 	{
 		handleError(CompileError::UnimplementedFeature(
 				            &host, "Nested Array Declarations"));
@@ -563,7 +564,7 @@ void RegistrationVisitor::caseDataDecl(ASTDataDecl& host, void* param)
 
 	// Is it a constant?
 	bool isConstant = false;
-	if (type.isConstant())
+	if (ty.isConstant())
 	{
 		// A constant without an initializer doesn't make sense.
 		if (!host.getInitializer())
@@ -599,13 +600,13 @@ void RegistrationVisitor::caseDataDecl(ASTDataDecl& host, void* param)
 		}
 		
 		int32_t value = *host.getInitializer()->getCompileTimeValue(this, scope);
-		Constant::create(*scope, host, type, value, this);
+		Constant::create(*scope, host, ty, value, this);
 	}
 	else
 	{
 		if(parsing_user_class == puc_vars)
 		{
-			UserClassVar::create(*scope, host, type, this);
+			UserClassVar::create(*scope, host, ty, this);
 		}
 		else
 		{
@@ -615,7 +616,7 @@ void RegistrationVisitor::caseDataDecl(ASTDataDecl& host, void* param)
 				return;
 			}
 
-			Variable::create(*scope, host, type, this);
+			Variable::create(*scope, host, ty, this);
 		}
 	}
 }
@@ -712,12 +713,12 @@ void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 		ASTDataDecl& decl = **it;
 
 		// Resolve the parameter type under current scope.
-		DataType const& type = *decl.resolveType(scope, this);
+		DataType const* type = decl.resolveType(scope, this);
 		if (breakRecursion(decl)) {scope = oldScope; return;}
-		if (!type.isResolved()) {scope = oldScope; return;}
+		if (!type) {scope = oldScope; return;}
 
 		// Don't allow void params.
-		if (type == DataType::ZVOID)
+		if (*type == DataType::ZVOID)
 		{
 			handleError(CompileError::FunctionVoidParam(&decl, decl.name));
 			doRegister(host);
@@ -725,7 +726,7 @@ void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 			return;
 		}
 		paramNames.push_back(new string(decl.name));
-		paramTypes.push_back(&type);
+		paramTypes.push_back(type);
 	}
 	if(host.prototype)
 	{

@@ -1791,6 +1791,27 @@ You may now have optional parameters in functions.
 Optional parameters cannot have any non-optional parameters listed after them.
 The default value for an optional parameter must be compile-time constant.
 
+////////////////////////////////
+//  Function Variadic Params  //
+////////////////////////////////
+
+For any function which does NOT use optional paramters, you may instead
+	use variadic parameters.
+	[example--
+	int sum(...int[] args)
+	{
+		int sum = 0;
+		for(x : args)
+			sum += x;
+		return sum;
+	}
+	Trace(sum(1,2,3)); //traces 6
+	Trace(sum(5,20,3,2)); //traces 30
+	--end example]
+
+The variadic parameter can take any number of matching paramters, and stuffs
+	them into an array for you. A size 0 array is possible if none are passed.
+
 /////////////////////////////
 //  Function Declarations  //
 /////////////////////////////

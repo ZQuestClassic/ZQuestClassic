@@ -2869,7 +2869,7 @@ ArrayManager::ArrayManager(int32_t ptr, bool neg) : ptr(ptr), negAccess(neg)
 	}
 	else
 	{
-		if(localRAM[ptr].Size() == 0)
+		if(!localRAM[ptr].Valid())
 		{
 			aptr = &INVALIDARRAY;
 			_invalid = true;
@@ -2993,17 +2993,10 @@ void deallocateArray(const int32_t ptrval)
 		if(arrayOwner[ptrval].specCleared) return;
 		arrayOwner[ptrval].clear();
 		
-		if(localRAM[ptrval].Size() == 0)
+		if(!localRAM[ptrval].Valid())
 			Z_scripterrlog("Script tried to deallocate memory that was not allocated at address %ld\n", ptrval);
 		else
-		{
-			word size = localRAM[ptrval].Size();
 			localRAM[ptrval].Clear();
-			
-			// If this happens once per frame, it can drown out every other message. -L
-			//Z_eventlog("Deallocated local array with address %ld, size %d\n", ptrval, size);
-			size = size;
-		}
 	}
 }
 
@@ -3093,7 +3086,7 @@ void FFScript::deallocateAllArrays()
 	//No QR check here- always deallocate on quest exit.
 	for(int32_t i = 1; i < NUM_ZSCRIPT_ARRAYS; i++)
 	{
-		if(localRAM[i].Size() > 0)
+		if(localRAM[i].Valid())
 		{
 			arrayOwner[i].specOwned = false;
 			//Z_eventlog("Deallocated array %d from %s UID %d\n", i, script_types[arrayOwner[i].scriptType], arrayOwner[i].ownerUID);
@@ -24043,6 +24036,12 @@ void do_peek()
 	set_register(sarg1, SH::read_stack(ri->sp));
 }
 
+void do_peekat(const bool v)
+{
+	auto offs = SH::get_arg(sarg2,v);
+	set_register(sarg1, SH::read_stack(ri->sp+offs));
+}
+
 void do_pops() // Pop past a bunch of stuff at once. Useful for clearing the stack.
 {
 	int32_t num = sarg2;
@@ -24193,12 +24192,9 @@ void do_destroy_array()
 		{
 			arrayOwner[arrindx].clear();
 			
-			if(localRAM[arrindx].Size() == 0)
-				;
-			else
-			{
+			if(localRAM[arrindx].Valid())
 				localRAM[arrindx].Clear();
-			}
+			
 			arrayOwner[arrindx].specCleared = true;
 		}
 		else if(arrindx < 0) //object array
@@ -24206,7 +24202,6 @@ void do_destroy_array()
 	}
 	else Z_scripterrlog("Tried to 'DestroyArray()' an invalid array '%d'\n", arrindx);
 }
-
 void do_allocatemem(const bool v, const bool local, ScriptType type, const uint32_t UID)
 {
 	const int32_t size = SH::get_arg(sarg2, v) / 10000;
@@ -24222,7 +24217,7 @@ void do_allocatemem(const bool v, const bool local, ScriptType type, const uint3
 	if(local)
 	{
 		//localRAM[0] is used as an invalid container, so 0 can be the NULL pointer in ZScript
-		for(ptrval = 1; localRAM[ptrval].Size() != 0; ptrval++) ;
+		for(ptrval = 1; localRAM[ptrval].Valid(); ptrval++) ;
 		
 		if(ptrval >= NUM_ZSCRIPT_ARRAYS)
 		{
@@ -24234,6 +24229,7 @@ void do_allocatemem(const bool v, const bool local, ScriptType type, const uint3
 			ZScriptArray &a = localRAM[ptrval]; //marginally faster for large arrays if we use a reference
 			
 			a.Resize(size);
+			a.setValidZero(false);
 			
 			for(dword j = 0; j < (dword)size; j++)
 				a[j] = 0; //initialize array
@@ -24249,7 +24245,7 @@ void do_allocatemem(const bool v, const bool local, ScriptType type, const uint3
 	else
 	{
 		//Globals are only allocated here at first play, otherwise in init_game
-		for(ptrval = 0; game->globalRAM[ptrval].Size() != 0; ptrval++) ;
+		for(ptrval = 0; game->globalRAM[ptrval].Valid(); ptrval++) ;
 		
 		if(ptrval >= game->globalRAM.size())
 		{
@@ -25706,11 +25702,11 @@ void do_isvalidarray()
 		
 		if(gptr > game->globalRAM.size())
 			return;
-		else set_register(sarg1,(game->globalRAM[gptr].Size() == 0) ? 0 : 10000); return;
+		else set_register(sarg1,game->globalRAM[gptr].Valid() ? 10000 : 0);
 	}
 	else
 	{
-		set_register(sarg1,(localRAM[ptr].Size() == 0) ? 0 : 10000); 
+		set_register(sarg1,localRAM[ptr].Valid() ? 10000 : 0); 
 	}
 }
 
@@ -31692,6 +31688,9 @@ j_command:
 			case PEEK:
 				do_peek();
 				break;
+			case PEEKATV:
+				do_peekat(true);
+				break;
 			case POP:
 				do_pop();
 				break;
@@ -32004,6 +32003,9 @@ j_command:
 				break;
 			case CHOOSEVARG:
 				FFCore.do_varg_choose();
+				break;
+			case MAKEVARGARRAY:
+				FFCore.do_varg_makearray(type,i);
 				break;
 			
 			case PUSHVARGV:
@@ -36663,17 +36665,10 @@ void FFScript::deallocateZScriptArray(const int32_t ptrval)
 		if(arrayOwner[ptrval].specCleared) return;
 		arrayOwner[ptrval].clear();
 		
-		if(localRAM[ptrval].Size() == 0)
+		if(!localRAM[ptrval].Valid())
 			Z_scripterrlog("Script tried to deallocate memory that was not allocated at address %ld\n", ptrval);
 		else
-		{
-			word size = localRAM[ptrval].Size();
 			localRAM[ptrval].Clear();
-			
-			// If this happens once per frame, it can drown out every other message. -L
-			//Z_eventlog("Deallocated local array with address %ld, size %d\n", ptrval, size);
-			size = size;
-		}
 	}
 }
 
@@ -41485,8 +41480,8 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "DRAWLIGHT_SQUARE", 0, 0, 0, 0 },
 	{ "DRAWLIGHT_CONE", 0, 0, 0, 0 },
 	{ "PEEK", 1, 0, 0, 0 },
-	{ "RESRVD_OP_EMILY_10", 0, 0, 0, 0 },
-	{ "RESRVD_OP_EMILY_11", 0, 0, 0, 0 },
+	{ "PEEKATV", 2, 0, 1, 0 },
+	{ "MAKEVARGARRAY", 0, 0, 0, 0 },
 	{ "RESRVD_OP_EMILY_12", 0, 0, 0, 0 },
 	{ "RESRVD_OP_EMILY_13", 0, 0, 0, 0 },
 	{ "RESRVD_OP_EMILY_14", 0, 0, 0, 0 },
@@ -43735,6 +43730,37 @@ void FFScript::do_varg_choose()
 	}
 	zs_vargs.clear();
 	ri->d[rEXP1] = val;
+}
+void FFScript::do_varg_makearray(ScriptType type, const uint32_t UID)
+{
+	size_t num_args = zs_vargs.size();
+	//
+	dword ptrval;
+	for(ptrval = 1; localRAM[ptrval].Valid(); ptrval++) ;
+	
+	if(ptrval >= NUM_ZSCRIPT_ARRAYS)
+	{
+		Z_scripterrlog("%d local arrays already in use, no more can be allocated\n", NUM_ZSCRIPT_ARRAYS-1);
+		ptrval = 0;
+	}
+	else
+	{
+		ZScriptArray &a = localRAM[ptrval]; //marginally faster for large arrays if we use a reference
+		
+		a.Resize(num_args);
+		a.setValidZero(true);
+		
+		for(size_t j = 0; j < num_args; ++j)
+			a[j] = zs_vargs[j]; //initialize array
+		
+		arrayOwner[ptrval].scriptType = type;
+		arrayOwner[ptrval].ownerUID = UID;
+		arrayOwner[ptrval].specOwned = false;
+		arrayOwner[ptrval].specCleared = false;
+	}
+	//
+	zs_vargs.clear();
+	ri->d[rEXP1] = ptrval*10000;
 }
 
 void FFScript::do_breakpoint()

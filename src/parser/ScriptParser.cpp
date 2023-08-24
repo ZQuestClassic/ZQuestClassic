@@ -915,7 +915,7 @@ vector<shared_ptr<Opcode>> ScriptParser::assembleOne(
 							Argument* reg = regarg->clone();
 							it2 = rval.erase(it2);
 							it = rval.erase(it);
-							it = rval.insert(it,std::shared_ptr<Opcode>(new OPeekRegister(reg)));
+							it = rval.insert(it,std::shared_ptr<Opcode>(new OPeek(reg)));
 							(*it)->setLabel(lbl);
 							++it;
 							continue;

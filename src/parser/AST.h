@@ -2141,10 +2141,12 @@ namespace ZScript
 	
 		void execute(ASTVisitor& visitor, void* param = NULL);
 		DataType const& resolve(Scope& scope, CompileErrorHandler* errorHandler);
+		DataType const* resolve_ornull(Scope& scope, CompileErrorHandler* errorHandler);
 		inline bool wasResolved() const { return wasResolved_; }
 
 		owning_ptr<DataType> type;
 		int32_t constant_;
+		bool becomeArray;
 	private:
 		bool wasResolved_;
 	};

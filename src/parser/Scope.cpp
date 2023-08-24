@@ -530,9 +530,10 @@ inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::ve
 			continue;
 		}
 		bool vargs = function.getFlag(FUNCFLAG_VARARGS);
+		bool user_vargs = vargs && !function.isInternal();
 		
 		auto targetSize = parameterTypes.size();
-		auto maxSize = function.paramTypes.size();
+		auto maxSize = function.paramTypes.size() - (user_vargs ? 1 : 0);
 		auto minSize = maxSize - function.opt_vals.size();
 		// Match against parameter count, including std::optional params.
 		if (minSize > targetSize || (!vargs && maxSize < targetSize))
@@ -555,6 +556,18 @@ inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::ve
 					break;
 				}
 			}
+			if(user_vargs && lowsize < targetSize)
+			{
+				auto& vargty = getNaiveType(*function.paramTypes.back(),scope);
+				for(size_t i = lowsize; i < targetSize; ++i)
+				{
+					if(getNaiveType(*parameterTypes[i],scope) != vargty)
+					{
+						parametersMatch = false;
+						break;
+					}
+				}
+			}
 		}
 		else
 		{
@@ -564,6 +577,18 @@ inline void ZScript::trimBadFunctions(std::vector<Function*>& functions, std::ve
 				{
 					parametersMatch = false;
 					break;
+				}
+			}
+			if(user_vargs && lowsize < targetSize)
+			{
+				auto& vargty = *function.paramTypes.back();
+				for(size_t i = lowsize; i < targetSize; ++i)
+				{
+					if(!parameterTypes[i]->canCastTo(vargty))
+					{
+						parametersMatch = false;
+						break;
+					}
 				}
 			}
 		}

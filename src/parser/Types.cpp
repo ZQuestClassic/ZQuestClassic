@@ -461,7 +461,13 @@ DataType* DataTypeUnresolved::resolve(Scope& scope, CompileErrorHandler* errorHa
 {
 	if (DataType const* type = lookupDataType(scope, *iden, errorHandler))
 		return type->clone();
-	return NULL;
+	return this;
+}
+DataType const* DataTypeUnresolved::baseType(Scope& scope, CompileErrorHandler* errorHandler)
+{
+	if (DataType const* type = lookupDataType(scope, *iden, errorHandler))
+		return type;
+	return nullptr;
 }
  
 std::string DataTypeUnresolved::getName() const
@@ -522,6 +528,10 @@ bool DataTypeSimple::canBeGlobal() const
 	return true; //All types can be global, now. 
 	//return simpleId == ZTID_FLOAT || simpleId == ZTID_BOOL;
 }
+DataType const* DataTypeSimple::baseType(Scope& scope, CompileErrorHandler* errorHandler)
+{
+	return DataType::get(simpleId);
+}
 
 ////////////////////////////////////////////////////////////////
 // DataTypeSimpleConst
@@ -529,6 +539,11 @@ bool DataTypeSimple::canBeGlobal() const
 DataTypeSimpleConst::DataTypeSimpleConst(int32_t simpleId, string const& name)
 	: DataTypeSimple(simpleId, name, NULL)
 {}
+DataType const* DataTypeSimpleConst::baseType(Scope& scope, CompileErrorHandler* errorHandler)
+{
+	auto* ty = DataType::get(simpleId);
+	return ty ? ty->getConstType() : nullptr;
+}
 
 ////////////////////////////////////////////////////////////////
 // DataTypeClass
@@ -541,13 +556,17 @@ DataTypeClass::DataTypeClass(int32_t classId, string const& className, DataType*
 	: DataType(constType), classId(classId), className(className)
 {}
 
-DataTypeClass* DataTypeClass::resolve(Scope& scope, CompileErrorHandler* errorHandler)
+DataType* DataTypeClass::resolve(Scope& scope, CompileErrorHandler* errorHandler)
 {
 	// Grab the proper name for the class the first time it's resolved.
 	if (className == "")
 		className = scope.getTypeStore().getClass(classId)->name;
 
 	return this;
+}
+DataType const* DataTypeClass::baseType(Scope& scope, CompileErrorHandler* errorHandler)
+{
+	return DataType::getClass(classId);
 }
 
 string DataTypeClass::getName() const
@@ -588,6 +607,11 @@ int32_t DataTypeClass::selfCompare(DataType const& rhs) const
 DataTypeClassConst::DataTypeClassConst(int32_t classId, string const& name)
 	: DataTypeClass(classId, name, NULL)
 {}
+DataType const* DataTypeClassConst::baseType(Scope& scope, CompileErrorHandler* errorHandler)
+{
+	auto* ty = DataType::getClass(classId);
+	return ty ? ty->getConstType() : nullptr;
+}
 
 ////////////////////////////////////////////////////////////////
 // DataTypeArray
@@ -616,6 +640,11 @@ DataType const& ZScript::getBaseType(DataType const& type)
 	while (DataTypeArray const* t = dynamic_cast<DataTypeArray const*>(current))
 		current = &t->getElementType();
 	return *current;
+}
+DataType const* DataTypeArray::baseType(Scope& scope, CompileErrorHandler* errorHandler)
+{
+	auto& ty = getBaseType(elementType);
+	return &ty;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -661,6 +690,16 @@ int32_t DataTypeCustom::selfCompare(DataType const& other) const
 	return id - o.id;
 }
 
+DataType const* DataTypeCustom::baseType(Scope& scope, CompileErrorHandler* errorHandler)
+{
+	return DataType::getCustom(id);
+}
+
+DataType const* DataTypeCustomConst::baseType(Scope& scope, CompileErrorHandler* errorHandler)
+{
+	auto* ty = DataType::getCustom(id);
+	return ty ? ty->getConstType() : nullptr;
+}
 ////////////////////////////////////////////////////////////////
 // Script Types
 

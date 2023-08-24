@@ -1589,12 +1589,69 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 	else
 	{
 		int32_t funclabel = func.getLabel();
+		
+		bool vargs = func.getFlag(FUNCFLAG_VARARGS);
+		bool user_vargs = vargs && !func.isInternal();
+		auto num_used_params = host.parameters.size();
+		auto num_actual_params = func.paramTypes.size() - (user_vargs ? 1 : 0);
+		if(host.left->isTypeArrow())
+			--num_actual_params; //Don't count the arrow param!
+		size_t vargcount = 0;
+		size_t used_opt_params = 0;
+		int v = num_used_params-num_actual_params;
+		(v>0 ? vargcount : used_opt_params) = abs(v);
+		size_t pushcount = 0;
+		
+		if(user_vargs)
+		{
+			//push the vargs, in forward order
+			for (size_t param_indx = num_used_params-vargcount; param_indx < num_used_params; ++param_indx)
+			{
+				auto& arg = host.parameters.at(param_indx);
+				//Compile-time constants can be optimized slightly...
+				if(std::optional<int32_t> val = arg->getCompileTimeValue(this, scope))
+					addOpcode(new OPushVargV(new LiteralArgument(*val)));
+				else
+				{
+					INITC_VISIT(arg);
+					//Optimize
+					Opcode* lastop = optarg->back().get();
+					if(OSetRegister* tmp = dynamic_cast<OSetRegister*>(lastop))
+					{
+						VarArgument* destreg = static_cast<VarArgument*>(tmp->getFirstArgument());
+						if(destreg->ID == EXP1)
+						{
+							Argument* arg = tmp->getSecondArgument()->clone();
+							optarg->pop_back();
+							addOpcode(new OPushVargR(arg));
+							continue;
+						}
+					}
+					else if(OSetImmediate* tmp = dynamic_cast<OSetImmediate*>(lastop))
+					{
+						VarArgument* destreg = static_cast<VarArgument*>(tmp->getFirstArgument());
+						if(destreg->ID == EXP1)
+						{
+							Argument* arg = tmp->getSecondArgument()->clone();
+							optarg->pop_back();
+							addOpcode(new OPushVargV(arg));
+							continue;
+						}
+					}
+					addOpcode(new OPushVargR(new VarArgument(EXP1)));
+				}
+			}
+			addOpcode(new OMakeVargArray());
+			addOpcode(new OPushRegister(new VarArgument(EXP1)));
+			++pushcount;
+		}
+		
 		//push the stack frame pointer
 		addOpcode(new OPushRegister(new VarArgument(SFRAME)));
 		//push the return address
 		int32_t returnaddr = ScriptParser::getUniqueLabelID();
 		addOpcode(new OPushImmediate(new LabelArgument(returnaddr)));
-		
+		pushcount += 2;
 		
 		// If the function is a pointer function (->func()) we need to push the
 		// left-hand-side.
@@ -1605,18 +1662,20 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			//INITC_VISIT(host.getLeft());
 			//push it onto the stack
 			addOpcode(new OPushRegister(new VarArgument(EXP1)));
+			++pushcount;
 		}
-
+		
 		//push the parameters, in forward order
-		for (auto it = host.parameters.begin();
-			it != host.parameters.end(); ++it)
+		size_t param_indx = 0;
+		for (; param_indx < num_used_params-vargcount; ++param_indx)
 		{
+			auto& arg = host.parameters.at(param_indx);
 			//Compile-time constants can be optimized slightly...
-			if(std::optional<int32_t> val = (*it)->getCompileTimeValue(this, scope))
+			if(std::optional<int32_t> val = arg->getCompileTimeValue(this, scope))
 				addOpcode(new OPushImmediate(new LiteralArgument(*val)));
 			else
 			{
-				INITC_VISIT(*it);
+				INITC_VISIT(arg);
 				//Optimize
 				Opcode* lastop = optarg->back().get();
 				if(OSetRegister* tmp = dynamic_cast<OSetRegister*>(lastop))
@@ -1644,16 +1703,66 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 				addOpcode(new OPushRegister(new VarArgument(EXP1)));
 			}
 		}
-		//push any std::optional parameter values
-		auto num_actual_params = func.paramTypes.size();
-		if(host.left->isTypeArrow())
-			--num_actual_params; //Don't count the arrow param!
-		auto used_opt_params = num_actual_params - host.parameters.size();
-		auto opt_param_count = func.opt_vals.size();
-		auto skipped_optional_params = opt_param_count - used_opt_params;
-		for(auto q = skipped_optional_params; q < opt_param_count; ++q)
+		pushcount += (num_used_params-vargcount);
+		if(vargs && (vargcount || user_vargs))
 		{
-			addOpcode(new OPushImmediate(new LiteralArgument(func.opt_vals[q])));
+			if(user_vargs)
+			{
+				if(auto offs = pushcount-1)
+					addOpcode(new OPeekAtImmediate(new VarArgument(EXP1), new LiteralArgument(offs)));
+				else addOpcode(new OPeek(new VarArgument(EXP1)));
+				addOpcode(new OPushRegister(new VarArgument(EXP1)));
+			}
+			else
+			{
+				//push the vargs, in forward order
+				for (; param_indx < host.parameters.size(); ++param_indx)
+				{
+					auto& arg = host.parameters.at(param_indx);
+					//Compile-time constants can be optimized slightly...
+					if(std::optional<int32_t> val = arg->getCompileTimeValue(this, scope))
+						addOpcode(new OPushVargV(new LiteralArgument(*val)));
+					else
+					{
+						INITC_VISIT(arg);
+						//Optimize
+						Opcode* lastop = optarg->back().get();
+						if(OSetRegister* tmp = dynamic_cast<OSetRegister*>(lastop))
+						{
+							VarArgument* destreg = static_cast<VarArgument*>(tmp->getFirstArgument());
+							if(destreg->ID == EXP1)
+							{
+								Argument* arg = tmp->getSecondArgument()->clone();
+								optarg->pop_back();
+								addOpcode(new OPushVargR(arg));
+								continue;
+							}
+						}
+						else if(OSetImmediate* tmp = dynamic_cast<OSetImmediate*>(lastop))
+						{
+							VarArgument* destreg = static_cast<VarArgument*>(tmp->getFirstArgument());
+							if(destreg->ID == EXP1)
+							{
+								Argument* arg = tmp->getSecondArgument()->clone();
+								optarg->pop_back();
+								addOpcode(new OPushVargV(arg));
+								continue;
+							}
+						}
+						addOpcode(new OPushVargR(new VarArgument(EXP1)));
+					}
+				}
+			}
+		}
+		else if(used_opt_params)
+		{
+			//push any optional parameter values
+			auto opt_param_count = func.opt_vals.size();
+			auto skipped_optional_params = opt_param_count - used_opt_params;
+			for(auto q = skipped_optional_params; q < opt_param_count; ++q)
+			{
+				addOpcode(new OPushImmediate(new LiteralArgument(func.opt_vals[q])));
+			}
 		}
 		//goto
 		addOpcode(new OGotoImmediate(new LabelArgument(funclabel)));
@@ -1661,6 +1770,11 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		Opcode *next = new OPopRegister(new VarArgument(SFRAME));
 		next->setLabel(returnaddr);
 		addOpcode(next);
+		if(vargcount && user_vargs)
+		{
+			addOpcode(new OPopRegister(new VarArgument(EXP2)));
+			addOpcode(new ODeallocateMemRegister(new VarArgument(EXP2)));
+		}
 		
 		if(host.left->isTypeArrow())
 		{

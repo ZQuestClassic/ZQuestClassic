@@ -2616,17 +2616,17 @@ string ODrawLightCone::toString() const
 {
 	return "DRAWLIGHT_CONE";
 }
-string OPeekRegister::toString() const
+string OPeek::toString() const
 {
 	return "PEEK " + getArgument()->toString();
 }
-string OResrvdOpEmily10::toString() const
+string OPeekAtImmediate::toString() const
 {
-	return "RESRVD_OP_EMILY_10";
+	return "PEEKATV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();;
 }
-string OResrvdOpEmily11::toString() const
+string OMakeVargArray::toString() const
 {
-	return "RESRVD_OP_EMILY_11";
+	return "MAKEVARGARRAY";
 }
 string OResrvdOpEmily12::toString() const
 {

@@ -1103,6 +1103,7 @@ void do_sprintf(const bool v, const bool varg);
 void do_varg_max();
 void do_varg_min();
 void do_varg_choose();
+void do_varg_makearray(ScriptType type, const uint32_t UID);
 void do_breakpoint();
 void do_trace(bool v);
 void do_tracel(bool v);
@@ -3253,8 +3254,8 @@ enum ASM_DEFINE
 	DRAWLIGHT_SQUARE,
 	DRAWLIGHT_CONE,
 	PEEK,
-	RESRVD_OP_EMILY_10,
-	RESRVD_OP_EMILY_11,
+	PEEKATV,
+	MAKEVARGARRAY,
 	RESRVD_OP_EMILY_12,
 	RESRVD_OP_EMILY_13,
 	RESRVD_OP_EMILY_14,
