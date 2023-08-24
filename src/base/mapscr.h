@@ -1,9 +1,14 @@
 #ifndef _MAPSCR_H_
 #define _MAPSCR_H_
 
-#include "base/zdefs.h"
 #include "ffc.h"
 #include <vector>
+
+enum
+{
+    wtCAVE, wtPASS, wtEXIT, wtSCROLL, wtIWARP, wtIWARPBLK, wtIWARPOPEN,
+    wtIWARPZAP, wtIWARPWAVE, wtNOWARP, wtWHISTLE, wtMAX
+};
 
 struct mapscr
 {
