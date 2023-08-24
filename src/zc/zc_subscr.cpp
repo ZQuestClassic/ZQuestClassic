@@ -541,3 +541,43 @@ void markBmap(int32_t dir)
     markBmap(dir, get_currscr());
 }
 
+void put_passive_subscr(BITMAP *dest,int32_t x,int32_t y,bool showtime,int32_t pos2)
+{
+	++subscr_item_clk;
+	animate_subscr_buttonitems();
+	BITMAP *subscr = create_sub_bitmap(dest,x,y,256,passive_subscreen_height);
+	
+	if(no_subscreen())
+	{
+		clear_to_color(subscr,0);
+		destroy_bitmap(subscr);
+		return;
+	}
+
+	// TODO z3 would be simpler to just set a `subscr_compass_x` ?
+	int32_t prev_homescr;
+	int32_t prev_currscr;
+	if (currscr_for_passive_subscr != -1)
+	{
+		prev_homescr = homescr;
+		prev_currscr = currscr;
+		currscr = currscr_for_passive_subscr;
+		homescr = prev_currscr;
+	}
+	
+	show_custom_subscreen(subscr, new_subscreen_passive, 0, 0, showtime, pos2);
+	destroy_bitmap(subscr);
+	if(new_subscreen_overlay)
+	{
+		subscr = create_sub_bitmap(dest,x,0,256,224);
+		show_custom_subscreen(subscr, new_subscreen_overlay, 0, 0, showtime, pos2);
+		destroy_bitmap(subscr);
+	}
+
+	if (currscr_for_passive_subscr != -1)
+	{
+		currscr = prev_currscr;
+		homescr = prev_homescr;
+	}
+}
+

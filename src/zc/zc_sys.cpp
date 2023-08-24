@@ -59,6 +59,7 @@
 #include "dialog/alert.h"
 #include "zc/combos.h"
 #include "zc/jit.h"
+#include "zc/zc_subscr.h"
 #include <fmt/format.h>
 #include "zinfo.h"
 #include "base/misctypes.h"

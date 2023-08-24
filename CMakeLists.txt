@@ -20,6 +20,7 @@ set(REPO "" CACHE STRING "Repo URL")
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 if(MSVC)
 	set(CMAKE_CXX_FLAGS_ASAN "${CMAKE_CXX_FLAGS_DEBUG} /fsanitize=address" CACHE STRING "" FORCE)
@@ -338,9 +339,6 @@ if(MSVC)
 
 	# Build in parallel - speeds up the build on multicore machines.
 	add_compile_options(/MP)
-
-	# Yes MSVC, we want C++ 20 features. https://devblogs.microsoft.com/cppblog/announcing-full-support-for-a-c-c-conformant-preprocessor-in-msvc/
-	add_compile_options(/Zc:preprocessor)
 
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 	
@@ -774,7 +772,9 @@ set(zc_clang_errors
 set(zc_gcc_errors
 	-Werror=array-bounds
 	-Werror=format
-	-Werror=format-overflow
+	# GCC currently gives some false positives for format-overflow.
+	# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=108091
+	-Wno-error=format-overflow
 	-Werror=return-type
 	-Werror=unreachable-code
 	# -Werror=unused
@@ -831,6 +831,13 @@ if (WIN32)
 	add_dependencies(zplayer zconsole)
 endif()
 
+if (MSVC)
+	foreach(target IN LISTS zc_targets)
+		# Yes MSVC, we want C++ 20 features. https://devblogs.microsoft.com/cppblog/announcing-full-support-for-a-c-c-conformant-preprocessor-in-msvc/
+		target_compile_options(${target} PRIVATE /Zc:preprocessor)
+	endforeach()
+endif()
+
 if(USE_PCH)
 	foreach(target IN LISTS zc_targets)
 		target_precompile_headers(${target}
@@ -879,22 +886,29 @@ endif()
 
 find_program(PYTHON python3 python REQUIRED)
 
+get_property(is_multi_config GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
+if(is_multi_config)
+	set(BUILD_FOLDER "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>")
+else()
+	set(BUILD_FOLDER "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
+endif()
+
 add_custom_command(
-	COMMAND ${PYTHON} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/package.py --skip_binaries --copy_to_build_folder --build_folder "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>" --keep_existing_files
+	COMMAND ${PYTHON} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/package.py --skip_binaries --copy_to_build_folder --build_folder "${BUILD_FOLDER}" --keep_existing_files
 	OUTPUT copy_resources_if_not_exist.stamp
 )
 add_custom_target(copy_resources_if_not_exist DEPENDS copy_resources_if_not_exist.stamp)
 set_source_files_properties(copy_resources_if_not_exist.stamp PROPERTIES SYMBOLIC 1)
 
 add_custom_command(
-	COMMAND ${PYTHON} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/package.py --skip_binaries --copy_to_build_folder --build_folder "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>"
+	COMMAND ${PYTHON} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/package.py --skip_binaries --copy_to_build_folder --build_folder "${BUILD_FOLDER}"
 	OUTPUT copy_resources.stamp
 )
 add_custom_target(copy_resources DEPENDS copy_resources.stamp)
 set_source_files_properties(copy_resources.stamp PROPERTIES SYMBOLIC 1)
 
 add_custom_command(
-	COMMAND ${PYTHON} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/package.py --build_folder "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>" --clean_first
+	COMMAND ${PYTHON} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/package.py --build_folder "${BUILD_FOLDER}" --clean_first
 	OUTPUT package.stamp
 	DEPENDS ${zc_targets}
 )
@@ -902,7 +916,7 @@ add_custom_target(package DEPENDS package.stamp)
 set_source_files_properties(package.stamp PROPERTIES SYMBOLIC 1)
 
 add_custom_command(
-	COMMAND ${PYTHON} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/package.py --build_folder "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>" --clean_first --skip_archive
+	COMMAND ${PYTHON} ${CMAKE_CURRENT_SOURCE_DIR}/scripts/package.py --build_folder "${BUILD_FOLDER}" --clean_first --skip_archive
 	OUTPUT package_no_archive.stamp
 	DEPENDS ${zc_targets}
 )
@@ -923,7 +937,7 @@ function (create_replay_tests_target target_name)
 	list(SUBLIST ARGV 1 -1 command_args)
 	add_custom_command(
 		USES_TERMINAL
-		COMMAND ${PYTHON} -Xutf8 ${CMAKE_CURRENT_SOURCE_DIR}/tests/run_replay_tests.py --no-emoji --build_folder "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>" ${command_args}
+		COMMAND ${PYTHON} -Xutf8 ${CMAKE_CURRENT_SOURCE_DIR}/tests/run_replay_tests.py --no-emoji --build_folder "${BUILD_FOLDER}" ${command_args}
 		OUTPUT ${target_name}.stamp
 		DEPENDS zelda
 	)

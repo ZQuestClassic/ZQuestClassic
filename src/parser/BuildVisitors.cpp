@@ -965,7 +965,10 @@ void BuildOpcodes::caseStmtReturn(ASTStmtReturn&, void*)
 
 void BuildOpcodes::caseStmtReturnVal(ASTStmtReturnVal &host, void *param)
 {
-	visit(host.value.get(), param);
+	INITC_STORE();
+	INITC_VISIT(host.value.get());
+	INITC_INIT();
+	INITC_DEALLOC();
 	deallocateRefsUntilCount(0);
 	addOpcode(new OGotoImmediate(new LabelArgument(returnlabelid)));
 }

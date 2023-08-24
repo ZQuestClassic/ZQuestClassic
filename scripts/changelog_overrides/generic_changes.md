@@ -10,3 +10,4 @@ subject dabe7c091b89fa2e09217dfb63c652184b78f65e feat(vscode): create VS Code ex
 subject 6ecf0775afeac108bb4f806b76f9c1835c0a98d1 feat(vscode): update vscode extension keywords
 subject d82a0d8458b3029283385db04f1d935fd0dbce48 misc: add 'std_zh' scope to changelog generation
 subject f7228536ad55c2fb4bb20d00bba8b8c06d7e67c2 feat(std_zh): add 'GetLevelSwitchState()'/'SetLevelSwitchState()' helper functions
+drop 165b42156443f963f41ce0f5a68638010ff7c137

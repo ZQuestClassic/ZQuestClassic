@@ -269,7 +269,8 @@ bool zmap::reset_templates(bool validate)
     }
     
     //section size
-    if(!p_igetl(&dummy,f))
+    dword dummy_size;
+    if(!p_igetl(&dummy_size,f))
     {
         return false;
     }
