@@ -2438,22 +2438,22 @@ namespace ZScript
 			return new OMakeVargArray();
 		}
 	};
-	class OResrvdOpEmily12 : public Opcode
+	class OPrintfArr : public Opcode
 	{
 	public:
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OResrvdOpEmily12();
+			return new OPrintfArr();
 		}
 	};
-	class OResrvdOpEmily13 : public Opcode
+	class OSPrintfArr : public Opcode
 	{
 	public:
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OResrvdOpEmily13();
+			return new OSPrintfArr();
 		}
 	};
 	class OResrvdOpEmily14 : public Opcode

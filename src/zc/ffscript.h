@@ -1100,6 +1100,8 @@ void do_tracebool(const bool v);
 void do_tracestring();
 void do_printf(const bool v, const bool varg);
 void do_sprintf(const bool v, const bool varg);
+void do_printfarr();
+void do_sprintfarr();
 void do_varg_max();
 void do_varg_min();
 void do_varg_choose();
@@ -3256,8 +3258,8 @@ enum ASM_DEFINE
 	PEEK,
 	PEEKATV,
 	MAKEVARGARRAY,
-	RESRVD_OP_EMILY_12,
-	RESRVD_OP_EMILY_13,
+	PRINTFA,
+	SPRINTFA,
 	RESRVD_OP_EMILY_14,
 	RESRVD_OP_EMILY_15,
 	RESRVD_OP_EMILY_16,

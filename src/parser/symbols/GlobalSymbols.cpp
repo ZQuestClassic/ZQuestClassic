@@ -89,6 +89,8 @@ static AccessorTable GlobalTable[] =
 
 	{ "printf",                  0,          ZTID_VOID,   -1,    FL_VARG,  { ZTID_CHAR },{} },
 	{ "sprintf",                 0,         ZTID_FLOAT,   -1,    FL_VARG,  { ZTID_CHAR, ZTID_CHAR },{} },
+	{ "printfa",                 0,          ZTID_VOID,   -1,          0,  { ZTID_CHAR, ZTID_UNTYPED },{} },
+	{ "sprintfa",                0,         ZTID_FLOAT,   -1,          0,  { ZTID_CHAR, ZTID_CHAR, ZTID_UNTYPED },{} },
 	
 	{ "Max",                     0,       ZTID_UNTYPED,   -1,    FL_VARG,  { ZTID_UNTYPED, ZTID_UNTYPED },{},2 },
 	{ "Min",                     0,       ZTID_UNTYPED,   -1,    FL_VARG,  { ZTID_UNTYPED, ZTID_UNTYPED },{},2 },
@@ -1519,6 +1521,28 @@ void GlobalSymbols::generateCode()
 		addOpcode2 (code, new OSPrintfVargs());
 		LABELBACK(label);
 		POP_ARGS(2,NUL);
+		RETURN();
+		function->giveCode(code);
+	}
+	//void printfa(str* format, untyped[] args)
+	{
+		Function* function = getFunction("printfa");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPrintfArr());
+		LABELBACK(label);
+		POP_ARGS(2,NUL);
+		RETURN();
+		function->giveCode(code);
+	}
+	//void sprintfa(str* buf, str* format, untyped[] args)
+	{
+		Function* function = getFunction("sprintfa");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OSPrintfArr());
+		LABELBACK(label);
+		POP_ARGS(3,NUL);
 		RETURN();
 		function->giveCode(code);
 	}

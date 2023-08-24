@@ -3151,7 +3151,7 @@ int strcspn(string[], string_keys[]);
  * Returns the length of characters in a string before a character contained in
  * 'string_keys' is found
 
-void sprintf(char32[] buf, char32[] format, ...untyped...)
+void sprintf(char32[] buf, char32[] format, ...untyped...);
  * Takes a buffer, a format string, and 0+ untyped arguments.
  * The untyped arguments will be inserted to the string at points in the format string.
  * Points are specified using '%'. The letter after is used to determine the type of the arg.
@@ -3185,10 +3185,16 @@ void sprintf(char32[] buf, char32[] format, ...untyped...)
  * The resulting string will be placed in the buffer, which is expected to be large enough
  *     to hold the output.
 
-void printf(char32 format[], ...untyped...)
+void printf(char32 format[], ...untyped...);
  * Takes a format string, and 0+ untyped arguments.
  * Same as 'sprintf', but instead of placing the result in a buffer, will instead
  *     trace the result, as with "TraceS()".
+
+void printfa(char32 format[], untyped[] args);
+ * Same as 'printf', but takes an array of args instead of multiple args.
+void sprintfa(char32[] buf, char32 format[], untyped[] args);
+ * Same as 'sprintf', but takes an array of args instead of multiple args.
+
 
 untyped Min(untyped, untyped, ...untyped);
  * Takes 2 or more untyped arguments, and returns the lowest value between them.

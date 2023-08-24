@@ -32278,6 +32278,12 @@ j_command:
 			case SPRINTFVARG:
 				FFCore.do_sprintf(true, true);
 				break;
+			case PRINTFA:
+				FFCore.do_printfarr();
+				break;
+			case SPRINTFA:
+				FFCore.do_printfarr();
+				break;
 			
 			case BREAKPOINT:
 				if( zasm_debugger )
@@ -41482,8 +41488,8 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "PEEK", 1, 0, 0, 0 },
 	{ "PEEKATV", 2, 0, 1, 0 },
 	{ "MAKEVARGARRAY", 0, 0, 0, 0 },
-	{ "RESRVD_OP_EMILY_12", 0, 0, 0, 0 },
-	{ "RESRVD_OP_EMILY_13", 0, 0, 0, 0 },
+	{ "PRINTFA", 0, 0, 0, 0 },
+	{ "SPRINTFA", 0, 0, 0, 0 },
 	{ "RESRVD_OP_EMILY_14", 0, 0, 0, 0 },
 	{ "RESRVD_OP_EMILY_15", 0, 0, 0, 0 },
 	{ "RESRVD_OP_EMILY_16", 0, 0, 0, 0 },
@@ -43504,9 +43510,16 @@ char const* zs_formatter(char const* format, int32_t arg, int32_t mindig)
 	return ret.c_str();
 }
 
-string zs_sprintf(char const* format, int32_t num_args, const bool varg)
+static int32_t zspr_varg_getter(int32_t,int32_t next_arg)
 {
-	int32_t arg_offset = ((ri->sp + num_args) - 1);
+	return zs_vargs.at(next_arg);
+}
+static int32_t zspr_stack_getter(int32_t num_args, int32_t next_arg)
+{
+	return SH::read_stack(((ri->sp + num_args) - 1) - next_arg);
+}
+string zs_sprintf(char const* format, int32_t num_args, std::function<int32_t(int32_t,int32_t)> arg_getter)
+{
 	int32_t next_arg = 0;
 	bool is_old_args = get_qr(qr_OLD_PRINTF_ARGS);
 	ostringstream oss;
@@ -43515,10 +43528,12 @@ string zs_sprintf(char const* format, int32_t num_args, const bool varg)
 		int32_t arg_val = 0;
 		if(next_arg < num_args)
 		{
-			if(varg)
-				arg_val = zs_vargs.at(next_arg);
-			else
-				arg_val = SH::read_stack(arg_offset - next_arg);
+			arg_val = arg_getter(num_args,next_arg);
+		}
+		else if(get_qr(qr_PRINTF_NO_0FILL))
+		{
+			oss << format;
+			return oss.str();
 		}
 		char buf[256] = {0};
 		for ( int32_t q = 0; q < 256; ++q )
@@ -43658,11 +43673,16 @@ void FFScript::do_printf(const bool v, const bool varg)
 		num_args = SH::get_arg(sarg1, v) / 10000;
 		format_arrayptr = SH::read_stack(ri->sp + num_args) / 10000;
 	}
-	string formatstr;
-	ArrayH::getString(format_arrayptr, formatstr, MAX_ZC_ARRAY_SIZE);
-	
-	traceStr(zs_sprintf(formatstr.c_str(), num_args, varg));
-	if(varg) zs_vargs.clear();
+	ArrayManager fmt_am(format_arrayptr);
+	if(!fmt_am.invalid())
+	{
+		string formatstr;
+		ArrayH::getString(format_arrayptr, formatstr, MAX_ZC_ARRAY_SIZE);
+		
+		traceStr(zs_sprintf(formatstr.c_str(), num_args, varg ? zspr_varg_getter : zspr_stack_getter));
+	}
+	if(varg)
+		zs_vargs.clear();
 }
 void FFScript::do_sprintf(const bool v, const bool varg)
 {
@@ -43679,17 +43699,74 @@ void FFScript::do_sprintf(const bool v, const bool varg)
 		dest_arrayptr = SH::read_stack(ri->sp + num_args + 1) / 10000;
 		format_arrayptr = SH::read_stack(ri->sp + num_args) / 10000;
 	}
-	string formatstr;
-	ArrayH::getString(format_arrayptr, formatstr, MAX_ZC_ARRAY_SIZE);
-	
-	string output = zs_sprintf(formatstr.c_str(), num_args, varg);
-	if(ArrayH::setArray(dest_arrayptr, output) == SH::_Overflow)
+	ArrayManager fmt_am(format_arrayptr);
+	ArrayManager dst_am(dest_arrayptr);
+	if(fmt_am.invalid() || dst_am.invalid())
+		ri->d[rEXP1] = 0;
+	else
 	{
-		Z_scripterrlog("Dest string supplied to 'sprintf()' not large enough\n");
-		ri->d[rEXP1] = ArrayH::strlen(dest_arrayptr);
+		string formatstr;
+		ArrayH::getString(format_arrayptr, formatstr, MAX_ZC_ARRAY_SIZE);
+		
+		string output = zs_sprintf(formatstr.c_str(), num_args, varg ? zspr_varg_getter : zspr_stack_getter);
+		if(ArrayH::setArray(dest_arrayptr, output) == SH::_Overflow)
+		{
+			Z_scripterrlog("Dest string supplied to 'sprintf()' not large enough\n");
+			ri->d[rEXP1] = ArrayH::strlen(dest_arrayptr);
+		}
+		else ri->d[rEXP1] = output.size();
 	}
-	else ri->d[rEXP1] = output.size();
-	if(varg) zs_vargs.clear();
+	if(varg)
+		zs_vargs.clear();
+}
+void FFScript::do_printfarr()
+{
+	int32_t format_arrayptr = SH::read_stack(ri->sp + 1) / 10000,
+		args_arrayptr = SH::read_stack(ri->sp + 0) / 10000;
+	ArrayManager fmt_am(format_arrayptr);
+	ArrayManager arg_am(args_arrayptr);
+	if(!(fmt_am.invalid() || arg_am.invalid()))
+	{
+		auto num_args = arg_am.size();
+		string formatstr;
+		ArrayH::getString(format_arrayptr, formatstr, MAX_ZC_ARRAY_SIZE);
+		
+		traceStr(zs_sprintf(formatstr.c_str(), num_args,
+			[&](int32_t,int32_t next_arg)
+			{
+				return arg_am.get(next_arg);
+			}));
+	}
+}
+void FFScript::do_sprintfarr()
+{
+	int32_t dest_arrayptr = SH::read_stack(ri->sp + 2) / 10000,
+		format_arrayptr = SH::read_stack(ri->sp + 1) / 10000,
+		args_arrayptr = SH::read_stack(ri->sp + 0) / 10000;
+	ArrayManager fmt_am(format_arrayptr);
+	ArrayManager arg_am(args_arrayptr);
+	ArrayManager dst_am(dest_arrayptr);
+	if(fmt_am.invalid() || arg_am.invalid() || dst_am.invalid())
+		ri->d[rEXP1] = 0;
+	else
+	{
+		auto num_args = arg_am.size();
+		string formatstr;
+		ArrayH::getString(format_arrayptr, formatstr, MAX_ZC_ARRAY_SIZE);
+		
+		string output = zs_sprintf(formatstr.c_str(), num_args,
+			[&](int32_t,int32_t next_arg)
+			{
+				return arg_am.get(next_arg);
+			});
+		
+		if(ArrayH::setArray(dest_arrayptr, output) == SH::_Overflow)
+		{
+			Z_scripterrlog("Dest string supplied to 'sprintfa()' not large enough\n");
+			ri->d[rEXP1] = ArrayH::strlen(dest_arrayptr);
+		}
+		else ri->d[rEXP1] = output.size();
+	}
 }
 void FFScript::do_varg_max()
 {

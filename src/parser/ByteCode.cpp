@@ -2628,13 +2628,13 @@ string OMakeVargArray::toString() const
 {
 	return "MAKEVARGARRAY";
 }
-string OResrvdOpEmily12::toString() const
+string OPrintfArr::toString() const
 {
-	return "RESRVD_OP_EMILY_12";
+	return "PRINTFA";
 }
-string OResrvdOpEmily13::toString() const
+string OSPrintfArr::toString() const
 {
-	return "RESRVD_OP_EMILY_13";
+	return "SPRINTFA";
 }
 string OResrvdOpEmily14::toString() const
 {
