@@ -57,7 +57,7 @@ assert(refVar != NUL)
 	Presently, this is defined as any function with < 5 opcodes, before adding 'RETURN'.
 */
 #define INLINE_CHECK() \
-if(code.size() < 5) function->setFlag(FUNCFLAG_INLINE)
+if(code.size() < 5 || function->getFlag(FUNCFLAG_VARARGS)) function->setFlag(FUNCFLAG_INLINE)
 
 /*
 	Return from the function. Automatically skips OReturn() on inline functions.

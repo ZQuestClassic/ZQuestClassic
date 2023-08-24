@@ -141,8 +141,10 @@ bool io_manager::ProcessReadFile(HANDLE read_handle, LPVOID buf, DWORD bytes_to_
 		zprint2("READ FAILURE: %d\n",GetLastError());
 		return false;
 	}
-
-	while (!imp_GetOverlappedResultEx(read_handle, p_ov, bytes_read, 30000, true))
+	
+	dword timeout_ms = timeout_seconds*1000;
+	if(!timeout_ms) timeout_ms = INFINITE;
+	while (!imp_GetOverlappedResultEx(read_handle, p_ov, bytes_read, timeout_ms, true))
 	{
 		if (!is_alive())
 		{

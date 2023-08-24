@@ -2741,7 +2741,7 @@ public:
 	static int32_t strlen(const int32_t ptr)
 	{
 		ArrayManager am(ptr);
-		if (am.invalid())
+		if (am.invalid() || am.size() == 0)
 			return -1;
 			
 		word count;
@@ -2992,7 +2992,7 @@ ArrayManager::ArrayManager(int32_t ptr, bool neg) : ptr(ptr), negAccess(neg)
 	}
 	else
 	{
-		if(localRAM[ptr].Size() == 0)
+		if(!localRAM[ptr].Valid())
 		{
 			aptr = &INVALIDARRAY;
 			_invalid = true;
@@ -3116,17 +3116,10 @@ void deallocateArray(const int32_t ptrval)
 		if(arrayOwner[ptrval].specCleared) return;
 		arrayOwner[ptrval].clear();
 		
-		if(localRAM[ptrval].Size() == 0)
+		if(!localRAM[ptrval].Valid())
 			Z_scripterrlog("Script tried to deallocate memory that was not allocated at address %ld\n", ptrval);
 		else
-		{
-			word size = localRAM[ptrval].Size();
 			localRAM[ptrval].Clear();
-			
-			// If this happens once per frame, it can drown out every other message. -L
-			//Z_eventlog("Deallocated local array with address %ld, size %d\n", ptrval, size);
-			size = size;
-		}
 	}
 }
 
@@ -3216,7 +3209,7 @@ void FFScript::deallocateAllArrays()
 	//No QR check here- always deallocate on quest exit.
 	for(int32_t i = 1; i < NUM_ZSCRIPT_ARRAYS; i++)
 	{
-		if(localRAM[i].Size() > 0)
+		if(localRAM[i].Valid())
 		{
 			arrayOwner[i].specOwned = false;
 			//Z_eventlog("Deallocated array %d from %s UID %d\n", i, script_types[arrayOwner[i].scriptType], arrayOwner[i].ownerUID);
@@ -24175,6 +24168,12 @@ void do_peek()
 	set_register(sarg1, SH::read_stack(ri->sp));
 }
 
+void do_peekat(const bool v)
+{
+	auto offs = SH::get_arg(sarg2,v);
+	set_register(sarg1, SH::read_stack(ri->sp+offs));
+}
+
 void do_pops() // Pop past a bunch of stuff at once. Useful for clearing the stack.
 {
 	int32_t num = sarg2;
@@ -24270,7 +24269,7 @@ void do_internal_stricmp()
 
 void do_resize_array()
 {
-	int32_t size = vbound(get_register(sarg2) / 10000, 1, 214748);
+	int32_t size = vbound(get_register(sarg2) / 10000, 0, 214748);
 	dword ptrval = get_register(sarg1) / 10000;
 	ArrayManager am(ptrval);
 	am.resize(size);
@@ -24325,12 +24324,9 @@ void do_destroy_array()
 		{
 			arrayOwner[arrindx].clear();
 			
-			if(localRAM[arrindx].Size() == 0)
-				;
-			else
-			{
+			if(localRAM[arrindx].Valid())
 				localRAM[arrindx].Clear();
-			}
+			
 			arrayOwner[arrindx].specCleared = true;
 		}
 		else if(arrindx < 0) //object array
@@ -24338,13 +24334,12 @@ void do_destroy_array()
 	}
 	else Z_scripterrlog("Tried to 'DestroyArray()' an invalid array '%d'\n", arrindx);
 }
-
 void do_allocatemem(const bool v, const bool local, ScriptType type, const uint32_t UID)
 {
 	const int32_t size = SH::get_arg(sarg2, v) / 10000;
 	dword ptrval;
 	
-	if(size <= 0)
+	if(size < 0)
 	{
 		Z_scripterrlog("Array initialized to invalid size of %d\n", size);
 		set_register(sarg1, 0); //Pass back NULL
@@ -24354,7 +24349,7 @@ void do_allocatemem(const bool v, const bool local, ScriptType type, const uint3
 	if(local)
 	{
 		//localRAM[0] is used as an invalid container, so 0 can be the NULL pointer in ZScript
-		for(ptrval = 1; localRAM[ptrval].Size() != 0; ptrval++) ;
+		for(ptrval = 1; localRAM[ptrval].Valid(); ptrval++) ;
 		
 		if(ptrval >= NUM_ZSCRIPT_ARRAYS)
 		{
@@ -24366,6 +24361,7 @@ void do_allocatemem(const bool v, const bool local, ScriptType type, const uint3
 			ZScriptArray &a = localRAM[ptrval]; //marginally faster for large arrays if we use a reference
 			
 			a.Resize(size);
+			a.setValid(true);
 			
 			for(dword j = 0; j < (dword)size; j++)
 				a[j] = 0; //initialize array
@@ -24381,7 +24377,7 @@ void do_allocatemem(const bool v, const bool local, ScriptType type, const uint3
 	else
 	{
 		//Globals are only allocated here at first play, otherwise in init_game
-		for(ptrval = 0; game->globalRAM[ptrval].Size() != 0; ptrval++) ;
+		for(ptrval = 0; game->globalRAM[ptrval].Valid(); ptrval++) ;
 		
 		if(ptrval >= game->globalRAM.size())
 		{
@@ -24392,6 +24388,7 @@ void do_allocatemem(const bool v, const bool local, ScriptType type, const uint3
 		ZScriptArray &a = game->globalRAM[ptrval];
 		
 		a.Resize(size);
+		a.setValid(true);
 		
 		for(dword j = 0; j < (dword)size; j++)
 			a[j] = 0;
@@ -25857,11 +25854,11 @@ void do_isvalidarray()
 		
 		if(gptr > game->globalRAM.size())
 			return;
-		else set_register(sarg1,(game->globalRAM[gptr].Size() == 0) ? 0 : 10000); return;
+		else set_register(sarg1,game->globalRAM[gptr].Valid() ? 10000 : 0);
 	}
 	else
 	{
-		set_register(sarg1,(localRAM[ptr].Size() == 0) ? 0 : 10000); 
+		set_register(sarg1,localRAM[ptr].Valid() ? 10000 : 0); 
 	}
 }
 
@@ -28434,6 +28431,11 @@ void do_drawing_command(const int32_t script_command)
 			}
 			//zprint("Pixelarray array pointer is: %d\n", arrayptr);
 			int32_t sz = ArrayH::getSize(arrayptr);
+			if(!sz)
+			{
+				script_drawing_commands.PopLast();
+				return;
+			}
 			//ArrayH::getSize(script_drawing_commands[j][2]/10000);
 			//zprint("Pixelarray size is: %d\n", sz);
 			v->resize(sz, 0);
@@ -28460,6 +28462,11 @@ void do_drawing_command(const int32_t script_command)
 			}
 			//zprint("Pixelarray array pointer is: %d\n", arrayptr);
 			int32_t sz = ArrayH::getSize(arrayptr);
+			if(!sz)
+			{
+				script_drawing_commands.PopLast();
+				return;
+			}
 			//ArrayH::getSize(script_drawing_commands[j][2]/10000);
 			//zprint("Pixelarray size is: %d\n", sz);
 			v->resize(sz, 0);
@@ -28486,6 +28493,11 @@ void do_drawing_command(const int32_t script_command)
 			}
 			//zprint("Pixelarray array pointer is: %d\n", arrayptr);
 			int32_t sz = ArrayH::getSize(arrayptr);
+			if(!sz)
+			{
+				script_drawing_commands.PopLast();
+				return;
+			}
 			//ArrayH::getSize(script_drawing_commands[j][2]/10000);
 			//zprint("Pixelarray size is: %d\n", sz);
 			v->resize(sz, 0);
@@ -28535,6 +28547,11 @@ void do_drawing_command(const int32_t script_command)
 			}
 			//zprint("Pixelarray array pointer is: %d\n", arrayptr);
 			int32_t sz = ArrayH::getSize(arrayptr);
+			if(!sz)
+			{
+				script_drawing_commands.PopLast();
+				return;
+			}
 			//ArrayH::getSize(script_drawing_commands[j][2]/10000);
 			//zprint("Pixelarray size is: %d\n", sz);
 			v->resize(sz, 0);
@@ -28555,6 +28572,11 @@ void do_drawing_command(const int32_t script_command)
 				break;
 			}
 			int32_t sz = ArrayH::getSize(arrayptr);
+			if(!sz)
+			{
+				script_drawing_commands.PopLast();
+				return;
+			}
 				
 			std::vector<int32_t> *v = script_drawing_commands.GetVector();
 			v->resize(sz, 0);
@@ -28638,6 +28660,11 @@ void do_drawing_command(const int32_t script_command)
 			sz += ArrayH::getSize(arrayptr);
 			arrayptr = script_drawing_commands[j][5]/10000;
 			sz += ArrayH::getSize(arrayptr);
+			if(sz < 25)
+			{
+				script_drawing_commands.PopLast();
+				return;
+			}
 			std::vector<int32_t> *v = script_drawing_commands.GetVector();
 			v->resize(sz, 0);
 			
@@ -28668,6 +28695,11 @@ void do_drawing_command(const int32_t script_command)
 			sz += ArrayH::getSize(arrayptr);
 			arrayptr = script_drawing_commands[j][5]/10000;
 			sz += ArrayH::getSize(arrayptr);
+			if(sz < 19)
+			{
+				script_drawing_commands.PopLast();
+				return;
+			}
 			
 			std::vector<int32_t> *v = script_drawing_commands.GetVector();
 			v->resize(sz, 0);
@@ -28750,7 +28782,11 @@ void do_drawing_command(const int32_t script_command)
 				break;
 			}
 			int32_t sz = ArrayH::getSize(arrayptr);
-				
+			if(!sz)
+			{
+				script_drawing_commands.PopLast();
+				return;
+			}
 			std::vector<int32_t> *v = script_drawing_commands.GetVector();
 			v->resize(sz, 0);
 			
@@ -30690,6 +30726,7 @@ int32_t get_object_arr(size_t sz)
 	}
 	ZScriptArray arr;
 	arr.Resize(sz);
+	arr.setValid(true);
 	objectRAM[free_ptr] = arr;
 	// auto res = objectRAM.emplace(free_ptr);
 	// ZScriptArray& arr = res.first->second;
@@ -31840,6 +31877,9 @@ j_command:
 			case PEEK:
 				do_peek();
 				break;
+			case PEEKATV:
+				do_peekat(true);
+				break;
 			case POP:
 				do_pop();
 				break;
@@ -32153,6 +32193,9 @@ j_command:
 			case CHOOSEVARG:
 				FFCore.do_varg_choose();
 				break;
+			case MAKEVARGARRAY:
+				FFCore.do_varg_makearray(type,i);
+				break;
 			
 			case PUSHVARGV:
 				do_push_varg(true);
@@ -32423,6 +32466,12 @@ j_command:
 				break;
 			case SPRINTFVARG:
 				FFCore.do_sprintf(true, true);
+				break;
+			case PRINTFA:
+				FFCore.do_printfarr();
+				break;
+			case SPRINTFA:
+				FFCore.do_printfarr();
 				break;
 			
 			case BREAKPOINT:
@@ -33720,6 +33769,16 @@ j_command:
 				{
 					custom_mouse(b->u_bmp,fx,fy,recolor,scale);
 				}
+				break;
+			}
+			case CURRENTITEMID:
+			{
+				int ity = SH::read_stack(ri->sp + 1) / 10000;
+				int flags = SH::read_stack(ri->sp + 0) / 10000;
+				bool checkcost = flags&0x01;
+				bool checkjinx = flags&0x02;
+				bool check_bunny = flags&0x04;
+				ri->d[rEXP1] = current_item_id(ity,checkcost,checkjinx,checkbunny) * 10000;
 				break;
 			}
 			
@@ -35954,7 +36013,7 @@ void FFScript::do_file_readchars()
 		int32_t arrayptr = get_register(sarg1) / 10000;
 		ArrayManager am(arrayptr);
 		int32_t sz = am.size();
-		if(sz < 0)
+		if(sz <= 0)
 			return;
 		if(pos >= sz)
 		{
@@ -35999,7 +36058,7 @@ void FFScript::do_file_readbytes()
 		int32_t arrayptr = get_register(sarg1) / 10000;
 		ArrayManager am(arrayptr);
 		int32_t sz = am.size();
-		if(sz < 0)
+		if(sz <= 0)
 			return;
 		if(pos >= sz)
 		{
@@ -36025,7 +36084,7 @@ void FFScript::do_file_readstring()
 		int32_t arrayptr = get_register(sarg1) / 10000;
 		ArrayManager am(arrayptr);
 		int32_t sz = am.size();
-		if(sz < 0)
+		if(sz <= 0)
 			return;
 		int32_t limit = sz;
 		int32_t c;
@@ -36069,7 +36128,7 @@ void FFScript::do_file_readints()
 		int32_t arrayptr = get_register(sarg1) / 10000;
 		ArrayManager am(arrayptr);
 		int32_t sz = am.size();
-		if(sz < 0)
+		if(sz <= 0)
 			return;
 		if(pos >= sz) 
 		{
@@ -36126,7 +36185,7 @@ void FFScript::do_file_writebytes()
 		ArrayManager am(arrayptr);
 		if(am.invalid()) return;
 		int32_t sz = am.size();
-		if(sz < 0)
+		if(sz <= 0)
 			return;
 		if(pos >= sz)
 		{
@@ -36175,7 +36234,7 @@ void FFScript::do_file_writeints()
 		ArrayManager am(arrayptr);
 		if(am.invalid()) return;
 		int32_t sz = am.size();
-		if(sz < 0)
+		if(sz <= 0)
 			return;
 		if(pos >= sz) 
 		{
@@ -36826,17 +36885,10 @@ void FFScript::deallocateZScriptArray(const int32_t ptrval)
 		if(arrayOwner[ptrval].specCleared) return;
 		arrayOwner[ptrval].clear();
 		
-		if(localRAM[ptrval].Size() == 0)
+		if(!localRAM[ptrval].Valid())
 			Z_scripterrlog("Script tried to deallocate memory that was not allocated at address %ld\n", ptrval);
 		else
-		{
-			word size = localRAM[ptrval].Size();
 			localRAM[ptrval].Clear();
-			
-			// If this happens once per frame, it can drown out every other message. -L
-			//Z_eventlog("Deallocated local array with address %ld, size %d\n", ptrval, size);
-			size = size;
-		}
 	}
 }
 
@@ -41530,11 +41582,11 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "DRAWLIGHT_SQUARE", 0, 0, 0, 0 },
 	{ "DRAWLIGHT_CONE", 0, 0, 0, 0 },
 	{ "PEEK", 1, 0, 0, 0 },
-	{ "RESRVD_OP_EMILY_10", 0, 0, 0, 0 },
-	{ "RESRVD_OP_EMILY_11", 0, 0, 0, 0 },
-	{ "RESRVD_OP_EMILY_12", 0, 0, 0, 0 },
-	{ "RESRVD_OP_EMILY_13", 0, 0, 0, 0 },
-	{ "RESRVD_OP_EMILY_14", 0, 0, 0, 0 },
+	{ "PEEKATV", 2, 0, 1, 0 },
+	{ "MAKEVARGARRAY", 0, 0, 0, 0 },
+	{ "PRINTFA", 0, 0, 0, 0 },
+	{ "SPRINTFA", 0, 0, 0, 0 },
+	{ "CURRENTITEMID", 0, 0, 0, 0 },
 	{ "RESRVD_OP_EMILY_15", 0, 0, 0, 0 },
 	{ "RESRVD_OP_EMILY_16", 0, 0, 0, 0 },
 	{ "RESRVD_OP_EMILY_17", 0, 0, 0, 0 },
@@ -43547,9 +43599,16 @@ char const* zs_formatter(char const* format, int32_t arg, int32_t mindig)
 	return ret.c_str();
 }
 
-string zs_sprintf(char const* format, int32_t num_args, const bool varg)
+static int32_t zspr_varg_getter(int32_t,int32_t next_arg)
 {
-	int32_t arg_offset = ((ri->sp + num_args) - 1);
+	return zs_vargs.at(next_arg);
+}
+static int32_t zspr_stack_getter(int32_t num_args, int32_t next_arg)
+{
+	return SH::read_stack(((ri->sp + num_args) - 1) - next_arg);
+}
+string zs_sprintf(char const* format, int32_t num_args, std::function<int32_t(int32_t,int32_t)> arg_getter)
+{
 	int32_t next_arg = 0;
 	bool is_old_args = get_qr(qr_OLD_PRINTF_ARGS);
 	ostringstream oss;
@@ -43558,10 +43617,12 @@ string zs_sprintf(char const* format, int32_t num_args, const bool varg)
 		int32_t arg_val = 0;
 		if(next_arg < num_args)
 		{
-			if(varg)
-				arg_val = zs_vargs.at(next_arg);
-			else
-				arg_val = SH::read_stack(arg_offset - next_arg);
+			arg_val = arg_getter(num_args,next_arg);
+		}
+		else if(get_qr(qr_PRINTF_NO_0FILL))
+		{
+			oss << format;
+			return oss.str();
 		}
 		char buf[256] = {0};
 		for ( int32_t q = 0; q < 256; ++q )
@@ -43701,11 +43762,16 @@ void FFScript::do_printf(const bool v, const bool varg)
 		num_args = SH::get_arg(sarg1, v) / 10000;
 		format_arrayptr = SH::read_stack(ri->sp + num_args) / 10000;
 	}
-	string formatstr;
-	ArrayH::getString(format_arrayptr, formatstr, MAX_ZC_ARRAY_SIZE);
-	
-	traceStr(zs_sprintf(formatstr.c_str(), num_args, varg));
-	if(varg) zs_vargs.clear();
+	ArrayManager fmt_am(format_arrayptr);
+	if(!fmt_am.invalid())
+	{
+		string formatstr;
+		ArrayH::getString(format_arrayptr, formatstr, MAX_ZC_ARRAY_SIZE);
+		
+		traceStr(zs_sprintf(formatstr.c_str(), num_args, varg ? zspr_varg_getter : zspr_stack_getter));
+	}
+	if(varg)
+		zs_vargs.clear();
 }
 void FFScript::do_sprintf(const bool v, const bool varg)
 {
@@ -43722,17 +43788,74 @@ void FFScript::do_sprintf(const bool v, const bool varg)
 		dest_arrayptr = SH::read_stack(ri->sp + num_args + 1) / 10000;
 		format_arrayptr = SH::read_stack(ri->sp + num_args) / 10000;
 	}
-	string formatstr;
-	ArrayH::getString(format_arrayptr, formatstr, MAX_ZC_ARRAY_SIZE);
-	
-	string output = zs_sprintf(formatstr.c_str(), num_args, varg);
-	if(ArrayH::setArray(dest_arrayptr, output) == SH::_Overflow)
+	ArrayManager fmt_am(format_arrayptr);
+	ArrayManager dst_am(dest_arrayptr);
+	if(fmt_am.invalid() || dst_am.invalid())
+		ri->d[rEXP1] = 0;
+	else
 	{
-		Z_scripterrlog("Dest string supplied to 'sprintf()' not large enough\n");
-		ri->d[rEXP1] = ArrayH::strlen(dest_arrayptr);
+		string formatstr;
+		ArrayH::getString(format_arrayptr, formatstr, MAX_ZC_ARRAY_SIZE);
+		
+		string output = zs_sprintf(formatstr.c_str(), num_args, varg ? zspr_varg_getter : zspr_stack_getter);
+		if(ArrayH::setArray(dest_arrayptr, output) == SH::_Overflow)
+		{
+			Z_scripterrlog("Dest string supplied to 'sprintf()' not large enough\n");
+			ri->d[rEXP1] = ArrayH::strlen(dest_arrayptr);
+		}
+		else ri->d[rEXP1] = output.size();
 	}
-	else ri->d[rEXP1] = output.size();
-	if(varg) zs_vargs.clear();
+	if(varg)
+		zs_vargs.clear();
+}
+void FFScript::do_printfarr()
+{
+	int32_t format_arrayptr = SH::read_stack(ri->sp + 1) / 10000,
+		args_arrayptr = SH::read_stack(ri->sp + 0) / 10000;
+	ArrayManager fmt_am(format_arrayptr);
+	ArrayManager arg_am(args_arrayptr);
+	if(!(fmt_am.invalid() || arg_am.invalid()))
+	{
+		auto num_args = arg_am.size();
+		string formatstr;
+		ArrayH::getString(format_arrayptr, formatstr, MAX_ZC_ARRAY_SIZE);
+		
+		traceStr(zs_sprintf(formatstr.c_str(), num_args,
+			[&](int32_t,int32_t next_arg)
+			{
+				return arg_am.get(next_arg);
+			}));
+	}
+}
+void FFScript::do_sprintfarr()
+{
+	int32_t dest_arrayptr = SH::read_stack(ri->sp + 2) / 10000,
+		format_arrayptr = SH::read_stack(ri->sp + 1) / 10000,
+		args_arrayptr = SH::read_stack(ri->sp + 0) / 10000;
+	ArrayManager fmt_am(format_arrayptr);
+	ArrayManager arg_am(args_arrayptr);
+	ArrayManager dst_am(dest_arrayptr);
+	if(fmt_am.invalid() || arg_am.invalid() || dst_am.invalid())
+		ri->d[rEXP1] = 0;
+	else
+	{
+		auto num_args = arg_am.size();
+		string formatstr;
+		ArrayH::getString(format_arrayptr, formatstr, MAX_ZC_ARRAY_SIZE);
+		
+		string output = zs_sprintf(formatstr.c_str(), num_args,
+			[&](int32_t,int32_t next_arg)
+			{
+				return arg_am.get(next_arg);
+			});
+		
+		if(ArrayH::setArray(dest_arrayptr, output) == SH::_Overflow)
+		{
+			Z_scripterrlog("Dest string supplied to 'sprintfa()' not large enough\n");
+			ri->d[rEXP1] = ArrayH::strlen(dest_arrayptr);
+		}
+		else ri->d[rEXP1] = output.size();
+	}
 }
 void FFScript::do_varg_max()
 {
@@ -43773,6 +43896,37 @@ void FFScript::do_varg_choose()
 	}
 	zs_vargs.clear();
 	ri->d[rEXP1] = val;
+}
+void FFScript::do_varg_makearray(ScriptType type, const uint32_t UID)
+{
+	size_t num_args = zs_vargs.size();
+	//
+	dword ptrval;
+	for(ptrval = 1; localRAM[ptrval].Valid(); ptrval++) ;
+	
+	if(ptrval >= NUM_ZSCRIPT_ARRAYS)
+	{
+		Z_scripterrlog("%d local arrays already in use, no more can be allocated\n", NUM_ZSCRIPT_ARRAYS-1);
+		ptrval = 0;
+	}
+	else
+	{
+		ZScriptArray &a = localRAM[ptrval]; //marginally faster for large arrays if we use a reference
+		
+		a.Resize(num_args);
+		a.setValid(true);
+		
+		for(size_t j = 0; j < num_args; ++j)
+			a[j] = zs_vargs[j]; //initialize array
+		
+		arrayOwner[ptrval].scriptType = type;
+		arrayOwner[ptrval].ownerUID = UID;
+		arrayOwner[ptrval].specOwned = false;
+		arrayOwner[ptrval].specCleared = false;
+	}
+	//
+	zs_vargs.clear();
+	ri->d[rEXP1] = ptrval*10000;
 }
 
 void FFScript::do_breakpoint()

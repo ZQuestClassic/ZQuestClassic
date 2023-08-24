@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include <vector>
 #include <map>
+#include "base/ints.h"
 
 static uint32_t __dummy_;
 
@@ -95,9 +96,9 @@ struct io_manager
 	virtual bool read(void* buf, uint32_t bytes_to_read, uint32_t* bytes_read = NULL) = 0;
 	virtual bool write(void* buf, uint32_t bytes_to_write, uint32_t* bytes_written = NULL) = 0;
 	virtual bool is_alive() const = 0;
+	word timeout_seconds = 30;
 protected:
 #ifdef _WIN32
-	static inline COMMTIMEOUTS timeouts ={ 0, 0, 10/*read*/, 0, 10/*write*/ };
 	bool ProcessReadFile(HANDLE read_handle, LPVOID buf, DWORD bytes_to_read, LPDWORD bytes_read);
 	bool ProcessWriteFile(HANDLE write_handle, LPVOID buf, DWORD bytes_to_write, LPDWORD bytes_written);
 #endif
@@ -120,9 +121,9 @@ struct process_manager : public io_manager, public process_killer
 	HANDLE re_2;
 	PROCESS_INFORMATION pi;
 	
-	process_manager() : process_killer(), write_handle(NULL),
-		read_handle(NULL), kill_on_destructor(true),
-		wr_2(NULL), re_2(NULL)
+	process_manager() : process_killer(), io_manager(),
+		write_handle(NULL), read_handle(NULL),
+		wr_2(NULL), re_2(NULL), kill_on_destructor(true)
 	{}
 	~process_manager();
 	
@@ -134,7 +135,9 @@ struct process_manager : public io_manager, public process_killer
 	int write_handle;
 	int read_handle;
 	
-	process_manager() : process_killer(), kill_on_destructor(true) {}
+	process_manager() : process_killer(), io_manager(),
+		kill_on_destructor(true)
+	{}
 	
 	~process_manager();
 	

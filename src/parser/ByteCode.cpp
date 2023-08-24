@@ -2640,29 +2640,29 @@ string ODrawLightCone::toString() const
 {
 	return "DRAWLIGHT_CONE";
 }
-string OPeekRegister::toString() const
+string OPeek::toString() const
 {
 	return "PEEK " + getArgument()->toString();
 }
-string OResrvdOpEmily10::toString() const
+string OPeekAtImmediate::toString() const
 {
-	return "RESRVD_OP_EMILY_10";
+	return "PEEKATV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();;
 }
-string OResrvdOpEmily11::toString() const
+string OMakeVargArray::toString() const
 {
-	return "RESRVD_OP_EMILY_11";
+	return "MAKEVARGARRAY";
 }
-string OResrvdOpEmily12::toString() const
+string OPrintfArr::toString() const
 {
-	return "RESRVD_OP_EMILY_12";
+	return "PRINTFA";
 }
-string OResrvdOpEmily13::toString() const
+string OSPrintfArr::toString() const
 {
-	return "RESRVD_OP_EMILY_13";
+	return "SPRINTFA";
 }
-string OResrvdOpEmily14::toString() const
+string OCurrentItemID::toString() const
 {
-	return "RESRVD_OP_EMILY_14";
+	return "CURRENTITEMID";
 }
 string OResrvdOpEmily15::toString() const
 {

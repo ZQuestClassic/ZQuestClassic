@@ -1791,6 +1791,27 @@ You may now have optional parameters in functions.
 Optional parameters cannot have any non-optional parameters listed after them.
 The default value for an optional parameter must be compile-time constant.
 
+////////////////////////////////
+//  Function Variadic Params  //
+////////////////////////////////
+
+For any function which does NOT use optional paramters, you may instead
+	use variadic parameters.
+	[example--
+	int sum(...int[] args)
+	{
+		int sum = 0;
+		for(x : args)
+			sum += x;
+		return sum;
+	}
+	Trace(sum(1,2,3)); //traces 6
+	Trace(sum(5,20,3,2)); //traces 30
+	--end example]
+
+The variadic parameter can take any number of matching paramters, and stuffs
+	them into an array for you. A size 0 array is possible if none are passed.
+
 /////////////////////////////
 //  Function Declarations  //
 /////////////////////////////
@@ -3130,7 +3151,7 @@ int strcspn(string[], string_keys[]);
  * Returns the length of characters in a string before a character contained in
  * 'string_keys' is found
 
-void sprintf(char32[] buf, char32[] format, ...untyped...)
+void sprintf(char32[] buf, char32[] format, ...untyped...);
  * Takes a buffer, a format string, and 0+ untyped arguments.
  * The untyped arguments will be inserted to the string at points in the format string.
  * Points are specified using '%'. The letter after is used to determine the type of the arg.
@@ -3164,10 +3185,16 @@ void sprintf(char32[] buf, char32[] format, ...untyped...)
  * The resulting string will be placed in the buffer, which is expected to be large enough
  *     to hold the output.
 
-void printf(char32 format[], ...untyped...)
+void printf(char32 format[], ...untyped...);
  * Takes a format string, and 0+ untyped arguments.
  * Same as 'sprintf', but instead of placing the result in a buffer, will instead
  *     trace the result, as with "TraceS()".
+
+void printfa(char32 format[], untyped[] args);
+ * Same as 'printf', but takes an array of args instead of multiple args.
+void sprintfa(char32[] buf, char32 format[], untyped[] args);
+ * Same as 'sprintf', but takes an array of args instead of multiple args.
+
 
 untyped Min(untyped, untyped, ...untyped);
  * Takes 2 or more untyped arguments, and returns the lowest value between them.
@@ -3190,7 +3217,7 @@ int SizeOfArray(untyped[]);
 
 void ResizeArray(untyped[] arr, int size);
  * Resizes the array 'arr' to size 'size'.
- * If size is <1, the array will be resized to size '1'.
+ * If size is <0, the array will be resized to size '0'.
 
 void OwnArray(untyped[] arr);
  * Grants ownership of the array to the calling script.
@@ -3269,6 +3296,16 @@ int CurDMap; //Read-only
 int GetCurLevel();
 int CurLevel; //Read-only
  * The current dmap level
+
+int CurrentItemID(int itemtype, int flags = CIID_FLAG_CHECKCOST);
+ * Returns the 'current' item of the selected itemtype. This generally returns the
+ *     highest owned of an itemclass, with some exceptions.
+ * If 'Game->OverrideItems[itemtype]' is set to an override value, that value will be returned.
+ * Use the IC_ constants for itemtype, and the CIID_FLAG_ constants bitwise-or'd for 'flags'.
+ * With CIID_FLAG_CHECKCOST, it will ignore items whose usecosts are currently not affordable.
+ * With CIID_FLAG_CHECKJINX, it will ignore items which are currently disabled by jinxes.
+ * With CIID_FLAG_CHECKBUNNY, it will ignore items which are currently disabled by BunnyClk.
+ * Returns '-1' for 'no item'.
 
 int Cheat;
  * The current cheat level activated (0-4)

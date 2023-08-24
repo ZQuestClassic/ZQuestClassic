@@ -184,6 +184,8 @@ static AccessorTable gameTable[] =
 	{ "getOverrideItems[]",         0,         ZTID_FLOAT,   GAMEOVERRIDEITEMS,         0,  { ZTID_GAME, ZTID_FLOAT },{} },
 	{ "setOverrideItems[]",         0,          ZTID_VOID,   GAMEOVERRIDEITEMS,         0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
+	{ "CurrentItemID",              0,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{ 0x01 } },
+	
 	//Intentionally undocumented
 	{ "getSTD[]",                   0,       ZTID_UNTYPED,   STDARR,                    0,  { ZTID_GAME, ZTID_FLOAT },{} },
 	{ "setSTD[]",                   0,          ZTID_VOID,   STDARR,                    0,  { ZTID_GAME, ZTID_FLOAT, ZTID_UNTYPED },{} },
@@ -2502,6 +2504,18 @@ void GameSymbols::generateCode()
 		vector<shared_ptr<Opcode>> code;
 		ASSERT_NUL();
 		addOpcode2 (code, new OCreateSavPortal());
+		LABELBACK(label);
+		RETURN();
+		function->giveCode(code);
+	}
+	//int CurrentItemID(game, int itype, int flags)
+	{
+		Function* function = getFunction("CurrentItemID");
+		
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		ASSERT_NUL();
+		addOpcode2 (code, new OCurrentItemID());
 		LABELBACK(label);
 		RETURN();
 		function->giveCode(code);

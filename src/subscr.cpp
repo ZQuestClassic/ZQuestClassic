@@ -2139,7 +2139,7 @@ void draw_textbox(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, FONT
             /* print the line end */
             y1 += text_height(tempfont);
         }
-        else
+        else if (ugetc(scanned))
         {
             scanned += uwidth(scanned);
         }

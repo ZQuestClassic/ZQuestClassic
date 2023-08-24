@@ -2278,7 +2278,7 @@ void flushItemCache(bool justcost)
 }
 
 // This is used often, so it should be as direct as possible.
-int32_t _c_item_id_internal(int32_t itemtype, bool checkmagic, bool jinx_check)
+int32_t _c_item_id_internal(int32_t itemtype, bool checkmagic, bool jinx_check, bool check_bunny)
 {
 	bool use_cost_cache = replay_version_check(19);
 	if(jinx_check)
@@ -2286,8 +2286,11 @@ int32_t _c_item_id_internal(int32_t itemtype, bool checkmagic, bool jinx_check)
 		if(!(HeroSwordClk() || HeroItemClk()))
 			jinx_check = false; //not jinxed
 	}
+	if(!Hero.BunnyClock())
+		check_bunny = false; //not bunnied
 	if(itemtype == itype_ring) checkmagic = true;
-	if (!jinx_check && (use_cost_cache || itemtype != itype_ring))
+	if (!jinx_check && !check_bunny
+		&& (use_cost_cache || itemtype != itype_ring))
 	{
 		auto& cache = checkmagic && use_cost_cache ? itemcache_cost : itemcache;
 		auto res = cache.find(itemtype);
@@ -2309,6 +2312,8 @@ int32_t _c_item_id_internal(int32_t itemtype, bool checkmagic, bool jinx_check)
 			if(jinx_check && (usesSwordJinx(i) ? HeroSwordClk() : HeroItemClk()))
 				if(!(itemsbuf[i].flags & ITEM_JINX_IMMUNE))
 					continue;
+			if(check_bunny && !checkbunny(i))
+				continue;
 			
 			if(itemsbuf[i].fam_type >= highestlevel)
 			{
@@ -2318,7 +2323,7 @@ int32_t _c_item_id_internal(int32_t itemtype, bool checkmagic, bool jinx_check)
 		}
 	}
 	
-	if(!jinx_check) //Can't cache jinx_check results
+	if(!(jinx_check || check_bunny)) //Can't cache jinx_check/check_bunny
 	{
 		if (use_cost_cache)
 		{
@@ -2336,7 +2341,7 @@ int32_t _c_item_id_internal(int32_t itemtype, bool checkmagic, bool jinx_check)
 }
 
 // 'jinx_check' indicates that the highest level item *immune to jinxes* should be returned.
-int32_t current_item_id(int32_t itype, bool checkmagic, bool jinx_check)
+int32_t current_item_id(int32_t itype, bool checkmagic, bool jinx_check, bool check_bunny)
 {
 	if(itype < 0 || itype >= itype_max) return -1;
 	if(game->OverrideItems[itype] > -2)
@@ -2359,14 +2364,14 @@ int32_t current_item_id(int32_t itype, bool checkmagic, bool jinx_check)
 			return ovid;
 		}
 	}
-	auto ret = _c_item_id_internal(itype,checkmagic,jinx_check);
+	auto ret = _c_item_id_internal(itype,checkmagic,jinx_check,check_bunny);
 	if(!jinx_check) //If not already a jinx-immune-only check...
 	{
 		//And the player IS jinxed...
 		if(HeroSwordClk() || HeroItemClk())
 		{
 			//Then do a jinx-immune-only check here
-			auto ret2 = _c_item_id_internal(itype,checkmagic,true);
+			auto ret2 = _c_item_id_internal(itype,checkmagic,true,check_bunny);
 			//And *IF IT FINDS A VALID ITEM*, return that one instead! -Em
 			//Should NOT need a compat rule, as this should always return -1 in old quests.
 			if(ret2 > -1) return ret2;

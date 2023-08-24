@@ -1588,7 +1588,11 @@ GUI::ListData instructionRulesList
 	{ "All bitmap-> and FileSystem-> paths relative to quest 'Files' folder", qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE },
 	{ "Don't allow overwriting hopping action", qr_NO_OVERWRITING_HOPPING },
 	{ "Sprite->Step uses new, precise values", qr_STEP_IS_FLOAT },
-	{ "Old printf() args", qr_OLD_PRINTF_ARGS },
+	{ "Old printf() args", qr_OLD_PRINTF_ARGS,
+		"Compat, turns off new printf features." },
+	{ "No printf() 0-fill", qr_PRINTF_NO_0FILL,
+		"Instead of filling all extra arguments with '0',"
+		" just leave them unchanged." },
 	{ "Writing Screen->EntryX, EntryY Resets Spawn Points", qr_WRITE_ENTRYPOINTS_AFFECTS_HEROCLASS },
 	{ "Log on Loading Invalid UID", qr_LOG_INVALID_UID_LOAD },
 	{ "Broken Combodata->InitD[]", qr_COMBODATA_INITD_MULT_TENK },

@@ -2408,59 +2408,60 @@ namespace ZScript
 			return new ODrawLightCone();
 		}
 	};
-	class OPeekRegister : public UnaryOpcode
+	class OPeek : public UnaryOpcode
 	{
 	public:
-		OPeekRegister(Argument *A) : UnaryOpcode(A) {}
+		OPeek(Argument *A) : UnaryOpcode(A) {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OPeekRegister(a->clone());
+			return new OPeek(a->clone());
 		}
 	};
-	class OResrvdOpEmily10 : public Opcode
+	class OPeekAtImmediate : public BinaryOpcode
 	{
 	public:
+		OPeekAtImmediate(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OResrvdOpEmily10();
+			return new OPeekAtImmediate(a->clone(),b->clone());
 		}
 	};
-	class OResrvdOpEmily11 : public Opcode
+	class OMakeVargArray : public Opcode
 	{
 	public:
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OResrvdOpEmily11();
+			return new OMakeVargArray();
 		}
 	};
-	class OResrvdOpEmily12 : public Opcode
+	class OPrintfArr : public Opcode
 	{
 	public:
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OResrvdOpEmily12();
+			return new OPrintfArr();
 		}
 	};
-	class OResrvdOpEmily13 : public Opcode
+	class OSPrintfArr : public Opcode
 	{
 	public:
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OResrvdOpEmily13();
+			return new OSPrintfArr();
 		}
 	};
-	class OResrvdOpEmily14 : public Opcode
+	class OCurrentItemID : public Opcode
 	{
 	public:
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OResrvdOpEmily14();
+			return new OCurrentItemID();
 		}
 	};
 	class OResrvdOpEmily15 : public Opcode

@@ -751,7 +751,7 @@ int32_t onSave()
     
 	if(zc_get_config("zquest","quick_compile_on_save",0))
 	{
-		if(!do_compile_and_slots(true,false))
+		if(!do_compile_and_slots(1,false))
 		{
 			InfoDialog("ZQuest","Failed compile on save! Saving quest anyway...").show();
 		}
@@ -823,7 +823,7 @@ int32_t onSaveAs()
 	
 	if(zc_get_config("zquest","quick_compile_on_save",0))
 	{
-		if(!do_compile_and_slots(true,false))
+		if(!do_compile_and_slots(1,false))
 		{
 			InfoDialog("ZQuest","Failed compile on save! Saving quest anyway...").show();
 		}

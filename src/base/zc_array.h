@@ -143,31 +143,31 @@ public:
     typedef T* pointer;
     typedef T type;
     
-    ZCArray() : _ptr(NULL), _size(0)
+    ZCArray() : _ptr(NULL), _size(0), _valid(false)
     {
         for(int32_t i = 0; i < 4; i++)
             _dim[i] = 0;
     }
     
-    ZCArray(size_type _Size) : _ptr(NULL)
+    ZCArray(size_type _Size) : _ptr(NULL), _valid(false)
     {
         _SetDimensions(0, 0, _Size);
         _Alloc(_size);
     }
     
-    ZCArray(size_type _Y, size_type _X) : _ptr(NULL)
+    ZCArray(size_type _Y, size_type _X) : _ptr(NULL), _valid(false)
     {
         _SetDimensions(0, _Y, _X);
         _Alloc(_size);
     }
     
-    ZCArray(size_type _Z, size_type _Y, size_type _X) : _ptr(NULL)
+    ZCArray(size_type _Z, size_type _Y, size_type _X) : _ptr(NULL), _valid(false)
     {
         _SetDimensions(_Z, _Y, _X);
         _Alloc(_size);
     }
     
-    ZCArray(const ZCArray &_Array) : _ptr(NULL), _size(0)
+    ZCArray(const ZCArray &_Array) : _ptr(NULL), _size(0), _valid(false)
     {
         for(int32_t i = 0; i < 4; i++) _dim[i] = 0;
         
@@ -183,7 +183,6 @@ public:
     {
         if(this != &_Array)
             Copy(_Array);
-            
         return *this;
     }
     
@@ -191,6 +190,8 @@ public:
     {
         if(_size != _Array._size)
             return false;
+		if(_valid != _Array._valid)
+			return false;
             
         for(size_type i(0); i < _size; i++)
             if(*(_ptr + i) != *(_Array._ptr + i))
@@ -374,6 +375,14 @@ public:
     {
         return (_size == 0);
     }
+	bool Valid() const
+	{
+		return _valid;
+	}
+	void setValid(bool v)
+	{
+		_valid = v;
+	}
     
     size_type Offset(const size_type _Z, const size_type _Y, const size_type _X) const
     {
@@ -420,8 +429,10 @@ public:
         if(_Array.Empty())
         {
             Clear();
+			setValid(_Array.Valid());
             return;
         }
+		setValid(_Array.Valid());
         
 #ifdef _DEBUGZCARRAY
         
@@ -456,6 +467,7 @@ public:
     void Clear()
     {
         Resize(0);
+		_valid = false;
     }
     
     
@@ -618,6 +630,7 @@ private:
     pointer _ptr;
     size_type _size;
     size_type _dim[ 4 ];
+	bool _valid;
     
 };
 

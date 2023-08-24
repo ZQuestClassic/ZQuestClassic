@@ -1227,7 +1227,7 @@ void ASTDataDecl::setInitializer(ASTExpr* initializer)
 	}
 }
 
-DataType const* ASTDataDecl::resolveType(ZScript::Scope* scope, CompileErrorHandler* errorHandler)
+DataType const& ASTDataDecl::resolveType(ZScript::Scope* scope, CompileErrorHandler* errorHandler)
 {
 	TypeStore& typeStore = scope->getTypeStore();
 
@@ -1237,11 +1237,11 @@ DataType const* ASTDataDecl::resolveType(ZScript::Scope* scope, CompileErrorHand
 	if(baseTypeNode->errorDisabled)
 	{
 		errorDisabled = true;
-		return type;
+		return *type;
 	}
 	if (!type->isResolved())
-		return type;
-
+		return *type;
+	
 	// If we have any arrays, tack them onto the base type.
 	for (vector<ASTDataDeclExtraArray*>::const_iterator it = extraArrays.begin();
 		 it != extraArrays.end(); ++it)
@@ -1250,7 +1250,7 @@ DataType const* ASTDataDecl::resolveType(ZScript::Scope* scope, CompileErrorHand
 		type = typeStore.getCanonicalType(arrayType);
 	}
 
-	return type;
+	return *type;
 }
 
 bool ZScript::hasSize(ASTDataDecl const& decl)
@@ -1706,8 +1706,7 @@ std::optional<int32_t> ASTExprCast::getCompileTimeValue(
 
 DataType const* ASTExprCast::getReadType(Scope* scope, CompileErrorHandler* errorHandler)
 {
-	DataType const* result = &(*type).resolve(*scope, errorHandler);
-	return result;
+	return type->resolve_ornull(*scope, errorHandler);
 }
 
 // ASTBinaryExpr
@@ -2618,11 +2617,13 @@ ParserScriptType ZScript::resolveScriptType(ASTScriptType const& node,
 // ASTDataType
 
 ASTDataType::ASTDataType(DataType* type, LocationData const& location)
-	: AST(location), type(type->clone()), constant_(0), wasResolved_(false)
+	: AST(location), type(type->clone()), constant_(0), wasResolved_(false),
+	becomeArray(false)
 {}
 
 ASTDataType::ASTDataType(DataType const& type, LocationData const& location)
-	: AST(location), type(type.clone()), constant_(0), wasResolved_(false)
+	: AST(location), type(type.clone()), constant_(0), wasResolved_(false),
+	becomeArray(false)
 {}
 
 void ASTDataType::execute(ASTVisitor& visitor, void* param)
@@ -2632,23 +2633,37 @@ void ASTDataType::execute(ASTVisitor& visitor, void* param)
 
 DataType const& ASTDataType::resolve(ZScript::Scope& scope, CompileErrorHandler* errorHandler)
 {
-	
-	DataType* resolved = type->resolve(scope, errorHandler);
-	if(resolved && constant_ && !wasResolved_)
+	if(!wasResolved_)
 	{
-		string name = resolved->getName();
-		DataType* constType = resolved->getConstType() ? resolved->getConstType()->clone() : NULL;
-		if(constant_>1 || !constType)
+		DataType* resolved = type->resolve(scope, errorHandler);
+		if(resolved && constant_)
 		{
-			errorHandler->handleError(CompileError::ConstAlreadyConstant(this, name));
-			return *type; //Can't null this, it breaks stuff! Don't know why! -V
+			string name = resolved->getName();
+			resolved = resolved->getConstType();
+			if(constant_>1 || !resolved)
+			{
+				errorHandler->handleError(CompileError::ConstAlreadyConstant(this, name));
+				return DataType::ZVOID;
+			}
 		}
-		if (constType && type != constType)
-			type.reset(constType);
+		if(resolved)
+		{
+			DataType* result = nullptr;
+			if(becomeArray)
+			{
+				auto* basety = resolved->baseType(scope, errorHandler);
+				result = new DataTypeArray(*basety);
+			}
+			else result = resolved->clone();
+			type.reset(result);
+			wasResolved_ = result && result->isResolved();
+		}
 	}
-	else if (resolved && type != resolved)
-		type.reset(resolved);
-	wasResolved_ = true;
 	return *type;
+}
+DataType const* ASTDataType::resolve_ornull(ZScript::Scope& scope, CompileErrorHandler* errorHandler)
+{
+	DataType const& ty = resolve(scope, errorHandler);
+	return ty.isResolved() ? &ty : nullptr;
 }
 

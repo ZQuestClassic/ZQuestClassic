@@ -65,6 +65,7 @@ void call_testqst_dialog()
 		skip = false;
 		AlertFuncDialog("Save",
 			"Unsaved changes will not be tested!",
+			"",
 			3, 0, //3 buttons, where buttons[0] is focused
 			"Save", do_save,
 			"Save As", do_save_as,
