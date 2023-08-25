@@ -68,7 +68,7 @@ bool newcombo::is_blank(bool ignoreEff)
 	for(auto q = 0; q < NUM_COMBO_ATTRISHORTS; ++q)
 		if(attrishorts[q]) return false;
 	if(script) return false;
-	for(auto q = 0; q < 2; ++q)
+	for(auto q = 0; q < 8; ++q)
 		if(initd[q]) return false;
 	if(o_tile) return false;
 	if(cur_frame) return false;
@@ -173,7 +173,7 @@ void newcombo::advpaste(newcombo const& other, byte* pasteflags)
 	if(get_bit(pasteflags,ADVP_SCRIPT))
 	{
 		script = other.script;
-		for(int32_t q = 0; q < 2; ++q)
+		for(int32_t q = 0; q < 8; ++q)
 			initd[q] = other.initd[q];
 	}
 	if(get_bit(pasteflags,ADVP_EFFECT))

@@ -118,7 +118,7 @@ struct newcombo
 	byte attribytes[NUM_COMBO_ATTRIBYTES];
 	int16_t attrishorts[NUM_COMBO_ATTRISHORTS];
 	word script;
-	int32_t initd[2];
+	int32_t initd[8];
 	int32_t o_tile;
 	byte cur_frame;
 	byte aclk;

@@ -2528,7 +2528,7 @@ NOTE: In previous versions, this type was simply called "item script".
 
 TOKEN(s):		combodata script
 POINTER: 		combodata
-InitD:			Yes, [2]
+InitD:			Yes, [8]
 InitD Labels:		No
 InitA:			No
 Multiple Frames:	Yes
@@ -2537,7 +2537,7 @@ Waitdraw Support:	t/b/a
 
 * Each combo position, on every layer, is capable of running a script. You can set the permitted layers in the
 * menu: ZScript >>> Quest Specific Settings >>> Scripts.
-* combodata Scripts have two InitD[] args, in the COMBO EDITOR for this script type.
+* combodata Scripts have eight InitD[] args, in the COMBO EDITOR for this script type.
 * 	You may also read or write to them by script with combodata->InitD[] (or this->InitD[])
 * Each combo in the Combo Editor may have one script, and twi InitD values, set on the 'Script' tab.
 * Combo scripts, and only combo scripts, may call <combodata>this-> Pos(), PosX(), and PosY() to obtain
@@ -7153,8 +7153,8 @@ int Y;
 int Script;
  * The combodata script used by this combo.
 
-untyped InitD[2];
- * The two InitD args used by the combodata script for this combo.
+untyped InitD[8];
+ * The 8 InitD args used by the combodata script for this combo.
 
 int ID;
  * Returns the combo ID associated with the current combodata pointer.

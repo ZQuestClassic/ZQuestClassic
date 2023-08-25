@@ -17871,7 +17871,8 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 			}
 
 			if(!p_igetw(&temp_combo.script,f)) return qe_invalid;
-			for ( int32_t q = 0; q < 2; q++ )
+			auto initd_count = s_version >= 43 ? 8 : 2;
+			for ( int32_t q = 0; q < initd_count; q++ )
 			{
 				if(!p_igetl(&temp_combo.initd[q],f))
 				{

@@ -930,7 +930,7 @@ static bool set_current_script_engine_data(ScriptType type, int script, int inde
 			{
 				got_initialized = true;
 				memset(ri->d, 0, 8 * sizeof(int32_t));
-				for ( int32_t q = 0; q < 2; q++ )
+				for ( int32_t q = 0; q < 8; q++ )
 					ri->d[q] = combobuf[id].initd[q];
 				data.initialized = true;
 			}
@@ -11877,7 +11877,7 @@ int32_t get_register(const int32_t arg)
 				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "InitD[]");
 				ret = -10000;
 			}
-			else if ( ((unsigned)indx) > 2 )
+			else if ( ((unsigned)indx) > 8 )
 			{ 
 				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, "InitD[]"); 
 				ret = -10000;
@@ -22388,7 +22388,7 @@ void set_register(int32_t arg, int32_t value)
 			{
 				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "InitD[]");
 			}
-			else if ( ((unsigned)indx) > 2 )
+			else if ( ((unsigned)indx) > 8 )
 			{ 
 				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, "InitD[]"); 
 			} 
