@@ -6614,7 +6614,7 @@ int32_t onAbout()
 {
 	char buf1[80]={0};
 	std::ostringstream oss;
-	sprintf(buf1,"%s (%s), Version: %s", ZC_PLAYER_NAME,PROJECT_NAME,ZC_PLAYER_V);
+	sprintf(buf1,"%s, Version: %s", ZC_PLAYER_NAME,ZC_PLAYER_V);
 	oss << buf1 << '\n';
 	sprintf(buf1, "%s", ALPHA_VER_STR);
 	oss << buf1 << '\n';

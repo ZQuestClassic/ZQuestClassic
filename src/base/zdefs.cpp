@@ -754,7 +754,7 @@ string generate_zq_about()
 {
 	char buf1[256];
 	std::ostringstream oss;
-	sprintf(buf1,"%s (%s), Version: %s", ZQ_EDITOR_NAME,PROJECT_NAME,ZQ_EDITOR_V);
+	sprintf(buf1,"%s, Version: %s", ZQ_EDITOR_NAME,ZQ_EDITOR_V);
 	oss << buf1 << '\n';
 	sprintf(buf1,"Tag: %s", getReleaseTag());
 	oss << buf1 << '\n';

@@ -7233,11 +7233,7 @@ int32_t writeheader(PACKFILE *f, zquestheader *Header)
             new_return(36);
         }
 		
-		char tempproductname[1024];
-		memset(tempproductname, 0, 1024);
-		strcpy(tempproductname, PROJECT_NAME);
-		
-		if(!pfwrite(&tempproductname,1024,f))
+		if(!pfwrite("ZQuest Classic",1024,f))
         {
             new_return(37);
         }
