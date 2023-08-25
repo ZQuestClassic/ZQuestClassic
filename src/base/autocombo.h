@@ -2,6 +2,7 @@
 #define _AUTOCOMBO_H_
 
 #include <vector>
+#include <map>
 #include "base/ints.h"
 #include "base/general.h"
 
@@ -10,6 +11,7 @@ enum { AUTOCOMBO_NONE, AUTOCOMBO_Z1, AUTOCOMBO_BASIC, AUTOCOMBO_FENCE, AUTOCOMBO
 struct autocombo_entry
 {
 	int32_t cid = -1;
+	int32_t cpoolid = -1;
 	int8_t cset = -1;
 	int32_t slot = 0;
 	int32_t offset = -1;
@@ -68,6 +70,7 @@ struct combo_auto
 	}
 
 	int32_t convert_offsets(int32_t entry);
+	std::map<int32_t,byte> getMapping();
 
 private:
 	int32_t type = AUTOCOMBO_NONE;

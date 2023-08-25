@@ -1,4 +1,5 @@
 #include "autocombo.h"
+#include "cpool.h"
 #include "random.h"
 #include <assert.h>
 
@@ -147,3 +148,23 @@ int32_t combo_auto::convert_offsets(int32_t entry)
 	}
 	return e.offset;
 }
+
+std::map<int32_t,byte> combo_auto::getMapping()
+{
+	std::map<int32_t,byte> ret;
+	byte b = 0;
+	for(auto& cmb : combos)
+	{
+		if(cmb.cid > -1)
+			ret[cmb.cid] = b;
+		//
+		if(cmb.cpoolid > -1)
+			for(cpool_entry const& entry : combo_pools[cmb.cpoolid].combos)
+				if(entry.cid > -1)
+					ret[entry.cid] = b;
+		//
+		++b;
+	}
+	return ret;
+}
+
