@@ -998,19 +998,19 @@ int32_t onAbout()
 		char buf3[80]={0};
 #if V_ZC_ALPHA
         {
-            sprintf(buf1,"ZQuest %s Alpha Build %d - DEBUG",ZQ_EDITOR_V, VERSION_BUILD);
+            sprintf(buf1,"ZQuest %s Alpha - DEBUG",ZQ_EDITOR_V);
         }
 #elif V_ZC_BETA
         {
-            sprintf(buf1,"ZQuest %s Beta Build %d - DEBUG",ZQ_EDITOR_V, VERSION_BUILD);
+            sprintf(buf1,"ZQuest %s Beta - DEBUG",ZQ_EDITOR_V);
         }
 #elif V_ZC_GAMMA
         {
-            sprintf(buf1,"ZQuest %s Gamma Build %d - DEBUG",ZQ_EDITOR_V, VERSION_BUILD);
+            sprintf(buf1,"ZQuest %s Gamma - DEBUG",ZQ_EDITOR_V);
         }
 #else
         {
-            sprintf(buf1,"ZQuest %s Build %d - DEBUG",ZQ_EDITOR_V, VERSION_BUILD);
+            sprintf(buf1,"ZQuest %s - DEBUG",ZQ_EDITOR_V);
         }
 #endif
         sprintf(buf2,"Tag: %s", getReleaseTag());

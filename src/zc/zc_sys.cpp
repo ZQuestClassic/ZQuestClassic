@@ -6616,7 +6616,7 @@ int32_t onAbout()
 	std::ostringstream oss;
 	sprintf(buf1,"%s (%s), Version: %s", ZC_PLAYER_NAME,PROJECT_NAME,ZC_PLAYER_V);
 	oss << buf1 << '\n';
-	sprintf(buf1, "%s, Build %d", ALPHA_VER_STR, VERSION_BUILD);
+	sprintf(buf1, "%s", ALPHA_VER_STR);
 	oss << buf1 << '\n';
 	sprintf(buf1,"Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(), (char*)months[BUILDTM_MONTH], BUILDTM_YEAR, __TIME__, __TIMEZONE__);
 	oss << buf1 << '\n';

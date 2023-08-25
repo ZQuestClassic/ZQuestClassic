@@ -631,8 +631,7 @@ string get_dbreport_string()
 	oss << "```\n"
 		<< ZQ_EDITOR_NAME
 		<< "\nVersion: " << ZQ_EDITOR_V << " " << ALPHA_VER_STR
-		<< "\nTag: " << getReleaseTag()
-		<< "\nBuild: " << VERSION_BUILD;
+		<< "\nTag: " << getReleaseTag();
 		
 	sprintf(buf,"Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(),
 		(char*)months[BUILDTM_MONTH], BUILDTM_YEAR, __TIME__, __TIMEZONE__);
@@ -759,7 +758,7 @@ string generate_zq_about()
 	oss << buf1 << '\n';
 	sprintf(buf1,"Tag: %s", getReleaseTag());
 	oss << buf1 << '\n';
-	sprintf(buf1, "%s, Build %d", ALPHA_VER_STR, VERSION_BUILD);
+	sprintf(buf1, "%s", ALPHA_VER_STR);
 	oss << buf1 << '\n';
 	sprintf(buf1,"Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(), (char*)months[BUILDTM_MONTH], BUILDTM_YEAR, __TIME__, __TIMEZONE__);
 	oss << buf1 << '\n';
