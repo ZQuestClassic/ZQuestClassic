@@ -908,6 +908,7 @@ bool LauncherDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			{
 				InfoDialog("Updated!", fmt::format("Updated to {}! Restarting ZLauncher...", next_version)).show();
 				close_button_quit = true;
+				launch_process(ZLAUNCHER_FILE);
 			}
 			else
 			{
