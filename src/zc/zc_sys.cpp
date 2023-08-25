@@ -11,6 +11,7 @@
 
 #include "zc/zc_sys.h"
 
+#include "allegro5/joystick.h"
 #include "base/qrs.h"
 #include "base/dmap.h"
 #include <stdio.h>
@@ -5385,7 +5386,31 @@ void j_getbtn(DIALOG *d)
 	
 	update_hw_screen(true);
 	
-	int32_t b = next_press_btn();
+	int32_t b = next_joy_input(true);
+	
+	if(b>=0)
+		*((int32_t*)d->dp3) = b;
+		
+	d->flags&=~D_SELECTED;
+	
+	if (player)
+		player->joy_on = TRUE;
+}
+
+void j_getstick(DIALOG *d)
+{
+	d->flags|=D_SELECTED;
+	jwin_button_proc(MSG_DRAW,d,0);
+	jwin_draw_win(screen, (screen->w-160)/2, (screen->h-48)/2, 160, 48, FR_WIN);
+	//  text_mode(vc(11));
+	int32_t y = screen->h/2 - 12;
+	textout_centre_ex(screen, font, "Move a stick (or DPAD)", screen->w/2, y, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+	textout_centre_ex(screen, font, "ESC to cancel", screen->w/2, y+8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+	textout_centre_ex(screen, font, "SPACE to disable", screen->w/2, y+16, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+	
+	update_hw_screen(true);
+	
+	int32_t b = next_joy_input(false);
 	
 	if(b>=0)
 		*((int32_t*)d->dp3) = b;
@@ -5416,6 +5441,26 @@ int32_t d_jbutton_proc(int32_t msg,DIALOG *d,int32_t c)
 	return jwin_button_proc(msg,d,c);
 }
 
+int32_t d_jstick_proc(int32_t msg,DIALOG *d,int32_t c)
+{
+	switch(msg)
+	{
+	case MSG_KEY:
+	case MSG_CLICK:
+
+		j_getstick(d);
+		
+		while(gui_mouse_b()) {
+			rest(1);
+			clear_keybuf();
+		}
+			
+		return D_REDRAW;
+	}
+
+	return jwin_button_proc(msg,d,c);
+}
+
 //shnarf
 extern const char *key_str[];
 std::string get_keystr(int key);
@@ -5424,7 +5469,8 @@ const char *pan_str[4] = { "MONO", " 1/2", " 3/4", "FULL" };
 //extern int32_t zcmusic_bufsz;
 
 static char str_a[80],str_b[80],str_s[80],str_m[80],str_l[80],str_r[80],str_p[80],str_ex1[80],str_ex2[80],str_ex3[80],str_ex4[80],
-	str_leftmod1[80],str_leftmod2[80],str_rightmod1[80],str_rightmod2[80], str_left[80], str_right[80], str_up[80], str_down[80];
+	str_leftmod1[80],str_leftmod2[80],str_rightmod1[80],str_rightmod2[80], str_left[80], str_right[80], str_up[80], str_down[80],
+	str_primary_stick[80], str_secondary_stick[80];
 
 int32_t d_stringloader(int32_t msg,DIALOG *d,int32_t c)
 {
@@ -5472,6 +5518,8 @@ int32_t d_stringloader(int32_t msg,DIALOG *d,int32_t c)
 				sprintf(str_down,"%03d\n%s",DDbtn,joybtn_name(DDbtn));
 				sprintf(str_left,"%03d\n%s",DLbtn,joybtn_name(DLbtn));
 				sprintf(str_right,"%03d\n%s",DRbtn,joybtn_name(DRbtn));
+				sprintf(str_primary_stick,"%03d\n%s",js_stick_1_x_stick,joystick_name(js_stick_1_x_stick));
+				sprintf(str_secondary_stick,"%03d\n%s",js_stick_2_x_stick,joystick_name(js_stick_2_x_stick));
 				sprintf(str_leftmod1,"%03d\n%s",cheat_modifier_keys[0],key_str[cheat_modifier_keys[0]]);
 				sprintf(str_leftmod2,"%03d\n%s",cheat_modifier_keys[1],key_str[cheat_modifier_keys[1]]);
 				sprintf(str_rightmod1,"%03d\n%s",cheat_modifier_keys[2],key_str[cheat_modifier_keys[2]]);
@@ -5553,7 +5601,8 @@ static int32_t gamepad_dirs_list[] =
 	44,45,46,47,
 	48,49,50,51,
 	52,53,54,55,
-	56,
+	56,57,58,59,
+	60,
 	-1
 };
 
@@ -5564,6 +5613,25 @@ static TABPANEL gamepad_tabs[] =
 	{ (char *)"Directions",  0,		   gamepad_dirs_list, 0, NULL },
 	{ NULL,				  0,		   NULL,			   0, NULL }
 };
+
+const char *joy_list(int32_t index, int32_t *list_size)
+{
+	if (index == -1)
+	{
+		*list_size = al_get_num_joysticks();
+		return NULL;
+	}
+
+	ALLEGRO_JOYSTICK* joy = al_get_joystick(index);
+	if (!joy)
+	{
+		return "?";
+	}
+
+	return al_get_joystick_name(joy);
+}
+
+static ListData joy__list(joy_list, &font);
 
 static DIALOG gamepad_dlg[] =
 {
@@ -5633,7 +5701,15 @@ static DIALOG gamepad_dlg[] =
 	{ d_j_clearbutton_proc,	  167+91, 82,   40,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "Clear",   NULL, &DLbtn},
 	{ d_j_clearbutton_proc,	  167+91, 110,  40,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "Clear",	 NULL, &DRbtn},
 	// 56
-	{ jwin_check_proc,	 22,   150,  147,  8,	vc(14),  vc(1),   0,	   0,		 1,		0, (void *) "Use Analog Stick/DPad", NULL, NULL },
+	{ jwin_check_proc,	 22,   150,  147,  8,	vc(14),  vc(1),   0,	   0,		 1,		0, (void *) "Primary: Use Analog Stick (Ignore above and use below instead)", NULL, NULL },
+	{ d_jstick_proc,	  22,   165,   61,   21,   vc(14),  vc(11),  0,	   0,		 0,		0, (void *) "Primary",	 NULL, &js_stick_1_x_stick },
+	{ d_jstick_proc,	  22,   195,   61,   21,   vc(14),  vc(11),  0,	   0,		 0,		0, (void *) "Secondary",	 NULL, &js_stick_2_x_stick },
+	{ jwin_text_proc,	  90,   165,   60,   8,	vc(7),   vc(11),  0,	   0,		 0,		0,	   str_primary_stick, NULL,  NULL },
+	{ jwin_text_proc,	  90,   195,   60,   8,	vc(7),   vc(11),  0,	   0,		 0,		0,	   str_secondary_stick, NULL,  NULL },
+
+	// 61
+	// { jwin_droplist_proc,  22,   165,  150,  16,   0,	   0,	   0,	   0,		 0,		0, (void *) &joy__list, NULL,  NULL },
+
 	{ NULL,				 0,	0,	0,	0,   0,	   0,	   0,	   0,		  0,			 0,	   NULL,						   NULL,  NULL }
 };
 
@@ -6811,7 +6887,9 @@ int32_t onGamepad()
 	int32_t down = DDbtn;
 	int32_t left = DLbtn;
 	int32_t right = DRbtn;
-	
+	int32_t stick_1 = js_stick_1_x_stick;
+	int32_t stick_2 = js_stick_2_x_stick;
+
 	gamepad_dlg[0].dp2=get_zc_font(font_lfont);
 	if(analog_movement)
 		gamepad_dlg[56].flags|=D_SELECTED;
@@ -6825,6 +6903,8 @@ int32_t onGamepad()
 	if(ret == 4) //OK
 	{
 		analog_movement = gamepad_dlg[56].flags&D_SELECTED;
+		js_stick_1_y_stick = js_stick_1_x_stick;
+		js_stick_2_y_stick = js_stick_2_x_stick;
 		save_control_configs(false);
 	}
 	else //Cancel
@@ -6844,6 +6924,8 @@ int32_t onGamepad()
 		DDbtn = down;
 		DLbtn = left;
 		DRbtn = right;
+		js_stick_1_x_stick = stick_1;
+		js_stick_2_x_stick = stick_2;
 	}
 	
 	return D_O_K;
@@ -8749,6 +8831,21 @@ bool joybtn(int32_t b)
 	return joy[joystick_index].button[b-1].b !=0;
 }
 
+bool joystick(int32_t s)
+{
+	if(s < 0)
+		return false;
+	if (s >= joy[joystick_index].num_sticks)
+		return false;
+	
+	for (int i = 0; i < joy[joystick_index].stick[s].num_axis; i++)
+	{
+		if (joy[joystick_index].stick[s].axis[i].d1 || joy[joystick_index].stick[s].axis[i].d2)
+			return true;
+	}
+	return false;
+}
+
 const char* joybtn_name(int32_t b)
 {
 	if (b <= 0 || b > joy[joystick_index].num_buttons)
@@ -8757,16 +8854,20 @@ const char* joybtn_name(int32_t b)
 	return joy[joystick_index].button[b-1].name;
 }
 
+const char* joystick_name(int32_t s)
+{
+	if (s < 0 || s >= joy[joystick_index].num_sticks)
+		return "";
+
+	return joy[joystick_index].stick[s].name;
+}
+
 int32_t next_press_key();
 
-int32_t next_press_btn()
+int32_t next_joy_input(bool buttons)
 {
 	clear_keybuf();
-	/*bool b[joy[joystick_index].num_buttons+1];
 
-	for(int32_t i=1; i<=joy[joystick_index].num_buttons; i++)
-		b[i]=joybtn(i);*/
-		
 	//first, we need to wait until they're pressing no buttons
 	for(;;)
 	{
@@ -8785,9 +8886,19 @@ int32_t next_press_btn()
 		poll_joystick();
 		bool done = true;
 		
-		for(int32_t i=1; i<=joy[joystick_index].num_buttons; i++)
+		if (buttons)
 		{
-			if(joybtn(i)) done = false;
+			for(int32_t i=1; i<=joy[joystick_index].num_buttons; i++)
+			{
+				if(joybtn(i)) done = false;
+			}
+		}
+		else
+		{
+			for(int32_t i=0; i<joy[joystick_index].num_sticks; i++)
+			{
+				if(joystick(i)) done = false;
+			}
 		}
 		
 		if(done) break;
@@ -8811,9 +8922,21 @@ int32_t next_press_btn()
 		
 		poll_joystick();
 		
-		for(int32_t i=1; i<=joy[joystick_index].num_buttons; i++)
+		if (buttons)
 		{
-			if(joybtn(i)) return i;
+			for(int32_t i=1; i<=joy[joystick_index].num_buttons; i++)
+			{
+				if(joybtn(i))
+					return i;
+			}
+		}
+		else
+		{
+			for(int32_t i=0; i<joy[joystick_index].num_sticks; i++)
+			{
+				if(joystick(i))
+					return i;
+			}
 		}
 		rest(1);
 	}
