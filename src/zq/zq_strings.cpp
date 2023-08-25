@@ -16,6 +16,7 @@
 #include <map>
 #include <string>
 
+extern FFScript FFCore;
 static bool strlist_numerical_sort = false;
 void editmsg(int32_t index, int32_t addAfter);
 int32_t strlist_del();
@@ -1098,7 +1099,12 @@ void fix_string_list()
 			MsgStrings[i].listpos = i;
 		}
 		
-		jwin_alert("Notice","Your quest's string ordering was corrupted.","It has been reverted to the default order.",NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+		if(FFCore.getQuestHeaderInfo(vZelda) >= 0x250) //not an error before this, don't pop up
+		{
+			jwin_alert("Notice","Your quest's string ordering was corrupted.",
+				"It has been reverted to the default order.",NULL,
+				"O&K",NULL,'k',0,get_zc_font(font_lfont));
+		}
 	}
 }
 
