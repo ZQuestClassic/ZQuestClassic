@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2023-08-22 06:09:56</td>
+      <td>2023-08-25 07:37:14</td>
     </tr>
   </table>
 </div>
@@ -41,21 +41,21 @@
     </tr>
     <tr>
       <th scope="row">Lines:</th>
-      <td>191</td>
-      <td>337</td>
-      <td class="coverage-low">56.7%</td>
+      <td>203</td>
+      <td>353</td>
+      <td class="coverage-low">57.5%</td>
     </tr>
     <tr>
       <th scope="row">Functions:</th>
-      <td>5</td>
-      <td>5</td>
+      <td>6</td>
+      <td>6</td>
       <td class="coverage-high">100.0%</td>
     </tr>
     <tr>
       <th scope="row">Branches:</th>
-      <td>117</td>
-      <td>251</td>
-      <td class="coverage-low">46.6%</td>
+      <td>120</td>
+      <td>255</td>
+      <td class="coverage-low">47.1%</td>
     </tr>
   </table>
 </div>
@@ -126,6 +126,17 @@
       </td>
       <td>
         <a href="#l36"> called 214443 times</a>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <a href="#l536">put_passive_subscr(BITMAP*, int, int, bool, int)</a>
+      </td>
+      <td>
+        <a href="#l536">536</a>
+      </td>
+      <td>
+        <a href="#l536"> called 8806260 times</a>
       </td>
     </tr>
   </table>
@@ -4431,6 +4442,181 @@
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l536" href="#l536">536</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount coveredLine">8806260</td>
+      <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="nf">put_passive_subscr</span><span class="p">(</span><span class="n">BITMAP</span><span class="w"> </span><span class="o">*</span><span class="n">dest</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">x</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="kt">bool</span><span class="w"> </span><span class="n">showtime</span><span class="p">,</span><span class="kt">int32_t</span><span class="w"> </span><span class="n">pos2</span><span class="p">)</span><span class="w"></span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l537" href="#l537">537</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="p">{</span><span class="w"></span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l538" href="#l538">538</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount coveredLine">8806260</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="o">++</span><span class="n">subscr_item_clk</span><span class="p">;</span><span class="w"></span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l539" href="#l539">539</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount coveredLine">8806260</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">animate_subscr_buttonitems</span><span class="p">();</span><span class="w"></span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l540" href="#l540">540</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount coveredLine">8806260</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">BITMAP</span><span class="w"> </span><span class="o">*</span><span class="n">subscr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">create_sub_bitmap</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="mi">256</span><span class="p">,</span><span class="n">passive_subscreen_height</span><span class="p">);</span><span class="w"></span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l541" href="#l541">541</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l542" href="#l542">542</a></td>
+      <td class="linebranch">
+        <details class="linebranchDetails">
+        <summary class="linebranchSummary">2/2</summary>
+        <div class="linebranchContents">
+          <div class="takenBranch">&check; Branch 0 taken 8766233 times.</div>
+          <div class="takenBranch">&check; Branch 1 taken 40027 times.</div>
+        </div>
+        </details>
+      </td>
+      <td class="linecount coveredLine">8806260</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">no_subscreen</span><span class="p">())</span><span class="w"></span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l543" href="#l543">543</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="p">{</span><span class="w"></span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l544" href="#l544">544</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount coveredLine">40027</td>
+      <td class="src coveredLine"><span class="w">		</span><span class="n">clear_to_color</span><span class="p">(</span><span class="n">subscr</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span><span class="w"></span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l545" href="#l545">545</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount coveredLine">40027</td>
+      <td class="src coveredLine"><span class="w">		</span><span class="n">destroy_bitmap</span><span class="p">(</span><span class="n">subscr</span><span class="p">);</span><span class="w"></span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l546" href="#l546">546</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount coveredLine">40027</td>
+      <td class="src coveredLine"><span class="w">		</span><span class="k">return</span><span class="p">;</span><span class="w"></span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l547" href="#l547">547</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="p">}</span><span class="w"></span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l548" href="#l548">548</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l549" href="#l549">549</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount coveredLine">8766233</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">show_custom_subscreen</span><span class="p">(</span><span class="n">subscr</span><span class="p">,</span><span class="w"> </span><span class="n">new_subscreen_passive</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">showtime</span><span class="p">,</span><span class="w"> </span><span class="n">pos2</span><span class="p">);</span><span class="w"></span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l550" href="#l550">550</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount coveredLine">8766233</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="n">destroy_bitmap</span><span class="p">(</span><span class="n">subscr</span><span class="p">);</span><span class="w"></span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l551" href="#l551">551</a></td>
+      <td class="linebranch">
+        <details class="linebranchDetails">
+        <summary class="linebranchSummary">1/2</summary>
+        <div class="linebranchContents">
+          <div class="notTakenBranch">&cross; Branch 0 not taken.</div>
+          <div class="takenBranch">&check; Branch 1 taken 8766233 times.</div>
+        </div>
+        </details>
+      </td>
+      <td class="linecount coveredLine">8766233</td>
+      <td class="src coveredLine"><span class="w">	</span><span class="k">if</span><span class="p">(</span><span class="n">new_subscreen_overlay</span><span class="p">)</span><span class="w"></span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l552" href="#l552">552</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">	</span><span class="p">{</span><span class="w"></span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l553" href="#l553">553</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">subscr</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">create_sub_bitmap</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span><span class="n">x</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">256</span><span class="p">,</span><span class="mi">224</span><span class="p">);</span><span class="w"></span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l554" href="#l554">554</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">show_custom_subscreen</span><span class="p">(</span><span class="n">subscr</span><span class="p">,</span><span class="w"> </span><span class="n">new_subscreen_overlay</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">showtime</span><span class="p">,</span><span class="w"> </span><span class="n">pos2</span><span class="p">);</span><span class="w"></span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l555" href="#l555">555</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">		</span><span class="n">destroy_bitmap</span><span class="p">(</span><span class="n">subscr</span><span class="p">);</span><span class="w"></span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l556" href="#l556">556</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">	</span><span class="p">}</span><span class="w"></span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l557" href="#l557">557</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount coveredLine">8806260</td>
+      <td class="src coveredLine"><span class="p">}</span><span class="w"></span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l558" href="#l558">558</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l559" href="#l559">559</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
