@@ -1680,7 +1680,7 @@ void SW_ButtonItem::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& p
 	if(btnitem_ids[btn] > nullval)
 	{
 		bool dodraw = true;
-		switch(itemsbuf[btnitem_ids[btn]].family)
+		switch(itemsbuf[btnitem_ids[btn]&0xFF].family)
 		{
 			case itype_arrow:
 				if(btnitem_ids[btn]&0xF000)
