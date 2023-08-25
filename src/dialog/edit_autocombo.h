@@ -33,16 +33,18 @@ public:
 
 	AutoComboDialog();
 
-	void addCombos(int32_t engrave_offset, int32_t count, uint32_t dummyflags);
+	void addCombos(int32_t engrave_offset, int32_t count);
 	void refreshPanels();
 
 	std::shared_ptr<GUI::Widget> view() override;
-	void refreshWidgets(std::shared_ptr<GUI::Grid> wingrid, std::shared_ptr<GUI::Grid> sgrid);
+	void addSlot(autocombo_entry& entry, size_t& ind, size_t& wid, size_t& hei);
+	void refreshWidgets();
 	bool handleMessage(const GUI::DialogMessage<message>& msg);
 
 private:
 	std::vector<autocombo_widg> widgs;
 	std::shared_ptr<GUI::Window> window;
+	std::shared_ptr<GUI::Grid> wingrid, sgrid;
 	//std::shared_ptr<GUI::Button> pastebtn;
 
 	std::shared_ptr<GUI::DropDownList> typedropdown;

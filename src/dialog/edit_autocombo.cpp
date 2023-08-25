@@ -30,21 +30,14 @@ AutoComboDialog::AutoComboDialog() :
 
 }
 
-void AutoComboDialog::addCombos(int32_t engrave_offset, int32_t count, uint32_t dummyflags)
+void AutoComboDialog::addCombos(int32_t engrave_offset, int32_t count)
 {
 	int32_t offset = 0;
 	for (int32_t q = 0; q < count; ++q)
 	{
-		if (q > 31 || (dummyflags & (1 << q)))
-		{
-			temp_autocombo.combos.emplace_back(autocombo_entry(0, CSet, q, -1, -1));
-		}
-		else
-		{
-			temp_autocombo.combos.emplace_back(autocombo_entry(0, CSet, q, offset, engrave_offset));
-			++offset;
-			++engrave_offset;
-		}
+		temp_autocombo.combos.emplace_back(autocombo_entry(0, CSet, q, offset, engrave_offset));
+		++offset;
+		++engrave_offset;
 	}
 }
 void AutoComboDialog::refreshPanels()
@@ -58,16 +51,16 @@ void AutoComboDialog::refreshPanels()
 	switch (val)
 	{
 		case AUTOCOMBO_BASIC:
-			addCombos(16, 16, 0);
+			addCombos(16, 16);
 			break;
 		case AUTOCOMBO_Z1:
-			addCombos(0, 7, 0x8); // 0b1000
+			addCombos(0, 6);
 			break;
 		case AUTOCOMBO_Z4:
-			addCombos(48, 30, 0xC8888A8); // 0b1100100010001000100010101000);
+			addCombos(48, 21);
 			break;
 		case AUTOCOMBO_FENCE:
-			addCombos(32, 18, 0xC8A8); // 0b1100100010101000
+			addCombos(32, 12);
 			break;
 	}
 }
@@ -80,7 +73,6 @@ std::shared_ptr<GUI::Widget> AutoComboDialog::view()
 	using namespace GUI::Key;
 	using namespace GUI::Props;
 	
-	std::shared_ptr<GUI::Grid> wingrid, sgrid;
 	sgrid = Rows<4>();
 	window = Window(
 		title = "Auto Combo Editor",
@@ -160,11 +152,47 @@ std::shared_ptr<GUI::Widget> AutoComboDialog::view()
 			)
 		)
 	);
-	refreshWidgets(wingrid, sgrid);
+	refreshWidgets();
 	return window;
 }
 
-void AutoComboDialog::refreshWidgets(std::shared_ptr<GUI::Grid> wingrid, std::shared_ptr<GUI::Grid> sgrid)
+void AutoComboDialog::addSlot(autocombo_entry& entry, size_t& ind, size_t& wid, size_t& hei)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Key;
+	using namespace GUI::Props;
+
+	autocombo_widg& widg = widgs.emplace_back();
+	std::shared_ptr<GUI::Grid> row;
+
+	widg.slot = ind;
+	widg.entry = &entry;
+	sgrid->add(
+		row = Row(framed = true,
+			Engraving(data = entry.engrave_offset),
+			widg.cpane = SelComboSwatch(
+				combo = entry.cid,
+				cset = CSet,
+				showvals = false,
+				onSelectFunc = [&, ind](int32_t cmb, int32_t c)
+				{
+					entry.cid = cmb;
+					widgs.at(ind).cpane->setCSet(CSet);
+					temp_autocombo.updateValid();
+				})
+		)
+	);
+
+	if (!hei)
+	{
+		row->calculateSize();
+		hei = row->getTotalHeight();
+		wid = row->getTotalWidth();
+	}
+	++ind;
+}
+
+void AutoComboDialog::refreshWidgets()
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Key;
@@ -173,55 +201,64 @@ void AutoComboDialog::refreshWidgets(std::shared_ptr<GUI::Grid> wingrid, std::sh
 	size_t per_row = 4;
 	size_t vis_rows = 5;
 
-	size_t ind = 0;
+	size_t widg_ind = 0, grid_ind = 0;
 	size_t hei = 0, wid = 0;
 	widgs.clear();
-	for (auto& entry : temp_autocombo.combos)
+	byte* grid = nullptr;
+	switch (temp_autocombo.getType())
 	{
-		widgs.emplace_back();
-		autocombo_widg& widg = widgs.back();
-		std::shared_ptr<GUI::Grid> row;
-		if (entry.offset > -1)
+		case AUTOCOMBO_BASIC:
+			break;
+		case AUTOCOMBO_Z1:
 		{
-			widg.slot = ind;
-			widg.entry = &entry;
-			sgrid->add(
-				row = Row(framed = true,
-					Engraving(data = entry.engrave_offset),
-					widg.cpane = SelComboSwatch(
-						combo = entry.cid,
-						cset = CSet,
-						showvals = false,
-						onSelectFunc = [&, ind](int32_t cmb, int32_t c)
-						{
-							entry.cid = cmb;
-							widgs.at(ind).cpane->setCSet(CSet);
-							temp_autocombo.updateValid();
-						})
-				)
-			);
+			static byte z1_grid[] = {
+				0, 0, 0, 1,
+				0, 0, 0
+			};
+			grid = z1_grid;
+			break;
 		}
+		case AUTOCOMBO_Z4:
+		{
+			static byte z4_grid[] = {
+				0, 0, 0, 1,
+				0, 1, 0, 1,
+				0, 0, 0, 1,
+				0, 0, 0, 1,
+				0, 0, 0, 1,
+				0, 0, 0, 1,
+				0, 0, 1, 1,
+				0, 0
+			};
+			grid = z4_grid;
+			break;
+		}
+		case AUTOCOMBO_FENCE:
+		{
+			static byte fence_grid[] = {
+				0, 0, 0, 1,
+				0, 1, 0, 1,
+				0, 0, 0, 1,
+				0, 0, 1, 1,
+				0, 0
+			};
+			grid = fence_grid;
+			break;
+		}
+	}
+	while (widg_ind < temp_autocombo.combos.size())
+	{
+		if (grid && grid[grid_ind])
+			sgrid->add(DummyWidget());
 		else
-		{
-			sgrid->add(
-				row = Row(
-					DummyWidget()
-				)
-			);
-		}
-		if (!hei)
-		{
-			row->calculateSize();
-			hei = row->getTotalHeight();
-			wid = row->getTotalWidth();
-		}
-		++ind;
+			addSlot(temp_autocombo.combos[widg_ind], widg_ind, wid, hei);
+		++grid_ind;
 	}
 	if (temp_autocombo.combos.size() == 0)
 	{
 		sgrid->add(DummyWidget());
 	}
-	if (ind / per_row >= vis_rows)
+	if (grid_ind / per_row >= vis_rows)
 	{
 		wingrid->add(ScrollingPane(
 			ptr = &scroll_pos1,
