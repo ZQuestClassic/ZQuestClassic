@@ -119,9 +119,11 @@ bool zcmusic_poll(int32_t flags) {
           break;
       case ZCM_PLAYING:
           (*b)->position++;
+          b++;
           break;
+      default:
+          b++;
       }
-      b++;
   }
 
   al_unlock_mutex(playlistmutex);
