@@ -74,6 +74,7 @@ extern bool Playing;
 int32_t sfx_voice[WAV_COUNT];
 int32_t d_stringloader(int32_t msg,DIALOG *d,int32_t c);
 int32_t d_midilist_proc(int32_t msg,DIALOG *d,int32_t c);
+static int32_t d_joylist_proc(int32_t msg,DIALOG *d,int32_t c);
 
 extern byte monochrome_console;
 
@@ -208,7 +209,7 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 			{
 				d[i].h = int32_t((double)d[i].h*1.5);
 			}
-			else if(d[i].proc == jwin_droplist_proc)
+			else if(d[i].proc == jwin_droplist_proc || d[i].proc == d_joylist_proc)
 			{
 				d[i].y += int32_t((double)d[i].h*0.25);
 				d[i].h = int32_t((double)d[i].h*1.25);
@@ -236,7 +237,7 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 			continue;
 			
 		// Bigger font
-		bool bigfontproc = (d[i].proc != d_midilist_proc && d[i].proc != jwin_droplist_proc && d[i].proc != jwin_abclist_proc && d[i].proc != jwin_list_proc);
+		bool bigfontproc = (d[i].proc != d_midilist_proc && d[i].proc != jwin_droplist_proc && d[i].proc != jwin_abclist_proc && d[i].proc != jwin_list_proc && d[i].proc != d_joylist_proc);
 		
 		if(!d[i].dp2 && bigfontproc)
 		{
@@ -5586,6 +5587,12 @@ int32_t set_buf(void *dp3, int32_t d2)
 	return D_O_K;
 }
 
+static int32_t gamepad_joys_list[] =
+{
+	61,
+	-1
+};
+
 static int32_t gamepad_btn_list[] =
 {
 	6,
@@ -5609,7 +5616,8 @@ static int32_t gamepad_dirs_list[] =
 static TABPANEL gamepad_tabs[] =
 {
 	// (text)
-	{ (char *)"Buttons",		D_SELECTED,  gamepad_btn_list, 0, NULL },
+	{ (char *)"Controllers",		D_SELECTED,  gamepad_joys_list, 0, NULL },
+	{ (char *)"Buttons",		0,  gamepad_btn_list, 0, NULL },
 	{ (char *)"Directions",  0,		   gamepad_dirs_list, 0, NULL },
 	{ NULL,				  0,		   NULL,			   0, NULL }
 };
@@ -5632,6 +5640,20 @@ const char *joy_list(int32_t index, int32_t *list_size)
 }
 
 static ListData joy__list(joy_list, &font);
+
+static int32_t d_joylist_proc(int32_t msg,DIALOG *d,int32_t c)
+{
+	int32_t d2 = d->d2;
+	int32_t ret = jwin_droplist_proc(msg,d,c);
+	
+	if(d2!=d->d2)
+	{
+		joystick_index = d->d2;
+		ret |= D_REDRAW_ALL;
+	}
+	
+	return ret;
+}
 
 static DIALOG gamepad_dlg[] =
 {
@@ -5708,7 +5730,7 @@ static DIALOG gamepad_dlg[] =
 	{ jwin_text_proc,	  90,   195,   60,   8,	vc(7),   vc(11),  0,	   0,		 0,		0,	   str_secondary_stick, NULL,  NULL },
 
 	// 61
-	// { jwin_droplist_proc,  22,   165,  150,  16,   0,	   0,	   0,	   0,		 0,		0, (void *) &joy__list, NULL,  NULL },
+	{ d_joylist_proc,  22,   62,  150,  16,   0,	   0,	   0,	   0,		 0,		0, (void *) &joy__list, NULL,  NULL },
 
 	{ NULL,				 0,	0,	0,	0,   0,	   0,	   0,	   0,		  0,			 0,	   NULL,						   NULL,  NULL }
 };
@@ -6887,6 +6909,7 @@ int32_t onGamepad()
 	int32_t down = DDbtn;
 	int32_t left = DLbtn;
 	int32_t right = DRbtn;
+	int32_t joy = joystick_index;
 	int32_t stick_1 = js_stick_1_x_stick;
 	int32_t stick_2 = js_stick_2_x_stick;
 
@@ -6895,7 +6918,16 @@ int32_t onGamepad()
 		gamepad_dlg[56].flags|=D_SELECTED;
 	else
 		gamepad_dlg[56].flags&=~D_SELECTED;
-	
+
+	// TODO: should use controller device GUID or name instead of index, otherwise this value is not
+	// consistent unless exact same number of joysticks is always connected. Name is problematic b/c
+	// xinput driver doesn't actually get a name (at least, doesn't for my Xbox controller).
+	// TODO: should store gamepad control mappings per-controller, otherwise switching joystick
+	// requires remapping every time.
+	if (joystick_index >= al_get_num_joysticks())
+		joystick_index = 0;
+	gamepad_dlg[61].d2 = joystick_index;
+
 	large_dialog(gamepad_dlg);
 		
 	int32_t ret = zc_popup_dialog(gamepad_dlg,4);
@@ -6903,6 +6935,7 @@ int32_t onGamepad()
 	if(ret == 4) //OK
 	{
 		analog_movement = gamepad_dlg[56].flags&D_SELECTED;
+		joystick_index = gamepad_dlg[61].d2;
 		js_stick_1_y_stick = js_stick_1_x_stick;
 		js_stick_2_y_stick = js_stick_2_x_stick;
 		save_control_configs(false);
@@ -6924,6 +6957,7 @@ int32_t onGamepad()
 		DDbtn = down;
 		DLbtn = left;
 		DRbtn = right;
+		joystick_index = joy;
 		js_stick_1_x_stick = stick_1;
 		js_stick_2_x_stick = stick_2;
 	}
