@@ -27,6 +27,12 @@
 // local edit
 #include "a5alleg.h"
 
+#ifdef _WIN32
+#define NOGDI
+#include "windows.h"
+#undef NOGDI
+#endif
+
 #define ALLEGRO_LEGACY_PIXEL_FORMAT_8888  0
 #define ALLEGRO_LEGACY_PIXEL_FORMAT_OTHER 1
 
@@ -130,6 +136,19 @@ static bool _a5_setup_screen(int w, int h)
   else
   {
     _a5_display = al_create_display(w, h);
+
+  // local edit
+#ifdef _WIN32
+    HWND winhandle;
+    HICON icon;
+
+    icon = LoadIcon(GetModuleHandle(NULL), "ALLEGRO_ICON");
+    if (icon) {
+      winhandle = al_get_win_window_handle(all_get_display());
+      SetClassLongPtr(winhandle, GCLP_HICON, (LONG_PTR)icon);
+      SetClassLongPtr(winhandle, GCLP_HICONSM, (LONG_PTR)icon);
+    }
+#endif
   }
   if(!_a5_display)
   {
