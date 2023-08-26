@@ -27,6 +27,7 @@ combo_auto& combo_auto::operator=(combo_auto const& other)
 	type = other.type;
 	cid_display = other.cid_display;
 	flags = other.flags;
+	cid_erase = other.cid_erase;
 	return *this;
 }
 void combo_auto::push(int32_t cid, int32_t of, int32_t eo) //add a combo with quantity

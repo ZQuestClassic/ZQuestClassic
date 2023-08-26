@@ -39,6 +39,8 @@
 #include "base/packfile.h"
 #include "base/cpool.h"
 #include "base/autocombo.h"
+#include "zq/autocombo/autopattern_base.h"
+#include "zq/autocombo/pattern_basic.h"
 #include "base/misctypes.h"
 #include "parser/Compiler.h"
 #include "base/zc_alleg.h"
@@ -7545,6 +7547,7 @@ byte relational_source_grid[256]=
 void draw(bool justcset)
 {
 	combo_pool const& pool = combo_pools[combo_pool_pos];
+	combo_auto ca = combo_autos[combo_auto_pos];
 	if(draw_mode == dm_cpool && !pool.valid())
 		return;
     saved=false;
@@ -7946,7 +7949,30 @@ void draw(bool justcset)
 					
 					break;
 				}
-            }
+            
+				case dm_auto:
+				{
+					int32_t cid = Combo;
+					int8_t cs = CSet;
+
+					if (ca.valid())
+					{
+						switch (ca.getType())
+						{
+							case AUTOCOMBO_BASIC:
+							{
+								AutoPattern::autopattern_basic ap(ca.getType(), CurrentLayer, drawscr, cstart, &ca, !(ca.flags&ACF_CROSSSCREENS));
+								if (gui_mouse_b() & 2)
+									ap.erase(drawscr, cstart);
+								else
+									ap.execute(drawscr, cstart);
+							}
+						}
+					}
+
+					update_combobrush();
+				}
+			}
         }
         
 		custom_vsync();
@@ -10777,7 +10803,11 @@ void domouse()
 		//on the map screen
 		if(isinRect(x,y,startxint,startyint,startxint+(256*mapscreensize)-1,startyint+(176*mapscreensize)-1))
 		{
-			if(lclick)
+			if (draw_mode == dm_auto && rclick)
+			{
+				draw(key[KEY_LSHIFT] || key[KEY_RSHIFT]);
+			}
+			else if(lclick)
 			{
 				int32_t cx2 = (x-startxint)/mapscreensize;
 				int32_t cy2 = (y-startyint)/mapscreensize;

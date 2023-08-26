@@ -15,6 +15,15 @@ static bool new_usecs = false;
 extern int32_t CSet;
 extern combo_auto combo_autos[];
 
+#define AUTO_CB(member, flag, txt, inf) \
+INFOBTN(inf), \
+Checkbox(checked = temp_autocombo.member&flag, \
+	text = txt,  \
+	onToggleFunc = [&](bool state) \
+	{ \
+		SETFLAG(temp_autocombo.member, flag, state); \
+	})
+
 void call_autocombo_dlg(int32_t index)
 {
 	retptr = &combo_autos[index];
@@ -123,6 +132,19 @@ std::shared_ptr<GUI::Widget> AutoComboDialog::view()
 								}
 							}
 						}
+					}),
+				AUTO_CB(flags, ACF_CROSSSCREENS, "Cross Screens", "If checked, this autocombo can affect combos on adjacent screens."),
+				Label(text = "Erase Combo:"),
+				erasepane = iconpane = SelComboSwatch(vAlign = 0.0,
+					combo = temp_autocombo.getEraseCombo(),
+					cset = CSet,
+					showvals = true,
+					disabled = temp_autocombo.getType() == AUTOCOMBO_NONE,
+					onSelectFunc = [&](int32_t cmb, int32_t c)
+					{
+						temp_autocombo.setEraseCombo(cmb),
+						CSet = c;
+						refreshPreviewCSets();
 					})
 			),
 			wingrid = Column(padding=0_px),

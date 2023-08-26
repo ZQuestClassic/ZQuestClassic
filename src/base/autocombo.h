@@ -8,8 +8,10 @@
 
 enum { AUTOCOMBO_NONE, AUTOCOMBO_Z1, AUTOCOMBO_BASIC, AUTOCOMBO_FENCE, AUTOCOMBO_Z4 };
 
-enum {
-	ACF_VALID = 0x1
+enum
+{
+	ACF_VALID =        0x1,
+	ACF_CROSSSCREENS = 0x2
 };
 
 struct autocombo_entry
@@ -51,6 +53,7 @@ struct combo_auto
 			type = AUTOCOMBO_NONE;
 			cid_display = 0;
 			flags = 0;
+			cid_erase = 0;
 		}
 		combos.clear();
 		combos.shrink_to_fit();
@@ -60,15 +63,15 @@ struct combo_auto
 		return flags & ACF_VALID;
 	}
 	void updateValid();
+
 	byte getFlags() const
 	{
 		return flags;
 	}
-	void setFlags(char newflags)
+	void setFlags(byte newflags)
 	{
 		flags = newflags;
 	}
-
 	int32_t getType() const
 	{
 		return type;
@@ -77,6 +80,7 @@ struct combo_auto
 	{
 		type = newtype;
 	}
+
 
 	int32_t getDisplay() const;
 	int32_t getIconDisplay() const
@@ -87,15 +91,25 @@ struct combo_auto
 	{
 		cid_display = newdisplay;
 	}
+	int32_t getEraseCombo() const
+	{
+		return cid_erase;
+	}
+	void setEraseCombo(int32_t newerase)
+	{
+		cid_erase = newerase;
+	}
 
 	static int32_t convert_offsets(byte type, int16_t offset);
 
 	std::map<int32_t,byte> getMapping();
 
+	byte flags = 0;
+
 private:
 	byte type = AUTOCOMBO_NONE;
 	int32_t cid_display = 0;
-	byte flags = 0;
+	int32_t cid_erase = 0;
 };
 
 extern combo_auto combo_autos[MAXCOMBOPOOLS];

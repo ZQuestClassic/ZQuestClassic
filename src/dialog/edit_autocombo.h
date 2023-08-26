@@ -50,6 +50,7 @@ private:
 
 	std::shared_ptr<GUI::DropDownList> typedropdown;
 	std::shared_ptr<GUI::SelComboSwatch> iconpane;
+	std::shared_ptr<GUI::SelComboSwatch> erasepane;
 	std::shared_ptr<GUI::Button> templatebtn;
 
 	GUI::ListData list_autocombotypes;

@@ -18408,13 +18408,17 @@ int32_t readcomboaliases(PACKFILE *f, zquestheader *Header, word version, word b
 	for (word ca = 0; ca < num_combo_autos; ++ca)
 	{
 		byte type;
-		int32_t display_cid;
+		int32_t display_cid, erase_cid;
 		byte flags;
 		if (!p_getc(&type, f))
 		{
 			return qe_invalid;
 		}
 		if (!p_igetl(&display_cid, f))
+		{
+			return qe_invalid;
+		}
+		if (!p_igetl(&erase_cid, f))
 		{
 			return qe_invalid;
 		}
@@ -18433,6 +18437,7 @@ int32_t readcomboaliases(PACKFILE *f, zquestheader *Header, word version, word b
 
 		temp_cauto.setType(type);
 		temp_cauto.setDisplay(display_cid);
+		temp_cauto.setEraseCombo(erase_cid);
 		temp_cauto.setFlags(flags);
 
 		int32_t ca_cid; int16_t ca_offset; int16_t ca_engrave_offset;
