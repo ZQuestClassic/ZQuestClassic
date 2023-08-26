@@ -188,8 +188,9 @@ namespace AutoPattern
 	{
 		int32_t drawmap = Map.getCurrMap();
 		int32_t drawscreen = screen;
-		mapscr* mapscr_ptr = Map.AbsoluteScr(drawmap, screen);
-		zprint2("layer %d map %d screen %d pos %d\n", layer, drawmap, drawscreen, pos);
+		zprint2("drawscreen %d MapScr %d CurScr %d\n", drawscreen, *Map.Scr(drawscreen), *Map.CurrScr());
+		mapscr* mapscr_ptr = Map.AbsoluteScr(drawmap, drawscreen);
+		//mapscr* mapscr_ptr = Map.CurrScr();
 		if (layer > 0)
 		{
 			if (mapscr_ptr->layermap[layer - 1])
@@ -200,6 +201,7 @@ namespace AutoPattern
 			}
 		}
 		int32_t cset = mapscr_ptr->cset[pos];
+		zprint2("layer %d map %d screen %d pos %d\n", layer, drawmap, drawscreen, pos);
 		Map.DoSetComboCommand(drawmap, drawscreen, pos, cid, base ? CSet : cset);
 	}
 }

@@ -41,6 +41,7 @@
 #include "base/autocombo.h"
 #include "zq/autocombo/autopattern_base.h"
 #include "zq/autocombo/pattern_basic.h"
+#include "zq/autocombo/pattern_flatmtn.h"
 #include "base/misctypes.h"
 #include "parser/Compiler.h"
 #include "base/zc_alleg.h"
@@ -7543,11 +7544,42 @@ byte relational_source_grid[256]=
     46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46
 };
 
+void drawAutoCombo(int32_t pos)
+{
+	int32_t cid = Combo;
+	int8_t cs = CSet;
+	combo_auto ca = combo_autos[combo_auto_pos];
+
+	int32_t scr = Map.getCurrScr();
+	if (ca.valid())
+	{
+		switch (ca.getType())
+		{
+			case AUTOCOMBO_BASIC:
+			{
+				AutoPattern::autopattern_basic ap(ca.getType(), CurrentLayer, scr, pos, &ca, !(ca.flags & ACF_CROSSSCREENS));
+				if (gui_mouse_b() & 2)
+					ap.erase(scr, pos);
+				else
+					ap.execute(scr, pos);
+				break;
+			}
+			case AUTOCOMBO_Z1:
+			{
+				AutoPattern::autopattern_flatmtn ap(ca.getType(), CurrentLayer, scr, pos, &ca, !(ca.flags & ACF_CROSSSCREENS));
+				if (gui_mouse_b() & 2)
+					ap.erase(scr, pos);
+				else
+					ap.execute(scr, pos);
+			}
+		}
+	}
+
+}
 
 void draw(bool justcset)
 {
 	combo_pool const& pool = combo_pools[combo_pool_pos];
-	combo_auto ca = combo_autos[combo_auto_pos];
 	if(draw_mode == dm_cpool && !pool.valid())
 		return;
     saved=false;
@@ -7952,23 +7984,7 @@ void draw(bool justcset)
             
 				case dm_auto:
 				{
-					int32_t cid = Combo;
-					int8_t cs = CSet;
-
-					if (ca.valid())
-					{
-						switch (ca.getType())
-						{
-							case AUTOCOMBO_BASIC:
-							{
-								AutoPattern::autopattern_basic ap(ca.getType(), CurrentLayer, drawscr, cstart, &ca, !(ca.flags&ACF_CROSSSCREENS));
-								if (gui_mouse_b() & 2)
-									ap.erase(drawscr, cstart);
-								else
-									ap.execute(drawscr, cstart);
-							}
-						}
-					}
+					drawAutoCombo(cstart);
 
 					update_combobrush();
 				}
@@ -8113,7 +8129,12 @@ static void fill(int32_t map, int32_t screen_index, mapscr* fillscr, int32_t tar
 		if(!pool.pick(cid,cs)) return;
 	}
     
-    Map.DoSetComboCommand(map, screen_index, (sy<<4)+sx, only_cset ? -1 : cid, cs);
+	if (draw_mode == dm_auto)
+	{
+		drawAutoCombo((sy << 4) + sx);
+	}
+	else
+		Map.DoSetComboCommand(map, screen_index, (sy<<4)+sx, only_cset ? -1 : cid, cs);
     
     if((sy>0) && (dir!=down))                                 // && ((Map.CurrScr()->data[(((sy-1)<<4)+sx)]&0x7FF)==target))
         fill(map, screen_index, fillscr, targetcombo, targetcset, sx, sy-1, up, diagonal, only_cset);
@@ -8794,7 +8815,10 @@ void flood()
 
     for(int32_t i=0; i<176; i++)
     {
-        Map.DoSetComboCommand(drawmap, drawscr, i, include_combos ? Combo : -1, CSet);
+		if (draw_mode == dm_auto)
+			drawAutoCombo(i);
+		else
+			Map.DoSetComboCommand(drawmap, drawscr, i, include_combos ? Combo : -1, CSet);
     }
     
     Map.FinishListCommand();
@@ -8858,7 +8882,7 @@ void fill_4()
     int32_t by= (y>>4)/(mapscreensize);
     int32_t bx= (x>>4)/(mapscreensize);
     
-    if(draw_mode == dm_cpool
+    if(draw_mode == dm_cpool || draw_mode == dm_auto
 		|| (draw_mapscr->cset[(by<<4)+bx]!=CSet ||
             (draw_mapscr->data[(by<<4)+bx]!=Combo &&
              !(key[KEY_LSHIFT]||key[KEY_RSHIFT]))))
