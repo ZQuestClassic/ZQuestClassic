@@ -5202,6 +5202,7 @@ int32_t jwin_do_abclist_proc(int32_t msg, DIALOG *d, int32_t c)
 						update_hw_screen();
 					}
 					d->flags &= ~D_INTERNAL;
+					rest(1);
 				}
 				
 				if(rightClicked)
@@ -6991,7 +6992,7 @@ int32_t jwin_color_swatch(int32_t msg, DIALOG *d, int32_t c)
 			selcolor_dlg[3].d2 = d->d2;
 			large_dialog(selcolor_dlg);
 			
-			while(gui_mouse_b()); //wait for mouseup
+			while(gui_mouse_b()) rest(1); //wait for mouseup
 			
 			//!TODO Move this out of jwin, and do better palette management.
 			//!TODO Allow loading different level palettes, sprite palettes, etc via buttons
@@ -7573,6 +7574,7 @@ dropit:
         }
         
         clear_keybuf();
+		rest(1);
     }
     
     if(!down)
@@ -8632,6 +8634,7 @@ bool do_text_button(int32_t x,int32_t y,int32_t w,int32_t h,const char *text)
 				update_hw_screen();
             }
         }
+		rest(1);
     }
     
     return over;
@@ -8666,7 +8669,7 @@ bool do_text_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,const char *te
 				update_hw_screen();
             }
         }
-        
+        rest(1);
     }
     
     if(over)
@@ -8708,7 +8711,7 @@ bool do_icon_button_reset(int32_t x,int32_t y,int32_t w,int32_t h,int icon)
 				update_hw_screen();
             }
         }
-        
+        rest(1);
     }
     
     if(over)
