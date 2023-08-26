@@ -11,6 +11,7 @@
 
 #include "zc/zc_sys.h"
 
+#include "allegro/gfx.h"
 #include "allegro5/joystick.h"
 #include "base/qrs.h"
 #include "base/dmap.h"
@@ -3974,7 +3975,7 @@ int32_t onGUISnapshot()
 	if(b)
 	{
 		blit(screen,b,0,0,0,0,resx,resy);
-		save_bitmap(buf,b,RAMpal);
+		save_bitmap(buf,screen,RAMpal);
 		destroy_bitmap(b);
 	}
 	
@@ -3995,8 +3996,19 @@ int32_t onNonGUISnapshot()
 		sprintf(buf, "%szc_screen%05d.%s", get_snap_str(), ++num, snapshotformat_str[SnapshotFormat][1]);
 	}
 	while(num<99999 && exists(buf));
-	
-	save_bitmap(buf,framebuf,realpal?temppal:RAMpal);
+
+	if (tmpscr->flags3&fNOSUBSCR && !(key[KEY_ALT]))
+	{
+		BITMAP *b = create_bitmap_ex(8,256,168);
+		clear_to_color(b,0);
+		blit(framebuf,b,0,passive_subscreen_height/2,0,0,256,168);
+		save_bitmap(buf,b,realpal?temppal:RAMpal);
+		destroy_bitmap(b);
+	}
+	else
+	{
+		save_bitmap(buf,framebuf,realpal?temppal:RAMpal);
+	}
 	
 	return D_O_K;
 }
