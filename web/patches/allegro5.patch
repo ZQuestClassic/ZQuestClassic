@@ -14,6 +14,30 @@ index 777324259..636d7d381 100644
     want.callback = audio_callback;
     want.userdata = sv;
  
+diff --git a/cmake/FindVorbis.cmake b/cmake/FindVorbis.cmake
+index a08e0e4c6..48654b5e4 100644
+--- a/cmake/FindVorbis.cmake
++++ b/cmake/FindVorbis.cmake
+@@ -25,16 +25,16 @@ if(OGG_FOUND)
+ 	set(FPHSA_NAME_MISMATCHED TRUE)
+ 	find_package_handle_standard_args(VORBIS DEFAULT_MSG
+ 	    VORBIS_INCLUDE_DIR
+-	    VORBIS_LIBRARY VORBISFILE_LIBRARY)
++	    VORBIS_LIBRARY)
+ endif(OGG_FOUND)
+ 
+ if(VORBIS_FOUND)
+-  set(VORBIS_LIBRARIES ${VORBISFILE_LIBRARY} ${VORBIS_LIBRARY}
++  set(VORBIS_LIBRARIES  ${VORBIS_LIBRARY}
+         ${OGG_LIBRARY})
+ else(VORBIS_FOUND)
+   set(VORBIS_LIBRARIES)
+ endif(VORBIS_FOUND)
+ 
+ mark_as_advanced(VORBIS_INCLUDE_DIR)
+-mark_as_advanced(VORBIS_LIBRARY VORBISFILE_LIBRARY)
++mark_as_advanced(VORBIS_LIBRARY VORBIS_LIBRARY)
+ 
 diff --git a/src/sdl/sdl_system.c b/src/sdl/sdl_system.c
 index ee7034488..f859e9177 100644
 --- a/src/sdl/sdl_system.c

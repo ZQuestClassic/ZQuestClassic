@@ -257,18 +257,6 @@ endif()
 # Header and source file lists
 #############################################################
 
-if (EMSCRIPTEN)
-	set(ZCSOUNDSOURCES
-		src/zcmusic_sdl.cpp
-		src/zcmusicd.cpp
-	)
-else()
-	set(ZCSOUNDSOURCES
-		src/zcmusic.cpp
-		src/zcmusicd.cpp
-	)
-endif()
-
 set(ZELDA_MODULES
 	${CMAKE_SOURCE_DIR}/modules/zelda/ZeldaCore.txt
 	${CMAKE_SOURCE_DIR}/modules/zelda/ZeldaGUI.txt
@@ -537,11 +525,7 @@ target_link_libraries(zconsolelogger PUBLIC allegro_with_legacy zcbase)
 # Sound Library
 #############################################################
 
-if(EMSCRIPTEN)
-	set(BUILD_SOUND_LIBS_FROM_SOURCE OFF)
-else()
-	set(BUILD_SOUND_LIBS_FROM_SOURCE ON)
-endif()
+set(BUILD_SOUND_LIBS_FROM_SOURCE ON)
 
 if(BUILD_SOUND_LIBS_FROM_SOURCE)
 	if(WIN32)
@@ -582,6 +566,11 @@ endif()
 if(MSVC AND (MSVC_VERSION GREATER 1600))
 	set(ZCSOUNDLIBSEXTRA legacy_stdio_definitions)
 endif()
+set(ZCSOUNDSOURCES
+	src/zcmusic.cpp
+	src/zcmusicd.cpp
+	src/zcmixer.cpp
+)
 add_library(zcsound SHARED ${ZCSOUNDSOURCES})
 target_link_libraries(zcsound PUBLIC allegro_with_legacy zcbase ${SOUNDLIBS} ${ZCSOUNDLIBSEXTRA} allegro_audio allegro_acodec)
 

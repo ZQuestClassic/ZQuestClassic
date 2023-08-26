@@ -102,7 +102,7 @@ index 3320631..b4f3096 100644
  variants = {
    'sdl2_mixer_mp3': {'SDL2_MIXER_FORMATS': ["mp3"]},
    'sdl2_mixer_none': {'SDL2_MIXER_FORMATS': []},
-+  'sdl2_mixer_gme_mid_mod_mp3_ogg': {'SDL2_MIXER_FORMATS': ["gme", "mid", "mod", "mp3", "ogg"]},
++  'sdl2_mixer_mid': {'SDL2_MIXER_FORMATS': ["mid"]},
  }
  
  
