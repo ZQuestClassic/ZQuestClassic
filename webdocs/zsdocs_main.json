@@ -1356,6 +1356,10 @@
                         {
                             "name": "OwnArray / DestroyArray",
                             "val": "<h3>void OwnArray(untyped[] arr);</h3>\nGrants ownership of the target array to the currently running script.\nIf this array is not a local array, nothing happens.\nIf it is a local array, the array will no longer be destroyed when it reaches the end of its' declaring scope- it will last until the owning script ends, at which point it will be freed.\n\n<h3>void DestroyArray(untyped[] arr);</h3>\nIf 'arr' is a local array, destroys it immediately. Otherwise does nothing."
+                        },
+                        {
+                            "name": "Push / Pop ;; ArrayPushBack / ArrayPushFront / ArrayPopBack / ArrayPopFront",
+                            "val": "<h3>void ArrayPushBack(untyped[] arr, untyped val);\nvoid ArrayPushFront(untyped[] arr, untyped val);</h3>\n\nIncreases the size of the array by 1, inserting 'val' at the back/front of the array;\n\n<h3>untyped ArrayPopBack(untyped[] arr);\nuntyped ArrayPopFront(untyped[] arr);</h3>\n\nDecreases the size of the array by 1, removing and returning the element at the back/front of the array."
                         }
                     ]
                 }

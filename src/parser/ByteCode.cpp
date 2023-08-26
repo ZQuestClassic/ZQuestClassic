@@ -2640,13 +2640,13 @@ string OCurrentItemID::toString() const
 {
 	return "CURRENTITEMID";
 }
-string OResrvdOpEmily15::toString() const
+string OArrayPush::toString() const
 {
-	return "RESRVD_OP_EMILY_15";
+	return "ARRAYPUSH";
 }
-string OResrvdOpEmily16::toString() const
+string OArrayPop::toString() const
 {
-	return "RESRVD_OP_EMILY_16";
+	return "ARRAYPOP";
 }
 string OResrvdOpEmily17::toString() const
 {

@@ -96,6 +96,11 @@ static AccessorTable GlobalTable[] =
 	{ "Min",                     0,       ZTID_UNTYPED,   -1,    FL_VARG,  { ZTID_UNTYPED, ZTID_UNTYPED },{},2 },
 	{ "Choose",                  0,       ZTID_UNTYPED,   -1,    FL_VARG,  { ZTID_UNTYPED },{},1 },
 	
+	{ "ArrayPushBack",           0,          ZTID_VOID,   -1,          0,  { ZTID_UNTYPED, ZTID_UNTYPED },{} },
+	{ "ArrayPushFront",          0,          ZTID_VOID,   -1,          0,  { ZTID_UNTYPED, ZTID_UNTYPED },{} },
+	{ "ArrayPopBack",            0,       ZTID_UNTYPED,   -1,          0,  { ZTID_UNTYPED },{} },
+	{ "ArrayPopFront",           0,       ZTID_UNTYPED,   -1,          0,  { ZTID_UNTYPED },{} },
+	
 	//Undocumented intentionally - compat only
 	{ "Rand",                    0,         ZTID_FLOAT,   -1,          0,  { ZTID_FLOAT },{} },
 	{ "SRand",                   0,          ZTID_VOID,   -1,          0,  { ZTID_LONG },{} },
@@ -1621,6 +1626,49 @@ void GlobalSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-	
+	//void ArrayPushFront(untyped[] arr, untyped val)
+	{
+		Function* function = getFunction("ArrayPushFront");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OArrayPush(new LiteralArgument(10000)));
+		LABELBACK(label);
+		POP_ARGS(2,NUL);
+		RETURN();
+		function->giveCode(code);
+	}
+	//void ArrayPushBack(untyped[] arr, untyped val)
+	{
+		Function* function = getFunction("ArrayPushBack");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OArrayPush(new LiteralArgument(0)));
+		LABELBACK(label);
+		POP_ARGS(2,NUL);
+		RETURN();
+		function->giveCode(code);
+	}
+	//void ArrayPopFront(untyped[] arr)
+	{
+		Function* function = getFunction("ArrayPopFront");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OArrayPop(new LiteralArgument(10000)));
+		LABELBACK(label);
+		POP_ARG(NUL);
+		RETURN();
+		function->giveCode(code);
+	}
+	//void ArrayPopBack(untyped[] arr)
+	{
+		Function* function = getFunction("ArrayPopBack");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OArrayPop(new LiteralArgument(0)));
+		LABELBACK(label);
+		POP_ARG(NUL);
+		RETURN();
+		function->giveCode(code);
+	}
 }
 

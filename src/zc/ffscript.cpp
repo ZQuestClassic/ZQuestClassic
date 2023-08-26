@@ -2591,6 +2591,8 @@ public:
 	int32_t size() const;
 	
 	bool resize(size_t newsize);
+	void push(int32_t val, bool front = false);
+	int32_t pop(bool front = false);
 	
 	bool invalid() const {return _invalid;}
 	bool internal() const {return !_invalid && !aptr;}
@@ -2955,6 +2957,28 @@ bool ArrayManager::resize(size_t newsize)
 	}
 	aptr->Resize(newsize);
 	return true;
+}
+
+void ArrayManager::push(int32_t val, bool front)
+{
+	if(_invalid) return;
+	if(!aptr)
+	{
+		Z_scripterrlog("Special internal array '%d' not valid for operation 'Push'\n", ptr);
+		return;
+	}
+	aptr->Push(val,front);
+	return;
+}
+int32_t ArrayManager::pop(bool front)
+{
+	if(_invalid) return -10000;
+	if(!aptr)
+	{
+		Z_scripterrlog("Special internal array '%d' not valid for operation 'Push'\n", ptr);
+		return -10000;
+	}
+	return aptr->Pop(front);
 }
 
 std::string ArrayManager::asString(std::function<char const*(int32_t)> formatter, const size_t& limit) const
@@ -30563,7 +30587,7 @@ void do_writepodarr()
 }
 int32_t get_object_arr(size_t sz)
 {
-	if(!sz || sz > 214748) return 0;
+	if(sz > 214748) return 0;
 	int32_t free_ptr = 1;
 	auto it = objectRAM.begin();
 	if(it != objectRAM.end())
@@ -32325,6 +32349,23 @@ j_command:
 			case SPRINTFA:
 				FFCore.do_printfarr();
 				break;
+			case ARRAYPUSH:
+			{
+				bool front = sarg1!=0;
+				auto ptr = SH::read_stack(ri->sp + 1) / 10000;
+				auto val = SH::read_stack(ri->sp + 0);
+				ArrayManager am(ptr);
+				am.push(val,front);
+				break;
+			}
+			case ARRAYPOP:
+			{
+				bool front = sarg1!=0;
+				auto ptr = SH::read_stack(ri->sp + 0) / 10000;
+				ArrayManager am(ptr);
+				ri->d[rEXP1] = 10000 * am.pop(front);
+				break;
+			}
 			
 			case BREAKPOINT:
 				if( zasm_debugger )
@@ -41542,8 +41583,8 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "PRINTFA", 0, 0, 0, 0 },
 	{ "SPRINTFA", 0, 0, 0, 0 },
 	{ "CURRENTITEMID", 0, 0, 0, 0 },
-	{ "RESRVD_OP_EMILY_15", 0, 0, 0, 0 },
-	{ "RESRVD_OP_EMILY_16", 0, 0, 0, 0 },
+	{ "ARRAYPUSH", 1, 1, 0, 0 },
+	{ "ARRAYPOP", 1, 1, 0, 0 },
 	{ "RESRVD_OP_EMILY_17", 0, 0, 0, 0 },
 	{ "RESRVD_OP_EMILY_18", 0, 0, 0, 0 },
 	{ "RESRVD_OP_EMILY_19", 0, 0, 0, 0 },

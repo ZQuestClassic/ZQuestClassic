@@ -407,7 +407,7 @@ public:
     {
         Resize(0, _Y, _X);
     }
-    void Resize(const size_type _Z, const size_type _Y, const size_type _X)
+    void Resize(const size_type _Z, const size_type _Y, const size_type _X, const size_type offs = 0)
     {
 		if(_SameDimensions(_Z,_Y,_X)) return;
         const size_type _OldSize = _size;
@@ -424,6 +424,20 @@ public:
             _ReAssign(_OldSize, _NewSize);
     }
     
+	void Push(type val, bool front)
+	{
+		Resize(_dim[2], _dim[1], _dim[0]+1, front?1:0);
+		_ptr[front?0:_size-1] = val;
+	}
+	
+	type Pop(bool front)
+	{
+		type ret = _ptr[front?0:_size-1];
+		Resize(_dim[2], _dim[1], _dim[0]-1, front?1:0);
+		return ret;
+	}
+	
+	
     void Copy(const ZCArray &_Array)
     {
         if(_Array.Empty())
@@ -497,21 +511,24 @@ protected:
         _size = size;
     }
     
-    void _ReAssign(const size_type _OldSize, const size_type _NewSize)
+    void _ReAssign(const size_type _OldSize, const size_type _NewSize, size_type offs = 0)
     {
         pointer _oldPtr = _ptr;
         _ptr = new type[ _NewSize ];
         
         const size_type _copyRange = (_OldSize < _NewSize ? _OldSize : _NewSize);
+		const size_type soffs = _OldSize < _NewSize ? 0 : offs;
+		const size_type doffs = _OldSize < _NewSize ? offs : 0;
         
         for(size_type i(0); i < _copyRange; i++)
-            _ptr[ i ] = _oldPtr[ i ];
+            _ptr[ i+doffs ] = _oldPtr[ i+soffs ];
             
         _Delete(_oldPtr);
         _size = _NewSize;
 		if(_OldSize < _NewSize)
 		{
-			Assign(_OldSize, _NewSize, 0);
+			Assign(0, doffs, 0);
+			Assign(_OldSize+doffs, _NewSize, 0);
 		}
     }
     
