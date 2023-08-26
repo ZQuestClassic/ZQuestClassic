@@ -27456,6 +27456,7 @@ int32_t main(int32_t argc,char **argv)
 	
 	zcmusic_init();
 	zcmixer = zcmixer_create();
+	install_int_ex([](){ zcmusic_poll(); }, MSEC_TO_TIMER(25));
 
 	switch(zqColorDepth) //defaults to 8bit
 	{

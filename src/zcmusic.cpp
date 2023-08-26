@@ -180,11 +180,6 @@ void zcm_extract_name(const char *path,char *name,int32_t type)
 	name[n]=0;
 }
 
-void zcmusic_autopoll()
-{
-	zcmusic_poll();
-}
-
 bool zcmusic_init(int32_t flags)                              /* = -1 */
 {
 	zcmusic_bufsz_private = zcmusic_bufsz;
@@ -212,8 +207,6 @@ bool zcmusic_init(int32_t flags)                              /* = -1 */
 	}
 
 	if (!playlistmutex) playlistmutex = al_create_mutex();
-	
-	install_int_ex(zcmusic_autopoll, MSEC_TO_TIMER(25));
 	return true;
 }
 
