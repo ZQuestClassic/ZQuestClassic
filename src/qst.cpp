@@ -13,6 +13,7 @@
 #include "base/zapp.h"
 #include "base/qrs.h"
 #include "base/cpool.h"
+#include "base/autocombo.h"
 #include "base/packfile.h"
 #include "base/dmap.h"
 #include "base/combo.h"
@@ -18340,6 +18341,7 @@ int32_t readcomboaliases(PACKFILE *f, zquestheader *Header, word version, word b
         }
     }
     
+	//Combo pools!
 	word num_combo_pools = 0;
 	if(sversion >= 4)
 	{
@@ -18385,6 +18387,65 @@ int32_t readcomboaliases(PACKFILE *f, zquestheader *Header, word version, word b
 		}
 		
 		combo_pools[cp] = temp_cpool;
+	}
+
+	//Autocombos!
+	word num_combo_autos = 0;
+	if (sversion >= 5)
+	{
+		if (!p_igetw(&num_combo_autos, f))
+		{
+			return qe_invalid;
+		}
+	}
+
+	for (combo_auto& cauto : combo_autos)
+	{
+		cauto.clear(true);
+	}
+
+	combo_auto temp_cauto;
+	for (word ca = 0; ca < num_combo_autos; ++ca)
+	{
+		byte type;
+		int32_t display_cid;
+		byte flags;
+		if (!p_getc(&type, f))
+		{
+			return qe_invalid;
+		}
+		if (!p_igetl(&display_cid, f))
+		{
+			return qe_invalid;
+		}
+		if (!p_getc(&flags, f))
+		{
+			return qe_invalid;
+		}
+		int32_t num_combos_in_cauto = 0;
+		if (!p_igetl(&num_combos_in_cauto, f))
+		{
+			return qe_invalid;
+		}
+		if (num_combos_in_cauto < 1) continue; //nothing to read
+
+		temp_cauto.clear();
+
+		temp_cauto.setType(type);
+		temp_cauto.setDisplay(display_cid);
+		temp_cauto.setFlags(flags);
+
+		int32_t ca_cid; int16_t ca_offset; int16_t ca_engrave_offset;
+		for (auto q = 0; q < num_combos_in_cauto; ++q)
+		{
+			if (!p_igetl(&ca_cid, f))
+			{
+				return qe_invalid;
+			}
+			temp_cauto.add(ca_cid, q, -1);
+		}
+
+		combo_autos[ca] = temp_cauto;
 	}
 	
     return 0;

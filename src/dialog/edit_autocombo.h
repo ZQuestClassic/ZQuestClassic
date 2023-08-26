@@ -38,6 +38,7 @@ public:
 
 	std::shared_ptr<GUI::Widget> view() override;
 	void addSlot(autocombo_entry& entry, size_t& ind, size_t& wid, size_t& hei);
+	void refreshPreviewCSets();
 	void refreshWidgets();
 	bool handleMessage(const GUI::DialogMessage<message>& msg);
 

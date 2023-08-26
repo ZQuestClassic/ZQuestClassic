@@ -23,6 +23,7 @@
 #include "base/dmap.h"
 #include "base/packfile.h"
 #include "base/cpool.h"
+#include "base/autocombo.h"
 #include "base/gui.h"
 #include "base/msgstr.h"
 #include "zq/zq_class.h"
@@ -10381,7 +10382,54 @@ int32_t writecomboaliases(PACKFILE *f, word version, word build)
 			}
 		}
 		
-        
+		//Autocombos!
+		int16_t num_cautos;
+		for (num_cautos = MAXAUTOCOMBOS - 1; num_cautos >= 0; --num_cautos)
+		{
+			if (combo_autos[num_cautos].valid()) //found a used autocombo
+			{
+				++num_cautos;
+				break;
+			}
+		}
+		if (num_cautos < 0) num_cautos = 0;
+
+		if (!p_iputw(num_cautos, f))
+		{
+			new_return(17);
+		}
+
+		for (auto ca = 0; ca < num_cautos; ++ca)
+		{
+			combo_auto const& cauto = combo_autos[ca];
+			if (!p_putc(cauto.getType(), f))
+			{
+				new_return(18);
+			}
+			if (!p_iputl(cauto.getIconDisplay(), f))
+			{
+				new_return(19);
+			}
+			if (!p_putc(cauto.getFlags(), f))
+			{
+				new_return(20);
+			}
+			int32_t num_combos = cauto.combos.size();
+			if (!p_iputl(num_combos, f))
+			{
+				new_return(21);
+			}
+
+			for (auto q = 0; q < num_combos; ++q)
+			{
+				autocombo_entry const& entry = cauto.combos.at(q);
+				if (!p_iputl(entry.cid, f))
+				{
+					new_return(22);
+				}
+			}
+		}
+
         if(writecycle==0)
         {
             section_size=writesize;

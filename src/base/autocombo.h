@@ -8,14 +8,16 @@
 
 enum { AUTOCOMBO_NONE, AUTOCOMBO_Z1, AUTOCOMBO_BASIC, AUTOCOMBO_FENCE, AUTOCOMBO_Z4 };
 
+enum {
+	ACF_VALID = 0x1
+};
+
 struct autocombo_entry
 {
 	int32_t cid = -1;
-	int32_t cpoolid = -1;
-	int8_t cset = -1;
-	int32_t slot = 0;
-	int32_t offset = -1;
-	int32_t engrave_offset = 0;
+	int32_t cpoolid = -1; // not saved to file, currently unused
+	int16_t offset = -1;
+	int16_t engrave_offset = 0;
 	void clear()
 	{
 		*this = autocombo_entry();
@@ -24,10 +26,13 @@ struct autocombo_entry
 	{
 		return offset > -1 && unsigned(cid) < MAXCOMBOS;
 	}
+
 	autocombo_entry() = default;
-	autocombo_entry(int32_t data, int8_t cs, int32_t sl, int32_t q, int32_t eo) :
-		cid(data), cset(cs), slot(sl), offset(q), engrave_offset(eo)
+	autocombo_entry(int32_t data, int32_t of, int32_t eo) :
+		cid(data), offset(of), engrave_offset(eo)
 	{}
+
+	static int16_t base_engrave_offset(byte type);
 };
 
 struct combo_auto
@@ -37,20 +42,34 @@ struct combo_auto
 	combo_auto()
 	{}
 	combo_auto& operator=(combo_auto const& other);
-	void push(int32_t cid, int8_t cs, int32_t sl, int32_t q, int32_t eo); //add a quantity of a combo entry
-	void add(int32_t cid, int8_t cs, int32_t sl, int32_t q, int32_t eo); //add a new combo entry
-	void clear()
+	void push(int32_t cid, int32_t of, int32_t eo); //add a quantity of a combo entry
+	void add(int32_t cid, int32_t of, int32_t eo); //add a new combo entry
+	void clear(bool clear_all = false)
 	{
+		if (clear_all)
+		{
+			type = AUTOCOMBO_NONE;
+			cid_display = 0;
+			flags = 0;
+		}
 		combos.clear();
 		combos.shrink_to_fit();
 	}
 	bool valid() const
 	{
-		return wasvalid;
+		return flags & ACF_VALID;
 	}
 	void updateValid();
+	byte getFlags() const
+	{
+		return flags;
+	}
+	void setFlags(char newflags)
+	{
+		flags = newflags;
+	}
 
-	int32_t getType()
+	int32_t getType() const
 	{
 		return type;
 	}
@@ -60,7 +79,7 @@ struct combo_auto
 	}
 
 	int32_t getDisplay() const;
-	int32_t getIconDisplay()
+	int32_t getIconDisplay() const
 	{
 		return cid_display;
 	}
@@ -69,13 +88,14 @@ struct combo_auto
 		cid_display = newdisplay;
 	}
 
-	int32_t convert_offsets(int32_t entry);
+	static int32_t convert_offsets(byte type, int16_t offset);
+
 	std::map<int32_t,byte> getMapping();
 
 private:
-	int32_t type = AUTOCOMBO_NONE;
+	byte type = AUTOCOMBO_NONE;
 	int32_t cid_display = 0;
-	bool wasvalid = false;
+	byte flags = 0;
 };
 
 extern combo_auto combo_autos[MAXCOMBOPOOLS];

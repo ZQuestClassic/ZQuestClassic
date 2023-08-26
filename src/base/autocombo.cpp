@@ -5,44 +5,58 @@
 
 combo_auto combo_autos[MAXCOMBOPOOLS];
 
+int16_t autocombo_entry::base_engrave_offset(byte type)
+{
+	switch (type)
+	{
+		case AUTOCOMBO_Z1: return 0;
+		case AUTOCOMBO_BASIC: return 16;
+		case AUTOCOMBO_FENCE: return 32;
+		case AUTOCOMBO_Z4: return 48;
+	}
+	return 0;
+}
+
 combo_auto& combo_auto::operator=(combo_auto const& other)
 {
 	clear();
 	for(autocombo_entry const& cp : other.combos)
 	{
-		add(cp.cid, cp.cset, cp.slot, cp.offset, cp.engrave_offset);
+		add(cp.cid, cp.offset, cp.engrave_offset);
 	}
 	type = other.type;
 	cid_display = other.cid_display;
-	wasvalid = other.wasvalid;
+	flags = other.flags;
 	return *this;
 }
-void combo_auto::push(int32_t cid, int8_t cs, int32_t sl, int32_t q, int32_t eo) //add a combo with quantity
+void combo_auto::push(int32_t cid, int32_t of, int32_t eo) //add a combo with quantity
 {
-	if(!q) return;
-	combos.emplace_back(cid,cs,sl,q,eo);
+	if(!of) return;
+	combos.emplace_back(cid,of,eo);
 }
-void combo_auto::add(int32_t cid, int8_t cs, int32_t sl, int32_t q, int32_t eo) //add a new combo entry
+void combo_auto::add(int32_t cid, int32_t of, int32_t eo) //add a new combo entry
 {
-	combos.emplace_back(cid,cs,sl,q,eo);
+	if (eo < 0)
+		eo = of + autocombo_entry::base_engrave_offset(type);
+	autocombo_entry e = combos.emplace_back(cid,of,eo);
 }
 
 void combo_auto::updateValid()
 {
 	if (type == AUTOCOMBO_NONE)
 	{
-		wasvalid = false;
+		flags &= ~ACF_VALID;
 		return;
 	}
 	for (auto c : combos)
 	{
 		if (c.cid == 0 && c.offset > -1)
 		{
-			wasvalid = false;
+			flags &= ~ACF_VALID;
 			return;
 		}
 	}
-	wasvalid = true;
+	flags |= ACF_VALID;
 }
 
 int32_t combo_auto::getDisplay() const
@@ -57,96 +71,94 @@ int32_t combo_auto::getDisplay() const
 	return 0;
 }
 
-int32_t combo_auto::convert_offsets(int32_t entry)
+int32_t combo_auto::convert_offsets(byte type, int16_t offset)
 {
-	autocombo_entry const& e = combos.at(entry);
-	zprint2("Type %d Offset %d Engrave %d\n", type, e.offset, e.engrave_offset);
 	switch (type)
 	{
 		case AUTOCOMBO_BASIC:
 		{
-			return e.offset;
+			return offset;
 			break;
 		}
 		case AUTOCOMBO_Z1:
 		{
-			switch (e.offset)
+			switch (offset)
 			{
 				case 0:
 				case 1:
 				case 2:
-					return e.offset;
+					return offset;
 				case 3:
 				case 4:
 				case 5:
-					return e.offset + 1;
+					return offset + 1;
 			}
 			break;
 		}
 		case AUTOCOMBO_Z4:
 		{
-			switch (e.offset)
+			switch (offset)
 			{
 				case 0:
 				case 1:
 				case 2:
-					return e.offset;
+					return offset;
 				case 3:
-					return e.offset + 1;
+					return offset + 1;
 				case 4:
-					return e.offset + 2;
+					return offset + 2;
 				case 5:
 				case 6:
 				case 7:
-					return e.offset + 3;
+					return offset + 3;
 				case 8:
 				case 9:
 				case 10:
-					return e.offset + 4;
+					return offset + 4;
 				case 11:
 				case 12:
 				case 13:
-					return e.offset + 5;
+					return offset + 5;
 				case 14:
 				case 15:
 				case 16:
-					return e.offset + 6;
+					return offset + 6;
 				case 17:
 				case 18:
-					return e.offset + 7;
+					return offset + 7;
 				case 19:
 				case 20:
-					return e.offset + 9;
+					return offset + 9;
 			}
 			break;
 		}
 		case AUTOCOMBO_FENCE:
 		{
-			switch (e.offset)
+			switch (offset)
 			{
 				case 0:
 				case 1:
 				case 2:
-					return e.offset;
+					return offset;
 				case 3:
-					return e.offset + 1;
+					return offset + 1;
 				case 4:
-					return e.offset + 2;
+					return offset + 2;
 				case 5:
 				case 6:
 				case 7:
-					return e.offset + 3;
+					return offset + 3;
 				case 8:
 				case 9:
-					return e.offset + 4;
+					return offset + 4;
 				case 10:
 				case 11:
-					return e.offset + 6;
+					return offset + 6;
 			}
 			break;
 		}
 	}
-	return e.offset;
+	return offset;
 }
 
 std::map<int32_t,byte> combo_auto::getMapping()

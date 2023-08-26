@@ -10,7 +10,6 @@
 extern bool saved;
 combo_auto temp_autocombo;
 static combo_auto* retptr;
-static int32_t cursor_cset;
 static bool new_usecs = false;
 
 extern int32_t CSet;
@@ -18,7 +17,6 @@ extern combo_auto combo_autos[];
 
 void call_autocombo_dlg(int32_t index)
 {
-	cursor_cset = CSet;
 	retptr = &combo_autos[index];
 	temp_autocombo = *retptr;
 	AutoComboDialog().show();
@@ -30,14 +28,11 @@ AutoComboDialog::AutoComboDialog() :
 
 }
 
-void AutoComboDialog::addCombos(int32_t engrave_offset, int32_t count)
+void AutoComboDialog::addCombos(int32_t type, int32_t count)
 {
-	int32_t offset = 0;
 	for (int32_t q = 0; q < count; ++q)
 	{
-		temp_autocombo.combos.emplace_back(autocombo_entry(0, CSet, q, offset, engrave_offset));
-		++offset;
-		++engrave_offset;
+		temp_autocombo.add(0, q, -1);
 	}
 }
 void AutoComboDialog::refreshPanels()
@@ -51,16 +46,16 @@ void AutoComboDialog::refreshPanels()
 	switch (val)
 	{
 		case AUTOCOMBO_BASIC:
-			addCombos(16, 16);
+			addCombos(val, 16);
 			break;
 		case AUTOCOMBO_Z1:
-			addCombos(0, 6);
+			addCombos(val, 6);
 			break;
 		case AUTOCOMBO_Z4:
-			addCombos(48, 21);
+			addCombos(val, 21);
 			break;
 		case AUTOCOMBO_FENCE:
-			addCombos(32, 12);
+			addCombos(val, 12);
 			break;
 	}
 }
@@ -102,9 +97,11 @@ std::shared_ptr<GUI::Widget> AutoComboDialog::view()
 					cset = CSet,
 					showvals = true,
 					disabled = temp_autocombo.getType() == AUTOCOMBO_NONE,
-					onSelectFunc = [&](int32_t cmb, int32_t)
+					onSelectFunc = [&](int32_t cmb, int32_t c)
 					{
 						temp_autocombo.setDisplay(cmb);
+						CSet = c;
+						refreshPreviewCSets();
 					}),
 				templatebtn = Button(vAlign = 1.0,
 					text = "Auto Generate",
@@ -119,7 +116,7 @@ std::shared_ptr<GUI::Widget> AutoComboDialog::view()
 							{
 								if (w.cpane)
 								{
-									int32_t cid = cmb + temp_autocombo.convert_offsets(w.slot);
+									int32_t cid = vbound(cmb + combo_auto::convert_offsets(temp_autocombo.getType(), w.slot), 0, MAXCOMBOS-1);
 									w.cpane->setCombo(cid);
 									w.cpane->setCSet(CSet);
 									w.entry->cid = cid;
@@ -176,6 +173,8 @@ void AutoComboDialog::addSlot(autocombo_entry& entry, size_t& ind, size_t& wid, 
 				showvals = false,
 				onSelectFunc = [&, ind](int32_t cmb, int32_t c)
 				{
+					CSet = c;
+					refreshPreviewCSets();
 					entry.cid = cmb;
 					widgs.at(ind).cpane->setCSet(CSet);
 					temp_autocombo.updateValid();
@@ -190,6 +189,15 @@ void AutoComboDialog::addSlot(autocombo_entry& entry, size_t& ind, size_t& wid, 
 		wid = row->getTotalWidth();
 	}
 	++ind;
+}
+
+void AutoComboDialog::refreshPreviewCSets()
+{
+	iconpane->setCSet(CSet);
+	for (int32_t q = 0; q < widgs.size(); ++q)
+	{
+		widgs[q].cpane->setCSet(CSet);
+	}
 }
 
 void AutoComboDialog::refreshWidgets()
