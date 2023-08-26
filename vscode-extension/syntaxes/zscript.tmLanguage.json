@@ -120,7 +120,7 @@
 				},
 				{
 					"name": "keyword.operator.bitwise.zscript",
-					"match": "(~|<<|>>|&|\\|\\^)"
+					"match": "(~|<<|>>|&|\\||\\^)"
 				},
 				{
 					"name": "keyword.operator.bitwise.zscript",
