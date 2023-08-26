@@ -3780,6 +3780,8 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_ITM_0_INVIS_ON_BTNS,1);
 		set_qr(qr_OLD_GAUGE_TILE_LAYOUT,1);
 	}
+	if(compatrule_version < 54)
+		set_qr(qr_WALKTHROUGHWALL_NO_DOORSTATE,1);
 	
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)

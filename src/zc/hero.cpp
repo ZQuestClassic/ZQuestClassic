@@ -9947,6 +9947,14 @@ heroanimate_skip_liftwpn:;
 			if(dtype==dWALK)
 			{
 				sfx(tmpscr->secretsfx);
+				if(!get_qr(qr_WALKTHROUGHWALL_NO_DOORSTATE))
+				{
+					auto si = (currmap<<7) + currscr;
+					auto di = nextscr(dir);
+					setmapflag(si, mDOOR_UP<<dir);
+					if(di != 0xFFFF)
+						setmapflag(di, mDOOR_UP<<oppositeDir[dir]);
+				}
 			}
 			
 			action=none; FFCore.setHeroAction(none);

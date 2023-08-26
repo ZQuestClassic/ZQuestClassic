@@ -922,6 +922,8 @@ static GUI::ListData compatRulesList
 	{ "Old (Buggy) ZScript Volume Access", qr_OLD_SCRIPT_VOLUME,
 		"If enabled, Audio->AdjustMusicVolume() and Audio->AdjustSFXVolume() will use their old behavior,"
 		" which was bugged and wrote directly to the volume sliders." },
+	{ "'Walk Through Walls' don't set door state", qr_WALKTHROUGHWALL_NO_DOORSTATE,
+		"If enabled, going through 'Walk-through' type doors does not set the room's door state." },
 };
 
 static GUI::ListData enemiesRulesList
