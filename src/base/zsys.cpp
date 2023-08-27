@@ -228,7 +228,7 @@ char datapwd[8]   = "longtan";
     
     va_list ap;
     va_start(ap, format);
-    vsprintf(buf, format, ap);
+    vsnprintf(buf, 256, format, ap);
     va_end(ap);
     
 #if defined(ALLEGRO_MAXOSX)
@@ -252,7 +252,7 @@ void Z_error(const char *format,...)
     
     va_list ap;
     va_start(ap, format);
-    vsprintf(buf, format, ap);
+    vsnprintf(buf, 256, format, ap);
     va_end(ap);
     
 #if defined(ALLEGRO_MAXOSX)
@@ -269,7 +269,7 @@ void Z_message(const char *format,...)
     
     va_list ap;
     va_start(ap, format);
-    vsprintf(buf, format, ap);
+    vsnprintf(buf, 2048, format, ap);
     va_end(ap);
     
 #if defined(ALLEGRO_MAXOSX)
@@ -285,7 +285,7 @@ void Z_title(const char *format,...)
     char buf[256];
     va_list ap;
     va_start(ap, format);
-    vsprintf(buf, format, ap);
+    vsnprintf(buf, 256, format, ap);
     va_end(ap);
     
     al_trace("%s\n",buf);
@@ -309,7 +309,7 @@ void zprint(const char * const format,...)
 		
 		va_list ap;
 		va_start(ap, format);
-		vsprintf(buf, format, ap);
+		vsnprintf(buf, 2048, format, ap);
 		va_end(ap);
 		al_trace("%s",buf);
 		
@@ -324,7 +324,7 @@ void zprint2(const char * const format,...)
 	
 	va_list ap;
 	va_start(ap, format);
-	vsprintf(buf, format, ap);
+	vsnprintf(buf, 8192, format, ap);
 	va_end(ap);
 	safe_al_trace(buf);
 	
