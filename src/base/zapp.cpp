@@ -56,6 +56,9 @@ void common_main_setup(App id, int argc, char **argv)
     sentry_options_t *options = sentry_options_new();
     sentry_options_set_dsn(options, "https://133f371c936a4bc4bddec532b1d1304a@o1313474.ingest.sentry.io/6563738");
     sentry_options_set_release(options, "zelda-classic@" RELEASE_TAG);
+	// Only track sessions for the main apps.
+	if (id != App::zelda && id != App::zquest)
+		sentry_options_set_auto_session_tracking(options, 0);
     sentry_init(options);
     switch (id)
     {
@@ -70,6 +73,9 @@ void common_main_setup(App id, int argc, char **argv)
             break;
         case App::launcher:
             sentry_set_tag("app", "launcher");
+            break;
+		case App::update:
+            sentry_set_tag("app", "updater");
             break;
     }
     atexit(sentry_atexit);
