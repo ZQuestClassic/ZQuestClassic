@@ -243,6 +243,7 @@ char datapwd[8]   = "longtan";
     zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
 		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK), "%s", buf);
 	al_trace("%s",buf);
+	zapp_reporting_add_breadcrumb("error_fatal", buf);
     abort();
 }
 
@@ -260,6 +261,7 @@ void Z_error(const char *format,...)
 #endif
     zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
 		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK), "%s", buf);
+	zapp_reporting_add_breadcrumb("error", buf);
 	al_trace("%s",buf);
 }
 
