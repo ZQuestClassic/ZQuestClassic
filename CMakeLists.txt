@@ -453,6 +453,7 @@ set(zcbase_sources
 	src/base/misctypes.cpp
 	src/base/module.cpp
 	src/base/msgstr.cpp
+	src/base/packfile.cpp
 	src/base/process_management.cpp
 	src/base/qrs.cpp
 	src/base/random.cpp
