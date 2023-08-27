@@ -7656,7 +7656,8 @@ static MENU settings_menu[] =
 static MENU misc_menu[] =
 {
 	{ (char *)"&About...",                  onAbout,                 NULL,                      0, NULL },
-	{ (char *)"&Credits...",                onCredits,               NULL,                      0, NULL },
+	// TODO: re-enable, but: 1) do not use a bitmap thing that is hard to update 2) update names and 3) don't use the Z-word.
+	{ (char *)"&Credits...",                onCredits,               NULL,             D_DISABLED, NULL },
 	{ (char *)"&Fullscreen",                onFullscreenMenu,        NULL,                      0, NULL },
 	{ (char *)"&Video Mode...",             onVidMode,               NULL,                      0, NULL },
 	{ (char *)"",                           NULL,                    NULL,                      0, NULL },
