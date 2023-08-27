@@ -24,7 +24,7 @@ Double clicking `My Game.exe` launches `./data/zplayer.exe` with the CLI
 switches listed in `zc_args.txt`. By default, the export tool provides
 these switches:
 
-> `-only game.qst -notitle -window-title "My Game"`
+> `-only game.qst -window-title "My Game"`
 
 You can set whatever else you like. For example, if you want to skip the
 save file screen entirely, you can use `-standalone` instead of `-only`.
