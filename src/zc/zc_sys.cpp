@@ -425,7 +425,6 @@ void load_game_configs()
 	ShowFPS = zc_get_config(cfg_sect,"showfps",0)!=0;
 	NESquit = zc_get_config(cfg_sect,"fastquit",0)!=0;
 	ClickToFreeze = zc_get_config(cfg_sect,"clicktofreeze",1)!=0;
-	title_version = zc_get_config(cfg_sect,"title",2);
 	abc_patternmatch = zc_get_config(cfg_sect, "lister_pattern_matching", 1);
 	pause_in_background = zc_get_config(cfg_sect, "pause_in_background", 0);
 	
@@ -4399,7 +4398,6 @@ void syskeys()
 	
 	if(rMbtn() || (gui_mouse_b() && !mouse_down && ClickToFreeze &&!disableClickToFreeze))
 	{
-		oldtitle_version=title_version;
 		System();
 	}
 	
@@ -7242,25 +7240,6 @@ int32_t onExit()
 	return D_O_K;
 }
 
-int32_t onTitle_NES()
-{
-	title_version=0;
-	zc_set_config(cfg_sect,"title",title_version);
-	return D_O_K;
-}
-int32_t onTitle_DX()
-{
-	title_version=1;
-	zc_set_config(cfg_sect,"title",title_version);
-	return D_O_K;
-}
-int32_t onTitle_25()
-{
-	title_version=2;
-	zc_set_config(cfg_sect,"title",title_version);
-	return D_O_K;
-}
-
 int32_t onDebug()
 {
 	if(debug_enabled)
@@ -7600,14 +7579,6 @@ static MENU game_menu[] =
 	{ NULL,								NULL,					 NULL,					  0, NULL }
 };
 
-static MENU title_menu[] =
-{
-	{ (char *)"&Original",				 onTitle_NES,			  NULL,					  0, NULL },
-	{ (char *)"&ZQuest Classic",			onTitle_DX,			   NULL,					  0, NULL },
-	{ (char *)"ZQuest Classic &2.50",	   onTitle_25,			   NULL,					  0, NULL },
-	{ NULL,								NULL,					 NULL,					  0, NULL }
-};
-
 static MENU snapshot_format_menu[] =
 {
 	{ (char *)"&BMP",					  onSetSnapshotFormat,	  NULL,					  0, NULL },
@@ -7651,7 +7622,6 @@ static MENU window_menu[] =
 };
 static MENU options_menu[] =
 {
-	{ "&Title Screen",                NULL,                    title_menu,                0, NULL },
 	{ "Name &Entry Mode",             NULL,                    name_entry_mode_menu,      0, NULL },
 	{ "S&napshot Format",             NULL,                    snapshot_format_menu,      0, NULL },
 	{ "&Window Settings",             NULL,                    window_menu,               0, NULL },
@@ -7856,7 +7826,7 @@ int32_t onPauseInBackground()
 		set_display_switch_callback(SWITCH_OUT, switch_out_callback);
 		set_display_switch_callback(SWITCH_IN, switch_in_callback);
 	}
-	options_menu[5].flags =(pause_in_background)?D_SELECTED:0;
+	options_menu[4].flags =(pause_in_background)?D_SELECTED:0;
 	return D_O_K;
 }
 
@@ -8125,10 +8095,6 @@ void System()
 		if(mouse_down && !gui_mouse_b())
 			mouse_down=0;
 			
-		title_menu[0].flags = (title_version==0) ? D_SELECTED : 0;
-		title_menu[1].flags = (title_version==1) ? D_SELECTED : 0;
-		title_menu[2].flags = (title_version==2) ? D_SELECTED : 0;
-		
 		settings_menu[1].flags = replay_is_replaying() ? D_DISABLED : 0;
 		settings_menu[5].flags = Throttlefps?D_SELECTED:0;
 		settings_menu[6].flags = ShowFPS?D_SELECTED:0;
@@ -8143,8 +8109,8 @@ void System()
 		window_menu[3].flags = SaveWinPos?D_SELECTED:0;
 		window_menu[4].flags = stretchGame?D_SELECTED:0;
 
-		options_menu[4].flags = (epilepsyFlashReduction) ? D_SELECTED : 0;
-		options_menu[5].flags = (pause_in_background)?D_SELECTED:0;
+		options_menu[3].flags = (epilepsyFlashReduction) ? D_SELECTED : 0;
+		options_menu[4].flags = (pause_in_background)?D_SELECTED:0;
 		
 		name_entry_mode_menu[0].flags = (NameEntryMode==0)?D_SELECTED:0;
 		name_entry_mode_menu[1].flags = (NameEntryMode==1)?D_SELECTED:0;
