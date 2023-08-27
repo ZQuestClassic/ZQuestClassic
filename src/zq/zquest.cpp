@@ -8112,7 +8112,7 @@ void draw_block(int32_t start,int32_t w,int32_t h)
 
 static void fill(int32_t map, int32_t screen_index, mapscr* fillscr, int32_t targetcombo, int32_t targetcset, int32_t sx, int32_t sy, int32_t dir, int32_t diagonal, bool only_cset)
 {
-    if(!only_cset)
+    if(!only_cset || draw_mode == dm_auto)
     {
         if((fillscr->data[((sy<<4)+sx)])!=targetcombo)
             return;
@@ -8131,6 +8131,8 @@ static void fill(int32_t map, int32_t screen_index, mapscr* fillscr, int32_t tar
 	else if (draw_mode == dm_auto)
 	{
 		combo_auto const& cauto = combo_autos[combo_auto_pos];
+		if (!cauto.valid())
+			return;
 		if (cauto.containsCombo(targetcombo))
 			return;
 	}
