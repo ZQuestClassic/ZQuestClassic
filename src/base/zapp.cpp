@@ -74,7 +74,7 @@ void common_main_setup(App id, int argc, char **argv)
         case App::launcher:
             sentry_set_tag("app", "launcher");
             break;
-		case App::update:
+		case App::updater:
             sentry_set_tag("app", "updater");
             break;
     }
