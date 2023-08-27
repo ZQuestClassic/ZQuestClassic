@@ -282,6 +282,7 @@ struct SubscrWidget
 	SubscrWidget() = default;
 	SubscrWidget(byte ty);
 	SubscrWidget(subscreen_object const& old);
+	virtual ~SubscrWidget() = default;
 	
 	virtual bool load_old(subscreen_object const& old);
 	virtual int16_t getX() const; //Returns x in pixels
@@ -798,6 +799,7 @@ struct SW_GaugePiece : public SubscrWidget
 	int16_t inf_item = -1;
 	
 	SW_GaugePiece() = default;
+	virtual ~SW_GaugePiece() = default;
 	
 	virtual word get_ctr() const = 0;
 	virtual word get_ctr_max() const = 0;
