@@ -31,7 +31,9 @@
 #include "zc/ffscript.h"
 #include "zc/saves.h"
 #include "zc/render.h"
+#include "dialog/info.h"
 #include "zinfo.h"
+#include <fmt/format.h>
 
 #ifdef __EMSCRIPTEN__
 #include "base/emscripten_utils.h"
@@ -773,8 +775,16 @@ static bool register_name()
 			new_game->set_life(zinit.hc*zinit.hp_per_heart);
 			new_game->set_hp_per_heart(zinit.hp_per_heart);
 			selectscreen();                                       // refresh palette
-			saves_create_slot(new_game);
-			ringcolor(false);
+			int save_ret = saves_create_slot(new_game);
+			if (save_ret)
+			{
+				cancel = true;
+				InfoDialog("Error creating save", fmt::format("Error code: {}", save_ret)).show();
+			}
+			else
+			{
+				ringcolor(false);
+			}
 		}
 		else
 		{
@@ -789,6 +799,7 @@ static bool register_name()
 	if (x<0 || cancel)
 	{
 		delete new_game;
+		new_game = nullptr;
 	}
 
 	// std::string filename_prefix = fmt::format("{}-{}", save->title, save->header.name);
@@ -801,7 +812,7 @@ static bool register_name()
 	selectscreen();
 	list_saves();
 	select_mode();
-	return done;
+	return done && new_game != nullptr;
 }
 
 static bool copy_file(int32_t file)
