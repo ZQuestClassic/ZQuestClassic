@@ -66,6 +66,8 @@ ALLEGRO_MUTEX* playlistmutex = NULL;
 
 ZCMUSIC* zcmusic_load_for_quest(char* filename, char* quest_path)
 {
+	if (!al_is_audio_installed())
+		return nullptr;
     char exe_path[PATH_MAX];
     get_executable_name(exe_path, PATH_MAX);
     auto exe_dir = std::filesystem::path(exe_path).parent_path();
