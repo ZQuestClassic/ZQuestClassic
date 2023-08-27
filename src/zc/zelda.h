@@ -77,25 +77,6 @@ enum
 /*********** Procedures **********/
 /*********************************/
 
-/*
-
-  // aglogo.cc
-  int32_t  aglogo(BITMAP* frame);
-
-
-  // title.cc
-  void update_game_icons();
-
-  // zc_sys.cc
-  void color_layer(RGB *src,RGB *dest,char r,char g,char b,char pos,int32_t from,int32_t to);
-  void go();
-  void comeback();
-  void waitvsync(bool fast);
-  int32_t  input_idle(bool checkmouse);
-  int32_t  after_time();
-  void hit_close_button();
-  */
-
 void port250QuestRules();
 
 bool get_debug();

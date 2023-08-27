@@ -41,7 +41,6 @@
 #include "tiles.h"
 #include "base/colors.h"
 #include "pal.h"
-#include "zc/aglogo.h"
 #include "base/zsys.h"
 #include "base/zapp.h"
 #include "play_midi.h"
@@ -5264,14 +5263,6 @@ int main(int argc, char **argv)
 
 	set_display_switch_callback(SWITCH_IN,switch_in_callback);
 	set_display_switch_callback(SWITCH_OUT,switch_out_callback);
-	
-	// AG logo
-	if(!(zqtesting_mode||replay_is_active()||fast_start||zc_get_config("zeldadx","skip_logo",1)))
-	{
-		zc_set_volume(240,-1);
-		aglogo(tmp_scr, scrollbuf, resx, resy);
-		master_volume(digi_volume,midi_volume);
-	}
 	
 	// play the game
 	fix_menu();
