@@ -308,7 +308,6 @@ extern char     palnames[MAXLEVELS][17];
 extern bool standalone_mode;
 extern char *standalone_quest;
 extern std::string standalone_save_path;
-extern bool skip_title;
 extern bool disable_save_to_disk;
 
 extern int32_t draw_screen_clip_rect_x1; //Used by the ending, bu could be used to change the drawn screen size. 

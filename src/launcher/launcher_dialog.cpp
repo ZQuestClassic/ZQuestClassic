@@ -516,7 +516,6 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_CHECKBOX("Cap FPS",App::zelda,"zeldadx","throttlefps",1),
 						CONFIG_CHECKBOX("Show FPS",App::zelda,"zeldadx","showfps",0),
 						CONFIG_CHECKBOX("Skip Logo",App::zelda,"zeldadx","skip_logo",1),
-						CONFIG_CHECKBOX("Skip Title",App::zelda,"zeldadx","skip_title",0),
 						CONFIG_CHECKBOX("Cont. Heart Beep",App::zelda,"zeldadx","heart_beep",1),
 						CONFIG_CHECKBOX("Disable Sound",App::zelda,"zeldadx","nosound",0),
 						CONFIG_CHECKBOX_I("Replay New Saves",App::zelda,"zeldadx","replay_new_saves",0,"Starting a new game will prompt recording to a .zplay file"),

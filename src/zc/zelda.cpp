@@ -179,7 +179,6 @@ bool is_compact = false;
 bool standalone_mode=false;
 char *standalone_quest=NULL;
 std::string standalone_save_path;
-bool skip_title=false;
 bool disable_save_to_disk=false;
 
 int32_t favorite_combos[MAXFAVORITECOMBOS] = {0};
@@ -4780,7 +4779,6 @@ int main(int argc, char **argv)
 	}
 	
 	int32_t fast_start = debug_enabled || used_switch(argc,argv,"-fast") || (!standalone_mode && (load_save || (slot_arg && (argc>(slot_arg+1)))));
-	skip_title = used_switch(argc, argv, "-notitle") > 0 || zc_get_config("zeldadx","skip_title",0);
 	
 	int32_t checked_epilepsy = zc_get_config("zeldadx","checked_epilepsy",0);
 	
@@ -5280,7 +5278,7 @@ int main(int argc, char **argv)
 	reset_items(true, &QHeader);
 	
 	clear_to_color(screen,BLACK);
-	Quit = (fast_start||skip_title) ? qQUIT : qRESET;
+	Quit = qQUIT;
 	
 	rgb_map = &rgb_table;
 	
