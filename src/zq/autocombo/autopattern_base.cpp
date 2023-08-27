@@ -15,8 +15,7 @@ namespace AutoPattern
 	{
 		for (auto c : combos)
 		{
-			// I think I need to delete these becuase I used new, but it didn't take?
-			//delete &c;
+			delete c.second;
 		}
 	}
 	void autopattern_container::initPattern()
@@ -174,7 +173,7 @@ namespace AutoPattern
 			{
 				if (mapscr_ptr->layermap[layer - 1])
 				{
-					mapscr_ptr = Map.AbsoluteScr(mapscr_ptr->layermap[layer - 1], mapscr_ptr->layerscreen[layer - 1]);
+					mapscr_ptr = Map.AbsoluteScr(mapscr_ptr->layermap[layer - 1] - 1, mapscr_ptr->layerscreen[layer - 1]);
 				}
 			}
 			cid = mapscr_ptr->data[pos];
@@ -188,20 +187,17 @@ namespace AutoPattern
 	{
 		int32_t drawmap = Map.getCurrMap();
 		int32_t drawscreen = screen;
-		zprint2("drawscreen %d MapScr %d CurScr %d\n", drawscreen, *Map.Scr(drawscreen), *Map.CurrScr());
 		mapscr* mapscr_ptr = Map.AbsoluteScr(drawmap, drawscreen);
-		//mapscr* mapscr_ptr = Map.CurrScr();
 		if (layer > 0)
 		{
 			if (mapscr_ptr->layermap[layer - 1])
 			{
-				drawmap = mapscr_ptr->layermap[layer - 1];
+				drawmap = mapscr_ptr->layermap[layer - 1] - 1;
 				drawscreen = mapscr_ptr->layerscreen[layer - 1];
 				mapscr_ptr = Map.AbsoluteScr(drawmap, drawscreen);
 			}
 		}
 		int32_t cset = mapscr_ptr->cset[pos];
-		zprint2("layer %d map %d screen %d pos %d\n", layer, drawmap, drawscreen, pos);
 		Map.DoSetComboCommand(drawmap, drawscreen, pos, cid, base ? CSet : cset);
 	}
 }

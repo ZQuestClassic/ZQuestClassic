@@ -40,6 +40,7 @@ struct autocombo_entry
 struct combo_auto
 {
 	std::vector<autocombo_entry> combos;
+	byte flags = 0;
 	
 	combo_auto()
 	{}
@@ -63,6 +64,8 @@ struct combo_auto
 		return flags & ACF_VALID;
 	}
 	void updateValid();
+
+	bool containsCombo(int32_t cid) const;
 
 	byte getFlags() const
 	{
@@ -103,8 +106,6 @@ struct combo_auto
 	static int32_t convert_offsets(byte type, int16_t offset);
 
 	std::map<int32_t,byte> getMapping();
-
-	byte flags = 0;
 
 private:
 	byte type = AUTOCOMBO_NONE;

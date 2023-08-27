@@ -30,6 +30,7 @@ combo_auto& combo_auto::operator=(combo_auto const& other)
 	cid_erase = other.cid_erase;
 	return *this;
 }
+
 void combo_auto::push(int32_t cid, int32_t of, int32_t eo) //add a combo with quantity
 {
 	if(!of) return;
@@ -51,13 +52,37 @@ void combo_auto::updateValid()
 	}
 	for (auto c : combos)
 	{
-		if (c.cid == 0 && c.offset > -1)
+		if (c.cid == 0)
 		{
 			flags &= ~ACF_VALID;
 			return;
 		}
+		else
+		{
+			for (auto c2 : combos)
+			{
+				if (c2.offset != c.offset && c2.cid == c.cid)
+				{
+					flags &= ~ACF_VALID;
+					return;
+				}
+			}
+		}
 	}
 	flags |= ACF_VALID;
+}
+
+bool combo_auto::containsCombo(int32_t cid) const
+{
+	if (!valid())
+		return false;
+
+	for (auto c : combos)
+	{
+		if (c.cid == cid)
+			return true;
+	}
+	return false;
 }
 
 int32_t combo_auto::getDisplay() const

@@ -8120,13 +8120,19 @@ static void fill(int32_t map, int32_t screen_index, mapscr* fillscr, int32_t tar
     
     if((fillscr->cset[((sy<<4)+sx)])!=targetcset)
         return;
-    
+
 	int32_t cid = Combo;
     int8_t cs = CSet;
 	if(draw_mode == dm_cpool)
 	{
 		combo_pool const& pool = combo_pools[combo_pool_pos];
 		if(!pool.pick(cid,cs)) return;
+	}
+	else if (draw_mode == dm_auto)
+	{
+		combo_auto const& cauto = combo_autos[combo_auto_pos];
+		if (cauto.containsCombo(targetcombo))
+			return;
 	}
     
 	if (draw_mode == dm_auto)
@@ -8967,7 +8973,7 @@ void fill_8()
     int32_t by= (y>>4)/(mapscreensize);
     int32_t bx= (x>>4)/(mapscreensize);
     
-    if(draw_mode == dm_cpool
+    if(draw_mode == dm_cpool || draw_mode == dm_auto
 		|| (draw_mapscr->cset[(by<<4)+bx]!=CSet ||
             (draw_mapscr->data[(by<<4)+bx]!=Combo &&
              !(key[KEY_LSHIFT]||key[KEY_RSHIFT]))))
