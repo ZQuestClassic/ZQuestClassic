@@ -50,10 +50,13 @@
 #include "zinfo.h"
 #include "base/mapscr.h"
 #include <fmt/format.h>
+#include <filesystem>
 
 #ifdef __EMSCRIPTEN__
 #include "base/emscripten_utils.h"
 #endif
+
+namespace fs = std::filesystem;
 
 using namespace util;
 extern FFScript FFCore;
@@ -13983,7 +13986,9 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_eol();
 	box_eol();
 	
-	PACKFILE *f = pack_fopen_password(filename,compressed?F_WRITE_PACKED:F_WRITE, "");
+	char tmpfilename[L_tmpnam];
+	std::tmpnam(tmpfilename);
+	PACKFILE *f = pack_fopen_password(tmpfilename,compressed?F_WRITE_PACKED:F_WRITE, "");
 	
 	if(!f)
 	{
@@ -14353,7 +14358,13 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 		pack_fclose(fp3);
 		al_trace("Wrote ZC Player Cheats, filename: %s\n",keyfilename);
 	}
-	
+
+	// Move file to destination at end, to avoid issues with file being unavailable to test mode.
+	std::error_code ec;
+	fs::rename(tmpfilename, filename, ec);
+	if (ec)
+		new_return(ec.value());
+
 	new_return(0);
 }
 
