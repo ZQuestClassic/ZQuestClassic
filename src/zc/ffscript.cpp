@@ -2580,6 +2580,7 @@ void clearScriptHelperData()
 //           Array Helper Functions           //
 ///---------------------------------------------//
 
+#define ZCARRAY_MAX_SIZE 214748
 class ArrayManager
 {
 public:
@@ -2591,8 +2592,8 @@ public:
 	int32_t size() const;
 	
 	bool resize(size_t newsize);
-	void push(int32_t val, bool front = false);
-	int32_t pop(bool front = false);
+	bool push(int32_t val, int indx = -1);
+	int32_t pop(int indx = -1);
 	
 	bool invalid() const {return _invalid;}
 	bool internal() const {return !_invalid && !aptr;}
@@ -2959,18 +2960,20 @@ bool ArrayManager::resize(size_t newsize)
 	return true;
 }
 
-void ArrayManager::push(int32_t val, bool front)
+bool ArrayManager::push(int32_t val, int indx)
 {
-	if(_invalid) return;
+	if(_invalid) return false;
 	if(!aptr)
 	{
 		Z_scripterrlog("Special internal array '%d' not valid for operation 'Push'\n", ptr);
-		return;
+		return false;
 	}
-	aptr->Push(val,front);
-	return;
+	if(aptr->Size() == ZCARRAY_MAX_SIZE)
+		return false;
+	aptr->Push(val,indx);
+	return true;
 }
-int32_t ArrayManager::pop(bool front)
+int32_t ArrayManager::pop(int indx)
 {
 	if(_invalid) return -10000;
 	if(!aptr)
@@ -2978,7 +2981,12 @@ int32_t ArrayManager::pop(bool front)
 		Z_scripterrlog("Special internal array '%d' not valid for operation 'Push'\n", ptr);
 		return -10000;
 	}
-	return aptr->Pop(front);
+	if(aptr->Empty())
+	{
+		Z_scripterrlog("Array %d had nothing to Pop!\n",ptr);
+		return -10000;
+	}
+	return aptr->Pop(indx);
 }
 
 std::string ArrayManager::asString(std::function<char const*(int32_t)> formatter, const size_t& limit) const
@@ -32351,19 +32359,19 @@ j_command:
 				break;
 			case ARRAYPUSH:
 			{
-				bool front = sarg1!=0;
-				auto ptr = SH::read_stack(ri->sp + 1) / 10000;
-				auto val = SH::read_stack(ri->sp + 0);
+				auto ptr = SH::read_stack(ri->sp + 2) / 10000;
+				auto val = SH::read_stack(ri->sp + 1);
+				auto indx = SH::read_stack(ri->sp + 0) / 10000;
 				ArrayManager am(ptr);
-				am.push(val,front);
+				ri->d[rEXP1] = am.push(val,indx) ? 10000 : 0;
 				break;
 			}
 			case ARRAYPOP:
 			{
-				bool front = sarg1!=0;
-				auto ptr = SH::read_stack(ri->sp + 0) / 10000;
+				auto ptr = SH::read_stack(ri->sp + 1) / 10000;
+				auto indx = SH::read_stack(ri->sp + 0) / 10000;
 				ArrayManager am(ptr);
-				ri->d[rEXP1] = 10000 * am.pop(front);
+				ri->d[rEXP1] = am.pop(indx);
 				break;
 			}
 			
@@ -41583,8 +41591,8 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "PRINTFA", 0, 0, 0, 0 },
 	{ "SPRINTFA", 0, 0, 0, 0 },
 	{ "CURRENTITEMID", 0, 0, 0, 0 },
-	{ "ARRAYPUSH", 1, 1, 0, 0 },
-	{ "ARRAYPOP", 1, 1, 0, 0 },
+	{ "ARRAYPUSH", 0, 0, 0, 0 },
+	{ "ARRAYPOP", 0, 0, 0, 0 },
 	{ "RESRVD_OP_EMILY_17", 0, 0, 0, 0 },
 	{ "RESRVD_OP_EMILY_18", 0, 0, 0, 0 },
 	{ "RESRVD_OP_EMILY_19", 0, 0, 0, 0 },

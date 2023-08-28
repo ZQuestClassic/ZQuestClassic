@@ -96,10 +96,12 @@ static AccessorTable GlobalTable[] =
 	{ "Min",                     0,       ZTID_UNTYPED,   -1,    FL_VARG,  { ZTID_UNTYPED, ZTID_UNTYPED },{},2 },
 	{ "Choose",                  0,       ZTID_UNTYPED,   -1,    FL_VARG,  { ZTID_UNTYPED },{},1 },
 	
-	{ "ArrayPushBack",           0,          ZTID_VOID,   -1,          0,  { ZTID_UNTYPED, ZTID_UNTYPED },{} },
-	{ "ArrayPushFront",          0,          ZTID_VOID,   -1,          0,  { ZTID_UNTYPED, ZTID_UNTYPED },{} },
+	{ "ArrayPushBack",           0,          ZTID_BOOL,   -1,          0,  { ZTID_UNTYPED, ZTID_UNTYPED },{} },
+	{ "ArrayPushFront",          0,          ZTID_BOOL,   -1,          0,  { ZTID_UNTYPED, ZTID_UNTYPED },{} },
+	{ "ArrayPushAt",             0,          ZTID_BOOL,   -1,          0,  { ZTID_UNTYPED, ZTID_UNTYPED, ZTID_FLOAT },{} },
 	{ "ArrayPopBack",            0,       ZTID_UNTYPED,   -1,          0,  { ZTID_UNTYPED },{} },
 	{ "ArrayPopFront",           0,       ZTID_UNTYPED,   -1,          0,  { ZTID_UNTYPED },{} },
+	{ "ArrayPopAt",              0,       ZTID_UNTYPED,   -1,          0,  { ZTID_UNTYPED, ZTID_FLOAT },{} },
 	
 	//Undocumented intentionally - compat only
 	{ "Rand",                    0,         ZTID_FLOAT,   -1,          0,  { ZTID_FLOAT },{} },
@@ -1631,9 +1633,10 @@ void GlobalSymbols::generateCode()
 		Function* function = getFunction("ArrayPushFront");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
-		addOpcode2 (code, new OArrayPush(new LiteralArgument(10000)));
+		addOpcode2 (code, new OPushImmediate(new LiteralArgument(0)));
 		LABELBACK(label);
-		POP_ARGS(2,NUL);
+		addOpcode2 (code, new OArrayPush());
+		POP_ARGS(3,NUL);
 		RETURN();
 		function->giveCode(code);
 	}
@@ -1642,9 +1645,21 @@ void GlobalSymbols::generateCode()
 		Function* function = getFunction("ArrayPushBack");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
-		addOpcode2 (code, new OArrayPush(new LiteralArgument(0)));
+		addOpcode2 (code, new OPushImmediate(new LiteralArgument(-10000)));
 		LABELBACK(label);
-		POP_ARGS(2,NUL);
+		addOpcode2 (code, new OArrayPush());
+		POP_ARGS(3,NUL);
+		RETURN();
+		function->giveCode(code);
+	}
+	//void ArrayPushAt(untyped[] arr, untyped val, int indx)
+	{
+		Function* function = getFunction("ArrayPushAt");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OArrayPush());
+		LABELBACK(label);
+		POP_ARGS(3,NUL);
 		RETURN();
 		function->giveCode(code);
 	}
@@ -1653,9 +1668,10 @@ void GlobalSymbols::generateCode()
 		Function* function = getFunction("ArrayPopFront");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
-		addOpcode2 (code, new OArrayPop(new LiteralArgument(10000)));
+		addOpcode2 (code, new OPushImmediate(new LiteralArgument(0)));
 		LABELBACK(label);
-		POP_ARG(NUL);
+		addOpcode2 (code, new OArrayPop());
+		POP_ARGS(2,NUL);
 		RETURN();
 		function->giveCode(code);
 	}
@@ -1664,9 +1680,21 @@ void GlobalSymbols::generateCode()
 		Function* function = getFunction("ArrayPopBack");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
-		addOpcode2 (code, new OArrayPop(new LiteralArgument(0)));
+		addOpcode2 (code, new OPushImmediate(new LiteralArgument(-10000)));
 		LABELBACK(label);
-		POP_ARG(NUL);
+		addOpcode2 (code, new OArrayPop());
+		POP_ARGS(2,NUL);
+		RETURN();
+		function->giveCode(code);
+	}
+	//void ArrayPopAt(untyped[] arr, int indx)
+	{
+		Function* function = getFunction("ArrayPopAt");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OArrayPop());
+		LABELBACK(label);
+		POP_ARGS(2,NUL);
 		RETURN();
 		function->giveCode(code);
 	}

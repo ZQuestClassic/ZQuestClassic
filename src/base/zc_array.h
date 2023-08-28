@@ -127,7 +127,6 @@ protected:
     pointer _ptr;
 };
 
-
 template <typename T>
 class ZCArray
 {
@@ -407,7 +406,7 @@ public:
     {
         Resize(0, _Y, _X);
     }
-    void Resize(const size_type _Z, const size_type _Y, const size_type _X, const size_type offs = 0)
+    void Resize(const size_type _Z, const size_type _Y, const size_type _X)
     {
 		if(_SameDimensions(_Z,_Y,_X)) return;
         const size_type _OldSize = _size;
@@ -424,16 +423,17 @@ public:
             _ReAssign(_OldSize, _NewSize);
     }
     
-	void Push(type val, bool front)
+	void Push(type val, int indx = -1)
 	{
-		Resize(_dim[2], _dim[1], _dim[0]+1, front?1:0);
-		_ptr[front?0:_size-1] = val;
+		++_dim[0];
+		_ReAssign(_size, _size+1, indx, val);
 	}
 	
-	type Pop(bool front)
+	type Pop(int indx = -1)
 	{
-		type ret = _ptr[front?0:_size-1];
-		Resize(_dim[2], _dim[1], _dim[0]-1, front?1:0);
+		type ret = _ptr[(indx<0||indx>=_size) ? _size-1 : indx];
+		--_dim[0];
+		_ReAssign(_size, _size-1, indx);
 		return ret;
 	}
 	
@@ -511,25 +511,54 @@ protected:
         _size = size;
     }
     
-    void _ReAssign(const size_type _OldSize, const size_type _NewSize, size_type offs = 0)
+    void _ReAssign(const size_type _OldSize, const size_type _NewSize, int indx = -1, type fillval = 0)
     {
+		if(_NewSize == 0)
+		{
+			_Delete();
+			return;
+		}
+		
         pointer _oldPtr = _ptr;
         _ptr = new type[ _NewSize ];
+		if(indx < 0 || indx > _size) indx = _size;
         
         const size_type _copyRange = (_OldSize < _NewSize ? _OldSize : _NewSize);
-		const size_type soffs = _OldSize < _NewSize ? 0 : offs;
-		const size_type doffs = _OldSize < _NewSize ? offs : 0;
+		const size_type size_diff = zc_max(_OldSize,_NewSize)-zc_min(_OldSize,_NewSize);
         
-        for(size_type i(0); i < _copyRange; i++)
-            _ptr[ i+doffs ] = _oldPtr[ i+soffs ];
+		if(indx == _size)
+		{
+			for(size_type i(0); i < _copyRange; i++)
+				_ptr[ i ] = _oldPtr[ i ];
+			if(_OldSize < _NewSize)
+				Assign(_OldSize, _NewSize, fillval);
+        }
+		else if(_OldSize < _NewSize)
+		{
+			size_type offs = 0;
+			for(size_type i(0); i < _copyRange; i++)
+			{
+				if(i==indx)
+				{
+					offs = size_diff;
+					Assign(i, i+size_diff, fillval);
+				}
+				_ptr[ i+offs ] = _oldPtr[ i ];
+			}
+		}
+		else
+		{
+			size_type offs = 0;
+			for(size_type i(0); i < _copyRange; i++)
+			{
+				if(i==indx)
+					offs = size_diff;
+				_ptr[ i ] = _oldPtr[ i+offs ];
+			}
+		}
             
         _Delete(_oldPtr);
         _size = _NewSize;
-		if(_OldSize < _NewSize)
-		{
-			Assign(0, doffs, 0);
-			Assign(_OldSize+doffs, _NewSize, 0);
-		}
     }
     
     void _Delete()

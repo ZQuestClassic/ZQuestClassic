@@ -3228,6 +3228,22 @@ void DestroyArray(untyped[] arr);
  * Immediately deallocates the specified array, if it is a local array.
  * If the array is a global array, does nothing.
 
+bool ArrayPushBack(untyped[] arr, untyped val);
+bool ArrayPushFront(untyped[] arr, untyped val);
+bool ArrayPushAt(untyped[] arr, untyped val, int indx);
+ * Increases the size of the array by 1, inserting a new value.
+ * The new value can either be inserted at the end, start, or an arbitrary index.
+ * An invalid index pushes to the end.
+ * Returns false if it fails for any reason (ex: array is at max size already)
+
+untyped ArrayPushBack(untyped[] arr);
+untyped ArrayPushFront(untyped[] arr);
+untyped ArrayPushAt(untyped[] arr, int indx);
+ * Decreases the size of the array by 1, removing and returning a value.
+ * The new value can either be pulled from the end, start, or an arbitrary index.
+ * An invalid index pops from the end.
+ * Errors if array size is 0, and returns `-1`.
+
 void OwnObject([Object] obj);
  * Takes an object (see 'Classes and Objects' above)
  * Transfers ownership of the object to the current script.
