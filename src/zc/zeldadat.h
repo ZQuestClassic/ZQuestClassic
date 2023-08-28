@@ -1,6 +1,6 @@
 /* Allegro datafile object indexes, produced by grabber v4.2.0, MSVC.s */
 /* Datafile: c:\Users\cjamc\code\ZeldaClassic\resources\modules\classic\classic_zelda.dat */
-/* Date: Sun Aug 27 12:33:36 2023 */
+/* Date: Sun Aug 27 18:07:57 2023 */
 /* Do not hand edit! */
 
 #define _SIGNATURE                       0        /* DATA */
@@ -15,7 +15,8 @@
 #define ZC_MIDI_GAMEOVER                 2        /* MIDI */
 #define ZC_MIDI_LEVEL9                   3        /* MIDI */
 #define ZC_MIDI_OVERWORLD                4        /* MIDI */
-#define ZC_MIDI_TRIFORCE                 5        /* MIDI */
-#define ZC_MIDI_COUNT                    6
+#define ZC_MIDI_TITLE                    5        /* MIDI */
+#define ZC_MIDI_TRIFORCE                 6        /* MIDI */
+#define ZC_MIDI_COUNT                    7
 
 
