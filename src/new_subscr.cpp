@@ -4598,7 +4598,7 @@ void SubscrPage::move_cursor(int dir, bool item_only)
 		}
 		
 		//find our new position
-		widg = get_widg_pos(curpos,true);
+		widg = get_widg_pos(curpos,item_only);
 		
 		if(!widg)
 			return;
@@ -4755,7 +4755,7 @@ SubscrWidget* SubscrPage::get_widg_pos(byte pos, bool item_only) const
 		if(!(contents[q]->genflags & SUBSCRFLAG_SELECTABLE))
 			continue;
 		if (item_only && contents[q]->getType() == widgITEMSLOT)
-			if (static_cast<SW_ItemSlot*>(contents[q])->flags & SUBSCR_CURITM_NONEQP)
+			if (contents[q]->flags & SUBSCR_CURITM_NONEQP)
 				continue;
 		if(contents[q]->pos == pos)
 			return contents[q];
