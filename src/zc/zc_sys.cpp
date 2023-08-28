@@ -17,7 +17,7 @@
 #include "base/dmap.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <cstring>
 #include <math.h>
 #include <map>
 #include <filesystem>

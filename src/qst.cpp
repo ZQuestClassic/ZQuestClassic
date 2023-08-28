@@ -19,7 +19,7 @@
 #include "base/msgstr.h"
 #include <filesystem>
 #include <stdio.h>
-#include <string.h>
+#include <cstring>
 #include <string>
 #include <map>
 #include <vector>

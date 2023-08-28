@@ -12,7 +12,7 @@
 //
 //--------------------------------------------------------
 
-#include <string.h>
+#include <cstring>
 #include <set>
 #include <stdio.h>
 

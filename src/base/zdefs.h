@@ -110,7 +110,7 @@
 
 #include <cstdio>
 #include <math.h>
-#include <string.h>
+#include <cstring>
 #include <vector>
 #include <set>
 #include <assert.h>

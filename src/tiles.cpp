@@ -11,7 +11,7 @@
 //--------------------------------------------------------
 
 #include "base/zc_alleg.h"
-#include <string.h>
+#include <cstring>
 
 #include "base/zdefs.h"
 #include "base/zsys.h"

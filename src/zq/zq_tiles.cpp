@@ -8,7 +8,7 @@
 //
 //--------------------------------------------------------
 
-#include <string.h>
+#include <cstring>
 #include <cmath>
 
 #include "base/qrs.h"

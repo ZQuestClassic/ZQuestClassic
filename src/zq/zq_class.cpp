@@ -12,7 +12,7 @@
 /****** ZMAP class ******/
 /************************/
 
-#include <string.h>
+#include <cstring>
 #include <string>
 #include <stdexcept>
 #include <map>

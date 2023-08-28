@@ -26,7 +26,7 @@
 #include "dialog/about.h"
 #include "drawing.h"
 #include "jwin_a5.h"
-#include <string.h>
+#include <cstring>
 #include <stdio.h>
 #include <sstream>
 #include "zinfo.h"

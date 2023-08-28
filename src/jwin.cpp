@@ -25,7 +25,7 @@
 /* This code is not fully tested */
 
 #include <ctype.h>
-#include <string.h>
+#include <cstring>
 #include "base/zc_alleg.h"
 #include <allegro/internal/aintern.h>
 #include "jwin.h"

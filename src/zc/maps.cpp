@@ -8,7 +8,7 @@
 //
 //--------------------------------------------------------
 
-#include <string.h>
+#include <cstring>
 #include <assert.h>
 #include <math.h>
 #include <vector>

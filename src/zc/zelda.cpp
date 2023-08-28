@@ -13,7 +13,7 @@
 #include <filesystem>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <cstring>
 #include <ctype.h>
 #include <string>
 #include <map>

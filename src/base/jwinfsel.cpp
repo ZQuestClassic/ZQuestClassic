@@ -44,7 +44,7 @@
 	#define ALLEGRO_NO_FIX_ALIASES
 #endif
 
-#include <string.h>
+#include <cstring>
 #include <filesystem>
 
 #include "base/zc_alleg.h"

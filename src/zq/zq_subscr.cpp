@@ -30,7 +30,7 @@
 #ifndef _MSC_VER
 #include <strings.h>
 #endif
-#include <string.h>
+#include <cstring>
 
 #ifdef _MSC_VER
 #define stricmp _stricmp

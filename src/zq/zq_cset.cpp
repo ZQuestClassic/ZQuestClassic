@@ -9,7 +9,7 @@
 //--------------------------------------------------------
 
 //#include <mem.h>
-#include <string.h>
+#include <cstring>
 #include <stdio.h>
 
 #include "base/gui.h"

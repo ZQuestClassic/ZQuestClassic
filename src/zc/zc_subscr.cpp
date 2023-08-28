@@ -8,7 +8,7 @@
 //
 //--------------------------------------------------------
 
-#include <string.h>
+#include <cstring>
 
 #include "base/qrs.h"
 #include "base/dmap.h"

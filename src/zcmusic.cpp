@@ -4,7 +4,7 @@
 /* supported music file formats.       */
 
 #include "base/zc_alleg.h" // TODO: why do we get "_malloca macro redefinition" in Windows debug builds without this include?
-#include <string.h>
+#include <cstring>
 
 #ifdef _DEBUG
 #ifdef _malloca

@@ -19,7 +19,7 @@
 #include <memory>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <cstring>
 #include <sstream>
 #include <ctype.h>
 #include <assert.h>

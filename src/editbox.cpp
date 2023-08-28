@@ -24,7 +24,7 @@
 
 /* This code is not fully tested */
 
-#include <string.h>
+#include <cstring>
 #include "base/zc_alleg.h"
 #include "jwin.h"
 #include <stdio.h>

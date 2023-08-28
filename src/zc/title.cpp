@@ -12,7 +12,7 @@
 #include <filesystem>
 #include <stdio.h>
 #include <ctype.h>
-#include <string.h>
+#include <cstring>
 #include <memory>
 #include "base/zc_alleg.h"
 #include "base/qrs.h"

@@ -10,7 +10,7 @@
 
 #include <stdio.h>
 #include <stdarg.h>
-#include <string.h>
+#include <cstring>
 #include "base/zapp.h"
 #include "base/zc_alleg.h"
 #include <allegro/internal/aintern.h>
