@@ -74,7 +74,8 @@ if args.prepare:
     os.mkdir(dist_dir / 'create')
 
     copy_from_build('zelda.html', 'play/index.html')
-    copy_from_build('zelda.{wasm,js,worker.js}', 'play')
+    copy_from_build('zelda.js', 'play')
+    copy_from_build('zplayer.{wasm,worker.js}', 'play')
 
     copy_from_build('zquest.html', 'create/index.html')
     copy_from_build('zquest.{wasm,js,worker.js}', 'create')
