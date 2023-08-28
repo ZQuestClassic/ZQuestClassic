@@ -42,6 +42,7 @@
 #include "zq/autocombo/autopattern_base.h"
 #include "zq/autocombo/pattern_basic.h"
 #include "zq/autocombo/pattern_flatmtn.h"
+#include "zq/autocombo/pattern_fence.h"
 #include "base/misctypes.h"
 #include "parser/Compiler.h"
 #include "base/zc_alleg.h"
@@ -7572,9 +7573,36 @@ void drawAutoCombo(int32_t pos)
 				else
 					ap.execute(scr, pos);
 			}
+			case AUTOCOMBO_FENCE:
+			{
+				AutoPattern::autopattern_fence ap(ca.getType(), CurrentLayer, scr, pos, &ca, !(ca.flags & ACF_CROSSSCREENS));
+				if (gui_mouse_b() & 2)
+					ap.erase(scr, pos);
+				else
+					ap.execute(scr, pos);
+			}
 		}
 	}
+}
 
+void drawAutoComboCommand(int32_t pos)
+{
+	int32_t cid = Combo;
+	int8_t cs = CSet;
+	combo_auto ca = combo_autos[combo_auto_pos];
+
+	int32_t scr = Map.getCurrScr();
+	if (ca.valid())
+	{
+		switch (ca.getType())
+		{
+			case AUTOCOMBO_FENCE:
+			{
+				AutoPattern::autopattern_fence ap(ca.getType(), CurrentLayer, scr, pos, &ca, !(ca.flags & ACF_CROSSSCREENS));
+				ap.flip_all_connected(scr, pos, 352);
+			}
+		}
+	}
 }
 
 void draw(bool justcset)
@@ -8905,9 +8933,17 @@ void fill_4()
         }
         
         Map.StartListCommand();
-        fill(drawmap, drawscr, draw_mapscr,
-             (draw_mapscr->data[(by<<4)+bx]),
-             (draw_mapscr->cset[(by<<4)+bx]), bx, by, 255, 0, (key[KEY_LSHIFT]||key[KEY_RSHIFT]));
+		if (draw_mode == dm_auto && combo_autos[combo_auto_pos].getType() == AUTOCOMBO_FENCE ||
+			combo_autos[combo_auto_pos].getType() == AUTOCOMBO_Z4)
+		{
+			drawAutoComboCommand((by << 4) + bx);
+		}
+		else
+		{
+			fill(drawmap, drawscr, draw_mapscr,
+				(draw_mapscr->data[(by << 4) + bx]),
+				(draw_mapscr->cset[(by << 4) + bx]), bx, by, 255, 0, (key[KEY_LSHIFT] || key[KEY_RSHIFT]));
+		}
         Map.FinishListCommand();
         refresh(rMAP+rSCRMAP);
     }

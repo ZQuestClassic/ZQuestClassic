@@ -61,10 +61,10 @@ void AutoComboDialog::refreshPanels()
 			addCombos(val, 6);
 			break;
 		case AUTOCOMBO_Z4:
-			addCombos(val, 21);
+			addCombos(val, 30);
 			break;
 		case AUTOCOMBO_FENCE:
-			addCombos(val, 12);
+			addCombos(val, 21);
 			break;
 	}
 }
@@ -252,13 +252,15 @@ void AutoComboDialog::refreshWidgets()
 		{
 			static byte z4_grid[] = {
 				0, 0, 0, 1,
-				0, 1, 0, 1,
+				0, 0, 0, 1,
 				0, 0, 0, 1,
 				0, 0, 0, 1,
 				0, 0, 0, 1,
 				0, 0, 0, 1,
 				0, 0, 1, 1,
-				0, 0
+				0, 0, 1, 1,
+				0, 0, 0, 0,
+				0, 0, 0, 0
 			};
 			grid = z4_grid;
 			break;
@@ -267,10 +269,12 @@ void AutoComboDialog::refreshWidgets()
 		{
 			static byte fence_grid[] = {
 				0, 0, 0, 1,
-				0, 1, 0, 1,
+				0, 0, 0, 1,
 				0, 0, 0, 1,
 				0, 0, 1, 1,
-				0, 0
+				0, 0, 1, 1,
+				0, 0, 0, 0,
+				0, 0, 0, 0
 			};
 			grid = fence_grid;
 			break;

@@ -30,15 +30,15 @@ namespace AutoPattern
 		void applyChanges();
 		virtual bool execute(int32_t s, int32_t p) = 0;
 		virtual bool erase(int32_t s, int32_t p) = 0;
-		virtual void calculate_connections(apcombo* p) = 0;
 		virtual uint32_t slot_to_flags(int32_t slot) = 0;
-		virtual uint32_t flags_to_slot(uint32_t flags) = 0;
+		virtual int32_t flags_to_slot(uint32_t flags) = 0;
 		int32_t cid_to_slot(int32_t cid);
 		int32_t slot_to_cid(int32_t slot);
-		apcombo* add(int32_t sp, bool forcevalid = false);
-		apcombo* add(int32_t s, int32_t p, bool forcevalid = false);
+		apcombo* add(int32_t sp, bool forcevalid = false, bool andgenerate = true);
+		apcombo* add(int32_t s, int32_t p, bool forcevalid = false, bool andgenerate = true);
+		apcombo* add(apcombo* &ap, int32_t dir, bool forcevalid = false, bool andgenerate = true);
 		void remove(apcombo* ptr);
-		void init_connections(apcombo* ap, bool andgenerate = false);
+		void init_connections(apcombo* ap, bool andgenerate = true);
 		bool offscreen(int32_t x, int32_t y);
 
 	protected:

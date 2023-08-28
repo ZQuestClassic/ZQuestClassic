@@ -17,7 +17,7 @@ namespace AutoPattern
 		bool erase(int32_t exscreen, int32_t expos);
 		void calculate_connections(apcombo* p);
 		uint32_t slot_to_flags(int32_t slot);
-		uint32_t flags_to_slot(uint32_t flags);
+		int32_t flags_to_slot(uint32_t flags);
 	};
 
 }

@@ -10,10 +10,10 @@ namespace AutoPattern
 		apcombo* ap = add(exscreen, expos, true);
 		if (!ap)
 			return false;
-		init_connections(ap, true);
+		init_connections(ap);
 		for (int32_t q = 0; q < 4; ++q)
 		{
-			init_connections(ap->adj[q], true);
+			init_connections(ap->adj[q]);
 		}
 		calculate_connections(ap);
 		for (int32_t q = 0; q < 4; ++q)
@@ -23,11 +23,11 @@ namespace AutoPattern
 				calculate_connections(ap->adj[q]);
 			}
 		}
-		ap->set_cid(autopattern_container::slot_to_cid(flags_to_slot(ap->connflags)));
+		ap->set_cid(slot_to_cid(flags_to_slot(ap->connflags)));
 		for (int32_t q = 0; q < 4; ++q)
 		{
 			if (ap->adj[q] && ap->adj[q]->in_set)
-				ap->adj[q]->set_cid(autopattern_container::slot_to_cid(flags_to_slot(ap->adj[q]->connflags)));
+				ap->adj[q]->set_cid(slot_to_cid(flags_to_slot(ap->adj[q]->connflags)));
 		}
 		applyChanges();
 		return true;
@@ -35,15 +35,15 @@ namespace AutoPattern
 	bool autopattern_basic::erase(int32_t exscreen, int32_t expos)
 	{
 		apcombo* ap = add(exscreen, expos, true);
-		ap->cid = erase_cid;
 		if (!ap)
 			return false;
-		init_connections(ap, true);
+		ap->cid = erase_cid;
+		init_connections(ap);
 		ap->write(layer, true);
 		ap->in_set = false;
 		for (int32_t q = 0; q < 4; ++q)
 		{
-			init_connections(ap->adj[q], true);
+			init_connections(ap->adj[q]);
 		}
 		for (int32_t q = 0; q < 4; ++q)
 		{
@@ -55,7 +55,7 @@ namespace AutoPattern
 		for (int32_t q = 0; q < 4; ++q)
 		{
 			if (ap->adj[q] && ap->adj[q]->in_set)
-				ap->adj[q]->set_cid(autopattern_container::slot_to_cid(flags_to_slot(ap->adj[q]->connflags)));
+				ap->adj[q]->set_cid(slot_to_cid(flags_to_slot(ap->adj[q]->connflags)));
 		}
 		applyChanges();
 		return true;
@@ -109,7 +109,7 @@ namespace AutoPattern
 				return 0;
 		}
 	}
-	uint32_t autopattern_basic::flags_to_slot(uint32_t flags)
+	int32_t autopattern_basic::flags_to_slot(uint32_t flags)
 	{
 		switch (flags & 0xF)
 		{

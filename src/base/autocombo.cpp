@@ -12,7 +12,7 @@ int16_t autocombo_entry::base_engrave_offset(byte type)
 		case AUTOCOMBO_Z1: return 0;
 		case AUTOCOMBO_BASIC: return 16;
 		case AUTOCOMBO_FENCE: return 32;
-		case AUTOCOMBO_Z4: return 48;
+		case AUTOCOMBO_Z4: return 64;
 	}
 	return 0;
 }
@@ -130,31 +130,40 @@ int32_t combo_auto::convert_offsets(byte type, int16_t offset)
 				case 2:
 					return offset;
 				case 3:
-					return offset + 1;
 				case 4:
-					return offset + 2;
 				case 5:
+					return offset + 1;
 				case 6:
 				case 7:
-					return offset + 3;
 				case 8:
+					return offset + 2;
 				case 9:
 				case 10:
-					return offset + 4;
 				case 11:
+					return offset + 3;
 				case 12:
 				case 13:
-					return offset + 5;
 				case 14:
+					return offset + 4;
 				case 15:
 				case 16:
-					return offset + 6;
 				case 17:
+					return offset + 5;
 				case 18:
-					return offset + 7;
 				case 19:
+					return offset + 6;
 				case 20:
-					return offset + 9;
+				case 21:
+					return offset + 8;
+				case 22:
+				case 23:
+				case 24:
+				case 25:
+				case 26:
+				case 27:
+				case 28:
+				case 29:
+					return offset + 10;
 			}
 			break;
 		}
@@ -167,19 +176,28 @@ int32_t combo_auto::convert_offsets(byte type, int16_t offset)
 				case 2:
 					return offset;
 				case 3:
-					return offset + 1;
 				case 4:
-					return offset + 2;
 				case 5:
+					return offset + 1;
 				case 6:
 				case 7:
-					return offset + 3;
 				case 8:
+					return offset + 2;
 				case 9:
-					return offset + 4;
 				case 10:
+					return offset + 3;
 				case 11:
-					return offset + 6;
+				case 12:
+					return offset + 5;
+				case 13:
+				case 14:
+				case 15:
+				case 16:
+				case 17:
+				case 18:
+				case 19:
+				case 20:
+					return offset + 7;
 			}
 			break;
 		}

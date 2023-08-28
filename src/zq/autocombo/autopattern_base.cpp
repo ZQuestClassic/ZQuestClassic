@@ -5,6 +5,8 @@
 namespace AutoPattern
 {
 
+    // autopattern_container
+
 	autopattern_container::autopattern_container(int32_t ntype, int32_t nlayer, int32_t nbasescreen, int32_t nbasepos, combo_auto* nsource, bool nnocrossedge) :
 		type(ntype), layer(nlayer), basescreen(nbasescreen), basepos(nbasepos), source(nsource), nocrossedge(nnocrossedge)
 	{
@@ -54,21 +56,24 @@ namespace AutoPattern
 		return 0;
 	}
 
-	apcombo* autopattern_container::add(int32_t screenpos, bool forcevalid)
+	apcombo* autopattern_container::add(int32_t screenpos, bool forcevalid, bool andgenerate)
 	{
-		if (!combos.at(screenpos))
+		if (!combos.count(screenpos))
 		{
 			apcombo* p = new apcombo(layer, screenpos);
 			combos[screenpos] = p;
 			p->in_set = cid_to_slot(p->cid) > -1 || forcevalid;
 			if (forcevalid)
 				p->changed = true;
-			init_connections(p);
+			if(p->in_set)
+				p->connflags = slot_to_flags(cid_to_slot(p->cid));
+			init_connections(p, andgenerate);
 			return p;
 		}
-		return nullptr;
+		else
+			return combos[screenpos];
 	}
-	apcombo* autopattern_container::add(int32_t screen, int32_t pos, bool forcevalid)
+	apcombo* autopattern_container::add(int32_t screen, int32_t pos, bool forcevalid, bool andgenerate)
 	{
 		int32_t screenpos = screen * 176 + pos;
 		if (!combos.count(screenpos))
@@ -78,10 +83,43 @@ namespace AutoPattern
 			p->in_set = cid_to_slot(p->cid) > -1 || forcevalid;
 			if (forcevalid)
 				p->changed = true;
-			init_connections(p);
+			if (p->in_set)
+				p->connflags = slot_to_flags(cid_to_slot(p->cid));
+			init_connections(p, andgenerate);
 			return p;
 		}
-		return nullptr;
+		else
+			return combos[screenpos];
+	}
+	apcombo* autopattern_container::add(apcombo*& ap, int32_t dir, bool forcevalid, bool andgenerate)
+	{
+		int32_t x = (ap->screen % 16) * 16 + ap->pos % 16;
+		int32_t y = (ap->screen / 16) * 11 + ap->pos / 16;
+		byte apscreen = ((x / 16) + (y / 11) * 16);
+		byte appos = ((x % 16) + (y % 11) * 16);
+		int32_t iq;
+		switch (dir)
+		{
+			case up: --y; iq = 1; break;
+			case down: ++y; iq = 0; break;
+			case left: --x; iq = 3; break;
+			case right: ++x; iq = 2; break;
+		}
+		if (offscreen(x, y))
+		{
+			return nullptr;
+		}
+		else
+		{
+			int16_t screenpos = ((x / 16) + (y / 11) * 16) * 176 + ((x % 16) + (y % 11) * 16);
+			apcombo* ret = add(screenpos, forcevalid, andgenerate);
+			if (ret && combos.count(screenpos))
+			{
+				ap->adj[dir] = combos[screenpos];
+				combos[screenpos]->adj[oppositeDir[dir]] = ap;
+			}
+			return ret;
+		}
 	}
 	void autopattern_container::remove(apcombo* ptr)
 	{
@@ -100,17 +138,16 @@ namespace AutoPattern
 			int32_t y = (p->screen / 16) * 11 + p->pos / 16;
 			byte apscreen = ((x / 16) + (y / 11) * 16);
 			byte appos = ((x % 16) + (y % 11) * 16);
-			int32_t iq;
 			switch (q)
 			{
-				case 0: --y; iq = 1; break;
-				case 1: ++y; iq = 0; break;
-				case 2: --x; iq = 3; break;
-				case 3: ++x; iq = 2; break;
-				case 4: --x;  --y; iq = 7; break;
-				case 5: ++x;  --y; iq = 6; break;
-				case 6: --x;  ++y; iq = 5; break;
-				case 7: ++x;  ++y; iq = 4; break;
+				case up: --y; break;
+				case down: ++y; break;
+				case left: --x; break;
+				case right: ++x; break;
+				case l_up: --x;  --y; break;
+				case r_up: ++x;  --y; break;
+				case l_down: --x;  ++y; break;
+				case r_down: ++x;  ++y; break;
 			}
 			if (offscreen(x, y))
 			{
@@ -118,21 +155,19 @@ namespace AutoPattern
 			}
 			else
 			{
-				int16_t ap = ((x / 16) + (y / 11) * 16) * 176 + ((x % 16) + (y % 11) * 16);
-				if (combos.count(ap))
+				int16_t adjp = ((x / 16) + (y / 11) * 16) * 176 + ((x % 16) + (y % 11) * 16);
+				if (combos.count(adjp))
 				{
-					p->adj[q] = combos[ap];
-					combos[ap]->adj[iq] = p;
+					p->adj[q] = combos[adjp];
+					combos[adjp]->adj[oppositeDir[q]] = p;
 				}
 				else
 				{
 					if (andgenerate)
 					{
-						apscreen = ((x / 16) + (y / 11) * 16); 
+						apscreen = ((x / 16) + (y / 11) * 16);
 						appos = ((x % 16) + (y % 11) * 16);
-						apcombo* apc = add(apscreen, appos);
-						p->adj[q] = apc;
-						init_connections(apc);
+						apcombo* apc = add(apscreen, appos, false, false);
 					}
 					else
 						p->adj[q] = nullptr;
@@ -152,6 +187,8 @@ namespace AutoPattern
 		}
 		return false;
 	}
+
+	// apcombo
 
 	apcombo::apcombo(byte nlayer, int32_t nscreenpos) :
 		screenpos(nscreenpos), screen(nscreenpos / 176), pos(nscreenpos % 176)
