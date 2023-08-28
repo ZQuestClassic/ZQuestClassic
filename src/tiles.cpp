@@ -427,17 +427,12 @@ void reset_tile(tiledata *buf, int32_t t, int32_t format=1)
         free(buf[t].data);
     }
     
-    buf[t].data=(byte *)malloc(tilesize(buf[t].format));
+    buf[t].data=(byte *)calloc(tilesize(buf[t].format), 1);
     
     if(buf[t].data==NULL)
     {
         quit_game();
         Z_error_fatal("Unable to initialize tile #%d.\n", t);
-    }
-    
-    for(int32_t i=0; i<tilesize(buf[t].format); i++)
-    {
-        buf[t].data[i]=0;
     }
 }
 
