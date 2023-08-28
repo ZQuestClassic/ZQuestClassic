@@ -8069,11 +8069,7 @@ void music_stop()
 		zcmusic_stop(zcmixer->oldtrack);
 		zcmusic_unload_file(zcmixer->oldtrack);
 	}
-	//if (zcmixer->newtrack)
-	//{
-	//	zcmusic_stop(zcmixer->newtrack);
-	//	zcmusic_unload_file(zcmixer->newtrack);
-	//}
+	zcmixer->newtrack = NULL;
 	zc_stop_midi();
 	currmidi=-1;
 }
