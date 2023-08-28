@@ -518,7 +518,8 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_CHECKBOX("Cont. Heart Beep",App::zelda,"zeldadx","heart_beep",1),
 						CONFIG_CHECKBOX("Disable Sound",App::zelda,"zeldadx","nosound",0),
 						CONFIG_CHECKBOX_I("Replay New Saves",App::zelda,"zeldadx","replay_new_saves",0,"Starting a new game will prompt recording to a .zplay file"),
-						CONFIG_CHECKBOX_I("Replay Debug",App::zelda,"zeldadx","replay_debug",1,"Record debug information when making a .zplay file")
+						CONFIG_CHECKBOX_I("Replay Debug",App::zelda,"zeldadx","replay_debug",1,"Record debug information when making a .zplay file"),
+						CONFIG_CHECKBOX_I("Auto restart in Test Mode",App::zelda,"zeldadx","test_mode_auto_restart",0,"When a quest file is saved while in test mode, auto restarts zplayer.")
 					),
 					Rows<2>(fitParent = true,
 						CONFIG_CHECKBOX("Force-reload Quest Icons",App::zelda,"zeldadx","reload_game_icons",0),

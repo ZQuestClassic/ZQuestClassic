@@ -70,6 +70,8 @@
 #include "base/emscripten_utils.h"
 #endif
 
+using namespace std::chrono_literals;
+
 extern FFScript FFCore;
 extern bool Playing;
 int32_t sfx_voice[WAV_COUNT];
@@ -4764,6 +4766,26 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 		}
 	}
 #endif
+
+	static bool test_mode_auto_restart = zc_get_config("zeldadx", "test_mode_auto_restart", false);
+	if (zqtesting_mode && test_mode_auto_restart)
+	{
+		static auto last_write_time = fs::last_write_time(qstpath);
+		static auto last_check = std::chrono::system_clock::now();
+
+		if (std::chrono::system_clock::now() - last_check > 200ms)
+		{
+			last_check = std::chrono::system_clock::now();
+			auto write_time = fs::last_write_time(qstpath);
+			if (last_write_time != write_time)
+			{
+				last_write_time = write_time;
+				disableClickToFreeze = false;
+				Quit = qRESET;
+				replay_quit();
+			}
+		}
+	}
 }
 
 void zapout()
