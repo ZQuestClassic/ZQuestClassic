@@ -775,11 +775,10 @@ static bool register_name()
 			new_game->set_life(zinit.hc*zinit.hp_per_heart);
 			new_game->set_hp_per_heart(zinit.hp_per_heart);
 			selectscreen();                                       // refresh palette
-			int save_ret = saves_create_slot(new_game);
-			if (save_ret)
+			if (!saves_create_slot(new_game))
 			{
 				cancel = true;
-				InfoDialog("Error creating save", fmt::format("Error code: {}", save_ret)).show();
+				InfoDialog("Error creating save", ":(").show();
 			}
 			else
 			{

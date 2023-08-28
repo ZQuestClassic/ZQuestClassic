@@ -2200,14 +2200,7 @@ bool saves_create_slot(gamedata* game, bool save_to_disk)
 	save.game = game;
 	save.header = &game->header;
 	save.path = save_to_disk ? create_path_for_new_save(save.header) : "";
-	int ret = do_save_games();
-	if (ret)
-	{
-		save.game = nullptr;
-		save.header = nullptr;
-		saves.pop_back();
-	}
-	return ret;
+	return true;
 }
 
 bool saves_create_slot(fs::path path)
@@ -2257,6 +2250,8 @@ void saves_do_first_time_stuff(int index)
 		}
 
 		update_icon(index);
+		save->path = create_path_for_new_save(save->header);
+		saves_write();
 	}
 }
 
