@@ -7005,7 +7005,7 @@ int32_t jwin_color_swatch(int32_t msg, DIALOG *d, int32_t c)
 			zc_set_palette(foopal);
 			
 			jwin_center_dialog(selcolor_dlg);
-			int32_t val = popup_zqdialog(selcolor_dlg, 3);
+			int32_t val = do_zqdialog(selcolor_dlg, 3);
 			ret = D_REDRAW;
 			
 			zc_set_palette(oldpal);
@@ -7166,7 +7166,7 @@ int32_t jwin_alert3(const char *title, const char *s1, const char *s2, const cha
 	large_dialog(alert_dialog);
 	alert_dialog[0].d1 = 0;
     
-    c = popup_zqdialog(alert_dialog, A_B1);
+    c = do_zqdialog(alert_dialog, A_B1);
     
     if(c == A_B1)
         return 1;
@@ -7412,7 +7412,7 @@ int32_t jwin_auto_alert3(const char *title, const char *s1, int32_t lenlim, int3
 	large_dialog(alert2_dialog);
 	alert2_dialog[0].d1 = 0;
     
-    c = popup_zqdialog(alert2_dialog, A2_B1);
+    c = do_zqdialog(alert2_dialog, A2_B1);
     
     if(c == A2_B1)
         return 1;
@@ -7504,7 +7504,7 @@ static int32_t droplist(DIALOG *d)
     droplist_dlg[0].w = zq_screen_w;
     droplist_dlg[0].h = zq_screen_h;
     
-    if(popup_zqdialog(droplist_dlg,1)==1)
+    if(do_zqdialog(droplist_dlg,1)==1)
     {
 		position_mouse_z(oz);
         return droplist_dlg[1].d1;

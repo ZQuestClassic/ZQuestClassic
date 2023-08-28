@@ -14,7 +14,7 @@ using namespace util;
 extern PALETTE RAMpal;
 extern bool update_hw_pal;
 
-volatile bool close_button_quit = false;
+volatile bool close_button_quit = false, exiting_program = false, dialog_open_quit = false;
 
 int next_script_data_debug_id = 0;
 

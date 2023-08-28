@@ -5388,12 +5388,9 @@ reload_for_replay_file:
 				//Failed initializing? Keep trying.
 				while (Quit != qEXIT)
 				{
-					if (close_button_quit)
-					{
-						close_button_quit = false;
-						f_Quit(qEXIT);
-						if (Quit == qEXIT) break;
-					}
+					handle_close_btn_quit();
+					if (Quit == qEXIT) break;
+					
 					Quit = 0;
 					init_game();
 				}

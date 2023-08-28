@@ -319,7 +319,15 @@ extern int32_t passive_subscreen_offset;
 extern int32_t CSET_SIZE;
 extern int32_t CSET_SHFT;
 
-extern volatile bool close_button_quit;
+extern volatile bool close_button_quit, exiting_program, dialog_open_quit;
+bool handle_close_btn_quit();
+#define HANDLE_CLOSE_ZQDLG() \
+if(close_button_quit) \
+{ \
+	dialog_open_quit = true; \
+	handle_close_btn_quit(); \
+	dialog_open_quit = false; \
+}
 
 // system colors
 #define lc1(x) ((x)+192)                                    // offset to 'level bg color' x (row 12)

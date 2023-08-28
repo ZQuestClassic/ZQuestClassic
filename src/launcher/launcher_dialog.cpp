@@ -19,7 +19,8 @@ LauncherDialog::LauncherDialog(){}
 
 #define LAUNCHER_EXIT_WARN false
 static int32_t queue_revert = 0;
-int32_t LauncherDialog::launcher_on_tick()
+
+bool handle_close_btn_quit()
 {
 	if(close_button_quit)
 	{
@@ -32,11 +33,18 @@ int32_t LauncherDialog::launcher_on_tick()
 				r = ret;
 			}).show();
 		close_button_quit = false;
-		return r ? ONTICK_EXIT : ONTICK_CONTINUE;
+		return (exiting_program = r);
 		#else
-		return ONTICK_EXIT;
+		return (exiting_program = true);
 		#endif
 	}
+	return false;
+}
+
+int32_t LauncherDialog::launcher_on_tick()
+{
+	if(handle_close_btn_quit())
+		return ONTICK_EXIT;
 	if(queue_revert > 0)
 	{
 		if(!--queue_revert)

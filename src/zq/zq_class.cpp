@@ -6868,7 +6868,7 @@ int32_t quest_access(const char *filename, zquestheader *hdr)
     
     large_dialog(pwd_dlg);
         
-    int32_t cancel = zc_popup_dialog(pwd_dlg,6);
+    int32_t cancel = do_zqdialog(pwd_dlg,6);
     
     if(cancel == 8)
         return 2;

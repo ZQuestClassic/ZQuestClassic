@@ -5,22 +5,22 @@
 #include <gui/size.h>
 extern int32_t zq_screen_w;
 
-AlertFuncDialog::AlertFuncDialog(std::string title, std::string text, std::string info, uint32_t numButtons, uint32_t focused_button, ...):
-	InfoDialog(title,text), didend(false), helptxt(info)
+AlertFuncDialog::AlertFuncDialog(std::string title, std::string text,
+	std::string info, uint32_t numButtons, uint32_t focused_button,
+	std::initializer_list<std::string> buttonNames,
+	std::initializer_list<std::function<bool()>> buttonProcs
+	) : InfoDialog(title,text), didend(false), helptxt(info)
 {
-	va_list args;
-	va_start(args, focused_button);
-	initButtons(args, numButtons, focused_button);
-	va_end(args);
+	initButtons(buttonNames, buttonProcs, numButtons, focused_button);
 }
 
-AlertFuncDialog::AlertFuncDialog(std::string title, std::vector<std::string_view> lines, std::string info, uint32_t numButtons, uint32_t focused_button,  ...):
-	InfoDialog(title,lines), didend(false), helptxt(info)
+AlertFuncDialog::AlertFuncDialog(std::string title, std::vector<std::string_view> lines,
+	std::string info, uint32_t numButtons, uint32_t focused_button,
+	std::initializer_list<std::string> buttonNames,
+	std::initializer_list<std::function<bool()>> buttonProcs
+	) : InfoDialog(title,lines), didend(false), helptxt(info)
 {
-	va_list args;
-	va_start(args, focused_button);
-	initButtons(args, numButtons, focused_button);
-	va_end(args);
+	initButtons(buttonNames, buttonProcs, numButtons, focused_button);
 }
 
 std::shared_ptr<GUI::Widget> AlertFuncDialog::view()
@@ -67,18 +67,22 @@ std::shared_ptr<GUI::Widget> AlertFuncDialog::view()
 	return window;
 }
 
-void AlertFuncDialog::initButtons(va_list args, uint32_t numButtons, uint32_t focused_button)
+void AlertFuncDialog::initButtons(std::initializer_list<std::string> buttonNames,
+	std::initializer_list<std::function<bool()>> buttonProcs,
+	uint32_t numButtons, uint32_t focused_button)
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
+	assert(numButtons == buttonNames.size() && numButtons == buttonProcs.size());
 	if(numButtons)
 	{
 		//even args only, as (, char*, void(*func)(),)
+		auto nameIter = buttonNames.begin();
+		auto procIter = buttonProcs.begin();
 		for(uint32_t q = 0; q < numButtons; ++q)
 		{
-			std::string btntext(va_arg(args, char*));
-			typedef bool (*funcType)(void);
-			std::function<bool()> func = va_arg(args, funcType);
+			std::string const& btntext = *(nameIter++);
+			std::function<bool()> const& func = *(procIter++);
 			if(func)
 			{
 				buttons.push_back(
@@ -133,3 +137,4 @@ bool AlertFuncDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 	}
 	return false;
 }
+

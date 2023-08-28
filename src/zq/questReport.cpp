@@ -131,7 +131,7 @@ void showQuestReport(int32_t bg,int32_t fg)
     integrity_report_dlg[0].dp2= get_custom_font(CFONT_TITLE);
     integrity_report_dlg[2].dp = new EditboxModel(quest_report_str, new EditboxWordWrapView(&integrity_report_dlg[2], get_custom_font(CFONT_TEXTBOX), fg,bg,BasicEditboxView::HSTYLE_EOTEXT),true);
     integrity_report_dlg[2].bg = bg;
-    int32_t ret=zc_popup_dialog(integrity_report_dlg,2);
+    int32_t ret=do_zqdialog(integrity_report_dlg,2);
     delete(EditboxModel*)(integrity_report_dlg[2].dp);
     
     if(ret==6)

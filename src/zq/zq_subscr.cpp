@@ -1931,7 +1931,7 @@ static int32_t onEditGrid()
 	
 	large_dialog(grid_dlg);
 		
-	int32_t ret = zc_popup_dialog(grid_dlg,2);
+	int32_t ret = do_zqdialog(grid_dlg,2);
 	
 	if(ret==1)
 	{
@@ -1962,7 +1962,7 @@ int32_t onSelectionOptions()
 	
 	large_dialog(sel_options_dlg);
 		
-	int32_t ret = zc_popup_dialog(sel_options_dlg,2);
+	int32_t ret = do_zqdialog(sel_options_dlg,2);
 	
 	if(ret==1)
 	{
@@ -2408,7 +2408,7 @@ bool edit_subscreen()
 	SETFLAG(ss_settings_menu[3].flags, D_SELECTED, subscr_confirm_delete);
 	
 	update_subscr_dlg(true);
-	int dlg_ret = do_zqdialog_custom(subscreen_dlg,2,[&](int ret)
+	int dlg_ret = do_zqdialog_custom(subscreen_dlg,2,true,[&](int ret)
 		{
 			switch(ret)
 			{
@@ -2633,7 +2633,7 @@ void do_edit_subscr(size_t ind, byte ty)
 	{
 		large_dialog(sstemplatelist_dlg);
 			
-		auto ret=zc_popup_dialog(sstemplatelist_dlg,4);
+		auto ret=do_zqdialog(sstemplatelist_dlg,4);
 		
 		if(ret==6)
 		{

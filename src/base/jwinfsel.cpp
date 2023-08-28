@@ -995,7 +995,7 @@ int32_t jwin_file_select_ex(AL_CONST char *message, char *path, AL_CONST char *e
     file_selector[FS_TYPES].proc = fs_dummy_proc;
 	// Z_message("Calling enlarge_file_selector(%d,%d)\n", width, height);
     enlarge_file_selector(width, height);
-    ret = popup_zqdialog(file_selector, FS_EDIT);
+    ret = do_zqdialog(file_selector, FS_EDIT);
     
     if(fext)
     {
@@ -1188,7 +1188,7 @@ int32_t jwin_dfile_select_ex(AL_CONST char *message, char *path, AL_CONST char *
     
     file_selector[FS_TYPES].proc = fs_dummy_proc;
     enlarge_file_selector(width, height);
-    ret = popup_zqdialog(file_selector, FS_EDIT);
+    ret = do_zqdialog(file_selector, FS_EDIT);
     
     if(fext)
     {
@@ -1355,7 +1355,7 @@ int32_t jwin_file_browse_ex(AL_CONST char *message, char *path, EXT_LIST *list, 
     
     file_selector[FS_TYPES].proc = fs_elist_proc;
     enlarge_file_selector(width,height);
-    ret = popup_zqdialog(file_selector, FS_EDIT);
+    ret = do_zqdialog(file_selector, FS_EDIT);
     
     if((ret == FS_CANCEL) || (ret == FS_WIN) || (!ugetc(get_filename(path))))
     {

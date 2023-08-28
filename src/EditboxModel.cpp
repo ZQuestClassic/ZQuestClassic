@@ -655,7 +655,7 @@ void EditboxModel::doHelp()
 	
 	help_dlg[2].dp = new EditboxModel(helpstr, new EditboxWordWrapView(&help_dlg[2],get_custom_font(CFONT_TEXTBOX),view->getDialog()->fg,view->getDialog()->bg,BasicEditboxView::HSTYLE_EOTEXT),true);
 	help_dlg[2].bg = view->getDialog()->bg;
-	zc_popup_dialog(help_dlg,2);
+	do_zqdialog(help_dlg,2);
 	delete(EditboxModel*)(help_dlg[2].dp);
 }
 
