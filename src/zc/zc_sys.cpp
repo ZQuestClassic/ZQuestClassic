@@ -4402,6 +4402,9 @@ void syskeys()
 	
 	poll_joystick();
 	
+	handle_close_btn_quit();
+	if(Quit == qEXIT) return;
+	
 	if(rMbtn() || (gui_mouse_b() && !mouse_down && ClickToFreeze &&!disableClickToFreeze))
 	{
 		System();
