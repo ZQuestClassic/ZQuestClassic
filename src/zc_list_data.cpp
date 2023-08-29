@@ -893,6 +893,7 @@ static const GUI::ListData subscrWidgets =
 		" currently selected by the cursor" },
 	{ "Gauge Piece: Counter", widgMISCGAUGE, "Allows building highly customizable gauges"
 		" for any counter" },
+	{ "Button Counter", widgBTNCOUNTER, "Shows a counter used by a specified button as a cost" },
 };
 
 GUI::ListData const& GUI::ZCListData::subscr_widgets()

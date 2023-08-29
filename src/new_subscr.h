@@ -142,7 +142,7 @@ enum //new subscreen object types
 	widgOLDCTR, widgMMAPTITLE, widgMMAP, widgLMAP, widgBGCOLOR,
 	widgITEMSLOT, widgMCGUFF_FRAME, widgMCGUFF, widgTILEBLOCK, widgMINITILE,
 	widgSELECTOR, widgLGAUGE, widgMGAUGE, widgTEXTBOX, widgSELECTEDTEXT,
-	widgMISCGAUGE,
+	widgMISCGAUGE, widgBTNCOUNTER,
 	widgMAX
 };
 
@@ -491,9 +491,9 @@ struct SW_Counter : public SubscrWidget
 	byte align, shadtype;
 	SubscrColorInfo c_text = {ssctMISC,0}, c_shadow, c_bg;
 	int32_t ctrs[3] = {crNONE,crNONE,crNONE};
-	byte mindigits, maxdigits;
+	byte mindigits, maxdigits = 3;
 	int32_t infitm = -1;
-	char infchar;
+	char infchar = 'A';
 	
 	SW_Counter() = default;
 	SW_Counter(subscreen_object const& old);
@@ -521,7 +521,7 @@ struct SW_Counters : public SubscrWidget
 	SubscrColorInfo c_text = {ssctMISC,0}, c_shadow, c_bg;
 	byte digits;
 	int32_t infitm = -1;
-	char infchar;
+	char infchar = 'A';
 	
 	SW_Counters() = default;
 	SW_Counters(subscreen_object const& old);
@@ -531,6 +531,33 @@ struct SW_Counters : public SubscrWidget
 	virtual int16_t getY() const override; //Returns y in pixels
 	virtual word getW() const override; //Returns width in pixels
 	virtual word getH() const override; //Returns height in pixels
+	virtual byte getType() const override;
+	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
+	virtual SubscrWidget* clone() const override;
+	virtual bool copy_prop(SubscrWidget const* src, bool all = false) override;
+	virtual int32_t write(PACKFILE *f) const override;
+protected:
+	virtual int32_t read(PACKFILE *f, word s_version) override;
+};
+
+#define SUBSCR_BTNCOUNTER_SHOW0       SUBSCRFLAG_SPEC_01
+#define SUBSCR_BTNCOUNTER_NOCOLLAPSE  SUBSCRFLAG_SPEC_02
+struct SW_BtnCounter : public SubscrWidget
+{
+	int32_t fontid;
+	byte align, shadtype;
+	SubscrColorInfo c_text = {ssctMISC,0}, c_shadow, c_bg;
+	byte mindigits, maxdigits = 3;
+	char infchar = 'A';
+	byte btn, costind;
+	
+	SW_BtnCounter() = default;
+	
+	virtual int16_t getX() const override; //Returns x in pixels
+	virtual int16_t getY() const override; //Returns y in pixels
+	virtual word getW() const override; //Returns width in pixels
+	virtual word getH() const override; //Returns height in pixels
+	virtual int16_t getXOffs() const override; //Returns any special x-offset
 	virtual byte getType() const override;
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
 	virtual SubscrWidget* clone() const override;

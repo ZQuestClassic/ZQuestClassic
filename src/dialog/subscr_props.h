@@ -66,7 +66,8 @@ protected:
 	zasm_meta local_gen_meta;
 	
 	GUI::ListData list_font, list_shadtype, list_aligns, list_buttons, list_items,
-		list_counters, list_counters2, list_itemclass, list_genscr, list_sfx;
+		list_counters, list_counters2, list_itemclass, list_genscr, list_sfx,
+		list_costinds;
 	
 	void updateSelectable();
 	void updateColors();

@@ -33,7 +33,8 @@ SubscrPropDialog::SubscrPropDialog(SubscrWidget* widg, int32_t obj_ind) :
 	list_counters2(GUI::ZCListData::ss_counters(true,true)), //All counters, no (None)
 	list_itemclass(GUI::ZCListData::itemclass(true)),
 	list_genscr(GUI::ZCListData::generic_script()),
-	list_sfx(GUI::ZCListData::sfxnames(true))
+	list_sfx(GUI::ZCListData::sfxnames(true)),
+	list_costinds(GUI::ListData::numbers(false, 0, 2))
 {
 	byte pg = subscr_edit.curpage, ind = index;
 	start_default_btnslot = 0;
@@ -141,6 +142,12 @@ Checkbox( \
 	{ \
 		SETFLAG(var, bit, state); \
 	} \
+)
+
+#define INFOCBOX(var, bit, txt, info, cspan) \
+Row(colSpan = cspan, \
+	INFOBTN(info), \
+	CBOX(var,bit,txt,1) \
 )
 
 #define DDL(var, lister) \
@@ -344,6 +351,9 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			case widgMMAPTITLE:
 			case widgLGAUGE:
 			case widgMGAUGE:
+			case widgCOUNTER:
+			case widgOLDCTR:
+			case widgBTNCOUNTER:
 				show_wh = false;
 				break;
 			case widgBGCOLOR:
@@ -459,6 +469,15 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			case widgCOUNTER:
 			{
 				SW_Counter* w = dynamic_cast<SW_Counter*>(local_subref);
+				col_grid = Column(
+					MISC_COLOR_SEL(w->c_text, "Text Color", 1),
+					MISC_COLOR_SEL(w->c_shadow, "Shadow Color", 2),
+					MISC_COLOR_SEL(w->c_bg, "Background Color", 3));
+				break;
+			}
+			case widgBTNCOUNTER:
+			{
+				SW_BtnCounter* w = dynamic_cast<SW_BtnCounter*>(local_subref);
 				col_grid = Column(
 					MISC_COLOR_SEL(w->c_text, "Text Color", 1),
 					MISC_COLOR_SEL(w->c_shadow, "Shadow Color", 2),
@@ -676,6 +695,53 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 					NUM_FIELD(w->mindigits,0,5),
 					NUM_FIELD(w->maxdigits,0,5),
 					DDL_EX(w->infitm,list_items,maxwidth=100_px),
+					TextField(maxLength = 1,
+						fitParent = true,
+						text = std::string(1,(char)w->infchar),
+						onValChangedFunc = [=](GUI::TextField::type,std::string_view str,int32_t)
+						{
+							std::string txt(str);
+							if(txt.size())
+								w->infchar = txt[0];
+							else w->infchar = 0;
+						})
+				);
+				break;
+			}
+			case widgBTNCOUNTER:
+			{
+				SW_BtnCounter* w = dynamic_cast<SW_BtnCounter*>(local_subref);
+				mergetype = mtFORCE_TAB; //too wide to fit!
+				attrib_grid = Columns<5>(
+					Label(text = "Font:", hAlign = 1.0),
+					Label(text = "Style:", hAlign = 1.0),
+					Label(text = "Alignment:", hAlign = 1.0),
+					Label(text = "Button:", hAlign = 1.0),
+					Label(text = "Cost:", hAlign = 1.0),
+					//
+					DDL_FONT(w->fontid),
+					DDL(w->shadtype, list_shadtype),
+					DDL(w->align, list_aligns),
+					DDL(w->btn, list_buttons),
+					DDL(w->costind, list_costinds),
+					//
+					DummyWidget(),
+					DummyWidget(),
+					DummyWidget(),
+					DummyWidget(),
+					INFOBTN("Which cost to use from the button item"),
+					//
+					Label(text = "Min Digits:", hAlign = 1.0),
+					Label(text = "Max Digits:", hAlign = 1.0),
+					Label(text = "Inf Character:", hAlign = 1.0),
+					INFOCBOX(w->flags,SUBSCR_BTNCOUNTER_SHOW0,"Show Zero","If the counter should show while empty",2),
+					INFOCBOX(w->flags,SUBSCR_BTNCOUNTER_NOCOLLAPSE,"No Collapse","If checked,"
+						" 'Cost: 0' will always check the item's 'Use Cost', and 'Cost: 1' to 'Use Cost 2'.\n"
+						"If unchecked, 'Cost: 0' checks the first cost that is not None on an item, whichever that is,"
+						" and 'Cost: 2' the second.",2),
+					//
+					NUM_FIELD(w->mindigits,0,5),
+					NUM_FIELD(w->maxdigits,0,5),
 					TextField(maxLength = 1,
 						fitParent = true,
 						text = std::string(1,(char)w->infchar),

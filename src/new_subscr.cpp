@@ -299,6 +299,9 @@ bool can_inf(int ctr, int infitm = -1)
 		case crBOMBS:
 		case crSBOMBS:
 		case crARROWS:
+		case sscGENKEYMAGIC:
+		case sscLEVKEYMAGIC:
+		case sscANYKEYMAGIC:
 			return true;
 	}
 	return infitm > -1 && infitm < MAXITEMS;
@@ -1899,13 +1902,16 @@ bool SW_Counter::copy_prop(SubscrWidget const* src, bool all)
 	c_text = other->c_text;
 	c_shadow = other->c_shadow;
 	c_bg = other->c_bg;
-	ctrs[0] = other->ctrs[0];
-	ctrs[1] = other->ctrs[1];
-	ctrs[2] = other->ctrs[2];
 	mindigits = other->mindigits;
 	maxdigits = other->maxdigits;
-	infitm = other->infitm;
 	infchar = other->infchar;
+	if(all)
+	{
+		ctrs[0] = other->ctrs[0];
+		ctrs[1] = other->ctrs[1];
+		ctrs[2] = other->ctrs[2];
+		infitm = other->infitm;
+	}
 	for(int q = 0; q < 3; ++q)
 		for(int p = 0; p < q; ++p) //prune duplicates
 			if(ctrs[p]==ctrs[q])
@@ -2086,6 +2092,185 @@ int32_t SW_Counters::write(PACKFILE *f) const
 	if(!p_iputl(infitm,f))
 		new_return(1);
 	if(!p_putc(infchar,f))
+		new_return(1);
+	return 0;
+}
+
+int16_t SW_BtnCounter::getX() const
+{
+	return x+shadow_x(shadtype);
+}
+int16_t SW_BtnCounter::getY() const
+{
+	return y+shadow_y(shadtype);
+}
+word SW_BtnCounter::getW() const
+{
+	return text_length(get_zc_font(fontid), "0")*(maxdigits>0?maxdigits:zc_max(1,mindigits)) + shadow_w(shadtype);
+}
+word SW_BtnCounter::getH() const
+{
+	return text_height(get_zc_font(fontid)) + shadow_h(shadtype);
+}
+int16_t SW_BtnCounter::getXOffs() const
+{
+	switch(align)
+	{
+		case sstaCENTER:
+			return -getW()/2;
+		case sstaRIGHT:
+			return -getW();
+	}
+	return 0;
+}
+byte SW_BtnCounter::getType() const
+{
+	return widgBTNCOUNTER;
+}
+void SW_BtnCounter::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
+{
+	int32_t counter;
+	int ids[] = {Awpn,Bwpn,Xwpn,Ywpn};
+	if(ids[btn] > -1)
+	{
+		itemdata const& itm = itemsbuf[ids[btn]&0xFF];
+		int costs[2];
+		for(int q = 0; q < 2; ++q)
+		{
+			if(itm.cost_amount[q])
+				costs[q] = itm.cost_counter[q];
+			else costs[q] = crNONE;
+		}
+		if(!(flags&SUBSCR_BTNCOUNTER_NOCOLLAPSE))
+			if(costs[0] == crNONE && costs[1] != crNONE)
+				zc_swap(costs[0],costs[1]);
+		if(costs[costind] != crNONE)
+			counter = costs[costind];
+		else return;
+	}
+	else return;
+	
+	FONT* tempfont = get_zc_font(fontid);
+	auto b = zq_ignore_item_ownership;
+	zq_ignore_item_ownership = false;
+	
+	{
+		int32_t value=0;
+		bool infinite = false;
+		
+		if(zq_view_allinf && (can_inf(counter)))
+			infinite = true;
+		
+		char valstring[80];
+		char formatstring[80];
+		sprintf(valstring,"01234567890123456789");
+		sprintf(formatstring, "%%0%dd", mindigits);
+		
+		add_ssc_ctr(counter,infinite,value);
+		
+		if(zq_view_noinf)
+			infinite = false;
+		
+		if(!(flags&SUBSCR_BTNCOUNTER_SHOW0)&&!value&&!infinite)
+			return;
+		
+		if(infinite)
+			sprintf(valstring, "%c", infchar);
+		else
+		{
+			if(maxdigits)
+			{
+				auto mval = pow(10,maxdigits);
+				if(value >= mval)
+					value = mval-1;
+			}
+			sprintf(valstring, formatstring, value);
+		}
+		textout_styled_aligned_ex(dest,tempfont,valstring,x+xofs,y+yofs,shadtype,align,c_text.get_color(),c_shadow.get_color(),c_bg.get_color());
+	}
+	
+	zq_ignore_item_ownership = b;
+}
+SubscrWidget* SW_BtnCounter::clone() const
+{
+	return new SW_BtnCounter(*this);
+}
+bool SW_BtnCounter::copy_prop(SubscrWidget const* src, bool all)
+{
+	if(src->getType() != getType() || src == this)
+		return false;
+	SW_BtnCounter const* other = dynamic_cast<SW_BtnCounter const*>(src);
+	if(!SubscrWidget::copy_prop(other,all))
+		return false;
+	fontid = other->fontid;
+	align = other->align;
+	shadtype = other->shadtype;
+	c_text = other->c_text;
+	c_shadow = other->c_shadow;
+	c_bg = other->c_bg;
+	mindigits = other->mindigits;
+	maxdigits = other->maxdigits;
+	infchar = other->infchar;
+	if(all)
+	{
+		btn = other->btn;
+		costind = other->costind;
+	}
+	return true;
+}
+int32_t SW_BtnCounter::read(PACKFILE *f, word s_version)
+{
+	if(auto ret = SubscrWidget::read(f,s_version))
+		return ret;
+	if(!p_igetl(&fontid,f))
+		return qe_invalid;
+	if(!p_getc(&align,f))
+		return qe_invalid;
+	if(!p_getc(&shadtype,f))
+		return qe_invalid;
+	if(auto ret = c_text.read(f,s_version))
+		return ret;
+	if(auto ret = c_shadow.read(f,s_version))
+		return ret;
+	if(auto ret = c_bg.read(f,s_version))
+		return ret;
+	if(!p_getc(&mindigits,f))
+		return qe_invalid;
+	if(!p_getc(&maxdigits,f))
+		return qe_invalid;
+	if(!p_getc(&infchar,f))
+		return qe_invalid;
+	if(!p_getc(&btn,f))
+		return qe_invalid;
+	if(!p_getc(&costind,f))
+		return qe_invalid;
+	return 0;
+}
+int32_t SW_BtnCounter::write(PACKFILE *f) const
+{
+	if(auto ret = SubscrWidget::write(f))
+		return ret;
+	if(!p_iputl(fontid,f))
+		new_return(1);
+	if(!p_putc(align,f))
+		new_return(1);
+	if(!p_putc(shadtype,f))
+		new_return(1);
+	if(auto ret = c_text.write(f))
+		return ret;
+	if(auto ret = c_shadow.write(f))
+		return ret;
+	if(auto ret = c_bg.write(f))
+		return ret;
+	if(!p_putc(mindigits,f))
+		new_return(1);
+	if(!p_putc(maxdigits,f))
+		new_return(1);
+	if(!p_putc(infchar,f))
+		new_return(1);
+	if(!p_putc(btn,f))
+		new_return(1);
+	if(!p_putc(costind,f))
 		new_return(1);
 	return 0;
 }
@@ -4467,6 +4652,9 @@ SubscrWidget* SubscrWidget::newType(byte ty)
 			break;
 		case widgCOUNTER:
 			widg = new SW_Counter();
+			break;
+		case widgBTNCOUNTER:
+			widg = new SW_BtnCounter();
 			break;
 		case widgOLDCTR:
 			widg = new SW_Counters();
