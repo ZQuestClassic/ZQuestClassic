@@ -22,7 +22,9 @@ static const ListData csTyList
 	{ "CSet 8", 8 },
 	{ "CSet 9", 9 },
 	{ "CSet 10", 10 },
-	{ "CSet 11", 11 }
+	{ "CSet 11", 11 },
+	{ "CSet 12", 12 },
+	{ "CSet 13", 13 }
 };
 static const ListData miscCSList
 {

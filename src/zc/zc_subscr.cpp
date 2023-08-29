@@ -245,7 +245,7 @@ void dosubscr()
 					{
 						if(eqwpn > -1)
 						{
-							if(b_only || (bpress&INT_BTN_B))
+							if(b_only || (btn_press&INT_BTN_B))
 							{
 								if(noverify && !b_only && eqwpn == Bwpn)
 								{
@@ -281,10 +281,10 @@ void dosubscr()
 									game->forced_bwpn = -1; //clear forced if the item is selected using the actual subscreen
 									if(!b_only) sfx(QMisc.miscsfx[sfxSUBSCR_ITEM_ASSIGN]);
 									game->bwpn = ((pg.cursor_pos)<<8) | new_subscreen_active->curpage;
-									directItemB = eqwpn;
+									directItemB = NEG_OR_MASK(eqwpn,0xFF);
 								}
 							}
-							else if(use_a && (bpress&INT_BTN_A))
+							else if(use_a && (btn_press&INT_BTN_A))
 							{
 								if(noverify && eqwpn == Awpn)
 								{
@@ -320,10 +320,10 @@ void dosubscr()
 									sfx(QMisc.miscsfx[sfxSUBSCR_ITEM_ASSIGN]);
 									game->awpn = ((pg.cursor_pos)<<8) | new_subscreen_active->curpage;
 									game->forced_awpn = -1; //clear forced if the item is selected using the actual subscreen
-									directItemA = eqwpn;
+									directItemA = NEG_OR_MASK(eqwpn,0xFF);
 								}
 							}
-							else if(use_x && (bpress&INT_BTN_EX1))
+							else if(use_x && (btn_press&INT_BTN_EX1))
 							{
 								if(noverify && eqwpn == Xwpn)
 								{
@@ -359,10 +359,10 @@ void dosubscr()
 									sfx(QMisc.miscsfx[sfxSUBSCR_ITEM_ASSIGN]);
 									game->xwpn = ((pg.cursor_pos)<<8) | new_subscreen_active->curpage;
 									game->forced_xwpn = -1; //clear forced if the item is selected using the actual subscreen
-									directItemX = eqwpn;
+									directItemX = NEG_OR_MASK(eqwpn,0xFF);
 								}
 							}
-							else if(use_y && (bpress&INT_BTN_EX2))
+							else if(use_y && (btn_press&INT_BTN_EX2))
 							{
 								if(noverify && eqwpn == Ywpn)
 								{
@@ -398,7 +398,7 @@ void dosubscr()
 									sfx(QMisc.miscsfx[sfxSUBSCR_ITEM_ASSIGN]);
 									game->ywpn = ((pg.cursor_pos)<<8) | new_subscreen_active->curpage;
 									game->forced_ywpn = -1; //clear forced if the item is selected using the actual subscreen
-									directItemY = eqwpn;
+									directItemY = NEG_OR_MASK(eqwpn,0xFF);
 								}
 							}
 						}

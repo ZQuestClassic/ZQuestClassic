@@ -341,7 +341,7 @@ struct SW_Text : public SubscrWidget
 	int32_t fontid;
 	std::string text;
 	byte align, shadtype;
-	SubscrColorInfo c_text = {ssctMISC,0}, c_shadow, c_bg;
+	SubscrColorInfo c_text = {ssctMISC,ssctTEXT}, c_shadow, c_bg;
 	
 	SW_Text() = default;
 	SW_Text(subscreen_object const& old);
@@ -403,7 +403,7 @@ struct SW_Time : public SubscrWidget
 {
 	int32_t fontid;
 	byte align, shadtype;
-	SubscrColorInfo c_text = {ssctMISC,0}, c_shadow, c_bg;
+	SubscrColorInfo c_text = {ssctMISC,ssctTEXT}, c_shadow, c_bg;
 	
 	SW_Time() = default;
 	SW_Time(byte ty);
@@ -489,7 +489,7 @@ struct SW_Counter : public SubscrWidget
 {
 	int32_t fontid;
 	byte align, shadtype;
-	SubscrColorInfo c_text = {ssctMISC,0}, c_shadow, c_bg;
+	SubscrColorInfo c_text = {ssctMISC,ssctTEXT}, c_shadow, c_bg;
 	int32_t ctrs[3] = {crNONE,crNONE,crNONE};
 	byte mindigits, maxdigits = 3;
 	int32_t infitm = -1;
@@ -518,7 +518,7 @@ struct SW_Counters : public SubscrWidget
 {
 	int32_t fontid;
 	byte shadtype;
-	SubscrColorInfo c_text = {ssctMISC,0}, c_shadow, c_bg;
+	SubscrColorInfo c_text = {ssctMISC,ssctTEXT}, c_shadow, c_bg;
 	byte digits;
 	int32_t infitm = -1;
 	char infchar = 'A';
@@ -546,7 +546,7 @@ struct SW_BtnCounter : public SubscrWidget
 {
 	int32_t fontid;
 	byte align, shadtype;
-	SubscrColorInfo c_text = {ssctMISC,0}, c_shadow, c_bg;
+	SubscrColorInfo c_text = {ssctMISC,ssctTEXT}, c_shadow, c_bg;
 	byte mindigits, maxdigits = 3;
 	char infchar = 'A';
 	byte btn, costind;
@@ -573,7 +573,7 @@ struct SW_MMapTitle : public SubscrWidget
 {
 	int32_t fontid;
 	byte align, shadtype;
-	SubscrColorInfo c_text = {ssctMISC,0}, c_shadow, c_bg;
+	SubscrColorInfo c_text = {ssctMISC,ssctTEXT}, c_shadow, c_bg;
 	
 	SW_MMapTitle() = default;
 	SW_MMapTitle(subscreen_object const& old);
@@ -640,7 +640,7 @@ protected:
 
 struct SW_Clear : public SubscrWidget
 {
-	SubscrColorInfo c_bg;
+	SubscrColorInfo c_bg = {ssctMISC,ssctSUBSCRBG};
 	
 	SW_Clear() = default;
 	SW_Clear(subscreen_object const& old);
@@ -932,7 +932,7 @@ struct SW_SelectedText : public SubscrWidget
 {
 	int32_t fontid;
 	byte align, shadtype, tabsize = 4;
-	SubscrColorInfo c_text = {ssctMISC,0}, c_shadow, c_bg;
+	SubscrColorInfo c_text = {ssctMISC,ssctTEXT}, c_shadow, c_bg;
 	
 	SW_SelectedText() = default;
 	SW_SelectedText(subscreen_object const& old);

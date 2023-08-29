@@ -26,6 +26,7 @@
 #include "dialog/alert.h"
 #include "dialog/subscr_props.h"
 #include "dialog/info_lister.h"
+#include "zinfo.h"
 
 #ifndef _MSC_VER
 #include <strings.h>
@@ -121,6 +122,8 @@ void subscr_properties(int indx)
 				
 				pg.contents[i]->copy_prop(widg);
 			}
+			update_sso_name();
+			update_up_dn_btns();
 		}
 	}
 }
@@ -447,7 +450,7 @@ static MENU subscreen_rc_menu[] =
     { (char *)"",                       NULL,                  NULL, 0, NULL },
     { (char *)"&Copy/Paste   ",         NULL,     ss_copypaste_menu, 0, NULL },
     { (char *)"",                       NULL,                  NULL, 0, NULL },
-    { (char *)"&Arrange ",              NULL,       ss_arrange_menu, 0, NULL },
+    { (char *)"A&rrange ",              NULL,       ss_arrange_menu, 0, NULL },
 	{ (char *)"&Align ",                NULL,         ss_align_menu, 0, NULL },
 	{ (char *)"&Distribute ",           NULL,    ss_distribute_menu, 0, NULL },
     { NULL,                             NULL,                  NULL, 0, NULL }
@@ -2469,7 +2472,22 @@ bool edit_subscreen()
 					break;
 			}
 			if(ret < 3)
-				return true;
+			{
+				bool exit = true;
+				if(ret != 1)
+				{
+					exit = false;
+					AlertDialog("Exit without saving?",
+							"Are you sure you want exit without saving your changes to this subscreen?",
+							[&exit](bool ret,bool)
+							{
+								if(ret)
+									exit = true;
+							}).show();
+				}
+				if(exit)
+					return true;
+			}
 			update_subscr_dlg(false);
 			return false;
 		});
@@ -2717,13 +2735,37 @@ void do_edit_subscr(size_t ind, byte ty)
 void update_sso_name()
 {
 	auto* w = subscr_edit.cur_page().get_widget(curr_widg);
+	std::string onamestr;
 	if(w)
-		sprintf(str_oname, "%3d:  %s", curr_widg, w->getTypeName().c_str());
+	{
+		if(w->genflags & SUBSCRFLAG_SELECTABLE)
+		{
+			onamestr = fmt::format("{:3}:  {}  [ {}: {} {} {} {} ]",
+				curr_widg, w->getTypeName().c_str(), w->pos,
+				w->pos_up, w->pos_down, w->pos_left, w->pos_right);
+		}
+		else
+		{
+			onamestr = fmt::format("{:3}:  {}", curr_widg, w->getTypeName().c_str());
+		}
+		
+		if(w->getType() == widgITEMSLOT)
+		{
+			SW_ItemSlot* widg = static_cast<SW_ItemSlot*>(w);
+			if(widg->iid > -1)
+			{
+				itemdata const& itm = itemsbuf[widg->iid];
+				onamestr = fmt::format("{} (Item: {})", onamestr, itm.get_name(true,itm.family==itype_arrow));
+			}
+			else onamestr = fmt::format("{} (Class: {})", onamestr, ZI.getItemClassName(widg->iclass));
+		}
+	}
 	else
 	{
 		curr_widg = -1;
-		sprintf(str_oname, "No object selected");
+		onamestr = "No object selected";
 	}
+	strcpy(str_oname,onamestr.c_str());
 	if(subscr_copied_widget)
 		sprintf(str_cpyname, "Copied:  '%s' from pg %d", subscr_copied_widget->getTypeName().c_str(), copied_widget_page);
 	else sprintf(str_cpyname, "Copied:  Nothing");
