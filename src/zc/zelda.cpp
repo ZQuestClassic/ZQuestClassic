@@ -164,6 +164,10 @@ int32_t passive_subscreen_height=56;
 int32_t original_playing_field_offset=56;
 int32_t playing_field_offset=original_playing_field_offset;
 int32_t passive_subscreen_offset=0;
+extern int32_t directItemA;
+extern int32_t directItemB;
+extern int32_t directItemY;
+extern int32_t directItemX;
 extern int32_t hangcount;
 
 extern bool kb_typing_mode;
@@ -2202,6 +2206,7 @@ int32_t init_game()
 						xpos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->xwpn : 0xFF, bpos);
 					if(use_y)
 						ypos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->ywpn : 0xFF, bpos, xpos);
+					directItemA = -1;
 				}
 				else
 				{
@@ -2213,18 +2218,22 @@ int32_t init_game()
 						ypos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->ywpn : 0xFF, apos, bpos, xpos);
 					
 					Awpn = pg.get_item_pos(apos>>8);
+					directItemA = NEG_OR_MASK(Awpn,0xFF);
 				}
 
 				game->awpn = apos;
 				
 				game->bwpn = bpos;
 				Bwpn = pg.get_item_pos(bpos>>8);
+				directItemB = NEG_OR_MASK(Bwpn,0xFF);
 				
 				game->xwpn = xpos;
 				Xwpn = pg.get_item_pos(xpos>>8);
+				directItemX = NEG_OR_MASK(Xwpn,0xFF);
 				
 				game->ywpn = ypos;
 				Ywpn = pg.get_item_pos(ypos>>8);
+				directItemY = NEG_OR_MASK(Ywpn,0xFF);
 				
 				animate_subscr_buttonitems();
 
@@ -2237,6 +2246,7 @@ int32_t init_game()
 					Awpn = selectSword();
 					apos = 0xFF;
 					bpos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF);
+					directItemA = -1; 
 				}
 				else
 				{
@@ -2250,11 +2260,13 @@ int32_t init_game()
 					}
 					
 					Awpn = pg.get_item_pos(apos>>8);
+					directItemA = NEG_OR_MASK(Awpn,0xFF);
 				}
 
 				game->awpn = apos;
 				game->bwpn = bpos;
 				Bwpn = pg.get_item_pos(bpos>>8);
+				directItemB = NEG_OR_MASK(Bwpn,0xFF);
 				animate_subscr_buttonitems();
 
 				refresh_subscr_buttonitems();
@@ -2264,9 +2276,13 @@ int32_t init_game()
 		{
 			Awpn = get_qr(qr_SELECTAWPN) ? new_subscreen_active->get_item_pos(game->awpn)
 				: selectSword();
+			directItemA = NEG_OR_MASK(Awpn,0xFF);
 			Bwpn = new_subscreen_active->get_item_pos(game->bwpn);
+			directItemB = NEG_OR_MASK(Bwpn,0xFF);
 			Xwpn = new_subscreen_active->get_item_pos(game->xwpn);
+			directItemX = NEG_OR_MASK(Xwpn,0xFF);
 			Ywpn = new_subscreen_active->get_item_pos(game->ywpn);
+			directItemY = NEG_OR_MASK(Ywpn,0xFF);
 		}
 	}
 	

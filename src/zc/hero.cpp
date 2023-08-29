@@ -66,6 +66,11 @@ bool did_scriptb=false;
 bool did_scriptl=false;
 byte lshift = 0;
 int32_t dowpn = -1;
+int32_t directItemA = -1;
+int32_t directItemB = -1;
+int32_t directItemX = -1;
+int32_t directItemY = -1;
+int32_t directWpn = -1;
 int32_t whistleitem=-1;
 extern int32_t script_hero_cset;
 
@@ -2207,7 +2212,7 @@ void HeroClass::draw(BITMAP* dest)
 			* - which is used to acquire a wpn ID! Aack!
 			*/
 			int32_t itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : attack==wBugNet ? itype_bugnet : itype_sword);
-			int32_t itemid = (dowpn>-1 && itemsbuf[dowpn].family==itype) ? dowpn : current_item_id(itype);
+			int32_t itemid = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
 			itemid=vbound(itemid, 0, MAXITEMS-1);
 			// if ( itemsbuf[itemid].ScriptGenerated ) return; //t/b/a for script-generated swords.
 			if(attackclk>4||attack==wBugNet||(attack==wSword&&game->get_canslash()))
@@ -3234,7 +3239,7 @@ bool HeroClass::checkstab()
 	
 	// The return of Spaghetti Code Constants!
 	int32_t itype = (attack==wWand ? itype_wand : attack==wSword ? itype_sword : attack==wCByrna ? itype_cbyrna : attack==wBugNet ? itype_bugnet : itype_hammer);
-	int32_t itemid = (dowpn>-1 && itemsbuf[dowpn].family==itype) ? dowpn : current_item_id(itype);
+	int32_t itemid = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
 	itemid = vbound(itemid, 0, MAXITEMS-1);
 	
 	// The sword offsets aren't based on anything other than what felt about right
@@ -3334,7 +3339,7 @@ bool HeroClass::checkstab()
 				dmg += itemsbuf[atkringid].misc1; //Additive
 			}
 			
-			int32_t h = hit_enemy(i,attack,dmg*game->get_hero_dmgmult(),wx,wy,dir,dowpn,w);
+			int32_t h = hit_enemy(i,attack,dmg*game->get_hero_dmgmult(),wx,wy,dir,directWpn,w);
 			enemy *e = (enemy*)guys.spr(i);
 			if (h == -1) 
 			{ 
@@ -3737,7 +3742,7 @@ void HeroClass::check_slash_block_layer(int32_t bx, int32_t by, int32_t layer)
     if((get_bit(screengrid_layer[layer-1], i) != 0) || (!isCuttableType(type)))
 		return;
     
-    int32_t sworditem = (dowpn>-1 && itemsbuf[dowpn].family==itype_sword) ? itemsbuf[dowpn].fam_type : current_item(itype_sword);
+    int32_t sworditem = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? itemsbuf[directWpn].fam_type : current_item(itype_sword);
 	
 	if(!isTouchyType(type) && !get_qr(qr_CONT_SWORD_TRIGGERS)) set_bit(screengrid_layer[layer-1],i,1);
 	if(isCuttableNextType(type))
@@ -3875,7 +3880,7 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 	
 	mapscr *s = tmpscr + ((currscr>=128) ? 1 : 0);
 	
-	int32_t sworditem = (dowpn>-1 && itemsbuf[dowpn].family==itype_sword) ? itemsbuf[dowpn].fam_type : current_item(itype_sword);
+	int32_t sworditem = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? itemsbuf[directWpn].fam_type : current_item(itype_sword);
 	byte skipsecrets = 0;
 	
 	if ( isNextType(type) ) //->Next combos should not trigger secrets. Their child combo, may want to do that! -Z 17th December, 2019
@@ -4281,7 +4286,7 @@ void HeroClass::check_slash_block_layer2(int32_t bx, int32_t by, weapon *w, int3
 	//zprint("ignoring\n");
     }
     
-    int32_t sworditem = (dowpn>-1 && itemsbuf[dowpn].family==itype_sword) ? itemsbuf[dowpn].fam_type : current_item(itype_sword);
+    int32_t sworditem = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? itemsbuf[directWpn].fam_type : current_item(itype_sword);
     
     {
 	    if(!isTouchyType(type) && !get_qr(qr_CONT_SWORD_TRIGGERS)) set_bit(w->wscreengrid_layer[layer-1],i,1);
@@ -4458,7 +4463,7 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
     
     mapscr *s = tmpscr + ((currscr>=128) ? 1 : 0);
     
-    int32_t sworditem = (dowpn>-1 && itemsbuf[dowpn].family==itype_sword) ? itemsbuf[dowpn].fam_type : current_item(itype_sword);
+    int32_t sworditem = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? itemsbuf[directWpn].fam_type : current_item(itype_sword);
     byte skipsecrets = 0;
     if ( isNextType(type) ) //->Next combos should not trigger secrets. Their child combo, may want to do that! -Z 17th December, 2019
     {
@@ -6346,7 +6351,7 @@ void HeroClass::checkhit()
 			if(s->id==wBrang || (s->id==wHookshot&&!pull_hero))
 			{
 				int32_t itemid = ((weapon*)s)->parentitem>-1 ? ((weapon*)s)->parentitem :
-							 dowpn>-1 ? dowpn : current_item_id(s->id==wHookshot ? (((weapon*)s)->family_class == itype_switchhook ? itype_switchhook : itype_hookshot) : itype_brang);
+							 directWpn>-1 ? directWpn : current_item_id(s->id==wHookshot ? (((weapon*)s)->family_class == itype_switchhook ? itype_switchhook : itype_hookshot) : itype_brang);
 				itemid = vbound(itemid, 0, MAXITEMS-1);
 				
 				for(int32_t j=0; j<Ewpns.Count(); j++)
@@ -10203,7 +10208,7 @@ void HeroClass::solid_push(solid_object* obj)
 #define COND_XWPN (get_qr(qr_SET_XBUTTON_ITEMS) ? game->xwpn : 255)
 #define COND_YWPN (get_qr(qr_SET_YBUTTON_ITEMS) ? game->ywpn : 255)
 //Helper function
-static void deselectbombsWPN(word& wpos, int32_t& BTNwpn,
+static void deselectbombsWPN(word& wpos, int32_t& BTNwpn, int32_t& directItemBTN,
 	word f1 = 255, word f2 = 255, word f3 = 255)
 {
 	byte pgn = wpos&0xFF, pos = wpos>>8;
@@ -10221,6 +10226,7 @@ static void deselectbombsWPN(word& wpos, int32_t& BTNwpn,
 	auto fp3 = ((f3&0xFF)==255) ? 255 : ((empty || (f3&0xFF)==(wpos&0xFF)) ? f3 : 255);
 	auto temp = pg->movepos_legacy(SEL_VERIFY_LEFT, wpos, fp1, fp2, fp3);
 	BTNwpn = pg->get_item_pos(temp>>8);
+	directItemBTN = NEG_OR_MASK(BTNwpn,0xFFF);
 	wpos = temp;
 }
 // A routine used exclusively by startwpn,
@@ -10228,29 +10234,29 @@ static void deselectbombsWPN(word& wpos, int32_t& BTNwpn,
 void HeroClass::deselectbombs(int32_t super)
 {
     if ( get_qr(qr_NEVERDISABLEAMMOONSUBSCREEN) || itemsbuf[game->forced_awpn].family == itype_bomb || itemsbuf[game->forced_bwpn].family == itype_bomb || itemsbuf[game->forced_xwpn].family == itype_bomb || itemsbuf[game->forced_ywpn].family == itype_bomb) return;
-    if(getItemFamily(itemsbuf,Bwpn)==(super? itype_sbomb : itype_bomb) && (dowpn<0 || Bwpn==dowpn))
+    if(getItemFamily(itemsbuf,Bwpn)==(super? itype_sbomb : itype_bomb) && (directWpn<0 || Bwpn==directWpn))
     {
 		if(!new_subscreen_active)
 			return;
-		deselectbombsWPN(game->bwpn, Bwpn, COND_AWPN, COND_XWPN, COND_YWPN);
+		deselectbombsWPN(game->bwpn, Bwpn, directItemB, COND_AWPN, COND_XWPN, COND_YWPN);
     }
-    else if (getItemFamily(itemsbuf,Xwpn)==(super? itype_sbomb : itype_bomb) && (dowpn<0 || Xwpn==dowpn))
+    else if (getItemFamily(itemsbuf,Xwpn)==(super? itype_sbomb : itype_bomb) && (directWpn<0 || Xwpn==directWpn))
     {
 		if(!new_subscreen_active)
 			return;
-        deselectbombsWPN(game->xwpn, Xwpn, COND_AWPN, COND_BWPN, COND_YWPN);
+        deselectbombsWPN(game->xwpn, Xwpn, directItemX, COND_AWPN, COND_BWPN, COND_YWPN);
     }
-    else if (getItemFamily(itemsbuf,Ywpn)==(super? itype_sbomb : itype_bomb) && (dowpn<0 || Ywpn==dowpn))
+    else if (getItemFamily(itemsbuf,Ywpn)==(super? itype_sbomb : itype_bomb) && (directWpn<0 || Ywpn==directWpn))
     {
 		if(!new_subscreen_active)
 			return;
-        deselectbombsWPN(game->ywpn, Ywpn, COND_AWPN, COND_XWPN, COND_BWPN);
+        deselectbombsWPN(game->ywpn, Ywpn, directItemY, COND_AWPN, COND_XWPN, COND_BWPN);
     }
     else
     {
 		if(!new_subscreen_active)
 			return;
-        deselectbombsWPN(game->awpn, Awpn, COND_BWPN, COND_XWPN, COND_YWPN);
+        deselectbombsWPN(game->awpn, Awpn, directItemA, COND_BWPN, COND_XWPN, COND_YWPN);
     }
 }
 
@@ -12296,7 +12302,7 @@ bool HeroClass::doattack()
 	//int32_t s = BSZ ? 0 : 11;
 	int32_t s = (zinit.heroAnimationStyle==las_bszelda) ? 0 : 11;
 	
-	int32_t bugnetid = (dowpn>-1 && itemsbuf[dowpn].family==itype_bugnet) ? dowpn : current_item_id(itype_bugnet);
+	int32_t bugnetid = (directWpn>-1 && itemsbuf[directWpn].family==itype_bugnet) ? directWpn : current_item_id(itype_bugnet);
 	if(attack==wBugNet && bugnetid!=-1)
 	{
 		if(++attackclk >= NET_CLK_TOTAL)
@@ -12322,8 +12328,8 @@ bool HeroClass::doattack()
 		return false;
 	}
 	
-	int32_t candleid = (dowpn>-1 && itemsbuf[dowpn].family==itype_candle) ? dowpn : current_item_id(itype_candle);
-	int32_t byrnaid = (dowpn>-1 && itemsbuf[dowpn].family==itype_cbyrna) ? dowpn : current_item_id(itype_cbyrna);
+	int32_t candleid = (directWpn>-1 && itemsbuf[directWpn].family==itype_candle) ? directWpn : current_item_id(itype_candle);
+	int32_t byrnaid = (directWpn>-1 && itemsbuf[directWpn].family==itype_cbyrna) ? directWpn : current_item_id(itype_cbyrna);
 	// An attack can be "walked out-of" after 8 frames, unless it's:
 	// * a sword stab
 	// * a hammer pound
@@ -12511,7 +12517,7 @@ bool HeroClass::doattack()
 						}
 					}
 					
-					int hmrid = (dowpn>-1 && itemsbuf[dowpn].family==itype_hammer) ? dowpn : current_item_id(itype_hammer);
+					int hmrid = (directWpn>-1 && itemsbuf[directWpn].family==itype_hammer) ? directWpn : current_item_id(itype_hammer);
 					int hmrlvl = hmrid < 0 ? 1 : itemsbuf[hmrid].fam_type;
 					if(hmrlvl < 1) hmrlvl = 1;
 					int rad = quakescroll.misc2;
@@ -12568,7 +12574,7 @@ bool HeroClass::doattack()
 	if(attackclk==13 || (attackclk==7 && spins>1 && attack != wHammer && crossid >=0 && checkbunny(crossid) && checkmagiccost(crossid)))
 	{
 	
-		int32_t wpnid = (dowpn>-1 && itemsbuf[dowpn].family==itype_sword) ? dowpn : current_item_id(itype_sword);
+		int32_t wpnid = (directWpn>-1 && itemsbuf[directWpn].family==itype_sword) ? directWpn : current_item_id(itype_sword);
 		int64_t templife = wpnid>=0? itemsbuf[wpnid].misc1 : 0;
 		
 		if(wpnid>=0 && itemsbuf[wpnid].flags & ITEM_FLAG1)
@@ -13863,7 +13869,7 @@ void HeroClass::moveheroOld()
 		trySideviewLadder();
 	}
 	
-	int32_t olddirectwpn = dowpn; // To be reinstated if startwpn() fails
+	int32_t olddirectwpn = directWpn; // To be reinstated if startwpn() fails
 	int32_t btnwpn = -1;
 	
 	//&0xFFF removes the "bow & arrows" bitmask
@@ -13875,34 +13881,38 @@ void HeroClass::moveheroOld()
 		{
 			btnwpn=getItemFamily(itemsbuf,Bwpn);
 			dowpn = NEG_OR_MASK(Bwpn,0xFFF);
+			directWpn = directItemB;
 		}
 		else if(DrunkrAbtn())
 		{
 			btnwpn=getItemFamily(itemsbuf,Awpn);
 			dowpn = NEG_OR_MASK(Awpn,0xFFF);
+			directWpn = directItemA;
 		}
 		else if(get_qr(qr_SET_XBUTTON_ITEMS) && DrunkrEx1btn())
 		{
 			btnwpn=getItemFamily(itemsbuf,Xwpn);
 			dowpn = NEG_OR_MASK(Xwpn,0xFFF);
+			directWpn = directItemX;
 		}
 		else if(get_qr(qr_SET_YBUTTON_ITEMS) && DrunkrEx2btn())
 		{
 			btnwpn=getItemFamily(itemsbuf,Ywpn);
 			dowpn = NEG_OR_MASK(Ywpn,0xFFF);
+			directWpn = directItemY;
 		}
 		
-		if(dowpn >= MAXITEMS) dowpn = -1;
+		if(directWpn >= MAXITEMS) directWpn = -1;
 		
 		// The Quick Sword only allows repeated sword or wand swings.
 		if((action==attacking||action==sideswimattacking) && ((attack==wSword && btnwpn!=itype_sword) || (attack==wWand && btnwpn!=itype_wand)))
 			btnwpn=-1;
 	}
 	
-	auto swordid = (dowpn>-1 ? dowpn : current_item_id(itype_sword));
+	auto swordid = (directWpn>-1 ? directWpn : current_item_id(itype_sword));
 	if(can_attack() && (swordid > -1 && itemsbuf[swordid].family==itype_sword) && checkitem_jinx(swordid) && btnwpn==itype_sword && charging==0)
 	{
-		attackid=dowpn>-1 ? dowpn : current_item_id(itype_sword);
+		attackid=directWpn>-1 ? directWpn : current_item_id(itype_sword);
 		if(checkbunny(attackid) && (checkmagiccost(attackid) || !(itemsbuf[attackid].flags & ITEM_FLAG6)))
 		{
 			if((itemsbuf[attackid].flags & ITEM_FLAG6) && !(misc_internal_hero_flags & LF_PAID_SWORD_COST))
@@ -13914,7 +13924,7 @@ void HeroClass::moveheroOld()
 			attack=wSword;
 			
 			attackclk=0;
-			sfx(itemsbuf[dowpn>-1 ? dowpn : current_item_id(itype_sword)].usesound, pan(x.getInt()));
+			sfx(itemsbuf[directWpn>-1 ? directWpn : current_item_id(itype_sword)].usesound, pan(x.getInt()));
 			
 			if(dowpn>-1 && itemsbuf[dowpn].script!=0 && !did_scripta && !(FFCore.doscript(ScriptType::Item, dowpn) && get_qr(qr_ITEMSCRIPTSKEEPRUNNING)))
 			{
@@ -14000,9 +14010,9 @@ void HeroClass::moveheroOld()
 	{
 		bool paidmagic = false;
 		bool liftonly = lift_wpn && (liftflags & LIFTFL_DIS_ITEMS);
-		if(!liftonly && btnwpn==itype_wand && (dowpn>-1 ? (!item_disabled(dowpn) ? itemsbuf[dowpn].family==itype_wand : false) : current_item(itype_wand)))
+		if(!liftonly && btnwpn==itype_wand && (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_wand : false) : current_item(itype_wand)))
 		{
-			attackid=dowpn>-1 ? dowpn : current_item_id(itype_wand);
+			attackid=directWpn>-1 ? directWpn : current_item_id(itype_wand);
 			no_jinx = checkitem_jinx(attackid);
 			if(no_jinx && checkbunny(attackid) && ((!(itemsbuf[attackid].flags & ITEM_FLAG6)) || checkmagiccost(attackid)))
 			{
@@ -14020,7 +14030,7 @@ void HeroClass::moveheroOld()
 			}
 		}
 		else if(!liftonly && (btnwpn==itype_hammer)&&!((action==attacking||action==sideswimattacking) && attack==wHammer)
-				&& (dowpn>-1 ? (!item_disabled(dowpn) ? itemsbuf[dowpn].family==itype_hammer : false) : current_item(itype_hammer)))
+				&& (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_hammer : false) : current_item(itype_hammer)))
 		{
 			no_jinx = checkitem_jinx(dowpn);
 			if(!(no_jinx && checkmagiccost(dowpn) && checkbunny(dowpn)))
@@ -14033,15 +14043,15 @@ void HeroClass::moveheroOld()
 				paidmagic = true;
 				SetAttack();
 				attack=wHammer;
-				attackid=dowpn>-1 ? dowpn : current_item_id(itype_hammer);
+				attackid=directWpn>-1 ? directWpn : current_item_id(itype_hammer);
 				attackclk=0;
 			}
 		}
 		else if(!liftonly && (btnwpn==itype_candle)&&!((action==attacking||action==sideswimattacking) && attack==wFire)
-				&& (dowpn>-1 ? (!item_disabled(dowpn) ? itemsbuf[dowpn].family==itype_candle : false) : current_item(itype_candle)))
+				&& (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_candle : false) : current_item(itype_candle)))
 		{
 			//checkbunny handled where magic cost is paid
-			attackid=dowpn>-1 ? dowpn : current_item_id(itype_candle);
+			attackid=directWpn>-1 ? directWpn : current_item_id(itype_candle);
 			no_jinx = checkitem_jinx(attackid);
 			if(no_jinx)
 			{
@@ -14051,9 +14061,9 @@ void HeroClass::moveheroOld()
 			}
 		}
 		else if(!liftonly && (btnwpn==itype_cbyrna)&&!((action==attacking||action==sideswimattacking) && attack==wCByrna)
-				&& (dowpn>-1 ? (!item_disabled(dowpn) ? itemsbuf[dowpn].family==itype_cbyrna : false) : current_item(itype_cbyrna)))
+				&& (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_cbyrna : false) : current_item(itype_cbyrna)))
 		{
-			attackid=dowpn>-1 ? dowpn : current_item_id(itype_cbyrna);
+			attackid=directWpn>-1 ? directWpn : current_item_id(itype_cbyrna);
 			no_jinx = checkitem_jinx(attackid);
 			if(no_jinx && checkbunny(attackid) && ((!(itemsbuf[attackid].flags & ITEM_FLAG6)) || checkmagiccost(attackid)))
 			{
@@ -14071,9 +14081,9 @@ void HeroClass::moveheroOld()
 			}
 		}
 		else if(!liftonly && (btnwpn==itype_bugnet)&&!((action==attacking||action==sideswimattacking) && attack==wBugNet)
-				&& (dowpn>-1 ? (!item_disabled(dowpn) && itemsbuf[dowpn].family==itype_bugnet) : current_item(itype_bugnet)))
+				&& (directWpn>-1 ? (!item_disabled(directWpn) && itemsbuf[directWpn].family==itype_bugnet) : current_item(itype_bugnet)))
 		{
-			attackid = dowpn>-1 ? dowpn : current_item_id(itype_bugnet);
+			attackid = directWpn>-1 ? directWpn : current_item_id(itype_bugnet);
 			no_jinx = checkitem_jinx(attackid);
 			if(no_jinx && checkbunny(attackid) && checkmagiccost(attackid))
 			{
@@ -14090,7 +14100,7 @@ void HeroClass::moveheroOld()
 		}
 		else
 		{
-			auto itmid = dowpn>-1 ? dowpn : current_item_id(btnwpn);
+			auto itmid = directWpn>-1 ? directWpn : current_item_id(btnwpn);
 			no_jinx = checkitem_jinx(itmid);
 			if(no_jinx)
 			{
@@ -14116,8 +14126,8 @@ void HeroClass::moveheroOld()
 				}
 				else
 				{
-					// Weapon not started: dowpn should be reset to prev. value.
-					dowpn = olddirectwpn;
+					// Weapon not started: directWpn should be reset to prev. value.
+					directWpn = olddirectwpn;
 				}
 			}
 		}
@@ -17853,7 +17863,7 @@ bool HeroClass::premove()
 		trySideviewLadder();
 	}
 	
-	int32_t olddirectwpn = dowpn; // To be reinstated if startwpn() fails
+	int32_t olddirectwpn = directWpn; // To be reinstated if startwpn() fails
 	int32_t btnwpn = -1;
 	
 	//&0xFFF removes the "bow & arrows" bitmask
@@ -17865,34 +17875,38 @@ bool HeroClass::premove()
 		{
 			btnwpn=getItemFamily(itemsbuf,Bwpn);
 			dowpn = NEG_OR_MASK(Bwpn,0xFFF);
+			directWpn = directItemB;
 		}
 		else if(DrunkrAbtn())
 		{
 			btnwpn=getItemFamily(itemsbuf,Awpn);
 			dowpn = NEG_OR_MASK(Awpn,0xFFF);
+			directWpn = directItemA;
 		}
 		else if(get_qr(qr_SET_XBUTTON_ITEMS) && DrunkrEx1btn())
 		{
 			btnwpn=getItemFamily(itemsbuf,Xwpn);
 			dowpn = NEG_OR_MASK(Xwpn,0xFFF);
+			directWpn = directItemX;
 		}
 		else if(get_qr(qr_SET_YBUTTON_ITEMS) && DrunkrEx2btn())
 		{
 			btnwpn=getItemFamily(itemsbuf,Ywpn);
 			dowpn = NEG_OR_MASK(Ywpn,0xFFF);
+			directWpn = directItemY;
 		}
 		
-		if(dowpn >= MAXITEMS) dowpn = -1;
+		if(directWpn >= MAXITEMS) directWpn = -1;
 		
 		// The Quick Sword only allows repeated sword or wand swings.
 		if((action==attacking||action==sideswimattacking) && ((attack==wSword && btnwpn!=itype_sword) || (attack==wWand && btnwpn!=itype_wand)))
 			btnwpn=-1;
 	}
 	
-	auto swordid = (dowpn>-1 ? dowpn : current_item_id(itype_sword));
+	auto swordid = (directWpn>-1 ? directWpn : current_item_id(itype_sword));
 	if(can_attack() && (swordid > -1 && itemsbuf[swordid].family==itype_sword) && checkitem_jinx(swordid) && btnwpn==itype_sword && charging==0)
 	{
-		attackid=dowpn>-1 ? dowpn : current_item_id(itype_sword);
+		attackid=directWpn>-1 ? directWpn : current_item_id(itype_sword);
 		if(checkbunny(attackid) && (checkmagiccost(attackid) || !(itemsbuf[attackid].flags & ITEM_FLAG6)))
 		{
 			if((itemsbuf[attackid].flags & ITEM_FLAG6) && !(misc_internal_hero_flags & LF_PAID_SWORD_COST))
@@ -17904,7 +17918,7 @@ bool HeroClass::premove()
 			attack=wSword;
 			
 			attackclk=0;
-			sfx(itemsbuf[dowpn>-1 ? dowpn : current_item_id(itype_sword)].usesound, pan(x.getInt()));
+			sfx(itemsbuf[directWpn>-1 ? directWpn : current_item_id(itype_sword)].usesound, pan(x.getInt()));
 			
 			if(dowpn>-1 && itemsbuf[dowpn].script!=0 && !did_scripta && !(FFCore.doscript(ScriptType::Item, dowpn) && get_qr(qr_ITEMSCRIPTSKEEPRUNNING)))
 			{
@@ -17989,9 +18003,9 @@ bool HeroClass::premove()
 	{
 		bool paidmagic = false;
 		bool liftonly = lift_wpn && (liftflags & LIFTFL_DIS_ITEMS);
-		if(!liftonly && btnwpn==itype_wand && (dowpn>-1 ? (!item_disabled(dowpn) ? itemsbuf[dowpn].family==itype_wand : false) : current_item(itype_wand)))
+		if(!liftonly && btnwpn==itype_wand && (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_wand : false) : current_item(itype_wand)))
 		{
-			attackid=dowpn>-1 ? dowpn : current_item_id(itype_wand);
+			attackid=directWpn>-1 ? directWpn : current_item_id(itype_wand);
 			no_jinx = checkitem_jinx(attackid);
 			if(no_jinx && checkbunny(attackid) && ((!(itemsbuf[attackid].flags & ITEM_FLAG6)) || checkmagiccost(attackid)))
 			{
@@ -18009,7 +18023,7 @@ bool HeroClass::premove()
 			}
 		}
 		else if(!liftonly && (btnwpn==itype_hammer)&&!((action==attacking||action==sideswimattacking) && attack==wHammer)
-				&& (dowpn>-1 ? (!item_disabled(dowpn) ? itemsbuf[dowpn].family==itype_hammer : false) : current_item(itype_hammer)))
+				&& (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_hammer : false) : current_item(itype_hammer)))
 		{
 			no_jinx = checkitem_jinx(dowpn);
 			if(!(no_jinx && checkmagiccost(dowpn) && checkbunny(dowpn)))
@@ -18022,15 +18036,15 @@ bool HeroClass::premove()
 				paidmagic = true;
 				SetAttack();
 				attack=wHammer;
-				attackid=dowpn>-1 ? dowpn : current_item_id(itype_hammer);
+				attackid=directWpn>-1 ? directWpn : current_item_id(itype_hammer);
 				attackclk=0;
 			}
 		}
 		else if(!liftonly && (btnwpn==itype_candle)&&!((action==attacking||action==sideswimattacking) && attack==wFire)
-				&& (dowpn>-1 ? (!item_disabled(dowpn) ? itemsbuf[dowpn].family==itype_candle : false) : current_item(itype_candle)))
+				&& (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_candle : false) : current_item(itype_candle)))
 		{
 			//checkbunny handled where magic cost is paid
-			attackid=dowpn>-1 ? dowpn : current_item_id(itype_candle);
+			attackid=directWpn>-1 ? directWpn : current_item_id(itype_candle);
 			no_jinx = checkitem_jinx(attackid);
 			if(no_jinx)
 			{
@@ -18040,9 +18054,9 @@ bool HeroClass::premove()
 			}
 		}
 		else if(!liftonly && (btnwpn==itype_cbyrna)&&!((action==attacking||action==sideswimattacking) && attack==wCByrna)
-				&& (dowpn>-1 ? (!item_disabled(dowpn) ? itemsbuf[dowpn].family==itype_cbyrna : false) : current_item(itype_cbyrna)))
+				&& (directWpn>-1 ? (!item_disabled(directWpn) ? itemsbuf[directWpn].family==itype_cbyrna : false) : current_item(itype_cbyrna)))
 		{
-			attackid=dowpn>-1 ? dowpn : current_item_id(itype_cbyrna);
+			attackid=directWpn>-1 ? directWpn : current_item_id(itype_cbyrna);
 			no_jinx = checkitem_jinx(attackid);
 			if(no_jinx && checkbunny(attackid) && ((!(itemsbuf[attackid].flags & ITEM_FLAG6)) || checkmagiccost(attackid)))
 			{
@@ -18060,9 +18074,9 @@ bool HeroClass::premove()
 			}
 		}
 		else if(!liftonly && (btnwpn==itype_bugnet)&&!((action==attacking||action==sideswimattacking) && attack==wBugNet)
-				&& (dowpn>-1 ? (!item_disabled(dowpn) && itemsbuf[dowpn].family==itype_bugnet) : current_item(itype_bugnet)))
+				&& (directWpn>-1 ? (!item_disabled(directWpn) && itemsbuf[directWpn].family==itype_bugnet) : current_item(itype_bugnet)))
 		{
-			attackid = dowpn>-1 ? dowpn : current_item_id(itype_bugnet);
+			attackid = directWpn>-1 ? directWpn : current_item_id(itype_bugnet);
 			no_jinx = checkitem_jinx(attackid);
 			if(no_jinx && checkbunny(attackid) && checkmagiccost(attackid))
 			{
@@ -18079,7 +18093,7 @@ bool HeroClass::premove()
 		}
 		else
 		{
-			auto itmid = dowpn>-1 ? dowpn : current_item_id(btnwpn);
+			auto itmid = directWpn>-1 ? directWpn : current_item_id(btnwpn);
 			no_jinx = checkitem_jinx(itmid);
 			if(no_jinx)
 			{
@@ -18105,8 +18119,8 @@ bool HeroClass::premove()
 				}
 				else
 				{
-					// Weapon not started: dowpn should be reset to prev. value.
-					dowpn = olddirectwpn;
+					// Weapon not started: directWpn should be reset to prev. value.
+					directWpn = olddirectwpn;
 				}
 			}
 		}
@@ -24556,7 +24570,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 					if(swd->id == (attack==wSword ? wSword : wWand))
 					{
 					int32_t itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
-					int32_t item_id = (dowpn>-1 && itemsbuf[dowpn].family==itype) ? dowpn : current_item_id(itype);
+					int32_t item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
 					positionSword(swd,item_id);
 					break;
 					}
@@ -24608,7 +24622,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 					if(swd->id == (attack==wSword ? wSword : wWand))
 					{
 					int32_t itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
-					int32_t item_id = (dowpn>-1 && itemsbuf[dowpn].family==itype) ? dowpn : current_item_id(itype);
+					int32_t item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
 					positionSword(swd,item_id);
 					break;
 					}
@@ -24693,7 +24707,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 				if(swd->id == (attack==wSword ? wSword : wWand))
 				{
 				int32_t itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
-				int32_t item_id = (dowpn>-1 && itemsbuf[dowpn].family==itype) ? dowpn : current_item_id(itype);
+				int32_t item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
 				positionSword(swd,item_id);
 				break;
 				}
@@ -24857,7 +24871,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 				if(swd->id == (attack==wSword ? wSword : wWand))
 				{
 				int32_t itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
-				int32_t item_id = (dowpn>-1 && itemsbuf[dowpn].family==itype) ? dowpn : current_item_id(itype);
+				int32_t item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
 				positionSword(swd,item_id);
 				break;
 				}
@@ -24960,7 +24974,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 				if(swd->id == (attack==wSword ? wSword : wWand))
 				{
 				int32_t itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
-				int32_t item_id = (dowpn>-1 && itemsbuf[dowpn].family==itype) ? dowpn : current_item_id(itype);
+				int32_t item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
 				positionSword(swd,item_id);
 				break;
 				}
@@ -25234,7 +25248,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 				if(swd->id == (attack==wSword ? wSword : wWand))
 				{
 				int32_t itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
-				int32_t item_id = (dowpn>-1 && itemsbuf[dowpn].family==itype) ? dowpn : current_item_id(itype);
+				int32_t item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
 				positionSword(swd,item_id);
 				break;
 				}
@@ -25422,7 +25436,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 					if(swd->id == (attack==wSword ? wSword : wWand))
 					{
 						int32_t itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
-						int32_t item_id = (dowpn>-1 && itemsbuf[dowpn].family==itype) ? dowpn : current_item_id(itype);
+						int32_t item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
 						positionSword(swd,item_id);
 						break;
 					}
@@ -25449,7 +25463,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 					if(swd->id == (attack==wSword ? wSword : wWand))
 					{
 						int32_t itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
-						int32_t item_id = (dowpn>-1 && itemsbuf[dowpn].family==itype) ? dowpn : current_item_id(itype);
+						int32_t item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
 						positionSword(swd,item_id);
 						break;
 					}
@@ -25477,7 +25491,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 				if(swd->id == (attack==wSword ? wSword : wWand))
 				{
 				int32_t itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
-				int32_t item_id = (dowpn>-1 && itemsbuf[dowpn].family==itype) ? dowpn : current_item_id(itype);
+				int32_t item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
 				positionSword(swd,item_id);
 				break;
 				}
@@ -25653,7 +25667,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 			if(swd->id == (attack==wSword ? wSword : wWand))
 			{
 				int32_t itype = (attack==wFire ? itype_candle : attack==wCByrna ? itype_cbyrna : attack==wWand ? itype_wand : attack==wHammer ? itype_hammer : itype_sword);
-				int32_t item_id = (dowpn>-1 && itemsbuf[dowpn].family==itype) ? dowpn : current_item_id(itype);
+				int32_t item_id = (directWpn>-1 && itemsbuf[directWpn].family==itype) ? directWpn : current_item_id(itype);
 				positionSword(swd,item_id);
 				break;
 			}
@@ -28603,7 +28617,7 @@ bool isItmPressed(int32_t itmid)
 
 //helper function
 static void selectNextBTNWpn(int32_t type, word& wpos, int32_t& BTNwpn,
-	word f1 = 255, word f2 = 255, word f3 = 255)
+	int32_t& directItemBTN, word f1 = 255, word f2 = 255, word f3 = 255)
 {
 	if(!new_subscreen_active)
 		return;
@@ -28618,20 +28632,21 @@ static void selectNextBTNWpn(int32_t type, word& wpos, int32_t& BTNwpn,
 	auto fp3 = ((f3&0xFF)==255) ? 255 : ((empty || (f3&0xFF)==(wpos&0xFF)) ? f3 : 255);
 	auto ret = pg->movepos_legacy(type, wpos, fp1, fp2, fp3);
 	BTNwpn = pg->get_item_pos(ret>>8);
+	directItemBTN = NEG_OR_MASK(BTNwpn,0xFFF);
 	wpos = ret;
 }
 void selectNextAWpn(int32_t type)
 {
     if(!get_qr(qr_SELECTAWPN))
         return;
-	selectNextBTNWpn(type, game->awpn, Awpn, COND_BWPN, COND_XWPN, COND_YWPN);
+	selectNextBTNWpn(type, game->awpn, Awpn, directItemA, COND_BWPN, COND_XWPN, COND_YWPN);
 }
 
 void selectNextBWpn(int32_t type)
 {
 	if(!new_subscreen_active)
 		return;
-	selectNextBTNWpn(type, game->bwpn, Bwpn, COND_AWPN, COND_XWPN, COND_YWPN);
+	selectNextBTNWpn(type, game->bwpn, Bwpn, directItemB, COND_AWPN, COND_XWPN, COND_YWPN);
 }
 
 void selectNextXWpn(int32_t type)
@@ -28639,7 +28654,7 @@ void selectNextXWpn(int32_t type)
 	if(!get_qr(qr_SET_XBUTTON_ITEMS)) return;
 	if(!new_subscreen_active)
 		return;
-	selectNextBTNWpn(type, game->xwpn, Xwpn, COND_BWPN, COND_AWPN, COND_YWPN);
+	selectNextBTNWpn(type, game->xwpn, Xwpn, directItemX, COND_BWPN, COND_AWPN, COND_YWPN);
 }
 
 void selectNextYWpn(int32_t type)
@@ -28647,11 +28662,11 @@ void selectNextYWpn(int32_t type)
 	if(!get_qr(qr_SET_YBUTTON_ITEMS)) return;
 	if(!new_subscreen_active)
 		return;
-	selectNextBTNWpn(type, game->ywpn, Ywpn, COND_BWPN, COND_XWPN, COND_AWPN);
+	selectNextBTNWpn(type, game->ywpn, Ywpn, directItemY, COND_BWPN, COND_XWPN, COND_AWPN);
 }
 
 //helper function
-static void verifyWpn(word& wpos, int32_t& BTNwpn, word f1 = 255, word f2 = 255, word f3 = 255)
+static void verifyWpn(word& wpos, int32_t& BTNwpn, int32_t& directItemBTN, word f1 = 255, word f2 = 255, word f3 = 255)
 {
 	if(!new_subscreen_active)
 		return;
@@ -28666,6 +28681,7 @@ static void verifyWpn(word& wpos, int32_t& BTNwpn, word f1 = 255, word f2 = 255,
 	auto fp3 = ((f3&0xFF)==255) ? 255 : ((empty || (f3&0xFF)==(wpos&0xFF)) ? f3 : 255);
 	wpos = pg->movepos_legacy(SEL_VERIFY_RIGHT, wpos, fp1, fp2, fp3);
 	BTNwpn = pg->get_item_pos(wpos>>8);
+	directItemBTN = NEG_OR_MASK(BTNwpn,0xFFF);
 }
 
 void verifyAWpn()
@@ -28679,7 +28695,7 @@ void verifyAWpn()
     }
     else
     {
-		verifyWpn(game->awpn, Awpn, COND_BWPN, COND_XWPN, COND_YWPN);
+		verifyWpn(game->awpn, Awpn, directItemA, COND_BWPN, COND_XWPN, COND_YWPN);
     }
 }
 
@@ -28687,7 +28703,7 @@ void verifyBWpn()
 {
 	if (game->forced_bwpn != -1)
 		return;
-	verifyWpn(game->bwpn, Bwpn, COND_AWPN, COND_XWPN, COND_YWPN);
+	verifyWpn(game->bwpn, Bwpn, directItemB, COND_AWPN, COND_XWPN, COND_YWPN);
 }
 
 void verifyXWpn()
@@ -28696,7 +28712,7 @@ void verifyXWpn()
 		return;
 	if(!get_qr(qr_SET_XBUTTON_ITEMS))
 		return;
-	verifyWpn(game->xwpn, Xwpn, COND_BWPN, COND_AWPN, COND_YWPN);
+	verifyWpn(game->xwpn, Xwpn, directItemX, COND_BWPN, COND_AWPN, COND_YWPN);
 }
 
 void verifyYWpn()
@@ -28705,7 +28721,7 @@ void verifyYWpn()
 		return;
 	if(!get_qr(qr_SET_YBUTTON_ITEMS))
 		return;
-	verifyWpn(game->ywpn, Ywpn, COND_BWPN, COND_XWPN, COND_AWPN);
+	verifyWpn(game->ywpn, Ywpn, directItemY, COND_BWPN, COND_XWPN, COND_AWPN);
 }
 
 void verifyBothWeapons()
@@ -30977,8 +30993,7 @@ void HeroClass::reset_hookshot()
 	Lwpns.del(Lwpns.idFirst(wHSHandle));
 	Lwpns.del(Lwpns.idFirst(wHookshot));
 	chainlinks.clear();
-	int32_t index = dowpn > -1 ? dowpn : current_item_id(hs_switcher ? itype_switchhook : itype_hookshot);
-	
+	int32_t index=directWpn>-1 ? directWpn : current_item_id(hs_switcher ? itype_switchhook : itype_hookshot);
 	hs_switcher = false;
 	
 	if(index>=0)
