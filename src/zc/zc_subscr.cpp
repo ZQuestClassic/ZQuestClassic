@@ -202,7 +202,7 @@ void dosubscr()
 			if(widg)
 			{
 				bool can_interact = true, can_equip = true,
-					must_equip = false;
+					must_equip = false, can_unequip = noverify;
 				auto eqwpn = widg->getItemVal();
 				if(widg->getType() == widgITEMSLOT)
 				{
@@ -211,6 +211,8 @@ void dosubscr()
 						can_interact = false;
 					if(widg->flags & SUBSCR_CURITM_NONEQP)
 						can_equip = false;
+					if(widg->flags & SUBSCR_CURITM_NO_UNEQUIP)
+						can_unequip = false;
 					must_equip = !b_only && (widg->flags & SUBSCR_CURITM_NO_INTER_WO_EQUIP);
 				}
 				if(must_equip && (!can_equip || eqwpn < 0))
@@ -221,10 +223,10 @@ void dosubscr()
 					auto bpress = btn_press;
 					if(must_equip)
 					{
-						bpress &= (Bwpn!=eqwpn ? INT_BTN_B : 0)
-							| ((use_a && Awpn!=eqwpn) ? INT_BTN_A : 0)
-							| ((use_x && Xwpn!=eqwpn) ? INT_BTN_X : 0)
-							| ((use_y && Ywpn!=eqwpn) ? INT_BTN_Y : 0);
+						bpress &= ((!can_unequip || Bwpn!=eqwpn) ? INT_BTN_B : 0)
+							| ((use_a && (!can_unequip || Awpn!=eqwpn)) ? INT_BTN_A : 0)
+							| ((use_x && (!can_unequip || Xwpn!=eqwpn)) ? INT_BTN_X : 0)
+							| ((use_y && (!can_unequip || Ywpn!=eqwpn)) ? INT_BTN_Y : 0);
 					}
 					if(widg->generic_script && (bpress&widg->gen_script_btns))
 					{
@@ -246,7 +248,7 @@ void dosubscr()
 						{
 							if(b_only || (btn_press&INT_BTN_B))
 							{
-								if(noverify && !b_only && eqwpn == Bwpn)
+								if(can_unequip && !b_only && eqwpn == Bwpn)
 								{
 									Bwpn = -1;
 									game->forced_bwpn = -1;
@@ -285,7 +287,7 @@ void dosubscr()
 							}
 							else if(use_a && (btn_press&INT_BTN_A))
 							{
-								if(noverify && eqwpn == Awpn)
+								if(can_unequip && eqwpn == Awpn)
 								{
 									Awpn = -1;
 									game->forced_awpn = -1;
@@ -324,7 +326,7 @@ void dosubscr()
 							}
 							else if(use_x && (btn_press&INT_BTN_EX1))
 							{
-								if(noverify && eqwpn == Xwpn)
+								if(can_unequip && eqwpn == Xwpn)
 								{
 									Xwpn = -1;
 									game->forced_xwpn = -1;
@@ -363,7 +365,7 @@ void dosubscr()
 							}
 							else if(use_y && (btn_press&INT_BTN_EX2))
 							{
-								if(noverify && eqwpn == Ywpn)
+								if(can_unequip && eqwpn == Ywpn)
 								{
 									Ywpn = -1;
 									game->forced_ywpn = -1;

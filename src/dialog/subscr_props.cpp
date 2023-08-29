@@ -828,7 +828,12 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 					DummyWidget(),
 					CBOX_EX(w->flags,SUBSCR_CURITM_NO_INTER_WO_EQUIP,"No Interact Without Equip",_EX_RBOX),
 					INFOBTN("If checked, effects using buttons such as changing pages or running frozen generic scripts"
-						" on this widget will not trigger unless the buttonpress equips (or intends to equip) the item to a button.")
+						" on this widget will not trigger unless the buttonpress equips (or intends to equip) the item to a button."),
+					DummyWidget(),
+					CBOX_EX(w->flags,SUBSCR_CURITM_NO_UNEQUIP,"No Unequip",_EX_RBOX),
+					INFOBTN("If checked, trying to equip this widget to a button it is already equipped to will NOT unequip it."
+						" Importantly, this also means that with 'No Interact Without Equip' checked, button effects will still"
+						" occur when the button is already equipped with this widget.")
 				);
 				break;
 			}
