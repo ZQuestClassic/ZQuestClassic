@@ -1077,6 +1077,14 @@ void SubscrWidget::replay_rand_compat(byte pos) const
 	if((compat_flags & SUBSCRCOMPAT_FONT_RAND) && (posflags&pos) && replay_version_check(0,19))
 		zc_oldrand();
 }
+SubscrPage const* SubscrWidget::getParentPage() const
+{
+	return parentPage;
+}
+ZCSubscreen const* SubscrWidget::getParentSub() const
+{
+	return parentPage ? parentPage->getParent() : nullptr;
+}
 
 SW_2x2Frame::SW_2x2Frame(subscreen_object const& old) : SW_2x2Frame()
 {
@@ -2722,11 +2730,25 @@ bool SW_Clear::load_old(subscreen_object const& old)
 }
 word SW_Clear::getW() const
 {
-	return 5;
+	return 256;
 }
 word SW_Clear::getH() const
 {
-	return 5;
+	int hei = 0;
+	auto sub = getParentSub();
+	switch(sub ? sub->sub_type : sstPASSIVE)
+	{
+		case sstACTIVE:
+			hei = 168;
+			break;
+		case sstPASSIVE:
+			hei = 56;
+			break;
+		case sstOVERLAY:
+			hei = 224;
+			break;
+	}
+	return hei;
 }
 byte SW_Clear::getType() const
 {
@@ -2734,7 +2756,9 @@ byte SW_Clear::getType() const
 }
 void SW_Clear::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
-	clear_to_color(dest,c_bg.get_color());
+	if(replay_version_check(0,19))
+		clear_to_color(dest,c_bg.get_color());
+	else rectfill(dest, xofs, yofs, xofs+getW()-1, yofs+getH()-1,c_bg.get_color());
 }
 SubscrWidget* SW_Clear::clone() const
 {
@@ -4726,8 +4750,6 @@ void SubscrPage::move_cursor(int dir, bool item_only)
 	if(cursor_pos == 0xFF)
 		cursor_pos = 0;
 	
-	auto& objects = contents;
-	
 	item_only = item_only || !get_qr(qr_FREEFORM_SUBSCREEN_CURSOR);
 	
 	if(dir==SEL_VERIFY_RIGHT || dir==SEL_VERIFY_LEFT)
@@ -5036,6 +5058,11 @@ void SubscrPage::swap(SubscrPage& other)
 	contents.swap(other.contents);
 	zc_swap(cursor_pos,other.cursor_pos);
 	zc_swap(index,other.index);
+	zc_swap(parent,other.parent);
+	for(SubscrWidget* w : contents)
+		w->parentPage = this;
+	for(SubscrWidget* w : other.contents)
+		w->parentPage = &other;
 }
 SubscrPage::~SubscrPage()
 {
@@ -5045,9 +5072,11 @@ SubscrPage& SubscrPage::operator=(SubscrPage const& other)
 {
 	clear();
 	cursor_pos = other.cursor_pos;
+	index = other.index;
+	parent = other.parent;
 	for(SubscrWidget* widg : other.contents)
 	{
-		contents.push_back(widg->clone());
+		push_back(widg->clone());
 	}
 	return *this;
 }
@@ -5068,7 +5097,7 @@ int32_t SubscrPage::read(PACKFILE *f, word s_version)
 		SubscrWidget* widg = SubscrWidget::readWidg(f,s_version);
 		if(!widg)
 			return qe_invalid;
-		contents.push_back(widg);
+		push_back(widg);
 	}
 	return 0;
 }
@@ -5088,6 +5117,31 @@ int32_t SubscrPage::write(PACKFILE *f) const
 word SubscrPage::getIndex() const
 {
 	return index;
+}
+ZCSubscreen const* SubscrPage::getParent() const
+{
+	return parent;
+}
+void SubscrPage::push_back(SubscrWidget* widg)
+{
+	widg->parentPage = this;
+	contents.push_back(widg);
+}
+size_t SubscrPage::size() const
+{
+	return contents.size();
+}
+bool SubscrPage::empty() const
+{
+	return contents.empty();
+}
+SubscrWidget* SubscrPage::at(size_t ind)
+{
+	return contents.at(ind);
+}
+SubscrWidget* const& SubscrPage::operator[](size_t ind) const
+{
+	return contents[ind];
 }
 
 SubscrPage& ZCSubscreen::cur_page()
@@ -5129,6 +5183,7 @@ void ZCSubscreen::delete_page(byte id)
 	{
 		pages[0].clear();
 		pages[0].index = 0;
+		pages[0].parent = this;
 	}
 	else
 	{
@@ -5144,6 +5199,7 @@ void ZCSubscreen::delete_page(byte id)
 		auto ind = 0;
 		for(auto it = pages.begin(); it != pages.end();)
 		{
+			it->parent = this;
 			if(ind < id)
 				++it;
 			else if(ind == id)
@@ -5161,6 +5217,7 @@ bool ZCSubscreen::add_page(byte id)
 		return false;
 	auto& pg = pages.emplace_back();
 	pg.index = pages.size()-1;
+	pg.parent = this;
 	for(byte ind = pages.size()-1; ind > id; --ind)
 		swap_pages(ind,ind-1);
 	curpage = id;
@@ -5199,6 +5256,7 @@ void ZCSubscreen::copy_settings(const ZCSubscreen& src)
 void ZCSubscreen::draw(BITMAP* dest, int32_t xofs, int32_t yofs, byte pos, bool showtime)
 {
 	if(pages.empty()) return;
+	
 	if(sub_type == sstACTIVE && subscr_pg_animating && subscr_anim == this)
 	{
 		if(subscr_pg_to >= pages.size())
@@ -5238,11 +5296,14 @@ void ZCSubscreen::load_old(subscreen_group const& g)
 	pages.clear();
 	SubscrPage& p = pages.emplace_back();
 	p.index = 0;
+	p.parent = this;
 	for(int ind = 0; ind < MAXSUBSCREENITEMS && g.objects[ind].type != ssoNULL; ++ind)
 	{
 		auto* w = SubscrWidget::fromOld(g.objects[ind]);
 		if(w)
-			p.contents.push_back(w);
+		{
+			p.push_back(w);
+		}
 	}
 }
 void ZCSubscreen::load_old(subscreen_object const* arr)
@@ -5250,6 +5311,7 @@ void ZCSubscreen::load_old(subscreen_object const* arr)
 	pages.clear();
 	SubscrPage& p = pages.emplace_back();
 	p.index = 0;
+	p.parent = this;
 	for(int ind = 0; ind < MAXSUBSCREENITEMS && arr[ind].type != ssoNULL; ++ind)
 	{
 		SubscrWidget* w = SubscrWidget::fromOld(arr[ind]);
@@ -5259,7 +5321,7 @@ void ZCSubscreen::load_old(subscreen_object const* arr)
 			delete w;
 			continue;
 		}
-		p.contents.push_back(w);
+		p.push_back(w);
 	}
 }
 int32_t ZCSubscreen::read(PACKFILE *f, word s_version)
@@ -5299,12 +5361,13 @@ int32_t ZCSubscreen::read(PACKFILE *f, word s_version)
 	pages.clear();
 	for(byte q = 0; q < pagecnt; ++q)
 	{
-		SubscrPage& pg = pages.emplace_back();
+		SubscrPage pg;
 		if(auto ret = pg.read(f, s_version))
 			return ret;
+		pg.index = q;
+		pg.parent = this;
+		pages.push_back(pg);
 	}
-	for (byte q = 0; q < pagecnt; ++q)
-		pages[q].index = q;
 	for(byte q = 0; q < 4; ++q)
 		if((def_btns[q] & 0xFF) >= pagecnt)
 			def_btns[q] = 0xFF;

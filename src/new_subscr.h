@@ -304,14 +304,21 @@ struct SubscrWidget
 	std::string getTypeName() const;
 	
 	void replay_rand_compat(byte pos) const;
-	static SubscrWidget* fromOld(subscreen_object const& old);
-	static SubscrWidget* readWidg(PACKFILE* f, word s_version);
-	static SubscrWidget* newType(byte type);
+	
+	SubscrPage const* getParentPage() const;
+	ZCSubscreen const* getParentSub() const;
 protected:
 	byte type;
 	byte compat_flags;
+	SubscrPage const* parentPage;
 	
 	virtual int32_t read(PACKFILE *f, word s_version);
+	
+	friend struct SubscrPage;
+public:
+	static SubscrWidget* fromOld(subscreen_object const& old);
+	static SubscrWidget* readWidg(PACKFILE* f, word s_version);
+	static SubscrWidget* newType(byte type);
 };
 
 #define SUBSCR_2X2FR_TRANSP    SUBSCRFLAG_SPEC_01
@@ -951,7 +958,6 @@ protected:
 #define MAX_SUBSCR_PAGES 255
 struct SubscrPage
 {
-	std::vector<SubscrWidget*> contents;
 	byte cursor_pos;
 	
 	void move_cursor(int dir, bool item_only = false);
@@ -980,8 +986,18 @@ struct SubscrPage
 	int32_t write(PACKFILE *f) const;
 	
 	word getIndex() const;
+	ZCSubscreen const* getParent() const;
+	
+	void push_back(SubscrWidget* widg);
+	size_t size() const;
+	bool empty() const;
+	SubscrWidget* at(size_t ind);
+	SubscrWidget* const& operator[](size_t ind) const;
 private:
+	std::vector<SubscrWidget*> contents;
 	word index;
+	ZCSubscreen const* parent;
+	
 	friend struct ZCSubscreen;
 };
 #define SUBFLAG_ACT_NOPAGEWRAP   0x00000001
