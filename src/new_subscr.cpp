@@ -4924,7 +4924,7 @@ int32_t SubscrPage::movepos_legacy(int dir, word startp, word fp, word fp2, word
 		}
 		cp2 = (curpos<<8)|pg->index;
 		//find our new position
-		widg = pg->get_widg_pos(curpos,true);
+		widg = pg->get_widg_pos(curpos,false);
 		
 		if(!widg)
 			return failpos;
@@ -5306,10 +5306,11 @@ int32_t ZCSubscreen::read(PACKFILE *f, word s_version)
 	for(byte q = 0; q < pagecnt; ++q)
 	{
 		SubscrPage& pg = pages.emplace_back();
-		pg.index = pages.size()-1;
 		if(auto ret = pg.read(f, s_version))
 			return ret;
 	}
+	for (byte q = 0; q < pagecnt; ++q)
+		pages[q].index = q;
 	return 0;
 }
 int32_t ZCSubscreen::write(PACKFILE *f) const
