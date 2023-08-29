@@ -39,7 +39,7 @@ int32_t newg_selcombo_proc(int32_t msg,DIALOG *d,int32_t)
 			}
 			else if(gui_mouse_b()&1)
 			{
-				if(ctrl ? select_combo_3(cmb,cs) : select_combo_2(cmb,cs))
+				if((ctrl ? select_combo_3 : select_combo_2)(cmb,cs))
 				{
 					d->d1 = cmb;
 					d->d2 = cs;

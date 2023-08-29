@@ -24,6 +24,7 @@ int32_t newg_seltile_proc(int32_t msg,DIALOG *d,int32_t)
 		}
 		case MSG_CLICK:
 		{
+			bool ctrl = key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL];
 			int mb = gui_mouse_b();
 			if(!mb || (mb&1)) //leftmouse
 			{
@@ -33,7 +34,7 @@ int32_t newg_seltile_proc(int32_t msg,DIALOG *d,int32_t)
 				int32_t cs = d->d2;
 				bool showflip = d->bg & 0b10;
 				
-				if(select_tile(t,f,1,cs,true,0,showflip))
+				if((ctrl ? select_tile_2 : select_tile)(t,f,1,cs,true,0,showflip))
 				{
 					d->d1 = t;
 					d->d2 = cs;
