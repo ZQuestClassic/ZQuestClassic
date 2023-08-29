@@ -1870,14 +1870,14 @@ static int32_t onToggleShowUnowned()
 static int32_t onToggleMaxCtr()
 {
 	zq_view_fullctr = !zq_view_fullctr;
-	SETFLAG(ss_view_menu[6].flags, D_SELECTED, zq_view_fullctr);
+	SETFLAG(ss_view_menu[5].flags, D_SELECTED, zq_view_fullctr);
 	zc_set_config("editsubscr","show_full_counters",zq_view_fullctr?1:0);
 	return D_O_K;
 }
 static int32_t onToggleMaxMaxCtr()
 {
 	zq_view_maxctr = !zq_view_maxctr;
-	SETFLAG(ss_view_menu[7].flags, D_SELECTED, zq_view_maxctr);
+	SETFLAG(ss_view_menu[6].flags, D_SELECTED, zq_view_maxctr);
 	zc_set_config("editsubscr","show_maxed_maxcounters",zq_view_maxctr?1:0);
 	return D_O_K;
 }
@@ -1886,7 +1886,7 @@ static int32_t onToggleNoInf()
 	if(zq_view_allinf)
 		onToggleAllInf();
 	zq_view_noinf = !zq_view_noinf;
-	SETFLAG(ss_view_menu[8].flags, D_SELECTED, zq_view_noinf);
+	SETFLAG(ss_view_menu[7].flags, D_SELECTED, zq_view_noinf);
 	zc_set_config("editsubscr","show_no_infinites",zq_view_noinf?1:0);
 	return D_O_K;
 }
@@ -1895,7 +1895,7 @@ static int32_t onToggleAllInf()
 	if(zq_view_noinf)
 		onToggleNoInf();
 	zq_view_allinf = !zq_view_allinf;
-	SETFLAG(ss_view_menu[9].flags, D_SELECTED, zq_view_allinf);
+	SETFLAG(ss_view_menu[8].flags, D_SELECTED, zq_view_allinf);
 	zc_set_config("editsubscr","show_all_infinites",zq_view_allinf?1:0);
 	return D_O_K;
 }
@@ -2401,10 +2401,10 @@ bool edit_subscreen()
 	resetItems(game,&zinit,true);
 	
 	SETFLAG(ss_view_menu[4].flags, D_SELECTED, zq_ignore_item_ownership);
-	SETFLAG(ss_view_menu[6].flags, D_SELECTED, zq_view_fullctr);
-	SETFLAG(ss_view_menu[7].flags, D_SELECTED, zq_view_maxctr);
-	SETFLAG(ss_view_menu[8].flags, D_SELECTED, zq_view_noinf);
-	SETFLAG(ss_view_menu[9].flags, D_SELECTED, zq_view_allinf);
+	SETFLAG(ss_view_menu[5].flags, D_SELECTED, zq_view_fullctr);
+	SETFLAG(ss_view_menu[6].flags, D_SELECTED, zq_view_maxctr);
+	SETFLAG(ss_view_menu[7].flags, D_SELECTED, zq_view_noinf);
+	SETFLAG(ss_view_menu[8].flags, D_SELECTED, zq_view_allinf);
 	SETFLAG(ss_settings_menu[3].flags, D_SELECTED, subscr_confirm_delete);
 	
 	update_subscr_dlg(true);
