@@ -2972,10 +2972,7 @@ int32_t SW_ItemSlot::getDisplayItem() const
 				break;
 			case itype_bowandarrow:
 			case itype_arrow:
-				if(current_item_id(itype_bow)>-1)
-				{
-					select=true;
-				}
+				select=true;
 				break;
 			case itype_letterpotion:
 				break;
@@ -3033,10 +3030,7 @@ int32_t SW_ItemSlot::getDisplayItem() const
 		}
 		case itype_bowandarrow:
 		case itype_arrow:
-			if(current_item_id(itype_arrow,false)>-1)
-			{
-				family=itype_arrow;
-			}
+			family=itype_arrow;
 			break;
 		case itype_letterpotion:
 			if(current_item_id(itype_potion)>-1)
