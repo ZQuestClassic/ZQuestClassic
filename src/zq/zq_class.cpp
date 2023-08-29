@@ -10418,10 +10418,14 @@ int32_t writecomboaliases(PACKFILE *f, word version, word build)
 			{
 				new_return(21);
 			}
+			if (!p_putc(cauto.getArg(), f))
+			{
+				new_return(22);
+			}
 			int32_t num_combos = cauto.combos.size();
 			if (!p_iputl(num_combos, f))
 			{
-				new_return(22);
+				new_return(23);
 			}
 
 			for (auto q = 0; q < num_combos; ++q)
@@ -10429,7 +10433,7 @@ int32_t writecomboaliases(PACKFILE *f, word version, word build)
 				autocombo_entry const& entry = cauto.combos.at(q);
 				if (!p_iputl(entry.cid, f))
 				{
-					new_return(23);
+					new_return(24);
 				}
 			}
 		}

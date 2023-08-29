@@ -18409,7 +18409,7 @@ int32_t readcomboaliases(PACKFILE *f, zquestheader *Header, word version, word b
 	{
 		byte type;
 		int32_t display_cid, erase_cid;
-		byte flags;
+		byte flags, arg;
 		if (!p_getc(&type, f))
 		{
 			return qe_invalid;
@@ -18426,6 +18426,10 @@ int32_t readcomboaliases(PACKFILE *f, zquestheader *Header, word version, word b
 		{
 			return qe_invalid;
 		}
+		if (!p_getc(&arg, f))
+		{
+			return qe_invalid;
+		}
 		int32_t num_combos_in_cauto = 0;
 		if (!p_igetl(&num_combos_in_cauto, f))
 		{
@@ -18439,6 +18443,7 @@ int32_t readcomboaliases(PACKFILE *f, zquestheader *Header, word version, word b
 		temp_cauto.setDisplay(display_cid);
 		temp_cauto.setEraseCombo(erase_cid);
 		temp_cauto.setFlags(flags);
+		temp_cauto.setArg(arg);
 
 		int32_t ca_cid; int16_t ca_offset; int16_t ca_engrave_offset;
 		for (auto q = 0; q < num_combos_in_cauto; ++q)

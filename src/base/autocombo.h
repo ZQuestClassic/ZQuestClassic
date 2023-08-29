@@ -11,7 +11,8 @@ enum { AUTOCOMBO_NONE, AUTOCOMBO_Z1, AUTOCOMBO_BASIC, AUTOCOMBO_FENCE, AUTOCOMBO
 enum
 {
 	ACF_VALID =        0x1,
-	ACF_CROSSSCREENS = 0x2
+	ACF_CROSSSCREENS = 0x2,
+	ACF_FLIP         = 0x4
 };
 
 struct autocombo_entry
@@ -84,6 +85,14 @@ struct combo_auto
 		type = newtype;
 	}
 
+	byte getArg() const
+	{
+		return arg;
+	}
+	void setArg(byte newarg)
+	{
+		arg = newarg;
+	}
 
 	int32_t getDisplay() const;
 	int32_t getIconDisplay() const
@@ -109,6 +118,7 @@ struct combo_auto
 
 private:
 	byte type = AUTOCOMBO_NONE;
+	byte arg = 0;
 	int32_t cid_display = 0;
 	int32_t cid_erase = 0;
 };

@@ -11,8 +11,8 @@ namespace AutoPattern
 	class autopattern_fence : protected autopattern_container
 	{
 	public:
-		explicit autopattern_fence(int32_t ntype, int32_t nlayer, int32_t nbasescreen, int32_t nbasepos, combo_auto* nsource, bool nnocrossedge) :
-			autopattern_container(ntype, nlayer, nbasescreen, nbasepos, nsource, nnocrossedge) {}
+		explicit autopattern_fence(int32_t ntype, int32_t nlayer, int32_t nbasescreen, int32_t nbasepos, combo_auto* nsource, bool nnocrossedge, bool nflip=false) :
+			autopattern_container(ntype, nlayer, nbasescreen, nbasepos, nsource, nnocrossedge), flip(nflip) {}
 		bool execute(int32_t exscreen, int32_t expos);
 		bool erase(int32_t exscreen, int32_t expos);
 		void flip_single(apcombo*& ap);
@@ -24,6 +24,8 @@ namespace AutoPattern
 		int32_t get_edge_flags(apcombo*& ap, int32_t dir, bool flipped = false);
 		int32_t get_turn_edge_flags(apcombo*& ap, int32_t dir);
 		int32_t get_num_connections(apcombo*& ap);
+	private:
+		bool flip;
 	};
 
 }

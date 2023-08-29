@@ -11,6 +11,7 @@
 #include <gui/label.h>
 #include <gui/button.h>
 #include <gui/text_field.h>
+#include <gui/switcher.h>
 #include <gui/window.h>
 #include <functional>
 
@@ -39,19 +40,24 @@ public:
 	std::shared_ptr<GUI::Widget> view() override;
 	void addSlot(autocombo_entry& entry, size_t& ind, size_t& wid, size_t& hei);
 	void refreshPreviewCSets();
+	void refreshTypes(int32_t type);
 	void refreshWidgets();
 	bool handleMessage(const GUI::DialogMessage<message>& msg);
 
 private:
+	std::string typeinfostr;
+
 	std::vector<autocombo_widg> widgs;
 	std::shared_ptr<GUI::Window> window;
 	std::shared_ptr<GUI::Grid> wingrid, sgrid;
 	//std::shared_ptr<GUI::Button> pastebtn;
 
 	std::shared_ptr<GUI::DropDownList> typedropdown;
+	std::shared_ptr<GUI::Button> typeinfobtn;
 	std::shared_ptr<GUI::SelComboSwatch> iconpane;
 	std::shared_ptr<GUI::SelComboSwatch> erasepane;
 	std::shared_ptr<GUI::Button> templatebtn;
+	std::shared_ptr<GUI::Switcher> switch_settings;
 
 	GUI::ListData list_autocombotypes;
 };

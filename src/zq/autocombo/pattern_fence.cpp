@@ -132,7 +132,7 @@ namespace AutoPattern
 				if (p->adj[i] && p->adj[i]->in_set)
 				{
 					int32_t numconn = get_num_connections(p->adj[i]);
-					if (num_connections < 2 && get_num_connections(p->adj[i]) < 2)
+					if (num_connections < 2 && numconn < 2)
 					{
 						int32_t newflags = get_turn_edge_flags(p, i);
 						// Disallow and invalid connection
@@ -406,20 +406,42 @@ namespace AutoPattern
 			{
 				if (!adj->connflags)
 				{
-					switch (dir)
+					// If defualt orientation is flipped
+					if (flip)
 					{
+						switch (dir)
+						{
 						case up:
-							ret = U | UR;
+							ret = U | UL;
 							break;
 						case down:
-							ret = D | DR;
+							ret = D | DL;
 							break;
 						case left:
-							ret = L | DL;
+							ret = L | UL;
 							break;
 						case right:
-							ret = R | DR;
+							ret = R | UR;
 							break;
+						}
+					}
+					else
+					{
+						switch (dir)
+						{
+							case up:
+								ret = U | UR;
+								break;
+							case down:
+								ret = D | DR;
+								break;
+							case left:
+								ret = L | DL;
+								break;
+							case right:
+								ret = R | DR;
+								break;
+						}
 					}
 				}
 			}

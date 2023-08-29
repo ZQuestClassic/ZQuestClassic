@@ -10,18 +10,28 @@
 extern bool saved;
 combo_auto temp_autocombo;
 static combo_auto* retptr;
-static bool new_usecs = false;
 
 extern int32_t CSet;
 extern combo_auto combo_autos[];
 
-#define AUTO_CB(member, flag, txt, inf) \
-INFOBTN(inf), \
-Checkbox(checked = temp_autocombo.member&flag, \
+#define AUTO_CB(member, flag, cspan, txt, inf) \
+INFOBTN_EX(inf, width = 20_px, height = 20_px, hAlign = 1.0), \
+Checkbox(hAlign = 0.0, \
+	checked = temp_autocombo.member&flag, \
 	text = txt,  \
+	colSpan = cspan, \
 	onToggleFunc = [&](bool state) \
 	{ \
 		SETFLAG(temp_autocombo.member, flag, state); \
+	})
+
+#define AUTO_INFOBTN_REF(getter) \
+Button(text = "?", \
+	width = 20_px, height = 20_px, \
+	onClick = message::REFR_INFO, \
+	onPressFunc = [&]() \
+	{ \
+		InfoDialog("Info",getter).show(); \
 	})
 
 void call_autocombo_dlg(int32_t index)
@@ -71,6 +81,7 @@ void AutoComboDialog::refreshPanels()
 
 void animate_combos();
 static int32_t scroll_pos1 = 0;
+static int32_t prev_scroll = 0;
 std::shared_ptr<GUI::Widget> AutoComboDialog::view()
 {
 	using namespace GUI::Builder;
@@ -81,14 +92,18 @@ std::shared_ptr<GUI::Widget> AutoComboDialog::view()
 	window = Window(
 		title = "Auto Combo Editor",
 		use_vsync = true,
-		onTick = [&]() {animate_combos(); return ONTICK_REDRAW; },
+		onTick = [&]() {prev_scroll = scroll_pos1; animate_combos(); return ONTICK_REDRAW; },
 		minwidth = 30_em, minheight = 32_em,
-		info = "tba",
+		info =
+			"Fill in all the boxes with combos as indicated by the engravings to their left.\n"
+			"All boxes need to be filled with combos with no duplicates in order\n"
+			"for the autocombo to function.",
 		onClose = message::CANCEL,
 		Column(vAlign = 0.0,
-			Rows<5>(vAlign = 0.0,
-				Label(text = "Type:", vAlign = 0.0),
-				typedropdown = DropDownList(vAlign = 0.0,
+			Row(vAlign = 0.0,
+				typeinfobtn = AUTO_INFOBTN_REF(typeinfostr),
+				Label(text = "Type:", vAlign = 0.5),
+				typedropdown = DropDownList(vAlign = 0.5,
 					data = list_autocombotypes,
 					fitParent = true,
 					selectedValue = temp_autocombo.getType(),
@@ -98,21 +113,22 @@ std::shared_ptr<GUI::Widget> AutoComboDialog::view()
 						if (val != temp_autocombo.getType())
 						{
 							refreshPanels();
+							refreshTypes(val);
 						}
 					}),
-				Label(text = "Display Combo:", vAlign = 0.0),
-				iconpane = SelComboSwatch(vAlign = 0.0,
-					combo = temp_autocombo.getIconDisplay(),
+				Label(text = "Erase Combo:", leftPadding = 32_px),
+				erasepane = iconpane = SelComboSwatch(vAlign = 0.5,
+					combo = temp_autocombo.getEraseCombo(),
 					cset = CSet,
-					showvals = true,
+					showvals = false,
 					disabled = temp_autocombo.getType() == AUTOCOMBO_NONE,
 					onSelectFunc = [&](int32_t cmb, int32_t c)
 					{
-						temp_autocombo.setDisplay(cmb);
-						CSet = c;
+						temp_autocombo.setEraseCombo(cmb),
+							CSet = c;
 						refreshPreviewCSets();
 					}),
-				templatebtn = Button(vAlign = 1.0,
+				templatebtn = Button(vAlign = 0.5,
 					text = "Auto Generate",
 					minwidth = 90_px,
 					disabled = temp_autocombo.getType() == AUTOCOMBO_NONE,
@@ -132,22 +148,56 @@ std::shared_ptr<GUI::Widget> AutoComboDialog::view()
 								}
 							}
 						}
-					}),
-				AUTO_CB(flags, ACF_CROSSSCREENS, "Cross Screens", "If checked, this autocombo can affect combos on adjacent screens."),
-				Label(text = "Erase Combo:"),
-				erasepane = iconpane = SelComboSwatch(vAlign = 0.0,
-					combo = temp_autocombo.getEraseCombo(),
-					cset = CSet,
-					showvals = true,
-					disabled = temp_autocombo.getType() == AUTOCOMBO_NONE,
-					onSelectFunc = [&](int32_t cmb, int32_t c)
-					{
-						temp_autocombo.setEraseCombo(cmb),
-						CSet = c;
-						refreshPreviewCSets();
 					})
 			),
-			wingrid = Column(padding=0_px),
+			TabPanel(
+				TabRef(name = "Combos", Column(
+					wingrid = Column(padding = 0_px)
+				)),
+				TabRef(name = "Settings", Column(
+					Row(vAlign = 0.0,
+						Label(text = "Display Combo:"),
+						iconpane = SelComboSwatch(
+							colSpan = 2,
+							combo = temp_autocombo.getIconDisplay(),
+							cset = CSet,
+							showvals = false,
+							disabled = temp_autocombo.getType() == AUTOCOMBO_NONE,
+							onSelectFunc = [&](int32_t cmb, int32_t c)
+							{
+								temp_autocombo.setDisplay(cmb);
+								CSet = c;
+								refreshPreviewCSets();
+							})
+					),
+					switch_settings = Switcher(
+						DummyWidget(),
+						Row(vAlign = 0.0,
+							AUTO_CB(flags, ACF_CROSSSCREENS, 1, "Cross Screens", "If checked, this autocombo can affect combos on adjacent screens.")
+						),
+						Rows<2>(vAlign = 0.0,
+							AUTO_CB(flags, ACF_CROSSSCREENS, 1, "Cross Screens", "If checked, this autocombo can affect combos on adjacent screens."),
+							AUTO_CB(flags, ACF_FLIP, 1, "Flip", "Flips the default orientation when placing combos between up/left and down/right.")
+						),
+						Rows<2>(vAlign = 0.0,
+							AUTO_CB(flags, ACF_CROSSSCREENS, 1, "Cross Screens", "If checked, this autocombo can affect combos on adjacent screens."),
+							AUTO_CB(flags, ACF_FLIP, 1, "Flip", "Flips the default orientation when placing combos between up/left and down/right."),
+							Row(colSpan=2, hAlign = 0.0, padding = 0_px,
+								INFOBTN_EX("The default height the mountain extends downwards.", width = 20_px, height = 20_px),
+								Label(text = "Height:"),
+								TextField(
+									type = GUI::TextField::type::INT_DECIMAL,
+									low = 1, high = 9,
+									val = temp_autocombo.getArg(),
+									onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
+									{
+										temp_autocombo.setArg(val);
+									})
+							)
+						)
+					)
+				))
+			),
 			Row(
 				vAlign = 1.0,
 				spacing = 2_em,
@@ -171,6 +221,7 @@ std::shared_ptr<GUI::Widget> AutoComboDialog::view()
 			)
 		)
 	);
+	refreshTypes(temp_autocombo.getType());
 	refreshWidgets();
 	return window;
 }
@@ -200,6 +251,7 @@ void AutoComboDialog::addSlot(autocombo_entry& entry, size_t& ind, size_t& wid, 
 					entry.cid = cmb;
 					widgs.at(ind).cpane->setCSet(CSet);
 					temp_autocombo.updateValid();
+					scroll_pos1 = prev_scroll;
 				})
 		)
 	);
@@ -219,6 +271,58 @@ void AutoComboDialog::refreshPreviewCSets()
 	for (int32_t q = 0; q < widgs.size(); ++q)
 	{
 		widgs[q].cpane->setCSet(CSet);
+	}
+}
+
+void AutoComboDialog::refreshTypes(int32_t type)
+{
+	typeinfobtn->setDisabled(type == AUTOCOMBO_NONE);
+	switch (type)
+	{
+		case AUTOCOMBO_BASIC:
+			typeinfostr =
+				"A basic general purpose setup. Will tile along cardinal directions.\n\n"
+				"CONTROLS:\n"
+				"Left Click: Place combo\n"
+				"Right Click: Remove combo (uses the Erase Combo)\n"
+				"Ctrl + Left Click: Fill combos\n"
+				"Ctrl + Right Click: Fill remove combos";
+			switch_settings->switchTo(1);
+			break;
+		case AUTOCOMBO_Z1:
+			typeinfostr =
+				"A very simple autocombo setup for making classic mountains.\n"
+				"Uses only 6 combos made up of tops, bottoms, and corners.\n\n"
+				"CONTROLS:\n"
+				"Left Click: Place combo\n"
+				"Right Click: Remove combo (uses the Erase Combo)\n"
+				"Ctrl + Left Click: Fill combos\n"
+				"Ctrl + Right Click: Fill remove combos";
+			switch_settings->switchTo(1);
+			break;
+		case AUTOCOMBO_Z4:
+			typeinfostr =
+				"An autocombo setup for making mountains that stack vertically.\n"
+				"Works identically to 'Wall', but with combos for the bottoms\n"
+				"of the mountain filled in as it goes.\n\n"
+				"CONTROLS:\n"
+				"Left Click: Place combo\n"
+				"Right Click: Remove combo (uses the Erase Combo)\n"
+				"Ctrl + Click: Flip orientation between inward / outward";
+			switch_settings->switchTo(3);
+			break;
+		case AUTOCOMBO_FENCE:
+			typeinfostr =
+				"An autocombo setup for making one tile high walls.\n\n"
+				"CONTROLS:\n"
+				"Left Click: Place combo\n"
+				"Right Click: Remove combo (uses the Erase Combo)\n"
+				"Ctrl + Click: Flip orientation between inward / outward";
+			switch_settings->switchTo(2);
+			break;
+		default:
+			switch_settings->switchTo(0);
+			break;
 	}
 }
 

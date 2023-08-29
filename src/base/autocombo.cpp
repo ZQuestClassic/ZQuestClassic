@@ -28,6 +28,7 @@ combo_auto& combo_auto::operator=(combo_auto const& other)
 	cid_display = other.cid_display;
 	flags = other.flags;
 	cid_erase = other.cid_erase;
+	arg = other.arg;
 	return *this;
 }
 

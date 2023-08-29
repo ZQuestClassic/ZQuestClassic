@@ -7545,7 +7545,7 @@ byte relational_source_grid[256]=
     46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46
 };
 
-void drawAutoCombo(int32_t pos)
+void drawAutoCombo(int32_t pos, bool rclick)
 {
 	int32_t cid = Combo;
 	int8_t cs = CSet;
@@ -7559,7 +7559,7 @@ void drawAutoCombo(int32_t pos)
 			case AUTOCOMBO_BASIC:
 			{
 				AutoPattern::autopattern_basic ap(ca.getType(), CurrentLayer, scr, pos, &ca, !(ca.flags & ACF_CROSSSCREENS));
-				if (gui_mouse_b() & 2)
+				if (rclick)
 					ap.erase(scr, pos);
 				else
 					ap.execute(scr, pos);
@@ -7568,18 +7568,20 @@ void drawAutoCombo(int32_t pos)
 			case AUTOCOMBO_Z1:
 			{
 				AutoPattern::autopattern_flatmtn ap(ca.getType(), CurrentLayer, scr, pos, &ca, !(ca.flags & ACF_CROSSSCREENS));
-				if (gui_mouse_b() & 2)
+				if (rclick)
 					ap.erase(scr, pos);
 				else
 					ap.execute(scr, pos);
+				break;
 			}
 			case AUTOCOMBO_FENCE:
 			{
-				AutoPattern::autopattern_fence ap(ca.getType(), CurrentLayer, scr, pos, &ca, !(ca.flags & ACF_CROSSSCREENS));
-				if (gui_mouse_b() & 2)
+				AutoPattern::autopattern_fence ap(ca.getType(), CurrentLayer, scr, pos, &ca, !(ca.flags & ACF_CROSSSCREENS), ca.flags & ACF_FLIP);
+				if (rclick)
 					ap.erase(scr, pos);
 				else
 					ap.execute(scr, pos);
+				break;
 			}
 		}
 	}
@@ -7599,7 +7601,7 @@ void drawAutoComboCommand(int32_t pos)
 			case AUTOCOMBO_FENCE:
 			{
 				AutoPattern::autopattern_fence ap(ca.getType(), CurrentLayer, scr, pos, &ca, !(ca.flags & ACF_CROSSSCREENS));
-				ap.flip_all_connected(scr, pos, 352);
+				ap.flip_all_connected(scr, pos, 2048);
 			}
 		}
 	}
@@ -8012,7 +8014,7 @@ void draw(bool justcset)
             
 				case dm_auto:
 				{
-					drawAutoCombo(cstart);
+					drawAutoCombo(cstart, gui_mouse_b() & 2);
 
 					update_combobrush();
 				}
@@ -8140,14 +8142,36 @@ void draw_block(int32_t start,int32_t w,int32_t h)
 
 static void fill(int32_t map, int32_t screen_index, mapscr* fillscr, int32_t targetcombo, int32_t targetcset, int32_t sx, int32_t sy, int32_t dir, int32_t diagonal, bool only_cset)
 {
-    if(!only_cset || draw_mode == dm_auto)
-    {
-        if((fillscr->data[((sy<<4)+sx)])!=targetcombo)
-            return;
-    }
+	bool rclick = gui_mouse_b() & 2;
+
+	if (draw_mode == dm_auto)
+	{
+		combo_auto const& cauto = combo_autos[combo_auto_pos];
+		if (rclick&&cauto.containsCombo(targetcombo))
+		{
+			if(!cauto.containsCombo(fillscr->data[((sy<<4)+sx)]))
+				return;
+		}
+		else
+		{
+			if ((fillscr->data[((sy<<4)+sx)])!=targetcombo)
+				return;
+		}
     
-    if((fillscr->cset[((sy<<4)+sx)])!=targetcset)
-        return;
+		if((fillscr->cset[((sy<<4)+sx)])!=targetcset)
+			return;
+	}
+	else
+	{
+		if(!only_cset)
+		{
+			if((fillscr->data[((sy<<4)+sx)])!=targetcombo)
+				return;
+		}
+
+		if((fillscr->cset[((sy<<4)+sx)])!=targetcset)
+			return;
+	}
 
 	int32_t cid = Combo;
     int8_t cs = CSet;
@@ -8161,13 +8185,15 @@ static void fill(int32_t map, int32_t screen_index, mapscr* fillscr, int32_t tar
 		combo_auto const& cauto = combo_autos[combo_auto_pos];
 		if (!cauto.valid())
 			return;
-		if (cauto.containsCombo(targetcombo))
+		if (!rclick && cauto.containsCombo(targetcombo))
+			return;
+		if (rclick && cauto.getEraseCombo() == targetcombo)
 			return;
 	}
     
 	if (draw_mode == dm_auto)
 	{
-		drawAutoCombo((sy << 4) + sx);
+		drawAutoCombo((sy << 4) + sx, rclick);
 	}
 	else
 		Map.DoSetComboCommand(map, screen_index, (sy<<4)+sx, only_cset ? -1 : cid, cs);
@@ -8852,7 +8878,7 @@ void flood()
     for(int32_t i=0; i<176; i++)
     {
 		if (draw_mode == dm_auto)
-			drawAutoCombo(i);
+			drawAutoCombo(i, gui_mouse_b() & 2);
 		else
 			Map.DoSetComboCommand(drawmap, drawscr, i, include_combos ? Combo : -1, CSet);
     }
@@ -8933,8 +8959,8 @@ void fill_4()
         }
         
         Map.StartListCommand();
-		if (draw_mode == dm_auto && combo_autos[combo_auto_pos].getType() == AUTOCOMBO_FENCE ||
-			combo_autos[combo_auto_pos].getType() == AUTOCOMBO_Z4)
+		if (draw_mode == dm_auto && (combo_autos[combo_auto_pos].getType() == AUTOCOMBO_FENCE ||
+			combo_autos[combo_auto_pos].getType() == AUTOCOMBO_Z4))
 		{
 			drawAutoComboCommand((by << 4) + bx);
 		}
@@ -10871,9 +10897,40 @@ void domouse()
 		//on the map screen
 		if(isinRect(x,y,startxint,startyint,startxint+(256*mapscreensize)-1,startyint+(176*mapscreensize)-1))
 		{
-			if (draw_mode == dm_auto && rclick)
+			if (draw_mode == dm_auto)
 			{
-				draw(key[KEY_LSHIFT] || key[KEY_RSHIFT]);
+				if (key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
+				{
+					if (canfill)
+					{
+						switch (fill_type)
+						{
+						case 0:
+							flood();
+							break;
+
+						case 1:
+							fill_4();
+							break;
+
+						case 2:
+							fill_8();
+							break;
+
+						case 3:
+							fill2_4();
+							break;
+
+						case 4:
+							fill2_8();
+							break;
+						}
+
+						canfill = false;
+					}
+				}
+				else
+					draw(key[KEY_LSHIFT] || key[KEY_RSHIFT]);
 			}
 			else if(lclick)
 			{
