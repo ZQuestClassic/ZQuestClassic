@@ -18,7 +18,6 @@
 #include "zc_list_data.h"
 
 #ifdef IS_PLAYER
-extern int32_t directItem;
 extern sprite_list Lwpns;
 extern bool msg_onscreen;
 void verifyBothWeapons();
@@ -445,6 +444,13 @@ int shadow_h(int shadow)
 			return 1;
 	}
 	return 0;
+}
+
+int wrap_iid(int iid)
+{
+	if(unsigned(iid) >= MAXITEMS)
+		return -1;
+	return iid;
 }
 
 int get_sub_dmap()
@@ -1691,7 +1697,8 @@ void SW_ButtonItem::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& p
 					int bow = current_item_id(itype_bow);
 					if(bow>-1)
 					{
-						putitem3(dest,x,y,bow,subscr_item_clk);
+						if(replay_version_check(0,19))
+							putitem3(dest,x,y,bow,subscr_item_clk);
 						if(!get_qr(qr_NEVERDISABLEAMMOONSUBSCREEN)
 							&& !checkmagiccost(btnitem_ids[btn]&0xFF))
 							dodraw = false;
@@ -1699,7 +1706,8 @@ void SW_ButtonItem::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& p
 				}
 				break;
 		}
-		putitem3(dest,x,y,btnitem_ids[btn]&0xFF,btnitem_clks[btn]);
+		if(dodraw)
+			putitem3(dest,x,y,btnitem_ids[btn]&0xFF,btnitem_clks[btn]);
 	}
 	
 	if(flags&SUBSCR_BTNITM_TRANSP)
@@ -2769,7 +2777,7 @@ bool SW_ItemSlot::load_old(subscreen_object const& old)
 		return false;
 	SubscrWidget::load_old(old);
 	iclass = old.d1;
-	iid = old.d8-1;
+	iid = wrap_iid(old.d8-1);
 	pos = old.d3;
 	pos_up = old.d4;
 	pos_down = old.d5;
@@ -2843,8 +2851,7 @@ int32_t SW_ItemSlot::getItemVal() const
 		}
 		if(select && !item_disabled(iid) && game->get_item(iid))
 		{
-			directItem = iid;
-			auto ret = iid;
+			int32_t ret = iid;
 			if(ret>-1 && itemsbuf[ret].family == itype_arrow)
 				ret += 0xF000; //bow
 			return ret;
@@ -2908,6 +2915,8 @@ int32_t SW_ItemSlot::getItemVal() const
 		return -1;
 	int32_t itemid = current_item_id(family, false);
 	if(item_disabled(itemid))
+		return -1;
+	if(wrap_iid(itemid) < 0)
 		return -1;
 	if(iclass == itype_bowandarrow)
 		return itemid|0xF000;
@@ -2997,7 +3006,6 @@ int32_t SW_ItemSlot::getDisplayItem() const
 		}
 		if(select && !item_disabled(iid) && game->get_item(iid))
 		{
-			directItem = iid;
 			auto ret = iid;
 			if(ret>-1 && itemsbuf[ret].family == itype_arrow)
 				ret += 0xF000; //bow
@@ -3081,6 +3089,8 @@ int32_t SW_ItemSlot::getDisplayItem() const
 		return -1;
 	int32_t itemid = current_item_id(family, false);
 	if(item_disabled(itemid))
+		return -1;
+	if(wrap_iid(itemid) < 0)
 		return -1;
 	if(iclass == itype_bowandarrow)
 		return itemid|0xF000;
@@ -3170,7 +3180,7 @@ bool SW_ItemSlot::copy_prop(SubscrWidget const* src, bool all)
 	SW_ItemSlot const* other = dynamic_cast<SW_ItemSlot const*>(src);
 	if(!SubscrWidget::copy_prop(other,all))
 		return false;
-	iid = other->iid;
+	iid = wrap_iid(other->iid);
 	iclass = other->iclass;
 	return true;
 }
@@ -3182,6 +3192,7 @@ int32_t SW_ItemSlot::read(PACKFILE *f, word s_version)
 		return qe_invalid;
 	if(!p_igetl(&iid,f))
 		return qe_invalid;
+	iid = wrap_iid(iid);
 	return 0;
 }
 int32_t SW_ItemSlot::write(PACKFILE *f) const
@@ -3621,6 +3632,8 @@ void SW_Selector::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& pag
 	if(!tempsel.tile) return;
 	tempsel.drawstyle = (flags&SUBSCR_SELECTOR_TRANSP) ? 1 : 0;
 	int32_t id = widg->getItemVal();
+	if(id > -1) //Mask out the bow&arrow flag
+		id &= 0xFF;
 	itemdata const& tmpitm = itemsbuf[id];
 	bool oldsel = get_qr(qr_SUBSCR_OLD_SELECTOR);
 	if(!oldsel) big_sel = false;

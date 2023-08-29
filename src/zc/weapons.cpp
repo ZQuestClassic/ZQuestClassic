@@ -37,7 +37,7 @@
 
 extern HeroClass Hero;
 extern zinitdata zinit;
-extern int32_t directWpn;
+extern int32_t dowpn;
 extern FFScript FFCore;
 extern ZModule zcm;
 extern enemy Enemy;
@@ -2215,7 +2215,7 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t Type,int32_t pow,int32_t 
 			
 			if(itemid<0)
 			{
-				itemid = directWpn>-1 ? directWpn : current_item_id(itype_wand);
+				itemid = dowpn>-1 ? dowpn : current_item_id(itype_wand);
 				book = false;
 			}
 			
