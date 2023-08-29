@@ -17,7 +17,7 @@
                             "val": "$-1$1"
                         },
                         {
-                            "name": "ZScript Mechanics ;; zsmechanics ;; ZScript Mechanics",
+                            "name": "ZScript Mechanics ;; Mechanics",
                             "val": "$ZSMechanics"
                         },
                         {
@@ -350,7 +350,7 @@
                     "name": "Base",
                     "lines": [
                         {
-                            "name": "<em>Mechanics</em>",
+                            "name": "<em>Mechanics</em> ;; Mechanics",
                             "val": "This section is dedicated to the underlying mechanics of ZScript. This section will cover everything from the basics of `if`, `else`, `while`, `for`, etc all the way up to `class`, `namespace`, etc.\n\n<todo>Under construction!</todo>"
                         },
                         {
@@ -367,7 +367,7 @@
                     "name": "Operators",
                     "lines": [
                         {
-                            "name": "Operators ;; Mechanics/Operators / zsoperators",
+                            "name": "Operators ;; Operators / zsoperators",
                             "val": "<h2>Operators</h2>\nThis section contains information on the various operators that can be used in expressions in ZScript."
                         },
                         {
