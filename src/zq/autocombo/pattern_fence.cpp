@@ -11,7 +11,7 @@ namespace AutoPattern
 			return false;
 		init_connections(ap);
 		form_connections(ap, true);
-		applyChanges();
+		apply_changes();
 		return true;
 	}
 	bool autopattern_fence::erase(int32_t exscreen, int32_t expos)
@@ -24,7 +24,7 @@ namespace AutoPattern
 		ap->write(layer, true);
 		ap->in_set = false;
 		form_connections(ap, false);
-		applyChanges();
+		apply_changes();
 		return true;
 	}
 	void autopattern_fence::flip_single(apcombo*& ap)
@@ -105,16 +105,18 @@ namespace AutoPattern
 			}
 		}
 
-		applyChanges();
+		apply_changes();
 	}
 	void autopattern_fence::form_connections(apcombo* p, bool changecombo, bool noadj)
 	{
+		if (noadj && p->connflags & 0x100)
+			return;
 		p->connflags = 0;
 		int32_t num_connections = 0;
 		// Prioritize connections that are already formed
 		for (int32_t i = 0; i < 4; ++i)
 		{
-			if (p->adj[i] && p->adj[i]->in_set)
+			if (p->adj[i] && p->adj[i]->in_set && !(p->adj[i]->connflags & 0x100))
 			{
 				init_connections(p->adj[i]);
 				if (num_connections < 2 && p->adj[i]->connflags & (1 << oppositeDir[i]))
@@ -129,7 +131,7 @@ namespace AutoPattern
 			// Next search for new connections
 			for (int32_t i = 0; i < 4; ++i)
 			{
-				if (p->adj[i] && p->adj[i]->in_set)
+				if (p->adj[i] && p->adj[i]->in_set && !(p->adj[i]->connflags & 0x100))
 				{
 					int32_t numconn = get_num_connections(p->adj[i]);
 					if (num_connections < 2 && numconn < 2)
@@ -148,19 +150,22 @@ namespace AutoPattern
 		if (changecombo)
 		{
 			int32_t slot = flags_to_slot(p->connflags);
-			if (slot == -1)
-				slot = 1;
-			p->cid = slot_to_cid(slot);
-			p->in_set = cid_to_slot(p->cid) > -1;
-			p->changed = true;
+			if (!(p->connflags & 0x100))
+			{
+				if (slot == -1)
+					slot = 1;
+				p->cid = slot_to_cid(slot);
+				p->in_set = cid_to_slot(p->cid) > -1;
+				p->changed = true;
+			}
 		}
 
 		// Now update adjacent combos
-		for (int32_t i = 0; i < 4; ++i)
+		if (!noadj)
 		{
-			if (p->adj[i] && p->adj[i]->in_set)
+			for (int32_t i = 0; i < 4; ++i)
 			{
-				if (!noadj)
+				if (p->adj[i] && p->adj[i]->in_set)
 				{
 					form_connections(p->adj[i], true, true);
 				}
@@ -245,19 +250,19 @@ namespace AutoPattern
 			case 6: return 11;
 			case 7: return 1;
 			case 8: return 12;
-				// Outer corners
+			// Outer corners
 			case 9: return 0;
 			case 10: return 2;
 			case 11: return 6;
 			case 12: return 8;
-				// L/R dead ends
+			// L/R dead ends
 			case 13: return 17;
 			case 14: return 18;
-			case 15: return 16;
-			case 16: return 15;
-				// U/D dead ends
 			case 17: return 13;
 			case 18: return 14;
+			// U/D dead ends
+			case 15: return 16;
+			case 16: return 15;
 			case 19: return 20;
 			case 20: return 19;
 		}
@@ -340,61 +345,7 @@ namespace AutoPattern
 			// If doing a turn
 			if (!(ret & 0xF))
 			{
-				switch (dir)
-				{
-					case up:
-						switch (adjslot)
-						{
-							case 14:
-							case 17:
-								ret = U | UL;
-								break;
-							case 13:
-							case 18:
-								ret = U | UR;
-								break;
-						}
-						break;
-					case down:
-						switch (adjslot)
-						{
-							case 13:
-							case 18:
-								ret = D | DL;
-								break;
-							case 14:
-							case 17:
-								ret = D | DR;
-								break;
-						}
-						break;
-					case left:
-						switch (adjslot)
-						{
-							case 16:
-							case 19:
-								ret = L | UL;
-								break;
-							case 15:
-							case 20:
-								ret = L | DL;
-								break;
-						}
-						break;
-					case right:
-						switch (adjslot)
-						{
-							case 15:
-							case 20:
-								ret = R | UR;
-								break;
-							case 16:
-							case 19:
-								ret = R | DR;
-								break;
-						}
-						break;
-				}
+				get_turn_flags(ret, dir, adjslot);
 			}
 			// If it's a dead end facing the wrong way
 			if (!(ret & 0xF))
@@ -404,6 +355,7 @@ namespace AutoPattern
 			// If it's an empty square
 			if (!(ret & 0xF))
 			{
+				// Special flag used by mountain bottoms
 				if (!adj->connflags)
 				{
 					// If defualt orientation is flipped
@@ -447,6 +399,64 @@ namespace AutoPattern
 			}
 		}
 		return ret;
+	}
+	void autopattern_fence::get_turn_flags(int32_t &ret, int32_t dir, int32_t adjslot)
+	{
+		switch (dir)
+		{
+			case up:
+				switch (adjslot)
+				{
+					case 14:
+					case 17:
+						ret = U | UL;
+						break;
+					case 13:
+					case 18:
+						ret = U | UR;
+						break;
+				}
+				break;
+			case down:
+				switch (adjslot)
+				{
+					case 13:
+					case 18:
+						ret = D | DL;
+						break;
+					case 14:
+					case 17:
+						ret = D | DR;
+						break;
+				}
+				break;
+			case left:
+				switch (adjslot)
+				{
+					case 16:
+					case 19:
+						ret = L | UL;
+						break;
+					case 15:
+					case 20:
+						ret = L | DL;
+						break;
+				}
+				break;
+			case right:
+				switch (adjslot)
+				{
+					case 15:
+					case 20:
+						ret = R | UR;
+						break;
+					case 16:
+					case 19:
+						ret = R | DR;
+						break;
+				}
+				break;
+		}
 	}
 	int32_t autopattern_fence::get_num_connections(apcombo*& ap)
 	{

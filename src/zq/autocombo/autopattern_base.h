@@ -26,12 +26,12 @@ namespace AutoPattern
 	public:
 		autopattern_container(int32_t ntype, int32_t nlayer, int32_t nbasescreen, int32_t nbasepos, combo_auto* nsource, bool nnocrossedge);
 		~autopattern_container();
-		void initPattern();
-		void applyChanges();
 		virtual bool execute(int32_t s, int32_t p) = 0;
 		virtual bool erase(int32_t s, int32_t p) = 0;
 		virtual uint32_t slot_to_flags(int32_t slot) = 0;
 		virtual int32_t flags_to_slot(uint32_t flags) = 0;
+		virtual void init_pattern();
+		void apply_changes();
 		int32_t cid_to_slot(int32_t cid);
 		int32_t slot_to_cid(int32_t slot);
 		apcombo* add(int32_t sp, bool forcevalid = false, bool andgenerate = true);
@@ -78,6 +78,7 @@ namespace AutoPattern
 		uint16_t cid = 0;
 		bool in_set = false;
 		bool changed = false;
+		bool force_cset = false;
 		apcombo* adj[8] = { nullptr };
 		uint32_t connflags = 0;
 	};

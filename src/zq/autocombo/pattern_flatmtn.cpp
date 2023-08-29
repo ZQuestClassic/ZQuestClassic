@@ -28,7 +28,7 @@ namespace AutoPattern
 			if (ap->adj[q] && ap->adj[q]->in_set)
 				ap->adj[q]->set_cid(slot_to_cid(flags_to_slot(ap->adj[q]->connflags)));
 		}
-		applyChanges();
+		apply_changes();
 		return true;
 	}
 	bool autopattern_flatmtn::erase(int32_t exscreen, int32_t expos)
@@ -56,7 +56,7 @@ namespace AutoPattern
 			if (ap->adj[q] && ap->adj[q]->in_set)
 				ap->adj[q]->set_cid(slot_to_cid(flags_to_slot(ap->adj[q]->connflags)));
 		}
-		applyChanges();
+		apply_changes();
 		return true;
 	}
 	void autopattern_flatmtn::calculate_connections(apcombo* p)

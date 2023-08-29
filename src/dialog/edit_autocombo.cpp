@@ -6,6 +6,7 @@
 #include "zc_list_data.h"
 #include "gui/use_size.h"
 #include "zq/zq_tiles.h"
+#include "dialog/alert.h"
 
 extern bool saved;
 combo_auto temp_autocombo;
@@ -53,6 +54,16 @@ void AutoComboDialog::addCombos(int32_t type, int32_t count)
 	{
 		temp_autocombo.add(0, q, -1);
 	}
+}
+int32_t AutoComboDialog::numCombosSet()
+{
+	int32_t count = 0;
+	for (auto c : temp_autocombo.combos)
+	{
+		if (c.cid > 0)
+			++count;
+	}
+	return count;
 }
 void AutoComboDialog::refreshPanels()
 {
@@ -112,8 +123,24 @@ std::shared_ptr<GUI::Widget> AutoComboDialog::view()
 					{
 						if (val != temp_autocombo.getType())
 						{
-							refreshPanels();
-							refreshTypes(val);
+							bool doChange = true;
+							if (numCombosSet())
+							{
+								AlertDialog("Clear Autocombo?",
+									"Changing this autocombo's type will clear all its combos. Are you sure you want to do this?",
+									[&doChange](bool ret, bool)
+									{
+										if (!ret)
+											doChange = false;
+									}).show();
+							}
+							if (doChange)
+							{
+								refreshPanels();
+								refreshTypes(val);
+							}
+							else
+								typedropdown->setSelectedValue(temp_autocombo.getType());
 						}
 					}),
 				Label(text = "Erase Combo:", leftPadding = 32_px),
@@ -201,14 +228,6 @@ std::shared_ptr<GUI::Widget> AutoComboDialog::view()
 			Row(
 				vAlign = 1.0,
 				spacing = 2_em,
-				Button(vAlign = 1.0,
-					focused = true,
-					text = "Clear",
-					minwidth = 90_px,
-					onClick = message::RELOAD,
-					onPressFunc = [&]() {
-						refreshPanels();
-					}),
 				Button(vAlign = 1.0,
 					focused = true,
 					text = "OK",
@@ -303,7 +322,7 @@ void AutoComboDialog::refreshTypes(int32_t type)
 		case AUTOCOMBO_Z4:
 			typeinfostr =
 				"An autocombo setup for making mountains that stack vertically.\n"
-				"Works identically to 'Wall', but with combos for the bottoms\n"
+				"Works identically to 'Fence', but with combos for the bottoms\n"
 				"of the mountain filled in as it goes.\n\n"
 				"CONTROLS:\n"
 				"Left Click: Place combo\n"

@@ -11,7 +11,7 @@ namespace AutoPattern
 		type(ntype), layer(nlayer), basescreen(nbasescreen), basepos(nbasepos), source(nsource), nocrossedge(nnocrossedge)
 	{
 		erase_cid = source->getEraseCombo();
-		initPattern();
+		init_pattern();
 	}
 	autopattern_container::~autopattern_container()
 	{
@@ -20,7 +20,7 @@ namespace AutoPattern
 			delete c.second;
 		}
 	}
-	void autopattern_container::initPattern()
+	void autopattern_container::init_pattern()
 	{
 		for (auto ca : source->combos)
 		{
@@ -28,13 +28,13 @@ namespace AutoPattern
 			pattern_slots[ca.cid] = ca.offset + 1;
 		}
 	}
-	void autopattern_container::applyChanges()
+	void autopattern_container::apply_changes()
 	{
 		for (auto c : combos)
 		{
 			if (c.second->changed)
 			{
-				c.second->write(layer, basescreen * 176 + basepos == c.first);
+				c.second->write(layer, basescreen * 176 + basepos == c.first || c.second->force_cset);
 			}
 		}
 	}

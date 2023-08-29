@@ -35,6 +35,7 @@ public:
 	AutoComboDialog();
 
 	void addCombos(int32_t engrave_offset, int32_t count);
+	int32_t numCombosSet();
 	void refreshPanels();
 
 	std::shared_ptr<GUI::Widget> view() override;

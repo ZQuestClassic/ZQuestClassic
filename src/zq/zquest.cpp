@@ -43,6 +43,7 @@
 #include "zq/autocombo/pattern_basic.h"
 #include "zq/autocombo/pattern_flatmtn.h"
 #include "zq/autocombo/pattern_fence.h"
+#include "zq/autocombo/pattern_cakemtn.h"
 #include "base/misctypes.h"
 #include "parser/Compiler.h"
 #include "base/zc_alleg.h"
@@ -6217,8 +6218,19 @@ void draw_screenunit(int32_t unit, int32_t flags)
 						auto cx = (i % list.w) * list.xscale + list.x;
 						auto cy = (i / list.w) * list.yscale + list.y;
 						put_combo(menu1, cx, cy, cid, cs, Flags & (cFLAGS | cWALK), 0, list.xscale / 16);
-						if (!ca.valid() && cid > 0)
-							put_engraving(menu1, cx, cy, 15, list.xscale / 16);
+						if (!ca.valid())
+						{
+							if (cid > 0)
+								put_engraving(menu1, cx, cy, 15, list.xscale / 16);
+						}
+						else
+						{
+							if (ca.getType() == AUTOCOMBO_Z4)
+							{
+								byte hei = vbound(ca.getArg(), 1, 9);
+								put_engraving(menu1, cx, cy, 15 - hei, list.xscale / 16);
+							}
+						}
 					}
 				}
 				int32_t rect_pos = combo_auto_pos - combo_auto_listpos[current_cautolist];
@@ -7583,6 +7595,15 @@ void drawAutoCombo(int32_t pos, bool rclick)
 					ap.execute(scr, pos);
 				break;
 			}
+			case AUTOCOMBO_Z4:
+			{
+				AutoPattern::autopattern_cakemtn ap(ca.getType(), CurrentLayer, scr, pos, &ca, !(ca.flags & ACF_CROSSSCREENS), !(ca.flags & ACF_FLIP), ca.getArg());
+				if (rclick)
+					ap.erase(scr, pos);
+				else
+					ap.execute(scr, pos);
+				break;
+			}
 		}
 	}
 }
@@ -7600,8 +7621,15 @@ void drawAutoComboCommand(int32_t pos)
 		{
 			case AUTOCOMBO_FENCE:
 			{
-				AutoPattern::autopattern_fence ap(ca.getType(), CurrentLayer, scr, pos, &ca, !(ca.flags & ACF_CROSSSCREENS));
+				AutoPattern::autopattern_fence ap(ca.getType(), CurrentLayer, scr, pos, &ca, !(ca.flags & ACF_CROSSSCREENS), !(ca.flags & ACF_FLIP));
 				ap.flip_all_connected(scr, pos, 2048);
+				break;
+			}
+			case AUTOCOMBO_Z4:
+			{
+				AutoPattern::autopattern_cakemtn ap(ca.getType(), CurrentLayer, scr, pos, &ca, !(ca.flags & ACF_CROSSSCREENS), !(ca.flags & ACF_FLIP), ca.getArg());
+				ap.flip_all_connected(scr, pos, 2048);
+				break;
 			}
 		}
 	}
@@ -7646,7 +7674,8 @@ void draw(bool justcset)
     }
 	
     Map.StartListCommand();
-    while(gui_mouse_b())
+	bool pressframe = true;
+	while(gui_mouse_b())
     {
         int32_t x=gui_mouse_x();
         int32_t y=gui_mouse_y();
@@ -7660,11 +7689,52 @@ void draw(bool justcset)
             int32_t cxstart=(x-startxint)/int32_t(16*mapscreensize);
             int32_t cystart=(y-startyint)/int32_t(16*mapscreensize);
             int32_t cstart=(cystart*16)+cxstart;
-			if(cstart == lastpos)
+			if (pressframe)
+			{
+				lastpos = cstart;
+				pressframe = false;
+			}
+			else if(cstart == lastpos)
 			{
 				custom_vsync();
 				refresh(rALL);
 				continue;
+			}
+			else if(draw_mode == dm_auto)
+			{
+				if (combo_autos[combo_auto_pos].getType() == AUTOCOMBO_FENCE || combo_autos[combo_auto_pos].getType() == AUTOCOMBO_Z4)
+				{
+					bool did_diag = false;
+					// Don't allow moving the brush at anything but cardinal directions while in these modes
+					switch (cstart - lastpos)
+					{
+						case -1:
+						case 1:
+						case -16:
+						case 16:
+							break;
+						default:
+							did_diag = true;
+					}
+					if (did_diag)
+					{
+						int32_t oldx = lastpos % 16;
+						int32_t oldy = lastpos / 16;
+						int32_t cx = (oldx * 16 * mapscreensize) + 8;
+						int32_t cy = (oldy * 16 * mapscreensize) + 8;
+						int32_t nx = x - startxint;
+						int32_t ny = y - startyint;
+						if (std::abs(nx - cx) < std::abs(ny - cy))
+						{
+							oldy = vbound(oldy + ((ny - cy) < 0 ? -1 : 1), 0, 11);
+						}
+						else
+						{
+							oldx = vbound(oldx + ((nx - cx) < 0 ? -1 : 1), 0, 15);
+						}
+						cstart = (oldy * 16) + oldx;
+					}
+				}
 			}
 			lastpos = cstart;
             
@@ -8019,8 +8089,8 @@ void draw(bool justcset)
 					update_combobrush();
 				}
 			}
-        }
-        
+		}
+
 		custom_vsync();
 		refresh(rALL);
     }
