@@ -2159,6 +2159,15 @@ int32_t init_game()
 			game->bwpn = new_subscreen_active->def_btns[1];
 			game->xwpn = new_subscreen_active->def_btns[2];
 			game->ywpn = new_subscreen_active->def_btns[3];
+			
+			if((game->awpn&0xFF) >= new_subscreen_active->pages.size())
+				game->awpn = 0xFF;
+			if((game->bwpn&0xFF) >= new_subscreen_active->pages.size())
+				game->bwpn = 0xFF;
+			if((game->xwpn&0xFF) >= new_subscreen_active->pages.size())
+				game->xwpn = 0xFF;
+			if((game->ywpn&0xFF) >= new_subscreen_active->pages.size())
+				game->ywpn = 0xFF;
 		}
 		else
 		{

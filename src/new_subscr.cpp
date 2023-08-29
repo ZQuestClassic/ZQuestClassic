@@ -5311,6 +5311,9 @@ int32_t ZCSubscreen::read(PACKFILE *f, word s_version)
 	}
 	for (byte q = 0; q < pagecnt; ++q)
 		pages[q].index = q;
+	for(byte q = 0; q < 4; ++q)
+		if((def_btns[q] & 0xFF) >= pagecnt)
+			def_btns[q] = 0xFF;
 	return 0;
 }
 int32_t ZCSubscreen::write(PACKFILE *f) const
@@ -5322,11 +5325,17 @@ int32_t ZCSubscreen::write(PACKFILE *f) const
 	if(!p_iputl(flags,f))
 		new_return(1);
 	bool active = sub_type == sstACTIVE;
+	byte pagecnt = zc_min(MAX_SUBSCR_PAGES,pages.size());
 	if(active)
 	{
 		for(int q = 0; q < 4; ++q)
-			if(!p_iputw(def_btns[q],f))
+		{
+			word val = def_btns[q];
+			if((val & 0xFF) >= pagecnt)
+				val = 0xFF;
+			if(!p_iputw(val,f))
 				new_return(1);
+		}
 		if(!p_putc(btn_left,f))
 			new_return(1);
 		if(!p_putc(btn_right,f))
@@ -5344,7 +5353,6 @@ int32_t ZCSubscreen::write(PACKFILE *f) const
 					new_return(1);
 		}
 	}
-	byte pagecnt = zc_min(MAX_SUBSCR_PAGES,pages.size());
 	if(pagecnt && !active)
 		pagecnt = 1;
 	if(!p_putc(pagecnt,f))
