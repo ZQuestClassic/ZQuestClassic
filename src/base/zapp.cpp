@@ -79,6 +79,11 @@ void common_main_setup(App id, int argc, char **argv)
             break;
     }
     atexit(sentry_atexit);
+
+	// Sentry backend is configured to scrub the IP. This just gets us a rough unique user count.
+	sentry_value_t user = sentry_value_new_object();
+	sentry_value_set_by_key(user, "ip_address", sentry_value_new_string("{{auto}}"));
+	sentry_set_user(user);
 #endif
 
     // This allows for opening a binary from Finder and having ZC be in its expected
