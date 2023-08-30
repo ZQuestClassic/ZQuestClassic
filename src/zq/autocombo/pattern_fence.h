@@ -20,6 +20,7 @@ namespace AutoPattern
 		virtual void get_turn_flags(int32_t &ret, int32_t dir, int32_t adjslot);
 		virtual int32_t flip_slot(int32_t slot);
 		virtual void flip_single(apcombo*& ap);
+		int32_t flags_to_slot_s(int32_t curslot, uint32_t flags);
 		void flip_all_connected(int32_t exscreen, int32_t expos, int32_t max);
 		void form_connections(apcombo* p, bool changecombo = false, bool noadj = false);
 		int32_t get_edge_flags(apcombo*& ap, int32_t dir, bool flipped = false);

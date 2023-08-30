@@ -149,7 +149,7 @@ namespace AutoPattern
 		// In case we're just updating the neighbors (after removing)
 		if (changecombo)
 		{
-			int32_t slot = flags_to_slot(p->connflags);
+			int32_t slot = flags_to_slot_s(cid_to_slot(p->cid), p->connflags);
 			if (!(p->connflags & 0x100))
 			{
 				if (slot == -1)
@@ -235,6 +235,13 @@ namespace AutoPattern
 			case U | UL: return 20;
 		}
 		return -1;
+	}
+	// will not override slots that share a flagset
+	int32_t autopattern_fence::flags_to_slot_s(int32_t curslot, uint32_t flags)
+	{
+		if (curslot != -1 && flags == slot_to_flags(curslot))
+			return curslot;
+		return flags_to_slot(flags);
 	}
 	int32_t autopattern_fence::flip_slot(int32_t slot)
 	{
@@ -358,7 +365,7 @@ namespace AutoPattern
 				// Special flag used by mountain bottoms
 				if (!adj->connflags)
 				{
-					// If defualt orientation is flipped
+					// If default orientation is flipped
 					if (flip)
 					{
 						switch (dir)

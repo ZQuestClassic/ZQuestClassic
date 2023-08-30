@@ -234,6 +234,11 @@ namespace AutoPattern
 				mapscr_ptr = Map.AbsoluteScr(drawmap, drawscreen);
 			}
 		}
+		if (!(mapscr_ptr->valid & mVALID))
+		{
+			mapscr_ptr->valid |= mVALID;
+			mapscr_ptr->color = Map.CurrScr()->color;
+		}
 		int32_t cset = mapscr_ptr->cset[pos];
 		Map.DoSetComboCommand(drawmap, drawscreen, pos, cid, base ? CSet : cset);
 	}

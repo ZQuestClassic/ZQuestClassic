@@ -225,24 +225,28 @@ namespace AutoPattern
 	{
 		switch (slot)
 		{
-			case 6:
-			case 15:
-				return 3;
 			case 9:
 			case 12:
 				return 0;
-			case 7:
-			case 16:
-				return 4;
 			case 10:
 			case 13:
 				return 1;
-			case 8:
-			case 17:
-				return 5;
 			case 11:
 			case 14:
 				return 2;
+			case 6:
+			case 15:
+				return 3;
+			case 7:
+			case 16:
+				return 4;
+			case 8:
+			case 17:
+				return 5;
+			case 26:
+				return 6;
+			case 27:
+				return 8;
 		}
 		return -1;
 	}
@@ -254,38 +258,51 @@ namespace AutoPattern
 		// Is a south facing cliff
 		if (south_face > 2)
 		{
-			south_face %= 3;
-			orig_south_face %= 3;
 
 			int32_t safety = 0;
 			apcombo* cur = ap;
 			while (cur && safety < 9)
 			{
 				bool found_south_face = false;
+				slot = cid_to_slot(cur->cid);
+				south_face = get_south_face_id(slot);
+
+				// Pick the combo's new cid
 				int32_t new_cid = erase_cid;
-				if (height == 1)
-					new_cid = slot_to_cid(15 + orig_south_face); // 1 tile high
+				if (height <= 1 && safety == 0)
+				{
+					if (orig_south_face > 5)
+						new_cid = cur->cid; // left and right end pieces
+					else
+						new_cid = slot_to_cid(15 + orig_south_face % 3); // 1 tile high
+				}
 				else
 				{
 					if (safety < height - 1)
 					{
 						if (safety == 0)
-							new_cid = slot_to_cid(6 + orig_south_face); // top tile
+						{
+							if(orig_south_face > 5)
+								new_cid = cur->cid; // left and right end pieces
+							else
+								new_cid = slot_to_cid(6 + orig_south_face % 3); // top tile
+						}
 						else
-							new_cid = slot_to_cid(9 + orig_south_face); // middle tile
+							new_cid = slot_to_cid(9 + orig_south_face % 3); // middle tile
 
 					}
 					else if (safety == height - 1)
-						new_cid = slot_to_cid(12 + orig_south_face); // bottom tile
+						new_cid = slot_to_cid(12 + orig_south_face % 3); // bottom tile
 				}
 
-				slot = cid_to_slot(cur->cid);
-				south_face = get_south_face_id(slot);
+				// Flag if it's a south facing cliff that isn't a top
 				if (south_face > -1 && south_face < 3)
 					found_south_face = true;
 
-				if (safety == 0 || found_south_face || !cur->in_set)
+				// Don't update if intersecting with another cliff top
+				if (safety == 0 || found_south_face || (!cur->in_set && new_cid != erase_cid))
 				{
+					int32_t slot = cid_to_slot(cur->cid);
 					cur->cid = new_cid;
 					cur->changed = true;
 					cur->force_cset = true;
@@ -329,6 +346,78 @@ namespace AutoPattern
 				++safety;
 			}
 		}
+	}
+	void autopattern_cakemtn::resize_connected(int32_t exscreen, int32_t expos, int32_t max, int32_t newheight)
+	{
+		apcombo* ap = add(exscreen, expos);
+		if (!ap)
+			return;
+		init_connections(ap);
+
+		// Flip the first combo
+		int32_t oldheight = height;
+		height = newheight;
+		recalculate_height(ap, oldheight);
+
+		bool looped = false;
+		// Trace a path for every connected direction
+		for (int32_t i = 0; i < 4 && !looped; ++i)
+		{
+			if (ap->connflags & (1 << i))
+			{
+				apcombo* curpath = ap;
+				int32_t dir = i;
+				int32_t len = 0;
+				bool broken = false;
+				while (!broken && len < max)
+				{
+					curpath = add(curpath, dir);
+					if (curpath)
+					{
+						if (curpath->in_set)
+						{
+							++len;
+							if (curpath->screenpos == ap->screenpos)
+							{
+								broken = true;
+								// If it's a loop, going down the second path is pointless
+								looped = true;
+							}
+							else
+							{
+								recalculate_height(curpath, oldheight);
+
+								int32_t newdir = -1;
+								for (int32_t j = 0; j < 4; ++j)
+								{
+									if (j != oppositeDir[dir] && curpath->connflags & (1 << j))
+									{
+										newdir = j;
+									}
+								}
+								// If there's no new dir, it's a dead end
+								if (newdir == -1)
+								{
+									broken = true;
+								}
+								else
+								{
+									dir = newdir;
+								}
+							}
+						}
+						// something went wrong
+						else
+							broken = true;
+					}
+					// invalid pointer, break out
+					else
+						broken = true;
+				}
+			}
+		}
+
+		apply_changes();
 	}
 
 }

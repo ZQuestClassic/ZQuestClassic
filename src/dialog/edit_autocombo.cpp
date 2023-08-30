@@ -92,7 +92,6 @@ void AutoComboDialog::refreshPanels()
 
 void animate_combos();
 static int32_t scroll_pos1 = 0;
-static int32_t prev_scroll = 0;
 std::shared_ptr<GUI::Widget> AutoComboDialog::view()
 {
 	using namespace GUI::Builder;
@@ -103,7 +102,7 @@ std::shared_ptr<GUI::Widget> AutoComboDialog::view()
 	window = Window(
 		title = "Auto Combo Editor",
 		use_vsync = true,
-		onTick = [&]() {prev_scroll = scroll_pos1; animate_combos(); return ONTICK_REDRAW; },
+		onTick = [&]() { animate_combos(); return ONTICK_REDRAW; },
 		minwidth = 30_em, minheight = 32_em,
 		info =
 			"Fill in all the boxes with combos as indicated by the engravings to their left.\n"
@@ -270,7 +269,6 @@ void AutoComboDialog::addSlot(autocombo_entry& entry, size_t& ind, size_t& wid, 
 					entry.cid = cmb;
 					widgs.at(ind).cpane->setCSet(CSet);
 					temp_autocombo.updateValid();
-					scroll_pos1 = prev_scroll;
 				})
 		)
 	);
@@ -327,7 +325,9 @@ void AutoComboDialog::refreshTypes(int32_t type)
 				"CONTROLS:\n"
 				"Left Click: Place combo\n"
 				"Right Click: Remove combo (uses the Erase Combo)\n"
-				"Ctrl + Click: Flip orientation between inward / outward";
+				"Ctrl + Click: Flip orientation between inward / outward\n"
+				"Shift + [: Increase height, changes combos if hovering over them\n"
+				"Shift + ]: Decrease height, changes combos if hovering over them";
 			switch_settings->switchTo(3);
 			break;
 		case AUTOCOMBO_FENCE:

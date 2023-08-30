@@ -23,6 +23,7 @@ namespace AutoPattern
 		virtual void get_turn_flags(int32_t &ret, int32_t dir, int32_t adjslot) override;
 		int32_t get_south_face_id(int32_t slot);
 		void recalculate_height(apcombo*& ap, int32_t oldheight);
+		void resize_connected(int32_t exscreen, int32_t expos, int32_t max, int32_t newsize);
 	private:
 		byte height;
 		bool flip;
