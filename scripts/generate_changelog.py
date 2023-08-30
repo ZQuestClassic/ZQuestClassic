@@ -113,7 +113,7 @@ def parse_scope_and_type(subject: str):
         type, oneline = match.groups()
         return type, None, oneline, False
     
-    return 'misc', None, subject
+    return 'misc', None, subject, False
 
 
 def get_type_index(type: str):
