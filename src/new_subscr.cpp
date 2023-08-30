@@ -3759,6 +3759,7 @@ void SW_Selector::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& pag
 	int sw, sh, dw, dh;
 	int sxofs, syofs, dxofs, dyofs;
 	ZCSubscreen const* parentsub = getParentSub();
+	bool new_animate = true;
 	if(widg->genflags & SUBSCRFLAG_SELOVERRIDE)
 	{
 		auto const& selectile = widg->selector_override.tileinfo[selector_type];
@@ -3818,42 +3819,48 @@ void SW_Selector::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& pag
 		tempsel.txsz = ((sw%16)?1:0)+(sw/16);
 		tempsel.tysz = ((sh%16)?1:0)+(sh/16);
 	}
-	else if(oldsel)
+	else new_animate = false;
+	
+	dummyitem_animate(&tempsel,subscr_item_clk);
+	if(!tempsel.tile) return;
+	
+	if(!new_animate)
 	{
-		sw = (tempsel.extend > 2 ? tempsel.txsz*16 : 16);
-		sh = (tempsel.extend > 2 ? tempsel.tysz*16 : 16);
-		sxofs = 0;
-		syofs = 0;
-		dw = (tempsel.extend > 2 ? tempsel.txsz*16 : 16);
-		dh = (tempsel.extend > 2 ? tempsel.tysz*16 : 16);
-		dxofs = widg->getX()+(tempsel.extend > 2 ? (int)tempsel.xofs : 0);
-		dyofs = widg->getY()+(tempsel.extend > 2 ? (int)tempsel.yofs : 0);
-		if(replay_version_check(0,19) && tempsel.extend > 2)
-			sh = dh = tempsel.txsz*16;
-	}
-	else
-	{
-		sw = (tempsel.extend > 2 ? tempsel.hit_width : 16);
-		sh = (tempsel.extend > 2 ? tempsel.hit_height : 16);
-		sxofs = (tempsel.extend > 2 ? tempsel.hxofs : 0);
-		syofs = (tempsel.extend > 2 ? tempsel.hyofs : 0);
-		if(widg->getType() == widgITEMSLOT && id > -1)
+		if(oldsel)
 		{
-			dw = ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_WIDTH) ? tmpitm.hxsz : 16);
-			dh = ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_HEIGHT) ? tmpitm.hysz : 16);
-			dxofs = widg->getX()+((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_X_OFFSET) ? tmpitm.hxofs : 0) + (tempsel.extend > 2 ? (int)tempsel.xofs : 0);
-			dyofs = widg->getY()+((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_Y_OFFSET) ? tmpitm.hyofs : 0) + (tempsel.extend > 2 ? (int)tempsel.yofs : 0);
+			sw = (tempsel.extend > 2 ? tempsel.txsz*16 : 16);
+			sh = (tempsel.extend > 2 ? tempsel.tysz*16 : 16);
+			sxofs = 0;
+			syofs = 0;
+			dw = (tempsel.extend > 2 ? tempsel.txsz*16 : 16);
+			dh = (tempsel.extend > 2 ? tempsel.tysz*16 : 16);
+			dxofs = widg->getX()+(tempsel.extend > 2 ? (int)tempsel.xofs : 0);
+			dyofs = widg->getY()+(tempsel.extend > 2 ? (int)tempsel.yofs : 0);
+			if(replay_version_check(0,19) && tempsel.extend > 2)
+				sh = dh = tempsel.txsz*16;
 		}
 		else
 		{
-			dw = widg->getW();
-			dh = widg->getH();
-			dxofs = widg->getX()+widg->getXOffs();
-			dyofs = widg->getY()+widg->getYOffs();
+			sw = (tempsel.extend > 2 ? tempsel.hit_width : 16);
+			sh = (tempsel.extend > 2 ? tempsel.hit_height : 16);
+			sxofs = (tempsel.extend > 2 ? tempsel.hxofs : 0);
+			syofs = (tempsel.extend > 2 ? tempsel.hyofs : 0);
+			if(widg->getType() == widgITEMSLOT && id > -1)
+			{
+				dw = ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_WIDTH) ? tmpitm.hxsz : 16);
+				dh = ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_HEIGHT) ? tmpitm.hysz : 16);
+				dxofs = widg->getX()+((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_X_OFFSET) ? tmpitm.hxofs : 0) + (tempsel.extend > 2 ? (int)tempsel.xofs : 0);
+				dyofs = widg->getY()+((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_Y_OFFSET) ? tmpitm.hyofs : 0) + (tempsel.extend > 2 ? (int)tempsel.yofs : 0);
+			}
+			else
+			{
+				dw = widg->getW();
+				dh = widg->getH();
+				dxofs = widg->getX()+widg->getXOffs();
+				dyofs = widg->getY()+widg->getYOffs();
+			}
 		}
 	}
-	dummyitem_animate(&tempsel,subscr_item_clk);
-	if(!tempsel.tile) return;
 	BITMAP* tmpbmp = create_bitmap_ex(8,sw,sh);
 	for(int32_t j=0; j<4; ++j)
 	{
