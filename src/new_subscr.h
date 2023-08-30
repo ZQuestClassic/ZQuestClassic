@@ -86,6 +86,27 @@ struct SubscrMTInfo
 	int32_t write(PACKFILE *f) const;
 };
 
+struct SubscrSelectorTileInfo
+{
+	word sw, sh;
+	int32_t tile;
+	byte cset, frames, speed, delay;
+	
+	void clear();
+	int32_t read(PACKFILE *f, word s_version);
+	int32_t write(PACKFILE *f) const;
+};
+
+struct SubscrSelectorInfo
+{
+	int16_t x,y,w,h;
+	SubscrSelectorTileInfo tileinfo[2];
+	
+	void clear();
+	int32_t read(PACKFILE *f, word s_version);
+	int32_t write(PACKFILE *f) const;
+};
+
 #define SUBSCR_TRANSITION_MAXARG 4
 #define SUBSCR_TRANS_NOHIDESELECTOR  0x0001
 struct SubscrTransition
@@ -218,6 +239,7 @@ enum //PGGOTO modes
 
 #define SUBSCRFLAG_SELECTABLE         0x00000001
 #define SUBSCRFLAG_PGGOTO_NOWRAP      0x00000002
+#define SUBSCRFLAG_SELOVERRIDE        0x00000004
 
 #define SUBSCRFLAG_SPEC_01            0x00000001
 #define SUBSCRFLAG_SPEC_02            0x00000002
@@ -263,19 +285,22 @@ struct SubscrWidget
 	dword flags, genflags;
 	
 	//if SUBSCRFLAG_SELECTABLE...
-	//...storing these as ints, but they could probably be bytes?
-	//...might expand size later, so I'll leave it as ints.
-	int32_t pos;
-	int32_t pos_up;
-	int32_t pos_down;
-	int32_t pos_left;
-	int32_t pos_right;
-	std::string override_text;
 	
+	//Selector position, and directionals
+	int32_t pos;
+	int32_t pos_up, pos_down, pos_left, pos_right;
+	
+	//Selector draw overrides
+	SubscrSelectorInfo selector_override;
+	
+	std::string override_text; //Override the SW_SelectedText text
+	
+	//Script to run on pressing a button ..plus info
 	word generic_script;
 	int32_t generic_initd[8];
 	byte gen_script_btns;
 	
+	//Page transition on pressing a button ..plus info
 	byte pg_btns, pg_mode, pg_targ;
 	SubscrTransition pg_trans;
 	
@@ -999,9 +1024,12 @@ private:
 	word index;
 	ZCSubscreen const* parent;
 	
+	void force_update();
+	
 	friend struct ZCSubscreen;
 };
 #define SUBFLAG_ACT_NOPAGEWRAP   0x00000001
+#define SUBFLAG_ACT_OVERRIDESEL  0x00000002
 struct ZCSubscreen
 {
 	std::vector<SubscrPage> pages;
@@ -1013,6 +1041,8 @@ struct ZCSubscreen
 	
 	byte btn_left, btn_right;
 	SubscrTransition trans_left, trans_right;
+	
+	SubscrSelectorInfo selector_setting;
 	
 	//!TODO Subscreen Scripts
 	word script;
@@ -1026,12 +1056,14 @@ struct ZCSubscreen
 	bool add_page(byte ind);
 	void swap_pages(byte ind1, byte ind2);
 	void clear();
-	void copy_settings(const ZCSubscreen& src);
+	void copy_settings(const ZCSubscreen& src, bool all = false);
 	void draw(BITMAP* dest, int32_t xofs, int32_t yofs, byte pos, bool showtime);
 	void load_old(subscreen_group const& g);
 	void load_old(subscreen_object const* arr);
 	
 	ZCSubscreen() = default;
+	ZCSubscreen(ZCSubscreen const& other);
+	ZCSubscreen& operator=(ZCSubscreen const& other);
 	
 	int32_t read(PACKFILE *f, word s_version);
 	int32_t write(PACKFILE *f) const;

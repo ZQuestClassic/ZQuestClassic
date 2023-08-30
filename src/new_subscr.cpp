@@ -712,6 +712,98 @@ int32_t SubscrMTInfo::write(PACKFILE *f) const
 	return 0;
 }
 
+void SubscrSelectorTileInfo::clear()
+{
+	*this = SubscrSelectorTileInfo();
+}
+int32_t SubscrSelectorTileInfo::read(PACKFILE *f, word s_version)
+{
+	if(!p_igetw(&sw,f))
+		return qe_invalid;
+	if(!p_igetw(&sh,f))
+		return qe_invalid;
+	if(!p_igetl(&tile,f))
+		return qe_invalid;
+	if(!p_getc(&cset,f))
+		return qe_invalid;
+	if(!p_getc(&frames,f))
+		return qe_invalid;
+	if(!p_getc(&speed,f))
+		return qe_invalid;
+	if(!p_getc(&delay,f))
+		return qe_invalid;
+	return 0;
+}
+int32_t SubscrSelectorTileInfo::write(PACKFILE *f) const
+{
+	if(!p_iputw(sw,f))
+		new_return(1);
+	if(!p_iputw(sh,f))
+		new_return(1);
+	if(!p_iputl(tile,f))
+		new_return(1);
+	if(!p_putc(cset,f))
+		new_return(1);
+	if(!p_putc(frames,f))
+		new_return(1);
+	if(!p_putc(speed,f))
+		new_return(1);
+	if(!p_putc(delay,f))
+		new_return(1);
+	return 0;
+}
+
+void SubscrSelectorInfo::clear()
+{
+	*this = SubscrSelectorInfo();
+}
+int32_t SubscrSelectorInfo::read(PACKFILE *f, word s_version)
+{
+	if(!p_igetw(&x,f))
+		return qe_invalid;
+	if(!p_igetw(&y,f))
+		return qe_invalid;
+	if(!p_igetw(&w,f))
+		return qe_invalid;
+	if(!p_igetw(&h,f))
+		return qe_invalid;
+	byte sz;
+	if(!p_getc(&sz,f))
+		return qe_invalid;
+	SubscrSelectorTileInfo dummy;
+	for(byte q = 0; q < sz; ++q)
+	{
+		SubscrSelectorTileInfo& info = (unsigned(q)>=2) ? dummy : tileinfo[q];
+		if(auto ret = info.read(f,s_version))
+			return ret;
+	}
+	return 0;
+}
+int32_t SubscrSelectorInfo::write(PACKFILE *f) const
+{
+	if(!p_iputw(x,f))
+		new_return(1);
+	if(!p_iputw(y,f))
+		new_return(1);
+	if(!p_iputw(w,f))
+		new_return(1);
+	if(!p_iputw(h,f))
+		new_return(1);
+	byte sz = 2;
+	if(!p_putc(sz,f))
+		new_return(1);
+	SubscrSelectorTileInfo dummy;
+	for(byte q = 0; q < sz; ++q)
+	{
+		SubscrSelectorTileInfo const& info = tileinfo[q];
+		if(auto ret = info.write(f))
+			return ret;
+	}
+	return 0;
+}
+
+
+
 bool SubscrTransition::draw(BITMAP* dest, BITMAP* p1, BITMAP* p2, int dx, int dy)
 {	//Returns true for failure/end of animation
 	if(type <= 0 || type >= sstrMAX)
@@ -945,6 +1037,10 @@ bool SubscrWidget::copy_prop(SubscrWidget const* src, bool all)
 			pg_targ = src->pg_targ;
 			pg_trans = src->pg_trans;
 		}
+		if(genflags & SUBSCRFLAG_SELOVERRIDE)
+			selector_override = src->selector_override;
+		else
+			selector_override.clear();
 	}
 	return true;
 }
@@ -967,7 +1063,7 @@ int32_t SubscrWidget::read(PACKFILE *f, word s_version)
 		return qe_invalid;
 	if(!p_igetl(&flags,f))
 		return qe_invalid;
-	if(genflags&SUBSCRFLAG_SELECTABLE)
+	if(genflags & SUBSCRFLAG_SELECTABLE)
 	{
 		if(!p_igetl(&pos,f))
 			return qe_invalid;
@@ -981,6 +1077,9 @@ int32_t SubscrWidget::read(PACKFILE *f, word s_version)
 			return qe_invalid;
 		if(!p_getwstr(&override_text,f))
 			return qe_invalid;
+		if(genflags & SUBSCRFLAG_SELOVERRIDE)
+			if(auto ret = selector_override.read(f,s_version))
+				return ret;
 		if(!p_igetw(&generic_script,f))
 			return qe_invalid;
 		if(generic_script)
@@ -1025,7 +1124,7 @@ int32_t SubscrWidget::write(PACKFILE *f) const
 		new_return(1);
 	if(!p_iputl(flags,f))
 		new_return(1);
-	if(genflags&SUBSCRFLAG_SELECTABLE)
+	if(genflags & SUBSCRFLAG_SELECTABLE)
 	{
 		if(!p_iputl(pos,f))
 			new_return(1);
@@ -1039,6 +1138,9 @@ int32_t SubscrWidget::write(PACKFILE *f) const
 			new_return(1);
 		if(!p_putwstr(override_text,f))
 			new_return(1);
+		if(genflags & SUBSCRFLAG_SELOVERRIDE)
+			if(auto ret = selector_override.write(f))
+				return ret;
 		if(!p_iputw(generic_script,f))
 			new_return(1);
 		if(generic_script)
@@ -3642,12 +3744,11 @@ void SW_Selector::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& pag
 	}
 	
 	bool big_sel=flags&SUBSCR_SELECTOR_LARGE;
+	int selector_type = (flags&SUBSCR_SELECTOR_USEB) ? 1 : 0;
 	item tempsel(0,0,0,(flags&SUBSCR_SELECTOR_USEB)?iSelectB:iSelectA,0,0,true);
 	tempsel.subscreenItem=true;
 	tempsel.hide_hitbox = true;
 	tempsel.xofs = tempsel.yofs = 0;
-	dummyitem_animate(&tempsel,subscr_item_clk);
-	if(!tempsel.tile) return;
 	tempsel.drawstyle = (flags&SUBSCR_SELECTOR_TRANSP) ? 1 : 0;
 	int32_t id = widg->getItemVal();
 	if(id > -1) //Mask out the bow&arrow flag
@@ -3657,7 +3758,67 @@ void SW_Selector::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& pag
 	if(!oldsel) big_sel = false;
 	int sw, sh, dw, dh;
 	int sxofs, syofs, dxofs, dyofs;
-	if(oldsel)
+	ZCSubscreen const* parentsub = getParentSub();
+	if(widg->genflags & SUBSCRFLAG_SELOVERRIDE)
+	{
+		auto const& selectile = widg->selector_override.tileinfo[selector_type];
+		sw = selectile.sw;
+		sh = selectile.sh;
+		sxofs = syofs = 0;
+		dw = widg->selector_override.w;
+		dh = widg->selector_override.h;
+		dxofs = widg->selector_override.x;
+		dyofs = widg->selector_override.y;
+		//
+		big_sel = false;
+		tempsel.tile = tempsel.o_tile = selectile.tile;
+		tempsel.o_cset = selectile.cset;
+		tempsel.cs = tempsel.o_cset&0xF;
+		tempsel.frames = selectile.frames;
+		tempsel.o_speed = selectile.speed;
+		tempsel.o_delay = selectile.delay;
+		tempsel.extend = 3;
+		tempsel.txsz = ((sw%16)?1:0)+(sw/16);
+		tempsel.tysz = ((sh%16)?1:0)+(sh/16);
+	}
+	else if(parentsub->sub_type == sstACTIVE
+		&& (parentsub->flags & SUBFLAG_ACT_OVERRIDESEL))
+	{
+		auto const& selectile = parentsub->selector_setting.tileinfo[selector_type];
+		sw = selectile.sw;
+		sh = selectile.sh;
+		sxofs = syofs = 0;
+		if(widg->getType() == widgITEMSLOT && id > -1)
+		{
+			dw = ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_WIDTH) ? tmpitm.hxsz : 16);
+			dh = ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_HEIGHT) ? tmpitm.hysz : 16);
+			dxofs = widg->getX()+((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_X_OFFSET) ? tmpitm.hxofs : 0) + (tempsel.extend > 2 ? (int)tempsel.xofs : 0);
+			dyofs = widg->getY()+((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_Y_OFFSET) ? tmpitm.hyofs : 0) + (tempsel.extend > 2 ? (int)tempsel.yofs : 0);
+		}
+		else
+		{
+			dw = widg->getW();
+			dh = widg->getH();
+			dxofs = widg->getX()+widg->getXOffs();
+			dyofs = widg->getY()+widg->getYOffs();
+		}
+		dw += parentsub->selector_setting.w;
+		dh += parentsub->selector_setting.h;
+		dxofs += parentsub->selector_setting.x;
+		dyofs += parentsub->selector_setting.y;
+		//
+		big_sel = false;
+		tempsel.tile = tempsel.o_tile = selectile.tile;
+		tempsel.o_cset = selectile.cset;
+		tempsel.cs = tempsel.o_cset&0xF;
+		tempsel.frames = selectile.frames;
+		tempsel.o_speed = selectile.speed;
+		tempsel.o_delay = selectile.delay;
+		tempsel.extend = 3;
+		tempsel.txsz = ((sw%16)?1:0)+(sw/16);
+		tempsel.tysz = ((sh%16)?1:0)+(sh/16);
+	}
+	else if(oldsel)
 	{
 		sw = (tempsel.extend > 2 ? tempsel.txsz*16 : 16);
 		sh = (tempsel.extend > 2 ? tempsel.tysz*16 : 16);
@@ -3691,6 +3852,8 @@ void SW_Selector::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& pag
 			dyofs = widg->getY()+widg->getYOffs();
 		}
 	}
+	dummyitem_animate(&tempsel,subscr_item_clk);
+	if(!tempsel.tile) return;
 	BITMAP* tmpbmp = create_bitmap_ex(8,sw,sh);
 	for(int32_t j=0; j<4; ++j)
 	{
@@ -5143,6 +5306,11 @@ SubscrWidget* const& SubscrPage::operator[](size_t ind) const
 {
 	return contents[ind];
 }
+void SubscrPage::force_update()
+{
+	for(SubscrWidget* w : contents)
+		w->parentPage = this;
+}
 
 SubscrPage& ZCSubscreen::cur_page()
 {
@@ -5242,8 +5410,24 @@ void ZCSubscreen::clear()
 {
 	*this = ZCSubscreen();
 }
-void ZCSubscreen::copy_settings(const ZCSubscreen& src)
+void ZCSubscreen::copy_settings(const ZCSubscreen& src, bool all)
 {
+	if(all)
+	{
+		curpage = src.curpage;
+		sub_type = src.sub_type;
+		name = src.name;
+		for(int q = 0; q < 4; ++q)
+			def_btns[q] = src.def_btns[q];
+		pages.clear();
+		pages = src.pages;
+		for(size_t q = 0; q < pages.size(); ++q)
+		{
+			pages[q].index = q;
+			pages[q].parent = this;
+			pages[q].force_update();
+		}
+	}
 	script = src.script;
 	for(int q = 0; q < 8; ++q)
 		initd[q] = src.initd[q];
@@ -5252,6 +5436,9 @@ void ZCSubscreen::copy_settings(const ZCSubscreen& src)
 	flags = src.flags;
 	trans_left = src.trans_left;
 	trans_right = src.trans_right;
+	if(flags & SUBFLAG_ACT_OVERRIDESEL)
+		selector_setting = src.selector_setting;
+	else selector_setting.clear();
 }
 void ZCSubscreen::draw(BITMAP* dest, int32_t xofs, int32_t yofs, byte pos, bool showtime)
 {
@@ -5335,6 +5522,9 @@ int32_t ZCSubscreen::read(PACKFILE *f, word s_version)
 	bool active = sub_type == sstACTIVE;
 	if(active)
 	{
+		if(flags & SUBFLAG_ACT_OVERRIDESEL)
+			if(auto ret = selector_setting.read(f,s_version))
+				return ret;
 		for(int q = 0; q < 4; ++q)
 			if(!p_igetw(&def_btns[q],f))
 				return qe_invalid;
@@ -5385,6 +5575,9 @@ int32_t ZCSubscreen::write(PACKFILE *f) const
 	byte pagecnt = zc_min(MAX_SUBSCR_PAGES,pages.size());
 	if(active)
 	{
+		if(flags & SUBFLAG_ACT_OVERRIDESEL)
+			if(auto ret = selector_setting.write(f))
+				return ret;
 		for(int q = 0; q < 4; ++q)
 		{
 			word val = def_btns[q];
@@ -5481,3 +5674,12 @@ void ZCSubscreen::page_change(byte mode, byte targ, SubscrTransition const& tran
 	subscrpg_animate(curpage,pg,trans,*this);
 }
 
+ZCSubscreen::ZCSubscreen(ZCSubscreen const& other)
+{
+	copy_settings(other,true);
+}
+ZCSubscreen& ZCSubscreen::operator=(ZCSubscreen const& other)
+{
+	copy_settings(other,true);
+	return *this;
+}

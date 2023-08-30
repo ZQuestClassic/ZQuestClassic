@@ -10,6 +10,7 @@
 #include "gui/use_size.h"
 #include "gui/common.h"
 #include "subscr_transition.h"
+#include "subscr_macros.h"
 
 extern ZCSubscreen subscr_edit;
 
@@ -52,12 +53,12 @@ std::shared_ptr<GUI::Widget> SubscrSettingsDialog::view()
 			)
 		)
 	);
-	std::map<std::string, std::shared_ptr<GUI::Widget>> tabs;
+	std::vector<std::pair<std::string, std::shared_ptr<GUI::Widget>>> tabs;
 	switch(ty)
 	{
 		case sstACTIVE:
 		{
-			tabs["Basic"] = Rows<3>(
+			tabs.push_back({"Basic", Rows<3>(
 				Frame(title = "Page Left",
 					info = "Pressing this button will change the page of the subscreen by '-1'.",
 					Column(padding = 0_px,
@@ -101,17 +102,57 @@ std::shared_ptr<GUI::Widget> SubscrSettingsDialog::view()
 						
 					// )
 				// )
-			);
+			)});
+			tabs.push_back({"Selector", Column(
+				Rows<2>(
+					CBOX_EX(local_subref.flags,SUBFLAG_ACT_OVERRIDESEL,"Override Selector",
+						_EX_RBOX,onToggle = message::REFR_SELECTOR),
+					INFOBTN("Change the selector for this subscreen")
+				),
+				selector_grid = Row(
+					Frame(title = "Dimensions", fitParent = true,
+						Rows<3>(
+							Label(text = "Selector X-offset", hAlign = 1.0),
+							NUM_FIELD(local_subref.selector_setting.x,-256,256),
+							INFOBTN("The selector x will be offset by this much"),
+							Label(text = "Selector Y-offset", hAlign = 1.0),
+							NUM_FIELD(local_subref.selector_setting.y,-256,256),
+							INFOBTN("The selector y will be offset by this much"),
+							Label(text = "Selector Width-offset", hAlign = 1.0),
+							NUM_FIELD(local_subref.selector_setting.w,-256,256),
+							INFOBTN("The selector width will be offset by this much"),
+							Label(text = "Selector Height-offset", hAlign = 1.0),
+							NUM_FIELD(local_subref.selector_setting.h,-256,256),
+							INFOBTN("The selector height will be offset by this much")
+						)),
+					Frame(title = "Selector 1 Graphic", fitParent = true,
+						info = "Override the Tile, CSet, and Width/Height used by selectors"
+							" with 'Use Selector 2' unchecked."
+							"\nWidth/Height are given in pixels, and that pixel size will be"
+							" used as the source size of the draw. These sizes rounded up to the"
+							" next full tile will be the tile width/height of the draw.",
+						SELECTOR_GRAPHIC(local_subref.selector_setting.tileinfo[0])
+					),
+					Frame(title = "Selector 2 Graphic", fitParent = true,
+						info = "Override the Tile, CSet, and Width/Height used by selectors"
+							" with 'Use Selector 2' checked."
+							"\nWidth/Height are given in pixels, and that pixel size will be"
+							" used as the source size of the draw. These sizes rounded up to the"
+							" next full tile will be the tile width/height of the draw.",
+						SELECTOR_GRAPHIC(local_subref.selector_setting.tileinfo[1])
+					)
+				)
+			)});
 			break;
 		}
 		case sstPASSIVE:
 		{
-			tabs["Basic"] = Label(text = "No settings for passive subscreens yet!");
+			tabs.push_back({"Basic", Label(text = "No settings for passive subscreens yet!")});
 			break;
 		}
 		case sstOVERLAY:
 		{
-			tabs["Basic"] = Label(text = "No settings for overlay subscreens yet!");
+			tabs.push_back({"Basic", Label(text = "No settings for overlay subscreens yet!")});
 			break;
 		}
 	}
@@ -121,6 +162,13 @@ std::shared_ptr<GUI::Widget> SubscrSettingsDialog::view()
 	return window;
 }
 
+void SubscrSettingsDialog::refr_selector()
+{
+	if(ty == sstACTIVE)
+	{
+		selector_grid->setDisabled(!(local_subref.flags&SUBFLAG_ACT_OVERRIDESEL));
+	}
+}
 void SubscrSettingsDialog::refr_info()
 {
 }
@@ -129,6 +177,9 @@ bool SubscrSettingsDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 {
 	switch(msg.message)
 	{
+		case message::REFR_SELECTOR:
+			refr_selector();
+			break;
 		case message::REFR_INFO:
 			refr_info();
 			break;
