@@ -93,17 +93,27 @@ class Commit:
 
 
 def parse_scope_and_type(subject: str):
+    match = re.match(r'(\w+)\((\w+)\)!: (.+)', subject)
+    if match:
+        type, scope, oneline = match.groups()
+        return type, scope, oneline, True
+    
+    match = re.match(r'(\w+)!: (.+)', subject)
+    if match:
+        type, oneline = match.groups()
+        return type, None, oneline, True
+    
     match = re.match(r'(\w+)\((\w+)\): (.+)', subject)
     if match:
         type, scope, oneline = match.groups()
-        return type, scope, oneline
+        return type, scope, oneline, False
 
     match = re.match(r'(\w+): (.+)', subject)
-    if not match:
-        return 'misc', None, subject
-
-    type, oneline = match.groups()
-    return type, None, oneline
+    if match:
+        type, oneline = match.groups()
+        return type, None, oneline, False
+    
+    return 'misc', None, subject
 
 
 def get_type_index(type: str):
@@ -325,7 +335,9 @@ def generate_changelog(from_sha: str, to_sha: str) -> str:
         m = re.search(r'end changelog', body, re.IGNORECASE)
         if m:
             body = body[0:m.start()].strip()
-        type, scope, oneline = parse_scope_and_type(subject)
+        type, scope, oneline, drop = parse_scope_and_type(subject)
+        if drop:
+            continue
         commits.append(Commit(type, scope, short_hash, hash, subject, oneline, body))
 
     # Replace commit messages with overrides.
@@ -347,7 +359,7 @@ def generate_changelog(from_sha: str, to_sha: str) -> str:
         else:
             continue
 
-        type, scope, oneline = parse_scope_and_type(commit.subject)
+        type, scope, oneline, drop = parse_scope_and_type(commit.subject)
         commit.type = type
         commit.scope = scope
         commit.oneline = oneline
