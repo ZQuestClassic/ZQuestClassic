@@ -136,13 +136,12 @@ jobs:
           --no-jit
           --no-headless
 
-      - run: mkdir -p .tmp/test_updater
       - if: ${{ matrix.shard_index == 1 && inputs.extra-args == '' && inputs.config != 'Coverage' }}
         name: Updater cache
         uses: actions/cache@v3
         with:
           path: ${{ github.workspace }}/.tmp/test_updater/cache
-          key: updater-cache-${{ runner.runs-on }}-${{ runner.arch }}
+          key: updater-cache-2-${{ runner.runs-on }}-${{ runner.arch }}
 
       - if: ${{ matrix.shard_index == 1 && inputs.extra-args == '' && inputs.config != 'Coverage' }}
         name: Run Python tests
