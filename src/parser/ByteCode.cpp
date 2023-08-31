@@ -2304,6 +2304,57 @@ string ZScript::VarToString(int32_t ID)
 		case RESRVD_VAR_Z3_15: return "RESRVD_VAR_Z3_15";
 		case RESRVD_VAR_Z3_16: return "RESRVD_VAR_Z3_16";
 		
+		case RESRVD_VAR_EMILY_61: return "RESRVD_VAR_EMILY_61";
+		case RESRVD_VAR_EMILY_62: return "RESRVD_VAR_EMILY_62";
+		case RESRVD_VAR_EMILY_63: return "RESRVD_VAR_EMILY_63";
+		case RESRVD_VAR_EMILY_64: return "RESRVD_VAR_EMILY_64";
+		case RESRVD_VAR_EMILY_65: return "RESRVD_VAR_EMILY_65";
+		case RESRVD_VAR_EMILY_66: return "RESRVD_VAR_EMILY_66";
+		case RESRVD_VAR_EMILY_67: return "RESRVD_VAR_EMILY_67";
+		case RESRVD_VAR_EMILY_68: return "RESRVD_VAR_EMILY_68";
+		case RESRVD_VAR_EMILY_69: return "RESRVD_VAR_EMILY_69";
+		case RESRVD_VAR_EMILY_70: return "RESRVD_VAR_EMILY_70";
+		case RESRVD_VAR_EMILY_71: return "RESRVD_VAR_EMILY_71";
+		case RESRVD_VAR_EMILY_72: return "RESRVD_VAR_EMILY_72";
+		case RESRVD_VAR_EMILY_73: return "RESRVD_VAR_EMILY_73";
+		case RESRVD_VAR_EMILY_74: return "RESRVD_VAR_EMILY_74";
+		case RESRVD_VAR_EMILY_75: return "RESRVD_VAR_EMILY_75";
+		case RESRVD_VAR_EMILY_76: return "RESRVD_VAR_EMILY_76";
+		case RESRVD_VAR_EMILY_77: return "RESRVD_VAR_EMILY_77";
+		case RESRVD_VAR_EMILY_78: return "RESRVD_VAR_EMILY_78";
+		case RESRVD_VAR_EMILY_79: return "RESRVD_VAR_EMILY_79";
+		case RESRVD_VAR_EMILY_80: return "RESRVD_VAR_EMILY_80";
+		case RESRVD_VAR_EMILY_81: return "RESRVD_VAR_EMILY_81";
+		case RESRVD_VAR_EMILY_82: return "RESRVD_VAR_EMILY_82";
+		case RESRVD_VAR_EMILY_83: return "RESRVD_VAR_EMILY_83";
+		case RESRVD_VAR_EMILY_84: return "RESRVD_VAR_EMILY_84";
+		case RESRVD_VAR_EMILY_85: return "RESRVD_VAR_EMILY_85";
+		case RESRVD_VAR_EMILY_86: return "RESRVD_VAR_EMILY_86";
+		case RESRVD_VAR_EMILY_87: return "RESRVD_VAR_EMILY_87";
+		case RESRVD_VAR_EMILY_88: return "RESRVD_VAR_EMILY_88";
+		case RESRVD_VAR_EMILY_89: return "RESRVD_VAR_EMILY_89";
+		case RESRVD_VAR_EMILY_90: return "RESRVD_VAR_EMILY_90";
+		case RESRVD_VAR_EMILY_91: return "RESRVD_VAR_EMILY_91";
+		case RESRVD_VAR_EMILY_92: return "RESRVD_VAR_EMILY_92";
+		case RESRVD_VAR_EMILY_93: return "RESRVD_VAR_EMILY_93";
+		case RESRVD_VAR_EMILY_94: return "RESRVD_VAR_EMILY_94";
+		case RESRVD_VAR_EMILY_95: return "RESRVD_VAR_EMILY_95";
+		case RESRVD_VAR_EMILY_96: return "RESRVD_VAR_EMILY_96";
+		case RESRVD_VAR_EMILY_97: return "RESRVD_VAR_EMILY_97";
+		case RESRVD_VAR_EMILY_98: return "RESRVD_VAR_EMILY_98";
+		case RESRVD_VAR_EMILY_99: return "RESRVD_VAR_EMILY_99";
+		case RESRVD_VAR_EMILY_100: return "RESRVD_VAR_EMILY_100";
+		case RESRVD_VAR_EMILY_101: return "RESRVD_VAR_EMILY_101";
+		case RESRVD_VAR_EMILY_102: return "RESRVD_VAR_EMILY_102";
+		case RESRVD_VAR_EMILY_103: return "RESRVD_VAR_EMILY_103";
+		case RESRVD_VAR_EMILY_104: return "RESRVD_VAR_EMILY_104";
+		case RESRVD_VAR_EMILY_105: return "RESRVD_VAR_EMILY_105";
+		case RESRVD_VAR_EMILY_106: return "RESRVD_VAR_EMILY_106";
+		case RESRVD_VAR_EMILY_107: return "RESRVD_VAR_EMILY_107";
+		case RESRVD_VAR_EMILY_108: return "RESRVD_VAR_EMILY_108";
+		case RESRVD_VAR_EMILY_109: return "RESRVD_VAR_EMILY_109";
+		case RESRVD_VAR_EMILY_110: return "RESRVD_VAR_EMILY_110";
+		
 		default:
 		{
 			sprintf(temp, "d%d", ID);
@@ -2656,13 +2707,13 @@ string ONumSubscreensV::toString() const
 {
 	return "NUMSUBSCREENSV " + getArgument()->toString();
 }
-string OResrvdOpEmily19::toString() const
+string OReservedEmily1::toString() const
 {
-	return "RESRVD_OP_EMILY_19";
+	return "RESRVD_OP_EMILY_1";
 }
-string OResrvdOpEmily20::toString() const
+string OReservedEmily2::toString() const
 {
-	return "RESRVD_OP_EMILY_20";
+	return "RESRVD_OP_EMILY_2";
 }
 
 
@@ -6677,5 +6728,199 @@ string OReservedZ3_09::toString() const
 string OReservedZ3_10::toString() const
 {
 	return "RESRVD_OP_Z3_10 " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
+}
+
+
+string OReservedEmily_3::toString() const
+{
+	return "RESRVD_OP_EMILY_3";
+}
+string OReservedEmily_4::toString() const
+{
+	return "RESRVD_OP_EMILY_4";
+}
+string OReservedEmily_5::toString() const
+{
+	return "RESRVD_OP_EMILY_5";
+}
+string OReservedEmily_6::toString() const
+{
+	return "RESRVD_OP_EMILY_6";
+}
+string OReservedEmily_7::toString() const
+{
+	return "RESRVD_OP_EMILY_7";
+}
+string OReservedEmily_8::toString() const
+{
+	return "RESRVD_OP_EMILY_8";
+}
+string OReservedEmily_9::toString() const
+{
+	return "RESRVD_OP_EMILY_9";
+}
+string OReservedEmily_10::toString() const
+{
+	return "RESRVD_OP_EMILY_10";
+}
+string OReservedEmily_11::toString() const
+{
+	return "RESRVD_OP_EMILY_11";
+}
+string OReservedEmily_12::toString() const
+{
+	return "RESRVD_OP_EMILY_12";
+}
+string OReservedEmily_13::toString() const
+{
+	return "RESRVD_OP_EMILY_13";
+}
+string OReservedEmily_14::toString() const
+{
+	return "RESRVD_OP_EMILY_14";
+}
+string OReservedEmily_15::toString() const
+{
+	return "RESRVD_OP_EMILY_15";
+}
+string OReservedEmily_16::toString() const
+{
+	return "RESRVD_OP_EMILY_16";
+}
+string OReservedEmily_17::toString() const
+{
+	return "RESRVD_OP_EMILY_17";
+}
+string OReservedEmily_18::toString() const
+{
+	return "RESRVD_OP_EMILY_18";
+}
+string OReservedEmily_19::toString() const
+{
+	return "RESRVD_OP_EMILY_19";
+}
+string OReservedEmily_20::toString() const
+{
+	return "RESRVD_OP_EMILY_20";
+}
+string OReservedEmily_21::toString() const
+{
+	return "RESRVD_OP_EMILY_21";
+}
+string OReservedEmily_22::toString() const
+{
+	return "RESRVD_OP_EMILY_22";
+}
+string OReservedEmily_23::toString() const
+{
+	return "RESRVD_OP_EMILY_23";
+}
+string OReservedEmily_24::toString() const
+{
+	return "RESRVD_OP_EMILY_24";
+}
+string OReservedEmily_25::toString() const
+{
+	return "RESRVD_OP_EMILY_25";
+}
+string OReservedEmily_26::toString() const
+{
+	return "RESRVD_OP_EMILY_26";
+}
+string OReservedEmily_27::toString() const
+{
+	return "RESRVD_OP_EMILY_27";
+}
+string OReservedEmily_28::toString() const
+{
+	return "RESRVD_OP_EMILY_28";
+}
+string OReservedEmily_29::toString() const
+{
+	return "RESRVD_OP_EMILY_29";
+}
+string OReservedEmily_30::toString() const
+{
+	return "RESRVD_OP_EMILY_30";
+}
+string OReservedEmily_31::toString() const
+{
+	return "RESRVD_OP_EMILY_31";
+}
+string OReservedEmily_32::toString() const
+{
+	return "RESRVD_OP_EMILY_32";
+}
+string OReservedEmily_33::toString() const
+{
+	return "RESRVD_OP_EMILY_33";
+}
+string OReservedEmily_34::toString() const
+{
+	return "RESRVD_OP_EMILY_34";
+}
+string OReservedEmily_35::toString() const
+{
+	return "RESRVD_OP_EMILY_35";
+}
+string OReservedEmily_36::toString() const
+{
+	return "RESRVD_OP_EMILY_36";
+}
+string OReservedEmily_37::toString() const
+{
+	return "RESRVD_OP_EMILY_37";
+}
+string OReservedEmily_38::toString() const
+{
+	return "RESRVD_OP_EMILY_38";
+}
+string OReservedEmily_39::toString() const
+{
+	return "RESRVD_OP_EMILY_39";
+}
+string OReservedEmily_40::toString() const
+{
+	return "RESRVD_OP_EMILY_40";
+}
+string OReservedEmily_41::toString() const
+{
+	return "RESRVD_OP_EMILY_41";
+}
+string OReservedEmily_42::toString() const
+{
+	return "RESRVD_OP_EMILY_42";
+}
+string OReservedEmily_43::toString() const
+{
+	return "RESRVD_OP_EMILY_43";
+}
+string OReservedEmily_44::toString() const
+{
+	return "RESRVD_OP_EMILY_44";
+}
+string OReservedEmily_45::toString() const
+{
+	return "RESRVD_OP_EMILY_45";
+}
+string OReservedEmily_46::toString() const
+{
+	return "RESRVD_OP_EMILY_46";
+}
+string OReservedEmily_47::toString() const
+{
+	return "RESRVD_OP_EMILY_47";
+}
+string OReservedEmily_48::toString() const
+{
+	return "RESRVD_OP_EMILY_48";
+}
+string OReservedEmily_49::toString() const
+{
+	return "RESRVD_OP_EMILY_49";
+}
+string OReservedEmily_50::toString() const
+{
+	return "RESRVD_OP_EMILY_50";
 }
 

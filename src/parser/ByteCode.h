@@ -1594,7 +1594,58 @@
 #define SAVEDPORTALCOUNT        1507
 #define SAVEDPORTALDSTSCREEN    1508
 
-#define LAST_BYTECODE           1509
+#define RESRVD_VAR_EMILY_61     1509
+#define RESRVD_VAR_EMILY_62     1510
+#define RESRVD_VAR_EMILY_63     1511
+#define RESRVD_VAR_EMILY_64     1512
+#define RESRVD_VAR_EMILY_65     1513
+#define RESRVD_VAR_EMILY_66     1514
+#define RESRVD_VAR_EMILY_67     1515
+#define RESRVD_VAR_EMILY_68     1516
+#define RESRVD_VAR_EMILY_69     1517
+#define RESRVD_VAR_EMILY_70     1518
+#define RESRVD_VAR_EMILY_71     1519
+#define RESRVD_VAR_EMILY_72     1520
+#define RESRVD_VAR_EMILY_73     1521
+#define RESRVD_VAR_EMILY_74     1522
+#define RESRVD_VAR_EMILY_75     1523
+#define RESRVD_VAR_EMILY_76     1524
+#define RESRVD_VAR_EMILY_77     1525
+#define RESRVD_VAR_EMILY_78     1526
+#define RESRVD_VAR_EMILY_79     1527
+#define RESRVD_VAR_EMILY_80     1528
+#define RESRVD_VAR_EMILY_81     1529
+#define RESRVD_VAR_EMILY_82     1530
+#define RESRVD_VAR_EMILY_83     1531
+#define RESRVD_VAR_EMILY_84     1532
+#define RESRVD_VAR_EMILY_85     1533
+#define RESRVD_VAR_EMILY_86     1534
+#define RESRVD_VAR_EMILY_87     1535
+#define RESRVD_VAR_EMILY_88     1536
+#define RESRVD_VAR_EMILY_89     1537
+#define RESRVD_VAR_EMILY_90     1538
+#define RESRVD_VAR_EMILY_91     1539
+#define RESRVD_VAR_EMILY_92     1540
+#define RESRVD_VAR_EMILY_93     1541
+#define RESRVD_VAR_EMILY_94     1542
+#define RESRVD_VAR_EMILY_95     1543
+#define RESRVD_VAR_EMILY_96     1544
+#define RESRVD_VAR_EMILY_97     1545
+#define RESRVD_VAR_EMILY_98     1546
+#define RESRVD_VAR_EMILY_99     1547
+#define RESRVD_VAR_EMILY_100    1548
+#define RESRVD_VAR_EMILY_101    1549
+#define RESRVD_VAR_EMILY_102    1550
+#define RESRVD_VAR_EMILY_103    1551
+#define RESRVD_VAR_EMILY_104    1552
+#define RESRVD_VAR_EMILY_105    1553
+#define RESRVD_VAR_EMILY_106    1554
+#define RESRVD_VAR_EMILY_107    1555
+#define RESRVD_VAR_EMILY_108    1556
+#define RESRVD_VAR_EMILY_109    1557
+#define RESRVD_VAR_EMILY_110    1558
+
+#define LAST_BYTECODE           1559
 
 //} END OF BYTECODE
 
@@ -2503,22 +2554,22 @@ namespace ZScript
 			return new ONumSubscreensV(a->clone());
 		}
 	};
-	class OResrvdOpEmily19 : public Opcode
+	class OReservedEmily1 : public Opcode
 	{
 	public:
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OResrvdOpEmily19();
+			return new OReservedEmily1();
 		}
 	};
-	class OResrvdOpEmily20 : public Opcode
+	class OReservedEmily2 : public Opcode
 	{
 	public:
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OResrvdOpEmily20();
+			return new OReservedEmily2();
 		}
 	};
 
@@ -11680,6 +11731,488 @@ namespace ZScript
 		Opcode* clone() const
 		{
 			return new OReservedZ3_10(a->clone(),b->clone());
+		}
+	};
+
+
+
+	class OReservedEmily_3 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedEmily_3();
+		}
+	};
+
+	class OReservedEmily_4 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedEmily_4();
+		}
+	};
+
+	class OReservedEmily_5 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedEmily_5();
+		}
+	};
+
+	class OReservedEmily_6 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedEmily_6();
+		}
+	};
+
+	class OReservedEmily_7 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedEmily_7();
+		}
+	};
+
+	class OReservedEmily_8 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedEmily_8();
+		}
+	};
+
+	class OReservedEmily_9 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedEmily_9();
+		}
+	};
+
+	class OReservedEmily_10 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedEmily_10();
+		}
+	};
+
+	class OReservedEmily_11 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedEmily_11();
+		}
+	};
+
+	class OReservedEmily_12 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedEmily_12();
+		}
+	};
+
+	class OReservedEmily_13 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedEmily_13();
+		}
+	};
+
+	class OReservedEmily_14 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedEmily_14();
+		}
+	};
+
+	class OReservedEmily_15 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedEmily_15();
+		}
+	};
+
+	class OReservedEmily_16 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedEmily_16();
+		}
+	};
+
+	class OReservedEmily_17 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedEmily_17();
+		}
+	};
+
+	class OReservedEmily_18 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedEmily_18();
+		}
+	};
+
+	class OReservedEmily_19 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedEmily_19();
+		}
+	};
+
+	class OReservedEmily_20 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedEmily_20();
+		}
+	};
+
+	class OReservedEmily_21 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedEmily_21();
+		}
+	};
+
+	class OReservedEmily_22 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedEmily_22();
+		}
+	};
+
+	class OReservedEmily_23 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedEmily_23();
+		}
+	};
+
+	class OReservedEmily_24 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedEmily_24();
+		}
+	};
+
+	class OReservedEmily_25 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedEmily_25();
+		}
+	};
+
+	class OReservedEmily_26 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedEmily_26();
+		}
+	};
+
+	class OReservedEmily_27 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedEmily_27();
+		}
+	};
+
+	class OReservedEmily_28 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedEmily_28();
+		}
+	};
+
+	class OReservedEmily_29 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedEmily_29();
+		}
+	};
+
+	class OReservedEmily_30 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedEmily_30();
+		}
+	};
+
+	class OReservedEmily_31 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedEmily_31();
+		}
+	};
+
+	class OReservedEmily_32 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedEmily_32();
+		}
+	};
+
+	class OReservedEmily_33 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedEmily_33();
+		}
+	};
+
+	class OReservedEmily_34 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedEmily_34();
+		}
+	};
+
+	class OReservedEmily_35 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedEmily_35();
+		}
+	};
+
+	class OReservedEmily_36 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedEmily_36();
+		}
+	};
+
+	class OReservedEmily_37 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedEmily_37();
+		}
+	};
+
+	class OReservedEmily_38 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedEmily_38();
+		}
+	};
+
+	class OReservedEmily_39 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedEmily_39();
+		}
+	};
+
+	class OReservedEmily_40 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedEmily_40();
+		}
+	};
+
+	class OReservedEmily_41 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedEmily_41();
+		}
+	};
+
+	class OReservedEmily_42 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedEmily_42();
+		}
+	};
+
+	class OReservedEmily_43 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedEmily_43();
+		}
+	};
+
+	class OReservedEmily_44 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedEmily_44();
+		}
+	};
+
+	class OReservedEmily_45 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedEmily_45();
+		}
+	};
+
+	class OReservedEmily_46 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedEmily_46();
+		}
+	};
+
+	class OReservedEmily_47 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedEmily_47();
+		}
+	};
+
+	class OReservedEmily_48 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedEmily_48();
+		}
+	};
+
+	class OReservedEmily_49 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedEmily_49();
+		}
+	};
+
+	class OReservedEmily_50 : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedEmily_50();
 		}
 	};
 }
