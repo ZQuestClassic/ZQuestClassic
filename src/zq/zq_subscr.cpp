@@ -2393,7 +2393,7 @@ void broadcast_dialog_message(DIALOG* dialog, int32_t msg, int32_t c);
 bool edit_subscreen()
 {
 	bool b = zq_ignore_item_ownership;
-	zq_ignore_item_ownership = zc_get_config("editsubscr","show_all_items_edit_subscr",1);
+	zq_ignore_item_ownership = zc_get_config("editsubscr","show_all_items",1);
 	zq_view_fullctr = zc_get_config("editsubscr","show_full_counters",0);
 	zq_view_maxctr = zc_get_config("editsubscr","show_maxed_maxcounters",0);
 	zq_view_noinf = zc_get_config("editsubscr","show_no_infinites",0);
