@@ -273,6 +273,8 @@ static void create_compile_tasks()
 	create_compile_tasks(dmapscripts, NUMSCRIPTSDMAP, ScriptType::DMap);
 	create_compile_tasks(itemspritescripts, NUMSCRIPTSITEMSPRITE, ScriptType::ItemSprite);
 	create_compile_tasks(comboscripts, NUMSCRIPTSCOMBODATA, ScriptType::Combo);
+	create_compile_tasks(genericscripts, NUMSCRIPTSGENERIC, ScriptType::Generic);
+	create_compile_tasks(subscreenscripts, NUMSCRIPTSSUBSCREEN, ScriptType::EngineSubscreen);
 	// Sort by # of commands, so that biggest scripts get compiled first.
 	std::sort(pending_scripts.begin(), pending_scripts.end(), [](script_data* a, script_data* b) {
 		return a->size() < b->size();

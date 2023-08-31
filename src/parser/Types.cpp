@@ -189,6 +189,8 @@ DataTypeClassConst DataType::CBOTTLESHOP(ZCLID_BOTTLESHOP, "const bottleshopdata
 DataTypeClassConst DataType::CGENERICDATA(ZCLID_GENERICDATA, "const genericdata");
 DataTypeClassConst DataType::CPORTAL(ZCLID_PORTAL, "const portal");
 DataTypeClassConst DataType::CSAVEDPORTAL(ZCLID_SAVPORTAL, "const savedportal");
+DataTypeClassConst DataType::CSUBSCREENPAGE(ZCLID_SUBSCREENPAGE, "const SubscreenPage");
+DataTypeClassConst DataType::CSUBSCREENWIDGET(ZCLID_SUBSCREENWIDGET, "const SubscreenWidget");
 //Class: Var Types
 DataTypeClass DataType::BITMAP(ZCLID_BITMAP, "Bitmap", &CBITMAP);
 DataTypeClass DataType::CHEATS(ZCLID_CHEATS, "Cheats", &CCHEATS);
@@ -226,6 +228,8 @@ DataTypeClass DataType::BOTTLESHOP(ZCLID_BOTTLESHOP, "bottleshopdata", &CBOTTLES
 DataTypeClass DataType::GENERICDATA(ZCLID_GENERICDATA, "genericdata", &CGENERICDATA);
 DataTypeClass DataType::PORTAL(ZCLID_PORTAL, "portal", &CPORTAL);
 DataTypeClass DataType::SAVEDPORTAL(ZCLID_SAVPORTAL, "savedportal", &CSAVEDPORTAL);
+DataTypeClass DataType::SUBSCREENPAGE(ZCLID_SUBSCREENPAGE, "SubscreenPage", &CSUBSCREENPAGE);
+DataTypeClass DataType::SUBSCREENWIDGET(ZCLID_SUBSCREENWIDGET, "SubscreenWidget", &CSUBSCREENWIDGET);
 
 ////////////////////////////////////////////////////////////////
 // DataType
@@ -265,6 +269,8 @@ DataType const* DataType::get(DataTypeId id)
 		case ZTID_COMBOS: return &COMBOS;
 		case ZTID_SPRITEDATA: return &SPRITEDATA;
 		case ZTID_SUBSCREENDATA: return &SUBSCREENDATA;
+		case ZTID_SUBSCREENPAGE: return &SUBSCREENPAGE;
+		case ZTID_SUBSCREENWIDGET: return &SUBSCREENWIDGET;
 		case ZTID_FILE: return &FILE;
 		case ZTID_DIRECTORY: return &DIRECTORY;
 		case ZTID_STACK: return &STACK;
@@ -319,6 +325,8 @@ DataTypeClass const* DataType::getClass(int32_t classId)
 		case ZCLID_COMBOS: return &COMBOS;
 		case ZCLID_SPRITEDATA: return &SPRITEDATA;
 		case ZCLID_SUBSCREENDATA: return &SUBSCREENDATA;
+		case ZCLID_SUBSCREENPAGE: return &SUBSCREENPAGE;
+		case ZCLID_SUBSCREENWIDGET: return &SUBSCREENWIDGET;
 		case ZCLID_FILE: return &FILE;
 		case ZCLID_DIRECTORY: return &DIRECTORY;
 		case ZCLID_STACK: return &STACK;
@@ -725,7 +733,7 @@ namespace // file local
 		{"itemsprite", ZTID_ITEM},
 		{"untyped", ZTID_VOID},
 		{"combodata", ZTID_COMBOS},
-		{"subscreendata", ZTID_VOID},
+		{"subscreendata", ZTID_SUBSCREENDATA},
 		{"generic",ZTID_GENERICDATA},
 	};
 }

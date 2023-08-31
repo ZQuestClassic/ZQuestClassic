@@ -186,6 +186,13 @@ static AccessorTable gameTable[] =
 	
 	{ "CurrentItemID",              0,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{ 0x01 } },
 	
+	{ "LoadASubData",               0, ZTID_SUBSCREENDATA,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "LoadPSubData",               0, ZTID_SUBSCREENDATA,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "LoadOSubData",               0, ZTID_SUBSCREENDATA,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "NumActiveSubscreens",        0,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_GAME },{} },
+	{ "NumPassiveSubscreens",       0,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_GAME },{} },
+	{ "NumOverlaySubscreens",       0,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_GAME },{} },
+	
 	//Intentionally undocumented
 	{ "getSTD[]",                   0,       ZTID_UNTYPED,   STDARR,                    0,  { ZTID_GAME, ZTID_FLOAT },{} },
 	{ "setSTD[]",                   0,          ZTID_VOID,   STDARR,                    0,  { ZTID_GAME, ZTID_FLOAT, ZTID_UNTYPED },{} },
@@ -371,6 +378,85 @@ void GameSymbols::generateCode()
 		POPREF();
 		addOpcode2 (code, new OLoadDMapDataRegister(new VarArgument(EXP1)));
 		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(REFDMAPDATA)));
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	//LoadASubData
+	{
+		Function* function = getFunction("LoadASubData");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OLoadSubscreenDataRV(new VarArgument(EXP1), new LiteralArgument(0*10000)));
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	//LoadPSubData
+	{
+		Function* function = getFunction("LoadPSubData");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OLoadSubscreenDataRV(new VarArgument(EXP1), new LiteralArgument(1*10000)));
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	//LoadOSubData
+	{
+		Function* function = getFunction("LoadOSubData");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OLoadSubscreenDataRV(new VarArgument(EXP1), new LiteralArgument(2*10000)));
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	//NumActiveSubscreens
+	{
+		Function* function = getFunction("NumActiveSubscreens");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		ASSERT_NUL();
+		addOpcode2 (code, new ONumSubscreensV(new LiteralArgument(0*10000)));
+		LABELBACK(label);
+		RETURN();
+		function->giveCode(code);
+	}
+	//NumPassiveSubscreens
+	{
+		Function* function = getFunction("NumPassiveSubscreens");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		ASSERT_NUL();
+		addOpcode2 (code, new ONumSubscreensV(new LiteralArgument(1*10000)));
+		LABELBACK(label);
+		RETURN();
+		function->giveCode(code);
+	}
+	//NumOverlaySubscreens
+	{
+		Function* function = getFunction("NumOverlaySubscreens");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		ASSERT_NUL();
+		addOpcode2 (code, new ONumSubscreensV(new LiteralArgument(2*10000)));
+		LABELBACK(label);
 		RETURN();
 		function->giveCode(code);
 	}

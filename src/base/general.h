@@ -29,6 +29,7 @@ void set_bitl(int32_t bitstr,int32_t bit,byte val);
 #define NUMSCRIPTSITEMSPRITE       256
 #define NUMSCRIPTSCOMBODATA        512
 #define NUMSCRIPTSGENERIC          512
+#define NUMSCRIPTSSUBSCREEN        256
 
 //Script-related
 #define INITIAL_A                  2

@@ -179,6 +179,8 @@ void trunc_str(std::string& str, size_t sz, std::string const& header, int32_t r
 %token BOTTLEDATA
 %token BOTTLESHOPDATA
 %token SUBSCREENDATA
+%token SUBSCREENPAGE
+%token SUBSCREENWIDGET
 %token GENERIC
 %token GENERICDATA
 %token PORTAL
@@ -592,6 +594,8 @@ DataType : ZCONST DataType {
 	| PORTAL {$$ = new ASTDataType(DataType::PORTAL, @$);}
 	| SAVEDPORTAL {$$ = new ASTDataType(DataType::SAVEDPORTAL, @$);}
 	| SUBSCREENDATA {$$ = new ASTDataType(DataType::SUBSCREENDATA, @$);}
+	| SUBSCREENPAGE {$$ = new ASTDataType(DataType::SUBSCREENPAGE, @$);}
+	| SUBSCREENWIDGET {$$ = new ASTDataType(DataType::SUBSCREENWIDGET, @$);}
 	| TUNE {$$ = new ASTDataType(DataType::TUNES, @$);}
 	| WARPRING	{$$ = new ASTDataType(DataType::WARPRING, @$);}
 	| PALDATA {$$ = new ASTDataType(DataType::PALDATA, @$);}

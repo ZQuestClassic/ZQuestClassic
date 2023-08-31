@@ -474,6 +474,7 @@ script_data *screenscripts[NUMSCRIPTSCREEN];
 script_data *dmapscripts[NUMSCRIPTSDMAP];
 script_data *itemspritescripts[NUMSCRIPTSITEMSPRITE];
 script_data *comboscripts[NUMSCRIPTSCOMBODATA];
+script_data *subscreenscripts[NUMSCRIPTSSUBSCREEN];
 
 ScriptOwner::ScriptOwner() : scriptType(ScriptType::None), ownerUID(0),
 	specOwned(false), specCleared(false)
@@ -3363,9 +3364,9 @@ void game_loop()
 			ZScriptVersion::RunScript(ScriptType::DMap, DMaps[currdmap].script,currdmap);
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_ACTIVE);
-		if(!FFCore.system_suspend[susptDMAPSCRIPT] && !freezemsg && FFCore.doscript(ScriptType::PassiveSubscreen) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
+		if(!FFCore.system_suspend[susptDMAPSCRIPT] && !freezemsg && FFCore.doscript(ScriptType::ScriptedPassiveSubscreen) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
 		{
-			ZScriptVersion::RunScript(ScriptType::PassiveSubscreen, DMaps[currdmap].passive_sub_script,currdmap);
+			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[currdmap].passive_sub_script,currdmap);
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_PASSIVESUBSCREEN);
 		if ( !FFCore.system_suspend[susptCOMBOSCRIPTS] && !freezemsg && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
@@ -3541,10 +3542,10 @@ void game_loop()
 			FFCore.waitdraw(ScriptType::DMap) = false;
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_ACTIVE_WAITDRAW);
-		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(ScriptType::PassiveSubscreen) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(ScriptType::ScriptedPassiveSubscreen) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
-			ZScriptVersion::RunScript(ScriptType::PassiveSubscreen, DMaps[currdmap].passive_sub_script,currdmap);
-			FFCore.waitdraw(ScriptType::PassiveSubscreen) = false;
+			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[currdmap].passive_sub_script,currdmap);
+			FFCore.waitdraw(ScriptType::ScriptedPassiveSubscreen) = false;
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_PASSIVESUBSCREEN_WAITDRAW);
 		
@@ -4328,6 +4329,10 @@ static void allocate_crap()
 	for(int32_t i=0; i<NUMSCRIPTSCOMBODATA; i++)
 	{
 		comboscripts[i] = new script_data();
+	}
+	for(int32_t i=0; i<NUMSCRIPTSSUBSCREEN; i++)
+	{
+		subscreenscripts[i] = new script_data();
 	}
 }
 
@@ -5829,6 +5834,11 @@ void quit_game()
 	{
 		if(comboscripts[i]!=NULL) delete comboscripts[i];
 		comboscripts[i] = NULL;
+	}
+	for(int32_t i=0; i<NUMSCRIPTSSUBSCREEN; i++)
+	{
+		if(subscreenscripts[i]!=NULL) delete subscreenscripts[i];
+		subscreenscripts[i] = NULL;
 	}
 	
 	delete zscriptDrawingRenderTarget;

@@ -37,6 +37,8 @@
 #include "base/colors.h"
 #include "pal.h"
 #include "zinfo.h"
+#include "subscr.h"
+#include "zc_list_data.h"
 #include <sstream>
 
 #ifdef _WIN32
@@ -290,6 +292,69 @@ int32_t getScreen(int32_t ref)
 		default:
 			return (ref % MAPSCRS);
 	}
+}
+
+dword get_subref(byte sub, byte ty, byte pg = 0, word ind = 0)
+{
+	++ty; //type is offset by 1
+	return (sub<<24)|(pg<<16)|((ty&0x7)<<13)|(ind&0x1FFF);
+}
+std::tuple<byte,int8_t,byte,word> from_subref(dword ref)
+{
+	byte type = (ref>>13)&0x07;
+	if(!type)
+		return { 0, -1, 0, 0 };
+	
+	byte sub = (ref>>24)&0xFF;
+	byte pg = (ref>>16)&0xFF;
+	word ind = (ref)&0x1FFF;
+	return { sub, type-1, pg, ind };
+}
+
+std::tuple<ZCSubscreen*,SubscrPage*,SubscrWidget*,byte> load_subscreen_ref(dword ref)
+{
+	auto [sub,ty,pg,ind] = from_subref(ref);
+	ZCSubscreen* sbscr = nullptr;
+	SubscrPage* sbpg = nullptr;
+	SubscrWidget* sbwidg = nullptr;
+	switch(ty)
+	{
+		case sstACTIVE:
+			if(sub < subscreens_active.size())
+				sbscr = &subscreens_active[sub];
+			break;
+		case sstPASSIVE:
+			break;
+		case sstOVERLAY:
+			break;
+	}
+	if(sbscr)
+	{
+		if(pg < sbscr->pages.size())
+			sbpg = &sbscr->pages[pg];
+	}
+	else return { nullptr, nullptr, nullptr, -1 }; //no subscreen
+	if(sbpg)
+	{
+		if(ind <= sbpg->size())
+			sbwidg = sbpg->at(ind-1);
+	}
+	return { sbscr, sbpg, sbwidg, ty };
+}
+std::pair<ZCSubscreen*,byte> load_subdata(dword ref)
+{
+	auto [sub,pg,widg,ty] = load_subscreen_ref(ref);
+	return { sub, ty };
+}
+std::pair<SubscrPage*,byte> load_subpage(dword ref)
+{
+	auto [sub,pg,widg,ty] = load_subscreen_ref(ref);
+	return { pg, ty };
+}
+std::pair<SubscrWidget*,byte> load_subwidg(dword ref)
+{
+	auto [sub,pg,widg,ty] = load_subscreen_ref(ref);
+	return { widg, ty };
 }
 
 #include "zconsole/ConsoleLogger.h"
@@ -603,9 +668,14 @@ static std::map<std::pair<ScriptType, word>, ScriptEngineData> scriptEngineDatas
 
 static ScriptEngineData& get_script_engine_data(ScriptType type, int index)
 {
-	if (type == ScriptType::DMap || type == ScriptType::OnMap || type == ScriptType::PassiveSubscreen || type == ScriptType::ActiveSubscreen)
+	if (type == ScriptType::DMap || type == ScriptType::OnMap || type == ScriptType::ScriptedPassiveSubscreen || type == ScriptType::ScriptedActiveSubscreen)
 	{
 		// `index` is used for dmapref, not for different script engine data.
+		index = 0;
+	}
+	if (type == ScriptType::EngineSubscreen)
+	{
+		// `index` is used for subdataref, not for different script engine data.
 		index = 0;
 	}
 
@@ -629,9 +699,14 @@ void FFScript::reset_script_engine_data(ScriptType type, int index)
 
 void FFScript::clear_script_engine_data(ScriptType type, int index)
 {
-	if (type == ScriptType::DMap || type == ScriptType::OnMap || type == ScriptType::PassiveSubscreen || type == ScriptType::ActiveSubscreen)
+	if (type == ScriptType::DMap || type == ScriptType::OnMap || type == ScriptType::ScriptedPassiveSubscreen || type == ScriptType::ScriptedActiveSubscreen)
 	{
 		// `index` is used for dmapref, not for different script engine data.
+		index = 0;
+	}
+	if (type == ScriptType::EngineSubscreen)
+	{
+		// `index` is used for subdataref, not for different script engine data.
 		index = 0;
 	}
 
@@ -870,7 +945,7 @@ static bool set_current_script_engine_data(ScriptType type, int script, int inde
 		}
 		break;
 		
-		case ScriptType::ActiveSubscreen:
+		case ScriptType::ScriptedActiveSubscreen:
 		{
 			curscript = dmapscripts[script];
 			ri->dmapsref = index;
@@ -886,7 +961,7 @@ static bool set_current_script_engine_data(ScriptType type, int script, int inde
 		}
 		break;
 		
-		case ScriptType::PassiveSubscreen:
+		case ScriptType::ScriptedPassiveSubscreen:
 		{
 			curscript = dmapscripts[script];
 			ri->dmapsref = index;
@@ -896,6 +971,24 @@ static bool set_current_script_engine_data(ScriptType type, int script, int inde
 				for ( int32_t q = 0; q < 8; q++ ) 
 				{
 					ri->d[q] = DMaps[ri->dmapsref].sub_initD[q];
+				}
+				data.initialized = true;
+			}
+		}
+		break;
+		case ScriptType::EngineSubscreen:
+		{
+			curscript = subscreenscripts[script];
+			auto [ptr,ty] = load_subdata(index);
+			assert(ptr); //should always be valid
+			ri->subdataref = index;
+			
+			if (!data.initialized)
+			{
+				got_initialized = true;
+				for ( int32_t q = 0; q < 8; q++ ) 
+				{
+					ri->d[q] = ptr->initd[q];
 				}
 				data.initialized = true;
 			}
@@ -1090,12 +1183,12 @@ void FFScript::runGenericPassiveEngine(int32_t scrtm)
 void FFScript::initZScriptDMapScripts()
 {
 	scriptEngineDatas[{ScriptType::DMap, 0}] = ScriptEngineData();
-	scriptEngineDatas[{ScriptType::PassiveSubscreen, 0}] = ScriptEngineData();
+	scriptEngineDatas[{ScriptType::ScriptedPassiveSubscreen, 0}] = ScriptEngineData();
 }
 
 void FFScript::initZScriptActiveSubscreenScript()
 {
-	scriptEngineDatas[{ScriptType::ActiveSubscreen, 0}] = ScriptEngineData();
+	scriptEngineDatas[{ScriptType::ScriptedActiveSubscreen, 0}] = ScriptEngineData();
 }
 
 void FFScript::initZScriptOnMapScript()
@@ -3438,6 +3531,71 @@ user_bitmap *checkBitmap(int32_t ref, const char *what, bool req_valid = false, 
 		Z_scripterrlog("You were trying to reference the '%s' of a bitmap with UID = %ld\n", what, ref);
 	else
 		Z_scripterrlog("You were trying to reference with UID = %ld\n", ref);
+	return NULL;
+}
+
+extern const std::string subscr_names[sstMAX];
+ZCSubscreen *checkSubData(int32_t ref, const char *what, int req_ty = -1)
+{
+	auto [ptr,ty] = load_subdata(ref);
+	if(ptr)
+	{
+		if(req_ty < 0 || req_ty == ty)
+			return ptr;
+		else
+		{
+			Z_scripterrlog("Wrong type of SubscreenData accessed! Expecting type '%s', but found '%s'\n",
+				subscr_names[req_ty].c_str(), subscr_names[ty].c_str());
+		}
+	}
+	else Z_scripterrlog("Script attempted to reference a nonexistent SubscreenData!\n");
+	
+	Z_scripterrlog("You were trying to reference the '%s' of a SubscreenData with UID = %ld\n", what, ref);
+	return NULL;
+}
+SubscrPage *checkSubPage(int32_t ref, const char *what, int req_ty = -1)
+{
+	auto [ptr,ty] = load_subpage(ref);
+	if(ptr)
+	{
+		if(req_ty < 0 || req_ty == ty)
+			return ptr;
+		else
+		{
+			Z_scripterrlog("Wrong type of Subscreen accessed! Expecting type '%s', but found '%s'\n",
+				subscr_names[req_ty].c_str(), subscr_names[ty].c_str());
+		}
+	}
+	else Z_scripterrlog("Script attempted to reference a nonexistent SubscreenPage!\n");
+	
+	Z_scripterrlog("You were trying to reference the '%s' of a SubscreenPage with UID = %ld\n", what, ref);
+	return NULL;
+}
+SubscrWidget *checkSubWidg(int32_t ref, const char *what, int req_widg_ty = -1, int req_sub_ty = -1)
+{
+	auto [ptr,ty] = load_subwidg(ref);
+	if(ptr)
+	{
+		if(req_sub_ty < 0 || req_sub_ty == ty)
+		{
+			if(req_widg_ty < 0 || req_widg_ty == ptr->getType())
+				return ptr;
+			else
+			{
+				auto listdata = GUI::ZCListData::subscr_widgets();
+				Z_scripterrlog("Wrong type of SubscreenWidget accessed! Expecting type '%s', but found '%s'\n",
+					listdata.findText(req_widg_ty).c_str(), listdata.findText(ptr->getType()).c_str());
+			}
+		}
+		else
+		{
+			Z_scripterrlog("Wrong type of Subscreen accessed! Expecting subscreen type '%s', but found '%s'\n",
+				subscr_names[req_sub_ty].c_str(), subscr_names[ty].c_str());
+		}
+	}
+	else Z_scripterrlog("Script attempted to reference a nonexistent SubscreenWidget!\n");
+	
+	Z_scripterrlog("You were trying to reference the '%s' of a SubscreenWidget with UID = %ld\n", what, ref);
 	return NULL;
 }
 
@@ -13114,7 +13272,9 @@ int32_t get_register(const int32_t arg)
 		case REFFILE: ret = ri->fileref; break;
 		case REFDIRECTORY: ret = ri->directoryref; break;
 		case REFSTACK: ret = ri->stackref; break;
-		case REFSUBSCREEN: ret = ri->subscreenref; break;
+		case REFSUBSCREEN: ret = ri->subdataref; break;
+		case REFSUBSCREENPAGE: ret = ri->subpageref; break;
+		case REFSUBSCREENWIDG: ret = ri->subwidgref; break;
 		case REFRNG: ret = ri->rngref; break;
 		case CLASS_THISKEY: ret = ri->thiskey; break;
 		case CLASS_THISKEY2: ret = ri->thiskey2; break;
@@ -21755,7 +21915,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case DMAPDATAASUBSCRIPT:	//byte
 		{
-			FFScript::deallocateAllArrays(ScriptType::ActiveSubscreen, ri->dmapsref);
+			FFScript::deallocateAllArrays(ScriptType::ScriptedActiveSubscreen, ri->dmapsref);
 			DMaps[ri->dmapsref].active_sub_script = vbound((value / 10000),0,NUMSCRIPTSDMAP-1); break;
 		}
 		case DMAPDATAMAPSCRIPT:	//byte
@@ -21765,14 +21925,14 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case DMAPDATAPSUBSCRIPT:	//byte
 		{
-			FFScript::deallocateAllArrays(ScriptType::PassiveSubscreen, ri->dmapsref);
+			FFScript::deallocateAllArrays(ScriptType::ScriptedPassiveSubscreen, ri->dmapsref);
 			word val = vbound((value / 10000),0,NUMSCRIPTSDMAP-1);
-			if (FFCore.doscript(ScriptType::PassiveSubscreen) && ri->dmapsref == currdmap && val == DMaps[ri->dmapsref].passive_sub_script)
+			if (FFCore.doscript(ScriptType::ScriptedPassiveSubscreen) && ri->dmapsref == currdmap && val == DMaps[ri->dmapsref].passive_sub_script)
 				break;
 			DMaps[ri->dmapsref].passive_sub_script = val;
 			if(ri->dmapsref == currdmap)
 			{
-				FFCore.doscript(ScriptType::PassiveSubscreen) = val != 0;
+				FFCore.doscript(ScriptType::ScriptedPassiveSubscreen) = val != 0;
 			};
 			break;
 		}
@@ -23520,7 +23680,9 @@ void set_register(int32_t arg, int32_t value)
 		case REFFILE: ri->fileref = value; break;
 		case REFDIRECTORY: ri->directoryref = value; break;
 		case REFSTACK: ri->stackref = value; break;
-		case REFSUBSCREEN: ri->subscreenref = value; break;
+		case REFSUBSCREEN: ri->subdataref = value; break;
+		case REFSUBSCREENPAGE: ri->subpageref = value; break;
+		case REFSUBSCREENWIDG: ri->subwidgref = value; break;
 		case REFRNG: ri->rngref = value; break;
 		case CLASS_THISKEY: ri->thiskey = value; break;
 		case CLASS_THISKEY2: ri->thiskey2 = value; break;
@@ -24014,8 +24176,6 @@ void do_set(const bool v, ScriptType whichType, const int32_t whichUID)
 			if(sarg1==NPCSCRIPT && ri->guyref==whichUID)
 				allowed = false;
 			break;
-		
-		//case ScriptType::Subscreen:
 		
 		case ScriptType::Ewpn:
 			if(sarg1==EWPNSCRIPT && ri->ewpn==whichUID)
@@ -26079,12 +26239,79 @@ void FFScript::do_loaddmapdata(const bool v)
 	
 	if ( ID < 0 || ID > 511 )
 	{
-	Z_scripterrlog("Invalid DMap ID passed to Game->LoadDMapData(): %d\n", ID);
-	ri->dmapsref = MAX_DWORD;
+		Z_scripterrlog("Invalid DMap ID passed to Game->LoadDMapData(): %d\n", ID);
+		ri->dmapsref = MAX_DWORD;
 	}
-		
 	else ri->dmapsref = ID;
-	//Z_eventlog("Script loaded npcdata with ID = %ld\n", ri->idata);
+}
+
+void FFScript::do_load_active_subscreendata(const bool v)
+{
+	int32_t ID = SH::get_arg(sarg1, v) / 10000;
+	
+	if(unsigned(ID) < subscreens_active.size() && unsigned(ID) < 256)
+	{
+		ri->subdataref = get_subref(ID, sstACTIVE);
+	}
+	else
+	{
+		Z_scripterrlog("Invalid Subscreen ID passed to Game->LoadASubData(): %d\n", ID);
+		ri->subdataref = 0;
+	}
+	ri->d[rEXP1] = ri->subdataref;
+}
+void FFScript::do_load_passive_subscreendata(const bool v)
+{
+	int32_t ID = SH::get_arg(sarg1, v) / 10000;
+	
+	if(unsigned(ID) < subscreens_passive.size() && unsigned(ID) < 256)
+	{
+		ri->subdataref = get_subref(ID, sstPASSIVE);
+	}
+	else
+	{
+		Z_scripterrlog("Invalid Subscreen ID passed to Game->LoadPSubData(): %d\n", ID);
+		ri->subdataref = 0;
+	}
+	ri->d[rEXP1] = ri->subdataref;
+}
+void FFScript::do_load_overlay_subscreendata(const bool v)
+{
+	int32_t ID = SH::get_arg(sarg1, v) / 10000;
+	
+	if(unsigned(ID) < subscreens_overlay.size() && unsigned(ID) < 256)
+	{
+		ri->subdataref = get_subref(ID, sstOVERLAY);
+	}
+	else
+	{
+		Z_scripterrlog("Invalid Subscreen ID passed to Game->LoadOSubData(): %d\n", ID);
+		ri->subdataref = 0;
+	}
+	ri->d[rEXP1] = ri->subdataref;
+}
+void FFScript::do_load_subscreendata(const bool v, const bool v2)
+{
+	int32_t ty = SH::get_arg(sarg2, v2) / 10000;
+	switch(ty)
+	{
+		case sstACTIVE:
+			do_load_active_subscreendata(v);
+			break;
+		case sstPASSIVE:
+			do_load_passive_subscreendata(v);
+			break;
+		case sstOVERLAY:
+			do_load_overlay_subscreendata(v);
+			break;
+		default:
+		{
+			Z_scripterrlog("Invalid Subscreen Type passed to ???: %d\n", ty);
+			ri->subdataref = 0;
+			break;
+		}
+	}
+	ri->d[rEXP1] = ri->subdataref;
 }
 
 void FFScript::do_loadrng()
@@ -30788,8 +31015,9 @@ int32_t run_script(ScriptType type, const word script, const int32_t i)
 		case ScriptType::Player:
 		case ScriptType::DMap:
 		case ScriptType::OnMap:
-		case ScriptType::ActiveSubscreen:
-		case ScriptType::PassiveSubscreen:
+		case ScriptType::ScriptedActiveSubscreen:
+		case ScriptType::ScriptedPassiveSubscreen:
+		case ScriptType::EngineSubscreen:
 		case ScriptType::Screen:
 		case ScriptType::Combo:
 		case ScriptType::Item:
@@ -31126,6 +31354,10 @@ j_command:
 					scommand = NOP;
 				else switch(type)
 				{
+					case ScriptType::EngineSubscreen: //ignore waitdraws
+						Z_scripterrlog("'Waitdraw()' is invalid in subscreen scripts, will be ignored\n");
+						scommand = NOP;
+						break;
 					case ScriptType::Generic:
 					case ScriptType::GenericFrozen: //ignore waitdraws
 						Z_scripterrlog("'Waitdraw()' is invalid in generic scripts, will be ignored\n");
@@ -31291,8 +31523,8 @@ j_command:
 						zprint("%s Script %s has exited.\n", type_str, screenmap[i].scriptname.c_str()); break;
 					case ScriptType::OnMap:
 					case ScriptType::DMap:
-					case ScriptType::ActiveSubscreen:
-					case ScriptType::PassiveSubscreen:
+					case ScriptType::ScriptedActiveSubscreen:
+					case ScriptType::ScriptedPassiveSubscreen:
 						zprint("%s Script %s has exited.\n", type_str, dmapmap[i].scriptname.c_str()); break;
 					case ScriptType::Combo: zprint("%s Script %s has exited.\n", type_str, comboscriptmap[i].scriptname.c_str()); break;
 					
@@ -31338,8 +31570,8 @@ j_command:
 							Z_scripterrlog("%s Script %s attempted to GOTO an invalid jump to (%d).\n", type_str, screenmap[i].scriptname.c_str(), sarg1); break;
 						case ScriptType::OnMap:
 						case ScriptType::DMap:
-						case ScriptType::ActiveSubscreen:
-						case ScriptType::PassiveSubscreen:
+						case ScriptType::ScriptedActiveSubscreen:
+						case ScriptType::ScriptedPassiveSubscreen:
 							Z_scripterrlog("%s Script %s attempted to GOTO an invalid jump to (%d).\n", type_str, dmapmap[i].scriptname.c_str(), sarg1); break;
 						case ScriptType::Combo: Z_scripterrlog("%s Script %s attempted to GOTO an invalid jump to (%d).\n", type_str, comboscriptmap[i].scriptname.c_str(), sarg1); break;
 						
@@ -31380,8 +31612,8 @@ j_command:
 							Z_scripterrlog("%s Script %s attempted to GOTOR an invalid jump to (%d).\n", type_str, screenmap[i].scriptname.c_str(), sarg1); break;
 						case ScriptType::OnMap:
 						case ScriptType::DMap:
-						case ScriptType::ActiveSubscreen:
-						case ScriptType::PassiveSubscreen:
+						case ScriptType::ScriptedActiveSubscreen:
+						case ScriptType::ScriptedPassiveSubscreen:
 							Z_scripterrlog("%s Script %s attempted to GOTOR an invalid jump to (%d).\n", type_str, dmapmap[i].scriptname.c_str(), sarg1); break;
 						case ScriptType::Combo: Z_scripterrlog("%s Script %s attempted to GOTOR an invalid jump to (%d).\n", type_str, comboscriptmap[i].scriptname.c_str(), sarg1); break;
 						
@@ -31424,8 +31656,8 @@ j_command:
 								Z_scripterrlog("%s Script %s attempted to GOTOTRUE an invalid jump to (%d).\n", type_str, screenmap[i].scriptname.c_str(), sarg1); break;
 							case ScriptType::OnMap:
 							case ScriptType::DMap:
-							case ScriptType::ActiveSubscreen:
-							case ScriptType::PassiveSubscreen:
+							case ScriptType::ScriptedActiveSubscreen:
+							case ScriptType::ScriptedPassiveSubscreen:
 								Z_scripterrlog("%s Script %s attempted to GOTOTRUE an invalid jump to (%d).\n", type_str, dmapmap[i].scriptname.c_str(), sarg1); break;
 							case ScriptType::Combo: Z_scripterrlog("%s Script %s attempted to GOTOTRUE an invalid jump to (%d).\n", type_str, comboscriptmap[i].scriptname.c_str(), sarg1); break;
 							
@@ -31469,8 +31701,8 @@ j_command:
 								Z_scripterrlog("%s Script %s attempted to GOTOFALSE an invalid jump to (%d).\n", type_str, screenmap[i].scriptname.c_str(), sarg1); break;
 							case ScriptType::OnMap:
 							case ScriptType::DMap:
-							case ScriptType::ActiveSubscreen:
-							case ScriptType::PassiveSubscreen:
+							case ScriptType::ScriptedActiveSubscreen:
+							case ScriptType::ScriptedPassiveSubscreen:
 								Z_scripterrlog("%s Script %s attempted to GOTOFALSE an invalid jump to (%d).\n", type_str, dmapmap[i].scriptname.c_str(), sarg1); break;
 							case ScriptType::Combo: Z_scripterrlog("%s Script %s attempted to GOTOFALSE an invalid jump to (%d).\n", type_str, comboscriptmap[i].scriptname.c_str(), sarg1); break;
 							
@@ -31514,8 +31746,8 @@ j_command:
 								Z_scripterrlog("%s Script %s attempted to GOTOMORE an invalid jump to (%d).\n", type_str, screenmap[i].scriptname.c_str(), sarg1); break;
 							case ScriptType::OnMap:
 							case ScriptType::DMap:
-							case ScriptType::ActiveSubscreen:
-							case ScriptType::PassiveSubscreen:
+							case ScriptType::ScriptedActiveSubscreen:
+							case ScriptType::ScriptedPassiveSubscreen:
 								Z_scripterrlog("%s Script %s attempted to GOTOMORE an invalid jump to (%d).\n", type_str, dmapmap[i].scriptname.c_str(), sarg1); break;
 							case ScriptType::Combo: Z_scripterrlog("%s Script %s attempted to GOTOMORE an invalid jump to (%d).\n", type_str, comboscriptmap[i].scriptname.c_str(), sarg1); break;
 							
@@ -31559,8 +31791,8 @@ j_command:
 								Z_scripterrlog("%s Script %s attempted to GOTOLESS an invalid jump to (%d).\n", type_str, screenmap[i].scriptname.c_str(), sarg1); break;
 							case ScriptType::OnMap:
 							case ScriptType::DMap:
-							case ScriptType::ActiveSubscreen:
-							case ScriptType::PassiveSubscreen:
+							case ScriptType::ScriptedActiveSubscreen:
+							case ScriptType::ScriptedPassiveSubscreen:
 								Z_scripterrlog("%s Script %s attempted to GOTOLESS an invalid jump to (%d).\n", type_str, dmapmap[i].scriptname.c_str(), sarg1); break;
 							case ScriptType::Combo: Z_scripterrlog("%s Script %s attempted to GOTOLESS an invalid jump to (%d).\n", type_str, comboscriptmap[i].scriptname.c_str(), sarg1); break;
 							
@@ -32744,6 +32976,30 @@ j_command:
 				FFScript::do_loaddmapdata(false); break;
 			case LOADDMAPDATAV: //command
 				FFScript::do_loaddmapdata(true); break;
+			case LOADSUBDATARV:
+				FFScript::do_load_subscreendata(false, true); break;
+			case NUMSUBSCREENSV:
+			{
+				auto ty = sarg1/10000;
+				size_t sz = 0;
+				switch(ty)
+				{
+					case sstACTIVE:
+						sz = subscreens_active.size();
+						break;
+					case sstPASSIVE:
+						sz = subscreens_passive.size();
+						break;
+					case sstOVERLAY:
+						sz = subscreens_overlay.size();
+						break;
+					default:
+						Z_scripterrlog("Invalid Subscreen Type passed to ???: %d\n", ty);
+						break;
+				}
+				ri->d[rEXP1] = sz*10000;
+				break;
+			}
 			case LOADDIRECTORYR:
 				FFCore.do_loaddirectory(); break;
 			case LOADSTACK:
@@ -35344,8 +35600,8 @@ j_command:
 			case ScriptType::Player:
 			case ScriptType::DMap:
 			case ScriptType::OnMap:
-			case ScriptType::PassiveSubscreen:
-			case ScriptType::ActiveSubscreen:
+			case ScriptType::ScriptedPassiveSubscreen:
+			case ScriptType::ScriptedActiveSubscreen:
 			case ScriptType::Screen:
 			case ScriptType::Combo: 
 				FFCore.waitdraw(type, i) = true;
@@ -35399,6 +35655,7 @@ j_command:
 			
 			case ScriptType::Generic:
 			case ScriptType::GenericFrozen:
+			case ScriptType::EngineSubscreen:
 				//No Waitdraw
 				break;
 			
@@ -35426,8 +35683,9 @@ j_command:
 			case ScriptType::Player:
 			case ScriptType::DMap:
 			case ScriptType::OnMap:
-			case ScriptType::ActiveSubscreen:
-			case ScriptType::PassiveSubscreen:
+			case ScriptType::ScriptedActiveSubscreen:
+			case ScriptType::ScriptedPassiveSubscreen:
+			case ScriptType::EngineSubscreen:
 			case ScriptType::Combo:
 			{
 				auto& data = get_script_engine_data(type, i);
@@ -35548,13 +35806,15 @@ script_data* load_scrdata(ScriptType type, word script, int32_t i)
 		case ScriptType::DMap:
 			return dmapscripts[script];
 		case ScriptType::OnMap:
-		case ScriptType::ActiveSubscreen:
-		case ScriptType::PassiveSubscreen:
+		case ScriptType::ScriptedActiveSubscreen:
+		case ScriptType::ScriptedPassiveSubscreen:
 			return dmapscripts[script];
 		case ScriptType::Screen:
 			return screenscripts[script];
 		case ScriptType::Combo:
 			return comboscripts[script];
+		case ScriptType::EngineSubscreen:
+			return subscreenscripts[script];
 	}
 	return nullptr;
 }
@@ -38127,14 +38387,14 @@ void FFScript::warpScriptCheck()
 		FFCore.runWarpScripts(false);
 		FFCore.runWarpScripts(true); //Waitdraw
 	}
-	else if(get_qr(qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN) && doscript(ScriptType::PassiveSubscreen))
+	else if(get_qr(qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN) && doscript(ScriptType::ScriptedPassiveSubscreen))
 	{
 		if(DMaps[currdmap].passive_sub_script != 0)
-			ZScriptVersion::RunScript(ScriptType::PassiveSubscreen, DMaps[currdmap].passive_sub_script, currdmap);
-		if (waitdraw(ScriptType::PassiveSubscreen) && DMaps[currdmap].passive_sub_script != 0 && doscript(ScriptType::PassiveSubscreen))
+			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[currdmap].passive_sub_script, currdmap);
+		if (waitdraw(ScriptType::ScriptedPassiveSubscreen) && DMaps[currdmap].passive_sub_script != 0 && doscript(ScriptType::ScriptedPassiveSubscreen))
 		{
-			ZScriptVersion::RunScript(ScriptType::PassiveSubscreen, DMaps[currdmap].passive_sub_script, currdmap);
-			waitdraw(ScriptType::PassiveSubscreen) = false;
+			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[currdmap].passive_sub_script, currdmap);
+			waitdraw(ScriptType::ScriptedPassiveSubscreen) = false;
 		}	
 	}
 }
@@ -38162,16 +38422,11 @@ void FFScript::runWarpScripts(bool waitdraw)
 			ZScriptVersion::RunScript(ScriptType::DMap, DMaps[currdmap].script,currdmap);
 			FFCore.waitdraw(ScriptType::DMap) = false;
 		}
-		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(ScriptType::PassiveSubscreen) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(ScriptType::ScriptedPassiveSubscreen) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
-			ZScriptVersion::RunScript(ScriptType::PassiveSubscreen, DMaps[currdmap].passive_sub_script,currdmap);
-			FFCore.waitdraw(ScriptType::PassiveSubscreen) = false;
+			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[currdmap].passive_sub_script,currdmap);
+			FFCore.waitdraw(ScriptType::ScriptedPassiveSubscreen) = false;
 		}
-		//if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && active_subscreen_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
-		//{
-		//	ZScriptVersion::RunScript(ScriptType::Subscreen, DMaps[currdmap].activesubscript,currdmap);
-		//	passive_subscreen_waitdraw = false;
-		//}
 		//no doscript check here, becauseb of preload? Do we want to write doscript here? -Z 13th July, 2019
 		if ( (!( FFCore.system_suspend[susptSCREENSCRIPTS] )) && tmpscr->script != 0 && FFCore.waitdraw(ScriptType::Screen) && tmpscr->preloadscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
@@ -38197,9 +38452,9 @@ void FFScript::runWarpScripts(bool waitdraw)
 		{
 			ZScriptVersion::RunScript(ScriptType::DMap, DMaps[currdmap].script,currdmap);
 		}
-		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.doscript(ScriptType::PassiveSubscreen) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
+		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.doscript(ScriptType::ScriptedPassiveSubscreen) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
 		{
-			ZScriptVersion::RunScript(ScriptType::PassiveSubscreen, DMaps[currdmap].passive_sub_script,currdmap);
+			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[currdmap].passive_sub_script,currdmap);
 		}
 		if ( (!( FFCore.system_suspend[susptSCREENSCRIPTS] )) && tmpscr->script != 0 && tmpscr->preloadscript && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
@@ -38418,7 +38673,7 @@ bool FFScript::runActiveSubscreenScriptEngine()
 	word script_dmap = currdmap;
 	//auto tmpDrawCommands = script_drawing_commands.pop_commands();
 	pause_all_sfx();
-	auto& data = get_script_engine_data(ScriptType::ActiveSubscreen);
+	auto& data = get_script_engine_data(ScriptType::ScriptedActiveSubscreen);
 	while (data.doscript && !Quit)
 	{
 		script_drawing_commands.Clear();
@@ -38427,24 +38682,24 @@ bool FFScript::runActiveSubscreenScriptEngine()
 		{
 			ZScriptVersion::RunScript(ScriptType::DMap, dmapactivescript, script_dmap);
 		}
-		if(get_qr(qr_PASSIVE_SUBSCRIPT_RUNS_DURING_ACTIVE_SUBSCRIPT)!=0 && DMaps[script_dmap].passive_sub_script != 0 && FFCore.doscript(ScriptType::PassiveSubscreen))
+		if(get_qr(qr_PASSIVE_SUBSCRIPT_RUNS_DURING_ACTIVE_SUBSCRIPT)!=0 && DMaps[script_dmap].passive_sub_script != 0 && FFCore.doscript(ScriptType::ScriptedPassiveSubscreen))
 		{
-			ZScriptVersion::RunScript(ScriptType::PassiveSubscreen, passivesubscript, script_dmap);
+			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, passivesubscript, script_dmap);
 		}
-		ZScriptVersion::RunScript(ScriptType::ActiveSubscreen, activesubscript, script_dmap);
+		ZScriptVersion::RunScript(ScriptType::ScriptedActiveSubscreen, activesubscript, script_dmap);
 		if(waitdraw(ScriptType::DMap) && (get_qr(qr_DMAP_ACTIVE_RUNS_DURING_ACTIVE_SUBSCRIPT) && DMaps[script_dmap].script != 0 && doscript(ScriptType::DMap)))
 		{
 			ZScriptVersion::RunScript(ScriptType::DMap, dmapactivescript, script_dmap);
 			waitdraw(ScriptType::DMap) = false;
 		}
-		if(waitdraw(ScriptType::PassiveSubscreen) && (get_qr(qr_PASSIVE_SUBSCRIPT_RUNS_DURING_ACTIVE_SUBSCRIPT)!=0 && DMaps[script_dmap].passive_sub_script != 0 && FFCore.doscript(ScriptType::PassiveSubscreen)))
+		if(waitdraw(ScriptType::ScriptedPassiveSubscreen) && (get_qr(qr_PASSIVE_SUBSCRIPT_RUNS_DURING_ACTIVE_SUBSCRIPT)!=0 && DMaps[script_dmap].passive_sub_script != 0 && FFCore.doscript(ScriptType::ScriptedPassiveSubscreen)))
 		{
-			ZScriptVersion::RunScript(ScriptType::PassiveSubscreen, passivesubscript, script_dmap);
-			waitdraw(ScriptType::PassiveSubscreen) = false;
+			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, passivesubscript, script_dmap);
+			waitdraw(ScriptType::ScriptedPassiveSubscreen) = false;
 		}
 		if (data.waitdraw && data.doscript)
 		{
-			ZScriptVersion::RunScript(ScriptType::ActiveSubscreen, activesubscript, script_dmap);
+			ZScriptVersion::RunScript(ScriptType::ScriptedActiveSubscreen, activesubscript, script_dmap);
 			data.waitdraw = false;
 		}
 		//Draw
@@ -41598,8 +41853,8 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "CURRENTITEMID", 0, 0, 0, 0 },
 	{ "ARRAYPUSH", 0, 0, 0, 0 },
 	{ "ARRAYPOP", 0, 0, 0, 0 },
-	{ "RESRVD_OP_EMILY_17", 0, 0, 0, 0 },
-	{ "RESRVD_OP_EMILY_18", 0, 0, 0, 0 },
+	{ "LOADSUBDATARV", 2, 0, 1, 0 },
+	{ "NUMSUBSCREENSV", 1, 1, 0, 0 },
 	{ "RESRVD_OP_EMILY_19", 0, 0, 0, 0 },
 	{ "RESRVD_OP_EMILY_20", 0, 0, 0, 0 },
 	{ "CONVERTFROMRGB", 0, 0, 0, 0 },
@@ -43087,8 +43342,8 @@ script_variable ZASMVars[]=
 	{ "GAMETRIGGROUPS", GAMETRIGGROUPS, 0, 0},
 	{ "GAMEOVERRIDEITEMS", GAMEOVERRIDEITEMS, 0, 0},
 	{ "DMAPDATASUBSCRO", DMAPDATASUBSCRO, 0, 0},
-	{ "RESRVD_VAR_EMILY45", RESRVD_VAR_EMILY45, 0, 0},
-	{ "RESRVD_VAR_EMILY46", RESRVD_VAR_EMILY46, 0, 0},
+	{ "REFSUBSCREENPAGE", REFSUBSCREENPAGE, 0, 0},
+	{ "REFSUBSCREENWIDG", REFSUBSCREENWIDG, 0, 0},
 	{ "RESRVD_VAR_EMILY47", RESRVD_VAR_EMILY47, 0, 0},
 	{ "RESRVD_VAR_EMILY48", RESRVD_VAR_EMILY48, 0, 0},
 	{ "RESRVD_VAR_EMILY49", RESRVD_VAR_EMILY49, 0, 0},
@@ -43460,17 +43715,17 @@ bool is_valid_format(char c)
 	}
 	return false;
 }
-char const* zs_formatter(char const* format, int32_t arg, int32_t mindig)
+#define FORMATTER_FLAG_0FILL    0x01
+char const* zs_formatter(char const* format, int32_t arg, int32_t mindig, dword flags)
 {
 	static std::string ret;
 	
 	ret.clear();
 	if(format)
 	{
-		char mindigbuf[8] = {0};
-		if(mindig)
-			sprintf(mindigbuf, "%%0%d%c", mindig,
-				(format[0] == 'x' || format[0] == 'X') ? format[0] : 'd');
+		std::string mdstr = fmt::format("%{}{}{}",(flags&FORMATTER_FLAG_0FILL)?"0":"",
+			mindig, (format[0] == 'x' || format[0] == 'X') ? format[0] : 'd');
+		char const* mindigbuf = mdstr.c_str();
 		bool tempbool = false;
 		switch(format[0])
 		{
@@ -43598,7 +43853,7 @@ char const* zs_formatter(char const* format, int32_t arg, int32_t mindig)
 					ArrayManager am(arg/10000);
 					ret = am.asString([&](int32_t val)
 						{
-							return zs_formatter(format+1, val, mindig);
+							return zs_formatter(format+1, val, mindig, flags);
 						}, 214748);
 				}
 				else ret = "{ NULL }";
@@ -43652,10 +43907,14 @@ string zs_sprintf(char const* format, int32_t num_args, std::function<int32_t(in
 			{
 				++format;
 				int32_t min_digits = 0;
-				if(format[0] == '0' && !is_old_args)
+				dword formatter_flags = 0;
+				if(format[0] >= '0' && format[0] <= '9' && !is_old_args)
 				{
 					char argbuf[4] = {0};
 					int32_t q = 0;
+					if(format[0] == '0') //Leading 0 means to 0-fill, and gets eaten
+						formatter_flags |= FORMATTER_FLAG_0FILL;
+					else --format; //else don't eat
 					while(q < 4)
 					{
 						++format;
@@ -43698,8 +43957,7 @@ string zs_sprintf(char const* format, int32_t num_args, std::function<int32_t(in
 						" Value will be truncated to 10.");
 					min_digits = 10;
 				}
-				char mindigbuf[15] = {0};
-				sprintf(mindigbuf, "%%0%d%c", min_digits, hex ? format[0] : 'd');
+				
 				bool tempbool = false;
 				switch( format[0] )
 				{
@@ -43713,14 +43971,14 @@ string zs_sprintf(char const* format, int32_t num_args, std::function<int32_t(in
 					case 'b':  case 'B':
 					{
 						++next_arg;
-						oss << buf << zs_formatter(format,arg_val,min_digits);
+						oss << buf << zs_formatter(format,arg_val,min_digits,formatter_flags);
 						q = 300; //break main loop
 						break;
 					}
 					case 'a': //array print
 					{
 						++next_arg;
-						oss << buf << zs_formatter(format,arg_val,min_digits);
+						oss << buf << zs_formatter(format,arg_val,min_digits,formatter_flags);
 						while(format[0] == 'a')
 						{
 							if(is_valid_format(format[1]))
@@ -44092,10 +44350,10 @@ void FFScript::TraceScriptIDs(bool zasm_console)
 			case ScriptType::OnMap:
 				sprintf(buf, "DMapMap(%u, %s): ", curScriptNum,dmapmap[curScriptNum-1].scriptname.c_str());
 				break;
-			case ScriptType::ActiveSubscreen:
+			case ScriptType::ScriptedActiveSubscreen:
 				sprintf(buf, "DMapASub(%u, %s): ", curScriptNum,dmapmap[curScriptNum-1].scriptname.c_str());
 				break;
-			case ScriptType::PassiveSubscreen:
+			case ScriptType::ScriptedPassiveSubscreen:
 				sprintf(buf, "DMapPSub(%u, %s): ", curScriptNum,dmapmap[curScriptNum-1].scriptname.c_str());
 				break;
 			case ScriptType::DMap:
@@ -44120,6 +44378,10 @@ void FFScript::TraceScriptIDs(bool zasm_console)
 				
 			case ScriptType::GenericFrozen:
 				sprintf(buf, "GenericFRZ(%u, %s): ", curScriptNum,genericmap[curScriptNum-1].scriptname.c_str());
+				break;
+				
+			case ScriptType::EngineSubscreen:
+				sprintf(buf, "Subscreen(%u, %s): ", curScriptNum,subscreenmap[curScriptNum-1].scriptname.c_str());
 				break;
 		}
 		

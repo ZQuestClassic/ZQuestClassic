@@ -1192,7 +1192,22 @@ void BuildOpcodes::caseExprArrow(ASTExprArrow& host, void* param)
 	Function* readfunc = isarray ? host.arrayFunction : host.readFunction;
 	assert(readfunc->isInternal());
 	
-	if(readfunc->getFlag(FUNCFLAG_INLINE))
+	if(readfunc->getFlag(FUNCFLAG_NIL))
+	{
+		bool skipptr = readfunc->internal_flags & IFUNCFLAG_SKIPPOINTER;
+		if (!skipptr)
+		{
+			//visit the lhs of the arrow
+			visit(host.left.get(), param);
+		}
+		
+		if(isIndexed)
+		{
+			visit(host.index.get(), param);
+		}
+		addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(0)));
+	}
+	else if(readfunc->getFlag(FUNCFLAG_INLINE))
 	{
 		if (!(readfunc->internal_flags & IFUNCFLAG_SKIPPOINTER))
 		{
@@ -1292,7 +1307,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 	
 	auto* optarg = opcodeTargets.back();
 	int32_t startRefCount = arrayRefs.size(); //Store ref count
-	if(func.prototype) //Prototype function
+	if(func.getFlag(FUNCFLAG_NIL) || func.prototype) //Prototype/Nil function
 	{
 		//Visit each parameter, in case there are side-effects; but don't push the results, as they are unneeded.
 		for (auto it = host.parameters.begin();
@@ -1324,10 +1339,10 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 			DataType const& retType = *func.returnType;
 			if(retType != DataType::ZVOID)
 			{
+				int32_t retval = 0;
 				if (std::optional<int32_t> val = func.defaultReturn->getCompileTimeValue(NULL, scope))
-				{
-					addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(*val)));
-				}
+					retval = *val;
+				addOpcode(new OSetImmediate(new VarArgument(EXP1), new LiteralArgument(retval)));
 			}
 		}
 	}
@@ -3361,7 +3376,32 @@ void LValBOHelper::caseExprArrow(ASTExprArrow &host, void *param)
 	int32_t isIndexed = (host.index != NULL);
 	assert(host.writeFunction->isInternal());
 	
-	if(host.writeFunction->getFlag(FUNCFLAG_INLINE))
+	if(host.writeFunction->getFlag(FUNCFLAG_NIL))
+	{
+		bool skipptr = host.writeFunction->internal_flags & IFUNCFLAG_SKIPPOINTER;
+		bool needs_pushpop = isIndexed || !skipptr;
+		if(needs_pushpop)
+			addOpcode(new OPushRegister(new VarArgument(EXP1)));
+		if (!skipptr)
+		{
+			//Get lval
+			BuildOpcodes oc(scope);
+			oc.parsing_user_class = parsing_user_class;
+			oc.visit(host.left.get(), param);
+			addOpcodes(oc.getResult());
+		}
+		
+		if(isIndexed)
+		{
+			BuildOpcodes oc2(scope);
+			oc2.parsing_user_class = parsing_user_class;
+			oc2.visit(host.index.get(), param);
+			addOpcodes(oc2.getResult());
+		}
+		if(needs_pushpop)
+			addOpcode(new OPopRegister(new VarArgument(EXP1)));
+	}
+	else if(host.writeFunction->getFlag(FUNCFLAG_INLINE))
 	{
 		if (!(host.writeFunction->internal_flags & IFUNCFLAG_SKIPPOINTER))
 		{

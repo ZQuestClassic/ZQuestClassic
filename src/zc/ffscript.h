@@ -2048,6 +2048,11 @@ static void setHeroBigHitbox(bool v);
 	static void do_getDMapData_music(const bool v);
 	static void do_setDMapData_music(const bool v);
 	
+	static void do_load_active_subscreendata(const bool v);
+	static void do_load_passive_subscreendata(const bool v);
+	static void do_load_overlay_subscreendata(const bool v);
+	static void do_load_subscreendata(const bool v, const bool v2);
+	
 	static void do_checkdir(const bool is_dir);
 	static void do_fs_remove();
 
@@ -3263,8 +3268,8 @@ enum ASM_DEFINE
 	CURRENTITEMID,
 	ARRAYPUSH,
 	ARRAYPOP,
-	RESRVD_OP_EMILY_17,
-	RESRVD_OP_EMILY_18,
+	LOADSUBDATARV,
+	NUMSUBSCREENSV,
 	RESRVD_OP_EMILY_19,
 	RESRVD_OP_EMILY_20,
 
@@ -4913,8 +4918,8 @@ enum ASM_DEFINE
 #define GAMETRIGGROUPS      0x14ED
 #define GAMEOVERRIDEITEMS      0x14EE
 #define DMAPDATASUBSCRO      0x14EF
-#define RESRVD_VAR_EMILY45      0x14F0
-#define RESRVD_VAR_EMILY46      0x14F1
+#define REFSUBSCREENPAGE      0x14F0
+#define REFSUBSCREENWIDG      0x14F1
 #define RESRVD_VAR_EMILY47      0x14F2
 #define RESRVD_VAR_EMILY48      0x14F3
 #define RESRVD_VAR_EMILY49      0x14F4

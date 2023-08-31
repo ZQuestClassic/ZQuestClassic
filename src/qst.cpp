@@ -104,6 +104,7 @@ std::map<int32_t, script_slot_data > dmapmap;
 std::map<int32_t, script_slot_data > screenmap;
 std::map<int32_t, script_slot_data > itemspritemap;
 std::map<int32_t, script_slot_data > comboscriptmap;
+std::map<int32_t, script_slot_data > subscreenmap;
 void free_newtilebuf();
 bool combosread=false;
 bool mapsread=false;
@@ -11960,6 +11961,7 @@ extern script_data *screenscripts[NUMSCRIPTSCREEN];
 extern script_data *dmapscripts[NUMSCRIPTSDMAP];
 extern script_data *itemspritescripts[NUMSCRIPTSITEMSPRITE];
 extern script_data *comboscripts[NUMSCRIPTSCOMBODATA];
+extern script_data *subscreenscripts[NUMSCRIPTSSUBSCREEN];
 //script_data *wpnscripts[NUMSCRIPTWEAPONS]; //used only for old data
 
 
@@ -12302,22 +12304,23 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 				}
 			}
 		}
-	
-		/*
-		else //Is this trip really necessary?
+		if(s_version >21)
 		{
-			for(int32_t i = 0; i < NUMSCRIPTWEAPONS; i++)
+			word numsubscripts = NUMSCRIPTSSUBSCREEN;
+			if(!p_igetw(&numsubscripts,f))
 			{
-				
-				ewpnscripts[i] = NULL;
+				return qe_invalid;
 			}
-			for(int32_t i = 0; i < NUMSCRIPTSDMAP; i++)
+			for(int32_t i = 0; i < numsubscripts; i++)
 			{
-				dmapscripts[i] = NULL;
+				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, &subscreenscripts[i], zmeta_version);
+					
+				if (ret)
+				{
+					return qe_invalid;
+				}
 			}
 		}
-		*/
-		
 	}
 	
 	if(s_version > 2)
@@ -12615,6 +12618,29 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 				delete[] buf;
 			}
 		}
+		if(s_version > 21)
+		{
+			word numsubscreenbindings;
+			p_igetw(&numsubscreenbindings, f);
+			
+			for(int32_t i=0; i<numsubscreenbindings; i++)
+			{
+				word id;
+				p_igetw(&id, f);
+				p_igetl(&bufsize, f);
+				if (bufsize < 0 || bufsize > 1024)
+					return qe_invalid;
+				buf = new char[bufsize+1];
+				pfread(buf, bufsize, f);
+				buf[bufsize]=0;
+				
+				//fix this too
+				if(id <NUMSCRIPTSSUBSCREEN-1)
+					subscreenmap[id].scriptname = buf;
+					
+				delete[] buf;
+			}
+		}
 	}
 	
 	return 0;
@@ -12777,6 +12803,18 @@ void reset_scripts()
 		else
 		{
 			comboscripts[i] = new script_data();
+		}
+	}
+
+	for(int32_t i=0; i<NUMSCRIPTSSUBSCREEN; i++)
+	{
+		if(subscreenscripts[i]!=NULL)
+		{
+			subscreenscripts[i]->disable();
+		}
+		else
+		{
+			subscreenscripts[i] = new script_data();
 		}
 	}
 }
@@ -21074,6 +21112,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
 		screenmap.clear();
 		itemspritemap.clear();
 		comboscriptmap.clear();
+		subscreenmap.clear();
 		
 		for(int32_t i=0; i<NUMSCRIPTFFC-1; i++)
 		{
@@ -21131,6 +21170,10 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
 		for(int32_t i=0; i<NUMSCRIPTSGENERIC-1; i++)
 		{
 			genericmap[i].clear();
+		}
+		for(int32_t i=0; i<NUMSCRIPTSSUBSCREEN-1; i++)
+		{
+			subscreenmap[i].clear();
 		}
 		
 		reset_scripts();
