@@ -19,6 +19,7 @@ using namespace util;
 #define FUNCFLAG_DEPRECATED         0x00000080
 #define FUNCFLAG_NOCAST             0x00000100
 #define FUNCFLAG_INTARRAY           0x00000200
+#define FUNCFLAG_NIL                0x00000400
 
 #define IFUNCFLAG_SKIPPOINTER	      0x01
 #define IFUNCFLAG_REASSIGNPTR	      0x02

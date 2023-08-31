@@ -37,7 +37,7 @@ namespace ZScript
 		scrTypeIdItemSprite,
 		scrTypeIdUntyped,
 		scrTypeIdComboData,
-		scrTypeIdSubscreenData,
+		scrTypeIdSusbcrData,
 		scrTypeIdGeneric,
 		
 		scrTypeIdEnd
@@ -417,6 +417,8 @@ string get_script_name(ScriptType type)
 			return "COMBODATA";
 		case ScriptType::Generic: case ScriptType::GenericFrozen:
 			return "GENERIC";
+		case ScriptType::EngineSubscreen:
+			return "SUBSCREEN";
 		case ScriptType::None:
 		default:
 			return "UNKNOWN";

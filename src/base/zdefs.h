@@ -230,7 +230,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_HEROSPRITES      16
 #define V_SUBSCREEN        8
 #define V_ITEMDROPSETS     2
-#define V_FFSCRIPT         21
+#define V_FFSCRIPT         22
 #define V_SFX              8
 #define V_FAVORITES        3
 
@@ -1570,10 +1570,11 @@ public:
 	//to implement
 	dword dropsetref, pondref, warpringref, doorsref, zcoloursref, rgbref, paletteref, palcycleref, tunesref;
 	dword gamedataref, cheatsref; 
-	dword fileref, subscreenref, comboidref, directoryref, rngref, stackref, paldataref;
+	dword fileref, comboidref, directoryref, rngref, stackref, paldataref;
 	dword bottletyperef, bottleshopref, genericdataref;
 	int32_t combosref, comboposref;
 	int32_t portalref, saveportalref;
+	dword subdataref, subpageref, subwidgref;
 	//byte ewpnclass, lwpnclass, guyclass; //Not implemented
 	
 	//byte ewpnclass, lwpnclass, guyclass; //Not implemented
@@ -1616,14 +1617,15 @@ enum class ScriptType {
 	Ewpn,
 	DMap,
 	ItemSprite,
-	ActiveSubscreen,
-	PassiveSubscreen,
+	ScriptedActiveSubscreen,
+	ScriptedPassiveSubscreen,
 	Combo,
 	OnMap,
 	Generic,
 	GenericFrozen,
+	EngineSubscreen,
 	First = Global,
-	Last = GenericFrozen,
+	Last = EngineSubscreen,
 };
 const char* ScriptTypeToString(ScriptType type);
 

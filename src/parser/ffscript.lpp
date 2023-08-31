@@ -159,6 +159,8 @@ paldata TOKEN( PALDATA );
 bottledata	TOKEN( BOTTLEDATA );
 bottleshopdata	TOKEN( BOTTLESHOPDATA );
 subscreendata	TOKEN( SUBSCREENDATA );
+subscreenpage	TOKEN( SUBSCREENPAGE );
+subscreenwidget	TOKEN( SUBSCREENWIDGET );
 generic	TOKEN( GENERIC );
 genericdata	TOKEN( GENERICDATA );
 portal TOKEN( PORTAL );

@@ -2011,8 +2011,8 @@ string ZScript::VarToString(int32_t ID)
 	case GAMETRIGGROUPS: return "GAMETRIGGROUPS";
 	case GAMEOVERRIDEITEMS: return "GAMEOVERRIDEITEMS";
 	case DMAPDATASUBSCRO: return "DMAPDATASUBSCRO";
-	case RESRVD_VAR_EMILY45: return "RESRVD_VAR_EMILY45";
-	case RESRVD_VAR_EMILY46: return "RESRVD_VAR_EMILY46";
+	case REFSUBSCREENPAGE: return "REFSUBSCREENPAGE";
+	case REFSUBSCREENWIDG: return "REFSUBSCREENWIDG";
 	case RESRVD_VAR_EMILY47: return "RESRVD_VAR_EMILY47";
 	case RESRVD_VAR_EMILY48: return "RESRVD_VAR_EMILY48";
 	case RESRVD_VAR_EMILY49: return "RESRVD_VAR_EMILY49";
@@ -2648,13 +2648,13 @@ string OArrayPop::toString() const
 {
 	return "ARRAYPOP";
 }
-string OResrvdOpEmily17::toString() const
+string OLoadSubscreenDataRV::toString() const
 {
-	return "RESRVD_OP_EMILY_17";
+	return "LOADSUBDATARV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
-string OResrvdOpEmily18::toString() const
+string ONumSubscreensV::toString() const
 {
-	return "RESRVD_OP_EMILY_18";
+	return "NUMSUBSCREENSV " + getArgument()->toString();
 }
 string OResrvdOpEmily19::toString() const
 {

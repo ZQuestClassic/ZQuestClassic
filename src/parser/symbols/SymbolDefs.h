@@ -21,6 +21,8 @@ using std::shared_ptr;
 #define FL_VARG    FUNCFLAG_VARARGS
 #define FL_DEPR    FUNCFLAG_DEPRECATED
 #define FL_NOCAST  FUNCFLAG_NOCAST
+#define FL_NIL     FUNCFLAG_NIL
+#define FL_RDONLY  FUNCFLAG_NIL
 
 
 void addOpcode2(std::vector<std::shared_ptr<Opcode>>& v, Opcode* code);

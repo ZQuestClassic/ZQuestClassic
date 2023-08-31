@@ -1550,8 +1550,8 @@
 #define GAMETRIGGROUPS      1463
 #define GAMEOVERRIDEITEMS      1464
 #define DMAPDATASUBSCRO      1465
-#define RESRVD_VAR_EMILY45      1466
-#define RESRVD_VAR_EMILY46      1467
+#define REFSUBSCREENPAGE      1466
+#define REFSUBSCREENWIDG      1467
 #define RESRVD_VAR_EMILY47      1468
 #define RESRVD_VAR_EMILY48      1469
 #define RESRVD_VAR_EMILY49      1470
@@ -2483,22 +2483,24 @@ namespace ZScript
 			return new OArrayPop();
 		}
 	};
-	class OResrvdOpEmily17 : public Opcode
+	class OLoadSubscreenDataRV : public BinaryOpcode
 	{
 	public:
+		OLoadSubscreenDataRV(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OResrvdOpEmily17();
+			return new OLoadSubscreenDataRV(a->clone(),b->clone());
 		}
 	};
-	class OResrvdOpEmily18 : public Opcode
+	class ONumSubscreensV : public UnaryOpcode
 	{
 	public:
+		ONumSubscreensV(Argument *A) : UnaryOpcode(A) {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OResrvdOpEmily18();
+			return new ONumSubscreensV(a->clone());
 		}
 	};
 	class OResrvdOpEmily19 : public Opcode

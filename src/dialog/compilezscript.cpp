@@ -29,7 +29,8 @@ extern FFScript FFCore;
 extern std::vector<string> asffcscripts, asglobalscripts, asitemscripts,
 	asnpcscripts, aseweaponscripts, aslweaponscripts,
 	asplayerscripts, asdmapscripts, asscreenscripts,
-	asitemspritescripts, ascomboscripts, asgenericscripts;
+	asitemspritescripts, ascomboscripts, asgenericscripts,
+	assubscreenscripts;
 extern std::map<int32_t, script_slot_data > globalmap;
 
 byte compile_success_sample = 0;
@@ -340,6 +341,8 @@ bool do_compile_and_slots(int assign_mode, bool delay)
 	ascomboscripts.push_back("<none>");
 	asgenericscripts.clear();
 	asgenericscripts.push_back("<none>");
+	assubscreenscripts.clear();
+	assubscreenscripts.push_back("<none>");
 	clear_map_states();
 	globalmap[0].updateName("~Init"); //force name to ~Init
 	
@@ -386,6 +389,9 @@ bool do_compile_and_slots(int assign_mode, bool delay)
 				break;
 			case scrTypeIdGlobal:
 				asglobalscripts.push_back(name);
+				break;
+			case scrTypeIdSusbcrData:
+				assubscreenscripts.push_back(name);
 				break;
 		}
 	}
