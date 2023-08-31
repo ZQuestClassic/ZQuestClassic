@@ -5251,8 +5251,13 @@ int main(int argc, char **argv)
 
 			if (qstpath_to_load == save->header->qstpath)
 			{
-				save_index = i;
-				break;
+				if (save_index == -1)
+					save_index = i;
+				else
+				{
+					save_index = -1;
+					break;
+				}
 			}
 		}
 

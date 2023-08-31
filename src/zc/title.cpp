@@ -375,6 +375,8 @@ static bool register_name()
 	bool cancel=false;
 
 	if (!load_qstpath.empty()) {
+		new_game->header.qstpath = load_qstpath;
+
 		std::string filename = get_filename(load_qstpath.c_str());
 		filename.erase(remove(filename.begin(), filename.end(), ' '), filename.end());
 		auto len = filename.find(".qst", 0);
@@ -1196,8 +1198,7 @@ static void select_game(bool skip = false)
 				saves_select(saves_count() - 1);
 				loadlast = saves_current_selection() + 1;
 				strcpy(qstpath, load_qstpath.c_str());
-				chosecustomquest = true;
-				load_custom_game(saves_count() - 1);
+				saves_do_first_time_stuff(saves_current_selection());
 				saves_write();
 				break;
 			}
@@ -1430,7 +1431,6 @@ void titlescreen(int32_t lsave)
 			if (saves_get_slot(slot)->header->quest)
 			{
 				saves_select(slot);
-				select_game();
 			}
 		}
 	}
