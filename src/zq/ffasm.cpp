@@ -2701,7 +2701,7 @@ script_variable variable_list[]=
 	{ "SAVEDPORTALCOUNT", SAVEDPORTALCOUNT, 0, 0},
 	{ "SAVEDPORTALDSTSCREEN", SAVEDPORTALDSTSCREEN, 0, 0},
 
-	{ " ",  -1, 0, 0 }
+	{ " ", -1, 0, 0 }
 };
 
 
