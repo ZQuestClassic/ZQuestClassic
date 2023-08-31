@@ -1,13 +1,3 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  guys.cc
-//
-//  "Guys" code (and other related stuff) for zelda.cc
-//
-//--------------------------------------------------------
-
 #include <cstring>
 #include <stdio.h>
 #include "base/zc_alleg.h"

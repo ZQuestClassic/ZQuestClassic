@@ -1,13 +1,3 @@
-	//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  zelda.h
-//
-//  Definitions, function prototypes, etc. for zelda.cc
-//
-//--------------------------------------------------------
-
 #ifndef _ZELDA_H_
 #define _ZELDA_H_
 

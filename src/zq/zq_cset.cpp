@@ -1,14 +1,3 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  zquest.cc
-//
-//  Main code for the quest editor.
-//
-//--------------------------------------------------------
-
-//#include <mem.h>
 #include <cstring>
 #include <stdio.h>
 
@@ -1613,4 +1602,3 @@ void center_zq_cset_dialogs()
     jwin_center_dialog(colors_dlg);
 	jwin_center_dialog(edit_cset_dlg);
 }
-

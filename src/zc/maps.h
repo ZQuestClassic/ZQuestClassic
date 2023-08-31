@@ -1,13 +1,3 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  maps.cc
-//
-//  Map and screen scrolling stuff for zelda.cc
-//
-//--------------------------------------------------------
-
 #ifndef _MAPS_H_
 #define _MAPS_H_
 #include "base/zdefs.h"
@@ -192,4 +182,3 @@ extern int32_t ffprvx[MAXFFCS];
 extern int32_t ffprvy[MAXFFCS];
 void init_ffpos();
 #endif
-

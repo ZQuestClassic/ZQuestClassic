@@ -1,15 +1,3 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  tiles.h
-//
-//  Tile drawing routines for ZC.
-//
-//  !! Don't use them on "screen"; use memory BITMAPs only.
-//
-//--------------------------------------------------------
-
 #ifndef _ZC_TILES_H_
 #define _ZC_TILES_H_
 

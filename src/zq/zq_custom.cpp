@@ -1,13 +1,3 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  zq_custom.cc
-//
-//  Custom item, enemy, etc. for ZQuest.
-//
-//--------------------------------------------------------
-
 #include <map>
 #include <cstring>
 #include <stdio.h>
@@ -8962,4 +8952,3 @@ void center_zq_custom_dialogs()
 	jwin_center_dialog(wpndata_dlg);
 	jwin_center_dialog(enedata_dlg);
 }
-

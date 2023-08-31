@@ -1,13 +1,3 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  subscr.cc
-//
-//  Subscreen code for zelda.cc
-//
-//--------------------------------------------------------
-
 #include "base/qrs.h"
 #include "base/dmap.h"
 #include "base/gui.h"
@@ -2835,4 +2825,3 @@ void delete_subscreen(size_t ind, byte ty)
 		}
 	}
 }
-

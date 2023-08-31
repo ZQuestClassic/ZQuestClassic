@@ -1,13 +1,3 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  zq_files.cc
-//
-//  File support for ZQuest.
-//
-//--------------------------------------------------------
-
 #ifndef _ZQ_FILES_H_
 #define _ZQ_FILES_H_
 

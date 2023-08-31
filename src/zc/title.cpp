@@ -1,14 +1,3 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  title.cc
-//
-//  Title screen and intro for zelda.cc
-//  Also has game loading and select screen code.
-//
-//--------------------------------------------------------
-
 #include <filesystem>
 #include <stdio.h>
 #include <ctype.h>

@@ -1,26 +1,3 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  midi.cc
-//
-//  save_midi() and code for midi info.
-//
-//--------------------------------------------------------
-
-/*  Allegro MIDI struct
-
-  typedef struct MIDI                    // a midi file
-  {
-  int32_t divisions;                      // number of ticks per quarter note
-  struct {
-  uint8_t *data;             // MIDI message stream
-  int32_t len;                         // length of the track data
-  } track[MIDI_TRACKS];
-  } MIDI;
-
-  */
-
 #include <cstring>
 #include <stdio.h>
 
@@ -416,4 +393,3 @@ void get_midi_text(MIDI *midi, midi_info *mi, char *text)
         }
     }
 }
-

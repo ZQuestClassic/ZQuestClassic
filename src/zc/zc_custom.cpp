@@ -1,13 +1,3 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  zc_custom.cc
-//
-//  Custom item, enemy, etc. for Zelda.
-//
-//--------------------------------------------------------
-
 #include "zc/zc_custom.h"
 #include "zc/zelda.h"
 #include "base/zdefs.h"

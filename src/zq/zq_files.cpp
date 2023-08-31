@@ -1,13 +1,3 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  zq_files.cc
-//
-//  File support for ZQuest.
-//
-//--------------------------------------------------------
-
 #include <cstring>
 #include <stdio.h>
 
@@ -2739,4 +2729,3 @@ void center_zq_files_dialogs()
     jwin_center_dialog(import_map_bias_dlg);
     jwin_center_dialog(qtlist_dlg);
 }
-

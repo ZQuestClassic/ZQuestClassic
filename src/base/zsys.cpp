@@ -1,13 +1,3 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  zsys.cc
-//
-//  System functions, etc.
-//
-//--------------------------------------------------------
-
 #include <stdio.h>
 #include <stdarg.h>
 #include <cstring>

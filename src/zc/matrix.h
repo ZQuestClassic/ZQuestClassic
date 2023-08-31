@@ -1,13 +1,3 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  matrix.h
-//
-//  Code for the "Matrix" screen saver.
-//
-//--------------------------------------------------------
-
 #ifndef _MATRIX_H_
 #define _MATRIX_H_
 

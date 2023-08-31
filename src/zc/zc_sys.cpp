@@ -1,14 +1,3 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  zc_sys.cc
-//
-//  System functions, input handlers, GUI stuff, etc.
-//  for ZQuest Classic.
-//
-//--------------------------------------------------------
-
 #include "zc/zc_sys.h"
 
 #include "allegro/gfx.h"

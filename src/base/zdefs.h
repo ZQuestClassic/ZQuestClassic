@@ -1,14 +1,3 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  zdefs.h
-//
-//  Data formats, definitions, and a few small functions
-//  for zelda.cc and zquest.cc
-//
-//--------------------------------------------------------
-
 #ifndef _ZDEFS_H_
 #define _ZDEFS_H_
 
@@ -3391,4 +3380,3 @@ enum
 #undef rad16
 
 #endif                                                      //_ZDEFS_H_
-

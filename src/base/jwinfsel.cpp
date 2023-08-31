@@ -1,45 +1,3 @@
-/*                 __                  __
-  *                /_/\  __  __  __    /_/\  ______
-  *               _\_\/ / /\/ /\/ /\  _\_\/ / ____ \
-  *              / /\  / / / / / / / / /\  / /\_ / /\
-  *         __  / / / / /_/ /_/ / / / / / / / / / / /
-  *        / /_/ / / /_________/ / /_/ / /_/ / /_/ /
-  *        \____/ /  \_________\/  \_\/  \_\/  \_\/
-  *         \___\/
-  *
-  *
-  *
-  *      jwinfsel.c
-  *
-  *      The file selector.
-  *
-  *      By Shawn Hargreaves.
-  *
-  *      Guilherme Silveira and Theuzifan Sumachingun both independently
-  *      modified it to only list valid drive letters.
-  *
-  *      Peter Pavlovic modified it not to list the logical drives, such
-  *      as the b: drive assigned as a logical drive for a: on single
-  *      floppy disk drive equipped systems and improved the browsing
-  *      through directories.
-  *
-  *      Peter Wang and Eric Botcazou modified it to stretch to screen and
-  *      font sizes.
-  *
-  *      Annie Testes modified it so that buffer overflows cannot occur
-  *      anymore.
-  *
-  *      Eric Botcazou optimized the handling of the extension string.
-  *
-  *      Adapted to "jwin" style by Jeremy Craner. Also added the "browser".
-  *
-  *      Version: 8/2/03
-  *      Allegro version: 4.x
-  *
-  *      See readme.txt for copyright information.
-  */
-
-//glibc 2.28 and later require this: -Z
 #ifdef __GNUG__
 	#define ALLEGRO_NO_FIX_ALIASES
 #endif
@@ -1453,4 +1411,3 @@ void FLIST::clear()
 	
 	size = 0;
 }
-

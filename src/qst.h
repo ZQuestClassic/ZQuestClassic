@@ -1,13 +1,3 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  qst.h
-//
-//  Code for loading '.qst' files in ZC and ZQuest.
-//
-//--------------------------------------------------------
-
 #ifndef _ZC_QST_H_
 #define _ZC_QST_H_
 
@@ -284,4 +274,3 @@ void init_item_drop_sets();
 void init_favorites();
 
 #endif                                                      // _ZC_QST_H_
-

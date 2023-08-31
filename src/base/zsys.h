@@ -1,13 +1,3 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  zsys.h
-//
-//  System functions, etc.
-//
-//--------------------------------------------------------
-
 #if defined(ALLEGRO_WINDOWS)
 #include <conio.h>
 #endif

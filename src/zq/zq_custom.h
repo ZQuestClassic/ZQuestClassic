@@ -1,13 +1,3 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  zq_custom.cc
-//
-//  Custom item, enemy, etc. for ZQuest.
-//
-//--------------------------------------------------------
-
 #ifndef _ZQ_CUSTOM_H_
 #define _ZQ_CUSTOM_H_
 
@@ -54,4 +44,3 @@ int32_t onMiscSprites();
 int32_t onMiscSFX();
 
 #endif
-

@@ -1,21 +1,3 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  sprite.cc
-//
-//  Sprite classes:
-//   - sprite:      base class for the guys and enemies in zelda.cc
-//   - movingblock: the moving block class
-//   - sprite_list: main container class for different groups of sprites
-//   - item:        items class
-//
-//--------------------------------------------------------
-
-/**********************************/
-/**********  Item Class  **********/
-/**********************************/
-
 #include "items.h"
 #include "zc/guys.h"
 #include "zc/maps.h"
@@ -989,4 +971,3 @@ std::string itemdata::get_name(bool init, bool plain) const
 	}
 	return name;
 }
-

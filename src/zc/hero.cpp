@@ -1,17 +1,3 @@
-//--------------------------------------------------------
-//--------------------------------------------------------
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  hero.cpp
-//
-//  Hero's class: HeroClass
-//  Handles a lot of game play stuff as well as Hero's
-//  movement, attacking, etc.
-//
-//--------------------------------------------------------
-
 #include <cstring>
 #include <set>
 #include <stdio.h>

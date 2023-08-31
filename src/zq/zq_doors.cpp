@@ -1,13 +1,3 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  zquest.cc
-//
-//  Main code for the quest editor.
-//
-//--------------------------------------------------------
-
 #include <cstring>
 #include <vector>
 
@@ -1770,4 +1760,3 @@ void center_zq_door_dialogs()
     jwin_center_dialog(doorcomboset_dlg);
     jwin_center_dialog(doorcombosetlist_dlg);
 }
-

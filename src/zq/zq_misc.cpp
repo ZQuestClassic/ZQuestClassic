@@ -1,16 +1,3 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  zq_misc.cc
-//
-//  Misc. stuff for ZQuest.
-//
-//--------------------------------------------------------
-
-//INLINE void SCRFIX() { putpixel(screen,0,0,getpixel(screen,0,0)); }
-//INLINE void SCRFIX() {}
-
 #include "base/qrs.h"
 #include "base/packfile.h"
 #include "base/zapp.h"

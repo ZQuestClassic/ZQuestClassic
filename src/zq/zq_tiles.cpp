@@ -1,13 +1,3 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  zq_tiles.cc
-//
-//  Tile editor stuff, etc., for ZQuest.
-//
-//--------------------------------------------------------
-
 #include <cstring>
 #include <cmath>
 
@@ -21391,4 +21381,3 @@ REDRAW_DMAP_SELTILE:
 	popup_zqdialog_end();
 	return tile+1;
 }
-

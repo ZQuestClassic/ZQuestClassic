@@ -1,13 +1,3 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  subscr.cc
-//
-//  Subscreen code for zelda.cc
-//
-//--------------------------------------------------------
-
 #ifndef _SUBSCR_H_
 #define _SUBSCR_H_
 
@@ -161,4 +151,3 @@ bool findWeaponWithParent(int32_t id, int32_t type);
 int32_t countWeaponWithParent(int32_t id, int32_t type);
 
 #endif
-

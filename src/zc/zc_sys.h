@@ -1,14 +1,3 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  zc_sys.h
-//
-//  System functions, input handlers, GUI stuff, etc.
-//  for ZQuest Classic.
-//
-//--------------------------------------------------------
-
 #ifndef _ZC_SYS_H_
 #define _ZC_SYS_H_
 
@@ -297,4 +286,3 @@ extern int32_t midi_strict;
 extern int32_t midi_strict; //L
 #endif
 #endif                                                      // _ZC_SYS_H_
-

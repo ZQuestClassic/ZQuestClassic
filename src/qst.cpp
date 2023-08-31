@@ -1,13 +1,3 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  qst.cc
-//
-//  Code for loading '.qst' files in ZC and ZQuest.
-//
-//--------------------------------------------------------
-
 #include "allegro/file.h"
 #include "base/util.h"
 #include "base/zapp.h"

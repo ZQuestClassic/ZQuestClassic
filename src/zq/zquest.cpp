@@ -1,19 +1,3 @@
-
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  zquest.cc
-//
-//  Main code for the quest editor.
-//
-//--------------------------------------------------------
-
-/*
-  #define  INTERNAL_VERSION  0xA721
-  */
-
-
 #define MIDI_TRACK_BUFFER_SIZE 50
 
 #include <memory>
