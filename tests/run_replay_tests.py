@@ -1079,6 +1079,7 @@ def prompt_to_create_compare_report():
             tag = most_recent_nightly
         elif selected_index == 1:
             tag = most_recent_alpha
+        tag = 'connorjclark-nightly-2023-08-25'
 
         system = platform.system()
         if system == 'Darwin':
@@ -1096,6 +1097,7 @@ def prompt_to_create_compare_report():
             build_dir = download_release(gh, repo, channel, tag)
         if channel == 'mac':
             # TODO z3 !!! upstream
+            print(build_dir)
             zc_app_path = next(build_dir.glob('*.app'))
             build_dir = zc_app_path / 'Contents/Resources'
 

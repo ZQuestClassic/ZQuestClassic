@@ -187,11 +187,11 @@ def download_release(gh: Github, repo_str: str, channel: str, tag: str):
     if dest.exists():
         return dest
 
-    dest.mkdir(parents=True)
     print(f'downloading release {tag}')
 
     url = get_release_package_url(gh, repo_str, channel, tag)
     r = requests.get(url)
+    dest.mkdir(parents=True)
     if channel == 'mac':
         (dest / 'ZQuestClassic.dmg').write_bytes(r.content)
         subprocess.check_call(['hdiutil', 'attach', '-mountpoint',
