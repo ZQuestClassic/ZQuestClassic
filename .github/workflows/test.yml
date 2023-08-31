@@ -136,6 +136,7 @@ jobs:
           --no-jit
           --no-headless
 
+      - run: mkdir -p .tmp
       - if: ${{ matrix.shard_index == 1 && inputs.extra-args == '' && inputs.config != 'Coverage' }}
         name: Updater cache
         uses: actions/cache@v3
