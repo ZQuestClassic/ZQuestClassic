@@ -2303,6 +2303,7 @@ int32_t init_game()
 	
 	
 	if ( Hero.getDontDraw() < 2 ) { Hero.setDontDraw(0); }
+	initZScriptGlobalScript(GLOBAL_SCRIPT_GAME); // before 'openscreen' incase FFCore.warpScriptCheck()
 	openscreen();
 	show_subscreen_numbers=true;
 	show_subscreen_life=true;
@@ -2347,7 +2348,6 @@ int32_t init_game()
 		}	
 	}
 	
-	initZScriptGlobalScript(GLOBAL_SCRIPT_GAME);
 	FFCore.initZScriptHeroScripts(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
 	FFCore.initZScriptDMapScripts(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
 	FFCore.initZScriptItemScripts(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
