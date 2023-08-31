@@ -17,7 +17,7 @@
                             "val": "$-1$1"
                         },
                         {
-                            "name": "ZScript Mechanics ;; zsmechanics ;; ZScript Mechanics",
+                            "name": "ZScript Mechanics ;; Mechanics",
                             "val": "$ZSMechanics"
                         },
                         {
@@ -347,15 +347,40 @@
             "name": "ZSMechanics",
             "tabs": [
                 {
-                    "name": "0",
+                    "name": "Base",
                     "lines": [
+                        {
+                            "name": "<em>Mechanics</em> ;; Mechanics",
+                            "val": "This section is dedicated to the underlying mechanics of ZScript. This section will cover everything from the basics of `if`, `else`, `while`, `for`, etc all the way up to `class`, `namespace`, etc.\n\n<todo>Under construction!</todo>"
+                        },
+                        {
+                            "name": "Operators",
+                            "val": "$-1$1"
+                        },
                         {
                             "name": "&lt;-- Top ;; top",
                             "val": "$0$0"
+                        }
+                    ]
+                },
+                {
+                    "name": "Operators",
+                    "lines": [
+                        {
+                            "name": "Operators ;; Operators / zsoperators",
+                            "val": "<h2>Operators</h2>\nThis section contains information on the various operators that can be used in expressions in ZScript."
                         },
                         {
-                            "name": "<em>Mechanics</em>",
-                            "val": "This section is dedicated to the underlying mechanics of ZScript. This section will cover everything from the basics of `if`, `else`, `while`, `for`, etc all the way up to `class`, `namespace`, etc.\n\n<todo>Under construction!</todo>"
+                            "name": "Arithmetic",
+                            "val": "<h3>Addition `+`</h3>\nex. `2 + 2` gives `4`\n\n<h3>Subtraction `-`</h3>\nex. `10 - 5` gives `5`\n\n<h3>Multiplication `*`</h3>\nex. `5 * 7` gives `35`\n\n<h3>Division `/`</h3>\nex. `7 / 2` gives `3.5`\nDivision truncates everything beyond 4 decimal places.\n\n<h3>Modulo `%`</h3>\nModular division, gives the remainder of a division\nex. `10 % 3` gives 1, `5 % 3` gives 2, `16 % 2` gives 0, `5.5 % 3` gives `2.5`\n\n<h3>Power/Exponentiation `^^^`</h3>\nBehaves differently if the `long` type is involved.\nex. `5 ^^^ 2` gives `25`, `5L ^^^ 2L` gives `25L`\n\n<h3>Assignment Operators</h3>\nWith a variable (`x` in this example), you can use some assignment operators.\n<ul><li>`x = 5;`, sets the value of variable `x` to `5`</li>\n<li>`x += 5;` same as `x = x + 5;`</li>\n<li>`x -= 5;` same as `x = x - 5;`</li>\n<li>`x *= 5;` same as `x = x * 5;`</li>\n<li>`x /= 5;` same as `x = x / 5;`</li>\n<li>`x %= 5;` same as `x = x % 5;`</li></ul>\n\n<h3>Increment Operators</h3>\n`++x`, `x++` are the same as `x = x + 1`, and `--x`, `x--` are the same as `x = x - 1`. With one small exception, which rarely matters.\nIf you use these in an expression, the expression value is different. Example:\n```\nx = 5;\ny = ++x; //y is 6, x is 6\nx = 5;\ny = x++; //y is 5, x is 6```\nIf you are NOT using it in an expression, it is best to use the pre- version (`++x` or `--x`), such as in for loops `for(int q = 0; q < 10; ++q)`."
+                        },
+                        {
+                            "name": "Under Construction...",
+                            "val": ""
+                        },
+                        {
+                            "name": "&lt;-- Back ;; zsmechanics",
+                            "val": "$-1"
                         }
                     ]
                 }
@@ -1356,6 +1381,10 @@
                         {
                             "name": "OwnArray / DestroyArray",
                             "val": "<h3>void OwnArray(untyped[] arr);</h3>\nGrants ownership of the target array to the currently running script.\nIf this array is not a local array, nothing happens.\nIf it is a local array, the array will no longer be destroyed when it reaches the end of its' declaring scope- it will last until the owning script ends, at which point it will be freed.\n\n<h3>void DestroyArray(untyped[] arr);</h3>\nIf 'arr' is a local array, destroys it immediately. Otherwise does nothing."
+                        },
+                        {
+                            "name": "Push / Pop ;; ArrayPushBack / ArrayPushFront / ArrayPushAt / ArrayPopBack / ArrayPopFront / ArrayPopAt",
+                            "val": "<h3>bool ArrayPushBack(untyped[] arr, untyped val);\nbool ArrayPushFront(untyped[] arr, untyped val);\nbool ArrayPushAt(untyped[] arr, untyped val, int indx);</h3>\n\nIncreases the size of the array by 1, inserting 'val' at the back/front/specified index of the array. If an invalid index is passed, the back of the array will be targetted.\nReturns false if it fails for any reason, such as the array being max-sized already.\n\n<h3>untyped ArrayPopBack(untyped[] arr);\nuntyped ArrayPopFront(untyped[] arr);\nuntyped ArrayPopAt(untyped[] arr, int indx);</h3>\n\nDecreases the size of the array by 1, removing and returning the element at the back/front/specified index of the array. If an invalid index is passed, the back of the array will be targetted.\nErrors and returns `-1` if the array is size 0."
                         }
                     ]
                 }

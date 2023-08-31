@@ -112,7 +112,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <math.h>
-#include <string.h>
+#include <cstring>
 #include <vector>
 #include <set>
 #include <assert.h>
@@ -146,14 +146,7 @@ struct cpos_info;
 
 #define ZELDA_VERSION       0x0255                         //version of the program
 #define ZC_VERSION 25500 //Version ID for ZScript Game->Version
-#define VERSION_BUILD       61                             //V_BUILD build number of this version
-//31 == 2.53.0 , leaving 32-39 for bugfixes, and jumping to 40. 
-//#define ZELDA_VERSION_STR   "AEternal (v2.55) Alpha 37"                    //version of the program as presented in text
-//#define IS_BETA             -39                       //is this a beta? (1: beta, -1: alpha)
-//#define VERSION_BETA        39	
-//#define DATE_STR            "19th October, 2019, 12:18GMT"
-//__DATE__ and __TIME__ macros can simplify this, in the future. 
-//#define ZELDA_ABOUT_STR 	    "ZC Player 'AEternal', Alpha 37"
+#define VERSION_BUILD       61                             //V_BUILD build number of this version. Deprecated.
 #define COPYRIGHT_YEAR      "2019"                          //shown on title screen and in ending
 
 #define MIN_VERSION         0x0184
@@ -238,7 +231,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_STRINGS         10
 #define V_MISC            15
 #define V_TILES            3 //2 is a int32_t, max 214500 tiles (ZScript upper limit)
-#define V_COMBOS          42
+#define V_COMBOS          43
 #define V_CSETS            5 //palette data
 #define V_MAPS            28
 #define V_DMAPS           20
@@ -261,7 +254,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_SFX              8
 #define V_FAVORITES        3
 
-#define V_COMPATRULE       53
+#define V_COMPATRULE       54
 #define V_ZINFO            3
 
 //= V_SHOPS is under V_MISC
@@ -334,7 +327,15 @@ extern int32_t passive_subscreen_offset;
 extern int32_t CSET_SIZE;
 extern int32_t CSET_SHFT;
 
-extern volatile bool close_button_quit;
+extern volatile bool close_button_quit, exiting_program, dialog_open_quit;
+bool handle_close_btn_quit();
+#define HANDLE_CLOSE_ZQDLG() \
+if(close_button_quit) \
+{ \
+	dialog_open_quit = true; \
+	handle_close_btn_quit(); \
+	dialog_open_quit = false; \
+}
 
 // system colors
 #define lc1(x) ((x)+192)                                    // offset to 'level bg color' x (row 12)

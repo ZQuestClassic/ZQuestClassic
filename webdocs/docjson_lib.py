@@ -376,9 +376,13 @@ def match_leveled(s:str, tok:list, replfunc, insens:bool,nowarn:bool=False,htmlw
     tmp = LeveledObj(s,tok,insens,nowarn=nowarn,htmlwarn=htmlwarn)
     return tmp.replacer(replfunc)
 def repl_codeSingle(string,tkobj):
-    return tkobj.replace(string,f'<span class = "code1">{tkobj.getval(1)}</span>')
+    return tkobj.replace(string,f'<span class = "code1 iblock">{tkobj.getval(1)}</span>')
 def repl_codeMulti(string,tkobj):
-    return tkobj.replace(string,f'<span class = "code2">{tkobj.getval(1)}</span>')
+    code = tkobj.getval(1)
+    # Remove single leading newline (NOT strip all whitespace!) - matches discord markdown
+    if code and code[0] == '\n':
+        code = code[1:];
+    return tkobj.replace(string,f'<span class = "code2">{code}</span>')
 def parseLink(id,display):
     dat = findBodyTab(id)
     if dat[0] > -1 or dat[1] > -1:

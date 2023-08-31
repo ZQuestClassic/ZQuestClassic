@@ -10,7 +10,7 @@
 
 #include <stdio.h>
 #include <stdarg.h>
-#include <string.h>
+#include <cstring>
 #include "base/zapp.h"
 #include "base/zc_alleg.h"
 #include <allegro/internal/aintern.h>
@@ -228,7 +228,7 @@ char datapwd[8]   = "longtan";
     
     va_list ap;
     va_start(ap, format);
-    vsprintf(buf, format, ap);
+    vsnprintf(buf, 256, format, ap);
     va_end(ap);
     
 #if defined(ALLEGRO_MAXOSX)
@@ -243,6 +243,7 @@ char datapwd[8]   = "longtan";
     zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
 		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK), "%s", buf);
 	al_trace("%s",buf);
+	zapp_reporting_add_breadcrumb("error_fatal", buf);
     abort();
 }
 
@@ -252,7 +253,7 @@ void Z_error(const char *format,...)
     
     va_list ap;
     va_start(ap, format);
-    vsprintf(buf, format, ap);
+    vsnprintf(buf, 256, format, ap);
     va_end(ap);
     
 #if defined(ALLEGRO_MAXOSX)
@@ -260,6 +261,7 @@ void Z_error(const char *format,...)
 #endif
     zscript_coloured_console.cprintf((CConsoleLoggerEx::COLOR_RED | CConsoleLoggerEx::COLOR_INTENSITY | 
 		CConsoleLoggerEx::COLOR_BACKGROUND_BLACK), "%s", buf);
+	zapp_reporting_add_breadcrumb("error", buf);
 	al_trace("%s",buf);
 }
 
@@ -269,7 +271,7 @@ void Z_message(const char *format,...)
     
     va_list ap;
     va_start(ap, format);
-    vsprintf(buf, format, ap);
+    vsnprintf(buf, 2048, format, ap);
     va_end(ap);
     
 #if defined(ALLEGRO_MAXOSX)
@@ -285,7 +287,7 @@ void Z_title(const char *format,...)
     char buf[256];
     va_list ap;
     va_start(ap, format);
-    vsprintf(buf, format, ap);
+    vsnprintf(buf, 256, format, ap);
     va_end(ap);
     
     al_trace("%s\n",buf);
@@ -309,7 +311,7 @@ void zprint(const char * const format,...)
 		
 		va_list ap;
 		va_start(ap, format);
-		vsprintf(buf, format, ap);
+		vsnprintf(buf, 2048, format, ap);
 		va_end(ap);
 		al_trace("%s",buf);
 		
@@ -324,7 +326,7 @@ void zprint2(const char * const format,...)
 	
 	va_list ap;
 	va_start(ap, format);
-	vsprintf(buf, format, ap);
+	vsnprintf(buf, 8192, format, ap);
 	va_end(ap);
 	safe_al_trace(buf);
 	

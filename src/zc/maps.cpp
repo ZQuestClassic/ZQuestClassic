@@ -10,7 +10,7 @@
 
 #include "base/handles.h"
 #include "base/zdefs.h"
-#include <string.h>
+#include <cstring>
 #include <assert.h>
 #include <math.h>
 #include <vector>

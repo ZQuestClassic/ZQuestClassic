@@ -14,7 +14,7 @@ using namespace util;
 extern PALETTE RAMpal;
 extern bool update_hw_pal;
 
-volatile bool close_button_quit = false;
+volatile bool close_button_quit = false, exiting_program = false, dialog_open_quit = false;
 
 int next_script_data_debug_id = 0;
 
@@ -641,8 +641,7 @@ string get_dbreport_string()
 	oss << "```\n"
 		<< ZQ_EDITOR_NAME
 		<< "\nVersion: " << ZQ_EDITOR_V << " " << ALPHA_VER_STR
-		<< "\nTag: " << getReleaseTag()
-		<< "\nBuild: " << VERSION_BUILD;
+		<< "\nTag: " << getReleaseTag();
 		
 	sprintf(buf,"Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(),
 		(char*)months[BUILDTM_MONTH], BUILDTM_YEAR, __TIME__, __TIMEZONE__);
@@ -765,11 +764,11 @@ string generate_zq_about()
 {
 	char buf1[256];
 	std::ostringstream oss;
-	sprintf(buf1,"%s (%s), Version: %s", ZQ_EDITOR_NAME,PROJECT_NAME,ZQ_EDITOR_V);
+	sprintf(buf1,"%s, Version: %s", ZQ_EDITOR_NAME,ZQ_EDITOR_V);
 	oss << buf1 << '\n';
 	sprintf(buf1,"Tag: %s", getReleaseTag());
 	oss << buf1 << '\n';
-	sprintf(buf1, "%s, Build %d", ALPHA_VER_STR, VERSION_BUILD);
+	sprintf(buf1, "%s", ALPHA_VER_STR);
 	oss << buf1 << '\n';
 	sprintf(buf1,"Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(), (char*)months[BUILDTM_MONTH], BUILDTM_YEAR, __TIME__, __TIMEZONE__);
 	oss << buf1 << '\n';

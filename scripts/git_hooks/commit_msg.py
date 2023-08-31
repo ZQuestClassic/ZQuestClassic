@@ -19,8 +19,8 @@ def add_log(*args):
 
 # Prefix is required, scope is optional.
 first_line = commit_msg.splitlines()[0]
-match = re.match(r'(\w+)\((\w+)\): (.+)',
-                 first_line) or re.match(r'(\w+):( )(.+)', first_line)
+match = re.match(r'(\w+)\((\w+)\)!?: (.+)',
+                 first_line) or re.match(r'(\w+)!?:( )(.+)', first_line)
 if not match:
     add_log('commit message must match expected pattern, using an expected type and optional scope.')
     add_log('examples:\n\tfix: fix the thing\n\tfix(zc): fix the thing\n')

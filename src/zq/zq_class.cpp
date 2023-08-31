@@ -12,7 +12,7 @@
 /****** ZMAP class ******/
 /************************/
 
-#include <string.h>
+#include <cstring>
 #include <string>
 #include <stdexcept>
 #include <map>
@@ -51,10 +51,13 @@
 #include "base/mapscr.h"
 #include "iter.h"
 #include <fmt/format.h>
+#include <filesystem>
 
 #ifdef __EMSCRIPTEN__
 #include "base/emscripten_utils.h"
 #endif
+
+namespace fs = std::filesystem;
 
 using namespace util;
 extern FFScript FFCore;
@@ -6853,7 +6856,7 @@ int32_t quest_access(const char *filename, zquestheader *hdr)
     
     large_dialog(pwd_dlg);
         
-    int32_t cancel = zc_popup_dialog(pwd_dlg,6);
+    int32_t cancel = do_zqdialog(pwd_dlg,6);
     
     if(cancel == 8)
         return 2;
@@ -7221,11 +7224,7 @@ int32_t writeheader(PACKFILE *f, zquestheader *Header)
             new_return(36);
         }
 		
-		char tempproductname[1024];
-		memset(tempproductname, 0, 1024);
-		strcpy(tempproductname, PROJECT_NAME);
-		
-		if(!pfwrite(&tempproductname,1024,f))
+		if(!pfwrite("ZQuest Classic",1024,f))
         {
             new_return(37);
         }
@@ -9805,9 +9804,16 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 		|| tmp_cmb.nextcset || tmp_cmb.skipanim || tmp_cmb.skipanimy
 		|| tmp_cmb.animflags)
 		combo_has_flags |= CHAS_ANIM;
-	if(tmp_cmb.script || tmp_cmb.label.size()
-		|| tmp_cmb.initd[0] || tmp_cmb.initd[1])
+	if(tmp_cmb.script || tmp_cmb.label.size())
 		combo_has_flags |= CHAS_SCRIPT;
+	else for(auto q = 0; q < 8; ++q)
+	{
+		if(tmp_cmb.initd[q])
+		{
+			combo_has_flags |= CHAS_SCRIPT;
+			break;
+		}
+	}
 	if(tmp_cmb.o_tile || tmp_cmb.flip || tmp_cmb.walk != 0xF0
 		|| tmp_cmb.type || tmp_cmb.csets)
 		combo_has_flags |= CHAS_BASIC;
@@ -9870,7 +9876,7 @@ int32_t writecombo_loop(PACKFILE *f, word section_version, newcombo const& tmp_c
 		{
 			return 26;
 		}
-		for ( int32_t q = 0; q < 2; q++ )
+		for ( int32_t q = 0; q < 8; q++ )
 		{
 			if(!p_iputl(tmp_cmb.initd[q],f))
 			{
@@ -13979,7 +13985,9 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_eol();
 	box_eol();
 	
-	PACKFILE *f = pack_fopen_password(filename,compressed?F_WRITE_PACKED:F_WRITE, "");
+	char tmpfilename[L_tmpnam];
+	std::tmpnam(tmpfilename);
+	PACKFILE *f = pack_fopen_password(tmpfilename,compressed?F_WRITE_PACKED:F_WRITE, "");
 	
 	if(!f)
 	{
@@ -14349,7 +14357,13 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 		pack_fclose(fp3);
 		al_trace("Wrote ZC Player Cheats, filename: %s\n",keyfilename);
 	}
-	
+
+	// Move file to destination at end, to avoid issues with file being unavailable to test mode.
+	std::error_code ec;
+	fs::rename(tmpfilename, filename, ec);
+	if (ec)
+		new_return(ec.value());
+
 	new_return(0);
 }
 

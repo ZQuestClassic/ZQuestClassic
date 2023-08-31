@@ -86,6 +86,27 @@ struct SubscrMTInfo
 	int32_t write(PACKFILE *f) const;
 };
 
+struct SubscrSelectorTileInfo
+{
+	word sw, sh;
+	int32_t tile;
+	byte cset, frames, speed, delay;
+	
+	void clear();
+	int32_t read(PACKFILE *f, word s_version);
+	int32_t write(PACKFILE *f) const;
+};
+
+struct SubscrSelectorInfo
+{
+	int16_t x,y,w,h;
+	SubscrSelectorTileInfo tileinfo[2];
+	
+	void clear();
+	int32_t read(PACKFILE *f, word s_version);
+	int32_t write(PACKFILE *f) const;
+};
+
 #define SUBSCR_TRANSITION_MAXARG 4
 #define SUBSCR_TRANS_NOHIDESELECTOR  0x0001
 struct SubscrTransition
@@ -142,7 +163,7 @@ enum //new subscreen object types
 	widgOLDCTR, widgMMAPTITLE, widgMMAP, widgLMAP, widgBGCOLOR,
 	widgITEMSLOT, widgMCGUFF_FRAME, widgMCGUFF, widgTILEBLOCK, widgMINITILE,
 	widgSELECTOR, widgLGAUGE, widgMGAUGE, widgTEXTBOX, widgSELECTEDTEXT,
-	widgMISCGAUGE,
+	widgMISCGAUGE, widgBTNCOUNTER,
 	widgMAX
 };
 
@@ -218,6 +239,7 @@ enum //PGGOTO modes
 
 #define SUBSCRFLAG_SELECTABLE         0x00000001
 #define SUBSCRFLAG_PGGOTO_NOWRAP      0x00000002
+#define SUBSCRFLAG_SELOVERRIDE        0x00000004
 
 #define SUBSCRFLAG_SPEC_01            0x00000001
 #define SUBSCRFLAG_SPEC_02            0x00000002
@@ -263,25 +285,29 @@ struct SubscrWidget
 	dword flags, genflags;
 	
 	//if SUBSCRFLAG_SELECTABLE...
-	//...storing these as ints, but they could probably be bytes?
-	//...might expand size later, so I'll leave it as ints.
-	int32_t pos;
-	int32_t pos_up;
-	int32_t pos_down;
-	int32_t pos_left;
-	int32_t pos_right;
-	std::string override_text;
 	
+	//Selector position, and directionals
+	int32_t pos;
+	int32_t pos_up, pos_down, pos_left, pos_right;
+	
+	//Selector draw overrides
+	SubscrSelectorInfo selector_override;
+	
+	std::string override_text; //Override the SW_SelectedText text
+	
+	//Script to run on pressing a button ..plus info
 	word generic_script;
 	int32_t generic_initd[8];
 	byte gen_script_btns;
 	
+	//Page transition on pressing a button ..plus info
 	byte pg_btns, pg_mode, pg_targ;
 	SubscrTransition pg_trans;
 	
 	SubscrWidget() = default;
 	SubscrWidget(byte ty);
 	SubscrWidget(subscreen_object const& old);
+	virtual ~SubscrWidget() = default;
 	
 	virtual bool load_old(subscreen_object const& old);
 	virtual int16_t getX() const; //Returns x in pixels
@@ -303,14 +329,21 @@ struct SubscrWidget
 	std::string getTypeName() const;
 	
 	void replay_rand_compat(byte pos) const;
-	static SubscrWidget* fromOld(subscreen_object const& old);
-	static SubscrWidget* readWidg(PACKFILE* f, word s_version);
-	static SubscrWidget* newType(byte type);
+	
+	SubscrPage const* getParentPage() const;
+	ZCSubscreen const* getParentSub() const;
 protected:
 	byte type;
 	byte compat_flags;
+	SubscrPage const* parentPage;
 	
 	virtual int32_t read(PACKFILE *f, word s_version);
+	
+	friend struct SubscrPage;
+public:
+	static SubscrWidget* fromOld(subscreen_object const& old);
+	static SubscrWidget* readWidg(PACKFILE* f, word s_version);
+	static SubscrWidget* newType(byte type);
 };
 
 #define SUBSCR_2X2FR_TRANSP    SUBSCRFLAG_SPEC_01
@@ -340,7 +373,7 @@ struct SW_Text : public SubscrWidget
 	int32_t fontid;
 	std::string text;
 	byte align, shadtype;
-	SubscrColorInfo c_text = {ssctMISC,0}, c_shadow, c_bg;
+	SubscrColorInfo c_text = {ssctMISC,ssctTEXT}, c_shadow, c_bg;
 	
 	SW_Text() = default;
 	SW_Text(subscreen_object const& old);
@@ -402,7 +435,7 @@ struct SW_Time : public SubscrWidget
 {
 	int32_t fontid;
 	byte align, shadtype;
-	SubscrColorInfo c_text = {ssctMISC,0}, c_shadow, c_bg;
+	SubscrColorInfo c_text = {ssctMISC,ssctTEXT}, c_shadow, c_bg;
 	
 	SW_Time() = default;
 	SW_Time(byte ty);
@@ -488,11 +521,11 @@ struct SW_Counter : public SubscrWidget
 {
 	int32_t fontid;
 	byte align, shadtype;
-	SubscrColorInfo c_text = {ssctMISC,0}, c_shadow, c_bg;
+	SubscrColorInfo c_text = {ssctMISC,ssctTEXT}, c_shadow, c_bg;
 	int32_t ctrs[3] = {crNONE,crNONE,crNONE};
-	byte mindigits, maxdigits;
+	byte mindigits, maxdigits = 3;
 	int32_t infitm = -1;
-	char infchar;
+	char infchar = 'A';
 	
 	SW_Counter() = default;
 	SW_Counter(subscreen_object const& old);
@@ -517,10 +550,10 @@ struct SW_Counters : public SubscrWidget
 {
 	int32_t fontid;
 	byte shadtype;
-	SubscrColorInfo c_text = {ssctMISC,0}, c_shadow, c_bg;
+	SubscrColorInfo c_text = {ssctMISC,ssctTEXT}, c_shadow, c_bg;
 	byte digits;
 	int32_t infitm = -1;
-	char infchar;
+	char infchar = 'A';
 	
 	SW_Counters() = default;
 	SW_Counters(subscreen_object const& old);
@@ -539,13 +572,40 @@ protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
 
+#define SUBSCR_BTNCOUNTER_SHOW0       SUBSCRFLAG_SPEC_01
+#define SUBSCR_BTNCOUNTER_NOCOLLAPSE  SUBSCRFLAG_SPEC_02
+struct SW_BtnCounter : public SubscrWidget
+{
+	int32_t fontid;
+	byte align, shadtype;
+	SubscrColorInfo c_text = {ssctMISC,ssctTEXT}, c_shadow, c_bg;
+	byte mindigits, maxdigits = 3;
+	char infchar = 'A';
+	byte btn, costind;
+	
+	SW_BtnCounter() = default;
+	
+	virtual int16_t getX() const override; //Returns x in pixels
+	virtual int16_t getY() const override; //Returns y in pixels
+	virtual word getW() const override; //Returns width in pixels
+	virtual word getH() const override; //Returns height in pixels
+	virtual int16_t getXOffs() const override; //Returns any special x-offset
+	virtual byte getType() const override;
+	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
+	virtual SubscrWidget* clone() const override;
+	virtual bool copy_prop(SubscrWidget const* src, bool all = false) override;
+	virtual int32_t write(PACKFILE *f) const override;
+protected:
+	virtual int32_t read(PACKFILE *f, word s_version) override;
+};
+
 #define SUBSCR_MMAPTIT_REQMAP  SUBSCRFLAG_SPEC_01
 #define SUBSCR_MMAPTIT_ONELINE SUBSCRFLAG_SPEC_02
 struct SW_MMapTitle : public SubscrWidget
 {
 	int32_t fontid;
 	byte align, shadtype;
-	SubscrColorInfo c_text = {ssctMISC,0}, c_shadow, c_bg;
+	SubscrColorInfo c_text = {ssctMISC,ssctTEXT}, c_shadow, c_bg;
 	
 	SW_MMapTitle() = default;
 	SW_MMapTitle(subscreen_object const& old);
@@ -612,7 +672,7 @@ protected:
 
 struct SW_Clear : public SubscrWidget
 {
-	SubscrColorInfo c_bg;
+	SubscrColorInfo c_bg = {ssctMISC,ssctSUBSCRBG};
 	
 	SW_Clear() = default;
 	SW_Clear(subscreen_object const& old);
@@ -635,6 +695,7 @@ protected:
 #define SUBSCR_CURITM_IGNR_SP_DISPLAY   SUBSCRFLAG_SPEC_04
 #define SUBSCR_CURITM_NO_INTER_WO_ITEM  SUBSCRFLAG_SPEC_05
 #define SUBSCR_CURITM_NO_INTER_WO_EQUIP SUBSCRFLAG_SPEC_06
+#define SUBSCR_CURITM_NO_UNEQUIP        SUBSCRFLAG_SPEC_07
 struct SW_ItemSlot : public SubscrWidget
 {
 	int32_t iclass, iid = -1;
@@ -798,6 +859,7 @@ struct SW_GaugePiece : public SubscrWidget
 	int16_t inf_item = -1;
 	
 	SW_GaugePiece() = default;
+	virtual ~SW_GaugePiece() = default;
 	
 	virtual word get_ctr() const = 0;
 	virtual word get_ctr_max() const = 0;
@@ -903,7 +965,7 @@ struct SW_SelectedText : public SubscrWidget
 {
 	int32_t fontid;
 	byte align, shadtype, tabsize = 4;
-	SubscrColorInfo c_text = {ssctMISC,0}, c_shadow, c_bg;
+	SubscrColorInfo c_text = {ssctMISC,ssctTEXT}, c_shadow, c_bg;
 	
 	SW_SelectedText() = default;
 	SW_SelectedText(subscreen_object const& old);
@@ -922,7 +984,6 @@ protected:
 #define MAX_SUBSCR_PAGES 255
 struct SubscrPage
 {
-	std::vector<SubscrWidget*> contents;
 	byte cursor_pos;
 	
 	void move_cursor(int dir, bool item_only = false);
@@ -951,11 +1012,24 @@ struct SubscrPage
 	int32_t write(PACKFILE *f) const;
 	
 	word getIndex() const;
+	ZCSubscreen const* getParent() const;
+	
+	void push_back(SubscrWidget* widg);
+	size_t size() const;
+	bool empty() const;
+	SubscrWidget* at(size_t ind);
+	SubscrWidget* const& operator[](size_t ind) const;
 private:
+	std::vector<SubscrWidget*> contents;
 	word index;
+	ZCSubscreen const* parent;
+	
+	void force_update();
+	
 	friend struct ZCSubscreen;
 };
 #define SUBFLAG_ACT_NOPAGEWRAP   0x00000001
+#define SUBFLAG_ACT_OVERRIDESEL  0x00000002
 struct ZCSubscreen
 {
 	std::vector<SubscrPage> pages;
@@ -967,6 +1041,8 @@ struct ZCSubscreen
 	
 	byte btn_left, btn_right;
 	SubscrTransition trans_left, trans_right;
+	
+	SubscrSelectorInfo selector_setting;
 	
 	//!TODO Subscreen Scripts
 	word script;
@@ -980,12 +1056,14 @@ struct ZCSubscreen
 	bool add_page(byte ind);
 	void swap_pages(byte ind1, byte ind2);
 	void clear();
-	void copy_settings(const ZCSubscreen& src);
+	void copy_settings(const ZCSubscreen& src, bool all = false);
 	void draw(BITMAP* dest, int32_t xofs, int32_t yofs, byte pos, bool showtime);
 	void load_old(subscreen_group const& g);
 	void load_old(subscreen_object const* arr);
 	
 	ZCSubscreen() = default;
+	ZCSubscreen(ZCSubscreen const& other);
+	ZCSubscreen& operator=(ZCSubscreen const& other);
 	
 	int32_t read(PACKFILE *f, word s_version);
 	int32_t write(PACKFILE *f) const;

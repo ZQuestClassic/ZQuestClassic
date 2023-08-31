@@ -18,7 +18,7 @@
 #include "zc/zelda.h"
 
 #include <optional>
-#include <string.h>
+#include <cstring>
 #include <set>
 #include <stdio.h>
 
@@ -74,7 +74,6 @@ bool did_scriptb=false;
 bool did_scriptl=false;
 byte lshift = 0;
 int32_t dowpn = -1;
-int32_t directItem = -1; //Is set if Hero is currently using an item directly
 int32_t directItemA = -1;
 int32_t directItemB = -1;
 int32_t directItemX = -1;
@@ -9952,6 +9951,14 @@ heroanimate_skip_liftwpn:;
 			if(dtype==dWALK)
 			{
 				sfx(tmpscr->secretsfx);
+				if(!get_qr(qr_WALKTHROUGHWALL_NO_DOORSTATE))
+				{
+					auto si = (currmap<<7) + currscr;
+					auto di = nextscr(dir);
+					setmapflag(si, mDOOR_UP<<dir);
+					if(di != 0xFFFF)
+						setmapflag(di, mDOOR_UP<<oppositeDir[dir]);
+				}
 			}
 			
 			action=none; FFCore.setHeroAction(none);
@@ -31513,7 +31520,7 @@ void HeroClass::reset_hookshot()
 	Lwpns.del(Lwpns.idFirst(wHSHandle));
 	Lwpns.del(Lwpns.idFirst(wHookshot));
 	chainlinks.clear();
-	int32_t index=directItem>-1 ? directItem : current_item_id(hs_switcher ? itype_switchhook : itype_hookshot);
+	int32_t index=directWpn>-1 ? directWpn : current_item_id(hs_switcher ? itype_switchhook : itype_hookshot);
 	hs_switcher = false;
 	
 	if(index>=0)

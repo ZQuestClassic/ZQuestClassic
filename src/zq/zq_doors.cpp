@@ -8,7 +8,7 @@
 //
 //--------------------------------------------------------
 
-#include <string.h>
+#include <cstring>
 #include <vector>
 
 #include "base/gui.h"
@@ -142,7 +142,7 @@ static DIALOG door_select_dlg[] =
     { jwin_button_proc,      86,  171,    61,   21,   vc(14),              vc(1),                27,       D_EXIT,     0,             0, (void *) "O&K", NULL, NULL },
     { jwin_button_proc,     170,  171,    61,   21,   vc(14),              vc(1),                27,       D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
     { jwin_text_proc,        64,  142,   120,    8,   vc(15),              vc(1),                 0,       0,          0,             0, (void *) "Door Combo Set:",                                   NULL, NULL },
-    { jwin_droplist_proc,    64,  150,   192,   16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],    0,       0,          1,             0, (void *) &doorcomboset_list,                                  NULL, NULL },
+    { jwin_droplist_proc,    64,  150,   192,   16,   jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],    0,       D_EXIT,     1,             0, (void *) &doorcomboset_list,                                  NULL, NULL },
     { jwin_text_proc,        48,   59,   150,    8,   vc(15),              vc(1),                 0,       0,          0,             0, (void *) "Note: This only applies to 'NES Dungeon' screens!", NULL, NULL },
     { NULL,                   0,    0,     0,    0,   0,                   0,                     0,       0,          0,             0,       NULL,                                                         NULL, NULL }
 };
@@ -150,74 +150,75 @@ static DIALOG door_select_dlg[] =
 
 int32_t onDoors()
 {
-    restore_mouse();
-    door_select_dlg[0].dp2 = get_zc_font(font_lfont);
-    
-    if(Map.getCurrScr()==TEMPLATE)
-        return D_O_K;
-        
-    if(Map.getCurrMap()>=Map.getMapCount())
-        return D_O_K;
-    
-    bool done=false;
-    int32_t ret=0;
-    door_select_dlg[9].d1=Map.CurrScr()->door_combo_set;
-    
-    // Put the names of the door types on the buttons.
-    for(int32_t i=0; i<4; i++)
-    {
-        door_select_dlg[i+2].dp = (void *)doors_string[door_to_index(Map.CurrScr()->door[i])];
-    }
-    
-    // so as not to always override other combos if there was no change in door type
-    byte old_door[4];
-    
-    for(int32_t i=0; i<4; i++)
-        old_door[i] = Map.CurrScr()->door[i];
-        
-    large_dialog(door_select_dlg, 1.5);
-    
-    Map.StartListCommand();
-    do
-    {
-        ret = zc_popup_dialog(door_select_dlg,-1);
-        Map.CurrScr()->door_combo_set=door_select_dlg[9].d1;
-        
-        switch(ret)
-        {
-        case 2:
-        case 3:
-        case 4:
-        case 5:
-            edit_door(ret-2);
-            door_select_dlg[ret].dp = (void *)doors_string[door_to_index(Map.CurrScr()->door[ret-2])];
-            break;
-            
-        case 6:
-            for(int32_t i=0; i<4; i++)
-            {
-                if(old_door[i] != Map.CurrScr()->door[i])
-                    Map.putdoor(i,Map.CurrScr()->door[i]);
-            }
-            
-            Map.FinishListCommand();
-            done=true;
-            break;
-            
-        case 0:
-        case 7:
-            for(int32_t i=0; i<4; i++)
-            {
-                Map.putdoor(i,Map.CurrScr()->door[i]);
-            }
-            
-            Map.RevokeListCommand();
-            done=true;
-        }
-    }
-    while(!done);
-    
-    return D_O_K;
+	restore_mouse();
+	door_select_dlg[0].dp2 = get_zc_font(font_lfont);
+	
+	if(Map.getCurrScr()==TEMPLATE)
+		return D_O_K;
+		
+	if(Map.getCurrMap()>=Map.getMapCount())
+		return D_O_K;
+	
+	bool done=false;
+	int32_t ret=0;
+	door_select_dlg[9].d1=Map.CurrScr()->door_combo_set;
+	
+	// Put the names of the door types on the buttons.
+	for(int32_t i=0; i<4; i++)
+	{
+		door_select_dlg[i+2].dp = (void *)doors_string[door_to_index(Map.CurrScr()->door[i])];
+	}
+	
+	// so as not to always override other combos if there was no change in door type
+	byte old_door[4];
+	auto old_dcs = Map.CurrScr()->door_combo_set;
+	
+	for(int32_t i=0; i<4; i++)
+		old_door[i] = Map.CurrScr()->door[i];
+	
+	large_dialog(door_select_dlg, 1.5);
+	
+	Map.StartListCommand();
+	do
+	{
+		ret = do_zqdialog(door_select_dlg,-1);
+		bool doorset_change = Map.CurrScr()->door_combo_set != door_select_dlg[9].d1;
+		Map.CurrScr()->door_combo_set=door_select_dlg[9].d1;
+		
+		switch(ret)
+		{
+		case 2:
+		case 3:
+		case 4:
+		case 5:
+			edit_door(ret-2);
+			door_select_dlg[ret].dp = (void *)doors_string[door_to_index(Map.CurrScr()->door[ret-2])];
+			break;
+			
+		case 9:
+			for(int32_t i=0; i<4; i++)
+				Map.putdoor(i,Map.CurrScr()->door[i]);
+			refresh(rMAP | rNOCURSOR);
+			break;
+		case 6:
+			Map.FinishListCommand();
+			done=true;
+			break;
+			
+		case 0:
+		case 7:
+			for(int32_t i=0; i<4; i++)
+			{
+				Map.putdoor(i,Map.CurrScr()->door[i]);
+			}
+			
+			Map.RevokeListCommand();
+			done=true;
+		}
+	}
+	while(!done);
+	
+	return D_O_K;
 }
 
 /************************************/
@@ -1425,7 +1426,7 @@ int32_t edit_dcs(int32_t index)
     
     do
     {
-        ret = zc_popup_dialog(doorcomboset_dlg,4);
+        ret = do_zqdialog(doorcomboset_dlg,4);
         
         if(ret==1)
         {
@@ -1731,7 +1732,7 @@ int32_t onDoorCombos()
         
         large_dialog(doorcombosetlist_dlg,1.5);
             
-        int32_t ret=zc_popup_dialog(doorcombosetlist_dlg,2);
+        int32_t ret=do_zqdialog(doorcombosetlist_dlg,2);
         index=doorcombosetlist_dlg[2].d1;
         
         int32_t doedit=false;

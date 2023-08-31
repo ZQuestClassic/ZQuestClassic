@@ -71,6 +71,10 @@ static void a5_reconfigure_joysticks()
                 for(k = 0; k < joy[i].stick[j].num_axis; k++)
                 {
                     joy[i].stick[j].axis[k].name = al_get_joystick_axis_name(joystick, j, k);
+                    // local edit
+                    joy[i].stick[j].axis[k].d1 = 0;
+                    joy[i].stick[j].axis[k].d2 = 0;
+                    joy[i].stick[j].axis[k].pos = 0;
                 }
 
                 // local edit - treat trigger-like sticks as a button.

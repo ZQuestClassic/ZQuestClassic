@@ -3,6 +3,7 @@
 
 #include <gui/dialog.h>
 #include <gui/window.h>
+#include <gui/grid.h>
 #include <initializer_list>
 #include <string>
 #include <string_view>
@@ -15,7 +16,7 @@ class SubscrSettingsDialog: public GUI::Dialog<SubscrSettingsDialog>
 public:
 	enum class message
 	{
-		REFR_INFO, OK, CANCEL
+		REFR_INFO, OK, CANCEL, REFR_SELECTOR
 	};
 
 	SubscrSettingsDialog();
@@ -25,11 +26,13 @@ public:
 
 protected:
 	std::shared_ptr<GUI::Window> window;
+	std::shared_ptr<GUI::Grid> selector_grid;
 	byte ty;
 	ZCSubscreen local_subref;
 	
 	GUI::ListData list_sfx;
 	
+	void refr_selector();
 	void refr_info();
 };
 

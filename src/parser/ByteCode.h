@@ -2464,22 +2464,22 @@ namespace ZScript
 			return new OCurrentItemID();
 		}
 	};
-	class OResrvdOpEmily15 : public Opcode
+	class OArrayPush : public Opcode
 	{
 	public:
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OResrvdOpEmily15();
+			return new OArrayPush();
 		}
 	};
-	class OResrvdOpEmily16 : public Opcode
+	class OArrayPop : public Opcode
 	{
 	public:
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OResrvdOpEmily16();
+			return new OArrayPop();
 		}
 	};
 	class OResrvdOpEmily17 : public Opcode

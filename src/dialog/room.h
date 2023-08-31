@@ -14,7 +14,7 @@ class RoomDialog: public GUI::Dialog<RoomDialog>
 public:
 	enum class message
 	{
-		REFR_INFO, ROOM_INFO, OK, CANCEL
+		REFR_INFO, REFRESH, ROOM_INFO, OK, CANCEL
 	};
 
 	RoomDialog(mapscr* m);

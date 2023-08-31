@@ -190,7 +190,7 @@ set(MINIMP3_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include/minimp3)
 FetchContent_Declare(
   allegro5
   GIT_REPOSITORY https://github.com/connorjclark/allegro5.git
-  GIT_TAG        4288ce93362fb9461a23f8431c37f908f8462d5a
+  GIT_TAG        e766ef8b054bd3c6200622f2576a68668b70dc8e
 )
 FetchContent_GetProperties(allegro5)
 if(NOT allegro5_POPULATED)
@@ -201,6 +201,11 @@ if(NOT allegro5_POPULATED)
 	option(WANT_DOCS "" OFF)
 	option(WANT_IMAGE_WEBP "" OFF)
 	option(WANT_OPUS "" OFF)
+	# We build libdumb ourselves and use in zcmusic directly.
+	# TODO: If we want to use allegro streams, we should instead defer to allegro audio.
+	option(WANT_MODAUDIO "" OFF)
+	# We don't support FLAC.
+	option(WANT_FLAC "" OFF)
   add_subdirectory(${allegro5_SOURCE_DIR} ${allegro5_BINARY_DIR} EXCLUDE_FROM_ALL)
   # Allegro 5 CMakeLists sets CMAKE_CONFIGURATION_TYPES in a way that doesn't work for us,
   # so set it back to our value.
@@ -256,18 +261,6 @@ endif()
 #############################################################
 # Header and source file lists
 #############################################################
-
-if (EMSCRIPTEN)
-	set(ZCSOUNDSOURCES
-		src/zcmusic_sdl.cpp
-		src/zcmusicd.cpp
-	)
-else()
-	set(ZCSOUNDSOURCES
-		src/zcmusic.cpp
-		src/zcmusicd.cpp
-	)
-endif()
 
 set(ZELDA_MODULES
 	${CMAKE_SOURCE_DIR}/modules/zelda/ZeldaCore.txt
@@ -461,6 +454,7 @@ set(zcbase_sources
 	src/base/misctypes.cpp
 	src/base/module.cpp
 	src/base/msgstr.cpp
+	src/base/packfile.cpp
 	src/base/process_management.cpp
 	src/base/qrs.cpp
 	src/base/random.cpp
@@ -538,11 +532,7 @@ target_link_libraries(zconsolelogger PUBLIC allegro_with_legacy zcbase)
 # Sound Library
 #############################################################
 
-if(EMSCRIPTEN)
-	set(BUILD_SOUND_LIBS_FROM_SOURCE OFF)
-else()
-	set(BUILD_SOUND_LIBS_FROM_SOURCE ON)
-endif()
+set(BUILD_SOUND_LIBS_FROM_SOURCE ON)
 
 if(BUILD_SOUND_LIBS_FROM_SOURCE)
 	if(WIN32)
@@ -583,6 +573,11 @@ endif()
 if(MSVC AND (MSVC_VERSION GREATER 1600))
 	set(ZCSOUNDLIBSEXTRA legacy_stdio_definitions)
 endif()
+set(ZCSOUNDSOURCES
+	src/zcmusic.cpp
+	src/zcmusicd.cpp
+	src/zcmixer.cpp
+)
 add_library(zcsound SHARED ${ZCSOUNDSOURCES})
 target_link_libraries(zcsound PUBLIC allegro_with_legacy zcbase ${SOUNDLIBS} ${ZCSOUNDLIBSEXTRA} allegro_audio allegro_acodec)
 

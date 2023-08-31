@@ -13,7 +13,7 @@
 #include <filesystem>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <cstring>
 #include <ctype.h>
 #include <string>
 #include <map>
@@ -41,7 +41,6 @@
 #include "tiles.h"
 #include "base/colors.h"
 #include "pal.h"
-#include "zc/aglogo.h"
 #include "base/zsys.h"
 #include "base/zapp.h"
 #include "play_midi.h"
@@ -166,7 +165,6 @@ int32_t passive_subscreen_height=56;
 int32_t original_playing_field_offset=56;
 int32_t playing_field_offset=original_playing_field_offset;
 int32_t passive_subscreen_offset=0;
-extern int32_t directItem;
 extern int32_t directItemA;
 extern int32_t directItemB;
 extern int32_t directItemY;
@@ -180,7 +178,6 @@ bool is_compact = false;
 bool standalone_mode=false;
 char *standalone_quest=NULL;
 std::string standalone_save_path;
-bool skip_title=false;
 bool disable_save_to_disk=false;
 
 int32_t favorite_combos[MAXFAVORITECOMBOS] = {0};
@@ -423,7 +420,7 @@ int32_t hs_startx = 0, hs_starty = 0, hs_xdist = 0, hs_ydist = 0, clockclk = 0;
 std::vector<std::pair<int32_t, int32_t>> clock_zoras;
 int32_t cheat_goto_dmap=0, cheat_goto_screen=0, currcset = 0, currspal6 = -1, currspal14 = -1;
 int32_t gfc = 0, gfc2 = 0, pitx = 0, pity = 0, refill_what = 0, refill_why = 0, heart_beep_timer=0, new_enemy_tile_start=1580;
-int32_t nets=1580, magicitem=-1,div_prot_item=-1, title_version = 0, magiccastclk = 0, quakeclk=0, wavy=0, castx = 0, casty = 0, df_x = 0, df_y = 0, nl1_x = 0, nl1_y = 0, nl2_x = 0, nl2_y = 0;
+int32_t nets=1580, magicitem=-1,div_prot_item=-1, magiccastclk = 0, quakeclk=0, wavy=0, castx = 0, casty = 0, df_x = 0, df_y = 0, nl1_x = 0, nl1_y = 0, nl2_x = 0, nl2_y = 0;
 int32_t magicdrainclk=0, conveyclk=3, memrequested=0;
 byte newconveyorclk = 0;
 float avgfps=0;
@@ -2400,6 +2397,15 @@ int32_t init_game()
 			game->bwpn = new_subscreen_active->def_btns[1];
 			game->xwpn = new_subscreen_active->def_btns[2];
 			game->ywpn = new_subscreen_active->def_btns[3];
+			
+			if((game->awpn&0xFF) >= new_subscreen_active->pages.size())
+				game->awpn = 0xFF;
+			if((game->bwpn&0xFF) >= new_subscreen_active->pages.size())
+				game->bwpn = 0xFF;
+			if((game->xwpn&0xFF) >= new_subscreen_active->pages.size())
+				game->xwpn = 0xFF;
+			if((game->ywpn&0xFF) >= new_subscreen_active->pages.size())
+				game->ywpn = 0xFF;
 		}
 		else
 		{
@@ -2434,8 +2440,7 @@ int32_t init_game()
 						xpos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->xwpn : 0xFF, bpos);
 					if(use_y)
 						ypos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->ywpn : 0xFF, bpos, xpos);
-					directItem = -1;
-					directItemA = -1; 
+					directItemA = -1;
 				}
 				else
 				{
@@ -2475,7 +2480,7 @@ int32_t init_game()
 					Awpn = selectSword();
 					apos = 0xFF;
 					bpos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF);
-					directItemA = directItem = -1; 
+					directItemA = -1; 
 				}
 				else
 				{
@@ -4663,7 +4668,7 @@ int main(int argc, char **argv)
 	memset(zc_aboutstr,0,80);
 
 	sprintf(zc_builddate,"Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(), (char*)months[BUILDTM_MONTH], BUILDTM_YEAR, __TIME__, __TIMEZONE__);
-	sprintf(zc_aboutstr,"%s (%s), Version %s", ZC_PLAYER_NAME, PROJECT_NAME, ZC_PLAYER_V);
+	sprintf(zc_aboutstr,"%s, Version %s", ZC_PLAYER_NAME, ZC_PLAYER_V);
 	
 
 	Z_title("ZC Launched: %s, v.%s %s",ZC_PLAYER_NAME, ZC_PLAYER_V, ALPHA_VER_STR);
@@ -5017,7 +5022,6 @@ int main(int argc, char **argv)
 	}
 	
 	int32_t fast_start = debug_enabled || used_switch(argc,argv,"-fast") || (!standalone_mode && (load_save || (slot_arg && (argc>(slot_arg+1)))));
-	skip_title = used_switch(argc, argv, "-notitle") > 0 || zc_get_config("zeldadx","skip_title",0);
 	
 	int32_t checked_epilepsy = zc_get_config("zeldadx","checked_epilepsy",0);
 	
@@ -5484,8 +5488,13 @@ int main(int argc, char **argv)
 
 			if (qstpath_to_load == save->header->qstpath)
 			{
-				save_index = i;
-				break;
+				if (save_index == -1)
+					save_index = i;
+				else
+				{
+					save_index = -1;
+					break;
+				}
 			}
 		}
 
@@ -5504,20 +5513,12 @@ int main(int argc, char **argv)
 	set_display_switch_callback(SWITCH_IN,switch_in_callback);
 	set_display_switch_callback(SWITCH_OUT,switch_out_callback);
 	
-	// AG logo
-	if(!(zqtesting_mode||replay_is_active()||fast_start||zc_get_config("zeldadx","skip_logo",1)))
-	{
-		zc_set_volume(240,-1);
-		aglogo(tmp_scr, scrollbuf, resx, resy);
-		master_volume(digi_volume,midi_volume);
-	}
-	
 	// play the game
 	fix_menu();
 	reset_items(true, &QHeader);
 	
 	clear_to_color(screen,BLACK);
-	Quit = (fast_start||skip_title) ? qQUIT : qRESET;
+	Quit = qQUIT;
 	
 	rgb_map = &rgb_table;
 	
@@ -5636,12 +5637,9 @@ reload_for_replay_file:
 				//Failed initializing? Keep trying.
 				while (Quit != qEXIT)
 				{
-					if (close_button_quit)
-					{
-						close_button_quit = false;
-						f_Quit(qEXIT);
-						if (Quit == qEXIT) break;
-					}
+					handle_close_btn_quit();
+					if (Quit == qEXIT) break;
+					
 					Quit = 0;
 					init_game();
 				}

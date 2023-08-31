@@ -295,6 +295,7 @@ std::shared_ptr<GUI::Widget> RoomDialog::view()
 					"\nUse the 'Set' button to set the tile/cset/guy-related flags based on"
 					" how old versions used these guys." + QRHINT({qr_OLD_GUY_HANDLING})),
 				Button(forceFitH = true, text = "Set",
+					onClick = message::REFRESH,
 					onPressFunc = [&]()
 					{
 						setOldGuy();
@@ -315,6 +316,9 @@ bool RoomDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 {
 	switch(msg.message)
 	{
+	case message::REFRESH:
+		rerun_dlg = true;
+		return true;
 	case message::ROOM_INFO:
 		InfoDialog("Room Info", getRoomInfo()).show();
 		return false;

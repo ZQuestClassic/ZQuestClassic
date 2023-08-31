@@ -2528,7 +2528,7 @@ NOTE: In previous versions, this type was simply called "item script".
 
 TOKEN(s):		combodata script
 POINTER: 		combodata
-InitD:			Yes, [2]
+InitD:			Yes, [8]
 InitD Labels:		No
 InitA:			No
 Multiple Frames:	Yes
@@ -2537,7 +2537,7 @@ Waitdraw Support:	t/b/a
 
 * Each combo position, on every layer, is capable of running a script. You can set the permitted layers in the
 * menu: ZScript >>> Quest Specific Settings >>> Scripts.
-* combodata Scripts have two InitD[] args, in the COMBO EDITOR for this script type.
+* combodata Scripts have eight InitD[] args, in the COMBO EDITOR for this script type.
 * 	You may also read or write to them by script with combodata->InitD[] (or this->InitD[])
 * Each combo in the Combo Editor may have one script, and twi InitD values, set on the 'Script' tab.
 * Combo scripts, and only combo scripts, may call <combodata>this-> Pos(), PosX(), and PosY() to obtain
@@ -3227,6 +3227,22 @@ void OwnArray(untyped[] arr);
 void DestroyArray(untyped[] arr);
  * Immediately deallocates the specified array, if it is a local array.
  * If the array is a global array, does nothing.
+
+bool ArrayPushBack(untyped[] arr, untyped val);
+bool ArrayPushFront(untyped[] arr, untyped val);
+bool ArrayPushAt(untyped[] arr, untyped val, int indx);
+ * Increases the size of the array by 1, inserting a new value.
+ * The new value can either be inserted at the end, start, or an arbitrary index.
+ * An invalid index pushes to the end.
+ * Returns false if it fails for any reason (ex: array is at max size already)
+
+untyped ArrayPushBack(untyped[] arr);
+untyped ArrayPushFront(untyped[] arr);
+untyped ArrayPushAt(untyped[] arr, int indx);
+ * Decreases the size of the array by 1, removing and returning a value.
+ * The new value can either be pulled from the end, start, or an arbitrary index.
+ * An invalid index pops from the end.
+ * Errors if array size is 0, and returns `-1`.
 
 void OwnObject([Object] obj);
  * Takes an object (see 'Classes and Objects' above)
@@ -7153,8 +7169,8 @@ int Y;
 int Script;
  * The combodata script used by this combo.
 
-untyped InitD[2];
- * The two InitD args used by the combodata script for this combo.
+untyped InitD[8];
+ * The 8 InitD args used by the combodata script for this combo.
 
 int ID;
  * Returns the combo ID associated with the current combodata pointer.

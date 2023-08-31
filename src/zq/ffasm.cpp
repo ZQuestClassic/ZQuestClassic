@@ -1,7 +1,7 @@
 #include "parser/Types.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <cstring>
 #include <ctype.h>
 
 #include "zc/ffscript.h"
@@ -1156,8 +1156,8 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "PRINTFA", 0, 0, 0, 0 },
 	{ "SPRINTFA", 0, 0, 0, 0 },
 	{ "CURRENTITEMID", 0, 0, 0, 0 },
-	{ "RESRVD_OP_EMILY_15", 0, 0, 0, 0 },
-	{ "RESRVD_OP_EMILY_16", 0, 0, 0, 0 },
+	{ "ARRAYPUSH", 0, 0, 0, 0 },
+	{ "ARRAYPOP", 0, 0, 0, 0 },
 	{ "RESRVD_OP_EMILY_17", 0, 0, 0, 0 },
 	{ "RESRVD_OP_EMILY_18", 0, 0, 0, 0 },
 	{ "RESRVD_OP_EMILY_19", 0, 0, 0, 0 },

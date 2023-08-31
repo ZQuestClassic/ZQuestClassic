@@ -468,7 +468,6 @@ char runningItemScripts[256] = {0};
 #include "zc/zelda.h"
 #include "particles.h"
 #include "zc/hero.h"
-extern int32_t directItem; //Is set if Player is currently using an item directly
 extern int32_t directItemA;
 extern int32_t directItemB;
 extern int32_t directItemX;
@@ -948,7 +947,7 @@ static bool set_current_script_engine_data(ScriptType type, int script, int inde
 			{
 				got_initialized = true;
 				memset(ri->d, 0, 8 * sizeof(int32_t));
-				for ( int32_t q = 0; q < 2; q++ )
+				for ( int32_t q = 0; q < 8; q++ )
 					ri->d[q] = combobuf[id].initd[q];
 				data.initialized = true;
 			}
@@ -2703,6 +2702,7 @@ void clearScriptHelperData()
 //           Array Helper Functions           //
 ///---------------------------------------------//
 
+#define ZCARRAY_MAX_SIZE 214748
 class ArrayManager
 {
 public:
@@ -2714,6 +2714,8 @@ public:
 	int32_t size() const;
 	
 	bool resize(size_t newsize);
+	bool push(int32_t val, int indx = -1);
+	int32_t pop(int indx = -1);
 	
 	bool invalid() const {return _invalid;}
 	bool internal() const {return !_invalid && !aptr;}
@@ -3078,6 +3080,35 @@ bool ArrayManager::resize(size_t newsize)
 	}
 	aptr->Resize(newsize);
 	return true;
+}
+
+bool ArrayManager::push(int32_t val, int indx)
+{
+	if(_invalid) return false;
+	if(!aptr)
+	{
+		Z_scripterrlog("Special internal array '%d' not valid for operation 'Push'\n", ptr);
+		return false;
+	}
+	if(aptr->Size() == ZCARRAY_MAX_SIZE)
+		return false;
+	aptr->Push(val,indx);
+	return true;
+}
+int32_t ArrayManager::pop(int indx)
+{
+	if(_invalid) return -10000;
+	if(!aptr)
+	{
+		Z_scripterrlog("Special internal array '%d' not valid for operation 'Push'\n", ptr);
+		return -10000;
+	}
+	if(aptr->Empty())
+	{
+		Z_scripterrlog("Array %d had nothing to Pop!\n",ptr);
+		return -10000;
+	}
+	return aptr->Pop(indx);
 }
 
 std::string ArrayManager::asString(std::function<char const*(int32_t)> formatter, const size_t& limit) const
@@ -11990,7 +12021,7 @@ int32_t get_register(const int32_t arg)
 				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "InitD[]");
 				ret = -10000;
 			}
-			else if ( ((unsigned)indx) > 2 )
+			else if ( ((unsigned)indx) > 8 )
 			{ 
 				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, "InitD[]"); 
 				ret = -10000;
@@ -22520,7 +22551,7 @@ void set_register(int32_t arg, int32_t value)
 			{
 				Z_scripterrlog("Invalid Combo ID passed to combodata->%s: %d\n", (ri->combosref*10000), "InitD[]");
 			}
-			else if ( ((unsigned)indx) > 2 )
+			else if ( ((unsigned)indx) > 8 )
 			{ 
 				Z_scripterrlog("Invalid Array Index passed to combodata->%s: %d\n", indx, "InitD[]"); 
 			} 
@@ -30710,7 +30741,7 @@ void do_writepodarr()
 }
 int32_t get_object_arr(size_t sz)
 {
-	if(!sz || sz > 214748) return 0;
+	if(sz > 214748) return 0;
 	int32_t free_ptr = 1;
 	auto it = objectRAM.begin();
 	if(it != objectRAM.end())
@@ -32473,6 +32504,23 @@ j_command:
 			case SPRINTFA:
 				FFCore.do_printfarr();
 				break;
+			case ARRAYPUSH:
+			{
+				auto ptr = SH::read_stack(ri->sp + 2) / 10000;
+				auto val = SH::read_stack(ri->sp + 1);
+				auto indx = SH::read_stack(ri->sp + 0) / 10000;
+				ArrayManager am(ptr);
+				ri->d[rEXP1] = am.push(val,indx) ? 10000 : 0;
+				break;
+			}
+			case ARRAYPOP:
+			{
+				auto ptr = SH::read_stack(ri->sp + 1) / 10000;
+				auto indx = SH::read_stack(ri->sp + 0) / 10000;
+				ArrayManager am(ptr);
+				ri->d[rEXP1] = am.pop(indx);
+				break;
+			}
 			
 			case BREAKPOINT:
 				if( zasm_debugger )
@@ -41587,8 +41635,8 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "PRINTFA", 0, 0, 0, 0 },
 	{ "SPRINTFA", 0, 0, 0, 0 },
 	{ "CURRENTITEMID", 0, 0, 0, 0 },
-	{ "RESRVD_OP_EMILY_15", 0, 0, 0, 0 },
-	{ "RESRVD_OP_EMILY_16", 0, 0, 0, 0 },
+	{ "ARRAYPUSH", 0, 0, 0, 0 },
+	{ "ARRAYPOP", 0, 0, 0, 0 },
 	{ "RESRVD_OP_EMILY_17", 0, 0, 0, 0 },
 	{ "RESRVD_OP_EMILY_18", 0, 0, 0, 0 },
 	{ "RESRVD_OP_EMILY_19", 0, 0, 0, 0 },

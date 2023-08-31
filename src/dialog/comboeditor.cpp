@@ -718,8 +718,8 @@ void cflag_help(int32_t id)
 void ComboEditorDialog::refreshScript()
 {
 	loadComboType();
-	int32_t sw_initd[2];
-	for(auto q = 0; q < 2; ++q)
+	int32_t sw_initd[8];
+	for(auto q = 0; q < 8; ++q)
 	{
 		l_initd[q] = "InitD["+to_string(q)+"]:";
 		h_initd[q].clear();
@@ -728,7 +728,7 @@ void ComboEditorDialog::refreshScript()
 	if(local_comboref.script)
 	{
 		zasm_meta const& meta = comboscripts[local_comboref.script]->meta;
-		for(auto q = 0; q < 2; ++q)
+		for(auto q = 0; q < 8; ++q)
 		{
 			if(unsigned(meta.initd_type[q]) < nswapMAX)
 				sw_initd[q] = meta.initd_type[q];
@@ -740,10 +740,10 @@ void ComboEditorDialog::refreshScript()
 	}
 	else
 	{
-		sw_initd[0] = nswapDEC;
-		sw_initd[1] = nswapDEC;
+		for(auto q = 0; q < 8; ++q)
+			sw_initd[q] = nswapDEC;
 	}
-	for(auto q = 0; q < 2; ++q)
+	for(auto q = 0; q < 8; ++q)
 	{
 		ib_initds[q]->setDisabled(h_initd[q].empty());
 		l_initds[q]->setText(l_initd[q]);
@@ -3600,21 +3600,31 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 						)
 					)
 				)),
-				TabRef(name = "Script", Column(
-					CMB_INITD(0),
-					CMB_INITD(1),
-					Row(
-						padding = 0_px,
-						SCRIPT_LIST_PROC("Combo Script:", list_combscript, local_comboref.script, refreshScript)
+				TabRef(name = "Script", Row(
+					Column(
+						CMB_INITD(0),
+						CMB_INITD(1),
+						CMB_INITD(2),
+						CMB_INITD(3),
+						CMB_INITD(4),
+						CMB_INITD(5),
+						CMB_INITD(6),
+						CMB_INITD(7)
 					),
-					Checkbox(text = "Show Script Attrib Metadata",
-						checked = combo_use_script_data,
-						onToggleFunc = [&](bool state)
-						{
-							combo_use_script_data = state;
-							zc_set_config("zquest","show_comboscript_meta_attribs",state?1:0);
-							loadComboType();
-						})
+					Column(vAlign = 0.0,
+						Row(
+							padding = 0_px,
+							SCRIPT_LIST_PROC("Combo Script:", list_combscript, local_comboref.script, refreshScript)
+						),
+						Checkbox(text = "Show Script Attrib Metadata",
+							checked = combo_use_script_data,
+							onToggleFunc = [&](bool state)
+							{
+								combo_use_script_data = state;
+								zc_set_config("zquest","show_comboscript_meta_attribs",state?1:0);
+								loadComboType();
+							})
+					)
 				))
 			),
 			Row(

@@ -19,7 +19,7 @@
 #include "base/msgstr.h"
 #include <filesystem>
 #include <stdio.h>
-#include <string.h>
+#include <cstring>
 #include <string>
 #include <map>
 #include <vector>
@@ -3782,6 +3782,8 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_ITM_0_INVIS_ON_BTNS,1);
 		set_qr(qr_OLD_GAUGE_TILE_LAYOUT,1);
 	}
+	if(compatrule_version < 54)
+		set_qr(qr_WALKTHROUGHWALL_NO_DOORSTATE,1);
 	
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)
@@ -17885,7 +17887,8 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 			}
 
 			if(!p_igetw(&temp_combo.script,f)) return qe_invalid;
-			for ( int32_t q = 0; q < 2; q++ )
+			auto initd_count = s_version >= 43 ? 8 : 2;
+			for ( int32_t q = 0; q < initd_count; q++ )
 			{
 				if(!p_igetl(&temp_combo.initd[q],f))
 				{

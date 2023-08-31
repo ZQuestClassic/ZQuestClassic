@@ -19,14 +19,8 @@ extern DIALOG_PLAYER *player;
 
 void     zc_set_gui_bmp(BITMAP* bmp);
 BITMAP*  zc_get_gui_bmp();
-int32_t  zc_do_dialog(DIALOG *d, int32_t f);
-int32_t  zc_popup_dialog(DIALOG *d, int32_t f);
-int32_t  PopUp_dialog(DIALOG *d,int32_t f);
-int32_t  update_dialog_through_bitmap(BITMAP* buffer, DIALOG_PLAYER *player);
-int32_t  do_dialog_through_bitmap(BITMAP *buffer, DIALOG *dialog, int32_t focus_obj);
-int32_t  popup_dialog_through_bitmap(BITMAP *buffer,DIALOG *d,int32_t f);
-int32_t  zc_popup_dialog_dbuf(DIALOG* , int32_t);
-int32_t  PopUp_dialog_through_bitmap(BITMAP *buffer,DIALOG *d,int32_t f);
+int32_t do_zqdialog(DIALOG *dialog, int32_t focus_obj, bool checkexit = false);
+int32_t do_zqdialog_custom(DIALOG *dialog, int32_t focus_obj, bool checkexit, std::function<bool(int)> proc);
 void new_gui_popup_dialog(DIALOG* dialog, int32_t focus_obj, bool& done, bool& running);
 #endif                                                      // _GUI_H_
 

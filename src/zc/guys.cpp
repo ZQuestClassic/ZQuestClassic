@@ -9,7 +9,7 @@
 //--------------------------------------------------------
 
 #include "base/zdefs.h"
-#include <string.h>
+#include <cstring>
 #include <stdio.h>
 #include "base/zc_alleg.h"
 #include "zc/guys.h"

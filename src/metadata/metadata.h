@@ -41,7 +41,6 @@
 #define ALPHA_VER_STR (ALPHA_SUB_STR " " STRGZ(ALPHA_VER))
 #endif
 
-#define PROJECT_NAME "AEternal"
 #define COMPANY_NAME "Armageddon Games"
 #define ZQ_EDITOR_NAME "ZQuest Creator"
 #define ZQ_EDITOR_V "2.55"

@@ -45,11 +45,6 @@ save_t::~save_t()
 static fs::path get_legacy_save_file_path()
 {
 	std::string save_file_name = zc_get_config("SAVEFILE", "save_filename", "zc.sav");
-#ifdef __EMSCRIPTEN__
-		// There was a bug that causes browser zc.cfg files to use the wrong value for the save file.
-		if (save_file_name == "zc.sav")
-			save_file_name = "/local/zc.sav";
-#endif
 	return save_file_name;
 }
 
@@ -2200,7 +2195,7 @@ bool saves_create_slot(gamedata* game, bool save_to_disk)
 	save.game = game;
 	save.header = &game->header;
 	save.path = save_to_disk ? create_path_for_new_save(save.header) : "";
-	return do_save_games();
+	return true;
 }
 
 bool saves_create_slot(fs::path path)
@@ -2250,6 +2245,8 @@ void saves_do_first_time_stuff(int index)
 		}
 
 		update_icon(index);
+		save->path = create_path_for_new_save(save->header);
+		saves_write();
 	}
 }
 

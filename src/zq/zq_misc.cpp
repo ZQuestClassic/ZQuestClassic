@@ -24,9 +24,10 @@
 #include "zq/package.h"
 #include "dialog/info.h"
 #include "dialog/about.h"
+#include "dialog/alertfunc.h"
 #include "drawing.h"
 #include "jwin_a5.h"
-#include <string.h>
+#include <cstring>
 #include <stdio.h>
 #include <sstream>
 #include "zinfo.h"
@@ -957,35 +958,57 @@ int32_t checksave()
         sprintf(buf,"Save this quest file?");
     else
         sprintf(buf,"Save changes to %s?",name);
-
-    switch(jwin_alert3("ZQuest",buf,NULL,NULL,"&Yes","&No","Cancel",'y','n',27,get_zc_font(font_lfont)))
-    {
-    case 1:
-        onSave();
-        return 1;
-
-    case 2:
-        return 1;
-    }
-
-    return 0;
+	
+	int ret = 0;
+	AlertFuncDialog("ZQuest",
+		buf,
+		"",
+		3, 0, //3 buttons, where buttons[0] is focused
+		{ "&Yes", "&No", "Cancel" },
+		{
+			[&ret](){onSave(); ret = 1; return true;}, 
+			[&ret](){ret = 1; return true;},
+			nullptr
+		}
+	).show();
+	
+    return ret;
 }
-
+extern bool mid_quitting_dlg;
 int32_t onExit()
 {
 #ifdef __EMSCRIPTEN__
 	return D_O_K;
 #endif
+	mid_quitting_dlg = true;
+	
+	restore_mouse();
 
-    restore_mouse();
-
-    if(checksave()==0)
-        return D_O_K;
-
-    if(jwin_alert("ZQuest","Really want to quit?", NULL, NULL, "&Yes", "&No", 'y', 'n', get_zc_font(font_lfont)) == 2)
-        return D_O_K;
-
-    return D_CLOSE;
+	if(checksave()==0)
+		return D_O_K;
+	
+	
+	static char dlg_warn[] = "Any changes in the current dialog will not be saved!";
+	char* l2 = dialog_open_quit ? dlg_warn : nullptr;
+	
+	std::string exittxt = fmt::format("Really want to quit?{}",
+		dialog_open_quit ? "\nAny changes in the current dialog will not be saved!" : "");
+	
+	int ret = D_CLOSE;
+	
+	AlertFuncDialog("ZQuest",
+		exittxt,
+		"",
+		2, 0, //2 buttons, where buttons[0] is focused
+		{ "&Yes", "&No" },
+		{
+			nullptr,
+			[&ret](){ret = D_O_K; return true;}
+		}
+	).show();
+	
+	mid_quitting_dlg = false;
+	return ret;
 }
 
 int32_t onAbout()
@@ -998,19 +1021,19 @@ int32_t onAbout()
 		char buf3[80]={0};
 #if V_ZC_ALPHA
         {
-            sprintf(buf1,"ZQuest %s Alpha Build %d - DEBUG",ZQ_EDITOR_V, VERSION_BUILD);
+            sprintf(buf1,"ZQuest %s Alpha - DEBUG",ZQ_EDITOR_V);
         }
 #elif V_ZC_BETA
         {
-            sprintf(buf1,"ZQuest %s Beta Build %d - DEBUG",ZQ_EDITOR_V, VERSION_BUILD);
+            sprintf(buf1,"ZQuest %s Beta - DEBUG",ZQ_EDITOR_V);
         }
 #elif V_ZC_GAMMA
         {
-            sprintf(buf1,"ZQuest %s Gamma Build %d - DEBUG",ZQ_EDITOR_V, VERSION_BUILD);
+            sprintf(buf1,"ZQuest %s Gamma - DEBUG",ZQ_EDITOR_V);
         }
 #else
         {
-            sprintf(buf1,"ZQuest %s Build %d - DEBUG",ZQ_EDITOR_V, VERSION_BUILD);
+            sprintf(buf1,"ZQuest %s - DEBUG",ZQ_EDITOR_V);
         }
 #endif
         sprintf(buf2,"Tag: %s", getReleaseTag());

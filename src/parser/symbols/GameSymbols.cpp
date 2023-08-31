@@ -125,7 +125,7 @@ static AccessorTable gameTable[] =
 //	Versioning
 	{ "getZScriptVersion",          0,         ZTID_FLOAT,   ZSCRIPTVERSION,            0,  { ZTID_GAME },{} },
 	{ "getVersion",                 0,         ZTID_FLOAT,   ZELDAVERSION,              0,  { ZTID_GAME },{} },
-	{ "getBuild",                   0,         ZTID_FLOAT,   ZELDABUILD,                0,  { ZTID_GAME },{} },
+	{ "getBuild",                   0,         ZTID_FLOAT,   ZELDABUILD,                FL_DEPR,  { ZTID_GAME },{} },
 	{ "getBeta",                    0,         ZTID_FLOAT,   ZELDABETA,                 0,  { ZTID_GAME },{} },
 	{ "getBetaType",                0,         ZTID_FLOAT,   ZELDABETATYPE,             0,  { ZTID_GAME },{} },
 	{ "getDisableActiveSubscreen",  0,          ZTID_BOOL,   NOACTIVESUBSC,             0,  { ZTID_GAME },{} },

@@ -9,7 +9,7 @@
 #include <math.h>
 #include <limits>
 #include <assert.h>
-#include <string.h>
+#include <cstring>
 
 #define FIX_NAN 0
 //std::numeric_limits<t>::quiet_NaN()

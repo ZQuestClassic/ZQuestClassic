@@ -661,8 +661,8 @@ void putitem3(BITMAP *dest,int32_t x,int32_t y,int32_t item_id, int32_t clk)
 //some methods for dealing with items
 int32_t getItemFamily(itemdata* items, int32_t item)
 {
-	if(item < 0 || item >= MAXITEMS) return -1;
-	return items[item&0xFFF].family;
+	if(item < 0) return -1;
+	return items[item&0xFF].family;
 }
 
 void removeItemsOfFamily(gamedata *g, itemdata *items, int32_t family)

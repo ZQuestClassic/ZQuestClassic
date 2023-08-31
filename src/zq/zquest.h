@@ -7,6 +7,7 @@
 #include "jwin.h"
 #include "base/jwinfsel.h"
 #include "zcmusic.h"
+#include "zcmixer.h"
 #include "sprite.h"
 #include "gamedata.h"
 #include "parser/parserDefs.h"

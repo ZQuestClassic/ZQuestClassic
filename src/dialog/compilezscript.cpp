@@ -289,10 +289,8 @@ bool do_compile_and_slots(int assign_mode, bool delay)
 				"\nAssigns global/hero scripts to empty slots of the same name"
 				"\nAssigns all other unassigned scripts to slots",
 				4, 2, //4 where [2] is focused
-				"Quick Assign", quickassign,
-				"Smart Assign", smartassign,
-				"OK", NULL,
-				"Cancel", docancel
+				{ "Quick Assign", "Smart Assign", "OK", "Cancel" },
+				{ quickassign, smartassign, nullptr, docancel }
 			).show();
 			assign_mode = g_assign_mode;
 		}
@@ -417,8 +415,8 @@ bool do_compile_and_slots(int assign_mode, bool delay)
 				"and that \"Quest Ver\" is the same or higher than \"Min. Ver\"",
 				"",
 				2, 1, //2 buttons, where buttons[1] is focused
-				"Header", doCompileOpenHeaderDlg,
-				"OK", NULL
+				{ "Header", "OK" },
+				{ doCompileOpenHeaderDlg, nullptr }
 			).show();
 		}
 	}
