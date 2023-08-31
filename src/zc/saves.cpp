@@ -45,11 +45,6 @@ save_t::~save_t()
 static fs::path get_legacy_save_file_path()
 {
 	std::string save_file_name = zc_get_config("SAVEFILE", "save_filename", "zc.sav");
-#ifdef __EMSCRIPTEN__
-		// There was a bug that causes browser zc.cfg files to use the wrong value for the save file.
-		if (save_file_name == "zc.sav")
-			save_file_name = "/local/zc.sav";
-#endif
 	return save_file_name;
 }
 

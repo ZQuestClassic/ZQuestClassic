@@ -160,6 +160,7 @@ if 'TEST' in os.environ:
     tc.assertEqual(preprocess_base_config('ignore_monitor_scale = 0 #? windows = 1 ; mac = 2', 'mac'), 'ignore_monitor_scale = 2')
     tc.assertEqual(preprocess_base_config('ignore_monitor_scale = 0 #? windows = 1 ; mac = 2', 'windows'), 'ignore_monitor_scale = 1')
     tc.assertEqual(preprocess_base_config('ignore_monitor_scale = 0 #? windows = 1 ; mac = 2', 'linux'), 'ignore_monitor_scale = 0')
+    tc.assertEqual(preprocess_base_config('ignore_monitor_scale = no #? windows = yes', 'windows'), 'ignore_monitor_scale = yes')
 elif args.extras:
     do_packaging(packages_dir / 'extras', extras)
 else:
