@@ -3947,3 +3947,65 @@ enum
 DEFINE CIID_FLAG_CHECKCOST     = 0x01;
 DEFINE CIID_FLAG_CHECKJINX     = 0x02;
 DEFINE CIID_FLAG_CHECKBUNNY    = 0x04;
+
+//{ This section for engine subscreen stuff
+enum //Subscreen Types
+{
+	SSTYPE_ACTIVE,
+	SSTYPE_PASSIVE,
+	SSTYPE_OVERLAY,
+	SSTYPE_MAX
+};
+
+//Subscreen Flags
+enum
+{
+	SSFL_ACTIVE_NOPAGEWRAP,
+	SSFL_ACTIVE_OVERRIDE_SELECTOR,
+	SSFL_ACTIVE_MAX
+};
+enum
+{
+	SSFL_PASSIVE_MAX
+};
+enum
+{
+	SSFL_OVERLAY_MAX
+};
+
+enum //Transition Types
+{
+	TRANS_TY_NONE = -1,
+	TRANS_TY_INSTANT,
+	TRANS_TY_SLIDE,
+	TRANS_TY_PIXEL,
+	TRANS_TY_MAX
+};
+
+//Transition arguments
+enum
+{
+	TRANS_INSTANT_ARG_MAX
+};
+enum
+{
+	TRANS_SLIDE_ARG_DIR,
+	TRANS_SLIDE_ARG_SPEED,
+	TRANS_SLIDE_ARG_MAX
+};
+enum
+{
+	TRANS_PIXEL_ARG_INVERT,
+	TRANS_PIXEL_ARG_DURATION,
+	TRANS_PIXEL_ARG_XOFF,
+	TRANS_PIXEL_ARG_YOFF,
+	TRANS_PIXEL_ARG_MAX
+};
+
+enum //Transition Flags
+{
+	TRANSFLAG_NO_HIDE_SELECTOR,
+	TRANSFLAG_MAX
+};
+//} End section for engine subscreen stuff
+

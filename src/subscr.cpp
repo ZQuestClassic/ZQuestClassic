@@ -28,6 +28,8 @@ int get_sub_dmap();
 
 ZCSubscreen *new_subscreen_active = nullptr, *new_subscreen_passive = nullptr,
 	*new_subscreen_overlay = nullptr;
+int new_sub_indexes[3] = {0};
+bool subscreen_open = false;
 
 std::vector<ZCSubscreen> subscreens_active, subscreens_passive, subscreens_overlay;
 
@@ -3347,15 +3349,25 @@ void update_subscreens(int32_t dmap)
 		dmap=get_sub_dmap();
 	
 	ZCSubscreen *next_active = nullptr, *next_passive = nullptr, *next_overlay = nullptr;
+	new_sub_indexes[0] = new_sub_indexes[1] = new_sub_indexes[2] = -1;
 	int indx = DMaps[dmap].active_subscreen;
 	if(unsigned(indx) < subscreens_active.size())
+	{
 		next_active = &subscreens_active[indx];
+		new_sub_indexes[sstACTIVE] = indx;
+	}
 	indx = DMaps[dmap].passive_subscreen;
 	if(unsigned(indx) < subscreens_passive.size())
+	{
 		next_passive = &subscreens_passive[indx];
+		new_sub_indexes[sstPASSIVE] = indx;
+	}
 	indx = DMaps[dmap].overlay_subscreen;
 	if(unsigned(indx) < subscreens_overlay.size())
+	{
 		next_overlay = &subscreens_overlay[indx];
+		new_sub_indexes[sstOVERLAY] = indx;
+	}
 	
 	if(get_qr(qr_OLD_SUBSCR) && new_subscreen_active)
 	{

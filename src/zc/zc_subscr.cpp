@@ -104,6 +104,7 @@ void dosubscr()
 	}
 	
 	subscrpg_clear_animation();
+	subscreen_open = true;
 	for(int32_t y=176-2; y>=6; y-=3*Hero.subscr_speed)
 	{
 		do_dcounters();
@@ -456,7 +457,7 @@ void dosubscr()
 		if(Quit)
 			return;
 	}
-	
+	subscreen_open = false;
 	if(usebombpal)
 	{
 		memcpy(RAMpal, temppal, PAL_SIZE*sizeof(RGB));

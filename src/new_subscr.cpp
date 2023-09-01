@@ -60,7 +60,7 @@ const std::string subscr_infos[sstMAX] = {
 
 SubscrTransition subscr_pg_transition;
 int subscr_item_clk = 0, subscr_pg_clk = 0;
-static byte subscr_pg_from, subscr_pg_to;
+byte subscr_pg_from, subscr_pg_to;
 static ZCSubscreen* subscr_anim = nullptr;
 
 int subscr_override_clkoffsets[MAXITEMS];
@@ -927,6 +927,20 @@ byte SubscrTransition::num_args(byte ty)
 			return 4;
 	}
 	return 0;
+}
+int32_t SubscrTransition::argScale(byte ty, byte ind)
+{
+	switch(ty)
+	{
+		case sstrSLIDE:
+			switch(ind)
+			{
+				case 1:
+					return 1;
+			}
+			break;
+	}
+	return 10000;
 }
 
 SubscrWidget::SubscrWidget(byte ty) : SubscrWidget()

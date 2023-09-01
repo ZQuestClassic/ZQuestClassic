@@ -51,6 +51,9 @@ LibrarySymbols* LibrarySymbols::getTypeInstance(DataTypeId typeId)
 		case ZTID_GENERICDATA: return &GenericDataSymbols::getInst();
 		case ZTID_PORTAL: return &PortalSymbols::getInst();
 		case ZTID_SAVPORTAL: return &SavedPortalSymbols::getInst();
+		case ZTID_SUBSCREENDATA: return &SubscreenDataSymbols::getInst();
+		case ZTID_SUBSCREENPAGE: return &SubscreenPageSymbols::getInst();
+		case ZTID_SUBSCREENWIDGET: return &SubscreenWidgetSymbols::getInst();
 		default: return &nilsymbols;
     }
 }

@@ -721,6 +721,13 @@ untyped : A special datatype that can be cast to and from any other type.
 	savedportal :
 		Object type for storing portal data that saves with the save file (See ZScript_Docs.html)
 	
+	subscreendata :
+		Object type for reading/modifying engine Subscreens
+	subscreenpage :
+		Object type for reading/modifying engine Subscreen Pages
+	subscreenwidget :
+		Object type for reading/modifying engine Subscreen Widgets
+	
 	//Planned/Incomplete
 	warpringdata : t/b/a
 		(Planned) Access to all Warpring Editor data.
@@ -736,7 +743,6 @@ untyped : A special datatype that can be cast to and from any other type.
 		(Planned) Access to all global game data (game->, in source)
 	cheatsdata : t/b/a
 		(Planned) Access to cheat code information.
-	subscreendata: t/b/a
 	
 
 ///////////////////////
@@ -3639,6 +3645,19 @@ stack LoadStack();
 genericdata LoadGenericData(int scriptslot);
  * Loads the 'genericdata' pointer referencing the specified generic script slot.
  * Note that '0' is invalid.
+
+subscreendata LoadASubData(int id);
+subscreendata LoadPSubData(int id);
+subscreendata LoadOSubData(int id);
+ * Loads the 'subscreendata' pointer for the specified active/passive/overlay subscreen.
+
+int NumActiveSubscreens();
+int NumPassiveSubscreens();
+int NumOverlaySubscreens();
+ * Returns the total number of active/passive/overlay subscreens
+
+bool ActiveSubscreenOpen;
+ * Read-only. True if the active subscreen is currently open.
 
 bool TypingMode;
  * If set true, all keyboard presses that would ordinarily perform an in-engine action are suppressed.
@@ -8625,6 +8644,129 @@ void Own();
  * Grants 'Ownership' of the pointer to the currently running script.
  * When the script terminates (at the same time any Local Arrays in the script
  *     are cleared), the pointer will be automatically freed.
+
+/////////////////////
+//  subscreendata  //
+///////////////////// subscreendata
+
+//For any subscreen type:
+
+int CurPage;
+ * The currently selected page.
+
+int NumPages;
+ * The total number of pages
+
+subscreenpage Pages[];
+ * Read-only. The array containing the pages
+
+int Type;
+ * Read-only. Compare with the 'SSTYPE_' constants.
+ * The type of the subscreen.
+
+bool Flags[];
+ * The flags of the subscreen. Use the 'SSFL_*_' constants to access.
+
+void GetName(char32[] buf);
+ * Puts the subscreen's name in the buffer.
+ * If the buffer is too small, resizes it for you!
+
+void SetName(char32[] buf);
+ * Sets the subscreen's name from the buffer.
+
+//
+// Only on the CURRENTLY OPEN ACTIVE SUBSCREEN:
+//
+int TransClock;
+ * The timer clock used by the currently active transition.
+int TransType;
+ * The transition type currently active.
+ * Compare with the 'TRANS_TY_' constants.
+ * Will be 'TRANS_TY_NONE' if no transition is currently active.
+ * Write this to forcibly start/stop a transition.
+bool TransFlags[];
+ * The flags for the current transition.
+ * Use the 'TRANSFLAG_' constants to access these.
+int TransArgs[];
+ * The arguments used for the current transition.
+ * Use the 'TRANS_*_ARG_' constants to access these
+int TransFromPage;
+int TransToPage;
+ * The page the currently active transition is going from/to.
+
+//
+// Only on ACTIVE subscreens:
+//
+
+int CursorPos;
+ * The position value of the selector.
+
+int Script;
+ * The subscreen's script.
+untyped InitD[8];
+ * The subscreen's InitD[] parameters
+
+bool BtnPageLeft[8];
+ * Use the 'INTBTN_' constants to index this array.
+ * The 'true' buttons here, when pressed, change pages leftwards.
+bool BtnPageRight[8];
+ * Use the 'INTBTN_' constants to index this array.
+ * The 'true' buttons here, when pressed, change pages rightwards.
+
+
+
+int TransLeftType;
+int TransRightType;
+ * The transition type for left/right transitions.
+ * Compare with the 'TRANS_TY_' constants.
+
+int TransLeftSFX;
+int TransRightSFX;
+ * The transition sfx for left/right transitions.
+
+bool TransLeftFlags[];
+bool TransRightFlags[];
+ * The flags for left/right transitions.
+ * Use the 'TRANSFLAG_' constants to access these.
+
+int TransLeftArgs[];
+int TransRightArgs[];
+ * The arguments used for left/right transitions.
+ * Use the 'TRANS_*_ARG_' constants to access these
+
+
+int SelectorDestX;
+int SelectorDestY;
+int SelectorDestW;
+int SelectorDestH;
+ * The X/Y/W/H offsets for the selector on this subscreen,
+ *     if the selector is overridden (see `Flags[]`).
+ * These values will be ADDED to the x/y/w/h that the
+ *     selector would normally draw to.
+
+int SelectorWid[2];
+int SelectorHei[2];
+int SelectorTile[2];
+int SelectorCSet[2];
+int SelectorFlashCSet[2];
+int SelectorFrames[2];
+int SelectorASpeed[2];
+int SelectorDelay[2];
+ * The pixel-size, tile, cset/flashcset, and animation information for
+ *     the two selector overrides.
+ * These will be used by the selector on this subscreen,
+ *     if the selector is overridden (see `Flags[]`).
+
+/////////////////////
+//  subscreenpage  //
+///////////////////// subscreenpage
+
+
+///////////////////////
+//  subscreenwidget  //
+/////////////////////// subscreenwidget
+
+
 
 ________        ___.                       .__                
 \______ \   ____\_ |__  __ __  ____   ____ |__| ____    ____  
