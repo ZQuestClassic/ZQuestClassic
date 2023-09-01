@@ -943,10 +943,12 @@ GUI::ListData const& GUI::ZCListData::buttons()
 static const GUI::ListData autocombo_types
 {
 	{ "(None)", AUTOCOMBO_NONE },
-	{ "Basic", AUTOCOMBO_BASIC },
+	{ "Basic Relational", AUTOCOMBO_BASIC },
+	{ "Relational", AUTOCOMBO_RELATIONAL },
 	{ "Flat Mountain", AUTOCOMBO_Z1 },
 	{ "Pancake Mountain", AUTOCOMBO_Z4 },
-	{ "Fence", AUTOCOMBO_FENCE }
+	{ "Fence", AUTOCOMBO_FENCE },
+	{ "Dungeon Carving", AUTOCOMBO_DGNCARVE }
 };
 
 GUI::ListData const& GUI::ZCListData::autocombotypes()

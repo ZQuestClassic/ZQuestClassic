@@ -87,6 +87,12 @@ void AutoComboDialog::refreshPanels()
 		case AUTOCOMBO_FENCE:
 			addCombos(val, 21);
 			break;
+		case AUTOCOMBO_RELATIONAL:
+			addCombos(val, 47);
+			break;
+		case AUTOCOMBO_DGNCARVE:
+			addCombos(val, 95);
+			break;
 	}
 }
 
@@ -107,7 +113,9 @@ std::shared_ptr<GUI::Widget> AutoComboDialog::view()
 		info =
 			"Fill in all the boxes with combos as indicated by the engravings to their left.\n"
 			"All boxes need to be filled with combos with no duplicates in order\n"
-			"for the autocombo to function.",
+			"for the autocombo to function.\n\n"
+			"Click 'Generate' to auto generate based on the combo layout of the engravings.\n"
+			"Shift click 'Generate' to fill all remaining empty slots with unique combos.",
 		onClose = message::CANCEL,
 		Column(vAlign = 0.0,
 			Row(vAlign = 0.0,
@@ -161,16 +169,49 @@ std::shared_ptr<GUI::Widget> AutoComboDialog::view()
 					onClick = message::RELOAD,
 					onPressFunc = [&]() {
 						int32_t cmb, cs;
+						bool altmode = key[KEY_LSHIFT] || key[KEY_RSHIFT];
 						if (select_combo_3(cmb, cs))
 						{
+							int32_t filler = 0;
+							if (altmode)
+								filler = cmb;
 							for (auto w : widgs)
 							{
 								if (w.cpane)
 								{
-									int32_t cid = vbound(cmb + combo_auto::convert_offsets(temp_autocombo.getType(), w.slot), 0, MAXCOMBOS-1);
-									w.cpane->setCombo(cid);
-									w.cpane->setCSet(CSet);
-									w.entry->cid = cid;
+									if (altmode)
+									{
+										while (temp_autocombo.containsCombo(filler, false) && filler < MAXCOMBOS - 1)
+											++filler;
+										if (w.cpane->getCombo() == 0)
+										{
+											w.cpane->setCombo(filler);
+											w.cpane->setCSet(CSet);
+											w.entry->cid = filler;
+										}
+									}
+									else
+									{
+										switch (temp_autocombo.getType())
+										{
+										case AUTOCOMBO_RELATIONAL:
+										case AUTOCOMBO_DGNCARVE:
+											if (temp_autocombo.getFlags() & ACF_LEGACY)
+											{
+												int32_t cid = vbound(cmb + combo_auto::legacy_offsets(temp_autocombo.getType(), w.slot), 0, MAXCOMBOS - 1);
+												w.cpane->setCombo(cid);
+												w.cpane->setCSet(CSet);
+												w.entry->cid = cid;
+												break;
+											}
+										default:
+											int32_t cid = vbound(cmb + combo_auto::convert_offsets(temp_autocombo.getType(), w.slot), 0, MAXCOMBOS - 1);
+											w.cpane->setCombo(cid);
+											w.cpane->setCSet(CSet);
+											w.entry->cid = cid;
+											break;
+										}
+									}
 								}
 							}
 						}
@@ -220,6 +261,10 @@ std::shared_ptr<GUI::Widget> AutoComboDialog::view()
 										temp_autocombo.setArg(val);
 									})
 							)
+						),
+						Rows<2>(vAlign = 0.0,
+							AUTO_CB(flags, ACF_CROSSSCREENS, 1, "Cross Screens", "If checked, this autocombo can affect combos on adjacent screens."),
+							AUTO_CB(flags, ACF_LEGACY, 1, "Legacy Ordering", "Makes 'Auto Generate' use combo ordering from older versions.\nFor tilesets that have combos set up for Relational and Dungeon Carving modes")
 						)
 					)
 				))
@@ -298,7 +343,7 @@ void AutoComboDialog::refreshTypes(int32_t type)
 	{
 		case AUTOCOMBO_BASIC:
 			typeinfostr =
-				"A basic general purpose setup. Will tile along cardinal directions.\n\n"
+				"A generic autocombo setup. Will tile along cardinal directions.\n\n"
 				"CONTROLS:\n"
 				"Left Click: Place combo\n"
 				"Right Click: Remove combo (uses the Erase Combo)\n"
@@ -338,6 +383,27 @@ void AutoComboDialog::refreshTypes(int32_t type)
 				"Right Click: Remove combo (uses the Erase Combo)\n"
 				"Ctrl + Click: Flip orientation between inward / outward";
 			switch_settings->switchTo(2);
+			break;
+		case AUTOCOMBO_RELATIONAL:
+			typeinfostr =
+				"A more complex version of the generic setup. Will tile along\n"
+				"cardinal directions, accounting for corners.\n\n"
+				"CONTROLS:\n"
+				"Left Click: Place combo\n"
+				"Right Click: Remove combo (uses the Erase Combo)\n"
+				"Ctrl + Left Click: Fill combos\n"
+				"Ctrl + Right Click: Fill remove combos";
+			switch_settings->switchTo(4);
+			break;
+		case AUTOCOMBO_DGNCARVE:
+			typeinfostr =
+				"An autocombo for making two tile high dungeon walls.\n\n"
+				"CONTROLS:\n"
+				"Left Click: Place combo\n"
+				"Right Click: Remove combo (uses the Erase Combo)\n"
+				"Ctrl + Left Click: Fill combos\n"
+				"Ctrl + Right Click: Fill remove combos";
+			switch_settings->switchTo(4);
 			break;
 		default:
 			switch_settings->switchTo(0);
@@ -400,6 +466,42 @@ void AutoComboDialog::refreshWidgets()
 				0, 0, 0, 0
 			};
 			grid = fence_grid;
+			break;
+		}
+		case AUTOCOMBO_RELATIONAL:
+			break;
+		case AUTOCOMBO_DGNCARVE:
+		{
+			static byte dgn_grid[] = {
+				0, 0, 0, 0,
+				0, 0, 0, 0,
+				0, 0, 0, 0,
+				0, 0, 0, 0,
+				0, 0, 0, 0,
+				0, 0, 0, 0,
+
+				0, 0, 0, 0,
+				0, 0, 0, 0,
+				0, 0, 0, 0,
+				0, 0, 0, 0,
+				0, 0, 0, 0,
+				0, 0, 0, 0,
+
+				0, 0, 0, 0,
+				0, 0, 0, 0,
+				0, 0, 0, 0,
+				0, 0, 0, 0,
+				0, 0, 0, 0,
+				0, 0, 0, 0,
+
+				0, 0, 0, 0,
+				0, 0, 0, 0,
+				0, 0, 0, 0,
+				0, 0, 0, 0,
+				0, 0, 0, 0,
+				0, 1, 0
+			};
+			grid = dgn_grid;
 			break;
 		}
 	}

@@ -44,6 +44,8 @@
 #include "zq/autocombo/pattern_flatmtn.h"
 #include "zq/autocombo/pattern_fence.h"
 #include "zq/autocombo/pattern_cakemtn.h"
+#include "zq/autocombo/pattern_relational.h"
+#include "zq/autocombo/pattern_dungeoncarve.h"
 #include "base/misctypes.h"
 #include "parser/Compiler.h"
 #include "base/zc_alleg.h"
@@ -7602,6 +7604,15 @@ void draw_autocombo(int32_t pos, bool rclick)
 			case AUTOCOMBO_Z4:
 			{
 				AutoPattern::autopattern_cakemtn ap(ca.getType(), CurrentLayer, scr, pos, &ca, !(ca.flags & ACF_CROSSSCREENS), !(ca.flags & ACF_FLIP), cauto_height);
+				if (rclick)
+					ap.erase(scr, pos);
+				else
+					ap.execute(scr, pos);
+				break;
+			}
+			case AUTOCOMBO_RELATIONAL:
+			{
+				AutoPattern::autopattern_relational ap(ca.getType(), CurrentLayer, scr, pos, &ca, !(ca.flags & ACF_CROSSSCREENS));
 				if (rclick)
 					ap.erase(scr, pos);
 				else

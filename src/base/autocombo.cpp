@@ -13,6 +13,8 @@ int16_t autocombo_entry::base_engrave_offset(byte type)
 		case AUTOCOMBO_BASIC: return 16;
 		case AUTOCOMBO_FENCE: return 32;
 		case AUTOCOMBO_Z4: return 64;
+		case AUTOCOMBO_RELATIONAL: return 112;
+		case AUTOCOMBO_DGNCARVE: return 160;
 	}
 	return 0;
 }
@@ -73,9 +75,9 @@ void combo_auto::updateValid()
 	flags |= ACF_VALID;
 }
 
-bool combo_auto::containsCombo(int32_t cid) const
+bool combo_auto::containsCombo(int32_t cid, bool requirevalid) const
 {
-	if (!valid())
+	if (!valid() && requirevalid)
 		return false;
 
 	for (auto c : combos)
@@ -94,6 +96,120 @@ int32_t combo_auto::getDisplay() const
 	{
 		if (c.cid > 0)
 			return c.cid;
+	}
+	return 0;
+}
+
+int32_t combo_auto::legacy_offsets(byte type, int16_t offset)
+{
+	switch (type)
+	{
+		case AUTOCOMBO_RELATIONAL:
+			switch (offset)
+			{
+				case 0:
+					return 31;
+				case 1:
+					return 20;
+				case 2:
+					return 24;
+				case 3:
+					return 33;
+				case 4:
+					return 26;
+				case 5:
+					return 0;
+				case 6:
+					return 16;
+				case 7:
+					return 30;
+				case 8:
+					return 42;
+				case 9:
+					return 34;
+				case 10:
+					return 38;
+				case 11:
+					return 44;
+				case 12:
+					return 45;
+				case 13:
+					return 40;
+				case 14:
+					return 41;
+				case 15:
+					return 46;
+				case 16:
+					return 8;
+				case 17:
+					return 4;
+				case 18:
+					return 32;
+				case 19:
+					return 25;
+				case 20:
+					return 1;
+				case 21:
+					return 2;
+				case 22:
+					return 43;
+				case 23:
+					return 39;
+				case 24:
+					return 12;
+				case 25:
+					return 6;
+				case 26:
+					return 23;
+				case 27:
+					return 19;
+				case 28:
+					return 9;
+				case 29:
+					return 3;
+				case 30:
+					return 29;
+				case 31:
+					return 37;
+				case 32:
+					return 21;
+				case 33:
+					return 22;
+				case 34:
+					return 27;
+				case 35:
+					return 17;
+				case 36:
+					return 36;
+				case 37:
+					return 35;
+				case 38:
+					return 28;
+				case 39:
+					return 18;
+				case 40:
+					return 7;
+				case 41:
+					return 11;
+				case 42:
+					return 5;
+				case 43:
+					return 10;
+				case 44:
+					return 14;
+				case 45:
+					return 13;
+				case 46:
+					return 15;
+			}
+			break;
+		case AUTOCOMBO_DGNCARVE:
+			switch (offset)
+			{
+				default:
+					return 0;
+			}
+			break;
 	}
 	return 0;
 }

@@ -6,13 +6,14 @@
 #include "base/ints.h"
 #include "base/general.h"
 
-enum { AUTOCOMBO_NONE, AUTOCOMBO_Z1, AUTOCOMBO_BASIC, AUTOCOMBO_FENCE, AUTOCOMBO_Z4 };
+enum { AUTOCOMBO_NONE, AUTOCOMBO_Z1, AUTOCOMBO_BASIC, AUTOCOMBO_FENCE, AUTOCOMBO_Z4, AUTOCOMBO_RELATIONAL, AUTOCOMBO_DGNCARVE };
 
 enum
 {
 	ACF_VALID =        0x1,
 	ACF_CROSSSCREENS = 0x2,
-	ACF_FLIP         = 0x4
+	ACF_FLIP         = 0x4,
+	ACF_LEGACY       = 0x4 // used by Relational and Dungeon Carving, neither of which use flip
 };
 
 struct autocombo_entry
@@ -66,7 +67,7 @@ struct combo_auto
 	}
 	void updateValid();
 
-	bool containsCombo(int32_t cid) const;
+	bool containsCombo(int32_t cid, bool requirevalid = true) const;
 
 	byte getFlags() const
 	{
@@ -112,6 +113,7 @@ struct combo_auto
 		cid_erase = newerase;
 	}
 
+	static int32_t legacy_offsets(byte type, int16_t offset);
 	static int32_t convert_offsets(byte type, int16_t offset);
 
 	std::map<int32_t,byte> getMapping();
