@@ -8679,11 +8679,11 @@ void SetName(char32[] buf);
 //
 int TransClock;
  * The timer clock used by the currently active transition.
+ * '-1' indicates no transition. Writing to '-1' clears the current transition.
+ * Writing a positive value starts a transition if none is currently active.
 int TransType;
  * The transition type currently active.
  * Compare with the 'TRANS_TY_' constants.
- * Will be 'TRANS_TY_NONE' if no transition is currently active.
- * Write this to forcibly start/stop a transition.
 bool TransFlags[];
  * The flags for the current transition.
  * Use the 'TRANSFLAG_' constants to access these.
@@ -8697,6 +8697,9 @@ int TransToPage;
 //
 // Only on ACTIVE subscreens:
 //
+
+void SwapPages(int index1, int index2);
+ * Swaps the pages at the two indexes.
 
 int CursorPos;
  * The position value of the selector.
@@ -8761,6 +8764,45 @@ int SelectorDelay[2];
 //  subscreenpage  //
 ///////////////////// subscreenpage
 
+int Index;
+ * Read-only. The index of this page within the subscreen.
+
+int NumWidgets;
+ * Read-only. The number of widgets on the page.
+
+subscreenwidget Widgets[];
+ * Read-only. The widgets on the page, ordered by their index.
+
+subscreendata SubData;
+ * Read-only. The subscreendata that owns this page.
+
+//
+// Only on ACTIVE subscreens:
+//
+
+int CursorPos;
+ * The position value of the selector.
+
+subscreenwidget CreateWidget(int type);
+ * Adds a new widget of the specified type to the end of the page.
+ * Returns that widget, or NULL if fails.
+
+void SwapWidgets(int index1, int index2);
+ * Swaps the widgets at the two indexes.
+
+subscreenwidget FindWidget(int cursor_pos);
+ * Returns the widget designated by the specified cursor position,
+ *     or NULL if it fails.
+
+int SelectorMove(int cursor_pos, int dir, int flags)
+ * Returns the new cursor position found by moving in 'dir' from 'cursor_pos'.
+ * 'flags' determines:
+ *   - SUBSEL_FLAG_NO_NONEQUIP: Skip widgets that are "Non-equippable"
+ *   - SUBSEL_FLAG_NEED_ITEM: Skip widgets that currently have no equippable item
+
+void Delete();
+ * Deletes the page.
+ * If it is the last page, an empty page will be created in its' place.
 
 ///////////////////////
 //  subscreenwidget  //

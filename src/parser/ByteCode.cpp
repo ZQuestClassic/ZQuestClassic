@@ -2327,14 +2327,14 @@ string ZScript::VarToString(int32_t ID)
 		case SUBDATATRANSTOPG: return "SUBDATATRANSTOPG";
 		case SUBDATASELECTORFLASHCSET: return "SUBDATASELECTORFLASHCSET";
 		case GAMEASUBOPEN: return "GAMEASUBOPEN";
-		case RESRVD_VAR_EMILY_84: return "RESRVD_VAR_EMILY_84";
-		case RESRVD_VAR_EMILY_85: return "RESRVD_VAR_EMILY_85";
-		case RESRVD_VAR_EMILY_86: return "RESRVD_VAR_EMILY_86";
-		case RESRVD_VAR_EMILY_87: return "RESRVD_VAR_EMILY_87";
-		case RESRVD_VAR_EMILY_88: return "RESRVD_VAR_EMILY_88";
-		case RESRVD_VAR_EMILY_89: return "RESRVD_VAR_EMILY_89";
-		case RESRVD_VAR_EMILY_90: return "RESRVD_VAR_EMILY_90";
-		case RESRVD_VAR_EMILY_91: return "RESRVD_VAR_EMILY_91";
+		case GAMENUMASUB: return "GAMENUMASUB";
+		case GAMENUMPSUB: return "GAMENUMPSUB";
+		case GAMENUMOSUB: return "GAMENUMOSUB";
+		case SUBPGINDEX: return "SUBPGINDEX";
+		case SUBPGNUMWIDG: return "SUBPGNUMWIDG";
+		case SUBPGWIDGETS: return "SUBPGWIDGETS";
+		case SUBPGSUBDATA: return "SUBPGSUBDATA";
+		case SUBPGCURSORPOS: return "SUBPGCURSORPOS";
 		case RESRVD_VAR_EMILY_92: return "RESRVD_VAR_EMILY_92";
 		case RESRVD_VAR_EMILY_93: return "RESRVD_VAR_EMILY_93";
 		case RESRVD_VAR_EMILY_94: return "RESRVD_VAR_EMILY_94";
@@ -2703,9 +2703,9 @@ string OLoadSubscreenDataRV::toString() const
 {
 	return "LOADSUBDATARV " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();
 }
-string ONumSubscreensV::toString() const
+string OSwapSubscrV::toString() const
 {
-	return "NUMSUBSCREENSV " + getArgument()->toString();
+	return "SWAPSUBSCREENV " + getArgument()->toString();
 }
 string OGetSubscreenName::toString() const
 {
@@ -6731,29 +6731,29 @@ string OReservedZ3_10::toString() const
 }
 
 
-string OReservedEmily_3::toString() const
+string OSubscrSwapPages::toString() const
 {
-	return "RESRVD_OP_EMILY_3";
+	return "SUBDATA_SWAP_PAGES";
 }
-string OReservedEmily_4::toString() const
+string OSubscrPgFindWidget::toString() const
 {
-	return "RESRVD_OP_EMILY_4";
+	return "SUBPAGE_FIND_WIDGET";
 }
-string OReservedEmily_5::toString() const
+string OSubscrPgMvCursor::toString() const
 {
-	return "RESRVD_OP_EMILY_5";
+	return "SUBPAGE_MOVE_SEL";
 }
-string OReservedEmily_6::toString() const
+string OSubscrPgSwapWidgets::toString() const
 {
-	return "RESRVD_OP_EMILY_6";
+	return "SUBPAGE_SWAP_WIDG";
 }
-string OReservedEmily_7::toString() const
+string OSubscrPgNewWidget::toString() const
 {
-	return "RESRVD_OP_EMILY_7";
+	return "SUBPAGE_NEW_WIDG";
 }
-string OReservedEmily_8::toString() const
+string OSubscrPgDelete::toString() const
 {
-	return "RESRVD_OP_EMILY_8";
+	return "SUBPAGE_DELETE";
 }
 string OReservedEmily_9::toString() const
 {

@@ -191,9 +191,15 @@ static AccessorTable gameTable[] =
 	{ "LoadASubData",               0, ZTID_SUBSCREENDATA,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
 	{ "LoadPSubData",               0, ZTID_SUBSCREENDATA,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
 	{ "LoadOSubData",               0, ZTID_SUBSCREENDATA,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
-	{ "NumActiveSubscreens",        0,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_GAME },{} },
-	{ "NumPassiveSubscreens",       0,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_GAME },{} },
-	{ "NumOverlaySubscreens",       0,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_GAME },{} },
+	{ "SwapActiveSubscreens",       0,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SwapPassiveSubscreens",      0,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SwapOverlaySubscreens",      0,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "getNumActiveSubscreens",     0,         ZTID_FLOAT,   GAMENUMASUB,          FL_INL,  { ZTID_GAME },{} },
+	{ "setNumActiveSubscreens",     0,          ZTID_VOID,   GAMENUMASUB,          FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "getNumPassiveSubscreens",    0,         ZTID_FLOAT,   GAMENUMPSUB,          FL_INL,  { ZTID_GAME },{} },
+	{ "setNumPassiveSubscreens",    0,          ZTID_VOID,   GAMENUMPSUB,          FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "getNumOverlaySubscreens",    0,         ZTID_FLOAT,   GAMENUMOSUB,          FL_INL,  { ZTID_GAME },{} },
+	{ "setNumOverlaySubscreens",    0,          ZTID_VOID,   GAMENUMOSUB,          FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
 	
 	//Intentionally undocumented
 	{ "getSTD[]",                   0,       ZTID_UNTYPED,   STDARR,                    0,  { ZTID_GAME, ZTID_FLOAT },{} },
@@ -429,35 +435,35 @@ void GameSymbols::generateCode()
 		function->giveCode(code);
 	}
 	
-	//NumActiveSubscreens
+	//SwapActiveSubscreens
 	{
-		Function* function = getFunction("NumActiveSubscreens");
+		Function* function = getFunction("SwapActiveSubscreens");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		ASSERT_NUL();
-		addOpcode2 (code, new ONumSubscreensV(new LiteralArgument(0*10000)));
+		addOpcode2 (code, new OSwapSubscrV(new LiteralArgument(0*10000)));
 		LABELBACK(label);
 		RETURN();
 		function->giveCode(code);
 	}
-	//NumPassiveSubscreens
+	//SwapPassiveSubscreens
 	{
-		Function* function = getFunction("NumPassiveSubscreens");
+		Function* function = getFunction("SwapPassiveSubscreens");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		ASSERT_NUL();
-		addOpcode2 (code, new ONumSubscreensV(new LiteralArgument(1*10000)));
+		addOpcode2 (code, new OSwapSubscrV(new LiteralArgument(1*10000)));
 		LABELBACK(label);
 		RETURN();
 		function->giveCode(code);
 	}
-	//NumOverlaySubscreens
+	//SwapOverlaySubscreens
 	{
-		Function* function = getFunction("NumOverlaySubscreens");
+		Function* function = getFunction("SwapOverlaySubscreens");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
 		ASSERT_NUL();
-		addOpcode2 (code, new ONumSubscreensV(new LiteralArgument(2*10000)));
+		addOpcode2 (code, new OSwapSubscrV(new LiteralArgument(2*10000)));
 		LABELBACK(label);
 		RETURN();
 		function->giveCode(code);
