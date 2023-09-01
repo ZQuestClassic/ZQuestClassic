@@ -1617,14 +1617,14 @@
 #define SUBDATATRANSTOPG     1529
 #define SUBDATASELECTORFLASHCSET     1530
 #define GAMEASUBOPEN     1531
-#define RESRVD_VAR_EMILY_84     1532
-#define RESRVD_VAR_EMILY_85     1533
-#define RESRVD_VAR_EMILY_86     1534
-#define RESRVD_VAR_EMILY_87     1535
-#define RESRVD_VAR_EMILY_88     1536
-#define RESRVD_VAR_EMILY_89     1537
-#define RESRVD_VAR_EMILY_90     1538
-#define RESRVD_VAR_EMILY_91     1539
+#define GAMENUMASUB     1532
+#define GAMENUMPSUB     1533
+#define GAMENUMOSUB     1534
+#define SUBPGINDEX     1535
+#define SUBPGNUMWIDG     1536
+#define SUBPGWIDGETS     1537
+#define SUBPGSUBDATA     1538
+#define SUBPGCURSORPOS     1539
 #define RESRVD_VAR_EMILY_92     1540
 #define RESRVD_VAR_EMILY_93     1541
 #define RESRVD_VAR_EMILY_94     1542
@@ -2544,14 +2544,14 @@ namespace ZScript
 			return new OLoadSubscreenDataRV(a->clone(),b->clone());
 		}
 	};
-	class ONumSubscreensV : public UnaryOpcode
+	class OSwapSubscrV : public UnaryOpcode
 	{
 	public:
-		ONumSubscreensV(Argument *A) : UnaryOpcode(A) {}
+		OSwapSubscrV(Argument *A) : UnaryOpcode(A) {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new ONumSubscreensV(a->clone());
+			return new OSwapSubscrV(a->clone());
 		}
 	};
 	class OGetSubscreenName : public UnaryOpcode
@@ -11738,63 +11738,63 @@ namespace ZScript
 
 
 
-	class OReservedEmily_3 : public Opcode
+	class OSubscrSwapPages : public Opcode
 	{
 	public:
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OReservedEmily_3();
+			return new OSubscrSwapPages();
 		}
 	};
 
-	class OReservedEmily_4 : public Opcode
+	class OSubscrPgFindWidget : public Opcode
 	{
 	public:
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OReservedEmily_4();
+			return new OSubscrPgFindWidget();
 		}
 	};
 
-	class OReservedEmily_5 : public Opcode
+	class OSubscrPgMvCursor : public Opcode
 	{
 	public:
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OReservedEmily_5();
+			return new OSubscrPgMvCursor();
 		}
 	};
 
-	class OReservedEmily_6 : public Opcode
+	class OSubscrPgSwapWidgets : public Opcode
 	{
 	public:
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OReservedEmily_6();
+			return new OSubscrPgSwapWidgets();
 		}
 	};
 
-	class OReservedEmily_7 : public Opcode
+	class OSubscrPgNewWidget : public Opcode
 	{
 	public:
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OReservedEmily_7();
+			return new OSubscrPgNewWidget();
 		}
 	};
 
-	class OReservedEmily_8 : public Opcode
+	class OSubscrPgDelete : public Opcode
 	{
 	public:
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OReservedEmily_8();
+			return new OSubscrPgDelete();
 		}
 	};
 

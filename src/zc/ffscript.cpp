@@ -13651,6 +13651,21 @@ int32_t get_register(const int32_t arg)
 			ret = subscreen_open ? 10000 : 0;
 			break;
 		}
+		case GAMENUMASUB:
+		{
+			ret = subscreens_active.size()*10000;
+			break;
+		}
+		case GAMENUMPSUB:
+		{
+			ret = subscreens_passive.size()*10000;
+			break;
+		}
+		case GAMENUMOSUB:
+		{
+			ret = subscreens_overlay.size()*10000;
+			break;
+		}
 		
 		///----------------------------------------------------------------------------------------------------//
 		
@@ -14035,6 +14050,7 @@ int32_t get_register(const int32_t arg)
 		///---- CURRENTLY OPEN ACTIVE SUBSCREEN ONLY
 		case SUBDATATRANSCLK:
 		{
+			ret = -10000;
 			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransClock", sstACTIVE))
 			{
 				if(sub != new_subscreen_active)
@@ -14121,6 +14137,40 @@ int32_t get_register(const int32_t arg)
 			break;
 		}
 		
+		///----------------------------------------------------------------------------------------------------//
+		case SUBPGINDEX: 
+		{
+			if(SubscrPage* pg = checkSubPage(ri->subpageref, "Index"))
+				ret = pg->getIndex() * 10000;
+			break;
+		}
+		case SUBPGNUMWIDG: 
+		{
+			if(SubscrPage* pg = checkSubPage(ri->subpageref, "NumWidgets"))
+				ret = pg->size() * 10000;
+			break;
+		}
+		case SUBPGWIDGETS: 
+		{
+			if(SubscrPage* pg = checkSubPage(ri->subpageref, "Widgets[]"))
+				ret = pg->size() * 10000;
+			break;
+		}
+		case SUBPGSUBDATA: 
+		{
+			if(SubscrPage* pg = checkSubPage(ri->subpageref, "SubData"))
+			{
+				auto [sub,ty,_pgid,_ind] = from_subref(ri->subpageref);
+				ret = get_subref(sub,ty,0,0);
+			}
+			break;
+		}
+		case SUBPGCURSORPOS: 
+		{
+			if(SubscrPage* pg = checkSubPage(ri->subpageref, "CursorPos"))
+				ret = pg->cursor_pos * 10000;
+			break;
+		}
 		///----------------------------------------------------------------------------------------------------//
 		
 		default:
@@ -24484,6 +24534,51 @@ void set_register(int32_t arg, int32_t value)
 			break;
 		}
 		
+		case GAMENUMASUB:
+		{
+			if(value >= 0)
+			{
+				size_t sz = vbound(value/10000, 0, 256);
+				while(subscreens_active.size() < sz)
+				{
+					auto& sub = subscreens_active.emplace_back();
+					sub.sub_type = sstACTIVE;
+				}
+				while(subscreens_active.size() > sz)
+					subscreens_active.pop_back();
+			}
+			break;
+		}
+		case GAMENUMPSUB:
+		{
+			if(value >= 0)
+			{
+				size_t sz = vbound(value/10000, 0, 256);
+				while(subscreens_passive.size() < sz)
+				{
+					auto& sub = subscreens_passive.emplace_back();
+					sub.sub_type = sstPASSIVE;
+				}
+				while(subscreens_passive.size() > sz)
+					subscreens_passive.pop_back();
+			}
+			break;
+		}
+		case GAMENUMOSUB:
+		{
+			if(value >= 0)
+			{
+				size_t sz = vbound(value/10000, 0, 256);
+				while(subscreens_overlay.size() < sz)
+				{
+					auto& sub = subscreens_overlay.emplace_back();
+					sub.sub_type = sstOVERLAY;
+				}
+				while(subscreens_overlay.size() > sz)
+					subscreens_overlay.pop_back();
+			}
+			break;
+		}
 		///----------------------------------------------------------------------------------------------------//
 		
 		case SUBDATACURPG:
@@ -24859,7 +24954,19 @@ void set_register(int32_t arg, int32_t value)
 					Z_scripterrlog("'subscreendata->TransClock' is only"
 						" valid for the current active subscreen!\n");
 				else if(subscreen_open)
-					subscr_pg_clk = value/10000;
+				{
+					int val = value/10000;
+					if(val < 0)
+						subscrpg_clear_animation();
+					else if(!subscr_pg_animating)
+					{
+						SubscrTransition tr = subscr_pg_transition;
+						tr.tr_sfx = 0;
+						subscrpg_animate(subscr_pg_from,subscr_pg_to,tr,*new_subscreen_active);
+						subscr_pg_clk = val;
+					}
+					else subscr_pg_clk = val;
+				}
 			}
 			break;
 		}
@@ -24939,6 +25046,17 @@ void set_register(int32_t arg, int32_t value)
 			break;
 		}
 		
+		///----------------------------------------------------------------------------------------------------//
+		case SUBPGINDEX: break; //READ-ONLY
+		case SUBPGNUMWIDG: break; //READ-ONLY
+		case SUBPGWIDGETS: break; //READ-ONLY
+		case SUBPGSUBDATA: break; //READ-ONLY
+		case SUBPGCURSORPOS: 
+		{
+			if(SubscrPage* pg = checkSubPage(ri->subpageref, "CursorPos"))
+				pg->cursor_pos = vbound(value/10000,0,255);
+			break;
+		}
 		///----------------------------------------------------------------------------------------------------//
 		
 		default:
@@ -33931,26 +34049,36 @@ j_command:
 				FFScript::do_loaddmapdata(true); break;
 			case LOADSUBDATARV:
 				FFScript::do_load_subscreendata(false, true); break;
-			case NUMSUBSCREENSV:
+			case SWAPSUBSCREENV:
 			{
 				auto ty = sarg1/10000;
-				size_t sz = 0;
+				std::vector<ZCSubscreen>* vec = nullptr;
 				switch(ty)
 				{
 					case sstACTIVE:
-						sz = subscreens_active.size();
+						vec = &subscreens_active;
 						break;
 					case sstPASSIVE:
-						sz = subscreens_passive.size();
+						vec = &subscreens_passive;
 						break;
 					case sstOVERLAY:
-						sz = subscreens_overlay.size();
+						vec = &subscreens_overlay;
 						break;
 					default:
 						Z_scripterrlog("Invalid Subscreen Type passed to ???: %d\n", ty);
 						break;
 				}
-				ri->d[rEXP1] = sz*10000;
+				if(vec)
+				{
+					auto& v = *vec;
+					int p1 = SH::read_stack(ri->sp+1);
+					int p2 = SH::read_stack(ri->sp+0);
+					if(unsigned(p1) >= v.size())
+						Z_scripterrlog("Invalid susbcr index '%d' passed to subscreendata->Swap*Pages()\n", p1);
+					else if(unsigned(p2) >= v.size())
+						Z_scripterrlog("Invalid susbcr index '%d' passed to subscreendata->Swap*Pages()\n", p2);
+					else zc_swap(v[p1],v[p2]);
+				}
 				break;
 			}
 			case LOADDIRECTORYR:
@@ -36502,6 +36630,116 @@ j_command:
 				{
 					auto aptr = get_register(sarg1) / 10000;
 					ArrayH::getString(aptr, sub->name);
+				}
+				break;
+			}
+			case SUBDATA_SWAP_PAGES:
+			{
+				ri->subpageref = SH::read_stack(ri->sp+2);
+				if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SwapPages"))
+				{
+					int p1 = SH::read_stack(ri->sp+1) / 10000;
+					int p2 = SH::read_stack(ri->sp+0) / 10000;
+					zprint2("Swapping %d and %d\n",p1,p2);
+					if(unsigned(p1) >= sub->pages.size())
+						Z_scripterrlog("Invalid page index '%d' passed to subscreendata->SwapPages()\n", p1);
+					else if(unsigned(p2) >= sub->pages.size())
+						Z_scripterrlog("Invalid page index '%d' passed to subscreendata->SwapPages()\n", p2);
+					else sub->swap_pages(p1,p2);
+				}
+				break;
+			}
+			case SUBPAGE_SWAP_WIDG:
+			{
+				ri->subpageref = SH::read_stack(ri->sp+2);
+				if(SubscrPage* pg = checkSubPage(ri->subpageref, "SwapWidgets"))
+				{
+					int p1 = SH::read_stack(ri->sp+1) / 10000;
+					int p2 = SH::read_stack(ri->sp+0) / 10000;
+					if(unsigned(p1) >= pg->size())
+						Z_scripterrlog("Invalid page index '%d' passed to subscreenpage->SwapWidgets()\n", p1);
+					else if(unsigned(p2) >= pg->size())
+						Z_scripterrlog("Invalid page index '%d' passed to subscreenpage->SwapWidgets()\n", p2);
+					else pg->swap_widg(p1,p2);
+				}
+				break;
+			}
+			case SUBPAGE_FIND_WIDGET:
+			{
+				ri->subpageref = SH::read_stack(ri->sp+1);
+				if(SubscrPage* pg = checkSubPage(ri->subpageref, "FindWidget"))
+				{
+					int cursorpos = SH::read_stack(ri->sp+0) / 10000;
+					if(auto* widg = pg->get_widg_pos(cursorpos,false))
+					{
+						for(int q = 0; q < pg->size(); ++q)
+							if((*pg)[q] == widg)
+							{
+								auto [sub,ty,pgid,_ind] = from_subref(ri->subpageref);
+								ri->d[rEXP1] = get_subref(sub,ty,pgid,q);
+								break;
+							}
+					}
+				}
+				break;
+			}
+			case SUBPAGE_MOVE_SEL:
+			{
+				#define SUBSEL_FLAG_NO_NONEQUIP 0x01
+				#define SUBSEL_FLAG_NEED_ITEM 0x02
+				ri->subpageref = SH::read_stack(ri->sp+3);
+				if(SubscrPage* pg = checkSubPage(ri->subpageref, "SelectorMove"))
+				{
+					int flags = SH::read_stack(ri->sp+2) / 10000;
+					int dir = SH::read_stack(ri->sp+1) / 10000;
+					int pos = SH::read_stack(ri->sp+0) / 10000;
+					switch(dir)
+					{
+						case up:
+							dir = SEL_UP;
+							break;
+						case down:
+							dir = SEL_DOWN;
+							break;
+						case left:
+							dir = SEL_LEFT;
+							break;
+						case right: default:
+							dir = SEL_RIGHT;
+							break;
+					}
+					ri->d[rEXP1] = 10000*pg->movepos_legacy(dir, pos, 255, 255, 255,
+						flags&SUBSEL_FLAG_NO_NONEQUIP, flags&SUBSEL_FLAG_NEED_ITEM, true);
+				}
+				break;
+			}
+			case SUBPAGE_NEW_WIDG:
+			{
+				ri->subpageref = SH::read_stack(ri->sp+1);
+				if(SubscrPage* pg = checkSubPage(ri->subpageref, "CreateWidget"))
+				{
+					if(pg->size() == 0x2000)
+						break; //Page is full!
+					int ty = SH::read_stack(ri->sp+0) / 10000;
+					if(auto* widg = SubscrWidget::newType(ty))
+					{
+						widg->posflags = sspUP | sspDOWN | sspSCROLLING;
+						widg->w = 1;
+						widg->h = 1;
+						pg->push_back(widg);
+						auto [sub,ty,pgid,_ind] = from_subref(ri->subpageref);
+						ri->d[rEXP1] = get_subref(sub,ty,pgid,pg->size()-1);
+					}
+					else Z_scripterrlog("Invalid type %d passed to subscreenpage->CreateWidget()\n",ty);
+				}
+				break;
+			}
+			case SUBPAGE_DELETE:
+			{
+				if(SubscrPage* pg = checkSubPage(ri->subpageref, "Delete"))
+				{
+					auto [sub,_ty] = load_subdata(ri->subpageref);
+					sub->delete_page(pg->getIndex());
 				}
 				break;
 			}
@@ -42830,7 +43068,7 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "ARRAYPUSH", 0, 0, 0, 0 },
 	{ "ARRAYPOP", 0, 0, 0, 0 },
 	{ "LOADSUBDATARV", 2, 0, 1, 0 },
-	{ "NUMSUBSCREENSV", 1, 1, 0, 0 },
+	{ "SWAPSUBSCREENV", 1, 1, 0, 0 },
 	{ "SUBDATA_GET_NAME", 0, 0, 0, 0 },
 	{ "SUBDATA_SET_NAME", 0, 0, 0, 0 },
 	{ "CONVERTFROMRGB", 0, 0, 0, 0 },
@@ -42844,12 +43082,12 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "RESRVD_OP_MOOSH_09", 0, 0, 0, 0 },
 	{ "RESRVD_OP_MOOSH_10", 0, 0, 0, 0 },
 	
-	{ "RESRVD_OP_EMILY_3", 0, 0, 0, 0 },
-	{ "RESRVD_OP_EMILY_4", 0, 0, 0, 0 },
-	{ "RESRVD_OP_EMILY_5", 0, 0, 0, 0 },
-	{ "RESRVD_OP_EMILY_6", 0, 0, 0, 0 },
-	{ "RESRVD_OP_EMILY_7", 0, 0, 0, 0 },
-	{ "RESRVD_OP_EMILY_8", 0, 0, 0, 0 },
+	{ "SUBDATA_SWAP_PAGES", 0, 0, 0, 0 },
+	{ "SUBPAGE_FIND_WIDGET", 0, 0, 0, 0 },
+	{ "SUBPAGE_MOVE_SEL", 0, 0, 0, 0 },
+	{ "SUBPAGE_SWAP_WIDG", 0, 0, 0, 0 },
+	{ "SUBPAGE_NEW_WIDG", 0, 0, 0, 0 },
+	{ "SUBPAGE_DELETE", 0, 0, 0, 0 },
 	{ "RESRVD_OP_EMILY_9", 0, 0, 0, 0 },
 	{ "RESRVD_OP_EMILY_10", 0, 0, 0, 0 },
 	{ "RESRVD_OP_EMILY_11", 0, 0, 0, 0 },
@@ -44434,14 +44672,14 @@ script_variable ZASMVars[]=
 	{ "SUBDATATRANSTOPG", SUBDATATRANSTOPG, 0, 0 },
 	{ "SUBDATASELECTORFLASHCSET", SUBDATASELECTORFLASHCSET, 0, 0 },
 	{ "GAMEASUBOPEN", GAMEASUBOPEN, 0, 0 },
-	{ "RESRVD_VAR_EMILY_84", RESRVD_VAR_EMILY_84, 0, 0 },
-	{ "RESRVD_VAR_EMILY_85", RESRVD_VAR_EMILY_85, 0, 0 },
-	{ "RESRVD_VAR_EMILY_86", RESRVD_VAR_EMILY_86, 0, 0 },
-	{ "RESRVD_VAR_EMILY_87", RESRVD_VAR_EMILY_87, 0, 0 },
-	{ "RESRVD_VAR_EMILY_88", RESRVD_VAR_EMILY_88, 0, 0 },
-	{ "RESRVD_VAR_EMILY_89", RESRVD_VAR_EMILY_89, 0, 0 },
-	{ "RESRVD_VAR_EMILY_90", RESRVD_VAR_EMILY_90, 0, 0 },
-	{ "RESRVD_VAR_EMILY_91", RESRVD_VAR_EMILY_91, 0, 0 },
+	{ "GAMENUMASUB", GAMENUMASUB, 0, 0 },
+	{ "GAMENUMPSUB", GAMENUMPSUB, 0, 0 },
+	{ "GAMENUMOSUB", GAMENUMOSUB, 0, 0 },
+	{ "SUBPGINDEX", SUBPGINDEX, 0, 0 },
+	{ "SUBPGNUMWIDG", SUBPGNUMWIDG, 0, 0 },
+	{ "SUBPGWIDGETS", SUBPGWIDGETS, 0, 0 },
+	{ "SUBPGSUBDATA", SUBPGSUBDATA, 0, 0 },
+	{ "SUBPGCURSORPOS", SUBPGCURSORPOS, 0, 0 },
 	{ "RESRVD_VAR_EMILY_92", RESRVD_VAR_EMILY_92, 0, 0 },
 	{ "RESRVD_VAR_EMILY_93", RESRVD_VAR_EMILY_93, 0, 0 },
 	{ "RESRVD_VAR_EMILY_94", RESRVD_VAR_EMILY_94, 0, 0 },

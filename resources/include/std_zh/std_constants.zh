@@ -3975,7 +3975,6 @@ enum
 
 enum //Transition Types
 {
-	TRANS_TY_NONE = -1,
 	TRANS_TY_INSTANT,
 	TRANS_TY_SLIDE,
 	TRANS_TY_PIXEL,
@@ -4007,5 +4006,8 @@ enum //Transition Flags
 	TRANSFLAG_NO_HIDE_SELECTOR,
 	TRANSFLAG_MAX
 };
+
+DEFINE SUBSEL_FLAG_NO_NONEQUIP = 0x01;
+DEFINE SUBSEL_FLAG_NEED_ITEM = 0x02;
 //} End section for engine subscreen stuff
 

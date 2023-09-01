@@ -20,6 +20,7 @@ static AccessorTable SubscreenDataTable[] =
 	{ "setFlags[]",                 0,          ZTID_VOID,   SUBDATAFLAGS,              0,  { ZTID_SUBSCREENDATA, ZTID_BOOL },{} },
 	
 	//Active Only
+	{ "SwapPages",                  0,          ZTID_VOID,   -1,                        0,  { ZTID_SUBSCREENDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "getCursorPos",               0,         ZTID_FLOAT,   SUBDATACURSORPOS,          0,  { ZTID_SUBSCREENDATA },{} },
 	{ "setCursorPos",               0,          ZTID_VOID,   SUBDATACURSORPOS,          0,  { ZTID_SUBSCREENDATA, ZTID_FLOAT },{} },
 	{ "getScript",                  0,         ZTID_FLOAT,   SUBDATASCRIPT,             0,  { ZTID_SUBSCREENDATA },{} },
@@ -128,6 +129,17 @@ void SubscreenDataSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
+	//void SwapPages(subscreendata, int, int)
+	{
+		Function* function = getFunction("SwapPages");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OSubscrSwapPages());
+		LABELBACK(label);
+		POP_ARGS(3,NUL);
+		RETURN();
+		function->giveCode(code);
+	}
 }
 
 
@@ -138,7 +150,7 @@ static AccessorTable SubscreenPageTable[] =
 {
 	//name,                       tag,              rettype,   var,               funcFlags,  params,optparams
 	// Any Page
-	/*{ "getIndex",                   0,           ZTID_FLOAT,   SUBPGINDEX,                0,  { ZTID_SUBSCREENPAGE },{} },
+	{ "getIndex",                   0,           ZTID_FLOAT,   SUBPGINDEX,                0,  { ZTID_SUBSCREENPAGE },{} },
 	{ "setIndex",                   0,            ZTID_VOID,   SUBPGINDEX,        FL_RDONLY,  { ZTID_SUBSCREENPAGE, ZTID_FLOAT },{} },
 	{ "getNumWidgets",              0,           ZTID_FLOAT,   SUBPGNUMWIDG,              0,  { ZTID_SUBSCREENPAGE },{} },
 	{ "setNumWidgets",              0,            ZTID_VOID,   SUBPGNUMWIDG,      FL_RDONLY,  { ZTID_SUBSCREENPAGE, ZTID_FLOAT },{} },
@@ -150,7 +162,12 @@ static AccessorTable SubscreenPageTable[] =
 	// Active Only
 	{ "getCursorPos",               0,           ZTID_FLOAT,   SUBPGCURSORPOS,            0,  { ZTID_SUBSCREENPAGE },{} },
 	{ "setCursorPos",               0,            ZTID_VOID,   SUBPGCURSORPOS,            0,  { ZTID_SUBSCREENPAGE, ZTID_FLOAT },{} },
-	*/
+	{ "CreateWidget",               0, ZTID_SUBSCREENWIDGET,   -1,                        0,  { ZTID_SUBSCREENPAGE, ZTID_FLOAT },{} },
+	{ "SwapWidgets",                0,            ZTID_VOID,   -1,                        0,  { ZTID_SUBSCREENPAGE, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "FindWidget",                 0, ZTID_SUBSCREENWIDGET,   -1,                        0,  { ZTID_SUBSCREENPAGE, ZTID_FLOAT },{} },
+	{ "SelectorMove",               0,           ZTID_FLOAT,   -1,                        0,  { ZTID_SUBSCREENPAGE, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "Delete",                     0,            ZTID_VOID,   -1,                        0,  { ZTID_SUBSCREENPAGE },{} },
+	
 	{ "",                           0,            ZTID_VOID,   -1,                        0,  {},{} }
 };
 
@@ -161,7 +178,65 @@ SubscreenPageSymbols::SubscreenPageSymbols()
 }
 
 void SubscreenPageSymbols::generateCode()
-{}
+{
+	//void FindWidget(subscreenpage, int)
+	{
+		Function* function = getFunction("FindWidget");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OSubscrPgFindWidget());
+		LABELBACK(label);
+		POP_ARGS(2,NUL);
+		RETURN();
+		function->giveCode(code);
+	}
+	//void SelectorMove(subscreenpage, int, int, int)
+	{
+		Function* function = getFunction("SelectorMove");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OSubscrPgMvCursor());
+		LABELBACK(label);
+		POP_ARGS(4,NUL);
+		RETURN();
+		function->giveCode(code);
+	}
+	//void SwapWidgets(subscreenpage, int, int)
+	{
+		Function* function = getFunction("SwapWidgets");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OSubscrPgSwapWidgets());
+		LABELBACK(label);
+		POP_ARGS(3,NUL);
+		RETURN();
+		function->giveCode(code);
+	}
+	//void CreateWidget(subscreenpage, int)
+	{
+		Function* function = getFunction("CreateWidget");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OSubscrPgNewWidget());
+		LABELBACK(label);
+		POP_ARGS(2,NUL);
+		RETURN();
+		function->giveCode(code);
+	}
+	//void Delete(subscreenpage)
+	{
+		Function* function = getFunction("Delete");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop pointer
+		ASSERT_NON_NUL();
+		POPREF();
+		LABELBACK(label);
+		addOpcode2 (code, new OSubscrPgDelete());
+		RETURN();
+		function->giveCode(code);
+	}
+}
 
 
 
