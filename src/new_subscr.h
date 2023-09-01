@@ -16,6 +16,7 @@ struct ZCSubscreen;
 
 extern SubscrTransition subscr_pg_transition;
 extern int subscr_item_clk, subscr_pg_clk;
+extern byte subscr_pg_from, subscr_pg_to;
 extern bool subscr_itemless, subscr_pg_animating;
 
 void subscrpg_clear_animation();
@@ -96,7 +97,7 @@ struct SubscrSelectorTileInfo
 	int32_t read(PACKFILE *f, word s_version);
 	int32_t write(PACKFILE *f) const;
 };
-
+#define SUBSCR_SELECTOR_NUMTILEINFO 2
 struct SubscrSelectorInfo
 {
 	int16_t x,y,w,h;
@@ -109,6 +110,7 @@ struct SubscrSelectorInfo
 
 #define SUBSCR_TRANSITION_MAXARG 4
 #define SUBSCR_TRANS_NOHIDESELECTOR  0x0001
+#define SUBSCR_TRANS_NUMFLAGS 1
 struct SubscrTransition
 {
 	byte type;
@@ -121,6 +123,7 @@ struct SubscrTransition
 	int32_t read(PACKFILE *f, word s_version);
 	int32_t write(PACKFILE *f) const;
 	static byte num_args(byte ty);
+	static int32_t argScale(byte ty, byte ind);
 };
 
 enum //Transition types
@@ -1044,7 +1047,6 @@ struct ZCSubscreen
 	
 	SubscrSelectorInfo selector_setting;
 	
-	//!TODO Subscreen Scripts
 	word script;
 	int32_t initd[8];
 	

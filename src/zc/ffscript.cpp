@@ -336,24 +336,24 @@ std::tuple<ZCSubscreen*,SubscrPage*,SubscrWidget*,byte> load_subscreen_ref(dword
 	else return { nullptr, nullptr, nullptr, -1 }; //no subscreen
 	if(sbpg)
 	{
-		if(ind <= sbpg->size())
-			sbwidg = sbpg->at(ind-1);
+		if(ind < sbpg->size())
+			sbwidg = sbpg->at(ind);
 	}
 	return { sbscr, sbpg, sbwidg, ty };
 }
 std::pair<ZCSubscreen*,byte> load_subdata(dword ref)
 {
-	auto [sub,pg,widg,ty] = load_subscreen_ref(ref);
+	auto [sub,_pg,_widg,ty] = load_subscreen_ref(ref);
 	return { sub, ty };
 }
 std::pair<SubscrPage*,byte> load_subpage(dword ref)
 {
-	auto [sub,pg,widg,ty] = load_subscreen_ref(ref);
+	auto [_sub,pg,_widg,ty] = load_subscreen_ref(ref);
 	return { pg, ty };
 }
 std::pair<SubscrWidget*,byte> load_subwidg(dword ref)
 {
-	auto [sub,pg,widg,ty] = load_subscreen_ref(ref);
+	auto [_sub,_pg,widg,ty] = load_subscreen_ref(ref);
 	return { widg, ty };
 }
 
@@ -979,7 +979,7 @@ static bool set_current_script_engine_data(ScriptType type, int script, int inde
 		case ScriptType::EngineSubscreen:
 		{
 			curscript = subscreenscripts[script];
-			auto [ptr,ty] = load_subdata(index);
+			auto [ptr,_ty] = load_subdata(index);
 			assert(ptr); //should always be valid
 			ri->subdataref = index;
 			
@@ -2684,6 +2684,8 @@ public:
 	int32_t size() const;
 	
 	bool resize(size_t newsize);
+	bool resize_min(size_t minsz);
+	bool can_resize();
 	bool push(int32_t val, int indx = -1);
 	int32_t pop(int indx = -1);
 	
@@ -2856,14 +2858,17 @@ public:
 		return _NoError;
 	}
 	
-	static int32_t setArray(const int32_t ptr, string const& s2)
+	static int32_t setArray(const int32_t ptr, string const& s2, bool resize = false)
 	{
 		ArrayManager am(ptr);
 		
 		if (am.invalid())
 			return _InvalidPointer;
-			
+		
 		word i;
+		
+		if(am.can_resize() && resize)
+			am.resize_min(s2.size()+1);
 		
 		size_t sz = am.size();
 		for(i = 0; i < s2.size(); i++)
@@ -2886,18 +2891,21 @@ public:
 	
 	//Puts values of a client <type> array into a zscript array. returns 0 on success. Overloaded
 	template <typename T>
-	static int32_t setArray(const int32_t ptr, const word size, T *refArray, bool x10k = true)
+	static int32_t setArray(const int32_t ptr, const word size, T *refArray, bool x10k = true, bool resize = false)
 	{
-		return setArray(ptr, size, 0, 0, 0, refArray, x10k);
+		return setArray(ptr, size, 0, 0, 0, refArray, x10k, resize);
 	}
 	
 	template <typename T>
-	static int32_t setArray(const int32_t ptr, const word size, word userOffset, const word userStride, const word refArrayOffset, T *refArray, bool x10k = true)
+	static int32_t setArray(const int32_t ptr, const word size, word userOffset, const word userStride, const word refArrayOffset, T *refArray, bool x10k = true, bool resize = false)
 	{
 		ArrayManager am(ptr);
 		
 		if (am.invalid())
 			return _InvalidPointer;
+		
+		if(am.can_resize() && resize)
+			am.resize_min((userStride+1)*size);
 			
 		word j = 0, k = userStride;
 		size_t sz = am.size();
@@ -3049,6 +3057,18 @@ bool ArrayManager::resize(size_t newsize)
 		return false;
 	}
 	aptr->Resize(newsize);
+	return true;
+}
+bool ArrayManager::resize_min(size_t newsize)
+{
+	if(size() >= newsize)
+		return true;
+	return resize(newsize);
+}
+bool ArrayManager::can_resize()
+{
+	if(_invalid || !aptr)
+		return false;
 	return true;
 }
 
@@ -13626,6 +13646,482 @@ int32_t get_register(const int32_t arg)
 			break;
 		}
 		
+		case GAMEASUBOPEN:
+		{
+			ret = subscreen_open ? 10000 : 0;
+			break;
+		}
+		
+		///----------------------------------------------------------------------------------------------------//
+		
+		case SUBDATACURPG:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "CurPage"))
+				if(sub->sub_type == sstACTIVE)
+					ret = 10000*sub->curpage;
+			break;
+		}
+		case SUBDATANUMPG:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "NumPages"))
+				if(sub->sub_type == sstACTIVE)
+					ret = 10000*sub->pages.size();
+			break;
+		}
+		case SUBDATAPAGES:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "Pages[]"))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				size_t sz = sub->sub_type == sstACTIVE ? sub->pages.size() : 0;
+				if(indx >= sz)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreendata->Pages[]' of size '%d'\n", indx, sz);
+				}
+				else
+				{
+					auto [sb,ty,_pg,_ind] = from_subref(ri->subdataref);
+					ret = get_subref(sb,ty,indx,0);
+				}
+			}
+			break;
+		}
+		case SUBDATATYPE:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "Type"))
+				ret = sub->sub_type*10000;
+			break;
+		}
+		case SUBDATAFLAGS:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "Flags[]"))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				size_t sz = 0;
+				switch(sub->sub_type)
+				{
+					case sstACTIVE:
+						sz = 2;
+						break;
+					case sstPASSIVE:
+						sz = 0;
+						break;
+					case sstOVERLAY:
+						sz = 0;
+						break;
+				}
+				if(indx >= sz)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreendata->Flags[]' of size '%d'\n", indx, sz);
+				}
+				else
+					ret = (sub->flags & (1<<indx)) ? 10000 : 0;
+			}
+			break;
+		}
+		///---- ACTIVE SUBSCREENS ONLY
+		case SUBDATACURSORPOS:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "CursorPos", sstACTIVE))
+			{
+				SubscrPage& pg = sub->cur_page();
+				ret = pg.cursor_pos * 10000;
+			}
+			break;
+		}
+		case SUBDATASCRIPT:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "Script", sstACTIVE))
+				ret = sub->script * 10000;
+			break;
+		}
+		case SUBDATAINITD:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "InitD[]", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= 8)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreendata->InitD[8]'\n", indx);
+				}
+				else
+					ret = sub->initd[indx];
+			}
+			break;
+		}
+		case SUBDATABTNLEFT:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "BtnPageLeft[]", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= 8)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreendata->BtnPageLeft[8]'\n", indx);
+				}
+				else
+					ret = (sub->btn_left & (1<<indx)) ? 10000 : 0;
+			}
+			break;
+		}
+		case SUBDATABTNRIGHT:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "BtnPageRight[]", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= 8)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreendata->BtnPageRight[8]'\n", indx);
+				}
+				else
+					ret = (sub->btn_right & (1<<indx)) ? 10000 : 0;
+			}
+			break;
+		}
+		case SUBDATATRANSLEFTTY:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransLeftType", sstACTIVE))
+			{
+				auto& trans = sub->trans_left;
+				ret = trans.type * 10000;
+			}
+			break;
+		}
+		case SUBDATATRANSLEFTSFX:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransLeftSFX", sstACTIVE))
+			{
+				auto& trans = sub->trans_left;
+				ret = trans.tr_sfx * 10000;
+			}
+			break;
+		}
+		case SUBDATATRANSLEFTFLAGS:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransLeftFlags[]", sstACTIVE))
+			{
+				auto& trans = sub->trans_left;
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_TRANS_NUMFLAGS)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreendata->TransLeftFlags[%d]'\n", indx, SUBSCR_TRANS_NUMFLAGS);
+				}
+				else
+					ret = (trans.flags & (1<<indx)) ? 10000 : 0;
+			}
+			break;
+		}
+		case SUBDATATRANSLEFTARGS:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransLeftArgs[]", sstACTIVE))
+			{
+				auto& trans = sub->trans_left;
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_TRANSITION_MAXARG)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreendata->TransLeftArgs[%d]'\n", indx, SUBSCR_TRANSITION_MAXARG);
+				}
+				else
+					ret = trans.arg[indx]*SubscrTransition::argScale(trans.type,indx);
+			}
+			break;
+		}
+		case SUBDATATRANSRIGHTTY:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransRightType", sstACTIVE))
+			{
+				auto& trans = sub->trans_right;
+				ret = trans.type * 10000;
+			}
+			break;
+		}
+		case SUBDATATRANSRIGHTSFX:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransRightSFX", sstACTIVE))
+			{
+				auto& trans = sub->trans_right;
+				ret = trans.tr_sfx * 10000;
+			}
+			break;
+		}
+		case SUBDATATRANSRIGHTFLAGS:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransRightFlags[]", sstACTIVE))
+			{
+				auto& trans = sub->trans_right;
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_TRANS_NUMFLAGS)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreendata->TransRightFlags[%d]'\n", indx, SUBSCR_TRANS_NUMFLAGS);
+				}
+				else
+					ret = (trans.flags & (1<<indx)) ? 10000 : 0;
+			}
+			break;
+		}
+		case SUBDATATRANSRIGHTARGS:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransRightArgs[]", sstACTIVE))
+			{
+				auto& trans = sub->trans_right;
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_TRANSITION_MAXARG)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreendata->TransRightArgs[%d]'\n", indx, SUBSCR_TRANSITION_MAXARG);
+				}
+				else
+					ret = trans.arg[indx]*SubscrTransition::argScale(trans.type,indx);
+			}
+			break;
+		}
+		case SUBDATASELECTORDSTX:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorDestX", sstACTIVE))
+				ret = sub->selector_setting.x * 10000;
+			break;
+		}
+		case SUBDATASELECTORDSTY:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorDestY", sstACTIVE))
+				ret = sub->selector_setting.y * 10000;
+			break;
+		}
+		case SUBDATASELECTORDSTW:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorDestW", sstACTIVE))
+				ret = sub->selector_setting.w * 10000;
+			break;
+		}
+		case SUBDATASELECTORDSTH:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorDestH", sstACTIVE))
+				ret = sub->selector_setting.h * 10000;
+			break;
+		}
+		case SUBDATASELECTORWID:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorDestWid", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
+				{
+					Z_scripterrlog("Bad index '%d' to array 'subscreendata->"
+						"SelectorDestWid[%d]'\n", indx, SUBSCR_SELECTOR_NUMTILEINFO);
+				}
+				else
+					ret = sub->selector_setting.tileinfo[indx].sw * 10000;
+			}
+			break;
+		}
+		case SUBDATASELECTORHEI:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorDestHei", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
+				{
+					Z_scripterrlog("Bad index '%d' to array 'subscreendata->"
+						"SelectorDestHei[%d]'\n", indx, SUBSCR_SELECTOR_NUMTILEINFO);
+				}
+				else
+					ret = sub->selector_setting.tileinfo[indx].sh * 10000;
+			}
+			break;
+		}
+		case SUBDATASELECTORTILE:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorTile", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
+				{
+					Z_scripterrlog("Bad index '%d' to array 'subscreendata->"
+						"SelectorTile[%d]'\n", indx, SUBSCR_SELECTOR_NUMTILEINFO);
+				}
+				else
+					ret = sub->selector_setting.tileinfo[indx].tile * 10000;
+			}
+			break;
+		}
+		case SUBDATASELECTORCSET:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorCSet", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
+				{
+					Z_scripterrlog("Bad index '%d' to array 'subscreendata->"
+						"SelectorCSet[%d]'\n", indx, SUBSCR_SELECTOR_NUMTILEINFO);
+				}
+				else
+				{
+					byte& cs = sub->selector_setting.tileinfo[indx].cset;
+					ret = (cs&0x0F) * 10000;
+				}
+			}
+			break;
+		}
+		case SUBDATASELECTORFLASHCSET:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorFlashCSet", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
+				{
+					Z_scripterrlog("Bad index '%d' to array 'subscreendata->"
+						"SelectorFlashCSet[%d]'\n", indx, SUBSCR_SELECTOR_NUMTILEINFO);
+				}
+				else
+				{
+					byte& cs = sub->selector_setting.tileinfo[indx].cset;
+					ret = ((cs&0xF0)>>4) * 10000;
+				}
+			}
+			break;
+		}
+		case SUBDATASELECTORFRM:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorFrames", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
+				{
+					Z_scripterrlog("Bad index '%d' to array 'subscreendata->"
+						"SelectorFrames[%d]'\n", indx, SUBSCR_SELECTOR_NUMTILEINFO);
+				}
+				else
+					ret = sub->selector_setting.tileinfo[indx].frames * 10000;
+			}
+			break;
+		}
+		case SUBDATASELECTORASPD:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorASpeed", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
+				{
+					Z_scripterrlog("Bad index '%d' to array 'subscreendata->"
+						"SelectorASpeed[%d]'\n", indx, SUBSCR_SELECTOR_NUMTILEINFO);
+				}
+				else
+					ret = sub->selector_setting.tileinfo[indx].speed * 10000;
+			}
+			break;
+		}
+		case SUBDATASELECTORDELAY:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorDelay", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
+				{
+					Z_scripterrlog("Bad index '%d' to array 'subscreendata->"
+						"SelectorDelay[%d]'\n", indx, SUBSCR_SELECTOR_NUMTILEINFO);
+				}
+				else
+					ret = sub->selector_setting.tileinfo[indx].delay * 10000;
+			}
+			break;
+		}
+		///---- CURRENTLY OPEN ACTIVE SUBSCREEN ONLY
+		case SUBDATATRANSCLK:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransClock", sstACTIVE))
+			{
+				if(sub != new_subscreen_active)
+					Z_scripterrlog("'subscreendata->TransClock' is only"
+						" valid for the current active subscreen!\n");
+				else if(subscreen_open)
+					ret = subscr_pg_clk*10000;
+			}
+			break;
+		}
+		case SUBDATATRANSTY:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransType", sstACTIVE))
+			{
+				auto& trans = subscr_pg_transition;
+				if(sub != new_subscreen_active)
+					Z_scripterrlog("'subscreendata->TransType' is only"
+						" valid for the current active subscreen!\n");
+				else if(subscreen_open)
+					ret = trans.type*10000;
+			}
+			break;
+		}
+		case SUBDATATRANSFLAGS:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransFlags[]", sstACTIVE))
+			{
+				auto& trans = subscr_pg_transition;
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_TRANS_NUMFLAGS)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreendata->TransFlags[%d]'\n", indx, SUBSCR_TRANS_NUMFLAGS);
+				}
+				else if(sub != new_subscreen_active)
+					Z_scripterrlog("'subscreendata->TransType' is only"
+						" valid for the current active subscreen!\n");
+				else if(subscreen_open)
+					ret = (trans.flags & (1<<indx)) ? 10000 : 0;
+			}
+			break;
+		}
+		case SUBDATATRANSARGS:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransArgs[]", sstACTIVE))
+			{
+				auto& trans = subscr_pg_transition;
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_TRANSITION_MAXARG)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreendata->TransArgs[%d]'\n", indx, SUBSCR_TRANSITION_MAXARG);
+				}
+				else if(sub != new_subscreen_active)
+					Z_scripterrlog("'subscreendata->TransType' is only"
+						" valid for the current active subscreen!\n");
+				else if(subscreen_open)
+					ret = trans.arg[indx]*SubscrTransition::argScale(trans.type,indx);
+			}
+			break;
+		}
+		case SUBDATATRANSFROMPG:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransFromPage", sstACTIVE))
+			{
+				if(sub != new_subscreen_active)
+					Z_scripterrlog("'subscreendata->TransFromPage' is only"
+						" valid for the current active subscreen!\n");
+				else if(subscreen_open)
+					ret = subscr_pg_from*10000;
+			}
+			break;
+		}
+		case SUBDATATRANSTOPG:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransToPage", sstACTIVE))
+			{
+				if(sub != new_subscreen_active)
+					Z_scripterrlog("'subscreendata->TransToPage' is only"
+						" valid for the current active subscreen!\n");
+				else if(subscreen_open)
+					ret = subscr_pg_to*10000;
+			}
+			break;
+		}
+		
+		///----------------------------------------------------------------------------------------------------//
 		
 		default:
 		{
@@ -23987,6 +24483,463 @@ void set_register(int32_t arg, int32_t value)
 			}
 			break;
 		}
+		
+		///----------------------------------------------------------------------------------------------------//
+		
+		case SUBDATACURPG:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "CurPage"))
+				if(sub->sub_type == sstACTIVE)
+					sub->curpage = vbound(value/10000,0,sub->pages.size()-1);
+			break;
+		}
+		case SUBDATANUMPG:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "NumPages"))
+				if(sub->sub_type == sstACTIVE && value >= 10000)
+				{
+					size_t sz = value/10000;
+					while(sub->pages.size() < sz)
+						if(!sub->add_page(MAX_SUBSCR_PAGES))
+							break;
+					while(sub->pages.size() > sz)
+						sub->delete_page(sub->pages.size()-1);
+				}
+			break;
+		}
+		case SUBDATAPAGES: break; //READONLY
+		case SUBDATATYPE: break; //READONLY
+		case SUBDATAFLAGS:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "Flags[]"))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				size_t sz = 0;
+				switch(sub->sub_type)
+				{
+					case sstACTIVE:
+						sz = 2;
+						break;
+					case sstPASSIVE:
+						sz = 0;
+						break;
+					case sstOVERLAY:
+						sz = 0;
+						break;
+				}
+				if(indx >= sz)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreendata->Flags[]' of size '%d'\n", indx, sz);
+				}
+				else
+					SETFLAG(sub->flags,(1<<indx),value);
+			}
+			break;
+		}
+		///---- ACTIVE SUBSCREENS ONLY
+		case SUBDATACURSORPOS:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "CursorPos", sstACTIVE))
+			{
+				SubscrPage& pg = sub->cur_page();
+				//Should this be sanity checked? Or should nulling out
+				// the cursor by setting it invalid be allowed? -Em
+				pg.cursor_pos = vbound(value/10000,0,255);
+			}
+			break;
+		}
+		case SUBDATASCRIPT:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "Script", sstACTIVE))
+				sub->script = vbound(value/10000,0,NUMSCRIPTSSUBSCREEN-1);
+			break;
+		}
+		case SUBDATAINITD:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "InitD[]", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= 8)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreendata->InitD[8]'\n", indx);
+				}
+				else
+					sub->initd[indx] = value;
+			}
+			break;
+		}
+		case SUBDATABTNLEFT:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "BtnPageLeft[]", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= 8)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreendata->BtnPageLeft[8]'\n", indx);
+				}
+				else
+					SETFLAG(sub->btn_left,(1<<indx),value);
+			}
+			break;
+		}
+		case SUBDATABTNRIGHT:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "BtnPageRight[]", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= 8)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreendata->BtnPageRight[8]'\n", indx);
+				}
+				else
+					SETFLAG(sub->btn_right,(1<<indx),value);
+			}
+			break;
+		}
+		case SUBDATATRANSLEFTTY:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransLeftType", sstACTIVE))
+			{
+				auto& trans = sub->trans_left;
+				trans.type = vbound(value/10000,0,sstrMAX-1);
+			}
+			break;
+		}
+		case SUBDATATRANSLEFTSFX:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransLeftSFX", sstACTIVE))
+			{
+				auto& trans = sub->trans_left;
+				trans.tr_sfx = vbound(value/10000,0,255);
+			}
+			break;
+		}
+		case SUBDATATRANSLEFTFLAGS:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransLeftFlags[]", sstACTIVE))
+			{
+				auto& trans = sub->trans_left;
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_TRANS_NUMFLAGS)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreendata->TransLeftFlags[%d]'\n", indx, SUBSCR_TRANS_NUMFLAGS);
+				}
+				else
+					SETFLAG(trans.flags,(1<<indx),value);
+			}
+			break;
+		}
+		case SUBDATATRANSLEFTARGS:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransLeftArgs[]", sstACTIVE))
+			{
+				auto& trans = sub->trans_left;
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_TRANSITION_MAXARG)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreendata->TransLeftArgs[%d]'\n", indx, SUBSCR_TRANSITION_MAXARG);
+				}
+				else
+					trans.arg[indx] = value/SubscrTransition::argScale(trans.type,indx);
+			}
+			break;
+		}
+		case SUBDATATRANSRIGHTTY:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransRightType", sstACTIVE))
+			{
+				auto& trans = sub->trans_right;
+				trans.type = vbound(value/10000,0,sstrMAX-1);
+			}
+			break;
+		}
+		case SUBDATATRANSRIGHTSFX:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransRightSFX", sstACTIVE))
+			{
+				auto& trans = sub->trans_right;
+				trans.tr_sfx = vbound(value/10000,0,255);
+			}
+			break;
+		}
+		case SUBDATATRANSRIGHTFLAGS:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransRightFlags[]", sstACTIVE))
+			{
+				auto& trans = sub->trans_right;
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_TRANS_NUMFLAGS)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreendata->TransRightFlags[%d]'\n", indx, SUBSCR_TRANS_NUMFLAGS);
+				}
+				else
+					SETFLAG(trans.flags,(1<<indx),value);
+			}
+			break;
+		}
+		case SUBDATATRANSRIGHTARGS:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransRightArgs[]", sstACTIVE))
+			{
+				auto& trans = sub->trans_right;
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_TRANSITION_MAXARG)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreendata->TransRightArgs[%d]'\n", indx, SUBSCR_TRANSITION_MAXARG);
+				}
+				else
+					trans.arg[indx] = value/SubscrTransition::argScale(trans.type,indx);
+			}
+			break;
+		}
+		case SUBDATASELECTORDSTX:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorDestX", sstACTIVE))
+				sub->selector_setting.x = vbound(value/10000,-32768,32767);
+			break;
+		}
+		case SUBDATASELECTORDSTY:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorDestY", sstACTIVE))
+				sub->selector_setting.y = vbound(value/10000,-32768,32767);
+			break;
+		}
+		case SUBDATASELECTORDSTW:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorDestW", sstACTIVE))
+				sub->selector_setting.w = vbound(value/10000,-32768,32767);
+			break;
+		}
+		case SUBDATASELECTORDSTH:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorDestH", sstACTIVE))
+				sub->selector_setting.h = vbound(value/10000,-32768,32767);
+			break;
+		}
+		case SUBDATASELECTORWID:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorDestWid", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
+				{
+					Z_scripterrlog("Bad index '%d' to array 'subscreendata->"
+						"SelectorDestWid[%d]'\n", indx, SUBSCR_SELECTOR_NUMTILEINFO);
+				}
+				else
+					sub->selector_setting.tileinfo[indx].sw = vbound(value/10000,0,65535);
+			}
+			break;
+		}
+		case SUBDATASELECTORHEI:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorDestHei", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
+				{
+					Z_scripterrlog("Bad index '%d' to array 'subscreendata->"
+						"SelectorDestHei[%d]'\n", indx, SUBSCR_SELECTOR_NUMTILEINFO);
+				}
+				else
+					sub->selector_setting.tileinfo[indx].sh = vbound(value/10000,0,65535);
+			}
+			break;
+		}
+		case SUBDATASELECTORTILE:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorTile", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
+				{
+					Z_scripterrlog("Bad index '%d' to array 'subscreendata->"
+						"SelectorTile[%d]'\n", indx, SUBSCR_SELECTOR_NUMTILEINFO);
+				}
+				else
+					sub->selector_setting.tileinfo[indx].tile = vbound(value/10000,0,NEWMAXTILES-1);
+			}
+			break;
+		}
+		case SUBDATASELECTORCSET:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorCSet", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
+				{
+					Z_scripterrlog("Bad index '%d' to array 'subscreendata->"
+						"SelectorCSet[%d]'\n", indx, SUBSCR_SELECTOR_NUMTILEINFO);
+				}
+				else
+				{
+					byte& cs = sub->selector_setting.tileinfo[indx].cset;
+					cs = (cs&0xF0)|vbound(value/10000,0,0x0F);
+				}
+			}
+			break;
+		}
+		case SUBDATASELECTORFLASHCSET:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorFlashCSet", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
+				{
+					Z_scripterrlog("Bad index '%d' to array 'subscreendata->"
+						"SelectorFlashCSet[%d]'\n", indx, SUBSCR_SELECTOR_NUMTILEINFO);
+				}
+				else
+				{
+					byte& cs = sub->selector_setting.tileinfo[indx].cset;
+					cs = (cs&0x0F)|(vbound(value/10000,0,0x0F)<<4);
+				}
+			}
+			break;
+		}
+		case SUBDATASELECTORFRM:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorFrames", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
+				{
+					Z_scripterrlog("Bad index '%d' to array 'subscreendata->"
+						"SelectorFrames[%d]'\n", indx, SUBSCR_SELECTOR_NUMTILEINFO);
+				}
+				else
+					sub->selector_setting.tileinfo[indx].frames = vbound(value/10000,1,255);
+			}
+			break;
+		}
+		case SUBDATASELECTORASPD:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorASpeed", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
+				{
+					Z_scripterrlog("Bad index '%d' to array 'subscreendata->"
+						"SelectorASpeed[%d]'\n", indx, SUBSCR_SELECTOR_NUMTILEINFO);
+				}
+				else
+					sub->selector_setting.tileinfo[indx].speed = vbound(value/10000,1,255);
+			}
+			break;
+		}
+		case SUBDATASELECTORDELAY:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorDelay", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
+				{
+					Z_scripterrlog("Bad index '%d' to array 'subscreendata->"
+						"SelectorDelay[%d]'\n", indx, SUBSCR_SELECTOR_NUMTILEINFO);
+				}
+				else
+					sub->selector_setting.tileinfo[indx].delay = vbound(value/10000,0,255);
+			}
+			break;
+		}
+		///---- CURRENTLY OPEN ACTIVE SUBSCREEN ONLY
+		case SUBDATATRANSCLK:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransClock", sstACTIVE))
+			{
+				if(sub != new_subscreen_active)
+					Z_scripterrlog("'subscreendata->TransClock' is only"
+						" valid for the current active subscreen!\n");
+				else if(subscreen_open)
+					subscr_pg_clk = value/10000;
+			}
+			break;
+		}
+		case SUBDATATRANSTY:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransType", sstACTIVE))
+			{
+				auto& trans = subscr_pg_transition;
+				if(sub != new_subscreen_active)
+					Z_scripterrlog("'subscreendata->TransType' is only"
+						" valid for the current active subscreen!\n");
+				else if(subscreen_open)
+					trans.type = vbound(value/10000,0,sstrMAX-1);
+			}
+			break;
+		}
+		case SUBDATATRANSFLAGS:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransFlags[]", sstACTIVE))
+			{
+				auto& trans = subscr_pg_transition;
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_TRANS_NUMFLAGS)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreendata->TransFlags[%d]'\n", indx, SUBSCR_TRANS_NUMFLAGS);
+				}
+				else if(sub != new_subscreen_active)
+					Z_scripterrlog("'subscreendata->TransType' is only"
+						" valid for the current active subscreen!\n");
+				else if(subscreen_open)
+					SETFLAG(trans.flags,(1<<indx),value);
+			}
+			break;
+		}
+		case SUBDATATRANSARGS:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransArgs[]", sstACTIVE))
+			{
+				auto& trans = subscr_pg_transition;
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_TRANSITION_MAXARG)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreendata->TransArgs[%d]'\n", indx, SUBSCR_TRANSITION_MAXARG);
+				}
+				else if(sub != new_subscreen_active)
+					Z_scripterrlog("'subscreendata->TransType' is only"
+						" valid for the current active subscreen!\n");
+				else if(subscreen_open)
+					trans.arg[indx] = value/SubscrTransition::argScale(trans.type,indx);
+			}
+			break;
+		}
+		case SUBDATATRANSFROMPG:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransFromPage", sstACTIVE))
+			{
+				if(sub != new_subscreen_active)
+					Z_scripterrlog("'subscreendata->TransFromPage' is only"
+						" valid for the current active subscreen!\n");
+				else if(subscreen_open)
+					subscr_pg_from = vbound(value/10000,0,sub->pages.size()-1);
+			}
+			break;
+		}
+		case SUBDATATRANSTOPG:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransToPage", sstACTIVE))
+			{
+				if(sub != new_subscreen_active)
+					Z_scripterrlog("'subscreendata->TransToPage' is only"
+						" valid for the current active subscreen!\n");
+				else if(subscreen_open)
+					subscr_pg_to = vbound(value/10000,0,sub->pages.size()-1);
+			}
+			break;
+		}
+		
+		///----------------------------------------------------------------------------------------------------//
 		
 		default:
 		{
@@ -35530,6 +36483,29 @@ j_command:
 				break;
 			}
 			
+			///----------------------------------------------------------------------------------------------------//
+			
+			case SUBDATA_GET_NAME:
+			{
+				if(ZCSubscreen* sub = checkSubData(ri->subdataref, "GetName"))
+				{
+					auto aptr = get_register(sarg1) / 10000;
+					if(ArrayH::setArray(aptr, sub->name, true) == SH::_Overflow)
+						Z_scripterrlog("Array supplied to 'subscreendata->GetName()' not large enough,"
+							" and couldn't be resized!\n");
+				}
+				break;
+			}
+			case SUBDATA_SET_NAME:
+			{
+				if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SetName"))
+				{
+					auto aptr = get_register(sarg1) / 10000;
+					ArrayH::getString(aptr, sub->name);
+				}
+				break;
+			}
+			
 			default:
 			{
 				Z_scripterrlog("Invalid ZASM command %lu reached; terminating\n", scommand);
@@ -41855,8 +42831,8 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "ARRAYPOP", 0, 0, 0, 0 },
 	{ "LOADSUBDATARV", 2, 0, 1, 0 },
 	{ "NUMSUBSCREENSV", 1, 1, 0, 0 },
-	{ "RESRVD_OP_EMILY_1", 0, 0, 0, 0 },
-	{ "RESRVD_OP_EMILY_2", 0, 0, 0, 0 },
+	{ "SUBDATA_GET_NAME", 0, 0, 0, 0 },
+	{ "SUBDATA_SET_NAME", 0, 0, 0, 0 },
 	{ "CONVERTFROMRGB", 0, 0, 0, 0 },
 	{ "CONVERTTORGB", 0, 0, 0, 0 },
 	{ "GETENHMUSICLEN", 1, 0, 0, 0 },
@@ -43393,20 +44369,20 @@ script_variable ZASMVars[]=
 	{ "DMAPDATASUBSCRO", DMAPDATASUBSCRO, 0, 0},
 	{ "REFSUBSCREENPAGE", REFSUBSCREENPAGE, 0, 0},
 	{ "REFSUBSCREENWIDG", REFSUBSCREENWIDG, 0, 0},
-	{ "RESRVD_VAR_EMILY47", RESRVD_VAR_EMILY47, 0, 0},
-	{ "RESRVD_VAR_EMILY48", RESRVD_VAR_EMILY48, 0, 0},
-	{ "RESRVD_VAR_EMILY49", RESRVD_VAR_EMILY49, 0, 0},
-	{ "RESRVD_VAR_EMILY50", RESRVD_VAR_EMILY50, 0, 0},
-	{ "RESRVD_VAR_EMILY51", RESRVD_VAR_EMILY51, 0, 0},
-	{ "RESRVD_VAR_EMILY52", RESRVD_VAR_EMILY52, 0, 0},
-	{ "RESRVD_VAR_EMILY53", RESRVD_VAR_EMILY53, 0, 0},
-	{ "RESRVD_VAR_EMILY54", RESRVD_VAR_EMILY54, 0, 0},
-	{ "RESRVD_VAR_EMILY55", RESRVD_VAR_EMILY55, 0, 0},
-	{ "RESRVD_VAR_EMILY56", RESRVD_VAR_EMILY56, 0, 0},
-	{ "RESRVD_VAR_EMILY57", RESRVD_VAR_EMILY57, 0, 0},
-	{ "RESRVD_VAR_EMILY58", RESRVD_VAR_EMILY58, 0, 0},
-	{ "RESRVD_VAR_EMILY59", RESRVD_VAR_EMILY59, 0, 0},
-	{ "RESRVD_VAR_EMILY60", RESRVD_VAR_EMILY60, 0, 0},
+	{ "SUBDATACURPG", SUBDATACURPG, 0, 0},
+	{ "SUBDATANUMPG", SUBDATANUMPG, 0, 0},
+	{ "SUBDATAPAGES", SUBDATAPAGES, 0, 0},
+	{ "SUBDATATYPE", SUBDATATYPE, 0, 0},
+	{ "SUBDATAFLAGS", SUBDATAFLAGS, 0, 0},
+	{ "SUBDATACURSORPOS", SUBDATACURSORPOS, 0, 0},
+	{ "SUBDATASCRIPT", SUBDATASCRIPT, 0, 0},
+	{ "SUBDATAINITD", SUBDATAINITD, 0, 0},
+	{ "SUBDATABTNLEFT", SUBDATABTNLEFT, 0, 0},
+	{ "SUBDATABTNRIGHT", SUBDATABTNRIGHT, 0, 0},
+	{ "SUBDATATRANSLEFTTY", SUBDATATRANSLEFTTY, 0, 0},
+	{ "SUBDATATRANSLEFTSFX", SUBDATATRANSLEFTSFX, 0, 0},
+	{ "SUBDATATRANSLEFTFLAGS", SUBDATATRANSLEFTFLAGS, 0, 0},
+	{ "SUBDATATRANSLEFTARGS", SUBDATATRANSLEFTARGS, 0, 0},
 	{ "PORTALX", PORTALX, 0, 0},
 	{ "PORTALY", PORTALY, 0, 0},
 	{ "PORTALDMAP", PORTALDMAP, 0, 0},
@@ -43435,29 +44411,29 @@ script_variable ZASMVars[]=
 	{ "SAVEDPORTALCOUNT", SAVEDPORTALCOUNT, 0, 0},
 	{ "SAVEDPORTALDSTSCREEN", SAVEDPORTALDSTSCREEN, 0, 0},
 	
-	{ "RESRVD_VAR_EMILY_61", RESRVD_VAR_EMILY_61, 0, 0 },
-	{ "RESRVD_VAR_EMILY_62", RESRVD_VAR_EMILY_62, 0, 0 },
-	{ "RESRVD_VAR_EMILY_63", RESRVD_VAR_EMILY_63, 0, 0 },
-	{ "RESRVD_VAR_EMILY_64", RESRVD_VAR_EMILY_64, 0, 0 },
-	{ "RESRVD_VAR_EMILY_65", RESRVD_VAR_EMILY_65, 0, 0 },
-	{ "RESRVD_VAR_EMILY_66", RESRVD_VAR_EMILY_66, 0, 0 },
-	{ "RESRVD_VAR_EMILY_67", RESRVD_VAR_EMILY_67, 0, 0 },
-	{ "RESRVD_VAR_EMILY_68", RESRVD_VAR_EMILY_68, 0, 0 },
-	{ "RESRVD_VAR_EMILY_69", RESRVD_VAR_EMILY_69, 0, 0 },
-	{ "RESRVD_VAR_EMILY_70", RESRVD_VAR_EMILY_70, 0, 0 },
-	{ "RESRVD_VAR_EMILY_71", RESRVD_VAR_EMILY_71, 0, 0 },
-	{ "RESRVD_VAR_EMILY_72", RESRVD_VAR_EMILY_72, 0, 0 },
-	{ "RESRVD_VAR_EMILY_73", RESRVD_VAR_EMILY_73, 0, 0 },
-	{ "RESRVD_VAR_EMILY_74", RESRVD_VAR_EMILY_74, 0, 0 },
-	{ "RESRVD_VAR_EMILY_75", RESRVD_VAR_EMILY_75, 0, 0 },
-	{ "RESRVD_VAR_EMILY_76", RESRVD_VAR_EMILY_76, 0, 0 },
-	{ "RESRVD_VAR_EMILY_77", RESRVD_VAR_EMILY_77, 0, 0 },
-	{ "RESRVD_VAR_EMILY_78", RESRVD_VAR_EMILY_78, 0, 0 },
-	{ "RESRVD_VAR_EMILY_79", RESRVD_VAR_EMILY_79, 0, 0 },
-	{ "RESRVD_VAR_EMILY_80", RESRVD_VAR_EMILY_80, 0, 0 },
-	{ "RESRVD_VAR_EMILY_81", RESRVD_VAR_EMILY_81, 0, 0 },
-	{ "RESRVD_VAR_EMILY_82", RESRVD_VAR_EMILY_82, 0, 0 },
-	{ "RESRVD_VAR_EMILY_83", RESRVD_VAR_EMILY_83, 0, 0 },
+	{ "SUBDATATRANSRIGHTTY", SUBDATATRANSRIGHTTY, 0, 0 },
+	{ "SUBDATATRANSRIGHTSFX", SUBDATATRANSRIGHTSFX, 0, 0 },
+	{ "SUBDATATRANSRIGHTFLAGS", SUBDATATRANSRIGHTFLAGS, 0, 0 },
+	{ "SUBDATATRANSRIGHTARGS", SUBDATATRANSRIGHTARGS, 0, 0 },
+	{ "SUBDATASELECTORDSTX", SUBDATASELECTORDSTX, 0, 0 },
+	{ "SUBDATASELECTORDSTY", SUBDATASELECTORDSTY, 0, 0 },
+	{ "SUBDATASELECTORDSTW", SUBDATASELECTORDSTW, 0, 0 },
+	{ "SUBDATASELECTORDSTH", SUBDATASELECTORDSTH, 0, 0 },
+	{ "SUBDATASELECTORWID", SUBDATASELECTORWID, 0, 0 },
+	{ "SUBDATASELECTORHEI", SUBDATASELECTORHEI, 0, 0 },
+	{ "SUBDATASELECTORTILE", SUBDATASELECTORTILE, 0, 0 },
+	{ "SUBDATASELECTORCSET", SUBDATASELECTORCSET, 0, 0 },
+	{ "SUBDATASELECTORFRM", SUBDATASELECTORFRM, 0, 0 },
+	{ "SUBDATASELECTORASPD", SUBDATASELECTORASPD, 0, 0 },
+	{ "SUBDATASELECTORDELAY", SUBDATASELECTORDELAY, 0, 0 },
+	{ "SUBDATATRANSCLK", SUBDATATRANSCLK, 0, 0 },
+	{ "SUBDATATRANSTY", SUBDATATRANSTY, 0, 0 },
+	{ "SUBDATATRANSFLAGS", SUBDATATRANSFLAGS, 0, 0 },
+	{ "SUBDATATRANSARGS", SUBDATATRANSARGS, 0, 0 },
+	{ "SUBDATATRANSFROMPG", SUBDATATRANSFROMPG, 0, 0 },
+	{ "SUBDATATRANSTOPG", SUBDATATRANSTOPG, 0, 0 },
+	{ "SUBDATASELECTORFLASHCSET", SUBDATASELECTORFLASHCSET, 0, 0 },
+	{ "GAMEASUBOPEN", GAMEASUBOPEN, 0, 0 },
 	{ "RESRVD_VAR_EMILY_84", RESRVD_VAR_EMILY_84, 0, 0 },
 	{ "RESRVD_VAR_EMILY_85", RESRVD_VAR_EMILY_85, 0, 0 },
 	{ "RESRVD_VAR_EMILY_86", RESRVD_VAR_EMILY_86, 0, 0 },

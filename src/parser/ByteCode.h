@@ -1552,20 +1552,20 @@
 #define DMAPDATASUBSCRO      1465
 #define REFSUBSCREENPAGE      1466
 #define REFSUBSCREENWIDG      1467
-#define RESRVD_VAR_EMILY47      1468
-#define RESRVD_VAR_EMILY48      1469
-#define RESRVD_VAR_EMILY49      1470
-#define RESRVD_VAR_EMILY50      1471
-#define RESRVD_VAR_EMILY51      1472
-#define RESRVD_VAR_EMILY52      1473
-#define RESRVD_VAR_EMILY53      1474
-#define RESRVD_VAR_EMILY54      1475
-#define RESRVD_VAR_EMILY55      1476
-#define RESRVD_VAR_EMILY56      1477
-#define RESRVD_VAR_EMILY57      1478
-#define RESRVD_VAR_EMILY58      1479
-#define RESRVD_VAR_EMILY59      1480
-#define RESRVD_VAR_EMILY60      1481
+#define SUBDATACURPG      1468
+#define SUBDATANUMPG      1469
+#define SUBDATAPAGES      1470
+#define SUBDATATYPE      1471
+#define SUBDATAFLAGS      1472
+#define SUBDATACURSORPOS      1473
+#define SUBDATASCRIPT      1474
+#define SUBDATAINITD      1475
+#define SUBDATABTNLEFT      1476
+#define SUBDATABTNRIGHT      1477
+#define SUBDATATRANSLEFTTY      1478
+#define SUBDATATRANSLEFTSFX      1479
+#define SUBDATATRANSLEFTFLAGS      1480
+#define SUBDATATRANSLEFTARGS      1481
 #define PORTALX                 1482
 #define PORTALY                 1483
 #define PORTALDMAP              1484
@@ -1594,29 +1594,29 @@
 #define SAVEDPORTALCOUNT        1507
 #define SAVEDPORTALDSTSCREEN    1508
 
-#define RESRVD_VAR_EMILY_61     1509
-#define RESRVD_VAR_EMILY_62     1510
-#define RESRVD_VAR_EMILY_63     1511
-#define RESRVD_VAR_EMILY_64     1512
-#define RESRVD_VAR_EMILY_65     1513
-#define RESRVD_VAR_EMILY_66     1514
-#define RESRVD_VAR_EMILY_67     1515
-#define RESRVD_VAR_EMILY_68     1516
-#define RESRVD_VAR_EMILY_69     1517
-#define RESRVD_VAR_EMILY_70     1518
-#define RESRVD_VAR_EMILY_71     1519
-#define RESRVD_VAR_EMILY_72     1520
-#define RESRVD_VAR_EMILY_73     1521
-#define RESRVD_VAR_EMILY_74     1522
-#define RESRVD_VAR_EMILY_75     1523
-#define RESRVD_VAR_EMILY_76     1524
-#define RESRVD_VAR_EMILY_77     1525
-#define RESRVD_VAR_EMILY_78     1526
-#define RESRVD_VAR_EMILY_79     1527
-#define RESRVD_VAR_EMILY_80     1528
-#define RESRVD_VAR_EMILY_81     1529
-#define RESRVD_VAR_EMILY_82     1530
-#define RESRVD_VAR_EMILY_83     1531
+#define SUBDATATRANSRIGHTTY     1509
+#define SUBDATATRANSRIGHTSFX     1510
+#define SUBDATATRANSRIGHTFLAGS     1511
+#define SUBDATATRANSRIGHTARGS     1512
+#define SUBDATASELECTORDSTX     1513
+#define SUBDATASELECTORDSTY     1514
+#define SUBDATASELECTORDSTW     1515
+#define SUBDATASELECTORDSTH     1516
+#define SUBDATASELECTORWID     1517
+#define SUBDATASELECTORHEI     1518
+#define SUBDATASELECTORTILE     1519
+#define SUBDATASELECTORCSET     1520
+#define SUBDATASELECTORFRM     1521
+#define SUBDATASELECTORASPD     1522
+#define SUBDATASELECTORDELAY     1523
+#define SUBDATATRANSCLK     1524
+#define SUBDATATRANSTY     1525
+#define SUBDATATRANSFLAGS     1526
+#define SUBDATATRANSARGS     1527
+#define SUBDATATRANSFROMPG     1528
+#define SUBDATATRANSTOPG     1529
+#define SUBDATASELECTORFLASHCSET     1530
+#define GAMEASUBOPEN     1531
 #define RESRVD_VAR_EMILY_84     1532
 #define RESRVD_VAR_EMILY_85     1533
 #define RESRVD_VAR_EMILY_86     1534
@@ -2554,22 +2554,24 @@ namespace ZScript
 			return new ONumSubscreensV(a->clone());
 		}
 	};
-	class OReservedEmily1 : public Opcode
+	class OGetSubscreenName : public UnaryOpcode
 	{
 	public:
+		OGetSubscreenName(Argument *A) : UnaryOpcode(A) {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OReservedEmily1();
+			return new OGetSubscreenName(a->clone());
 		}
 	};
-	class OReservedEmily2 : public Opcode
+	class OSetSubscreenName : public UnaryOpcode
 	{
 	public:
+		OSetSubscreenName(Argument *A) : UnaryOpcode(A) {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OReservedEmily2();
+			return new OSetSubscreenName(a->clone());
 		}
 	};
 
