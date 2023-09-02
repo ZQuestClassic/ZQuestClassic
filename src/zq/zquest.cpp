@@ -7619,6 +7619,15 @@ void draw_autocombo(int32_t pos, bool rclick)
 					ap.execute(scr, pos);
 				break;
 			}
+			case AUTOCOMBO_DGNCARVE:
+			{
+				AutoPattern::autopattern_dungeoncarve ap(ca.getType(), CurrentLayer, scr, pos, &ca, !(ca.flags & ACF_CROSSSCREENS));
+				if (rclick)
+					ap.erase(scr, pos);
+				else
+					ap.execute(scr, pos);
+				break;
+			}
 		}
 	}
 }
@@ -8267,10 +8276,12 @@ void draw_block(int32_t start,int32_t w,int32_t h)
 static void fill(int32_t map, int32_t screen_index, mapscr* fillscr, int32_t targetcombo, int32_t targetcset, int32_t sx, int32_t sy, int32_t dir, int32_t diagonal, bool only_cset)
 {
 	bool rclick = gui_mouse_b() & 2;
+	bool ignored_combo = false;
 
 	if (draw_mode == dm_auto)
 	{
 		combo_auto const& cauto = combo_autos[combo_auto_pos];
+		ignored_combo = cauto.isIgnoredCombo((fillscr->data[((sy << 4) + sx)])) && !rclick;
 		if (rclick&&cauto.containsCombo(targetcombo))
 		{
 			if(!cauto.containsCombo(fillscr->data[((sy<<4)+sx)]))
@@ -8278,11 +8289,11 @@ static void fill(int32_t map, int32_t screen_index, mapscr* fillscr, int32_t tar
 		}
 		else
 		{
-			if ((fillscr->data[((sy<<4)+sx)])!=targetcombo)
+			if ((fillscr->data[((sy<<4)+sx)])!=targetcombo && !ignored_combo)
 				return;
 		}
     
-		if((fillscr->cset[((sy<<4)+sx)])!=targetcset)
+		if((fillscr->cset[((sy<<4)+sx)])!=targetcset && !ignored_combo)
 			return;
 	}
 	else
@@ -8309,7 +8320,7 @@ static void fill(int32_t map, int32_t screen_index, mapscr* fillscr, int32_t tar
 		combo_auto const& cauto = combo_autos[combo_auto_pos];
 		if (!cauto.valid())
 			return;
-		if (!rclick && cauto.containsCombo(targetcombo))
+		if (!rclick && (cauto.containsCombo(targetcombo) && !ignored_combo))
 			return;
 		if (rclick && cauto.getEraseCombo() == targetcombo)
 			return;

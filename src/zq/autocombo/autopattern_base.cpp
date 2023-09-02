@@ -121,6 +121,89 @@ namespace AutoPattern
 			return ret;
 		}
 	}
+	apcombo* autopattern_container::add_relative(apcombo*& ap, int32_t xoff, int32_t yoff)
+	{
+		//zprint2("add_relative(%d, %d)\n", xoff, yoff);
+		int32_t dx = std::abs(xoff);
+		int32_t dy = std::abs(yoff);
+		apcombo* cur = ap;
+		// The greater of two diffs is more likely to go out of bounds.
+		// If it does go out of bounds, the target pos will be out of bounds as well.
+		if (dx >= dy)
+		{
+			for (int32_t x = 0; x < dx; ++x)
+			{
+				//zprint2("x - pos = %d\n", cur->pos);
+				if (xoff < 0)
+				{
+					cur = add(cur, left, false, false);
+					if (cur == NULL)
+						return cur;
+				}
+				else if (xoff > 0)
+				{
+					cur = add(cur, right, false, false);
+					if (cur == NULL)
+						return cur;
+				}
+			}
+			for (int32_t y = 0; y < dy; ++y)
+			{
+				//zprint2("y - pos = %d\n", cur->pos);
+				if (yoff < 0)
+				{
+					cur = add(cur, up, false, false);
+					if (cur == NULL)
+						return cur;
+				}
+				else if (yoff > 0)
+				{
+					cur = add(cur, down, false, false);
+					if (cur == NULL)
+						return cur;
+				}
+			}
+			return cur;
+		}
+		else if (dx > 0 || dy > 0)
+		{
+			for (int32_t y = 0; y < dy; ++y)
+			{
+				//zprint2("y - pos = %d\n", cur->pos);
+				if (yoff < 0)
+				{
+					cur = add(cur, up, false, false);
+					if (cur == NULL)
+						return cur;
+				}
+				else if (yoff > 0)
+				{
+					cur = add(cur, down, false, false);
+					if (cur == NULL)
+						return cur;
+				}
+			}
+			for (int32_t x = 0; x < dx; ++x)
+			{
+				//zprint2("x - pos = %d\n", cur->pos);
+				if (xoff < 0)
+				{
+					cur = add(cur, left, false, false);
+					if (cur == NULL)
+						return cur;
+				}
+				else if (xoff > 0)
+				{
+					cur = add(cur, right, false, false);
+					if (cur == NULL)
+						return cur;
+				}
+			}
+			return cur;
+		}
+		else
+			return ap;
+	}
 	void autopattern_container::remove(apcombo* ptr)
 	{
 		combos.erase(ptr->screenpos);

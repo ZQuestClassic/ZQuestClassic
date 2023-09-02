@@ -68,6 +68,7 @@ struct combo_auto
 	void updateValid();
 
 	bool containsCombo(int32_t cid, bool requirevalid = true) const;
+	bool isIgnoredCombo(int32_t cid) const;
 
 	byte getFlags() const
 	{
@@ -115,6 +116,7 @@ struct combo_auto
 
 	static int32_t legacy_offsets(byte type, int16_t offset);
 	static int32_t convert_offsets(byte type, int16_t offset);
+	static bool ignore_fill(byte type, int32_t slot);
 
 	std::map<int32_t,byte> getMapping();
 

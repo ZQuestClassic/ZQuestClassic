@@ -91,7 +91,7 @@ void AutoComboDialog::refreshPanels()
 			addCombos(val, 47);
 			break;
 		case AUTOCOMBO_DGNCARVE:
-			addCombos(val, 95);
+			addCombos(val, 94);
 			break;
 	}
 }

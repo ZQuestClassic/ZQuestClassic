@@ -37,6 +37,7 @@ namespace AutoPattern
 		apcombo* add(int32_t sp, bool forcevalid = false, bool andgenerate = true);
 		apcombo* add(int32_t s, int32_t p, bool forcevalid = false, bool andgenerate = true);
 		apcombo* add(apcombo* &ap, int32_t dir, bool forcevalid = false, bool andgenerate = true);
+		apcombo* add_relative(apcombo*& ap, int32_t xoff, int32_t yoff);
 		void remove(apcombo* ptr);
 		void init_connections(apcombo* ap, bool andgenerate = true);
 		bool offscreen(int32_t x, int32_t y);
