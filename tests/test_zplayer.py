@@ -19,7 +19,7 @@ class TestZPlayer(unittest.TestCase):
     def setUp(self):
         self.maxDiff = None
 
-    def test_file_new(self):
+    def test_zplayer(self):
         run_target.check_run('zplayer', [
             '-test-zc',
         ])
