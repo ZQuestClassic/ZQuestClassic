@@ -814,6 +814,10 @@ static int32_t read_saves(ReadMode read_mode, std::string filename, std::vector<
 		}
 		if(section_version >= 34)
 		{
+			if(!p_igetw(&game.forced_xwpn,f))
+				return 114;
+			if(!p_igetw(&game.forced_ywpn,f))
+				return 115;
 			if(!p_igetw(&game.xwpn,f))
 				return 111;
 			if(!p_igetw(&game.ywpn,f))
