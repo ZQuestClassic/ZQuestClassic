@@ -2182,96 +2182,99 @@ int32_t init_game()
 	//Setup button items
 	{
 		bool use_x = get_qr(qr_SET_XBUTTON_ITEMS), use_y = get_qr(qr_SET_YBUTTON_ITEMS);
-		if(get_qr(qr_OLD_SUBSCR))
+		if (new_subscreen_active)
 		{
-			SubscrPage& pg = new_subscreen_active->cur_page();
-			if(use_x || use_y)
+			if (get_qr(qr_OLD_SUBSCR))
 			{
-				if(!get_qr(qr_SELECTAWPN))
+				SubscrPage& pg = new_subscreen_active->cur_page();
+				if (use_x || use_y)
 				{
-					Awpn = selectSword();
-					bpos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF);
-					if(use_x)
-						xpos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->xwpn : 0xFF, bpos);
-					if(use_y)
-						ypos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->ywpn : 0xFF, bpos, xpos);
-					directItemA = -1;
+					if (!get_qr(qr_SELECTAWPN))
+					{
+						Awpn = selectSword();
+						bpos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF);
+						if (use_x)
+							xpos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->xwpn : 0xFF, bpos);
+						if (use_y)
+							ypos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->ywpn : 0xFF, bpos, xpos);
+						directItemA = -1;
+					}
+					else
+					{
+						apos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->awpn : 0xFF);
+						bpos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, apos);
+						if (use_x)
+							xpos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->xwpn : 0xFF, apos, bpos);
+						if (use_y)
+							ypos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->ywpn : 0xFF, apos, bpos, xpos);
+
+						Awpn = pg.get_item_pos(apos >> 8);
+						directItemA = NEG_OR_MASK(Awpn, 0xFF);
+					}
+
+					game->awpn = apos;
+
+					game->bwpn = bpos;
+					Bwpn = pg.get_item_pos(bpos >> 8);
+					directItemB = NEG_OR_MASK(Bwpn, 0xFF);
+
+					game->xwpn = xpos;
+					Xwpn = pg.get_item_pos(xpos >> 8);
+					directItemX = NEG_OR_MASK(Xwpn, 0xFF);
+
+					game->ywpn = ypos;
+					Ywpn = pg.get_item_pos(ypos >> 8);
+					directItemY = NEG_OR_MASK(Ywpn, 0xFF);
+
+					animate_subscr_buttonitems();
+
+					refresh_subscr_buttonitems();
 				}
 				else
 				{
-					apos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->awpn : 0xFF);
-					bpos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, apos);
-					if(use_x)
-						xpos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->xwpn : 0xFF, apos, bpos);
-					if(use_y)
-						ypos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->ywpn : 0xFF, apos, bpos, xpos);
-					
-					Awpn = pg.get_item_pos(apos>>8);
-					directItemA = NEG_OR_MASK(Awpn,0xFF);
+					if (!get_qr(qr_SELECTAWPN))
+					{
+						Awpn = selectSword();
+						apos = 0xFF;
+						bpos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF);
+						directItemA = -1;
+					}
+					else
+					{
+						apos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->awpn : 0xFF);
+						bpos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, apos);
+
+						if (bpos == 0xFF)
+						{
+							bpos = apos;
+							apos = 0xFF;
+						}
+
+						Awpn = pg.get_item_pos(apos >> 8);
+						directItemA = NEG_OR_MASK(Awpn, 0xFF);
+					}
+
+					game->awpn = apos;
+					game->bwpn = bpos;
+					Bwpn = pg.get_item_pos(bpos >> 8);
+					directItemB = NEG_OR_MASK(Bwpn, 0xFF);
+					animate_subscr_buttonitems();
+
+					refresh_subscr_buttonitems();
 				}
-
-				game->awpn = apos;
-				
-				game->bwpn = bpos;
-				Bwpn = pg.get_item_pos(bpos>>8);
-				directItemB = NEG_OR_MASK(Bwpn,0xFF);
-				
-				game->xwpn = xpos;
-				Xwpn = pg.get_item_pos(xpos>>8);
-				directItemX = NEG_OR_MASK(Xwpn,0xFF);
-				
-				game->ywpn = ypos;
-				Ywpn = pg.get_item_pos(ypos>>8);
-				directItemY = NEG_OR_MASK(Ywpn,0xFF);
-				
-				animate_subscr_buttonitems();
-
-				refresh_subscr_buttonitems();
 			}
 			else
 			{
-				if(!get_qr(qr_SELECTAWPN))
-				{
-					Awpn = selectSword();
-					apos = 0xFF;
-					bpos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF);
-					directItemA = -1; 
-				}
-				else
-				{
-					apos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->awpn : 0xFF);
-					bpos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, apos);
-					
-					if(bpos==0xFF)
-					{
-						bpos=apos;
-						apos=0xFF;
-					}
-					
-					Awpn = pg.get_item_pos(apos>>8);
-					directItemA = NEG_OR_MASK(Awpn,0xFF);
-				}
-
-				game->awpn = apos;
-				game->bwpn = bpos;
-				Bwpn = pg.get_item_pos(bpos>>8);
-				directItemB = NEG_OR_MASK(Bwpn,0xFF);
-				animate_subscr_buttonitems();
-
-				refresh_subscr_buttonitems();
+				Awpn = get_qr(qr_SELECTAWPN) ? new_subscreen_active->get_item_pos(game->awpn)
+					: selectSword();
+				directItemA = NEG_OR_MASK(Awpn, 0xFF);
+				Bwpn = new_subscreen_active->get_item_pos(game->bwpn);
+				directItemB = NEG_OR_MASK(Bwpn, 0xFF);
+				Xwpn = new_subscreen_active->get_item_pos(game->xwpn);
+				directItemX = NEG_OR_MASK(Xwpn, 0xFF);
+				Ywpn = new_subscreen_active->get_item_pos(game->ywpn);
+				directItemY = NEG_OR_MASK(Ywpn, 0xFF);
 			}
-		}
-		else if(new_subscreen_active)
-		{
-			Awpn = get_qr(qr_SELECTAWPN) ? new_subscreen_active->get_item_pos(game->awpn)
-				: selectSword();
-			directItemA = NEG_OR_MASK(Awpn,0xFF);
-			Bwpn = new_subscreen_active->get_item_pos(game->bwpn);
-			directItemB = NEG_OR_MASK(Bwpn,0xFF);
-			Xwpn = new_subscreen_active->get_item_pos(game->xwpn);
-			directItemX = NEG_OR_MASK(Xwpn,0xFF);
-			Ywpn = new_subscreen_active->get_item_pos(game->ywpn);
-			directItemY = NEG_OR_MASK(Ywpn,0xFF);
 		}
 	}
 	
