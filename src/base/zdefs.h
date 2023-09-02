@@ -2553,6 +2553,7 @@ struct savedportal
 	bool deleting;
 	
 	int32_t getUID(){return uid;}
+	void clearUID(){uid = 0;}
 	
 	savedportal();
 	void clear()
@@ -2572,11 +2573,8 @@ private:
 // Everything needed by the title screen.
 struct gamedata_header
 {
-	// https://stackoverflow.com/a/75348474/2788187
-	// std::strong_ordering operator<=>(const gamedata_header&) const = default;
 	bool operator==(const gamedata_header&) const = default;
 
-	// std::string path;
 	std::string qstpath;
 	std::string replay_file;
 	std::string name;
@@ -2596,8 +2594,6 @@ struct gamedata_header
 
 struct gamedata
 {
-	// https://stackoverflow.com/a/75348474/2788187
-	// std::strong_ordering operator<=>(const gamedata&) const = default;
 	bool operator==(const gamedata&) const = default;
 
 	gamedata_header header;
