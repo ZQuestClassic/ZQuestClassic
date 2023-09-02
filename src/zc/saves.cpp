@@ -14,6 +14,7 @@
 #include "tiles.h"
 #include "items.h"
 #include "jwin.h"
+#include <cstdio>
 #include <vector>
 #include <filesystem>
 #include <fstream>
@@ -2269,4 +2270,121 @@ void saves_do_first_time_stuff(int index)
 void saves_enable_save_current_replay()
 {
 	save_current_replay_games = true;
+}
+
+template<std::size_t N, class T>
+constexpr std::size_t countof(T(&)[N]) { return N; }
+
+template <typename T>
+static bool gd_compare(T a, T b)
+{
+	return a == b;
+}
+
+static bool gd_compare(const char* a, const char* b)
+{
+	return strcmp(a, b) == 0;
+}
+
+bool saves_test()
+{
+	gamedata* game = new gamedata();
+	game->header.qstpath = "somegame.qst";
+	game->header.title = "I am a test";
+	game->header.name = "test";
+	game->header.deaths = 10;
+	game->header.has_played = true;
+	// Does not persist.
+	// game->header.did_cheat = true;
+
+	save_t save;
+	save.game = game;
+	save.header = &game->header;
+	save.path = "test.sav";
+
+	if (write_save(&save))
+	{
+		printf("failed: write_save\n");
+		delete game;
+		return false;
+	}
+
+	save.game = nullptr;
+	save.header = nullptr;
+
+	if (load_from_save_file_expect_one(ReadMode::All, save.path, save))
+	{
+		printf("failed: load_from_save_file_expect_one\n");
+		delete game;
+		return false;
+	}
+
+	#define SAVE_TEST_FIELD(field) if (!gd_compare(game->field, save.game->field)) {\
+		printf("game->%s != save.game->%s\n", #field, #field);\
+		printf("%s\n", fmt::format("{} != {}", game->field, save.game->field).c_str());\
+		delete game;\
+		return false;\
+	}
+
+	#define SAVE_TEST_ARRAY(field) for (int i = 0; i < countof(game->field); i++) {\
+		if (!gd_compare(game->field[i], save.game->field[i])) {\
+			printf("game->%s[%d] != save.game->%s[%d]\n", #field, i, #field, i);\
+			printf("%s\n", fmt::format("{} != {}", game->field[i], save.game->field[i]).c_str());\
+			delete game;\
+			return false;\
+		}\
+	}
+
+	// Test some (but not all ... I got lazy) of the fields, in the order found in the save format.
+	SAVE_TEST_FIELD(get_name());
+	SAVE_TEST_FIELD(get_quest());
+	SAVE_TEST_FIELD(get_deaths());
+	SAVE_TEST_FIELD(_cheat);
+	SAVE_TEST_ARRAY(item);
+	SAVE_TEST_ARRAY(version);
+	SAVE_TEST_FIELD(get_hasplayed());
+	SAVE_TEST_FIELD(get_time());
+	SAVE_TEST_FIELD(get_timevalid());
+	SAVE_TEST_ARRAY(lvlitems);
+	SAVE_TEST_FIELD(get_continue_scrn());
+	SAVE_TEST_FIELD(get_continue_dmap());
+	SAVE_TEST_ARRAY(visited);
+	SAVE_TEST_ARRAY(bmaps);
+	SAVE_TEST_ARRAY(maps);
+	SAVE_TEST_ARRAY(guys);
+	SAVE_TEST_ARRAY(lvlkeys);
+	// SAVE_TEST_ARRAY(screen_d);
+	SAVE_TEST_ARRAY(global_d);
+	SAVE_TEST_ARRAY(_counter);
+	SAVE_TEST_ARRAY(_maxcounter);
+	SAVE_TEST_ARRAY(_dcounter);
+	SAVE_TEST_ARRAY(_generic);
+	SAVE_TEST_FIELD(awpn);
+	SAVE_TEST_FIELD(bwpn);
+	// SAVE_TEST_FIELD(globalRAM);
+	SAVE_TEST_FIELD(forced_awpn);
+	SAVE_TEST_FIELD(forced_bwpn);
+	SAVE_TEST_FIELD(forced_xwpn);
+	SAVE_TEST_FIELD(forced_ywpn);
+	SAVE_TEST_FIELD(xwpn);
+	SAVE_TEST_FIELD(ywpn);
+
+	// Now do the header.
+	if (game->header != save.game->header)
+	{
+		printf("game->header != save.game->header\n");
+		delete game;
+		return false;
+	}
+
+	// Now do the entire thing.
+	if (game != save.game)
+	{
+		printf("game != save.game\n");
+		delete game;
+		return false;
+	}
+
+	delete game;
+	return true;
 }

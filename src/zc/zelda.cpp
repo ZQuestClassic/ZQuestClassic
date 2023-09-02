@@ -4398,6 +4398,19 @@ int main(int argc, char **argv)
 		return get_qr(qr_SCRIPTERRLOG) || DEVLEVEL > 0;
 	});
 
+	if (used_switch(argc,argv,"-test-zc"))
+	{
+		bool success = true;
+		if (!saves_test())
+		{
+			success = false;
+			printf("saves_test failed\n");
+		}
+		if (success)
+			printf("all tests passed\n");
+		exit(success ? 0 : 1);
+	}
+
 	// Helps to test crash reporting.
 	if (used_switch(argc, argv, "-crash") > 0)
 	{

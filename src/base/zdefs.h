@@ -2539,6 +2539,8 @@ enum
 #define MAX_SAVED_PORTALS 10000
 struct savedportal
 {
+	bool operator==(const savedportal&) const = default;
+
 	int16_t destdmap = -1;
 	int16_t srcdmap = -1;
 	byte srcscr;
@@ -2570,7 +2572,11 @@ private:
 // Everything needed by the title screen.
 struct gamedata_header
 {
-	std::string path;
+	// https://stackoverflow.com/a/75348474/2788187
+	// std::strong_ordering operator<=>(const gamedata_header&) const = default;
+	bool operator==(const gamedata_header&) const = default;
+
+	// std::string path;
 	std::string qstpath;
 	std::string replay_file;
 	std::string name;
@@ -2590,6 +2596,10 @@ struct gamedata_header
 
 struct gamedata
 {
+	// https://stackoverflow.com/a/75348474/2788187
+	// std::strong_ordering operator<=>(const gamedata&) const = default;
+	bool operator==(const gamedata&) const = default;
+
 	gamedata_header header;
 	byte  /*_wlevel,*/_cheat;
 	bool  item[MAXITEMS];
