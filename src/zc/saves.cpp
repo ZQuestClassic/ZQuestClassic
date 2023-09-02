@@ -2089,6 +2089,21 @@ bool saves_select(int32_t index)
 	else
 		game->Clear();
 
+	// Unload any other games.
+	for (int i = 0; i < saves.size(); i++)
+	{
+		if (i != index)
+		{
+			auto& save = saves[i];
+			if (save.game)
+			{
+				save.header = new gamedata_header(save.game->header);
+				delete save.game;
+				save.game = nullptr;
+			}
+		}
+	}
+
 	return true;
 }
 
