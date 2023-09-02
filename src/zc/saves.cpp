@@ -2292,6 +2292,8 @@ static bool gd_compare(const char* a, const char* b)
 
 bool saves_test()
 {
+	// For some reason MSVC hangs on compiling gamedata==
+#ifndef _WIN32
 	// First make sure there are not accidentally equalities that are impossible,
 	// like fields that have pointers to objects.
 	gamedata* g1 = new gamedata();
@@ -2307,6 +2309,7 @@ bool saves_test()
 	}
 	delete g1;
 	delete g2;
+#endif
 
 	gamedata* game = new gamedata();
 	game->header.qstpath = "somegame.qst";
@@ -2477,6 +2480,7 @@ bool saves_test()
 		return false;
 	}
 
+#ifndef _WIN32
 	// Now do the entire thing.
 	if (*game != *save.game)
 	{
@@ -2484,6 +2488,7 @@ bool saves_test()
 		delete game;
 		return false;
 	}
+#endif
 
 	delete game;
 	return true;
