@@ -2314,6 +2314,8 @@ bool saves_test()
 	game->header.name = "test";
 	game->header.deaths = 10;
 	game->header.has_played = true;
+	game->OverrideItems[0] = 0;
+	game->OverrideItems[511] = 511;
 	// Does not persist.
 	// game->header.did_cheat = true;
 
@@ -2476,13 +2478,12 @@ bool saves_test()
 	}
 
 	// Now do the entire thing.
-	// TODO: why is this failing?
-	// if (game != save.game)
-	// {
-	// 	printf("game != save.game\n");
-	// 	delete game;
-	// 	return false;
-	// }
+	if (*game != *save.game)
+	{
+		printf("game != save.game\n");
+		delete game;
+		return false;
+	}
 
 	delete game;
 	return true;
