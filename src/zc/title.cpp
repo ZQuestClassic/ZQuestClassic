@@ -1258,12 +1258,13 @@ static void select_game(bool skip = false)
 				{
 				case 0:
 					// TODO: this is being called too much!
-					saves_select(saveslot);
-					loadlast = saves_current_selection() + 1;
-					
-					if (saves_get_slot(saveslot)->header->quest)
-						done=true;
-						
+					if (saves_select(saveslot))
+					{
+						loadlast = saves_current_selection() + 1;
+						if (saves_get_slot(saveslot)->header->quest)
+							done=true;
+					}
+
 					break;
 					
 				case 2:

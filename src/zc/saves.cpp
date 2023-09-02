@@ -1684,7 +1684,7 @@ cantopen:
 	{
 		out_saves.clear();
 
-		system_pal();
+		enter_sys_pal();
 		char buf[256];
 		snprintf(buf, 256, "Couldn't open %s", filenameCStr);
 		jwin_alert("Can't Open Saved Game File",
@@ -1692,6 +1692,7 @@ cantopen:
 				   error,
 				   "",
 				   "OK",NULL,'o',0,get_zc_font(font_lfont));
+		exit_sys_pal();
 	}
 
 	return ret;
