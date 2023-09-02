@@ -1759,7 +1759,7 @@ public:
 	
 	static void write_stack(const uint32_t stackoffset, const int32_t value)
 	{
-		if(stackoffset == 0)
+		if(stackoffset >= MAX_SCRIPT_REGISTERS)
 		{
 			Z_scripterrlog("Stack over or underflow, stack pointer = %ld\n", stackoffset);
 			return;
@@ -1770,7 +1770,7 @@ public:
 	
 	static int32_t read_stack(const uint32_t stackoffset)
 	{
-		if(stackoffset == 0)
+		if(stackoffset >= MAX_SCRIPT_REGISTERS)
 		{
 			Z_scripterrlog("Stack over or underflow, stack pointer = %ld\n", stackoffset);
 			return -10000;
@@ -31593,6 +31593,8 @@ j_command:
 
 			case RETURN:
 			{
+				if (script_funcrun)
+					break; //handled below
 				ri->pc = SH::read_stack(ri->sp) - 1;
 				++ri->sp;
 				ri->sp &= MASK_SP;
@@ -35287,8 +35289,14 @@ j_command:
 			earlyretval = -1;
 			return RUNSCRIPT_SELFDELETE;
 		}
+		if (ri->sp >= MAX_SCRIPT_REGISTERS)
+		{
+			if (script_funcrun)
+				return RUNSCRIPT_OK;
+			Z_scripterrlog("Stack over/underflow caused by command %d!\n", scommand);
+		}
 		if(hit_invalid_zasm) break;
-		if(script_funcrun && ri->pc == MAX_PC)
+		if(script_funcrun && (ri->pc == MAX_PC || scommand == RETURN))
 			return RUNSCRIPT_OK;
 
 #ifdef _SCRIPT_COUNTER
