@@ -587,9 +587,6 @@ static int32_t read_saves(ReadMode read_mode, std::string filename, std::vector<
 			return 41;
 		}
 
-		if (read_mode == ReadMode::Header && count == 1)
-			return 0;
-		
 		if(section_version <= 5)
 		{
 			for(int32_t j=0; j<OLDMAXLEVELS; ++j)
@@ -741,7 +738,14 @@ static int32_t read_saves(ReadMode read_mode, std::string filename, std::vector<
 				game.set_generic(tempbyte, j);
 			}
 		}
-		
+
+		game.header.life = game.get_life();
+		game.header.maxlife = game.get_maxlife();
+		game.header.hp_per_heart_container = game.get_hp_per_heart();
+
+		if (read_mode == ReadMode::Header && count == 1)
+			return 0;
+
 		if(section_version >= 34)
 		{
 			if(!p_igetw(&game.awpn,f))
@@ -1265,7 +1269,7 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 	{
 		return 41;
 	}
-	
+
 	if(!pfwrite(game.lvlkeys,MAXLEVELS,f))
 	{
 		return 42;
@@ -2255,6 +2259,9 @@ void saves_do_first_time_stuff(int index)
 		save->game->set_maxlife(zinit.hc*zinit.hp_per_heart);
 		save->game->set_life(zinit.hc*zinit.hp_per_heart);
 		save->game->set_hp_per_heart(zinit.hp_per_heart);
+		save->game->header.life = save->game->get_life();
+		save->game->header.maxlife = save->game->get_maxlife();
+		save->game->header.hp_per_heart_container = save->game->get_hp_per_heart();
 
 		if (standalone_mode)
 		{

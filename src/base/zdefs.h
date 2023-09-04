@@ -2581,9 +2581,9 @@ struct gamedata_header
 	std::string title;
 	byte quest;
 	int deaths;
-	int life;
-	int maxlife;
-	int hp_per_heart_container;
+	word life;
+	word maxlife;
+	byte hp_per_heart_container;
 	bool has_played;
 	bool time_valid;
 	bool did_cheat;
