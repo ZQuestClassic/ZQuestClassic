@@ -2324,6 +2324,9 @@ bool saves_test()
 	game->header.name = "test";
 	game->header.deaths = 10;
 	game->header.has_played = true;
+	game->header.life = game->get_life();
+	game->header.maxlife = game->get_maxlife();
+	game->header.hp_per_heart_container = game->get_hp_per_heart();
 	game->OverrideItems[0] = 0;
 	game->OverrideItems[511] = 511;
 	// Does not persist.
