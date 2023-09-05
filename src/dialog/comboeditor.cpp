@@ -2253,6 +2253,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 		info = "Edit combos, setting up their graphics, effects, and attributes.\n"
 			"Hotkeys:\n"
 			"-/+: Change CSet\n"
+			"Shift -/+: Change Combo\n"
 			"H/V/R: Flip (Horz,Vert,Rotate)\n"
 			"T: Change tile",
 		onClose = message::CANCEL,
