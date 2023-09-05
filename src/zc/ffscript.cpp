@@ -30235,19 +30235,17 @@ void do_setsavename()
 	string str;
 	ArrayH::getString(arrayptr, str);
 	byte j;
-	
+
 	for(j = 0; str[j] != '\0'; j++)
 	{
 		if(j >= 8)
 		{
 			Z_scripterrlog("String supplied to 'Game->GetSaveName' too large\n");
-			break;
+			return;
 		}
-		
-		game->get_name_mutable()[j] = str[j];
 	}
-	
-	game->get_name_mutable()[j] = '\0';
+
+	game->set_name(str);
 }
 
 void do_getmessage(const bool v)

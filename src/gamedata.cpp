@@ -93,10 +93,6 @@ const char *gamedata::get_name() const
 {
     return header.name.c_str();
 }
-char *gamedata::get_name_mutable()
-{
-    return header.name.data();
-}
 void gamedata::set_name(std::string n)
 {
 	header.name = n;

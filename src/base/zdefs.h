@@ -2679,7 +2679,6 @@ struct gamedata
 	void set_qstpath(std::string qstpath);
 
 	const char *get_name() const;
-	char *get_name_mutable();
 	void set_name(std::string n);
 	
 	byte get_quest() const;
