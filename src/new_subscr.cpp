@@ -1720,7 +1720,7 @@ byte SW_LifeMeter::getType() const
 }
 void SW_LifeMeter::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
-	lifemeter(dest, getX()+xofs, y+yofs, 1, flags&SUBSCR_LIFEMET_BOT);
+	lifemeter(dest, x+xofs, y+yofs, 1, flags&SUBSCR_LIFEMET_BOT);
 }
 SubscrWidget* SW_LifeMeter::clone() const
 {
@@ -1817,7 +1817,7 @@ void SW_ButtonItem::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& p
 				break;
 		}
 		if(dodraw)
-			putitem3(dest,x,y,btnitem_ids[btn]&0xFF,btnitem_clks[btn]);
+			putitem3(dest,x+xofs,y+yofs,btnitem_ids[btn]&0xFF,btnitem_clks[btn]);
 	}
 	
 	if(flags&SUBSCR_BTNITM_TRANSP)
