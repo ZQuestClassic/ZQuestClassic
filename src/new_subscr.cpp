@@ -1983,7 +1983,10 @@ void SW_Counter::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page
 				infinite = false;
 			
 			if(!(flags&SUBSCR_COUNTER_SHOW0)&&!value&&!infinite)
+			{
+				zq_ignore_item_ownership = b;
 				return;
+			}
 			
 			if(infinite)
 				sprintf(valstring, "%c", infchar);
@@ -2290,7 +2293,10 @@ void SW_BtnCounter::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& p
 			infinite = false;
 		
 		if(!(flags&SUBSCR_BTNCOUNTER_SHOW0)&&!value&&!infinite)
+		{
+			zq_ignore_item_ownership = b;
 			return;
+		}
 		
 		if(infinite)
 			sprintf(valstring, "%c", infchar);
