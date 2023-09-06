@@ -33674,7 +33674,7 @@ j_command:
 				bool checkcost = flags&0x01;
 				bool checkjinx = flags&0x02;
 				bool check_bunny = flags&0x04;
-				ri->d[rEXP1] = current_item_id(ity,checkcost,checkjinx,checkbunny) * 10000;
+				ri->d[rEXP1] = current_item_id(ity,checkcost,checkjinx,check_bunny) * 10000;
 				break;
 			}
 			
