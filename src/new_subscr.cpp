@@ -51,6 +51,15 @@ void draw_textbox(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, FONT
 void magicgauge(BITMAP *dest,int32_t x,int32_t y, int32_t container, int32_t notlast_tile, int32_t notlast_cset, bool notlast_mod, int32_t last_tile, int32_t last_cset, bool last_mod,
 				int32_t cap_tile, int32_t cap_cset, bool cap_mod, int32_t aftercap_tile, int32_t aftercap_cset, bool aftercap_mod, int32_t frames, int32_t speed, int32_t delay, bool unique_last, int32_t show);
 
+const std::string subwidg_internal_names[widgMAX] =
+{
+	"SUBWIDG_NULL", "SUBWIDG_FRAME", "SUBWIDG_TEXT", "SUBWIDG_LINE", "SUBWIDG_RECT",
+	"SUBWIDG_TIME", "SUBWIDG_MMETER", "SUBWIDG_LMETER", "SUBWIDG_BTNITM", "SUBWIDG_COUNTER",
+	"SUBWIDG_OLDCTR", "SUBWIDG_MMAPTITLE", "SUBWIDG_MMAP", "SUBWIDG_LMAP", "SUBWIDG_BGCOLOR",
+	"SUBWIDG_ITEMSLOT", "SUBWIDG_MCGUFF_FRAME", "SUBWIDG_MCGUFF", "SUBWIDG_TILEBLOCK", "SUBWIDG_MINITILE",
+	"SUBWIDG_SELECTOR", "SUBWIDG_LGAUGE", "SUBWIDG_MGAUGE", "SUBWIDG_TEXTBOX", "SUBWIDG_SELECTEDTEXT",
+	"SUBWIDG_MISCGAUGE", "SUBWIDG_BTNCOUNTER",
+};
 const std::string subscr_names[sstMAX] = {"Active","Passive","Overlay"};
 const std::string subscr_infos[sstMAX] = {
 	"The subscreen that actively opens when you press 'Start'",
@@ -596,12 +605,13 @@ int32_t SubscrColorInfo::get_color(byte type, int16_t color)
 }
 int32_t SubscrColorInfo::get_int_color() const
 {
-	if(type >= 0)
-		return (type*16)+color;
 	if(type == ssctSYSTEM)
-		return -(type+1);
+		return -(color+1);
 	if(type == ssctMISC)
-		return -(type+1+NUM_SYS_COLORS);
+		return -(color+1+NUM_SYS_COLORS);
+	if(type >= 0 && type < 16)
+		return (type*16)+color;
+	return 0;
 }
 void SubscrColorInfo::set_int_color(int32_t val)
 {
@@ -673,11 +683,13 @@ int32_t SubscrColorInfo::get_cset(byte type, int16_t color)
 	
 	return ret;
 }
-void SubscrColorInfo::get_int_cset() const
+int32_t SubscrColorInfo::get_int_cset() const
 {
 	if(type == ssctMISC)
 		return -(type+1);
-	return type;
+	if(type >= 0 && type < 16)
+		return type;
+	return 0;
 }
 void SubscrColorInfo::set_int_cset(int32_t val)
 {
