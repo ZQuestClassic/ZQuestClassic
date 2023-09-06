@@ -1150,9 +1150,9 @@ static void select_game(bool skip = false)
 	if(standalone_mode || skip)
 		return;
 
-	saves_select(-1);
 	int32_t pos = zc_max(zc_min(saves_current_selection()-listpos,3),0);
 	int32_t mode = 0;
+	saves_select(-1);
 	
 	//kill_sfx();
 	
