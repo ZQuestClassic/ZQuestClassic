@@ -1074,7 +1074,7 @@ void Z_eventlog(const char *format,...)
         
         va_list ap;
         va_start(ap, format);
-        vsprintf(buf, format, ap);
+        vsnprintf(buf, 2048, format, ap);
         va_end(ap);
         al_trace("%s",buf);
         
@@ -1093,7 +1093,7 @@ void Z_scripterrlog(const char * const format,...)
         
         va_list ap;
         va_start(ap, format);
-        vsprintf(buf, format, ap);
+        vsnprintf(buf, 2048, format, ap);
         va_end(ap);
         al_trace("%s",buf);
         
