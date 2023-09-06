@@ -326,6 +326,25 @@ static AccessorTable SubscreenWidgetTable[] =
 	{ "setPageTransArgs[]",         0,            ZTID_VOID,   SUBWIDGTRANSPGARGS,        0,  { ZTID_SUBSCREENWIDGET, ZTID_FLOAT, ZTID_FLOAT },{} },
 	
 	//Type Specific
+	{ "getCSet",                    0,           ZTID_FLOAT,   SUBWIDGTY_CSET,            0,  { ZTID_SUBSCREENWIDGET },{} },
+	{ "setCSet",                    0,            ZTID_VOID,   SUBWIDGTY_CSET,            0,  { ZTID_SUBSCREENWIDGET, ZTID_FLOAT },{} },
+	{ "getTile",                    0,           ZTID_FLOAT,   SUBWIDGTY_TILE,            0,  { ZTID_SUBSCREENWIDGET },{} },
+	{ "setTile",                    0,            ZTID_VOID,   SUBWIDGTY_TILE,            0,  { ZTID_SUBSCREENWIDGET, ZTID_FLOAT },{} },
+	
+	{ "getFont",                    0,           ZTID_FLOAT,   SUBWIDGTY_FONT,            0,  { ZTID_SUBSCREENWIDGET },{} },
+	{ "setFont",                    0,            ZTID_VOID,   SUBWIDGTY_FONT,            0,  { ZTID_SUBSCREENWIDGET, ZTID_FLOAT },{} },
+	{ "getAlign",                   0,           ZTID_FLOAT,   SUBWIDGTY_ALIGN,           0,  { ZTID_SUBSCREENWIDGET },{} },
+	{ "setAlign",                   0,            ZTID_VOID,   SUBWIDGTY_ALIGN,           0,  { ZTID_SUBSCREENWIDGET, ZTID_FLOAT },{} },
+	{ "getShadowType",              0,           ZTID_FLOAT,   SUBWIDGTY_SHADOWTY,        0,  { ZTID_SUBSCREENWIDGET },{} },
+	{ "setShadowType",              0,            ZTID_VOID,   SUBWIDGTY_SHADOWTY,        0,  { ZTID_SUBSCREENWIDGET, ZTID_FLOAT },{} },
+	{ "getColorText",               0,           ZTID_FLOAT,   SUBWIDGTY_COLOR_TXT,       0,  { ZTID_SUBSCREENWIDGET },{} },
+	{ "setColorText",               0,            ZTID_VOID,   SUBWIDGTY_COLOR_TXT,       0,  { ZTID_SUBSCREENWIDGET, ZTID_FLOAT },{} },
+	{ "getColorShadow",             0,           ZTID_FLOAT,   SUBWIDGTY_COLOR_SHD,       0,  { ZTID_SUBSCREENWIDGET },{} },
+	{ "setColorShadow",             0,            ZTID_VOID,   SUBWIDGTY_COLOR_SHD,       0,  { ZTID_SUBSCREENWIDGET, ZTID_FLOAT },{} },
+	{ "getColorBG",                 0,           ZTID_FLOAT,   SUBWIDGTY_COLOR_BG,        0,  { ZTID_SUBSCREENWIDGET },{} },
+	{ "setColorBG",                 0,            ZTID_VOID,   SUBWIDGTY_COLOR_BG,        0,  { ZTID_SUBSCREENWIDGET, ZTID_FLOAT },{} },
+	{ "GetText",                    0,            ZTID_VOID,   -1,                        0,  { ZTID_SUBSCREENWIDGET, ZTID_CHAR },{} },
+	{ "SetText",                    0,            ZTID_VOID,   -1,                        0,  { ZTID_SUBSCREENWIDGET, ZTID_CHAR },{} },
 	
 	{ "",                           0,            ZTID_VOID,   -1,                        0,  {},{} }
 };
@@ -363,6 +382,34 @@ void SubscreenWidgetSymbols::generateCode()
 		//pop pointer
 		POPREF();
 		addOpcode2 (code, new OSetSubWidgSelTxtOverride(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void GetText(subscreenwidget, char)
+	{
+		Function* function = getFunction("GetText");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer
+		POPREF();
+		addOpcode2 (code, new OSubWidgTy_GetText(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void SetText(subscreenwidget, char)
+	{
+		Function* function = getFunction("SetText");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer
+		POPREF();
+		addOpcode2 (code, new OSubWidgTy_SetText(new VarArgument(EXP1)));
 		RETURN();
 		function->giveCode(code);
 	}

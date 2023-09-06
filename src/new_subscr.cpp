@@ -594,6 +594,34 @@ int32_t SubscrColorInfo::get_color(byte type, int16_t color)
 	
 	return ret;
 }
+int32_t SubscrColorInfo::get_int_color() const
+{
+	if(type >= 0)
+		return (type*16)+color;
+	if(type == ssctSYSTEM)
+		return -(type+1);
+	if(type == ssctMISC)
+		return -(type+1+NUM_SYS_COLORS);
+}
+void SubscrColorInfo::set_int_color(int32_t val)
+{
+	if(val > 255 || val < -ssctMAX-NUM_SYS_COLORS) return;
+	if(val >= 0)
+	{
+		type = (val&0xF0)>>4;
+		color = (val&0x0F);
+	}
+	else if(val >= -NUM_SYS_COLORS)
+	{
+		type = ssctSYSTEM;
+		color = (-val)-1;
+	}
+	else
+	{
+		type = ssctMISC;
+		color = (-val)-1-NUM_SYS_COLORS;
+	}
+}
 
 int32_t SubscrColorInfo::get_cset() const
 {
@@ -644,6 +672,26 @@ int32_t SubscrColorInfo::get_cset(byte type, int16_t color)
 	}
 	
 	return ret;
+}
+void SubscrColorInfo::get_int_cset() const
+{
+	if(type == ssctMISC)
+		return -(type+1);
+	return type;
+}
+void SubscrColorInfo::set_int_cset(int32_t val)
+{
+	if(val > 15 || val < -sscsMAX) return;
+	if(val >= 0)
+	{
+		type = val;
+		color = 0;
+	}
+	else
+	{
+		type = ssctMISC;
+		color = (-val)-1;
+	}
 }
 
 int32_t SubscrColorInfo::read(PACKFILE *f, word s_version)
@@ -4932,7 +4980,69 @@ SubscrWidget* SubscrWidget::newType(byte ty)
 	}
 	return widg;
 }
-
+byte SubscrWidget::numFlags(byte type)
+{
+	switch(type)
+	{
+		case widgFRAME:
+			return SUBSCR_NUMFLAG_2X2FR;
+		case widgTEXT:
+			return SUBSCR_NUMFLAG_TEXT;
+		case widgLINE:
+			return SUBSCR_NUMFLAG_LINE;
+		case widgRECT:
+			return SUBSCR_NUMFLAG_RECT;
+		case widgTIME:
+			return SUBSCR_NUMFLAG_TIME;
+		case widgMMETER:
+			return SUBSCR_NUMFLAG_MAGICMET;
+		case widgLMETER:
+			return SUBSCR_NUMFLAG_LIFEMET;
+		case widgBTNITM:
+			return SUBSCR_NUMFLAG_BTNITM;
+		case widgCOUNTER:
+			return SUBSCR_NUMFLAG_COUNTER;
+		case widgOLDCTR:
+			return SUBSCR_NUMFLAG_COUNTERS;
+		case widgMMAPTITLE:
+			return SUBSCR_NUMFLAG_MMAPTIT;
+		case widgMMAP:
+			return SUBSCR_NUMFLAG_MMAP;
+		case widgLMAP:
+			return SUBSCR_NUMFLAG_LMAP;
+		case widgBGCOLOR:
+			return SUBSCR_NUMFLAG_CLEAR;
+		case widgITEMSLOT:
+			return SUBSCR_NUMFLAG_CURITM;
+		case widgMCGUFF_FRAME:
+			return SUBSCR_NUMFLAG_TRIFR;
+		case widgMCGUFF:
+			return SUBSCR_NUMFLAG_MCGUF;
+		case widgTILEBLOCK:
+			return SUBSCR_NUMFLAG_TILEBL;
+		case widgMINITILE:
+			return SUBSCR_NUMFLAG_MINITL;
+		case widgSELECTOR:
+			return SUBSCR_NUMFLAG_SELECTOR;
+		case widgLGAUGE:
+			return SUBSCR_NUMFLAG_LGAUGE;
+		case widgMGAUGE:
+			return SUBSCR_NUMFLAG_MGAUGE;
+		case widgTEXTBOX:
+			return SUBSCR_NUMFLAG_TEXTBOX;
+		case widgSELECTEDTEXT:
+			return SUBSCR_NUMFLAG_SELTEXT;
+		case widgMISCGAUGE:
+			return SUBSCR_NUMFLAG_MISCGAUGE;
+		case widgBTNCOUNTER:
+			return SUBSCR_NUMFLAG_BTNCOUNTER;
+	}
+	return 0;
+}
+byte SubscrWidget::numFlags()
+{
+	return numFlags(getType());
+}
 //For moving on the subscreen. Never called with 'VERIFY' options, so don't worry about them.
 void SubscrPage::move_cursor(int dir, bool item_only)
 {

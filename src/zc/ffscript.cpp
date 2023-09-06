@@ -14292,10 +14292,11 @@ int32_t get_register(const int32_t arg)
 			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Flags"))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
-				if(indx >= 32)
+				byte sz = widg->numFlags();
+				if(indx >= sz)
 				{
 					Z_scripterrlog("Bad index '%d' to array "
-						"'subscreenwidget->Flags[%d]'\n", indx, 32);
+						"'subscreenwidget->Flags[%d]'\n", indx, sz);
 				}
 				else ret = (widg->flags & (1<<indx)) ? 10000 : 0;
 			}
@@ -14549,6 +14550,148 @@ int32_t get_register(const int32_t arg)
 			break;
 		}
 		///---- VARYING WIDGET TYPES
+		case SUBWIDGTY_CSET:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "CSet"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgFRAME:
+						ret = ((SW_2x2Frame*)widg)->cs.get_cset()*10000;
+						break;
+					default:
+						Z_scripterrlog("Widget type %d does not have a 'CSet' value!",ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_TILE:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Tile"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgFRAME:
+						ret = ((SW_2x2Frame*)widg)->tile * 10000;
+						break;
+					default:
+						Z_scripterrlog("Widget type %d does not have a 'Tile' value!",ty);
+						ret = -10000;
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_FONT:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Font"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgTEXT:
+						ret = 10000*((SW_Text*)widg)->fontid;
+						break;
+					default:
+						Z_scripterrlog("Widget type %d does not have a 'Font' value!",ty);
+						ret = -10000;
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_ALIGN:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Align"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgTEXT:
+						ret = 10000*((SW_Text*)widg)->align;
+						break;
+					default:
+						Z_scripterrlog("Widget type %d does not have a 'Align' value!",ty);
+						ret = -10000;
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_SHADOWTY:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ShadowType"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgTEXT:
+						ret = 10000*((SW_Text*)widg)->shadtype;
+						break;
+					default:
+						Z_scripterrlog("Widget type %d does not have a 'ShadowType' value!",ty);
+						ret = -10000;
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_COLOR_TXT:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorText"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgTEXT:
+						ret = 10000*((SW_Text*)widg)->c_text.get_int_color();
+						break;
+					default:
+						Z_scripterrlog("Widget type %d does not have a 'ColorText' value!",ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_COLOR_SHD:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorShadow"))
+			{
+				auto val = vbound(value/10000,-ssctMAX-NUM_SYS_COLORS,255);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgTEXT:
+						ret = 10000*((SW_Text*)widg)->c_shadow.get_int_color();
+						break;
+					default:
+						Z_scripterrlog("Widget type %d does not have a 'ColorShadow' value!",ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_COLOR_BG:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorBG"))
+			{
+				auto val = vbound(value/10000,-ssctMAX-NUM_SYS_COLORS,255);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgTEXT:
+						ret = 10000*((SW_Text*)widg)->c_bg.get_int_color();
+						break;
+					default:
+						Z_scripterrlog("Widget type %d does not have a 'ColorBG' value!",ty);
+						break;
+				}
+			}
+			break;
+		}
 		///----------------------------------------------------------------------------------------------------//
 		
 		default:
@@ -25541,10 +25684,11 @@ void set_register(int32_t arg, int32_t value)
 			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Flags"))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
-				if(indx >= 32)
+				byte sz = widg->numFlags();
+				if(indx >= sz)
 				{
 					Z_scripterrlog("Bad index '%d' to array "
-						"'subscreenwidget->Flags[%d]'\n", indx, 32);
+						"'subscreenwidget->Flags[%d]'\n", indx, sz);
 				}
 				else
 				{
@@ -25820,6 +25964,150 @@ void set_register(int32_t arg, int32_t value)
 			break;
 		}
 		///---- VARYING WIDGET TYPES
+		case SUBWIDGTY_CSET:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "CSet"))
+			{
+				auto val = vbound(value/10000,-sscsMAX,15);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgFRAME:
+						((SW_2x2Frame*)widg)->cs.set_cset(val);
+						break;
+					default:
+						Z_scripterrlog("Widget type %d does not have a 'CSet' value!",ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_TILE:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Tile"))
+			{
+				auto val = vbound(value/10000,0,NEWMAXTILES-1);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgFRAME:
+						((SW_2x2Frame*)widg)->tile = val;
+						break;
+					default:
+						Z_scripterrlog("Widget type %d does not have a 'Tile' value!",ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_FONT:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Font"))
+			{
+				auto val = vbound(value/10000,0,font_max-1);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgTEXT:
+						((SW_Text*)widg)->fontid = val;
+						break;
+					default:
+						Z_scripterrlog("Widget type %d does not have a 'Font' value!",ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_ALIGN:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Align"))
+			{
+				auto val = vbound(value/10000,0,sstaMAX-1);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgTEXT:
+						((SW_Text*)widg)->align = val;
+						break;
+					default:
+						Z_scripterrlog("Widget type %d does not have a 'Align' value!",ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_SHADOWTY:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ShadowType"))
+			{
+				auto val = vbound(value/10000,0,sstsMAX-1);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgTEXT:
+						((SW_Text*)widg)->shadtype = val;
+						break;
+					default:
+						Z_scripterrlog("Widget type %d does not have a 'ShadowType' value!",ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_COLOR_TXT:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorText"))
+			{
+				auto val = vbound(value/10000,-ssctMAX-NUM_SYS_COLORS,255);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgTEXT:
+						((SW_Text*)widg)->c_text.set_int_color(val);
+						break;
+					default:
+						Z_scripterrlog("Widget type %d does not have a 'ColorText' value!",ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_COLOR_SHD:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorShadow"))
+			{
+				auto val = vbound(value/10000,-ssctMAX-NUM_SYS_COLORS,255);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgTEXT:
+						((SW_Text*)widg)->c_shadow.set_int_color(val);
+						break;
+					default:
+						Z_scripterrlog("Widget type %d does not have a 'ColorShadow' value!",ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_COLOR_BG:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorBG"))
+			{
+				auto val = vbound(value/10000,-ssctMAX-NUM_SYS_COLORS,255);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgTEXT:
+						((SW_Text*)widg)->c_bg.set_int_color(val);
+						break;
+					default:
+						Z_scripterrlog("Widget type %d does not have a 'ColorBG' value!",ty);
+						break;
+				}
+			}
+			break;
+		}
 		
 		///----------------------------------------------------------------------------------------------------//
 		
@@ -37512,7 +37800,7 @@ j_command:
 				if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "GetSelTextOverride"))
 				{
 					auto aptr = get_register(sarg1) / 10000;
-					if(ArrayH::setArray(aptr, widg->override_text, true) == SH::_Overflow)
+					if(ArrayH::setArray(aptr, sub->name, true) == SH::_Overflow)
 						Z_scripterrlog("Array supplied to 'subscreenwidget->GetSelTextOverride()' not large enough,"
 							" and couldn't be resized!\n");
 				}
@@ -37523,7 +37811,55 @@ j_command:
 				if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "SetSelTextOverride"))
 				{
 					auto aptr = get_register(sarg1) / 10000;
-					ArrayH::getString(aptr, widg->override_text);
+					ArrayH::getString(aptr, sub->name);
+				}
+				break;
+			}
+			case SUBWIDG_TY_GETTEXT:
+			{
+				if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "GetText"))
+				{
+					std::string const* str = nullptr;
+					byte ty = widg->getType();
+					switch(ty)
+					{
+						case widgTEXT:
+							str = &((SW_Text*)widg)->text;
+							break;
+						default:
+							Z_scripterrlog("Widget type %d does not have a 'GetText()' function!",ty);
+							break;
+					}
+					if(str)
+					{
+						auto aptr = get_register(sarg1) / 10000;
+						if(ArrayH::setArray(aptr, *str, true) == SH::_Overflow)
+							Z_scripterrlog("Array supplied to 'subscreenwidget->GetText()' not large enough,"
+								" and couldn't be resized!\n");
+					}
+				}
+				break;
+			}
+			case SUBWIDG_TY_SETTEXT:
+			{
+				if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "SetText"))
+				{
+					std::string* str = nullptr;
+					byte ty = widg->getType();
+					switch(ty)
+					{
+						case widgTEXT:
+							str = &((SW_Text*)widg)->text;
+							break;
+						default:
+							Z_scripterrlog("Widget type %d does not have a 'SetText()' function!",ty);
+							break;
+					}
+					if(str)
+					{
+						auto aptr = get_register(sarg1) / 10000;
+						ArrayH::getString(aptr, *str);
+					}
 				}
 				break;
 			}
@@ -43873,8 +44209,8 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "SUBPAGE_DELETE", 0, 0, 0, 0 },
 	{ "SUBWIDG_GET_SELTEXT_OVERRIDE", 1, 0, 0, 0 },
 	{ "SUBWIDG_SET_SELTEXT_OVERRIDE", 1, 0, 0, 0 },
-	{ "RESRVD_OP_EMILY_11", 0, 0, 0, 0 },
-	{ "RESRVD_OP_EMILY_12", 0, 0, 0, 0 },
+	{ "SUBWIDG_TY_GETTEXT", 1, 0, 0, 0 },
+	{ "SUBWIDG_TY_SETTEXT", 1, 0, 0, 0 },
 	{ "RESRVD_OP_EMILY_13", 0, 0, 0, 0 },
 	{ "RESRVD_OP_EMILY_14", 0, 0, 0, 0 },
 	{ "RESRVD_OP_EMILY_15", 0, 0, 0, 0 },
@@ -45499,6 +45835,16 @@ script_variable ZASMVars[]=
 	{ "SUBWIDGTRANSPGFLAGS", SUBWIDGTRANSPGFLAGS, 0, 0 },
 	{ "SUBWIDGTRANSPGARGS", SUBWIDGTRANSPGARGS, 0, 0 },
 	
+	{ "SUBWIDGTY_CSET", SUBWIDGTY_CSET, 0, 0 },
+	{ "SUBWIDGTY_TILE", SUBWIDGTY_TILE, 0, 0 },
+
+	{ "SUBWIDGTY_FONT", SUBWIDGTY_FONT, 0, 0 },
+	{ "SUBWIDGTY_ALIGN", SUBWIDGTY_ALIGN, 0, 0 },
+	{ "SUBWIDGTY_SHADOWTY", SUBWIDGTY_SHADOWTY, 0, 0 },
+	{ "SUBWIDGTY_COLOR_TXT", SUBWIDGTY_COLOR_TXT, 0, 0 },
+	{ "SUBWIDGTY_COLOR_SHD", SUBWIDGTY_COLOR_SHD, 0, 0 },
+	{ "SUBWIDGTY_COLOR_BG", SUBWIDGTY_COLOR_BG, 0, 0 },
+
 	{ " ", -1, 0, 0 }
 };
 

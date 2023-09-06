@@ -8933,6 +8933,54 @@ int PageTransArgs[];
 //     some widget types, as listed.
 //
 
+int CSet;
+ * The object's main cset. Normal csets, as well as the 'SUB_CS_' constants,
+ *     can be used for its' value.
+ * VALID WIDGETS:
+ *  SUBWIDG_FRAME,
+
+int Tile;
+ * The object's main tile.
+ * VALID WIDGETS:
+ *  SUBWIDG_FRAME
+
+int Font;
+ * The object's Font, use the 'FONT_' constants.
+ * VALID WIDGETS:
+ *  SUBWIDG_TEXT
+
+int Align;
+ * The object's Alignment, use the 'TF_' constants.
+ * VALID WIDGETS:
+ *  SUBWIDG_TEXT
+
+int ShadowType;
+ * The object's Shadow Type, use the 'SHD_' constants.
+ * VALID WIDGETS:
+ *  SUBWIDG_TEXT
+
+int ColorText;
+ * The object's color index used for Text
+ * VALID WIDGETS:
+ *  SUBWIDG_TEXT
+
+int ColorShadow;
+ * The object's color index used for Shadows
+ * VALID WIDGETS:
+ *  SUBWIDG_TEXT
+
+int ColorBG;
+ * The object's color index used for background
+ * VALID WIDGETS:
+ *  SUBWIDG_TEXT
+
+void GetText(char32[] buf);
+void SetText(char32[] str);
+ * Gets/Sets the text for this widget.
+ * If the buffer provided for GetText() is too small,
+ *     it will *automatically be resized to fit*.
+ * VALID WIDGETS:
+ *  SUBWIDG_TEXT
 
 
 ////////////////////////////////////

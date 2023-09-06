@@ -67,6 +67,10 @@ struct SubscrColorInfo
 	int16_t color;
 	int32_t get_cset() const;
 	int32_t get_color() const;
+	int32_t get_int_cset() const;
+	void set_int_cset(int32_t val);
+	int32_t get_int_color() const;
+	void set_int_color(int32_t val);
 	void load_old(subscreen_object const& old, int indx);
 	int32_t read(PACKFILE *f, word s_version);
 	int32_t write(PACKFILE *f) const;
@@ -205,6 +209,7 @@ enum // special colors
 	ssctSUBSCRBG, ssctSUBSCRSHADOW, ssctTRIFRAMECOLOR, ssctBMAPBG, ssctBMAPFG,
 	ssctHERODOT, ssctMSGTEXT, ssctMAX
 };
+#define NUM_SYS_COLORS 16
 enum // special csets
 {
 	sscsTRIFORCECSET, sscsTRIFRAMECSET, sscsOVERWORLDMAPCSET, sscsDUNGEONMAPCSET,
@@ -223,7 +228,7 @@ enum // custom negative counters
 };
 enum //subscreen text alignment
 {
-	sstaLEFT, sstaCENTER, sstaRIGHT
+	sstaLEFT, sstaCENTER, sstaRIGHT, sstaMAX
 };
 
 enum //PGGOTO modes
@@ -350,10 +355,13 @@ public:
 	static SubscrWidget* fromOld(subscreen_object const& old);
 	static SubscrWidget* readWidg(PACKFILE* f, word s_version);
 	static SubscrWidget* newType(byte type);
+	static byte numFlags(byte type);
+	byte numFlags();
 };
 
-#define SUBSCR_2X2FR_TRANSP    SUBSCRFLAG_SPEC_01
-#define SUBSCR_2X2FR_OVERLAY   SUBSCRFLAG_SPEC_02
+#define SUBSCR_2X2FR_TRANSP           SUBSCRFLAG_SPEC_01
+#define SUBSCR_2X2FR_OVERLAY          SUBSCRFLAG_SPEC_02
+#define SUBSCR_NUMFLAG_2X2FR          2
 struct SW_2x2Frame : public SubscrWidget
 {
 	SubscrColorInfo cs;
@@ -374,6 +382,7 @@ protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
 
+#define SUBSCR_NUMFLAG_TEXT           0
 struct SW_Text : public SubscrWidget
 {
 	int32_t fontid;
@@ -399,7 +408,8 @@ protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
 
-#define SUBSCR_LINE_TRANSP     SUBSCRFLAG_SPEC_01
+#define SUBSCR_LINE_TRANSP            SUBSCRFLAG_SPEC_01
+#define SUBSCR_NUMFLAG_LINE           1
 struct SW_Line : public SubscrWidget
 {
 	SubscrColorInfo c_line;
@@ -417,8 +427,9 @@ protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
 
-#define SUBSCR_RECT_TRANSP     SUBSCRFLAG_SPEC_01
-#define SUBSCR_RECT_FILLED     SUBSCRFLAG_SPEC_02
+#define SUBSCR_RECT_TRANSP            SUBSCRFLAG_SPEC_01
+#define SUBSCR_RECT_FILLED            SUBSCRFLAG_SPEC_02
+#define SUBSCR_NUMFLAG_RECT           2
 struct SW_Rect : public SubscrWidget
 {
 	SubscrColorInfo c_fill, c_outline;
@@ -436,7 +447,8 @@ protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
 
-#define SUBSCR_TIME_ALTSTR     SUBSCRFLAG_SPEC_01
+#define SUBSCR_TIME_ALTSTR            SUBSCRFLAG_SPEC_01
+#define SUBSCR_NUMFLAG_TIME           1
 struct SW_Time : public SubscrWidget
 {
 	int32_t fontid;
@@ -463,6 +475,7 @@ protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
 
+#define SUBSCR_NUMFLAG_MAGICMET       0
 struct SW_MagicMeter : public SubscrWidget
 {
 	SW_MagicMeter() = default;
@@ -481,7 +494,8 @@ protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
 
-#define SUBSCR_LIFEMET_BOT     SUBSCRFLAG_SPEC_01
+#define SUBSCR_LIFEMET_BOT            SUBSCRFLAG_SPEC_01
+#define SUBSCR_NUMFLAG_LIFEMET        1
 struct SW_LifeMeter : public SubscrWidget
 {
 	byte rows;
@@ -502,7 +516,8 @@ protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
 
-#define SUBSCR_BTNITM_TRANSP   SUBSCRFLAG_SPEC_01
+#define SUBSCR_BTNITM_TRANSP          SUBSCRFLAG_SPEC_01
+#define SUBSCR_NUMFLAG_BTNITM         1
 struct SW_ButtonItem : public SubscrWidget
 {
 	byte btn;
@@ -521,8 +536,9 @@ protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
 
-#define SUBSCR_COUNTER_SHOW0   SUBSCRFLAG_SPEC_01
-#define SUBSCR_COUNTER_ONLYSEL SUBSCRFLAG_SPEC_02
+#define SUBSCR_COUNTER_SHOW0          SUBSCRFLAG_SPEC_01
+#define SUBSCR_COUNTER_ONLYSEL        SUBSCRFLAG_SPEC_02
+#define SUBSCR_NUMFLAG_COUNTER        2
 struct SW_Counter : public SubscrWidget
 {
 	int32_t fontid;
@@ -551,7 +567,8 @@ protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
 
-#define SUBSCR_COUNTERS_USEX   SUBSCRFLAG_SPEC_01
+#define SUBSCR_COUNTERS_USEX          SUBSCRFLAG_SPEC_01
+#define SUBSCR_NUMFLAG_COUNTERS       1
 struct SW_Counters : public SubscrWidget
 {
 	int32_t fontid;
@@ -580,6 +597,7 @@ protected:
 
 #define SUBSCR_BTNCOUNTER_SHOW0       SUBSCRFLAG_SPEC_01
 #define SUBSCR_BTNCOUNTER_NOCOLLAPSE  SUBSCRFLAG_SPEC_02
+#define SUBSCR_NUMFLAG_BTNCOUNTER     2
 struct SW_BtnCounter : public SubscrWidget
 {
 	int32_t fontid;
@@ -605,8 +623,9 @@ protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
 
-#define SUBSCR_MMAPTIT_REQMAP  SUBSCRFLAG_SPEC_01
-#define SUBSCR_MMAPTIT_ONELINE SUBSCRFLAG_SPEC_02
+#define SUBSCR_MMAPTIT_REQMAP         SUBSCRFLAG_SPEC_01
+#define SUBSCR_MMAPTIT_ONELINE        SUBSCRFLAG_SPEC_02
+#define SUBSCR_NUMFLAG_MMAPTIT        2
 struct SW_MMapTitle : public SubscrWidget
 {
 	int32_t fontid;
@@ -631,9 +650,10 @@ private:
 	byte get_strs(char* line1, char* line2) const;
 };
 
-#define SUBSCR_MMAP_SHOWMAP    SUBSCRFLAG_SPEC_01
-#define SUBSCR_MMAP_SHOWPLR    SUBSCRFLAG_SPEC_02
-#define SUBSCR_MMAP_SHOWCMP    SUBSCRFLAG_SPEC_03
+#define SUBSCR_MMAP_SHOWMAP           SUBSCRFLAG_SPEC_01
+#define SUBSCR_MMAP_SHOWPLR           SUBSCRFLAG_SPEC_02
+#define SUBSCR_MMAP_SHOWCMP           SUBSCRFLAG_SPEC_03
+#define SUBSCR_NUMFLAG_MMAP           3
 struct SW_MMap : public SubscrWidget
 {
 	SubscrColorInfo c_plr, c_cmp_blink, c_cmp_off;
@@ -653,10 +673,11 @@ protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
 
-#define SUBSCR_LMAP_SHOWMAP    SUBSCRFLAG_SPEC_01
-#define SUBSCR_LMAP_SHOWROOM   SUBSCRFLAG_SPEC_02
-#define SUBSCR_LMAP_SHOWPLR    SUBSCRFLAG_SPEC_03
-#define SUBSCR_LMAP_LARGE      SUBSCRFLAG_SPEC_04
+#define SUBSCR_LMAP_SHOWMAP           SUBSCRFLAG_SPEC_01
+#define SUBSCR_LMAP_SHOWROOM          SUBSCRFLAG_SPEC_02
+#define SUBSCR_LMAP_SHOWPLR           SUBSCRFLAG_SPEC_03
+#define SUBSCR_LMAP_LARGE             SUBSCRFLAG_SPEC_04
+#define SUBSCR_NUMFLAG_LMAP           4
 struct SW_LMap : public SubscrWidget
 {
 	SubscrColorInfo c_room, c_plr;
@@ -676,6 +697,7 @@ protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
 
+#define SUBSCR_NUMFLAG_CLEAR          0
 struct SW_Clear : public SubscrWidget
 {
 	SubscrColorInfo c_bg = {ssctMISC,ssctSUBSCRBG};
@@ -702,6 +724,7 @@ protected:
 #define SUBSCR_CURITM_NO_INTER_WO_ITEM  SUBSCRFLAG_SPEC_05
 #define SUBSCR_CURITM_NO_INTER_WO_EQUIP SUBSCRFLAG_SPEC_06
 #define SUBSCR_CURITM_NO_UNEQUIP        SUBSCRFLAG_SPEC_07
+#define SUBSCR_NUMFLAG_CURITM           7
 struct SW_ItemSlot : public SubscrWidget
 {
 	int32_t iclass, iid = -1;
@@ -723,9 +746,10 @@ protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
 
-#define SUBSCR_TRIFR_SHOWFR    SUBSCRFLAG_SPEC_01
-#define SUBSCR_TRIFR_SHOWPC    SUBSCRFLAG_SPEC_02
-#define SUBSCR_TRIFR_LGPC      SUBSCRFLAG_SPEC_03
+#define SUBSCR_TRIFR_SHOWFR             SUBSCRFLAG_SPEC_01
+#define SUBSCR_TRIFR_SHOWPC             SUBSCRFLAG_SPEC_02
+#define SUBSCR_TRIFR_LGPC               SUBSCRFLAG_SPEC_03
+#define SUBSCR_NUMFLAG_TRIFR            3
 struct SW_TriFrame : public SubscrWidget
 {
 	int32_t frame_tile, piece_tile;
@@ -747,8 +771,9 @@ protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
 
-#define SUBSCR_MCGUF_OVERLAY   SUBSCRFLAG_SPEC_01
-#define SUBSCR_MCGUF_TRANSP    SUBSCRFLAG_SPEC_02
+#define SUBSCR_MCGUF_OVERLAY            SUBSCRFLAG_SPEC_01
+#define SUBSCR_MCGUF_TRANSP             SUBSCRFLAG_SPEC_02
+#define SUBSCR_NUMFLAG_MCGUF            2
 struct SW_McGuffin : public SubscrWidget
 {
 	int32_t tile, number;
@@ -770,8 +795,9 @@ protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
 
-#define SUBSCR_TILEBL_OVERLAY  SUBSCRFLAG_SPEC_01
-#define SUBSCR_TILEBL_TRANSP   SUBSCRFLAG_SPEC_02
+#define SUBSCR_TILEBL_OVERLAY           SUBSCRFLAG_SPEC_01
+#define SUBSCR_TILEBL_TRANSP            SUBSCRFLAG_SPEC_02
+#define SUBSCR_NUMFLAG_TILEBL           2
 struct SW_TileBlock : public SubscrWidget
 {
 	int32_t tile;
@@ -793,8 +819,9 @@ protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
 
-#define SUBSCR_MINITL_OVERLAY  SUBSCRFLAG_SPEC_01
-#define SUBSCR_MINITL_TRANSP   SUBSCRFLAG_SPEC_02
+#define SUBSCR_MINITL_OVERLAY           SUBSCRFLAG_SPEC_01
+#define SUBSCR_MINITL_TRANSP            SUBSCRFLAG_SPEC_02
+#define SUBSCR_NUMFLAG_MINITL           2
 struct SW_MiniTile : public SubscrWidget
 {
 	int32_t tile, special_tile;
@@ -817,9 +844,10 @@ protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
 
-#define SUBSCR_SELECTOR_TRANSP   SUBSCRFLAG_SPEC_01
-#define SUBSCR_SELECTOR_LARGE    SUBSCRFLAG_SPEC_02
-#define SUBSCR_SELECTOR_USEB     SUBSCRFLAG_SPEC_03
+#define SUBSCR_SELECTOR_TRANSP          SUBSCRFLAG_SPEC_01
+#define SUBSCR_SELECTOR_LARGE           SUBSCRFLAG_SPEC_02
+#define SUBSCR_SELECTOR_USEB            SUBSCRFLAG_SPEC_03
+#define SUBSCR_NUMFLAG_SELECTOR         3
 struct SW_Selector : public SubscrWidget
 {
 	SW_Selector() = default;
@@ -854,6 +882,7 @@ protected:
 #define SUBSCR_GAUGE_GRID_TTOB         SUBSCRFLAG_SPEC_14
 #define SUBSCR_GAUGE_GRID_COLUMN1ST    SUBSCRFLAG_SPEC_15
 #define SUBSCR_GAUGE_GRID_SNAKE        SUBSCRFLAG_SPEC_16
+#define SUBSCR_NUMFLAG_GAUGE           16
 struct SW_GaugePiece : public SubscrWidget
 {
 	SubscrMTInfo mts[4];
@@ -884,6 +913,7 @@ protected:
 	virtual void draw_piece(BITMAP* dest, int dx, int dy, int container, int anim_offs) const;
 };
 
+#define SUBSCR_NUMFLAG_LGAUGE          SUBSCR_NUMFLAG_GAUGE
 struct SW_LifeGaugePiece : public SW_GaugePiece
 {
 	SW_LifeGaugePiece() = default;
@@ -903,6 +933,7 @@ protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
 
+#define SUBSCR_NUMFLAG_MGAUGE          SUBSCR_NUMFLAG_GAUGE
 struct SW_MagicGaugePiece : public SW_GaugePiece
 {
 	int16_t showdrain = -1;
@@ -924,6 +955,7 @@ protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
 
+#define SUBSCR_NUMFLAG_MISCGAUGE       SUBSCR_NUMFLAG_GAUGE
 struct SW_MiscGaugePiece : public SW_GaugePiece
 {
 	int16_t counter;
@@ -945,7 +977,8 @@ protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
 
-#define SUBSCR_TEXTBOX_WORDWRAP     SUBSCRFLAG_SPEC_01
+#define SUBSCR_TEXTBOX_WORDWRAP        SUBSCRFLAG_SPEC_01
+#define SUBSCR_NUMFLAG_TEXTBOX         1
 struct SW_TextBox : public SubscrWidget
 {
 	int32_t fontid;
@@ -966,7 +999,8 @@ protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
 };
 
-#define SUBSCR_SELTEXT_WORDWRAP     SUBSCRFLAG_SPEC_01
+#define SUBSCR_SELTEXT_WORDWRAP        SUBSCRFLAG_SPEC_01
+#define SUBSCR_NUMFLAG_SELTEXT         1
 struct SW_SelectedText : public SubscrWidget
 {
 	int32_t fontid;

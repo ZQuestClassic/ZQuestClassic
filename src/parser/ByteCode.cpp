@@ -2371,6 +2371,16 @@ string ZScript::VarToString(int32_t ID)
 		case SUBWIDGTRANSPGFLAGS: return "SUBWIDGTRANSPGFLAGS";
 		case SUBWIDGTRANSPGARGS: return "SUBWIDGTRANSPGARGS";
 		
+		case SUBWIDGTY_CSET: return "SUBWIDGTY_CSET";
+		case SUBWIDGTY_TILE: return "SUBWIDGTY_TILE";
+		
+		case SUBWIDGTY_FONT: return "SUBWIDGTY_FONT";
+		case SUBWIDGTY_ALIGN: return "SUBWIDGTY_ALIGN";
+		case SUBWIDGTY_SHADOWTY: return "SUBWIDGTY_SHADOWTY";
+		case SUBWIDGTY_COLOR_TXT: return "SUBWIDGTY_COLOR_TXT";
+		case SUBWIDGTY_COLOR_SHD: return "SUBWIDGTY_COLOR_SHD";
+		case SUBWIDGTY_COLOR_BG: return "SUBWIDGTY_COLOR_BG";
+		
 		default:
 		{
 			sprintf(temp, "d%d", ID);
@@ -6779,13 +6789,13 @@ string OSetSubWidgSelTxtOverride::toString() const
 {
 	return "SUBWIDG_SET_SELTEXT_OVERRIDE";
 }
-string OReservedEmily_11::toString() const
+string OSubWidgTy_GetText::toString() const
 {
-	return "RESRVD_OP_EMILY_11";
+	return "SUBWIDG_TY_GETTEXT";
 }
-string OReservedEmily_12::toString() const
+string OSubWidgTy_SetText::toString() const
 {
-	return "RESRVD_OP_EMILY_12";
+	return "SUBWIDG_TY_SETTEXT";
 }
 string OReservedEmily_13::toString() const
 {
