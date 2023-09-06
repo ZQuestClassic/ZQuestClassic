@@ -1625,27 +1625,43 @@
 #define SUBPGWIDGETS     1537
 #define SUBPGSUBDATA     1538
 #define SUBPGCURSORPOS     1539
-#define RESRVD_VAR_EMILY_92     1540
-#define RESRVD_VAR_EMILY_93     1541
-#define RESRVD_VAR_EMILY_94     1542
-#define RESRVD_VAR_EMILY_95     1543
-#define RESRVD_VAR_EMILY_96     1544
-#define RESRVD_VAR_EMILY_97     1545
-#define RESRVD_VAR_EMILY_98     1546
-#define RESRVD_VAR_EMILY_99     1547
-#define RESRVD_VAR_EMILY_100    1548
-#define RESRVD_VAR_EMILY_101    1549
-#define RESRVD_VAR_EMILY_102    1550
-#define RESRVD_VAR_EMILY_103    1551
-#define RESRVD_VAR_EMILY_104    1552
-#define RESRVD_VAR_EMILY_105    1553
-#define RESRVD_VAR_EMILY_106    1554
-#define RESRVD_VAR_EMILY_107    1555
-#define RESRVD_VAR_EMILY_108    1556
-#define RESRVD_VAR_EMILY_109    1557
-#define RESRVD_VAR_EMILY_110    1558
+#define SUBWIDGTYPE     1540
+#define SUBWIDGINDEX     1541
+#define SUBWIDGPAGE     1542
+#define SUBWIDGPOS     1543
+#define SUBWIDGPOSES     1544
+#define SUBWIDGPOSFLAG     1545
+#define SUBWIDGX     1546
+#define SUBWIDGY     1547
+#define SUBWIDGW    1548
+#define SUBWIDGH    1549
+#define SUBWIDGGENFLAG    1550
+#define SUBWIDGFLAG    1551
+#define SUBWIDGSELECTORDSTX    1552
+#define SUBWIDGSELECTORDSTY    1553
+#define SUBWIDGSELECTORDSTW    1554
+#define SUBWIDGSELECTORDSTH    1555
+#define SUBWIDGSELECTORWID    1556
+#define SUBWIDGSELECTORHEI    1557
+#define SUBWIDGSELECTORTILE    1558
 
-#define LAST_BYTECODE           1559
+#define SUBWIDGSELECTORCSET      1559
+#define SUBWIDGSELECTORFLASHCSET      1560
+#define SUBWIDGSELECTORFRM      1561
+#define SUBWIDGSELECTORASPD      1562
+#define SUBWIDGSELECTORDELAY      1563
+#define SUBWIDGPRESSSCRIPT      1564
+#define SUBWIDGPRESSINITD      1565
+#define SUBWIDGBTNPRESS      1566
+#define SUBWIDGBTNPG      1567
+#define SUBWIDGPGMODE     1568
+#define SUBWIDGPGTARG     1569
+#define SUBWIDGTRANSPGTY     1570
+#define SUBWIDGTRANSPGSFX     1571
+#define SUBWIDGTRANSPGFLAGS     1572
+#define SUBWIDGTRANSPGARGS     1573
+
+#define LAST_BYTECODE           1574
 
 //} END OF BYTECODE
 
@@ -11798,23 +11814,25 @@ namespace ZScript
 		}
 	};
 
-	class OReservedEmily_9 : public Opcode
+	class OGetSubWidgSelTxtOverride : public UnaryOpcode
 	{
 	public:
+		OGetSubWidgSelTxtOverride(Argument *A) : UnaryOpcode(A) {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OReservedEmily_9();
+			return new OGetSubWidgSelTxtOverride(a->clone());
 		}
 	};
 
-	class OReservedEmily_10 : public Opcode
+	class OSetSubWidgSelTxtOverride : public UnaryOpcode
 	{
 	public:
+		OSetSubWidgSelTxtOverride(Argument *A) : UnaryOpcode(A) {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OReservedEmily_10();
+			return new OSetSubWidgSelTxtOverride(a->clone());
 		}
 	};
 
