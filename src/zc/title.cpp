@@ -1167,6 +1167,23 @@ static void select_game(bool skip = false)
 	bool popup_choose_quest = false;
 	do
 	{
+		if (keypressed())
+		{
+			int32_t k=readkey()>>8;
+			if (k == KEY_ESC && mode)
+			{
+				mode = 0;
+				select_mode();
+				while(key[KEY_ESC])
+				{
+					poll_keyboard();
+					/* do nothing */
+					rest(1);
+				}
+			}
+		}
+		disabledKeys[KEY_ESC] = mode != 0;
+
 		if ( moduledata.refresh_title_screen ) //refresh
 		{
 			selectscreen();
@@ -1351,25 +1368,10 @@ static void select_game(bool skip = false)
 			chosecustomquest = false;
 			selectscreen();
 		}
-
-		if (keypressed())
-		{
-			int32_t k=readkey()>>8;
-			if (k == KEY_ESC)
-			{
-				mode = 0;
-				select_mode();
-				while(key[KEY_ESC])
-				{
-					poll_keyboard();
-					/* do nothing */
-					rest(1);
-				}
-			}
-		}
 	}
 	while(!Quit && !done);
-	
+
+	disabledKeys[KEY_ESC] = false;
 	saveslot = -1;
 }
 
