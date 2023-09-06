@@ -5,8 +5,14 @@ import subprocess
 from pathlib import Path
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--name', required = True, help='The name to reserve for (will be capitalized for you)')
-parser.add_argument('--count', required = True, type = int, help = 'How many opcodes or registers to reserve')
+parser.add_argument('--name', help='The name to reserve for (will be capitalized for you)')
+parser.add_argument('--count', type = int, help = 'How many opcodes or registers to reserve')
+parser.add_argument('--listfile', help = '''Specify a file to read names from each line, instead of a name/count.
+    For '-r', the file should have a single term per line.
+        The term should only contain capital letters, numbers, and '_'. (ex 'RESRVD_VAR_EMILY_1')
+    For '-o','-u','-b', the file should have 2 terms per line, separated by whitespace.
+        The first should only contain capital letters, numbers, and '_'. (ex 'RESRVD_OP_EMILY_1')
+        The second should only contain letters, numbers, and '_'. (ex 'OReservedEmily_1')''')
 
 mode_group = parser.add_argument_group('Mode','The operation mode (REQUIRED)')
 
@@ -21,19 +27,20 @@ args = parser.parse_args()
 
 opcodetype = 2 if args.binopcode else (1 if args.unopcode else (0 if args.opcode else -1))
 
-if not args.name:
-    print("Must specify a name via '--name' to reserve with!")
-    exit(0)
-if not args.count or args.count < 1:
-    print("Must specify at least 1 for '--count'!")
-    exit(0)
 if not (args.reg or opcodetype > -1):
-    print("Specify either '--reg' or '--opcode'/'--unopcode'/'--binopcode' to choose a mode!")
-    exit(0)
+    print("Specify either '--reg' or '--opcode'/'--unopcode'/'--binopcode' to choose a mode!", file=sys.stderr)
+    exit(1)
 
-args.name = re.sub(' ','_',args.name.upper())
-
-def printlns(lns):
+reglist = []
+oplist_allcaps = []
+oplist_propcase = []
+file_bytecode_cpp = '../src/parser/ByteCode.cpp'
+file_bytecode_h = '../src/parser/ByteCode.h'
+file_ffscript_h = '../src/zc/ffscript.h'
+file_ffscript_cpp = '../src/zc/ffscript.cpp'
+file_ffasm_cpp = '../src/zq/ffasm.cpp'
+        
+def printlns(lns): # For debugging
     for line in lns:
         if line[-1] == '\n':
             line = line[:-1]
@@ -56,39 +63,100 @@ def propercase(s:str) -> str:
         (x.upper() if ind < 1 or pat_wordbreak.match(s[ind-1]) else x.lower())
         for ind,x in enumerate(s)
         if not pat_excl.match(x)])
-
-file_bytecode_cpp = '../src/parser/ByteCode.cpp'
-file_bytecode_h = '../src/parser/ByteCode.h'
-file_ffscript_h = '../src/zc/ffscript.h'
-file_ffscript_cpp = '../src/zc/ffscript.cpp'
-file_ffasm_cpp = '../src/zq/ffasm.cpp'
-name = args.name
+if args.listfile:
+    if args.name or args.count:
+        print("Cannot specify '--listfile' alongside '--name' or '--count'!", file=sys.stderr)
+        exit(1)
+    if not os.path.isfile(args.listfile):
+        print(f"File '{args.listfile}' not found to read from!", file=sys.stderr)
+        exit(1)
+    with open(args.listfile, 'r') as file:
+        tmplines = [x.strip() for x in file.readlines() if len(x.strip()) > 0]
+        if opcodetype < 0:
+            reglist = [x for x in tmplines if re.match('^[A-Z0-9_]+$',x)]
+            args.count = len(reglist)
+        else:
+            oppat_1 = '^([A-Z0-9_]+)[ \t]+[A-Za-z0-9_]+$'
+            oppat_2 = '^[A-Z0-9_]+[ \t]+([A-Za-z0-9_]+)$'
+            oplist_allcaps = [re.match(oppat_1,x).groups()[0] for x in tmplines if re.match(oppat_1,x)]
+            oplist_propcase = [re.match(oppat_2,x).groups()[0] for x in tmplines if re.match(oppat_2,x)]
+            args.count = len(oplist_allcaps)
+    if args.count < 1:
+        print("Must specify non-empty file for '--listfile'!", file=sys.stderr)
+        exit(1)
+else:
+    if not args.name:
+        print("Must specify a name via '--name' to reserve with!", file=sys.stderr)
+        exit(1)
+    if not args.count or args.count < 1:
+        print("Must specify at least 1 for '--count'!", file=sys.stderr)
+        exit(1)
+    args.name = re.sub(' ','_',args.name.upper())
+    if args.reg:
+        lines = []
+        with open(file_bytecode_cpp, 'r') as file:
+            lines = file.readlines()
+        index = 0
+        first_reserved = -1
+        last_reserved = 0
+        while lines[index].strip() != 'string ZScript::VarToString(int32_t ID)':
+            index = index + 1
+        while lines[index].strip() != 'default:':
+            m = re.match(f'case RESRVD_VAR_{args.name}_?([0-9]+): return "RESRVD_VAR_{args.name}_?[0-9]+";',lines[index].strip())
+            if m:
+                if val > last_reserved:
+                    last_reserved = val
+                if first_reserved < 0 or val < first_reserved:
+                    first_reserved = val
+            index = index + 1
+        # starting index number
+        start = last_reserved if first_reserved < args.count else 0
+        for q in range(args.count):
+            reglist.append(f'RESRVD_VAR_{args.name}_{start+q+1}')
+        #generated the register list
+    else:
+        name_prop = propercase(args.name)
+        lines = []
+        with open(file_bytecode_cpp, 'r') as file:
+            lines = file.readlines()
+        index = 0
+        first_reserved = -1
+        last_reserved = 0
+        m = None
+        while index < len(lines):
+            m = re.match(f'string OReserved{name_prop}_?([0-9]+)::toString\\(\\) const',lines[index].strip())
+            if m:
+                val = int(m.groups()[0])
+                if val > last_reserved:
+                    last_reserved = val
+                if first_reserved < 0 or val < first_reserved:
+                    first_reserved = val
+            index = index + 1
+        index = index - 1
+        while len(lines[index].strip()) == 0:
+            index = index - 1
+        index = index + 1
+        # starting index number
+        start = last_reserved if first_reserved < args.count else 0
+        for q in range(args.count):
+            oplist_allcaps.append(f'RESRVD_OP_{args.name}_{start+q+1}')
+            oplist_propcase.append(f'OReserved{name_prop}_{start+q+1}')
+        #generated the opcode list
 if args.reg:
     # Bytecode.cpp
     lines = []
     with open(file_bytecode_cpp, 'r') as file:
         lines = file.readlines()
     index = 0
-    first_reserved = -1
-    last_reserved = 0
     while lines[index].strip() != 'string ZScript::VarToString(int32_t ID)':
         index = index + 1
     while lines[index].strip() != 'default:':
-        m = re.match(f'case RESRVD_VAR_{args.name}_?([0-9]+): return "RESRVD_VAR_{args.name}_?[0-9]+";',lines[index].strip())
-        if m:
-            val = int(m.groups()[0])
-            if val > last_reserved:
-                last_reserved = val
-            if first_reserved < 0 or val < first_reserved:
-                first_reserved = val
         index = index + 1
     # whitespace for line starts
     ws = re.match('([\t ]*).*',lines[index]).groups()[0]
-    # starting index number
-    start = last_reserved if first_reserved < args.count else 0
     newlines = []
-    for q in range(args.count):
-        newlines.append(f'{ws}case RESRVD_VAR_{args.name}_{start+q+1}: return "RESRVD_VAR_{args.name}_{start+q+1}";\n')
+    for reg in reglist:
+        newlines.append(f'{ws}case {reg}: return "{reg}";\n')
     newlines.append(f'{ws}\n')
     
     lines[index:index] = newlines
@@ -105,12 +173,11 @@ if args.reg:
     ws,num = m.groups()
     num = int(num)
     newlines = []
-    for q in range(args.count):
-        linename = f'RESRVD_VAR_{args.name}_{start+q+1}'
-        numspace = (13+len(ws))-len(linename)
+    for reg in reglist:
+        numspace = (13+len(ws))-len(reg)
         if numspace < 2:
             numspace = 2
-        newlines.append(f'#define {linename}{" "*numspace}{num}\n')
+        newlines.append(f'#define {reg}{" "*numspace}{num}\n')
         num = num + 1
     newlines.append('\n')
     lines[index] = f'#define LAST_BYTECODE{ws}{num}\n'
@@ -128,12 +195,11 @@ if args.reg:
     ws,num = m.groups()
     num = int(num,16)
     newlines = []
-    for q in range(args.count):
-        linename = f'RESRVD_VAR_{args.name}_{start+q+1}'
-        numspace = (12+len(ws))-len(linename)
+    for reg in reglist:
+        numspace = (12+len(ws))-len(reg)
         if numspace < 2:
             numspace = 2
-        newlines.append(f'#define {linename}{" "*numspace}0x{num:04X}\n')
+        newlines.append(f'#define {reg}{" "*numspace}0x{num:04X}\n')
         num = num + 1
     newlines.append('\n')
     lines[index] = f'#define NUMVARIABLES{ws}0x{num:04X}\n'
@@ -152,9 +218,8 @@ if args.reg:
         m = re.match('([ \t]*){ " ", -1, 0, 0 }',lines[index])
     ws = m.groups()[0]
     newlines = []
-    for q in range(args.count):
-        linename = f'RESRVD_VAR_{args.name}_{start+q+1}'
-        newlines.append(f'{ws}{{ "{linename}", {linename}, 0, 0 }},\n')
+    for reg in reglist:
+        newlines.append(f'{ws}{{ "{reg}", {reg}, 0, 0 }},\n')
     newlines.append('\n')
     lines[index:index] = newlines
     write_file(file_ffscript_cpp,lines)
@@ -171,48 +236,32 @@ if args.reg:
         m = re.match('([ \t]*){ " ", -1, 0, 0 }',lines[index])
     ws = m.groups()[0]
     newlines = []
-    for q in range(args.count):
-        linename = f'RESRVD_VAR_{args.name}_{start+q+1}'
-        newlines.append(f'{ws}{{ "{linename}", {linename}, 0, 0 }},\n')
+    for reg in reglist:
+        newlines.append(f'{ws}{{ "{reg}", {reg}, 0, 0 }},\n')
     newlines.append('\n')
     lines[index:index] = newlines
     write_file(file_ffasm_cpp,lines)
 elif opcodetype > -1:
-    name_prop = propercase(name)
     # Bytecode.cpp
     lines = []
     with open(file_bytecode_cpp, 'r') as file:
         lines = file.readlines()
-    index = 0
-    first_reserved = -1
-    last_reserved = 0
-    m = None
-    while index < len(lines):
-        m = re.match(f'string OReserved{name_prop}_?([0-9]+)::toString\\(\\) const',lines[index].strip())
-        if m:
-            val = int(m.groups()[0])
-            if val > last_reserved:
-                last_reserved = val
-            if first_reserved < 0 or val < first_reserved:
-                first_reserved = val
-        index = index + 1
-    index = index - 1
+    index = len(lines) - 1
     while len(lines[index].strip()) == 0:
         index = index - 1
     index = index + 1
     # starting index number
-    start = last_reserved if first_reserved < args.count else 0
     newlines = ['\n','\n']
     for q in range(args.count):
-        newlines.append(f'string OReserved{name_prop}_{start+q+1}::toString() const\n')
+        newlines.append(f'string {oplist_propcase[q]}::toString() const\n')
         newlines.append('{\n')
         match opcodetype:
             case 2:
-                newlines.append(f'\treturn "RESRVD_OP_{name}_{start+q+1} " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();\n')
+                newlines.append(f'\treturn "{oplist_allcaps[q]} " + getFirstArgument()->toString() + "," + getSecondArgument()->toString();\n')
             case 1:
-                newlines.append(f'\treturn "RESRVD_OP_{name}_{start+q+1} " + getArgument()->toString();\n')
+                newlines.append(f'\treturn "{oplist_allcaps[q]} " + getArgument()->toString();\n')
             case _:
-                newlines.append(f'\treturn "RESRVD_OP_{name}_{start+q+1}";\n')
+                newlines.append(f'\treturn "{oplist_allcaps[q]}";\n')
         newlines.append('}\n')
     wslines = len(lines)-index-1
     if wslines < 2:
@@ -232,41 +281,40 @@ elif opcodetype > -1:
     while not re.match('}',lines[index].strip()):
         index = index - 1
     newlines = ['\n','\n','\n']
-    for q in range(args.count):
-        ln = f'OReserved{name_prop}_{start+q+1}'
+    for op in oplist_propcase:
         match opcodetype:
             case 2:
-                newlines.append(f'\tclass {ln} : public BinaryOpcode\n')
+                newlines.append(f'\tclass {op} : public BinaryOpcode\n')
                 newlines.append(f'\t{{\n')
                 newlines.append(f'\tpublic:\n')
-                newlines.append(f'\t\t{ln}(Argument *A, Argument* B) : BinaryOpcode(A,B) {{}}\n')
+                newlines.append(f'\t\t{op}(Argument *A, Argument* B) : BinaryOpcode(A,B) {{}}\n')
                 newlines.append(f'\t\tstd::string toString() const;\n')
                 newlines.append(f'\t\tOpcode* clone() const\n')
                 newlines.append(f'\t\t{{\n')
-                newlines.append(f'\t\t\treturn new {ln}(a->clone(),b->clone());\n')
+                newlines.append(f'\t\t\treturn new {op}(a->clone(),b->clone());\n')
                 newlines.append(f'\t\t}}\n')
                 newlines.append(f'\t}};\n')
                 newlines.append(f'\n')
             case 1:
-                newlines.append(f'\tclass {ln} : public UnaryOpcode\n')
+                newlines.append(f'\tclass {op} : public UnaryOpcode\n')
                 newlines.append(f'\t{{\n')
                 newlines.append(f'\tpublic:\n')
-                newlines.append(f'\t\t{ln}(Argument *A) : UnaryOpcode(A) {{}}\n')
+                newlines.append(f'\t\t{op}(Argument *A) : UnaryOpcode(A) {{}}\n')
                 newlines.append(f'\t\tstd::string toString() const;\n')
                 newlines.append(f'\t\tOpcode* clone() const\n')
                 newlines.append(f'\t\t{{\n')
-                newlines.append(f'\t\t\treturn new {ln}(a->clone());\n')
+                newlines.append(f'\t\t\treturn new {op}(a->clone());\n')
                 newlines.append(f'\t\t}}\n')
                 newlines.append(f'\t}};\n')
                 newlines.append(f'\n')
             case _:
-                newlines.append(f'\tclass {ln} : public Opcode\n')
+                newlines.append(f'\tclass {op} : public Opcode\n')
                 newlines.append(f'\t{{\n')
                 newlines.append(f'\tpublic:\n')
                 newlines.append(f'\t\tstd::string toString() const;\n')
                 newlines.append(f'\t\tOpcode* clone() const\n')
                 newlines.append(f'\t\t{{\n')
-                newlines.append(f'\t\t\treturn new {ln}();\n')
+                newlines.append(f'\t\t\treturn new {op}();\n')
                 newlines.append(f'\t\t}}\n')
                 newlines.append(f'\t}};\n')
                 newlines.append(f'\n')
@@ -289,8 +337,8 @@ elif opcodetype > -1:
         m = re.match('([ \t]*)NUMCOMMANDS[ \t]*//0x[0-9A-Fa-f]+',lines[index])
     ws = m.groups()[0]
     newlines = [f'{ws}\n']
-    for q in range(args.count):
-        newlines.append(f'{ws}RESRVD_OP_{name}_{start+q+1},\n')
+    for op in oplist_allcaps:
+        newlines.append(f'{ws}{op},\n')
         num = num + 1
     newlines.append('\n')
     lines[index] = f'{ws}NUMCOMMANDS  //0x{num:04X}\n'
@@ -309,9 +357,8 @@ elif opcodetype > -1:
         m = re.match('([ \t]*){ *"", *0, *0, *0, *0 *}',lines[index])
     ws = m.groups()[0]
     newlines = []
-    for q in range(args.count):
-        linename = f'RESRVD_OP_{name}_{start+q+1}'
-        newlines.append(f'{ws}{{ "{linename}", 0, 0, 0, 0 }},\n')
+    for op in oplist_allcaps:
+        newlines.append(f'{ws}{{ "{op}", 0, 0, 0, 0 }},\n')
     newlines.append('\n')
     lines[index] = f'{ws}{{ "", 0, 0, 0, 0 }}\n'
     lines[index:index] = newlines
@@ -329,9 +376,8 @@ elif opcodetype > -1:
         m = re.match('([ \t]*){ *"", *0, *0, *0, *0 *}',lines[index])
     ws = m.groups()[0]
     newlines = []
-    for q in range(args.count):
-        linename = f'RESRVD_OP_{name}_{start+q+1}'
-        newlines.append(f'{ws}{{ "{linename}", 0, 0, 0, 0 }},\n')
+    for op in oplist_allcaps:
+        newlines.append(f'{ws}{{ "{op}", 0, 0, 0, 0 }},\n')
     newlines.append('\n')
     lines[index] = f'{ws}{{ "", 0, 0, 0, 0 }}\n'
     lines[index:index] = newlines
