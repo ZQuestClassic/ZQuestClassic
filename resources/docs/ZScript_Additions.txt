@@ -8776,23 +8776,12 @@ subscreenwidget Widgets[];
 subscreendata SubData;
  * Read-only. The subscreendata that owns this page.
 
-//
-// Only on ACTIVE subscreens:
-//
-
-int CursorPos;
- * The position value of the selector.
-
 subscreenwidget CreateWidget(int type);
  * Adds a new widget of the specified type to the end of the page.
  * Returns that widget, or NULL if fails.
 
 void SwapWidgets(int index1, int index2);
  * Swaps the widgets at the two indexes.
-
-subscreenwidget FindWidget(int cursor_pos);
- * Returns the widget designated by the specified cursor position,
- *     or NULL if it fails.
 
 int SelectorMove(int cursor_pos, int dir, int flags)
  * Returns the new cursor position found by moving in 'dir' from 'cursor_pos'.
@@ -8804,12 +8793,150 @@ void Delete();
  * Deletes the page.
  * If it is the last page, an empty page will be created in its' place.
 
+//
+// Only on ACTIVE subscreens:
+//
+
+int CursorPos;
+ * The position value of the selector.
+
+subscreenwidget FindWidget(int cursor_pos);
+ * Returns the widget designated by the specified cursor position,
+ *     or NULL if it fails.
+
 ///////////////////////
 //  subscreenwidget  //
 /////////////////////// subscreenwidget
 
+int Type;
+ * Read-only. The widget's type, using 'SUBWIDG_' constants.
+
+int Index;
+ * Read-only. The index of this widget within the page.
+
+subscreenpage Page;
+ * Read-only. The page this widget is within.
+
+bool VisibleFlags[];
+ * Flags related to the visibility of the widget.
+ * Use the 'SUBVISIB_' constants to access.
+
+int X;
+int Y;
+ * The X/Y position of the widget within the subscreen.
+ * Some types ignore these values.
+
+int W;
+int H;
+ * The width/height of the widget within the subscreen.
+ * This is USUALLY in pixels, but some types use different values!
+ * ex. for 2x2 frame, this is in minitiles, so 8 times less than pixels.
+ * Some types ignore these values altogether.
+
+bool GenFlags[];
+ * The general flags for subscreen widgets.
+ * These are usually applicable regardless of widget type.
+ * Use the 'SUBW_GENFL_' constants to access.
+
+bool Flags[];
+ * The type-specific flags for subscreen widgets.
+ * There is a different set of constants for this for each widget type.
+
+//Selectable widget stuff
+int Pos;
+ * The selector position of this flag.
+ * Only used if the widget is selectable (see 'GenFlags[]').
+
+int Poses[4];
+ * The 4 directional positions for the selector.
+ * Use the 'DIR_' constants to index.
+ * Only used if the widget is selectable (see 'GenFlags[]').
+
+void GetSelTextOverride(char32[] buf);
+ * Gets the selected text override for this widget.
+ * If the buffer provided is too small, it will *automatically be resized to fit*.
+void SetSelTextOverride(char32[] str);
+ * Sets the selected text override for this widget.
+ * A blank string represents no override.
+
+//Selector override stuff
+int SelectorDestX;
+int SelectorDestY;
+int SelectorDestW;
+int SelectorDestH;
+ * The X/Y/W/H offsets for the selector on this widget,
+ *     if the selector is overridden (see 'GenFlags[]').
+ * These values will REPLACE the x/y/w/h that the
+ *     selector would normally draw to.
+
+int SelectorWid[2];
+int SelectorHei[2];
+int SelectorTile[2];
+int SelectorCSet[2];
+int SelectorFlashCSet[2];
+int SelectorFrames[2];
+int SelectorASpeed[2];
+int SelectorDelay[2];
+ * The pixel-size, tile, cset/flashcset, and animation information for
+ *     the two selector overrides.
+ * These will be used by the selector on this widget,
+ *     if the selector is overridden (see 'GenFlags[]').
+
+//Press Script stuff
+int PressScript;
+ * The generic script that will run when a specified button
+ *     is pressed while this widget is selected.
+
+untyped PressInitD[8];
+ * The 8 InitD[] args for the PressScript
+
+bool BtnPressScript[8];
+ * Use the 'INTBTN_' constants to index this array.
+ * The 'true' buttons here, when pressed while this
+ *     widget is selected, run the press script.
+
+//Press PageChange Stuff
+
+bool BtnPageChange[8];
+ * Use the 'INTBTN_' constants to index this array.
+ * The 'true' buttons here, when pressed while this
+ *     widget is selected, change the current page
+ *     based on the PageMode.
+
+int PageMode;
+ * The type of page change that will occur when a specified
+ *     button is pressed while this widget is selected.
+ * Use the 'SUB_PGMODE_' constants for this value.
+
+int TargetPage;
+ * The page to change to when using PageMode of 'SUB_PGMODE_TARG'
+
+//Transition info
+int PageTransType;
+ * The transition type for the PageMode transition.
+ * Compare with the 'TRANS_TY_' constants.
+
+int PageTransSFX;
+ * The transition sfx for the PageMode transition.
+
+bool PageTransFlags[];
+ * The flags for the PageMode transition.
+ * Use the 'TRANSFLAG_' constants to access these.
+
+int PageTransArgs[];
+ * The arguments used for the PageMode transition.
+ * Use the 'TRANS_*_ARG_' constants to access these
+
+//
+// TYPE SPECIFIC
+// The following are only available for
+//     some widget types, as listed.
+//
 
 
+
+////////////////////////////////////
+////////////////////////////////////
 ________        ___.                       .__                
 \______ \   ____\_ |__  __ __  ____   ____ |__| ____    ____  
  |    |  \_/ __ \| __ \|  |  \/ ___\ / ___\|  |/    \  / ___\ 
@@ -8820,7 +8947,7 @@ Functions for debugging, and raw access to the internal ZASM stack and mechanics
 
 /////////////////
 ///  Debug->  ///
-/////////////////								// Debug
+///////////////// Debug
 
 bool Testing;
  * Returns true if this instance of ZC was launched from the 'Quest->Test' option in ZQ.

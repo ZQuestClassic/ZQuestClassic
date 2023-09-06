@@ -231,7 +231,8 @@ enum //PGGOTO modes
 	PGGOTO_NONE,
 	PGGOTO_NEXT,
 	PGGOTO_PREV,
-	PGGOTO_TRG
+	PGGOTO_TRG,
+	PGGOTO_MAX
 };
 
 //when to display an element
@@ -239,10 +240,12 @@ enum //PGGOTO modes
 #define sspDOWN                       0x02
 #define sspSCROLLING                  0x04
 #define sspNOMSGSTR                   0x08
+#define sspNUM 4
 
 #define SUBSCRFLAG_SELECTABLE         0x00000001
 #define SUBSCRFLAG_PGGOTO_NOWRAP      0x00000002
 #define SUBSCRFLAG_SELOVERRIDE        0x00000004
+#define SUBSCRFLAG_GEN_COUNT 3
 
 #define SUBSCRFLAG_SPEC_01            0x00000001
 #define SUBSCRFLAG_SPEC_02            0x00000002
