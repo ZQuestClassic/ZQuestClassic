@@ -1393,7 +1393,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 					tswatches[0] = SelTileSwatch(
 						hAlign = 0.0,
 						tile = w->tile,
-						cset = w->cset,
+						cset = w->cs.get_cset(),
 						showvals = false,
 						// tilewid = local_subref->d7 ? 2 : 1,
 						// tilehei = local_subref->d7 ? 3 : 1,
@@ -1402,7 +1402,11 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 						onSelectFunc = [=](int32_t t, int32_t c, int32_t,int32_t)
 						{
 							w->tile = t;
-							w->cset = c;
+							if(w->cs.type != ssctMISC)
+							{
+								w->cs.type = c;
+								cs_sel[0]->setC1(c);
+							}
 						}
 					),
 					Column(padding = 0_px,

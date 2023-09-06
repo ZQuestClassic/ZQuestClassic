@@ -2440,7 +2440,7 @@ enum // used for gamedata ITEMS
 	*/
 
 	
-	
+	itype_maxusable,
 	itype_max=512
 };
 

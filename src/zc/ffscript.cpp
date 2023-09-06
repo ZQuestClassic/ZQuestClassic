@@ -14609,6 +14609,15 @@ int32_t get_register(const int32_t arg)
 					case widgFRAME:
 						ret = ((SW_2x2Frame*)widg)->cs.get_cset()*10000;
 						break;
+					case widgMCGUFF:
+						ret = ((SW_McGuffin*)widg)->cs.get_cset()*10000;
+						break;
+					case widgTILEBLOCK:
+						ret = ((SW_TileBlock*)widg)->cs.get_cset()*10000;
+						break;
+					case widgMINITILE:
+						ret = ((SW_MiniTile*)widg)->cs.get_cset()*10000;
+						break;
 					default:
 						bad_subwidg_type("CSet", false, ty);
 						break;
@@ -14624,7 +14633,16 @@ int32_t get_register(const int32_t arg)
 				switch(ty)
 				{
 					case widgFRAME:
-						ret = ((SW_2x2Frame*)widg)->tile * 10000;
+						ret = ret = 10000*((SW_2x2Frame*)widg)->tile;
+						break;
+					case widgMCGUFF:
+						ret = 10000*((SW_McGuffin*)widg)->tile;
+						break;
+					case widgTILEBLOCK:
+						ret = 10000*((SW_TileBlock*)widg)->tile;
+						break;
+					case widgMINITILE:
+						ret = 10000*((SW_MiniTile*)widg)->get_int_tile();
 						break;
 					default:
 						bad_subwidg_type("Tile", false, ty);
@@ -14755,6 +14773,9 @@ int32_t get_register(const int32_t arg)
 					case widgMMAPTITLE:
 						ret = 10000*((SW_MMapTitle*)widg)->c_text.get_int_color();
 						break;
+					case widgMCGUFF_FRAME:
+						ret = 10000*((SW_TriFrame*)widg)->c_number.get_int_color();
+						break;
 					default:
 						bad_subwidg_type("ColorText", false, ty);
 						break;
@@ -14819,6 +14840,9 @@ int32_t get_register(const int32_t arg)
 					case widgMMAPTITLE:
 						ret = 10000*((SW_MMapTitle*)widg)->c_bg.get_int_color();
 						break;
+					case widgBGCOLOR:
+						ret = 10000*((SW_Clear*)widg)->c_bg.get_int_color();
+						break;
 					default:
 						bad_subwidg_type("ColorBG", false, ty);
 						break;
@@ -14838,6 +14862,9 @@ int32_t get_register(const int32_t arg)
 						break;
 					case widgRECT:
 						ret = 10000*((SW_Rect*)widg)->c_outline.get_int_color();
+						break;
+					case widgMCGUFF_FRAME:
+						ret = 10000*((SW_TriFrame*)widg)->c_outline.get_int_color();
 						break;
 					default:
 						bad_subwidg_type("ColorOutline", false, ty);
@@ -15017,6 +15044,236 @@ int32_t get_register(const int32_t arg)
 					default:
 						bad_subwidg_type("CostIndex", false, ty);
 						ret = -1;
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_COLOR_PLAYER:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorPlayer"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgMMAP:
+						ret = 10000*((SW_MMap*)widg)->c_plr.get_int_color();
+						break;
+					case widgLMAP:
+						ret = 10000*((SW_LMap*)widg)->c_plr.get_int_color();
+						break;
+					default:
+						bad_subwidg_type("ColorPlayer", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_COLOR_CMPBLNK:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorCompassBlink"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgMMAP:
+						ret = 10000*((SW_MMap*)widg)->c_cmp_blink.get_int_color();
+						break;
+					default:
+						bad_subwidg_type("ColorCompassBlink", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_COLOR_CMPOFF:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorCompassOff"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgMMAP:
+						ret = 10000*((SW_MMap*)widg)->c_cmp_off.get_int_color();
+						break;
+					default:
+						bad_subwidg_type("ColorCompassOff", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_COLOR_ROOM:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorRoom"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgLMAP:
+						ret = 10000*((SW_LMap*)widg)->c_room.get_int_color();
+						break;
+					default:
+						bad_subwidg_type("ColorRoom", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_ITEMCLASS:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ItemClass"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgITEMSLOT:
+						ret = 10000*((SW_ItemSlot*)widg)->iclass;
+						break;
+					default:
+						bad_subwidg_type("ItemClass", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_ITEMID:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ItemID"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgITEMSLOT:
+						ret = 10000*((SW_ItemSlot*)widg)->iid;
+						break;
+					default:
+						bad_subwidg_type("ItemID", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_FRAMETILE:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "FrameTile"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgMCGUFF_FRAME:
+						ret = 10000*((SW_TriFrame*)widg)->frame_tile;
+						break;
+					default:
+						bad_subwidg_type("FrameTile", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_FRAMECSET:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "FrameCSet"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgMCGUFF_FRAME:
+						ret = 10000*((SW_TriFrame*)widg)->frame_cset;
+						break;
+					default:
+						bad_subwidg_type("FrameCSet", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_PIECETILE:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "PieceTile"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgMCGUFF_FRAME:
+						ret = 10000*((SW_TriFrame*)widg)->piece_tile;
+						break;
+					default:
+						bad_subwidg_type("PieceTile", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_PIECECSET:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "PieceCSet"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgMCGUFF_FRAME:
+						ret = 10000*((SW_TriFrame*)widg)->piece_cset;
+						break;
+					default:
+						bad_subwidg_type("PieceCSet", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_FLIP:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Flip"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgMCGUFF:
+						ret = 10000*((SW_McGuffin*)widg)->flip;
+						break;
+					case widgTILEBLOCK:
+						ret = 10000*((SW_TileBlock*)widg)->flip;
+						break;
+					case widgMINITILE:
+						ret = 10000*((SW_MiniTile*)widg)->flip;
+						break;
+					default:
+						bad_subwidg_type("Flip", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_NUMBER:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Number"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgMCGUFF:
+						ret = 10000*((SW_McGuffin*)widg)->number;
+						break;
+					default:
+						bad_subwidg_type("Number", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_CORNER:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Corner"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgMINITILE:
+						ret = 10000*((SW_MiniTile*)widg)->crn;
+						break;
+					default:
+						bad_subwidg_type("Corner", false, ty);
 						break;
 				}
 			}
@@ -26305,6 +26562,15 @@ void set_register(int32_t arg, int32_t value)
 					case widgFRAME:
 						((SW_2x2Frame*)widg)->cs.set_int_cset(val);
 						break;
+					case widgMCGUFF:
+						((SW_McGuffin*)widg)->cs.set_int_cset(val);
+						break;
+					case widgTILEBLOCK:
+						((SW_TileBlock*)widg)->cs.set_int_cset(val);
+						break;
+					case widgMINITILE:
+						((SW_MiniTile*)widg)->cs.set_int_cset(val);
+						break;
 					default:
 						bad_subwidg_type("CSet", false, ty);
 						break;
@@ -26322,6 +26588,16 @@ void set_register(int32_t arg, int32_t value)
 				{
 					case widgFRAME:
 						((SW_2x2Frame*)widg)->tile = val;
+						break;
+					case widgMCGUFF:
+						((SW_McGuffin*)widg)->tile = val;
+						break;
+					case widgTILEBLOCK:
+						((SW_TileBlock*)widg)->tile = val;
+						break;
+					case widgMINITILE:
+						val = vbound(value/10000,-ssmstMAX,NEWMAXTILES-1);
+						((SW_MiniTile*)widg)->set_int_tile(val);
 						break;
 					default:
 						bad_subwidg_type("Tile", false, ty);
@@ -26452,6 +26728,9 @@ void set_register(int32_t arg, int32_t value)
 					case widgMMAPTITLE:
 						((SW_MMapTitle*)widg)->c_text.set_int_color(val);
 						break;
+					case widgMCGUFF_FRAME:
+						((SW_TriFrame*)widg)->c_number.set_int_color(val);
+						break;
 					default:
 						bad_subwidg_type("ColorText", false, ty);
 						break;
@@ -26518,6 +26797,9 @@ void set_register(int32_t arg, int32_t value)
 					case widgMMAPTITLE:
 						((SW_MMapTitle*)widg)->c_bg.set_int_color(val);
 						break;
+					case widgBGCOLOR:
+						((SW_Clear*)widg)->c_bg.set_int_color(val);
+						break;
 					default:
 						bad_subwidg_type("ColorBG", false, ty);
 						break;
@@ -26539,6 +26821,9 @@ void set_register(int32_t arg, int32_t value)
 						break;
 					case widgRECT:
 						((SW_Rect*)widg)->c_outline.set_int_color(val);
+						break;
+					case widgMCGUFF_FRAME:
+						((SW_TriFrame*)widg)->c_outline.set_int_color(val);
 						break;
 					default:
 						bad_subwidg_type("ColorOutline", false, ty);
@@ -26724,6 +27009,249 @@ void set_register(int32_t arg, int32_t value)
 						break;
 					default:
 						bad_subwidg_type("CostIndex", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_COLOR_PLAYER:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorPlayer"))
+			{
+				auto val = vbound(value/10000,-ssctMAX-NUM_SYS_COLORS,255);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgMMAP:
+						((SW_MMap*)widg)->c_plr.set_int_color(val);
+						break;
+					case widgLMAP:
+						((SW_LMap*)widg)->c_plr.set_int_color(val);
+						break;
+					default:
+						bad_subwidg_type("ColorPlayer", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_COLOR_CMPBLNK:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorCompassBlink"))
+			{
+				auto val = vbound(value/10000,-ssctMAX-NUM_SYS_COLORS,255);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgMMAP:
+						((SW_MMap*)widg)->c_cmp_blink.set_int_color(val);
+						break;
+					default:
+						bad_subwidg_type("ColorCompassBlink", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_COLOR_CMPOFF:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorCompassOff"))
+			{
+				auto val = vbound(value/10000,-ssctMAX-NUM_SYS_COLORS,255);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgMMAP:
+						((SW_MMap*)widg)->c_cmp_off.set_int_color(val);
+						break;
+					default:
+						bad_subwidg_type("ColorCompassOff", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_COLOR_ROOM:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorRoom"))
+			{
+				auto val = vbound(value/10000,-ssctMAX-NUM_SYS_COLORS,255);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgLMAP:
+						((SW_LMap*)widg)->c_room.set_int_color(val);
+						break;
+					default:
+						bad_subwidg_type("ColorRoom", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_ITEMCLASS:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ItemClass"))
+			{
+				auto val = vbound(value/10000,0,itype_maxusable-1);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgITEMSLOT:
+						((SW_ItemSlot*)widg)->iclass = val;
+						break;
+					default:
+						bad_subwidg_type("ItemClass", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_ITEMID:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ItemID"))
+			{
+				auto val = vbound(value/10000,-1,MAXITEMS-1);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgITEMSLOT:
+						((SW_ItemSlot*)widg)->iid = val;
+						break;
+					default:
+						bad_subwidg_type("ItemID", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_FRAMETILE:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "FrameTile"))
+			{
+				auto val = vbound(value/10000,0,NEWMAXTILES-1);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgMCGUFF_FRAME:
+						((SW_TriFrame*)widg)->frame_tile = val;
+						break;
+					default:
+						bad_subwidg_type("FrameTile", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_FRAMECSET:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "FrameCSet"))
+			{
+				auto val = vbound(value/10000,0,15);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgMCGUFF_FRAME:
+						((SW_TriFrame*)widg)->frame_cset = val;
+						break;
+					default:
+						bad_subwidg_type("FrameCSet", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_PIECETILE:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "PieceTile"))
+			{
+				auto val = vbound(value/10000,0,NEWMAXTILES-1);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgMCGUFF_FRAME:
+						((SW_TriFrame*)widg)->piece_tile = val;
+						break;
+					default:
+						bad_subwidg_type("PieceTile", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_PIECECSET:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "PieceCSet"))
+			{
+				auto val = vbound(value/10000,0,15);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgMCGUFF_FRAME:
+						((SW_TriFrame*)widg)->piece_cset = val;
+						break;
+					default:
+						bad_subwidg_type("PieceCSet", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_FLIP:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Flip"))
+			{
+				auto val = vbound(value/10000,0,15);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgMCGUFF:
+						((SW_McGuffin*)widg)->flip = val;
+						break;
+					case widgTILEBLOCK:
+						((SW_TileBlock*)widg)->flip = val;
+						break;
+					case widgMINITILE:
+						((SW_MiniTile*)widg)->flip = val;
+						break;
+					default:
+						bad_subwidg_type("Flip", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_NUMBER:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Number"))
+			{
+				auto val = vbound(value/10000,0,255);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgMCGUFF:
+						((SW_McGuffin*)widg)->number = val;
+						break;
+					default:
+						bad_subwidg_type("Number", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_CORNER:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Corner"))
+			{
+				auto val = vbound(value/10000,0,3);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgMINITILE:
+						((SW_MiniTile*)widg)->crn = val;
+						break;
+					default:
+						bad_subwidg_type("Corner", false, ty);
 						break;
 				}
 			}
@@ -46437,6 +46965,20 @@ script_variable ZASMVars[]=
 	{ "SUBWIDGTY_INFITM", SUBWIDGTY_INFITM, 0, 0 },
 	{ "SUBWIDGTY_INFCHAR", SUBWIDGTY_INFCHAR, 0, 0 },
 	{ "SUBWIDGTY_COSTIND", SUBWIDGTY_COSTIND, 0, 0 },
+
+	{ "SUBWIDGTY_COLOR_PLAYER", SUBWIDGTY_COLOR_PLAYER, 0, 0 },
+	{ "SUBWIDGTY_COLOR_CMPBLNK", SUBWIDGTY_COLOR_CMPBLNK, 0, 0 },
+	{ "SUBWIDGTY_COLOR_CMPOFF", SUBWIDGTY_COLOR_CMPOFF, 0, 0 },
+	{ "SUBWIDGTY_COLOR_ROOM", SUBWIDGTY_COLOR_ROOM, 0, 0 },
+	{ "SUBWIDGTY_ITEMCLASS", SUBWIDGTY_ITEMCLASS, 0, 0 },
+	{ "SUBWIDGTY_ITEMID", SUBWIDGTY_ITEMID, 0, 0 },
+	{ "SUBWIDGTY_FRAMETILE", SUBWIDGTY_FRAMETILE, 0, 0 },
+	{ "SUBWIDGTY_FRAMECSET", SUBWIDGTY_FRAMECSET, 0, 0 },
+	{ "SUBWIDGTY_PIECETILE", SUBWIDGTY_PIECETILE, 0, 0 },
+	{ "SUBWIDGTY_PIECECSET", SUBWIDGTY_PIECECSET, 0, 0 },
+	{ "SUBWIDGTY_FLIP", SUBWIDGTY_FLIP, 0, 0 },
+	{ "SUBWIDGTY_NUMBER", SUBWIDGTY_NUMBER, 0, 0 },
+	{ "SUBWIDGTY_CORNER", SUBWIDGTY_CORNER, 0, 0 },
 
 	{ " ", -1, 0, 0 }
 };

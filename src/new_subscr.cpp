@@ -3510,7 +3510,7 @@ bool SW_McGuffin::load_old(subscreen_object const& old)
 		return false;
 	SubscrWidget::load_old(old);
 	tile = old.d1;
-	cset = old.d2;
+	flip = old.d2;
 	number = old.d5;
 	SETFLAG(flags,SUBSCR_MCGUF_OVERLAY,old.d3);
 	SETFLAG(flags,SUBSCR_MCGUF_TRANSP,old.d4);
@@ -3532,7 +3532,7 @@ byte SW_McGuffin::getType() const
 void SW_McGuffin::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
 	puttriforce(dest,getX()+xofs,getY()+yofs,tile,cs.get_cset(),w,h,
-		cset,flags&SUBSCR_MCGUF_OVERLAY,flags&SUBSCR_MCGUF_TRANSP,number);
+		flip,flags&SUBSCR_MCGUF_OVERLAY,flags&SUBSCR_MCGUF_TRANSP,number);
 }
 SubscrWidget* SW_McGuffin::clone() const
 {
@@ -3547,7 +3547,7 @@ bool SW_McGuffin::copy_prop(SubscrWidget const* src, bool all)
 		return false;
 	tile = other->tile;
 	number = other->number;
-	cset = other->cset;
+	flip = other->flip;
 	cs = other->cs;
 	return true;
 }
@@ -3559,7 +3559,7 @@ int32_t SW_McGuffin::read(PACKFILE *f, word s_version)
 		return qe_invalid;
 	if(!p_igetl(&number,f))
 		return qe_invalid;
-	if(!p_getc(&cset,f))
+	if(!p_getc(&flip,f))
 		return qe_invalid;
 	if(auto ret =  cs.read(f,s_version))
 		return ret;
@@ -3573,7 +3573,7 @@ int32_t SW_McGuffin::write(PACKFILE *f) const
 		new_return(1);
 	if(!p_iputl(number,f))
 		new_return(1);
-	if(!p_putc(cset,f))
+	if(!p_putc(flip,f))
 		new_return(1);
 	if(auto ret =  cs.write(f))
 		return ret;
@@ -3707,6 +3707,30 @@ int32_t SW_MiniTile::get_tile() const
 		}
 	}
 	else return tile;
+}
+int32_t SW_MiniTile::get_int_tile() const
+{
+	if(tile == -1)
+	{
+		if(special_tile >= ssmstMAX)
+			return 0;
+		return -(special_tile+1);
+	}
+	else return tile;
+}
+void SW_MiniTile::set_int_tile(int32_t val)
+{
+	if(val < -ssmstMAX || val >= NEWMAXTILES) return;
+	if(val < 0)
+	{
+		tile = -1;
+		special_tile = -val-1;
+	}
+	else
+	{
+		tile = val;
+		special_tile = -1;
+	}
 }
 void SW_MiniTile::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
