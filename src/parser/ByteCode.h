@@ -1661,7 +1661,17 @@
 #define SUBWIDGTRANSPGFLAGS     1572
 #define SUBWIDGTRANSPGARGS     1573
 
-#define LAST_BYTECODE           1574
+#define SUBWIDGTY_CSET      1574
+#define SUBWIDGTY_TILE      1575
+
+#define SUBWIDGTY_FONT          1576
+#define SUBWIDGTY_ALIGN         1577
+#define SUBWIDGTY_SHADOWTY      1578
+#define SUBWIDGTY_COLOR_TXT     1579
+#define SUBWIDGTY_COLOR_SHD     1580
+#define SUBWIDGTY_COLOR_BG      1581
+
+#define LAST_BYTECODE           1582
 
 //} END OF BYTECODE
 
@@ -11836,23 +11846,25 @@ namespace ZScript
 		}
 	};
 
-	class OReservedEmily_11 : public Opcode
+	class OSubWidgTy_GetText : public UnaryOpcode
 	{
 	public:
+		OSubWidgTy_GetText(Argument *A) : UnaryOpcode(A) {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OReservedEmily_11();
+			return new OSubWidgTy_GetText(a->clone());
 		}
 	};
 
-	class OReservedEmily_12 : public Opcode
+	class OSubWidgTy_SetText : public UnaryOpcode
 	{
 	public:
+		OSubWidgTy_SetText(Argument *A) : UnaryOpcode(A) {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OReservedEmily_12();
+			return new OSubWidgTy_SetText(a->clone());
 		}
 	};
 
