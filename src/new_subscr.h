@@ -173,7 +173,7 @@ enum //new subscreen object types
 	widgMISCGAUGE, widgBTNCOUNTER,
 	widgMAX
 };
-
+extern const std::string subwidg_internal_names[widgMAX];
 enum { sstACTIVE, sstPASSIVE, sstOVERLAY, sstMAX };
 extern const std::string subscr_names[sstMAX];
 extern const std::string subscr_infos[sstMAX];

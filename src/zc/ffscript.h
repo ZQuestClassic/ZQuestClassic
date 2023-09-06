@@ -5051,7 +5051,18 @@ enum ASM_DEFINE
 #define SUBWIDGTY_COLOR_SHD     0x1562
 #define SUBWIDGTY_COLOR_BG      0x1563
 
-#define NUMVARIABLES            0x1564
+#define SUBWIDGTY_COLOR_OLINE   0x1564
+#define SUBWIDGTY_COLOR_FILL    0x1565
+
+#define SUBWIDGTY_BUTTON        0x1566
+#define SUBWIDGTY_COUNTERS      0x1567
+#define SUBWIDGTY_MINDIG        0x1568
+#define SUBWIDGTY_MAXDIG        0x1569
+#define SUBWIDGTY_INFITM        0x156A
+#define SUBWIDGTY_INFCHAR       0x156B
+#define SUBWIDGTY_COSTIND       0x156C
+
+#define NUMVARIABLES            0x156D
 
 //} End variables
 

@@ -3650,6 +3650,7 @@ subscreendata LoadASubData(int id);
 subscreendata LoadPSubData(int id);
 subscreendata LoadOSubData(int id);
  * Loads the 'subscreendata' pointer for the specified active/passive/overlay subscreen.
+ * Use id '-1' to load the current subscreen of the type.
 
 int NumActiveSubscreens();
 int NumPassiveSubscreens();
@@ -8947,32 +8948,20 @@ int Tile;
 int Font;
  * The object's Font, use the 'FONT_' constants.
  * VALID WIDGETS:
- *  SUBWIDG_TEXT
+ *  SUBWIDG_TEXT, SUBWIDG_TIME, SUBWIDG_COUNTER, SUBWIDG_OLDCTR,
+ *  SUBWIDG_BTNCOUNTER, SUBWIDG_MMAPTITLE
 
 int Align;
  * The object's Alignment, use the 'TF_' constants.
  * VALID WIDGETS:
- *  SUBWIDG_TEXT
+ *  SUBWIDG_TEXT, SUBWIDG_TIME, SUBWIDG_COUNTER, SUBWIDG_BTNCOUNTER,
+ *  SUBWIDG_MMAPTITLE
 
 int ShadowType;
  * The object's Shadow Type, use the 'SHD_' constants.
  * VALID WIDGETS:
- *  SUBWIDG_TEXT
-
-int ColorText;
- * The object's color index used for Text
- * VALID WIDGETS:
- *  SUBWIDG_TEXT
-
-int ColorShadow;
- * The object's color index used for Shadows
- * VALID WIDGETS:
- *  SUBWIDG_TEXT
-
-int ColorBG;
- * The object's color index used for background
- * VALID WIDGETS:
- *  SUBWIDG_TEXT
+ *  SUBWIDG_TEXT, SUBWIDG_TIME, SUBWIDG_COUNTER, SUBWIDG_OLDCTR,
+ *  SUBWIDG_BTNCOUNTER, SUBWIDG_MMAPTITLE
 
 void GetText(char32[] buf);
 void SetText(char32[] str);
@@ -8981,6 +8970,72 @@ void SetText(char32[] str);
  *     it will *automatically be resized to fit*.
  * VALID WIDGETS:
  *  SUBWIDG_TEXT
+
+int ColorText;
+ * The object's color index used for Text
+ * VALID WIDGETS:
+ *  SUBWIDG_TEXT, SUBWIDG_TIME, SUBWIDG_COUNTER, SUBWIDG_OLDCTR,
+ *  SUBWIDG_BTNCOUNTER, SUBWIDG_MMAPTITLE
+
+int ColorShadow;
+ * The object's color index used for Shadows
+ * VALID WIDGETS:
+ *  SUBWIDG_TEXT, SUBWIDG_TIME, SUBWIDG_COUNTER, SUBWIDG_OLDCTR,
+ *  SUBWIDG_BTNCOUNTER, SUBWIDG_MMAPTITLE
+
+int ColorBG;
+ * The object's color index used for background
+ * VALID WIDGETS:
+ *  SUBWIDG_TEXT, SUBWIDG_TIME, SUBWIDG_COUNTER, SUBWIDG_OLDCTR,
+ *  SUBWIDG_BTNCOUNTER, SUBWIDG_MMAPTITLE
+
+int ColorOutline;
+ * The object's color index used for outline
+ * VALID WIDGETS:
+ *  SUBWIDG_LINE, SUBWIDG_RECT
+
+int ColorFill;
+ * The object's color index used for fill
+ * VALID WIDGETS:
+ *  SUBWIDG_RECT
+
+int Button;
+ * The item button associated with the widget.
+ * Use the 'ITMBTN_' constants for this value.
+ * VALID WIDGETS:
+ *  SUBWIDG_BTNITM, SUBWIDG_BTNCOUNTER
+
+int Counters[];
+ * The counter(s) associated with the widget.
+ * Use the 'CR_' constants for the values.
+ * VALID WIDGETS:
+ *  SUBWIDG_COUNTER[3]
+
+int MinDigits;
+ * The minimum digits of the widget.
+ * VALID WIDGETS:
+ *  SUBWIDG_COUNTER, SUBWIDG_OLDCTR, SUBWIDG_BTNCOUNTER
+
+int MaxDigits;
+ * The maximum digits of the widget.
+ * VALID WIDGETS:
+ *  SUBWIDG_COUNTER, SUBWIDG_BTNCOUNTER
+
+int InfiniteItem;
+ * The infinite item of the widget.
+ * VALID WIDGETS:
+ *  SUBWIDG_COUNTER, SUBWIDG_OLDCTR
+
+char32 InfiniteChar;
+ * The infinite character of the widget.
+ * VALID WIDGETS:
+ *  SUBWIDG_COUNTER, SUBWIDG_OLDCTR, SUBWIDG_BTNCOUNTER
+
+int CostIndex;
+ * The index of cost to use for this widget
+ * VALID WIDGETS:
+ *  SUBWIDG_BTNCOUNTER
+
 
 
 ////////////////////////////////////

@@ -294,10 +294,32 @@ int32_t getScreen(int32_t ref)
 	}
 }
 
-dword get_subref(byte sub, byte ty, byte pg = 0, word ind = 0)
+dword get_subref(int sub, byte ty, byte pg = 0, word ind = 0)
 {
+	byte s;
+	if(sub == -1) //special; load current
+	{
+		auto& dm = DMaps[get_currdmap()];
+		switch(ty)
+		{
+			case sstACTIVE:
+				s = dm.active_subscreen;
+				break;
+			case sstPASSIVE:
+				s = dm.passive_subscreen;
+				break;
+			case sstOVERLAY:
+				s = dm.overlay_subscreen;
+				break;
+			default:
+				return 0;
+		}
+	}
+	else if(unsigned(sub) < 256)
+		s = sub;
+	else return 0;
 	++ty; //type is offset by 1
-	return (sub<<24)|(pg<<16)|((ty&0x7)<<13)|(ind&0x1FFF);
+	return (s<<24)|(pg<<16)|((ty&0x7)<<13)|(ind&0x1FFF);
 }
 std::tuple<byte,int8_t,byte,word> from_subref(dword ref)
 {
@@ -324,8 +346,12 @@ std::tuple<ZCSubscreen*,SubscrPage*,SubscrWidget*,byte> load_subscreen_ref(dword
 				sbscr = &subscreens_active[sub];
 			break;
 		case sstPASSIVE:
+			if(sub < subscreens_passive.size())
+				sbscr = &subscreens_passive[sub];
 			break;
 		case sstOVERLAY:
+			if(sub < subscreens_overlay.size())
+				sbscr = &subscreens_overlay[sub];
 			break;
 	}
 	if(sbscr)
@@ -3617,6 +3643,13 @@ SubscrWidget *checkSubWidg(int32_t ref, const char *what, int req_widg_ty = -1, 
 	
 	Z_scripterrlog("You were trying to reference the '%s' of a SubscreenWidget with UID = %ld\n", what, ref);
 	return NULL;
+}
+
+void bad_subwidg_type(string const& name, bool func, byte type)
+{
+	Z_scripterrlog("Widget type %d '%s' does not have a '%s' %s!\n",
+		type, subwidg_internal_names[type].c_str(), name.c_str(),
+		func ? "function" : "value");
 }
 
 int32_t get_screen_d(int32_t index1, int32_t index2)
@@ -13679,8 +13712,11 @@ int32_t get_register(const int32_t arg)
 		case SUBDATANUMPG:
 		{
 			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "NumPages"))
+			{
 				if(sub->sub_type == sstACTIVE)
 					ret = 10000*sub->pages.size();
+				else ret = 10000;
+			}
 			break;
 		}
 		case SUBDATAPAGES:
@@ -13688,7 +13724,7 @@ int32_t get_register(const int32_t arg)
 			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "Pages[]"))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
-				size_t sz = sub->sub_type == sstACTIVE ? sub->pages.size() : 0;
+				size_t sz = sub->sub_type == sstACTIVE ? sub->pages.size() : 1;
 				if(indx >= sz)
 				{
 					Z_scripterrlog("Bad index '%d' to array "
@@ -14153,7 +14189,20 @@ int32_t get_register(const int32_t arg)
 		case SUBPGWIDGETS: 
 		{
 			if(SubscrPage* pg = checkSubPage(ri->subpageref, "Widgets[]"))
-				ret = pg->size() * 10000;
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				size_t sz = pg->size();
+				if(indx >= sz)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreenpage->Widgets[]' of size '%d'\n", indx, sz);
+				}
+				else
+				{
+					auto [sb,ty,pg,_ind] = from_subref(ri->subpageref);
+					ret = get_subref(sb,ty,pg,indx);
+				}
+			}
 			break;
 		}
 		case SUBPGSUBDATA: 
@@ -14561,7 +14610,7 @@ int32_t get_register(const int32_t arg)
 						ret = ((SW_2x2Frame*)widg)->cs.get_cset()*10000;
 						break;
 					default:
-						Z_scripterrlog("Widget type %d does not have a 'CSet' value!",ty);
+						bad_subwidg_type("CSet", false, ty);
 						break;
 				}
 			}
@@ -14578,7 +14627,7 @@ int32_t get_register(const int32_t arg)
 						ret = ((SW_2x2Frame*)widg)->tile * 10000;
 						break;
 					default:
-						Z_scripterrlog("Widget type %d does not have a 'Tile' value!",ty);
+						bad_subwidg_type("Tile", false, ty);
 						ret = -10000;
 						break;
 				}
@@ -14595,8 +14644,23 @@ int32_t get_register(const int32_t arg)
 					case widgTEXT:
 						ret = 10000*((SW_Text*)widg)->fontid;
 						break;
+					case widgTIME:
+						ret = 10000*((SW_Time*)widg)->fontid;
+						break;
+					case widgCOUNTER:
+						ret = 10000*((SW_Counter*)widg)->fontid;
+						break;
+					case widgBTNCOUNTER:
+						ret = 10000*((SW_BtnCounter*)widg)->fontid;
+						break;
+					case widgOLDCTR:
+						ret = 10000*((SW_Counters*)widg)->fontid;
+						break;
+					case widgMMAPTITLE:
+						ret = 10000*((SW_MMapTitle*)widg)->fontid;
+						break;
 					default:
-						Z_scripterrlog("Widget type %d does not have a 'Font' value!",ty);
+						bad_subwidg_type("Font", false, ty);
 						ret = -10000;
 						break;
 				}
@@ -14613,8 +14677,20 @@ int32_t get_register(const int32_t arg)
 					case widgTEXT:
 						ret = 10000*((SW_Text*)widg)->align;
 						break;
+					case widgTIME:
+						ret = 10000*((SW_Time*)widg)->align;
+						break;
+					case widgCOUNTER:
+						ret = 10000*((SW_Counter*)widg)->align;
+						break;
+					case widgBTNCOUNTER:
+						ret = 10000*((SW_BtnCounter*)widg)->align;
+						break;
+					case widgMMAPTITLE:
+						ret = 10000*((SW_MMapTitle*)widg)->align;
+						break;
 					default:
-						Z_scripterrlog("Widget type %d does not have a 'Align' value!",ty);
+						bad_subwidg_type("Align", false, ty);
 						ret = -10000;
 						break;
 				}
@@ -14631,8 +14707,23 @@ int32_t get_register(const int32_t arg)
 					case widgTEXT:
 						ret = 10000*((SW_Text*)widg)->shadtype;
 						break;
+					case widgTIME:
+						ret = 10000*((SW_Time*)widg)->shadtype;
+						break;
+					case widgCOUNTER:
+						ret = 10000*((SW_Counter*)widg)->shadtype;
+						break;
+					case widgBTNCOUNTER:
+						ret = 10000*((SW_BtnCounter*)widg)->shadtype;
+						break;
+					case widgOLDCTR:
+						ret = 10000*((SW_Counters*)widg)->shadtype;
+						break;
+					case widgMMAPTITLE:
+						ret = 10000*((SW_MMapTitle*)widg)->shadtype;
+						break;
 					default:
-						Z_scripterrlog("Widget type %d does not have a 'ShadowType' value!",ty);
+						bad_subwidg_type("ShadowType", false, ty);
 						ret = -10000;
 						break;
 				}
@@ -14649,8 +14740,23 @@ int32_t get_register(const int32_t arg)
 					case widgTEXT:
 						ret = 10000*((SW_Text*)widg)->c_text.get_int_color();
 						break;
+					case widgTIME:
+						ret = 10000*((SW_Time*)widg)->c_text.get_int_color();
+						break;
+					case widgCOUNTER:
+						ret = 10000*((SW_Counter*)widg)->c_text.get_int_color();
+						break;
+					case widgBTNCOUNTER:
+						ret = 10000*((SW_BtnCounter*)widg)->c_text.get_int_color();
+						break;
+					case widgOLDCTR:
+						ret = 10000*((SW_Counters*)widg)->c_text.get_int_color();
+						break;
+					case widgMMAPTITLE:
+						ret = 10000*((SW_MMapTitle*)widg)->c_text.get_int_color();
+						break;
 					default:
-						Z_scripterrlog("Widget type %d does not have a 'ColorText' value!",ty);
+						bad_subwidg_type("ColorText", false, ty);
 						break;
 				}
 			}
@@ -14660,15 +14766,29 @@ int32_t get_register(const int32_t arg)
 		{
 			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorShadow"))
 			{
-				auto val = vbound(value/10000,-ssctMAX-NUM_SYS_COLORS,255);
 				auto ty = widg->getType();
 				switch(ty)
 				{
 					case widgTEXT:
 						ret = 10000*((SW_Text*)widg)->c_shadow.get_int_color();
 						break;
+					case widgTIME:
+						ret = 10000*((SW_Time*)widg)->c_shadow.get_int_color();
+						break;
+					case widgCOUNTER:
+						ret = 10000*((SW_Counter*)widg)->c_shadow.get_int_color();
+						break;
+					case widgBTNCOUNTER:
+						ret = 10000*((SW_BtnCounter*)widg)->c_shadow.get_int_color();
+						break;
+					case widgOLDCTR:
+						ret = 10000*((SW_Counters*)widg)->c_shadow.get_int_color();
+						break;
+					case widgMMAPTITLE:
+						ret = 10000*((SW_MMapTitle*)widg)->c_shadow.get_int_color();
+						break;
 					default:
-						Z_scripterrlog("Widget type %d does not have a 'ColorShadow' value!",ty);
+						bad_subwidg_type("ColorShadow", false, ty);
 						break;
 				}
 			}
@@ -14678,15 +14798,225 @@ int32_t get_register(const int32_t arg)
 		{
 			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorBG"))
 			{
-				auto val = vbound(value/10000,-ssctMAX-NUM_SYS_COLORS,255);
 				auto ty = widg->getType();
 				switch(ty)
 				{
 					case widgTEXT:
 						ret = 10000*((SW_Text*)widg)->c_bg.get_int_color();
 						break;
+					case widgTIME:
+						ret = 10000*((SW_Time*)widg)->c_bg.get_int_color();
+						break;
+					case widgCOUNTER:
+						ret = 10000*((SW_Counter*)widg)->c_bg.get_int_color();
+						break;
+					case widgBTNCOUNTER:
+						ret = 10000*((SW_BtnCounter*)widg)->c_bg.get_int_color();
+						break;
+					case widgOLDCTR:
+						ret = 10000*((SW_Counters*)widg)->c_bg.get_int_color();
+						break;
+					case widgMMAPTITLE:
+						ret = 10000*((SW_MMapTitle*)widg)->c_bg.get_int_color();
+						break;
 					default:
-						Z_scripterrlog("Widget type %d does not have a 'ColorBG' value!",ty);
+						bad_subwidg_type("ColorBG", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_COLOR_OLINE:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorOutline"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgLINE:
+						ret = 10000*((SW_Line*)widg)->c_line.get_int_color();
+						break;
+					case widgRECT:
+						ret = 10000*((SW_Rect*)widg)->c_outline.get_int_color();
+						break;
+					default:
+						bad_subwidg_type("ColorOutline", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_COLOR_FILL:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorFill"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgRECT:
+						ret = 10000*((SW_Rect*)widg)->c_fill.get_int_color();
+						break;
+					default:
+						bad_subwidg_type("ColorFill", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_BUTTON:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Button"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgBTNITM:
+						ret = 10000*((SW_ButtonItem*)widg)->btn;
+						break;
+					case widgBTNCOUNTER:
+						ret = 10000*((SW_BtnCounter*)widg)->btn;
+						break;
+					default:
+						bad_subwidg_type("Button", false, ty);
+						ret = -10000;
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_COUNTERS:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Counters[]"))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				size_t sz = 0;
+				byte ty = widg->getType();
+				switch(ty)
+				{
+					case widgCOUNTER:
+						sz = 3;
+						break;
+					default:
+						sz = 0;
+						bad_subwidg_type("Counters[]", false, ty);
+						ret = -10000;
+						break;
+				}
+				if(!sz) break;
+				if(indx >= sz)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreenwidget->Counters[%d]'\n", indx, sz);
+					break;
+				}
+				switch(ty)
+				{
+					case widgCOUNTER:
+						ret = ((SW_Counter*)widg)->ctrs[indx]*10000;
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_MINDIG:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "MinDigits"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgCOUNTER:
+						ret = 10000*((SW_Counter*)widg)->mindigits;
+						break;
+					case widgBTNCOUNTER:
+						ret = 10000*((SW_BtnCounter*)widg)->mindigits;
+						break;
+					case widgOLDCTR:
+						ret = 10000*((SW_Counters*)widg)->digits;
+						break;
+					default:
+						bad_subwidg_type("MinDigits", false, ty);
+						ret = -10000;
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_MAXDIG:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "MaxDigits"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgCOUNTER:
+						ret = 10000*((SW_Counter*)widg)->maxdigits;
+						break;
+					case widgBTNCOUNTER:
+						ret = 10000*((SW_BtnCounter*)widg)->maxdigits;
+						break;
+					default:
+						bad_subwidg_type("MaxDigits", false, ty);
+						ret = -10000;
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_INFITM:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "InfiniteItem"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgCOUNTER:
+						ret = 10000*((SW_Counter*)widg)->infitm;
+						break;
+					case widgOLDCTR:
+						ret = 10000*((SW_Counters*)widg)->infitm;
+						break;
+					default:
+						bad_subwidg_type("InfiniteItem", false, ty);
+						ret = -10000;
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_INFCHAR:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "InfiniteChar"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgCOUNTER:
+						ret = 10000*byte(((SW_Counter*)widg)->infchar);
+						break;
+					case widgOLDCTR:
+						ret = 10000*byte(((SW_Counters*)widg)->infchar);
+						break;
+					default:
+						bad_subwidg_type("InfiniteChar", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_COSTIND:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "CostIndex"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgBTNCOUNTER:
+						ret = 10000*((SW_BtnCounter*)widg)->costind;
+						break;
+					default:
+						bad_subwidg_type("CostIndex", false, ty);
+						ret = -1;
 						break;
 				}
 			}
@@ -25973,10 +26303,10 @@ void set_register(int32_t arg, int32_t value)
 				switch(ty)
 				{
 					case widgFRAME:
-						((SW_2x2Frame*)widg)->cs.set_cset(val);
+						((SW_2x2Frame*)widg)->cs.set_int_cset(val);
 						break;
 					default:
-						Z_scripterrlog("Widget type %d does not have a 'CSet' value!",ty);
+						bad_subwidg_type("CSet", false, ty);
 						break;
 				}
 			}
@@ -25994,7 +26324,7 @@ void set_register(int32_t arg, int32_t value)
 						((SW_2x2Frame*)widg)->tile = val;
 						break;
 					default:
-						Z_scripterrlog("Widget type %d does not have a 'Tile' value!",ty);
+						bad_subwidg_type("Tile", false, ty);
 						break;
 				}
 			}
@@ -26011,8 +26341,23 @@ void set_register(int32_t arg, int32_t value)
 					case widgTEXT:
 						((SW_Text*)widg)->fontid = val;
 						break;
+					case widgTIME:
+						((SW_Time*)widg)->fontid = val;
+						break;
+					case widgCOUNTER:
+						((SW_Counter*)widg)->fontid = val;
+						break;
+					case widgBTNCOUNTER:
+						((SW_BtnCounter*)widg)->fontid = val;
+						break;
+					case widgOLDCTR:
+						((SW_Counters*)widg)->fontid = val;
+						break;
+					case widgMMAPTITLE:
+						((SW_MMapTitle*)widg)->fontid = val;
+						break;
 					default:
-						Z_scripterrlog("Widget type %d does not have a 'Font' value!",ty);
+						bad_subwidg_type("Font", false, ty);
 						break;
 				}
 			}
@@ -26029,8 +26374,20 @@ void set_register(int32_t arg, int32_t value)
 					case widgTEXT:
 						((SW_Text*)widg)->align = val;
 						break;
+					case widgTIME:
+						((SW_Time*)widg)->align = val;
+						break;
+					case widgCOUNTER:
+						((SW_Counter*)widg)->align = val;
+						break;
+					case widgBTNCOUNTER:
+						((SW_BtnCounter*)widg)->align = val;
+						break;
+					case widgMMAPTITLE:
+						((SW_MMapTitle*)widg)->align = val;
+						break;
 					default:
-						Z_scripterrlog("Widget type %d does not have a 'Align' value!",ty);
+						bad_subwidg_type("Align", false, ty);
 						break;
 				}
 			}
@@ -26047,8 +26404,23 @@ void set_register(int32_t arg, int32_t value)
 					case widgTEXT:
 						((SW_Text*)widg)->shadtype = val;
 						break;
+					case widgTIME:
+						((SW_Time*)widg)->shadtype = val;
+						break;
+					case widgCOUNTER:
+						((SW_Counter*)widg)->shadtype = val;
+						break;
+					case widgBTNCOUNTER:
+						((SW_BtnCounter*)widg)->shadtype = val;
+						break;
+					case widgOLDCTR:
+						((SW_Counters*)widg)->shadtype = val;
+						break;
+					case widgMMAPTITLE:
+						((SW_MMapTitle*)widg)->shadtype = val;
+						break;
 					default:
-						Z_scripterrlog("Widget type %d does not have a 'ShadowType' value!",ty);
+						bad_subwidg_type("ShadowType", false, ty);
 						break;
 				}
 			}
@@ -26065,8 +26437,23 @@ void set_register(int32_t arg, int32_t value)
 					case widgTEXT:
 						((SW_Text*)widg)->c_text.set_int_color(val);
 						break;
+					case widgTIME:
+						((SW_Time*)widg)->c_text.set_int_color(val);
+						break;
+					case widgCOUNTER:
+						((SW_Counter*)widg)->c_text.set_int_color(val);
+						break;
+					case widgBTNCOUNTER:
+						((SW_BtnCounter*)widg)->c_text.set_int_color(val);
+						break;
+					case widgOLDCTR:
+						((SW_Counters*)widg)->c_text.set_int_color(val);
+						break;
+					case widgMMAPTITLE:
+						((SW_MMapTitle*)widg)->c_text.set_int_color(val);
+						break;
 					default:
-						Z_scripterrlog("Widget type %d does not have a 'ColorText' value!",ty);
+						bad_subwidg_type("ColorText", false, ty);
 						break;
 				}
 			}
@@ -26083,8 +26470,23 @@ void set_register(int32_t arg, int32_t value)
 					case widgTEXT:
 						((SW_Text*)widg)->c_shadow.set_int_color(val);
 						break;
+					case widgTIME:
+						((SW_Time*)widg)->c_shadow.set_int_color(val);
+						break;
+					case widgCOUNTER:
+						((SW_Counter*)widg)->c_shadow.set_int_color(val);
+						break;
+					case widgBTNCOUNTER:
+						((SW_BtnCounter*)widg)->c_shadow.set_int_color(val);
+						break;
+					case widgOLDCTR:
+						((SW_Counters*)widg)->c_shadow.set_int_color(val);
+						break;
+					case widgMMAPTITLE:
+						((SW_MMapTitle*)widg)->c_shadow.set_int_color(val);
+						break;
 					default:
-						Z_scripterrlog("Widget type %d does not have a 'ColorShadow' value!",ty);
+						bad_subwidg_type("ColorShadow", false, ty);
 						break;
 				}
 			}
@@ -26101,14 +26503,232 @@ void set_register(int32_t arg, int32_t value)
 					case widgTEXT:
 						((SW_Text*)widg)->c_bg.set_int_color(val);
 						break;
+					case widgTIME:
+						((SW_Time*)widg)->c_bg.set_int_color(val);
+						break;
+					case widgCOUNTER:
+						((SW_Counter*)widg)->c_bg.set_int_color(val);
+						break;
+					case widgBTNCOUNTER:
+						((SW_BtnCounter*)widg)->c_bg.set_int_color(val);
+						break;
+					case widgOLDCTR:
+						((SW_Counters*)widg)->c_bg.set_int_color(val);
+						break;
+					case widgMMAPTITLE:
+						((SW_MMapTitle*)widg)->c_bg.set_int_color(val);
+						break;
 					default:
-						Z_scripterrlog("Widget type %d does not have a 'ColorBG' value!",ty);
+						bad_subwidg_type("ColorBG", false, ty);
 						break;
 				}
 			}
 			break;
 		}
 		
+		case SUBWIDGTY_COLOR_OLINE:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorOutline"))
+			{
+				auto val = vbound(value/10000,-ssctMAX-NUM_SYS_COLORS,255);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgLINE:
+						((SW_Line*)widg)->c_line.set_int_color(val);
+						break;
+					case widgRECT:
+						((SW_Rect*)widg)->c_outline.set_int_color(val);
+						break;
+					default:
+						bad_subwidg_type("ColorOutline", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		
+		case SUBWIDGTY_COLOR_FILL:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorFill"))
+			{
+				auto val = vbound(value/10000,-ssctMAX-NUM_SYS_COLORS,255);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgRECT:
+						((SW_Rect*)widg)->c_fill.set_int_color(val);
+						break;
+					default:
+						bad_subwidg_type("ColorFill", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_BUTTON:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Button"))
+			{
+				auto val = vbound(value/10000,0,3);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgBTNITM:
+						((SW_ButtonItem*)widg)->btn = val;
+						break;
+					case widgBTNCOUNTER:
+						((SW_BtnCounter*)widg)->btn = val;
+						break;
+					default:
+						bad_subwidg_type("Button", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_COUNTERS:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Counters[]"))
+			{
+				auto val = vbound(value/10000,sscMIN+1,MAX_COUNTERS-1);
+				size_t indx = ri->d[rINDEX]/10000;
+				size_t sz = 0;
+				byte ty = widg->getType();
+				switch(ty)
+				{
+					case widgCOUNTER:
+						sz = 3;
+						break;
+					default:
+						sz = 0;
+						bad_subwidg_type("Counters[]", false, ty);
+						break;
+				}
+				if(!sz) break;
+				if(indx >= sz)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreenwidget->Counters[%d]'\n", indx, sz);
+					break;
+				}
+				switch(ty)
+				{
+					case widgCOUNTER:
+						((SW_Counter*)widg)->ctrs[indx] = val;
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_MINDIG:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "MinDigits"))
+			{
+				auto val = vbound(value/10000,0,5);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgCOUNTER:
+						((SW_Counter*)widg)->mindigits = val;
+						break;
+					case widgBTNCOUNTER:
+						((SW_BtnCounter*)widg)->mindigits = val;
+						break;
+					case widgOLDCTR:
+						((SW_Counters*)widg)->digits = val;
+						break;
+					default:
+						bad_subwidg_type("MinDigits", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_MAXDIG:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "MaxDigits"))
+			{
+				auto val = vbound(value/10000,0,5);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgCOUNTER:
+						((SW_Counter*)widg)->maxdigits = val;
+						break;
+					case widgBTNCOUNTER:
+						((SW_BtnCounter*)widg)->maxdigits = val;
+						break;
+					default:
+						bad_subwidg_type("MaxDigits", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_INFITM:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "InfiniteItem"))
+			{
+				auto val = vbound(value/10000,-1,MAXITEMS-1);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgCOUNTER:
+						((SW_Counter*)widg)->infitm = val;
+						break;
+					case widgOLDCTR:
+						((SW_Counters*)widg)->infitm = val;
+						break;
+					default:
+						bad_subwidg_type("InfiniteItem", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_INFCHAR:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "InfiniteChar"))
+			{
+				char val = vbound(value/10000,0,255);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgCOUNTER:
+						((SW_Counter*)widg)->infchar = val;
+						break;
+					case widgBTNCOUNTER:
+						((SW_BtnCounter*)widg)->infchar = val;
+						break;
+					case widgOLDCTR:
+						((SW_Counters*)widg)->infchar = val;
+						break;
+					default:
+						bad_subwidg_type("InfiniteChar", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_COSTIND:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "CostIndex"))
+			{
+				auto val = vbound(value/10000,0,1);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgBTNCOUNTER:
+						((SW_BtnCounter*)widg)->costind = val;
+						break;
+					default:
+						bad_subwidg_type("CostIndex", false, ty);
+						break;
+				}
+			}
+			break;
+		}
 		///----------------------------------------------------------------------------------------------------//
 		
 		default:
@@ -28372,7 +28992,7 @@ void FFScript::do_load_active_subscreendata(const bool v)
 {
 	int32_t ID = SH::get_arg(sarg1, v) / 10000;
 	
-	if(unsigned(ID) < subscreens_active.size() && unsigned(ID) < 256)
+	if(ID == -1 || (unsigned(ID) < subscreens_active.size() && unsigned(ID) < 256))
 	{
 		ri->subdataref = get_subref(ID, sstACTIVE);
 	}
@@ -28387,7 +29007,7 @@ void FFScript::do_load_passive_subscreendata(const bool v)
 {
 	int32_t ID = SH::get_arg(sarg1, v) / 10000;
 	
-	if(unsigned(ID) < subscreens_passive.size() && unsigned(ID) < 256)
+	if(ID == -1 || (unsigned(ID) < subscreens_passive.size() && unsigned(ID) < 256))
 	{
 		ri->subdataref = get_subref(ID, sstPASSIVE);
 	}
@@ -28402,7 +29022,7 @@ void FFScript::do_load_overlay_subscreendata(const bool v)
 {
 	int32_t ID = SH::get_arg(sarg1, v) / 10000;
 	
-	if(unsigned(ID) < subscreens_overlay.size() && unsigned(ID) < 256)
+	if(ID == -1 || (unsigned(ID) < subscreens_overlay.size() && unsigned(ID) < 256))
 	{
 		ri->subdataref = get_subref(ID, sstOVERLAY);
 	}
@@ -37687,7 +38307,7 @@ j_command:
 			}
 			case SUBDATA_SWAP_PAGES:
 			{
-				ri->subpageref = SH::read_stack(ri->sp+2);
+				ri->subdataref = SH::read_stack(ri->sp+2);
 				if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SwapPages"))
 				{
 					int p1 = SH::read_stack(ri->sp+1) / 10000;
@@ -37800,7 +38420,7 @@ j_command:
 				if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "GetSelTextOverride"))
 				{
 					auto aptr = get_register(sarg1) / 10000;
-					if(ArrayH::setArray(aptr, sub->name, true) == SH::_Overflow)
+					if(ArrayH::setArray(aptr, widg->override_text, true) == SH::_Overflow)
 						Z_scripterrlog("Array supplied to 'subscreenwidget->GetSelTextOverride()' not large enough,"
 							" and couldn't be resized!\n");
 				}
@@ -37811,7 +38431,7 @@ j_command:
 				if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "SetSelTextOverride"))
 				{
 					auto aptr = get_register(sarg1) / 10000;
-					ArrayH::getString(aptr, sub->name);
+					ArrayH::getString(aptr, widg->override_text);
 				}
 				break;
 			}
@@ -37827,7 +38447,7 @@ j_command:
 							str = &((SW_Text*)widg)->text;
 							break;
 						default:
-							Z_scripterrlog("Widget type %d does not have a 'GetText()' function!",ty);
+							bad_subwidg_type("GetText()", true, ty);
 							break;
 					}
 					if(str)
@@ -37852,7 +38472,7 @@ j_command:
 							str = &((SW_Text*)widg)->text;
 							break;
 						default:
-							Z_scripterrlog("Widget type %d does not have a 'SetText()' function!",ty);
+							bad_subwidg_type("SetText()", true, ty);
 							break;
 					}
 					if(str)
@@ -45806,6 +46426,17 @@ script_variable ZASMVars[]=
 	{ "SUBWIDGTY_COLOR_TXT", SUBWIDGTY_COLOR_TXT, 0, 0 },
 	{ "SUBWIDGTY_COLOR_SHD", SUBWIDGTY_COLOR_SHD, 0, 0 },
 	{ "SUBWIDGTY_COLOR_BG", SUBWIDGTY_COLOR_BG, 0, 0 },
+
+	{ "SUBWIDGTY_COLOR_OLINE", SUBWIDGTY_COLOR_OLINE, 0, 0 },
+	{ "SUBWIDGTY_COLOR_FILL", SUBWIDGTY_COLOR_FILL, 0, 0 },
+
+	{ "SUBWIDGTY_BUTTON", SUBWIDGTY_BUTTON, 0, 0 },
+	{ "SUBWIDGTY_COUNTERS", SUBWIDGTY_COUNTERS, 0, 0 },
+	{ "SUBWIDGTY_MINDIG", SUBWIDGTY_MINDIG, 0, 0 },
+	{ "SUBWIDGTY_MAXDIG", SUBWIDGTY_MAXDIG, 0, 0 },
+	{ "SUBWIDGTY_INFITM", SUBWIDGTY_INFITM, 0, 0 },
+	{ "SUBWIDGTY_INFCHAR", SUBWIDGTY_INFCHAR, 0, 0 },
+	{ "SUBWIDGTY_COSTIND", SUBWIDGTY_COSTIND, 0, 0 },
 
 	{ " ", -1, 0, 0 }
 };
