@@ -8934,31 +8934,37 @@ int PageTransArgs[];
 //     some widget types, as listed.
 //
 
+int Tile;
+ * The widget's main tile.
+ * For SUBWIDG_MINITILE, can use the 'SUB_SPTILE_' constant values.
+ * VALID WIDGETS:
+ *  SUBWIDG_FRAME, SUBWIDG_MCGUFF, SUBWIDG_TILEBLOCK, SUBWIDG_MINITILE
+
 int CSet;
- * The object's main cset. Normal csets, as well as the 'SUB_CS_' constants,
+ * The widget's main cset. Normal csets, as well as the 'SUB_CS_' constants,
  *     can be used for its' value.
  * VALID WIDGETS:
- *  SUBWIDG_FRAME,
+ *  SUBWIDG_FRAME, SUBWIDG_MCGUFF, SUBWIDG_TILEBLOCK, SUBWIDG_MINITILE
 
-int Tile;
- * The object's main tile.
+int Flip;
+ * The widget's flip value.
  * VALID WIDGETS:
- *  SUBWIDG_FRAME
+ *  SUBWIDG_MCGUFF, SUBWIDG_TILEBLOCK, SUBWIDG_MINITILE
 
 int Font;
- * The object's Font, use the 'FONT_' constants.
+ * The widget's Font, use the 'FONT_' constants.
  * VALID WIDGETS:
  *  SUBWIDG_TEXT, SUBWIDG_TIME, SUBWIDG_COUNTER, SUBWIDG_OLDCTR,
  *  SUBWIDG_BTNCOUNTER, SUBWIDG_MMAPTITLE
 
 int Align;
- * The object's Alignment, use the 'TF_' constants.
+ * The widget's Alignment, use the 'TF_' constants.
  * VALID WIDGETS:
  *  SUBWIDG_TEXT, SUBWIDG_TIME, SUBWIDG_COUNTER, SUBWIDG_BTNCOUNTER,
  *  SUBWIDG_MMAPTITLE
 
 int ShadowType;
- * The object's Shadow Type, use the 'SHD_' constants.
+ * The widget's Shadow Type, use the 'SHD_' constants.
  * VALID WIDGETS:
  *  SUBWIDG_TEXT, SUBWIDG_TIME, SUBWIDG_COUNTER, SUBWIDG_OLDCTR,
  *  SUBWIDG_BTNCOUNTER, SUBWIDG_MMAPTITLE
@@ -8972,32 +8978,52 @@ void SetText(char32[] str);
  *  SUBWIDG_TEXT
 
 int ColorText;
- * The object's color index used for Text
+ * The widget's color index used for Text
  * VALID WIDGETS:
  *  SUBWIDG_TEXT, SUBWIDG_TIME, SUBWIDG_COUNTER, SUBWIDG_OLDCTR,
- *  SUBWIDG_BTNCOUNTER, SUBWIDG_MMAPTITLE
+ *  SUBWIDG_BTNCOUNTER, SUBWIDG_MMAPTITLE, SUBWIDG_MCGUFF_FRAME
 
 int ColorShadow;
- * The object's color index used for Shadows
+ * The widget's color index used for Shadows
  * VALID WIDGETS:
  *  SUBWIDG_TEXT, SUBWIDG_TIME, SUBWIDG_COUNTER, SUBWIDG_OLDCTR,
  *  SUBWIDG_BTNCOUNTER, SUBWIDG_MMAPTITLE
 
 int ColorBG;
- * The object's color index used for background
+ * The widget's color index used for background
  * VALID WIDGETS:
  *  SUBWIDG_TEXT, SUBWIDG_TIME, SUBWIDG_COUNTER, SUBWIDG_OLDCTR,
- *  SUBWIDG_BTNCOUNTER, SUBWIDG_MMAPTITLE
+ *  SUBWIDG_BTNCOUNTER, SUBWIDG_MMAPTITLE, SUBWIDG_BGCOLOR
 
 int ColorOutline;
- * The object's color index used for outline
+ * The widget's color index used for outline
  * VALID WIDGETS:
- *  SUBWIDG_LINE, SUBWIDG_RECT
+ *  SUBWIDG_LINE, SUBWIDG_RECT, SUBWIDG_MCGUFF_FRAME
 
 int ColorFill;
- * The object's color index used for fill
+ * The widget's color index used for fill
  * VALID WIDGETS:
  *  SUBWIDG_RECT
+
+int ColorPlayer;
+ * The widget's color index used to indicate the player
+ * VALID WIDGETS:
+ *  SUBWIDG_MMAP, SUBWIDG_LMAP
+
+int ColorCompassBlink;
+ * The widget's color index used to indicate the blinking compass
+ * VALID WIDGETS:
+ *  SUBWIDG_MMAP
+
+int ColorCompassOff;
+ * The widget's color index used to indicate the off compass
+ * VALID WIDGETS:
+ *  SUBWIDG_MMAP
+
+int ColorRoom;
+ * The widget's color index used to indicate rooms
+ * VALID WIDGETS:
+ *  SUBWIDG_LMAP
 
 int Button;
  * The item button associated with the widget.
@@ -9036,7 +9062,33 @@ int CostIndex;
  * VALID WIDGETS:
  *  SUBWIDG_BTNCOUNTER
 
+int ItemClass;
+ * The itemclass used by the widget (0 <= ItemClass < IC_MAXUSABLE)
+ * VALID WIDGETS:
+ *  SUBWIDG_ITEMSLOT
 
+int ItemID;
+ * The item ID used by the widget (-1 <= ItemID < NUM_ITEMDATA)
+ * VALID WIDGETS:
+ *  SUBWIDG_ITEMSLOT
+
+int FrameTile;
+int PieceTile;
+int FrameCSet;
+int PieceCSet;
+ * The frame/piece tile/cset used by the widget.
+ * VALID WIDGETS:
+ *  SUBWIDG_MCGUFF_FRAME
+
+int Number;
+ * The number associated with the widget.
+ * VALID WIDGETS:
+ *  SUBWIDG_MCGUFF
+
+int Corner;
+ * The corner associated with the widget.
+ * VALID WIDGETS:
+ *  SUBWIDG_MINITILE
 
 ////////////////////////////////////
 ////////////////////////////////////

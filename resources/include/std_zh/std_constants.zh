@@ -4111,7 +4111,11 @@ enum //Special Subscreen Color Values
 	SUB_COLOR_MSGTXT      = -33,
 	SUB_COLOR_MIN         = -34
 };
-
+enum //Special Subscreen Tile Values
+{
+	SUB_SPTILE_
+	SUB_SPTILE_MIN        = -1
+};
 //{ Subscreen type-specific flag constants
 
 enum // Flags for SUBWIDG_FRAME

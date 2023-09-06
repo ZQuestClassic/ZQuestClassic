@@ -777,7 +777,7 @@ protected:
 struct SW_McGuffin : public SubscrWidget
 {
 	int32_t tile, number;
-	byte cset;
+	byte flip;
 	SubscrColorInfo cs;
 	
 	SW_McGuffin() = default;
@@ -832,6 +832,8 @@ struct SW_MiniTile : public SubscrWidget
 	SW_MiniTile(subscreen_object const& old);
 	
 	int32_t get_tile() const;
+	int32_t get_int_tile() const;
+	void set_int_tile(int32_t val);
 	virtual bool load_old(subscreen_object const& old) override;
 	virtual word getW() const override; //Returns width in pixels
 	virtual word getH() const override; //Returns height in pixels
