@@ -10211,7 +10211,9 @@ static void deselectbombsWPN(word& wpos, int32_t& BTNwpn, int32_t& directItemBTN
 	auto fp2 = ((f2&0xFF)==255) ? 255 : ((empty || (f2&0xFF)==(wpos&0xFF)) ? f2 : 255);
 	auto fp3 = ((f3&0xFF)==255) ? 255 : ((empty || (f3&0xFF)==(wpos&0xFF)) ? f3 : 255);
 	auto temp = pg->movepos_legacy(SEL_VERIFY_LEFT, wpos, fp1, fp2, fp3);
-	BTNwpn = pg->get_item_pos(temp>>8);
+	if((temp&0xFF) == 0xFF)
+		BTNwpn = -1;
+	else BTNwpn = pg->get_item_pos(temp>>8);
 	directItemBTN = NEG_OR_MASK(BTNwpn,0xFFF);
 	wpos = temp;
 }
@@ -28617,7 +28619,9 @@ static void selectNextBTNWpn(int32_t type, word& wpos, int32_t& BTNwpn,
 	auto fp2 = ((f2&0xFF)==255) ? 255 : ((empty || (f2&0xFF)==(wpos&0xFF)) ? f2 : 255);
 	auto fp3 = ((f3&0xFF)==255) ? 255 : ((empty || (f3&0xFF)==(wpos&0xFF)) ? f3 : 255);
 	auto ret = pg->movepos_legacy(type, wpos, fp1, fp2, fp3);
-	BTNwpn = pg->get_item_pos(ret>>8);
+	if((ret&0xFF) == 0xFF)
+		BTNwpn = -1;
+	else BTNwpn = pg->get_item_pos(ret>>8);
 	directItemBTN = NEG_OR_MASK(BTNwpn,0xFFF);
 	wpos = ret;
 }
@@ -28666,7 +28670,9 @@ static void verifyWpn(word& wpos, int32_t& BTNwpn, int32_t& directItemBTN, word 
 	auto fp2 = ((f2&0xFF)==255) ? 255 : ((empty || (f2&0xFF)==(wpos&0xFF)) ? f2 : 255);
 	auto fp3 = ((f3&0xFF)==255) ? 255 : ((empty || (f3&0xFF)==(wpos&0xFF)) ? f3 : 255);
 	wpos = pg->movepos_legacy(SEL_VERIFY_RIGHT, wpos, fp1, fp2, fp3);
-	BTNwpn = pg->get_item_pos(wpos>>8);
+	if((wpos&0xFF) == 0xFF)
+		BTNwpn = -1;
+	else BTNwpn = pg->get_item_pos(wpos>>8);
 	directItemBTN = NEG_OR_MASK(BTNwpn,0xFFF);
 }
 
