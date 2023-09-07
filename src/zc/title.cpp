@@ -1380,7 +1380,7 @@ void titlescreen(int32_t lsave)
 	int32_t q=Quit;
 	
 	Quit=0;
-	Playing=Paused=false;
+	Playing=Paused=GameLoaded=false;
 	FFCore.kb_typing_mode = false;
 	FFCore.skip_ending_credits = 0;
 	

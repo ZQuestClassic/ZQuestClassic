@@ -424,6 +424,7 @@ bool Throttlefps = true, MenuOpen = false, ClickToFreeze=false, Paused=false, Sa
 double aspect_ratio = 0.75;
 int window_min_width = 320, window_min_height = 240;
 bool Playing, FrameSkip=false, TransLayers = true,clearConsoleOnLoad = true,clearConsoleOnReload = true;
+bool GameLoaded = false;
 bool __debug=false,debug_enabled = false;
 bool refreshpal,blockpath = false,loaded_guys= false,freeze_guys= false,
      loaded_enemies= false,drawguys= false,details=false,watch= false;
@@ -1672,6 +1673,7 @@ int32_t init_game()
 	if(clearConsoleOnLoad)
 		clearConsole();
 	new_subscreen_active = nullptr;
+	GameLoaded = true;
 
     // Various things use the frame counter to do random stuff (ex: runDrunkRNG).
 	// We only bother setting it to 0 here so that recordings will play back the
@@ -2357,6 +2359,7 @@ int32_t init_game()
 int32_t cont_game()
 {
 	replay_step_comment("cont_game");
+	GameLoaded = true;
 	timeExitAllGenscript(GENSCR_ST_CONTINUE);
 	throwGenScriptEvent(GENSCR_EVENT_CONTINUE);
 	//  introclk=intropos=msgclk=msgpos=dmapmsgclk=0;

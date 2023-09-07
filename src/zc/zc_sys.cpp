@@ -7129,7 +7129,7 @@ int32_t onSound()
 			zcmusic_set_volume(zcmusic, emusic_volume);
 		
 		int32_t temp_volume = sfx_volume;
-		if (!get_qr(qr_OLD_SCRIPT_VOLUME))
+		if (GameLoaded && !get_qr(qr_OLD_SCRIPT_VOLUME))
 			temp_volume = (sfx_volume * FFCore.usr_sfx_volume) / 10000 / 100;
 		for(int32_t i=0; i<WAV_COUNT; ++i)
 		{
@@ -8293,7 +8293,7 @@ bool try_zcmusic(char *filename, int32_t track, int32_t midi, int32_t fadeoutfra
 		
 		zcmusic=newzcmusic;
 		int32_t temp_volume = emusic_volume;
-		if (!get_qr(qr_OLD_SCRIPT_VOLUME))
+		if (GameLoaded && !get_qr(qr_OLD_SCRIPT_VOLUME))
 			temp_volume = (emusic_volume * FFCore.usr_music_volume) / 10000 / 100;
 		temp_volume = (temp_volume * zcmusic->fadevolume) / 10000;
 		zcmusic_play(zcmusic, temp_volume);
@@ -8636,7 +8636,7 @@ bool sfx_init(int32_t index)
 		}
 		
 		int32_t temp_volume = sfx_volume;
-		if (!get_qr(qr_OLD_SCRIPT_VOLUME))
+		if (GameLoaded && !get_qr(qr_OLD_SCRIPT_VOLUME))
 			temp_volume = (sfx_volume * FFCore.usr_sfx_volume) / 10000 / 100;
 		voice_set_volume(sfx_voice[index], temp_volume);
 	}
@@ -8701,7 +8701,7 @@ void sfx(int32_t index,int32_t pan,bool loop, bool restart, int32_t vol, int32_t
 
 		// Only used by ZScript currently
 		int32_t temp_volume = (sfx_volume * vol) / 10000 / 100;
-		if (!get_qr(qr_OLD_SCRIPT_VOLUME))
+		if (GameLoaded && !get_qr(qr_OLD_SCRIPT_VOLUME))
 			temp_volume = (temp_volume * FFCore.usr_sfx_volume) / 10000 / 100;
 		voice_set_volume(sfx_voice[index], temp_volume);
 
