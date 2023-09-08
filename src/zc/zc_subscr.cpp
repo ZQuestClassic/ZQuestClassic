@@ -82,9 +82,9 @@ void dosubscr()
 	int h = is_extended_height_mode() ? 240 : 176;
 	BITMAP* subscr_scrolling_bitmap = create_bitmap(256*2, h*2);
 	
-	//make a copy of the blank playing field on the right side of scrollbuf
+	//make a copy of the blank playing field on the right side of subscr_scrolling_bitmap
     blit(scrollbuf, subscr_scrolling_bitmap, 0, playing_field_offset, 256, 0, 256, h);
-    //make a copy of the complete playing field on the bottom of scrollbuf
+    //make a copy of the complete playing field on the bottom of subscr_scrolling_bitmap
     blit(framebuf, subscr_scrolling_bitmap, 0, playing_field_offset, 0, h, 256, h);
 	miny = 6;
 	
@@ -127,7 +127,7 @@ void dosubscr()
 		else
 		{
 			//scroll the playing field (copy the copy we made)
-			blit(subscr_scrolling_bitmap,framebuf,256,0,0,h-2-y+offy,256,y);
+			blit(subscr_scrolling_bitmap,framebuf,256,0,0,176-2-y+offy,256,y);
 		}
 		
 		draw_subscrs(framebuf,0,y,showtime,sspSCROLLING);
@@ -455,7 +455,7 @@ void dosubscr()
 		else
 		{
 			//scroll the playing field (copy the copy we made)
-			blit(subscr_scrolling_bitmap,framebuf,256,0,0,h-2-y+offy,256,y);
+			blit(subscr_scrolling_bitmap,framebuf,256,0,0,176-2-y+offy,256,y);
 		}
 		
 		draw_subscrs(framebuf,0,y,showtime,sspSCROLLING);
