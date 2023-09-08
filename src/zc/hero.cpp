@@ -9992,7 +9992,7 @@ heroanimate_skip_liftwpn:;
 		{
 		case 0:
 		{
-			if( FFCore.runActiveSubscreenScriptEngine() )
+			if( FFCore.runScriptedActiveSusbcreen() )
 			{
 				break;
 			}
@@ -25666,7 +25666,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 	{
 		FFScript::deallocateAllArrays(ScriptType::DMap, olddmap);
 		FFCore.initZScriptDMapScripts();
-		FFCore.initZScriptActiveSubscreenScript();
+		FFCore.initZScriptScriptedActiveSubscreen();
 		if(refresh_dmap_scrollscript)
 		{
 			run_scrolling_script_int(false); //Pre-waitdraw

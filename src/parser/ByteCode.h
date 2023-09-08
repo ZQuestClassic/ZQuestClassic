@@ -1712,7 +1712,12 @@
 #define SUBWIDGTY_PERCONTAINER  1617
 #define SUBWIDGTY_TABSIZE       1618
 
-#define LAST_BYTECODE           1619
+#define GAMEASUBYOFF            1619
+
+#define SUBWIDGDISPITM          1620
+#define SUBWIDGEQPITM           1621
+
+#define LAST_BYTECODE           1622
 
 //} END OF BYTECODE
 

@@ -3659,6 +3659,9 @@ int NumOverlaySubscreens();
 
 bool ActiveSubscreenOpen;
  * Read-only. True if the active subscreen is currently open.
+int ActiveSubscreenY;
+ * Read-only. The Y offset of the active subscreen, used while it is opening/closing.
+ * Value is '-224' if subscreen is closed, '-56' if it is open, or the current draw offset otherwise.
 
 bool TypingMode;
  * If set true, all keyboard presses that would ordinarily perform an in-engine action are suppressed.
@@ -8814,6 +8817,11 @@ int Type;
 
 int Index;
  * Read-only. The index of this widget within the page.
+
+int DisplayItem;
+int EquipItem;
+ * Read-only. The display/equip item ID for the widget.
+ * Reads as -1 if no item exists, the widget is of a type that has no item, etc
 
 subscreenpage Page;
  * Read-only. The page this widget is within.

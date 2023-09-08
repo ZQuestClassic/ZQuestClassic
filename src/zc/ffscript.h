@@ -992,7 +992,7 @@ void runOnDeathEngine();
 void runOnLaunchEngine();
 void runGenericPassiveEngine(int32_t scrtm);
 bool runGenericFrozenEngine(const word script, const int32_t* init_data = nullptr);
-bool runActiveSubscreenScriptEngine();
+bool runScriptedActiveSusbcreen();
 bool runOnMapScriptEngine();
 void doScriptMenuDraws();
 void runOnSaveEngine();
@@ -1308,7 +1308,8 @@ void Waitframe(bool allowwavy = true, bool sfxcleanup = true);
 
 void initZScriptDMapScripts();
 void initZScriptOnMapScript();
-void initZScriptActiveSubscreenScript();
+void initZScriptScriptedActiveSubscreen();
+void initZScriptSubscreenScript();
 void initZScriptHeroScripts();
 void initZScriptItemScripts();
 
@@ -5092,7 +5093,12 @@ enum ASM_DEFINE
 #define SUBWIDGTY_PERCONTAINER  0x1587
 #define SUBWIDGTY_TABSIZE       0x1588
 
-#define NUMVARIABLES            0x1589
+#define GAMEASUBYOFF            0x1589
+
+#define SUBWIDGDISPITM          0x158A
+#define SUBWIDGEQPITM           0x158B
+
+#define NUMVARIABLES            0x158C
 
 //} End variables
 

@@ -2422,6 +2422,11 @@ string ZScript::VarToString(int32_t ID)
 		case SUBWIDGTY_PERCONTAINER: return "SUBWIDGTY_PERCONTAINER";
 		case SUBWIDGTY_TABSIZE: return "SUBWIDGTY_TABSIZE";
 		
+		case GAMEASUBYOFF: return "GAMEASUBYOFF";
+		
+		case SUBWIDGDISPITM: return "SUBWIDGDISPITM";
+		case SUBWIDGEQPITM: return "SUBWIDGEQPITM";
+		
 		default:
 		{
 			sprintf(temp, "d%d", ID);
