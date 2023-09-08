@@ -1,6 +1,14 @@
 // 2.55 Change Log
 // Updated 1st Aug, 2023
 
+//Alpha 118
+
+See https://github.com/ArmageddonGames/ZQuestClassic/releases/tag/2.55-alpha-118
+
+//Alpha 117
+
+See https://github.com/ArmageddonGames/ZQuestClassic/releases/tag/2.55-alpha-117
+
 //Alpha 116
 
 See https://github.com/ArmageddonGames/ZQuestClassic/releases/tag/2.55-alpha-116
