@@ -1809,7 +1809,7 @@ void SW_ButtonItem::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& p
 					if(bow>-1)
 					{
 						if(replay_version_check(0,19))
-							putitem3(dest,x,y,bow,subscr_item_clk);
+							putitem3(dest,x+xofs,y+yofs,bow,subscr_item_clk);
 						if(!get_qr(qr_NEVERDISABLEAMMOONSUBSCREEN)
 							&& !checkmagiccost(btnitem_ids[btn]&0xFF))
 							dodraw = false;
