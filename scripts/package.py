@@ -114,7 +114,7 @@ def copy_files_to_package(base_dir: Path, files: List[Path], dest_dir: Path):
             continue
 
         dest.parent.mkdir(parents=True, exist_ok=True)
-        if src.parent.name == 'base_config':
+        if src.parent.name == 'base_config' or src.name == 'allegro5.cfg':
             cfg_os = args.cfg_os or system_to_cfg_os(system)
             dest.write_text(preprocess_base_config(src.read_text(), cfg_os))
         else:
