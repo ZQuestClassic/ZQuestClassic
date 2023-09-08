@@ -97,10 +97,10 @@ void animate_subscr_buttonitems()
 
 void refresh_subscr_items()
 {
-	subscr_item_clk = 0;
 	subscr_itemless = false;
 	if(replay_version_check(0,19))
 	{
+		subscr_item_clk = 0;
 		//This needs to be here for the item cache to be correct...
 		for(int i = 0; i < itype_max; ++i)
 		{
