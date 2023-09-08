@@ -86,6 +86,8 @@ struct SubscrMTInfo
 	int32_t tile() const;
 	byte crn() const;
 	void setTileCrn(int32_t tile, byte crn);
+	void setTile(int32_t tile);
+	void setCrn(byte crn);
 	
 	int32_t read(PACKFILE *f, word s_version);
 	int32_t write(PACKFILE *f) const;
@@ -986,7 +988,7 @@ struct SW_TextBox : public SubscrWidget
 	int32_t fontid;
 	std::string text;
 	byte align, shadtype, tabsize = 4;
-	SubscrColorInfo c_text, c_shadow, c_bg;
+	SubscrColorInfo c_text = {ssctMISC,ssctTEXT}, c_shadow, c_bg;
 	
 	SW_TextBox() = default;
 	SW_TextBox(subscreen_object const& old);

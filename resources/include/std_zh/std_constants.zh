@@ -4113,8 +4113,9 @@ enum //Special Subscreen Color Values
 };
 enum //Special Subscreen Tile Values
 {
-	SUB_SPTILE_
-	SUB_SPTILE_MIN        = -1
+	SUB_SPTILE_SSVINE     = -1,
+	SUB_SPTILE_MAGICMETER = -2,
+	SUB_SPTILE_MIN        = -3
 };
 //{ Subscreen type-specific flag constants
 

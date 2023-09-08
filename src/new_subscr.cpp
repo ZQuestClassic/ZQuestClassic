@@ -749,11 +749,19 @@ int32_t SubscrMTInfo::tile() const
 }
 byte SubscrMTInfo::crn() const
 {
-	return tilecrn%2;
+	return tilecrn%4;
 }
 void SubscrMTInfo::setTileCrn(int32_t tile, byte crn)
 {
 	tilecrn = (tile<<2)|(crn%4);
+}
+void SubscrMTInfo::setTile(int32_t tile)
+{
+	tilecrn = (tile<<2)|(crn()%4);
+}
+void SubscrMTInfo::setCrn(byte crn)
+{
+	tilecrn = (tile()<<2)|(crn%4);
 }
 int32_t SubscrMTInfo::read(PACKFILE *f, word s_version)
 {

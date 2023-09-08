@@ -8934,17 +8934,18 @@ int PageTransArgs[];
 //     some widget types, as listed.
 //
 
-int Tile;
- * The widget's main tile.
+int Tile[];
+ * The widget's tile(s).
  * For SUBWIDG_MINITILE, can use the 'SUB_SPTILE_' constant values.
  * VALID WIDGETS:
- *  SUBWIDG_FRAME, SUBWIDG_MCGUFF, SUBWIDG_TILEBLOCK, SUBWIDG_MINITILE
+ *  SUBWIDG_FRAME[1], SUBWIDG_MCGUFF[1], SUBWIDG_TILEBLOCK[1], SUBWIDG_MINITILE[1]
 
-int CSet;
- * The widget's main cset. Normal csets, as well as the 'SUB_CS_' constants,
- *     can be used for its' value.
+int CSet[];
+ * The widget's cset(s).
+ * For SUBWIDG_FRAME,SUBWIDG_MCGUFF,SUBWIDG_TILEBLOCK,SUBWIDG_MINITILE,
+ *     can use the 'SUB_CS_' constants.
  * VALID WIDGETS:
- *  SUBWIDG_FRAME, SUBWIDG_MCGUFF, SUBWIDG_TILEBLOCK, SUBWIDG_MINITILE
+ *  SUBWIDG_FRAME[1], SUBWIDG_MCGUFF[1], SUBWIDG_TILEBLOCK[1], SUBWIDG_MINITILE[1]
 
 int Flip;
  * The widget's flip value.
@@ -9031,11 +9032,11 @@ int Button;
  * VALID WIDGETS:
  *  SUBWIDG_BTNITM, SUBWIDG_BTNCOUNTER
 
-int Counters[];
+int Counter[];
  * The counter(s) associated with the widget.
  * Use the 'CR_' constants for the values.
  * VALID WIDGETS:
- *  SUBWIDG_COUNTER[3]
+ *  SUBWIDG_COUNTER[3], SUBWIDG_MISCGAUGE[1]
 
 int MinDigits;
  * The minimum digits of the widget.
@@ -9050,7 +9051,8 @@ int MaxDigits;
 int InfiniteItem;
  * The infinite item of the widget.
  * VALID WIDGETS:
- *  SUBWIDG_COUNTER, SUBWIDG_OLDCTR
+ *  SUBWIDG_COUNTER, SUBWIDG_OLDCTR, SUBWIDG_LGAUGE,
+ *  SUBWIDG_MGAUGE, SUBWIDG_MISCGAUGE
 
 char32 InfiniteChar;
  * The infinite character of the widget.
@@ -9085,10 +9087,59 @@ int Number;
  * VALID WIDGETS:
  *  SUBWIDG_MCGUFF
 
-int Corner;
- * The corner associated with the widget.
+int Corner[];
+ * The corner(s) associated with the widget.
  * VALID WIDGETS:
- *  SUBWIDG_MINITILE
+ *  SUBWIDG_MINITILE[1], SUBWIDG_LGAUGE[4], SUBWIDG_MGAUGE[4],
+ *  SUBWIDG_MISCGAUGE[4]
+
+int Frames;
+ * The widget's frames
+ * VALID WIDGETS:
+ *  SUBWIDG_LGAUGE, SUBWIDG_MGAUGE, SUBWIDG_MISCGAUGE
+
+int Speed;
+ * The widget's speed
+ * VALID WIDGETS:
+ *  SUBWIDG_LGAUGE, SUBWIDG_MGAUGE, SUBWIDG_MISCGAUGE
+
+int Delay;
+ * The widget's delay
+ * VALID WIDGETS:
+ *  SUBWIDG_LGAUGE, SUBWIDG_MGAUGE, SUBWIDG_MISCGAUGE
+
+int Container;
+ * The widget's container number
+ * VALID WIDGETS:
+ *  SUBWIDG_LGAUGE, SUBWIDG_MGAUGE, SUBWIDG_MISCGAUGE
+
+int GaugeWid;
+int GaugeHei;
+ * The widget's gauge width/height
+ * VALID WIDGETS:
+ *  SUBWIDG_LGAUGE, SUBWIDG_MGAUGE, SUBWIDG_MISCGAUGE
+
+int Units;
+ * The widgets unit value
+ * VALID WIDGETS:
+ *  SUBWIDG_LGAUGE, SUBWIDG_MGAUGE, SUBWIDG_MISCGAUGE
+ 
+int HSpace;
+int VSpace;
+ * The widget's hspace/vspace
+ * VALID WIDGETS:
+ *  SUBWIDG_LGAUGE, SUBWIDG_MGAUGE, SUBWIDG_MISCGAUGE
+
+int GridX;
+int GridY;
+ * The widget's grid x/y
+ * VALID WIDGETS:
+ *  SUBWIDG_LGAUGE, SUBWIDG_MGAUGE, SUBWIDG_MISCGAUGE
+
+int AnimVal;
+ * The widget's animation value
+ * VALID WIDGETS:
+ *  SUBWIDG_LGAUGE, SUBWIDG_MGAUGE, SUBWIDG_MISCGAUGE
 
 ////////////////////////////////////
 ////////////////////////////////////

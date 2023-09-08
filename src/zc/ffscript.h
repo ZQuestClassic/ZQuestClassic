@@ -5076,7 +5076,23 @@ enum ASM_DEFINE
 #define SUBWIDGTY_NUMBER        0x1578
 #define SUBWIDGTY_CORNER        0x1579
 
-#define NUMVARIABLES            0x157A
+#define SUBWIDGTY_FRAMES        0x157A
+#define SUBWIDGTY_SPEED         0x157B
+#define SUBWIDGTY_DELAY         0x157C
+#define SUBWIDGTY_CONTAINER     0x157D
+#define SUBWIDGTY_GAUGE_WID     0x157E
+#define SUBWIDGTY_GAUGE_HEI     0x157F
+#define SUBWIDGTY_UNITS         0x1580
+#define SUBWIDGTY_HSPACE        0x1581
+#define SUBWIDGTY_VSPACE        0x1582
+#define SUBWIDGTY_GRIDX         0x1583
+#define SUBWIDGTY_GRIDY         0x1584
+#define SUBWIDGTY_ANIMVAL       0x1585
+#define SUBWIDGTY_SHOWDRAIN     0x1586
+#define SUBWIDGTY_PERCONTAINER  0x1587
+#define SUBWIDGTY_TABSIZE       0x1588
+
+#define NUMVARIABLES            0x1589
 
 //} End variables
 
