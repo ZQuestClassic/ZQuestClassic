@@ -14,6 +14,7 @@
 #include "tiles.h"
 #include "items.h"
 #include "jwin.h"
+#include <cstdio>
 #include <vector>
 #include <filesystem>
 #include <fstream>
@@ -586,9 +587,6 @@ static int32_t read_saves(ReadMode read_mode, std::string filename, std::vector<
 			return 41;
 		}
 
-		if (read_mode == ReadMode::Header && count == 1)
-			return 0;
-		
 		if(section_version <= 5)
 		{
 			for(int32_t j=0; j<OLDMAXLEVELS; ++j)
@@ -740,7 +738,14 @@ static int32_t read_saves(ReadMode read_mode, std::string filename, std::vector<
 				game.set_generic(tempbyte, j);
 			}
 		}
-		
+
+		game.header.life = game.get_life();
+		game.header.maxlife = game.get_maxlife();
+		game.header.hp_per_heart_container = game.get_hp_per_heart();
+
+		if (read_mode == ReadMode::Header && count == 1)
+			return 0;
+
 		if(section_version >= 34)
 		{
 			if(!p_igetw(&game.awpn,f))
@@ -813,6 +818,10 @@ static int32_t read_saves(ReadMode read_mode, std::string filename, std::vector<
 		}
 		if(section_version >= 34)
 		{
+			if(!p_igetw(&game.forced_xwpn,f))
+				return 114;
+			if(!p_igetw(&game.forced_ywpn,f))
+				return 115;
 			if(!p_igetw(&game.xwpn,f))
 				return 111;
 			if(!p_igetw(&game.ywpn,f))
@@ -1260,7 +1269,7 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 	{
 		return 41;
 	}
-	
+
 	if(!pfwrite(game.lvlkeys,MAXLEVELS,f))
 	{
 		return 42;
@@ -1684,7 +1693,7 @@ cantopen:
 	{
 		out_saves.clear();
 
-		system_pal();
+		enter_sys_pal();
 		char buf[256];
 		snprintf(buf, 256, "Couldn't open %s", filenameCStr);
 		jwin_alert("Can't Open Saved Game File",
@@ -1692,6 +1701,7 @@ cantopen:
 				   error,
 				   "",
 				   "OK",NULL,'o',0,get_zc_font(font_lfont));
+		exit_sys_pal();
 	}
 
 	return ret;
@@ -2088,6 +2098,21 @@ bool saves_select(int32_t index)
 	else
 		game->Clear();
 
+	// Unload any other games.
+	for (int i = 0; i < saves.size(); i++)
+	{
+		if (i != index)
+		{
+			auto& save = saves[i];
+			if (save.game)
+			{
+				save.header = new gamedata_header(save.game->header);
+				delete save.game;
+				save.game = nullptr;
+			}
+		}
+	}
+
 	return true;
 }
 
@@ -2234,6 +2259,9 @@ void saves_do_first_time_stuff(int index)
 		save->game->set_maxlife(zinit.hc*zinit.hp_per_heart);
 		save->game->set_life(zinit.hc*zinit.hp_per_heart);
 		save->game->set_hp_per_heart(zinit.hp_per_heart);
+		save->game->header.life = save->game->get_life();
+		save->game->header.maxlife = save->game->get_maxlife();
+		save->game->header.hp_per_heart_container = save->game->get_hp_per_heart();
 
 		if (standalone_mode)
 		{
@@ -2253,4 +2281,225 @@ void saves_do_first_time_stuff(int index)
 void saves_enable_save_current_replay()
 {
 	save_current_replay_games = true;
+}
+
+template<std::size_t N, class T>
+constexpr std::size_t countof(T(&)[N]) { return N; }
+
+template <typename T>
+static bool gd_compare(T a, T b)
+{
+	return a == b;
+}
+
+static bool gd_compare(const char* a, const char* b)
+{
+	return strcmp(a, b) == 0;
+}
+
+bool saves_test()
+{
+	// For some reason MSVC hangs on compiling gamedata==
+#ifndef _WIN32
+	// First make sure there are not accidentally equalities that are impossible,
+	// like fields that have pointers to objects.
+	gamedata* g1 = new gamedata();
+	gamedata* g2 = new gamedata();
+	g1->saved_mirror_portal.clearUID();
+	g2->saved_mirror_portal.clearUID();
+	if (*g1 != *g2)
+	{
+		delete g1;
+		delete g2;
+		printf("failed: g1 == g2\n");
+		return false;
+	}
+	delete g1;
+	delete g2;
+#endif
+
+	gamedata* game = new gamedata();
+	game->header.qstpath = "somegame.qst";
+	game->header.title = "I am a test";
+	game->header.name = "test";
+	game->header.deaths = 10;
+	game->header.has_played = true;
+	game->header.life = game->get_life();
+	game->header.maxlife = game->get_maxlife();
+	game->header.hp_per_heart_container = game->get_hp_per_heart();
+	game->OverrideItems[0] = 0;
+	game->OverrideItems[511] = 511;
+	// Does not persist.
+	// game->header.did_cheat = true;
+
+	save_t save;
+	save.game = game;
+	save.header = &game->header;
+	save.path = "test.sav";
+
+	if (write_save(&save))
+	{
+		printf("failed: write_save\n");
+		delete game;
+		return false;
+	}
+
+	save.game = nullptr;
+	save.header = nullptr;
+
+	if (load_from_save_file_expect_one(ReadMode::All, save.path, save))
+	{
+		printf("failed: load_from_save_file_expect_one\n");
+		delete game;
+		return false;
+	}
+
+	#define SAVE_TEST_FIELD(field) if (!gd_compare(game->field, save.game->field)) {\
+		printf("game->%s != save.game->%s\n", #field, #field);\
+		printf("%s\n", fmt::format("{} != {}", game->field, save.game->field).c_str());\
+		delete game;\
+		return false;\
+	}
+
+	#define SAVE_TEST_FIELD_NOFMT(field) if (!gd_compare(game->field, save.game->field)) {\
+		printf("game->%s != save.game->%s\n", #field, #field);\
+		delete game;\
+		return false;\
+	}
+
+	#define SAVE_TEST_VECTOR(field) for (int i = 0; i < game->field.size(); i++) {\
+		if (!gd_compare(game->field[i], save.game->field[i])) {\
+			printf("game->%s[%d] != save.game->%s[%d]\n", #field, i, #field, i);\
+			printf("%s\n", fmt::format("{} != {}", game->field[i], save.game->field[i]).c_str());\
+			delete game;\
+			return false;\
+		}\
+	}
+
+	#define SAVE_TEST_VECTOR_NOFMT(field) for (int i = 0; i < game->field.size(); i++) {\
+		if (!gd_compare(game->field[i], save.game->field[i])) {\
+			printf("game->%s[%d] != save.game->%s[%d]\n", #field, i, #field, i);\
+			delete game;\
+			return false;\
+		}\
+	}
+
+	#define SAVE_TEST_ARRAY(field) for (int i = 0; i < countof(game->field); i++) {\
+		if (!gd_compare(game->field[i], save.game->field[i])) {\
+			printf("game->%s[%d] != save.game->%s[%d]\n", #field, i, #field, i);\
+			printf("%s\n", fmt::format("{} != {}", game->field[i], save.game->field[i]).c_str());\
+			delete game;\
+			return false;\
+		}\
+	}
+
+	#define SAVE_TEST_ARRAY_NOFMT(field) for (int i = 0; i < countof(game->field); i++) {\
+		if (!gd_compare(game->field[i], save.game->field[i])) {\
+			printf("game->%s[%d] != save.game->%s[%d]\n", #field, i, #field, i);\
+			delete game;\
+			return false;\
+		}\
+	}
+
+	#define SAVE_TEST_ARRAY_2D(field) for (int i = 0; i < countof(game->field); i++) {\
+		for (int j = 0; j < countof(game->field[0]); j++) {\
+			if (!gd_compare(game->field[i][j], save.game->field[i][j])) {\
+				printf("game->%s[%d][%d] != save.game->%s[%d][%d]\n", #field, i, j, #field, i, j);\
+				printf("%s\n", fmt::format("{} != {}", game->field[i][j], save.game->field[i][j]).c_str());\
+				delete game;\
+				return false;\
+			}\
+		}\
+	}
+
+	#define SAVE_TEST_ARRAY_2D_NOFMT(field) for (int i = 0; i < countof(game->field); i++) {\
+		for (int j = 0; j < countof(game->field[0]); j++) {\
+			if (!gd_compare(game->field[i][j], save.game->field[i][j])) {\
+				printf("game->%s[%d][%d] != save.game->%s[%d][%d]\n", #field, i, j, #field, i, j);\
+				delete game;\
+				return false;\
+			}\
+		}\
+	}
+
+	// Test some (but not all ... I got lazy) of the fields, in the order found in the save format.
+	SAVE_TEST_FIELD(get_name());
+	SAVE_TEST_FIELD(get_quest());
+	SAVE_TEST_FIELD(get_deaths());
+	SAVE_TEST_FIELD(_cheat);
+	SAVE_TEST_ARRAY(item);
+	SAVE_TEST_ARRAY(version);
+	SAVE_TEST_FIELD(get_hasplayed());
+	SAVE_TEST_FIELD(get_time());
+	SAVE_TEST_FIELD(get_timevalid());
+	SAVE_TEST_ARRAY(lvlitems);
+	SAVE_TEST_FIELD(get_continue_scrn());
+	SAVE_TEST_FIELD(get_continue_dmap());
+	SAVE_TEST_ARRAY(visited);
+	SAVE_TEST_ARRAY(bmaps);
+	SAVE_TEST_ARRAY(maps);
+	SAVE_TEST_ARRAY(guys);
+	SAVE_TEST_ARRAY(lvlkeys);
+	SAVE_TEST_ARRAY_2D(screen_d);
+	SAVE_TEST_ARRAY(global_d);
+	SAVE_TEST_ARRAY(_counter);
+	SAVE_TEST_ARRAY(_maxcounter);
+	SAVE_TEST_ARRAY(_dcounter);
+	SAVE_TEST_ARRAY(_generic);
+	SAVE_TEST_FIELD(awpn);
+	SAVE_TEST_FIELD(bwpn);
+	SAVE_TEST_FIELD_NOFMT(globalRAM);
+	SAVE_TEST_FIELD(forced_awpn);
+	SAVE_TEST_FIELD(forced_bwpn);
+	SAVE_TEST_FIELD(forced_xwpn);
+	SAVE_TEST_FIELD(forced_ywpn);
+	SAVE_TEST_FIELD(xwpn);
+	SAVE_TEST_FIELD(ywpn);
+	SAVE_TEST_ARRAY(lvlswitches);
+	SAVE_TEST_ARRAY(item_messages_played);
+	SAVE_TEST_ARRAY(bottleSlots);
+
+	game->saved_mirror_portal.clearUID();
+	save.game->saved_mirror_portal.clearUID();
+	if (game->saved_mirror_portal != save.game->saved_mirror_portal)
+	{
+		printf("game->saved_mirror_portal != save.game->saved_mirror_portal\n");
+		delete game;
+		return false;
+	}
+
+	SAVE_TEST_ARRAY(gen_doscript);
+	SAVE_TEST_ARRAY(gen_exitState);
+	SAVE_TEST_ARRAY(gen_reloadState);
+	SAVE_TEST_ARRAY_2D(gen_initd);
+	SAVE_TEST_ARRAY(gen_dataSize);
+	for (int i = 0; i < NUMSCRIPTSGENERIC; i++)
+		SAVE_TEST_VECTOR(gen_data[i]);
+	SAVE_TEST_ARRAY(xstates);
+	SAVE_TEST_ARRAY(gen_eventstate);
+	SAVE_TEST_ARRAY(gswitch_timers);
+	SAVE_TEST_VECTOR_NOFMT(user_objects);
+	SAVE_TEST_VECTOR_NOFMT(user_portals);
+	SAVE_TEST_ARRAY(OverrideItems);
+
+	// Now do the header.
+	if (game->header != save.game->header)
+	{
+		printf("game->header != save.game->header\n");
+		delete game;
+		return false;
+	}
+
+#ifndef _WIN32
+	// Now do the entire thing.
+	if (*game != *save.game)
+	{
+		printf("game != save.game\n");
+		delete game;
+		return false;
+	}
+#endif
+
+	delete game;
+	return true;
 }

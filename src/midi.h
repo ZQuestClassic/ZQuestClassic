@@ -1,13 +1,3 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  midi.cc
-//
-//  save_midi() and code for midi info.
-//
-//--------------------------------------------------------
-
 #ifndef _MIDI_H_
 #define _MIDI_H_
 #include "base/zdefs.h"
@@ -76,4 +66,3 @@ char *timestr(double sec);
 bool decode_text_event(char *s,byte type,byte *buf);
 void get_midi_text(MIDI *midi, midi_info *mi, char *text);
 #endif
-

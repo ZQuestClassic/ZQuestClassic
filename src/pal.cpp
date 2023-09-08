@@ -1,14 +1,3 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  pal.cc
-//
-//  Palette code for ZC.
-//
-//--------------------------------------------------------
-
-
 #include "base/zc_alleg.h"
 #include "base/zdefs.h"
 #include "base/qrs.h"

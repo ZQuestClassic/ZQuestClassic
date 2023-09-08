@@ -1,13 +1,3 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  maps.cc
-//
-//  Map for zelda.cc
-//
-//--------------------------------------------------------
-
 #include "base/handles.h"
 #include "base/zdefs.h"
 #include <cstring>

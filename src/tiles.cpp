@@ -1,15 +1,3 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  tiles.cc
-//
-//  Tile drawing routines for ZC.
-//
-//  !! Don't use them on "screen"; use memory BITMAPs only.
-//
-//--------------------------------------------------------
-
 #include "base/zc_alleg.h"
 #include <cstring>
 
@@ -2769,4 +2757,3 @@ int32_t comboa_lmasktotal(byte layermask)
     result+=(layermask&32) >> 5;
     return result;
 }
-

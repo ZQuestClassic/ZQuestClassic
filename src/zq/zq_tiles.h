@@ -1,13 +1,3 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  zq_tiles.cc
-//
-//  Tile editor stuff, etc., for ZQuest.
-//
-//--------------------------------------------------------
-
 #ifndef _ZQ_TILES_H_
 #define _ZQ_TILES_H_
 
@@ -159,4 +149,3 @@ void center_zq_tiles_dialogs();
 int32_t d_combo_proc(int32_t msg,DIALOG *d,int32_t c);
 void center_zq_tiles_dialog();
 #endif
-

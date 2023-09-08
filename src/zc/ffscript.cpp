@@ -1775,7 +1775,7 @@ public:
 	
 	static void write_stack(const uint32_t stackoffset, const int32_t value)
 	{
-		if(stackoffset == 0)
+		if(stackoffset >= MAX_SCRIPT_REGISTERS)
 		{
 			Z_scripterrlog("Stack over or underflow, stack pointer = %ld\n", stackoffset);
 			return;
@@ -1786,7 +1786,7 @@ public:
 	
 	static int32_t read_stack(const uint32_t stackoffset)
 	{
-		if(stackoffset == 0)
+		if(stackoffset >= MAX_SCRIPT_REGISTERS)
 		{
 			Z_scripterrlog("Stack over or underflow, stack pointer = %ld\n", stackoffset);
 			return -10000;
@@ -30382,19 +30382,17 @@ void do_setsavename()
 	string str;
 	ArrayH::getString(arrayptr, str);
 	byte j;
-	
+
 	for(j = 0; str[j] != '\0'; j++)
 	{
 		if(j >= 8)
 		{
 			Z_scripterrlog("String supplied to 'Game->GetSaveName' too large\n");
-			break;
+			return;
 		}
-		
-		game->get_name_mutable()[j] = str[j];
 	}
-	
-	game->get_name_mutable()[j] = '\0';
+
+	game->set_name(str);
 }
 
 void do_getmessage(const bool v)
@@ -31741,6 +31739,8 @@ j_command:
 
 			case RETURN:
 			{
+				if (script_funcrun)
+					break; //handled below
 				ri->pc = SH::read_stack(ri->sp) - 1;
 				++ri->sp;
 				ri->sp &= MASK_SP;
@@ -33826,7 +33826,7 @@ j_command:
 				bool checkcost = flags&0x01;
 				bool checkjinx = flags&0x02;
 				bool check_bunny = flags&0x04;
-				ri->d[rEXP1] = current_item_id(ity,checkcost,checkjinx,checkbunny) * 10000;
+				ri->d[rEXP1] = current_item_id(ity,checkcost,checkjinx,check_bunny) * 10000;
 				break;
 			}
 			
@@ -35449,8 +35449,14 @@ j_command:
 			earlyretval = -1;
 			return RUNSCRIPT_SELFDELETE;
 		}
+		if (ri->sp >= MAX_SCRIPT_REGISTERS)
+		{
+			if (script_funcrun)
+				return RUNSCRIPT_OK;
+			Z_scripterrlog("Stack over/underflow caused by command %d!\n", scommand);
+		}
 		if(hit_invalid_zasm) break;
-		if(script_funcrun && ri->pc == MAX_PC)
+		if(script_funcrun && (ri->pc == MAX_PC || scommand == RETURN))
 			return RUNSCRIPT_OK;
 
 #ifdef _SCRIPT_COUNTER

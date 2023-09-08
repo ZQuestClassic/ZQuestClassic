@@ -1,13 +1,3 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  subscr.cc
-//
-//  Subscreen code for zelda.cc
-//
-//--------------------------------------------------------
-
 #include "subscr.h"
 #include "base/zapp.h"
 #include "base/qrs.h"
@@ -3450,4 +3440,3 @@ void sso_bounding_box(BITMAP *bmp, SubscrWidget* widg, int32_t color)
         }
     }
 }
-

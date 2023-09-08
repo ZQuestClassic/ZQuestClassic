@@ -489,6 +489,7 @@ enum
 	CR_SCRIPT94, CR_SCRIPT95, CR_SCRIPT96, CR_SCRIPT97, CR_SCRIPT98,
 	CR_SCRIPT99, CR_SCRIPT100
 };
+DEFINE CR_RUPEES = CR_MONEY;
 
 //Generic data indices. Use this with Game->Generic[]
 DEFINE GEN_HEARTPIECES        = 0; // Heart Pieces currently possessed

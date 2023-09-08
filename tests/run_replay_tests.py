@@ -1064,7 +1064,9 @@ def prompt_to_create_compare_report():
         print()
         test_runs.extend(collect_many_test_results_from_dir(options[selected_index]))
     elif selected_index == 1:
-        most_recent_nightly = get_recent_release_tag('nightly-*')
+        # TODO !! upstream get actual releases, not tags
+        most_recent_nightly = 'connorjclark-nightly-2023-08-31'
+        # most_recent_nightly = get_recent_release_tag('nightly-*')
         most_recent_alpha = get_recent_release_tag('2.55-alpha-*')
         print('Select a release build to use: ')
         selected_index = cutie.select([

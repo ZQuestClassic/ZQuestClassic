@@ -1,12 +1,3 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  zquest.cc
-//
-//  Main code for the quest editor.
-//
-//--------------------------------------------------------
 #ifndef _INIT_H_
 #define _INIT_H_
 
@@ -38,4 +29,3 @@ void resetItems(gamedata *data, zinitdata *zinit, bool freshquest);
 std::string serialize_init_data_delta(zinitdata *base, zinitdata *changed);
 zinitdata *apply_init_data_delta(zinitdata *base, std::string delta, std::string& out_error);
 #endif
-

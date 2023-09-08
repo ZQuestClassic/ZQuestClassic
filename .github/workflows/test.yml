@@ -143,7 +143,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ github.workspace }}/.tmp/test_updater/cache
-          key: updater-cache-2-${{ inputs.runs-on }}-${{ runner.arch }}
+          key: updater-cache-${{ inputs.runs-on }}-${{ runner.arch }}
 
       - if: ${{ matrix.shard_index == 1 && inputs.extra-args == '' && inputs.config != 'Coverage' }}
         name: Run Python tests

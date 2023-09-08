@@ -1,14 +1,3 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  title.cc
-//
-//  Title screen and intro for zelda.cc
-//  Also has game loading and select screen code.
-//
-//--------------------------------------------------------
-
 #include <filesystem>
 #include <stdio.h>
 #include <ctype.h>
@@ -1161,9 +1150,9 @@ static void select_game(bool skip = false)
 	if(standalone_mode || skip)
 		return;
 
-	saves_select(-1);
 	int32_t pos = zc_max(zc_min(saves_current_selection()-listpos,3),0);
 	int32_t mode = 0;
+	saves_select(-1);
 	
 	//kill_sfx();
 	
@@ -1178,6 +1167,23 @@ static void select_game(bool skip = false)
 	bool popup_choose_quest = false;
 	do
 	{
+		if (keypressed())
+		{
+			int32_t k=readkey()>>8;
+			if (k == KEY_ESC && mode)
+			{
+				mode = 0;
+				select_mode();
+				while(key[KEY_ESC])
+				{
+					poll_keyboard();
+					/* do nothing */
+					rest(1);
+				}
+			}
+		}
+		disabledKeys[KEY_ESC] = mode != 0;
+
 		if ( moduledata.refresh_title_screen ) //refresh
 		{
 			selectscreen();
@@ -1269,12 +1275,13 @@ static void select_game(bool skip = false)
 				{
 				case 0:
 					// TODO: this is being called too much!
-					saves_select(saveslot);
-					loadlast = saves_current_selection() + 1;
-					
-					if (saves_get_slot(saveslot)->header->quest)
-						done=true;
-						
+					if (saves_select(saveslot))
+					{
+						loadlast = saves_current_selection() + 1;
+						if (saves_get_slot(saveslot)->header->quest)
+							done=true;
+					}
+
 					break;
 					
 				case 2:
@@ -1361,25 +1368,10 @@ static void select_game(bool skip = false)
 			chosecustomquest = false;
 			selectscreen();
 		}
-
-		if (keypressed())
-		{
-			int32_t k=readkey()>>8;
-			if (k == KEY_ESC)
-			{
-				mode = 0;
-				select_mode();
-				while(key[KEY_ESC])
-				{
-					poll_keyboard();
-					/* do nothing */
-					rest(1);
-				}
-			}
-		}
 	}
 	while(!Quit && !done);
-	
+
+	disabledKeys[KEY_ESC] = false;
 	saveslot = -1;
 }
 
@@ -1388,7 +1380,7 @@ void titlescreen(int32_t lsave)
 	int32_t q=Quit;
 	
 	Quit=0;
-	Playing=Paused=false;
+	Playing=Paused=GameLoaded=false;
 	FFCore.kb_typing_mode = false;
 	FFCore.skip_ending_credits = 0;
 	

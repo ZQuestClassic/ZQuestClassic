@@ -1,13 +1,3 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  colors.h
-//
-//  Palette data for ZQuest Classic.
-//
-//--------------------------------------------------------
-
 #ifndef _ZC_COLORS_H_
 #define _ZC_COLORS_H_
 

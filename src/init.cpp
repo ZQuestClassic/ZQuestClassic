@@ -1,13 +1,3 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  zquest.cc
-//
-//  Main code for the quest editor.
-//
-//--------------------------------------------------------
-
 #include <map>
 #include <vector>
 #include <algorithm>

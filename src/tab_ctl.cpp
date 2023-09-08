@@ -1,29 +1,3 @@
-/*                 __                  __
-  *                /_/\  __  __  __    /_/\  ______
-  *               _\_\/ / /\/ /\/ /\  _\_\/ / ____ \
-  *              / /\  / / / / / / / / /\  / /\_ / /\
-  *         __  / / / / /_/ /_/ / / / / / / / / / / /
-  *        / /_/ / / /_________/ / /_/ / /_/ / /_/ /
-  *        \____/ /  \_________\/  \_\/  \_\/  \_\/
-  *         \___\/
-  *
-  *
-  *
-  *     jwin.c
-  *
-  *     Windows(R) style GUI for Allegro.
-  *     by Jeremy Craner
-  *
-  *     Most routines are adaptations of Allegro code.
-  *     Allegro is by Shawn Hargreaves, et al.
-  *
-  *     Version: 3/22/00
-  *     Allegro version: 3.1x  (don't know if it works with WIP)
-  *
-  */
-
-/* This code is not fully tested */
-
 #include "base/zc_alleg.h"
 #include "tab_ctl.h"
 #include "jwin.h"
@@ -675,4 +649,3 @@ int32_t d_tab_proc(int32_t msg, DIALOG *d, int32_t c)
 }
 
 /***  The End  ***/
-

@@ -1,14 +1,3 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  gui.c
-//
-//  System functions, input handlers, GUI stuff, etc.
-//  for ZQuest Classic.
-//
-//--------------------------------------------------------
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <cstring>
@@ -172,4 +161,3 @@ void new_gui_popup_dialog(DIALOG* dialog, int32_t focus_obj, bool& done, bool& r
 		ret=do_zqdialog(dialog, focus_obj);
 	running=false;
 }
-

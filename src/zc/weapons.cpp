@@ -1,17 +1,3 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  sprite.cc
-//
-//  Sprite classes:
-//   - sprite:      base class for the guys and enemies in zelda.cc
-//   - movingblock: the moving block class
-//   - sprite_list: main container class for different groups of sprites
-//   - item:        items class
-//
-//--------------------------------------------------------
-
 #include <string>
 
 #include "base/zdefs.h"
@@ -7787,4 +7773,3 @@ weapon::weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t usesprite, int32_t Dir, i
 	rundeath = false;
 	shd_aclk = shd_aframe = 0;
 }
-

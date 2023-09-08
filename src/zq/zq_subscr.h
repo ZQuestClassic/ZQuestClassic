@@ -1,13 +1,3 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  subscr.cc
-//
-//  Subscreen code for zelda.cc
-//
-//--------------------------------------------------------
-
 #ifndef _ZQ_SUBSCR_H_
 #define _ZQ_SUBSCR_H_
 

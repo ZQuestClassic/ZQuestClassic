@@ -1,14 +1,3 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  zelda.cc
-//
-//  Main code for ZQuest Classic. Originally written in
-//  SPHINX C--, now rewritten in DJGPP with Allegro.
-//
-//--------------------------------------------------------
-
 #include <memory>
 #include <filesystem>
 #include <stdio.h>
@@ -444,6 +433,7 @@ bool Throttlefps = true, MenuOpen = false, ClickToFreeze=false, Paused=false, Sa
 double aspect_ratio = 0.75;
 int window_min_width = 320, window_min_height = 240;
 bool Playing, FrameSkip=false, TransLayers = true,clearConsoleOnLoad = true,clearConsoleOnReload = true;
+bool GameLoaded = false;
 bool __debug=false,debug_enabled = false;
 bool refreshpal,blockpath = false,loaded_guys= false,freeze_guys= false,
      loaded_enemies= false,drawguys= false,details=false,watch= false;
@@ -1098,7 +1088,7 @@ void Z_eventlog(const char *format,...)
         
         va_list ap;
         va_start(ap, format);
-        vsprintf(buf, format, ap);
+        vsnprintf(buf, 2048, format, ap);
         va_end(ap);
         al_trace("%s",buf);
         
@@ -1117,7 +1107,7 @@ void Z_scripterrlog(const char * const format,...)
         
         va_list ap;
         va_start(ap, format);
-        vsprintf(buf, format, ap);
+        vsnprintf(buf, 2048, format, ap);
         va_end(ap);
         al_trace("%s",buf);
         
@@ -1916,6 +1906,7 @@ int32_t init_game()
 	if(clearConsoleOnLoad)
 		clearConsole();
 	new_subscreen_active = nullptr;
+	GameLoaded = true;
 
     // Various things use the frame counter to do random stuff (ex: runDrunkRNG).
 	// We only bother setting it to 0 here so that recordings will play back the
@@ -2427,96 +2418,99 @@ int32_t init_game()
 	//Setup button items
 	{
 		bool use_x = get_qr(qr_SET_XBUTTON_ITEMS), use_y = get_qr(qr_SET_YBUTTON_ITEMS);
-		if(get_qr(qr_OLD_SUBSCR))
+		if (new_subscreen_active)
 		{
-			SubscrPage& pg = new_subscreen_active->cur_page();
-			if(use_x || use_y)
+			if (get_qr(qr_OLD_SUBSCR))
 			{
-				if(!get_qr(qr_SELECTAWPN))
+				SubscrPage& pg = new_subscreen_active->cur_page();
+				if (use_x || use_y)
 				{
-					Awpn = selectSword();
-					bpos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF);
-					if(use_x)
-						xpos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->xwpn : 0xFF, bpos);
-					if(use_y)
-						ypos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->ywpn : 0xFF, bpos, xpos);
-					directItemA = -1;
+					if (!get_qr(qr_SELECTAWPN))
+					{
+						Awpn = selectSword();
+						bpos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF);
+						if (use_x)
+							xpos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->xwpn : 0xFF, bpos);
+						if (use_y)
+							ypos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->ywpn : 0xFF, bpos, xpos);
+						directItemA = -1;
+					}
+					else
+					{
+						apos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->awpn : 0xFF);
+						bpos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, apos);
+						if (use_x)
+							xpos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->xwpn : 0xFF, apos, bpos);
+						if (use_y)
+							ypos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->ywpn : 0xFF, apos, bpos, xpos);
+
+						Awpn = pg.get_item_pos(apos >> 8);
+						directItemA = NEG_OR_MASK(Awpn, 0xFF);
+					}
+
+					game->awpn = apos;
+
+					game->bwpn = bpos;
+					Bwpn = pg.get_item_pos(bpos >> 8);
+					directItemB = NEG_OR_MASK(Bwpn, 0xFF);
+
+					game->xwpn = xpos;
+					Xwpn = pg.get_item_pos(xpos >> 8);
+					directItemX = NEG_OR_MASK(Xwpn, 0xFF);
+
+					game->ywpn = ypos;
+					Ywpn = pg.get_item_pos(ypos >> 8);
+					directItemY = NEG_OR_MASK(Ywpn, 0xFF);
+
+					animate_subscr_buttonitems();
+
+					refresh_subscr_buttonitems();
 				}
 				else
 				{
-					apos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->awpn : 0xFF);
-					bpos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, apos);
-					if(use_x)
-						xpos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->xwpn : 0xFF, apos, bpos);
-					if(use_y)
-						ypos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->ywpn : 0xFF, apos, bpos, xpos);
-					
-					Awpn = pg.get_item_pos(apos>>8);
-					directItemA = NEG_OR_MASK(Awpn,0xFF);
+					if (!get_qr(qr_SELECTAWPN))
+					{
+						Awpn = selectSword();
+						apos = 0xFF;
+						bpos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF);
+						directItemA = -1;
+					}
+					else
+					{
+						apos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->awpn : 0xFF);
+						bpos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, apos);
+
+						if (bpos == 0xFF)
+						{
+							bpos = apos;
+							apos = 0xFF;
+						}
+
+						Awpn = pg.get_item_pos(apos >> 8);
+						directItemA = NEG_OR_MASK(Awpn, 0xFF);
+					}
+
+					game->awpn = apos;
+					game->bwpn = bpos;
+					Bwpn = pg.get_item_pos(bpos >> 8);
+					directItemB = NEG_OR_MASK(Bwpn, 0xFF);
+					animate_subscr_buttonitems();
+
+					refresh_subscr_buttonitems();
 				}
-
-				game->awpn = apos;
-				
-				game->bwpn = bpos;
-				Bwpn = pg.get_item_pos(bpos>>8);
-				directItemB = NEG_OR_MASK(Bwpn,0xFF);
-				
-				game->xwpn = xpos;
-				Xwpn = pg.get_item_pos(xpos>>8);
-				directItemX = NEG_OR_MASK(Xwpn,0xFF);
-				
-				game->ywpn = ypos;
-				Ywpn = pg.get_item_pos(ypos>>8);
-				directItemY = NEG_OR_MASK(Ywpn,0xFF);
-				
-				animate_subscr_buttonitems();
-
-				refresh_subscr_buttonitems();
 			}
 			else
 			{
-				if(!get_qr(qr_SELECTAWPN))
-				{
-					Awpn = selectSword();
-					apos = 0xFF;
-					bpos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF);
-					directItemA = -1; 
-				}
-				else
-				{
-					apos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->awpn : 0xFF);
-					bpos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, apos);
-					
-					if(bpos==0xFF)
-					{
-						bpos=apos;
-						apos=0xFF;
-					}
-					
-					Awpn = pg.get_item_pos(apos>>8);
-					directItemA = NEG_OR_MASK(Awpn,0xFF);
-				}
-
-				game->awpn = apos;
-				game->bwpn = bpos;
-				Bwpn = pg.get_item_pos(bpos>>8);
-				directItemB = NEG_OR_MASK(Bwpn,0xFF);
-				animate_subscr_buttonitems();
-
-				refresh_subscr_buttonitems();
+				Awpn = get_qr(qr_SELECTAWPN) ? new_subscreen_active->get_item_pos(game->awpn)
+					: selectSword();
+				directItemA = NEG_OR_MASK(Awpn, 0xFF);
+				Bwpn = new_subscreen_active->get_item_pos(game->bwpn);
+				directItemB = NEG_OR_MASK(Bwpn, 0xFF);
+				Xwpn = new_subscreen_active->get_item_pos(game->xwpn);
+				directItemX = NEG_OR_MASK(Xwpn, 0xFF);
+				Ywpn = new_subscreen_active->get_item_pos(game->ywpn);
+				directItemY = NEG_OR_MASK(Ywpn, 0xFF);
 			}
-		}
-		else if(new_subscreen_active)
-		{
-			Awpn = get_qr(qr_SELECTAWPN) ? new_subscreen_active->get_item_pos(game->awpn)
-				: selectSword();
-			directItemA = NEG_OR_MASK(Awpn,0xFF);
-			Bwpn = new_subscreen_active->get_item_pos(game->bwpn);
-			directItemB = NEG_OR_MASK(Bwpn,0xFF);
-			Xwpn = new_subscreen_active->get_item_pos(game->xwpn);
-			directItemX = NEG_OR_MASK(Xwpn,0xFF);
-			Ywpn = new_subscreen_active->get_item_pos(game->ywpn);
-			directItemY = NEG_OR_MASK(Ywpn,0xFF);
 		}
 	}
 	
@@ -2600,6 +2594,7 @@ int32_t init_game()
 int32_t cont_game()
 {
 	replay_step_comment("cont_game");
+	GameLoaded = true;
 	timeExitAllGenscript(GENSCR_ST_CONTINUE);
 	throwGenScriptEvent(GENSCR_EVENT_CONTINUE);
 	//  introclk=intropos=msgclk=msgpos=dmapmsgclk=0;
@@ -4641,6 +4636,19 @@ int main(int argc, char **argv)
 	set_should_zprint_cb([]() {
 		return get_qr(qr_SCRIPTERRLOG) || DEVLEVEL > 0;
 	});
+
+	if (used_switch(argc,argv,"-test-zc"))
+	{
+		bool success = true;
+		if (!saves_test())
+		{
+			success = false;
+			printf("saves_test failed\n");
+		}
+		if (success)
+			printf("all tests passed\n");
+		exit(success ? 0 : 1);
+	}
 
 	// Helps to test crash reporting.
 	if (used_switch(argc, argv, "-crash") > 0)

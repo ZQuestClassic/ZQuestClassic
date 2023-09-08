@@ -1,16 +1,3 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  zq_misc.cc
-//
-//  Misc. stuff for ZQuest.
-//
-//--------------------------------------------------------
-
-//INLINE void SCRFIX() { putpixel(screen,0,0,getpixel(screen,0,0)); }
-//INLINE void SCRFIX() {}
-
 #ifndef _ZQ_MISC_H_
 #define _ZQ_MISC_H_
 
@@ -327,4 +314,3 @@ int32_t onDumpScr();
 int32_t onExport_Package();
 
 #endif
-

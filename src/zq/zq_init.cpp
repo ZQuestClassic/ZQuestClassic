@@ -1,13 +1,3 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  zquest.cc
-//
-//  Main code for the quest editor.
-//
-//--------------------------------------------------------
-
 #include <stdio.h>
 
 #include "base/gui.h"
@@ -39,4 +29,3 @@ void onInitOK()
 {
     saved=false;
 }
-

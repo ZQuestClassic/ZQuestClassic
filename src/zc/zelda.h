@@ -1,13 +1,3 @@
-	//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  zelda.h
-//
-//  Definitions, function prototypes, etc. for zelda.cc
-//
-//--------------------------------------------------------
-
 #ifndef _ZELDA_H_
 #define _ZELDA_H_
 
@@ -392,6 +382,7 @@ extern bool blockmoving;
 extern bool Throttlefps, MenuOpen, ClickToFreeze, Paused, Saving, Advance, ShowFPS, Showpal,
 	Playing, FrameSkip, TransLayers, clearConsoleOnLoad, clearConsoleOnReload, disableClickToFreeze,
 	SaveDragResize, DragAspect, SaveWinPos, scaleForceInteger, stretchGame;
+extern bool GameLoaded;
 extern int32_t LastWidth, LastHeight;
 extern bool refreshpal,blockpath,__debug,loaded_guys,freeze_guys;
 extern bool loaded_enemies,drawguys,details,debug_enabled,watch;

@@ -98,10 +98,10 @@ void animate_subscr_buttonitems()
 
 void refresh_subscr_items()
 {
-	subscr_item_clk = 0;
 	subscr_itemless = false;
 	if(replay_version_check(0,19))
 	{
+		subscr_item_clk = 0;
 		//This needs to be here for the item cache to be correct...
 		for(int i = 0; i < itype_max; ++i)
 		{
@@ -1721,7 +1721,7 @@ byte SW_LifeMeter::getType() const
 }
 void SW_LifeMeter::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
-	lifemeter(dest, getX()+xofs, y+yofs, 1, flags&SUBSCR_LIFEMET_BOT);
+	lifemeter(dest, x+xofs, y+yofs, 1, flags&SUBSCR_LIFEMET_BOT);
 }
 SubscrWidget* SW_LifeMeter::clone() const
 {
@@ -1818,7 +1818,7 @@ void SW_ButtonItem::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& p
 				break;
 		}
 		if(dodraw)
-			putitem3(dest,x,y,btnitem_ids[btn]&0xFF,btnitem_clks[btn]);
+			putitem3(dest,x+xofs,y+yofs,btnitem_ids[btn]&0xFF,btnitem_clks[btn]);
 	}
 	
 	if(flags&SUBSCR_BTNITM_TRANSP)
@@ -1984,7 +1984,10 @@ void SW_Counter::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page
 				infinite = false;
 			
 			if(!(flags&SUBSCR_COUNTER_SHOW0)&&!value&&!infinite)
+			{
+				zq_ignore_item_ownership = b;
 				return;
+			}
 			
 			if(infinite)
 				sprintf(valstring, "%c", infchar);
@@ -2291,7 +2294,10 @@ void SW_BtnCounter::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& p
 			infinite = false;
 		
 		if(!(flags&SUBSCR_BTNCOUNTER_SHOW0)&&!value&&!infinite)
+		{
+			zq_ignore_item_ownership = b;
 			return;
+		}
 		
 		if(infinite)
 			sprintf(valstring, "%c", infchar);

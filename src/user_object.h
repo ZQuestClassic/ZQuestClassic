@@ -10,6 +10,8 @@ enum class ScriptType;
 #define MAX_USER_OBJECTS 214748
 struct scr_func_exec
 {
+	bool operator==(const scr_func_exec&) const = default;
+
 	dword pc;
 	dword thiskey;
 	ScriptType type;
@@ -24,6 +26,8 @@ struct scr_func_exec
 };
 struct user_object
 {
+	bool operator==(const user_object&) const = default;
+
 	bool reserved;
 	// TODO: here and every other `owned_type`; can we replace -1 with ScriptType::None ?
 	ScriptType owned_type;
@@ -70,6 +74,8 @@ struct user_object
 };
 struct saved_user_object
 {
+	bool operator==(const saved_user_object&) const = default;
+
 	int32_t object_index;
 	user_object obj;
 	std::map<int32_t,ZScriptArray> held_arrays;

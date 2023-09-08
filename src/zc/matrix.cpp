@@ -1,13 +1,3 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  matrix.c
-//
-//  Code for the "Matrix" screen saver.
-//
-//--------------------------------------------------------
-
 #include "base/ints.h"
 #include "base/fonts.h"
 #include "zc/matrix.h"
@@ -332,4 +322,3 @@ static void UpdateColumns()
         }
     }
 }
-

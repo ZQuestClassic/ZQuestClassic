@@ -165,7 +165,7 @@ std::shared_ptr<GUI::Widget> RoomDialog::view()
 	if(local_mapref.guytile == -1)
 		setOldGuy();
 	
-	argLabel = Label(hAlign = 1.0);
+	argLabel = Label(fitParent = true, textAlign = 2);
 	argSwitcher = Switcher(
 		forceFitW = true,
 		argTF = TextField(

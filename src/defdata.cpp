@@ -1,17 +1,3 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  defdata.cc
-//
-//  Default item, weapon, and enemy data for ZQuest Classic.
-//
-//  This data was originally hard coded in the item class,
-//  enemy classes, etc. I exctracted it to make generic
-//  classes, thus allowing custom items and enemies.
-//
-//--------------------------------------------------------
-
 #include "defdata.h"
 #include "sfx.h"
 #include "zinfo.h"
@@ -728,4 +714,3 @@ item_drop_object default_item_drop_sets[isMAX]=
 	{ "Magic 100%",         { iLMagic,      iSMagic,   0,         0,           0,           0,           0,        0,      0,      0 },   {   0,   3,   1,   0,   0,   0,   0,   0,   0,   0,   0 } },
 	{ "Tall Grass Combos",  { iRupy,        iHeart,         0,         0,           0,           0,           0,        0,      0,      0 },   {   65,   20,   15,   0,   0,   0,   0,   0,   0,   0,   0 } },
 };
-
