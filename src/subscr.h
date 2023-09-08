@@ -62,6 +62,7 @@ extern ZCSubscreen *new_subscreen_passive;
 extern ZCSubscreen *new_subscreen_overlay;
 extern int new_sub_indexes[3];
 extern bool subscreen_open;
+extern int active_sub_yoff;
 
 const byte tripiece[2][8][3] =
 {

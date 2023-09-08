@@ -1674,6 +1674,7 @@ int32_t init_game()
 	if(clearConsoleOnLoad)
 		clearConsole();
 	new_subscreen_active = nullptr;
+	new_sub_indexes[sstACTIVE] = -1;
 	GameLoaded = true;
 
     // Various things use the frame counter to do random stuff (ex: runDrunkRNG).
@@ -1984,6 +1985,8 @@ int32_t init_game()
 	timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
 	previous_DMap = currdmap = warpscr = worldscr=game->get_continue_dmap();
 	new_subscreen_active = new_subscreen_passive = new_subscreen_overlay = nullptr;
+	new_sub_indexes[sstACTIVE] = new_sub_indexes[sstPASSIVE] =
+		new_sub_indexes[sstOVERLAY] = -1;
 	init_dmap();
 	
 	if(game->get_continue_scrn() >= 0x80)
@@ -2046,7 +2049,7 @@ int32_t init_game()
 	initZScriptGlobalRAM();
 	FFCore.initZScriptHeroScripts();
 	FFCore.initZScriptDMapScripts();
-	FFCore.initZScriptActiveSubscreenScript();
+	FFCore.initZScriptScriptedActiveSubscreen();
 	FFCore.initZScriptItemScripts();
 
 	if (!get_qr(qr_OLD_SCRIPT_VOLUME))
@@ -2352,7 +2355,7 @@ int32_t init_game()
 	FFCore.initZScriptHeroScripts(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
 	FFCore.initZScriptDMapScripts(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
 	FFCore.initZScriptItemScripts(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
-	FFCore.initZScriptActiveSubscreenScript();
+	FFCore.initZScriptScriptedActiveSubscreen();
 	if(get_qr(qr_FFCPRELOAD_BUGGED_LOAD)) ffscript_engine(true);  //Here is a much safer place...
 	return 0;
 }
@@ -2484,7 +2487,7 @@ int32_t cont_game()
 	initZScriptGlobalScript(GLOBAL_SCRIPT_GAME);
 	FFCore.initZScriptHeroScripts();
 	FFCore.initZScriptDMapScripts();
-	FFCore.initZScriptActiveSubscreenScript();
+	FFCore.initZScriptScriptedActiveSubscreen();
 	FFCore.initZScriptItemScripts();
 
 	if (!get_qr(qr_OLD_SCRIPT_VOLUME))
@@ -3768,7 +3771,7 @@ void game_loop()
 		if ( previous_DMap != currdmap )
 		{
 			FFCore.initZScriptDMapScripts();
-			FFCore.initZScriptActiveSubscreenScript();
+			FFCore.initZScriptScriptedActiveSubscreen();
 			previous_DMap = currdmap;
 		}
 			// Other effects in zc_sys.cpp
@@ -5485,7 +5488,7 @@ reload_for_replay_file:
 				FFCore.initZScriptHeroScripts(); //Should we not be calling this AFTER running the exit script!!
 				FFCore.initZScriptDMapScripts(); //Should we not be calling this AFTER running the exit script!!
 				FFCore.initZScriptItemScripts(); //Should we not be calling this AFTER running the exit script!!
-				FFCore.initZScriptActiveSubscreenScript();
+				FFCore.initZScriptScriptedActiveSubscreen();
 				FFCore.clear_combo_scripts(); //clear running combo script data
 				//Run Global script OnExit
 				ZScriptVersion::RunScript(ScriptType::Global, GLOBAL_SCRIPT_END, GLOBAL_SCRIPT_END);
@@ -5543,7 +5546,7 @@ reload_for_replay_file:
 				FFCore.initZScriptHeroScripts(); //get ready for the onWin script
 				FFCore.initZScriptDMapScripts();
 				FFCore.initZScriptItemScripts();
-				FFCore.initZScriptActiveSubscreenScript();
+				FFCore.initZScriptScriptedActiveSubscreen();
 				FFCore.clear_combo_scripts();
 				//Run global script OnExit
 				//ZScriptVersion::RunScript(ScriptType::Player, SCRIPT_PLAYER_WIN); //runs in ending()

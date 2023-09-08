@@ -299,21 +299,8 @@ dword get_subref(int sub, byte ty, byte pg = 0, word ind = 0)
 	byte s;
 	if(sub == -1) //special; load current
 	{
-		auto& dm = DMaps[get_currdmap()];
-		switch(ty)
-		{
-			case sstACTIVE:
-				s = dm.active_subscreen;
-				break;
-			case sstPASSIVE:
-				s = dm.passive_subscreen;
-				break;
-			case sstOVERLAY:
-				s = dm.overlay_subscreen;
-				break;
-			default:
-				return 0;
-		}
+		s = new_sub_indexes[ty];
+		if(s < 0) return 0;
 	}
 	else if(unsigned(sub) < 256)
 		s = sub;
@@ -1005,11 +992,10 @@ static bool set_current_script_engine_data(ScriptType type, int script, int inde
 		case ScriptType::EngineSubscreen:
 		{
 			curscript = subscreenscripts[script];
-			auto [ptr,_ty] = load_subdata(index);
-			assert(ptr); //should always be valid
-			ri->subdataref = index;
+			ri->subdataref = get_subref(-1, sstACTIVE);
+			auto [ptr,_ty] = load_subdata(ri->subdataref);
 			
-			if (!data.initialized)
+			if (ptr && !data.initialized)
 			{
 				got_initialized = true;
 				for ( int32_t q = 0; q < 8; q++ ) 
@@ -1212,7 +1198,11 @@ void FFScript::initZScriptDMapScripts()
 	scriptEngineDatas[{ScriptType::ScriptedPassiveSubscreen, 0}] = ScriptEngineData();
 }
 
-void FFScript::initZScriptActiveSubscreenScript()
+void FFScript::initZScriptSubscreenScript()
+{
+	scriptEngineDatas[{ScriptType::EngineSubscreen, 0}] = ScriptEngineData();
+}
+void FFScript::initZScriptScriptedActiveSubscreen()
 {
 	scriptEngineDatas[{ScriptType::ScriptedActiveSubscreen, 0}] = ScriptEngineData();
 }
@@ -13684,6 +13674,11 @@ int32_t get_register(const int32_t arg)
 			ret = subscreen_open ? 10000 : 0;
 			break;
 		}
+		case GAMEASUBYOFF:
+		{
+			ret = active_sub_yoff*10000;
+			break;
+		}
 		case GAMENUMASUB:
 		{
 			ret = subscreens_active.size()*10000;
@@ -14234,6 +14229,22 @@ int32_t get_register(const int32_t arg)
 			{
 				auto [_sub,_ty,_pgid,ind] = from_subref(ri->subwidgref);
 				ret = 10000*ind;
+			}
+			break;
+		}
+		case SUBWIDGDISPITM:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "DisplayItem"))
+			{
+				ret = 10000*widg->getDisplayItem();
+			}
+			break;
+		}
+		case SUBWIDGEQPITM:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "EquipItem"))
+			{
+				ret = 10000*widg->getItemVal();
 			}
 			break;
 		}
@@ -26600,6 +26611,8 @@ void set_register(int32_t arg, int32_t value)
 		case SUBWIDGTYPE: break; //READ-ONLY
 		case SUBWIDGINDEX: break; //READ-ONLY
 		case SUBWIDGPAGE: break; //READ-ONLY
+		case SUBWIDGDISPITM: break; //READ-ONLY
+		case SUBWIDGEQPITM: break; //READ-ONLY
 		case SUBWIDGPOS:
 		{
 			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Pos"))
@@ -39699,7 +39712,6 @@ j_command:
 				{
 					int p1 = SH::read_stack(ri->sp+1) / 10000;
 					int p2 = SH::read_stack(ri->sp+0) / 10000;
-					zprint2("Swapping %d and %d\n",p1,p2);
 					if(unsigned(p1) >= sub->pages.size())
 						Z_scripterrlog("Invalid page index '%d' passed to subscreendata->SwapPages()\n", p1);
 					else if(unsigned(p2) >= sub->pages.size())
@@ -39749,9 +39761,9 @@ j_command:
 				ri->subpageref = SH::read_stack(ri->sp+3);
 				if(SubscrPage* pg = checkSubPage(ri->subpageref, "SelectorMove"))
 				{
-					int flags = SH::read_stack(ri->sp+2) / 10000;
+					int flags = SH::read_stack(ri->sp+0) / 10000;
 					int dir = SH::read_stack(ri->sp+1) / 10000;
-					int pos = SH::read_stack(ri->sp+0) / 10000;
+					int pos = SH::read_stack(ri->sp+2) / 10000;
 					switch(dir)
 					{
 						case up:
@@ -39767,8 +39779,11 @@ j_command:
 							dir = SEL_RIGHT;
 							break;
 					}
-					ri->d[rEXP1] = 10000*pg->movepos_legacy(dir, pos, 255, 255, 255,
-						flags&SUBSEL_FLAG_NO_NONEQUIP, flags&SUBSEL_FLAG_NEED_ITEM, true);
+					
+					auto newpos = pg->movepos_legacy(dir, (pos<<8)|pg->getIndex(),
+						255, 255, 255, flags&SUBSEL_FLAG_NO_NONEQUIP,
+						flags&SUBSEL_FLAG_NEED_ITEM, true) >> 8;
+					ri->d[rEXP1] = 10000*newpos;
 				}
 				break;
 			}
@@ -43006,7 +43021,7 @@ bool FFScript::runGenericFrozenEngine(const word script, const int32_t *init_dat
 	return true;
 }
 
-bool FFScript::runActiveSubscreenScriptEngine()
+bool FFScript::runScriptedActiveSusbcreen()
 {
 	word activesubscript = DMaps[currdmap].active_sub_script;
 	if(!activesubscript || !dmapscripts[activesubscript]->valid()) return false; //No script to run
@@ -43014,7 +43029,7 @@ bool FFScript::runActiveSubscreenScriptEngine()
 	word dmapactivescript = DMaps[currdmap].script;
 	clear_bitmap(script_menu_buf);
 	blit(framebuf, script_menu_buf, 0, 0, 0, 0, 256, 224);
-	initZScriptActiveSubscreenScript();
+	initZScriptScriptedActiveSubscreen();
 	GameFlags |= GAMEFLAG_SCRIPTMENU_ACTIVE;
 	word script_dmap = currdmap;
 	//auto tmpDrawCommands = script_drawing_commands.pop_commands();
@@ -47860,6 +47875,11 @@ script_variable ZASMVars[]=
 	{ "SUBWIDGTY_SHOWDRAIN", SUBWIDGTY_SHOWDRAIN, 0, 0 },
 	{ "SUBWIDGTY_PERCONTAINER", SUBWIDGTY_PERCONTAINER, 0, 0 },
 	{ "SUBWIDGTY_TABSIZE", SUBWIDGTY_TABSIZE, 0, 0 },
+
+	{ "GAMEASUBYOFF", GAMEASUBYOFF, 0, 0 },
+
+	{ "SUBWIDGDISPITM", SUBWIDGDISPITM, 0, 0 },
+	{ "SUBWIDGEQPITM", SUBWIDGEQPITM, 0, 0 },
 
 	{ " ", -1, 0, 0 }
 };

@@ -188,6 +188,8 @@ static AccessorTable gameTable[] =
 	
 	{ "getActiveSubscreenOpen",     0,          ZTID_BOOL,   GAMEASUBOPEN,         FL_INL,  { ZTID_GAME },{} },
 	{ "setActiveSubscreenOpen",     0,          ZTID_VOID,   GAMEASUBOPEN,      FL_RDONLY,  { ZTID_GAME, ZTID_BOOL },{} },
+	{ "getActiveSubscreenY",        0,         ZTID_FLOAT,   GAMEASUBYOFF,         FL_INL,  { ZTID_GAME },{} },
+	{ "setActiveSubscreenY",        0,          ZTID_VOID,   GAMEASUBYOFF,      FL_RDONLY,  { ZTID_GAME, ZTID_BOOL },{} },
 	{ "LoadASubData",               0, ZTID_SUBSCREENDATA,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
 	{ "LoadPSubData",               0, ZTID_SUBSCREENDATA,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
 	{ "LoadOSubData",               0, ZTID_SUBSCREENDATA,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
