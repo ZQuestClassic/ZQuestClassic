@@ -14601,9 +14601,37 @@ int32_t get_register(const int32_t arg)
 		///---- VARYING WIDGET TYPES
 		case SUBWIDGTY_CSET:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "CSet"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "CSet[]"))
 			{
-				auto ty = widg->getType();
+				size_t indx = ri->d[rINDEX]/10000;
+				size_t sz = 0;
+				byte ty = widg->getType();
+				switch(ty)
+				{
+					case widgFRAME:
+					case widgMCGUFF:
+					case widgTILEBLOCK:
+					case widgMINITILE:
+						sz = 1;
+						break;
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						sz = 4;
+						break;
+					default:
+						sz = 0;
+						bad_subwidg_type("CSet[]", false, ty);
+						ret = -10000;
+						break;
+				}
+				if(!sz) break;
+				if(indx >= sz)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreenwidget->CSet[%d]'\n", indx, sz);
+					break;
+				}
 				switch(ty)
 				{
 					case widgFRAME:
@@ -14618,8 +14646,10 @@ int32_t get_register(const int32_t arg)
 					case widgMINITILE:
 						ret = ((SW_MiniTile*)widg)->cs.get_cset()*10000;
 						break;
-					default:
-						bad_subwidg_type("CSet", false, ty);
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						ret = 10000*((SW_GaugePiece*)widg)->mts[indx].cset;
 						break;
 				}
 			}
@@ -14629,7 +14659,35 @@ int32_t get_register(const int32_t arg)
 		{
 			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Tile"))
 			{
-				auto ty = widg->getType();
+				size_t indx = ri->d[rINDEX]/10000;
+				size_t sz = 0;
+				byte ty = widg->getType();
+				switch(ty)
+				{
+					case widgFRAME:
+					case widgMCGUFF:
+					case widgTILEBLOCK:
+					case widgMINITILE:
+						sz = 1;
+						break;
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						sz = 4;
+						break;
+					default:
+						sz = 0;
+						bad_subwidg_type("Tile[]", false, ty);
+						ret = -10000;
+						break;
+				}
+				if(!sz) break;
+				if(indx >= sz)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreenwidget->Tile[%d]'\n", indx, sz);
+					break;
+				}
 				switch(ty)
 				{
 					case widgFRAME:
@@ -14644,9 +14702,10 @@ int32_t get_register(const int32_t arg)
 					case widgMINITILE:
 						ret = 10000*((SW_MiniTile*)widg)->get_int_tile();
 						break;
-					default:
-						bad_subwidg_type("Tile", false, ty);
-						ret = -10000;
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						ret = 10000*((SW_GaugePiece*)widg)->mts[indx].tile();
 						break;
 				}
 			}
@@ -14661,6 +14720,12 @@ int32_t get_register(const int32_t arg)
 				{
 					case widgTEXT:
 						ret = 10000*((SW_Text*)widg)->fontid;
+						break;
+					case widgTEXTBOX:
+						ret = 10000*((SW_TextBox*)widg)->fontid;
+						break;
+					case widgSELECTEDTEXT:
+						ret = 10000*((SW_SelectedText*)widg)->fontid;
 						break;
 					case widgTIME:
 						ret = 10000*((SW_Time*)widg)->fontid;
@@ -14695,6 +14760,12 @@ int32_t get_register(const int32_t arg)
 					case widgTEXT:
 						ret = 10000*((SW_Text*)widg)->align;
 						break;
+					case widgTEXTBOX:
+						ret = 10000*((SW_TextBox*)widg)->align;
+						break;
+					case widgSELECTEDTEXT:
+						ret = 10000*((SW_SelectedText*)widg)->align;
+						break;
 					case widgTIME:
 						ret = 10000*((SW_Time*)widg)->align;
 						break;
@@ -14724,6 +14795,12 @@ int32_t get_register(const int32_t arg)
 				{
 					case widgTEXT:
 						ret = 10000*((SW_Text*)widg)->shadtype;
+						break;
+					case widgTEXTBOX:
+						ret = 10000*((SW_TextBox*)widg)->shadtype;
+						break;
+					case widgSELECTEDTEXT:
+						ret = 10000*((SW_SelectedText*)widg)->shadtype;
 						break;
 					case widgTIME:
 						ret = 10000*((SW_Time*)widg)->shadtype;
@@ -14757,6 +14834,12 @@ int32_t get_register(const int32_t arg)
 				{
 					case widgTEXT:
 						ret = 10000*((SW_Text*)widg)->c_text.get_int_color();
+						break;
+					case widgTEXTBOX:
+						ret = 10000*((SW_TextBox*)widg)->c_text.get_int_color();
+						break;
+					case widgSELECTEDTEXT:
+						ret = 10000*((SW_SelectedText*)widg)->c_text.get_int_color();
 						break;
 					case widgTIME:
 						ret = 10000*((SW_Time*)widg)->c_text.get_int_color();
@@ -14793,6 +14876,12 @@ int32_t get_register(const int32_t arg)
 					case widgTEXT:
 						ret = 10000*((SW_Text*)widg)->c_shadow.get_int_color();
 						break;
+					case widgTEXTBOX:
+						ret = 10000*((SW_TextBox*)widg)->c_shadow.get_int_color();
+						break;
+					case widgSELECTEDTEXT:
+						ret = 10000*((SW_SelectedText*)widg)->c_shadow.get_int_color();
+						break;
 					case widgTIME:
 						ret = 10000*((SW_Time*)widg)->c_shadow.get_int_color();
 						break;
@@ -14824,6 +14913,12 @@ int32_t get_register(const int32_t arg)
 				{
 					case widgTEXT:
 						ret = 10000*((SW_Text*)widg)->c_bg.get_int_color();
+						break;
+					case widgTEXTBOX:
+						ret = 10000*((SW_TextBox*)widg)->c_bg.get_int_color();
+						break;
+					case widgSELECTEDTEXT:
+						ret = 10000*((SW_SelectedText*)widg)->c_bg.get_int_color();
 						break;
 					case widgTIME:
 						ret = 10000*((SW_Time*)widg)->c_bg.get_int_color();
@@ -14913,7 +15008,7 @@ int32_t get_register(const int32_t arg)
 		}
 		case SUBWIDGTY_COUNTERS:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Counters[]"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Counter[]"))
 			{
 				size_t indx = ri->d[rINDEX]/10000;
 				size_t sz = 0;
@@ -14923,9 +15018,12 @@ int32_t get_register(const int32_t arg)
 					case widgCOUNTER:
 						sz = 3;
 						break;
+					case widgMISCGAUGE:
+						sz = 1;
+						break;
 					default:
 						sz = 0;
-						bad_subwidg_type("Counters[]", false, ty);
+						bad_subwidg_type("Counter[]", false, ty);
 						ret = -10000;
 						break;
 				}
@@ -14933,13 +15031,16 @@ int32_t get_register(const int32_t arg)
 				if(indx >= sz)
 				{
 					Z_scripterrlog("Bad index '%d' to array "
-						"'subscreenwidget->Counters[%d]'\n", indx, sz);
+						"'subscreenwidget->Counter[%d]'\n", indx, sz);
 					break;
 				}
 				switch(ty)
 				{
 					case widgCOUNTER:
 						ret = ((SW_Counter*)widg)->ctrs[indx]*10000;
+						break;
+					case widgMISCGAUGE:
+						ret = ((SW_MiscGaugePiece*)widg)->counter*10000;
 						break;
 				}
 			}
@@ -15002,6 +15103,11 @@ int32_t get_register(const int32_t arg)
 						break;
 					case widgOLDCTR:
 						ret = 10000*((SW_Counters*)widg)->infitm;
+						break;
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						ret = 10000*((SW_GaugePiece*)widg)->inf_item;
 						break;
 					default:
 						bad_subwidg_type("InfiniteItem", false, ty);
@@ -15266,14 +15372,338 @@ int32_t get_register(const int32_t arg)
 		{
 			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Corner"))
 			{
-				auto ty = widg->getType();
+				size_t indx = ri->d[rINDEX]/10000;
+				size_t sz = 0;
+				byte ty = widg->getType();
+				switch(ty)
+				{
+					case widgMINITILE:
+						sz = 1;
+						break;
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						sz = 4;
+						break;
+					default:
+						sz = 0;
+						bad_subwidg_type("Corner[]", false, ty);
+						ret = -10000;
+						break;
+				}
+				if(!sz) break;
+				if(indx >= sz)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreenwidget->Corner[%d]'\n", indx, sz);
+					break;
+				}
 				switch(ty)
 				{
 					case widgMINITILE:
 						ret = 10000*((SW_MiniTile*)widg)->crn;
 						break;
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						ret = 10000*((SW_GaugePiece*)widg)->mts[indx].crn();
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_FRAMES:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Frames"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						ret = 10000*((SW_GaugePiece*)widg)->frames;
+						break;
 					default:
-						bad_subwidg_type("Corner", false, ty);
+						bad_subwidg_type("Frames", false, ty);
+						ret = -10000;
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_SPEED:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Speed"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						ret = 10000*((SW_GaugePiece*)widg)->speed;
+						break;
+					default:
+						bad_subwidg_type("Speed", false, ty);
+						ret = -10000;
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_DELAY:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Delay"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						ret = 10000*((SW_GaugePiece*)widg)->delay;
+						break;
+					default:
+						bad_subwidg_type("Delay", false, ty);
+						ret = -10000;
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_CONTAINER:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Container"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						ret = 10000*((SW_GaugePiece*)widg)->container;
+						break;
+					default:
+						bad_subwidg_type("Container", false, ty);
+						ret = -10000;
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_GAUGE_WID:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "GaugeWid"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						ret = 10000*((SW_GaugePiece*)widg)->gauge_wid;
+						break;
+					default:
+						bad_subwidg_type("GaugeWid", false, ty);
+						ret = -10000;
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_GAUGE_HEI:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "GaugeHei"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						ret = 10000*((SW_GaugePiece*)widg)->gauge_hei;
+						break;
+					default:
+						bad_subwidg_type("GaugeHei", false, ty);
+						ret = -10000;
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_UNITS:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Units"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						ret = 10000*(((SW_GaugePiece*)widg)->unit_per_frame+1);
+						break;
+					default:
+						bad_subwidg_type("Units", false, ty);
+						ret = -10000;
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_HSPACE:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "HSpace"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						ret = 10000*((SW_GaugePiece*)widg)->hspace;
+						break;
+					default:
+						bad_subwidg_type("HSpace", false, ty);
+						ret = -10000;
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_VSPACE:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "VSpace"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						ret = 10000*((SW_GaugePiece*)widg)->vspace;
+						break;
+					default:
+						bad_subwidg_type("VSpace", false, ty);
+						ret = -10000;
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_GRIDX:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "GridX"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						ret = 10000*((SW_GaugePiece*)widg)->grid_xoff;
+						break;
+					default:
+						bad_subwidg_type("GridX", false, ty);
+						ret = -10000;
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_GRIDY:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "GridY"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						ret = 10000*((SW_GaugePiece*)widg)->grid_yoff;
+						break;
+					default:
+						bad_subwidg_type("GridY", false, ty);
+						ret = -10000;
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_ANIMVAL:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "AnimVal"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						ret = 10000*((SW_GaugePiece*)widg)->anim_val;
+						break;
+					default:
+						bad_subwidg_type("AnimVal", false, ty);
+						ret = -10000;
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_SHOWDRAIN:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ShowDrain"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgMGAUGE:
+						ret = 10000*((SW_MagicGaugePiece*)widg)->showdrain;
+						break;
+					default:
+						bad_subwidg_type("ShowDrain", false, ty);
+						ret = -10000;
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_PERCONTAINER:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "PerContainer"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgMGAUGE:
+						ret = 10000*((SW_MiscGaugePiece*)widg)->per_container;
+						break;
+					default:
+						bad_subwidg_type("PerContainer", false, ty);
+						ret = -10000;
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_TABSIZE:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "TabSize"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgTEXTBOX:
+						ret = 10000*((SW_TextBox*)widg)->tabsize;
+						break;
+					case widgSELECTEDTEXT:
+						ret = 10000*((SW_SelectedText*)widg)->tabsize;
+						break;
+					default:
+						bad_subwidg_type("TabSize", false, ty);
+						ret = -10000;
 						break;
 				}
 			}
@@ -26556,7 +26986,34 @@ void set_register(int32_t arg, int32_t value)
 			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "CSet"))
 			{
 				auto val = vbound(value/10000,-sscsMAX,15);
-				auto ty = widg->getType();
+				size_t indx = ri->d[rINDEX]/10000;
+				size_t sz = 0;
+				byte ty = widg->getType();
+				switch(ty)
+				{
+					case widgFRAME:
+					case widgMCGUFF:
+					case widgTILEBLOCK:
+					case widgMINITILE:
+						sz = 1;
+						break;
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						sz = 4;
+						break;
+					default:
+						sz = 0;
+						bad_subwidg_type("CSet[]", false, ty);
+						break;
+				}
+				if(!sz) break;
+				if(indx >= sz)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreenwidget->CSet[%d]'\n", indx, sz);
+					break;
+				}
 				switch(ty)
 				{
 					case widgFRAME:
@@ -26571,8 +27028,11 @@ void set_register(int32_t arg, int32_t value)
 					case widgMINITILE:
 						((SW_MiniTile*)widg)->cs.set_int_cset(val);
 						break;
-					default:
-						bad_subwidg_type("CSet", false, ty);
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						val = vbound(value/10000,0,15);
+						((SW_GaugePiece*)widg)->mts[indx].cset = val;
 						break;
 				}
 			}
@@ -26580,10 +27040,37 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGTY_TILE:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Tile"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Tile[]"))
 			{
 				auto val = vbound(value/10000,0,NEWMAXTILES-1);
-				auto ty = widg->getType();
+				size_t indx = ri->d[rINDEX]/10000;
+				size_t sz = 0;
+				byte ty = widg->getType();
+				switch(ty)
+				{
+					case widgFRAME:
+					case widgMCGUFF:
+					case widgTILEBLOCK:
+					case widgMINITILE:
+						sz = 1;
+						break;
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						sz = 4;
+						break;
+					default:
+						sz = 0;
+						bad_subwidg_type("Tile[]", false, ty);
+						break;
+				}
+				if(!sz) break;
+				if(indx >= sz)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreenwidget->Tile[%d]'\n", indx, sz);
+					break;
+				}
 				switch(ty)
 				{
 					case widgFRAME:
@@ -26599,8 +27086,10 @@ void set_register(int32_t arg, int32_t value)
 						val = vbound(value/10000,-ssmstMAX,NEWMAXTILES-1);
 						((SW_MiniTile*)widg)->set_int_tile(val);
 						break;
-					default:
-						bad_subwidg_type("Tile", false, ty);
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						((SW_GaugePiece*)widg)->mts[indx].setTile(val);
 						break;
 				}
 			}
@@ -26616,6 +27105,12 @@ void set_register(int32_t arg, int32_t value)
 				{
 					case widgTEXT:
 						((SW_Text*)widg)->fontid = val;
+						break;
+					case widgTEXTBOX:
+						((SW_TextBox*)widg)->fontid = val;
+						break;
+					case widgSELECTEDTEXT:
+						((SW_SelectedText*)widg)->fontid = val;
 						break;
 					case widgTIME:
 						((SW_Time*)widg)->fontid = val;
@@ -26650,6 +27145,12 @@ void set_register(int32_t arg, int32_t value)
 					case widgTEXT:
 						((SW_Text*)widg)->align = val;
 						break;
+					case widgTEXTBOX:
+						((SW_TextBox*)widg)->align = val;
+						break;
+					case widgSELECTEDTEXT:
+						((SW_SelectedText*)widg)->align = val;
+						break;
 					case widgTIME:
 						((SW_Time*)widg)->align = val;
 						break;
@@ -26679,6 +27180,12 @@ void set_register(int32_t arg, int32_t value)
 				{
 					case widgTEXT:
 						((SW_Text*)widg)->shadtype = val;
+						break;
+					case widgTEXTBOX:
+						((SW_TextBox*)widg)->shadtype = val;
+						break;
+					case widgSELECTEDTEXT:
+						((SW_SelectedText*)widg)->shadtype = val;
 						break;
 					case widgTIME:
 						((SW_Time*)widg)->shadtype = val;
@@ -26712,6 +27219,12 @@ void set_register(int32_t arg, int32_t value)
 				{
 					case widgTEXT:
 						((SW_Text*)widg)->c_text.set_int_color(val);
+						break;
+					case widgTEXTBOX:
+						((SW_TextBox*)widg)->c_text.set_int_color(val);
+						break;
+					case widgSELECTEDTEXT:
+						((SW_SelectedText*)widg)->c_text.set_int_color(val);
 						break;
 					case widgTIME:
 						((SW_Time*)widg)->c_text.set_int_color(val);
@@ -26749,6 +27262,12 @@ void set_register(int32_t arg, int32_t value)
 					case widgTEXT:
 						((SW_Text*)widg)->c_shadow.set_int_color(val);
 						break;
+					case widgTEXTBOX:
+						((SW_TextBox*)widg)->c_shadow.set_int_color(val);
+						break;
+					case widgSELECTEDTEXT:
+						((SW_SelectedText*)widg)->c_shadow.set_int_color(val);
+						break;
 					case widgTIME:
 						((SW_Time*)widg)->c_shadow.set_int_color(val);
 						break;
@@ -26781,6 +27300,12 @@ void set_register(int32_t arg, int32_t value)
 				{
 					case widgTEXT:
 						((SW_Text*)widg)->c_bg.set_int_color(val);
+						break;
+					case widgTEXTBOX:
+						((SW_TextBox*)widg)->c_bg.set_int_color(val);;
+						break;
+					case widgSELECTEDTEXT:
+						((SW_SelectedText*)widg)->c_bg.set_int_color(val);;
 						break;
 					case widgTIME:
 						((SW_Time*)widg)->c_bg.set_int_color(val);
@@ -26874,7 +27399,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGTY_COUNTERS:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Counters[]"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Counter[]"))
 			{
 				auto val = vbound(value/10000,sscMIN+1,MAX_COUNTERS-1);
 				size_t indx = ri->d[rINDEX]/10000;
@@ -26885,22 +27410,28 @@ void set_register(int32_t arg, int32_t value)
 					case widgCOUNTER:
 						sz = 3;
 						break;
+					case widgMISCGAUGE:
+						sz = 1;
+						break;
 					default:
 						sz = 0;
-						bad_subwidg_type("Counters[]", false, ty);
+						bad_subwidg_type("Counter[]", false, ty);
 						break;
 				}
 				if(!sz) break;
 				if(indx >= sz)
 				{
 					Z_scripterrlog("Bad index '%d' to array "
-						"'subscreenwidget->Counters[%d]'\n", indx, sz);
+						"'subscreenwidget->Counter[%d]'\n", indx, sz);
 					break;
 				}
 				switch(ty)
 				{
 					case widgCOUNTER:
 						((SW_Counter*)widg)->ctrs[indx] = val;
+						break;
+					case widgMISCGAUGE:
+						((SW_MiscGaugePiece*)widg)->counter = val;
 						break;
 				}
 			}
@@ -26964,6 +27495,11 @@ void set_register(int32_t arg, int32_t value)
 						break;
 					case widgOLDCTR:
 						((SW_Counters*)widg)->infitm = val;
+						break;
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						((SW_GaugePiece*)widg)->inf_item = val;
 						break;
 					default:
 						bad_subwidg_type("InfiniteItem", false, ty);
@@ -27241,17 +27777,340 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case SUBWIDGTY_CORNER:
 		{
-			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Corner"))
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Corner[]"))
 			{
 				auto val = vbound(value/10000,0,3);
-				auto ty = widg->getType();
+				size_t indx = ri->d[rINDEX]/10000;
+				size_t sz = 0;
+				byte ty = widg->getType();
+				switch(ty)
+				{
+					case widgMINITILE:
+						sz = 1;
+						break;
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						sz = 4;
+						break;
+					default:
+						sz = 0;
+						bad_subwidg_type("Corner[]", false, ty);
+						break;
+				}
+				if(!sz) break;
+				if(indx >= sz)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreenwidget->Corner[%d]'\n", indx, sz);
+					break;
+				}
 				switch(ty)
 				{
 					case widgMINITILE:
 						((SW_MiniTile*)widg)->crn = val;
 						break;
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						((SW_GaugePiece*)widg)->mts[indx].setCrn(val);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_FRAMES:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Frames"))
+			{
+				auto val = vbound(value/10000,1,65535);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						((SW_GaugePiece*)widg)->frames = val;
+						break;
 					default:
-						bad_subwidg_type("Corner", false, ty);
+						bad_subwidg_type("Frames", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_SPEED:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Speed"))
+			{
+				auto val = vbound(value/10000,1,65535);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						((SW_GaugePiece*)widg)->speed = val;
+						break;
+					default:
+						bad_subwidg_type("Speed", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_DELAY:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Delay"))
+			{
+				auto val = vbound(value/10000,0,65535);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						((SW_GaugePiece*)widg)->delay = val;
+						break;
+					default:
+						bad_subwidg_type("Delay", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_CONTAINER:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Container"))
+			{
+				auto val = vbound(value/10000,0,65535);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						((SW_GaugePiece*)widg)->container = val;
+						break;
+					default:
+						bad_subwidg_type("Container", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_GAUGE_WID:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "GaugeWid"))
+			{
+				auto val = vbound(value/10000,1,32);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						((SW_GaugePiece*)widg)->gauge_wid = val;
+						break;
+					default:
+						bad_subwidg_type("GaugeWid", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_GAUGE_HEI:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "GaugeHei"))
+			{
+				auto val = vbound(value/10000,1,32);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						((SW_GaugePiece*)widg)->gauge_hei = val;
+						break;
+					default:
+						bad_subwidg_type("GaugeHei", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_UNITS:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Units"))
+			{
+				auto val = vbound(value/10000,1,256);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						((SW_GaugePiece*)widg)->unit_per_frame = val-1;
+						break;
+					default:
+						bad_subwidg_type("Units", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_HSPACE:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "HSpace"))
+			{
+				auto val = vbound(value/10000,-128,127);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						((SW_GaugePiece*)widg)->hspace = val;
+						break;
+					default:
+						bad_subwidg_type("HSpace", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_VSPACE:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "VSpace"))
+			{
+				auto val = vbound(value/10000,-128,127);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						((SW_GaugePiece*)widg)->vspace = val;
+						break;
+					default:
+						bad_subwidg_type("VSpace", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_GRIDX:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "GridX"))
+			{
+				auto val = vbound(value/10000,-32768,32767);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						((SW_GaugePiece*)widg)->grid_xoff = val;
+						break;
+					default:
+						bad_subwidg_type("GridX", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_GRIDY:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "GridY"))
+			{
+				auto val = vbound(value/10000,-32768,32767);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						((SW_GaugePiece*)widg)->grid_yoff = val;
+						break;
+					default:
+						bad_subwidg_type("GridY", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_ANIMVAL:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "AnimVal"))
+			{
+				auto val = vbound(value/10000,0,65535);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						((SW_GaugePiece*)widg)->anim_val = val;
+						break;
+					default:
+						bad_subwidg_type("AnimVal", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_SHOWDRAIN:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ShowDrain"))
+			{
+				auto val = vbound(value/10000,-1,32767);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgMGAUGE:
+						((SW_MagicGaugePiece*)widg)->showdrain = val;
+						break;
+					default:
+						bad_subwidg_type("ShowDrain", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_PERCONTAINER:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "PerContainer"))
+			{
+				auto val = vbound(value/10000,1,65535);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgMGAUGE:
+						((SW_MiscGaugePiece*)widg)->per_container = val;
+						break;
+					default:
+						bad_subwidg_type("PerContainer", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_TABSIZE:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "TabSize"))
+			{
+				auto val = vbound(value/10000,0,255);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgTEXTBOX:
+						((SW_TextBox*)widg)->tabsize = val;
+						break;
+					case widgSELECTEDTEXT:
+						((SW_SelectedText*)widg)->tabsize = val;
+						break;
+					default:
+						bad_subwidg_type("TabSize", false, ty);
 						break;
 				}
 			}
@@ -38974,6 +39833,9 @@ j_command:
 						case widgTEXT:
 							str = &((SW_Text*)widg)->text;
 							break;
+						case widgTEXTBOX:
+							str = &((SW_TextBox*)widg)->text;
+							break;
 						default:
 							bad_subwidg_type("GetText()", true, ty);
 							break;
@@ -38998,6 +39860,9 @@ j_command:
 					{
 						case widgTEXT:
 							str = &((SW_Text*)widg)->text;
+							break;
+						case widgTEXTBOX:
+							str = &((SW_TextBox*)widg)->text;
 							break;
 						default:
 							bad_subwidg_type("SetText()", true, ty);
@@ -46979,6 +47844,22 @@ script_variable ZASMVars[]=
 	{ "SUBWIDGTY_FLIP", SUBWIDGTY_FLIP, 0, 0 },
 	{ "SUBWIDGTY_NUMBER", SUBWIDGTY_NUMBER, 0, 0 },
 	{ "SUBWIDGTY_CORNER", SUBWIDGTY_CORNER, 0, 0 },
+
+	{ "SUBWIDGTY_FRAMES", SUBWIDGTY_FRAMES, 0, 0 },
+	{ "SUBWIDGTY_SPEED", SUBWIDGTY_SPEED, 0, 0 },
+	{ "SUBWIDGTY_DELAY", SUBWIDGTY_DELAY, 0, 0 },
+	{ "SUBWIDGTY_CONTAINER", SUBWIDGTY_CONTAINER, 0, 0 },
+	{ "SUBWIDGTY_GAUGE_WID", SUBWIDGTY_GAUGE_WID, 0, 0 },
+	{ "SUBWIDGTY_GAUGE_HEI", SUBWIDGTY_GAUGE_HEI, 0, 0 },
+	{ "SUBWIDGTY_UNITS", SUBWIDGTY_UNITS, 0, 0 },
+	{ "SUBWIDGTY_HSPACE", SUBWIDGTY_HSPACE, 0, 0 },
+	{ "SUBWIDGTY_VSPACE", SUBWIDGTY_VSPACE, 0, 0 },
+	{ "SUBWIDGTY_GRIDX", SUBWIDGTY_GRIDX, 0, 0 },
+	{ "SUBWIDGTY_GRIDY", SUBWIDGTY_GRIDY, 0, 0 },
+	{ "SUBWIDGTY_ANIMVAL", SUBWIDGTY_ANIMVAL, 0, 0 },
+	{ "SUBWIDGTY_SHOWDRAIN", SUBWIDGTY_SHOWDRAIN, 0, 0 },
+	{ "SUBWIDGTY_PERCONTAINER", SUBWIDGTY_PERCONTAINER, 0, 0 },
+	{ "SUBWIDGTY_TABSIZE", SUBWIDGTY_TABSIZE, 0, 0 },
 
 	{ " ", -1, 0, 0 }
 };
