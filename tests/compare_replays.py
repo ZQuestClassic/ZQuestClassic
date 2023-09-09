@@ -322,7 +322,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--workflow_run', type=int, action='append')
     parser.add_argument('--local', type=dir_path, action='append')
-    parser.add_argument('--repo', default='ArmageddonGames/ZQuestClassic')
+    parser.add_argument('--repo', default='ZQuestClassic/ZQuestClassic')
     parser.add_argument('--token')
     args = parser.parse_args()
 

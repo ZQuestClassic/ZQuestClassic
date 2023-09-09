@@ -18,7 +18,7 @@ resources_dir = script_dir.parent
 parser = argparse.ArgumentParser(
 	description='Download and unzip latest release from GitHub')
 parser.add_argument('--channel', default='none', choices=['mac', 'linux', 'windows-x86', 'windows-x64', 'none'])
-parser.add_argument('--repo', default='ArmageddonGames/ZQuestClassic')
+parser.add_argument('--repo', default='ZQuestClassic/ZQuestClassic')
 parser.add_argument('--print-next-release', action='store_true')
 parser.add_argument('--asset-url')
 parser.add_argument('--cache', action='store_true')
@@ -39,7 +39,7 @@ if args.channel == 'none':
 		args.channel = 'linux'
 
 if args.repo == 'none':
-	args.repo = 'ArmageddonGames/ZQuestClassic'
+	args.repo = 'ZQuestClassic/ZQuestClassic'
 
 
 def get_release_json(url):

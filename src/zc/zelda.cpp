@@ -4956,10 +4956,9 @@ int main(int argc, char **argv)
 		//  if(useCD)
 		//    cd_exit();
 		quit_game();
-		//Z_message("Armageddon Games web site: http://www.armageddongames.com\n");
 		Z_message("ZQuest Classic web site: http://www.zeldaclassic.com\n");
 		Z_message("ZQuest Classic old wiki: https://web.archive.org/web/20210910193102/https://zeldaclassic.com/wiki\n");
-		Z_message("ZQuest Classic new wiki: https://github.com/ArmageddonGames/ZQuestClassic/wiki\n");
+		Z_message("ZQuest Classic new wiki: https://github.com/ZQuestClassic/ZQuestClassic/wiki\n");
 		
 		skipcont = 0;
 		if(forceExit) //fix for the allegro at_exit() hang.
@@ -5664,10 +5663,9 @@ reload_for_replay_file:
 	//  if(useCD)
 	//    cd_exit();
 	quit_game();
-	//Z_message("Armageddon Games web site: http://www.armageddongames.com\n");
 	Z_message("ZQuest Classic web site: http://www.zeldaclassic.com\n");
 	Z_message("ZQuest Classic old wiki: https://web.archive.org/web/20210910193102/https://zeldaclassic.com/wiki\n");
-	Z_message("ZQuest Classic new wiki: https://github.com/ArmageddonGames/ZQuestClassic/wiki\n");
+	Z_message("ZQuest Classic new wiki: https://github.com/ZQuestClassic/ZQuestClassic/wiki\n");
 	
 	skipcont = 0;
 	

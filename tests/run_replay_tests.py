@@ -1001,7 +1001,7 @@ if is_ci:
 
 def prompt_for_gh_auth():
     print('Select the GitHub repo:')
-    repos = ['ArmageddonGames/ZQuestClassic', 'connorjclark/ZeldaClassic']
+    repos = ['ZQuestClassic/ZQuestClassic', 'connorjclark/ZeldaClassic']
     selected_index = cutie.select(repos)
     print()
     repo = repos[selected_index]

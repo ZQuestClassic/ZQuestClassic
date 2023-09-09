@@ -1,4 +1,4 @@
-https://github.com/ArmageddonGames/ZQuestClassic/releases/tag/2.55-alpha-118
+https://github.com/ZQuestClassic/ZQuestClassic/releases/tag/2.55-alpha-118
 
 # Bug Fixes
 
