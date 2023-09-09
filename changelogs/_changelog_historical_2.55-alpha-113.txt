@@ -1,29 +1,3 @@
-// 2.55 Change Log
-// Updated 1st Aug, 2023
-
-//Alpha 118
-
-See https://github.com/ArmageddonGames/ZQuestClassic/releases/tag/2.55-alpha-118
-
-//Alpha 117
-
-See https://github.com/ArmageddonGames/ZQuestClassic/releases/tag/2.55-alpha-117
-
-//Alpha 116
-
-See https://github.com/ArmageddonGames/ZQuestClassic/releases/tag/2.55-alpha-116
-
-//Alpha 115
-
-See https://github.com/ArmageddonGames/ZQuestClassic/releases/tag/2.55-alpha-115
-
-//Alpha 114
-
-See https://github.com/ArmageddonGames/ZQuestClassic/releases/tag/2.55-alpha-114
-
-Fix icy pushblock interactions with block holes.
-	( EmilyV, Apr 10th, 2023 )
-
 //Alpha 113
 
 Pound combos can work on layers 1&2 (qr)

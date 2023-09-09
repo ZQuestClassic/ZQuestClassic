@@ -1,0 +1,253 @@
+https://github.com/ArmageddonGames/ZQuestClassic/releases/tag/2.55-alpha-115
+
+# Features
+
+`Pushed->` triggerflag, triggers when the combo clicks into place after a pushblock push.
+customizable ripple/tallgrass sprites per-combo
+increase combo label limit from 11 to 255
+zq: 'Test Quest' hotkey (default 'Ctrl+T')
+zq: Finish signpost combo wizard
+zq: AutoBrush now will revert to 1x1 after placing if ALT is held while selecting an area.
+zq: Compiler settings now searchable in QR search dialog
+zq: Screen Palette menu now previews in the window behind it
+
+zq: -quick-assign CLI switch to compile + assign
+  Example usage:
+  
+    ./zquest.exe your_quest.qst -quick-assign
+
+zq: tile editor 'Esc' deselects selections (if something selected)
+zq: Add 'General Tab' to advanced-paste combo dialog (and clean up the dialog)
+zscript: Weapon death effects + liftability settings
+zscript: Hero->MoveAtAngle(), Hero->Move()
+zscript: generic event HERO_HIT can now understand FFC/combo position
+zscript: Hero->ShieldJinx, new generic events (drown, fall, HeroHit applies to shallow liquid)
+zscript: -include switch to set include paths
+zscript: Graphics->ConvertRGBTo() and Graphics->ConvertRGBFrom()
+
+# Bug Fixes
+
+add some sanity checks to font initialization
+do not show hidden files in file selector
+memory corruption in quest load from bad palcycles
+memory corruption in quest load from bad shop count
+memory corruption in quest load from bad door combo count
+memory corruption in quest load from bad item count
+memory corruption in quest load from bad weapon count
+memory corruption in quest load from bad warp count
+memory corruption in quest load from bad string length
+memory corruption in quest load from bad misc info count
+prevent over-allocation in quest load from bad map count
+memory corruption in quest load from bad string copies
+prevent over-allocation in quest load from bad script commands
+memory corruption in quest load from bad zinfo weapon count
+memory corruption in quest load from bad zinfo counter count
+memory corruption in quest load from bad zinfo mapflags count
+memory corruption in quest load from bad zinfo combotypes count
+memory corruption in quest load from bad zinfo itemtypes count
+memory corruption in quest load from old pwd hash check
+memory corruption in quest load from repeat section ids
+prevent over-allocation in quest load from bad script bindings
+memory corruption in quest load from bad subscreen strcpy
+memory corruption in quest load from bad sfx length
+memory corruption in quest load from bad warp count (old)
+memory corruption in quest load from bad genscript count
+memory corruption in quest load from bad dropset count
+use-after-free bug in widget label
+greatly reduce cpu usage when drawing dialogs
+set dirty flag for more dialogs needing redraw, missed some
+properly handle mp3 unloading to avoid crash
+set dirty flag for list search components
+zc: cleanup bush/flower/etc decoration sprite code
+zc: items/weapons/players not rounding y coordinate when landing
+zc: 'Save Indicator' option now works to toggle the 'Saving...' text
+zc: mouse cursor not appearing in some popups
+zc: prevent Hero->CanMove unwanted side effects
+zc: fix dropped input when script modifies input state
+zc: Fix 4-way "Newer Player Movement"
+zc: signpost prompts take priority over triggers tab prompts
+zc: Newer Player Movement issues with fitting in half-tall gaps
+zc: waitdraw not working for ffcs over 32
+zc: do not stop at first ffc for lens trigger
+
+zc: npc scripts not running on screen load
+  Fixed npc scripts not running on the first frame that a screen loads, resulting in a single frame of spawn poof before you can hide or change the tile of the enemy.
+
+zc: enemies not running scripts on first frame with scriptloadenemies
+  forgot to handle this when fixing last commit
+
+zc: Fix writing to shopdata->Price[]
+zc: fixed new (non-classic) respawn points being unsafe in sideview
+zc: off-by-one error with ffc link delay
+zc: Should fix all instances of things occurring on the wrong screen when scrolling
+zc: system reset when recording in test mode
+zc: scrolling on to raft paths no longer forces you to raft (compat ruled)
+zc: mid-scroll is no longer a "safe respawn point"
+zc: LW_THROWN weapons not running weapon scripts
+zc: Throwing in sideview
+zc: windows crash as writing .zplay.result.txt file when exe not approved
+zc: Test Mode issues when quitting during opening wipe
+zc: ignore unintentional input on first frame of subscreen
+zc: Torch combos now function on pushblocks
+zc: force system pal after matrix screensaver
+zc: non-torch pushblocks no longer cast light
+zc: use-after-free bug when picking up triforce
+zq: combo pool paintbrush was broken
+zq: 'k' in assign slots dialog confirming
+zq: minimap graphical oddities
+zq: map out of bounds crash report
+zq: string list dropdowns were offset
+zq: string list ordered wrongly in dropdowns
+zq: undo history for "Paste FFC as ..."
+zq: undo history for "Paste FFC Data"
+zq: gui label text wrapping on strings without spaces
+zq: background blank-out after adjusting tiles in string editor
+zq: bad pointer alias crashing QR search dialog
+zq: stop using corrupted file handle when saving .zcheat file
+zq: properly load qst when grabbing tiles
+  The loadquest function was erroring on the ffscript section, but only
+  when "keep data" was disable for that section. The section loading code
+  was improperly read the file, which resulted in the password hash not
+  being set in the header, which resulted in an errant password check
+  prompt.
+
+zq: do not show guys in screen enemy selector
+  The first twenty enemy ids are reserved for guys, and can produce
+  unexpected behavior when used as screen enemies. If a screen is using
+  one of these enemy ids, the name was showing as "(None)" in the screen
+  enemy list. It will now show "Guy - Do Not Use!".
+  
+  The enemy selector list also will no longer show any of these enemy ids.
+
+zq: more fixes to load quest usage of keep data
+zscript: dmap scripts not updating
+zscript: use sane qrs by default for parser CLI
+zscript: backwards byte order of the rgb type used by paldata
+zscript: use correct engine data for player scripts
+zscript: setting input buttons to false correctly prevents button press
+zconsole: [win] use async i/o, speeds up zscript debugger
+
+# Documentation
+
+update weapon lifting docs
+add fuzzing.md
+type help for Slope combo type
+zq: Clean up tooltips for combos on the screen.
+
+# Build
+
+set zquest as default startup target in VS
+add Asan build type
+support Asan build type for zelda target
+
+# Chores
+
+update versionsig
+fix compile
+fix non-windows compile (remove unreachable code lines)
+remove debug print
+fix type conversion error
+Replay version check for respawn point fix
+fix compile because I'm stupid
+comment (and slightly optimize) 'user_object.cpp'
+update changelog for A115
+zc: fix misaligned checkbox
+zc: system palette code
+zq: init data gui cleanup
+zq: update default quest file (fix dmap 0 flags)
+zq: fix missed in previous commit
+
+# Refactors
+
+
+remove classic_qst.dat, use default.qst
+  ~200KB smaller, and easier to change (no grabber.exe).
+
+rename solid_object hxsz, hysz to hit_width, hit_height
+zc: remove indirection in calling scripts based on version
+  This just makes the code harder to understand. And dereferencing a
+  pointer for a function call is certainly slower than relying on cpu
+  branch prediction to do its thing.
+
+zc: add interface for combo cpos_infos
+zc: tweak and document MAPCOMBO3
+zc: replay_version_check
+zq: Level Palette shortcuts cleanup, add warning with dsa
+zq: new clean compiler settings dialog + help text
+zscript: common interface for script engine data
+zscript: use ScriptEngineData for item scripts
+zscript: use enum for script type
+zscript: add interface to encode combopos ref
+zscript: only allocate script data for combos that need it
+
+# Tests
+
+update replays
+add lifting.zplay, rocs_feather.zplay
+increase replay timeout for web
+add zscript compiler expected zasm tests
+check if failing frame values exist in dict
+use exists_ok when making updated dir
+print failing frame during replay test
+use exist_ok when making updated dir (typo...)
+refactor compare_replays.py to prepare for re-use
+refactor run_test_workflow.py to prepare for re-use
+automatically start webserver for compare report
+
+add prompts for creating a report on failure
+  When `run_replay_tests.py` fails, a prompt is now shown to generate
+  a compare report either from already-created baseline snapshots, from
+  GitHub Actions, or from running a release revision locally.
+  
+  Much of the functionality needed for this was already present, this just
+  ties everything together and makes it much simpler to generate a report.
+
+auto update new script test
+restore scripts compiled by playground.qst
+  These were removed from the package in aa3d87, but we actually need some
+  of them for playground.qst
+
+add playground_scrolling_script.zplay
+add dark.zplay
+support substring for run_replay_tests.py --filter
+add test_zquest.py. tests compile, slot assign of playground.qst
+move ghost replay into playground.qst
+rename lifting and rocs_feather replays
+remove replay comment when jit fails to compile
+fix web replay tests hanging
+add ganon.zplay
+
+# CI
+
+
+clone before downloading release artifacts
+  Apparently the checkout action deletes the current directory first.
+  Lame.
+
+skip solid.zplay until it is re-recorded
+fix release tag for branches
+fix release tag for branches (really)
+remove release cron
+specify version of PyGithub
+
+# Misc.
+
+add git hooks to validate commit messages
+add scripts/generate_changelog.py
+grab test builds from CI for bisect tool
+print changelog on every step in bisect tool
+allow advancing in bisect tool without closing program
+cache if release has a valid package for windows in bisect tool
+fix git hook script when core.commentchar config not set
+reverse commits in changelog for more natural ordering
+use separate folder for downloaded release builds
+fix wrong scope suggestion
+include commit body in changelog
+./zelda -load-and-quit `<qstpath>`
+automate fuzzing process
+remove unneeded init code for fuzzing quest loading
+update used QRs in quest database
+include deprecated_rules in qr analysis
+zq: Change "Place + Edit FFC #" text to "Edit New FFC #" for clarity
+zq: do less setup for -copy-qst command
+

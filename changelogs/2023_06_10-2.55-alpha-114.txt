@@ -1,0 +1,180 @@
+https://github.com/ArmageddonGames/ZQuestClassic/releases/tag/2.55-alpha-114
+
+# Changes to packaged files
+
+3f2ce2 Remove resources/docs/Zelda_Classic_and_ZQuest_2.53_API_Specification.pdf
+6b2343 Remove resources/docs/zscript_manual.rtf
+c29e6f Remove resources/ZCL-changelog.txt
+aa3d87 Remove resources/scripts
+b4c455 Add '255example.qst'
+
+# Features
+
+## General
+
+21447f addd8a 8ad107 58d3d0 Add ability for lifted combos to be bombs
+b08454 add 'Lift Flags' - allow disabling shield/items while lifting
+075935 Add QRs for lifting+scrolling/warping behavior options
+ca30be Preliminary: allow user created portals
+884169 Add Trigger Groups (i.e. light all torches -> trigger secrets)
+1c6aad Add weapon igniting
+f6245e eb40f0 Item display names
+f460b4 "Newer Player Movement" (#856)
+13a30d Add "Locked String" to lockblocks/chests, display a string when failed to open
+7d0f10 Add SCC for run generic frozen script
+c249c9 update std_functions: add LoadMapDataDM(int dmap, int scr)
+7b16cf Add more special draw layers
+82ba2f Some work related to combos+weapons (Step->Effects,Shooters)
+ce3c0a Add generic script frozen mode triggered by combo triggers
+012ec9 Stop using encryption password for qst allegro packfile
+5304bd Remove encoding layer from qst files. This makes opening quests roughly 50% faster
+a79f3a Support reading and saving as qsu (uncompressed file)
+f2e5f0 Update 'example fonts'
+64d42a Some reworking of bombs
+
+## Player
+
+921302 Init Data / Cheats uses item Display Name
+
+## Editor
+
+0668a5 Allow quick slot assign
+d5e0eb support undo/redo for ffcs
+24c2ad support undo/redo for single flag placement
+473b50 83f286 625564 Add QR hint system to info boxes
+dcdee8 Remove import/export options for ZQT and QSU files
+3c95bf Add configurable cursor color for tile/combo pages
+5c9416 Add symbols to font preview lipsum text
+afdc32 New item selection list dialog
+8f6aff Add lift glove help text
+ff66e1 Add tile editor visual options
+9caad3 Add bomb flowers to default quest
+4dbba1 Add radial bomb flowers to default quest
+
+## ZScript
+
+2a792b Add Hitby stuff to std_constants
+f098ea Add 'Hero->HammerState'
+debfac Add script access types portal/savedportal
+246f8b Add 'npc->CanPlace()' for checking teleportation movement.
+2baa25 Add custom mouse script support
+05723f Add 'Hero->MoveXY()'/'Hero->CanMoveXY()'
+530f7c Lifting script access work
+b22264 jit: compile FLOOR and CEILING
+
+## ZLauncher
+
+5b8a6b allow configuring gfx driver for player on windows
+
+# Bug Fixes
+
+## General
+
+50167b Fix jwin_file_browse_ex not applying selected extension
+54bcde Fix some gui color issues with certain "disabled" elements
+6dfbcf Fix segfault in file select extension filter
+005870 Fix uncleared combo bitmap
+1ba148 Revert non-windows ignoring 'ignore monitor scale' checkbox
+e51281 Fix zfix dobound swapping values when it shouldn't.
+59c413 27b421 Fix tile preview in item lister
+5f053f Fix vanishing text
+0b42b7 Frame infobutton stuff
+278243 Attempt Fix gui lag issues
+db9c3d Fix allegro.log oddities / trace handling
+d49bb1 color a5 bitmaps on init to avoid random tint
+
+## Player
+
+4670ce copying save file should also copy replay
+e77af5 some movement fixes and improvements
+a13395 Fix scroll frame timing issue
+be20d2 Never use linear scaling for game bitmap
+2ed468 Fix edge case bug with scroll warps and dmap script waitdraw
+c5b367 Fix lockblocks/chests double-playing locked strings
+2d5e12 Fix Opening file in append mode now creates missing directories
+dd0d45 Fix Hero->ReleaseLiftWeapon not working
+19979b Fix SV Ladder 'force face up' during scrolling
+72834b Fix facing direction affecting movement wrongly
+830a8a Add conveyor force-walking
+5dd40b Fix candle/arrow 'max per screen'
+b966e1 'Shutters->' fixes/tweaks
+40e795 Fix icy pushblock interactions with block holes.
+f79fd3 Fix ANCIENT ZQ subscreen selector bug.
+8f17aa Fix bad coordinates with bush ffcs
+81398d Fix oddities with loading save files of missing quests
+646eed Fix crash when missing save files
+f741b4 Fix some CanMove stuff
+765eac Fix mirror portal in top left
+1a50e8 Fix gleeok heads not drawing correctly on first frame
+cba517 Fix all remaining HitBy bugs (hopefully; TODO: add QR for ignoring nayru's love for HitBy)
+cb587f Fix crash with invalid ids with npcdata
+e75cc3 Cheat invincibility now protects from drown/pit damage
+2a4df0 Enemy / solid object interaction fixes
+5ccdfd Fix solid ffcs pushing on wraparound
+8c4f32 Fix 'Enemies->Item' with enemy waves interaction
+9975b0 Fix warpEx scrollwarp visual bug with map
+eaf5fe Add hardcode layer 'SPLAYER_PLAYER_DRAW' to draw to player sprite layer.
+c7aa72 Scripted enemy movement fixes
+03a8c9 Fix solid ffc hang
+b305f2 Fix bad HitBy melee interactions
+f42982 Fix enhanced music cutting out when tabbing back into the window
+ce390d Fix layered pound blocks being hit by midair hammer
+07f8fe stop loading quest template to reset items
+3f8f62 never init from a quest template
+2a5734 Fix triforce + item bundles
+6b6744 Fix melee weapons not respecting all of HitBy's properties (UID, etc)
+5e26e8 Fix wrong item id check
+565c50 Fix dialog mouse offset at large resolutions?
+d8f658 Fix mouse not showing during some popups
+0de954 Fix zc mouse showing during gameplay, setup for fancy mouse stuff.
+f1f9c8 Fix onCredits messing up gui bitmap transparency
+ca7839 avoid wasted computation in overpit
+92287c 717878 f8fa5f 01fcce improve eyeball combo during scrolling
+
+## Editor
+
+84bf0e Fix preview mode 'preview combo cycling'
+811622 Fix 'Show FFCs' not respecting preview mode
+35dd54 Fix decimals not being saved in zquest hopefully?
+ac4d20 Fix wrong QR description
+820b3f Optimize slot assign; no more temp files
+7523dc Reduce 'do_slots' duplicate code
+2de58e Clean up ZQ errors, add fonts.dat size error message
+ecb6b3 Fix combowizard for shooter not saving direction
+ddc8e4 Fix Screen palette can be changed on null screens
+71071d Fix frame titles being visible in the wrong tabs
+a738e8 Fix locked chest/lockblock combo wizard
+60761a Fix favorite combo offset on quest save
+ef294b Item editor pickup tab revamp
+13bb56 Fix shallow water combo wizard
+77f342 Rework tile grab GUI: Fix 0xFF transparency issue, text cuttoff issue
+b31eac Fix brush width/height when changing combo in some ways
+c6f52b Fix minimap right offset
+386d15 Fix zq minimap offset
+e92322 Fix grave/bsgrave combo wizard
+60efdd If DragAspect is on, force aspected xscale/yscale
+a92a19 Fix placing ffcs not snapping to the half-grid
+24b134 Fix favorite combo misalign / mappage bookmark overwrite when grabbing tiles
+42b98a Fix max brush size being ignored by autobrush
+89d870 Fix combo editor CSet- and T shortcuts
+1d5a82 Fix combo brush when selection crossed combo page boundary
+3f862a Fix tile grid state when undoing dungeon/relational drawing
+da42a8 Fix eweapon dropdown error
+9e528c oxford commas
+c5f7f1 Allow prompts to show from triggers tab even when 'Button: 0'
+
+## ZScript
+
+fac141 Fix scripts with >8 params hanging on compile
+a743bc Fix 'Hero->ReleaseLiftWeapon()' not compiling
+4671e5 Fix MAPDATACOMBOTD setter referencing combo of the wrong screen
+bb5cef Fix string/array literal allocation error
+64acf7 Fix 'Game->DisabledItems[]' not updating item cache
+fd8738 Fix bad 'dmapdata->' Get/Set functions
+1078cf Fix enum assignment const checks
+87fb4c Fix?: Script npc->MoveXY ignored solid FFCs
+7732f3 Fix this-> not writable in user constructor
+df8266 Fix string/array literal allocation error for real
+2d30a7 update std.zh: Fix FireE/LWeapon functions
+0c246f jit: fail compilation if function return cannot be resolved
+fbce61 jit: support class construction function calls

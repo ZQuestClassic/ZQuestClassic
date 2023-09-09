@@ -1,0 +1,606 @@
+https://github.com/ArmageddonGames/ZQuestClassic/releases/tag/2.55-alpha-117
+
+# Features
+
+Add 75 new 'Custom Counters' (26-100)
+
+Music and sound stuff galore!
+  
+  - Enhanced music using MP3 and OGG can now be given loop points and crossfade timings in the DMap editor. The music will then loop at those points and fade in and out with those timings.
+  - Scripts have new ways to interact with enhanced music: GetMusicPos(), SetMusicPos(), SetMusicSpeed(), GetMusicLength(), and SetMusicLoop()
+  - Scripts can also play music with crossfades using CrossfadeEnhancedMusic().
+  - Scripts can play sounds with different, volume, pan, frequency, and looping with PlaySoundEx().
+  
+  ```c
+  // Turns a SFX into an instrument by playing it back at different frequencies
+  ffc script Piano
+  {
+      void run()
+      {
+          // Frequency values and keys for different notes
+          int hz[] =   {16350L, 17320L, 18350L, 19450L, 20600L, 21830L, 23120L, 24500L, 25960L, 27500L, 29140L, 30870L, 32700L};
+          int keys[] = {KEY_Z,  KEY_S,  KEY_X,  KEY_D,  KEY_C,  KEY_V,  KEY_G,  KEY_B,  KEY_H,  KEY_N,  KEY_J,  KEY_M,  KEY_COMMA};
+          int sz = SizeOfArray(hz);
+          int sfx = Rand(60); // Pick a random SFX
+          while(true)
+          {
+              for(int i=0; i<sz; ++i)
+              {
+                  if(Input->KeyPress[keys[i]])
+                  {
+                      int j = (hz[i]/hz[0]) * 22050L; // Multiply by the sample rate of most default SFX
+                      Audio->PlaySoundEx(sfx, 100, 0, j);
+                  }
+              }
+  
+              Waitframe();
+          }
+      }
+  }
+  ```
+  
+  - Scripts can also adjust sounds mid playback with AdjustSound() and track their completion with GetSoundCompletion().
+  
+  ```c
+  ffc script AdjustSound
+  {
+      void run()
+      {
+          // Play the sound panned to the left at half volume
+          Audio->PlaySoundEx(SFX_SECRET, 50, -128, -1, false);
+          // Run until the sound has stopped playing
+          while(Audio->GetSoundCompletion(SFX_SECRET)!=-1)
+          {
+              int pct = Audio->GetSoundCompletion(SFX_SECRET) / 100;
+              // Pan the sound to the right while increasing in volume
+              Audio->AdjustSound(SFX_SECRET, Lerp(50, 100, pct), Lerp(-128, 127, pct), -1, false);
+              Waitframe();
+          }
+      }
+  }
+  ```
+  
+  - Scripts can set MusicRefresh to prevent music from resetting when changing screens
+  ```c
+  Audio->PlayEnhancedMusic("ExampleSong.ogg", 0);
+  Audio->MusicRefresh = MR_DMAP; // Music will refresh on changing DMap
+  Audio->MusicRefreshFlags[MRF_REVERT] = true; // Music refresh with revert to default behavior afterwards
+  ```
+  
+  - AdjustMusicVolume() and AdjustSFXVolume() have been reworked to be a multiplier capped at the user's volume settings, rather than overwriting those settings.
+
+
+  Relevant changes:
+    feat: Music and sound stuff galore!
+    feat: music looping and length functions for ogg and mpick p3
+    feat: add enhanced music loops for dmap music
+    feat: add enhanced music loops for dmap music
+    feat: PlaySound with different volume, pan, and loop
+    feat: added frequency param to PlaySound()
+    feat: added crossfading enhanced music
+    feat: dmap editor crossfades
+    feat: zscript access for dmap crossfades
+    feat: MusicRefresh setting for ZScript
+    feat(zscript): dmapdata music loop point access
+    feat(zscript): GetSoundCompletion()
+    feat(zscript): Split MusicRefresh into MusicRefresh and MusicRefreshFlags[]
+    fix: changed how crossfades interact with F1/F4
+    fix: fademiddleframes in CrossfadeEnhancedMusic()
+    fix(zq): missing mirrorDMap and loop points from dmap import and export
+    fix(zscript): CrossfadeEnhancedMusic() now keeps playing old music on failure and returns a proper result
+    fix(zscript): rename expanded Audio->PlaySound() function to PlaySoundEx()
+    fix(zscript): GetSoundCompletion() crash when the sound is not allocated
+    docs(zscript): docs for Crossfades and MusicRefresh
+    docs(zscript): webdocs for new Audio features
+    chore: attempt to fix ubuntu compile
+    chore: Merge branch 'main' into music-backup
+    chore: merge main into music branch
+qr for mirror/prism combos working on all layers
+'Dive->','Dive-> (Sensitive)' trigger flags
+Lens can show/hide multiple different layers per screen, can include layer 0
+Can now disable pushblock draw layer [QR `Pushable Block Sprite Layer`]
+add software updater
+  ZUpdater looks for the newest versions, and allows you to download
+  and replace your current installation with it.
+  
+  You can run `zupdater.exe` directly, or you can use the new "Update" tab
+  in ZLauncher. ZLauncher also has an option to auto-focus the tab on
+  startup if a new version is detected.
+  
+  Note: this feature currently requires Python 3 to be installed.
+  
+  Also: drive-by fixes for launching a process on unix, though the updater
+  feature doesn't use this.
+
+
+  Relevant changes:
+    feat: add software updater
+    feat(launcher): re-open launcher after update
+    test: re-enable updater test
+Add 'Game->OverrideItems[]' to allow forcing an item id to be "highest level owned" of its' class.
+One-line minimap titles, 'Preview DMap' for subscreen editor
+allow copying subscreen pages (including across subscreens, and quests)
+setting for subscreen widgets to hide during message strings
+parser timeout is now configurable/disablable (instead of 30sec)
+expand combo initd to [8]
+walk-through nes doors now set door states when used
+allow closing program with (most) dialogs open. (clean up gui functions too)
+add 'Button Counter' subscreen widget type
+'No Unequip' flag for subscreen itemslot widgets
+new subscreen selector options (per-widget and subscreen-wide)
+zc: split saves into individual files
+  Each save slot created is now stored in a separate file, kept in the
+  `saves/` folder. This path is configurable with `[zeldadx] save_folder`.
+  
+  An existing `zc.sav` file is split into individual files, and the
+  original is moved to `saves/backup`.
+  
+  The order of the save slots is maintained by `saves/order.txt`. You may
+  freely rearrange the lines of this text file, though you must do so when
+  the program is not open for it to have any effect.
+  
+  Any save file that gets deleted will simply be moved to `saves/deleted`.
+  If you ever want it truly gone, you can delete the folder yourself. If
+  you want to restore it, just move it back to `saves/`.
+  
+  Individual save files are only loaded into memory as needed, and only
+  partially if only needed to display info on the title screen (like the
+  name, icon, hearts, etc).
+  
+  The `-standalone` switch still works the same, but the save file is at
+  `saves/standalone.sav`.
+
+zc: change save slot limit from 15 to ∞
+zc: copy save file to backup folder on every save
+zc: support more than one qst file for -standalone mode
+  Previously, standalone mode only worked for a single quest file at a
+  time. For example, run `-standalone game.qst` once and `game.qst`
+  becomes the only quest that will work with the save file generated. Now,
+  each quest will use a save file derived from the name of the quest file.
+  
+  You can also provide a specific path if you like. It will be resolved
+  relative to the `save/` folder (you can also use an absolute path).
+  Example usage: `-standalone game.qst me.sav`
+
+zc: record music and sfx position for scripts in replays
+zc: configure primary and secondary gamepad stick in settings
+zc: select one of multiple gamepads in settings
+zc: add option to auto-restart in test mode when qst is saved in zquest
+zq: Remember 'View Layer 2/3 as BG' setting
+zq: add Shift+Minus/Plus for changing combo in combo editor
+zq: configure multiple init datas for test mode
+  Test Mode now allows you to customize test-only init data. You can make
+  multiple init datas. They are saved to your `zquest.cfg`. A basic name
+  is auto-assigned, but you can set your own name by modifying your
+  config.
+  
+  When you create a new test init data, your current quest's init data is
+  used as the starting point. Later modifying the quest init data has no
+  impact on your test init datas.
+  
+  You can also directly modify the init data values in the config, though
+  the format is not documented anywhere.
+
+zq: save test init data per-quest
+zq: made side warps for new screens default to Scrolling warps
+zq: side warp triggers cycle backwards with right click
+zq: "Set All" buttons for screen state carryovers
+zq: Smart Assign Slots in zscript compile
+zq: ctrl+clicking a tile selector goes to previously selected tile
+std_zh: add 'GetLevelSwitchState()'/'SetLevelSwitchState()' helper functions
+std_zh: item_tile/item_cset animation helpers in EmilyMisc.zh
+zscript: special layer for non-overhead ffc draws
+zscript: Add special layer timings related to lens of truth
+zscript: Add 'Game->TrigGroups[]' read-only array
+zscript: Variadic Parameters (user functions)
+zscript: printfa/sprintfa to take an array of args like printf/sprintf
+zscript: Allow declaring size 0 arrays
+zscript: Game->CurrentItemID() to use the engine method of checking owned items.
+zscript: Array Push/Pop functions
+zscript: ArrayPushAt/ArrayPopAt for arbitrary index push/pop
+vscode: add "Always Include" setting, default ["std.zh"]
+  This takes an array of files to always '#include', so that you don't need to manually add the #include to every one of your files.
+
+vscode: better working 'alwaysInclude', clean error messages for other-file errors
+vscode: better CONST_ASSERT handling, setting to ignore CONST_ASSERT errors
+vscode: use default options NO_ERROR_HALT, HEADER_GUARD for language server compiles
+vscode: add includepaths option
+launcher: add button to view current release notes
+web: support music crossfading, set position, set speed
+  This drops the web-specific implementation of zcmusic via SDL_mixer. It
+  was only done that way because we weren't building any sound libraries
+  from source, so using emscripten's port system + SDL_mixer was a
+  workaround. But SDL_mixer only supports a single music channel, so it
+  cannot do crossfading, so it's time to drop it.
+
+
+# Bug Fixes
+
+cutscene combos being incompatible with replays
+set exe path string to empty if fail to get exe path
+changer ffc interactions, ffc timer interactions
+
+use ut8 encoding for config and filenames
+  Config values can now carry non-ascii values. This required also configuring
+  allegro to treat file paths as UTF8.
+  
+  Fonts have varying support for characters outside ASCII characters.
+  Probably we currently have no fonts that adequately cover non-latin
+  characters. While you may see gibberish in the file picker, files should
+  still load just fine.
+
+pushable blocks not respecting lens layer hiding/revealing
+support leading dot in file selector filter
+  This recently broke loading zplay files because the constant for the
+  extension changed from `zplay` to `.zplay`, and the old file selector
+  expect no leading dot, unlike every other file path API known to man.
+
+dmap music with crossfades was not setting loop points
+Allow exiting zc when test mode gets stuck in error
+some bad dialog 'default's resulting in windows closing
+event crash due to bad weapon access
+checkbox odd alignment issues
+test quest dlg wrong button focus
+add some missing properties to init data delta
+  Not all properties were being covered here, which affected init data
+  cheat and test init data feature.
+
+typo in transition editor title
+wrong spacing on one-line minimap title widget
+avoid heap overflow crash for draw_textbox scanned string
+draw bow and arrow as button item correctly
+extraneous popup about string ordering error when loading older quests
+set window icon on Windows
+room dialog not refreshing on setting old-guy info
+fixed crash when loading enhanced music in nosound mode
+write zeros instead of random memory for fixed sized string fields
+virtual dtors for subscreen widget base classes to avoid memory leak
+use safer vsnprintf for zsys messages
+subscreen non-equippable item flag being broken
+fixed missing zcmixer->newtrack pointer null
+minor subscreen related fixes/tweaks
+subscreen issues related to item overrides / bow&arrow
+item quickswap issues
+subscreen related crashes
+item override arrows not displaying properly
+item bug introduced by recent commit
+'Background Color' element drawing in wrong area
+zc: fix bad rebase that messed up new save file header
+zc: check save exists before attempting to use
+zc: remove warning about standalone mode
+zc: resize save vector before copying
+zc: fix bad rebase that messed up new save file header (for real)
+zc: update current volume when changing enhanced music volume
+zc: fairy flags acting different placed vs inherent
+zc: allow canceling delete/copy save with ESC
+zc: do not update saves order.txt in standalone mode
+zc: set ascii mode for ending graphics
+zc: Conveyor oddities related to `Force Dir` flag
+zc: Triggers tab state issues
+  - "->LevelState" not setting the state properly
+  - "->LevelState" and "->GlobalState" not working on ffcs
+
+zc: reset the map view cursor state in init_game
+  For replay determinism.
+
+zc: 'Load Quest' menu option was busted from recent refactors
+zc: enhanced music not cutting to midi (none) when there's no crossfade
+zc: zero gamepad axis state on init
+zc: crop snapshot for screens with NOSUBSCR
+zc: handle failure to create save file error
+zc: defer making .sav file until after quest is selected
+zc: X/Alt+F4 not working while in game view
+zq: bad index for -quick-assign
+zq: support headless switch with quick assign
+zq: dmap midi dropdown
+zq: better error handling for test init data
+zq: use gui list data getter for init data dmap
+zq: use correct int size when reading qst template size
+zq: door dialog now updates visually on dropdown modify
+zq: write to temp file when saving qst and rename when done
+  This avoids issues with zplayer being unable to load the file on Reset
+  when in Test Mode, while zquest is writing to it.
+
+zq: misaligned subcreen editor 'View' menu checkmarks
+zscript: support absolute path includes on non-windows too
+zscript: null check results before attempting to write zasm
+zscript: missed deallocation when directly returning string literals
+zscript: shop data not handling info correctly
+zscript: some parser pointer issues
+zscript: broken typedefs from recent commits
+zscript: handle variadic class functions
+vscode: some more CONST_ASSERT issues
+vscode: header_guard works properly for edited file, no longer causes dupe errors
+vscode: handle non-windows paths
+vscode: add missing std_constants typedef type highlightings
+vscode: operator highlighting typo
+web: prevent crash when freeing music
+web: add rests in some ui busy loops
+web: use half-frequency for sound, just like previous sdl impl
+web: update deploy script for new asset names
+
+# Documentation
+
+correct typo in comment for `jit_threads` option
+specify that linux builds should use clang
+changelog overrides for subscreen rework
+add Arithmetic Operators to webdocs
+line-wrap singleline codes, strip single leading newline from code blocks
+minor typo fix in webdocs
+
+# Build
+
+add targets for common replay test invocations
+add stubs for sdl music to un-break web build
+fix mac app bundle signing
+fix compile by using portable optional varargs
+enable c++ 20 preprocessor for msvc
+support single config builds
+include missing import for stdint
+disable format-overflow gcc error
+disable compiler extensions
+
+use new msvc preprocessor only for our targets
+  This would otherwise result in crashpad_handler failing to link
+  `capture_context_win.asm.obj`, which is very strange.
+
+upgrade to latest allegro
+  https://github.com/liballeg/allegro5/compare/c2bf1e11bed0b63539267115baf190741e0a437a...02382edf26ff0b0ca021dfd10c370c59d9006888
+  
+  https://github.com/connorjclark/allegro5/compare/my-fork-3..my-fork-4
+
+upgrade allegro fork for gamepad improvements
+  https://github.com/connorjclark/allegro5/compare/my-fork-4..my-fork-5
+
+configure allegro audio to not build libdumb or libflac
+
+# Chores
+
+bump version to alpha 117
+clean up stdout garbage whitespace output
+modify changelog for recent music additions
+add more to recent music changelog
+add sanity check to previous commit
+add some changelog overrides
+zscript: Make all 'yyerror' error messages start with 'ERROR:'
+
+# Refactors
+
+Screen Script dialog now new GUI, respects script metadata
+New "Screen Data" dialog
+update dmap editor to new GUI
+Fix hardcoded icons, no longer using custom codepoint strings.
+Merge New Subscreens (#879)
+remove build version
+remove old project name "AEternal"
+replace "string.h" with "cstring"
+use calloc in reset_tile instead of manually zeroing
+
+zc: split save code from title.cpp, remove .icn
+  .icn files contained just the color data for each ring variant needed
+  by the title screen. The idea was to avoid loading each quest just to
+  show a single tile graphic. But, this same data is already in the gamedata
+  save structure, so we don't need to maintained a separate file doing the same.
+  The greatly simplifies much of the code dealing with displaying these icons.
+
+zc: remove skipicon and print_metadata_for_each_save_slot config options
+zc: move more save file handling behind saves.h interface
+zc: move save file name into saves.cpp, remove -savefile
+zc: store saves in a vector
+zc: remove support of .dat# when loading save files
+zc: update icon only once when making new save
+zc: remove unnecessary sleep/flash of black on updating save icon
+zc: skip slow combo movement modification when nothing would change
+zc: do not poll music in timer
+  We poll music often enough via `advanceframe`
+
+zc: remove title screen
+
+  Relevant changes:
+    fix(zc): put title.mid back in zelda.dat, since it is available to quests
+    refactor(zc): remove title screen
+    refactor(zc): remove title option from menu
+    refactor(zq): remove defunct -notitle switch from quest packager
+    refactor(launcher): remove title option
+    misc(zc): remove unused title/logo assets from classic_zelda.dat
+zc: remove aglogo
+zc: disable credit menu
+zscript: better jit compilation for 32b div 10000
+
+# Tests
+
+add more visual indicators to playground_scrolling_script.zplay
+forgot to update zasm snapshot from f6d318
+fix usage of -quick-assign in test_zquest.py
+add stdout to parser expectations to capture warnings/errors
+check if gfx segments exist in workflow get_args
+support starting replay from a sav file
+
+add script for splitting replays
+  also support folders in the replay test directory
+
+split large replay files
+support headless flag for web replay tests
+disable sound for mac in CI
+  For some reason this started hanging the --no-headless tests, and
+  crashing other tests on exit.
+
+skip sound driver in headless mode for zquest
+check allegro log exists before printing on timeout
+track save files with git lfs
+add (crude) RNG debugging option
+run_replay_tests now forwards more args when collecting local baseline results
+move zquest save classic_1st.qst test to python
+
+  Relevant changes:
+    test: move zquest save classic_1st.qst test to python
+    test: move zquest save classic_1st.qst test to python
+make copy of playground.qst for quick assign test
+move recording test to python
+move File->New test to python
+disable save test
+do not retry replay if zplayer exits before starting
+  This was hiding crashes that only sometimes happen on startup, and never
+  showing a backtrace.
+
+
+# CI
+
+do not show info dialogs in ci
+quit earlier in zquest
+skip crashy test on linux
+also show changelog relative to last alpha for nightlies
+handle "boolean" correctly
+upgrade to python 3.11.4
+run python unittest module instead of calling each test file individually
+
+# Misc.
+
+add 'std_zh' scope to changelog generation
+make std_zh a scope, instead of a type
+support squashing and rewriting commit body for changelogs
+add -version, -channel, and -repo switches
+use new name in readme
+rename mac app bundle to ZQuestClassic
+rename player executable from zelda to zplayer
+add '-no_console' switch to prevent debug console opening
+Merge branch 'main' into newsubscr2
+support dropping commits in changelog
+allow for squash commit subjects to be changed too
+support changelog 'section' overrides for large custom markdown sections
+wrap changelog-since-alpha in a details element
+wrap custom changelog sections in details elements
+revert grabber.exe to 4.2.0 version, since current one stopped working
+add sentry breadcrumb for zsys error messages
+disable sentry session for all but zplayer and zquest
+add 'templates' folder of subscreen templates
+update default quest, default new subscreens + new gauge layout
+allow dropping commit from changelog with '!' before ':'
+vscode: publish 1.0.6
+
+# Full Subscreen Rewrite
+The entire code behind how the subscreen functions has been entirely reworked to be less janky and more manageable. This makes editing the subscreen further a LOT easier of a task for us, and makes everything just a lot nicer in general.
+
+## General mechanics tweaks
+Several mechanics have been generally tweaked, including basic things like how the selector behaves and how items are equipped. These changes are mostly spread across a variety of quest rules, but for easy swapping, there are now "New Subscreen" and "Old Subscreen" Rule Templates available [see Quest->Options->Pick Rule Templates]. These change almost every new rule related to the subscreen - the only important one that they leave alone is `Old Gauge Tile Layout`, which changes the tile layout used by Gauge Piece widgets.
+
+These new QRs, as well as many existing QRs that relate to the subscreen, have been moved to the new "Subscreen" tab. These are searchable as usual via the QR Search feature.
+
+TL;DR New QRs, check the new Rule Templates or the Subscreen tab.
+
+## Button Equipment Stuff
+* QR 'No Button Verification'- if enabled, the engine will no longer auto-equip things to buttons for you.
+* Also allows UNEQUIPPING items (try to equip it to the slot it's already equipped to)
+* Problem: With this enabled, even if you start with items, now the engine won't equip any of them for you!
+* Solution: Now you can set "Default Equipment" for each button slot! Just check the box in the ItemSlot widget, for the Active Subscreen that is set on the Starting DMap, and these items will begin pre-equipped to the buttons you set them to.
+
+## Brand New Features
+### Overlay Subscreens
+These subscreens draw over the screen at all times, both during play and the active subscreen.
+As usual, widgets can have the 'Display' settings on widgets to change their visibility while the active subscreen is up, down, and scrolling.
+This can be used for various things, such as:
+* Displaying your current keys over the corner of the game screen, either using a 'Counter' for a number of keys or a 'Gauge Piece: Counter' to actually physically display each key.
+* Displaying button items or other similar widgets transparently over the game screen, similar to LTTP
+
+### Active Subscreen: Pages
+You can now add multiple PAGES to Active Subscreens! You can either set buttons (like L and R) to cycle pages, or trigger page transitions by pressing a button on an appropriately configured widget. Changing between pages will use one of currently 3 animation styles:
+* Instant (It just jumps right to the other page)
+* Slide (Both pages slide in the same direction, the current page going offscreen as the new page comes onscreen)
+  * Direction and Speed (in px/frame, with 4 decimal places) are configurable for this transition type.
+* Pixellate (Seemingly-but-not-actually random pixels from across the screen change bit by bit from the old page to the new page)
+  * Duration is configurable for this type, in frames, as well as the "Invert", "XOffset", and "YOffset" parameters. These parameters only change the pattern of pixellation by altering the formula used to create the pixellation pattern.
+
+By default, the Selector is not drawn during transitions- but this can be toggled as a checkbox on each transition.
+
+### Select Any Widget
+Instead of only being able to move the cursor to "Current Item" objects (now renamed to "Item Slot"), the cursor can now be set to move to ANY widget you want it to! This has some nice interactions with other new features....
+
+### New Selector Features
+The selected widget can now be set to:
+* Have overridden selection text, which will be displayed in the "Selected Text" widget (formerly "Selected Item Name")
+* Start a page transition animation on button press
+* Run a generic frozen script on button press
+
+Yes, you heard right, there is now SOME level of scripting on the engine subscreen, even if not much.
+
+### Gauge Piece Rework
+Life and Magic gauge pieces received a MASSIVE overhaul, and the "Gauge Piece: Counter" has been added to allow gauges for ANY counter! All of these behave identically to each other, except for these differences:
+* Magic gauge still has the "Show Drain" property, which is used to make a gauge piece display conditionally based on your magic drain rate (ex. show the half magic symbol when you have half magic)
+* Counter gauge lets you configure which counter to use, and how many per container to use for that gauge.
+Aside from these differences, they ALL can:
+* Specify a Gauge Wid/Hei, making a single widget draw _**more than one gauge piece**_, instead drawing an entire GRID of gauge pieces for you!
+  * Specify an XOffset/YOffset to be applied to each row/column to create an offset-grid
+  * Specify an HSpace/VSpace to space out the grid
+  * Flags to specify which direction the grid "moves" in (Right to Left? Top to Bottom? Move in columns first, then rows? Snake back and forth?)
+* Hide the gauge (Or only show the gauge) when you have the Infinite Item for this gauge (works the same way as counter infinite items)
+* Specify a "Units per Frame" to reduce tile page usage. For instance, if "Units per Frame" is "2", then it uses half as many tiles for the gauge, as it uses the same tile for "1" as it would for "0", and the same for "2" as it would for "3", etc.
+* Specify frames/speed/delay for an animated gauge
+* Specify an animation CONDITION, wherein the gauge will only animate if it is above or below a certain value (either as a hard value, or as a percentage of being full). Additionally, you can specify it so that it skips the first frame of the animation when the condition is true.
+  * A good example of how you can use this, is to have your life gauge only animate when your health is critically low, and use the skip first frame feature. This way, normally, your life gauge uses a single still tile- but when you reach critical life, it starts using the second tile in the animation instead (as well as any more if you supply more of an animation). This would allow for, say, cracked heart containers, blood dripping from heart containers, etc, as low-health visual effects.
+* Specify "Full Tile" mode, which causes the gauge to use full tiles instead of mini-tiles, becoming twice as wide and twice as tall in the process.
+
+### Counter Addition
+Counters can now have a "Max Digits" specified, and if the counter has too large a value to fit in that many digits, it will instead display that many digits as all 9s.
+
+## GUI Work
+#### The Subscreen Lister
+The dialog where you select which subscreen to edit is now upgraded to the new dialog system. This dialog now shows you _**3 separate lists**_ for the 3 different types of subscreen!
+
+### The Subscreen Editor
+* Now somewhat auto-resizes itself situationally. This means it will be smaller for passive subscreens, larger for overlay subscreens, and will adjust to font changes.
+* Now has text displaying information about the currently copied widget
+* When editing an Active Subscreen, a whole new set of buttons for adding/removing/changing Pages is present.
+* R-Click menu has been entirely revamped, with many new options added.
+* R-Click menu now also exists if r-clicking in a spot that has no widget, which previously would give no r-click menu at all.
+* Slight tweaks to the existing menus
+* New Menu: Options.
+  * Options->Mouse Settings allows you to change how the mouse behaves in the subscreen editor. You can choose between "Classic" (for the old behavior), or "Modern" (the new default, reworked behavior). Notably, in the Modern behavior, you are able to click-and-drag widgets around the subscreen editor.
+  * Subscreen Settings dialog, allows you to specify settings specific to the subscreen. Currently only has settings for Active Subscreens, where some settings related to swapping pages are housed.
+* Several new "View" menu options, such as previewing what it would look like if every counter were full, or if every max counter was 65535, or if you had the "Infinite Item" for every counter, etc. Also includes an option to toggle "Show Unowned Items". If off, the editor display will show only the items as you have in Init Data.
+
+### The Widget Properties Dialog
+Slight spacing tweaks, every widget now has an additional tab for selection-related settings. More widgets will use tabs for formatting now, giving the dialog a bit more breathing room overall.
+
+
+  Relevant changes:
+    refactor: Rewrite the entire engine subscreen backend (WIP)
+    feat: some subscreen GUI work, new buttons for page editing
+    feat: major subscreen editor gui additions
+    feat: More subscreen work, generic scripts on buttonpress and custom selectiontext
+    feat: ton more subscreen work
+    feat: new life gauge settings
+    feat: new subscreen features relating to counters, gauge pieces, and the 'View' menu
+    feat: subscreen settings dialog, buttons to change pages
+    feat: allow selectable subscreen widgets to go to another page on btnpress
+    feat: subscreen page transition animations
+    feat: Add 'Overlay Subscreens'
+    feat: Overlay Subscreen settable in dmap editor
+    feat: Copy/Paste/Save/Load rclick menu for subscreens
+    fix: subscreen rng offset
+    fix: null dereference
+    fix: cursor selector offset
+    fix: subscreen save/load errors
+    fix: some oddities with item slots
+    fix: more oddities with item slots
+    fix: magic meter x offset
+    fix: itemcache/override related fixes
+    fix: button item misalignment
+    fix: some more subscreen related replay errors
+    fix: subscreen related button item stuff
+    fix: more subscreen related replay errors
+    fix: compat qr item 0 being visible on buttons
+    fix: typo in previous commit
+    fix: more subscreen fixes
+    fix: itemcache bullshit errors
+    fix: selector stuff
+    fix: some item animation offsets
+    fix: selector offset errors
+    fix: minor counter fixes
+    chore: clean up some subscreen item animation code/replay errors
+    refactor: convert subscreen widgets to new constant system
+    refactor: more subscreen replay/type fixes
+    refactor: work on subscreen cursor selection
+    refactor: split subscrwidget flags into two vars, trim gridflags
+    refactor: improve subscr_props dialog arrangements
+    test: update 'nes-remastered.zplay', item flash animation offset
+    test: Update/Rerecord 3 playground replays to fix quick-assign tests

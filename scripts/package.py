@@ -2,7 +2,9 @@ import argparse
 import os
 import shutil
 import platform
-from typing import List
+import subprocess
+import sys
+from typing import List, Tuple
 from pathlib import Path
 
 system = platform.system()
@@ -89,8 +91,9 @@ def preprocess_base_config(config_text: str, cfg_os: str):
     return '\n'.join(new_config_lines)
 
 
-def copy_files_to_package(base_dir: Path, files: List[Path], dest_dir: Path):
-    files_flat: List[Path] = []
+def copy_files_to_package(files: List[Path], dest_dir: Path):
+    cfg_os = args.cfg_os or system_to_cfg_os(system)
+    files_flat: List[Tuple[Path, Path]] = []
     for file in files:
         if not file:
             continue
@@ -100,13 +103,13 @@ def copy_files_to_package(base_dir: Path, files: List[Path], dest_dir: Path):
                 for dir_file in dir_files:
                     path = Path(os.path.join(dir_path, dir_file))
                     if path.is_file():
-                        files_flat.append(path)
+                        files_flat.append((path, file))
         else:
-            files_flat.append(file)
+            files_flat.append((file, None))
 
-    for src in files_flat:
-        if src.is_relative_to(base_dir):
-            dest = dest_dir / src.relative_to(base_dir)
+    for src, folder in files_flat:
+        if folder:
+            dest = dest_dir / src.relative_to(folder.parent)
         else:
             dest = dest_dir / src.name
 
@@ -115,7 +118,6 @@ def copy_files_to_package(base_dir: Path, files: List[Path], dest_dir: Path):
 
         dest.parent.mkdir(parents=True, exist_ok=True)
         if src.parent.name == 'base_config' or src.name == 'allegro5.cfg':
-            cfg_os = args.cfg_os or system_to_cfg_os(system)
             dest.write_text(preprocess_base_config(src.read_text(), cfg_os))
         else:
             shutil.copy2(src, dest, follow_symlinks=False)
@@ -138,7 +140,7 @@ def archive_package(package_dir: Path):
 
 def do_packaging(package_dir: Path, files):
     prepare_package(package_dir)
-    copy_files_to_package(resources_dir, files, package_dir)
+    copy_files_to_package(files, package_dir)
     print(f'packaged {package_dir}')
     if not args.skip_archive:
         archive_package(package_dir)
@@ -164,14 +166,28 @@ if 'TEST' in os.environ:
 elif args.extras:
     do_packaging(packages_dir / 'extras', extras)
 else:
+    # Generate changelog for changes since last stable release.
+    last_stable = subprocess.check_output(
+        'git describe --tags --abbrev=0 --match "2.55-*"', shell=True, encoding='utf-8').strip()
+    changelog = subprocess.check_output([
+        sys.executable, script_dir / 'generate_changelog.py',
+        '--from', last_stable,
+        '--to', 'HEAD',
+    ], encoding='utf-8').strip()
+    nightly_changelog_path = root_dir / 'changelogs/nightly.txt'
+    if changelog:
+        nightly_changelog_path.write_text(f'Changes since {last_stable}\n\n{changelog}')
+    elif nightly_changelog_path.exists():
+        nightly_changelog_path.unlink()
+
     files = [
         *glob_files(resources_dir, '*'),
-        root_dir / 'changelog.txt',
+        root_dir / 'changelogs',
     ]
     files = list(set(files) - set(extras))
 
     if args.copy_to_build_folder:
-        copy_files_to_package(resources_dir, files, build_dir)
+        copy_files_to_package(files, build_dir)
         exit(0)
 
     if not args.skip_binaries:
