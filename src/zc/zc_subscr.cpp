@@ -107,9 +107,11 @@ void dosubscr()
 	for(int32_t y = -168; y <= 0; y += 3*Hero.subscr_speed)
 	{
 		if(replay_version_check(19))
+		{
 			load_control_state();
+			script_drawing_commands.Clear();
+		}
 		active_sub_yoff = y-playing_field_offset;
-		script_drawing_commands.Clear();
 		if(new_subscreen_active->script && FFCore.doscript(ScriptType::EngineSubscreen,0))
 			ZScriptVersion::RunScript(ScriptType::EngineSubscreen, new_subscreen_active->script, 0);
 		do_dcounters();
@@ -130,11 +132,12 @@ void dosubscr()
 		else
 		{
 			//scroll the playing field (copy the copy we made)
-			blit(scrollbuf,framebuf,256,0,0,176-2-y+passive_subscreen_height,256,y);
+			blit(scrollbuf,framebuf,256,0,0,y+168+passive_subscreen_height,256,-y);
 		}
 		
 		draw_subscrs(framebuf,0,y,showtime,sspSCROLLING);
-		do_script_draws(framebuf, tmpscr, 0, playing_field_offset);
+		if(replay_version_check(19))
+			do_script_draws(framebuf, tmpscr, 0, playing_field_offset);
 		
 		advanceframe(false);
 		
@@ -152,7 +155,8 @@ void dosubscr()
 	{
 		if (replay_version_check(0, 11))
 			load_control_state();
-		script_drawing_commands.Clear();
+		if(replay_version_check(19))
+			script_drawing_commands.Clear();
 		if(new_subscreen_active->script && FFCore.doscript(ScriptType::EngineSubscreen,0))
 			ZScriptVersion::RunScript(ScriptType::EngineSubscreen, new_subscreen_active->script, 0);
 		auto pgnum = new_subscreen_active->curpage;
@@ -434,7 +438,8 @@ void dosubscr()
 		
 		//draw the passive and active subscreen
 		draw_subscrs(framebuf,0,0,showtime,sspDOWN);
-		do_script_draws(framebuf, tmpscr, 0, playing_field_offset);
+		if(replay_version_check(19))
+			do_script_draws(framebuf, tmpscr, 0, playing_field_offset);
 		
 		advanceframe(false);
 		if (replay_version_check(11))
@@ -457,9 +462,11 @@ void dosubscr()
 	for(int32_t y = 0; y >= -168; y -= 3*Hero.subscr_speed)
 	{
 		if(replay_version_check(19))
+		{
 			load_control_state();
+			script_drawing_commands.Clear();
+		}
 		active_sub_yoff = y-playing_field_offset;
-		script_drawing_commands.Clear();
 		if(new_subscreen_active->script && FFCore.doscript(ScriptType::EngineSubscreen,0))
 			ZScriptVersion::RunScript(ScriptType::EngineSubscreen, new_subscreen_active->script, 0);
 		do_dcounters();
@@ -480,11 +487,12 @@ void dosubscr()
 		else
 		{
 			//scroll the playing field (copy the copy we made)
-			blit(scrollbuf,framebuf,256,0,0,176-2-y+passive_subscreen_height,256,y);
+			blit(scrollbuf,framebuf,256,0,0,y+168+passive_subscreen_height,256,-y);
 		}
 		
 		draw_subscrs(framebuf,0,y,showtime,sspSCROLLING);
-		do_script_draws(framebuf, tmpscr, 0, playing_field_offset);
+		if(replay_version_check(19))
+			do_script_draws(framebuf, tmpscr, 0, playing_field_offset);
 		advanceframe(false);
 		
 		if(Quit)
