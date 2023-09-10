@@ -15,6 +15,9 @@
 namespace fs = std::filesystem;
 
 static bool headless;
+static std::string repo = getRepo();
+static std::string channel = getReleaseChannel();
+static std::string current_version = getReleaseTag();
 
 std::ofstream out("updater.log", std::ios::binary);
 
@@ -104,6 +107,54 @@ static bool is_in_osx_application_bundle()
 #endif
 }
 
+static void require_python()
+{
+	std::string py_version = get_output(PYTHON, {"--version"}, "Python3 is required to run the updater");
+	if (!py_version.starts_with("Python 3"))
+	{
+		fatal("Python3 is required, but found " + py_version);
+	}
+}
+
+static std::tuple<std::string, std::string> get_next_release()
+{
+	auto [next_release_output, next_release_map] = get_output_map(PYTHON, {
+		"tools/updater.py",
+		"--repo", repo,
+		"--channel", channel,
+		"--print-next-release",
+	});
+	if (!next_release_map.contains("tag_name") || !next_release_map.contains("asset_url"))
+	{
+		fatal("Could not find next version: " + next_release_output);
+	}
+	std::string new_version = next_release_map["tag_name"];
+	std::string asset_url = next_release_map["asset_url"];
+	return {new_version, asset_url};
+}
+
+static bool install_release(std::string asset_url, bool use_cache, std::string& error)
+{
+	std::vector<std::string> args = {
+		"tools/updater.py",
+		"--repo", repo,
+		"--channel", channel,
+		"--asset-url", asset_url,
+	};
+	if (use_cache) args.push_back("--cache");
+	auto updater_output = get_output(PYTHON, args);
+	if (updater_output.empty())
+	{
+		fatal("Failed to launch updater.py");
+	}
+	printf("updater.py:\n%s\n", updater_output.c_str());
+
+	bool success = updater_output.find("success!") != std::string::npos;
+	if (!success)
+		error = updater_output;
+	return success;
+}
+
 int32_t main(int32_t argc, char* argv[])
 {
 	common_main_setup(App::updater, argc, argv);
@@ -118,28 +169,13 @@ int32_t main(int32_t argc, char* argv[])
     }
 #endif
 
-	std::string py_version = get_output(PYTHON, {"--version"}, "Python3 is required to run the updater");
-	if (!py_version.starts_with("Python 3"))
-	{
-		fatal("Python3 is required, but found " + py_version);
-	}
+	require_python();
 
-	std::string repo = getRepo();
-	std::string channel = getReleaseChannel();
-	std::string current_version = getReleaseTag();
-
-	auto [next_release_output, next_release_map] = get_output_map(PYTHON, {
-		"tools/updater.py",
-		"--repo", repo,
-		"--channel", channel,
-		"--print-next-release",
-	});
-	if (!next_release_map.contains("tag_name") || !next_release_map.contains("asset_url"))
+	auto [new_version, asset_url] = get_next_release();
+	if (new_version.empty() || asset_url.empty())
 	{
-		fatal("Could not find next version: " + next_release_output);
+		fatal("Could not find next version");
 	}
-	std::string new_version = next_release_map["tag_name"];
-	std::string asset_url = next_release_map["asset_url"];
 
 	if (current_version == new_version)
 	{
@@ -154,25 +190,12 @@ int32_t main(int32_t argc, char* argv[])
 			return 0;
 	}
 
-	std::vector<std::string> args = {
-		"tools/updater.py",
-		"--repo", repo,
-		"--channel", channel,
-		"--asset-url", asset_url,
-	};
-	if (cache) args.push_back("--cache");
-	auto updater_output = get_output(PYTHON, args);
-	if (updater_output.empty())
-	{
-		fatal("Failed to launch updater.py");
-	}
-	printf("updater.py:\n%s\n", updater_output.c_str());
-
-	bool success = updater_output.find("success!") != std::string::npos;
+	std::string error;
+	bool success = install_release(asset_url, cache, error);
 	if (success)
 		done("Done!");
 	else
-		fatal("Failed: " + updater_output);
+		fatal("Failed: " + error);
 
 	return 0;
 }
