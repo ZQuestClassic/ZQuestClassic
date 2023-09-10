@@ -417,11 +417,8 @@ static bool check_for_updates()
 	has_checked_for_updates = true;
 
 	std::string output;
-	bool success = run_and_get_output(PYTHON, {
-		"tools/updater.py",
-		"--repo", getRepo(),
-		"--channel", getReleaseChannel(),
-		"--print-next-release",
+	bool success = run_and_get_output(ZUPDATER_FILE, {
+		"-print-next-release",
 	}, output);
 
 	if (!success)
@@ -895,11 +892,9 @@ bool LauncherDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		case message::ZU:
 		{
 			std::string output;
-			bool success = run_and_get_output(PYTHON, {
-				"tools/updater.py",
-				"--repo", getRepo(),
-				"--channel", getReleaseChannel(),
-				"--asset-url", next_asset_url,
+			bool success = run_and_get_output(ZUPDATER_FILE, {
+				"-install",
+				"-asset-url", next_asset_url,
 			}, output);
 			success &= output.find("success!") != std::string::npos;
 			al_trace("%s\n", output.c_str());

@@ -245,6 +245,20 @@ int32_t main(int32_t argc, char* argv[])
 	bool cache = used_switch(argc, argv, "-cache") > 0;
 	headless = used_switch(argc, argv, "-headless") > 0;
 
+	if (used_switch(argc, argv, "-install"))
+	{
+		int asset_url_arg = used_switch(argc, argv, "-asset-url");
+		if (!asset_url_arg)
+			fatal("Missing required -asset-url");
+
+		std::string error;
+		bool success = install_release(argv[asset_url_arg + 1], cache, error);
+		if (success)
+			done("Done!");
+		else
+			fatal("Failed: " + error);
+	}
+
 #ifdef __APPLE__
 	if (!is_in_osx_application_bundle() && argc > 0)
 	{
@@ -261,6 +275,13 @@ int32_t main(int32_t argc, char* argv[])
 	if (new_version.empty() || asset_url.empty())
 	{
 		fatal("Could not find next version");
+	}
+
+	if (used_switch(argc, argv, "-print-next-release"))
+	{
+		printf("tag_name %s\n", new_version.c_str());
+		printf("asset_url %s\n", asset_url.c_str());
+		exit(0);
 	}
 
 	if (current_version == new_version)
