@@ -740,13 +740,31 @@ endif()
 
 find_package(CURL)
 if(CURL_FOUND AND WIN32)
+	message(STATUS "Using curl for zupdater")
+
 	target_link_libraries(zupdater PRIVATE CURL::libcurl)
 
 	add_library(json INTERFACE third_party/json/json/json.h)
 	target_include_directories(json INTERFACE third_party/json)
 	target_link_libraries(zupdater PRIVATE json)
+
+	set(BUILD_SHARED_LIBS_PREV BUILD_SHARED_LIBS)
+	set(BUILD_SHARED_LIBS OFF)
+	FetchContent_Declare(
+		miniz
+		GIT_REPOSITORY
+			https://github.com/richgel999/miniz.git
+		GIT_TAG
+			9ae305f6e109f8f1fbd2130458f1ee6197269b3b
+	)
+	FetchContent_MakeAvailable(miniz)
+	set(BUILD_SHARED_LIBS BUILD_SHARED_LIBS_PREV)
+	target_link_libraries(zupdater PRIVATE miniz)
 else()
+	message(WARNING "Using Python for zupdater")
+
 	target_compile_definitions(zupdater PRIVATE UPDATER_USES_PYTHON)
+	target_compile_definitions(zlauncher PRIVATE UPDATER_USES_PYTHON)
 endif()
 
 #############################################################

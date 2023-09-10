@@ -182,4 +182,4 @@ else:
 	tag_name, asset_url = get_next_release()
 
 download_release(asset_url, resources_dir)
-print('success!')
+print('Success!')

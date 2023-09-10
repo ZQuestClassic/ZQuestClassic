@@ -1,5 +1,6 @@
 #include "base/about.h"
 #include "base/process_management.h"
+#include "base/util.h"
 #include "base/zc_alleg.h"
 #include "base/zapp.h"
 #include "allegro5/allegro_native_dialog.h"
@@ -15,6 +16,7 @@
 #ifndef UPDATER_USES_PYTHON
 #include <curl/curl.h>
 #include "json/json.h"
+#include "miniz.h"
 
 using giri::json::JSON;
 
@@ -173,7 +175,6 @@ static std::tuple<std::string, std::string> get_next_release()
 	chunk.memory = (char*)malloc(1);
 	chunk.size = 0;
 
-	curl_global_init(CURL_GLOBAL_ALL);
 	CURL *curl_handle = curl_easy_init();
 	curl_easy_setopt(curl_handle, CURLOPT_URL, json_url.c_str());
 	curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
@@ -210,14 +211,115 @@ static std::tuple<std::string, std::string> get_next_release()
 	}
 
 	free(chunk.memory);
-	curl_global_cleanup();
 
 	return {new_version, asset_url};
 #endif
 }
 
+#ifndef UPDATER_USES_PYTHON
+
+static bool download_file(std::string url, fs::path dest, std::string& error)
+{
+	CURL *curl;
+    FILE *fp;
+    CURLcode res;
+    curl = curl_easy_init();
+	if (!curl)
+	{
+		error = "Failed to init curl";
+		return false;
+	}
+
+	fp = fopen(dest.string().c_str(), "wb");
+	if (!fp)
+	{
+		error = "Failed to open file";
+		curl_easy_cleanup(curl);
+		return false;
+	}
+
+	curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, NULL);
+	curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
+	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+	res = curl_easy_perform(curl);
+	curl_easy_cleanup(curl);
+
+	fclose(fp);
+	if (res != CURLE_OK) {
+		error = curl_easy_strerror(res);
+		return false;
+	}
+
+	return true;
+}
+
+static bool open_zip_file(mz_zip_archive& archive, std::vector<std::string>& files, fs::path zip_path, std::string& error)
+{
+	memset(&archive, 0, sizeof(archive));
+	files.clear();
+
+	if (!mz_zip_reader_init_file(&archive, zip_path.string().c_str(), 0))
+	{
+		error = mz_zip_get_error_string(archive.m_last_error);
+		return false;
+	}
+
+	mz_zip_archive_file_stat info;
+	for (unsigned int i = 0; i < mz_zip_reader_get_num_files(&archive); ++i)
+	{
+		if (!mz_zip_reader_file_stat(&archive, i, &info))
+		{
+			error = mz_zip_get_error_string(archive.m_last_error);
+			mz_zip_reader_end(&archive);
+			return false;
+		}
+
+		if (mz_zip_reader_is_file_a_directory(&archive, i))
+			continue;
+
+		files.push_back(info.m_filename);
+	}
+
+	return true;
+}
+
+static bool unzip_file(mz_zip_archive& archive, fs::path dest, std::string& error)
+{
+	mz_zip_archive_file_stat info;
+	for (unsigned int i = 0; i < mz_zip_reader_get_num_files(&archive); ++i)
+	{
+		if (!mz_zip_reader_file_stat(&archive, i, &info))
+		{
+			error = mz_zip_get_error_string(archive.m_last_error);
+			mz_zip_reader_end(&archive);
+			return false;
+		}
+
+		if (mz_zip_reader_is_file_a_directory(&archive, i))
+			continue;
+
+		fs::path dest_path = dest / info.m_filename;
+		if (dest_path.has_parent_path())
+			fs::create_directories(dest_path.parent_path());
+
+		if (!mz_zip_reader_extract_to_file(&archive, i, dest_path.string().c_str(), 0))
+		{
+			error = mz_zip_get_error_string(archive.m_last_error);
+			mz_zip_reader_end(&archive);
+			return false;
+		}
+	}
+
+	mz_zip_reader_end(&archive);
+	return true;
+}
+
+#endif
+
 static bool install_release(std::string asset_url, bool use_cache, std::string& error)
 {
+#ifdef UPDATER_USES_PYTHON
 	std::vector<std::string> args = {
 		"tools/updater.py",
 		"--repo", repo,
@@ -232,10 +334,58 @@ static bool install_release(std::string asset_url, bool use_cache, std::string& 
 	}
 	printf("updater.py:\n%s\n", updater_output.c_str());
 
-	bool success = updater_output.find("success!") != std::string::npos;
+	bool success = updater_output.find("Success!") != std::string::npos;
 	if (!success)
 		error = updater_output;
 	return success;
+#else
+	fs::path root_dir = "";
+	if (!fs::exists(root_dir / "base_config"))
+	{
+		error = "Unexpected root directory";
+		return false;
+	}
+
+	fs::path cache_folder = root_dir / ".updater-cache";
+	if (std::getenv("ZC_UPDATER_CACHE_FOLDER") != nullptr)
+		cache_folder = std::getenv("ZC_UPDATER_CACHE_FOLDER");
+
+	std::string cache_name = asset_url;
+	util::sanitize(cache_name);
+	fs::path zip_path = cache_folder / cache_name;
+	if (!use_cache || !fs::exists(zip_path))
+	{
+		fs::create_directory(cache_folder);
+		if (!download_file(asset_url, zip_path, error))
+			return false;
+	}
+
+	mz_zip_archive archive;
+	std::vector<std::string> files;
+	if (!open_zip_file(archive, files, zip_path, error))
+		return false;
+
+	// Windows locks the filesystem of loaded binaries. We can rename the currently loaded binary files
+	// so our news one can go to the right place. zapp.cpp will clean these up on startup.
+	fs::path active_files_dir = root_dir / ".updater-active-files";
+	fs::create_directory(active_files_dir);
+
+	for (auto& file : files)
+	{
+		fs::path old_path = root_dir / file;
+		if (!fs::exists(old_path))
+			continue;
+
+		fs::path new_path = active_files_dir / file;
+		fs::create_directories(new_path.parent_path());
+		fs::rename(old_path, new_path);
+	}
+
+	if (!unzip_file(archive, root_dir, error))
+		return false;
+
+	return true;
+#endif
 }
 
 int32_t main(int32_t argc, char* argv[])
@@ -266,10 +416,9 @@ int32_t main(int32_t argc, char* argv[])
     }
 #endif
 
-	// TODO: still need for unzip.
-// #ifdef UPDATER_USES_PYTHON
+#ifdef UPDATER_USES_PYTHON
 	require_python();
-// #endif
+#endif
 
 	auto [new_version, asset_url] = get_next_release();
 	if (new_version.empty() || asset_url.empty())
@@ -300,7 +449,7 @@ int32_t main(int32_t argc, char* argv[])
 	std::string error;
 	bool success = install_release(asset_url, cache, error);
 	if (success)
-		done("Done!");
+		done("Success!");
 	else
 		fatal("Failed: " + error);
 
