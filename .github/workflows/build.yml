@@ -255,4 +255,4 @@ jobs:
           project: zelda-classic
       - name: Upload debugging symbols
         if: inputs.sentry
-        run: sentry-cli upload-dif 'zelda-classic@${{ needs.create-tag.outputs.release_tag }}' --include-sources --wait build
+        run: sentry-cli upload-dif 'zelda-classic@${{ inputs.release-tag }}' --include-sources --wait build
