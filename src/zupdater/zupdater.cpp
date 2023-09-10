@@ -12,6 +12,40 @@
 #include <fstream>
 #include <fmt/format.h>
 
+#ifndef UPDATER_USES_PYTHON
+#include <curl/curl.h>
+#include "json/json.h"
+
+using giri::json::JSON;
+
+struct MemoryStruct {
+  char *memory;
+  size_t size;
+};
+ 
+static size_t
+WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp)
+{
+  size_t realsize = size * nmemb;
+  struct MemoryStruct *mem = (struct MemoryStruct *)userp;
+ 
+  char *ptr = (char*)realloc(mem->memory, mem->size + realsize + 1);
+  if(!ptr) {
+    /* out of memory! */
+    printf("not enough memory (realloc returned NULL)\n");
+    return 0;
+  }
+ 
+  mem->memory = ptr;
+  memcpy(&(mem->memory[mem->size]), contents, realsize);
+  mem->size += realsize;
+  mem->memory[mem->size] = 0;
+ 
+  return realsize;
+}
+
+#endif
+
 namespace fs = std::filesystem;
 
 static bool headless;
@@ -118,6 +152,7 @@ static void require_python()
 
 static std::tuple<std::string, std::string> get_next_release()
 {
+#ifdef UPDATER_USES_PYTHON
 	auto [next_release_output, next_release_map] = get_output_map(PYTHON, {
 		"tools/updater.py",
 		"--repo", repo,
@@ -131,6 +166,54 @@ static std::tuple<std::string, std::string> get_next_release()
 	std::string new_version = next_release_map["tag_name"];
 	std::string asset_url = next_release_map["asset_url"];
 	return {new_version, asset_url};
+#else
+	std::string json_url = fmt::format("https://api.github.com/repos/{}/releases", repo);
+
+	struct MemoryStruct chunk;
+	chunk.memory = (char*)malloc(1);
+	chunk.size = 0;
+
+	curl_global_init(CURL_GLOBAL_ALL);
+	CURL *curl_handle = curl_easy_init();
+	curl_easy_setopt(curl_handle, CURLOPT_URL, json_url.c_str());
+	curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
+	curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *)&chunk);
+	curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "libcurl-agent/1.0");
+	CURLcode res = curl_easy_perform(curl_handle);
+
+	if (res != CURLE_OK) {
+		fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+		free(chunk.memory);
+		return {};
+	}
+
+	curl_easy_cleanup(curl_handle);
+
+	std::error_code ec;
+	auto json_all = JSON::Load(chunk.memory, ec);
+
+	// There is no "get latest prerelease" API, so must get all the recent releases.
+	auto& json = json_all[0];
+
+	std::string new_version, asset_url;
+	if (!ec)
+	{
+		new_version = json["tag_name"].ToString();
+		for (auto& asset_json : json["assets"].ArrayRange())
+		{
+			if (asset_json["name"].ToString().find(channel) != std::string::npos)
+			{
+				asset_url = asset_json["browser_download_url"].ToString();
+				break;
+			}
+		}
+	}
+
+	free(chunk.memory);
+	curl_global_cleanup();
+
+	return {new_version, asset_url};
+#endif
 }
 
 static bool install_release(std::string asset_url, bool use_cache, std::string& error)
@@ -169,7 +252,10 @@ int32_t main(int32_t argc, char* argv[])
     }
 #endif
 
+	// TODO: still need for unzip.
+// #ifdef UPDATER_USES_PYTHON
 	require_python();
+// #endif
 
 	auto [new_version, asset_url] = get_next_release();
 	if (new_version.empty() || asset_url.empty())

@@ -104,7 +104,7 @@ jobs:
         with:
           vcpkgGitCommitId: 5b1214315250939257ef5d62ecdcbca18cf4fb1c
       - if: ${{ contains(inputs.runs-on, 'windows') }}
-        run: vcpkg install libogg libvorbis
+        run: vcpkg install libogg libvorbis curl
 
       - if: ${{ contains(inputs.runs-on, 'ubuntu') }}
         run: sudo apt-get update && sudo apt-get install ccache ninja-build build-essential gcc-multilib g++-multilib libx11-dev libglu1-mesa-dev freeglut3-dev mesa-common-dev libssl-dev libcurl4-openssl-dev libxcursor1 libasound2-dev libgtk-3-dev flex bison elfutils libogg-dev libvorbis-dev

@@ -73,7 +73,15 @@ You then need to configure your CMake build with the `vcpkg` toolchain:
 cmake -B build -S . -DCMAKE_TOOLCHAIN_FILE=/c/Users/cjamc/tools/vcpkg/scripts/buildsystems/vcpkg.cmake
 ```
 
+Note: this needs to be a fresh build folder, otherwise the toolchain won't be updated.
+
 If these libraries are not present, you can still build but won't be able to play OGG music.
+
+# Building w/ CURL for updater on Windows
+
+```sh
+./vcpkg.exe install --triplet x64-windows curl
+```
 
 # Building with Ninja and MSVC
 

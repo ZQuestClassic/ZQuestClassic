@@ -738,6 +738,17 @@ if(WIN32)
 	target_link_options(zupdater PRIVATE "/SUBSYSTEM:WINDOWS")
 endif()
 
+find_package(CURL)
+if(CURL_FOUND AND WIN32)
+	target_link_libraries(zupdater PRIVATE CURL::libcurl)
+
+	add_library(json INTERFACE third_party/json/json/json.h)
+	target_include_directories(json INTERFACE third_party/json)
+	target_link_libraries(zupdater PRIVATE json)
+else()
+	target_compile_definitions(zupdater PRIVATE UPDATER_USES_PYTHON)
+endif()
+
 #############################################################
 # Emscripten
 #############################################################
