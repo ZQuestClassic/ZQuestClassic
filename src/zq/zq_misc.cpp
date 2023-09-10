@@ -981,7 +981,7 @@ int32_t onExit()
 	std::string exittxt = fmt::format("Really want to quit?{}",
 		dialog_open_quit ? "\nAny changes in the current dialog will not be saved!" : "");
 	
-	int ret = D_CLOSE;
+	int ret = D_O_K;
 	
 	AlertFuncDialog("ZQuest",
 		exittxt,
@@ -989,8 +989,8 @@ int32_t onExit()
 		2, 0, //2 buttons, where buttons[0] is focused
 		{ "&Yes", "&No" },
 		{
-			nullptr,
-			[&ret](){ret = D_O_K; return true;}
+			[&ret](){ret = D_CLOSE; return true;},
+			nullptr
 		}
 	).show();
 	
