@@ -35,7 +35,7 @@ cd "$packages_dir/zc"
 rm -rf docs/ghost docs/tango
 rm -rf headers/ghost_zh/3.0/demo headers/GUITest.qst
 rm -rf "scripts/stdWeapons/example scripts"
-rm changelog.txt
+rm -rf changelogs
 rm music/Isabelle_Z2.nsf
 find . -name "*.rtf" -type f -delete
 find . -name "*.pdf" -type f -delete
