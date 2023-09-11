@@ -670,6 +670,7 @@ namespace ZScript
 		virtual bool canBeGlobal() const {return true;}
 		virtual bool isArray() const {return true;}
 		virtual bool isResolved() const {return elementType.isResolved();}
+		virtual UserClass* getUsrClass() const {return elementType.getUsrClass();}
 
 		DataType const& getElementType() const {return elementType;}
 		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler);
