@@ -4293,11 +4293,11 @@ bool weapon::animate(int32_t index)
 					posy=checky;
 				}
 				byte layers = get_qr(qr_MIRROR_PRISM_LAYERS) ? 0b1111111 : 0b0000001;
+				bool fix_mirror_anim = false;
 				if(hitcombo(checkx, checky, cMIRROR, layers))
 				{
 					id = wRefBeam;
 					dir ^= 1;
-					
 					if(dir&2)
 						flip ^= 1;
 					else
@@ -4312,34 +4312,9 @@ bool weapon::animate(int32_t index)
 				if(hitcombo(checkx, checky, cMIRRORSLASH, layers))
 				{
 					id = wRefBeam;
-					if ( do_animation ) 
-					{
-						dir = 3-dir;
-						{
-							if(dir==right)
-							flip &= ~1; // not horiz
-							else if(dir==left)
-							flip |= 1;  // horiz
-							else if(dir==up)
-							flip &= ~2; // not vert
-							else if(dir==down)
-							flip |= 2;  // vert
-						}
-						tile=ref_o_tile;
-						doAutoRotate(true);
-						
-						if(dir&2)
-						{
-							if(frames>1)
-							{
-							tile+=frames;
-							}
-							else
-							{
-							++tile;
-							}
-						}
-					}
+					doAutoRotate(true);
+					dir = 3-dir;
+					fix_mirror_anim = true;
 					ignoreHero=false;
 					ignorecombo=((int32_t(checky)&0xF0)+(int32_t(checkx)>>4));
 					y=(int32_t)(posy&0xF0)+check_y_ofs;
@@ -4350,35 +4325,7 @@ bool weapon::animate(int32_t index)
 				{
 					id = wRefBeam;
 					dir ^= 2;
-					{
-						if ( do_animation ) 
-						{
-							if(dir==right)
-							flip &= ~1; // not horiz
-							else if(dir==left)
-							flip |= 1;  // horiz
-							else if(dir==up)
-							flip &= ~2; // not vert
-							else if(dir==down)
-							flip |= 2;  // vert
-						}
-					}
-					if ( do_animation ) 
-					{
-						tile=ref_o_tile;
-						
-						if(dir&2)
-						{
-							if(frames>1)
-							{
-								tile+=frames;
-							}
-							else
-							{
-								++tile;
-							}
-						}
-					}
+					fix_mirror_anim = true;
 					ignoreHero=false;
 					ignorecombo=((int32_t(checky)&0xF0)+(int32_t(checkx)>>4));
 					y=(int32_t)(posy&0xF0)+check_y_ofs;
@@ -4527,6 +4474,39 @@ bool weapon::animate(int32_t index)
 					}
 					
 					dead=0;
+				}
+				
+				auto newmirror = gethitcombo(checkx, checky, cMIRRORNEW, layers);
+				if(newmirror > -1)
+				{
+					newcombo const& cmb = combobuf[newmirror];
+					id = wRefBeam;
+					dir = NORMAL_DIR(cmb.attribytes[NORMAL_DIR(dir)]);
+					fix_mirror_anim = true;
+					ignoreHero=false;
+					ignorecombo=((int32_t(checky)&0xF0)+(int32_t(checkx)>>4));
+					y=(int32_t)(posy&0xF0)+check_y_ofs;
+					x=(int32_t)(posx&0xF0)+check_x_ofs;
+				}
+				
+				if ( fix_mirror_anim ) 
+				{
+					if(dir==right)
+						flip &= ~1; // not horiz
+					else if(dir==left)
+						flip |= 1;  // horiz
+					else if(dir==up)
+						flip &= ~2; // not vert
+					else if(dir==down)
+						flip |= 2;  // vert
+					tile=ref_o_tile;
+					
+					if(dir&2)
+					{
+						if(frames>1)
+							tile+=frames;
+						else ++tile;
+					}
 				}
 			}
 			
@@ -6085,6 +6065,73 @@ bool weapon::animate(int32_t index)
 					dead=0;
 				}
 				
+				auto newmirror = gethitcombo(checkx, checky, cMIRRORNEW, layers);
+				if(newmirror > -1)
+				{
+					newcombo const& cmb = combobuf[newmirror];
+					weapon *w=NULL;
+					
+					if(id==ewMagic)
+					{
+						w=new weapon(*this);
+						Lwpns.add(w);
+						dead=0;
+					}
+					else
+					{
+						w=this;
+					}
+					
+					w->dir = NORMAL_DIR(cmb.attribytes[NORMAL_DIR(w->dir)]);
+					
+					if(w->id != wWind)
+					{
+						w->id = wRefMagic; w->convertType(true);
+						
+						tile = ref_o_tile;
+						int tile_inc = zc_max(frames,1);
+						switch(dir)
+						{
+							case up:
+								flip = 0;
+								break;
+							case right:
+								flip = 0;
+								tile += tile_inc;
+								break;
+							case left:
+								flip = 1; //horz
+								tile += tile_inc;
+								break;
+							case down:
+								flip = 2; //vert
+								break;
+							case l_up:
+								flip = 0;
+								tile += tile_inc*2;
+								break;
+							case l_down:
+								flip = 2; //vert
+								tile += tile_inc*2;
+								break;
+							case r_up:
+								flip = 1; //horz
+								tile += tile_inc*2;
+								break;
+							case r_down:
+								flip = 3; //horz+vert
+								tile += tile_inc*2;
+								break;
+						}
+						o_tile = tile;
+					}
+					
+					w->ignoreHero=false;
+					w->ignorecombo=((int32_t(checky)&0xF0)+(int32_t(checkx)>>4));
+					w->y=(int32_t(checky)&0xF0)+check_y_ofs;
+					w->x=(int32_t(checkx)&0xF0)+check_x_ofs;
+				}
+				
 				if(blocked(0, 0))
 				{
 					dead=0;
@@ -6415,6 +6462,73 @@ bool weapon::animate(int32_t index)
 					}
 					
 					dead=0;
+				}
+				
+				auto newmirror = gethitcombo(checkx, checky, cMIRRORNEW, layers);
+				if(newmirror > -1)
+				{
+					newcombo const& cmb = combobuf[newmirror];
+					weapon *w=NULL;
+					
+					if(id==ewMagic)
+					{
+						w=new weapon(*this);
+						Lwpns.add(w);
+						dead=0;
+					}
+					else
+					{
+						w=this;
+					}
+					
+					w->dir = NORMAL_DIR(cmb.attribytes[NORMAL_DIR(w->dir)]);
+					
+					if(w->id != wWind)
+					{
+						w->id = wRefMagic; w->convertType(true);
+						
+						tile = ref_o_tile;
+						int tile_inc = zc_max(frames,1);
+						switch(dir)
+						{
+							case up:
+								flip = 0;
+								break;
+							case right:
+								flip = 0;
+								tile += tile_inc;
+								break;
+							case left:
+								flip = 1; //horz
+								tile += tile_inc;
+								break;
+							case down:
+								flip = 2; //vert
+								break;
+							case l_up:
+								flip = 0;
+								tile += tile_inc*2;
+								break;
+							case l_down:
+								flip = 2; //vert
+								tile += tile_inc*2;
+								break;
+							case r_up:
+								flip = 1; //horz
+								tile += tile_inc*2;
+								break;
+							case r_down:
+								flip = 3; //horz+vert
+								tile += tile_inc*2;
+								break;
+						}
+						o_tile = tile;
+					}
+					
+					w->ignoreHero=false;
+					w->ignorecombo=(((int32_t)checky&0xF0)+((int32_t)checkx>>4));
+					w->y=(int32_t(checky)&0xF0)+check_y_ofs;
+					w->x=(int32_t(checkx)&0xF0)+check_x_ofs;
 				}
 				
 				if(blocked(0, 0))

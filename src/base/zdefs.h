@@ -558,7 +558,7 @@ enum
 	//175
 	cCUSTOMBLOCK, cSHOOTER, cSLOPE, cCUTSCENETRIG, cPUSHBLOCK,
 	//180
-	cICY,
+	cICY, cMIRRORNEW,
     cMAX,
 	// ! potential new stuff that I might decide it is worth adding. 
     //Five additional user script types, 

@@ -418,6 +418,9 @@ std::string getComboTypeHelpText(int32_t id)
 		case cICY:
 			typehelp = "A block that may act slippery in different ways depending on its' flags.";
 			break;
+		case cMIRRORNEW:
+			typehelp = "A customizable version of mirror combos.";
+			break;
 		case cSLOPE:
 			typehelp = "This type has a diagonal collision box (separate from normal solidity), and several options"
 				" that are useful in sideview.";
@@ -1933,6 +1936,46 @@ void ComboEditorDialog::loadComboType()
 			l_flag[0] = "Slides Blocks";
 			h_flag[0] = "Pushable blocks pushed onto this combo will"
 				" slide past it, if nothing blocks their way.";
+			break;
+		}
+		case cMIRRORNEW:
+		{
+			l_attribyte[up] = "Up Reflect";
+			h_attribyte[up] = "Weapons/light beams facing up (coming from below) will move in this direction."
+				" Light beams will not work with diagonals."
+				"\n0 = up, 1 = down, 2 = left, 3 = right"
+				"\n4 = up-left, 5 = up-right, 6 = down-left, 7 = down-right";
+			l_attribyte[down] = "Down Reflect";
+			h_attribyte[down] = "Weapons/light beams facing down (coming from above) will move in this direction."
+				" Light beams will not work with diagonals."
+				"\n0 = up, 1 = down, 2 = left, 3 = right"
+				"\n4 = up-left, 5 = up-right, 6 = down-left, 7 = down-right";
+			l_attribyte[left] = "Left Reflect";
+			h_attribyte[left] = "Weapons/light beams facing left (coming from the right) will move in this direction."
+				" Light beams will not work with diagonals."
+				"\n0 = up, 1 = down, 2 = left, 3 = right"
+				"\n4 = up-left, 5 = up-right, 6 = down-left, 7 = down-right";
+			l_attribyte[right] = "Right Reflect";
+			h_attribyte[right] = "Weapons/light beams facing right (coming from the left) will move in this direction."
+				" Light beams will not work with diagonals."
+				"\n0 = up, 1 = down, 2 = left, 3 = right"
+				"\n4 = up-left, 5 = up-right, 6 = down-left, 7 = down-right";
+			l_attribyte[l_up] = "Up-Left Reflect";
+			h_attribyte[l_up] = "Weapons facing up-left (coming from down-right) will move in this direction."
+				"\n0 = up, 1 = down, 2 = left, 3 = right"
+				"\n4 = up-left, 5 = up-right, 6 = down-left, 7 = down-right";
+			l_attribyte[r_up] = "Up-Right Reflect";
+			h_attribyte[r_up] = "Weapons facing up-right (coming from down-left) will move in this direction."
+				"\n0 = up, 1 = down, 2 = left, 3 = right"
+				"\n4 = up-left, 5 = up-right, 6 = down-left, 7 = down-right";
+			l_attribyte[l_down] = "Down-Left Reflect";
+			h_attribyte[l_down] = "Weapons facing down-left (coming from up-right) will move in this direction."
+				"\n0 = up, 1 = down, 2 = left, 3 = right"
+				"\n4 = up-left, 5 = up-right, 6 = down-left, 7 = down-right";
+			l_attribyte[r_down] = "Down-Right Reflect";
+			h_attribyte[r_down] = "Weapons facing down-right (coming from up-left) will move in this direction."
+				"\n0 = up, 1 = down, 2 = left, 3 = right"
+				"\n4 = up-left, 5 = up-right, 6 = down-left, 7 = down-right";
 			break;
 		}
 	}

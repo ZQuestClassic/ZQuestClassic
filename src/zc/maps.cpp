@@ -2971,6 +2971,17 @@ bool hitcombo(int32_t x, int32_t y, int32_t combotype, byte layers)
 	return false;
 }
 
+int gethitcombo(int32_t x, int32_t y, int32_t combotype, byte layers)
+{
+	for(int q = 0; q < 7; ++q)
+	{
+		if(layers&(1<<q)) //if layer is to be checked
+			if(COMBOTYPE2(q-1,x,y)==combotype) //matching type
+				return MAPCOMBO2(q-1,x,y);
+	}
+	return -1;
+}
+
 bool hitflag(int32_t x, int32_t y, int32_t flagtype, byte layers)
 {
 	for(int q = 0; q < 7; ++q)

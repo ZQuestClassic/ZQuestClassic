@@ -22032,6 +22032,7 @@ int32_t grabComboFromPos(int32_t pos, int32_t type)
 }
 
 static int32_t typeMap[176];
+static int32_t customTypeMap[176];
 static int32_t istrig[176];
 static const int32_t SPTYPE_SOLID = -1;
 #define SP_VISITED 0x1
@@ -22148,6 +22149,16 @@ void HeroClass::handleBeam(byte* grid, size_t age, byte spotdir, int32_t curpos,
 					handleBeam(grid, age, d, curpos, set, block, refl);
 				}
 				return;
+			case cMIRRORNEW:
+			{
+				auto cid = customTypeMap[curpos];
+				if(unsigned(cid) >= MAXCOMBOS) break;
+				newcombo const& cmb = combobuf[cid];
+				byte newdir = cmb.attribytes[spotdir];
+				if(newdir > 3) break;
+				spotdir = newdir;
+				break;
+			}
 		}
 	}
 }
@@ -22167,15 +22178,21 @@ void HeroClass::handleSpotlights()
 	for(size_t pos = 0; pos < 176; ++pos)
 	{
 		typeMap[pos] = 0;
+		customTypeMap[pos] = -1;
 		for(int32_t lyr = 6; lyr > -1; --lyr)
 		{
-			newcombo const* cmb = &combobuf[FFCore.tempScreens[lyr]->data[pos]];
+			auto cid = FFCore.tempScreens[lyr]->data[pos];
+			newcombo const* cmb = &combobuf[cid];
 			switch(cmb->type)
 			{
 				case cMIRROR: case cMIRRORSLASH: case cMIRRORBACKSLASH:
 				case cMAGICPRISM: case cMAGICPRISM4:
 				case cBLOCKALL: case cLIGHTTARGET:
 					typeMap[pos] = cmb->type;
+					break;
+				case cMIRRORNEW:
+					typeMap[pos] = cMIRRORNEW;
+					customTypeMap[pos] = cid;
 					break;
 				case cGLASS:
 					typeMap[pos] = 0;
