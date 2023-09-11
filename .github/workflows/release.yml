@@ -54,6 +54,7 @@ jobs:
           organization: zeldaclassic
           project: zelda-classic
       - run: sentry-cli --version
+        if: inputs.sentry
       - run: sentry-cli --log-level=DEBUG releases new 'zelda-classic@${{ steps.make-vars.outputs.release-tag }}'
         if: inputs.sentry
 

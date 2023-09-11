@@ -255,6 +255,7 @@ jobs:
           organization: zeldaclassic
           project: zelda-classic
       - run: sentry-cli --version
+        if: inputs.sentry
       - name: Upload debugging symbols
         if: inputs.sentry
         run: sentry-cli --log-level=DEBUG upload-dif 'zelda-classic@${{ inputs.release-tag }}' --include-sources --wait build
