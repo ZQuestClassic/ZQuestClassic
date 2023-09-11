@@ -150,7 +150,7 @@ bool do_compile_and_slots(int assign_mode, bool delay)
 	if(delay)
 		args.push_back("-delay");
 	process_manager* pm = launch_piped_process(ZSCRIPT_FILE, "zq_parser_pipe", args);
-	pm->timeout_seconds = zc_get_config("Compiler","compiler_timeout",30,App::zscript);
+	dword compile_timeout = zc_get_config("Compiler","compiler_timeout",30,App::zscript);
 	if(!pm)
 	{
 		InfoDialog("Parser","Failed to launch " ZSCRIPT_FILE).show();
@@ -180,11 +180,22 @@ bool do_compile_and_slots(int assign_mode, bool delay)
 		if (console) 
 		{
 			char buf4[4096];
+			const dword def_idle = delay ? 60*60 : 0;
+			dword idle_seconds = def_idle;
 			while(running)
 			{
+				pm->timeout_seconds = compile_timeout+idle_seconds;
+				idle_seconds = def_idle;
 				pm->read(&code, sizeof(int32_t));
 				switch(code)
 				{
+					case ZC_CONSOLE_IDLE_CODE:
+					{
+						pm->read(&idle_seconds, sizeof(dword));
+						idle_seconds += def_idle;
+						pm->write(&code, sizeof(int32_t));
+						break;
+					}
 					case ZC_CONSOLE_DB_CODE:
 					case ZC_CONSOLE_ERROR_CODE:
 					case ZC_CONSOLE_WARN_CODE:

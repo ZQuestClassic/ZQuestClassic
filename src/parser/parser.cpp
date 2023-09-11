@@ -182,6 +182,16 @@ void zconsole_info(std::string const& str)
 {
 	_console_print(str.c_str(), ZC_CONSOLE_INFO_CODE);
 }
+void zconsole_idle(dword seconds)
+{
+	if(ConsoleWrite)
+	{
+		int32_t code = ZC_CONSOLE_IDLE_CODE;
+		ConsoleWrite->write(&code, sizeof(int32_t));
+		ConsoleWrite->write(&seconds, sizeof(dword));
+		ConsoleWrite->read(&code, sizeof(int32_t));
+	}
+}
 
 static bool linked = true;
 std::unique_ptr<ZScript::ScriptsData> compile(std::string script_path)
@@ -379,10 +389,11 @@ int32_t main(int32_t argc, char **argv)
 	// Any errors will be printed to stdout.
 	if(used_switch(argc, argv, "-delay"))
 	{
-		for(auto q = 0; q < 2147483647; ++q)
+		zconsole_info("%s","Pausing for debugger...");
+		while(true)
 		{
-			if(!(rand()%10))
-				--q;
+			zconsole_idle();
+			al_rest(1); //seconds
 		}
 	}
 	unique_ptr<ZScript::ScriptsData> result(compile(script_path));

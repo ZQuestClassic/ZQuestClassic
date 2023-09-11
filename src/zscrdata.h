@@ -14,6 +14,7 @@
 #define ZC_CONSOLE_WARN_CODE -9996
 #define ZC_CONSOLE_DB_CODE -9995
 #define ZC_CONSOLE_TERM_CODE -9994
+#define ZC_CONSOLE_IDLE_CODE -9993
 
 using std::map;
 using std::string;
@@ -338,6 +339,7 @@ void ReadConsole(char buf[], int code)
 {
 	switch(code)
 	{
+		case ZC_CONSOLE_IDLE_CODE: break;
 		case ZC_CONSOLE_DB_CODE: _print_zconsole(buf,"[Debug] ",DB_COLOR); break;
 		case ZC_CONSOLE_WARN_CODE: _print_zconsole(buf,"[Warn] ",WARN_COLOR); break;
 		case ZC_CONSOLE_ERROR_CODE: _print_zconsole(buf,"[Error] ",ERR_COLOR); break;

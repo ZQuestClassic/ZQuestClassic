@@ -42,6 +42,7 @@ void zconsole_db(const char *format,...);
 void zconsole_warn(const char *format,...);
 void zconsole_error(const char *format,...);
 void zconsole_info(const char *format,...);
+void zconsole_idle(dword seconds = 2);
 
 void zconsole_db(std::string const& str);
 void zconsole_warn(std::string const& str);
