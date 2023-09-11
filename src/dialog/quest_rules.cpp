@@ -924,6 +924,8 @@ static GUI::ListData compatRulesList
 		" which was bugged and wrote directly to the volume sliders." },
 	{ "'Walk Through Walls' don't set door state", qr_WALKTHROUGHWALL_NO_DOORSTATE,
 		"If enabled, going through 'Walk-through' type doors does not set the room's door state." },
+	{ "Lightbeams ignore solid objects", qr_SPOTLIGHT_IGNR_SOLIDOBJ,
+		"If enabled, light beams don't treat solid ffcs/blocks/enemies/etc as solid." },
 };
 
 static GUI::ListData enemiesRulesList

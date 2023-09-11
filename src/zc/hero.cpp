@@ -22191,6 +22191,11 @@ void HeroClass::handleSpotlights()
 			}
 			break; //hit a combo type
 		}
+		if(!get_qr(qr_SPOTLIGHT_IGNR_SOLIDOBJ) && !typeMap[pos])
+		{
+			if(collide_object(COMBOX(pos),COMBOY(pos),16,16,this))
+				typeMap[pos] = SPTYPE_SOLID;
+		}
 	}
 	if(unsigned(heropos) < 176)
 	{
