@@ -392,16 +392,16 @@ endif()
 #############################################################
 
 add_library(alpng STATIC
-	allegro-addons/loadpng/loadpng.c
-	allegro-addons/loadpng/regpng.c
-	allegro-addons/loadpng/savepng.c
+	third_party/al_loadpng/loadpng.c
+	third_party/al_loadpng/regpng.c
+	third_party/al_loadpng/savepng.c
 )
 target_link_libraries(alpng PUBLIC
 	allegro_with_legacy
 	${PNG_LIBRARIES}
 )
 target_include_directories(alpng PUBLIC
-	allegro-addons/loadpng
+	third_party/al_loadpng
 )
 target_include_directories(alpng PRIVATE
 	${PNG_INCLUDE_DIRS}
