@@ -20,7 +20,7 @@
 
 #include <stdlib.h>
 
-#include <al5img.h>
+#include <al5_img.h>
 #include <loadpng.h>
 
 #include "zscriptversion.h"

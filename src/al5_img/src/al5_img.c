@@ -1,4 +1,4 @@
-#include "al5img.h"
+#include "al5_img.h"
 #include <allegro.h>
 #include <allegro/internal/aintern.h>
 #include <a5alleg.h>

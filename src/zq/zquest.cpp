@@ -31,7 +31,7 @@
 particle_list particles;
 void setZScriptVersion(int32_t) { } //bleh...
 
-#include <al5img.h>
+#include <al5_img.h>
 #include <loadpng.h>
 #include <fmt/format.h>
 

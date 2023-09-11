@@ -419,10 +419,10 @@ target_link_libraries(algif PUBLIC allegro_with_legacy)
 list(APPEND IMAGELIBS algif)
 
 add_library(al5img STATIC
-	allegro-addons/al5img/src/al5img.c
+	src/al5_img/src/al5_img.c
 )
 target_include_directories(al5img PUBLIC
-	allegro-addons/al5img/include
+	src/al5_img/include
 )
 target_link_libraries(al5img PUBLIC allegro_with_legacy algif)
 list(APPEND IMAGELIBS al5img)
