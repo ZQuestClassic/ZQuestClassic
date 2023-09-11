@@ -106,8 +106,8 @@ makefile.inc
 # Allegro Files
 _deps
 *.dir
-allegro-legacy/lib
-allegro-legacy/include/allegro/platform/alplatf.h
+third_party/allegro_legacy/lib
+third_party/allegro_legacy/include/allegro/platform/alplatf.h
 
 # Generated CMake Files.
 /allegro/CMakeCache.txt

@@ -247,11 +247,11 @@ include_directories(${allegro5_BINARY_DIR}/include)
 if(LINUX AND NOT EMSCRIPTEN)
 	set(ALLEGRO_LEGACY_CLOSE_THREADS 1)
 endif()
-add_subdirectory(allegro-legacy EXCLUDE_FROM_ALL)
+add_subdirectory(third_party/allegro_legacy EXCLUDE_FROM_ALL)
 
 add_library(allegro_with_legacy INTERFACE)
 target_include_directories(allegro_with_legacy INTERFACE ${allegro5_SOURCE_DIR}/include ${allegro5_BINARY_DIR}/include)
-target_include_directories(allegro_with_legacy INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/allegro-legacy/include ${CMAKE_CURRENT_BINARY_DIR}/allegro-legacy/include)
+target_include_directories(allegro_with_legacy INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/third_party/allegro_legacy/include ${CMAKE_CURRENT_BINARY_DIR}/third_party/allegro_legacy/include)
 target_link_libraries(allegro_with_legacy INTERFACE allegro-legacy allegro_primitives allegro_font allegro_image allegro_main)
 
 if (NOT EMSCRIPTEN)
@@ -554,7 +554,7 @@ if(BUILD_SOUND_LIBS_FROM_SOURCE)
 	target_compile_definitions(gme_headers INTERFACE -DVGM_YM2612_NUKED)
 
 	option(BUILD_EXAMPLES "" OFF)
-	set(ALLEGRO_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/allegro-legacy/include)
+	set(ALLEGRO_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/third_party/allegro_legacy/include)
 	set(ALLEGRO_LIBRARY allegro_with_legacy)
 	FetchContent_Declare(
 		dumb_external
