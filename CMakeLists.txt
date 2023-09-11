@@ -560,7 +560,7 @@ if(BUILD_SOUND_LIBS_FROM_SOURCE)
 		dumb_external
 		GIT_REPOSITORY https://github.com/kode54/dumb.git
 		GIT_TAG        396caa4d31859045ccb5ef943fd430ca4026cce8
-		PATCH_COMMAND  git restore . && git apply ${CMAKE_SOURCE_DIR}/allegro-addons/aldumb.patch
+		PATCH_COMMAND  git restore . && git apply ${CMAKE_SOURCE_DIR}/third_party/aldumb.patch
 	)
 	FetchContent_MakeAvailable(dumb_external)
 	add_library(dumb_headers INTERFACE)
