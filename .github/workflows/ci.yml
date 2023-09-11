@@ -30,7 +30,9 @@ jobs:
           - runs-on: windows-2022
             arch: x64
             compiler: msvc
-            config: RelWithDebInfo
+            # RelWithDebInfo invalidates ccache, and we currently can't show backtraces on crash for windows in CI
+            # so no need for it yet.
+            config: Release
           - runs-on: windows-2022
             arch: win32
             compiler: msvc
