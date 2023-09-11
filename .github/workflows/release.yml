@@ -49,10 +49,12 @@ jobs:
         uses: mathieu-bour/setup-sentry-cli@v1.3.0
         if: inputs.sentry
         with:
+          version: '2.20.6'
           token: ${{ secrets.SENTRY_TOKEN }}
           organization: zeldaclassic
           project: zelda-classic
-      - run: sentry-cli releases new 'zelda-classic@${{ steps.make-vars.outputs.release-tag }}'
+      - run: sentry-cli --version
+      - run: sentry-cli --log-level=DEBUG releases new 'zelda-classic@${{ steps.make-vars.outputs.release-tag }}'
         if: inputs.sentry
 
   build-release:
@@ -133,11 +135,12 @@ jobs:
         if: inputs.sentry
         uses: mathieu-bour/setup-sentry-cli@v1.3.0
         with:
+          version: '2.20.6'
           token: ${{ secrets.SENTRY_TOKEN }}
           organization: zeldaclassic
           project: zelda-classic
       - name: Finalize sentry
         if: inputs.sentry
         run: |
-          sentry-cli releases set-commits 'zelda-classic@${{ needs.create-tag.outputs.release-tag }}' --auto
-          sentry-cli releases finalize 'zelda-classic@${{ needs.create-tag.outputs.release-tag }}'
+          sentry-cli --log-level=DEBUG releases set-commits 'zelda-classic@${{ needs.create-tag.outputs.release-tag }}' --auto
+          sentry-cli --log-level=DEBUG releases finalize 'zelda-classic@${{ needs.create-tag.outputs.release-tag }}'
