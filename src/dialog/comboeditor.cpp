@@ -1776,6 +1776,8 @@ void ComboEditorDialog::loadComboType()
 		{
 			l_flag[0] = "Use Tiles instead of Colors";
 			h_flag[0] = "Uses a set of tiles in a preset order, instead of a set of 3 colors, to represent the light beam.";
+			l_flag[1] = "Works on FFCs";
+			h_flag[1] = "This spotlight can fire a beam from FFCs, off-the-grid";
 			l_attribyte[0] = "Dir:";
 			h_attribyte[0] = "0-3 = Up,Down,Left,Right\n4-7 = Unused (For Now)\n8 = at the ground";
 			l_attribyte[4] = "Trigger Set:";
@@ -1795,6 +1797,13 @@ void ComboEditorDialog::loadComboType()
 				h_attribyte[2] = "One of the colors used to generate the light beam graphic";
 				l_attribyte[3] = "Outer Color:";
 				h_attribyte[3] = "One of the colors used to generate the light beam graphic";
+			}
+			if(FL(cflag2))
+			{
+				l_attribyte[5] = "Beam Width (FFC)";
+				h_attribyte[5] = "The 'width' of the beam. This is only used when the spotlight"
+					" is on an FFC, and is used to center the beam and determine the hitbox."
+					"\nDoes not affect the visual in any way. If < 1, uses '8' as a default.";
 			}
 			break;
 		}

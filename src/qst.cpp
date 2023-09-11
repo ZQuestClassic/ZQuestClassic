@@ -3774,6 +3774,8 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_WALKTHROUGHWALL_NO_DOORSTATE,1);
 	if(compatrule_version < 55)
 		set_qr(qr_SPOTLIGHT_IGNR_SOLIDOBJ,1);
+	if(compatrule_version < 56)
+		set_qr(qr_BROKEN_LIGHTBEAM_HITBOX,1);
 	
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)
