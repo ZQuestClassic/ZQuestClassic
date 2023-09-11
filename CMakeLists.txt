@@ -409,11 +409,11 @@ target_include_directories(alpng PRIVATE
 list(APPEND IMAGELIBS alpng)
 
 add_library(algif STATIC
-	allegro-addons/algif/src/save_gif.cpp
-	allegro-addons/algif/src/load_gif.cpp
+	third_party/al_gif/src/save_gif.cpp
+	third_party/al_gif/src/load_gif.cpp
 )
 target_include_directories(algif PUBLIC
-	allegro-addons/algif/include
+	third_party/al_gif/include
 )
 target_link_libraries(algif PUBLIC allegro_with_legacy)
 list(APPEND IMAGELIBS algif)
