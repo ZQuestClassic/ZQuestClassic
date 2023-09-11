@@ -1205,8 +1205,13 @@ int32_t onDumpScr();
 
 int32_t onExport_Package()
 {
-    package_create(filepath, header.title);
-    std::string line1 = fmt::format("Package saved to packages/{}", header.title);
+    std::string package_name = header.title;
+    util::sanitize_spaces_ok(package_name);
+	if (package_name.empty())
+		package_name = "Quest";
+
+    package_create(filepath, package_name);
+    std::string line1 = fmt::format("Package saved to packages/{}", package_name);
     std::string line2 = "To learn about packaging, read docs/packaging_quests.md";
     InfoDialog("Packaging Complete", { line1, line2 }).show();
     return D_O_K;

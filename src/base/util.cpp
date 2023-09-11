@@ -38,6 +38,14 @@ namespace util
 		str = std::regex_replace(str, re, "-");
 	}
 
+	// TODO: replace `sanitize` with this?
+	void sanitize_spaces_ok(string& str)
+	{
+		trimstr(str);
+		str = std::regex_replace(str, std::regex(R"(\s+)"), " ");
+		str = std::regex_replace(str, std::regex(R"([^a-zA-Z0-9_+\- ]+)"), "-");
+	}
+
 	// https://stackoverflow.com/a/5888676/2788187
 	size_t split(const std::string &txt, std::vector<std::string> &strs, char ch)
 	{
