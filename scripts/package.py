@@ -166,14 +166,20 @@ if 'TEST' in os.environ:
 elif args.extras:
     do_packaging(packages_dir / 'extras', extras)
 else:
-    # Generate changelog for changes since last stable release.
-    last_stable = subprocess.check_output(
-        'git describe --tags --abbrev=0 --match "2.55-*"', shell=True, encoding='utf-8').strip()
-    changelog = subprocess.check_output([
-        sys.executable, script_dir / 'generate_changelog.py',
-        '--from', last_stable,
-        '--to', 'HEAD',
-    ], encoding='utf-8').strip()
+    try:
+        # Generate changelog for changes since last stable release.
+        last_stable = subprocess.check_output(
+            'git describe --tags --abbrev=0 --match "2.55-*"', shell=True, encoding='utf-8').strip()
+        changelog = subprocess.check_output([
+            sys.executable, script_dir / 'generate_changelog.py',
+            '--from', last_stable,
+            '--to', 'HEAD',
+        ], encoding='utf-8').strip()
+        nightly_changelog_path = root_dir / 'changelogs/nightly.txt'
+    except Exception as e:
+        print(e)
+        changelog = ''
+
     nightly_changelog_path = root_dir / 'changelogs/nightly.txt'
     if changelog:
         nightly_changelog_path.write_text(f'Changes since {last_stable}\n\n{changelog}')
