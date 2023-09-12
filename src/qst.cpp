@@ -682,7 +682,7 @@ bool valid_zqt(const char *filename)
 		1) The top layer is from us. See decode_file_007.
 			[0-24]    Preamble "Zelda Classic Quest File"
 			[25-28]   Initial decoding seed value.
-			[29-X]    Allegro-encoded payload (AKA "packed" file)
+			[29-X]    Allegro-compressed payload (AKA "packed" file), but XOR'd based on seed value
 			[last 4]  Checksum
 
 		2) The bottom layer is a "compressed packed file" from Allegro 4. The entire payload
