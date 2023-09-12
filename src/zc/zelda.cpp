@@ -4358,6 +4358,11 @@ void do_load_and_quit_command(const char* quest_path)
 
 int main(int argc, char **argv)
 {
+	qstdir = (char*)malloc(2048);
+	qstpath = (char*)malloc(2048);
+	qstdir[0] = 0;
+	qstpath[0] = 0;
+
 #ifdef _WIN32
 	// For purposes of packaging a standalone app.
 	if (used_switch(argc, argv, "-package"))
@@ -4442,6 +4447,31 @@ int main(int argc, char **argv)
 		do_load_and_quit_command(argv[load_and_quit_arg+1]);
 	}
 
+	int create_save_arg = used_switch(argc,argv,"-create-save");
+	if (create_save_arg)
+	{
+		set_headless_mode();
+
+		// We need to init some stuff before loading a quest file will work.
+		int fake_errno = 0;
+		allegro_errno = &fake_errno;
+		get_qst_buffers();
+		allocate_crap();
+		if ((sfxdata=load_datafile("sfx.dat"))==NULL)
+		{
+			Z_error_fatal("failed to load sfx_dat");
+		}
+
+		gamedata* new_game = new gamedata();
+		new_game->header.name = "newsave";
+		new_game->header.qstpath = argv[create_save_arg + 1];
+		saves_create_slot(new_game);
+		int ret = saves_do_first_time_stuff(saves_count() - 1);
+		if (ret)
+			printf("failed to save: %d\n", ret);
+		exit(ret ? 1 : 0);
+	}
+
 	bool onlyInstance=true;
 //	refresh_select_screen = 0;
 	memset(modulepath, 0, sizeof(modulepath));
@@ -4493,22 +4523,6 @@ int main(int argc, char **argv)
 
 	// Before anything else, let's register our custom trace handler:
 	register_trace_handler(zc_trace_handler);
-	
-	// allocate quest data buffers
-	memrequested += 4096;
-	Z_message("Allocating quest path buffers (%s)...", byte_conversion2(4096,memrequested,-1,-1));
-	qstdir = (char*)malloc(2048);
-	qstpath = (char*)malloc(2048);
-	
-	if(!qstdir || !qstpath)
-	{
-		Z_error_fatal("Allocation error");
-	}
-	
-	qstdir[0] = 0;
-	qstpath[0] = 0;
-	
-	Z_message("OK\n");
 	
 	if(!get_qst_buffers())
 	{

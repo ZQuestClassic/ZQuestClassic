@@ -31,7 +31,7 @@ extern FFScript FFCore;
 
 static const char *SAVE_HEADER = "ZQuest Classic Save File";
 static const char *OLD_SAVE_HEADER = "Zelda Classic Save File";
-static int currgame;
+static int currgame = -1;
 static std::vector<save_t> saves;
 static bool save_current_replay_games;
 
@@ -2060,6 +2060,8 @@ static int32_t do_save_games()
 		return 0;
 	}
 
+	fs::create_directories(get_save_folder_path());
+
 	for (auto& save : saves)
 	{
 		if (!save.header || !save.game)
@@ -2077,7 +2079,8 @@ static int32_t do_save_games()
 int32_t saves_write()
 {
 	Saving = true;
-	render_zc();
+	if (!is_headless())
+		render_zc();
 	int32_t result = do_save_games();
 	Saving = false;
 	return result;
@@ -2233,12 +2236,12 @@ bool saves_create_slot(fs::path path)
 	return true;
 }
 
-void saves_do_first_time_stuff(int index)
+int saves_do_first_time_stuff(int index)
 {
 	save_t* save;
 	int ret = get_save(save, index, true);
 	if (ret)
-		return;
+		return ret;
 
 	if (!save->game->get_hasplayed())
 	{
@@ -2274,8 +2277,10 @@ void saves_do_first_time_stuff(int index)
 
 		update_icon(index);
 		save->path = create_path_for_new_save(save->header);
-		saves_write();
+		return saves_write();
 	}
+
+	return 0;
 }
 
 void saves_enable_save_current_replay()
