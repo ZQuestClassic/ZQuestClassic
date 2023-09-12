@@ -17,6 +17,10 @@ using std::getline;
 #include "jwin.h"
 #include "zconsole/ConsoleLogger.h"
 
+#ifdef __EMSCRIPTEN__
+#include "base/emscripten_utils.h"
+#endif
+
 #ifdef _MSC_VER
 #define stricmp _stricmp
 #endif
@@ -854,6 +858,130 @@ void copy_file(const char *src, const char *dest)
     fclose(fin);
     fclose(fout);
 }
+
+static std::string tmp_file_name;
+void clear_quest_tmpfile()
+{
+	if(tmp_file_name.size())
+	{
+		if(exists(tmp_file_name.c_str()))
+			delete_file(tmp_file_name.c_str());
+		tmp_file_name.clear();
+	}
+}
+
+// `result.decoded_pf` is null if `filename` uses the legacy encoding layer. Caller should decode with decode_file_007.
+// Otherwise, `result.decoded_pf` is a PACKFILE ready to be read.
+// See open_quest_file for why this exists.
+MaybeLegacyEncodedResult try_open_maybe_legacy_encoded_file(const char *filename, const char *encoding_header, const char *payload_header_1, const char *payload_header_2)
+{
+#ifdef __EMSCRIPTEN__
+    if (em_is_lazy_file(filename))
+    {
+        em_fetch_file(filename);
+    }
+#endif
+
+	clear_quest_tmpfile();
+
+	auto result = MaybeLegacyEncodedResult();
+
+	// Input files may or may not include a top layer, which may or may not be compressed.
+	// Additionally, the bottom layer may or may not be compressed, and may or may not be encoded
+	// with an allegro packfile password (longtan).
+	// We peek into this file to read the header - we'll either see the top layer's header (ENC_STR)
+	// or the bottom layer's header (QH_IDSTR or QH_NEWIDSTR).
+	// Newly saved .qst files enjoy a fast path here, where there is no top layer at all.
+
+	bool id_came_from_compressed_file = false;
+	const char* packfile_password = "";
+	char id[32];
+	id[0] = id[31] = '\0';
+	PACKFILE* pf = pack_fopen_password(filename, F_READ_PACKED, "");
+	if (!pf)
+		pf = pack_fopen_password(filename, F_READ_PACKED, packfile_password = datapwd);
+	if (pf)
+	{
+		id_came_from_compressed_file = true;
+		if (!pack_fread(id, sizeof(id)-1, pf))
+		{
+			pack_fclose(pf);
+			Z_message("Unable to read header string\n");
+			return result;
+		}
+		pack_fclose(pf);
+	}
+	else
+	{
+		FILE* f = fopen(filename, "rb");
+		if (!f) 
+		{
+			result.not_found = true;
+			return result;
+		}
+		if (!fread(id, sizeof(char), sizeof(id)-1, f))
+		{
+			fclose(f);
+			Z_message("Unable to read header string\n");
+			return result;
+		}
+		fclose(f);
+	}
+
+	if (strstr(id, payload_header_1) || strstr(id, payload_header_2))
+	{
+		// The given file is already just the bottom layer - nothing more to do.
+		// There's no way to rewind a packfile, so just open it again.
+		if (id_came_from_compressed_file)
+		{
+			result.decoded_pf = pack_fopen_password(filename, F_READ_PACKED, packfile_password);
+			return result;
+		}
+		else
+		{
+			result.decoded_pf = pack_fopen_password(filename, F_READ, "");
+			return result;
+		}
+	}
+	else if (strstr(id, encoding_header))
+	{
+		result.top_layer_compressed = id_came_from_compressed_file;
+		result.compressed = true;
+		result.encrypted = true;
+	}
+	else if (id_came_from_compressed_file && strstr(id, "slh!\xff"))
+	{
+		// We must be reading the compressed contents of an allegro dataobject file. ex: `classic_qst.dat#NESQST_NEW_QST`.
+		// Let's extract the content and re-open as a separate file, so allegro will uncompress correctly.
+
+		char tmpfilename[L_tmpnam];
+		std::tmpnam(tmpfilename);
+		FILE* tf = fopen(tmpfilename, "wb");
+		PACKFILE* pf = pack_fopen_password(filename, F_READ_PACKED, packfile_password);
+
+		int c;
+		while ((c = pack_getc(pf)) != EOF)
+		{
+			fputc(c, tf);
+		}
+		fclose(tf);
+		pack_fclose(pf);
+		
+		tmp_file_name = tmpfilename; //store so it can be cleaned up later
+		
+		// not good: temp file storage leak. Callers don't know to delete temp files anymore.
+		// We should put qsu in the dat file, or use a separate .qst file for new qst.
+		result.decoded_pf = pack_fopen_password(tmpfilename, F_READ_PACKED, "");
+		return result;
+	}
+	else
+	{
+		// Unexpected, this is going to fail some header check later.
+	}
+
+	return result;
+}
+
 
 // Checking for double clicks is complicated. The user could release the
 // mouse button at almost any point, and I might miss it if I am doing some
