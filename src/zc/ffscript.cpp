@@ -40,6 +40,8 @@
 #include "base/colors.h"
 #include "pal.h"
 #include "zinfo.h"
+#include "subscr.h"
+#include "zc_list_data.h"
 #include "iter.h"
 #include <sstream>
 
@@ -306,6 +308,82 @@ static mapscr* get_ffc_screen(int ffc_id)
 static ffcdata* get_ffc_raw(int ffc_id)
 {
 	return &get_screen_for_region_index_offset(ffc_id / MAXFFCS)->ffcs[ffc_id % MAXFFCS];
+}
+
+dword get_subref(int sub, byte ty, byte pg = 0, word ind = 0)
+{
+	byte s;
+	if(sub == -1) //special; load current
+	{
+		s = new_sub_indexes[ty];
+		if(s < 0) return 0;
+	}
+	else if(unsigned(sub) < 256)
+		s = sub;
+	else return 0;
+	++ty; //type is offset by 1
+	return (s<<24)|(pg<<16)|((ty&0x7)<<13)|(ind&0x1FFF);
+}
+std::tuple<byte,int8_t,byte,word> from_subref(dword ref)
+{
+	byte type = (ref>>13)&0x07;
+	if(!type)
+		return { 0, -1, 0, 0 };
+	
+	byte sub = (ref>>24)&0xFF;
+	byte pg = (ref>>16)&0xFF;
+	word ind = (ref)&0x1FFF;
+	return { sub, type-1, pg, ind };
+}
+
+std::tuple<ZCSubscreen*,SubscrPage*,SubscrWidget*,byte> load_subscreen_ref(dword ref)
+{
+	auto [sub,ty,pg,ind] = from_subref(ref);
+	ZCSubscreen* sbscr = nullptr;
+	SubscrPage* sbpg = nullptr;
+	SubscrWidget* sbwidg = nullptr;
+	switch(ty)
+	{
+		case sstACTIVE:
+			if(sub < subscreens_active.size())
+				sbscr = &subscreens_active[sub];
+			break;
+		case sstPASSIVE:
+			if(sub < subscreens_passive.size())
+				sbscr = &subscreens_passive[sub];
+			break;
+		case sstOVERLAY:
+			if(sub < subscreens_overlay.size())
+				sbscr = &subscreens_overlay[sub];
+			break;
+	}
+	if(sbscr)
+	{
+		if(pg < sbscr->pages.size())
+			sbpg = &sbscr->pages[pg];
+	}
+	else return { nullptr, nullptr, nullptr, -1 }; //no subscreen
+	if(sbpg)
+	{
+		if(ind < sbpg->size())
+			sbwidg = sbpg->at(ind);
+	}
+	return { sbscr, sbpg, sbwidg, ty };
+}
+std::pair<ZCSubscreen*,byte> load_subdata(dword ref)
+{
+	auto [sub,_pg,_widg,ty] = load_subscreen_ref(ref);
+	return { sub, ty };
+}
+std::pair<SubscrPage*,byte> load_subpage(dword ref)
+{
+	auto [_sub,pg,_widg,ty] = load_subscreen_ref(ref);
+	return { pg, ty };
+}
+std::pair<SubscrWidget*,byte> load_subwidg(dword ref)
+{
+	auto [_sub,_pg,widg,ty] = load_subscreen_ref(ref);
+	return { widg, ty };
 }
 
 #include "zconsole/ConsoleLogger.h"
@@ -619,9 +697,14 @@ static std::map<std::pair<ScriptType, word>, ScriptEngineData> scriptEngineDatas
 
 static ScriptEngineData& get_script_engine_data(ScriptType type, int index)
 {
-	if (type == ScriptType::DMap || type == ScriptType::OnMap || type == ScriptType::PassiveSubscreen || type == ScriptType::ActiveSubscreen)
+	if (type == ScriptType::DMap || type == ScriptType::OnMap || type == ScriptType::ScriptedPassiveSubscreen || type == ScriptType::ScriptedActiveSubscreen)
 	{
 		// `index` is used for dmapref, not for different script engine data.
+		index = 0;
+	}
+	if (type == ScriptType::EngineSubscreen)
+	{
+		// `index` is used for subdataref, not for different script engine data.
 		index = 0;
 	}
 
@@ -645,9 +728,14 @@ void FFScript::reset_script_engine_data(ScriptType type, int index)
 
 void FFScript::clear_script_engine_data(ScriptType type, int index)
 {
-	if (type == ScriptType::DMap || type == ScriptType::OnMap || type == ScriptType::PassiveSubscreen || type == ScriptType::ActiveSubscreen)
+	if (type == ScriptType::DMap || type == ScriptType::OnMap || type == ScriptType::ScriptedPassiveSubscreen || type == ScriptType::ScriptedActiveSubscreen)
 	{
 		// `index` is used for dmapref, not for different script engine data.
+		index = 0;
+	}
+	if (type == ScriptType::EngineSubscreen)
+	{
+		// `index` is used for subdataref, not for different script engine data.
 		index = 0;
 	}
 
@@ -887,7 +975,7 @@ static bool set_current_script_engine_data(ScriptType type, int script, int inde
 		}
 		break;
 		
-		case ScriptType::ActiveSubscreen:
+		case ScriptType::ScriptedActiveSubscreen:
 		{
 			curscript = dmapscripts[script];
 			ri->dmapsref = index;
@@ -903,7 +991,7 @@ static bool set_current_script_engine_data(ScriptType type, int script, int inde
 		}
 		break;
 		
-		case ScriptType::PassiveSubscreen:
+		case ScriptType::ScriptedPassiveSubscreen:
 		{
 			curscript = dmapscripts[script];
 			ri->dmapsref = index;
@@ -913,6 +1001,23 @@ static bool set_current_script_engine_data(ScriptType type, int script, int inde
 				for ( int32_t q = 0; q < 8; q++ ) 
 				{
 					ri->d[q] = DMaps[ri->dmapsref].sub_initD[q];
+				}
+				data.initialized = true;
+			}
+		}
+		break;
+		case ScriptType::EngineSubscreen:
+		{
+			curscript = subscreenscripts[script];
+			ri->subdataref = get_subref(-1, sstACTIVE);
+			auto [ptr,_ty] = load_subdata(ri->subdataref);
+			
+			if (ptr && !data.initialized)
+			{
+				got_initialized = true;
+				for ( int32_t q = 0; q < 8; q++ ) 
+				{
+					ri->d[q] = ptr->initd[q];
 				}
 				data.initialized = true;
 			}
@@ -1106,12 +1211,16 @@ void FFScript::runGenericPassiveEngine(int32_t scrtm)
 void FFScript::initZScriptDMapScripts()
 {
 	scriptEngineDatas[{ScriptType::DMap, 0}] = ScriptEngineData();
-	scriptEngineDatas[{ScriptType::PassiveSubscreen, 0}] = ScriptEngineData();
+	scriptEngineDatas[{ScriptType::ScriptedPassiveSubscreen, 0}] = ScriptEngineData();
 }
 
-void FFScript::initZScriptActiveSubscreenScript()
+void FFScript::initZScriptSubscreenScript()
 {
-	scriptEngineDatas[{ScriptType::ActiveSubscreen, 0}] = ScriptEngineData();
+	scriptEngineDatas[{ScriptType::EngineSubscreen, 0}] = ScriptEngineData();
+}
+void FFScript::initZScriptScriptedActiveSubscreen()
+{
+	scriptEngineDatas[{ScriptType::ScriptedActiveSubscreen, 0}] = ScriptEngineData();
 }
 
 void FFScript::initZScriptOnMapScript()
@@ -2714,6 +2823,8 @@ public:
 	int32_t size() const;
 	
 	bool resize(size_t newsize);
+	bool resize_min(size_t minsz);
+	bool can_resize();
 	bool push(int32_t val, int indx = -1);
 	int32_t pop(int indx = -1);
 	
@@ -2886,14 +2997,17 @@ public:
 		return _NoError;
 	}
 	
-	static int32_t setArray(const int32_t ptr, string const& s2)
+	static int32_t setArray(const int32_t ptr, string const& s2, bool resize = false)
 	{
 		ArrayManager am(ptr);
 		
 		if (am.invalid())
 			return _InvalidPointer;
-			
+		
 		word i;
+		
+		if(am.can_resize() && resize)
+			am.resize_min(s2.size()+1);
 		
 		size_t sz = am.size();
 		for(i = 0; i < s2.size(); i++)
@@ -2916,18 +3030,21 @@ public:
 	
 	//Puts values of a client <type> array into a zscript array. returns 0 on success. Overloaded
 	template <typename T>
-	static int32_t setArray(const int32_t ptr, const word size, T *refArray, bool x10k = true)
+	static int32_t setArray(const int32_t ptr, const word size, T *refArray, bool x10k = true, bool resize = false)
 	{
-		return setArray(ptr, size, 0, 0, 0, refArray, x10k);
+		return setArray(ptr, size, 0, 0, 0, refArray, x10k, resize);
 	}
 	
 	template <typename T>
-	static int32_t setArray(const int32_t ptr, const word size, word userOffset, const word userStride, const word refArrayOffset, T *refArray, bool x10k = true)
+	static int32_t setArray(const int32_t ptr, const word size, word userOffset, const word userStride, const word refArrayOffset, T *refArray, bool x10k = true, bool resize = false)
 	{
 		ArrayManager am(ptr);
 		
 		if (am.invalid())
 			return _InvalidPointer;
+		
+		if(am.can_resize() && resize)
+			am.resize_min((userStride+1)*size);
 			
 		word j = 0, k = userStride;
 		size_t sz = am.size();
@@ -3079,6 +3196,18 @@ bool ArrayManager::resize(size_t newsize)
 		return false;
 	}
 	aptr->Resize(newsize);
+	return true;
+}
+bool ArrayManager::resize_min(size_t newsize)
+{
+	if(size() >= newsize)
+		return true;
+	return resize(newsize);
+}
+bool ArrayManager::can_resize()
+{
+	if(_invalid || !aptr)
+		return false;
 	return true;
 }
 
@@ -3562,6 +3691,78 @@ user_bitmap *checkBitmap(int32_t ref, const char *what, bool req_valid = false, 
 	else
 		Z_scripterrlog("You were trying to reference with UID = %ld\n", ref);
 	return NULL;
+}
+
+extern const std::string subscr_names[sstMAX];
+ZCSubscreen *checkSubData(int32_t ref, const char *what, int req_ty = -1)
+{
+	auto [ptr,ty] = load_subdata(ref);
+	if(ptr)
+	{
+		if(req_ty < 0 || req_ty == ty)
+			return ptr;
+		else
+		{
+			Z_scripterrlog("Wrong type of SubscreenData accessed! Expecting type '%s', but found '%s'\n",
+				subscr_names[req_ty].c_str(), subscr_names[ty].c_str());
+		}
+	}
+	else Z_scripterrlog("Script attempted to reference a nonexistent SubscreenData!\n");
+	
+	Z_scripterrlog("You were trying to reference the '%s' of a SubscreenData with UID = %ld\n", what, ref);
+	return NULL;
+}
+SubscrPage *checkSubPage(int32_t ref, const char *what, int req_ty = -1)
+{
+	auto [ptr,ty] = load_subpage(ref);
+	if(ptr)
+	{
+		if(req_ty < 0 || req_ty == ty)
+			return ptr;
+		else
+		{
+			Z_scripterrlog("Wrong type of Subscreen accessed! Expecting type '%s', but found '%s'\n",
+				subscr_names[req_ty].c_str(), subscr_names[ty].c_str());
+		}
+	}
+	else Z_scripterrlog("Script attempted to reference a nonexistent SubscreenPage!\n");
+	
+	Z_scripterrlog("You were trying to reference the '%s' of a SubscreenPage with UID = %ld\n", what, ref);
+	return NULL;
+}
+SubscrWidget *checkSubWidg(int32_t ref, const char *what, int req_widg_ty = -1, int req_sub_ty = -1)
+{
+	auto [ptr,ty] = load_subwidg(ref);
+	if(ptr)
+	{
+		if(req_sub_ty < 0 || req_sub_ty == ty)
+		{
+			if(req_widg_ty < 0 || req_widg_ty == ptr->getType())
+				return ptr;
+			else
+			{
+				auto listdata = GUI::ZCListData::subscr_widgets();
+				Z_scripterrlog("Wrong type of SubscreenWidget accessed! Expecting type '%s', but found '%s'\n",
+					listdata.findText(req_widg_ty).c_str(), listdata.findText(ptr->getType()).c_str());
+			}
+		}
+		else
+		{
+			Z_scripterrlog("Wrong type of Subscreen accessed! Expecting subscreen type '%s', but found '%s'\n",
+				subscr_names[req_sub_ty].c_str(), subscr_names[ty].c_str());
+		}
+	}
+	else Z_scripterrlog("Script attempted to reference a nonexistent SubscreenWidget!\n");
+	
+	Z_scripterrlog("You were trying to reference the '%s' of a SubscreenWidget with UID = %ld\n", what, ref);
+	return NULL;
+}
+
+void bad_subwidg_type(string const& name, bool func, byte type)
+{
+	Z_scripterrlog("Widget type %d '%s' does not have a '%s' %s!\n",
+		type, subwidg_internal_names[type].c_str(), name.c_str(),
+		func ? "function" : "value");
 }
 
 int32_t get_screen_d(int32_t index1, int32_t index2)
@@ -13227,7 +13428,9 @@ int32_t get_register(const int32_t arg)
 		case REFFILE: ret = ri->fileref; break;
 		case REFDIRECTORY: ret = ri->directoryref; break;
 		case REFSTACK: ret = ri->stackref; break;
-		case REFSUBSCREEN: ret = ri->subscreenref; break;
+		case REFSUBSCREEN: ret = ri->subdataref; break;
+		case REFSUBSCREENPAGE: ret = ri->subpageref; break;
+		case REFSUBSCREENWIDG: ret = ri->subwidgref; break;
 		case REFRNG: ret = ri->rngref; break;
 		case CLASS_THISKEY: ret = ri->thiskey; break;
 		case CLASS_THISKEY2: ret = ri->thiskey2; break;
@@ -13579,6 +13782,2058 @@ int32_t get_register(const int32_t arg)
 			break;
 		}
 		
+		case GAMEASUBOPEN:
+		{
+			ret = subscreen_open ? 10000 : 0;
+			break;
+		}
+		case GAMEASUBYOFF:
+		{
+			ret = active_sub_yoff*10000;
+			break;
+		}
+		case GAMENUMASUB:
+		{
+			ret = subscreens_active.size()*10000;
+			break;
+		}
+		case GAMENUMPSUB:
+		{
+			ret = subscreens_passive.size()*10000;
+			break;
+		}
+		case GAMENUMOSUB:
+		{
+			ret = subscreens_overlay.size()*10000;
+			break;
+		}
+		
+		///----------------------------------------------------------------------------------------------------//
+		
+		case SUBDATACURPG:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "CurPage"))
+				if(sub->sub_type == sstACTIVE)
+					ret = 10000*sub->curpage;
+			break;
+		}
+		case SUBDATANUMPG:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "NumPages"))
+			{
+				if(sub->sub_type == sstACTIVE)
+					ret = 10000*sub->pages.size();
+				else ret = 10000;
+			}
+			break;
+		}
+		case SUBDATAPAGES:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "Pages[]"))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				size_t sz = sub->sub_type == sstACTIVE ? sub->pages.size() : 1;
+				if(indx >= sz)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreendata->Pages[]' of size '%d'\n", indx, sz);
+				}
+				else
+				{
+					auto [sb,ty,_pg,_ind] = from_subref(ri->subdataref);
+					ret = get_subref(sb,ty,indx,0);
+				}
+			}
+			break;
+		}
+		case SUBDATATYPE:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "Type"))
+				ret = sub->sub_type*10000;
+			break;
+		}
+		case SUBDATAFLAGS:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "Flags[]"))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				size_t sz = 0;
+				switch(sub->sub_type)
+				{
+					case sstACTIVE:
+						sz = 2;
+						break;
+					case sstPASSIVE:
+						sz = 0;
+						break;
+					case sstOVERLAY:
+						sz = 0;
+						break;
+				}
+				if(indx >= sz)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreendata->Flags[]' of size '%d'\n", indx, sz);
+				}
+				else
+					ret = (sub->flags & (1<<indx)) ? 10000 : 0;
+			}
+			break;
+		}
+		///---- ACTIVE SUBSCREENS ONLY
+		case SUBDATACURSORPOS:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "CursorPos", sstACTIVE))
+			{
+				SubscrPage& pg = sub->cur_page();
+				ret = pg.cursor_pos * 10000;
+			}
+			break;
+		}
+		case SUBDATASCRIPT:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "Script", sstACTIVE))
+				ret = sub->script * 10000;
+			break;
+		}
+		case SUBDATAINITD:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "InitD[]", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= 8)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreendata->InitD[8]'\n", indx);
+				}
+				else
+					ret = sub->initd[indx];
+			}
+			break;
+		}
+		case SUBDATABTNLEFT:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "BtnPageLeft[]", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= 8)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreendata->BtnPageLeft[8]'\n", indx);
+				}
+				else
+					ret = (sub->btn_left & (1<<indx)) ? 10000 : 0;
+			}
+			break;
+		}
+		case SUBDATABTNRIGHT:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "BtnPageRight[]", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= 8)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreendata->BtnPageRight[8]'\n", indx);
+				}
+				else
+					ret = (sub->btn_right & (1<<indx)) ? 10000 : 0;
+			}
+			break;
+		}
+		case SUBDATATRANSLEFTTY:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransLeftType", sstACTIVE))
+			{
+				auto& trans = sub->trans_left;
+				ret = trans.type * 10000;
+			}
+			break;
+		}
+		case SUBDATATRANSLEFTSFX:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransLeftSFX", sstACTIVE))
+			{
+				auto& trans = sub->trans_left;
+				ret = trans.tr_sfx * 10000;
+			}
+			break;
+		}
+		case SUBDATATRANSLEFTFLAGS:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransLeftFlags[]", sstACTIVE))
+			{
+				auto& trans = sub->trans_left;
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_TRANS_NUMFLAGS)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreendata->TransLeftFlags[%d]'\n", indx, SUBSCR_TRANS_NUMFLAGS);
+				}
+				else
+					ret = (trans.flags & (1<<indx)) ? 10000 : 0;
+			}
+			break;
+		}
+		case SUBDATATRANSLEFTARGS:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransLeftArgs[]", sstACTIVE))
+			{
+				auto& trans = sub->trans_left;
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_TRANSITION_MAXARG)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreendata->TransLeftArgs[%d]'\n", indx, SUBSCR_TRANSITION_MAXARG);
+				}
+				else
+					ret = trans.arg[indx]*SubscrTransition::argScale(trans.type,indx);
+			}
+			break;
+		}
+		case SUBDATATRANSRIGHTTY:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransRightType", sstACTIVE))
+			{
+				auto& trans = sub->trans_right;
+				ret = trans.type * 10000;
+			}
+			break;
+		}
+		case SUBDATATRANSRIGHTSFX:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransRightSFX", sstACTIVE))
+			{
+				auto& trans = sub->trans_right;
+				ret = trans.tr_sfx * 10000;
+			}
+			break;
+		}
+		case SUBDATATRANSRIGHTFLAGS:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransRightFlags[]", sstACTIVE))
+			{
+				auto& trans = sub->trans_right;
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_TRANS_NUMFLAGS)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreendata->TransRightFlags[%d]'\n", indx, SUBSCR_TRANS_NUMFLAGS);
+				}
+				else
+					ret = (trans.flags & (1<<indx)) ? 10000 : 0;
+			}
+			break;
+		}
+		case SUBDATATRANSRIGHTARGS:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransRightArgs[]", sstACTIVE))
+			{
+				auto& trans = sub->trans_right;
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_TRANSITION_MAXARG)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreendata->TransRightArgs[%d]'\n", indx, SUBSCR_TRANSITION_MAXARG);
+				}
+				else
+					ret = trans.arg[indx]*SubscrTransition::argScale(trans.type,indx);
+			}
+			break;
+		}
+		case SUBDATASELECTORDSTX:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorDestX", sstACTIVE))
+				ret = sub->selector_setting.x * 10000;
+			break;
+		}
+		case SUBDATASELECTORDSTY:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorDestY", sstACTIVE))
+				ret = sub->selector_setting.y * 10000;
+			break;
+		}
+		case SUBDATASELECTORDSTW:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorDestW", sstACTIVE))
+				ret = sub->selector_setting.w * 10000;
+			break;
+		}
+		case SUBDATASELECTORDSTH:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorDestH", sstACTIVE))
+				ret = sub->selector_setting.h * 10000;
+			break;
+		}
+		case SUBDATASELECTORWID:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorDestWid", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
+				{
+					Z_scripterrlog("Bad index '%d' to array 'subscreendata->"
+						"SelectorDestWid[%d]'\n", indx, SUBSCR_SELECTOR_NUMTILEINFO);
+				}
+				else
+					ret = sub->selector_setting.tileinfo[indx].sw * 10000;
+			}
+			break;
+		}
+		case SUBDATASELECTORHEI:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorDestHei", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
+				{
+					Z_scripterrlog("Bad index '%d' to array 'subscreendata->"
+						"SelectorDestHei[%d]'\n", indx, SUBSCR_SELECTOR_NUMTILEINFO);
+				}
+				else
+					ret = sub->selector_setting.tileinfo[indx].sh * 10000;
+			}
+			break;
+		}
+		case SUBDATASELECTORTILE:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorTile", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
+				{
+					Z_scripterrlog("Bad index '%d' to array 'subscreendata->"
+						"SelectorTile[%d]'\n", indx, SUBSCR_SELECTOR_NUMTILEINFO);
+				}
+				else
+					ret = sub->selector_setting.tileinfo[indx].tile * 10000;
+			}
+			break;
+		}
+		case SUBDATASELECTORCSET:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorCSet", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
+				{
+					Z_scripterrlog("Bad index '%d' to array 'subscreendata->"
+						"SelectorCSet[%d]'\n", indx, SUBSCR_SELECTOR_NUMTILEINFO);
+				}
+				else
+				{
+					byte& cs = sub->selector_setting.tileinfo[indx].cset;
+					ret = (cs&0x0F) * 10000;
+				}
+			}
+			break;
+		}
+		case SUBDATASELECTORFLASHCSET:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorFlashCSet", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
+				{
+					Z_scripterrlog("Bad index '%d' to array 'subscreendata->"
+						"SelectorFlashCSet[%d]'\n", indx, SUBSCR_SELECTOR_NUMTILEINFO);
+				}
+				else
+				{
+					byte& cs = sub->selector_setting.tileinfo[indx].cset;
+					ret = ((cs&0xF0)>>4) * 10000;
+				}
+			}
+			break;
+		}
+		case SUBDATASELECTORFRM:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorFrames", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
+				{
+					Z_scripterrlog("Bad index '%d' to array 'subscreendata->"
+						"SelectorFrames[%d]'\n", indx, SUBSCR_SELECTOR_NUMTILEINFO);
+				}
+				else
+					ret = sub->selector_setting.tileinfo[indx].frames * 10000;
+			}
+			break;
+		}
+		case SUBDATASELECTORASPD:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorASpeed", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
+				{
+					Z_scripterrlog("Bad index '%d' to array 'subscreendata->"
+						"SelectorASpeed[%d]'\n", indx, SUBSCR_SELECTOR_NUMTILEINFO);
+				}
+				else
+					ret = sub->selector_setting.tileinfo[indx].speed * 10000;
+			}
+			break;
+		}
+		case SUBDATASELECTORDELAY:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorDelay", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
+				{
+					Z_scripterrlog("Bad index '%d' to array 'subscreendata->"
+						"SelectorDelay[%d]'\n", indx, SUBSCR_SELECTOR_NUMTILEINFO);
+				}
+				else
+					ret = sub->selector_setting.tileinfo[indx].delay * 10000;
+			}
+			break;
+		}
+		///---- CURRENTLY OPEN ACTIVE SUBSCREEN ONLY
+		case SUBDATATRANSCLK:
+		{
+			ret = -10000;
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransClock", sstACTIVE))
+			{
+				if(sub != new_subscreen_active)
+					Z_scripterrlog("'subscreendata->TransClock' is only"
+						" valid for the current active subscreen!\n");
+				else if(subscreen_open)
+					ret = subscr_pg_clk*10000;
+			}
+			break;
+		}
+		case SUBDATATRANSTY:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransType", sstACTIVE))
+			{
+				auto& trans = subscr_pg_transition;
+				if(sub != new_subscreen_active)
+					Z_scripterrlog("'subscreendata->TransType' is only"
+						" valid for the current active subscreen!\n");
+				else if(subscreen_open)
+					ret = trans.type*10000;
+			}
+			break;
+		}
+		case SUBDATATRANSFLAGS:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransFlags[]", sstACTIVE))
+			{
+				auto& trans = subscr_pg_transition;
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_TRANS_NUMFLAGS)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreendata->TransFlags[%d]'\n", indx, SUBSCR_TRANS_NUMFLAGS);
+				}
+				else if(sub != new_subscreen_active)
+					Z_scripterrlog("'subscreendata->TransType' is only"
+						" valid for the current active subscreen!\n");
+				else if(subscreen_open)
+					ret = (trans.flags & (1<<indx)) ? 10000 : 0;
+			}
+			break;
+		}
+		case SUBDATATRANSARGS:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransArgs[]", sstACTIVE))
+			{
+				auto& trans = subscr_pg_transition;
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_TRANSITION_MAXARG)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreendata->TransArgs[%d]'\n", indx, SUBSCR_TRANSITION_MAXARG);
+				}
+				else if(sub != new_subscreen_active)
+					Z_scripterrlog("'subscreendata->TransType' is only"
+						" valid for the current active subscreen!\n");
+				else if(subscreen_open)
+					ret = trans.arg[indx]*SubscrTransition::argScale(trans.type,indx);
+			}
+			break;
+		}
+		case SUBDATATRANSFROMPG:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransFromPage", sstACTIVE))
+			{
+				if(sub != new_subscreen_active)
+					Z_scripterrlog("'subscreendata->TransFromPage' is only"
+						" valid for the current active subscreen!\n");
+				else if(subscreen_open)
+					ret = subscr_pg_from*10000;
+			}
+			break;
+		}
+		case SUBDATATRANSTOPG:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransToPage", sstACTIVE))
+			{
+				if(sub != new_subscreen_active)
+					Z_scripterrlog("'subscreendata->TransToPage' is only"
+						" valid for the current active subscreen!\n");
+				else if(subscreen_open)
+					ret = subscr_pg_to*10000;
+			}
+			break;
+		}
+		
+		///----------------------------------------------------------------------------------------------------//
+		case SUBPGINDEX: 
+		{
+			if(SubscrPage* pg = checkSubPage(ri->subpageref, "Index"))
+				ret = pg->getIndex() * 10000;
+			break;
+		}
+		case SUBPGNUMWIDG: 
+		{
+			if(SubscrPage* pg = checkSubPage(ri->subpageref, "NumWidgets"))
+				ret = pg->size() * 10000;
+			break;
+		}
+		case SUBPGWIDGETS: 
+		{
+			if(SubscrPage* pg = checkSubPage(ri->subpageref, "Widgets[]"))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				size_t sz = pg->size();
+				if(indx >= sz)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreenpage->Widgets[]' of size '%d'\n", indx, sz);
+				}
+				else
+				{
+					auto [sb,ty,pg,_ind] = from_subref(ri->subpageref);
+					ret = get_subref(sb,ty,pg,indx);
+				}
+			}
+			break;
+		}
+		case SUBPGSUBDATA: 
+		{
+			if(SubscrPage* pg = checkSubPage(ri->subpageref, "SubData"))
+			{
+				auto [sub,ty,_pgid,_ind] = from_subref(ri->subpageref);
+				ret = get_subref(sub,ty,0,0);
+			}
+			break;
+		}
+		case SUBPGCURSORPOS: 
+		{
+			if(SubscrPage* pg = checkSubPage(ri->subpageref, "CursorPos"))
+				ret = pg->cursor_pos * 10000;
+			break;
+		}
+		///----------------------------------------------------------------------------------------------------//
+		///---- ANY WIDGET TYPE
+		case SUBWIDGTYPE:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Type"))
+				ret = 10000*widg->getType();
+			break;
+		}
+		case SUBWIDGINDEX:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Index"))
+			{
+				auto [_sub,_ty,_pgid,ind] = from_subref(ri->subwidgref);
+				ret = 10000*ind;
+			}
+			break;
+		}
+		case SUBWIDGDISPITM:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "DisplayItem"))
+			{
+				ret = 10000*widg->getDisplayItem();
+			}
+			break;
+		}
+		case SUBWIDGEQPITM:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "EquipItem"))
+			{
+				ret = 10000*widg->getItemVal();
+			}
+			break;
+		}
+		case SUBWIDGPAGE:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Page"))
+			{
+				auto [sub,ty,pgid,_ind] = from_subref(ri->subwidgref);
+				ret = get_subref(sub,ty,pgid,0);
+			}
+			break;
+		}
+		case SUBWIDGPOS:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Pos"))
+				ret = 10000*widg->pos;
+			break;
+		}
+		case SUBWIDGPOSES:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "PosDirs"))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= 4)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreenwidget->PosDirs[%d]'\n", indx, 4);
+					ret = -10000;
+				}
+				else
+				{
+					switch(indx)
+					{
+						case up:
+							ret = 10000*widg->pos_up;
+							break;
+						case down:
+							ret = 10000*widg->pos_down;
+							break;
+						case left:
+							ret = 10000*widg->pos_left;
+							break;
+						case right:
+							ret = 10000*widg->pos_right;
+							break;
+					}
+				}
+			}
+			break;
+		}
+		case SUBWIDGPOSFLAG:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "VisibleFlags"))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= sspNUM)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreenwidget->VisibleFlags[%d]'\n", indx, sspNUM);
+				}
+				else ret = (widg->posflags & (1<<indx)) ? 10000 : 0;
+			}
+			break;
+		}
+		case SUBWIDGX:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "X"))
+				ret = 10000*widg->x;
+			break;
+		}
+		case SUBWIDGY:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Y"))
+				ret = 10000*widg->y;
+			break;
+		}
+		case SUBWIDGW:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "W"))
+				ret = 10000*widg->w;
+			break;
+		}
+		case SUBWIDGH:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "H"))
+				ret = 10000*widg->h;
+			break;
+		}
+		case SUBWIDGGENFLAG:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "GenFlags"))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCRFLAG_GEN_COUNT)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreenwidget->GenFlags[%d]'\n", indx, SUBSCRFLAG_GEN_COUNT);
+				}
+				else ret = (widg->genflags & (1<<indx)) ? 10000 : 0;
+			}
+			break;
+		}
+		case SUBWIDGFLAG:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Flags"))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				byte sz = widg->numFlags();
+				if(indx >= sz)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreenwidget->Flags[%d]'\n", indx, sz);
+				}
+				else ret = (widg->flags & (1<<indx)) ? 10000 : 0;
+			}
+			break;
+		}
+		///---- ACTIVE SUBSCREENS ONLY
+		case SUBWIDGSELECTORDSTX:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "SelectorDestX", sstACTIVE))
+				ret = 10000*widg->selector_override.x;
+			break;
+		}
+		case SUBWIDGSELECTORDSTY:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "SelectorDestY", sstACTIVE))
+				ret = 10000*widg->selector_override.y;
+			break;
+		}
+		case SUBWIDGSELECTORDSTW:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "SelectorDestW", sstACTIVE))
+				ret = 10000*widg->selector_override.w;
+			break;
+		}
+		case SUBWIDGSELECTORDSTH:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "SelectorDestH", sstACTIVE))
+				ret = 10000*widg->selector_override.h;
+			break;
+		}
+		case SUBWIDGSELECTORWID:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "SelectorDestWid", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
+				{
+					Z_scripterrlog("Bad index '%d' to array 'subscreenwidget->"
+						"SelectorDestWid[%d]'\n", indx, SUBSCR_SELECTOR_NUMTILEINFO);
+				}
+				else ret = 10000*widg->selector_override.tileinfo[indx].sw;
+			}
+			break;
+		}
+		case SUBWIDGSELECTORHEI:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "SelectorDestHei", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
+				{
+					Z_scripterrlog("Bad index '%d' to array 'subscreenwidget->"
+						"SelectorDestHei[%d]'\n", indx, SUBSCR_SELECTOR_NUMTILEINFO);
+				}
+				else ret = 10000*widg->selector_override.tileinfo[indx].sh;
+			}
+			break;
+		}
+		case SUBWIDGSELECTORTILE:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "SelectorTile", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
+				{
+					Z_scripterrlog("Bad index '%d' to array 'subscreenwidget->"
+						"SelectorTile[%d]'\n", indx, SUBSCR_SELECTOR_NUMTILEINFO);
+				}
+				else ret = 10000*widg->selector_override.tileinfo[indx].tile;
+			}
+			break;
+		}
+		case SUBWIDGSELECTORCSET:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "SelectorCSet", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
+				{
+					Z_scripterrlog("Bad index '%d' to array 'subscreenwidget->"
+						"SelectorCSet[%d]'\n", indx, SUBSCR_SELECTOR_NUMTILEINFO);
+				}
+				else ret = 10000*(widg->selector_override.tileinfo[indx].cset&0xF);
+			}
+			break;
+		}
+		case SUBWIDGSELECTORFLASHCSET:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "SelectorFlashCSet", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
+				{
+					Z_scripterrlog("Bad index '%d' to array 'subscreenwidget->"
+						"SelectorFlashCSet[%d]'\n", indx, SUBSCR_SELECTOR_NUMTILEINFO);
+				}
+				else ret = 10000*((widg->selector_override.tileinfo[indx].cset&0xF0)>>4);
+			}
+			break;
+		}
+		case SUBWIDGSELECTORFRM:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "SelectorFrames", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
+				{
+					Z_scripterrlog("Bad index '%d' to array 'subscreenwidget->"
+						"SelectorFrames[%d]'\n", indx, SUBSCR_SELECTOR_NUMTILEINFO);
+				}
+				else ret = 10000*widg->selector_override.tileinfo[indx].frames;
+			}
+			break;
+		}
+		case SUBWIDGSELECTORASPD:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "SelectorASpeed", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
+				{
+					Z_scripterrlog("Bad index '%d' to array 'subscreenwidget->"
+						"SelectorASpeed[%d]'\n", indx, SUBSCR_SELECTOR_NUMTILEINFO);
+				}
+				else ret = 10000*widg->selector_override.tileinfo[indx].speed;
+			}
+			break;
+		}
+		case SUBWIDGSELECTORDELAY:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "SelectorDelay", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
+				{
+					Z_scripterrlog("Bad index '%d' to array 'subscreenwidget->"
+						"SelectorDelay[%d]'\n", indx, SUBSCR_SELECTOR_NUMTILEINFO);
+				}
+				else ret = 10000*widg->selector_override.tileinfo[indx].delay;
+			}
+			break;
+		}
+				
+		case SUBWIDGPRESSSCRIPT:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "PressScript", sstACTIVE))
+				ret = 10000*widg->generic_script;
+			break;
+		}
+		case SUBWIDGPRESSINITD:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "PressInitD[]", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= 8)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreenwidget->PressInitD[8]'\n", indx);
+				}
+				else ret = widg->generic_initd[indx];
+			}
+			break;
+		}
+		case SUBWIDGBTNPRESS:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "BtnPressScript[]", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= 8)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreenwidget->BtnPressScript[8]'\n", indx);
+				}
+				else ret = (widg->gen_script_btns & (1<<indx)) ? 10000 : 0;
+			}
+			break;
+		}
+		case SUBWIDGBTNPG:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "BtnPageChange[]", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= 8)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreenwidget->BtnPageChange[8]'\n", indx);
+				}
+				else ret = (widg->pg_btns & (1<<indx)) ? 10000 : 0;
+			}
+			break;
+		}
+		case SUBWIDGPGMODE:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "PageMode", sstACTIVE))
+				ret = 10000*widg->pg_mode;
+			break;
+		}
+		case SUBWIDGPGTARG:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "TargetPage", sstACTIVE))
+				ret = 10000*widg->pg_targ;
+			break;
+		}
+		
+		case SUBWIDGTRANSPGTY:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "PageTransType", sstACTIVE))
+			{
+				auto& trans = widg->pg_trans;
+				ret = 10000*trans.type;
+			}
+			break;
+		}
+		case SUBWIDGTRANSPGSFX:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "PageTransSFX", sstACTIVE))
+			{
+				auto& trans = widg->pg_trans;
+				ret = 10000*trans.tr_sfx;
+			}
+			break;
+		}
+		case SUBWIDGTRANSPGFLAGS:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "PageTransFlags[]", sstACTIVE))
+			{
+				auto& trans = widg->pg_trans;
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_TRANS_NUMFLAGS)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreenwidget->PageTransFlags[%d]'\n", indx, SUBSCR_TRANS_NUMFLAGS);
+				}
+				else ret = (trans.flags & (1<<indx)) ? 10000 : 0;
+			}
+			break;
+		}
+		case SUBWIDGTRANSPGARGS:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "PageTransArgs[]", sstACTIVE))
+			{
+				auto& trans = widg->pg_trans;
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_TRANSITION_MAXARG)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreenwidget->PageTransArgs[%d]'\n", indx, SUBSCR_TRANSITION_MAXARG);
+				}
+				else ret = trans.arg[indx]*SubscrTransition::argScale(trans.type,indx);
+			}
+			break;
+		}
+		///---- VARYING WIDGET TYPES
+		case SUBWIDGTY_CSET:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "CSet[]"))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				size_t sz = 0;
+				byte ty = widg->getType();
+				switch(ty)
+				{
+					case widgFRAME:
+					case widgMCGUFF:
+					case widgTILEBLOCK:
+					case widgMINITILE:
+						sz = 1;
+						break;
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						sz = 4;
+						break;
+					default:
+						sz = 0;
+						bad_subwidg_type("CSet[]", false, ty);
+						ret = -10000;
+						break;
+				}
+				if(!sz) break;
+				if(indx >= sz)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreenwidget->CSet[%d]'\n", indx, sz);
+					break;
+				}
+				switch(ty)
+				{
+					case widgFRAME:
+						ret = ((SW_2x2Frame*)widg)->cs.get_cset()*10000;
+						break;
+					case widgMCGUFF:
+						ret = ((SW_McGuffin*)widg)->cs.get_cset()*10000;
+						break;
+					case widgTILEBLOCK:
+						ret = ((SW_TileBlock*)widg)->cs.get_cset()*10000;
+						break;
+					case widgMINITILE:
+						ret = ((SW_MiniTile*)widg)->cs.get_cset()*10000;
+						break;
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						ret = 10000*((SW_GaugePiece*)widg)->mts[indx].cset;
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_TILE:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Tile"))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				size_t sz = 0;
+				byte ty = widg->getType();
+				switch(ty)
+				{
+					case widgFRAME:
+					case widgMCGUFF:
+					case widgTILEBLOCK:
+					case widgMINITILE:
+						sz = 1;
+						break;
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						sz = 4;
+						break;
+					default:
+						sz = 0;
+						bad_subwidg_type("Tile[]", false, ty);
+						ret = -10000;
+						break;
+				}
+				if(!sz) break;
+				if(indx >= sz)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreenwidget->Tile[%d]'\n", indx, sz);
+					break;
+				}
+				switch(ty)
+				{
+					case widgFRAME:
+						ret = ret = 10000*((SW_2x2Frame*)widg)->tile;
+						break;
+					case widgMCGUFF:
+						ret = 10000*((SW_McGuffin*)widg)->tile;
+						break;
+					case widgTILEBLOCK:
+						ret = 10000*((SW_TileBlock*)widg)->tile;
+						break;
+					case widgMINITILE:
+						ret = 10000*((SW_MiniTile*)widg)->get_int_tile();
+						break;
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						ret = 10000*((SW_GaugePiece*)widg)->mts[indx].tile();
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_FONT:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Font"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgTEXT:
+						ret = 10000*((SW_Text*)widg)->fontid;
+						break;
+					case widgTEXTBOX:
+						ret = 10000*((SW_TextBox*)widg)->fontid;
+						break;
+					case widgSELECTEDTEXT:
+						ret = 10000*((SW_SelectedText*)widg)->fontid;
+						break;
+					case widgTIME:
+						ret = 10000*((SW_Time*)widg)->fontid;
+						break;
+					case widgCOUNTER:
+						ret = 10000*((SW_Counter*)widg)->fontid;
+						break;
+					case widgBTNCOUNTER:
+						ret = 10000*((SW_BtnCounter*)widg)->fontid;
+						break;
+					case widgOLDCTR:
+						ret = 10000*((SW_Counters*)widg)->fontid;
+						break;
+					case widgMMAPTITLE:
+						ret = 10000*((SW_MMapTitle*)widg)->fontid;
+						break;
+					default:
+						bad_subwidg_type("Font", false, ty);
+						ret = -10000;
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_ALIGN:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Align"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgTEXT:
+						ret = 10000*((SW_Text*)widg)->align;
+						break;
+					case widgTEXTBOX:
+						ret = 10000*((SW_TextBox*)widg)->align;
+						break;
+					case widgSELECTEDTEXT:
+						ret = 10000*((SW_SelectedText*)widg)->align;
+						break;
+					case widgTIME:
+						ret = 10000*((SW_Time*)widg)->align;
+						break;
+					case widgCOUNTER:
+						ret = 10000*((SW_Counter*)widg)->align;
+						break;
+					case widgBTNCOUNTER:
+						ret = 10000*((SW_BtnCounter*)widg)->align;
+						break;
+					case widgMMAPTITLE:
+						ret = 10000*((SW_MMapTitle*)widg)->align;
+						break;
+					default:
+						bad_subwidg_type("Align", false, ty);
+						ret = -10000;
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_SHADOWTY:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ShadowType"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgTEXT:
+						ret = 10000*((SW_Text*)widg)->shadtype;
+						break;
+					case widgTEXTBOX:
+						ret = 10000*((SW_TextBox*)widg)->shadtype;
+						break;
+					case widgSELECTEDTEXT:
+						ret = 10000*((SW_SelectedText*)widg)->shadtype;
+						break;
+					case widgTIME:
+						ret = 10000*((SW_Time*)widg)->shadtype;
+						break;
+					case widgCOUNTER:
+						ret = 10000*((SW_Counter*)widg)->shadtype;
+						break;
+					case widgBTNCOUNTER:
+						ret = 10000*((SW_BtnCounter*)widg)->shadtype;
+						break;
+					case widgOLDCTR:
+						ret = 10000*((SW_Counters*)widg)->shadtype;
+						break;
+					case widgMMAPTITLE:
+						ret = 10000*((SW_MMapTitle*)widg)->shadtype;
+						break;
+					default:
+						bad_subwidg_type("ShadowType", false, ty);
+						ret = -10000;
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_COLOR_TXT:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorText"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgTEXT:
+						ret = 10000*((SW_Text*)widg)->c_text.get_int_color();
+						break;
+					case widgTEXTBOX:
+						ret = 10000*((SW_TextBox*)widg)->c_text.get_int_color();
+						break;
+					case widgSELECTEDTEXT:
+						ret = 10000*((SW_SelectedText*)widg)->c_text.get_int_color();
+						break;
+					case widgTIME:
+						ret = 10000*((SW_Time*)widg)->c_text.get_int_color();
+						break;
+					case widgCOUNTER:
+						ret = 10000*((SW_Counter*)widg)->c_text.get_int_color();
+						break;
+					case widgBTNCOUNTER:
+						ret = 10000*((SW_BtnCounter*)widg)->c_text.get_int_color();
+						break;
+					case widgOLDCTR:
+						ret = 10000*((SW_Counters*)widg)->c_text.get_int_color();
+						break;
+					case widgMMAPTITLE:
+						ret = 10000*((SW_MMapTitle*)widg)->c_text.get_int_color();
+						break;
+					case widgMCGUFF_FRAME:
+						ret = 10000*((SW_TriFrame*)widg)->c_number.get_int_color();
+						break;
+					default:
+						bad_subwidg_type("ColorText", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_COLOR_SHD:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorShadow"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgTEXT:
+						ret = 10000*((SW_Text*)widg)->c_shadow.get_int_color();
+						break;
+					case widgTEXTBOX:
+						ret = 10000*((SW_TextBox*)widg)->c_shadow.get_int_color();
+						break;
+					case widgSELECTEDTEXT:
+						ret = 10000*((SW_SelectedText*)widg)->c_shadow.get_int_color();
+						break;
+					case widgTIME:
+						ret = 10000*((SW_Time*)widg)->c_shadow.get_int_color();
+						break;
+					case widgCOUNTER:
+						ret = 10000*((SW_Counter*)widg)->c_shadow.get_int_color();
+						break;
+					case widgBTNCOUNTER:
+						ret = 10000*((SW_BtnCounter*)widg)->c_shadow.get_int_color();
+						break;
+					case widgOLDCTR:
+						ret = 10000*((SW_Counters*)widg)->c_shadow.get_int_color();
+						break;
+					case widgMMAPTITLE:
+						ret = 10000*((SW_MMapTitle*)widg)->c_shadow.get_int_color();
+						break;
+					default:
+						bad_subwidg_type("ColorShadow", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_COLOR_BG:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorBG"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgTEXT:
+						ret = 10000*((SW_Text*)widg)->c_bg.get_int_color();
+						break;
+					case widgTEXTBOX:
+						ret = 10000*((SW_TextBox*)widg)->c_bg.get_int_color();
+						break;
+					case widgSELECTEDTEXT:
+						ret = 10000*((SW_SelectedText*)widg)->c_bg.get_int_color();
+						break;
+					case widgTIME:
+						ret = 10000*((SW_Time*)widg)->c_bg.get_int_color();
+						break;
+					case widgCOUNTER:
+						ret = 10000*((SW_Counter*)widg)->c_bg.get_int_color();
+						break;
+					case widgBTNCOUNTER:
+						ret = 10000*((SW_BtnCounter*)widg)->c_bg.get_int_color();
+						break;
+					case widgOLDCTR:
+						ret = 10000*((SW_Counters*)widg)->c_bg.get_int_color();
+						break;
+					case widgMMAPTITLE:
+						ret = 10000*((SW_MMapTitle*)widg)->c_bg.get_int_color();
+						break;
+					case widgBGCOLOR:
+						ret = 10000*((SW_Clear*)widg)->c_bg.get_int_color();
+						break;
+					default:
+						bad_subwidg_type("ColorBG", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_COLOR_OLINE:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorOutline"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgLINE:
+						ret = 10000*((SW_Line*)widg)->c_line.get_int_color();
+						break;
+					case widgRECT:
+						ret = 10000*((SW_Rect*)widg)->c_outline.get_int_color();
+						break;
+					case widgMCGUFF_FRAME:
+						ret = 10000*((SW_TriFrame*)widg)->c_outline.get_int_color();
+						break;
+					default:
+						bad_subwidg_type("ColorOutline", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_COLOR_FILL:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorFill"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgRECT:
+						ret = 10000*((SW_Rect*)widg)->c_fill.get_int_color();
+						break;
+					default:
+						bad_subwidg_type("ColorFill", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_BUTTON:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Button"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgBTNITM:
+						ret = 10000*((SW_ButtonItem*)widg)->btn;
+						break;
+					case widgBTNCOUNTER:
+						ret = 10000*((SW_BtnCounter*)widg)->btn;
+						break;
+					default:
+						bad_subwidg_type("Button", false, ty);
+						ret = -10000;
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_COUNTERS:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Counter[]"))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				size_t sz = 0;
+				byte ty = widg->getType();
+				switch(ty)
+				{
+					case widgCOUNTER:
+						sz = 3;
+						break;
+					case widgMISCGAUGE:
+						sz = 1;
+						break;
+					default:
+						sz = 0;
+						bad_subwidg_type("Counter[]", false, ty);
+						ret = -10000;
+						break;
+				}
+				if(!sz) break;
+				if(indx >= sz)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreenwidget->Counter[%d]'\n", indx, sz);
+					break;
+				}
+				switch(ty)
+				{
+					case widgCOUNTER:
+						ret = ((SW_Counter*)widg)->ctrs[indx]*10000;
+						break;
+					case widgMISCGAUGE:
+						ret = ((SW_MiscGaugePiece*)widg)->counter*10000;
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_MINDIG:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "MinDigits"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgCOUNTER:
+						ret = 10000*((SW_Counter*)widg)->mindigits;
+						break;
+					case widgBTNCOUNTER:
+						ret = 10000*((SW_BtnCounter*)widg)->mindigits;
+						break;
+					case widgOLDCTR:
+						ret = 10000*((SW_Counters*)widg)->digits;
+						break;
+					default:
+						bad_subwidg_type("MinDigits", false, ty);
+						ret = -10000;
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_MAXDIG:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "MaxDigits"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgCOUNTER:
+						ret = 10000*((SW_Counter*)widg)->maxdigits;
+						break;
+					case widgBTNCOUNTER:
+						ret = 10000*((SW_BtnCounter*)widg)->maxdigits;
+						break;
+					default:
+						bad_subwidg_type("MaxDigits", false, ty);
+						ret = -10000;
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_INFITM:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "InfiniteItem"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgCOUNTER:
+						ret = 10000*((SW_Counter*)widg)->infitm;
+						break;
+					case widgOLDCTR:
+						ret = 10000*((SW_Counters*)widg)->infitm;
+						break;
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						ret = 10000*((SW_GaugePiece*)widg)->inf_item;
+						break;
+					default:
+						bad_subwidg_type("InfiniteItem", false, ty);
+						ret = -10000;
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_INFCHAR:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "InfiniteChar"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgCOUNTER:
+						ret = 10000*byte(((SW_Counter*)widg)->infchar);
+						break;
+					case widgOLDCTR:
+						ret = 10000*byte(((SW_Counters*)widg)->infchar);
+						break;
+					default:
+						bad_subwidg_type("InfiniteChar", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_COSTIND:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "CostIndex"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgBTNCOUNTER:
+						ret = 10000*((SW_BtnCounter*)widg)->costind;
+						break;
+					default:
+						bad_subwidg_type("CostIndex", false, ty);
+						ret = -1;
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_COLOR_PLAYER:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorPlayer"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgMMAP:
+						ret = 10000*((SW_MMap*)widg)->c_plr.get_int_color();
+						break;
+					case widgLMAP:
+						ret = 10000*((SW_LMap*)widg)->c_plr.get_int_color();
+						break;
+					default:
+						bad_subwidg_type("ColorPlayer", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_COLOR_CMPBLNK:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorCompassBlink"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgMMAP:
+						ret = 10000*((SW_MMap*)widg)->c_cmp_blink.get_int_color();
+						break;
+					default:
+						bad_subwidg_type("ColorCompassBlink", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_COLOR_CMPOFF:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorCompassOff"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgMMAP:
+						ret = 10000*((SW_MMap*)widg)->c_cmp_off.get_int_color();
+						break;
+					default:
+						bad_subwidg_type("ColorCompassOff", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_COLOR_ROOM:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorRoom"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgLMAP:
+						ret = 10000*((SW_LMap*)widg)->c_room.get_int_color();
+						break;
+					default:
+						bad_subwidg_type("ColorRoom", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_ITEMCLASS:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ItemClass"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgITEMSLOT:
+						ret = 10000*((SW_ItemSlot*)widg)->iclass;
+						break;
+					default:
+						bad_subwidg_type("ItemClass", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_ITEMID:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ItemID"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgITEMSLOT:
+						ret = 10000*((SW_ItemSlot*)widg)->iid;
+						break;
+					default:
+						bad_subwidg_type("ItemID", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_FRAMETILE:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "FrameTile"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgMCGUFF_FRAME:
+						ret = 10000*((SW_TriFrame*)widg)->frame_tile;
+						break;
+					default:
+						bad_subwidg_type("FrameTile", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_FRAMECSET:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "FrameCSet"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgMCGUFF_FRAME:
+						ret = 10000*((SW_TriFrame*)widg)->frame_cset;
+						break;
+					default:
+						bad_subwidg_type("FrameCSet", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_PIECETILE:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "PieceTile"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgMCGUFF_FRAME:
+						ret = 10000*((SW_TriFrame*)widg)->piece_tile;
+						break;
+					default:
+						bad_subwidg_type("PieceTile", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_PIECECSET:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "PieceCSet"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgMCGUFF_FRAME:
+						ret = 10000*((SW_TriFrame*)widg)->piece_cset;
+						break;
+					default:
+						bad_subwidg_type("PieceCSet", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_FLIP:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Flip"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgMCGUFF:
+						ret = 10000*((SW_McGuffin*)widg)->flip;
+						break;
+					case widgTILEBLOCK:
+						ret = 10000*((SW_TileBlock*)widg)->flip;
+						break;
+					case widgMINITILE:
+						ret = 10000*((SW_MiniTile*)widg)->flip;
+						break;
+					default:
+						bad_subwidg_type("Flip", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_NUMBER:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Number"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgMCGUFF:
+						ret = 10000*((SW_McGuffin*)widg)->number;
+						break;
+					default:
+						bad_subwidg_type("Number", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_CORNER:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Corner"))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				size_t sz = 0;
+				byte ty = widg->getType();
+				switch(ty)
+				{
+					case widgMINITILE:
+						sz = 1;
+						break;
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						sz = 4;
+						break;
+					default:
+						sz = 0;
+						bad_subwidg_type("Corner[]", false, ty);
+						ret = -10000;
+						break;
+				}
+				if(!sz) break;
+				if(indx >= sz)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreenwidget->Corner[%d]'\n", indx, sz);
+					break;
+				}
+				switch(ty)
+				{
+					case widgMINITILE:
+						ret = 10000*((SW_MiniTile*)widg)->crn;
+						break;
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						ret = 10000*((SW_GaugePiece*)widg)->mts[indx].crn();
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_FRAMES:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Frames"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						ret = 10000*((SW_GaugePiece*)widg)->frames;
+						break;
+					default:
+						bad_subwidg_type("Frames", false, ty);
+						ret = -10000;
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_SPEED:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Speed"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						ret = 10000*((SW_GaugePiece*)widg)->speed;
+						break;
+					default:
+						bad_subwidg_type("Speed", false, ty);
+						ret = -10000;
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_DELAY:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Delay"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						ret = 10000*((SW_GaugePiece*)widg)->delay;
+						break;
+					default:
+						bad_subwidg_type("Delay", false, ty);
+						ret = -10000;
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_CONTAINER:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Container"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						ret = 10000*((SW_GaugePiece*)widg)->container;
+						break;
+					default:
+						bad_subwidg_type("Container", false, ty);
+						ret = -10000;
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_GAUGE_WID:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "GaugeWid"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						ret = 10000*((SW_GaugePiece*)widg)->gauge_wid;
+						break;
+					default:
+						bad_subwidg_type("GaugeWid", false, ty);
+						ret = -10000;
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_GAUGE_HEI:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "GaugeHei"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						ret = 10000*((SW_GaugePiece*)widg)->gauge_hei;
+						break;
+					default:
+						bad_subwidg_type("GaugeHei", false, ty);
+						ret = -10000;
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_UNITS:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Units"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						ret = 10000*(((SW_GaugePiece*)widg)->unit_per_frame+1);
+						break;
+					default:
+						bad_subwidg_type("Units", false, ty);
+						ret = -10000;
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_HSPACE:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "HSpace"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						ret = 10000*((SW_GaugePiece*)widg)->hspace;
+						break;
+					default:
+						bad_subwidg_type("HSpace", false, ty);
+						ret = -10000;
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_VSPACE:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "VSpace"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						ret = 10000*((SW_GaugePiece*)widg)->vspace;
+						break;
+					default:
+						bad_subwidg_type("VSpace", false, ty);
+						ret = -10000;
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_GRIDX:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "GridX"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						ret = 10000*((SW_GaugePiece*)widg)->grid_xoff;
+						break;
+					default:
+						bad_subwidg_type("GridX", false, ty);
+						ret = -10000;
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_GRIDY:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "GridY"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						ret = 10000*((SW_GaugePiece*)widg)->grid_yoff;
+						break;
+					default:
+						bad_subwidg_type("GridY", false, ty);
+						ret = -10000;
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_ANIMVAL:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "AnimVal"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						ret = 10000*((SW_GaugePiece*)widg)->anim_val;
+						break;
+					default:
+						bad_subwidg_type("AnimVal", false, ty);
+						ret = -10000;
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_SHOWDRAIN:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ShowDrain"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgMGAUGE:
+						ret = 10000*((SW_MagicGaugePiece*)widg)->showdrain;
+						break;
+					default:
+						bad_subwidg_type("ShowDrain", false, ty);
+						ret = -10000;
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_PERCONTAINER:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "PerContainer"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgMGAUGE:
+						ret = 10000*((SW_MiscGaugePiece*)widg)->per_container;
+						break;
+					default:
+						bad_subwidg_type("PerContainer", false, ty);
+						ret = -10000;
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_TABSIZE:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "TabSize"))
+			{
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgTEXTBOX:
+						ret = 10000*((SW_TextBox*)widg)->tabsize;
+						break;
+					case widgSELECTEDTEXT:
+						ret = 10000*((SW_SelectedText*)widg)->tabsize;
+						break;
+					default:
+						bad_subwidg_type("TabSize", false, ty);
+						ret = -10000;
+						break;
+				}
+			}
+			break;
+		}
+		///----------------------------------------------------------------------------------------------------//
 		
 		default:
 		{
@@ -21887,7 +24142,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case DMAPDATAASUBSCRIPT:	//byte
 		{
-			FFScript::deallocateAllArrays(ScriptType::ActiveSubscreen, ri->dmapsref);
+			FFScript::deallocateAllArrays(ScriptType::ScriptedActiveSubscreen, ri->dmapsref);
 			DMaps[ri->dmapsref].active_sub_script = vbound((value / 10000),0,NUMSCRIPTSDMAP-1); break;
 		}
 		case DMAPDATAMAPSCRIPT:	//byte
@@ -21897,14 +24152,14 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case DMAPDATAPSUBSCRIPT:	//byte
 		{
-			FFScript::deallocateAllArrays(ScriptType::PassiveSubscreen, ri->dmapsref);
+			FFScript::deallocateAllArrays(ScriptType::ScriptedPassiveSubscreen, ri->dmapsref);
 			word val = vbound((value / 10000),0,NUMSCRIPTSDMAP-1);
-			if (FFCore.doscript(ScriptType::PassiveSubscreen) && ri->dmapsref == currdmap && val == DMaps[ri->dmapsref].passive_sub_script)
+			if (FFCore.doscript(ScriptType::ScriptedPassiveSubscreen) && ri->dmapsref == currdmap && val == DMaps[ri->dmapsref].passive_sub_script)
 				break;
 			DMaps[ri->dmapsref].passive_sub_script = val;
 			if(ri->dmapsref == currdmap)
 			{
-				FFCore.doscript(ScriptType::PassiveSubscreen) = val != 0;
+				FFCore.doscript(ScriptType::ScriptedPassiveSubscreen) = val != 0;
 			};
 			break;
 		}
@@ -23652,7 +25907,9 @@ void set_register(int32_t arg, int32_t value)
 		case REFFILE: ri->fileref = value; break;
 		case REFDIRECTORY: ri->directoryref = value; break;
 		case REFSTACK: ri->stackref = value; break;
-		case REFSUBSCREEN: ri->subscreenref = value; break;
+		case REFSUBSCREEN: ri->subdataref = value; break;
+		case REFSUBSCREENPAGE: ri->subpageref = value; break;
+		case REFSUBSCREENWIDG: ri->subwidgref = value; break;
 		case REFRNG: ri->rngref = value; break;
 		case CLASS_THISKEY: ri->thiskey = value; break;
 		case CLASS_THISKEY2: ri->thiskey2 = value; break;
@@ -23958,6 +26215,2054 @@ void set_register(int32_t arg, int32_t value)
 			break;
 		}
 		
+		case GAMENUMASUB:
+		{
+			if(value >= 0)
+			{
+				size_t sz = vbound(value/10000, 0, 256);
+				while(subscreens_active.size() < sz)
+				{
+					auto& sub = subscreens_active.emplace_back();
+					sub.sub_type = sstACTIVE;
+				}
+				while(subscreens_active.size() > sz)
+					subscreens_active.pop_back();
+			}
+			break;
+		}
+		case GAMENUMPSUB:
+		{
+			if(value >= 0)
+			{
+				size_t sz = vbound(value/10000, 0, 256);
+				while(subscreens_passive.size() < sz)
+				{
+					auto& sub = subscreens_passive.emplace_back();
+					sub.sub_type = sstPASSIVE;
+				}
+				while(subscreens_passive.size() > sz)
+					subscreens_passive.pop_back();
+			}
+			break;
+		}
+		case GAMENUMOSUB:
+		{
+			if(value >= 0)
+			{
+				size_t sz = vbound(value/10000, 0, 256);
+				while(subscreens_overlay.size() < sz)
+				{
+					auto& sub = subscreens_overlay.emplace_back();
+					sub.sub_type = sstOVERLAY;
+				}
+				while(subscreens_overlay.size() > sz)
+					subscreens_overlay.pop_back();
+			}
+			break;
+		}
+		///----------------------------------------------------------------------------------------------------//
+		
+		case SUBDATACURPG:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "CurPage"))
+				if(sub->sub_type == sstACTIVE)
+					sub->curpage = vbound(value/10000,0,sub->pages.size()-1);
+			break;
+		}
+		case SUBDATANUMPG:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "NumPages"))
+				if(sub->sub_type == sstACTIVE && value >= 10000)
+				{
+					size_t sz = value/10000;
+					while(sub->pages.size() < sz)
+						if(!sub->add_page(MAX_SUBSCR_PAGES))
+							break;
+					while(sub->pages.size() > sz)
+						sub->delete_page(sub->pages.size()-1);
+				}
+			break;
+		}
+		case SUBDATAPAGES: break; //READONLY
+		case SUBDATATYPE: break; //READONLY
+		case SUBDATAFLAGS:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "Flags[]"))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				size_t sz = 0;
+				switch(sub->sub_type)
+				{
+					case sstACTIVE:
+						sz = 2;
+						break;
+					case sstPASSIVE:
+						sz = 0;
+						break;
+					case sstOVERLAY:
+						sz = 0;
+						break;
+				}
+				if(indx >= sz)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreendata->Flags[]' of size '%d'\n", indx, sz);
+				}
+				else
+					SETFLAG(sub->flags,(1<<indx),value);
+			}
+			break;
+		}
+		///---- ACTIVE SUBSCREENS ONLY
+		case SUBDATACURSORPOS:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "CursorPos", sstACTIVE))
+			{
+				SubscrPage& pg = sub->cur_page();
+				//Should this be sanity checked? Or should nulling out
+				// the cursor by setting it invalid be allowed? -Em
+				pg.cursor_pos = vbound(value/10000,0,255);
+			}
+			break;
+		}
+		case SUBDATASCRIPT:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "Script", sstACTIVE))
+				sub->script = vbound(value/10000,0,NUMSCRIPTSSUBSCREEN-1);
+			break;
+		}
+		case SUBDATAINITD:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "InitD[]", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= 8)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreendata->InitD[8]'\n", indx);
+				}
+				else
+					sub->initd[indx] = value;
+			}
+			break;
+		}
+		case SUBDATABTNLEFT:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "BtnPageLeft[]", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= 8)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreendata->BtnPageLeft[8]'\n", indx);
+				}
+				else
+					SETFLAG(sub->btn_left,(1<<indx),value);
+			}
+			break;
+		}
+		case SUBDATABTNRIGHT:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "BtnPageRight[]", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= 8)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreendata->BtnPageRight[8]'\n", indx);
+				}
+				else
+					SETFLAG(sub->btn_right,(1<<indx),value);
+			}
+			break;
+		}
+		case SUBDATATRANSLEFTTY:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransLeftType", sstACTIVE))
+			{
+				auto& trans = sub->trans_left;
+				trans.type = vbound(value/10000,0,sstrMAX-1);
+			}
+			break;
+		}
+		case SUBDATATRANSLEFTSFX:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransLeftSFX", sstACTIVE))
+			{
+				auto& trans = sub->trans_left;
+				trans.tr_sfx = vbound(value/10000,0,255);
+			}
+			break;
+		}
+		case SUBDATATRANSLEFTFLAGS:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransLeftFlags[]", sstACTIVE))
+			{
+				auto& trans = sub->trans_left;
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_TRANS_NUMFLAGS)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreendata->TransLeftFlags[%d]'\n", indx, SUBSCR_TRANS_NUMFLAGS);
+				}
+				else
+					SETFLAG(trans.flags,(1<<indx),value);
+			}
+			break;
+		}
+		case SUBDATATRANSLEFTARGS:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransLeftArgs[]", sstACTIVE))
+			{
+				auto& trans = sub->trans_left;
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_TRANSITION_MAXARG)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreendata->TransLeftArgs[%d]'\n", indx, SUBSCR_TRANSITION_MAXARG);
+				}
+				else
+					trans.arg[indx] = value/SubscrTransition::argScale(trans.type,indx);
+			}
+			break;
+		}
+		case SUBDATATRANSRIGHTTY:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransRightType", sstACTIVE))
+			{
+				auto& trans = sub->trans_right;
+				trans.type = vbound(value/10000,0,sstrMAX-1);
+			}
+			break;
+		}
+		case SUBDATATRANSRIGHTSFX:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransRightSFX", sstACTIVE))
+			{
+				auto& trans = sub->trans_right;
+				trans.tr_sfx = vbound(value/10000,0,255);
+			}
+			break;
+		}
+		case SUBDATATRANSRIGHTFLAGS:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransRightFlags[]", sstACTIVE))
+			{
+				auto& trans = sub->trans_right;
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_TRANS_NUMFLAGS)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreendata->TransRightFlags[%d]'\n", indx, SUBSCR_TRANS_NUMFLAGS);
+				}
+				else
+					SETFLAG(trans.flags,(1<<indx),value);
+			}
+			break;
+		}
+		case SUBDATATRANSRIGHTARGS:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransRightArgs[]", sstACTIVE))
+			{
+				auto& trans = sub->trans_right;
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_TRANSITION_MAXARG)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreendata->TransRightArgs[%d]'\n", indx, SUBSCR_TRANSITION_MAXARG);
+				}
+				else
+					trans.arg[indx] = value/SubscrTransition::argScale(trans.type,indx);
+			}
+			break;
+		}
+		case SUBDATASELECTORDSTX:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorDestX", sstACTIVE))
+				sub->selector_setting.x = vbound(value/10000,-32768,32767);
+			break;
+		}
+		case SUBDATASELECTORDSTY:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorDestY", sstACTIVE))
+				sub->selector_setting.y = vbound(value/10000,-32768,32767);
+			break;
+		}
+		case SUBDATASELECTORDSTW:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorDestW", sstACTIVE))
+				sub->selector_setting.w = vbound(value/10000,-32768,32767);
+			break;
+		}
+		case SUBDATASELECTORDSTH:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorDestH", sstACTIVE))
+				sub->selector_setting.h = vbound(value/10000,-32768,32767);
+			break;
+		}
+		case SUBDATASELECTORWID:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorDestWid", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
+				{
+					Z_scripterrlog("Bad index '%d' to array 'subscreendata->"
+						"SelectorDestWid[%d]'\n", indx, SUBSCR_SELECTOR_NUMTILEINFO);
+				}
+				else
+					sub->selector_setting.tileinfo[indx].sw = vbound(value/10000,0,65535);
+			}
+			break;
+		}
+		case SUBDATASELECTORHEI:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorDestHei", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
+				{
+					Z_scripterrlog("Bad index '%d' to array 'subscreendata->"
+						"SelectorDestHei[%d]'\n", indx, SUBSCR_SELECTOR_NUMTILEINFO);
+				}
+				else
+					sub->selector_setting.tileinfo[indx].sh = vbound(value/10000,0,65535);
+			}
+			break;
+		}
+		case SUBDATASELECTORTILE:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorTile", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
+				{
+					Z_scripterrlog("Bad index '%d' to array 'subscreendata->"
+						"SelectorTile[%d]'\n", indx, SUBSCR_SELECTOR_NUMTILEINFO);
+				}
+				else
+					sub->selector_setting.tileinfo[indx].tile = vbound(value/10000,0,NEWMAXTILES-1);
+			}
+			break;
+		}
+		case SUBDATASELECTORCSET:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorCSet", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
+				{
+					Z_scripterrlog("Bad index '%d' to array 'subscreendata->"
+						"SelectorCSet[%d]'\n", indx, SUBSCR_SELECTOR_NUMTILEINFO);
+				}
+				else
+				{
+					byte& cs = sub->selector_setting.tileinfo[indx].cset;
+					cs = (cs&0xF0)|vbound(value/10000,0,0x0F);
+				}
+			}
+			break;
+		}
+		case SUBDATASELECTORFLASHCSET:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorFlashCSet", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
+				{
+					Z_scripterrlog("Bad index '%d' to array 'subscreendata->"
+						"SelectorFlashCSet[%d]'\n", indx, SUBSCR_SELECTOR_NUMTILEINFO);
+				}
+				else
+				{
+					byte& cs = sub->selector_setting.tileinfo[indx].cset;
+					cs = (cs&0x0F)|(vbound(value/10000,0,0x0F)<<4);
+				}
+			}
+			break;
+		}
+		case SUBDATASELECTORFRM:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorFrames", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
+				{
+					Z_scripterrlog("Bad index '%d' to array 'subscreendata->"
+						"SelectorFrames[%d]'\n", indx, SUBSCR_SELECTOR_NUMTILEINFO);
+				}
+				else
+					sub->selector_setting.tileinfo[indx].frames = vbound(value/10000,1,255);
+			}
+			break;
+		}
+		case SUBDATASELECTORASPD:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorASpeed", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
+				{
+					Z_scripterrlog("Bad index '%d' to array 'subscreendata->"
+						"SelectorASpeed[%d]'\n", indx, SUBSCR_SELECTOR_NUMTILEINFO);
+				}
+				else
+					sub->selector_setting.tileinfo[indx].speed = vbound(value/10000,1,255);
+			}
+			break;
+		}
+		case SUBDATASELECTORDELAY:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SelectorDelay", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
+				{
+					Z_scripterrlog("Bad index '%d' to array 'subscreendata->"
+						"SelectorDelay[%d]'\n", indx, SUBSCR_SELECTOR_NUMTILEINFO);
+				}
+				else
+					sub->selector_setting.tileinfo[indx].delay = vbound(value/10000,0,255);
+			}
+			break;
+		}
+		///---- CURRENTLY OPEN ACTIVE SUBSCREEN ONLY
+		case SUBDATATRANSCLK:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransClock", sstACTIVE))
+			{
+				if(sub != new_subscreen_active)
+					Z_scripterrlog("'subscreendata->TransClock' is only"
+						" valid for the current active subscreen!\n");
+				else if(subscreen_open)
+				{
+					int val = value/10000;
+					if(val < 0)
+						subscrpg_clear_animation();
+					else if(!subscr_pg_animating)
+					{
+						SubscrTransition tr = subscr_pg_transition;
+						tr.tr_sfx = 0;
+						subscrpg_animate(subscr_pg_from,subscr_pg_to,tr,*new_subscreen_active);
+						subscr_pg_clk = val;
+					}
+					else subscr_pg_clk = val;
+				}
+			}
+			break;
+		}
+		case SUBDATATRANSTY:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransType", sstACTIVE))
+			{
+				auto& trans = subscr_pg_transition;
+				if(sub != new_subscreen_active)
+					Z_scripterrlog("'subscreendata->TransType' is only"
+						" valid for the current active subscreen!\n");
+				else if(subscreen_open)
+					trans.type = vbound(value/10000,0,sstrMAX-1);
+			}
+			break;
+		}
+		case SUBDATATRANSFLAGS:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransFlags[]", sstACTIVE))
+			{
+				auto& trans = subscr_pg_transition;
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_TRANS_NUMFLAGS)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreendata->TransFlags[%d]'\n", indx, SUBSCR_TRANS_NUMFLAGS);
+				}
+				else if(sub != new_subscreen_active)
+					Z_scripterrlog("'subscreendata->TransType' is only"
+						" valid for the current active subscreen!\n");
+				else if(subscreen_open)
+					SETFLAG(trans.flags,(1<<indx),value);
+			}
+			break;
+		}
+		case SUBDATATRANSARGS:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransArgs[]", sstACTIVE))
+			{
+				auto& trans = subscr_pg_transition;
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_TRANSITION_MAXARG)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreendata->TransArgs[%d]'\n", indx, SUBSCR_TRANSITION_MAXARG);
+				}
+				else if(sub != new_subscreen_active)
+					Z_scripterrlog("'subscreendata->TransType' is only"
+						" valid for the current active subscreen!\n");
+				else if(subscreen_open)
+					trans.arg[indx] = value/SubscrTransition::argScale(trans.type,indx);
+			}
+			break;
+		}
+		case SUBDATATRANSFROMPG:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransFromPage", sstACTIVE))
+			{
+				if(sub != new_subscreen_active)
+					Z_scripterrlog("'subscreendata->TransFromPage' is only"
+						" valid for the current active subscreen!\n");
+				else if(subscreen_open)
+					subscr_pg_from = vbound(value/10000,0,sub->pages.size()-1);
+			}
+			break;
+		}
+		case SUBDATATRANSTOPG:
+		{
+			if(ZCSubscreen* sub = checkSubData(ri->subdataref, "TransToPage", sstACTIVE))
+			{
+				if(sub != new_subscreen_active)
+					Z_scripterrlog("'subscreendata->TransToPage' is only"
+						" valid for the current active subscreen!\n");
+				else if(subscreen_open)
+					subscr_pg_to = vbound(value/10000,0,sub->pages.size()-1);
+			}
+			break;
+		}
+		
+		///----------------------------------------------------------------------------------------------------//
+		case SUBPGINDEX: break; //READ-ONLY
+		case SUBPGNUMWIDG: break; //READ-ONLY
+		case SUBPGWIDGETS: break; //READ-ONLY
+		case SUBPGSUBDATA: break; //READ-ONLY
+		case SUBPGCURSORPOS:
+		{
+			if(SubscrPage* pg = checkSubPage(ri->subpageref, "CursorPos"))
+				pg->cursor_pos = vbound(value/10000,0,255);
+			break;
+		}
+		///----------------------------------------------------------------------------------------------------//
+		///---- ANY WIDGET TYPE
+		case SUBWIDGTYPE: break; //READ-ONLY
+		case SUBWIDGINDEX: break; //READ-ONLY
+		case SUBWIDGPAGE: break; //READ-ONLY
+		case SUBWIDGDISPITM: break; //READ-ONLY
+		case SUBWIDGEQPITM: break; //READ-ONLY
+		case SUBWIDGPOS:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Pos"))
+				widg->pos = vbound(value/10000,0,255);
+			break;
+		}
+		case SUBWIDGPOSES:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "PosDirs"))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= 4)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreenwidget->PosDirs[%d]'\n", indx, 4);
+				}
+				else
+				{
+					byte val = vbound(value/10000,0,255);
+					switch(indx)
+					{
+						case up:
+							widg->pos_up = val;
+							break;
+						case down:
+							widg->pos_down = val;
+							break;
+						case left:
+							widg->pos_left = val;
+							break;
+						case right:
+							widg->pos_right = val;
+							break;
+					}
+				}
+			}
+			break;
+		}
+		case SUBWIDGPOSFLAG:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "VisibleFlags"))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= sspNUM)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreenwidget->VisibleFlags[%d]'\n", indx, sspNUM);
+				}
+				else
+				{
+					SETFLAG(widg->posflags, 1<<indx, value);
+				}
+			}
+			break;
+		}
+		case SUBWIDGX:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "X"))
+				widg->x = vbound(value/10000,-32768,32767);
+			break;
+		}
+		case SUBWIDGY:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Y"))
+				widg->y = vbound(value/10000,-32768,32767);
+			break;
+		}
+		case SUBWIDGW:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "W"))
+				widg->w = vbound(value/10000,0,65535);
+			break;
+		}
+		case SUBWIDGH:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "H"))
+				widg->h = vbound(value/10000,0,65535);
+			break;
+		}
+		case SUBWIDGGENFLAG:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "GenFlags"))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCRFLAG_GEN_COUNT)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreenwidget->GenFlags[%d]'\n", indx, SUBSCRFLAG_GEN_COUNT);
+				}
+				else
+				{
+					SETFLAG(widg->genflags, 1<<indx, value);
+				}
+			}
+			break;
+		}
+		case SUBWIDGFLAG:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Flags"))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				byte sz = widg->numFlags();
+				if(indx >= sz)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreenwidget->Flags[%d]'\n", indx, sz);
+				}
+				else
+				{
+					SETFLAG(widg->flags, 1<<indx, value);
+				}
+			}
+			break;
+		}
+		///---- ACTIVE SUBSCREENS ONLY
+		case SUBWIDGSELECTORDSTX:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "SelectorDestX", sstACTIVE))
+				widg->selector_override.x = vbound(value/10000,-32768,32767);
+			break;
+		}
+		case SUBWIDGSELECTORDSTY:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "SelectorDestY", sstACTIVE))
+				widg->selector_override.y = vbound(value/10000,-32768,32767);
+			break;
+		}
+		case SUBWIDGSELECTORDSTW:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "SelectorDestW", sstACTIVE))
+				widg->selector_override.w = vbound(value/10000,-32768,32767);
+			break;
+		}
+		case SUBWIDGSELECTORDSTH:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "SelectorDestH", sstACTIVE))
+				widg->selector_override.h = vbound(value/10000,-32768,32767);
+			break;
+		}
+		case SUBWIDGSELECTORWID:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "SelectorDestWid", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
+				{
+					Z_scripterrlog("Bad index '%d' to array 'subscreenwidget->"
+						"SelectorDestWid[%d]'\n", indx, SUBSCR_SELECTOR_NUMTILEINFO);
+				}
+				else
+					widg->selector_override.tileinfo[indx].sw = vbound(value/10000,0,65535);
+			}
+			break;
+		}
+		case SUBWIDGSELECTORHEI:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "SelectorDestHei", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
+				{
+					Z_scripterrlog("Bad index '%d' to array 'subscreenwidget->"
+						"SelectorDestHei[%d]'\n", indx, SUBSCR_SELECTOR_NUMTILEINFO);
+				}
+				else
+					widg->selector_override.tileinfo[indx].sh = vbound(value/10000,0,65535);
+			}
+			break;
+		}
+		case SUBWIDGSELECTORTILE:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "SelectorTile", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
+				{
+					Z_scripterrlog("Bad index '%d' to array 'subscreenwidget->"
+						"SelectorTile[%d]'\n", indx, SUBSCR_SELECTOR_NUMTILEINFO);
+				}
+				else
+					widg->selector_override.tileinfo[indx].tile = vbound(value/10000,0,NEWMAXTILES-1);
+			}
+			break;
+		}
+		case SUBWIDGSELECTORCSET:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "SelectorCSet", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
+				{
+					Z_scripterrlog("Bad index '%d' to array 'subscreenwidget->"
+						"SelectorCSet[%d]'\n", indx, SUBSCR_SELECTOR_NUMTILEINFO);
+				}
+				else
+				{
+					byte& cs = widg->selector_override.tileinfo[indx].cset;
+					cs = (cs&0xF0)|vbound(value/10000,0,0x0F);
+				}
+			}
+			break;
+		}
+		case SUBWIDGSELECTORFLASHCSET:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "SelectorFlashCSet", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
+				{
+					Z_scripterrlog("Bad index '%d' to array 'subscreenwidget->"
+						"SelectorFlashCSet[%d]'\n", indx, SUBSCR_SELECTOR_NUMTILEINFO);
+				}
+				else
+				{
+					byte& cs = widg->selector_override.tileinfo[indx].cset;
+					cs = (cs&0x0F)|(vbound(value/10000,0,0x0F)<<4);
+				}
+			}
+			break;
+		}
+		case SUBWIDGSELECTORFRM:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "SelectorFrames", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
+				{
+					Z_scripterrlog("Bad index '%d' to array 'subscreenwidget->"
+						"SelectorFrames[%d]'\n", indx, SUBSCR_SELECTOR_NUMTILEINFO);
+				}
+				else
+					widg->selector_override.tileinfo[indx].frames = vbound(value/10000,1,255);
+			}
+			break;
+		}
+		case SUBWIDGSELECTORASPD:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "SelectorASpeed", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
+				{
+					Z_scripterrlog("Bad index '%d' to array 'subscreenwidget->"
+						"SelectorASpeed[%d]'\n", indx, SUBSCR_SELECTOR_NUMTILEINFO);
+				}
+				else
+					widg->selector_override.tileinfo[indx].speed = vbound(value/10000,1,255);
+			}
+			break;
+		}
+		case SUBWIDGSELECTORDELAY:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "SelectorDelay", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_SELECTOR_NUMTILEINFO)
+				{
+					Z_scripterrlog("Bad index '%d' to array 'subscreenwidget->"
+						"SelectorDelay[%d]'\n", indx, SUBSCR_SELECTOR_NUMTILEINFO);
+				}
+				else
+					widg->selector_override.tileinfo[indx].delay = vbound(value/10000,0,255);
+			}
+			break;
+		}
+				
+		case SUBWIDGPRESSSCRIPT:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "PressScript", sstACTIVE))
+				widg->generic_script = vbound(value/10000,0,NUMSCRIPTSGENERIC-1);
+			break;
+		}
+		case SUBWIDGPRESSINITD:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "PressInitD[]", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= 8)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreenwidget->PressInitD[8]'\n", indx);
+				}
+				else
+					widg->generic_initd[indx] = value;
+			}
+			break;
+		}
+		case SUBWIDGBTNPRESS:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "BtnPressScript[]", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= 8)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreenwidget->BtnPressScript[8]'\n", indx);
+				}
+				else
+					SETFLAG(widg->gen_script_btns,(1<<indx),value);
+			}
+			break;
+		}
+		case SUBWIDGBTNPG:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "BtnPageChange[]", sstACTIVE))
+			{
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= 8)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreenwidget->BtnPageChange[8]'\n", indx);
+				}
+				else
+					SETFLAG(widg->pg_btns,(1<<indx),value);
+			}
+			break;
+		}
+		case SUBWIDGPGMODE:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "PageMode", sstACTIVE))
+				widg->pg_mode = vbound(value/10000,0,PGGOTO_MAX-1);
+			break;
+		}
+		case SUBWIDGPGTARG:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "TargetPage", sstACTIVE))
+				widg->pg_targ = vbound(value/10000,0,MAX_SUBSCR_PAGES-1);
+			break;
+		}
+		
+		case SUBWIDGTRANSPGTY:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "PageTransType", sstACTIVE))
+			{
+				auto& trans = widg->pg_trans;
+				trans.type = vbound(value/10000,0,sstrMAX-1);
+			}
+			break;
+		}
+		case SUBWIDGTRANSPGSFX:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "PageTransSFX", sstACTIVE))
+			{
+				auto& trans = widg->pg_trans;
+				trans.tr_sfx = vbound(value/10000,0,255);
+			}
+			break;
+		}
+		case SUBWIDGTRANSPGFLAGS:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "PageTransFlags[]", sstACTIVE))
+			{
+				auto& trans = widg->pg_trans;
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_TRANS_NUMFLAGS)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreenwidget->PageTransFlags[%d]'\n", indx, SUBSCR_TRANS_NUMFLAGS);
+				}
+				else
+					SETFLAG(trans.flags,(1<<indx),value);
+			}
+			break;
+		}
+		case SUBWIDGTRANSPGARGS:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "PageTransArgs[]", sstACTIVE))
+			{
+				auto& trans = widg->pg_trans;
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= SUBSCR_TRANSITION_MAXARG)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreenwidget->PageTransArgs[%d]'\n", indx, SUBSCR_TRANSITION_MAXARG);
+				}
+				else
+					trans.arg[indx] = value/SubscrTransition::argScale(trans.type,indx);
+			}
+			break;
+		}
+		///---- VARYING WIDGET TYPES
+		case SUBWIDGTY_CSET:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "CSet"))
+			{
+				auto val = vbound(value/10000,-sscsMAX,15);
+				size_t indx = ri->d[rINDEX]/10000;
+				size_t sz = 0;
+				byte ty = widg->getType();
+				switch(ty)
+				{
+					case widgFRAME:
+					case widgMCGUFF:
+					case widgTILEBLOCK:
+					case widgMINITILE:
+						sz = 1;
+						break;
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						sz = 4;
+						break;
+					default:
+						sz = 0;
+						bad_subwidg_type("CSet[]", false, ty);
+						break;
+				}
+				if(!sz) break;
+				if(indx >= sz)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreenwidget->CSet[%d]'\n", indx, sz);
+					break;
+				}
+				switch(ty)
+				{
+					case widgFRAME:
+						((SW_2x2Frame*)widg)->cs.set_int_cset(val);
+						break;
+					case widgMCGUFF:
+						((SW_McGuffin*)widg)->cs.set_int_cset(val);
+						break;
+					case widgTILEBLOCK:
+						((SW_TileBlock*)widg)->cs.set_int_cset(val);
+						break;
+					case widgMINITILE:
+						((SW_MiniTile*)widg)->cs.set_int_cset(val);
+						break;
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						val = vbound(value/10000,0,15);
+						((SW_GaugePiece*)widg)->mts[indx].cset = val;
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_TILE:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Tile[]"))
+			{
+				auto val = vbound(value/10000,0,NEWMAXTILES-1);
+				size_t indx = ri->d[rINDEX]/10000;
+				size_t sz = 0;
+				byte ty = widg->getType();
+				switch(ty)
+				{
+					case widgFRAME:
+					case widgMCGUFF:
+					case widgTILEBLOCK:
+					case widgMINITILE:
+						sz = 1;
+						break;
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						sz = 4;
+						break;
+					default:
+						sz = 0;
+						bad_subwidg_type("Tile[]", false, ty);
+						break;
+				}
+				if(!sz) break;
+				if(indx >= sz)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreenwidget->Tile[%d]'\n", indx, sz);
+					break;
+				}
+				switch(ty)
+				{
+					case widgFRAME:
+						((SW_2x2Frame*)widg)->tile = val;
+						break;
+					case widgMCGUFF:
+						((SW_McGuffin*)widg)->tile = val;
+						break;
+					case widgTILEBLOCK:
+						((SW_TileBlock*)widg)->tile = val;
+						break;
+					case widgMINITILE:
+						val = vbound(value/10000,-ssmstMAX,NEWMAXTILES-1);
+						((SW_MiniTile*)widg)->set_int_tile(val);
+						break;
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						((SW_GaugePiece*)widg)->mts[indx].setTile(val);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_FONT:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Font"))
+			{
+				auto val = vbound(value/10000,0,font_max-1);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgTEXT:
+						((SW_Text*)widg)->fontid = val;
+						break;
+					case widgTEXTBOX:
+						((SW_TextBox*)widg)->fontid = val;
+						break;
+					case widgSELECTEDTEXT:
+						((SW_SelectedText*)widg)->fontid = val;
+						break;
+					case widgTIME:
+						((SW_Time*)widg)->fontid = val;
+						break;
+					case widgCOUNTER:
+						((SW_Counter*)widg)->fontid = val;
+						break;
+					case widgBTNCOUNTER:
+						((SW_BtnCounter*)widg)->fontid = val;
+						break;
+					case widgOLDCTR:
+						((SW_Counters*)widg)->fontid = val;
+						break;
+					case widgMMAPTITLE:
+						((SW_MMapTitle*)widg)->fontid = val;
+						break;
+					default:
+						bad_subwidg_type("Font", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_ALIGN:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Align"))
+			{
+				auto val = vbound(value/10000,0,sstaMAX-1);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgTEXT:
+						((SW_Text*)widg)->align = val;
+						break;
+					case widgTEXTBOX:
+						((SW_TextBox*)widg)->align = val;
+						break;
+					case widgSELECTEDTEXT:
+						((SW_SelectedText*)widg)->align = val;
+						break;
+					case widgTIME:
+						((SW_Time*)widg)->align = val;
+						break;
+					case widgCOUNTER:
+						((SW_Counter*)widg)->align = val;
+						break;
+					case widgBTNCOUNTER:
+						((SW_BtnCounter*)widg)->align = val;
+						break;
+					case widgMMAPTITLE:
+						((SW_MMapTitle*)widg)->align = val;
+						break;
+					default:
+						bad_subwidg_type("Align", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_SHADOWTY:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ShadowType"))
+			{
+				auto val = vbound(value/10000,0,sstsMAX-1);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgTEXT:
+						((SW_Text*)widg)->shadtype = val;
+						break;
+					case widgTEXTBOX:
+						((SW_TextBox*)widg)->shadtype = val;
+						break;
+					case widgSELECTEDTEXT:
+						((SW_SelectedText*)widg)->shadtype = val;
+						break;
+					case widgTIME:
+						((SW_Time*)widg)->shadtype = val;
+						break;
+					case widgCOUNTER:
+						((SW_Counter*)widg)->shadtype = val;
+						break;
+					case widgBTNCOUNTER:
+						((SW_BtnCounter*)widg)->shadtype = val;
+						break;
+					case widgOLDCTR:
+						((SW_Counters*)widg)->shadtype = val;
+						break;
+					case widgMMAPTITLE:
+						((SW_MMapTitle*)widg)->shadtype = val;
+						break;
+					default:
+						bad_subwidg_type("ShadowType", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_COLOR_TXT:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorText"))
+			{
+				auto val = vbound(value/10000,-ssctMAX-NUM_SYS_COLORS,255);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgTEXT:
+						((SW_Text*)widg)->c_text.set_int_color(val);
+						break;
+					case widgTEXTBOX:
+						((SW_TextBox*)widg)->c_text.set_int_color(val);
+						break;
+					case widgSELECTEDTEXT:
+						((SW_SelectedText*)widg)->c_text.set_int_color(val);
+						break;
+					case widgTIME:
+						((SW_Time*)widg)->c_text.set_int_color(val);
+						break;
+					case widgCOUNTER:
+						((SW_Counter*)widg)->c_text.set_int_color(val);
+						break;
+					case widgBTNCOUNTER:
+						((SW_BtnCounter*)widg)->c_text.set_int_color(val);
+						break;
+					case widgOLDCTR:
+						((SW_Counters*)widg)->c_text.set_int_color(val);
+						break;
+					case widgMMAPTITLE:
+						((SW_MMapTitle*)widg)->c_text.set_int_color(val);
+						break;
+					case widgMCGUFF_FRAME:
+						((SW_TriFrame*)widg)->c_number.set_int_color(val);
+						break;
+					default:
+						bad_subwidg_type("ColorText", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_COLOR_SHD:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorShadow"))
+			{
+				auto val = vbound(value/10000,-ssctMAX-NUM_SYS_COLORS,255);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgTEXT:
+						((SW_Text*)widg)->c_shadow.set_int_color(val);
+						break;
+					case widgTEXTBOX:
+						((SW_TextBox*)widg)->c_shadow.set_int_color(val);
+						break;
+					case widgSELECTEDTEXT:
+						((SW_SelectedText*)widg)->c_shadow.set_int_color(val);
+						break;
+					case widgTIME:
+						((SW_Time*)widg)->c_shadow.set_int_color(val);
+						break;
+					case widgCOUNTER:
+						((SW_Counter*)widg)->c_shadow.set_int_color(val);
+						break;
+					case widgBTNCOUNTER:
+						((SW_BtnCounter*)widg)->c_shadow.set_int_color(val);
+						break;
+					case widgOLDCTR:
+						((SW_Counters*)widg)->c_shadow.set_int_color(val);
+						break;
+					case widgMMAPTITLE:
+						((SW_MMapTitle*)widg)->c_shadow.set_int_color(val);
+						break;
+					default:
+						bad_subwidg_type("ColorShadow", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_COLOR_BG:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorBG"))
+			{
+				auto val = vbound(value/10000,-ssctMAX-NUM_SYS_COLORS,255);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgTEXT:
+						((SW_Text*)widg)->c_bg.set_int_color(val);
+						break;
+					case widgTEXTBOX:
+						((SW_TextBox*)widg)->c_bg.set_int_color(val);;
+						break;
+					case widgSELECTEDTEXT:
+						((SW_SelectedText*)widg)->c_bg.set_int_color(val);;
+						break;
+					case widgTIME:
+						((SW_Time*)widg)->c_bg.set_int_color(val);
+						break;
+					case widgCOUNTER:
+						((SW_Counter*)widg)->c_bg.set_int_color(val);
+						break;
+					case widgBTNCOUNTER:
+						((SW_BtnCounter*)widg)->c_bg.set_int_color(val);
+						break;
+					case widgOLDCTR:
+						((SW_Counters*)widg)->c_bg.set_int_color(val);
+						break;
+					case widgMMAPTITLE:
+						((SW_MMapTitle*)widg)->c_bg.set_int_color(val);
+						break;
+					case widgBGCOLOR:
+						((SW_Clear*)widg)->c_bg.set_int_color(val);
+						break;
+					default:
+						bad_subwidg_type("ColorBG", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		
+		case SUBWIDGTY_COLOR_OLINE:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorOutline"))
+			{
+				auto val = vbound(value/10000,-ssctMAX-NUM_SYS_COLORS,255);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgLINE:
+						((SW_Line*)widg)->c_line.set_int_color(val);
+						break;
+					case widgRECT:
+						((SW_Rect*)widg)->c_outline.set_int_color(val);
+						break;
+					case widgMCGUFF_FRAME:
+						((SW_TriFrame*)widg)->c_outline.set_int_color(val);
+						break;
+					default:
+						bad_subwidg_type("ColorOutline", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		
+		case SUBWIDGTY_COLOR_FILL:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorFill"))
+			{
+				auto val = vbound(value/10000,-ssctMAX-NUM_SYS_COLORS,255);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgRECT:
+						((SW_Rect*)widg)->c_fill.set_int_color(val);
+						break;
+					default:
+						bad_subwidg_type("ColorFill", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_BUTTON:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Button"))
+			{
+				auto val = vbound(value/10000,0,3);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgBTNITM:
+						((SW_ButtonItem*)widg)->btn = val;
+						break;
+					case widgBTNCOUNTER:
+						((SW_BtnCounter*)widg)->btn = val;
+						break;
+					default:
+						bad_subwidg_type("Button", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_COUNTERS:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Counter[]"))
+			{
+				auto val = vbound(value/10000,sscMIN+1,MAX_COUNTERS-1);
+				size_t indx = ri->d[rINDEX]/10000;
+				size_t sz = 0;
+				byte ty = widg->getType();
+				switch(ty)
+				{
+					case widgCOUNTER:
+						sz = 3;
+						break;
+					case widgMISCGAUGE:
+						sz = 1;
+						break;
+					default:
+						sz = 0;
+						bad_subwidg_type("Counter[]", false, ty);
+						break;
+				}
+				if(!sz) break;
+				if(indx >= sz)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreenwidget->Counter[%d]'\n", indx, sz);
+					break;
+				}
+				switch(ty)
+				{
+					case widgCOUNTER:
+						((SW_Counter*)widg)->ctrs[indx] = val;
+						break;
+					case widgMISCGAUGE:
+						((SW_MiscGaugePiece*)widg)->counter = val;
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_MINDIG:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "MinDigits"))
+			{
+				auto val = vbound(value/10000,0,5);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgCOUNTER:
+						((SW_Counter*)widg)->mindigits = val;
+						break;
+					case widgBTNCOUNTER:
+						((SW_BtnCounter*)widg)->mindigits = val;
+						break;
+					case widgOLDCTR:
+						((SW_Counters*)widg)->digits = val;
+						break;
+					default:
+						bad_subwidg_type("MinDigits", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_MAXDIG:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "MaxDigits"))
+			{
+				auto val = vbound(value/10000,0,5);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgCOUNTER:
+						((SW_Counter*)widg)->maxdigits = val;
+						break;
+					case widgBTNCOUNTER:
+						((SW_BtnCounter*)widg)->maxdigits = val;
+						break;
+					default:
+						bad_subwidg_type("MaxDigits", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_INFITM:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "InfiniteItem"))
+			{
+				auto val = vbound(value/10000,-1,MAXITEMS-1);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgCOUNTER:
+						((SW_Counter*)widg)->infitm = val;
+						break;
+					case widgOLDCTR:
+						((SW_Counters*)widg)->infitm = val;
+						break;
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						((SW_GaugePiece*)widg)->inf_item = val;
+						break;
+					default:
+						bad_subwidg_type("InfiniteItem", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_INFCHAR:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "InfiniteChar"))
+			{
+				char val = vbound(value/10000,0,255);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgCOUNTER:
+						((SW_Counter*)widg)->infchar = val;
+						break;
+					case widgBTNCOUNTER:
+						((SW_BtnCounter*)widg)->infchar = val;
+						break;
+					case widgOLDCTR:
+						((SW_Counters*)widg)->infchar = val;
+						break;
+					default:
+						bad_subwidg_type("InfiniteChar", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_COSTIND:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "CostIndex"))
+			{
+				auto val = vbound(value/10000,0,1);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgBTNCOUNTER:
+						((SW_BtnCounter*)widg)->costind = val;
+						break;
+					default:
+						bad_subwidg_type("CostIndex", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_COLOR_PLAYER:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorPlayer"))
+			{
+				auto val = vbound(value/10000,-ssctMAX-NUM_SYS_COLORS,255);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgMMAP:
+						((SW_MMap*)widg)->c_plr.set_int_color(val);
+						break;
+					case widgLMAP:
+						((SW_LMap*)widg)->c_plr.set_int_color(val);
+						break;
+					default:
+						bad_subwidg_type("ColorPlayer", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_COLOR_CMPBLNK:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorCompassBlink"))
+			{
+				auto val = vbound(value/10000,-ssctMAX-NUM_SYS_COLORS,255);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgMMAP:
+						((SW_MMap*)widg)->c_cmp_blink.set_int_color(val);
+						break;
+					default:
+						bad_subwidg_type("ColorCompassBlink", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_COLOR_CMPOFF:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorCompassOff"))
+			{
+				auto val = vbound(value/10000,-ssctMAX-NUM_SYS_COLORS,255);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgMMAP:
+						((SW_MMap*)widg)->c_cmp_off.set_int_color(val);
+						break;
+					default:
+						bad_subwidg_type("ColorCompassOff", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_COLOR_ROOM:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ColorRoom"))
+			{
+				auto val = vbound(value/10000,-ssctMAX-NUM_SYS_COLORS,255);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgLMAP:
+						((SW_LMap*)widg)->c_room.set_int_color(val);
+						break;
+					default:
+						bad_subwidg_type("ColorRoom", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_ITEMCLASS:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ItemClass"))
+			{
+				auto val = vbound(value/10000,0,itype_maxusable-1);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgITEMSLOT:
+						((SW_ItemSlot*)widg)->iclass = val;
+						break;
+					default:
+						bad_subwidg_type("ItemClass", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_ITEMID:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ItemID"))
+			{
+				auto val = vbound(value/10000,-1,MAXITEMS-1);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgITEMSLOT:
+						((SW_ItemSlot*)widg)->iid = val;
+						break;
+					default:
+						bad_subwidg_type("ItemID", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_FRAMETILE:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "FrameTile"))
+			{
+				auto val = vbound(value/10000,0,NEWMAXTILES-1);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgMCGUFF_FRAME:
+						((SW_TriFrame*)widg)->frame_tile = val;
+						break;
+					default:
+						bad_subwidg_type("FrameTile", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_FRAMECSET:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "FrameCSet"))
+			{
+				auto val = vbound(value/10000,0,15);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgMCGUFF_FRAME:
+						((SW_TriFrame*)widg)->frame_cset = val;
+						break;
+					default:
+						bad_subwidg_type("FrameCSet", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_PIECETILE:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "PieceTile"))
+			{
+				auto val = vbound(value/10000,0,NEWMAXTILES-1);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgMCGUFF_FRAME:
+						((SW_TriFrame*)widg)->piece_tile = val;
+						break;
+					default:
+						bad_subwidg_type("PieceTile", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_PIECECSET:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "PieceCSet"))
+			{
+				auto val = vbound(value/10000,0,15);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgMCGUFF_FRAME:
+						((SW_TriFrame*)widg)->piece_cset = val;
+						break;
+					default:
+						bad_subwidg_type("PieceCSet", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_FLIP:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Flip"))
+			{
+				auto val = vbound(value/10000,0,15);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgMCGUFF:
+						((SW_McGuffin*)widg)->flip = val;
+						break;
+					case widgTILEBLOCK:
+						((SW_TileBlock*)widg)->flip = val;
+						break;
+					case widgMINITILE:
+						((SW_MiniTile*)widg)->flip = val;
+						break;
+					default:
+						bad_subwidg_type("Flip", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_NUMBER:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Number"))
+			{
+				auto val = vbound(value/10000,0,255);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgMCGUFF:
+						((SW_McGuffin*)widg)->number = val;
+						break;
+					default:
+						bad_subwidg_type("Number", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_CORNER:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Corner[]"))
+			{
+				auto val = vbound(value/10000,0,3);
+				size_t indx = ri->d[rINDEX]/10000;
+				size_t sz = 0;
+				byte ty = widg->getType();
+				switch(ty)
+				{
+					case widgMINITILE:
+						sz = 1;
+						break;
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						sz = 4;
+						break;
+					default:
+						sz = 0;
+						bad_subwidg_type("Corner[]", false, ty);
+						break;
+				}
+				if(!sz) break;
+				if(indx >= sz)
+				{
+					Z_scripterrlog("Bad index '%d' to array "
+						"'subscreenwidget->Corner[%d]'\n", indx, sz);
+					break;
+				}
+				switch(ty)
+				{
+					case widgMINITILE:
+						((SW_MiniTile*)widg)->crn = val;
+						break;
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						((SW_GaugePiece*)widg)->mts[indx].setCrn(val);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_FRAMES:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Frames"))
+			{
+				auto val = vbound(value/10000,1,65535);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						((SW_GaugePiece*)widg)->frames = val;
+						break;
+					default:
+						bad_subwidg_type("Frames", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_SPEED:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Speed"))
+			{
+				auto val = vbound(value/10000,1,65535);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						((SW_GaugePiece*)widg)->speed = val;
+						break;
+					default:
+						bad_subwidg_type("Speed", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_DELAY:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Delay"))
+			{
+				auto val = vbound(value/10000,0,65535);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						((SW_GaugePiece*)widg)->delay = val;
+						break;
+					default:
+						bad_subwidg_type("Delay", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_CONTAINER:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Container"))
+			{
+				auto val = vbound(value/10000,0,65535);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						((SW_GaugePiece*)widg)->container = val;
+						break;
+					default:
+						bad_subwidg_type("Container", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_GAUGE_WID:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "GaugeWid"))
+			{
+				auto val = vbound(value/10000,1,32);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						((SW_GaugePiece*)widg)->gauge_wid = val;
+						break;
+					default:
+						bad_subwidg_type("GaugeWid", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_GAUGE_HEI:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "GaugeHei"))
+			{
+				auto val = vbound(value/10000,1,32);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						((SW_GaugePiece*)widg)->gauge_hei = val;
+						break;
+					default:
+						bad_subwidg_type("GaugeHei", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_UNITS:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Units"))
+			{
+				auto val = vbound(value/10000,1,256);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						((SW_GaugePiece*)widg)->unit_per_frame = val-1;
+						break;
+					default:
+						bad_subwidg_type("Units", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_HSPACE:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "HSpace"))
+			{
+				auto val = vbound(value/10000,-128,127);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						((SW_GaugePiece*)widg)->hspace = val;
+						break;
+					default:
+						bad_subwidg_type("HSpace", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_VSPACE:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "VSpace"))
+			{
+				auto val = vbound(value/10000,-128,127);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						((SW_GaugePiece*)widg)->vspace = val;
+						break;
+					default:
+						bad_subwidg_type("VSpace", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_GRIDX:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "GridX"))
+			{
+				auto val = vbound(value/10000,-32768,32767);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						((SW_GaugePiece*)widg)->grid_xoff = val;
+						break;
+					default:
+						bad_subwidg_type("GridX", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_GRIDY:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "GridY"))
+			{
+				auto val = vbound(value/10000,-32768,32767);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						((SW_GaugePiece*)widg)->grid_yoff = val;
+						break;
+					default:
+						bad_subwidg_type("GridY", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_ANIMVAL:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "AnimVal"))
+			{
+				auto val = vbound(value/10000,0,65535);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgLGAUGE:
+					case widgMGAUGE:
+					case widgMISCGAUGE:
+						((SW_GaugePiece*)widg)->anim_val = val;
+						break;
+					default:
+						bad_subwidg_type("AnimVal", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_SHOWDRAIN:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "ShowDrain"))
+			{
+				auto val = vbound(value/10000,-1,32767);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgMGAUGE:
+						((SW_MagicGaugePiece*)widg)->showdrain = val;
+						break;
+					default:
+						bad_subwidg_type("ShowDrain", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_PERCONTAINER:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "PerContainer"))
+			{
+				auto val = vbound(value/10000,1,65535);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgMGAUGE:
+						((SW_MiscGaugePiece*)widg)->per_container = val;
+						break;
+					default:
+						bad_subwidg_type("PerContainer", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		case SUBWIDGTY_TABSIZE:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "TabSize"))
+			{
+				auto val = vbound(value/10000,0,255);
+				auto ty = widg->getType();
+				switch(ty)
+				{
+					case widgTEXTBOX:
+						((SW_TextBox*)widg)->tabsize = val;
+						break;
+					case widgSELECTEDTEXT:
+						((SW_SelectedText*)widg)->tabsize = val;
+						break;
+					default:
+						bad_subwidg_type("TabSize", false, ty);
+						break;
+				}
+			}
+			break;
+		}
+		///----------------------------------------------------------------------------------------------------//
+		
 		default:
 		{
 			if(arg >= D(0) && arg <= D(7))			ri->d[arg - D(0)] = value;
@@ -24146,8 +28451,6 @@ void do_set(const bool v, ScriptType whichType, const int32_t whichUID)
 			if(sarg1==NPCSCRIPT && ri->guyref==whichUID)
 				allowed = false;
 			break;
-		
-		//case ScriptType::Subscreen:
 		
 		case ScriptType::Ewpn:
 			if(sarg1==EWPNSCRIPT && ri->ewpn==whichUID)
@@ -26230,12 +30533,79 @@ void FFScript::do_loaddmapdata(const bool v)
 	
 	if ( ID < 0 || ID > 511 )
 	{
-	Z_scripterrlog("Invalid DMap ID passed to Game->LoadDMapData(): %d\n", ID);
-	ri->dmapsref = MAX_DWORD;
+		Z_scripterrlog("Invalid DMap ID passed to Game->LoadDMapData(): %d\n", ID);
+		ri->dmapsref = MAX_DWORD;
 	}
-		
 	else ri->dmapsref = ID;
-	//Z_eventlog("Script loaded npcdata with ID = %ld\n", ri->idata);
+}
+
+void FFScript::do_load_active_subscreendata(const bool v)
+{
+	int32_t ID = SH::get_arg(sarg1, v) / 10000;
+	
+	if(ID == -1 || (unsigned(ID) < subscreens_active.size() && unsigned(ID) < 256))
+	{
+		ri->subdataref = get_subref(ID, sstACTIVE);
+	}
+	else
+	{
+		Z_scripterrlog("Invalid Subscreen ID passed to Game->LoadASubData(): %d\n", ID);
+		ri->subdataref = 0;
+	}
+	ri->d[rEXP1] = ri->subdataref;
+}
+void FFScript::do_load_passive_subscreendata(const bool v)
+{
+	int32_t ID = SH::get_arg(sarg1, v) / 10000;
+	
+	if(ID == -1 || (unsigned(ID) < subscreens_passive.size() && unsigned(ID) < 256))
+	{
+		ri->subdataref = get_subref(ID, sstPASSIVE);
+	}
+	else
+	{
+		Z_scripterrlog("Invalid Subscreen ID passed to Game->LoadPSubData(): %d\n", ID);
+		ri->subdataref = 0;
+	}
+	ri->d[rEXP1] = ri->subdataref;
+}
+void FFScript::do_load_overlay_subscreendata(const bool v)
+{
+	int32_t ID = SH::get_arg(sarg1, v) / 10000;
+	
+	if(ID == -1 || (unsigned(ID) < subscreens_overlay.size() && unsigned(ID) < 256))
+	{
+		ri->subdataref = get_subref(ID, sstOVERLAY);
+	}
+	else
+	{
+		Z_scripterrlog("Invalid Subscreen ID passed to Game->LoadOSubData(): %d\n", ID);
+		ri->subdataref = 0;
+	}
+	ri->d[rEXP1] = ri->subdataref;
+}
+void FFScript::do_load_subscreendata(const bool v, const bool v2)
+{
+	int32_t ty = SH::get_arg(sarg2, v2) / 10000;
+	switch(ty)
+	{
+		case sstACTIVE:
+			do_load_active_subscreendata(v);
+			break;
+		case sstPASSIVE:
+			do_load_passive_subscreendata(v);
+			break;
+		case sstOVERLAY:
+			do_load_overlay_subscreendata(v);
+			break;
+		default:
+		{
+			Z_scripterrlog("Invalid Subscreen Type passed to ???: %d\n", ty);
+			ri->subdataref = 0;
+			break;
+		}
+	}
+	ri->d[rEXP1] = ri->subdataref;
 }
 
 void FFScript::do_loadrng()
@@ -30936,8 +35306,9 @@ int32_t run_script(ScriptType type, const word script, const int32_t i)
 		case ScriptType::Player:
 		case ScriptType::DMap:
 		case ScriptType::OnMap:
-		case ScriptType::ActiveSubscreen:
-		case ScriptType::PassiveSubscreen:
+		case ScriptType::ScriptedActiveSubscreen:
+		case ScriptType::ScriptedPassiveSubscreen:
+		case ScriptType::EngineSubscreen:
 		case ScriptType::Screen:
 		case ScriptType::Combo:
 		case ScriptType::Item:
@@ -31274,6 +35645,10 @@ j_command:
 					scommand = NOP;
 				else switch(type)
 				{
+					case ScriptType::EngineSubscreen: //ignore waitdraws
+						Z_scripterrlog("'Waitdraw()' is invalid in subscreen scripts, will be ignored\n");
+						scommand = NOP;
+						break;
 					case ScriptType::Generic:
 					case ScriptType::GenericFrozen: //ignore waitdraws
 						Z_scripterrlog("'Waitdraw()' is invalid in generic scripts, will be ignored\n");
@@ -31439,8 +35814,8 @@ j_command:
 						zprint("%s Script %s has exited.\n", type_str, screenmap[i].scriptname.c_str()); break;
 					case ScriptType::OnMap:
 					case ScriptType::DMap:
-					case ScriptType::ActiveSubscreen:
-					case ScriptType::PassiveSubscreen:
+					case ScriptType::ScriptedActiveSubscreen:
+					case ScriptType::ScriptedPassiveSubscreen:
 						zprint("%s Script %s has exited.\n", type_str, dmapmap[i].scriptname.c_str()); break;
 					case ScriptType::Combo: zprint("%s Script %s has exited.\n", type_str, comboscriptmap[i].scriptname.c_str()); break;
 					
@@ -31486,8 +35861,8 @@ j_command:
 							Z_scripterrlog("%s Script %s attempted to GOTO an invalid jump to (%d).\n", type_str, screenmap[i].scriptname.c_str(), sarg1); break;
 						case ScriptType::OnMap:
 						case ScriptType::DMap:
-						case ScriptType::ActiveSubscreen:
-						case ScriptType::PassiveSubscreen:
+						case ScriptType::ScriptedActiveSubscreen:
+						case ScriptType::ScriptedPassiveSubscreen:
 							Z_scripterrlog("%s Script %s attempted to GOTO an invalid jump to (%d).\n", type_str, dmapmap[i].scriptname.c_str(), sarg1); break;
 						case ScriptType::Combo: Z_scripterrlog("%s Script %s attempted to GOTO an invalid jump to (%d).\n", type_str, comboscriptmap[i].scriptname.c_str(), sarg1); break;
 						
@@ -31528,8 +35903,8 @@ j_command:
 							Z_scripterrlog("%s Script %s attempted to GOTOR an invalid jump to (%d).\n", type_str, screenmap[i].scriptname.c_str(), sarg1); break;
 						case ScriptType::OnMap:
 						case ScriptType::DMap:
-						case ScriptType::ActiveSubscreen:
-						case ScriptType::PassiveSubscreen:
+						case ScriptType::ScriptedActiveSubscreen:
+						case ScriptType::ScriptedPassiveSubscreen:
 							Z_scripterrlog("%s Script %s attempted to GOTOR an invalid jump to (%d).\n", type_str, dmapmap[i].scriptname.c_str(), sarg1); break;
 						case ScriptType::Combo: Z_scripterrlog("%s Script %s attempted to GOTOR an invalid jump to (%d).\n", type_str, comboscriptmap[i].scriptname.c_str(), sarg1); break;
 						
@@ -31572,8 +35947,8 @@ j_command:
 								Z_scripterrlog("%s Script %s attempted to GOTOTRUE an invalid jump to (%d).\n", type_str, screenmap[i].scriptname.c_str(), sarg1); break;
 							case ScriptType::OnMap:
 							case ScriptType::DMap:
-							case ScriptType::ActiveSubscreen:
-							case ScriptType::PassiveSubscreen:
+							case ScriptType::ScriptedActiveSubscreen:
+							case ScriptType::ScriptedPassiveSubscreen:
 								Z_scripterrlog("%s Script %s attempted to GOTOTRUE an invalid jump to (%d).\n", type_str, dmapmap[i].scriptname.c_str(), sarg1); break;
 							case ScriptType::Combo: Z_scripterrlog("%s Script %s attempted to GOTOTRUE an invalid jump to (%d).\n", type_str, comboscriptmap[i].scriptname.c_str(), sarg1); break;
 							
@@ -31617,8 +35992,8 @@ j_command:
 								Z_scripterrlog("%s Script %s attempted to GOTOFALSE an invalid jump to (%d).\n", type_str, screenmap[i].scriptname.c_str(), sarg1); break;
 							case ScriptType::OnMap:
 							case ScriptType::DMap:
-							case ScriptType::ActiveSubscreen:
-							case ScriptType::PassiveSubscreen:
+							case ScriptType::ScriptedActiveSubscreen:
+							case ScriptType::ScriptedPassiveSubscreen:
 								Z_scripterrlog("%s Script %s attempted to GOTOFALSE an invalid jump to (%d).\n", type_str, dmapmap[i].scriptname.c_str(), sarg1); break;
 							case ScriptType::Combo: Z_scripterrlog("%s Script %s attempted to GOTOFALSE an invalid jump to (%d).\n", type_str, comboscriptmap[i].scriptname.c_str(), sarg1); break;
 							
@@ -31662,8 +36037,8 @@ j_command:
 								Z_scripterrlog("%s Script %s attempted to GOTOMORE an invalid jump to (%d).\n", type_str, screenmap[i].scriptname.c_str(), sarg1); break;
 							case ScriptType::OnMap:
 							case ScriptType::DMap:
-							case ScriptType::ActiveSubscreen:
-							case ScriptType::PassiveSubscreen:
+							case ScriptType::ScriptedActiveSubscreen:
+							case ScriptType::ScriptedPassiveSubscreen:
 								Z_scripterrlog("%s Script %s attempted to GOTOMORE an invalid jump to (%d).\n", type_str, dmapmap[i].scriptname.c_str(), sarg1); break;
 							case ScriptType::Combo: Z_scripterrlog("%s Script %s attempted to GOTOMORE an invalid jump to (%d).\n", type_str, comboscriptmap[i].scriptname.c_str(), sarg1); break;
 							
@@ -31707,8 +36082,8 @@ j_command:
 								Z_scripterrlog("%s Script %s attempted to GOTOLESS an invalid jump to (%d).\n", type_str, screenmap[i].scriptname.c_str(), sarg1); break;
 							case ScriptType::OnMap:
 							case ScriptType::DMap:
-							case ScriptType::ActiveSubscreen:
-							case ScriptType::PassiveSubscreen:
+							case ScriptType::ScriptedActiveSubscreen:
+							case ScriptType::ScriptedPassiveSubscreen:
 								Z_scripterrlog("%s Script %s attempted to GOTOLESS an invalid jump to (%d).\n", type_str, dmapmap[i].scriptname.c_str(), sarg1); break;
 							case ScriptType::Combo: Z_scripterrlog("%s Script %s attempted to GOTOLESS an invalid jump to (%d).\n", type_str, comboscriptmap[i].scriptname.c_str(), sarg1); break;
 							
@@ -32892,6 +37267,40 @@ j_command:
 				FFScript::do_loaddmapdata(false); break;
 			case LOADDMAPDATAV: //command
 				FFScript::do_loaddmapdata(true); break;
+			case LOADSUBDATARV:
+				FFScript::do_load_subscreendata(false, true); break;
+			case SWAPSUBSCREENV:
+			{
+				auto ty = sarg1/10000;
+				std::vector<ZCSubscreen>* vec = nullptr;
+				switch(ty)
+				{
+					case sstACTIVE:
+						vec = &subscreens_active;
+						break;
+					case sstPASSIVE:
+						vec = &subscreens_passive;
+						break;
+					case sstOVERLAY:
+						vec = &subscreens_overlay;
+						break;
+					default:
+						Z_scripterrlog("Invalid Subscreen Type passed to ???: %d\n", ty);
+						break;
+				}
+				if(vec)
+				{
+					auto& v = *vec;
+					int p1 = SH::read_stack(ri->sp+1);
+					int p2 = SH::read_stack(ri->sp+0);
+					if(unsigned(p1) >= v.size())
+						Z_scripterrlog("Invalid susbcr index '%d' passed to subscreendata->Swap*Pages()\n", p1);
+					else if(unsigned(p2) >= v.size())
+						Z_scripterrlog("Invalid susbcr index '%d' passed to subscreendata->Swap*Pages()\n", p2);
+					else zc_swap(v[p1],v[p2]);
+				}
+				break;
+			}
 			case LOADDIRECTORYR:
 				FFCore.do_loaddirectory(); break;
 			case LOADSTACK:
@@ -35436,6 +39845,214 @@ j_command:
 				do_getscreenindexforrpos(false);
 				break;
 			
+			///----------------------------------------------------------------------------------------------------//
+			
+			case SUBDATA_GET_NAME:
+			{
+				if(ZCSubscreen* sub = checkSubData(ri->subdataref, "GetName"))
+				{
+					auto aptr = get_register(sarg1) / 10000;
+					if(ArrayH::setArray(aptr, sub->name, true) == SH::_Overflow)
+						Z_scripterrlog("Array supplied to 'subscreendata->GetName()' not large enough,"
+							" and couldn't be resized!\n");
+				}
+				break;
+			}
+			case SUBDATA_SET_NAME:
+			{
+				if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SetName"))
+				{
+					auto aptr = get_register(sarg1) / 10000;
+					ArrayH::getString(aptr, sub->name);
+				}
+				break;
+			}
+			case SUBDATA_SWAP_PAGES:
+			{
+				ri->subdataref = SH::read_stack(ri->sp+2);
+				if(ZCSubscreen* sub = checkSubData(ri->subdataref, "SwapPages"))
+				{
+					int p1 = SH::read_stack(ri->sp+1) / 10000;
+					int p2 = SH::read_stack(ri->sp+0) / 10000;
+					if(unsigned(p1) >= sub->pages.size())
+						Z_scripterrlog("Invalid page index '%d' passed to subscreendata->SwapPages()\n", p1);
+					else if(unsigned(p2) >= sub->pages.size())
+						Z_scripterrlog("Invalid page index '%d' passed to subscreendata->SwapPages()\n", p2);
+					else sub->swap_pages(p1,p2);
+				}
+				break;
+			}
+			case SUBPAGE_SWAP_WIDG:
+			{
+				ri->subpageref = SH::read_stack(ri->sp+2);
+				if(SubscrPage* pg = checkSubPage(ri->subpageref, "SwapWidgets"))
+				{
+					int p1 = SH::read_stack(ri->sp+1) / 10000;
+					int p2 = SH::read_stack(ri->sp+0) / 10000;
+					if(unsigned(p1) >= pg->size())
+						Z_scripterrlog("Invalid page index '%d' passed to subscreenpage->SwapWidgets()\n", p1);
+					else if(unsigned(p2) >= pg->size())
+						Z_scripterrlog("Invalid page index '%d' passed to subscreenpage->SwapWidgets()\n", p2);
+					else pg->swap_widg(p1,p2);
+				}
+				break;
+			}
+			case SUBPAGE_FIND_WIDGET:
+			{
+				ri->subpageref = SH::read_stack(ri->sp+1);
+				if(SubscrPage* pg = checkSubPage(ri->subpageref, "FindWidget", sstACTIVE))
+				{
+					int cursorpos = SH::read_stack(ri->sp+0) / 10000;
+					if(auto* widg = pg->get_widg_pos(cursorpos,false))
+					{
+						for(int q = 0; q < pg->size(); ++q)
+							if((*pg)[q] == widg)
+							{
+								auto [sub,ty,pgid,_ind] = from_subref(ri->subpageref);
+								ri->d[rEXP1] = get_subref(sub,ty,pgid,q);
+								break;
+							}
+					}
+				}
+				break;
+			}
+			case SUBPAGE_MOVE_SEL:
+			{
+				#define SUBSEL_FLAG_NO_NONEQUIP 0x01
+				#define SUBSEL_FLAG_NEED_ITEM 0x02
+				ri->subpageref = SH::read_stack(ri->sp+3);
+				if(SubscrPage* pg = checkSubPage(ri->subpageref, "SelectorMove"))
+				{
+					int flags = SH::read_stack(ri->sp+0) / 10000;
+					int dir = SH::read_stack(ri->sp+1) / 10000;
+					int pos = SH::read_stack(ri->sp+2) / 10000;
+					switch(dir)
+					{
+						case up:
+							dir = SEL_UP;
+							break;
+						case down:
+							dir = SEL_DOWN;
+							break;
+						case left:
+							dir = SEL_LEFT;
+							break;
+						case right: default:
+							dir = SEL_RIGHT;
+							break;
+					}
+					
+					auto newpos = pg->movepos_legacy(dir, (pos<<8)|pg->getIndex(),
+						255, 255, 255, flags&SUBSEL_FLAG_NO_NONEQUIP,
+						flags&SUBSEL_FLAG_NEED_ITEM, true) >> 8;
+					ri->d[rEXP1] = 10000*newpos;
+				}
+				break;
+			}
+			case SUBPAGE_NEW_WIDG:
+			{
+				ri->subpageref = SH::read_stack(ri->sp+1);
+				if(SubscrPage* pg = checkSubPage(ri->subpageref, "CreateWidget"))
+				{
+					if(pg->size() == 0x2000)
+						break; //Page is full!
+					int ty = SH::read_stack(ri->sp+0) / 10000;
+					if(auto* widg = SubscrWidget::newType(ty))
+					{
+						widg->posflags = sspUP | sspDOWN | sspSCROLLING;
+						widg->w = 1;
+						widg->h = 1;
+						pg->push_back(widg);
+						auto [sub,ty,pgid,_ind] = from_subref(ri->subpageref);
+						ri->d[rEXP1] = get_subref(sub,ty,pgid,pg->size()-1);
+					}
+					else Z_scripterrlog("Invalid type %d passed to subscreenpage->CreateWidget()\n",ty);
+				}
+				break;
+			}
+			case SUBPAGE_DELETE:
+			{
+				if(SubscrPage* pg = checkSubPage(ri->subpageref, "Delete"))
+				{
+					auto [sub,_ty] = load_subdata(ri->subpageref);
+					sub->delete_page(pg->getIndex());
+				}
+				break;
+			}
+			case SUBWIDG_GET_SELTEXT_OVERRIDE:
+			{
+				if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "GetSelTextOverride"))
+				{
+					auto aptr = get_register(sarg1) / 10000;
+					if(ArrayH::setArray(aptr, widg->override_text, true) == SH::_Overflow)
+						Z_scripterrlog("Array supplied to 'subscreenwidget->GetSelTextOverride()' not large enough,"
+							" and couldn't be resized!\n");
+				}
+				break;
+			}
+			case SUBWIDG_SET_SELTEXT_OVERRIDE:
+			{
+				if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "SetSelTextOverride"))
+				{
+					auto aptr = get_register(sarg1) / 10000;
+					ArrayH::getString(aptr, widg->override_text);
+				}
+				break;
+			}
+			case SUBWIDG_TY_GETTEXT:
+			{
+				if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "GetText"))
+				{
+					std::string const* str = nullptr;
+					byte ty = widg->getType();
+					switch(ty)
+					{
+						case widgTEXT:
+							str = &((SW_Text*)widg)->text;
+							break;
+						case widgTEXTBOX:
+							str = &((SW_TextBox*)widg)->text;
+							break;
+						default:
+							bad_subwidg_type("GetText()", true, ty);
+							break;
+					}
+					if(str)
+					{
+						auto aptr = get_register(sarg1) / 10000;
+						if(ArrayH::setArray(aptr, *str, true) == SH::_Overflow)
+							Z_scripterrlog("Array supplied to 'subscreenwidget->GetText()' not large enough,"
+								" and couldn't be resized!\n");
+					}
+				}
+				break;
+			}
+			case SUBWIDG_TY_SETTEXT:
+			{
+				if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "SetText"))
+				{
+					std::string* str = nullptr;
+					byte ty = widg->getType();
+					switch(ty)
+					{
+						case widgTEXT:
+							str = &((SW_Text*)widg)->text;
+							break;
+						case widgTEXTBOX:
+							str = &((SW_TextBox*)widg)->text;
+							break;
+						default:
+							bad_subwidg_type("SetText()", true, ty);
+							break;
+					}
+					if(str)
+					{
+						auto aptr = get_register(sarg1) / 10000;
+						ArrayH::getString(aptr, *str);
+					}
+				}
+				break;
+			}
 			default:
 			{
 				Z_scripterrlog("Invalid ZASM command %lu reached; terminating\n", scommand);
@@ -35506,8 +40123,8 @@ j_command:
 			case ScriptType::Player:
 			case ScriptType::DMap:
 			case ScriptType::OnMap:
-			case ScriptType::PassiveSubscreen:
-			case ScriptType::ActiveSubscreen:
+			case ScriptType::ScriptedPassiveSubscreen:
+			case ScriptType::ScriptedActiveSubscreen:
 			case ScriptType::Screen:
 			case ScriptType::Combo: 
 				FFCore.waitdraw(type, i) = true;
@@ -35561,6 +40178,7 @@ j_command:
 			
 			case ScriptType::Generic:
 			case ScriptType::GenericFrozen:
+			case ScriptType::EngineSubscreen:
 				//No Waitdraw
 				break;
 			
@@ -35588,8 +40206,9 @@ j_command:
 			case ScriptType::Player:
 			case ScriptType::DMap:
 			case ScriptType::OnMap:
-			case ScriptType::ActiveSubscreen:
-			case ScriptType::PassiveSubscreen:
+			case ScriptType::ScriptedActiveSubscreen:
+			case ScriptType::ScriptedPassiveSubscreen:
+			case ScriptType::EngineSubscreen:
 			case ScriptType::Combo:
 			{
 				auto& data = get_script_engine_data(type, i);
@@ -35710,13 +40329,15 @@ script_data* load_scrdata(ScriptType type, word script, int32_t i)
 		case ScriptType::DMap:
 			return dmapscripts[script];
 		case ScriptType::OnMap:
-		case ScriptType::ActiveSubscreen:
-		case ScriptType::PassiveSubscreen:
+		case ScriptType::ScriptedActiveSubscreen:
+		case ScriptType::ScriptedPassiveSubscreen:
 			return dmapscripts[script];
 		case ScriptType::Screen:
 			return screenscripts[script];
 		case ScriptType::Combo:
 			return comboscripts[script];
+		case ScriptType::EngineSubscreen:
+			return subscreenscripts[script];
 	}
 	return nullptr;
 }
@@ -38162,14 +42783,14 @@ void FFScript::warpScriptCheck()
 		FFCore.runWarpScripts(false);
 		FFCore.runWarpScripts(true); //Waitdraw
 	}
-	else if(get_qr(qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN) && doscript(ScriptType::PassiveSubscreen))
+	else if(get_qr(qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN) && doscript(ScriptType::ScriptedPassiveSubscreen))
 	{
 		if(DMaps[currdmap].passive_sub_script != 0)
-			ZScriptVersion::RunScript(ScriptType::PassiveSubscreen, DMaps[currdmap].passive_sub_script, currdmap);
-		if (waitdraw(ScriptType::PassiveSubscreen) && DMaps[currdmap].passive_sub_script != 0 && doscript(ScriptType::PassiveSubscreen))
+			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[currdmap].passive_sub_script, currdmap);
+		if (waitdraw(ScriptType::ScriptedPassiveSubscreen) && DMaps[currdmap].passive_sub_script != 0 && doscript(ScriptType::ScriptedPassiveSubscreen))
 		{
-			ZScriptVersion::RunScript(ScriptType::PassiveSubscreen, DMaps[currdmap].passive_sub_script, currdmap);
-			waitdraw(ScriptType::PassiveSubscreen) = false;
+			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[currdmap].passive_sub_script, currdmap);
+			waitdraw(ScriptType::ScriptedPassiveSubscreen) = false;
 		}	
 	}
 }
@@ -38197,16 +42818,11 @@ void FFScript::runWarpScripts(bool waitdraw)
 			ZScriptVersion::RunScript(ScriptType::DMap, DMaps[currdmap].script,currdmap);
 			FFCore.waitdraw(ScriptType::DMap) = false;
 		}
-		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(ScriptType::PassiveSubscreen) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(ScriptType::ScriptedPassiveSubscreen) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
-			ZScriptVersion::RunScript(ScriptType::PassiveSubscreen, DMaps[currdmap].passive_sub_script,currdmap);
-			FFCore.waitdraw(ScriptType::PassiveSubscreen) = false;
+			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[currdmap].passive_sub_script,currdmap);
+			FFCore.waitdraw(ScriptType::ScriptedPassiveSubscreen) = false;
 		}
-		//if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && active_subscreen_waitdraw && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
-		//{
-		//	ZScriptVersion::RunScript(ScriptType::Subscreen, DMaps[currdmap].activesubscript,currdmap);
-		//	passive_subscreen_waitdraw = false;
-		//}
 		//no doscript check here, becauseb of preload? Do we want to write doscript here? -Z 13th July, 2019
 		if (FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && !FFCore.system_suspend[susptSCREENSCRIPTS])
 		{
@@ -38237,9 +42853,9 @@ void FFScript::runWarpScripts(bool waitdraw)
 		{
 			ZScriptVersion::RunScript(ScriptType::DMap, DMaps[currdmap].script,currdmap);
 		}
-		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.doscript(ScriptType::PassiveSubscreen) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
+		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.doscript(ScriptType::ScriptedPassiveSubscreen) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) 
 		{
-			ZScriptVersion::RunScript(ScriptType::PassiveSubscreen, DMaps[currdmap].passive_sub_script,currdmap);
+			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[currdmap].passive_sub_script,currdmap);
 		}
 		if (FFCore.getQuestHeaderInfo(vZelda) >= 0x255 && !FFCore.system_suspend[susptSCREENSCRIPTS])
 		{
@@ -38450,7 +43066,7 @@ bool FFScript::runGenericFrozenEngine(const word script, const int32_t *init_dat
 	return true;
 }
 
-bool FFScript::runActiveSubscreenScriptEngine()
+bool FFScript::runScriptedActiveSusbcreen()
 {
 	word activesubscript = DMaps[currdmap].active_sub_script;
 	if(!activesubscript || !dmapscripts[activesubscript]->valid()) return false; //No script to run
@@ -38458,12 +43074,12 @@ bool FFScript::runActiveSubscreenScriptEngine()
 	word dmapactivescript = DMaps[currdmap].script;
 	clear_bitmap(script_menu_buf);
 	blit(framebuf, script_menu_buf, 0, 0, 0, 0, 256, 224);
-	initZScriptActiveSubscreenScript();
+	initZScriptScriptedActiveSubscreen();
 	GameFlags |= GAMEFLAG_SCRIPTMENU_ACTIVE;
 	word script_dmap = currdmap;
 	//auto tmpDrawCommands = script_drawing_commands.pop_commands();
 	pause_all_sfx();
-	auto& data = get_script_engine_data(ScriptType::ActiveSubscreen);
+	auto& data = get_script_engine_data(ScriptType::ScriptedActiveSubscreen);
 	while (data.doscript && !Quit)
 	{
 		script_drawing_commands.Clear();
@@ -38472,24 +43088,24 @@ bool FFScript::runActiveSubscreenScriptEngine()
 		{
 			ZScriptVersion::RunScript(ScriptType::DMap, dmapactivescript, script_dmap);
 		}
-		if(get_qr(qr_PASSIVE_SUBSCRIPT_RUNS_DURING_ACTIVE_SUBSCRIPT)!=0 && DMaps[script_dmap].passive_sub_script != 0 && FFCore.doscript(ScriptType::PassiveSubscreen))
+		if(get_qr(qr_PASSIVE_SUBSCRIPT_RUNS_DURING_ACTIVE_SUBSCRIPT)!=0 && DMaps[script_dmap].passive_sub_script != 0 && FFCore.doscript(ScriptType::ScriptedPassiveSubscreen))
 		{
-			ZScriptVersion::RunScript(ScriptType::PassiveSubscreen, passivesubscript, script_dmap);
+			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, passivesubscript, script_dmap);
 		}
-		ZScriptVersion::RunScript(ScriptType::ActiveSubscreen, activesubscript, script_dmap);
+		ZScriptVersion::RunScript(ScriptType::ScriptedActiveSubscreen, activesubscript, script_dmap);
 		if(waitdraw(ScriptType::DMap) && (get_qr(qr_DMAP_ACTIVE_RUNS_DURING_ACTIVE_SUBSCRIPT) && DMaps[script_dmap].script != 0 && doscript(ScriptType::DMap)))
 		{
 			ZScriptVersion::RunScript(ScriptType::DMap, dmapactivescript, script_dmap);
 			waitdraw(ScriptType::DMap) = false;
 		}
-		if(waitdraw(ScriptType::PassiveSubscreen) && (get_qr(qr_PASSIVE_SUBSCRIPT_RUNS_DURING_ACTIVE_SUBSCRIPT)!=0 && DMaps[script_dmap].passive_sub_script != 0 && FFCore.doscript(ScriptType::PassiveSubscreen)))
+		if(waitdraw(ScriptType::ScriptedPassiveSubscreen) && (get_qr(qr_PASSIVE_SUBSCRIPT_RUNS_DURING_ACTIVE_SUBSCRIPT)!=0 && DMaps[script_dmap].passive_sub_script != 0 && FFCore.doscript(ScriptType::ScriptedPassiveSubscreen)))
 		{
-			ZScriptVersion::RunScript(ScriptType::PassiveSubscreen, passivesubscript, script_dmap);
-			waitdraw(ScriptType::PassiveSubscreen) = false;
+			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, passivesubscript, script_dmap);
+			waitdraw(ScriptType::ScriptedPassiveSubscreen) = false;
 		}
 		if (data.waitdraw && data.doscript)
 		{
-			ZScriptVersion::RunScript(ScriptType::ActiveSubscreen, activesubscript, script_dmap);
+			ZScriptVersion::RunScript(ScriptType::ScriptedActiveSubscreen, activesubscript, script_dmap);
 			data.waitdraw = false;
 		}
 		//Draw
@@ -41643,10 +46259,10 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "CURRENTITEMID", 0, 0, 0, 0 },
 	{ "ARRAYPUSH", 0, 0, 0, 0 },
 	{ "ARRAYPOP", 0, 0, 0, 0 },
-	{ "RESRVD_OP_EMILY_17", 0, 0, 0, 0 },
-	{ "RESRVD_OP_EMILY_18", 0, 0, 0, 0 },
-	{ "RESRVD_OP_EMILY_19", 0, 0, 0, 0 },
-	{ "RESRVD_OP_EMILY_20", 0, 0, 0, 0 },
+	{ "LOADSUBDATARV", 2, 0, 1, 0 },
+	{ "SWAPSUBSCREENV", 1, 1, 0, 0 },
+	{ "SUBDATA_GET_NAME", 1, 0, 0, 0 },
+	{ "SUBDATA_SET_NAME", 1, 0, 0, 0 },
 	{ "CONVERTFROMRGB", 0, 0, 0, 0 },
 	{ "CONVERTTORGB", 0, 0, 0, 0 },
 	{ "GETENHMUSICLEN", 1, 0, 0, 0 },
@@ -41658,7 +46274,18 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "RESRVD_OP_MOOSH_09", 0, 0, 0, 0 },
 	{ "RESRVD_OP_MOOSH_10", 0, 0, 0, 0 },
 	
-	{ "",                    0,   0,   0,   0}
+	{ "SUBDATA_SWAP_PAGES", 0, 0, 0, 0 },
+	{ "SUBPAGE_FIND_WIDGET", 0, 0, 0, 0 },
+	{ "SUBPAGE_MOVE_SEL", 0, 0, 0, 0 },
+	{ "SUBPAGE_SWAP_WIDG", 0, 0, 0, 0 },
+	{ "SUBPAGE_NEW_WIDG", 0, 0, 0, 0 },
+	{ "SUBPAGE_DELETE", 0, 0, 0, 0 },
+	{ "SUBWIDG_GET_SELTEXT_OVERRIDE", 1, 0, 0, 0 },
+	{ "SUBWIDG_SET_SELTEXT_OVERRIDE", 1, 0, 0, 0 },
+	{ "SUBWIDG_TY_GETTEXT", 1, 0, 0, 0 },
+	{ "SUBWIDG_TY_SETTEXT", 1, 0, 0, 0 },
+
+	{ "", 0, 0, 0, 0 }
 };
 
 
@@ -43125,22 +47752,22 @@ script_variable ZASMVars[]=
 	{ "GAMETRIGGROUPS", GAMETRIGGROUPS, 0, 0},
 	{ "GAMEOVERRIDEITEMS", GAMEOVERRIDEITEMS, 0, 0},
 	{ "DMAPDATASUBSCRO", DMAPDATASUBSCRO, 0, 0},
-	{ "RESRVD_VAR_EMILY45", RESRVD_VAR_EMILY45, 0, 0},
-	{ "RESRVD_VAR_EMILY46", RESRVD_VAR_EMILY46, 0, 0},
-	{ "RESRVD_VAR_EMILY47", RESRVD_VAR_EMILY47, 0, 0},
-	{ "RESRVD_VAR_EMILY48", RESRVD_VAR_EMILY48, 0, 0},
-	{ "RESRVD_VAR_EMILY49", RESRVD_VAR_EMILY49, 0, 0},
-	{ "RESRVD_VAR_EMILY50", RESRVD_VAR_EMILY50, 0, 0},
-	{ "RESRVD_VAR_EMILY51", RESRVD_VAR_EMILY51, 0, 0},
-	{ "RESRVD_VAR_EMILY52", RESRVD_VAR_EMILY52, 0, 0},
-	{ "RESRVD_VAR_EMILY53", RESRVD_VAR_EMILY53, 0, 0},
-	{ "RESRVD_VAR_EMILY54", RESRVD_VAR_EMILY54, 0, 0},
-	{ "RESRVD_VAR_EMILY55", RESRVD_VAR_EMILY55, 0, 0},
-	{ "RESRVD_VAR_EMILY56", RESRVD_VAR_EMILY56, 0, 0},
-	{ "RESRVD_VAR_EMILY57", RESRVD_VAR_EMILY57, 0, 0},
-	{ "RESRVD_VAR_EMILY58", RESRVD_VAR_EMILY58, 0, 0},
-	{ "RESRVD_VAR_EMILY59", RESRVD_VAR_EMILY59, 0, 0},
-	{ "RESRVD_VAR_EMILY60", RESRVD_VAR_EMILY60, 0, 0},
+	{ "REFSUBSCREENPAGE", REFSUBSCREENPAGE, 0, 0},
+	{ "REFSUBSCREENWIDG", REFSUBSCREENWIDG, 0, 0},
+	{ "SUBDATACURPG", SUBDATACURPG, 0, 0},
+	{ "SUBDATANUMPG", SUBDATANUMPG, 0, 0},
+	{ "SUBDATAPAGES", SUBDATAPAGES, 0, 0},
+	{ "SUBDATATYPE", SUBDATATYPE, 0, 0},
+	{ "SUBDATAFLAGS", SUBDATAFLAGS, 0, 0},
+	{ "SUBDATACURSORPOS", SUBDATACURSORPOS, 0, 0},
+	{ "SUBDATASCRIPT", SUBDATASCRIPT, 0, 0},
+	{ "SUBDATAINITD", SUBDATAINITD, 0, 0},
+	{ "SUBDATABTNLEFT", SUBDATABTNLEFT, 0, 0},
+	{ "SUBDATABTNRIGHT", SUBDATABTNRIGHT, 0, 0},
+	{ "SUBDATATRANSLEFTTY", SUBDATATRANSLEFTTY, 0, 0},
+	{ "SUBDATATRANSLEFTSFX", SUBDATATRANSLEFTSFX, 0, 0},
+	{ "SUBDATATRANSLEFTFLAGS", SUBDATATRANSLEFTFLAGS, 0, 0},
+	{ "SUBDATATRANSLEFTARGS", SUBDATATRANSLEFTARGS, 0, 0},
 	{ "PORTALX", PORTALX, 0, 0},
 	{ "PORTALY", PORTALY, 0, 0},
 	{ "PORTALDMAP", PORTALDMAP, 0, 0},
@@ -43169,6 +47796,129 @@ script_variable ZASMVars[]=
 	{ "SAVEDPORTALCOUNT", SAVEDPORTALCOUNT, 0, 0},
 	{ "SAVEDPORTALDSTSCREEN", SAVEDPORTALDSTSCREEN, 0, 0},
 	
+	{ "SUBDATATRANSRIGHTTY", SUBDATATRANSRIGHTTY, 0, 0 },
+	{ "SUBDATATRANSRIGHTSFX", SUBDATATRANSRIGHTSFX, 0, 0 },
+	{ "SUBDATATRANSRIGHTFLAGS", SUBDATATRANSRIGHTFLAGS, 0, 0 },
+	{ "SUBDATATRANSRIGHTARGS", SUBDATATRANSRIGHTARGS, 0, 0 },
+	{ "SUBDATASELECTORDSTX", SUBDATASELECTORDSTX, 0, 0 },
+	{ "SUBDATASELECTORDSTY", SUBDATASELECTORDSTY, 0, 0 },
+	{ "SUBDATASELECTORDSTW", SUBDATASELECTORDSTW, 0, 0 },
+	{ "SUBDATASELECTORDSTH", SUBDATASELECTORDSTH, 0, 0 },
+	{ "SUBDATASELECTORWID", SUBDATASELECTORWID, 0, 0 },
+	{ "SUBDATASELECTORHEI", SUBDATASELECTORHEI, 0, 0 },
+	{ "SUBDATASELECTORTILE", SUBDATASELECTORTILE, 0, 0 },
+	{ "SUBDATASELECTORCSET", SUBDATASELECTORCSET, 0, 0 },
+	{ "SUBDATASELECTORFRM", SUBDATASELECTORFRM, 0, 0 },
+	{ "SUBDATASELECTORASPD", SUBDATASELECTORASPD, 0, 0 },
+	{ "SUBDATASELECTORDELAY", SUBDATASELECTORDELAY, 0, 0 },
+	{ "SUBDATATRANSCLK", SUBDATATRANSCLK, 0, 0 },
+	{ "SUBDATATRANSTY", SUBDATATRANSTY, 0, 0 },
+	{ "SUBDATATRANSFLAGS", SUBDATATRANSFLAGS, 0, 0 },
+	{ "SUBDATATRANSARGS", SUBDATATRANSARGS, 0, 0 },
+	{ "SUBDATATRANSFROMPG", SUBDATATRANSFROMPG, 0, 0 },
+	{ "SUBDATATRANSTOPG", SUBDATATRANSTOPG, 0, 0 },
+	{ "SUBDATASELECTORFLASHCSET", SUBDATASELECTORFLASHCSET, 0, 0 },
+	{ "GAMEASUBOPEN", GAMEASUBOPEN, 0, 0 },
+	{ "GAMENUMASUB", GAMENUMASUB, 0, 0 },
+	{ "GAMENUMPSUB", GAMENUMPSUB, 0, 0 },
+	{ "GAMENUMOSUB", GAMENUMOSUB, 0, 0 },
+	{ "SUBPGINDEX", SUBPGINDEX, 0, 0 },
+	{ "SUBPGNUMWIDG", SUBPGNUMWIDG, 0, 0 },
+	{ "SUBPGWIDGETS", SUBPGWIDGETS, 0, 0 },
+	{ "SUBPGSUBDATA", SUBPGSUBDATA, 0, 0 },
+	{ "SUBPGCURSORPOS", SUBPGCURSORPOS, 0, 0 },
+	{ "SUBWIDGTYPE", SUBWIDGTYPE, 0, 0 },
+	{ "SUBWIDGINDEX", SUBWIDGINDEX, 0, 0 },
+	{ "SUBWIDGPAGE", SUBWIDGPAGE, 0, 0 },
+	{ "SUBWIDGPOS", SUBWIDGPOS, 0, 0 },
+	{ "SUBWIDGPOSES", SUBWIDGPOSES, 0, 0 },
+	{ "SUBWIDGPOSFLAG", SUBWIDGPOSFLAG, 0, 0 },
+	{ "SUBWIDGX", SUBWIDGX, 0, 0 },
+	{ "SUBWIDGY", SUBWIDGY, 0, 0 },
+	{ "SUBWIDGW", SUBWIDGW, 0, 0 },
+	{ "SUBWIDGH", SUBWIDGH, 0, 0 },
+	{ "SUBWIDGGENFLAG", SUBWIDGGENFLAG, 0, 0 },
+	{ "SUBWIDGFLAG", SUBWIDGFLAG, 0, 0 },
+	{ "SUBWIDGSELECTORDSTX", SUBWIDGSELECTORDSTX, 0, 0 },
+	{ "SUBWIDGSELECTORDSTY", SUBWIDGSELECTORDSTY, 0, 0 },
+	{ "SUBWIDGSELECTORDSTW", SUBWIDGSELECTORDSTW, 0, 0 },
+	{ "SUBWIDGSELECTORDSTH", SUBWIDGSELECTORDSTH, 0, 0 },
+	{ "SUBWIDGSELECTORWID", SUBWIDGSELECTORWID, 0, 0 },
+	{ "SUBWIDGSELECTORHEI", SUBWIDGSELECTORHEI, 0, 0 },
+	{ "SUBWIDGSELECTORTILE", SUBWIDGSELECTORTILE, 0, 0 },
+	
+	{ "SUBWIDGSELECTORCSET", SUBWIDGSELECTORCSET, 0, 0 },
+	{ "SUBWIDGSELECTORFLASHCSET", SUBWIDGSELECTORFLASHCSET, 0, 0 },
+	{ "SUBWIDGSELECTORFRM", SUBWIDGSELECTORFRM, 0, 0 },
+	{ "SUBWIDGSELECTORASPD", SUBWIDGSELECTORASPD, 0, 0 },
+	{ "SUBWIDGSELECTORDELAY", SUBWIDGSELECTORDELAY, 0, 0 },
+	{ "SUBWIDGPRESSSCRIPT", SUBWIDGPRESSSCRIPT, 0, 0 },
+	{ "SUBWIDGPRESSINITD", SUBWIDGPRESSINITD, 0, 0 },
+	{ "SUBWIDGBTNPRESS", SUBWIDGBTNPRESS, 0, 0 },
+	{ "SUBWIDGBTNPG", SUBWIDGBTNPG, 0, 0 },
+	{ "SUBWIDGPGMODE", SUBWIDGPGMODE, 0, 0 },
+	{ "SUBWIDGPGTARG", SUBWIDGPGTARG, 0, 0 },
+	{ "SUBWIDGTRANSPGTY", SUBWIDGTRANSPGTY, 0, 0 },
+	{ "SUBWIDGTRANSPGSFX", SUBWIDGTRANSPGSFX, 0, 0 },
+	{ "SUBWIDGTRANSPGFLAGS", SUBWIDGTRANSPGFLAGS, 0, 0 },
+	{ "SUBWIDGTRANSPGARGS", SUBWIDGTRANSPGARGS, 0, 0 },
+	
+	{ "SUBWIDGTY_CSET", SUBWIDGTY_CSET, 0, 0 },
+	{ "SUBWIDGTY_TILE", SUBWIDGTY_TILE, 0, 0 },
+
+	{ "SUBWIDGTY_FONT", SUBWIDGTY_FONT, 0, 0 },
+	{ "SUBWIDGTY_ALIGN", SUBWIDGTY_ALIGN, 0, 0 },
+	{ "SUBWIDGTY_SHADOWTY", SUBWIDGTY_SHADOWTY, 0, 0 },
+	{ "SUBWIDGTY_COLOR_TXT", SUBWIDGTY_COLOR_TXT, 0, 0 },
+	{ "SUBWIDGTY_COLOR_SHD", SUBWIDGTY_COLOR_SHD, 0, 0 },
+	{ "SUBWIDGTY_COLOR_BG", SUBWIDGTY_COLOR_BG, 0, 0 },
+
+	{ "SUBWIDGTY_COLOR_OLINE", SUBWIDGTY_COLOR_OLINE, 0, 0 },
+	{ "SUBWIDGTY_COLOR_FILL", SUBWIDGTY_COLOR_FILL, 0, 0 },
+
+	{ "SUBWIDGTY_BUTTON", SUBWIDGTY_BUTTON, 0, 0 },
+	{ "SUBWIDGTY_COUNTERS", SUBWIDGTY_COUNTERS, 0, 0 },
+	{ "SUBWIDGTY_MINDIG", SUBWIDGTY_MINDIG, 0, 0 },
+	{ "SUBWIDGTY_MAXDIG", SUBWIDGTY_MAXDIG, 0, 0 },
+	{ "SUBWIDGTY_INFITM", SUBWIDGTY_INFITM, 0, 0 },
+	{ "SUBWIDGTY_INFCHAR", SUBWIDGTY_INFCHAR, 0, 0 },
+	{ "SUBWIDGTY_COSTIND", SUBWIDGTY_COSTIND, 0, 0 },
+
+	{ "SUBWIDGTY_COLOR_PLAYER", SUBWIDGTY_COLOR_PLAYER, 0, 0 },
+	{ "SUBWIDGTY_COLOR_CMPBLNK", SUBWIDGTY_COLOR_CMPBLNK, 0, 0 },
+	{ "SUBWIDGTY_COLOR_CMPOFF", SUBWIDGTY_COLOR_CMPOFF, 0, 0 },
+	{ "SUBWIDGTY_COLOR_ROOM", SUBWIDGTY_COLOR_ROOM, 0, 0 },
+	{ "SUBWIDGTY_ITEMCLASS", SUBWIDGTY_ITEMCLASS, 0, 0 },
+	{ "SUBWIDGTY_ITEMID", SUBWIDGTY_ITEMID, 0, 0 },
+	{ "SUBWIDGTY_FRAMETILE", SUBWIDGTY_FRAMETILE, 0, 0 },
+	{ "SUBWIDGTY_FRAMECSET", SUBWIDGTY_FRAMECSET, 0, 0 },
+	{ "SUBWIDGTY_PIECETILE", SUBWIDGTY_PIECETILE, 0, 0 },
+	{ "SUBWIDGTY_PIECECSET", SUBWIDGTY_PIECECSET, 0, 0 },
+	{ "SUBWIDGTY_FLIP", SUBWIDGTY_FLIP, 0, 0 },
+	{ "SUBWIDGTY_NUMBER", SUBWIDGTY_NUMBER, 0, 0 },
+	{ "SUBWIDGTY_CORNER", SUBWIDGTY_CORNER, 0, 0 },
+
+	{ "SUBWIDGTY_FRAMES", SUBWIDGTY_FRAMES, 0, 0 },
+	{ "SUBWIDGTY_SPEED", SUBWIDGTY_SPEED, 0, 0 },
+	{ "SUBWIDGTY_DELAY", SUBWIDGTY_DELAY, 0, 0 },
+	{ "SUBWIDGTY_CONTAINER", SUBWIDGTY_CONTAINER, 0, 0 },
+	{ "SUBWIDGTY_GAUGE_WID", SUBWIDGTY_GAUGE_WID, 0, 0 },
+	{ "SUBWIDGTY_GAUGE_HEI", SUBWIDGTY_GAUGE_HEI, 0, 0 },
+	{ "SUBWIDGTY_UNITS", SUBWIDGTY_UNITS, 0, 0 },
+	{ "SUBWIDGTY_HSPACE", SUBWIDGTY_HSPACE, 0, 0 },
+	{ "SUBWIDGTY_VSPACE", SUBWIDGTY_VSPACE, 0, 0 },
+	{ "SUBWIDGTY_GRIDX", SUBWIDGTY_GRIDX, 0, 0 },
+	{ "SUBWIDGTY_GRIDY", SUBWIDGTY_GRIDY, 0, 0 },
+	{ "SUBWIDGTY_ANIMVAL", SUBWIDGTY_ANIMVAL, 0, 0 },
+	{ "SUBWIDGTY_SHOWDRAIN", SUBWIDGTY_SHOWDRAIN, 0, 0 },
+	{ "SUBWIDGTY_PERCONTAINER", SUBWIDGTY_PERCONTAINER, 0, 0 },
+	{ "SUBWIDGTY_TABSIZE", SUBWIDGTY_TABSIZE, 0, 0 },
+
+	{ "GAMEASUBYOFF", GAMEASUBYOFF, 0, 0 },
+
+	{ "SUBWIDGDISPITM", SUBWIDGDISPITM, 0, 0 },
+	{ "SUBWIDGEQPITM", SUBWIDGEQPITM, 0, 0 },
+
 	{ " ", -1, 0, 0 }
 };
 
@@ -43498,17 +48248,17 @@ bool is_valid_format(char c)
 	}
 	return false;
 }
-char const* zs_formatter(char const* format, int32_t arg, int32_t mindig)
+#define FORMATTER_FLAG_0FILL    0x01
+char const* zs_formatter(char const* format, int32_t arg, int32_t mindig, dword flags)
 {
 	static std::string ret;
 	
 	ret.clear();
 	if(format)
 	{
-		char mindigbuf[8] = {0};
-		if(mindig)
-			sprintf(mindigbuf, "%%0%d%c", mindig,
-				(format[0] == 'x' || format[0] == 'X') ? format[0] : 'd');
+		std::string mdstr = fmt::format("%{}{}{}",(flags&FORMATTER_FLAG_0FILL)?"0":"",
+			mindig, (format[0] == 'x' || format[0] == 'X') ? format[0] : 'd');
+		char const* mindigbuf = mdstr.c_str();
 		bool tempbool = false;
 		switch(format[0])
 		{
@@ -43636,7 +48386,7 @@ char const* zs_formatter(char const* format, int32_t arg, int32_t mindig)
 					ArrayManager am(arg/10000);
 					ret = am.asString([&](int32_t val)
 						{
-							return zs_formatter(format+1, val, mindig);
+							return zs_formatter(format+1, val, mindig, flags);
 						}, 214748);
 				}
 				else ret = "{ NULL }";
@@ -43690,10 +48440,14 @@ string zs_sprintf(char const* format, int32_t num_args, std::function<int32_t(in
 			{
 				++format;
 				int32_t min_digits = 0;
-				if(format[0] == '0' && !is_old_args)
+				dword formatter_flags = 0;
+				if(format[0] >= '0' && format[0] <= '9' && !is_old_args)
 				{
 					char argbuf[4] = {0};
 					int32_t q = 0;
+					if(format[0] == '0') //Leading 0 means to 0-fill, and gets eaten
+						formatter_flags |= FORMATTER_FLAG_0FILL;
+					else --format; //else don't eat
 					while(q < 4)
 					{
 						++format;
@@ -43736,8 +48490,7 @@ string zs_sprintf(char const* format, int32_t num_args, std::function<int32_t(in
 						" Value will be truncated to 10.");
 					min_digits = 10;
 				}
-				char mindigbuf[15] = {0};
-				sprintf(mindigbuf, "%%0%d%c", min_digits, hex ? format[0] : 'd');
+				
 				bool tempbool = false;
 				switch( format[0] )
 				{
@@ -43751,14 +48504,14 @@ string zs_sprintf(char const* format, int32_t num_args, std::function<int32_t(in
 					case 'b':  case 'B':
 					{
 						++next_arg;
-						oss << buf << zs_formatter(format,arg_val,min_digits);
+						oss << buf << zs_formatter(format,arg_val,min_digits,formatter_flags);
 						q = 300; //break main loop
 						break;
 					}
 					case 'a': //array print
 					{
 						++next_arg;
-						oss << buf << zs_formatter(format,arg_val,min_digits);
+						oss << buf << zs_formatter(format,arg_val,min_digits,formatter_flags);
 						while(format[0] == 'a')
 						{
 							if(is_valid_format(format[1]))
@@ -44130,10 +48883,10 @@ void FFScript::TraceScriptIDs(bool zasm_console)
 			case ScriptType::OnMap:
 				sprintf(buf, "DMapMap(%u, %s): ", curScriptNum,dmapmap[curScriptNum-1].scriptname.c_str());
 				break;
-			case ScriptType::ActiveSubscreen:
+			case ScriptType::ScriptedActiveSubscreen:
 				sprintf(buf, "DMapASub(%u, %s): ", curScriptNum,dmapmap[curScriptNum-1].scriptname.c_str());
 				break;
-			case ScriptType::PassiveSubscreen:
+			case ScriptType::ScriptedPassiveSubscreen:
 				sprintf(buf, "DMapPSub(%u, %s): ", curScriptNum,dmapmap[curScriptNum-1].scriptname.c_str());
 				break;
 			case ScriptType::DMap:
@@ -44158,6 +48911,10 @@ void FFScript::TraceScriptIDs(bool zasm_console)
 				
 			case ScriptType::GenericFrozen:
 				sprintf(buf, "GenericFRZ(%u, %s): ", curScriptNum,genericmap[curScriptNum-1].scriptname.c_str());
+				break;
+				
+			case ScriptType::EngineSubscreen:
+				sprintf(buf, "Subscreen(%u, %s): ", curScriptNum,subscreenmap[curScriptNum-1].scriptname.c_str());
 				break;
 		}
 		
@@ -50133,3 +54890,4 @@ int32_t combopos_ref_to_layer(int32_t combopos_ref)
 {
 	return combopos_ref / region_num_rpos;
 }
+

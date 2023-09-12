@@ -1,4 +1,5 @@
 #include "zq/package.h"
+#include "base/util.h"
 #include "base/zc_alleg.h"
 #include <allegro5/allegro.h>
 #include <filesystem>
@@ -92,9 +93,6 @@ static bool set_icon(std::wstring exe_path, std::wstring icon_path)
 void package_create(std::string quest_path_, std::string package_name)
 {
 #ifdef _WIN32
-	if (package_name.empty())
-		package_name = "Quest";
-
 	auto root_dir = fs::path("");
 	auto quest_path = fs::path(quest_path_);
 	auto quest_dir = quest_path.parent_path();

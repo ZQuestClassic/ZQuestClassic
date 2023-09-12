@@ -157,7 +157,7 @@ const char default_ctype_strings[cMAX][255] =
 	"-HSBRIDGE", "Damage (1/2 Heart)", "Damage (1 Heart)", "Damage (2 hearts)", "Damage (4 Hearts)",
 	"Center Statue", "Trap (Horizontal, Line of Sight)", "Trap (Vertical, Line of Sight)", "Trap (4-Way)", "Trap (Horizontal, Constant)",
 	"Trap (Vertical, Constant)", "Direct Warp [A]", "Hookshot Only", "Overhead", "No Flying Enemies",
-	"Magic Mirror (4-Way)", "Magic Mirror (Up-Left, Down-Right)", "Magic Mirror (Up-Right, Down-Left)", "Magic Prism (3-Way)", "Magic Prism (4-Way)",
+	"Mirror (4-Way)", "Mirror (Up-Left, Down-Right)", "Mirror (Up-Right, Down-Left)", "Magic Prism (3-Way)", "Magic Prism (4-Way)",
 	"Block Magic", "Cave (Walk Up) [A]", "Eyeball (8-Way A)", "Eyeball (8-Way B)", "No Jumping Enemies",
 	"Bush", "Flowers", "Tall Grass", "Shallow Liquid", "Lock Block (Basic)",
 	"Lock Block (Basic, Copycat)", "Lock Block (Boss)", "Lock Block (Boss, Copycat)", "Ladder Only", "BS Grave",
@@ -184,7 +184,7 @@ const char default_ctype_strings[cMAX][255] =
 	"Bridge", "Signpost", "Switch", "Switch Block", "Torch",
 	"Spotlight", "Glass", "Light Trigger", "SwitchHook Block", "ButtonPrompt",
 	"Block Weapon (Custom)", "Shooter", "Slope", "Cutscene Trigger", "Push (Generic)",
-	"Icy Floor"
+	"Icy Floor", "Mirror (Custom)"
 };
 const char old_mapflag_strings[mfMAX][255] =
 {

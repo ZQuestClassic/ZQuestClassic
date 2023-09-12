@@ -39,10 +39,6 @@
 #include "dialog/alert.h"
 #include "base/misctypes.h"
 
-#ifdef __EMSCRIPTEN__
-#include "base/emscripten_utils.h"
-#endif
-
 bool global_z3_hacky_load;
 
 //FFScript FFCore;
@@ -106,6 +102,7 @@ std::map<int32_t, script_slot_data > dmapmap;
 std::map<int32_t, script_slot_data > screenmap;
 std::map<int32_t, script_slot_data > itemspritemap;
 std::map<int32_t, script_slot_data > comboscriptmap;
+std::map<int32_t, script_slot_data > subscreenmap;
 void free_newtilebuf();
 bool combosread=false;
 bool mapsread=false;
@@ -677,16 +674,6 @@ bool valid_zqt(const char *filename)
     return isvalid;
 }
 
-static std::string tmp_file_name;
-void clear_quest_tmpfile()
-{
-	if(tmp_file_name.size())
-	{
-		if(exists(tmp_file_name.c_str()))
-			delete_file(tmp_file_name.c_str());
-		tmp_file_name.clear();
-	}
-}
 /*
 	.qst file history
 
@@ -729,112 +716,25 @@ PACKFILE *open_quest_file(int32_t *open_error, const char *filename, bool show_p
 		box_start(1, "Loading Quest", get_zc_font(font_lfont), font, true);
 	}
 
-#ifdef __EMSCRIPTEN__
-    if (em_is_lazy_file(filename))
-    {
-        em_fetch_file(filename);
-    }
-#endif
-	clear_quest_tmpfile();
-	// Note: although this is primarily for loading .qst files, it can also handle all of the
-	// file types mentioned in the comment above. No need to be told if the file being loaded
-	// is encrypted or compressed, we can do some simple and fast checks to determine how to load it.
-	bool top_layer_compressed = false;
-	bool compressed = false;
-	bool encrypted = false;
-
-	// Input files may or may not include a top layer, which may or may not be compressed.
-	// Additionally, the bottom layer may or may not be compressed, and may or may not be encoded
-	// with an allegro packfile password (longtan).
-	// We peek into this file to read the header - we'll either see the top layer's header (ENC_STR)
-	// or the bottom layer's header (QH_IDSTR or QH_NEWIDSTR).
-	// Newly saved .qst files enjoy a fast path here, where there is no top layer at all.
-
-	bool id_came_from_compressed_file = false;
-	const char* packfile_password = "";
-	char id[32];
-	id[0] = id[31] = '\0';
-	PACKFILE* pf = pack_fopen_password(filename, F_READ_PACKED, "");
-	if (!pf)
-		pf = pack_fopen_password(filename, F_READ_PACKED, packfile_password = datapwd);
-	if (pf)
+	auto unencrypted_result = try_open_maybe_legacy_encoded_file(filename, ENC_STR, nullptr, QH_NEWIDSTR, QH_IDSTR);
+	if (unencrypted_result.decoded_pf)
+		return unencrypted_result.decoded_pf;
+	if (unencrypted_result.not_found)
 	{
-		id_came_from_compressed_file = true;
-		if (!pack_fread(id, sizeof(id)-1, pf))
-		{
-			pack_fclose(pf);
-			Z_message("Unable to read header string\n");
-			return nullptr;
-		}
-		pack_fclose(pf);
-	}
-	else
-	{
-		FILE* f = fopen(filename, "rb");
-		if (!f) 
-		{
-			*open_error=qe_notfound;
-			return nullptr;
-		}
-		if (!fread(id, sizeof(char), sizeof(id)-1, f))
-		{
-			fclose(f);
-			Z_message("Unable to read header string\n");
-			return nullptr;
-		}
-		fclose(f);
-	}
-
-	if (strstr(id, QH_NEWIDSTR) || strstr(id, QH_IDSTR))
-	{
-		// The given file is already just the bottom layer - nothing more to do.
-		// There's no way to rewind a packfile, so just open it again.
-		if (id_came_from_compressed_file)
-		{
-			return pack_fopen_password(filename, F_READ_PACKED, packfile_password);
-		}
-		else
-		{
-			return pack_fopen_password(filename, F_READ, "");
-		}
-	}
-	else if (strstr(id, ENC_STR))
-	{
-		top_layer_compressed = id_came_from_compressed_file;
-		compressed = true;
-		encrypted = true;
-	}
-	else if (id_came_from_compressed_file && strstr(id, "slh!\xff"))
-	{
-		// We must be reading the compressed contents of an allegro dataobject file. ex: `classic_qst.dat#NESQST_NEW_QST`.
-		// Let's extract the content and re-open as a separate file, so allegro will uncompress correctly.
-
-		char tmpfilename[L_tmpnam];
-		std::tmpnam(tmpfilename);
-		FILE* tf = fopen(tmpfilename, "wb");
-		PACKFILE* pf = pack_fopen_password(filename, F_READ_PACKED, packfile_password);
-
-		int c;
-		while ((c = pack_getc(pf)) != EOF)
-		{
-			fputc(c, tf);
-		}
-		fclose(tf);
-		pack_fclose(pf);
-		
-		tmp_file_name = tmpfilename; //store so it can be cleaned up later
-		
-		// not good: temp file storage leak. Callers don't know to delete temp files anymore.
-		// We should put qsu in the dat file, or use a separate .qst file for new qst.
-		return pack_fopen_password(tmpfilename, F_READ_PACKED, "");
-	}
-	else
-	{
-		// Unexpected, this is going to fail some header check later.
+		*open_error = qe_notfound;
+		return nullptr;
 	}
 
 	// Everything below here is legacy code - recently saved quest files will have
 	// returned by now.
+	// The only replay qst file that is still using this legacy encoding is `link_to_the_zelda.qst`.
+
+	// Note: although this is primarily for loading .qst files, it can also handle all of the
+	// file types mentioned in the comment above. No need to be told if the file being loaded
+	// is encrypted or compressed, we can do some simple and fast checks to determine how to load it.
+	bool top_layer_compressed = unencrypted_result.top_layer_compressed;
+	bool compressed = unencrypted_result.compressed;
+	bool encrypted = unencrypted_result.encrypted;
 
 	char tmpfilename[L_tmpnam];
 	temp_name(tmpfilename);
@@ -3773,6 +3673,10 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 	}
 	if(compatrule_version < 54)
 		set_qr(qr_WALKTHROUGHWALL_NO_DOORSTATE,1);
+	if(compatrule_version < 55)
+		set_qr(qr_SPOTLIGHT_IGNR_SOLIDOBJ,1);
+	if(compatrule_version < 56)
+		set_qr(qr_BROKEN_LIGHTBEAM_HITBOX,1);
 	
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)
@@ -11975,6 +11879,7 @@ extern script_data *screenscripts[NUMSCRIPTSCREEN];
 extern script_data *dmapscripts[NUMSCRIPTSDMAP];
 extern script_data *itemspritescripts[NUMSCRIPTSITEMSPRITE];
 extern script_data *comboscripts[NUMSCRIPTSCOMBODATA];
+extern script_data *subscreenscripts[NUMSCRIPTSSUBSCREEN];
 //script_data *wpnscripts[NUMSCRIPTWEAPONS]; //used only for old data
 
 
@@ -12317,22 +12222,23 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 				}
 			}
 		}
-	
-		/*
-		else //Is this trip really necessary?
+		if(s_version >21)
 		{
-			for(int32_t i = 0; i < NUMSCRIPTWEAPONS; i++)
+			word numsubscripts = NUMSCRIPTSSUBSCREEN;
+			if(!p_igetw(&numsubscripts,f))
 			{
-				
-				ewpnscripts[i] = NULL;
+				return qe_invalid;
 			}
-			for(int32_t i = 0; i < NUMSCRIPTSDMAP; i++)
+			for(int32_t i = 0; i < numsubscripts; i++)
 			{
-				dmapscripts[i] = NULL;
+				ret = read_one_ffscript(f, Header, i, s_version, s_cversion, &subscreenscripts[i], zmeta_version);
+					
+				if (ret)
+				{
+					return qe_invalid;
+				}
 			}
 		}
-		*/
-		
 	}
 	
 	if(s_version > 2)
@@ -12630,6 +12536,29 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 				delete[] buf;
 			}
 		}
+		if(s_version > 21)
+		{
+			word numsubscreenbindings;
+			p_igetw(&numsubscreenbindings, f);
+			
+			for(int32_t i=0; i<numsubscreenbindings; i++)
+			{
+				word id;
+				p_igetw(&id, f);
+				p_igetl(&bufsize, f);
+				if (bufsize < 0 || bufsize > 1024)
+					return qe_invalid;
+				buf = new char[bufsize+1];
+				pfread(buf, bufsize, f);
+				buf[bufsize]=0;
+				
+				//fix this too
+				if(id <NUMSCRIPTSSUBSCREEN-1)
+					subscreenmap[id].scriptname = buf;
+					
+				delete[] buf;
+			}
+		}
 	}
 	
 	return 0;
@@ -12792,6 +12721,18 @@ void reset_scripts()
 		else
 		{
 			comboscripts[i] = new script_data();
+		}
+	}
+
+	for(int32_t i=0; i<NUMSCRIPTSSUBSCREEN; i++)
+	{
+		if(subscreenscripts[i]!=NULL)
+		{
+			subscreenscripts[i]->disable();
+		}
+		else
+		{
+			subscreenscripts[i] = new script_data();
 		}
 	}
 }
@@ -21088,6 +21029,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
 		screenmap.clear();
 		itemspritemap.clear();
 		comboscriptmap.clear();
+		subscreenmap.clear();
 		
 		for(int32_t i=0; i<NUMSCRIPTFFC-1; i++)
 		{
@@ -21145,6 +21087,10 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
 		for(int32_t i=0; i<NUMSCRIPTSGENERIC-1; i++)
 		{
 			genericmap[i].clear();
+		}
+		for(int32_t i=0; i<NUMSCRIPTSSUBSCREEN-1; i++)
+		{
+			subscreenmap[i].clear();
 		}
 		
 		reset_scripts();

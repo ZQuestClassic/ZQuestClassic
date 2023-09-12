@@ -1,12 +1,15 @@
 #include "zc/saves.h"
 
+#include "allegro/file.h"
 #include "base/packfile.h"
 #include "base/misctypes.h"
 #include "base/fonts.h"
 #include "base/dmap.h"
 #include "base/qrs.h"
 #include "base/util.h"
+#include "base/zapp.h"
 #include "base/zdefs.h"
+#include "base/zsys.h"
 #include "zc/zelda.h"
 #include "zc/ffscript.h"
 #include "zc/replay.h"
@@ -14,6 +17,7 @@
 #include "tiles.h"
 #include "items.h"
 #include "jwin.h"
+#include <cstddef>
 #include <cstdio>
 #include <vector>
 #include <filesystem>
@@ -31,7 +35,7 @@ extern FFScript FFCore;
 
 static const char *SAVE_HEADER = "ZQuest Classic Save File";
 static const char *OLD_SAVE_HEADER = "Zelda Classic Save File";
-static int currgame;
+static int currgame = -1;
 static std::vector<save_t> saves;
 static bool save_current_replay_games;
 
@@ -116,14 +120,10 @@ enum class ReadMode
 	Size,
 };
 
-static int32_t read_saves(ReadMode read_mode, std::string filename, std::vector<save_t>& out_saves, int* out_count = nullptr)
+static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& out_saves, int* out_count = nullptr)
 {
 	if (read_mode == ReadMode::Size)
 		assert(out_count);
-
-	PACKFILE* f = pack_fopen(filename.c_str(), F_READ_PACKED);
-	if (!f)
-		return 1;
 
 	FFCore.kb_typing_mode = false;
 	if (get_qr(qr_OLD_SCRIPT_VOLUME))
@@ -1595,14 +1595,11 @@ static int32_t write_save(save_t* save)
 	auto backup_folder_path = get_backup_folder_path() / save->path.stem();
 	move_to_folder(save->path, backup_folder_path, save->path.stem().string() + "-backup", true);
 
-	// TODO: ugh, encoding stuff is stupid. Stop doing this.
-	std::string pathStr = save->path.string();
-	int32_t ret = encode_file_007(tmpfilename, pathStr.c_str(), 0, SAVE_HEADER, ENC_METHOD_MAX-1);
-
-	if(ret)
-		ret += 100;
-
-	delete_file(tmpfilename);
+	int ret = 0;
+	std::error_code ec;
+	fs::rename(tmpfilename, save->path, ec);
+	if (ec)
+		ret = 5;
 
 #ifdef __EMSCRIPTEN__
 	em_sync_fs();
@@ -1625,7 +1622,7 @@ static int load_from_save_file(ReadMode read_mode, fs::path filename, std::vecto
 {
 	const char* error;
 	int32_t ret;
-	PACKFILE *f=NULL;
+	PACKFILE *pf=NULL;
 	char tmpfilename[L_tmpnam];
 	temp_name(tmpfilename);
 
@@ -1648,17 +1645,24 @@ static int load_from_save_file(ReadMode read_mode, fs::path filename, std::vecto
 	}
 	else
 	{
-		ret = decode_file_007(filenameCStr, tmpfilename, SAVE_HEADER, ENC_METHOD_MAX-1, false, "");
-		if (ret)
-			ret = decode_file_007(filenameCStr, tmpfilename, OLD_SAVE_HEADER, ENC_METHOD_MAX-1, false, "");
-		if (ret)
+		auto unencrypted_result = try_open_maybe_legacy_encoded_file(filenameCStr, SAVE_HEADER, OLD_SAVE_HEADER, "SVGM", nullptr);
+
+		pf = unencrypted_result.decoded_pf;
+		if (!pf)
 		{
-			error = "can't decode";
-			goto cantopen;
+			ret = decode_file_007(filenameCStr, tmpfilename, SAVE_HEADER, ENC_METHOD_MAX-1, false, "");
+			if (ret)
+				ret = decode_file_007(filenameCStr, tmpfilename, OLD_SAVE_HEADER, ENC_METHOD_MAX-1, false, "");
+			if (ret)
+			{
+				error = "can't decode";
+				goto cantopen;
+			}
+			pf = pack_fopen(tmpfilename, F_READ_PACKED);
 		}
 
 		int count;
-		ret = read_saves(read_mode, tmpfilename, out_saves, &count);
+		ret = read_saves(read_mode, pf, out_saves, &count);
 		if (ret)
 		{
 			error = "failed reading";
@@ -1687,10 +1691,15 @@ static int load_from_save_file(ReadMode read_mode, fs::path filename, std::vecto
 		}
 	}
 
+	if (pf)
+		pack_fclose(pf);
+
 	return 0;
 
 cantopen:
 	{
+		if (pf)
+			pack_fclose(pf);
 		out_saves.clear();
 
 		enter_sys_pal();
@@ -2060,6 +2069,8 @@ static int32_t do_save_games()
 		return 0;
 	}
 
+	fs::create_directories(get_save_folder_path());
+
 	for (auto& save : saves)
 	{
 		if (!save.header || !save.game)
@@ -2077,7 +2088,8 @@ static int32_t do_save_games()
 int32_t saves_write()
 {
 	Saving = true;
-	render_zc();
+	if (!is_headless())
+		render_zc();
 	int32_t result = do_save_games();
 	Saving = false;
 	return result;
@@ -2233,12 +2245,12 @@ bool saves_create_slot(fs::path path)
 	return true;
 }
 
-void saves_do_first_time_stuff(int index)
+int saves_do_first_time_stuff(int index)
 {
 	save_t* save;
 	int ret = get_save(save, index, true);
 	if (ret)
-		return;
+		return ret;
 
 	if (!save->game->get_hasplayed())
 	{
@@ -2274,8 +2286,10 @@ void saves_do_first_time_stuff(int index)
 
 		update_icon(index);
 		save->path = create_path_for_new_save(save->header);
-		saves_write();
+		return saves_write();
 	}
+
+	return 0;
 }
 
 void saves_enable_save_current_replay()
@@ -2299,6 +2313,9 @@ static bool gd_compare(const char* a, const char* b)
 
 bool saves_test()
 {
+	int fake_errno = 0;
+	allegro_errno = &fake_errno;
+
 	// For some reason MSVC hangs on compiling gamedata==
 #ifndef _WIN32
 	// First make sure there are not accidentally equalities that are impossible,

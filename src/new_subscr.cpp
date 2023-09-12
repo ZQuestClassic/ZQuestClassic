@@ -52,6 +52,15 @@ void draw_textbox(BITMAP *dest, int32_t x, int32_t y, int32_t w, int32_t h, FONT
 void magicgauge(BITMAP *dest,int32_t x,int32_t y, int32_t container, int32_t notlast_tile, int32_t notlast_cset, bool notlast_mod, int32_t last_tile, int32_t last_cset, bool last_mod,
 				int32_t cap_tile, int32_t cap_cset, bool cap_mod, int32_t aftercap_tile, int32_t aftercap_cset, bool aftercap_mod, int32_t frames, int32_t speed, int32_t delay, bool unique_last, int32_t show);
 
+const std::string subwidg_internal_names[widgMAX] =
+{
+	"SUBWIDG_NULL", "SUBWIDG_FRAME", "SUBWIDG_TEXT", "SUBWIDG_LINE", "SUBWIDG_RECT",
+	"SUBWIDG_TIME", "SUBWIDG_MMETER", "SUBWIDG_LMETER", "SUBWIDG_BTNITM", "SUBWIDG_COUNTER",
+	"SUBWIDG_OLDCTR", "SUBWIDG_MMAPTITLE", "SUBWIDG_MMAP", "SUBWIDG_LMAP", "SUBWIDG_BGCOLOR",
+	"SUBWIDG_ITEMSLOT", "SUBWIDG_MCGUFF_FRAME", "SUBWIDG_MCGUFF", "SUBWIDG_TILEBLOCK", "SUBWIDG_MINITILE",
+	"SUBWIDG_SELECTOR", "SUBWIDG_LGAUGE", "SUBWIDG_MGAUGE", "SUBWIDG_TEXTBOX", "SUBWIDG_SELECTEDTEXT",
+	"SUBWIDG_MISCGAUGE", "SUBWIDG_BTNCOUNTER",
+};
 const std::string subscr_names[sstMAX] = {"Active","Passive","Overlay"};
 const std::string subscr_infos[sstMAX] = {
 	"The subscreen that actively opens when you press 'Start'",
@@ -61,7 +70,7 @@ const std::string subscr_infos[sstMAX] = {
 
 SubscrTransition subscr_pg_transition;
 int subscr_item_clk = 0, subscr_pg_clk = 0;
-static byte subscr_pg_from, subscr_pg_to;
+byte subscr_pg_from, subscr_pg_to;
 static ZCSubscreen* subscr_anim = nullptr;
 
 int subscr_override_clkoffsets[MAXITEMS];
@@ -595,6 +604,35 @@ int32_t SubscrColorInfo::get_color(byte type, int16_t color)
 	
 	return ret;
 }
+int32_t SubscrColorInfo::get_int_color() const
+{
+	if(type == ssctSYSTEM)
+		return -(color+1);
+	if(type == ssctMISC)
+		return -(color+1+NUM_SYS_COLORS);
+	if(type >= 0 && type < 16)
+		return (type*16)+color;
+	return 0;
+}
+void SubscrColorInfo::set_int_color(int32_t val)
+{
+	if(val > 255 || val < -ssctMAX-NUM_SYS_COLORS) return;
+	if(val >= 0)
+	{
+		type = (val&0xF0)>>4;
+		color = (val&0x0F);
+	}
+	else if(val >= -NUM_SYS_COLORS)
+	{
+		type = ssctSYSTEM;
+		color = (-val)-1;
+	}
+	else
+	{
+		type = ssctMISC;
+		color = (-val)-1-NUM_SYS_COLORS;
+	}
+}
 
 int32_t SubscrColorInfo::get_cset() const
 {
@@ -646,6 +684,28 @@ int32_t SubscrColorInfo::get_cset(byte type, int16_t color)
 	
 	return ret;
 }
+int32_t SubscrColorInfo::get_int_cset() const
+{
+	if(type == ssctMISC)
+		return -(type+1);
+	if(type >= 0 && type < 16)
+		return type;
+	return 0;
+}
+void SubscrColorInfo::set_int_cset(int32_t val)
+{
+	if(val > 15 || val < -sscsMAX) return;
+	if(val >= 0)
+	{
+		type = val;
+		color = 0;
+	}
+	else
+	{
+		type = ssctMISC;
+		color = (-val)-1;
+	}
+}
 
 int32_t SubscrColorInfo::read(PACKFILE *f, word s_version)
 {
@@ -690,11 +750,19 @@ int32_t SubscrMTInfo::tile() const
 }
 byte SubscrMTInfo::crn() const
 {
-	return tilecrn%2;
+	return tilecrn%4;
 }
 void SubscrMTInfo::setTileCrn(int32_t tile, byte crn)
 {
 	tilecrn = (tile<<2)|(crn%4);
+}
+void SubscrMTInfo::setTile(int32_t tile)
+{
+	tilecrn = (tile<<2)|(crn()%4);
+}
+void SubscrMTInfo::setCrn(byte crn)
+{
+	tilecrn = (tile()<<2)|(crn%4);
 }
 int32_t SubscrMTInfo::read(PACKFILE *f, word s_version)
 {
@@ -928,6 +996,20 @@ byte SubscrTransition::num_args(byte ty)
 			return 4;
 	}
 	return 0;
+}
+int32_t SubscrTransition::argScale(byte ty, byte ind)
+{
+	switch(ty)
+	{
+		case sstrSLIDE:
+			switch(ind)
+			{
+				case 1:
+					return 1;
+			}
+			break;
+	}
+	return 10000;
 }
 
 SubscrWidget::SubscrWidget(byte ty) : SubscrWidget()
@@ -3437,7 +3519,7 @@ bool SW_McGuffin::load_old(subscreen_object const& old)
 		return false;
 	SubscrWidget::load_old(old);
 	tile = old.d1;
-	cset = old.d2;
+	flip = old.d2;
 	number = old.d5;
 	SETFLAG(flags,SUBSCR_MCGUF_OVERLAY,old.d3);
 	SETFLAG(flags,SUBSCR_MCGUF_TRANSP,old.d4);
@@ -3459,7 +3541,7 @@ byte SW_McGuffin::getType() const
 void SW_McGuffin::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
 	puttriforce(dest,getX()+xofs,getY()+yofs,tile,cs.get_cset(),w,h,
-		cset,flags&SUBSCR_MCGUF_OVERLAY,flags&SUBSCR_MCGUF_TRANSP,number);
+		flip,flags&SUBSCR_MCGUF_OVERLAY,flags&SUBSCR_MCGUF_TRANSP,number);
 }
 SubscrWidget* SW_McGuffin::clone() const
 {
@@ -3474,7 +3556,7 @@ bool SW_McGuffin::copy_prop(SubscrWidget const* src, bool all)
 		return false;
 	tile = other->tile;
 	number = other->number;
-	cset = other->cset;
+	flip = other->flip;
 	cs = other->cs;
 	return true;
 }
@@ -3486,7 +3568,7 @@ int32_t SW_McGuffin::read(PACKFILE *f, word s_version)
 		return qe_invalid;
 	if(!p_igetl(&number,f))
 		return qe_invalid;
-	if(!p_getc(&cset,f))
+	if(!p_getc(&flip,f))
 		return qe_invalid;
 	if(auto ret =  cs.read(f,s_version))
 		return ret;
@@ -3500,7 +3582,7 @@ int32_t SW_McGuffin::write(PACKFILE *f) const
 		new_return(1);
 	if(!p_iputl(number,f))
 		new_return(1);
-	if(!p_putc(cset,f))
+	if(!p_putc(flip,f))
 		new_return(1);
 	if(auto ret =  cs.write(f))
 		return ret;
@@ -3634,6 +3716,30 @@ int32_t SW_MiniTile::get_tile() const
 		}
 	}
 	else return tile;
+}
+int32_t SW_MiniTile::get_int_tile() const
+{
+	if(tile == -1)
+	{
+		if(special_tile >= ssmstMAX)
+			return 0;
+		return -(special_tile+1);
+	}
+	else return tile;
+}
+void SW_MiniTile::set_int_tile(int32_t val)
+{
+	if(val < -ssmstMAX || val >= NEWMAXTILES) return;
+	if(val < 0)
+	{
+		tile = -1;
+		special_tile = -val-1;
+	}
+	else
+	{
+		tile = val;
+		special_tile = -1;
+	}
 }
 void SW_MiniTile::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
@@ -4919,7 +5025,69 @@ SubscrWidget* SubscrWidget::newType(byte ty)
 	}
 	return widg;
 }
-
+byte SubscrWidget::numFlags(byte type)
+{
+	switch(type)
+	{
+		case widgFRAME:
+			return SUBSCR_NUMFLAG_2X2FR;
+		case widgTEXT:
+			return SUBSCR_NUMFLAG_TEXT;
+		case widgLINE:
+			return SUBSCR_NUMFLAG_LINE;
+		case widgRECT:
+			return SUBSCR_NUMFLAG_RECT;
+		case widgTIME:
+			return SUBSCR_NUMFLAG_TIME;
+		case widgMMETER:
+			return SUBSCR_NUMFLAG_MAGICMET;
+		case widgLMETER:
+			return SUBSCR_NUMFLAG_LIFEMET;
+		case widgBTNITM:
+			return SUBSCR_NUMFLAG_BTNITM;
+		case widgCOUNTER:
+			return SUBSCR_NUMFLAG_COUNTER;
+		case widgOLDCTR:
+			return SUBSCR_NUMFLAG_COUNTERS;
+		case widgMMAPTITLE:
+			return SUBSCR_NUMFLAG_MMAPTIT;
+		case widgMMAP:
+			return SUBSCR_NUMFLAG_MMAP;
+		case widgLMAP:
+			return SUBSCR_NUMFLAG_LMAP;
+		case widgBGCOLOR:
+			return SUBSCR_NUMFLAG_CLEAR;
+		case widgITEMSLOT:
+			return SUBSCR_NUMFLAG_CURITM;
+		case widgMCGUFF_FRAME:
+			return SUBSCR_NUMFLAG_TRIFR;
+		case widgMCGUFF:
+			return SUBSCR_NUMFLAG_MCGUF;
+		case widgTILEBLOCK:
+			return SUBSCR_NUMFLAG_TILEBL;
+		case widgMINITILE:
+			return SUBSCR_NUMFLAG_MINITL;
+		case widgSELECTOR:
+			return SUBSCR_NUMFLAG_SELECTOR;
+		case widgLGAUGE:
+			return SUBSCR_NUMFLAG_LGAUGE;
+		case widgMGAUGE:
+			return SUBSCR_NUMFLAG_MGAUGE;
+		case widgTEXTBOX:
+			return SUBSCR_NUMFLAG_TEXTBOX;
+		case widgSELECTEDTEXT:
+			return SUBSCR_NUMFLAG_SELTEXT;
+		case widgMISCGAUGE:
+			return SUBSCR_NUMFLAG_MISCGAUGE;
+		case widgBTNCOUNTER:
+			return SUBSCR_NUMFLAG_BTNCOUNTER;
+	}
+	return 0;
+}
+byte SubscrWidget::numFlags()
+{
+	return numFlags(getType());
+}
 //For moving on the subscreen. Never called with 'VERIFY' options, so don't worry about them.
 void SubscrPage::move_cursor(int dir, bool item_only)
 {

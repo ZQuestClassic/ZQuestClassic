@@ -417,11 +417,8 @@ static bool check_for_updates()
 	has_checked_for_updates = true;
 
 	std::string output;
-	bool success = run_and_get_output(PYTHON, {
-		"tools/updater.py",
-		"--repo", getRepo(),
-		"--channel", getReleaseChannel(),
-		"--print-next-release",
+	bool success = run_and_get_output(ZUPDATER_FILE, {
+		"-print-next-release",
 	}, output);
 
 	if (!success)
@@ -844,8 +841,10 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 								onClick = message::ZU_RELEASE_NOTES_NEXT
 							)
 						)
-					),
-					Label(text = "Note: the updater requires Python 3 to be installed and configured in PATH")
+					)
+#ifdef UPDATER_USES_PYTHON
+					, Label(text = "Note: the updater requires Python 3 to be installed and configured in PATH")
+#endif
 				))
 			),
 			Row(
@@ -895,13 +894,11 @@ bool LauncherDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		case message::ZU:
 		{
 			std::string output;
-			bool success = run_and_get_output(PYTHON, {
-				"tools/updater.py",
-				"--repo", getRepo(),
-				"--channel", getReleaseChannel(),
-				"--asset-url", next_asset_url,
+			bool success = run_and_get_output(ZUPDATER_FILE, {
+				"-install",
+				"-asset-url", next_asset_url,
 			}, output);
-			success &= output.find("success!") != std::string::npos;
+			success &= output.find("Success!") != std::string::npos;
 			al_trace("%s\n", output.c_str());
 			if (success)
 			{

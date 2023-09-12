@@ -244,6 +244,8 @@ void movingblock::push(zfix bx,zfix by,int32_t d2,int32_t f)
     putcombo(scrollbuf,x-viewport.x,y-viewport.y,*di,*ci);
     clk=32;
     blockmoving=true;
+	if(!get_qr(qr_MOVINGBLOCK_FAKE_SOLID))
+		setSolid(true);
 	solid_update(false);
 }
 void movingblock::push_new(zfix bx,zfix by,int d2,int f,zfix spd)
@@ -294,6 +296,8 @@ void movingblock::push_new(zfix bx,zfix by,int d2,int f,zfix spd)
     putcombo(scrollbuf,x,y,*di,*ci);
     clk=32;
     blockmoving=true;
+	if(!get_qr(qr_MOVINGBLOCK_FAKE_SOLID))
+		setSolid(true);
 	solid_update(false);
 }
 

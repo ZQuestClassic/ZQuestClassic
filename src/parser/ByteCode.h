@@ -1549,22 +1549,22 @@
 #define GAMETRIGGROUPS      1463
 #define GAMEOVERRIDEITEMS      1464
 #define DMAPDATASUBSCRO      1465
-#define RESRVD_VAR_EMILY45      1466
-#define RESRVD_VAR_EMILY46      1467
-#define RESRVD_VAR_EMILY47      1468
-#define RESRVD_VAR_EMILY48      1469
-#define RESRVD_VAR_EMILY49      1470
-#define RESRVD_VAR_EMILY50      1471
-#define RESRVD_VAR_EMILY51      1472
-#define RESRVD_VAR_EMILY52      1473
-#define RESRVD_VAR_EMILY53      1474
-#define RESRVD_VAR_EMILY54      1475
-#define RESRVD_VAR_EMILY55      1476
-#define RESRVD_VAR_EMILY56      1477
-#define RESRVD_VAR_EMILY57      1478
-#define RESRVD_VAR_EMILY58      1479
-#define RESRVD_VAR_EMILY59      1480
-#define RESRVD_VAR_EMILY60      1481
+#define REFSUBSCREENPAGE      1466
+#define REFSUBSCREENWIDG      1467
+#define SUBDATACURPG      1468
+#define SUBDATANUMPG      1469
+#define SUBDATAPAGES      1470
+#define SUBDATATYPE      1471
+#define SUBDATAFLAGS      1472
+#define SUBDATACURSORPOS      1473
+#define SUBDATASCRIPT      1474
+#define SUBDATAINITD      1475
+#define SUBDATABTNLEFT      1476
+#define SUBDATABTNRIGHT      1477
+#define SUBDATATRANSLEFTTY      1478
+#define SUBDATATRANSLEFTSFX      1479
+#define SUBDATATRANSLEFTFLAGS      1480
+#define SUBDATATRANSLEFTARGS      1481
 #define PORTALX                 1482
 #define PORTALY                 1483
 #define PORTALDMAP              1484
@@ -1593,7 +1593,130 @@
 #define SAVEDPORTALCOUNT        1507
 #define SAVEDPORTALDSTSCREEN    1508
 
-#define LAST_BYTECODE           1509
+#define SUBDATATRANSRIGHTTY     1509
+#define SUBDATATRANSRIGHTSFX     1510
+#define SUBDATATRANSRIGHTFLAGS     1511
+#define SUBDATATRANSRIGHTARGS     1512
+#define SUBDATASELECTORDSTX     1513
+#define SUBDATASELECTORDSTY     1514
+#define SUBDATASELECTORDSTW     1515
+#define SUBDATASELECTORDSTH     1516
+#define SUBDATASELECTORWID     1517
+#define SUBDATASELECTORHEI     1518
+#define SUBDATASELECTORTILE     1519
+#define SUBDATASELECTORCSET     1520
+#define SUBDATASELECTORFRM     1521
+#define SUBDATASELECTORASPD     1522
+#define SUBDATASELECTORDELAY     1523
+#define SUBDATATRANSCLK     1524
+#define SUBDATATRANSTY     1525
+#define SUBDATATRANSFLAGS     1526
+#define SUBDATATRANSARGS     1527
+#define SUBDATATRANSFROMPG     1528
+#define SUBDATATRANSTOPG     1529
+#define SUBDATASELECTORFLASHCSET     1530
+#define GAMEASUBOPEN     1531
+#define GAMENUMASUB     1532
+#define GAMENUMPSUB     1533
+#define GAMENUMOSUB     1534
+#define SUBPGINDEX     1535
+#define SUBPGNUMWIDG     1536
+#define SUBPGWIDGETS     1537
+#define SUBPGSUBDATA     1538
+#define SUBPGCURSORPOS     1539
+#define SUBWIDGTYPE     1540
+#define SUBWIDGINDEX     1541
+#define SUBWIDGPAGE     1542
+#define SUBWIDGPOS     1543
+#define SUBWIDGPOSES     1544
+#define SUBWIDGPOSFLAG     1545
+#define SUBWIDGX     1546
+#define SUBWIDGY     1547
+#define SUBWIDGW    1548
+#define SUBWIDGH    1549
+#define SUBWIDGGENFLAG    1550
+#define SUBWIDGFLAG    1551
+#define SUBWIDGSELECTORDSTX    1552
+#define SUBWIDGSELECTORDSTY    1553
+#define SUBWIDGSELECTORDSTW    1554
+#define SUBWIDGSELECTORDSTH    1555
+#define SUBWIDGSELECTORWID    1556
+#define SUBWIDGSELECTORHEI    1557
+#define SUBWIDGSELECTORTILE    1558
+
+#define SUBWIDGSELECTORCSET      1559
+#define SUBWIDGSELECTORFLASHCSET      1560
+#define SUBWIDGSELECTORFRM      1561
+#define SUBWIDGSELECTORASPD      1562
+#define SUBWIDGSELECTORDELAY      1563
+#define SUBWIDGPRESSSCRIPT      1564
+#define SUBWIDGPRESSINITD      1565
+#define SUBWIDGBTNPRESS      1566
+#define SUBWIDGBTNPG      1567
+#define SUBWIDGPGMODE     1568
+#define SUBWIDGPGTARG     1569
+#define SUBWIDGTRANSPGTY     1570
+#define SUBWIDGTRANSPGSFX     1571
+#define SUBWIDGTRANSPGFLAGS     1572
+#define SUBWIDGTRANSPGARGS     1573
+
+#define SUBWIDGTY_CSET      1574
+#define SUBWIDGTY_TILE      1575
+
+#define SUBWIDGTY_FONT          1576
+#define SUBWIDGTY_ALIGN         1577
+#define SUBWIDGTY_SHADOWTY      1578
+#define SUBWIDGTY_COLOR_TXT     1579
+#define SUBWIDGTY_COLOR_SHD     1580
+#define SUBWIDGTY_COLOR_BG      1581
+
+#define SUBWIDGTY_COLOR_OLINE   1582
+#define SUBWIDGTY_COLOR_FILL    1583
+
+#define SUBWIDGTY_BUTTON        1584
+#define SUBWIDGTY_COUNTERS      1585
+#define SUBWIDGTY_MINDIG        1586
+#define SUBWIDGTY_MAXDIG        1587
+#define SUBWIDGTY_INFITM        1588
+#define SUBWIDGTY_INFCHAR       1589
+#define SUBWIDGTY_COSTIND       1590
+
+#define SUBWIDGTY_COLOR_PLAYER  1591
+#define SUBWIDGTY_COLOR_CMPBLNK  1592
+#define SUBWIDGTY_COLOR_CMPOFF  1593
+#define SUBWIDGTY_COLOR_ROOM    1594
+#define SUBWIDGTY_ITEMCLASS     1595
+#define SUBWIDGTY_ITEMID        1596
+#define SUBWIDGTY_FRAMETILE     1597
+#define SUBWIDGTY_FRAMECSET     1598
+#define SUBWIDGTY_PIECETILE     1599
+#define SUBWIDGTY_PIECECSET     1600
+#define SUBWIDGTY_FLIP          1601
+#define SUBWIDGTY_NUMBER        1602
+#define SUBWIDGTY_CORNER        1603
+
+#define SUBWIDGTY_FRAMES        1604
+#define SUBWIDGTY_SPEED         1605
+#define SUBWIDGTY_DELAY         1606
+#define SUBWIDGTY_CONTAINER     1607
+#define SUBWIDGTY_GAUGE_WID     1608
+#define SUBWIDGTY_GAUGE_HEI     1609
+#define SUBWIDGTY_UNITS         1610
+#define SUBWIDGTY_HSPACE        1611
+#define SUBWIDGTY_VSPACE        1612
+#define SUBWIDGTY_GRIDX         1613
+#define SUBWIDGTY_GRIDY         1614
+#define SUBWIDGTY_ANIMVAL       1615
+#define SUBWIDGTY_SHOWDRAIN     1616
+#define SUBWIDGTY_PERCONTAINER  1617
+#define SUBWIDGTY_TABSIZE       1618
+
+#define GAMEASUBYOFF            1619
+
+#define SUBWIDGDISPITM          1620
+#define SUBWIDGEQPITM           1621
+
+#define LAST_BYTECODE           1622
 
 //} END OF BYTECODE
 
@@ -2482,40 +2605,44 @@ namespace ZScript
 			return new OArrayPop();
 		}
 	};
-	class OResrvdOpEmily17 : public Opcode
+	class OLoadSubscreenDataRV : public BinaryOpcode
 	{
 	public:
+		OLoadSubscreenDataRV(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OResrvdOpEmily17();
+			return new OLoadSubscreenDataRV(a->clone(),b->clone());
 		}
 	};
-	class OResrvdOpEmily18 : public Opcode
+	class OSwapSubscrV : public UnaryOpcode
 	{
 	public:
+		OSwapSubscrV(Argument *A) : UnaryOpcode(A) {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OResrvdOpEmily18();
+			return new OSwapSubscrV(a->clone());
 		}
 	};
-	class OResrvdOpEmily19 : public Opcode
+	class OGetSubscreenName : public UnaryOpcode
 	{
 	public:
+		OGetSubscreenName(Argument *A) : UnaryOpcode(A) {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OResrvdOpEmily19();
+			return new OGetSubscreenName(a->clone());
 		}
 	};
-	class OResrvdOpEmily20 : public Opcode
+	class OSetSubscreenName : public UnaryOpcode
 	{
 	public:
+		OSetSubscreenName(Argument *A) : UnaryOpcode(A) {}
 		std::string toString() const;
 		Opcode* clone() const
 		{
-			return new OResrvdOpEmily20();
+			return new OSetSubscreenName(a->clone());
 		}
 	};
 
@@ -11589,6 +11716,223 @@ namespace ZScript
 		Opcode* clone() const
 		{
 			return new OPalDataOwn();
+		}
+	};
+
+	// TODO z3 ! just delete
+	// class OReservedZ3_01 : public BinaryOpcode
+	// {
+	// public:
+	// 	OReservedZ3_01(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+	// 	std::string toString() const;
+	// 	Opcode* clone() const
+	// 	{
+	// 		return new OReservedZ3_01(a->clone(),b->clone());
+	// 	}
+	// };
+
+	// class OReservedZ3_02 : public BinaryOpcode
+	// {
+	// public:
+	// 	OReservedZ3_02(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+	// 	std::string toString() const;
+	// 	Opcode* clone() const
+	// 	{
+	// 		return new OReservedZ3_02(a->clone(),b->clone());
+	// 	}
+	// };
+
+	// class OReservedZ3_03 : public BinaryOpcode
+	// {
+	// public:
+	// 	OReservedZ3_03(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+	// 	std::string toString() const;
+	// 	Opcode* clone() const
+	// 	{
+	// 		return new OReservedZ3_03(a->clone(),b->clone());
+	// 	}
+	// };
+
+	class OReservedZ3_04 : public BinaryOpcode
+	{
+	public:
+		OReservedZ3_04(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedZ3_04(a->clone(),b->clone());
+		}
+	};
+
+	class OReservedZ3_05 : public BinaryOpcode
+	{
+	public:
+		OReservedZ3_05(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedZ3_05(a->clone(),b->clone());
+		}
+	};
+
+	class OReservedZ3_06 : public BinaryOpcode
+	{
+	public:
+		OReservedZ3_06(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedZ3_06(a->clone(),b->clone());
+		}
+	};
+
+	class OReservedZ3_07 : public BinaryOpcode
+	{
+	public:
+		OReservedZ3_07(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedZ3_07(a->clone(),b->clone());
+		}
+	};
+
+	class OReservedZ3_08 : public BinaryOpcode
+	{
+	public:
+		OReservedZ3_08(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedZ3_08(a->clone(),b->clone());
+		}
+	};
+
+	class OReservedZ3_09 : public BinaryOpcode
+	{
+	public:
+		OReservedZ3_09(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedZ3_09(a->clone(),b->clone());
+		}
+	};
+
+	class OReservedZ3_10 : public BinaryOpcode
+	{
+	public:
+		OReservedZ3_10(Argument *A, Argument *B) : BinaryOpcode(A,B) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OReservedZ3_10(a->clone(),b->clone());
+		}
+	};
+
+
+
+	class OSubscrSwapPages : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OSubscrSwapPages();
+		}
+	};
+
+	class OSubscrPgFindWidget : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OSubscrPgFindWidget();
+		}
+	};
+
+	class OSubscrPgMvCursor : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OSubscrPgMvCursor();
+		}
+	};
+
+	class OSubscrPgSwapWidgets : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OSubscrPgSwapWidgets();
+		}
+	};
+
+	class OSubscrPgNewWidget : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OSubscrPgNewWidget();
+		}
+	};
+
+	class OSubscrPgDelete : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OSubscrPgDelete();
+		}
+	};
+
+	class OGetSubWidgSelTxtOverride : public UnaryOpcode
+	{
+	public:
+		OGetSubWidgSelTxtOverride(Argument *A) : UnaryOpcode(A) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OGetSubWidgSelTxtOverride(a->clone());
+		}
+	};
+
+	class OSetSubWidgSelTxtOverride : public UnaryOpcode
+	{
+	public:
+		OSetSubWidgSelTxtOverride(Argument *A) : UnaryOpcode(A) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OSetSubWidgSelTxtOverride(a->clone());
+		}
+	};
+
+	class OSubWidgTy_GetText : public UnaryOpcode
+	{
+	public:
+		OSubWidgTy_GetText(Argument *A) : UnaryOpcode(A) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OSubWidgTy_GetText(a->clone());
+		}
+	};
+
+	class OSubWidgTy_SetText : public UnaryOpcode
+	{
+	public:
+		OSubWidgTy_SetText(Argument *A) : UnaryOpcode(A) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OSubWidgTy_SetText(a->clone());
 		}
 	};
 }

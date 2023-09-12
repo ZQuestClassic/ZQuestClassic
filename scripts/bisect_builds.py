@@ -50,7 +50,7 @@ test_builds_dir = root_dir / '.tmp/test_builds'
 memory = Memory(root_dir / '.tmp/bisect_builds', verbose=0)
 
 gh = Github(args.token)
-repo = gh.get_repo('ArmageddonGames/ZQuestClassic')
+repo = gh.get_repo('ZQuestClassic/ZQuestClassic')
 
 system = platform.system()
 if args.channel:
@@ -256,7 +256,7 @@ def download_test_build(workflow_run: WorkflowRun):
             f'could not find artifact for workflow run {workflow_run.id}')
 
     download_dir = tempfile.TemporaryDirectory()
-    download_artifact(gh, 'ArmageddonGames/ZQuestClassic',
+    download_artifact(gh, 'ZQuestClassic/ZQuestClassic',
                       artifact, download_dir.name)
     # Build artifacts have a single file, which is an archive.
     archive_path = next(Path(download_dir.name).glob('*'))
@@ -377,7 +377,7 @@ def run_bisect(revisions: List[Revision]):
         lower_tag = revs[lower].tag
         upper_tag = revs[upper].tag
         print(
-            f'changelog of current range: https://github.com/ArmageddonGames/ZQuestClassic/compare/{lower_tag}...{upper_tag}')
+            f'changelog of current range: https://github.com/ZQuestClassic/ZQuestClassic/compare/{lower_tag}...{upper_tag}')
 
         print(f'checking {rev.tag}')
         binaries = get_revision_binaries(rev)
@@ -445,7 +445,7 @@ def run_bisect(revisions: List[Revision]):
         print(DONE_MESSAGE_GOOD_MIN % (lower_tag, upper_tag))
 
     print(
-        f'changelog: https://github.com/ArmageddonGames/ZQuestClassic/compare/{lower_tag}...{upper_tag}')
+        f'changelog: https://github.com/ZQuestClassic/ZQuestClassic/compare/{lower_tag}...{upper_tag}')
 
 
 if args.download_release:

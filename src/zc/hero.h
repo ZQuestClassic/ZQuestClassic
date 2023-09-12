@@ -418,7 +418,6 @@ public:
 	bool handle_portal_collide(portal* p);
 	void handle_portal_prox(portal* p);
 private:
-	void handleBeam(byte* grid, size_t age, byte spotdir, int32_t curpos, byte set, bool block, bool refl, std::map<size_t, byte>& prism_dir_seen_map);
 	void handleSpotlights();
 	void walkdown(bool opening);
 	void walkup(bool opening);

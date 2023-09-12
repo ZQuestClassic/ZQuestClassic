@@ -31,7 +31,7 @@
 particle_list particles;
 void setZScriptVersion(int32_t) { } //bleh...
 
-#include <al5img.h>
+#include <al5_img.h>
 #include <loadpng.h>
 #include <fmt/format.h>
 
@@ -216,6 +216,7 @@ vector<string> asscreenscripts;
 vector<string> asitemspritescripts;
 vector<string> ascomboscripts;
 vector<string> asgenericscripts;
+vector<string> assubscreenscripts;
 
 vector<string> ZQincludePaths;
 
@@ -472,6 +473,7 @@ script_data *screenscripts[NUMSCRIPTSCREEN];
 script_data *dmapscripts[NUMSCRIPTSDMAP];
 script_data *itemspritescripts[NUMSCRIPTSITEMSPRITE];
 script_data *comboscripts[NUMSCRIPTSCOMBODATA];
+script_data *subscreenscripts[NUMSCRIPTSSUBSCREEN];
 
 extern string zScript;
 char zScriptBytes[512];
@@ -21765,6 +21767,7 @@ static int32_t as_dmap_list[] = { 33, 34, 35, -1}; //dmapdata scripts TAB
 static int32_t as_itemsprite_list[] = { 36, 37, 38, -1}; //dmapdata scripts TAB
 static int32_t as_comboscript_list[] = { 39, 40, 41, -1}; //combodata scripts TAB
 static int32_t as_genericscript_list[] = { 45, 46, 47, -1}; //generic scripts TAB
+static int32_t as_subscreenscript_list[] = { 48, 49, 50, -1}; //generic scripts TAB
 
 static TABPANEL assignscript_tabs[] =
 {
@@ -21781,6 +21784,7 @@ static TABPANEL assignscript_tabs[] =
     { (char *)"Item Sprite",		 0,         as_itemsprite_list,   0, NULL },
     { (char *)"Combo",		 0,         as_comboscript_list,   0, NULL },
     { (char *)"Generic",		 0,         as_genericscript_list,   0, NULL },
+    { (char *)"Subscreen",		 0,         as_subscreenscript_list,   0, NULL },
     { NULL,                0,           NULL,         0, NULL }
 };
 
@@ -21826,6 +21830,17 @@ const char *assigngenericlist(int32_t index, int32_t *list_size)
     }
     
     return genericmap[index].output.c_str();
+}
+
+const char *assignsubscreenlist(int32_t index, int32_t *list_size)
+{
+    if(index<0)
+    {
+        *list_size = ((int32_t)subscreenmap.size());
+        return NULL;
+    }
+    
+    return subscreenmap[index].output.c_str();
 }
 
 const char *assignitemlist(int32_t index, int32_t *list_size)
@@ -22047,6 +22062,17 @@ const char *assigngenericscriptlist(int32_t index, int32_t *list_size)
     return asgenericscripts[index].c_str();
 }
 
+const char *assignsubscreenscriptlist(int32_t index, int32_t *list_size)
+{
+    if(index<0)
+    {
+        *list_size = (int32_t)assubscreenscripts.size();
+        return NULL;
+    }
+    
+    return assubscreenscripts[index].c_str();
+}
+
 static ListData assignffc_list(assignffclist, &font);
 static ListData assignffcscript_list(assignffcscriptlist, &font);
 static ListData assignglobal_list(assigngloballist, &font);
@@ -22077,6 +22103,9 @@ static ListData assigncomboscript_list(assigncomboscriptlist, &font);
 
 static ListData assigngeneric_list(assigngenericlist, &font);
 static ListData assigngenericscript_list(assigngenericscriptlist, &font);
+
+static ListData assignsubscreen_list(assignsubscreenlist, &font);
+static ListData assignsubscreenscript_list(assignsubscreenscriptlist, &font);
 
 static DIALOG assignscript_dlg[] =
 {
@@ -22152,6 +22181,11 @@ static DIALOG assignscript_dlg[] =
 	{ jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assigngeneric_list, NULL, NULL },
     { jwin_abclist_proc,    174+10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assigngenericscript_list, NULL, NULL },
     //47
+    { jwin_button_proc,	  154+5,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
+    //48
+	{ jwin_abclist_proc,    10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignsubscreen_list, NULL, NULL },
+    { jwin_abclist_proc,    174+10,	45,		136,	105,	jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],  0,0,0, 0, (void *)&assignsubscreenscript_list, NULL, NULL },
+    //50
     { jwin_button_proc,	  154+5,	93,		15,		10,		vc(14),	vc(1),	0,	D_EXIT,	0,	0,	(void *) "<<", NULL, NULL },
     
     { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,        NULL, NULL, NULL }
@@ -22673,6 +22707,8 @@ int32_t onSlotAssign()
 	ascomboscripts.push_back("<none>");
 	asgenericscripts.clear();
 	asgenericscripts.push_back("<none>");
+	assubscreenscripts.clear();
+	assubscreenscripts.push_back("<none>");
 	//Declare new script vector
 	map<string, disassembled_script_data> scripts;
 	
@@ -23167,12 +23203,51 @@ void do_script_disassembly(map<string, disassembled_script_data>& scripts, bool 
 			}
 		}
 	}
+	for(int32_t i = 0; i < NUMSCRIPTSSUBSCREEN-1; ++i)
+	{
+		if(scripts.find(subscreenmap[i].scriptname) != scripts.end())
+		{
+			if(scripts[subscreenmap[i].scriptname].first.script_type != ScriptType::EngineSubscreen)
+			{
+				while(scripts.find(subscreenmap[i].scriptname) != scripts.end())
+					inc_script_name(subscreenmap[i].scriptname);
+			}
+			else continue;
+		}
+		if(!subscreenmap[i].isEmpty())
+		{
+			if(skipDisassembled && subscreenmap[i].format != SCRIPT_FORMAT_ZASM
+			   && (subscreenscripts[i+1]->meta.flags & ZMETA_IMPORTED) == 0)
+			{
+				subscreenmap[i].format = SCRIPT_FORMAT_INVALID;
+				continue;
+			}
+			if(subscreenscripts[i+1]->valid())
+			{
+				disassembled_script_data data = disassemble_script(subscreenscripts[i+1]);
+				if((subscreenscripts[i+1]->meta.flags & ZMETA_IMPORTED))
+				{
+					subscreenmap[i].format = SCRIPT_FORMAT_ZASM;
+					subscreenmap[i].update();
+				}
+				else if(fromCompile || (subscreenscripts[i+1]->meta.flags & ZMETA_DISASSEMBLED))
+				{
+					subscreenmap[i].format = SCRIPT_FORMAT_DISASSEMBLED;
+					subscreenmap[i].update();
+				}
+				data.format = subscreenmap[i].format;
+				scripts[subscreenmap[i].scriptname] = data;
+				assubscreenscripts.push_back(data.formatName(subscreenmap[i].scriptname));
+			}
+		}
+	}
 }
 
 enum script_slot_type
 {
 	type_ffc, type_global, type_itemdata, type_npc, type_lweapon, type_eweapon,
-	type_hero, type_dmap, type_screen, type_itemsprite, type_combo, type_generic, num_types
+	type_hero, type_dmap, type_screen, type_itemsprite, type_combo, type_generic,
+	type_subscreen, num_types
 };
 script_slot_type getType(ScriptType type)
 {
@@ -23186,8 +23261,8 @@ script_slot_type getType(ScriptType type)
 		case ScriptType::Ewpn: return type_eweapon;
 		case ScriptType::Player: return type_hero;
 		case ScriptType::DMap:
-		case ScriptType::ActiveSubscreen:
-		case ScriptType::PassiveSubscreen:
+		case ScriptType::ScriptedActiveSubscreen:
+		case ScriptType::ScriptedPassiveSubscreen:
 		case ScriptType::OnMap:
 			return type_dmap;
 		case ScriptType::Generic: case ScriptType::GenericFrozen:
@@ -23195,6 +23270,7 @@ script_slot_type getType(ScriptType type)
 		case ScriptType::Screen: return type_screen;
 		case ScriptType::ItemSprite: return type_itemsprite;
 		case ScriptType::Combo: return type_combo;
+		case ScriptType::EngineSubscreen: return type_subscreen;
 		default: return type_ffc; //Default
 	}
 }
@@ -23340,6 +23416,16 @@ void clearAllSlots(int32_t type, byte flags = 0)
 				if(checkSkip(genericmap[q].format, flags)) continue;
 				genericmap[q].scriptname = "";
 				genericmap[q].format = SCRIPT_FORMAT_DEFAULT;
+			}
+			break;
+		}
+		case type_subscreen:
+		{
+			for(int32_t q = 0; q < NUMSCRIPTSSUBSCREEN-1; ++q)
+			{
+				if(checkSkip(subscreenmap[q].format, flags)) continue;
+				subscreenmap[q].scriptname = "";
+				subscreenmap[q].format = SCRIPT_FORMAT_DEFAULT;
 			}
 			break;
 		}
@@ -23668,6 +23754,29 @@ byte reload_scripts(map<string, disassembled_script_data> &scripts)
 		}
 		genericmap[i].slotname = temp;
 		genericmap[i].update();
+	}
+	for(int32_t i = 0; i < NUMSCRIPTSSUBSCREEN-1; i++)
+	{
+		if(subscreenmap[i].isEmpty())
+			sprintf(temp, "Slot %d:", i+1);
+		else
+		{
+			sprintf(temp, "Slot %d:", i+1);
+			if(subscreenmap[i].isZASM())
+			{
+				if(subscreenmap[i].isImportedZASM()) slotflags |= SLOTMSGFLAG_IMPORTED;
+				else slotflags |= SLOTMSGFLAG_PRESERVED;
+			}
+			else if(scripts.find(subscreenmap[i].scriptname) != scripts.end())
+				subscreenmap[i].format = SCRIPT_FORMAT_DEFAULT;
+			else // Previously loaded script not found
+			{
+				subscreenmap[i].format = SCRIPT_FORMAT_INVALID;
+				slotflags |= SLOTMSGFLAG_MISSING;
+			}
+		}
+		subscreenmap[i].slotname = temp;
+		subscreenmap[i].update();
 	}
 	return slotflags;
 }
@@ -24074,7 +24183,29 @@ bool do_slots(map<string, disassembled_script_data> &scripts, int assign_mode)
 				
 				break;
 			}
-		
+			case 50:
+				//<<, subscreen script
+			{
+				int32_t lind = assignscript_dlg[48].d1;
+				int32_t rind = assignscript_dlg[49].d1;
+				
+				if(lind < 0 || rind < 0)
+					break;
+				
+				if(assubscreenscripts[rind] == "<none>")
+				{
+					subscreenmap[lind].scriptname = "";
+					subscreenmap[lind].format = SCRIPT_FORMAT_DEFAULT;
+				}
+				else
+				{
+					subscreenmap[lind].updateName(assubscreenscripts[rind]);
+					subscreenmap[lind].format = scripts[subscreenmap[lind].scriptname].format;
+				}
+				
+				break;
+			}
+			
 			case 42:
 				//Script Info, information
 			{
@@ -24190,6 +24321,15 @@ bool do_slots(map<string, disassembled_script_data> &scripts, int assign_mode)
 						}
 						break;
 					}
+					case 12: //Subscreen
+					{
+						int32_t id = assignscript_dlg[48].d1;
+						if(id > -1 && subscreenmap[id].hasScriptData())
+						{
+							target = &(scripts[subscreenmap[id].scriptname].first);
+						}
+						break;
+					}
 				}
 				if(target)
 					showScriptInfo(target);
@@ -24287,6 +24427,13 @@ bool do_slots(map<string, disassembled_script_data> &scripts, int assign_mode)
 						target = &(scripts[asgenericscripts[id]].first);
 						break;
 					}
+					case 12: //subscreen
+					{
+						int32_t id = assignscript_dlg[49].d1;
+						if(id < 0 || assubscreenscripts[id] == "<none>" || assubscreenscripts[id].at(0) == '-') break;
+						target = &(scripts[assubscreenscripts[id]].first);
+						break;
+					}
 				}
 				if(target)
 					showScriptInfo(target);
@@ -24317,6 +24464,7 @@ bool do_slots(map<string, disassembled_script_data> &scripts, int assign_mode)
 		smart_slot_type(scripts, asitemspritescripts, itemspritemap, NUMSCRIPTSITEMSPRITE-1);
 		smart_slot_type(scripts, ascomboscripts, comboscriptmap, NUMSCRIPTSCOMBODATA-1);
 		smart_slot_type(scripts, asgenericscripts, genericmap, NUMSCRIPTSGENERIC-1);
+		smart_slot_type(scripts, assubscreenscripts, subscreenmap, NUMSCRIPTSSUBSCREEN-1);
 	}
 auto_do_slots:
 	doslots_log_output = (assignscript_dlg[13].flags == D_SELECTED);
@@ -24347,6 +24495,8 @@ auto_do_slots:
 		if(!handle_slot_map(comboscriptmap, 1, comboscripts))
 			goto exit_do_slots;
 		if(!handle_slot_map(genericmap, 1, genericscripts))
+			goto exit_do_slots;
+		if(!handle_slot_map(subscreenmap, 1, subscreenscripts))
 			goto exit_do_slots;
 
 		clock_t end_assign_time = clock();
@@ -24434,6 +24584,9 @@ const char *slottype_list(int32_t index, int32_t *list_size)
 				break;
 			case type_generic:
 				strcpy(slottype_str_buf, "Generic");
+				break;
+			case type_subscreen:
+				strcpy(slottype_str_buf, "Subscreen");
 				break;
 		}
         
@@ -24668,6 +24821,9 @@ int32_t onExportZASM()
 					case type_combo:
 						scriptChoice = comboscripts[scriptInd];
 						break;
+					case type_subscreen:
+						scriptChoice = subscreenscripts[scriptInd];
+						break;
 				}
 				//}
 				//{ Find export file
@@ -24887,6 +25043,10 @@ int32_t onImportZASM()
 					case type_generic:
 						slot = &genericscripts[scriptInd];
 						map = &genericmap[scriptInd];
+						break;
+					case type_subscreen:
+						slot = &subscreenscripts[scriptInd];
+						map = &subscreenmap[scriptInd];
 						break;
 				}
 				//}
@@ -26818,6 +26978,11 @@ static void allocate_crap()
 	{
 		if(comboscripts[i]!=NULL) delete comboscripts[i];
 		comboscripts[i] = new script_data();
+	}
+	for(int32_t i=0; i<NUMSCRIPTSSUBSCREEN; i++)
+	{
+		if(subscreenscripts[i]!=NULL) delete subscreenscripts[i];
+		subscreenscripts[i] = new script_data();
 	}
 }
 
@@ -28814,6 +28979,10 @@ void quit_game()
     {
         if(comboscripts[i]!=NULL) delete comboscripts[i];
     }
+    for(int32_t i=0; i<NUMSCRIPTSSUBSCREEN; i++)
+    {
+        if(subscreenscripts[i]!=NULL) delete subscreenscripts[i];
+    }
     
     al_trace("Cleaning qst buffers. \n");
     del_qst_buffers();
@@ -28974,6 +29143,10 @@ void quit_game2()
     for(int32_t i=0; i<NUMSCRIPTSCOMBODATA; i++)
     {
         if(comboscripts[i]!=NULL) delete comboscripts[i];
+    }
+    for(int32_t i=0; i<NUMSCRIPTSSUBSCREEN; i++)
+    {
+        if(subscreenscripts[i]!=NULL) delete subscreenscripts[i];
     }
     
     al_trace("Cleaning qst buffers. \n");

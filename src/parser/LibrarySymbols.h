@@ -583,6 +583,46 @@ private:
     void generateCode();
 };
 
+class SubscreenDataSymbols : public LibrarySymbols
+{
+public:
+    static SubscreenDataSymbols &getInst()
+    {
+        return singleton;
+    }
+protected:
+private:
+    static SubscreenDataSymbols singleton;
+    SubscreenDataSymbols();
+    void generateCode();
+};
+class SubscreenPageSymbols : public LibrarySymbols
+{
+public:
+    static SubscreenPageSymbols &getInst()
+    {
+        return singleton;
+    }
+protected:
+private:
+    static SubscreenPageSymbols singleton;
+    SubscreenPageSymbols();
+    void generateCode();
+};
+class SubscreenWidgetSymbols : public LibrarySymbols
+{
+public:
+    static SubscreenWidgetSymbols &getInst()
+    {
+        return singleton;
+    }
+protected:
+private:
+    static SubscreenWidgetSymbols singleton;
+    SubscreenWidgetSymbols();
+    void generateCode();
+};
+
 #endif
 
 

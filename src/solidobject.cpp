@@ -40,6 +40,11 @@ static bool for_every_solid_object(const F& fn)
 		if (!obj->getSolid()) continue;
 		if (fn(obj)) return true;
 	}
+	
+	if(mblock2.getSolid())
+	{
+		if(fn(&mblock2)) return true;
+	}
 #endif
 
 	return false;

@@ -53,6 +53,9 @@ LibrarySymbols* LibrarySymbols::getTypeInstance(DataTypeId typeId)
 		case ZTID_GENERICDATA: return &GenericDataSymbols::getInst();
 		case ZTID_PORTAL: return &PortalSymbols::getInst();
 		case ZTID_SAVPORTAL: return &SavedPortalSymbols::getInst();
+		case ZTID_SUBSCREENDATA: return &SubscreenDataSymbols::getInst();
+		case ZTID_SUBSCREENPAGE: return &SubscreenPageSymbols::getInst();
+		case ZTID_SUBSCREENWIDGET: return &SubscreenWidgetSymbols::getInst();
 		default: return &nilsymbols;
     }
 }
@@ -159,6 +162,18 @@ void setIndexedVariable(int32_t refVar, Function* function, int32_t var)
 	function->giveCode(code);
 }
 
+void handleNil(int32_t refVar, Function* function)
+{
+	function->setFlag(FUNCFLAG_INLINE);
+	if(refVar == NUL)
+		function->setFlag(IFUNCFLAG_SKIPPOINTER);
+	int32_t label = function->getLabel();
+	vector<shared_ptr<Opcode>> code;
+	addOpcode2(code, new ONoOp());
+	LABELBACK(label);
+	function->giveCode(code);
+}
+
 void LibrarySymbols::addSymbolsToScope(Scope& scope)
 {
 	if(!table) return;
@@ -238,7 +253,11 @@ void LibrarySymbols::addSymbolsToScope(Scope& scope)
 			}
 			// Generate function code for getters/setters
 			int32_t label = function->getLabel();
-			switch(setorget)
+			if(function->getFlag(FUNCFLAG_NIL))
+			{
+				handleNil(refVar, function);
+			}
+			else switch(setorget)
 			{
 				case GETTER:
 					if (isArray)

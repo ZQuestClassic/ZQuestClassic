@@ -418,6 +418,9 @@ std::string getComboTypeHelpText(int32_t id)
 		case cICY:
 			typehelp = "A block that may act slippery in different ways depending on its' flags.";
 			break;
+		case cMIRRORNEW:
+			typehelp = "A customizable version of mirror combos.";
+			break;
 		case cSLOPE:
 			typehelp = "This type has a diagonal collision box (separate from normal solidity), and several options"
 				" that are useful in sideview.";
@@ -1773,6 +1776,8 @@ void ComboEditorDialog::loadComboType()
 		{
 			l_flag[0] = "Use Tiles instead of Colors";
 			h_flag[0] = "Uses a set of tiles in a preset order, instead of a set of 3 colors, to represent the light beam.";
+			l_flag[1] = "Works on FFCs";
+			h_flag[1] = "This spotlight can fire a beam from FFCs, off-the-grid";
 			l_attribyte[0] = "Dir:";
 			h_attribyte[0] = "0-3 = Up,Down,Left,Right\n4-7 = Unused (For Now)\n8 = at the ground";
 			l_attribyte[4] = "Trigger Set:";
@@ -1792,6 +1797,13 @@ void ComboEditorDialog::loadComboType()
 				h_attribyte[2] = "One of the colors used to generate the light beam graphic";
 				l_attribyte[3] = "Outer Color:";
 				h_attribyte[3] = "One of the colors used to generate the light beam graphic";
+			}
+			if(FL(cflag2))
+			{
+				l_attribyte[5] = "Beam Width (FFC)";
+				h_attribyte[5] = "The 'width' of the beam. This is only used when the spotlight"
+					" is on an FFC, and is used to center the beam and determine the hitbox."
+					"\nDoes not affect the visual in any way. If < 1, uses '8' as a default.";
 			}
 			break;
 		}
@@ -1933,6 +1945,46 @@ void ComboEditorDialog::loadComboType()
 			l_flag[0] = "Slides Blocks";
 			h_flag[0] = "Pushable blocks pushed onto this combo will"
 				" slide past it, if nothing blocks their way.";
+			break;
+		}
+		case cMIRRORNEW:
+		{
+			l_attribyte[up] = "Up Reflect";
+			h_attribyte[up] = "Weapons/light beams facing up (coming from below) will move in this direction."
+				" Light beams will not work with diagonals."
+				"\n0 = up, 1 = down, 2 = left, 3 = right"
+				"\n4 = up-left, 5 = up-right, 6 = down-left, 7 = down-right";
+			l_attribyte[down] = "Down Reflect";
+			h_attribyte[down] = "Weapons/light beams facing down (coming from above) will move in this direction."
+				" Light beams will not work with diagonals."
+				"\n0 = up, 1 = down, 2 = left, 3 = right"
+				"\n4 = up-left, 5 = up-right, 6 = down-left, 7 = down-right";
+			l_attribyte[left] = "Left Reflect";
+			h_attribyte[left] = "Weapons/light beams facing left (coming from the right) will move in this direction."
+				" Light beams will not work with diagonals."
+				"\n0 = up, 1 = down, 2 = left, 3 = right"
+				"\n4 = up-left, 5 = up-right, 6 = down-left, 7 = down-right";
+			l_attribyte[right] = "Right Reflect";
+			h_attribyte[right] = "Weapons/light beams facing right (coming from the left) will move in this direction."
+				" Light beams will not work with diagonals."
+				"\n0 = up, 1 = down, 2 = left, 3 = right"
+				"\n4 = up-left, 5 = up-right, 6 = down-left, 7 = down-right";
+			l_attribyte[l_up] = "Up-Left Reflect";
+			h_attribyte[l_up] = "Weapons facing up-left (coming from down-right) will move in this direction."
+				"\n0 = up, 1 = down, 2 = left, 3 = right"
+				"\n4 = up-left, 5 = up-right, 6 = down-left, 7 = down-right";
+			l_attribyte[r_up] = "Up-Right Reflect";
+			h_attribyte[r_up] = "Weapons facing up-right (coming from down-left) will move in this direction."
+				"\n0 = up, 1 = down, 2 = left, 3 = right"
+				"\n4 = up-left, 5 = up-right, 6 = down-left, 7 = down-right";
+			l_attribyte[l_down] = "Down-Left Reflect";
+			h_attribyte[l_down] = "Weapons facing down-left (coming from up-right) will move in this direction."
+				"\n0 = up, 1 = down, 2 = left, 3 = right"
+				"\n4 = up-left, 5 = up-right, 6 = down-left, 7 = down-right";
+			l_attribyte[r_down] = "Down-Right Reflect";
+			h_attribyte[r_down] = "Weapons facing down-right (coming from up-left) will move in this direction."
+				"\n0 = up, 1 = down, 2 = left, 3 = right"
+				"\n4 = up-left, 5 = up-right, 6 = down-left, 7 = down-right";
 			break;
 		}
 	}

@@ -29,7 +29,8 @@ extern FFScript FFCore;
 extern std::vector<string> asffcscripts, asglobalscripts, asitemscripts,
 	asnpcscripts, aseweaponscripts, aslweaponscripts,
 	asplayerscripts, asdmapscripts, asscreenscripts,
-	asitemspritescripts, ascomboscripts, asgenericscripts;
+	asitemspritescripts, ascomboscripts, asgenericscripts,
+	assubscreenscripts;
 extern std::map<int32_t, script_slot_data > globalmap;
 
 byte compile_success_sample = 0;
@@ -149,7 +150,7 @@ bool do_compile_and_slots(int assign_mode, bool delay)
 	if(delay)
 		args.push_back("-delay");
 	process_manager* pm = launch_piped_process(ZSCRIPT_FILE, "zq_parser_pipe", args);
-	pm->timeout_seconds = zc_get_config("Compiler","compiler_timeout",30,App::zscript);
+	dword compile_timeout = zc_get_config("Compiler","compiler_timeout",30,App::zscript);
 	if(!pm)
 	{
 		InfoDialog("Parser","Failed to launch " ZSCRIPT_FILE).show();
@@ -179,11 +180,22 @@ bool do_compile_and_slots(int assign_mode, bool delay)
 		if (console) 
 		{
 			char buf4[4096];
+			const dword def_idle = delay ? 60*60 : 0;
+			dword idle_seconds = def_idle;
 			while(running)
 			{
+				pm->timeout_seconds = compile_timeout+idle_seconds;
+				idle_seconds = def_idle;
 				pm->read(&code, sizeof(int32_t));
 				switch(code)
 				{
+					case ZC_CONSOLE_IDLE_CODE:
+					{
+						pm->read(&idle_seconds, sizeof(dword));
+						idle_seconds += def_idle;
+						pm->write(&code, sizeof(int32_t));
+						break;
+					}
 					case ZC_CONSOLE_DB_CODE:
 					case ZC_CONSOLE_ERROR_CODE:
 					case ZC_CONSOLE_WARN_CODE:
@@ -340,6 +352,8 @@ bool do_compile_and_slots(int assign_mode, bool delay)
 	ascomboscripts.push_back("<none>");
 	asgenericscripts.clear();
 	asgenericscripts.push_back("<none>");
+	assubscreenscripts.clear();
+	assubscreenscripts.push_back("<none>");
 	clear_map_states();
 	globalmap[0].updateName("~Init"); //force name to ~Init
 	
@@ -386,6 +400,9 @@ bool do_compile_and_slots(int assign_mode, bool delay)
 				break;
 			case scrTypeIdGlobal:
 				asglobalscripts.push_back(name);
+				break;
+			case scrTypeIdSusbcrData:
+				assubscreenscripts.push_back(name);
 				break;
 		}
 	}

@@ -28,7 +28,7 @@ parser.add_argument('--for-nightly', type=str2bool, default=False)
 
 args = parser.parse_args()
 
-commit_url_prefix = 'https://github.com/ArmageddonGames/ZQuestClassic/commit'
+commit_url_prefix = 'https://github.com/ZQuestClassic/ZQuestClassic/commit'
 
 overrides = dict()
 overrides_squashes = dict()

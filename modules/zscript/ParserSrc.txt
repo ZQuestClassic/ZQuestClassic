@@ -56,6 +56,7 @@ src/parser/symbols/BottleTypeSymbols.cpp
 src/parser/symbols/BottleShopSymbols.cpp
 src/parser/symbols/GenericDataSymbols.cpp
 src/parser/symbols/PortalSymbols.cpp
+src/parser/symbols/SubscreenDataSymbols.cpp
 src/parser/symbols/ViewportSymbols.cpp
 
 ## End of ZQuest ZScript module

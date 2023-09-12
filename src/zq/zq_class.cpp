@@ -12288,6 +12288,7 @@ extern script_data *screenscripts[NUMSCRIPTSCREEN];
 extern script_data *dmapscripts[NUMSCRIPTSDMAP];
 extern script_data *itemspritescripts[NUMSCRIPTSITEMSPRITE];
 extern script_data *comboscripts[NUMSCRIPTSCOMBODATA];
+extern script_data *subscreenscripts[NUMSCRIPTSSUBSCREEN];
 
 int32_t writeffscript(PACKFILE *f, zquestheader *Header)
 {
@@ -12472,6 +12473,21 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
 		for(int32_t i=0; i<NUMSCRIPTSGENERIC; i++)
         {
             int32_t ret = write_one_ffscript(f, Header, i, &genericscripts[i]);
+            fake_pack_writing=(writecycle==0);
+            
+            if(ret!=0)
+            {
+                new_return(ret);
+            }
+        }
+		
+		if(!p_iputw(NUMSCRIPTSSUBSCREEN,f))
+		{
+			new_return(2001);
+		}
+		for(int32_t i=0; i<NUMSCRIPTSSUBSCREEN; i++)
+        {
+            int32_t ret = write_one_ffscript(f, Header, i, &subscreenscripts[i]);
             fake_pack_writing=(writecycle==0);
             
             if(ret!=0)
@@ -12897,7 +12913,7 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
                 }
             }
         }
-		//generic scripts
+		//subscreen scripts
 		word numgenericbindings=0;
         
         for(auto it = genericmap.begin(); it != genericmap.end(); it++)
@@ -12929,6 +12945,42 @@ int32_t writeffscript(PACKFILE *f, zquestheader *Header)
                 if(!pfwrite((void *)it->second.scriptname.c_str(), (int32_t)it->second.scriptname.size(),f))
                 {
                     new_return(2046);
+                }
+            }
+        }
+        
+		//generic scripts
+		word numsubscreenbindings=0;
+        
+        for(auto it = subscreenmap.begin(); it != subscreenmap.end(); it++)
+        {
+            if(it->second.scriptname != "")
+            {
+                numsubscreenbindings++;
+            }
+        }
+		if(!p_iputw(numsubscreenbindings, f))
+        {
+            new_return(2047);
+        }
+		
+        for(auto it = subscreenmap.begin(); it != subscreenmap.end(); it++)
+        {
+            if(it->second.scriptname != "")
+            {
+                if(!p_iputw(it->first,f))
+                {
+                    new_return(2048);
+                }
+                
+                if(!p_iputl((int32_t)it->second.scriptname.size(), f))
+                {
+                    new_return(2049);
+                }
+                
+                if(!pfwrite((void *)it->second.scriptname.c_str(), (int32_t)it->second.scriptname.size(),f))
+                {
+                    new_return(2050);
                 }
             }
         }

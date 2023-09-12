@@ -1,0 +1,60 @@
+https://github.com/ZQuestClassic/ZQuestClassic/releases/tag/2.55-alpha-118
+
+# Bug Fixes
+
+typo with subscreen view setting
+windows 7 crashes on compile zscript
+'View Unowned Items' subscreen bugs
+subscreen buttonitem on active subscreen not scrolling properly
+close about window on ESC/clicking X
+
+[mac] title bar showing on initial fullscreen launch
+  The `osx_tell_dock_outside_bundle = false` feature I added to allegro
+  recently is somewhat useful in development, but apparently problematic
+  for normal use.
+
+zc: handle error when sav file fails to load
+zc: unload other save games when selecting one
+zc: save file corruption from overlooked fields
+zc: Crash on zscript object destructor
+zc: Crash on dmap lacking subscreen
+zc: read hp from save file for life meter on titlescreen
+zc: remove accidental dev mode, which always allows cheats
+zc: retain previous position when returning to title screen
+zc: unreliable behavior of ESC in title screen
+zc: sfx accidentally disabled in save select screen
+zc: empty item slots filling wrongly
+zc: weird subscreen item animation resetting
+zq: mention change-combo shortcut in info text
+zq: room data gui text overlap
+std_zh: CR_RUPEES definition was missing
+zscript: set save name being truncated because not using new string
+zscript: use safer vsnprintf to avoid crash via buffer overflow in logging
+zscript: check_bunny accidentally always on for Game->CurrentItemID()
+web: set default saves folder to /local/saves
+web: quick quest load was broken after save refactor
+
+# Build
+
+fix windows compile due to msvc hang bug
+
+# Chores
+
+remove outdated source file preamble comments
+
+# Tests
+
+add -test-zc switch to test save file roundtrip
+mostly finish save roundtrip test
+check for full game equality in save roundtrip
+fix zc saves test
+
+# CI
+
+fix updater test cache
+add test_zplayer.py
+
+# Misc.
+
+support sentry unique user counting
+

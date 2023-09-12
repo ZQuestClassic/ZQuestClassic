@@ -1,5 +1,5 @@
 // This file only exists because there is no MIDI player interface for SDL/emscripten to use.
-// See allegro-legacy/src/a5/midia5/sdl/sdl_midi.c
+// See third_party/allegro_legacy/src/a5/midia5/sdl/sdl_midi.c
 // Future work could remove this file if the above interface were fleshed out. Probably needs to
 // use Timidity directly.
 // For now, all original calls to allegro4 midi functions have been replaced with these,

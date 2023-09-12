@@ -109,6 +109,7 @@ extern std::map<int32_t, script_slot_data > dmapmap;
 extern std::map<int32_t, script_slot_data > screenmap;
 extern std::map<int32_t, script_slot_data > itemspritemap;
 extern std::map<int32_t, script_slot_data > comboscriptmap;
+extern std::map<int32_t, script_slot_data > subscreenmap;
 
 extern bool global_z3_hacky_load;
 

@@ -1,21 +1,3 @@
-// 2.55 Change Log
-// Updated 1st Aug, 2023
-
-//Alpha 116
-
-See https://github.com/ArmageddonGames/ZQuestClassic/releases/tag/2.55-alpha-116
-
-//Alpha 115
-
-See https://github.com/ArmageddonGames/ZQuestClassic/releases/tag/2.55-alpha-115
-
-//Alpha 114
-
-See https://github.com/ArmageddonGames/ZQuestClassic/releases/tag/2.55-alpha-114
-
-Fix icy pushblock interactions with block holes.
-	( EmilyV, Apr 10th, 2023 )
-
 //Alpha 113
 
 Pound combos can work on layers 1&2 (qr)
@@ -7571,9 +7553,9 @@ Added SetEnhancedMusicSpeed(); 1 is normal speed, 0.5 is half
 Added OGGEX to zcmusic/zc_sys. 
 	( Dimentio, 15th April, 2019 ) 
 	Commits:
-		https://github.com/ArmageddonGames/ZeldaClassic/pull/332/commits/20e7b40cca7999a6257dec623f62670731f82285
-		https://github.com/ArmageddonGames/ZeldaClassic/pull/332/commits/36f0e3b0ee914e3de9b97cd806db6706217b3528
-		https://github.com/ArmageddonGames/ZeldaClassic/pull/332/commits/b96116722610805c4cd3ca4ce250d0f7078931da
+		https://github.com/ZQuestClassic/ZQuestClassic/pull/332/commits/20e7b40cca7999a6257dec623f62670731f82285
+		https://github.com/ZQuestClassic/ZQuestClassic/pull/332/commits/36f0e3b0ee914e3de9b97cd806db6706217b3528
+		https://github.com/ZQuestClassic/ZQuestClassic/pull/332/commits/b96116722610805c4cd3ca4ce250d0f7078931da
 
 Changed the ZQ main menu so that if the user is in small mode,
 they cqan still access every entry.

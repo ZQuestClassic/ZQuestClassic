@@ -6,7 +6,7 @@ from common import get_gha_artifacts
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--repo', default='ArmageddonGames/ZQuestClassic')
+    parser.add_argument('--repo', default='ZQuestClassic/ZQuestClassic')
     parser.add_argument('--token', required=True)
     parser.add_argument('--workflow_run', type=int, required=True)
 

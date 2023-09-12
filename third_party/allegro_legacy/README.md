@@ -1,3 +1,11 @@
+# ZC
+
+https://github.com/NewCreature/Allegro-Legacy
+
+Modifications are denoted by `local edit` comments.
+
+________
+
 # Allegro Legacy
 
 Port your Allegro 4 programs to modern systems using Allegro 5.

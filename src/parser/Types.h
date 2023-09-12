@@ -136,6 +136,8 @@ namespace ZScript
 		ZTID_PALDATA,
 		ZTID_PORTAL,
 		ZTID_SAVPORTAL,
+		ZTID_SUBSCREENPAGE,
+		ZTID_SUBSCREENWIDGET,
 		ZTID_CLASS_END,
 
 		ZTID_END = ZTID_CLASS_END
@@ -251,6 +253,10 @@ namespace ZScript
 				return "SAVEDPORTAL";
 			case ZTID_ZINFO:
 				return "ZINFO";
+			case ZTID_SUBSCREENPAGE:
+				return "SUBSCREENPAGE";
+			case ZTID_SUBSCREENWIDGET:
+				return "SUBSCREENWIDGET";
 			default:
 				return "INT";
 				/*char buf[16];
@@ -376,6 +382,10 @@ namespace ZScript
 			return ZTID_PORTAL;
 		else if(name == "SAVEDPORTAL")
 			return ZTID_SAVPORTAL;
+		else if(name == "SUBSCREENPAGE")
+			return ZTID_SUBSCREENPAGE;
+		else if(name == "SUBSCREENWIDGET")
+			return ZTID_SUBSCREENWIDGET;
 		
 		return ZTID_VOID;
 	}
@@ -508,6 +518,8 @@ namespace ZScript
 		static DataTypeClassConst CGENERICDATA;
 		static DataTypeClassConst CPORTAL;
 		static DataTypeClassConst CSAVEDPORTAL;
+		static DataTypeClassConst CSUBSCREENPAGE;
+		static DataTypeClassConst CSUBSCREENWIDGET;
 		//Class: Var Types
 		static DataTypeClass BITMAP;
 		static DataTypeClass CHEATS;
@@ -545,6 +557,8 @@ namespace ZScript
 		static DataTypeClass GENERICDATA;
 		static DataTypeClass PORTAL;
 		static DataTypeClass SAVEDPORTAL;
+		static DataTypeClass SUBSCREENPAGE;
+		static DataTypeClass SUBSCREENWIDGET;
 	};
 
 	bool operator==(DataType const&, DataType const&);
@@ -668,6 +682,7 @@ namespace ZScript
 		virtual bool canBeGlobal() const {return true;}
 		virtual bool isArray() const {return true;}
 		virtual bool isResolved() const {return elementType.isResolved();}
+		virtual UserClass* getUsrClass() const {return elementType.getUsrClass();}
 
 		DataType const& getElementType() const {return elementType;}
 		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler);
@@ -786,7 +801,7 @@ namespace ZScript
 				case idComboData:
 					return ScriptType::Combo;
 				case idSubscreenData:
-					return ScriptType::None;
+					return ScriptType::EngineSubscreen;
 				case idGenericScript:
 					return ScriptType::Generic;
 			}

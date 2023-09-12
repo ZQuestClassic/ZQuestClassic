@@ -1205,7 +1205,6 @@ static void select_game(bool skip = false)
 				loadlast = saves_current_selection() + 1;
 				strcpy(qstpath, load_qstpath.c_str());
 				saves_do_first_time_stuff(saves_current_selection());
-				saves_write();
 				break;
 			}
 			else

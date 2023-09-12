@@ -437,6 +437,7 @@ extern script_data *screenscripts[NUMSCRIPTSCREEN];
 extern script_data *dmapscripts[NUMSCRIPTSDMAP];
 extern script_data *itemspritescripts[NUMSCRIPTSITEMSPRITE];
 extern script_data *comboscripts[NUMSCRIPTSCOMBODATA];
+extern script_data *subscreenscripts[NUMSCRIPTSSUBSCREEN];
 
 extern SAMPLE customsfxdata[WAV_COUNT];
 extern int32_t sfxdat;

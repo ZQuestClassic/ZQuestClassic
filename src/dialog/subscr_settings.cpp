@@ -12,6 +12,7 @@
 #include "subscr_transition.h"
 #include "subscr_macros.h"
 
+extern script_data *subscreenscripts[NUMSCRIPTSSUBSCREEN];
 extern ZCSubscreen subscr_edit;
 
 void call_subscrsettings_dialog()
@@ -21,9 +22,34 @@ void call_subscrsettings_dialog()
 
 SubscrSettingsDialog::SubscrSettingsDialog() :
 	ty(subscr_edit.sub_type),
-	list_sfx(GUI::ZCListData::sfxnames(true))
+	list_sfx(GUI::ZCListData::sfxnames(true)),
+	list_subscript(GUI::ZCListData::subscreen_script())
 {
 	local_subref.copy_settings(subscr_edit);
+}
+
+std::shared_ptr<GUI::Widget> SubscrSettingsDialog::SUBSCR_INITD(int index)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Props;
+	
+	return Row(padding = 0_px,
+		l_initds[index] = Label(minwidth = 12_em, textAlign = 2),
+		ib_initds[index] = Button(forceFitH = true, text = "?",
+			disabled = true,
+			onPressFunc = [&, index]()
+			{
+				InfoDialog("InitD Info",h_initd[index]).show();
+			}),
+		tf_initd[index] = TextField(
+			fitParent = true, minwidth = 8_em,
+			type = GUI::TextField::type::SWAP_ZSINT,
+			val = local_subref.initd[index],
+			onValChangedFunc = [&, index](GUI::TextField::type,std::string_view,int32_t val)
+			{
+				local_subref.initd[index] = val;
+			})
+	);
 }
 
 size_t subscr_sett_tabs[3];
@@ -143,6 +169,24 @@ std::shared_ptr<GUI::Widget> SubscrSettingsDialog::view()
 					)
 				)
 			)});
+			tabs.push_back({"Script", Row(
+					Column(
+						SUBSCR_INITD(0),
+						SUBSCR_INITD(1),
+						SUBSCR_INITD(2),
+						SUBSCR_INITD(3),
+						SUBSCR_INITD(4),
+						SUBSCR_INITD(5),
+						SUBSCR_INITD(6),
+						SUBSCR_INITD(7)
+					),
+					Column(
+						padding = 0_px, fitParent = true,
+						Rows<2>(vAlign = 0.0,
+							SCRIPT_LIST_PROC("Script:", list_subscript, local_subref.script, refr_script)
+						)
+					)
+				)});
 			break;
 		}
 		case sstPASSIVE:
@@ -159,6 +203,7 @@ std::shared_ptr<GUI::Widget> SubscrSettingsDialog::view()
 	for(auto& ref : tabs)
 		tpan->add(TabRef(name = ref.first, ref.second)); 
 	refr_info();
+	refr_script();
 	return window;
 }
 
@@ -167,6 +212,44 @@ void SubscrSettingsDialog::refr_selector()
 	if(ty == sstACTIVE)
 	{
 		selector_grid->setDisabled(!(local_subref.flags&SUBFLAG_ACT_OVERRIDESEL));
+	}
+}
+void SubscrSettingsDialog::refr_script()
+{
+	std::string label[8], help[8];
+	for(auto q = 0; q < 8; ++q)
+	{
+		label[q] = "InitD["+std::to_string(q)+"]";
+	}
+	if(local_subref.script)
+	{
+		zasm_meta const& meta = subscreenscripts[local_subref.script]->meta;
+		for(size_t q = 0; q < 8; ++q)
+		{
+			if(meta.initd[q].size())
+				label[q] = meta.initd[q];
+			if(meta.initd_help[q].size())
+				help[q] = meta.initd_help[q];
+		}
+		
+		for(auto q = 0; q < 8; ++q)
+		{
+			if(unsigned(meta.initd_type[q]) < nswapMAX)
+				tf_initd[q]->setSwapType(meta.initd_type[q]);
+		}
+	}
+	else
+	{
+		for(auto q = 0; q < 8; ++q)
+		{
+			tf_initd[q]->setSwapType(nswapDEC);
+		}
+	}
+	for(auto q = 0; q < 8; ++q)
+	{
+		l_initds[q]->setText(label[q]);
+		h_initd[q] = help[q];
+		ib_initds[q]->setDisabled(help[q].empty());
 	}
 }
 void SubscrSettingsDialog::refr_info()

@@ -12,6 +12,7 @@ struct newcombo;
 
 int32_t COMBOPOS_REGION_EXTENDED(int32_t pos, int32_t scr_dx, int32_t scr_dy);
 int32_t COMBOPOS_REGION_EXTENDED(int32_t x, int32_t y);
+int32_t COMBOPOS_REGION_EXTENDED_B(int32_t x, int32_t y);
 int32_t COMBOX_REGION_EXTENDED(int32_t pos);
 int32_t COMBOY_REGION_EXTENDED(int32_t pos);
 int32_t COMBOPOS(int32_t x, int32_t y);
@@ -278,6 +279,7 @@ void update_freeform_combos();
 bool trigger_secrets_if_flag(int32_t x, int32_t y, int32_t flag, bool setflag);
 bool triggerfire(int x, int y, bool setflag, bool any, bool strong, bool magic, bool divine);
 bool hitcombo(int32_t x, int32_t y, int32_t combotype, byte layers = 0b0000001);
+int gethitcombo(int32_t x, int32_t y, int32_t combotype, byte layers = 0b0000001);
 bool hitflag(int32_t x, int32_t y, int32_t flagtype, byte layers = 0b0000001);
 int32_t nextscr(int32_t dir);
 std::pair<int32_t, int32_t> nextscr2(int32_t dir);

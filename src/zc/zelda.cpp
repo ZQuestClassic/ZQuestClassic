@@ -20,7 +20,7 @@
 
 #include <stdlib.h>
 
-#include <al5img.h>
+#include <al5_img.h>
 #include <loadpng.h>
 
 #include "zscriptversion.h"
@@ -487,6 +487,7 @@ script_data *screenscripts[NUMSCRIPTSCREEN];
 script_data *dmapscripts[NUMSCRIPTSDMAP];
 script_data *itemspritescripts[NUMSCRIPTSITEMSPRITE];
 script_data *comboscripts[NUMSCRIPTSCOMBODATA];
+script_data *subscreenscripts[NUMSCRIPTSSUBSCREEN];
 
 ScriptOwner::ScriptOwner() : scriptType(ScriptType::None), ownerUID(0),
 	specOwned(false), specCleared(false)
@@ -1906,6 +1907,7 @@ int32_t init_game()
 	if(clearConsoleOnLoad)
 		clearConsole();
 	new_subscreen_active = nullptr;
+	new_sub_indexes[sstACTIVE] = -1;
 	GameLoaded = true;
 
     // Various things use the frame counter to do random stuff (ex: runDrunkRNG).
@@ -2217,6 +2219,8 @@ int32_t init_game()
 	timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
 	previous_DMap = currdmap = warpscr = worldscr=game->get_continue_dmap();
 	new_subscreen_active = new_subscreen_passive = new_subscreen_overlay = nullptr;
+	new_sub_indexes[sstACTIVE] = new_sub_indexes[sstPASSIVE] =
+		new_sub_indexes[sstOVERLAY] = -1;
 	init_dmap();
 	
 	if(game->get_continue_scrn() >= 0x80)
@@ -2279,7 +2283,7 @@ int32_t init_game()
 	initZScriptGlobalRAM();
 	FFCore.initZScriptHeroScripts();
 	FFCore.initZScriptDMapScripts();
-	FFCore.initZScriptActiveSubscreenScript();
+	FFCore.initZScriptScriptedActiveSubscreen();
 	FFCore.initZScriptItemScripts();
 
 	if (!get_qr(qr_OLD_SCRIPT_VOLUME))
@@ -2538,6 +2542,7 @@ int32_t init_game()
 	
 	if ( Hero.getDontDraw() < 2 ) { Hero.setDontDraw(0); }
 	z3_update_viewport();
+	initZScriptGlobalScript(GLOBAL_SCRIPT_GAME); // before 'openscreen' incase FFCore.warpScriptCheck()
 	openscreen();
 	show_subscreen_numbers=true;
 	show_subscreen_life=true;
@@ -2582,11 +2587,10 @@ int32_t init_game()
 		}	
 	}
 	
-	initZScriptGlobalScript(GLOBAL_SCRIPT_GAME);
 	FFCore.initZScriptHeroScripts(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
 	FFCore.initZScriptDMapScripts(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
 	FFCore.initZScriptItemScripts(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
-	FFCore.initZScriptActiveSubscreenScript();
+	FFCore.initZScriptScriptedActiveSubscreen();
 	if(get_qr(qr_FFCPRELOAD_BUGGED_LOAD)) ffscript_engine(true);  //Here is a much safer place...
 	return 0;
 }
@@ -2717,7 +2721,7 @@ int32_t cont_game()
 	initZScriptGlobalScript(GLOBAL_SCRIPT_GAME);
 	FFCore.initZScriptHeroScripts();
 	FFCore.initZScriptDMapScripts();
-	FFCore.initZScriptActiveSubscreenScript();
+	FFCore.initZScriptScriptedActiveSubscreen();
 	FFCore.initZScriptItemScripts();
 
 	if (!get_qr(qr_OLD_SCRIPT_VOLUME))
@@ -3592,9 +3596,9 @@ void game_loop()
 			ZScriptVersion::RunScript(ScriptType::DMap, DMaps[currdmap].script,currdmap);
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_ACTIVE);
-		if(!FFCore.system_suspend[susptDMAPSCRIPT] && !freezemsg && FFCore.doscript(ScriptType::PassiveSubscreen) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
+		if(!FFCore.system_suspend[susptDMAPSCRIPT] && !freezemsg && FFCore.doscript(ScriptType::ScriptedPassiveSubscreen) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
 		{
-			ZScriptVersion::RunScript(ScriptType::PassiveSubscreen, DMaps[currdmap].passive_sub_script,currdmap);
+			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[currdmap].passive_sub_script,currdmap);
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_PASSIVESUBSCREEN);
 		if ( !FFCore.system_suspend[susptCOMBOSCRIPTS] && !freezemsg && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
@@ -3770,10 +3774,10 @@ void game_loop()
 			FFCore.waitdraw(ScriptType::DMap) = false;
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_ACTIVE_WAITDRAW);
-		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(ScriptType::PassiveSubscreen) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(ScriptType::ScriptedPassiveSubscreen) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
-			ZScriptVersion::RunScript(ScriptType::PassiveSubscreen, DMaps[currdmap].passive_sub_script,currdmap);
-			FFCore.waitdraw(ScriptType::PassiveSubscreen) = false;
+			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[currdmap].passive_sub_script,currdmap);
+			FFCore.waitdraw(ScriptType::ScriptedPassiveSubscreen) = false;
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_PASSIVESUBSCREEN_WAITDRAW);
 		
@@ -3999,7 +4003,7 @@ void game_loop()
 		if ( previous_DMap != currdmap )
 		{
 			FFCore.initZScriptDMapScripts();
-			FFCore.initZScriptActiveSubscreenScript();
+			FFCore.initZScriptScriptedActiveSubscreen();
 			previous_DMap = currdmap;
 		}
 			// Other effects in zc_sys.cpp
@@ -4562,6 +4566,10 @@ static void allocate_crap()
 	{
 		comboscripts[i] = new script_data();
 	}
+	for(int32_t i=0; i<NUMSCRIPTSSUBSCREEN; i++)
+	{
+		subscreenscripts[i] = new script_data();
+	}
 }
 
 void do_load_and_quit_command(const char* quest_path)
@@ -4583,6 +4591,11 @@ void do_load_and_quit_command(const char* quest_path)
 
 int main(int argc, char **argv)
 {
+	qstdir = (char*)malloc(2048);
+	qstpath = (char*)malloc(2048);
+	qstdir[0] = 0;
+	qstpath[0] = 0;
+
 #ifdef _WIN32
 	// For purposes of packaging a standalone app.
 	if (used_switch(argc, argv, "-package"))
@@ -4667,6 +4680,31 @@ int main(int argc, char **argv)
 		do_load_and_quit_command(argv[load_and_quit_arg+1]);
 	}
 
+	int create_save_arg = used_switch(argc,argv,"-create-save");
+	if (create_save_arg)
+	{
+		set_headless_mode();
+
+		// We need to init some stuff before loading a quest file will work.
+		int fake_errno = 0;
+		allegro_errno = &fake_errno;
+		get_qst_buffers();
+		allocate_crap();
+		if ((sfxdata=load_datafile("sfx.dat"))==NULL)
+		{
+			Z_error_fatal("failed to load sfx_dat");
+		}
+
+		gamedata* new_game = new gamedata();
+		new_game->header.name = "newsave";
+		new_game->header.qstpath = argv[create_save_arg + 1];
+		saves_create_slot(new_game);
+		int ret = saves_do_first_time_stuff(saves_count() - 1);
+		if (ret)
+			printf("failed to save: %d\n", ret);
+		exit(ret ? 1 : 0);
+	}
+
 	bool onlyInstance=true;
 //	refresh_select_screen = 0;
 	memset(modulepath, 0, sizeof(modulepath));
@@ -4718,22 +4756,6 @@ int main(int argc, char **argv)
 
 	// Before anything else, let's register our custom trace handler:
 	register_trace_handler(zc_trace_handler);
-	
-	// allocate quest data buffers
-	memrequested += 4096;
-	Z_message("Allocating quest path buffers (%s)...", byte_conversion2(4096,memrequested,-1,-1));
-	qstdir = (char*)malloc(2048);
-	qstpath = (char*)malloc(2048);
-	
-	if(!qstdir || !qstpath)
-	{
-		Z_error_fatal("Allocation error");
-	}
-	
-	qstdir[0] = 0;
-	qstpath[0] = 0;
-	
-	Z_message("OK\n");
 	
 	if(!get_qst_buffers())
 	{
@@ -5185,10 +5207,9 @@ int main(int argc, char **argv)
 		//  if(useCD)
 		//    cd_exit();
 		quit_game();
-		//Z_message("Armageddon Games web site: http://www.armageddongames.com\n");
 		Z_message("ZQuest Classic web site: http://www.zeldaclassic.com\n");
 		Z_message("ZQuest Classic old wiki: https://web.archive.org/web/20210910193102/https://zeldaclassic.com/wiki\n");
-		Z_message("ZQuest Classic new wiki: https://github.com/ArmageddonGames/ZQuestClassic/wiki\n");
+		Z_message("ZQuest Classic new wiki: https://github.com/ZQuestClassic/ZQuestClassic/wiki\n");
 		
 		skipcont = 0;
 		if(forceExit) //fix for the allegro at_exit() hang.
@@ -5717,7 +5738,7 @@ reload_for_replay_file:
 				FFCore.initZScriptHeroScripts(); //Should we not be calling this AFTER running the exit script!!
 				FFCore.initZScriptDMapScripts(); //Should we not be calling this AFTER running the exit script!!
 				FFCore.initZScriptItemScripts(); //Should we not be calling this AFTER running the exit script!!
-				FFCore.initZScriptActiveSubscreenScript();
+				FFCore.initZScriptScriptedActiveSubscreen();
 				FFCore.clear_combo_scripts(); //clear running combo script data
 				//Run Global script OnExit
 				ZScriptVersion::RunScript(ScriptType::Global, GLOBAL_SCRIPT_END, GLOBAL_SCRIPT_END);
@@ -5775,7 +5796,7 @@ reload_for_replay_file:
 				FFCore.initZScriptHeroScripts(); //get ready for the onWin script
 				FFCore.initZScriptDMapScripts();
 				FFCore.initZScriptItemScripts();
-				FFCore.initZScriptActiveSubscreenScript();
+				FFCore.initZScriptScriptedActiveSubscreen();
 				FFCore.clear_combo_scripts();
 				//Run global script OnExit
 				//ZScriptVersion::RunScript(ScriptType::Player, SCRIPT_PLAYER_WIN); //runs in ending()
@@ -5893,10 +5914,9 @@ reload_for_replay_file:
 	//  if(useCD)
 	//    cd_exit();
 	quit_game();
-	//Z_message("Armageddon Games web site: http://www.armageddongames.com\n");
 	Z_message("ZQuest Classic web site: http://www.zeldaclassic.com\n");
 	Z_message("ZQuest Classic old wiki: https://web.archive.org/web/20210910193102/https://zeldaclassic.com/wiki\n");
-	Z_message("ZQuest Classic new wiki: https://github.com/ArmageddonGames/ZQuestClassic/wiki\n");
+	Z_message("ZQuest Classic new wiki: https://github.com/ZQuestClassic/ZQuestClassic/wiki\n");
 	
 	skipcont = 0;
 	
@@ -6068,6 +6088,11 @@ void quit_game()
 	{
 		if(comboscripts[i]!=NULL) delete comboscripts[i];
 		comboscripts[i] = NULL;
+	}
+	for(int32_t i=0; i<NUMSCRIPTSSUBSCREEN; i++)
+	{
+		if(subscreenscripts[i]!=NULL) delete subscreenscripts[i];
+		subscreenscripts[i] = NULL;
 	}
 	
 	delete zscriptDrawingRenderTarget;

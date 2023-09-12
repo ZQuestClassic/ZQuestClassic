@@ -63,7 +63,7 @@ bool hasComboWizard(int32_t type)
 		case cAWARPA: case cAWARPB: case cAWARPC: case cAWARPD: case cAWARPR:
 		case cSWARPA: case cSWARPB: case cSWARPC: case cSWARPD: case cSWARPR:
 		case cSLOPE: case cSHOOTER: case cWATER: case cSHALLOWWATER:
-		case cSTEPSFX: case cTORCH:
+		case cSTEPSFX: case cTORCH: case cMIRRORNEW:
 			return true;
 	}
 	return false;
@@ -94,10 +94,10 @@ static const GUI::ListData list_dirs
 	{ "Down", 1 },
 	{ "Left", 2 },
 	{ "Right", 3 },
-	{ "Left-Up", 4 },
-	{ "Right-Up", 5 },
-	{ "Left-Down", 6 },
-	{ "Right-Down", 7 }
+	{ "Up-Left", 4 },
+	{ "Up-Right", 5 },
+	{ "Down-Left", 6 },
+	{ "Down-Right", 7 }
 };
 
 static const GUI::ListData list_clippings
@@ -857,6 +857,10 @@ void combo_default(newcombo& ref, bool typeonly)
 			break;
 		case cTORCH:
 			ref.attribytes[0] = 32;
+			break;
+		case cMIRRORNEW:
+			for(byte q = 0; q < 8; ++q)
+				ref.attribytes[q] = q;
 			break;
 		//CHESTS
 		case cLOCKEDCHEST:
@@ -2322,6 +2326,78 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 							dir = val;
 						}),
 					INFOBTN("The direction to cast light in, if the shape is directional (like a cone)")
+				)
+			);
+			break;
+		}
+		case cMIRRORNEW:
+		{
+			windowRow->add(
+				Rows<3>(
+					Label(text = "Up Reflect", hAlign = 1.0),
+					DropDownList(data = list_dirs,
+						fitParent = true, selectedValue = local_ref.attribytes[up],
+						onSelectFunc = [&](int32_t val)
+						{
+							local_ref.attribytes[up] = val;
+						}),
+					INFOBTN("Weapons/light beams facing up (coming from below) will move in this direction."),
+					Label(text = "Down Reflect", hAlign = 1.0),
+					DropDownList(data = list_dirs,
+						fitParent = true, selectedValue = local_ref.attribytes[down],
+						onSelectFunc = [&](int32_t val)
+						{
+							local_ref.attribytes[down] = val;
+						}),
+					INFOBTN("Weapons/light beams facing down (coming from above) will move in this direction."),
+					Label(text = "Left Reflect", hAlign = 1.0),
+					DropDownList(data = list_dirs,
+						fitParent = true, selectedValue = local_ref.attribytes[left],
+						onSelectFunc = [&](int32_t val)
+						{
+							local_ref.attribytes[left] = val;
+						}),
+					INFOBTN("Weapons/light beams facing left (coming from the right) will move in this direction."),
+					Label(text = "Right Reflect", hAlign = 1.0),
+					DropDownList(data = list_dirs,
+						fitParent = true, selectedValue = local_ref.attribytes[right],
+						onSelectFunc = [&](int32_t val)
+						{
+							local_ref.attribytes[right] = val;
+						}),
+					INFOBTN("Weapons/light beams facing right (coming from the left) will move in this direction."),
+					Label(text = "Up-Left Reflect", hAlign = 1.0),
+					DropDownList(data = list_dirs,
+						fitParent = true, selectedValue = local_ref.attribytes[l_up],
+						onSelectFunc = [&](int32_t val)
+						{
+							local_ref.attribytes[l_up] = val;
+						}),
+					INFOBTN("Weapons facing up-left (coming from down-right) will move in this direction."),
+					Label(text = "Up-Right Reflect", hAlign = 1.0),
+					DropDownList(data = list_dirs,
+						fitParent = true, selectedValue = local_ref.attribytes[r_up],
+						onSelectFunc = [&](int32_t val)
+						{
+							local_ref.attribytes[r_up] = val;
+						}),
+					INFOBTN("Weapons facing up-right (coming from down-left) will move in this direction."),
+					Label(text = "Down-Left Reflect", hAlign = 1.0),
+					DropDownList(data = list_dirs,
+						fitParent = true, selectedValue = local_ref.attribytes[l_down],
+						onSelectFunc = [&](int32_t val)
+						{
+							local_ref.attribytes[l_down] = val;
+						}),
+					INFOBTN("Weapons facing down-left (coming from up-right) will move in this direction."),
+					Label(text = "Down-Right Reflect", hAlign = 1.0),
+					DropDownList(data = list_dirs,
+						fitParent = true, selectedValue = local_ref.attribytes[r_down],
+						onSelectFunc = [&](int32_t val)
+						{
+							local_ref.attribytes[r_down] = val;
+						}),
+					INFOBTN("Weapons facing down-right (coming from up-left) will move in this direction.")
 				)
 			);
 			break;
