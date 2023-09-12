@@ -873,7 +873,7 @@ void clear_quest_tmpfile()
 // `result.decoded_pf` is null if `filename` uses the legacy encoding layer. Caller should decode with decode_file_007.
 // Otherwise, `result.decoded_pf` is a PACKFILE ready to be read.
 // See open_quest_file for why this exists.
-MaybeLegacyEncodedResult try_open_maybe_legacy_encoded_file(const char *filename, const char *encoding_header, const char *payload_header_1, const char *payload_header_2)
+MaybeLegacyEncodedResult try_open_maybe_legacy_encoded_file(const char *filename, const char *encoding_header_1, const char *encoding_header_2, const char *payload_header_1, const char *payload_header_2)
 {
 #ifdef __EMSCRIPTEN__
     if (em_is_lazy_file(filename))
@@ -928,7 +928,7 @@ MaybeLegacyEncodedResult try_open_maybe_legacy_encoded_file(const char *filename
 		fclose(f);
 	}
 
-	if (strstr(id, payload_header_1) || strstr(id, payload_header_2))
+	if (strstr(id, payload_header_1) || (payload_header_2 && strstr(id, payload_header_2)))
 	{
 		// The given file is already just the bottom layer - nothing more to do.
 		// There's no way to rewind a packfile, so just open it again.
@@ -943,7 +943,7 @@ MaybeLegacyEncodedResult try_open_maybe_legacy_encoded_file(const char *filename
 			return result;
 		}
 	}
-	else if (strstr(id, encoding_header))
+	else if (strstr(id, encoding_header_1) || (encoding_header_2 && strstr(id, encoding_header_2)))
 	{
 		result.top_layer_compressed = id_came_from_compressed_file;
 		result.compressed = true;

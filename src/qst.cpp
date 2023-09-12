@@ -714,7 +714,7 @@ PACKFILE *open_quest_file(int32_t *open_error, const char *filename, bool show_p
 		box_start(1, "Loading Quest", get_zc_font(font_lfont), font, true);
 	}
 
-	auto unencrypted_result = try_open_maybe_legacy_encoded_file(filename, ENC_STR, QH_NEWIDSTR, QH_IDSTR);
+	auto unencrypted_result = try_open_maybe_legacy_encoded_file(filename, ENC_STR, nullptr, QH_NEWIDSTR, QH_IDSTR);
 	if (unencrypted_result.decoded_pf)
 		return unencrypted_result.decoded_pf;
 	if (unencrypted_result.not_found)

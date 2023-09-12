@@ -54,7 +54,7 @@ struct MaybeLegacyEncodedResult
 	bool encrypted;
 	bool not_found;
 };
-MaybeLegacyEncodedResult try_open_maybe_legacy_encoded_file(const char *filename, const char *encoding_header, const char *payload_header_1, const char *payload_header_2);
+MaybeLegacyEncodedResult try_open_maybe_legacy_encoded_file(const char *filename, const char *encoding_header_1, const char *encoding_header_2, const char *payload_header_1, const char *payload_header_2);
 void clear_quest_tmpfile();
 
 [[noreturn]] void Z_error_fatal(const char *format,...);
