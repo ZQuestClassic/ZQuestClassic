@@ -93,6 +93,9 @@ void AutoComboDialog::refreshPanels()
 		case AUTOCOMBO_DGNCARVE:
 			addCombos(val, 94);
 			break;
+		case AUTOCOMBO_DOR:
+			addCombos(val, 76);
+			break;
 	}
 }
 
@@ -237,34 +240,59 @@ std::shared_ptr<GUI::Widget> AutoComboDialog::view()
 								refreshPreviewCSets();
 							})
 					),
-					switch_settings = Switcher(
+					switch_settings = Switcher(minheight = 256_px,
+						// 0 - disabled
 						DummyWidget(),
+						// 1 - basic
 						Row(vAlign = 0.0,
 							AUTO_CB(flags, ACF_CROSSSCREENS, 1, "Cross Screens", "If checked, this autocombo can affect combos on adjacent screens.")
 						),
+						// 2 - fence
 						Rows<2>(vAlign = 0.0,
 							AUTO_CB(flags, ACF_CROSSSCREENS, 1, "Cross Screens", "If checked, this autocombo can affect combos on adjacent screens."),
 							AUTO_CB(flags, ACF_FLIP, 1, "Flip", "Flips the default orientation when placing combos between up/left and down/right.")
 						),
+						// 3 - pancake
 						Rows<2>(vAlign = 0.0,
 							AUTO_CB(flags, ACF_CROSSSCREENS, 1, "Cross Screens", "If checked, this autocombo can affect combos on adjacent screens."),
 							AUTO_CB(flags, ACF_FLIP, 1, "Flip", "Flips the default orientation when placing combos between up/left and down/right."),
-							Row(colSpan=2, hAlign = 0.0, padding = 0_px,
+							Row(colSpan = 2, hAlign = 0.0, padding = 0_px,
 								INFOBTN_EX("The default height the mountain extends downwards.", width = 20_px, height = 20_px),
 								Label(text = "Height:"),
 								TextField(
 									type = GUI::TextField::type::INT_DECIMAL,
+									minwidth = 1_em,
+									minheight = 1_em,
 									low = 1, high = 9,
-									val = temp_autocombo.getArg(),
+									val = temp_autocombo.getArg() + 1,
 									onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
 									{
-										temp_autocombo.setArg(val);
+										temp_autocombo.setArg(val - 1);
 									})
 							)
 						),
+						// 4 - relational, dungeon carve
 						Rows<2>(vAlign = 0.0,
 							AUTO_CB(flags, ACF_CROSSSCREENS, 1, "Cross Screens", "If checked, this autocombo can affect combos on adjacent screens."),
 							AUTO_CB(flags, ACF_LEGACY, 1, "Legacy Ordering", "Makes 'Auto Generate' use combo ordering from older versions.\nFor tilesets that have combos set up for Relational and Dungeon Carving modes")
+						),
+						// 5 - DoR
+						Rows<2>(vAlign = 0.0,
+							AUTO_CB(flags, ACF_CROSSSCREENS, 1, "Cross Screens", "If checked, this autocombo can affect combos on adjacent screens."),
+							Row(colSpan = 2, hAlign = 0.0, padding = 0_px,
+								INFOBTN_EX("The default height the mountain extends downwards.", width = 20_px, height = 20_px),
+								Label(text = "Height:"),
+								TextField(
+									type = GUI::TextField::type::INT_DECIMAL,
+									minwidth = 1_em,
+									minheight = 1_em,
+									low = 1, high = 9,
+									val = temp_autocombo.getArg() + 1,
+									onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
+									{
+										temp_autocombo.setArg(val - 1);
+									})
+							)
 						)
 					)
 				))
@@ -314,7 +342,13 @@ void AutoComboDialog::addSlot(autocombo_entry& entry, size_t& ind, size_t& wid, 
 					entry.cid = cmb;
 					widgs.at(ind).cpane->setCSet(CSet);
 					temp_autocombo.updateValid();
-				})
+				}),
+			TextField(
+				type = GUI::TextField::type::INT_DECIMAL,
+				minwidth = 1_em,
+				minheight = 1_em,
+				val = ind
+			)
 		)
 	);
 
@@ -404,6 +438,19 @@ void AutoComboDialog::refreshTypes(int32_t type)
 				"Ctrl + Left Click: Fill combos\n"
 				"Ctrl + Right Click: Fill remove combos";
 			switch_settings->switchTo(4);
+			break;
+		case AUTOCOMBO_DOR:
+			typeinfostr =
+				"An autocombo for mountains in a 3/4 perspective.\n"
+				"WARNING: The tiles in this set are slightly incomplete. Not all formations\n"
+				"are possible and some manual correction will be needed for more complex setups.\n\n"
+				"CONTROLS:\n"
+				"Left Click: Place combo\n"
+				"Right Click: Remove combo (uses the Erase Combo, cannot clean up sides)\n"
+				"Shift + Click: Place / Remove combos without writing sides\n"
+				"Ctrl + Left Click: Fill combos\n"
+				"Ctrl + Right Click: Fill remove combos";
+			switch_settings->switchTo(5);
 			break;
 		default:
 			switch_settings->switchTo(0);
@@ -504,6 +551,34 @@ void AutoComboDialog::refreshWidgets()
 			grid = dgn_grid;
 			break;
 		}
+		case AUTOCOMBO_DOR:
+			static byte dor_grid[] = {
+				0, 0, 0, 0,
+				0, 0, 0, 0,
+				0, 0, 0, 0,
+				0, 0, 0, 0,
+				0, 0, 0, 0,
+
+				0, 0, 0, 0,
+				0, 0, 0, 1,
+				0, 0, 0, 1,
+				0, 0, 0, 1,
+				0, 0, 0, 1,
+				0, 0, 0, 1,
+				0, 0, 0, 1,
+				0, 0, 0, 1,
+				0, 0, 0, 1,
+
+				0, 0, 0, 0,
+				0, 0, 0, 0,
+				0, 0, 0, 0,
+				0, 0, 0, 0,
+				0, 0, 0, 0,
+				0, 0, 0, 0,
+				0, 0, 0, 0
+			};
+			grid = dor_grid;
+			break;
 	}
 	while (widg_ind < temp_autocombo.combos.size())
 	{

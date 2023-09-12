@@ -948,7 +948,8 @@ static const GUI::ListData autocombo_types
 	{ "Flat Mountain", AUTOCOMBO_Z1 },
 	{ "Pancake Mountain", AUTOCOMBO_Z4 },
 	{ "Fence", AUTOCOMBO_FENCE },
-	{ "Dungeon Carving", AUTOCOMBO_DGNCARVE }
+	{ "Dungeon Carving", AUTOCOMBO_DGNCARVE },
+	{ "Complex Mountain", AUTOCOMBO_DOR }
 };
 
 GUI::ListData const& GUI::ZCListData::autocombotypes()

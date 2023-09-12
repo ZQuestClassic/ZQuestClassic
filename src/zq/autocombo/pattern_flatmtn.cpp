@@ -22,11 +22,11 @@ namespace AutoPattern
 				calculate_connections(ap->adj[q]);
 			}
 		}
-		ap->set_cid(slot_to_cid(flags_to_slot(ap->connflags)));
+		ap->set_cid(slot_to_cid_pair(flags_to_slot(ap->connflags)));
 		for (int32_t q = 0; q < 4; ++q)
 		{
 			if (ap->adj[q] && ap->adj[q]->in_set)
-				ap->adj[q]->set_cid(slot_to_cid(flags_to_slot(ap->adj[q]->connflags)));
+				ap->adj[q]->set_cid(slot_to_cid_pair(flags_to_slot(ap->adj[q]->connflags)));
 		}
 		apply_changes();
 		return true;
@@ -54,7 +54,7 @@ namespace AutoPattern
 		for (int32_t q = 0; q < 4; ++q)
 		{
 			if (ap->adj[q] && ap->adj[q]->in_set)
-				ap->adj[q]->set_cid(slot_to_cid(flags_to_slot(ap->adj[q]->connflags)));
+				ap->adj[q]->set_cid(slot_to_cid_pair(flags_to_slot(ap->adj[q]->connflags)));
 		}
 		apply_changes();
 		return true;

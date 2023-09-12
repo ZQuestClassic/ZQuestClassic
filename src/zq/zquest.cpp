@@ -46,6 +46,7 @@
 #include "zq/autocombo/pattern_cakemtn.h"
 #include "zq/autocombo/pattern_relational.h"
 #include "zq/autocombo/pattern_dungeoncarve.h"
+#include "zq/autocombo/pattern_dormtn.h"
 #include "base/misctypes.h"
 #include "parser/Compiler.h"
 #include "base/zc_alleg.h"
@@ -6228,9 +6229,9 @@ void draw_screenunit(int32_t unit, int32_t flags)
 						}
 						else
 						{
-							if (ca.getType() == AUTOCOMBO_Z4)
+							if (ca.getType() == AUTOCOMBO_Z4 || ca.getType() == AUTOCOMBO_DOR)
 							{
-								byte hei = vbound(ca.getArg(), 1, 9);
+								byte hei = vbound(ca.getArg() + 1, 1, 9);
 								if(combo_auto_listpos[j] + i == combo_auto_pos)
 									hei = vbound(cauto_height, 1, 9);
 								put_engraving(menu1, cx, cy, 15 - hei, list.xscale / 16);
@@ -7445,7 +7446,7 @@ void select_autocombo(int32_t clist)
 			y = curlist.y + (curlist.h * curlist.yscale) - 1;
 
 		combo_auto_pos = (((y - curlist.y) / curlist.yscale) * curlist.w) + ((x - curlist.x) / curlist.xscale) + combo_auto_listpos[current_cautolist];
-		cauto_height = combo_autos[combo_auto_pos].getArg();
+		cauto_height = combo_autos[combo_auto_pos].getArg() + 1;
 		custom_vsync();
 		refresh(rALL);
 	}
@@ -7628,6 +7629,15 @@ void draw_autocombo(int32_t pos, bool rclick)
 					ap.execute(scr, pos);
 				break;
 			}
+			case AUTOCOMBO_DOR:
+			{
+				AutoPattern::autopattern_dormtn ap(ca.getType(), CurrentLayer, scr, pos, &ca, !(ca.flags & ACF_CROSSSCREENS), cauto_height);
+				if (rclick)
+					ap.erase(scr, pos);
+				else
+					ap.execute(scr, pos);
+				break;
+			}
 		}
 	}
 }
@@ -7668,12 +7678,16 @@ void draw_autocombo_command(int32_t pos, int32_t cmd, int32_t arg)
 
 void change_autocombo_height(int32_t change)
 {
+	bool can_change = false;
 	if (draw_mode == dm_auto)
 	{
 		combo_auto ca = combo_autos[combo_auto_pos];
 		switch (ca.getType())
 		{
 			case AUTOCOMBO_Z4:
+				can_change = true;
+				[[fallthrough]];
+			case AUTOCOMBO_DOR:
 				break;
 			default:
 				return;
@@ -7688,7 +7702,7 @@ void change_autocombo_height(int32_t change)
 	int32_t startxint = mapscreen_x + (showedges ? int32_t(16 * mapscreensize) : 0);
 	int32_t startyint = mapscreen_y + (showedges ? int32_t(16 * mapscreensize) : 0);
 
-	if (isinRect(x, y, startxint, startyint, int32_t(startx + (256 * mapscreensize) - 1), int32_t(starty + (176 * mapscreensize) - 1)))
+	if (can_change && isinRect(x, y, startxint, startyint, int32_t(startx + (256 * mapscreensize) - 1), int32_t(starty + (176 * mapscreensize) - 1)))
 	{
 		int32_t cxstart = (x - startxint) / int32_t(16 * mapscreensize);
 		int32_t cystart = (y - startyint) / int32_t(16 * mapscreensize);

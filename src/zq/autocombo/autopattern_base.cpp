@@ -8,7 +8,10 @@ namespace AutoPattern
     // autopattern_container
 
 	autopattern_container::autopattern_container(int32_t ntype, int32_t nlayer, int32_t nbasescreen, int32_t nbasepos, combo_auto* nsource, bool nnocrossedge) :
-		type(ntype), layer(nlayer), basescreen(nbasescreen), basepos(nbasepos), source(nsource), nocrossedge(nnocrossedge)
+		type(ntype), layer(nlayer), basescreen(nbasescreen), basepos(nbasepos), source(nsource), nocrossedge(nnocrossedge),
+		basescreen_x((basescreen % 16) * 16), basescreen_y((basescreen / 16) * 11),
+		base_x(basescreen_x + (basepos % 16)), base_y(basescreen_y + (basepos / 16)),
+		screenboundary_x(0), screenboundary_y(0)
 	{
 		erase_cid = source->getEraseCombo();
 		init_pattern();
@@ -55,6 +58,10 @@ namespace AutoPattern
 		}
 		return 0;
 	}
+	std::pair<int32_t, int32_t> autopattern_container::slot_to_cid_pair(int32_t slot)
+	{
+		return std::make_pair(slot_to_cid(slot), slot);
+	}
 
 	apcombo* autopattern_container::add(int32_t screenpos, bool forcevalid, bool andgenerate)
 	{
@@ -62,7 +69,8 @@ namespace AutoPattern
 		{
 			apcombo* p = new apcombo(layer, screenpos);
 			combos[screenpos] = p;
-			p->in_set = cid_to_slot(p->cid) > -1 || forcevalid;
+			p->slot = cid_to_slot(p->cid);
+			p->in_set = p->slot > -1 || forcevalid;
 			if (forcevalid)
 				p->changed = true;
 			if(p->in_set)
@@ -80,7 +88,8 @@ namespace AutoPattern
 		{
 			apcombo* p = new apcombo(layer, screenpos);
 			combos[screenpos] = p;
-			p->in_set = cid_to_slot(p->cid) > -1 || forcevalid;
+			p->slot = cid_to_slot(p->cid);
+			p->in_set = p->slot > -1 || forcevalid;
 			if (forcevalid)
 				p->changed = true;
 			if (p->in_set)
@@ -97,13 +106,16 @@ namespace AutoPattern
 		int32_t y = (ap->screen / 16) * 11 + ap->pos / 16;
 		byte apscreen = ((x / 16) + (y / 11) * 16);
 		byte appos = ((x % 16) + (y % 11) * 16);
-		int32_t iq;
 		switch (dir)
 		{
-			case up: --y; iq = 1; break;
-			case down: ++y; iq = 0; break;
-			case left: --x; iq = 3; break;
-			case right: ++x; iq = 2; break;
+			case up: --y; break;
+			case down: ++y; break;
+			case left: --x; break;
+			case right: ++x; break;
+			case l_up: --x; --y; break;
+			case r_up: ++x; --y; break;
+			case l_down: --x; ++ y; break;
+			case r_down: ++x; ++y; break;
 		}
 		if (offscreen(x, y))
 		{
@@ -123,7 +135,6 @@ namespace AutoPattern
 	}
 	apcombo* autopattern_container::add_relative(apcombo*& ap, int32_t xoff, int32_t yoff)
 	{
-		//zprint2("add_relative(%d, %d)\n", xoff, yoff);
 		int32_t dx = std::abs(xoff);
 		int32_t dy = std::abs(yoff);
 		apcombo* cur = ap;
@@ -133,7 +144,6 @@ namespace AutoPattern
 		{
 			for (int32_t x = 0; x < dx; ++x)
 			{
-				//zprint2("x - pos = %d\n", cur->pos);
 				if (xoff < 0)
 				{
 					cur = add(cur, left, false, false);
@@ -149,7 +159,6 @@ namespace AutoPattern
 			}
 			for (int32_t y = 0; y < dy; ++y)
 			{
-				//zprint2("y - pos = %d\n", cur->pos);
 				if (yoff < 0)
 				{
 					cur = add(cur, up, false, false);
@@ -169,7 +178,6 @@ namespace AutoPattern
 		{
 			for (int32_t y = 0; y < dy; ++y)
 			{
-				//zprint2("y - pos = %d\n", cur->pos);
 				if (yoff < 0)
 				{
 					cur = add(cur, up, false, false);
@@ -185,7 +193,6 @@ namespace AutoPattern
 			}
 			for (int32_t x = 0; x < dx; ++x)
 			{
-				//zprint2("x - pos = %d\n", cur->pos);
 				if (xoff < 0)
 				{
 					cur = add(cur, left, false, false);
@@ -268,6 +275,13 @@ namespace AutoPattern
 			if (apscreen != basescreen)
 				return true;
 		}
+		if (screenboundary_x|| screenboundary_y)
+		{
+			if (x<basescreen_x - screenboundary_x || x > basescreen_x + 15 + screenboundary_x || y < basescreen_y - screenboundary_y || y > basescreen_y + 10 + screenboundary_y)
+			{
+				return true;
+			}
+		}
 		return false;
 	}
 
@@ -276,11 +290,15 @@ namespace AutoPattern
 	apcombo::apcombo(byte nlayer, int32_t nscreenpos) :
 		screenpos(nscreenpos), screen(nscreenpos / 176), pos(nscreenpos % 176)
 	{
+		x = (pos % 16) + (screen % 16) * 16;
+		y = (pos / 16) + (screen / 16) * 11;
 		read(nlayer);
 	}
 	apcombo::apcombo(byte nlayer, int32_t nscreen, int32_t npos) :
 		screenpos(nscreen * 176 + npos), screen(nscreen), pos(npos)
 	{
+		x = (pos % 16) + (screen % 16) * 16;
+		y = (pos / 16) + (screen / 16) * 11;
 		read(nlayer);
 	}
 	void apcombo::read(byte layer)

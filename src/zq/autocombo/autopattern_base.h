@@ -34,6 +34,7 @@ namespace AutoPattern
 		void apply_changes();
 		int32_t cid_to_slot(int32_t cid);
 		int32_t slot_to_cid(int32_t slot);
+		std::pair<int32_t, int32_t> slot_to_cid_pair(int32_t slot);
 		apcombo* add(int32_t sp, bool forcevalid = false, bool andgenerate = true);
 		apcombo* add(int32_t s, int32_t p, bool forcevalid = false, bool andgenerate = true);
 		apcombo* add(apcombo* &ap, int32_t dir, bool forcevalid = false, bool andgenerate = true);
@@ -49,6 +50,9 @@ namespace AutoPattern
 		int32_t layer;
 		int32_t basescreen;
 		int32_t basepos;
+		int32_t basescreen_x, basescreen_y;
+		int32_t base_x, base_y;
+		byte screenboundary_x, screenboundary_y;
 		// indexes apcombo by screen pos, for making sure an object isn't created for the same tile twice
 		std::map<uint16_t, apcombo*> combos;
 		std::map<int32_t, int32_t> pattern_cids; // for converting slots to cids
@@ -64,19 +68,20 @@ namespace AutoPattern
 
 		void read(byte layer);
 		void write(byte layer, bool base = false);
-		void set_cid(int newcid)
+		void set_cid(std::pair<int32_t, int32_t> newcid)
 		{
-			if (newcid != cid)
+			if (newcid.first != cid)
 				changed = true;
-			cid = newcid;
+			cid = newcid.first;
+			slot = newcid.second;
 		}
-
-		static int32_t check_pos(byte l, int32_t sp);
 
 		byte screen;
 		byte pos;
+		byte x, y;
 		uint16_t screenpos;
 		uint16_t cid = 0;
+		int32_t slot = 0;
 		bool in_set = false;
 		bool changed = false;
 		bool force_cset = false;

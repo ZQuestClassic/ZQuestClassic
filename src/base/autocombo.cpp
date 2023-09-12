@@ -15,6 +15,7 @@ int16_t autocombo_entry::base_engrave_offset(byte type)
 		case AUTOCOMBO_Z4: return 64;
 		case AUTOCOMBO_RELATIONAL: return 96;
 		case AUTOCOMBO_DGNCARVE: return 144;
+		case AUTOCOMBO_DOR: return 240;
 	}
 	return 0;
 }
@@ -94,6 +95,7 @@ bool combo_auto::isIgnoredCombo(int32_t cid) const
 	switch (type)
 	{
 		case AUTOCOMBO_DGNCARVE:
+		case AUTOCOMBO_DOR:
 			break;
 		default:
 			return false;
@@ -529,6 +531,82 @@ int32_t combo_auto::convert_offsets(byte type, int16_t offset)
 			}
 			break;
 		}
+		case AUTOCOMBO_DGNCARVE:
+		{
+			switch (offset)
+			{
+				case 83:
+					return offset + 1;
+				default:
+					return offset;
+			}
+			break;
+		}
+		case AUTOCOMBO_DOR:
+		{
+			switch (offset)
+			{
+				case 0:
+				case 1:
+				case 2:
+				case 3:
+				case 4:
+				case 5:
+				case 6:
+				case 7:
+				case 8:
+				case 9:
+				case 10:
+				case 11:
+				case 12:
+				case 13:
+				case 14:
+				case 15:
+				case 16:
+				case 17:
+				case 18:
+				case 19:
+				case 20:
+				case 21:
+				case 22:
+				case 23:
+				case 24:
+				case 25:
+				case 26:
+					return offset;
+				case 27:
+				case 28:
+				case 29:
+					return offset + 1;
+				case 30:
+				case 31:
+				case 32:
+					return offset + 2;
+				case 33:
+				case 34:
+				case 35:
+					return offset + 3;
+				case 36:
+				case 37:
+				case 38:
+					return offset + 4;
+				case 39:
+				case 40:
+				case 41:
+					return offset + 5;
+				case 42:
+				case 43:
+				case 44:
+					return offset + 6;
+				case 45:
+				case 46:
+				case 47:
+					return offset + 7;
+				default:
+					return offset + 8;
+			}
+			break;
+		}
 	}
 	return offset;
 }
@@ -553,6 +631,14 @@ bool combo_auto::ignore_fill(byte type, int32_t slot)
 					return false;
 			}
 			if (slot % 4 > 1)
+				return true;
+			break;
+		case AUTOCOMBO_DOR:
+			if (slot == 34)
+				return true;
+			if (slot >= 24 && slot <= 38)
+				return false;
+			else
 				return true;
 			break;
 	}
