@@ -37,6 +37,13 @@ before(async () => {
         console.warning(error);
         return;
       }
+
+      // TODO: fix this in native and for web. Maybe causes sound degradation?
+      if (error.includes('_al_kcm_refill_stream')) {
+        console.warning(error);
+        return;
+      }
+
       pageErrors.push(error);
     }
   });

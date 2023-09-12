@@ -1,13 +1,3 @@
-diff --git a/include/SDL_config_emscripten.h b/include/SDL_config_emscripten.h
-index 7efe323..0f95062 100644
---- a/include/SDL_config_emscripten.h
-+++ b/include/SDL_config_emscripten.h
-@@ -214,3 +214,5 @@
- #define SDL_FILESYSTEM_EMSCRIPTEN 1
- 
- #endif /* _SDL_config_emscripten_h_ */
-+// See https://github.com/libsdl-org/SDL/pull/5496
-+#define SDL_THREAD_PTHREAD_RECURSIVE_MUTEX 1
 diff --git a/src/audio/emscripten/SDL_emscriptenaudio.c b/src/audio/emscripten/SDL_emscriptenaudio.c
 index bc2a0e1..2da2000 100644
 --- a/src/audio/emscripten/SDL_emscriptenaudio.c

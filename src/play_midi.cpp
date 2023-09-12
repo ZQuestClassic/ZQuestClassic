@@ -123,6 +123,7 @@ void zc_stop_midi()
 void zc_set_volume(int digi_volume, int midi_volume)
 {
 #ifdef __EMSCRIPTEN__
+  if (!has_opened_audio) return;
   // SDL_mixer volume is 0-128, but allegro is 0-255
   midi_volume /= 2;
   // Also, for some reason music is really loud compared to SFX, so dampen it
