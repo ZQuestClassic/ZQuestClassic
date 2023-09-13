@@ -418,6 +418,7 @@ static bool check_for_updates()
 
 	std::string output;
 	bool success = run_and_get_output(ZUPDATER_FILE, {
+		"-headless",
 		"-print-next-release",
 	}, output);
 
@@ -895,6 +896,7 @@ bool LauncherDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		{
 			std::string output;
 			bool success = run_and_get_output(ZUPDATER_FILE, {
+				"-headless",
 				"-install",
 				"-asset-url", next_asset_url,
 			}, output);

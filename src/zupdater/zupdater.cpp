@@ -404,7 +404,7 @@ int32_t main(int32_t argc, char* argv[])
 		std::string error;
 		bool success = install_release(argv[asset_url_arg + 1], cache, error);
 		if (success)
-			done("Done!");
+			done("Success!");
 		else
 			fatal("Failed: " + error);
 	}
