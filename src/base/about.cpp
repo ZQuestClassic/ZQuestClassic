@@ -74,9 +74,5 @@ char const* getReleaseChannel()
 
 char const* getRepo()
 {
-#ifdef REPO
-	return REPO;
-#else
-	return "ArmageddonGames/ZQuestClassic";
-#endif
+	return "ZQuestClassic/ZQuestClassic";
 }

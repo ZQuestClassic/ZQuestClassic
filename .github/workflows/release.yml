@@ -50,6 +50,7 @@ jobs:
         if: inputs.sentry
         with:
           token: ${{ secrets.SENTRY_TOKEN }}
+          version: '2.20.6'
           organization: zeldaclassic
           project: zelda-classic
       - run: sentry-cli releases new 'zelda-classic@${{ steps.make-vars.outputs.release-tag }}'
@@ -82,8 +83,8 @@ jobs:
             sentry: ${{ inputs.sentry }}
       fail-fast: false
     # See https://github.com/community/community/discussions/40777
-    # uses: ./.github/workflows/build.yml
-    uses: ArmageddonGames/ZQuestClassic/.github/workflows/build.yml@main
+    uses: ./.github/workflows/build.yml
+    # uses: ArmageddonGames/ZQuestClassic/.github/workflows/build.yml@main
     with:
       runs-on: ${{ matrix.runs-on }}
       arch: ${{ matrix.arch }}
@@ -133,6 +134,7 @@ jobs:
         if: inputs.sentry
         uses: mathieu-bour/setup-sentry-cli@v1.3.0
         with:
+          version: '2.20.6'
           token: ${{ secrets.SENTRY_TOKEN }}
           organization: zeldaclassic
           project: zelda-classic

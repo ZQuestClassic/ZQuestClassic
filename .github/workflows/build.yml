@@ -249,6 +249,7 @@ jobs:
         uses: mathieu-bour/setup-sentry-cli@v1.3.0
         with:
           token: ${{ secrets.SENTRY_TOKEN }}
+          version: '2.20.6'
           organization: zeldaclassic
           project: zelda-classic
       - name: Upload debugging symbols
