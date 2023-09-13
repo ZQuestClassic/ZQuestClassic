@@ -10431,9 +10431,13 @@ int32_t writecomboaliases(PACKFILE *f, word version, word build)
 			for (auto q = 0; q < num_combos; ++q)
 			{
 				autocombo_entry const& entry = cauto.combos.at(q);
-				if (!p_iputl(entry.cid, f))
+				if (!p_putc(entry.ctype, f))
 				{
 					new_return(24);
+				}
+				if (!p_iputl(entry.cid, f))
+				{
+					new_return(25);
 				}
 			}
 		}

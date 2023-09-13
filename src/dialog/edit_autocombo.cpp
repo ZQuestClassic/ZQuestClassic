@@ -52,7 +52,7 @@ void AutoComboDialog::addCombos(int32_t type, int32_t count)
 {
 	for (int32_t q = 0; q < count; ++q)
 	{
-		temp_autocombo.add(0, q, -1);
+		temp_autocombo.add(0, ACT_NORMAL, q, -1);
 	}
 }
 int32_t AutoComboDialog::numCombosSet()
@@ -95,6 +95,9 @@ void AutoComboDialog::refreshPanels()
 			break;
 		case AUTOCOMBO_DOR:
 			addCombos(val, 76);
+			break;
+		case AUTOCOMBO_TILING:
+			addCombos(val, 64);
 			break;
 	}
 }
@@ -293,6 +296,39 @@ std::shared_ptr<GUI::Widget> AutoComboDialog::view()
 										temp_autocombo.setArg(val - 1);
 									})
 							)
+						),
+						// 6 - tiling pattern
+						Rows<2>(vAlign = 0.0,
+							Row(colSpan = 2, hAlign = 0.0, padding = 0_px,
+								INFOBTN_EX("The width of the tiling pattern.", width = 20_px, height = 20_px),
+								Label(text = "Width:"),
+								TextField(
+									type = GUI::TextField::type::INT_DECIMAL,
+									minwidth = 1_em,
+									minheight = 1_em,
+									low = 1, high = 8,
+									val = (temp_autocombo.getArg() & 0xF) + 1,
+									onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
+									{
+										temp_autocombo.setArg(temp_autocombo.getArg() & 0xF0 | (val - 1));
+										refreshTilingGrid();
+									})
+							),
+							Row(colSpan = 2, hAlign = 0.0, padding = 0_px,
+								INFOBTN_EX("The height of the tiling pattern.", width = 20_px, height = 20_px),
+								Label(text = "Height:"),
+								TextField(
+									type = GUI::TextField::type::INT_DECIMAL,
+									minwidth = 1_em,
+									minheight = 1_em,
+									low = 1, high = 8,
+									val = ((temp_autocombo.getArg() >> 4) & 0xF) + 1,
+									onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
+									{
+										temp_autocombo.setArg(temp_autocombo.getArg() & 0x0F | ((val - 1) << 4));
+										refreshTilingGrid();
+									})
+							)
 						)
 					)
 				))
@@ -314,6 +350,7 @@ std::shared_ptr<GUI::Widget> AutoComboDialog::view()
 	);
 	refreshTypes(temp_autocombo.getType());
 	refreshWidgets();
+	refreshTilingGrid();
 	return window;
 }
 
@@ -357,6 +394,42 @@ void AutoComboDialog::addSlot(autocombo_entry& entry, size_t& ind, size_t& wid, 
 		row->calculateSize();
 		hei = row->getTotalHeight();
 		wid = row->getTotalWidth();
+	}
+	++ind;
+}
+
+void AutoComboDialog::addSlotNoEngrave(autocombo_entry& entry, size_t& ind, size_t& wid, size_t& hei)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Key;
+	using namespace GUI::Props;
+
+	autocombo_widg& widg = widgs.emplace_back();
+	std::shared_ptr<GUI::Grid> row;
+
+	widg.slot = ind;
+	widg.entry = &entry;
+	sgrid->add(
+		widg.cpane = SelComboSwatch(
+			combo = entry.cid,
+			cset = CSet,
+			padding = 0_px,
+			showvals = false,
+			onSelectFunc = [&, ind](int32_t cmb, int32_t c)
+			{
+				CSet = c;
+				refreshPreviewCSets();
+				entry.cid = cmb;
+				widgs.at(ind).cpane->setCSet(CSet);
+				temp_autocombo.updateValid();
+			})
+	);
+	tiling_grid[widg.slot] = widg.cpane;
+
+	if (!hei)
+	{
+		hei = widg.cpane->getTotalHeight();
+		wid = widg.cpane->getTotalWidth();
 	}
 	++ind;
 }
@@ -452,9 +525,33 @@ void AutoComboDialog::refreshTypes(int32_t type)
 				"Ctrl + Right Click: Fill remove combos";
 			switch_settings->switchTo(5);
 			break;
+		case AUTOCOMBO_TILING:
+			typeinfostr =
+				"An autocombo for tiling patterns based on X/Y position.\n\n"
+				"CONTROLS:\n"
+				"Left Click: Place combo\n"
+				"Right Click: Remove combo (uses the Erase Combo)\n"
+				"Shift + Click: Update the X/Y offset for the top-left corner of the tiling pattern";
+			switch_settings->switchTo(6);
+			break;
 		default:
 			switch_settings->switchTo(0);
 			break;
+	}
+}
+
+void AutoComboDialog::refreshTilingGrid()
+{
+	if (temp_autocombo.getType() != AUTOCOMBO_TILING)
+		return;
+	byte w = (temp_autocombo.getArg() & 0xF) + 1;
+	byte h = ((temp_autocombo.getArg() >> 4) & 0xF) + 1;
+	for (int32_t q = 0; q < 64; ++q)
+	{
+		if (tiling_grid[q])
+		{
+			tiling_grid[q]->setDisabled(!(q % 8 < w && q / 8 < h));
+		}
 	}
 }
 
@@ -466,6 +563,13 @@ void AutoComboDialog::refreshWidgets()
 
 	size_t per_row = 4;
 	size_t vis_rows = 5;
+	if (temp_autocombo.getType() == AUTOCOMBO_TILING)
+	{
+		per_row = 8;
+		sgrid = Rows<8>();
+	}
+	else
+		sgrid = Rows<4>();
 
 	size_t widg_ind = 0, grid_ind = 0;
 	size_t hei = 0, wid = 0;
@@ -585,7 +689,17 @@ void AutoComboDialog::refreshWidgets()
 		if (grid && grid[grid_ind])
 			sgrid->add(DummyWidget());
 		else
-			addSlot(temp_autocombo.combos[widg_ind], widg_ind, wid, hei);
+		{
+			switch(temp_autocombo.getType())
+			{
+				case AUTOCOMBO_TILING:
+					addSlotNoEngrave(temp_autocombo.combos[widg_ind], widg_ind, wid, hei);
+					break;
+				default:
+					addSlot(temp_autocombo.combos[widg_ind], widg_ind, wid, hei);
+					break;
+			}
+		}
 		++grid_ind;
 	}
 	if (temp_autocombo.combos.size() == 0)

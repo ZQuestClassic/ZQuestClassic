@@ -18445,14 +18445,18 @@ int32_t readcomboaliases(PACKFILE *f, zquestheader *Header, word version, word b
 		temp_cauto.setFlags(flags);
 		temp_cauto.setArg(arg);
 
-		int32_t ca_cid; int16_t ca_offset; int16_t ca_engrave_offset;
+		int32_t ca_cid; byte ca_ctype;  int16_t ca_offset; int16_t ca_engrave_offset;
 		for (auto q = 0; q < num_combos_in_cauto; ++q)
 		{
+			if (!p_getc(&ca_ctype, f))
+			{
+				return qe_invalid;
+			}
 			if (!p_igetl(&ca_cid, f))
 			{
 				return qe_invalid;
 			}
-			temp_cauto.add(ca_cid, q, -1);
+			temp_cauto.add(ca_cid, ca_ctype, q, -1);
 		}
 
 		combo_autos[ca] = temp_cauto;

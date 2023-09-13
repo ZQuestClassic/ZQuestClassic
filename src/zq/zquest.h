@@ -413,7 +413,7 @@ void refresh(int32_t flags, bool update = false);
 void select_scr();
 void select_combo(int32_t list);
 void update_combobrush();
-void draw_autocombo(int32_t pos, bool rclick);
+void draw_autocombo(int32_t pos, bool rclick, bool pressframe = false);
 void draw_autocombo_command(int32_t pos, int32_t cmd=0, int32_t arg=0);
 void change_autocombo_height(int32_t change);
 void draw(bool);

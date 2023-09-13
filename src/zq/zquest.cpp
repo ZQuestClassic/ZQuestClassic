@@ -47,6 +47,7 @@
 #include "zq/autocombo/pattern_relational.h"
 #include "zq/autocombo/pattern_dungeoncarve.h"
 #include "zq/autocombo/pattern_dormtn.h"
+#include "zq/autocombo/pattern_tiling.h"
 #include "base/misctypes.h"
 #include "parser/Compiler.h"
 #include "base/zc_alleg.h"
@@ -7564,11 +7565,11 @@ byte relational_source_grid[256]=
     46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46, 46
 };
 
-void draw_autocombo(int32_t pos, bool rclick)
+void draw_autocombo(int32_t pos, bool rclick, bool pressframe)
 {
 	int32_t cid = Combo;
 	int8_t cs = CSet;
-	combo_auto ca = combo_autos[combo_auto_pos];
+	combo_auto &ca = combo_autos[combo_auto_pos];
 
 	int32_t scr = Map.getCurrScr();
 	if (ca.valid())
@@ -7632,6 +7633,23 @@ void draw_autocombo(int32_t pos, bool rclick)
 			case AUTOCOMBO_DOR:
 			{
 				AutoPattern::autopattern_dormtn ap(ca.getType(), CurrentLayer, scr, pos, &ca, !(ca.flags & ACF_CROSSSCREENS), cauto_height);
+				if (rclick)
+					ap.erase(scr, pos);
+				else
+					ap.execute(scr, pos);
+				break;
+			}
+			case AUTOCOMBO_TILING:
+			{
+				if (pressframe && (key[KEY_LSHIFT] || key[KEY_RSHIFT]))
+				{
+					int32_t x = (scr % 16) * 16 + (pos % 16);
+					int32_t y = (scr / 16) * 11 + (pos / 16);
+					byte w = (ca.getArg() & 0xF) + 1;
+					byte h = ((ca.getArg() >> 4) & 0xF) + 1;
+					ca.setOffsets(x % w, y % h);
+				}
+				AutoPattern::autopattern_tiling ap(ca.getType(), CurrentLayer, scr, pos, &ca, true, ca.getArg(), ca.getOffsets());
 				if (rclick)
 					ap.erase(scr, pos);
 				else
@@ -7769,7 +7787,6 @@ void draw(bool justcset)
 			if (pressframe)
 			{
 				lastpos = cstart;
-				pressframe = false;
 			}
 			else if(cstart == lastpos)
 			{
@@ -8161,12 +8178,13 @@ void draw(bool justcset)
             
 				case dm_auto:
 				{
-					draw_autocombo(cstart, gui_mouse_b() & 2);
+					draw_autocombo(cstart, gui_mouse_b() & 2, pressframe);
 
 					update_combobrush();
 				}
 			}
 		}
+		pressframe = false;
 
 		custom_vsync();
 		refresh(rALL);
@@ -8287,13 +8305,16 @@ void draw_block(int32_t start,int32_t w,int32_t h)
     refresh(rMAP+rSCRMAP);
 }
 
-static void fill(int32_t map, int32_t screen_index, mapscr* fillscr, int32_t targetcombo, int32_t targetcset, int32_t sx, int32_t sy, int32_t dir, int32_t diagonal, bool only_cset)
+static void fill(int32_t map, int32_t screen_index, mapscr* fillscr, int32_t targetcombo, int32_t targetcset, int32_t sx, int32_t sy, int32_t dir, int32_t diagonal, bool only_cset, bool* filled_combos)
 {
 	bool rclick = gui_mouse_b() & 2;
 	bool ignored_combo = false;
 
 	if (draw_mode == dm_auto)
 	{
+		if (filled_combos[(sy << 4) + sx])
+			return;
+
 		combo_auto const& cauto = combo_autos[combo_auto_pos];
 		ignored_combo = cauto.isIgnoredCombo((fillscr->data[((sy << 4) + sx)])) && !rclick;
 		if (rclick&&cauto.containsCombo(targetcombo))
@@ -8340,6 +8361,8 @@ static void fill(int32_t map, int32_t screen_index, mapscr* fillscr, int32_t tar
 			return;
 	}
     
+	filled_combos[(sy << 4) + sx] = true;
+
 	if (draw_mode == dm_auto)
 	{
 		draw_autocombo((sy << 4) + sx, rclick);
@@ -8348,30 +8371,30 @@ static void fill(int32_t map, int32_t screen_index, mapscr* fillscr, int32_t tar
 		Map.DoSetComboCommand(map, screen_index, (sy<<4)+sx, only_cset ? -1 : cid, cs);
     
     if((sy>0) && (dir!=down))                                 // && ((Map.CurrScr()->data[(((sy-1)<<4)+sx)]&0x7FF)==target))
-        fill(map, screen_index, fillscr, targetcombo, targetcset, sx, sy-1, up, diagonal, only_cset);
+        fill(map, screen_index, fillscr, targetcombo, targetcset, sx, sy-1, up, diagonal, only_cset, filled_combos);
         
     if((sy<10) && (dir!=up))                                  // && ((Map.CurrScr()->data[(((sy+1)<<4)+sx)]&0x7FF)==target))
-        fill(map, screen_index, fillscr, targetcombo, targetcset, sx, sy+1, down, diagonal, only_cset);
+        fill(map, screen_index, fillscr, targetcombo, targetcset, sx, sy+1, down, diagonal, only_cset, filled_combos);
         
     if((sx>0) && (dir!=right))                                // && ((Map.CurrScr()->data[((sy<<4)+sx-1)]&0x7FF)==target))
-        fill(map, screen_index, fillscr, targetcombo, targetcset, sx-1, sy, left, diagonal, only_cset);
+        fill(map, screen_index, fillscr, targetcombo, targetcset, sx-1, sy, left, diagonal, only_cset, filled_combos);
         
     if((sx<15) && (dir!=left))                                // && ((Map.CurrScr()->data[((sy<<4)+sx+1)]&0x7FF)==target))
-        fill(map, screen_index, fillscr, targetcombo, targetcset, sx+1, sy, right, diagonal, only_cset);
+        fill(map, screen_index, fillscr, targetcombo, targetcset, sx+1, sy, right, diagonal, only_cset, filled_combos);
         
     if(diagonal==1)
     {
         if((sy>0) && (sx>0) && (dir!=r_down))                   // && ((Map.CurrScr()->data[(((sy-1)<<4)+sx-1)]&0x7FF)==target))
-            fill(map, screen_index, fillscr, targetcombo, targetcset, sx-1, sy-1, l_up, diagonal, only_cset);
+            fill(map, screen_index, fillscr, targetcombo, targetcset, sx-1, sy-1, l_up, diagonal, only_cset, filled_combos);
             
         if((sy<10) && (sx<15) && (dir!=l_up))                   // && ((Map.CurrScr()->data[(((sy+1)<<4)+sx+1)]&0x7FF)==target))
-            fill(map, screen_index, fillscr, targetcombo, targetcset, sx+1, sy+1, r_down, diagonal, only_cset);
+            fill(map, screen_index, fillscr, targetcombo, targetcset, sx+1, sy+1, r_down, diagonal, only_cset, filled_combos);
             
         if((sx>0) && (sy<10) && (dir!=r_up))                    // && ((Map.CurrScr()->data[(((sy+1)<<4)+sx-1)]&0x7FF)==target))
-            fill(map, screen_index, fillscr, targetcombo, targetcset, sx-1, sy+1, l_down, diagonal, only_cset);
+            fill(map, screen_index, fillscr, targetcombo, targetcset, sx-1, sy+1, l_down, diagonal, only_cset, filled_combos);
             
         if((sx<15) && (sy>0) && (dir!=l_down))                  // && ((Map.CurrScr()->data[(((sy-1)<<4)+sx+1)]&0x7FF)==target))
-            fill(map, screen_index, fillscr, targetcombo, targetcset, sx+1, sy-1, r_up, diagonal, only_cset);
+            fill(map, screen_index, fillscr, targetcombo, targetcset, sx+1, sy-1, r_up, diagonal, only_cset, filled_combos);
     }
 }
 
@@ -9115,9 +9138,10 @@ void fill_4()
 		}
 		else
 		{
+			bool filled_combos[176] = { false };
 			fill(drawmap, drawscr, draw_mapscr,
 				(draw_mapscr->data[(by << 4) + bx]),
-				(draw_mapscr->cset[(by << 4) + bx]), bx, by, 255, 0, (key[KEY_LSHIFT] || key[KEY_RSHIFT]));
+				(draw_mapscr->cset[(by << 4) + bx]), bx, by, 255, 0, (key[KEY_LSHIFT] || key[KEY_RSHIFT]), filled_combos);
 		}
         Map.FinishListCommand();
         refresh(rMAP+rSCRMAP);
@@ -9201,9 +9225,10 @@ void fill_8()
         }
         
         Map.StartListCommand();
+		bool filled_combos[176] = { false };
         fill(drawmap, drawscr, draw_mapscr,
              (draw_mapscr->data[(by<<4)+bx]),
-             (draw_mapscr->cset[(by<<4)+bx]), bx, by, 255, 1, (key[KEY_LSHIFT]||key[KEY_RSHIFT]));
+             (draw_mapscr->cset[(by<<4)+bx]), bx, by, 255, 1, (key[KEY_LSHIFT]||key[KEY_RSHIFT]), filled_combos);
         Map.FinishListCommand();
         refresh(rMAP+rSCRMAP);
     }

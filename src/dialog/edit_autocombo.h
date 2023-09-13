@@ -40,8 +40,10 @@ public:
 
 	std::shared_ptr<GUI::Widget> view() override;
 	void addSlot(autocombo_entry& entry, size_t& ind, size_t& wid, size_t& hei);
+	void addSlotNoEngrave(autocombo_entry& entry, size_t& ind, size_t& wid, size_t& hei);
 	void refreshPreviewCSets();
 	void refreshTypes(int32_t type);
+	void refreshTilingGrid();
 	void refreshWidgets();
 	bool handleMessage(const GUI::DialogMessage<message>& msg);
 
@@ -59,6 +61,7 @@ private:
 	std::shared_ptr<GUI::SelComboSwatch> erasepane;
 	std::shared_ptr<GUI::Button> templatebtn;
 	std::shared_ptr<GUI::Switcher> switch_settings;
+	std::shared_ptr<GUI::SelComboSwatch> tiling_grid[64];
 
 	GUI::ListData list_autocombotypes;
 };

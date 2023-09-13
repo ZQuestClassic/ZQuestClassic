@@ -24,6 +24,7 @@ src/zq/autocombo/pattern_cakemtn.cpp
 src/zq/autocombo/pattern_relational.cpp
 src/zq/autocombo/pattern_dungeoncarve.cpp
 src/zq/autocombo/pattern_dormtn.cpp
+src/zq/autocombo/pattern_tiling.cpp
 
 
 ## End of ZQuest Misc module

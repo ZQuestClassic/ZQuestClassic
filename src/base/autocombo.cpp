@@ -2,6 +2,7 @@
 #include "cpool.h"
 #include "random.h"
 #include <assert.h>
+#include <zq/zquest.h>
 
 combo_auto combo_autos[MAXCOMBOPOOLS];
 
@@ -25,7 +26,7 @@ combo_auto& combo_auto::operator=(combo_auto const& other)
 	clear();
 	for(autocombo_entry const& cp : other.combos)
 	{
-		add(cp.cid, cp.offset, cp.engrave_offset);
+		add(cp.cid, cp.ctype, cp.offset, cp.engrave_offset);
 	}
 	type = other.type;
 	cid_display = other.cid_display;
@@ -35,16 +36,11 @@ combo_auto& combo_auto::operator=(combo_auto const& other)
 	return *this;
 }
 
-void combo_auto::push(int32_t cid, int32_t of, int32_t eo) //add a combo with quantity
-{
-	if(!of) return;
-	combos.emplace_back(cid,of,eo);
-}
-void combo_auto::add(int32_t cid, int32_t of, int32_t eo) //add a new combo entry
+void combo_auto::add(int32_t cid, byte ct, int32_t of, int32_t eo) //add a new combo entry
 {
 	if (eo < 0)
 		eo = of + autocombo_entry::base_engrave_offset(type);
-	autocombo_entry e = combos.emplace_back(cid,of,eo);
+	autocombo_entry e = combos.emplace_back(cid,ct,of,eo);
 }
 
 void combo_auto::updateValid()
@@ -52,6 +48,11 @@ void combo_auto::updateValid()
 	if (type == AUTOCOMBO_NONE)
 	{
 		flags &= ~ACF_VALID;
+		return;
+	}
+	if (type == AUTOCOMBO_TILING)
+	{
+		flags |= ACF_VALID;
 		return;
 	}
 	for (auto c : combos)
@@ -83,7 +84,7 @@ bool combo_auto::containsCombo(int32_t cid, bool requirevalid) const
 
 	for (auto c : combos)
 	{
-		if (c.cid == cid)
+		if (c.cid == cid && cid != 0)
 			return true;
 	}
 	return false;
@@ -651,14 +652,16 @@ std::map<int32_t,byte> combo_auto::getMapping()
 	byte b = 0;
 	for(auto& cmb : combos)
 	{
-		if(cmb.cid > -1)
-			ret[cmb.cid] = b;
-		//
-		if(cmb.cpoolid > -1)
-			for(cpool_entry const& entry : combo_pools[cmb.cpoolid].combos)
-				if(entry.cid > -1)
-					ret[entry.cid] = b;
-		//
+		switch (cmb.ctype)
+		{
+			case ACT_NORMAL:
+				ret[cmb.cid] = b;
+				break;
+			case ACT_CPOOL:
+				for (cpool_entry const& entry : combo_pools[cmb.cid].combos)
+					if (entry.cid > -1)
+						ret[entry.cid] = b;
+		}
 		++b;
 	}
 	return ret;

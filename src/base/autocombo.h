@@ -6,7 +6,8 @@
 #include "base/ints.h"
 #include "base/general.h"
 
-enum { AUTOCOMBO_NONE, AUTOCOMBO_Z1, AUTOCOMBO_BASIC, AUTOCOMBO_FENCE, AUTOCOMBO_Z4, AUTOCOMBO_RELATIONAL, AUTOCOMBO_DGNCARVE, AUTOCOMBO_DOR };
+enum { ACT_NORMAL, ACT_CPOOL };
+enum { AUTOCOMBO_NONE, AUTOCOMBO_Z1, AUTOCOMBO_BASIC, AUTOCOMBO_FENCE, AUTOCOMBO_Z4, AUTOCOMBO_RELATIONAL, AUTOCOMBO_DGNCARVE, AUTOCOMBO_DOR, AUTOCOMBO_TILING, AUTOCOMBO_REPLACE };
 
 enum
 {
@@ -19,7 +20,7 @@ enum
 struct autocombo_entry
 {
 	int32_t cid = -1;
-	int32_t cpoolid = -1; // not saved to file, currently unused
+	byte ctype = 0; // currently unused, will be used for combo pools / future expansion
 	int16_t offset = -1;
 	int16_t engrave_offset = 0;
 	void clear()
@@ -32,8 +33,8 @@ struct autocombo_entry
 	}
 
 	autocombo_entry() = default;
-	autocombo_entry(int32_t data, int32_t of, int32_t eo) :
-		cid(data), offset(of), engrave_offset(eo)
+	autocombo_entry(int32_t data, byte ct, int32_t of, int32_t eo) :
+		cid(data), ctype(ct), offset(of), engrave_offset(eo)
 	{}
 
 	static int16_t base_engrave_offset(byte type);
@@ -47,8 +48,7 @@ struct combo_auto
 	combo_auto()
 	{}
 	combo_auto& operator=(combo_auto const& other);
-	void push(int32_t cid, int32_t of, int32_t eo); //add a quantity of a combo entry
-	void add(int32_t cid, int32_t of, int32_t eo); //add a new combo entry
+	void add(int32_t cid, byte ct, int32_t of, int32_t eo); //add a new combo entry
 	void clear(bool clear_all = false)
 	{
 		if (clear_all)
@@ -96,6 +96,18 @@ struct combo_auto
 		arg = newarg;
 	}
 
+	std::pair<byte,byte> getOffsets()
+	{
+		return offsets;
+	}
+	void setOffsets(byte xo, byte yo)
+	{
+		if (xo < 255)
+			offsets.first = xo;
+		if (yo < 255)
+			offsets.second = yo;
+	}
+
 	int32_t getDisplay() const;
 	int32_t getIconDisplay() const
 	{
@@ -125,6 +137,7 @@ private:
 	byte arg = 0;
 	int32_t cid_display = 0;
 	int32_t cid_erase = 0;
+	std::pair<byte, byte> offsets;
 };
 
 extern combo_auto combo_autos[MAXCOMBOPOOLS];
