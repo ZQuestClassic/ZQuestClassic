@@ -48,6 +48,7 @@
 #include "zq/autocombo/pattern_dungeoncarve.h"
 #include "zq/autocombo/pattern_dormtn.h"
 #include "zq/autocombo/pattern_tiling.h"
+#include "zq/autocombo/pattern_replace.h"
 #include "base/misctypes.h"
 #include "parser/Compiler.h"
 #include "base/zc_alleg.h"
@@ -7656,6 +7657,15 @@ void draw_autocombo(int32_t pos, bool rclick, bool pressframe)
 					ap.execute(scr, pos);
 				break;
 			}
+			case AUTOCOMBO_REPLACE:
+			{
+				AutoPattern::autopattern_replace ap(ca.getType(), CurrentLayer, scr, pos, &ca, true);
+				if (rclick)
+					ap.erase(scr, pos);
+				else
+					ap.execute(scr, pos);
+				break;
+			}
 		}
 	}
 }
@@ -8316,15 +8326,24 @@ static void fill(int32_t map, int32_t screen_index, mapscr* fillscr, int32_t tar
 			return;
 
 		combo_auto const& cauto = combo_autos[combo_auto_pos];
-		ignored_combo = cauto.isIgnoredCombo((fillscr->data[((sy << 4) + sx)])) && !rclick;
-		if (rclick&&cauto.containsCombo(targetcombo))
+		ignored_combo = cauto.isIgnoredCombo((fillscr->data[((sy << 4) + sx)]));
+		if (rclick)
 		{
-			if(!cauto.containsCombo(fillscr->data[((sy<<4)+sx)]))
+			if (cauto.containsCombo(targetcombo))
+			{
+				if (!cauto.containsCombo(fillscr->data[((sy << 4) + sx)]))
+					return;
+				if (cauto.getType() == AUTOCOMBO_REPLACE && ignored_combo)
+					return;
+			}
+			else
 				return;
 		}
 		else
 		{
 			if ((fillscr->data[((sy<<4)+sx)])!=targetcombo && !ignored_combo)
+				return;
+			if (cauto.getType() == AUTOCOMBO_REPLACE && !ignored_combo)
 				return;
 		}
     

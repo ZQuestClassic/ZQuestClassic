@@ -18456,7 +18456,7 @@ int32_t readcomboaliases(PACKFILE *f, zquestheader *Header, word version, word b
 			{
 				return qe_invalid;
 			}
-			temp_cauto.add(ca_cid, ca_ctype, q, -1);
+			temp_cauto.addEntry(ca_cid, ca_ctype, q, -1);
 		}
 
 		combo_autos[ca] = temp_cauto;

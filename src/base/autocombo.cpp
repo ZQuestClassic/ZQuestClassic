@@ -3,6 +3,7 @@
 #include "random.h"
 #include <assert.h>
 #include <zq/zquest.h>
+#include <base/combo.h>
 
 combo_auto combo_autos[MAXCOMBOPOOLS];
 
@@ -26,7 +27,7 @@ combo_auto& combo_auto::operator=(combo_auto const& other)
 	clear();
 	for(autocombo_entry const& cp : other.combos)
 	{
-		add(cp.cid, cp.ctype, cp.offset, cp.engrave_offset);
+		addEntry(cp.cid, cp.ctype, cp.offset, cp.engrave_offset);
 	}
 	type = other.type;
 	cid_display = other.cid_display;
@@ -36,11 +37,16 @@ combo_auto& combo_auto::operator=(combo_auto const& other)
 	return *this;
 }
 
-void combo_auto::add(int32_t cid, byte ct, int32_t of, int32_t eo) //add a new combo entry
+void combo_auto::addEntry(int32_t cid, byte ct, int32_t of, int32_t eo) //add a new combo entry
 {
 	if (eo < 0)
 		eo = of + autocombo_entry::base_engrave_offset(type);
 	autocombo_entry e = combos.emplace_back(cid,ct,of,eo);
+}
+
+void combo_auto::removeEntry()
+{
+	combos.pop_back();
 }
 
 void combo_auto::updateValid()
@@ -68,13 +74,39 @@ void combo_auto::updateValid()
 			{
 				if (c2.offset != c.offset && c2.cid == c.cid)
 				{
-					flags &= ~ACF_VALID;
-					return;
+					if(type!=AUTOCOMBO_REPLACE)
+					{
+						flags &= ~ACF_VALID;
+						return;
+					}
 				}
 			}
 		}
 	}
 	flags |= ACF_VALID;
+}
+bool combo_auto::hasTemplate()
+{
+	switch (type)
+	{
+		case AUTOCOMBO_NONE:
+		case AUTOCOMBO_TILING:
+		case AUTOCOMBO_REPLACE:
+			return false;
+		default:
+			return true;
+	}
+}
+bool combo_auto::canErase()
+{
+	switch (type)
+	{
+	case AUTOCOMBO_NONE:
+	case AUTOCOMBO_REPLACE:
+		return false;
+	default:
+		return true;
+	}
 }
 
 bool combo_auto::containsCombo(int32_t cid, bool requirevalid) const
@@ -97,6 +129,7 @@ bool combo_auto::isIgnoredCombo(int32_t cid) const
 	{
 		case AUTOCOMBO_DGNCARVE:
 		case AUTOCOMBO_DOR:
+		case AUTOCOMBO_REPLACE:
 			break;
 		default:
 			return false;
@@ -642,6 +675,8 @@ bool combo_auto::ignore_fill(byte type, int32_t slot)
 			else
 				return true;
 			break;
+		case AUTOCOMBO_REPLACE:
+			return slot % 2 == 0;
 	}
 	return false;
 }

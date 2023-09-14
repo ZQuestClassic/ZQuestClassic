@@ -21,7 +21,9 @@ struct autocombo_widg
 {
 	int32_t slot = -1;
 	std::shared_ptr<GUI::SelComboSwatch> cpane;
+	std::shared_ptr<GUI::SelComboSwatch> cpane_replace;
 	autocombo_entry* entry;
+	autocombo_entry* entry_replace;
 };
 
 class AutoComboDialog: public GUI::Dialog<AutoComboDialog>
@@ -34,12 +36,14 @@ public:
 
 	AutoComboDialog();
 
-	void addCombos(int32_t engrave_offset, int32_t count);
+	void addCombos(int32_t count);
+	void removeCombos(int32_t count);
 	int32_t numCombosSet();
 	void refreshPanels();
 
 	std::shared_ptr<GUI::Widget> view() override;
 	void addSlot(autocombo_entry& entry, size_t& ind, size_t& wid, size_t& hei);
+	void addSlotReplace(autocombo_entry& entrybefore, autocombo_entry& entryafter, size_t& grid_ind, size_t& ind, size_t& wid, size_t& hei);
 	void addSlotNoEngrave(autocombo_entry& entry, size_t& ind, size_t& wid, size_t& hei);
 	void refreshPreviewCSets();
 	void refreshTypes(int32_t type);

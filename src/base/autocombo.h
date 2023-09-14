@@ -48,7 +48,8 @@ struct combo_auto
 	combo_auto()
 	{}
 	combo_auto& operator=(combo_auto const& other);
-	void add(int32_t cid, byte ct, int32_t of, int32_t eo); //add a new combo entry
+	void addEntry(int32_t cid, byte ct, int32_t of, int32_t eo); //add a new combo entry
+	void removeEntry();
 	void clear(bool clear_all = false)
 	{
 		if (clear_all)
@@ -66,6 +67,8 @@ struct combo_auto
 		return flags & ACF_VALID;
 	}
 	void updateValid();
+	bool hasTemplate();
+	bool canErase();
 
 	bool containsCombo(int32_t cid, bool requirevalid = true) const;
 	bool isIgnoredCombo(int32_t cid) const;

@@ -48,13 +48,21 @@ AutoComboDialog::AutoComboDialog() :
 
 }
 
-void AutoComboDialog::addCombos(int32_t type, int32_t count)
+void AutoComboDialog::addCombos(int32_t count)
 {
 	for (int32_t q = 0; q < count; ++q)
 	{
-		temp_autocombo.add(0, ACT_NORMAL, q, -1);
+		temp_autocombo.addEntry(0, ACT_NORMAL, q, -1);
 	}
 }
+void AutoComboDialog::removeCombos(int32_t count)
+{
+	for (int32_t q = 0; q < count; ++q)
+	{
+		temp_autocombo.removeEntry();
+	}
+}
+
 int32_t AutoComboDialog::numCombosSet()
 {
 	int32_t count = 0;
@@ -69,35 +77,36 @@ void AutoComboDialog::refreshPanels()
 {
 	int32_t val = typedropdown->getSelectedValue();
 	iconpane->setDisabled(val == AUTOCOMBO_NONE);
-	templatebtn->setDisabled(val == AUTOCOMBO_NONE);
+	templatebtn->setDisabled(!temp_autocombo.hasTemplate());
+	erasepane->setDisabled(!temp_autocombo.canErase());
 	temp_autocombo.clear();
 	temp_autocombo.setType(val);
 	temp_autocombo.updateValid();
 	switch (val)
 	{
 		case AUTOCOMBO_BASIC:
-			addCombos(val, 16);
+			addCombos(16);
 			break;
 		case AUTOCOMBO_Z1:
-			addCombos(val, 6);
+			addCombos(6);
 			break;
 		case AUTOCOMBO_Z4:
-			addCombos(val, 30);
+			addCombos(30);
 			break;
 		case AUTOCOMBO_FENCE:
-			addCombos(val, 21);
+			addCombos(21);
 			break;
 		case AUTOCOMBO_RELATIONAL:
-			addCombos(val, 47);
+			addCombos(47);
 			break;
 		case AUTOCOMBO_DGNCARVE:
-			addCombos(val, 94);
+			addCombos(94);
 			break;
 		case AUTOCOMBO_DOR:
-			addCombos(val, 76);
+			addCombos(76);
 			break;
 		case AUTOCOMBO_TILING:
-			addCombos(val, 64);
+			addCombos(64);
 			break;
 	}
 }
@@ -161,7 +170,7 @@ std::shared_ptr<GUI::Widget> AutoComboDialog::view()
 					combo = temp_autocombo.getEraseCombo(),
 					cset = CSet,
 					showvals = false,
-					disabled = temp_autocombo.getType() == AUTOCOMBO_NONE,
+					disabled = !temp_autocombo.canErase(),
 					onSelectFunc = [&](int32_t cmb, int32_t c)
 					{
 						temp_autocombo.setEraseCombo(cmb),
@@ -171,7 +180,7 @@ std::shared_ptr<GUI::Widget> AutoComboDialog::view()
 				templatebtn = Button(vAlign = 0.5,
 					text = "Auto Generate",
 					minwidth = 90_px,
-					disabled = temp_autocombo.getType() == AUTOCOMBO_NONE,
+					disabled = !temp_autocombo.hasTemplate(),
 					onClick = message::RELOAD,
 					onPressFunc = [&]() {
 						int32_t cmb, cs;
@@ -379,13 +388,7 @@ void AutoComboDialog::addSlot(autocombo_entry& entry, size_t& ind, size_t& wid, 
 					entry.cid = cmb;
 					widgs.at(ind).cpane->setCSet(CSet);
 					temp_autocombo.updateValid();
-				}),
-			TextField(
-				type = GUI::TextField::type::INT_DECIMAL,
-				minwidth = 1_em,
-				minheight = 1_em,
-				val = ind
-			)
+				})
 		)
 	);
 
@@ -396,6 +399,57 @@ void AutoComboDialog::addSlot(autocombo_entry& entry, size_t& ind, size_t& wid, 
 		wid = row->getTotalWidth();
 	}
 	++ind;
+}
+
+void AutoComboDialog::addSlotReplace(autocombo_entry& entrybefore, autocombo_entry& entryafter, size_t& grid_ind, size_t& ind, size_t& wid, size_t& hei)
+{
+	using namespace GUI::Builder;
+	using namespace GUI::Key;
+	using namespace GUI::Props;
+
+	autocombo_widg& widg = widgs.emplace_back();
+	std::shared_ptr<GUI::Grid> row;
+
+	widg.slot = ind;
+	widg.entry = &entrybefore;
+	widg.entry_replace = &entryafter;
+	sgrid->add(
+		row = Row(framed = true, padding = 8_px,
+			widg.cpane = SelComboSwatch(
+				combo = entrybefore.cid,
+				cset = CSet,
+				showvals = false,
+				onSelectFunc = [&, grid_ind](int32_t cmb, int32_t c)
+				{
+					CSet = c;
+					refreshPreviewCSets();
+					entrybefore.cid = cmb;
+					widgs.at(grid_ind).cpane->setCSet(CSet);
+					temp_autocombo.updateValid();
+				}),
+			Engraving(data = 63, padding = 0_px),
+			widg.cpane_replace = SelComboSwatch(
+				combo = entryafter.cid,
+				cset = CSet,
+				showvals = false,
+				onSelectFunc = [&, grid_ind](int32_t cmb, int32_t c)
+				{
+					CSet = c;
+					refreshPreviewCSets();
+					entryafter.cid = cmb;
+					widgs.at(grid_ind).cpane_replace->setCSet(CSet);
+					temp_autocombo.updateValid();
+				})
+		)
+	);
+
+	if (!hei)
+	{
+		row->calculateSize();
+		hei = row->getTotalHeight();
+		wid = row->getTotalWidth();
+	}
+	ind += 2;
 }
 
 void AutoComboDialog::addSlotNoEngrave(autocombo_entry& entry, size_t& ind, size_t& wid, size_t& hei)
@@ -533,6 +587,14 @@ void AutoComboDialog::refreshTypes(int32_t type)
 				"Right Click: Remove combo (uses the Erase Combo)\n"
 				"Shift + Click: Update the X/Y offset for the top-left corner of the tiling pattern";
 			switch_settings->switchTo(6);
+			break;
+		case AUTOCOMBO_REPLACE:
+			typeinfostr =
+				"An autocombo for replacing a set of arbitrary tiles with others.\n\n"
+				"CONTROLS:\n"
+				"Left Click: Replace combo\n"
+				"Right Click: Replace combo (reverse)";
+			switch_settings->switchTo(0);
 			break;
 		default:
 			switch_settings->switchTo(0);
@@ -695,12 +757,38 @@ void AutoComboDialog::refreshWidgets()
 				case AUTOCOMBO_TILING:
 					addSlotNoEngrave(temp_autocombo.combos[widg_ind], widg_ind, wid, hei);
 					break;
+				case AUTOCOMBO_REPLACE:
+					addSlotReplace(temp_autocombo.combos[widg_ind], temp_autocombo.combos[widg_ind + 1], grid_ind, widg_ind, wid, hei);
+					break;
 				default:
 					addSlot(temp_autocombo.combos[widg_ind], widg_ind, wid, hei);
 					break;
 			}
 		}
 		++grid_ind;
+	}
+	
+	std::shared_ptr<GUI::Grid> extrarow;
+	if (temp_autocombo.getType() == AUTOCOMBO_REPLACE)
+	{
+		extrarow = Row(vAlign = 1.0,
+			Button(vAlign = 1.0,
+				text = "-",
+				width = 32_px, height = 32_px,
+				disabled = temp_autocombo.combos.size() <= 0,
+				onClick = message::RELOAD,
+				onPressFunc = [&]() {
+					removeCombos(2);
+				}),
+			Button(vAlign = 1.0,
+				text = "+",
+				width = 32_px, height = 32_px,
+				disabled = temp_autocombo.combos.size() >= 512,
+				onClick = message::RELOAD,
+				onPressFunc = [&]() {
+					addCombos(2);
+				})
+		);
 	}
 	if (temp_autocombo.combos.size() == 0)
 	{
@@ -718,6 +806,8 @@ void AutoComboDialog::refreshWidgets()
 		scroll_pos1 = 0;
 		wingrid->add(sgrid);
 	}
+	if (extrarow)
+		wingrid->add(extrarow);
 }
 
 bool AutoComboDialog::handleMessage(const GUI::DialogMessage<message>& msg)
