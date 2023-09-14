@@ -36,7 +36,7 @@ release_name = ''
 
 
 def maybe_add_org_prefix(tag_name):
-    if args.github_org != 'ArmageddonGames':
+    if args.github_org != 'ZQuestClassic':
         return f'{args.github_org}-{tag_name}'
     else:
         return tag_name
@@ -72,4 +72,5 @@ else:
 
 set_action_output('release-tag', release_tag)
 set_action_output('release-name', release_name)
+previous_release_tag = '2.55-alpha-117'
 set_action_output('previous-release-tag', previous_release_tag)
