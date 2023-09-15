@@ -573,7 +573,7 @@ void AutoComboDialog::refreshTypes(int32_t type)
 				"are possible and some manual correction will be needed for more complex setups.\n\n"
 				"CONTROLS:\n"
 				"Left Click: Place combo\n"
-				"Right Click: Remove combo (uses the Erase Combo, cannot clean up sides)\n"
+				"Right Click: Remove combo (uses the Erase Combo)\n"
 				"Shift + Click: Place / Remove combos without writing sides\n"
 				"Ctrl + Left Click: Fill combos\n"
 				"Ctrl + Right Click: Fill remove combos";

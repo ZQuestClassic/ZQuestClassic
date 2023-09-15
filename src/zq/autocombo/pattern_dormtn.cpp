@@ -26,14 +26,18 @@ namespace AutoPattern
 	}
 	bool autopattern_dormtn::erase(int32_t exscreen, int32_t expos)
 	{
-		apcombo* ap = add(exscreen, expos, true);
+		apcombo* ap = add(exscreen, expos, false);
 		if (!ap)
 			return false;
-		ap->cid = erase_cid;
-		ap->write(layer, true);
-		ap->in_set = false;
+		if(is_top(ap->slot)||!ap->in_set)
+		{
+			ap->cid = erase_cid;
+			ap->write(layer, true);
+			ap->in_set = false;
+		}
 		if(is_top(ap->slot))
 		{
+			erase_sides(ap);
 			load_all_tops(ap);
 			ap->slot = -1;
 			ap->connflags = 0;
@@ -769,6 +773,40 @@ namespace AutoPattern
 			apcombo* ap = a.second;
 			if (ap->x < center->x - height - 1 || ap->x > center->x + height + 1 || ap->y < center->y - (height + 1) / 2 - 1 || ap->y > center->y + height * 2 + 1)
 				ap->changed = false;
+		}
+	}
+	void autopattern_dormtn::erase_sides(apcombo* center)
+	{
+		for (int32_t x = -height; x <= height; ++x)
+		{
+			for (int32_t y = -(height + 1) / 2; y <= height * 2; ++y)
+			{
+				int32_t top_edge;
+				int32_t bottom_edge;
+				if (x < 0)
+				{
+					top_edge = -x - height;
+					bottom_edge = x + height * 2;
+				}
+				else
+				{
+					top_edge = x - height;
+					bottom_edge = -x + height * 2;
+				}
+				if (y >= top_edge && y <= bottom_edge)
+				{
+					apcombo* rel = add_relative(center, x, y);
+					if (rel)
+					{
+						if (!is_top(rel->slot))
+						{
+							rel->cid = erase_cid;
+							rel->force_cset = true;
+							rel->changed = true;
+						}
+					}
+				}
+			}
 		}
 	}
 	apcombo* autopattern_dormtn::add_side_combo(apcombo* p, int32_t x, int32_t y)

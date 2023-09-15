@@ -42,6 +42,7 @@ namespace AutoPattern
 		void update_sides();
 		void write_side(dor_face* p);
 		void mask_out_context(apcombo* center);
+		void erase_sides(apcombo* center);
 		apcombo* add_side_combo(apcombo* p, int32_t x, int32_t y);
 	private:
 		std::map<int32_t, apcombo*> tops;
