@@ -190,7 +190,7 @@ set(MINIMP3_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include/minimp3)
 FetchContent_Declare(
   allegro5
   GIT_REPOSITORY https://github.com/connorjclark/allegro5.git
-  GIT_TAG        4288ce93362fb9461a23f8431c37f908f8462d5a
+  GIT_TAG        e766ef8b054bd3c6200622f2576a68668b70dc8e
 )
 FetchContent_GetProperties(allegro5)
 if(NOT allegro5_POPULATED)
@@ -201,6 +201,11 @@ if(NOT allegro5_POPULATED)
 	option(WANT_DOCS "" OFF)
 	option(WANT_IMAGE_WEBP "" OFF)
 	option(WANT_OPUS "" OFF)
+	# We build libdumb ourselves and use in zcmusic directly.
+	# TODO: If we want to use allegro streams, we should instead defer to allegro audio.
+	option(WANT_MODAUDIO "" OFF)
+	# We don't support FLAC.
+	option(WANT_FLAC "" OFF)
   add_subdirectory(${allegro5_SOURCE_DIR} ${allegro5_BINARY_DIR} EXCLUDE_FROM_ALL)
   # Allegro 5 CMakeLists sets CMAKE_CONFIGURATION_TYPES in a way that doesn't work for us,
   # so set it back to our value.
@@ -242,11 +247,11 @@ include_directories(${allegro5_BINARY_DIR}/include)
 if(LINUX AND NOT EMSCRIPTEN)
 	set(ALLEGRO_LEGACY_CLOSE_THREADS 1)
 endif()
-add_subdirectory(allegro-legacy EXCLUDE_FROM_ALL)
+add_subdirectory(third_party/allegro_legacy EXCLUDE_FROM_ALL)
 
 add_library(allegro_with_legacy INTERFACE)
 target_include_directories(allegro_with_legacy INTERFACE ${allegro5_SOURCE_DIR}/include ${allegro5_BINARY_DIR}/include)
-target_include_directories(allegro_with_legacy INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/allegro-legacy/include ${CMAKE_CURRENT_BINARY_DIR}/allegro-legacy/include)
+target_include_directories(allegro_with_legacy INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/third_party/allegro_legacy/include ${CMAKE_CURRENT_BINARY_DIR}/third_party/allegro_legacy/include)
 target_link_libraries(allegro_with_legacy INTERFACE allegro-legacy allegro_primitives allegro_font allegro_image allegro_main)
 
 if (NOT EMSCRIPTEN)
@@ -256,18 +261,6 @@ endif()
 #############################################################
 # Header and source file lists
 #############################################################
-
-if (EMSCRIPTEN)
-	set(ZCSOUNDSOURCES
-		src/zcmusic_sdl.cpp
-		src/zcmusicd.cpp
-	)
-else()
-	set(ZCSOUNDSOURCES
-		src/zcmusic.cpp
-		src/zcmusicd.cpp
-	)
-endif()
 
 set(ZELDA_MODULES
 	${CMAKE_SOURCE_DIR}/modules/zelda/ZeldaCore.txt
@@ -399,16 +392,16 @@ endif()
 #############################################################
 
 add_library(alpng STATIC
-	allegro-addons/loadpng/loadpng.c
-	allegro-addons/loadpng/regpng.c
-	allegro-addons/loadpng/savepng.c
+	third_party/al_loadpng/loadpng.c
+	third_party/al_loadpng/regpng.c
+	third_party/al_loadpng/savepng.c
 )
 target_link_libraries(alpng PUBLIC
 	allegro_with_legacy
 	${PNG_LIBRARIES}
 )
 target_include_directories(alpng PUBLIC
-	allegro-addons/loadpng
+	third_party/al_loadpng
 )
 target_include_directories(alpng PRIVATE
 	${PNG_INCLUDE_DIRS}
@@ -416,20 +409,20 @@ target_include_directories(alpng PRIVATE
 list(APPEND IMAGELIBS alpng)
 
 add_library(algif STATIC
-	allegro-addons/algif/src/save_gif.cpp
-	allegro-addons/algif/src/load_gif.cpp
+	third_party/al_gif/src/save_gif.cpp
+	third_party/al_gif/src/load_gif.cpp
 )
 target_include_directories(algif PUBLIC
-	allegro-addons/algif/include
+	third_party/al_gif/include
 )
 target_link_libraries(algif PUBLIC allegro_with_legacy)
 list(APPEND IMAGELIBS algif)
 
 add_library(al5img STATIC
-	allegro-addons/al5img/src/al5img.c
+	src/al5_img/src/al5_img.c
 )
 target_include_directories(al5img PUBLIC
-	allegro-addons/al5img/include
+	src/al5_img/include
 )
 target_link_libraries(al5img PUBLIC allegro_with_legacy algif)
 list(APPEND IMAGELIBS al5img)
@@ -461,6 +454,7 @@ set(zcbase_sources
 	src/base/misctypes.cpp
 	src/base/module.cpp
 	src/base/msgstr.cpp
+	src/base/packfile.cpp
 	src/base/process_management.cpp
 	src/base/qrs.cpp
 	src/base/random.cpp
@@ -538,11 +532,7 @@ target_link_libraries(zconsolelogger PUBLIC allegro_with_legacy zcbase)
 # Sound Library
 #############################################################
 
-if(EMSCRIPTEN)
-	set(BUILD_SOUND_LIBS_FROM_SOURCE OFF)
-else()
-	set(BUILD_SOUND_LIBS_FROM_SOURCE ON)
-endif()
+set(BUILD_SOUND_LIBS_FROM_SOURCE ON)
 
 if(BUILD_SOUND_LIBS_FROM_SOURCE)
 	if(WIN32)
@@ -565,13 +555,13 @@ if(BUILD_SOUND_LIBS_FROM_SOURCE)
 	target_compile_definitions(gme_headers INTERFACE -DVGM_YM2612_NUKED)
 
 	option(BUILD_EXAMPLES "" OFF)
-	set(ALLEGRO_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/allegro-legacy/include)
+	set(ALLEGRO_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/third_party/allegro_legacy/include)
 	set(ALLEGRO_LIBRARY allegro_with_legacy)
 	FetchContent_Declare(
 		dumb_external
 		GIT_REPOSITORY https://github.com/kode54/dumb.git
 		GIT_TAG        396caa4d31859045ccb5ef943fd430ca4026cce8
-		PATCH_COMMAND  git restore . && git apply ${CMAKE_SOURCE_DIR}/allegro-addons/aldumb.patch
+		PATCH_COMMAND  git restore . && git apply ${CMAKE_SOURCE_DIR}/third_party/aldumb.patch
 	)
 	FetchContent_MakeAvailable(dumb_external)
 	add_library(dumb_headers INTERFACE)
@@ -583,6 +573,11 @@ endif()
 if(MSVC AND (MSVC_VERSION GREATER 1600))
 	set(ZCSOUNDLIBSEXTRA legacy_stdio_definitions)
 endif()
+set(ZCSOUNDSOURCES
+	src/zcmusic.cpp
+	src/zcmusicd.cpp
+	src/zcmixer.cpp
+)
 add_library(zcsound SHARED ${ZCSOUNDSOURCES})
 target_link_libraries(zcsound PUBLIC allegro_with_legacy zcbase ${SOUNDLIBS} ${ZCSOUNDLIBSEXTRA} allegro_audio allegro_acodec)
 
@@ -742,6 +737,35 @@ target_link_libraries(zupdater PRIVATE allegro_with_legacy fmt zcbase)
 target_include_directories(zupdater PRIVATE src)
 if(WIN32)
 	target_link_options(zupdater PRIVATE "/SUBSYSTEM:WINDOWS")
+endif()
+
+find_package(CURL)
+if(CURL_FOUND AND WIN32)
+	message(STATUS "Using curl for zupdater")
+
+	target_link_libraries(zupdater PRIVATE CURL::libcurl)
+
+	add_library(json INTERFACE third_party/json/json/json.h)
+	target_include_directories(json INTERFACE third_party/json)
+	target_link_libraries(zupdater PRIVATE json)
+
+	set(BUILD_SHARED_LIBS_PREV BUILD_SHARED_LIBS)
+	set(BUILD_SHARED_LIBS OFF)
+	FetchContent_Declare(
+		miniz
+		GIT_REPOSITORY
+			https://github.com/richgel999/miniz.git
+		GIT_TAG
+			9ae305f6e109f8f1fbd2130458f1ee6197269b3b
+	)
+	FetchContent_MakeAvailable(miniz)
+	set(BUILD_SHARED_LIBS BUILD_SHARED_LIBS_PREV)
+	target_link_libraries(zupdater PRIVATE miniz)
+else()
+	message(WARNING "Using Python for zupdater")
+
+	target_compile_definitions(zupdater PRIVATE UPDATER_USES_PYTHON)
+	target_compile_definitions(zlauncher PRIVATE UPDATER_USES_PYTHON)
 endif()
 
 #############################################################

@@ -4,7 +4,7 @@
 #include "jwin.h"
 
 using std::shared_ptr;
-
+bool mid_quitting_dlg = false;
 namespace GUI
 {
 
@@ -15,6 +15,20 @@ namespace GUI
 int32_t dialog_proc(int32_t msg, DIALOG *d, int32_t c)
 {
 	auto* dr = static_cast<DialogRunner*>(d->dp);
+	if(!mid_quitting_dlg)
+	{
+		if(close_button_quit)
+		{
+			dialog_open_quit = true;
+			handle_close_btn_quit();
+			dialog_open_quit = false;
+		}
+		if(exiting_program)
+		{
+			dr->done = true;
+			return D_CLOSE;
+		}
+	}
 	if(msg == MSG_GUI_EVENT)
 	{
 		MessageDispatcher md(dr->widgets[d->d1], dr->sendMessage);

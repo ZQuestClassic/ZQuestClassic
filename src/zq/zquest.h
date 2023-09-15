@@ -7,6 +7,7 @@
 #include "jwin.h"
 #include "base/jwinfsel.h"
 #include "zcmusic.h"
+#include "zcmixer.h"
 #include "sprite.h"
 #include "gamedata.h"
 #include "parser/parserDefs.h"
@@ -757,6 +758,7 @@ enum
 	cmdQuickCompile,
 	cmdRuleset,
 	cmdRuleTemplate,
+	cmdSmartCompile,
     cmdMAX
 };
 
@@ -1145,7 +1147,6 @@ void zprint2(const char * const format,...);
 int32_t get_currdmap();
 int32_t current_item(int32_t item_type);
 int32_t current_item_power(int32_t item_type);
-//int32_t current_item_id(int32_t item_type, bool checkmagic, bool jinx_check);
 
 bool can_use_item(int32_t item_type, int32_t item);
 bool has_item(int32_t item_type, int32_t it);

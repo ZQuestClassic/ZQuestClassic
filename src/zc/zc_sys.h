@@ -1,14 +1,3 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  zc_sys.h
-//
-//  System functions, input handlers, GUI stuff, etc.
-//  for ZQuest Classic.
-//
-//--------------------------------------------------------
-
 #ifndef _ZC_SYS_H_
 #define _ZC_SYS_H_
 
@@ -69,9 +58,10 @@ int32_t onCheatBombs();
 int32_t onCheatArrows();
 
 int32_t  next_press_key();
-int32_t  next_press_btn();
+int32_t  next_joy_input(bool buttons);
 bool joybtn(int32_t b);
 const char* joybtn_name(int32_t b);
+const char* joystick_name(int32_t s);
 bool zc_readkey(int32_t k, bool ignoreDisable = false);
 bool zc_getkey(int32_t k, bool ignoreDisable = false);
 bool zc_readrawkey(int32_t k, bool ignoreDisable = false);
@@ -225,7 +215,7 @@ bool has_item(int32_t item_type, int32_t item);
 int32_t current_item(int32_t item_type);
 int32_t current_item(int32_t item_type, bool checkenabled);
 int32_t current_item_power(int32_t item_type);
-int32_t current_item_id(int32_t item_type, bool checkmagic = true, bool jinx_check = false);
+int32_t current_item_id(int32_t item_type, bool checkmagic = true, bool jinx_check = false, bool check_bunny = false);
 int32_t heart_container_id();
 int32_t high_flag(int32_t i, int32_t item_type, bool consecutive);
 int32_t item_tile_mod();
@@ -296,4 +286,3 @@ extern int32_t midi_strict;
 extern int32_t midi_strict; //L
 #endif
 #endif                                                      // _ZC_SYS_H_
-

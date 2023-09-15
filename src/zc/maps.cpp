@@ -1,14 +1,4 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  maps.cc
-//
-//  Map and screen scrolling stuff for zelda.cc
-//
-//--------------------------------------------------------
-
-#include <string.h>
+#include <cstring>
 #include <assert.h>
 #include <math.h>
 #include <vector>
@@ -2979,6 +2969,17 @@ bool hitcombo(int32_t x, int32_t y, int32_t combotype, byte layers)
 				return true;
 	}
 	return false;
+}
+
+int gethitcombo(int32_t x, int32_t y, int32_t combotype, byte layers)
+{
+	for(int q = 0; q < 7; ++q)
+	{
+		if(layers&(1<<q)) //if layer is to be checked
+			if(COMBOTYPE2(q-1,x,y)==combotype) //matching type
+				return MAPCOMBO2(q-1,x,y);
+	}
+	return -1;
 }
 
 bool hitflag(int32_t x, int32_t y, int32_t flagtype, byte layers)

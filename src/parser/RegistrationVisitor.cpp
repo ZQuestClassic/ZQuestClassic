@@ -532,7 +532,7 @@ void RegistrationVisitor::caseDataDecl(ASTDataDecl& host, void* param)
 	if (breakRecursion(host)) return;
 	if(!(registered(host, host.extraArrays) && (!host.getInitializer() || registered(host.getInitializer())))) return;
 	// Then resolve the type.
-	DataType const& type = *host.resolveType(scope, this);
+	DataType const& type = host.resolveType(scope, this);
 	if (breakRecursion(host)) return;
 	if (!type.isResolved()) return;
 	
@@ -655,7 +655,7 @@ void RegistrationVisitor::caseDataDeclExtraArray(ASTDataDeclExtraArray& host, vo
 				handleError(CompileError::ArrayDecimal(&host));
 			}
 			theSize = (*theSize / 10000);
-			if(*theSize < 1 || *theSize > 214748)
+			if(*theSize < 0 || *theSize > 214748)
 			{
 				handleError(CompileError::ArrayInvalidSize(&host));
 				return;
@@ -712,7 +712,7 @@ void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 		ASTDataDecl& decl = **it;
 
 		// Resolve the parameter type under current scope.
-		DataType const& type = *decl.resolveType(scope, this);
+		DataType const& type = decl.resolveType(scope, this);
 		if (breakRecursion(decl)) {scope = oldScope; return;}
 		if (!type.isResolved()) {scope = oldScope; return;}
 

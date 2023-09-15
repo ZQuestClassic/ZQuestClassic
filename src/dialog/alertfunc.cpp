@@ -5,31 +5,54 @@
 #include <gui/size.h>
 extern int32_t zq_screen_w;
 
-AlertFuncDialog::AlertFuncDialog(std::string title, std::string text, uint32_t numButtons, uint32_t focused_button, ...):
-	InfoDialog(title,text), didend(false)
+AlertFuncDialog::AlertFuncDialog(std::string title, std::string text,
+	std::string info, uint32_t numButtons, uint32_t focused_button,
+	std::initializer_list<std::string> buttonNames,
+	std::initializer_list<std::function<bool()>> buttonProcs
+	) : InfoDialog(title,text), didend(false), helptxt(info)
 {
-	va_list args;
-	va_start(args, focused_button);
-	initButtons(args, numButtons, focused_button);
-	va_end(args);
+	initButtons(buttonNames, buttonProcs, numButtons, focused_button);
 }
 
-AlertFuncDialog::AlertFuncDialog(std::string title, std::vector<std::string_view> lines, uint32_t numButtons, uint32_t focused_button,  ...):
-	InfoDialog(title,lines), didend(false)
+AlertFuncDialog::AlertFuncDialog(std::string title, std::vector<std::string_view> lines,
+	std::string info, uint32_t numButtons, uint32_t focused_button,
+	std::initializer_list<std::string> buttonNames,
+	std::initializer_list<std::function<bool()>> buttonProcs
+	) : InfoDialog(title,lines), didend(false), helptxt(info)
 {
-	va_list args;
-	va_start(args, focused_button);
-	initButtons(args, numButtons, focused_button);
-	va_end(args);
+	initButtons(buttonNames, buttonProcs, numButtons, focused_button);
 }
 
 std::shared_ptr<GUI::Widget> AlertFuncDialog::view()
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
-
+	auto sz = buttons.size();
+	switch(sz)
+	{
+		case 0:
+			buttonRow = Row(DummyWidget());
+			break;
+		case 1: case 2: case 3:
+			buttonRow = Row(topPadding = 0.5_em,spacing = 10_px);
+			break;
+		default:
+		{
+			size_t s = (sz+1)/2;
+			buttonRow = GUI::Internal::makeRows(s);
+			buttonRow->setTopPadding(0.5_em);
+			buttonRow->setSpacing(10_px);
+			break;
+		}
+	}
+	for(std::shared_ptr<GUI::Button>& btn : buttons)
+	{
+		buttonRow->add(btn);
+	}
+	
 	std::shared_ptr<GUI::Window> window = Window(
 		title = std::move(dlgTitle),
+		info = helptxt,
 		onClose = message::OK,
 		Column(
 			Label(noHLine = true,
@@ -38,32 +61,28 @@ std::shared_ptr<GUI::Widget> AlertFuncDialog::view()
 				maxLines = 30,
 				textAlign = 1,
 				text = std::move(dlgText)),
-			buttonRow = Row(
-				topPadding = 0.5_em,
-				vAlign = 1.0,
-				spacing = 2_em
-			)
+			buttonRow
 		)
 	);
-	for(std::shared_ptr<GUI::Button>& btn : buttons)
-	{
-		buttonRow->add(btn);
-	}
 	return window;
 }
 
-void AlertFuncDialog::initButtons(va_list args, uint32_t numButtons, uint32_t focused_button)
+void AlertFuncDialog::initButtons(std::initializer_list<std::string> buttonNames,
+	std::initializer_list<std::function<bool()>> buttonProcs,
+	uint32_t numButtons, uint32_t focused_button)
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
+	assert(numButtons == buttonNames.size() && numButtons == buttonProcs.size());
 	if(numButtons)
 	{
 		//even args only, as (, char*, void(*func)(),)
+		auto nameIter = buttonNames.begin();
+		auto procIter = buttonProcs.begin();
 		for(uint32_t q = 0; q < numButtons; ++q)
 		{
-			std::string btntext(va_arg(args, char*));
-			typedef bool (*funcType)(void);
-			std::function<bool()> func = va_arg(args, funcType);
+			std::string const& btntext = *(nameIter++);
+			std::function<bool()> const& func = *(procIter++);
 			if(func)
 			{
 				buttons.push_back(
@@ -118,3 +137,4 @@ bool AlertFuncDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 	}
 	return false;
 }
+

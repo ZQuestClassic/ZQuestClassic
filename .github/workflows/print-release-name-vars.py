@@ -36,7 +36,7 @@ release_name = ''
 
 
 def maybe_add_org_prefix(tag_name):
-    if args.github_org != 'ArmageddonGames':
+    if args.github_org != 'ZQuestClassic':
         return f'{args.github_org}-{tag_name}'
     else:
         return tag_name

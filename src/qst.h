@@ -1,13 +1,3 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  qst.h
-//
-//  Code for loading '.qst' files in ZC and ZQuest.
-//
-//--------------------------------------------------------
-
 #ifndef _ZC_QST_H_
 #define _ZC_QST_H_
 
@@ -119,6 +109,7 @@ extern std::map<int32_t, script_slot_data > dmapmap;
 extern std::map<int32_t, script_slot_data > screenmap;
 extern std::map<int32_t, script_slot_data > itemspritemap;
 extern std::map<int32_t, script_slot_data > comboscriptmap;
+extern std::map<int32_t, script_slot_data > subscreenmap;
 
 #define MAX_COMBO_COLS 4
 extern int32_t First[MAX_COMBO_COLS],combo_alistpos[MAX_COMBO_COLS],combo_pool_listpos[MAX_COMBO_COLS], combo_auto_listpos[MAX_COMBO_COLS];
@@ -284,4 +275,3 @@ void init_item_drop_sets();
 void init_favorites();
 
 #endif                                                      // _ZC_QST_H_
-

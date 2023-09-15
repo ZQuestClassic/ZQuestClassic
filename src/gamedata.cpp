@@ -1,14 +1,3 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  zelda.cc
-//
-//  Main code for ZQuest Classic. Originally written in
-//  SPHINX C--, now rewritten in DJGPP with Allegro.
-//
-//--------------------------------------------------------
-
 #include "gamedata.h"
 #include <stdio.h>
 #include "base/zc_alleg.h"
@@ -103,10 +92,6 @@ void gamedata::set_qstpath(std::string qstpath)
 const char *gamedata::get_name() const
 {
     return header.name.c_str();
-}
-char *gamedata::get_name_mutable()
-{
-    return header.name.data();
 }
 void gamedata::set_name(std::string n)
 {

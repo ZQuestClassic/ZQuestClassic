@@ -46,14 +46,14 @@ private:
 	void updateFlip(int nflip);
 	void apply_combo();
 	std::shared_ptr<GUI::Window> window;
-	std::shared_ptr<GUI::TextField> tf_initd[2];
-	std::shared_ptr<GUI::Label> l_initds[2];
+	std::shared_ptr<GUI::TextField> tf_initd[8];
+	std::shared_ptr<GUI::Label> l_initds[8];
 	std::shared_ptr<GUI::Label> l_attributes[4];
 	std::shared_ptr<GUI::Label> l_attribytes[8];
 	std::shared_ptr<GUI::Label> l_attrishorts[8];
 	std::shared_ptr<GUI::Checkbox> l_flags[16];
 	std::shared_ptr<GUI::Checkbox> cteff_tflag;
-	std::shared_ptr<GUI::Button> ib_initds[2];
+	std::shared_ptr<GUI::Button> ib_initds[8];
 	std::shared_ptr<GUI::Button> ib_attributes[4];
 	std::shared_ptr<GUI::Button> ib_attribytes[8];
 	std::shared_ptr<GUI::Button> ib_attrishorts[8];
@@ -66,9 +66,9 @@ private:
 	std::shared_ptr<GUI::SelTileSwatch> tswatch;
 	std::shared_ptr<GUI::SelComboSwatch> cycleswatch;
 	std::shared_ptr<GUI::TileFrame> animFrame;
-	std::string h_initd[2], h_attribute[4], h_attribyte[8],
+	std::string h_initd[8], h_attribute[4], h_attribyte[8],
 		h_attrishort[8], h_flag[16];
-	std::string l_initd[2], l_attribute[4], l_attribyte[8],
+	std::string l_initd[8], l_attribute[4], l_attribyte[8],
 		l_attrishort[8], l_flag[16];
 	int32_t index;
 	newcombo local_comboref;

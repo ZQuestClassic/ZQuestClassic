@@ -1,13 +1,3 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  pal.h
-//
-//  Palette code for ZC.
-//
-//--------------------------------------------------------
-
 #ifndef _ZC_PAL_H_
 #define _ZC_PAL_H_
 
@@ -49,4 +39,3 @@ INLINE RGB NESpal(int32_t i)
 extern int32_t reverse_NESpal(RGB c);
 
 #endif                                                      // _ZC_PAL_H_
-

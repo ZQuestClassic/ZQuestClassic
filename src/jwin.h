@@ -1,48 +1,10 @@
-/*                 __                  __
-  *                /_/\  __  __  __    /_/\  ______
-  *               _\_\/ / /\/ /\/ /\  _\_\/ / ____ \
-  *              / /\  / / / / / / / / /\  / /\_ / /\
-  *         __  / / / / /_/ /_/ / / / / / / / / / / /
-  *        / /_/ / / /_________/ / /_/ / /_/ / /_/ /
-  *        \____/ /  \_________\/  \_\/  \_\/  \_\/
-  *         \___\/
-  *
-  *
-  *
-  *     jwin.h
-  *
-  *     Windows(R) style GUI for Allegro.
-  *     by Jeremy Craner
-  *
-  *     Most routines are adaptations of Allegro code.
-  *     Allegro is by Shawn Hargreaves, et al.
-  *
-  *     Version: 3/22/00
-  *     Allegro version: 3.1x  (don't know if it works with WIP)
-  *
-  *     How to use:
-  *
-  *     - include jwin.c in your project
-  *     - include this header in your code
-  *
-  *     - do the same for jwinfsel.* if you want to use the file selector
-  *
-  *     - call jwin_set_colors() at program start up
-  *       (send jwin_colors for default colors or make your own array
-  *       of colors and send them to jwin_set_colors()... see jwin.c)
-  *
-  *     - use the DIALOG procs the same way you use the default Allegro ones
-  *
-  */
-
-/* This code is not fully tested */
-
 #ifndef _JWIN_H_
 #define _JWIN_H_
 
 #include "base/zdefs.h"
 #include "base/zc_alleg.h"
 #include "tab_ctl.h"
+#include "base/gui.h"
 
 struct ListData
 {
@@ -319,10 +281,6 @@ void draw_arrow_button_horiz(BITMAP *dest, int32_t x, int32_t y, int32_t w, int3
 void dotted_rect(BITMAP *dest, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t fg, int32_t bg);
 void _jwin_draw_scrollable_frame(DIALOG *d, int32_t listsize, int32_t offset, int32_t height, int32_t type);
 void _handle_jwin_scrollable_scroll_click(DIALOG *d, int32_t listsize, int32_t *offset, FONT *fnt);
-
-extern int32_t  popup_zqdialog(DIALOG *dialog, int32_t focus_obj);
-extern int32_t  do_zqdialog(DIALOG *dialog, int32_t focus_obj);
-extern int32_t  do_zqdialog_custom(DIALOG *dialog, int32_t focus_obj, std::function<bool(int)> proc);
 
 int32_t d_jslider_proc(int32_t msg, DIALOG *d, int32_t c);
 int32_t d_jwinbutton_proc(int32_t msg, DIALOG *d, int32_t c);

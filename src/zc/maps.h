@@ -1,13 +1,3 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  maps.cc
-//
-//  Map and screen scrolling stuff for zelda.cc
-//
-//--------------------------------------------------------
-
 #ifndef _MAPS_H_
 #define _MAPS_H_
 #include "base/zdefs.h"
@@ -135,6 +125,7 @@ void update_freeform_combos();
 bool findentrance(int x, int y, int flag, bool setflag);
 bool triggerfire(int x, int y, bool setflag, bool any, bool strong, bool magic, bool divine);
 bool hitcombo(int32_t x, int32_t y, int32_t combotype, byte layers = 0b0000001);
+int gethitcombo(int32_t x, int32_t y, int32_t combotype, byte layers = 0b0000001);
 bool hitflag(int32_t x, int32_t y, int32_t flagtype, byte layers = 0b0000001);
 int32_t nextscr(int32_t dir);
 void bombdoor(int32_t x,int32_t y);
@@ -192,4 +183,3 @@ extern int32_t ffprvx[MAXFFCS];
 extern int32_t ffprvy[MAXFFCS];
 void init_ffpos();
 #endif
-

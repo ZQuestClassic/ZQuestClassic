@@ -41,6 +41,8 @@ std::shared_ptr<GUI::Widget> BasicListerDialog::view()
 		onClose = message::EXIT,
 		hPadding = 0_px,
 		use_vsync = true,
+		// Don't set info text, because the following shortcuts are only utilized if the subclass implements copy/paste functions.
+		// Subclasses should use window->setHelp(def_info_sel or def_info_nosel)
 		shortcuts={
 			Ctrl+C=message::COPY,
 			Ctrl+V=message::PASTE,

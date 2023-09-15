@@ -77,6 +77,6 @@ char const* getRepo()
 #ifdef REPO
 	return REPO;
 #else
-	return "ArmageddonGames/ZQuestClassic";
+	return "ZQuestClassic/ZQuestClassic";
 #endif
 }

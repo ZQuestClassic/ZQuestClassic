@@ -763,6 +763,19 @@ GUI::ListData GUI::ZCListData::generic_script()
 	return ls;
 }
 
+GUI::ListData GUI::ZCListData::subscreen_script()
+{
+	std::map<std::string, int32_t> vals;
+	std::set<std::string> names;
+	
+	load_scriptnames(names,vals,subscreenmap,NUMSCRIPTSSUBSCREEN-1);
+	
+	GUI::ListData ls;
+	ls.add("(None)", 0);
+	ls.add(names,vals);
+	return ls;
+}
+
 //CONST& RETURNS
 
 static const GUI::ListData defense_types
@@ -894,6 +907,7 @@ static const GUI::ListData subscrWidgets =
 		" currently selected by the cursor" },
 	{ "Gauge Piece: Counter", widgMISCGAUGE, "Allows building highly customizable gauges"
 		" for any counter" },
+	{ "Button Counter", widgBTNCOUNTER, "Shows a counter used by a specified button as a cost" },
 };
 
 GUI::ListData const& GUI::ZCListData::subscr_widgets()

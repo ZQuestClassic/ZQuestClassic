@@ -125,7 +125,7 @@ void SemanticAnalyzer::analyzeFunctionInternals(Function& function)
 	{
 		ASTDataDecl& parameter = **it;
 		string const& name = parameter.name;
-		DataType const& type = *parameter.resolveType(&functionScope, this);
+		DataType const& type = parameter.resolveType(&functionScope, this);
 		if (breakRecursion(parameter)) continue;
 		Variable::create(functionScope, parameter, type, this);
 	}
@@ -631,7 +631,7 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 	if (breakRecursion(host)) return;
 
 	// Then resolve the type.
-	DataType const& type = *host.resolveType(scope, this);
+	DataType const& type = host.resolveType(scope, this);
 	if (breakRecursion(host)) return;
 	if(!host.registered())  //Handle initial setup
 	{
@@ -775,7 +775,7 @@ void SemanticAnalyzer::caseDataDeclExtraArray(
 				handleError(CompileError::ArrayDecimal(&host));
 			}
 			theSize = (*theSize / 10000);
-			if(*theSize < 1 || *theSize > 214748)
+			if(*theSize < 0 || *theSize > 214748)
 			{
 				handleError(CompileError::ArrayInvalidSize(&host));
 				return;
@@ -849,7 +849,7 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void* param)
 		ASTDataDecl& decl = **it;
 
 		// Resolve the parameter type under current scope.
-		DataType const& type = *decl.resolveType(scope, this);
+		DataType const& type = decl.resolveType(scope, this);
 		if (breakRecursion(decl)) {scope = oldScope; return;}
 		if (!type.isResolved())
 		{

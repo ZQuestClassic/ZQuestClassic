@@ -15,7 +15,7 @@ fi
 cd "$ROOT"
 mkdir -p build_emscripten
 
-EMCC_VERSION=3.1.32
+EMCC_VERSION=3.1.45
 emsdk install $EMCC_VERSION
 emsdk activate $EMCC_VERSION
 source emsdk_env.sh
@@ -35,7 +35,7 @@ cd "$packages_dir/zc"
 rm -rf docs/ghost docs/tango
 rm -rf headers/ghost_zh/3.0/demo headers/GUITest.qst
 rm -rf "scripts/stdWeapons/example scripts"
-rm changelog.txt
+rm -rf changelogs
 rm music/Isabelle_Z2.nsf
 find . -name "*.rtf" -type f -delete
 find . -name "*.pdf" -type f -delete
@@ -86,8 +86,7 @@ LINKER_FLAGS=(
   -s FORCE_FILESYSTEM=1
   -s ASYNCIFY=1
   -s FULL_ES2=1
-  -s SDL2_MIXER_FORMATS="['mid','mod','ogg','mp3','gme']"
-  -s LLD_REPORT_UNDEFINED
+  -s SDL2_MIXER_FORMATS="['mid']"
   -s INITIAL_MEMORY=200MB
   -s ALLOW_MEMORY_GROWTH=1
   -s PTHREAD_POOL_SIZE=15
@@ -175,6 +174,10 @@ emcmake cmake \
   -D ZLIB_LIBRARY="$EMCC_CACHE_LIB_DIR/libz.a" \
   -D PNG_INCLUDE_DIRS="$EMCC_CACHE_INCLUDE_DIR" \
   -D PNG_LIBRARIES="$EMCC_CACHE_LIB_DIR/libpng-mt.a" \
+  -D VORBIS_INCLUDE_DIRS="$EMCC_CACHE_INCLUDE_DIR" \
+  -D VORBIS_LIBRARIES="$EMCC_CACHE_LIB_DIR/libvorbis.a" \
+  -D OGG_INCLUDE_DIRS="$EMCC_CACHE_INCLUDE_DIR" \
+  -D OGG_LIBRARIES="$EMCC_CACHE_LIB_DIR/libogg.a" \
   -D CMAKE_C_FLAGS="${EMCC_FLAGS[*]} ${EMCC_AND_LINKER_FLAGS[*]}" \
   -D CMAKE_CXX_FLAGS="${EMCC_FLAGS[*]} ${EMCC_AND_LINKER_FLAGS[*]} -D_NPASS" \
   -D CMAKE_EXE_LINKER_FLAGS="${LINKER_FLAGS[*]} ${EMCC_AND_LINKER_FLAGS[*]}" \
@@ -184,7 +187,7 @@ emcmake cmake \
 # TODO: can this be removed?
 # Manually delete libraries from Emscripten cache to force a rebuild.
 rm -rf "$EMCC_CACHE_LIB_DIR"/libSDL2-mt.a "$EMCC_CACHE_LIB_DIR"/libSDL2.a
-rm -rf "$EMCC_CACHE_LIB_DIR"/libSDL2_mixer_gme_mid-mod-mp3-ogg.a
+rm -rf "$EMCC_CACHE_LIB_DIR"/libSDL2_mixer_mid.a
 # This would work except you can't clear port variants.
 # https://github.com/emscripten-core/emscripten/issues/16744
 # embuilder clear sdl2-mt sdl2_mixer_gme_mid_mod_mp3_ogg
@@ -193,7 +196,7 @@ bash ../web/patches/apply.sh
 
 # TODO: why doesn't emscripten build this for us?
 embuilder build sdl2-mt
-embuilder build sdl2_mixer_gme_mid_mod_mp3_ogg
+embuilder build sdl2_mixer_mid
 
 TARGETS="${@:-zplayer zquest zscript}"
 cmake --build . --config $CONFIG -t $TARGETS

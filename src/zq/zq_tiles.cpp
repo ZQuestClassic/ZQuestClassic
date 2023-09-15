@@ -1,14 +1,4 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  zq_tiles.cc
-//
-//  Tile editor stuff, etc., for ZQuest.
-//
-//--------------------------------------------------------
-
-#include <string.h>
+#include <cstring>
 #include <cmath>
 
 #include "base/qrs.h"
@@ -2344,6 +2334,8 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 
 	do
 	{
+		HANDLE_CLOSE_ZQDLG();
+		if(exiting_program) break;
 		int32_t temp_mouse_x=gui_mouse_x();
 		int32_t temp_mouse_y=gui_mouse_y();
 		rest(4);
@@ -4399,7 +4391,7 @@ bool leech_tiles(tiledata *dest,int32_t start,int32_t cs)
 	
 	large_dialog(leech_dlg);
 		
-	int32_t ret = zc_popup_dialog(leech_dlg,3);
+	int32_t ret = do_zqdialog(leech_dlg,3);
 	
 	if(ret==2)
 	{
@@ -5097,6 +5089,8 @@ void grab_tile(int32_t tile,int32_t &cs)
 	
 	do
 	{
+		HANDLE_CLOSE_ZQDLG();
+		if(exiting_program) break;
 		rest(4);
 		bool redraw=false;
 		
@@ -5324,6 +5318,8 @@ void grab_tile(int32_t tile,int32_t &cs)
 				{
 					do
 					{
+						HANDLE_CLOSE_ZQDLG();
+						if(exiting_program) break;
 						int x = (gui_mouse_x()-screen_xofs) / 2;
 						int y = (gui_mouse_y()-screen_yofs) / 2;
 						
@@ -7523,7 +7519,7 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 					{
 						large_dialog(tile_move_list_dlg);
 							
-						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
+						int32_t ret=do_zqdialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
 						
 						if(ret!=5)
@@ -7609,7 +7605,7 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 					{
 						large_dialog(tile_move_list_dlg);
 							
-						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
+						int32_t ret=do_zqdialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
 						
 						if(ret!=5)
@@ -7812,7 +7808,7 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 					{
 						large_dialog(tile_move_list_dlg);
 							
-						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
+						int32_t ret=do_zqdialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
 						
 						if(ret!=5)
@@ -7898,7 +7894,7 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 					{
 						large_dialog(tile_move_list_dlg);
 							
-						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
+						int32_t ret=do_zqdialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
 						
 						if(ret!=5)
@@ -7999,7 +7995,7 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 					{
 						large_dialog(tile_move_list_dlg);
 							
-						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
+						int32_t ret=do_zqdialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
 						
 						if(ret!=5)
@@ -8117,7 +8113,7 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 					{
 						large_dialog(tile_move_list_dlg);
 							
-						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
+						int32_t ret=do_zqdialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
 						
 						if(ret!=5)
@@ -8213,7 +8209,7 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 					{
 						large_dialog(tile_move_list_dlg);
 							
-						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
+						int32_t ret=do_zqdialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
 						
 						if(ret!=5)
@@ -8557,7 +8553,7 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 					{
 						large_dialog(tile_move_list_dlg);
 							
-						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
+						int32_t ret=do_zqdialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
 						
 						if(ret!=5)
@@ -9059,7 +9055,7 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 					{
 						large_dialog(tile_move_list_dlg);
 							
-						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
+						int32_t ret=do_zqdialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
 						
 						if(ret!=5)
@@ -9145,7 +9141,7 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 					{
 						large_dialog(tile_move_list_dlg);
 							
-						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
+						int32_t ret=do_zqdialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
 						
 						if(ret!=5)
@@ -9348,7 +9344,7 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 					{
 						large_dialog(tile_move_list_dlg);
 							
-						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
+						int32_t ret=do_zqdialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
 						
 						if(ret!=5)
@@ -9434,7 +9430,7 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 					{
 						large_dialog(tile_move_list_dlg);
 							
-						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
+						int32_t ret=do_zqdialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
 						
 						if(ret!=5)
@@ -9535,7 +9531,7 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 					{
 						large_dialog(tile_move_list_dlg);
 							
-						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
+						int32_t ret=do_zqdialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
 						
 						if(ret!=5)
@@ -9653,7 +9649,7 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 					{
 						large_dialog(tile_move_list_dlg);
 							
-						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
+						int32_t ret=do_zqdialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
 						
 						if(ret!=5)
@@ -9749,7 +9745,7 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 					{
 						large_dialog(tile_move_list_dlg);
 							
-						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
+						int32_t ret=do_zqdialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
 						
 						if(ret!=5)
@@ -10093,7 +10089,7 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 					{
 						large_dialog(tile_move_list_dlg);
 							
-						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
+						int32_t ret=do_zqdialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
 						
 						if(ret!=5)
@@ -10421,7 +10417,7 @@ bool do_movetile_united(tile_move_data const& tmd)
 					{
 						large_dialog(tile_move_list_dlg);
 							
-						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
+						int32_t ret=do_zqdialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
 						
 						if(ret!=5)
@@ -10508,7 +10504,7 @@ bool do_movetile_united(tile_move_data const& tmd)
 					{
 						large_dialog(tile_move_list_dlg);
 							
-						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
+						int32_t ret=do_zqdialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
 						
 						if(ret!=5)
@@ -10713,7 +10709,7 @@ bool do_movetile_united(tile_move_data const& tmd)
 					{
 						large_dialog(tile_move_list_dlg);
 							
-						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
+						int32_t ret=do_zqdialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
 						
 						if(ret!=5)
@@ -10800,7 +10796,7 @@ bool do_movetile_united(tile_move_data const& tmd)
 					{
 						large_dialog(tile_move_list_dlg);
 							
-						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
+						int32_t ret=do_zqdialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
 						
 						if(ret!=5)
@@ -10902,7 +10898,7 @@ bool do_movetile_united(tile_move_data const& tmd)
 					{
 						large_dialog(tile_move_list_dlg);
 							
-						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
+						int32_t ret=do_zqdialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
 						
 						if(ret!=5)
@@ -11021,7 +11017,7 @@ bool do_movetile_united(tile_move_data const& tmd)
 					{
 						large_dialog(tile_move_list_dlg);
 							
-						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
+						int32_t ret=do_zqdialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
 						
 						if(ret!=5)
@@ -11118,7 +11114,7 @@ bool do_movetile_united(tile_move_data const& tmd)
 					{
 						large_dialog(tile_move_list_dlg);
 							
-						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
+						int32_t ret=do_zqdialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
 						
 						if(ret!=5)
@@ -11483,7 +11479,7 @@ bool do_movetile_united(tile_move_data const& tmd)
 					{
 						large_dialog(tile_move_list_dlg);
 							
-						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
+						int32_t ret=do_zqdialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
 						
 						if(ret!=5)
@@ -12091,7 +12087,7 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 					{
 						large_dialog(tile_move_list_dlg);
 							
-						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
+						int32_t ret=do_zqdialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
 						
 						if(ret!=5)
@@ -12177,7 +12173,7 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 					{
 						large_dialog(tile_move_list_dlg);
 							
-						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
+						int32_t ret=do_zqdialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
 						
 						if(ret!=5)
@@ -12380,7 +12376,7 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 					{
 						large_dialog(tile_move_list_dlg);
 							
-						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
+						int32_t ret=do_zqdialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
 						
 						if(ret!=5)
@@ -12466,7 +12462,7 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 					{
 						large_dialog(tile_move_list_dlg);
 							
-						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
+						int32_t ret=do_zqdialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
 						
 						if(ret!=5)
@@ -12567,7 +12563,7 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 					{
 						large_dialog(tile_move_list_dlg);
 							
-						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
+						int32_t ret=do_zqdialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
 						
 						if(ret!=5)
@@ -12685,7 +12681,7 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 					{
 						large_dialog(tile_move_list_dlg);
 							
-						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
+						int32_t ret=do_zqdialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
 						
 						if(ret!=5)
@@ -12781,7 +12777,7 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 					{
 						large_dialog(tile_move_list_dlg);
 							
-						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
+						int32_t ret=do_zqdialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
 						
 						if(ret!=5)
@@ -13125,7 +13121,7 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 					{
 						large_dialog(tile_move_list_dlg);
 							
-						int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
+						int32_t ret=do_zqdialog(tile_move_list_dlg,2);
 						position_mouse_z(0);
 						
 						if(ret!=5)
@@ -13353,7 +13349,7 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 			{
 				large_dialog(tile_move_list_dlg);
 					
-				int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
+				int32_t ret=do_zqdialog(tile_move_list_dlg,2);
 				position_mouse_z(0);
 				
 				if(ret!=5)
@@ -13414,7 +13410,7 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 			{
 				large_dialog(tile_move_list_dlg);
 					
-				int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
+				int32_t ret=do_zqdialog(tile_move_list_dlg,2);
 				position_mouse_z(0);
 				
 				if(ret!=5)
@@ -13586,7 +13582,7 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 			{
 				large_dialog(tile_move_list_dlg);
 					
-				int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
+				int32_t ret=do_zqdialog(tile_move_list_dlg,2);
 				position_mouse_z(0);
 				
 				if(ret!=5)
@@ -13647,7 +13643,7 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 			{
 				large_dialog(tile_move_list_dlg);
 					
-				int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
+				int32_t ret=do_zqdialog(tile_move_list_dlg,2);
 				position_mouse_z(0);
 				
 				if(ret!=5)
@@ -13719,7 +13715,7 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 			{
 				large_dialog(tile_move_list_dlg);
 					
-				int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
+				int32_t ret=do_zqdialog(tile_move_list_dlg,2);
 				position_mouse_z(0);
 				
 				if(ret!=5)
@@ -13805,7 +13801,7 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 			{
 				large_dialog(tile_move_list_dlg);
 					
-				int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
+				int32_t ret=do_zqdialog(tile_move_list_dlg,2);
 				position_mouse_z(0);
 				
 				if(ret!=5)
@@ -13876,7 +13872,7 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 			{
 				large_dialog(tile_move_list_dlg);
 					
-				int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
+				int32_t ret=do_zqdialog(tile_move_list_dlg,2);
 				position_mouse_z(0);
 				
 				if(ret!=5)
@@ -14134,7 +14130,7 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 			{
 				large_dialog(tile_move_list_dlg);
 					
-				int32_t ret=zc_popup_dialog(tile_move_list_dlg,2);
+				int32_t ret=do_zqdialog(tile_move_list_dlg,2);
 				position_mouse_z(0);
 				
 				if(ret!=5)
@@ -15256,6 +15252,8 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 	int otl = tile, otl2 = tile2;
 	do
 	{
+		HANDLE_CLOSE_ZQDLG();
+		if(exiting_program) break;
 		rest(4);
 		int32_t top=TILEROW(zc_min(tile, tile2));
 		int32_t left=zc_min(TILECOL(tile), TILECOL(tile2));
@@ -16174,7 +16172,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 					
 					large_dialog(create_relational_tiles_dlg);
 						
-					int32_t ret=zc_popup_dialog(create_relational_tiles_dlg,2);
+					int32_t ret=do_zqdialog(create_relational_tiles_dlg,2);
 					
 					if(ret==5)
 					{
@@ -17110,6 +17108,8 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 	
 	do
 	{
+		HANDLE_CLOSE_ZQDLG();
+		if(exiting_program) break;
 		rest(4);
 		bool redraw=false;
 		
@@ -17485,7 +17485,7 @@ int32_t advpaste(int32_t tile, int32_t tile2, int32_t copy)
 	
 	large_dialog(advpaste_dlg);
 	
-	int32_t ret = zc_popup_dialog(advpaste_dlg,-1);
+	int32_t ret = do_zqdialog(advpaste_dlg,-1);
 	
 	if(ret!=1) return ret;
 	
@@ -17568,6 +17568,8 @@ int32_t combo_screen(int32_t pg, int32_t tl)
 	
 	do
 	{
+		HANDLE_CLOSE_ZQDLG();
+		if(exiting_program) break;
 		rest(4);
 		bool redraw=false;
 		
@@ -18523,7 +18525,7 @@ int32_t onIcons()
 	
 	large_dialog(icon_dlg);
 		
-	int32_t ret = zc_popup_dialog(icon_dlg,7);
+	int32_t ret = do_zqdialog(icon_dlg,7);
 	
 	if(ret==6)
 	{
@@ -18960,15 +18962,17 @@ static bool massRecolorSetup(int32_t cset)
 	int32_t ret;
 	do
 	{
+		HANDLE_CLOSE_ZQDLG();
+		if(exiting_program) break;
 		if(type==MR_4BIT)
 		{
-			ret=zc_popup_dialog(recolor_4bit_dlg, MR4_OK);
+			ret=do_zqdialog(recolor_4bit_dlg, MR4_OK);
 			if(ret==MR4_SWITCH)
 				type=MR_8BIT;
 		}
 		else
 		{
-			ret=zc_popup_dialog(recolor_8bit_dlg, MR8_OK);
+			ret=do_zqdialog(recolor_8bit_dlg, MR8_OK);
 			if(ret==MR8_SWITCH)
 				type=MR_4BIT;
 		}
@@ -20001,6 +20005,8 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 	int otl = tile, otl2 = tile2;
 	do
 	{
+		HANDLE_CLOSE_ZQDLG();
+		if(exiting_program) break;
 		rest(4);
 		int32_t top=TILEROW(zc_min(tile, tile2));
 		int32_t left=zc_min(TILECOL(tile), TILECOL(tile2));
@@ -20805,7 +20811,7 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 				
 				large_dialog(create_relational_tiles_dlg);
 					
-				int32_t ret=zc_popup_dialog(create_relational_tiles_dlg,2);
+				int32_t ret=do_zqdialog(create_relational_tiles_dlg,2);
 				
 				if(ret==5)
 				{
@@ -21375,4 +21381,3 @@ REDRAW_DMAP_SELTILE:
 	popup_zqdialog_end();
 	return tile+1;
 }
-

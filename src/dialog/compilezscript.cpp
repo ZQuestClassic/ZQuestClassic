@@ -21,7 +21,7 @@ using std::string;
 void doEditZScript(int32_t bg,int32_t fg);
 void clear_map_states();
 void do_script_disassembly(map<string, disassembled_script_data>& scripts, bool fromCompile);
-bool do_slots(map<string, disassembled_script_data> &scripts, bool quick_assign);
+bool do_slots(map<string, disassembled_script_data> &scripts, int assign_mode);
 int32_t onZScriptCompilerSettings();
 
 extern string zScript;
@@ -29,7 +29,8 @@ extern FFScript FFCore;
 extern std::vector<string> asffcscripts, asglobalscripts, asitemscripts,
 	asnpcscripts, aseweaponscripts, aslweaponscripts,
 	asplayerscripts, asdmapscripts, asscreenscripts,
-	asitemspritescripts, ascomboscripts, asgenericscripts;
+	asitemspritescripts, ascomboscripts, asgenericscripts,
+	assubscreenscripts;
 extern std::map<int32_t, script_slot_data > globalmap;
 
 byte compile_success_sample = 0;
@@ -81,10 +82,16 @@ bool doCompileOpenHeaderDlg()
     return false;
 }
 
-static bool g_quick_assign, compile_cancel;
+static bool compile_cancel;
+static int g_assign_mode;
 bool quickassign()
 {
-	g_quick_assign = true;
+	g_assign_mode = 1;
+	return true;
+}
+bool smartassign()
+{
+	g_assign_mode = 2;
 	return true;
 }
 bool docancel()
@@ -93,10 +100,10 @@ bool docancel()
 	return true;
 }
 
-// If quick_compile is false, will prompt user if they want to quick assign. If true, will do the quick assign automaticaly and skip some outputs.
-bool do_compile_and_slots(bool quick_compile, bool delay)
+// If assign_mode is 0, will prompt user for assign_mode.
+bool do_compile_and_slots(int assign_mode, bool delay)
 {
-	bool quick_assign = quick_compile;
+	bool noquick_compile = !assign_mode;
 	char tmpfilename[L_tmpnam];
 	std::tmpnam(tmpfilename);
 	FILE *tempfile = fopen(tmpfilename,"w");
@@ -138,11 +145,12 @@ bool do_compile_and_slots(bool quick_compile, bool delay)
 		"-qr", quest_rules_hex.c_str(),
 		"-linked",
 	};
-	if(!quick_compile && zc_get_config("Compiler","noclose_compile_console",0))
+	if(noquick_compile && zc_get_config("Compiler","noclose_compile_console",0))
 		args.push_back("-noclose");
 	if(delay)
 		args.push_back("-delay");
 	process_manager* pm = launch_piped_process(ZSCRIPT_FILE, "zq_parser_pipe", args);
+	dword compile_timeout = zc_get_config("Compiler","compiler_timeout",30,App::zscript);
 	if(!pm)
 	{
 		InfoDialog("Parser","Failed to launch " ZSCRIPT_FILE).show();
@@ -172,11 +180,22 @@ bool do_compile_and_slots(bool quick_compile, bool delay)
 		if (console) 
 		{
 			char buf4[4096];
+			const dword def_idle = delay ? 60*60 : 0;
+			dword idle_seconds = def_idle;
 			while(running)
 			{
+				pm->timeout_seconds = compile_timeout+idle_seconds;
+				idle_seconds = def_idle;
 				pm->read(&code, sizeof(int32_t));
 				switch(code)
 				{
+					case ZC_CONSOLE_IDLE_CODE:
+					{
+						pm->read(&idle_seconds, sizeof(dword));
+						idle_seconds += def_idle;
+						pm->write(&code, sizeof(int32_t));
+						break;
+					}
 					case ZC_CONSOLE_DB_CODE:
 					case ZC_CONSOLE_ERROR_CODE:
 					case ZC_CONSOLE_WARN_CODE:
@@ -270,17 +289,22 @@ bool do_compile_and_slots(bool quick_compile, bool delay)
 	{
 		if(code)
 			InfoDialog("ZScript Parser", buf).show();
-		else if(!quick_assign)
+		else if(!assign_mode)
 		{
-			g_quick_assign = false;
+			g_assign_mode = 0;
 			AlertFuncDialog("ZScript Parser",
 				buf,
-				3, 1, //2 buttons, where buttons[1] is focused
-				"Quick Assign", quickassign,
-				"OK", NULL,
-				"Cancel", docancel
+				"Quick Assign:"
+				"\nUpdates all already-assigned scripts"
+				"\nSmart Assign:"
+				"\nUpdates all already-assigned scripts"
+				"\nAssigns global/hero scripts to empty slots of the same name"
+				"\nAssigns all other unassigned scripts to slots",
+				4, 2, //4 where [2] is focused
+				{ "Quick Assign", "Smart Assign", "OK", "Cancel" },
+				{ quickassign, smartassign, nullptr, docancel }
 			).show();
-			quick_assign = g_quick_assign;
+			assign_mode = g_assign_mode;
 		}
 	}
 	if ( compile_success_sample > 0 )
@@ -328,6 +352,8 @@ bool do_compile_and_slots(bool quick_compile, bool delay)
 	ascomboscripts.push_back("<none>");
 	asgenericscripts.clear();
 	asgenericscripts.push_back("<none>");
+	assubscreenscripts.clear();
+	assubscreenscripts.push_back("<none>");
 	clear_map_states();
 	globalmap[0].updateName("~Init"); //force name to ~Init
 	
@@ -375,6 +401,9 @@ bool do_compile_and_slots(bool quick_compile, bool delay)
 			case scrTypeIdGlobal:
 				asglobalscripts.push_back(name);
 				break;
+			case scrTypeIdSusbcrData:
+				assubscreenscripts.push_back(name);
+				break;
 		}
 	}
 	
@@ -386,9 +415,9 @@ bool do_compile_and_slots(bool quick_compile, bool delay)
 	do_script_disassembly(scripts, true);
 	
 	//assign scripts to slots
-	do_slots(scripts, quick_assign);
+	do_slots(scripts, assign_mode);
 	
-	if(WarnOnInitChanged && !quick_compile)
+	if(WarnOnInitChanged && noquick_compile)
 	{
 		script_data const& new_init_script = *globalscripts[0];
 		if(new_init_script != old_init_script) //Global init changed
@@ -401,9 +430,10 @@ bool do_compile_and_slots(bool quick_compile, bool delay)
 				"Ver\" and \"Min. Ver\" in the Header menu (Quest>>Options>>Header)\n\n"
 				"Ensure that both versions are higher than \"Quest Ver\" was previously, "
 				"and that \"Quest Ver\" is the same or higher than \"Min. Ver\"",
+				"",
 				2, 1, //2 buttons, where buttons[1] is focused
-				"Header", doCompileOpenHeaderDlg,
-				"OK", NULL
+				{ "Header", "OK" },
+				{ doCompileOpenHeaderDlg, nullptr }
 			).show();
 		}
 	}
@@ -581,7 +611,7 @@ bool CompileZScriptDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		case message::COMPILE:
 		{
 			bool delay = ctrl && devpwd();
-			return do_compile_and_slots(false, delay);
+			return do_compile_and_slots(0, delay);
 		}
 		
 		case message::CANCEL:

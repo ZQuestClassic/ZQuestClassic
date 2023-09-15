@@ -1,50 +1,8 @@
-/*                 __                  __
-  *                /_/\  __  __  __    /_/\  ______
-  *               _\_\/ / /\/ /\/ /\  _\_\/ / ____ \
-  *              / /\  / / / / / / / / /\  / /\_ / /\
-  *         __  / / / / /_/ /_/ / / / / / / / / / / /
-  *        / /_/ / / /_________/ / /_/ / /_/ / /_/ /
-  *        \____/ /  \_________\/  \_\/  \_\/  \_\/
-  *         \___\/
-  *
-  *
-  *
-  *      jwinfsel.c
-  *
-  *      The file selector.
-  *
-  *      By Shawn Hargreaves.
-  *
-  *      Guilherme Silveira and Theuzifan Sumachingun both independently
-  *      modified it to only list valid drive letters.
-  *
-  *      Peter Pavlovic modified it not to list the logical drives, such
-  *      as the b: drive assigned as a logical drive for a: on single
-  *      floppy disk drive equipped systems and improved the browsing
-  *      through directories.
-  *
-  *      Peter Wang and Eric Botcazou modified it to stretch to screen and
-  *      font sizes.
-  *
-  *      Annie Testes modified it so that buffer overflows cannot occur
-  *      anymore.
-  *
-  *      Eric Botcazou optimized the handling of the extension string.
-  *
-  *      Adapted to "jwin" style by Jeremy Craner. Also added the "browser".
-  *
-  *      Version: 8/2/03
-  *      Allegro version: 4.x
-  *
-  *      See readme.txt for copyright information.
-  */
-
-//glibc 2.28 and later require this: -Z
 #ifdef __GNUG__
 	#define ALLEGRO_NO_FIX_ALIASES
 #endif
 
-#include <string.h>
+#include <cstring>
 #include <filesystem>
 
 #include "base/zc_alleg.h"
@@ -995,7 +953,7 @@ int32_t jwin_file_select_ex(AL_CONST char *message, char *path, AL_CONST char *e
     file_selector[FS_TYPES].proc = fs_dummy_proc;
 	// Z_message("Calling enlarge_file_selector(%d,%d)\n", width, height);
     enlarge_file_selector(width, height);
-    ret = popup_zqdialog(file_selector, FS_EDIT);
+    ret = do_zqdialog(file_selector, FS_EDIT);
     
     if(fext)
     {
@@ -1188,7 +1146,7 @@ int32_t jwin_dfile_select_ex(AL_CONST char *message, char *path, AL_CONST char *
     
     file_selector[FS_TYPES].proc = fs_dummy_proc;
     enlarge_file_selector(width, height);
-    ret = popup_zqdialog(file_selector, FS_EDIT);
+    ret = do_zqdialog(file_selector, FS_EDIT);
     
     if(fext)
     {
@@ -1355,7 +1313,7 @@ int32_t jwin_file_browse_ex(AL_CONST char *message, char *path, EXT_LIST *list, 
     
     file_selector[FS_TYPES].proc = fs_elist_proc;
     enlarge_file_selector(width,height);
-    ret = popup_zqdialog(file_selector, FS_EDIT);
+    ret = do_zqdialog(file_selector, FS_EDIT);
     
     if((ret == FS_CANCEL) || (ret == FS_WIN) || (!ugetc(get_filename(path))))
     {
@@ -1453,4 +1411,3 @@ void FLIST::clear()
 	
 	size = 0;
 }
-

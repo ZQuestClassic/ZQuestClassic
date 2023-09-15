@@ -1,30 +1,3 @@
-/*                 __                  __
-  *                /_/\  __  __  __    /_/\  ______
-  *               _\_\/ / /\/ /\/ /\  _\_\/ / ____ \
-  *              / /\  / / / / / / / / /\  / /\_ / /\
-  *         __  / / / / /_/ /_/ / / / / / / / / / / /
-  *        / /_/ / / /_________/ / /_/ / /_/ / /_/ /
-  *        \____/ /  \_________\/  \_\/  \_\/  \_\/
-  *         \___\/
-  *
-  *
-  *
-  *     jwinfsel.h
-  *
-  *     The file selector.
-  *
-  *     By Shawn Hargreaves.
-  *
-  *     Guilherme Silveira and Theuzifan Sumachingun both independently
-  *     modified it to only list valid drive letters.
-  *
-  *     Adapted to "jwin" style by Jeremy Craner. Also added the "browser".
-  *
-  *     Version: 3/22/00
-  *     Allegro version: 3.1x  (don't know if it works with WIP)
-  *
-  */
-
 #ifndef _JWIN_FSEL_H_
 #define _JWIN_FSEL_H_
 
@@ -97,4 +70,3 @@ int32_t jwin_file_browse_ex(AL_CONST char *message, char *path, EXT_LIST *list, 
 // }
 // #endif
 #endif                                                      // _JWIN_FSEL_H_
-

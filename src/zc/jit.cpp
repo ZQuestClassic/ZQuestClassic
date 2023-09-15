@@ -273,6 +273,8 @@ static void create_compile_tasks()
 	create_compile_tasks(dmapscripts, NUMSCRIPTSDMAP, ScriptType::DMap);
 	create_compile_tasks(itemspritescripts, NUMSCRIPTSITEMSPRITE, ScriptType::ItemSprite);
 	create_compile_tasks(comboscripts, NUMSCRIPTSCOMBODATA, ScriptType::Combo);
+	create_compile_tasks(genericscripts, NUMSCRIPTSGENERIC, ScriptType::Generic);
+	create_compile_tasks(subscreenscripts, NUMSCRIPTSSUBSCREEN, ScriptType::EngineSubscreen);
 	// Sort by # of commands, so that biggest scripts get compiled first.
 	std::sort(pending_scripts.begin(), pending_scripts.end(), [](script_data* a, script_data* b) {
 		return a->size() < b->size();
@@ -474,7 +476,7 @@ static void modify_sp(x86::Compiler &cc, x86::Gp vStackIndex, int delta)
 static void div_10000(x86::Compiler &cc, x86::Gp dividend)
 {
 	// Perform division by invariant multiplication.
-	// https://clang.godbolt.org/z/MrMxo678x
+	// https://clang.godbolt.org/z/c4qG3s9nW
 	if (dividend.isType(RegType::kGp64))
 	{
 		x86::Gp input = cc.newInt64();
@@ -496,11 +498,10 @@ static void div_10000(x86::Compiler &cc, x86::Gp dividend)
 	{
 		x86::Gp r = cc.newInt64();
 		cc.movsxd(r, dividend);
-		cc.imul(r, r, 1759218605);
-		cc.shr(r, 32);
-		cc.sar(r.r32(), 12);
-
 		cc.sar(dividend, 31);
+		cc.imul(r, r, 1759218605);
+		cc.sar(r, 44);
+
 		cc.sub(r.r32(), dividend);
 		cc.mov(dividend, r.r32());
 	}

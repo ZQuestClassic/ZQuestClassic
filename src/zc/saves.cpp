@@ -1,12 +1,15 @@
 #include "zc/saves.h"
 
+#include "allegro/file.h"
 #include "base/packfile.h"
 #include "base/misctypes.h"
 #include "base/fonts.h"
 #include "base/dmap.h"
 #include "base/qrs.h"
 #include "base/util.h"
+#include "base/zapp.h"
 #include "base/zdefs.h"
+#include "base/zsys.h"
 #include "zc/zelda.h"
 #include "zc/ffscript.h"
 #include "zc/replay.h"
@@ -14,6 +17,8 @@
 #include "tiles.h"
 #include "items.h"
 #include "jwin.h"
+#include <cstddef>
+#include <cstdio>
 #include <vector>
 #include <filesystem>
 #include <fstream>
@@ -30,7 +35,7 @@ extern FFScript FFCore;
 
 static const char *SAVE_HEADER = "ZQuest Classic Save File";
 static const char *OLD_SAVE_HEADER = "Zelda Classic Save File";
-static int currgame;
+static int currgame = -1;
 static std::vector<save_t> saves;
 static bool save_current_replay_games;
 
@@ -45,11 +50,6 @@ save_t::~save_t()
 static fs::path get_legacy_save_file_path()
 {
 	std::string save_file_name = zc_get_config("SAVEFILE", "save_filename", "zc.sav");
-#ifdef __EMSCRIPTEN__
-		// There was a bug that causes browser zc.cfg files to use the wrong value for the save file.
-		if (save_file_name == "zc.sav")
-			save_file_name = "/local/zc.sav";
-#endif
 	return save_file_name;
 }
 
@@ -120,14 +120,10 @@ enum class ReadMode
 	Size,
 };
 
-static int32_t read_saves(ReadMode read_mode, std::string filename, std::vector<save_t>& out_saves, int* out_count = nullptr)
+static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& out_saves, int* out_count = nullptr)
 {
 	if (read_mode == ReadMode::Size)
 		assert(out_count);
-
-	PACKFILE* f = pack_fopen(filename.c_str(), F_READ_PACKED);
-	if (!f)
-		return 1;
 
 	FFCore.kb_typing_mode = false;
 	if (get_qr(qr_OLD_SCRIPT_VOLUME))
@@ -591,9 +587,6 @@ static int32_t read_saves(ReadMode read_mode, std::string filename, std::vector<
 			return 41;
 		}
 
-		if (read_mode == ReadMode::Header && count == 1)
-			return 0;
-		
 		if(section_version <= 5)
 		{
 			for(int32_t j=0; j<OLDMAXLEVELS; ++j)
@@ -745,7 +738,14 @@ static int32_t read_saves(ReadMode read_mode, std::string filename, std::vector<
 				game.set_generic(tempbyte, j);
 			}
 		}
-		
+
+		game.header.life = game.get_life();
+		game.header.maxlife = game.get_maxlife();
+		game.header.hp_per_heart_container = game.get_hp_per_heart();
+
+		if (read_mode == ReadMode::Header && count == 1)
+			return 0;
+
 		if(section_version >= 34)
 		{
 			if(!p_igetw(&game.awpn,f))
@@ -787,6 +787,7 @@ static int32_t read_saves(ReadMode read_mode, std::string filename, std::vector<
 					
 				//We allocate the container
 				a.Resize(tempdword);
+				a.setValid(true); //should always be valid
 				
 				//And then fill in the contents
 				for(dword k = 0; k < a.Size(); k++)
@@ -817,6 +818,10 @@ static int32_t read_saves(ReadMode read_mode, std::string filename, std::vector<
 		}
 		if(section_version >= 34)
 		{
+			if(!p_igetw(&game.forced_xwpn,f))
+				return 114;
+			if(!p_igetw(&game.forced_ywpn,f))
+				return 115;
 			if(!p_igetw(&game.xwpn,f))
 				return 111;
 			if(!p_igetw(&game.ywpn,f))
@@ -1066,6 +1071,7 @@ static int32_t read_saves(ReadMode read_mode, std::string filename, std::vector<
 						return 97;
 					ZScriptArray zsarr;
 					zsarr.Resize(arrsz);
+					zsarr.setValid(true); //should always be valid
 					for(uint32_t q = 0; q < arrsz; ++q)
 					{
 						if(!p_igetl(&templong,f))
@@ -1263,7 +1269,7 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 	{
 		return 41;
 	}
-	
+
 	if(!pfwrite(game.lvlkeys,MAXLEVELS,f))
 	{
 		return 42;
@@ -1589,14 +1595,11 @@ static int32_t write_save(save_t* save)
 	auto backup_folder_path = get_backup_folder_path() / save->path.stem();
 	move_to_folder(save->path, backup_folder_path, save->path.stem().string() + "-backup", true);
 
-	// TODO: ugh, encoding stuff is stupid. Stop doing this.
-	std::string pathStr = save->path.string();
-	int32_t ret = encode_file_007(tmpfilename, pathStr.c_str(), 0, SAVE_HEADER, ENC_METHOD_MAX-1);
-
-	if(ret)
-		ret += 100;
-
-	delete_file(tmpfilename);
+	int ret = 0;
+	std::error_code ec;
+	fs::rename(tmpfilename, save->path, ec);
+	if (ec)
+		ret = 5;
 
 #ifdef __EMSCRIPTEN__
 	em_sync_fs();
@@ -1619,7 +1622,7 @@ static int load_from_save_file(ReadMode read_mode, fs::path filename, std::vecto
 {
 	const char* error;
 	int32_t ret;
-	PACKFILE *f=NULL;
+	PACKFILE *pf=NULL;
 	char tmpfilename[L_tmpnam];
 	temp_name(tmpfilename);
 
@@ -1642,17 +1645,24 @@ static int load_from_save_file(ReadMode read_mode, fs::path filename, std::vecto
 	}
 	else
 	{
-		ret = decode_file_007(filenameCStr, tmpfilename, SAVE_HEADER, ENC_METHOD_MAX-1, false, "");
-		if (ret)
-			ret = decode_file_007(filenameCStr, tmpfilename, OLD_SAVE_HEADER, ENC_METHOD_MAX-1, false, "");
-		if (ret)
+		auto unencrypted_result = try_open_maybe_legacy_encoded_file(filenameCStr, SAVE_HEADER, OLD_SAVE_HEADER, "SVGM", nullptr);
+
+		pf = unencrypted_result.decoded_pf;
+		if (!pf)
 		{
-			error = "can't decode";
-			goto cantopen;
+			ret = decode_file_007(filenameCStr, tmpfilename, SAVE_HEADER, ENC_METHOD_MAX-1, false, "");
+			if (ret)
+				ret = decode_file_007(filenameCStr, tmpfilename, OLD_SAVE_HEADER, ENC_METHOD_MAX-1, false, "");
+			if (ret)
+			{
+				error = "can't decode";
+				goto cantopen;
+			}
+			pf = pack_fopen(tmpfilename, F_READ_PACKED);
 		}
 
 		int count;
-		ret = read_saves(read_mode, tmpfilename, out_saves, &count);
+		ret = read_saves(read_mode, pf, out_saves, &count);
 		if (ret)
 		{
 			error = "failed reading";
@@ -1681,13 +1691,18 @@ static int load_from_save_file(ReadMode read_mode, fs::path filename, std::vecto
 		}
 	}
 
+	if (pf)
+		pack_fclose(pf);
+
 	return 0;
 
 cantopen:
 	{
+		if (pf)
+			pack_fclose(pf);
 		out_saves.clear();
 
-		system_pal();
+		enter_sys_pal();
 		char buf[256];
 		snprintf(buf, 256, "Couldn't open %s", filenameCStr);
 		jwin_alert("Can't Open Saved Game File",
@@ -1695,6 +1710,7 @@ cantopen:
 				   error,
 				   "",
 				   "OK",NULL,'o',0,get_zc_font(font_lfont));
+		exit_sys_pal();
 	}
 
 	return ret;
@@ -2053,6 +2069,8 @@ static int32_t do_save_games()
 		return 0;
 	}
 
+	fs::create_directories(get_save_folder_path());
+
 	for (auto& save : saves)
 	{
 		if (!save.header || !save.game)
@@ -2070,7 +2088,8 @@ static int32_t do_save_games()
 int32_t saves_write()
 {
 	Saving = true;
-	render_zc();
+	if (!is_headless())
+		render_zc();
 	int32_t result = do_save_games();
 	Saving = false;
 	return result;
@@ -2090,6 +2109,21 @@ bool saves_select(int32_t index)
 	}
 	else
 		game->Clear();
+
+	// Unload any other games.
+	for (int i = 0; i < saves.size(); i++)
+	{
+		if (i != index)
+		{
+			auto& save = saves[i];
+			if (save.game)
+			{
+				save.header = new gamedata_header(save.game->header);
+				delete save.game;
+				save.game = nullptr;
+			}
+		}
+	}
 
 	return true;
 }
@@ -2198,7 +2232,7 @@ bool saves_create_slot(gamedata* game, bool save_to_disk)
 	save.game = game;
 	save.header = &game->header;
 	save.path = save_to_disk ? create_path_for_new_save(save.header) : "";
-	return do_save_games();
+	return true;
 }
 
 bool saves_create_slot(fs::path path)
@@ -2211,12 +2245,12 @@ bool saves_create_slot(fs::path path)
 	return true;
 }
 
-void saves_do_first_time_stuff(int index)
+int saves_do_first_time_stuff(int index)
 {
 	save_t* save;
 	int ret = get_save(save, index, true);
 	if (ret)
-		return;
+		return ret;
 
 	if (!save->game->get_hasplayed())
 	{
@@ -2237,6 +2271,9 @@ void saves_do_first_time_stuff(int index)
 		save->game->set_maxlife(zinit.hc*zinit.hp_per_heart);
 		save->game->set_life(zinit.hc*zinit.hp_per_heart);
 		save->game->set_hp_per_heart(zinit.hp_per_heart);
+		save->game->header.life = save->game->get_life();
+		save->game->header.maxlife = save->game->get_maxlife();
+		save->game->header.hp_per_heart_container = save->game->get_hp_per_heart();
 
 		if (standalone_mode)
 		{
@@ -2248,10 +2285,238 @@ void saves_do_first_time_stuff(int index)
 		}
 
 		update_icon(index);
+		save->path = create_path_for_new_save(save->header);
+		return saves_write();
 	}
+
+	return 0;
 }
 
 void saves_enable_save_current_replay()
 {
 	save_current_replay_games = true;
+}
+
+template<std::size_t N, class T>
+constexpr std::size_t countof(T(&)[N]) { return N; }
+
+template <typename T>
+static bool gd_compare(T a, T b)
+{
+	return a == b;
+}
+
+static bool gd_compare(const char* a, const char* b)
+{
+	return strcmp(a, b) == 0;
+}
+
+bool saves_test()
+{
+	int fake_errno = 0;
+	allegro_errno = &fake_errno;
+
+	// For some reason MSVC hangs on compiling gamedata==
+#ifndef _WIN32
+	// First make sure there are not accidentally equalities that are impossible,
+	// like fields that have pointers to objects.
+	gamedata* g1 = new gamedata();
+	gamedata* g2 = new gamedata();
+	g1->saved_mirror_portal.clearUID();
+	g2->saved_mirror_portal.clearUID();
+	if (*g1 != *g2)
+	{
+		delete g1;
+		delete g2;
+		printf("failed: g1 == g2\n");
+		return false;
+	}
+	delete g1;
+	delete g2;
+#endif
+
+	gamedata* game = new gamedata();
+	game->header.qstpath = "somegame.qst";
+	game->header.title = "I am a test";
+	game->header.name = "test";
+	game->header.deaths = 10;
+	game->header.has_played = true;
+	game->header.life = game->get_life();
+	game->header.maxlife = game->get_maxlife();
+	game->header.hp_per_heart_container = game->get_hp_per_heart();
+	game->OverrideItems[0] = 0;
+	game->OverrideItems[511] = 511;
+	// Does not persist.
+	// game->header.did_cheat = true;
+
+	save_t save;
+	save.game = game;
+	save.header = &game->header;
+	save.path = "test.sav";
+
+	if (write_save(&save))
+	{
+		printf("failed: write_save\n");
+		delete game;
+		return false;
+	}
+
+	save.game = nullptr;
+	save.header = nullptr;
+
+	if (load_from_save_file_expect_one(ReadMode::All, save.path, save))
+	{
+		printf("failed: load_from_save_file_expect_one\n");
+		delete game;
+		return false;
+	}
+
+	#define SAVE_TEST_FIELD(field) if (!gd_compare(game->field, save.game->field)) {\
+		printf("game->%s != save.game->%s\n", #field, #field);\
+		printf("%s\n", fmt::format("{} != {}", game->field, save.game->field).c_str());\
+		delete game;\
+		return false;\
+	}
+
+	#define SAVE_TEST_FIELD_NOFMT(field) if (!gd_compare(game->field, save.game->field)) {\
+		printf("game->%s != save.game->%s\n", #field, #field);\
+		delete game;\
+		return false;\
+	}
+
+	#define SAVE_TEST_VECTOR(field) for (int i = 0; i < game->field.size(); i++) {\
+		if (!gd_compare(game->field[i], save.game->field[i])) {\
+			printf("game->%s[%d] != save.game->%s[%d]\n", #field, i, #field, i);\
+			printf("%s\n", fmt::format("{} != {}", game->field[i], save.game->field[i]).c_str());\
+			delete game;\
+			return false;\
+		}\
+	}
+
+	#define SAVE_TEST_VECTOR_NOFMT(field) for (int i = 0; i < game->field.size(); i++) {\
+		if (!gd_compare(game->field[i], save.game->field[i])) {\
+			printf("game->%s[%d] != save.game->%s[%d]\n", #field, i, #field, i);\
+			delete game;\
+			return false;\
+		}\
+	}
+
+	#define SAVE_TEST_ARRAY(field) for (int i = 0; i < countof(game->field); i++) {\
+		if (!gd_compare(game->field[i], save.game->field[i])) {\
+			printf("game->%s[%d] != save.game->%s[%d]\n", #field, i, #field, i);\
+			printf("%s\n", fmt::format("{} != {}", game->field[i], save.game->field[i]).c_str());\
+			delete game;\
+			return false;\
+		}\
+	}
+
+	#define SAVE_TEST_ARRAY_NOFMT(field) for (int i = 0; i < countof(game->field); i++) {\
+		if (!gd_compare(game->field[i], save.game->field[i])) {\
+			printf("game->%s[%d] != save.game->%s[%d]\n", #field, i, #field, i);\
+			delete game;\
+			return false;\
+		}\
+	}
+
+	#define SAVE_TEST_ARRAY_2D(field) for (int i = 0; i < countof(game->field); i++) {\
+		for (int j = 0; j < countof(game->field[0]); j++) {\
+			if (!gd_compare(game->field[i][j], save.game->field[i][j])) {\
+				printf("game->%s[%d][%d] != save.game->%s[%d][%d]\n", #field, i, j, #field, i, j);\
+				printf("%s\n", fmt::format("{} != {}", game->field[i][j], save.game->field[i][j]).c_str());\
+				delete game;\
+				return false;\
+			}\
+		}\
+	}
+
+	#define SAVE_TEST_ARRAY_2D_NOFMT(field) for (int i = 0; i < countof(game->field); i++) {\
+		for (int j = 0; j < countof(game->field[0]); j++) {\
+			if (!gd_compare(game->field[i][j], save.game->field[i][j])) {\
+				printf("game->%s[%d][%d] != save.game->%s[%d][%d]\n", #field, i, j, #field, i, j);\
+				delete game;\
+				return false;\
+			}\
+		}\
+	}
+
+	// Test some (but not all ... I got lazy) of the fields, in the order found in the save format.
+	SAVE_TEST_FIELD(get_name());
+	SAVE_TEST_FIELD(get_quest());
+	SAVE_TEST_FIELD(get_deaths());
+	SAVE_TEST_FIELD(_cheat);
+	SAVE_TEST_ARRAY(item);
+	SAVE_TEST_ARRAY(version);
+	SAVE_TEST_FIELD(get_hasplayed());
+	SAVE_TEST_FIELD(get_time());
+	SAVE_TEST_FIELD(get_timevalid());
+	SAVE_TEST_ARRAY(lvlitems);
+	SAVE_TEST_FIELD(get_continue_scrn());
+	SAVE_TEST_FIELD(get_continue_dmap());
+	SAVE_TEST_ARRAY(visited);
+	SAVE_TEST_ARRAY(bmaps);
+	SAVE_TEST_ARRAY(maps);
+	SAVE_TEST_ARRAY(guys);
+	SAVE_TEST_ARRAY(lvlkeys);
+	SAVE_TEST_ARRAY_2D(screen_d);
+	SAVE_TEST_ARRAY(global_d);
+	SAVE_TEST_ARRAY(_counter);
+	SAVE_TEST_ARRAY(_maxcounter);
+	SAVE_TEST_ARRAY(_dcounter);
+	SAVE_TEST_ARRAY(_generic);
+	SAVE_TEST_FIELD(awpn);
+	SAVE_TEST_FIELD(bwpn);
+	SAVE_TEST_FIELD_NOFMT(globalRAM);
+	SAVE_TEST_FIELD(forced_awpn);
+	SAVE_TEST_FIELD(forced_bwpn);
+	SAVE_TEST_FIELD(forced_xwpn);
+	SAVE_TEST_FIELD(forced_ywpn);
+	SAVE_TEST_FIELD(xwpn);
+	SAVE_TEST_FIELD(ywpn);
+	SAVE_TEST_ARRAY(lvlswitches);
+	SAVE_TEST_ARRAY(item_messages_played);
+	SAVE_TEST_ARRAY(bottleSlots);
+
+	game->saved_mirror_portal.clearUID();
+	save.game->saved_mirror_portal.clearUID();
+	if (game->saved_mirror_portal != save.game->saved_mirror_portal)
+	{
+		printf("game->saved_mirror_portal != save.game->saved_mirror_portal\n");
+		delete game;
+		return false;
+	}
+
+	SAVE_TEST_ARRAY(gen_doscript);
+	SAVE_TEST_ARRAY(gen_exitState);
+	SAVE_TEST_ARRAY(gen_reloadState);
+	SAVE_TEST_ARRAY_2D(gen_initd);
+	SAVE_TEST_ARRAY(gen_dataSize);
+	for (int i = 0; i < NUMSCRIPTSGENERIC; i++)
+		SAVE_TEST_VECTOR(gen_data[i]);
+	SAVE_TEST_ARRAY(xstates);
+	SAVE_TEST_ARRAY(gen_eventstate);
+	SAVE_TEST_ARRAY(gswitch_timers);
+	SAVE_TEST_VECTOR_NOFMT(user_objects);
+	SAVE_TEST_VECTOR_NOFMT(user_portals);
+	SAVE_TEST_ARRAY(OverrideItems);
+
+	// Now do the header.
+	if (game->header != save.game->header)
+	{
+		printf("game->header != save.game->header\n");
+		delete game;
+		return false;
+	}
+
+#ifndef _WIN32
+	// Now do the entire thing.
+	if (*game != *save.game)
+	{
+		printf("game != save.game\n");
+		delete game;
+		return false;
+	}
+#endif
+
+	delete game;
+	return true;
 }

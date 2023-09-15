@@ -992,7 +992,7 @@ void runOnDeathEngine();
 void runOnLaunchEngine();
 void runGenericPassiveEngine(int32_t scrtm);
 bool runGenericFrozenEngine(const word script, const int32_t* init_data = nullptr);
-bool runActiveSubscreenScriptEngine();
+bool runScriptedActiveSusbcreen();
 bool runOnMapScriptEngine();
 void doScriptMenuDraws();
 void runOnSaveEngine();
@@ -1100,9 +1100,12 @@ void do_tracebool(const bool v);
 void do_tracestring();
 void do_printf(const bool v, const bool varg);
 void do_sprintf(const bool v, const bool varg);
+void do_printfarr();
+void do_sprintfarr();
 void do_varg_max();
 void do_varg_min();
 void do_varg_choose();
+void do_varg_makearray(ScriptType type, const uint32_t UID);
 void do_breakpoint();
 void do_trace(bool v);
 void do_tracel(bool v);
@@ -1305,7 +1308,8 @@ void Waitframe(bool allowwavy = true, bool sfxcleanup = true);
 
 void initZScriptDMapScripts();
 void initZScriptOnMapScript();
-void initZScriptActiveSubscreenScript();
+void initZScriptScriptedActiveSubscreen();
+void initZScriptSubscreenScript();
 void initZScriptHeroScripts();
 void initZScriptItemScripts();
 
@@ -2044,6 +2048,11 @@ static void setHeroBigHitbox(bool v);
 	static void do_setDMapData_dmapintro(const bool v);
 	static void do_getDMapData_music(const bool v);
 	static void do_setDMapData_music(const bool v);
+	
+	static void do_load_active_subscreendata(const bool v);
+	static void do_load_passive_subscreendata(const bool v);
+	static void do_load_overlay_subscreendata(const bool v);
+	static void do_load_subscreendata(const bool v, const bool v2);
 	
 	static void do_checkdir(const bool is_dir);
 	static void do_fs_remove();
@@ -3253,17 +3262,17 @@ enum ASM_DEFINE
 	DRAWLIGHT_SQUARE,
 	DRAWLIGHT_CONE,
 	PEEK,
-	RESRVD_OP_EMILY_10,
-	RESRVD_OP_EMILY_11,
-	RESRVD_OP_EMILY_12,
-	RESRVD_OP_EMILY_13,
-	RESRVD_OP_EMILY_14,
-	RESRVD_OP_EMILY_15,
-	RESRVD_OP_EMILY_16,
-	RESRVD_OP_EMILY_17,
-	RESRVD_OP_EMILY_18,
-	RESRVD_OP_EMILY_19,
-	RESRVD_OP_EMILY_20,
+	PEEKATV,
+	MAKEVARGARRAY,
+	PRINTFA,
+	SPRINTFA,
+	CURRENTITEMID,
+	ARRAYPUSH,
+	ARRAYPOP,
+	LOADSUBDATARV,
+	SWAPSUBSCREENV,
+	SUBDATA_GET_NAME,
+	SUBDATA_SET_NAME,
 
 	CONVERTFROMRGB,
 	CONVERTTORGB,
@@ -3276,7 +3285,19 @@ enum ASM_DEFINE
 	RESRVD_OP_MOOSH_09,
 	RESRVD_OP_MOOSH_10,
 	
-	NUMCOMMANDS           //0x0219
+	
+	SUBDATA_SWAP_PAGES,
+	SUBPAGE_FIND_WIDGET,
+	SUBPAGE_MOVE_SEL,
+	SUBPAGE_SWAP_WIDG,
+	SUBPAGE_NEW_WIDG,
+	SUBPAGE_DELETE,
+	SUBWIDG_GET_SELTEXT_OVERRIDE,
+	SUBWIDG_SET_SELTEXT_OVERRIDE,
+	SUBWIDG_TY_GETTEXT,
+	SUBWIDG_TY_SETTEXT,
+
+	NUMCOMMANDS  //0x0448
 };
 
 
@@ -4910,22 +4931,22 @@ enum ASM_DEFINE
 #define GAMETRIGGROUPS      0x14ED
 #define GAMEOVERRIDEITEMS      0x14EE
 #define DMAPDATASUBSCRO      0x14EF
-#define RESRVD_VAR_EMILY45      0x14F0
-#define RESRVD_VAR_EMILY46      0x14F1
-#define RESRVD_VAR_EMILY47      0x14F2
-#define RESRVD_VAR_EMILY48      0x14F3
-#define RESRVD_VAR_EMILY49      0x14F4
-#define RESRVD_VAR_EMILY50      0x14F5
-#define RESRVD_VAR_EMILY51      0x14F6
-#define RESRVD_VAR_EMILY52      0x14F7
-#define RESRVD_VAR_EMILY53      0x14F8
-#define RESRVD_VAR_EMILY54      0x14F9
-#define RESRVD_VAR_EMILY55      0x14FA
-#define RESRVD_VAR_EMILY56      0x14FB
-#define RESRVD_VAR_EMILY57      0x14FC
-#define RESRVD_VAR_EMILY58      0x14FD
-#define RESRVD_VAR_EMILY59      0x14FE
-#define RESRVD_VAR_EMILY60      0x14FF
+#define REFSUBSCREENPAGE      0x14F0
+#define REFSUBSCREENWIDG      0x14F1
+#define SUBDATACURPG      0x14F2
+#define SUBDATANUMPG      0x14F3
+#define SUBDATAPAGES      0x14F4
+#define SUBDATATYPE      0x14F5
+#define SUBDATAFLAGS      0x14F6
+#define SUBDATACURSORPOS      0x14F7
+#define SUBDATASCRIPT      0x14F8
+#define SUBDATAINITD      0x14F9
+#define SUBDATABTNLEFT      0x14FA
+#define SUBDATABTNRIGHT      0x14FB
+#define SUBDATATRANSLEFTTY      0x14FC
+#define SUBDATATRANSLEFTSFX      0x14FD
+#define SUBDATATRANSLEFTFLAGS      0x14FE
+#define SUBDATATRANSLEFTARGS      0x14FF
 #define PORTALX                 0x1500
 #define PORTALY                 0x1501
 #define PORTALDMAP              0x1502
@@ -4954,7 +4975,130 @@ enum ASM_DEFINE
 #define SAVEDPORTALCOUNT        0x1519
 #define SAVEDPORTALDSTSCREEN    0x151A
 
-#define NUMVARIABLES            0x151B
+#define SUBDATATRANSRIGHTTY     0x151B
+#define SUBDATATRANSRIGHTSFX     0x151C
+#define SUBDATATRANSRIGHTFLAGS     0x151D
+#define SUBDATATRANSRIGHTARGS     0x151E
+#define SUBDATASELECTORDSTX     0x151F
+#define SUBDATASELECTORDSTY     0x1520
+#define SUBDATASELECTORDSTW     0x1521
+#define SUBDATASELECTORDSTH     0x1522
+#define SUBDATASELECTORWID     0x1523
+#define SUBDATASELECTORHEI     0x1524
+#define SUBDATASELECTORTILE     0x1525
+#define SUBDATASELECTORCSET     0x1526
+#define SUBDATASELECTORFRM     0x1527
+#define SUBDATASELECTORASPD     0x1528
+#define SUBDATASELECTORDELAY     0x1529
+#define SUBDATATRANSCLK     0x152A
+#define SUBDATATRANSTY     0x152B
+#define SUBDATATRANSFLAGS     0x152C
+#define SUBDATATRANSARGS     0x152D
+#define SUBDATATRANSFROMPG     0x152E
+#define SUBDATATRANSTOPG     0x152F
+#define SUBDATASELECTORFLASHCSET     0x1530
+#define GAMEASUBOPEN     0x1531
+#define GAMENUMASUB     0x1532
+#define GAMENUMPSUB     0x1533
+#define GAMENUMOSUB     0x1534
+#define SUBPGINDEX     0x1535
+#define SUBPGNUMWIDG     0x1536
+#define SUBPGWIDGETS     0x1537
+#define SUBPGSUBDATA     0x1538
+#define SUBPGCURSORPOS     0x1539
+#define SUBWIDGTYPE     0x153A
+#define SUBWIDGINDEX     0x153B
+#define SUBWIDGPAGE     0x153C
+#define SUBWIDGPOS     0x153D
+#define SUBWIDGPOSES     0x153E
+#define SUBWIDGPOSFLAG     0x153F
+#define SUBWIDGX     0x1540
+#define SUBWIDGY     0x1541
+#define SUBWIDGW    0x1542
+#define SUBWIDGH    0x1543
+#define SUBWIDGGENFLAG    0x1544
+#define SUBWIDGFLAG    0x1545
+#define SUBWIDGSELECTORDSTX    0x1546
+#define SUBWIDGSELECTORDSTY    0x1547
+#define SUBWIDGSELECTORDSTW    0x1548
+#define SUBWIDGSELECTORDSTH    0x1549
+#define SUBWIDGSELECTORWID    0x154A
+#define SUBWIDGSELECTORHEI    0x154B
+#define SUBWIDGSELECTORTILE    0x154C
+
+#define SUBWIDGSELECTORCSET      0x154D
+#define SUBWIDGSELECTORFLASHCSET      0x154E
+#define SUBWIDGSELECTORFRM      0x154F
+#define SUBWIDGSELECTORASPD      0x1550
+#define SUBWIDGSELECTORDELAY      0x1551
+#define SUBWIDGPRESSSCRIPT      0x1552
+#define SUBWIDGPRESSINITD      0x1553
+#define SUBWIDGBTNPRESS      0x1554
+#define SUBWIDGBTNPG      0x1555
+#define SUBWIDGPGMODE     0x1556
+#define SUBWIDGPGTARG     0x1557
+#define SUBWIDGTRANSPGTY     0x1558
+#define SUBWIDGTRANSPGSFX     0x1559
+#define SUBWIDGTRANSPGFLAGS     0x155A
+#define SUBWIDGTRANSPGARGS     0x155B
+
+#define SUBWIDGTY_CSET      0x155C
+#define SUBWIDGTY_TILE      0x155D
+
+#define SUBWIDGTY_FONT          0x155E
+#define SUBWIDGTY_ALIGN         0x155F
+#define SUBWIDGTY_SHADOWTY      0x1560
+#define SUBWIDGTY_COLOR_TXT     0x1561
+#define SUBWIDGTY_COLOR_SHD     0x1562
+#define SUBWIDGTY_COLOR_BG      0x1563
+
+#define SUBWIDGTY_COLOR_OLINE   0x1564
+#define SUBWIDGTY_COLOR_FILL    0x1565
+
+#define SUBWIDGTY_BUTTON        0x1566
+#define SUBWIDGTY_COUNTERS      0x1567
+#define SUBWIDGTY_MINDIG        0x1568
+#define SUBWIDGTY_MAXDIG        0x1569
+#define SUBWIDGTY_INFITM        0x156A
+#define SUBWIDGTY_INFCHAR       0x156B
+#define SUBWIDGTY_COSTIND       0x156C
+
+#define SUBWIDGTY_COLOR_PLAYER  0x156D
+#define SUBWIDGTY_COLOR_CMPBLNK  0x156E
+#define SUBWIDGTY_COLOR_CMPOFF  0x156F
+#define SUBWIDGTY_COLOR_ROOM    0x1570
+#define SUBWIDGTY_ITEMCLASS     0x1571
+#define SUBWIDGTY_ITEMID        0x1572
+#define SUBWIDGTY_FRAMETILE     0x1573
+#define SUBWIDGTY_FRAMECSET     0x1574
+#define SUBWIDGTY_PIECETILE     0x1575
+#define SUBWIDGTY_PIECECSET     0x1576
+#define SUBWIDGTY_FLIP          0x1577
+#define SUBWIDGTY_NUMBER        0x1578
+#define SUBWIDGTY_CORNER        0x1579
+
+#define SUBWIDGTY_FRAMES        0x157A
+#define SUBWIDGTY_SPEED         0x157B
+#define SUBWIDGTY_DELAY         0x157C
+#define SUBWIDGTY_CONTAINER     0x157D
+#define SUBWIDGTY_GAUGE_WID     0x157E
+#define SUBWIDGTY_GAUGE_HEI     0x157F
+#define SUBWIDGTY_UNITS         0x1580
+#define SUBWIDGTY_HSPACE        0x1581
+#define SUBWIDGTY_VSPACE        0x1582
+#define SUBWIDGTY_GRIDX         0x1583
+#define SUBWIDGTY_GRIDY         0x1584
+#define SUBWIDGTY_ANIMVAL       0x1585
+#define SUBWIDGTY_SHOWDRAIN     0x1586
+#define SUBWIDGTY_PERCONTAINER  0x1587
+#define SUBWIDGTY_TABSIZE       0x1588
+
+#define GAMEASUBYOFF            0x1589
+
+#define SUBWIDGDISPITM          0x158A
+#define SUBWIDGEQPITM           0x158B
+
+#define NUMVARIABLES            0x158C
 
 //} End variables
 
@@ -5018,3 +5162,4 @@ int32_t combopos_ref_to_pos(int32_t combopos_ref);
 int32_t combopos_ref_to_layer(int32_t combopos_ref);
 
 #endif
+

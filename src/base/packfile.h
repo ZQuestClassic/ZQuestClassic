@@ -14,6 +14,8 @@
 extern int32_t readsize, writesize;
 extern bool fake_pack_writing;
 
+bool pfwrite(const char *p,int32_t n,PACKFILE *f);
+
 INLINE bool pfwrite(const void *p,int32_t n,PACKFILE *f)
 {
 	bool success=true;

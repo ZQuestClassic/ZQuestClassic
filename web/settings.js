@@ -28,7 +28,7 @@ export async function configureMount() {
     }
   }
 
-  // Mount the persisted files (zc.sav and zc.cfg live here).
+  // Mount the persisted files (saves folder and zc.cfg live here).
   FS.mkdirTree('/local');
   if (type === 'fs') {
     await setAttachedDir(attachedDirHandle);

@@ -189,6 +189,8 @@ DataTypeClassConst DataType::CBOTTLESHOP(ZCLID_BOTTLESHOP, "const bottleshopdata
 DataTypeClassConst DataType::CGENERICDATA(ZCLID_GENERICDATA, "const genericdata");
 DataTypeClassConst DataType::CPORTAL(ZCLID_PORTAL, "const portal");
 DataTypeClassConst DataType::CSAVEDPORTAL(ZCLID_SAVPORTAL, "const savedportal");
+DataTypeClassConst DataType::CSUBSCREENPAGE(ZCLID_SUBSCREENPAGE, "const SubscreenPage");
+DataTypeClassConst DataType::CSUBSCREENWIDGET(ZCLID_SUBSCREENWIDGET, "const SubscreenWidget");
 //Class: Var Types
 DataTypeClass DataType::BITMAP(ZCLID_BITMAP, "Bitmap", &CBITMAP);
 DataTypeClass DataType::CHEATS(ZCLID_CHEATS, "Cheats", &CCHEATS);
@@ -226,6 +228,8 @@ DataTypeClass DataType::BOTTLESHOP(ZCLID_BOTTLESHOP, "bottleshopdata", &CBOTTLES
 DataTypeClass DataType::GENERICDATA(ZCLID_GENERICDATA, "genericdata", &CGENERICDATA);
 DataTypeClass DataType::PORTAL(ZCLID_PORTAL, "portal", &CPORTAL);
 DataTypeClass DataType::SAVEDPORTAL(ZCLID_SAVPORTAL, "savedportal", &CSAVEDPORTAL);
+DataTypeClass DataType::SUBSCREENPAGE(ZCLID_SUBSCREENPAGE, "SubscreenPage", &CSUBSCREENPAGE);
+DataTypeClass DataType::SUBSCREENWIDGET(ZCLID_SUBSCREENWIDGET, "SubscreenWidget", &CSUBSCREENWIDGET);
 
 ////////////////////////////////////////////////////////////////
 // DataType
@@ -265,6 +269,8 @@ DataType const* DataType::get(DataTypeId id)
 		case ZTID_COMBOS: return &COMBOS;
 		case ZTID_SPRITEDATA: return &SPRITEDATA;
 		case ZTID_SUBSCREENDATA: return &SUBSCREENDATA;
+		case ZTID_SUBSCREENPAGE: return &SUBSCREENPAGE;
+		case ZTID_SUBSCREENWIDGET: return &SUBSCREENWIDGET;
 		case ZTID_FILE: return &FILE;
 		case ZTID_DIRECTORY: return &DIRECTORY;
 		case ZTID_STACK: return &STACK;
@@ -319,6 +325,8 @@ DataTypeClass const* DataType::getClass(int32_t classId)
 		case ZCLID_COMBOS: return &COMBOS;
 		case ZCLID_SPRITEDATA: return &SPRITEDATA;
 		case ZCLID_SUBSCREENDATA: return &SUBSCREENDATA;
+		case ZCLID_SUBSCREENPAGE: return &SUBSCREENPAGE;
+		case ZCLID_SUBSCREENWIDGET: return &SUBSCREENWIDGET;
 		case ZCLID_FILE: return &FILE;
 		case ZCLID_DIRECTORY: return &DIRECTORY;
 		case ZCLID_STACK: return &STACK;
@@ -461,7 +469,13 @@ DataType* DataTypeUnresolved::resolve(Scope& scope, CompileErrorHandler* errorHa
 {
 	if (DataType const* type = lookupDataType(scope, *iden, errorHandler))
 		return type->clone();
-	return NULL;
+	return this;
+}
+DataType const* DataTypeUnresolved::baseType(Scope& scope, CompileErrorHandler* errorHandler)
+{
+	if (DataType const* type = lookupDataType(scope, *iden, errorHandler))
+		return type;
+	return nullptr;
 }
  
 std::string DataTypeUnresolved::getName() const
@@ -522,6 +536,10 @@ bool DataTypeSimple::canBeGlobal() const
 	return true; //All types can be global, now. 
 	//return simpleId == ZTID_FLOAT || simpleId == ZTID_BOOL;
 }
+DataType const* DataTypeSimple::baseType(Scope& scope, CompileErrorHandler* errorHandler)
+{
+	return DataType::get(simpleId);
+}
 
 ////////////////////////////////////////////////////////////////
 // DataTypeSimpleConst
@@ -529,6 +547,11 @@ bool DataTypeSimple::canBeGlobal() const
 DataTypeSimpleConst::DataTypeSimpleConst(int32_t simpleId, string const& name)
 	: DataTypeSimple(simpleId, name, NULL)
 {}
+DataType const* DataTypeSimpleConst::baseType(Scope& scope, CompileErrorHandler* errorHandler)
+{
+	auto* ty = DataType::get(simpleId);
+	return ty ? ty->getConstType() : nullptr;
+}
 
 ////////////////////////////////////////////////////////////////
 // DataTypeClass
@@ -541,13 +564,17 @@ DataTypeClass::DataTypeClass(int32_t classId, string const& className, DataType*
 	: DataType(constType), classId(classId), className(className)
 {}
 
-DataTypeClass* DataTypeClass::resolve(Scope& scope, CompileErrorHandler* errorHandler)
+DataType* DataTypeClass::resolve(Scope& scope, CompileErrorHandler* errorHandler)
 {
 	// Grab the proper name for the class the first time it's resolved.
 	if (className == "")
 		className = scope.getTypeStore().getClass(classId)->name;
 
 	return this;
+}
+DataType const* DataTypeClass::baseType(Scope& scope, CompileErrorHandler* errorHandler)
+{
+	return DataType::getClass(classId);
 }
 
 string DataTypeClass::getName() const
@@ -588,6 +615,11 @@ int32_t DataTypeClass::selfCompare(DataType const& rhs) const
 DataTypeClassConst::DataTypeClassConst(int32_t classId, string const& name)
 	: DataTypeClass(classId, name, NULL)
 {}
+DataType const* DataTypeClassConst::baseType(Scope& scope, CompileErrorHandler* errorHandler)
+{
+	auto* ty = DataType::getClass(classId);
+	return ty ? ty->getConstType() : nullptr;
+}
 
 ////////////////////////////////////////////////////////////////
 // DataTypeArray
@@ -616,6 +648,11 @@ DataType const& ZScript::getBaseType(DataType const& type)
 	while (DataTypeArray const* t = dynamic_cast<DataTypeArray const*>(current))
 		current = &t->getElementType();
 	return *current;
+}
+DataType const* DataTypeArray::baseType(Scope& scope, CompileErrorHandler* errorHandler)
+{
+	auto& ty = getBaseType(elementType);
+	return &ty;
 }
 
 ////////////////////////////////////////////////////////////////
@@ -661,6 +698,16 @@ int32_t DataTypeCustom::selfCompare(DataType const& other) const
 	return id - o.id;
 }
 
+DataType const* DataTypeCustom::baseType(Scope& scope, CompileErrorHandler* errorHandler)
+{
+	return DataType::getCustom(id);
+}
+
+DataType const* DataTypeCustomConst::baseType(Scope& scope, CompileErrorHandler* errorHandler)
+{
+	auto* ty = DataType::getCustom(id);
+	return ty ? ty->getConstType() : nullptr;
+}
 ////////////////////////////////////////////////////////////////
 // Script Types
 
@@ -686,7 +733,7 @@ namespace // file local
 		{"itemsprite", ZTID_ITEM},
 		{"untyped", ZTID_VOID},
 		{"combodata", ZTID_COMBOS},
-		{"subscreendata", ZTID_VOID},
+		{"subscreendata", ZTID_SUBSCREENDATA},
 		{"generic",ZTID_GENERICDATA},
 	};
 }

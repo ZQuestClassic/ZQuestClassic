@@ -1,16 +1,3 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  guys.cc
-//
-//  "Guys" code (and other related stuff) for zelda.cc
-//
-//  Still has some hardcoded stuff that should be moved
-//  out into defdata.cc for customizing the enemies.
-//
-//--------------------------------------------------------
-
 #ifndef _GUYS_H_
 #define _GUYS_H_
 

@@ -1,14 +1,4 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  zq_files.cc
-//
-//  File support for ZQuest.
-//
-//--------------------------------------------------------
-
-#include <string.h>
+#include <cstring>
 #include <stdio.h>
 
 #include "base/qrs.h"
@@ -141,7 +131,7 @@ void edit_qt(int32_t index)
         
         large_dialog(editqt_dlg);
             
-        ret=zc_popup_dialog(editqt_dlg,6);
+        ret=do_zqdialog(editqt_dlg,6);
         
         switch(ret)
         {
@@ -266,7 +256,7 @@ int32_t ListQTs(bool edit)
         qtlist_dlg[7].x=int32_t(qtlist_dlg[0].x+(edit?190:160)*1.5);
         qtlist_dlg[8].proc=edit?d_keyboard_proc:d_dummy_proc;
         
-        int32_t ret=zc_popup_dialog(qtlist_dlg,2);
+        int32_t ret=do_zqdialog(qtlist_dlg,2);
         
         index=qtlist_dlg[2].d1;
         
@@ -751,7 +741,7 @@ int32_t onSave()
     
 	if(zc_get_config("zquest","quick_compile_on_save",0))
 	{
-		if(!do_compile_and_slots(true,false))
+		if(!do_compile_and_slots(1,false))
 		{
 			InfoDialog("ZQuest","Failed compile on save! Saving quest anyway...").show();
 		}
@@ -823,7 +813,7 @@ int32_t onSaveAs()
 	
 	if(zc_get_config("zquest","quick_compile_on_save",0))
 	{
-		if(!do_compile_and_slots(true,false))
+		if(!do_compile_and_slots(1,false))
 		{
 			InfoDialog("ZQuest","Failed compile on save! Saving quest anyway...").show();
 		}
@@ -1009,7 +999,7 @@ int32_t get_import_map_bias()
     
     large_dialog(import_map_bias_dlg);
         
-    if(zc_popup_dialog(import_map_bias_dlg,2)==2)
+    if(do_zqdialog(import_map_bias_dlg,2)==2)
     {
         for(int32_t i=0; i<3; i++)
         {
@@ -2739,4 +2729,3 @@ void center_zq_files_dialogs()
     jwin_center_dialog(import_map_bias_dlg);
     jwin_center_dialog(qtlist_dlg);
 }
-

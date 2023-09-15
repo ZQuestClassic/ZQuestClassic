@@ -1,15 +1,3 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  hero.cpp
-//
-//  Hero's class: HeroClass
-//  Handles a lot of game play stuff as well as Hero's
-//  movement, attacking, etc.
-//
-//--------------------------------------------------------
-
 #ifndef _HERO_H_
 #define _HERO_H_
 
@@ -21,7 +9,6 @@
 #include "tiles.h"
 #include "base/colors.h"
 #include "pal.h"
-#include "zc/aglogo.h"
 #include "base/zsys.h"
 #include "qst.h"
 #include "zc/matrix.h"
@@ -429,7 +416,6 @@ public:
 	bool handle_portal_collide(portal* p);
 	void handle_portal_prox(portal* p);
 private:
-	void handleBeam(byte* grid, size_t age, byte spotdir, int32_t curpos, byte set, bool block, bool refl);
 	void handleSpotlights();
 	void walkdown(bool opening);
 	void walkup(bool opening);

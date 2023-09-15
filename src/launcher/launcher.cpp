@@ -89,7 +89,7 @@ int32_t main(int32_t argc, char* argv[])
 	{
 		std::string output;
 		bool success = run_and_get_output(ZUPDATER_FILE, {"-headless", "-cache"}, output);
-		success &= output.find("success!") != std::string::npos;
+		success &= output.find("Success!") != std::string::npos;
 		printf("%s\n", output.c_str());
 		exit(success ? 0 : 1);
 	}

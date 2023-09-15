@@ -45,7 +45,7 @@ jobs:
   build:
     # See https://github.com/community/community/discussions/40777
     # uses: ./.github/workflows/build.yml
-    uses: ArmageddonGames/ZQuestClassic/.github/workflows/build.yml@main
+    uses: ZQuestClassic/ZQuestClassic/.github/workflows/build.yml@main
     with:
       runs-on: ${{ inputs.runs-on }}
       arch: ${{ inputs.arch }}
@@ -141,7 +141,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ github.workspace }}/.tmp/test_updater/cache
-          key: updater-cache-${{ runner.runs-on }}-${{ runner.arch }}
+          key: updater-cache-${{ inputs.runs-on }}-${{ runner.arch }}
 
       - if: ${{ matrix.shard_index == 1 && inputs.extra-args == '' && inputs.config != 'Coverage' }}
         name: Run Python tests

@@ -30,7 +30,9 @@ jobs:
           - runs-on: windows-2022
             arch: x64
             compiler: msvc
-            config: RelWithDebInfo
+            # RelWithDebInfo invalidates ccache, and we currently can't show backtraces on crash for windows in CI
+            # so no need for it yet.
+            config: Release
           - runs-on: windows-2022
             arch: win32
             compiler: msvc
@@ -48,7 +50,7 @@ jobs:
       fail-fast: false
     # See https://github.com/community/community/discussions/40777
     # uses: ./.github/workflows/test.yml
-    uses: ArmageddonGames/ZQuestClassic/.github/workflows/test.yml@main
+    uses: ZQuestClassic/ZQuestClassic/.github/workflows/test.yml@main
     with:
       runs-on: ${{ matrix.runs-on }}
       arch: ${{ matrix.arch }}
@@ -132,10 +134,12 @@ jobs:
     steps:
       - name: git clone
         uses: nschloe/action-cached-lfs-checkout@d6efedcb8fc03d006e1e77743718e26234ed2c97
+        with:
+          fetch-depth: 0
 
       - uses: mymindstorm/setup-emsdk@v12
         with:
-          version: "3.1.32"
+          version: "3.1.45"
           actions-cache-folder: "emsdk-cache-${{ runner.os }}-${{ runner.arch }}"
 
       - name: Install Node.js 18.x
@@ -144,7 +148,7 @@ jobs:
           node-version: 18.x
       # puppeteer caches Chrome in ~/.ccache/puppeteer, but only on npm install. Which means
       # restored caches from actions/setup-node will never install Chrome.
-      - run: npm rm puppeteer && npm add puppeteer@20.5.0
+      - run: npm rm puppeteer && npm add puppeteer@21.1.1
 
       - run: sudo apt-get update && sudo apt-get install ccache ninja-build flex bison
 

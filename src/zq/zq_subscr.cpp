@@ -1,13 +1,3 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  subscr.cc
-//
-//  Subscreen code for zelda.cc
-//
-//--------------------------------------------------------
-
 #include "base/qrs.h"
 #include "base/dmap.h"
 #include "base/gui.h"
@@ -26,11 +16,12 @@
 #include "dialog/alert.h"
 #include "dialog/subscr_props.h"
 #include "dialog/info_lister.h"
+#include "zinfo.h"
 
 #ifndef _MSC_VER
 #include <strings.h>
 #endif
-#include <string.h>
+#include <cstring>
 
 #ifdef _MSC_VER
 #define stricmp _stricmp
@@ -109,18 +100,20 @@ static int32_t onSetSubscrDmap();
 void subscr_properties(int indx)
 {
 	SubscrPage& pg = subscr_edit.cur_page();
-	if(unsigned(indx) < pg.contents.size())
+	if(unsigned(indx) < pg.size())
 	{
-		SubscrWidget* widg = pg.contents[indx];
+		SubscrWidget* widg = pg[indx];
 		if(sso_properties(widg,indx)!=-1)
 		{
-			for(int32_t i=0; i<pg.contents.size(); i++)
+			for(int32_t i=0; i<pg.size(); i++)
 			{
 				if(!sso_selection[i] || i==indx)
 					continue;
 				
-				pg.contents[i]->copy_prop(widg);
+				pg[i]->copy_prop(widg);
 			}
+			update_sso_name();
+			update_up_dn_btns();
 		}
 	}
 }
@@ -128,9 +121,9 @@ void subscr_properties(int indx)
 void copy_properties(int indx)
 {
 	SubscrPage& pg = subscr_edit.cur_page();
-	if(unsigned(indx) < pg.contents.size())
+	if(unsigned(indx) < pg.size())
 	{
-		SubscrWidget* widg = pg.contents[indx];
+		SubscrWidget* widg = pg[indx];
 		if(subscr_copied_widget)
 			delete subscr_copied_widget;
 		if(widg)
@@ -152,10 +145,10 @@ void paste_properties(int indx)
 	if(subscr_copied_widget) // Hopefully unnecessary
 	{
 		SubscrPage& pg = subscr_edit.cur_page();
-		for(int32_t i=0; i<pg.contents.size(); i++)
+		for(int32_t i=0; i<pg.size(); i++)
 		{
 			if(i == indx || sso_selection[i])
-				pg.contents[i]->copy_prop(subscr_copied_widget);
+				pg[i]->copy_prop(subscr_copied_widget);
 		}
 	}
 }
@@ -163,7 +156,7 @@ void paste_widget_to(int indx)
 {
 	if(subscr_copied_widget)
 	{
-		SubscrWidget* targ = subscr_edit.cur_page().contents[indx];
+		SubscrWidget* targ = subscr_edit.cur_page()[indx];
 		auto tx = targ->x, ty = targ->y;
 		targ->copy_prop(subscr_copied_widget,true);
 		targ->x = tx; targ->y = ty;
@@ -182,7 +175,7 @@ SubscrWidget* paste_widget_new()
 		widg->x+=zc_max(zinit.ss_grid_x,8);
 		widg->y+=zc_max(zinit.ss_grid_y,8);
 	}
-	pg.contents.push_back(widg);
+	pg.push_back(widg);
     
     update_sso_name();
     update_up_dn_btns();
@@ -216,7 +209,7 @@ int32_t onNewWidget()
 int32_t onDuplicateWidget()
 {
 	SubscrPage& pg = subscr_edit.cur_page();
-    size_t objs = pg.contents.size();
+    size_t objs = pg.size();
     
     if(objs==0 || (key_shifts&KB_SHIFT_FLAG))
 		return onDuplCopiedWidget();
@@ -225,12 +218,12 @@ int32_t onDuplicateWidget()
     {
         if(sso_selection[i] || i==curr_widg)
         {
-			SubscrWidget* widg = pg.contents[i]->clone();
+			SubscrWidget* widg = pg[i]->clone();
 			if(!widg) continue;
 			
             widg->x+=zc_max(zinit.ss_grid_x,8);
             widg->y+=zc_max(zinit.ss_grid_y,8);
-			pg.contents.push_back(widg);
+			pg.push_back(widg);
         }
     }
     
@@ -252,7 +245,7 @@ int32_t onSubscrCopy()
 }
 int32_t onSubscrPaste()
 {
-	if(subscr_edit.cur_page().contents.empty())
+	if(subscr_edit.cur_page().empty())
 		return onDuplCopiedWidget();
 	if(key_shifts & KB_CTRL_FLAG)
 		paste_widget_to(curr_widg);
@@ -275,7 +268,7 @@ int32_t onNewSubscreenObject();
 bool delete_widget()
 {
 	SubscrPage& pg = subscr_edit.cur_page();
-    size_t objs=pg.contents.size();
+    size_t objs=pg.size();
     
     if(objs==0)
         return false;
@@ -301,7 +294,7 @@ bool delete_widget()
 int32_t onDeleteWidgetC()
 {
 	SubscrPage& pg = subscr_edit.cur_page();
-    size_t objs=pg.contents.size();
+    size_t objs=pg.size();
     
     if(objs==0)
         return D_O_K;
@@ -353,7 +346,7 @@ int32_t onRemoveFromSelection()
 
 int32_t onInvertSelection()
 {
-    for(int32_t i=0; i<subscr_edit.cur_page().contents.size(); ++i)
+    for(int32_t i=0; i<subscr_edit.cur_page().size(); ++i)
     {
         sso_selection[i]=!sso_selection[i];
     }
@@ -447,7 +440,7 @@ static MENU subscreen_rc_menu[] =
     { (char *)"",                       NULL,                  NULL, 0, NULL },
     { (char *)"&Copy/Paste   ",         NULL,     ss_copypaste_menu, 0, NULL },
     { (char *)"",                       NULL,                  NULL, 0, NULL },
-    { (char *)"&Arrange ",              NULL,       ss_arrange_menu, 0, NULL },
+    { (char *)"A&rrange ",              NULL,       ss_arrange_menu, 0, NULL },
 	{ (char *)"&Align ",                NULL,         ss_align_menu, 0, NULL },
 	{ (char *)"&Distribute ",           NULL,    ss_distribute_menu, 0, NULL },
     { NULL,                             NULL,                  NULL, 0, NULL }
@@ -503,17 +496,17 @@ int32_t d_subscreen_proc(int32_t msg,DIALOG *d,int32_t)
 				show_custom_subscreen(buf, subs, 0, 0, true, sspUP | sspDOWN | sspSCROLLING);
 				
 				SubscrPage& pg = subs->cur_page();
-				int cur_object = (unsigned(clicked_obj)<pg.contents.size())
+				int cur_object = (unsigned(clicked_obj)<pg.size())
 					? clicked_obj
 					: curr_widg;
-				for(int32_t i=0; i<pg.contents.size(); ++i)
+				for(int32_t i=0; i<pg.size(); ++i)
 				{
 					if(sso_selection[i] || i == cur_object)
 					{
 						auto c = i != cur_object
 							? vc(zinit.ss_bbox_2_color)
 							: vc(zinit.ss_bbox_1_color);
-						sso_bounding_box(buf, pg.contents[i], c);
+						sso_bounding_box(buf, pg[i], c);
 					}
 				}
 				
@@ -556,9 +549,9 @@ int32_t d_subscreen_proc(int32_t msg,DIALOG *d,int32_t)
 			if(msg==MSG_CLICK)
 			{
 				SubscrPage& pg = subscr_edit.cur_page();
-				for(int32_t i=pg.contents.size()-1; i>=0; --i)
+				for(int32_t i=pg.size()-1; i>=0; --i)
 				{
-					SubscrWidget* widg = pg.contents[i];
+					SubscrWidget* widg = pg[i];
 					int32_t x=(widg->getX()+widg->getXOffs())*2;
 					int32_t y=widg->getY()*2;
 					int32_t w=widg->getW()*2;
@@ -602,22 +595,22 @@ int32_t d_subscreen_proc(int32_t msg,DIALOG *d,int32_t)
 			{
 				case MSG_CLICK:
 				{
-					if(clicked_obj >= pg.contents.size())
+					if(clicked_obj >= pg.size())
 						clicked_obj = -1;
 					if(shift) ssmouse_flags &= ~ssmflDRAG;
 					if(ssmouse_flags&ssmflDRAG)
 					{
 						if(clicked_obj > -1)
 						{
-							SubscrWidget* widg = pg.contents[clicked_obj];
+							SubscrWidget* widg = pg[clicked_obj];
 							int diffx = (scaled_mouse_x + dragx) - widg->x;
 							int diffy = (scaled_mouse_y + dragy) - widg->y;
 							widg->x += diffx;
 							widg->y += diffy;
-							for(int32_t i=pg.contents.size()-1; i>=0; --i)
+							for(int32_t i=pg.size()-1; i>=0; --i)
 							{
 								if(i==clicked_obj) continue;
-								SubscrWidget* widg = pg.contents[i];
+								SubscrWidget* widg = pg[i];
 								if(sso_selection[i])
 								{
 									widg->x += diffx;
@@ -628,9 +621,9 @@ int32_t d_subscreen_proc(int32_t msg,DIALOG *d,int32_t)
 					}
 					else //Select hovered object
 					{
-						for(int32_t i=pg.contents.size()-1; i>=0; --i)
+						for(int32_t i=pg.size()-1; i>=0; --i)
 						{
-							SubscrWidget* widg = pg.contents[i];
+							SubscrWidget* widg = pg[i];
 							int32_t x=widg->getX()+widg->getXOffs();
 							int32_t y=widg->getY();
 							int32_t w=widg->getW();
@@ -682,7 +675,7 @@ int32_t d_subscreen_proc(int32_t msg,DIALOG *d,int32_t)
 						else if(clicked_obj > -1 && (gui_mouse_b()&1))
 						{
 							ssmouse_flags |= ssmflDRAG;
-							SubscrWidget* widg = pg.contents[clicked_obj];
+							SubscrWidget* widg = pg[clicked_obj];
 							dragx = widg->x - scaled_mouse_x;
 							dragy = widg->y - scaled_mouse_y;
 						}
@@ -713,7 +706,7 @@ int32_t d_subscreen_proc(int32_t msg,DIALOG *d,int32_t)
 	{
 		int xy[2] = {scaled_mouse_x,scaled_mouse_y};
 		force_paste_xy = xy;
-		if(unsigned(rclickobj) < pg.contents.size())
+		if(unsigned(rclickobj) < pg.size())
 		{
 			curr_widg = rclickobj;
 			object_message(d,MSG_DRAW,0);
@@ -758,17 +751,17 @@ int32_t onSSUp()
 	int32_t delta=(key[KEY_LSHIFT]||key[KEY_RSHIFT])?-zinit.ss_grid_y:-1;
 	
 	SubscrPage& pg = subscr_edit.cur_page();
-	for(int32_t i=0; i<pg.contents.size(); ++i)
+	for(int32_t i=0; i<pg.size(); ++i)
 	{
 		if(sso_selection[i] || i==curr_widg)
 		{
 			if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
 			{
-				pg.contents[i]->h+=delta;
+				pg[i]->h+=delta;
 			}
 			else
 			{
-				pg.contents[i]->y+=delta;
+				pg[i]->y+=delta;
 			}
 		}
 	}
@@ -781,17 +774,17 @@ int32_t onSSDown()
 	int32_t delta=(key[KEY_LSHIFT]||key[KEY_RSHIFT])?zinit.ss_grid_y:1;
 	
 	SubscrPage& pg = subscr_edit.cur_page();
-	for(int32_t i=0; i<pg.contents.size(); ++i)
+	for(int32_t i=0; i<pg.size(); ++i)
 	{
 		if(sso_selection[i] || i==curr_widg)
 		{
 			if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
 			{
-				pg.contents[i]->h+=delta;
+				pg[i]->h+=delta;
 			}
 			else
 			{
-				pg.contents[i]->y+=delta;
+				pg[i]->y+=delta;
 			}
 		}
 	}
@@ -804,17 +797,17 @@ int32_t onSSLeft()
 	int32_t delta=(key[KEY_LSHIFT]||key[KEY_RSHIFT])?-zinit.ss_grid_x:-1;
 	
 	SubscrPage& pg = subscr_edit.cur_page();
-	for(int32_t i=0; i<pg.contents.size(); ++i)
+	for(int32_t i=0; i<pg.size(); ++i)
 	{
 		if(sso_selection[i] || i==curr_widg)
 		{
 			if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
 			{
-				pg.contents[i]->w+=delta;
+				pg[i]->w+=delta;
 			}
 			else
 			{
-				pg.contents[i]->x+=delta;
+				pg[i]->x+=delta;
 			}
 		}
 	}
@@ -827,17 +820,17 @@ int32_t onSSRight()
 	int32_t delta=(key[KEY_LSHIFT]||key[KEY_RSHIFT])?zinit.ss_grid_x:1;
 	
 	SubscrPage& pg = subscr_edit.cur_page();
-	for(int32_t i=0; i<pg.contents.size(); ++i)
+	for(int32_t i=0; i<pg.size(); ++i)
 	{
 		if(sso_selection[i] || i==curr_widg)
 		{
 			if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
 			{
-				pg.contents[i]->w+=delta;
+				pg[i]->w+=delta;
 			}
 			else
 			{
-				pg.contents[i]->x+=delta;
+				pg[i]->x+=delta;
 			}
 		}
 	}
@@ -917,11 +910,11 @@ int32_t d_ssup_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
 		{
 			jwin_iconbutton_proc(msg, d, c);
 			SubscrPage& pg = subscr_edit.cur_page();
-			for(int32_t i=0; i<pg.contents.size(); ++i)
+			for(int32_t i=0; i<pg.size(); ++i)
 			{
 				if(sso_selection[i] || i==curr_widg)
 				{
-					--pg.contents[i]->h;
+					--pg[i]->h;
 				}
 			}
 			return D_O_K;
@@ -940,11 +933,11 @@ int32_t d_ssdn_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
 		{
 			jwin_iconbutton_proc(msg, d, c);
 			SubscrPage& pg = subscr_edit.cur_page();
-			for(int32_t i=0; i<pg.contents.size(); ++i)
+			for(int32_t i=0; i<pg.size(); ++i)
 			{
 				if(sso_selection[i] || i==curr_widg)
 				{
-					++pg.contents[i]->h;
+					++pg[i]->h;
 				}
 			}
 			return D_O_K;
@@ -963,11 +956,11 @@ int32_t d_sslt_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
 		{
 			jwin_iconbutton_proc(msg, d, c);
 			SubscrPage& pg = subscr_edit.cur_page();
-			for(int32_t i=0; i<pg.contents.size(); ++i)
+			for(int32_t i=0; i<pg.size(); ++i)
 			{
 				if(sso_selection[i] || i==curr_widg)
 				{
-					--pg.contents[i]->w;
+					--pg[i]->w;
 				}
 			}
 			return D_O_K;
@@ -986,11 +979,11 @@ int32_t d_ssrt_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
 		{
 			jwin_iconbutton_proc(msg, d, c);
 			SubscrPage& pg = subscr_edit.cur_page();
-			for(int32_t i=0; i<pg.contents.size(); ++i)
+			for(int32_t i=0; i<pg.size(); ++i)
 			{
 				if(sso_selection[i] || i==curr_widg)
 				{
-					++pg.contents[i]->w;
+					++pg[i]->w;
 				}
 			}
 			return D_O_K;
@@ -1392,12 +1385,12 @@ SubscrWidget* create_new_widget_of(int32_t type, int x, int y)
 	widg->h=1;
 	
 	int32_t temp_cso=curr_widg;
-	curr_widg=subscr_edit.cur_page().contents.size();
+	curr_widg=subscr_edit.cur_page().size();
 	
 	SubscrPage& pg = subscr_edit.cur_page();
-	if(sso_properties(widg,pg.contents.size())!=-1)
+	if(sso_properties(widg,pg.size())!=-1)
 	{
-		pg.contents.push_back(widg);
+		pg.push_back(widg);
 		update_sso_name();
 		update_up_dn_btns();
 		return widg;
@@ -1443,11 +1436,11 @@ void align_objects(bool *selection, int32_t align_type)
 	int32_t c=l+w/2;
 	int32_t m=t+h/2;
 	
-	for(int32_t i=0; i<pg.contents.size(); ++i)
+	for(int32_t i=0; i<pg.size(); ++i)
 	{
 		if(selection[i]&&i!=curr_widg)
 		{
-			SubscrWidget& widg = *pg.contents[i];
+			SubscrWidget& widg = *pg[i];
 			int32_t tl=widg.getX()+widg.getXOffs();
 			int32_t tt=widg.getY();
 			int32_t tw=widg.getW();
@@ -1492,11 +1485,11 @@ void align_objects(bool *selection, int32_t align_type)
 void grid_snap_objects(bool *selection, int32_t snap_type)
 {
 	auto& pg = subscr_edit.cur_page();
-	for(int32_t i=0; i < pg.contents.size(); ++i)
+	for(int32_t i=0; i < pg.size(); ++i)
 	{
 		if(selection[i]||i==curr_widg)
 		{
-			SubscrWidget& widg = *pg.contents[i];
+			SubscrWidget& widg = *pg[i];
 			int32_t tl=widg.getX()+widg.getXOffs();
 			int32_t tt=widg.getY();
 			int32_t tw=widg.getW();
@@ -1570,11 +1563,11 @@ void distribute_objects(bool *, int32_t distribute_type)
 	dist_obj temp_do[MAXSUBSCREENITEMS];
 	
 	auto& pg = subscr_edit.cur_page();
-	for(int32_t i=0; i < pg.contents.size(); ++i)
+	for(int32_t i=0; i < pg.size(); ++i)
 	{
 		if(sso_selection[i]==true||i==curr_widg)
 		{
-			SubscrWidget& widg = *pg.contents[i];
+			SubscrWidget& widg = *pg[i];
 			temp_do[count].index=i;
 			temp_do[count].l=widg.getX()+widg.getXOffs();
 			temp_do[count].t=widg.getY();
@@ -1676,9 +1669,9 @@ void distribute_objects(bool *, int32_t distribute_type)
 	
 	for(int32_t i=1; i<count-1; ++i)
 	{
-		if(unsigned(temp_do[i].index) >= pg.contents.size())
+		if(unsigned(temp_do[i].index) >= pg.size())
 			continue;
-		SubscrWidget& widg = *pg.contents[temp_do[i].index];
+		SubscrWidget& widg = *pg[temp_do[i].index];
 		switch(distribute_type)
 		{
 		case ssodBOTTOM:
@@ -1714,14 +1707,14 @@ int32_t onReverseArrangement()
 {
 	auto& pg = subscr_edit.cur_page();
 	int32_t i=0;
-	int32_t j=pg.contents.size()-1;
+	int32_t j=pg.size()-1;
 	subscreen_object tempsso;
 	
 	sso_selection[curr_widg]=true;
 	
 	while(true)
 	{
-		while(i<pg.contents.size() && !sso_selection[i])
+		while(i<pg.size() && !sso_selection[i])
 			i++;
 			
 		while(j>=0 && !sso_selection[j])
@@ -1738,7 +1731,7 @@ int32_t onReverseArrangement()
 		else if(curr_widg==j)
 			curr_widg=i;
 		
-		zc_swap(pg.contents[i],pg.contents[j]);
+		pg.swap_widg(i,j);
 		
 		i++;
 		j--;
@@ -1870,14 +1863,14 @@ static int32_t onToggleShowUnowned()
 static int32_t onToggleMaxCtr()
 {
 	zq_view_fullctr = !zq_view_fullctr;
-	SETFLAG(ss_view_menu[6].flags, D_SELECTED, zq_view_fullctr);
+	SETFLAG(ss_view_menu[5].flags, D_SELECTED, zq_view_fullctr);
 	zc_set_config("editsubscr","show_full_counters",zq_view_fullctr?1:0);
 	return D_O_K;
 }
 static int32_t onToggleMaxMaxCtr()
 {
 	zq_view_maxctr = !zq_view_maxctr;
-	SETFLAG(ss_view_menu[7].flags, D_SELECTED, zq_view_maxctr);
+	SETFLAG(ss_view_menu[6].flags, D_SELECTED, zq_view_maxctr);
 	zc_set_config("editsubscr","show_maxed_maxcounters",zq_view_maxctr?1:0);
 	return D_O_K;
 }
@@ -1886,7 +1879,7 @@ static int32_t onToggleNoInf()
 	if(zq_view_allinf)
 		onToggleAllInf();
 	zq_view_noinf = !zq_view_noinf;
-	SETFLAG(ss_view_menu[8].flags, D_SELECTED, zq_view_noinf);
+	SETFLAG(ss_view_menu[7].flags, D_SELECTED, zq_view_noinf);
 	zc_set_config("editsubscr","show_no_infinites",zq_view_noinf?1:0);
 	return D_O_K;
 }
@@ -1895,7 +1888,7 @@ static int32_t onToggleAllInf()
 	if(zq_view_noinf)
 		onToggleNoInf();
 	zq_view_allinf = !zq_view_allinf;
-	SETFLAG(ss_view_menu[9].flags, D_SELECTED, zq_view_allinf);
+	SETFLAG(ss_view_menu[8].flags, D_SELECTED, zq_view_allinf);
 	zc_set_config("editsubscr","show_all_infinites",zq_view_allinf?1:0);
 	return D_O_K;
 }
@@ -1931,7 +1924,7 @@ static int32_t onEditGrid()
 	
 	large_dialog(grid_dlg);
 		
-	int32_t ret = zc_popup_dialog(grid_dlg,2);
+	int32_t ret = do_zqdialog(grid_dlg,2);
 	
 	if(ret==1)
 	{
@@ -1962,7 +1955,7 @@ int32_t onSelectionOptions()
 	
 	large_dialog(sel_options_dlg);
 		
-	int32_t ret = zc_popup_dialog(sel_options_dlg,2);
+	int32_t ret = do_zqdialog(sel_options_dlg,2);
 	
 	if(ret==1)
 	{
@@ -1985,7 +1978,7 @@ void update_up_dn_btns()
 		subscreen_dlg[11].flags&=~D_DISABLED;
 	}
 	
-	if(curr_widg>=subscr_edit.cur_page().contents.size()-1)
+	if(curr_widg>=subscr_edit.cur_page().size()-1)
 	{
 		subscreen_dlg[10].flags|=D_DISABLED;
 	}
@@ -2011,7 +2004,7 @@ int32_t onSSCtrlPgDn()
 static bool send_backwd()
 {
 	auto& pg = subscr_edit.cur_page();
-	if(curr_widg > 0 && curr_widg < pg.contents.size())
+	if(curr_widg > 0 && curr_widg < pg.size())
 	{
 		pg.swap_widg(curr_widg,curr_widg-1);
 		zc_swap(sso_selection[curr_widg],sso_selection[curr_widg-1]);
@@ -2023,7 +2016,7 @@ static bool send_backwd()
 static bool send_fwd()
 {
 	auto& pg = subscr_edit.cur_page();
-	if(curr_widg<subscr_edit.cur_page().contents.size()-1)
+	if(curr_widg<subscr_edit.cur_page().size()-1)
 	{
 		pg.swap_widg(curr_widg,curr_widg+1);
 		zc_swap(sso_selection[curr_widg],sso_selection[curr_widg+1]);
@@ -2082,7 +2075,7 @@ int32_t onSSPgDn()
 		
 		if(curr_widg<0)
 		{
-			curr_widg=subscr_edit.cur_page().contents.size()-1;
+			curr_widg=subscr_edit.cur_page().size()-1;
 		}
 		
 		update_sso_name();
@@ -2100,11 +2093,11 @@ int32_t onSSPgUp()
 	}
 	else
 	{
-		if(!subscr_edit.cur_page().contents.empty())
+		if(!subscr_edit.cur_page().empty())
 		{
 			++curr_widg;
 			
-			if(curr_widg>=subscr_edit.cur_page().contents.size())
+			if(curr_widg>=subscr_edit.cur_page().size())
 			{
 				curr_widg=0;
 			}
@@ -2205,7 +2198,7 @@ void update_subscr_dlg(bool start)
 			subscr_edit.pages.emplace_back();
 		if(subscr_edit.pages.size() <= subscr_edit.curpage)
 			subscr_edit.curpage = 0;
-		if(subscr_edit.pages[subscr_edit.curpage].contents.empty())
+		if(subscr_edit.cur_page().empty())
 		{
 			curr_widg=-1;
 		}
@@ -2390,7 +2383,7 @@ void broadcast_dialog_message(DIALOG* dialog, int32_t msg, int32_t c);
 bool edit_subscreen()
 {
 	bool b = zq_ignore_item_ownership;
-	zq_ignore_item_ownership = zc_get_config("editsubscr","show_all_items_edit_subscr",1);
+	zq_ignore_item_ownership = zc_get_config("editsubscr","show_all_items",1);
 	zq_view_fullctr = zc_get_config("editsubscr","show_full_counters",0);
 	zq_view_maxctr = zc_get_config("editsubscr","show_maxed_maxcounters",0);
 	zq_view_noinf = zc_get_config("editsubscr","show_no_infinites",0);
@@ -2401,14 +2394,14 @@ bool edit_subscreen()
 	resetItems(game,&zinit,true);
 	
 	SETFLAG(ss_view_menu[4].flags, D_SELECTED, zq_ignore_item_ownership);
-	SETFLAG(ss_view_menu[6].flags, D_SELECTED, zq_view_fullctr);
-	SETFLAG(ss_view_menu[7].flags, D_SELECTED, zq_view_maxctr);
-	SETFLAG(ss_view_menu[8].flags, D_SELECTED, zq_view_noinf);
-	SETFLAG(ss_view_menu[9].flags, D_SELECTED, zq_view_allinf);
+	SETFLAG(ss_view_menu[5].flags, D_SELECTED, zq_view_fullctr);
+	SETFLAG(ss_view_menu[6].flags, D_SELECTED, zq_view_maxctr);
+	SETFLAG(ss_view_menu[7].flags, D_SELECTED, zq_view_noinf);
+	SETFLAG(ss_view_menu[8].flags, D_SELECTED, zq_view_allinf);
 	SETFLAG(ss_settings_menu[3].flags, D_SELECTED, subscr_confirm_delete);
 	
 	update_subscr_dlg(true);
-	int dlg_ret = do_zqdialog_custom(subscreen_dlg,2,[&](int ret)
+	int dlg_ret = do_zqdialog_custom(subscreen_dlg,2,true,[&](int ret)
 		{
 			switch(ret)
 			{
@@ -2434,7 +2427,7 @@ bool edit_subscreen()
 					break;
 				case 49: // Del Page
 				{
-					auto count = subscr_edit.cur_page().contents.size();
+					auto count = subscr_edit.cur_page().size();
 					bool del = !count;
 					if(!del)
 					{
@@ -2469,7 +2462,22 @@ bool edit_subscreen()
 					break;
 			}
 			if(ret < 3)
-				return true;
+			{
+				bool exit = true;
+				if(ret != 1)
+				{
+					exit = false;
+					AlertDialog("Exit without saving?",
+							"Are you sure you want exit without saving your changes to this subscreen?",
+							[&exit](bool ret,bool)
+							{
+								if(ret)
+									exit = true;
+							}).show();
+				}
+				if(exit)
+					return true;
+			}
 			update_subscr_dlg(false);
 			return false;
 		});
@@ -2633,7 +2641,7 @@ void do_edit_subscr(size_t ind, byte ty)
 	{
 		large_dialog(sstemplatelist_dlg);
 			
-		auto ret=zc_popup_dialog(sstemplatelist_dlg,4);
+		auto ret=do_zqdialog(sstemplatelist_dlg,4);
 		
 		if(ret==6)
 		{
@@ -2717,13 +2725,37 @@ void do_edit_subscr(size_t ind, byte ty)
 void update_sso_name()
 {
 	auto* w = subscr_edit.cur_page().get_widget(curr_widg);
+	std::string onamestr;
 	if(w)
-		sprintf(str_oname, "%3d:  %s", curr_widg, w->getTypeName().c_str());
+	{
+		if(w->genflags & SUBSCRFLAG_SELECTABLE)
+		{
+			onamestr = fmt::format("{:3}:  {}  [ {}: {} {} {} {} ]",
+				curr_widg, w->getTypeName().c_str(), w->pos,
+				w->pos_up, w->pos_down, w->pos_left, w->pos_right);
+		}
+		else
+		{
+			onamestr = fmt::format("{:3}:  {}", curr_widg, w->getTypeName().c_str());
+		}
+		
+		if(w->getType() == widgITEMSLOT)
+		{
+			SW_ItemSlot* widg = static_cast<SW_ItemSlot*>(w);
+			if(widg->iid > -1)
+			{
+				itemdata const& itm = itemsbuf[widg->iid];
+				onamestr = fmt::format("{} (Item: {})", onamestr, itm.get_name(true,itm.family==itype_arrow));
+			}
+			else onamestr = fmt::format("{} (Class: {})", onamestr, ZI.getItemClassName(widg->iclass));
+		}
+	}
 	else
 	{
 		curr_widg = -1;
-		sprintf(str_oname, "No object selected");
+		onamestr = "No object selected";
 	}
+	strcpy(str_oname,onamestr.c_str());
 	if(subscr_copied_widget)
 		sprintf(str_cpyname, "Copied:  '%s' from pg %d", subscr_copied_widget->getTypeName().c_str(), copied_widget_page);
 	else sprintf(str_cpyname, "Copied:  Nothing");
@@ -2793,4 +2825,3 @@ void delete_subscreen(size_t ind, byte ty)
 		}
 	}
 }
-

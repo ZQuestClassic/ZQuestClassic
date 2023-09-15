@@ -20,7 +20,7 @@
 #define __FONT_C__
 
 #include <stdio.h>
-#include <string.h>
+#include <cstring>
 
 #include "base/zc_alleg.h"
 #include "base/ints.h"

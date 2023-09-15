@@ -32,7 +32,7 @@
 #include "config.h"
 #endif
 
-#include <string.h>	/* for memcpy() and memset() */
+#include <cstring>	/* for memcpy() and memset() */
 
 /* Add prototype support.  */
 #ifndef PROTO

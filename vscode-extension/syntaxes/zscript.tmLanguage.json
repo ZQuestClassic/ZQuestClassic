@@ -120,7 +120,7 @@
 				},
 				{
 					"name": "keyword.operator.bitwise.zscript",
-					"match": "(~|<<|>>|&|\\|\\^)"
+					"match": "(~|<<|>>|&|\\||\\^)"
 				},
 				{
 					"name": "keyword.operator.bitwise.zscript",
@@ -152,7 +152,7 @@
 				},
 				{
 					"name": "support.type.zscript",
-					"match": "\\b(CONFIG|DEFINE)\\b"
+					"match": "\\b(CONFIG[FLBU]?|DEFINE[FLBU]?)\\b"
 				},
 				{
 					"name": "support.class.zscript",

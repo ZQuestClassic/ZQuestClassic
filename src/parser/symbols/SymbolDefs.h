@@ -21,6 +21,8 @@ using std::shared_ptr;
 #define FL_VARG    FUNCFLAG_VARARGS
 #define FL_DEPR    FUNCFLAG_DEPRECATED
 #define FL_NOCAST  FUNCFLAG_NOCAST
+#define FL_NIL     FUNCFLAG_NIL
+#define FL_RDONLY  FUNCFLAG_NIL
 
 
 void addOpcode2(std::vector<std::shared_ptr<Opcode>>& v, Opcode* code);
@@ -57,7 +59,7 @@ assert(refVar != NUL)
 	Presently, this is defined as any function with < 5 opcodes, before adding 'RETURN'.
 */
 #define INLINE_CHECK() \
-if(code.size() < 5) function->setFlag(FUNCFLAG_INLINE)
+if(code.size() < 5 || function->getFlag(FUNCFLAG_VARARGS)) function->setFlag(FUNCFLAG_INLINE)
 
 /*
 	Return from the function. Automatically skips OReturn() on inline functions.

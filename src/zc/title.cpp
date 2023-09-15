@@ -1,18 +1,7 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  title.cc
-//
-//  Title screen and intro for zelda.cc
-//  Also has game loading and select screen code.
-//
-//--------------------------------------------------------
-
 #include <filesystem>
 #include <stdio.h>
 #include <ctype.h>
-#include <string.h>
+#include <cstring>
 #include <memory>
 #include "base/zc_alleg.h"
 #include "base/qrs.h"
@@ -25,20 +14,15 @@
 #include "base/zsys.h"
 #include "qst.h"
 #include "tiles.h"
-#include "base/colors.h"
 #include "pal.h"
 #include "base/gui.h"
-#include "sprite.h"
-#include "subscr.h"
-//#include "jwin.h"
-#include "base/jwinfsel.h"
 #include "zc/title.h"
-#include "gamedata.h"
-#include "zc/hero.h"
 #include "zc/ffscript.h"
 #include "zc/saves.h"
 #include "zc/render.h"
+#include "dialog/info.h"
 #include "zinfo.h"
+#include <fmt/format.h>
 
 #ifdef __EMSCRIPTEN__
 #include "base/emscripten_utils.h"
@@ -52,1033 +36,10 @@
 extern int32_t loadlast;
 extern int32_t skipcont;
 extern FFScript FFCore;
-extern ZModule zcm; //modules
 extern zcmodule moduledata;
-//extern byte refresh_select_screen;
 bool load_custom_game(int32_t file);
 
 static bool chosecustomquest = false;
-
-extern char runningItemScripts[256];
-
-/********************************/
-/*****   NES title screen   *****/
-/********************************/
-
-#define BKGDATA 224*256/32
-
-static byte titlepal[24] =
-{
-	0x0F,0x00,0x10, 0x17,0x27,0x0F, 0x08,0x1A,0x28, 0x30,0x3B,0x22,
-	0x30,0x3B,0x16, 0x17,0x27,0x0F, 0x08,0x1A,0x28, 0x30,0x3B,0x22
-};
-
-static byte darkpal1[24] =
-{
-	0x0F,0x0F,0x00, 0x01,0x11,0x0F, 0x0C,0x01,0x02, 0x00,0x01,0x0C,
-	0x00,0x01,0x0C, 0x01,0x11,0x0F, 0x0C,0x01,0x02, 0x00,0x01,0x0C
-};
-
-static byte darkpal2[24] =
-{
-	0x0F,0x0F,0x00, 0x01,0x11,0x0F, 0x0F,0x0C,0x01, 0x01,0x0C,0x0F,
-	0x01,0x0C,0x0F, 0x01,0x11,0x0F, 0x0F,0x0C,0x01, 0x01,0x0C,0x0F
-};
-
-static byte darkpal3[24] =
-{
-	0x0F,0x0F,0x0F, 0x01,0x0F,0x0F, 0x0F,0x0C,0x0F, 0x0F,0x0C,0x0F,
-	0x0F,0x0C,0x0F, 0x01,0x0F,0x0F, 0x0F,0x0C,0x0F, 0x0F,0x0C,0x0F
-};
-
-static byte itemspal[24] =
-{
-	0x30,0x30,0x30, 0x21,0x30,0x30, 0x16,0x30,0x30, 0x29,0x1A,0x09,
-	0x29,0x37,0x17, 0x02,0x22,0x30, 0x16,0x27,0x30, 0x0B,0x1B,0x2B
-};
-
-static void loadtitlepal(int32_t clear,byte *dataofs,int32_t shift)
-{
-	for(int32_t i=0; i<4; i++)
-	{
-		RAMpal[CSET(i)+shift] = NESpal(clear);
-		
-		for(int32_t c=1; c<4; c++)
-			RAMpal[CSET(i)+c+shift] = NESpal(*dataofs++);
-	}
-	
-	for(int32_t i=6; i<10; i++)
-	{
-		RAMpal[CSET(i)+shift] = NESpal(clear);
-		
-		for(int32_t c=1; c<4; c++)
-			RAMpal[CSET(i)+c+shift] = NESpal(*dataofs++);
-	}
-	
-	refreshpal=true;
-}
-
-static byte tricolor[] = {0x27,0x37,0x27,0x17,0x07,0x17};
-static byte tridelay[] = {6,12,6,6,12,16};
-static word dusktime[] = {522,522+8,522+14,522+19,522+23,522+26,522+28,522+30};
-static byte duskcolor[]= {0x39,0x31,0x3C,0x3B,0x2C,0x1C,0x02,0x0C};
-static byte wave[3]= {};
-
-static void cyclewaves()
-{
-	for(int32_t i=0; i<3; i++)
-	{
-		wave[i]+=2;
-		
-		if(wave[i]==50)
-			wave[i]=0;
-			
-		int32_t y=wave[i]+170;
-		
-		if(wave[i]<8)
-		{
-			overtile16(framebuf,204,80,y,4,0);
-			overtile16(framebuf,205,96,y,4,0);
-		}
-		
-		
-		else if(wave[i]<16)
-		{
-			overtile16(framebuf,206,80,y,4,0);
-			overtile16(framebuf,207,96,y,4,0);
-		}
-		else
-		{
-			overtile16(framebuf,208,80,y,4,0);
-			overtile16(framebuf,209,96,y,4,0);
-		}
-	}
-}
-
-static byte tri,fcnt;
-
-static void mainscreen(int32_t f)
-{
-	if(f>=1010)
-		return;
-		
-	if(f==0)
-	{
-		blit((BITMAP*)datafile[BMP_TITLE_NES].dat,scrollbuf,0,0,0,0,256,224);
-		blit(scrollbuf,framebuf,0,0,0,0,256,224);
-		char tbuf[2048] = {0}; char tbuf2[2048] = {0};
-	char copyrbuf[2][2048] = { {0}, {0} };
-	//const char *copy_year = (char *)moduledata.copyright_strings[2];
-	//const char *copy_s0 =  (char *)moduledata.copyright_strings[0];
-	//const char *copy_s1 =  (char *)moduledata.copyright_strings[1];
-	if ( moduledata.copyright_strings[0][0] != 0 ) 
-	{
-		strcpy(tbuf,"(C)");
-		strcat(tbuf,moduledata.copyright_strings[0]);
-	}
-	if ( moduledata.copyright_strings[1][0] != 0 ) 
-	{	
-		strcpy(tbuf2,"(C)");
-		strcat(tbuf2,moduledata.copyright_strings[2]);
-		strcat(tbuf2," ");
-		strcat(tbuf2,moduledata.copyright_strings[1]);
-	}
-	sprintf(copyrbuf[0],tbuf,0xBB);
-	sprintf(copyrbuf[1],tbuf2,0xBC);
-	al_trace("Original title screen. Font: %d\n",moduledata.copyright_string_vars[titleScreenMAIN+0]);
-	al_trace("Original title screen. X: %d\n",moduledata.copyright_string_vars[titleScreenMAIN+1]);
-	al_trace("Original title screen. Y: %d\n",moduledata.copyright_string_vars[titleScreenMAIN+2]);
-	al_trace("Original title screen. col: %d\n",moduledata.copyright_string_vars[titleScreenMAIN+3]);
-	al_trace("Original title screen. sz: %d\n",moduledata.copyright_string_vars[titleScreenMAIN+4]);
-		
-	al_trace("Original title screen. Font2: %d\n",moduledata.copyright_string_vars[titleScreenMAIN+5]);
-	al_trace("Original title screen. X2: %d\n",moduledata.copyright_string_vars[titleScreenMAIN+6]);
-	al_trace("Original title screen. Y2: %d\n",moduledata.copyright_string_vars[titleScreenMAIN+7]);
-	al_trace("Original title screen. col2: %d\n",moduledata.copyright_string_vars[titleScreenMAIN+8]);
-	al_trace("Original title screen. sz2: %d\n",moduledata.copyright_string_vars[titleScreenMAIN+9]);
-	   // sprintf(tbuf, "%c1986 NINTENDO", 0xBB);
-		//sprintf(tbuf, "%c" (char *)copy_s0 , 0xBB);
-		//sprintf(tbuf, "%c" (char *)copy_s0 , 0xBB);
-		//textout_ex(framebuf,get_zc_font(font_zfont),tbuf,moduledata.copyright_string_vars[1],moduledata.copyright_string_vars[2],moduledata.copyright_string_vars[3],moduledata.copyright_string_vars[4]);
-		//al_trace("Font for copyright string 0 is set to: %d",moduledata.copyright_string_vars[0]);
-	textout_ex(framebuf,(moduledata.copyright_string_vars[titleScreenMAIN+0] > 0 ? get_zc_font(moduledata.copyright_string_vars[titleScreenMAIN+0]) : get_zc_font(font_zfont)),copyrbuf[0],moduledata.copyright_string_vars[titleScreenMAIN+1],moduledata.copyright_string_vars[titleScreenMAIN+2],moduledata.copyright_string_vars[titleScreenMAIN+3],moduledata.copyright_string_vars[4]);
-	   // sprintf(tbuf, "%c" (char *)copy_year (char *)copy_s1, 0xBC);
-	 //   sprintf(tbuf, "%c" COPYRIGHT_YEAR " AG", 0xBC);
-		//tbuf[0]=(char)0xBC;
-	   // textout_ex(framebuf,get_zc_font(font_zfont),tbuf,moduledata.copyright_string_vars[6],moduledata.copyright_string_vars[7],moduledata.copyright_string_vars[8],moduledata.copyright_string_vars[9]);
-		textout_ex(framebuf,(moduledata.copyright_string_vars[titleScreenMAIN+5] > 0 ? get_zc_font(moduledata.copyright_string_vars[titleScreenMAIN+5]) : get_zc_font(font_zfont)),copyrbuf[1],moduledata.copyright_string_vars[titleScreenMAIN+6],moduledata.copyright_string_vars[titleScreenMAIN+7],moduledata.copyright_string_vars[titleScreenMAIN+8],moduledata.copyright_string_vars[titleScreenMAIN+9]);
-	}
-	if ( !moduledata.animate_NES_title ) //if we aren't disabling this
-	{
-		if(f<554+192+10)
-		{
-		blit(scrollbuf,framebuf,80,160,80,160,32,64);
-		
-		if(f&8)
-		{
-			puttile16(framebuf,200,80,160,4,0);
-			puttile16(framebuf,201,96,160,4,0);
-		}
-		else
-		{
-			puttile16(framebuf,202,80,160,4,0);
-			puttile16(framebuf,203,96,160,4,0);
-		}
-		
-		cyclewaves();
-		}
-		
-		if(f<58*9)
-		++fcnt;
-		
-		if(fcnt==tridelay[tri])
-		{
-		fcnt=0;
-		tri = tri<5 ? tri+1 : 0;
-		RAMpal[CSET(2)+2]=NESpal(tricolor[tri]);
-		refreshpal=true;
-		}
-		
-		for(int32_t i=0; i<8; i++)
-		{
-		if(f==dusktime[i])
-			loadtitlepal(duskcolor[i],titlepal,4);
-		}
-		
-		if(f==554)
-		loadtitlepal(0x0F,darkpal1,4);
-		
-		if(f==554+192)
-		loadtitlepal(0x0F,darkpal2,4);
-		
-		if(f==554+192+6)
-		loadtitlepal(0x0F,darkpal3,4);
-		
-		if(f==554+192+10)
-		{
-		clear_bitmap(framebuf);
-		clear_bitmap(scrollbuf);
-		}
-		
-		if(f==554+192+10+193)
-		loadtitlepal(0x0F,itemspal,0);
-	}
-}
-
-void putstring(int32_t x,int32_t y,const char* str,int32_t cset)
-{
-	textout_ex(scrollbuf,get_zc_font(font_zfont),str,x,y,(cset<<CSET_SHFT)+1,0);
-}
-
-//#define ii    11
-#define ii    14
-//static byte vine[5] = { 2,3,6,7,10 };
-static byte vine[5] = { 3,6,7,10,11 };
-
-static void storyscreen(int32_t f)
-{
-	if(f<1010)  return;
-	
-	if(f>=1804) return;
-	
-	if(f==1010)
-	{
-		puttile8(scrollbuf,vine[4],16,232,3,1);
-		puttile8(scrollbuf,vine[2],24,232,3,1);
-		puttile8(scrollbuf,vine[3],32,232,3,1);
-		putstring(48,232,"THE LEGEND OF ZELDA",2);
-		puttile8(scrollbuf,vine[3],208,232,3,0);
-		puttile8(scrollbuf,vine[2],216,232,3,1);
-		puttile8(scrollbuf,vine[3],224,232,3,1);
-		puttile8(scrollbuf,vine[4],232,232,3,1);
-	}
-	
-	if(f==16*3 +1010)
-		putstring(32,232,"MANY  YEARS  AGO  PRINCE",0);
-		
-	if(f==16*4 +1010)
-	{
-		puttile8(scrollbuf,ii,104,232,2,0);
-		puttile8(scrollbuf,ii,168,232,2,0);
-	}
-	
-	if(f==16*5 +1010)
-	{
-		putstring(32,232,"DARKNESS",0);
-		putstring(120,232,"GANNON",2);
-		putstring(184,232,"STOLE",0);
-	}
-	
-	if(f==16*7 +1010)
-	{
-		putstring(32,232,"ONE OF THE",0);
-		putstring(120,232,"TRIFORCE",1);
-		putstring(192,232,"WITH",0);
-	}
-	
-	if(f==16*9 +1010)
-	{
-		putstring(32,232,"POWER.    PRINCESS",0);
-		putstring(184,232,"ZELDA",2);
-	}
-	
-	if(f==16*11 +1010)
-	{
-		putstring(32,232,"HAD  ONE OF THE",0);
-		putstring(160,232,"TRIFORCE",1);
-	}
-	
-	if(f==16*13 +1010)
-		putstring(32,232,"WITH WISDOM. SHE DIVIDED",0);
-		
-	if(f==16*14 +1010)
-	{
-		puttile8(scrollbuf,ii,88,232,1,0);
-		puttile8(scrollbuf,ii,112,232,1,0);
-	}
-	
-	if(f==16*15 +1010)
-	{
-		putstring(32,232,"IT INTO    UNITS TO HIDE",0);
-		putstring(104,232,"8",1);
-	}
-	
-	if(f==16*16 +1010)
-	{
-		puttile8(scrollbuf,ii,96,232,2,0);
-		puttile8(scrollbuf,ii,160,232,2,0);
-	}
-	
-	if(f==16*17 +1010)
-	{
-		putstring(32,232,"IT FROM",0);
-		putstring(112,232,"GANNON",2);
-		putstring(176,232,"BEFORE",0);
-	}
-	
-	if(f==16*19 +1010)
-		putstring(32,232,"SHE WAS CAPTURED.",0);
-		
-	if(f==16*20 +1010)
-	{
-		puttile8(scrollbuf,ii,136,232,2,0);
-		puttile8(scrollbuf,ii,160,232,2,0);
-	}
-	
-	if(f==16*21 +1010)
-		putstring(48,232,"GO FIND THE  8 UNITS",2);
-		
-	if(f==16*22 +1010)
-	{
-		puttile8(scrollbuf,ii,48,232,3,0);
-		puttile8(scrollbuf,ii,96,232,3,0);
-	}
-	
-	if(f==16*23 +1010)
-	{
-		putstring(64,232,"HERO",3);
-		putstring(112,232,"TO SAVE HER.",2);
-	}
-	
-	if(f==16*25 +1010)
-	{
-		puttile8(scrollbuf,vine[4],16,232,3,1);
-		
-		for(int32_t x=24; x<232; x+=16)
-		{
-			puttile8(scrollbuf,vine[2],x,232,3,0);
-			puttile8(scrollbuf,vine[3],x+8,232,3,0);
-		}
-		
-		puttile8(scrollbuf,vine[4],232,232,3,1);
-	}
-	
-	
-	if((f>1010) && (f <= 16*24 + 1010))
-	{
-		if(((f-1010)&15) == 0)
-		{
-			if((f-1010)&16)
-			{
-				puttile8(scrollbuf,vine[0],16,232,3,0);
-				puttile8(scrollbuf,vine[1],232,232,3,0);
-			}
-			else
-			{
-				puttile8(scrollbuf,vine[1],16,232,3,0);
-				puttile8(scrollbuf,vine[0],232,232,3,0);
-			}
-		}
-	}
-	
-	blit(scrollbuf,framebuf,0,8,0,0,256,224);
-	
-	if((f>=1010) && (f<= 16*26 + 1010) && (f&1))
-		blit(scrollbuf,scrollbuf,0,8,0,7,256,248);
-		
-}
-
-
-static int32_t trstr;
-static byte tr_items[] =
-{
-	iHeart,iHeartC,iFairyMoving,iClock,iRupy,i5Rupies,iBPotion,iRPotion,iLetter,iBait,iSword,iWSword,iMSword,iShield,iBrang,iMBrang,iBombs,iBow,iArrow,iSArrow,iBCandle,iRCandle,
-	iBRing,iRRing,iBracelet,iWhistle,iRaft,iLadder,iWand,iBook,iKey,iMKey,iMap,iCompass,iTriforce
-};
-
-static const char* treasure_str[] =
-{
-	"ALL OF TREASURES",
-	"   HEART     CONTAINER     ",
-	"                HEART      ",
-	"   FAIRY        CLOCK      ",
-	"                           ",
-	"   RUPY       5 RUPIES     ",
-	"                           ",
-	"LIFE POTION   2ND POTION   ",
-	"                           ",
-	"  LETTER        FOOD       ",
-	"                           ",
-	"   SWORD        WHITE      ",
-	"                SWORD      ",
-	"  MAGICAL      MAGICAL     ",
-	"   SWORD        SHIELD     ",
-	" BOOMERANG     MAGICAL     ",
-	"              BOOMERANG    ",
-	"   BOMB          BOW       ",
-	"                           ",
-	"   ARROW        SILVER     ",
-	"                ARROW      ",
-	"   BLUE          RED       ",
-	"   CANDLE       CANDLE     ",
-	"   BLUE          RED       ",
-	"   RING          RING      ",
-	"   POWER       RECORDER    ",
-	" BRACELET                  ",
-	"   RAFT       STEPLADDER   ",
-	"                           ",
-	"  MAGICAL      BOOK OF     ",
-	"    ROD         MAGIC      ",
-	"    KEY        MAGICAL     ",
-	"                 KEY       ",
-	"    MAP        COMPASS     ",
-	"                           ",
-	"                           ",
-	"        TRIFORCE           "
-};
-
-static void treasures(int32_t f)
-{
-	if(f<1804) return;
-	
-	if(f>4492) return;
-	
-	if(f == 1804)
-	
-	{
-		for(int32_t x=0; x<48; x+=16)
-		{
-			puttile8(scrollbuf,vine[2],x,232,3,0);
-			puttile8(scrollbuf,vine[3],x+8,232,3,0);
-			puttile8(scrollbuf,vine[2],x+208,232,3,0);
-			puttile8(scrollbuf,vine[3],x+216,232,3,0);
-		}
-		
-		puttile8(scrollbuf,vine[4],48,232,3,1);
-		puttile8(scrollbuf,vine[4],200,232,3,1);
-		putstring(64,232,treasure_str[trstr++],0);
-	}
-	
-	int32_t y = (1820 + 96 + 448 - f) >>1;
-	y += f&1;
-	
-	for(int32_t i=0; i<34; i+=2)
-	{
-		if((y>=0)&&(y<240))
-		{
-			if(i==2)                                              // fairy
-				puttile16(scrollbuf,((f&4)>>2)+63,68,y,8,0);
-			else
-				//      putitem(scrollbuf,68,y,tr_items[i],lens_hint_item[tr_items[i]][0], lens_hint_item[tr_items[i]][1], 0);
-				//    putitem(scrollbuf,172,y,tr_items[i+1],lens_hint_item[tr_items[i+1]][0],lens_hint_item[tr_items[i+1]][1], 0);
-				putitem(scrollbuf,68,y,tr_items[i]);
-				
-			putitem(scrollbuf,172,y,tr_items[i+1]);
-		}
-		
-		y+=64;
-	}
-	
-	y+=8;
-	
-	if((y>=0)&&(y<240))
-		putitem(scrollbuf,120,y,iTriforce);
-		
-	y+=80;
-	
-	if(y>=0)
-		for(int32_t i=177; i<=217; i+=20)
-		{
-			if(y<240)
-			{
-				puttile16(scrollbuf,i,104,y,6,0);
-				puttile16(scrollbuf,i+1,120,y,6,0);
-				puttile16(scrollbuf,i+2,136,y,6,0);
-			}
-			
-			y+=16;
-		}
-		
-	if(y<240) //Hero holding item
-		puttile16(scrollbuf,29,120,y,6,0);
-		
-	if(f < 18*8*16 + 1820+128)
-	{
-		if(((f-1820)&15)==0)
-		{
-			int32_t ax=(f-1820)>>4;
-			
-			if((ax&0xF8) && ((ax&7)<2))
-				putstring(32,232,treasure_str[trstr++],0);
-		}
-	}
-	
-	blit(scrollbuf,framebuf,0,8,0,0,256,224);
-}
-
-static void NES_titlescreen()
-{
-	FFCore.kb_typing_mode = false;
-	FFCore.skip_ending_credits = 0;
-	/*if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
-	{
-	Z_scripterrlog("Trying to restore master MIDI volume to: %d\n", FFCore.usr_midi_volume);
-	midi_volume = FFCore.usr_midi_volume;
-//	master_volume(-1,FFCore.usr_midi_volume);
-	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
-	{
-	digi_volume = FFCore.usr_digi_volume;
-	//master_volume((int32_t)(FFCore.usr_digi_volume),1);
-	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
-	{
-	emusic_volume = (int32_t)FFCore.usr_music_volume;
-	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME )
-	{
-	sfx_volume = (int32_t)FFCore.usr_sfx_volume;
-	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
-	{
-	pan_style = (int32_t)FFCore.usr_panstyle;
-	}
-	*/
-	for ( int32_t q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
-
-	int32_t f=0;
-	bool done=false;
-	wave[0]=0;
-	wave[1]=16;
-	wave[2]=32;
-	tri=0;
-	fcnt=0;
-	trstr=0;
-	zc_set_palette(black_palette);
-	try_zcmusic((char*)moduledata.base_NSF_file,moduledata.title_track, ZC_MIDI_TITLE);
-	clear_bitmap(screen);
-	clear_bitmap(framebuf);
-	init_NES_mode();
-	reset_items(true, &QHeader);
-	CSET_SIZE=4;
-	CSET_SHFT=2;
-	loadtitlepal(0x36,titlepal,4);
-	ALLOFF();
-	
-	do
-	{
-		mainscreen(f);
-		storyscreen(f);
-		treasures(f);
-		
-		if((f>1676)&&(f<=4492)&&(f&1))
-			blit(scrollbuf,scrollbuf,0,8,0,7,256,248);
-			
-		if(f>=4492)
-			putitem(framebuf,120,24,iTriforce);
-			
-		++f;
-		
-		if((f>4750&&midi_pos<0) || f>6000)
-		{
-			wave[0]=0;
-			wave[1]=16;
-			wave[2]=32;
-			tri=fcnt=trstr=f=0;
-			clear_bitmap(framebuf);
-			loadtitlepal(0x36,titlepal,4);
-			music_stop();
-			try_zcmusic((char*)moduledata.base_NSF_file,moduledata.title_track, ZC_MIDI_TITLE);
-		}
-		
-		advanceframe(true);
-		load_control_state();
-		
-		if(rSbtn())
-			done=true;
-	}
-	while(!done && !Quit);
-	
-	
-	
-	music_stop();
-	clear_to_color(screen,BLACK);
-	CSET_SIZE=16;
-	CSET_SHFT=4;
-}
-
-/************************************/
-/********  DX title screen  *********/
-/************************************/
-
-static void DX_mainscreen(int32_t f)
-{
-	FFCore.kb_typing_mode = false;
-	/*if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
-	{
-	Z_scripterrlog("Trying to restore master MIDI volume to: %d\n", FFCore.usr_midi_volume);
-	midi_volume = FFCore.usr_midi_volume;
-//	master_volume(-1,FFCore.usr_midi_volume);
-	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
-	{
-	digi_volume = FFCore.usr_digi_volume;
-	//master_volume((int32_t)(FFCore.usr_digi_volume),1);
-	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
-	{
-	emusic_volume = (int32_t)FFCore.usr_music_volume;
-	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME )
-	{
-	sfx_volume = (int32_t)FFCore.usr_sfx_volume;
-	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
-	{
-	pan_style = (int32_t)FFCore.usr_panstyle;
-	}
-	*/
-	FFCore.skip_ending_credits = 0;
-	for ( int32_t q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
-	
-	static int32_t pic=0;
-	//char tbuf[80];
-	char tbuf[2048] = {0}; char tbuf2[2048] = {0};
-	char copyrbuf[2][2048] = { {0}, {0} };
-	
-	if(f>=1010)
-		return;
-		
-	DATAFILE *dat = (DATAFILE*)datafile[TITLE_DX].dat;
-	BITMAP *bmp;
-	
-	if(f==0)
-	{
-		copy_pal((RGB*)dat[TITLE_DX_PAL_1].dat,RAMpal);
-		refreshpal=true;
-	}
-	
-	if(f<680+256 && (f&15)==0)
-	{
-		bmp = (BITMAP*)dat[pic<4 ? pic : 6-pic].dat;
-		pic = (pic+1)%6;
-		blit(bmp,framebuf, 0,0, 0,0, 256,224);
-		//    text_mode(-1);
-		/*
-		sprintf(tbuf, "%c1986 Nintendo",0xBB);
-		//tbuf[0]=0xBB;
-		textout_ex(framebuf,font,tbuf,46,138,255,-1);
-		sprintf(tbuf, "%c" COPYRIGHT_YEAR " Armageddon Games",0xBC);
-		//tbuf[0]=0xBC;
-		textout_ex(framebuf,font,tbuf,46,146,255,-1);
-		
-		*/
-		  
-	//const char *copy_year = (char *)moduledata.copyright_strings[2];
-	//const char *copy_s0 =  (char *)moduledata.copyright_strings[0];
-	//const char *copy_s1 =  (char *)moduledata.copyright_strings[1];
-	if ( moduledata.copyright_strings[0][0] != 0 ) 
-	{
-		strcpy(tbuf,"(C)");
-		strcat(tbuf,moduledata.copyright_strings[0]);
-	}
-	if ( moduledata.copyright_strings[1][0] != 0 ) 
-	{	
-		strcpy(tbuf2,"(C)");
-		strcat(tbuf2,moduledata.copyright_strings[2]);
-		strcat(tbuf2," ");
-		strcat(tbuf2,moduledata.copyright_strings[1]);
-	}
-	/*    
-	strcpy(tbuf,"(C)");
-	strcat(tbuf,moduledata.copyright_strings[0]);
-	strcpy(tbuf2,"(C)");
-	strcat(tbuf2,moduledata.copyright_strings[2]);
-	strcat(tbuf2," ");
-	strcat(tbuf2,moduledata.copyright_strings[1]);
-	*/
-	sprintf(copyrbuf[0],tbuf,0xBB);
-	sprintf(copyrbuf[1],tbuf2,0xBC);
-	
-	al_trace("2.10 title screen. Font: %d\n",moduledata.copyright_string_vars[titleScreen210+0]);
-	al_trace("2.10 title screen. X: %d\n",moduledata.copyright_string_vars[titleScreen210+1]);
-	al_trace("2.10 title screen. Y: %d\n",moduledata.copyright_string_vars[titleScreen210+2]);
-	al_trace("2.10 title screen. col: %d\n",moduledata.copyright_string_vars[titleScreen210+3]);
-	al_trace("2.10 title screen. sz: %d\n",moduledata.copyright_string_vars[titleScreen210+4]);
-		
-	al_trace("2.10 title screen. Font2: %d\n",moduledata.copyright_string_vars[titleScreen210+5]);
-	al_trace("2.10 title screen. X2: %d\n",moduledata.copyright_string_vars[titleScreen210+6]);
-	al_trace("2.10 title screen. Y2: %d\n",moduledata.copyright_string_vars[titleScreen210+7]);
-	al_trace("2.10 title screen. col2: %d\n",moduledata.copyright_string_vars[titleScreen210+8]);
-	al_trace("2.10 title screen. sz2: %d\n",moduledata.copyright_string_vars[titleScreen210+9]);
-	   // sprintf(tbuf, "%c1986 NINTENDO", 0xBB);
-		//sprintf(tbuf, "%c" (char *)copy_s0 , 0xBB);
-		//sprintf(tbuf, "%c" (char *)copy_s0 , 0xBB);
-		//textout_ex(framebuf,get_zc_font(font_zfont),tbuf,moduledata.copyright_string_vars[1],moduledata.copyright_string_vars[2],moduledata.copyright_string_vars[3],moduledata.copyright_string_vars[4]);
-		al_trace("Font for copyright string 0 is set to: %d",moduledata.copyright_string_vars[0]);
-	textout_ex(framebuf,(moduledata.copyright_string_vars[titleScreen210+0] > 0 ? get_zc_font(moduledata.copyright_string_vars[titleScreen210+0]) : get_zc_font(font_zfont)),copyrbuf[0],moduledata.copyright_string_vars[titleScreen210+1],moduledata.copyright_string_vars[titleScreen210+2],moduledata.copyright_string_vars[titleScreen210+3],moduledata.copyright_string_vars[titleScreen210+4]);
-	   // sprintf(tbuf, "%c" (char *)copy_year (char *)copy_s1, 0xBC);
-	 //   sprintf(tbuf, "%c" COPYRIGHT_YEAR " AG", 0xBC);
-		//tbuf[0]=(char)0xBC;
-	   // textout_ex(framebuf,get_zc_font(font_zfont),tbuf,moduledata.copyright_string_vars[6],moduledata.copyright_string_vars[7],moduledata.copyright_string_vars[8],moduledata.copyright_string_vars[9]);
-		textout_ex(framebuf,(moduledata.copyright_string_vars[titleScreen210+5] > 0 ? get_zc_font(moduledata.copyright_string_vars[titleScreen210+5]) : get_zc_font(font_zfont)),copyrbuf[1],moduledata.copyright_string_vars[titleScreen210+6],moduledata.copyright_string_vars[titleScreen210+7],moduledata.copyright_string_vars[titleScreen210+8],moduledata.copyright_string_vars[titleScreen210+9]);
-   
-		//    text_mode(0);
-	}
-	
-	if(f>=680 && f<680+256 && (f%3)==0)
-	{
-		fade_interpolate((RGB*)dat[TITLE_DX_PAL_1].dat,black_palette,RAMpal,
-						 (f-680)>>2,0,255);
-		refreshpal=true;
-	}
-	
-	if(f==680+256)
-	{
-		clear_bitmap(framebuf);
-		clear_bitmap(scrollbuf);
-	}
-	
-	if(f==680+256+2)
-		loadtitlepal(0x0F,itemspal,0);
-}
-
-static void DX_titlescreen()
-{
-	//  JGMOD *yea;
-	FFCore.kb_typing_mode = false;
-	/*
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
-	{
-	Z_scripterrlog("Trying to restore master MIDI volume to: %d\n", FFCore.usr_midi_volume);
-	midi_volume = FFCore.usr_midi_volume;
-//	master_volume(-1,FFCore.usr_midi_volume);
-	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
-	{
-	digi_volume = FFCore.usr_digi_volume;
-	//master_volume((int32_t)(FFCore.usr_digi_volume),1);
-	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
-	{
-	emusic_volume = (int32_t)FFCore.usr_music_volume;
-	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME )
-	{
-	sfx_volume = (int32_t)FFCore.usr_sfx_volume;
-	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
-	{
-	pan_style = (int32_t)FFCore.usr_panstyle;
-	}
-	*/
-	FFCore.skip_ending_credits = 0;
-	for ( int32_t q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
-
-	int32_t f=0;
-	bool done=false;
-	trstr=0;
-	zc_set_palette(black_palette);
-	
-	try_zcmusic((char*)moduledata.base_NSF_file,moduledata.title_track, ZC_MIDI_TITLE);
-	clear_to_color(screen,BLACK);
-	clear_bitmap(framebuf);
-	init_NES_mode();
-	reset_items(true, &QHeader);
-	CSET_SIZE=4;
-	CSET_SHFT=2;
-	ALLOFF();
-	clear_keybuf();
-	
-	do
-	{
-		DX_mainscreen(f);
-		storyscreen(f);
-		treasures(f);
-		
-		if((f>1676)&&(f<=4492)&&(f&1))
-			blit(scrollbuf,scrollbuf,0,8,0,7,256,248);
-			
-		if(f>=4492)
-			putitem(framebuf,120,24,iTriforce);
-			
-		++f;
-		
-		if((f>4750&&midi_pos<0) || f>6000)
-		{
-			trstr=f=0;
-			clear_bitmap(framebuf);
-			music_stop();
-			try_zcmusic((char*)moduledata.base_NSF_file,moduledata.title_track, ZC_MIDI_TITLE);
-		}
-		
-		advanceframe(true);
-		load_control_state();
-		
-		if(rSbtn())
-			done=true;
-	}
-	while(!done && !Quit);
-	
-	music_stop();
-	//  stop_mod();
-	
-	clear_to_color(screen,BLACK);
-	CSET_SIZE=16;
-	CSET_SHFT=4;
-}
-
-/*************************************/
-/********  2.5 title screen  *********/
-/*************************************/
-
-static void v25_mainscreen(int32_t f)
-{
-	FFCore.kb_typing_mode = false;
-	/*
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
-	{
-	Z_scripterrlog("Trying to restore master MIDI volume to: %d\n", FFCore.usr_midi_volume);
-	midi_volume = FFCore.usr_midi_volume;
-//	master_volume(-1,FFCore.usr_midi_volume);
-	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
-	{
-	digi_volume = FFCore.usr_digi_volume;
-	//master_volume((int32_t)(FFCore.usr_digi_volume),1);
-	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
-	{
-	emusic_volume = (int32_t)FFCore.usr_music_volume;
-	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME )
-	{
-	sfx_volume = (int32_t)FFCore.usr_sfx_volume;
-	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
-	{
-	pan_style = (int32_t)FFCore.usr_panstyle;
-	}
-	*/
-	FFCore.skip_ending_credits = 0;
-	for ( int32_t q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
-	
-	static int32_t pic=0;
-	//char tbuf[80];
-	char tbuf[2048] = {0}; char tbuf2[2048] = {0};
-	char copyrbuf[2][2048] = { {0}, {0} };
-	if(f>=1010)
-		return;
-		
-	DATAFILE *dat = (DATAFILE*)datafile[TITLE_25].dat;
-	BITMAP *bmp;
-	
-	if(f==0)
-	{
-		copy_pal((RGB*)dat[TITLE_25_PAL_1].dat,RAMpal);
-		refreshpal=true;
-	}
-	
-	if(f<680+256 && (f&15)==0)
-	{  
-		bmp = (BITMAP*)dat[pic<5 ? pic : 8-pic].dat;
-		pic = (pic+1)%8;
-		blit(bmp,framebuf, 0,0, 0,0, 256,224);
-		//    text_mode(-1);
-		/*
-		sprintf(tbuf, "%c1986 Nintendo",0xBB);
-		//tbuf[0]=0xBB;
-		textout_ex(framebuf,font,tbuf,80,134,255,-1);
-		sprintf(tbuf, "%c" COPYRIGHT_YEAR " Armageddon Games",0xBC);
-		//tbuf[0]=0xBC;
-		textout_ex(framebuf,font,tbuf,80,142,255,-1);
-		*/
-		
-	//const char *copy_year = (char *)moduledata.copyright_strings[2];
-	//const char *copy_s0 =  (char *)moduledata.copyright_strings[0];
-	//const char *copy_s1 =  (char *)moduledata.copyright_strings[1];
-	if ( moduledata.copyright_strings[0][0] != 0 ) 
-	{
-		strcpy(tbuf,"(C)");
-		strcat(tbuf,moduledata.copyright_strings[0]);
-	}
-	if ( moduledata.copyright_strings[1][0] != 0 ) 
-	{	
-		strcpy(tbuf2,"(C)");
-		strcat(tbuf2,moduledata.copyright_strings[2]);
-		strcat(tbuf2," ");
-		strcat(tbuf2,moduledata.copyright_strings[1]);
-	}
-	/*
-	strcpy(tbuf,"(C)");
-	strcat(tbuf,moduledata.copyright_strings[0]);
-	strcpy(tbuf2,"(C)");
-	strcat(tbuf2,moduledata.copyright_strings[2]);
-	strcat(tbuf2," ");
-	strcat(tbuf2,moduledata.copyright_strings[1]);
-	*/
-	sprintf(copyrbuf[0],tbuf,0xBB);
-	sprintf(copyrbuf[1],tbuf2,0xBC);
-		
-	// al_trace("2.50 title screen. Font: %d\n",moduledata.copyright_string_vars[titleScreen250+0]);
-	// al_trace("2.50 title screen. X: %d\n",moduledata.copyright_string_vars[titleScreen250+1]);
-	// al_trace("2.50 title screen. Y: %d\n",moduledata.copyright_string_vars[titleScreen250+2]);
-	// al_trace("2.50 title screen. col: %d\n",moduledata.copyright_string_vars[titleScreen250+3]);
-	// al_trace("2.50 title screen. sz: %d\n",moduledata.copyright_string_vars[titleScreen250+4]);
-		
-	// al_trace("2.50 title screen. Font2: %d\n",moduledata.copyright_string_vars[titleScreen250+5]);
-	// al_trace("2.50 title screen. X2: %d\n",moduledata.copyright_string_vars[titleScreen250+6]);
-	// al_trace("2.50 title screen. Y2: %d\n",moduledata.copyright_string_vars[titleScreen250+7]);
-	// al_trace("2.50 title screen. col2: %d\n",moduledata.copyright_string_vars[titleScreen250+8]);
-	// al_trace("2.50 title screen. sz2: %d\n",moduledata.copyright_string_vars[titleScreen250+9]);
-	   // sprintf(tbuf, "%c1986 NINTENDO", 0xBB);
-		//sprintf(tbuf, "%c" (char *)copy_s0 , 0xBB);
-		//sprintf(tbuf, "%c" (char *)copy_s0 , 0xBB);
-		//textout_ex(framebuf,get_zc_font(font_zfont),tbuf,moduledata.copyright_string_vars[1],moduledata.copyright_string_vars[2],moduledata.copyright_string_vars[3],moduledata.copyright_string_vars[4]);
-		//al_trace("Font for copyright string 0 is set to: %d",moduledata.copyright_string_vars[0]);
-	textout_ex(framebuf,(moduledata.copyright_string_vars[titleScreen250+0] > 0 ? get_zc_font(moduledata.copyright_string_vars[titleScreen250+0]) : get_zc_font(font_zfont)),copyrbuf[0],moduledata.copyright_string_vars[titleScreen250+1],moduledata.copyright_string_vars[titleScreen250+2],moduledata.copyright_string_vars[titleScreen250+3],moduledata.copyright_string_vars[titleScreen250+4]);
-	   // sprintf(tbuf, "%c" (char *)copy_year (char *)copy_s1, 0xBC);
-	 //   sprintf(tbuf, "%c" COPYRIGHT_YEAR " AG", 0xBC);
-		//tbuf[0]=(char)0xBC;
-	   // textout_ex(framebuf,get_zc_font(font_zfont),tbuf,moduledata.copyright_string_vars[6],moduledata.copyright_string_vars[7],moduledata.copyright_string_vars[8],moduledata.copyright_string_vars[9]);
-		textout_ex(framebuf,(moduledata.copyright_string_vars[titleScreen250+5] > 0 ? get_zc_font(moduledata.copyright_string_vars[titleScreen250+5]) : get_zc_font(font_zfont)),copyrbuf[1],moduledata.copyright_string_vars[titleScreen250+6],moduledata.copyright_string_vars[titleScreen250+7],moduledata.copyright_string_vars[titleScreen250+8],moduledata.copyright_string_vars[titleScreen250+9]);
-   
-		//    text_mode(0);
-	}
-	
-	
-	
-	if(f>=680 && f<680+256 && (f%3)==0)
-	{
-		fade_interpolate((RGB*)dat[TITLE_25_PAL_1].dat,black_palette,RAMpal,
-						 (f-680)>>2,0,255);
-		refreshpal=true;
-	}
-	
-	if(f==680+256)
-	{
-		clear_bitmap(framebuf);
-		clear_bitmap(scrollbuf);
-	}
-	
-	if(f==680+256+2)
-		loadtitlepal(0x0F,itemspal,0);
-}
-
-static void v25_titlescreen()
-{
-	FFCore.kb_typing_mode = false;
-	/*
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
-	{
-	Z_scripterrlog("Trying to restore master MIDI volume to: %d\n", FFCore.usr_midi_volume);
-	midi_volume = FFCore.usr_midi_volume;
-//	master_volume(-1,FFCore.usr_midi_volume);
-	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
-	{
-	digi_volume = FFCore.usr_digi_volume;
-	//master_volume((int32_t)(FFCore.usr_digi_volume),1);
-	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
-	{
-	emusic_volume = (int32_t)FFCore.usr_music_volume;
-	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME )
-	{
-	sfx_volume = (int32_t)FFCore.usr_sfx_volume;
-	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
-	{
-	pan_style = (int32_t)FFCore.usr_panstyle;
-	}
-	*/
-	FFCore.skip_ending_credits = 0;
-	for ( int32_t q = 0; q < 256; q++ ) runningItemScripts[q] = 0; //Clear scripts that were running before. 
-
-	//  JGMOD *yea;
-	int32_t f=0;
-	bool done=false;
-	trstr=0;
-	zc_set_palette(black_palette);
-	
-	clear_to_color(screen,BLACK);
-	clear_bitmap(framebuf);
-	init_NES_mode();
-	reset_items(true, &QHeader);
-	CSET_SIZE=4;
-	CSET_SHFT=2;
-	ALLOFF();
-	clear_keybuf();
-	try_zcmusic((char*)moduledata.base_NSF_file,moduledata.title_track, ZC_MIDI_TITLE);
-	
-	do
-	{
-		v25_mainscreen(f);
-		storyscreen(f);
-		treasures(f);
-		
-		if((f>1676)&&(f<=4492)&&(f&1))
-			blit(scrollbuf,scrollbuf,0,8,0,7,256,248);
-			
-		if(f>=4492)
-			putitem(framebuf,120,24,iTriforce);
-			
-		++f;
-		
-		if((f>4750&&midi_pos<0) || f>6000)
-		{
-			trstr=f=0;
-			clear_bitmap(framebuf);
-			music_stop();
-			try_zcmusic((char*)moduledata.base_NSF_file,moduledata.title_track, ZC_MIDI_TITLE);
-		}
-		
-		advanceframe(true);
-		load_control_state();
-		
-		if(rSbtn())
-			done=true;
-	}
-	while(!done && !Quit);
-	
-	music_stop();
-	//  stop_mod();
-	
-	clear_to_color(screen,BLACK);
-	CSET_SIZE=16;
-	CSET_SHFT=4;
-}
 
 /***********************************/
 /****  Game Selection Screens  *****/
@@ -1403,6 +364,8 @@ static bool register_name()
 	bool cancel=false;
 
 	if (!load_qstpath.empty()) {
+		new_game->header.qstpath = load_qstpath;
+
 		std::string filename = get_filename(load_qstpath.c_str());
 		filename.erase(remove(filename.begin(), filename.end(), ' '), filename.end());
 		auto len = filename.find(".qst", 0);
@@ -1803,8 +766,15 @@ static bool register_name()
 			new_game->set_life(zinit.hc*zinit.hp_per_heart);
 			new_game->set_hp_per_heart(zinit.hp_per_heart);
 			selectscreen();                                       // refresh palette
-			saves_create_slot(new_game);
-			ringcolor(false);
+			if (!saves_create_slot(new_game))
+			{
+				cancel = true;
+				InfoDialog("Error creating save", ":(").show();
+			}
+			else
+			{
+				ringcolor(false);
+			}
 		}
 		else
 		{
@@ -1819,6 +789,7 @@ static bool register_name()
 	if (x<0 || cancel)
 	{
 		delete new_game;
+		new_game = nullptr;
 	}
 
 	// std::string filename_prefix = fmt::format("{}-{}", save->title, save->header.name);
@@ -1831,7 +802,7 @@ static bool register_name()
 	selectscreen();
 	list_saves();
 	select_mode();
-	return done;
+	return done && new_game != nullptr;
 }
 
 static bool copy_file(int32_t file)
@@ -2009,7 +980,7 @@ int32_t custom_game(int32_t file)
 	large_dialog(gamemode_dlg);
    
 	bool customized = false;
-	while((ret=zc_popup_dialog(gamemode_dlg,focus_obj))==1)
+	while((ret=do_zqdialog(gamemode_dlg,focus_obj))==1)
 	{
 		blit(screen,tmp_scr,scrx,scry,0,0,320,240);
 		
@@ -2179,9 +1150,9 @@ static void select_game(bool skip = false)
 	if(standalone_mode || skip)
 		return;
 
-	saves_select(-1);
 	int32_t pos = zc_max(zc_min(saves_current_selection()-listpos,3),0);
 	int32_t mode = 0;
+	saves_select(-1);
 	
 	//kill_sfx();
 	
@@ -2196,6 +1167,23 @@ static void select_game(bool skip = false)
 	bool popup_choose_quest = false;
 	do
 	{
+		if (keypressed())
+		{
+			int32_t k=readkey()>>8;
+			if (k == KEY_ESC && mode)
+			{
+				mode = 0;
+				select_mode();
+				while(key[KEY_ESC])
+				{
+					poll_keyboard();
+					/* do nothing */
+					rest(1);
+				}
+			}
+		}
+		disabledKeys[KEY_ESC] = mode != 0;
+
 		if ( moduledata.refresh_title_screen ) //refresh
 		{
 			selectscreen();
@@ -2216,9 +1204,7 @@ static void select_game(bool skip = false)
 				saves_select(saves_count() - 1);
 				loadlast = saves_current_selection() + 1;
 				strcpy(qstpath, load_qstpath.c_str());
-				chosecustomquest = true;
-				load_custom_game(saves_count() - 1);
-				saves_write();
+				saves_do_first_time_stuff(saves_current_selection());
 				break;
 			}
 			else
@@ -2288,12 +1274,13 @@ static void select_game(bool skip = false)
 				{
 				case 0:
 					// TODO: this is being called too much!
-					saves_select(saveslot);
-					loadlast = saves_current_selection() + 1;
-					
-					if (saves_get_slot(saveslot)->header->quest)
-						done=true;
-						
+					if (saves_select(saveslot))
+					{
+						loadlast = saves_current_selection() + 1;
+						if (saves_get_slot(saveslot)->header->quest)
+							done=true;
+					}
+
 					break;
 					
 				case 2:
@@ -2380,64 +1367,20 @@ static void select_game(bool skip = false)
 			chosecustomquest = false;
 			selectscreen();
 		}
-
-		if (keypressed())
-		{
-			int32_t k=readkey()>>8;
-			if (k == KEY_ESC)
-			{
-				mode = 0;
-				select_mode();
-				while(key[KEY_ESC])
-				{
-					poll_keyboard();
-					/* do nothing */
-					rest(1);
-				}
-			}
-		}
 	}
 	while(!Quit && !done);
-	
+
+	disabledKeys[KEY_ESC] = false;
 	saveslot = -1;
 }
-
-/**************************************/
-/****  Main title screen routine  *****/
-/**************************************/
 
 void titlescreen(int32_t lsave)
 {
 	int32_t q=Quit;
 	
 	Quit=0;
-	Playing=Paused=false;
+	Playing=Paused=GameLoaded=false;
 	FFCore.kb_typing_mode = false;
-/*
-if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
-	{
-	Z_scripterrlog("Trying to restore master MIDI volume to: %d\n", FFCore.usr_midi_volume);
-	midi_volume = FFCore.usr_midi_volume;
-//	master_volume(-1,FFCore.usr_midi_volume);
-	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_DIGI_VOLUME )
-	{
-	digi_volume = FFCore.usr_digi_volume;
-	//master_volume((int32_t)(FFCore.usr_digi_volume),1);
-	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_MUSIC_VOLUME )
-	{
-	emusic_volume = (int32_t)FFCore.usr_music_volume;
-	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_SFX_VOLUME )
-	{
-	sfx_volume = (int32_t)FFCore.usr_sfx_volume;
-	}
-	if ( FFCore.coreflags&FFCORE_SCRIPTED_PANSTYLE )
-	{
-	pan_style = (int32_t)FFCore.usr_panstyle;
-	}	
-	*/
 	FFCore.skip_ending_credits = 0;
 	
 	if(q==qCONT)
@@ -2450,30 +1393,6 @@ if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 	{
 		replay_save();
 		replay_stop();
-	}
-	
-	if(q==qRESET && !skip_title)
-	{
-		show_subscreen_dmap_dots=true;
-		show_subscreen_numbers=true;
-		show_subscreen_items=true;
-		show_subscreen_life=true;
-		
-		switch(title_version)
-		{
-		case 2:
-			v25_titlescreen();
-			break;
-			
-		case 1:
-			DX_titlescreen();
-			break;
-			
-		case 0:
-		default:
-			NES_titlescreen();
-			break;
-		}
 	}
 
 	if(!Quit)
@@ -2503,7 +1422,6 @@ if ( FFCore.coreflags&FFCORE_SCRIPTED_MIDI_VOLUME )
 			if (saves_get_slot(slot)->header->quest)
 			{
 				saves_select(slot);
-				select_game();
 			}
 		}
 	}
@@ -2685,21 +1603,13 @@ void game_over(int32_t type)
 
 		if(pos)
 		{
-			if(standalone_mode && !skip_title)
-			{
-				Quit=qRESET;
-			}
-			else
-			{
-				Quit=qQUIT;
-			}
+			Quit=qQUIT;
 		}
 		else
 		{
 			Quit=qCONT;
 		}
 		
-		//Quit = pos ? ((standalone_mode && skip_title) ? qRESET : qQUIT) : qCONT;
 		if(pos==1&&(!type))
 		{
 			//run save scripts

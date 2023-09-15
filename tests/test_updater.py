@@ -20,11 +20,13 @@ import run_target
 class TestUpdater(unittest.TestCase):
 	def test_updater(self):
 		is_mac = platform.system() == 'Darwin'
+		is_linux = platform.system() == 'Linux'
 		# TODO: support mac
 		if is_mac:
 			return
-		# TODO: re-enable once latest release has `zplayer` in package.
-		return
+		# TODO: works, but in CI there is a problem caching the downloaded release
+		if is_linux:
+			return
 
 		build_folder = run_target.get_build_folder()
 		if 'CI' in os.environ:
@@ -59,8 +61,7 @@ class TestUpdater(unittest.TestCase):
 					resource_folder / run_target.get_exe_name('zquest'),
 					resource_folder / run_target.get_exe_name('zlauncher'),
 					resource_folder / run_target.get_exe_name('zscript'),
-					# TODO: include after first release has the updater.
-					# resource_folder / run_target.get_exe_name('zupdater'),
+					resource_folder / run_target.get_exe_name('zupdater'),
 				]
 				if is_mac:
 					files.append(fresh_package_folder / 'Contents/libs/libzcsound.dylib')

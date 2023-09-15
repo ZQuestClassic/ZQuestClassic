@@ -1,13 +1,3 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  zq_class.cc
-//
-//  Contains zmap class and other main code for ZQuest.
-//
-//--------------------------------------------------------
-
 #ifndef _ZQ_CLASS_H_
 #define _ZQ_CLASS_H_
 

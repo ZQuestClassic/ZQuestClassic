@@ -10,6 +10,7 @@
 #include "gui/common.h"
 #include "base/misctypes.h"
 #include "subscr_transition.h"
+#include "subscr_macros.h"
 
 extern script_data *genericscripts[NUMSCRIPTSGENERIC];
 extern ZCSubscreen subscr_edit;
@@ -33,7 +34,8 @@ SubscrPropDialog::SubscrPropDialog(SubscrWidget* widg, int32_t obj_ind) :
 	list_counters2(GUI::ZCListData::ss_counters(true,true)), //All counters, no (None)
 	list_itemclass(GUI::ZCListData::itemclass(true)),
 	list_genscr(GUI::ZCListData::generic_script()),
-	list_sfx(GUI::ZCListData::sfxnames(true))
+	list_sfx(GUI::ZCListData::sfxnames(true)),
+	list_costinds(GUI::ListData::numbers(false, 0, 2))
 {
 	byte pg = subscr_edit.curpage, ind = index;
 	start_default_btnslot = 0;
@@ -73,26 +75,6 @@ static const GUI::ListData list_pgmode
 	{ "Target", PGGOTO_TRG },
 };
 
-#define NUM_FIELD(var,_min,_max) \
-TextField( \
-	fitParent = true, \
-	type = GUI::TextField::type::INT_DECIMAL, \
-	low = _min, high = _max, val = var, \
-	onValChangedFunc = [=](GUI::TextField::type,std::string_view,int32_t val) \
-	{ \
-		var = val; \
-	})
-
-#define NUM_FIELD_OFFS(var,_min,_max,offs) \
-TextField( \
-	fitParent = true, \
-	type = GUI::TextField::type::INT_DECIMAL, \
-	low = _min, high = _max, val = var+offs, \
-	onValChangedFunc = [=](GUI::TextField::type,std::string_view,int32_t val) \
-	{ \
-		var = val-offs; \
-	})
-
 #define MISC_COLOR_SEL(var, txt, num) \
 Frame( \
 	title = txt, \
@@ -121,37 +103,6 @@ Frame( \
 		}) \
 )
 
-#define CBOX(var, bit, txt, cspan) \
-Checkbox( \
-	colSpan = cspan, \
-	text = txt, hAlign = 0.0, \
-	checked = var & bit, \
-	onToggleFunc = [=](bool state) \
-	{ \
-		SETFLAG(var, bit, state); \
-	} \
-)
-
-#define CBOX_EX(var, bit, txt, ...) \
-Checkbox( \
-	__VA_ARGS__, \
-	text = txt, \
-	checked = var & bit, \
-	onToggleFunc = [=](bool state) \
-	{ \
-		SETFLAG(var, bit, state); \
-	} \
-)
-
-#define DDL(var, lister) \
-DropDownList(data = lister, \
-	fitParent = true, \
-	selectedValue = var, \
-	onSelectFunc = [=](int32_t val) \
-	{ \
-		var = val; \
-	} \
-)
 #define DDL_FONT(var) \
 DropDownList(data = list_font, \
 	fitParent = true, \
@@ -160,16 +111,6 @@ DropDownList(data = list_font, \
 	{ \
 		var = val; \
 		if(fonttf) fonttf->setFont(get_zc_font(val)); \
-	} \
-)
-#define DDL_EX(var, lister, ...) \
-DropDownList(data = lister, \
-	fitParent = true, \
-	__VA_ARGS__, \
-	selectedValue = var, \
-	onSelectFunc = [=](int32_t val) \
-	{ \
-		var = val; \
 	} \
 )
 
@@ -344,6 +285,9 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			case widgMMAPTITLE:
 			case widgLGAUGE:
 			case widgMGAUGE:
+			case widgCOUNTER:
+			case widgOLDCTR:
+			case widgBTNCOUNTER:
 				show_wh = false;
 				break;
 			case widgBGCOLOR:
@@ -459,6 +403,15 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			case widgCOUNTER:
 			{
 				SW_Counter* w = dynamic_cast<SW_Counter*>(local_subref);
+				col_grid = Column(
+					MISC_COLOR_SEL(w->c_text, "Text Color", 1),
+					MISC_COLOR_SEL(w->c_shadow, "Shadow Color", 2),
+					MISC_COLOR_SEL(w->c_bg, "Background Color", 3));
+				break;
+			}
+			case widgBTNCOUNTER:
+			{
+				SW_BtnCounter* w = dynamic_cast<SW_BtnCounter*>(local_subref);
 				col_grid = Column(
 					MISC_COLOR_SEL(w->c_text, "Text Color", 1),
 					MISC_COLOR_SEL(w->c_shadow, "Shadow Color", 2),
@@ -689,6 +642,53 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				);
 				break;
 			}
+			case widgBTNCOUNTER:
+			{
+				SW_BtnCounter* w = dynamic_cast<SW_BtnCounter*>(local_subref);
+				mergetype = mtFORCE_TAB; //too wide to fit!
+				attrib_grid = Columns<5>(
+					Label(text = "Font:", hAlign = 1.0),
+					Label(text = "Style:", hAlign = 1.0),
+					Label(text = "Alignment:", hAlign = 1.0),
+					Label(text = "Button:", hAlign = 1.0),
+					Label(text = "Cost:", hAlign = 1.0),
+					//
+					DDL_FONT(w->fontid),
+					DDL(w->shadtype, list_shadtype),
+					DDL(w->align, list_aligns),
+					DDL(w->btn, list_buttons),
+					DDL(w->costind, list_costinds),
+					//
+					DummyWidget(),
+					DummyWidget(),
+					DummyWidget(),
+					DummyWidget(),
+					INFOBTN("Which cost to use from the button item"),
+					//
+					Label(text = "Min Digits:", hAlign = 1.0),
+					Label(text = "Max Digits:", hAlign = 1.0),
+					Label(text = "Inf Character:", hAlign = 1.0),
+					INFOCBOX(w->flags,SUBSCR_BTNCOUNTER_SHOW0,"Show Zero","If the counter should show while empty",2),
+					INFOCBOX(w->flags,SUBSCR_BTNCOUNTER_NOCOLLAPSE,"No Collapse","If checked,"
+						" 'Cost: 0' will always check the item's 'Use Cost', and 'Cost: 1' to 'Use Cost 2'.\n"
+						"If unchecked, 'Cost: 0' checks the first cost that is not None on an item, whichever that is,"
+						" and 'Cost: 2' the second.",2),
+					//
+					NUM_FIELD(w->mindigits,0,5),
+					NUM_FIELD(w->maxdigits,0,5),
+					TextField(maxLength = 1,
+						fitParent = true,
+						text = std::string(1,(char)w->infchar),
+						onValChangedFunc = [=](GUI::TextField::type,std::string_view str,int32_t)
+						{
+							std::string txt(str);
+							if(txt.size())
+								w->infchar = txt[0];
+							else w->infchar = 0;
+						})
+				);
+				break;
+			}
 			case widgOLDCTR:
 			{
 				SW_Counters* w = dynamic_cast<SW_Counters*>(local_subref);
@@ -730,8 +730,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 						onSelectFunc = [=](int32_t val)
 						{
 							w->iid = val;
-							ddl->setDisabled(val > -1);
-							labels[0]->setDisabled(val > -1);
+							updateAttr();
 						}
 					),
 					INFOBTN("The specified item ID will be tied to this item slot (OVERRIDES 'Item Class' if set)"),
@@ -762,7 +761,12 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 					DummyWidget(),
 					CBOX_EX(w->flags,SUBSCR_CURITM_NO_INTER_WO_EQUIP,"No Interact Without Equip",_EX_RBOX),
 					INFOBTN("If checked, effects using buttons such as changing pages or running frozen generic scripts"
-						" on this widget will not trigger unless the buttonpress equips (or intends to equip) the item to a button.")
+						" on this widget will not trigger unless the buttonpress equips (or intends to equip) the item to a button."),
+					DummyWidget(),
+					CBOX_EX(w->flags,SUBSCR_CURITM_NO_UNEQUIP,"No Unequip",_EX_RBOX),
+					INFOBTN("If checked, trying to equip this widget to a button it is already equipped to will NOT unequip it."
+						" Importantly, this also means that with 'No Interact Without Equip' checked, button effects will still"
+						" occur when the button is already equipped with this widget.")
 				);
 				break;
 			}
@@ -1389,7 +1393,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 					tswatches[0] = SelTileSwatch(
 						hAlign = 0.0,
 						tile = w->tile,
-						cset = w->cset,
+						cset = w->cs.get_cset(),
 						showvals = false,
 						// tilewid = local_subref->d7 ? 2 : 1,
 						// tilehei = local_subref->d7 ? 3 : 1,
@@ -1398,7 +1402,11 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 						onSelectFunc = [=](int32_t t, int32_t c, int32_t,int32_t)
 						{
 							w->tile = t;
-							w->cset = c;
+							if(w->cs.type != ssctMISC)
+							{
+								w->cs.type = c;
+								cs_sel[0]->setC1(c);
+							}
 						}
 					),
 					Column(padding = 0_px,
@@ -1559,6 +1567,52 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 						)
 				)
 			),
+			TabRef(name = "Selector",
+				selframes[2] = Frame(title = "Selector Customization",
+					info = "Customize the selector cursor",
+					fitParent = true,
+					Column(
+						Rows<2>(
+							CBOX_EX(local_subref->genflags,SUBSCRFLAG_SELOVERRIDE,"Override Selector",
+								_EX_RBOX,onToggle = message::REFR_SELECTABLE),
+							INFOBTN("Change the selector while over this widget")
+						),
+						selgs[3] = Row(
+							Frame(title = "Dimensions", fitParent = true,
+								Rows<3>(
+									Label(text = "Selector X", hAlign = 1.0),
+									NUM_FIELD(local_subref->selector_override.x,0,255),
+									INFOBTN("The top-left of the selector will be forced to this X"),
+									Label(text = "Selector Y", hAlign = 1.0),
+									NUM_FIELD(local_subref->selector_override.y,0,255),
+									INFOBTN("The top-left of the selector will be forced to this Y"),
+									Label(text = "Selector Width", hAlign = 1.0),
+									NUM_FIELD(local_subref->selector_override.w,0,256),
+									INFOBTN("The selector will be forced to this width"),
+									Label(text = "Selector Height", hAlign = 1.0),
+									NUM_FIELD(local_subref->selector_override.h,0,256),
+									INFOBTN("The selector will be forced to this height")
+								)),
+							Frame(title = "Selector 1 Graphic", fitParent = true,
+								info = "Override the Tile, CSet, and Width/Height used by selectors"
+									" with 'Use Selector 2' unchecked."
+									"\nWidth/Height are given in pixels, and that pixel size will be"
+									" used as the source size of the draw. These sizes rounded up to the"
+									" next full tile will be the tile width/height of the draw.",
+								SELECTOR_GRAPHIC(local_subref->selector_override.tileinfo[0])
+							),
+							Frame(title = "Selector 2 Graphic", fitParent = true,
+								info = "Override the Tile, CSet, and Width/Height used by selectors"
+									" with 'Use Selector 2' checked."
+									"\nWidth/Height are given in pixels, and that pixel size will be"
+									" used as the source size of the draw. These sizes rounded up to the"
+									" next full tile will be the tile width/height of the draw.",
+								SELECTOR_GRAPHIC(local_subref->selector_override.tileinfo[1])
+							)
+						)
+					)
+				)
+			),
 			seltabs[0] = TabRef(name = "Script",
 				Frame(title = "Generic Frozen Script",
 					info = "Run a Generic Frozen Script when a button is pressed."
@@ -1613,6 +1667,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 		)
 	);
 	updateSelectable();
+	updateAttr();
 	refr_info();
 	return window;
 }
@@ -1621,13 +1676,16 @@ void SubscrPropDialog::updateSelectable()
 {
 	bool seldis = !(local_subref->genflags & SUBSCRFLAG_SELECTABLE);
 	bool scrdis = seldis || !local_subref->generic_script;
+	bool selovdis = seldis || !(local_subref->genflags & SUBSCRFLAG_SELOVERRIDE);
 	bool pgdis = seldis || !local_subref->pg_mode;
 	selgs[0]->setDisabled(seldis);
 	selframes[0]->setDisabled(seldis);
 	selframes[1]->setDisabled(seldis);
+	selframes[2]->setDisabled(seldis);
 	seltabs[0]->setDisabled(seldis);
 	selgs[1]->setDisabled(scrdis);
 	selgs[2]->setDisabled(scrdis);
+	selgs[3]->setDisabled(selovdis);
 	seltfs[0]->setDisabled(pgdis || local_subref->pg_mode != PGGOTO_TRG);
 	selbtns[0]->setDisabled(pgdis);
 	
@@ -1643,6 +1701,19 @@ void SubscrPropDialog::updateSelectable()
 			lbl = "InitD["+std::to_string(q)+"]";
 		geninitd_lbl[q]->setText(lbl);
 		geninitd_btn[q]->setDisabled(local_gen_meta.initd_help[q].empty());
+	}
+}
+void SubscrPropDialog::updateAttr()
+{
+	switch(local_subref->getType())
+	{
+		case widgITEMSLOT:
+		{
+			SW_ItemSlot* w = dynamic_cast<SW_ItemSlot*>(local_subref);
+			ddl->setDisabled(w->iid > -1);
+			labels[0]->setDisabled(w->iid > -1);
+			break;
+		}
 	}
 }
 void SubscrPropDialog::updateColors()
@@ -1716,6 +1787,9 @@ bool SubscrPropDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 {
 	switch(msg.message)
 	{
+		case message::REFR_SELECTABLE:
+			updateSelectable();
+			break;
 		case message::REFR_INFO:
 			refr_info();
 			break;

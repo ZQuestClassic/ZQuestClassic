@@ -65,10 +65,10 @@ void call_testqst_dialog()
 		skip = false;
 		AlertFuncDialog("Save",
 			"Unsaved changes will not be tested!",
+			"",
 			3, 0, //3 buttons, where buttons[0] is focused
-			"Save", do_save,
-			"Save As", do_save_as,
-			"Test", do_skip
+			{ "Save", "Save As", "Test" },
+			{ do_save, do_save_as, do_skip }
 		).show();
 		
 		if(!(skip || saved))

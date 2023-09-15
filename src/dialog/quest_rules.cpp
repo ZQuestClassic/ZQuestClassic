@@ -922,6 +922,14 @@ static GUI::ListData compatRulesList
 	{ "Old (Buggy) ZScript Volume Access", qr_OLD_SCRIPT_VOLUME,
 		"If enabled, Audio->AdjustMusicVolume() and Audio->AdjustSFXVolume() will use their old behavior,"
 		" which was bugged and wrote directly to the volume sliders." },
+	{ "'Walk Through Walls' don't set door state", qr_WALKTHROUGHWALL_NO_DOORSTATE,
+		"If enabled, going through 'Walk-through' type doors does not set the room's door state." },
+	{ "Light beams ignore solid objects", qr_SPOTLIGHT_IGNR_SOLIDOBJ,
+		"If enabled, light beams don't treat solid ffcs/blocks/enemies/etc as solid." },
+	{ "Broken light beam hitbox", qr_BROKEN_LIGHTBEAM_HITBOX,
+		"If enabled, a couple of old light beam hitbox issues will occur. Notably, ffc light triggers"
+		" will use 'x+8,y+8' instead of their center, and light triggers will act as 'Mirror (4-Way)'"
+		" combos (to light beams, not weapons) if they do not block light." },
 };
 
 static GUI::ListData enemiesRulesList
@@ -1588,7 +1596,11 @@ GUI::ListData instructionRulesList
 	{ "All bitmap-> and FileSystem-> paths relative to quest 'Files' folder", qr_BITMAP_AND_FILESYSTEM_PATHS_ALWAYS_RELATIVE },
 	{ "Don't allow overwriting hopping action", qr_NO_OVERWRITING_HOPPING },
 	{ "Sprite->Step uses new, precise values", qr_STEP_IS_FLOAT },
-	{ "Old printf() args", qr_OLD_PRINTF_ARGS },
+	{ "Old printf() args", qr_OLD_PRINTF_ARGS,
+		"Compat, turns off new printf features." },
+	{ "No printf() 0-fill", qr_PRINTF_NO_0FILL,
+		"Instead of filling all extra arguments with '0',"
+		" just leave them unchanged." },
 	{ "Writing Screen->EntryX, EntryY Resets Spawn Points", qr_WRITE_ENTRYPOINTS_AFFECTS_HEROCLASS },
 	{ "Log on Loading Invalid UID", qr_LOG_INVALID_UID_LOAD },
 	{ "Broken Combodata->InitD[]", qr_COMBODATA_INITD_MULT_TENK },

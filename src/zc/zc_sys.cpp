@@ -1,21 +1,12 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  zc_sys.cc
-//
-//  System functions, input handlers, GUI stuff, etc.
-//  for ZQuest Classic.
-//
-//--------------------------------------------------------
-
 #include "zc/zc_sys.h"
 
+#include "allegro/gfx.h"
+#include "allegro5/joystick.h"
 #include "base/qrs.h"
 #include "base/dmap.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <cstring>
 #include <math.h>
 #include <map>
 #include <filesystem>
@@ -68,11 +59,14 @@
 #include "base/emscripten_utils.h"
 #endif
 
+using namespace std::chrono_literals;
+
 extern FFScript FFCore;
 extern bool Playing;
 int32_t sfx_voice[WAV_COUNT];
 int32_t d_stringloader(int32_t msg,DIALOG *d,int32_t c);
 int32_t d_midilist_proc(int32_t msg,DIALOG *d,int32_t c);
+static int32_t d_joylist_proc(int32_t msg,DIALOG *d,int32_t c);
 
 extern byte monochrome_console;
 
@@ -207,7 +201,7 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 			{
 				d[i].h = int32_t((double)d[i].h*1.5);
 			}
-			else if(d[i].proc == jwin_droplist_proc)
+			else if(d[i].proc == jwin_droplist_proc || d[i].proc == d_joylist_proc)
 			{
 				d[i].y += int32_t((double)d[i].h*0.25);
 				d[i].h = int32_t((double)d[i].h*1.25);
@@ -235,7 +229,7 @@ void large_dialog(DIALOG *d, float RESIZE_AMT)
 			continue;
 			
 		// Bigger font
-		bool bigfontproc = (d[i].proc != d_midilist_proc && d[i].proc != jwin_droplist_proc && d[i].proc != jwin_abclist_proc && d[i].proc != jwin_list_proc);
+		bool bigfontproc = (d[i].proc != d_midilist_proc && d[i].proc != jwin_droplist_proc && d[i].proc != jwin_abclist_proc && d[i].proc != jwin_list_proc && d[i].proc != d_joylist_proc);
 		
 		if(!d[i].dp2 && bigfontproc)
 		{
@@ -422,7 +416,6 @@ void load_game_configs()
 	ShowFPS = zc_get_config(cfg_sect,"showfps",0)!=0;
 	NESquit = zc_get_config(cfg_sect,"fastquit",0)!=0;
 	ClickToFreeze = zc_get_config(cfg_sect,"clicktofreeze",1)!=0;
-	title_version = zc_get_config(cfg_sect,"title",2);
 	abc_patternmatch = zc_get_config(cfg_sect, "lister_pattern_matching", 1);
 	pause_in_background = zc_get_config(cfg_sect, "pause_in_background", 0);
 	
@@ -2279,7 +2272,7 @@ void flushItemCache(bool justcost)
 }
 
 // This is used often, so it should be as direct as possible.
-int32_t _c_item_id_internal(int32_t itemtype, bool checkmagic, bool jinx_check)
+int32_t _c_item_id_internal(int32_t itemtype, bool checkmagic, bool jinx_check, bool check_bunny)
 {
 	bool use_cost_cache = replay_version_check(19);
 	if(jinx_check)
@@ -2287,8 +2280,11 @@ int32_t _c_item_id_internal(int32_t itemtype, bool checkmagic, bool jinx_check)
 		if(!(HeroSwordClk() || HeroItemClk()))
 			jinx_check = false; //not jinxed
 	}
+	if(!Hero.BunnyClock())
+		check_bunny = false; //not bunnied
 	if(itemtype == itype_ring) checkmagic = true;
-	if (!jinx_check && (use_cost_cache || itemtype != itype_ring))
+	if (!jinx_check && !check_bunny
+		&& (use_cost_cache || itemtype != itype_ring))
 	{
 		auto& cache = checkmagic && use_cost_cache ? itemcache_cost : itemcache;
 		auto res = cache.find(itemtype);
@@ -2310,6 +2306,8 @@ int32_t _c_item_id_internal(int32_t itemtype, bool checkmagic, bool jinx_check)
 			if(jinx_check && (usesSwordJinx(i) ? HeroSwordClk() : HeroItemClk()))
 				if(!(itemsbuf[i].flags & ITEM_JINX_IMMUNE))
 					continue;
+			if(check_bunny && !checkbunny(i))
+				continue;
 			
 			if(itemsbuf[i].fam_type >= highestlevel)
 			{
@@ -2319,7 +2317,7 @@ int32_t _c_item_id_internal(int32_t itemtype, bool checkmagic, bool jinx_check)
 		}
 	}
 	
-	if(!jinx_check) //Can't cache jinx_check results
+	if(!(jinx_check || check_bunny)) //Can't cache jinx_check/check_bunny
 	{
 		if (use_cost_cache)
 		{
@@ -2337,7 +2335,7 @@ int32_t _c_item_id_internal(int32_t itemtype, bool checkmagic, bool jinx_check)
 }
 
 // 'jinx_check' indicates that the highest level item *immune to jinxes* should be returned.
-int32_t current_item_id(int32_t itype, bool checkmagic, bool jinx_check)
+int32_t current_item_id(int32_t itype, bool checkmagic, bool jinx_check, bool check_bunny)
 {
 	if(itype < 0 || itype >= itype_max) return -1;
 	if(game->OverrideItems[itype] > -2)
@@ -2360,14 +2358,14 @@ int32_t current_item_id(int32_t itype, bool checkmagic, bool jinx_check)
 			return ovid;
 		}
 	}
-	auto ret = _c_item_id_internal(itype,checkmagic,jinx_check);
+	auto ret = _c_item_id_internal(itype,checkmagic,jinx_check,check_bunny);
 	if(!jinx_check) //If not already a jinx-immune-only check...
 	{
 		//And the player IS jinxed...
 		if(HeroSwordClk() || HeroItemClk())
 		{
 			//Then do a jinx-immune-only check here
-			auto ret2 = _c_item_id_internal(itype,checkmagic,true);
+			auto ret2 = _c_item_id_internal(itype,checkmagic,true,check_bunny);
 			//And *IF IT FINDS A VALID ITEM*, return that one instead! -Em
 			//Should NOT need a compat rule, as this should always return -1 in old quests.
 			if(ret2 > -1) return ret2;
@@ -3967,7 +3965,7 @@ int32_t onGUISnapshot()
 	if(b)
 	{
 		blit(screen,b,0,0,0,0,resx,resy);
-		save_bitmap(buf,b,RAMpal);
+		save_bitmap(buf,screen,RAMpal);
 		destroy_bitmap(b);
 	}
 	
@@ -3988,8 +3986,19 @@ int32_t onNonGUISnapshot()
 		sprintf(buf, "%szc_screen%05d.%s", get_snap_str(), ++num, snapshotformat_str[SnapshotFormat][1]);
 	}
 	while(num<99999 && exists(buf));
-	
-	save_bitmap(buf,framebuf,realpal?temppal:RAMpal);
+
+	if (tmpscr->flags3&fNOSUBSCR && !(key[KEY_ALT]))
+	{
+		BITMAP *b = create_bitmap_ex(8,256,168);
+		clear_to_color(b,0);
+		blit(framebuf,b,0,passive_subscreen_height/2,0,0,256,168);
+		save_bitmap(buf,b,realpal?temppal:RAMpal);
+		destroy_bitmap(b);
+	}
+	else
+	{
+		save_bitmap(buf,framebuf,realpal?temppal:RAMpal);
+	}
 	
 	return D_O_K;
 }
@@ -4364,23 +4373,29 @@ int32_t onLightSwitch()
 int32_t onGoTo();
 int32_t onGoToComplete();
 
+bool handle_close_btn_quit()
+{
+	if(close_button_quit)
+	{
+		close_button_quit=false;
+		f_Quit(qEXIT);
+	}
+	return (exiting_program = Quit==qEXIT);
+}
+
 void syskeys()
 {
 	update_system_keys();
 	
 	int32_t oldtitle_version;
 	
-	if(close_button_quit)
-	{
-		close_button_quit=false;
-		f_Quit(qEXIT);
-	}
-	
 	poll_joystick();
+	
+	handle_close_btn_quit();
+	if(Quit == qEXIT) return;
 	
 	if(rMbtn() || (gui_mouse_b() && !mouse_down && ClickToFreeze &&!disableClickToFreeze))
 	{
-		oldtitle_version=title_version;
 		System();
 	}
 	
@@ -4747,6 +4762,26 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 		}
 	}
 #endif
+
+	static bool test_mode_auto_restart = zc_get_config("zeldadx", "test_mode_auto_restart", false);
+	if (zqtesting_mode && test_mode_auto_restart)
+	{
+		static auto last_write_time = fs::last_write_time(qstpath);
+		static auto last_check = std::chrono::system_clock::now();
+
+		if (std::chrono::system_clock::now() - last_check > 200ms)
+		{
+			last_check = std::chrono::system_clock::now();
+			auto write_time = fs::last_write_time(qstpath);
+			if (last_write_time != write_time)
+			{
+				last_write_time = write_time;
+				disableClickToFreeze = false;
+				Quit = qRESET;
+				replay_quit();
+			}
+		}
+	}
 }
 
 void zapout()
@@ -5380,7 +5415,31 @@ void j_getbtn(DIALOG *d)
 	
 	update_hw_screen(true);
 	
-	int32_t b = next_press_btn();
+	int32_t b = next_joy_input(true);
+	
+	if(b>=0)
+		*((int32_t*)d->dp3) = b;
+		
+	d->flags&=~D_SELECTED;
+	
+	if (player)
+		player->joy_on = TRUE;
+}
+
+void j_getstick(DIALOG *d)
+{
+	d->flags|=D_SELECTED;
+	jwin_button_proc(MSG_DRAW,d,0);
+	jwin_draw_win(screen, (screen->w-160)/2, (screen->h-48)/2, 160, 48, FR_WIN);
+	//  text_mode(vc(11));
+	int32_t y = screen->h/2 - 12;
+	textout_centre_ex(screen, font, "Move a stick (or DPAD)", screen->w/2, y, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+	textout_centre_ex(screen, font, "ESC to cancel", screen->w/2, y+8, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+	textout_centre_ex(screen, font, "SPACE to disable", screen->w/2, y+16, jwin_pal[jcBOXFG],jwin_pal[jcBOX]);
+	
+	update_hw_screen(true);
+	
+	int32_t b = next_joy_input(false);
 	
 	if(b>=0)
 		*((int32_t*)d->dp3) = b;
@@ -5411,6 +5470,26 @@ int32_t d_jbutton_proc(int32_t msg,DIALOG *d,int32_t c)
 	return jwin_button_proc(msg,d,c);
 }
 
+int32_t d_jstick_proc(int32_t msg,DIALOG *d,int32_t c)
+{
+	switch(msg)
+	{
+	case MSG_KEY:
+	case MSG_CLICK:
+
+		j_getstick(d);
+		
+		while(gui_mouse_b()) {
+			rest(1);
+			clear_keybuf();
+		}
+			
+		return D_REDRAW;
+	}
+
+	return jwin_button_proc(msg,d,c);
+}
+
 //shnarf
 extern const char *key_str[];
 std::string get_keystr(int key);
@@ -5419,7 +5498,8 @@ const char *pan_str[4] = { "MONO", " 1/2", " 3/4", "FULL" };
 //extern int32_t zcmusic_bufsz;
 
 static char str_a[80],str_b[80],str_s[80],str_m[80],str_l[80],str_r[80],str_p[80],str_ex1[80],str_ex2[80],str_ex3[80],str_ex4[80],
-	str_leftmod1[80],str_leftmod2[80],str_rightmod1[80],str_rightmod2[80], str_left[80], str_right[80], str_up[80], str_down[80];
+	str_leftmod1[80],str_leftmod2[80],str_rightmod1[80],str_rightmod2[80], str_left[80], str_right[80], str_up[80], str_down[80],
+	str_primary_stick[80], str_secondary_stick[80];
 
 int32_t d_stringloader(int32_t msg,DIALOG *d,int32_t c)
 {
@@ -5467,6 +5547,8 @@ int32_t d_stringloader(int32_t msg,DIALOG *d,int32_t c)
 				sprintf(str_down,"%03d\n%s",DDbtn,joybtn_name(DDbtn));
 				sprintf(str_left,"%03d\n%s",DLbtn,joybtn_name(DLbtn));
 				sprintf(str_right,"%03d\n%s",DRbtn,joybtn_name(DRbtn));
+				sprintf(str_primary_stick,"%03d\n%s",js_stick_1_x_stick,joystick_name(js_stick_1_x_stick));
+				sprintf(str_secondary_stick,"%03d\n%s",js_stick_2_x_stick,joystick_name(js_stick_2_x_stick));
 				sprintf(str_leftmod1,"%03d\n%s",cheat_modifier_keys[0],key_str[cheat_modifier_keys[0]]);
 				sprintf(str_leftmod2,"%03d\n%s",cheat_modifier_keys[1],key_str[cheat_modifier_keys[1]]);
 				sprintf(str_rightmod1,"%03d\n%s",cheat_modifier_keys[2],key_str[cheat_modifier_keys[2]]);
@@ -5533,6 +5615,12 @@ int32_t set_buf(void *dp3, int32_t d2)
 	return D_O_K;
 }
 
+static int32_t gamepad_joys_list[] =
+{
+	61,
+	-1
+};
+
 static int32_t gamepad_btn_list[] =
 {
 	6,
@@ -5548,17 +5636,52 @@ static int32_t gamepad_dirs_list[] =
 	44,45,46,47,
 	48,49,50,51,
 	52,53,54,55,
-	56,
+	56,57,58,59,
+	60,
 	-1
 };
 
 static TABPANEL gamepad_tabs[] =
 {
 	// (text)
-	{ (char *)"Buttons",		D_SELECTED,  gamepad_btn_list, 0, NULL },
+	{ (char *)"Controllers",		D_SELECTED,  gamepad_joys_list, 0, NULL },
+	{ (char *)"Buttons",		0,  gamepad_btn_list, 0, NULL },
 	{ (char *)"Directions",  0,		   gamepad_dirs_list, 0, NULL },
 	{ NULL,				  0,		   NULL,			   0, NULL }
 };
+
+const char *joy_list(int32_t index, int32_t *list_size)
+{
+	if (index == -1)
+	{
+		*list_size = al_get_num_joysticks();
+		return NULL;
+	}
+
+	ALLEGRO_JOYSTICK* joy = al_get_joystick(index);
+	if (!joy)
+	{
+		return "?";
+	}
+
+	return al_get_joystick_name(joy);
+}
+
+static ListData joy__list(joy_list, &font);
+
+static int32_t d_joylist_proc(int32_t msg,DIALOG *d,int32_t c)
+{
+	int32_t d2 = d->d2;
+	int32_t ret = jwin_droplist_proc(msg,d,c);
+	
+	if(d2!=d->d2)
+	{
+		joystick_index = d->d2;
+		ret |= D_REDRAW_ALL;
+	}
+	
+	return ret;
+}
 
 static DIALOG gamepad_dlg[] =
 {
@@ -5628,7 +5751,15 @@ static DIALOG gamepad_dlg[] =
 	{ d_j_clearbutton_proc,	  167+91, 82,   40,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "Clear",   NULL, &DLbtn},
 	{ d_j_clearbutton_proc,	  167+91, 110,  40,   21,   vc(14),  vc(1),   0,	   0,		 0,		0, (void *) "Clear",	 NULL, &DRbtn},
 	// 56
-	{ jwin_check_proc,	 22,   150,  147,  8,	vc(14),  vc(1),   0,	   0,		 1,		0, (void *) "Use Analog Stick/DPad", NULL, NULL },
+	{ jwin_check_proc,	 22,   150,  147,  8,	vc(14),  vc(1),   0,	   0,		 1,		0, (void *) "Primary: Use Analog Stick (Ignore above and use below instead)", NULL, NULL },
+	{ d_jstick_proc,	  22,   165,   61,   21,   vc(14),  vc(11),  0,	   0,		 0,		0, (void *) "Primary",	 NULL, &js_stick_1_x_stick },
+	{ d_jstick_proc,	  22,   195,   61,   21,   vc(14),  vc(11),  0,	   0,		 0,		0, (void *) "Secondary",	 NULL, &js_stick_2_x_stick },
+	{ jwin_text_proc,	  90,   165,   60,   8,	vc(7),   vc(11),  0,	   0,		 0,		0,	   str_primary_stick, NULL,  NULL },
+	{ jwin_text_proc,	  90,   195,   60,   8,	vc(7),   vc(11),  0,	   0,		 0,		0,	   str_secondary_stick, NULL,  NULL },
+
+	// 61
+	{ d_joylist_proc,  22,   62,  150,  16,   0,	   0,	   0,	   0,		 0,		0, (void *) &joy__list, NULL,  NULL },
+
 	{ NULL,				 0,	0,	0,	0,   0,	   0,	   0,	   0,		  0,			 0,	   NULL,						   NULL,  NULL }
 };
 
@@ -6029,7 +6160,7 @@ void about_zcplayer_module(const char *prompt,int32_t initialval)
 	
 	large_dialog(module_info_dlg);
 	
-	int32_t ret = zc_popup_dialog(module_info_dlg,-1);
+	int32_t ret = do_zqdialog(module_info_dlg,-1);
 	jwin_center_dialog(module_info_dlg);
 	
 	
@@ -6251,7 +6382,7 @@ int32_t onGoTo()
 	
 	large_dialog(goto_dlg);
 		
-	if(zc_popup_dialog(goto_dlg,4)==1)
+	if(do_zqdialog(goto_dlg,4)==1)
 	{
 		// dmap, screen
 		cheats_enqueue(Cheat::GoTo, goto_dlg[4].d2, zc_min(zc_xtoi(cheat_goto_screen_str),0x7F));
@@ -6586,7 +6717,7 @@ int32_t onMIDICredits()
 	
 	large_dialog(midi_dlg);
 		
-	zc_popup_dialog(midi_dlg,0);
+	do_zqdialog(midi_dlg,0);
 	dialog_running=false;
 	
 	if(listening)
@@ -6609,9 +6740,9 @@ int32_t onAbout()
 {
 	char buf1[80]={0};
 	std::ostringstream oss;
-	sprintf(buf1,"%s (%s), Version: %s", ZC_PLAYER_NAME,PROJECT_NAME,ZC_PLAYER_V);
+	sprintf(buf1,"%s, Version: %s", ZC_PLAYER_NAME,ZC_PLAYER_V);
 	oss << buf1 << '\n';
-	sprintf(buf1, "%s, Build %d", ALPHA_VER_STR, VERSION_BUILD);
+	sprintf(buf1, "%s", ALPHA_VER_STR);
 	oss << buf1 << '\n';
 	sprintf(buf1,"Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(), (char*)months[BUILDTM_MONTH], BUILDTM_YEAR, __TIME__, __TIMEZONE__);
 	oss << buf1 << '\n';
@@ -6643,7 +6774,7 @@ int32_t onQuest()
 	
 	large_dialog(quest_dlg);
 		
-	zc_popup_dialog(quest_dlg, 0);
+	do_zqdialog(quest_dlg, 0);
 	return D_O_K;
 }
 
@@ -6722,7 +6853,7 @@ int32_t onKeyboard()
 		
 	while(!done)
 	{
-		ret = zc_popup_dialog(keyboard_control_dlg,3);
+		ret = do_zqdialog(keyboard_control_dlg,3);
 		
 		if(ret==3) // OK
 		{
@@ -6806,20 +6937,35 @@ int32_t onGamepad()
 	int32_t down = DDbtn;
 	int32_t left = DLbtn;
 	int32_t right = DRbtn;
-	
+	int32_t joy = joystick_index;
+	int32_t stick_1 = js_stick_1_x_stick;
+	int32_t stick_2 = js_stick_2_x_stick;
+
 	gamepad_dlg[0].dp2=get_zc_font(font_lfont);
 	if(analog_movement)
 		gamepad_dlg[56].flags|=D_SELECTED;
 	else
 		gamepad_dlg[56].flags&=~D_SELECTED;
-	
+
+	// TODO: should use controller device GUID or name instead of index, otherwise this value is not
+	// consistent unless exact same number of joysticks is always connected. Name is problematic b/c
+	// xinput driver doesn't actually get a name (at least, doesn't for my Xbox controller).
+	// TODO: should store gamepad control mappings per-controller, otherwise switching joystick
+	// requires remapping every time.
+	if (joystick_index >= al_get_num_joysticks())
+		joystick_index = 0;
+	gamepad_dlg[61].d2 = joystick_index;
+
 	large_dialog(gamepad_dlg);
 		
-	int32_t ret = zc_popup_dialog(gamepad_dlg,4);
+	int32_t ret = do_zqdialog(gamepad_dlg,4);
 	
 	if(ret == 4) //OK
 	{
 		analog_movement = gamepad_dlg[56].flags&D_SELECTED;
+		joystick_index = gamepad_dlg[61].d2;
+		js_stick_1_y_stick = js_stick_1_x_stick;
+		js_stick_2_y_stick = js_stick_2_x_stick;
 		save_control_configs(false);
 	}
 	else //Cancel
@@ -6839,6 +6985,9 @@ int32_t onGamepad()
 		DDbtn = down;
 		DLbtn = left;
 		DRbtn = right;
+		joystick_index = joy;
+		js_stick_1_x_stick = stick_1;
+		js_stick_2_x_stick = stick_2;
 	}
 	
 	return D_O_K;
@@ -6971,7 +7120,7 @@ int32_t onSound()
 	sound_dlg[19].d2 = (sfx_volume==255) ? 32 : sfx_volume>>3;
 	sound_dlg[20].d2 = pan_style;
 	
-	int32_t ret = zc_popup_dialog(sound_dlg,1);
+	int32_t ret = do_zqdialog(sound_dlg,1);
 	
 	if(ret==2)
 	{
@@ -6980,7 +7129,7 @@ int32_t onSound()
 			zcmusic_set_volume(zcmusic, emusic_volume);
 		
 		int32_t temp_volume = sfx_volume;
-		if (!get_qr(qr_OLD_SCRIPT_VOLUME))
+		if (GameLoaded && !get_qr(qr_OLD_SCRIPT_VOLUME))
 			temp_volume = (sfx_volume * FFCore.usr_sfx_volume) / 10000 / 100;
 		for(int32_t i=0; i<WAV_COUNT; ++i)
 		{
@@ -7109,25 +7258,6 @@ int32_t onExit()
 	return D_O_K;
 }
 
-int32_t onTitle_NES()
-{
-	title_version=0;
-	zc_set_config(cfg_sect,"title",title_version);
-	return D_O_K;
-}
-int32_t onTitle_DX()
-{
-	title_version=1;
-	zc_set_config(cfg_sect,"title",title_version);
-	return D_O_K;
-}
-int32_t onTitle_25()
-{
-	title_version=2;
-	zc_set_config(cfg_sect,"title",title_version);
-	return D_O_K;
-}
-
 int32_t onDebug()
 {
 	if(debug_enabled)
@@ -7184,7 +7314,7 @@ int32_t onTriforce()
 	for(int32_t i=1; i<=8; i++)
 	  triforce_dlg[i].flags = (game->lvlitems[i] & liTRIFORCE) ? D_SELECTED : 0;
 	
-	if(zc_popup_dialog (triforce_dlg,-1)==9)
+	if(do_zqdialog (triforce_dlg,-1)==9)
 	{
 	  for(int32_t i=1; i<=8; i++)
 	  {
@@ -7241,7 +7371,7 @@ int32_t getnumber(const char *prompt,int32_t initialval)
 	
 	large_dialog(getnum_dlg);
 		
-	if(zc_popup_dialog(getnum_dlg,2)==3)
+	if(do_zqdialog(getnum_dlg,2)==3)
 		return atoi(buf);
 		
 	return initialval;
@@ -7419,7 +7549,7 @@ int32_t onScreenSaver()
 	
 	large_dialog(scrsaver_dlg);
 		
-	int32_t ret = zc_popup_dialog(scrsaver_dlg,-1);
+	int32_t ret = do_zqdialog(scrsaver_dlg,-1);
 	
 	if(ret == 8 || ret == 9)
 	{
@@ -7467,14 +7597,6 @@ static MENU game_menu[] =
 	{ NULL,								NULL,					 NULL,					  0, NULL }
 };
 
-static MENU title_menu[] =
-{
-	{ (char *)"&Original",				 onTitle_NES,			  NULL,					  0, NULL },
-	{ (char *)"&ZQuest Classic",			onTitle_DX,			   NULL,					  0, NULL },
-	{ (char *)"ZQuest Classic &2.50",	   onTitle_25,			   NULL,					  0, NULL },
-	{ NULL,								NULL,					 NULL,					  0, NULL }
-};
-
 static MENU snapshot_format_menu[] =
 {
 	{ (char *)"&BMP",					  onSetSnapshotFormat,	  NULL,					  0, NULL },
@@ -7518,7 +7640,6 @@ static MENU window_menu[] =
 };
 static MENU options_menu[] =
 {
-	{ "&Title Screen",                NULL,                    title_menu,                0, NULL },
 	{ "Name &Entry Mode",             NULL,                    name_entry_mode_menu,      0, NULL },
 	{ "S&napshot Format",             NULL,                    snapshot_format_menu,      0, NULL },
 	{ "&Window Settings",             NULL,                    window_menu,               0, NULL },
@@ -7553,7 +7674,8 @@ static MENU settings_menu[] =
 static MENU misc_menu[] =
 {
 	{ (char *)"&About...",                  onAbout,                 NULL,                      0, NULL },
-	{ (char *)"&Credits...",                onCredits,               NULL,                      0, NULL },
+	// TODO: re-enable, but: 1) do not use a bitmap thing that is hard to update 2) update names and 3) don't use the Z-word.
+	{ (char *)"&Credits...",                onCredits,               NULL,             D_DISABLED, NULL },
 	{ (char *)"&Fullscreen",                onFullscreenMenu,        NULL,                      0, NULL },
 	{ (char *)"&Video Mode...",             onVidMode,               NULL,                      0, NULL },
 	{ (char *)"",                           NULL,                    NULL,                      0, NULL },
@@ -7723,7 +7845,7 @@ int32_t onPauseInBackground()
 		set_display_switch_callback(SWITCH_OUT, switch_out_callback);
 		set_display_switch_callback(SWITCH_IN, switch_in_callback);
 	}
-	options_menu[5].flags =(pause_in_background)?D_SELECTED:0;
+	options_menu[4].flags =(pause_in_background)?D_SELECTED:0;
 	return D_O_K;
 }
 
@@ -7936,11 +8058,7 @@ void music_stop()
 		zcmusic_stop(zcmixer->oldtrack);
 		zcmusic_unload_file(zcmixer->oldtrack);
 	}
-	//if (zcmixer->newtrack)
-	//{
-	//	zcmusic_stop(zcmixer->newtrack);
-	//	zcmusic_unload_file(zcmixer->newtrack);
-	//}
+	zcmixer->newtrack = NULL;
 	zc_stop_midi();
 	currmidi=-1;
 }
@@ -7981,21 +8099,14 @@ void System()
 		
 	do
 	{
-		if(close_button_quit)
-		{
-			close_button_quit = false;
-			f_Quit(qEXIT);
-			if(Quit) break;
-		}
+		if(handle_close_btn_quit())
+			break;
+		
 		rest(17);
 		
 		if(mouse_down && !gui_mouse_b())
 			mouse_down=0;
 			
-		title_menu[0].flags = (title_version==0) ? D_SELECTED : 0;
-		title_menu[1].flags = (title_version==1) ? D_SELECTED : 0;
-		title_menu[2].flags = (title_version==2) ? D_SELECTED : 0;
-		
 		settings_menu[1].flags = replay_is_replaying() ? D_DISABLED : 0;
 		settings_menu[5].flags = Throttlefps?D_SELECTED:0;
 		settings_menu[6].flags = ShowFPS?D_SELECTED:0;
@@ -8010,8 +8121,8 @@ void System()
 		window_menu[3].flags = SaveWinPos?D_SELECTED:0;
 		window_menu[4].flags = stretchGame?D_SELECTED:0;
 
-		options_menu[4].flags = (epilepsyFlashReduction) ? D_SELECTED : 0;
-		options_menu[5].flags = (pause_in_background)?D_SELECTED:0;
+		options_menu[3].flags = (epilepsyFlashReduction) ? D_SELECTED : 0;
+		options_menu[4].flags = (pause_in_background)?D_SELECTED:0;
 		
 		name_entry_mode_menu[0].flags = (NameEntryMode==0)?D_SELECTED:0;
 		name_entry_mode_menu[1].flags = (NameEntryMode==1)?D_SELECTED:0;
@@ -8182,7 +8293,7 @@ bool try_zcmusic(char *filename, int32_t track, int32_t midi, int32_t fadeoutfra
 		
 		zcmusic=newzcmusic;
 		int32_t temp_volume = emusic_volume;
-		if (!get_qr(qr_OLD_SCRIPT_VOLUME))
+		if (GameLoaded && !get_qr(qr_OLD_SCRIPT_VOLUME))
 			temp_volume = (emusic_volume * FFCore.usr_music_volume) / 10000 / 100;
 		temp_volume = (temp_volume * zcmusic->fadevolume) / 10000;
 		zcmusic_play(zcmusic, temp_volume);
@@ -8525,7 +8636,7 @@ bool sfx_init(int32_t index)
 		}
 		
 		int32_t temp_volume = sfx_volume;
-		if (!get_qr(qr_OLD_SCRIPT_VOLUME))
+		if (GameLoaded && !get_qr(qr_OLD_SCRIPT_VOLUME))
 			temp_volume = (sfx_volume * FFCore.usr_sfx_volume) / 10000 / 100;
 		voice_set_volume(sfx_voice[index], temp_volume);
 	}
@@ -8590,7 +8701,7 @@ void sfx(int32_t index,int32_t pan,bool loop, bool restart, int32_t vol, int32_t
 
 		// Only used by ZScript currently
 		int32_t temp_volume = (sfx_volume * vol) / 10000 / 100;
-		if (!get_qr(qr_OLD_SCRIPT_VOLUME))
+		if (GameLoaded && !get_qr(qr_OLD_SCRIPT_VOLUME))
 			temp_volume = (temp_volume * FFCore.usr_sfx_volume) / 10000 / 100;
 		voice_set_volume(sfx_voice[index], temp_volume);
 
@@ -8744,6 +8855,21 @@ bool joybtn(int32_t b)
 	return joy[joystick_index].button[b-1].b !=0;
 }
 
+bool joystick(int32_t s)
+{
+	if(s < 0)
+		return false;
+	if (s >= joy[joystick_index].num_sticks)
+		return false;
+	
+	for (int i = 0; i < joy[joystick_index].stick[s].num_axis; i++)
+	{
+		if (joy[joystick_index].stick[s].axis[i].d1 || joy[joystick_index].stick[s].axis[i].d2)
+			return true;
+	}
+	return false;
+}
+
 const char* joybtn_name(int32_t b)
 {
 	if (b <= 0 || b > joy[joystick_index].num_buttons)
@@ -8752,16 +8878,20 @@ const char* joybtn_name(int32_t b)
 	return joy[joystick_index].button[b-1].name;
 }
 
+const char* joystick_name(int32_t s)
+{
+	if (s < 0 || s >= joy[joystick_index].num_sticks)
+		return "";
+
+	return joy[joystick_index].stick[s].name;
+}
+
 int32_t next_press_key();
 
-int32_t next_press_btn()
+int32_t next_joy_input(bool buttons)
 {
 	clear_keybuf();
-	/*bool b[joy[joystick_index].num_buttons+1];
 
-	for(int32_t i=1; i<=joy[joystick_index].num_buttons; i++)
-		b[i]=joybtn(i);*/
-		
 	//first, we need to wait until they're pressing no buttons
 	for(;;)
 	{
@@ -8780,9 +8910,19 @@ int32_t next_press_btn()
 		poll_joystick();
 		bool done = true;
 		
-		for(int32_t i=1; i<=joy[joystick_index].num_buttons; i++)
+		if (buttons)
 		{
-			if(joybtn(i)) done = false;
+			for(int32_t i=1; i<=joy[joystick_index].num_buttons; i++)
+			{
+				if(joybtn(i)) done = false;
+			}
+		}
+		else
+		{
+			for(int32_t i=0; i<joy[joystick_index].num_sticks; i++)
+			{
+				if(joystick(i)) done = false;
+			}
 		}
 		
 		if(done) break;
@@ -8806,9 +8946,21 @@ int32_t next_press_btn()
 		
 		poll_joystick();
 		
-		for(int32_t i=1; i<=joy[joystick_index].num_buttons; i++)
+		if (buttons)
 		{
-			if(joybtn(i)) return i;
+			for(int32_t i=1; i<=joy[joystick_index].num_buttons; i++)
+			{
+				if(joybtn(i))
+					return i;
+			}
+		}
+		else
+		{
+			for(int32_t i=0; i<joy[joystick_index].num_sticks; i++)
+			{
+				if(joystick(i))
+					return i;
+			}
 		}
 		rest(1);
 	}

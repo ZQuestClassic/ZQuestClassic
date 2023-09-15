@@ -1650,4 +1650,33 @@ namespace Emily
 			dest[dpos + i] = buffer[i];
 		return dest;
 	} //end
+	
+	// Gets an item's tile, animated based on 'Game->Time'
+	int item_tile(int id)
+	{
+		if(id < 0 || id > MAX_ITEMDATA)
+			return 0;
+		itemdata id = Game->LoadItemData(id);
+		if(id->AFrames < 2)
+			return id->Tile;
+		int spd = id->ASpeed ? id->ASpeed : 1;
+		int wid = spd*(id->AFrames+id->Delay);
+		int clk = (Game->Time % (wid*1L))/1L;
+		if(clk < id->Delay*spd)
+			return id->Tile;
+		return id->Tile + Div(clk-(id->Delay*spd),spd);
+	}
+	// Gets an item's cset, animated based on 'Game->Time'
+	int item_cset(int id)
+	{
+		if(id < 0 || id > MAX_ITEMDATA)
+			return 0;
+		itemdata id = Game->LoadItemData(id);
+		if(id->Flash & 1)
+		{
+			int clk = (Game->Time % (16*1L))/1L;
+			return (clk >= 8) ? (id->CSet >> 4) : (id->CSet & 0xF);
+		}
+		else return id->CSet & 0xF;
+	}
 }

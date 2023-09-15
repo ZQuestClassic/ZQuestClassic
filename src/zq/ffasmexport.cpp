@@ -1,5 +1,5 @@
 
-#include <string.h>
+#include <cstring>
 
 #include "zq/ffasmexport.h"
 #include "zq/ffasm.h"

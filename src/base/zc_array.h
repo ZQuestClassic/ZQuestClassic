@@ -127,7 +127,6 @@ protected:
     pointer _ptr;
 };
 
-
 template <typename T>
 class ZCArray
 {
@@ -143,31 +142,31 @@ public:
     typedef T* pointer;
     typedef T type;
     
-    ZCArray() : _ptr(NULL), _size(0)
+    ZCArray() : _ptr(NULL), _size(0), _valid(false)
     {
         for(int32_t i = 0; i < 4; i++)
             _dim[i] = 0;
     }
     
-    ZCArray(size_type _Size) : _ptr(NULL)
+    ZCArray(size_type _Size) : _ptr(NULL), _valid(false)
     {
         _SetDimensions(0, 0, _Size);
         _Alloc(_size);
     }
     
-    ZCArray(size_type _Y, size_type _X) : _ptr(NULL)
+    ZCArray(size_type _Y, size_type _X) : _ptr(NULL), _valid(false)
     {
         _SetDimensions(0, _Y, _X);
         _Alloc(_size);
     }
     
-    ZCArray(size_type _Z, size_type _Y, size_type _X) : _ptr(NULL)
+    ZCArray(size_type _Z, size_type _Y, size_type _X) : _ptr(NULL), _valid(false)
     {
         _SetDimensions(_Z, _Y, _X);
         _Alloc(_size);
     }
     
-    ZCArray(const ZCArray &_Array) : _ptr(NULL), _size(0)
+    ZCArray(const ZCArray &_Array) : _ptr(NULL), _size(0), _valid(false)
     {
         for(int32_t i = 0; i < 4; i++) _dim[i] = 0;
         
@@ -183,7 +182,6 @@ public:
     {
         if(this != &_Array)
             Copy(_Array);
-            
         return *this;
     }
     
@@ -191,6 +189,8 @@ public:
     {
         if(_size != _Array._size)
             return false;
+		if(_valid != _Array._valid)
+			return false;
             
         for(size_type i(0); i < _size; i++)
             if(*(_ptr + i) != *(_Array._ptr + i))
@@ -374,6 +374,14 @@ public:
     {
         return (_size == 0);
     }
+	bool Valid() const
+	{
+		return _valid;
+	}
+	void setValid(bool v)
+	{
+		_valid = v;
+	}
     
     size_type Offset(const size_type _Z, const size_type _Y, const size_type _X) const
     {
@@ -415,13 +423,30 @@ public:
             _ReAssign(_OldSize, _NewSize);
     }
     
+	void Push(type val, int indx = -1)
+	{
+		++_dim[0];
+		_ReAssign(_size, _size+1, indx, val);
+	}
+	
+	type Pop(int indx = -1)
+	{
+		type ret = _ptr[(indx<0||indx>=_size) ? _size-1 : indx];
+		--_dim[0];
+		_ReAssign(_size, _size-1, indx);
+		return ret;
+	}
+	
+	
     void Copy(const ZCArray &_Array)
     {
         if(_Array.Empty())
         {
             Clear();
+			setValid(_Array.Valid());
             return;
         }
+		setValid(_Array.Valid());
         
 #ifdef _DEBUGZCARRAY
         
@@ -456,6 +481,7 @@ public:
     void Clear()
     {
         Resize(0);
+		_valid = false;
     }
     
     
@@ -485,22 +511,54 @@ protected:
         _size = size;
     }
     
-    void _ReAssign(const size_type _OldSize, const size_type _NewSize)
+    void _ReAssign(const size_type _OldSize, const size_type _NewSize, int indx = -1, type fillval = 0)
     {
+		if(_NewSize == 0)
+		{
+			_Delete();
+			return;
+		}
+		
         pointer _oldPtr = _ptr;
         _ptr = new type[ _NewSize ];
+		if(indx < 0 || indx > _size) indx = _size;
         
         const size_type _copyRange = (_OldSize < _NewSize ? _OldSize : _NewSize);
+		const size_type size_diff = zc_max(_OldSize,_NewSize)-zc_min(_OldSize,_NewSize);
         
-        for(size_type i(0); i < _copyRange; i++)
-            _ptr[ i ] = _oldPtr[ i ];
+		if(indx == _size)
+		{
+			for(size_type i(0); i < _copyRange; i++)
+				_ptr[ i ] = _oldPtr[ i ];
+			if(_OldSize < _NewSize)
+				Assign(_OldSize, _NewSize, fillval);
+        }
+		else if(_OldSize < _NewSize)
+		{
+			size_type offs = 0;
+			for(size_type i(0); i < _copyRange; i++)
+			{
+				if(i==indx)
+				{
+					offs = size_diff;
+					Assign(i, i+size_diff, fillval);
+				}
+				_ptr[ i+offs ] = _oldPtr[ i ];
+			}
+		}
+		else
+		{
+			size_type offs = 0;
+			for(size_type i(0); i < _copyRange; i++)
+			{
+				if(i==indx)
+					offs = size_diff;
+				_ptr[ i ] = _oldPtr[ i+offs ];
+			}
+		}
             
         _Delete(_oldPtr);
         _size = _NewSize;
-		if(_OldSize < _NewSize)
-		{
-			Assign(_OldSize, _NewSize, 0);
-		}
     }
     
     void _Delete()
@@ -618,6 +676,7 @@ private:
     pointer _ptr;
     size_type _size;
     size_type _dim[ 4 ];
+	bool _valid;
     
 };
 

@@ -1,13 +1,3 @@
-	//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  zelda.h
-//
-//  Definitions, function prototypes, etc. for zelda.cc
-//
-//--------------------------------------------------------
-
 #ifndef _ZELDA_H_
 #define _ZELDA_H_
 
@@ -23,6 +13,7 @@
 #include "zc/zeldadat.h"
 #include "sfx.h"
 #include "zcmusic.h"
+#include "zcmixer.h"
 #include "jwin.h"
 #include "gamedata.h"
 #include "base/zsys.h"
@@ -75,25 +66,6 @@ enum
 /*********************************/
 /*********** Procedures **********/
 /*********************************/
-
-/*
-
-  // aglogo.cc
-  int32_t  aglogo(BITMAP* frame);
-
-
-  // title.cc
-  void update_game_icons();
-
-  // zc_sys.cc
-  void color_layer(RGB *src,RGB *dest,char r,char g,char b,char pos,int32_t from,int32_t to);
-  void go();
-  void comeback();
-  void waitvsync(bool fast);
-  int32_t  input_idle(bool checkmouse);
-  int32_t  after_time();
-  void hit_close_button();
-  */
 
 void port250QuestRules();
 
@@ -307,7 +279,6 @@ extern char     palnames[MAXLEVELS][17];
 extern bool standalone_mode;
 extern char *standalone_quest;
 extern std::string standalone_save_path;
-extern bool skip_title;
 extern bool disable_save_to_disk;
 
 extern int32_t draw_screen_clip_rect_x1; //Used by the ending, bu could be used to change the drawn screen size. 
@@ -376,7 +347,7 @@ extern int32_t js_stick_2_y_stick, js_stick_2_y_axis, js_stick_2_y_offset;
 extern int32_t DUkey, DDkey, DLkey, DRkey, DUbtn, DDbtn, DLbtn, DRbtn, ss_after, ss_speed, ss_density, ss_enable;
 extern int32_t hs_startx, hs_starty, hs_xdist, hs_ydist, clockclk, clock_zoras[eMAXGUYS];
 extern int32_t swordhearts[4], currcset, currspal6, currspal14, gfc, gfc2, pitx, pity, refill_what, refill_why;
-extern int32_t heart_beep_timer, new_enemy_tile_start, nets, magicitem, div_prot_item, title_version;
+extern int32_t heart_beep_timer, new_enemy_tile_start, nets, magicitem, div_prot_item;
 extern int32_t magiccastclk, castx, casty, quakeclk, wavy, df_x, df_y, nl1_x, nl1_y, nl2_x, nl2_y, magicdrainclk, conveyclk, memrequested;
 extern byte newconveyorclk;
 extern dword fps_secs;
@@ -387,6 +358,7 @@ extern bool blockmoving;
 extern bool Throttlefps, MenuOpen, ClickToFreeze, Paused, Saving, Advance, ShowFPS, Showpal,
 	Playing, FrameSkip, TransLayers, clearConsoleOnLoad, clearConsoleOnReload, disableClickToFreeze,
 	SaveDragResize, DragAspect, SaveWinPos, scaleForceInteger, stretchGame;
+extern bool GameLoaded;
 extern int32_t LastWidth, LastHeight;
 extern bool refreshpal,blockpath,__debug,loaded_guys,freeze_guys;
 extern bool loaded_enemies,drawguys,details,debug_enabled,watch;
@@ -435,6 +407,7 @@ extern script_data *screenscripts[NUMSCRIPTSCREEN];
 extern script_data *dmapscripts[NUMSCRIPTSDMAP];
 extern script_data *itemspritescripts[NUMSCRIPTSITEMSPRITE];
 extern script_data *comboscripts[NUMSCRIPTSCOMBODATA];
+extern script_data *subscreenscripts[NUMSCRIPTSSUBSCREEN];
 
 extern SAMPLE customsfxdata[WAV_COUNT];
 extern int32_t sfxdat;

@@ -89,10 +89,19 @@ static AccessorTable GlobalTable[] =
 
 	{ "printf",                  0,          ZTID_VOID,   -1,    FL_VARG,  { ZTID_CHAR },{} },
 	{ "sprintf",                 0,         ZTID_FLOAT,   -1,    FL_VARG,  { ZTID_CHAR, ZTID_CHAR },{} },
+	{ "printfa",                 0,          ZTID_VOID,   -1,          0,  { ZTID_CHAR, ZTID_UNTYPED },{} },
+	{ "sprintfa",                0,         ZTID_FLOAT,   -1,          0,  { ZTID_CHAR, ZTID_CHAR, ZTID_UNTYPED },{} },
 	
 	{ "Max",                     0,       ZTID_UNTYPED,   -1,    FL_VARG,  { ZTID_UNTYPED, ZTID_UNTYPED },{},2 },
 	{ "Min",                     0,       ZTID_UNTYPED,   -1,    FL_VARG,  { ZTID_UNTYPED, ZTID_UNTYPED },{},2 },
 	{ "Choose",                  0,       ZTID_UNTYPED,   -1,    FL_VARG,  { ZTID_UNTYPED },{},1 },
+	
+	{ "ArrayPushBack",           0,          ZTID_BOOL,   -1,          0,  { ZTID_UNTYPED, ZTID_UNTYPED },{} },
+	{ "ArrayPushFront",          0,          ZTID_BOOL,   -1,          0,  { ZTID_UNTYPED, ZTID_UNTYPED },{} },
+	{ "ArrayPushAt",             0,          ZTID_BOOL,   -1,          0,  { ZTID_UNTYPED, ZTID_UNTYPED, ZTID_FLOAT },{} },
+	{ "ArrayPopBack",            0,       ZTID_UNTYPED,   -1,          0,  { ZTID_UNTYPED },{} },
+	{ "ArrayPopFront",           0,       ZTID_UNTYPED,   -1,          0,  { ZTID_UNTYPED },{} },
+	{ "ArrayPopAt",              0,       ZTID_UNTYPED,   -1,          0,  { ZTID_UNTYPED, ZTID_FLOAT },{} },
 	
 	//Undocumented intentionally - compat only
 	{ "Rand",                    0,         ZTID_FLOAT,   -1,          0,  { ZTID_FLOAT },{} },
@@ -1522,6 +1531,28 @@ void GlobalSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
+	//void printfa(str* format, untyped[] args)
+	{
+		Function* function = getFunction("printfa");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPrintfArr());
+		LABELBACK(label);
+		POP_ARGS(2,NUL);
+		RETURN();
+		function->giveCode(code);
+	}
+	//void sprintfa(str* buf, str* format, untyped[] args)
+	{
+		Function* function = getFunction("sprintfa");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OSPrintfArr());
+		LABELBACK(label);
+		POP_ARGS(3,NUL);
+		RETURN();
+		function->giveCode(code);
+	}
 	//int32_t EngineDegtoRad(int32_t val)
 	{
 		Function* function = getFunction("EngineDegtoRad");
@@ -1597,6 +1628,75 @@ void GlobalSymbols::generateCode()
 		RETURN();
 		function->giveCode(code);
 	}
-	
+	//void ArrayPushFront(untyped[] arr, untyped val)
+	{
+		Function* function = getFunction("ArrayPushFront");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPushImmediate(new LiteralArgument(0)));
+		LABELBACK(label);
+		addOpcode2 (code, new OArrayPush());
+		POP_ARGS(3,NUL);
+		RETURN();
+		function->giveCode(code);
+	}
+	//void ArrayPushBack(untyped[] arr, untyped val)
+	{
+		Function* function = getFunction("ArrayPushBack");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPushImmediate(new LiteralArgument(-10000)));
+		LABELBACK(label);
+		addOpcode2 (code, new OArrayPush());
+		POP_ARGS(3,NUL);
+		RETURN();
+		function->giveCode(code);
+	}
+	//void ArrayPushAt(untyped[] arr, untyped val, int indx)
+	{
+		Function* function = getFunction("ArrayPushAt");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OArrayPush());
+		LABELBACK(label);
+		POP_ARGS(3,NUL);
+		RETURN();
+		function->giveCode(code);
+	}
+	//void ArrayPopFront(untyped[] arr)
+	{
+		Function* function = getFunction("ArrayPopFront");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPushImmediate(new LiteralArgument(0)));
+		LABELBACK(label);
+		addOpcode2 (code, new OArrayPop());
+		POP_ARGS(2,NUL);
+		RETURN();
+		function->giveCode(code);
+	}
+	//void ArrayPopBack(untyped[] arr)
+	{
+		Function* function = getFunction("ArrayPopBack");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OPushImmediate(new LiteralArgument(-10000)));
+		LABELBACK(label);
+		addOpcode2 (code, new OArrayPop());
+		POP_ARGS(2,NUL);
+		RETURN();
+		function->giveCode(code);
+	}
+	//void ArrayPopAt(untyped[] arr, int indx)
+	{
+		Function* function = getFunction("ArrayPopAt");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OArrayPop());
+		LABELBACK(label);
+		POP_ARGS(2,NUL);
+		RETURN();
+		function->giveCode(code);
+	}
 }
 

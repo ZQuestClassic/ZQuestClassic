@@ -1,14 +1,4 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  ending.cc
-//
-//  Ending code for ZQuest Classic.
-//
-//--------------------------------------------------------
-
-#include <string.h>
+#include <cstring>
 #include <stdio.h>
 
 #include "base/qrs.h"

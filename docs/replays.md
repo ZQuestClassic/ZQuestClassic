@@ -37,4 +37,4 @@ TODO: there's a lot more to say about how it actually works. replay versions, zp
 - `bash tests/generate_coverage_report.sh`
 - `open tests/.coverage/report/index.html`
 
-Coverage reports are hosted at https://armageddongames.github.io/ZQuestClassic/coverage and are updated automatically.
+Coverage reports are hosted at https://zquestclassic.github.io/ZQuestClassic/coverage and are updated automatically.

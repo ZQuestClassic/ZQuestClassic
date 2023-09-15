@@ -1,13 +1,3 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  ending.cc
-//
-//  Ending code for ZQuest Classic.
-//
-//--------------------------------------------------------
-
 #ifndef _ENDING_H_
 #define _ENDING_H_
 

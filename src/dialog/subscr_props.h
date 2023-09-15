@@ -24,7 +24,7 @@ class SubscrPropDialog: public GUI::Dialog<SubscrPropDialog>
 public:
 	enum class message
 	{
-		REFR_INFO, OK, CANCEL
+		REFR_INFO, OK, CANCEL, REFR_SELECTABLE
 	};
 
 	SubscrPropDialog(SubscrWidget* widg, int32_t obj_ind);
@@ -44,8 +44,8 @@ protected:
 	std::shared_ptr<GUI::TextField> tfs[3];
 	std::shared_ptr<GUI::Checkbox> cbs[4];
 	
-	std::shared_ptr<GUI::Grid> selgs[3];
-	std::shared_ptr<GUI::Frame> selframes[2];
+	std::shared_ptr<GUI::Grid> selgs[4];
+	std::shared_ptr<GUI::Frame> selframes[3];
 	std::shared_ptr<GUI::TabRef> seltabs[1];
 	std::shared_ptr<GUI::TextField> seltfs[1];
 	std::shared_ptr<GUI::Button> selbtns[1];
@@ -66,9 +66,11 @@ protected:
 	zasm_meta local_gen_meta;
 	
 	GUI::ListData list_font, list_shadtype, list_aligns, list_buttons, list_items,
-		list_counters, list_counters2, list_itemclass, list_genscr, list_sfx;
+		list_counters, list_counters2, list_itemclass, list_genscr, list_sfx,
+		list_costinds;
 	
 	void updateSelectable();
+	void updateAttr();
 	void updateColors();
 	void update_wh();
 	void refr_info();

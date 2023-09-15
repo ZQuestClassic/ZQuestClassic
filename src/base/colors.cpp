@@ -1,13 +1,3 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  colors.cc
-//
-//  Palette data for ZQuest Classic.
-//
-//--------------------------------------------------------
-
 #include "base/zc_alleg.h"
 #include "base/colors.h"
 
@@ -475,4 +465,3 @@ void create_zc_trans_table(COLOR_MAP *table, AL_CONST PALETTE pal, int32_t r, in
 		}
 	}
 }
-

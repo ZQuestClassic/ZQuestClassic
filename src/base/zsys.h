@@ -1,13 +1,3 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  zsys.h
-//
-//  System functions, etc.
-//
-//--------------------------------------------------------
-
 #if defined(ALLEGRO_WINDOWS)
 #include <conio.h>
 #endif
@@ -19,6 +9,7 @@
 #include "jwin.h"
 #include "zsyssimple.h"
 
+#include <string>
 #include <functional>
 
 #define FILENAME8_3   0
@@ -54,6 +45,17 @@ void encode_007(byte *buf, dword size, dword key, word *check1, word *check2, in
 int32_t encode_file_007(const char *srcfile, const char *destfile, int32_t key, const char *header, int32_t method);
 int32_t decode_file_007(const char *srcfile, const char *destfile, const char *header, int32_t method, bool packed, const char *password);
 void copy_file(const char *src, const char *dest);
+
+struct MaybeLegacyEncodedResult
+{
+	PACKFILE* decoded_pf;
+	bool top_layer_compressed;
+	bool compressed;
+	bool encrypted;
+	bool not_found;
+};
+MaybeLegacyEncodedResult try_open_maybe_legacy_encoded_file(const char *filename, const char *encoding_header_1, const char *encoding_header_2, const char *payload_header_1, const char *payload_header_2);
+void clear_quest_tmpfile();
 
 [[noreturn]] void Z_error_fatal(const char *format,...);
 void Z_error(const char *format,...);

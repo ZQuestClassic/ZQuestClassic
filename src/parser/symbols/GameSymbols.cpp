@@ -125,7 +125,7 @@ static AccessorTable gameTable[] =
 //	Versioning
 	{ "getZScriptVersion",          0,         ZTID_FLOAT,   ZSCRIPTVERSION,            0,  { ZTID_GAME },{} },
 	{ "getVersion",                 0,         ZTID_FLOAT,   ZELDAVERSION,              0,  { ZTID_GAME },{} },
-	{ "getBuild",                   0,         ZTID_FLOAT,   ZELDABUILD,                0,  { ZTID_GAME },{} },
+	{ "getBuild",                   0,         ZTID_FLOAT,   ZELDABUILD,                FL_DEPR,  { ZTID_GAME },{} },
 	{ "getBeta",                    0,         ZTID_FLOAT,   ZELDABETA,                 0,  { ZTID_GAME },{} },
 	{ "getBetaType",                0,         ZTID_FLOAT,   ZELDABETATYPE,             0,  { ZTID_GAME },{} },
 	{ "getDisableActiveSubscreen",  0,          ZTID_BOOL,   NOACTIVESUBSC,             0,  { ZTID_GAME },{} },
@@ -183,6 +183,25 @@ static AccessorTable gameTable[] =
 	
 	{ "getOverrideItems[]",         0,         ZTID_FLOAT,   GAMEOVERRIDEITEMS,         0,  { ZTID_GAME, ZTID_FLOAT },{} },
 	{ "setOverrideItems[]",         0,          ZTID_VOID,   GAMEOVERRIDEITEMS,         0,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	
+	{ "CurrentItemID",              0,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{ 0x01 } },
+	
+	{ "getActiveSubscreenOpen",     0,          ZTID_BOOL,   GAMEASUBOPEN,         FL_INL,  { ZTID_GAME },{} },
+	{ "setActiveSubscreenOpen",     0,          ZTID_VOID,   GAMEASUBOPEN,      FL_RDONLY,  { ZTID_GAME, ZTID_BOOL },{} },
+	{ "getActiveSubscreenY",        0,         ZTID_FLOAT,   GAMEASUBYOFF,         FL_INL,  { ZTID_GAME },{} },
+	{ "setActiveSubscreenY",        0,          ZTID_VOID,   GAMEASUBYOFF,      FL_RDONLY,  { ZTID_GAME, ZTID_BOOL },{} },
+	{ "LoadASubData",               0, ZTID_SUBSCREENDATA,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "LoadPSubData",               0, ZTID_SUBSCREENDATA,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "LoadOSubData",               0, ZTID_SUBSCREENDATA,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "SwapActiveSubscreens",       0,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SwapPassiveSubscreens",      0,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "SwapOverlaySubscreens",      0,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_GAME, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "getNumActiveSubscreens",     0,         ZTID_FLOAT,   GAMENUMASUB,          FL_INL,  { ZTID_GAME },{} },
+	{ "setNumActiveSubscreens",     0,          ZTID_VOID,   GAMENUMASUB,          FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "getNumPassiveSubscreens",    0,         ZTID_FLOAT,   GAMENUMPSUB,          FL_INL,  { ZTID_GAME },{} },
+	{ "setNumPassiveSubscreens",    0,          ZTID_VOID,   GAMENUMPSUB,          FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
+	{ "getNumOverlaySubscreens",    0,         ZTID_FLOAT,   GAMENUMOSUB,          FL_INL,  { ZTID_GAME },{} },
+	{ "setNumOverlaySubscreens",    0,          ZTID_VOID,   GAMENUMOSUB,          FL_INL,  { ZTID_GAME, ZTID_FLOAT },{} },
 	
 	//Intentionally undocumented
 	{ "getSTD[]",                   0,       ZTID_UNTYPED,   STDARR,                    0,  { ZTID_GAME, ZTID_FLOAT },{} },
@@ -369,6 +388,85 @@ void GameSymbols::generateCode()
 		POPREF();
 		addOpcode2 (code, new OLoadDMapDataRegister(new VarArgument(EXP1)));
 		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(REFDMAPDATA)));
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	//LoadASubData
+	{
+		Function* function = getFunction("LoadASubData");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OLoadSubscreenDataRV(new VarArgument(EXP1), new LiteralArgument(0*10000)));
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	//LoadPSubData
+	{
+		Function* function = getFunction("LoadPSubData");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OLoadSubscreenDataRV(new VarArgument(EXP1), new LiteralArgument(1*10000)));
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	//LoadOSubData
+	{
+		Function* function = getFunction("LoadOSubData");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer, and ignore it
+		POPREF();
+		addOpcode2 (code, new OLoadSubscreenDataRV(new VarArgument(EXP1), new LiteralArgument(2*10000)));
+		RETURN();
+		function->giveCode(code);
+	}
+	
+	//SwapActiveSubscreens
+	{
+		Function* function = getFunction("SwapActiveSubscreens");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		ASSERT_NUL();
+		addOpcode2 (code, new OSwapSubscrV(new LiteralArgument(0*10000)));
+		LABELBACK(label);
+		RETURN();
+		function->giveCode(code);
+	}
+	//SwapPassiveSubscreens
+	{
+		Function* function = getFunction("SwapPassiveSubscreens");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		ASSERT_NUL();
+		addOpcode2 (code, new OSwapSubscrV(new LiteralArgument(1*10000)));
+		LABELBACK(label);
+		RETURN();
+		function->giveCode(code);
+	}
+	//SwapOverlaySubscreens
+	{
+		Function* function = getFunction("SwapOverlaySubscreens");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		ASSERT_NUL();
+		addOpcode2 (code, new OSwapSubscrV(new LiteralArgument(2*10000)));
+		LABELBACK(label);
 		RETURN();
 		function->giveCode(code);
 	}
@@ -2502,6 +2600,18 @@ void GameSymbols::generateCode()
 		vector<shared_ptr<Opcode>> code;
 		ASSERT_NUL();
 		addOpcode2 (code, new OCreateSavPortal());
+		LABELBACK(label);
+		RETURN();
+		function->giveCode(code);
+	}
+	//int CurrentItemID(game, int itype, int flags)
+	{
+		Function* function = getFunction("CurrentItemID");
+		
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		ASSERT_NUL();
+		addOpcode2 (code, new OCurrentItemID());
 		LABELBACK(label);
 		RETURN();
 		function->giveCode(code);

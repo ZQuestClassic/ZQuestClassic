@@ -179,6 +179,8 @@ void trunc_str(std::string& str, size_t sz, std::string const& header, int32_t r
 %token BOTTLEDATA
 %token BOTTLESHOPDATA
 %token SUBSCREENDATA
+%token SUBSCREENPAGE
+%token SUBSCREENWIDGET
 %token GENERIC
 %token GENERICDATA
 %token PORTAL
@@ -278,7 +280,7 @@ Global_List :
 		root->options.push_back(option);
 		if (root->hasDeclarations())
 			yywarn("WARNING: Options should come before everything else.");}
-	| {root.reset(new ASTFile(noloc));}
+	| %empty {root.reset(new ASTFile(noloc));}
 	;
 
 Global_Statement :
@@ -592,6 +594,8 @@ DataType : ZCONST DataType {
 	| PORTAL {$$ = new ASTDataType(DataType::PORTAL, @$);}
 	| SAVEDPORTAL {$$ = new ASTDataType(DataType::SAVEDPORTAL, @$);}
 	| SUBSCREENDATA {$$ = new ASTDataType(DataType::SUBSCREENDATA, @$);}
+	| SUBSCREENPAGE {$$ = new ASTDataType(DataType::SUBSCREENPAGE, @$);}
+	| SUBSCREENWIDGET {$$ = new ASTDataType(DataType::SUBSCREENWIDGET, @$);}
 	| TUNE {$$ = new ASTDataType(DataType::TUNES, @$);}
 	| WARPRING	{$$ = new ASTDataType(DataType::WARPRING, @$);}
 	| PALDATA {$$ = new ASTDataType(DataType::PALDATA, @$);}
@@ -733,60 +737,30 @@ Function :
 	;
 
 Function_Typeless :
+	Function_Heading Statement_Block
+	{
+		ASTFuncDecl* func = (ASTFuncDecl*)$1;
+		func->block = (ASTBlock*)$2;
+		$$ = func;}
+	| Function_Heading SEMICOLON {
+		ASTFuncDecl* func = (ASTFuncDecl*)$1;
+		func->prototype = true;
+		func->defaultReturn = new ASTExprConst(new ASTExprCast(new ASTDataType(DataType::CUNTYPED, @$), new ASTNumberLiteral(new ASTFloat(0, 0, @$), @$), @$), @$);
+		$$ = func;}
+	| Function_Heading COLON DEFAULT Expression_Constant SEMICOLON {
+		ASTFuncDecl* func = (ASTFuncDecl*)$1;
+		func->prototype = true;
+		func->defaultReturn = (ASTExprConst*)$4;
+		$$ = func;}
+	;
+Function_Heading :
 	Identifier_List LPAREN Function_Parameters_List RPAREN
-		Statement_Block
 	{
 		ASTExprIdentifier* iden = (ASTExprIdentifier*)$1;
 		ASTFuncDecl* func = (ASTFuncDecl*)$3;
-		ASTBlock* block = (ASTBlock*)$5;
 		func->iden = iden;
 		func->name = iden->components.back();
-		func->block = block;
 		func->location = @$;
-		$$ = func;}
-	| Identifier_List LPAREN RPAREN Statement_Block {
-		ASTExprIdentifier* iden = (ASTExprIdentifier*)$1;
-		ASTBlock* block = (ASTBlock*)$4;
-		ASTFuncDecl* func = new ASTFuncDecl(@$);
-		func->iden = iden;
-		func->name = iden->components.back();
-		func->block = block;
-		$$ = func;}
-	| Identifier_List LPAREN Function_Parameters_List RPAREN SEMICOLON {
-		ASTExprIdentifier* iden = (ASTExprIdentifier*)$1;
-		ASTFuncDecl* func = (ASTFuncDecl*)$3;
-		ASTBlock* block = (ASTBlock*)$5;
-		func->iden = iden;
-		func->name = iden->components.back();
-		func->prototype = true;
-		func->defaultReturn = new ASTExprConst(new ASTExprCast(new ASTDataType(DataType::CUNTYPED, @$), new ASTNumberLiteral(new ASTFloat(0, 0, @$), @$), @$), @$);
-		func->location = @$;
-		$$ = func;}
-	| Identifier_List LPAREN RPAREN SEMICOLON {
-		ASTExprIdentifier* iden = (ASTExprIdentifier*)$1;
-		ASTFuncDecl* func = new ASTFuncDecl(@$);
-		func->iden = iden;
-		func->name = iden->components.back();
-		func->prototype = true;
-		func->defaultReturn = new ASTExprConst(new ASTExprCast(new ASTDataType(DataType::CUNTYPED, @$), new ASTNumberLiteral(new ASTFloat(0, 0, @$), @$), @$), @$);
-		$$ = func;}
-	| Identifier_List LPAREN Function_Parameters_List RPAREN COLON DEFAULT Expression_Constant SEMICOLON {
-		ASTExprIdentifier* iden = (ASTExprIdentifier*)$1;
-		ASTFuncDecl* func = (ASTFuncDecl*)$3;
-		ASTBlock* block = (ASTBlock*)$5;
-		func->iden = iden;
-		func->name = iden->components.back();
-		func->prototype = true;
-		func->defaultReturn = (ASTExprConst*)$7;
-		func->location = @$;
-		$$ = func;}
-	| Identifier_List LPAREN RPAREN COLON DEFAULT Expression_Constant SEMICOLON {
-		ASTExprIdentifier* iden = (ASTExprIdentifier*)$1;
-		ASTFuncDecl* func = new ASTFuncDecl(@$);
-		func->iden = iden;
-		func->name = iden->components.back();
-		func->prototype = true;
-		func->defaultReturn = (ASTExprConst*)$6;
 		$$ = func;}
 	;
 
@@ -803,12 +777,25 @@ Function_Parameters_List :
 			push_front(func->parameters, param);
 			$$ = func;}
 	| Function_OptParams_List {$$ = $1;}
+	| Function_VarArg_Element {$$ = $1;}
+	| %empty {$$ = new ASTFuncDecl(@$);}
 	;
 
 Function_Parameters_Element :
 	DataType Identifier {
 		ASTDataType* type = (ASTDataType*)$1;
 		ASTString* name = (ASTString*)$2;
+		ASTDataDecl* element = new ASTDataDecl(@$);
+		element->name = name->getValue();
+		element->baseType = type;
+		$$ = element;
+		delete name;}
+	;
+Function_Parameters_Bracket_Element :
+	DataType LBRACKET RBRACKET Identifier {
+		ASTDataType* type = (ASTDataType*)$1;
+		type->becomeArray = true;
+		ASTString* name = (ASTString*)$4;
 		ASTDataDecl* element = new ASTDataDecl(@$);
 		element->name = name->getValue();
 		element->baseType = type;
@@ -833,6 +820,13 @@ Function_OptParams_List :
 			push_front(func->optparams, cval);
 			$$ = func;}
 	;
+
+Function_VarArg_Element :
+	RANGE Function_Parameters_Bracket_Element {
+		ASTFuncDecl* func = new ASTFuncDecl(@$);
+		push_front(func->parameters, (ASTDataDecl*)$2);
+		func->setFlag(FUNCFLAG_VARARGS);
+		$$ = func;}
 
 ////////////////////////////////////////////////////////////////
 // Class Declaration
@@ -1429,7 +1423,7 @@ Statement_NoSemicolon:
 		ASTNumberLiteral* lit = new ASTNumberLiteral(val, @$);
 		$$ = new ASTStmtContinue(lit, @$);
 	}
-	| {$$ = new ASTStmtEmpty(@$);}
+	| %empty {$$ = new ASTStmtEmpty(@$);}
 	| Statement_CompileError {$$ = $1;}
 	;
 

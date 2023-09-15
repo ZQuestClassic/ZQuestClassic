@@ -19,6 +19,7 @@ using namespace util;
 #define FUNCFLAG_DEPRECATED         0x00000080
 #define FUNCFLAG_NOCAST             0x00000100
 #define FUNCFLAG_INTARRAY           0x00000200
+#define FUNCFLAG_NIL                0x00000400
 
 #define IFUNCFLAG_SKIPPOINTER	      0x01
 #define IFUNCFLAG_REASSIGNPTR	      0x02
@@ -41,6 +42,7 @@ void zconsole_db(const char *format,...);
 void zconsole_warn(const char *format,...);
 void zconsole_error(const char *format,...);
 void zconsole_info(const char *format,...);
+void zconsole_idle(dword seconds = 2);
 
 void zconsole_db(std::string const& str);
 void zconsole_warn(std::string const& str);

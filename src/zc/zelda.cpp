@@ -1,19 +1,8 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  zelda.cc
-//
-//  Main code for ZQuest Classic. Originally written in
-//  SPHINX C--, now rewritten in DJGPP with Allegro.
-//
-//--------------------------------------------------------
-
 #include <memory>
 #include <filesystem>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <cstring>
 #include <ctype.h>
 #include <string>
 #include <map>
@@ -31,7 +20,7 @@
 
 #include <stdlib.h>
 
-#include <al5img.h>
+#include <al5_img.h>
 #include <loadpng.h>
 
 #include "zscriptversion.h"
@@ -41,7 +30,6 @@
 #include "tiles.h"
 #include "base/colors.h"
 #include "pal.h"
-#include "zc/aglogo.h"
 #include "base/zsys.h"
 #include "base/zapp.h"
 #include "play_midi.h"
@@ -165,7 +153,6 @@ int32_t passive_subscreen_height=56;
 int32_t original_playing_field_offset=56;
 int32_t playing_field_offset=original_playing_field_offset;
 int32_t passive_subscreen_offset=0;
-extern int32_t directItem;
 extern int32_t directItemA;
 extern int32_t directItemB;
 extern int32_t directItemY;
@@ -179,7 +166,6 @@ bool is_compact = false;
 bool standalone_mode=false;
 char *standalone_quest=NULL;
 std::string standalone_save_path;
-bool skip_title=false;
 bool disable_save_to_disk=false;
 
 int32_t favorite_combos[MAXFAVORITECOMBOS] = {0};
@@ -414,7 +400,7 @@ int32_t DUkey = 0, DDkey = 0, DLkey = 0, DRkey = 0, DUbtn = 0, DDbtn = 0, DLbtn 
 int32_t hs_startx = 0, hs_starty = 0, hs_xdist = 0, hs_ydist = 0, clockclk = 0, clock_zoras[eMAXGUYS]={0};
 int32_t cheat_goto_dmap=0, cheat_goto_screen=0, currcset = 0, currspal6 = -1, currspal14 = -1;
 int32_t gfc = 0, gfc2 = 0, pitx = 0, pity = 0, refill_what = 0, refill_why = 0, heart_beep_timer=0, new_enemy_tile_start=1580;
-int32_t nets=1580, magicitem=-1,div_prot_item=-1, title_version = 0, magiccastclk = 0, quakeclk=0, wavy=0, castx = 0, casty = 0, df_x = 0, df_y = 0, nl1_x = 0, nl1_y = 0, nl2_x = 0, nl2_y = 0;
+int32_t nets=1580, magicitem=-1,div_prot_item=-1, magiccastclk = 0, quakeclk=0, wavy=0, castx = 0, casty = 0, df_x = 0, df_y = 0, nl1_x = 0, nl1_y = 0, nl2_x = 0, nl2_y = 0;
 int32_t magicdrainclk=0, conveyclk=3, memrequested=0;
 byte newconveyorclk = 0;
 float avgfps=0;
@@ -438,6 +424,7 @@ bool Throttlefps = true, MenuOpen = false, ClickToFreeze=false, Paused=false, Sa
 double aspect_ratio = 0.75;
 int window_min_width = 320, window_min_height = 240;
 bool Playing, FrameSkip=false, TransLayers = true,clearConsoleOnLoad = true,clearConsoleOnReload = true;
+bool GameLoaded = false;
 bool __debug=false,debug_enabled = false;
 bool refreshpal,blockpath = false,loaded_guys= false,freeze_guys= false,
      loaded_enemies= false,drawguys= false,details=false,watch= false;
@@ -487,6 +474,7 @@ script_data *screenscripts[NUMSCRIPTSCREEN];
 script_data *dmapscripts[NUMSCRIPTSDMAP];
 script_data *itemspritescripts[NUMSCRIPTSITEMSPRITE];
 script_data *comboscripts[NUMSCRIPTSCOMBODATA];
+script_data *subscreenscripts[NUMSCRIPTSSUBSCREEN];
 
 ScriptOwner::ScriptOwner() : scriptType(ScriptType::None), ownerUID(0),
 	specOwned(false), specCleared(false)
@@ -547,6 +535,7 @@ void initZScriptArrayRAM(bool firstplay)
             const ZScriptArray &from = saves_get_current_slot()->game->globalRAM[i];
             ZScriptArray &to = game->globalRAM[i];
             to.Resize(from.Size());
+			to.setValid(from.Valid());
             
             for(dword j = 0; j < from.Size(); j++)
             {
@@ -1087,7 +1076,7 @@ void Z_eventlog(const char *format,...)
         
         va_list ap;
         va_start(ap, format);
-        vsprintf(buf, format, ap);
+        vsnprintf(buf, 2048, format, ap);
         va_end(ap);
         al_trace("%s",buf);
         
@@ -1106,7 +1095,7 @@ void Z_scripterrlog(const char * const format,...)
         
         va_list ap;
         va_start(ap, format);
-        vsprintf(buf, format, ap);
+        vsnprintf(buf, 2048, format, ap);
         va_end(ap);
         al_trace("%s",buf);
         
@@ -1685,6 +1674,8 @@ int32_t init_game()
 	if(clearConsoleOnLoad)
 		clearConsole();
 	new_subscreen_active = nullptr;
+	new_sub_indexes[sstACTIVE] = -1;
+	GameLoaded = true;
 
     // Various things use the frame counter to do random stuff (ex: runDrunkRNG).
 	// We only bother setting it to 0 here so that recordings will play back the
@@ -1994,6 +1985,8 @@ int32_t init_game()
 	timeExitAllGenscript(GENSCR_ST_CHANGE_LEVEL);
 	previous_DMap = currdmap = warpscr = worldscr=game->get_continue_dmap();
 	new_subscreen_active = new_subscreen_passive = new_subscreen_overlay = nullptr;
+	new_sub_indexes[sstACTIVE] = new_sub_indexes[sstPASSIVE] =
+		new_sub_indexes[sstOVERLAY] = -1;
 	init_dmap();
 	
 	if(game->get_continue_scrn() >= 0x80)
@@ -2056,7 +2049,7 @@ int32_t init_game()
 	initZScriptGlobalRAM();
 	FFCore.initZScriptHeroScripts();
 	FFCore.initZScriptDMapScripts();
-	FFCore.initZScriptActiveSubscreenScript();
+	FFCore.initZScriptScriptedActiveSubscreen();
 	FFCore.initZScriptItemScripts();
 
 	if (!get_qr(qr_OLD_SCRIPT_VOLUME))
@@ -2165,6 +2158,15 @@ int32_t init_game()
 			game->bwpn = new_subscreen_active->def_btns[1];
 			game->xwpn = new_subscreen_active->def_btns[2];
 			game->ywpn = new_subscreen_active->def_btns[3];
+			
+			if((game->awpn&0xFF) >= new_subscreen_active->pages.size())
+				game->awpn = 0xFF;
+			if((game->bwpn&0xFF) >= new_subscreen_active->pages.size())
+				game->bwpn = 0xFF;
+			if((game->xwpn&0xFF) >= new_subscreen_active->pages.size())
+				game->xwpn = 0xFF;
+			if((game->ywpn&0xFF) >= new_subscreen_active->pages.size())
+				game->ywpn = 0xFF;
 		}
 		else
 		{
@@ -2186,97 +2188,99 @@ int32_t init_game()
 	//Setup button items
 	{
 		bool use_x = get_qr(qr_SET_XBUTTON_ITEMS), use_y = get_qr(qr_SET_YBUTTON_ITEMS);
-		if(get_qr(qr_OLD_SUBSCR))
+		if (new_subscreen_active)
 		{
-			SubscrPage& pg = new_subscreen_active->cur_page();
-			if(use_x || use_y)
+			if (get_qr(qr_OLD_SUBSCR))
 			{
-				if(!get_qr(qr_SELECTAWPN))
+				SubscrPage& pg = new_subscreen_active->cur_page();
+				if (use_x || use_y)
 				{
-					Awpn = selectSword();
-					bpos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF);
-					if(use_x)
-						xpos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->xwpn : 0xFF, bpos);
-					if(use_y)
-						ypos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->ywpn : 0xFF, bpos, xpos);
-					directItem = -1;
-					directItemA = -1; 
+					if (!get_qr(qr_SELECTAWPN))
+					{
+						Awpn = selectSword();
+						bpos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF);
+						if (use_x)
+							xpos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->xwpn : 0xFF, bpos);
+						if (use_y)
+							ypos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->ywpn : 0xFF, bpos, xpos);
+						directItemA = -1;
+					}
+					else
+					{
+						apos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->awpn : 0xFF);
+						bpos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, apos);
+						if (use_x)
+							xpos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->xwpn : 0xFF, apos, bpos);
+						if (use_y)
+							ypos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->ywpn : 0xFF, apos, bpos, xpos);
+
+						Awpn = pg.get_item_pos(apos >> 8);
+						directItemA = NEG_OR_MASK(Awpn, 0xFF);
+					}
+
+					game->awpn = apos;
+
+					game->bwpn = bpos;
+					Bwpn = pg.get_item_pos(bpos >> 8);
+					directItemB = NEG_OR_MASK(Bwpn, 0xFF);
+
+					game->xwpn = xpos;
+					Xwpn = pg.get_item_pos(xpos >> 8);
+					directItemX = NEG_OR_MASK(Xwpn, 0xFF);
+
+					game->ywpn = ypos;
+					Ywpn = pg.get_item_pos(ypos >> 8);
+					directItemY = NEG_OR_MASK(Ywpn, 0xFF);
+
+					animate_subscr_buttonitems();
+
+					refresh_subscr_buttonitems();
 				}
 				else
 				{
-					apos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->awpn : 0xFF);
-					bpos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, apos);
-					if(use_x)
-						xpos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->xwpn : 0xFF, apos, bpos);
-					if(use_y)
-						ypos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->ywpn : 0xFF, apos, bpos, xpos);
-					
-					Awpn = pg.get_item_pos(apos>>8);
-					directItemA = NEG_OR_MASK(Awpn,0xFF);
+					if (!get_qr(qr_SELECTAWPN))
+					{
+						Awpn = selectSword();
+						apos = 0xFF;
+						bpos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF);
+						directItemA = -1;
+					}
+					else
+					{
+						apos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->awpn : 0xFF);
+						bpos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, apos);
+
+						if (bpos == 0xFF)
+						{
+							bpos = apos;
+							apos = 0xFF;
+						}
+
+						Awpn = pg.get_item_pos(apos >> 8);
+						directItemA = NEG_OR_MASK(Awpn, 0xFF);
+					}
+
+					game->awpn = apos;
+					game->bwpn = bpos;
+					Bwpn = pg.get_item_pos(bpos >> 8);
+					directItemB = NEG_OR_MASK(Bwpn, 0xFF);
+					animate_subscr_buttonitems();
+
+					refresh_subscr_buttonitems();
 				}
-
-				game->awpn = apos;
-				
-				game->bwpn = bpos;
-				Bwpn = pg.get_item_pos(bpos>>8);
-				directItemB = NEG_OR_MASK(Bwpn,0xFF);
-				
-				game->xwpn = xpos;
-				Xwpn = pg.get_item_pos(xpos>>8);
-				directItemX = NEG_OR_MASK(Xwpn,0xFF);
-				
-				game->ywpn = ypos;
-				Ywpn = pg.get_item_pos(ypos>>8);
-				directItemY = NEG_OR_MASK(Ywpn,0xFF);
-				
-				animate_subscr_buttonitems();
-
-				refresh_subscr_buttonitems();
 			}
 			else
 			{
-				if(!get_qr(qr_SELECTAWPN))
-				{
-					Awpn = selectSword();
-					apos = 0xFF;
-					bpos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF);
-					directItemA = directItem = -1; 
-				}
-				else
-				{
-					apos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->awpn : 0xFF);
-					bpos = pg.movepos_legacy(SEL_VERIFY_RIGHT, usesaved ? game->bwpn : 0xFF, apos);
-					
-					if(bpos==0xFF)
-					{
-						bpos=apos;
-						apos=0xFF;
-					}
-					
-					Awpn = pg.get_item_pos(apos>>8);
-					directItemA = NEG_OR_MASK(Awpn,0xFF);
-				}
-
-				game->awpn = apos;
-				game->bwpn = bpos;
-				Bwpn = pg.get_item_pos(bpos>>8);
-				directItemB = NEG_OR_MASK(Bwpn,0xFF);
-				animate_subscr_buttonitems();
-
-				refresh_subscr_buttonitems();
+				Awpn = get_qr(qr_SELECTAWPN) ? new_subscreen_active->get_item_pos(game->awpn)
+					: selectSword();
+				directItemA = NEG_OR_MASK(Awpn, 0xFF);
+				Bwpn = new_subscreen_active->get_item_pos(game->bwpn);
+				directItemB = NEG_OR_MASK(Bwpn, 0xFF);
+				Xwpn = new_subscreen_active->get_item_pos(game->xwpn);
+				directItemX = NEG_OR_MASK(Xwpn, 0xFF);
+				Ywpn = new_subscreen_active->get_item_pos(game->ywpn);
+				directItemY = NEG_OR_MASK(Ywpn, 0xFF);
 			}
-		}
-		else if(new_subscreen_active)
-		{
-			Awpn = get_qr(qr_SELECTAWPN) ? new_subscreen_active->get_item_pos(game->awpn)
-				: selectSword();
-			directItemA = NEG_OR_MASK(Awpn,0xFF);
-			Bwpn = new_subscreen_active->get_item_pos(game->bwpn);
-			directItemB = NEG_OR_MASK(Bwpn,0xFF);
-			Xwpn = new_subscreen_active->get_item_pos(game->xwpn);
-			directItemX = NEG_OR_MASK(Xwpn,0xFF);
-			Ywpn = new_subscreen_active->get_item_pos(game->ywpn);
-			directItemY = NEG_OR_MASK(Ywpn,0xFF);
 		}
 	}
 	
@@ -2303,6 +2307,7 @@ int32_t init_game()
 	
 	
 	if ( Hero.getDontDraw() < 2 ) { Hero.setDontDraw(0); }
+	initZScriptGlobalScript(GLOBAL_SCRIPT_GAME); // before 'openscreen' incase FFCore.warpScriptCheck()
 	openscreen();
 	show_subscreen_numbers=true;
 	show_subscreen_life=true;
@@ -2347,11 +2352,10 @@ int32_t init_game()
 		}	
 	}
 	
-	initZScriptGlobalScript(GLOBAL_SCRIPT_GAME);
 	FFCore.initZScriptHeroScripts(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
 	FFCore.initZScriptDMapScripts(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
 	FFCore.initZScriptItemScripts(); //Call again so we're set up for GLOBAL_SCRIPT_GAME
-	FFCore.initZScriptActiveSubscreenScript();
+	FFCore.initZScriptScriptedActiveSubscreen();
 	if(get_qr(qr_FFCPRELOAD_BUGGED_LOAD)) ffscript_engine(true);  //Here is a much safer place...
 	return 0;
 }
@@ -2359,6 +2363,7 @@ int32_t init_game()
 int32_t cont_game()
 {
 	replay_step_comment("cont_game");
+	GameLoaded = true;
 	timeExitAllGenscript(GENSCR_ST_CONTINUE);
 	throwGenScriptEvent(GENSCR_EVENT_CONTINUE);
 	//  introclk=intropos=msgclk=msgpos=dmapmsgclk=0;
@@ -2482,7 +2487,7 @@ int32_t cont_game()
 	initZScriptGlobalScript(GLOBAL_SCRIPT_GAME);
 	FFCore.initZScriptHeroScripts();
 	FFCore.initZScriptDMapScripts();
-	FFCore.initZScriptActiveSubscreenScript();
+	FFCore.initZScriptScriptedActiveSubscreen();
 	FFCore.initZScriptItemScripts();
 
 	if (!get_qr(qr_OLD_SCRIPT_VOLUME))
@@ -3362,9 +3367,9 @@ void game_loop()
 			ZScriptVersion::RunScript(ScriptType::DMap, DMaps[currdmap].script,currdmap);
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_ACTIVE);
-		if(!FFCore.system_suspend[susptDMAPSCRIPT] && !freezemsg && FFCore.doscript(ScriptType::PassiveSubscreen) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
+		if(!FFCore.system_suspend[susptDMAPSCRIPT] && !freezemsg && FFCore.doscript(ScriptType::ScriptedPassiveSubscreen) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255)
 		{
-			ZScriptVersion::RunScript(ScriptType::PassiveSubscreen, DMaps[currdmap].passive_sub_script,currdmap);
+			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[currdmap].passive_sub_script,currdmap);
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_PASSIVESUBSCREEN);
 		if ( !FFCore.system_suspend[susptCOMBOSCRIPTS] && !freezemsg && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
@@ -3540,10 +3545,10 @@ void game_loop()
 			FFCore.waitdraw(ScriptType::DMap) = false;
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_ACTIVE_WAITDRAW);
-		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(ScriptType::PassiveSubscreen) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
+		if ( (!( FFCore.system_suspend[susptDMAPSCRIPT] )) && FFCore.waitdraw(ScriptType::ScriptedPassiveSubscreen) && FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
-			ZScriptVersion::RunScript(ScriptType::PassiveSubscreen, DMaps[currdmap].passive_sub_script,currdmap);
-			FFCore.waitdraw(ScriptType::PassiveSubscreen) = false;
+			ZScriptVersion::RunScript(ScriptType::ScriptedPassiveSubscreen, DMaps[currdmap].passive_sub_script,currdmap);
+			FFCore.waitdraw(ScriptType::ScriptedPassiveSubscreen) = false;
 		}
 		FFCore.runGenericPassiveEngine(SCR_TIMING_POST_DMAPDATA_PASSIVESUBSCREEN_WAITDRAW);
 		
@@ -3766,7 +3771,7 @@ void game_loop()
 		if ( previous_DMap != currdmap )
 		{
 			FFCore.initZScriptDMapScripts();
-			FFCore.initZScriptActiveSubscreenScript();
+			FFCore.initZScriptScriptedActiveSubscreen();
 			previous_DMap = currdmap;
 		}
 			// Other effects in zc_sys.cpp
@@ -4328,6 +4333,10 @@ static void allocate_crap()
 	{
 		comboscripts[i] = new script_data();
 	}
+	for(int32_t i=0; i<NUMSCRIPTSSUBSCREEN; i++)
+	{
+		subscreenscripts[i] = new script_data();
+	}
 }
 
 void do_load_and_quit_command(const char* quest_path)
@@ -4349,6 +4358,11 @@ void do_load_and_quit_command(const char* quest_path)
 
 int main(int argc, char **argv)
 {
+	qstdir = (char*)malloc(2048);
+	qstpath = (char*)malloc(2048);
+	qstdir[0] = 0;
+	qstpath[0] = 0;
+
 #ifdef _WIN32
 	// For purposes of packaging a standalone app.
 	if (used_switch(argc, argv, "-package"))
@@ -4403,6 +4417,19 @@ int main(int argc, char **argv)
 		return get_qr(qr_SCRIPTERRLOG) || DEVLEVEL > 0;
 	});
 
+	if (used_switch(argc,argv,"-test-zc"))
+	{
+		bool success = true;
+		if (!saves_test())
+		{
+			success = false;
+			printf("saves_test failed\n");
+		}
+		if (success)
+			printf("all tests passed\n");
+		exit(success ? 0 : 1);
+	}
+
 	// Helps to test crash reporting.
 	if (used_switch(argc, argv, "-crash") > 0)
 	{
@@ -4420,6 +4447,31 @@ int main(int argc, char **argv)
 		do_load_and_quit_command(argv[load_and_quit_arg+1]);
 	}
 
+	int create_save_arg = used_switch(argc,argv,"-create-save");
+	if (create_save_arg)
+	{
+		set_headless_mode();
+
+		// We need to init some stuff before loading a quest file will work.
+		int fake_errno = 0;
+		allegro_errno = &fake_errno;
+		get_qst_buffers();
+		allocate_crap();
+		if ((sfxdata=load_datafile("sfx.dat"))==NULL)
+		{
+			Z_error_fatal("failed to load sfx_dat");
+		}
+
+		gamedata* new_game = new gamedata();
+		new_game->header.name = "newsave";
+		new_game->header.qstpath = argv[create_save_arg + 1];
+		saves_create_slot(new_game);
+		int ret = saves_do_first_time_stuff(saves_count() - 1);
+		if (ret)
+			printf("failed to save: %d\n", ret);
+		exit(ret ? 1 : 0);
+	}
+
 	bool onlyInstance=true;
 //	refresh_select_screen = 0;
 	memset(modulepath, 0, sizeof(modulepath));
@@ -4429,7 +4481,7 @@ int main(int argc, char **argv)
 	memset(zc_aboutstr,0,80);
 
 	sprintf(zc_builddate,"Build Date: %s %s, %d at @ %s %s", dayextension(BUILDTM_DAY).c_str(), (char*)months[BUILDTM_MONTH], BUILDTM_YEAR, __TIME__, __TIMEZONE__);
-	sprintf(zc_aboutstr,"%s (%s), Version %s", ZC_PLAYER_NAME, PROJECT_NAME, ZC_PLAYER_V);
+	sprintf(zc_aboutstr,"%s, Version %s", ZC_PLAYER_NAME, ZC_PLAYER_V);
 	
 
 	Z_title("ZC Launched: %s, v.%s %s",ZC_PLAYER_NAME, ZC_PLAYER_V, ALPHA_VER_STR);
@@ -4471,22 +4523,6 @@ int main(int argc, char **argv)
 
 	// Before anything else, let's register our custom trace handler:
 	register_trace_handler(zc_trace_handler);
-	
-	// allocate quest data buffers
-	memrequested += 4096;
-	Z_message("Allocating quest path buffers (%s)...", byte_conversion2(4096,memrequested,-1,-1));
-	qstdir = (char*)malloc(2048);
-	qstpath = (char*)malloc(2048);
-	
-	if(!qstdir || !qstpath)
-	{
-		Z_error_fatal("Allocation error");
-	}
-	
-	qstdir[0] = 0;
-	qstpath[0] = 0;
-	
-	Z_message("OK\n");
 	
 	if(!get_qst_buffers())
 	{
@@ -4779,7 +4815,6 @@ int main(int argc, char **argv)
 	}
 	
 	int32_t fast_start = debug_enabled || used_switch(argc,argv,"-fast") || (!standalone_mode && (load_save || (slot_arg && (argc>(slot_arg+1)))));
-	skip_title = used_switch(argc, argv, "-notitle") > 0 || zc_get_config("zeldadx","skip_title",0);
 	
 	int32_t checked_epilepsy = zc_get_config("zeldadx","checked_epilepsy",0);
 	
@@ -4935,10 +4970,9 @@ int main(int argc, char **argv)
 		//  if(useCD)
 		//    cd_exit();
 		quit_game();
-		//Z_message("Armageddon Games web site: http://www.armageddongames.com\n");
 		Z_message("ZQuest Classic web site: http://www.zeldaclassic.com\n");
 		Z_message("ZQuest Classic old wiki: https://web.archive.org/web/20210910193102/https://zeldaclassic.com/wiki\n");
-		Z_message("ZQuest Classic new wiki: https://github.com/ArmageddonGames/ZQuestClassic/wiki\n");
+		Z_message("ZQuest Classic new wiki: https://github.com/ZQuestClassic/ZQuestClassic/wiki\n");
 		
 		skipcont = 0;
 		if(forceExit) //fix for the allegro at_exit() hang.
@@ -5246,8 +5280,13 @@ int main(int argc, char **argv)
 
 			if (qstpath_to_load == save->header->qstpath)
 			{
-				save_index = i;
-				break;
+				if (save_index == -1)
+					save_index = i;
+				else
+				{
+					save_index = -1;
+					break;
+				}
 			}
 		}
 
@@ -5266,20 +5305,12 @@ int main(int argc, char **argv)
 	set_display_switch_callback(SWITCH_IN,switch_in_callback);
 	set_display_switch_callback(SWITCH_OUT,switch_out_callback);
 	
-	// AG logo
-	if(!(zqtesting_mode||replay_is_active()||fast_start||zc_get_config("zeldadx","skip_logo",1)))
-	{
-		zc_set_volume(240,-1);
-		aglogo(tmp_scr, scrollbuf, resx, resy);
-		master_volume(digi_volume,midi_volume);
-	}
-	
 	// play the game
 	fix_menu();
 	reset_items(true, &QHeader);
 	
 	clear_to_color(screen,BLACK);
-	Quit = (fast_start||skip_title) ? qQUIT : qRESET;
+	Quit = qQUIT;
 	
 	rgb_map = &rgb_table;
 	
@@ -5398,12 +5429,9 @@ reload_for_replay_file:
 				//Failed initializing? Keep trying.
 				while (Quit != qEXIT)
 				{
-					if (close_button_quit)
-					{
-						close_button_quit = false;
-						f_Quit(qEXIT);
-						if (Quit == qEXIT) break;
-					}
+					handle_close_btn_quit();
+					if (Quit == qEXIT) break;
+					
 					Quit = 0;
 					init_game();
 				}
@@ -5473,7 +5501,7 @@ reload_for_replay_file:
 				FFCore.initZScriptHeroScripts(); //Should we not be calling this AFTER running the exit script!!
 				FFCore.initZScriptDMapScripts(); //Should we not be calling this AFTER running the exit script!!
 				FFCore.initZScriptItemScripts(); //Should we not be calling this AFTER running the exit script!!
-				FFCore.initZScriptActiveSubscreenScript();
+				FFCore.initZScriptScriptedActiveSubscreen();
 				FFCore.clear_combo_scripts(); //clear running combo script data
 				//Run Global script OnExit
 				ZScriptVersion::RunScript(ScriptType::Global, GLOBAL_SCRIPT_END, GLOBAL_SCRIPT_END);
@@ -5531,7 +5559,7 @@ reload_for_replay_file:
 				FFCore.initZScriptHeroScripts(); //get ready for the onWin script
 				FFCore.initZScriptDMapScripts();
 				FFCore.initZScriptItemScripts();
-				FFCore.initZScriptActiveSubscreenScript();
+				FFCore.initZScriptScriptedActiveSubscreen();
 				FFCore.clear_combo_scripts();
 				//Run global script OnExit
 				//ZScriptVersion::RunScript(ScriptType::Player, SCRIPT_PLAYER_WIN); //runs in ending()
@@ -5649,10 +5677,9 @@ reload_for_replay_file:
 	//  if(useCD)
 	//    cd_exit();
 	quit_game();
-	//Z_message("Armageddon Games web site: http://www.armageddongames.com\n");
 	Z_message("ZQuest Classic web site: http://www.zeldaclassic.com\n");
 	Z_message("ZQuest Classic old wiki: https://web.archive.org/web/20210910193102/https://zeldaclassic.com/wiki\n");
-	Z_message("ZQuest Classic new wiki: https://github.com/ArmageddonGames/ZQuestClassic/wiki\n");
+	Z_message("ZQuest Classic new wiki: https://github.com/ZQuestClassic/ZQuestClassic/wiki\n");
 	
 	skipcont = 0;
 	
@@ -5822,6 +5849,11 @@ void quit_game()
 	{
 		if(comboscripts[i]!=NULL) delete comboscripts[i];
 		comboscripts[i] = NULL;
+	}
+	for(int32_t i=0; i<NUMSCRIPTSSUBSCREEN; i++)
+	{
+		if(subscreenscripts[i]!=NULL) delete subscreenscripts[i];
+		subscreenscripts[i] = NULL;
 	}
 	
 	delete zscriptDrawingRenderTarget;

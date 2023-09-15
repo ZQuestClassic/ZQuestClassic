@@ -1,13 +1,3 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  subscr.cc
-//
-//  Subscreen code for zelda.cc
-//
-//--------------------------------------------------------
-
 #ifndef _SUBSCR_H_
 #define _SUBSCR_H_
 
@@ -70,6 +60,9 @@ extern std::vector<ZCSubscreen> subscreens_active, subscreens_passive, subscreen
 extern ZCSubscreen *new_subscreen_active;
 extern ZCSubscreen *new_subscreen_passive;
 extern ZCSubscreen *new_subscreen_overlay;
+extern int new_sub_indexes[3];
+extern bool subscreen_open;
+extern int active_sub_yoff;
 
 const byte tripiece[2][8][3] =
 {
@@ -161,4 +154,3 @@ bool findWeaponWithParent(int32_t id, int32_t type);
 int32_t countWeaponWithParent(int32_t id, int32_t type);
 
 #endif
-

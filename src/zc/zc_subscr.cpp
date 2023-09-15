@@ -1,14 +1,4 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  subscr.cc
-//
-//  Subscreen code for zelda.cc
-//
-//--------------------------------------------------------
-
-#include <string.h>
+#include <cstring>
 
 #include "base/qrs.h"
 #include "base/dmap.h"
@@ -25,7 +15,6 @@
 
 extern HeroClass Hero;
 extern FFScript FFCore;
-extern int32_t directItem;
 extern int32_t directItemA;
 extern int32_t directItemB;
 extern int32_t directItemY;
@@ -35,20 +24,20 @@ extern int32_t directItemX;
 
 void put_active_subscr(int32_t y, int32_t pos)
 {
-    show_custom_subscreen(framebuf, new_subscreen_active, 0, 6-y, game->should_show_time(), pos);
+    show_custom_subscreen(framebuf, new_subscreen_active, 0, y, game->should_show_time(), pos);
 }
 
 void draw_subscrs(BITMAP* dest, int x, int y, bool showtime, int pos)
 {
 	if(get_qr(qr_OLD_SUBSCR))
 	{
-		put_passive_subscr(dest,x,176-2-y,showtime,pos);
+		put_passive_subscr(dest,x,y+168,showtime,pos);
 		put_active_subscr(y,pos);
 	}
 	else
 	{
 		put_active_subscr(y,pos);
-		put_passive_subscr(dest,x,176-2-y,showtime,pos);
+		put_passive_subscr(dest,x,y+168,showtime,pos);
 	}
 }
 void dosubscr()
@@ -65,7 +54,6 @@ void dosubscr()
 		refreshpal=true;
 	}
 	
-	int32_t miny;
 	bool showtime = game->should_show_time();
 	if(replay_version_check(0,19))
 		refresh_subscr_items();
@@ -90,7 +78,6 @@ void dosubscr()
 	blit(scrollbuf,scrollbuf,0,playing_field_offset,256,0,256,176);
 	//make a copy of the complete playing field on the bottom of scrollbuf
 	blit(framebuf,scrollbuf,0,playing_field_offset,0,176,256,176);
-	miny = 6;
 	
 	bool use_a = get_qr(qr_SELECTAWPN), use_x = get_qr(qr_SET_XBUTTON_ITEMS),
 		 use_y = get_qr(qr_SET_YBUTTON_ITEMS);
@@ -114,11 +101,26 @@ void dosubscr()
 		else pg.cursor_pos = 0;
 	}
 	
+	FFCore.initZScriptSubscreenScript();
 	subscrpg_clear_animation();
-	for(int32_t y=176-2; y>=6; y-=3*Hero.subscr_speed)
+	subscreen_open = true;
+	for(int32_t y = -168; y <= 0; y += 3*Hero.subscr_speed)
 	{
+		if(replay_version_check(19))
+		{
+			load_control_state();
+			script_drawing_commands.Clear();
+		}
+		active_sub_yoff = y-playing_field_offset;
+		if(new_subscreen_active->script && FFCore.doscript(ScriptType::EngineSubscreen,0))
+			ZScriptVersion::RunScript(ScriptType::EngineSubscreen, new_subscreen_active->script, 0);
 		do_dcounters();
 		Hero.refill();
+		if(new_subscreen_active->script && FFCore.doscript(ScriptType::EngineSubscreen,0) && FFCore.waitdraw(ScriptType::EngineSubscreen,0))
+		{
+			ZScriptVersion::RunScript(ScriptType::EngineSubscreen, new_subscreen_active->script, 0);
+			FFCore.waitdraw(ScriptType::EngineSubscreen,0) = false;
+		}
 		//fill in the screen with black to prevent the hall of mirrors effect
 		rectfill(framebuf, 0, 0, 255, 223, 0);
 		
@@ -130,17 +132,19 @@ void dosubscr()
 		else
 		{
 			//scroll the playing field (copy the copy we made)
-			blit(scrollbuf,framebuf,256,0,0,176-2-y+passive_subscreen_height,256,y);
+			blit(scrollbuf,framebuf,256,0,0,y+168+passive_subscreen_height,256,-y);
 		}
 		
 		draw_subscrs(framebuf,0,y,showtime,sspSCROLLING);
+		if(replay_version_check(19))
+			do_script_draws(framebuf, tmpscr, 0, playing_field_offset);
 		
 		advanceframe(false);
 		
 		if(Quit)
 			return;
 	}
-	
+	active_sub_yoff = -playing_field_offset;
 	bool done=false;
 
 	// Consume whatever input was registered during opening animation.
@@ -149,10 +153,14 @@ void dosubscr()
 	
 	do
 	{
-		auto pgnum = new_subscreen_active->curpage;
-		auto& pg = new_subscreen_active->cur_page();
 		if (replay_version_check(0, 11))
 			load_control_state();
+		if(replay_version_check(19))
+			script_drawing_commands.Clear();
+		if(new_subscreen_active->script && FFCore.doscript(ScriptType::EngineSubscreen,0))
+			ZScriptVersion::RunScript(ScriptType::EngineSubscreen, new_subscreen_active->script, 0);
+		auto pgnum = new_subscreen_active->curpage;
+		auto& pg = new_subscreen_active->cur_page();
 		bool can_btn = !subscr_pg_animating;
 		if(can_btn)
 		{
@@ -203,7 +211,7 @@ void dosubscr()
 			if(widg)
 			{
 				bool can_interact = true, can_equip = true,
-					must_equip = false;
+					must_equip = false, can_unequip = noverify;
 				auto eqwpn = widg->getItemVal();
 				if(widg->getType() == widgITEMSLOT)
 				{
@@ -212,6 +220,8 @@ void dosubscr()
 						can_interact = false;
 					if(widg->flags & SUBSCR_CURITM_NONEQP)
 						can_equip = false;
+					if(widg->flags & SUBSCR_CURITM_NO_UNEQUIP)
+						can_unequip = false;
 					must_equip = !b_only && (widg->flags & SUBSCR_CURITM_NO_INTER_WO_EQUIP);
 				}
 				if(must_equip && (!can_equip || eqwpn < 0))
@@ -222,10 +232,10 @@ void dosubscr()
 					auto bpress = btn_press;
 					if(must_equip)
 					{
-						bpress &= (Bwpn!=eqwpn ? INT_BTN_B : 0)
-							| ((use_a && Awpn!=eqwpn) ? INT_BTN_A : 0)
-							| ((use_x && Xwpn!=eqwpn) ? INT_BTN_X : 0)
-							| ((use_y && Ywpn!=eqwpn) ? INT_BTN_Y : 0);
+						bpress &= ((!can_unequip || Bwpn!=eqwpn) ? INT_BTN_B : 0)
+							| ((use_a && (!can_unequip || Awpn!=eqwpn)) ? INT_BTN_A : 0)
+							| ((use_x && (!can_unequip || Xwpn!=eqwpn)) ? INT_BTN_X : 0)
+							| ((use_y && (!can_unequip || Ywpn!=eqwpn)) ? INT_BTN_Y : 0);
 					}
 					if(widg->generic_script && (bpress&widg->gen_script_btns))
 					{
@@ -245,9 +255,9 @@ void dosubscr()
 					{
 						if(eqwpn > -1)
 						{
-							if(b_only || (bpress&INT_BTN_B))
+							if(b_only || (btn_press&INT_BTN_B))
 							{
-								if(noverify && !b_only && eqwpn == Bwpn)
+								if(can_unequip && !b_only && eqwpn == Bwpn)
 								{
 									Bwpn = -1;
 									game->forced_bwpn = -1;
@@ -281,12 +291,12 @@ void dosubscr()
 									game->forced_bwpn = -1; //clear forced if the item is selected using the actual subscreen
 									if(!b_only) sfx(QMisc.miscsfx[sfxSUBSCR_ITEM_ASSIGN]);
 									game->bwpn = ((pg.cursor_pos)<<8) | new_subscreen_active->curpage;
-									directItemB = eqwpn;
+									directItemB = NEG_OR_MASK(eqwpn,0xFF);
 								}
 							}
-							else if(use_a && (bpress&INT_BTN_A))
+							else if(use_a && (btn_press&INT_BTN_A))
 							{
-								if(noverify && eqwpn == Awpn)
+								if(can_unequip && eqwpn == Awpn)
 								{
 									Awpn = -1;
 									game->forced_awpn = -1;
@@ -320,12 +330,12 @@ void dosubscr()
 									sfx(QMisc.miscsfx[sfxSUBSCR_ITEM_ASSIGN]);
 									game->awpn = ((pg.cursor_pos)<<8) | new_subscreen_active->curpage;
 									game->forced_awpn = -1; //clear forced if the item is selected using the actual subscreen
-									directItemA = eqwpn;
+									directItemA = NEG_OR_MASK(eqwpn,0xFF);
 								}
 							}
-							else if(use_x && (bpress&INT_BTN_EX1))
+							else if(use_x && (btn_press&INT_BTN_EX1))
 							{
-								if(noverify && eqwpn == Xwpn)
+								if(can_unequip && eqwpn == Xwpn)
 								{
 									Xwpn = -1;
 									game->forced_xwpn = -1;
@@ -359,12 +369,12 @@ void dosubscr()
 									sfx(QMisc.miscsfx[sfxSUBSCR_ITEM_ASSIGN]);
 									game->xwpn = ((pg.cursor_pos)<<8) | new_subscreen_active->curpage;
 									game->forced_xwpn = -1; //clear forced if the item is selected using the actual subscreen
-									directItemX = eqwpn;
+									directItemX = NEG_OR_MASK(eqwpn,0xFF);
 								}
 							}
-							else if(use_y && (bpress&INT_BTN_EX2))
+							else if(use_y && (btn_press&INT_BTN_EX2))
 							{
-								if(noverify && eqwpn == Ywpn)
+								if(can_unequip && eqwpn == Ywpn)
 								{
 									Ywpn = -1;
 									game->forced_ywpn = -1;
@@ -398,7 +408,7 @@ void dosubscr()
 									sfx(QMisc.miscsfx[sfxSUBSCR_ITEM_ASSIGN]);
 									game->ywpn = ((pg.cursor_pos)<<8) | new_subscreen_active->curpage;
 									game->forced_ywpn = -1; //clear forced if the item is selected using the actual subscreen
-									directItemY = eqwpn;
+									directItemY = NEG_OR_MASK(eqwpn,0xFF);
 								}
 							}
 						}
@@ -414,6 +424,12 @@ void dosubscr()
 		do_dcounters();
 		Hero.refill();
 		
+		if(new_subscreen_active->script && FFCore.doscript(ScriptType::EngineSubscreen,0) && FFCore.waitdraw(ScriptType::EngineSubscreen,0))
+		{
+			ZScriptVersion::RunScript(ScriptType::EngineSubscreen, new_subscreen_active->script, 0);
+			FFCore.waitdraw(ScriptType::EngineSubscreen,0) = false;
+		}
+		
 		rectfill(framebuf, 0, 0, 255, 223, 0);
 		
 		if(compat && COOLSCROLL) //copy the playing field back onto the screen
@@ -421,7 +437,9 @@ void dosubscr()
 		//else nothing to do; the playing field has scrolled off the screen
 		
 		//draw the passive and active subscreen
-		draw_subscrs(framebuf,0,miny,showtime,sspDOWN);
+		draw_subscrs(framebuf,0,0,showtime,sspDOWN);
+		if(replay_version_check(19))
+			do_script_draws(framebuf, tmpscr, 0, playing_field_offset);
 		
 		advanceframe(false);
 		if (replay_version_check(11))
@@ -441,10 +459,23 @@ void dosubscr()
 	}
 	while(!done);
 	subscrpg_clear_animation();
-	for(int32_t y=6; y<=174; y+=3*Hero.subscr_speed)
+	for(int32_t y = 0; y >= -168; y -= 3*Hero.subscr_speed)
 	{
+		if(replay_version_check(19))
+		{
+			load_control_state();
+			script_drawing_commands.Clear();
+		}
+		active_sub_yoff = y-playing_field_offset;
+		if(new_subscreen_active->script && FFCore.doscript(ScriptType::EngineSubscreen,0))
+			ZScriptVersion::RunScript(ScriptType::EngineSubscreen, new_subscreen_active->script, 0);
 		do_dcounters();
 		Hero.refill();
+		if(new_subscreen_active->script && FFCore.doscript(ScriptType::EngineSubscreen,0) && FFCore.waitdraw(ScriptType::EngineSubscreen,0))
+		{
+			ZScriptVersion::RunScript(ScriptType::EngineSubscreen, new_subscreen_active->script, 0);
+			FFCore.waitdraw(ScriptType::EngineSubscreen,0) = false;
+		}
 		//fill in the screen with black to prevent the hall of mirrors effect
 		rectfill(framebuf, 0, 0, 255, 223, 0);
 		
@@ -456,16 +487,19 @@ void dosubscr()
 		else
 		{
 			//scroll the playing field (copy the copy we made)
-			blit(scrollbuf,framebuf,256,0,0,176-2-y+passive_subscreen_height,256,y);
+			blit(scrollbuf,framebuf,256,0,0,y+168+passive_subscreen_height,256,-y);
 		}
 		
 		draw_subscrs(framebuf,0,y,showtime,sspSCROLLING);
+		if(replay_version_check(19))
+			do_script_draws(framebuf, tmpscr, 0, playing_field_offset);
 		advanceframe(false);
 		
 		if(Quit)
 			return;
 	}
-	
+	active_sub_yoff = -224;
+	subscreen_open = false;
 	if(usebombpal)
 	{
 		memcpy(RAMpal, temppal, PAL_SIZE*sizeof(RGB));
@@ -555,4 +589,3 @@ void put_passive_subscr(BITMAP *dest,int32_t x,int32_t y,bool showtime,int32_t p
 		destroy_bitmap(subscr);
 	}
 }
-

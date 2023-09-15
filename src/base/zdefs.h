@@ -1,14 +1,3 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  zdefs.h
-//
-//  Data formats, definitions, and a few small functions
-//  for zelda.cc and zquest.cc
-//
-//--------------------------------------------------------
-
 #ifndef _ZDEFS_H_
 #define _ZDEFS_H_
 
@@ -110,7 +99,7 @@
 
 #include <cstdio>
 #include <math.h>
-#include <string.h>
+#include <cstring>
 #include <vector>
 #include <set>
 #include <assert.h>
@@ -137,14 +126,7 @@ struct cpos_info;
 
 #define ZELDA_VERSION       0x0255                         //version of the program
 #define ZC_VERSION 25500 //Version ID for ZScript Game->Version
-#define VERSION_BUILD       61                             //V_BUILD build number of this version
-//31 == 2.53.0 , leaving 32-39 for bugfixes, and jumping to 40. 
-//#define ZELDA_VERSION_STR   "AEternal (v2.55) Alpha 37"                    //version of the program as presented in text
-//#define IS_BETA             -39                       //is this a beta? (1: beta, -1: alpha)
-//#define VERSION_BETA        39	
-//#define DATE_STR            "19th October, 2019, 12:18GMT"
-//__DATE__ and __TIME__ macros can simplify this, in the future. 
-//#define ZELDA_ABOUT_STR 	    "ZC Player 'AEternal', Alpha 37"
+#define VERSION_BUILD       61                             //V_BUILD build number of this version. Deprecated.
 #define COPYRIGHT_YEAR      "2019"                          //shown on title screen and in ending
 
 #define MIN_VERSION         0x0184
@@ -229,7 +211,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_STRINGS         10
 #define V_MISC            15
 #define V_TILES            3 //2 is a int32_t, max 214500 tiles (ZScript upper limit)
-#define V_COMBOS          42
+#define V_COMBOS          43
 #define V_CSETS            5 //palette data
 #define V_MAPS            28
 #define V_DMAPS           19
@@ -248,11 +230,11 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_HEROSPRITES      16
 #define V_SUBSCREEN        8
 #define V_ITEMDROPSETS     2
-#define V_FFSCRIPT         21
+#define V_FFSCRIPT         22
 #define V_SFX              8
 #define V_FAVORITES        3
 
-#define V_COMPATRULE       53
+#define V_COMPATRULE       56
 #define V_ZINFO            3
 
 //= V_SHOPS is under V_MISC
@@ -326,7 +308,15 @@ extern int32_t passive_subscreen_offset;
 extern int32_t CSET_SIZE;
 extern int32_t CSET_SHFT;
 
-extern volatile bool close_button_quit;
+extern volatile bool close_button_quit, exiting_program, dialog_open_quit;
+bool handle_close_btn_quit();
+#define HANDLE_CLOSE_ZQDLG() \
+if(close_button_quit) \
+{ \
+	dialog_open_quit = true; \
+	handle_close_btn_quit(); \
+	dialog_open_quit = false; \
+}
 
 // system colors
 #define lc1(x) ((x)+192)                                    // offset to 'level bg color' x (row 12)
@@ -568,7 +558,7 @@ enum
 	//175
 	cCUSTOMBLOCK, cSHOOTER, cSLOPE, cCUTSCENETRIG, cPUSHBLOCK,
 	//180
-	cICY,
+	cICY, cMIRRORNEW,
     cMAX,
 	// ! potential new stuff that I might decide it is worth adding. 
     //Five additional user script types, 
@@ -1580,10 +1570,11 @@ public:
 	//to implement
 	dword dropsetref, pondref, warpringref, doorsref, zcoloursref, rgbref, paletteref, palcycleref, tunesref;
 	dword gamedataref, cheatsref; 
-	dword fileref, subscreenref, comboidref, directoryref, rngref, stackref, paldataref;
+	dword fileref, comboidref, directoryref, rngref, stackref, paldataref;
 	dword bottletyperef, bottleshopref, genericdataref;
 	int32_t combosref, comboposref;
 	int32_t portalref, saveportalref;
+	dword subdataref, subpageref, subwidgref;
 	//byte ewpnclass, lwpnclass, guyclass; //Not implemented
 	
 	//byte ewpnclass, lwpnclass, guyclass; //Not implemented
@@ -1626,14 +1617,15 @@ enum class ScriptType {
 	Ewpn,
 	DMap,
 	ItemSprite,
-	ActiveSubscreen,
-	PassiveSubscreen,
+	ScriptedActiveSubscreen,
+	ScriptedPassiveSubscreen,
 	Combo,
 	OnMap,
 	Generic,
 	GenericFrozen,
+	EngineSubscreen,
 	First = Global,
-	Last = GenericFrozen,
+	Last = EngineSubscreen,
 };
 const char* ScriptTypeToString(ScriptType type);
 
@@ -2448,7 +2440,7 @@ enum // used for gamedata ITEMS
 	*/
 
 	
-	
+	itype_maxusable,
 	itype_max=512
 };
 
@@ -2549,6 +2541,8 @@ enum
 #define MAX_SAVED_PORTALS 10000
 struct savedportal
 {
+	bool operator==(const savedportal&) const = default;
+
 	int16_t destdmap = -1;
 	int16_t srcdmap = -1;
 	byte srcscr;
@@ -2561,6 +2555,7 @@ struct savedportal
 	bool deleting;
 	
 	int32_t getUID(){return uid;}
+	void clearUID(){uid = 0;}
 	
 	savedportal();
 	void clear()
@@ -2580,16 +2575,17 @@ private:
 // Everything needed by the title screen.
 struct gamedata_header
 {
-	std::string path;
+	bool operator==(const gamedata_header&) const = default;
+
 	std::string qstpath;
 	std::string replay_file;
 	std::string name;
 	std::string title;
 	byte quest;
 	int deaths;
-	int life;
-	int maxlife;
-	int hp_per_heart_container;
+	word life;
+	word maxlife;
+	byte hp_per_heart_container;
 	bool has_played;
 	bool time_valid;
 	bool did_cheat;
@@ -2600,6 +2596,8 @@ struct gamedata_header
 
 struct gamedata
 {
+	bool operator==(const gamedata&) const = default;
+
 	gamedata_header header;
 	byte  /*_wlevel,*/_cheat;
 	bool  item[MAXITEMS];
@@ -2683,7 +2681,6 @@ struct gamedata
 	void set_qstpath(std::string qstpath);
 
 	const char *get_name() const;
-	char *get_name_mutable();
 	void set_name(std::string n);
 	
 	byte get_quest() const;
@@ -3390,4 +3387,3 @@ enum
 #undef rad16
 
 #endif                                                      //_ZDEFS_H_
-

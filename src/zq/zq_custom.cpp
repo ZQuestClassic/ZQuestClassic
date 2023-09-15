@@ -1,17 +1,7 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  zq_custom.cc
-//
-//  Custom item, enemy, etc. for ZQuest.
-//
-//--------------------------------------------------------
-
 #include <map>
-#include <string.h>
+#include <cstring>
 #include <stdio.h>
-#include <string.h>
+#include <cstring>
 
 #include "base/qrs.h"
 #include "base/packfile.h"
@@ -1492,7 +1482,7 @@ void edit_weapondata(int32_t index)
 	
 	do
 	{
-		ret = zc_popup_dialog(wpndata_dlg,3);
+		ret = do_zqdialog(wpndata_dlg,3);
 		
 		test.tile  = wpndata_dlg[2].d1;
 		test.csets = wpndata_dlg[2].d2;
@@ -8872,7 +8862,7 @@ int32_t onCustomHero()
 	int32_t ret = 0;
 	do
 	{
-		ret = popup_dialog_through_bitmap(screen2, herotile_dlg, 3);
+		ret = do_zqdialog(herotile_dlg, 3);
 
 		if (ret == 3)
 		{
@@ -8962,4 +8952,3 @@ void center_zq_custom_dialogs()
 	jwin_center_dialog(wpndata_dlg);
 	jwin_center_dialog(enedata_dlg);
 }
-

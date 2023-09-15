@@ -1,13 +1,3 @@
-//--------------------------------------------------------
-//  ZQuest Classic
-//  by Jeremy Craner, 1999-2000
-//
-//  zc_custom.cc
-//
-//  Custom item, enemy, etc. for Zelda.
-//
-//--------------------------------------------------------
-
 #ifndef _ZC_CUSTOM_H_
 #define _ZC_CUSTOM_H_
 
@@ -89,4 +79,3 @@ void setherotile(int32_t tile, int32_t flip, int32_t extend, int32_t state, int3
 void setupherodefenses();
 void setupherooffsets();
 #endif
-

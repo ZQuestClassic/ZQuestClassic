@@ -11,10 +11,10 @@ env:
 
 jobs:
   collect-coverage:
-    if: github.repository == 'ArmageddonGames/ZQuestClassic'
+    if: github.repository == 'ZQuestClassic/ZQuestClassic'
     # See https://github.com/community/community/discussions/40777
     # uses: ./.github/workflows/test.yml
-    uses: ArmageddonGames/ZQuestClassic/.github/workflows/test.yml@main
+    uses: ZQuestClassic/ZQuestClassic/.github/workflows/test.yml@main
     with:
       runs-on: ubuntu-22.04
       arch: x64
@@ -26,7 +26,7 @@ jobs:
   upload-coverage:
     needs: ["collect-coverage"]
     runs-on: ubuntu-22.04
-    if: github.repository == 'ArmageddonGames/ZQuestClassic'
+    if: github.repository == 'ZQuestClassic/ZQuestClassic'
 
     steps:
       - name: git clone

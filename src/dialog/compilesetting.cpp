@@ -54,6 +54,7 @@ void CompileSettingsDlg::load()
 	dd_cfg[0] = zc_get_config("Compiler","NO_ERROR_HALT",0,App::zscript);
 	dd_cfg[1] = zc_get_config("Compiler","HEADER_GUARD",1,App::zscript);
 	dd_cfg[2] = zc_get_config("Compiler","WARN_DEPRECATED",0,App::zscript);
+	old_timeout_secs = timeout_secs = zc_get_config("Compiler","compiler_timeout",30,App::zscript);
 	memcpy(old_dd_cfg,dd_cfg,sizeof(dd_cfg));
 	
 	strcpy(run_str,FFCore.scriptRunString);
@@ -80,7 +81,8 @@ void CompileSettingsDlg::save()
 		zc_set_config("Compiler","HEADER_GUARD",dd_cfg[1],App::zscript);
 	if(dd_cfg[2] != old_dd_cfg[2])
 		zc_set_config("Compiler","WARN_DEPRECATED",dd_cfg[2],App::zscript);
-	
+	if(timeout_secs != old_timeout_secs)
+		zc_set_config("Compiler","compiler_timeout",timeout_secs,App::zscript);
 	run_str[20] = 0;
 	memset(FFCore.scriptRunString,0,sizeof(FFCore.scriptRunString));
 	strcpy(FFCore.scriptRunString,run_str);
@@ -178,7 +180,18 @@ std::shared_ptr<GUI::Widget> CompileSettingsDlg::view()
 								run_str[20] = 0;
 							}
 						),
-						INFOBTN("Change this to change the name of the starting function of scripts.")
+						INFOBTN("Change this to change the name of the starting function of scripts."),
+						//
+						Label(text = "Timeout Seconds", hAlign = 1.0),
+						TextField(type = GUI::TextField::type::INT_DECIMAL,
+							forceFitW = true,
+							hAlign = 1.0, low = 0, high = 3600, val = timeout_secs,
+							minwidth = 4.5_em,
+							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+							{
+								timeout_secs = val;
+							}),
+						INFOBTN("The time ZQ waits before the parser 'times out'. 0 for no timeout.")
 					),
 					Label(text = "Include Paths", hAlign = 0.0),
 					TextField(

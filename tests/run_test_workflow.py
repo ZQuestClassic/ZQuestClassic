@@ -204,7 +204,7 @@ def collect_baseline_from_failing_workflow_run(gh: Github, repo: str, run_id: in
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--repo', default='ArmageddonGames/ZQuestClassic')
+    parser.add_argument('--repo', default='ZQuestClassic/ZQuestClassic')
     parser.add_argument('--token', required=True)
 
     # Specify workflow parameters.
