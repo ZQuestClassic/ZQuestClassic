@@ -1962,6 +1962,7 @@ bool SW_Counter::load_old(subscreen_object const& old)
 	SETFLAG(flags,SUBSCR_COUNTER_SHOW0,old.d6&0b01);
 	SETFLAG(flags,SUBSCR_COUNTER_ONLYSEL,old.d6&0b10);
 	mindigits = old.d4;
+	maxdigits = 0;
 	infitm = old.d10;
 	infchar = old.d5;
 	c_text.load_old(old,1);
