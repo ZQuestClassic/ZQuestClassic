@@ -32,7 +32,7 @@ def loadjson(fname):
     if data_obj['ver'] < 1:
         data_obj['pagetitle'] = 'ZSDocs'
         data_obj['header'] = 'ZScript Documentation (WIP)'
-        data_obj['url'] = 'https://www.zeldaclassic.com/zscript-docs/'
+        data_obj['url'] = 'https://zquestclassic.com/docs/zscript'
         data_obj['urltxt'] = 'Latest'
         data_obj['ver'] = 1
     sm.new('Done!')
