@@ -957,6 +957,7 @@ void unload_alstream_file(ALSTREAMFILE *als)
         if(als->s != NULL)
         {
 			al_set_audio_stream_playing(als->s, false);
+			al_destroy_audio_stream(als->s);
 			als->s = NULL;
         }
         
