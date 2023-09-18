@@ -19,6 +19,7 @@ extern int32_t EnableTooltips, GridColor, CmbCursorCol, TilePgCursorCol,
 	CmbPgCursorCol, KeyboardRepeatDelay, TooltipsHighlight, KeyboardRepeatRate,
 	pixeldb, infobg, MMapCursorStyle;
 extern bool allowHideMouse;
+extern bool ShowFavoriteComboModes;
 
 void OptionsDialog::loadOptions()
 {
@@ -71,6 +72,7 @@ void OptionsDialog::loadOptions()
 	opts[OPT_INFO_BG] = infobg;
 	opts[OPT_HIDEMOUSE] = allowHideMouse?1:0;
 	opts[OPT_COMPILEONSAVE] = zc_get_config("zquest","quick_compile_on_save",0)?1:0;
+	opts[OPT_SHOW_FAV_COMBO_MODES] = ShowFavoriteComboModes;
 	
 	int deffont_ids[CFONT_MAX] = {font_lfont_l,font_lfont,font_pfont,font_nfont,font_sfont3,font_lfont,font_lfont_l};
 	char const* _font_titles[CFONT_MAX] = {"dialog", "gui", "title", "favcmd", "textbox", "ttip", "info"};
@@ -312,6 +314,10 @@ void OptionsDialog::saveOption(int ind)
 			break;
 		case OPT_COMPILEONSAVE:
 			zc_set_config("zquest","quick_compile_on_save",v);
+			break;
+		case OPT_SHOW_FAV_COMBO_MODES:
+			ShowFavoriteComboModes = v;
+			zc_set_config("ZQ_GUI","show_fav_combo_modes",v);
 			break;
 		
 		case OPT_LARGEFONT_DIALOG:
@@ -867,7 +873,8 @@ std::shared_ptr<GUI::Widget> OptionsDialog::view()
 					ROW_CHECK_I(OPT_MISALIGNS, "Show Misaligns", "Show arrows at the edge of the screen to indicate solidity misalignments"),
 					ROW_CHECK_I(OPT_INFO_BG, "Show BG behind infotext", "Show black behind the top-left info text"),
 					ROW_CHECK_I(OPT_HIDEMOUSE, "Allow Hiding Mouse", "When displaying the combo or alias brush, allow the normal cursor to be hidden."),
-					ROW_CHECK_I(OPT_COMPILEONSAVE, "Compile ZScript on Save", "Perform a 'quick compile', recompiling existing scripts and assigning to slots, when saving the quest.")
+					ROW_CHECK_I(OPT_COMPILEONSAVE, "Compile ZScript on Save", "Perform a 'quick compile', recompiling existing scripts and assigning to slots, when saving the quest."),
+					ROW_CHECK_I(OPT_SHOW_FAV_COMBO_MODES, "Show Favorite Combo Modes", "Overlays indicators over special entries in the Favorite Combos list for different drawing modes. (Aliases, Pools, Autocombos)")
 				)
 			))
 		)

@@ -170,6 +170,7 @@ extern const char *qst_error[];
 extern word msg_count;
 extern word door_combo_set_count;
 extern int32_t favorite_combos[MAXFAVORITECOMBOS];
+extern byte favorite_combo_modes[MAXFAVORITECOMBOS];
 extern int32_t favorite_comboaliases[MAXFAVORITECOMBOALIASES];
 
 char *VerStr(int32_t version);

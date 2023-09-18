@@ -335,6 +335,8 @@ int32_t layerpanel_checkbox_hei = 13;
 int32_t layerpanel_checkbox_wid = 13;
 
 int32_t favorite_combos[MAXFAVORITECOMBOS];
+byte favorite_combo_modes[MAXFAVORITECOMBOS];
+bool ShowFavoriteComboModes;
 int32_t favorite_comboaliases[MAXFAVORITECOMBOALIASES];
 int32_t favorite_commands[MAXFAVORITECOMMANDS];
 
@@ -1305,8 +1307,6 @@ static MENU edit_menu[] =
 static MENU drawing_mode_menu[] =
 {
     { (char *)"&Normal",                    onDrawingModeNormal,       NULL,                     0,            NULL   },
-    { (char *)"&Relational",                onDrawingModeRelational,   NULL,                     0,            NULL   },
-    { (char *)"&Dungeon Carving",           onDrawingModeDungeon,      NULL,                     0,            NULL   },
     { (char *)"&Combo Alias",               onDrawingModeAlias,        NULL,                     0,            NULL   },
     { (char *)"&Pool",                      onDrawingModePool,         NULL,                     0,            NULL   },
 	{ (char *)"&Auto Combo",                onDrawingModeAuto,         NULL,                     0,            NULL   },
@@ -3065,6 +3065,8 @@ void reset_relational_tile_grid()
 int32_t onDrawingMode()
 {
     draw_mode=(draw_mode+1)%dm_max;
+	if (draw_mode == dm_relational)
+		draw_mode += 2;
     reset_relational_tile_grid();
     fix_drawing_mode_menu();
     restore_mouse();
@@ -5950,8 +5952,6 @@ void draw_screenunit(int32_t unit, int32_t flags)
 		case rCOMBOS:
 		{
 			auto real_h = combolist_window.h;
-			if(draw_mode==dm_cpool)
-				real_h = (favorites_window.y-combolist_window.y)+favorites_window.h;
 			jwin_draw_frame(menu1,combolist_window.x,combolist_window.y,combolist_window.w,real_h, FR_WIN);
 			rectfill(menu1,combolist_window.x+2,combolist_window.y+2,combolist_window.x+combolist_window.w-3,combolist_window.y+real_h-3,jwin_pal[jcBOX]);
 			
@@ -6126,6 +6126,10 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				size_t indw = combopool_preview.w/16;
 				size_t indh = combopool_preview.h/16;
 				size_t rows = total ? vbound(total/indw,1,indh) : 0;
+				if (is_compact)
+					rows = vbound(rows, 1, 3);
+				else
+					rows = vbound(rows, 1, 4);
 				size_t real_height = rows*16;
 				
 				cpool_prev_visible = rows > 0;
@@ -6442,100 +6446,131 @@ void draw_screenunit(int32_t unit, int32_t flags)
 		break;
 		case rFAVORITES:
 		{
-			if(draw_mode!=dm_cpool)
+			font = get_zc_font(font_lfont_l);
+				
+			jwin_draw_frame(menu1,favorites_window.x,favorites_window.y,favorites_window.w,favorites_window.h, FR_WIN);
+			rectfill(menu1,favorites_window.x+2,favorites_window.y+2,favorites_window.x+favorites_window.w-3,favorites_window.y+favorites_window.h-3,jwin_pal[jcBOX]);
+			jwin_draw_frame(menu1,favorites_list.x-2,favorites_list.y-2,(favorites_list.w*favorites_list.xscale)+4,(favorites_list.h*favorites_list.yscale)+4, FR_DEEP);
+			rectfill(menu1,favorites_list.x,favorites_list.y,favorites_list.x+(favorites_list.w*favorites_list.xscale)-1,favorites_list.y+(favorites_list.h*favorites_list.yscale)-1,jwin_pal[jcBOXFG]);
+				
+			textprintf_ex(menu1,get_zc_font(font_lfont_l),favorites_list.x-2,favorites_list.y-15,jwin_pal[jcBOXFG],-1,"Favorite Combos");
+			BITMAP* subb = create_bitmap_ex(8,16,16);
+			if(false) //draw_mode==dm_alias)
 			{
-				font = get_zc_font(font_lfont_l);
-				
-				jwin_draw_frame(menu1,favorites_window.x,favorites_window.y,favorites_window.w,favorites_window.h, FR_WIN);
-				rectfill(menu1,favorites_window.x+2,favorites_window.y+2,favorites_window.x+favorites_window.w-3,favorites_window.y+favorites_window.h-3,jwin_pal[jcBOX]);
-				jwin_draw_frame(menu1,favorites_list.x-2,favorites_list.y-2,(favorites_list.w*favorites_list.xscale)+4,(favorites_list.h*favorites_list.yscale)+4, FR_DEEP);
-				rectfill(menu1,favorites_list.x,favorites_list.y,favorites_list.x+(favorites_list.w*favorites_list.xscale)-1,favorites_list.y+(favorites_list.h*favorites_list.yscale)-1,jwin_pal[jcBOXFG]);
-				
-				textprintf_ex(menu1,get_zc_font(font_lfont_l),favorites_list.x-2,favorites_list.y-15,jwin_pal[jcBOXFG],-1,draw_mode == dm_alias ? "Favorite Aliases" : "Favorite Combos");
-				BITMAP* subb = create_bitmap_ex(8,16,16);
-				if(draw_mode==dm_alias)
+				for(int32_t col=0; col<favorites_list.w; ++col)
 				{
-					for(int32_t col=0; col<favorites_list.w; ++col)
+					for(int32_t row=0; row<favorites_list.h; ++row)
 					{
-						for(int32_t row=0; row<favorites_list.h; ++row)
+						auto i = (row*FAVORITECOMBO_PER_ROW)+col;
+						auto& sqr = favorites_list.subsquare(col,row);
+						if(i >= MAXFAVORITECOMBOALIASES || favorite_comboaliases[i]==-1)
 						{
-							auto i = (row*FAVORITECOMBO_PER_ROW)+col;
-							auto& sqr = favorites_list.subsquare(col,row);
-							if(i >= MAXFAVORITECOMBOALIASES || favorite_comboaliases[i]==-1)
+							if(InvalidStatic)
 							{
-								if(InvalidStatic)
+								for(int32_t dy=0; dy<sqr.h; dy++)
 								{
-									for(int32_t dy=0; dy<sqr.h; dy++)
+									for(int32_t dx=0; dx<sqr.w; dx++)
 									{
-										for(int32_t dx=0; dx<sqr.w; dx++)
-										{
-											menu1->line[sqr.y+dy][sqr.x+dx]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
-										}
+										menu1->line[sqr.y+dy][sqr.x+dx]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
 									}
-								}
-								else
-								{
-									xout(menu1, sqr.x, sqr.y, sqr.x+sqr.w-1, sqr.y+sqr.h-1, vc(15), vc(0));
 								}
 							}
 							else
 							{
-								clear_bitmap(subb);
-								draw_combo_alias_thumbnail(subb, &combo_aliases[favorite_comboaliases[i]],0,0,1);
-								stretch_blit(subb, menu1, 0, 0, 16, 16, sqr.x, sqr.y, sqr.w, sqr.h);
+								xout(menu1, sqr.x, sqr.y, sqr.x+sqr.w-1, sqr.y+sqr.h-1, vc(15), vc(0));
 							}
 						}
-					}
-				}
-				else
-				{
-					for(int32_t col=0; col<favorites_list.w; ++col)
-					{
-						for(int32_t row=0; row<favorites_list.h; ++row)
+						else
 						{
-							auto i = (row*FAVORITECOMBO_PER_ROW)+col;
-							auto& sqr = favorites_list.subsquare(col,row);
-							if(i >= MAXFAVORITECOMBOS || favorite_combos[i]==-1)
-							{
-								if(InvalidStatic)
-								{
-									for(int32_t dy=0; dy<sqr.h; dy++)
-									{
-										for(int32_t dx=0; dx<sqr.w; dx++)
-										{
-											menu1->line[sqr.y+dy][sqr.x+dx]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
-										}
-									}
-								}
-								else
-								{
-									xout(menu1, sqr.x, sqr.y, sqr.x+sqr.w-1, sqr.y+sqr.h-1, vc(15), vc(0));
-								}
-							}
-							else
-							{
-								clear_bitmap(subb);
-								bool repos = combotile_override_x < 0 && combotile_override_y < 0;
-								
-								if(repos)
-								{
-									combotile_override_x = sqr.x+(sqr.w-16)/2;
-									combotile_override_y = sqr.y+(sqr.h-16)/2;
-								}
-								put_combo(subb,0,0,favorite_combos[i],CSet,Flags&(cFLAGS|cWALK),0);
-								if(repos) combotile_override_x = combotile_override_y = -1;
-								stretch_blit(subb, menu1, 0, 0, 16, 16, sqr.x, sqr.y, sqr.w, sqr.h);
-							}
+							clear_bitmap(subb);
+							draw_combo_alias_thumbnail(subb, &combo_aliases[favorite_comboaliases[i]],0,0,1);
+							stretch_blit(subb, menu1, 0, 0, 16, 16, sqr.x, sqr.y, sqr.w, sqr.h);
 						}
 					}
 				}
-				destroy_bitmap(subb);
-				
-				bool zoomed = is_compact ? compact_zoomed_fav : large_zoomed_fav;
-				draw_text_button(menu1,favorites_zoombtn.x,favorites_zoombtn.y,favorites_zoombtn.w,favorites_zoombtn.h,zoomed ? "-" : "+",vc(1),vc(14),0,true);
-				draw_text_button(menu1,favorites_x.x,favorites_x.y,favorites_x.w,favorites_x.h,"X",vc(1),vc(14),0,true);
-				draw_text_button(menu1,favorites_infobtn.x,favorites_infobtn.y,favorites_infobtn.w,favorites_infobtn.h,"?",vc(1),vc(14),0,true);
 			}
+			else
+			{
+				for(int32_t col=0; col<favorites_list.w; ++col)
+				{
+					for(int32_t row=0; row<favorites_list.h; ++row)
+					{
+						auto i = (row*FAVORITECOMBO_PER_ROW)+col;
+						auto& sqr = favorites_list.subsquare(col,row);
+						if(i >= MAXFAVORITECOMBOS || favorite_combos[i]==-1)
+						{
+							if(InvalidStatic)
+							{
+								for(int32_t dy=0; dy<sqr.h; dy++)
+								{
+									for(int32_t dx=0; dx<sqr.w; dx++)
+									{
+										menu1->line[sqr.y+dy][sqr.x+dx]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
+									}
+								}
+							}
+							else
+							{
+								xout(menu1, sqr.x, sqr.y, sqr.x+sqr.w-1, sqr.y+sqr.h-1, vc(15), vc(0));
+							}
+						}
+						else
+						{
+							clear_bitmap(subb);
+							bool repos = combotile_override_x < 0 && combotile_override_y < 0;
+								
+							switch(favorite_combo_modes[i])
+							{
+								case dm_alias:
+									draw_combo_alias_thumbnail(subb, &combo_aliases[favorite_combos[i]], 0, 0, 1);
+									if (ShowFavoriteComboModes)
+										put_engraving(subb, 0, 0, 0x3E, 1);
+									break;
+								case dm_cpool:
+								{
+									int32_t cid = -1; int8_t cs = CSet;
+									combo_pool const& cp = combo_pools[favorite_combos[i]];
+
+									if (cp.get_w(cid, cs, 0) && !combobuf[cid].tile)
+										cid = -1; //no tile to draw
+									put_combo(subb, 0, 0, cid, cs, 0, 0);
+									if (ShowFavoriteComboModes)
+										put_engraving(subb, 0, 0, 0x3D, 1);
+									break;
+								}
+								case dm_auto:
+								{
+									int32_t cid = -1; int8_t cs = CSet;
+									combo_auto const& ca = combo_autos[favorite_combos[i]];
+
+									cid = ca.getDisplay();
+									if (cid == 0)
+										cid = -1;
+									put_combo(subb, 0, 0, cid, cs, 0, 0);
+									if (ShowFavoriteComboModes)
+										put_engraving(subb, 0, 0, 0x3C, 1);
+									break;
+								}
+								default:
+									if (repos)
+									{
+										combotile_override_x = sqr.x + (sqr.w - 16) / 2;
+										combotile_override_y = sqr.y + (sqr.h - 16) / 2;
+									}
+									put_combo(subb, 0, 0, favorite_combos[i], CSet, Flags & (cFLAGS | cWALK), 0);
+									if (repos) combotile_override_x = combotile_override_y = -1;
+							}
+							stretch_blit(subb, menu1, 0, 0, 16, 16, sqr.x, sqr.y, sqr.w, sqr.h);
+						}
+					}
+				}
+			}
+			destroy_bitmap(subb);
+
+			bool zoomed = is_compact ? compact_zoomed_fav : large_zoomed_fav;
+			draw_text_button(menu1,favorites_zoombtn.x,favorites_zoombtn.y,favorites_zoombtn.w,favorites_zoombtn.h,zoomed ? "-" : "+",vc(1),vc(14),0,true);
+			draw_text_button(menu1,favorites_x.x,favorites_x.y,favorites_x.w,favorites_x.h,"X",vc(1),vc(14),0,true);
+			draw_text_button(menu1,favorites_infobtn.x,favorites_infobtn.y,favorites_infobtn.w,favorites_infobtn.h,"?",vc(1),vc(14),0,true);
 		}
 		break;
 		case rCOMMANDS:
@@ -7234,7 +7269,6 @@ void clear_cpool()
 
 bool select_favorite()
 {
-	if(draw_mode == dm_cpool) return false;
     int32_t tempcb=ComboBrush;
     ComboBrush=0;
     bool valid=false;
@@ -7260,23 +7294,32 @@ bool select_favorite()
         
         int32_t tempc=(((y-favorites_list.y)/favorites_list.yscale)*FAVORITECOMBO_PER_ROW)+((x-favorites_list.x)/favorites_list.xscale);
         
-		if(tempc >= ((draw_mode==dm_alias) ? MAXFAVORITECOMBOALIASES : MAXFAVORITECOMBOS))
+		if(tempc >=  MAXFAVORITECOMBOS)
 		{
 			//Nothing, invalid
 		}
-		else if(draw_mode==dm_alias)
-        {
-            if(favorite_comboaliases[tempc]!=-1)
-            {
-                combo_apos=favorite_comboaliases[tempc];
-                valid=true;
-            }
-        }
         else
         {
 			if(favorite_combos[tempc]!=-1)
             {
-                Combo=favorite_combos[tempc];
+				switch(favorite_combo_modes[tempc])
+				{
+					case dm_alias:
+						draw_mode = dm_alias;
+						combo_apos = favorite_combos[tempc];
+						break;
+					case dm_cpool:
+						draw_mode = dm_cpool;
+						combo_pool_pos = favorite_combos[tempc];
+						break;
+					case dm_auto:
+						draw_mode = dm_auto;
+						combo_auto_pos = favorite_combos[tempc];
+						break;
+					default:
+						draw_mode = dm_normal;
+						Combo = favorite_combos[tempc];
+				}
 				if(AutoBrush)
 					BrushWidth = BrushHeight = 1;
                 valid=true;
@@ -9507,6 +9550,22 @@ int32_t scrollto_alias(int32_t alid)
 	return res;
 }
 
+int32_t scrollto_cpool(int32_t cpid)
+{
+	auto& sqr = comboaliaslist[current_cpoollist];
+	int32_t res = vbound(cpid-(sqr.w*sqr.h/2),0,MAXCOMBOPOOLS-(sqr.w*sqr.h));
+	res -= res%sqr.w;
+	return res;
+}
+
+int32_t scrollto_cauto(int32_t caid)
+{
+	auto& sqr = comboaliaslist[current_cautolist];
+	int32_t res = vbound(caid - (sqr.w * sqr.h / 2), 0, MAXCOMBOPOOLS - (sqr.w * sqr.h));
+	res -= res % sqr.w;
+	return res;
+}
+
 void onRCSelectCombo(int32_t c)
 {
 	int32_t drawmap, drawscr;
@@ -9622,7 +9681,7 @@ static MENU fav_cmb_rc_menu[] =
 {
     { (char *)"Scroll to Combo  ",       NULL,  NULL, 0, NULL },
     { (char *)"Edit Combo  ",            NULL,  NULL, 0, NULL },
-    { (char *)"Remove Combo  ",          NULL,  NULL, 0, NULL },
+    { (char *)"Remove Fav Combo  ",          NULL,  NULL, 0, NULL },
     { (char *)"",                        NULL,  NULL, 0, NULL },
     { (char *)"Open Combo Page  ",       NULL,  NULL, 0, NULL },
     { (char *)"Open Tile Page  ",        NULL,  NULL, 0, NULL },
@@ -9633,8 +9692,24 @@ static MENU fav_alias_rc_menu[] =
 {
     { (char *)"Scroll to Alias  ",       NULL,  NULL, 0, NULL },
     { (char *)"Edit Alias  ",            NULL,  NULL, 0, NULL },
-    { (char *)"Remove Alias  ",          NULL,  NULL, 0, NULL },
+    { (char *)"Remove Fav Alias  ",          NULL,  NULL, 0, NULL },
     { NULL,                              NULL,  NULL, 0, NULL }
+};
+
+static MENU fav_cpool_rc_menu[] =
+{
+	{ (char*)"Scroll to Pool  ",       NULL,  NULL, 0, NULL },
+	{ (char*)"Edit Pool  ",            NULL,  NULL, 0, NULL },
+	{ (char*)"Remove Fav Pool  ",          NULL,  NULL, 0, NULL },
+	{ NULL,                              NULL,  NULL, 0, NULL }
+};
+
+static MENU fav_autocombo_rc_menu[] =
+{
+	{ (char*)"Scroll to Autocombo  ",       NULL,  NULL, 0, NULL },
+	{ (char*)"Edit Autocombo  ",            NULL,  NULL, 0, NULL },
+	{ (char*)"Remove Fav Autocombo  ",          NULL,  NULL, 0, NULL },
+	{ NULL,                              NULL,  NULL, 0, NULL }
 };
 
 void set_brush_width(int32_t width)
@@ -10678,23 +10753,7 @@ void domouse()
 	
 	if(draw_mode==dm_alias)
 	{
-		if(favorites_list.rect(x,y))
-		{
-			int32_t f=favorites_list.rectind(x,y);
-			int32_t row=f/favorites_list.w;
-			int32_t col=f%favorites_list.w;
-			f = (row*FAVORITECOMBO_PER_ROW)+col;
-			
-			auto& sqr = favorites_list.subsquare(col,row);
-			
-			char buf[180];
-			sprintf(buf, "Fav Alias %d", f);
-			if(favorite_comboaliases[f] == -1)
-				sprintf(buf, "Fav Alias %d\nEmpty", f);
-			else sprintf(buf, "Fav Alias %d\nAlias %d", f, favorite_comboaliases[f]);
-			update_tooltip(x,y,sqr,buf);
-		}
-		else for(int32_t j=0; j<num_combo_cols; ++j)
+		for(int32_t j=0; j<num_combo_cols; ++j)
 		{
 			auto& sqr = comboaliaslist[j];
 			auto ind = sqr.rectind(x,y);
@@ -10748,22 +10807,7 @@ void domouse()
 	}
 	else
 	{
-		if(favorites_list.rect(x,y))
-		{
-			int32_t f=favorites_list.rectind(x,y);
-			int32_t row=f/favorites_list.w;
-			int32_t col=f%favorites_list.w;
-			f = (row*FAVORITECOMBO_PER_ROW)+col;
-			
-			auto& sqr = favorites_list.subsquare(col,row);
-			
-			char buf[180];
-			if(favorite_combos[f] == -1)
-				sprintf(buf, "Fav Combo %d\nEmpty", f);
-			else sprintf(buf, "Fav Combo %d\nCombo %d", f, favorite_combos[f]);
-			update_tooltip(x,y,sqr,buf);
-		}
-		else if(combo_preview.rect(x,y))
+		if(combo_preview.rect(x,y))
 		{
 			auto str = "Combo Colors:\n"+get_combo_colornames(Combo,CSet);
 			update_tooltip(x,y,combo_preview,str.c_str());
@@ -10796,6 +10840,38 @@ void domouse()
 		}
 	}
 	
+	if (favorites_list.rect(x, y))
+	{
+		int32_t f = favorites_list.rectind(x, y);
+		int32_t row = f / favorites_list.w;
+		int32_t col = f % favorites_list.w;
+		f = (row * FAVORITECOMBO_PER_ROW) + col;
+
+		auto& sqr = favorites_list.subsquare(col, row);
+
+		char buf[180];
+		if (favorite_combos[f] == -1)
+			sprintf(buf, "Fav Combo %d\nEmpty", f);
+		else
+		{
+			switch (favorite_combo_modes[f])
+			{
+			case dm_alias:
+				sprintf(buf, "Fav Combo %d\nAlias %d", f, favorite_combos[f]);
+				break;
+			case dm_cpool:
+				sprintf(buf, "Fav Combo %d\nPool %d", f, favorite_combos[f]);
+				break;
+			case dm_auto:
+				sprintf(buf, "Fav Combo %d\nAutocombo %d", f, favorite_combos[f]);
+				break;
+			default:
+				sprintf(buf, "Fav Combo %d\nCombo %d", f, favorite_combos[f]);
+			}
+		}
+		update_tooltip(x, y, sqr, buf);
+	}
+
 	size_and_pos const& real_mini = zoomed_minimap ? real_minimap_zoomed : real_minimap;
 	auto ind = real_mini.rectind(x,y);
 	if(ind > -1)
@@ -10887,93 +10963,55 @@ void domouse()
 			}
 			goto domouse_doneclick;
 		}
-		if(draw_mode != dm_cpool)
+
+		if(favorites_zoombtn.rect(x,y))
 		{
-			if(favorites_zoombtn.rect(x,y))
+			bool zoomed = is_compact ? compact_zoomed_fav : large_zoomed_fav;
+			if(do_text_button(favorites_zoombtn.x,favorites_zoombtn.y,favorites_zoombtn.w,favorites_zoombtn.h,zoomed ? "-" : "+",vc(1),vc(14),true))
 			{
-				bool zoomed = is_compact ? compact_zoomed_fav : large_zoomed_fav;
-				if(do_text_button(favorites_zoombtn.x,favorites_zoombtn.y,favorites_zoombtn.w,favorites_zoombtn.h,zoomed ? "-" : "+",vc(1),vc(14),true))
-				{
-					toggle_favzoom_mode();
-				}
-				goto domouse_doneclick;
+				toggle_favzoom_mode();
 			}
-			else if(favorites_x.rect(x,y))
-			{
-				if(do_text_button(favorites_x.x,favorites_x.y,favorites_x.w,favorites_x.h,"X",vc(1),vc(14),true))
-				{
-					switch(draw_mode)
-					{
-						case dm_cpool: break;
-						case dm_alias:
-							AlertDialog("Clear Favorite Aliases",
-								"Are you sure you want to clear all favorite aliases?",
-								[&](bool ret,bool)
-								{
-									if(ret)
-									{
-										for(auto q = 0; q < MAXFAVORITECOMBOALIASES; ++q)
-										{
-											favorite_comboaliases[q] = -1;
-										}
-										saved = false;
-										refresh(rFAVORITES);
-									}
-								}).show();
-							break;
-						default:
-							AlertDialog("Clear Favorite Combos",
-								"Are you sure you want to clear all favorite combos?",
-								[&](bool ret,bool)
-								{
-									if(ret)
-									{
-										for(auto q = 0; q < MAXFAVORITECOMBOS; ++q)
-										{
-											favorite_combos[q] = -1;
-										}
-										saved = false;
-										refresh(rFAVORITES);
-									}
-								}).show();
-							break;
-					}
-				}
-				goto domouse_doneclick;
-			}
-			else if(favorites_infobtn.rect(x,y))
-			{
-				if(do_text_button(favorites_infobtn.x,favorites_infobtn.y,favorites_infobtn.w,favorites_infobtn.h,"?",vc(1),vc(14),true))
-				{
-					switch(draw_mode)
-					{
-						case dm_cpool: break;
-						case dm_alias:
-							InfoDialog("Favorite Aliases",
-								"On LClick (empty): Sets clicked favorite to the current alias."
-								"\nOn LClick: Sets current alias to clicked favorite."
-								"\nShift+LClick: Sets clicked favorite to current alias."
-								"\nCtrl+LClick: Clears clicked favorite."
-								"\nRClick: Opens context menu."
-								"\n\nClick the Zoom button (+/-) to toggle zoom level."
-								"\nClick the X button to clear all favorite aliases.").show();
-							break;
-						default:
-							InfoDialog("Favorite Combos",
-								"On LClick (empty): Sets clicked favorite to the current combo."
-								"\nOn LClick: Sets current combo to clicked favorite."
-								"\nShift+LClick: Sets clicked favorite to current combo."
-								"\nCtrl+LClick: Clears clicked favorite."
-								"\nAlt+LClick: Scrolls to clicked favorite."
-								"\nRClick: Opens context menu."
-								"\n\nClick the Zoom button (+/-) to toggle zoom level."
-								"\nClick the X button to clear all favorite combos.").show();
-							break;
-					}
-				}
-				goto domouse_doneclick;
-			}
+			goto domouse_doneclick;
 		}
+		else if(favorites_x.rect(x,y))
+		{
+			if(do_text_button(favorites_x.x,favorites_x.y,favorites_x.w,favorites_x.h,"X",vc(1),vc(14),true))
+			{
+				AlertDialog("Clear Favorite Combos",
+					"Are you sure you want to clear all favorite combos?",
+					[&](bool ret,bool)
+					{
+						if(ret)
+						{
+							for(auto q = 0; q < MAXFAVORITECOMBOS; ++q)
+							{
+								favorite_combos[q] = -1;
+								favorite_combo_modes[q] = dm_normal;
+							}
+							saved = false;
+							refresh(rFAVORITES);
+						}
+					}).show();
+			}
+			goto domouse_doneclick;
+		}
+		else if(favorites_infobtn.rect(x,y))
+		{
+			if(do_text_button(favorites_infobtn.x,favorites_infobtn.y,favorites_infobtn.w,favorites_infobtn.h,"?",vc(1),vc(14),true))
+			{
+				InfoDialog("Favorite Combos",
+					"On LClick (empty): Sets clicked favorite to the current combo."
+					"\nOn LClick: Sets current combo to clicked favorite."
+					"\nShift+LClick: Sets clicked favorite to current combo."
+					"\nCtrl+LClick: Clears clicked favorite."
+					"\nAlt+LClick: Scrolls to clicked favorite."
+					"\nRClick: Opens context menu."
+					"\n\nClick the Zoom button (+/-) to toggle zoom level."
+					"\nClick the X button to clear all favorite combos.").show();
+			}
+			goto domouse_doneclick;
+		}
+
 		if(commands_zoombtn.rect(x,y))
 		{
 			bool zoomed = is_compact ? compact_zoomed_cmd : large_zoomed_cmd;
@@ -11727,7 +11765,7 @@ void domouse()
 		}
 		
 		//on the favorites list
-		if(draw_mode != dm_cpool && favorites_list.rect(x,y))
+		if(favorites_list.rect(x,y))
 		{
 			if(lclick)
 			{
@@ -11736,9 +11774,7 @@ void domouse()
 				int32_t col=f%favorites_list.w;
 				f = (row*FAVORITECOMBO_PER_ROW)+col;
 				
-				bool dmcond;
-				if(draw_mode==dm_alias) dmcond = favorite_comboaliases[f] < 0;
-				else dmcond = favorite_combos[f] < 0;
+				bool dmcond = favorite_combos[f] < 0;
 				if(key[KEY_LSHIFT] || key[KEY_RSHIFT] || dmcond)
 				{
 					int32_t tempcb=ComboBrush;
@@ -11749,21 +11785,39 @@ void domouse()
 						x=gui_mouse_x();
 						y=gui_mouse_y();
 						
-						if(draw_mode == dm_alias)
+						switch(draw_mode)
 						{
-							if(favorite_comboaliases[f]!=combo_apos)
-							{
-								favorite_comboaliases[f]=combo_apos;
-								saved=false;
-							}
-						}
-						else
-						{
-							if(favorite_combos[f]!=Combo)
-							{
-								favorite_combos[f]=Combo;
-								saved=false;
-							}
+							case dm_alias:
+								if (favorite_combos[f] != combo_apos)
+								{
+									favorite_combo_modes[f] = dm_alias;
+									favorite_combos[f] = combo_apos;
+									saved = false;
+								}
+								break;
+							case dm_cpool:
+								if (favorite_combos[f] != combo_pool_pos)
+								{
+									favorite_combo_modes[f] = dm_cpool;
+									favorite_combos[f] = combo_pool_pos;
+									saved = false;
+								}
+								break;
+							case dm_auto:
+								if (favorite_combos[f] != combo_auto_pos)
+								{
+									favorite_combo_modes[f] = dm_auto;
+									favorite_combos[f] = combo_auto_pos;
+									saved = false;
+								}
+								break;
+							default:
+								if (favorite_combos[f] != Combo)
+								{
+									favorite_combo_modes[f] = dm_normal;
+									favorite_combos[f] = Combo;
+									saved = false;
+								}
 						}
 						
 						custom_vsync();
@@ -11782,21 +11836,11 @@ void domouse()
 						x=gui_mouse_x();
 						y=gui_mouse_y();
 						
-						if(draw_mode == dm_alias)
+						if(favorite_combos[f]!=-1)
 						{
-							if(favorite_comboaliases[f]!=-1)
-							{
-								favorite_comboaliases[f]=-1;
-								saved=false;
-							}
-						}
-						else
-						{
-							if(favorite_combos[f]!=-1)
-							{
-								favorite_combos[f]=-1;
-								saved=false;
-							}
+							favorite_combo_modes[f] = dm_normal;
+							favorite_combos[f]=-1;
+							saved=false;
 						}
 						
 						custom_vsync();
@@ -11809,17 +11853,19 @@ void domouse()
 				{
 					if(select_favorite())
 					{
-						switch(draw_mode)
+						switch(favorite_combo_modes[f])
 						{
-							case dm_cpool:
-							case dm_auto:
-								break;
 							case dm_alias:
 								combo_alistpos[current_comboalist]=scrollto_alias(combo_apos);
 								break;
+							case dm_cpool:
+								combo_pool_listpos[current_cpoollist] = scrollto_cpool(combo_pool_pos);
+								break;
+							case dm_auto:
+								combo_auto_listpos[current_cautolist] = scrollto_cauto(combo_auto_pos);
+								break;
 							default:
 								First[current_combolist]=scrollto_cmb(Combo);
-								break;
 						}
 					}
 				}
@@ -11834,7 +11880,21 @@ void domouse()
 				
 				if(valid)
 				{
-					MENU* rc_menu = draw_mode == dm_alias ? fav_alias_rc_menu : fav_cmb_rc_menu;
+					MENU* rc_menu;
+					switch (draw_mode)
+					{
+						case dm_alias:
+							rc_menu = fav_alias_rc_menu;
+							break;
+						case dm_cpool:
+							rc_menu = fav_cpool_rc_menu;
+							break;
+						case dm_auto:
+							rc_menu = fav_autocombo_rc_menu;
+							break;
+						default:
+							rc_menu = fav_cmb_rc_menu;
+					}
 					int32_t m = popup_menu(rc_menu,x,y);
 					int32_t f=favorites_list.rectind(x,y);
 					int32_t row=f/favorites_list.w;
@@ -11845,42 +11905,47 @@ void domouse()
 					switch(m)
 					{
 						case 0: //Scroll to Combo/Alias
-							if(draw_mode == dm_alias)
+							switch (draw_mode)
 							{
-								combo_alistpos[current_comboalist]=scrollto_alias(combo_apos);
-							}
-							else
-							{
-								First[current_combolist]=scrollto_cmb(Combo);
+								case dm_alias:
+									combo_alistpos[current_comboalist] = scrollto_alias(combo_apos);
+									break;
+								case dm_cpool:
+									combo_pool_listpos[current_cpoollist] = scrollto_cpool(combo_pool_pos);
+									break;
+								case dm_auto:
+									combo_auto_listpos[current_cautolist] = scrollto_cauto(combo_auto_pos);
+									break;
+								default:
+									First[current_combolist] = scrollto_cmb(Combo);
 							}
 							break;
 							
 						case 1: //Edit Combo/Alias
-							if(draw_mode == dm_alias)
+							switch (draw_mode)
 							{
-								onEditComboAlias();
-							}
-							else
-							{
-								reset_combo_animations();
-								reset_combo_animations2();
-								edit_combo(Combo,true,CSet);
-								setup_combo_animations();
-								setup_combo_animations2();
+								case dm_alias:
+									onEditComboAlias();
+									break;
+								case dm_cpool:
+									onEditComboPool();
+									break;
+								case dm_auto:
+									onEditAutoCombo();
+									break;
+								default:
+									reset_combo_animations();
+									reset_combo_animations2();
+									edit_combo(Combo, true, CSet);
+									setup_combo_animations();
+									setup_combo_animations2();
 							}
 							break;
 							
 						case 2: //Remove Combo/Alias
-							if(draw_mode == dm_alias)
-							{
-								favorite_comboaliases[f]=-1;
-								saved = false;
-							}
-							else
-							{
-								favorite_combos[f]=-1;
-								saved = false;
-							}
+							favorite_combo_modes[f] = dm_normal;
+							favorite_combos[f]=-1;
+							saved = false;
 							break;
 							
 						case 4: //Open Combo Page
@@ -28006,6 +28071,7 @@ int32_t main(int32_t argc,char **argv)
 	AutoBrush = zc_get_config("zquest","autobrush",1);
 	LinkedScroll = zc_get_config("zquest","linked_comboscroll",0);
 	allowHideMouse = zc_get_config("ZQ_GUI","allowHideMouse",0);
+	ShowFavoriteComboModes = zc_get_config("ZQ_GUI","show_fav_combo_modes",1);
 	RulesetDialog				  = zc_get_config("zquest","rulesetdialog",1);
 	EnableTooltips				 = zc_get_config("zquest","enable_tooltips",1);
 	TooltipsHighlight				 = zc_get_config("zquest","ttip_highlight",1);
@@ -29286,7 +29352,7 @@ void load_size_poses()
 		combopool_preview.x=comboaliaslist[0].x;
 		combopool_preview.y=last_alias_list.y+(last_alias_list.h*last_alias_list.yscale)+16;
 		combopool_preview.w=(last_alias_list.x+(last_alias_list.w*last_alias_list.xscale))-comboaliaslist[0].x;
-		combopool_preview.h=(favorites_window.y-combopool_preview.y)+favorites_window.h-10;
+		combopool_preview.h=(favorites_window.y-combopool_preview.y);//+favorites_window.h-10;
 		combopool_preview.w -= combopool_preview.w%16;
 		combopool_preview.h -= combopool_preview.h%16;
 		

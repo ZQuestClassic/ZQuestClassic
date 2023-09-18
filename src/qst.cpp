@@ -20789,40 +20789,50 @@ int32_t readfavorites(PACKFILE *f, int32_t, word)
 		favorite_combos[q] = -1;
 	for(int q = 0; q < MAXFAVORITECOMBOALIASES; ++q)
 		favorite_comboaliases[q] = -1;
+	byte favtype = 0;
 	for(int32_t i=0; i<num_favorite_combos; i++)
 	{
+		if (s_version >= 4)
+		{
+			if (!p_getc(&favtype, f))
+			{
+				return qe_invalid;
+			}
+		}
+		else
+			favtype = 0;
 		if(!p_igetl(&temp_num,f))
 		{
 			return qe_invalid;
 		}
 		
 		if(per_row == FAVORITECOMBO_PER_ROW)
-			favorite_combos[i]=temp_num;
+		{
+			favorite_combos[i] = temp_num;
+			favorite_combo_modes[i] = favtype;
+		}
 		else
 		{
 			int new_i = (i%per_row) + (i/per_row)*FAVORITECOMBO_PER_ROW;
 			favorite_combos[new_i]=temp_num;
+			favorite_combo_modes[new_i] = favtype;
 		}
 	}
 	
-	if(!p_igetw(&num_favorite_combo_aliases,f))
+	// Discard the separate favorite aliases list from previous versions
+	if(s_version<4)
 	{
-		return qe_invalid;
-	}
-	
-	for(int32_t i=0; i<num_favorite_combo_aliases; i++)
-	{
-		if(!p_igetl(&temp_num,f))
+		if (!p_igetw(&num_favorite_combo_aliases, f))
 		{
 			return qe_invalid;
 		}
-		
-		if(per_row == FAVORITECOMBO_PER_ROW)
-			favorite_comboaliases[i]=temp_num;
-		else
+
+		for (int32_t i = 0; i < num_favorite_combo_aliases; i++)
 		{
-			int new_i = (i%per_row) + (i/per_row)*FAVORITECOMBO_PER_ROW;
-			favorite_comboaliases[new_i]=temp_num;
+			if (!p_igetl(&temp_num, f))
+			{
+				return qe_invalid;
+			}
 		}
 	}
 	
