@@ -5313,6 +5313,8 @@ bool isFavCmdSelected(int32_t cmd)
 			return ViewLayer2BG;
 		case cmdViewL3BG:
 			return ViewLayer3BG;
+		case cmdDrawingModeAutocombo:
+			return draw_mode == dm_auto;
 		case cmdDrawingModePool:
 			return draw_mode==dm_cpool;
 		case cmdDrawingModeRelational:
@@ -6455,116 +6457,81 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				
 			textprintf_ex(menu1,get_zc_font(font_lfont_l),favorites_list.x-2,favorites_list.y-15,jwin_pal[jcBOXFG],-1,"Favorite Combos");
 			BITMAP* subb = create_bitmap_ex(8,16,16);
-			if(false) //draw_mode==dm_alias)
+
+			for(int32_t col=0; col<favorites_list.w; ++col)
 			{
-				for(int32_t col=0; col<favorites_list.w; ++col)
+				for(int32_t row=0; row<favorites_list.h; ++row)
 				{
-					for(int32_t row=0; row<favorites_list.h; ++row)
+					auto i = (row*FAVORITECOMBO_PER_ROW)+col;
+					auto& sqr = favorites_list.subsquare(col,row);
+					if(i >= MAXFAVORITECOMBOS || favorite_combos[i]==-1)
 					{
-						auto i = (row*FAVORITECOMBO_PER_ROW)+col;
-						auto& sqr = favorites_list.subsquare(col,row);
-						if(i >= MAXFAVORITECOMBOALIASES || favorite_comboaliases[i]==-1)
+						if(InvalidStatic)
 						{
-							if(InvalidStatic)
+							for(int32_t dy=0; dy<sqr.h; dy++)
 							{
-								for(int32_t dy=0; dy<sqr.h; dy++)
+								for(int32_t dx=0; dx<sqr.w; dx++)
 								{
-									for(int32_t dx=0; dx<sqr.w; dx++)
-									{
-										menu1->line[sqr.y+dy][sqr.x+dx]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
-									}
+									menu1->line[sqr.y+dy][sqr.x+dx]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
 								}
-							}
-							else
-							{
-								xout(menu1, sqr.x, sqr.y, sqr.x+sqr.w-1, sqr.y+sqr.h-1, vc(15), vc(0));
 							}
 						}
 						else
 						{
-							clear_bitmap(subb);
-							draw_combo_alias_thumbnail(subb, &combo_aliases[favorite_comboaliases[i]],0,0,1);
-							stretch_blit(subb, menu1, 0, 0, 16, 16, sqr.x, sqr.y, sqr.w, sqr.h);
+							xout(menu1, sqr.x, sqr.y, sqr.x+sqr.w-1, sqr.y+sqr.h-1, vc(15), vc(0));
 						}
 					}
-				}
-			}
-			else
-			{
-				for(int32_t col=0; col<favorites_list.w; ++col)
-				{
-					for(int32_t row=0; row<favorites_list.h; ++row)
+					else
 					{
-						auto i = (row*FAVORITECOMBO_PER_ROW)+col;
-						auto& sqr = favorites_list.subsquare(col,row);
-						if(i >= MAXFAVORITECOMBOS || favorite_combos[i]==-1)
-						{
-							if(InvalidStatic)
-							{
-								for(int32_t dy=0; dy<sqr.h; dy++)
-								{
-									for(int32_t dx=0; dx<sqr.w; dx++)
-									{
-										menu1->line[sqr.y+dy][sqr.x+dx]=vc((((zc_oldrand()%100)/50)?0:8)+(((zc_oldrand()%100)/50)?0:7));
-									}
-								}
-							}
-							else
-							{
-								xout(menu1, sqr.x, sqr.y, sqr.x+sqr.w-1, sqr.y+sqr.h-1, vc(15), vc(0));
-							}
-						}
-						else
-						{
-							clear_bitmap(subb);
-							bool repos = combotile_override_x < 0 && combotile_override_y < 0;
-								
-							switch(favorite_combo_modes[i])
-							{
-								case dm_alias:
-									draw_combo_alias_thumbnail(subb, &combo_aliases[favorite_combos[i]], 0, 0, 1);
-									if (ShowFavoriteComboModes)
-										put_engraving(subb, 0, 0, 0x3E, 1);
-									break;
-								case dm_cpool:
-								{
-									int32_t cid = -1; int8_t cs = CSet;
-									combo_pool const& cp = combo_pools[favorite_combos[i]];
+						clear_bitmap(subb);
+						bool repos = combotile_override_x < 0 && combotile_override_y < 0;
 
-									if (cp.get_w(cid, cs, 0) && !combobuf[cid].tile)
-										cid = -1; //no tile to draw
-									put_combo(subb, 0, 0, cid, cs, 0, 0);
-									if (ShowFavoriteComboModes)
-										put_engraving(subb, 0, 0, 0x3D, 1);
-									break;
-								}
-								case dm_auto:
-								{
-									int32_t cid = -1; int8_t cs = CSet;
-									combo_auto const& ca = combo_autos[favorite_combos[i]];
+						switch(favorite_combo_modes[i])
+						{
+							case dm_alias:
+								draw_combo_alias_thumbnail(subb, &combo_aliases[favorite_combos[i]], 0, 0, 1);
+								if (ShowFavoriteComboModes)
+									put_engraving(subb, 0, 0, 0x3E, 1);
+								break;
+							case dm_cpool:
+							{
+								int32_t cid = -1; int8_t cs = CSet;
+								combo_pool const& cp = combo_pools[favorite_combos[i]];
 
-									cid = ca.getDisplay();
-									if (cid == 0)
-										cid = -1;
-									put_combo(subb, 0, 0, cid, cs, 0, 0);
-									if (ShowFavoriteComboModes)
-										put_engraving(subb, 0, 0, 0x3C, 1);
-									break;
-								}
-								default:
-									if (repos)
-									{
-										combotile_override_x = sqr.x + (sqr.w - 16) / 2;
-										combotile_override_y = sqr.y + (sqr.h - 16) / 2;
-									}
-									put_combo(subb, 0, 0, favorite_combos[i], CSet, Flags & (cFLAGS | cWALK), 0);
-									if (repos) combotile_override_x = combotile_override_y = -1;
+								if (cp.get_w(cid, cs, 0) && !combobuf[cid].tile)
+									cid = -1; //no tile to draw
+								put_combo(subb, 0, 0, cid, cs, 0, 0);
+								if (ShowFavoriteComboModes)
+									put_engraving(subb, 0, 0, 0x3D, 1);
+								break;
 							}
-							stretch_blit(subb, menu1, 0, 0, 16, 16, sqr.x, sqr.y, sqr.w, sqr.h);
+							case dm_auto:
+							{
+								int32_t cid = -1; int8_t cs = CSet;
+								combo_auto const& ca = combo_autos[favorite_combos[i]];
+
+								cid = ca.getDisplay();
+								if (cid == 0)
+									cid = -1;
+								put_combo(subb, 0, 0, cid, cs, 0, 0);
+								if (ShowFavoriteComboModes)
+									put_engraving(subb, 0, 0, 0x3C, 1);
+								break;
+							}
+							default:
+								if (repos)
+								{
+									combotile_override_x = sqr.x + (sqr.w - 16) / 2;
+									combotile_override_y = sqr.y + (sqr.h - 16) / 2;
+								}
+								put_combo(subb, 0, 0, favorite_combos[i], CSet, Flags & (cFLAGS | cWALK), 0);
+								if (repos) combotile_override_x = combotile_override_y = -1;
 						}
+						stretch_blit(subb, menu1, 0, 0, 16, 16, sqr.x, sqr.y, sqr.w, sqr.h);
 					}
 				}
 			}
+
 			destroy_bitmap(subb);
 
 			bool zoomed = is_compact ? compact_zoomed_fav : large_zoomed_fav;
@@ -9906,6 +9873,7 @@ bool has_command_info(int cmd)
 		case cmdRedo:
 		case cmdDrawingModePool:
 		case cmdQRSearch:
+		case cmdDrawingModeAutocombo:
 			return true;
 	}
 	return false;
@@ -10382,6 +10350,9 @@ std::string get_command_infostr(int cmd)
 			break;
 		case cmdQRSearch:
 			infostr = "Search all Quest Rules";
+			break;
+		case cmdDrawingModeAutocombo:
+			infostr = "Switches to Autcombo drawing mode";
 			break;
 	}
 	return infostr;
@@ -30439,7 +30410,7 @@ command_pair commands[cmdMAX]=
     { "Door Combo Sets",                    0, (intF) onDoorCombos },
     { "Edit Doors",                         0, (intF) onDoors },
     { "Paste Doors",                        0, (intF) onPasteDoors },
-    { "Dungeon Carving Mode",               0, (intF) onDrawingModeDungeon },
+    { " Dungeon Carving Mode",               0, (intF) onDrawingModeDungeon },
     { "End String",                         0, (intF) onEndString },
     { "Enemy Editor",                       0, (intF) onCustomEnemies },
     { "Default Enemies",                    0, (intF) onDefault_Guys },
@@ -30515,7 +30486,7 @@ command_pair commands[cmdMAX]=
     { "Preview Mode",                       0, (intF) onPreviewMode },
     { "<UNUSED>",                           0, NULL },
     { "Apply Template to All",              0, (intF) onReTemplate },
-    { "Relational Mode",                    0, (intF) onDrawingModeRelational },
+    { " Relational Mode",                    0, (intF) onDrawingModeRelational },
     { "Revert",                             0, (intF) onRevert },
     { "Room Data",                          0, (intF) onRoom },
     { "Paste Room Type Data",               0, (intF) onPasteRoom },
@@ -30599,6 +30570,7 @@ command_pair commands[cmdMAX]=
     { "Rulesets",                           0, (intF) PickRuleset },
     { "Rule Templates",                     0, (intF) PickRuleTemplate },
     { "Smart Compile ZScript",              0, (intF) onSmartCompile },
+	{ "Autocombo Mode",                     0, (intF) onDrawingModeAuto },
 };
 
 /********************************/

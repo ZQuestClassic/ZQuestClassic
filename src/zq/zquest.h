@@ -759,6 +759,7 @@ enum
 	cmdRuleset,
 	cmdRuleTemplate,
 	cmdSmartCompile,
+	cmdDrawingModeAutocombo,
     cmdMAX
 };
 
