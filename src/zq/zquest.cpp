@@ -9533,6 +9533,33 @@ int32_t scrollto_cauto(int32_t caid)
 	return res;
 }
 
+void add_favorite_combo_block(int32_t favind, int32_t cid, bool force)
+{
+	int32_t w = vbound(BrushWidth, 1, 4);
+	int32_t h = vbound(BrushHeight, 1, 7);
+	for (int32_t xi = 0; xi < w; ++xi)
+	{
+		for (int32_t yi = 0; yi < h; ++yi)
+		{
+			int32_t cx = cid % 4;
+			int32_t cy = cid / 4;
+			int32_t cc = (cy + yi) * 4 + cx + xi;
+			int32_t fx = favind % FAVORITECOMBO_PER_ROW;
+			int32_t fy = favind / FAVORITECOMBO_PER_ROW;
+			int32_t fc = (fy + yi) * FAVORITECOMBO_PER_ROW + fx + xi;
+
+			if (cx + xi < 4 && cc < MAXCOMBOS && fx + xi < FAVORITECOMBO_PER_ROW && fc < MAXFAVORITECOMBOS)
+			{
+				if (favorite_combos[fc] < 0 || force)
+				{
+					favorite_combo_modes[fc] = dm_normal;
+					favorite_combos[fc] = cc;
+				}
+			}
+		}
+	}
+}
+
 void onRCSelectCombo(int32_t c)
 {
 	int32_t drawmap, drawscr;
@@ -11759,7 +11786,7 @@ void domouse()
 						switch(draw_mode)
 						{
 							case dm_alias:
-								if (favorite_combos[f] != combo_apos)
+								if (favorite_combos[f] != combo_apos || favorite_combo_modes[f] != dm_alias)
 								{
 									favorite_combo_modes[f] = dm_alias;
 									favorite_combos[f] = combo_apos;
@@ -11767,7 +11794,7 @@ void domouse()
 								}
 								break;
 							case dm_cpool:
-								if (favorite_combos[f] != combo_pool_pos)
+								if (favorite_combos[f] != combo_pool_pos || favorite_combo_modes[f] != dm_cpool)
 								{
 									favorite_combo_modes[f] = dm_cpool;
 									favorite_combos[f] = combo_pool_pos;
@@ -11775,7 +11802,7 @@ void domouse()
 								}
 								break;
 							case dm_auto:
-								if (favorite_combos[f] != combo_auto_pos)
+								if (favorite_combos[f] != combo_auto_pos || favorite_combo_modes[f] != dm_auto)
 								{
 									favorite_combo_modes[f] = dm_auto;
 									favorite_combos[f] = combo_auto_pos;
@@ -11783,8 +11810,13 @@ void domouse()
 								}
 								break;
 							default:
-								if (favorite_combos[f] != Combo)
+								if (favorite_combos[f] != Combo || favorite_combo_modes[f] != dm_normal)
 								{
+									if (BrushWidth > 1 || BrushHeight > 1)
+									{
+										add_favorite_combo_block(f, Combo, key[KEY_LSHIFT] || key[KEY_RSHIFT]);
+										break;
+									}
 									favorite_combo_modes[f] = dm_normal;
 									favorite_combos[f] = Combo;
 									saved = false;
