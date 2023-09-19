@@ -21,6 +21,9 @@ on:
         type: boolean
         description: Build web even for nightly. If false, web only builds w/ full release
         default: false
+      version-override:
+        type: string
+        description: "Version Override: (! USE VERSION TYPE INSTEAD !) Only use this to publish a specific version, or republish an existing one. For emergency use only."
 
 jobs:
   create-tag:
@@ -37,7 +40,8 @@ jobs:
         run: |
           python3 .github/workflows/print-release-name-vars.py \
             --github-org=${{ github.repository_owner }} \
-            --version-type=${{ github.event.inputs.version-type }}
+            --version-type=${{ github.event.inputs.version-type }} \
+            --version-override=${{ github.event.inputs.version-override }}
 
       - name: Setup Sentry CLI
         uses: mathieu-bour/setup-sentry-cli@v1.3.0
@@ -169,7 +173,7 @@ jobs:
           path: release-packages
 
       - name: Generate changelog
-        run: python scripts/generate_changelog.py --format markdown --from ${{ needs.create-tag.outputs.previous-release-version }} --for-nightly=${{ github.event.inputs.version-type == 'nightly' }} > new_changelog.md
+        run: python scripts/generate_changelog.py --format markdown --from ${{ needs.create-tag.outputs.previous-release-version }} --for-nightly=${{ github.event.inputs.version-type == 'nightly' }} --version ${{ needs.create-tag.outputs.release-version }} > new_changelog.md
 
       - name: Release
         uses: softprops/action-gh-release@v1

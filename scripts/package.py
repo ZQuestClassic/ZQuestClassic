@@ -344,6 +344,7 @@ else:
                 sys.executable, script_dir / 'generate_changelog.py',
                 '--from', last_stable,
                 '--to', 'HEAD',
+                '--version', args.version,
             ], encoding='utf-8').strip()
         except Exception as e:
             changelog = None

@@ -34,6 +34,7 @@ parser.add_argument(
 parser.add_argument('--from')
 parser.add_argument('--to', default='HEAD')
 parser.add_argument('--for-nightly', type=str2bool, default=False)
+parser.add_argument('--version')
 
 args = parser.parse_args()
 
@@ -456,6 +457,12 @@ if from_sha:
 else:
     branch = subprocess.check_output(
         'git describe --tags --abbrev=0', shell=True, encoding='utf-8').strip()
+
+if args.version:
+    if args.format == 'markdown':
+        print(f'To download this release, [visit the ZQuest Classic website](https://zquestclassic.com/releases/{args.version}/) or see the bottom of this page.\n')
+    else:
+        print(f'https://zquestclassic.com/releases/{args.version}/\n')
 
 if args.for_nightly:
     print(f'The following are the changes since {branch}:\n\n')
