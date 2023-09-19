@@ -358,6 +358,7 @@ def clear_progress_str():
 
 
 is_mac_ci = args.ci and 'mac' in args.ci
+is_linux_ci = args.ci and 'ubuntu' in args.ci
 is_web = bool(list(args.build_folder.glob('*.wasm')))
 is_web_ci = is_web and args.ci
 is_coverage = args.build_folder.name == 'Coverage' or args.build_type == 'Coverage'
@@ -626,7 +627,7 @@ class CLIPlayerInterface:
 
         if args.headless:
             exe_args.append('-headless')
-        elif is_mac_ci:
+        elif is_mac_ci or is_linux_ci:
             exe_args.append('-s')
         
         if args.no_console:
