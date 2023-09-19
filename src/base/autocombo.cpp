@@ -569,7 +569,7 @@ int32_t combo_auto::convert_offsets(byte type, int16_t offset)
 		{
 			switch (offset)
 			{
-				case 83:
+				case 93:
 					return offset + 1;
 				default:
 					return offset;
