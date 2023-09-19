@@ -11854,10 +11854,10 @@ void domouse()
 			if(lclick)
 			{
 				int32_t f=favorites_list.rectind(x,y);
-				int32_t fp=f+FAVORITECOMBO_PER_PAGE*FavoriteComboPage;
 				int32_t row=f/favorites_list.w;
 				int32_t col=f%favorites_list.w;
 				f = (row*FAVORITECOMBO_PER_ROW)+col;
+				int32_t fp = f + FAVORITECOMBO_PER_PAGE * FavoriteComboPage;
 				
 				bool dmcond = favorite_combos[fp] < 0;
 				if((key[KEY_LSHIFT] || key[KEY_RSHIFT] || dmcond) && !(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL]))
@@ -11987,10 +11987,10 @@ void domouse()
 					}
 					int32_t m = popup_menu(rc_menu,x,y);
 					int32_t f=favorites_list.rectind(x,y);
-					int32_t fp=f+FAVORITECOMBO_PER_PAGE*FavoriteComboPage;
 					int32_t row=f/favorites_list.w;
 					int32_t col=f%favorites_list.w;
 					f = (row*FAVORITECOMBO_PER_ROW)+col;
+					int32_t fp = f + FAVORITECOMBO_PER_PAGE * FavoriteComboPage;
 					
 					size_and_pos const& list = (draw_mode == dm_alias ? comboaliaslist[current_comboalist] : combolist[current_combolist]);
 					switch(m)
