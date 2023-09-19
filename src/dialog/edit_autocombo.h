@@ -47,11 +47,13 @@ public:
 	void addSlotNoEngrave(autocombo_entry& entry, size_t& ind, size_t& wid, size_t& hei);
 	void refreshPreviewCSets();
 	void refreshTypes(int32_t type);
-	void refreshTilingGrid();
+	void refreshTilingGrid(byte oldw, byte oldh);
 	void refreshWidgets();
 	bool handleMessage(const GUI::DialogMessage<message>& msg);
 
 private:
+	byte temp_arg;
+
 	std::string typeinfostr;
 
 	std::vector<autocombo_widg> widgs;

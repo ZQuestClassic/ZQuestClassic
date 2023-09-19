@@ -89,8 +89,12 @@ bool combo_auto::hasTemplate()
 {
 	switch (type)
 	{
-		case AUTOCOMBO_NONE:
 		case AUTOCOMBO_TILING:
+		{
+			int32_t w = (arg & 0xF) + 1;
+			return w <= 4;
+		}
+		case AUTOCOMBO_NONE:
 		case AUTOCOMBO_REPLACE:
 			return false;
 		default:

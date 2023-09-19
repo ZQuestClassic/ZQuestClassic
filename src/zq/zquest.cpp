@@ -6347,7 +6347,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 			{
 				GUI::ListData ac_types = GUI::ZCListData::autocombotypes();
 				std::string type_name = ac_types.findText(combo_autos[combo_auto_pos].getType());
-				sprintf(comboprev_buf, "Autocombo: %d\n%s", combo_auto_pos, type_name.c_str());
+				sprintf(comboprev_buf, "Autocombo: %d\n%s\nEntries: %d", combo_auto_pos, type_name.c_str(), int32_t(combo_autos[combo_auto_pos].combos.size()));
 				int x = combo_preview_text1.x + (combo_preview_text1.w * combo_preview_text1.xscale);
 				textbox_out(menu1, txfont, x, combo_preview_text1.y, jwin_pal[jcBOXFG], jwin_pal[jcBOX], comboprev_buf, 2, &combo_preview_text1);
 			}

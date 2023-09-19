@@ -10,6 +10,7 @@
 
 extern bool saved;
 combo_auto temp_autocombo;
+static size_t editautocombo_tab = 0;
 static combo_auto* retptr;
 
 extern int32_t CSet;
@@ -106,8 +107,12 @@ void AutoComboDialog::refreshPanels()
 			addCombos(76);
 			break;
 		case AUTOCOMBO_TILING:
-			addCombos(64);
+		{
+			byte w = (temp_arg & 0xF) + 1;
+			byte h = ((temp_arg >> 4) & 0xF) + 1;
+			addCombos(w * h);
 			break;
+		}
 	}
 }
 
@@ -184,6 +189,7 @@ std::shared_ptr<GUI::Widget> AutoComboDialog::view()
 					onClick = message::RELOAD,
 					onPressFunc = [&]() {
 						int32_t cmb, cs;
+						int32_t tiling_offs = 0;
 						bool altmode = key[KEY_LSHIFT] || key[KEY_RSHIFT];
 						if (select_combo_3(cmb, cs))
 						{
@@ -209,22 +215,33 @@ std::shared_ptr<GUI::Widget> AutoComboDialog::view()
 									{
 										switch (temp_autocombo.getType())
 										{
-										case AUTOCOMBO_RELATIONAL:
-										case AUTOCOMBO_DGNCARVE:
-											if (temp_autocombo.getFlags() & ACF_LEGACY)
+											case AUTOCOMBO_TILING:
 											{
-												int32_t cid = vbound(cmb + combo_auto::legacy_offsets(temp_autocombo.getType(), w.slot), 0, MAXCOMBOS - 1);
+												int32_t wid = (temp_autocombo.getArg() & 0xF) + 1;
+												int32_t cid = vbound(cmb + w.slot + tiling_offs, 0, MAXCOMBOS - 1);
+												w.cpane->setCombo(cid);
+												w.cpane->setCSet(CSet);
+												w.entry->cid = cid;
+												if (w.slot % wid == wid - 1)
+													tiling_offs += 4 - wid;
+												break;
+											}
+											case AUTOCOMBO_RELATIONAL:
+											case AUTOCOMBO_DGNCARVE:
+												if (temp_autocombo.getFlags() & ACF_LEGACY)
+												{
+													int32_t cid = vbound(cmb + combo_auto::legacy_offsets(temp_autocombo.getType(), w.slot), 0, MAXCOMBOS - 1);
+													w.cpane->setCombo(cid);
+													w.cpane->setCSet(CSet);
+													w.entry->cid = cid;
+													break;
+												}
+											default:
+												int32_t cid = vbound(cmb + combo_auto::convert_offsets(temp_autocombo.getType(), w.slot), 0, MAXCOMBOS - 1);
 												w.cpane->setCombo(cid);
 												w.cpane->setCSet(CSet);
 												w.entry->cid = cid;
 												break;
-											}
-										default:
-											int32_t cid = vbound(cmb + combo_auto::convert_offsets(temp_autocombo.getType(), w.slot), 0, MAXCOMBOS - 1);
-											w.cpane->setCombo(cid);
-											w.cpane->setCSet(CSet);
-											w.entry->cid = cid;
-											break;
 										}
 									}
 								}
@@ -233,6 +250,18 @@ std::shared_ptr<GUI::Widget> AutoComboDialog::view()
 					})
 			),
 			TabPanel(
+				onSwitch = [&](size_t, size_t)
+				{
+					if (temp_autocombo.getType() == AUTOCOMBO_TILING)
+					{
+						byte w = (temp_arg & 0xF) + 1;
+						byte h = ((temp_arg >> 4) & 0xF) + 1;
+						refreshTilingGrid(w, h);
+						temp_autocombo.setArg(temp_arg);
+					}
+					refresh_dlg();
+				},
+				ptr = &editautocombo_tab,
 				TabRef(name = "Combos", Column(
 					wingrid = Column(padding = 0_px)
 				)),
@@ -307,37 +336,31 @@ std::shared_ptr<GUI::Widget> AutoComboDialog::view()
 							)
 						),
 						// 6 - tiling pattern
-						Rows<2>(vAlign = 0.0,
-							Row(colSpan = 2, hAlign = 0.0, padding = 0_px,
-								INFOBTN_EX("The width of the tiling pattern.", width = 20_px, height = 20_px),
-								Label(text = "Width:"),
-								TextField(
-									type = GUI::TextField::type::INT_DECIMAL,
-									minwidth = 1_em,
-									minheight = 1_em,
-									low = 1, high = 8,
-									val = (temp_autocombo.getArg() & 0xF) + 1,
-									onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
-									{
-										temp_autocombo.setArg(temp_autocombo.getArg() & 0xF0 | (val - 1));
-										refreshTilingGrid();
-									})
-							),
-							Row(colSpan = 2, hAlign = 0.0, padding = 0_px,
-								INFOBTN_EX("The height of the tiling pattern.", width = 20_px, height = 20_px),
-								Label(text = "Height:"),
-								TextField(
-									type = GUI::TextField::type::INT_DECIMAL,
-									minwidth = 1_em,
-									minheight = 1_em,
-									low = 1, high = 8,
-									val = ((temp_autocombo.getArg() >> 4) & 0xF) + 1,
-									onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
-									{
-										temp_autocombo.setArg(temp_autocombo.getArg() & 0x0F | ((val - 1) << 4));
-										refreshTilingGrid();
-									})
-							)
+						Rows<3>(vAlign = 0.0,
+							INFOBTN_EX("The width of the tiling pattern.", width = 20_px, height = 20_px),
+							Label(text = "Width:", hAlign = 1.0),
+							TextField(
+								type = GUI::TextField::type::INT_DECIMAL,
+								minwidth = 2.5_em,
+								low = 1, high = 8,
+								val = (temp_autocombo.getArg() & 0xF) + 1,
+								onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
+								{
+									temp_arg = (temp_arg & 0xF0) | (val - 1);
+									templatebtn->setDisabled(true);
+								}),
+							INFOBTN_EX("The height of the tiling pattern.", width = 20_px, height = 20_px),
+							Label(text = "Height:", hAlign = 1.0),
+							TextField(
+								type = GUI::TextField::type::INT_DECIMAL,
+								minwidth = 2.5_em,
+								low = 1, high = 8,
+								val = ((temp_autocombo.getArg() >> 4) & 0xF) + 1,
+								onValChangedFunc = [&](GUI::TextField::type, std::string_view, int32_t val)
+								{
+									temp_arg = (temp_arg & 0x0F) | ((val - 1) << 4);
+									templatebtn->setDisabled(true);
+								})
 						)
 					)
 				))
@@ -359,7 +382,6 @@ std::shared_ptr<GUI::Widget> AutoComboDialog::view()
 	);
 	refreshTypes(temp_autocombo.getType());
 	refreshWidgets();
-	refreshTilingGrid();
 	return window;
 }
 
@@ -602,17 +624,32 @@ void AutoComboDialog::refreshTypes(int32_t type)
 	}
 }
 
-void AutoComboDialog::refreshTilingGrid()
+void AutoComboDialog::refreshTilingGrid(byte w, byte h)
 {
-	if (temp_autocombo.getType() != AUTOCOMBO_TILING)
-		return;
-	byte w = (temp_autocombo.getArg() & 0xF) + 1;
-	byte h = ((temp_autocombo.getArg() >> 4) & 0xF) + 1;
-	for (int32_t q = 0; q < 64; ++q)
+	byte oldw = (temp_autocombo.getArg() & 0xF) + 1;
+	byte oldh = ((temp_autocombo.getArg() >> 4) & 0xF) + 1;
+
+	byte temp_type[8][8] = { 0 };
+	int32_t temp_grid[8][8] = { 0 };
+	for (int32_t xi = 0; xi < oldw; ++xi)
 	{
-		if (tiling_grid[q])
+		for (int32_t yi = 0; yi < oldh; ++yi)
 		{
-			tiling_grid[q]->setDisabled(!(q % 8 < w && q / 8 < h));
+			int32_t i = xi + yi * oldw;
+			temp_type[xi][yi] = temp_autocombo.combos[i].ctype;
+			temp_grid[xi][yi] = temp_autocombo.combos[i].cid;
+		}
+	}
+
+	refreshPanels();
+
+	for (int32_t xi = 0; xi < w; ++xi)
+	{
+		for (int32_t yi = 0; yi < h; ++yi)
+		{
+			int32_t i = xi + yi * w;
+			temp_autocombo.combos[i].ctype = temp_type[xi][yi];
+			temp_autocombo.combos[i].cid = temp_grid[xi][yi];
 		}
 	}
 }
@@ -623,12 +660,48 @@ void AutoComboDialog::refreshWidgets()
 	using namespace GUI::Key;
 	using namespace GUI::Props;
 
+	temp_arg = temp_autocombo.getArg();
+
+	byte tiling_w = 1;
+	byte tiling_h = 1;
+	if (temp_autocombo.getType() == AUTOCOMBO_TILING)
+	{
+		tiling_w = (temp_autocombo.getArg() & 0xF) + 1;
+		tiling_h = ((temp_autocombo.getArg() >> 4) & 0xF) + 1;
+	}
+
 	size_t per_row = 4;
 	size_t vis_rows = 5;
 	if (temp_autocombo.getType() == AUTOCOMBO_TILING)
 	{
-		per_row = 8;
-		sgrid = Rows<8>();
+		per_row = tiling_w;
+		switch (per_row)
+		{
+			case 1:
+				sgrid = Column();
+				break;
+			case 2:
+				sgrid = Rows<2>();
+				break;
+			case 3:
+				sgrid = Rows<3>();
+				break;
+			case 4:
+				sgrid = Rows<4>();
+				break;
+			case 5:
+				sgrid = Rows<5>();
+				break;
+			case 6:
+				sgrid = Rows<6>();
+				break;
+			case 7:
+				sgrid = Rows<7>();
+				break;
+			case 8:
+				sgrid = Rows<8>();
+				break;
+		}
 	}
 	else
 		sgrid = Rows<4>();
@@ -746,6 +819,8 @@ void AutoComboDialog::refreshWidgets()
 			grid = dor_grid;
 			break;
 	}
+
+	int32_t sz = temp_autocombo.combos.size();
 	while (widg_ind < temp_autocombo.combos.size())
 	{
 		if (grid && grid[grid_ind])

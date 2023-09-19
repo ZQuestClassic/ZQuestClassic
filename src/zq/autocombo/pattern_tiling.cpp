@@ -12,7 +12,7 @@ namespace AutoPattern
 			return false;
 		int32_t x = (size.first + ap->x - offsets.first) % size.first;
 		int32_t y = (size.second + ap->y - offsets.second) % size.second;
-		ap->set_cid(slot_to_cid_pair(x + y * 8));
+		ap->set_cid(slot_to_cid_pair(x + y * size.first));
 		if (ap->cid == 0)
 			ap->changed = false;
 
