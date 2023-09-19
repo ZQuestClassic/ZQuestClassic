@@ -20772,8 +20772,12 @@ int32_t readfavorites(PACKFILE *f, int32_t, word)
 	}
 	
 	word per_row = FAVORITECOMBO_PER_ROW;
+	word per_page = FAVORITECOMBO_PER_PAGE;
 	if(s_version >= 3)
 		if(!p_igetw(&per_row,f))
+			return qe_invalid;
+	if(s_version >= 4)
+		if(!p_igetw(&per_page,f))
 			return qe_invalid;
 	//finally...  section data
 	if(!p_igetw(&num_favorite_combos,f))
@@ -20784,7 +20788,7 @@ int32_t readfavorites(PACKFILE *f, int32_t, word)
 	//Hack; port old favorite combos
 	if(s_version < 3 && num_favorite_combos == 100)
 		per_row = 13;
-	
+
 	for(int q = 0; q < MAXFAVORITECOMBOS; ++q)
 		favorite_combos[q] = -1;
 	for(int q = 0; q < MAXFAVORITECOMBOALIASES; ++q)

@@ -13988,6 +13988,8 @@ int32_t writefavorites(PACKFILE *f, zquestheader*)
 		
 		if(!p_iputw(FAVORITECOMBO_PER_ROW,f))
 			new_return(16);
+		if(!p_iputw(FAVORITECOMBO_PER_PAGE,f)) // Just in case pages get resized again
+			new_return(17);
 		
 		word favcmb_cnt = 0;
 		for(int q = MAXFAVORITECOMBOS-1; q >= 0; --q)
