@@ -17186,7 +17186,7 @@ bool HeroClass::scr_walkflag(int dx,int dy,int d2,bool kb)
 	if(blockpath && dy<80) //Blocked top parts of rooms
 		return true;
 	
-	if(blockmoving && mblock2.hit(dx,dy,0,1,1,1))
+	if(mblock2.active() && mblock2.hit(dx,dy,0,1,1,1))
 		return true;
 	//collide_object handled in scr_canmove
 	
@@ -19275,7 +19275,7 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
         return ret;
     }
     
-    if(blockmoving && mblock2.hit(wx,wy,0,1,1,1))
+    if(mblock2.active() && mblock2.hit(wx,wy,0,1,1,1))
     {
         ret.setUnwalkable(true);
         return ret;
@@ -19777,13 +19777,13 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
 HeroClass::WalkflagInfo HeroClass::walkflagMBlock(int32_t wx,int32_t wy)
 {
 	HeroClass::WalkflagInfo ret;
-	if (!blockmoving) //Without this, weird swimming behaviors happen.
+	if (!mblock2.active()) //Without this, weird swimming behaviors happen.
 	{
 		ret.setFlags(~1);
 		ret.setHopDir(-1);
 	}
 	if(toogam) return ret;
-	if (blockmoving)
+	if (mblock2.active())
 		ret.setUnwalkable(mblock2.hit(wx,wy,0,1,1,1));
 	if (collide_object(wx, wy,1, 1))
 		ret.setUnwalkable(true);
@@ -20176,7 +20176,7 @@ void HeroClass::checkpushblock()
 				++usecounts[itemid];
 			
 			//   for(int32_t i=0; i<1; i++)
-			if(!blockmoving)
+			if(!mblock2.active())
 			{
 				if(changeflag)
 				{

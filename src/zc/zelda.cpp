@@ -1107,7 +1107,6 @@ void Z_scripterrlog(const char * const format,...)
     }
 }
 
-bool blockmoving;
 #include "sprite.h"
 movingblock mblock2;                                        //mblock[4]?
 portal mirror_portal;
@@ -1219,7 +1218,7 @@ void ALLOFF(bool messagesToo, bool decorationsToo, bool force)
         guygridffc[i]=0;
         
     sle_clk=0;
-    blockmoving=false;
+	mblock2.clear();
     fairy_cnt=0;
     
     if(usebombpal)
@@ -1766,7 +1765,7 @@ int32_t init_game()
 	Hero.reset_hookshot();
 	Hero.reset_ladder();
 	linkedmsgclk=0;
-	blockmoving=false;
+	mblock2.clear();
 	add_asparkle=0;
 	add_bsparkle=0;
 	add_df1asparkle=false;
@@ -2374,7 +2373,7 @@ int32_t cont_game()
 	Hero.reset_hookshot();
 	Hero.reset_ladder();
 	linkedmsgclk=0;
-	blockmoving=0;
+	mblock2.clear();
 	add_asparkle=0;
 	add_bsparkle=0;
 	add_df1asparkle=false;

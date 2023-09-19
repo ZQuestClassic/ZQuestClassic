@@ -9724,15 +9724,15 @@ int32_t get_register(const int32_t arg)
 			break;
 			
 		case PUSHBLOCKX:
-			ret = blockmoving ? int32_t(mblock2.x)*10000 : -10000;
+			ret = mblock2.active() ? int32_t(mblock2.x)*10000 : -10000;
 			break;
 			
 		case PUSHBLOCKY:
-			ret = blockmoving ? int32_t(mblock2.y)*10000 : -10000;
+			ret = mblock2.active() ? int32_t(mblock2.y)*10000 : -10000;
 			break;
 		
 		case PUSHBLOCKLAYER:
-			ret = blockmoving ? int32_t(mblock2.blockLayer)*10000 : -10000;
+			ret = mblock2.active() ? int32_t(mblock2.blockLayer)*10000 : -10000;
 			break;
 			
 		case PUSHBLOCKCOMBO:

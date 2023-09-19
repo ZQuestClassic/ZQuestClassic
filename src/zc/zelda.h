@@ -354,7 +354,6 @@ extern dword fps_secs;
 extern float avgfps;
 
 extern bool cheats_execute_goto, cheats_execute_light;
-extern bool blockmoving;
 extern bool Throttlefps, MenuOpen, ClickToFreeze, Paused, Saving, Advance, ShowFPS, Showpal,
 	Playing, FrameSkip, TransLayers, clearConsoleOnLoad, clearConsoleOnReload, disableClickToFreeze,
 	SaveDragResize, DragAspect, SaveWinPos, scaleForceInteger, stretchGame;

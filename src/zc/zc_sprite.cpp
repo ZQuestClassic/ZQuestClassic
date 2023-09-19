@@ -166,6 +166,7 @@ void sprite::check_conveyor()
 void movingblock::clear()
 {
 	trigger = bhole = force_many = no_icy = new_block = false;
+	fallclk = drownclk = 0;
 	endx=x=endy=y=0;
 	dir=-1;
 	oldflag=0;
@@ -238,7 +239,6 @@ void movingblock::push(zfix bx,zfix by,int32_t d2,int32_t f)
 	FFCore.clear_combo_script(blockLayer, combopos);
     putcombo(scrollbuf,x,y,*di,*ci);
     clk=32;
-    blockmoving=true;
 	if(!get_qr(qr_MOVINGBLOCK_FAKE_SOLID))
 		setSolid(true);
 	solid_update(false);
@@ -289,7 +289,6 @@ void movingblock::push_new(zfix bx,zfix by,int d2,int f,zfix spd)
 	FFCore.clear_combo_script(blockLayer, combopos);
     putcombo(scrollbuf,x,y,*di,*ci);
     clk=32;
-    blockmoving=true;
 	if(!get_qr(qr_MOVINGBLOCK_FAKE_SOLID))
 		setSolid(true);
 	solid_update(false);
@@ -367,6 +366,11 @@ bool movingblock::check_trig() const
 	return false;
 }
 
+bool movingblock::active() const
+{
+	return clk > 0 || fallclk || drownclk;
+}
+
 bool movingblock::animate(int32_t)
 {
 	mapscr* m = FFCore.tempScreens[blockLayer];
@@ -377,12 +381,10 @@ bool movingblock::animate(int32_t)
 	{
 		if(fallclk == PITFALL_FALL_FRAMES)
 			sfx(combobuf[fallCombo].attribytes[0], pan(x.getInt()));
-		if(!--fallclk)
-		{
-			blockmoving=false;
-		}
 		clk = 0;
 		solid_update(false);
+		if(!--fallclk)
+			clear();
 		return false;
 	}
 	if(drownclk)
@@ -390,12 +392,10 @@ bool movingblock::animate(int32_t)
 		//if(drownclk == WATER_DROWN_FRAMES)
 		//sfx(combobuf[drownCombo].attribytes[0], pan(x.getInt()));
 		//!TODO: Drown SFX
-		if(!--drownclk)
-		{
-			blockmoving=false;
-		}
 		clk = 0;
 		solid_update(false);
+		if(!--drownclk)
+			clear();
 		return false;
 	}
 	if(clk<=0)
@@ -611,7 +611,6 @@ bool movingblock::animate(int32_t)
 			x = endx;
 			y = endy;
 			trigger = false; bhole = false;
-			blockmoving=false;
 			
 			int f1 = m->sflag[combopos];
 			int f2 = MAPCOMBOFLAG2(blockLayer-1,x,y);
@@ -808,7 +807,6 @@ bool movingblock::animate(int32_t)
 		else
 		{
 			trigger = false; bhole = false;
-			blockmoving=false;
 			
 			int32_t f1 = m->sflag[combopos];
 			int32_t f2 = MAPCOMBOFLAG2(blockLayer-1,x,y);
@@ -1034,6 +1032,7 @@ bool movingblock::animate(int32_t)
 		{
 			do_trigger_combo(blockLayer, combopos);
 		}
+		clear();
 	}
 	return false;
 }
