@@ -2,6 +2,7 @@ import argparse
 import os
 import shutil
 import platform
+import shutil
 import subprocess
 import sys
 from typing import List, Tuple
@@ -138,9 +139,52 @@ def archive_package(package_dir: Path):
     print(f'archived {dest}')
 
 
-def do_packaging(package_dir: Path, files):
+def collect_licenses(package_dir: Path):
+    output_dir = package_dir / 'licenses'
+    output_dir.mkdir(exist_ok=True, parents=True)
+    shutil.copy2(root_dir / 'license.txt', output_dir / 'zquest_classic.LICENSE.txt')
+
+    # Collect third party licences.
+    third_party_dirs = []
+    third_party_dirs.extend((root_dir / 'third_party').glob('*'))
+    cmake_deps_dir = build_dir / '_deps'
+    if not cmake_deps_dir.exists():
+        cmake_deps_dir = build_dir.parent / '_deps'
+    third_party_dirs.extend(cmake_deps_dir.glob('*-src'))
+
+    files_to_copy = ['LICENSE', 'AUTHORS', 'CREDITS', 'README']
+
+    for third_party_dir in third_party_dirs:
+        if third_party_dir.is_file():
+            continue
+
+        name = third_party_dir.name.replace('-src', '').replace('_external', '')
+        dir = output_dir / name
+        dir.mkdir(exist_ok=True)
+
+        for file in files_to_copy:
+            # Kinda big.
+            if name == 'allegro_legacy' and file == 'AUTHORS':
+                (dir / file).write_text('https://github.com/NewCreature/Allegro-Legacy/blob/master/AUTHORS')
+                continue
+
+            variants = [file]
+            for file in list(variants):
+                variants.append(file.lower())
+            for file in list(variants):
+                variants.append(f'{file}.txt')
+                variants.append(f'{file}.md')
+            file = next((f for f in variants if (third_party_dir / f).exists()), None)
+            if file:
+                shutil.copy2(third_party_dir / file, dir / file)
+
+
+
+def do_packaging(package_dir: Path, files, include_licenses=False):
     prepare_package(package_dir)
     copy_files_to_package(files, package_dir)
+    if include_licenses:
+        collect_licenses(package_dir)
     print(f'packaged {package_dir}')
     if not args.skip_archive:
         archive_package(package_dir)
@@ -216,4 +260,4 @@ else:
         if system == 'Linux' and 'PACKAGE_DEBUG_INFO' in os.environ:
             files += glob_files(build_dir, '*.debug')
 
-    do_packaging(packages_dir / 'zc', files)
+    do_packaging(packages_dir / 'zc', files, include_licenses=True)
