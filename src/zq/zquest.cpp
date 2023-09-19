@@ -3057,7 +3057,22 @@ void fix_drawing_mode_menu()
         drawing_mode_menu[i].flags=0;
     }
     
-    drawing_mode_menu[draw_mode].flags=D_SELECTED;
+	int32_t ind;
+	switch (draw_mode)
+	{
+		case dm_alias:
+			ind = 1;
+			break;
+		case dm_cpool:
+			ind = 2;
+			break;
+		case dm_auto:
+			ind = 3;
+			break;
+		default:
+			ind = 0;
+	}
+    drawing_mode_menu[ind].flags=D_SELECTED;
 }
 
 void reset_relational_tile_grid()
