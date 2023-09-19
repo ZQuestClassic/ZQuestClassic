@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2023-09-11 08:42:14</td>
+      <td>2023-09-19 17:25:36</td>
     </tr>
   </table>
 </div>
@@ -108,13 +108,13 @@
     </tr>
     <tr>
       <td>
-        <a href="#l135">zc_midi_seek(int)</a>
+        <a href="#l136">zc_midi_seek(int)</a>
       </td>
       <td>
-        <a href="#l135">135</a>
+        <a href="#l136">136</a>
       </td>
       <td>
-        <a href="#l135"> not called</a>
+        <a href="#l136"> not called</a>
       </td>
     </tr>
     <tr>
@@ -125,7 +125,7 @@
         <a href="#l91">91</a>
       </td>
       <td>
-        <a href="#l91"> called 3359 times</a>
+        <a href="#l91"> called 3360 times</a>
       </td>
     </tr>
     <tr>
@@ -136,7 +136,7 @@
         <a href="#l123">123</a>
       </td>
       <td>
-        <a href="#l123"> called 115 times</a>
+        <a href="#l123"> called 116 times</a>
       </td>
     </tr>
     <tr>
@@ -147,7 +147,7 @@
         <a href="#l118">118</a>
       </td>
       <td>
-        <a href="#l118"> called 3359 times</a>
+        <a href="#l118"> called 3360 times</a>
       </td>
     </tr>
   </table>
@@ -798,7 +798,7 @@
       <td class="lineno"><a id="l91" href="#l91">91</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">3359</td>
+      <td class="linecount coveredLine">3360</td>
       <td class="src coveredLine"><span class="kt">int</span><span class="w"> </span><span class="nf">zc_play_midi</span><span class="p">(</span><span class="n">MIDI</span><span class="w"> </span><span class="o">*</span><span class="n">midi</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">loop</span><span class="p">)</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
@@ -833,7 +833,7 @@
       <td class="lineno"><a id="l96" href="#l96">96</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">3359</td>
+      <td class="linecount coveredLine">3360</td>
       <td class="src coveredLine"><span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="n">play_midi</span><span class="p">(</span><span class="n">midi</span><span class="p">,</span><span class="w"> </span><span class="n">loop</span><span class="p">);</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
@@ -987,7 +987,7 @@
       <td class="lineno"><a id="l118" href="#l118">118</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">3359</td>
+      <td class="linecount coveredLine">3360</td>
       <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="nf">zc_stop_midi</span><span class="p">()</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
@@ -1001,14 +1001,14 @@
       <td class="lineno"><a id="l120" href="#l120">120</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">3359</td>
+      <td class="linecount coveredLine">3360</td>
       <td class="src coveredLine"><span class="w">  </span><span class="n">zc_play_midi</span><span class="p">(</span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="nb">false</span><span class="p">);</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l121" href="#l121">121</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">3359</td>
+      <td class="linecount coveredLine">3360</td>
       <td class="src coveredLine"><span class="p">}</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
@@ -1022,7 +1022,7 @@
       <td class="lineno"><a id="l123" href="#l123">123</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">115</td>
+      <td class="linecount coveredLine">116</td>
       <td class="src coveredLine"><span class="kt">void</span><span class="w"> </span><span class="nf">zc_set_volume</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">digi_volume</span><span class="p">,</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">midi_volume</span><span class="p">)</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
@@ -1044,122 +1044,129 @@
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">  </span><span class="c1">// SDL_mixer volume is 0-128, but allegro is 0-255</span></td>
+      <td class="src "><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="n">has_opened_audio</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="p">;</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l127" href="#l127">127</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">  </span><span class="n">midi_volume</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src "><span class="w">  </span><span class="c1">// SDL_mixer volume is 0-128, but allegro is 0-255</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l128" href="#l128">128</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">  </span><span class="c1">// Also, for some reason music is really loud compared to SFX, so dampen it</span></td>
+      <td class="src "><span class="w">  </span><span class="n">midi_volume</span><span class="w"> </span><span class="o">/=</span><span class="w"> </span><span class="mi">2</span><span class="p">;</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l129" href="#l129">129</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="w">  </span><span class="n">Mix_VolumeMusic</span><span class="p">(</span><span class="n">midi_volume</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">0.5</span><span class="p">);</span><span class="w"></span></td>
+      <td class="src "><span class="w">  </span><span class="c1">// Also, for some reason music is really loud compared to SFX, so dampen it</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l130" href="#l130">130</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
-      <td class="src "><span class="cp">#else</span></td>
+      <td class="src "><span class="w">  </span><span class="n">Mix_VolumeMusic</span><span class="p">(</span><span class="n">midi_volume</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">0.5</span><span class="p">);</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l131" href="#l131">131</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">115</td>
-      <td class="src coveredLine"><span class="w">  </span><span class="n">set_volume</span><span class="p">(</span><span class="n">digi_volume</span><span class="p">,</span><span class="w"> </span><span class="n">midi_volume</span><span class="p">);</span><span class="w"></span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="cp">#else</span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l132" href="#l132">132</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount coveredLine">116</td>
+      <td class="src coveredLine"><span class="w">  </span><span class="n">set_volume</span><span class="p">(</span><span class="n">digi_volume</span><span class="p">,</span><span class="w"> </span><span class="n">midi_volume</span><span class="p">);</span><span class="w"></span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l133" href="#l133">133</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="cp">#endif</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l133" href="#l133">133</a></td>
+      <td class="lineno"><a id="l134" href="#l134">134</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount coveredLine">115</td>
+      <td class="linecount coveredLine">116</td>
       <td class="src coveredLine"><span class="p">}</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l134" href="#l134">134</a></td>
+      <td class="lineno"><a id="l135" href="#l135">135</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l135" href="#l135">135</a></td>
+      <td class="lineno"><a id="l136" href="#l136">136</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="kt">void</span><span class="w"> </span><span class="nf">zc_midi_seek</span><span class="p">(</span><span class="kt">int</span><span class="w"> </span><span class="n">pos</span><span class="p">)</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l136" href="#l136">136</a></td>
+      <td class="lineno"><a id="l137" href="#l137">137</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="p">{</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l137" href="#l137">137</a></td>
+      <td class="lineno"><a id="l138" href="#l138">138</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="cp">#ifdef __EMSCRIPTEN__</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l138" href="#l138">138</a></td>
+      <td class="lineno"><a id="l139" href="#l139">139</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">  </span><span class="n">Mix_SetMusicBeat</span><span class="p">(</span><span class="n">pos</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l139" href="#l139">139</a></td>
+      <td class="lineno"><a id="l140" href="#l140">140</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="cp">#else</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l140" href="#l140">140</a></td>
+      <td class="lineno"><a id="l141" href="#l141">141</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">  </span><span class="n">midi_seek</span><span class="p">(</span><span class="n">pos</span><span class="p">);</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l141" href="#l141">141</a></td>
+      <td class="lineno"><a id="l142" href="#l142">142</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="cp">#endif</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l142" href="#l142">142</a></td>
+      <td class="lineno"><a id="l143" href="#l143">143</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="p">}</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l143" href="#l143">143</a></td>
+      <td class="lineno"><a id="l144" href="#l144">144</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
