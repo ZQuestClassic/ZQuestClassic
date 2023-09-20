@@ -40,6 +40,7 @@ extern int32_t zq_screen_w, zq_screen_h;
 #include "zq/gui/misc_color_row.h"
 #include "zq/gui/dmap_minimap.h"
 #include "zq/gui/dmap_mapgrid.h"
+#include "zq/gui/engraving.h"
 #endif
 
 #include <initializer_list>
@@ -253,6 +254,11 @@ inline std::shared_ptr<DMapMinimap> makeDMapMinimap()
 inline std::shared_ptr<DMapMapGrid> makeDMapMapGrid()
 {
 	return std::make_shared<DMapMapGrid>();
+}
+
+inline std::shared_ptr<Engraving> makeEngraving()
+{
+	return std::make_shared<Engraving>();
 }
 #endif
 
@@ -584,6 +590,12 @@ ZCGUI_BUILDER_START(DMapMapGrid)
 	ZCGUI_ACCEPT_PROP(onUpdate, setOnUpdate, std::function<void(byte*, byte, byte)>)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(DMapMapGrid, DMapMapGrid, makeDMapMapGrid)
+
+ZCGUI_BUILDER_START(Engraving)
+	ZCGUI_ACCEPT_PROP(data, setSlot, int32_t)
+ZCGUI_BUILDER_END()
+ZCGUI_BUILDER_FUNCTION(Engraving, Engraving, makeEngraving)
+
 #endif
 
 } // namespace GUI::builder

@@ -443,6 +443,7 @@ set(zcbase_sources
 	src/base/combo.cpp
 	src/base/cpos_info.cpp
 	src/base/cpool.cpp
+	src/base/autocombo.cpp
 	src/base/dmap.cpp
 	src/base/fonts.cpp
 	src/base/general.cpp

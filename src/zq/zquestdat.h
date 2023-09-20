@@ -13,5 +13,6 @@
 #define BMP_SELECT                       7        /* BMP  */
 #define PAL_ZQUEST                       8        /* PAL  */
 #define THETRAVELSOFLINK_MID             9        /* MIDI */
+#define BMP_ENGRAVINGS                   10       /* BMP  */
 
  

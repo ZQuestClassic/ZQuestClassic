@@ -298,6 +298,7 @@ int32_t onDrawingModeRelational();
 int32_t onDrawingModeDungeon();
 int32_t onDrawingModeAlias();
 int32_t onDrawingModePool();
+int32_t onDrawingModeAuto();
 int32_t onReTemplate();
 int32_t onUndo();
 int32_t onRedo();
@@ -413,6 +414,9 @@ void refresh(int32_t flags, bool update = false);
 void select_scr();
 void select_combo(int32_t list);
 void update_combobrush();
+void draw_autocombo(int32_t pos, bool rclick, bool pressframe = false);
+void draw_autocombo_command(int32_t pos, int32_t cmd=0, int32_t arg=0);
+void change_autocombo_height(int32_t change);
 void draw(bool);
 void replace(int32_t c);
 void draw_block(int32_t start,int32_t w,int32_t h);
@@ -755,6 +759,7 @@ enum
 	cmdRuleset,
 	cmdRuleTemplate,
 	cmdSmartCompile,
+	cmdDrawingModeAutocombo,
     cmdMAX
 };
 

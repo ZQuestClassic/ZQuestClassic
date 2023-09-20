@@ -9,6 +9,7 @@
 #include "base/dmap.h"
 #include "base/packfile.h"
 #include "base/cpool.h"
+#include "base/autocombo.h"
 #include "base/gui.h"
 #include "base/msgstr.h"
 #include "zq/zq_class.h"
@@ -1646,6 +1647,12 @@ void put_combo(BITMAP *dest,int32_t x,int32_t y,word cmbdat,int32_t cset,int32_t
 		//    text_mode(inv?vc(15):vc(0));
 		textprintf_ex(dest,get_zc_font(font_z3smallfont),x+1,y+9,inv?vc(0):vc(15),inv?vc(15):vc(0),"%d",c.type);
 	}
+}
+void put_engraving(BITMAP* dest, int32_t x, int32_t y, int32_t slot, int32_t scale)
+{
+	auto blitx = 1 + (slot % 16) * 17;
+	auto blity = 1 + (slot / 16) * 17;
+	masked_stretch_blit((BITMAP*)zcdata[BMP_ENGRAVINGS].dat, dest, blitx, blity, 16, 16, x, y, 16 * scale, 16 * scale);
 }
 
 
@@ -10367,7 +10374,66 @@ int32_t writecomboaliases(PACKFILE *f, word version, word build)
 			}
 		}
 		
-        
+		//Autocombos!
+		int16_t num_cautos;
+		for (num_cautos = MAXAUTOCOMBOS - 1; num_cautos >= 0; --num_cautos)
+		{
+			if (combo_autos[num_cautos].valid()) //found a used autocombo
+			{
+				++num_cautos;
+				break;
+			}
+		}
+		if (num_cautos < 0) num_cautos = 0;
+
+		if (!p_iputw(num_cautos, f))
+		{
+			new_return(17);
+		}
+
+		for (auto ca = 0; ca < num_cautos; ++ca)
+		{
+			combo_auto const& cauto = combo_autos[ca];
+			if (!p_putc(cauto.getType(), f))
+			{
+				new_return(18);
+			}
+			if (!p_iputl(cauto.getIconDisplay(), f))
+			{
+				new_return(19);
+			}
+			if (!p_iputl(cauto.getEraseCombo(), f))
+			{
+				new_return(20);
+			}
+			if (!p_putc(cauto.getFlags(), f))
+			{
+				new_return(21);
+			}
+			if (!p_putc(cauto.getArg(), f))
+			{
+				new_return(22);
+			}
+			int32_t num_combos = cauto.combos.size();
+			if (!p_iputl(num_combos, f))
+			{
+				new_return(23);
+			}
+
+			for (auto q = 0; q < num_combos; ++q)
+			{
+				autocombo_entry const& entry = cauto.combos.at(q);
+				if (!p_putc(entry.ctype, f))
+				{
+					new_return(24);
+				}
+				if (!p_iputl(entry.cid, f))
+				{
+					new_return(25);
+				}
+			}
+		}
+
         if(writecycle==0)
         {
             section_size=writesize;
@@ -13922,6 +13988,8 @@ int32_t writefavorites(PACKFILE *f, zquestheader*)
 		
 		if(!p_iputw(FAVORITECOMBO_PER_ROW,f))
 			new_return(16);
+		if(!p_iputw(FAVORITECOMBO_PER_PAGE,f)) // Just in case pages get resized again
+			new_return(17);
 		
 		word favcmb_cnt = 0;
 		for(int q = MAXFAVORITECOMBOS-1; q >= 0; --q)
@@ -13935,22 +14003,13 @@ int32_t writefavorites(PACKFILE *f, zquestheader*)
 			new_return(5);
 		
 		for(int i=0; i<favcmb_cnt; ++i)
-			if(!p_iputl(favorite_combos[i],f))
+		{
+			if (!p_putc(favorite_combo_modes[i], f))
 				new_return(6);
+			if (!p_iputl(favorite_combos[i], f))
+				new_return(7);
+		}
 		
-		word favcmb_al_cnt = 0;
-		for(int q = MAXFAVORITECOMBOALIASES-1; q >= 0; --q)
-			if(favorite_comboaliases[q]!=-1)
-			{
-				favcmb_al_cnt = q;
-				break;
-			}
-		if(!p_iputw(favcmb_al_cnt,f))
-			new_return(7);
-		
-		for(int32_t i=0; i<favcmb_al_cnt; ++i)
-			if(!p_iputl(favorite_comboaliases[i],f))
-				new_return(8);
 		
 		word max_combo_cols = MAX_COMBO_COLS;
 		if(!p_iputw(max_combo_cols,f))
@@ -13985,7 +14044,7 @@ int32_t writefavorites(PACKFILE *f, zquestheader*)
 	{
 		char ebuf[80];
 		sprintf(ebuf, "%d != %d", writesize, int32_t(section_size));
-		jwin_alert("Error:  writeitemdropsets()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
+		jwin_alert("Error:  writefavorites()","writesize != section_size",ebuf,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
 	}
 	
 	new_return(0);

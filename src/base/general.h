@@ -122,15 +122,19 @@ void set_bitl(int32_t bitstr,int32_t bit,byte val);
 #define MAXNPCS                    512
 
 #define MAXFAVORITECOMMANDS        64
-#define MAXFAVORITECOMBOS          300
+#define MAXFAVORITECOMBOS          (FAVORITECOMBO_PER_PAGE * FAVORITECOMBO_PAGES)
 #define MAXFAVORITECOMBOALIASES    MAXFAVORITECOMBOS
 
-#define FAVORITECOMBO_PER_ROW      30
+#define FAVORITECOMBO_PER_ROW      20
+#define FAVORITECOMBO_PER_COLUMN   7
+#define FAVORITECOMBO_PER_PAGE     140
+#define FAVORITECOMBO_PAGES        9
 
 #define OLDMAXCOMBOALIASES         256
 #define MAX250COMBOALIASES         2048
 #define MAXCOMBOALIASES            8192
 #define MAXCOMBOPOOLS              8192
+#define MAXAUTOCOMBOS              8192
 
 #define PALNAMESIZE                17
 

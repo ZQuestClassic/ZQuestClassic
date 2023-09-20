@@ -112,7 +112,7 @@ extern std::map<int32_t, script_slot_data > comboscriptmap;
 extern std::map<int32_t, script_slot_data > subscreenmap;
 
 #define MAX_COMBO_COLS 4
-extern int32_t First[MAX_COMBO_COLS],combo_alistpos[MAX_COMBO_COLS],combo_pool_listpos[MAX_COMBO_COLS];
+extern int32_t First[MAX_COMBO_COLS],combo_alistpos[MAX_COMBO_COLS],combo_pool_listpos[MAX_COMBO_COLS], combo_auto_listpos[MAX_COMBO_COLS];
 typedef struct map_and_screen
 {
     int32_t map;
@@ -170,6 +170,7 @@ extern const char *qst_error[];
 extern word msg_count;
 extern word door_combo_set_count;
 extern int32_t favorite_combos[MAXFAVORITECOMBOS];
+extern byte favorite_combo_modes[MAXFAVORITECOMBOS];
 extern int32_t favorite_comboaliases[MAXFAVORITECOMBOALIASES];
 
 char *VerStr(int32_t version);

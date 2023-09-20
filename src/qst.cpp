@@ -3,6 +3,7 @@
 #include "base/zapp.h"
 #include "base/qrs.h"
 #include "base/cpool.h"
+#include "base/autocombo.h"
 #include "base/packfile.h"
 #include "base/dmap.h"
 #include "base/combo.h"
@@ -55,7 +56,7 @@ static bool loadquest_report = false;
 static char const* loading_qst_name = NULL;
 static byte loading_qst_num = 0;
 
-int32_t First[MAX_COMBO_COLS]={0},combo_alistpos[MAX_COMBO_COLS]={0},combo_pool_listpos[MAX_COMBO_COLS]={0};
+int32_t First[MAX_COMBO_COLS]={0},combo_alistpos[MAX_COMBO_COLS]={0},combo_pool_listpos[MAX_COMBO_COLS]={0},combo_auto_listpos[MAX_COMBO_COLS]={0};
 map_and_screen map_page[MAX_MAPPAGE_BTNS]= {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}};
 
 #ifdef _MSC_VER
@@ -18273,6 +18274,7 @@ int32_t readcomboaliases(PACKFILE *f, zquestheader *Header, word version, word b
         }
     }
     
+	//Combo pools!
 	word num_combo_pools = 0;
 	if(sversion >= 4)
 	{
@@ -18318,6 +18320,79 @@ int32_t readcomboaliases(PACKFILE *f, zquestheader *Header, word version, word b
 		}
 		
 		combo_pools[cp] = temp_cpool;
+	}
+
+	//Autocombos!
+	word num_combo_autos = 0;
+	if (sversion >= 5)
+	{
+		if (!p_igetw(&num_combo_autos, f))
+		{
+			return qe_invalid;
+		}
+	}
+
+	for (combo_auto& cauto : combo_autos)
+	{
+		cauto.clear(true);
+	}
+
+	combo_auto temp_cauto;
+	for (word ca = 0; ca < num_combo_autos; ++ca)
+	{
+		byte type;
+		int32_t display_cid, erase_cid;
+		byte flags, arg;
+		if (!p_getc(&type, f))
+		{
+			return qe_invalid;
+		}
+		if (!p_igetl(&display_cid, f))
+		{
+			return qe_invalid;
+		}
+		if (!p_igetl(&erase_cid, f))
+		{
+			return qe_invalid;
+		}
+		if (!p_getc(&flags, f))
+		{
+			return qe_invalid;
+		}
+		if (!p_getc(&arg, f))
+		{
+			return qe_invalid;
+		}
+		int32_t num_combos_in_cauto = 0;
+		if (!p_igetl(&num_combos_in_cauto, f))
+		{
+			return qe_invalid;
+		}
+		if (num_combos_in_cauto < 1) continue; //nothing to read
+
+		temp_cauto.clear();
+
+		temp_cauto.setType(type);
+		temp_cauto.setDisplay(display_cid);
+		temp_cauto.setEraseCombo(erase_cid);
+		temp_cauto.setFlags(flags);
+		temp_cauto.setArg(arg);
+
+		int32_t ca_cid; byte ca_ctype;  int16_t ca_offset; int16_t ca_engrave_offset;
+		for (auto q = 0; q < num_combos_in_cauto; ++q)
+		{
+			if (!p_getc(&ca_ctype, f))
+			{
+				return qe_invalid;
+			}
+			if (!p_igetl(&ca_cid, f))
+			{
+				return qe_invalid;
+			}
+			temp_cauto.addEntry(ca_cid, ca_ctype, q, -1);
+		}
+
+		combo_autos[ca] = temp_cauto;
 	}
 	
     return 0;
@@ -20697,8 +20772,12 @@ int32_t readfavorites(PACKFILE *f, int32_t, word)
 	}
 	
 	word per_row = FAVORITECOMBO_PER_ROW;
+	word per_page = FAVORITECOMBO_PER_PAGE;
 	if(s_version >= 3)
 		if(!p_igetw(&per_row,f))
+			return qe_invalid;
+	if(s_version >= 4)
+		if(!p_igetw(&per_page,f))
 			return qe_invalid;
 	//finally...  section data
 	if(!p_igetw(&num_favorite_combos,f))
@@ -20709,45 +20788,55 @@ int32_t readfavorites(PACKFILE *f, int32_t, word)
 	//Hack; port old favorite combos
 	if(s_version < 3 && num_favorite_combos == 100)
 		per_row = 13;
-	
+
 	for(int q = 0; q < MAXFAVORITECOMBOS; ++q)
 		favorite_combos[q] = -1;
 	for(int q = 0; q < MAXFAVORITECOMBOALIASES; ++q)
 		favorite_comboaliases[q] = -1;
+	byte favtype = 0;
 	for(int32_t i=0; i<num_favorite_combos; i++)
 	{
+		if (s_version >= 4)
+		{
+			if (!p_getc(&favtype, f))
+			{
+				return qe_invalid;
+			}
+		}
+		else
+			favtype = 0;
 		if(!p_igetl(&temp_num,f))
 		{
 			return qe_invalid;
 		}
 		
 		if(per_row == FAVORITECOMBO_PER_ROW)
-			favorite_combos[i]=temp_num;
+		{
+			favorite_combos[i] = temp_num;
+			favorite_combo_modes[i] = favtype;
+		}
 		else
 		{
 			int new_i = (i%per_row) + (i/per_row)*FAVORITECOMBO_PER_ROW;
 			favorite_combos[new_i]=temp_num;
+			favorite_combo_modes[new_i] = favtype;
 		}
 	}
 	
-	if(!p_igetw(&num_favorite_combo_aliases,f))
+	// Discard the separate favorite aliases list from previous versions
+	if(s_version<4)
 	{
-		return qe_invalid;
-	}
-	
-	for(int32_t i=0; i<num_favorite_combo_aliases; i++)
-	{
-		if(!p_igetl(&temp_num,f))
+		if (!p_igetw(&num_favorite_combo_aliases, f))
 		{
 			return qe_invalid;
 		}
-		
-		if(per_row == FAVORITECOMBO_PER_ROW)
-			favorite_comboaliases[i]=temp_num;
-		else
+
+		for (int32_t i = 0; i < num_favorite_combo_aliases; i++)
 		{
-			int new_i = (i%per_row) + (i/per_row)*FAVORITECOMBO_PER_ROW;
-			favorite_comboaliases[new_i]=temp_num;
+			if (!p_igetl(&temp_num, f))
+			{
+				return qe_invalid;
+			}
 		}
 	}
 	
