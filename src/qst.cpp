@@ -9830,11 +9830,6 @@ void init_favorites()
     {
         favorite_combos[i]=-1;
     }
-    
-    for(int32_t i=0; i<MAXFAVORITECOMBOALIASES; i++)
-    {
-        favorite_comboaliases[i]=-1;
-    }
 }
 
 const char *ctype_name[cMAX]=
@@ -20791,8 +20786,6 @@ int32_t readfavorites(PACKFILE *f, int32_t, word)
 
 	for(int q = 0; q < MAXFAVORITECOMBOS; ++q)
 		favorite_combos[q] = -1;
-	for(int q = 0; q < MAXFAVORITECOMBOALIASES; ++q)
-		favorite_comboaliases[q] = -1;
 	byte favtype = 0;
 	for(int32_t i=0; i<num_favorite_combos; i++)
 	{

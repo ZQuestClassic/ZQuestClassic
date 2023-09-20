@@ -170,7 +170,6 @@ bool disable_save_to_disk=false;
 
 int32_t favorite_combos[MAXFAVORITECOMBOS] = {0};
 byte favorite_combo_modes[MAXFAVORITECOMBOS] = {0};
-int32_t favorite_comboaliases[MAXFAVORITECOMBOALIASES]= {0};
 
 void playLevelMusic();
 

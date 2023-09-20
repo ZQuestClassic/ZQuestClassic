@@ -340,7 +340,6 @@ int32_t favorite_combos[MAXFAVORITECOMBOS];
 byte favorite_combo_modes[MAXFAVORITECOMBOS];
 bool ShowFavoriteComboModes;
 byte FavoriteComboPage;
-int32_t favorite_comboaliases[MAXFAVORITECOMBOALIASES];
 int32_t favorite_commands[MAXFAVORITECOMMANDS];
 
 char comboprev_buf[512] = {0};
@@ -28284,11 +28283,6 @@ int32_t main(int32_t argc,char **argv)
 	}
 	FavoriteComboPage = 0;
 	pool_dirty = true;
-	
-	for(int32_t i=0; i<MAXFAVORITECOMBOALIASES; ++i)
-	{
-		favorite_comboaliases[i]=-1;
-	}
 	
 	char cmdnametitle[20];
 	
