@@ -26796,17 +26796,6 @@ void HeroClass::checkscroll()
     //DO NOT scroll if Hero is vibrating due to Divine Escape effect -DD
     if(action == casting||action==sideswimcasting)
         return;
-        
-    if(toogam)
-    {
-        if(x<0 && (currscr&15)==0) x=0;
-        
-        if(y<0 && currscr<16) y=0;
-        
-        if(x>240 && (currscr&15)==15) x=240;
-        
-        if(y>160 && currscr>=112) y=160;
-    }
     
     if(y<0)
     {
