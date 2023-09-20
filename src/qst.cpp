@@ -21782,6 +21782,9 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
         
         if(!get_bit(skip_flags, skip_sfx))
             setupsfx();
+		
+		if(!get_bit(skip_flags, skip_favorites))
+			init_favorites();
             
         box_out("okay.");
         box_eol();
