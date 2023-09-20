@@ -32052,6 +32052,7 @@ void user_paldata::mix(user_paldata *pal_start, user_paldata *pal_end, double pe
 			RGB start = pal_start->colors[q];
 			RGB end = pal_end->colors[q];
 			colors[q] = mix_color(start, end, percent, color_space);
+			set_bit(colors_used, q, true);
 		}
 	}
 }
