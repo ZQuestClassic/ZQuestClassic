@@ -10,6 +10,8 @@
 
 extern bool saved;
 combo_auto temp_autocombo;
+combo_auto copy_autocombo;
+static bool copied_autocombo;
 static size_t editautocombo_tab = 0;
 static combo_auto* retptr;
 
@@ -364,6 +366,27 @@ std::shared_ptr<GUI::Widget> AutoComboDialog::view()
 						)
 					)
 				))
+			),
+			Row(
+				vAlign = 1.0,
+				spacing = 2_em,
+				Button(text = "Copy",
+					minwidth = 90_px,
+					onPressFunc = [&]()
+					{
+						copy_autocombo = temp_autocombo;
+						copied_autocombo = true;
+						pastebtn->setDisabled(false);
+					}),
+				pastebtn = Button(text = "Paste",
+					minwidth = 90_px,
+					disabled = !copied_autocombo,
+					onClick = message::RELOAD,
+					onPressFunc = [&]()
+					{
+						if (copied_autocombo)
+							temp_autocombo = copy_autocombo;
+					})
 			),
 			Row(
 				vAlign = 1.0,

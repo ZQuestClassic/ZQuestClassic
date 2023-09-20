@@ -68,6 +68,7 @@ private:
 	std::shared_ptr<GUI::Button> templatebtn;
 	std::shared_ptr<GUI::Switcher> switch_settings;
 	std::shared_ptr<GUI::SelComboSwatch> tiling_grid[64];
+	std::shared_ptr<GUI::Button> pastebtn;
 
 	GUI::ListData list_autocombotypes;
 };
