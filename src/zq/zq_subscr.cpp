@@ -493,7 +493,7 @@ int32_t d_subscreen_proc(int32_t msg,DIALOG *d,int32_t)
 			{
 				clear_bitmap(buf);
 				ZCSubscreen* subs = (ZCSubscreen*)(d->dp);
-				show_custom_subscreen(buf, subs, 0, 0, true, sspUP | sspDOWN | sspSCROLLING);
+				show_custom_subscreen(buf, subs, 0, 0, true, 0);
 				
 				SubscrPage& pg = subs->cur_page();
 				int cur_object = (unsigned(clicked_obj)<pg.size())

@@ -1077,7 +1077,7 @@ bool SubscrWidget::visible(byte pos, bool showtime) const
 	if(msg_onscreen && (posflags&sspNOMSGSTR))
 		return false;
 	#endif
-	return posflags&pos;
+	return !pos || (posflags&pos);
 }
 SubscrWidget* SubscrWidget::clone() const
 {

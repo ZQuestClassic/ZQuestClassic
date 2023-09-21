@@ -3652,9 +3652,9 @@ subscreendata LoadOSubData(int id);
  * Loads the 'subscreendata' pointer for the specified active/passive/overlay subscreen.
  * Use id '-1' to load the current subscreen of the type.
 
-int NumActiveSubscreens();
-int NumPassiveSubscreens();
-int NumOverlaySubscreens();
+int NumActiveSubscreens;
+int NumPassiveSubscreens;
+int NumOverlaySubscreens;
  * Returns the total number of active/passive/overlay subscreens
 
 bool ActiveSubscreenOpen;
