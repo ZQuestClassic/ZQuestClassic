@@ -449,22 +449,26 @@ namespace AutoPattern
 			{
 				switch (ap->slot)
 				{
-				case 24:
-					if (ap->adj[right] && ap->adj[right]->slot == 26)
-						side_faces[ap->screenpos + 0x10000] = new dor_face(ap, this, up, height);
-					break;
-				case 26:
-					if (ap->adj[left] && ap->adj[left]->slot == 24)
-						side_faces[ap->screenpos + 0x10000] = new dor_face(ap, this, up, height);
-					break;
-				case 36:
-					if (ap->adj[up] && ap->adj[up]->slot == 24)
-						side_faces[ap->screenpos + 0x10000] = new dor_face(ap, this, left, height);
-					break;
-				case 38:
-					if (ap->adj[up] && ap->adj[up]->slot == 26)
-						side_faces[ap->screenpos + 0x10000] = new dor_face(ap, this, right, height);
-					break;
+					case 24:
+						if(!ap->adj[right])
+							side_faces[ap->screenpos + 0x10000] = new dor_face(ap, this, up, height);
+						else if (ap->adj[right] && ap->adj[right]->slot == 26)
+							side_faces[ap->screenpos + 0x10000] = new dor_face(ap, this, up, height);
+						break;
+					case 26:
+						if (!ap->adj[left])
+							side_faces[ap->screenpos + 0x10000] = new dor_face(ap, this, up, height);
+						else if (ap->adj[left] && ap->adj[left]->slot == 24)
+							side_faces[ap->screenpos + 0x10000] = new dor_face(ap, this, up, height);
+						break;
+					case 36:
+						if (ap->adj[up] && ap->adj[up]->slot == 24)
+							side_faces[ap->screenpos + 0x10000] = new dor_face(ap, this, left, height);
+						break;
+					case 38:
+						if (ap->adj[up] && ap->adj[up]->slot == 26)
+							side_faces[ap->screenpos + 0x10000] = new dor_face(ap, this, right, height);
+						break;
 				}
 				if (is_vertex(ap))
 				{
