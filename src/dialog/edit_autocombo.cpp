@@ -180,9 +180,12 @@ std::shared_ptr<GUI::Widget> AutoComboDialog::view()
 					disabled = !temp_autocombo.canErase(),
 					onSelectFunc = [&](int32_t cmb, int32_t c)
 					{
-						temp_autocombo.setEraseCombo(cmb),
+						temp_autocombo.setEraseCombo(cmb);
+						if (!(gui_mouse_b() & 2))
+						{
 							CSet = c;
-						refreshPreviewCSets();
+							refreshPreviewCSets();
+						}
 					}),
 				templatebtn = Button(vAlign = 0.5,
 					text = "Auto Generate",
@@ -279,8 +282,11 @@ std::shared_ptr<GUI::Widget> AutoComboDialog::view()
 							onSelectFunc = [&](int32_t cmb, int32_t c)
 							{
 								temp_autocombo.setDisplay(cmb);
-								CSet = c;
-								refreshPreviewCSets();
+								if (!(gui_mouse_b() & 2))
+								{
+									CSet = c;
+									refreshPreviewCSets();
+								}
 							})
 					),
 					switch_settings = Switcher(minheight = 256_px,
@@ -428,8 +434,11 @@ void AutoComboDialog::addSlot(autocombo_entry& entry, size_t& ind, size_t& wid, 
 				showvals = false,
 				onSelectFunc = [&, ind](int32_t cmb, int32_t c)
 				{
-					CSet = c;
-					refreshPreviewCSets();
+					if (!(gui_mouse_b() & 2))
+					{
+						CSet = c;
+						refreshPreviewCSets();
+					}
 					entry.cid = cmb;
 					widgs.at(ind).cpane->setCSet(CSet);
 					temp_autocombo.updateValid();
@@ -466,8 +475,11 @@ void AutoComboDialog::addSlotReplace(autocombo_entry& entrybefore, autocombo_ent
 				showvals = false,
 				onSelectFunc = [&, grid_ind](int32_t cmb, int32_t c)
 				{
-					CSet = c;
-					refreshPreviewCSets();
+					if (!(gui_mouse_b() & 2))
+					{
+						CSet = c;
+						refreshPreviewCSets();
+					}
 					entrybefore.cid = cmb;
 					widgs.at(grid_ind).cpane->setCSet(CSet);
 					temp_autocombo.updateValid();
@@ -479,8 +491,11 @@ void AutoComboDialog::addSlotReplace(autocombo_entry& entrybefore, autocombo_ent
 				showvals = false,
 				onSelectFunc = [&, grid_ind](int32_t cmb, int32_t c)
 				{
-					CSet = c;
-					refreshPreviewCSets();
+					if (!(gui_mouse_b() & 2))
+					{
+						CSet = c;
+						refreshPreviewCSets();
+					}
 					entryafter.cid = cmb;
 					widgs.at(grid_ind).cpane_replace->setCSet(CSet);
 					temp_autocombo.updateValid();
@@ -516,8 +531,11 @@ void AutoComboDialog::addSlotNoEngrave(autocombo_entry& entry, size_t& ind, size
 			showvals = false,
 			onSelectFunc = [&, ind](int32_t cmb, int32_t c)
 			{
-				CSet = c;
-				refreshPreviewCSets();
+				if(!(gui_mouse_b() & 2))
+				{
+					CSet = c;
+					refreshPreviewCSets();
+				}
 				entry.cid = cmb;
 				widgs.at(ind).cpane->setCSet(CSet);
 				temp_autocombo.updateValid();
