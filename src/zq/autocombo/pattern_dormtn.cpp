@@ -240,11 +240,11 @@ namespace AutoPattern
 				case UL | U | HALF | RIM | BASE:
 					if (flags & OUTERCORNER)
 						return 20;
-					return 6;
+					return 2;
 				case UL | U | HALF | BASE:
 					if (flags & OUTERCORNER)
 						return 20;
-					return 2;
+					return 6;
 
 				case UR:
 				case UR | RIM:
