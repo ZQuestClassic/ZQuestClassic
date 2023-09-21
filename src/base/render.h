@@ -7,20 +7,89 @@
 
 extern unsigned char info_opacity;
 
-class RenderTreeItemProps
+struct Transform
 {
-public:
+	bool operator==(const Transform&) const = default;
+
 	int x, y;
 	float xscale = 1;
 	float yscale = 1;
+};
+
+struct Matrix
+{
+	static Matrix Identity()
+	{
+		return {.d {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}}};
+	}
+	static Matrix Translate(float x, float y)
+	{
+		return {.d {{1, 0, x}, {0, 1, y}, {0, 0, 1}}};
+	}
+	static Matrix Scale(float w, float h)
+	{
+		return {.d {{w, 0, 0}, {0, h, 0}, {0, 0, 1}}};
+	}
+	static Matrix Rotate(double radians)
+	{
+		return {.d {{(float)cos(radians), (float)sin(radians), 0}, {(float)-sin(radians), (float)cos(radians), 0}, {0, 0, 1}}};
+	}
+
+	float d[3][3];
+
+	std::pair<int, int> apply(int x, int y) const
+	{
+		return {
+			d[0][0] * x + d[0][1] * y + d[0][2],
+			d[1][0] * x + d[1][1] * y + d[1][2]
+		};
+	}
+
+	Matrix mul(const Matrix& other) const
+	{
+		Matrix r;
+		auto& a = this->d;
+		auto& b = other.d;
+
+		r.d[0][0] = a[0][0]*b[0][0]+a[0][1]*b[1][0]+a[0][2]*b[2][0];
+		r.d[0][1] = a[0][0]*b[0][1]+a[0][1]*b[1][1]+a[0][2]*b[2][1];
+		r.d[0][2] = a[0][0]*b[0][2]+a[0][1]*b[1][2]+a[0][2]*b[2][2];
+
+		r.d[1][0] = a[1][0]*b[0][0]+a[1][1]*b[1][0]+a[1][2]*b[2][0];
+		r.d[1][1] = a[1][0]*b[0][1]+a[1][1]*b[1][1]+a[1][2]*b[2][1];
+		r.d[1][2] = a[1][0]*b[0][2]+a[1][1]*b[1][2]+a[1][2]*b[2][2];
+
+		r.d[2][0] = a[2][0]*b[0][0]+a[2][1]*b[1][0]+a[2][2]*b[2][0];
+		r.d[2][1] = a[2][0]*b[0][1]+a[2][1]*b[1][1]+a[2][2]*b[2][1];
+		r.d[2][2] = a[2][0]*b[0][2]+a[2][1]*b[1][2]+a[2][2]*b[2][2];
+
+		return r;
+	}
+
+	Matrix inverse() const
+	{
+		Matrix r;
+		double det = d[0][0] * (d[1][1] * d[2][2] - d[2][1] * d[1][2]) -
+					d[0][1] * (d[1][0] * d[2][2] - d[1][2] * d[2][0]) +
+					d[0][2] * (d[1][0] * d[2][1] - d[1][1] * d[2][0]);
+		double invdet = 1 / det;
+		r.d[0][0] = (d[1][1] * d[2][2] - d[2][1] * d[1][2]) * invdet;
+		r.d[0][1] = (d[0][2] * d[2][1] - d[0][1] * d[2][2]) * invdet;
+		r.d[0][2] = (d[0][1] * d[1][2] - d[0][2] * d[1][1]) * invdet;
+		r.d[1][0] = (d[1][2] * d[2][0] - d[1][0] * d[2][2]) * invdet;
+		r.d[1][1] = (d[0][0] * d[2][2] - d[0][2] * d[2][0]) * invdet;
+		r.d[1][2] = (d[1][0] * d[0][2] - d[0][0] * d[1][2]) * invdet;
+		r.d[2][0] = (d[1][0] * d[2][1] - d[2][0] * d[1][1]) * invdet;
+		r.d[2][1] = (d[2][0] * d[0][1] - d[0][0] * d[2][1]) * invdet;
+		r.d[2][2] = (d[0][0] * d[1][1] - d[1][0] * d[0][1]) * invdet;
+		return r;
+	}
 };
 
 class RenderTreeItem
 {
 public:
 	std::string name;
-	RenderTreeItemProps transform;
-	RenderTreeItemProps computed;
 	bool visible = true;
 	// -1 for no transparency.
 	int transparency_index = -1;
@@ -28,36 +97,34 @@ public:
 	BITMAP* a4_bitmap = nullptr;
 	bool freeze_a4_bitmap_render = false;
 	ALLEGRO_COLOR* tint = nullptr;
-	std::vector<RenderTreeItem*> children;
 	bool owned = false;
 
-	RenderTreeItem(std::string name);
+	RenderTreeItem(std::string name, RenderTreeItem* parent = nullptr);
 	~RenderTreeItem();
-	
-	int global_to_local_x(int x)
-	{
-		return (x - computed.x) / computed.xscale;
-	}
-	int global_to_local_y(int y)
-	{
-		return (y - computed.y) / computed.yscale;
-	}
-	int local_to_global_x(int x)
-	{
-		return (x + computed.x) * computed.xscale;
-	}
-	int local_to_global_y(int y)
-	{
-		return (y + computed.y) * computed.yscale;
-	}
-	int rel_mouse_x()
-	{
-		return global_to_local_x(mouse_x);
-	}
-	int rel_mouse_y()
-	{
-		return global_to_local_y(mouse_y);
-	}
+
+	void add_child(RenderTreeItem* child);
+	void add_child_before(RenderTreeItem* child, RenderTreeItem* before_child);
+	void remove_child(RenderTreeItem* child);
+	const std::vector<RenderTreeItem*>& get_children() const;
+	bool has_children() const;
+	void handle_dirty();
+	void mark_dirty();
+	void set_transform(Transform new_transform);
+	const Transform& get_transform() const;
+	const Matrix& get_transform_matrix();
+	std::pair<int, int> world_to_local(int x, int y);
+	std::pair<int, int> local_to_world(int x, int y);
+	std::pair<int, int> pos();
+	std::pair<int, int> rel_mouse();
+
+private:
+	Transform transform;
+	Matrix transform_matrix;
+	bool transform_dirty = true;
+	Matrix transform_matrix_inverse;
+	bool transform_inverse_dirty = true;
+	RenderTreeItem* parent = nullptr;
+	std::vector<RenderTreeItem*> children;
 };
 
 enum class TextJustify {
@@ -104,7 +171,6 @@ void popup_zqdialog_start(int x = 0, int y = 0, int w = -1, int h = -1, int tran
 void popup_zqdialog_end();
 void popup_zqdialog_start_a5();
 void popup_zqdialog_end_a5();
-void update_dialog_transform();
 RenderTreeItem* add_dlg_layer(int x = 0, int y = 0, int w = -1, int h = -1);
 void remove_dlg_layer(RenderTreeItem* rti);
 

@@ -29,15 +29,15 @@ static int zc_gui_mouse_x()
 {
 	if (rti_dialogs.visible || rti_gui.visible)
 	{
-		return rti_gui.global_to_local_x(mouse_x);
+		return rti_gui.rel_mouse().first;
 	}
 	else if (rti_menu.visible)
 	{
-		return rti_menu.global_to_local_x(mouse_x);
+		return rti_menu.rel_mouse().first;
 	}
 	else
 	{
-		return rti_game.global_to_local_x(mouse_x);
+		return rti_game.rel_mouse().first;
 	}
 }
 
@@ -45,15 +45,15 @@ static int zc_gui_mouse_y()
 {
 	if (rti_dialogs.visible || rti_gui.visible)
 	{
-		return rti_gui.global_to_local_y(mouse_y);
+		return rti_gui.rel_mouse().second;
 	}
 	else if (rti_menu.visible)
 	{
-		return rti_menu.global_to_local_y(mouse_y);
+		return rti_menu.rel_mouse().second;
 	}
 	else
 	{
-		return rti_game.global_to_local_y(mouse_y);
+		return rti_game.rel_mouse().second;
 	}
 }
 
@@ -62,7 +62,7 @@ static void init_render_tree()
 	static const int base_flags_preserve_texture = ALLEGRO_CONVERT_BITMAP;
 	static const int base_flags = ALLEGRO_NO_PRESERVE_TEXTURE | base_flags_preserve_texture;
 
-	if (!rti_root.children.empty())
+	if (!rti_root.get_children().empty())
 		return;
 
 	// ALLEGRO_NO_PRESERVE_TEXTURE is not included for rti_game because on Windows that results in
@@ -92,13 +92,12 @@ static void init_render_tree()
 	rti_screen.a4_bitmap = zqdialog_bg_bmp ? zqdialog_bg_bmp : screen;
 	rti_screen.transparency_index = 0;
 	
-
-	rti_root.children.push_back(&rti_game);
-	rti_root.children.push_back(&rti_infolayer);
-	rti_root.children.push_back(&rti_menu);
-	rti_root.children.push_back(&rti_gui);
-	rti_root.children.push_back(&rti_screen);
-	rti_root.children.push_back(&rti_dialogs);
+	rti_root.add_child(&rti_game);
+	rti_root.add_child(&rti_infolayer);
+	rti_root.add_child(&rti_menu);
+	rti_root.add_child(&rti_gui);
+	rti_root.add_child(&rti_screen);
+	rti_root.add_child(&rti_dialogs);
 
 	gui_mouse_x = zc_gui_mouse_x;
 	gui_mouse_y = zc_gui_mouse_y;
@@ -117,12 +116,6 @@ static void configure_render_tree()
 	static const double game_aspect = 240.0/256.0;
 	int resx = al_get_display_width(all_get_display());
 	int resy = al_get_display_height(all_get_display());
-
-	rti_root.transform.x = 0;
-	rti_root.transform.y = 0;
-	rti_root.transform.xscale = 1;
-	rti_root.transform.yscale = 1;
-	rti_root.visible = true;
 	
 	if(stretchGame)
 	{
@@ -135,15 +128,21 @@ static void configure_render_tree()
 			xscale = intscale(xscale);
 			yscale = intscale(yscale);
 		}
-		rti_game.transform.x = (resx - w*xscale) / 2 / xscale;
-		rti_game.transform.y = (resy - h*yscale) / 2 / yscale;
-		rti_game.transform.xscale = xscale;
-		rti_game.transform.yscale = yscale;
+
+		rti_game.set_transform({
+			.x = (int)(resx - w*xscale) / 2,
+			.y = (int)(resy - h*yscale) / 2,
+			.xscale = xscale,
+			.yscale = yscale,
+		});
 		rti_game.visible = true;
-		rti_infolayer.transform.x = (resx - w*xscale) / 2 / xscale;
-		rti_infolayer.transform.y = (resy - h*yscale) / 2 / yscale;
-		rti_infolayer.transform.xscale = xscale;
-		rti_infolayer.transform.yscale = yscale;
+
+		rti_infolayer.set_transform({
+			.x = (int)(resx - w*xscale) / 2,
+			.y = (int)(resy - h*yscale) / 2,
+			.xscale = xscale,
+			.yscale = yscale,
+		});
 		rti_infolayer.visible = true;
 	}
 	else
@@ -158,20 +157,26 @@ static void configure_render_tree()
 			--yscale;
 			xscale = intscale(yscale/game_aspect);
 		}
-		
-		rti_game.transform.x = (resx - w*xscale) / 2 / xscale;
-		rti_game.transform.y = (resy - h*yscale) / 2 / yscale;
-		rti_game.transform.xscale = xscale;
-		rti_game.transform.yscale = yscale;
+
+		rti_game.set_transform({
+			.x = (int)(resx - w*xscale) / 2,
+			.y = (int)(resy - h*yscale) / 2,
+			.xscale = xscale,
+			.yscale = yscale,
+		});
 		rti_game.visible = true;
-		rti_infolayer.transform.x = (resx - w*xscale) / 2 / xscale;
-		rti_infolayer.transform.y = (resy - h*yscale) / 2 / yscale;
-		rti_infolayer.transform.xscale = xscale;
-		rti_infolayer.transform.yscale = yscale;
+
+		rti_infolayer.set_transform({
+			.x = (int)(resx - w*xscale) / 2,
+			.y = (int)(resy - h*yscale) / 2,
+			.xscale = xscale,
+			.yscale = yscale,
+		});
 		rti_infolayer.visible = true;
 	}
 
-	if (rti_menu.visible = MenuOpen)
+	rti_menu.visible = MenuOpen;
+	if (rti_menu.visible)
 	{
 		int w = al_get_bitmap_width(rti_menu.bitmap);
 		int h = al_get_bitmap_height(rti_menu.bitmap);
@@ -179,13 +184,15 @@ static void configure_render_tree()
 		float yscale = (float)resy/h;
 		xscale = intscale(xscale);
 		yscale = intscale(yscale);
-		rti_menu.transform.x = 0;
-		rti_menu.transform.y = 0;
-		rti_menu.transform.xscale = xscale;
-		rti_menu.transform.yscale = yscale;
+		rti_menu.set_transform({
+			.x = 0,
+			.y = 0,
+			.xscale = xscale,
+			.yscale = yscale,
+		});
 	}
 
-	rti_dialogs.visible = rti_dialogs.children.size() > 0;
+	rti_dialogs.visible = rti_dialogs.has_children();
 	rti_gui.visible = (dialog_count >= 1 && !active_dialog) || dialog_count >= 2 || screen == gui_bmp;
 	
 	if (rti_dialogs.visible || rti_gui.visible)
@@ -194,21 +201,23 @@ static void configure_render_tree()
 		int h = al_get_bitmap_height(rti_gui.bitmap);
 		float xscale = (float)resx/w;
 		float yscale = (float)resy/h;
-		rti_gui.transform.x = (resx - w*xscale) / 2 / xscale;
-		rti_gui.transform.y = (resy - h*yscale) / 2 / yscale;
-		rti_gui.transform.xscale = xscale;
-		rti_gui.transform.yscale = yscale;
+		rti_gui.set_transform({
+			.x = (int)(resx - w*xscale) / 2,
+			.y = (int)(resy - h*yscale) / 2,
+			.xscale = xscale,
+			.yscale = yscale,
+		});
 		rti_menu.visible = false;
-		
-		rti_dialogs.transform.x = (resx - w*xscale) / 2 / xscale;
-		rti_dialogs.transform.y = (resy - h*yscale) / 2 / yscale;
-		rti_dialogs.transform.xscale = xscale;
-		rti_dialogs.transform.yscale = yscale;
-		update_dialog_transform();
+		rti_dialogs.set_transform({
+			.x = (int)(resx - w*xscale) / 2,
+			.y = (int)(resy - h*yscale) / 2,
+			.xscale = xscale,
+			.yscale = yscale,
+		});
 	}
-	
+
 	rti_screen.visible = false;
-	
+
 	if (rti_screen.visible)
 	{
 		int w = al_get_bitmap_width(rti_screen.bitmap);
@@ -220,14 +229,16 @@ static void configure_render_tree()
 			xscale = intscale(xscale);
 			yscale = intscale(yscale);
 		}
-		rti_screen.transform.x = (resx - w*xscale) / 2 / xscale;
-		rti_screen.transform.y = (resy - h*yscale) / 2 / yscale;
-		rti_screen.transform.xscale = xscale;
-		rti_screen.transform.yscale = yscale;
+
+		rti_screen.set_transform({
+			.x = (int)(resx - w*xscale) / 2,
+			.y = (int)(resy - h*yscale) / 2,
+			.xscale = xscale,
+			.yscale = yscale,
+		});
 		// TODO: don't recreate screen bitmap when alternating fullscreen mode.
 		rti_screen.a4_bitmap = zqdialog_bg_bmp ? zqdialog_bg_bmp : screen;
 	}
-	
 
 	rti_game.freeze_a4_bitmap_render = rti_menu.visible || rti_gui.visible || rti_dialogs.visible || is_sys_pal;
 	if (rti_game.freeze_a4_bitmap_render)

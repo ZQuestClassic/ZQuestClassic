@@ -12,16 +12,16 @@ static RenderTreeItem rti_tooltip("tooltip");
 
 static int zc_gui_mouse_x()
 {
-	if(rti_dialogs.children.size())
-		return rti_dialogs.children.back()->rel_mouse_x();
-	return rti_screen.rel_mouse_x();;
+	if (rti_dialogs.has_children())
+		return rti_dialogs.get_children().back()->rel_mouse().first;
+	return rti_screen.rel_mouse().first;
 }
 
 static int zc_gui_mouse_y()
 {
-	if(rti_dialogs.children.size())
-		return rti_dialogs.children.back()->rel_mouse_y();
-	return rti_screen.rel_mouse_y();
+	if (rti_dialogs.has_children())
+		return rti_dialogs.get_children().back()->rel_mouse().second;
+	return rti_screen.rel_mouse().second;
 }
 
 bool use_linear_bitmaps()
@@ -31,7 +31,7 @@ bool use_linear_bitmaps()
 
 static void init_render_tree()
 {
-	if (!rti_root.children.empty())
+	if (rti_root.has_children())
 		return;
 	
 	set_bitmap_create_flags(false);
@@ -47,11 +47,11 @@ static void init_render_tree()
 	set_bitmap_create_flags(true);
 	rti_mmap.bitmap = create_a5_bitmap(screen->w, screen->h);
 	
-	rti_screen.children.push_back(&rti_mmap);
+	rti_screen.add_child(&rti_mmap);
 	
-	rti_root.children.push_back(&rti_screen);
-	rti_root.children.push_back(&rti_tooltip);
-	rti_root.children.push_back(&rti_dialogs);
+	rti_root.add_child(&rti_screen);
+	rti_root.add_child(&rti_tooltip);
+	rti_root.add_child(&rti_dialogs);
 
 	gui_mouse_x = zc_gui_mouse_x;
 	gui_mouse_y = zc_gui_mouse_y;
@@ -68,10 +68,6 @@ static void configure_render_tree()
 	int resx = al_get_display_width(all_get_display());
 	int resy = al_get_display_height(all_get_display());
 
-	rti_root.transform.x = 0;
-	rti_root.transform.y = 0;
-	rti_root.transform.xscale = 1;
-	rti_root.transform.yscale = 1;
 	rti_root.visible = true;
 	
 	rti_mmap.visible = !prv_mode;
@@ -88,19 +84,32 @@ static void configure_render_tree()
 		}
 		if(DragAspect)
 			xscale = yscale = std::min(xscale,yscale);
-		rti_screen.transform.x = (resx - w*xscale) / 2 / xscale;
-		rti_screen.transform.y = (resy - h*yscale) / 2 / yscale;
-		rti_screen.transform.xscale = xscale;
-		rti_screen.transform.yscale = yscale;
+		rti_screen.set_transform({
+			.x = (int)(resx - w*xscale) / 2,
+			.y = (int)(resy - h*yscale) / 2,
+			.xscale = xscale,
+			.yscale = yscale,
+		});
 		// TODO: don't recreate screen bitmap when alternating fullscreen mode.
 		rti_screen.a4_bitmap = zqdialog_bg_bmp ? zqdialog_bg_bmp : screen;
 		
-		rti_tooltip.transform = rti_screen.transform;
-		rti_tooltip.visible = rti_dialogs.children.empty();
+		rti_tooltip.set_transform({
+			.x = (int)(resx - w*xscale) / 2,
+			.y = (int)(resy - h*yscale) / 2,
+			.xscale = xscale,
+			.yscale = yscale,
+		});
+		rti_tooltip.visible = !rti_dialogs.has_children();
 		
-		rti_dialogs.transform = rti_screen.transform;
-		update_dialog_transform();
+		rti_dialogs.set_transform({
+			.x = (int)(resx - w*xscale) / 2,
+			.y = (int)(resy - h*yscale) / 2,
+			.xscale = xscale,
+			.yscale = yscale,
+		});
 	}
+
+	rti_dialogs.visible = rti_dialogs.has_children();
 }
 
 ALLEGRO_BITMAP* get_overlay_bmp()
@@ -133,8 +142,6 @@ void render_zq()
 	init_render_tree();
 	configure_render_tree();
 	
-	rti_dialogs.visible = !rti_dialogs.children.empty();
-	
 	al_set_target_backbuffer(all_get_display());
 	al_clear_to_color(al_map_rgb_f(0, 0, 0));
 	
@@ -147,4 +154,3 @@ void render_zq()
 	screen = tmp;
 	al_restore_state(&oldstate);
 }
-

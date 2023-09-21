@@ -17038,7 +17038,8 @@ void set_register(int32_t arg, int32_t value)
 			
 		case INPUTMOUSEX:
 		{
-			position_mouse(rti_game.local_to_global_x(value/10000), mouse_y);
+			auto [x, y] = rti_game.local_to_world(value/10000, mouse_y);
+			position_mouse(x, y);
 			break;
 		}
 		
@@ -17046,7 +17047,8 @@ void set_register(int32_t arg, int32_t value)
 		{
 			int32_t mousequakeoffset = 56+((int32_t)(zc::math::Sin((double)(quakeclk*int64_t(2)-frame))*4));
 			int32_t tempoffset = (quakeclk > 0) ? mousequakeoffset : (get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
-			position_mouse(mouse_x, rti_game.local_to_global_y(value/10000 + tempoffset));
+			auto [x, y] = rti_game.local_to_world(mouse_x, value/10000 + tempoffset);
+			position_mouse(x, y);
 			break;
 		}
 		
@@ -17196,14 +17198,16 @@ void set_register(int32_t arg, int32_t value)
 			{
 				case 0: //MouseX
 				{
-					position_mouse(rti_game.local_to_global_x(value/10000), mouse_y);
+					auto [x, y] = rti_game.local_to_world(value/10000, mouse_y);
+					position_mouse(x, y);
 					break;	
 				}
 				case 1: //MouseY
 				{
 					int32_t mousequakeoffset = 56+((int32_t)(zc::math::Sin((double)(quakeclk*int64_t(2)-frame))*4));
 					int32_t tempoffset = (quakeclk > 0) ? mousequakeoffset :(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
-					position_mouse(mouse_x, rti_game.local_to_global_y(value/10000 + tempoffset));
+					auto [x, y] = rti_game.local_to_world(mouse_x, value/10000 + tempoffset);
+					position_mouse(x, y);
 					break;
 					
 				}

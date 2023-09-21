@@ -505,12 +505,12 @@ static RenderTreeItem rti_screen("screen");
 
 static int zc_gui_mouse_x()
 {
-	return rti_screen.global_to_local_x(mouse_x);
+	return rti_screen.world_to_local(mouse_x, mouse_y).first;
 }
 
 static int zc_gui_mouse_y()
 {
-	return rti_screen.global_to_local_y(mouse_y);
+	return rti_screen.world_to_local(mouse_x, mouse_y).second;
 }
 
 bool use_linear_bitmaps()
@@ -519,7 +519,7 @@ bool use_linear_bitmaps()
 }
 static void init_render_tree()
 {
-	if (!rti_root.children.empty())
+	if (rti_root.has_children())
 		return;
 	
 	if (use_linear_bitmaps())
@@ -529,8 +529,8 @@ static void init_render_tree()
 	rti_screen.bitmap = al_create_bitmap(screen->w, screen->h);
 	rti_screen.a4_bitmap = screen;
 
-	rti_root.children.push_back(&rti_screen);
-	rti_root.children.push_back(&rti_dialogs);
+	rti_root.add_child(&rti_screen);
+	rti_root.add_child(&rti_dialogs);
 
 	gui_mouse_x = zc_gui_mouse_x;
 	gui_mouse_y = zc_gui_mouse_y;
@@ -545,10 +545,6 @@ static void configure_render_tree()
 	int resx = al_get_display_width(all_get_display());
 	int resy = al_get_display_height(all_get_display());
 
-	rti_root.transform.x = 0;
-	rti_root.transform.y = 0;
-	rti_root.transform.xscale = 1;
-	rti_root.transform.yscale = 1;
 	rti_root.visible = true;
 
 	{
@@ -563,17 +559,21 @@ static void configure_render_tree()
 			xscale = std::max((int) xscale, 1);
 			yscale = std::max((int) yscale, 1);
 		}
-		rti_screen.transform.x = (resx - w*xscale) / 2 / xscale;
-		rti_screen.transform.y = (resy - h*yscale) / 2 / yscale;
-		rti_screen.transform.xscale = xscale;
-		rti_screen.transform.yscale = yscale;
+		rti_screen.set_transform({
+			.x = (int)(resx - w*xscale) / 2,
+			.y = (int)(resy - h*yscale) / 2,
+			.xscale = xscale,
+			.yscale = yscale,
+		});
 		rti_screen.visible = true;
-		rti_dialogs.transform.x = (resx - w*xscale) / 2 / xscale;
-		rti_dialogs.transform.y = (resy - h*yscale) / 2 / yscale;
-		rti_dialogs.transform.xscale = xscale;
-		rti_dialogs.transform.yscale = yscale;
+		// TODO: it seems `rti_screen` is unnecessary, given this `rti_dialogs` also draws the main Window component.
+		rti_dialogs.set_transform({
+			.x = (int)(resx - w*xscale) / 2,
+			.y = (int)(resy - h*yscale) / 2,
+			.xscale = xscale,
+			.yscale = yscale,
+		});
 		rti_dialogs.visible = true;
-		update_dialog_transform();
 	}
 }
 

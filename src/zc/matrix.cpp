@@ -53,10 +53,7 @@ extern void throttleFPS();
 void Matrix(int32_t speed, int32_t density, int32_t mousedelay)
 {
     rti_matrix.visible = true;
-
-    auto it = std::find(rti_root.children.begin(), rti_root.children.end(), &rti_menu);
-    ASSERT(it != rti_root.children.end());
-    rti_root.children.insert(it, &rti_matrix);
+    rti_root.add_child_before(&rti_matrix, &rti_menu);
 
     int w = al_get_bitmap_width(rti_game.bitmap);
     int h = al_get_bitmap_height(rti_game.bitmap);
@@ -86,10 +83,13 @@ void Matrix(int32_t speed, int32_t density, int32_t mousedelay)
         UpdateErasers();
         UpdateColumns();
 
-        rti_matrix.transform.x = rti_game.transform.x;
-        rti_matrix.transform.y = rti_game.transform.y;
-        rti_matrix.transform.xscale = rti_game.transform.xscale;
-        rti_matrix.transform.yscale = rti_game.transform.yscale;
+        auto [game_pos_x, game_pos_y] = rti_game.pos();
+        rti_matrix.set_transform({
+            .x = game_pos_x,
+            .y = game_pos_y,
+            .xscale = rti_game.get_transform().xscale,
+            .yscale = rti_game.get_transform().yscale,
+        });
 
         update_hw_screen();
         
@@ -111,7 +111,7 @@ void Matrix(int32_t speed, int32_t density, int32_t mousedelay)
             break;
     }
 
-    rti_root.children.erase(std::find(rti_root.children.begin(), rti_root.children.end(), &rti_matrix));
+    rti_root.remove_child(&rti_matrix);
     destroy_bitmap(target_bitmap);
     
     if(linebmp != NULL)
