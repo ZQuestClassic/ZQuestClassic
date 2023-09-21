@@ -3036,7 +3036,7 @@ int32_t onOptions()
     return D_O_K;
 }
 
-enum {dm_normal, dm_relational, dm_dungeon, dm_alias, dm_cpool, dm_auto, dm_max};
+enum {dm_normal, dm_relational, dm_dungeon, dm_alias, dm_cpool, dm_auto, dm_max, dm_menumax = 4};
 const char *dm_names[dm_max]=
 {
     "Normal",
@@ -3051,7 +3051,7 @@ byte relational_tile_grid[11+(rtgyo*2)][16+(rtgxo*2)];
 
 void fix_drawing_mode_menu()
 {
-    for(int32_t i=0; i<dm_max; ++i)
+    for(int32_t i=0; i<dm_menumax; ++i)
     {
         drawing_mode_menu[i].flags=0;
     }
