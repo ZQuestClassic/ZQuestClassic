@@ -167,6 +167,8 @@ std::shared_ptr<GUI::Widget> AutoComboDialog::view()
 							{
 								refreshPanels();
 								refreshTypes(val);
+								temp_autocombo.setFlags(0);
+								temp_autocombo.setArg(0);
 							}
 							else
 								typedropdown->setSelectedValue(temp_autocombo.getType());
