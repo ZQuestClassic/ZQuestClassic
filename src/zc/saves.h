@@ -45,6 +45,7 @@ int32_t saves_count();
 int32_t saves_current_selection();
 bool saves_create_slot(gamedata* game, bool save_to_disk = true);
 bool saves_create_slot(fs::path path);
+bool saves_is_slot_loaded(int32_t index, bool full_data = false);
 const save_t* saves_get_slot(int32_t index, bool full_data = false);
 const save_t* saves_get_current_slot();
 void saves_delete(int32_t index);

@@ -2153,6 +2153,15 @@ int32_t saves_current_selection()
 	return currgame;
 }
 
+bool saves_is_slot_loaded(int32_t index, bool full_data)
+{
+	if (saves.size() <= index)
+		return false;
+	if (full_data && saves[index].game == nullptr)
+		return false;
+	return saves[index].header != nullptr;
+}
+
 const save_t* saves_get_slot(int32_t index, bool full_data)
 {
 	save_t* save;

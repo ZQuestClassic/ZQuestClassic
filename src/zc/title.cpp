@@ -283,11 +283,25 @@ static void list_saves()
 {
 	// Fourth Quest turns the menu red.
 	bool red = false;
-	
+
+	// First, make sure the presently listed quests are loaded.
 	int savecnt = saves_count();
+	for(int32_t i=0; i<3; i++)
+	{
+		int j = listpos+i;
+		if (j < savecnt)
+			saves_get_slot(j);
+	}
+
+	// Check if any loaded quests is the 4th quest.
 	for(int32_t i=0; i<savecnt; i++)
-		if (saves_get_slot(i)->header && saves_get_slot(i)->header->quest == 4)
+	{
+		if (saves_is_slot_loaded(i) && saves_get_slot(i)->header->quest == 4)
+		{
 			red = true;
+			break;
+		}
+	}
 
 	loadpalset(0,red ? pSprite(spPILE) : 0);
 	
