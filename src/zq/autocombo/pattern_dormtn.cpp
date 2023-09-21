@@ -233,6 +233,9 @@ namespace AutoPattern
 						return 18;
 					return 11;
 				case UL | U | RIM | BASE:
+					if (flags & OUTERCORNER)
+						return 16;
+					return 15;
 				case UL | U | BASE:
 					if (flags & OUTERCORNER)
 						return 16;
@@ -261,6 +264,9 @@ namespace AutoPattern
 						return 19;
 					return 8;
 				case UR | U | RIM | BASE:
+					if (flags & OUTERCORNER)
+						return 17;
+					return 12;
 				case UR | U | BASE:
 					if (flags & OUTERCORNER)
 						return 17;
@@ -439,7 +445,7 @@ namespace AutoPattern
 		for (auto a : tops)
 		{
 			apcombo* ap = a.second;
-			if (ap)
+			if (ap != NULL)
 			{
 				switch (ap->slot)
 				{
@@ -460,12 +466,12 @@ namespace AutoPattern
 						side_faces[ap->screenpos + 0x10000] = new dor_face(ap, this, right, height);
 					break;
 				}
-			}
-			if(is_vertex(ap))
-			{	
-				if (!side_faces.count(ap->screenpos))
+				if (is_vertex(ap))
 				{
-					side_faces[ap->screenpos] = new dor_face(ap, this, height);
+					if (!side_faces.count(ap->screenpos))
+					{
+						side_faces[ap->screenpos] = new dor_face(ap, this, height);
+					}
 				}
 			}
 		}
@@ -826,7 +832,7 @@ namespace AutoPattern
 	}
 
 	dor_face::dor_face(apcombo* firstvertex, autopattern_dormtn* npattern, byte nheight) :
-		pattern(npattern), height(nheight), special_corner(false), steep(false)
+		valid(true), scan_dir(0), pattern(npattern), height(nheight), facing_dir(0), side_length(0), special_corner(false), steep(false)
 	{
 		byte vertexfacing = 255;
 		byte scan = 255;
@@ -877,7 +883,7 @@ namespace AutoPattern
 		}
 	}
 	dor_face::dor_face(apcombo* firstvertex, autopattern_dormtn* npattern, byte ndir, byte nheight) :
-		pattern(npattern), height(nheight), facing_dir(ndir), side_length(0), special_corner(true), steep(false)
+		valid(true), scan_dir(0), pattern(npattern), height(nheight), facing_dir(ndir), side_length(0), special_corner(true), steep(false)
 	{
 		if (firstvertex)
 		{
