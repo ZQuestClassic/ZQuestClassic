@@ -8179,6 +8179,9 @@ void draw(bool justcset)
 								{
 									amap = Map.CurrScr()->layermap[cz-1]-1;
 									ascr = Map.CurrScr()->layerscreen[cz-1];
+									mapscr* mapscr_ptr = Map.AbsoluteScr(amap, ascr);
+									if(mapscr_ptr)
+										mapscr_ptr->valid |= mVALID;
 									laypos++;
 								}
 							}
