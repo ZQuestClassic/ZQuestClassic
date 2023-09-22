@@ -3354,7 +3354,7 @@ user_file *checkFile(int32_t ref, const char *what, bool req_file = false, bool 
 
 user_object *checkObject(int32_t ref, bool skipError = false)
 {
-	if(ref > 0 && ref <= MAX_USER_FILES)
+	if(ref > 0 && ref < MAX_USER_OBJECTS)
 	{
 		user_object* obj = &script_objects[ref-1];
 		if(obj->reserved)
