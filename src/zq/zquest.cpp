@@ -7320,6 +7320,7 @@ bool select_favorite()
 				if(AutoBrush)
 					BrushWidth = BrushHeight = 1;
                 valid=true;
+				fix_drawing_mode_menu();
             }
         }
         
