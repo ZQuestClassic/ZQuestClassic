@@ -161,8 +161,8 @@ jobs:
         uses: actions/cache@v3
         with:
           path: .ccache
-          key: web-ccache-${{ github.run_id }}
-          restore-keys: web-ccache-
+          key: web-ccache-v2-${{ github.run_id }}
+          restore-keys: web-ccache-v2-
       - run: ccache -z
 
       - run: |
