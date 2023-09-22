@@ -64,7 +64,7 @@ static int32_t zcmusic_bufsz_private = 64;
 
 ALLEGRO_MUTEX* playlistmutex = NULL;
 
-ZCMUSIC* zcmusic_load_for_quest(char* filename, char* quest_path)
+ZCMUSIC* zcmusic_load_for_quest(const char* filename, char* quest_path)
 {
 	if (!al_is_audio_installed())
 		return nullptr;

@@ -30297,7 +30297,7 @@ void HeroClass::getTriforce(int32_t id2)
 		if(itemsbuf[id2].misc1)
 			jukebox(itemsbuf[id2].misc1+ZC_MIDI_COUNT-1);
 		else
-			try_zcmusic((char*)moduledata.base_NSF_file,moduledata.tf_track, ZC_MIDI_TRIFORCE);
+			try_zcmusic("zelda.nsf",moduledata.tf_track, ZC_MIDI_TRIFORCE);
 	}
 	if(itemsbuf[id2].flags & ITEM_GAMEDATA)
 	{

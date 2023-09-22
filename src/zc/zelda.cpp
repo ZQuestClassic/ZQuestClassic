@@ -4831,7 +4831,7 @@ int main(int argc, char **argv)
 	packfile_password(""); // Temporary measure. -L
 	Z_message("Zelda.Dat...");
 	
-	if((datafile=load_datafile(moduledata.datafiles[zelda_dat]))==NULL) 
+	if((datafile=load_datafile("modules/classic/classic_zelda.dat"))==NULL) 
 	{
 		Z_error_fatal("failed to load zelda_dat");
 	}
@@ -4846,7 +4846,7 @@ int main(int argc, char **argv)
 	
 	Z_message("Fonts.Dat...");
 	
-	if((fontsdata=load_datafile_count(moduledata.datafiles[fonts_dat], fontsdat_cnt))==NULL)
+	if((fontsdata=load_datafile_count("modules/classic/classic_fonts.dat", fontsdat_cnt))==NULL)
 	{
 		Z_error_fatal("failed to load fonts");
 	}
@@ -4867,7 +4867,7 @@ int main(int argc, char **argv)
 	
 	Z_message("SFX.Dat...");
 	
-	if((sfxdata=load_datafile(moduledata.datafiles[sfx_dat]))==NULL)
+	if((sfxdata=load_datafile("sfx.dat"))==NULL)
 	{
 		Z_error_fatal("failed to load sfx_dat");
 	}

@@ -8275,7 +8275,7 @@ INLINE int32_t mixvol(int32_t v1,int32_t v2)
 }
 
 // Run an NSF, or a MIDI if the NSF is missing somehow.
-bool try_zcmusic(char *filename, int32_t track, int32_t midi, int32_t fadeoutframes)
+bool try_zcmusic(const char *filename, int32_t track, int32_t midi, int32_t fadeoutframes)
 {
 	ZCMUSIC *newzcmusic = zcmusic_load_for_quest(filename, qstpath);
 	
