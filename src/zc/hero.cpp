@@ -283,6 +283,7 @@ void HeroClass::set_liftflags(int liftid)
 
 void HeroClass::set_respawn_point(bool setwarp)
 {
+	if(currscr >= 0x80) return;
 	zfix oldx = x, oldy = y;
 	if (replay_version_check(17))
 	{
