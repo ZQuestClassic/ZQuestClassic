@@ -4501,11 +4501,11 @@ void DrawString(int layer,
  * As DrawString(), but includes a shadow on the text.
  * Use the 'SHD_' constants for 'shadow_type'.
 
-void PutPixels(int layer, int ptr[])
+void PutPixels(int layer, int ptr[], int rx, int ry, int rangle)
  * Puts multiple pixels to the screen in one function call.
  * PutPixels() expects an array as its arg, with the array in the format of
  * repeating blocks of { x, y, colour, trans }
- *	Example: PutPixels(1, { 25, 10, 5, OP_OPAQUE, 26, 10, 6, OP_OPAQUE } );
+ *	Example: PutPixels(1, { 25, 10, 5, OP_OPAQUE, 26, 10, 6, OP_OPAQUE }, 0, 0, 0 );
  *	This draws two pixels to the screen.
  *	The first is at coordinates x==25, y == 10, colour == 5, and it is opaque.
  *	The second is at coordinates x==25, y==10, colour == 6, and opaque.
