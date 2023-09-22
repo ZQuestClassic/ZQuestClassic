@@ -101,6 +101,7 @@ static std::string qst_cfg_header_from_path(std::string path)
 	util::replchar(path, '[', '_');
 	util::replchar(path, ']', '_');
 	util::replchar(path, ' ', '_');
+	util::replchar(path, '\\', '/');
 	return path;
 }
 
