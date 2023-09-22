@@ -2794,7 +2794,7 @@ public:
 		if (am.invalid())
 			return;
 		size_t sz = am.size();
-		for(word i = offset; BC::checkUserArrayIndex(i, sz) == _NoError && num_values != 0; i++)
+		for(word i = offset; num_values != 0 && BC::checkUserArrayIndex(i, sz) == _NoError; i++)
 		{
 			arrayPtr[i] = (am.get(i) / 10000);
 			num_values--;
