@@ -283,25 +283,25 @@ void HeroClass::set_liftflags(int liftid)
 
 void HeroClass::set_respawn_point(bool setwarp)
 {
-	if(currscr >= 0x80) return;
 	zfix oldx = x, oldy = y;
 	if (replay_version_check(17))
 	{
 		x = vbound(x,0,240);
 		y = vbound(y,0,160);
 	}
-
+	
+	if(setwarp)
+	{
+		warpx = x;
+		warpy = y;
+		raftwarpx = x;
+		raftwarpy = y;
+	}
 	do
 	{
-		if(setwarp)
-		{
-			warpx = x;
-			warpy = y;
-			raftwarpx = x;
-			raftwarpy = y;
-		}
 		if(!get_qr(qr_OLD_RESPAWN_POINTS))
 		{
+			if(currscr >= 0x80) break;
 			bool is_safe = true;
 			switch(action)
 			{
