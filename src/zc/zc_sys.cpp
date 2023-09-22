@@ -71,7 +71,6 @@ static int32_t d_joylist_proc(int32_t msg,DIALOG *d,int32_t c);
 extern byte monochrome_console;
 
 extern HeroClass Hero;
-extern ZModule zcm;
 extern zcmodule moduledata;
 extern sprite_list  guys, items, Ewpns, Lwpns, chainlinks, decorations;
 extern particle_list particles;
@@ -95,21 +94,15 @@ int32_t getnumber(const char *prompt,int32_t initialval);
 
 extern bool kb_typing_mode; //script only, for disbaling key presses affecting Hero, etc. 
 extern int32_t cheat_modifier_keys[4]; //two options each, default either control and either shift
-//extern byte refresh_select_screen;
-//extern movingblock mblock2; //mblock[4]?
-//extern int32_t db;
 
-static const char *ZC_str = "ZQuest Classic";
 #if defined(ALLEGRO_WINDOWS)
 const char *qst_dir_name = "win_qst_dir";
-static  const char *qst_module_name = "current_module";
 #elif defined(ALLEGRO_LINUX)
 const char *qst_dir_name = "linux_qst_dir";
-static  const char *qst_module_name = "current_module";
 #elif defined(__APPLE__)
 const char *qst_dir_name = "osx_qst_dir";
-static  const char *qst_module_name = "current_module";
 #endif
+static  const char *qst_module_name = "current_module";
 #ifdef ALLEGRO_LINUX
 static  const char *samplepath = "samplesoundset/patches.dat";
 #endif
@@ -6049,138 +6042,6 @@ bool zc_getname_nogo(const char *prompt,const char *ext,EXT_LIST *list,const cha
 	return ret!=0;
 }
 
-//The Dialogue that loads a ZMOD Module File
-int32_t zc_load_zmod_module_file()
-{
-	if ( Playing )
-	{
-	jwin_alert("Error","Cannot change module while playing a quest!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));	
-	return -1;
-	}
-	if(!zc_getname("Load Module (.zmod)","zmod",NULL,modulepath,false))
-		return D_CLOSE;
-	
-	FILE *tempmodule = fopen(modulepath,"r");
-			
-			if(tempmodule == NULL)
-			{
-				jwin_alert("Error","Cannot open specified file!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-				return -1;
-			}
-		
-		
-		//Set the module path:
-		memset(moduledata.module_name, 0, sizeof(moduledata.module_name));
-		strcpy(moduledata.module_name, modulepath);
-		al_trace("New Module Path is: %s \n", moduledata.module_name);
-		zc_set_config("ZCMODULE","current_module",moduledata.module_name);
-		zcm.init(true); //Load the module values.
-		moduledata.refresh_title_screen = 1;
-//		refresh_select_screen = 1;
-		return D_O_K;
-}
-
-static DIALOG module_info_dlg[] =
-{
-	// (dialog proc)	 (x)   (y)   (w)   (h)   (fg)	 (bg)	(key)	(flags)	 (d1)		   (d2)	 (dp)
-
-
-	{ jwin_win_proc,	  0,   0,   200,  200,  vc(14),  vc(1),  0,	   D_EXIT,		  0,			 0, (void *) "About Current Module", NULL, NULL },
-	//1
-	{  jwin_text_proc,		10,	20,	 20,	  8,	vc(11),	 vc(1),	  0,	0,		  0,	0, (void*)"Module:",			   NULL,   NULL  },
-	//2
-	{  jwin_text_proc,		50,	20,	 20,	  8,	vc(11),	 vc(1),	  0,	0,		  0,	0, (void*)"",			   NULL,   NULL  },
-   {  jwin_text_proc,		10,	30,	 20,	  8,	vc(11),	 vc(1),	  0,	0,		  0,	0, (void*)"Author:",			   NULL,   NULL  },
-	//4
-	{  jwin_text_proc,		50,	30,	 20,	  8,	vc(11),	 vc(1),	  0,	0,		  0,	0, (void*)"",			   NULL,   NULL  },
-	{  jwin_text_proc,		10,	40,	 20,	  8,	vc(11),	 vc(1),	  0,	0,		  0,	0, (void*)"",			   NULL,   NULL  },
-	{  jwin_text_proc,		10,	50,	 20,	  8,	vc(11),	 vc(1),	  0,	0,		  0,	0, (void*)"Information:",			   NULL,   NULL  },
-	//7
-	
-	{  jwin_text_proc,		10,	60,	 20,	  8,	vc(11),	 vc(1),	  0,	0,		  0,	0, (void*)"",			   NULL,   NULL  },
-	{  jwin_text_proc,		10,	70,	 20,	  8,	vc(11),	 vc(1),	  0,	0,		  0,	0, (void*)"",			   NULL,   NULL  },
-	{  jwin_text_proc,		10,	80,	 20,	  8,	vc(11),	 vc(1),	  0,	0,		  0,	0, (void*)"",			   NULL,   NULL  },
-	{  jwin_text_proc,		10,	90,	 20,	  8,	vc(11),	 vc(1),	  0,	0,		  0,	0, (void*)"",			   NULL,   NULL  },
-	{  jwin_text_proc,		10,	100,	 20,	  8,	vc(11),	 vc(1),	  0,	0,		  0,	0, (void*)"",			   NULL,   NULL  },
-	{  jwin_text_proc,		10,	120,	 20,	  8,	vc(11),	 vc(1),	  0,	0,		  0,	0, (void*)"",			   NULL,   NULL  },
-	{  jwin_text_proc,		10,	130,	 20,	  8,	vc(11),	 vc(1),	  0,	0,		  0,	0, (void*)"",			   NULL,   NULL  },
-	{  jwin_text_proc,		10,	140,	 20,	  8,	vc(11),	 vc(1),	  0,	0,		  0,	0, (void*)"",			   NULL,   NULL  },
-	{  jwin_text_proc,		10,	150,	 20,	  8,	vc(11),	 vc(1),	  0,	0,		  0,	0, (void*)"",			   NULL,   NULL  },
-   
-	{ jwin_button_proc,   40,   160,  50,   21,   vc(14),  vc(1),  13,	  D_EXIT,	 0,			 0, (void *) "OK", NULL, NULL },
-	{ jwin_button_proc,   200-40-50,  160,  50,   21,   vc(14),  vc(1),  27,	  D_EXIT,	 0,			 0, (void *) "Cancel", NULL, NULL },
-	{ NULL,				 0,	0,	0,	0,   0,	   0,	   0,	   0,		  0,			 0,	   NULL,						   NULL,  NULL }
-};
-
-void about_zcplayer_module(const char *prompt,int32_t initialval)
-{	
-	
-	module_info_dlg[0].dp2 = get_zc_font(font_lfont);
-	if ( moduledata.moduletitle[0] != 0 )
-		module_info_dlg[2].dp = (char*)moduledata.moduletitle;
-	
-	if ( moduledata.moduleauthor[0] != 0 )
-		module_info_dlg[4].dp = (char*)moduledata.moduleauthor;
-	
-	if ( moduledata.moduleinfo0[0] != 0 )
-		module_info_dlg[7].dp = (char*)moduledata.moduleinfo0;
-	if ( moduledata.moduleinfo1[0] != 0 )
-		module_info_dlg[8].dp = (char*)moduledata.moduleinfo1;
-	if ( moduledata.moduleinfo2[0] != 0 )
-		module_info_dlg[9].dp = (char*)moduledata.moduleinfo2;
-	if ( moduledata.moduleinfo3[0] != 0 )
-		module_info_dlg[10].dp = (char*)moduledata.moduleinfo3;
-	if ( moduledata.moduleinfo4[0] != 0 )
-		module_info_dlg[11].dp = (char*)moduledata.moduleinfo4;
-	
-	char module_date[255];
-	memset(module_date, 0, sizeof(module_date));
-	sprintf(module_date,"Build Date: %s %s, %d at @ %d:%d %s", dayextension(moduledata.modday).c_str(), 
-			(char*)months[moduledata.modmonth], moduledata.modyear, moduledata.modhour, moduledata.modminute, moduledata.moduletimezone);
-	
-	
-	
-	char module_vers[255];
-	memset(module_vers, 0, sizeof(module_vers));
-	sprintf(module_vers, "Version: %d.%d.%d.%d", moduledata.modver_1, moduledata.modver_2, moduledata.modver_3, moduledata.modver_4);
-	
-	
-	//sprintf(tilecount,"%d",1);
-	
-	char module_build[255];
-	memset(module_build, 0, sizeof(module_build));
-	if ( moduledata.modbeta )
-		sprintf(module_build,"Module Build: %d, %s: %d", moduledata.modbuild, (moduledata.modbeta<0) ? "Alpha" : "Beta", moduledata.modbeta );
-	else
-		sprintf(module_build,"Module Build: %d", moduledata.modbuild);
-	
-	module_info_dlg[12].dp = (char*)module_date;
-	module_info_dlg[13].dp = (char*)module_vers;
-	module_info_dlg[14].dp = (char*)module_build;
-	
-	large_dialog(module_info_dlg);
-	
-	int32_t ret = do_zqdialog(module_info_dlg,-1);
-	jwin_center_dialog(module_info_dlg);
-	
-	
-}
-
-int32_t onAbout_ZCP_Module()
-{
-	about_zcplayer_module("About Module (.zmod)", 0);
-	return D_O_K;
-}
-
-//New Modules Menu for 2.55+
-static MENU zcmodule_menu[] =
-{
-	{ (char *)"&Load Module...",		zc_load_zmod_module_file,		   NULL,					 0,			NULL   },
-	{ (char *)"&About Module",		onAbout_ZCP_Module,		   NULL,					 0,			NULL   },
-	
-	{  NULL,								NULL,					  NULL,					 0,			NULL   }
-};
-
 int32_t onToggleRecordingNewSaves()
 {
 	if (zc_get_config("zeldadx", "replay_new_saves", false))
@@ -7159,7 +7020,7 @@ int32_t onSound()
 
 int32_t queding(char const* s1, char const* s2, char const* s3)
 {
-	return jwin_alert(ZC_str,s1,s2,s3,"&Yes","&No",'y','n',get_zc_font(font_lfont));
+	return jwin_alert("ZQuest Classic",s1,s2,s3,"&Yes","&No",'y','n',get_zc_font(font_lfont));
 }
 
 int32_t onQuit()
@@ -7693,7 +7554,6 @@ static MENU misc_menu[] =
 	{ (char *)"Clear Console on Qst Load",  onClrConsoleOnLoad,      NULL,                      0, NULL },
 	//15
 	{ (char *)"Clear Directory Cache",      OnnClearQuestDir,        NULL,                      0, NULL },
-	{ (char *)"Modules",                    NULL,                    zcmodule_menu,             0, NULL },
 	{ NULL,                                 NULL,                    NULL,                      0, NULL }
 };
 
