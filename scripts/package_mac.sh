@@ -4,7 +4,7 @@
 # First, install these tools:
 #     brew install dylibbundler create-dmg
 #
-# Does not need user input. When the Finder ZQuestClassic.app -> Applications window opens
+# Does not need user input. When the Finder ZQuest Classic.app -> Applications window opens
 # don't do anything - just wait.
 
 set -e
@@ -35,7 +35,7 @@ if test "${SKIP_APP_BUNDLE+x}"; then
 fi
 
 # Prepare the Mac application bundle.
-contents="$mac_package_dir/ZQuestClassic.app/Contents"
+contents="$mac_package_dir/ZQuest Classic.app/Contents"
 
 rm -rf "$mac_package_dir"
 mkdir -p "$contents/MacOS"
@@ -51,7 +51,7 @@ mkdir "$ICONDIR"
 
 # Normal screen icons
 for size in 16 32 64 128 256 512; do
-sips -z $size $size $ICON --out $ICONDIR/icon_${size}x${size}.png ;
+sips -z $size $size $ICON --out "$ICONDIR/icon_${size}x${size}.png" ;
 done
 
 # Retina display icons
@@ -85,11 +85,11 @@ if test "${PACKAGE_DEBUG_INFO+x}"; then
     "$contents/Resources/zquest" \
     "$contents/Resources/zscript" \
     "$contents/Resources/zupdater" \
-    $(find "$contents/libs" -name '*.dylib' -type f) \
-    -o "$mac_package_dir/ZQuestClassic.app.dSYM"
+    $(find "$contents/libs" -name '*.dylib' -type f -printf "\"%p\" ") \
+    -o "$mac_package_dir/ZQuest Classic.app.dSYM"
 else
   echo "verifying code signing ..."
-  codesign --verify --verbose=4 "$mac_package_dir/ZQuestClassic.app"
+  codesign --verify --verbose=4 "$mac_package_dir/ZQuest Classic.app"
 fi
 
 cd "$packages_dir"
@@ -100,8 +100,8 @@ create-dmg \
   --window-pos 200 120 \
   --window-size 800 400 \
   --icon-size 100 \
-  --icon "ZQuestClassic.app" 200 190 \
-  --hide-extension "ZQuestClassic.app" \
+  --icon "ZQuest Classic.app" 200 190 \
+  --hide-extension "ZQuest Classic.app" \
   --app-drop-link 600 185 \
   ZQuestClassic.dmg \
   "$mac_package_dir"

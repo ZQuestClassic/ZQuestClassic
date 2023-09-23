@@ -90,11 +90,11 @@ jobs:
             cd zc-extracted
             7z x ../${{ needs.build.outputs.artifact-name }}/${{ needs.build.outputs.package-name }}
           macos: |
-            echo "BUILD_FOLDER=$PWD/zc-extracted/ZQuestClassic.app/Contents/Resources" >> "$GITHUB_ENV"
+            echo "BUILD_FOLDER=$PWD/zc-extracted/ZQuest Classic.app/Contents/Resources" >> "$GITHUB_ENV"
             hdiutil attach -mountpoint zc-mounted ${{ needs.build.outputs.artifact-name }}/${{ needs.build.outputs.package-name }}
             mkdir zc-extracted
-            cp -r zc-mounted/ZQuestClassic.app zc-extracted
-            cp -r zc-mounted/ZQuestClassic.app.dSYM zc-extracted
+            cp -r "zc-mounted/ZQuest Classic.app" zc-extracted
+            cp -r "zc-mounted/ZQuest Classic.app.dSYM" zc-extracted
             hdiutil unmount zc-mounted
           linux: |
             echo "BUILD_FOLDER=$PWD/zc-extracted" >> "$GITHUB_ENV"
@@ -113,7 +113,7 @@ jobs:
       - name: Run replay tests
         run: >
           bash .github/workflows/run_python.sh tests/run_replay_tests.py
-          --build_folder ${{ env.BUILD_FOLDER }}
+          --build_folder "${{ env.BUILD_FOLDER }}"
           --build_type ${{ inputs.config }}
           --test_results_folder .tmp/test_results
           --retries 1
@@ -127,7 +127,7 @@ jobs:
         name: Test w/o JIT
         run: >
           bash .github/workflows/run_python.sh tests/run_replay_tests.py
-          --build_folder ${{ env.BUILD_FOLDER }}
+          --build_folder "${{ env.BUILD_FOLDER }}"
           --build_type ${{ inputs.config }}
           --retries 1
           --ci ${{ inputs.runs-on }}_${{ inputs.arch }}

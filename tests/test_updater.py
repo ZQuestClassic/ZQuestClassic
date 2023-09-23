@@ -34,7 +34,7 @@ class TestUpdater(unittest.TestCase):
 			if is_mac:
 				package_folder = next(p for p in package_folder.parents if p.name.endswith('.app'))
 		elif is_mac:
-			package_folder = build_folder / 'packages/zc-mac/ZQuestClassic.app'
+			package_folder = build_folder / 'packages/zc-mac/ZQuest Classic.app'
 		else:
 			package_folder = build_folder / 'packages/zc'
 
