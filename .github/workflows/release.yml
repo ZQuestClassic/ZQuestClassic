@@ -196,6 +196,17 @@ jobs:
           generate_release_notes: false
           body_path: new_changelog.md
 
+      - uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.WEBSITE_REPO_TOKEN }}
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: 'ZQuestClassic',
+              repo: 'zquestclassic.com',
+              workflow_id: 'deploy.yml',
+              ref: 'main',
+            })
+
       - name: Setup Sentry CLI
         if: inputs.sentry
         uses: mathieu-bour/setup-sentry-cli@v1.3.0
