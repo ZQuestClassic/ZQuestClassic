@@ -485,6 +485,7 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 add_library(zcgui STATIC
+	src/gui/buildutil.cpp
 	src/gui/button.cpp
 	src/gui/checkbox_qr.cpp
 	src/gui/checkbox.cpp

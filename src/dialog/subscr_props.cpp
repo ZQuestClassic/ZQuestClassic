@@ -1,5 +1,6 @@
 #include "subscr_props.h"
 #include <gui/builder.h>
+#include <gui/buildutil.h>
 #include "info.h"
 #include <utility>
 #include <sstream>
@@ -542,7 +543,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 	}
 	
 	std::shared_ptr<GUI::Grid> attrib_grid;
-	std::map<std::string, std::shared_ptr<GUI::Grid>> extra_grids;
+	TabBuilder extra_grids;
 	enum { mtNONE, mtFORCE_TAB, mtLOCTOP };
 	int32_t mergetype = mtNONE;
 	//Generate 'attributes' grid
@@ -1425,9 +1426,9 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 		}
 	}
 	
-	std::shared_ptr<GUI::Grid> g;
+	std::shared_ptr<GUI::Grid> g = Rows<2>(padding = 0_px);
 	std::shared_ptr<GUI::TabPanel> tpan = TabPanel(ptr = &sprop_tabs[local_subref->getType()],
-			TabRef(name = "Basic", g = Rows<2>(padding = 0_px))
+			TabRef(name = "Basic", g)
 		);
 	switch(mergetype)
 	{
@@ -1465,11 +1466,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			break;
 		}
 	}
-	if(extra_grids.size())
-	{
-		for(auto& ref : extra_grids)
-			tpan->add(TabRef(name = ref.first, ref.second));
-	}
+	extra_grids.build(tpan);
 	tpan->add(TabRef(name = "Selection",
 		TabPanel(ptr = &sprop_tab_sel,
 			TabRef(name = "Basic",
