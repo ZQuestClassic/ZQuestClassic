@@ -3297,7 +3297,14 @@ enum ASM_DEFINE
 	SUBWIDG_TY_GETTEXT,
 	SUBWIDG_TY_SETTEXT,
 
-	NUMCOMMANDS  //0x0448
+	
+	SUBPAGE_FIND_WIDGET_BY_LABEL,
+
+	
+	SUBWIDG_GET_LABEL,
+	SUBWIDG_SET_LABEL,
+
+	NUMCOMMANDS  //0x044B
 };
 
 
@@ -5098,7 +5105,12 @@ enum ASM_DEFINE
 #define SUBWIDGDISPITM          0x158A
 #define SUBWIDGEQPITM           0x158B
 
-#define NUMVARIABLES            0x158C
+#define SUBWIDG_DISPX           0x158C
+#define SUBWIDG_DISPY           0x158D
+#define SUBWIDG_DISPW           0x158E
+#define SUBWIDG_DISPH           0x158F
+
+#define NUMVARIABLES            0x1590
 
 //} End variables
 

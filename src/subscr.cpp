@@ -3387,7 +3387,7 @@ void sso_bounding_box(BITMAP *bmp, SubscrWidget* widg, int32_t color)
     if(!widg)
 		return;
     
-    int32_t x=widg->getX()+widg->getXOffs();
+    int32_t x=widg->getX();
     int32_t y=widg->getY();
     int32_t w=widg->getW();
     int32_t h=widg->getH();

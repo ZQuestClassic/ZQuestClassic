@@ -8790,6 +8790,9 @@ int NumWidgets;
 subscreenwidget Widgets[];
  * Read-only. The widgets on the page, ordered by their index.
 
+subscreenwidget GetWidget(char32[] label);
+ * Returns the first widget with a matching label, or NULL if none exists.
+
 subscreendata SubData;
  * Read-only. The subscreendata that owns this page.
 
@@ -8855,6 +8858,14 @@ int H;
  * ex. for 2x2 frame, this is in minitiles, so 8 times less than pixels.
  * Some types ignore these values altogether.
 
+int DispX;
+int DispY;
+int DispW;
+int DispH;
+ * Read-Only. Gets the 'display' x/y/width/height, in pixels.
+ * The rectangle represented by this is the same as the bounding box
+ *     shown in the subscreen editor in ZQ.
+
 bool GenFlags[];
  * The general flags for subscreen widgets.
  * These are usually applicable regardless of widget type.
@@ -8880,6 +8891,12 @@ void GetSelTextOverride(char32[] buf);
 void SetSelTextOverride(char32[] str);
  * Sets the selected text override for this widget.
  * A blank string represents no override.
+
+void GetLabel(char32[] buf);
+ * Gets the label for this widget.
+ * If the buffer provided is too small, it will *automatically be resized to fit*.
+void SetLabel(char32[] str);
+ * Sets the label for this widget.
 
 //Selector override stuff
 int SelectorDestX;

@@ -2427,6 +2427,11 @@ string ZScript::VarToString(int32_t ID)
 		case SUBWIDGDISPITM: return "SUBWIDGDISPITM";
 		case SUBWIDGEQPITM: return "SUBWIDGEQPITM";
 		
+		case SUBWIDG_DISPX: return "SUBWIDG_DISPX";
+		case SUBWIDG_DISPY: return "SUBWIDG_DISPY";
+		case SUBWIDG_DISPW: return "SUBWIDG_DISPW";
+		case SUBWIDG_DISPH: return "SUBWIDG_DISPH";
+		
 		default:
 		{
 			sprintf(temp, "d%d", ID);
@@ -6842,5 +6847,21 @@ string OSubWidgTy_GetText::toString() const
 string OSubWidgTy_SetText::toString() const
 {
 	return "SUBWIDG_TY_SETTEXT";
+}
+
+
+string OSubscrPgFindWidgetLbl::toString() const
+{
+	return "SUBPAGE_FIND_WIDGET_BY_LABEL";
+}
+
+
+string OGetSubWidgLabel::toString() const
+{
+	return "SUBWIDG_GET_LABEL " + getArgument()->toString();
+}
+string OSetSubWidgLabel::toString() const
+{
+	return "SUBWIDG_SET_LABEL " + getArgument()->toString();
 }
 

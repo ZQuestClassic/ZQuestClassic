@@ -158,6 +158,7 @@ static AccessorTable SubscreenPageTable[] =
 	{ "setWidgets[]",               0,            ZTID_VOID,   SUBPGWIDGETS,      FL_RDONLY,  { ZTID_SUBSCREENPAGE, ZTID_FLOAT, ZTID_SUBSCREENPAGE },{} },
 	{ "getSubData",                 0,   ZTID_SUBSCREENDATA,   SUBPGSUBDATA,              0,  { ZTID_SUBSCREENPAGE },{} },
 	{ "setSubData",                 0,            ZTID_VOID,   SUBPGSUBDATA,      FL_RDONLY,  { ZTID_SUBSCREENPAGE, ZTID_SUBSCREENDATA },{} },
+	{ "GetWidget",                  0, ZTID_SUBSCREENWIDGET,   -1,                        0,  { ZTID_SUBSCREENPAGE, ZTID_CHAR },{} },
 	
 	// Active Only
 	{ "getCursorPos",               0,           ZTID_FLOAT,   SUBPGCURSORPOS,            0,  { ZTID_SUBSCREENPAGE },{} },
@@ -179,6 +180,17 @@ SubscreenPageSymbols::SubscreenPageSymbols()
 
 void SubscreenPageSymbols::generateCode()
 {
+	//void GetWidget(subscreenpage, int)
+	{
+		Function* function = getFunction("GetWidget");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		addOpcode2 (code, new OSubscrPgFindWidgetLbl());
+		LABELBACK(label);
+		POP_ARGS(2,NUL);
+		RETURN();
+		function->giveCode(code);
+	}
 	//void FindWidget(subscreenpage, int)
 	{
 		Function* function = getFunction("FindWidget");
@@ -270,6 +282,14 @@ static AccessorTable SubscreenWidgetTable[] =
 	{ "setW",                       0,            ZTID_VOID,   SUBWIDGW,                  0,  { ZTID_SUBSCREENWIDGET, ZTID_FLOAT },{} },
 	{ "getH",                       0,           ZTID_FLOAT,   SUBWIDGH,                  0,  { ZTID_SUBSCREENWIDGET },{} },
 	{ "setH",                       0,            ZTID_VOID,   SUBWIDGH,                  0,  { ZTID_SUBSCREENWIDGET, ZTID_FLOAT },{} },
+	{ "getDispX",                   0,           ZTID_FLOAT,   SUBWIDG_DISPX,             0,  { ZTID_SUBSCREENWIDGET },{} },
+	{ "setDispX",                   0,            ZTID_VOID,   SUBWIDG_DISPX,     FL_RDONLY,  { ZTID_SUBSCREENWIDGET, ZTID_FLOAT },{} },
+	{ "getDispY",                   0,           ZTID_FLOAT,   SUBWIDG_DISPY,             0,  { ZTID_SUBSCREENWIDGET },{} },
+	{ "setDispY",                   0,            ZTID_VOID,   SUBWIDG_DISPY,     FL_RDONLY,  { ZTID_SUBSCREENWIDGET, ZTID_FLOAT },{} },
+	{ "getDispW",                   0,           ZTID_FLOAT,   SUBWIDG_DISPW,             0,  { ZTID_SUBSCREENWIDGET },{} },
+	{ "setDispW",                   0,            ZTID_VOID,   SUBWIDG_DISPW,     FL_RDONLY,  { ZTID_SUBSCREENWIDGET, ZTID_FLOAT },{} },
+	{ "getDispH",                   0,           ZTID_FLOAT,   SUBWIDG_DISPH,             0,  { ZTID_SUBSCREENWIDGET },{} },
+	{ "setDispH",                   0,            ZTID_VOID,   SUBWIDG_DISPH,     FL_RDONLY,  { ZTID_SUBSCREENWIDGET, ZTID_FLOAT },{} },
 	{ "getGenFlags[]",              0,            ZTID_BOOL,   SUBWIDGGENFLAG,            0,  { ZTID_SUBSCREENWIDGET, ZTID_FLOAT },{} },
 	{ "setGenFlags[]",              0,            ZTID_VOID,   SUBWIDGGENFLAG,            0,  { ZTID_SUBSCREENWIDGET, ZTID_FLOAT, ZTID_BOOL },{} },
 	{ "getFlags[]",                 0,            ZTID_BOOL,   SUBWIDGFLAG,               0,  { ZTID_SUBSCREENWIDGET, ZTID_FLOAT },{} },
@@ -304,6 +324,9 @@ static AccessorTable SubscreenWidgetTable[] =
 	//Selected text override
 	{ "GetSelTextOverride",         0,            ZTID_VOID,   -1,                        0,  { ZTID_SUBSCREENWIDGET, ZTID_CHAR },{} },
 	{ "SetSelTextOverride",         0,            ZTID_VOID,   -1,                        0,  { ZTID_SUBSCREENWIDGET, ZTID_CHAR },{} },
+	//Label text
+	{ "GetLabel",                   0,            ZTID_VOID,   -1,                        0,  { ZTID_SUBSCREENWIDGET, ZTID_CHAR },{} },
+	{ "SetLabel",                   0,            ZTID_VOID,   -1,                        0,  { ZTID_SUBSCREENWIDGET, ZTID_CHAR },{} },
 	
 	//OnPress Generic Script
 	{ "getPressScript",             0,           ZTID_FLOAT,   SUBWIDGPRESSSCRIPT,        0,  { ZTID_SUBSCREENWIDGET },{} },
@@ -460,6 +483,34 @@ void SubscreenWidgetSymbols::generateCode()
 		//pop pointer
 		POPREF();
 		addOpcode2 (code, new OSetSubWidgSelTxtOverride(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void GetLabel(subscreenwidget, char)
+	{
+		Function* function = getFunction("GetLabel");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer
+		POPREF();
+		addOpcode2 (code, new OGetSubWidgLabel(new VarArgument(EXP1)));
+		RETURN();
+		function->giveCode(code);
+	}
+	//void SetLabel(subscreenwidget, char)
+	{
+		Function* function = getFunction("SetLabel");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2 (code, new OPopRegister(new VarArgument(EXP1)));
+		LABELBACK(label);
+		//pop pointer
+		POPREF();
+		addOpcode2 (code, new OSetSubWidgLabel(new VarArgument(EXP1)));
 		RETURN();
 		function->giveCode(code);
 	}

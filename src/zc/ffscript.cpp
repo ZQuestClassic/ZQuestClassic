@@ -14333,6 +14333,30 @@ int32_t get_register(const int32_t arg)
 				ret = 10000*widg->h;
 			break;
 		}
+		case SUBWIDG_DISPX:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "X"))
+				ret = 10000*widg->getX();
+			break;
+		}
+		case SUBWIDG_DISPY:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Y"))
+				ret = 10000*widg->getY();
+			break;
+		}
+		case SUBWIDG_DISPW:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "W"))
+				ret = 10000*widg->getW();
+			break;
+		}
+		case SUBWIDG_DISPH:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "H"))
+				ret = 10000*widg->getH();
+			break;
+		}
 		case SUBWIDGGENFLAG:
 		{
 			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "GenFlags"))
@@ -15513,7 +15537,7 @@ int32_t get_register(const int32_t arg)
 					case widgLGAUGE:
 					case widgMGAUGE:
 					case widgMISCGAUGE:
-						ret = 10000*((SW_GaugePiece*)widg)->gauge_wid;
+						ret = 10000*(((SW_GaugePiece*)widg)->gauge_wid+1);
 						break;
 					default:
 						bad_subwidg_type("GaugeWid", false, ty);
@@ -15533,7 +15557,7 @@ int32_t get_register(const int32_t arg)
 					case widgLGAUGE:
 					case widgMGAUGE:
 					case widgMISCGAUGE:
-						ret = 10000*((SW_GaugePiece*)widg)->gauge_hei;
+						ret = 10000*(((SW_GaugePiece*)widg)->gauge_hei+1);
 						break;
 					default:
 						bad_subwidg_type("GaugeHei", false, ty);
@@ -27920,7 +27944,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "GaugeWid"))
 			{
-				auto val = vbound(value/10000,1,32);
+				auto val = vbound(value/10000,1,32)-1;
 				auto ty = widg->getType();
 				switch(ty)
 				{
@@ -27940,7 +27964,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "GaugeHei"))
 			{
-				auto val = vbound(value/10000,1,32);
+				auto val = vbound(value/10000,1,32)-1;
 				auto ty = widg->getType();
 				switch(ty)
 				{
@@ -39742,19 +39766,40 @@ j_command:
 			}
 			case SUBPAGE_FIND_WIDGET:
 			{
+				ri->d[rEXP1] = 0;
 				ri->subpageref = SH::read_stack(ri->sp+1);
 				if(SubscrPage* pg = checkSubPage(ri->subpageref, "FindWidget", sstACTIVE))
 				{
 					int cursorpos = SH::read_stack(ri->sp+0) / 10000;
 					if(auto* widg = pg->get_widg_pos(cursorpos,false))
 					{
-						for(int q = 0; q < pg->size(); ++q)
-							if((*pg)[q] == widg)
-							{
-								auto [sub,ty,pgid,_ind] = from_subref(ri->subpageref);
-								ri->d[rEXP1] = get_subref(sub,ty,pgid,q);
-								break;
-							}
+						auto q = pg->widget_index(widg);
+						if(q > -1)
+						{
+							auto [sub,ty,pgid,_ind] = from_subref(ri->subpageref);
+							ri->d[rEXP1] = get_subref(sub,ty,pgid,q);
+						}
+					}
+				}
+				break;
+			}
+			case SUBPAGE_FIND_WIDGET_BY_LABEL:
+			{
+				ri->d[rEXP1] = 0;
+				ri->subpageref = SH::read_stack(ri->sp+1);
+				if(SubscrPage* pg = checkSubPage(ri->subpageref, "GetWidget"))
+				{
+					int aptr = SH::read_stack(ri->sp+0) / 10000;
+					std::string lbl;
+					ArrayH::getString(aptr, lbl);
+					if(lbl.size())
+					{
+						auto q = pg->find_label_index(lbl);
+						if(q > -1)
+						{
+							auto [sub,ty,pgid,_ind] = from_subref(ri->subpageref);
+							ri->d[rEXP1] = get_subref(sub,ty,pgid,q);
+						}
 					}
 				}
 				break;
@@ -39839,6 +39884,26 @@ j_command:
 				{
 					auto aptr = get_register(sarg1) / 10000;
 					ArrayH::getString(aptr, widg->override_text);
+				}
+				break;
+			}
+			case SUBWIDG_GET_LABEL:
+			{
+				if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "GetLabel"))
+				{
+					auto aptr = get_register(sarg1) / 10000;
+					if(ArrayH::setArray(aptr, widg->label, true) == SH::_Overflow)
+						Z_scripterrlog("Array supplied to 'subscreenwidget->GetLabel()' not large enough,"
+							" and couldn't be resized!\n");
+				}
+				break;
+			}
+			case SUBWIDG_SET_LABEL:
+			{
+				if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "SetLabel"))
+				{
+					auto aptr = get_register(sarg1) / 10000;
+					ArrayH::getString(aptr, widg->label);
 				}
 				break;
 			}
@@ -46245,6 +46310,11 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "SUBWIDG_TY_GETTEXT", 1, 0, 0, 0 },
 	{ "SUBWIDG_TY_SETTEXT", 1, 0, 0, 0 },
 
+	{ "SUBPAGE_FIND_WIDGET_BY_LABEL", 0, 0, 0, 0 },
+
+	{ "SUBWIDG_GET_LABEL", 1, 0, 0, 0 },
+	{ "SUBWIDG_SET_LABEL", 1, 0, 0, 0 },
+
 	{ "", 0, 0, 0, 0 }
 };
 
@@ -47885,6 +47955,11 @@ script_variable ZASMVars[]=
 
 	{ "SUBWIDGDISPITM", SUBWIDGDISPITM, 0, 0 },
 	{ "SUBWIDGEQPITM", SUBWIDGEQPITM, 0, 0 },
+
+	{ "SUBWIDG_DISPX", SUBWIDG_DISPX, 0, 0 },
+	{ "SUBWIDG_DISPY", SUBWIDG_DISPY, 0, 0 },
+	{ "SUBWIDG_DISPW", SUBWIDG_DISPW, 0, 0 },
+	{ "SUBWIDG_DISPH", SUBWIDG_DISPH, 0, 0 },
 
 	{ " ", -1, 0, 0 }
 };

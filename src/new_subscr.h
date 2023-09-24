@@ -297,6 +297,8 @@ struct SubscrWidget
 	word h;
 	dword flags, genflags;
 	
+	std::string label;
+	
 	//if SUBSCRFLAG_SELECTABLE...
 	
 	//Selector position, and directionals
@@ -327,8 +329,6 @@ struct SubscrWidget
 	virtual int16_t getY() const; //Returns y in pixels
 	virtual word getW() const; //Returns width in pixels
 	virtual word getH() const; //Returns height in pixels
-	virtual int16_t getXOffs() const; //Returns any special x-offset
-	virtual int16_t getYOffs() const; //Returns any special y-offset
 	virtual byte getType() const;
 	virtual int32_t getItemVal() const;
 	virtual int32_t getDisplayItem() const;
@@ -400,7 +400,6 @@ struct SW_Text : public SubscrWidget
 	virtual int16_t getY() const override; //Returns y in pixels
 	virtual word getW() const override; //Returns width in pixels
 	virtual word getH() const override; //Returns height in pixels
-	virtual int16_t getXOffs() const override; //Returns any special x-offset
 	virtual byte getType() const override;
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
 	virtual SubscrWidget* clone() const override;
@@ -466,7 +465,6 @@ struct SW_Time : public SubscrWidget
 	virtual int16_t getY() const override; //Returns y in pixels
 	virtual word getW() const override; //Returns width in pixels
 	virtual word getH() const override; //Returns height in pixels
-	virtual int16_t getXOffs() const override; //Returns any special x-offset
 	virtual byte getType() const override;
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
 	virtual bool visible(byte pos, bool showtime) const override;
@@ -559,7 +557,6 @@ struct SW_Counter : public SubscrWidget
 	virtual int16_t getY() const override; //Returns y in pixels
 	virtual word getW() const override; //Returns width in pixels
 	virtual word getH() const override; //Returns height in pixels
-	virtual int16_t getXOffs() const override; //Returns any special x-offset
 	virtual byte getType() const override;
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
 	virtual SubscrWidget* clone() const override;
@@ -615,7 +612,6 @@ struct SW_BtnCounter : public SubscrWidget
 	virtual int16_t getY() const override; //Returns y in pixels
 	virtual word getW() const override; //Returns width in pixels
 	virtual word getH() const override; //Returns height in pixels
-	virtual int16_t getXOffs() const override; //Returns any special x-offset
 	virtual byte getType() const override;
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
 	virtual SubscrWidget* clone() const override;
@@ -638,9 +634,9 @@ struct SW_MMapTitle : public SubscrWidget
 	SW_MMapTitle(subscreen_object const& old);
 	
 	virtual bool load_old(subscreen_object const& old) override;
+	virtual int16_t getX() const override; //Returns x in pixels
 	virtual word getW() const override; //Returns width in pixels
 	virtual word getH() const override; //Returns height in pixels
-	virtual int16_t getXOffs() const override; //Returns any special x-offset
 	virtual byte getType() const override;
 	virtual void draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const override;
 	virtual SubscrWidget* clone() const override;
@@ -1038,6 +1034,8 @@ struct SubscrPage
 	int32_t get_item_pos(byte pos, bool item_only = true);
 	int32_t get_sel_item(bool display = false);
 	int32_t get_pos_of_item(int32_t itemid);
+	int32_t find_label_index(std::string const& lbl) const;
+	int32_t widget_index(SubscrWidget* widg) const;
 	
 	SubscrWidget* get_widget(int indx);
 	void delete_widg(word ind);

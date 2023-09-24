@@ -1645,6 +1645,19 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				)
 			)
 		)));
+	tpan->add(TabRef(name = "Script",
+		Row(
+			Label(text = "Label:"),
+			TextField(
+				type = GUI::TextField::type::TEXT,
+				maxLength = 300, maxwidth = 25_em,
+				text = local_subref->label,
+				onValChangedFunc = [&](GUI::TextField::type,std::string_view text,int32_t)
+				{
+					local_subref->label = text;
+				}),
+			INFOBTN("A label scripts can use to find this widget")
+		)));
 	window = Window(
 		title = titlebuf,
 		onClose = message::CANCEL,

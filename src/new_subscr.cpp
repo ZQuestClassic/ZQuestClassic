@@ -1047,14 +1047,6 @@ word SubscrWidget::getH() const
 {
 	return h;
 }
-int16_t SubscrWidget::getXOffs() const
-{
-	return 0;
-}
-int16_t SubscrWidget::getYOffs() const
-{
-	return 0;
-}
 byte SubscrWidget::getType() const
 {
 	return widgNULL;
@@ -1123,6 +1115,7 @@ bool SubscrWidget::copy_prop(SubscrWidget const* src, bool all)
 			selector_override = src->selector_override;
 		else
 			selector_override.clear();
+		label = src->label;
 	}
 	return true;
 }
@@ -1145,6 +1138,9 @@ int32_t SubscrWidget::read(PACKFILE *f, word s_version)
 		return qe_invalid;
 	if(!p_igetl(&flags,f))
 		return qe_invalid;
+	if(s_version > 8)
+		if(!p_getwstr(&label,f))
+			return qe_invalid;
 	if(genflags & SUBSCRFLAG_SELECTABLE)
 	{
 		if(!p_igetl(&pos,f))
@@ -1205,6 +1201,8 @@ int32_t SubscrWidget::write(PACKFILE *f) const
 	if(!p_iputl(genflags,f))
 		new_return(1);
 	if(!p_iputl(flags,f))
+		new_return(1);
+	if(!p_putwstr(label,f))
 		new_return(1);
 	if(genflags & SUBSCRFLAG_SELECTABLE)
 	{
@@ -1359,7 +1357,15 @@ bool SW_Text::load_old(subscreen_object const& old)
 }
 int16_t SW_Text::getX() const
 {
-	return x+shadow_x(shadtype);
+	auto tx = x+shadow_x(shadtype);
+	switch(align)
+	{
+		case sstaCENTER:
+			return tx-getW()/2;
+		case sstaRIGHT:
+			return tx-getW();
+	}
+	return tx;
 }
 int16_t SW_Text::getY() const
 {
@@ -1372,17 +1378,6 @@ word SW_Text::getW() const
 word SW_Text::getH() const
 {
 	return text_height(get_zc_font(fontid));
-}
-int16_t SW_Text::getXOffs() const
-{
-	switch(align)
-	{
-		case sstaCENTER:
-			return -getW()/2;
-		case sstaRIGHT:
-			return -getW();
-	}
-	return 0;
 }
 byte SW_Text::getType() const
 {
@@ -1604,7 +1599,15 @@ bool SW_Time::load_old(subscreen_object const& old)
 }
 int16_t SW_Time::getX() const
 {
-	return x+shadow_x(shadtype);
+	auto tx = x+shadow_x(shadtype);
+	switch(align)
+	{
+		case sstaCENTER:
+			return tx-getW()/2;
+		case sstaRIGHT:
+			return tx-getW();
+	}
+	return tx;
 }
 int16_t SW_Time::getY() const
 {
@@ -1623,17 +1626,6 @@ word SW_Time::getW() const
 word SW_Time::getH() const
 {
 	return text_height(get_zc_font(fontid)) + shadow_h(shadtype);
-}
-int16_t SW_Time::getXOffs() const
-{
-	switch(align)
-	{
-		case sstaCENTER:
-			return -getW()/2;
-		case sstaRIGHT:
-			return -getW();
-	}
-	return 0;
 }
 byte SW_Time::getType() const
 {
@@ -1972,7 +1964,15 @@ bool SW_Counter::load_old(subscreen_object const& old)
 }
 int16_t SW_Counter::getX() const
 {
-	return x+shadow_x(shadtype);
+	auto tx = x+shadow_x(shadtype);
+	switch(align)
+	{
+		case sstaCENTER:
+			return tx-getW()/2;
+		case sstaRIGHT:
+			return tx-getW();
+	}
+	return tx;
 }
 int16_t SW_Counter::getY() const
 {
@@ -1985,17 +1985,6 @@ word SW_Counter::getW() const
 word SW_Counter::getH() const
 {
 	return text_height(get_zc_font(fontid)) + shadow_h(shadtype);
-}
-int16_t SW_Counter::getXOffs() const
-{
-	switch(align)
-	{
-		case sstaCENTER:
-			return -getW()/2;
-		case sstaRIGHT:
-			return -getW();
-	}
-	return 0;
 }
 byte SW_Counter::getType() const
 {
@@ -2302,7 +2291,15 @@ int32_t SW_Counters::write(PACKFILE *f) const
 
 int16_t SW_BtnCounter::getX() const
 {
-	return x+shadow_x(shadtype);
+	auto tx = x+shadow_x(shadtype);
+	switch(align)
+	{
+		case sstaCENTER:
+			return tx-getW()/2;
+		case sstaRIGHT:
+			return tx-getW();
+	}
+	return tx;
 }
 int16_t SW_BtnCounter::getY() const
 {
@@ -2315,17 +2312,6 @@ word SW_BtnCounter::getW() const
 word SW_BtnCounter::getH() const
 {
 	return text_height(get_zc_font(fontid)) + shadow_h(shadtype);
-}
-int16_t SW_BtnCounter::getXOffs() const
-{
-	switch(align)
-	{
-		case sstaCENTER:
-			return -getW()/2;
-		case sstaRIGHT:
-			return -getW();
-	}
-	return 0;
 }
 byte SW_BtnCounter::getType() const
 {
@@ -2500,6 +2486,17 @@ bool SW_MMapTitle::load_old(subscreen_object const& old)
 	c_bg.load_old(old,3);
 	return true;
 }
+int16_t SW_MMapTitle::getX() const
+{
+	switch(align)
+	{
+		case sstaCENTER:
+			return x-getW()/2;
+		case sstaRIGHT:
+			return x-getW();
+	}
+	return x;
+}
 word SW_MMapTitle::getW() const
 {
 	word ret = (flags&SUBSCR_MMAPTIT_ONELINE)?100:50;
@@ -2520,17 +2517,6 @@ word SW_MMapTitle::getW() const
 word SW_MMapTitle::getH() const
 {
 	return ((flags&SUBSCR_MMAPTIT_ONELINE)?1:2)*text_height(get_zc_font(fontid));
-}
-int16_t SW_MMapTitle::getXOffs() const
-{
-	switch(align)
-	{
-		case sstaCENTER:
-			return -getW()/2;
-		case sstaRIGHT:
-			return -getW();
-	}
-	return 0;
 }
 byte SW_MMapTitle::getType() const
 {
@@ -2867,7 +2853,7 @@ byte SW_LMap::getType() const
 }
 void SW_LMap::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
-	putBmap(dest, getX()+xofs, getY()+yofs, flags&SUBSCR_LMAP_SHOWMAP,
+	putBmap(dest, x+xofs, y+yofs, flags&SUBSCR_LMAP_SHOWMAP,
 		flags&SUBSCR_LMAP_SHOWROOM, flags&SUBSCR_LMAP_SHOWPLR, c_room.get_color(),
 		c_plr.get_color(), flags&SUBSCR_LMAP_LARGE);
 }
@@ -3449,7 +3435,7 @@ byte SW_TriFrame::getType() const
 }
 void SW_TriFrame::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
-	puttriframe(dest, getX()+xofs,getY()+yofs, c_outline.get_color(), c_number.get_color(),
+	puttriframe(dest, x+xofs,y+yofs, c_outline.get_color(), c_number.get_color(),
 		frame_tile, frame_cset, piece_tile, piece_cset, flags&SUBSCR_TRIFR_SHOWFR,
 		flags&SUBSCR_TRIFR_SHOWPC, flags&SUBSCR_TRIFR_LGPC);
 }
@@ -3540,7 +3526,7 @@ byte SW_McGuffin::getType() const
 }
 void SW_McGuffin::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
-	puttriforce(dest,getX()+xofs,getY()+yofs,tile,cs.get_cset(),w,h,
+	puttriforce(dest,x+xofs,y+yofs,tile,cs.get_cset(),w,h,
 		flip,flags&SUBSCR_MCGUF_OVERLAY,flags&SUBSCR_MCGUF_TRANSP,number);
 }
 SubscrWidget* SW_McGuffin::clone() const
@@ -3619,7 +3605,7 @@ byte SW_TileBlock::getType() const
 }
 void SW_TileBlock::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
-	draw_block_flip(dest,getX()+xofs,getY()+yofs,tile,cs.get_cset(),
+	draw_block_flip(dest,x+xofs,y+yofs,tile,cs.get_cset(),
 		w,h,flip,flags&SUBSCR_TILEBL_OVERLAY,flags&SUBSCR_TILEBL_TRANSP);
 }
 SubscrWidget* SW_TileBlock::clone() const
@@ -3744,7 +3730,7 @@ void SW_MiniTile::set_int_tile(int32_t val)
 void SW_MiniTile::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
 	auto t = (get_tile()<<2)+crn;
-	auto tx = getX()+xofs, ty = getY()+yofs;
+	auto tx = x+xofs, ty = y+yofs;
 	byte cset = cs.get_cset();
 	if(flags&SUBSCR_MINITL_OVERLAY)
 	{
@@ -3906,15 +3892,15 @@ void SW_Selector::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& pag
 		{
 			dw = ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_WIDTH) ? tmpitm.hxsz : 16);
 			dh = ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_HEIGHT) ? tmpitm.hysz : 16);
-			dxofs = widg->getX()+((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_X_OFFSET) ? tmpitm.hxofs : 0) + (tempsel.extend > 2 ? (int)tempsel.xofs : 0);
-			dyofs = widg->getY()+((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_Y_OFFSET) ? tmpitm.hyofs : 0) + (tempsel.extend > 2 ? (int)tempsel.yofs : 0);
+			dxofs = widg->x+((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_X_OFFSET) ? tmpitm.hxofs : 0) + (tempsel.extend > 2 ? (int)tempsel.xofs : 0);
+			dyofs = widg->y+((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_Y_OFFSET) ? tmpitm.hyofs : 0) + (tempsel.extend > 2 ? (int)tempsel.yofs : 0);
 		}
 		else
 		{
 			dw = widg->getW();
 			dh = widg->getH();
-			dxofs = widg->getX()+widg->getXOffs();
-			dyofs = widg->getY()+widg->getYOffs();
+			dxofs = widg->getX();
+			dyofs = widg->getY();
 		}
 		dw += parentsub->selector_setting.w;
 		dh += parentsub->selector_setting.h;
@@ -3947,8 +3933,8 @@ void SW_Selector::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& pag
 			syofs = 0;
 			dw = (tempsel.extend > 2 ? tempsel.txsz*16 : 16);
 			dh = (tempsel.extend > 2 ? tempsel.tysz*16 : 16);
-			dxofs = widg->getX()+(tempsel.extend > 2 ? (int)tempsel.xofs : 0);
-			dyofs = widg->getY()+(tempsel.extend > 2 ? (int)tempsel.yofs : 0);
+			dxofs = widg->x+(tempsel.extend > 2 ? (int)tempsel.xofs : 0);
+			dyofs = widg->y+(tempsel.extend > 2 ? (int)tempsel.yofs : 0);
 			if(replay_version_check(0,19) && tempsel.extend > 2)
 				sh = dh = tempsel.txsz*16;
 		}
@@ -3962,15 +3948,15 @@ void SW_Selector::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& pag
 			{
 				dw = ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_WIDTH) ? tmpitm.hxsz : 16);
 				dh = ((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_HEIGHT) ? tmpitm.hysz : 16);
-				dxofs = widg->getX()+((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_X_OFFSET) ? tmpitm.hxofs : 0) + (tempsel.extend > 2 ? (int)tempsel.xofs : 0);
-				dyofs = widg->getY()+((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_Y_OFFSET) ? tmpitm.hyofs : 0) + (tempsel.extend > 2 ? (int)tempsel.yofs : 0);
+				dxofs = widg->x+((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_X_OFFSET) ? tmpitm.hxofs : 0) + (tempsel.extend > 2 ? (int)tempsel.xofs : 0);
+				dyofs = widg->y+((tmpitm.overrideFLAGS & itemdataOVERRIDE_HIT_Y_OFFSET) ? tmpitm.hyofs : 0) + (tempsel.extend > 2 ? (int)tempsel.yofs : 0);
 			}
 			else
 			{
 				dw = widg->getW();
 				dh = widg->getH();
-				dxofs = widg->getX()+widg->getXOffs();
-				dyofs = widg->getY()+widg->getYOffs();
+				dxofs = widg->getX();
+				dyofs = widg->getY();
 			}
 		}
 	}
@@ -4644,7 +4630,7 @@ byte SW_TextBox::getType() const
 void SW_TextBox::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
 	FONT* tempfont = get_zc_font(fontid);
-	draw_textbox(dest, getX()+xofs, getY()+yofs, getW(), getH(), tempfont, text.c_str(),
+	draw_textbox(dest, x+xofs, y+yofs, w, h, tempfont, text.c_str(),
 		flags&SUBSCR_TEXTBOX_WORDWRAP, tabsize, align, shadtype,
 		c_text.get_color(),c_shadow.get_color(),c_bg.get_color());
 }
@@ -4775,7 +4761,7 @@ void SW_SelectedText::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage&
 		}
 	}
 	if(str.size())
-		draw_textbox(dest, getX()+xofs, getY()+yofs, getW(), getH(), tempfont,
+		draw_textbox(dest, x+xofs, y+yofs, w, h, tempfont,
 			str.c_str(), flags&SUBSCR_SELTEXT_WORDWRAP, tabsize, align, shadtype,
 			c_text.get_color(),c_shadow.get_color(),c_bg.get_color());
 }
@@ -5348,6 +5334,29 @@ int32_t SubscrPage::get_pos_of_item(int32_t id)
 	{
 		if(id == widg->getItemVal())
 			return widg->pos;
+	}
+	return -1;
+}
+int32_t SubscrPage::find_label_index(std::string const& lbl) const
+{
+	if(lbl.empty()) return -1;
+	int32_t indx = 0;
+	for(SubscrWidget* widg : contents)
+	{
+		if(!lbl.compare(widg->label))
+			return indx;
+		++indx;
+	}
+	return -1;
+}
+int32_t SubscrPage::widget_index(SubscrWidget* widg) const
+{
+	int32_t indx = 0;
+	for(SubscrWidget* w : contents)
+	{
+		if(w == widg)
+			return indx;
+		++indx;
 	}
 	return -1;
 }
