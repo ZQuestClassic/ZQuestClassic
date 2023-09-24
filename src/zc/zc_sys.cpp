@@ -7257,7 +7257,7 @@ int32_t onHeartC()
 int32_t onMagicC()
 {
 	int max_magic = vbound(getnumber("Magic Containers",game->get_maxmagic()/game->get_mp_per_block()),0,2047) * game->get_mp_per_block();
-	int magic = vbound(getnumber("Magic",game->get_magic()/game->get_mp_per_block()),0,game->get_maxmagic()/game->get_mp_per_block())*game->get_mp_per_block();
+	int magic = vbound(getnumber("Magic",game->get_magic()/game->get_mp_per_block()),0,max_magic/game->get_mp_per_block())*game->get_mp_per_block();
 	cheats_enqueue(Cheat::MaxMagic, max_magic);
 	cheats_enqueue(Cheat::Magic, magic);
 	return D_O_K;
