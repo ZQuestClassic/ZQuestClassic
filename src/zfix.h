@@ -10,6 +10,7 @@
 #include <limits>
 #include <assert.h>
 #include <cstring>
+#include <cstdlib>
 
 #define FIX_NAN 0
 //std::numeric_limits<t>::quiet_NaN()
