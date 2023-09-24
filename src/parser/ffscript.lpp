@@ -115,6 +115,7 @@ delete			TOKEN( DELETE );
 CONST_ASSERT	TOKEN( CASSERT );
 
  /* Types */
+auto		TOKEN( ZAUTO );
 void		TOKEN( ZVOID );
 untyped		TOKEN( UNTYPED );
 bool		TOKEN( ZBOOL );

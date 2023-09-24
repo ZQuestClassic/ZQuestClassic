@@ -137,6 +137,7 @@ void trunc_str(std::string& str, size_t sz, std::string const& header, int32_t r
 %token CASSERT
 
  // Types
+%token ZAUTO
 %token ZVOID
 %token UNTYPED
 %token ZBOOL
@@ -554,6 +555,7 @@ DataType : ZCONST DataType {
 		$$ = dtype;
 	}
 	//Standard types
+	| ZAUTO {$$ = new ASTDataType(DataType::ZAUTO, @$);}
 	| ZVOID {$$ = new ASTDataType(DataType::ZVOID, @$);}
 	| UNTYPED {$$ = new ASTDataType(DataType::UNTYPED, @$);}
 	| ZBOOL {$$ = new ASTDataType(DataType::BOOL, @$);}

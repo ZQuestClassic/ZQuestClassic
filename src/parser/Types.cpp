@@ -127,6 +127,7 @@ bool TypeStore::TypeIdMapComparator::operator()(
 ////////////////////////////////////////////////////////////////
 
 // Standard Type definitions.
+DataTypeSimpleConst DataType::CAUTO(ZTID_AUTO, "const auto");
 DataTypeSimpleConst DataType::CUNTYPED(ZTID_UNTYPED, "const untyped");
 DataTypeSimpleConst DataType::CFLOAT(ZTID_FLOAT, "const int");
 DataTypeSimpleConst DataType::CCHAR(ZTID_CHAR, "const char32");
@@ -134,6 +135,7 @@ DataTypeSimpleConst DataType::CLONG(ZTID_LONG, "const long");
 DataTypeSimpleConst DataType::CBOOL(ZTID_BOOL, "const bool");
 DataTypeSimpleConst DataType::CRGBDATA(ZTID_RGBDATA, "const rgb");
 DataTypeSimple DataType::UNTYPED(ZTID_UNTYPED, "untyped", &CUNTYPED);
+DataTypeSimple DataType::ZAUTO(ZTID_AUTO, "auto", &CAUTO);
 DataTypeSimple DataType::ZVOID(ZTID_VOID, "void", NULL);
 DataTypeSimple DataType::FLOAT(ZTID_FLOAT, "int", &CFLOAT);
 DataTypeSimple DataType::CHAR(ZTID_CHAR, "char32", &CCHAR);
@@ -248,6 +250,7 @@ DataType const* DataType::get(DataTypeId id)
 	switch (id)
 	{
 		case ZTID_UNTYPED: return &UNTYPED;
+		case ZTID_AUTO: return &ZAUTO;
 		case ZTID_VOID: return &ZVOID;
 		case ZTID_FLOAT: return &FLOAT;
 		case ZTID_CHAR: return &CHAR;
@@ -471,7 +474,7 @@ DataType* DataTypeUnresolved::resolve(Scope& scope, CompileErrorHandler* errorHa
 		return type->clone();
 	return this;
 }
-DataType const* DataTypeUnresolved::baseType(Scope& scope, CompileErrorHandler* errorHandler)
+DataType const* DataTypeUnresolved::baseType(Scope& scope, CompileErrorHandler* errorHandler) const
 {
 	if (DataType const* type = lookupDataType(scope, *iden, errorHandler))
 		return type;
@@ -536,7 +539,7 @@ bool DataTypeSimple::canBeGlobal() const
 	return true; //All types can be global, now. 
 	//return simpleId == ZTID_FLOAT || simpleId == ZTID_BOOL;
 }
-DataType const* DataTypeSimple::baseType(Scope& scope, CompileErrorHandler* errorHandler)
+DataType const* DataTypeSimple::baseType(Scope& scope, CompileErrorHandler* errorHandler) const
 {
 	return DataType::get(simpleId);
 }
@@ -547,7 +550,7 @@ DataType const* DataTypeSimple::baseType(Scope& scope, CompileErrorHandler* erro
 DataTypeSimpleConst::DataTypeSimpleConst(int32_t simpleId, string const& name)
 	: DataTypeSimple(simpleId, name, NULL)
 {}
-DataType const* DataTypeSimpleConst::baseType(Scope& scope, CompileErrorHandler* errorHandler)
+DataType const* DataTypeSimpleConst::baseType(Scope& scope, CompileErrorHandler* errorHandler) const
 {
 	auto* ty = DataType::get(simpleId);
 	return ty ? ty->getConstType() : nullptr;
@@ -572,7 +575,7 @@ DataType* DataTypeClass::resolve(Scope& scope, CompileErrorHandler* errorHandler
 
 	return this;
 }
-DataType const* DataTypeClass::baseType(Scope& scope, CompileErrorHandler* errorHandler)
+DataType const* DataTypeClass::baseType(Scope& scope, CompileErrorHandler* errorHandler) const
 {
 	return DataType::getClass(classId);
 }
@@ -615,7 +618,7 @@ int32_t DataTypeClass::selfCompare(DataType const& rhs) const
 DataTypeClassConst::DataTypeClassConst(int32_t classId, string const& name)
 	: DataTypeClass(classId, name, NULL)
 {}
-DataType const* DataTypeClassConst::baseType(Scope& scope, CompileErrorHandler* errorHandler)
+DataType const* DataTypeClassConst::baseType(Scope& scope, CompileErrorHandler* errorHandler) const
 {
 	auto* ty = DataType::getClass(classId);
 	return ty ? ty->getConstType() : nullptr;
@@ -649,7 +652,7 @@ DataType const& ZScript::getBaseType(DataType const& type)
 		current = &t->getElementType();
 	return *current;
 }
-DataType const* DataTypeArray::baseType(Scope& scope, CompileErrorHandler* errorHandler)
+DataType const* DataTypeArray::baseType(Scope& scope, CompileErrorHandler* errorHandler) const
 {
 	auto& ty = getBaseType(elementType);
 	return &ty;
@@ -698,12 +701,12 @@ int32_t DataTypeCustom::selfCompare(DataType const& other) const
 	return id - o.id;
 }
 
-DataType const* DataTypeCustom::baseType(Scope& scope, CompileErrorHandler* errorHandler)
+DataType const* DataTypeCustom::baseType(Scope& scope, CompileErrorHandler* errorHandler) const
 {
 	return DataType::getCustom(id);
 }
 
-DataType const* DataTypeCustomConst::baseType(Scope& scope, CompileErrorHandler* errorHandler)
+DataType const* DataTypeCustomConst::baseType(Scope& scope, CompileErrorHandler* errorHandler) const
 {
 	auto* ty = DataType::getCustom(id);
 	return ty ? ty->getConstType() : nullptr;

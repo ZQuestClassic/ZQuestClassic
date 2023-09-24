@@ -1344,8 +1344,21 @@ cases where you are not using the base function in an assign.
 	In this example, if the GetClosestNPC() function finds an enemy (i.e. does not return NULL), then
 		the 'then' block will run, doing something with the enemy's position.
 	If no enemy is found (the function returned NULL), then the else block will run instead.
-	
-	
+
+///////////////////////
+// Auto Declarations //
+///////////////////////
+
+By declaring a single variable using the type 'auto', it will inherit its
+	type from its initializer.
+
+Example:
+	auto x = 5; //x is int
+	auto n = Screen->LoadNPC(1); //n is npc
+	auto l = Screen->CreateLWeapon(LW_FIRE); //l is lweapon
+	//auto a = 1, b = 2; //ERROR: cannot use 'auto' to declare multiple variables at once
+	//auto c; //ERROR: must use an initializer when using 'auto'
+
 ////////////
 // Repeat //
 ////////////

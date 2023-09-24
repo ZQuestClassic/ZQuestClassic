@@ -80,6 +80,7 @@ namespace ZScript
 		ZTID_PRIMITIVE_START = 0,
 		ZTID_UNTYPED = 0,
 		ZTID_VOID,
+		ZTID_AUTO,
 		ZTID_FLOAT,
 		ZTID_CHAR,
 		ZTID_BOOL,
@@ -402,12 +403,13 @@ namespace ZScript
 		// Resolution.
 		virtual bool isResolved() const {return true;}
 		virtual DataType* resolve(ZScript::Scope& scope, CompileErrorHandler* errorHandler) {return this;}
-		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler) = 0;
+		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler) const = 0;
 		// Basics
 		virtual std::string getName() const = 0;
 		virtual bool canCastTo(DataType const& target) const = 0;
 		virtual bool canBeGlobal() const {return true;}
-		virtual DataType* getConstType() const {return constType;}
+		virtual DataType const* getConstType() const {return constType;}
+		virtual DataType const* getMutType() const {return this;}
 
 		// Derived class info.
 		virtual bool isArray() const {return false;}
@@ -415,6 +417,7 @@ namespace ZScript
 		virtual bool isConstant() const {return false;}
 		virtual bool isUntyped() const {return false;}
 		virtual bool isVoid() const {return false;}
+		virtual bool isAuto() const {return false;}
 		virtual bool isCustom() const {return false;}
 		virtual bool isUsrClass() const {return false;}
 		virtual bool isLong() const {return false;}
@@ -444,6 +447,7 @@ namespace ZScript
 		DataType* constType;
 		// Standard Types.
 	public:
+		static DataTypeSimpleConst CAUTO;
 		static DataTypeSimpleConst CUNTYPED;
 		static DataTypeSimpleConst CFLOAT;
 		static DataTypeSimpleConst CCHAR;
@@ -451,6 +455,7 @@ namespace ZScript
 		static DataTypeSimpleConst CBOOL;
 		static DataTypeSimpleConst CRGBDATA;
 		static DataTypeSimple UNTYPED;
+		static DataTypeSimple ZAUTO;
 		static DataTypeSimple ZVOID;
 		static DataTypeSimple FLOAT;
 		static DataTypeSimple CHAR;
@@ -571,7 +576,7 @@ namespace ZScript
 		
 		virtual bool isResolved() const {return false;}
 		virtual DataType* resolve(ZScript::Scope& scope, CompileErrorHandler* errorHandler);
-		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler);
+		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler) const;
 		
 		virtual std::string getName() const;
 		ASTExprIdentifier const* getIdentifier() const {return iden;}
@@ -596,11 +601,12 @@ namespace ZScript
 		virtual bool isConstant() const {return false;}
 		virtual bool isUntyped() const {return simpleId == ZTID_UNTYPED;}
 		virtual bool isVoid() const {return simpleId == ZTID_VOID;}
+		virtual bool isAuto() const {return simpleId == ZTID_AUTO;}
 		virtual bool isLong() const {return simpleId == ZTID_LONG;}
 
 		int32_t getId() const {return simpleId;}
 		
-		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler);
+		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler) const;
 
 	protected:
 		int32_t simpleId;
@@ -615,9 +621,11 @@ namespace ZScript
 		DataTypeSimpleConst(int32_t simpleId, std::string const& name);
 		DataTypeSimpleConst* clone() const {return new DataTypeSimpleConst(*this);}
 		
-		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler);
+		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler) const;
 		
 		virtual bool isConstant() const {return true;}
+		virtual DataType const* getConstType() const {return this;}
+		virtual DataType const* getMutType() const {return get(getId());}
 	};
 
 	class DataTypeClass : public DataType
@@ -628,7 +636,7 @@ namespace ZScript
 		DataTypeClass* clone() const {return new DataTypeClass(*this);}
 
 		virtual DataType* resolve(ZScript::Scope& scope, CompileErrorHandler* errorHandler);
-		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler);
+		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler) const;
 
 		virtual std::string getName() const;
 		virtual bool canCastTo(DataType const& target) const;
@@ -652,9 +660,11 @@ namespace ZScript
 		DataTypeClassConst(int32_t classId, std::string const& name);
 		DataTypeClassConst* clone() const {return new DataTypeClassConst(*this);}
 		
-		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler);
+		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler) const;
 		
 		virtual bool isConstant() const {return true;}
+		virtual DataType const* getConstType() const {return this;}
+		virtual DataType const* getMutType() const {return getClass(getClassId());}
 	};
 
 	class DataTypeArray : public DataType
@@ -673,7 +683,7 @@ namespace ZScript
 		virtual UserClass* getUsrClass() const {return elementType.getUsrClass();}
 
 		DataType const& getElementType() const {return elementType;}
-		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler);
+		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler) const;
 
 	private:
 		DataType const& elementType;
@@ -697,7 +707,7 @@ namespace ZScript
 		virtual std::string getName() const {return name;}
 		virtual bool canCastTo(DataType const& target) const;
 		int32_t getCustomId() const {return id;}
-		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler);
+		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler) const;
 		
 	protected:
 		int32_t id;
@@ -715,9 +725,11 @@ namespace ZScript
 		{}
 		DataTypeCustomConst* clone() const {return new DataTypeCustomConst(*this);}
 		
-		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler);
+		virtual DataType const* baseType(ZScript::Scope& scope, CompileErrorHandler* errorHandler) const;
 		
 		virtual bool isConstant() const {return true;}
+		virtual DataType const* getConstType() const {return this;}
+		virtual DataType const* getMutType() const {return getCustom(getCustomId());}
 	};
 
 	DataType const& getBaseType(DataType const&);
