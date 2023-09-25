@@ -48647,9 +48647,9 @@ void FFScript::do_sprintf(const bool v, const bool varg)
 		ArrayH::getString(format_arrayptr, formatstr, MAX_ZC_ARRAY_SIZE);
 		
 		string output = zs_sprintf(formatstr.c_str(), num_args, varg ? zspr_varg_getter : zspr_stack_getter);
-		if(ArrayH::setArray(dest_arrayptr, output) == SH::_Overflow)
+		if(ArrayH::setArray(dest_arrayptr, output, true) == SH::_Overflow)
 		{
-			Z_scripterrlog("Dest string supplied to 'sprintf()' not large enough\n");
+			Z_scripterrlog("Dest string supplied to 'sprintf()' not large enough and cannot be resized\n");
 			ri->d[rEXP1] = ArrayH::strlen(dest_arrayptr);
 		}
 		else ri->d[rEXP1] = output.size();
@@ -48698,9 +48698,9 @@ void FFScript::do_sprintfarr()
 				return arg_am.get(next_arg);
 			});
 		
-		if(ArrayH::setArray(dest_arrayptr, output) == SH::_Overflow)
+		if(ArrayH::setArray(dest_arrayptr, output, true) == SH::_Overflow)
 		{
-			Z_scripterrlog("Dest string supplied to 'sprintfa()' not large enough\n");
+			Z_scripterrlog("Dest string supplied to 'sprintfa()' not large enough and cannot be resized\n");
 			ri->d[rEXP1] = ArrayH::strlen(dest_arrayptr);
 		}
 		else ri->d[rEXP1] = output.size();

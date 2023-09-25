@@ -3201,8 +3201,8 @@ void sprintf(char32[] buf, char32[] format, ...untyped...);
  *             For 'b' and 'B', the max is 32 (ex. "%032B").
  *           Ex. "%02d" given the argument '1' will print '01'.
  *               "%02d" given the argument '11' will print '11'.
- * The resulting string will be placed in the buffer, which is expected to be large enough
- *     to hold the output.
+ * The resulting string will be placed in the buffer, which will be resized if it is
+ *     too small to hold the output.
 
 void printf(char32 format[], ...untyped...);
  * Takes a format string, and 0+ untyped arguments.

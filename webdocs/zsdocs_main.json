@@ -1311,7 +1311,7 @@
                         },
                         {
                             "name": "sprintf ;; sprintf / sprintfa",
-                            "val": "<h3>void sprintf(char32[] dest, char32[] format_string, [[...untyped args|Takes 0+ untyped args]]);</h3>\n<h3>void sprintfa(char32[] dest, char32[] format_string, [[untyped[] args|Takes an array of untyped args]]);</h3>\n\nActs exactly as ${printf}, except instead of printing the result to the ${Output Console|output console}, it is instead placed in the 'dest' buffer."
+                            "val": "<h3>void sprintf(char32[] dest, char32[] format_string, [[...untyped args|Takes 0+ untyped args]]);</h3>\n<h3>void sprintfa(char32[] dest, char32[] format_string, [[untyped[] args|Takes an array of untyped args]]);</h3>\n\nActs exactly as ${printf}, except instead of printing the result to the ${Output Console|output console}, it is instead placed in the 'dest' buffer. If the 'dest' buffer is too small, it will be resized to fit the contents."
                         },
                         {
                             "name": "strcat",
