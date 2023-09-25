@@ -182,4 +182,10 @@ extern int16_t ffposy[MAXFFCS];
 extern int32_t ffprvx[MAXFFCS];
 extern int32_t ffprvy[MAXFFCS];
 void init_ffpos();
+
+
+//
+bool is_push_flag(int32_t flag);
+bool is_push_flag_dir(int flag, int dir);
+bool is_push(mapscr* m, int32_t pos);
 #endif

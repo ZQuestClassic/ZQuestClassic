@@ -20052,7 +20052,6 @@ void HeroClass::checkpushblock()
 			(limitedpush && usecounts[itemid] > zc_max(1, glove->misc3)))) continue;
 		
 		bool doit=false;
-		bool changeflag=false;
 		bool changecombo=false;
 		
 		int blockdir = dir;
@@ -20097,15 +20096,8 @@ void HeroClass::checkpushblock()
 		}
 		else
 		{
-			if(((f==mfPUSHUD || f==mfPUSHUDNS|| f==mfPUSHUDINS) && dir<=down) ||
-					((f==mfPUSHLR || f==mfPUSHLRNS|| f==mfPUSHLRINS) && dir>=left) ||
-					((f==mfPUSHU || f==mfPUSHUNS || f==mfPUSHUINS) && dir==up) ||
-					((f==mfPUSHD || f==mfPUSHDNS || f==mfPUSHDINS) && dir==down) ||
-					((f==mfPUSHL || f==mfPUSHLNS || f==mfPUSHLINS) && dir==left) ||
-					((f==mfPUSHR || f==mfPUSHRNS || f==mfPUSHRINS) && dir==right) ||
-					f==mfPUSH4 || f==mfPUSH4NS || f==mfPUSH4INS)
+			if(is_push_flag_dir(f,dir))
 			{
-				changeflag=true;
 				doit=true;
 			}
 			
@@ -20179,34 +20171,31 @@ void HeroClass::checkpushblock()
 			//   for(int32_t i=0; i<1; i++)
 			if(!mblock2.active())
 			{
-				if(changeflag)
+				if(is_push_flag_dir(f,dir))
 				{
 					m->sflag[combopos]=0;
 				}
 				
-				if(mblock2.clk<=0)
+				mblock2.blockLayer = lyr;
+				
+				if(t == cPUSHBLOCK)
 				{
-					mblock2.blockLayer = lyr;
+					zfix blockstep = 0.5;
+					if(cmb.attrishorts[0] > 0)
+						blockstep = zslongToFix(cmb.attrishorts[0]*100);
+					mblock2.push_new(zfix(bx),zfix(by),blockdir,f,blockstep);
+					mblock2.blockinfo = cpinfo;
+					mblock2.blockinfo.push(blockdir, cmb.usrflags&cflag8);
+					cpinfo.clear();
+					if(cmb.attribytes[1])
+						sfx(cmb.attribytes[1],(int32_t)x);
+				}
+				else
+				{
+					mblock2.push((zfix)bx,(zfix)by,blockdir,f);
 					
-					if(t == cPUSHBLOCK)
-					{
-						zfix blockstep = 0.5;
-						if(cmb.attrishorts[0] > 0)
-							blockstep = zslongToFix(cmb.attrishorts[0]*100);
-						mblock2.push_new(zfix(bx),zfix(by),blockdir,f,blockstep);
-						mblock2.blockinfo = cpinfo;
-						mblock2.blockinfo.push(blockdir, cmb.usrflags&cflag8);
-						cpinfo.clear();
-						if(cmb.attribytes[1])
-							sfx(cmb.attribytes[1],(int32_t)x);
-					}
-					else
-					{
-						mblock2.push((zfix)bx,(zfix)by,blockdir,f);
-						
-						if(get_qr(qr_MORESOUNDS))
-							sfx(WAV_ZN1PUSHBLOCK,(int32_t)x);
-					}
+					if(get_qr(qr_MORESOUNDS))
+						sfx(WAV_ZN1PUSHBLOCK,(int32_t)x);
 				}
 			}
 			break;

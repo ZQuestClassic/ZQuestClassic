@@ -294,36 +294,6 @@ void movingblock::push_new(zfix bx,zfix by,int d2,int f,zfix spd)
 	solid_update(false);
 }
 
-bool is_push_flag(int32_t flag)
-{
-	switch(flag)
-	{
-		case mfPUSHUD: case mfPUSHUDNS: case mfPUSHUDINS:
-		case mfPUSHLR: case mfPUSHLRNS: case mfPUSHLRINS:
-		case mfPUSHU: case mfPUSHUNS: case mfPUSHUINS:
-		case mfPUSHD: case mfPUSHDNS: case mfPUSHDINS:
-		case mfPUSHL: case mfPUSHLNS: case mfPUSHLINS:
-		case mfPUSHR: case mfPUSHRNS: case mfPUSHRINS:
-		case mfPUSH4: case mfPUSH4NS: case mfPUSH4INS:
-			return true;
-	}
-	return false;
-}
-
-bool is_push(mapscr* m, int32_t pos)
-{
-	if(is_push_flag(m->sflag[pos]))
-		return true;
-	newcombo const& cmb = combobuf[m->data[pos]];
-	if(is_push_flag(cmb.flag))
-		return true;
-	if(cmb.type == cPUSHBLOCK)
-		return true;
-	if(cmb.type == cSWITCHHOOK && (cmb.usrflags&cflag7))
-		return true; //Counts as 'pushblock' flag
-	return false;
-}
-
 bool movingblock::check_hole() const
 {
 	mapscr* m = FFCore.tempScreens[blockLayer];
