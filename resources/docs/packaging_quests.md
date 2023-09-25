@@ -39,5 +39,9 @@ folder at the end, which allows you to overwrite whatever you want.
 
 ## Icons
 
-If a PNG is present at `My Game_extra/icon.png`, it will be used as the icon for the exe.
+If a PNG is present at `My Game_extra/assets/icon.png`, it will be used as the icon for the exe.
 Only PNG is supported, and it must be 32bpp ARGB.
+
+## Logo
+
+If a PNG is present at `My Game_extra/assets/logo.png`, it will be used in place of the ZQuest Classic logo on the save select screen.

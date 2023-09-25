@@ -124,8 +124,18 @@ static void selectscreen()
 	textout_ex(scrollbuf,get_zc_font(font_zfont)," NAME ",80,48,1,0);
 	textout_ex(scrollbuf,get_zc_font(font_zfont)," LIFE ",152,48,1,0);
 
+	static std::string logo_path;
+	if (logo_path.empty())
+	{
+		if (exists("assets/logo.png"))
+			logo_path = "assets/logo.png";
+		else
+			logo_path = "assets/zc/ZC_Logo.png";
+	}
+
 	static RenderTreeItem rti_logo("logo");
-	static ALLEGRO_BITMAP* logo_bitmap = al_load_bitmap("assets/zc/ZC_Logo.png");
+	static ALLEGRO_BITMAP* logo_bitmap = al_load_bitmap(logo_path.c_str());
+
 	if (logo_bitmap)
 	{
 		static float aspect_ratio = (float)al_get_bitmap_width(logo_bitmap) / al_get_bitmap_height(logo_bitmap);
