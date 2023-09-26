@@ -928,7 +928,7 @@ namespace util
 #ifdef ALLEGRO_LINUX
 		// In flatpak, we cannot use /var or /var/tmp because both are on a different drive than
 		// where this temp file will be moved to. Instead, make a file in our own folder `.tmp`
-		if (std::string(std::getenv("container")) == "flatpak")
+		if (std::getenv("container") && std::string(std::getenv("container")) == "flatpak")
 		{
 			fs::create_directories(".tmp");
 			int iterations = 0;
