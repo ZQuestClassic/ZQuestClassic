@@ -1,4 +1,5 @@
 #include "base/util.h"
+#include <cstdlib>
 #include <fstream>
 #include <sstream>
 #include <iomanip>
@@ -8,6 +9,7 @@
 #include <regex>
 
 using namespace std;
+namespace fs = std::filesystem;
 
 #define PATH_MODE		0755
 
@@ -920,9 +922,27 @@ namespace util
 		return new_path;
 	}
 
+	// Creates a temporary file path that may be moved by the caller.
 	std::string create_temp_file_path()
 	{
+#ifdef ALLEGRO_LINUX
+		// In flatpak, we cannot use /var or /var/tmp because both are on a different drive than
+		// where this temp file will be moved to. Instead, make a file in our own folder `.tmp`
+		if (std::string(std::getenv("container")) == "flatpak")
+		{
+			fs::create_directories(".tmp");
+			int iterations = 0;
+			while (iterations < 100)
+			{
+				std::string f = fmt::format(".tmp/tmp-file-{}", rand());
+				if (!fs::exists(f)) return f;
+				iterations += 1;
+			}
+		}
+#endif
+
 		std::string result = std::tmpnam(nullptr);
+
 		// On Linux, /tmp can be a tmpfs, which means we cannot move a file from that to a different mount which would be the actual physical drive.
 		// We save to a temp file then move to the real place for .qst and .sav files, so we need the move to be possible.
 		// /var/tmp is meant to persist, so it is never a tmpfs, so use that instead.
