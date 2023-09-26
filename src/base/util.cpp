@@ -919,6 +919,17 @@ namespace util
 		} while (std::filesystem::exists(new_path));
 		return new_path;
 	}
+
+	std::string create_temp_file_path()
+	{
+		std::string result = std::tmpnam(nullptr);
+		// On Linux, /tmp can be a tmpfs, which means we cannot move a file from that to a different mount which would be the actual physical drive.
+		// We save to a temp file then move to the real place for .qst and .sav files, so we need the move to be possible.
+		// /var/tmp is meant to persist, so it is never a tmpfs, so use that instead.
+		if (result.starts_with("/tmp/"))
+			result = "/var" + result;
+		return result;
+	}
 }
 
 using namespace util;

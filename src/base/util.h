@@ -60,6 +60,7 @@ namespace util
 	void unstringify_vector(std::vector<int32_t>& vec, char const* str, bool dec);
 	size_t vecstr_size(char const* str);
 	std::filesystem::path create_new_file_path(std::filesystem::path dir, std::string filename_prefix, std::string ext, bool force_suffix = false);
+	std::string create_temp_file_path();
 
 	template <typename T, std::size_t R, std::size_t C>
 	inline void copy_2d_array(T source[R][C] , T dest[R][C])

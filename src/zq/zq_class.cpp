@@ -14083,9 +14083,8 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_eol();
 	box_eol();
 	
-	char tmpfilename[L_tmpnam];
-	std::tmpnam(tmpfilename);
-	PACKFILE *f = pack_fopen_password(tmpfilename,compressed?F_WRITE_PACKED:F_WRITE, "");
+	std::string tmp_filename = util::create_temp_file_path();
+	PACKFILE *f = pack_fopen_password(tmp_filename.c_str(),compressed?F_WRITE_PACKED:F_WRITE, "");
 	
 	if(!f)
 	{
@@ -14458,7 +14457,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 
 	// Move file to destination at end, to avoid issues with file being unavailable to test mode.
 	std::error_code ec;
-	fs::rename(tmpfilename, filename, ec);
+	fs::rename(tmp_filename, filename, ec);
 	if (ec)
 		new_return(ec.value());
 
