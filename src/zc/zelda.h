@@ -10,7 +10,6 @@
 #include "base/zdefs.h"
 #include "base/zc_array.h"
 #include "zc/zc_sys.h"
-#include "zc/zeldadat.h"
 #include "sfx.h"
 #include "zcmusic.h"
 #include "zcmixer.h"
@@ -37,6 +36,15 @@ extern bool dev_logging;
 extern bool dev_debug;
 extern bool dev_timestmp;
 #endif
+
+#define ZC_MIDI_DUNGEON                  0
+#define ZC_MIDI_ENDING                   1
+#define ZC_MIDI_GAMEOVER                 2
+#define ZC_MIDI_LEVEL9                   3
+#define ZC_MIDI_OVERWORLD                4
+#define ZC_MIDI_TITLE                    5
+#define ZC_MIDI_TRIFORCE                 6
+#define ZC_MIDI_COUNT                    7
 
 #define  MAXMIDIS     ZC_MIDI_COUNT+MAXCUSTOMTUNES
 
@@ -260,10 +268,11 @@ extern BITMAP *lightbeam_bmp;
 extern bool lightbeam_present;
 #define NUM_ZCMOUSE 1
 extern BITMAP *zcmouse[NUM_ZCMOUSE];
-extern DATAFILE *datafile, *sfxdata, *fontsdata, *mididata;
+extern DATAFILE *sfxdata, *fontsdata, *mididata;
 extern size_t fontsdat_cnt;
 extern SAMPLE   wav_refill;
 extern PALETTE  RAMpal;
+extern PALETTE  pal_gui;
 extern byte     *colordata;
 //extern byte     *tilebuf;
 extern itemdata *itemsbuf;

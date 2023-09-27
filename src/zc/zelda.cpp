@@ -102,7 +102,6 @@ static zc_randgen drunk_rng;
 #include "zconsole.h"
 #include "base/win32.h"
 #include "single_instance.h"
-#include "zc/zeldadat.h"
 
 #define LOGGAMELOOP 0
 
@@ -319,9 +318,10 @@ BITMAP     *framebuf, *menu_bmp, *gui_bmp, *scrollbuf, *tmp_bmp, *tmp_scr, *scre
 		   *pricesdisplaybuf, *tb_page[3], *temp_buf, *prim_bmp,
 		   *script_menu_buf, *f6_menu_buf;
 BITMAP     *zcmouse[NUM_ZCMOUSE];
-DATAFILE   *datafile, *sfxdata, *fontsdata, *mididata;
+DATAFILE   *sfxdata, *fontsdata, *mididata;
 size_t fontsdat_cnt = 0;
 PALETTE    RAMpal;
+PALETTE    pal_gui;
 byte       *colordata, *trashbuf;
 //byte       *tilebuf;
 itemdata   *itemsbuf;
@@ -2118,9 +2118,13 @@ int32_t init_game()
 						//are properly set by the engine.
 	}
 	Hero.resetflags(true); //This should probably occur after running Hero's init script. 
-	
-	
-	copy_pal((RGB*)datafile[PAL_GUI].dat,RAMpal);
+
+	BITMAP* gui_pal_bitmap = load_bitmap("assets/gui_pal.bmp", pal_gui);
+	if (!gui_pal_bitmap)
+		Z_error_fatal("Missing required file %s\n", "assets/gui_pal.bmp");
+	copy_pal(pal_gui,RAMpal);
+	destroy_bitmap(gui_pal_bitmap);
+
 	loadfullpal();
 	ringcolor(false);
 	loadlvlpal(DMaps[currdmap].color);
@@ -4828,20 +4832,6 @@ int main(int argc, char **argv)
 	sprintf(sfxdat_sig,"SFX.Dat %s Build %d",VerStr(SFXDAT_VERSION), SFXDAT_BUILD);
 	sprintf(fontsdat_sig,"Fonts.Dat %s Build %d",VerStr(FONTSDAT_VERSION), FONTSDAT_BUILD);
 	
-	packfile_password(""); // Temporary measure. -L
-	Z_message("Zelda.Dat...");
-	
-	if((datafile=load_datafile("modules/classic/classic_zelda.dat"))==NULL) 
-	{
-		Z_error_fatal("failed to load zelda_dat");
-	}
-	
-	if(strncmp((char*)datafile[0].dat,zeldadat_sig,24))
-	{
-		Z_error_fatal("\nIncompatible version of zelda.dat.\nPlease upgrade to %s Build %d",VerStr(ZELDADAT_VERSION), ZELDADAT_BUILD);
-	}
-	
-	Z_message("OK\n");
 	packfile_password(datapwd); // Temporary measure. -L
 	
 	Z_message("Fonts.Dat...");
@@ -4878,9 +4868,7 @@ int main(int argc, char **argv)
 	}
 	
 	Z_message("OK\n");
-	
-	mididata = (DATAFILE*)datafile[ZC_MIDI].dat;
-	
+		
 	allocate_crap();
 	
 	//script drawing bitmap allocation
@@ -5721,9 +5709,7 @@ void quit_game()
 	
 	free(game);
 	game = NULL;
-	
-	if(datafile) unload_datafile(datafile);
-	
+		
 	if(fontsdata) unload_datafile(fontsdata);
 	
 	if(sfxdata) unload_datafile(sfxdata);

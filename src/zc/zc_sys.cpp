@@ -721,6 +721,11 @@ void recolor_mouse(BITMAP* bmp)
 }
 void load_mouse()
 {
+	PALETTE pal;
+	BITMAP* cursor_bitmap = load_bitmap("assets/cursor.bmp", pal);
+	if (!cursor_bitmap)
+		Z_error_fatal("Missing required file %s\n", "assets/cursor.bmp");
+
 	enter_sys_pal();
 	MouseSprite::set(-1);
 	float scale = vbound(zc_get_config("zeldadx","cursor_scale_large",1.5),1.0,5.0);
@@ -733,7 +738,7 @@ void load_mouse()
 		zcmouse[j] = create_bitmap_ex(8,sz,sz);
 		clear_bitmap(zcmouse[j]);
 		clear_bitmap(tmpbmp);
-		blit((BITMAP*)datafile[BMP_MOUSE].dat,tmpbmp,1,j*17+1,0,0,16,16);
+		blit(cursor_bitmap,tmpbmp,1,j*17+1,0,0,16,16);
 		recolor_mouse(tmpbmp);
 		if(sz!=16)
 			stretch_blit(tmpbmp, zcmouse[j], 0, 0, 16, 16, 0, 0, sz, sz);
@@ -757,6 +762,7 @@ void load_mouse()
 	else game_mouse();
 	
 	destroy_bitmap(blankmouse);
+	destroy_bitmap(cursor_bitmap);
 	exit_sys_pal();
 }
 
@@ -778,7 +784,7 @@ bool game_vid_mode(int32_t mode,int32_t wait)
 	load_mouse();
 	
 	for(int32_t i=240; i<256; i++)
-		RAMpal[i]=((RGB*)datafile[PAL_GUI].dat)[i];
+		RAMpal[i]=pal_gui[i];
 		
 	zc_set_palette(RAMpal);
 	clear_to_color(screen,BLACK);
@@ -6275,79 +6281,6 @@ int32_t onGoToComplete()
 
 int32_t onCredits()
 {
-	go();
-	
-	BITMAP *win = create_bitmap_ex(8,222,110);
-	
-	if(!win)
-		return D_O_K;
-		
-	int32_t c=0;
-	int32_t l=0;
-	int32_t ol=-1;
-	RLE_SPRITE *rle = (RLE_SPRITE*)(datafile[RLE_CREDITS].dat);
-	RGB *pal = (RGB*)(datafile[PAL_CREDITS].dat);
-	PALETTE tmppal;
-
-	rti_gui.transparency_index = 1;
-
-	clear_to_color(win, rti_gui.transparency_index);
-	draw_rle_sprite(win,rle,0,0);
-	credits_dlg[0].dp2=get_zc_font(font_lfont);
-	credits_dlg[1].fg = jwin_pal[jcDISABLED_FG];
-	credits_dlg[2].dp = win;
-
-	zc_set_palette_range(black_palette,0,127,false);
-	
-	DIALOG_PLAYER *p = init_dialog(credits_dlg,3);
-
-	BITMAP* old_screen = screen;
-	BITMAP* gui_bmp = zc_get_gui_bmp();
-	ASSERT(gui_bmp);
-	clear_to_color(gui_bmp, rti_gui.transparency_index);
-	screen = gui_bmp;
-	
-	while(update_dialog(p))
-	{
-		throttleFPS();
-		++c;
-		l = zc_max((c>>1)-30,0);
-		
-		if(l > rle->h)
-			l = c = 0;
-			
-		if(l > rle->h - 112)
-			l = rle->h - 112;
-			
-		clear_bitmap(win);
-		draw_rle_sprite(win,rle,0,0-l);
-		
-		if(c<=64)
-			fade_interpolate(black_palette,pal,tmppal,c,0,127);
-			
-		zc_set_palette_range(tmppal,0,127,false);
-		
-		if(l!=ol)
-		{
-			d_bitmap_proc(MSG_DRAW,credits_dlg+2,0);
-			SCRFIX();
-			ol=l;
-		}
-
-		update_hw_screen();
-	}
-
-	screen = old_screen;
-	system_pal(true);
-	sys_mouse();
-	
-	shutdown_dialog(p);
-	destroy_bitmap(win);
-	//comeback();
-
-	rti_gui.transparency_index = 0;
-	clear_to_color(gui_bmp, rti_gui.transparency_index);
-
 	return D_O_K;
 }
 
@@ -8434,10 +8367,23 @@ void Z_init_sound()
 {
 	for(int32_t i=0; i<WAV_COUNT; i++)
 		sfx_voice[i]=-1;
-		
+
+	const char* midis[ZC_MIDI_COUNT] = {
+		"assets/dungeon.mid",
+		"assets/ending.mid",
+		"assets/gameover.mid",
+		"assets/level9.mid",
+		"assets/overworld.mid",
+		"assets/title.mid",
+		"assets/triforce.mid",
+	};
 	for(int32_t i=0; i<ZC_MIDI_COUNT; i++)
-		tunes[i].data = (MIDI*)mididata[i].dat;
-		
+	{
+		tunes[i].data = load_midi(midis[i]);
+		if (!tunes[i].data)
+			Z_error_fatal("Missing required file %s\n", midis[i]);
+	}
+
 	for(int32_t j=0; j<MAXCUSTOMMIDIS; j++)
 		tunes[ZC_MIDI_COUNT+j].data=NULL;
 		
