@@ -13468,22 +13468,72 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
     
     if ( Header->zelda_version < 0x211 ) //Default rest rates for phantom ghinis, peahats and keese in < 2.50 quests
     {
-	guysbuf[eKEESE1].misc16 = 120;
-	guysbuf[eKEESE2].misc16 = 120;
-	guysbuf[eKEESE3].misc16 = 120;
-	guysbuf[eKEESETRIB].misc16 = 120;
-	guysbuf[eKEESE1].misc17 = 16;
-	guysbuf[eKEESE2].misc17 = 16;
-	guysbuf[eKEESE3].misc17 = 16;
-	guysbuf[eKEESETRIB].misc17 = 16;
-	    
-	guysbuf[ePEAHAT].misc16 = 80;
-	guysbuf[ePEAHAT].misc17 = 16;
-	    
-	guysbuf[eGHINI2].misc16 = 120;
-	guysbuf[eGHINI2].misc17 = 10;	
-	    
+		guysbuf[eKEESE1].misc16 = 120;
+		guysbuf[eKEESE2].misc16 = 120;
+		guysbuf[eKEESE3].misc16 = 120;
+		guysbuf[eKEESETRIB].misc16 = 120;
+		guysbuf[eKEESE1].misc17 = 16;
+		guysbuf[eKEESE2].misc17 = 16;
+		guysbuf[eKEESE3].misc17 = 16;
+		guysbuf[eKEESETRIB].misc17 = 16;
+			
+		guysbuf[ePEAHAT].misc16 = 80;
+		guysbuf[ePEAHAT].misc17 = 16;
+			
+		guysbuf[eGHINI2].misc16 = 120;
+		guysbuf[eGHINI2].misc17 = 10;	
+			
+		guysbuf[eGHINI2].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+		guysbuf[eMOLDORM].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+		guysbuf[eKEESETRIB].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+		guysbuf[eKEESE3].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+		guysbuf[eKEESE2].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+		guysbuf[eKEESE1].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+		guysbuf[eTEK1].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+		guysbuf[eTEK2].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+		guysbuf[ePEAHAT].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+		guysbuf[eROCK].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+		guysbuf[eTRAP].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+		guysbuf[eWALLM].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+		guysbuf[ePOLSV].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+		guysbuf[eMANHAN].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+		guysbuf[eGLEEOK1].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+		guysbuf[eGLEEOK2].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+		guysbuf[eGLEEOK3].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+		guysbuf[eGLEEOK4].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+		guysbuf[eDIG1].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+		guysbuf[eDIG3].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+		guysbuf[eDIGPUP1].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+		guysbuf[eDIGPUP2].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+		guysbuf[eDIGPUP3].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+		guysbuf[eDIGPUP4].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+		guysbuf[eRAQUAM].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+		guysbuf[eITEMFAIRY].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+		guysbuf[eFIRE].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+		guysbuf[eMANHAN2].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+		guysbuf[eTRAP_H].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+		guysbuf[eTRAP_V].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+		guysbuf[eTRAP_LR].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+		guysbuf[eTRAP_UD].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+		guysbuf[ePATRA1].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+		guysbuf[ePATRA2].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+		guysbuf[ePATRABS].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+		guysbuf[eBAT].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+		guysbuf[eGLEEOK1F].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+		guysbuf[eGLEEOK2F].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+		guysbuf[eGLEEOK3F].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+		guysbuf[eGLEEOK4F].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+		guysbuf[eTRIGGER].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+		guysbuf[ePATRAL2].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+		guysbuf[ePATRAL3].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+		guysbuf[eGOHMA1].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+		guysbuf[eGOHMA2].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+		guysbuf[eGOHMA3].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+		guysbuf[eGOHMA4].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+		guysbuf[eMPOLSV].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+		guysbuf[eWPOLSV].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
     }
+	
     
     if(guyversion<=2)
     {
@@ -14896,6 +14946,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 					case eeWIZZ: case eeWALLM: case eeGHINI:
 					//Gravity, floats over pits
 						tempguy.moveflags |= FLAG_CAN_WATERWALK;
+						tempguy.moveflags |= FLAG_CAN_PITWALK;
 						break;
 				}
 			}
