@@ -26,7 +26,7 @@ struct ReplayStep;
 
 static const int ASSERT_SNAPSHOT_BUFFER = 10;
 static const int ASSERT_FAILED_EXIT_CODE = 120;
-static const int VERSION = 19;
+static const int VERSION = 20;
 
 static const std::string ANNOTATION_MARKER = "«";
 static const char TypeMeta = 'M';
