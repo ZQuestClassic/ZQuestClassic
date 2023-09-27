@@ -143,6 +143,7 @@ def collect_licenses(package_dir: Path):
     output_dir = package_dir / 'licenses'
     output_dir.mkdir(exist_ok=True, parents=True)
     shutil.copy2(root_dir / 'license.txt', output_dir / 'zquest_classic.LICENSE.txt')
+    shutil.copy2(root_dir / 'AUTHORS', output_dir / 'zquest_classic.AUTHORS.txt')
 
     # Collect third party licences.
     third_party_dirs = []
