@@ -251,7 +251,7 @@ public:
     bool misaligned(int32_t map, int32_t scr, int32_t i, int32_t dir);
     void check_alignments(BITMAP* dest,int32_t x,int32_t y,int32_t scr=-1);
 	void draw_darkness(BITMAP* dest, BITMAP* transdest);
-    void draw(BITMAP *dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32_t scr);
+    void draw(BITMAP *dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32_t scr,int32_t hl_layer);
     void drawrow(BITMAP *dest,int32_t x,int32_t y,int32_t flags,int32_t c,int32_t map,int32_t scr);
     void drawcolumn(BITMAP *dest,int32_t x,int32_t y,int32_t flags,int32_t c,int32_t map,int32_t scr);
     void drawblock(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t c,int32_t map,int32_t scr);

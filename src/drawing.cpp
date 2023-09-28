@@ -328,21 +328,21 @@ void mask_blit(BITMAP* dest, BITMAP* mask, BITMAP* pattern, bool repeats, int32_
 
 void ditherblit(BITMAP* dest, BITMAP* src, int32_t color, byte dType, byte dArg, int32_t xoffs, int32_t yoffs)
 {
-	int32_t wid = zc_min(dest->w, src->w);
-	int32_t hei = zc_min(dest->h, src->h);
+	int32_t wid = src ? zc_min(dest->w, src->w) : dest->w;
+	int32_t hei = src ? zc_min(dest->h, src->h) : dest->h;
 	for(int32_t ty = 0; ty < hei; ++ty)
 	{
-		uintptr_t read_addr = bmp_read_line(src, ty);
+		uintptr_t read_addr = src ? bmp_read_line(src, ty) : 0;
 		uintptr_t write_addr = bmp_write_line(dest, ty);
 		for(int32_t tx = 0; tx < wid; ++tx)
 		{
-			if(bmp_read8(read_addr+tx) && dithercheck(dType,dArg,tx+xoffs,ty+yoffs,wid,hei))
+			if((!src || bmp_read8(read_addr+tx)) && dithercheck(dType,dArg,tx+xoffs,ty+yoffs,wid,hei))
 			{
 				bmp_write8(write_addr+tx, color);
 			}
 		}
 	}
-	bmp_unwrite_line(src);
+	if(src) bmp_unwrite_line(src);
 	bmp_unwrite_line(dest);
 }
 void bmp_dither(BITMAP* dest, BITMAP* src, byte dType, byte dArg, int32_t xoffs, int32_t yoffs)

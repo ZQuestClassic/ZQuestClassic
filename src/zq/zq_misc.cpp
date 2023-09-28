@@ -882,7 +882,7 @@ int32_t onMapscrSnapshot()
 	Map.setCurrScr(Map.getCurrScr());                                 // to update palette
 	clear_to_color(panorama,vc(0));
 
-	Map.draw(panorama, 0, 0, useflags?Flags:0, -1, -1);
+	Map.draw(panorama, 0, 0, useflags?Flags:0, -1, -1, -1);
 	
 	save_bitmap(getSnapName(),panorama,usepal);
 	destroy_bitmap(panorama);

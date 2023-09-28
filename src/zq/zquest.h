@@ -831,6 +831,7 @@ int32_t onToggleShowScripts();
 int32_t onToggleShowSquares();
 int32_t onToggleShowFFCs();
 int32_t onToggleShowInfo();
+int32_t onToggleHighlightLayer();
 
 //char msgbuf[MSGSTRS*3];
 
@@ -937,7 +938,6 @@ const char *warptypelist(int32_t index, int32_t *list_size);
 
 //int32_t warpdmapxy[6] = {188,126,188,100,188,112};
 
-int32_t d_warpdestsel_proc(int32_t msg,DIALOG *d,int32_t c);
 int32_t onTileWarpIndex(int32_t index);
 int32_t onTileWarp();
 int32_t onTimedWarp();

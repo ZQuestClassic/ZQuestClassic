@@ -573,7 +573,7 @@ int32_t MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, GridColor = 1
 	BlinkSpeed = 20, RulesetDialog = 0, EnableTooltips = 0,
 	TooltipsHighlight = 0, ShowFFScripts = 0, ShowSquares = 0, ShowFFCs = 0,
 	ShowInfo = 0, skipLayerWarning = 0, WarnOnInitChanged = 0, DisableLPalShortcuts = 1,
-	DisableCompileConsole = 0, numericalFlags = 0;
+	DisableCompileConsole = 0, numericalFlags = 0, ActiveLayerHighlight = 0;
 int32_t FlashWarpSquare = -1, FlashWarpClk = 0; // flash the destination warp return when ShowSquares is active
 uint8_t ViewLayer3BG = 0, ViewLayer2BG = 0;
 int32_t window_width, window_height;
@@ -1436,8 +1436,9 @@ MENU view_menu[] =
     { (char *)"Show Script &Names",         onToggleShowScripts,       NULL,                     0,            NULL   },
     { (char *)"Show &Grid",                 onToggleGrid,              NULL,                     0,            NULL   },
     { (char *)"Show &Darkness",             onShowDarkness,            NULL,                     0,            NULL   },
-    { (char *)"Layer 3 is Background",      onLayer3BG,                NULL,                     0,            NULL   },
     { (char *)"Layer 2 is Background",      onLayer2BG,                NULL,                     0,            NULL   },
+    { (char *)"Layer 3 is Background",      onLayer3BG,                NULL,                     0,            NULL   },
+    { (char *)"Highlight Current Layer",    onToggleHighlightLayer,          NULL,                     0,            NULL   },
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
@@ -1713,6 +1714,13 @@ int32_t onToggleShowInfo()
     ShowInfo=!ShowInfo;
 	zc_set_config("zquest","showinfo",ShowInfo);
     return D_O_K;
+}
+
+int32_t onToggleHighlightLayer()
+{
+	ActiveLayerHighlight = ActiveLayerHighlight ? 0 : 1;
+	zc_set_config("zquest","hl_active_lyr",ActiveLayerHighlight);
+	return D_O_K;
 }
 
 int onKeySlash()
@@ -4988,7 +4996,7 @@ int32_t load_the_map()
     {
         for(int32_t x=0; x<16; x++)
         {
-            Map.draw(screen2, 0, 0, flags, -1, y*16+x);
+            Map.draw(screen2, 0, 0, flags, -1, y*16+x, -1);
             stretch_blit(screen2, bmap, 0, 0, 256, 176, x<<(8-res), (y*176)>>res, 256>>res,176>>res);
         }
     }
@@ -5468,7 +5476,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				fix_layers(Map.CurrScr(), true);
 				
 			clear_to_color(mapscreenbmp,vc(0));
-			Map.draw(mapscreenbmp, showedges?16:0, showedges?16:0, Flags, -1, -1);
+			Map.draw(mapscreenbmp, showedges?16:0, showedges?16:0, Flags, -1, -1, ActiveLayerHighlight ? CurrentLayer : -1);
 			if(showedges)
 			{
 				if(Map.getCurrScr()<128)
@@ -17748,125 +17756,6 @@ int32_t d_wflag_proc(int32_t msg,DIALOG *d,int32_t)
     return ret;
 }
 
-#if 0
-static int32_t north_side_warp_list[] =
-{
-    // dialog control number
-    15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, -1
-};
-
-static int32_t south_side_warp_list[] =
-{
-    // dialog control number
-    80, -1
-};
-
-static int32_t west_side_warp_list[] =
-{
-    // dialog control number
-    80, -1
-};
-
-static int32_t east_side_warp_list[] =
-{
-    // dialog control number
-    80, -1
-};
-
-static int32_t wind_warp_1_list[] =
-{
-    // dialog control number
-    80, -1
-};
-
-static int32_t wind_warp_2_list[] =
-{
-    // dialog control number
-    80, -1
-};
-
-static int32_t wind_warp_3_list[] =
-{
-    // dialog control number
-    80, -1
-};
-
-static int32_t wind_warp_4_list[] =
-{
-    // dialog control number
-    80, -1
-};
-
-static int32_t wind_warp_5_list[] =
-{
-    // dialog control number
-    80, -1
-};
-
-static int32_t wind_warp_6_list[] =
-{
-    // dialog control number
-    80, -1
-};
-
-static int32_t wind_warp_7_list[] =
-{
-    // dialog control number
-    80, -1
-};
-
-static int32_t wind_warp_8_list[] =
-{
-    // dialog control number
-    80, -1
-};
-
-static int32_t wind_warp_9_list[] =
-{
-    // dialog control number
-    80, -1
-};
-
-
-static int32_t tile_warp_list[] =
-{
-    // dialog control number
-    80, -1
-};
-
-static int32_t side_warp_list[] =
-{
-    // dialog control number
-    6, -1
-};
-
-static int32_t item_warp_list[] =
-{
-    // dialog control number
-    80, -1
-};
-
-static int32_t wind_warp_list[] =
-{
-    // dialog control number
-    7, -1
-};
-
-static int32_t special_warp_list[] =
-{
-    // dialog control number
-    80, -1
-};
-
-static int32_t timed_warp_list[] =
-{
-    // dialog control number
-    80, -1
-};
-
-
-#endif
-
 int32_t d_dmapscrsel_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     //these are here to bypass compiler warnings about unused arguments
@@ -17889,160 +17778,6 @@ int32_t warpdestsel_x=-1;
 int32_t warpdestsel_y=-1;
 int32_t warpdestmap=-1;
 int32_t warpdestscr=-1;
-
-int32_t d_warpdestsel_proc(int32_t msg,DIALOG *d,int32_t c)
-{
-	//these are here to bypass compiler warnings about unused arguments
-	c=c;
-	
-	int32_t ret=D_O_K;
-	static BITMAP *bmp=create_bitmap_ex(8,256,176);
-	static bool inrect=false;
-	static bool mousedown=false;
-	mapscr* warpdest_mapscr = Map.AbsoluteScr(warpdestmap,warpdestscr);
-	
-	switch(msg)
-	{
-	case MSG_START:
-	{
-		if(!warpdest_mapscr) break;
-		loadlvlpal(warpdest_mapscr->color);
-		rebuild_trans_table();
-		break;
-	}   
-	case MSG_DRAW:
-	{
-		jwin_draw_frame(screen, d->x, d->y, d->w, d->h, FR_DEEP);
-		
-		if(AnimationOn||CycleOn)
-		{
-			if(AnimationOn)
-			{
-				animate_combos();
-			}
-			
-			if(CycleOn)
-			{
-				cycle_palette();
-			}
-		}
-		
-		animate_coords();
-		Map.draw(bmp, 0, 0, 0, warpdestmap, warpdestscr);
-		if(warpdest_mapscr)
-			blit(icon_bmp[ICON_BMP_WARPDEST][coord_frame], bmp, 0, 0, warpdest_mapscr->warparrivalx, warpdest_mapscr->warparrivaly, 16, 16);
-		int32_t px2=((gui_mouse_x()-d->x-2)&0xF8);
-		int32_t py2=((gui_mouse_y()-d->y-2)&0xF8);
-		
-		if(isinRect(gui_mouse_x(), gui_mouse_y(), d->x+2,d->y+2,d->x+256+1,d->y+176+1))
-		{
-			if(gui_mouse_b())
-			{
-				if(!mousedown||!inrect)
-				{
-					if(allowHideMouse)
-						MouseSprite::set(ZQM_BLANK);
-					set_mouse_range(d->x+2, d->y+2, d->x+256+1, d->y+176+1);
-				}
-				
-				rect(bmp, px2, py2, px2+15, py2+15, vc(15));
-				warpdestsel_x=px2;
-				warpdestsel_y=py2;
-				mousedown=true;
-			}
-			else
-			{
-				if(mousedown||!inrect)
-				{
-					set_mouse_range(0,0,zq_screen_w-1,zq_screen_h-1);
-					MouseSprite::set(ZQM_POINT_BOX);
-				}
-				
-				mousedown=false;
-			}
-			
-			inrect=true;
-		}
-		else
-		{
-			MouseSprite::set(ZQM_NORMAL);
-			inrect=false;
-		}
-		
-		blit(bmp, screen, 0, 0, d->x+2, d->y+2, 256, 176);
-	}
-	break;
-	
-	case MSG_VSYNC:
-		d->flags|=D_DIRTY;
-		break;
-		
-	case MSG_END:
-		loadlvlpal(Map.CurrScr()->color);
-		rebuild_trans_table();
-		break;
-	}
-	
-	return ret;
-}
-
-#if 0
-static DIALOG warpdestsel_dlg[] =
-{
-    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
-    { jwin_win_proc,                 0,      0,    297,    234,    vc(14),                 vc(1),                   0,       D_EXIT,      0,             0, (void *) "Select Warp Destination",    NULL,    NULL       },
-    { jwin_button_proc,              6,    207,     61,     21,    vc(0),                  vc(11),                 13,       D_EXIT,      0,             0, (void *) "OK",                         NULL,    NULL       },
-    { jwin_button_proc,             70,    207,     93,     21,    vc(0),                  vc(11),                  0,       D_EXIT,      0,             0, (void *) "Use Warp Square",            NULL,    NULL       },
-    { jwin_button_proc,            166,    207,     61,     21,    vc(0),                  vc(11),                  0,       D_EXIT,      0,             0, (void *) "Use Origin",                 NULL,    NULL       },
-    { jwin_button_proc,            230,    207,     61,     21,    vc(0),                  vc(11),                 27,       D_EXIT,      0,             0, (void *) "Cancel",                     NULL,    NULL       },
-    { d_keyboard_proc,               0,      0,      0,      0,    0,                      0,                       0,       0,           KEY_F1,        0, (void *) onHelp,                       NULL,    NULL       },
-    { d_warpdestsel_proc,           19,     23,    260,    180,    0,                      0,                       0,       0,           0,             0,   NULL,                                  NULL,    NULL       },
-    { d_vsync_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,           0,             0,   NULL,                                  NULL,    NULL       },
-    { d_timer_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,           0,             0,   NULL,                                  NULL,    NULL       },
-    { NULL,                          0,      0,      0,      0,    0,                      0,                       0,       0,           0,             0,   NULL,                                  NULL,    NULL       }
-};
-
-int32_t d_warpbutton_proc(int32_t msg,DIALOG *d,int32_t c)
-{
-    int32_t ret=jwin_button_proc(msg,d,c);
-    
-    if(ret==D_EXIT)
-    {
-        warpdestsel_dlg[0].dp2=get_zc_font(font_lfont);
-        warpdestmap=DMaps[(d-4)->d1].map;
-        warpdestscr=DMaps[(d-4)->d1].xoff+xtoi((char*)((d-1)->dp));
-        ret=do_zqdialog(warpdestsel_dlg,-1);
-        
-        switch(ret)
-        {
-        case 1:
-            d->d1=warpdestsel_x;
-            d->d2=warpdestsel_y;
-            sprintf((char *)d->dp, "at: %dx%d", warpdestsel_x, warpdestsel_y);
-            break;
-            
-        case 2:
-            d->d1=-1;
-            d->d2=-1;
-            sprintf((char *)d->dp, "at: warp square");
-            break;
-            
-        case 3:
-            d->d1=-2;
-            d->d2=-2;
-            sprintf((char *)d->dp, "at: origin");
-            break;
-            
-        default:
-            break;
-        }
-        
-        d->flags|=D_DIRTY;
-    }
-    
-    return ret?D_O_K:D_O_K;
-}
-#endif
 
 int32_t jwin_minibutton_proc(int32_t msg,DIALOG *d,int32_t c)
 {
@@ -18121,133 +17856,6 @@ int32_t d_ticsedit_proc(int32_t msg,DIALOG *d,int32_t c)
 }
 
 static ListData warp_effect_list(warpeffectlist,&font);
-
-#if 0
-static DIALOG warp_dlg2[] =
-{
-    /* (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp) */
-    { jwin_win_proc,                 0,      0,    320,    240,    vc(14),                 vc(1),                   0,       D_EXIT,     0,             0, (void *) "Edit Warps",        NULL,   NULL              },
-    { jwin_button_proc,             70,    215,     41,     21,    vc(14),                 vc(1),                   'k',     D_EXIT,     0,             0, (void *) "O&K",               NULL,   NULL              },
-    { jwin_button_proc,            130,    215,     41,     21,    vc(14),                 vc(1),                   'g',     D_EXIT,     0,             0, (void *) "&Go",               NULL,   NULL              },
-    { jwin_button_proc,            190,    215,     61,     21,    vc(14),                 vc(1),                  27,       D_EXIT,     0,             0, (void *) "Cancel",            NULL,   NULL              },
-    { d_keyboard_proc,               0,      0,      0,      0,    0,                      0,                       0,       0,          KEY_F1,        0, (void *) onHelp,              NULL,   NULL              },
-    //5
-    { jwin_tab_proc,                 6,     25,    308,    184,    0,                      0,                       0,       0,          0,             0, (void *) warp_tabs,           NULL, (void *)warp_dlg  },
-    { jwin_tab_proc,                10,     45,    300,    159,    0,                      0,                       0,       0,          0,             0, (void *) side_warp_tabs,      NULL, (void *)warp_dlg  },
-    { jwin_tab_proc,                10,     45,    300,    159,    0,                      0,                       0,       0,          0,             0, (void *) wind_warp_tabs,      NULL, (void *)warp_dlg  },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    //10
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    //15
-    { jwin_text_proc,               14,     69,      0,      8,    vc(11),                 vc(1),                   0,       0,          0,             0, (void *) "Type:",             NULL,   NULL              },
-    { jwin_text_proc,               14,     87,      0,      8,    vc(11),                 vc(1),                   0,       0,          0,             0, (void *) "DMap:",             NULL,   NULL              },
-    { jwin_droplist_proc,           43,     65,    111,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,          0,             0, (void *) &warp_dlg_list,      NULL,   NULL              },
-    { d_dropdmaplist_proc,          43,     83,    222,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,          0,             0, (void *) &dmap_list,          NULL,   warpdmapxy        },
-    { d_dmapscrsel_proc,            45,    108,     65,     33,    vc(14),                 vc(5),                   0,       0,          1,             0,  NULL,                         NULL,   NULL              },
-    //20
-    { jwin_text_proc,              116,    110,      0,      8,    vc(11),                 vc(1),                   0,       0,          0,             0, (void *) "Screen:",        NULL,   NULL              },
-    { jwin_edit_proc,              166,    106,     21,     16,    vc(11),                 vc(1),                   0,       0,          2,             0,  NULL,                         NULL,   NULL              },
-    { d_warpbutton_proc,           191,    104,     90,     21,    vc(14),                 vc(1),                   0,       D_EXIT,    -1,            -1,  NULL,                         NULL,   NULL              },
-    { jwin_check_proc,             116,    121,    129,      9,    vc(14),                 vc(1),                   0,       0,          1,             0, (void *) "Enabled",           NULL,   NULL              },
-    { jwin_check_proc,             116,    132,    129,      9,    vc(14),                 vc(1),                   0,       0,          1,             0, (void *) "Full Screen",       NULL,   NULL              },
-    //25
-    { jwin_text_proc,               14,    149,      0,      8,    vc(11),                 vc(1),                   0,       0,          0,             0, (void *) "Out Effect:",       NULL,   NULL              },
-    { jwin_text_proc,               14,    167,      0,      8,    vc(11),                 vc(1),                   0,       0,          0,             0, (void *) "In Effect:",        NULL,   NULL              },
-    { jwin_droplist_proc,           68,    145,    137,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,          0,             0, (void *) &warp_effect_list,   NULL,   NULL              },
-    { jwin_droplist_proc,           68,    163,    137,     16,    jwin_pal[jcTEXTFG],     jwin_pal[jcTEXTBG],      0,       0,          0,             0, (void *) &warp_effect_list,   NULL,   NULL              },
-    { jwin_text_proc,               14,    185,      0,      8,    vc(11),                 vc(1),                   0,       0,          0,             0, (void *) "Tics:",             NULL,   NULL              },
-    //30
-    { d_ticsedit_proc,              40,    181,     36,     16,    vc(11),                 vc(1),                   0,       0,          5,             0,  NULL,                         NULL,   NULL              },
-    { jwin_text_proc,               77,    185,      0,      8,    vc(11),                 vc(1),                   0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { jwin_frame_proc,             211,    132,     95,     64,    0,                      0,                       0,       0,          FR_ETCHED,     0,  NULL,                         NULL,   NULL              },
-    { jwin_text_proc,              215,    129,     40,      8,    vc(0),                  vc(11),                  0,       0,          0,             0, (void *) " Triggers ",        NULL,   NULL              },
-    { d_triggerbutton_proc,        215,    139,    129,      9,    vc(14),                 vc(1),                   0,       0,          1,             0, (void *) "Up",                NULL,   NULL              },
-    //35
-    { d_triggerbutton_proc,        229,    139,    129,      9,    vc(14),                 vc(1),                   0,       0,          1,             0, (void *) "Down",              NULL,   NULL              },
-    { d_triggerbutton_proc,        254,    139,    129,      9,    vc(14),                 vc(1),                   0,       0,          1,             0, (void *) "Left",              NULL,   NULL              },
-    { d_triggerbutton_proc,        277,    139,    129,      9,    vc(14),                 vc(1),                   0,       0,          1,             0, (void *) "Right",             NULL,   NULL              },
-    { d_triggerbutton_proc,        221,    152,    129,      9,    vc(14),                 vc(1),                   0,       0,          1,             0, (void *) "A",                 NULL,   NULL              },
-    { d_triggerbutton_proc,        230,    152,    129,      9,    vc(14),                 vc(1),                   0,       0,          1,             0, (void *) "B",                 NULL,   NULL              },
-    //40
-    { d_triggerbutton_proc,        239,    152,    129,      9,    vc(14),                 vc(1),                   0,       0,          1,             0, (void *) "X",                 NULL,   NULL              },
-    { d_triggerbutton_proc,        249,    152,    129,      9,    vc(14),                 vc(1),                   0,       0,          1,             0, (void *) "Y",                 NULL,   NULL              },
-    { d_triggerbutton_proc,        259,    152,    129,      9,    vc(14),                 vc(1),                   0,       0,          1,             0, (void *) "L",                 NULL,   NULL              },
-    { d_triggerbutton_proc,        268,    152,    129,      9,    vc(14),                 vc(1),                   0,       0,          1,             0, (void *) "R",                 NULL,   NULL              },
-    { d_triggerbutton_proc,        277,    152,    129,      9,    vc(14),                 vc(1),                   0,       0,          1,             0, (void *) "Map",               NULL,   NULL              },
-    //45
-    { d_triggerbutton_proc,        230,    165,    129,      9,    vc(14),                 vc(1),                   0,       0,          1,             0, (void *) "Select",            NULL,   NULL              },
-    { d_triggerbutton_proc,        260,    165,    129,      9,    vc(14),                 vc(1),                   0,       0,          1,             0, (void *) "Start",             NULL,   NULL              },
-    { d_alltriggerbutton_proc,     252,    179,    129,      9,    vc(14),                 vc(1),                   0,       0,          1,             0, (void *) "All",               NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { d_dummy_proc,                  0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              },
-    { NULL,                          0,      0,      0,      0,    0,                      0,                       0,       0,          0,             0,  NULL,                         NULL,   NULL              }
-};
-#endif
 
 int32_t onTileWarp()
 {
@@ -28187,6 +27795,7 @@ int32_t main(int32_t argc,char **argv)
 	numericalFlags			  	 = zc_get_config("zquest","numerical_flags",0);
 	ViewLayer2BG = zc_get_config("zquest","layer2_bg",0);
 	ViewLayer3BG = zc_get_config("zquest","layer3_bg",0);
+	ActiveLayerHighlight = zc_get_config("zquest","hl_active_lyr",0);
 	
 	OpenLastQuest				  = zc_get_config("zquest","open_last_quest",0);
 	ShowMisalignments			  = zc_get_config("zquest","show_misalignments",0);
@@ -28861,8 +28470,9 @@ int32_t main(int32_t argc,char **argv)
 		view_menu[11].flags=(ShowFFScripts)?D_SELECTED:0; // Show Script Names
 		view_menu[12].flags=(ShowGrid)?D_SELECTED:0; // Show Grid
 		view_menu[13].flags=(get_qr(qr_NEW_DARKROOM) && (Flags&cNEWDARK))?D_SELECTED:0; // Show Grid
-		view_menu[14].flags=(ViewLayer3BG)?D_SELECTED:0; // Show Grid
-		view_menu[15].flags=(ViewLayer2BG)?D_SELECTED:0; // Show Grid
+		view_menu[14].flags=(ViewLayer2BG)?D_SELECTED:0;
+		view_menu[15].flags=(ViewLayer3BG)?D_SELECTED:0;
+		view_menu[16].flags=(ActiveLayerHighlight)?D_SELECTED:0;
 		
 		maps_menu[1].flags=(Map.getCurrMap()<map_count && map_count>0) ? 0 : D_DISABLED;
 		maps_menu[2].flags=(Map.getCurrMap()>0)? 0 : D_DISABLED;

@@ -2681,24 +2681,71 @@ void zmap::draw_darkness(BITMAP* dest, BITMAP* transdest)
 }
 
 void drawcombo(BITMAP* dest, int32_t x, int32_t y, int32_t cid, int32_t cset, int32_t flags,
-	int32_t sflag, bool over = true, bool transp = false)
+	int32_t sflag, bool over = true, bool transp = false, bool dither = false)
 {
 	newcombo const& cmb = combobuf[cid];
 	if(cmb.animflags & AF_TRANSPARENT) transp = !transp;
-	if(over)
+	if(dither)
+	{
+		BITMAP* buf = create_bitmap_ex(8,16,16);
+		clear_bitmap(buf);
+		overcombo(buf,0,0,cid,cset);
+		ditherblit(buf,nullptr,0,dithChecker,3,x,y);
+		if(over)
+		{
+			if(transp)
+			{
+				color_map = &trans_table2;
+				draw_trans_sprite(dest, buf, x, y);
+				color_map = &trans_table;
+			}
+			else masked_blit(buf, dest, 0, 0, x, y, 16, 16);
+		}
+		else blit(buf, dest, 0, 0, x, y, 16, 16);
+		destroy_bitmap(buf);
+	}
+	else if(over)
 	{
 		if(transp)
 			overcombotranslucent(dest,x,y,cid,cset,0);
 		else overcombo(dest,x,y,cid,cset);
 	}
-	else
+	else put_combo(dest,x,y,cid,cset,flags,sflag);
+}
+static void _zmap_drawlayer(BITMAP* dest, int32_t x, int32_t y, mapscr* md, int32_t flags, bool trans, bool over, bool dither, bool passflag = false)
+{
+	if(!md) return;
+	for (int32_t i = 0; i < 176; i++)
+		drawcombo(dest, ((i&15)<<4)+x, (i&0xF0)+y, md->data[i], md->cset[i], flags, passflag ? md->sflag[i] : 0, over, trans, dither);
+}
+static void _zmap_drawlayer_ohead(BITMAP* dest, int32_t x, int32_t y, mapscr* md, int32_t flags, bool trans, bool dither)
+{
+	if(!md) return;
+	for (int32_t i = 0; i < 176; i++)
 	{
-		put_combo(dest,x,y,cid,cset,flags,sflag);
+		int data = md->data[i];
+		if(combo_class_buf[combobuf[data].type].overhead)
+			drawcombo(dest, ((i&15)<<4)+x, (i&0xF0)+y, data, md->cset[i], 0, 0, false, trans, dither);
 	}
 }
-
-void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32_t scr)
+static mapscr* _zmap_get_lyr_checked(int lyr, mapscr* basescr)
 {
+	if(!LayerMaskInt[lyr])
+		return nullptr;
+	if(lyr == 0)
+		return basescr;
+	int layermap = basescr->layermap[lyr-1]-1;
+	
+	if(layermap>-1 && layermap<map_count)
+	{
+		int layerscreen = layermap*MAPSCRS+basescr->layerscreen[lyr-1];
+		return &TheMaps[layerscreen];
+	}
+	return nullptr;
+}
+void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32_t scr,int32_t hl_layer)
+{
+	#define HL_LAYER(lyr) (hl_layer > -1 && hl_layer != lyr)
 	int32_t antiflags=(flags&~cFLAGS)&~cWALK;
 	
 	if(map<0)
@@ -2707,15 +2754,23 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 	if(scr<0)
 		scr=currscr;
 		
-	mapscr *layer;
+	mapscr *basescr;
+	mapscr* layers[7] = {nullptr};
 	
 	if(prv_mode)
 	{
-		layer=get_prvscr();
+		hl_layer = -1;
+		basescr=get_prvscr();
 	}
 	else
 	{
-		layer=AbsoluteScr(map,scr);
+		basescr=AbsoluteScr(map,scr);
+	}
+	layers[0] = basescr;
+	for(int lyr = 1; lyr < 7; ++lyr)
+	{
+		layers[lyr] = prv_mode ? &prvlayers[lyr-1]
+			: _zmap_get_lyr_checked(lyr,basescr);
 	}
 	
 	int32_t layermap, layerscreen;
@@ -2723,13 +2778,13 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 		layermap = -1;
 	else
 	{
-		layermap=layer->layermap[CurrentLayer-1]-1;
+		layermap=basescr->layermap[CurrentLayer-1]-1;
 		
 		if(layermap<0)
 			CurrentLayer=0;
 	}
 	
-	if(!(layer->valid&mVALID))
+	if(!(basescr->valid&mVALID))
 	{
 		//  rectfill(dest,x,y,x+255,y+175,dvc(0+1));
 		rectfill(dest,x,y,x+255,y+175,vc(1));
@@ -2748,118 +2803,50 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 	}
 	
 	resize_mouse_pos=true;
+	if(XOR(basescr->flags7&fLAYER2BG,ViewLayer2BG))
+		_zmap_drawlayer(dest, x, y, layers[2], antiflags, false, false, HL_LAYER(2));
 	
-	for(int32_t k=1; k<3; k++)
+	if(XOR(basescr->flags7&fLAYER3BG,ViewLayer3BG))
+		_zmap_drawlayer(dest, x, y, layers[3], antiflags, basescr->layeropacity[3-1]!=255, XOR(basescr->flags7&fLAYER2BG,ViewLayer2BG), HL_LAYER(3));
+	
+	_zmap_drawlayer(dest, x, y, layers[0], antiflags, false, (XOR(basescr->flags7&fLAYER2BG,ViewLayer2BG)||XOR(basescr->flags7&fLAYER3BG,ViewLayer3BG)), HL_LAYER(0), true);
+	
+	_zmap_drawlayer(dest, x, y, layers[1], antiflags, basescr->layeropacity[1-1]!=255, true, HL_LAYER(1));
+	
+	for(int32_t i=MAXFFCS-1; i>=0; i--)
 	{
-		if(k==1&& XOR(layer->flags7&fLAYER2BG,ViewLayer2BG))
+		if(basescr->ffcs[i].getData())
 		{
-			if(LayerMaskInt[k+1]!=0)
+			if(!(basescr->ffcs[i].flags&ffCHANGER))
 			{
-				layermap=layer->layermap[k]-1;
-				
-				if(layermap>-1 && layermap<map_count)
+				if(!(basescr->ffcs[i].flags&ffOVERLAY))
 				{
-					layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
-
-                    for (int32_t i = 0; i < 176; i++)
-                    {
-                        drawcombo(dest, ((i & 15) << 4) + x, (i & 0xF0) + y, prv_mode ? prvlayers[k].data[i] : TheMaps[layerscreen].data[i], prv_mode ? prvlayers[k].cset[i] : TheMaps[layerscreen].cset[i], antiflags, 0, false);
-                    }
-				}
-			}
-		}
-		
-		if(k==2&&XOR(layer->flags7&fLAYER3BG,ViewLayer3BG))
-		{
-			if(LayerMaskInt[k+1]!=0)
-			{
-				layermap=layer->layermap[k]-1;
-				
-				if(layermap>-1 && layermap<map_count)
-				{
-					layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
-					for(int32_t i=0; i<176; i++)
+					int32_t tx=(basescr->ffcs[i].x.getInt())+x;
+					int32_t ty=(basescr->ffcs[i].y.getInt())+y;
+					
+					if(basescr->ffcs[i].flags&ffTRANS)
 					{
-						auto data = prv_mode?prvlayers[k].data[i]:TheMaps[layerscreen].data[i];
-						auto cs = prv_mode?prvlayers[k].cset[i]:TheMaps[layerscreen].cset[i];
-						drawcombo(dest,((i&15)<<4)+x,(i&0xF0)+y,data,cs,antiflags,0,
-							XOR(layer->flags7&fLAYER2BG,ViewLayer2BG),layer->layeropacity[k]!=255);
+						overcomboblocktranslucent(dest, tx, ty, basescr->ffcs[i].getData(), basescr->ffcs[i].cset,basescr->ffTileWidth(i), basescr->ffTileHeight(i),128);
+						//overtiletranslucent16(dest, combo_tile(basescr->ffcs[i].data,tx,ty)+(j*20)+(l), tx, ty, basescr->ffcs[i].cset, combobuf[basescr->ffcs[i].data].flip, 128);
+					}
+					else
+					{
+						overcomboblock(dest, tx, ty, basescr->ffcs[i].getData(), basescr->ffcs[i].cset, basescr->ffTileWidth(i), basescr->ffTileHeight(i));
+						//overtile16(dest, combo_tile(basescr->ffcs[i].data,tx,ty)+(j*20)+(l), tx, ty, basescr->ffcs[i].cset, combobuf[basescr->ffcs[i].data].flip);
 					}
 				}
 			}
 		}
 	}
 	
-	if(LayerMaskInt[0]!=0)
-	{
-		for(int32_t i=0; i<176; i++)
-		{
-			word cmbdat = layer->data[i];
-			byte cmbcset = layer->cset[i];
-			int32_t cmbflag = layer->sflag[i];
-			
-			drawcombo(dest,((i&15)<<4)+x,(i&0xF0)+y,cmbdat,cmbcset,antiflags,cmbflag,
-				(XOR(layer->flags7&fLAYER2BG,ViewLayer2BG)||XOR(layer->flags7&fLAYER3BG,ViewLayer3BG)));
-		}
-	}
-	
-	// int32_t cs=2;
-	
-	for(int32_t k=0; k<2; k++)
-	{
-		if(k==1&& XOR(layer->flags7&fLAYER2BG,ViewLayer2BG)) continue;
-		
-		if(LayerMaskInt[k+1]!=0)
-		{
-			layermap=layer->layermap[k]-1;
-			
-			if(layermap>-1 && layermap<map_count)
-			{
-				layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
-				for(int32_t i=0; i<176; i++)
-				{
-					auto data = prv_mode?prvlayers[k].data[i]:TheMaps[layerscreen].data[i];
-					auto cs = prv_mode?prvlayers[k].cset[i]:TheMaps[layerscreen].cset[i];
-					drawcombo(dest,((i&15)<<4)+x,(i&0xF0)+y,data,cs,0,0,true,layer->layeropacity[k]!=255);
-				}
-			}
-		}
-		
-		if(k==0)
-		{
-			for(int32_t i=MAXFFCS-1; i>=0; i--)
-			{
-				if(layer->ffcs[i].getData())
-				{
-					if(!(layer->ffcs[i].flags&ffCHANGER))
-					{
-						if(!(layer->ffcs[i].flags&ffOVERLAY))
-						{
-							int32_t tx=(layer->ffcs[i].x.getInt())+x;
-							int32_t ty=(layer->ffcs[i].y.getInt())+y;
-							
-							if(layer->ffcs[i].flags&ffTRANS)
-							{
-								overcomboblocktranslucent(dest, tx, ty, layer->ffcs[i].getData(), layer->ffcs[i].cset,layer->ffTileWidth(i), layer->ffTileHeight(i),128);
-								//overtiletranslucent16(dest, combo_tile(layer->ffcs[i].data,tx,ty)+(j*20)+(l), tx, ty, layer->ffcs[i].cset, combobuf[layer->ffcs[i].data].flip, 128);
-							}
-							else
-							{
-								overcomboblock(dest, tx, ty, layer->ffcs[i].getData(), layer->ffcs[i].cset, layer->ffTileWidth(i), layer->ffTileHeight(i));
-								//overtile16(dest, combo_tile(layer->ffcs[i].data,tx,ty)+(j*20)+(l), tx, ty, layer->ffcs[i].cset, combobuf[layer->ffcs[i].data].flip);
-							}
-						}
-					}
-				}
-			}
-		}
-	}
+	if(!XOR(basescr->flags7&fLAYER2BG,ViewLayer2BG))
+		_zmap_drawlayer(dest, x, y, layers[2], antiflags, basescr->layeropacity[2-1]!=255, true, HL_LAYER(2));
 	
 	int32_t doortype[4];
 	
 	for(int32_t i=0; i<4; i++)
 	{
-		switch(layer->door[i])
+		switch(basescr->door[i])
 		{
 		case dOPEN:
 			doortype[i]=dt_pass;
@@ -2884,7 +2871,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 		}
 	}
 	
-	switch(layer->door[up])
+	switch(basescr->door[up])
 	{
 	case dBOMB:
 		over_door(dest,39,up,x,y,false, scr);
@@ -2915,7 +2902,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 		break;
 	}
 	
-	switch(layer->door[down])
+	switch(basescr->door[down])
 	{
 	case dBOMB:
 		over_door(dest,135,down,x,y,false,scr);
@@ -2945,7 +2932,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 		break;
 	}
 	
-	switch(layer->door[left])
+	switch(basescr->door[left])
 	{
 	case dBOMB:
 		over_door(dest,66,left,x,y,false,scr);
@@ -2975,7 +2962,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 		break;
 	}
 	
-	switch(layer->door[right])
+	switch(basescr->door[right])
 	{
 	
 	case dBOMB:
@@ -3006,134 +2993,57 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 		break;
 	}
 	
-	if((layer->hasitem != 0) && !(flags&cNOITEM))
+	if((basescr->hasitem != 0) && !(flags&cNOITEM))
 	{
 		frame=0;
-		putitem2(dest,layer->itemx+x,layer->itemy+y+1-(get_qr(qr_NOITEMOFFSET)),layer->item,lens_hint_item[layer->item][0],lens_hint_item[layer->item][1], 0);
+		putitem2(dest,basescr->itemx+x,basescr->itemy+y+1-(get_qr(qr_NOITEMOFFSET)),basescr->item,lens_hint_item[basescr->item][0],lens_hint_item[basescr->item][1], 0);
 	}
 	
-	for(int32_t k=2; k<4; k++)
-	{
-		if(k==2&&XOR(layer->flags7&fLAYER3BG,ViewLayer3BG)) continue;
-		
-		if(LayerMaskInt[k+1]!=0)
-		{
-			layermap=layer->layermap[k]-1;
-			
-			if(layermap>-1 && layermap<map_count)
-			{
-				layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
-				for(int32_t i=0; i<176; i++)
-				{
-					auto data = prv_mode?prvlayers[k].data[i]:TheMaps[layerscreen].data[i];
-					auto cs = prv_mode?prvlayers[k].cset[i]:TheMaps[layerscreen].cset[i];
-					drawcombo(dest,((i&15)<<4)+x,(i&0xF0)+y,data,cs,0,0,true,layer->layeropacity[k]!=255);
-				}
-			}
-		}
-	}
+	if(!XOR(basescr->flags7&fLAYER3BG,ViewLayer3BG))
+		_zmap_drawlayer(dest, x, y, layers[3], antiflags, basescr->layeropacity[3-1]!=255, true, HL_LAYER(3));
+	_zmap_drawlayer(dest, x, y, layers[4], antiflags, basescr->layeropacity[4-1]!=255, true, HL_LAYER(4));
 	
-	//Overhead L0
-	if(LayerMaskInt[0]!=0)
-	{
-		for(int32_t i=0; i<176; i++)
-		{
-			int32_t ct1=layer->data[i];
-			// int32_t ct2=(ct1&0xFF)+(screens[currscr].cpage<<8);
-			int32_t ct3=combobuf[ct1].type;
-			
-			// if (ct3==cOLD_OVERHEAD)
-			if(combo_class_buf[ct3].overhead)
-			{
-				drawcombo(dest,((i&15)<<4)+x,(i&0xF0)+y,layer->data[i],layer->cset[i],0,0);
-			}
-		}
-	}
-	//Overhead L1/2
+	_zmap_drawlayer_ohead(dest, x, y, layers[0], antiflags, false, HL_LAYER(0));
+	
 	if(get_qr(qr_OVERHEAD_COMBOS_L1_L2))
 	{
-		for(int32_t k = 0; k < 2; ++k)
+		_zmap_drawlayer_ohead(dest, x, y, layers[1], antiflags, basescr->layeropacity[1-1]!=255, HL_LAYER(1));
+		_zmap_drawlayer_ohead(dest, x, y, layers[2], antiflags, basescr->layeropacity[2-1]!=255, HL_LAYER(2));
+	}
+	_zmap_drawlayer(dest, x, y, layers[5], antiflags, basescr->layeropacity[5-1]!=255, true, HL_LAYER(5));
+	
+	for(int32_t i=MAXFFCS-1; i>=0; i--)
+	{
+		if(basescr->ffcs[i].getData())
 		{
-			if(LayerMaskInt[k+1]!=0)
+			if(!(basescr->ffcs[i].flags&ffCHANGER))
 			{
-				layermap=layer->layermap[k]-1;
+				int32_t tx=(basescr->ffcs[i].x.getInt())+x;
+				int32_t ty=(basescr->ffcs[i].y.getInt())+y;
 				
-				if(layermap>-1 && layermap<map_count)
+				if(basescr->ffcs[i].flags&ffOVERLAY)
 				{
-					layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
-					for(int32_t i=0; i<176; i++)
+					if(basescr->ffcs[i].flags&ffTRANS)
 					{
-						auto data = prv_mode?prvlayers[k].data[i]:TheMaps[layerscreen].data[i];
-						if(!combo_class_buf[combobuf[data].type].overhead) continue;
-						auto cs = prv_mode?prvlayers[k].cset[i]:TheMaps[layerscreen].cset[i];
-						drawcombo(dest,((i&15)<<4)+x,(i&0xF0)+y,data,cs,0,0,true,layer->layeropacity[k]!=255);
+						//overtiletranslucent16(dest, combo_tile(basescr->ffcs[i].data,tx,ty)+(j*20)+(l), tx, ty, basescr->ffcs[i].cset, combobuf[basescr->ffcs[i].data].flip, 128);
+						overcomboblocktranslucent(dest,tx,ty,basescr->ffcs[i].getData(), basescr->ffcs[i].cset, basescr->ffTileWidth(i), basescr->ffTileHeight(i),128);
+					}
+					else
+					{
+						//overtile16(dest, combo_tile(basescr->ffcs[i].data,tx,ty)+(j*20)+(l), tx, ty, basescr->ffcs[i].cset, combobuf[basescr->ffcs[i].data].flip);
+						overcomboblock(dest, tx, ty, basescr->ffcs[i].getData(), basescr->ffcs[i].cset, basescr->ffTileWidth(i), basescr->ffTileHeight(i));
 					}
 				}
 			}
 		}
 	}
 	
-	for(int32_t k=4; k<6; k++)
-	{
-		if(LayerMaskInt[k+1]!=0)
-		{
-			layermap=layer->layermap[k]-1;
-			
-			if(layermap>-1 && layermap<map_count)
-			{
-				layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
-				for(int32_t i=0; i<176; i++)
-				{
-					auto data = prv_mode?prvlayers[k].data[i]:TheMaps[layerscreen].data[i];
-					auto cs = prv_mode?prvlayers[k].cset[i]:TheMaps[layerscreen].cset[i];
-					drawcombo(dest,((i&15)<<4)+x,(i&0xF0)+y,data,cs,0,0,true,layer->layeropacity[k]!=255);
-				}
-			}
-		}
-		
-		if(k==4)
-		{
-			for(int32_t i=MAXFFCS-1; i>=0; i--)
-			{
-				if(layer->ffcs[i].getData())
-				{
-					if(!(layer->ffcs[i].flags&ffCHANGER))
-					{
-						int32_t tx=(layer->ffcs[i].x.getInt())+x;
-						int32_t ty=(layer->ffcs[i].y.getInt())+y;
-						
-						if(layer->ffcs[i].flags&ffOVERLAY)
-						{
-							if(layer->ffcs[i].flags&ffTRANS)
-							{
-								//overtiletranslucent16(dest, combo_tile(layer->ffcs[i].data,tx,ty)+(j*20)+(l), tx, ty, layer->ffcs[i].cset, combobuf[layer->ffcs[i].data].flip, 128);
-								overcomboblocktranslucent(dest,tx,ty,layer->ffcs[i].getData(), layer->ffcs[i].cset, layer->ffTileWidth(i), layer->ffTileHeight(i),128);
-							}
-							else
-							{
-								//overtile16(dest, combo_tile(layer->ffcs[i].data,tx,ty)+(j*20)+(l), tx, ty, layer->ffcs[i].cset, combobuf[layer->ffcs[i].data].flip);
-								overcomboblock(dest, tx, ty, layer->ffcs[i].getData(), layer->ffcs[i].cset, layer->ffTileWidth(i), layer->ffTileHeight(i));
-							}
-						}
-					}
-				}
-			}
-		}
-		
-		if(k==5)
-		{
-			for(int32_t i=MAXFFCS-1; i>=0; i--)
-			{
-				if(layer->ffcs[i].getData())
-				{
-					if(layer->ffcs[i].flags&ffCHANGER)
-					{
-						putpixel(dest,(layer->ffcs[i].x.getInt())+x,(layer->ffcs[i].y.getInt())+y,vc(zc_oldrand()%16));
-					}
-				}
-			}
-		}
-	}
+	_zmap_drawlayer(dest, x, y, layers[6], antiflags, basescr->layeropacity[6-1]!=255, true, HL_LAYER(4));
+	
+	for(int32_t i=MAXFFCS-1; i>=0; i--)
+		if(basescr->ffcs[i].getData())
+			if(basescr->ffcs[i].flags&ffCHANGER)
+				putpixel(dest,(basescr->ffcs[i].x.getInt())+x,(basescr->ffcs[i].y.getInt())+y,vc(zc_oldrand()%16));
 	
 	if(flags&cWALK)
 	{
@@ -3141,7 +3051,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 		{
 			for(int32_t i=0; i<176; i++)
 			{
-				//put_walkflags(dest,((i&15)<<4)+x,(i&0xF0)+y,layer->data[i], 0);
+				//put_walkflags(dest,((i&15)<<4)+x,(i&0xF0)+y,basescr->data[i], 0);
 				put_walkflags_layered(dest,((i&15)<<4)+x,(i&0xF0)+y,i, -1);
 			}
 		}
@@ -3150,11 +3060,11 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 		{
 			if(LayerMaskInt[k+1]!=0)
 			{
-				layermap=layer->layermap[k]-1;
+				layermap=basescr->layermap[k]-1;
 				
 				if(layermap>-1 && layermap<map_count)
 				{
-					layerscreen=layermap*MAPSCRS+layer->layerscreen[k];
+					layerscreen=layermap*MAPSCRS+basescr->layerscreen[k];
 					
 					for(int32_t i=0; i<176; i++)
 					{
@@ -3165,17 +3075,17 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 		}
 		for(int32_t i=MAXFFCS-1; i>=0; i--)
 		{
-			if(auto data = layer->ffcs[i].getData())
+			if(auto data = basescr->ffcs[i].getData())
 			{
-				if(!(layer->ffcs[i].flags&ffCHANGER))
+				if(!(basescr->ffcs[i].flags&ffCHANGER))
 				{
 					newcombo const& cmb = combobuf[data];
-					int32_t tx=(layer->ffcs[i].x.getInt())+x;
-					int32_t ty=(layer->ffcs[i].y.getInt())+y;
+					int32_t tx=(basescr->ffcs[i].x.getInt())+x;
+					int32_t ty=(basescr->ffcs[i].y.getInt())+y;
 					
-					if(layer->ffcs[i].flags&ffSOLID)
+					if(basescr->ffcs[i].flags&ffSOLID)
 					{
-						rectfill(dest, tx, ty, tx + layer->ffEffectWidth(i) - 1, ty + layer->ffEffectHeight(i) - 1, COLOR_SOLID);
+						rectfill(dest, tx, ty, tx + basescr->ffEffectWidth(i) - 1, ty + basescr->ffEffectHeight(i) - 1, COLOR_SOLID);
 					}
 					
 					if(cmb.type == cSLOPE)
@@ -3196,7 +3106,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 			{
 				if(CurrentLayer==0)
 				{
-					put_flags(dest,((i&15)<<4)+x,(i&0xF0)+y,layer->data[i],layer->cset[i],flags,layer->sflag[i]);
+					put_flags(dest,((i&15)<<4)+x,(i&0xF0)+y,basescr->data[i],basescr->cset[i],flags,basescr->sflag[i]);
 				}
 				else
 				{
@@ -3206,7 +3116,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 					}
 					else
 					{
-						int32_t _lscr=(layer->layermap[CurrentLayer-1]-1)*MAPSCRS+layer->layerscreen[CurrentLayer-1];
+						int32_t _lscr=(basescr->layermap[CurrentLayer-1]-1)*MAPSCRS+basescr->layerscreen[CurrentLayer-1];
 						
 						if(_lscr>-1 && _lscr<map_count*MAPSCRS)
 						{
@@ -3221,8 +3131,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 		}
 	}
 	
-	
-	int32_t dark = layer->flags&cDARK;
+	int32_t dark = basescr->flags&cDARK;
 	
 	if(dark && !(flags&cNODARK)
 		&& !((Flags&cNEWDARK) && get_qr(qr_NEW_DARKROOM)))
