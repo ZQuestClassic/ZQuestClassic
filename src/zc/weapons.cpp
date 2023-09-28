@@ -1121,6 +1121,12 @@ void weapon::cleanup_sfx()
         break;
     }*/
 }
+void weapon::reset_wgrids()
+{
+	memset(wscreengrid,0,sizeof(wscreengrid));
+	memset(wscreengrid_layer,0,sizeof(wscreengrid_layer));
+	memset(wscreengrid_ffc,0,sizeof(wscreengrid_ffc));
+}
 weapon::~weapon()
 {
 	if(dragging > 0)

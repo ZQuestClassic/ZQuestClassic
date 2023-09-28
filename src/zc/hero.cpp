@@ -2118,7 +2118,17 @@ int HeroClass::getHammerState() const
 	}
 	return 0;
 }
-
+weapon* find_first_wtype(int wtype)
+{
+	for(int32_t i=0; i<Lwpns.Count(); i++)
+	{
+		weapon* w = (weapon*)Lwpns.spr(i);
+		
+		if(w->id == wtype)
+			return w;
+	}
+	return nullptr;
+}
 void HeroClass::draw(BITMAP* dest)
 {
 	/*{
@@ -2228,22 +2238,8 @@ void HeroClass::draw(BITMAP* dest)
 				else if((attack==wSword || attack==wWand || ((attack==wFire || attack==wCByrna) && itemsbuf[itemid].wpn)) && wpnsbuf[itemsbuf[itemid].wpn].tile)
 				{
 					// Create a sword weapon at the right spot.
-					weapon *w=NULL;
-					bool found = false;
-					
-					// Look for pre-existing sword
-					for(int32_t i=0; i<Lwpns.Count(); i++)
-					{
-						w = (weapon*)Lwpns.spr(i);
-						
-						if(w->id == (attack==wSword ? wSword : wWand))
-						{
-							found = true;
-							break;
-						}
-					}
-					
-					if(!found)  // Create one if sword nonexistant
+					weapon *w=find_first_wtype(attack==wSword ? wSword : wWand);
+					if(!w)  // Create one if sword nonexistant
 					{
 						Lwpns.add(new weapon((zfix)0,(zfix)0,(zfix)0,(attack==wSword ? wSword : wWand),0,0,dir,itemid,getUID(),false,false,true));
 						w = (weapon*)Lwpns.spr(Lwpns.Count()-1);
@@ -12474,6 +12470,9 @@ bool HeroClass::doattack()
 					currentscroll = id;
 					spins=(spinscroll.misc1*4) + (super ? -3 : 1);
 					attackclk=1;
+					if(!get_qr(qr_BROKEN_SWORD_SPIN_TRIGGERS))
+						if(weapon* w = find_first_wtype(wSword))
+							w->reset_wgrids();
 					sfx(spinscroll.usesound,pan(x.getInt()));
 					if(spinscroll.flags&ITEM_FLAG1)
 						paymagiccost(id);
