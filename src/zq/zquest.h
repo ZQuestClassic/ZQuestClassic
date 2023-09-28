@@ -426,8 +426,6 @@ int32_t d_wflag_proc(int32_t msg,DIALOG *d,int32_t c);
 /*****     Mouse      *****/
 /**************************/
 
-void doxypos(byte &px,byte &py,int32_t color,int32_t mask, bool immediately);
-void doxypos(byte &px,byte &py,int32_t color,int32_t mask, bool immediately,  int32_t cursoroffx, int32_t cursoroffy, int32_t iconw, int32_t iconh);
 void doflags();
 void set_brush_width(int32_t width);
 void set_brush_height(int32_t height);

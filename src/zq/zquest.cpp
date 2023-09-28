@@ -8539,12 +8539,12 @@ static void fill2(mapscr* fillscr, int32_t targetcombo, int32_t targetcset, int3
 /*****     Mouse      *****/
 /**************************/
 
-void doxypos(byte &px2,byte &py2,int32_t color,int32_t mask)
-{
-    doxypos(px2,py2,color,mask,false,0,0,16,16);
-}
-
-void doxypos(byte &px2,byte &py2,int32_t color,int32_t mask, bool immediately, int32_t cursoroffx, int32_t cursoroffy, int32_t iconw, int32_t iconh)
+#define SNAP_NONE  0xFF
+#define SNAP_HALF  0xF8
+#define SNAP_WHOLE 0xF0
+static void doxypos(byte &px2, byte &py2, int32_t color, int32_t mask,
+	int32_t shiftmask, bool immediately, int32_t cursoroffx,
+	int32_t cursoroffy, int32_t iconw, int32_t iconh)
 {
     int32_t tempcb=ComboBrush;
     ComboBrush=0;
@@ -8582,8 +8582,9 @@ void doxypos(byte &px2,byte &py2,int32_t color,int32_t mask, bool immediately, i
                 y=int32_t((gui_mouse_y()-startyint)/mapscreensize)-cursoroffy;
                 showxypos_cursor_icon=true;
 				showxypos_cursor_color = showxypos_color;
-                showxypos_cursor_x=x&mask;
-                showxypos_cursor_y=y&mask;
+				auto _mask = (key[KEY_LSHIFT] || key[KEY_RSHIFT]) ? shiftmask : mask;
+                showxypos_cursor_x=x&_mask;
+                showxypos_cursor_y=y&_mask;
                 custom_vsync();
                 refresh(rALL | rNOCURSOR);
                 int32_t xpos[2], ypos[2];
@@ -8642,8 +8643,9 @@ void doxypos(byte &px2,byte &py2,int32_t color,int32_t mask, bool immediately, i
             
             if(gui_mouse_b()==0)
             {
-                px2=byte(vbound(x,0,255)&mask);
-                py2=byte(vbound(y,0,255)&mask);
+				auto _mask = (key[KEY_LSHIFT] || key[KEY_RSHIFT]) ? shiftmask : mask;
+                px2=byte(vbound(x,0,255)&_mask);
+                py2=byte(vbound(y,0,255)&_mask);
             }
             
             set_mouse_range(0,0,zq_screen_w-1,zq_screen_h-1);
@@ -8691,6 +8693,10 @@ finished:
     }
     
     ComboBrush=tempcb;
+}
+static void doxypos(byte &px2,byte &py2,int32_t color,int32_t mask,int32_t shiftmask = 0)
+{
+    doxypos(px2,py2,color,mask,shiftmask ? shiftmask : mask,false,0,0,16,16);
 }
 
 bool placing_flags = false;
@@ -8835,7 +8841,7 @@ void moveffc(int32_t i, int32_t cx, int32_t cy)
     int32_t ffy = vbound(Map.CurrScr()->ffcs[i].y.getFloor(),0,160);
 	int32_t offx = ffx, offy = ffy;
     showxypos_ffc = i;
-    doxypos((byte&)ffx,(byte&)ffy,15,0xFF,true,cx-ffx,cy-ffy,(Map.CurrScr()->ffTileWidth(i)*16),(Map.CurrScr()->ffTileHeight(i)*16));
+    doxypos((byte&)ffx,(byte&)ffy,15,SNAP_HALF,SNAP_NONE,true,cx-ffx,cy-ffy,(Map.CurrScr()->ffTileWidth(i)*16),(Map.CurrScr()->ffTileHeight(i)*16));
     if(ffx > 240) ffx = 240;
     if(ffy > 160) ffy = 160;
     if((ffx != offx) || (ffy != offy))
@@ -11250,7 +11256,7 @@ void domouse()
 					int32_t iy = Map.CurrScr()->itemy;
 					
 					if(cx2 >= ix && cx2 < ix+16 && cy2 >= iy && cy2 < iy+16)
-						doxypos(Map.CurrScr()->itemx,Map.CurrScr()->itemy,11,0xF8,true,0,0,16,16);
+						doxypos(Map.CurrScr()->itemx,Map.CurrScr()->itemy,11,SNAP_HALF,SNAP_NONE,true,0,0,16,16);
 				}
 				
 				// Move FFCs
@@ -11640,7 +11646,7 @@ void domouse()
 					onItem();
 					
 					if(!rclick && Map.CurrScr()->hasitem)
-						doxypos(Map.CurrScr()->itemx,Map.CurrScr()->itemy,11,0xF8);
+						doxypos(Map.CurrScr()->itemx,Map.CurrScr()->itemy,11,SNAP_HALF,SNAP_NONE);
 					goto domouse_doneclick;
 				}
 			}
@@ -11650,7 +11656,7 @@ void domouse()
 				if(dummymode) do_dummyxy = true;
 				else
 				{
-					doxypos(Map.CurrScr()->stairx,Map.CurrScr()->stairy,14,0xF0);
+					doxypos(Map.CurrScr()->stairx,Map.CurrScr()->stairy,14,SNAP_WHOLE);
 					goto domouse_doneclick;
 				}
 			}
@@ -11669,7 +11675,7 @@ void domouse()
 								" in creating new quests.",
 								"dsa_warparrival");
 					}
-					else doxypos(Map.CurrScr()->warparrivalx,Map.CurrScr()->warparrivaly,10,0xF8);
+					else doxypos(Map.CurrScr()->warparrivalx,Map.CurrScr()->warparrivaly,10,SNAP_HALF,SNAP_NONE);
 					goto domouse_doneclick;
 				}
 			}
@@ -11691,7 +11697,7 @@ void domouse()
 					if(dummymode) do_dummyxy = true;
 					else
 					{
-						doxypos(Map.CurrScr()->warpreturnx[q],Map.CurrScr()->warpreturny[q],9,0xF8);
+						doxypos(Map.CurrScr()->warpreturnx[q],Map.CurrScr()->warpreturny[q],9,SNAP_HALF,SNAP_NONE);
 						goto domouse_doneclick;
 					}
 				}
@@ -11711,7 +11717,7 @@ void domouse()
 			{
 				byte x = 0, y = 0;
 				showxypos_dummy = true;
-				doxypos(x,y,13,0xF8);
+				doxypos(x,y,13,SNAP_HALF,SNAP_NONE);
 				goto domouse_doneclick;
 			}
 		}
