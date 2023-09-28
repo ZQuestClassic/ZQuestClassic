@@ -946,7 +946,7 @@ namespace util
 		// On Linux, /tmp can be a tmpfs, which means we cannot move a file from that to a different mount which would be the actual physical drive.
 		// We save to a temp file then move to the real place for .qst and .sav files, so we need the move to be possible.
 		// /var/tmp is meant to persist, so it is never a tmpfs, so use that instead.
-		if (result.starts_with("/tmp/"))
+		if (result.starts_with("/tmp/" && exists("/var/tmp")))
 			result = "/var" + result;
 		return result;
 	}
