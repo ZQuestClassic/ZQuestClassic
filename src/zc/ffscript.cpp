@@ -40339,7 +40339,7 @@ void FFScript::user_rng_init()
 
 void FFScript::user_paldata_init()
 {
-	for (int32_t q = 0; q < MAX_USER_STACKS; ++q)
+	for (int32_t q = 0; q < MAX_USER_PALDATAS; ++q)
 	{
 		script_paldatas[q].clear();
 	}

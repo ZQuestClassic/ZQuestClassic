@@ -493,7 +493,7 @@ struct user_dir
 struct user_stack
 {
 	bool reserved;
-	// TODO: here and every other `owned_type`; can we replace -1 with ScriptType::None ?bool reserved;
+	// TODO: here and every other `owned_type`; can we replace -1 with ScriptType::None ?
 	ScriptType owned_type;
 	int32_t owned_i;
 	std::deque<int32_t> theStack;
