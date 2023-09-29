@@ -5581,8 +5581,12 @@ reload_for_replay_file:
 			FFCore.user_stacks_init();
 			FFCore.user_objects_init();
 			objectRAM.clear();
+			FFCore.deallocateAllScriptOwned();
 		}
-		FFCore.deallocateAllScriptOwned();
+		else
+		{
+			FFCore.deallocateAllScriptOwnedCont();
+		}
 		
 		GameFlags = 0; //Clear game flags on ANY exit
 		kill_sfx();

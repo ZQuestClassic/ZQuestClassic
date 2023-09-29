@@ -3250,6 +3250,47 @@ void FFScript::deallocateAllScriptOwned()
 	}
 }
 
+void FFScript::deallocateAllScriptOwnedCont()
+{
+	for(int32_t q = MIN_USER_BITMAPS; q < MAX_USER_BITMAPS; ++q)
+	{
+		scb.script_created_bitmaps[q].own_clear_cont();
+	}
+	for(int32_t q = 0; q < MAX_USER_RNGS; ++q)
+	{
+		script_rngs[q].own_clear_cont();
+	}
+	for (int32_t q = 0; q < MAX_USER_PALDATAS; ++q)
+	{
+		script_paldatas[q].own_clear_cont();
+	}
+	for(int32_t q = 0; q < MAX_USER_FILES; ++q)
+	{
+		script_files[q].own_clear_cont();
+	}
+	for(int32_t q = 0; q < MAX_USER_DIRS; ++q)
+	{
+		script_dirs[q].own_clear_cont();
+	}
+	for(int32_t q = 0; q < MAX_USER_STACKS; ++q)
+	{
+		script_stacks[q].own_clear_cont();
+	}
+	for(int32_t q = 0; q < max_valid_object; ++q)
+	{
+		script_objects[q].own_clear_cont();
+	}
+	//No QR check here- always deallocate on quest exit.
+	for(int32_t i = 1; i < NUM_ZSCRIPT_ARRAYS; i++)
+	{
+		if(localRAM[i].Valid())
+		{
+			if(arrayOwner[i].own_clear_cont())
+				deallocateArray(i);
+		}
+	}
+}
+
 item *checkItem(int32_t iid)
 {
 	item *s = (item *)items.getByUID(iid);

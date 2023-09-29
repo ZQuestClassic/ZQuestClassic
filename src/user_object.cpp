@@ -40,6 +40,28 @@ bool user_abstract_obj::own_clear_any()
 	}
 	return false;
 }
+bool user_abstract_obj::own_clear_cont()
+{
+	if(owned_type != ScriptType::None || owned_i != 0)
+	{
+		if(owned_type != ScriptType::Generic)
+		{
+			free_obj();
+			return true;
+		}
+		else if(owned_i > 0 && owned_i < NUMSCRIPTSGENERIC)
+		{
+			static const word mask = (1<<GENSCR_ST_RELOAD)|(1<<GENSCR_ST_CONTINUE);
+			auto& genscr = user_scripts[owned_i];
+			if((genscr.exitState|genscr.reloadState) & mask)
+			{
+				free_obj();
+				return true;
+			}
+		}
+	}
+	return false;
+}
 
 ArrayOwner::ArrayOwner() : user_abstract_obj(),
 	specOwned(false), specCleared(false)

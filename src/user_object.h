@@ -36,6 +36,7 @@ struct user_abstract_obj
 	void own(ScriptType type, int32_t i);
 	bool own_clear(ScriptType type, int32_t i);
 	bool own_clear_any();
+	bool own_clear_cont();
 };
 
 struct ArrayOwner : user_abstract_obj
