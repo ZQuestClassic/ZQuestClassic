@@ -3,7 +3,7 @@
 #include <utility>
 #include "base/qrs.h"
 
-#ifdef IS_ZQUEST
+#ifdef IS_EDITOR
 #include "quest_rules.h"
 #include "zq/zq_files.h"
 
@@ -61,7 +61,7 @@ void InfoDialog::postinit()
 			break;
 		std::string sub = dlgText.substr(pos+1,nextpos-pos-1);
 		dlgText.erase(pos,nextpos-pos+1);
-		#ifdef IS_ZQUEST
+		#ifdef IS_EDITOR
 		dword special_type = 0; //qr by default
 		if(sub[0] == '#') //Special type id given
 		{
@@ -120,7 +120,7 @@ std::shared_ptr<GUI::Widget> InfoDialog::view()
 	std::shared_ptr<GUI::Grid> gr;
 	std::shared_ptr<GUI::Grid> closeRow;
 	bool add_grid = false, addok = false;
-	#ifdef IS_ZQUEST
+	#ifdef IS_EDITOR
 	add_grid = addok = qrs.size() || ruleTemplates.size();
 	if(add_grid)
 		gr = Row(padding = 0_px);
@@ -227,7 +227,7 @@ bool InfoDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			toggle_bit(local_qrs, msg.argument);
 			return false;
 		case message::OK:
-			#ifdef IS_ZQUEST
+			#ifdef IS_EDITOR
 			if(dest_qrs)
 			{
 				if(ruleTemplates.size())

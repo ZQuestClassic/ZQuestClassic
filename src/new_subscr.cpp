@@ -464,7 +464,7 @@ int wrap_iid(int iid)
 
 int get_sub_dmap()
 {
-#if IS_ZQUEST
+#if IS_EDITOR
 	if(zq_subscr_override_dmap > -1)
 		return zq_subscr_override_dmap;
 #endif

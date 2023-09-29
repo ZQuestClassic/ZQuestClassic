@@ -6512,7 +6512,7 @@ int32_t init_quest(const char *)
     load_quest(qstdat_string);
     loading_file_new = false;
 	
-	sprintf(buf,"ZQuest - Untitled Quest");
+	sprintf(buf,"ZC Editor - Untitled Quest");
     set_window_title(buf);
     zinit.last_map = 0;
     zinit.last_screen = 0;
@@ -6871,7 +6871,7 @@ int32_t load_quest(const char *filename, bool show_progress)
 			
 			if (show_progress)
 			{
-				sprintf(buf,"ZQuest - [%s]", get_filename(filename));
+				sprintf(buf,"ZC Editor - [%s]", get_filename(filename));
 				set_window_title(buf);
 			}
 		}

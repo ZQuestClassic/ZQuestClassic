@@ -17,7 +17,7 @@
 #include "base/mapscr.h"
 #include "base/misctypes.h"
 
-#ifndef IS_ZQUEST
+#ifndef IS_EDITOR
 #include "zc/render.h"
 #endif
 
@@ -7978,7 +7978,7 @@ void weapon::draw_hitbox()
 	if(hide_hitbox) return;
 	if(!get_qr(qr_OLD_BOMB_HITBOXES) && (id == wBomb || id == wSBomb || id == ewBomb || id == ewSBomb))
 	{
-#ifndef IS_ZQUEST
+#ifndef IS_EDITOR
 		start_info_bmp();
 		if(parentitem < 0 || itemsbuf[parentitem].misc7 < 1)
 		{

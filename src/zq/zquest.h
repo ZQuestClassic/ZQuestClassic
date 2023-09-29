@@ -1162,7 +1162,7 @@ void center_zscript_dialogs();
 void animate_coords();
 void do_animations();
 int32_t onZQVidMode();
-bool is_zquest();
+bool is_editor();
 int32_t save_config_file();
 int32_t d_timer_proc(int32_t msg, DIALOG *d, int32_t c);
 void check_autosave();

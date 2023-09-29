@@ -983,7 +983,7 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool freshquest)
     {
         if(zinit2->items[i] && (itemsbuf[i].flags & ITEM_GAMEDATA))
         {
-#ifndef IS_ZQUEST
+#ifndef IS_EDITOR
             if (!game2->get_item(i))
                 getitem(i,true,false);
 #else

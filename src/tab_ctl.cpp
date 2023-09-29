@@ -5,7 +5,7 @@
 extern volatile int32_t myvsync;
 void update_hw_screen(bool force);
 
-extern bool is_zquest();
+extern bool is_editor();
 
 int32_t vc2(int32_t x)
 {

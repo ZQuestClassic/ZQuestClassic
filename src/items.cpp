@@ -13,7 +13,7 @@
 char *item_string[MAXITEMS];
 
 extern zinitdata zinit;
-#ifndef IS_ZQUEST
+#ifndef IS_EDITOR
 	extern FFScript FFCore;
 	extern ZModule zcm;
 #endif
@@ -23,7 +23,7 @@ int32_t fairy_cnt=0;
 item::~item()
 {
 	// TODO: we should have an item manager class in zc and manage lifetime explicitly, not via dtors.
-#ifndef IS_ZQUEST
+#ifndef IS_EDITOR
 	if(itemsbuf[id].family==itype_fairy && itemsbuf[id].misc3>0 && misc>0 && !get_qr(qr_OLD_FAIRY_LIMIT))
 		killfairynew(*this);
 	FFCore.deallocateAllScriptOwned(ScriptType::ItemSprite, getUID());
@@ -82,7 +82,7 @@ bool item::animate(int32_t)
 			solid_update(false);
 			return false;
 		}
-#ifndef IS_ZQUEST
+#ifndef IS_EDITOR
 		if(isSideViewGravity())
 		{
 			if((
@@ -239,7 +239,7 @@ bool item::animate(int32_t)
 		}
 		else
 			tile = o_tile + aframe;
-#ifndef IS_ZQUEST
+#ifndef IS_EDITOR
 		//Bottles offset based on their slot's fill
 		if(itm->family == itype_bottle)
 		{
@@ -258,7 +258,7 @@ bool item::animate(int32_t)
 #endif
 	}
 	
-#ifndef IS_ZQUEST
+#ifndef IS_EDITOR
 	if(itemsbuf[id].family == itype_fairy && itemsbuf[id].misc3)
 	{
 		movefairynew(x,y,*this);
@@ -324,7 +324,7 @@ item::item(zfix X,zfix Y,zfix Z,int32_t i,int32_t p,int32_t c, bool isDummy) : s
 	from_dropset = -1;
 	pickupexstate = -1;
 
-	#ifndef IS_ZQUEST
+	#ifndef IS_EDITOR
 	script_UID = FFCore.GetScriptObjectUID(UID_TYPE_ITEM); //This is used by child npcs. 
 	//Sadly, this also stores UIDs for all dummy objects, including subscreen and other stuff. 
 	//if ( !isDummy && ( pickup == 0x100 || pickup <= 0 || pickup == 0x002 || pickup == 0x004 && pickup == 0x800 ) ) script_UID = FFCore.GetScriptObjectUID(UID_TYPE_ITEM); //This is used by child npcs. 
@@ -402,7 +402,7 @@ item::item(zfix X,zfix Y,zfix Z,int32_t i,int32_t p,int32_t c, bool isDummy) : s
 	if(!isDummy && itm.family == itype_fairy && itm.misc3)
 	{
 		misc = ++fairy_cnt;
-#ifndef IS_ZQUEST
+#ifndef IS_EDITOR
 		if(addfairynew(x, y, itm.misc3, *this))
 			sfx(itm.usesound);
 #endif
@@ -501,7 +501,7 @@ void item::load_gfx(itemdata const& itm)
 		}
 		else
 			tile = o_tile + aframe;
-#ifndef IS_ZQUEST
+#ifndef IS_EDITOR
 		//Bottles offset based on their slot's fill
 		if(itm.family == itype_bottle)
 		{
@@ -517,7 +517,7 @@ void item::load_gfx(itemdata const& itm)
 
 int32_t get_progressive_item(itemdata const& itm, bool lastOwned)
 {
-#ifdef IS_ZQUEST
+#ifdef IS_EDITOR
 	return -1;
 #else
 	int32_t arr[] = {itm.misc1, itm.misc2, itm.misc3, itm.misc4, itm.misc5,
@@ -554,7 +554,7 @@ int32_t get_progressive_item(itemdata const& itm, bool lastOwned)
 #endif
 }
 // Linker issues because this is shared with ZQu4est. :( -Z
-#ifndef IS_ZQUEST
+#ifndef IS_EDITOR
 int32_t item::getScriptUID() { return script_UID; }
 void item::setScriptUID(int32_t new_id) { script_UID = new_id; }
 #endif
@@ -921,7 +921,7 @@ std::string itemdata::get_name(bool init, bool plain) const
 					}
 					else
 					{
-#ifndef IS_ZQUEST
+#ifndef IS_EDITOR
 						arg = bottle_slot_name(misc1,"Empty");
 #else
 						arg = "Empty";
@@ -960,7 +960,7 @@ std::string itemdata::get_name(bool init, bool plain) const
 					break;
 				}
 				case itype_bottle:
-#ifndef IS_ZQUEST
+#ifndef IS_EDITOR
 					overname = bottle_slot_name(misc1,"");
 #endif
 					break;

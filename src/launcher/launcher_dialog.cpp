@@ -890,7 +890,7 @@ bool LauncherDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			launch_process(ZPLAYER_FILE);
 			break;
 		case message::ZQ:
-			launch_process(ZQUEST_FILE);
+			launch_process(ZEDITOR_FILE);
 			break;
 		case message::ZU:
 		{

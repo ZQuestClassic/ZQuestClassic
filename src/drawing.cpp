@@ -17,7 +17,7 @@ extern zinitdata zinit;
 #define DITH_TYPE (game ? game->get_dither_type() : zinit.dither_type)
 #define DITH_ARG (game ? game->get_dither_arg() : zinit.dither_arg)
 //end IS_PLAYER
-#elif defined(IS_ZQUEST)
+#elif defined(IS_EDITOR)
 
 extern gamedata* game;
 extern zinitdata zinit;

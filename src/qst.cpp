@@ -1307,7 +1307,7 @@ int32_t get_qst_buffers()
     //Z_message("Performed clear_tiles()\n"); 
     Z_message("OK\n");                                        // Allocating tile buffer...
     
-    if(is_zquest())
+    if(is_editor())
     {
         memrequested+=(NEWMAXTILES*(sizeof(tiledata)+tilesize(tf4Bit)));
         Z_message("Allocating tile grab buffer (%s)... ", byte_conversion2(NEWMAXTILES*sizeof(tiledata),memrequested,-1,-1));
@@ -1388,7 +1388,7 @@ void free_newtilebuf()
 
 void free_grabtilebuf()
 {
-    if(is_zquest())
+    if(is_editor())
     {
         if(grabtilebuf)
         {
@@ -17697,7 +17697,7 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 	}
 	
 	//June 3 2012; ladder only is broken in 2.10 and allows the hookshot also. -Gleeok
-	if(version == 0x210 && !is_zquest())
+	if(version == 0x210 && !is_editor())
 	{
 		for(int32_t tmpcounter=0; tmpcounter<MAXCOMBOS; tmpcounter++)
 			if(combobuf[tmpcounter].type == cLADDERONLY)

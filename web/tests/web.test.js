@@ -141,7 +141,7 @@ describe('player', () => {
   }).timeout(120_000 * 3);
 });
 
-describe('zquest', () => {
+describe('editor', () => {
   it('loads without errors', async () => {
     await page.goto(`${url}/zquest.html?storage=idb`, { waitUntil: 'networkidle0', timeout: 0 });
 

@@ -4100,7 +4100,7 @@ int32_t getTint(int32_t color)
 /********** Main **********/
 /**************************/
 
-bool is_zquest()
+bool is_editor()
 {
     return false;
 }

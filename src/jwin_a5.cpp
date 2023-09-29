@@ -22,7 +22,7 @@ void update_hw_screen(bool force);
 extern int32_t zq_screen_w, zq_screen_h;
 extern int32_t joystick_index;
 
-extern bool is_zquest();
+extern bool is_editor();
 
 ALLEGRO_COLOR jwin_a5_colors[9];
 ALLEGRO_COLOR jwin_a5_pal(int jc)

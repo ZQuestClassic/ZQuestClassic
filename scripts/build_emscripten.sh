@@ -198,7 +198,7 @@ bash ../web/patches/apply.sh
 embuilder build sdl2-mt
 embuilder build sdl2_mixer_mid
 
-TARGETS="${@:-zplayer zquest zscript}"
+TARGETS="${@:-zplayer zeditor zscript}"
 cmake --build . --config $CONFIG -t $TARGETS
 cd $CONFIG
 
@@ -260,13 +260,14 @@ if [[ "${TARGETS[*]}" =~ "zplayer" ]]; then
     sed -i -e 's/__IS_CI__/false/' zelda.html
   fi
 fi
-if [[ "${TARGETS[*]}" =~ "zquest" ]]; then
+if [[ "${TARGETS[*]}" =~ "zeditor" ]]; then
   cp ../../web/index.html zquest.html
   sed -i -e 's/__TARGET__/zquest/' zquest.html
   sed -i -e 's|__DATA__|<script src="zc.data.js"></script><script src="zq.data.js"></script>|' zquest.html
   sed -i -e 's|__SCRIPT__|<script async src="zquest.js"></script>|' zquest.html
   set_files zquest.html
   insert_css zquest.html
+  mv zeditor.js zquest.js
   if [[ "$ZC_PACKAGE_REPLAYS" ]]; then
     sed -i -e 's/__IS_CI__/true/' zquest.html
   else

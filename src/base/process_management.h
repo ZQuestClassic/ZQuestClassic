@@ -22,14 +22,14 @@ static uint32_t __dummy_;
 
 #ifdef _WIN32
 	#define ZPLAYER_FILE "zplayer.exe"
-	#define ZQUEST_FILE "zquest.exe"
+	#define ZEDITOR_FILE "zeditor.exe"
 	#define ZSCRIPT_FILE "zscript.exe"
 	#define ZLAUNCHER_FILE "zlauncher.exe"
 	#define ZUPDATER_FILE "zupdater.exe"
 	#define PYTHON "pythonw"
 #else
 	#define ZPLAYER_FILE "./zplayer"
-	#define ZQUEST_FILE "./zquest"
+	#define ZEDITOR_FILE "./zeditor"
 	#define ZSCRIPT_FILE "./zscript"
 	#define ZLAUNCHER_FILE "./zlauncher"
 	#define ZUPDATER_FILE "./zupdater"

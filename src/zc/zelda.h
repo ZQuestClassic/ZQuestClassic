@@ -152,7 +152,7 @@ int32_t get_currmap();
 int32_t get_homescr();
 int32_t get_bmaps(int32_t si);
 bool no_subscreen();
-bool is_zquest();
+bool is_editor();
 bool screenIsScrolling();
 //void quit_game();
 int32_t d_timer_proc(int32_t msg, DIALOG *d, int32_t c);

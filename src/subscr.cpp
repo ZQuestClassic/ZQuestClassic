@@ -2935,7 +2935,7 @@ void show_custom_subscreen(BITMAP *dest, ZCSubscreen* subscr, int32_t xofs, int3
 	color_map=&trans_table;
 	set_trans_blender(0, 0, 0, 128);
 	
-	#ifdef IS_ZQUEST
+	#ifdef IS_EDITOR
 	/* ZQ has no 'advanceframe' to increment the global frame counter,
 	 * so we need to increment that here, as flashing items use it for their draw.
 	 * -Em

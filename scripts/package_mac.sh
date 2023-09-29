@@ -25,7 +25,7 @@ python scripts/package.py --build_folder "$build_dir" --skip_archive
 # Set SKIP_APP_BUNDLE=1 to skip building an osx application bundle.
 # This won't be able to distribute easily, because OSX will prevent users from running
 # unverified binaries unless they right-click->Open and ignore a scary warning. Even then,
-# when zlauncher/zquest opens other ZC processes OSX will prevent it without a way to ignore
+# when zlauncher/zeditor opens other ZC processes OSX will prevent it without a way to ignore
 # the intervention, so some features won't work.
 if test "${SKIP_APP_BUNDLE+x}"; then
   rm -rf "$mac_package_dir"
@@ -70,7 +70,7 @@ find "$contents/Resources" -name "*.dylib" -exec mv {} "$tmp_libs_dir" \;
 
 # Correct the library paths in the executable, and codesign.
 dylibbundler -od -b -d "$contents/libs/" -s "$tmp_libs_dir" \
-    -x "$contents/Resources/zlauncher" -x "$contents/Resources/zquest" \
+    -x "$contents/Resources/zlauncher" -x "$contents/Resources/zeditor" \
     -x "$contents/Resources/zplayer" -x "$contents/Resources/zscript" \
     -x "$contents/Resources/zupdater"
 rm -rf "$tmp_libs_dir"
@@ -82,7 +82,7 @@ if test "${PACKAGE_DEBUG_INFO+x}"; then
   xcrun dsymutil \
     "$contents/Resources/zlauncher" \
     "$contents/Resources/zplayer" \
-    "$contents/Resources/zquest" \
+    "$contents/Resources/zeditor" \
     "$contents/Resources/zscript" \
     "$contents/Resources/zupdater" \
     $(find "$contents/libs" -name '*.dylib' -type f -printf "\"%p\" ") \

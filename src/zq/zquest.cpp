@@ -29906,7 +29906,7 @@ int32_t onZQVidMode()
     return D_O_K;
 }
 
-bool is_zquest()
+bool is_editor()
 {
     return true;
 }

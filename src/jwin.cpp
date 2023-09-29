@@ -25,7 +25,7 @@ void update_hw_screen(bool force);
 extern int32_t zq_screen_w, zq_screen_h;
 extern int32_t joystick_index;
 
-extern bool is_zquest();
+extern bool is_editor();
 
 int32_t abc_patternmatch = 1;
 
