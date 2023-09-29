@@ -4053,7 +4053,7 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 										{
 											prompt_combo = cmb*10000;
 											prompt_cset = c;
-											cmbswatches[1]->setCSet(prompt_cset);
+											cmbswatches[0]->setCSet(prompt_cset);
 										}
 									),
 									INFOBTN("The combo/cset to use for the prompt"),

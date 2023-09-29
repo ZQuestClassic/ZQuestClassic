@@ -103,7 +103,6 @@ static zc_randgen drunk_rng;
 #include "zconsole.h"
 #include "base/win32.h"
 #include "single_instance.h"
-#include "zc/zeldadat.h"
 
 #define LOGGAMELOOP 0
 
@@ -170,7 +169,7 @@ std::string standalone_save_path;
 bool disable_save_to_disk=false;
 
 int32_t favorite_combos[MAXFAVORITECOMBOS] = {0};
-int32_t favorite_comboaliases[MAXFAVORITECOMBOALIASES]= {0};
+byte favorite_combo_modes[MAXFAVORITECOMBOS] = {0};
 
 void playLevelMusic();
 
@@ -320,9 +319,10 @@ BITMAP     *framebuf, *menu_bmp, *gui_bmp, *scrollbuf, *scrollbuf_old, *tmp_bmp,
 		   *pricesdisplaybuf, *tb_page[3], *temp_buf, *prim_bmp,
 		   *script_menu_buf, *f6_menu_buf;
 BITMAP     *zcmouse[NUM_ZCMOUSE];
-DATAFILE   *datafile, *sfxdata, *fontsdata, *mididata;
+DATAFILE   *sfxdata, *fontsdata, *mididata;
 size_t fontsdat_cnt = 0;
 PALETTE    RAMpal;
+PALETTE    pal_gui;
 byte       *colordata, *trashbuf;
 //byte       *tilebuf;
 itemdata   *itemsbuf;
@@ -489,23 +489,11 @@ script_data *itemspritescripts[NUMSCRIPTSITEMSPRITE];
 script_data *comboscripts[NUMSCRIPTSCOMBODATA];
 script_data *subscreenscripts[NUMSCRIPTSSUBSCREEN];
 
-ScriptOwner::ScriptOwner() : scriptType(ScriptType::None), ownerUID(0),
-	specOwned(false), specCleared(false)
-{}
-
-void ScriptOwner::clear()
-{
-	scriptType = ScriptType::None;
-	ownerUID = 0;
-	specOwned = false;
-	specCleared = false;
-}
-
 //ZScript array storage
 std::vector<ZScriptArray> globalRAM;
 ZScriptArray localRAM[NUM_ZSCRIPT_ARRAYS];
 std::map<int32_t,ZScriptArray> objectRAM;
-ScriptOwner arrayOwner[NUM_ZSCRIPT_ARRAYS];
+ArrayOwner arrayOwner[NUM_ZSCRIPT_ARRAYS];
 
 //script bitmap drawing
 ZScriptDrawingRenderTarget* zscriptDrawingRenderTarget;
@@ -1120,7 +1108,6 @@ void Z_scripterrlog(const char * const format,...)
     }
 }
 
-bool blockmoving;
 #include "sprite.h"
 movingblock mblock2;                                        //mblock[4]?
 portal mirror_portal;
@@ -1230,7 +1217,7 @@ void ALLOFF(bool messagesToo, bool decorationsToo, bool force)
 	activation_counters_ffc.clear();
 
     sle_clk=0;
-    blockmoving=false;
+	mblock2.clear();
     fairy_cnt=0;
     
     if(usebombpal)
@@ -2000,7 +1987,7 @@ int32_t init_game()
 	Hero.reset_hookshot();
 	Hero.reset_ladder();
 	linkedmsgclk=0;
-	blockmoving=false;
+	mblock2.clear();
 	add_asparkle=0;
 	add_bsparkle=0;
 	add_df1asparkle=false;
@@ -2015,6 +2002,7 @@ int32_t init_game()
 	FFCore.user_files_init();
 	FFCore.user_dirs_init();
 	FFCore.user_stacks_init();
+	FFCore.user_paldata_init();
 	cheat=0;
 	wavy=quakeclk=0;
 	show_layer_0=show_layer_1=show_layer_2=show_layer_3=show_layer_4=show_layer_5=show_layer_6=true;
@@ -2299,7 +2287,7 @@ int32_t init_game()
 	if(!firstplay && !get_qr(qr_OLD_INIT_SCRIPT_TIMING))
 	{
 		ZScriptVersion::RunScript(ScriptType::Global, GLOBAL_SCRIPT_ONSAVELOAD, GLOBAL_SCRIPT_ONSAVELOAD); //Do this after global arrays have been loaded
-		FFCore.deallocateAllArrays(ScriptType::Global, GLOBAL_SCRIPT_ONSAVELOAD);
+		FFCore.deallocateAllScriptOwned(ScriptType::Global, GLOBAL_SCRIPT_ONSAVELOAD);
 	}
 	
 	loadscr(currdmap, currscr, -1, false);
@@ -2340,22 +2328,26 @@ int32_t init_game()
 		if(!get_qr(qr_OLD_INIT_SCRIPT_TIMING))
 		{
 			ZScriptVersion::RunScript(ScriptType::Global, GLOBAL_SCRIPT_INIT, GLOBAL_SCRIPT_INIT);
-			FFCore.deallocateAllArrays(ScriptType::Global, GLOBAL_SCRIPT_INIT); //Deallocate LOCAL arrays declared in the init script. This function does NOT deallocate global arrays.
+			FFCore.deallocateAllScriptOwned(ScriptType::Global, GLOBAL_SCRIPT_INIT); //Deallocate LOCAL arrays declared in the init script. This function does NOT deallocate global arrays.
 		}
 		if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
 			ZScriptVersion::RunScript(ScriptType::Player, SCRIPT_PLAYER_INIT); //We run this here so that the user can set up custom
 									//positional data, sprites, tiles, csets, invisibility states, and the like.
-			FFCore.deallocateAllArrays(ScriptType::Player, SCRIPT_PLAYER_INIT);
+			FFCore.deallocateAllScriptOwned(ScriptType::Player, SCRIPT_PLAYER_INIT);
 		}
 		FFCore.initZScriptHeroScripts(); //Clear the stack and the refinfo data to be ready for Hero's active script.
 		Hero.set_respawn_point(); //This should be after the init script, so that Hero->X and Hero->Y set by the script
 						//are properly set by the engine.
 	}
 	Hero.resetflags(true); //This should probably occur after running Hero's init script. 
-	
-	
-	copy_pal((RGB*)datafile[PAL_GUI].dat,RAMpal);
+
+	BITMAP* gui_pal_bitmap = load_bitmap("assets/gui_pal.bmp", pal_gui);
+	if (!gui_pal_bitmap)
+		Z_error_fatal("Missing required file %s\n", "assets/gui_pal.bmp");
+	copy_pal(pal_gui,RAMpal);
+	destroy_bitmap(gui_pal_bitmap);
+
 	loadfullpal();
 	ringcolor(false);
 	loadlvlpal(DMaps[currdmap].color);
@@ -2532,7 +2524,7 @@ int32_t init_game()
 	
 	//Run after Init/onSaveLoad, regardless of firstplay -V
 	FFCore.runOnLaunchEngine();
-	FFCore.deallocateAllArrays(ScriptType::Global, GLOBAL_SCRIPT_ONLAUNCH);
+	FFCore.deallocateAllScriptOwned(ScriptType::Global, GLOBAL_SCRIPT_ONLAUNCH);
 	
 	FFCore.runGenericPassiveEngine(SCR_TIMING_INIT);
 	throwGenScriptEvent(GENSCR_EVENT_INIT);
@@ -2578,12 +2570,12 @@ int32_t init_game()
 		{
 			memset(game->screen_d, 0, MAXDMAPS * 64 * 8 * sizeof(int32_t));
 			ZScriptVersion::RunScript(ScriptType::Global, GLOBAL_SCRIPT_INIT, GLOBAL_SCRIPT_INIT);
-			if(!get_qr(qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS) ) FFCore.deallocateAllArrays(ScriptType::Global, GLOBAL_SCRIPT_INIT); //Deallocate LOCAL arrays declared in the init script. This function does NOT deallocate global arrays.
+			if(!get_qr(qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS) ) FFCore.deallocateAllScriptOwned(ScriptType::Global, GLOBAL_SCRIPT_INIT); //Deallocate LOCAL arrays declared in the init script. This function does NOT deallocate global arrays.
 		}
 		else
 		{
 			ZScriptVersion::RunScript(ScriptType::Global, GLOBAL_SCRIPT_ONSAVELOAD, GLOBAL_SCRIPT_ONSAVELOAD); //Do this after global arrays have been loaded
-			if(!get_qr(qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS) ) FFCore.deallocateAllArrays(ScriptType::Global, GLOBAL_SCRIPT_ONSAVELOAD);
+			if(!get_qr(qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS) ) FFCore.deallocateAllScriptOwned(ScriptType::Global, GLOBAL_SCRIPT_ONSAVELOAD);
 		}	
 	}
 	
@@ -2609,7 +2601,7 @@ int32_t cont_game()
 	Hero.reset_hookshot();
 	Hero.reset_ladder();
 	linkedmsgclk=0;
-	blockmoving=0;
+	mblock2.clear();
 	add_asparkle=0;
 	add_bsparkle=0;
 	add_df1asparkle=false;
@@ -2716,7 +2708,7 @@ int32_t cont_game()
 	
 	initZScriptGlobalScript(GLOBAL_SCRIPT_ONCONTGAME);
 	ZScriptVersion::RunScript(ScriptType::Global, GLOBAL_SCRIPT_ONCONTGAME, GLOBAL_SCRIPT_ONCONTGAME);	
-	FFCore.deallocateAllArrays(ScriptType::Global, GLOBAL_SCRIPT_ONCONTGAME);
+	FFCore.deallocateAllScriptOwned(ScriptType::Global, GLOBAL_SCRIPT_ONCONTGAME);
 	
 	initZScriptGlobalScript(GLOBAL_SCRIPT_GAME);
 	FFCore.initZScriptHeroScripts();
@@ -4341,7 +4333,7 @@ int32_t getTint(int32_t color)
 /********** Main **********/
 /**************************/
 
-bool is_zquest()
+bool is_editor()
 {
     return false;
 }
@@ -5066,25 +5058,11 @@ int main(int argc, char **argv)
 	sprintf(sfxdat_sig,"SFX.Dat %s Build %d",VerStr(SFXDAT_VERSION), SFXDAT_BUILD);
 	sprintf(fontsdat_sig,"Fonts.Dat %s Build %d",VerStr(FONTSDAT_VERSION), FONTSDAT_BUILD);
 	
-	packfile_password(""); // Temporary measure. -L
-	Z_message("Zelda.Dat...");
-	
-	if((datafile=load_datafile(moduledata.datafiles[zelda_dat]))==NULL) 
-	{
-		Z_error_fatal("failed to load zelda_dat");
-	}
-	
-	if(strncmp((char*)datafile[0].dat,zeldadat_sig,24))
-	{
-		Z_error_fatal("\nIncompatible version of zelda.dat.\nPlease upgrade to %s Build %d",VerStr(ZELDADAT_VERSION), ZELDADAT_BUILD);
-	}
-	
-	Z_message("OK\n");
 	packfile_password(datapwd); // Temporary measure. -L
 	
 	Z_message("Fonts.Dat...");
 	
-	if((fontsdata=load_datafile_count(moduledata.datafiles[fonts_dat], fontsdat_cnt))==NULL)
+	if((fontsdata=load_datafile_count("modules/classic/classic_fonts.dat", fontsdat_cnt))==NULL)
 	{
 		Z_error_fatal("failed to load fonts");
 	}
@@ -5105,7 +5083,7 @@ int main(int argc, char **argv)
 	
 	Z_message("SFX.Dat...");
 	
-	if((sfxdata=load_datafile(moduledata.datafiles[sfx_dat]))==NULL)
+	if((sfxdata=load_datafile("sfx.dat"))==NULL)
 	{
 		Z_error_fatal("failed to load sfx_dat");
 	}
@@ -5116,9 +5094,7 @@ int main(int argc, char **argv)
 	}
 	
 	Z_message("OK\n");
-	
-	mididata = (DATAFILE*)datafile[ZC_MIDI].dat;
-	
+		
 	allocate_crap();
 	
 	//script drawing bitmap allocation
@@ -5714,8 +5690,8 @@ reload_for_replay_file:
 		tmpscr->flags3=0;
 		Playing=Paused=false;
 		//Clear active script array ownership
-		FFCore.deallocateAllArrays(ScriptType::Global, GLOBAL_SCRIPT_GAME);
-		FFCore.deallocateAllArrays(ScriptType::Player, SCRIPT_PLAYER_ACTIVE);
+		FFCore.deallocateAllScriptOwned(ScriptType::Global, GLOBAL_SCRIPT_GAME);
+		FFCore.deallocateAllScriptOwned(ScriptType::Player, SCRIPT_PLAYER_ACTIVE);
 		switch(Quit)
 		{
 			case qSAVE:
@@ -5826,7 +5802,7 @@ reload_for_replay_file:
 			}
 			break;
 		}
-		FFCore.deallocateAllArrays(ScriptType::Global, GLOBAL_SCRIPT_END);
+		FFCore.deallocateAllScriptOwned(ScriptType::Global, GLOBAL_SCRIPT_END);
 		//Restore original palette before exiting for any reason!
 		setMonochrome(false);
 		doClearTint();
@@ -5835,15 +5811,20 @@ reload_for_replay_file:
 		{
 			memset(disabledKeys, 0, sizeof(disabledKeys));
 			memset(disable_control, 0, sizeof(disable_control));
-			FFCore.user_files_init(); //Clear open FILE*!
-			FFCore.user_dirs_init(); //Clear open FLIST*!
-			FFCore.user_bitmaps_init(); //Clear open bitmaps
-			FFCore.user_stacks_init(); //Clear open stacks
-			FFCore.user_objects_init(); //Clear open stacks
+			FFCore.user_files_init();
+			FFCore.user_dirs_init();
+			FFCore.user_bitmaps_init();
+			FFCore.user_paldata_init();
+			FFCore.user_stacks_init();
+			FFCore.user_objects_init();
 			objectRAM.clear();
+			FFCore.deallocateAllScriptOwned();
 		}
-		//Deallocate ALL ZScript arrays on ANY exit.
-		FFCore.deallocateAllArrays();
+		else
+		{
+			FFCore.deallocateAllScriptOwnedCont();
+		}
+		
 		GameFlags = 0; //Clear game flags on ANY exit
 		kill_sfx();
 		music_stop();
@@ -5959,9 +5940,7 @@ void quit_game()
 	
 	free(game);
 	game = NULL;
-	
-	if(datafile) unload_datafile(datafile);
-	
+		
 	if(fontsdata) unload_datafile(fontsdata);
 	
 	if(sfxdata) unload_datafile(sfxdata);

@@ -760,16 +760,16 @@ void do_linesr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32_t y
     {
 	
 	    int32_t x1 = v.at(q);
-	    Z_scripterrlog("Lines( x1 ) is: %d\n", x1);
+	    //Z_scripterrlog("Lines( x1 ) is: %d\n", x1);
 	    int32_t y1 = v.at(q+1);
-	    Z_scripterrlog("Lines( x2 ) is: %d\n", y1);
+	    //Z_scripterrlog("Lines( x2 ) is: %d\n", y1);
 	    int32_t x2 = v.at(q+2);
-	    Z_scripterrlog("Lines( x2 ) is: %d\n", x2);
+	    //Z_scripterrlog("Lines( x2 ) is: %d\n", x2);
 	    int32_t y2 = v.at(q+3);
-	    Z_scripterrlog("Lines( y2 ) is: %d\n", y2);
+	    //Z_scripterrlog("Lines( y2 ) is: %d\n", y2);
 	    int32_t color  = v.at(q+4);
-	    Z_scripterrlog("Lines( colour ) is: %d\n", color);
-	    Z_scripterrlog("Lines( scale ) is: %d\n", v.at(q+5));
+	    //Z_scripterrlog("Lines( colour ) is: %d\n", color);
+	    //Z_scripterrlog("Lines( scale ) is: %d\n", v.at(q+5));
 	    if (v.at(q+5) == 0) { Z_scripterrlog("Lines() aborting due to scale\n"); return; }//scale
 	    
 	    if( v.at(q+5) != 10000)
@@ -785,15 +785,15 @@ void do_linesr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32_t y
 	    }
 	    
 	    
-	    Z_scripterrlog("Lines( opacity ) is: %d\n", v.at(q+9));
+	    //Z_scripterrlog("Lines( opacity ) is: %d\n", v.at(q+9));
 	    if(v.at(q+9) <= 127) //translucent
 	    {
 		drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
 	    }
 	    else drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
-	    Z_scripterrlog("Lines( rotation ) is: %d\n", v.at(q+8));
-	    Z_scripterrlog("Lines( rot_x ) is: %d\n", v.at(q+6));
-	    Z_scripterrlog("Lines( rot_x ) is: %d\n", v.at(q+7));
+	    //Z_scripterrlog("Lines( rotation ) is: %d\n", v.at(q+8));
+	    //Z_scripterrlog("Lines( rot_x ) is: %d\n", v.at(q+6));
+	    //Z_scripterrlog("Lines( rot_x ) is: %d\n", v.at(q+7));
 	    if( v.at(q+8) !=0 ) //rotation
 	    {
 		int32_t xy[4];
@@ -815,8 +815,8 @@ void do_linesr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32_t y
 		x2=xy[2];
 		y2=xy[3];
 	    }
-	    Z_scripterrlog("Lines( xofs ) is: %d\n", xoffset);
-	    Z_scripterrlog("Lines( yofs ) is: %d\n", yoffset);
+	    //Z_scripterrlog("Lines( xofs ) is: %d\n", xoffset);
+	    //Z_scripterrlog("Lines( yofs ) is: %d\n", yoffset);
 	    line(bmp, x1+xoffset, y1+yoffset, x2+xoffset, y2+yoffset, color);
     }
     drawing_mode(DRAW_MODE_SOLID, NULL, 0, 0);
@@ -1504,9 +1504,9 @@ void do_fasttilesr(BITMAP *bmp, int32_t i, int32_t *sdci, int32_t xoffset, int32
     {
 	    
 	    if(v.at(q+4) < 128)
-		overtiletranslucent16(bmp, v.at(q), xoffset+(v.at(q+1)), yoffset+(v.at(q+2)), v.at(q+3), 0, v.at(q+4));
+		overtiletranslucent16(bmp, v.at(q+2), xoffset+(v.at(q)), yoffset+(v.at(q+1)), v.at(q+3), 0, v.at(q+4));
 	    else
-		overtile16(bmp, v.at(q), xoffset+(v.at(q+1)), yoffset+(v.at(q+2)), v.at(q+3), 0);
+		overtile16(bmp, v.at(q+2), xoffset+(v.at(q)), yoffset+(v.at(q+1)), v.at(q+3), 0);
     }
 }
 

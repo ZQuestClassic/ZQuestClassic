@@ -341,6 +341,10 @@ int32_t onViewMap();
 
 void init_ffpos();
 
+bool is_push_flag(int32_t flag);
+bool is_push_flag_dir(int flag, int dir);
+bool is_push(mapscr* m, int32_t pos);
+
 enum class ScreenItemState {
 	None,
 	WhenKillEnemies,

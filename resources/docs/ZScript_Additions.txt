@@ -1344,8 +1344,21 @@ cases where you are not using the base function in an assign.
 	In this example, if the GetClosestNPC() function finds an enemy (i.e. does not return NULL), then
 		the 'then' block will run, doing something with the enemy's position.
 	If no enemy is found (the function returned NULL), then the else block will run instead.
-	
-	
+
+///////////////////////
+// Auto Declarations //
+///////////////////////
+
+By declaring a single variable using the type 'auto', it will inherit its
+	type from its initializer.
+
+Example:
+	auto x = 5; //x is int
+	auto n = Screen->LoadNPC(1); //n is npc
+	auto l = Screen->CreateLWeapon(LW_FIRE); //l is lweapon
+	//auto a = 1, b = 2; //ERROR: cannot use 'auto' to declare multiple variables at once
+	//auto c; //ERROR: must use an initializer when using 'auto'
+
 ////////////
 // Repeat //
 ////////////
@@ -3188,8 +3201,8 @@ void sprintf(char32[] buf, char32[] format, ...untyped...);
  *             For 'b' and 'B', the max is 32 (ex. "%032B").
  *           Ex. "%02d" given the argument '1' will print '01'.
  *               "%02d" given the argument '11' will print '11'.
- * The resulting string will be placed in the buffer, which is expected to be large enough
- *     to hold the output.
+ * The resulting string will be placed in the buffer, which will be resized if it is
+ *     too small to hold the output.
 
 void printf(char32 format[], ...untyped...);
  * Takes a format string, and 0+ untyped arguments.
@@ -3652,9 +3665,9 @@ subscreendata LoadOSubData(int id);
  * Loads the 'subscreendata' pointer for the specified active/passive/overlay subscreen.
  * Use id '-1' to load the current subscreen of the type.
 
-int NumActiveSubscreens();
-int NumPassiveSubscreens();
-int NumOverlaySubscreens();
+int NumActiveSubscreens;
+int NumPassiveSubscreens;
+int NumOverlaySubscreens;
  * Returns the total number of active/passive/overlay subscreens
 
 bool ActiveSubscreenOpen;
@@ -4501,11 +4514,11 @@ void DrawString(int layer,
  * As DrawString(), but includes a shadow on the text.
  * Use the 'SHD_' constants for 'shadow_type'.
 
-void PutPixels(int layer, int ptr[])
+void PutPixels(int layer, int ptr[], int rx, int ry, int rangle)
  * Puts multiple pixels to the screen in one function call.
  * PutPixels() expects an array as its arg, with the array in the format of
  * repeating blocks of { x, y, colour, trans }
- *	Example: PutPixels(1, { 25, 10, 5, OP_OPAQUE, 26, 10, 6, OP_OPAQUE } );
+ *	Example: PutPixels(1, { 25, 10, 5, OP_OPAQUE, 26, 10, 6, OP_OPAQUE }, 0, 0, 0 );
  *	This draws two pixels to the screen.
  *	The first is at coordinates x==25, y == 10, colour == 5, and it is opaque.
  *	The second is at coordinates x==25, y==10, colour == 6, and opaque.
@@ -8777,6 +8790,9 @@ int NumWidgets;
 subscreenwidget Widgets[];
  * Read-only. The widgets on the page, ordered by their index.
 
+subscreenwidget GetWidget(char32[] label);
+ * Returns the first widget with a matching label, or NULL if none exists.
+
 subscreendata SubData;
  * Read-only. The subscreendata that owns this page.
 
@@ -8842,6 +8858,14 @@ int H;
  * ex. for 2x2 frame, this is in minitiles, so 8 times less than pixels.
  * Some types ignore these values altogether.
 
+int DispX;
+int DispY;
+int DispW;
+int DispH;
+ * Read-Only. Gets the 'display' x/y/width/height, in pixels.
+ * The rectangle represented by this is the same as the bounding box
+ *     shown in the subscreen editor in ZQ.
+
 bool GenFlags[];
  * The general flags for subscreen widgets.
  * These are usually applicable regardless of widget type.
@@ -8867,6 +8891,12 @@ void GetSelTextOverride(char32[] buf);
 void SetSelTextOverride(char32[] str);
  * Sets the selected text override for this widget.
  * A blank string represents no override.
+
+void GetLabel(char32[] buf);
+ * Gets the label for this widget.
+ * If the buffer provided is too small, it will *automatically be resized to fit*.
+void SetLabel(char32[] str);
+ * Sets the label for this widget.
 
 //Selector override stuff
 int SelectorDestX;

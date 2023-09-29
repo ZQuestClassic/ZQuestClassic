@@ -84,18 +84,19 @@ float CalculateBezier(const float p1, const float t1, const float t2, const floa
 #define Q15 (1.0/(double)((1<<15)-1))
 double Sin(double x)
 {
-	if (replay_is_active()||true)
+	if (replay_is_active())
 	{
 		// x needs to be converted from radians -> angles -> sin1 domain
 		x = x * (180/PI * 32768.0/360.0);
 		x = (long)x % 0x8000;
 		double r = sin1(x) * Q15;
-		// round to 4 decimal places, otherwise some "critical" values
+		// round to fewer decimal places, otherwise some "critical" values
 		// will be slightly off (ex: Cos(0) == 0.99996, instead of 1)
+		// initially did not reduce precision enough, which meant cos(PI/180) == 0.0002 instead of 0
+		if (replay_version_check(21))
+			return std::round(r * 1000.0) / 1000.0;
 		if (replay_version_check(4))
-		{
-			r = std::round(r * 10000.0) / 10000.0;
-		}
+			return std::round(r * 10000.0) / 10000.0;
 		return r;
 	}
 	else
@@ -114,6 +115,8 @@ double Cos(double x)
 		x = x * (180/PI * 32768.0/360.0);
 		x = (long)x % 0x8000;
 		double r = cos1(x) * Q15;
+		if (replay_version_check(21))
+			return std::round(r * 1000.0) / 1000.0;
 		if (replay_version_check(4))
 			return std::round(r * 10000.0) / 10000.0;
 		return r;
@@ -134,6 +137,8 @@ double Tan(double x)
 		x = x * (180/PI * 32768.0/360.0);
 		x = (long)x % 0x8000;
 		double r = (sin1(x) * Q15) / (cos1(x) * Q15);
+		if (replay_version_check(21))
+			return std::round(r * 1000.0) / 1000.0;
 		if (replay_version_check(4))
 			return std::round(r * 10000.0) / 10000.0;
 		return r;

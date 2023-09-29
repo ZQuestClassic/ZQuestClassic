@@ -106,10 +106,9 @@ static std::vector<word> combo_id_cache;
 
 void user_dir::clear()
 {
+	user_abstract_obj::clear();
 	filepath = "";
 	reserved = false;
-	owned_type = (ScriptType)-1;
-	owned_i = 0;
 	if(list)
 	{
 		list->clear();
@@ -1082,7 +1081,7 @@ void user_genscript::quit()
 	doscript = false;
 	if(indx > -1)
 	{
-		FFCore.deallocateAllArrays(ScriptType::Generic, indx);
+		FFCore.deallocateAllScriptOwned(ScriptType::Generic, indx);
 	}
 }
 
@@ -2917,7 +2916,7 @@ public:
 		if (am.invalid())
 			return;
 		size_t sz = am.size();
-		for(word i = offset; BC::checkUserArrayIndex(i, sz) == _NoError && num_values != 0; i++)
+		for(word i = offset; num_values != 0 && BC::checkUserArrayIndex(i, sz) == _NoError; i++)
 		{
 			arrayPtr[i] = (am.get(i) / 10000);
 			num_values--;
@@ -3283,7 +3282,7 @@ void deallocateArray(const int32_t ptrval)
 	}
 }
 
-void FFScript::deallocateAllArrays(ScriptType scriptType, const int32_t UID, bool requireAlways)
+void FFScript::deallocateAllScriptOwned(ScriptType scriptType, const int32_t UID, bool requireAlways)
 {
 	for(int32_t q = MIN_USER_BITMAPS; q < MAX_USER_BITMAPS; ++q)
 	{
@@ -3327,16 +3326,12 @@ void FFScript::deallocateAllArrays(ScriptType scriptType, const int32_t UID, boo
 	//Z_eventlog("Attempting array deallocation from %s UID %d\n", script_types[scriptType], UID);
 	for(int32_t i = 1; i < NUM_ZSCRIPT_ARRAYS; i++)
 	{
-		if(arrayOwner[i].scriptType == scriptType && arrayOwner[i].ownerUID==UID)
-		{
-			arrayOwner[i].specOwned = false;
+		if(arrayOwner[i].own_clear(scriptType,UID))
 			deallocateArray(i);
-			//Z_eventlog("Deallocated array %d from %s UID %d\n", i, script_types[scriptType], UID);
-		}
 	}
 }
 
-void FFScript::deallocateAllArrays()
+void FFScript::deallocateAllScriptOwned()
 {
 	for(int32_t q = MIN_USER_BITMAPS; q < MAX_USER_BITMAPS; ++q)
 	{
@@ -3371,9 +3366,50 @@ void FFScript::deallocateAllArrays()
 	{
 		if(localRAM[i].Valid())
 		{
-			arrayOwner[i].specOwned = false;
-			//Z_eventlog("Deallocated array %d from %s UID %d\n", i, script_types[arrayOwner[i].scriptType], arrayOwner[i].ownerUID);
+			// Unowned arrays are ALSO deallocated!
+			arrayOwner[i].clear();
 			deallocateArray(i);
+		}
+	}
+}
+
+void FFScript::deallocateAllScriptOwnedCont()
+{
+	for(int32_t q = MIN_USER_BITMAPS; q < MAX_USER_BITMAPS; ++q)
+	{
+		scb.script_created_bitmaps[q].own_clear_cont();
+	}
+	for(int32_t q = 0; q < MAX_USER_RNGS; ++q)
+	{
+		script_rngs[q].own_clear_cont();
+	}
+	for (int32_t q = 0; q < MAX_USER_PALDATAS; ++q)
+	{
+		script_paldatas[q].own_clear_cont();
+	}
+	for(int32_t q = 0; q < MAX_USER_FILES; ++q)
+	{
+		script_files[q].own_clear_cont();
+	}
+	for(int32_t q = 0; q < MAX_USER_DIRS; ++q)
+	{
+		script_dirs[q].own_clear_cont();
+	}
+	for(int32_t q = 0; q < MAX_USER_STACKS; ++q)
+	{
+		script_stacks[q].own_clear_cont();
+	}
+	for(int32_t q = 0; q < max_valid_object; ++q)
+	{
+		script_objects[q].own_clear_cont();
+	}
+	//No QR check here- always deallocate on quest exit.
+	for(int32_t i = 1; i < NUM_ZSCRIPT_ARRAYS; i++)
+	{
+		if(localRAM[i].Valid())
+		{
+			if(arrayOwner[i].own_clear_cont())
+				deallocateArray(i);
 		}
 	}
 }
@@ -3477,7 +3513,7 @@ user_file *checkFile(int32_t ref, const char *what, bool req_file = false, bool 
 
 user_object *checkObject(int32_t ref, bool skipError = false)
 {
-	if(ref > 0 && ref <= MAX_USER_FILES)
+	if(ref > 0 && ref < MAX_USER_OBJECTS)
 	{
 		user_object* obj = &script_objects[ref-1];
 		if(obj->reserved)
@@ -9942,15 +9978,15 @@ int32_t get_register(const int32_t arg)
 			break;
 			
 		case PUSHBLOCKX:
-			ret = blockmoving ? int32_t(mblock2.x)*10000 : -10000;
+			ret = mblock2.active() ? int32_t(mblock2.x)*10000 : -10000;
 			break;
 			
 		case PUSHBLOCKY:
-			ret = blockmoving ? int32_t(mblock2.y)*10000 : -10000;
+			ret = mblock2.active() ? int32_t(mblock2.y)*10000 : -10000;
 			break;
 		
 		case PUSHBLOCKLAYER:
-			ret = blockmoving ? int32_t(mblock2.blockLayer)*10000 : -10000;
+			ret = mblock2.active() ? int32_t(mblock2.blockLayer)*10000 : -10000;
 			break;
 			
 		case PUSHBLOCKCOMBO:
@@ -14446,6 +14482,30 @@ int32_t get_register(const int32_t arg)
 				ret = 10000*widg->h;
 			break;
 		}
+		case SUBWIDG_DISPX:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "X"))
+				ret = 10000*widg->getX();
+			break;
+		}
+		case SUBWIDG_DISPY:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "Y"))
+				ret = 10000*widg->getY();
+			break;
+		}
+		case SUBWIDG_DISPW:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "W"))
+				ret = 10000*widg->getW();
+			break;
+		}
+		case SUBWIDG_DISPH:
+		{
+			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "H"))
+				ret = 10000*widg->getH();
+			break;
+		}
 		case SUBWIDGGENFLAG:
 		{
 			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "GenFlags"))
@@ -15626,7 +15686,7 @@ int32_t get_register(const int32_t arg)
 					case widgLGAUGE:
 					case widgMGAUGE:
 					case widgMISCGAUGE:
-						ret = 10000*((SW_GaugePiece*)widg)->gauge_wid;
+						ret = 10000*(((SW_GaugePiece*)widg)->gauge_wid+1);
 						break;
 					default:
 						bad_subwidg_type("GaugeWid", false, ty);
@@ -15646,7 +15706,7 @@ int32_t get_register(const int32_t arg)
 					case widgLGAUGE:
 					case widgMGAUGE:
 					case widgMISCGAUGE:
-						ret = 10000*((SW_GaugePiece*)widg)->gauge_hei;
+						ret = 10000*(((SW_GaugePiece*)widg)->gauge_hei+1);
 						break;
 					default:
 						bad_subwidg_type("GaugeHei", false, ty);
@@ -15919,7 +15979,7 @@ void set_register(int32_t arg, int32_t value)
 				auto& data = get_script_engine_data(ScriptType::FFC, ri->ffcref);
 				data.ref.Clear();
 				data.initialized = false;
-				FFScript::deallocateAllArrays(ScriptType::FFC, ri->ffcref);
+				FFScript::deallocateAllScriptOwned(ScriptType::FFC, ri->ffcref);
 			}
 			break;
 			
@@ -17153,7 +17213,8 @@ void set_register(int32_t arg, int32_t value)
 			
 		case INPUTMOUSEX:
 		{
-			position_mouse(rti_game.local_to_global_x(value/10000), mouse_y);
+			auto [x, y] = rti_game.local_to_world(value/10000, mouse_y);
+			position_mouse(x, y);
 			break;
 		}
 		
@@ -17161,7 +17222,8 @@ void set_register(int32_t arg, int32_t value)
 		{
 			int32_t mousequakeoffset = 56+((int32_t)(zc::math::Sin((double)(quakeclk*int64_t(2)-frame))*4));
 			int32_t tempoffset = (quakeclk > 0) ? mousequakeoffset : (get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
-			position_mouse(mouse_x, rti_game.local_to_global_y(value/10000 + tempoffset));
+			auto [x, y] = rti_game.local_to_world(mouse_x, value/10000 + tempoffset);
+			position_mouse(x, y);
 			break;
 		}
 		
@@ -17311,14 +17373,16 @@ void set_register(int32_t arg, int32_t value)
 			{
 				case 0: //MouseX
 				{
-					position_mouse(rti_game.local_to_global_x(value/10000), mouse_y);
+					auto [x, y] = rti_game.local_to_world(value/10000, mouse_y);
+					position_mouse(x, y);
 					break;	
 				}
 				case 1: //MouseY
 				{
 					int32_t mousequakeoffset = 56+((int32_t)(zc::math::Sin((double)(quakeclk*int64_t(2)-frame))*4));
 					int32_t tempoffset = (quakeclk > 0) ? mousequakeoffset :(get_qr(qr_OLD_DRAWOFFSET)?playing_field_offset:original_playing_field_offset);
-					position_mouse(mouse_x, rti_game.local_to_global_y(value/10000 + tempoffset));
+					auto [x, y] = rti_game.local_to_world(mouse_x, value/10000 + tempoffset);
+					position_mouse(x, y);
 					break;
 					
 				}
@@ -17394,7 +17458,7 @@ void set_register(int32_t arg, int32_t value)
 			break;
 		
 		case ITEMSPRITESCRIPT:
-			FFScript::deallocateAllArrays(ScriptType::ItemSprite, ri->itemref);
+			FFScript::deallocateAllScriptOwned(ScriptType::ItemSprite, ri->itemref);
 			if(0!=(s=checkItem(ri->itemref)))
 			{
 				(s->script)=(value/10000);
@@ -18476,7 +18540,7 @@ void set_register(int32_t arg, int32_t value)
 				Z_scripterrlog("Invalid itemdata access: %d\n", ri->idata);
 				break;
 			}
-			FFScript::deallocateAllArrays(ScriptType::Item, ri->idata);
+			FFScript::deallocateAllScriptOwned(ScriptType::Item, ri->idata);
 			itemsbuf[ri->idata].script=vbound(value/10000,0,255);
 			break;
 		case IDATASPRSCRIPT:
@@ -18593,7 +18657,7 @@ void set_register(int32_t arg, int32_t value)
 			}
 			//Need to get collect script ref, not standard idata ref!
 			const int32_t new_ref = ri->idata!=0 ? -(ri->idata) : COLLECT_SCRIPT_ITEM_ZERO;
-			FFScript::deallocateAllArrays(ScriptType::Item,new_ref);
+			FFScript::deallocateAllScriptOwned(ScriptType::Item,new_ref);
 			itemsbuf[ri->idata].collect_script=vbound(value/10000, 0, 255);
 			break;
 		}
@@ -19195,7 +19259,7 @@ void set_register(int32_t arg, int32_t value)
 		case LWPNSCRIPT:
 			if(0!=(s=checkLWpn(ri->lwpn,"Script")))
 			{
-				FFScript::deallocateAllArrays(ScriptType::Lwpn, ri->lwpn);
+				FFScript::deallocateAllScriptOwned(ScriptType::Lwpn, ri->lwpn);
 				(((weapon*)(s))->weaponscript)=vbound(value/10000,0,NUMSCRIPTWEAPONS-1);
 				if ( get_qr(qr_CLEARINITDONSCRIPTCHANGE))
 				{
@@ -19835,7 +19899,7 @@ void set_register(int32_t arg, int32_t value)
 		case EWPNSCRIPT:
 			if(0!=(s=checkEWpn(ri->ewpn,"Script")))
 			{
-				FFScript::deallocateAllArrays(ScriptType::Ewpn, ri->ewpn);
+				FFScript::deallocateAllScriptOwned(ScriptType::Ewpn, ri->ewpn);
 				(((weapon*)(s))->weaponscript)=vbound(value/10000,0,NUMSCRIPTWEAPONS-1);
 				if ( get_qr(qr_CLEARINITDONSCRIPTCHANGE))
 				{
@@ -20578,7 +20642,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(GuyH::loadNPC(ri->guyref, "npc->Script") == SH::_NoError)
 			{
-				FFScript::deallocateAllArrays(ScriptType::NPC, ri->guyref);
+				FFScript::deallocateAllScriptOwned(ScriptType::NPC, ri->guyref);
 				//enemy *e = (enemy*)guys.spr(ri->guyref);
 				//e->initD[a] = value; 
 				if ( get_qr(qr_CLEARINITDONSCRIPTCHANGE))
@@ -22511,7 +22575,7 @@ void set_register(int32_t arg, int32_t value)
 		
 		case SCREENSCRIPT:
 		{
-			FFScript::deallocateAllArrays(ScriptType::Screen, curScriptIndex);
+			FFScript::deallocateAllScriptOwned(ScriptType::Screen, curScriptIndex);
 			
 			if ( get_qr(qr_CLEARINITDONSCRIPTCHANGE))
 			{
@@ -23142,7 +23206,7 @@ void set_register(int32_t arg, int32_t value)
 			{
 				if(ri->mapsref == MAPSCR_TEMP0) //This mapsref references tmpscr, so can reference a running script!
 				{
-					FFScript::deallocateAllArrays(ScriptType::Screen, curScriptIndex);
+					FFScript::deallocateAllScriptOwned(ScriptType::Screen, curScriptIndex);
 					
 					if ( get_qr(qr_CLEARINITDONSCRIPTCHANGE))
 					{
@@ -23934,7 +23998,7 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case DMAPSCRIPT:	//byte
 		{
-			FFScript::deallocateAllArrays(ScriptType::DMap, ri->dmapsref);
+			FFScript::deallocateAllScriptOwned(ScriptType::DMap, ri->dmapsref);
 			DMaps[ri->dmapsref].script = vbound((value / 10000),0,NUMSCRIPTSDMAP-1); break;
 		}
 		case DMAPDATASIDEVIEW:	//byte, treat as bool
@@ -24142,17 +24206,17 @@ void set_register(int32_t arg, int32_t value)
 		}
 		case DMAPDATAASUBSCRIPT:	//byte
 		{
-			FFScript::deallocateAllArrays(ScriptType::ScriptedActiveSubscreen, ri->dmapsref);
+			FFScript::deallocateAllScriptOwned(ScriptType::ScriptedActiveSubscreen, ri->dmapsref);
 			DMaps[ri->dmapsref].active_sub_script = vbound((value / 10000),0,NUMSCRIPTSDMAP-1); break;
 		}
 		case DMAPDATAMAPSCRIPT:	//byte
 		{
-			FFScript::deallocateAllArrays(ScriptType::OnMap, ri->dmapsref);
+			FFScript::deallocateAllScriptOwned(ScriptType::OnMap, ri->dmapsref);
 			DMaps[ri->dmapsref].onmap_script = vbound((value / 10000),0,NUMSCRIPTSDMAP-1); break;
 		}
 		case DMAPDATAPSUBSCRIPT:	//byte
 		{
-			FFScript::deallocateAllArrays(ScriptType::ScriptedPassiveSubscreen, ri->dmapsref);
+			FFScript::deallocateAllScriptOwned(ScriptType::ScriptedPassiveSubscreen, ri->dmapsref);
 			word val = vbound((value / 10000),0,NUMSCRIPTSDMAP-1);
 			if (FFCore.doscript(ScriptType::ScriptedPassiveSubscreen) && ri->dmapsref == currdmap && val == DMaps[ri->dmapsref].passive_sub_script)
 				break;
@@ -28048,7 +28112,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "GaugeWid"))
 			{
-				auto val = vbound(value/10000,1,32);
+				auto val = vbound(value/10000,1,32)-1;
 				auto ty = widg->getType();
 				switch(ty)
 				{
@@ -28068,7 +28132,7 @@ void set_register(int32_t arg, int32_t value)
 		{
 			if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "GaugeHei"))
 			{
-				auto val = vbound(value/10000,1,32);
+				auto val = vbound(value/10000,1,32)-1;
 				auto ty = widg->getType();
 				switch(ty)
 				{
@@ -28626,10 +28690,7 @@ void do_own_array(dword arrindx, ScriptType scriptType, const int32_t UID)
 	{
 		if(arrindx > 0 && arrindx < NUM_ZSCRIPT_ARRAYS)
 		{
-			arrayOwner[arrindx].scriptType = scriptType;
-			arrayOwner[arrindx].ownerUID = UID;
-			arrayOwner[arrindx].specOwned = true;
-			arrayOwner[arrindx].specCleared = false;
+			arrayOwner[arrindx].reown(scriptType, UID);
 		}
 		else if(arrindx < 0) //object array
 			Z_scripterrlog("Cannot 'OwnArray()' an object-based array '%d'\n", arrindx);
@@ -28702,10 +28763,7 @@ void do_allocatemem(const bool v, const bool local, ScriptType type, const uint3
 				
 			// Keep track of which object created the array so we know which to deallocate
 			//Z_eventlog("Allocating array %d to script %s, %d\n", ptrval, script_types[type], UID);
-			arrayOwner[ptrval].scriptType = type;
-			arrayOwner[ptrval].ownerUID = UID;
-			arrayOwner[ptrval].specOwned = false;
-			arrayOwner[ptrval].specCleared = false;
+			arrayOwner[ptrval].reown(type, UID);
 		}
 	}
 	else
@@ -32203,6 +32261,7 @@ void user_paldata::mix(user_paldata *pal_start, user_paldata *pal_end, double pe
 			RGB start = pal_start->colors[q];
 			RGB end = pal_end->colors[q];
 			colors[q] = mix_color(start, end, percent, color_space);
+			set_bit(colors_used, q, true);
 		}
 	}
 }
@@ -34244,7 +34303,7 @@ bool FFScript::warp_player(int32_t warpType, int32_t dmapID, int32_t scrID, int3
 	eventlog_mapflags();
 	if (((warpFlags&warpFlagDONTRESTARTDMAPSCRIPT) != 0) == (get_qr(qr_SCRIPT_WARPS_DMAP_SCRIPT_TOGGLE) != 0)|| olddmap != currdmap) //Changed DMaps, or needs to reset the script
 	{
-		FFScript::deallocateAllArrays(ScriptType::DMap, olddmap);
+		FFScript::deallocateAllScriptOwned(ScriptType::DMap, olddmap);
 		initZScriptDMapScripts();
 	}
 	Hero.is_warping = false;
@@ -39210,7 +39269,7 @@ j_command:
 			
 			case NPCKICKBUCKET:
 			{
-				FFScript::deallocateAllArrays(ScriptType::NPC, ri->guyref);
+				FFScript::deallocateAllScriptOwned(ScriptType::NPC, ri->guyref);
 				if(type == ScriptType::NPC && ri->guyref == i)
 				{
 					FFCore.do_npc_delete();
@@ -39221,7 +39280,7 @@ j_command:
 			}
 			case LWPNDEL:
 			{
-				FFScript::deallocateAllArrays(ScriptType::Lwpn, ri->lwpn);
+				FFScript::deallocateAllScriptOwned(ScriptType::Lwpn, ri->lwpn);
 				if(type == ScriptType::Lwpn && ri->lwpn == i)
 				{
 					FFCore.do_lweapon_delete();
@@ -39232,7 +39291,7 @@ j_command:
 			}
 			case EWPNDEL:
 			{
-				FFScript::deallocateAllArrays(ScriptType::Ewpn, ri->ewpn);
+				FFScript::deallocateAllScriptOwned(ScriptType::Ewpn, ri->ewpn);
 				if(type == ScriptType::Ewpn && ri->ewpn == i)
 				{
 					FFCore.do_eweapon_delete();
@@ -39243,7 +39302,7 @@ j_command:
 			}
 			case ITEMDEL:
 			{
-				FFScript::deallocateAllArrays(ScriptType::ItemSprite, ri->itemref);
+				FFScript::deallocateAllScriptOwned(ScriptType::ItemSprite, ri->itemref);
 				if(type == ScriptType::ItemSprite && ri->itemref == i)
 				{
 					if(FFCore.do_itemsprite_delete())
@@ -39899,19 +39958,40 @@ j_command:
 			}
 			case SUBPAGE_FIND_WIDGET:
 			{
+				ri->d[rEXP1] = 0;
 				ri->subpageref = SH::read_stack(ri->sp+1);
 				if(SubscrPage* pg = checkSubPage(ri->subpageref, "FindWidget", sstACTIVE))
 				{
 					int cursorpos = SH::read_stack(ri->sp+0) / 10000;
 					if(auto* widg = pg->get_widg_pos(cursorpos,false))
 					{
-						for(int q = 0; q < pg->size(); ++q)
-							if((*pg)[q] == widg)
-							{
-								auto [sub,ty,pgid,_ind] = from_subref(ri->subpageref);
-								ri->d[rEXP1] = get_subref(sub,ty,pgid,q);
-								break;
-							}
+						auto q = pg->widget_index(widg);
+						if(q > -1)
+						{
+							auto [sub,ty,pgid,_ind] = from_subref(ri->subpageref);
+							ri->d[rEXP1] = get_subref(sub,ty,pgid,q);
+						}
+					}
+				}
+				break;
+			}
+			case SUBPAGE_FIND_WIDGET_BY_LABEL:
+			{
+				ri->d[rEXP1] = 0;
+				ri->subpageref = SH::read_stack(ri->sp+1);
+				if(SubscrPage* pg = checkSubPage(ri->subpageref, "GetWidget"))
+				{
+					int aptr = SH::read_stack(ri->sp+0) / 10000;
+					std::string lbl;
+					ArrayH::getString(aptr, lbl);
+					if(lbl.size())
+					{
+						auto q = pg->find_label_index(lbl);
+						if(q > -1)
+						{
+							auto [sub,ty,pgid,_ind] = from_subref(ri->subpageref);
+							ri->d[rEXP1] = get_subref(sub,ty,pgid,q);
+						}
 					}
 				}
 				break;
@@ -39996,6 +40076,26 @@ j_command:
 				{
 					auto aptr = get_register(sarg1) / 10000;
 					ArrayH::getString(aptr, widg->override_text);
+				}
+				break;
+			}
+			case SUBWIDG_GET_LABEL:
+			{
+				if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "GetLabel"))
+				{
+					auto aptr = get_register(sarg1) / 10000;
+					if(ArrayH::setArray(aptr, widg->label, true) == SH::_Overflow)
+						Z_scripterrlog("Array supplied to 'subscreenwidget->GetLabel()' not large enough,"
+							" and couldn't be resized!\n");
+				}
+				break;
+			}
+			case SUBWIDG_SET_LABEL:
+			{
+				if(SubscrWidget* widg = checkSubWidg(ri->subwidgref, "SetLabel"))
+				{
+					auto aptr = get_register(sarg1) / 10000;
+					ArrayH::getString(aptr, widg->label);
 				}
 				break;
 			}
@@ -40280,18 +40380,12 @@ j_command:
 				{
 					bool collect = ( ( i < 1 ) || (i == COLLECT_SCRIPT_ITEM_ZERO) );
 					int new_i = ( collect ) ? (( i != COLLECT_SCRIPT_ITEM_ZERO ) ? (i * -1) : 0) : i;
-					FFScript::deallocateAllArrays(ScriptType::Item, new_i);
+					FFScript::deallocateAllScriptOwned(ScriptType::Item, new_i);
 					break;
 				}
 				
-				case ScriptType::Screen:
-				{
-					FFScript::deallocateAllArrays(ScriptType::Screen, i);
-					break;
-				} 
-				
 				default:
-					FFScript::deallocateAllArrays(type, i);
+					FFScript::deallocateAllScriptOwned(type, i);
 					break;
 			}
 
@@ -40407,7 +40501,7 @@ void FFScript::user_objects_init()
 {
 	for(int32_t q = 0; q < MAX_USER_OBJECTS; ++q)
 	{
-		script_objects[q].clear(false);
+		script_objects[q].clear_nodestruct();
 	}
 	max_valid_object = 0;
 }
@@ -40432,7 +40526,7 @@ void FFScript::user_rng_init()
 
 void FFScript::user_paldata_init()
 {
-	for (int32_t q = 0; q < MAX_USER_STACKS; ++q)
+	for (int32_t q = 0; q < MAX_USER_PALDATAS; ++q)
 	{
 		script_paldatas[q].clear();
 	}
@@ -41229,7 +41323,7 @@ void FFScript::do_deallocate_bitmap()
 	user_bitmap* b = checkBitmap(ri->bitmapref, "Free()", false, true);
 	if(b)
 	{
-		b->free();
+		b->free_obj();
 	}
 }
 
@@ -43238,7 +43332,7 @@ bool FFScript::itemScriptEngine()
 					data.ref.Clear();
 					data.initialized = false;
 					data.waitdraw = false;
-					FFScript::deallocateAllArrays(ScriptType::Item, q);
+					FFScript::deallocateAllScriptOwned(ScriptType::Item, q);
 				}
 			}
 		}
@@ -43291,7 +43385,7 @@ bool FFScript::itemScriptEngine()
 				data.ref.Clear();
 				data.initialized = false;
 				data.waitdraw = false;
-				FFScript::deallocateAllArrays(ScriptType::Item, q);
+				FFScript::deallocateAllScriptOwned(ScriptType::Item, q);
 			}
 		}
 	}
@@ -43337,7 +43431,7 @@ bool FFScript::itemScriptEngineOnWaitdraw()
 					data.ref.Clear();
 					data.initialized = false;
 					data.waitdraw = false;
-					FFScript::deallocateAllArrays(ScriptType::Item, q);
+					FFScript::deallocateAllScriptOwned(ScriptType::Item, q);
 				}
 			}
 		}
@@ -43377,7 +43471,7 @@ bool FFScript::itemScriptEngineOnWaitdraw()
 				data.ref.Clear();
 				data.initialized = false;
 				data.waitdraw = false;
-				FFScript::deallocateAllArrays(ScriptType::Item, q);
+				FFScript::deallocateAllScriptOwned(ScriptType::Item, q);
 			}
 		}
 	}
@@ -46285,6 +46379,11 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "SUBWIDG_TY_GETTEXT", 1, 0, 0, 0 },
 	{ "SUBWIDG_TY_SETTEXT", 1, 0, 0, 0 },
 
+	{ "SUBPAGE_FIND_WIDGET_BY_LABEL", 0, 0, 0, 0 },
+
+	{ "SUBWIDG_GET_LABEL", 1, 0, 0, 0 },
+	{ "SUBWIDG_SET_LABEL", 1, 0, 0, 0 },
+
 	{ "", 0, 0, 0, 0 }
 };
 
@@ -47919,6 +48018,11 @@ script_variable ZASMVars[]=
 	{ "SUBWIDGDISPITM", SUBWIDGDISPITM, 0, 0 },
 	{ "SUBWIDGEQPITM", SUBWIDGEQPITM, 0, 0 },
 
+	{ "SUBWIDG_DISPX", SUBWIDG_DISPX, 0, 0 },
+	{ "SUBWIDG_DISPY", SUBWIDG_DISPY, 0, 0 },
+	{ "SUBWIDG_DISPW", SUBWIDG_DISPW, 0, 0 },
+	{ "SUBWIDG_DISPH", SUBWIDG_DISPH, 0, 0 },
+
 	{ " ", -1, 0, 0 }
 };
 
@@ -48605,9 +48709,9 @@ void FFScript::do_sprintf(const bool v, const bool varg)
 		ArrayH::getString(format_arrayptr, formatstr, MAX_ZC_ARRAY_SIZE);
 		
 		string output = zs_sprintf(formatstr.c_str(), num_args, varg ? zspr_varg_getter : zspr_stack_getter);
-		if(ArrayH::setArray(dest_arrayptr, output) == SH::_Overflow)
+		if(ArrayH::setArray(dest_arrayptr, output, true) == SH::_Overflow)
 		{
-			Z_scripterrlog("Dest string supplied to 'sprintf()' not large enough\n");
+			Z_scripterrlog("Dest string supplied to 'sprintf()' not large enough and cannot be resized\n");
 			ri->d[rEXP1] = ArrayH::strlen(dest_arrayptr);
 		}
 		else ri->d[rEXP1] = output.size();
@@ -48656,9 +48760,9 @@ void FFScript::do_sprintfarr()
 				return arg_am.get(next_arg);
 			});
 		
-		if(ArrayH::setArray(dest_arrayptr, output) == SH::_Overflow)
+		if(ArrayH::setArray(dest_arrayptr, output, true) == SH::_Overflow)
 		{
-			Z_scripterrlog("Dest string supplied to 'sprintfa()' not large enough\n");
+			Z_scripterrlog("Dest string supplied to 'sprintfa()' not large enough and cannot be resized\n");
 			ri->d[rEXP1] = ArrayH::strlen(dest_arrayptr);
 		}
 		else ri->d[rEXP1] = output.size();
@@ -48726,10 +48830,7 @@ void FFScript::do_varg_makearray(ScriptType type, const uint32_t UID)
 		for(size_t j = 0; j < num_args; ++j)
 			a[j] = zs_vargs[j]; //initialize array
 		
-		arrayOwner[ptrval].scriptType = type;
-		arrayOwner[ptrval].ownerUID = UID;
-		arrayOwner[ptrval].specOwned = false;
-		arrayOwner[ptrval].specCleared = false;
+		arrayOwner[ptrval].reown(type, UID);
 	}
 	//
 	zs_vargs.clear();

@@ -17,7 +17,7 @@ extern int32_t scheme[];
 extern volatile int32_t myvsync;
 void update_hw_screen(bool force);
 
-extern bool is_zquest();
+extern bool is_editor();
 
 void EditboxView::update()
 {

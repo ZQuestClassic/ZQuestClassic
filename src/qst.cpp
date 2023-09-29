@@ -3,6 +3,7 @@
 #include "base/zapp.h"
 #include "base/qrs.h"
 #include "base/cpool.h"
+#include "base/autocombo.h"
 #include "base/packfile.h"
 #include "base/dmap.h"
 #include "base/combo.h"
@@ -57,7 +58,7 @@ static bool loadquest_report = false;
 static char const* loading_qst_name = NULL;
 static byte loading_qst_num = 0;
 
-int32_t First[MAX_COMBO_COLS]={0},combo_alistpos[MAX_COMBO_COLS]={0},combo_pool_listpos[MAX_COMBO_COLS]={0};
+int32_t First[MAX_COMBO_COLS]={0},combo_alistpos[MAX_COMBO_COLS]={0},combo_pool_listpos[MAX_COMBO_COLS]={0},combo_auto_listpos[MAX_COMBO_COLS]={0};
 map_and_screen map_page[MAX_MAPPAGE_BTNS]= {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}};
 
 #ifdef _MSC_VER
@@ -684,7 +685,7 @@ bool valid_zqt(const char *filename)
 		1) The top layer is from us. See decode_file_007.
 			[0-24]    Preamble "Zelda Classic Quest File"
 			[25-28]   Initial decoding seed value.
-			[29-X]    Allegro-encoded payload (AKA "packed" file)
+			[29-X]    Allegro-compressed payload (AKA "packed" file), but XOR'd based on seed value
 			[last 4]  Checksum
 
 		2) The bottom layer is a "compressed packed file" from Allegro 4. The entire payload
@@ -1308,7 +1309,7 @@ int32_t get_qst_buffers()
     //Z_message("Performed clear_tiles()\n"); 
     Z_message("OK\n");                                        // Allocating tile buffer...
     
-    if(is_zquest())
+    if(is_editor())
     {
         memrequested+=(NEWMAXTILES*(sizeof(tiledata)+tilesize(tf4Bit)));
         Z_message("Allocating tile grab buffer (%s)... ", byte_conversion2(NEWMAXTILES*sizeof(tiledata),memrequested,-1,-1));
@@ -1389,7 +1390,7 @@ void free_newtilebuf()
 
 void free_grabtilebuf()
 {
-    if(is_zquest())
+    if(is_editor())
     {
         if(grabtilebuf)
         {
@@ -3677,6 +3678,8 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_SPOTLIGHT_IGNR_SOLIDOBJ,1);
 	if(compatrule_version < 56)
 		set_qr(qr_BROKEN_LIGHTBEAM_HITBOX,1);
+	if(compatrule_version < 57)
+		set_qr(qr_BROKEN_SWORD_SPIN_TRIGGERS,1);
 	
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)
@@ -9844,11 +9847,6 @@ void init_favorites()
     {
         favorite_combos[i]=-1;
     }
-    
-    for(int32_t i=0; i<MAXFAVORITECOMBOALIASES; i++)
-    {
-        favorite_comboaliases[i]=-1;
-    }
 }
 
 const char *ctype_name[cMAX]=
@@ -13487,22 +13485,75 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
     
     if ( Header->zelda_version < 0x211 ) //Default rest rates for phantom ghinis, peahats and keese in < 2.50 quests
     {
-	guysbuf[eKEESE1].misc16 = 120;
-	guysbuf[eKEESE2].misc16 = 120;
-	guysbuf[eKEESE3].misc16 = 120;
-	guysbuf[eKEESETRIB].misc16 = 120;
-	guysbuf[eKEESE1].misc17 = 16;
-	guysbuf[eKEESE2].misc17 = 16;
-	guysbuf[eKEESE3].misc17 = 16;
-	guysbuf[eKEESETRIB].misc17 = 16;
-	    
-	guysbuf[ePEAHAT].misc16 = 80;
-	guysbuf[ePEAHAT].misc17 = 16;
-	    
-	guysbuf[eGHINI2].misc16 = 120;
-	guysbuf[eGHINI2].misc17 = 10;	
-	    
+		guysbuf[eKEESE1].misc16 = 120;
+		guysbuf[eKEESE2].misc16 = 120;
+		guysbuf[eKEESE3].misc16 = 120;
+		guysbuf[eKEESETRIB].misc16 = 120;
+		guysbuf[eKEESE1].misc17 = 16;
+		guysbuf[eKEESE2].misc17 = 16;
+		guysbuf[eKEESE3].misc17 = 16;
+		guysbuf[eKEESETRIB].misc17 = 16;
+			
+		guysbuf[ePEAHAT].misc16 = 80;
+		guysbuf[ePEAHAT].misc17 = 16;
+			
+		guysbuf[eGHINI2].misc16 = 120;
+		guysbuf[eGHINI2].misc17 = 10;
+		
+		if (replay_version_check(20))
+		{
+			guysbuf[eGHINI2].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+			guysbuf[eMOLDORM].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+			guysbuf[eKEESETRIB].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+			guysbuf[eKEESE3].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+			guysbuf[eKEESE2].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+			guysbuf[eKEESE1].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+			guysbuf[eTEK1].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+			guysbuf[eTEK2].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+			guysbuf[ePEAHAT].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+			guysbuf[eROCK].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+			guysbuf[eTRAP].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+			guysbuf[eWALLM].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+			guysbuf[ePOLSV].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+			guysbuf[eMANHAN].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+			guysbuf[eGLEEOK1].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+			guysbuf[eGLEEOK2].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+			guysbuf[eGLEEOK3].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+			guysbuf[eGLEEOK4].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+			guysbuf[eDIG1].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+			guysbuf[eDIG3].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+			guysbuf[eDIGPUP1].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+			guysbuf[eDIGPUP2].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+			guysbuf[eDIGPUP3].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+			guysbuf[eDIGPUP4].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+			guysbuf[eRAQUAM].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+			guysbuf[eITEMFAIRY].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+			guysbuf[eFIRE].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+			guysbuf[eMANHAN2].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+			guysbuf[eTRAP_H].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+			guysbuf[eTRAP_V].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+			guysbuf[eTRAP_LR].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+			guysbuf[eTRAP_UD].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+			guysbuf[ePATRA1].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+			guysbuf[ePATRA2].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+			guysbuf[ePATRABS].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+			guysbuf[eBAT].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+			guysbuf[eGLEEOK1F].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+			guysbuf[eGLEEOK2F].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+			guysbuf[eGLEEOK3F].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+			guysbuf[eGLEEOK4F].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+			guysbuf[eTRIGGER].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+			guysbuf[ePATRAL2].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+			guysbuf[ePATRAL3].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+			guysbuf[eGOHMA1].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+			guysbuf[eGOHMA2].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+			guysbuf[eGOHMA3].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+			guysbuf[eGOHMA4].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+			guysbuf[eMPOLSV].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+			guysbuf[eWPOLSV].moveflags |= (FLAG_CAN_WATERWALK|FLAG_CAN_PITWALK);
+		}
     }
+	
     
     if(guyversion<=2)
     {
@@ -14915,6 +14966,7 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 					case eeWIZZ: case eeWALLM: case eeGHINI:
 					//Gravity, floats over pits
 						tempguy.moveflags |= FLAG_CAN_WATERWALK;
+						tempguy.moveflags |= FLAG_CAN_PITWALK;
 						break;
 				}
 			}
@@ -17659,7 +17711,7 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 	}
 	
 	//June 3 2012; ladder only is broken in 2.10 and allows the hookshot also. -Gleeok
-	if(version == 0x210 && !is_zquest())
+	if(version == 0x210 && !is_editor())
 	{
 		for(int32_t tmpcounter=0; tmpcounter<MAXCOMBOS; tmpcounter++)
 			if(combobuf[tmpcounter].type == cLADDERONLY)
@@ -18287,6 +18339,7 @@ int32_t readcomboaliases(PACKFILE *f, zquestheader *Header, word version, word b
         }
     }
     
+	//Combo pools!
 	word num_combo_pools = 0;
 	if(sversion >= 4)
 	{
@@ -18332,6 +18385,79 @@ int32_t readcomboaliases(PACKFILE *f, zquestheader *Header, word version, word b
 		}
 		
 		combo_pools[cp] = temp_cpool;
+	}
+
+	//Autocombos!
+	word num_combo_autos = 0;
+	if (sversion >= 5)
+	{
+		if (!p_igetw(&num_combo_autos, f))
+		{
+			return qe_invalid;
+		}
+	}
+
+	for (combo_auto& cauto : combo_autos)
+	{
+		cauto.clear(true);
+	}
+
+	combo_auto temp_cauto;
+	for (word ca = 0; ca < num_combo_autos; ++ca)
+	{
+		byte type;
+		int32_t display_cid, erase_cid;
+		byte flags, arg;
+		if (!p_getc(&type, f))
+		{
+			return qe_invalid;
+		}
+		if (!p_igetl(&display_cid, f))
+		{
+			return qe_invalid;
+		}
+		if (!p_igetl(&erase_cid, f))
+		{
+			return qe_invalid;
+		}
+		if (!p_getc(&flags, f))
+		{
+			return qe_invalid;
+		}
+		if (!p_getc(&arg, f))
+		{
+			return qe_invalid;
+		}
+		int32_t num_combos_in_cauto = 0;
+		if (!p_igetl(&num_combos_in_cauto, f))
+		{
+			return qe_invalid;
+		}
+		if (num_combos_in_cauto < 1) continue; //nothing to read
+
+		temp_cauto.clear();
+
+		temp_cauto.setType(type);
+		temp_cauto.setDisplay(display_cid);
+		temp_cauto.setEraseCombo(erase_cid);
+		temp_cauto.setFlags(flags);
+		temp_cauto.setArg(arg);
+
+		int32_t ca_cid; byte ca_ctype;  int16_t ca_offset; int16_t ca_engrave_offset;
+		for (auto q = 0; q < num_combos_in_cauto; ++q)
+		{
+			if (!p_getc(&ca_ctype, f))
+			{
+				return qe_invalid;
+			}
+			if (!p_igetl(&ca_cid, f))
+			{
+				return qe_invalid;
+			}
+			temp_cauto.addEntry(ca_cid, ca_ctype, q, -1);
+		}
+
+		combo_autos[ca] = temp_cauto;
 	}
 	
     return 0;
@@ -20711,8 +20837,12 @@ int32_t readfavorites(PACKFILE *f, int32_t, word)
 	}
 	
 	word per_row = FAVORITECOMBO_PER_ROW;
+	word per_page = FAVORITECOMBO_PER_PAGE;
 	if(s_version >= 3)
 		if(!p_igetw(&per_row,f))
+			return qe_invalid;
+	if(s_version >= 4)
+		if(!p_igetw(&per_page,f))
 			return qe_invalid;
 	//finally...  section data
 	if(!p_igetw(&num_favorite_combos,f))
@@ -20723,45 +20853,53 @@ int32_t readfavorites(PACKFILE *f, int32_t, word)
 	//Hack; port old favorite combos
 	if(s_version < 3 && num_favorite_combos == 100)
 		per_row = 13;
-	
+
 	for(int q = 0; q < MAXFAVORITECOMBOS; ++q)
 		favorite_combos[q] = -1;
-	for(int q = 0; q < MAXFAVORITECOMBOALIASES; ++q)
-		favorite_comboaliases[q] = -1;
+	byte favtype = 0;
 	for(int32_t i=0; i<num_favorite_combos; i++)
 	{
+		if (s_version >= 4)
+		{
+			if (!p_getc(&favtype, f))
+			{
+				return qe_invalid;
+			}
+		}
+		else
+			favtype = 0;
 		if(!p_igetl(&temp_num,f))
 		{
 			return qe_invalid;
 		}
 		
 		if(per_row == FAVORITECOMBO_PER_ROW)
-			favorite_combos[i]=temp_num;
+		{
+			favorite_combos[i] = temp_num;
+			favorite_combo_modes[i] = favtype;
+		}
 		else
 		{
 			int new_i = (i%per_row) + (i/per_row)*FAVORITECOMBO_PER_ROW;
 			favorite_combos[new_i]=temp_num;
+			favorite_combo_modes[new_i] = favtype;
 		}
 	}
 	
-	if(!p_igetw(&num_favorite_combo_aliases,f))
+	// Discard the separate favorite aliases list from previous versions
+	if(s_version<4)
 	{
-		return qe_invalid;
-	}
-	
-	for(int32_t i=0; i<num_favorite_combo_aliases; i++)
-	{
-		if(!p_igetl(&temp_num,f))
+		if (!p_igetw(&num_favorite_combo_aliases, f))
 		{
 			return qe_invalid;
 		}
-		
-		if(per_row == FAVORITECOMBO_PER_ROW)
-			favorite_comboaliases[i]=temp_num;
-		else
+
+		for (int32_t i = 0; i < num_favorite_combo_aliases; i++)
 		{
-			int new_i = (i%per_row) + (i/per_row)*FAVORITECOMBO_PER_ROW;
-			favorite_comboaliases[new_i]=temp_num;
+			if (!p_igetl(&temp_num, f))
+			{
+				return qe_invalid;
+			}
 		}
 	}
 	
@@ -21707,6 +21845,9 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
         
         if(!get_bit(skip_flags, skip_sfx))
             setupsfx();
+		
+		if(!get_bit(skip_flags, skip_favorites))
+			init_favorites();
             
         box_out("okay.");
         box_eol();

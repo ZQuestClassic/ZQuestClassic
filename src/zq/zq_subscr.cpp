@@ -493,7 +493,7 @@ int32_t d_subscreen_proc(int32_t msg,DIALOG *d,int32_t)
 			{
 				clear_bitmap(buf);
 				ZCSubscreen* subs = (ZCSubscreen*)(d->dp);
-				show_custom_subscreen(buf, subs, 0, 0, true, sspUP | sspDOWN | sspSCROLLING);
+				show_custom_subscreen(buf, subs, 0, 0, true, 0);
 				
 				SubscrPage& pg = subs->cur_page();
 				int cur_object = (unsigned(clicked_obj)<pg.size())
@@ -552,7 +552,7 @@ int32_t d_subscreen_proc(int32_t msg,DIALOG *d,int32_t)
 				for(int32_t i=pg.size()-1; i>=0; --i)
 				{
 					SubscrWidget* widg = pg[i];
-					int32_t x=(widg->getX()+widg->getXOffs())*2;
+					int32_t x=(widg->getX())*2;
 					int32_t y=widg->getY()*2;
 					int32_t w=widg->getW()*2;
 					int32_t h=widg->getH()*2;
@@ -624,7 +624,7 @@ int32_t d_subscreen_proc(int32_t msg,DIALOG *d,int32_t)
 						for(int32_t i=pg.size()-1; i>=0; --i)
 						{
 							SubscrWidget* widg = pg[i];
-							int32_t x=widg->getX()+widg->getXOffs();
+							int32_t x=widg->getX();
 							int32_t y=widg->getY();
 							int32_t w=widg->getW();
 							int32_t h=widg->getH();
@@ -1426,7 +1426,7 @@ void align_objects(bool *selection, int32_t align_type)
 		curr_widg = -1;
 		return;
 	}
-	int32_t l=curwidg->getX()+curwidg->getXOffs();
+	int32_t l=curwidg->getX();
 	int32_t t=curwidg->getY();
 	int32_t w=curwidg->getW();
 	int32_t h=curwidg->getH();
@@ -1441,7 +1441,7 @@ void align_objects(bool *selection, int32_t align_type)
 		if(selection[i]&&i!=curr_widg)
 		{
 			SubscrWidget& widg = *pg[i];
-			int32_t tl=widg.getX()+widg.getXOffs();
+			int32_t tl=widg.getX();
 			int32_t tt=widg.getY();
 			int32_t tw=widg.getW();
 			int32_t th=widg.getH();
@@ -1490,7 +1490,7 @@ void grid_snap_objects(bool *selection, int32_t snap_type)
 		if(selection[i]||i==curr_widg)
 		{
 			SubscrWidget& widg = *pg[i];
-			int32_t tl=widg.getX()+widg.getXOffs();
+			int32_t tl=widg.getX();
 			int32_t tt=widg.getY();
 			int32_t tw=widg.getW();
 			int32_t th=widg.getH();
@@ -1569,7 +1569,7 @@ void distribute_objects(bool *, int32_t distribute_type)
 		{
 			SubscrWidget& widg = *pg[i];
 			temp_do[count].index=i;
-			temp_do[count].l=widg.getX()+widg.getXOffs();
+			temp_do[count].l=widg.getX();
 			temp_do[count].t=widg.getY();
 			temp_do[count].w=widg.getW();
 			temp_do[count].h=widg.getH();

@@ -2941,7 +2941,7 @@ void show_custom_subscreen(BITMAP *dest, ZCSubscreen* subscr, int32_t xofs, int3
 	color_map=&trans_table;
 	set_trans_blender(0, 0, 0, 128);
 	
-	#ifdef IS_ZQUEST
+	#ifdef IS_EDITOR
 	/* ZQ has no 'advanceframe' to increment the global frame counter,
 	 * so we need to increment that here, as flashing items use it for their draw.
 	 * -Em
@@ -3393,7 +3393,7 @@ void sso_bounding_box(BITMAP *bmp, SubscrWidget* widg, int32_t color)
     if(!widg)
 		return;
     
-    int32_t x=widg->getX()+widg->getXOffs();
+    int32_t x=widg->getX();
     int32_t y=widg->getY();
     int32_t w=widg->getW();
     int32_t h=widg->getH();

@@ -1,5 +1,7 @@
 name: Release
 
+concurrency: release
+
 on:
   workflow_dispatch:
     inputs:
@@ -102,10 +104,72 @@ jobs:
       full_release: ${{ inputs.full_release }}
     secrets: inherit
 
+  build-web:
+    runs-on: ubuntu-22.04
+    if: inputs.full_release
+    needs: create-tag
+
+    steps:
+      - name: git clone
+        uses: actions/checkout@v3
+
+      - uses: mymindstorm/setup-emsdk@v12
+        with:
+          version: "3.1.45"
+          actions-cache-folder: "emsdk-cache-${{ runner.os }}-${{ runner.arch }}"
+
+      - name: Install Node.js 18.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+      # puppeteer caches Chrome in ~/.ccache/puppeteer, but only on npm install. Which means
+      # restored caches from actions/setup-node will never install Chrome.
+      - run: npm rm puppeteer && npm add puppeteer@21.1.1
+
+      - run: sudo apt-get update && sudo apt-get install ccache ninja-build flex bison
+
+      # Setup build cache via ccache.
+      - name: ccache cache files
+        uses: actions/cache@v3
+        with:
+          path: .ccache
+          key: web-ccache-${{ github.run_id }}
+          restore-keys: web-ccache-
+      - run: ccache -z
+
+      - run: |
+          git clone https://github.com/psi29a/unsf.git
+          cd unsf
+          cmake -S . -B build .
+          cmake --build build
+          echo "UNSF=$PWD/build/unsf-static" >> $GITHUB_ENV
+
+      - run: cp src/metadata/*.h.sig src/metadata/sigs/
+      - run: |
+          git config --global user.email "you@example.com"
+          git config --global user.name "Your Name"
+      - run: bash scripts/build_emscripten.sh
+        env:
+          ZC_EMCC_CMAKE_EXTRA_FLAGS: -DRELEASE_TAG=${{ needs.create-tag.outputs.release-tag }} -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+      - run: ccache -s
+
+      - run: sudo apt-get update && sudo apt-get install libopengl0 libglu1
+      - run: npm install
+        working-directory: web
+      - run: python3 web/deploy/deploy.py --prepare --build_folder build_emscripten/Release
+      - run: zip -r ${{ needs.create-tag.outputs.release-tag }}-web.zip web/deploy/dist
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: build-web
+          path: |
+            ${{ github.workspace }}/${{ needs.create-tag.outputs.release-tag }}-web.zip
+
   publish:
     needs:
       - create-tag
       - build-release
+      - build-web
     if: ${{ always() }}
     runs-on: ubuntu-22.04
     steps:
@@ -135,6 +199,17 @@ jobs:
           generate_release_notes: false
           body_path: new_changelog.md
 
+      - uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.WEBSITE_REPO_TOKEN }}
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: 'ZQuestClassic',
+              repo: 'zquestclassic.com',
+              workflow_id: 'deploy.yml',
+              ref: 'main',
+            })
+
       - name: Setup Sentry CLI
         if: inputs.sentry
         uses: mathieu-bour/setup-sentry-cli@v1.3.0
@@ -146,5 +221,5 @@ jobs:
       - name: Finalize sentry
         if: inputs.sentry
         run: |
-          sentry-cli --log-level=DEBUG releases set-commits 'zelda-classic@${{ needs.create-tag.outputs.release-tag }}' --auto
+          sentry-cli --log-level=DEBUG releases set-commits 'zelda-classic@${{ needs.create-tag.outputs.release-tag }}' --auto --ignore-missing
           sentry-cli --log-level=DEBUG releases finalize 'zelda-classic@${{ needs.create-tag.outputs.release-tag }}'

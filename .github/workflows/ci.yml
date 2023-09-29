@@ -140,7 +140,7 @@ jobs:
 
       - uses: mymindstorm/setup-emsdk@v12
         with:
-          version: "3.1.32"
+          version: "3.1.45"
           actions-cache-folder: "emsdk-cache-${{ runner.os }}-${{ runner.arch }}"
 
       - name: Install Node.js 18.x
@@ -149,7 +149,7 @@ jobs:
           node-version: 18.x
       # puppeteer caches Chrome in ~/.ccache/puppeteer, but only on npm install. Which means
       # restored caches from actions/setup-node will never install Chrome.
-      - run: npm rm puppeteer && npm add puppeteer@20.5.0
+      - run: npm rm puppeteer && npm add puppeteer@21.1.1
 
       - run: sudo apt-get update && sudo apt-get install ccache ninja-build flex bison
 

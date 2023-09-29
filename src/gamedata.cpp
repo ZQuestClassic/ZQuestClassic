@@ -11,7 +11,7 @@
 
 using namespace util;
 extern FFScript FFCore;
-#ifndef IS_ZQUEST
+#ifndef IS_EDITOR
 extern portal mirror_portal;
 extern sprite_list portals;
 #endif
@@ -37,7 +37,7 @@ void gamedata::Copy(const gamedata& g)
 void gamedata::save_user_objects()
 {
 	user_objects.clear();
-#ifndef IS_ZQUEST
+#ifndef IS_EDITOR
 	for(int32_t q = 0; q < MAX_USER_OBJECTS; ++q)
 	{
 		user_object& obj = script_objects[q];
@@ -53,7 +53,7 @@ void gamedata::save_user_objects()
 }
 void gamedata::load_user_objects()
 {
-#ifndef IS_ZQUEST
+#ifndef IS_EDITOR
 	FFCore.user_objects_init();
 	for(saved_user_object& obj : user_objects)
 	{
@@ -944,7 +944,7 @@ void gamedata::set_portal(int16_t destdmap, int16_t srcdmap, byte scr, int32_t x
 portal* loadportal(savedportal& p)
 {
 	portal* retp = nullptr;
-#ifndef IS_ZQUEST
+#ifndef IS_EDITOR
 	if(currdmap == p.srcdmap && currscr == p.srcscr)
 	{
 		retp = new portal(p.destdmap, p.destscr+DMaps[p.destdmap].xoff,
@@ -958,7 +958,7 @@ portal* loadportal(savedportal& p)
 }
 void gamedata::load_portal()
 {
-#ifndef IS_ZQUEST
+#ifndef IS_EDITOR
 	mirror_portal.clear();
 	portal* tmp = loadportal(saved_mirror_portal);
 	if(tmp)
@@ -970,7 +970,7 @@ void gamedata::load_portal()
 }
 void gamedata::load_portals()
 {
-#ifndef IS_ZQUEST
+#ifndef IS_EDITOR
 	mirror_portal.clear();
 	portals.clear(true);
 	

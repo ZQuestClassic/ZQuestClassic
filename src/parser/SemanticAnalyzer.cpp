@@ -535,25 +535,31 @@ void SemanticAnalyzer::caseDataDeclList(ASTDataDeclList& host, void*)
 	if(!host.registered())  //Handle initial setup
 	{
 		// Resolve the base type.
-		DataType const& baseType = host.baseType->resolve(*scope, this);
+		DataType const* baseType = &host.baseType->resolve(*scope, this);
 		if (breakRecursion(*host.baseType.get())) return;
 		if (!host.baseType->wasResolved())
 		{
-			handleError(CompileError::UnresolvedType(&host, baseType.getName()));
+			handleError(CompileError::UnresolvedType(&host, baseType->getName()));
 			return;
 		}
-
+		
 		// Don't allow void type.
-		if (baseType == DataType::ZVOID)
+		if (baseType->isVoid())
 		{
-			handleError(CompileError::VoidVar(&host, host.asString()));
+			handleError(CompileError::BadVarType(&host, host.asString(), baseType->getName()));
 			return;
 		}
-
-		// Check for disallowed global types.
-		if (scope->isGlobal() && !baseType.canBeGlobal())
+		
+		if (baseType->isAuto() && host.getDeclarations().size() > 1)
 		{
-			handleError(CompileError::RefVar(&host, baseType.getName()));
+			handleError(CompileError::GroupAuto(&host));
+			return;
+		}
+		
+		// Check for disallowed global types.
+		if (scope->isGlobal() && !baseType->canBeGlobal())
+		{
+			handleError(CompileError::RefVar(&host, baseType->getName()));
 			return;
 		}
 	}
@@ -569,25 +575,25 @@ void SemanticAnalyzer::caseDataEnum(ASTDataEnum& host, void* param)
 		return;
 	}
 	// Resolve the base type.
-	DataType const& baseType = host.baseType->resolve(*scope, this);
+	DataType const* baseType = &host.baseType->resolve(*scope, this);
 	if (breakRecursion(*host.baseType.get())) return;
-	if (!baseType.isResolved())
+	if (!baseType->isResolved())
 	{
-		handleError(CompileError::UnresolvedType(&host, baseType.getName()));
+		handleError(CompileError::UnresolvedType(&host, baseType->getName()));
 		return;
 	}
 
-	// Don't allow void type.
-	if (baseType == DataType::ZVOID)
+	// Don't allow void/auto types.
+	if (baseType->isVoid() || baseType->isAuto())
 	{
-		handleError(CompileError::VoidVar(&host, host.asString()));
+		handleError(CompileError::BadVarType(&host, host.asString(), baseType->getName()));
 		return;
 	}
 
 	// Check for disallowed global types.
-	if (scope->isGlobal() && !baseType.canBeGlobal())
+	if (scope->isGlobal() && !baseType->canBeGlobal())
 	{
-		handleError(CompileError::RefVar(&host, baseType.getName()));
+		handleError(CompileError::RefVar(&host, baseType->getName()));
 		return;
 	}
 
@@ -631,33 +637,55 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 	if (breakRecursion(host)) return;
 
 	// Then resolve the type.
-	DataType const& type = host.resolveType(scope, this);
+	DataType const* type = host.resolve_ornull(scope, this);
 	if (breakRecursion(host)) return;
 	if(!host.registered())  //Handle initial setup
 	{
-		if (!type.isResolved())
+		if (!type->isResolved())
 		{
-			handleError(CompileError::UnresolvedType(&host, type.getName()));
+			handleError(CompileError::UnresolvedType(&host, type->getName()));
 			return;
 		}
 
 		// Don't allow void type.
-		if (type == DataType::ZVOID)
+		if (type->isVoid())
 		{
-			handleError(CompileError::VoidVar(&host, host.name));
+			handleError(CompileError::BadVarType(&host, host.name, type->getName()));
 			return;
+		}
+		
+		if (type->isAuto())
+		{
+			bool good = false;
+			auto init = host.getInitializer();
+			if(init)
+			{
+				auto readty = init->getReadType(scope, this);
+				if(readty && readty->isResolved() && !readty->isVoid() && !readty->isAuto())
+				{
+					auto newty = type->isConstant() ? readty->getConstType() : readty->getMutType();
+					host.replaceType(*newty);
+					type = host.resolve_ornull(scope, this);
+					good = true;
+				}
+			}
+			if(!good)
+			{
+				handleError(CompileError::BadAutoType(&host));
+				return;
+			}
 		}
 
 		// Check for disallowed global types.
-		if (scope->isGlobal() && !type.canBeGlobal())
+		if (scope->isGlobal() && !type->canBeGlobal())
 		{
 			handleError(CompileError::RefVar(
-								&host, type.getName() + " " + host.name));
+								&host, type->getName() + " " + host.name));
 			return;
 		}
 
 		// Currently disabled syntaxes:
-		if (getArrayDepth(type) > 1)
+		if (getArrayDepth(*type) > 1)
 		{
 			handleError(CompileError::UnimplementedFeature(
 								&host, "Nested Array Declarations"));
@@ -666,7 +694,7 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 
 		// Is it a constant?
 		bool isConstant = false;
-		if (type.isConstant())
+		if (type->isConstant())
 		{
 			// A constant without an initializer doesn't make sense.
 			if (!host.getInitializer())
@@ -702,13 +730,13 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 			}
 			
 			int32_t value = *host.getInitializer()->getCompileTimeValue(this, scope);
-			Constant::create(*scope, host, type, value, this);
+			Constant::create(*scope, host, *type, value, this);
 		}
 		else
 		{
 			if(parsing_user_class == puc_vars)
 			{
-				UserClassVar::create(*scope, host, type, this);
+				UserClassVar::create(*scope, host, *type, this);
 			}
 			else
 			{
@@ -718,7 +746,7 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 					return;
 				}
 
-				Variable::create(*scope, host, type, this);
+				Variable::create(*scope, host, *type, this);
 			}
 		}
 	}
@@ -733,7 +761,7 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 		ASTDataType temp=ASTDataType(DataType::CFLOAT, host.location);
 		DataType const& enumType = temp.resolve(*scope, this);
 
-		checkCast(initType, (host.list && host.list->isEnum()) ? enumType : type, &host);
+		checkCast(initType, (host.list && host.list->isEnum()) ? enumType : *type, &host);
 		if (breakRecursion(host)) return;
 
 		// TODO check for array casting here.
@@ -838,6 +866,12 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void* param)
 		scope = oldScope;
 		return;
 	}
+	if(returnType.isAuto())
+	{
+		handleError(CompileError::BadReturnType(&host, returnType.getName()));
+		scope = oldScope;
+		return;
+	}
 
 	// Gather the parameter types.
 	vector<DataType const*> paramTypes;
@@ -858,10 +892,10 @@ void SemanticAnalyzer::caseFuncDecl(ASTFuncDecl& host, void* param)
 			return;
 		}
 
-		// Don't allow void params.
-		if (type == DataType::ZVOID)
+		// Don't allow void/auto params.
+		if (type.isVoid() || type.isAuto())
 		{
-			handleError(CompileError::FunctionVoidParam(&decl, decl.name));
+			handleError(CompileError::FunctionBadParamType(&decl, decl.name, type.getName()));
 			scope = oldScope;
 			return;
 		}
@@ -1708,6 +1742,24 @@ void SemanticAnalyzer::caseExprPreDecrement(ASTExprPreDecrement& host, void*)
 	analyzeIncrement(host);
 }
 
+void SemanticAnalyzer::caseExprCast(ASTExprCast& host, void* param)
+{
+	RecursiveVisitor::caseExprCast(host);
+	DataType const& castType = host.type->resolve(*scope, this);
+	if(!castType.isResolved())
+	{
+		handleError(
+				CompileError::UnresolvedType(
+						&host, castType.getName()));
+		return;
+	}
+	if(castType.isAuto())
+	{
+		handleError(CompileError::IllegalCast(&host, "anything", "auto"));
+		return;
+	}
+}
+
 void SemanticAnalyzer::caseExprAnd(ASTExprAnd& host, void*)
 {
 	analyzeBinaryExpr(host, DataType::UNTYPED, DataType::UNTYPED);
@@ -1887,10 +1939,10 @@ void SemanticAnalyzer::caseArrayLiteral(ASTArrayLiteral& host, void*)
 			return;
 		}
 
-		// Disallow void type.
-		if (elementType == DataType::ZVOID)
+		// Disallow void/auto type.
+		if (elementType.isVoid() || elementType.isAuto())
 		{
-			handleError(CompileError::VoidArr(&host, host.asString()));
+			handleError(CompileError::BadArrType(&host, host.asString(), elementType.getName()));
 			return;
 		}
 

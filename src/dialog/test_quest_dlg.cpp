@@ -1,4 +1,5 @@
 #include "base/dmap.h"
+#include "base/util.h"
 #include "dialog/info.h"
 #include "test_quest_dlg.h"
 #include "alertfunc.h"
@@ -94,6 +95,16 @@ void call_testqst_dialog()
 	TestQstDialog().show();
 }
 
+static std::string qst_cfg_header_from_path(std::string path)
+{
+	path = relativize_path(path);
+	util::replchar(path, '[', '_');
+	util::replchar(path, ']', '_');
+	util::replchar(path, ' ', '_');
+	util::replchar(path, '\\', '/');
+	return path;
+}
+
 TestQstDialog::TestQstDialog() : dmap_list(GUI::ZCListData::dmaps(true))
 {}
 
@@ -108,7 +119,7 @@ std::shared_ptr<GUI::Widget> TestQstDialog::view()
 	test_init_data.clear();
 	test_init_data_names.clear();
 	int i = 1;
-	std::string qst_cfg_header = relativize_path(filepath);
+	std::string qst_cfg_header = qst_cfg_header_from_path(filepath);
 	while (strlen(zc_get_config(qst_cfg_header.c_str(), fmt::format("test_init_data_{}", i).c_str(), "")))
 	{
 		std::string init_data = zc_get_config(qst_cfg_header.c_str(), fmt::format("test_init_data_{}", i).c_str(), "");
@@ -197,7 +208,7 @@ std::shared_ptr<GUI::Widget> TestQstDialog::view()
 
 static void save_test_init_data(int i)
 {
-	std::string qst_cfg_header = relativize_path(filepath);
+	std::string qst_cfg_header = qst_cfg_header_from_path(filepath);
 	zc_set_config(qst_cfg_header.c_str(), fmt::format("test_init_data_{}", i + 1).c_str(), test_init_data[i].c_str());
 	zc_set_config(qst_cfg_header.c_str(), fmt::format("test_init_data_{}_name", i + 1).c_str(), test_init_data_names[i].c_str());
 }

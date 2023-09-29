@@ -34,7 +34,7 @@ static App app_id = App::undefined;
 bool is_in_osx_application_bundle()
 {
 #ifdef __APPLE__
-    return std::filesystem::current_path().string().find("/ZQuestClassic.app/") != std::string::npos;
+    return std::filesystem::current_path().string().find("/ZQuest Classic.app/") != std::string::npos;
 #else
     return false;
 #endif
@@ -103,6 +103,8 @@ void common_main_setup(App id, int argc, char **argv)
 	auto update_active_files = fs::path(".updater-active-files");
 	std::error_code ec;
 	fs::remove_all(update_active_files, ec);
+	if (fs::exists("zquest.exe"))
+		fs::remove("zquest.exe", ec);
 }
 
 App get_app_id()

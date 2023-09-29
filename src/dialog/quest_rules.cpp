@@ -930,6 +930,9 @@ static GUI::ListData compatRulesList
 		"If enabled, a couple of old light beam hitbox issues will occur. Notably, ffc light triggers"
 		" will use 'x+8,y+8' instead of their center, and light triggers will act as 'Mirror (4-Way)'"
 		" combos (to light beams, not weapons) if they do not block light." },
+	{ "Broken Sword Triggers (spin-related)", qr_BROKEN_SWORD_SPIN_TRIGGERS,
+		"If enabled, a sword trigger that was hit by slash cannot be re-hit by"
+		" the same sword during the spin attack, making some spin-based puzzles not work." },
 };
 
 static GUI::ListData enemiesRulesList

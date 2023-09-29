@@ -299,18 +299,19 @@ void HeroClass::set_respawn_point(bool setwarp)
 		x = vbound(x,0,world_w-16);
 		y = vbound(y,0,world_h-16);
 	}
-
+	
+	if(setwarp)
+	{
+		warpx = x;
+		warpy = y;
+		raftwarpx = x;
+		raftwarpy = y;
+	}
 	do
 	{
-		if(setwarp)
-		{
-			warpx = x;
-			warpy = y;
-			raftwarpx = x;
-			raftwarpy = y;
-		}
 		if(!get_qr(qr_OLD_RESPAWN_POINTS))
 		{
+			if(currscr >= 0x80) break;
 			bool is_safe = true;
 			switch(action)
 			{
@@ -1599,7 +1600,7 @@ void HeroClass::init()
 	if (( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 ) && (game->get_hasplayed()) ) //if (!hasplayed) runs in game_loop()
 	{
 		ZScriptVersion::RunScript(ScriptType::Player, SCRIPT_PLAYER_INIT); 
-		FFCore.deallocateAllArrays(ScriptType::Player, SCRIPT_PLAYER_INIT);
+		FFCore.deallocateAllScriptOwned(ScriptType::Player, SCRIPT_PLAYER_INIT);
 		FFCore.initZScriptHeroScripts(); //Clear the stack and the refinfo data to be ready for Hero's active script. 
 		set_respawn_point(); //screen entry at spawn; //This should be after the init script, so that Hero->X and Hero->Y set by the script
 						//are properly set by the engine.
@@ -2127,7 +2128,17 @@ int HeroClass::getHammerState() const
 	}
 	return 0;
 }
-
+weapon* find_first_wtype(int wtype)
+{
+	for(int32_t i=0; i<Lwpns.Count(); i++)
+	{
+		weapon* w = (weapon*)Lwpns.spr(i);
+		
+		if(w->id == wtype)
+			return w;
+	}
+	return nullptr;
+}
 void HeroClass::draw(BITMAP* dest)
 {
 	/*{
@@ -2237,22 +2248,8 @@ void HeroClass::draw(BITMAP* dest)
 				else if((attack==wSword || attack==wWand || ((attack==wFire || attack==wCByrna) && itemsbuf[itemid].wpn)) && wpnsbuf[itemsbuf[itemid].wpn].tile)
 				{
 					// Create a sword weapon at the right spot.
-					weapon *w=NULL;
-					bool found = false;
-					
-					// Look for pre-existing sword
-					for(int32_t i=0; i<Lwpns.Count(); i++)
-					{
-						w = (weapon*)Lwpns.spr(i);
-						
-						if(w->id == (attack==wSword ? wSword : wWand))
-						{
-							found = true;
-							break;
-						}
-					}
-					
-					if(!found)  // Create one if sword nonexistant
+					weapon *w=find_first_wtype(attack==wSword ? wSword : wWand);
+					if(!w)  // Create one if sword nonexistant
 					{
 						Lwpns.add(new weapon((zfix)0,(zfix)0,(zfix)0,(attack==wSword ? wSword : wWand),0,0,dir,itemid,getUID(),false,false,true));
 						w = (weapon*)Lwpns.spr(Lwpns.Count()-1);
@@ -3098,14 +3095,14 @@ void collectitem_script(int32_t id)
 			int i = -id;
 			FFCore.reset_script_engine_data(ScriptType::Item, i);
 			ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[id].collect_script, i);
-			FFCore.deallocateAllArrays(ScriptType::Item, i);
+			FFCore.deallocateAllScriptOwned(ScriptType::Item, i);
 		}
 		else if (id == 0 && !(FFCore.doscript(ScriptType::Item, -id) && get_qr(qr_ITEMSCRIPTSKEEPRUNNING))) //item 0
 		{
 			int i = COLLECT_SCRIPT_ITEM_ZERO;
 			FFCore.reset_script_engine_data(ScriptType::Item, i);
 			ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[id].collect_script, i);
-			FFCore.deallocateAllArrays(ScriptType::Item, i);
+			FFCore.deallocateAllScriptOwned(ScriptType::Item, i);
 		}
 		//runningItemScripts[id] = 0;
 	}
@@ -7164,7 +7161,7 @@ int32_t HeroClass::hithero(int32_t hit2, int32_t force_hdir)
 			int i = stompid;
 			FFCore.reset_script_engine_data(ScriptType::Item, i);
 			ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[stompid].script, i);
-			FFCore.deallocateAllArrays(ScriptType::Item, i);
+			FFCore.deallocateAllScriptOwned(ScriptType::Item, i);
 		}
 		
 		return -1;
@@ -9179,8 +9176,8 @@ heroanimate_skip_liftwpn:;
 					lstunclock = 0;
 					is_conveyor_stunned = 0;
 					FFCore.setHeroAction(dying);
-					FFCore.deallocateAllArrays(ScriptType::Global, GLOBAL_SCRIPT_GAME);
-					FFCore.deallocateAllArrays(ScriptType::Player, SCRIPT_PLAYER_ACTIVE);
+					FFCore.deallocateAllScriptOwned(ScriptType::Global, GLOBAL_SCRIPT_GAME);
+					FFCore.deallocateAllScriptOwned(ScriptType::Player, SCRIPT_PLAYER_ACTIVE);
 					ALLOFF(true,true);
 					GameFlags |= GAMEFLAG_NO_F6;
 					if(!debug_enabled)
@@ -9190,7 +9187,7 @@ heroanimate_skip_liftwpn:;
 					if(!get_qr(qr_ONDEATH_RUNS_AFTER_DEATH_ANIM))
 					{
 						FFCore.runOnDeathEngine();
-						FFCore.deallocateAllArrays(ScriptType::Player, SCRIPT_PLAYER_DEATH);
+						FFCore.deallocateAllScriptOwned(ScriptType::Player, SCRIPT_PLAYER_DEATH);
 					}
 					Playing = false;
 					heroDeathAnimation();
@@ -9198,7 +9195,7 @@ heroanimate_skip_liftwpn:;
 					{
 						Playing = true;
 						FFCore.runOnDeathEngine();
-						FFCore.deallocateAllArrays(ScriptType::Player, SCRIPT_PLAYER_DEATH);
+						FFCore.deallocateAllScriptOwned(ScriptType::Player, SCRIPT_PLAYER_DEATH);
 						Playing = false;
 					}
 					GameFlags &= ~GAMEFLAG_NO_F6;
@@ -10567,7 +10564,7 @@ void HeroClass::do_liftglove(int32_t liftid, bool passive)
 		int i = liftid;
 		FFCore.reset_script_engine_data(ScriptType::Item, i);
 		ZScriptVersion::RunScript(ScriptType::Item, glove.script, i);
-		FFCore.deallocateAllArrays(ScriptType::Item,i);
+		FFCore.deallocateAllScriptOwned(ScriptType::Item,i);
 		
 		bool has_weapon = lift_wpn;
 		if(has_weapon != had_weapon) //Item action script changed the lift information
@@ -12483,6 +12480,9 @@ bool HeroClass::doattack()
 					currentscroll = id;
 					spins=(spinscroll.misc1*4) + (super ? -3 : 1);
 					attackclk=1;
+					if(!get_qr(qr_BROKEN_SWORD_SPIN_TRIGGERS))
+						if(weapon* w = find_first_wtype(wSword))
+							w->reset_wgrids();
 					sfx(spinscroll.usesound,pan(x.getInt()));
 					if(spinscroll.flags&ITEM_FLAG1)
 						paymagiccost(id);
@@ -17193,7 +17193,7 @@ bool HeroClass::scr_walkflag(int dx,int dy,int d2,bool kb)
 	if(blockpath && dy<80) //Blocked top parts of rooms
 		return true;
 	
-	if(blockmoving && mblock2.hit(dx,dy,0,1,1,1))
+	if(mblock2.active() && mblock2.hit(dx,dy,0,1,1,1))
 		return true;
 	//collide_object handled in scr_canmove
 	
@@ -19282,7 +19282,7 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
         return ret;
     }
     
-    if(blockmoving && mblock2.hit(wx,wy,0,1,1,1))
+    if(mblock2.active() && mblock2.hit(wx,wy,0,1,1,1))
     {
         ret.setUnwalkable(true);
         return ret;
@@ -19781,13 +19781,13 @@ HeroClass::WalkflagInfo HeroClass::walkflag(int32_t wx,int32_t wy,int32_t cnt,by
 HeroClass::WalkflagInfo HeroClass::walkflagMBlock(int32_t wx,int32_t wy)
 {
 	HeroClass::WalkflagInfo ret;
-	if (!blockmoving) //Without this, weird swimming behaviors happen.
+	if (!mblock2.active()) //Without this, weird swimming behaviors happen.
 	{
 		ret.setFlags(~1);
 		ret.setHopDir(-1);
 	}
 	if(toogam) return ret;
-	if (blockmoving)
+	if (mblock2.active())
 		ret.setUnwalkable(mblock2.hit(wx,wy,0,1,1,1));
 	if (collide_object(wx, wy,1, 1))
 		ret.setUnwalkable(true);
@@ -20059,7 +20059,6 @@ void HeroClass::checkpushblock()
 			(limitedpush && usecounts[itemid] > zc_max(1, glove->misc3)))) continue;
 		
 		bool doit=false;
-		bool changeflag=false;
 		bool changecombo=false;
 		
 		int blockdir = dir;
@@ -20104,15 +20103,8 @@ void HeroClass::checkpushblock()
 		}
 		else
 		{
-			if(((f==mfPUSHUD || f==mfPUSHUDNS|| f==mfPUSHUDINS) && dir<=down) ||
-					((f==mfPUSHLR || f==mfPUSHLRNS|| f==mfPUSHLRINS) && dir>=left) ||
-					((f==mfPUSHU || f==mfPUSHUNS || f==mfPUSHUINS) && dir==up) ||
-					((f==mfPUSHD || f==mfPUSHDNS || f==mfPUSHDINS) && dir==down) ||
-					((f==mfPUSHL || f==mfPUSHLNS || f==mfPUSHLINS) && dir==left) ||
-					((f==mfPUSHR || f==mfPUSHRNS || f==mfPUSHRINS) && dir==right) ||
-					f==mfPUSH4 || f==mfPUSH4NS || f==mfPUSH4INS)
+			if(is_push_flag_dir(f,dir))
 			{
-				changeflag=true;
 				doit=true;
 			}
 			
@@ -20184,36 +20176,33 @@ void HeroClass::checkpushblock()
 				++usecounts[itemid];
 			
 			//   for(int32_t i=0; i<1; i++)
-			if(!blockmoving)
+			if(!mblock2.active())
 			{
-				if(changeflag)
+				if(is_push_flag_dir(f,dir))
 				{
 					m->sflag[combopos]=0;
 				}
 				
-				if(mblock2.clk<=0)
+				mblock2.blockLayer = lyr;
+				
+				if(t == cPUSHBLOCK)
 				{
-					mblock2.blockLayer = lyr;
+					zfix blockstep = 0.5;
+					if(cmb.attrishorts[0] > 0)
+						blockstep = zslongToFix(cmb.attrishorts[0]*100);
+					mblock2.push_new(zfix(bx),zfix(by),blockdir,f,blockstep);
+					mblock2.blockinfo = cpinfo;
+					mblock2.blockinfo.push(blockdir, cmb.usrflags&cflag8);
+					cpinfo.clear();
+					if(cmb.attribytes[1])
+						sfx(cmb.attribytes[1],(int32_t)x);
+				}
+				else
+				{
+					mblock2.push((zfix)bx,(zfix)by,blockdir,f);
 					
-					if(t == cPUSHBLOCK)
-					{
-						zfix blockstep = 0.5;
-						if(cmb.attrishorts[0] > 0)
-							blockstep = zslongToFix(cmb.attrishorts[0]*100);
-						mblock2.push_new(zfix(bx),zfix(by),blockdir,f,blockstep);
-						mblock2.blockinfo = cpinfo;
-						mblock2.blockinfo.push(blockdir, cmb.usrflags&cflag8);
-						cpinfo.clear();
-						if(cmb.attribytes[1])
-							sfx(cmb.attribytes[1],(int32_t)x);
-					}
-					else
-					{
-						mblock2.push((zfix)bx,(zfix)by,blockdir,f);
-						
-						if(get_qr(qr_MORESOUNDS))
-							sfx(WAV_ZN1PUSHBLOCK,(int32_t)x);
-					}
+					if(get_qr(qr_MORESOUNDS))
+						sfx(WAV_ZN1PUSHBLOCK,(int32_t)x);
 				}
 			}
 			break;
@@ -20247,7 +20236,7 @@ bool usekey()
 				int i = key_item;
 				FFCore.reset_script_engine_data(ScriptType::Item, i);
 				ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[i].script, i);
-				FFCore.deallocateAllArrays(ScriptType::Item,(key_item));
+				FFCore.deallocateAllScriptOwned(ScriptType::Item,(key_item));
 			}
 			return true;
 		}
@@ -20275,7 +20264,7 @@ bool usekey()
 					int i = key_item;
 					FFCore.reset_script_engine_data(ScriptType::Item, i);
 					ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[i].script, i);
-					FFCore.deallocateAllArrays(ScriptType::Item,(key_item));
+					FFCore.deallocateAllScriptOwned(ScriptType::Item,(key_item));
 				}
 				game->change_keys(-1);
 			}
@@ -20609,7 +20598,7 @@ void HeroClass::oldcheckbosslockblock()
 		int i = key_item;
 		FFCore.reset_script_engine_data(ScriptType::Item, i);
 		ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[i].script, i);
-		FFCore.deallocateAllArrays(ScriptType::Item,(key_item));
+		FFCore.deallocateAllScriptOwned(ScriptType::Item,(key_item));
 	}
 	
 	if(cmb.usrflags&cflag16)
@@ -20749,7 +20738,7 @@ void HeroClass::oldcheckchest(int32_t type)
 				int i = key_item;
 				FFCore.reset_script_engine_data(ScriptType::Item, i);
 				ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[i].script, i);
-				FFCore.deallocateAllArrays(ScriptType::Item,(key_item));
+				FFCore.deallocateAllScriptOwned(ScriptType::Item,(key_item));
 			}
 			setmapflag(screen, found_screen_index, mBOSSCHEST);
 			break;
@@ -21404,7 +21393,7 @@ void HeroClass::checklocked()
 						int i = key_item;
 						FFCore.reset_script_engine_data(ScriptType::Item, i);
 						ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[i].script, i);
-						FFCore.deallocateAllArrays(ScriptType::Item,(key_item));
+						FFCore.deallocateAllScriptOwned(ScriptType::Item,(key_item));
 					}
 					}
 					else return;
@@ -21460,7 +21449,7 @@ void HeroClass::checklocked()
 						int i = key_item;
 						FFCore.reset_script_engine_data(ScriptType::Item, i);
 						ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[i].script, i);
-						FFCore.deallocateAllArrays(ScriptType::Item,(key_item));
+						FFCore.deallocateAllScriptOwned(ScriptType::Item,(key_item));
 					}
 					}
 					else return;
@@ -21514,7 +21503,7 @@ void HeroClass::checklocked()
 						int i = key_item;
 						FFCore.reset_script_engine_data(ScriptType::Item, i);
 						ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[i].script, i);
-						FFCore.deallocateAllArrays(ScriptType::Item,(key_item));
+						FFCore.deallocateAllScriptOwned(ScriptType::Item,(key_item));
 					}
 					}
 					else return;
@@ -21572,7 +21561,7 @@ void HeroClass::checklocked()
 						int i = key_item;
 						FFCore.reset_script_engine_data(ScriptType::Item, i);
 						ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[i].script, i);
-						FFCore.deallocateAllArrays(ScriptType::Item,(key_item));
+						FFCore.deallocateAllScriptOwned(ScriptType::Item,(key_item));
 					}
 					}
 					else return;
@@ -21636,7 +21625,7 @@ void HeroClass::checklocked()
 							int i = key_item;
 							FFCore.reset_script_engine_data(ScriptType::Item, i);
 							ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[i].script, i);
-							FFCore.deallocateAllArrays(ScriptType::Item,(key_item));
+							FFCore.deallocateAllScriptOwned(ScriptType::Item,(key_item));
 						}
 						}
 						else return;
@@ -21700,7 +21689,7 @@ void HeroClass::checklocked()
 							int i = key_item;
 							FFCore.reset_script_engine_data(ScriptType::Item, i);
 							ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[i].script, i);
-							FFCore.deallocateAllArrays(ScriptType::Item,(key_item));
+							FFCore.deallocateAllScriptOwned(ScriptType::Item,(key_item));
 						}
 						}
 						else return;
@@ -21762,7 +21751,7 @@ void HeroClass::checklocked()
 							int i = key_item;
 							FFCore.reset_script_engine_data(ScriptType::Item, i);
 							ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[i].script, i);
-							FFCore.deallocateAllArrays(ScriptType::Item,(key_item));
+							FFCore.deallocateAllScriptOwned(ScriptType::Item,(key_item));
 						}
 						}
 						else return;
@@ -21827,7 +21816,7 @@ void HeroClass::checklocked()
 							int i = key_item;
 							FFCore.reset_script_engine_data(ScriptType::Item, i);
 							ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[i].script, i);
-							FFCore.deallocateAllArrays(ScriptType::Item,(key_item));
+							FFCore.deallocateAllScriptOwned(ScriptType::Item,(key_item));
 						}
 
 						}
@@ -26011,7 +26000,7 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 	FFCore.clear_combo_scripts();
 	if (!intradmap || get_qr(qr_WARPS_RESTART_DMAPSCRIPT))
 	{
-		FFScript::deallocateAllArrays(ScriptType::DMap, olddmap);
+		FFScript::deallocateAllScriptOwned(ScriptType::DMap, olddmap);
 		FFCore.initZScriptDMapScripts();
 		FFCore.initZScriptScriptedActiveSubscreen();
 		if(refresh_dmap_scrollscript)
@@ -26904,17 +26893,6 @@ void HeroClass::checkscroll()
 	//DO NOT scroll if Hero is vibrating due to Farore's Wind effect -DD
 	if(action == casting||action==sideswimcasting)
 		return;
-
-	if(toogam)
-	{
-		if(x<0 && (currscr&15)==0) x=0;
-		
-		if(y<0 && currscr<16) y=0;
-		
-		if(x>world_w-16 && (currscr&15)==15) x=world_w-16;
-		
-		if(y>world_h-16 && currscr>=112) y=world_h-16;
-	}
 
 	// This maze logic is enabled for only scrolling mode. It's a bit simpler, but hasn't
 	// been tested for non-scrolling mode.
@@ -30996,7 +30974,7 @@ void HeroClass::getTriforce(int32_t id2)
 		if(itemsbuf[id2].misc1)
 			jukebox(itemsbuf[id2].misc1+ZC_MIDI_COUNT-1);
 		else
-			try_zcmusic((char*)moduledata.base_NSF_file,moduledata.tf_track, ZC_MIDI_TRIFORCE);
+			try_zcmusic("zelda.nsf",moduledata.tf_track, ZC_MIDI_TRIFORCE);
 	}
 	if(itemsbuf[id2].flags & ITEM_GAMEDATA)
 	{
@@ -31021,7 +30999,7 @@ void HeroClass::getTriforce(int32_t id2)
 					int i = id2;
 					FFCore.reset_script_engine_data(ScriptType::Item, i);
 					ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[id2].script, i);
-					FFCore.deallocateAllArrays(ScriptType::Item, i);
+					FFCore.deallocateAllScriptOwned(ScriptType::Item, i);
 				}
 				else
 				{

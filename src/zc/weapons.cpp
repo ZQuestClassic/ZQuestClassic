@@ -20,7 +20,7 @@
 #include "base/misctypes.h"
 #include "iter.h"
 
-#ifndef IS_ZQUEST
+#ifndef IS_EDITOR
 #include "zc/render.h"
 #endif
 
@@ -927,6 +927,13 @@ void weapon::cleanup_sfx()
         break;
     }*/
 }
+void weapon::reset_wgrids()
+{
+	memset(wscreengrid,0,sizeof(wscreengrid));
+	memset(wscreengrid_layer,0,sizeof(wscreengrid_layer));
+	// TODO z3 !!! merged
+	// memset(wscreengrid_ffc,0,sizeof(wscreengrid_ffc));
+}
 weapon::~weapon()
 {
 	if(dragging > 0)
@@ -935,7 +942,7 @@ weapon::~weapon()
 		if(dragItem)
 			dragItem->is_dragged = false;
 	}
-	FFCore.deallocateAllArrays(isLWeapon ? ScriptType::Lwpn : ScriptType::Ewpn, getUID());
+	FFCore.deallocateAllScriptOwned(isLWeapon ? ScriptType::Lwpn : ScriptType::Ewpn, getUID());
 	cleanup_sfx();
 }
 
@@ -7802,7 +7809,7 @@ void weapon::draw_hitbox()
 	if(hide_hitbox) return;
 	if(!get_qr(qr_OLD_BOMB_HITBOXES) && (id == wBomb || id == wSBomb || id == ewBomb || id == ewSBomb))
 	{
-#ifndef IS_ZQUEST
+#ifndef IS_EDITOR
 		start_info_bmp();
 		if(parentitem < 0 || itemsbuf[parentitem].misc7 < 1)
 		{

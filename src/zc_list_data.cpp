@@ -4,6 +4,7 @@
 #include "qst.h"
 #include "zinfo.h"
 #include "base/misctypes.h"
+#include "base/autocombo.h"
 #include <fmt/format.h>
 
 extern zcmodule moduledata;
@@ -18,7 +19,7 @@ extern item_drop_object item_drop_sets[MAXITEMDROPSETS];
 #elif defined(IS_PLAYER)
 #define customtunes tunes
 extern zctune tunes[MAXMIDIS];
-#elif defined(IS_ZQUEST)
+#elif defined(IS_EDITOR)
 extern zctune *customtunes;
 const char *msgslist(int32_t index, int32_t *list_size);
 char *MsgString(int32_t index, bool show_number, bool pad_number);
@@ -120,7 +121,7 @@ static const GUI::ListData combostrs
 GUI::ListData GUI::ZCListData::strings(bool combostr, bool respect_order, bool numbered)
 {
 	GUI::ListData ls;
-	#ifdef IS_ZQUEST
+	#ifdef IS_EDITOR
 	if(combostr)
 		ls = combostrs;
 	
@@ -953,3 +954,21 @@ GUI::ListData const& GUI::ZCListData::buttons()
 	return button;
 }
 
+static const GUI::ListData autocombo_types
+{
+	{ "(None)", AUTOCOMBO_NONE },
+	{ "Basic Relational", AUTOCOMBO_BASIC },
+	{ "Relational", AUTOCOMBO_RELATIONAL },
+	{ "Flat Mountain", AUTOCOMBO_Z1 },
+	{ "Pancake Mountain", AUTOCOMBO_Z4 },
+	{ "Fence", AUTOCOMBO_FENCE },
+	{ "Dungeon Carving", AUTOCOMBO_DGNCARVE },
+	{ "Complex Mountain", AUTOCOMBO_DOR },
+	{ "Positional Tiling", AUTOCOMBO_TILING },
+	{ "Replace", AUTOCOMBO_REPLACE}
+};
+
+GUI::ListData const& GUI::ZCListData::autocombotypes()
+{
+	return autocombo_types;
+};

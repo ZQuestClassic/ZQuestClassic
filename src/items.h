@@ -42,7 +42,7 @@ public:
 	int8_t pickupexstate;
 
 //Linker errors because this is shared with zquest. :( -Z
-    #ifndef IS_ZQUEST
+    #ifndef IS_EDITOR
     int32_t script_UID;
     int32_t getScriptUID();
     void setScriptUID(int32_t new_id);
@@ -54,7 +54,7 @@ public:
     virtual ~item();
     virtual bool animate(int32_t index);
     virtual void draw(BITMAP *dest);
-#ifndef IS_ZQUEST
+#ifndef IS_EDITOR
 	virtual int32_t run_script(int32_t mode);
 #endif
 	virtual ALLEGRO_COLOR hitboxColor(byte opacity = 255) const;

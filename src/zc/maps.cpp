@@ -5664,8 +5664,8 @@ void loadscr(int32_t destdmap, int32_t scr, int32_t ldir, bool overlay, bool no_
 
 	FFCore.clear_script_engine_data_of_type(ScriptType::Screen);
 	FFCore.clear_combo_scripts();
-	FFCore.deallocateAllArrays(ScriptType::Screen, 0);
-	FFCore.deallocateAllArrays(ScriptType::Combo, 0);
+	FFCore.deallocateAllScriptOwned(ScriptType::Screen, 0);
+	FFCore.deallocateAllScriptOwned(ScriptType::Combo, 0);
 
 	if (replay_is_active())
 	{
@@ -5864,7 +5864,7 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 			else
 			{
 				int ffc_id = get_region_screen_index_offset(scr)*MAXFFCS + i;
-				FFCore.deallocateAllArrays(ScriptType::FFC, ffc_id, false);
+				FFCore.deallocateAllScriptOwned(ScriptType::FFC, ffc_id, false);
 				memset(screen->ffcs[i].script_misc, 0, 16 * sizeof(int32_t));
 				FFCore.reset_script_engine_data(ScriptType::FFC, ffc_id);
 			}
@@ -7618,6 +7618,58 @@ bool isCuttableItemType(int32_t type)
     }
     
     return false;
+}
+
+bool is_push_flag(int32_t flag)
+{
+	switch(flag)
+	{
+		case mfPUSHUD: case mfPUSHUDNS: case mfPUSHUDINS:
+		case mfPUSHLR: case mfPUSHLRNS: case mfPUSHLRINS:
+		case mfPUSHU: case mfPUSHUNS: case mfPUSHUINS:
+		case mfPUSHD: case mfPUSHDNS: case mfPUSHDINS:
+		case mfPUSHL: case mfPUSHLNS: case mfPUSHLINS:
+		case mfPUSHR: case mfPUSHRNS: case mfPUSHRINS:
+		case mfPUSH4: case mfPUSH4NS: case mfPUSH4INS:
+			return true;
+	}
+	return false;
+}
+
+bool is_push_flag_dir(int flag, int dir)
+{
+	switch(flag)
+	{
+		case mfPUSHUD: case mfPUSHUDNS: case mfPUSHUDINS:
+			return dir <= down;
+		case mfPUSHLR: case mfPUSHLRNS: case mfPUSHLRINS:
+			return dir >= left;
+		case mfPUSHU: case mfPUSHUNS: case mfPUSHUINS:
+			return dir==up;
+		case mfPUSHD: case mfPUSHDNS: case mfPUSHDINS:
+			return dir==down;
+		case mfPUSHL: case mfPUSHLNS: case mfPUSHLINS:
+			return dir==left;
+		case mfPUSHR: case mfPUSHRNS: case mfPUSHRINS:
+			return dir==right;
+		case mfPUSH4: case mfPUSH4NS: case mfPUSH4INS:
+			return true;
+	}
+	return false;
+}
+
+bool is_push(mapscr* m, int32_t pos)
+{
+	if(is_push_flag(m->sflag[pos]))
+		return true;
+	newcombo const& cmb = combobuf[m->data[pos]];
+	if(is_push_flag(cmb.flag))
+		return true;
+	if(cmb.type == cPUSHBLOCK)
+		return true;
+	if(cmb.type == cSWITCHHOOK && (cmb.usrflags&cflag7))
+		return true; //Counts as 'pushblock' flag
+	return false;
 }
 
 static std::map<int, ScreenItemState> screen_item_state;

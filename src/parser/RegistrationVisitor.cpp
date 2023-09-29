@@ -442,22 +442,28 @@ void RegistrationVisitor::caseScriptTypeDef(ASTScriptTypeDef& host, void* param)
 void RegistrationVisitor::caseDataDeclList(ASTDataDeclList& host, void* param)
 {
 	// Resolve the base type.
-	DataType const& baseType = host.baseType->resolve(*scope, this);
+	DataType const* baseType = host.baseType->resolve_ornull(*scope, this);
     if (breakRecursion(*host.baseType.get())) return;
-	if (!host.baseType->wasResolved()) return;
+	if (!host.baseType->wasResolved() || !baseType) return;
 
 	// Don't allow void type.
-	if (baseType == DataType::ZVOID)
+	if (baseType->isVoid())
 	{
-		handleError(CompileError::VoidVar(&host, host.asString()));
+		handleError(CompileError::BadVarType(&host, host.asString(), baseType->getName()));
 		doRegister(host);
 		return;
 	}
-
-	// Check for disallowed global types.
-	if (scope->isGlobal() && !baseType.canBeGlobal())
+	
+	if (baseType->isAuto() && host.getDeclarations().size() > 1)
 	{
-		handleError(CompileError::RefVar(&host, baseType.getName()));
+		handleError(CompileError::GroupAuto(&host));
+		return;
+	}
+	
+	// Check for disallowed global types.
+	if (scope->isGlobal() && !baseType->canBeGlobal())
+	{
+		handleError(CompileError::RefVar(&host, baseType->getName()));
 		doRegister(host);
 		return;
 	}
@@ -471,22 +477,22 @@ void RegistrationVisitor::caseDataDeclList(ASTDataDeclList& host, void* param)
 void RegistrationVisitor::caseDataEnum(ASTDataEnum& host, void* param)
 {
 	// Resolve the base type.
-	DataType const& baseType = host.baseType->resolve(*scope, this);
+	DataType const* baseType = host.baseType->resolve_ornull(*scope, this);
     if (breakRecursion(*host.baseType.get())) return;
-	if (!baseType.isResolved()) return;
+	if (!baseType) return;
 
-	// Don't allow void type.
-	if (baseType == DataType::ZVOID)
+	// Don't allow void/auto types.
+	if (baseType->isVoid() || baseType->isAuto())
 	{
-		handleError(CompileError::VoidVar(&host, host.asString()));
+		handleError(CompileError::BadVarType(&host, host.asString(), baseType->getName()));
 		doRegister(host);
 		return;
 	}
 
 	// Check for disallowed global types.
-	if (scope->isGlobal() && !baseType.canBeGlobal())
+	if (scope->isGlobal() && !baseType->canBeGlobal())
 	{
-		handleError(CompileError::RefVar(&host, baseType.getName()));
+		handleError(CompileError::RefVar(&host, baseType->getName()));
 		doRegister(host);
 		return;
 	}
@@ -532,29 +538,51 @@ void RegistrationVisitor::caseDataDecl(ASTDataDecl& host, void* param)
 	if (breakRecursion(host)) return;
 	if(!(registered(host, host.extraArrays) && (!host.getInitializer() || registered(host.getInitializer())))) return;
 	// Then resolve the type.
-	DataType const& type = host.resolveType(scope, this);
+	DataType const* type = host.resolve_ornull(scope, this);
 	if (breakRecursion(host)) return;
-	if (!type.isResolved()) return;
+	if (!type) return;
 	
 	doRegister(host);
 
 	// Don't allow void type.
-	if (type == DataType::ZVOID)
+	if (type->isVoid())
 	{
-		handleError(CompileError::VoidVar(&host, host.name));
+		handleError(CompileError::BadVarType(&host, host.name, type->getName()));
 		return;
+	}
+	
+	if (type->isAuto())
+	{
+		bool good = false;
+		auto init = host.getInitializer();
+		if(init)
+		{
+			auto readty = init->getReadType(scope, this);
+			if(readty && readty->isResolved() && !readty->isVoid() && !readty->isAuto())
+			{
+				auto newty = type->isConstant() ? readty->getConstType() : readty->getMutType();
+				host.replaceType(*newty);
+				type = host.resolve_ornull(scope, this);
+				good = true;
+			}
+		}
+		if(!good)
+		{
+			handleError(CompileError::BadAutoType(&host));
+			return;
+		}
 	}
 
 	// Check for disallowed global types.
-	if (scope->isGlobal() && !type.canBeGlobal())
+	if (scope->isGlobal() && !type->canBeGlobal())
 	{
 		handleError(CompileError::RefVar(
-				            &host, type.getName() + " " + host.name));
+				            &host, type->getName() + " " + host.name));
 		return;
 	}
 
 	// Currently disabled syntaxes:
-	if (getArrayDepth(type) > 1)
+	if (getArrayDepth(*type) > 1)
 	{
 		handleError(CompileError::UnimplementedFeature(
 				            &host, "Nested Array Declarations"));
@@ -563,7 +591,7 @@ void RegistrationVisitor::caseDataDecl(ASTDataDecl& host, void* param)
 
 	// Is it a constant?
 	bool isConstant = false;
-	if (type.isConstant())
+	if (type->isConstant())
 	{
 		// A constant without an initializer doesn't make sense.
 		if (!host.getInitializer())
@@ -599,13 +627,13 @@ void RegistrationVisitor::caseDataDecl(ASTDataDecl& host, void* param)
 		}
 		
 		int32_t value = *host.getInitializer()->getCompileTimeValue(this, scope);
-		Constant::create(*scope, host, type, value, this);
+		Constant::create(*scope, host, *type, value, this);
 	}
 	else
 	{
 		if(parsing_user_class == puc_vars)
 		{
-			UserClassVar::create(*scope, host, type, this);
+			UserClassVar::create(*scope, host, *type, this);
 		}
 		else
 		{
@@ -615,7 +643,7 @@ void RegistrationVisitor::caseDataDecl(ASTDataDecl& host, void* param)
 				return;
 			}
 
-			Variable::create(*scope, host, type, this);
+			Variable::create(*scope, host, *type, this);
 		}
 	}
 }
@@ -701,6 +729,12 @@ void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 	DataType const& returnType = host.returnType->resolve(*scope, this);
 	if (breakRecursion(*host.returnType.get())) {scope = oldScope; return;}
 	if (!returnType.isResolved()) {scope = oldScope; return;}
+	if(returnType.isAuto())
+	{
+		handleError(CompileError::BadReturnType(&host, returnType.getName()));
+		scope = oldScope;
+		return;
+	}
 
 	// Gather the parameter types.
 	vector<DataType const*> paramTypes;
@@ -712,20 +746,20 @@ void RegistrationVisitor::caseFuncDecl(ASTFuncDecl& host, void* param)
 		ASTDataDecl& decl = **it;
 
 		// Resolve the parameter type under current scope.
-		DataType const& type = decl.resolveType(scope, this);
+		DataType const* type = decl.resolve_ornull(scope, this);
 		if (breakRecursion(decl)) {scope = oldScope; return;}
-		if (!type.isResolved()) {scope = oldScope; return;}
+		if (!type) {scope = oldScope; return;}
 
-		// Don't allow void params.
-		if (type == DataType::ZVOID)
+		// Don't allow void/auto params.
+		if (type->isVoid() || type->isAuto())
 		{
-			handleError(CompileError::FunctionVoidParam(&decl, decl.name));
+			handleError(CompileError::FunctionBadParamType(&decl, decl.name, type->getName()));
 			doRegister(host);
 			scope = oldScope;
 			return;
 		}
 		paramNames.push_back(new string(decl.name));
-		paramTypes.push_back(&type);
+		paramTypes.push_back(type);
 	}
 	if(host.prototype)
 	{

@@ -5,6 +5,94 @@
 #include "fmt/core.h"
 #include "jwin_a5.h"
 
+void RenderTreeItem::add_child(RenderTreeItem* child)
+{
+	if (child->parent)
+		child->parent->remove_child(child);
+	children.push_back(child);
+	child->parent = this;
+}
+void RenderTreeItem::add_child_before(RenderTreeItem* child, RenderTreeItem* before_child)
+{
+	if (child->parent)
+		child->parent->remove_child(child);
+	auto it = std::find(children.begin(), children.end(), before_child);
+	ASSERT(it != children.end());
+	children.insert(it, child);
+	child->parent = this;
+}
+void RenderTreeItem::remove_child(RenderTreeItem* child)
+{
+	auto it = std::find(children.begin(), children.end(), child);
+	if (it != children.end())
+	{
+		children.erase(it);
+		child->parent = nullptr;
+	}
+}
+const std::vector<RenderTreeItem*>& RenderTreeItem::get_children() const
+{
+	return children;
+}
+bool RenderTreeItem::has_children() const
+{
+	return !children.empty();
+}
+void RenderTreeItem::handle_dirty()
+{
+	if (!transform_dirty) return;
+
+	const Matrix& parent_transform = parent ? parent->get_transform_matrix() : Matrix::Identity();
+	transform_matrix = Matrix::Translate(transform.x, transform.y).mul(Matrix::Scale(transform.xscale, transform.yscale));
+	transform_matrix = parent_transform.mul(transform_matrix);
+	transform_dirty = false;
+}
+void RenderTreeItem::mark_dirty()
+{
+	transform_dirty = transform_inverse_dirty = true;
+	for (auto child : children) child->mark_dirty();
+}
+void RenderTreeItem::set_transform(Transform new_transform)
+{
+	if (transform == new_transform)
+		return;
+
+	transform = new_transform;
+	mark_dirty();
+}
+const Transform& RenderTreeItem::get_transform() const
+{
+	return transform;
+}
+const Matrix& RenderTreeItem::get_transform_matrix()
+{
+	handle_dirty();
+	return transform_matrix;
+}
+std::pair<int, int> RenderTreeItem::world_to_local(int x, int y)
+{
+	handle_dirty();
+	if (transform_inverse_dirty)
+	{
+		transform_matrix_inverse = transform_matrix.inverse();
+		transform_inverse_dirty = false;
+	}
+	return transform_matrix_inverse.apply(x, y);
+}
+std::pair<int, int> RenderTreeItem::local_to_world(int x, int y)
+{
+	handle_dirty();
+	return transform_matrix.apply(x, y);
+}
+std::pair<int, int> RenderTreeItem::pos()
+{
+	return local_to_world(0, 0);
+}
+std::pair<int, int> RenderTreeItem::rel_mouse()
+{
+	return world_to_local(mouse_x, mouse_y);
+}
+
 RenderTreeItem rti_dialogs("dialogs");
 
 extern int32_t zq_screen_w, zq_screen_h;
@@ -62,7 +150,7 @@ ALLEGRO_BITMAP* create_a5_bitmap(int w, int h)
 	return bitmap;
 }
 
-RenderTreeItem::RenderTreeItem(std::string name) : name(name)
+RenderTreeItem::RenderTreeItem(std::string name, RenderTreeItem* parent) : name(name), parent(parent)
 {
 }
 
@@ -236,29 +324,6 @@ void render_text_lines(ALLEGRO_FONT* font, std::vector<std::string> lines, TextJ
 	}
 }
 
-static void render_tree_layout(RenderTreeItem* rti, RenderTreeItem* rti_parent)
-{
-	if (!rti_parent)
-	{
-		rti->computed.xscale = rti->transform.xscale;
-		rti->computed.yscale = rti->transform.yscale;
-		rti->computed.x = rti->transform.xscale * rti->transform.x;
-		rti->computed.y = rti->transform.yscale * rti->transform.y;
-	}
-	else
-	{
-		rti->computed.xscale = rti->transform.xscale * rti_parent->computed.xscale;
-		rti->computed.yscale = rti->transform.yscale * rti_parent->computed.yscale;
-		rti->computed.x = rti->computed.xscale * rti->transform.x + rti_parent->computed.x;
-		rti->computed.y = rti->computed.yscale * rti->transform.y + rti_parent->computed.y;
-	}
-	
-	for (auto rti_child : rti->children)
-	{
-		render_tree_layout(rti_child, rti);
-	}
-}
-
 static void render_tree_draw_item(RenderTreeItem* rti)
 {
 	if (!rti->visible)
@@ -274,18 +339,23 @@ static void render_tree_draw_item(RenderTreeItem* rti)
 
 		int w = al_get_bitmap_width(rti->bitmap);
 		int h = al_get_bitmap_height(rti->bitmap);
-		
+
+		auto& matrix = rti->get_transform_matrix();
+		auto [x0, y0] = matrix.apply(0, 0);
+		auto [x1, y1] = matrix.apply(w, h);
+		int tw = x1 - x0;
+		int th = y1 - y0;
 		if (rti->tint)
 		{
-			al_draw_tinted_scaled_bitmap(rti->bitmap, *rti->tint, 0, 0, w, h, rti->computed.x, rti->computed.y, w*rti->computed.xscale, h*rti->computed.yscale, 0);
+			al_draw_tinted_scaled_bitmap(rti->bitmap, *rti->tint, 0, 0, w, h, x0, y0, tw, th, 0);
 		}
 		else
 		{
-			al_draw_scaled_bitmap(rti->bitmap, 0, 0, w, h, rti->computed.x, rti->computed.y, w*rti->computed.xscale, h*rti->computed.yscale, 0);
+			al_draw_scaled_bitmap(rti->bitmap, 0, 0, w, h, x0, y0, tw, th, 0);
 		}
 	}
-		
-	for (auto rti_child : rti->children)
+
+	for (auto rti_child : rti->get_children())
 	{
 		render_tree_draw_item(rti_child);
 	}
@@ -314,7 +384,7 @@ static void render_tree_draw_item_debug(RenderTreeItem* rti, int depth, std::vec
 	}
 	lines.push_back(line);
 
-	for (auto rti_child : rti->children)
+	for (auto rti_child : rti->get_children())
 	{
 		render_tree_draw_item_debug(rti_child, depth + 1, lines);
 	}
@@ -322,7 +392,6 @@ static void render_tree_draw_item_debug(RenderTreeItem* rti, int depth, std::vec
 
 void render_tree_draw(RenderTreeItem* rti)
 {
-	render_tree_layout(rti, nullptr);
 	render_tree_draw_item(rti);
 }
 
@@ -467,11 +536,10 @@ void popup_zqdialog_start(int x, int y, int w, int h, int transp)
 		rti->bitmap = create_a5_bitmap(w, h);
 		rti->a4_bitmap = tmp_bmp;
 		rti->transparency_index = transp;
-		rti->transform.x = x;
-		rti->transform.y = y;
+		rti->set_transform({.x = x, .y = y});
 		rti->visible = true;
 		rti->owned = true;
-		rti_dialogs.children.push_back(rti);
+		rti_dialogs.add_child(rti);
 		rti_dialogs.visible = true;
 		active_dlg_rti = rti;
 		al_set_new_bitmap_flags(0);
@@ -487,10 +555,10 @@ void popup_zqdialog_end()
 	if (active_dlg_rti)
 	{
 		RenderTreeItem* to_del = active_dlg_rti;
-		rti_dialogs.children.pop_back();
-		if(rti_dialogs.children.size())
+		rti_dialogs.remove_child(to_del);
+		if(rti_dialogs.has_children())
 		{
-			active_dlg_rti = rti_dialogs.children.back();
+			active_dlg_rti = rti_dialogs.get_children().back();
 			screen = active_dlg_rti->a4_bitmap;
 		}
 		else
@@ -515,7 +583,7 @@ void popup_zqdialog_start_a5()
 	rti->bitmap = create_a5_bitmap(zq_screen_w, zq_screen_h);
 	rti->visible = true;
 	rti->owned = true;
-	rti_dialogs.children.push_back(rti);
+	rti_dialogs.add_child(rti);
 	rti_dialogs.visible = true;
 	active_dlg_rti = rti;
 	al_set_new_bitmap_flags(0);
@@ -531,9 +599,9 @@ void popup_zqdialog_end_a5()
 	if (active_dlg_rti && old_a5_states.size())
 	{
 		RenderTreeItem* to_del = active_dlg_rti;
-		rti_dialogs.children.pop_back();
-		if(rti_dialogs.children.size())
-			active_dlg_rti = rti_dialogs.children.back();
+		rti_dialogs.remove_child(to_del);
+		if(rti_dialogs.has_children())
+			active_dlg_rti = rti_dialogs.get_children().back();
 		else
 		{
 			active_dlg_rti = nullptr;
@@ -548,8 +616,6 @@ void popup_zqdialog_end_a5()
 	position_mouse_z(0);
 }
 
-void update_dialog_transform(){}
-
 RenderTreeItem* add_dlg_layer(int x, int y, int w, int h)
 {
 	if(!active_dlg_rti) return nullptr;
@@ -560,30 +626,20 @@ RenderTreeItem* add_dlg_layer(int x, int y, int w, int h)
 	RenderTreeItem* rti = new RenderTreeItem("dlg");
 	rti->bitmap = al_create_bitmap(w,h);
 	clear_a5_bmp(rti->bitmap);
-	rti->transform.x = x;
-	rti->transform.y = y;
+	rti->set_transform({.x = x, .y = y});
 	rti->a4_bitmap = nullptr;
 	rti->visible = true;
 	rti->owned = true;
-	active_dlg_rti->children.push_back(rti);
+	active_dlg_rti->add_child(rti);
 
 	al_set_new_bitmap_flags(0);
 	return rti;
 }
 void remove_dlg_layer(RenderTreeItem* rti)
 {
-	if(active_dlg_rti) //Remove from children vector
+	if(active_dlg_rti)
 	{
-		auto& vec = active_dlg_rti->children;
-		for(auto it = vec.begin(); it != vec.end();)
-		{
-			RenderTreeItem* child = *it;
-			if(child == rti)
-			{
-				it = vec.erase(it);
-			}
-			else ++it;
-		}
+		active_dlg_rti->remove_child(rti);
 	}
 	delete rti;
 }

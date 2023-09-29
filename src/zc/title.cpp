@@ -283,11 +283,25 @@ static void list_saves()
 {
 	// Fourth Quest turns the menu red.
 	bool red = false;
-	
+
+	// First, make sure the presently listed quests are loaded.
 	int savecnt = saves_count();
+	for(int32_t i=0; i<3; i++)
+	{
+		int j = listpos+i;
+		if (j < savecnt)
+			saves_get_slot(j);
+	}
+
+	// Check if any loaded quests is the 4th quest.
 	for(int32_t i=0; i<savecnt; i++)
-		if (saves_get_slot(i)->header && saves_get_slot(i)->header->quest == 4)
+	{
+		if (saves_is_slot_loaded(i) && saves_get_slot(i)->header->quest == 4)
+		{
 			red = true;
+			break;
+		}
+	}
 
 	loadpalset(0,red ? pSprite(spPILE) : 0);
 	
@@ -312,16 +326,11 @@ static void list_saves()
 
 static void draw_cursor(int32_t pos,int32_t mode)
 {
-	int32_t cs = 0;
-	//al_trace( "moduledata.select_screen_tile_csets[sels_cusror_cset] is: %d\n", moduledata.select_screen_tile_csets[sels_cusror_cset]);
-	if ( (unsigned)moduledata.select_screen_tile_csets[sels_cusror_cset] < 15 ) cs = moduledata.select_screen_tile_csets[sels_cusror_cset];
-	else cs = (mode==3)?13:9;
-	//al_trace("select screen cursor cset is: %d\n", cs);
-	
+	int32_t cs = (mode==3)?13:9;
 	if(pos<3)
-		overtile8(framebuf,moduledata.select_screen_tiles[sels_cursor_tile],40,pos*24+77,cs,0);
+		overtile8(framebuf,0,40,pos*24+77,cs,0);
 	else
-		overtile8(framebuf,moduledata.select_screen_tiles[sels_cursor_tile],40,(pos-3)*16+153,cs,0);
+		overtile8(framebuf,0,40,(pos-3)*16+153,cs,0);
 }
 
 static bool register_name()

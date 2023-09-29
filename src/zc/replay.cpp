@@ -26,7 +26,7 @@ struct ReplayStep;
 
 static const int ASSERT_SNAPSHOT_BUFFER = 10;
 static const int ASSERT_FAILED_EXIT_CODE = 120;
-static const int VERSION = 19;
+static const int VERSION = 21;
 
 static const std::string ANNOTATION_MARKER = "«";
 static const char TypeMeta = 'M';
@@ -896,7 +896,7 @@ static void save_result(bool stopped = false, bool changed = false)
 
 	// Write to temporary file and then move it, because run_replay_tests.py will constantly
 	// be reading the .zplay.result.txt.
-	std::string tmp_filename = std::tmpnam(nullptr);
+	std::string tmp_filename = util::create_temp_file_path();
 	std::ofstream out(tmp_filename, std::ios::binary);
 
 	out << fmt::format("replay: {}", replay_path.string()) << '\n';

@@ -5,9 +5,9 @@
   <key>CFBundleExecutable</key>
   <string>mac_entry.sh</string>
   <key>CFBundleIdentifier</key>
-  <string>com.zeldaclassic.www</string>
+  <string>com.zquestclassic.www</string>
   <key>CFBundleName</key>
-  <string>Zelda Classic</string>
+  <string>ZQuest Classic</string>
   <key>CFBundleIconFile</key>
   <string>icons.icns</string>
   <key>CFBundleShortVersionString</key>

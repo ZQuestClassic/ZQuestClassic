@@ -60,6 +60,12 @@ public:
 		runner.done = true;
 	}
 
+	inline void refresh_dlg()
+	{
+		rerun_dlg = true;
+		close();
+	}
+
 	/* Subclasses must define an int32_t-convertible type called `message`
 	 * and implement:
 	 * bool handleMessage(const DialogMessage<message>&)

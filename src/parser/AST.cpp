@@ -1253,6 +1253,18 @@ DataType const& ASTDataDecl::resolveType(ZScript::Scope* scope, CompileErrorHand
 	return *type;
 }
 
+DataType const* ASTDataDecl::resolve_ornull(ZScript::Scope* scope, CompileErrorHandler* errorHandler)
+{
+	DataType const& ty = resolveType(scope, errorHandler);
+	return ty.isResolved() ? &ty : nullptr;
+}
+
+void ASTDataDecl::replaceType(DataType const& newty)
+{
+	ASTDataType* baseTypeNode = list ? list->baseType.get() : baseType.get();
+	baseTypeNode->replace(newty);
+}
+
 bool ZScript::hasSize(ASTDataDecl const& decl)
 {
 	for (auto it = decl.extraArrays.cbegin(); it != decl.extraArrays.cend(); ++it)
@@ -2635,16 +2647,16 @@ DataType const& ASTDataType::resolve(ZScript::Scope& scope, CompileErrorHandler*
 {
 	if(!wasResolved_)
 	{
-		DataType* resolved = type->resolve(scope, errorHandler);
+		DataType const* resolved = type->resolve(scope, errorHandler);
 		if(resolved && constant_)
 		{
 			string name = resolved->getName();
-			resolved = resolved->getConstType();
-			if(constant_>1 || !resolved)
+			if(constant_>1 || resolved->isConstant())
 			{
 				errorHandler->handleError(CompileError::ConstAlreadyConstant(this, name));
 				return DataType::ZVOID;
 			}
+			resolved = resolved->getConstType();
 		}
 		if(resolved)
 		{
@@ -2665,5 +2677,12 @@ DataType const* ASTDataType::resolve_ornull(ZScript::Scope& scope, CompileErrorH
 {
 	DataType const& ty = resolve(scope, errorHandler);
 	return ty.isResolved() ? &ty : nullptr;
+}
+void ASTDataType::replace(DataType const& newty)
+{
+	wasResolved_ = false;
+	constant_ = false;
+	becomeArray = false;
+	type.reset(newty.clone());
 }
 

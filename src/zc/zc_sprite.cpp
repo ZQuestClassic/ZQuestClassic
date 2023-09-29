@@ -169,6 +169,7 @@ void sprite::check_conveyor()
 void movingblock::clear()
 {
 	trigger = bhole = force_many = no_icy = new_block = false;
+	fallclk = drownclk = 0;
 	endx=x=endy=y=0;
 	dir=-1;
 	oldflag=0;
@@ -243,7 +244,6 @@ void movingblock::push(zfix bx,zfix by,int32_t d2,int32_t f)
 	FFCore.clear_combo_script(blockLayer, rpos);
     putcombo(scrollbuf,x-viewport.x,y-viewport.y,*di,*ci);
     clk=32;
-    blockmoving=true;
 	if(!get_qr(qr_MOVINGBLOCK_FAKE_SOLID))
 		setSolid(true);
 	solid_update(false);
@@ -295,40 +295,9 @@ void movingblock::push_new(zfix bx,zfix by,int d2,int f,zfix spd)
 	FFCore.clear_combo_script(blockLayer, rpos);
     putcombo(scrollbuf,x,y,*di,*ci);
     clk=32;
-    blockmoving=true;
 	if(!get_qr(qr_MOVINGBLOCK_FAKE_SOLID))
 		setSolid(true);
 	solid_update(false);
-}
-
-bool is_push_flag(int32_t flag)
-{
-	switch(flag)
-	{
-		case mfPUSHUD: case mfPUSHUDNS: case mfPUSHUDINS:
-		case mfPUSHLR: case mfPUSHLRNS: case mfPUSHLRINS:
-		case mfPUSHU: case mfPUSHUNS: case mfPUSHUINS:
-		case mfPUSHD: case mfPUSHDNS: case mfPUSHDINS:
-		case mfPUSHL: case mfPUSHLNS: case mfPUSHLINS:
-		case mfPUSHR: case mfPUSHRNS: case mfPUSHRINS:
-		case mfPUSH4: case mfPUSH4NS: case mfPUSH4INS:
-			return true;
-	}
-	return false;
-}
-
-bool is_push(mapscr* m, int32_t pos)
-{
-	if(is_push_flag(m->sflag[pos]))
-		return true;
-	newcombo const& cmb = combobuf[m->data[pos]];
-	if(is_push_flag(cmb.flag))
-		return true;
-	if(cmb.type == cPUSHBLOCK)
-		return true;
-	if(cmb.type == cSWITCHHOOK && (cmb.usrflags&cflag7))
-		return true; //Counts as 'pushblock' flag
-	return false;
 }
 
 bool movingblock::check_hole() const
@@ -354,7 +323,34 @@ bool movingblock::check_hole() const
 	return false;
 }
 
-// TODO z3 blocks
+// TODO z3 !! blocks
+bool movingblock::check_trig() const
+{
+	mapscr* m = FFCore.tempScreens[blockLayer];
+	size_t combopos = size_t((int32_t(y)&0xF0)+(int32_t(x)>>4));
+	if(fallclk || drownclk)
+		return false;
+	if((m->sflag[combopos]==mfBLOCKTRIGGER)||MAPCOMBOFLAG2(blockLayer-1,x,y)==mfBLOCKTRIGGER)
+		return true;
+	else if(!get_qr(qr_BLOCKHOLE_SAME_ONLY))
+	{
+		auto maxLayer = get_qr(qr_PUSHBLOCK_LAYER_1_2) ? 2 : 0;
+		for(auto lyr = 0; lyr <= maxLayer; ++lyr)
+		{
+			if(lyr==blockLayer) continue;
+			if(FFCore.tempScreens[lyr]->sflag[combopos] == mfBLOCKTRIGGER
+				|| MAPCOMBOFLAG2(lyr-1,x,y) == mfBLOCKTRIGGER)
+				return true;
+		}
+	}
+	return false;
+}
+
+bool movingblock::active() const
+{
+	return clk > 0 || fallclk || drownclk;
+}
+
 bool movingblock::animate(int32_t)
 {
 	if (x > world_w || y > world_h)
@@ -374,12 +370,10 @@ bool movingblock::animate(int32_t)
 	{
 		if(fallclk == PITFALL_FALL_FRAMES)
 			sfx(combobuf[fallCombo].attribytes[0], pan(x.getInt()));
-		if(!--fallclk)
-		{
-			blockmoving=false;
-		}
 		clk = 0;
 		solid_update(false);
+		if(!--fallclk)
+			clear();
 		return false;
 	}
 	if(drownclk)
@@ -387,12 +381,10 @@ bool movingblock::animate(int32_t)
 		//if(drownclk == WATER_DROWN_FRAMES)
 		//sfx(combobuf[drownCombo].attribytes[0], pan(x.getInt()));
 		//!TODO: Drown SFX
-		if(!--drownclk)
-		{
-			blockmoving=false;
-		}
 		clk = 0;
 		solid_update(false);
+		if(!--drownclk)
+			clear();
 		return false;
 	}
 	if(clk<=0)
@@ -608,7 +600,6 @@ bool movingblock::animate(int32_t)
 			x = endx;
 			y = endy;
 			trigger = false; bhole = false;
-			blockmoving=false;
 			
 			auto rpos_handle = get_rpos_handle_for_world_xy(x, y, 0);
 			int combopos = rpos_handle.pos();
@@ -843,7 +834,6 @@ bool movingblock::animate(int32_t)
 		else
 		{
 			trigger = false; bhole = false;
-			blockmoving=false;
 			
 			auto rpos_handle = get_rpos_handle_for_world_xy(x, y, 0);
 			int combopos = rpos_handle.pos();
@@ -1074,6 +1064,7 @@ bool movingblock::animate(int32_t)
 		{
 			do_trigger_combo(get_rpos_handle(comborpos, blockLayer));
 		}
+		clear();
 	}
 	return false;
 }

@@ -221,7 +221,7 @@ int32_t high_flag(int32_t i, int32_t item_type, bool consecutive);
 int32_t item_tile_mod();
 int32_t bunny_tile_mod();
 
-bool try_zcmusic(char *filename, int32_t track, int32_t midi, int32_t fadeoutframes = 0);
+bool try_zcmusic(const char *filename, int32_t track, int32_t midi, int32_t fadeoutframes = 0);
 bool try_zcmusic_mix(ZCMUSIC* &zcm, char* filename, int32_t track, int32_t midi, int32_t fadevol, int32_t fadeoutframes = 0);
 bool try_zcmusic_ex(char *filename, int32_t track, int32_t midi);
 int32_t get_zcmusicpos();

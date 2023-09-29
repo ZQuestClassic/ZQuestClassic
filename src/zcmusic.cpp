@@ -64,7 +64,7 @@ static int32_t zcmusic_bufsz_private = 64;
 
 ALLEGRO_MUTEX* playlistmutex = NULL;
 
-ZCMUSIC* zcmusic_load_for_quest(char* filename, char* quest_path)
+ZCMUSIC* zcmusic_load_for_quest(const char* filename, char* quest_path)
 {
 	if (!al_is_audio_installed())
 		return nullptr;
@@ -957,6 +957,7 @@ void unload_alstream_file(ALSTREAMFILE *als)
         if(als->s != NULL)
         {
 			al_set_audio_stream_playing(als->s, false);
+			al_destroy_audio_stream(als->s);
 			als->s = NULL;
         }
         

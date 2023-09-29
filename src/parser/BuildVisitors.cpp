@@ -1337,7 +1337,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		else
 		{
 			DataType const& retType = *func.returnType;
-			if(retType != DataType::ZVOID)
+			if(!retType.isVoid())
 			{
 				int32_t retval = 0;
 				if (std::optional<int32_t> val = func.defaultReturn->getCompileTimeValue(NULL, scope))

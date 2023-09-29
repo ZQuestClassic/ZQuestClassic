@@ -300,15 +300,15 @@ def get_revision_binaries(revision: Revision):
     if channel == 'mac':
         zc_app_path = next(dir.glob('*.app'))
         binaries['zc'] = find_path(zc_app_path / 'Contents/Resources', ['zplayer', 'zelda'])
-        binaries['zq'] = zc_app_path / 'Contents/Resources/zquest'
+        binaries['zq'] = find_path(zc_app_path / 'Contents/Resources', ['zeditor', 'zquest'])
         binaries['zl'] = zc_app_path / 'Contents/MacOS/zlauncher'
     elif channel == 'windows':
         binaries['zc'] = find_path(dir, ['zplayer.exe', 'zelda.exe'])
-        binaries['zq'] = dir / 'zquest.exe'
+        binaries['zq'] = find_path(dir, ['zeditor.exe', 'zquest.exe'])
         binaries['zl'] = dir / 'zlauncher.exe'
     elif channel == 'linux':
         binaries['zc'] = find_path(dir, ['zplayer', 'zelda'])
-        binaries['zq'] = dir / 'zquest'
+        binaries['zq'] = find_path(dir, ['zeditor', 'zquest'])
         binaries['zl'] = dir / 'zlauncher'
 
     return binaries

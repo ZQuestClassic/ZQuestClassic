@@ -1184,6 +1184,11 @@ script_command command_list[NUMCOMMANDS+1]=
 	{ "SUBWIDG_TY_GETTEXT", 1, 0, 0, 0 },
 	{ "SUBWIDG_TY_SETTEXT", 1, 0, 0, 0 },
 
+	{ "SUBPAGE_FIND_WIDGET_BY_LABEL", 0, 0, 0, 0 },
+
+	{ "SUBWIDG_GET_LABEL", 1, 0, 0, 0 },
+	{ "SUBWIDG_SET_LABEL", 1, 0, 0, 0 },
+
 	{ "", 0, 0, 0, 0 }
 };
 
@@ -2835,6 +2840,11 @@ script_variable variable_list[]=
 
 	{ "SUBWIDGDISPITM", SUBWIDGDISPITM, 0, 0 },
 	{ "SUBWIDGEQPITM", SUBWIDGEQPITM, 0, 0 },
+
+	{ "SUBWIDG_DISPX", SUBWIDG_DISPX, 0, 0 },
+	{ "SUBWIDG_DISPY", SUBWIDG_DISPY, 0, 0 },
+	{ "SUBWIDG_DISPW", SUBWIDG_DISPW, 0, 0 },
+	{ "SUBWIDG_DISPH", SUBWIDG_DISPH, 0, 0 },
 
 	{ " ", -1, 0, 0 }
 };

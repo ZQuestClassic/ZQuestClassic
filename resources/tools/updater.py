@@ -97,13 +97,13 @@ def download_release(url: str, dest: Path):
 
 	if args.channel == 'mac':
 		# In case it already exists somehow.
-		shutil.rmtree(dest / 'ZQuestClassic.app', ignore_errors=True)
+		shutil.rmtree(dest / 'ZQuest Classic.app', ignore_errors=True)
 
 		(dest / 'ZQuestClassic.dmg').write_bytes(content.getvalue())
 		subprocess.check_call(['hdiutil', 'attach', '-mountpoint',
 								str(dest / 'zc-mounted'), str(dest / 'ZQuestClassic.dmg')], stdout=subprocess.DEVNULL)
-		shutil.copytree(dest / 'zc-mounted/ZQuestClassic.app',
-						dest / 'ZQuestClassic.app')
+		shutil.copytree(dest / 'zc-mounted/ZQuest Classic.app',
+						dest / 'ZQuest Classic.app')
 		subprocess.check_call(['hdiutil', 'unmount', str(
 			dest / 'zc-mounted')], stdout=subprocess.DEVNULL)
 		(dest / 'ZQuestClassic.dmg').unlink()
@@ -112,12 +112,12 @@ def download_release(url: str, dest: Path):
 			(p for p in dest.parents if p.name.endswith('.app')), None)
 		if app_bundle_path:
 			print(f'app_bundle_path {app_bundle_path}')
-			shutil.copytree(dest / 'ZQuestClassic.app',
+			shutil.copytree(dest / 'ZQuest Classic.app',
 							app_bundle_path, dirs_exist_ok=True)
 		else:
 			raise Exception('only support updating an app bundle')
 
-		shutil.rmtree(dest / 'ZQuestClassic.app')
+		shutil.rmtree(dest / 'ZQuest Classic.app')
 	elif url.endswith('.tar.gz'):
 		tf = tarfile.open(fileobj=content, mode='r')
 		# Act like `install` by first unlinking existing files. This is necessary to prevent

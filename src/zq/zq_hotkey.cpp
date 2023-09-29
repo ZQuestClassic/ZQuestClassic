@@ -118,6 +118,9 @@ char const* get_hotkey_name(int hkey)
 		case ZQKEY_SQUAREPANEL_UP: return "Compact Squarepanel Up";
 		case ZQKEY_SQUAREPANEL_DOWN: return "Compact Squarepanel Down";
 		case ZQKEY_TESTMODE: return "Test Quest";
+		case ZQKEY_CAUTO_HEIGHTMINUS: return "Decrease Autocombo Height";
+		case ZQKEY_CAUTO_HEIGHTPLUS: return "Increase Autocombo Height";
+		case ZQKEY_CURR_LAYER_HL: return "Highlight Current Layer";
 	}
 	return "ZQ_NIL_KEY";
 }
@@ -219,6 +222,9 @@ char const* get_hotkey_cfg_name(int hkey)
 		case ZQKEY_SQUAREPANEL_UP: return "ZQKEY_SQUAREPANEL_UP";
 		case ZQKEY_SQUAREPANEL_DOWN: return "ZQKEY_SQUAREPANEL_DOWN";
 		case ZQKEY_TESTMODE: return "ZQKEY_TESTMODE";
+		case ZQKEY_CAUTO_HEIGHTMINUS: return "ZQKEY_CAUTO_HEIGHTMINUS";
+		case ZQKEY_CAUTO_HEIGHTPLUS: return "ZQKEY_CAUTO_HEIGHTPLUS";
+		case ZQKEY_CURR_LAYER_HL: return "ZQKEY_CURR_LAYER_HL";
 	}
 	return "ZQ_NIL_KEY";
 }
@@ -322,6 +328,9 @@ void default_hotkeys()
 	zq_hotkeys[ZQKEY_SQUAREPANEL_UP].setval(KEY_PGUP,KB_SHIFT_FLAG,0,0);
 	zq_hotkeys[ZQKEY_SQUAREPANEL_DOWN].setval(KEY_PGDN,KB_SHIFT_FLAG,0,0);
 	zq_hotkeys[ZQKEY_TESTMODE].setval(KEY_T,KB_CTRL_FLAG,0,0);
+	zq_hotkeys[ZQKEY_CAUTO_HEIGHTPLUS].setval(KEY_CLOSEBRACE, KB_SHIFT_FLAG, 0, 0);
+	zq_hotkeys[ZQKEY_CAUTO_HEIGHTMINUS].setval(KEY_OPENBRACE, KB_SHIFT_FLAG, 0, 0);
+	zq_hotkeys[ZQKEY_CURR_LAYER_HL].setval(0, 0, 0, 0);
 }
 
 void load_hotkeys()
@@ -483,6 +492,15 @@ int run_hotkey(int hkey)
 			break;
 		case ZQKEY_TESTMODE:
 			call_testqst_dialog();
+			break;
+		case ZQKEY_CAUTO_HEIGHTMINUS:
+			change_autocombo_height(-1);
+			break;
+		case ZQKEY_CAUTO_HEIGHTPLUS:
+			change_autocombo_height(1);
+			break;
+		case ZQKEY_CURR_LAYER_HL:
+			onToggleHighlightLayer();
 			break;
 	}
 	return D_O_K;

@@ -680,5 +680,7 @@ private:
     
 };
 
+typedef ZCArray<int32_t> ZScriptArray;
+
 #endif
 

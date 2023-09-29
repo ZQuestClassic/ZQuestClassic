@@ -10,7 +10,6 @@
 #include "base/zdefs.h"
 #include "base/zc_array.h"
 #include "zc/zc_sys.h"
-#include "zc/zeldadat.h"
 #include "sfx.h"
 #include "zcmusic.h"
 #include "zcmixer.h"
@@ -38,6 +37,15 @@ extern bool dev_logging;
 extern bool dev_debug;
 extern bool dev_timestmp;
 #endif
+
+#define ZC_MIDI_DUNGEON                  0
+#define ZC_MIDI_ENDING                   1
+#define ZC_MIDI_GAMEOVER                 2
+#define ZC_MIDI_LEVEL9                   3
+#define ZC_MIDI_OVERWORLD                4
+#define ZC_MIDI_TITLE                    5
+#define ZC_MIDI_TRIFORCE                 6
+#define ZC_MIDI_COUNT                    7
 
 #define  MAXMIDIS     ZC_MIDI_COUNT+MAXCUSTOMTUNES
 
@@ -146,7 +154,7 @@ int32_t get_currmap();
 int32_t get_homescr();
 int32_t get_bmaps(int32_t si);
 bool no_subscreen();
-bool is_zquest();
+bool is_editor();
 bool screenIsScrolling();
 //void quit_game();
 int32_t d_timer_proc(int32_t msg, DIALOG *d, int32_t c);
@@ -263,10 +271,11 @@ extern bool lightbeam_present;
 extern bool scrolling_use_new_dark_code;
 #define NUM_ZCMOUSE 1
 extern BITMAP *zcmouse[NUM_ZCMOUSE];
-extern DATAFILE *datafile, *sfxdata, *fontsdata, *mididata;
+extern DATAFILE *sfxdata, *fontsdata, *mididata;
 extern size_t fontsdat_cnt;
 extern SAMPLE   wav_refill;
 extern PALETTE  RAMpal;
+extern PALETTE  pal_gui;
 extern byte     *colordata;
 //extern byte     *tilebuf;
 extern itemdata *itemsbuf;
@@ -378,7 +387,6 @@ extern dword fps_secs;
 extern float avgfps;
 
 extern bool cheats_execute_goto, cheats_execute_light;
-extern bool blockmoving;
 extern bool Throttlefps, MenuOpen, ClickToFreeze, Paused, Saving, Advance, ShowFPS, Showpal,
 	Playing, FrameSkip, TransLayers, clearConsoleOnLoad, clearConsoleOnReload, disableClickToFreeze,
 	SaveDragResize, DragAspect, SaveWinPos, scaleForceInteger, stretchGame;
@@ -442,21 +450,10 @@ extern script_data *subscreenscripts[NUMSCRIPTSSUBSCREEN];
 extern SAMPLE customsfxdata[WAV_COUNT];
 extern int32_t sfxdat;
 
-struct ScriptOwner
-{
-	ScriptOwner();
-	ScriptType scriptType;
-	uint32_t ownerUID;
-	bool specOwned;
-	bool specCleared;
-	void clear();
-};
-
 #define NUM_ZSCRIPT_ARRAYS	4096
-typedef ZCArray<int32_t> ZScriptArray;
 extern ZScriptArray localRAM[NUM_ZSCRIPT_ARRAYS];
 extern std::map<int32_t,ZScriptArray> objectRAM;
-extern ScriptOwner arrayOwner[NUM_ZSCRIPT_ARRAYS];
+extern ArrayOwner arrayOwner[NUM_ZSCRIPT_ARRAYS];
 
 dword getNumGlobalArrays();
 

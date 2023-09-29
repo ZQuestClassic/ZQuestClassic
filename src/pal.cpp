@@ -34,7 +34,7 @@ void loadfullpal()
         RAMpal[i]=_RGB(colordata+i*3);
         
     for(int32_t i=240; i<255; i++)
-        RAMpal[i]=((RGB*)datafile[PAL_GUI].dat)[i];
+        RAMpal[i]=pal_gui[i];
         
     refreshpal=true;
 }

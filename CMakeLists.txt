@@ -443,6 +443,7 @@ set(zcbase_sources
 	src/base/combo.cpp
 	src/base/cpos_info.cpp
 	src/base/cpool.cpp
+	src/base/autocombo.cpp
 	src/base/dmap.cpp
 	src/base/fonts.cpp
 	src/base/general.cpp
@@ -485,6 +486,7 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 add_library(zcgui STATIC
+	src/gui/buildutil.cpp
 	src/gui/button.cpp
 	src/gui/checkbox_qr.cpp
 	src/gui/checkbox.cpp
@@ -660,18 +662,18 @@ if(UNITY_BUILD)
 	enable_unity_build(ZQuestZScript PARSER_SOURCES)
 endif()
 
-add_executable(zquest ${ZQUEST_CORE_SOURCES} ${ZQUEST_GUI_SOURCES} ${ZQUEST_MISC_SOURCES} ${ZQUESTEXTRASOURCES} ${ZQUEST_MODULES})
-set_property(TARGET zquest PROPERTY VS_DPI_AWARE "PerMonitor")
+add_executable(zeditor ${ZQUEST_CORE_SOURCES} ${ZQUEST_GUI_SOURCES} ${ZQUEST_MISC_SOURCES} ${ZQUESTEXTRASOURCES} ${ZQUEST_MODULES})
+set_property(TARGET zeditor PROPERTY VS_DPI_AWARE "PerMonitor")
 
-target_link_libraries(zquest PUBLIC allegro_with_legacy zconsolelogger zcbase zcgui zcsound ${IMAGELIBS} ${ZQUESTLIBSEXTRA})
-target_include_directories(zquest PRIVATE src)
+target_link_libraries(zeditor PUBLIC allegro_with_legacy zconsolelogger zcbase zcgui zcsound ${IMAGELIBS} ${ZQUESTLIBSEXTRA})
+target_include_directories(zeditor PRIVATE src)
 
 if(MSVC)
 	target_compile_definitions(zcsound PRIVATE ZCM_DLL)
 	target_compile_definitions(zplayer PRIVATE ZCM_DLL_IMPORT)
-	target_compile_definitions(zquest PRIVATE ZCM_DLL_IMPORT)
+	target_compile_definitions(zeditor PRIVATE ZCM_DLL_IMPORT)
 endif()
-target_compile_definitions(zquest PRIVATE IS_ZQUEST)
+target_compile_definitions(zeditor PRIVATE IS_EDITOR)
 
 if(WIN32)
 	set_source_files_properties(
@@ -716,7 +718,7 @@ target_link_libraries(zlauncher PRIVATE allegro_with_legacy zcbase zcgui zconsol
 if(WIN32)
 	add_executable(zstandalone src/standalone/standalone.cpp)
 	target_link_options(zstandalone PRIVATE "/SUBSYSTEM:WINDOWS")
-	add_dependencies(zquest zstandalone)
+	add_dependencies(zeditor zstandalone)
 endif()
 
 #############################################################
@@ -773,7 +775,7 @@ endif()
 
 if (EMSCRIPTEN)
 	target_link_options(zplayer PRIVATE "SHELL:-s EXPORTED_FUNCTIONS=_main,_get_shareable_url,_create_synthetic_key_event")
-	target_link_options(zquest PRIVATE "SHELL:-s EXPORTED_FUNCTIONS=_main,_get_shareable_url,_create_synthetic_key_event,_open_test_mode")
+	target_link_options(zeditor PRIVATE "SHELL:-s EXPORTED_FUNCTIONS=_main,_get_shareable_url,_create_synthetic_key_event,_open_test_mode")
 	target_link_options(zscript PRIVATE "SHELL:-s PTHREAD_POOL_SIZE=1" "SHELL:-s EXTRA_EXPORTED_RUNTIME_METHODS=['FS','PROXYFS']")
 	set_target_properties(zscript PROPERTIES SUFFIX ".mjs")
 endif()
@@ -782,7 +784,7 @@ endif()
 # Misc.
 #############################################################
 
-set(zc_targets zquest zplayer zlauncher zcbase zcgui zcsound zscript zconsolelogger zupdater)
+set(zc_targets zeditor zplayer zlauncher zcbase zcgui zcsound zscript zconsolelogger zupdater)
 set(zc_clang_errors
 	-Werror=array-bounds
 	-Werror=format
@@ -989,14 +991,14 @@ if(CMAKE_GENERATOR MATCHES "Visual Studio")
 	set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /SAFESEH:NO")
 	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SAFESEH:NO")
 
-	set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT zquest)
+	set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT zeditor)
 
 	# Configure "Debug" option in VS to use the correct working directory, otherwise it fails to load zc configuration files
 	set_property(TARGET ${zc_targets} PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "$(ProjectDir)$(Configuration)")
 
 	# Organize into folders
 	set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-	set_target_properties(zplayer zquest zscript zlauncher zupdater package package_no_archive PROPERTIES FOLDER "")
+	set_target_properties(zplayer zeditor zscript zlauncher zupdater package package_no_archive PROPERTIES FOLDER "")
 	set_target_properties(run_replay_tests_all run_replay_tests_basic run_replay_tests_all_1s run_replay_tests_all_10s run_replay_tests_all_100s PROPERTIES FOLDER "Replay Tests")
 	set_target_properties(zcbase zcgui zcsound PROPERTIES FOLDER "Our Libraries")
 	set_target_properties(gme dumb aldmb PROPERTIES FOLDER Sound)

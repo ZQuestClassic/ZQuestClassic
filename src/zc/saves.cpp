@@ -1571,21 +1571,19 @@ static int32_t write_save(save_t* save)
 	if (save->path.empty())
 		return 0;
 
-	char tmpfilename[L_tmpnam];
-	temp_name(tmpfilename);
-
-	PACKFILE *f = pack_fopen(tmpfilename, F_WRITE_PACKED);
+	std::string tmp_filename = util::create_temp_file_path();
+	PACKFILE *f = pack_fopen(tmp_filename.c_str(), F_WRITE_PACKED);
 
 	if (!f)
 	{
-		delete_file(tmpfilename);
+		delete_file(tmp_filename.c_str());
 		return 2;
 	}
 
 	if (write_save(f, save) != 0)
 	{
 		pack_fclose(f);
-		delete_file(tmpfilename);
+		delete_file(tmp_filename.c_str());
 		return 4;
 	}
 
@@ -1597,9 +1595,12 @@ static int32_t write_save(save_t* save)
 
 	int ret = 0;
 	std::error_code ec;
-	fs::rename(tmpfilename, save->path, ec);
+	fs::rename(tmp_filename.c_str(), save->path, ec);
 	if (ec)
+	{
+		al_trace("Error saving: %s\n", std::strerror(ec.value()));
 		ret = 5;
+	}
 
 #ifdef __EMSCRIPTEN__
 	em_sync_fs();
@@ -2151,6 +2152,15 @@ int32_t saves_count()
 int32_t saves_current_selection()
 {
 	return currgame;
+}
+
+bool saves_is_slot_loaded(int32_t index, bool full_data)
+{
+	if (saves.size() <= index)
+		return false;
+	if (full_data && saves[index].game == nullptr)
+		return false;
+	return saves[index].header != nullptr;
 }
 
 const save_t* saves_get_slot(int32_t index, bool full_data)

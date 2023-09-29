@@ -16,6 +16,16 @@ src/zq/ffasmexport.cpp
 src/drawing.cpp
 src/zq/colorname.cpp
 src/zq/zq_hotkey.cpp
+src/zq/autocombo/autopattern_base.cpp
+src/zq/autocombo/pattern_basic.cpp
+src/zq/autocombo/pattern_fence.cpp
+src/zq/autocombo/pattern_flatmtn.cpp
+src/zq/autocombo/pattern_cakemtn.cpp
+src/zq/autocombo/pattern_relational.cpp
+src/zq/autocombo/pattern_dungeoncarve.cpp
+src/zq/autocombo/pattern_dormtn.cpp
+src/zq/autocombo/pattern_tiling.cpp
+src/zq/autocombo/pattern_replace.cpp
 
 
 ## End of ZQuest Misc module

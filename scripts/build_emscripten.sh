@@ -15,7 +15,7 @@ fi
 cd "$ROOT"
 mkdir -p build_emscripten
 
-EMCC_VERSION=3.1.32
+EMCC_VERSION=3.1.45
 emsdk install $EMCC_VERSION
 emsdk activate $EMCC_VERSION
 source emsdk_env.sh
@@ -87,7 +87,6 @@ LINKER_FLAGS=(
   -s ASYNCIFY=1
   -s FULL_ES2=1
   -s SDL2_MIXER_FORMATS="['mid']"
-  -s LLD_REPORT_UNDEFINED
   -s INITIAL_MEMORY=200MB
   -s ALLOW_MEMORY_GROWTH=1
   -s PTHREAD_POOL_SIZE=15
@@ -199,7 +198,7 @@ bash ../web/patches/apply.sh
 embuilder build sdl2-mt
 embuilder build sdl2_mixer_mid
 
-TARGETS="${@:-zplayer zquest zscript}"
+TARGETS="${@:-zplayer zeditor zscript}"
 cmake --build . --config $CONFIG -t $TARGETS
 cd $CONFIG
 
@@ -261,13 +260,14 @@ if [[ "${TARGETS[*]}" =~ "zplayer" ]]; then
     sed -i -e 's/__IS_CI__/false/' zelda.html
   fi
 fi
-if [[ "${TARGETS[*]}" =~ "zquest" ]]; then
+if [[ "${TARGETS[*]}" =~ "zeditor" ]]; then
   cp ../../web/index.html zquest.html
   sed -i -e 's/__TARGET__/zquest/' zquest.html
   sed -i -e 's|__DATA__|<script src="zc.data.js"></script><script src="zq.data.js"></script>|' zquest.html
   sed -i -e 's|__SCRIPT__|<script async src="zquest.js"></script>|' zquest.html
   set_files zquest.html
   insert_css zquest.html
+  mv zeditor.js zquest.js
   if [[ "$ZC_PACKAGE_REPLAYS" ]]; then
     sed -i -e 's/__IS_CI__/true/' zquest.html
   else

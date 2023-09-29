@@ -16,13 +16,13 @@ from common import ReplayTestResults
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent
-tmp_dir = root_dir / '.tmp/test_zquest'
+tmp_dir = root_dir / '.tmp/test_editor'
 tmp_dir.mkdir(exist_ok=True, parents=True)
 
 sys.path.append(str((root_dir / 'scripts').absolute()))
 import run_target
 
-class TestZQuest(unittest.TestCase):
+class TestZEditor(unittest.TestCase):
     def setUp(self):
         self.maxDiff = None
 
@@ -32,7 +32,7 @@ class TestZQuest(unittest.TestCase):
             '-quick-assign',
             qst_path,
         ]
-        run_target.check_run('zquest', args)
+        run_target.check_run('zeditor', args)
 
     def run_replay(self, output_dir, args):
         args = [
@@ -61,9 +61,9 @@ class TestZQuest(unittest.TestCase):
             self.fail(failing_str)
         self.assertEqual(output.returncode, 0)
 
-    # Simply open ZQuest with the new quest template.
+    # Simply open ZEditor with the new quest template.
     def test_file_new(self):
-        run_target.check_run('zquest', [
+        run_target.check_run('zeditor', [
             '-headless',
             '-s',
             '-q',
@@ -79,7 +79,7 @@ class TestZQuest(unittest.TestCase):
         return
 
         qst_path = tmp_dir / 'tmp.qst'
-        run_target.check_run('zquest', [
+        run_target.check_run('zeditor', [
             '-headless',
             '-s',
             '-copy-qst', 'modules/classic/classic_1st.qst', qst_path,

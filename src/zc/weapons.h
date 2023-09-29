@@ -149,6 +149,7 @@ public:
     weapon(zfix X,zfix Y,zfix Z,int32_t Id,int32_t usesprite, int32_t Dir, int32_t step, int32_t prntid, int32_t height, int32_t width, int32_t a, int32_t b, int32_t c, int32_t d, int32_t e, int32_t f, int32_t g);
     virtual ~weapon();
 	void cleanup_sfx();
+	void reset_wgrids();
     void LOADGFX(int32_t wpn);
     void LOADGFX_CMB(int32_t cid, int32_t cset);
     void findcombotriggers();

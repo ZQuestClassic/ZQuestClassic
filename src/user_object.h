@@ -3,9 +3,50 @@
 
 #include <map>
 #include "base/zc_array.h"
-typedef ZCArray<int32_t> ZScriptArray;
+#include "base/general.h"
 
 enum class ScriptType;
+
+struct user_abstract_obj
+{
+	virtual bool operator==(user_abstract_obj const&) const = default;
+	ScriptType owned_type;
+	int32_t owned_i;
+	
+	user_abstract_obj() : owned_type(ScriptType::None), owned_i(0)
+	{}
+	user_abstract_obj(ScriptType owned_type, int32_t owned_i)
+		: owned_type(owned_type), owned_i(owned_i)
+	{}
+	
+	void disown()
+	{
+		owned_type = ScriptType::None;
+		owned_i = 0;
+	}
+	virtual void clear()
+	{
+		disown();
+	}
+	virtual void free_obj()
+	{
+		clear();
+	}
+	
+	void own(ScriptType type, int32_t i);
+	bool own_clear(ScriptType type, int32_t i);
+	bool own_clear_any();
+	bool own_clear_cont();
+};
+
+struct ArrayOwner : user_abstract_obj
+{
+	ArrayOwner();
+	bool specOwned;
+	bool specCleared;
+	virtual void clear() override;
+	void reown(ScriptType ty, int32_t i);
+};
 
 #define MAX_USER_OBJECTS 214748
 struct scr_func_exec
@@ -24,53 +65,30 @@ struct scr_func_exec
 	void execute();
 	bool validate();
 };
-struct user_object
+struct user_object : public user_abstract_obj
 {
-	bool operator==(const user_object&) const = default;
-
 	bool reserved;
-	// TODO: here and every other `owned_type`; can we replace -1 with ScriptType::None ?
-	ScriptType owned_type;
-	int32_t owned_i;
 	std::vector<int32_t> data;
 	size_t owned_vars;
 	scr_func_exec destruct;
 	
-	user_object() : reserved(false), owned_type((ScriptType)-1), owned_i(0),
-		owned_vars(0)
+	user_object() : user_abstract_obj(),
+		reserved(false), owned_vars(0)
 	{}
 	
 	void prep(dword pc, ScriptType type, word script, int32_t i);
 	
-	void clear(bool destructor = true);
-	
-	void disown()
-	{
-		owned_type = (ScriptType)-1;
-		owned_i = 0;
-	}
 	void load_arrays(std::map<int32_t,ZScriptArray>& arrs);
 	void save_arrays(std::map<int32_t,ZScriptArray>& arrs);
 	bool isGlobal() const
 	{
-		return owned_type == (ScriptType)-1 && owned_i == 0;
+		return owned_type == ScriptType::None && owned_i == 0;
 	}
 	
-	void own(ScriptType type, int32_t i)
-	{
-		owned_type = type;
-		owned_i = i;
-	}
-	void own_clear(ScriptType type, int32_t i)
-	{
-		if(owned_type == type && owned_i == i)
-			clear();
-	}
-	void own_clear_any()
-	{
-		if(owned_type != (ScriptType)-1 || owned_i != 0)
-			clear();
-	}
+	#ifdef IS_PLAYER
+	void clear_nodestruct();
+	virtual void clear() override;
+	#endif
 };
 struct saved_user_object
 {

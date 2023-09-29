@@ -11,7 +11,7 @@
 #include <fmt/format.h>
 #include "base/misctypes.h"
 
-#ifndef IS_ZQUEST
+#ifndef IS_EDITOR
 #include "zc/hero.h"
 #include "zc/decorations.h"
 #include "items.h"
@@ -25,7 +25,7 @@ extern bool get_debug();
 extern bool halt;
 extern bool show_sprites;
 extern bool show_hitboxes;
-extern bool is_zquest();
+extern bool is_editor();
 extern void debugging_box(int32_t x1, int32_t y1, int32_t x2, int32_t y2);
 #include "zc/ffscript.h"
 extern FFScript FFCore;
@@ -1118,7 +1118,7 @@ void sprite::draw(BITMAP* dest)
 		return;
 	}
 	zfix tyoffs = yofs;
-#ifndef IS_ZQUEST
+#ifndef IS_EDITOR
 	if(switch_hooked)
 	{
 		switch(Hero.switchhookstyle)
@@ -1159,7 +1159,7 @@ void sprite::draw(BITMAP* dest)
 	sx -= viewport.x;
 	sy -= viewport.y;
 
-#ifndef IS_ZQUEST
+#ifndef IS_EDITOR
 	// TODO get actual size
 	int width = 64;
 	int height = 64;
@@ -1593,7 +1593,7 @@ void sprite::draw(BITMAP* dest)
 void sprite::draw_hitbox()
 {
 	if(hide_hitbox) return;
-#ifndef IS_ZQUEST
+#ifndef IS_EDITOR
 	start_info_bmp();
 	int x0 = x + hxofs - viewport.x;
 	int y0 = y + playing_field_offset + hyofs - (z + zofs) - fakez - viewport.y;
@@ -2345,7 +2345,7 @@ void sprite_list::animate()
 		// }
 
 		bool should_freeze = freeze_guys;
-#ifndef IS_ZQUEST
+#ifndef IS_EDITOR
 		auto spr = sprites[active_iterator];
 		if (is_z3_scrolling_mode() && !freeze_rect.intersects_with(spr->x.getInt(), spr->y.getInt(), spr->hit_width, spr->hit_height))
 		{
@@ -2359,7 +2359,7 @@ void sprite_list::animate()
 			auto tmp_iter = active_iterator;
 			if(sprites[active_iterator]->animate(active_iterator))
 			{
-#ifndef IS_ZQUEST
+#ifndef IS_EDITOR
 				if (replay_is_active() && dynamic_cast<enemy*>(sprites[active_iterator]) != nullptr)
 				{
 					enemy* as_enemy = dynamic_cast<enemy*>(sprites[active_iterator]);
@@ -2853,7 +2853,7 @@ breakable::breakable(zfix X, zfix Y, zfix Z, newcombo const& cmb, int32_t cset, 
 
 bool breakable::animate(int32_t)
 {
-#ifndef IS_ZQUEST
+#ifndef IS_EDITOR
 	if(++aclk >= aspd)
 	{
 		aclk = 0;

@@ -17,7 +17,7 @@ from zquest.extract import ZeldaClassicReader
 from zquest.section_utils import SECTION_IDS
 from zquest import constants
 
-logging.getLogger('zquest').setLevel(logging.FATAL)
+logging.getLogger('zc').setLevel(logging.FATAL)
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent
@@ -51,7 +51,7 @@ if args.quest_database:
 
 def get_post_compat_rules(path: Path):
     tmp_path = tmp_dir / 'tmp.qst'
-    exe_name = 'zquest.exe' if os.name == 'nt' else 'zquest'
+    exe_name = 'zeditor.exe' if os.name == 'nt' else 'zeditor'
     args = [
         build_folder / exe_name,
         '-copy-qst', path, tmp_path,

@@ -1716,7 +1716,12 @@
 #define SUBWIDGDISPITM          1620
 #define SUBWIDGEQPITM           1621
 
-#define LAST_BYTECODE           1622
+#define SUBWIDG_DISPX           1622
+#define SUBWIDG_DISPY           1623
+#define SUBWIDG_DISPW           1624
+#define SUBWIDG_DISPH           1625
+
+#define LAST_BYTECODE           1626
 
 //} END OF BYTECODE
 
@@ -11933,6 +11938,42 @@ namespace ZScript
 		Opcode* clone() const
 		{
 			return new OSubWidgTy_SetText(a->clone());
+		}
+	};
+
+
+
+	class OSubscrPgFindWidgetLbl : public Opcode
+	{
+	public:
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OSubscrPgFindWidgetLbl();
+		}
+	};
+
+
+
+	class OGetSubWidgLabel : public UnaryOpcode
+	{
+	public:
+		OGetSubWidgLabel(Argument *A) : UnaryOpcode(A) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OGetSubWidgLabel(a->clone());
+		}
+	};
+
+	class OSetSubWidgLabel : public UnaryOpcode
+	{
+	public:
+		OSetSubWidgLabel(Argument *A) : UnaryOpcode(A) {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OSetSubWidgLabel(a->clone());
 		}
 	};
 }

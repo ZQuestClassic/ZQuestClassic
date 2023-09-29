@@ -30,7 +30,7 @@ extern bool update_hw_pal;
 void update_hw_screen(bool force);
 
 CConsoleLoggerEx zscript_coloured_console;
-extern bool is_zquest();
+extern bool is_editor();
 
 char *time_str_long(dword time)
 {

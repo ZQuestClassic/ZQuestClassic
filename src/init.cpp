@@ -983,7 +983,7 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool freshquest)
     {
         if(zinit2->items[i] && (itemsbuf[i].flags & ITEM_GAMEDATA))
         {
-#ifndef IS_ZQUEST
+#ifndef IS_EDITOR
             if (!game2->get_item(i))
                 getitem(i,true,false);
 #else
@@ -1201,6 +1201,8 @@ std::string serialize_init_data_delta(zinitdata *base, zinitdata *changed)
 zinitdata *apply_init_data_delta(zinitdata *base, std::string delta, std::string& out_error)
 {
 	zinitdata *result = new zinitdata(*base);
+	if (delta.empty())
+		return result;
 
 	std::vector<std::string> tokens;
 	util::split(delta, tokens, ' ');

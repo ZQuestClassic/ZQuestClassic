@@ -951,7 +951,10 @@ namespace ZScript
 		// Resolves the type, using either the list's or this node's own base type
 		// as appropriate.
 		DataType const& resolveType(Scope* scope, CompileErrorHandler* errorHandler);
+		DataType const* resolve_ornull(Scope* scope, CompileErrorHandler* errorHandler);
 
+		void replaceType(DataType const& newty);
+		
 		// The list containing this declaration. Should be set by that list when
 		// this is added.
 		ASTDataDeclList* list;
@@ -2142,6 +2145,7 @@ namespace ZScript
 		void execute(ASTVisitor& visitor, void* param = NULL);
 		DataType const& resolve(Scope& scope, CompileErrorHandler* errorHandler);
 		DataType const* resolve_ornull(Scope& scope, CompileErrorHandler* errorHandler);
+		void replace(DataType const& newty);
 		inline bool wasResolved() const { return wasResolved_; }
 
 		owning_ptr<DataType> type;

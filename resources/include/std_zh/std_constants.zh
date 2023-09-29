@@ -1874,17 +1874,20 @@ DEFINE RT_BITMAP6            = 6; // draws to off-screen bitmap 6
 
 //Screen Flag categories. Flags from each category are ORed together, starting with the first flag
 //See Screen Data dialog for what flags are contained in each category. Use in Screen->Flags
-DEFINE SF_ROOMTYPE			= 0;
-DEFINE SF_VIEW			= 1;
-DEFINE SF_SECRETS			= 2;
-DEFINE SF_WARP			= 3;
-DEFINE SF_ITEMS			= 4;
-DEFINE SF_COMBOS			= 5;
-DEFINE SF_SAVE			= 6;
-DEFINE SF_FFC			= 7;
-DEFINE SF_WHISTLE			= 8;
-DEFINE SF_MISC			= 9;
-
+enum
+{
+	SF_ROOMTYPE,
+	SF_VIEW,
+	SF_SECRETS,
+	SF_WARP,
+	SF_ITEMS,
+	SF_COMBOS,
+	SF_SAVE,
+	SF_FFC,
+	SF_WHISTLE,
+	SF_MISC,
+	SF_LAST
+};
 
 //! These DMap Flag values do not return the expected results when compared via TraeS()ing what is anticipated!
 

@@ -299,6 +299,7 @@ int32_t onDrawingModeRelational();
 int32_t onDrawingModeDungeon();
 int32_t onDrawingModeAlias();
 int32_t onDrawingModePool();
+int32_t onDrawingModeAuto();
 int32_t onReTemplate();
 int32_t onUndo();
 int32_t onRedo();
@@ -414,6 +415,9 @@ void refresh(int32_t flags, bool update = false);
 void select_scr();
 void select_combo(int32_t list);
 void update_combobrush();
+void draw_autocombo(int32_t pos, bool rclick, bool pressframe = false);
+void draw_autocombo_command(int32_t pos, int32_t cmd=0, int32_t arg=0);
+void change_autocombo_height(int32_t change);
 void draw(bool);
 void replace(int32_t c);
 void draw_block(int32_t start,int32_t w,int32_t h);
@@ -423,8 +427,6 @@ int32_t d_wflag_proc(int32_t msg,DIALOG *d,int32_t c);
 /*****     Mouse      *****/
 /**************************/
 
-void doxypos(byte &px,byte &py,int32_t color,int32_t mask, bool immediately);
-void doxypos(byte &px,byte &py,int32_t color,int32_t mask, bool immediately,  int32_t cursoroffx, int32_t cursoroffy, int32_t iconw, int32_t iconh);
 void doflags();
 void set_brush_width(int32_t width);
 void set_brush_height(int32_t height);
@@ -756,6 +758,7 @@ enum
 	cmdRuleset,
 	cmdRuleTemplate,
 	cmdSmartCompile,
+	cmdDrawingModeAutocombo,
     cmdMAX
 };
 
@@ -829,6 +832,7 @@ int32_t onToggleShowScripts();
 int32_t onToggleShowSquares();
 int32_t onToggleShowFFCs();
 int32_t onToggleShowInfo();
+int32_t onToggleHighlightLayer();
 
 //char msgbuf[MSGSTRS*3];
 
@@ -935,7 +939,6 @@ const char *warptypelist(int32_t index, int32_t *list_size);
 
 //int32_t warpdmapxy[6] = {188,126,188,100,188,112};
 
-int32_t d_warpdestsel_proc(int32_t msg,DIALOG *d,int32_t c);
 int32_t onTileWarpIndex(int32_t index);
 int32_t onTileWarp();
 int32_t onTimedWarp();
@@ -1160,7 +1163,7 @@ void center_zscript_dialogs();
 void animate_coords();
 void do_animations();
 int32_t onZQVidMode();
-bool is_zquest();
+bool is_editor();
 int32_t save_config_file();
 int32_t d_timer_proc(int32_t msg, DIALOG *d, int32_t c);
 void check_autosave();

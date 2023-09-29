@@ -35,7 +35,7 @@ class TestUpdater(unittest.TestCase):
 			if is_mac:
 				package_folder = next(p for p in package_folder.parents if p.name.endswith('.app'))
 		elif is_mac:
-			package_folder = build_folder / 'packages/zc-mac/ZQuestClassic.app'
+			package_folder = build_folder / 'packages/zc-mac/ZQuest Classic.app'
 		else:
 			package_folder = build_folder / 'packages/zc'
 
@@ -59,7 +59,8 @@ class TestUpdater(unittest.TestCase):
 					resource_folder / 'zc.png',
 					resource_folder / 'base_config/zc.cfg',
 					resource_folder / run_target.get_exe_name('zplayer'),
-					resource_folder / run_target.get_exe_name('zquest'),
+					# TODO: re-enable once in release version
+					# resource_folder / run_target.get_exe_name('zeditor'),
 					resource_folder / run_target.get_exe_name('zlauncher'),
 					resource_folder / run_target.get_exe_name('zscript'),
 					resource_folder / run_target.get_exe_name('zupdater'),

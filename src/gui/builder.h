@@ -28,7 +28,7 @@ extern int32_t zq_screen_w, zq_screen_h;
 #include "gui/window.h"
 #include "gui/widget.h"
 
-#ifdef IS_ZQUEST
+#ifdef IS_EDITOR
 #include "zq/gui/seltile_swatch.h"
 #include "zq/gui/selcombo_swatch.h"
 #include "zq/gui/tileanim_frame.h"
@@ -41,6 +41,7 @@ extern int32_t zq_screen_w, zq_screen_h;
 #include "zq/gui/dmap_minimap.h"
 #include "zq/gui/dmap_mapgrid.h"
 #include "zq/gui/dmap_regiongrid.h"
+#include "zq/gui/engraving.h"
 #endif
 
 #include <initializer_list>
@@ -200,7 +201,7 @@ inline std::shared_ptr<DummyWidget> makeDummyWidget()
 	return std::make_shared<DummyWidget>();
 }
 
-#ifdef IS_ZQUEST
+#ifdef IS_EDITOR
 inline std::shared_ptr<SelTileSwatch> makeSelTileSwatch()
 {
 	return std::make_shared<SelTileSwatch>();
@@ -254,6 +255,11 @@ inline std::shared_ptr<DMapMinimap> makeDMapMinimap()
 inline std::shared_ptr<DMapMapGrid> makeDMapMapGrid()
 {
 	return std::make_shared<DMapMapGrid>();
+}
+
+inline std::shared_ptr<Engraving> makeEngraving()
+{
+	return std::make_shared<Engraving>();
 }
 
 inline std::shared_ptr<DMapRegionGrid> makeDMapRegionGrid()
@@ -486,7 +492,7 @@ ZCGUI_BUILDER_START(DummyWidget)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(DummyWidget, DummyWidget, makeDummyWidget)
 
-#ifdef IS_ZQUEST
+#ifdef IS_EDITOR
 ZCGUI_BUILDER_START(SelTileSwatch)
 	ZCGUI_ACCEPT_PROP(tile, setTile, int32_t)
 	ZCGUI_ACCEPT_PROP(cset, setCSet, int32_t)
@@ -597,6 +603,12 @@ ZCGUI_BUILDER_START(DMapRegionGrid)
 	ZCGUI_ACCEPT_PROP(onUpdate, setOnUpdate, std::function<void()>)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(DMapRegionGrid, DMapRegionGrid, makeDMapRegionGrid)
+
+ZCGUI_BUILDER_START(Engraving)
+	ZCGUI_ACCEPT_PROP(data, setSlot, int32_t)
+ZCGUI_BUILDER_END()
+ZCGUI_BUILDER_FUNCTION(Engraving, Engraving, makeEngraving)
+
 #endif
 
 } // namespace GUI::builder
