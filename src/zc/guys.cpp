@@ -20584,7 +20584,7 @@ bool runMenuCursor()
 	if(pressed)
 		msg_menu_data[MNU_TIMER] = 1;
 	
-	bool hold_input = !((msg_menu_data[MNU_TIMER]++) % 5);
+	bool hold_input = !((msg_menu_data[MNU_TIMER]++) % 20);
 	bool held = false;
 	if(hold_input)
 	{
@@ -21357,8 +21357,10 @@ void putmsg()
 	else
 	{
 breakout:
-
-		if(((msgclk++)%(msgspeed+1)<msgspeed)&&((!cAbtn())||(!get_qr(qr_ALLOWFASTMSG))))
+		word tempspeed = msgspeed;
+		if (do_run_menu)
+			tempspeed = 0;
+		if(((msgclk++)%(tempspeed+1)<tempspeed)&&((!cAbtn())||(!get_qr(qr_ALLOWFASTMSG))))
 			return;
 	}
 	
