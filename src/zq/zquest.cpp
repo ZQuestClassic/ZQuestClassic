@@ -7769,10 +7769,12 @@ void change_autocombo_height(int32_t change)
 
 	if (can_change && isinRect(x, y, startxint, startyint, int32_t(startx + (256 * mapscreensize) - 1), int32_t(starty + (176 * mapscreensize) - 1)))
 	{
+		Map.StartListCommand();
 		int32_t cxstart = (x - startxint) / int32_t(16 * mapscreensize);
 		int32_t cystart = (y - startyint) / int32_t(16 * mapscreensize);
 		int32_t cstart = (cystart * 16) + cxstart;
 		draw_autocombo_command(cstart, 1, cauto_height + change);
+		Map.FinishListCommand();
 	}
 	cauto_height = vbound(cauto_height + change, 1, 9);
 }

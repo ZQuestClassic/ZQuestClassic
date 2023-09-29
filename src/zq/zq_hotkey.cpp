@@ -496,6 +496,9 @@ int run_hotkey(int hkey)
 		case ZQKEY_CAUTO_HEIGHTMINUS:
 			change_autocombo_height(-1);
 			break;
+		case ZQKEY_CAUTO_HEIGHTPLUS:
+			change_autocombo_height(1);
+			break;
 		case ZQKEY_CURR_LAYER_HL:
 			onToggleHighlightLayer();
 			break;
