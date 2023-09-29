@@ -52,6 +52,18 @@ namespace AutoPattern
 		}
 		return true;
 	}
+	int32_t autopattern_dormtn::get_floating_cid(int32_t exscreen, int32_t expos)
+	{
+		apcombo* ap = add(exscreen, expos, true);
+		if (!ap)
+			return 0;
+		ap->connflags = TOP;
+		ap->set_cid(slot_to_cid_pair(flags_to_slot(ap->connflags)));
+
+		load_all_tops(ap);
+		update_top_combos();
+		return ap->cid;
+	}
 	void autopattern_dormtn::calculate_connections(apcombo* p)
 	{
 		p->connflags = 0;

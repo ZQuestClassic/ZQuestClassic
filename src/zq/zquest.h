@@ -416,6 +416,7 @@ void select_combo(int32_t list);
 void update_combobrush();
 void draw_autocombo(int32_t pos, bool rclick, bool pressframe = false);
 void draw_autocombo_command(int32_t pos, int32_t cmd=0, int32_t arg=0);
+int32_t get_autocombo_floating_cid(int32_t pos, bool clicked);
 void change_autocombo_height(int32_t change);
 void draw(bool);
 void replace(int32_t c);

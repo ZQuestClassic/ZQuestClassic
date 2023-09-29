@@ -49,6 +49,16 @@ namespace AutoPattern
 		apply_changes();
 		return true;
 	}
+	int32_t autopattern_cakemtn::get_floating_cid(int32_t exscreen, int32_t expos)
+	{
+		apcombo* ap = add(exscreen, expos, true);
+		if (!ap)
+			return 0;
+		init_connections(ap);
+		autopattern_fence::form_connections(ap, true);
+		recalculate_height(ap, height);
+		return ap->cid;
+	}
 	void autopattern_cakemtn::flip_single(apcombo*& ap)
 	{
 		autopattern_fence::flip_single(ap);

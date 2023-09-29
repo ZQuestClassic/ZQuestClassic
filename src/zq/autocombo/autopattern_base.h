@@ -28,6 +28,7 @@ namespace AutoPattern
 		~autopattern_container();
 		virtual bool execute(int32_t s, int32_t p) = 0;
 		virtual bool erase(int32_t s, int32_t p) = 0;
+		virtual int32_t get_floating_cid(int32_t s, int32_t p) = 0;
 		virtual uint32_t slot_to_flags(int32_t slot) = 0;
 		virtual int32_t flags_to_slot(uint32_t flags) = 0;
 		virtual void init_pattern();

@@ -60,6 +60,16 @@ namespace AutoPattern
 		apply_changes();
 		return true;
 	}
+	int32_t autopattern_relational::get_floating_cid(int32_t exscreen, int32_t expos)
+	{
+		apcombo* ap = add(exscreen, expos, true);
+		if (!ap)
+			return 0;
+		init_connections(ap);
+		calculate_connections(ap);
+		ap->set_cid(slot_to_cid_pair(flags_to_slot(ap->connflags)));
+		return ap->cid;
+	}
 	void autopattern_relational::calculate_connections(apcombo* p)
 	{
 		p->connflags = 0;

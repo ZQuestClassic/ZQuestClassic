@@ -15,6 +15,7 @@ namespace AutoPattern
 			autopattern_container(ntype, nlayer, nbasescreen, nbasepos, nsource, nnocrossedge) {}
 		virtual bool execute(int32_t exscreen, int32_t expos) override;
 		virtual bool erase(int32_t exscreen, int32_t expos) override;
+		virtual int32_t get_floating_cid(int32_t s, int32_t p) override;
 		void form_connections(apcombo* p, bool rem);
 		void calculate_connections(apcombo* p);
 		virtual uint32_t slot_to_flags(int32_t slot) override;

@@ -200,7 +200,7 @@ int32_t startdmapxy[6] = {-1000, -1000, -1000, -1000, -1000, -1000};
 bool cancelgetnum=false;
 
 int32_t tooltip_timer=0, tooltip_maxtimer=30, tooltip_current_combo=0, tooltip_current_ffc=0;
-int32_t mousecomboposition;
+int32_t mousecomboposition, combobrushoverride=-1;
 
 int32_t original_playing_field_offset=0;
 int32_t playing_field_offset=original_playing_field_offset;
@@ -7548,14 +7548,15 @@ void update_combobrush()
     }
     else if(draw_mode != dm_cpool)
     {
+		int32_t cid = combobrushoverride > -1 ? combobrushoverride : Combo;
         if(combo_cols==false)
         {
             for(int32_t i=0; i<256; i++)
             {
-				if(unsigned(Combo+i) >= MAXCOMBOS) break;
+				if(unsigned(cid+i) >= MAXCOMBOS) break;
                 if(((i%COMBOS_PER_ROW)<BrushWidth)&&((i/COMBOS_PER_ROW)<BrushHeight))
                 {
-                    put_combo(brushbmp,(i%COMBOS_PER_ROW)<<4,(i/COMBOS_PER_ROW)<<4,Combo+i,CSet,Flags&(cFLAGS|cWALK),0);
+                    put_combo(brushbmp,(i%COMBOS_PER_ROW)<<4,(i/COMBOS_PER_ROW)<<4,cid+i,CSet,Flags&(cFLAGS|cWALK),0);
                 }
             }
         }
@@ -7565,13 +7566,13 @@ void update_combobrush()
             
             for(int32_t i=0; i<256; i++)
             {
-				if(unsigned(Combo+c) >= MAXCOMBOS) break;
+				if(unsigned(cid+c) >= MAXCOMBOS) break;
                 if(((i%COMBOS_PER_ROW)<BrushWidth)&&((i/COMBOS_PER_ROW)<BrushHeight))
                 {
-                    put_combo(brushbmp,(i%COMBOS_PER_ROW)<<4,(i/COMBOS_PER_ROW)<<4,Combo+c,CSet,Flags&(cFLAGS|cWALK),0);
+                    put_combo(brushbmp,(i%COMBOS_PER_ROW)<<4,(i/COMBOS_PER_ROW)<<4,cid+c,CSet,Flags&(cFLAGS|cWALK),0);
                 }
                 
-                if(((Combo+c)&3)==3)
+                if(((cid+c)&3)==3)
                     c+=48;
 				
                 ++c;
@@ -7739,6 +7740,86 @@ void draw_autocombo_command(int32_t pos, int32_t cmd, int32_t arg)
 			}
 		}
 	}
+}
+
+int32_t get_autocombo_floating_cid(int32_t pos, bool clicked)
+{
+	combo_auto& ca = combo_autos[combo_auto_pos];
+
+	int32_t scr = Map.getCurrScr();
+	int32_t cid = 0;
+	if (ca.valid() && mousecomboposition > -1)
+	{
+		switch (ca.getType())
+		{
+			case AUTOCOMBO_BASIC:
+			{
+				AutoPattern::autopattern_basic ap(ca.getType(), CurrentLayer, scr, pos, &ca, !(ca.flags & ACF_CROSSSCREENS));
+				cid = ap.get_floating_cid(scr, pos);
+				break;
+			}
+
+			case AUTOCOMBO_Z1:
+			{
+				AutoPattern::autopattern_flatmtn ap(ca.getType(), CurrentLayer, scr, pos, &ca, !(ca.flags & ACF_CROSSSCREENS));
+				cid = ap.get_floating_cid(scr, pos);
+				break;
+			}
+			case AUTOCOMBO_FENCE:
+			{
+				AutoPattern::autopattern_fence ap(ca.getType(), CurrentLayer, scr, pos, &ca, !(ca.flags & ACF_CROSSSCREENS), ca.flags & ACF_FLIP);
+				cid = ap.get_floating_cid(scr, pos);
+				break;
+			}
+			case AUTOCOMBO_Z4:
+			{
+				AutoPattern::autopattern_cakemtn ap(ca.getType(), CurrentLayer, scr, pos, &ca, !(ca.flags & ACF_CROSSSCREENS), !(ca.flags & ACF_FLIP), cauto_height);
+				cid = ap.get_floating_cid(scr, pos);
+				break;
+			}
+			case AUTOCOMBO_RELATIONAL:
+			{
+				AutoPattern::autopattern_relational ap(ca.getType(), CurrentLayer, scr, pos, &ca, !(ca.flags & ACF_CROSSSCREENS));
+				cid = ap.get_floating_cid(scr, pos);
+				break;
+			}
+			case AUTOCOMBO_DGNCARVE:
+			{
+				AutoPattern::autopattern_dungeoncarve ap(ca.getType(), CurrentLayer, scr, pos, &ca, !(ca.flags & ACF_CROSSSCREENS));
+				cid = ap.get_floating_cid(scr, pos);
+				break;
+			}
+			case AUTOCOMBO_DOR:
+			{
+				AutoPattern::autopattern_dormtn ap(ca.getType(), CurrentLayer, scr, pos, &ca, !(ca.flags & ACF_CROSSSCREENS), cauto_height);
+				cid = ap.get_floating_cid(scr, pos);
+				break;
+			}
+			case AUTOCOMBO_TILING:
+			{
+				std::pair<byte, byte> offs = ca.getOffsets();
+				if (!clicked && (key[KEY_LSHIFT] || key[KEY_RSHIFT]))
+				{
+					int32_t x = (scr % 16) * 16 + (pos % 16);
+					int32_t y = (scr / 16) * 11 + (pos / 16);
+					byte w = (ca.getArg() & 0xF) + 1;
+					byte h = ((ca.getArg() >> 4) & 0xF) + 1;
+					offs.first = (x % w);
+					offs.second = (y % h);
+				}
+				AutoPattern::autopattern_tiling ap(ca.getType(), CurrentLayer, scr, pos, &ca, true, ca.getArg(), offs);
+				cid = ap.get_floating_cid(scr, pos);
+				break;
+			}
+			case AUTOCOMBO_REPLACE:
+			{
+				AutoPattern::autopattern_replace ap(ca.getType(), CurrentLayer, scr, pos, &ca, true);
+				cid = ap.get_floating_cid(scr, pos);
+				break;
+			}
+		}
+	}
+	return cid;
 }
 
 void change_autocombo_height(int32_t change)
@@ -8232,6 +8313,7 @@ void draw(bool justcset)
 				{
 					draw_autocombo(cstart, gui_mouse_b() & 2, pressframe);
 
+					combobrushoverride = get_autocombo_floating_cid(cstart, true);
 					update_combobrush();
 				}
 			}
@@ -10609,8 +10691,16 @@ void domouse()
 	int32_t cx=(x-startxint)/int32_t(16*mapscreensize);
 	int32_t cy=(y-startyint)/int32_t(16*mapscreensize);
 	int32_t c=(cy*16)+cx;
-	mousecomboposition=c;
 	
+	if (draw_mode == dm_auto)
+	{
+		if (c != mousecomboposition)
+			combobrushoverride = get_autocombo_floating_cid(c, false);
+	}
+	else
+		combobrushoverride = -1;
+
+	mousecomboposition=c;
 	update_combobrush();
 	//  put_combo(brushbmp,0,0,Combo,CSet,0,0);
 	
