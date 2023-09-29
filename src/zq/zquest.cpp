@@ -8444,11 +8444,11 @@ static void fill(int32_t map, int32_t screen_index, mapscr* fillscr, int32_t tar
 	bool rclick = gui_mouse_b() & 2;
 	bool ignored_combo = false;
 
+	if (filled_combos[(sy << 4) + sx])
+		return;
+
 	if (draw_mode == dm_auto)
 	{
-		if (filled_combos[(sy << 4) + sx])
-			return;
-
 		combo_auto const& cauto = combo_autos[combo_auto_pos];
 		ignored_combo = cauto.isIgnoredCombo((fillscr->data[((sy << 4) + sx)]));
 		if (rclick)
