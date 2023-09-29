@@ -11938,9 +11938,7 @@ void domouse()
 								
 							case 2:
 							{
-								int32_t t = combobuf[Combo].tile;
-								int32_t f = 0;
-								select_tile(t,f,0,CSet,true);
+								onGotoTiles(combobuf[Combo].tile);
 								break;
 							}
 							
@@ -12158,9 +12156,7 @@ void domouse()
 						}
 						case 5: //Open Tile Page
 						{
-							int32_t t = combobuf[Combo].tile;
-							int32_t f = 0;
-							select_tile(t,f,0,CSet,true);
+							onGotoTiles(combobuf[Combo].tile);
 							break;
 						}
 					}
