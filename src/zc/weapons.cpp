@@ -1135,7 +1135,7 @@ weapon::~weapon()
 		if(dragItem)
 			dragItem->is_dragged = false;
 	}
-	FFCore.deallocateAllArrays(isLWeapon ? ScriptType::Lwpn : ScriptType::Ewpn, getUID());
+	FFCore.deallocateAllScriptOwned(isLWeapon ? ScriptType::Lwpn : ScriptType::Ewpn, getUID());
 	cleanup_sfx();
 }
 

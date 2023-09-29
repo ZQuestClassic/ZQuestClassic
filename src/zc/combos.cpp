@@ -1101,7 +1101,7 @@ bool trigger_chest(int32_t lyr, int32_t pos)
 			{
 				FFCore.reset_script_engine_data(ScriptType::Item, key_item);
 				ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[key_item].script, key_item);
-				FFCore.deallocateAllArrays(ScriptType::Item, key_item);
+				FFCore.deallocateAllScriptOwned(ScriptType::Item, key_item);
 			}
 			
 			if(cmb.usrflags&cflag16)
@@ -1214,7 +1214,7 @@ bool trigger_chest_ffc(int32_t pos)
 			{
 				FFCore.reset_script_engine_data(ScriptType::Item, key_item);
 				ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[key_item].script, key_item);
-				FFCore.deallocateAllArrays(ScriptType::Item, key_item);
+				FFCore.deallocateAllScriptOwned(ScriptType::Item, key_item);
 			}
 			
 			if(cmb.usrflags&cflag16)
@@ -1309,7 +1309,7 @@ bool trigger_lockblock(int32_t lyr, int32_t pos)
 			{
 				FFCore.reset_script_engine_data(ScriptType::Item, key_item);
 				ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[key_item].script, key_item);
-				FFCore.deallocateAllArrays(ScriptType::Item, key_item);
+				FFCore.deallocateAllScriptOwned(ScriptType::Item, key_item);
 			}
 			
 			if(cmb.usrflags&cflag16)
@@ -1373,7 +1373,7 @@ bool trigger_lockblock_ffc(int32_t pos)
 			{
 				FFCore.reset_script_engine_data(ScriptType::Item, key_item);
 				ZScriptVersion::RunScript(ScriptType::Item, itemsbuf[key_item].script, key_item);
-				FFCore.deallocateAllArrays(ScriptType::Item, key_item);
+				FFCore.deallocateAllScriptOwned(ScriptType::Item, key_item);
 			}
 			
 			if(cmb.usrflags&cflag16)

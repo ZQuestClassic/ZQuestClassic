@@ -26,7 +26,7 @@ item::~item()
 #ifndef IS_ZQUEST
 	if(itemsbuf[id].family==itype_fairy && itemsbuf[id].misc3>0 && misc>0 && !get_qr(qr_OLD_FAIRY_LIMIT))
 		killfairynew(*this);
-	FFCore.deallocateAllArrays(ScriptType::ItemSprite, getUID());
+	FFCore.deallocateAllScriptOwned(ScriptType::ItemSprite, getUID());
 #endif
 }
 

@@ -275,7 +275,7 @@ enum mapflagtype
 //User-generated / Script-Generated bitmap object
 #define UBMPFLAG_RESERVED		0x01
 #define UBMPFLAG_FREEING		0x02
-struct user_bitmap
+struct user_bitmap : public user_abstract_obj
 {
 	BITMAP* u_bmp;
 	int32_t width;
@@ -283,12 +283,8 @@ struct user_bitmap
 	int32_t depth;
 	byte flags;
 	
-	// TODO: here and every other `owned_type`; can we replace -1 with ScriptType::None ?
-	ScriptType owned_type;
-	int32_t owned_i;
-	
-	user_bitmap() : u_bmp(NULL), width(0), height(0), depth(0), flags(0),
-		owned_type((ScriptType)-1), owned_i(0)
+	user_bitmap() : user_abstract_obj(),
+		u_bmp(NULL), width(0), height(0), depth(0), flags(0)
 	{}
 	
 	void destroy()
@@ -300,13 +296,6 @@ struct user_bitmap
 		depth = 0;
 		u_bmp = NULL;
 	}
-	void clear()
-	{
-		destroy();
-		flags = 0;
-		owned_type = (ScriptType)-1;
-		owned_i = 0;
-	}
 	void reserve()
 	{
 		flags |= UBMPFLAG_RESERVED;
@@ -315,29 +304,20 @@ struct user_bitmap
 	{
 		return (flags & UBMPFLAG_RESERVED) ? true : false;
 	}
-	void free()
-	{
-		flags |= UBMPFLAG_FREEING;
-	}
 	void update()
 	{
 		if(flags & UBMPFLAG_FREEING)
 			clear();
 	}
-	void own(ScriptType type, int32_t i)
+	virtual void clear() override
 	{
-		owned_type = type;
-		owned_i = i;
+		user_abstract_obj::clear();
+		destroy();
+		flags = 0;
 	}
-	void own_clear(ScriptType type, int32_t i)
+	virtual void free_obj() override
 	{
-		if(owned_type == type && owned_i == i)
-			free();
-	}
-	void own_clear_any()
-	{
-		if(owned_type != (ScriptType)-1 || owned_i != 0)
-			clear();
+		flags |= UBMPFLAG_FREEING;
 	}
 };
 
@@ -374,29 +354,15 @@ struct script_bitmaps
 };
 
 #define MAX_USER_FILES 256
-struct user_file
+struct user_file : public user_abstract_obj
 {
 	FILE* file;
 	std::string filepath;
 	bool reserved;
 	
-	// TODO: here and every other `owned_type`; can we replace -1 with ScriptType::None ?
-	ScriptType owned_type;
-	int32_t owned_i;
-	
-	user_file() : file(NULL), reserved(false), filepath(""),
-		owned_type((ScriptType)-1), owned_i(0)
+	user_file() : user_abstract_obj(),
+		file(NULL), reserved(false), filepath("")
 	{}
-	
-	void clear()
-	{
-		if(file) fclose(file); //Never leave a hanging FILE*!
-		file = NULL;
-		reserved = false;
-		filepath = "";
-		owned_type = (ScriptType)-1;
-		owned_i = 0;
-	}
 	
 	void close()
 	{
@@ -421,39 +387,27 @@ struct user_file
 		else filepath = "";
 	}
 	
-	void own(ScriptType type, int32_t i)
+	virtual void clear() override
 	{
-		owned_type = type;
-		owned_i = i;
-	}
-	void own_clear(ScriptType type, int32_t i)
-	{
-		if(owned_type == type && owned_i == i)
-			clear();
-	}
-	void own_clear_any()
-	{
-		if(owned_type != (ScriptType)-1 || owned_i != 0)
-			clear();
+		user_abstract_obj::clear();
+		if(file) fclose(file); //Never leave a hanging FILE*!
+		file = NULL;
+		reserved = false;
+		filepath = "";
 	}
 };
 
 #define MAX_USER_DIRS 256
-struct user_dir
+struct user_dir : public user_abstract_obj
 {
 	FLIST* list;
 	std::string filepath;
 	bool reserved;
 	
-	// TODO: here and every other `owned_type`; can we replace -1 with ScriptType::None ?
-	ScriptType owned_type;
-	int32_t owned_i;
-	
-	user_dir() : list(NULL), reserved(false), filepath(""),
-		owned_type((ScriptType)-1), owned_i(0)
+	user_dir() : user_abstract_obj(),
+		list(NULL), reserved(false), filepath("")
 	{}
 	
-	void clear();
 	void setPath(const char* buf);
 	void refresh()
 	{
@@ -470,45 +424,20 @@ struct user_dir
 		return list->get(index, buf);
 	}
 	
-	void own(ScriptType type, int32_t i)
-	{
-		owned_type = type;
-		owned_i = i;
-	}
-	void own_clear(ScriptType type, int32_t i)
-	{
-		if(owned_type == type && owned_i == i)
-			clear();
-	}
-	void own_clear_any()
-	{
-		if(owned_type != (ScriptType)-1 || owned_i != 0)
-			clear();
-	}
+	virtual void clear() override;
 };
 
 
 #define MAX_USER_STACKS 256
 #define USERSTACK_MAX_SIZE 2147483647
-struct user_stack
+struct user_stack : public user_abstract_obj
 {
 	bool reserved;
-	// TODO: here and every other `owned_type`; can we replace -1 with ScriptType::None ?
-	ScriptType owned_type;
-	int32_t owned_i;
 	std::deque<int32_t> theStack;
 	
-	user_stack() : reserved(false),
-		owned_type((ScriptType)-1), owned_i(0)
+	user_stack() : user_abstract_obj(), reserved(false)
 	{}
 	
-	void clear()
-	{
-		clearStack();
-		owned_type = (ScriptType)-1;
-		owned_i = 0;
-		reserved = false;
-	}
 	int32_t size()
 	{
 		return theStack.size();
@@ -567,39 +496,23 @@ struct user_stack
 		theStack.shrink_to_fit();
 	}
 	
-	void own(ScriptType type, int32_t i)
+	virtual void clear() override
 	{
-		owned_type = type;
-		owned_i = i;
-	}
-	void own_clear(ScriptType type, int32_t i)
-	{
-		if(owned_type == type && owned_i == i)
-			clear();
-	}
-	void own_clear_any()
-	{
-		if(owned_type != (ScriptType)-1 || owned_i != 0)
-			clear();
+		user_abstract_obj::clear();
+		clearStack();
+		reserved = false;
 	}
 };
 
 #define MAX_USER_RNGS 256
-struct user_rng
+struct user_rng : public user_abstract_obj
 {
 	zc_randgen* gen;
 	bool reserved;
 	
-	// TODO: here and every other `owned_type`; can we replace -1 with ScriptType::None ?
-	ScriptType owned_type;
-	int32_t owned_i;
-	
-	void clear()
-	{
-		reserved = false;
-		owned_type = (ScriptType)-1;
-		owned_i = 0;
-	}
+	user_rng() : user_abstract_obj(),
+		gen(NULL), reserved(false)
+	{}
 	int32_t rand()
 	{
 		return zc_rand(gen);
@@ -623,51 +536,25 @@ struct user_rng
 		gen = newgen;
 		if(newgen) srand();
 	}
-	user_rng() : gen(NULL), reserved(false),
-		owned_type((ScriptType)-1), owned_i(0)
-	{}
 	
-	void own(ScriptType type, int32_t i)
+	virtual void clear() override
 	{
-		owned_type = type;
-		owned_i = i;
-	}
-	void own_clear(ScriptType type, int32_t i)
-	{
-		if(owned_type == type && owned_i == i)
-			clear();
-	}
-	void own_clear_any()
-	{
-		if(owned_type != (ScriptType)-1 || owned_i != 0)
-			clear();
+		user_abstract_obj::clear();
+		reserved = false;
 	}
 };
 
 #define MAX_USER_PALDATAS 256
 #define PALDATA_NUM_COLORS 256
 #define PALDATA_BITSTREAM_SIZE 32
-struct user_paldata
+struct user_paldata : public user_abstract_obj
 {
 	bool reserved;
 
 	RGB colors[PALDATA_NUM_COLORS];
 	byte colors_used[PALDATA_BITSTREAM_SIZE]; //A set of 256 bitflags
 
-	// TODO: here and every other `owned_type`; can we replace -1 with ScriptType::None ?
-	ScriptType owned_type;
-	int32_t owned_i;
-
 	enum { CSPACE_RGB, CSPACE_CMYK, CSPACE_HSV, CSPACE_HSV_CW, CSPACE_HSV_CCW, CSPACE_HSL, CSPACE_HSL_CW, CSPACE_HSL_CCW, CSPACE_LAB, CSPACE_LCH, CSPACE_LCH_CW, CSPACE_LCH_CCW };
-
-	void clear()
-	{
-		for(int32_t q = 0; q < 32; ++q)
-			colors_used[q] = 0;
-		reserved = false;
-		owned_type = (ScriptType)-1;
-		owned_i = 0;
-	}
 	
 	//Sets a color index on the paldata
 	void set_color(int32_t ind, RGB c)
@@ -692,20 +579,12 @@ struct user_paldata
 	static double WrapLerp(double a, double b, double t, double min, double max, int32_t direction);
 	void mix(user_paldata *pal_start, user_paldata *pal_end, double percent, int32_t color_space = CSPACE_RGB, int32_t start_color = 0, int32_t end_color = 240);
 
-	void own(ScriptType type, int32_t i)
+	virtual void clear() override
 	{
-		owned_type = type;
-		owned_i = i;
-	}
-	void own_clear(ScriptType type, int32_t i)
-	{
-		if (owned_type == type && owned_i == i)
-			clear();
-	}
-	void own_clear_any()
-	{
-		if (owned_type != (ScriptType)-1 || owned_i != 0)
-			clear();
+		user_abstract_obj::clear();
+		for(int32_t q = 0; q < 32; ++q)
+			colors_used[q] = 0;
+		reserved = false;
 	}
 };
 
@@ -2068,8 +1947,8 @@ enum __Error
         _InvalidSpriteUID //bad npc, ffc, etc.
     };
     
-	static void deallocateAllArrays(ScriptType scriptType, const int32_t UID, bool requireAlways = true);
-	static void deallocateAllArrays();
+	static void deallocateAllScriptOwned(ScriptType scriptType, const int32_t UID, bool requireAlways = true);
+	static void deallocateAllScriptOwned();
 	
     private:
     int32_t sid;

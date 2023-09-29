@@ -16,6 +16,48 @@ extern std::string* destructstr;
 void destroy_object_arr(int32_t ptr);
 script_data* load_scrdata(ScriptType type, word script, int32_t i);
 
+
+void user_abstract_obj::own(ScriptType type, int32_t i)
+{
+	owned_type = type;
+	owned_i = i;
+}
+bool user_abstract_obj::own_clear(ScriptType type, int32_t i)
+{
+	if(owned_type == type && owned_i == i)
+	{
+		free_obj();
+		return true;
+	}
+	return false;
+}
+bool user_abstract_obj::own_clear_any()
+{
+	if(owned_type != ScriptType::None || owned_i != 0)
+	{
+		free_obj();
+		return true;
+	}
+	return false;
+}
+
+ArrayOwner::ArrayOwner() : user_abstract_obj(),
+	specOwned(false), specCleared(false)
+{}
+
+void ArrayOwner::clear()
+{
+	user_abstract_obj::clear();
+	specOwned = false;
+	specCleared = false;
+}
+
+void ArrayOwner::reown(ScriptType ty, int32_t i)
+{
+	clear();
+	own(ty,i);
+}
+
 void scr_func_exec::clear()
 {
 	pc = i = 0;
@@ -85,6 +127,7 @@ bool scr_func_exec::validate()
 		}
 	}
 }
+
 //Prepare the object's destructor
 void user_object::prep(dword pc, ScriptType type, word script, int32_t i)
 {
@@ -126,10 +169,9 @@ void user_object::save_arrays(std::map<int32_t,ZScriptArray>& arrs)
 	}
 }
 
-void user_object::clear(bool destructor)
+void user_object::clear_nodestruct()
 {
-	if(destructor)
-		destruct.execute();
+	disown();
 	if(data.size() > owned_vars) //owns arrays!
 	{
 		for(auto ind = owned_vars; ind < data.size(); ++ind)
@@ -140,8 +182,11 @@ void user_object::clear(bool destructor)
 	}
 	data.clear();
 	reserved = false;
-	owned_type = (ScriptType)-1;
-	owned_i = 0;
 	owned_vars = 0;
+}
+void user_object::clear()
+{
+	destruct.execute();
+	clear_nodestruct();
 }
 

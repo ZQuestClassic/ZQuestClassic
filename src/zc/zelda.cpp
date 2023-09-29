@@ -476,23 +476,11 @@ script_data *itemspritescripts[NUMSCRIPTSITEMSPRITE];
 script_data *comboscripts[NUMSCRIPTSCOMBODATA];
 script_data *subscreenscripts[NUMSCRIPTSSUBSCREEN];
 
-ScriptOwner::ScriptOwner() : scriptType(ScriptType::None), ownerUID(0),
-	specOwned(false), specCleared(false)
-{}
-
-void ScriptOwner::clear()
-{
-	scriptType = ScriptType::None;
-	ownerUID = 0;
-	specOwned = false;
-	specCleared = false;
-}
-
 //ZScript array storage
 std::vector<ZScriptArray> globalRAM;
 ZScriptArray localRAM[NUM_ZSCRIPT_ARRAYS];
 std::map<int32_t,ZScriptArray> objectRAM;
-ScriptOwner arrayOwner[NUM_ZSCRIPT_ARRAYS];
+ArrayOwner arrayOwner[NUM_ZSCRIPT_ARRAYS];
 
 //script bitmap drawing
 ZScriptDrawingRenderTarget* zscriptDrawingRenderTarget;
@@ -2065,7 +2053,7 @@ int32_t init_game()
 	if(!firstplay && !get_qr(qr_OLD_INIT_SCRIPT_TIMING))
 	{
 		ZScriptVersion::RunScript(ScriptType::Global, GLOBAL_SCRIPT_ONSAVELOAD, GLOBAL_SCRIPT_ONSAVELOAD); //Do this after global arrays have been loaded
-		FFCore.deallocateAllArrays(ScriptType::Global, GLOBAL_SCRIPT_ONSAVELOAD);
+		FFCore.deallocateAllScriptOwned(ScriptType::Global, GLOBAL_SCRIPT_ONSAVELOAD);
 	}
 	//loadscr(0,currscr,up);
 	loadscr(0,currdmap,currscr,-1,false);
@@ -2106,13 +2094,13 @@ int32_t init_game()
 		if(!get_qr(qr_OLD_INIT_SCRIPT_TIMING))
 		{
 			ZScriptVersion::RunScript(ScriptType::Global, GLOBAL_SCRIPT_INIT, GLOBAL_SCRIPT_INIT);
-			FFCore.deallocateAllArrays(ScriptType::Global, GLOBAL_SCRIPT_INIT); //Deallocate LOCAL arrays declared in the init script. This function does NOT deallocate global arrays.
+			FFCore.deallocateAllScriptOwned(ScriptType::Global, GLOBAL_SCRIPT_INIT); //Deallocate LOCAL arrays declared in the init script. This function does NOT deallocate global arrays.
 		}
 		if ( FFCore.getQuestHeaderInfo(vZelda) >= 0x255 )
 		{
 			ZScriptVersion::RunScript(ScriptType::Player, SCRIPT_PLAYER_INIT); //We run this here so that the user can set up custom
 									//positional data, sprites, tiles, csets, invisibility states, and the like.
-			FFCore.deallocateAllArrays(ScriptType::Player, SCRIPT_PLAYER_INIT);
+			FFCore.deallocateAllScriptOwned(ScriptType::Player, SCRIPT_PLAYER_INIT);
 		}
 		FFCore.initZScriptHeroScripts(); //Clear the stack and the refinfo data to be ready for Hero's active script.
 		Hero.set_respawn_point(); //This should be after the init script, so that Hero->X and Hero->Y set by the script
@@ -2302,7 +2290,7 @@ int32_t init_game()
 	
 	//Run after Init/onSaveLoad, regardless of firstplay -V
 	FFCore.runOnLaunchEngine();
-	FFCore.deallocateAllArrays(ScriptType::Global, GLOBAL_SCRIPT_ONLAUNCH);
+	FFCore.deallocateAllScriptOwned(ScriptType::Global, GLOBAL_SCRIPT_ONLAUNCH);
 	
 	FFCore.runGenericPassiveEngine(SCR_TIMING_INIT);
 	throwGenScriptEvent(GENSCR_EVENT_INIT);
@@ -2347,12 +2335,12 @@ int32_t init_game()
 		{
 			memset(game->screen_d, 0, MAXDMAPS * 64 * 8 * sizeof(int32_t));
 			ZScriptVersion::RunScript(ScriptType::Global, GLOBAL_SCRIPT_INIT, GLOBAL_SCRIPT_INIT);
-			if(!get_qr(qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS) ) FFCore.deallocateAllArrays(ScriptType::Global, GLOBAL_SCRIPT_INIT); //Deallocate LOCAL arrays declared in the init script. This function does NOT deallocate global arrays.
+			if(!get_qr(qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS) ) FFCore.deallocateAllScriptOwned(ScriptType::Global, GLOBAL_SCRIPT_INIT); //Deallocate LOCAL arrays declared in the init script. This function does NOT deallocate global arrays.
 		}
 		else
 		{
 			ZScriptVersion::RunScript(ScriptType::Global, GLOBAL_SCRIPT_ONSAVELOAD, GLOBAL_SCRIPT_ONSAVELOAD); //Do this after global arrays have been loaded
-			if(!get_qr(qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS) ) FFCore.deallocateAllArrays(ScriptType::Global, GLOBAL_SCRIPT_ONSAVELOAD);
+			if(!get_qr(qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS) ) FFCore.deallocateAllScriptOwned(ScriptType::Global, GLOBAL_SCRIPT_ONSAVELOAD);
 		}	
 	}
 	
@@ -2486,7 +2474,7 @@ int32_t cont_game()
 	
 	initZScriptGlobalScript(GLOBAL_SCRIPT_ONCONTGAME);
 	ZScriptVersion::RunScript(ScriptType::Global, GLOBAL_SCRIPT_ONCONTGAME, GLOBAL_SCRIPT_ONCONTGAME);	
-	FFCore.deallocateAllArrays(ScriptType::Global, GLOBAL_SCRIPT_ONCONTGAME);
+	FFCore.deallocateAllScriptOwned(ScriptType::Global, GLOBAL_SCRIPT_ONCONTGAME);
 	
 	initZScriptGlobalScript(GLOBAL_SCRIPT_GAME);
 	FFCore.initZScriptHeroScripts();
@@ -5465,8 +5453,8 @@ reload_for_replay_file:
 		tmpscr->flags3=0;
 		Playing=Paused=false;
 		//Clear active script array ownership
-		FFCore.deallocateAllArrays(ScriptType::Global, GLOBAL_SCRIPT_GAME);
-		FFCore.deallocateAllArrays(ScriptType::Player, SCRIPT_PLAYER_ACTIVE);
+		FFCore.deallocateAllScriptOwned(ScriptType::Global, GLOBAL_SCRIPT_GAME);
+		FFCore.deallocateAllScriptOwned(ScriptType::Player, SCRIPT_PLAYER_ACTIVE);
 		switch(Quit)
 		{
 			case qSAVE:
@@ -5577,7 +5565,7 @@ reload_for_replay_file:
 			}
 			break;
 		}
-		FFCore.deallocateAllArrays(ScriptType::Global, GLOBAL_SCRIPT_END);
+		FFCore.deallocateAllScriptOwned(ScriptType::Global, GLOBAL_SCRIPT_END);
 		//Restore original palette before exiting for any reason!
 		setMonochrome(false);
 		doClearTint();
@@ -5594,8 +5582,8 @@ reload_for_replay_file:
 			FFCore.user_objects_init();
 			objectRAM.clear();
 		}
-		//Deallocate ALL ZScript arrays on ANY exit.
-		FFCore.deallocateAllArrays();
+		FFCore.deallocateAllScriptOwned();
+		
 		GameFlags = 0; //Clear game flags on ANY exit
 		kill_sfx();
 		music_stop();

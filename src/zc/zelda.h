@@ -420,21 +420,10 @@ extern script_data *subscreenscripts[NUMSCRIPTSSUBSCREEN];
 extern SAMPLE customsfxdata[WAV_COUNT];
 extern int32_t sfxdat;
 
-struct ScriptOwner
-{
-	ScriptOwner();
-	ScriptType scriptType;
-	uint32_t ownerUID;
-	bool specOwned;
-	bool specCleared;
-	void clear();
-};
-
 #define NUM_ZSCRIPT_ARRAYS	4096
-typedef ZCArray<int32_t> ZScriptArray;
 extern ZScriptArray localRAM[NUM_ZSCRIPT_ARRAYS];
 extern std::map<int32_t,ZScriptArray> objectRAM;
-extern ScriptOwner arrayOwner[NUM_ZSCRIPT_ARRAYS];
+extern ArrayOwner arrayOwner[NUM_ZSCRIPT_ARRAYS];
 
 dword getNumGlobalArrays();
 

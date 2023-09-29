@@ -9,6 +9,7 @@
 #include <sys/stat.h>
 #include <filesystem>
 #include <vector>
+#include <functional>
 #ifndef _WIN32
 #include <stdlib.h>
 #else

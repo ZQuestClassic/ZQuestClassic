@@ -142,5 +142,88 @@ void set_bitl(int32_t bitstr,int32_t bit,byte val);
 #define NUM_PAL_CYCLES             256
 #define NUM_WARP_RINGS             9
 
+enum // used for gamedata ITEMS
+{
+	// 0
+	itype_sword, itype_brang, itype_arrow, itype_candle, itype_whistle,
+	itype_bait, itype_letter, itype_potion, itype_wand, itype_ring,
+	itype_wallet, itype_amulet, itype_shield, itype_bow, itype_raft,
+	itype_ladder, itype_book, itype_magickey, itype_bracelet, itype_flippers,
+	// 20
+	itype_boots, itype_hookshot, itype_lens, itype_hammer, itype_divinefire,
+	itype_divineescape, itype_divineprotection, itype_bomb, itype_sbomb, itype_clock,
+	itype_key, itype_magiccontainer, itype_triforcepiece, itype_map, itype_compass,
+	itype_bosskey, itype_quiver, itype_lkey, itype_cbyrna, itype_rupee,
+	// 40
+	itype_arrowammo, itype_fairy, itype_magic, itype_heart, itype_heartcontainer,
+	itype_heartpiece, itype_killem, itype_bombammo, itype_bombbag, itype_rocs,
+	itype_hoverboots, itype_spinscroll,itype_crossscroll, itype_quakescroll,itype_whispring,
+	itype_chargering, itype_perilscroll, itype_wealthmedal,itype_heartring,itype_magicring,
+	// 60
+	itype_spinscroll2, itype_quakescroll2, itype_agony, itype_stompboots, itype_whimsicalring,
+	itype_perilring, itype_misc,
+	// 67
+	itype_custom1, itype_custom2, itype_custom3, itype_custom4, itype_custom5,
+	itype_custom6, itype_custom7, itype_custom8, itype_custom9, itype_custom10,
+	itype_custom11, itype_custom12, itype_custom13, itype_custom14, itype_custom15,
+	itype_custom16, itype_custom17, itype_custom18, itype_custom19, itype_custom20,
+	// 87
+	itype_bowandarrow, itype_letterpotion,
+	itype_last, 
+	itype_script1 = 256, //Scripted Weapons
+	itype_script2, itype_script3, itype_script4, itype_script5, itype_script6, itype_script7, itype_script8, itype_script9, itype_script10,
+	itype_icerod, itype_atkring, itype_lantern, itype_pearl, itype_bottle, itype_bottlefill, itype_bugnet,
+	itype_mirror, itype_switchhook, itype_itmbundle, itype_progressive_itm, itype_note, itype_refill,
+	itype_liftglove,
+	/*
+	itype_templast,
+	itype_ether, itype_bombos, itype_quake, 
+	itype_powder,
+	itype_trowel,
+	itype_instrument,
+	itype_sword180,
+	itype_sword_gb,
+	itype_firerod,
+	itype_scripted_001 = 400, 
+	itype_scripted_002,
+	itype_scripted_003,
+	itype_scripted_004,
+	itype_scripted_005,
+	itype_scripted_006,
+	itype_scripted_007,
+	itype_scripted_008,
+	itype_scripted_009,
+	itype_scripted_010,
+	*/
+
+	
+	itype_maxusable,
+	itype_max=512
+};
+
+enum class ScriptType {
+	None,
+	Global,
+	FFC,
+	Screen,
+	Player,
+	Item,
+	Lwpn,
+	NPC,
+	Subscreen,
+	Ewpn,
+	DMap,
+	ItemSprite,
+	ScriptedActiveSubscreen,
+	ScriptedPassiveSubscreen,
+	Combo,
+	OnMap,
+	Generic,
+	GenericFrozen,
+	EngineSubscreen,
+	First = Global,
+	Last = EngineSubscreen,
+};
+
 #endif
 

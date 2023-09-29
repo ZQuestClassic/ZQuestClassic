@@ -5033,8 +5033,8 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 	
 	//screen / screendata script
 	FFCore.reset_script_engine_data(ScriptType::Screen);
-	FFCore.deallocateAllArrays(ScriptType::Screen, 0);
-	FFCore.deallocateAllArrays(ScriptType::Combo, 0);
+	FFCore.deallocateAllScriptOwned(ScriptType::Screen, 0);
+	FFCore.deallocateAllScriptOwned(ScriptType::Combo, 0);
 	FFCore.clear_combo_scripts();
 	if ( TheMaps[currmap*MAPSCRS+scr].script > 0 )
 	{
@@ -5084,7 +5084,7 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 	
 	if(tmp==0)
 	{
-		FFCore.deallocateAllArrays(ScriptType::Screen, 0);
+		FFCore.deallocateAllScriptOwned(ScriptType::Screen, 0);
 		
 		init_ffpos();
 		for(word i = 0; i < MAXFFCS; i++)
@@ -5100,7 +5100,7 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 			}
 			else
 			{
-				FFCore.deallocateAllArrays(ScriptType::FFC, i, false);
+				FFCore.deallocateAllScriptOwned(ScriptType::FFC, i, false);
 				memset(ffmisc[i], 0, 16 * sizeof(int32_t));
 				FFCore.reset_script_engine_data(ScriptType::FFC, i);
 			}
