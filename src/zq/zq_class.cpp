@@ -2766,7 +2766,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 	{
 		basescr=AbsoluteScr(map,scr);
 	}
-	layers[0] = basescr;
+	layers[0] = _zmap_get_lyr_checked(0,basescr);
 	for(int lyr = 1; lyr < 7; ++lyr)
 	{
 		layers[lyr] = prv_mode ? &prvlayers[lyr-1]
