@@ -1201,6 +1201,8 @@ std::string serialize_init_data_delta(zinitdata *base, zinitdata *changed)
 zinitdata *apply_init_data_delta(zinitdata *base, std::string delta, std::string& out_error)
 {
 	zinitdata *result = new zinitdata(*base);
+	if (delta.empty())
+		return result;
 
 	std::vector<std::string> tokens;
 	util::split(delta, tokens, ' ');

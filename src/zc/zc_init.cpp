@@ -17,7 +17,8 @@ int32_t onCheatConsole()
 	zinitdata base = *zinit2;
     int32_t rval = doInit(zinit2, true);
 	std::string delta = serialize_init_data_delta(&base, zinit2);
-	cheats_enqueue(Cheat::PlayerData, -1, -1, delta);
+	if (delta.size())
+		cheats_enqueue(Cheat::PlayerData, -1, -1, delta);
     // resetItems(game, zinit2, false);
     delete zinit2;
     // ringcolor(false);
