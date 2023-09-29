@@ -27,7 +27,7 @@
     </tr>
     <tr>
       <th scope="row">Date:</th>
-      <td>2023-09-19 17:25:36</td>
+      <td>2023-09-29 08:11:57</td>
     </tr>
   </table>
 </div>
@@ -54,7 +54,7 @@
     <tr>
       <th scope="row">Branches:</th>
       <td>2</td>
-      <td>114</td>
+      <td>112</td>
       <td class="coverage-low">1.8%</td>
     </tr>
   </table>
@@ -584,127 +584,127 @@
       <td class="lineno"><a id="l56" href="#l56">56</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount "></td>
-      <td class="src "></td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">    </span><span class="n">rti_root</span><span class="p">.</span><span class="n">add_child_before</span><span class="p">(</span><span class="o">&amp;</span><span class="n">rti_matrix</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">rti_menu</span><span class="p">);</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l57" href="#l57">57</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">    </span><span class="k">auto</span><span class="w"> </span><span class="n">it</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">find</span><span class="p">(</span><span class="n">rti_root</span><span class="p">.</span><span class="n">children</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="w"> </span><span class="n">rti_root</span><span class="p">.</span><span class="n">children</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span><span class="w"> </span><span class="o">&amp;</span><span class="n">rti_menu</span><span class="p">);</span><span class="w"></span></td>
+      <td class="linecount "></td>
+      <td class="src "></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l58" href="#l58">58</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">    </span><span class="n">ASSERT</span><span class="p">(</span><span class="n">it</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="n">rti_root</span><span class="p">.</span><span class="n">children</span><span class="p">.</span><span class="n">end</span><span class="p">());</span><span class="w"></span></td>
+      <td class="src uncoveredLine"><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">w</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">al_get_bitmap_width</span><span class="p">(</span><span class="n">rti_game</span><span class="p">.</span><span class="n">bitmap</span><span class="p">);</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l59" href="#l59">59</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">    </span><span class="n">rti_root</span><span class="p">.</span><span class="n">children</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">it</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">rti_matrix</span><span class="p">);</span><span class="w"></span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l60" href="#l60">60</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l61" href="#l61">61</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">w</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">al_get_bitmap_width</span><span class="p">(</span><span class="n">rti_game</span><span class="p">.</span><span class="n">bitmap</span><span class="p">);</span><span class="w"></span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l62" href="#l62">62</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">h</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">al_get_bitmap_height</span><span class="p">(</span><span class="n">rti_game</span><span class="p">.</span><span class="n">bitmap</span><span class="p">);</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l63" href="#l63">63</a></td>
+      <td class="lineno"><a id="l60" href="#l60">60</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">    </span><span class="n">target_bitmap</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">create_bitmap_ex</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span><span class="w"> </span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="n">h</span><span class="p">);</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l64" href="#l64">64</a></td>
+      <td class="lineno"><a id="l61" href="#l61">61</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">    </span><span class="n">clear_bitmap</span><span class="p">(</span><span class="n">target_bitmap</span><span class="p">);</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l65" href="#l65">65</a></td>
+      <td class="lineno"><a id="l62" href="#l62">62</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">    </span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l66" href="#l66">66</a></td>
+      <td class="lineno"><a id="l63" href="#l63">63</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="n">rti_matrix</span><span class="p">.</span><span class="n">bitmap</span><span class="p">)</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l67" href="#l67">67</a></td>
+      <td class="lineno"><a id="l64" href="#l64">64</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">        </span><span class="n">al_destroy_bitmap</span><span class="p">(</span><span class="n">rti_matrix</span><span class="p">.</span><span class="n">bitmap</span><span class="p">);</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l68" href="#l68">68</a></td>
+      <td class="lineno"><a id="l65" href="#l65">65</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">    </span><span class="n">rti_matrix</span><span class="p">.</span><span class="n">bitmap</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">al_create_bitmap</span><span class="p">(</span><span class="n">w</span><span class="p">,</span><span class="w"> </span><span class="n">h</span><span class="p">);</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l69" href="#l69">69</a></td>
+      <td class="lineno"><a id="l66" href="#l66">66</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">    </span><span class="n">rti_matrix</span><span class="p">.</span><span class="n">a4_bitmap</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">target_bitmap</span><span class="p">;</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l70" href="#l70">70</a></td>
+      <td class="lineno"><a id="l67" href="#l67">67</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l71" href="#l71">71</a></td>
+      <td class="lineno"><a id="l68" href="#l68">68</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">    </span><span class="c1">// speed 0-6, density 0-6</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l72" href="#l72">72</a></td>
+      <td class="lineno"><a id="l69" href="#l69">69</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">    </span><span class="n">_density</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zc_max</span><span class="p">(</span><span class="n">zc_min</span><span class="p">(</span><span class="n">density</span><span class="p">,</span><span class="w"> </span><span class="mi">6</span><span class="p">),</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l73" href="#l73">73</a></td>
+      <td class="lineno"><a id="l70" href="#l70">70</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">    </span><span class="n">_speed</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">zc_max</span><span class="p">(</span><span class="n">zc_min</span><span class="p">(</span><span class="n">speed</span><span class="p">,</span><span class="w"> </span><span class="mi">6</span><span class="p">),</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w"></span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l71" href="#l71">71</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">    </span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l72" href="#l72">72</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">    </span><span class="n">InitMatrix</span><span class="p">();</span><span class="w"></span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l73" href="#l73">73</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">    </span><span class="n">input_idle</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l74" href="#l74">74</a></td>
@@ -718,126 +718,126 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">    </span><span class="n">InitMatrix</span><span class="p">();</span><span class="w"></span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l76" href="#l76">76</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">    </span><span class="n">input_idle</span><span class="p">(</span><span class="nb">true</span><span class="p">);</span><span class="w"></span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l77" href="#l77">77</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount "></td>
-      <td class="src "><span class="w">    </span></td>
-    </tr>
-    <tr class="source-line">
-      <td class="lineno"><a id="l78" href="#l78">78</a></td>
-      <td class="linebranch">
-      </td>
-      <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">    </span><span class="k">for</span><span class="p">(;;)</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l79" href="#l79">79</a></td>
+      <td class="lineno"><a id="l76" href="#l76">76</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">    </span><span class="p">{</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l80" href="#l80">80</a></td>
+      <td class="lineno"><a id="l77" href="#l77">77</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "><span class="w">        </span><span class="c1">//vsync();</span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l81" href="#l81">81</a></td>
+      <td class="lineno"><a id="l78" href="#l78">78</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">        </span><span class="n">throttleFPS</span><span class="p">();</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l82" href="#l82">82</a></td>
+      <td class="lineno"><a id="l79" href="#l79">79</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l83" href="#l83">83</a></td>
+      <td class="lineno"><a id="l80" href="#l80">80</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">        </span><span class="n">AddTracer</span><span class="p">();</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l84" href="#l84">84</a></td>
+      <td class="lineno"><a id="l81" href="#l81">81</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">        </span><span class="n">AddEraser</span><span class="p">(</span><span class="mi">-1</span><span class="p">);</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l85" href="#l85">85</a></td>
+      <td class="lineno"><a id="l82" href="#l82">82</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">        </span><span class="n">UpdateTracers</span><span class="p">();</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l86" href="#l86">86</a></td>
+      <td class="lineno"><a id="l83" href="#l83">83</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">        </span><span class="n">UpdateErasers</span><span class="p">();</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l87" href="#l87">87</a></td>
+      <td class="lineno"><a id="l84" href="#l84">84</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
       <td class="src uncoveredLine"><span class="w">        </span><span class="n">UpdateColumns</span><span class="p">();</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
-      <td class="lineno"><a id="l88" href="#l88">88</a></td>
+      <td class="lineno"><a id="l85" href="#l85">85</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount "></td>
       <td class="src "></td>
     </tr>
     <tr class="source-line">
+      <td class="lineno"><a id="l86" href="#l86">86</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">        </span><span class="k">auto</span><span class="w"> </span><span class="p">[</span><span class="n">game_pos_x</span><span class="p">,</span><span class="w"> </span><span class="n">game_pos_y</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rti_game</span><span class="p">.</span><span class="n">pos</span><span class="p">();</span><span class="w"></span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l87" href="#l87">87</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">        </span><span class="n">rti_matrix</span><span class="p">.</span><span class="n">set_transform</span><span class="p">({</span><span class="w"></span></td>
+    </tr>
+    <tr class="source-line">
+      <td class="lineno"><a id="l88" href="#l88">88</a></td>
+      <td class="linebranch">
+      </td>
+      <td class="linecount uncoveredLine">&cross;</td>
+      <td class="src uncoveredLine"><span class="w">            </span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">game_pos_x</span><span class="p">,</span><span class="w"></span></td>
+    </tr>
+    <tr class="source-line">
       <td class="lineno"><a id="l89" href="#l89">89</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">        </span><span class="n">rti_matrix</span><span class="p">.</span><span class="n">transform</span><span class="p">.</span><span class="n">x</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rti_game</span><span class="p">.</span><span class="n">transform</span><span class="p">.</span><span class="n">x</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src uncoveredLine"><span class="w">            </span><span class="p">.</span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">game_pos_y</span><span class="p">,</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l90" href="#l90">90</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">        </span><span class="n">rti_matrix</span><span class="p">.</span><span class="n">transform</span><span class="p">.</span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rti_game</span><span class="p">.</span><span class="n">transform</span><span class="p">.</span><span class="n">y</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src uncoveredLine"><span class="w">            </span><span class="p">.</span><span class="n">xscale</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rti_game</span><span class="p">.</span><span class="n">get_transform</span><span class="p">().</span><span class="n">xscale</span><span class="p">,</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l91" href="#l91">91</a></td>
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">        </span><span class="n">rti_matrix</span><span class="p">.</span><span class="n">transform</span><span class="p">.</span><span class="n">xscale</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rti_game</span><span class="p">.</span><span class="n">transform</span><span class="p">.</span><span class="n">xscale</span><span class="p">;</span><span class="w"></span></td>
+      <td class="src uncoveredLine"><span class="w">            </span><span class="p">.</span><span class="n">yscale</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rti_game</span><span class="p">.</span><span class="n">get_transform</span><span class="p">().</span><span class="n">yscale</span><span class="p">,</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l92" href="#l92">92</a></td>
       <td class="linebranch">
       </td>
-      <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">        </span><span class="n">rti_matrix</span><span class="p">.</span><span class="n">transform</span><span class="p">.</span><span class="n">yscale</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">rti_game</span><span class="p">.</span><span class="n">transform</span><span class="p">.</span><span class="n">yscale</span><span class="p">;</span><span class="w"></span></td>
+      <td class="linecount "></td>
+      <td class="src "><span class="w">        </span><span class="p">});</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l93" href="#l93">93</a></td>
@@ -991,7 +991,7 @@
       <td class="linebranch">
       </td>
       <td class="linecount uncoveredLine">&cross;</td>
-      <td class="src uncoveredLine"><span class="w">    </span><span class="n">rti_root</span><span class="p">.</span><span class="n">children</span><span class="p">.</span><span class="n">erase</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">find</span><span class="p">(</span><span class="n">rti_root</span><span class="p">.</span><span class="n">children</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span><span class="w"> </span><span class="n">rti_root</span><span class="p">.</span><span class="n">children</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span><span class="w"> </span><span class="o">&amp;</span><span class="n">rti_matrix</span><span class="p">));</span><span class="w"></span></td>
+      <td class="src uncoveredLine"><span class="w">    </span><span class="n">rti_root</span><span class="p">.</span><span class="n">remove_child</span><span class="p">(</span><span class="o">&amp;</span><span class="n">rti_matrix</span><span class="p">);</span><span class="w"></span></td>
     </tr>
     <tr class="source-line">
       <td class="lineno"><a id="l115" href="#l115">115</a></td>
