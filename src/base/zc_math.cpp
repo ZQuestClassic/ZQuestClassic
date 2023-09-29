@@ -84,7 +84,7 @@ float CalculateBezier(const float p1, const float t1, const float t2, const floa
 #define Q15 (1.0/(double)((1<<15)-1))
 double Sin(double x)
 {
-	if (replay_is_active()||true)
+	if (replay_is_active())
 	{
 		// x needs to be converted from radians -> angles -> sin1 domain
 		x = x * (180/PI * 32768.0/360.0);
