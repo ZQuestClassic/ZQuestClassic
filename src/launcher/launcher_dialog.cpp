@@ -594,7 +594,7 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						CONFIG_DROPDOWN_I("Quickload Slot:", App::zelda,"zeldadx","quickload_slot",0,quickSlotList,"Unless 'disabled', this save slot will be immediately loaded upon launching.")
 					)
 				)),
-				TabRef(name = "ZQ Creator", Row(framed = true,
+				TabRef(name = "ZC Editor", Row(framed = true,
 					Rows<2>(fitParent = true,
 						CONFIG_CHECKBOX_I("Fullscreen",App::zquest,"zquest","fullscreen",0,"Exactly stable."),
 						CONFIG_CHECKBOX("VSync",App::zquest,"zquest","vsync",1),
@@ -696,7 +696,7 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						)
 					)
 				)),
-				TabRef(name = "ZC Theme", Rows<2>(
+				TabRef(name = "Player Theme", Rows<2>(
 					tf_theme[0] = TextField(read_only = true, maxLength = 255),
 					Button(text = "Browse", fitParent = true, onPressFunc = [&]()
 						{
@@ -736,7 +736,7 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						}
 					})
 				)),
-				TabRef(name = "ZQ Theme", Rows<2>(
+				TabRef(name = "Editor Theme", Rows<2>(
 					tf_theme[1] = TextField(read_only = true, maxLength = 255),
 					Button(text = "Browse", fitParent = true, onPressFunc = [&]()
 						{
@@ -856,7 +856,7 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 					minwidth = 90_px,
 					onClick = message::ZC),
 				Button(
-					text = "ZQ Creator",
+					text = "ZC Editor",
 					minwidth = 90_px,
 					onClick = message::ZQ)
 			)
