@@ -1,10 +1,10 @@
 {
-  "name": "Zelda Classic",
-  "id": "zelda-classic-pwa",
-  "description": "Play and create custom quests in Zelda Classic!",
+  "name": "ZQuest Classic",
+  "id": "zquest-classic-pwa",
+  "description": "Play and create classic adventure games in ZQuest Classic!",
   "display": "fullscreen",
   "orientation": "landscape-primary",
-  "scope": "https://hoten.cc/zc/",
+  "scope": "https://zquestclassic.com",
   "start_url": "play?utm_source=homescreen",
   "icons": [
     {
@@ -32,14 +32,14 @@
   ],
   "shortcuts": [
     {
-      "name": "Zelda Classic",
-      "description": "Play Zelda Classic",
+      "name": "Player",
+      "description": "Play ZC",
       "url": "play/?utm_source=homescreen-shortcut",
       "icons": [{ "src": "android-chrome-maskable-192x192.png", "sizes": "192x192" }]
     },
     {
-      "name": "ZQuest",
-      "description": "Open the ZQuest editor",
+      "name": "Editor",
+      "description": "Open the ZC Editor",
       "url": "create/?utm_source=homescreen-shortcut",
       "icons": [{ "src": "android-chrome-maskable-192x192.png", "sizes": "192x192" }]
     }
