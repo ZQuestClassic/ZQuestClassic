@@ -24,7 +24,7 @@ namespace AutoPattern
 	class autopattern_container
 	{
 	public:
-		autopattern_container(int32_t ntype, int32_t nlayer, int32_t nbasescreen, int32_t nbasepos, combo_auto* nsource, bool nnocrossedge);
+		autopattern_container(int32_t ntype, int32_t nlayer, int32_t nbasescreen, int32_t nbasepos, combo_auto* nsource);
 		~autopattern_container();
 		virtual bool execute(int32_t s, int32_t p) = 0;
 		virtual bool erase(int32_t s, int32_t p) = 0;
@@ -59,6 +59,7 @@ namespace AutoPattern
 		std::map<int32_t, int32_t> pattern_cids; // for converting slots to cids
 		std::map<int32_t, int32_t> pattern_slots; // for converting cids to slots
 		bool nocrossedge;
+		bool connectedge;
 	};
 
 	class apcombo

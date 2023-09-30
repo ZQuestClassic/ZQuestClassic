@@ -75,10 +75,13 @@ namespace AutoPattern
 		p->connflags = 0;
 		for (int32_t q = 0; q < 4; ++q)
 		{
-			if (p->adj[q] && p->adj[q]->in_set)
+			if (p->adj[q])
 			{
-				p->connflags |= (1 << q);
+				if(p->adj[q]->in_set)
+					p->connflags |= (1 << q);
 			}
+			else if(connectedge)
+				p->connflags |= (1 << q);
 		}
 	}
 	uint32_t autopattern_basic::slot_to_flags(int32_t slot)

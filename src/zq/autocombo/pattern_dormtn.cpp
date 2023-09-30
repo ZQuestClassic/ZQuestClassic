@@ -80,7 +80,7 @@ namespace AutoPattern
 						p->connflags |= (1 << q);
 					}
 				}
-				else
+				else if(connectedge)
 					p->connflags |= (1 << q);
 			}
 		}

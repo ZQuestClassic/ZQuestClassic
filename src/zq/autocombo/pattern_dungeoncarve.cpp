@@ -104,7 +104,7 @@ namespace AutoPattern
 					}
 				}
 			}
-			else
+			else if(connectedge || !(p->connflags & 0x100))
 				newflags |= (1 << q);
 		}
 		p->connflags = newflags | h;
