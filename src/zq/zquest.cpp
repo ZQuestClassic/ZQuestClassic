@@ -7725,6 +7725,13 @@ void draw_autocombo(int32_t pos, bool rclick, bool pressframe)
 			}
 		}
 	}
+	else
+	{
+		ca.updateValid();
+		if(!ca.valid())
+			InfoDialog("Notice", "The autocombo you're trying to use is invalid. Reason:"
+				+ ca.getInvalidReason()).show();
+	}
 }
 
 void draw_autocombo_command(int32_t pos, int32_t cmd, int32_t arg)

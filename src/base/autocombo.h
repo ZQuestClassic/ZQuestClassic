@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <map>
+#include <string>
 #include "base/ints.h"
 #include "base/general.h"
 
@@ -15,6 +16,13 @@ enum
 	ACF_CROSSSCREENS = 0x2,
 	ACF_FLIP         = 0x4,
 	ACF_LEGACY       = 0x4 // used by Relational and Dungeon Carving, neither of which use flip
+};
+
+enum
+{
+	ACIR_ILLEGAL_TYPE	 = 0x1,
+	ACIR_DUPLICATE_COMBO = 0x2,
+	ACIR_MISSING_COMBO   = 0x4
 };
 
 struct autocombo_entry
@@ -67,6 +75,7 @@ struct combo_auto
 		return flags & ACF_VALID;
 	}
 	void updateValid();
+	std::string getInvalidReason();
 	bool hasTemplate();
 	bool canErase();
 
@@ -138,6 +147,7 @@ struct combo_auto
 private:
 	byte type = AUTOCOMBO_NONE;
 	byte arg = 0;
+	byte invalid_reasons = 0;
 	int32_t cid_display = 0;
 	int32_t cid_erase = 0;
 	std::pair<byte, byte> offsets;

@@ -51,10 +51,24 @@ void combo_auto::removeEntry()
 
 void combo_auto::updateValid()
 {
-	if (type == AUTOCOMBO_NONE)
+	bool isvalid = true;
+	invalid_reasons = 0;
+	switch(type)
 	{
-		flags &= ~ACF_VALID;
-		return;
+		case AUTOCOMBO_BASIC:
+		case AUTOCOMBO_Z1:
+		case AUTOCOMBO_FENCE:
+		case AUTOCOMBO_Z4:
+		case AUTOCOMBO_RELATIONAL:
+		case AUTOCOMBO_DGNCARVE:
+		case AUTOCOMBO_DOR:
+		case AUTOCOMBO_TILING:
+		case AUTOCOMBO_REPLACE:
+			break;
+		default:
+			invalid_reasons |= ACIR_ILLEGAL_TYPE;
+			flags &= ~ACF_VALID;
+			return;
 	}
 	if (type == AUTOCOMBO_TILING)
 	{
@@ -65,8 +79,9 @@ void combo_auto::updateValid()
 	{
 		if (c.cid == 0)
 		{
+			invalid_reasons |= ACIR_MISSING_COMBO;
 			flags &= ~ACF_VALID;
-			return;
+			isvalid = false;
 		}
 		else
 		{
@@ -76,14 +91,33 @@ void combo_auto::updateValid()
 				{
 					if(type!=AUTOCOMBO_REPLACE)
 					{
+						invalid_reasons |= ACIR_DUPLICATE_COMBO;
 						flags &= ~ACF_VALID;
-						return;
+						isvalid = false;
+						break;
 					}
 				}
 			}
 		}
 	}
-	flags |= ACF_VALID;
+	if(isvalid)
+		flags |= ACF_VALID;
+}
+std::string combo_auto::getInvalidReason()
+{
+	std::string ret("");
+	if (invalid_reasons & ACIR_ILLEGAL_TYPE)
+	{
+		if(type==AUTOCOMBO_NONE)
+			ret += "\n-Autocombo is the (None) Type";
+		else
+			ret += "\n-Autocombo is an invalid Type";
+	}
+	if (invalid_reasons & ACIR_MISSING_COMBO)
+		ret += "\n-Some combos are combo 0 (invalid)";
+	if (invalid_reasons & ACIR_DUPLICATE_COMBO)
+		ret += "\n-Two or more combos use the same ID";
+	return ret;
 }
 bool combo_auto::hasTemplate()
 {
