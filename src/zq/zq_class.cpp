@@ -2725,7 +2725,7 @@ static void _zmap_drawlayer_ohead(BITMAP* dest, int32_t x, int32_t y, mapscr* md
 	{
 		int data = md->data[i];
 		if(combo_class_buf[combobuf[data].type].overhead)
-			drawcombo(dest, ((i&15)<<4)+x, (i&0xF0)+y, data, md->cset[i], 0, 0, false, trans, dither);
+			drawcombo(dest, ((i&15)<<4)+x, (i&0xF0)+y, data, md->cset[i], 0, 0, true, trans, dither);
 	}
 }
 static mapscr* _zmap_get_lyr_checked(int lyr, mapscr* basescr)
@@ -3038,7 +3038,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 		}
 	}
 	
-	_zmap_drawlayer(dest, x, y, layers[6], antiflags, basescr->layeropacity[6-1]!=255, true, HL_LAYER(4));
+	_zmap_drawlayer(dest, x, y, layers[6], antiflags, basescr->layeropacity[6-1]!=255, true, HL_LAYER(6));
 	
 	for(int32_t i=MAXFFCS-1; i>=0; i--)
 		if(basescr->ffcs[i].getData())
