@@ -50,8 +50,9 @@ extern FFScript FFCore;
 
 extern ZModule zcm;
 extern zcmodule moduledata;
-extern uint8_t ViewLayer3BG, ViewLayer2BG; 
-
+extern uint8_t ViewLayer3BG, ViewLayer2BG;
+extern int32_t LayerDitherBG, LayerDitherSz;
+extern bool NoHighlightLayer0;
 
 using std::string;
 using std::pair;
@@ -2687,10 +2688,12 @@ void drawcombo(BITMAP* dest, int32_t x, int32_t y, int32_t cid, int32_t cset, in
 	if(cmb.animflags & AF_TRANSPARENT) transp = !transp;
 	if(dither)
 	{
+		if (LayerDitherSz == 0)
+			return;
 		BITMAP* buf = create_bitmap_ex(8,16,16);
 		clear_bitmap(buf);
 		overcombo(buf,0,0,cid,cset);
-		ditherblit(buf,nullptr,0,dithChecker,3,x,y);
+		ditherblit(buf,nullptr,0,dithChecker,LayerDitherSz,x,y);
 		if(over)
 		{
 			if(transp)
@@ -2701,7 +2704,7 @@ void drawcombo(BITMAP* dest, int32_t x, int32_t y, int32_t cid, int32_t cset, in
 			}
 			else masked_blit(buf, dest, 0, 0, x, y, 16, 16);
 		}
-		else blit(buf, dest, 0, 0, x, y, 16, 16);
+		else masked_blit(buf, dest, 0, 0, x, y, 16, 16);
 		destroy_bitmap(buf);
 	}
 	else if(over)
@@ -2745,7 +2748,7 @@ static mapscr* _zmap_get_lyr_checked(int lyr, mapscr* basescr)
 }
 void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32_t scr,int32_t hl_layer)
 {
-	#define HL_LAYER(lyr) (hl_layer > -1 && hl_layer != lyr)
+	#define HL_LAYER(lyr) (!(NoHighlightLayer0 && hl_layer == 0) && hl_layer > -1 && hl_layer != lyr)
 	int32_t antiflags=(flags&~cFLAGS)&~cWALK;
 	
 	if(map<0)
@@ -2799,7 +2802,10 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 	
 	if(LayerMaskInt[0]==0)
 	{
-		rectfill(dest,x,y,x+255,y+175,0);
+		byte bgfill = 0;
+		if (LayerDitherBG > -1)
+			bgfill = vc(LayerDitherBG);
+		rectfill(dest,x,y,x+255,y+175,bgfill);
 	}
 	
 	resize_mouse_pos=true;

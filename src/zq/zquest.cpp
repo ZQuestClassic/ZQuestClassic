@@ -569,11 +569,12 @@ int32_t alignment_arrow_timer=0;
 int32_t  Flip=0,Combo=0,CSet=2,current_combolist=0,current_comboalist=0,current_cpoollist=0,current_cautolist=0,current_mappage=0;
 int32_t  Flags=0,Flag=0,menutype=(m_block);
 int32_t MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, GridColor = 15, CmbCursorCol = 15, TilePgCursorCol = 15, CmbPgCursorCol = 15,
-	TileProtection = 0, InvalidStatic = 0, NoScreenPreview = 0, MMapCursorStyle = 0,
+	TileProtection = 0, InvalidStatic = 0, NoScreenPreview = 0, MMapCursorStyle = 0, LayerDitherBG = -1, LayerDitherSz = 2,
 	BlinkSpeed = 20, RulesetDialog = 0, EnableTooltips = 0,
 	TooltipsHighlight = 0, ShowFFScripts = 0, ShowSquares = 0, ShowFFCs = 0,
 	ShowInfo = 0, skipLayerWarning = 0, WarnOnInitChanged = 0, DisableLPalShortcuts = 1,
 	DisableCompileConsole = 0, numericalFlags = 0, ActiveLayerHighlight = 0;
+bool NoHighlightLayer0 = false;
 int32_t FlashWarpSquare = -1, FlashWarpClk = 0; // flash the destination warp return when ShowSquares is active
 uint8_t ViewLayer3BG = 0, ViewLayer2BG = 0;
 int32_t window_width, window_height;
@@ -5475,7 +5476,17 @@ void draw_screenunit(int32_t unit, int32_t flags)
 			if(!layers_valid(Map.CurrScr()))
 				fix_layers(Map.CurrScr(), true);
 				
-			clear_to_color(mapscreenbmp,vc(0));
+			byte bgcol = vc(0);
+			if (LayerDitherBG > -1)
+				bgcol = vc(LayerDitherBG);
+			clear_to_color(mapscreenbmp,0);
+			if (LayerDitherBG > -1)
+			{
+				if (LayerDitherSz > 0)
+					ditherblit(mapscreenbmp, nullptr, vc(LayerDitherBG), dithChecker, LayerDitherSz);
+				else
+					clear_to_color(mapscreenbmp, vc(LayerDitherBG));
+			}
 			Map.draw(mapscreenbmp, showedges?16:0, showedges?16:0, Flags, -1, -1, ActiveLayerHighlight ? CurrentLayer : -1);
 			if(showedges)
 			{
@@ -27851,6 +27862,8 @@ int32_t main(int32_t argc,char **argv)
 	WarnOnInitChanged			  = zc_get_config("zquest","warn_initscript_changes",1);
 	InvalidStatic				  = zc_get_config("zquest","invalid_static",1);
 	MMapCursorStyle				= zc_get_config("zquest","cursorblink_style",1);
+	LayerDitherBG				= zc_get_config("zquest", "layer_dither_bg", -1);
+	LayerDitherSz				= zc_get_config("zquest", "layer_dither_sz", 3);
 	TileProtection				 = zc_get_config("zquest","tile_protection",1);
 	ShowGrid					   = zc_get_config("zquest","show_grid",0);
 	GridColor					  = zc_get_config("zquest","grid_color",15);
@@ -27871,6 +27884,7 @@ int32_t main(int32_t argc,char **argv)
 	LinkedScroll = zc_get_config("zquest","linked_comboscroll",0);
 	allowHideMouse = zc_get_config("ZQ_GUI","allowHideMouse",0);
 	ShowFavoriteComboModes = zc_get_config("ZQ_GUI","show_fav_combo_modes",1);
+	NoHighlightLayer0 = zc_get_config("zquest","no_highlight_layer0",0);
 	RulesetDialog				  = zc_get_config("zquest","rulesetdialog",1);
 	EnableTooltips				 = zc_get_config("zquest","enable_tooltips",1);
 	TooltipsHighlight				 = zc_get_config("zquest","ttip_highlight",1);
