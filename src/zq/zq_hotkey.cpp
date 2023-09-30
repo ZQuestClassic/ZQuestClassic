@@ -121,6 +121,7 @@ char const* get_hotkey_name(int hkey)
 		case ZQKEY_CAUTO_HEIGHTMINUS: return "Decrease Autocombo Height";
 		case ZQKEY_CAUTO_HEIGHTPLUS: return "Increase Autocombo Height";
 		case ZQKEY_CURR_LAYER_HL: return "Highlight Current Layer";
+		case ZQKEY_VIEW_MAP: return "Quick View Map";
 	}
 	return "ZQ_NIL_KEY";
 }
@@ -225,6 +226,7 @@ char const* get_hotkey_cfg_name(int hkey)
 		case ZQKEY_CAUTO_HEIGHTMINUS: return "ZQKEY_CAUTO_HEIGHTMINUS";
 		case ZQKEY_CAUTO_HEIGHTPLUS: return "ZQKEY_CAUTO_HEIGHTPLUS";
 		case ZQKEY_CURR_LAYER_HL: return "ZQKEY_CURR_LAYER_HL";
+		case ZQKEY_VIEW_MAP: return "ZQKEY_VIEW_MAP";
 	}
 	return "ZQ_NIL_KEY";
 }
@@ -331,6 +333,7 @@ void default_hotkeys()
 	zq_hotkeys[ZQKEY_CAUTO_HEIGHTPLUS].setval(KEY_CLOSEBRACE, KB_SHIFT_FLAG, 0, 0);
 	zq_hotkeys[ZQKEY_CAUTO_HEIGHTMINUS].setval(KEY_OPENBRACE, KB_SHIFT_FLAG, 0, 0);
 	zq_hotkeys[ZQKEY_CURR_LAYER_HL].setval(0, 0, 0, 0);
+	zq_hotkeys[ZQKEY_VIEW_MAP].setval(KEY_M, KB_CTRL_FLAG, 0, 0);
 }
 
 void load_hotkeys()
@@ -501,6 +504,9 @@ int run_hotkey(int hkey)
 			break;
 		case ZQKEY_CURR_LAYER_HL:
 			onToggleHighlightLayer();
+			break;
+		case ZQKEY_VIEW_MAP:
+			onViewMapEx(true);
 			break;
 	}
 	return D_O_K;

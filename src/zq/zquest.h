@@ -402,7 +402,7 @@ void draw_bw_mouse(int32_t white, int32_t old_mouse, int32_t new_mouse);
 int32_t load_the_pic(BITMAP **dst, PALETTE dstpal);
 int load_the_pic_new(BITMAP **dst, PALETTE dstpal);
 int32_t onViewPic();
-int32_t load_the_map();
+int32_t load_the_map(bool skipmenu);
 int32_t onViewMap();
 
 //static char *dirstr[4] = {"up","down","left","right"};

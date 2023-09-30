@@ -1595,7 +1595,7 @@ MENU the_menu[] =
 
 void rebuild_trans_table();
 int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal,
-                    int32_t *px2, int32_t *py2, double *scale, bool isviewingmap);
+                    int32_t *px2, int32_t *py2, double *scale, bool isviewingmap, bool skipmenu = false);
 
 int32_t onResetTransparency()
 {
@@ -4700,7 +4700,7 @@ int32_t onViewPic()
     return launchPicViewer(&pic,picpal,&picx,&picy,&picscale,false);
 }
 
-int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *py2, double *scale2, bool isviewingmap)
+int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *py2, double *scale2, bool isviewingmap, bool skipmenu)
 {
 	restore_mouse();
 	BITMAP *buf;
@@ -4709,7 +4709,7 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *
 	popup_zqdialog_start();
 	
 	// Always call load_the_map() when viewing the map.
-	if((!*pictoview || isviewingmap) && (isviewingmap ? load_the_map() : load_the_pic(pictoview,pal)))
+	if((!*pictoview || isviewingmap) && (isviewingmap ? load_the_map(skipmenu) : load_the_pic(pictoview,pal)))
 	{
 		zc_set_palette(RAMpal);
 		popup_zqdialog_end();
@@ -4733,15 +4733,27 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *
 	//  go();
 	//    //  clear_bitmap(screen);
 	zc_set_palette(pal);
-	
+
+	if(isviewingmap)
+	{
+		size_t sw = (*pictoview)->w / 16;
+		size_t sh = (*pictoview)->h / 8;
+		int32_t scr = Map.getCurrScr();
+		if (scr >= 0x00 && scr <= 0x7F)
+		{
+			*px2 = (*pictoview)->w - ((scr % 16) * sw + (sw / 2)) * 2;
+			*py2 = (*pictoview)->h - ((scr / 16) * sh + (sh / 2)) * 2;
+		}
+	}
+
 	do
 	{
 		if(redraw)
 		{
 			clear_to_color(buf,pblack);
-			stretch_blit(*pictoview,buf,0,0,(*pictoview)->w,(*pictoview)->h,
-						 int32_t(zq_screen_w+(*px2-(*pictoview)->w)* *scale2)/2,int32_t(zq_screen_h+(*py2-(*pictoview)->h)* *scale2)/2,
-						 int32_t((*pictoview)->w* *scale2),int32_t((*pictoview)->h* *scale2));
+			stretch_blit(*pictoview, buf, 0, 0, (*pictoview)->w, (*pictoview)->h,
+				int32_t(zq_screen_w + (*px2 - (*pictoview)->w) * *scale2) / 2, int32_t(zq_screen_h + (*py2 - (*pictoview)->h) * *scale2) / 2,
+				int32_t((*pictoview)->w * *scale2), int32_t((*pictoview)->h * *scale2));
 						 
 			if(vp_showpal)
 				for(int32_t i=0; i<256; i++)
@@ -4759,7 +4771,7 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *
 		
 		custom_vsync();
 		
-		int32_t step = 4;
+		int32_t step = 16;
 		
 		if(*scale2 < 1.0)
 			step = int32_t(4.0/ *scale2);
@@ -4768,7 +4780,7 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *
 			step <<= 2;
 			
 		if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
-			step = 1;
+			step >>= 1;
 			
 		if(key[KEY_UP])
 		{
@@ -4889,7 +4901,7 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *
 				break;
 				
 			case KEY_SPACE:
-				if(isviewingmap ? load_the_map() : load_the_pic(pictoview,pal)==2)
+				if(isviewingmap ? load_the_map(skipmenu) : load_the_pic(pictoview,pal)==2)
 				{
 					done=true;
 				}
@@ -4921,7 +4933,7 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *
 static DIALOG loadmap_dlg[] =
 {
     // (dialog proc)         (x)    (y)     (w)     (h)     (fg)        (bg)    (key)     (flags)  (d1)  (d2)   (dp)                                 (dp2)   (dp3)
-    {  jwin_win_proc,          0,     0,    225,    113,    vc(14),     vc(1),      0,    D_EXIT,     0,    0, (void *) "View Map",                 NULL,   NULL  },
+    {  jwin_win_proc,          0,     0,    225,    143,    vc(14),     vc(1),      0,    D_EXIT,     0,    0, (void *) "View Map",                 NULL,   NULL  },
     {  d_timer_proc,           0,     0,      0,      0,    0,          0,          0,    0,          0,    0,  NULL,                                NULL,   NULL  },
     {  jwin_text_proc,        32,    26,     96,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "Resolution",               NULL,   NULL  },
     // 3
@@ -4935,15 +4947,18 @@ static DIALOG loadmap_dlg[] =
     {  jwin_check_proc,      144,    56,     97,      9,    vc(14),     vc(1),      0,    0,          1,    0, (void *) "Dark",                     NULL,   NULL  },
     {  jwin_check_proc,      144,    66,     97,      9,    vc(14),     vc(1),      0,    0,          1,    0, (void *) "Items",                    NULL,   NULL  },
     // 11
-    {  jwin_button_proc,      42,    80,     61,     21,    vc(14),     vc(1),     13,    D_EXIT,     0,    0, (void *) "OK",                       NULL,   NULL  },
-    {  jwin_button_proc,     122,    80,     61,     21,    vc(14),     vc(1),     27,    D_EXIT,     0,    0, (void *) "Cancel",                   NULL,   NULL  },
-    {  jwin_check_proc,       16,    68,     97,      9,    vc(14),     vc(1),      0,    0,          1,    0, (void *) "Save to File (Mapmaker)",  NULL,   NULL  },
-    {  NULL,                   0,     0,      0,      0,    0,          0,          0,    0,          0,    0,  NULL,                                NULL,   NULL  }
+    {  jwin_button_proc,      42,    110,     61,     21,    vc(14),     vc(1),     13,    D_EXIT,     0,    0, (void *) "OK",                       NULL,   NULL  },
+    {  jwin_button_proc,     122,    110,     61,     21,    vc(14),     vc(1),     27,    D_EXIT,     0,    0, (void *) "Cancel",                   NULL,   NULL  },
+    {  jwin_check_proc,       16,    88,     97,      9,    vc(14),     vc(1),      0,    0,          1,    0, (void *) "Save to File (Mapmaker)",  NULL,   NULL  },
+	// 14
+	{  jwin_radio_proc,       16,    66,     97,      9,    vc(14),     vc(1),       0,    0,          0,    0, (void*)"2x  - 8192x2816",		   NULL,   NULL  },
+	{  jwin_radio_proc,       16,    76,     97,      9,    vc(14),     vc(1),       0,    0,          0,    0, (void*)"4x  - 16384x5632",		   NULL,   NULL  },
+	 {  NULL,                   0,     0,      0,      0,    0,          0,          0,    0,          0,    0,  NULL,                                NULL,   NULL  }
 };
 
-int32_t load_the_map()
+int32_t load_the_map(bool skipmenu)
 {
-    static int32_t res = 1;
+    static int32_t res = 0;
     static int32_t flags = cDEBUG;
     
     loadmap_dlg[0].dp2    = get_zc_font(font_lfont);
@@ -4955,37 +4970,56 @@ int32_t load_the_map()
     loadmap_dlg[9].flags  = (flags&cNODARK) ? 0 : D_SELECTED;
     loadmap_dlg[10].flags = (flags&cNOITEM) ? 0 : D_SELECTED;
     loadmap_dlg[13].flags = 0;
+	loadmap_dlg[14].flags = (res==3) ? D_SELECTED : 0;
+	loadmap_dlg[15].flags = (res==4) ? D_SELECTED : 0;
     
-    large_dialog(loadmap_dlg);
-        
-    if(do_zqdialog(loadmap_dlg,11) != 11)
-    {
-        return 1;
+	if(!skipmenu)
+	{
+		large_dialog(loadmap_dlg);
+
+		if (do_zqdialog(loadmap_dlg, 11) != 11)
+		{
+			return 1;
+		}
+    
+		flags = cDEBUG;
+    
+		if(loadmap_dlg[3].flags&D_SELECTED)  res=2;
+    
+		if(loadmap_dlg[4].flags&D_SELECTED)  res=1;
+    
+		if(loadmap_dlg[5].flags&D_SELECTED)  res=0;
+    
+		if(loadmap_dlg[7].flags&D_SELECTED)  flags|=cWALK;
+    
+		if(loadmap_dlg[8].flags&D_SELECTED)  flags|=cFLAGS;
+    
+		if(!(loadmap_dlg[9].flags&D_SELECTED))  flags|=cNODARK;
+    
+		if(!(loadmap_dlg[10].flags&D_SELECTED)) flags|=cNOITEM;
+
+		if(loadmap_dlg[14].flags&D_SELECTED) res=3;
+
+		if(loadmap_dlg[15].flags&D_SELECTED) res=4;
     }
-    
-    flags = cDEBUG;
-    
-    if(loadmap_dlg[3].flags&D_SELECTED)  res=2;
-    
-    if(loadmap_dlg[4].flags&D_SELECTED)  res=1;
-    
-    if(loadmap_dlg[5].flags&D_SELECTED)  res=0;
-    
-    if(loadmap_dlg[7].flags&D_SELECTED)  flags|=cWALK;
-    
-    if(loadmap_dlg[8].flags&D_SELECTED)  flags|=cFLAGS;
-    
-    if(!(loadmap_dlg[9].flags&D_SELECTED))  flags|=cNODARK;
-    
-    if(!(loadmap_dlg[10].flags&D_SELECTED)) flags|=cNOITEM;
-    
+
     if(bmap)
     {
         destroy_bitmap(bmap);
     }
     
-    
-    bmap = create_bitmap_ex(8,(256*16)>>res,(176*8)>>res);
+    int32_t bw = (256*16)>>res;
+	int32_t bh = (176*8)>>res;
+	int32_t sw = 256>>res;
+	int32_t sh = 176>>res;
+	if(res>2)
+	{
+		bw = (256*16)<<(res-2);
+		bh = (176*8)<<(res-2);
+		sw = 256<<(res-2);
+		sh = 176<<(res-2);
+	}
+    bmap = create_bitmap_ex(8,bw,bh);
     
     if(!bmap)
     {
@@ -4998,7 +5032,7 @@ int32_t load_the_map()
         for(int32_t x=0; x<16; x++)
         {
             Map.draw(screen2, 0, 0, flags, -1, y*16+x, -1);
-            stretch_blit(screen2, bmap, 0, 0, 256, 176, x<<(8-res), (y*176)>>res, 256>>res,176>>res);
+            stretch_blit(screen2, bmap, 0, 0, 256, 176, x*sw, y*sh, sw,sh);
         }
     }
     
@@ -5016,11 +5050,15 @@ int32_t load_the_map()
 
 int32_t onViewMap()
 {
+	return onViewMapEx(false);
+}
+int32_t onViewMapEx(bool skipmenu)
+{
     int32_t temp_aligns=ShowMisalignments;
     ShowMisalignments=0;
     //if(load_the_map()==0)
     //{
-    launchPicViewer(&bmap,mappal,&mapx, &mapy, &mapscale,true);
+    launchPicViewer(&bmap,mappal,&mapx, &mapy, &mapscale,true,skipmenu);
     //}
     ShowMisalignments=temp_aligns;
     return D_O_K;
