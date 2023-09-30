@@ -3058,7 +3058,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 			for(int32_t i=0; i<176; i++)
 			{
 				//put_walkflags(dest,((i&15)<<4)+x,(i&0xF0)+y,basescr->data[i], 0);
-				put_walkflags_layered(dest,((i&15)<<4)+x,(i&0xF0)+y,i, -1);
+				put_walkflags_layered_external(dest,((i&15)<<4)+x,(i&0xF0)+y,i, -1, map, scr);
 			}
 		}
 		
@@ -3074,7 +3074,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 					
 					for(int32_t i=0; i<176; i++)
 					{
-						put_walkflags_layered(dest,((i&15)<<4)+x,(i&0xF0)+y,i, k);
+						put_walkflags_layered_external(dest,((i&15)<<4)+x,(i&0xF0)+y,i, k, layermap, layerscreen);
 					}
 				}
 			}

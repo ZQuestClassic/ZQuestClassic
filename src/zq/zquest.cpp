@@ -4942,7 +4942,7 @@ static DIALOG loadmap_dlg[] =
     {  jwin_radio_proc,       16,    56,     97,      9,    vc(14),     vc(1),      0,    0,          0,    0, (void *) "Full - 4096x1408",		   NULL,   NULL  },
     {  jwin_text_proc,       144,    26,     97,      9,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "Options",                  NULL,   NULL  },
     // 7
-    {  jwin_check_proc,      144,    36,     97,      9,    vc(14),     vc(1),      0,    0,          1,    0, (void *) "Walk",                     NULL,   NULL  },
+    {  jwin_check_proc,      144,    36,     97,      9,    vc(14),     vc(1),      0,    0,          1,    0, (void *) "Solidity",                     NULL,   NULL  },
     {  jwin_check_proc,      144,    46,     97,      9,    vc(14),     vc(1),      0,    0,          1,    0, (void *) "Flags",                    NULL,   NULL  },
     {  jwin_check_proc,      144,    56,     97,      9,    vc(14),     vc(1),      0,    0,          1,    0, (void *) "Dark",                     NULL,   NULL  },
     {  jwin_check_proc,      144,    66,     97,      9,    vc(14),     vc(1),      0,    0,          1,    0, (void *) "Items",                    NULL,   NULL  },
