@@ -5372,6 +5372,25 @@ void xout(BITMAP* dest, int x, int y, int x2, int y2, int c, int bgc = -1)
 	line(dest, x, y2, x2, y, c);
 }
 
+void put_autocombo_engravings(BITMAP* dest, combo_auto const& ca, bool selected, int32_t x, int32_t y, int32_t scale)
+{
+	if (!ca.valid())
+	{
+		if (ca.getDisplay() > 0)
+			put_engraving(dest, x, y, 15, scale);
+	}
+	else
+	{
+		if (ca.getType() == AUTOCOMBO_Z4 || ca.getType() == AUTOCOMBO_DOR)
+		{
+			byte hei = vbound(ca.getArg() + 1, 1, 9);
+			if (selected)
+				hei = vbound(cauto_height, 1, 9);
+			put_engraving(dest, x, y, 15 - hei, scale);
+		}
+	}
+}
+
 void draw_screenunit(int32_t unit, int32_t flags)
 {
 	FONT* tfont = font;
@@ -6251,21 +6270,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 						auto cx = (i % list.w) * list.xscale + list.x;
 						auto cy = (i / list.w) * list.yscale + list.y;
 						put_combo(menu1, cx, cy, cid, cs, Flags & (cFLAGS | cWALK), 0, list.xscale / 16);
-						if (!ca.valid())
-						{
-							if (cid > 0)
-								put_engraving(menu1, cx, cy, 15, list.xscale / 16);
-						}
-						else
-						{
-							if (ca.getType() == AUTOCOMBO_Z4 || ca.getType() == AUTOCOMBO_DOR)
-							{
-								byte hei = vbound(ca.getArg() + 1, 1, 9);
-								if(combo_auto_listpos[j] + i == combo_auto_pos)
-									hei = vbound(cauto_height, 1, 9);
-								put_engraving(menu1, cx, cy, 15 - hei, list.xscale / 16);
-							}
-						}
+						put_autocombo_engravings(menu1, ca, combo_auto_listpos[j] + i == combo_auto_pos, cx, cy, list.xscale / 16);
 					}
 				}
 				int32_t rect_pos = combo_auto_pos - combo_auto_listpos[current_cautolist];
@@ -6277,6 +6282,9 @@ void draw_screenunit(int32_t unit, int32_t flags)
 					int x1 = (rect_pos & (comboaliaslist[current_cautolist].w - 1)) * comboaliaslist[current_cautolist].xscale + comboaliaslist[current_cautolist].x;
 					int y1 = (rect_pos / comboaliaslist[current_cautolist].w) * comboaliaslist[current_cautolist].yscale + comboaliaslist[current_cautolist].y;
 					safe_rect(menu1, x1, y1, x1 + selw - 1, y1 + selh - 1, vc(CmbCursorCol), 2);
+
+					combo_auto const& ca = combo_autos[combo_auto_pos];
+					put_autocombo_engravings(menu1, ca, true, x1, y1, selw / 16);
 				}
 			}
 			else
@@ -6381,9 +6389,9 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				GUI::ListData ac_types = GUI::ZCListData::autocombotypes();
 				std::string type_name = ac_types.findText(combo_autos[combo_auto_pos].getType());
 				if (is_compact)
-					sprintf(comboprev_buf, "Autocombo: %d\n%s", combo_auto_pos, type_name.c_str());
+					sprintf(comboprev_buf, "AC: %d CS: %d\n%s", combo_auto_pos, CSet, type_name.c_str());
 				else
-					sprintf(comboprev_buf, "Autocombo: %d\n%s\nEntries: %d", combo_auto_pos, type_name.c_str(), int32_t(combo_autos[combo_auto_pos].combos.size()));
+					sprintf(comboprev_buf, "Auto: %d CSet: %d\n%s\nEntries: %d", combo_auto_pos, CSet, type_name.c_str(), int32_t(combo_autos[combo_auto_pos].combos.size()));
 				int x = combo_preview_text1.x + (combo_preview_text1.w * combo_preview_text1.xscale);
 				textbox_out(menu1, txfont, x, combo_preview_text1.y, jwin_pal[jcBOXFG], jwin_pal[jcBOX], comboprev_buf, 2, &combo_preview_text1);
 			}
