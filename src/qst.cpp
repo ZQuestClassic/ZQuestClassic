@@ -13043,7 +13043,7 @@ int32_t readsfx(PACKFILE *f, zquestheader *Header)
 	int32_t dummy;
 	word s_version=0, s_cversion=0;
 	//int32_t ret;
-	SAMPLE temp_sample;
+	SAMPLE temp_sample = {};
 	temp_sample.loop_start=0;
 	temp_sample.loop_end=0;
 	temp_sample.param=0;
@@ -13201,7 +13201,7 @@ int32_t readsfx(PACKFILE *f, zquestheader *Header)
 			
 			// al_trace("F%i: L%i\n",i,temp_sample.len);
 			// temp_sample.data = new byte[(temp_sample.bits==8?1:2)*temp_sample.len];
-			int32_t len = (temp_sample.bits==8?1:2)*(temp_sample.stereo==0?1:2)*temp_sample.len;
+			auto len = (temp_sample.bits==8?1:2)*(temp_sample.stereo==0?1:2)*temp_sample.len;
 			if (len < 0 || len > 10000000)
 			{
 				return qe_invalid;
