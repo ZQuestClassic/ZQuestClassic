@@ -201,7 +201,7 @@ int32_t startdmapxy[6] = {-1000, -1000, -1000, -1000, -1000, -1000};
 bool cancelgetnum=false;
 
 int32_t tooltip_timer=0, tooltip_maxtimer=30, tooltip_current_combo=0, tooltip_current_ffc=0;
-int32_t mousecomboposition;
+int32_t mousecomboposition, combobrushoverride=-1;
 
 int32_t original_playing_field_offset=0;
 int32_t playing_field_offset=original_playing_field_offset;
@@ -570,11 +570,12 @@ int32_t alignment_arrow_timer=0;
 int32_t  Flip=0,Combo=0,CSet=2,current_combolist=0,current_comboalist=0,current_cpoollist=0,current_cautolist=0,current_mappage=0;
 int32_t  Flags=0,Flag=0,menutype=(m_block);
 int32_t MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, GridColor = 15, CmbCursorCol = 15, TilePgCursorCol = 15, CmbPgCursorCol = 15,
-	TileProtection = 0, InvalidStatic = 0, NoScreenPreview = 0, MMapCursorStyle = 0,
+	TileProtection = 0, InvalidStatic = 0, NoScreenPreview = 0, MMapCursorStyle = 0, LayerDitherBG = -1, LayerDitherSz = 2,
 	BlinkSpeed = 20, RulesetDialog = 0, EnableTooltips = 0,
 	TooltipsHighlight = 0, ShowFFScripts = 0, ShowSquares = 0, ShowFFCs = 0,
 	ShowInfo = 0, skipLayerWarning = 0, WarnOnInitChanged = 0, DisableLPalShortcuts = 1,
 	DisableCompileConsole = 0, numericalFlags = 0, ActiveLayerHighlight = 0;
+bool NoHighlightLayer0 = false;
 int32_t FlashWarpSquare = -1, FlashWarpClk = 0; // flash the destination warp return when ShowSquares is active
 uint8_t ViewLayer3BG = 0, ViewLayer2BG = 0;
 int32_t window_width, window_height;
@@ -1595,7 +1596,7 @@ MENU the_menu[] =
 
 void rebuild_trans_table();
 int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal,
-                    int32_t *px2, int32_t *py2, double *scale, bool isviewingmap);
+                    int32_t *px2, int32_t *py2, double *scale, bool isviewingmap, bool skipmenu = false);
 
 int32_t onResetTransparency()
 {
@@ -4700,7 +4701,7 @@ int32_t onViewPic()
     return launchPicViewer(&pic,picpal,&picx,&picy,&picscale,false);
 }
 
-int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *py2, double *scale2, bool isviewingmap)
+int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *py2, double *scale2, bool isviewingmap, bool skipmenu)
 {
 	restore_mouse();
 	BITMAP *buf;
@@ -4709,7 +4710,7 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *
 	popup_zqdialog_start();
 	
 	// Always call load_the_map() when viewing the map.
-	if((!*pictoview || isviewingmap) && (isviewingmap ? load_the_map() : load_the_pic(pictoview,pal)))
+	if((!*pictoview || isviewingmap) && (isviewingmap ? load_the_map(skipmenu) : load_the_pic(pictoview,pal)))
 	{
 		zc_set_palette(RAMpal);
 		popup_zqdialog_end();
@@ -4733,15 +4734,27 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *
 	//  go();
 	//    //  clear_bitmap(screen);
 	zc_set_palette(pal);
-	
+
+	if(isviewingmap)
+	{
+		size_t sw = (*pictoview)->w / 16;
+		size_t sh = (*pictoview)->h / 8;
+		int32_t scr = Map.getCurrScr();
+		if (scr >= 0x00 && scr <= 0x7F)
+		{
+			*px2 = (*pictoview)->w - ((scr % 16) * sw + (sw / 2)) * 2;
+			*py2 = (*pictoview)->h - ((scr / 16) * sh + (sh / 2)) * 2;
+		}
+	}
+
 	do
 	{
 		if(redraw)
 		{
 			clear_to_color(buf,pblack);
-			stretch_blit(*pictoview,buf,0,0,(*pictoview)->w,(*pictoview)->h,
-						 int32_t(zq_screen_w+(*px2-(*pictoview)->w)* *scale2)/2,int32_t(zq_screen_h+(*py2-(*pictoview)->h)* *scale2)/2,
-						 int32_t((*pictoview)->w* *scale2),int32_t((*pictoview)->h* *scale2));
+			stretch_blit(*pictoview, buf, 0, 0, (*pictoview)->w, (*pictoview)->h,
+				int32_t(zq_screen_w + (*px2 - (*pictoview)->w) * *scale2) / 2, int32_t(zq_screen_h + (*py2 - (*pictoview)->h) * *scale2) / 2,
+				int32_t((*pictoview)->w * *scale2), int32_t((*pictoview)->h * *scale2));
 						 
 			if(vp_showpal)
 				for(int32_t i=0; i<256; i++)
@@ -4759,7 +4772,7 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *
 		
 		custom_vsync();
 		
-		int32_t step = 4;
+		int32_t step = 16;
 		
 		if(*scale2 < 1.0)
 			step = int32_t(4.0/ *scale2);
@@ -4768,7 +4781,7 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *
 			step <<= 2;
 			
 		if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
-			step = 1;
+			step >>= 1;
 			
 		if(key[KEY_UP])
 		{
@@ -4889,7 +4902,7 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *
 				break;
 				
 			case KEY_SPACE:
-				if(isviewingmap ? load_the_map() : load_the_pic(pictoview,pal)==2)
+				if(isviewingmap ? load_the_map(skipmenu) : load_the_pic(pictoview,pal)==2)
 				{
 					done=true;
 				}
@@ -4921,7 +4934,7 @@ int32_t launchPicViewer(BITMAP **pictoview, PALETTE pal, int32_t *px2, int32_t *
 static DIALOG loadmap_dlg[] =
 {
     // (dialog proc)         (x)    (y)     (w)     (h)     (fg)        (bg)    (key)     (flags)  (d1)  (d2)   (dp)                                 (dp2)   (dp3)
-    {  jwin_win_proc,          0,     0,    225,    113,    vc(14),     vc(1),      0,    D_EXIT,     0,    0, (void *) "View Map",                 NULL,   NULL  },
+    {  jwin_win_proc,          0,     0,    225,    143,    vc(14),     vc(1),      0,    D_EXIT,     0,    0, (void *) "View Map",                 NULL,   NULL  },
     {  d_timer_proc,           0,     0,      0,      0,    0,          0,          0,    0,          0,    0,  NULL,                                NULL,   NULL  },
     {  jwin_text_proc,        32,    26,     96,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "Resolution",               NULL,   NULL  },
     // 3
@@ -4930,20 +4943,23 @@ static DIALOG loadmap_dlg[] =
     {  jwin_radio_proc,       16,    56,     97,      9,    vc(14),     vc(1),      0,    0,          0,    0, (void *) "Full - 4096x1408",		   NULL,   NULL  },
     {  jwin_text_proc,       144,    26,     97,      9,    vc(11),     vc(1),      0,    0,          0,    0, (void *) "Options",                  NULL,   NULL  },
     // 7
-    {  jwin_check_proc,      144,    36,     97,      9,    vc(14),     vc(1),      0,    0,          1,    0, (void *) "Walk",                     NULL,   NULL  },
+    {  jwin_check_proc,      144,    36,     97,      9,    vc(14),     vc(1),      0,    0,          1,    0, (void *) "Solidity",                     NULL,   NULL  },
     {  jwin_check_proc,      144,    46,     97,      9,    vc(14),     vc(1),      0,    0,          1,    0, (void *) "Flags",                    NULL,   NULL  },
     {  jwin_check_proc,      144,    56,     97,      9,    vc(14),     vc(1),      0,    0,          1,    0, (void *) "Dark",                     NULL,   NULL  },
     {  jwin_check_proc,      144,    66,     97,      9,    vc(14),     vc(1),      0,    0,          1,    0, (void *) "Items",                    NULL,   NULL  },
     // 11
-    {  jwin_button_proc,      42,    80,     61,     21,    vc(14),     vc(1),     13,    D_EXIT,     0,    0, (void *) "OK",                       NULL,   NULL  },
-    {  jwin_button_proc,     122,    80,     61,     21,    vc(14),     vc(1),     27,    D_EXIT,     0,    0, (void *) "Cancel",                   NULL,   NULL  },
-    {  jwin_check_proc,       16,    68,     97,      9,    vc(14),     vc(1),      0,    0,          1,    0, (void *) "Save to File (Mapmaker)",  NULL,   NULL  },
-    {  NULL,                   0,     0,      0,      0,    0,          0,          0,    0,          0,    0,  NULL,                                NULL,   NULL  }
+    {  jwin_button_proc,      42,    110,     61,     21,    vc(14),     vc(1),     13,    D_EXIT,     0,    0, (void *) "OK",                       NULL,   NULL  },
+    {  jwin_button_proc,     122,    110,     61,     21,    vc(14),     vc(1),     27,    D_EXIT,     0,    0, (void *) "Cancel",                   NULL,   NULL  },
+    {  jwin_check_proc,       16,    88,     97,      9,    vc(14),     vc(1),      0,    0,          1,    0, (void *) "Save to File (Mapmaker)",  NULL,   NULL  },
+	// 14
+	{  jwin_radio_proc,       16,    66,     97,      9,    vc(14),     vc(1),       0,    0,          0,    0, (void*)"2x  - 8192x2816",		   NULL,   NULL  },
+	{  jwin_radio_proc,       16,    76,     97,      9,    vc(14),     vc(1),       0,    0,          0,    0, (void*)"4x  - 16384x5632",		   NULL,   NULL  },
+	 {  NULL,                   0,     0,      0,      0,    0,          0,          0,    0,          0,    0,  NULL,                                NULL,   NULL  }
 };
 
-int32_t load_the_map()
+int32_t load_the_map(bool skipmenu)
 {
-    static int32_t res = 1;
+    static int32_t res = 0;
     static int32_t flags = cDEBUG;
     
     loadmap_dlg[0].dp2    = get_zc_font(font_lfont);
@@ -4955,37 +4971,56 @@ int32_t load_the_map()
     loadmap_dlg[9].flags  = (flags&cNODARK) ? 0 : D_SELECTED;
     loadmap_dlg[10].flags = (flags&cNOITEM) ? 0 : D_SELECTED;
     loadmap_dlg[13].flags = 0;
+	loadmap_dlg[14].flags = (res==3) ? D_SELECTED : 0;
+	loadmap_dlg[15].flags = (res==4) ? D_SELECTED : 0;
     
-    large_dialog(loadmap_dlg);
-        
-    if(do_zqdialog(loadmap_dlg,11) != 11)
-    {
-        return 1;
+	if(!skipmenu)
+	{
+		large_dialog(loadmap_dlg);
+
+		if (do_zqdialog(loadmap_dlg, 11) != 11)
+		{
+			return 1;
+		}
+    
+		flags = cDEBUG;
+    
+		if(loadmap_dlg[3].flags&D_SELECTED)  res=2;
+    
+		if(loadmap_dlg[4].flags&D_SELECTED)  res=1;
+    
+		if(loadmap_dlg[5].flags&D_SELECTED)  res=0;
+    
+		if(loadmap_dlg[7].flags&D_SELECTED)  flags|=cWALK;
+    
+		if(loadmap_dlg[8].flags&D_SELECTED)  flags|=cFLAGS;
+    
+		if(!(loadmap_dlg[9].flags&D_SELECTED))  flags|=cNODARK;
+    
+		if(!(loadmap_dlg[10].flags&D_SELECTED)) flags|=cNOITEM;
+
+		if(loadmap_dlg[14].flags&D_SELECTED) res=3;
+
+		if(loadmap_dlg[15].flags&D_SELECTED) res=4;
     }
-    
-    flags = cDEBUG;
-    
-    if(loadmap_dlg[3].flags&D_SELECTED)  res=2;
-    
-    if(loadmap_dlg[4].flags&D_SELECTED)  res=1;
-    
-    if(loadmap_dlg[5].flags&D_SELECTED)  res=0;
-    
-    if(loadmap_dlg[7].flags&D_SELECTED)  flags|=cWALK;
-    
-    if(loadmap_dlg[8].flags&D_SELECTED)  flags|=cFLAGS;
-    
-    if(!(loadmap_dlg[9].flags&D_SELECTED))  flags|=cNODARK;
-    
-    if(!(loadmap_dlg[10].flags&D_SELECTED)) flags|=cNOITEM;
-    
+
     if(bmap)
     {
         destroy_bitmap(bmap);
     }
     
-    
-    bmap = create_bitmap_ex(8,(256*16)>>res,(176*8)>>res);
+    int32_t bw = (256*16)>>res;
+	int32_t bh = (176*8)>>res;
+	int32_t sw = 256>>res;
+	int32_t sh = 176>>res;
+	if(res>2)
+	{
+		bw = (256*16)<<(res-2);
+		bh = (176*8)<<(res-2);
+		sw = 256<<(res-2);
+		sh = 176<<(res-2);
+	}
+    bmap = create_bitmap_ex(8,bw,bh);
     
     if(!bmap)
     {
@@ -4998,7 +5033,7 @@ int32_t load_the_map()
         for(int32_t x=0; x<16; x++)
         {
             Map.draw(screen2, 0, 0, flags, -1, y*16+x, -1);
-            stretch_blit(screen2, bmap, 0, 0, 256, 176, x<<(8-res), (y*176)>>res, 256>>res,176>>res);
+            stretch_blit(screen2, bmap, 0, 0, 256, 176, x*sw, y*sh, sw,sh);
         }
     }
     
@@ -5016,11 +5051,15 @@ int32_t load_the_map()
 
 int32_t onViewMap()
 {
+	return onViewMapEx(false);
+}
+int32_t onViewMapEx(bool skipmenu)
+{
     int32_t temp_aligns=ShowMisalignments;
     ShowMisalignments=0;
     //if(load_the_map()==0)
     //{
-    launchPicViewer(&bmap,mappal,&mapx, &mapy, &mapscale,true);
+    launchPicViewer(&bmap,mappal,&mapx, &mapy, &mapscale,true,skipmenu);
     //}
     ShowMisalignments=temp_aligns;
     return D_O_K;
@@ -5372,6 +5411,25 @@ void xout(BITMAP* dest, int x, int y, int x2, int y2, int c, int bgc = -1)
 	line(dest, x, y2, x2, y, c);
 }
 
+void put_autocombo_engravings(BITMAP* dest, combo_auto const& ca, bool selected, int32_t x, int32_t y, int32_t scale)
+{
+	if (!ca.valid())
+	{
+		if (ca.getDisplay() > 0)
+			put_engraving(dest, x, y, 15, scale);
+	}
+	else
+	{
+		if (ca.getType() == AUTOCOMBO_Z4 || ca.getType() == AUTOCOMBO_DOR)
+		{
+			byte hei = vbound(ca.getArg() + 1, 1, 9);
+			if (selected)
+				hei = vbound(cauto_height, 1, 9);
+			put_engraving(dest, x, y, 15 - hei, scale);
+		}
+	}
+}
+
 void draw_screenunit(int32_t unit, int32_t flags)
 {
 	FONT* tfont = font;
@@ -5476,7 +5534,17 @@ void draw_screenunit(int32_t unit, int32_t flags)
 			if(!layers_valid(Map.CurrScr()))
 				fix_layers(Map.CurrScr(), true);
 				
-			clear_to_color(mapscreenbmp,vc(0));
+			byte bgcol = vc(0);
+			if (LayerDitherBG > -1)
+				bgcol = vc(LayerDitherBG);
+			clear_to_color(mapscreenbmp,0);
+			if (LayerDitherBG > -1)
+			{
+				if (LayerDitherSz > 0)
+					ditherblit(mapscreenbmp, nullptr, vc(LayerDitherBG), dithChecker, LayerDitherSz);
+				else
+					clear_to_color(mapscreenbmp, vc(LayerDitherBG));
+			}
 			Map.draw(mapscreenbmp, showedges?16:0, showedges?16:0, Flags, -1, -1, ActiveLayerHighlight ? CurrentLayer : -1);
 			if(showedges)
 			{
@@ -6241,21 +6309,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 						auto cx = (i % list.w) * list.xscale + list.x;
 						auto cy = (i / list.w) * list.yscale + list.y;
 						put_combo(menu1, cx, cy, cid, cs, Flags & (cFLAGS | cWALK), 0, list.xscale / 16);
-						if (!ca.valid())
-						{
-							if (cid > 0)
-								put_engraving(menu1, cx, cy, 15, list.xscale / 16);
-						}
-						else
-						{
-							if (ca.getType() == AUTOCOMBO_Z4 || ca.getType() == AUTOCOMBO_DOR)
-							{
-								byte hei = vbound(ca.getArg() + 1, 1, 9);
-								if(combo_auto_listpos[j] + i == combo_auto_pos)
-									hei = vbound(cauto_height, 1, 9);
-								put_engraving(menu1, cx, cy, 15 - hei, list.xscale / 16);
-							}
-						}
+						put_autocombo_engravings(menu1, ca, combo_auto_listpos[j] + i == combo_auto_pos, cx, cy, list.xscale / 16);
 					}
 				}
 				int32_t rect_pos = combo_auto_pos - combo_auto_listpos[current_cautolist];
@@ -6267,6 +6321,9 @@ void draw_screenunit(int32_t unit, int32_t flags)
 					int x1 = (rect_pos & (comboaliaslist[current_cautolist].w - 1)) * comboaliaslist[current_cautolist].xscale + comboaliaslist[current_cautolist].x;
 					int y1 = (rect_pos / comboaliaslist[current_cautolist].w) * comboaliaslist[current_cautolist].yscale + comboaliaslist[current_cautolist].y;
 					safe_rect(menu1, x1, y1, x1 + selw - 1, y1 + selh - 1, vc(CmbCursorCol), 2);
+
+					combo_auto const& ca = combo_autos[combo_auto_pos];
+					put_autocombo_engravings(menu1, ca, true, x1, y1, selw / 16);
 				}
 			}
 			else
@@ -6371,9 +6428,9 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				GUI::ListData ac_types = GUI::ZCListData::autocombotypes();
 				std::string type_name = ac_types.findText(combo_autos[combo_auto_pos].getType());
 				if (is_compact)
-					sprintf(comboprev_buf, "Autocombo: %d\n%s", combo_auto_pos, type_name.c_str());
+					sprintf(comboprev_buf, "AC: %d CS: %d\n%s", combo_auto_pos, CSet, type_name.c_str());
 				else
-					sprintf(comboprev_buf, "Autocombo: %d\n%s\nEntries: %d", combo_auto_pos, type_name.c_str(), int32_t(combo_autos[combo_auto_pos].combos.size()));
+					sprintf(comboprev_buf, "Auto: %d CSet: %d\n%s\nEntries: %d", combo_auto_pos, CSet, type_name.c_str(), int32_t(combo_autos[combo_auto_pos].combos.size()));
 				int x = combo_preview_text1.x + (combo_preview_text1.w * combo_preview_text1.xscale);
 				textbox_out(menu1, txfont, x, combo_preview_text1.y, jwin_pal[jcBOXFG], jwin_pal[jcBOX], comboprev_buf, 2, &combo_preview_text1);
 			}
@@ -7549,14 +7606,15 @@ void update_combobrush()
     }
     else if(draw_mode != dm_cpool)
     {
+		int32_t cid = combobrushoverride > -1 ? combobrushoverride : Combo;
         if(combo_cols==false)
         {
             for(int32_t i=0; i<256; i++)
             {
-				if(unsigned(Combo+i) >= MAXCOMBOS) break;
+				if(unsigned(cid+i) >= MAXCOMBOS) break;
                 if(((i%COMBOS_PER_ROW)<BrushWidth)&&((i/COMBOS_PER_ROW)<BrushHeight))
                 {
-                    put_combo(brushbmp,(i%COMBOS_PER_ROW)<<4,(i/COMBOS_PER_ROW)<<4,Combo+i,CSet,Flags&(cFLAGS|cWALK),0);
+                    put_combo(brushbmp,(i%COMBOS_PER_ROW)<<4,(i/COMBOS_PER_ROW)<<4,cid+i,CSet,Flags&(cFLAGS|cWALK),0);
                 }
             }
         }
@@ -7566,13 +7624,13 @@ void update_combobrush()
             
             for(int32_t i=0; i<256; i++)
             {
-				if(unsigned(Combo+c) >= MAXCOMBOS) break;
+				if(unsigned(cid+c) >= MAXCOMBOS) break;
                 if(((i%COMBOS_PER_ROW)<BrushWidth)&&((i/COMBOS_PER_ROW)<BrushHeight))
                 {
-                    put_combo(brushbmp,(i%COMBOS_PER_ROW)<<4,(i/COMBOS_PER_ROW)<<4,Combo+c,CSet,Flags&(cFLAGS|cWALK),0);
+                    put_combo(brushbmp,(i%COMBOS_PER_ROW)<<4,(i/COMBOS_PER_ROW)<<4,cid+c,CSet,Flags&(cFLAGS|cWALK),0);
                 }
                 
-                if(((Combo+c)&3)==3)
+                if(((cid+c)&3)==3)
                     c+=48;
 				
                 ++c;
@@ -7617,7 +7675,7 @@ void draw_autocombo(int32_t pos, bool rclick, bool pressframe)
 		{
 			case AUTOCOMBO_BASIC:
 			{
-				AutoPattern::autopattern_basic ap(ca.getType(), CurrentLayer, scr, pos, &ca, !(ca.flags & ACF_CROSSSCREENS));
+				AutoPattern::autopattern_basic ap(ca.getType(), CurrentLayer, scr, pos, &ca);
 				if (rclick)
 					ap.erase(scr, pos);
 				else
@@ -7626,7 +7684,7 @@ void draw_autocombo(int32_t pos, bool rclick, bool pressframe)
 			}
 			case AUTOCOMBO_Z1:
 			{
-				AutoPattern::autopattern_flatmtn ap(ca.getType(), CurrentLayer, scr, pos, &ca, !(ca.flags & ACF_CROSSSCREENS));
+				AutoPattern::autopattern_flatmtn ap(ca.getType(), CurrentLayer, scr, pos, &ca);
 				if (rclick)
 					ap.erase(scr, pos);
 				else
@@ -7635,7 +7693,7 @@ void draw_autocombo(int32_t pos, bool rclick, bool pressframe)
 			}
 			case AUTOCOMBO_FENCE:
 			{
-				AutoPattern::autopattern_fence ap(ca.getType(), CurrentLayer, scr, pos, &ca, !(ca.flags & ACF_CROSSSCREENS), ca.flags & ACF_FLIP);
+				AutoPattern::autopattern_fence ap(ca.getType(), CurrentLayer, scr, pos, &ca);
 				if (rclick)
 					ap.erase(scr, pos);
 				else
@@ -7644,7 +7702,7 @@ void draw_autocombo(int32_t pos, bool rclick, bool pressframe)
 			}
 			case AUTOCOMBO_Z4:
 			{
-				AutoPattern::autopattern_cakemtn ap(ca.getType(), CurrentLayer, scr, pos, &ca, !(ca.flags & ACF_CROSSSCREENS), !(ca.flags & ACF_FLIP), cauto_height);
+				AutoPattern::autopattern_cakemtn ap(ca.getType(), CurrentLayer, scr, pos, &ca, cauto_height);
 				if (rclick)
 					ap.erase(scr, pos);
 				else
@@ -7653,7 +7711,7 @@ void draw_autocombo(int32_t pos, bool rclick, bool pressframe)
 			}
 			case AUTOCOMBO_RELATIONAL:
 			{
-				AutoPattern::autopattern_relational ap(ca.getType(), CurrentLayer, scr, pos, &ca, !(ca.flags & ACF_CROSSSCREENS));
+				AutoPattern::autopattern_relational ap(ca.getType(), CurrentLayer, scr, pos, &ca);
 				if (rclick)
 					ap.erase(scr, pos);
 				else
@@ -7662,7 +7720,7 @@ void draw_autocombo(int32_t pos, bool rclick, bool pressframe)
 			}
 			case AUTOCOMBO_DGNCARVE:
 			{
-				AutoPattern::autopattern_dungeoncarve ap(ca.getType(), CurrentLayer, scr, pos, &ca, !(ca.flags & ACF_CROSSSCREENS));
+				AutoPattern::autopattern_dungeoncarve ap(ca.getType(), CurrentLayer, scr, pos, &ca);
 				if (rclick)
 					ap.erase(scr, pos);
 				else
@@ -7671,7 +7729,7 @@ void draw_autocombo(int32_t pos, bool rclick, bool pressframe)
 			}
 			case AUTOCOMBO_DOR:
 			{
-				AutoPattern::autopattern_dormtn ap(ca.getType(), CurrentLayer, scr, pos, &ca, !(ca.flags & ACF_CROSSSCREENS), cauto_height);
+				AutoPattern::autopattern_dormtn ap(ca.getType(), CurrentLayer, scr, pos, &ca, cauto_height);
 				if (rclick)
 					ap.erase(scr, pos);
 				else
@@ -7688,7 +7746,7 @@ void draw_autocombo(int32_t pos, bool rclick, bool pressframe)
 					byte h = ((ca.getArg() >> 4) & 0xF) + 1;
 					ca.setOffsets(x % w, y % h);
 				}
-				AutoPattern::autopattern_tiling ap(ca.getType(), CurrentLayer, scr, pos, &ca, true, ca.getArg(), ca.getOffsets());
+				AutoPattern::autopattern_tiling ap(ca.getType(), CurrentLayer, scr, pos, &ca);
 				if (rclick)
 					ap.erase(scr, pos);
 				else
@@ -7697,7 +7755,7 @@ void draw_autocombo(int32_t pos, bool rclick, bool pressframe)
 			}
 			case AUTOCOMBO_REPLACE:
 			{
-				AutoPattern::autopattern_replace ap(ca.getType(), CurrentLayer, scr, pos, &ca, true);
+				AutoPattern::autopattern_replace ap(ca.getType(), CurrentLayer, scr, pos, &ca);
 				if (rclick)
 					ap.erase(scr, pos);
 				else
@@ -7705,6 +7763,13 @@ void draw_autocombo(int32_t pos, bool rclick, bool pressframe)
 				break;
 			}
 		}
+	}
+	else
+	{
+		ca.updateValid();
+		if(!ca.valid())
+			InfoDialog("Notice", "The autocombo you're trying to use is invalid. Reason:"
+				+ ca.getInvalidReason()).show();
 	}
 }
 
@@ -7721,13 +7786,13 @@ void draw_autocombo_command(int32_t pos, int32_t cmd, int32_t arg)
 		{
 			case AUTOCOMBO_FENCE:
 			{
-				AutoPattern::autopattern_fence ap(ca.getType(), CurrentLayer, scr, pos, &ca, !(ca.flags & ACF_CROSSSCREENS), !(ca.flags & ACF_FLIP));
+				AutoPattern::autopattern_fence ap(ca.getType(), CurrentLayer, scr, pos, &ca);
 				ap.flip_all_connected(scr, pos, 2048);
 				break;
 			}
 			case AUTOCOMBO_Z4:
 			{
-				AutoPattern::autopattern_cakemtn ap(ca.getType(), CurrentLayer, scr, pos, &ca, !(ca.flags & ACF_CROSSSCREENS), !(ca.flags & ACF_FLIP), cauto_height);
+				AutoPattern::autopattern_cakemtn ap(ca.getType(), CurrentLayer, scr, pos, &ca, cauto_height);
 				switch (cmd)
 				{
 					case 0: // Flip
@@ -7740,6 +7805,86 @@ void draw_autocombo_command(int32_t pos, int32_t cmd, int32_t arg)
 			}
 		}
 	}
+}
+
+int32_t get_autocombo_floating_cid(int32_t pos, bool clicked)
+{
+	combo_auto& ca = combo_autos[combo_auto_pos];
+
+	int32_t scr = Map.getCurrScr();
+	int32_t cid = 0;
+	if (ca.valid() && mousecomboposition > -1)
+	{
+		switch (ca.getType())
+		{
+			case AUTOCOMBO_BASIC:
+			{
+				AutoPattern::autopattern_basic ap(ca.getType(), CurrentLayer, scr, pos, &ca);
+				cid = ap.get_floating_cid(scr, pos);
+				break;
+			}
+
+			case AUTOCOMBO_Z1:
+			{
+				AutoPattern::autopattern_flatmtn ap(ca.getType(), CurrentLayer, scr, pos, &ca);
+				cid = ap.get_floating_cid(scr, pos);
+				break;
+			}
+			case AUTOCOMBO_FENCE:
+			{
+				AutoPattern::autopattern_fence ap(ca.getType(), CurrentLayer, scr, pos, &ca);
+				cid = ap.get_floating_cid(scr, pos);
+				break;
+			}
+			case AUTOCOMBO_Z4:
+			{
+				AutoPattern::autopattern_cakemtn ap(ca.getType(), CurrentLayer, scr, pos, &ca, cauto_height);
+				cid = ap.get_floating_cid(scr, pos);
+				break;
+			}
+			case AUTOCOMBO_RELATIONAL:
+			{
+				AutoPattern::autopattern_relational ap(ca.getType(), CurrentLayer, scr, pos, &ca);
+				cid = ap.get_floating_cid(scr, pos);
+				break;
+			}
+			case AUTOCOMBO_DGNCARVE:
+			{
+				AutoPattern::autopattern_dungeoncarve ap(ca.getType(), CurrentLayer, scr, pos, &ca);
+				cid = ap.get_floating_cid(scr, pos);
+				break;
+			}
+			case AUTOCOMBO_DOR:
+			{
+				AutoPattern::autopattern_dormtn ap(ca.getType(), CurrentLayer, scr, pos, &ca, cauto_height);
+				cid = ap.get_floating_cid(scr, pos);
+				break;
+			}
+			case AUTOCOMBO_TILING:
+			{
+				std::pair<byte, byte> offs = ca.getOffsets();
+				if (!clicked && (key[KEY_LSHIFT] || key[KEY_RSHIFT]))
+				{
+					int32_t x = (scr % 16) * 16 + (pos % 16);
+					int32_t y = (scr / 16) * 11 + (pos / 16);
+					byte w = (ca.getArg() & 0xF) + 1;
+					byte h = ((ca.getArg() >> 4) & 0xF) + 1;
+					offs.first = (x % w);
+					offs.second = (y % h);
+				}
+				AutoPattern::autopattern_tiling ap(ca.getType(), CurrentLayer, scr, pos, &ca);
+				cid = ap.get_floating_cid(scr, pos);
+				break;
+			}
+			case AUTOCOMBO_REPLACE:
+			{
+				AutoPattern::autopattern_replace ap(ca.getType(), CurrentLayer, scr, pos, &ca);
+				cid = ap.get_floating_cid(scr, pos);
+				break;
+			}
+		}
+	}
+	return cid;
 }
 
 void change_autocombo_height(int32_t change)
@@ -8233,6 +8378,7 @@ void draw(bool justcset)
 				{
 					draw_autocombo(cstart, gui_mouse_b() & 2, pressframe);
 
+					combobrushoverride = get_autocombo_floating_cid(cstart, true);
 					update_combobrush();
 				}
 			}
@@ -8363,11 +8509,11 @@ static void fill(int32_t map, int32_t screen_index, mapscr* fillscr, int32_t tar
 	bool rclick = gui_mouse_b() & 2;
 	bool ignored_combo = false;
 
+	if (filled_combos[(sy << 4) + sx])
+		return;
+
 	if (draw_mode == dm_auto)
 	{
-		if (filled_combos[(sy << 4) + sx])
-			return;
-
 		combo_auto const& cauto = combo_autos[combo_auto_pos];
 		ignored_combo = cauto.isIgnoredCombo((fillscr->data[((sy << 4) + sx)]));
 		if (rclick)
@@ -10610,8 +10756,16 @@ void domouse()
 	int32_t cx=(x-startxint)/int32_t(16*mapscreensize);
 	int32_t cy=(y-startyint)/int32_t(16*mapscreensize);
 	int32_t c=(cy*16)+cx;
-	mousecomboposition=c;
 	
+	if (draw_mode == dm_auto)
+	{
+		if (c != mousecomboposition)
+			combobrushoverride = get_autocombo_floating_cid(c, false);
+	}
+	else
+		combobrushoverride = -1;
+
+	mousecomboposition=c;
 	update_combobrush();
 	//  put_combo(brushbmp,0,0,Combo,CSet,0,0);
 	
@@ -11849,9 +12003,7 @@ void domouse()
 								
 							case 2:
 							{
-								int32_t t = combobuf[Combo].tile;
-								int32_t f = 0;
-								select_tile(t,f,0,CSet,true);
+								onGotoTiles(combobuf[Combo].tile);
 								break;
 							}
 							
@@ -12069,9 +12221,7 @@ void domouse()
 						}
 						case 5: //Open Tile Page
 						{
-							int32_t t = combobuf[Combo].tile;
-							int32_t f = 0;
-							select_tile(t,f,0,CSet,true);
+							onGotoTiles(combobuf[Combo].tile);
 							break;
 						}
 					}
@@ -27765,6 +27915,8 @@ int32_t main(int32_t argc,char **argv)
 	WarnOnInitChanged			  = zc_get_config("zquest","warn_initscript_changes",1);
 	InvalidStatic				  = zc_get_config("zquest","invalid_static",1);
 	MMapCursorStyle				= zc_get_config("zquest","cursorblink_style",1);
+	LayerDitherBG				= zc_get_config("zquest", "layer_dither_bg", -1);
+	LayerDitherSz				= zc_get_config("zquest", "layer_dither_sz", 3);
 	TileProtection				 = zc_get_config("zquest","tile_protection",1);
 	ShowGrid					   = zc_get_config("zquest","show_grid",0);
 	GridColor					  = zc_get_config("zquest","grid_color",15);
@@ -27785,6 +27937,7 @@ int32_t main(int32_t argc,char **argv)
 	LinkedScroll = zc_get_config("zquest","linked_comboscroll",0);
 	allowHideMouse = zc_get_config("ZQ_GUI","allowHideMouse",0);
 	ShowFavoriteComboModes = zc_get_config("ZQ_GUI","show_fav_combo_modes",1);
+	NoHighlightLayer0 = zc_get_config("zquest","no_highlight_layer0",0);
 	RulesetDialog				  = zc_get_config("zquest","rulesetdialog",1);
 	EnableTooltips				 = zc_get_config("zquest","enable_tooltips",1);
 	TooltipsHighlight				 = zc_get_config("zquest","ttip_highlight",1);

@@ -27,6 +27,15 @@ namespace AutoPattern
 		apply_changes();
 		return true;
 	}
+	int32_t autopattern_fence::get_floating_cid(int32_t exscreen, int32_t expos)
+	{
+		apcombo* ap = add(exscreen, expos, true);
+		if (!ap)
+			return 0;
+		init_connections(ap);
+		form_connections(ap, true);
+		return ap->cid;
+	}
 	void autopattern_fence::flip_single(apcombo*& ap)
 	{
 		int32_t slot = cid_to_slot(ap->cid);

@@ -26,6 +26,14 @@ namespace AutoPattern
 		apply_changes();
 		return true;
 	}
+	int32_t autopattern_dungeoncarve::get_floating_cid(int32_t exscreen, int32_t expos)
+	{
+		apcombo* ap = add(exscreen, expos, true);
+		if (!ap)
+			return 0;
+		form_connections(ap, false);
+		return ap->cid;
+	}
 	void autopattern_dungeoncarve::form_connections(apcombo* p, bool rem)
 	{
 		apcombo* relatives[5][5];
@@ -96,7 +104,7 @@ namespace AutoPattern
 					}
 				}
 			}
-			else
+			else if(connectedge || !(p->connflags & 0x100))
 				newflags |= (1 << q);
 		}
 		p->connflags = newflags | h;

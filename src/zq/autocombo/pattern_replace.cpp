@@ -37,6 +37,16 @@ namespace AutoPattern
 		apply_changes();
 		return true;
 	}
+	int32_t autopattern_replace::get_floating_cid(int32_t exscreen, int32_t expos)
+	{
+		apcombo* ap = add(exscreen, expos, true);
+		if (!ap)
+			return 0;
+		int32_t newcid = convert_cid(ap->cid, false);
+		if (newcid > 0)
+			return newcid;
+		return ap->cid;
+	}
 
 	uint32_t autopattern_replace::slot_to_flags(int32_t slot)
 	{

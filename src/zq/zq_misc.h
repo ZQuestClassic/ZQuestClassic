@@ -261,6 +261,7 @@ int32_t onGotoMap();
 
 int32_t onViewPic();
 int32_t onViewMap();
+int32_t onViewMapEx(bool skipmenu);
 int32_t onComboPage();
 
 int32_t onDefault_Pals();

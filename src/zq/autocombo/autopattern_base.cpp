@@ -7,8 +7,9 @@ namespace AutoPattern
 
     // autopattern_container
 
-	autopattern_container::autopattern_container(int32_t ntype, int32_t nlayer, int32_t nbasescreen, int32_t nbasepos, combo_auto* nsource, bool nnocrossedge) :
-		type(ntype), layer(nlayer), basescreen(nbasescreen), basepos(nbasepos), source(nsource), nocrossedge(nnocrossedge),
+	autopattern_container::autopattern_container(int32_t ntype, int32_t nlayer, int32_t nbasescreen, int32_t nbasepos, combo_auto* nsource) :
+		type(ntype), layer(nlayer), basescreen(nbasescreen), basepos(nbasepos), source(nsource), 
+		nocrossedge(!(nsource->flags&ACF_CROSSSCREENS)), connectedge(nsource->flags&ACF_CONNECTEDGE),
 		basescreen_x((basescreen % 16) * 16), basescreen_y((basescreen / 16) * 11),
 		base_x(basescreen_x + (basepos % 16)), base_y(basescreen_y + (basepos / 16)),
 		screenboundary_x(0), screenboundary_y(0)

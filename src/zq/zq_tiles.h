@@ -123,6 +123,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 int32_t select_tile_2(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool edit_cs, int32_t exnow=0, bool always_use_flip=false);
 int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool edit_cs, int32_t exnow=0, bool always_use_flip=false);
 int32_t onTiles();
+int32_t onGotoTiles(int32_t startfrom);
 void draw_combo(BITMAP *dest, int x,int y,int c,int cs,bool animate = true);
 void draw_combos(int32_t page,int32_t cs,bool cols);
 void combo_info(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copycnt,int32_t page,int32_t buttons);

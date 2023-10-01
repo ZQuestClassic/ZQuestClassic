@@ -16768,13 +16768,20 @@ int32_t select_tile_2(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool 
 
 int32_t onTiles()
 {
-	static int32_t t=0;
-	int32_t f=0;
-	int32_t c=CSet;
+	return onGotoTiles(-1);
+}
+
+int32_t onGotoTiles(int32_t startfrom)
+{
+	static int32_t t = 0;
+	if (startfrom > -1)
+		t = startfrom;
+	int32_t f = 0;
+	int32_t c = CSet;
 	reset_pal_cycling();
-//  loadlvlpal(Map.CurrScr()->color);
+	//  loadlvlpal(Map.CurrScr()->color);
 	rebuild_trans_table();
-	select_tile(t,f,0,c,true);
+	select_tile(t, f, 0, c, true);
 	refresh(rALL);
 	return D_O_K;
 }

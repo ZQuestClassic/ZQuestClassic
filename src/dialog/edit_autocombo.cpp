@@ -295,8 +295,9 @@ std::shared_ptr<GUI::Widget> AutoComboDialog::view()
 						// 0 - disabled
 						DummyWidget(),
 						// 1 - basic
-						Row(vAlign = 0.0,
-							AUTO_CB(flags, ACF_CROSSSCREENS, 1, "Cross Screens", "If checked, this autocombo can affect combos on adjacent screens.")
+						Rows<2>(vAlign = 0.0,
+							AUTO_CB(flags, ACF_CROSSSCREENS, 1, "Cross Screens", "If checked, this autocombo can affect combos on adjacent screens."),
+							AUTO_CB(flags, ACF_CONNECTEDGE, 1, "Connect to Edge", "If checked, this autocombo will connect to the edge of the screen.")
 						),
 						// 2 - fence
 						Rows<2>(vAlign = 0.0,
@@ -322,14 +323,22 @@ std::shared_ptr<GUI::Widget> AutoComboDialog::view()
 									})
 							)
 						),
-						// 4 - relational, dungeon carve
+						// 4 - relational
 						Rows<2>(vAlign = 0.0,
 							AUTO_CB(flags, ACF_CROSSSCREENS, 1, "Cross Screens", "If checked, this autocombo can affect combos on adjacent screens."),
+							AUTO_CB(flags, ACF_CONNECTEDGE, 1, "Connect to Edge", "If checked, this autocombo will connect to the edge of the screen."),
 							AUTO_CB(flags, ACF_LEGACY, 1, "Legacy Ordering", "Makes 'Auto Generate' use combo ordering from older versions.\nFor tilesets that have combos set up for Relational and Dungeon Carving modes")
 						),
-						// 5 - DoR
+						// 5 - dungeon carve
 						Rows<2>(vAlign = 0.0,
 							AUTO_CB(flags, ACF_CROSSSCREENS, 1, "Cross Screens", "If checked, this autocombo can affect combos on adjacent screens."),
+							AUTO_CB(flags, ACF_CONNECTEDGE, 1, "Connect to Edge", "If checked, this autocombo will connect to the edge of the screen."),
+							AUTO_CB(flags, ACF_LEGACY, 1, "Legacy Ordering", "Makes 'Auto Generate' use combo ordering from older versions.\nFor tilesets that have combos set up for Relational and Dungeon Carving modes")
+							),
+						// 6 - DoR
+						Rows<2>(vAlign = 0.0,
+							AUTO_CB(flags, ACF_CROSSSCREENS, 1, "Cross Screens", "If checked, this autocombo can affect combos on adjacent screens."),
+							AUTO_CB(flags, ACF_CONNECTEDGE, 1, "Connect to Edge", "If checked, this autocombo will connect to the edge of the screen."),
 							Row(colSpan = 2, hAlign = 0.0, padding = 0_px,
 								INFOBTN_EX("The default height the mountain extends downwards.", width = 20_px, height = 20_px),
 								Label(text = "Height:"),
@@ -345,7 +354,7 @@ std::shared_ptr<GUI::Widget> AutoComboDialog::view()
 									})
 							)
 						),
-						// 6 - tiling pattern
+						// 7 - tiling pattern
 						Rows<3>(vAlign = 0.0,
 							INFOBTN_EX("The width of the tiling pattern.", width = 20_px, height = 20_px),
 							Label(text = "Width:", hAlign = 1.0),
@@ -629,7 +638,7 @@ void AutoComboDialog::refreshTypes(int32_t type)
 				"Right Click: Remove combo (uses the Erase Combo)\n"
 				"Ctrl + Left Click: Fill combos\n"
 				"Ctrl + Right Click: Fill remove combos";
-			switch_settings->switchTo(4);
+			switch_settings->switchTo(5);
 			break;
 		case AUTOCOMBO_DOR:
 			typeinfostr =
@@ -642,7 +651,7 @@ void AutoComboDialog::refreshTypes(int32_t type)
 				"Shift + Click: Place / Remove combos without writing sides\n"
 				"Ctrl + Left Click: Fill combos\n"
 				"Ctrl + Right Click: Fill remove combos";
-			switch_settings->switchTo(5);
+			switch_settings->switchTo(6);
 			break;
 		case AUTOCOMBO_TILING:
 			typeinfostr =
@@ -651,7 +660,7 @@ void AutoComboDialog::refreshTypes(int32_t type)
 				"Left Click: Place combo\n"
 				"Right Click: Remove combo (uses the Erase Combo)\n"
 				"Shift + Click: Update the X/Y offset for the top-left corner of the tiling pattern";
-			switch_settings->switchTo(6);
+			switch_settings->switchTo(7);
 			break;
 		case AUTOCOMBO_REPLACE:
 			typeinfostr =

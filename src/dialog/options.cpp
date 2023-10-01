@@ -17,9 +17,10 @@ void call_options_dlg()
 
 extern int32_t EnableTooltips, GridColor, CmbCursorCol, TilePgCursorCol,
 	CmbPgCursorCol, KeyboardRepeatDelay, TooltipsHighlight, KeyboardRepeatRate,
-	pixeldb, infobg, MMapCursorStyle;
+	pixeldb, infobg, MMapCursorStyle, LayerDitherBG, LayerDitherSz;
 extern bool allowHideMouse;
 extern bool ShowFavoriteComboModes;
+extern bool NoHighlightLayer0;
 
 void OptionsDialog::loadOptions()
 {
@@ -44,6 +45,8 @@ void OptionsDialog::loadOptions()
 	opts[OPT_TOOLTIP_HIGHLIGHT] = TooltipsHighlight ? 1 : 0;
 	opts[OPT_TOOLTIP_TIMER] = tooltip_maxtimer;
 	opts[OPT_MAPCURSOR] = MMapCursorStyle;
+	opts[OPT_LYR_DITH_BG] = LayerDitherBG;
+	opts[OPT_LYR_DITH_SZ] = LayerDitherSz;
 	opts[OPT_PATTERNSEARCH] = abc_patternmatch ? 1 : 0;
 	opts[OPT_NEXTPREVIEW] = NoScreenPreview ? 1 : 0;
 	opts[OPT_INITSCR_WARN] = WarnOnInitChanged ? 1 : 0;
@@ -72,7 +75,8 @@ void OptionsDialog::loadOptions()
 	opts[OPT_INFO_BG] = infobg;
 	opts[OPT_HIDEMOUSE] = allowHideMouse?1:0;
 	opts[OPT_COMPILEONSAVE] = zc_get_config("zquest","quick_compile_on_save",0)?1:0;
-	opts[OPT_SHOW_FAV_COMBO_MODES] = ShowFavoriteComboModes;
+	opts[OPT_SHOW_FAV_COMBO_MODES] = ShowFavoriteComboModes?1:0;
+	opts[OPT_NO_HIGHLIGHT_LAYER0] = NoHighlightLayer0?1:0;
 	
 	int deffont_ids[CFONT_MAX] = {font_lfont_l,font_lfont,font_pfont,font_nfont,font_sfont3,font_lfont,font_lfont_l};
 	char const* _font_titles[CFONT_MAX] = {"dialog", "gui", "title", "favcmd", "textbox", "ttip", "info"};
@@ -224,6 +228,14 @@ void OptionsDialog::saveOption(int ind)
 			MMapCursorStyle = v;
 			zc_set_config("zquest","cursorblink_style",v);
 			break;
+		case OPT_LYR_DITH_BG:
+			LayerDitherBG = v;
+			zc_set_config("zquest", "layer_dither_bg", v);
+			break;
+		case OPT_LYR_DITH_SZ:
+			LayerDitherSz = v;
+			zc_set_config("zquest", "layer_dither_sz", v);
+			break;
 		case OPT_RULESET:
 			RulesetDialog = v;
 			zc_set_config("zquest","rulesetdialog",v);
@@ -316,8 +328,12 @@ void OptionsDialog::saveOption(int ind)
 			zc_set_config("zquest","quick_compile_on_save",v);
 			break;
 		case OPT_SHOW_FAV_COMBO_MODES:
-			ShowFavoriteComboModes = v;
+			ShowFavoriteComboModes = v!=0;
 			zc_set_config("ZQ_GUI","show_fav_combo_modes",v);
+			break;
+		case OPT_NO_HIGHLIGHT_LAYER0:
+			NoHighlightLayer0 = v!=0;
+			zc_set_config("zquest","no_highlight_layer0",v);
 			break;
 		
 		case OPT_LARGEFONT_DIALOG:
@@ -661,6 +677,38 @@ static const GUI::ListData mmapCursList
 	{ "Black+White", 1 },
 	{ "Red+Blue", 2 }
 };
+static const GUI::ListData bgColorList
+{
+	{ "Use Color 0", -1 },
+	{ "Black", 0 },
+	{ "Blue", 1 },
+	{ "Green", 2 },
+	{ "Cyan", 3 },
+	{ "Red", 4 },
+	{ "Magenta", 5 },
+	{ "Brown", 6 },
+	{ "Light Gray", 7 },
+	{ "Dark Gray", 8 },
+	{ "Light Blue", 9 },
+	{ "Light Green", 10 },
+	{ "Light Cyan", 11 },
+	{ "Light Red", 12 },
+	{ "Light Magenta", 13 },
+	{ "Yellow", 14 },
+	{ "White", 15 }
+};
+static const GUI::ListData ditherSzList
+{
+	{ "Hide Layer", 0 },
+	{ "1", 1 },
+	{ "2", 2 },
+	{ "3", 3 },
+	{ "4", 4 },
+	{ "5", 5 },
+	{ "6", 6 },
+	{ "7", 7 },
+	{ "8", 8 }
+};
 static const GUI::ListData snapFormatList
 {
 	{ "BMP", 0 },
@@ -874,7 +922,8 @@ std::shared_ptr<GUI::Widget> OptionsDialog::view()
 					ROW_CHECK_I(OPT_INFO_BG, "Show BG behind infotext", "Show black behind the top-left info text"),
 					ROW_CHECK_I(OPT_HIDEMOUSE, "Allow Hiding Mouse", "When displaying the combo or alias brush, allow the normal cursor to be hidden."),
 					ROW_CHECK_I(OPT_COMPILEONSAVE, "Compile ZScript on Save", "Perform a 'quick compile', recompiling existing scripts and assigning to slots, when saving the quest."),
-					ROW_CHECK_I(OPT_SHOW_FAV_COMBO_MODES, "Show Favorite Combo Modes", "Overlays indicators over special entries in the Favorite Combos list for different drawing modes. (Aliases, Pools, Autocombos)")
+					ROW_CHECK_I(OPT_SHOW_FAV_COMBO_MODES, "Show Favorite Combo Modes", "Overlays indicators over special entries in the Favorite Combos list for different drawing modes. (Aliases, Pools, Autocombos)"),
+					ROW_CHECK_I(OPT_NO_HIGHLIGHT_LAYER0, "No Highlight on Layer 0", "The View setting \"Highlight Current Layer\" does not hide layers when selecting Layer 0.")
 				)
 			))
 		)
@@ -894,6 +943,10 @@ std::shared_ptr<GUI::Widget> OptionsDialog::view()
 					ROW_DDOWN_I(OPT_MAPCURSOR, "Minimap Cursor:", mmapCursList,
 						"The color of the current screen outline on the minimap."
 						" Either solid or blinking between two colors."),
+					ROW_DDOWN_I(OPT_LYR_DITH_BG, "Layer Dither BG:", bgColorList,
+						"The color used for the background when dithering the bottom layer."),
+					ROW_DDOWN_I(OPT_LYR_DITH_SZ, "Layer Dither Size:", ditherSzList,
+						"The size of the dither pattern used for non-highlighted screens."),
 					ROW_DDOWN(OPT_SNAPFORMAT, "Snapshot Format:", snapFormatList),
 					ROW_TF_RANGE(OPT_KBREPDEL, "Keyboard Repeat Delay:", 0, 99999),
 					ROW_TF_RANGE(OPT_KBREPRATE, "Keyboard Repeat Rate:", 0, 99999),
