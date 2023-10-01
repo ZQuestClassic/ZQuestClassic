@@ -1495,6 +1495,9 @@ static void *read_block(PACKFILE *f, int32_t size, int32_t alloc_size)
     return p;
 }
 
+// Only use for reading parts of older quests (Header->zelda_version <= 0x192)
+static const byte* legacy_skip_flags;
+
 /* read_midi:
   *  Reads MIDI data from a datafile (this is not the same thing as the
   *  standard midi file format).
@@ -3741,6 +3744,8 @@ void init_msgstrings(int32_t start, int32_t end)
 
 int32_t readstrings(PACKFILE *f, zquestheader *Header)
 {
+	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_strings);
+
 	MsgStr tempMsgString;
 	init_msgstr(&tempMsgString);
 	
@@ -3752,7 +3757,8 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header)
 	{
 		byte tempbyte;
 		int32_t strings_to_read=0;
-		set_qr(qr_OLD_STRING_EDITOR_MARGINS,true);
+		if (!should_skip)
+			set_qr(qr_OLD_STRING_EDITOR_MARGINS,true);
 		if((Header->zelda_version < 0x192)||
 			((Header->zelda_version == 0x192)&&(Header->build<31)))
 		{
@@ -3798,7 +3804,8 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header)
 		}
 		
 		//reset the message strings
-		init_msgstrings(0,msg_strings_size);
+		if (!should_skip)
+			init_msgstrings(0,msg_strings_size);
 		
 		for(int32_t x=0; x<strings_to_read; x++)
 		{
@@ -3846,7 +3853,8 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header)
 				}
 			}
 			
-			MsgStrings[x] = tempMsgString;
+			if (!should_skip)
+				MsgStrings[x] = tempMsgString;
 		}
 	}
 	else
@@ -4124,6 +4132,8 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header)
 
 int32_t readdoorcombosets(PACKFILE *f, zquestheader *Header)
 {
+	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_doors);
+
     if((Header->zelda_version < 0x192)||
             ((Header->zelda_version == 0x192)&&(Header->build<158)))
     {
@@ -4405,7 +4415,8 @@ int32_t readdoorcombosets(PACKFILE *f, zquestheader *Header)
             }
         }
         
-		memcpy(&DoorComboSets[i], &tempDoorComboSet, sizeof(tempDoorComboSet));
+        if (!should_skip)
+            memcpy(&DoorComboSets[i], &tempDoorComboSet, sizeof(tempDoorComboSet));
     }
     
 	door_combo_set_count=temp_door_combo_set_count;
@@ -4589,6 +4600,8 @@ void clear_screen(mapscr *temp_scr)
 
 int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap, word max_dmaps)
 {
+	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_dmaps);
+
 	word dmapstoread=0;
 	dmap tempDMap;
 	
@@ -5162,7 +5175,8 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 			if(!p_getc(&tempDMap.overlay_subscreen, f))
 				return qe_invalid;
 		
-		memcpy(&DMaps[i], &tempDMap, sizeof(tempDMap));
+		if (!should_skip)
+			memcpy(&DMaps[i], &tempDMap, sizeof(tempDMap));
 	}
 	
 	return 0;
@@ -5455,6 +5469,8 @@ int32_t readgameicons(PACKFILE *f, zquestheader *, miscQdata *Misc)
 
 int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 {
+	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_misc);
+
 	word maxinfos=256;
 	word maxshops=256;
 	word shops=16, infos=16, warprings=8, palcycles=256, windwarps=9, triforces=8, icons=4;
@@ -6262,7 +6278,8 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 		temp_misc.miscsfx[sfxDRAIN] = WAV_MSG;
 	}
 	
-	memcpy(Misc, &temp_misc, sizeof(temp_misc));
+	if (!should_skip)
+		memcpy(Misc, &temp_misc, sizeof(temp_misc));
 	
 	return 0;
 }
@@ -6274,6 +6291,8 @@ extern const char *old_weapon_string[wLast];
 
 int32_t readitems(PACKFILE *f, word version, word build)
 {
+	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_items);
+
     byte padding;
     int32_t  dummy;
     word items_to_read=MAXITEMS;
@@ -6337,7 +6356,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 			strncat(item_string[i], tempname, 64 - 1);
         }
     }
-    else
+    else if (!should_skip)
     {
 		for(int32_t i=0; i<MAXITEMS; i++)
 		{
@@ -6345,6 +6364,7 @@ int32_t readitems(PACKFILE *f, word version, word build)
 		}
     }
     
+	if (!should_skip)
 	for(int32_t i=0; i<MAXITEMS; i++)
 	{
 		itemdata& id = itemsbuf[i];
@@ -7081,8 +7101,12 @@ int32_t readitems(PACKFILE *f, word version, word build)
             reset_itembuf(&tempitem,i);
         }
         
-		memcpy(&itemsbuf[i], &tempitem, sizeof(itemdata));
+		if (!should_skip)
+			memcpy(&itemsbuf[i], &tempitem, sizeof(itemdata));
     }
+
+	if (should_skip)
+		return 0;
     
     //////////////////////////////////////////////////////
     // Now do any updates because of new item additions
@@ -9499,6 +9523,8 @@ void reset_itemname(int32_t id)
 
 int32_t readweapons(PACKFILE *f, zquestheader *Header)
 {
+	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_weapons);
+
     word weapons_to_read=MAXWPNS;
     int32_t dummy;
     byte padding;
@@ -9586,7 +9612,7 @@ int32_t readweapons(PACKFILE *f, zquestheader *Header)
             }
         */
     }
-    else
+    else if (!should_skip)
     {
 		for(int32_t i=0; i<MAXWPNS; i++)
 			reset_weaponname(i);
@@ -9660,8 +9686,12 @@ int32_t readweapons(PACKFILE *f, zquestheader *Header)
 				tempweapon.misc &= ~WF_BEHIND;
 		}
         
-		memcpy(&wpnsbuf[i], &tempweapon, sizeof(tempweapon));
+		if (!should_skip)
+			memcpy(&wpnsbuf[i], &tempweapon, sizeof(tempweapon));
 	}
+
+	if (should_skip)
+		return 0;
     
 	if(s_version<2)
 	{
@@ -17093,6 +17123,8 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zc
 
 int32_t readmaps(PACKFILE *f, zquestheader *Header)
 {
+	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_maps);
+
 	int32_t scr=0;
 	
 	word version=0;
@@ -17151,15 +17183,16 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header)
 		return qe_invalid;
 	}
 
-	const int32_t _mapsSize = MAPSCRS*temp_map_count;
-	TheMaps.resize(_mapsSize);
-	map_autolayers.clear();
-	map_autolayers.resize(temp_map_count*6);
-	
-	for(int32_t i(0); i<_mapsSize; i++)
-		TheMaps[i].zero_memory();
-	
-	memset(ZCMaps, 0, sizeof(zcmap)*MAXMAPS2);
+	if (!should_skip)
+	{
+		const int32_t _mapsSize = MAPSCRS*temp_map_count;
+		TheMaps.resize(_mapsSize);
+		map_autolayers.clear();
+		map_autolayers.resize(temp_map_count*6);
+		for(int32_t i(0); i<_mapsSize; i++)
+			TheMaps[i].zero_memory();
+		memset(ZCMaps, 0, sizeof(zcmap)*MAXMAPS2);
+	}
 	
 	temp_mapscr.zero_memory();
 	
@@ -17183,7 +17216,8 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header)
 	for(int32_t i=0; i<temp_map_count && i<MAXMAPS2; i++)
 	{
 		//!TODO Trim fully
-		memcpy(&ZCMaps[i], &temp_map, sizeof(zcmap));
+		if (!should_skip)
+			memcpy(&ZCMaps[i], &temp_map, sizeof(zcmap));
 
 		byte valid=1;
 		if(version > 22)
@@ -17206,8 +17240,12 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header)
 			if(valid)
 				readmapscreen(f, Header, &temp_mapscr, &temp_map, version, scr);
 			
-			TheMaps[scr] = temp_mapscr;
+			if (!should_skip)
+				TheMaps[scr] = temp_mapscr;
 		}
+
+		if (should_skip)
+			continue;
 		
 		if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<137)))
 		{
@@ -17269,10 +17307,14 @@ void update_combo(newcombo& cmb, word section_version)
 }
 int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word version, word build, word start_combo, word max_combos)
 {
-	reset_combo_animations();
-	reset_combo_animations2();
+	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_combos);
 
-	init_combo_classes();
+	if (!should_skip)
+	{
+		reset_combo_animations();
+		reset_combo_animations2();
+		init_combo_classes();
+	}
 
 	// combos
 	word combos_used=0;
@@ -17281,6 +17323,7 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 	newcombo temp_combo;
 	//word section_cversion=0;
 
+	if (!should_skip)
 	for(int32_t q = start_combo; q < start_combo+max_combos; ++q)
 		combobuf[q].clear();
 
@@ -17679,11 +17722,14 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 		
 		update_combo(temp_combo, section_version);
 		
-		if(i>=start_combo)
+		if(i>=start_combo && !should_skip)
 		{
 			combobuf[i] = temp_combo;
 		}
 	}
+
+	if (should_skip)
+		return 0;
 
 	if((version < 0x192)|| ((version == 0x192)&&(build<185)))
 	{
@@ -18144,6 +18190,8 @@ int32_t readcombo_loop(PACKFILE* f, word s_version, newcombo& temp_combo)
 }
 int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word start_combo, word max_combos)
 {
+	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_combos);
+
 	word section_version=0;
 	word section_cversion=0;
 	word combos_used=0;
@@ -18151,12 +18199,15 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 	byte padding;
 	newcombo temp_combo;
 	
-	reset_combo_animations();
-	reset_combo_animations2();
-	init_combo_classes();
+	if (!should_skip)
+	{
+		reset_combo_animations();
+		reset_combo_animations2();
+		init_combo_classes();
 
-	for(int32_t q = start_combo; q < start_combo+max_combos; ++q)
-		combobuf[q].clear();
+		for(int32_t q = start_combo; q < start_combo+max_combos; ++q)
+			combobuf[q].clear();
+	}
 	
 	if(version > 0x192) //Version info
 	{
@@ -18196,7 +18247,10 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 		auto ret = readcombos_old(section_version,f,Header,version,build,start_combo,max_combos);
 		if(ret) return ret; //error, end read
 	}
-	
+
+	if (should_skip)
+		return 0;
+
 	if(!get_qr(qr_ALLOW_EDITING_COMBO_0))
 	{
 		combobuf[0].walk = 0xF0;
@@ -18451,8 +18505,9 @@ int32_t readcomboaliases(PACKFILE *f, zquestheader *Header, word version, word b
 
 int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, word start_cset, word max_csets)
 {
+	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_colors);
+
 	//these are here to bypass compiler warnings about unused arguments
-	
 	//THE *48 REFERS TO EACH CSET BEING 16 COLORS with 3 VALUES OF RGB (3*16 is 48)
 	//Capitalized cause it'll save you a headache. -Deedee
 	start_cset=start_cset;
@@ -18505,7 +18560,10 @@ int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, wo
 			{
 				return qe_invalid;
 			}
-			
+
+			if (should_skip)
+				continue;
+
 			memcpy(&colordata[q*48], temp_colordata, 48);
 
 			++q;
@@ -18538,12 +18596,15 @@ int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, wo
 		
 		if(RealOldVerion)
 		{
-			memcpy(colordata+(poSPRITE255*48), colordata+((q-30)*48), 30*16*3);
-			memset(colordata+((q-30)*48), 0, ((poSPRITE255-(q-30))*48));
-			memcpy(colordata+((poSPRITE255+11)*48), colordata+((poSPRITE255+10)*48), 48);
-			memcpy(colordata+((poSPRITE255+10)*48), colordata+((poSPRITE255+9)*48), 48);
-			memcpy(colordata+((poSPRITE255+9)*48), colordata+((poSPRITE255+8)*48), 48);
-			memset(colordata+((poSPRITE255+8)*48), 0, 48);
+			if (!should_skip)
+			{
+				memcpy(colordata+(poSPRITE255*48), colordata+((q-30)*48), 30*16*3);
+				memset(colordata+((q-30)*48), 0, ((poSPRITE255-(q-30))*48));
+				memcpy(colordata+((poSPRITE255+11)*48), colordata+((poSPRITE255+10)*48), 48);
+				memcpy(colordata+((poSPRITE255+10)*48), colordata+((poSPRITE255+9)*48), 48);
+				memcpy(colordata+((poSPRITE255+9)*48), colordata+((poSPRITE255+8)*48), 48);
+				memset(colordata+((poSPRITE255+8)*48), 0, 48);
+			}
 		}
 		else
 		{
@@ -18555,6 +18616,9 @@ int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, wo
 				{
 					return qe_invalid;
 				}
+
+				if (should_skip)
+					continue;
 
 				memcpy(&colordata[q*48], temp_colordata, 48);
 
@@ -18588,8 +18652,11 @@ int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, wo
 			
 			if(s_version < 4)
 			{
-				memcpy(colordata+(poSPRITE255*48), colordata+((q-30)*48), 30*16*3);
-				memset(colordata+((q-30)*48), 0, ((poSPRITE255-(q-30))*48));
+				if (!should_skip)
+				{
+					memcpy(colordata+(poSPRITE255*48), colordata+((q-30)*48), 30*16*3);
+					memset(colordata+((q-30)*48), 0, ((poSPRITE255-(q-30))*48));
+				}
 			}
 			else
 			{
@@ -18599,6 +18666,9 @@ int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, wo
 					{
 						return qe_invalid;
 					}
+
+					if (should_skip)
+						continue;
 					
 					memcpy(&colordata[q*48], temp_colordata, 48);
 					++q;
@@ -18650,7 +18720,8 @@ int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, wo
 	
 	if((version < 0x192)||((version == 0x192)&&(build<76)))
 	{
-		init_palnames();
+		if (!should_skip)
+			init_palnames();
 	}
 	else
 	{
@@ -18669,9 +18740,13 @@ int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, wo
 			{
 				return qe_invalid;
 			}
-			
-			memcpy(palnames[i], temp_palname, PALNAMESIZE);
+
+			if (!should_skip)
+				memcpy(palnames[i], temp_palname, PALNAMESIZE);
 		}
+
+		if (should_skip)
+			return 0;
 		
 		for(int32_t i=palnamestoread; i<MAXLEVELS; i++)
 		{
@@ -21796,8 +21871,33 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
 			{ "Up Default Item Drop Sets", ID_ITEMDROPSETS, [&](){ return readitemdropsets(f, -1, 0); }},
 		};
 
+		legacy_skip_flags = skip_flags;
 		for (auto& [desc, section_id, fn] : hardcoded_sections)
 		{
+			int section_enum = section_id_to_enum(section_id);
+			bool skip = section_enum >= 0 && get_bit(skip_flags, section_enum);
+			if (skip)
+			{
+				// Nothing to read.
+				if (section_id == ID_RULES)
+					continue;
+				if (section_id == ID_GUYS)
+					continue;
+
+				// Haven't looked at how to skip these, because we don't need to currently: the only
+				// usage of skip_flags currently is all off except: header and tiles (see `load_imagebuf`).
+				if (section_id == ID_MIDIS)
+					continue;
+				if (section_id == ID_CHEATS)
+					continue;
+				if (section_id == ID_INITDATA)
+					continue;
+				if (section_id == ID_HEROSPRITES)
+					continue;
+				if (section_id == ID_ITEMDROPSETS)
+					continue;
+			}
+
 			// Would be nice, but old sections mostly did not save section sizes. We could advance by
 			// a specific amount, but it'd be a lot of work to get it right. So, for old quests, let's just
 			// read all the sections even if requested to skip some.
@@ -21814,6 +21914,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
 			box_out("okay.");
 			box_eol();
 		}
+		legacy_skip_flags = nullptr;
 
         if(!get_bit(skip_flags, skip_subscreens))
         {
