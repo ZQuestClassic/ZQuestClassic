@@ -1,5 +1,6 @@
 #include "edit_dmap.h"
 #include <gui/builder.h>
+#include "base/process_management.h"
 #include "jwin.h"
 #include "zq/zquest.h"
 #include "zq/zq_class.h"
@@ -867,7 +868,7 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 						Button(text = "Z3 User Guide",
 							onPressFunc = [&]()
 							{
-								// TBA?
+								launch_file("docs/z3_user_guide.md");
 							}),
 						Row(
 							DMAP_CB(flags, dmfEXTENDEDVIEWPORT, 1, "Extended Viewport", "If checked, the viewport extends into the part of the screen normally occupied by the passive subscreen. \nMake your passive subscreen background transparent when using this feature.")
