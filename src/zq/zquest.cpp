@@ -1489,6 +1489,7 @@ static MENU data_menu[] =
 
 static MENU tunes_menu[] =
 {
+    { (char *)"ZC Forever",				  playZCForever,             NULL,                     0,            NULL   },
     { (char *)"Wind Fish",				  playTune1,                 NULL,                     0,            NULL   },
     { (char *)"Overworld",				  playTune2,                 NULL,                     0,            NULL   },
     { (char *)"Hyrule Castle",			  playTune3,                 NULL,                     0,            NULL   },
@@ -3973,6 +3974,16 @@ int32_t playMusic()
 		}
 	}
 	
+	return D_O_K;
+}
+
+int32_t playZCForever()
+{
+	stopMusic();
+
+	zcmusic = zcmusic_load_file("assets/zc/ZC_Forever_HD.mp3");
+	if (zcmusic)
+		zcmusic_play(zcmusic, midi_volume);
 	return D_O_K;
 }
 
@@ -30147,7 +30158,7 @@ command_pair commands[cmdMAX]=
     { "Strings",                            0, (intF) onStrings },
     { "Subscreens",                         0, (intF) onEditSubscreens },
     { "Take ZQ Snapshot",                   0, (intF) onSnapshot },
-    { "Ambient Music",                      0, (intF) playTune1 },
+    { "Ambient Music",                      0, (intF) playZCForever },
     { "NES Dungeon Template",               0, (intF) onTemplate },
     { "<UNUSED>",                           0, (intF) NULL },
     { "Tile Warp",                          0, (intF) onTileWarp },

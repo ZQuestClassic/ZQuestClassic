@@ -346,6 +346,7 @@ bool getname(const char *prompt,const char *ext,EXT_LIST *list,const char *def,b
 bool getname_nogo(const char *prompt,const char *ext,EXT_LIST *list,const char *def,bool usefilename);
 //bool getname_nogo(char *prompt,char *ext,char *def,bool usefilename);
 
+int32_t playZCForever();
 int32_t playTune1();
 int32_t playTune2();
 int32_t playTune3();
