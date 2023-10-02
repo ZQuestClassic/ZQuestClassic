@@ -1851,15 +1851,16 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 			font = oldfont;
 			break;
 		}
-			
+
+		case MSG_DCLICK:
+			if ((gui_mouse_b() & 2) != 0)
+				break;
+			if (d->flags & (D_DISABLED | D_READONLY))
+				break;
+			dclick = true;
+			break;
 		case MSG_CLICK:
 		{
-			if (dclick)
-			{
-				dclick = false;
-				break;
-			}
-
 			if(d->flags & (D_DISABLED|D_READONLY))
 				break;
 			if(d->dp2)
@@ -1882,6 +1883,8 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 						{
 							cursor_start = ind;
 							cursor_end = -1;
+							if (dclick)
+								cursor_end = cursor_start;
 						}
 						found = true;
 						break;
@@ -1897,28 +1900,56 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 				{
 					cursor_start = l;
 					cursor_end = -1;
+					if (dclick)
+						cursor_end = cursor_start;
 				}
 			}
-			if(cursor_end == cursor_start) cursor_end = -1;
-			else d->flags |= D_DIRTY;
-			d->d2 = cursor_start | (((cursor_end == -1 ? 0xFFFF : cursor_end) & 0xFFFF) << 16);
+
+			if (dclick)
+			{
+				while (cursor_start > 0 && cursor_start < l)
+				{
+					if (s[cursor_start] == ' ')
+					{
+						if (cursor_start <= cursor_end)
+							++cursor_start;
+						else
+							--cursor_start;
+						break;
+					}
+					if (cursor_start <= cursor_end)
+						--cursor_start;
+					else
+						++cursor_start;
+				}
+				while (cursor_end > 0 && cursor_end < l)
+				{
+					if (s[cursor_end] == ' ')
+					{
+						if (cursor_end >= cursor_start)
+							--cursor_end;
+						else
+							++cursor_end;
+						break;
+					}
+					if (cursor_end >= cursor_start)
+						++cursor_end;
+					else
+						--cursor_end;
+				}
+				d->d2 = cursor_start | (((cursor_end == -1 ? 0xFFFF : cursor_end) & 0xFFFF) << 16);
+				d->flags |= D_DIRTY;
+			}
+			else
+			{
+				if (cursor_end == cursor_start) cursor_end = -1;
+				else d->flags |= D_DIRTY;
+				d->d2 = cursor_start | (((cursor_end == -1 ? 0xFFFF : cursor_end) & 0xFFFF) << 16);
+			}
 			
 			object_message(d, MSG_DRAW, 0);
 			font = oldfont;
-			break;
-		}
-		case MSG_DCLICK:
-		{
-			if ((gui_mouse_b() & 2) != 0)
-				break;
-			if (d->flags & (D_DISABLED | D_READONLY))
-				break;
-
-			dclick = true;
-			cursor_start = 0;
-			cursor_end = (int32_t)strlen((char*)d->dp) - 1;
-			d->d2 = cursor_start | (((cursor_end == -1 ? 0xFFFF : cursor_end) & 0xFFFF) << 16);
-			d->flags |= D_DIRTY;
+			dclick = false;
 			break;
 		}
 
@@ -2228,8 +2259,11 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 			}
 			else if(ctrl && (lower_c=='a' || lower_c=='A'))
 			{
-				scursor = 0;
-				ecursor = d->d1;
+				cursor_start = 0;
+				cursor_end = (int16_t)strlen((char*)d->dp) - 1;
+				d->d2 = cursor_start | (((cursor_end == -1 ? 0xFFFF : cursor_end) & 0xFFFF) << 16);
+				d->flags |= D_DIRTY;
+				break;
 			}
 			else if(lower_c >= 32)
 			{
@@ -2462,15 +2496,16 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 			font = oldfont;
 			break;
 		}
-			
+
+		case MSG_DCLICK:
+			if ((gui_mouse_b() & 2) != 0)
+				break;
+			if (d->flags & (D_DISABLED | D_READONLY))
+				break;
+			dclick = true;
+			break;
 		case MSG_CLICK:
 		{
-			if (dclick)
-			{
-				dclick = false;
-				break;
-			}
-
 			if(d->flags & (D_DISABLED|D_READONLY))
 				break;
 			x = d->x+3;
@@ -2498,24 +2533,52 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 			{
 				cursor_end = -1;
 				cursor_start = MID(0, p, l);
+				if (dclick)
+					cursor_end = cursor_start;
 			}
-			if(cursor_end == cursor_start) cursor_end = -1;
-			d->d2 = cursor_start | (((cursor_end == -1 ? 0xFFFF : cursor_end) & 0xFFFF) << 16);
-			d->flags |= D_DIRTY;
-			break;
-		}
-		case MSG_DCLICK:
-		{
-			if ((gui_mouse_b() & 2) != 0)
-				break;
-			if (d->flags & (D_DISABLED | D_READONLY))
-				break;
 
-			dclick = true;
-			cursor_start = 0;
-			cursor_end = (int16_t)strlen((char*)d->dp)-1;
-			d->d2 = cursor_start | (((cursor_end == -1 ? 0xFFFF : cursor_end) & 0xFFFF) << 16);
+			if (dclick)
+			{
+				while (cursor_start > 0 && cursor_start < l)
+				{
+					if (s[cursor_start] == ' ')
+					{
+						if (cursor_start <= cursor_end)
+							++cursor_start;
+						else
+							--cursor_start;
+						break;
+					}
+					if (cursor_start <= cursor_end)
+						--cursor_start;
+					else
+						++cursor_start;
+				}
+				while (cursor_end > 0 && cursor_end < l)
+				{
+					if (s[cursor_end] == ' ')
+					{
+						if (cursor_end >= cursor_start)
+							--cursor_end;
+						else
+							++cursor_end;
+						break;
+					}
+					if (cursor_end >= cursor_start)
+						++cursor_end;
+					else
+						--cursor_end;
+				}
+				d->d2 = cursor_start | (((cursor_end == -1 ? 0xFFFF : cursor_end) & 0xFFFF) << 16);
+				d->flags |= D_DIRTY;
+			}
+			else
+			{
+				if (cursor_end == cursor_start) cursor_end = -1;
+				d->d2 = cursor_start | (((cursor_end == -1 ? 0xFFFF : cursor_end) & 0xFFFF) << 16);
+			}
 			d->flags |= D_DIRTY;
+			dclick = false;
 			break;
 		}
 
@@ -2738,8 +2801,11 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 			}
 			else if(ctrl && (lower_c=='a' || lower_c=='A'))
 			{
-				scursor = 0;
-				ecursor = d->d1;
+				cursor_start = 0;
+				cursor_end = (int16_t)strlen((char*)d->dp) - 1;
+				d->d2 = cursor_start | (((cursor_end == -1 ? 0xFFFF : cursor_end) & 0xFFFF) << 16);
+				d->flags |= D_DIRTY;
+				break;
 			}
 			else if(lower_c >= 32)
 			{
