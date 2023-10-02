@@ -2599,8 +2599,6 @@ Secondly, it can run 'frozen':
 /////////////////////////
 /// Subscreen Scripts ///
 /////////////////////////
-//
-// NOT IMPLEMENTED!
 // 
 // TOKEN(s):		subscreendata script
 // POINTER: 		subscreendata
@@ -2608,9 +2606,9 @@ Secondly, it can run 'frozen':
 // InitD Labels:		No
 // InitA:			No
 // Multiple Frames:	Yes
-// Waitdraw Support:	Undecided
+// Waitdraw Support:	Yes
 // 
-// To be added in a future spec. Will run on subscreens, set in the Subscreen Editor via a script subscreen object.
+// Runs on active subcreens
 
 
 
