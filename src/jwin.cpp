@@ -1790,9 +1790,11 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 		}
 	}
 	font = oldfont; //in case of early return, need to reset here
+	static bool dclick = false;
 	switch(msg)
 	{
 		case MSG_START:
+			dclick = false;
 			cursor_start = (int32_t)strlen((char*)d->dp);
 			cursor_end = -1;
 			d->d2 = cursor_start | ((cursor_end & 0xFFFF) << 16);
@@ -1847,6 +1849,12 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 			
 		case MSG_CLICK:
 		{
+			if (dclick)
+			{
+				dclick = false;
+				break;
+			}
+
 			if(d->flags & (D_DISABLED|D_READONLY))
 				break;
 			if(d->dp2)
@@ -1894,7 +1902,21 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 			font = oldfont;
 			break;
 		}
-		
+		case MSG_DCLICK:
+		{
+			if ((gui_mouse_b() & 2) != 0)
+				break;
+			if (d->flags & (D_DISABLED | D_READONLY))
+				break;
+
+			dclick = true;
+			cursor_start = 0;
+			cursor_end = (int16_t)strlen((char*)d->dp) - 1;
+			d->d2 = cursor_start | ((cursor_end & 0xFFFF) << 16);
+			d->flags |= D_DIRTY;
+			break;
+		}
+
 		case MSG_WANTFOCUS:
 		case MSG_LOSTFOCUS:
 		case MSG_KEY:
@@ -2348,10 +2370,11 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 	}
 	
 	FONT *oldfont = font;
-	
+	static bool dclick = false;
 	switch(msg)
 	{
 		case MSG_START:
+			dclick = false;
 			cursor_start = (int32_t)strlen((char*)d->dp);
 			cursor_end = -1;
 			d->d2 = cursor_start | ((cursor_end & 0xFFFF) << 16);
@@ -2434,6 +2457,12 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 			
 		case MSG_CLICK:
 		{
+			if (dclick)
+			{
+				dclick = false;
+				break;
+			}
+
 			if(d->flags & (D_DISABLED|D_READONLY))
 				break;
 			x = d->x+3;
@@ -2467,7 +2496,21 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 			d->flags |= D_DIRTY;
 			break;
 		}
-			
+		case MSG_DCLICK:
+		{
+			if ((gui_mouse_b() & 2) != 0)
+				break;
+			if (d->flags & (D_DISABLED | D_READONLY))
+				break;
+
+			dclick = true;
+			cursor_start = 0;
+			cursor_end = (int16_t)strlen((char*)d->dp)-1;
+			d->d2 = cursor_start | ((cursor_end & 0xFFFF) << 16);
+			d->flags |= D_DIRTY;
+			break;
+		}
+
 		case MSG_WANTFOCUS:
 		case MSG_LOSTFOCUS:
 		case MSG_KEY:
