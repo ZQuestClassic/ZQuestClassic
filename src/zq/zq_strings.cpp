@@ -866,7 +866,7 @@ std::string parse_msg_str(std::string const& s)
 {
 	std::string smsg;
 	
-	for(uint32_t i=0; i<s.size() && smsg.size()<MSG_NEW_SIZE; i++)
+	for(uint32_t i=0; i<s.size() && smsg.size()< MSGBUF_SIZE; i++)
 	{
 		// Is it a backslash-escaped number?
 		if(s[i]=='\\')
@@ -983,7 +983,7 @@ char* encode_msg_str(std::string const& message)
 	int32_t sccNumArgs;
 	bool lastWasSCC=false;
 	
-	while(msgbufPos<MSGBUF_SIZE && strPos<MSG_NEW_SIZE+1)
+	while(msgbufPos<MSGBUF_SIZE && strPos< MSGBUF_SIZE)
 	{
 		nextChar=str[strPos];
 		

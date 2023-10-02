@@ -1692,8 +1692,13 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 	s = (char*)d->dp;
 	l = (int32_t)strlen(s);
 	
-	int16_t cursor_start = d->d2 & 0x0000FFFF;
-	int16_t cursor_end = int16_t((d->d2 & 0xFFFF0000) >> 16);
+	int32_t cursor_start = d->d2 & 0x0000FFFF;
+	int32_t cursor_end = int32_t((d->d2 & 0xFFFF0000) >> 16);
+	// This was previously doing bitshifts on -1. There wasn't enough space so I cannibalized 0xFFFF instead. -Moosh
+	if (cursor_start == 0xFFFF)
+		cursor_start = -1;
+	if (cursor_end == 0xFFFF)
+		cursor_end = -1;
 	
 	if(cursor_start > l)
 		cursor_start = l;
@@ -1797,7 +1802,7 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 			dclick = false;
 			cursor_start = (int32_t)strlen((char*)d->dp);
 			cursor_end = -1;
-			d->d2 = cursor_start | ((cursor_end & 0xFFFF) << 16);
+			d->d2 = cursor_start | (((cursor_end == -1 ? 0xFFFF : cursor_end) & 0xFFFF) << 16);
 			break;
 			
 		case MSG_DRAW:
@@ -1868,6 +1873,7 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 				x = d->x+3;
 				for(ind = line ? lines[line-1] : 0; ind < lines[line]; ++ind)
 				{
+					x += char_length(font, s[ind]);
 					if(x >= gui_mouse_x())
 					{
 						if(key_shifts&KB_SHIFT_FLAG)
@@ -1880,7 +1886,6 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 						found = true;
 						break;
 					}
-					x += char_length(font, s[ind]);
 				}
 				break;
 			}
@@ -1896,7 +1901,7 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 			}
 			if(cursor_end == cursor_start) cursor_end = -1;
 			else d->flags |= D_DIRTY;
-			d->d2 = cursor_start | ((cursor_end&0xFFFF) << 16);
+			d->d2 = cursor_start | (((cursor_end == -1 ? 0xFFFF : cursor_end) & 0xFFFF) << 16);
 			
 			object_message(d, MSG_DRAW, 0);
 			font = oldfont;
@@ -1911,8 +1916,8 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 
 			dclick = true;
 			cursor_start = 0;
-			cursor_end = (int16_t)strlen((char*)d->dp) - 1;
-			d->d2 = cursor_start | ((cursor_end & 0xFFFF) << 16);
+			cursor_end = (int32_t)strlen((char*)d->dp) - 1;
+			d->d2 = cursor_start | (((cursor_end == -1 ? 0xFFFF : cursor_end) & 0xFFFF) << 16);
 			d->flags |= D_DIRTY;
 			break;
 		}
@@ -1931,7 +1936,7 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 			bool shifted = key_shifts & KB_SHIFT_FLAG;
 			bool ctrl = key_shifts & KB_CTRL_FLAG;
 			bool change_cursor = true;
-			int16_t scursor = cursor_start, ecursor = cursor_end;
+			int32_t scursor = cursor_start, ecursor = cursor_end;
 			char upper_c = c>>8;
 			char lower_c = c&255;
 			if(shifted)
@@ -2199,12 +2204,10 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 					ind2 = ind+paste_len;
 					while(ind2 > d->d1)
 					{
-						--paste_len;
-						--paste_end;
 						--ind;
 						--ind2;
 					}
-					size_t new_l = ind2+1;
+					size_t new_l = ind2;
 					while(ind >= paste_start)
 					{
 						if(s[ind] || (ind&&s[ind-1]))
@@ -2213,11 +2216,11 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 						}
 						--ind2; --ind;
 					}
-					for(auto q = 0; q < paste_len; ++q)
+					for(auto q = 0; q < paste_len && paste_start+q < new_l; ++q)
 					{
 						s[paste_start+q] = cb.at(q);
 					}
-					s[paste_start+paste_len] = 0;
+					s[new_l] = 0;
 					scursor = paste_start + paste_len;
 					ecursor = -1;
 					GUI_EVENT(d, geCHANGE_VALUE);
@@ -2271,7 +2274,7 @@ int32_t jwin_vedit_proc(int32_t msg, DIALOG *d, int32_t c)
 
 				cursor_end = ecursor; cursor_start = scursor;
 				if (cursor_end == cursor_start) cursor_end = -1;
-				d->d2 = cursor_start | ((cursor_end&0xFFFF) << 16);
+				d->d2 = cursor_start | (((cursor_end == -1 ? 0xFFFF : cursor_end) & 0xFFFF) << 16);
 			}
 			
 			/* if we changed something, better redraw... */
@@ -2318,8 +2321,13 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 	s = (char*)d->dp;
 	l = (int32_t)strlen(s);
 	
-	int16_t cursor_start = d->d2 & 0x0000FFFF;
-	int16_t cursor_end = int16_t((d->d2 & 0xFFFF0000) >> 16);
+	int32_t cursor_start = d->d2 & 0x0000FFFF;
+	int32_t cursor_end = int32_t((d->d2 & 0xFFFF0000) >> 16);
+	// This was previously doing bitshifts on -1. There wasn't enough space so I cannibalized 0xFFFF instead. -Moosh
+	if (cursor_start == 0xFFFF)
+		cursor_start = -1;
+	if (cursor_end == 0xFFFF)
+		cursor_end = -1;
 	
 	if(cursor_start > l)
 		cursor_start = l;
@@ -2377,7 +2385,7 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 			dclick = false;
 			cursor_start = (int32_t)strlen((char*)d->dp);
 			cursor_end = -1;
-			d->d2 = cursor_start | ((cursor_end & 0xFFFF) << 16);
+			d->d2 = cursor_start | (((cursor_end == -1 ? 0xFFFF : cursor_end) & 0xFFFF) << 16);
 			break;
 			
 		case MSG_DRAW:
@@ -2492,7 +2500,7 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 				cursor_start = MID(0, p, l);
 			}
 			if(cursor_end == cursor_start) cursor_end = -1;
-			d->d2 = cursor_start | ((cursor_end&0xFFFF) << 16);
+			d->d2 = cursor_start | (((cursor_end == -1 ? 0xFFFF : cursor_end) & 0xFFFF) << 16);
 			d->flags |= D_DIRTY;
 			break;
 		}
@@ -2506,7 +2514,7 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 			dclick = true;
 			cursor_start = 0;
 			cursor_end = (int16_t)strlen((char*)d->dp)-1;
-			d->d2 = cursor_start | ((cursor_end & 0xFFFF) << 16);
+			d->d2 = cursor_start | (((cursor_end == -1 ? 0xFFFF : cursor_end) & 0xFFFF) << 16);
 			d->flags |= D_DIRTY;
 			break;
 		}
@@ -2705,12 +2713,10 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 					ind2 = ind+paste_len;
 					while(ind2 > d->d1)
 					{
-						--paste_len;
-						--paste_end;
 						--ind;
 						--ind2;
 					}
-					size_t new_l = ind2+1;
+					size_t new_l = ind2;
 					while(ind >= paste_start)
 					{
 						if(s[ind] || (ind&&s[ind-1]))
@@ -2719,11 +2725,11 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 						}
 						--ind2; --ind;
 					}
-					for(auto q = 0; q < paste_len; ++q)
+					for(auto q = 0; q < paste_len && paste_start+q < new_l; ++q)
 					{
 						s[paste_start+q] = cb.at(q);
 					}
-					s[paste_start+paste_len] = 0;
+					s[new_l] = 0;
 					scursor = paste_start + paste_len;
 					ecursor = -1;
 					GUI_EVENT(d, geCHANGE_VALUE);
@@ -2775,7 +2781,7 @@ int32_t jwin_edit_proc(int32_t msg, DIALOG *d, int32_t c)
 			{
 				cursor_end = ecursor; cursor_start = scursor;
 				if (cursor_end == cursor_start) cursor_end = -1;
-				d->d2 = cursor_start | ((cursor_end&0xFFFF) << 16);
+				d->d2 = cursor_start | (((cursor_end == -1 ? 0xFFFF : cursor_end) & 0xFFFF) << 16);
 			}
 			/* if we changed something, better redraw... */
 			// Note: this still redraws when not necessary.

@@ -133,7 +133,7 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 		TabRef(name = "String", Column(
 			str_field = TextField(fitParent = true,
 				forceFitW = true, height = 2_px+(3*(1_em+2_px)),
-				maxLength = MSGBUF_SIZE, type = GUI::TextField::type::TEXT,
+				maxLength = MSGBUF_SIZE - 1, type = GUI::TextField::type::TEXT,
 				text = start_text, focused = !stred_tab_1,
 				onValChangedFunc = [&](GUI::TextField::type,std::string_view v,int32_t)
 				{
