@@ -568,12 +568,14 @@ static int32_t do_NewQuest()
 int32_t alignment_arrow_timer=0;
 int32_t  Flip=0,Combo=0,CSet=2,current_combolist=0,current_comboalist=0,current_cpoollist=0,current_cautolist=0,current_mappage=0;
 int32_t  Flags=0,Flag=0,menutype=(m_block);
-int32_t MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, GridColor = 15, CmbCursorCol = 15, TilePgCursorCol = 15, CmbPgCursorCol = 15,
-	TileProtection = 0, InvalidStatic = 0, NoScreenPreview = 0, MMapCursorStyle = 0, LayerDitherBG = -1, LayerDitherSz = 2,
-	BlinkSpeed = 20, RulesetDialog = 0, EnableTooltips = 0,
-	TooltipsHighlight = 0, ShowFFScripts = 0, ShowSquares = 0, ShowFFCs = 0,
-	ShowInfo = 0, skipLayerWarning = 0, WarnOnInitChanged = 0, DisableLPalShortcuts = 1,
-	DisableCompileConsole = 0, numericalFlags = 0, ActiveLayerHighlight = 0;
+int32_t MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, GridColor = 15,
+	CmbCursorCol = 15, TilePgCursorCol = 15, CmbPgCursorCol = 15, TTipHLCol = 13,
+	TileProtection = 0, InvalidStatic = 0, NoScreenPreview = 0, MMapCursorStyle = 0,
+	LayerDitherBG = -1, LayerDitherSz = 2, BlinkSpeed = 20, RulesetDialog = 0,
+	EnableTooltips = 0, TooltipsHighlight = 0, ShowFFScripts = 0, ShowSquares = 0,
+	ShowFFCs = 0, ShowInfo = 0, skipLayerWarning = 0, WarnOnInitChanged = 0,
+	DisableLPalShortcuts = 1, DisableCompileConsole = 0, numericalFlags = 0,
+	ActiveLayerHighlight = 0;
 bool NoHighlightLayer0 = false;
 int32_t FlashWarpSquare = -1, FlashWarpClk = 0; // flash the destination warp return when ShowSquares is active
 uint8_t ViewLayer3BG = 0, ViewLayer2BG = 0;
@@ -27923,6 +27925,7 @@ int32_t main(int32_t argc,char **argv)
 	CmbCursorCol					  = zc_get_config("zquest","combo_cursor_color",15);
 	TilePgCursorCol					  = zc_get_config("zquest","tpage_cursor_color",15);
 	CmbPgCursorCol					  = zc_get_config("zquest","cpage_cursor_color",15);
+	TTipHLCol					  = zc_get_config("zquest","ttip_hl_color",13);
 	SnapshotFormat				 = zc_get_config("zquest","snapshot_format",3);
 	SavePaths					  = zc_get_config("zquest","save_paths",1);
 	CycleOn						= zc_get_config("zquest","cycle_on",1);
@@ -30842,7 +30845,7 @@ void update_tooltip(int32_t x, int32_t y, int32_t tx, int32_t ty, int32_t tw, in
 	tooltip_highlight.fw = fw;
 	tooltip_highlight.fh = fh;
 	tooltip_highlight.data[0] = 2;
-	tooltip_highlight.data[1] = 0xED;
+	tooltip_highlight.data[1] = vc(TTipHLCol);
 	FONT* oldfont = font;
 	font = get_custom_font(CFONT_TTIP);
 	
@@ -30889,7 +30892,7 @@ void update_tooltip2(int32_t x, int32_t y, int32_t tx, int32_t ty, int32_t tw, i
 	tooltip_highlight2.fw = fw;
 	tooltip_highlight2.fh = fh;
 	tooltip_highlight2.data[0] = 2;
-	tooltip_highlight2.data[1] = 0xED;
+	tooltip_highlight2.data[1] = vc(TTipHLCol);
 	
 	FONT* oldfont = font;
 	font = get_custom_font(CFONT_TTIP);
