@@ -84,7 +84,7 @@ def split_replay(replay_path: Path, output_folder: Path, skip_save_file_generati
 			raise Exception(f'expected {total - 1} save files, but got {len(save_files)}')
 
 	output_folder.mkdir(exist_ok=True)
-	# qst file may not be relative to the replay file (ex: modules/classic/classic_1st.qst)
+	# qst file may not be relative to the replay file (ex: quests/Z1 Recreations/classic_1st.qst)
 	if qst_path.exists():
 		shutil.copy(qst_path, output_folder)
 	most_recent_key_step = None

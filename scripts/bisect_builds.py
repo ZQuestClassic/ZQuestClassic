@@ -4,7 +4,7 @@
 #
 # You can automate running a command on each bisect script, like this:
 #   -c '%zq'
-#   -c '%zc -test modules/classic/classic_1st.qst 0 119'
+#   -c '%zc -test "quests/Z1 Recreations/classic_1st.qst" 0 119'
 #
 # To download a specific build:
 #   python scripts/bisect_builds.py --token $GH_PAT --download_release 2.55-alpha-109

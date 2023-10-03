@@ -10,7 +10,7 @@ rm -rf "$TEST_DIR"
 mkdir -p "$TEST_DIR"
 
 # Add an entire quest file.
-cp "$ROOT/resources/modules/classic/classic_1st.qst" "$TEST_DIR"
+cp "$ROOT/resources/quests/Z1 Recreations/classic_1st.qst" "$TEST_DIR"
 
 # Add every replay test file <5MB, but trim some large sections.
 SECTIONS="TILES MIDIS MAPS CSETS DMAPS"
