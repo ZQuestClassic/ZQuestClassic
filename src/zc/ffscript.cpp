@@ -32192,14 +32192,23 @@ void FFScript::do_setDMapData_dmaptitle(const bool v)
 	int32_t ID = ri->dmapsref;
 	int32_t arrayptr = get_register(sarg1) / 10000;
 	string filename_str;
-	
+
 	if(BC::checkDMapID(ID, "dmapdata->SetTitle()") != SH::_NoError)
 		return;
-		
-		
-	ArrayH::getString(arrayptr, filename_str, 21);
-	strncpy(DMaps[ID].title, filename_str.c_str(), 20);
-	DMaps[ID].title[20]='\0';
+
+	if (get_qr(qr_OLD_DMAP_INTRO_STRINGS))
+	{
+		char namestr[21];
+		ArrayH::getString(arrayptr, filename_str, 21);
+		strncpy(namestr, filename_str.c_str(), 20);
+		namestr[20] = '\0';
+		DMaps[ID].title.assign(namestr);
+	}
+	else
+	{
+		ArrayH::getString(arrayptr, filename_str, ArrayH::getSize(arrayptr));
+		DMaps[ID].title = filename_str;
+	}
 }
 
 void FFScript::do_getDMapData_dmapintro(const bool v)
@@ -34752,9 +34761,19 @@ void do_setdmaptitle(const bool v)
 	if(BC::checkDMapID(ID, "Game->Game->SetDMapTitle") != SH::_NoError)
 		return;
 		
-	ArrayH::getString(arrayptr, filename_str, 21);
-	strncpy(DMaps[ID].title, filename_str.c_str(), 20);
-	DMaps[ID].title[20]='\0';
+	if (get_qr(qr_OLD_DMAP_INTRO_STRINGS))
+	{
+		char namestr[21];
+		ArrayH::getString(arrayptr, filename_str, 21);
+		strncpy(namestr, filename_str.c_str(), 20);
+		namestr[20] = '\0';
+		DMaps[ID].title.assign(namestr);
+	}
+	else
+	{
+		ArrayH::getString(arrayptr, filename_str, ArrayH::getSize(arrayptr));
+		DMaps[ID].title = filename_str;
+	}
 }
 
 void do_getdmapintro(const bool v)
@@ -44630,9 +44649,9 @@ void FFScript::do_getdmapbyname()
 	int32_t num = -1;
 	ArrayH::getString(arrayptr, the_string, 256); //What is the max length of a script identifier?
 	
-	for(int32_t q = 0; q < MAXNPCS; q++)
+	for(int32_t q = 0; q < MAXDMAPS; q++)
 	{
-		if(!(strcmp(the_string.c_str(), DMaps[q].title)))
+		if(!(strcmp(the_string.c_str(), DMaps[q].name)))
 		{
 			num = q;
 			break;

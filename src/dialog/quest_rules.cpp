@@ -933,6 +933,9 @@ static GUI::ListData compatRulesList
 	{ "Broken Sword Triggers (spin-related)", qr_BROKEN_SWORD_SPIN_TRIGGERS,
 		"If enabled, a sword trigger that was hit by slash cannot be re-hit by"
 		" the same sword during the spin attack, making some spin-based puzzles not work." },
+	{ "Old DMap Titles and Intros", qr_OLD_DMAP_INTRO_STRINGS,
+		"If enabled, DMaps will use old title and intro string behavior where the "
+		" intro string did not use the string editor and title was limited to 20 chars." },
 };
 
 static GUI::ListData enemiesRulesList

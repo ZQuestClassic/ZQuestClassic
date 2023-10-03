@@ -3,6 +3,7 @@
 
 #include "base/general.h"
 #include "base/ints.h"
+#include <string>
 
 struct dmap
 {
@@ -18,7 +19,8 @@ struct dmap
 	byte grid[8];
 	//16
 	char name[21];
-	char title[21];
+	std::string title;
+	//char title[21];
 	char intro[73];
 	//byte padding;
 	//132
@@ -61,6 +63,7 @@ struct dmap
 	int32_t tmusic_loop_end;
 	int32_t tmusic_xfade_in;
 	int32_t tmusic_xfade_out;
+	uint32_t intro_string_id;
 };
 
 extern dmap *DMaps;

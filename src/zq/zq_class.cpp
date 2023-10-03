@@ -111,7 +111,7 @@ void reset_dmap(int32_t index)
 {
     bound(index,0,MAXDMAPS-1);
     memset(&DMaps[index],0,sizeof(dmap));
-    sprintf(DMaps[index].title, "                    ");
+	DMaps[index].title = "";
     sprintf(DMaps[index].intro, "                                                                        ");
 }
 
@@ -121,6 +121,10 @@ void reset_dmaps()
         reset_dmap(i);
 }
 
+void truncate_dmap_title(std::string& title)
+{
+	title.resize(21, ' ');
+}
 
 mapscr* zmap::get_prvscr()
 {
@@ -7722,7 +7726,7 @@ int32_t writedmaps(PACKFILE *f, word version, word build, word start_dmap, word 
                 new_return(15);
             }
             
-            if(!pfwrite(&DMaps[i].title,sizeof(DMaps[0].title),f))
+            if(!p_putwstr(DMaps[i].title,f))
             {
                 new_return(16);
             }
@@ -7906,6 +7910,8 @@ int32_t writedmaps(PACKFILE *f, word version, word build, word start_dmap, word 
             }
 			if(!p_putc(DMaps[i].overlay_subscreen, f))
 				new_return(46);
+			if (!p_iputl(DMaps[i].intro_string_id, f))
+				new_return(47);
 		}
         
         if(writecycle==0)

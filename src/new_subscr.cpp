@@ -2488,6 +2488,8 @@ bool SW_MMapTitle::load_old(subscreen_object const& old)
 }
 int16_t SW_MMapTitle::getX() const
 {
+	if (!get_qr(qr_OLD_DMAP_INTRO_STRINGS))
+		return x;
 	switch(align)
 	{
 		case sstaCENTER:
@@ -2499,6 +2501,8 @@ int16_t SW_MMapTitle::getX() const
 }
 word SW_MMapTitle::getW() const
 {
+	if (!get_qr(qr_OLD_DMAP_INTRO_STRINGS))
+		return w;
 	word ret = (flags&SUBSCR_MMAPTIT_ONELINE)?100:50;
 	char bufs[2][21] = {0};
 	auto linecnt = get_strs(bufs[0],bufs[1]);
@@ -2516,6 +2520,8 @@ word SW_MMapTitle::getW() const
 }
 word SW_MMapTitle::getH() const
 {
+	if (!get_qr(qr_OLD_DMAP_INTRO_STRINGS))
+		return h;
 	return ((flags&SUBSCR_MMAPTIT_ONELINE)?1:2)*text_height(get_zc_font(fontid));
 }
 byte SW_MMapTitle::getType() const
@@ -2527,7 +2533,9 @@ byte SW_MMapTitle::get_strs(char* line1, char* line2) const
 	line1[0] = line2[0] = 0;
 	char dmaptitlesource[2][11];
 	char dmaptitle[2][11];
-	char* title = DMaps[get_sub_dmap()].title;
+	std::string legacy_title = DMaps[get_sub_dmap()].title;
+	legacy_title.resize(21, ' ');
+	const char* title = legacy_title.c_str();
 	sprintf(dmaptitlesource[0], "%.10s", title);
 	sprintf(dmaptitlesource[1], "%.10s", title+10);
 	bool l1 = stripspaces(dmaptitlesource[0], dmaptitle[0], 10) > 0;
@@ -2558,7 +2566,22 @@ byte SW_MMapTitle::get_strs(char* line1, char* line2) const
 			}
 	}
 }
+
 void SW_MMapTitle::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
+{
+	if (get_qr(qr_OLD_DMAP_INTRO_STRINGS))
+		draw_old(dest, xofs, yofs, page);
+	else
+		draw_new(dest, xofs, yofs, page);
+}
+void SW_MMapTitle::draw_new(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
+{
+	FONT* tempfont = get_zc_font(fontid);
+	draw_textbox(dest, x + xofs, y + yofs, w, h, tempfont, DMaps[get_sub_dmap()].title.c_str(),
+		flags & SUBSCR_MMAPTIT_WORDWRAP, tabsize, align, shadtype,
+		c_text.get_color(), c_shadow.get_color(), c_bg.get_color());
+}
+void SW_MMapTitle::draw_old(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const
 {
 	FONT* tempfont = get_zc_font(fontid);
 	if(!(flags&SUBSCR_MMAPTIT_REQMAP) || has_item(itype_map, get_dlevel()))
@@ -2604,6 +2627,7 @@ bool SW_MMapTitle::copy_prop(SubscrWidget const* src, bool all)
 	c_text = other->c_text;
 	c_shadow = other->c_shadow;
 	c_bg = other->c_bg;
+	tabsize = other->tabsize;
 	return true;
 }
 int32_t SW_MMapTitle::read(PACKFILE *f, word s_version)
@@ -2622,6 +2646,11 @@ int32_t SW_MMapTitle::read(PACKFILE *f, word s_version)
 		return ret;
 	if(auto ret = c_bg.read(f,s_version))
 		return ret;
+	if (s_version >= 10)
+	{
+		if(!p_getc(&tabsize,f))
+			return qe_invalid;
+	}
 	return 0;
 }
 int32_t SW_MMapTitle::write(PACKFILE *f) const
@@ -2640,6 +2669,8 @@ int32_t SW_MMapTitle::write(PACKFILE *f) const
 		return ret;
 	if(auto ret = c_bg.write(f))
 		return ret;
+	if(!p_putc(tabsize,f))
+		new_return(1);
 	return 0;
 }
 

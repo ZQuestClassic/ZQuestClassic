@@ -155,6 +155,7 @@ public:
 };
 
 void reset_dmap(int32_t index);
+void truncate_dmap_title(std::string& title);
 //void mapfix_0x166(mapscr *scr);
 bool setMapCount2(int32_t c);
 class zmap

@@ -1003,9 +1003,18 @@ void dointro()
 {
     if(game->visited[currdmap]!=1 || (DMaps[currdmap].flags&dmfALWAYSMSG)!=0)
     {
-        dmapmsgclk=0;
-        game->visited[currdmap]=1;
-        introclk=intropos=0;
+		if(get_qr(qr_OLD_DMAP_INTRO_STRINGS))
+		{
+			dmapmsgclk = 0;
+			game->visited[currdmap] = 1;
+			introclk = intropos = 0;
+		}
+		else
+		{
+			if(DMaps[currdmap].intro_string_id)
+				donewmsg(DMaps[currdmap].intro_string_id);
+			game->visited[currdmap] = 1;
+		}
     }
     else
     {
@@ -2635,6 +2644,9 @@ void restart_level()
 
 void putintro()
 {
+	if (!get_qr(qr_OLD_DMAP_INTRO_STRINGS))
+		return;
+
     if(!stricmp("                                                                        ", DMaps[currdmap].intro))
     {
         introclk=intropos=72;

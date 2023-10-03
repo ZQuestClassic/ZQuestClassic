@@ -3681,6 +3681,8 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_BROKEN_LIGHTBEAM_HITBOX,1);
 	if(compatrule_version < 57)
 		set_qr(qr_BROKEN_SWORD_SPIN_TRIGGERS,1);
+	if(compatrule_version < 58)
+		set_qr(qr_OLD_DMAP_INTRO_STRINGS,1);
 	
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)
@@ -4608,11 +4610,13 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 	int32_t dummy;
 	word s_version=0, s_cversion=0;
 	byte padding;
+
+	char legacy_title[21];
 	
 	for(int32_t i=0; i<max_dmaps; i++)
 	{
 		memset(&DMaps[start_dmap+i],0,sizeof(dmap));
-		sprintf(DMaps[start_dmap+i].title,"                    ");
+		sprintf(legacy_title,"                    ");
 		sprintf(DMaps[start_dmap+i].intro,"                                                                        ");
 		DMaps[start_dmap+i].type |= dmCAVE;
 	}
@@ -4669,7 +4673,7 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 	for(int32_t i=start_dmap; i<dmapstoread+start_dmap; i++)
 	{
 		memset(&tempDMap,0,sizeof(dmap));
-		sprintf(tempDMap.title,"                    ");
+		sprintf(legacy_title,"                    ");
 		sprintf(tempDMap.intro,"                                                                        ");
 		
 		if(!p_getc(&tempDMap.map,f))
@@ -4756,8 +4760,9 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 		{
 			if(tempDMap.level>0&&tempDMap.level<10)
 			{
-				sprintf(tempDMap.title,"LEVEL-%d             ", tempDMap.level);
+				sprintf(legacy_title,"LEVEL-%d             ", tempDMap.level);
 			}
+			tempDMap.title.assign(legacy_title);
 			
 			if(i==0 && Header->zelda_version <= 0x190)
 			{
@@ -4778,9 +4783,23 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 				return qe_invalid;
 			}
 			
-			if(!pfread(&tempDMap.title,sizeof(DMaps[0].title),f))
+			if(s_version<20)
 			{
-				return qe_invalid;
+				if (!pfread(&legacy_title, sizeof(legacy_title), f))
+				{
+					return qe_invalid;
+				}
+				tempDMap.title.assign(legacy_title);
+			}
+			else
+			{
+				std::string tmptitle;
+				if (!p_getwstr(&tmptitle, f))
+				{
+					return qe_invalid;
+				}
+				tempDMap.title.reserve(tmptitle.size());
+				tempDMap.title = tmptitle;
 			}
 			
 			if(!pfread(&tempDMap.intro,sizeof(DMaps[0].intro),f))
@@ -5174,6 +5193,14 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 		if(s_version >= 19)
 			if(!p_getc(&tempDMap.overlay_subscreen, f))
 				return qe_invalid;
+
+		if (s_version >= 20)
+		{
+			if (!p_igetl(&tempDMap.intro_string_id, f))
+				return qe_invalid;
+		}
+		else
+			tempDMap.intro_string_id = 0;
 		
 		if (!should_skip)
 			memcpy(&DMaps[i], &tempDMap, sizeof(tempDMap));
