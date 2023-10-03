@@ -5693,7 +5693,11 @@ void draw_tiles(BITMAP* dest,int32_t first,int32_t cs, int32_t f, bool large, bo
 		{
 			if(!true_empty) //Use pure color 0; no effects
 			{
-				if(InvalidStatic)
+				if (InvalidBG == 2)
+				{
+					draw_checkerboard(dest, x, y, l / 2 + 1, l / 2 + 1, l + 2);
+				}
+				else if(InvalidBG == 1)
 				{
 					for(int32_t dy=0; dy<=l+1; dy++)
 					{
@@ -5765,7 +5769,11 @@ void tile_info_0(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copy
 	}
 	else // No tiles copied
 	{
-		if(InvalidStatic)
+		if (InvalidBG == 2)
+		{
+			draw_checkerboard(screen2, 34 * mul, 216 * mul + yofs, 8 * mul, 8 * mul, 16 * mul);
+		}
+		else if(InvalidBG == 1)
 		{
 			for(int32_t dy=0; dy<16*mul; dy++)
 			{
@@ -5862,7 +5870,11 @@ void tile_info_1(int32_t oldtile,int32_t oldflip,int32_t oldcs,int32_t tile,int3
 	}
 	else
 	{
-		if(InvalidStatic)
+		if (InvalidBG == 2)
+		{
+			draw_checkerboard(screen2, 124 * mul, 216 * mul + yofs, 8 * mul, 8 * mul, 16 * mul);
+		}
+		else if(InvalidBG == 1)
 		{
 			for(int32_t dy=0; dy<16*mul; dy++)
 			{
@@ -16455,7 +16467,7 @@ int32_t select_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bool ed
 		
 REDRAW:
 
-		if((f%8)==0 || InvalidStatic)
+		if((f%8)==0 || InvalidBG == 1)
 			redraw=true;
 		if(otl != tile || otl2 != tile2)
 		{
@@ -16893,7 +16905,11 @@ void combo_info(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copyc
 	}
 	else
 	{
-		if(InvalidStatic)
+		if (InvalidBG == 2)
+		{
+			draw_checkerboard(screen2, 31 * mul, 216 * mul + yofs, 8 * mul, 8 * mul, 16 * mul);
+		}
+		else if(InvalidBG == 1)
 		{
 			for(int32_t dy=0; dy<16*mul; dy++)
 			{
@@ -16945,7 +16961,11 @@ void combo_info(int32_t tile,int32_t tile2,int32_t cs,int32_t copy,int32_t copyc
 		}
 		else
 		{
-			if(InvalidStatic)
+			if (InvalidBG == 2)
+			{
+				draw_checkerboard(screen2, 136 * mul, 216 * mul + yofs, 8 * mul, 8 * mul, 16 * mul);
+			}
+			else if(InvalidBG == 1)
 			{
 				for(int32_t dy=0; dy<16*mul; dy++)
 				{
@@ -17377,7 +17397,7 @@ bool select_combo_2(int32_t &cmb,int32_t &cs)
 		if(gui_mouse_b()==0)
 			bdown=false;
 		
-		if((f%8) || InvalidStatic)
+		if((f%8) || InvalidBG == 1)
 			redraw = true;
 		if(otl != cmb || otl2 != tile2)
 		{
@@ -18117,7 +18137,7 @@ REDRAW:
 		if(gui_mouse_b()==0)
 			bdown=false;
 		
-		if((f%8) || InvalidStatic)
+		if((f%8) || InvalidBG == 1)
 			redraw = true;
 		if(otl != tile || otl2 != tile2)
 		{
@@ -21099,7 +21119,7 @@ int32_t select_dmap_tile(int32_t &tile,int32_t &flip,int32_t type,int32_t &cs,bo
 		
 REDRAW_DMAP_SELTILE:
 
-		if((f%8)==0 || InvalidStatic)
+		if((f%8)==0 || InvalidBG == 1)
 			redraw=true;
 		if(otl != tile || otl2 != tile2)
 		{

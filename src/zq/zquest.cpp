@@ -570,12 +570,13 @@ int32_t  Flip=0,Combo=0,CSet=2,current_combolist=0,current_comboalist=0,current_
 int32_t  Flags=0,Flag=0,menutype=(m_block);
 int32_t MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, GridColor = 15,
 	CmbCursorCol = 15, TilePgCursorCol = 15, CmbPgCursorCol = 15, TTipHLCol = 13,
-	TileProtection = 0, InvalidStatic = 0, NoScreenPreview = 0, MMapCursorStyle = 0,
+	TileProtection = 0, NoScreenPreview = 0, MMapCursorStyle = 0,
 	LayerDitherBG = -1, LayerDitherSz = 2, BlinkSpeed = 20, RulesetDialog = 0,
 	EnableTooltips = 0, TooltipsHighlight = 0, ShowFFScripts = 0, ShowSquares = 0,
 	ShowFFCs = 0, ShowInfo = 0, skipLayerWarning = 0, WarnOnInitChanged = 0,
 	DisableLPalShortcuts = 1, DisableCompileConsole = 0, numericalFlags = 0,
 	ActiveLayerHighlight = 0;
+uint8_t InvalidBG = 0;
 bool NoHighlightLayer0 = false;
 int32_t FlashWarpSquare = -1, FlashWarpClk = 0; // flash the destination warp return when ShowSquares is active
 uint8_t ViewLayer3BG = 0, ViewLayer2BG = 0;
@@ -5474,7 +5475,13 @@ void draw_screenunit(int32_t unit, int32_t flags)
 					}
 					else
 					{
-						if(InvalidStatic)
+						if (InvalidBG == 2)
+						{
+
+							int32_t offs = 2 * (sqr.w / 9);
+							draw_checkerboard(menu1, sqr.x, sqr.y, sqr.w / 2, sqr.w / 2, sqr.w);
+						}
+						else if (InvalidBG == 1)
 						{
 							for(int32_t dy=0; dy<sqr.h; dy++)
 							{
@@ -6490,7 +6497,11 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				}
 				else
 				{
-					if(InvalidStatic)
+					if (InvalidBG == 2)
+					{
+						draw_checkerboard(menu1, combo_preview2.x, combo_preview2.y, 16, 16, 32);
+					}
+					else if(InvalidBG == 1)
 					{
 						for(int32_t dy=0; dy<combo_preview2.w; dy++)
 						{
@@ -6561,7 +6572,11 @@ void draw_screenunit(int32_t unit, int32_t flags)
 					auto& sqr = favorites_list.subsquare(col,row);
 					if(i >= MAXFAVORITECOMBOS || favorite_combos[i]==-1)
 					{
-						if(InvalidStatic)
+						if (InvalidBG == 2)
+						{
+							draw_checkerboard(menu1, sqr.x, sqr.y, sqr.w / 2, sqr.w / 2, sqr.w);
+						}
+						else if(InvalidBG == 1)
 						{
 							for(int32_t dy=0; dy<sqr.h; dy++)
 							{
@@ -27915,10 +27930,10 @@ int32_t main(int32_t argc,char **argv)
 	DisableCompileConsole        = zc_get_config("zquest","internal_compile_console",0);
 	MouseScroll					= zc_get_config("zquest","mouse_scroll",0);
 	WarnOnInitChanged			  = zc_get_config("zquest","warn_initscript_changes",1);
-	InvalidStatic				  = zc_get_config("zquest","invalid_static",1);
 	MMapCursorStyle				= zc_get_config("zquest","cursorblink_style",1);
 	LayerDitherBG				= zc_get_config("zquest", "layer_dither_bg", -1);
 	LayerDitherSz				= zc_get_config("zquest", "layer_dither_sz", 3);
+	InvalidBG					= zc_get_config("zquest", "invalid_bg", 0);
 	TileProtection				 = zc_get_config("zquest","tile_protection",1);
 	ShowGrid					   = zc_get_config("zquest","show_grid",0);
 	GridColor					  = zc_get_config("zquest","grid_color",15);

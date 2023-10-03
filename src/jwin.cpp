@@ -9881,6 +9881,20 @@ void draw_x(BITMAP* dest, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_
 	line(dest, x1, y2, x2, y1, color);
 }
 
+void draw_checkerboard(BITMAP* dest, int32_t x, int32_t y, int32_t offx, int32_t offy, int32_t sz)
+{
+	int32_t midx = offx % sz;
+	int32_t midy = offy % sz;
+	bool inv = XOR(((x + offx) % (sz * 2) >= sz), ((y + offy) % (sz * 2) >= sz));
+	rectfill(dest, x + midx, y + midy, x + sz - 1, y + sz - 1, inv ? vc(7) : vc(8));
+	if (midx > 0 && midy > 0)
+		rectfill(dest, x, y, x + midx - 1, y + midy - 1, inv ? vc(7) : vc(8));
+	if (midx > 0)
+		rectfill(dest, x, y + midy, x + midx - 1, y + sz - 1, inv ? vc(8) : vc(7));
+	if (midy > 0)
+		rectfill(dest, x + midx, y, x + sz - 1, y + midy - 1, inv ? vc(8) : vc(7));
+}
+
 int32_t d_vsync_proc(int32_t msg,DIALOG *d,int32_t c)
 {
     static clock_t tics;
