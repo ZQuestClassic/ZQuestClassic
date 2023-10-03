@@ -1273,10 +1273,9 @@ int32_t get_qst_buffers()
     memrequested+=(sizeof(dmap)*MAXDMAPS);
     Z_message("Allocating dmap buffer (%s)... ", byte_conversion2(sizeof(dmap)*MAXDMAPS,memrequested,-1,-1));
     
-    if((DMaps=(dmap*)malloc(sizeof(dmap)*MAXDMAPS))==NULL)
+    if((DMaps=new dmap[MAXDMAPS])==NULL)
         return 0;
-        
-    memset(DMaps, 0, sizeof(dmap)*MAXDMAPS);
+
     Z_message("OK\n");                                        // Allocating dmap buffer...
     
     memrequested+=(sizeof(newcombo)*MAXCOMBOS);
@@ -1411,7 +1410,7 @@ void del_qst_buffers()
     
     if(DoorComboSets) free(DoorComboSets);
     
-    if(DMaps) free(DMaps);
+	if (DMaps) delete[] DMaps;
     
 	combobuf.clear();
     
@@ -4615,7 +4614,7 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 	
 	for(int32_t i=0; i<max_dmaps; i++)
 	{
-		memset(&DMaps[start_dmap+i],0,sizeof(dmap));
+		DMaps[start_dmap + i].clear();
 		sprintf(legacy_title,"                    ");
 		sprintf(DMaps[start_dmap+i].intro,"                                                                        ");
 		DMaps[start_dmap+i].type |= dmCAVE;
@@ -4672,7 +4671,7 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 	
 	for(int32_t i=start_dmap; i<dmapstoread+start_dmap; i++)
 	{
-		memset(&tempDMap,0,sizeof(dmap));
+		tempDMap.clear();
 		sprintf(legacy_title,"                    ");
 		sprintf(tempDMap.intro,"                                                                        ");
 		
@@ -4810,7 +4809,7 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 			if(Header && ((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<152))))
 			{
 				if ((tempDMap.type & dmfTYPE) == dmOVERW) tempDMap.flags = dmfCAVES | dmf3STAIR | dmfWHIRLWIND | dmfGUYCAVES;
-				memcpy(&DMaps[i], &tempDMap, sizeof(tempDMap));
+				DMaps[i] = tempDMap;
 				
 				continue;
 			}
@@ -5203,7 +5202,7 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 			tempDMap.intro_string_id = 0;
 		
 		if (!should_skip)
-			memcpy(&DMaps[i], &tempDMap, sizeof(tempDMap));
+			DMaps[i] = tempDMap;
 	}
 	
 	return 0;

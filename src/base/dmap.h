@@ -64,6 +64,11 @@ struct dmap
 	int32_t tmusic_xfade_in;
 	int32_t tmusic_xfade_out;
 	uint32_t intro_string_id;
+
+	void clear()
+	{
+		*this = dmap();
+	}
 };
 
 extern dmap *DMaps;

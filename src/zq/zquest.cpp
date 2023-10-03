@@ -15812,7 +15812,7 @@ int32_t readsomedmaps(PACKFILE *f)
 	int32_t zversion = 0;
 	int32_t zbuild = 0;
 	dmap tempdmap;
-	memset(&tempdmap, 0, sizeof(dmap));
+	tempdmap.clear();
 	
 	int32_t first = 0, last = 0, max = 0, count = 0;
 	int32_t datatype_version = 0;
@@ -16143,7 +16143,7 @@ int32_t readsomedmaps(PACKFILE *f)
 					}
 				}
 			}
-		::memcpy(&DMaps[i], &tempdmap, sizeof(dmap));
+			DMaps[i] = tempdmap;
 	    }
        
 	return 1;
@@ -16433,7 +16433,7 @@ int32_t readonedmap(PACKFILE *f, int32_t index)
 	int32_t zversion = 0;
 	int32_t zbuild = 0;
 	dmap tempdmap;
-	memset(&tempdmap, 0, sizeof(dmap));
+	tempdmap.clear();
 	int32_t datatype_version = 0;
 	int32_t first = 0;
 	int32_t last = 0;
@@ -16755,7 +16755,7 @@ int32_t readonedmap(PACKFILE *f, int32_t index)
 				}
 			}
 		}
-	::memcpy(&DMaps[index], &tempdmap, sizeof(dmap));
+		DMaps[index] = tempdmap;
        
 	return 1;
 }
@@ -16783,37 +16783,34 @@ void dmap_rclick_func(int32_t index, int32_t x, int32_t y)
     
     if(ret==0) // copy
     {
-	::memcpy(&copiedDMap, &DMaps[index], sizeof(dmap));
-	dmapcopied = 1;
+		copiedDMap = DMaps[index];
+		dmapcopied = 1;
     }
     else if(ret==1) // paste
     {
-	::memcpy(&DMaps[index], &copiedDMap, sizeof(dmap));
+		DMaps[index] = copiedDMap;
         selectdmap_dlg[2].flags|=D_DIRTY;
         saved=false;
     }
     else if(ret==2) // save
     {
-	if(!getname("Save DMAP(.zdmap)", "zdmap", NULL,datapath,false))
-                return;
+		if(!getname("Save DMAP(.zdmap)", "zdmap", NULL,datapath,false))
+			return;
 	
-	PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
-	if(!f) return;
-	/*if (!writeoneitem(f,iid))
-	{
-		al_trace("Could not write to .znpc packfile %s\n", temppath);
-	}
-	*/
-	writesomedmaps(f,index, index, MAXDMAPS);
-	pack_fclose(f);
-     
-        
+		PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
+		if(!f) return;
+		/*if (!writeoneitem(f,iid))
+		{
+			al_trace("Could not write to .znpc packfile %s\n", temppath);
+		}
+		*/
+		writesomedmaps(f,index, index, MAXDMAPS);
+		pack_fclose(f);
     }
 	else if(ret==3) // load
 	{
-
 		if(!getname("Load DMAP(.zdmap)", "zdmap", NULL,datapath,false))
-					return;
+			return;
 		PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
 		if(!f) return;
 		
@@ -16863,7 +16860,7 @@ int32_t onDmaps()
 		{
 			if( pSelectedDmap != &DMaps[d] )
 			{
-				::memcpy(&DMaps[d], pSelectedDmap, sizeof(dmap));
+				DMaps[d] = *pSelectedDmap;
 				saved=false;
 			}
 		}

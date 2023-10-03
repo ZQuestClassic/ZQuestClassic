@@ -149,7 +149,7 @@ void debugging_box(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
 
 void clear_dmap(word i)
 {
-    memset(&DMaps[i],0,sizeof(dmap));
+	DMaps[i].clear();
 }
 
 void clear_dmaps()

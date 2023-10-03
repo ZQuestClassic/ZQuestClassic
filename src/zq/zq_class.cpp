@@ -110,7 +110,7 @@ int32_t COMBOY(int32_t pos)
 void reset_dmap(int32_t index)
 {
     bound(index,0,MAXDMAPS-1);
-    memset(&DMaps[index],0,sizeof(dmap));
+	DMaps[index].clear();
 	DMaps[index].title = "";
     sprintf(DMaps[index].intro, "                                                                        ");
 }
