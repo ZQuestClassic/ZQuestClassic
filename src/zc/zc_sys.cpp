@@ -95,13 +95,6 @@ int32_t getnumber(const char *prompt,int32_t initialval);
 extern bool kb_typing_mode; //script only, for disbaling key presses affecting Hero, etc. 
 extern int32_t cheat_modifier_keys[4]; //two options each, default either control and either shift
 
-#if defined(ALLEGRO_WINDOWS)
-const char *qst_dir_name = "win_qst_dir";
-#elif defined(ALLEGRO_LINUX)
-const char *qst_dir_name = "linux_qst_dir";
-#elif defined(__APPLE__)
-const char *qst_dir_name = "osx_qst_dir";
-#endif
 static  const char *qst_module_name = "current_module";
 #ifdef ALLEGRO_LINUX
 static  const char *samplepath = "samplesoundset/patches.dat";
@@ -447,20 +440,7 @@ void load_game_configs()
 	clearConsoleOnLoad = zc_get_config("CONSOLE","clear_console_on_load",1)!=0;
 	clearConsoleOnReload = zc_get_config("CONSOLE","clear_console_on_reload",0)!=0;
 
-	strcpy(qstdir,zc_get_config(cfg_sect,qst_dir_name,""));
-   
-	if(strlen(qstdir)==0)
-	{
-		getcwd(qstdir,2048);
-		fix_filename_case(qstdir);
-		fix_filename_slashes(qstdir);
-		put_backslash(qstdir);
-	}
-	else
-	{
-		chop_path(qstdir);
-	}
-   
+	strcpy(qstdir,zc_get_config(cfg_sect,"quest_dir","quests"));
 	strcpy(qstpath,qstdir); //qstpath is the local (for this run of ZC) quest path, qstdir is the universal quest dir.
 	ss_enable = zc_get_config(cfg_sect,"ss_enable",1) ? 1 : 0;
 	ss_after = vbound(zc_get_config(cfg_sect,"ss_after",14), 0, 14);
@@ -578,8 +558,6 @@ void save_game_configs()
 	}
 	
 	zc_set_config(cfg_sect,"load_last",loadlast);
-	chop_path(qstdir);
-	zc_set_config(cfg_sect,qst_dir_name,qstdir);
 	zc_set_config(cfg_sect,"use_sfx_dat",sfxdat);
 	
 	flush_config_file();
@@ -5180,7 +5158,7 @@ int32_t OnnClearQuestDir()
 	if(jwin_alert3(
 			"Clear Current Directory Cache", 
 			"Are you sure that you wish to clear the current cached directory?", 
-			"This will default the current directory to the ROOT for this instance of ZC Player!",
+			"This will default the current directory to `<ROOT>/quests` for this instance of ZC Player!",
 			NULL,
 		 "&Yes", 
 		"&No", 
@@ -5190,7 +5168,7 @@ int32_t OnnClearQuestDir()
 		0, 
 		get_zc_font(font_lfont)) == 1)	
 	{
-		zc_set_config("zeldadx","win_qst_dir","");
+		zc_set_config("zeldadx","quest_dir","");
 		flush_config_file();
 		strcpy(qstdir,"");
 #ifdef __EMSCRIPTEN__

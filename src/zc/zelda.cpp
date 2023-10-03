@@ -1457,17 +1457,17 @@ int8_t smart_vercmp(char const* a, char const* b)
 int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 {
 	chop_path(qstpath);
-	char *tempdir=(char *)"";
 	int32_t ret = 0;
-#ifndef ALLEGRO_MACOSX
-	tempdir=qstdir;
-#endif
+
 	byte qst_num = byte(g->get_quest()-1);
 	if(!g->get_qstpath()[0])
 	{
-		if(qst_num<moduledata.max_quest_files)
+		if(qst_num<2)
 		{
-			sprintf(qstpath, moduledata.quests[qst_num], ordinal(qst_num+1));
+			char* cwd = al_get_current_directory();
+			auto path = fs::path(cwd) / (qst_num == 0 ? "quests/Z1 Recreations/classic_1st.qst" : "quests/Z1 Recreations/classic_2nd.qst");
+			al_free(cwd);
+			sprintf(qstpath, "%s", path.string().c_str());
 			g->header.qstpath = qstpath;
 		}
 	}
@@ -1475,7 +1475,8 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 	{
 		if(is_relative_filename(g->get_qstpath()))
 		{
-			sprintf(qstpath,"%s%s",qstdir,g->get_qstpath());
+			auto qstpath_fs = fs::path(qstdir) / fs::path(g->get_qstpath());
+			sprintf(qstpath, "%s", qstpath_fs.string().c_str());
 		}
 		else
 		{

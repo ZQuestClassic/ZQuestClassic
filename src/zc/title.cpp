@@ -954,7 +954,9 @@ int32_t custom_game(int32_t file)
 
 	if (is_relative_filename(header->qstpath.c_str()))
 	{
-		sprintf(qstpath, "%s%s", qstdir, header->qstpath.c_str());
+		// TODO: make `qstpath` use type fs::path
+		auto qstpath_fs = fs::path(qstdir) / fs::path(header->qstpath);
+		sprintf(qstpath, "%s", qstpath_fs.string().c_str());
 	}
 	else
 	{
