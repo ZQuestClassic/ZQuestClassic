@@ -10237,7 +10237,7 @@ void HeroClass::deselectbombs(int32_t super)
 			return;
         deselectbombsWPN(game->ywpn, Ywpn, directItemY, COND_AWPN, COND_XWPN, COND_BWPN);
     }
-    else
+    else if (getItemFamily(itemsbuf,Awpn)==(super? itype_sbomb : itype_bomb) && (directWpn<0 || Awpn==directWpn))
     {
 		if(!new_subscreen_active)
 			return;
