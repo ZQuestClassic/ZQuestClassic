@@ -1459,18 +1459,25 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 	chop_path(qstpath);
 	int32_t ret = 0;
 
+	// Only automatically set the qst for the 1st->2nd advancement.
 	byte qst_num = byte(g->get_quest()-1);
 	if(!g->get_qstpath()[0])
 	{
-		if(qst_num<2)
+		if(qst_num==1)
 		{
 			char* cwd = al_get_current_directory();
-			auto path = fs::path(cwd) / (qst_num == 0 ? "quests/Z1 Recreations/classic_1st.qst" : "quests/Z1 Recreations/classic_2nd.qst");
+			auto path = fs::path(cwd) / "quests/Z1 Recreations/classic_2nd.qst";
 			al_free(cwd);
 			sprintf(qstpath, "%s", path.string().c_str());
 			g->header.qstpath = qstpath;
 		}
+		else
+		{
+			// We will open the file select dialog to show the quest directory.
+			return 0;
+		}
 	}
+
 	if(g->get_qstpath()[0])
 	{
 		if(is_relative_filename(g->get_qstpath()))
@@ -4639,24 +4646,6 @@ int main(int argc, char **argv)
 	}
 	
 	Z_message("OK\n");
-	
-	// check for the included quest files
-	if(!standalone_mode)
-	{
-		Z_message("Checking Files... ");
-		
-		char path[2048];
-		
-		for ( byte q = 0; q < moduledata.max_quest_files; q++ )
-		{
-			append_filename(path, qstdir, moduledata.quests[q], 2048);
-			if(!exists(moduledata.quests[q]) && !exists(path))
-			{
-				Z_error("%s not found.\n", moduledata.quests[q]);
-			}
-		}
-		Z_message("OK\n");
-	}
 	
 	// allocate bitmap buffers
 	Z_message("Allocating bitmap buffers... ");
