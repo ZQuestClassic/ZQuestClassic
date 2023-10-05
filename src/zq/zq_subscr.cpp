@@ -603,8 +603,20 @@ int32_t d_subscreen_proc(int32_t msg,DIALOG *d,int32_t)
 						if(clicked_obj > -1)
 						{
 							SubscrWidget* widg = pg[clicked_obj];
-							int diffx = (scaled_mouse_x + dragx) - widg->x;
-							int diffy = (scaled_mouse_y + dragy) - widg->y;
+							int tx = scaled_mouse_x + dragx;
+							int ty = scaled_mouse_y + dragy;
+							if (key[KEY_LCONTROL] || key[KEY_RCONTROL])
+							{
+								tx = (tx / zinit.ss_grid_x) * zinit.ss_grid_x;
+								ty = (ty / zinit.ss_grid_y) * zinit.ss_grid_y;
+								if (!(key[KEY_ALT] || key[KEY_ALTGR]))
+								{
+									tx += (widg->x % zinit.ss_grid_x);
+									ty += (widg->y % zinit.ss_grid_y);
+								}
+							}
+							int diffx = (tx) - widg->x;
+							int diffy = (ty) - widg->y;
 							widg->x += diffx;
 							widg->y += diffy;
 							for(int32_t i=pg.size()-1; i>=0; --i)
@@ -1154,7 +1166,9 @@ int32_t onSSMouseInfo()
 {
 	InfoDialog("Subscreen Editor Mouse Settings",
 		"In 'Classic' mode, the subscreen editor works as it always used to."
-		"\nIn 'Modern' mode, it can click-and-drag objects around.").show();
+		"\nIn 'Modern' mode, it can click-and-drag objects around."
+		"\nWhile dragging, Ctrl will snap objects to the grid relative to their position and"
+		"\nCtrl+Alt will snap them to the nearest grid position.").show();
 	return D_O_K;
 }
 static MENU ss_mouseset_menu[] =
