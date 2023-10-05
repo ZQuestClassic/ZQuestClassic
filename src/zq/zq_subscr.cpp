@@ -755,14 +755,7 @@ int32_t onSSUp()
 	{
 		if(sso_selection[i] || i==curr_widg)
 		{
-			if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
-			{
-				pg[i]->h+=delta;
-			}
-			else
-			{
-				pg[i]->y+=delta;
-			}
+			pg[i]->y+=delta;
 		}
 	}
 	
@@ -778,14 +771,7 @@ int32_t onSSDown()
 	{
 		if(sso_selection[i] || i==curr_widg)
 		{
-			if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
-			{
-				pg[i]->h+=delta;
-			}
-			else
-			{
-				pg[i]->y+=delta;
-			}
+			pg[i]->y+=delta;
 		}
 	}
 	
@@ -801,14 +787,7 @@ int32_t onSSLeft()
 	{
 		if(sso_selection[i] || i==curr_widg)
 		{
-			if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
-			{
-				pg[i]->w+=delta;
-			}
-			else
-			{
-				pg[i]->x+=delta;
-			}
+			pg[i]->x+=delta;
 		}
 	}
 	
@@ -824,14 +803,7 @@ int32_t onSSRight()
 	{
 		if(sso_selection[i] || i==curr_widg)
 		{
-			if(key[KEY_ZC_LCONTROL] || key[KEY_ZC_RCONTROL])
-			{
-				pg[i]->w+=delta;
-			}
-			else
-			{
-				pg[i]->x+=delta;
-			}
+			pg[i]->x+=delta;
 		}
 	}
 	
@@ -904,6 +876,7 @@ int32_t d_ssrt_btn2_proc(int32_t msg,DIALOG *d,int32_t c)
 
 int32_t d_ssup_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
 {
+	int32_t delta = (key[KEY_LSHIFT] || key[KEY_RSHIFT]) ? -zinit.ss_grid_x : -1;
 	switch(msg)
 	{
 		case MSG_CLICK:
@@ -914,7 +887,8 @@ int32_t d_ssup_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
 			{
 				if(sso_selection[i] || i==curr_widg)
 				{
-					--pg[i]->h;
+					int32_t newh = vbound(pg[i]->h + delta, 0, 999);
+					pg[i]->h = newh;
 				}
 			}
 			return D_O_K;
@@ -927,6 +901,7 @@ int32_t d_ssup_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
 
 int32_t d_ssdn_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
 {
+	int32_t delta = (key[KEY_LSHIFT] || key[KEY_RSHIFT]) ? zinit.ss_grid_x : 1;
 	switch(msg)
 	{
 		case MSG_CLICK:
@@ -937,7 +912,8 @@ int32_t d_ssdn_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
 			{
 				if(sso_selection[i] || i==curr_widg)
 				{
-					++pg[i]->h;
+					int32_t newh = vbound(pg[i]->h + delta, 0, 999);
+					pg[i]->h = newh;
 				}
 			}
 			return D_O_K;
@@ -950,6 +926,7 @@ int32_t d_ssdn_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
 
 int32_t d_sslt_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
 {
+	int32_t delta = (key[KEY_LSHIFT] || key[KEY_RSHIFT]) ? -zinit.ss_grid_x : -1;
 	switch(msg)
 	{
 		case MSG_CLICK:
@@ -960,7 +937,8 @@ int32_t d_sslt_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
 			{
 				if(sso_selection[i] || i==curr_widg)
 				{
-					--pg[i]->w;
+					int32_t neww = vbound(pg[i]->w + delta, 0, 999);
+					pg[i]->w = neww;
 				}
 			}
 			return D_O_K;
@@ -973,6 +951,7 @@ int32_t d_sslt_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
 
 int32_t d_ssrt_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
 {
+	int32_t delta = (key[KEY_LSHIFT] || key[KEY_RSHIFT]) ? zinit.ss_grid_x : 1;
 	switch(msg)
 	{
 		case MSG_CLICK:
@@ -983,7 +962,8 @@ int32_t d_ssrt_btn3_proc(int32_t msg,DIALOG *d,int32_t c)
 			{
 				if(sso_selection[i] || i==curr_widg)
 				{
-					++pg[i]->w;
+					int32_t neww = vbound(pg[i]->w + delta, 0, 999);
+					pg[i]->w = neww;
 				}
 			}
 			return D_O_K;
@@ -1224,8 +1204,10 @@ static std::string arrow_infos[5] =
 {
 	"L/R: Change selected object (-1/+1)"
 		"\nU/D: Reorder selected object (-1/+1)",
-	"Move selected object by 1 pixel",
-	"Decrease/Increase selected object's width/height",
+	"Move selected object by 1 pixel"
+		"\nIf shift held: Move by 1 grid step",
+	"Decrease/Increase selected object's width/height"
+		"\nIf shift held: Resize by 1 grid step",
 	"Move preview of item selector",
 	"L/R: Change Page (-1/+1)"
 		"\n-/+: Delete/Add Page"
