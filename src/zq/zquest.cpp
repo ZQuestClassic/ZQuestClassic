@@ -101,6 +101,7 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "colorname.h"
 #include "zq/zq_hotkey.h"
 #include "zq/package.h"
+#include "zq/zq_files.h"
 
 extern CConsoleLoggerEx parser_console;
 //Windows mmemory tools
@@ -1093,7 +1094,7 @@ void toggle_cmdzoom_mode()
 
 enum
 {
-	fileSave = 4,
+	fileSave = 5,
 	fileSaveAs,
 	fileRevert
 };
@@ -1102,6 +1103,7 @@ static MENU file_menu[] =
 {
 	{ (char *)"&New",                       do_NewQuest,               NULL,                     0,            NULL   },
 	{ (char *)"&Open",                      do_OpenQuest,              NULL,                     0,            NULL   },
+	{ (char *)"&Load Tileset",              onTileset,                 NULL,                     0,            NULL   },
 	{ (char *)"Recent\t ",                  NULL,                      recent_menu,              0,            NULL   },
 	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
 	{ (char *)"&Save",                      onSave,                    NULL,                     0,            NULL   },
@@ -4274,8 +4276,6 @@ static TABPANEL gamemisc_tabs[] =
     { NULL,              0,          NULL,            0, NULL }
 };
 
-
-#include "zq/zq_files.h"
 //to do: Make string boxes larger, and split into two tabs. 
 static DIALOG gamemiscarray_dlg[] =
 {

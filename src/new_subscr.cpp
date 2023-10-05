@@ -34,6 +34,8 @@ extern bool zq_ignore_item_ownership, zq_view_fullctr, zq_view_maxctr,
 extern int zq_subscr_override_dmap;
 #endif
 
+extern dword loading_tileset_flags;
+
 extern FFScript FFCore;
 
 extern const GUI::ListData subscrWidgets;
@@ -1177,6 +1179,13 @@ int32_t SubscrWidget::read(PACKFILE *f, word s_version)
 			if(auto ret = pg_trans.read(f, s_version))
 				return ret;
 		}
+	}
+	if(loading_tileset_flags & TILESET_CLEARSCRIPTS)
+	{
+		generic_script = 0;
+		gen_script_btns = 0;
+		for(int q = 0; q < 8; ++q)
+			generic_initd[q] = 0;
 	}
 	return 0;
 }
@@ -5782,6 +5791,12 @@ int32_t ZCSubscreen::read(PACKFILE *f, word s_version)
 	for(byte q = 0; q < 4; ++q)
 		if((def_btns[q] & 0xFF) >= pagecnt)
 			def_btns[q] = 0xFF;
+	if(loading_tileset_flags & TILESET_CLEARSCRIPTS)
+	{
+		script = 0;
+		for(int q = 0; q < 8; ++q)
+			initd[q] = 0;
+	}
 	return 0;
 }
 int32_t ZCSubscreen::write(PACKFILE *f) const

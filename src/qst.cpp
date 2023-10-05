@@ -51,11 +51,11 @@ extern particle_list particles;
 extern void setZScriptVersion(int32_t s_version);
 //FFSCript   FFEngine;
 
-int32_t temp_ffscript_version = 0;
 static bool read_ext_zinfo = false, read_zinfo = false;
 static bool loadquest_report = false;
 static char const* loading_qst_name = NULL;
 static byte loading_qst_num = 0;
+dword loading_tileset_flags = 0;
 
 int32_t First[MAX_COMBO_COLS]={0},combo_alistpos[MAX_COMBO_COLS]={0},combo_pool_listpos[MAX_COMBO_COLS]={0},combo_auto_listpos[MAX_COMBO_COLS]={0};
 map_and_screen map_page[MAX_MAPPAGE_BTNS]= {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}};
@@ -5186,7 +5186,17 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 			tempDMap.intro_string_id = 0;
 		
 		if (!should_skip)
+		{
+			if(loading_tileset_flags & TILESET_CLEARMAPS)
+				tempDMap.map = 0;
+			if(loading_tileset_flags & TILESET_CLEARSCRIPTS)
+			{
+				tempDMap.script = 0;
+				for(int q = 0; q < 8; ++q)
+					tempDMap.initD[q] = 0;
+			}
 			DMaps[i] = tempDMap;
+		}
 	}
 	
 	return 0;
@@ -7112,7 +7122,19 @@ int32_t readitems(PACKFILE *f, word version, word build)
         }
         
 		if (!should_skip)
+		{
+			if(loading_tileset_flags & TILESET_CLEARSCRIPTS)
+			{
+				tempitem.script = 0;
+				tempitem.weaponscript = 0;
+				for(int q = 0; q < 8; ++q)
+				{
+					tempitem.initiald[q] = 0;
+					tempitem.weap_initiald[q] = 0;
+				}
+			}
 			memcpy(&itemsbuf[i], &tempitem, sizeof(itemdata));
+		}
     }
 
 	if (should_skip)
@@ -11945,7 +11967,6 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 	
 	//ZScriptVersion::setVersion(s_version); ~this ideally, but there's no ZC/ZQuest defines...
 	setZScriptVersion(s_version); //Lumped in zelda.cpp and in zquest.cpp as zquest can't link ZScriptVersion
-	temp_ffscript_version = s_version;
 	//miscQdata *the_misc;
 	if ( FFCore.quest_format[vLastCompile] < 13 ) FFCore.quest_format[vLastCompile] = s_version;
 	al_trace("Loaded scripts last compiled in ZScript version: %d\n", (FFCore.quest_format[vLastCompile]));
@@ -15032,6 +15053,12 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 				}
 			}
 			
+			if(loading_tileset_flags & TILESET_CLEARSCRIPTS)
+			{
+				tempguy.script = 0;
+				for(int q = 0; q < 8; ++q)
+					tempguy.initD[q] = 0;
+			}
 			guysbuf[i] = tempguy;
         }
     }
@@ -16566,6 +16593,12 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 					tempffc.inita[1] = 10000;
 				}
 				
+				if(loading_tileset_flags & TILESET_CLEARSCRIPTS)
+				{
+					tempffc.script = 0;
+					for(int q = 0; q < 8; ++q)
+						tempffc.initd[q] = 0;
+				}
 				if(version <= 11)
 				{
 					fixffcs=true;
@@ -17118,6 +17151,13 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, wo
 			if(!p_getc(&(tempbyte),f))
 				return qe_invalid;
 			tempffc.inita[1]=tempbyte*10000;
+			
+			if(loading_tileset_flags & TILESET_CLEARSCRIPTS)
+			{
+				tempffc.script = 0;
+				for(int q = 0; q < 8; ++q)
+					tempffc.initd[q] = 0;
+			}
 		}
 		for(word m = numffc; m < MAXFFCS; ++m)
 		{
@@ -17132,7 +17172,6 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, wo
 int32_t readmaps(PACKFILE *f, zquestheader *Header)
 {
 	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_maps);
-
 	int32_t scr=0;
 	
 	word version=0;
@@ -17709,6 +17748,12 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 		
 		if(i>=start_combo && !should_skip)
 		{
+			if(loading_tileset_flags & TILESET_CLEARSCRIPTS)
+			{
+				temp_combo.script = 0;
+				for(int q = 0; q < 8; ++q)
+					temp_combo.initd[q] = 0;
+			}
 			combobuf[i] = temp_combo;
 		}
 	}
@@ -18224,7 +18269,15 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 			auto ret = readcombo_loop(f,section_version,temp_combo);
 			if(ret) return ret;
 			if(i>=start_combo)
+			{
+				if(loading_tileset_flags & TILESET_CLEARSCRIPTS)
+				{
+					temp_combo.script = 0;
+					for(int q = 0; q < 8; ++q)
+						temp_combo.initd[q] = 0;
+				}
 				combobuf[i] = temp_combo;
+			}
 		}
 	}
 	else //Call the old function for all old versions
@@ -20715,6 +20768,11 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 			return qe_invalid;
 	}
 	
+	if(loading_tileset_flags & TILESET_CLEARMAPS)
+	{
+		temp_zinit.last_map = 0;
+		temp_zinit.last_screen = 0;
+	}
 	zinit = temp_zinit;
 	
 	if(zinit.heroAnimationStyle==las_zelda3slow)
@@ -21164,12 +21222,26 @@ static int maybe_skip_section(PACKFILE* f, dword& section_id, const byte* skip_f
 }
 
 //Internal function for loadquest wrapper
-int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zctune *tunes, bool show_progress, const byte *skip_flags, byte printmetadata)
+int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zctune *tunes, bool show_progress, byte *skip_flags, byte printmetadata)
 {
     DMapEditorLastMaptileUsed = 0;
     combosread=false;
     mapsread=false;
     fixffcs=false;
+	
+	bool do_clear_scripts = !get_bit(skip_flags,skip_ffscript);
+	if(loading_tileset_flags & TILESET_CLEARSCRIPTS)
+	{
+		set_bit(skip_flags, skip_ffscript, 1);
+		setZScriptVersion(V_FFSCRIPT);
+		FFCore.quest_format[vFFScript] = V_FFSCRIPT;
+		FFCore.quest_format[vLastCompile] = V_FFSCRIPT;
+		do_clear_scripts = true;
+	}
+	if(loading_tileset_flags & TILESET_CLEARMAPS)
+	{
+		set_bit(skip_flags, skip_maps, 1);
+	}
     
     //  show_progress=true;
     char tmpfilename[L_tmpnam];
@@ -21198,7 +21270,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
     }
     
     
-	if(!get_bit(skip_flags, skip_ffscript))
+	if(do_clear_scripts)
 	{
 		zScript.clear();
 		globalmap.clear();
@@ -21994,39 +22066,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
         memcpy(midi_flags, old_midi_flags, MIDIFLAGS_SIZE);
     }
     
-    //Debug FFCore.quest_format[]
-	al_trace("Quest made in ZC Version: %x\n", FFCore.quest_format[vZelda]);
-	al_trace("Quest made in ZC Build: %d\n", FFCore.quest_format[vBuild]);
-	al_trace("Quest Section 'Header' is Version: %d\n", FFCore.quest_format[vHeader]);
-	al_trace("Quest Section 'Rules' is Version: %d\n", FFCore.quest_format[vRules]);
-	al_trace("Quest Section 'Strings' is Version: %d\n", FFCore.quest_format[vStrings]);
-	al_trace("Quest Section 'Misc' is Version: %d\n", FFCore.quest_format[vMisc]);
-	al_trace("Quest Section 'Tiles' is Version: %d\n", FFCore.quest_format[vTiles]);
-	al_trace("Quest Section 'Combos' is Version: %d\n", FFCore.quest_format[vCombos]);
-	al_trace("Quest Section 'CSets' is Version: %d\n", FFCore.quest_format[vCSets]);
-	al_trace("Quest Section 'Maps' is Version: %d\n", FFCore.quest_format[vMaps]);
-	al_trace("Quest Section 'DMaps' is Version: %d\n", FFCore.quest_format[vDMaps]);
-	al_trace("Quest Section 'Doors' is Version: %d\n", FFCore.quest_format[vDoors]);
-	al_trace("Quest Section 'Items' is Version: %d\n", FFCore.quest_format[vItems]);
-	al_trace("Quest Section 'Weapons' is Version: %d\n", FFCore.quest_format[vWeaponSprites]);
-	al_trace("Quest Section 'Colors' is Version: %d\n", FFCore.quest_format[vColours]);
-	al_trace("Quest Section 'Icons' is Version: %d\n", FFCore.quest_format[vIcons]);
-	//al_trace("Quest Section 'Gfx Pack' is Version: %d; qst.cpp doesn't read this!\n", FFCore.quest_format[vGfxPack]);
-	al_trace("Quest Section 'InitData' is Version: %d\n", FFCore.quest_format[vInitData]);
-	al_trace("Quest Section 'Guys' is Version: %d\n", FFCore.quest_format[vGuys]);
-	al_trace("Quest Section 'MIDIs' is Version: %d\n", FFCore.quest_format[vMIDIs]);
-	al_trace("Quest Section 'Cheats' is Version: %d\n", FFCore.quest_format[vCheats]);
-	//al_trace("Quest Section 'Save Format' is Version: %d; qst.cpp doesn't read this!\n", FFCore.quest_format[vSaveformat]);
-	al_trace("Quest Section 'Combo Aliases' is Version: %d\n", FFCore.quest_format[vComboAliases]);
-	al_trace("Quest Section 'Player Sprites' is Version: %d\n", FFCore.quest_format[vHeroSprites]);
-	al_trace("Quest Section 'Subscreen' is Version: %d\n", FFCore.quest_format[vSubscreen]);
-	al_trace("Quest Section 'Dropsets' is Version: %d\n", FFCore.quest_format[vItemDropsets]);
-	al_trace("Quest Section 'FFScript' is Version: %d\n", FFCore.quest_format[vFFScript]);
-	al_trace("Quest Section 'SFX' is Version: %d\n", FFCore.quest_format[vSFX]);
-	al_trace("Quest Section 'Favorites' is Version: %d\n", FFCore.quest_format[vFavourites]);
-	al_trace("Quest Section 'CompatRules' is Version: %d\n", FFCore.quest_format[vCompatRule]);
-	//Print metadata for versions under 2.10 here. Bleah.
-	if( FFCore.quest_format[vZelda] < 0x210 ) 
+    if( FFCore.quest_format[vZelda] < 0x210 ) 
 	{
 		zprint2("\n[ZQUEST CREATOR METADATA]\n");
 		
@@ -22117,6 +22157,33 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
 		}
 	}
     
+	if(loading_tileset_flags & TILESET_CLEARMAPS)
+	{
+		TheMaps.clear();
+		TheMaps.resize(MAPSCRS*1);
+		map_count = 1;
+		map_autolayers.clear();
+		map_autolayers.resize(6*1);
+		for(size_t i = 0; i < MAPSCRS; ++i)
+		{
+			TheMaps[i].zero_memory();
+		}
+	}
+	if(loading_tileset_flags & TILESET_CLEARHEADER)
+	{
+		memset(Header->password, 0, sizeof(Header->password));
+		memset(Header->minver, 0, sizeof(Header->minver));
+		memset(Header->title, 0, sizeof(Header->title));
+		memset(Header->author, 0, sizeof(Header->author));
+		memset(Header->version, 0, sizeof(Header->version));
+		Header->use_keyfile = 0;
+		Header->dirty_password = false;
+		cvs_MD5Context ctx;
+		cvs_MD5Init(&ctx);
+		cvs_MD5Update(&ctx, (const uint8_t*)"", 0);
+		cvs_MD5Final(Header->pwd_hash, &ctx);
+	}
+	
     return qe_OK;
     
 invalid:
@@ -22141,8 +22208,11 @@ invalid:
     
 }
 
-int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctune *tunes, bool show_progress, byte *skip_flags, byte printmetadata, bool report, byte qst_num)
+int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc,
+	zctune *tunes, bool show_progress, byte *skip_flags, byte printmetadata,
+	bool report, byte qst_num, dword tilesetflags)
 {
+	loading_tileset_flags = tilesetflags;
 	const char* basename = get_filename(filename);
 	zapp_reporting_add_breadcrumb("load_quest", basename);
 	zapp_reporting_set_tag("qst.filename", basename);

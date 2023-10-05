@@ -157,6 +157,11 @@ zmap::~zmap()
 {
 }
 
+void zmap::clear()
+{
+	*this = zmap();
+}
+
 bool zmap::CanUndo()
 {
     return undo_stack.size() > 0;
@@ -6739,6 +6744,7 @@ int32_t load_quest(const char *filename, bool show_progress)
 		}
 		else
 		{
+			Map.clear();
 			Map.setCurrMap(vbound(zinit.last_map,0,map_count-1));
 			Map.setCurrScr(zinit.last_screen);
 			refresh(rALL);
@@ -6763,6 +6769,61 @@ int32_t load_quest(const char *filename, bool show_progress)
 	}
 
     Map.ClearCommandHistory();
+	
+	return ret;
+}
+
+int32_t load_tileset(const char *filename, dword tsetflags)
+{
+	char buf[2048];
+	byte skip_flags[4];
+	
+	for(int32_t i=0; i<4; ++i)
+		skip_flags[i]=0;
+	for(int32_t i=0; i<qr_MAX; i++)
+		set_qr(i,0);
+	int32_t ret=loadquest(filename,&header,&QMisc,customtunes,true,skip_flags,1,true,0,tsetflags);
+
+	if(ret!=qe_OK)
+		init_quest(NULL);
+	else
+	{
+		int32_t accessret = quest_access(filename, &header);
+		
+		if(accessret != 1)
+		{
+			init_quest(NULL);
+			
+			if(accessret == 0)
+				ret=qe_pwd;
+			else
+				ret=qe_cancel;
+		}
+		else
+		{
+			Map.clear();
+			Map.setCurrMap(vbound(zinit.last_map,0,map_count-1));
+			Map.setCurrScr(zinit.last_screen);
+			refresh(rALL);
+			refresh_pal();
+			set_rules(quest_rules);
+			if(!zc_get_config("zquest","auto_filenew_bugfixes",1))
+				popup_bugfix_dlg("dsa_compatrule");
+			
+			if(bmap != NULL)
+			{
+				destroy_bitmap(bmap);
+				bmap=NULL;
+			}
+			
+			set_window_title("ZC Editor - Untitled Quest");
+			first_save = saved = false;
+			memset(filepath,0,255);
+			memset(temppath,0,255);
+		}
+	}
+
+	Map.ClearCommandHistory();
 	
 	return ret;
 }

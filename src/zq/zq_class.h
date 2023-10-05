@@ -181,6 +181,7 @@ public:
 
     zmap();
     ~zmap();
+	void clear();
     bool CanUndo();
     bool CanRedo();
     bool CanPaste();
@@ -369,6 +370,7 @@ void set_questpwd(std::string_view pwd, bool use_keyfile);
 int32_t quest_access(const char *filename, zquestheader *hdr);
 bool write_midi(MIDI *m,PACKFILE *f);
 int32_t load_quest(const char *filename, bool show_progress = true);
+int32_t load_tileset(const char *filename, dword tsetflags);
 int32_t save_unencoded_quest(const char *filename, bool compressed, const char* afname = NULL);
 int32_t save_quest(const char *filename, bool timed_save);
 

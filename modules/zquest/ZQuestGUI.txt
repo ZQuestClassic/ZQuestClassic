@@ -81,6 +81,7 @@ src/dialog/compilesetting.cpp
 src/dialog/vectorpick.cpp
 src/dialog/zqhotkeys.cpp
 src/dialog/edit_dmap.cpp
+src/dialog/tilesetwizard.cpp
 
 
 ## End of ZQuest GUI module

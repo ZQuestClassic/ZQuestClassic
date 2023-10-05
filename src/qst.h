@@ -201,8 +201,9 @@ void port250QuestRules();
 void portCandleRules();
 void portBombRules();
 
-int32_t loadquest(const char *filename, zquestheader *Header,
-              miscQdata *Misc, zctune *tunes, bool show_progress, byte *skip_flags, byte printmetadata = 1, bool report = true, byte qst_num = 0);
+int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc,
+	zctune *tunes, bool show_progress, byte *skip_flags, byte printmetadata = 1,
+	bool report = true, byte qst_num = 0, dword tileset_flags = 0);
 
 char *byte_conversion(int32_t number, int32_t format);
 char *byte_conversion2(int32_t number1, int32_t number2, int32_t format1, int32_t format2);
@@ -299,5 +300,11 @@ void init_favorites();
 #define SCRHAS_SECRETS   0x00002000
 #define SCRHAS_COMBOFLAG 0x00004000
 #define SCRHAS_MISC      0x00008000
+
+
+
+#define TILESET_CLEARMAPS      0x01
+#define TILESET_CLEARSCRIPTS   0x02
+#define TILESET_CLEARHEADER    0x04
 
 #endif                                                      // _ZC_QST_H_

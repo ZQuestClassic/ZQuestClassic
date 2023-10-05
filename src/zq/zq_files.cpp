@@ -898,13 +898,8 @@ int32_t customOpen(char const* path)
 	open_quest(path);
 	return D_O_K;
 }
-int32_t onOpen()
+char* get_qst_name(char const* def_path)
 {
-	restore_mouse();
-	
-	if(checksave()==0)
-		return D_O_K;
-		
 	static EXT_LIST list[] =
 	{
 		{ (char *)"Quest Files (*.qst)", (char *)"qst"                                     },
@@ -918,14 +913,35 @@ int32_t onOpen()
 	};
 	
 #ifdef __EMSCRIPTEN__
-		if(!getname("Load File",NULL,list,get_initial_file_dialog_folder().c_str(),true))
-			return D_O_K;
+	return getname("Load File",NULL,list,get_initial_file_dialog_folder().c_str(),true)
 #else
-		if(!getname("Load File",NULL,list,filepath,true))
-			return D_O_K;
+	return getname("Load File",NULL,list,def_path ? def_path : filepath,true)
 #endif
+		? temppath : nullptr;
+}
+int32_t onOpen()
+{
+	restore_mouse();
+	
+	if(checksave()==0)
+		return D_O_K;
+	
+	if(!get_qst_name())
+		return D_O_K;
 	
 	open_quest(temppath);
+	return D_O_K;
+}
+void call_tileset_wizard();
+int32_t onTileset()
+{
+	restore_mouse();
+	
+	if(checksave()==0)
+		return D_O_K;
+	
+	call_tileset_wizard();
+	
 	return D_O_K;
 }
 

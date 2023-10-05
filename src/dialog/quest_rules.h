@@ -25,6 +25,8 @@ public:
 	std::shared_ptr<GUI::Widget> view() override;
 	bool handleMessage(const GUI::DialogMessage<message>& msg);
 	void reloadQRs();
+	
+	bool searchmode;
 private:
 	std::shared_ptr<GUI::TextField> mapCountTF;
 	std::shared_ptr<GUI::Window> window;
@@ -33,7 +35,6 @@ private:
 	byte local_qrs[QR_SZ];
 	byte const* realqrs;
 	size_t qrs_per_tab;
-	bool searchmode;
 	
 	friend void call_qrsearch_dialog(std::function<void(byte*)> setQRs);
 };
