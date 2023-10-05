@@ -200,7 +200,7 @@ void SubscreenWizardDialog::updateTitle()
 			tyname = "Item Grid";
 			break;
 		case subwizardtype::SW_COUNTER_BLOCK:
-			tyname = "Counter Set";
+			tyname = "Counter Block";
 			break;
 	}
 	window->setTitle("Subscreen Wizard (" + tyname + ")");
@@ -452,6 +452,7 @@ std::shared_ptr<GUI::Widget> SubscreenWizardDialog::view()
 			break;
 		}
 	}
+	updateTitle();
 	return window;
 }
 
