@@ -73,12 +73,22 @@ namespace AutoPattern
 	void autopattern_relational::calculate_connections(apcombo* p)
 	{
 		p->connflags = 0;
+		if (connectsolid && (p->read_solid(layer) & 0xF) == 0xF)
+		{
+			p->connflags = -1;
+			return;
+		}
 		for (int32_t q = 0; q < 8; ++q)
 		{
 			if (p->adj[q])
 			{
 				if(p->adj[q]->in_set)
 					p->connflags |= (1 << q);
+				else if (connectsolid)
+				{
+					if ((p->adj[q]->read_solid(layer) & 0xF) == 0xF)
+						p->connflags |= (1 << q);
+				}
 			}
 			else if(connectedge)
 				p->connflags |= (1 << q);
@@ -188,6 +198,8 @@ namespace AutoPattern
 	}
 	int32_t autopattern_relational::flags_to_slot(uint32_t flags)
 	{
+		if (flags == -1)
+			return -1;
 		// Mask out diagonal flags for disabled directions
 		if (!(flags & U))
 			flags &= ~(UL | UR);

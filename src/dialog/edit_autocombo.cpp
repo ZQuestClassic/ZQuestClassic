@@ -297,7 +297,9 @@ std::shared_ptr<GUI::Widget> AutoComboDialog::view()
 						// 1 - basic
 						Rows<2>(vAlign = 0.0,
 							AUTO_CB(flags, ACF_CROSSSCREENS, 1, "Cross Screens", "If checked, this autocombo can affect combos on adjacent screens."),
-							AUTO_CB(flags, ACF_CONNECTEDGE, 1, "Connect to Edge", "If checked, this autocombo will connect to the edge of the screen.")
+							AUTO_CB(flags, ACF_CONNECTEDGE, 1, "Connect to Edge", "If checked, this autocombo will connect to the edge of the screen."),
+							AUTO_CB(flags, ACF_CONNECTSOLID, 1, "Connect to Solids", "If checked, this autocombo will connect to fully solid combos as if they're in the set.\n"
+								"This will react to solids on lower layers but ignore higher ones.")
 						),
 						// 2 - fence
 						Rows<2>(vAlign = 0.0,
@@ -327,6 +329,8 @@ std::shared_ptr<GUI::Widget> AutoComboDialog::view()
 						Rows<2>(vAlign = 0.0,
 							AUTO_CB(flags, ACF_CROSSSCREENS, 1, "Cross Screens", "If checked, this autocombo can affect combos on adjacent screens."),
 							AUTO_CB(flags, ACF_CONNECTEDGE, 1, "Connect to Edge", "If checked, this autocombo will connect to the edge of the screen."),
+							AUTO_CB(flags, ACF_CONNECTSOLID, 1, "Connect to Solids", "If checked, this autocombo will connect to fully solid combos as if they're in the set.\n"
+								"This will react to solids on lower layers but ignore higher ones."),
 							AUTO_CB(flags, ACF_LEGACY, 1, "Legacy Ordering", "Makes 'Auto Generate' use combo ordering from older versions.\nFor tilesets that have combos set up for Relational and Dungeon Carving modes")
 						),
 						// 5 - dungeon carve

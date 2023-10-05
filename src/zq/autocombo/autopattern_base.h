@@ -3,6 +3,7 @@
 
 #include <functional>
 #include "base/autocombo.h"
+#include "base/combo.h"
 
 namespace AutoPattern
 {
@@ -69,6 +70,7 @@ namespace AutoPattern
 		apcombo(byte layer, int32_t screen, int32_t pos);
 
 		void read(byte layer);
+		byte read_solid(byte layer);
 		void write(byte layer, bool base = false);
 		void set_cid(std::pair<int32_t, int32_t> newcid)
 		{
