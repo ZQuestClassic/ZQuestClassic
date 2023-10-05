@@ -493,8 +493,6 @@ SAMPLE customsfxdata[WAV_COUNT];
 uint8_t customsfxflag[WAV_COUNT>>3];
 int32_t sfxdat=1;
 
-zinitdata zinit;
-
 int32_t onImport_ComboAlias();
 int32_t onExport_ComboAlias();
 
@@ -729,7 +727,6 @@ zctune              *customtunes;
 ZCHEATS             zcheats;
 byte                use_cheats;
 byte                use_tiles;
-extern zinitdata    zinit;
 char                palnames[MAXLEVELS][17];
 quest_template      QuestTemplates[MAXQTS];
 char                fontsdat_sig[52];

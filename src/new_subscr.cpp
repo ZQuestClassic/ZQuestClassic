@@ -5,6 +5,7 @@
 #include "base/fonts.h"
 #include "base/zsys.h"
 #include "base/dmap.h"
+#include "base/initdata.h"
 #include "base/qrs.h"
 #include "base/mapscr.h"
 #include "base/packfile.h"
@@ -33,9 +34,6 @@ extern bool zq_ignore_item_ownership, zq_view_fullctr, zq_view_maxctr,
 extern int zq_subscr_override_dmap;
 #endif
 
-
-extern gamedata* game; //!TODO ZDEFSCLEAN move to gamedata.h
-extern zinitdata zinit; //!TODO ZDEFSCLEAN move to zinit.h
 extern FFScript FFCore;
 
 extern const GUI::ListData subscrWidgets;

@@ -4,9 +4,8 @@
 #include "tab_ctl.h"
 #include "base/zc_alleg.h"
 #include <string>
-
-struct gamedata;
-struct zinitdata;
+#include "base/initdata.h"
+#include "gamedata.h"
 
 #define MAXINITTABS 5
 

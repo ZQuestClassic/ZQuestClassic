@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include "base/initdata.h"
 #include "midi.h"
 #include "jwin.h"
 #include "base/jwinfsel.h"
@@ -235,7 +236,6 @@ extern class zctune        *customtunes;
 extern ZCHEATS             zcheats;
 extern byte                use_cheats;
 extern byte                use_tiles;
-extern zinitdata           zinit;
 extern char                palnames[MAXLEVELS][17];
 extern quest_template      QuestTemplates[MAXQTS];
 //extern byte              *undotilebuf;

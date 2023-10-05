@@ -59,8 +59,6 @@ int dragx, dragy;
 #define ssmflDRAG      0x02
 #define ssmflRCLICK    0x04
 
-gamedata *game;
-
 SubscrWidget* create_new_widget_of(int32_t type, int x = 0, int y = 0);
 SubscrWidget* create_new_widget(int x = 0, int y = 0);
 

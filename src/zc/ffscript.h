@@ -2,6 +2,7 @@
 #define _FFSCRIPT_H_
 
 #include "base/zdefs.h"
+#include "base/initdata.h"
 #include "parser/parserDefs.h"
 #include <utility>
 #include <string>

@@ -8,9 +8,9 @@
 #include "zq/zq_tiles.h"
 #include "zinfo.h"
 #include "base/misctypes.h"
+#include "base/initdata.h"
 
 extern bool saved;
-extern zinitdata zinit;
 extern ListData dmap_list;
 extern bool sorted_fontdd;
 

@@ -39,6 +39,7 @@
 #include "particles.h"
 #include "dialog/alert.h"
 #include "base/misctypes.h"
+#include "base/initdata.h"
 
 //FFScript FFCore;
 extern FFScript FFCore;
@@ -82,7 +83,6 @@ extern wpndata             *wpnsbuf;
 extern comboclass          *combo_class_buf;
 extern guydata             *guysbuf;
 extern ZCHEATS             zcheats;
-extern zinitdata           zinit;
 extern char                palnames[MAXLEVELS][17];
 extern int32_t                 memrequested;
 extern char                *byte_conversion(int32_t number, int32_t format);

@@ -439,16 +439,17 @@ target_include_directories(fmt PUBLIC include/fmt)
 
 set(zcbase_sources
 	src/base/about.cpp
+	src/base/autocombo.cpp
 	src/base/colors.cpp
 	src/base/combo.cpp
 	src/base/cpos_info.cpp
 	src/base/cpool.cpp
-	src/base/autocombo.cpp
 	src/base/dmap.cpp
 	src/base/fonts.cpp
 	src/base/general.cpp
 	src/base/gui.cpp
 	src/base/hotkey.cpp
+	src/base/initdata.cpp
 	src/base/jwinfsel.cpp
 	src/base/mapscr.cpp
 	src/base/misctypes.cpp

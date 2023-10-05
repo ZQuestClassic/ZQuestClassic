@@ -11,6 +11,7 @@ using std::set;
 #include "base/dmap.h"
 #include "base/mapscr.h"
 #include "base/misctypes.h"
+#include "base/initdata.h"
 #include "zc/maps.h"
 #include "zc/zelda.h"
 #include "tiles.h"
@@ -80,7 +81,6 @@ extern sprite_list  guys, items, Ewpns, Lwpns, chainlinks, decorations;
 extern particle_list particles;
 extern movingblock mblock2;                                 //mblock[4]?
 extern portal mirror_portal;
-extern zinitdata zinit;
 extern HeroClass Hero;
 int32_t current_ffcombo=-1;
 bool triggered_screen_secrets=false;

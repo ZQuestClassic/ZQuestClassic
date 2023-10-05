@@ -16,13 +16,13 @@
 #include "base/qrs.h"
 #include "base/mapscr.h"
 #include "base/misctypes.h"
+#include "base/initdata.h"
 
 #ifndef IS_EDITOR
 #include "zc/render.h"
 #endif
 
 extern HeroClass Hero;
-extern zinitdata zinit;
 extern int32_t directWpn;
 extern FFScript FFCore;
 extern ZModule zcm;

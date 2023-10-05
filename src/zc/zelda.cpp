@@ -129,7 +129,6 @@ bool dev_timestmp = false;
 
 ZCMUSIC *zcmusic = NULL;
 ZCMIXER *zcmixer = NULL;
-zinitdata zinit;
 int32_t colordepth;
 int32_t db=0;
 int32_t detail_int[10];                                         //temporary holder for things you want to detail
@@ -460,7 +459,6 @@ byte   guygridffc[MAXFFCS]={0};
 mapscr tmpscr[2];
 mapscr tmpscr2[6];
 mapscr tmpscr3[6];
-gamedata *game=NULL;
 script_data *ffscripts[NUMSCRIPTFFC];
 script_data *itemscripts[NUMSCRIPTITEM];
 script_data *globalscripts[NUMSCRIPTGLOBAL];

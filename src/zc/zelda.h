@@ -8,6 +8,7 @@
 #include <vector>
 #include <map>
 #include "base/zdefs.h"
+#include "base/initdata.h"
 #include "base/zc_array.h"
 #include "zc/zc_sys.h"
 #include "sfx.h"
@@ -247,7 +248,6 @@ extern ZCMIXER* zcmixer;
 extern int32_t colordepth;
 extern int32_t db;
 extern int32_t detail_int[10];                                  //temporary holder for things you want to detail
-extern zinitdata  zinit;
 extern int32_t lens_hint_item[MAXITEMS][2];                     //aclk, aframe
 extern int32_t lens_hint_weapon[MAXWPNS][5];                    //aclk, aframe, dir, x, y
 extern int32_t strike_hint_counter;
@@ -445,7 +445,6 @@ extern int32_t  mouse_down;                                     // used to hold 
 extern int32_t idle_count, active_count;
 extern char *qstpath;
 extern char *qstdir;
-extern gamedata *game;
 
 extern std::string load_qstpath;
 extern std::string only_qstpath;

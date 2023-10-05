@@ -18,6 +18,7 @@
 #include "base/msgstr.h"
 #include "base/packfile.h"
 #include "base/misctypes.h"
+#include "base/initdata.h"
 #include "zc/zc_sys.h"
 #include "zc/jit.h"
 #include "zc/script_debug.h"
@@ -67,7 +68,6 @@ using std::ostringstream;
 extern byte use_dwm_flush;
 uint8_t using_SRAM = 0;
 
-extern zinitdata zinit;
 int32_t hangcount = 0;
 bool can_neg_array = true;
 
