@@ -17,10 +17,6 @@ using namespace util;
 using std::string;
 using std::istringstream;
 
-//#ifndef _MSC_VER
-#define zc_max(a,b)  ((a)>(b)?(a):(b))
-#define zc_min(a,b)  ((a)<(b)?(a):(b))
-//#endif
 void update_hw_screen(bool force);
 extern int32_t zq_screen_w, zq_screen_h;
 extern int32_t joystick_index;

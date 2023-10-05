@@ -274,4 +274,30 @@ void init_guys(int32_t guyversion);
 void init_item_drop_sets();
 void init_favorites();
 
+#define CHAS_ATTRIB   0x01
+#define CHAS_FLAG     0x02
+#define CHAS_TRIG     0x04
+#define CHAS_ANIM     0x08
+#define CHAS_SCRIPT   0x10
+#define CHAS_BASIC    0x20
+#define CHAS_LIFT     0x40
+#define CHAS_GENERAL  0x80
+
+#define SCRHAS_ROOMDATA  0x00000001
+#define SCRHAS_ITEM      0x00000002
+#define SCRHAS_TWARP     0x00000004
+#define SCRHAS_SWARP     0x00000008
+#define SCRHAS_WARPRET   0x00000010
+#define SCRHAS_LAYERS    0x00000020
+#define SCRHAS_MAZE      0x00000040
+#define SCRHAS_D_S_U     0x00000080
+#define SCRHAS_FLAGS     0x00000100
+#define SCRHAS_ENEMY     0x00000200
+#define SCRHAS_CARRY     0x00000400
+#define SCRHAS_SCRIPT    0x00000800
+#define SCRHAS_UNUSED    0x00001000
+#define SCRHAS_SECRETS   0x00002000
+#define SCRHAS_COMBOFLAG 0x00004000
+#define SCRHAS_MISC      0x00008000
+
 #endif                                                      // _ZC_QST_H_

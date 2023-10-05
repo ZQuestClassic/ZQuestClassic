@@ -549,15 +549,6 @@ extern int32_t directItemY;
 #include "zc/zc_custom.h"
 #include "qst.h"
 
-#define zc_max(a,b)  ((a)>(b)?(a):(b))
-/*template <typename T>
-T zc_max(T a, T b)
-{
-	return (a > b) ? a : b;
-}*/
-
-#define zc_min(a,b)  ((a)<(b)?(a):(b))
-
 #ifdef _MSC_VER
 #pragma warning ( disable : 4800 ) //int32_t to bool town. population: lots.
 #endif

@@ -953,36 +953,6 @@ namespace util
 }
 
 using namespace util;
-int32_t vbound(int32_t val, int32_t low, int32_t high)
-{
-	ASSERT(low <= high);
-	if(val <= low)
-		return low;
-	if(val >= high)
-		return high;
-	return val;
-}
-
-double vbound(double val, double low, double high)
-{
-	ASSERT(low <= high);
-	if(val <= low)
-		return low;
-	if(val >= high)
-		return high;
-	return val;
-}
-
-int wrap(int x,int low,int high)
-{
-    while(x<low)
-        x+=high-low+1;
-
-    while(x>high)
-        x-=high-low+1;
-
-    return x;
-}
 
 std::string dayextension(int32_t dy)
 {

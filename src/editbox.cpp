@@ -5,11 +5,6 @@
 
 #include "EditboxNew.h"
 
-//#ifndef _MSC_VER
-#define zc_max(a,b)  ((a)>(b)?(a):(b))
-#define zc_min(a,b)  ((a)<(b)?(a):(b))
-//#endif
-
 extern int32_t scheme[];
 /* d_editbox_proc:
  *  A text box object. The dp field points to a char * which is the text

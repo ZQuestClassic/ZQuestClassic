@@ -12,11 +12,6 @@ FONT* get_zc_font(int index);
 #define MED_GREEN     245
 #define DARK_GREEN    244
 
-//#ifndef _MSC_VER
-#define zc_max(a,b)  ((a)>(b)?(a):(b))
-#define zc_min(a,b)  ((a)<(b)?(a):(b))
-//#endif
-
 typedef struct zcMatrixTRACER
 {
     byte x, y;

@@ -104,6 +104,7 @@
 #include <set>
 #include <assert.h>
 #include <string>
+#include <algorithm>
 #include "base/ints.h"
 
 #include "metadata/metadata.h"
@@ -2560,26 +2561,6 @@ struct zcmap
 	bool subpTrans;
 };
 
-enum controls //Args for 'getInput()'
-{
-	//control_state indeces
-	btnUp, btnDown, btnLeft, btnRight, btnA, btnB, btnS, btnL, btnR, btnP, btnEx1, btnEx2, btnEx3, btnEx4, btnAxisUp, btnAxisDown, btnAxisLeft, btnAxisRight,
-	//Other controls
-	btnM, btnF12, btnF11, btnF5, btnQ, btnI,
-	btnLast,
-};
-
-#define INT_BTN_A   0x01
-#define INT_BTN_B   0x02
-#define INT_BTN_L   0x04
-#define INT_BTN_R   0x08
-#define INT_BTN_EX1 0x10
-#define INT_BTN_EX2 0x20
-#define INT_BTN_EX3 0x40
-#define INT_BTN_EX4 0x80
-#define INT_BTN_X   INT_BTN_EX1
-#define INT_BTN_Y   INT_BTN_EX2
-
 ///////////////
 /// MODULES ///
 ///////////////
@@ -2628,50 +2609,6 @@ enum {
 /**  Misc Stuff  **/
 /******************/
 
-//GameFlags
-#define GAMEFLAG_TRYQUIT            0x01
-#define GAMEFLAG_SCRIPTMENU_ACTIVE  0x02
-#define GAMEFLAG_F6SCRIPT_ACTIVE    0x04
-#define GAMEFLAG_RESET_GAME_LOOP    0x08
-#define GAMEFLAG_NO_F6              0x10
-
-#define DCLICK_START      0
-#define DCLICK_RELEASE    1
-#define DCLICK_AGAIN      2
-#define DCLICK_NOT        3
-
-template <class T>
-INLINE T sign(T a)
-{
-    return T(a < 0 ? -1: 1);
-}
-
-//#ifndef NOZSWAP
-template <class T>
-static INLINE void zc_swap(T &a,T &b)
-{
-    T c = a;
-    a = b;
-    b = c;
-}
-//#endif
-
-template <class T>
-static INLINE bool is_between(T a, T b, T c, bool inclusive)
-{
-    if(a>b&&a<c)
-    {
-        return true;
-    }
-    
-    if(inclusive&&(a==b||a==c))
-    {
-        return true;
-    }
-    
-    return false;
-}
-
 INLINE bool isinRect(int32_t x,int32_t y,int32_t rx1,int32_t ry1,int32_t rx2,int32_t ry2)
 {
     return x>=rx1 && x<=rx2 && y>=ry1 && y<=ry2;
@@ -2681,10 +2618,6 @@ INLINE void SCRFIX()
 {
     putpixel(screen,0,0,getpixel(screen,0,0));
 }
-
-// ack no, inline doesn't work this way -DD
-//INLINE int32_t new_return(int32_t x) { fake_pack_writing=false; return x; }
-#define new_return(x) {assert(x == 0); fake_pack_writing = false; return x; }
 
 extern void flushItemCache(bool justcost = false);
 extern void removeFromItemCache(int32_t itemclass);
@@ -2715,36 +2648,6 @@ extern void removeFromItemCache(int32_t itemclass);
 #define RUNSCRIPT_SELFREMOVE	4
 
 bool runscript_do_earlyret(int runscript_val);
-
-#define CHAS_ATTRIB   0x01
-#define CHAS_FLAG     0x02
-#define CHAS_TRIG     0x04
-#define CHAS_ANIM     0x08
-#define CHAS_SCRIPT   0x10
-#define CHAS_BASIC    0x20
-#define CHAS_LIFT     0x40
-#define CHAS_GENERAL  0x80
-
-#define SCRHAS_ROOMDATA  0x00000001
-#define SCRHAS_ITEM      0x00000002
-#define SCRHAS_TWARP     0x00000004
-#define SCRHAS_SWARP     0x00000008
-#define SCRHAS_WARPRET   0x00000010
-#define SCRHAS_LAYERS    0x00000020
-#define SCRHAS_MAZE      0x00000040
-#define SCRHAS_D_S_U     0x00000080
-#define SCRHAS_FLAGS     0x00000100
-#define SCRHAS_ENEMY     0x00000200
-#define SCRHAS_CARRY     0x00000400
-#define SCRHAS_SCRIPT    0x00000800
-#define SCRHAS_UNUSED    0x00001000
-#define SCRHAS_SECRETS   0x00002000
-#define SCRHAS_COMBOFLAG 0x00004000
-#define SCRHAS_MISC      0x00008000
-
-#define until(n) while(!(n))
-#define unless(n) if(!(n))
-#define SETFLAG(v, fl, b)	if(b) v |= (fl); else v &= ~(fl)
 
 enum //Mapscr hardcodes for temp mapscrs
 {

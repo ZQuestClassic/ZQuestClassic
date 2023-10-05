@@ -9,8 +9,6 @@
 #include "base/zsys.h"
 #include "zq/zquest.h"
 
-#define zc_min(a,b)  ((a)<(b)?(a):(b))
-
 extern int32_t dmap_list_size;
 extern bool dmap_list_zero;
 extern char *item_string[];

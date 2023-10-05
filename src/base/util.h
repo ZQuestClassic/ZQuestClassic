@@ -3,6 +3,7 @@
  */
 #ifndef _UTIL_H_
 #define _UTIL_H_
+
 #include "base/zdefs.h"
 #include <string>
 #include <sys/types.h>
@@ -10,11 +11,14 @@
 #include <filesystem>
 #include <vector>
 #include <functional>
+#include <algorithm>
+
 #ifndef _WIN32
 #include <stdlib.h>
 #else
 typedef int32_t mode_t;
 #endif
+
 namespace util
 {
 	void upperstr(std::string& str);
@@ -69,10 +73,6 @@ namespace util
 		std::copy(&source[0][0], &source[0][0] + (R*C)/sizeof(source[0][0]), &dest[0][0]);
 	}
 }
-int32_t vbound(int32_t val, int32_t low, int32_t high);
-double vbound(double val, double low, double high);
-
-int wrap(int x,int low,int high);
 
 std::string dayextension(int32_t dy);
 bool fileexists(const char *filename);

@@ -22,6 +22,10 @@ extern bool is_compact;
 extern void large_dialog(DIALOG *d);
 
 extern volatile int32_t dclick_status, dclick_time;
+#define DCLICK_START      0
+#define DCLICK_RELEASE    1
+#define DCLICK_AGAIN      2
+#define DCLICK_NOT        3
 
 char *time_str_short(dword time);
 char *time_str_short2(dword time);

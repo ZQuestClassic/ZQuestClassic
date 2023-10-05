@@ -155,9 +155,6 @@ static const char *qtpath_name      = "macosx_qtpath%d";
 
 #endif
 
-#define zc_max(a,b)  ((a)>(b)?(a):(b))
-#define zc_min(a,b)  ((a)<(b)?(a):(b))
-
 // MSVC fix
 #if _MSC_VER >= 1900
 FILE _iob[] = { *stdin, *stdout, *stderr };

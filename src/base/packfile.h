@@ -13,6 +13,7 @@
 
 extern int32_t readsize, writesize;
 extern bool fake_pack_writing;
+#define new_return(x) {assert(x == 0); fake_pack_writing = false; return x; }
 
 bool pfwrite(const char *p,int32_t n,PACKFILE *f);
 
