@@ -1373,7 +1373,8 @@ int16_t SW_Text::getY() const
 }
 word SW_Text::getW() const
 {
-	return text_length(get_zc_font(fontid), text.c_str());
+	int32_t len = text_length(get_zc_font(fontid), text.c_str());
+	return len == 0 ? 8 : len;
 }
 word SW_Text::getH() const
 {

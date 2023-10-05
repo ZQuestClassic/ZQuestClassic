@@ -276,6 +276,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				loadw = local_subref->w;
 				loadh = local_subref->h;
 				break;
+			case widgTEXT:
 			case widgMMETER:
 			case widgLMETER:
 			case widgMMAP:

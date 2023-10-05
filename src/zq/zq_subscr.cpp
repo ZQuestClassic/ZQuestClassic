@@ -1383,6 +1383,17 @@ SubscrWidget* create_new_widget_of(int32_t type, int x, int y)
 	widg->y = y;
 	widg->w=1;
 	widg->h=1;
+	switch (type)
+	{
+		case widgLINE:
+		case widgRECT:
+		case widgMMAPTITLE:
+		case widgTEXTBOX:
+		case widgSELECTEDTEXT:
+			widg->w = 16;
+			widg->h = 16;
+			break;
+	}
 	
 	int32_t temp_cso=curr_widg;
 	curr_widg=subscr_edit.cur_page().size();
