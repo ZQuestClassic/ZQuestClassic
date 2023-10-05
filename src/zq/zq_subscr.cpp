@@ -16,6 +16,7 @@
 #include "dialog/alert.h"
 #include "dialog/subscr_props.h"
 #include "dialog/info_lister.h"
+#include "dialog/subscreenwizard.h"
 #include "zinfo.h"
 
 #ifndef _MSC_VER
@@ -59,9 +60,6 @@ int dragx, dragy;
 #define ssmflDRAG      0x02
 #define ssmflRCLICK    0x04
 
-SubscrWidget* create_new_widget_of(int32_t type, int x = 0, int y = 0);
-SubscrWidget* create_new_widget(int x = 0, int y = 0);
-
 static ListData item_list(itemlist_num, &font);
 
 int32_t sso_properties(SubscrWidget* widg, int32_t obj_ind)
@@ -86,6 +84,8 @@ int32_t onDistributeRight();
 int32_t onDistributeTop();
 int32_t onDistributeMiddle();
 int32_t onDistributeBottom();
+int32_t onItemGrid();
+int32_t onCounterBlock();
 int32_t onGridSnapLeft();
 int32_t onGridSnapCenter();
 int32_t onGridSnapRight();
@@ -420,6 +420,20 @@ static MENU ss_distribute_menu[] =
     { NULL,                           NULL,                         NULL, 0, NULL }
 };
 
+static MENU ss_wizard_menu[] =
+{
+	{ (char*)"Item Grid",           onItemGrid,             NULL, 0, NULL },
+	{ (char*)"Counter Block",       onCounterBlock,             NULL, 0, NULL},
+	{ NULL,                           NULL,                         NULL, 0, NULL }
+};
+
+static MENU ss_wizard_menu_rc[] =
+{
+	{ (char*)"Item Grid",           onItemGrid,             NULL, 0, NULL },
+	{ (char*)"Counter Block",       onCounterBlock,             NULL, 0, NULL},
+	{ NULL,                           NULL,                         NULL, 0, NULL }
+};
+
 static MENU ss_copypaste_menu[] =
 {
 	{ (char *)"&Copy Widget ",          onSubscrCopy,          NULL, 0, NULL },
@@ -441,12 +455,16 @@ static MENU subscreen_rc_menu[] =
     { (char *)"A&rrange ",              NULL,       ss_arrange_menu, 0, NULL },
 	{ (char *)"&Align ",                NULL,         ss_align_menu, 0, NULL },
 	{ (char *)"&Distribute ",           NULL,    ss_distribute_menu, 0, NULL },
+	{ (char *)"",                       NULL,                  NULL, 0, NULL },
+	{ (char *)"&Wizards",               NULL,     ss_wizard_menu_rc, 0, NULL },
     { NULL,                             NULL,                  NULL, 0, NULL }
 };
 static MENU subscreen_rc_menu_nowidg[] =
 {
     { (char *)"New ",                   onNewWidget,           NULL, 0, NULL },
     { (char *)"Paste New ",             onDuplCopiedWidget,    NULL, 0, NULL },
+	{ (char *)"",                       NULL,                  NULL, 0, NULL },
+	{ (char *)"&Wizards",               NULL,     ss_wizard_menu_rc, 0, NULL },
     { NULL,                             NULL,                  NULL, 0, NULL }
 };
 void update_subscr_dlg(bool start);
@@ -1107,6 +1125,8 @@ static MENU ss_edit_menu[] =
 	{ (char *)"Dis&tribute",                     NULL,                   ss_distribute_menu, 0, NULL },
 	//10
 	{ (char *)"",                                NULL,                                 NULL, 0, NULL },
+	{ (char *)"&Wizards",                        NULL,                       ss_wizard_menu, 0, NULL },
+	{ (char *)"",                                NULL,                                 NULL, 0, NULL },
 	{ (char *)"&Take Snapshot\tZ",               onSnapshot,                           NULL, 0, NULL },
 	{ NULL,                                      NULL,                                 NULL, 0, NULL }
 };
@@ -1368,7 +1388,7 @@ static DIALOG sel_options_dlg[] =
 	{ NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
 };
 
-SubscrWidget* create_new_widget_of(int32_t type, int x, int y)
+SubscrWidget* create_new_widget_of(int32_t type, int x, int y, bool runDialog)
 {
 	SubscrWidget* widg = SubscrWidget::newType(type);
 	if(!widg) return nullptr;
@@ -1390,9 +1410,16 @@ SubscrWidget* create_new_widget_of(int32_t type, int x, int y)
 	}
 	
 	int32_t temp_cso=curr_widg;
-	curr_widg=subscr_edit.cur_page().size();
-	
 	SubscrPage& pg = subscr_edit.cur_page();
+	curr_widg=subscr_edit.cur_page().size();
+	if (!runDialog)
+	{
+		pg.push_back(widg);
+		update_sso_name();
+		update_up_dn_btns();
+		return widg;
+	}
+
 	if(sso_properties(widg,pg.size())!=-1)
 	{
 		pg.push_back(widg);
@@ -1812,6 +1839,31 @@ int32_t onDistributeMiddle()
 int32_t onDistributeBottom()
 {
 	distribute_objects(sso_selection, ssodBOTTOM);
+	return D_O_K;
+}
+
+int32_t onItemGrid()
+{
+	int32_t x = 0;
+	int32_t y = 0;
+	if (force_paste_xy)
+	{
+		x = force_paste_xy[0];
+		y = force_paste_xy[1];
+	}
+	call_subscreen_wizard(subwizardtype::SW_ITEM_GRID, x, y);
+	return D_O_K;
+}
+int32_t onCounterBlock()
+{
+	int32_t x = 0;
+	int32_t y = 0;
+	if (force_paste_xy)
+	{
+		x = force_paste_xy[0];
+		y = force_paste_xy[1];
+	}
+	call_subscreen_wizard(subwizardtype::SW_COUNTER_BLOCK, x, y);
 	return D_O_K;
 }
 
@@ -2719,7 +2771,10 @@ void do_edit_subscr(size_t ind, byte ty)
 		}
 	}*/
 	if(subscr_edit.pages.empty())
+	{
 		subscr_edit.pages.emplace_back();
+		subscr_edit.pages[0].setParent(&subscr_edit);
+	}
 	if(edit_it && edit_subscreen())
 	{
 		if(ind < vec.size())

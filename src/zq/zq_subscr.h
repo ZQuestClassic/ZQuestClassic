@@ -10,6 +10,9 @@ enum { ssodLEFT, ssodCENTER, ssodRIGHT, ssodTOP, ssodMIDDLE, ssodBOTTOM };
 //subscreen object snapping
 enum { ssosLEFT, ssosCENTER, ssosRIGHT, ssosTOP, ssosMIDDLE, ssosBOTTOM };
 
+SubscrWidget* create_new_widget_of(int32_t type, int x = 0, int y = 0, bool runDialog = true);
+SubscrWidget* create_new_widget(int x = 0, int y = 0);
+
 bool edit_subscreen();
 int32_t onEditSubscreens();
 

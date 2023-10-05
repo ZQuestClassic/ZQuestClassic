@@ -1057,6 +1057,7 @@ struct SubscrPage
 	int32_t write(PACKFILE *f) const;
 	
 	word getIndex() const;
+	void setParent(ZCSubscreen const* newparent);
 	ZCSubscreen const* getParent() const;
 	
 	void push_back(SubscrWidget* widg);

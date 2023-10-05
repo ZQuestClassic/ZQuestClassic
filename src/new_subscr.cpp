@@ -5511,6 +5511,10 @@ word SubscrPage::getIndex() const
 {
 	return index;
 }
+void SubscrPage::setParent(ZCSubscreen const* newparent)
+{
+	parent = newparent;
+}
 ZCSubscreen const* SubscrPage::getParent() const
 {
 	return parent;
