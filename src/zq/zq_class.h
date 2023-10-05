@@ -236,7 +236,6 @@ public:
     bool reset_templates(bool validate);
     bool clearmap(bool newquest);
     void clearscr(int32_t scr);
-    void clearzcmap(int32_t map);
     int32_t  load(const char *path);
     int32_t  save(const char *path);
     int32_t MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, int32_t x,int32_t y);

@@ -27497,19 +27497,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	{
 		overlay = get_bit(&tmpscr[(currscr < 128) ? 0 : 1].sidewarpoverlayflags, scrolldir) ? true : false;
 	}
-	
-	if(destdmap == -1)
-	{
-		if(ZCMaps[currmap].tileWidth  != ZCMaps[DMaps[currdmap].map].tileWidth
-				|| ZCMaps[currmap].tileHeight != ZCMaps[DMaps[currdmap].map].tileHeight)
-			return;
-	}
-	else
-	{
-		if(ZCMaps[currmap].tileWidth  != ZCMaps[DMaps[destdmap].map].tileWidth
-				|| ZCMaps[currmap].tileHeight != ZCMaps[DMaps[destdmap].map].tileHeight)
-			return;
-	}
 
 	bool updatemusic = FFCore.can_dmap_change_music(destdmap);
 	bool musicrevert = FFCore.music_update_flags & MUSIC_UPDATE_FLAG_REVERT;
@@ -27552,8 +27539,6 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	}
 	FFCore.clear_combo_scripts();
 	tmpscr[1] = tmpscr[0];
-	
-	const int32_t _mapsSize = ZCMaps[currmap].tileWidth * ZCMaps[currmap].tileHeight;
 	
 	for(int32_t i = 0; i < 6; i++)
 	{

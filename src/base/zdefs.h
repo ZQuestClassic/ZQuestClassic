@@ -2543,24 +2543,6 @@ struct zinitdata
 	}
 };
 
-struct zcmap
-{
-	byte tileWidth;
-	byte tileHeight;
-	word subaWidth;
-	word subaHeight;
-	word subpWidth;
-	word subpHeight;
-	word scrResWidth;
-	word scrResHeight;
-	word viewWidth;
-	word viewHeight;
-	word viewX;
-	word viewY;
-	bool subaTrans;
-	bool subpTrans;
-};
-
 ///////////////
 /// MODULES ///
 ///////////////

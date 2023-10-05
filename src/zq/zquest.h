@@ -229,7 +229,6 @@ void set_debug(bool d);
 extern zquestheader        header;
 extern byte                midi_flags[MIDIFLAGS_SIZE];
 extern byte                music_flags[MUSICFLAGS_SIZE];
-extern zcmap               *ZCMaps;
 extern int32_t				   msg_strings_size;
 extern class zctune        *customtunes;
 //extern emusic            *enhancedMusic;

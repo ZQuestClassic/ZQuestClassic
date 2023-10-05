@@ -5025,7 +5025,6 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 			screen_ffc_modify_postroutine(i);
 		}
 	
-	const int32_t _mapsSize = ZCMaps[currmap].tileHeight*ZCMaps[currmap].tileWidth;
 	tmpscr[tmp].valid |= mVALID; //layer 0 is always valid
 	memcpy(tmpscr[tmp].data, TheMaps[currmap*MAPSCRS+scr].data, sizeof(tmpscr[tmp].data));
 	memcpy(tmpscr[tmp].sflag, TheMaps[currmap*MAPSCRS+scr].sflag, sizeof(tmpscr[tmp].sflag));
@@ -5052,7 +5051,7 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 	
 	if(overlay)
 	{
-		for(int32_t c=0; c< ZCMaps[currmap].tileHeight*ZCMaps[currmap].tileWidth; ++c)
+		for(int32_t c=0; c< 176; ++c)
 		{
 			if(tmpscr[tmp].data[c]==0)
 			{
@@ -5069,7 +5068,7 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 				int32_t lm = (tmpscr[tmp].layermap[i]-1)*MAPSCRS+tmpscr[tmp].layerscreen[i];
 				int32_t fm = (ffscr.layermap[i]-1)*MAPSCRS+ffscr.layerscreen[i];
 				
-				for(int32_t c=0; c< ZCMaps[currmap].tileHeight*ZCMaps[currmap].tileWidth; ++c)
+				for(int32_t c=0; c< 176; ++c)
 				{
 					if(TheMaps[lm].data[c]==0)
 					{
@@ -5114,20 +5113,17 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 			mapscr layerscr = tmpscr2[i];
 			
 			// Don't delete the old tmpscr2's data yet!
-			if(tmpscr[tmp].layermap[i]>0 && (ZCMaps[tmpscr[tmp].layermap[i]-1].tileWidth==ZCMaps[currmap].tileWidth)
-					&& (ZCMaps[tmpscr[tmp].layermap[i]-1].tileHeight==ZCMaps[currmap].tileHeight))
+			if(tmpscr[tmp].layermap[i]>0)
 			{
-				// const int32_t _mapsSize = (ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight);
-				
 				tmpscr2[i]=TheMaps[(tmpscr[tmp].layermap[i]-1)*MAPSCRS+tmpscr[tmp].layerscreen[i]];
 				
 				if(overlay)
 				{
-					for(int32_t y=0; y<ZCMaps[currmap].tileHeight; ++y)
+					for(int32_t y=0; y<11; ++y)
 					{
-						for(int32_t x=0; x<ZCMaps[currmap].tileWidth; ++x)
+						for(int32_t x=0; x<16; ++x)
 						{
-							int32_t c=y*ZCMaps[currmap].tileWidth+x;
+							int32_t c=y*16+x;
 							
 							if(tmpscr2[i].data[c]==0)
 							{
@@ -5277,12 +5273,12 @@ void loadscr(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool overlay
 		update_slope_comboposes();
 	for(int32_t j=-1; j<6; ++j)  // j == -1 denotes the current screen
 	{
-		if(j<0 || ((tmpscr[tmp].layermap[j]>0)&&(ZCMaps[tmpscr[tmp].layermap[j]-1].tileWidth==ZCMaps[currmap].tileWidth) && (ZCMaps[tmpscr[tmp].layermap[j]-1].tileHeight==ZCMaps[currmap].tileHeight)))
+		if(j<0 || (tmpscr[tmp].layermap[j]>0))
 		{
 			mapscr *layerscreen= (j<0 ? &tmpscr[tmp] : tmpscr2[j].valid ? &tmpscr2[j] :
 								  &TheMaps[(tmpscr[tmp].layermap[j]-1)*MAPSCRS]+tmpscr[tmp].layerscreen[j]);
 								  
-			for(int32_t i=0; i<(ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight); ++i)
+			for(int32_t i=0; i<176; ++i)
 			{
 				int32_t c=layerscreen->data[i];
 				int32_t cs=layerscreen->cset[i];
@@ -5330,8 +5326,6 @@ void loadscr2(int32_t tmp,int32_t scr,int32_t)
 		}
 	}
 	
-	const int32_t _mapsSize = (ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight);
-	
 	tmpscr[tmp] = TheMaps[currmap*MAPSCRS+scr];
 	
 	if(tmp==0)
@@ -5340,15 +5334,7 @@ void loadscr2(int32_t tmp,int32_t scr,int32_t)
 		{
 			if(tmpscr[tmp].layermap[i]>0)
 			{
-			
-				if((ZCMaps[tmpscr[tmp].layermap[i]-1].tileWidth==ZCMaps[currmap].tileWidth) && (ZCMaps[tmpscr[tmp].layermap[i]-1].tileHeight==ZCMaps[currmap].tileHeight))
-				{
-					tmpscr2[i]=TheMaps[(tmpscr[tmp].layermap[i]-1)*MAPSCRS+tmpscr[tmp].layerscreen[i]];
-				}
-				else
-				{
-					(tmpscr2+i)->zero_memory();
-				}
+				tmpscr2[i]=TheMaps[(tmpscr[tmp].layermap[i]-1)*MAPSCRS+tmpscr[tmp].layerscreen[i]];
 			}
 			else
 			{
@@ -5473,12 +5459,12 @@ void loadscr2(int32_t tmp,int32_t scr,int32_t)
 	
 	for(int32_t j=-1; j<6; ++j)  // j == -1 denotes the current screen
 	{
-		if(j<0 || ((tmpscr[tmp].layermap[j]>0)&&(ZCMaps[tmpscr[tmp].layermap[j]-1].tileWidth==ZCMaps[currmap].tileWidth) && (ZCMaps[tmpscr[tmp].layermap[j]-1].tileHeight==ZCMaps[currmap].tileHeight)))
+		if(j<0 || ((tmpscr[tmp].layermap[j]>0)))
 		{
 			mapscr *layerscreen= (j<0 ? &tmpscr[tmp]
 								  : &(TheMaps[(tmpscr[tmp].layermap[j]-1)*MAPSCRS+tmpscr[tmp].layerscreen[j]]));
 								  
-			for(int32_t i=0; i<(ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight); ++i)
+			for(int32_t i=0; i<176; ++i)
 			{
 				int32_t c=layerscreen->data[i];
 				int32_t cs=layerscreen->cset[i];
@@ -6664,13 +6650,7 @@ void ViewMap()
 						if(tmpscr[0].layermap[i]<=0)
 							continue;
 						
-						if((ZCMaps[tmpscr[0].layermap[i]-1].tileWidth==ZCMaps[currmap].tileWidth) &&
-						   (ZCMaps[tmpscr[0].layermap[i]-1].tileHeight==ZCMaps[currmap].tileHeight))
-						{
-							const int32_t _mapsSize = (ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight);
-							
-							tmpscr2[i]=TheMaps[(tmpscr[0].layermap[i]-1)*MAPSCRS+tmpscr[0].layerscreen[i]];
-						}
+						tmpscr2[i]=TheMaps[(tmpscr[0].layermap[i]-1)*MAPSCRS+tmpscr[0].layerscreen[i]];
 					}
 					
 					if(XOR((tmpscr)->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer(scrollbuf, 0, 2, tmpscr, -256, playing_field_offset, 2);

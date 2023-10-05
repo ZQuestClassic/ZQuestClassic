@@ -238,7 +238,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc);
 int32_t readitems(PACKFILE *f, word version, word build);
 int32_t readweapons(PACKFILE *f, zquestheader *Header);
 int32_t readguys(PACKFILE *f, zquestheader *Header);
-int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap *temp_map, word version, int scrind = -1);
+int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, word version, int scrind = -1);
 int32_t readmaps(PACKFILE *f, zquestheader *Header);
 int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word start_combo, word max_combos);
 int32_t readcomboaliases(PACKFILE *f, zquestheader *Header, word version, word build);

@@ -73,7 +73,6 @@ using std::pair;
 
 // extern bool                debug;
 extern int32_t                 hero_animation_speed; //lower is faster animation
-extern zcmap               *ZCMaps;
 extern byte                *colordata;
 //extern byte              *tilebuf;
 extern tiledata            *newtilebuf;
@@ -1230,14 +1229,6 @@ int32_t get_qst_buffers()
         TheMaps[i].zero_memory();
         
     //memset(TheMaps, 0, sizeof(mapscr)*MAPSCRS); //shouldn't need this anymore
-    Z_message("OK\n"); // Allocating map buffer...
-    
-    memrequested+=(sizeof(zcmap)*MAXMAPS2);
-    Z_message("Allocating combo buffer (%s)... ", byte_conversion2(sizeof(zcmap)*MAXMAPS2,memrequested,-1,-1));
-    
-    if((ZCMaps=(zcmap*)malloc(sizeof(zcmap)*MAXMAPS2))==NULL)
-        return 0;
-        
     Z_message("OK\n");
     
     // Allocating space for all 65535 strings uses up 10.62MB...
@@ -1402,10 +1393,6 @@ void free_grabtilebuf()
 
 void del_qst_buffers()
 {
-    al_trace("Cleaning maps. \n");
-    
-    if(ZCMaps) free(ZCMaps);
-    
     if(MsgStrings) delete[] MsgStrings;
     
     if(DoorComboSets) free(DoorComboSets);
@@ -1415,12 +1402,9 @@ void del_qst_buffers()
 	combobuf.clear();
     
     if(colordata) free(colordata);
-    
-    al_trace("Cleaning tile buffers. \n");
+	
     free_newtilebuf();
     free_grabtilebuf();
-    
-    al_trace("Cleaning misc. \n");
     
     if(trashbuf) free(trashbuf);
     
@@ -15300,7 +15284,7 @@ darknuts:
 }
 
 
-int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap *temp_map, word version)
+int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, word version)
 {
 	byte tempbyte, padding;
 	int32_t extras, secretcombos;
@@ -16211,9 +16195,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 		}
 	}
 	
-	const int32_t _mapsSize = (temp_map->tileWidth*temp_map->tileHeight);
-	
-	for(int32_t k=0; k<(temp_map->tileWidth*temp_map->tileHeight); k++)
+	for(int32_t k=0; k<176; k++)
 	{
 		if(!p_igetw(&(temp_mapscr->data[k]),f))
 		{
@@ -16236,7 +16218,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	
 	if((Header->zelda_version > 0x192)||((Header->zelda_version == 0x192)&&(Header->build>20)))
 	{
-		for(int32_t k=0; k<(temp_map->tileWidth*temp_map->tileHeight); k++)
+		for(int32_t k=0; k<176; k++)
 		{
 			if(!p_getc(&(temp_mapscr->sflag[k]),f))
 			{
@@ -16265,7 +16247,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	
 	if((Header->zelda_version > 0x192)||((Header->zelda_version == 0x192)&&(Header->build>97)))
 	{
-		for(int32_t k=0; k<(temp_map->tileWidth*temp_map->tileHeight); k++)
+		for(int32_t k=0; k<176; k++)
 		{
 		
 			if(!p_getc(&(temp_mapscr->cset[k]),f))
@@ -16293,7 +16275,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	
 	if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<154)))
 	{
-		for(int32_t k=0; k<(temp_map->tileWidth*temp_map->tileHeight); k++)
+		for(int32_t k=0; k<176; k++)
 		{
 			if((Header->zelda_version == 0x192)&&(Header->build>149))
 			{
@@ -16710,11 +16692,11 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	
 	return 0;
 }
-int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap *temp_map, word version, int scrind)
+int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, word version, int scrind)
 {
 	if(version < 23)
 	{
-		auto ret = readmapscreen_old(f,Header,temp_mapscr,temp_map,version);
+		auto ret = readmapscreen_old(f,Header,temp_mapscr,version);
 		if(ret) return ret;
 	}
 	else
@@ -17158,7 +17140,6 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header)
 	int32_t screens_to_read;
 	
 	mapscr temp_mapscr;
-	zcmap temp_map;
 	word temp_map_count;
 	dword section_size;
 	
@@ -17217,34 +17198,12 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header)
 		map_autolayers.resize(temp_map_count*6);
 		for(int32_t i(0); i<_mapsSize; i++)
 			TheMaps[i].zero_memory();
-		memset(ZCMaps, 0, sizeof(zcmap)*MAXMAPS2);
 	}
 	
 	temp_mapscr.zero_memory();
 	
-	{ //Is this stuff even needed anymore? Is it used at all? -Em
-		memset(&temp_map, 0, sizeof(zcmap));
-		temp_map.scrResWidth = 256;
-		temp_map.scrResHeight = 224;
-		temp_map.tileWidth = 16;
-		temp_map.tileHeight = 11;
-		temp_map.viewWidth = 256;
-		temp_map.viewHeight = 176;
-		temp_map.viewX = 0;
-		temp_map.viewY = 64;
-		temp_map.subaWidth = 256;
-		temp_map.subaHeight = 168;
-		temp_map.subaTrans = false;
-		temp_map.subpWidth = 256;
-		temp_map.subpHeight = 56;
-		temp_map.subpTrans = false;
-	}
 	for(int32_t i=0; i<temp_map_count && i<MAXMAPS2; i++)
 	{
-		//!TODO Trim fully
-		if (!should_skip)
-			memcpy(&ZCMaps[i], &temp_map, sizeof(zcmap));
-
 		byte valid=1;
 		if(version > 22)
 		{
@@ -17264,7 +17223,7 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header)
 			scr=i*MAPSCRS+j;
 			clear_screen(&temp_mapscr);
 			if(valid)
-				readmapscreen(f, Header, &temp_mapscr, &temp_map, version, scr);
+				readmapscreen(f, Header, &temp_mapscr, version, scr);
 			
 			if (!should_skip)
 				TheMaps[scr] = temp_mapscr;

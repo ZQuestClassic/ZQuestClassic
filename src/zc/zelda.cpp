@@ -596,7 +596,6 @@ zquestheader QHeader;
 byte                midi_flags[MIDIFLAGS_SIZE];
 byte                music_flags[MUSICFLAGS_SIZE];
 int32_t					msg_strings_size=0;
-zcmap               *ZCMaps;
 byte                *quest_file;
 dword               quest_map_pos[MAPSCRS*MAXMAPS2]={0};
 
@@ -5847,8 +5846,6 @@ void quit_game()
 	if(qstpath) free(qstpath);
 
 	FFCore.shutdown();
-	
-	//if(ZCMaps != NULL) free(ZCMaps);
 }
 
 bool isSideViewGravity(int32_t t)

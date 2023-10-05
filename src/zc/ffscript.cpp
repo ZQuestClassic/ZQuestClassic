@@ -52014,7 +52014,7 @@ void FFScript::write_mapscreens(PACKFILE *f,int32_t vers_id)
 			}
 			}
 			
-			for(int32_t k=0; k<(ZCMaps[i].tileWidth)*(ZCMaps[i].tileHeight); k++)
+			for(int32_t k=0; k<176; k++)
 			{
 			try
 			{
@@ -52029,7 +52029,7 @@ void FFScript::write_mapscreens(PACKFILE *f,int32_t vers_id)
 			}
 			}
 			
-			for(int32_t k=0; k<(ZCMaps[i].tileWidth)*(ZCMaps[i].tileHeight); k++)
+			for(int32_t k=0; k<176; k++)
 			{
 			try
 			{
@@ -52044,7 +52044,7 @@ void FFScript::write_mapscreens(PACKFILE *f,int32_t vers_id)
 			}
 			}
 			
-			for(int32_t k=0; k<(ZCMaps[i].tileWidth)*(ZCMaps[i].tileHeight); k++)
+			for(int32_t k=0; k<176; k++)
 			{
 			try
 			{
@@ -52620,7 +52620,7 @@ void FFScript::read_mapscreens(PACKFILE *f,int32_t vers_id)
 			}
 			}
 			
-			for(int32_t k=0; k<(ZCMaps[i].tileWidth)*(ZCMaps[i].tileHeight); k++)
+			for(int32_t k=0; k<176; k++)
 			{
 			try
 			{
@@ -52635,7 +52635,7 @@ void FFScript::read_mapscreens(PACKFILE *f,int32_t vers_id)
 			}
 			}
 			
-			for(int32_t k=0; k<(ZCMaps[i].tileWidth)*(ZCMaps[i].tileHeight); k++)
+			for(int32_t k=0; k<176; k++)
 			{
 			try
 			{
@@ -52650,7 +52650,7 @@ void FFScript::read_mapscreens(PACKFILE *f,int32_t vers_id)
 			}
 			}
 			
-			for(int32_t k=0; k<(ZCMaps[i].tileWidth)*(ZCMaps[i].tileHeight); k++)
+			for(int32_t k=0; k<176; k++)
 			{
 			try
 			{

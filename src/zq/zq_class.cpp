@@ -249,6 +249,8 @@ bool zmap::reset_templates(bool validate)
     
     //int32_t ret;
     word version, build, dummy, sversion=0;
+	byte dummyc;
+	word dummyw;
     //int32_t section_size;
     word temp_map_count;
     mapscr temp_mapscr;
@@ -288,208 +290,116 @@ bool zmap::reset_templates(bool validate)
         return false;
     }
     
-    zcmap temp_map;
-    
     if(version>12)
     {
-        if(!p_getc(&(temp_map.tileWidth),f))
-        {
+        if(!p_getc(&dummyc,f))
             return qe_invalid;
-        }
         
-        if(!p_getc(&(temp_map.tileHeight),f))
-        {
+        if(!p_getc(&dummyc,f))
             return qe_invalid;
-        }
         
-        if(!p_igetw(&(temp_map.subaWidth),f))
-        {
+        if(!p_igetw(&dummyw,f))
             return qe_invalid;
-        }
         
-        if(!p_igetw(&(temp_map.subaHeight),f))
-        {
+        if(!p_igetw(&dummyw,f))
             return qe_invalid;
-        }
         
-        if(!p_igetw(&(temp_map.subpWidth),f))
-        {
+        if(!p_igetw(&dummyw,f))
             return qe_invalid;
-        }
         
-        if(!p_igetw(&(temp_map.subpHeight),f))
-        {
+        if(!p_igetw(&dummyw,f))
             return qe_invalid;
-        }
         
-        if(!p_igetw(&(temp_map.scrResWidth),f))
-        {
+        if(!p_igetw(&dummyw,f))
             return qe_invalid;
-        }
         
-        if(!p_igetw(&(temp_map.scrResHeight),f))
-        {
+        if(!p_igetw(&dummyw,f))
             return qe_invalid;
-        }
         
-        if(!p_igetw(&(temp_map.viewWidth),f))
-        {
+        if(!p_igetw(&dummyw,f))
             return qe_invalid;
-        }
         
-        if(!p_igetw(&(temp_map.viewHeight),f))
-        {
+        if(!p_igetw(&dummyw,f))
             return qe_invalid;
-        }
         
-        if(!p_igetw(&(temp_map.viewX),f))
-        {
+        if(!p_igetw(&dummyw,f))
             return qe_invalid;
-        }
         
-        if(!p_igetw(&(temp_map.viewY),f))
-        {
+        if(!p_igetw(&dummyw,f))
             return qe_invalid;
-        }
         
-        if(!p_getc(&(temp_map.subaTrans),f))
-        {
+        if(!p_getc(&dummyc,f))
             return qe_invalid;
-        }
         
-        if(!p_getc(&(temp_map.subpTrans),f))
-        {
+        if(!p_getc(&dummyc,f))
             return qe_invalid;
-        }
-    }
-    else
-    {
-        temp_map.scrResWidth = 256;
-        temp_map.scrResHeight = 224;
-        temp_map.tileWidth = 16;
-        temp_map.tileHeight = 11;
-        temp_map.viewWidth = 256;
-        temp_map.viewHeight = 176;
-        temp_map.viewX = 0;
-        temp_map.viewY = 64;
-        temp_map.subaWidth = 256;
-        temp_map.subaHeight = 168;
-        temp_map.subaTrans = false;
-        temp_map.subpWidth = 256;
-        temp_map.subpHeight = 56;
-        temp_map.subpTrans = false;
     }
     
     for(int32_t i=0; i<MAPSCRSNORMAL; ++i)
     {
-        readmapscreen(f, &header, &temp_mapscr, &temp_map, sversion);
+        readmapscreen(f, &header, &temp_mapscr, sversion);
     }
     
-    readmapscreen(f, &header, &TheMaps[128], &temp_map, sversion);
-    readmapscreen(f, &header, &TheMaps[129], &temp_map, sversion);
+    readmapscreen(f, &header, &TheMaps[128], sversion);
+    readmapscreen(f, &header, &TheMaps[129], sversion);
     
     for(int32_t i=0; i<(MAPSCRS-(MAPSCRSNORMAL+2)); ++i)
     {
-        readmapscreen(f, &header, &temp_mapscr, &temp_map, sversion);
+        readmapscreen(f, &header, &temp_mapscr, sversion);
     }
     
     if(version>12)
     {
-        if(!p_getc(&(temp_map.tileWidth),f))
-        {
+        if(!p_getc(&dummyc,f))
             return qe_invalid;
-        }
         
-        if(!p_getc(&(temp_map.tileHeight),f))
-        {
+        if(!p_getc(&dummyc,f))
             return qe_invalid;
-        }
         
-        if(!p_igetw(&(temp_map.subaWidth),f))
-        {
+        if(!p_igetw(&dummyw,f))
             return qe_invalid;
-        }
         
-        if(!p_igetw(&(temp_map.subaHeight),f))
-        {
+        if(!p_igetw(&dummyw,f))
             return qe_invalid;
-        }
         
-        if(!p_igetw(&(temp_map.subpWidth),f))
-        {
+        if(!p_igetw(&dummyw,f))
             return qe_invalid;
-        }
         
-        if(!p_igetw(&(temp_map.subpHeight),f))
-        {
+        if(!p_igetw(&dummyw,f))
             return qe_invalid;
-        }
         
-        if(!p_igetw(&(temp_map.scrResWidth),f))
-        {
+        if(!p_igetw(&dummyw,f))
             return qe_invalid;
-        }
         
-        if(!p_igetw(&(temp_map.scrResHeight),f))
-        {
+        if(!p_igetw(&dummyw,f))
             return qe_invalid;
-        }
         
-        if(!p_igetw(&(temp_map.viewWidth),f))
-        {
+        if(!p_igetw(&dummyw,f))
             return qe_invalid;
-        }
         
-        if(!p_igetw(&(temp_map.viewHeight),f))
-        {
+        if(!p_igetw(&dummyw,f))
             return qe_invalid;
-        }
         
-        if(!p_igetw(&(temp_map.viewX),f))
-        {
+        if(!p_igetw(&dummyw,f))
             return qe_invalid;
-        }
         
-        if(!p_igetw(&(temp_map.viewY),f))
-        {
+        if(!p_igetw(&dummyw,f))
             return qe_invalid;
-        }
         
-        if(!p_getc(&(temp_map.subaTrans),f))
-        {
+        if(!p_getc(&dummyc,f))
             return qe_invalid;
-        }
         
-        if(!p_getc(&(temp_map.subpTrans),f))
-        {
+        if(!p_getc(&dummyc,f))
             return qe_invalid;
-        }
-    }
-    else
-    {
-        temp_map.scrResWidth = 256;
-        temp_map.scrResHeight = 224;
-        temp_map.tileWidth = 16;
-        temp_map.tileHeight = 11;
-        temp_map.viewWidth = 256;
-        temp_map.viewHeight = 176;
-        temp_map.viewX = 0;
-        temp_map.viewY = 64;
-        temp_map.subaWidth = 256;
-        temp_map.subaHeight = 168;
-        temp_map.subaTrans = false;
-        temp_map.subpWidth = 256;
-        temp_map.subpHeight = 56;
-        temp_map.subpTrans = false;
     }
     
     for(int32_t i=0; i<MAPSCRSNORMAL; ++i)
     {
-        readmapscreen(f, &header, &temp_mapscr, &temp_map, sversion);
+        readmapscreen(f, &header, &temp_mapscr, sversion);
     }
     
-    readmapscreen(f, &header, &TheMaps[MAPSCRS+128], &temp_map, sversion);
-    readmapscreen(f, &header, &TheMaps[MAPSCRS+129], &temp_map, sversion);
+    readmapscreen(f, &header, &TheMaps[MAPSCRS+128], sversion);
+    readmapscreen(f, &header, &TheMaps[MAPSCRS+129], sversion);
     
     pack_fclose(f);
 	clear_quest_tmpfile();
@@ -504,30 +414,10 @@ bool zmap::reset_templates(bool validate)
     return true;
 }
 
-void zmap::clearzcmap(int32_t map)
-{
-    ZCMaps[map].scrResWidth = 256;
-    ZCMaps[map].scrResHeight = 224;
-    ZCMaps[map].tileWidth = 16;
-    ZCMaps[map].tileHeight = 11;
-    ZCMaps[map].viewWidth = 256;
-    ZCMaps[map].viewHeight = 176;
-    ZCMaps[map].viewX = 0;
-    ZCMaps[map].viewY = 64;
-    ZCMaps[map].subaWidth = 256;
-    ZCMaps[map].subaHeight = 168;
-    ZCMaps[map].subaTrans = false;
-    ZCMaps[map].subpWidth = 256;
-    ZCMaps[map].subpHeight = 56;
-    ZCMaps[map].subpTrans = false;
-}
-
 bool zmap::clearmap(bool newquest)
 {
     if(currmap<map_count)
     {
-        clearzcmap(currmap);
-        
         for(int32_t i=0; i<MAPSCRS-(newquest?0:TEMPLATES); i++)
         {
             clearscr(i);
@@ -569,32 +459,20 @@ mapscr* zmap::AbsoluteScr(int32_t map, int32_t scr)
 }
 void zmap::set_prvscr(int32_t map, int32_t scr)
 {
-
-    prvscr=TheMaps[(map*MAPSCRS)+scr];
-    
-    const int32_t _mapsSize = ZCMaps[map].tileWidth*ZCMaps[map].tileHeight;
-    
-    for(int32_t i=0; i<6; i++)
-    {
-        if(prvscr.layermap[i]>0)
-        {
-        
-            if((ZCMaps[prvscr.layermap[i]-1].tileWidth==ZCMaps[map].tileWidth) && (ZCMaps[prvscr.layermap[i]-1].tileHeight==ZCMaps[map].tileHeight))
-            {
-                prvlayers[i]=TheMaps[(prvscr.layermap[i]-1)*MAPSCRS+prvscr.layerscreen[i]];
-            }
-            else
-            {
-				prvlayers[i].valid = 0;
-                // memset(prvlayers+i,0,sizeof(mapscr));
-            }
-        }
+	prvscr=TheMaps[(map*MAPSCRS)+scr];
+	
+	for(int32_t i=0; i<6; i++)
+	{
+		if(prvscr.layermap[i]>0)
+		{
+			prvlayers[i]=TheMaps[(prvscr.layermap[i]-1)*MAPSCRS+prvscr.layerscreen[i]];
+		}
 		else
 			prvlayers[i].valid = 0;
-    }
-    
-    prv_map=map;
-    prv_scr=scr;
+	}
+	
+	prv_map=map;
+	prv_scr=scr;
 }
 int32_t  zmap::getCurrMap()
 {
@@ -893,27 +771,11 @@ int32_t zmap::load(const char *path)
 		goto file_error;
 	}
 	
-	zcmap temp_map;
-	temp_map.scrResWidth = 256;
-	temp_map.scrResHeight = 224;
-	temp_map.tileWidth = 16;
-	temp_map.tileHeight = 11;
-	temp_map.viewWidth = 256;
-	temp_map.viewHeight = 176;
-	temp_map.viewX = 0;
-	temp_map.viewY = 64;
-	temp_map.subaWidth = 256;
-	temp_map.subaHeight = 168;
-	temp_map.subaTrans = false;
-	temp_map.subpWidth = 256;
-	temp_map.subpHeight = 56;
-	temp_map.subpTrans = false;
-	
 	for(int32_t i=0; i<MAPSCRS; i++)
 	{
 		mapscr tmpimportscr;
 		tmpimportscr.zero_memory();
-		if(readmapscreen(f,&header,&tmpimportscr,&temp_map,version)==qe_invalid)
+		if(readmapscreen(f,&header,&tmpimportscr,version)==qe_invalid)
 		{
 			al_trace("failed zmap::load\n");
 				goto file_error;
@@ -6495,7 +6357,6 @@ bool setMapCount2(int32_t c)
         for(int32_t mc=oldmapcount; mc<map_count; mc++)
         {
             Map.setCurrMap(mc);
-            Map.clearzcmap(mc);
             
             for(int32_t ms=0; ms<MAPSCRS; ms++)
             {
