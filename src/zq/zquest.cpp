@@ -31373,7 +31373,7 @@ extern "C" void open_test_mode()
 extern "C" void get_shareable_url()
 {
 	EM_ASM({
-        ZC.setShareableUrl({quest: UTF8ToString($0), map: $1, screen: $2});
+        ZC.setShareableUrl({open: UTF8ToString($0), map: $1, screen: $2});
 	}, filepath, Map.getCurrMap(), Map.getCurrScr());
 }
 #endif

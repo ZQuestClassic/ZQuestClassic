@@ -243,7 +243,7 @@ function insert_css {
 
 if [[ "${TARGETS[*]}" =~ "zplayer" ]]; then
   cp ../../web/index.html zelda.html
-  sed -i -e 's/__TARGET__/zelda/' zelda.html
+  sed -i -e 's/__TARGET__/zplayer/' zelda.html
   if [[ "$ZC_PACKAGE_REPLAYS" ]]; then
     sed -i -e 's|__DATA__|<script src="zc.data.js"></script><script src="zc_replays.data.js"></script>|' zelda.html
   else
@@ -262,7 +262,7 @@ if [[ "${TARGETS[*]}" =~ "zplayer" ]]; then
 fi
 if [[ "${TARGETS[*]}" =~ "zeditor" ]]; then
   cp ../../web/index.html zquest.html
-  sed -i -e 's/__TARGET__/zquest/' zquest.html
+  sed -i -e 's/__TARGET__/zeditor/' zquest.html
   sed -i -e 's|__DATA__|<script src="zc.data.js"></script><script src="zq.data.js"></script>|' zquest.html
   sed -i -e 's|__SCRIPT__|<script async src="zquest.js"></script>|' zquest.html
   set_files zquest.html

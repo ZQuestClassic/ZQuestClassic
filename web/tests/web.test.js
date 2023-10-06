@@ -33,7 +33,7 @@ before(async () => {
 
       // Web build fetches the quest manifest from the internet. In case that ever goes away,
       // don't allow errors in fetching to fail tests.
-      if (error.includes('quest-manifest.json') || error.includes('Failed to fetch')) {
+      if (error.includes('manifest.json') || error.includes('Failed to fetch') || error.includes('blocked by CORS policy')) {
         console.warning(error);
         return;
       }

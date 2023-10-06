@@ -895,7 +895,8 @@ static void save_result(bool stopped = false, bool changed = false)
 
 	// Write to temporary file and then move it, because run_replay_tests.py will constantly
 	// be reading the .zplay.result.txt.
-	std::string tmp_filename = util::create_temp_file_path();
+	std::filesystem::path dest = get_file_path(".result.txt");
+	std::string tmp_filename = util::create_temp_file_path(dest.string());
 	std::ofstream out(tmp_filename, std::ios::binary);
 
 	out << fmt::format("replay: {}", replay_path.string()) << '\n';
@@ -932,7 +933,7 @@ static void save_result(bool stopped = false, bool changed = false)
 	// https://zeldaclassic.sentry.io/share/issue/2a9dfce2e57c4a23820e73774189cfe0/
 	// https://discord.com/channels/876899628556091432/1120883971950125147/1124921628220981298
 	std::error_code ec;
-	std::filesystem::rename(tmp_filename, get_file_path(".result.txt"), ec);
+	std::filesystem::rename(tmp_filename, dest, ec);
 	// Fail, but only in CI (where this happening would be unexpected and could result in bad things for replay tests).
 	if (is_ci() && ec.value())
 	{

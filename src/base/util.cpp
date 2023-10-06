@@ -923,12 +923,18 @@ namespace util
 	}
 
 	// Creates a temporary file path that may be moved by the caller.
-	std::string create_temp_file_path()
+	std::string create_temp_file_path(std::string final_destination)
 	{
+		// TODO: do this for all platforms?
+#ifdef __EMSCRIPTEN__
+		return final_destination + ".tmp";
+#endif
+
 #ifdef ALLEGRO_LINUX
 		// In flatpak, we cannot use /var or /var/tmp because both are on a different drive than
 		// where this temp file will be moved to. Instead, make a file in our own folder `.tmp`
-		if (std::getenv("container") && std::string(std::getenv("container")) == "flatpak")
+		static bool should_fake_tmp = std::getenv("container") && std::string(std::getenv("container")) == "flatpak";
+		if (should_fake_tmp)
 		{
 			fs::create_directories(".tmp");
 			int iterations = 0;

@@ -5236,9 +5236,18 @@ int main(int argc, char **argv)
 	// This will either quick load the first save file for this quest,
 	// or if that doesn't exist prompt the player for a save file name
 	// and then load the quest.
-	if (!params.quest.empty())
+	if (!params.open.empty())
 	{
-		std::string qstpath_to_load = std::string("_quests/").append(params.quest);
+		std::string qstpath_to_load = (fs::current_path() / params.open).string();
+
+		std::string rel_qstpath = qstpath_to_load;
+		char temppath[2048];
+		memset(temppath, 0, 2048);
+		// TODO: zc_make_relative_filename really shouldn't require trailing slash, but it does.
+		std::string rel_dir = fmt::format("{}/", (fs::current_path() / fs::path(qstdir)).string());
+		zc_make_relative_filename(temppath, rel_dir.c_str(), qstpath_to_load.c_str(), 2047);
+		if (temppath[0] != 0)
+			rel_qstpath = temppath;
 
 		int ret = saves_load();
 		if (ret)
@@ -5253,7 +5262,7 @@ int main(int argc, char **argv)
 			auto save = saves_get_slot(i);
 			if (!save->header->quest) continue;
 
-			if (qstpath_to_load == save->header->qstpath)
+			if (rel_qstpath == save->header->qstpath)
 			{
 				if (save_index == -1)
 					save_index = i;
@@ -5267,7 +5276,7 @@ int main(int argc, char **argv)
 
 		if (save_index == -1)
 		{
-			load_qstpath = qstpath_to_load;
+			load_qstpath = rel_qstpath;
 		}
 		else
 		{

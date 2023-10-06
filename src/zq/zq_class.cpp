@@ -13940,7 +13940,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_eol();
 	box_eol();
 	
-	std::string tmp_filename = util::create_temp_file_path();
+	std::string tmp_filename = util::create_temp_file_path(filename);
 	PACKFILE *f = pack_fopen_password(tmp_filename.c_str(),compressed?F_WRITE_PACKED:F_WRITE, "");
 	
 	if(!f)
@@ -14321,6 +14321,10 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 		new_return(ec.value());
 	}
 
+#ifdef __EMSCRIPTEN__
+	em_sync_fs();
+#endif
+
 	new_return(0);
 }
 
@@ -14377,10 +14381,6 @@ int32_t save_quest(const char *filename, bool timed_save)
 	int32_t ret;
 	ret  = save_unencoded_quest(filename, compress, filename);
 
-#ifdef __EMSCRIPTEN__
-	em_sync_fs();
-#endif
-	
 	return ret;
 }
 

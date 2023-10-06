@@ -114,11 +114,8 @@ bool ZModule::init(bool d) //bool default
 		strcpy(moduledata.quests[9],zc_get_config_basic("QUESTS","tenth_qst","-"));
 
 #ifdef __EMSCRIPTEN__
-		strcpy(moduledata.quests[0],"_quests/7th/7th.qst");
-		strcpy(moduledata.quests[1],"_quests/classic/2nd.qst");
-		strcpy(moduledata.quests[2],"_quests/classic/3rd.qst");
-		strcpy(moduledata.quests[3],"_quests/classic/4th.qst");
-		strcpy(moduledata.quests[4],"_quests/classic/5th.qst");
+		strcpy(moduledata.quests[0],"purezc/773/1st-mirrored-vertical-and-horizontal.qst");
+		strcpy(moduledata.quests[1],"purezc/773/1st-mirrored-vertical-and-horizontal.qst");
 #endif
 
 		for ( int32_t q = 0; q < 10; q++ )

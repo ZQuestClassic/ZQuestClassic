@@ -320,12 +320,10 @@ ZCMUSIC * zcmusic_load_file(const char *filename)
 	}
 
 #ifdef __EMSCRIPTEN__
-  if (strncmp("/_quests/", filename, strlen("/_quests/")) == 0)
-  {
-    em_fetch_file(filename);
-  }
+	if (em_is_lazy_file(filename))
+		em_fetch_file(filename);
 #endif
-	
+
 	char *ext=get_extension(filename);
 	
 	if((stricmp(ext,"ogg")==0) && (libflags & ZCMF_OGG))

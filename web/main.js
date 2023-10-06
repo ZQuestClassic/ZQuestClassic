@@ -3,14 +3,8 @@ import { createElement, createUrlString, fetchWithProgress, formatBytes } from "
 import { handleFileLaunch } from "./file_launch.js";
 
 window.ZC = {
+  dataOrigin: 'https://data.zquestclassic.com',
   pathToUrl: {},
-  createPathFromUrl(url) {
-    if (url.startsWith('zc_quests/')) {
-      url = url.replace('zc_quests/', '');
-    }
-    const path = `/_quests/${url}`;
-    return path;
-  },
   async fetch(url, opts) {
     const response = await fetchWithProgress(url, opts, (received, total, done) => {
       if (done) {
@@ -32,6 +26,17 @@ window.ZC = {
 
     return response;
   },
+  async getQuestManifest() {
+    if (ZC.questManifestPromise) {
+      return ZC.questManifestPromise;
+    }
+
+    ZC.questManifestPromise = ZC.fetch(ZC.dataOrigin + '/manifest.json').catch(error => {
+      console.error(error.toString());
+      return [];
+    });
+    return ZC.questManifestPromise;
+  },
   async fetchAsByteArray(url, opts) {
     const response = await ZC.fetch(url, opts);
     return new Uint8Array(await response.arrayBuffer());
@@ -43,7 +48,7 @@ window.ZC = {
   openTestMode(quest, dmap, screen, retsquare) {
     if (0x80 < screen) return;
 
-    const params = { quest, dmap, screen };
+    const params = { test: quest, dmap, screen };
     if (retsquare !== -1) params.retsquare = retsquare;
     const url = createUrlString(ZC_Constants.zeldaUrl, params);
     window.open(url, '_blank');
@@ -94,24 +99,24 @@ async function main() {
     const statusElement = document.getElementById('status');
     const progressElement = document.getElementById('progress');
 
-    let questPath = params.get('quest');
-    if (questPath) {
-      questPath = questPath.startsWith('local/') ?
-        questPath :
-        `/_quests/${questPath}`;
+    const openPath = params.get('open');
+    if (TARGET === 'zeditor' && openPath) {
+      args.push(openPath);
+    }
 
-      if (TARGET === 'zelda') {
-        if (params.get('dmap') && params.get('screen')) {
-          args.push('-test', questPath, params.get('dmap'), params.get('screen'));
-          if (params.get('retsquare')) args.push(params.get('retsquare'));
-          document.querySelector('.button--testmode').classList.remove('hidden');
-        }
-      } else if (TARGET === 'zquest') {
-        args.push(questPath);
+    if (TARGET === 'zplayer') {
+      const testPath = params.get('test');
+      const screen = params.get('screen');
+      const dmap = params.get('dmap');
+      const retsquare = params.get('retsquare');
+      if (testPath && screen && dmap) {
+        args.push('-test', testPath, dmap, screen);
+        if (retsquare) args.push(retsquare);
+        document.querySelector('.button--testmode').classList.remove('hidden');
       }
     }
 
-    if (TARGET === 'zelda') {
+    if (TARGET === 'zplayer') {
       if (params.get('replay')) args.push('-replay', params.get('replay'));
       if (params.has('replayExitWhenDone')) args.push('-replay-exit-when-done');
       if (params.get('record')) args.push('-record', params.get('record'));
@@ -129,7 +134,7 @@ async function main() {
       canvas: document.querySelector('canvas'),
       instantiateWasm,
       onRuntimeInitialized: () => {
-        if (TARGET === 'zelda') setupTouchControls();
+        if (TARGET === 'zplayer') setupTouchControls();
         else {
           // TODO: better way to hide touch controls (just don't render them?)
           for (const el of [...document.querySelectorAll('.touch-inputs')]) {
@@ -138,7 +143,7 @@ async function main() {
         }
         setupCopyUrl();
         setupSettingsPanel();
-        if (TARGET === 'zquest') setupOpenTestMode();
+        if (TARGET === 'zeditor') setupOpenTestMode();
       },
       setStatus: function (text, percentProgress = null) {
         // `.data.js` emscripten generated script passes progress like this:
@@ -240,9 +245,9 @@ async function main() {
     if (params.has('launch')) {
       const result = await handleFileLaunch();
       if (result.openInEditor) {
-        window.location.href = createUrlString(ZC_Constants.zquestUrl, { quest: result.quest });
+        window.location.href = createUrlString(ZC_Constants.zquestUrl, { open: result.quest });
       } else {
-        window.location.href = createUrlString(ZC_Constants.zeldaUrl, { quest: result.quest });
+        window.location.href = createUrlString(ZC_Constants.zeldaUrl, { open: result.quest });
       }
     }
   } catch (err) {
@@ -307,11 +312,11 @@ async function renderQuestList() {
   const questListCurrentEl = questListEl.querySelector('.quest-list__current');
   const questListCurrentTemplate = document.querySelector('.tmpl-selected-quest');
 
-  const response = await fetch("https://hoten.cc/quest-maker/play/quest-manifest.json");
-  const quests = await response.json();
+  const manifest = await ZC.getQuestManifest();
+  const quests = Object.values(manifest);
 
   for (const quest of quests) {
-    if (!quest.urls.length) continue;
+    if (!['auto', true].includes(quest.approval)) continue;
 
     const el = document.createElement('div');
     el.classList.add('quest-list__entry');
@@ -337,6 +342,8 @@ async function renderQuestList() {
   });
 
   function showQuest(quest) {
+    const questPrefix = `${ZC.dataOrigin}/${quest.id}`;
+
     document.querySelector('.quest-list__entry.selected')?.classList.remove('selected');
     document.querySelector(`.quest-list__entry[data-quest-index="${quests.indexOf(quest)}"]`).classList.add('selected');
 
@@ -351,7 +358,7 @@ async function renderQuestList() {
     }
 
     fillOrDelete('.name', quest.name);
-    fillOrDelete('.author', quest.author);
+    fillOrDelete('.author', quest.authors.map(a => a.name).join(', '));
     fillOrDelete('.genre', quest.genre);
     fillOrDelete('.version', quest.version);
 
@@ -368,51 +375,53 @@ async function renderQuestList() {
       contentEl.querySelector('._rating').remove();
     }
 
-    contentEl.querySelector('.information').innerHTML = quest.informationHtml;
-    contentEl.querySelector('.description').innerHTML = quest.descriptionHtml;
-    contentEl.querySelector('.story').innerHTML = quest.storyHtml;
-    contentEl.querySelector('.tips').innerHTML = quest.tipsAndCheatsHtml;
-    contentEl.querySelector('.credits').innerHTML = quest.creditsHtml;
+    if (quest.informationHtml) contentEl.querySelector('.information').innerHTML = quest.informationHtml;
+    if (quest.descriptionHtml) contentEl.querySelector('.description').innerHTML = quest.descriptionHtml;
+    if (quest.storyHtml) contentEl.querySelector('.story').innerHTML = quest.storyHtml;
+    if (quest.tipsAndCheatsHtml) contentEl.querySelector('.tips').innerHTML = quest.tipsAndCheatsHtml;
+    if (quest.creditsHtml) contentEl.querySelector('.credits').innerHTML = quest.creditsHtml;
 
-    function setCurImage(imgUrl) {
+    function setCurImage(image) {
       const imgEl = document.createElement('img');
-      imgEl.src = 'https://hoten.cc/quest-maker/play/' + imgUrl;
+      imgEl.crossOrigin = 'anonymous';
+      imgEl.src = `${questPrefix}/${image}`;
       contentEl.querySelector('.current-image').innerHTML = '';
       contentEl.querySelector('.current-image').append(imgEl);
     }
 
     const imagesEl = contentEl.querySelector('.images');
-    if (quest.imageUrls.length > 1) {
-      for (const imgUrl of quest.imageUrls) {
+    if (quest.images.length > 1) {
+      for (const image of quest.images) {
         const imgEl = document.createElement('img');
-        imgEl.src = 'https://hoten.cc/quest-maker/play/' + imgUrl;
+        imgEl.crossOrigin = 'anonymous';
+        imgEl.src = `${questPrefix}/${image}`;
         imagesEl.append(imgEl);
         imgEl.addEventListener('click', () => {
-          setCurImage(imgUrl);
+          setCurImage(image);
         });
         imgEl.addEventListener('mouseover', () => {
-          setCurImage(imgUrl);
+          setCurImage(image);
         });
       }
     }
 
-    if (quest.imageUrls.length > 0) setCurImage(quest.imageUrls[0]);
+    if (quest.images.length > 0) setCurImage(quest.images[0]);
 
-    for (const url of quest.urls) {
-      const path = window.ZC.createPathFromUrl(url);
-      const questParamValue = path.replace('/_quests/', '');
+    const release = quest.releases[0];
+    for (const resource of release.resources.filter(r => r.endsWith('.qst'))) {
+      const openParamValue = `${quest.id}/${release.name}/${resource}`;
 
       const playEl = createElement('a', 'play-link');
-      playEl.href = createUrlString(ZC_Constants.zeldaUrl, { quest: questParamValue });
+      playEl.href = createUrlString(ZC_Constants.zeldaUrl, { open: openParamValue });
       playEl.textContent = 'Play!';
 
       const editEl = createElement('a');
-      editEl.href = createUrlString(ZC_Constants.zquestUrl, { quest: questParamValue });
+      editEl.href = createUrlString(ZC_Constants.zquestUrl, { open: openParamValue });
       editEl.textContent = 'Open in Editor';
 
       const el = createElement('div', 'link-group');
       contentEl.querySelector('.links').append(el);
-      el.append(questParamValue, playEl, editEl);
+      el.append(resource, playEl, editEl);
     }
 
     questListCurrentEl.textContent = '';
@@ -452,9 +461,9 @@ async function renderQuestList() {
   }
 
   const qsQuest = new URLSearchParams(location.search).get('quest');
-  const initialSelectedQuest =
-    (qsQuest && quests.find(q => q.urls.some(url => window.ZC.createPathFromUrl(url).replace('/_quests/', '') === qsQuest))) || quests[0];
-  showQuest(initialSelectedQuest);
+  const qsQuestId = qsQuest ? qsQuest.match(/(quests\/purezc\/\d+)/)?.[0] : '';
+  const initialSelectedQuest = (qsQuestId && quests.find(q => q.id == qsQuestId)) || quests.find(q => ['auto', true].includes(q.approval));
+  if (initialSelectedQuest) showQuest(initialSelectedQuest);
 }
 
 function setupTouchControls() {
@@ -559,7 +568,8 @@ function setupCopyUrl() {
   const el = document.querySelector('.button--copyurl');
   el.classList.remove('hidden');
 
-  const getShareableUrl = Module.cwrap('get_shareable_url', 'string', []);
+  // TODO: this should just return the string.
+  const getShareableUrl = Module.cwrap('get_shareable_url', 'undefined', []);
   el.addEventListener('click', () => {
     getShareableUrl();
     if (ZC.url) navigator.clipboard.writeText(ZC.url);
@@ -602,6 +612,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // If using gamepad, probably want to go fullscreen.
 // TODO https://bugs.chromium.org/p/chromium/issues/detail?id=1413066
-// if (TARGET === 'zelda') {
+// if (TARGET === 'zplayer') {
 //   window.addEventListener('gamepadconnected', goFullscreen, { once: true });
 // }
