@@ -116,16 +116,14 @@ async function main() {
       }
     }
 
-    if (TARGET === 'zplayer') {
-      if (params.get('replay')) args.push('-replay', params.get('replay'));
-      if (params.has('replayExitWhenDone')) args.push('-replay-exit-when-done');
-      if (params.get('record')) args.push('-record', params.get('record'));
-      if (params.get('assert')) args.push('-assert', params.get('assert'));
-      if (params.get('frame')) args.push('-frame', params.get('frame'));
-      if (params.has('v0')) args.push('-v0');
-      if (params.has('v1')) args.push('-v1');
-      if (params.has('showFps')) args.push('-show-fps');
-      if (params.has('headless')) args.push('-headless');
+    for (const [key, value] of params.entries()) {
+      if (['test', 'screen', 'dmap', 'retsquare'].includes(key)) {
+        continue;
+      }
+
+      const cliSwitch = '-' + key.replace(/[A-Z]/g, (match, offset) => (offset > 0 ? '-' : '') + match.toLowerCase());
+      args.push(cliSwitch);
+      if (value !== '') args.push(value);
     }
 
     // window.Module = await initModule({

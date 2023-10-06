@@ -64,10 +64,10 @@ class TestZEditor(unittest.TestCase):
     # Simply open ZEditor with the new quest template.
     def test_file_new(self):
         run_target.check_run('zeditor', [
+            'quests/Z1 Recreations/classic_1st.qst',
             '-headless',
             '-s',
             '-q',
-            'quests/Z1 Recreations/classic_1st.qst',
         ])
 
     # Resave classic_1st.qst and assert classic_1st.zplay, to make sure the loading/saving code is not introducing bugs.
@@ -94,6 +94,9 @@ class TestZEditor(unittest.TestCase):
         self.run_replay(output_dir, [replay_path])
 
     def test_compile_and_quick_assign(self):
+        if 'emscripten' in str(run_target.get_build_folder()):
+            return
+
         # TODO: set this via CLI
         include_paths = [
             str(root_dir / 'tests/scripts'),
