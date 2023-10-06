@@ -254,7 +254,7 @@ class TestReplays(unittest.TestCase):
             '-record', replay_path,
             '-replay-debug',
             '-frame', '100',
-            '-test', 'Z1 Recreations/classic_1st.qst', '0', '119',
+            '-test', 'quests/Z1 Recreations/classic_1st.qst', '0', '119',
         ])
         run_target.check_run('zplayer', [
             '-headless',
