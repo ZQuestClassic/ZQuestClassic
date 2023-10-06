@@ -101,7 +101,7 @@ async function main() {
 
     const openPath = params.get('open');
     if (TARGET === 'zeditor' && openPath) {
-      args.push(openPath);
+      args.push(openPath.startsWith('/') ? openPath : `/${openPath}`);
     }
 
     if (TARGET === 'zplayer') {
@@ -117,7 +117,7 @@ async function main() {
     }
 
     for (const [key, value] of params.entries()) {
-      if (['test', 'screen', 'dmap', 'retsquare'].includes(key)) {
+      if (['test', 'screen', 'dmap', 'retsquare', 'open'].includes(key)) {
         continue;
       }
 

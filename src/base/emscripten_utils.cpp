@@ -3,13 +3,16 @@
 #include <emscripten/val.h>
 #include "base/zc_alleg.h"
 #include <allegro5/events.h>
+#include <filesystem>
+
+namespace fs = std::filesystem;
 
 EM_ASYNC_JS(void, em_init_fs_, (), {
   // Initialize the filesystem with 0-byte files for every quest.
   const manifest = await ZC.getQuestManifest();
 
   function writeFakeFile(path, url) {
-    url = url || ZC.dataOrigin + '/' + path;
+    url = url || ZC.dataOrigin + path;
     FS.mkdirTree(PATH.dirname(path));
     FS.writeFile(path, '');
     window.ZC.pathToUrl[path] = url;
@@ -19,7 +22,7 @@ EM_ASYNC_JS(void, em_init_fs_, (), {
     if (!id.startsWith('quests')) continue;
     if (!['auto', true].includes(quest.approval)) continue;
 
-    const questPrefix = id;
+    const questPrefix = '/' + id;
 
     for (const music of quest.music) {
         writeFakeFile(questPrefix + '/music/' + music);
@@ -61,6 +64,7 @@ void em_sync_fs() {
 EM_ASYNC_JS(void, em_fetch_file_, (const char *path), {
   try {
     path = UTF8ToString(path);
+    if (!path.startsWith('/')) path = '/' + path;
     try {
         if (FS.stat(path).size) return;
     } catch {
@@ -83,11 +87,13 @@ void em_fetch_file(std::string path) {
 // TODO: is this necessary still? Can we just always attempt to fetch a file (em_fetch_file_ handles
 // when a file is already present)?
 bool em_is_lazy_file(std::string path) {
-  if (strncmp("quests/purezc/", path.c_str(), strlen("quests/purezc/")) == 0) {
+  path = (fs::current_path() / path).string();
+
+  if (strncmp("/quests/purezc/", path.c_str(), strlen("/quests/purezc/")) == 0) {
     return true;
   }
 
-  if (strncmp("tilesets/", path.c_str(), strlen("tilesets/")) == 0) {
+  if (strncmp("/tilesets/", path.c_str(), strlen("/tilesets/")) == 0) {
     return true;
   }
 
