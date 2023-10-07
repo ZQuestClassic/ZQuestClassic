@@ -19,7 +19,7 @@ window.ZC = {
     });
 
     const contentType = await response.headers.get('Content-Type');
-    if (contentType === 'application/json') {
+    if (contentType === 'application/json' || url.endsWith('.json')) {
       const json = new TextDecoder('utf-8').decode(await response.arrayBuffer());
       return JSON.parse(json);
     }
