@@ -8618,7 +8618,6 @@ void WriteSpriteCSet(int page, int cset);
 void WriteMainPalette();
  * Writes the paldata to the main palette.
  * Empty color indices will be skipped. 
- * CSets currently affected by level palettes or sprite palettes will be skipped over.
 
 void WriteMainCSet(int cset);
  * Writes a cset of the paldata to the main palette.

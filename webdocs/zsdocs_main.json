@@ -278,6 +278,10 @@
                         {
                             "name": "Stack Pointers ;; stackptr ;; Stack Pointers",
                             "val": "$Stack"
+                        },
+                        {
+                            "name": "Paldata Pointers ;; paldataptr",
+                            "val": "$PalData"
                         }
                     ]
                 }
@@ -542,8 +546,49 @@
         },
         {
             "name": "PalData",
-            "tabs": [],
-            "todo": true
+            "tabs": [
+                {
+                    "name": "PalData ROOT",
+                    "lines": [
+                        {
+                            "name": "&lt;-- Managed Pointers ;; function_data_managed",
+                            "val": "$0$7"
+                        },
+                        {
+                            "name": "paldata ;; paldata::paldata",
+                            "val": "<h3>PalData Pointers</h3>   `paldata`\n\n`paldata` pointers allow storing and modifying various palettes. A paldata holds 256 `rgb` colors divided into 16 CSets. Colors can be disabled to mask them out of various operations.\n\nSee: ${Graphics::CreatePalData|CreatePalData}"
+                        },
+                        {
+                            "name": "rgb ;; paldata::rgb",
+                            "val": "<h3>The RGB Type</h3>   `rgb`\n\n`rgb` is a special type used by paldata for storing colors as a single integer. It has a range from 0x0L to 0x3F3F3FL with a special value of INVALID_COLOR (-1) for unassigned colors. rgb cannot inherently cast to other primitive types.\n\nSee: ${Graphics::CreateRGB|CreateRGB}"
+                        },
+                        {
+                            "name": "Access ;; paldata::Color / paldata::R / paldata::G / paldata::B / paldata::ClearColor / paldata::ClearCSet / paldata::ColorValid",
+                            "val": "<h3>rgb Color[256];</h3>\nAccess colors of the paldata as ${PalData::rgb|rgb}. Reading an invalid color will return INVALID_COLOR (-1). To write a color as invalid, use ClearColor() instead.\n\n<h3>int R[256];</h3>\n<h3>int G[256];</h3>\n<h3>int B[256];</h3>\nAccess the R/G/B values of the paldata, ranging from 0-63. Reading an invalid color will return -1. To write a color as invalid, use ClearColor() instead.\n\n<h3>void ClearColor(int index);</h3>\nClears the color at index on the paldata. Cleared colors will be skipped when writing to a palette.\n\n<h3>void ClearCSet(int cset);</h3>\nClears an cset on the paldata. Cleared colors will be skipped when writing to a palette.\n\n<h3>void ColorValid(int index);</h3>\nReturns true if the color at index is valid."
+                        },
+                        {
+                            "name": "Loading ;; paldata::LoadLevelPalette",
+                            "val": "<h3>LoadLevelPalette(int pal);</h3>\nLoads a level's palette to the paldata.\nCSets will be arranged as they appear on the main palette, so CSet 2 starts at index 0x20, ect.\n\n<h3>LoadSpritePalette(int pal);</h3>\nLoads a page of sprite palettes to the paldata.\nCurrently only values of 0 and 1 are valid.\n\n<h3>void LoadMainPalette();</h3>\nLoads the main palette to the paldata.\nThis will load colors that have been changed by Tint() and Greyscale().\n\n<h3>void LoadCyclePalette(int pal);</h3>\nLoads the cycle/dark room csets from a level palette to the paldata.\nCSets will be arranged as they appear in the level palette editor, so the first four will be left blank.\n\n<h3>void LoadBitmapPalette(int pal);</h3>\nLoads the palette from an image. Currently only BMP, PCX, and TGA are supported."
+                        },
+                        {
+                            "name": "Writing ;; paldata::WriteLevelPalette / paldata::WriteLevelCSet / paldata::WriteSpritePalette / paldata::WriteSpriteCSet / paldata::WriteMainPalette / paldata::WriteMainCSet / paldata::WriteCyclePalette / paldata::WriteCycleCSet",
+                            "val": "<h3>void WriteLevelPalette(int pal);</h3>\nWrites the paldata to a level palette. Empty color indices will be skipped.\n\n<h3>void WriteLevelCSet(int pal, int cset);</h3>\nWrites a cset of the paldata to a level palette. Empty color indices will be skipped.\n\n<h3>void WriteSpritePalette(int pal);</h3>\nWrites the paldata to a sprite palette page. Empty color indices will be skipped.\n\n<h3>void WriteSpriteCSet(int pal, int cset);</h3>\nWrites a cset of the paldata to a sprite palette page. Empty color indices will be skipped. \n\n<h3>void WriteMainPalette();</h3>\nWrites the paldata to the main palette. Empty color indices will be skipped.\n\n<h3>void WriteMainCSet(int cset);</h3>\nWrites a cset of the paldata to the main palette. Empty color indices will be skipped. \n\n<h3>void WriteCyclePalette(int pal);</h3>\nWrites the paldata to a level palette's cycle/dark room csets. Empty color indices will be skipped.\n\n<h3>void WriteCycleCset(int pal, int cset);</h3>\nWrites a cset of the paldata to a level palette's cycle/dark room csets. Empty color indices will be skipped."
+                        },
+                        {
+                            "name": "Copying ;; paldata::Copy / paldata::CopyCSet",
+                            "val": "<h3>void Copy(paldata target);</h3>\nCopies all the colors from this paldata to the target.\n\n<h3>void CopyCSet(paldata target, int src_cset, int dest_cset);</h3>\nCopies all the colors from one cset on this paldata to another on the target."
+                        },
+                        {
+                            "name": "Mixing ;; paldata::Mix / paldata::MixCSet",
+                            "val": "<h3>void Mix(paldata start, paldata end, float percent = 0.5, int color_space = CSPACE_RGB);</h3>\nInterpolates all the colors on a paldata between start and end.\nThe value of percent should range from 0.0000-1.0000 with 0 representing the starting color.\nColor space specifies a color space to interpolate through, changing the resulting average.\n\n<h3>void MixCSet(paldata start, paldata end, int cset, float percent = 0.5, int color_space = CSPACE_RGB);</h3>\nInterpolates all the colors on a cset of a paldata between start and end.\nThe value of percent should range from 0.0000-1.0000 with 0 representing the starting color.\nColor space specifies a color space to interpolate through, changing the resulting average.\n\nColor space specifies a color space to interpolate through, changing the resulting average. Use the following `CSPACE_` constants:\n<ol start=\"0\">\n<li>CSPACE_RGB</li>\n<li>CSPACE_CMYK</li>\n<li>CSPACE_HSV</li>\n<li>CSPACE_HSV_CW</li>\n<li>CSPACE_HSV_CCW</li>\n<li>CSPACE_HSL</li>\n<li>CSPACE_HSL_CW</li>\n<li>CSPACE_HSL_CCW</li>\n<li>CSPACE_LAB</li>\n<li>CSPACE_LCH</li>\n<li>CSPACE_LCH_CW</li>\n<li>CSPACE_LCH_CCW</li>\n</ol>\n\nSee also: ${Graphics::MixColor|MixColor}"
+                        },
+                        {
+                            "name": "Pointer Management ;; paldata::Free / paldata::Own",
+                            "val": "<h3>void Free();</h3>\nDe-allocates this `paldata` pointer, so that its' pointer ID may be re-used. You may only have a limited number of paldata pointers active at a time; freeing them when you are done with them helps not reach the limit.\n\n<h3>void Own();</h3>\r\nGrants 'Ownership' of the paldata pointer to the script that calls this function. When the script with 'Ownership' terminates (at the same time its' local arrays are deallocated), this paldata pointer will automatically be 'Free()'d."
+                        }
+                    ]
+                }
+            ]
         },
         {
             "name": "Weapon",
@@ -2056,7 +2101,7 @@
                         },
                         {
                             "name": "Drawing ;; Screen::PutPixels / Screen::DrawTiles / Screen::DrawCombos / Screen::Lines / Screen::DrawBitmap / Screen::DrawBitmapEx / Screen Drawing Funcs",
-                            "val": "<h3>void DrawBitmap(int layer, int bitmap_id,\n        int source_x, int source_y, int source_w, int source_h,\n        int dest_x, int dest_y, int dest_w, int dest_h,\n        float rotation, bool mask);</h3>\n\nDraws an area from the old-style render target bitmap indicated by `bitmap_id` to the current render target.\n\n<h3>void DrawBitmapEx(int layer, int bitmap_id,\n        int source_x, int source_y, int source_w, int source_h, \n        int dest_x, int dest_y, int dest_w, int dest_h, \n        float rotation = 0, int cx = 0, int cy = 0,\n        int mode = 0, int lit = 0,  bool mask = true);</h3>\n\nSimilar to 'DrawBitmap', but offers some extra mode options- using the 'BITDX_' constants.\n\n<h2>Array Drawing Functions</h2>\nThese take a repeating-array of parameters.\n\n<h3>void PutPixels(int layer, int arr[]);</h3>\nPuts multiple pixels to the screen in one function call. PutPixels() expects an array as its arg, with the array in the format of repeating blocks of `{ x, y, color, trans }`.\n\n<h3>void DrawTiles(int layer, int arr[]);</h3>\nSimilar to FastTile(), but it draws multiple tiles in one call. The array arg should be an array with repeating sets of `{x,y,tile,color,opacity}`\n\n<h3>void DrawCombos(int layer, int arr[]);</h3>\nSimilar to FastCombo(), but it draws multiple combos in one call. The array arg should be an array with repeating sets of `{x,y,combo,color,opacity}`\n\n<h3>void Lines(int layer, int arr[]);</h3>\nSimilar to Line(), but it draws multiple lines in one call. The array arg should be an array with repeating sets of `{x,y,x2,y2,color,scale,rx,ry,rangle,opacity}`"
+                            "val": "<h3>void DrawBitmap(int layer, int bitmap_id,\n        int source_x, int source_y, int source_w, int source_h,\n        int dest_x, int dest_y, int dest_w, int dest_h,\n        float rotation, bool mask);</h3>\n\nDraws an area from the old-style render target bitmap indicated by `bitmap_id` to the current render target.\n\n<h3>void DrawBitmapEx(int layer, int bitmap_id,\n        int source_x, int source_y, int source_w, int source_h, \n        int dest_x, int dest_y, int dest_w, int dest_h, \n        float rotation = 0, int cx = 0, int cy = 0,\n        int mode = 0, int lit = 0,  bool mask = true);</h3>\n\nSimilar to 'DrawBitmap', but offers some extra mode options- using the 'BITDX_' constants.\n\n<h2>Array Drawing Functions</h2>\nThese take a repeating-array of parameters.\n\n<h3>void PutPixels(int layer, int arr[], int rx, int ry, int rangle);</h3>\nPuts multiple pixels to the screen in one function call. PutPixels() expects an array as its arg, with the array in the format of repeating blocks of `{ x, y, color, trans }`.\n\n<h3>void DrawTiles(int layer, int arr[]);</h3>\nSimilar to FastTile(), but it draws multiple tiles in one call. The array arg should be an array with repeating sets of `{x,y,tile,color,opacity}`\n\n<h3>void DrawCombos(int layer, int arr[]);</h3>\nSimilar to FastCombo(), but it draws multiple combos in one call. The array arg should be an array with repeating sets of `{x,y,combo,color,opacity}`\n\n<h3>void Lines(int layer, int arr[]);</h3>\nSimilar to Line(), but it draws multiple lines in one call. The array arg should be an array with repeating sets of `{x,y,x2,y2,color,scale,rx,ry,rangle,opacity}`"
                         },
                         {
                             "name": "Darkroom Lighting ;; Screen::DrawLightCircle / Screen::DrawLightSquare / Screen::DrawLightCone",
@@ -2602,15 +2647,15 @@
                         },
                         {
                             "name": "CreatePalData ;; Graphics::CreatePalData",
-                            "val": "<h3>paldata CreatePalData();\npaldata CreatePalData(rgb color);</h3>\n\nCreates a new paldata. If 'color' is specified, fills the palette with that rgb color."
+                            "val": "<h3>paldata CreatePalData();\npaldata CreatePalData(rgb color);</h3>\n\nCreates a new paldata. If 'color' is specified, fills the palette with that rgb color.\n\nSee: ${paldata::paldata|paldata}"
                         },
                         {
                             "name": "MixColor ;; Graphics::MixColor",
-                            "val": "<h3>rgb MixColor(rgb start, rgb end, float percent, int color_space = CSPACE_RGB);</h3>\nInterpolates a color between start and end and then returns the resulting rgb.\nThe value of percent should range from 0-1, with 0 representing the starting color.\n\nColor space specifies a color space to interpolate through, changing the resulting average.\n<ol start=\"0\">\n<li>CSPACE_RGB</li>\n<li>CSPACE_CMYK</li>\n<li>CSPACE_HSV</li>\n<li>CSPACE_HSV_CW</li>\n<li>CSPACE_HSV_CCW</li>\n<li>CSPACE_HSL</li>\n<li>CSPACE_HSL_CW</li>\n<li>CSPACE_HSL_CCW</li>\n<li>CSPACE_LAB</li>\n<li>CSPACE_LCH</li>\n<li>CSPACE_LCH_CW</li>\n<li>CSPACE_LCH_CCW</li>\n</ol>"
+                            "val": "<h3>rgb MixColor(rgb start, rgb end, float percent, int color_space = CSPACE_RGB);</h3>\nInterpolates a color between start and end and then returns the resulting rgb.\nThe value of percent should range from 0.0000-1.0000, with 0 representing the starting color.\n\nColor space specifies a color space to interpolate through, changing the resulting average. Use the following `CSPACE_` constants:\n<ol start=\"0\">\n<li>CSPACE_RGB</li>\n<li>CSPACE_CMYK</li>\n<li>CSPACE_HSV</li>\n<li>CSPACE_HSV_CW</li>\n<li>CSPACE_HSV_CCW</li>\n<li>CSPACE_HSL</li>\n<li>CSPACE_HSL_CW</li>\n<li>CSPACE_HSL_CCW</li>\n<li>CSPACE_LAB</li>\n<li>CSPACE_LCH</li>\n<li>CSPACE_LCH_CW</li>\n<li>CSPACE_LCH_CCW</li>\n</ol>\n\nSee also: ${paldata::Mix|Color Mixing}"
                         },
                         {
                             "name": "CreateRGB ;; Graphics::CreateRGB / rgb",
-                            "val": "<h3>rgb CreateRGB(int r, int g, int b);\nrgb CreateRGB(long hexcode);</h3>\nTakes either an (r,g,b) ranging 0 &lt;= n &lt;= 63, or takes a long hexcode (0xRRGGBBL), with each rgb section 0 &lt;= n &lt;= 255.\nConverts whichever is passed into an 'rgb' value, representing a color with 0-63 rgb values, which is used by paldata functions."
+                            "val": "<h3>rgb CreateRGB(int r, int g, int b);\nrgb CreateRGB(long hexcode);</h3>\nTakes either an (r,g,b) ranging 0 &lt;= n &lt;= 63, or takes a long hexcode (0xRRGGBBL), with each rgb section 0 &lt;= n &lt;= 255.\nConverts whichever is passed into an 'rgb' value, representing a color with 0-63 rgb values, which is used by paldata functions.\n\nSee: ${paldata::rgb|rgb}"
                         }
                     ]
                 }
