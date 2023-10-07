@@ -2941,11 +2941,9 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 				
 				if(layermap>-1 && layermap<map_count)
 				{
-					layerscreen=layermap*MAPSCRS+basescr->layerscreen[k];
-					
 					for(int32_t i=0; i<176; i++)
 					{
-						put_walkflags_layered_external(dest,((i&15)<<4)+x,(i&0xF0)+y,i, k, layermap, layerscreen);
+						put_walkflags_layered_external(dest,((i&15)<<4)+x,(i&0xF0)+y,i, k, map, scr);
 					}
 				}
 			}
