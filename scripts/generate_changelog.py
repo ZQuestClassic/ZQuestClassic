@@ -177,7 +177,6 @@ def split_text_into_logical_markdown_chunks(text: str) -> List[str]:
     inside_list_element = False
     current_list_element = ''
 
-    # inside_paragraph_block = True
     for line in text.splitlines():
         if inside_paragraph_block:
             current_paragraph_block += line + ' '
@@ -199,6 +198,7 @@ def split_text_into_logical_markdown_chunks(text: str) -> List[str]:
             current_list_element += line + '\n'
             if line == '':
                 lines.append(current_list_element)
+                lines.append('&nbsp;')
                 inside_list_element = False
                 current_list_element = ''
             continue
@@ -208,7 +208,7 @@ def split_text_into_logical_markdown_chunks(text: str) -> List[str]:
             inside_code_block = True
             continue
 
-        if line.strip().startswith('-'):
+        if line.strip().startswith('-') or line.strip().startswith('*'):
             current_list_element += line + '\n'
             inside_list_element = True
             continue
