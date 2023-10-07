@@ -103,10 +103,10 @@ if args.prepare:
     replace_in('zc.data.js', "REMOTE_PACKAGE_BASE = 'zc.data'",
                "REMOTE_PACKAGE_BASE = '../zc.data'")
 
-    shutil.copy2(script_dir / 'workbox-config.js', dist_dir)
+    shutil.copy2(script_dir / 'workbox-config.cjs', dist_dir)
     os.chdir(dist_dir)
     os.system(
-        f'{script_dir / "../node_modules/.bin/workbox"} generateSW workbox-config.js')
+        f'{script_dir / "../node_modules/.bin/workbox"} generateSW workbox-config.cjs')
 
     (dist_dir / 'index.html').write_text('<a href=create>create</a> <br> <a href=play>play</a>')
 
