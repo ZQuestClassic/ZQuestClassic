@@ -19322,7 +19322,7 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 	word s_version=0, s_cversion=0;
 	byte padding;
 	
-	zinitdata temp_zinit;
+	zinitdata temp_zinit = {};
 	
 	// Legacy item properties (now integrated into itemdata)
 	byte sword_hearts[4];
