@@ -2270,8 +2270,10 @@ int saves_do_first_time_stuff(int index)
 		// TODO: this is a weird place to do this.
 		char temppath[2048];
 		memset(temppath, 0, 2048);
+		std::string rel_dir = (fs::current_path() / fs::path(qstdir)).string();
 		// TODO: zc_make_relative_filename really shouldn't require trailing slash, but it does.
-		std::string rel_dir = fmt::format("{}/", (fs::current_path() / fs::path(qstdir)).string());
+		if (!rel_dir.ends_with(("/")))
+			rel_dir += "/";
 		zc_make_relative_filename(temppath, rel_dir.c_str(), save->game->header.qstpath.c_str(), 2047);
 		if (temppath[0] != 0)
 		{

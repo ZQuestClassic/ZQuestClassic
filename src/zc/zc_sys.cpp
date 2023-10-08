@@ -7251,6 +7251,8 @@ int32_t onQstPath()
 		fix_filename_slashes(path);
 		strcpy(qstdir,path);
 		strcpy(qstpath,qstdir);
+		zc_set_config("zeldadx","quest_dir",qstdir);
+		flush_config_file();
 	}
 	
 	comeback();
