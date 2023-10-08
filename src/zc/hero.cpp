@@ -22020,7 +22020,7 @@ int32_t grabComboFromPos(int32_t pos, int32_t type)
 	return -1;
 }
 
-typedef byte spot_t;
+typedef word spot_t;
 static int32_t typeMap[176];
 static int32_t customTypeMap[176];
 static int32_t istrig[176];
@@ -22076,19 +22076,27 @@ struct lightbeam_xy
 		return x+16 >= 0 && x-16 < 256 && y+16 >= 0 && y-16 < 176;
 	}
 };
-#define SP_VISITED 0x1
-#define SPFLAG(dir) (0x2<<dir)
-#define BEAM_AGE_LIMIT 32
-static void handleBeam(byte* grid, size_t age, byte spotdir, int32_t curpos, byte set, bool block, bool refl)
+#define SP_VISITED       0x1
+#define SP_FLAGS         0x01E
+#define SP_GOFLAGS       0x1E0
+#define SP_MASK          (SP_VISITED|SP_FLAGS)
+#define SP_FLAG(dir)     (0x2<<dir)
+#define SP_GOFLAG(dir)   (0x20<<dir)
+#define BEAM_AGE_LIMIT   512
+static void handleBeam(spot_t* grid, size_t age, byte spotdir, int32_t curpos, byte set, bool block, bool refl)
 {
 	if(spotdir > 3) return; //invalid dir
 	int32_t trigflag = set ? (1 << (set-1)) : ~0;
 	bool doAge = true;
-	byte f = 0;
+	spot_t f = 0;
 	while(unsigned(curpos) < 176)
 	{
 		bool block_light = false;
-		f = SPFLAG(spotdir);
+		f = SP_GOFLAG(spotdir);
+		if((grid[curpos] & f) == f)
+			return;
+		else grid[curpos] |= f;
+		f = SP_FLAG(spotdir);
 		if((grid[curpos] & f) != f)
 		{
 			grid[curpos] |= f;
@@ -22126,7 +22134,7 @@ static void handleBeam(byte* grid, size_t age, byte spotdir, int32_t curpos, byt
 			curpos = -1;
 		if(unsigned(curpos) >= 176) return;
 		
-		f = SPFLAG(oppositeDir[spotdir]);
+		f = SP_FLAG(oppositeDir[spotdir]);
 		if((grid[curpos] & f) != f)
 		{
 			grid[curpos] |= f;
@@ -22218,7 +22226,7 @@ static void handleFFBeam(std::map<dword,spot_t>& grid, size_t age, byte spotdir,
 	while(curxy.valid())
 	{
 		bool block_light = false;
-		f = SPFLAG(spotdir);
+		f = SP_FLAG(spotdir);
 		if((grid[curxy.ffpos()] & f) != f)
 		{
 			grid[curxy.ffpos()] |= f;
@@ -22251,7 +22259,7 @@ static void handleFFBeam(std::map<dword,spot_t>& grid, size_t age, byte spotdir,
 		if(block && (spotdir == oppositeDir[Hero.getDir()]) && collided_hero)
 			return;
 		
-		f = SPFLAG(oppositeDir[spotdir]);
+		f = SP_FLAG(oppositeDir[spotdir]);
 		if((grid[curxy.ffpos()] & f) != f)
 		{
 			grid[curxy.ffpos()] |= f;
@@ -22548,7 +22556,7 @@ static BITMAP* generate_beam_bitmap(int32_t id)
 
 static int32_t get_beamoffs(spot_t val)
 {
-	switch(val>>1)
+	switch((val&SP_MASK)>>1)
 	{
 		case 0: default:
 			if(val)
