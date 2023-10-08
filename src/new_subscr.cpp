@@ -321,6 +321,7 @@ int32_t to_real_font(int32_t ss_font)
 	{
 		case ssfSMALL: return font_sfont;
 		case ssfSMALLPROP: return font_spfont;
+		case ssfPROP: return font_nfont;
 		case ssfSS1: return font_ssfont1;
 		case ssfSS2: return font_ssfont2;
 		case ssfSS3: return font_ssfont3;
