@@ -66,6 +66,8 @@ extern bool Playing;
 int32_t sfx_voice[WAV_COUNT];
 int32_t d_stringloader(int32_t msg,DIALOG *d,int32_t c);
 int32_t d_midilist_proc(int32_t msg,DIALOG *d,int32_t c);
+
+static ALLEGRO_JOYSTICK* gamepad_dlg_cur_joystick;
 static int32_t d_joylist_proc(int32_t msg,DIALOG *d,int32_t c);
 
 extern byte monochrome_console;
@@ -5373,7 +5375,7 @@ int32_t d_kbutton_proc(int32_t msg,DIALOG *d,int32_t c);
 //Only used in keyboard settings dialogues to clear keys. 
 int32_t d_k_clearbutton_proc(int32_t msg,DIALOG *d,int32_t c);
 
-void j_getbtn(DIALOG *d)
+int32_t j_getbtn(DIALOG *d)
 {
 	d->flags|=D_SELECTED;
 	jwin_button_proc(MSG_DRAW,d,0);
@@ -5387,6 +5389,8 @@ void j_getbtn(DIALOG *d)
 	update_hw_screen(true);
 	
 	int32_t b = next_joy_input(true);
+	if (b == -2)
+		return D_CLOSE;
 	
 	if(b>=0)
 		*((int32_t*)d->dp3) = b;
@@ -5395,6 +5399,8 @@ void j_getbtn(DIALOG *d)
 	
 	if (player)
 		player->joy_on = TRUE;
+	
+	return D_O_K;
 }
 
 void j_getstick(DIALOG *d)
@@ -5428,7 +5434,9 @@ int32_t d_jbutton_proc(int32_t msg,DIALOG *d,int32_t c)
 	case MSG_KEY:
 	case MSG_CLICK:
 
-		j_getbtn(d);
+		int ret = j_getbtn(d);
+		if (ret != D_O_K)
+			return ret;
 		
 		while(gui_mouse_b()) {
 			rest(1);
@@ -5476,7 +5484,16 @@ int32_t d_stringloader(int32_t msg,DIALOG *d,int32_t c)
 {
 	//these are here to bypass compiler warnings about unused arguments
 	c=c;
-	
+
+	if (d->w == 1)
+	{
+		if (!gamepad_dlg_cur_joystick || !al_get_joystick_active(gamepad_dlg_cur_joystick))
+		{
+			InfoDialog("ZC", "Invalid gamepad. Did it disconnect?").show();
+			return D_CLOSE;
+		}
+	}
+
 	if(msg==MSG_DRAW)
 	{
 		switch(d->w)
@@ -6688,6 +6705,12 @@ int32_t onKeyboard()
 
 int32_t onGamepad()
 {
+	if (al_get_num_joysticks() == 0)
+	{
+		InfoDialog("ZC", "No gamepads detected.").show();
+		return D_O_K;
+	}
+
 	int32_t a = Abtn;
 	int32_t b = Bbtn;
 	int32_t s = Sbtn;
@@ -6722,6 +6745,13 @@ int32_t onGamepad()
 		joystick_index = 0;
 	gamepad_dlg[61].d2 = joystick_index;
 
+	gamepad_dlg_cur_joystick = al_get_joystick(joystick_index);
+	if (!gamepad_dlg_cur_joystick)
+	{
+		InfoDialog("ZC", "Invalid gamepad. Did it disconnect?").show();
+		return D_CLOSE;
+	}
+
 	large_dialog(gamepad_dlg);
 		
 	int32_t ret = do_zqdialog(gamepad_dlg,4);
@@ -6730,6 +6760,12 @@ int32_t onGamepad()
 	{
 		analog_movement = gamepad_dlg[56].flags&D_SELECTED;
 		joystick_index = gamepad_dlg[61].d2;
+		gamepad_dlg_cur_joystick = al_get_joystick(joystick_index);
+		if (!gamepad_dlg_cur_joystick)
+		{
+			InfoDialog("ZC", "Invalid gamepad. Did it disconnect?").show();
+			return D_CLOSE;
+		}
 		js_stick_1_y_stick = js_stick_1_x_stick;
 		js_stick_2_y_stick = js_stick_2_x_stick;
 		save_control_configs(false);
@@ -6755,7 +6791,7 @@ int32_t onGamepad()
 		js_stick_1_x_stick = stick_1;
 		js_stick_2_x_stick = stick_2;
 	}
-	
+
 	return D_O_K;
 }
 
@@ -8697,6 +8733,11 @@ int32_t next_joy_input(bool buttons)
 		}
 		else
 		{
+			if (!gamepad_dlg_cur_joystick || !al_get_joystick_active(gamepad_dlg_cur_joystick))
+			{
+				InfoDialog("ZC", "Invalid gamepad. Did it disconnect?").show();
+				return -2;
+			}
 			for(int32_t i=0; i<joy[joystick_index].num_sticks; i++)
 			{
 				if(joystick(i)) done = false;
@@ -8726,6 +8767,11 @@ int32_t next_joy_input(bool buttons)
 		
 		if (buttons)
 		{
+			if (!gamepad_dlg_cur_joystick || !al_get_joystick_active(gamepad_dlg_cur_joystick))
+			{
+				InfoDialog("ZC", "Invalid gamepad. Did it disconnect?").show();
+				return -2;
+			}
 			for(int32_t i=1; i<=joy[joystick_index].num_buttons; i++)
 			{
 				if(joybtn(i))
