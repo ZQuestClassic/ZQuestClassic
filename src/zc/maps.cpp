@@ -4270,7 +4270,9 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	if(!get_qr(qr_SUBSCREENOVERSPRITES))
 	{
 		set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
-		put_passive_subscr(framebuf, 0, passive_subscreen_offset, false, sspUP);
+		bool dotime = false;
+		if (replay_version_check(22) || !replay_is_active()) dotime = game->should_show_time();
+		put_passive_subscr(framebuf, 0, passive_subscreen_offset, dotime, sspUP);
 	}
 	
 	
