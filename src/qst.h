@@ -111,7 +111,7 @@ extern std::map<int32_t, script_slot_data > itemspritemap;
 extern std::map<int32_t, script_slot_data > comboscriptmap;
 extern std::map<int32_t, script_slot_data > subscreenmap;
 
-extern bool global_z3_hacky_load;
+extern int global_z3_hacky_load;
 
 #define MAX_COMBO_COLS 4
 extern int32_t First[MAX_COMBO_COLS],combo_alistpos[MAX_COMBO_COLS],combo_pool_listpos[MAX_COMBO_COLS], combo_auto_listpos[MAX_COMBO_COLS];
@@ -203,8 +203,9 @@ void port250QuestRules();
 void portCandleRules();
 void portBombRules();
 
-int32_t loadquest(const char *filename, zquestheader *Header,
-              miscQdata *Misc, zctune *tunes, bool show_progress, byte *skip_flags, byte printmetadata = 1, bool report = true, byte qst_num = 0);
+int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc,
+	zctune *tunes, bool show_progress, byte *skip_flags, byte printmetadata = 1,
+	bool report = true, byte qst_num = 0, dword tileset_flags = 0);
 
 char *byte_conversion(int32_t number, int32_t format);
 char *byte_conversion2(int32_t number1, int32_t number2, int32_t format1, int32_t format2);
@@ -240,7 +241,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc);
 int32_t readitems(PACKFILE *f, word version, word build);
 int32_t readweapons(PACKFILE *f, zquestheader *Header);
 int32_t readguys(PACKFILE *f, zquestheader *Header);
-int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap *temp_map, word version, int scrind = -1);
+int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, word version, int scrind = -1);
 int32_t readmaps(PACKFILE *f, zquestheader *Header);
 int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, word start_combo, word max_combos);
 int32_t readcomboaliases(PACKFILE *f, zquestheader *Header, word version, word build);
@@ -275,5 +276,37 @@ void reset_weaponname(int32_t i);
 void init_guys(int32_t guyversion);
 void init_item_drop_sets();
 void init_favorites();
+
+#define CHAS_ATTRIB   0x01
+#define CHAS_FLAG     0x02
+#define CHAS_TRIG     0x04
+#define CHAS_ANIM     0x08
+#define CHAS_SCRIPT   0x10
+#define CHAS_BASIC    0x20
+#define CHAS_LIFT     0x40
+#define CHAS_GENERAL  0x80
+
+#define SCRHAS_ROOMDATA  0x00000001
+#define SCRHAS_ITEM      0x00000002
+#define SCRHAS_TWARP     0x00000004
+#define SCRHAS_SWARP     0x00000008
+#define SCRHAS_WARPRET   0x00000010
+#define SCRHAS_LAYERS    0x00000020
+#define SCRHAS_MAZE      0x00000040
+#define SCRHAS_D_S_U     0x00000080
+#define SCRHAS_FLAGS     0x00000100
+#define SCRHAS_ENEMY     0x00000200
+#define SCRHAS_CARRY     0x00000400
+#define SCRHAS_SCRIPT    0x00000800
+#define SCRHAS_UNUSED    0x00001000
+#define SCRHAS_SECRETS   0x00002000
+#define SCRHAS_COMBOFLAG 0x00004000
+#define SCRHAS_MISC      0x00008000
+
+
+
+#define TILESET_CLEARMAPS      0x01
+#define TILESET_CLEARSCRIPTS   0x02
+#define TILESET_CLEARHEADER    0x04
 
 #endif                                                      // _ZC_QST_H_

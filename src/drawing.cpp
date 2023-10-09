@@ -10,8 +10,8 @@ using namespace util;
 #ifdef IS_PLAYER
 extern BITMAP *darkscr_bmp_curscr, *darkscr_bmp_curscr_trans, *darkscr_bmp_scrollscr, *darkscr_bmp_scrollscr_trans, *darkscr_bmp_z3, *darkscr_bmp_z3_trans;
 
-extern gamedata* game;
-extern zinitdata zinit;
+#include "base/initdata.h"
+#include "gamedata.h"
 #define DITH_PERC (game ? game->get_dither_perc() : zinit.dither_percent)
 #define TRANS_PERC (game ? game->get_transdark_perc() : zinit.transdark_percent)
 #define DITH_TYPE (game ? game->get_dither_type() : zinit.dither_type)
@@ -19,8 +19,8 @@ extern zinitdata zinit;
 //end IS_PLAYER
 #elif defined(IS_EDITOR)
 
-extern gamedata* game;
-extern zinitdata zinit;
+#include "base/initdata.h"
+#include "gamedata.h"
 #define DITH_PERC (game ? game->get_dither_perc() : zinit.dither_percent)
 #define TRANS_PERC (game ? game->get_transdark_perc() : zinit.transdark_percent)
 #define DITH_TYPE (game ? game->get_dither_type() : zinit.dither_type)

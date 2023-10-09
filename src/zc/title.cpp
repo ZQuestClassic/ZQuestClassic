@@ -952,9 +952,16 @@ int32_t custom_game(int32_t file)
 
 	auto header = saves_get_slot(file)->header;
 
-	if (is_relative_filename(header->qstpath.c_str()))
+	bool jump_to_file_select = false;
+	if (header->qstpath.empty())
 	{
-		sprintf(qstpath, "%s%s", qstdir, header->qstpath.c_str());
+		jump_to_file_select = true;
+	}
+	else if (is_relative_filename(header->qstpath.c_str()))
+	{
+		// TODO: make `qstpath` use type fs::path
+		auto qstpath_fs = fs::path(qstdir) / fs::path(header->qstpath);
+		sprintf(qstpath, "%s", qstpath_fs.string().c_str());
 	}
 	else
 	{
@@ -989,8 +996,9 @@ int32_t custom_game(int32_t file)
 	large_dialog(gamemode_dlg);
    
 	bool customized = false;
-	while((ret=do_zqdialog(gamemode_dlg,focus_obj))==1)
+	while(jump_to_file_select || (ret=do_zqdialog(gamemode_dlg,focus_obj))==1)
 	{
+		jump_to_file_select = false;
 		blit(screen,tmp_scr,scrx,scry,0,0,320,240);
 		
 		int32_t  sel=0;

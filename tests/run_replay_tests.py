@@ -481,7 +481,7 @@ def get_replay_data(file):
     # Based on speed found on Windows 64-bit in CI. Should be manually updated occasionally.
     estimated_fps = 1500
     estimated_fps_overrides = {
-        'modules/classic/classic_1st.qst': 3000,
+        'quests/Z1 Recreations/classic_1st.qst': 3000,
         'demosp253.qst': 1600,
         'dreamy_cambria.qst': 1100,
         'first_quest_layered.qst': 2500,

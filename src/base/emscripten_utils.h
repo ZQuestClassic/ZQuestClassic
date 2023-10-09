@@ -6,7 +6,7 @@
 
 struct QueryParams
 {
-  std::string quest;
+  std::string open;
 };
 
 void em_init_fs();

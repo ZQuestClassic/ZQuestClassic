@@ -1,0 +1,39 @@
+name: "Update database"
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 8 * * *"
+
+jobs:
+  update-database:
+    if: github.event.pull_request.head.repo.full_name == 'ZQuestClassic/ZQuestClassic'
+    runs-on: ubuntu-latest
+    steps:
+      # PZC will generate date strings based on the timezone, so keep it consistent by using PT.
+      - name: Set timezone
+        run: sudo timedatectl set-timezone America/Los_Angeles
+
+      - name: Setup s3cmd
+        uses: s3-actions/s3cmd@4e3a53c3e9313f573ff3f69aec7a772366f2f8f5
+        with:
+          provider: digitalocean
+          region: nyc3
+          access_key: ${{ secrets.S3_ACCESS_KEY }}
+          secret_key: ${{ secrets.S3_SECRET_KEY }}
+
+      - name: Install Node.js 18.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.x
+
+      - name: git clone
+        uses: actions/checkout@v3
+
+      - run: npm install
+        working-directory: scripts/database
+      - run: npm run collect
+        working-directory: scripts/database
+        env:
+          OFFICIAL: true
+          PZC_UN: ${{ secrets.PZC_UN }}
+          PZC_PW: ${{ secrets.PZC_PW }}

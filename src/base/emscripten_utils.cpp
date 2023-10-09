@@ -3,36 +3,44 @@
 #include <emscripten/val.h>
 #include "base/zc_alleg.h"
 #include <allegro5/events.h>
+#include <filesystem>
+
+namespace fs = std::filesystem;
 
 EM_ASYNC_JS(void, em_init_fs_, (), {
   // Initialize the filesystem with 0-byte files for every quest.
-  const quests = await ZC.fetch("https://hoten.cc/quest-maker/play/quest-manifest.json").catch(error => {
-	console.error(error.toString());
-	return [];
-  });
-  FS.mkdir('/_quests');
+  const manifest = await ZC.getQuestManifest();
 
   function writeFakeFile(path, url) {
+    url = url || ZC.dataOrigin + path;
     FS.mkdirTree(PATH.dirname(path));
     FS.writeFile(path, '');
-    // UHHHH why does this result in an error during linking (acorn parse error) ???
-    // window.ZC.pathToUrl[path] = `https://hoten.cc/quest-maker/play/${url}`;
     window.ZC.pathToUrl[path] = url;
   }
 
-  for (let i = 0; i < quests.length; i++) {
-    const quest = quests[i];
-    if (!quest.urls.length) continue;
+  for (const [id, quest] of Object.entries(manifest)) {
+    if (!id.startsWith('quests')) continue;
+    if (!['auto', true].includes(quest.approval)) continue;
 
-    for (const url of quest.urls) {
-      const path = window.ZC.createPathFromUrl(url);
-      writeFakeFile(path, 'https://hoten.cc/quest-maker/play/' + url);
+    const questPrefix = '/' + id;
+
+    for (const music of quest.music) {
+        writeFakeFile(questPrefix + '/music/' + music);
     }
-    for (const extraResourceUrl of quest.extraResources || []) {
-      writeFakeFile(window.ZC.createPathFromUrl(extraResourceUrl), 'https://hoten.cc/quest-maker/play/' + extraResourceUrl);
+
+    for (const release of quest.releases) {
+        const releasePrefix = questPrefix + '/' + release.name;
+        for (const resource of release.resources) {
+            writeFakeFile(releasePrefix + '/' + resource);
+        }
+        for (const music of quest.music) {
+            writeFakeFile(releasePrefix + '/music/' + music, ZC.dataOrigin + questPrefix + '/music/' + music);
+        }
     }
   }
 
+  // Setup the "lazy" files - these are part of the normal package resources, but are not always needed
+  // so are excluded from the main data file.
   for (const file of window.ZC_Constants.files) {
     FS.mkdirTree(PATH.dirname(file));
     writeFakeFile(file, 'files' + file);
@@ -51,12 +59,16 @@ void em_sync_fs() {
   em_sync_fs_();
 }
 
-// Quest files don't have real data until we know the user needs it.
+// Many files don't have real data until we know the user needs it.
 // See em_init_fs
 EM_ASYNC_JS(void, em_fetch_file_, (const char *path), {
   try {
     path = UTF8ToString(path);
-    if (FS.stat(path).size) return;
+    if (!path.startsWith('/')) path = '/' + path;
+    try {
+        if (FS.stat(path).size) return;
+    } catch {
+    }
 
     const url = window.ZC.pathToUrl[path];
     if (!url) return;
@@ -64,7 +76,7 @@ EM_ASYNC_JS(void, em_fetch_file_, (const char *path), {
     const data = await ZC.fetchAsByteArray(url);
     FS.writeFile(path, data);
   } catch (e) {
-    // Fetch failed (could be offline) or path did not exist.
+    // Fetch failed (could be offline).
     console.error(`error loading ${path}`, e);
   }
 });
@@ -72,8 +84,16 @@ void em_fetch_file(std::string path) {
   em_fetch_file_(path.c_str());
 }
 
+// TODO: is this necessary still? Can we just always attempt to fetch a file (em_fetch_file_ handles
+// when a file is already present)?
 bool em_is_lazy_file(std::string path) {
-  if (strncmp("/_quests/", path.c_str(), strlen("/_quests/")) == 0) {
+  path = (fs::current_path() / path).string();
+
+  if (strncmp("/quests/purezc/", path.c_str(), strlen("/quests/purezc/")) == 0) {
+    return true;
+  }
+
+  if (strncmp("/tilesets/", path.c_str(), strlen("/tilesets/")) == 0) {
     return true;
   }
 
@@ -89,13 +109,13 @@ std::string get_initial_file_dialog_folder() {
 EM_ASYNC_JS(emscripten::EM_VAL, get_query_params_, (), {
   const params = new URLSearchParams(location.search);
   return Emval.toHandle({
-    quest: params.get('quest') || '',
+    open: params.get('open') || '',
   });
 });
 QueryParams get_query_params() {
   auto val = emscripten::val::take_ownership(get_query_params_());
   QueryParams result;
-  result.quest = val["quest"].as<std::string>();
+  result.open = val["open"].as<std::string>();
   return result;
 }
 

@@ -287,6 +287,7 @@ int32_t d_jwinbutton_proc(int32_t msg, DIALOG *d, int32_t c);
 
 //Misc bitmap drawing
 void draw_x(BITMAP* dest, int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t color);
+void draw_checkerboard(BITMAP* dest, int32_t basex, int32_t basey, int32_t x, int32_t y, int32_t sz);
 
 int32_t d_vsync_proc(int32_t msg,DIALOG *,int32_t c);
 

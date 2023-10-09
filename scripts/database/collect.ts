@@ -12,6 +12,16 @@ import decompress from 'decompress';
 import * as glob from 'glob';
 import * as puppeteer from 'puppeteer';
 
+const OFFICIAL = Boolean(process.env.OFFICIAL);
+const OFFICIAL_SYNC = Boolean(process.env.OFFICIAL_SYNC);
+const ONLY_NEW = Boolean(process.env.ONLY_NEW);
+const ONE_SHOT = Number(process.env.ONE_SHOT);
+const START = Number(process.env.START);
+const MAX = Number(process.env.MAX);
+const FORCE = Boolean(process.env.FORCE_UPDATE);
+const PZC_UN = process.env.PZC_UN;
+const PZC_PW = process.env.PZC_PW;
+
 const DIR = path.dirname(fileURLToPath(new URL(import.meta.url)));
 const ROOT = path.join(DIR, '../..');
 const TMP = path.join(ROOT, '.tmp');
@@ -27,9 +37,25 @@ interface QuestManifest {
   projectUrl: string;
   dateAdded: string;
   dateUpdated?: string;
-  author: string;
-  contentHash: string;
-  resources: string[];
+  /**
+   * auto: approved on basis of inactive author
+   * 
+   * pending: waiting for response to approval request
+   * 
+   * disallowed: not allowed on basis of too similar to Zelda-1, or similar reason
+   */
+  approval: 'auto' | 'pending' | 'disallowed' | boolean;
+  authors: Array<{name: string, id?: number}>;
+  /** First is most recent. */
+  releases: Array<{
+    name: string;
+    date: string;
+    /** Hash of the zip downloaded from PZC. Does not include external music. */
+    hash: string;
+    resources: string[];
+  }>;
+  /** External music. */
+  music: string[];
   videoUrl?: string;
   images: string[];
   genre: string;
@@ -46,7 +72,7 @@ interface QuestManifest {
 }
 
 const outputFile = `${DB}/manifest.json`;
-const doNotExistFile = `${TMP}/quest_db_donotexist.json`;
+const doNotExistFile = `${DB}/quest_db_donotexist.json`;
 
 let questsMap: Map<string, QuestManifest>;
 let doNotExist: string[] = [];
@@ -66,8 +92,8 @@ function loadQuests() {
   }
 }
 
-function getFirstQstFile(quest: QuestManifest) {
-  const qst = quest.resources.find(r => path.extname(r).toLowerCase() === '.qst');
+function getFirstQstFile(release: QuestManifest['releases'][number]) {
+  const qst = release.resources.find(r => path.extname(r).toLowerCase() === '.qst');
   if (!qst) {
     throw new Error('found no qst file');
   }
@@ -80,6 +106,26 @@ function saveQuests() {
   const obj = Object.fromEntries(entries);
   fs.writeFileSync(outputFile, JSON.stringify(obj, null, 2));
   fs.writeFileSync(doNotExistFile, JSON.stringify(doNotExist, null, 2));
+}
+
+let authorsMap = new Map<number, {name: string, lastLogin?: Date}>();
+function loadAuthors() {
+  authorsMap = new Map();
+  const file = `${DB}/authors.json`;
+  if (fs.existsSync(file)) {
+    const entries: Record<number, {name: string, lastLogin?: Date}> = JSON.parse(fs.readFileSync(file, 'utf-8'));
+    for (const [author, entry] of Object.entries(entries)) {
+      if (entry.lastLogin) entry.lastLogin = new Date(entry.lastLogin);
+      authorsMap.set(Number(author), entry);
+    }
+  }
+}
+
+function saveAuthors() {
+  const file = `${DB}/authors.json`;
+  const entries = [...authorsMap.entries()];
+  const obj = Object.fromEntries(entries);
+  fs.writeFileSync(file, JSON.stringify(obj, null, 2));
 }
 
 function download(url: string, outputPath: string) {
@@ -136,7 +182,7 @@ async function downloadGoogleDriveUrl(page: puppeteer.Page, url: string, destina
   fs.rmSync(`${ARCHIVES}/drive`, {force: true, recursive: true});
 }
 
-async function fetchExternalMusic(page: puppeteer.Page, quest: QuestManifest) {
+async function fetchExternalMusic(page: puppeteer.Page, quest: QuestManifest, resourcesDir: string) {
   const text = quest.descriptionHtml + (quest.informationHtml || '');
   const match = text.match(/(https?:\/\/([^\s]*?)\.zip)/) || text.match(/(https?:\/\/drive\.google\.com([^\s]*))"/);
   if (!match) return;
@@ -193,9 +239,8 @@ async function fetchExternalMusic(page: puppeteer.Page, quest: QuestManifest) {
     }
   }
 
-  const questDir = `${DB}/${quest.id}`;
   console.log(`[${quest.id}] unzipping ${destZip}`);
-  await decompress(destZip, questDir, {strip: 1});
+  await decompress(destZip, resourcesDir, {strip: 1});
 }
 
 async function getLatestPzcId(page: puppeteer.Page) {
@@ -231,6 +276,10 @@ async function processId(page: puppeteer.Page, pzcId: number) {
   }
 
   const nameRaw = (await page.title()).split('-')[0];
+  const authors = await page.evaluate(() => {
+    const els = document.querySelectorAll('.ipsBox_container .table_row .name');
+    return [...els].map(el => ({name: el.textContent, id: Number(el.getAttribute('hovercard-id'))}));
+  }) as QuestManifest['authors'];
   const metadataRaw1 = await page.evaluate(() => {
     return [...document.querySelectorAll('.ipsBox_container span')].map((e) => e.textContent || '');
   });
@@ -313,48 +362,74 @@ async function processId(page: puppeteer.Page, pzcId: number) {
     }
   };
 
-  const author = findMetadata(/Creator: (.*)/ms);
+  const authorRaw = findMetadata(/Creator: (.*)/ms) || '';
   const dateAdded = findMetadata(/Added: (.*)/ms);
   const dateUpdated = findMetadata(/Updated: (.*)/ms);
   const genre = findMetadata(/Genre: (.*)/ms)
   const zcVersion = findMetadata(/ZC Version: (.*)/ms);
-  if (!dateAdded || !author || !genre || !zcVersion) {
-    console.log({dateAdded, author, genre, zcVersion});
+
+  for (const author of authorRaw.split(',').map(a => a.trim())) {
+    if (authors.some(a => a.name === author)) continue;
+
+    authors.push({name: author});
+  }
+
+  if (!dateAdded || !authors.length || !genre || !zcVersion) {
+    console.log({dateAdded, authors, genre, zcVersion});
     throw new Error();
   }
 
-  const isNew = !questsMap.get(id);
-  const hasMetadataUpdated = !isNew && questsMap.get(id)?.dateUpdated !== dateUpdated;
-  if (!isNew && !hasMetadataUpdated && !process.env['FORCE_UPDATE']) {
+  const existingManifestEntry = questsMap.get(id);
+  const isNew = !existingManifestEntry;
+  const hasMetadataUpdated = !isNew && existingManifestEntry?.dateUpdated !== dateUpdated;
+  if (!isNew && !hasMetadataUpdated && !FORCE) {
     console.log(`[${id}] nothing to update`);
     return;
   }
 
+  if (hasMetadataUpdated) {
+    console.log(`[${id}] previously updated at: ${existingManifestEntry.dateUpdated}. Found new update from: ${dateUpdated}`);
+  }
+
   const archivePath = `${ARCHIVES}/quests/purezc/${pzcId}.zip`;
   fs.mkdirSync(`${ARCHIVES}/quests/purezc`, {recursive: true});
+  // TODO: if this download has etag or last modified or w/e, could avoid re-downloaded when nothing changed.
   fs.rmSync(archivePath, {force: true});
   await download(`https://www.purezc.net/index.php?page=download&section=Quests&id=${pzcId}`, archivePath);
   const contentHash = await getFileHash(archivePath);
 
-  const contentHasUpdated = !isNew && contentHash !== questsMap.get(id)?.contentHash;
-  if (contentHasUpdated) {
-    console.log(`[${id}] content has updated`);
-    // TODO
-  } else if (isNew) {
-    console.log(`[${id}] downloading new quest`);
+  let thisRelease;
+  const releases = existingManifestEntry?.releases || [];
+  const mostRecentRelease = existingManifestEntry?.releases[0];
+  const contentHashUpdated = mostRecentRelease && contentHash !== mostRecentRelease?.hash;
+
+  if (isNew || contentHashUpdated) {
+    if (contentHashUpdated) console.log(`[${id}] content has updated`);
+    else console.log(`[${id}] downloading new quest`);
+
+    const r = releases.length + 1;
+    thisRelease = {
+      name: `r${r.toString().padStart(2, '0')}`,
+      date: dateUpdated || dateAdded || '',
+      hash: contentHash,
+      resources: [],
+    };
+    releases.unshift(thisRelease);
   } else {
+    if (!mostRecentRelease) throw new Error('unexpected');
+
     console.log(`[${id}] metadata has updated`);
+    thisRelease = mostRecentRelease;
   }
 
-  if (contentHasUpdated || isNew) {
-    fs.rmSync(questDir, {force: true, recursive: true});
-    fs.mkdirSync(questDir, {recursive: true});
-    await decompress(archivePath, questDir, {map(f) {
-      // console.log(path.dirname(f.path), path.join(questDir, path.dirname(f.path)));
-      // fs.mkdirSync(path.join(questDir, path.dirname(f.path)), {recursive: true});
-      // console.log(f);
+  let hasUnzippedResources = false;
+  const resourcesDir = `${questDir}/${thisRelease.name}`;
+  fs.mkdirSync(resourcesDir, {recursive: true});
+  if (isNew || contentHashUpdated) {
+    await decompress(archivePath, resourcesDir, {map(f) {
       return f;
     }});
+    hasUnzippedResources = true;
   }
 
   let informationHtml: string|undefined = trim(html.entryInfo);
@@ -381,7 +456,7 @@ async function processId(page: puppeteer.Page, pzcId: number) {
   // Fix file names like:
   //  435/Eddy&#39;s Troll Day.qst
   //  782/Mysteries of the Cup & Puzzles of Hyrule & First GameBoy/Puzzles of Hyrule.qst
-  {
+  if (hasUnzippedResources) {
     let quit = false;
     while (!quit) {
       quit = true;
@@ -402,6 +477,9 @@ async function processId(page: puppeteer.Page, pzcId: number) {
         break;
       }
     }
+
+    thisRelease.resources = glob.sync('**/*', {cwd: resourcesDir, nodir: true}).sort();
+    getFirstQstFile(thisRelease);
   }
 
   const quest: QuestManifest = {
@@ -411,9 +489,10 @@ async function processId(page: puppeteer.Page, pzcId: number) {
     projectUrl,
     dateAdded,
     dateUpdated,
-    author,
-    contentHash,
-    resources: [],
+    approval: existingManifestEntry?.approval ?? 'pending',
+    authors,
+    releases,
+    music: existingManifestEntry?.music ?? [],
     videoUrl,
     images,
     genre,
@@ -426,12 +505,14 @@ async function processId(page: puppeteer.Page, pzcId: number) {
     rating,
   };
 
-  await fetchExternalMusic(page, quest);
-  quest.resources = glob.sync('**/*', {cwd: questDir, nodir: true}).filter(r => {
-    return !images.includes(r);
-  }).sort();
-
-  getFirstQstFile(quest);
+  const musicDir = `${questDir}/music`;
+  try {
+    await fetchExternalMusic(page, quest, musicDir);
+    quest.music = glob.sync('**/*', {cwd: musicDir, nodir: true}).sort();
+  } catch (e) {
+    console.log(`[${id}] error fetching external music`);
+    console.error(`[${id}]`, e);
+  }
 
   questsMap.set(quest.id, quest);
 }
@@ -449,20 +530,94 @@ async function waitUntilDownload(page: puppeteer.Page) {
 }
 
 async function main() {
+  if (OFFICIAL_SYNC) {
+    execFileSync('s3cmd', ['sync', 's3://zc-data/', '--no-preserve', `${DB}/`], {stdio: 'inherit'});
+  } else if (OFFICIAL) {
+    // When updating, we only need a few files.
+    // We do not sync everything in CI because we don't need a full copy to run this script.
+    const files = [
+      'authors.json',
+      'manifest.json',
+      'quest_db_donotexist.json',
+    ];
+    for (const file of files) {
+      execFileSync('s3cmd', ['sync', `s3://zc-data/${file}`, '--no-preserve', `${DB}/${file}`], {stdio: 'inherit'});
+    }
+  }
+
   loadQuests();
+  loadAuthors();
 
   const browser = await puppeteer.launch({headless: 'new'});
   const page = await browser.newPage();
 
-  if (process.env['ONE_SHOT']) {
-    await processId(page, Number(process.env['ONE_SHOT']));
+  // Needed for scraping author ids.
+  const isLoggedIn = PZC_UN && PZC_PW;
+  if (isLoggedIn) {
+    await page.goto('https://www.purezc.net');
+    await page.click('#sign_in');
+    await page.waitForSelector('#ips_username', {visible: true});
+    await page.type('#ips_username', PZC_UN);
+    await page.type('#ips_password', PZC_PW);
+    await page.evaluate(() => document.querySelector('#login').submit());
+    await page.waitForNetworkIdle();
+  }
+
+  if (process.env['APPROVALS']) {
+    // Mark each quest with an `approval` bit.
+    // If author has not been active since 2023 Jan 1, set to `auto`.
+    let questsByAuthor = new Map<string, QuestManifest[]>();
+    for (const quest of questsMap.values()) {
+      for (const author of quest.authors) {
+        const quests = questsByAuthor.get(author.name) || [];
+        questsByAuthor.set(author.name, quests);
+        quests.push(quest);
+      }
+    }
+    questsByAuthor = new Map([...questsByAuthor].sort((a, b) => b[1].length - a[1].length));
+
+    for (const [author, quests] of questsByAuthor) {
+      console.log(author, quests.length);
+    }
+
+    for (const quest of questsMap.values()) {
+      if (quest.approval !== 'pending') continue;
+
+      let mostRecentAuthor = null;
+      for (const author of quest.authors) {
+        if (!author.id) continue;
+
+        const lastLogin = authorsMap.get(author.id)?.lastLogin;
+        if (!lastLogin) continue;
+
+        if (!mostRecentAuthor?.id) {
+          mostRecentAuthor = author;
+          continue;
+        }
+
+        const prevLastLogin = authorsMap.get(mostRecentAuthor.id)?.lastLogin as Date;
+        if (prevLastLogin < lastLogin) {
+          mostRecentAuthor = author;
+          continue;
+        }
+      }
+
+      const lastLogin = mostRecentAuthor?.id ? authorsMap.get(mostRecentAuthor.id)?.lastLogin as Date : null;
+      const hasActiveAuthor = lastLogin && lastLogin >= new Date('2023-01-01');
+      if (!hasActiveAuthor) {
+        quest.approval = 'auto';
+        console.log(quest.id, quest.name, mostRecentAuthor, lastLogin);
+      }
+    }
+  } else if (ONE_SHOT) {
+    await processId(page, ONE_SHOT);
   } else {
-    const start = Number(process.env['START']) || 1;
-    const max = Number(process.env['MAX']) || await getLatestPzcId(page);
+    const start = START || 1;
+    const max = MAX || await getLatestPzcId(page);
     console.log(`processing ${max - start + 1} quests`);
     for (let i = start; i <= max; i++) {
       const id = `quests/purezc/${i}`;
-      if (process.env['ONLY_NEW'] && questsMap.has(id)) {
+      if (ONLY_NEW && questsMap.has(id)) {
         continue;
       }
       if (doNotExist.includes(id)) {
@@ -473,16 +628,48 @@ async function main() {
         console.log(`[${id}]`);
         await processId(page, i);
       } catch (e) {
-        console.error(id, e);
+        console.error(`[${id}]`, e);
+        console.error(`[${id}]`, 'will try again next run');
       }
   
       if (i % 10 === 0) saveQuests();
     }
   }
 
+  if (isLoggedIn) {
+    for (const quest of questsMap.values()) {
+      for (const author of quest.authors) {
+        if (!author.id || authorsMap.has(author.id)) continue;
+  
+        let lastLogin;
+        await page.goto(`https://www.purezc.net/forums/index.php?showuser=${author.id}`);
+        const lastLoginRaw = await page.evaluate(() => {
+          const el = document.querySelector('#user_info_cell .desc');
+          if (!el?.textContent) throw new Error();
+          if (!el.textContent?.includes('Last Active ')) throw new Error();
+          return el.textContent.replace('Last Active ', '');
+        });
+        if (lastLoginRaw.includes('Today') || lastLoginRaw.includes('Yesterday')) lastLogin = new Date();
+        else if (lastLoginRaw.match(/(minute|hour)s? ago/)) lastLogin = new Date();
+        else if (!lastLoginRaw.includes('Private')) lastLogin = new Date(lastLoginRaw);
+  
+        console.log(author.id, {name: author.name, lastLogin});
+        authorsMap.set(author.id, {name: author.name, lastLogin});
+        saveAuthors();
+      }
+    }
+  }
+
   console.log('\nexiting');
   saveQuests();
   await browser.close();
+  if (OFFICIAL) execFileSync('s3cmd', [
+    'sync',
+    '--no-preserve',
+    '--acl-public',
+    `${DB}/`,
+    's3://zc-data/',
+  ], {stdio: 'inherit'});
 }
 
 main();

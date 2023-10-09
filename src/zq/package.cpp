@@ -111,6 +111,7 @@ void package_create(std::string quest_path_, std::string package_name)
 	fs::copy(root_dir / "base_config", data_dir / "base_config", fs::copy_options::recursive);
 	fs::copy(root_dir / "customfonts", data_dir / "customfonts", fs::copy_options::recursive);
 	fs::copy(root_dir / "modules", data_dir / "modules", fs::copy_options::recursive);
+	fs::copy(root_dir / "assets", data_dir / "assets", fs::copy_options::recursive);
 	if (fs::exists(root_dir / "crashpad_handler.exe"))
 		fs::copy(root_dir / "crashpad_handler.exe", data_dir / "crashpad_handler.exe");
 

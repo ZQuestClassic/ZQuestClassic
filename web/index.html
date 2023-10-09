@@ -5,6 +5,9 @@
   <meta charset="utf-8">
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <meta name="viewport" content="width=device-width, user-scalable=no">
+  <link rel="preload" href="https://data.zquestclassic.com/manifest.json" fetchpriority="high" as="fetch" type="application/json" crossorigin="anonymous">
+  <link rel="preconnect" href="https://data.zquestclassic.com">
+  <link rel="preload" href="__TARGET__.wasm" as="fetch" crossorigin="anonymous">
   <title>ZQuest Classic</title>
   <style>
     /*__INLINECSS__*/
@@ -17,7 +20,7 @@
       zeldaUrl: 'zelda.html',
       zquestUrl: 'zquest.html',
       patsUrl: 'timidity',
-      files: [].map(f => '/' + f),
+      files: [],
     };
   </script>
 </head>
@@ -37,12 +40,12 @@
   <div>
     <div class="hidden panel testmode">
       The URL you navigated to has opened ZQuest Classic in a test mode. You won't be able to save in this mode.
-      Click <a href="http://hoten.cc/zc/play/">here</a> to exit test mode.
+      Click <a href="https://zquestclassic.com/play/">here</a> to exit test mode.
     </div>
 
     <div class="hidden panel about">
       <p>
-        <a href="https://hoten.cc/zc/play/">Quest Player</a> – <a href="https://hoten.cc/zc/create/">Quest Editor</a> – <a href="https://twitter.com/zelda_classic" target="_blank">Follow on Twitter</a>
+        <a href="https://zquestclassic.com/play/">Quest Player</a> – <a href="https://zquestclassic.com/create/">Quest Editor</a> – <a href="https://twitter.com/zelda_classic" target="_blank">Follow on Twitter</a>
       </p>
       <p>
         This is an experimental version of ZQuest Classic for the browser. You can expect occasional sound hiccups, and
@@ -130,8 +133,9 @@
         <br>
         <div>
           Note: Browsers that support the File System Access API (ex: desktop Chrome, Edge) can attach
-          a folder permanently, and data will be synchronized. This browser does not support that API, so
-          when you want these updated files back on your filesystem, use the following section.
+          a folder permanently, and data will be synchronized. This browser does not support that API,
+          (or you opted to use local browser storage), so when you want these updated files back on your
+          filesystem, use the following section.
         </div>
         <button class="copy-folder">Copy folder</button>
         <button class="copy-file">Copy file</button>

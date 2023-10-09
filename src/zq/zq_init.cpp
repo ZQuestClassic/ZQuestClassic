@@ -4,12 +4,11 @@
 #include "init.h"
 #include "base/zc_alleg.h"
 #include "base/zdefs.h"
+#include "base/initdata.h"
 #include "jwin.h"
 #include "zq/zq_init.h"
 #include "base/zsys.h"
 #include "zq/zquest.h"
-
-#define zc_min(a,b)  ((a)<(b)?(a):(b))
 
 extern int32_t dmap_list_size;
 extern bool dmap_list_zero;

@@ -322,6 +322,31 @@ namespace AutoPattern
 			cid = 0;
 		}
 	}
+	byte apcombo::read_solid(byte layer)
+	{
+		byte ret = 0;
+		int32_t drawmap = Map.getCurrMap();
+		zprint2("DRAWMAP %d\n", drawmap);
+		mapscr* mapscr_ptr = Map.AbsoluteScr(drawmap, screen);
+		if (mapscr_ptr)
+		{
+			for (int q = 0; q <= layer; ++q)
+			{
+				mapscr_ptr = Map.AbsoluteScr(drawmap, screen);
+				if (q > 0)
+				{
+					if (mapscr_ptr->layermap[q - 1] > 0)
+					{
+						mapscr_ptr = Map.AbsoluteScr(mapscr_ptr->layermap[q - 1] - 1, mapscr_ptr->layerscreen[q - 1]);
+					}
+				}
+				int32_t cid = mapscr_ptr->data[pos];
+				ret |= combobuf[cid].walk;
+			}
+			return ret;
+		}
+		return 0;
+	}
 	void apcombo::write(byte layer, bool base)
 	{
 		int32_t drawmap = Map.getCurrMap();

@@ -29,35 +29,77 @@ npm install
 cd -
 
 packages_dir="$ROOT/build_emscripten/packages"
+rm -rf "$packages_dir"
+mkdir "$packages_dir"
 python scripts/package.py --build_folder build_emscripten --skip_binaries --skip_archive --cfg_os web
 
+# These files are included in `zc.data`, which is loaded before the app runs. All other files
+# will be moved to a folder `./files`, and will be downloaded as needed.
+DATA_FILES=(
+  ag.cfg
+  allegro5.cfg
+  assets/cursor.bmp
+  assets/dungeon.mid
+  assets/ending.mid
+  assets/gameover.mid
+  assets/gui_pal.bmp
+  assets/level9.mid
+  assets/overworld.mid
+  assets/title.mid
+  assets/triforce.mid
+  base_config/zc.cfg
+  base_config/zcl.cfg
+  base_config/zquest.cfg
+  base_config/zscript.cfg
+  Classic.nsf
+  modules/classic.zmod
+  modules/classic/classic_fonts.dat
+  modules/classic/default.qst
+  modules/classic/title_gfx.dat
+  modules/classic/zelda.nsf
+  sfx.dat
+  zc_web.cfg
+  zc.png
+  zquest_web.cfg
+)
+
+cd "$packages_dir"
+mkdir -p data_files
+for f in ${DATA_FILES[@]}; do
+  dir=$(dirname $f)
+  mkdir -p "data_files/$dir"
+  mv "zc/$f" "data_files/$dir"
+done
+cd -
+
+# Don't need these at all.
 cd "$packages_dir/zc"
 rm -rf docs/ghost docs/tango
-rm -rf headers/ghost_zh/3.0/demo headers/GUITest.qst
-rm -rf "scripts/stdWeapons/example scripts"
 rm -rf changelogs
-rm music/Isabelle_Z2.nsf
+rm docs/ZScript_Docs.html || true
+rm docs/ZScript_Additions.txt
 find . -name "*.rtf" -type f -delete
 find . -name "*.pdf" -type f -delete
 find . -name "*.zip" -type f -delete
 cd -
 
+# The editor needs all the main data file too, but only the player does not need the following ones.
 cd "$packages_dir"
-LAZY_LOAD=(
-  tilesets/classic.qst
+ZQ_DATA_FILES=(
+  docs/zquest.txt
+  docs/zstrings.txt
+  modules/classic/classic_zquest.dat
 )
-mkdir -p zc_lazy
-for f in ${LAZY_LOAD[@]}; do
+rm -rf data_files_zq
+mkdir -p data_files_zq
+for f in ${ZQ_DATA_FILES[@]}; do
   dir=$(dirname $f)
-  mkdir -p "zc_lazy/$dir"
-  mv "zc/$f" "zc_lazy/$dir"
+  mkdir -p "data_files_zq/$dir"
+  mv "zc/$f" "data_files_zq/$dir"
 done
-
-rm -rf zq
-mkdir -p zq
-mkdir -p zq/modules/classic/
-mv zc/modules/classic/default.qst zq/modules/classic/
 cd -
+
+# Everything remaining in `zc` will be lazy loaded.
 
 cd build_emscripten
 
@@ -204,7 +246,7 @@ cd $CONFIG
 
 "$(dirname $(which emcc))"/tools/file_packager.py zc.data \
   --no-node \
-  --preload "$packages_dir/zc@/" \
+  --preload "$packages_dir/data_files@/" \
   --preload "../../timidity/zc.cfg@/etc/zc.cfg" \
   --preload "../../timidity/ultra.cfg@/etc/ultra.cfg" \
   --preload "../../timidity/ppl160.cfg@/etc/ppl160.cfg" \
@@ -214,10 +256,10 @@ cd $CONFIG
   --use-preload-cache \
   --js-output=zc.data.js
 
-# Zquest also uses zc.data
+# The editor also uses zc.data
 "$(dirname $(which emcc))"/tools/file_packager.py zq.data \
   --no-node \
-  --preload "$packages_dir/zq@/" \
+  --preload "$packages_dir/data_files_zq@/" \
   --use-preload-cache \
   --js-output=zq.data.js
 
@@ -232,6 +274,12 @@ if [[ "$ZC_PACKAGE_REPLAYS" ]]; then
 fi
 
 function set_files {
+  cd "$packages_dir/zc"
+  IFS=$'\n'
+  LAZY_LOAD=($(python -c 'from pathlib import Path; import os; f = Path(".").rglob("*"); print("\n".join(f"/{p}" for p in f if os.path.isfile(p)))'))
+  unset IFS
+  cd -
+
   R=$(jq --compact-output --null-input '$ARGS.positional' --args "${LAZY_LOAD[@]}")
   sed -i -e "s|files: \[\]|files: $R|" $1
 }
@@ -243,7 +291,7 @@ function insert_css {
 
 if [[ "${TARGETS[*]}" =~ "zplayer" ]]; then
   cp ../../web/index.html zelda.html
-  sed -i -e 's/__TARGET__/zelda/' zelda.html
+  sed -i -e 's/__TARGET__/zplayer/' zelda.html
   if [[ "$ZC_PACKAGE_REPLAYS" ]]; then
     sed -i -e 's|__DATA__|<script src="zc.data.js"></script><script src="zc_replays.data.js"></script>|' zelda.html
   else
@@ -262,7 +310,7 @@ if [[ "${TARGETS[*]}" =~ "zplayer" ]]; then
 fi
 if [[ "${TARGETS[*]}" =~ "zeditor" ]]; then
   cp ../../web/index.html zquest.html
-  sed -i -e 's/__TARGET__/zquest/' zquest.html
+  sed -i -e 's/__TARGET__/zeditor/' zquest.html
   sed -i -e 's|__DATA__|<script src="zc.data.js"></script><script src="zq.data.js"></script>|' zquest.html
   sed -i -e 's|__SCRIPT__|<script async src="zquest.js"></script>|' zquest.html
   set_files zquest.html
@@ -278,7 +326,7 @@ fi
 cp -r ../../timidity .
 
 rm -rf files
-mv "$packages_dir/zc_lazy" files
+mv "$packages_dir/zc" files
 
 build_js
 

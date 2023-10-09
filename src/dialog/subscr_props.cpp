@@ -276,6 +276,7 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 				loadw = local_subref->w;
 				loadh = local_subref->h;
 				break;
+			case widgTEXT:
 			case widgMMETER:
 			case widgLMETER:
 			case widgMMAP:
@@ -283,7 +284,6 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			case widgSELECTOR:
 			case widgMINITILE:
 			case widgMCGUFF_FRAME:
-			case widgMMAPTITLE:
 			case widgLGAUGE:
 			case widgMGAUGE:
 			case widgCOUNTER:
@@ -294,6 +294,15 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 			case widgBGCOLOR:
 				show_xy = false;
 				show_wh = false;
+				break;
+			case widgMMAPTITLE:
+				if (get_qr(qr_OLD_DMAP_INTRO_STRINGS))
+					show_wh = false;
+				else
+				{
+					loadw = local_subref->w;
+					loadh = local_subref->h;
+				}
 				break;
 			default: break;
 		}
@@ -1089,6 +1098,9 @@ std::shared_ptr<GUI::Widget> SubscrPropDialog::view()
 					DDL(w->shadtype, list_shadtype),
 					Label(text = "Alignment:", hAlign = 1.0),
 					DDL(w->align, list_aligns),
+					Label(text = "Tabsize:", hAlign = 0.0),
+					NUM_FIELD(w->tabsize, 0, 99),
+					CBOX(w->flags, SUBSCR_MMAPTIT_WORDWRAP, "Word Wrap", 2),
 					CBOX(w->flags, SUBSCR_MMAPTIT_REQMAP, "Invisible w/o Map item", 2),
 					CBOX(w->flags, SUBSCR_MMAPTIT_ONELINE, "Show as one line", 2)
 				);

@@ -3,6 +3,7 @@
 #include "zc/hero.h"
 #include "zc/guys.h"
 #include "zc/zc_init.h"
+#include "base/initdata.h"
 #include "init.h"
 #include "zinfo.h"
 #include <queue>

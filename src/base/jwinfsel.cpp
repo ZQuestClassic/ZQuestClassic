@@ -13,6 +13,8 @@
 #include "base/zsys.h"
 #include "base/fonts.h"
 
+namespace fs = std::filesystem;
+
 #if (DEVICE_SEPARATOR != 0) && (DEVICE_SEPARATOR != '\0')
 #define HAVE_DIR_LIST
 #endif
@@ -548,8 +550,12 @@ static int32_t fs_flist_proc(int32_t msg, DIALOG *d, int32_t c)
         }
         
         flist->size = 0;
-        
-        replace_filename(flist->dir, s, uconvert_ascii("*.*", tmp), sizeof(flist->dir));
+
+        std::error_code ec;
+        if (fs::is_directory(s, ec))
+            snprintf(flist->dir, 1024, "%s%c*.*", s, fs::path::preferred_separator);
+        else
+            replace_filename(flist->dir, s, uconvert_ascii("*.*", tmp), sizeof(flist->dir));
         
         /* The semantics of the attributes passed to file_select_ex() is
           * different from that of for_each_file_ex() in one case: when

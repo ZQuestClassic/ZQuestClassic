@@ -623,11 +623,12 @@ protected:
 
 #define SUBSCR_MMAPTIT_REQMAP         SUBSCRFLAG_SPEC_01
 #define SUBSCR_MMAPTIT_ONELINE        SUBSCRFLAG_SPEC_02
-#define SUBSCR_NUMFLAG_MMAPTIT        2
+#define SUBSCR_MMAPTIT_WORDWRAP       SUBSCRFLAG_SPEC_03
+#define SUBSCR_NUMFLAG_MMAPTIT        3
 struct SW_MMapTitle : public SubscrWidget
 {
 	int32_t fontid;
-	byte align, shadtype;
+	byte align, shadtype, tabsize = 4;
 	SubscrColorInfo c_text = {ssctMISC,ssctTEXT}, c_shadow, c_bg;
 	
 	SW_MMapTitle() = default;
@@ -646,6 +647,8 @@ protected:
 	virtual int32_t read(PACKFILE *f, word s_version) override;
 private:
 	byte get_strs(char* line1, char* line2) const;
+	void draw_old(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const;
+	void draw_new(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage& page) const;
 };
 
 #define SUBSCR_MMAP_SHOWMAP           SUBSCRFLAG_SPEC_01
@@ -1054,6 +1057,7 @@ struct SubscrPage
 	int32_t write(PACKFILE *f) const;
 	
 	word getIndex() const;
+	void setParent(ZCSubscreen const* newparent);
 	ZCSubscreen const* getParent() const;
 	
 	void push_back(SubscrWidget* widg);

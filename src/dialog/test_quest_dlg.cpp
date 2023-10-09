@@ -1,5 +1,6 @@
 #include "base/dmap.h"
 #include "base/util.h"
+#include "base/initdata.h"
 #include "dialog/info.h"
 #include "test_quest_dlg.h"
 #include "alertfunc.h"

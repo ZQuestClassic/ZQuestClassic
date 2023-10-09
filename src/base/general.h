@@ -9,8 +9,32 @@ bool toggle_bit(byte *bitstr,int32_t bit);
 int32_t get_bitl(int32_t bitstr,int32_t bit);
 void set_bitl(int32_t bitstr,int32_t bit,byte val);
 
-#define zc_max(a,b)  ((a)>(b)?(a):(b))
-#define zc_min(a,b)  ((a)<(b)?(a):(b))
+int32_t vbound(int32_t val, int32_t low, int32_t high);
+double vbound(double val, double low, double high);
+
+template <class T>
+static inline T sign(T a)
+{
+    return T(a < 0 ? -1: 1);
+}
+template <class T>
+static inline T sign2(T a)
+{
+	if (a == 0) return 0;
+    return T(a < 0 ? -1: 1);
+}
+template <class T>
+static inline void zc_swap(T &a,T &b)
+{
+    T c = a;
+    a = b;
+    b = c;
+}
+#define zc_max(a,b) (((a) < (b)) ? (b) : (a))
+#define zc_min(a,b) (((a) < (b)) ? (a) : (b))
+#define SETFLAG(v, fl, b)	if(b) v |= (fl); else v &= ~(fl)
+
+int wrap(int x,int low,int high);
 
 //Script Counts
 #define NUMSCRIPTFFC               512
@@ -142,6 +166,26 @@ void set_bitl(int32_t bitstr,int32_t bit,byte val);
 #define NUM_INFOS                  256
 #define NUM_PAL_CYCLES             256
 #define NUM_WARP_RINGS             9
+
+enum controls //Args for 'getInput()'
+{
+	//control_state indeces
+	btnUp, btnDown, btnLeft, btnRight, btnA, btnB, btnS, btnL, btnR, btnP, btnEx1, btnEx2, btnEx3, btnEx4, btnAxisUp, btnAxisDown, btnAxisLeft, btnAxisRight,
+	//Other controls
+	btnM, btnF12, btnF11, btnF5, btnQ, btnI,
+	btnLast,
+};
+
+#define INT_BTN_A       0x01
+#define INT_BTN_B       0x02
+#define INT_BTN_L       0x04
+#define INT_BTN_R       0x08
+#define INT_BTN_EX1     0x10
+#define INT_BTN_EX2     0x20
+#define INT_BTN_EX3     0x40
+#define INT_BTN_EX4     0x80
+#define INT_BTN_X       INT_BTN_EX1
+#define INT_BTN_Y       INT_BTN_EX2
 
 enum // used for gamedata ITEMS
 {

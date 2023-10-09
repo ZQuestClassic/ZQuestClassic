@@ -14,6 +14,7 @@ using std::set;
 #include "base/dmap.h"
 #include "base/mapscr.h"
 #include "base/misctypes.h"
+#include "base/initdata.h"
 #include "zc/maps.h"
 #include "zc/zelda.h"
 #include "tiles.h"
@@ -763,7 +764,6 @@ extern sprite_list  guys, items, Ewpns, Lwpns, chainlinks, decorations;
 extern particle_list particles;
 extern movingblock mblock2;                                 //mblock[4]?
 extern portal mirror_portal;
-extern zinitdata zinit;
 bool triggered_screen_secrets=false;
 
 // TODO z3 can this be removed?
@@ -823,7 +823,7 @@ void debugging_box(int32_t x1, int32_t y1, int32_t x2, int32_t y2)
 
 void clear_dmap(word i)
 {
-    memset(&DMaps[i],0,sizeof(dmap));
+	DMaps[i].clear();
 }
 
 void clear_dmaps()
@@ -5458,8 +5458,7 @@ void load_a_screen_and_layers(int dmap, int map, int screen_index, int ldir)
 
 	for (int i = 0; i < 6; i++)
 	{
-		if(source->layermap[i]>0 && (ZCMaps[source->layermap[i]-1].tileWidth==ZCMaps[currmap].tileWidth)
-					&& (ZCMaps[source->layermap[i]-1].tileHeight==ZCMaps[currmap].tileHeight))
+		if(source->layermap[i]>0)
 		{
 			screens.push_back(new mapscr(*get_canonical_scr(source->layermap[i]-1, source->layerscreen[i])));
 		}
@@ -5792,7 +5791,6 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 			screen_ffc_modify_postroutine({screen, (uint8_t)scr, i, i, &screen->ffcs[i]});
 		}
 	
-	const int32_t _mapsSize = ZCMaps[currmap].tileHeight*ZCMaps[currmap].tileWidth;
 	screen->valid |= mVALID; //layer 0 is always valid
 	memcpy(screen->data, TheMaps[currmap*MAPSCRS+scr].data, sizeof(screen->data));
 	memcpy(screen->sflag, TheMaps[currmap*MAPSCRS+scr].sflag, sizeof(screen->sflag));
@@ -5815,7 +5813,7 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 	
 	if(overlay)
 	{
-		for(int32_t c=0; c< ZCMaps[currmap].tileHeight*ZCMaps[currmap].tileWidth; ++c)
+		for(int32_t c=0; c< 176; ++c)
 		{
 			if(screen->data[c]==0)
 			{
@@ -5832,7 +5830,7 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 				int32_t lm = (screen->layermap[i]-1)*MAPSCRS+screen->layerscreen[i];
 				int32_t fm = (previous_scr.layermap[i]-1)*MAPSCRS+previous_scr.layerscreen[i];
 				
-				for(int32_t c=0; c< ZCMaps[currmap].tileHeight*ZCMaps[currmap].tileWidth; ++c)
+				for(int32_t c=0; c< 176; ++c)
 				{
 					if(TheMaps[lm].data[c]==0)
 					{
@@ -5875,20 +5873,17 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 			mapscr layerscr = tmpscr2[i];
 			
 			// Don't delete the old tmpscr2's data yet!
-			if(screen->layermap[i]>0 && (ZCMaps[screen->layermap[i]-1].tileWidth==ZCMaps[currmap].tileWidth)
-					&& (ZCMaps[screen->layermap[i]-1].tileHeight==ZCMaps[currmap].tileHeight))
+			if(screen->layermap[i]>0)
 			{
-				// const int32_t _mapsSize = (ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight);
-				
 				tmpscr2[i]=TheMaps[(screen->layermap[i]-1)*MAPSCRS+screen->layerscreen[i]];
 				
 				if(overlay)
 				{
-					for(int32_t y=0; y<ZCMaps[currmap].tileHeight; ++y)
+					for(int32_t y=0; y<11; ++y)
 					{
-						for(int32_t x=0; x<ZCMaps[currmap].tileWidth; ++x)
+						for(int32_t x=0; x<16; ++x)
 						{
-							int32_t c=y*ZCMaps[currmap].tileWidth+x;
+							int32_t c=y*16+x;
 							
 							if(tmpscr2[i].data[c]==0)
 							{
@@ -6051,12 +6046,12 @@ void loadscr_old(int32_t tmp,int32_t destdmap, int32_t scr,int32_t ldir,bool ove
 	
 	for(int32_t j=-1; j<6; ++j)  // j == -1 denotes the current screen
 	{
-		if(j<0 || ((screen->layermap[j]>0)&&(ZCMaps[screen->layermap[j]-1].tileWidth==ZCMaps[currmap].tileWidth) && (ZCMaps[screen->layermap[j]-1].tileHeight==ZCMaps[currmap].tileHeight)))
+		if (j<0 || screen->layermap[j] > 0)
 		{
 			mapscr *layerscreen= (j<0 ? screen : tmpscr2[j].valid ? &tmpscr2[j] :
 								  &TheMaps[(screen->layermap[j]-1)*MAPSCRS]+screen->layerscreen[j]);
 								  
-			for(int32_t i=0; i<(ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight); ++i)
+			for(int32_t i=0; i<176; ++i)
 			{
 				int32_t c=layerscreen->data[i];
 				int32_t cs=layerscreen->cset[i];
@@ -6094,8 +6089,6 @@ void loadscr2(int32_t tmp,int32_t scr,int32_t)
 		}
 	}
 	
-	const int32_t _mapsSize = (ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight);
-	
 	mapscr& screen = tmp == 0 ? *tmpscr : special_warp_return_screen;
 	screen = TheMaps[currmap*MAPSCRS+scr];
 	
@@ -6105,15 +6098,7 @@ void loadscr2(int32_t tmp,int32_t scr,int32_t)
 		{
 			if(screen.layermap[i]>0)
 			{
-			
-				if((ZCMaps[screen.layermap[i]-1].tileWidth==ZCMaps[currmap].tileWidth) && (ZCMaps[screen.layermap[i]-1].tileHeight==ZCMaps[currmap].tileHeight))
-				{
-					tmpscr2[i]=TheMaps[(screen.layermap[i]-1)*MAPSCRS+screen.layerscreen[i]];
-				}
-				else
-				{
-					(tmpscr2+i)->zero_memory();
-				}
+				tmpscr2[i]=TheMaps[(screen.layermap[i]-1)*MAPSCRS+screen.layerscreen[i]];
 			}
 			else
 			{
@@ -6238,12 +6223,12 @@ void loadscr2(int32_t tmp,int32_t scr,int32_t)
 	
 	for(int32_t j=-1; j<6; ++j)  // j == -1 denotes the current screen
 	{
-		if(j<0 || ((screen.layermap[j]>0)&&(ZCMaps[screen.layermap[j]-1].tileWidth==ZCMaps[currmap].tileWidth) && (ZCMaps[screen.layermap[j]-1].tileHeight==ZCMaps[currmap].tileHeight)))
+		if (j < 0 || screen.layermap[j] > 0)
 		{
 			mapscr *layerscreen= (j<0 ? &screen
 								  : &(TheMaps[(screen.layermap[j]-1)*MAPSCRS+screen.layerscreen[j]]));
 								  
-			for(int32_t i=0; i<(ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight); ++i)
+			for(int32_t i=0; i<176; ++i)
 			{
 				int32_t c=layerscreen->data[i];
 				int32_t cs=layerscreen->cset[i];
@@ -7238,13 +7223,7 @@ void ViewMap()
 						if(tmpscr->layermap[i]<=0)
 							continue;
 						
-						if((ZCMaps[tmpscr->layermap[i]-1].tileWidth==ZCMaps[currmap].tileWidth) &&
-						   (ZCMaps[tmpscr->layermap[i]-1].tileHeight==ZCMaps[currmap].tileHeight))
-						{
-							const int32_t _mapsSize = (ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight);
-							
-							tmpscr2[i]=TheMaps[(tmpscr->layermap[i]-1)*MAPSCRS+tmpscr->layerscreen[i]];
-						}
+						tmpscr2[i]=TheMaps[(tmpscr->layermap[i]-1)*MAPSCRS+tmpscr->layerscreen[i]];
 					}
 					
 					if(XOR(tmpscr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer_old(scrollbuf_old, 0, 2, tmpscr, 256, -playing_field_offset, 2);

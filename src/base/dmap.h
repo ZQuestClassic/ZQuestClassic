@@ -3,6 +3,7 @@
 
 #include "base/general.h"
 #include "base/ints.h"
+#include <string>
 
 struct dmap
 {
@@ -24,7 +25,8 @@ struct dmap
     // Indexes can be repeated - they currently don't hold any special meaning.
     byte region_indices[8][8];
 	char name[21];
-	char title[21];
+	std::string title;
+	//char title[21];
 	char intro[73];
 	int32_t minimap_1_tile;                                      //before getting map
 	byte minimap_1_cset;                                      //cset for minimap 1
@@ -57,6 +59,12 @@ struct dmap
 	int32_t tmusic_loop_end;
 	int32_t tmusic_xfade_in;
 	int32_t tmusic_xfade_out;
+	uint32_t intro_string_id;
+
+	void clear()
+	{
+		*this = dmap();
+	}
 };
 
 extern dmap *DMaps;

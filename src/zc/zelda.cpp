@@ -130,7 +130,6 @@ bool dev_timestmp = false;
 
 ZCMUSIC *zcmusic = NULL;
 ZCMIXER *zcmixer = NULL;
-zinitdata zinit;
 int32_t colordepth;
 int32_t db=0;
 int32_t detail_int[10];                                         //temporary holder for things you want to detail
@@ -473,7 +472,6 @@ mapscr special_warp_return_screen;
 mapscr tmpscr2[6];
 mapscr tmpscr3[6];
 mapscr* hero_screen;
-gamedata *game=NULL;
 script_data *ffscripts[NUMSCRIPTFFC];
 script_data *itemscripts[NUMSCRIPTITEM];
 script_data *globalscripts[NUMSCRIPTGLOBAL];
@@ -609,7 +607,6 @@ zquestheader QHeader;
 byte                midi_flags[MIDIFLAGS_SIZE];
 byte                music_flags[MUSICFLAGS_SIZE];
 int32_t					msg_strings_size=0;
-zcmap               *ZCMaps;
 byte                *quest_file;
 dword               quest_map_pos[MAPSCRS*MAXMAPS2]={0};
 
@@ -1016,9 +1013,18 @@ void dointro()
 {
     if(game->visited[currdmap]!=1 || (DMaps[currdmap].flags&dmfALWAYSMSG)!=0)
     {
-        dmapmsgclk=0;
-        game->visited[currdmap]=1;
-        introclk=intropos=0;
+		if(get_qr(qr_OLD_DMAP_INTRO_STRINGS))
+		{
+			dmapmsgclk = 0;
+			game->visited[currdmap] = 1;
+			introclk = intropos = 0;
+		}
+		else
+		{
+			if(DMaps[currdmap].intro_string_id)
+				donewmsg(DMaps[currdmap].intro_string_id);
+			game->visited[currdmap] = 1;
+		}
     }
     else
     {
@@ -1690,25 +1696,33 @@ int8_t smart_vercmp(char const* a, char const* b)
 int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 {
 	chop_path(qstpath);
-	char *tempdir=(char *)"";
 	int32_t ret = 0;
-#ifndef ALLEGRO_MACOSX
-	tempdir=qstdir;
-#endif
+
+	// Only automatically set the qst for the 1st->2nd advancement.
 	byte qst_num = byte(g->get_quest()-1);
 	if(!g->get_qstpath()[0])
 	{
-		if(qst_num<moduledata.max_quest_files)
+		if(qst_num==1)
 		{
-			sprintf(qstpath, moduledata.quests[qst_num], ordinal(qst_num+1));
+			char* cwd = al_get_current_directory();
+			auto path = fs::path(cwd) / "quests/Z1 Recreations/classic_2nd.qst";
+			al_free(cwd);
+			sprintf(qstpath, "%s", path.string().c_str());
 			g->header.qstpath = qstpath;
 		}
+		else
+		{
+			// We will open the file select dialog to show the quest directory.
+			return 0;
+		}
 	}
+
 	if(g->get_qstpath()[0])
 	{
 		if(is_relative_filename(g->get_qstpath()))
 		{
-			sprintf(qstpath,"%s%s",qstdir,g->get_qstpath());
+			auto qstpath_fs = fs::path(qstdir) / fs::path(g->get_qstpath());
+			sprintf(qstpath, "%s", qstpath_fs.string().c_str());
 		}
 		else
 		{
@@ -2863,6 +2877,9 @@ void restart_level()
 
 void putintro()
 {
+	if (!get_qr(qr_OLD_DMAP_INTRO_STRINGS))
+		return;
+
     if(!stricmp("                                                                        ", DMaps[currdmap].intro))
     {
         introclk=intropos=72;
@@ -4872,24 +4889,6 @@ int main(int argc, char **argv)
 	
 	Z_message("OK\n");
 	
-	// check for the included quest files
-	if(!standalone_mode)
-	{
-		Z_message("Checking Files... ");
-		
-		char path[2048];
-		
-		for ( byte q = 0; q < moduledata.max_quest_files; q++ )
-		{
-			append_filename(path, qstdir, moduledata.quests[q], 2048);
-			if(!exists(moduledata.quests[q]) && !exists(path))
-			{
-				Z_error("%s not found.\n", moduledata.quests[q]);
-			}
-		}
-		Z_message("OK\n");
-	}
-	
 	// allocate bitmap buffers
 	Z_message("Allocating bitmap buffers... ");
 	
@@ -5474,9 +5473,18 @@ int main(int argc, char **argv)
 	// This will either quick load the first save file for this quest,
 	// or if that doesn't exist prompt the player for a save file name
 	// and then load the quest.
-	if (!params.quest.empty())
+	if (!params.open.empty())
 	{
-		std::string qstpath_to_load = std::string("_quests/").append(params.quest);
+		std::string qstpath_to_load = (fs::current_path() / params.open).string();
+
+		std::string rel_qstpath = qstpath_to_load;
+		char temppath[2048];
+		memset(temppath, 0, 2048);
+		// TODO: zc_make_relative_filename really shouldn't require trailing slash, but it does.
+		std::string rel_dir = fmt::format("{}/", (fs::current_path() / fs::path(qstdir)).string());
+		zc_make_relative_filename(temppath, rel_dir.c_str(), qstpath_to_load.c_str(), 2047);
+		if (temppath[0] != 0)
+			rel_qstpath = temppath;
 
 		int ret = saves_load();
 		if (ret)
@@ -5491,7 +5499,7 @@ int main(int argc, char **argv)
 			auto save = saves_get_slot(i);
 			if (!save->header->quest) continue;
 
-			if (qstpath_to_load == save->header->qstpath)
+			if (rel_qstpath == save->header->qstpath)
 			{
 				if (save_index == -1)
 					save_index = i;
@@ -5505,7 +5513,7 @@ int main(int argc, char **argv)
 
 		if (save_index == -1)
 		{
-			load_qstpath = qstpath_to_load;
+			load_qstpath = rel_qstpath;
 		}
 		else
 		{
@@ -6084,8 +6092,6 @@ void quit_game()
 	if(qstpath) free(qstpath);
 
 	FFCore.shutdown();
-	
-	//if(ZCMaps != NULL) free(ZCMaps);
 }
 
 bool isSideViewGravity(int32_t t)

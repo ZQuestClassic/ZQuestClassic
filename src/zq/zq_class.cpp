@@ -98,8 +98,8 @@ int32_t COMBOY(int32_t pos)
 void reset_dmap(int32_t index)
 {
     bound(index,0,MAXDMAPS-1);
-    memset(&DMaps[index],0,sizeof(dmap));
-    sprintf(DMaps[index].title, "                    ");
+	DMaps[index].clear();
+	DMaps[index].title = "";
     sprintf(DMaps[index].intro, "                                                                        ");
 }
 
@@ -109,6 +109,10 @@ void reset_dmaps()
         reset_dmap(i);
 }
 
+void truncate_dmap_title(std::string& title)
+{
+	title.resize(21, ' ');
+}
 
 mapscr* zmap::get_prvscr()
 {
@@ -139,6 +143,11 @@ zmap::zmap()
 }
 zmap::~zmap()
 {
+}
+
+void zmap::clear()
+{
+	*this = zmap();
 }
 
 bool zmap::CanUndo()
@@ -233,6 +242,8 @@ bool zmap::reset_templates(bool validate)
     
     //int32_t ret;
     word version, build, dummy, sversion=0;
+	byte dummyc;
+	word dummyw;
     //int32_t section_size;
     word temp_map_count;
     mapscr temp_mapscr;
@@ -272,208 +283,116 @@ bool zmap::reset_templates(bool validate)
         return false;
     }
     
-    zcmap temp_map;
-    
     if(version>12)
     {
-        if(!p_getc(&(temp_map.tileWidth),f))
-        {
+        if(!p_getc(&dummyc,f))
             return qe_invalid;
-        }
         
-        if(!p_getc(&(temp_map.tileHeight),f))
-        {
+        if(!p_getc(&dummyc,f))
             return qe_invalid;
-        }
         
-        if(!p_igetw(&(temp_map.subaWidth),f))
-        {
+        if(!p_igetw(&dummyw,f))
             return qe_invalid;
-        }
         
-        if(!p_igetw(&(temp_map.subaHeight),f))
-        {
+        if(!p_igetw(&dummyw,f))
             return qe_invalid;
-        }
         
-        if(!p_igetw(&(temp_map.subpWidth),f))
-        {
+        if(!p_igetw(&dummyw,f))
             return qe_invalid;
-        }
         
-        if(!p_igetw(&(temp_map.subpHeight),f))
-        {
+        if(!p_igetw(&dummyw,f))
             return qe_invalid;
-        }
         
-        if(!p_igetw(&(temp_map.scrResWidth),f))
-        {
+        if(!p_igetw(&dummyw,f))
             return qe_invalid;
-        }
         
-        if(!p_igetw(&(temp_map.scrResHeight),f))
-        {
+        if(!p_igetw(&dummyw,f))
             return qe_invalid;
-        }
         
-        if(!p_igetw(&(temp_map.viewWidth),f))
-        {
+        if(!p_igetw(&dummyw,f))
             return qe_invalid;
-        }
         
-        if(!p_igetw(&(temp_map.viewHeight),f))
-        {
+        if(!p_igetw(&dummyw,f))
             return qe_invalid;
-        }
         
-        if(!p_igetw(&(temp_map.viewX),f))
-        {
+        if(!p_igetw(&dummyw,f))
             return qe_invalid;
-        }
         
-        if(!p_igetw(&(temp_map.viewY),f))
-        {
+        if(!p_igetw(&dummyw,f))
             return qe_invalid;
-        }
         
-        if(!p_getc(&(temp_map.subaTrans),f))
-        {
+        if(!p_getc(&dummyc,f))
             return qe_invalid;
-        }
         
-        if(!p_getc(&(temp_map.subpTrans),f))
-        {
+        if(!p_getc(&dummyc,f))
             return qe_invalid;
-        }
-    }
-    else
-    {
-        temp_map.scrResWidth = 256;
-        temp_map.scrResHeight = 224;
-        temp_map.tileWidth = 16;
-        temp_map.tileHeight = 11;
-        temp_map.viewWidth = 256;
-        temp_map.viewHeight = 176;
-        temp_map.viewX = 0;
-        temp_map.viewY = 64;
-        temp_map.subaWidth = 256;
-        temp_map.subaHeight = 168;
-        temp_map.subaTrans = false;
-        temp_map.subpWidth = 256;
-        temp_map.subpHeight = 56;
-        temp_map.subpTrans = false;
     }
     
     for(int32_t i=0; i<MAPSCRSNORMAL; ++i)
     {
-        readmapscreen(f, &header, &temp_mapscr, &temp_map, sversion);
+        readmapscreen(f, &header, &temp_mapscr, sversion);
     }
     
-    readmapscreen(f, &header, &TheMaps[128], &temp_map, sversion);
-    readmapscreen(f, &header, &TheMaps[129], &temp_map, sversion);
+    readmapscreen(f, &header, &TheMaps[128], sversion);
+    readmapscreen(f, &header, &TheMaps[129], sversion);
     
     for(int32_t i=0; i<(MAPSCRS-(MAPSCRSNORMAL+2)); ++i)
     {
-        readmapscreen(f, &header, &temp_mapscr, &temp_map, sversion);
+        readmapscreen(f, &header, &temp_mapscr, sversion);
     }
     
     if(version>12)
     {
-        if(!p_getc(&(temp_map.tileWidth),f))
-        {
+        if(!p_getc(&dummyc,f))
             return qe_invalid;
-        }
         
-        if(!p_getc(&(temp_map.tileHeight),f))
-        {
+        if(!p_getc(&dummyc,f))
             return qe_invalid;
-        }
         
-        if(!p_igetw(&(temp_map.subaWidth),f))
-        {
+        if(!p_igetw(&dummyw,f))
             return qe_invalid;
-        }
         
-        if(!p_igetw(&(temp_map.subaHeight),f))
-        {
+        if(!p_igetw(&dummyw,f))
             return qe_invalid;
-        }
         
-        if(!p_igetw(&(temp_map.subpWidth),f))
-        {
+        if(!p_igetw(&dummyw,f))
             return qe_invalid;
-        }
         
-        if(!p_igetw(&(temp_map.subpHeight),f))
-        {
+        if(!p_igetw(&dummyw,f))
             return qe_invalid;
-        }
         
-        if(!p_igetw(&(temp_map.scrResWidth),f))
-        {
+        if(!p_igetw(&dummyw,f))
             return qe_invalid;
-        }
         
-        if(!p_igetw(&(temp_map.scrResHeight),f))
-        {
+        if(!p_igetw(&dummyw,f))
             return qe_invalid;
-        }
         
-        if(!p_igetw(&(temp_map.viewWidth),f))
-        {
+        if(!p_igetw(&dummyw,f))
             return qe_invalid;
-        }
         
-        if(!p_igetw(&(temp_map.viewHeight),f))
-        {
+        if(!p_igetw(&dummyw,f))
             return qe_invalid;
-        }
         
-        if(!p_igetw(&(temp_map.viewX),f))
-        {
+        if(!p_igetw(&dummyw,f))
             return qe_invalid;
-        }
         
-        if(!p_igetw(&(temp_map.viewY),f))
-        {
+        if(!p_igetw(&dummyw,f))
             return qe_invalid;
-        }
         
-        if(!p_getc(&(temp_map.subaTrans),f))
-        {
+        if(!p_getc(&dummyc,f))
             return qe_invalid;
-        }
         
-        if(!p_getc(&(temp_map.subpTrans),f))
-        {
+        if(!p_getc(&dummyc,f))
             return qe_invalid;
-        }
-    }
-    else
-    {
-        temp_map.scrResWidth = 256;
-        temp_map.scrResHeight = 224;
-        temp_map.tileWidth = 16;
-        temp_map.tileHeight = 11;
-        temp_map.viewWidth = 256;
-        temp_map.viewHeight = 176;
-        temp_map.viewX = 0;
-        temp_map.viewY = 64;
-        temp_map.subaWidth = 256;
-        temp_map.subaHeight = 168;
-        temp_map.subaTrans = false;
-        temp_map.subpWidth = 256;
-        temp_map.subpHeight = 56;
-        temp_map.subpTrans = false;
     }
     
     for(int32_t i=0; i<MAPSCRSNORMAL; ++i)
     {
-        readmapscreen(f, &header, &temp_mapscr, &temp_map, sversion);
+        readmapscreen(f, &header, &temp_mapscr, sversion);
     }
     
-    readmapscreen(f, &header, &TheMaps[MAPSCRS+128], &temp_map, sversion);
-    readmapscreen(f, &header, &TheMaps[MAPSCRS+129], &temp_map, sversion);
+    readmapscreen(f, &header, &TheMaps[MAPSCRS+128], sversion);
+    readmapscreen(f, &header, &TheMaps[MAPSCRS+129], sversion);
     
     pack_fclose(f);
 	clear_quest_tmpfile();
@@ -488,30 +407,10 @@ bool zmap::reset_templates(bool validate)
     return true;
 }
 
-void zmap::clearzcmap(int32_t map)
-{
-    ZCMaps[map].scrResWidth = 256;
-    ZCMaps[map].scrResHeight = 224;
-    ZCMaps[map].tileWidth = 16;
-    ZCMaps[map].tileHeight = 11;
-    ZCMaps[map].viewWidth = 256;
-    ZCMaps[map].viewHeight = 176;
-    ZCMaps[map].viewX = 0;
-    ZCMaps[map].viewY = 64;
-    ZCMaps[map].subaWidth = 256;
-    ZCMaps[map].subaHeight = 168;
-    ZCMaps[map].subaTrans = false;
-    ZCMaps[map].subpWidth = 256;
-    ZCMaps[map].subpHeight = 56;
-    ZCMaps[map].subpTrans = false;
-}
-
 bool zmap::clearmap(bool newquest)
 {
     if(currmap<map_count)
     {
-        clearzcmap(currmap);
-        
         for(int32_t i=0; i<MAPSCRS-(newquest?0:TEMPLATES); i++)
         {
             clearscr(i);
@@ -553,32 +452,20 @@ mapscr* zmap::AbsoluteScr(int32_t map, int32_t scr)
 }
 void zmap::set_prvscr(int32_t map, int32_t scr)
 {
-
-    prvscr=TheMaps[(map*MAPSCRS)+scr];
-    
-    const int32_t _mapsSize = ZCMaps[map].tileWidth*ZCMaps[map].tileHeight;
-    
-    for(int32_t i=0; i<6; i++)
-    {
-        if(prvscr.layermap[i]>0)
-        {
-        
-            if((ZCMaps[prvscr.layermap[i]-1].tileWidth==ZCMaps[map].tileWidth) && (ZCMaps[prvscr.layermap[i]-1].tileHeight==ZCMaps[map].tileHeight))
-            {
-                prvlayers[i]=TheMaps[(prvscr.layermap[i]-1)*MAPSCRS+prvscr.layerscreen[i]];
-            }
-            else
-            {
-				prvlayers[i].valid = 0;
-                // memset(prvlayers+i,0,sizeof(mapscr));
-            }
-        }
+	prvscr=TheMaps[(map*MAPSCRS)+scr];
+	
+	for(int32_t i=0; i<6; i++)
+	{
+		if(prvscr.layermap[i]>0)
+		{
+			prvlayers[i]=TheMaps[(prvscr.layermap[i]-1)*MAPSCRS+prvscr.layerscreen[i]];
+		}
 		else
 			prvlayers[i].valid = 0;
-    }
-    
-    prv_map=map;
-    prv_scr=scr;
+	}
+	
+	prv_map=map;
+	prv_scr=scr;
 }
 int32_t  zmap::getCurrMap()
 {
@@ -882,27 +769,11 @@ int32_t zmap::load(const char *path)
 		goto file_error;
 	}
 	
-	zcmap temp_map;
-	temp_map.scrResWidth = 256;
-	temp_map.scrResHeight = 224;
-	temp_map.tileWidth = 16;
-	temp_map.tileHeight = 11;
-	temp_map.viewWidth = 256;
-	temp_map.viewHeight = 176;
-	temp_map.viewX = 0;
-	temp_map.viewY = 64;
-	temp_map.subaWidth = 256;
-	temp_map.subaHeight = 168;
-	temp_map.subaTrans = false;
-	temp_map.subpWidth = 256;
-	temp_map.subpHeight = 56;
-	temp_map.subpTrans = false;
-	
 	for(int32_t i=0; i<MAPSCRS; i++)
 	{
 		mapscr tmpimportscr;
 		tmpimportscr.zero_memory();
-		if(readmapscreen(f,&header,&tmpimportscr,&temp_map,version)==qe_invalid)
+		if(readmapscreen(f,&header,&tmpimportscr,version)==qe_invalid)
 		{
 			al_trace("failed zmap::load\n");
 				goto file_error;
@@ -3063,11 +2934,9 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 				
 				if(layermap>-1 && layermap<map_count)
 				{
-					layerscreen=layermap*MAPSCRS+basescr->layerscreen[k];
-					
 					for(int32_t i=0; i<176; i++)
 					{
-						put_walkflags_layered_external(dest,((i&15)<<4)+x,(i&0xF0)+y,i, k, layermap, layerscreen);
+						put_walkflags_layered_external(dest,((i&15)<<4)+x,(i&0xF0)+y,i, k, map, scr);
 					}
 				}
 			}
@@ -3945,7 +3814,11 @@ void zmap::drawblock(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t c,in
 
 void zmap::drawstaticblock(BITMAP* dest,int32_t x,int32_t y)
 {
-    if(InvalidStatic)
+	if (InvalidBG == 2)
+	{
+		draw_checkerboard(dest, x, y, 8, 8, 16);
+	}
+	else if(InvalidBG == 1)
     {
         for(int32_t dy=0; dy<16; dy++)
         {
@@ -3966,7 +3839,12 @@ void zmap::drawstaticblock(BITMAP* dest,int32_t x,int32_t y)
 
 void zmap::drawstaticcolumn(BITMAP* dest,int32_t x,int32_t y)
 {
-    if(InvalidStatic)
+	if (InvalidBG == 2)
+	{
+		for(int32_t q = 0; q < 11; ++q)
+			draw_checkerboard(dest, x, y + q * 16, 8, 8, 16);
+	}
+    else if(InvalidBG == 1)
     {
         for(int32_t dy=0; dy<176; dy++)
         {
@@ -3987,7 +3865,12 @@ void zmap::drawstaticcolumn(BITMAP* dest,int32_t x,int32_t y)
 
 void zmap::drawstaticrow(BITMAP* dest,int32_t x,int32_t y)
 {
-    if(InvalidStatic)
+	if (InvalidBG == 2)
+	{
+		for (int32_t q = 0; q < 16; ++q)
+			draw_checkerboard(dest, x + q * 16, y, 8, 8, 16);
+	}
+    else if(InvalidBG == 1)
     {
         for(int32_t dy=0; dy<16; dy++)
         {
@@ -6464,7 +6347,6 @@ bool setMapCount2(int32_t c)
         for(int32_t mc=oldmapcount; mc<map_count; mc++)
         {
             Map.setCurrMap(mc);
-            Map.clearzcmap(mc);
             
             for(int32_t ms=0; ms<MAPSCRS; ms++)
             {
@@ -6848,6 +6730,7 @@ int32_t load_quest(const char *filename, bool show_progress)
 		}
 		else
 		{
+			Map.clear();
 			Map.setCurrMap(vbound(zinit.last_map,0,map_count-1));
 			Map.setCurrScr(zinit.last_screen);
 			refresh(rALL);
@@ -6872,6 +6755,61 @@ int32_t load_quest(const char *filename, bool show_progress)
 	}
 
     Map.ClearCommandHistory();
+	
+	return ret;
+}
+
+int32_t load_tileset(const char *filename, dword tsetflags)
+{
+	char buf[2048];
+	byte skip_flags[4];
+	
+	for(int32_t i=0; i<4; ++i)
+		skip_flags[i]=0;
+	for(int32_t i=0; i<qr_MAX; i++)
+		set_qr(i,0);
+	int32_t ret=loadquest(filename,&header,&QMisc,customtunes,true,skip_flags,1,true,0,tsetflags);
+
+	if(ret!=qe_OK)
+		init_quest(NULL);
+	else
+	{
+		int32_t accessret = quest_access(filename, &header);
+		
+		if(accessret != 1)
+		{
+			init_quest(NULL);
+			
+			if(accessret == 0)
+				ret=qe_pwd;
+			else
+				ret=qe_cancel;
+		}
+		else
+		{
+			Map.clear();
+			Map.setCurrMap(vbound(zinit.last_map,0,map_count-1));
+			Map.setCurrScr(zinit.last_screen);
+			refresh(rALL);
+			refresh_pal();
+			set_rules(quest_rules);
+			if(!zc_get_config("zquest","auto_filenew_bugfixes",1))
+				popup_bugfix_dlg("dsa_compatrule");
+			
+			if(bmap != NULL)
+			{
+				destroy_bitmap(bmap);
+				bmap=NULL;
+			}
+			
+			set_window_title("ZC Editor - Untitled Quest");
+			first_save = saved = false;
+			memset(filepath,0,255);
+			memset(temppath,0,255);
+		}
+	}
+
+	Map.ClearCommandHistory();
 	
 	return ret;
 }
@@ -7696,7 +7634,7 @@ int32_t writedmaps(PACKFILE *f, word version, word build, word start_dmap, word 
                 new_return(15);
             }
             
-            if(!pfwrite(&DMaps[i].title,sizeof(DMaps[0].title),f))
+            if(!p_putwstr(DMaps[i].title,f))
             {
                 new_return(16);
             }
@@ -7880,6 +7818,8 @@ int32_t writedmaps(PACKFILE *f, word version, word build, word start_dmap, word 
             }
 			if(!p_putc(DMaps[i].overlay_subscreen, f))
 				new_return(46);
+			if (!p_iputl(DMaps[i].intro_string_id, f))
+				new_return(47);
 
 			for(int32_t j=0; j<8; j++)
             {
@@ -7887,7 +7827,7 @@ int32_t writedmaps(PACKFILE *f, word version, word build, word start_dmap, word 
                 {
                     if(!p_putc(DMaps[i].region_indices[j][k],f))
                     {
-                        new_return(46);
+                        new_return(48);
                     }
                 }
 			}
@@ -13997,7 +13937,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_eol();
 	box_eol();
 	
-	std::string tmp_filename = util::create_temp_file_path();
+	std::string tmp_filename = util::create_temp_file_path(filename);
 	PACKFILE *f = pack_fopen_password(tmp_filename.c_str(),compressed?F_WRITE_PACKED:F_WRITE, "");
 	
 	if(!f)
@@ -14378,6 +14318,10 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 		new_return(ec.value());
 	}
 
+#ifdef __EMSCRIPTEN__
+	em_sync_fs();
+#endif
+
 	new_return(0);
 }
 
@@ -14434,10 +14378,6 @@ int32_t save_quest(const char *filename, bool timed_save)
 	int32_t ret;
 	ret  = save_unencoded_quest(filename, compress, filename);
 
-#ifdef __EMSCRIPTEN__
-	em_sync_fs();
-#endif
-	
 	return ret;
 }
 

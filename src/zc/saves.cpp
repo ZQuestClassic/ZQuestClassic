@@ -1571,7 +1571,7 @@ static int32_t write_save(save_t* save)
 	if (save->path.empty())
 		return 0;
 
-	std::string tmp_filename = util::create_temp_file_path();
+	std::string tmp_filename = util::create_temp_file_path(save->path.string());
 	PACKFILE *f = pack_fopen(tmp_filename.c_str(), F_WRITE_PACKED);
 
 	if (!f)
@@ -2270,7 +2270,11 @@ int saves_do_first_time_stuff(int index)
 		// TODO: this is a weird place to do this.
 		char temppath[2048];
 		memset(temppath, 0, 2048);
-		zc_make_relative_filename(temppath, qstdir, save->game->header.qstpath.c_str(), 2047);
+		std::string rel_dir = (fs::current_path() / fs::path(qstdir)).string();
+		// TODO: zc_make_relative_filename really shouldn't require trailing slash, but it does.
+		if (!rel_dir.ends_with(("/")))
+			rel_dir += "/";
+		zc_make_relative_filename(temppath, rel_dir.c_str(), save->game->header.qstpath.c_str(), 2047);
 		if (temppath[0] != 0)
 		{
 			save->game->header.qstpath = temppath;

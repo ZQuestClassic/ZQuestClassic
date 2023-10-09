@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include "base/initdata.h"
 #include "midi.h"
 #include "jwin.h"
 #include "base/jwinfsel.h"
@@ -156,7 +157,8 @@ extern int32_t scrolling_destdmap, currdmap;
 extern int32_t alignment_arrow_timer;
 extern int32_t  Flip,Combo,CSet;
 extern int32_t  Flags,Flag,menutype;
-extern int32_t MouseScroll, SavePaths, CycleOn, InvalidStatic, NoScreenPreview,WarnOnInitChanged,DisableLPalShortcuts,DisableCompileConsole,skipLayerWarning,numericalFlags;
+extern int32_t MouseScroll, SavePaths, CycleOn, NoScreenPreview,WarnOnInitChanged,DisableLPalShortcuts,DisableCompileConsole,skipLayerWarning,numericalFlags;
+extern uint8_t InvalidBG;
 extern int32_t Frameskip, RequestedFPS, zqColorDepth, zqUseWin32Proc;
 extern bool Vsync, ShowFPS, SaveDragResize, DragAspect, SaveWinPos;
 extern double aspect_ratio;
@@ -229,14 +231,12 @@ void set_debug(bool d);
 extern zquestheader        header;
 extern byte                midi_flags[MIDIFLAGS_SIZE];
 extern byte                music_flags[MUSICFLAGS_SIZE];
-extern zcmap               *ZCMaps;
 extern int32_t				   msg_strings_size;
 extern class zctune        *customtunes;
 //extern emusic            *enhancedMusic;
 extern ZCHEATS             zcheats;
 extern byte                use_cheats;
 extern byte                use_tiles;
-extern zinitdata           zinit;
 extern char                palnames[MAXLEVELS][17];
 extern quest_template      QuestTemplates[MAXQTS];
 //extern byte              *undotilebuf;

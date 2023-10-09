@@ -8,15 +8,16 @@
 #include "zc/ffscript.h"
 #include "base/qrs.h"
 #include "base/dmap.h"
+#include "base/initdata.h"
 
 using namespace util;
 extern FFScript FFCore;
+gamedata *game=NULL;
 #ifndef IS_EDITOR
 extern portal mirror_portal;
 extern sprite_list portals;
 #endif
 extern int32_t dlevel;
-extern zinitdata zinit;
 extern void Z_eventlog(char *format,...);
 extern void ringcolor(bool forceDefault);
 

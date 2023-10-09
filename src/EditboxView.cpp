@@ -9,11 +9,6 @@
 
 extern int32_t scheme[];
 
-//#ifndef _MSC_VER
-#define zc_max(a,b)  ((a)>(b)?(a):(b))
-#define zc_min(a,b)  ((a)<(b)?(a):(b))
-//#endif
-
 extern volatile int32_t myvsync;
 void update_hw_screen(bool force);
 

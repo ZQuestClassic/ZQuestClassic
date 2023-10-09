@@ -15,7 +15,7 @@ void call_options_dlg()
 	OptionsDialog().show();
 }
 
-extern int32_t EnableTooltips, GridColor, CmbCursorCol, TilePgCursorCol,
+extern int32_t EnableTooltips, GridColor, CmbCursorCol, TilePgCursorCol, TTipHLCol,
 	CmbPgCursorCol, KeyboardRepeatDelay, TooltipsHighlight, KeyboardRepeatRate,
 	pixeldb, infobg, MMapCursorStyle, LayerDitherBG, LayerDitherSz;
 extern bool allowHideMouse;
@@ -39,7 +39,6 @@ void OptionsDialog::loadOptions()
 	opts[OPT_ANIM_COMBOS] = AnimationOn ? 1 : 0;
 	opts[OPT_OW_PROT] = OverwriteProtection ? 1 : 0;
 	opts[OPT_TILE_PROT] = TileProtection ? 1 : 0;
-	opts[OPT_STATIC_INVAL] = InvalidStatic ? 1 : 0;
 	opts[OPT_RULESET] = RulesetDialog ? 1 : 0;
 	opts[OPT_TOOLTIPS] = EnableTooltips ? 1 : 0;
 	opts[OPT_TOOLTIP_HIGHLIGHT] = TooltipsHighlight ? 1 : 0;
@@ -47,6 +46,7 @@ void OptionsDialog::loadOptions()
 	opts[OPT_MAPCURSOR] = MMapCursorStyle;
 	opts[OPT_LYR_DITH_BG] = LayerDitherBG;
 	opts[OPT_LYR_DITH_SZ] = LayerDitherSz;
+	opts[OPT_INVALID_BG] = InvalidBG;
 	opts[OPT_PATTERNSEARCH] = abc_patternmatch ? 1 : 0;
 	opts[OPT_NEXTPREVIEW] = NoScreenPreview ? 1 : 0;
 	opts[OPT_INITSCR_WARN] = WarnOnInitChanged ? 1 : 0;
@@ -58,6 +58,7 @@ void OptionsDialog::loadOptions()
 	opts[OPT_CMB_CURS_COL] = CmbCursorCol;
 	opts[OPT_TPG_CURS_COL] = TilePgCursorCol;
 	opts[OPT_CPG_CURS_COL] = CmbPgCursorCol;
+	opts[OPT_TTIP_HL_COL] = TTipHLCol;
 	opts[OPT_SNAPFORMAT] = SnapshotFormat;
 	opts[OPT_KBREPDEL] = KeyboardRepeatDelay;
 	opts[OPT_KBREPRATE] = KeyboardRepeatRate;
@@ -149,10 +150,6 @@ void OptionsDialog::saveOption(int ind)
 			WarnOnInitChanged = v;
 			zc_set_config("zquest", "warn_initscript_changes", v);
 			break;
-		case OPT_STATIC_INVAL:
-			InvalidStatic = v;
-			zc_set_config("zquest", "invalid_static", v);
-			break;
 		case OPT_NUMERICAL_FLAG_LIST:
 			numericalFlags = v;
 			zc_set_config("zquest", "numerical_flags", v);
@@ -176,6 +173,10 @@ void OptionsDialog::saveOption(int ind)
 		case OPT_CPG_CURS_COL:
 			CmbPgCursorCol = v;
 			zc_set_config("zquest", "cpage_cursor_color", v);
+			break;
+		case OPT_TTIP_HL_COL:
+			TTipHLCol = v;
+			zc_set_config("zquest", "ttip_hl_color", v);
 			break;
 		case OPT_SNAPFORMAT:
 			SnapshotFormat = v;
@@ -235,6 +236,10 @@ void OptionsDialog::saveOption(int ind)
 		case OPT_LYR_DITH_SZ:
 			LayerDitherSz = v;
 			zc_set_config("zquest", "layer_dither_sz", v);
+			break;
+		case OPT_INVALID_BG:
+			InvalidBG = v;
+			zc_set_config("zquest", "invalid_bg", v);
 			break;
 		case OPT_RULESET:
 			RulesetDialog = v;
@@ -709,6 +714,12 @@ static const GUI::ListData ditherSzList
 	{ "7", 7 },
 	{ "8", 8 }
 };
+static const GUI::ListData invalidDataBGList
+{
+	{ "X Out", 0 },
+	{ "Static", 1 },
+	{ "Checkerboard", 2 }
+};
 static const GUI::ListData snapFormatList
 {
 	{ "BMP", 0 },
@@ -898,7 +909,7 @@ std::shared_ptr<GUI::Widget> OptionsDialog::view()
 					ROW_CHECK(OPT_ANIM_COMBOS, "Animate Combos"),
 					ROW_CHECK(OPT_OW_PROT, "Overwrite Protection"),
 					ROW_CHECK(OPT_TILE_PROT, "Tile Protection"),
-					ROW_CHECK(OPT_STATIC_INVAL, "Use Static for Invalid Data"),
+					//ROW_CHECK(OPT_STATIC_INVAL, "Use Static for Invalid Data"),
 					ROW_CHECK(OPT_RULESET, "Show Ruleset Dialog on New Quest"),
 					ROW_CHECK(OPT_PATTERNSEARCH, "Listers Use Pattern-Matching Search"),
 					ROW_CHECK(OPT_CUSTOMFONT, "Custom Fonts"),
@@ -940,6 +951,7 @@ std::shared_ptr<GUI::Widget> OptionsDialog::view()
 					ROW_DDOWN(OPT_CMB_CURS_COL, "Combo Column SelColor:", colorList),
 					ROW_DDOWN(OPT_TPG_CURS_COL, "Tile Page SelColor:", colorList),
 					ROW_DDOWN(OPT_CPG_CURS_COL, "Combo Page SelColor:", colorList),
+					ROW_DDOWN(OPT_TTIP_HL_COL, "Tooltip Highlight SelColor:", colorList),
 					ROW_DDOWN_I(OPT_MAPCURSOR, "Minimap Cursor:", mmapCursList,
 						"The color of the current screen outline on the minimap."
 						" Either solid or blinking between two colors."),
@@ -947,12 +959,14 @@ std::shared_ptr<GUI::Widget> OptionsDialog::view()
 						"The color used for the background when dithering the bottom layer."),
 					ROW_DDOWN_I(OPT_LYR_DITH_SZ, "Layer Dither Size:", ditherSzList,
 						"The size of the dither pattern used for non-highlighted screens."),
-					ROW_DDOWN(OPT_SNAPFORMAT, "Snapshot Format:", snapFormatList),
-					ROW_TF_RANGE(OPT_KBREPDEL, "Keyboard Repeat Delay:", 0, 99999),
-					ROW_TF_RANGE(OPT_KBREPRATE, "Keyboard Repeat Rate:", 0, 99999),
-					ROW_TF_FLOAT(OPT_CURS_LARGE, "Cursor Scale", 1, 5)
+					ROW_DDOWN_I(OPT_INVALID_BG, "Invalid Data BG:", invalidDataBGList,
+						"The background used for invalid data in the tile pages, favorite combos, map, and ajacent screens"),
+					ROW_DDOWN(OPT_SNAPFORMAT, "Snapshot Format:", snapFormatList)
 				),
 				Rows<3>(vAlign = 0.0,
+					ROW_TF_RANGE(OPT_KBREPDEL, "Keyboard Repeat Delay:", 0, 99999),
+					ROW_TF_RANGE(OPT_KBREPRATE, "Keyboard Repeat Rate:", 0, 99999),
+					ROW_TF_FLOAT(OPT_CURS_LARGE, "Cursor Scale", 1, 5),
 					ROW_DDOWN(OPT_COMPILE_OK, "Compile SFX (OK):", sfx_list),
 					ROW_DDOWN(OPT_COMPILE_ERR, "Compile SFX (Fail):", sfx_list),
 					ROW_DDOWN(OPT_COMPILE_DONE, "Compile SFX (Slots):", sfx_list),

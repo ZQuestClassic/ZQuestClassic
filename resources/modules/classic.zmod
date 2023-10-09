@@ -22,10 +22,10 @@ version_minute = 51
 [QUESTS]
 quest_flow = 0
 num_quest_files = 4
-first_qst = modules/classic/classic_1st.qst
-second_qst = modules/classic/classic_2nd.qst
-third_qst = modules/classic/classic_4th.qst
-fourth_qst = modules/classic/classic_5th.qst
+first_qst = Z1 Recreations/classic_1st.qst
+second_qst = Z1 Recreations/classic_2nd.qst
+third_qst = Z1 Recreations/classic_4th.qst
+fourth_qst = Z1 Recreations/classic_5th.qst
 fifth_qst = -
 sixth_qst = -
 seventh_qst = -

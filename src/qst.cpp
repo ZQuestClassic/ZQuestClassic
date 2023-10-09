@@ -39,8 +39,9 @@
 #include "particles.h"
 #include "dialog/alert.h"
 #include "base/misctypes.h"
+#include "base/initdata.h"
 
-bool global_z3_hacky_load;
+int global_z3_hacky_load;
 
 //FFScript FFCore;
 extern FFScript FFCore;
@@ -52,11 +53,11 @@ extern particle_list particles;
 extern void setZScriptVersion(int32_t s_version);
 //FFSCript   FFEngine;
 
-int32_t temp_ffscript_version = 0;
 static bool read_ext_zinfo = false, read_zinfo = false;
 static bool loadquest_report = false;
 static char const* loading_qst_name = NULL;
 static byte loading_qst_num = 0;
+dword loading_tileset_flags = 0;
 
 int32_t First[MAX_COMBO_COLS]={0},combo_alistpos[MAX_COMBO_COLS]={0},combo_pool_listpos[MAX_COMBO_COLS]={0},combo_auto_listpos[MAX_COMBO_COLS]={0};
 map_and_screen map_page[MAX_MAPPAGE_BTNS]= {{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0},{0,0}};
@@ -75,7 +76,6 @@ using std::pair;
 
 // extern bool                debug;
 extern int32_t                 hero_animation_speed; //lower is faster animation
-extern zcmap               *ZCMaps;
 extern byte                *colordata;
 //extern byte              *tilebuf;
 extern tiledata            *newtilebuf;
@@ -85,7 +85,6 @@ extern wpndata             *wpnsbuf;
 extern comboclass          *combo_class_buf;
 extern guydata             *guysbuf;
 extern ZCHEATS             zcheats;
-extern zinitdata           zinit;
 extern char                palnames[MAXLEVELS][17];
 extern int32_t                 memrequested;
 extern char                *byte_conversion(int32_t number, int32_t format);
@@ -1232,14 +1231,6 @@ int32_t get_qst_buffers()
         TheMaps[i].zero_memory();
         
     //memset(TheMaps, 0, sizeof(mapscr)*MAPSCRS); //shouldn't need this anymore
-    Z_message("OK\n"); // Allocating map buffer...
-    
-    memrequested+=(sizeof(zcmap)*MAXMAPS2);
-    Z_message("Allocating combo buffer (%s)... ", byte_conversion2(sizeof(zcmap)*MAXMAPS2,memrequested,-1,-1));
-    
-    if((ZCMaps=(zcmap*)malloc(sizeof(zcmap)*MAXMAPS2))==NULL)
-        return 0;
-        
     Z_message("OK\n");
     
     // Allocating space for all 65535 strings uses up 10.62MB...
@@ -1275,10 +1266,9 @@ int32_t get_qst_buffers()
     memrequested+=(sizeof(dmap)*MAXDMAPS);
     Z_message("Allocating dmap buffer (%s)... ", byte_conversion2(sizeof(dmap)*MAXDMAPS,memrequested,-1,-1));
     
-    if((DMaps=(dmap*)malloc(sizeof(dmap)*MAXDMAPS))==NULL)
+    if((DMaps=new dmap[MAXDMAPS])==NULL)
         return 0;
-        
-    memset(DMaps, 0, sizeof(dmap)*MAXDMAPS);
+
     Z_message("OK\n");                                        // Allocating dmap buffer...
     
     memrequested+=(sizeof(newcombo)*MAXCOMBOS);
@@ -1405,25 +1395,18 @@ void free_grabtilebuf()
 
 void del_qst_buffers()
 {
-    al_trace("Cleaning maps. \n");
-    
-    if(ZCMaps) free(ZCMaps);
-    
     if(MsgStrings) delete[] MsgStrings;
     
     if(DoorComboSets) free(DoorComboSets);
     
-    if(DMaps) free(DMaps);
+	if (DMaps) delete[] DMaps;
     
 	combobuf.clear();
     
     if(colordata) free(colordata);
-    
-    al_trace("Cleaning tile buffers. \n");
+	
     free_newtilebuf();
     free_grabtilebuf();
-    
-    al_trace("Cleaning misc. \n");
     
     if(trashbuf) free(trashbuf);
     
@@ -3683,6 +3666,8 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_BROKEN_LIGHTBEAM_HITBOX,1);
 	if(compatrule_version < 57)
 		set_qr(qr_BROKEN_SWORD_SPIN_TRIGGERS,1);
+	if(compatrule_version < 58)
+		set_qr(qr_OLD_DMAP_INTRO_STRINGS,1);
 	
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)
@@ -4610,11 +4595,13 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 	int32_t dummy;
 	word s_version=0, s_cversion=0;
 	byte padding;
+
+	char legacy_title[21];
 	
 	for(int32_t i=0; i<max_dmaps; i++)
 	{
-		memset(&DMaps[start_dmap+i],0,sizeof(dmap));
-		sprintf(DMaps[start_dmap+i].title,"                    ");
+		DMaps[start_dmap + i].clear();
+		sprintf(legacy_title,"                    ");
 		sprintf(DMaps[start_dmap+i].intro,"                                                                        ");
 		DMaps[start_dmap+i].type |= dmCAVE;
 	}
@@ -4626,6 +4613,10 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 		{
 			return qe_invalid;
 		}
+
+		// TODO z3 !!! rm
+		if (global_z3_hacky_load)
+			s_version = global_z3_hacky_load;
 		
 		FFCore.quest_format[vDMaps] = s_version;
 		
@@ -4670,8 +4661,8 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 	
 	for(int32_t i=start_dmap; i<dmapstoread+start_dmap; i++)
 	{
-		memset(&tempDMap,0,sizeof(dmap));
-		sprintf(tempDMap.title,"                    ");
+		tempDMap.clear();
+		sprintf(legacy_title,"                    ");
 		sprintf(tempDMap.intro,"                                                                        ");
 		
 		if(!p_getc(&tempDMap.map,f))
@@ -4758,8 +4749,9 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 		{
 			if(tempDMap.level>0&&tempDMap.level<10)
 			{
-				sprintf(tempDMap.title,"LEVEL-%d             ", tempDMap.level);
+				sprintf(legacy_title,"LEVEL-%d             ", tempDMap.level);
 			}
+			tempDMap.title.assign(legacy_title);
 			
 			if(i==0 && Header->zelda_version <= 0x190)
 			{
@@ -4780,9 +4772,23 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 				return qe_invalid;
 			}
 			
-			if(!pfread(&tempDMap.title,sizeof(DMaps[0].title),f))
+			if(s_version<20)
 			{
-				return qe_invalid;
+				if (!pfread(&legacy_title, sizeof(legacy_title), f))
+				{
+					return qe_invalid;
+				}
+				tempDMap.title.assign(legacy_title);
+			}
+			else
+			{
+				std::string tmptitle;
+				if (!p_getwstr(&tmptitle, f))
+				{
+					return qe_invalid;
+				}
+				tempDMap.title.reserve(tmptitle.size());
+				tempDMap.title = tmptitle;
 			}
 			
 			if(!pfread(&tempDMap.intro,sizeof(DMaps[0].intro),f))
@@ -4793,7 +4799,7 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 			if(Header && ((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<152))))
 			{
 				if ((tempDMap.type & dmfTYPE) == dmOVERW) tempDMap.flags = dmfCAVES | dmf3STAIR | dmfWHIRLWIND | dmfGUYCAVES;
-				memcpy(&DMaps[i], &tempDMap, sizeof(tempDMap));
+				DMaps[i] = tempDMap;
 				
 				continue;
 			}
@@ -5168,15 +5174,20 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 			tempDMap.tmusic_xfade_out = 0;
 		}
 		
-		if(!global_z3_hacky_load && s_version >= 19)
+		if(s_version >= 19)
 			if(!p_getc(&tempDMap.overlay_subscreen, f))
 				return qe_invalid;
 
+		if (s_version >= 20)
+		{
+			if (!p_igetl(&tempDMap.intro_string_id, f))
+				return qe_invalid;
+		}
+		else
+			tempDMap.intro_string_id = 0;
+		
 		// TODO z3 !! rm
-		int vc = 20;
-		if (global_z3_hacky_load)
-			vc = 19;
-		if(s_version >= vc)
+		if(s_version >= 21 || global_z3_hacky_load)
 		{
 			for(int32_t j=0; j<8; j++)
             {
@@ -5191,7 +5202,17 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 		}
 		
 		if (!should_skip)
-			memcpy(&DMaps[i], &tempDMap, sizeof(tempDMap));
+		{
+			if(loading_tileset_flags & TILESET_CLEARMAPS)
+				tempDMap.map = 0;
+			if(loading_tileset_flags & TILESET_CLEARSCRIPTS)
+			{
+				tempDMap.script = 0;
+				for(int q = 0; q < 8; ++q)
+					tempDMap.initD[q] = 0;
+			}
+			DMaps[i] = tempDMap;
+		}
 	}
 	
 	return 0;
@@ -7117,7 +7138,19 @@ int32_t readitems(PACKFILE *f, word version, word build)
         }
         
 		if (!should_skip)
+		{
+			if(loading_tileset_flags & TILESET_CLEARSCRIPTS)
+			{
+				tempitem.script = 0;
+				tempitem.weaponscript = 0;
+				for(int q = 0; q < 8; ++q)
+				{
+					tempitem.initiald[q] = 0;
+					tempitem.weap_initiald[q] = 0;
+				}
+			}
 			memcpy(&itemsbuf[i], &tempitem, sizeof(itemdata));
+		}
     }
 
 	if (should_skip)
@@ -11950,7 +11983,6 @@ int32_t readffscript(PACKFILE *f, zquestheader *Header)
 	
 	//ZScriptVersion::setVersion(s_version); ~this ideally, but there's no ZC/ZQuest defines...
 	setZScriptVersion(s_version); //Lumped in zelda.cpp and in zquest.cpp as zquest can't link ZScriptVersion
-	temp_ffscript_version = s_version;
 	//miscQdata *the_misc;
 	if ( FFCore.quest_format[vLastCompile] < 13 ) FFCore.quest_format[vLastCompile] = s_version;
 	al_trace("Loaded scripts last compiled in ZScript version: %d\n", (FFCore.quest_format[vLastCompile]));
@@ -13058,7 +13090,7 @@ int32_t readsfx(PACKFILE *f, zquestheader *Header)
 	int32_t dummy;
 	word s_version=0, s_cversion=0;
 	//int32_t ret;
-	SAMPLE temp_sample;
+	SAMPLE temp_sample = {};
 	temp_sample.loop_start=0;
 	temp_sample.loop_end=0;
 	temp_sample.param=0;
@@ -13216,7 +13248,7 @@ int32_t readsfx(PACKFILE *f, zquestheader *Header)
 			
 			// al_trace("F%i: L%i\n",i,temp_sample.len);
 			// temp_sample.data = new byte[(temp_sample.bits==8?1:2)*temp_sample.len];
-			int32_t len = (temp_sample.bits==8?1:2)*(temp_sample.stereo==0?1:2)*temp_sample.len;
+			auto len = (temp_sample.bits==8?1:2)*(temp_sample.stereo==0?1:2)*temp_sample.len;
 			if (len < 0 || len > 10000000)
 			{
 				return qe_invalid;
@@ -15037,6 +15069,12 @@ int32_t readguys(PACKFILE *f, zquestheader *Header)
 				}
 			}
 			
+			if(loading_tileset_flags & TILESET_CLEARSCRIPTS)
+			{
+				tempguy.script = 0;
+				for(int q = 0; q < 8; ++q)
+					tempguy.initD[q] = 0;
+			}
 			guysbuf[i] = tempguy;
         }
     }
@@ -15289,7 +15327,7 @@ darknuts:
 }
 
 
-int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap *temp_map, word version)
+int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, word version)
 {
 	byte tempbyte, padding;
 	int32_t extras, secretcombos;
@@ -16200,9 +16238,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 		}
 	}
 	
-	const int32_t _mapsSize = (temp_map->tileWidth*temp_map->tileHeight);
-	
-	for(int32_t k=0; k<(temp_map->tileWidth*temp_map->tileHeight); k++)
+	for(int32_t k=0; k<176; k++)
 	{
 		if(!p_igetw(&(temp_mapscr->data[k]),f))
 		{
@@ -16225,7 +16261,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	
 	if((Header->zelda_version > 0x192)||((Header->zelda_version == 0x192)&&(Header->build>20)))
 	{
-		for(int32_t k=0; k<(temp_map->tileWidth*temp_map->tileHeight); k++)
+		for(int32_t k=0; k<176; k++)
 		{
 			if(!p_getc(&(temp_mapscr->sflag[k]),f))
 			{
@@ -16254,7 +16290,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	
 	if((Header->zelda_version > 0x192)||((Header->zelda_version == 0x192)&&(Header->build>97)))
 	{
-		for(int32_t k=0; k<(temp_map->tileWidth*temp_map->tileHeight); k++)
+		for(int32_t k=0; k<176; k++)
 		{
 		
 			if(!p_getc(&(temp_mapscr->cset[k]),f))
@@ -16282,7 +16318,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	
 	if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<154)))
 	{
-		for(int32_t k=0; k<(temp_map->tileWidth*temp_map->tileHeight); k++)
+		for(int32_t k=0; k<176; k++)
 		{
 			if((Header->zelda_version == 0x192)&&(Header->build>149))
 			{
@@ -16573,6 +16609,12 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 					tempffc.inita[1] = 10000;
 				}
 				
+				if(loading_tileset_flags & TILESET_CLEARSCRIPTS)
+				{
+					tempffc.script = 0;
+					for(int q = 0; q < 8; ++q)
+						tempffc.initd[q] = 0;
+				}
 				if(version <= 11)
 				{
 					fixffcs=true;
@@ -16698,11 +16740,11 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 	
 	return 0;
 }
-int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zcmap *temp_map, word version, int scrind)
+int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, word version, int scrind)
 {
 	if(version < 23)
 	{
-		auto ret = readmapscreen_old(f,Header,temp_mapscr,temp_map,version);
+		auto ret = readmapscreen_old(f,Header,temp_mapscr,version);
 		if(ret) return ret;
 	}
 	else
@@ -17124,6 +17166,13 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zc
 			if(!p_getc(&(tempbyte),f))
 				return qe_invalid;
 			tempffc.inita[1]=tempbyte*10000;
+			
+			if(loading_tileset_flags & TILESET_CLEARSCRIPTS)
+			{
+				tempffc.script = 0;
+				for(int q = 0; q < 8; ++q)
+					tempffc.initd[q] = 0;
+			}
 		}
 		for(word m = numffc; m < MAXFFCS; ++m)
 		{
@@ -17138,7 +17187,6 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, zc
 int32_t readmaps(PACKFILE *f, zquestheader *Header)
 {
 	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_maps);
-
 	int32_t scr=0;
 	
 	word version=0;
@@ -17146,7 +17194,6 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header)
 	int32_t screens_to_read;
 	
 	mapscr temp_mapscr;
-	zcmap temp_map;
 	word temp_map_count;
 	dword section_size;
 	
@@ -17205,34 +17252,12 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header)
 		map_autolayers.resize(temp_map_count*6);
 		for(int32_t i(0); i<_mapsSize; i++)
 			TheMaps[i].zero_memory();
-		memset(ZCMaps, 0, sizeof(zcmap)*MAXMAPS2);
 	}
 	
 	temp_mapscr.zero_memory();
 	
-	{ //Is this stuff even needed anymore? Is it used at all? -Em
-		memset(&temp_map, 0, sizeof(zcmap));
-		temp_map.scrResWidth = 256;
-		temp_map.scrResHeight = 224;
-		temp_map.tileWidth = 16;
-		temp_map.tileHeight = 11;
-		temp_map.viewWidth = 256;
-		temp_map.viewHeight = 176;
-		temp_map.viewX = 0;
-		temp_map.viewY = 64;
-		temp_map.subaWidth = 256;
-		temp_map.subaHeight = 168;
-		temp_map.subaTrans = false;
-		temp_map.subpWidth = 256;
-		temp_map.subpHeight = 56;
-		temp_map.subpTrans = false;
-	}
 	for(int32_t i=0; i<temp_map_count && i<MAXMAPS2; i++)
 	{
-		//!TODO Trim fully
-		if (!should_skip)
-			memcpy(&ZCMaps[i], &temp_map, sizeof(zcmap));
-
 		byte valid=1;
 		if(version > 22)
 		{
@@ -17252,7 +17277,7 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header)
 			scr=i*MAPSCRS+j;
 			clear_screen(&temp_mapscr);
 			if(valid)
-				readmapscreen(f, Header, &temp_mapscr, &temp_map, version, scr);
+				readmapscreen(f, Header, &temp_mapscr, version, scr);
 			
 			if (!should_skip)
 				TheMaps[scr] = temp_mapscr;
@@ -17738,6 +17763,12 @@ int32_t readcombos_old(word section_version, PACKFILE *f, zquestheader *, word v
 		
 		if(i>=start_combo && !should_skip)
 		{
+			if(loading_tileset_flags & TILESET_CLEARSCRIPTS)
+			{
+				temp_combo.script = 0;
+				for(int q = 0; q < 8; ++q)
+					temp_combo.initd[q] = 0;
+			}
 			combobuf[i] = temp_combo;
 		}
 	}
@@ -18253,7 +18284,15 @@ int32_t readcombos(PACKFILE *f, zquestheader *Header, word version, word build, 
 			auto ret = readcombo_loop(f,section_version,temp_combo);
 			if(ret) return ret;
 			if(i>=start_combo)
+			{
+				if(loading_tileset_flags & TILESET_CLEARSCRIPTS)
+				{
+					temp_combo.script = 0;
+					for(int q = 0; q < 8; ++q)
+						temp_combo.initd[q] = 0;
+				}
 				combobuf[i] = temp_combo;
+			}
 		}
 	}
 	else //Call the old function for all old versions
@@ -19298,7 +19337,7 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 	word s_version=0, s_cversion=0;
 	byte padding;
 	
-	zinitdata temp_zinit;
+	zinitdata temp_zinit = {};
 	
 	// Legacy item properties (now integrated into itemdata)
 	byte sword_hearts[4];
@@ -20744,6 +20783,11 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 			return qe_invalid;
 	}
 	
+	if(loading_tileset_flags & TILESET_CLEARMAPS)
+	{
+		temp_zinit.last_map = 0;
+		temp_zinit.last_screen = 0;
+	}
 	zinit = temp_zinit;
 	
 	if(zinit.heroAnimationStyle==las_zelda3slow)
@@ -21193,12 +21237,26 @@ static int maybe_skip_section(PACKFILE* f, dword& section_id, const byte* skip_f
 }
 
 //Internal function for loadquest wrapper
-int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zctune *tunes, bool show_progress, const byte *skip_flags, byte printmetadata)
+int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zctune *tunes, bool show_progress, byte *skip_flags, byte printmetadata)
 {
     DMapEditorLastMaptileUsed = 0;
     combosread=false;
     mapsread=false;
     fixffcs=false;
+	
+	bool do_clear_scripts = !get_bit(skip_flags,skip_ffscript);
+	if(loading_tileset_flags & TILESET_CLEARSCRIPTS)
+	{
+		set_bit(skip_flags, skip_ffscript, 1);
+		setZScriptVersion(V_FFSCRIPT);
+		FFCore.quest_format[vFFScript] = V_FFSCRIPT;
+		FFCore.quest_format[vLastCompile] = V_FFSCRIPT;
+		do_clear_scripts = true;
+	}
+	if(loading_tileset_flags & TILESET_CLEARMAPS)
+	{
+		set_bit(skip_flags, skip_maps, 1);
+	}
     
     //  show_progress=true;
     char tmpfilename[L_tmpnam];
@@ -21227,7 +21285,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
     }
     
     
-	if(!get_bit(skip_flags, skip_ffscript))
+	if(do_clear_scripts)
 	{
 		zScript.clear();
 		globalmap.clear();
@@ -22023,39 +22081,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
         memcpy(midi_flags, old_midi_flags, MIDIFLAGS_SIZE);
     }
     
-    //Debug FFCore.quest_format[]
-	al_trace("Quest made in ZC Version: %x\n", FFCore.quest_format[vZelda]);
-	al_trace("Quest made in ZC Build: %d\n", FFCore.quest_format[vBuild]);
-	al_trace("Quest Section 'Header' is Version: %d\n", FFCore.quest_format[vHeader]);
-	al_trace("Quest Section 'Rules' is Version: %d\n", FFCore.quest_format[vRules]);
-	al_trace("Quest Section 'Strings' is Version: %d\n", FFCore.quest_format[vStrings]);
-	al_trace("Quest Section 'Misc' is Version: %d\n", FFCore.quest_format[vMisc]);
-	al_trace("Quest Section 'Tiles' is Version: %d\n", FFCore.quest_format[vTiles]);
-	al_trace("Quest Section 'Combos' is Version: %d\n", FFCore.quest_format[vCombos]);
-	al_trace("Quest Section 'CSets' is Version: %d\n", FFCore.quest_format[vCSets]);
-	al_trace("Quest Section 'Maps' is Version: %d\n", FFCore.quest_format[vMaps]);
-	al_trace("Quest Section 'DMaps' is Version: %d\n", FFCore.quest_format[vDMaps]);
-	al_trace("Quest Section 'Doors' is Version: %d\n", FFCore.quest_format[vDoors]);
-	al_trace("Quest Section 'Items' is Version: %d\n", FFCore.quest_format[vItems]);
-	al_trace("Quest Section 'Weapons' is Version: %d\n", FFCore.quest_format[vWeaponSprites]);
-	al_trace("Quest Section 'Colors' is Version: %d\n", FFCore.quest_format[vColours]);
-	al_trace("Quest Section 'Icons' is Version: %d\n", FFCore.quest_format[vIcons]);
-	//al_trace("Quest Section 'Gfx Pack' is Version: %d; qst.cpp doesn't read this!\n", FFCore.quest_format[vGfxPack]);
-	al_trace("Quest Section 'InitData' is Version: %d\n", FFCore.quest_format[vInitData]);
-	al_trace("Quest Section 'Guys' is Version: %d\n", FFCore.quest_format[vGuys]);
-	al_trace("Quest Section 'MIDIs' is Version: %d\n", FFCore.quest_format[vMIDIs]);
-	al_trace("Quest Section 'Cheats' is Version: %d\n", FFCore.quest_format[vCheats]);
-	//al_trace("Quest Section 'Save Format' is Version: %d; qst.cpp doesn't read this!\n", FFCore.quest_format[vSaveformat]);
-	al_trace("Quest Section 'Combo Aliases' is Version: %d\n", FFCore.quest_format[vComboAliases]);
-	al_trace("Quest Section 'Player Sprites' is Version: %d\n", FFCore.quest_format[vHeroSprites]);
-	al_trace("Quest Section 'Subscreen' is Version: %d\n", FFCore.quest_format[vSubscreen]);
-	al_trace("Quest Section 'Dropsets' is Version: %d\n", FFCore.quest_format[vItemDropsets]);
-	al_trace("Quest Section 'FFScript' is Version: %d\n", FFCore.quest_format[vFFScript]);
-	al_trace("Quest Section 'SFX' is Version: %d\n", FFCore.quest_format[vSFX]);
-	al_trace("Quest Section 'Favorites' is Version: %d\n", FFCore.quest_format[vFavourites]);
-	al_trace("Quest Section 'CompatRules' is Version: %d\n", FFCore.quest_format[vCompatRule]);
-	//Print metadata for versions under 2.10 here. Bleah.
-	if( FFCore.quest_format[vZelda] < 0x210 ) 
+    if( FFCore.quest_format[vZelda] < 0x210 ) 
 	{
 		zprint2("\n[ZQUEST CREATOR METADATA]\n");
 		
@@ -22146,6 +22172,33 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
 		}
 	}
     
+	if(loading_tileset_flags & TILESET_CLEARMAPS)
+	{
+		TheMaps.clear();
+		TheMaps.resize(MAPSCRS*1);
+		map_count = 1;
+		map_autolayers.clear();
+		map_autolayers.resize(6*1);
+		for(size_t i = 0; i < MAPSCRS; ++i)
+		{
+			TheMaps[i].zero_memory();
+		}
+	}
+	if(loading_tileset_flags & TILESET_CLEARHEADER)
+	{
+		memset(Header->password, 0, sizeof(Header->password));
+		memset(Header->minver, 0, sizeof(Header->minver));
+		memset(Header->title, 0, sizeof(Header->title));
+		memset(Header->author, 0, sizeof(Header->author));
+		memset(Header->version, 0, sizeof(Header->version));
+		Header->use_keyfile = 0;
+		Header->dirty_password = false;
+		cvs_MD5Context ctx;
+		cvs_MD5Init(&ctx);
+		cvs_MD5Update(&ctx, (const uint8_t*)"", 0);
+		cvs_MD5Final(Header->pwd_hash, &ctx);
+	}
+	
     return qe_OK;
     
 invalid:
@@ -22170,8 +22223,11 @@ invalid:
     
 }
 
-int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc, zctune *tunes, bool show_progress, byte *skip_flags, byte printmetadata, bool report, byte qst_num)
+int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc,
+	zctune *tunes, bool show_progress, byte *skip_flags, byte printmetadata,
+	bool report, byte qst_num, dword tilesetflags)
 {
+	loading_tileset_flags = tilesetflags;
 	const char* basename = get_filename(filename);
 	zapp_reporting_add_breadcrumb("load_quest", basename);
 	zapp_reporting_set_tag("qst.filename", basename);

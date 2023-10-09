@@ -102,6 +102,7 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "colorname.h"
 #include "zq/zq_hotkey.h"
 #include "zq/package.h"
+#include "zq/zq_files.h"
 
 extern CConsoleLoggerEx parser_console;
 //Windows mmemory tools
@@ -155,9 +156,6 @@ static const char *qtpath_name      = "macosx_qtpath%d";
 #include <crtdbg.h>
 
 #endif
-
-#define zc_max(a,b)  ((a)>(b)?(a):(b))
-#define zc_min(a,b)  ((a)<(b)?(a):(b))
 
 // MSVC fix
 #if _MSC_VER >= 1900
@@ -497,8 +495,6 @@ SAMPLE customsfxdata[WAV_COUNT];
 uint8_t customsfxflag[WAV_COUNT>>3];
 int32_t sfxdat=1;
 
-zinitdata zinit;
-
 int32_t onImport_ComboAlias();
 int32_t onExport_ComboAlias();
 
@@ -569,12 +565,15 @@ static int32_t do_NewQuest()
 int32_t alignment_arrow_timer=0;
 int32_t  Flip=0,Combo=0,CSet=2,current_combolist=0,current_comboalist=0,current_cpoollist=0,current_cautolist=0,current_mappage=0;
 int32_t  Flags=0,Flag=0,menutype=(m_block);
-int32_t MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, GridColor = 15, CmbCursorCol = 15, TilePgCursorCol = 15, CmbPgCursorCol = 15,
-	TileProtection = 0, InvalidStatic = 0, NoScreenPreview = 0, MMapCursorStyle = 0, LayerDitherBG = -1, LayerDitherSz = 2,
-	BlinkSpeed = 20, RulesetDialog = 0, EnableTooltips = 0,
-	TooltipsHighlight = 0, ShowFFScripts = 0, ShowSquares = 0, ShowFFCs = 0,
-	ShowInfo = 0, skipLayerWarning = 0, WarnOnInitChanged = 0, DisableLPalShortcuts = 1,
-	DisableCompileConsole = 0, numericalFlags = 0, ActiveLayerHighlight = 0;
+int32_t MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, GridColor = 15,
+	CmbCursorCol = 15, TilePgCursorCol = 15, CmbPgCursorCol = 15, TTipHLCol = 13,
+	TileProtection = 0, NoScreenPreview = 0, MMapCursorStyle = 0,
+	LayerDitherBG = -1, LayerDitherSz = 2, BlinkSpeed = 20, RulesetDialog = 0,
+	EnableTooltips = 0, TooltipsHighlight = 0, ShowFFScripts = 0, ShowSquares = 0,
+	ShowFFCs = 0, ShowInfo = 0, skipLayerWarning = 0, WarnOnInitChanged = 0,
+	DisableLPalShortcuts = 1, DisableCompileConsole = 0, numericalFlags = 0,
+	ActiveLayerHighlight = 0;
+uint8_t InvalidBG = 0;
 bool NoHighlightLayer0 = false;
 int32_t FlashWarpSquare = -1, FlashWarpClk = 0; // flash the destination warp return when ShowSquares is active
 uint8_t ViewLayer3BG = 0, ViewLayer2BG = 0;
@@ -723,7 +722,6 @@ END_OF_FUNCTION(myvsync_callback)
 zquestheader header;
 byte                midi_flags[MIDIFLAGS_SIZE];
 byte                music_flags[MUSICFLAGS_SIZE];
-zcmap               *ZCMaps;
 byte                *quest_file;
 int32_t					msg_strings_size;
 zctune              *customtunes;
@@ -731,7 +729,6 @@ zctune              *customtunes;
 ZCHEATS             zcheats;
 byte                use_cheats;
 byte                use_tiles;
-extern zinitdata    zinit;
 char                palnames[MAXLEVELS][17];
 quest_template      QuestTemplates[MAXQTS];
 char                fontsdat_sig[52];
@@ -1098,7 +1095,7 @@ void toggle_cmdzoom_mode()
 
 enum
 {
-	fileSave = 4,
+	fileSave = 5,
 	fileSaveAs,
 	fileRevert
 };
@@ -1107,6 +1104,7 @@ static MENU file_menu[] =
 {
 	{ (char *)"&New",                       do_NewQuest,               NULL,                     0,            NULL   },
 	{ (char *)"&Open",                      do_OpenQuest,              NULL,                     0,            NULL   },
+	{ (char *)"&Load Tileset",              onTileset,                 NULL,                     0,            NULL   },
 	{ (char *)"Recent\t ",                  NULL,                      recent_menu,              0,            NULL   },
 	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
 	{ (char *)"&Save",                      onSave,                    NULL,                     0,            NULL   },
@@ -4279,8 +4277,6 @@ static TABPANEL gamemisc_tabs[] =
     { NULL,              0,          NULL,            0, NULL }
 };
 
-
-#include "zq/zq_files.h"
 //to do: Make string boxes larger, and split into two tabs. 
 static DIALOG gamemiscarray_dlg[] =
 {
@@ -5473,7 +5469,13 @@ void draw_screenunit(int32_t unit, int32_t flags)
 					}
 					else
 					{
-						if(InvalidStatic)
+						if (InvalidBG == 2)
+						{
+
+							int32_t offs = 2 * (sqr.w / 9);
+							draw_checkerboard(menu1, sqr.x, sqr.y, sqr.w / 2, sqr.w / 2, sqr.w);
+						}
+						else if (InvalidBG == 1)
 						{
 							for(int32_t dy=0; dy<sqr.h; dy++)
 							{
@@ -6489,7 +6491,11 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				}
 				else
 				{
-					if(InvalidStatic)
+					if (InvalidBG == 2)
+					{
+						draw_checkerboard(menu1, combo_preview2.x, combo_preview2.y, 16, 16, 32);
+					}
+					else if(InvalidBG == 1)
 					{
 						for(int32_t dy=0; dy<combo_preview2.w; dy++)
 						{
@@ -6560,7 +6566,11 @@ void draw_screenunit(int32_t unit, int32_t flags)
 					auto& sqr = favorites_list.subsquare(col,row);
 					if(i >= MAXFAVORITECOMBOS || favorite_combos[i]==-1)
 					{
-						if(InvalidStatic)
+						if (InvalidBG == 2)
+						{
+							draw_checkerboard(menu1, sqr.x, sqr.y, sqr.w / 2, sqr.w / 2, sqr.w);
+						}
+						else if(InvalidBG == 1)
 						{
 							for(int32_t dy=0; dy<sqr.h; dy++)
 							{
@@ -15794,7 +15804,7 @@ int32_t readsomedmaps(PACKFILE *f)
 	int32_t zversion = 0;
 	int32_t zbuild = 0;
 	dmap tempdmap;
-	memset(&tempdmap, 0, sizeof(dmap));
+	tempdmap.clear();
 	
 	int32_t first = 0, last = 0, max = 0, count = 0;
 	int32_t datatype_version = 0;
@@ -16125,7 +16135,7 @@ int32_t readsomedmaps(PACKFILE *f)
 					}
 				}
 			}
-		::memcpy(&DMaps[i], &tempdmap, sizeof(dmap));
+			DMaps[i] = tempdmap;
 	    }
        
 	return 1;
@@ -16415,7 +16425,7 @@ int32_t readonedmap(PACKFILE *f, int32_t index)
 	int32_t zversion = 0;
 	int32_t zbuild = 0;
 	dmap tempdmap;
-	memset(&tempdmap, 0, sizeof(dmap));
+	tempdmap.clear();
 	int32_t datatype_version = 0;
 	int32_t first = 0;
 	int32_t last = 0;
@@ -16737,7 +16747,7 @@ int32_t readonedmap(PACKFILE *f, int32_t index)
 				}
 			}
 		}
-	::memcpy(&DMaps[index], &tempdmap, sizeof(dmap));
+		DMaps[index] = tempdmap;
        
 	return 1;
 }
@@ -16765,37 +16775,34 @@ void dmap_rclick_func(int32_t index, int32_t x, int32_t y)
     
     if(ret==0) // copy
     {
-	::memcpy(&copiedDMap, &DMaps[index], sizeof(dmap));
-	dmapcopied = 1;
+		copiedDMap = DMaps[index];
+		dmapcopied = 1;
     }
     else if(ret==1) // paste
     {
-	::memcpy(&DMaps[index], &copiedDMap, sizeof(dmap));
+		DMaps[index] = copiedDMap;
         selectdmap_dlg[2].flags|=D_DIRTY;
         saved=false;
     }
     else if(ret==2) // save
     {
-	if(!getname("Save DMAP(.zdmap)", "zdmap", NULL,datapath,false))
-                return;
+		if(!getname("Save DMAP(.zdmap)", "zdmap", NULL,datapath,false))
+			return;
 	
-	PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
-	if(!f) return;
-	/*if (!writeoneitem(f,iid))
-	{
-		al_trace("Could not write to .znpc packfile %s\n", temppath);
-	}
-	*/
-	writesomedmaps(f,index, index, MAXDMAPS);
-	pack_fclose(f);
-     
-        
+		PACKFILE *f=pack_fopen_password(temppath,F_WRITE, "");
+		if(!f) return;
+		/*if (!writeoneitem(f,iid))
+		{
+			al_trace("Could not write to .znpc packfile %s\n", temppath);
+		}
+		*/
+		writesomedmaps(f,index, index, MAXDMAPS);
+		pack_fclose(f);
     }
 	else if(ret==3) // load
 	{
-
 		if(!getname("Load DMAP(.zdmap)", "zdmap", NULL,datapath,false))
-					return;
+			return;
 		PACKFILE *f=pack_fopen_password(temppath,F_READ, "");
 		if(!f) return;
 		
@@ -16845,7 +16852,7 @@ int32_t onDmaps()
 		{
 			if( pSelectedDmap != &DMaps[d] )
 			{
-				::memcpy(&DMaps[d], pSelectedDmap, sizeof(dmap));
+				DMaps[d] = *pSelectedDmap;
 				saved=false;
 			}
 		}
@@ -27573,7 +27580,9 @@ template <typename ...Params>
 
 int32_t main(int32_t argc,char **argv)
 {
-	global_z3_hacky_load = used_switch(argc, argv, "-z3");
+	int hacky_arg = used_switch(argc, argv, "-z3");
+	if (hacky_arg != -1)
+		global_z3_hacky_load = atoi(argv[hacky_arg + 1]);
 	common_main_setup(App::zquest, argc, argv);
 	set_should_zprint_cb([]() {
 		return get_qr(qr_SCRIPTERRLOG) || DEVLEVEL > 0;
@@ -27913,16 +27922,17 @@ int32_t main(int32_t argc,char **argv)
 	DisableCompileConsole        = zc_get_config("zquest","internal_compile_console",0);
 	MouseScroll					= zc_get_config("zquest","mouse_scroll",0);
 	WarnOnInitChanged			  = zc_get_config("zquest","warn_initscript_changes",1);
-	InvalidStatic				  = zc_get_config("zquest","invalid_static",1);
 	MMapCursorStyle				= zc_get_config("zquest","cursorblink_style",1);
 	LayerDitherBG				= zc_get_config("zquest", "layer_dither_bg", -1);
 	LayerDitherSz				= zc_get_config("zquest", "layer_dither_sz", 3);
+	InvalidBG					= zc_get_config("zquest", "invalid_bg", 0);
 	TileProtection				 = zc_get_config("zquest","tile_protection",1);
 	ShowGrid					   = zc_get_config("zquest","show_grid",0);
 	GridColor					  = zc_get_config("zquest","grid_color",15);
 	CmbCursorCol					  = zc_get_config("zquest","combo_cursor_color",15);
 	TilePgCursorCol					  = zc_get_config("zquest","tpage_cursor_color",15);
 	CmbPgCursorCol					  = zc_get_config("zquest","cpage_cursor_color",15);
+	TTipHLCol					  = zc_get_config("zquest","ttip_hl_color",13);
 	SnapshotFormat				 = zc_get_config("zquest","snapshot_format",3);
 	SavePaths					  = zc_get_config("zquest","save_paths",1);
 	CycleOn						= zc_get_config("zquest","cycle_on",1);
@@ -30842,7 +30852,7 @@ void update_tooltip(int32_t x, int32_t y, int32_t tx, int32_t ty, int32_t tw, in
 	tooltip_highlight.fw = fw;
 	tooltip_highlight.fh = fh;
 	tooltip_highlight.data[0] = 2;
-	tooltip_highlight.data[1] = 0xED;
+	tooltip_highlight.data[1] = vc(TTipHLCol);
 	FONT* oldfont = font;
 	font = get_custom_font(CFONT_TTIP);
 	
@@ -30889,7 +30899,7 @@ void update_tooltip2(int32_t x, int32_t y, int32_t tx, int32_t ty, int32_t tw, i
 	tooltip_highlight2.fw = fw;
 	tooltip_highlight2.fh = fh;
 	tooltip_highlight2.data[0] = 2;
-	tooltip_highlight2.data[1] = 0xED;
+	tooltip_highlight2.data[1] = vc(TTipHLCol);
 	
 	FONT* oldfont = font;
 	font = get_custom_font(CFONT_TTIP);
@@ -31371,7 +31381,7 @@ extern "C" void open_test_mode()
 extern "C" void get_shareable_url()
 {
 	EM_ASM({
-        ZC.setShareableUrl({quest: UTF8ToString($0), map: $1, screen: $2});
+        ZC.setShareableUrl({open: UTF8ToString($0), map: $1, screen: $2});
 	}, filepath, Map.getCurrMap(), Map.getCurrScr());
 }
 #endif

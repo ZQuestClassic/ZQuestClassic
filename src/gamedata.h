@@ -399,5 +399,7 @@ struct gamedata
 	bool should_show_time();
 };
 
+extern gamedata *game;
+
 #endif
 

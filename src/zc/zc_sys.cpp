@@ -66,6 +66,8 @@ extern bool Playing;
 int32_t sfx_voice[WAV_COUNT];
 int32_t d_stringloader(int32_t msg,DIALOG *d,int32_t c);
 int32_t d_midilist_proc(int32_t msg,DIALOG *d,int32_t c);
+
+static ALLEGRO_JOYSTICK* gamepad_dlg_cur_joystick;
 static int32_t d_joylist_proc(int32_t msg,DIALOG *d,int32_t c);
 
 extern byte monochrome_console;
@@ -95,13 +97,6 @@ int32_t getnumber(const char *prompt,int32_t initialval);
 extern bool kb_typing_mode; //script only, for disbaling key presses affecting Hero, etc. 
 extern int32_t cheat_modifier_keys[4]; //two options each, default either control and either shift
 
-#if defined(ALLEGRO_WINDOWS)
-const char *qst_dir_name = "win_qst_dir";
-#elif defined(ALLEGRO_LINUX)
-const char *qst_dir_name = "linux_qst_dir";
-#elif defined(__APPLE__)
-const char *qst_dir_name = "osx_qst_dir";
-#endif
 static  const char *qst_module_name = "current_module";
 #ifdef ALLEGRO_LINUX
 static  const char *samplepath = "samplesoundset/patches.dat";
@@ -447,20 +442,7 @@ void load_game_configs()
 	clearConsoleOnLoad = zc_get_config("CONSOLE","clear_console_on_load",1)!=0;
 	clearConsoleOnReload = zc_get_config("CONSOLE","clear_console_on_reload",0)!=0;
 
-	strcpy(qstdir,zc_get_config(cfg_sect,qst_dir_name,""));
-   
-	if(strlen(qstdir)==0)
-	{
-		getcwd(qstdir,2048);
-		fix_filename_case(qstdir);
-		fix_filename_slashes(qstdir);
-		put_backslash(qstdir);
-	}
-	else
-	{
-		chop_path(qstdir);
-	}
-   
+	strcpy(qstdir,zc_get_config(cfg_sect,"quest_dir","quests"));
 	strcpy(qstpath,qstdir); //qstpath is the local (for this run of ZC) quest path, qstdir is the universal quest dir.
 	ss_enable = zc_get_config(cfg_sect,"ss_enable",1) ? 1 : 0;
 	ss_after = vbound(zc_get_config(cfg_sect,"ss_after",14), 0, 14);
@@ -578,8 +560,6 @@ void save_game_configs()
 	}
 	
 	zc_set_config(cfg_sect,"load_last",loadlast);
-	chop_path(qstdir);
-	zc_set_config(cfg_sect,qst_dir_name,qstdir);
 	zc_set_config(cfg_sect,"use_sfx_dat",sfxdat);
 	
 	flush_config_file();
@@ -4085,13 +4065,7 @@ int32_t onSaveMapPic()
 					if(special_warp_return_screen.layermap[i]<=0)
 						continue;
 					
-					if((ZCMaps[special_warp_return_screen.layermap[i]-1].tileWidth==ZCMaps[currmap].tileWidth) &&
-					   (ZCMaps[special_warp_return_screen.layermap[i]-1].tileHeight==ZCMaps[currmap].tileHeight))
-					{
-						const int32_t _mapsSize = (ZCMaps[currmap].tileWidth)*(ZCMaps[currmap].tileHeight);
-						
-						tmpscr2[i]=TheMaps[(special_warp_return_screen.layermap[i]-1)*MAPSCRS+special_warp_return_screen.layerscreen[i]];
-					}
+					tmpscr2[i]=TheMaps[(special_warp_return_screen.layermap[i]-1)*MAPSCRS+special_warp_return_screen.layerscreen[i]];
 				}
 				
 				if(XOR(scr->flags7&fLAYER2BG, DMaps[currdmap].flags&dmfLAYER2BG)) do_layer_old(_screen_draw_buffer, 0, 2, &special_warp_return_screen, 256, -playing_field_offset, 2);
@@ -5174,7 +5148,7 @@ int32_t OnnClearQuestDir()
 	if(jwin_alert3(
 			"Clear Current Directory Cache", 
 			"Are you sure that you wish to clear the current cached directory?", 
-			"This will default the current directory to the ROOT for this instance of ZC Player!",
+			"This will default the current directory to `<ROOT>/quests` for this instance of ZC Player!",
 			NULL,
 		 "&Yes", 
 		"&No", 
@@ -5184,7 +5158,7 @@ int32_t OnnClearQuestDir()
 		0, 
 		get_zc_font(font_lfont)) == 1)	
 	{
-		zc_set_config("zeldadx","win_qst_dir","");
+		zc_set_config("zeldadx","quest_dir","");
 		flush_config_file();
 		strcpy(qstdir,"");
 #ifdef __EMSCRIPTEN__
@@ -5395,7 +5369,7 @@ int32_t d_kbutton_proc(int32_t msg,DIALOG *d,int32_t c);
 //Only used in keyboard settings dialogues to clear keys. 
 int32_t d_k_clearbutton_proc(int32_t msg,DIALOG *d,int32_t c);
 
-void j_getbtn(DIALOG *d)
+int32_t j_getbtn(DIALOG *d)
 {
 	d->flags|=D_SELECTED;
 	jwin_button_proc(MSG_DRAW,d,0);
@@ -5409,6 +5383,8 @@ void j_getbtn(DIALOG *d)
 	update_hw_screen(true);
 	
 	int32_t b = next_joy_input(true);
+	if (b == -2)
+		return D_CLOSE;
 	
 	if(b>=0)
 		*((int32_t*)d->dp3) = b;
@@ -5417,6 +5393,8 @@ void j_getbtn(DIALOG *d)
 	
 	if (player)
 		player->joy_on = TRUE;
+	
+	return D_O_K;
 }
 
 void j_getstick(DIALOG *d)
@@ -5450,7 +5428,9 @@ int32_t d_jbutton_proc(int32_t msg,DIALOG *d,int32_t c)
 	case MSG_KEY:
 	case MSG_CLICK:
 
-		j_getbtn(d);
+		int ret = j_getbtn(d);
+		if (ret != D_O_K)
+			return ret;
 		
 		while(gui_mouse_b()) {
 			rest(1);
@@ -5498,7 +5478,16 @@ int32_t d_stringloader(int32_t msg,DIALOG *d,int32_t c)
 {
 	//these are here to bypass compiler warnings about unused arguments
 	c=c;
-	
+
+	if (d->w == 1)
+	{
+		if (!gamepad_dlg_cur_joystick || !al_get_joystick_active(gamepad_dlg_cur_joystick))
+		{
+			InfoDialog("ZC", "Invalid gamepad. Did it disconnect?").show();
+			return D_CLOSE;
+		}
+	}
+
 	if(msg==MSG_DRAW)
 	{
 		switch(d->w)
@@ -6710,6 +6699,12 @@ int32_t onKeyboard()
 
 int32_t onGamepad()
 {
+	if (al_get_num_joysticks() == 0)
+	{
+		InfoDialog("ZC", "No gamepads detected.").show();
+		return D_O_K;
+	}
+
 	int32_t a = Abtn;
 	int32_t b = Bbtn;
 	int32_t s = Sbtn;
@@ -6744,6 +6739,13 @@ int32_t onGamepad()
 		joystick_index = 0;
 	gamepad_dlg[61].d2 = joystick_index;
 
+	gamepad_dlg_cur_joystick = al_get_joystick(joystick_index);
+	if (!gamepad_dlg_cur_joystick)
+	{
+		InfoDialog("ZC", "Invalid gamepad. Did it disconnect?").show();
+		return D_CLOSE;
+	}
+
 	large_dialog(gamepad_dlg);
 		
 	int32_t ret = do_zqdialog(gamepad_dlg,4);
@@ -6752,6 +6754,12 @@ int32_t onGamepad()
 	{
 		analog_movement = gamepad_dlg[56].flags&D_SELECTED;
 		joystick_index = gamepad_dlg[61].d2;
+		gamepad_dlg_cur_joystick = al_get_joystick(joystick_index);
+		if (!gamepad_dlg_cur_joystick)
+		{
+			InfoDialog("ZC", "Invalid gamepad. Did it disconnect?").show();
+			return D_CLOSE;
+		}
 		js_stick_1_y_stick = js_stick_1_x_stick;
 		js_stick_2_y_stick = js_stick_2_x_stick;
 		save_control_configs(false);
@@ -6777,7 +6785,7 @@ int32_t onGamepad()
 		js_stick_1_x_stick = stick_1;
 		js_stick_2_x_stick = stick_2;
 	}
-	
+
 	return D_O_K;
 }
 
@@ -7237,6 +7245,8 @@ int32_t onQstPath()
 		fix_filename_slashes(path);
 		strcpy(qstdir,path);
 		strcpy(qstpath,qstdir);
+		zc_set_config("zeldadx","quest_dir",qstdir);
+		flush_config_file();
 	}
 	
 	comeback();
@@ -8722,6 +8732,11 @@ int32_t next_joy_input(bool buttons)
 		}
 		else
 		{
+			if (!gamepad_dlg_cur_joystick || !al_get_joystick_active(gamepad_dlg_cur_joystick))
+			{
+				InfoDialog("ZC", "Invalid gamepad. Did it disconnect?").show();
+				return -2;
+			}
 			for(int32_t i=0; i<joy[joystick_index].num_sticks; i++)
 			{
 				if(joystick(i)) done = false;
@@ -8751,6 +8766,11 @@ int32_t next_joy_input(bool buttons)
 		
 		if (buttons)
 		{
+			if (!gamepad_dlg_cur_joystick || !al_get_joystick_active(gamepad_dlg_cur_joystick))
+			{
+				InfoDialog("ZC", "Invalid gamepad. Did it disconnect?").show();
+				return -2;
+			}
 			for(int32_t i=1; i<=joy[joystick_index].num_buttons; i++)
 			{
 				if(joybtn(i))

@@ -106,6 +106,7 @@
 #include <set>
 #include <assert.h>
 #include <string>
+#include <algorithm>
 #include "base/ints.h"
 
 #include "metadata/metadata.h"
@@ -221,7 +222,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_COMBOS          43
 #define V_CSETS            5 //palette data
 #define V_MAPS            28
-#define V_DMAPS           20
+#define V_DMAPS           21
 #define V_DOORS            1
 #define V_ITEMS           57
 #define V_WEAPONS          8
@@ -235,13 +236,13 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_SAVEGAME        35
 #define V_COMBOALIASES     5
 #define V_HEROSPRITES      16
-#define V_SUBSCREEN        9
+#define V_SUBSCREEN        10
 #define V_ITEMDROPSETS     2
 #define V_FFSCRIPT         22
 #define V_SFX              8
 #define V_FAVORITES        4
 
-#define V_COMPATRULE       57
+#define V_COMPATRULE       58
 #define V_ZINFO            3
 
 //= V_SHOPS is under V_MISC
@@ -2446,148 +2447,6 @@ enum
     idBP_MAGICPERCENT, idBP_MASTERPERCENT, idBP_MAX
 };
 
-struct zinitdata
-{
-	bool items[256];
-	//94
-	byte hc;
-	word start_heart, cont_heart;
-	byte hcp, hcp_per_hc, keys;
-	word rupies;
-	byte triforce;                                            // bit flags
-	byte map[64];
-	byte compass[64];
-	byte boss_key[64];
-	byte misc[16];
-	// byte sword_hearts[4];
-	byte last_map;                                            //last map worked on
-	//220
-	byte last_screen;                                         //last screen worked on
-	word max_magic;
-	word magic;
-	byte bomb_ratio;	// ratio of super bombs to bombs
-	byte msg_more_x, msg_more_y, msg_more_is_offset;
-	byte subscreen;
-	word start_dmap;
-	byte heroAnimationStyle;
-	//238
-	//byte expansion[98];
-	//336 bytes total
-	byte level_keys[MAXLEVELS];
-	int32_t ss_grid_x;
-	int32_t ss_grid_y;
-	int32_t ss_grid_xofs;
-	int32_t ss_grid_yofs;
-	int32_t ss_grid_color;
-	int32_t ss_bbox_1_color;
-	int32_t ss_bbox_2_color;
-	int32_t ss_flags;
-	byte subscreen_style;
-	byte usecustomsfx;
-	word max_rupees, max_keys;
-	byte gravity; //Deprecated!
-	int32_t gravity2; //Bumping this up to an int32_t.
-	word terminalv;
-	byte msg_speed;
-	byte transition_type; // Can't edit, yet.
-	byte jump_hero_layer_threshold; // Hero is drawn above layer 3 if z > this.
-	byte hero_swim_speed;
-	
-	word bombs, super_bombs, max_bombs, max_sbombs, arrows, max_arrows, heroStep, subscrSpeed, heroSideswimUpStep, heroSideswimSideStep, heroSideswimDownStep;
-	
-	int32_t exitWaterJump;
-
-	byte hp_per_heart, magic_per_block, hero_damage_multiplier, ene_damage_multiplier;
-	
-	word scrcnt[25], scrmaxcnt[25]; //Script counter start/max -Em
-	
-	int32_t swimgravity;
-	
-	byte dither_type, dither_arg, dither_percent, def_lightrad, transdark_percent, darkcol;
-	
-	int32_t bunny_ltm;
-	byte switchhookstyle;
-	
-	byte magicdrainrate;
-	
-	byte hero_swim_mult = 2, hero_swim_div = 3;
-	
-	bool gen_doscript[NUMSCRIPTSGENERIC];
-	word gen_exitState[NUMSCRIPTSGENERIC];
-	word gen_reloadState[NUMSCRIPTSGENERIC];
-	int32_t gen_initd[NUMSCRIPTSGENERIC][8];
-	int32_t gen_dataSize[NUMSCRIPTSGENERIC];
-	std::vector<int32_t> gen_data[NUMSCRIPTSGENERIC];
-	uint32_t gen_eventstate[NUMSCRIPTSGENERIC];
-	
-	void clear_genscript()
-	{
-		memset(gen_doscript, 0, sizeof(gen_doscript));
-		memset(gen_exitState, 0, sizeof(gen_exitState));
-		memset(gen_reloadState, 0, sizeof(gen_reloadState));
-		memset(gen_eventstate, 0, sizeof(gen_eventstate));
-		memset(gen_initd, 0, sizeof(gen_initd));
-		memset(gen_dataSize, 0, sizeof(gen_dataSize));
-		for(size_t q = 0; q < NUMSCRIPTSGENERIC; ++q)
-		{
-			gen_data[q].clear();
-			gen_data[q].resize(0);
-		}
-	}
-	
-	void clear();
-	void copy(zinitdata const& other);
-	
-	zinitdata(){clear();}
-	zinitdata(zinitdata const& other)
-	{
-		copy(other);
-	}
-	zinitdata& operator=(zinitdata const& other)
-	{
-		copy(other);
-		return *this;
-	}
-};
-
-struct zcmap
-{
-	byte tileWidth;
-	byte tileHeight;
-	word subaWidth;
-	word subaHeight;
-	word subpWidth;
-	word subpHeight;
-	word scrResWidth;
-	word scrResHeight;
-	word viewWidth;
-	word viewHeight;
-	word viewX;
-	word viewY;
-	bool subaTrans;
-	bool subpTrans;
-};
-
-enum controls //Args for 'getInput()'
-{
-	//control_state indeces
-	btnUp, btnDown, btnLeft, btnRight, btnA, btnB, btnS, btnL, btnR, btnP, btnEx1, btnEx2, btnEx3, btnEx4, btnAxisUp, btnAxisDown, btnAxisLeft, btnAxisRight,
-	//Other controls
-	btnM, btnF12, btnF11, btnF5, btnQ, btnI,
-	btnLast,
-};
-
-#define INT_BTN_A   0x01
-#define INT_BTN_B   0x02
-#define INT_BTN_L   0x04
-#define INT_BTN_R   0x08
-#define INT_BTN_EX1 0x10
-#define INT_BTN_EX2 0x20
-#define INT_BTN_EX3 0x40
-#define INT_BTN_EX4 0x80
-#define INT_BTN_X   INT_BTN_EX1
-#define INT_BTN_Y   INT_BTN_EX2
-
 ///////////////
 /// MODULES ///
 ///////////////
@@ -2636,57 +2495,6 @@ enum {
 /**  Misc Stuff  **/
 /******************/
 
-//GameFlags
-#define GAMEFLAG_TRYQUIT            0x01
-#define GAMEFLAG_SCRIPTMENU_ACTIVE  0x02
-#define GAMEFLAG_F6SCRIPT_ACTIVE    0x04
-#define GAMEFLAG_RESET_GAME_LOOP    0x08
-#define GAMEFLAG_NO_F6              0x10
-
-#define DCLICK_START      0
-#define DCLICK_RELEASE    1
-#define DCLICK_AGAIN      2
-#define DCLICK_NOT        3
-
-template <class T>
-INLINE T sign(T a)
-{
-    return T(a < 0 ? -1: 1);
-}
-
-template <class T>
-INLINE T sign2(T a)
-{
-	if (a == 0) return 0;
-    return T(a < 0 ? -1: 1);
-}
-
-//#ifndef NOZSWAP
-template <class T>
-static INLINE void zc_swap(T &a,T &b)
-{
-    T c = a;
-    a = b;
-    b = c;
-}
-//#endif
-
-template <class T>
-static INLINE bool is_between(T a, T b, T c, bool inclusive)
-{
-    if(a>b&&a<c)
-    {
-        return true;
-    }
-    
-    if(inclusive&&(a==b||a==c))
-    {
-        return true;
-    }
-    
-    return false;
-}
-
 INLINE bool isinRect(int32_t x,int32_t y,int32_t rx1,int32_t ry1,int32_t rx2,int32_t ry2)
 {
     return x>=rx1 && x<=rx2 && y>=ry1 && y<=ry2;
@@ -2696,10 +2504,6 @@ INLINE void SCRFIX()
 {
     putpixel(screen,0,0,getpixel(screen,0,0));
 }
-
-// ack no, inline doesn't work this way -DD
-//INLINE int32_t new_return(int32_t x) { fake_pack_writing=false; return x; }
-#define new_return(x) {assert(x == 0); fake_pack_writing = false; return x; }
 
 extern void flushItemCache(bool justcost = false);
 extern void removeFromItemCache(int32_t itemclass);
@@ -2730,36 +2534,6 @@ extern void removeFromItemCache(int32_t itemclass);
 #define RUNSCRIPT_SELFREMOVE	4
 
 bool runscript_do_earlyret(int runscript_val);
-
-#define CHAS_ATTRIB   0x01
-#define CHAS_FLAG     0x02
-#define CHAS_TRIG     0x04
-#define CHAS_ANIM     0x08
-#define CHAS_SCRIPT   0x10
-#define CHAS_BASIC    0x20
-#define CHAS_LIFT     0x40
-#define CHAS_GENERAL  0x80
-
-#define SCRHAS_ROOMDATA  0x00000001
-#define SCRHAS_ITEM      0x00000002
-#define SCRHAS_TWARP     0x00000004
-#define SCRHAS_SWARP     0x00000008
-#define SCRHAS_WARPRET   0x00000010
-#define SCRHAS_LAYERS    0x00000020
-#define SCRHAS_MAZE      0x00000040
-#define SCRHAS_D_S_U     0x00000080
-#define SCRHAS_FLAGS     0x00000100
-#define SCRHAS_ENEMY     0x00000200
-#define SCRHAS_CARRY     0x00000400
-#define SCRHAS_SCRIPT    0x00000800
-#define SCRHAS_UNUSED    0x00001000
-#define SCRHAS_SECRETS   0x00002000
-#define SCRHAS_COMBOFLAG 0x00004000
-#define SCRHAS_MISC      0x00008000
-
-#define until(n) while(!(n))
-#define unless(n) if(!(n))
-#define SETFLAG(v, fl, b)	if(b) v |= (fl); else v &= ~(fl)
 
 struct viewport_t
 {

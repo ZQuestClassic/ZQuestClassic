@@ -21,6 +21,7 @@
 #include "base/dmap.h"
 #include "base/mapscr.h"
 #include "base/misctypes.h"
+#include "base/initdata.h"
 #include "iter.h"
 
 extern particle_list particles;
@@ -29,7 +30,6 @@ extern FFScript FFCore;
 extern ZModule zcm;
 extern HeroClass   Hero;
 extern sprite_list  guys, items, Ewpns, Lwpns, chainlinks, decorations;
-extern zinitdata    zinit;
 
 int32_t repaircharge=0;
 bool adjustmagic=false;

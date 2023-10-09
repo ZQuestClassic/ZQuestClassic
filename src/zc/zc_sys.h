@@ -97,6 +97,7 @@ extern int32_t sfx_voice[WAV_COUNT];
 bool getInput(int32_t btn, bool press = false, bool drunk = false, bool ignoreDisable = false, bool eatEntirely = false, bool peek = false);
 byte getIntBtnInput(byte intbtn, bool press = false, bool drunk = false, bool ignoreDisable = false, bool eatEntirely = false, bool peek = false);
 byte checkIntBtnVal(byte intbtn, byte vals);
+
 bool Up();
 bool Down();
 bool Left();
@@ -105,7 +106,6 @@ bool DrunkUp();
 bool DrunkDown();
 bool DrunkLeft();
 bool DrunkRight();
-
 bool rUp();
 bool rDown();
 bool rLeft();
@@ -114,7 +114,6 @@ bool DrunkrUp();
 bool DrunkrDown();
 bool DrunkrLeft();
 bool DrunkrRight();
-
 bool cAbtn();
 bool cBbtn();
 bool cSbtn();
@@ -139,7 +138,6 @@ bool DrunkcMbtn();
 bool DrunkcLbtn();
 bool DrunkcRbtn();
 bool DrunkcPbtn();
-
 bool rAbtn();
 bool rBbtn();
 bool rSbtn();

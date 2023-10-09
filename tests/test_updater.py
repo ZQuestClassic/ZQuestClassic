@@ -59,8 +59,7 @@ class TestUpdater(unittest.TestCase):
 					resource_folder / 'zc.png',
 					resource_folder / 'base_config/zc.cfg',
 					resource_folder / run_target.get_exe_name('zplayer'),
-					# TODO: re-enable once in release version
-					# resource_folder / run_target.get_exe_name('zeditor'),
+					resource_folder / run_target.get_exe_name('zeditor'),
 					resource_folder / run_target.get_exe_name('zlauncher'),
 					resource_folder / run_target.get_exe_name('zscript'),
 					resource_folder / run_target.get_exe_name('zupdater'),

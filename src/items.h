@@ -3,6 +3,7 @@
 
 #include "sprite.h"
 #include "base/zdefs.h"
+#include "base/initdata.h"
 #include "zfix.h"
 
 class item;

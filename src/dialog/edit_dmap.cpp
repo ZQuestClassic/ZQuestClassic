@@ -399,10 +399,8 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 								text = local_dmap.title,
 								onValChangedFunc = [&](GUI::TextField::type, std::string_view text, int32_t)
 								{
-									std::string str;
-									str.assign(text);
-									strncpy(local_dmap.title, str.c_str(), 20);
-									local_dmap.title[20] = 0;
+									local_dmap.title = text;
+									truncate_dmap_title(local_dmap.title);
 								}),
 							TextField(
 								width = 198_px, height = 30_px,
@@ -419,21 +417,21 @@ std::shared_ptr<GUI::Widget> EditDMapDialog::view()
 						Rows<2>(
 							Label(text = "DMap Title:"),
 							TextField(
-								fitParent = true, 
-								type = GUI::TextField::type::TEXT,
+								fitParent = true,
+								maxLength = 8192, type = GUI::TextField::type::TEXT,
 								text = local_dmap.title,
 								onValChangedFunc = [&](GUI::TextField::type, std::string_view text, int32_t)
 								{
-									//TODO
+									local_dmap.title = text;
 								}),
 							Label(text = "DMap Intro:"),
 							DropDownList(data = list_strings,
 								fitParent = true,
 								width = 256_px,
-								selectedValue = 1,
+								selectedValue = local_dmap.intro_string_id,
 								onSelectFunc = [&](int32_t val)
 								{
-									//TODO
+									local_dmap.intro_string_id = val;
 								})
 						)
 					),
@@ -910,7 +908,7 @@ void EditDMapDialog::refreshGridSquares()
 
 void EditDMapDialog::refreshDMapStrings()
 {
-	//string_switch->switchTo(get_qr(qr_OLD_DMAP_INTRO_STRINGS) ? 0 : 1);
+	string_switch->switchTo(get_qr(qr_OLD_DMAP_INTRO_STRINGS) ? 0 : 1);
 }
 
 void EditDMapDialog::refreshScripts()

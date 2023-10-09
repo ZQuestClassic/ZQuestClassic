@@ -8,6 +8,7 @@
 #include <vector>
 #include <map>
 #include "base/zdefs.h"
+#include "base/initdata.h"
 #include "base/zc_array.h"
 #include "zc/zc_sys.h"
 #include "sfx.h"
@@ -249,7 +250,6 @@ extern ZCMIXER* zcmixer;
 extern int32_t colordepth;
 extern int32_t db;
 extern int32_t detail_int[10];                                  //temporary holder for things you want to detail
-extern zinitdata  zinit;
 extern int32_t lens_hint_item[MAXITEMS][2];                     //aclk, aframe
 extern int32_t lens_hint_weapon[MAXWPNS][5];                    //aclk, aframe, dir, x, y
 extern int32_t strike_hint_counter;
@@ -475,7 +475,6 @@ extern int32_t  mouse_down;                                     // used to hold 
 extern int32_t idle_count, active_count;
 extern char *qstpath;
 extern char *qstdir;
-extern gamedata *game;
 
 extern std::string load_qstpath;
 extern std::string only_qstpath;
@@ -490,7 +489,6 @@ extern zquestheader QHeader;
 extern byte                midi_flags[MIDIFLAGS_SIZE];
 extern byte                music_flags[MUSICFLAGS_SIZE];
 extern int32_t				   msg_strings_size;
-extern zcmap               *ZCMaps;
 extern byte                *quest_file;
 
 /**********************************/
@@ -515,5 +513,10 @@ enum
 	ZCM_NORMAL,
 	ZCM_MAX
 };
+#define GAMEFLAG_TRYQUIT            0x01
+#define GAMEFLAG_SCRIPTMENU_ACTIVE  0x02
+#define GAMEFLAG_F6SCRIPT_ACTIVE    0x04
+#define GAMEFLAG_RESET_GAME_LOOP    0x08
+#define GAMEFLAG_NO_F6              0x10
 
 #endif

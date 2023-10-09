@@ -1627,10 +1627,10 @@ std::shared_ptr<GUI::Widget> ComboWizardDialog::view()
 						//
 						Label(text = "Mod SFX:", hAlign = 1.0),
 						ddls[3] = DropDownList(data = parent.list_sfx,
-							fitParent = true, selectedValue = mod_sfx,
+							fitParent = true, selectedValue = mod_sfx/10000,
 							onSelectFunc = [&](int32_t val)
 							{
-								mod_sfx = val;
+								mod_sfx = val*10000;
 							}),
 						INFOBTN("The SFX played every 'HP Delay' frames the player is in the liquid."),
 						//

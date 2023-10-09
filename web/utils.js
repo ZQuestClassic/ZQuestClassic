@@ -36,8 +36,7 @@ export function createUrlString(pathname, params) {
   url.search = '';
 
   for (let [key, value] of Object.entries(params)) {
-    if (key === 'quest') {
-      if (value.startsWith('/_quests/')) value = value.replace('/_quests/', '');
+    if (key === 'open') {
       if (value.startsWith('/')) value = value.substr(1);
     }
     url.searchParams.set(key, value);

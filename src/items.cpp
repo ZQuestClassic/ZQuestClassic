@@ -12,7 +12,6 @@
 
 char *item_string[MAXITEMS];
 
-extern zinitdata zinit;
 #ifndef IS_EDITOR
 	extern FFScript FFCore;
 	extern ZModule zcm;

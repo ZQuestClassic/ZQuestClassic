@@ -2,16 +2,13 @@
 
 ZQuest Classic is an engine for making games similar to the original NES Zelda.
 
-Homepage:
-https://www.zeldaclassic.com/
+Website: [zquestclassic.com](https://zquestclassic.com)
 
-The homepage contains information about the latest release, links to the latest binaries, and a repository of custom quests for you to enjoy.
-
-[Latest Downloads](http://zeldaclassic.com/downloads)
+[Latest Downloads](https://zquestclassic.com/releases/)
 
 [Our Discord](https://discord.gg/ddk2dk4guq)
 
-We support Windows, OSX, and Linux. There is also an experimental [web version](https://hoten.cc/zc/play/) that can also be played on mobile devices.
+We support Windows, OSX, and Linux. There is also an experimental [web version](https://zquestclassic.com/play/) that can also be played on mobile devices.
 
 ## Development
 

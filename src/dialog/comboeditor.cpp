@@ -2340,6 +2340,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 				),
 				wizardButton = Button(
 					text = "Wizard", disabled = !hasComboWizard(local_comboref.type),
+					rowSpan = 2, minwidth = 150_px,
 					padding = 0_px, forceFitH = true, onClick = message::WIZARD
 				),
 				Label(text = "Inherent Flag:", hAlign = 1.0),

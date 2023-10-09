@@ -188,7 +188,7 @@ export function setupSettingsPanel() {
 
 export async function renderSettingsPanel() {
   const el = document.querySelector('.settings');
-  const shouldUseDirPicker = !!self.showDirectoryPicker && attachedDirHandle !== false;
+  const shouldUseDirPicker = !!self.showDirectoryPicker && attachedDirHandle;
 
   {
     el.querySelector('.settings__attach').classList.toggle('hidden', !shouldUseDirPicker);

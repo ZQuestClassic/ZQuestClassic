@@ -16,7 +16,8 @@ enum
 	ACF_CROSSSCREENS = 0x2,
 	ACF_FLIP         = 0x4,
 	ACF_LEGACY       = 0x4, // used by Relational and Dungeon Carving, neither of which use flip
-	ACF_CONNECTEDGE	 = 0x8
+	ACF_CONNECTEDGE	 = 0x8, // used by Basic, Flat Mountain, Relational, and DoR
+	ACF_CONNECTSOLID = 0x10 // used by Basic and Relational
 };
 
 enum
