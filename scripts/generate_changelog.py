@@ -3,9 +3,17 @@ import re
 import os
 import subprocess
 from pathlib import Path
-from dataclasses import dataclass, field, replace
+from dataclasses import dataclass, field
 from typing import Dict, List
 from git_hooks.common import valid_types, valid_scopes
+
+release_oneliners = {
+    '2.55-alpha-119': 'The one with subscreen scripts and an autocombo drawing mode.',
+    '2.55-alpha-118': 'The one with the bug fixes.',
+    '2.55-alpha-117': 'The one with the subscreen rewrite, software updater, music mixing, and individual save files.',
+    '2.55-alpha-116': 'The one with custom Guys, quest package exports, and a ZScript VS Code extension.',
+    '2.55-alpha-114': 'The one with trigger groups, newer player movement, and bomb flowers.',
+}
 
 def str2bool(v):
     if isinstance(v, bool):
@@ -227,10 +235,17 @@ def split_text_into_logical_markdown_chunks(text: str) -> List[str]:
     return lines
 
 
-def stringify_changelog(commits_by_type: Dict[str, List[Commit]], format: str) -> str:
+def stringify_changelog(commits_by_type: Dict[str, List[Commit]], format: str, to_sha: str) -> str:
     lines = []
+    oneliner = release_oneliners.get(to_sha, None)
+    is_release = to_sha.startswith('2.55') or to_sha.startswith('3')
 
     if format == 'markdown':
+        if oneliner:
+            lines.append(f'{oneliner}\n')
+        if is_release:
+            lines.append(f'[View release notes and find downloads on the website](https://zquestclassic.com/releases/{to_sha})\n')
+
         for type, commits in commits_by_type.items():
             if type == 'CustomSection':
                 lines.append('# Sectioned Changes')
@@ -283,6 +298,11 @@ def stringify_changelog(commits_by_type: Dict[str, List[Commit]], format: str) -
                             lines.append(f'   > - {squashed.subject} {link}')
                 lines.append('')
     elif format == 'plaintext':
+        if oneliner:
+            lines.append(f'{oneliner}\n')
+        if is_release:
+            lines.append(f'https://zquestclassic.com/releases/{to_sha}\n')
+
         for type, commits in commits_by_type.items():
             if type == 'CustomSection':
                 for c in commits:
@@ -397,7 +417,7 @@ def generate_changelog(from_sha: str, to_sha: str) -> str:
     for key in to_remove:
         del commits_by_type[key]
 
-    return stringify_changelog(commits_by_type, args.format)
+    return stringify_changelog(commits_by_type, args.format, to_sha)
 
 
 for path in (script_dir / 'changelog_overrides').rglob('*.md'):
