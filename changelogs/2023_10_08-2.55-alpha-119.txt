@@ -1,0 +1,310 @@
+The one with subscreen scripts and an autocombo drawing mode.
+
+https://zquestclassic.com/releases/2.55-alpha-119
+
+# Features
+
+
+subscreen scripts, ZScript subscreen access
+  Add 'Subscreen Scripts', which run while the engine active subscreen is open.
+  Add ZScript types 'subscreendata', 'subscreenpage', 'subscreenwidget'
+
+
+  Relevant changes:
+    feat: subscreen scripts, ZScript subscreen access
+    feat: 'subscreendata' datatype implementation
+    feat: 'subscreenpage' datatype implementation
+    feat: 'subscreenwidget' datatype implementation for shared vars
+    feat: start 'subscreenwidget' datatype implementation for type vars
+    feat: more 'subscreenwidget' datatype implementation for type vars
+    feat: more 'subscreenwidget' datatype implementation for type vars
+    feat: finish 'subscreenwidget' datatype implementation for type vars
+    fix(zc): fix a couple subscreen drawing issues
+    refactor: start implementing subscreen scripts
+lightbeams now respect solid ffcs/pushblocks (compat QR'd)
+'Mirror (Custom)' combo type for customizable reflection
+Spotlight combos work on ffcs, fixed lightbeam-ffc hitboxes
+Subscreen widgets now have unique labels, and display coordinates
+  ZScript can get a subscreen by it's label.
+  Display coordinates are the coordinates that make up the bounding box rectangle for a widget.
+
+change grid-snapping on FFCs, blue squares, item square, etc
+  Now, these all snap to the half-grid by default, but *do not* snap to the grid while 'Shift' is held.
+
+new DMap editor behavior where titles are no longer limited to 20 chars and intro strings use a string table dropdown
+zc: add command "-create-save <qst>"
+zc: remove encoding layer for save files
+  Just like the previous work to remove the encoding layer for qst files.
+  
+  Previous save files can still be read, but when next saved will no
+  longer be encoded.
+  
+  Should be a tad faster to read and write, especially reading in bulk as
+  the title screen no longer needs to read the entire file to decode, when
+  it only needs the first part of the file.
+  
+  Also changes save file writing to disk to instead write to a temporary
+  and move to the destination when done. This may prevent a source of save
+  file corruption.
+
+zq: 'Highlight Current Layer' option, when enabled dithers out non-active layers.
+zq: "Open Tile Page" now saves which page was last opened
+zq: options to control the size and color of the dither when using "Highlight Current Layer"
+zq: added cset to the autocombo preview, made autocombo engravings in the combo list draw over the selector
+zq: added a popup when using an invalid autocombo explaining why it's invalid
+zq: added a "Connect to Edge" flag to certain autocombos, changing how they interact with the edge of the screen
+zq: quick map view hotkey, 2x and 4x map scale
+zq: double click in text procs selects all text
+zq: option for tooltip highlight color (instead of pink hardcoded)
+zq: reworked double click in text procs to select by word
+zq: checkerboard background option for invalid data
+zq: changed the default size of some subscreen widgets to make them easier to grab in the editor
+zq: dragged items in the subscreen editor can be snapped to the grid with ctrl
+zq: 'File->Load Tileset' to start a new quest from a tileset
+zq: subscreen wizards for generating item grids and counter blocks
+zq: "connect to solids" flag for basic and relational autocombos
+std_zh: add 'SF_LAST', convert SF_ constants to enum
+zscript: 'auto' variable declarations
+zscript: 'sprintf' will resize the buffer if it is too small.
+vscode: update keyword highlighting
+web: migrate to new database manifest and use CDN
+  * Quests and associated music are now hosted at data.zquestclassic.com,
+    via DigitalOcean's CDN. This should make downloading faster.
+  * Add preloads for the manifest and the wasm
+  
+  New format for quest manifest:
+  
+  * Supports multiple releases of a quest (creating a new release each
+    time the contents have changed). Currently always shows the latest,
+    but when a save slot is first created it locks to that version.
+    Later, will add a way to upgrade/alert user that there is a new
+    version for an existing save
+  * Add an approval bit, so we can be granular about what quests are
+    published and playable in the web version
+  
+  Drive-by bug fixes:
+  
+  * bug preventing saving files (see 2803f8 and 98f366)
+  * bug preventing editor from persisting qst file due to missing
+    filesystem sync
+  * bug preventing copy/download browser local files from showing when
+    user opts out of mounting a directory
+  * (for all platforms) bug that changes `.sav` files to use a relative
+    path (to the configured quest directory) for the associated qst
+    file, instead of an absolute path. Save files were portable before
+    because of some non-trivial magic when resolving a qst path, but
+    this makes it more explicitly portable
+
+web: reduce amount of preloaded data
+  zc.data is 5 MB now, instead of 15+
+
+
+# Bug Fixes
+
+active global script double-running due to warp script check
+wrong 'maxdigits' on old subscreen counters
+fixed memory leak when changing enhanced music tracks
+favorite combos corruption when loading 1.92 or older quests
+some small errors related to subscreens/subscreen scripting
+
+[linux] use /var/tmp instead of /tmp for save-then-move
+  /tmp is for files that are not expected to persist. When running under
+  flatpak, a tmpfs is mounted to /tmp, so we cannot move files from that
+  to a real physical drive. This resulted in saving failing.
+  
+  /var/tmp is the better choice, since files there are expected to persist
+  and so will always be a physical drive.
+
+[linux] for flatpak, create tmp file in app directory
+moveflags not set correctly for pre-2.50 enemies
+replays depending on wrong moveflags
+  not sure of a better commit title
+
+handle empty init data delta, which is when no change is made
+fix dmap title corruption
+use correct subscreen font for PROP type
+zc: pushblock solidity inconsistency
+zc: oddities with pushblocks and pits/water
+zc: sidewarps at edge of map not working with walk-through-walls cheat active
+zc: Screen 0x80+ 'safe return point' bugginess
+zc: 'Magic Containers' cheat not updating max magic soon enough to refill
+zc: bugginess with push flags on 'Push (Generic)' combos
+zc: Oddity with swords/spin attacks not properly hitting triggers
+zc: remove accidental code that resulted in less precise sin even outside replays
+zc: incorrect value for cos(90) in replay mode
+zc: fixed unresponsive input in SCC menus
+zc: fixed line heights after drawing tiles to strings with SCCs
+zc: check if A wpn slot when doing bomb deselect
+  This is a potential fix for a bug that prevents the sword/A slot from
+  working after using the last bomb. The bug is very difficult to
+  reproduce, so not certain to be the fix.
+
+zc: Optimize light beams to be a loooooot faster
+zc: prevent crash when gamepad disconnects while configuring
+zc: handle trailing slash in quest_dir cfg option
+zq: 'esc' choosing 'yes' in 'Really want to quit?' popup
+zq: sanitize quest title for package name
+zq: allow spaces in package name
+zq: fixed crash in combo wizard for signposts
+zq: fixed bugged inner bottom corner in DoR autocombo
+zq: right clicking autocombo combo panes no longer resets cset to 0
+zq: clearing an autocombo in the editor also clears args and flags
+zq: combo aliases with layers now flag layer screens valid
+zq: fixed out of bounds array access with the drawing mode menu
+zq: hopefully fixed inconsistent DoR autocombo behavior
+zq: improved DoR autocombos connecting with the edge of the screen
+zq: filter invalid characters from test init data cfg header
+zq: made selecting a favorite combo update the drawing mode dropdown
+zq: reduced information on the autocombo preview in compact mode
+zq: normalize path component for test init data cfg header
+zq: fix several issues with the 'default.qst' subscreens
+zq: fix autocombo height change not being treated as a list command
+zq: made autocombos preview correctly with the combo brush
+zq: fixed combo pools being able to fill the same combo multiple times
+zq: layer visibility checkbox for layer 0
+zq: fixed layer 6 highlighting and overhead combo drawing
+zq: fixed "view map" solidity drawing
+zq: correctly load parts of old qst when grabbing tiles
+zq: sfx data corruption due to improper struct initialization
+zq: fixed copy/paste hotkey in the string editor and crash when editing absurdly long strings
+zq: liquid combo wizard mod sfx off by 10000
+zq: moved some resizing functionality from the move arrows to resize arrows in the subscreen editor
+zq: fixed subscreen wizard window titles not updating
+zq: fixed crashes when previewing layer solidity and incorrect layered solidity drawing
+zq: copy over assets folder in packager
+zscript: typechecking error related to arrays of class objects
+zscript: fixed paldata mix() not flagging changed colors as used
+zscript: fixed incorrect argument ordering in DrawTiles() and erroneous error logging in serveral drawing functions
+zscript: fixed incorrect max count for user objects
+zscript: paldata objects not clearing properly on init
+zscript: generic script local arrays and '->Own()'ed objects bugging out on 'Continue'
+zupdater: use headless mode when run from launcher
+web: avoid double save when using the quick-load feature
+
+# Documentation
+
+move packaging_quests.md to packaged docs
+zscript: made note of rotation arguments for PutPixels()
+zscript: webdocs for paldata and correction for PutPixels()
+
+# Build
+
+move allegro legacy to third_party
+move loadpng to third_party
+delete include/loadpng/loadpng.h
+move algif to third_party
+move al5img to src
+move aldumb.patch to third_party
+include licenses in package
+add include to fix missing atoi on VS2022
+[mac] 'ZQuestClassic.app' -> 'ZQuest Classic.app'
+web: upgrade to emscripten 3.1.45
+web: rename workbox-config.js to workbox-config.cjs
+web: update dependencies
+
+# Chores
+
+update .mailmap
+
+# Refactors
+
+extract legacy encoded reader for qst to try_open_maybe_legacy_encoded_file
+removed leftover references to favorite combo aliases
+
+use transform matrices for render tree
+  The previous adhoc system supported translation and scaling in a very
+  broken way, making it impossible to construct a non-trivial render item
+  hierarchy.
+  
+  Now it uses proper transforms matrices. Implemented with dirty flags -
+  each render item has a world matrix (and inverse, for mouse lookups)
+  that only update when the underlying transformations change (or one of
+  its parents)
+
+add TabBuilder gui class
+gamedata and user_object stuff, script '->Own()' handling
+zc: only check already loaded saves for 4th qst red easter egg
+  Otherwise, it takes noticeable time to load every save file when the
+  file select screen loads.
+
+zc: move some things from .zmod to be hardcoded
+zc: remove module info/loading from menu
+zc: remove classic_zelda.dat
+zupdater: extract getting next release and installing to functions
+zupdater: [win] use curl and json libs instead of python
+zupdater: use zupdater binary instead of python in launcher
+zupdater: [win] use native library for unzip
+  zupdater is now Python-free for Windows.
+
+
+# Tests
+
+update playground_cutscene_trigger.zplay
+upgrade puppeteer to 21.1.1
+re-enable part of updater test
+web: run test_zeditor.py and test_zplayer.py
+
+# CI
+
+fetch full history when building to generate nightly changelog
+fetch full history when building web test
+use correct variable for release tag in sentry debug upload
+use Release instead of RelWithDebInfo for windows test, for caching
+use sentry-cli 2.20.6 instead of latest, to fix debug info upload error
+
+disable sound for linux replays
+  `install_sound` randomly starting failing in CI.
+
+create web.zip and upload to GitHub release
+set concurrency for release workflow
+trigger website delpoy on release
+add --ignore-missing to sentry set-commits command
+pull git lfs objects for packaged resources
+create cron job to update database daily
+
+# Misc.
+
+add script for expanding ZASM opcodes/registers en masse
+update zasm expansion script to handle name lists from file
+package changelogs for recent alphas, and include nightly changes
+update GitHub org
+fix transparency on some cave tiles in the default quest
+improve parser timeout handling
+update default.qst (add auto combos)
+log error when file move fails
+add AUTHORS file
+rename editor exectuable from zquest to zeditor
+support lists via * for changelog markdown parser
+zc: create `quests` subdirectory for qst files
+zc: auto open file select dialog for new game
+zq: increase size of 'Wizard' combo editor button
+vscode: publish 1.0.7
+launcher: use new program names
+web: rename from Zelda Classic to ZQuest Classic
+
+# Relational Combos Update
+The old "Relational" and "Dungeon Carving" modes have been replaced by a new drawing mode that can handle various relational drawing behaviors. Alongside this, favorite combos list has been expanded and improved to make designing screens faster than ever before.
+
+## Autocombos
+The Autocombo, similar to the "Alias" and "Combo Pool" drawing modes before it, adds a list of user defined patterns which are used for relational drawing. Each autocombo has a set of combos used for the pattern, a combo for erasing from the pattern with right click, and a display combo which affects how it will appear in the editor for user convenience. They can also auto generate a pattern from a default arrangement of combos like how the older drawing modes worked, but do not need use combos placed in that order.
+
+Unlike most other features, autocombos can read and modify combos on adjacent screens with the "Cross Screens" flag.
+
+Autocombo behavior can be selected from the following 9 types:
+* The "Basic Relational" type is a standard relational mode with 4-directional tile awareness.
+* The "Relational" type works like the old relational drawing mode with 8-directional tile awareness. It also has a flag to use the old combo layout when generating.
+* The "Flat Mountain" type is the simplest of the set, with only 6 tiles representing the corners, sides, and top.
+* The "Pancake Mountain" type is for drawing flat topped mountains, formed by drawing the edges and then extruding the side faces downwards.
+* The "Fence" type is similar to "Pancake Mountain" but without the combos for extruding sides.
+* The "Dungeon Carving" type works like the old dungeon carving drawing mode, drawing 2 tile high dungeon walls. It also has a flag to use the old combo layout when generating.
+* The "Complex Mountain" type has you fill in the top layer of a mountain and then fills out the bottoms, backs, and sides with a 3/4 perspective. Unlike the other sets, this one is imperfect and may require some manual correction, but it makes using the hardest mountain sets in common usage far easier.
+* The "Positional Tiling" type lets you form a rectangular pattern that it then tiles based on X/Y position within the map. With shift + click you can set where the top-left corner of the pattern is located.
+* The "Replace" type lets you set an arbitrary set of before and after combos to replace when drawing. Instead of erasing, right click will reverse the process.
+
+## Favorite Combos Expansion
+The favorite combos list has also been greatly expanded. It now allows for 9 pages of combos. Right clicking the page selector buttons will create a drop-down allowing you to jump to any page.
+
+It can also now hold entries from any of the four drawing modes. When selecting an entry from a different drawing mode, the current mode will automatically update to match. This should make switching from relationally drawing a screen's layout to placing down large objects as aliases to adding finer details a breeze. Each of the three special drawing modes will have icons drawn over their favorite combo entries, which can be disabled with the "Show Favorite Combo Modes" option in `Ect->Options...`.
+
+Lastly, adding favorite combos now respects the AutoBrush setting, making adding large blocks of single combos to the page far quicker.
+
