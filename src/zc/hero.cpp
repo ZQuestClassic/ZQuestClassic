@@ -24829,18 +24829,23 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 			draw_screen(tmpscr,false);
 			
 			//unless the room is already dark, fade to black
-			if(!darkroom)
+			if (!get_qr(qr_NEW_DARKROOM))
 			{
-				darkroom = true;
-				fade(DMaps[currdmap].color,true,false);
+				if(!darkroom)
+				{
+					darkroom = true;
+					fade(DMaps[currdmap].color,true,false);
+				}
 			}
+			else
+				fade(DMaps[currdmap].color, true, false);
 			
 			blackscr(30,true);
 			loadscr(0,wdmap,currscr,down,false);
 			loadscr(1,wdmap,homescr,-1,false);
 			if ( dontdraw < 2 ) {  dontdraw=1; }
-			draw_screen(tmpscr);
-			fade(11,true,true);
+			draw_screen(tmpscr, false);
+			fade(0xB,true,true);
 			darkroom = false;
 			dir=down;
 			x=48;
@@ -24904,14 +24909,18 @@ bool HeroClass::dowarp(int32_t type, int32_t index, int32_t warpsfx)
 				
 			darkroom=true;
 		}
+		else
+			fade(DMaps[currdmap].color,true,false);
 		blackscr(30,true);
 		loadscr(0,wdmap,currscr,down,false);
 		loadscr(1,wdmap,homescr,-1,false);
 		//preloaded freeform combos
 		ffscript_engine(true);
 		if ( dontdraw < 2 ) { dontdraw=1; }
-		draw_screen(tmpscr);
+		draw_screen(tmpscr, false);
 		lighting(false, true);
+		if (get_qr(qr_NEW_DARKROOM))
+			fade(0xB, false, true);
 		dir=down;
 		x=48;
 		
@@ -26199,7 +26208,8 @@ void HeroClass::stepforward(int32_t steps, bool adjust)
         }
         
 	
-        draw_screen(tmpscr);
+		clear_darkroom_bitmaps();
+		draw_screen(tmpscr);
 		if (canSideviewLadder()) setOnSideviewLadder(true);
         advanceframe(true);
         

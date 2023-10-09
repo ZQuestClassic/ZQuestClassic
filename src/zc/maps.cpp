@@ -4364,7 +4364,8 @@ void draw_screen(mapscr* this_screen, bool showhero, bool runGeneric)
 	if(get_qr(qr_NEW_DARKROOM)&& (this_screen->flags&fDARK))
 	{
 		calc_darkroom_combos();
-		Hero.calc_darkroom_hero();
+		if(showhero)
+			Hero.calc_darkroom_hero();
 	}
 	//Darkroom if under the subscreen
 	if(get_qr(qr_NEW_DARKROOM) && get_qr(qr_NEWDARK_L6) && (this_screen->flags&fDARK))
