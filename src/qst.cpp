@@ -3067,7 +3067,7 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_WRONG_BRANG_TRAIL_DIR,1);
 	}
 	
-	if(tempheader.zelda_version == 0x192 && tempheader.build == 163)
+	if((tempheader.zelda_version == 0x192 && tempheader.build <= 163) || tempheader.zelda_version < 0x192)
 	{
 		set_qr(qr_192b163_WARP,1);
 	}
