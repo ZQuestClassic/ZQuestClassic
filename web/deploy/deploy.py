@@ -78,7 +78,8 @@ if args.prepare:
     copy_from_build('zplayer.{wasm,worker.js}', 'play')
 
     copy_from_build('zquest.html', 'create/index.html')
-    copy_from_build('zquest.{wasm,js,worker.js}', 'create')
+    copy_from_build('zquest.js', 'create')
+    copy_from_build('zeditor.{wasm,worker.js}', 'create')
     copy_from_build('{zq.data,zq.data.js}', 'create')
 
     copy_from_build('zscript.{wasm,mjs,worker.js}', '')
