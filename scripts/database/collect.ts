@@ -54,6 +54,7 @@ interface QuestManifest {
     hash: string;
     resources: string[];
   }>;
+  defaultPath: string;
   /** External music. */
   music: string[];
   videoUrl?: string;
@@ -482,6 +483,11 @@ async function processId(page: puppeteer.Page, pzcId: number) {
     getFirstQstFile(thisRelease);
   }
 
+  const qsts = thisRelease.resources.filter(r => r.endsWith('.qst'));
+  const qst = qsts[0];
+  // TODO: Don't forget previous value.
+  const defaultPath = `${id}/${thisRelease.name}/${qst}`;
+
   const quest: QuestManifest = {
     id,
     index: pzcId,
@@ -492,6 +498,7 @@ async function processId(page: puppeteer.Page, pzcId: number) {
     approval: existingManifestEntry?.approval ?? 'pending',
     authors,
     releases,
+    defaultPath,
     music: existingManifestEntry?.music ?? [],
     videoUrl,
     images,
@@ -527,6 +534,28 @@ async function waitUntilDownload(page: puppeteer.Page) {
           }
       });
   });
+}
+
+function groupByAuthor() {
+  // For object equality goodness.
+  const authorCache: Record<any, {name: string, id?: number}> = {};
+  function getAuthor(name: string, id: number|undefined) {
+    const key = id ? id : name;
+    if (authorCache[key]) return authorCache[key];
+
+    return authorCache[key] = {name, id};
+  }
+
+  const questsByAuthor = new Map<{name: string, id?: number}, QuestManifest[]>();
+  for (const quest of questsMap.values()) {
+    for (const rawAuthor of quest.authors) {
+      const author = getAuthor(rawAuthor.name, rawAuthor.id);
+      const quests = questsByAuthor.get(author) || [];
+      questsByAuthor.set(author, quests);
+      quests.push(quest);
+    }
+  }
+  return new Map([...questsByAuthor].sort((a, b) => b[1].length - a[1].length));
 }
 
 async function main() {
@@ -566,15 +595,7 @@ async function main() {
   if (process.env['APPROVALS']) {
     // Mark each quest with an `approval` bit.
     // If author has not been active since 2023 Jan 1, set to `auto`.
-    let questsByAuthor = new Map<string, QuestManifest[]>();
-    for (const quest of questsMap.values()) {
-      for (const author of quest.authors) {
-        const quests = questsByAuthor.get(author.name) || [];
-        questsByAuthor.set(author.name, quests);
-        quests.push(quest);
-      }
-    }
-    questsByAuthor = new Map([...questsByAuthor].sort((a, b) => b[1].length - a[1].length));
+    const questsByAuthor = groupByAuthor();
 
     for (const [author, quests] of questsByAuthor) {
       console.log(author, quests.length);

@@ -106,28 +106,15 @@ std::string get_initial_file_dialog_folder() {
   return "/local/";
 }
 
-EM_ASYNC_JS(emscripten::EM_VAL, get_query_params_, (), {
-  const params = new URLSearchParams(location.search);
-  return Emval.toHandle({
-    open: params.get('open') || '',
-  });
-});
-QueryParams get_query_params() {
-  auto val = emscripten::val::take_ownership(get_query_params_());
-  QueryParams result;
-  result.open = val["open"].as<std::string>();
-  return result;
-}
-
 void em_mark_initializing_status() {
 	EM_ASM({
-		Module.setStatus('Initializing Runtime ...');
+		ZC.setStatus('Initializing Runtime ...');
 	});
 }
 
 void em_mark_ready_status() {
 	EM_ASM({
-		Module.setStatus('Ready');
+		ZC.setStatus('Ready');
 	});
 }
 

@@ -42,7 +42,9 @@ export function createUrlString(pathname, params) {
     url.searchParams.set(key, value);
   }
 
-  return url.toString().replace(/%2F/g, '/');
+  // Make friendly.
+  url.search = decodeURIComponent(url.search);
+  return url.toString();
 }
 
 export function fsReadAllFiles(folder) {
