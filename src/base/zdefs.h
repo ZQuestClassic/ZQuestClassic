@@ -213,7 +213,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_COMBOS          43
 #define V_CSETS            5 //palette data
 #define V_MAPS            28
-#define V_DMAPS           20
+#define V_DMAPS           21
 #define V_DOORS            1
 #define V_ITEMS           57
 #define V_WEAPONS          8

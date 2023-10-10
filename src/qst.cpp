@@ -5184,7 +5184,23 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 		}
 		else
 			tempDMap.intro_string_id = 0;
-		
+
+		// Reserved for z3.
+		if(s_version >= 21)
+		{
+			for(int32_t j=0; j<8; j++)
+			{
+				for(int32_t k=0; k<8; k++)
+				{
+					char c;
+					if(!p_getc(&c,f))
+					{
+						return qe_invalid;
+					}
+				}
+			}
+		}
+
 		if (!should_skip)
 		{
 			if(loading_tileset_flags & TILESET_CLEARMAPS)

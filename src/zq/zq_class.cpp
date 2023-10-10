@@ -7832,6 +7832,18 @@ int32_t writedmaps(PACKFILE *f, word version, word build, word start_dmap, word 
 				new_return(46);
 			if (!p_iputl(DMaps[i].intro_string_id, f))
 				new_return(47);
+
+			// Reserved for z3.
+			for(int32_t j=0; j<8; j++)
+			{
+				for(int32_t k=0; k<8; k++)
+				{
+					if(!p_putc(0,f))
+					{
+						new_return(48);
+					}
+				}
+			}
 		}
         
         if(writecycle==0)
