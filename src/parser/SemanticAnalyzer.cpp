@@ -398,6 +398,12 @@ void SemanticAnalyzer::caseStmtReturnVal(ASTStmtReturnVal& host, void*)
 {
     RecursiveVisitor::caseStmtReturnVal(host);
     if (breakRecursion(host)) return;
+	
+	if(host.value->isTempVal())
+	{
+		handleError(CompileError::BadTempVal(host.value.get()));
+		if (breakRecursion(host)) return;
+	}
 
 	checkCast(*host.value->getReadType(scope, this), *returnType, &host);
 }
@@ -753,18 +759,16 @@ void SemanticAnalyzer::caseDataDecl(ASTDataDecl& host, void*)
 	
 	//Handle typechecking regardless of registration
 	// Check the initializer.
-	if (host.getInitializer())
+	if (auto* initializer = host.getInitializer())
 	{
 		// Make sure we can cast the initializer to the type.
-		DataType const& initType = *host.getInitializer()->getReadType(scope, this);
+		DataType const& initType = *initializer->getReadType(scope, this);
 		//If this is in an `enum`, then the write type is `CFLOAT`.
 		ASTDataType temp=ASTDataType(DataType::CFLOAT, host.location);
 		DataType const& enumType = temp.resolve(*scope, this);
 
 		checkCast(initType, (host.list && host.list->isEnum()) ? enumType : *type, &host);
 		if (breakRecursion(host)) return;
-
-		// TODO check for array casting here.
 	}	
 }
 
@@ -1197,6 +1201,12 @@ void SemanticAnalyzer::caseExprAssign(ASTExprAssign& host, void*)
 			CompileError::NoWriteType(
 				host.left.get(), host.left->asString()));
 		return;
+	}
+	
+	if(host.right->isTempVal())
+	{
+		handleError(CompileError::BadTempVal(host.right.get()));
+		if (breakRecursion(host)) return;
 	}
 	
 	checkCast(*rtype, *ltype, &host);
@@ -1952,7 +1962,7 @@ void SemanticAnalyzer::caseArrayLiteral(ASTArrayLiteral& host, void*)
 						DataTypeArray(elementType)));
 	}
 
-	// Otherwise, default to Untyped -V
+	// Otherwise, default to Untyped -Em
 	else
 	{
 		host.setReadType(
@@ -1961,10 +1971,16 @@ void SemanticAnalyzer::caseArrayLiteral(ASTArrayLiteral& host, void*)
 	}
 
 	// If initialized, check that each element can be cast to type.
+	// and, if part of a declaration, check for temp values
 	for (vector<ASTExpr*>::iterator it = host.elements.begin();
 		 it != host.elements.end(); ++it)
 	{
 		ASTExpr& element = **it;
+		if(host.declaration && element.isTempVal())
+		{
+			handleError(CompileError::BadTempVal(&element));
+			if (breakRecursion(host)) return;
+		}
 		checkCast(*element.getReadType(scope, this),
 				  host.getReadType(scope, this)->getElementType(), &host);
 		if (breakRecursion(host)) return;
