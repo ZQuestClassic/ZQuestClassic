@@ -15192,6 +15192,9 @@ int32_t get_register(const int32_t arg)
 					case widgOLDCTR:
 						ret = 10000*byte(((SW_Counters*)widg)->infchar);
 						break;
+					case widgBTNCOUNTER:
+						ret = 10000*byte(((SW_BtnCounter*)widg)->infchar);
+						break;
 					default:
 						bad_subwidg_type("InfiniteChar", false, ty);
 						break;
