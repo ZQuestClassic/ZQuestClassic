@@ -6,7 +6,7 @@ on:
 
 jobs:
   update-database:
-    if: github.event.pull_request.head.repo.full_name == 'ZQuestClassic/ZQuestClassic'
+    if: github.repository == 'ZQuestClassic/ZQuestClassic'
     runs-on: ubuntu-latest
     steps:
       # PZC will generate date strings based on the timezone, so keep it consistent by using PT.
