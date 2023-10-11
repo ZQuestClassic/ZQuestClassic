@@ -13722,7 +13722,7 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *Header)
             new_return(103);
         }
 		uint32_t num_used_mapscr_data = 0;
-		for(uint32_t q = map_count*MAPSCRS; q >= 0; --q)
+		for(int32_t q = map_count*MAPSCRS-1; q >= 0; --q)
 			if(zinit.vecs.screen_dataSize[q])
 			{
 				num_used_mapscr_data = q+1;
