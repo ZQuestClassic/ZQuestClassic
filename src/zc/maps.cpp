@@ -471,9 +471,9 @@ static int32_t MAPCOMBO3_impl(int32_t map, int32_t screen, int32_t layer, int32_
 	
 	int32_t mapid = (layer < 0 ? -1 : ((m->layermap[layer] - 1) * MAPSCRS + m->layerscreen[layer]));
 	
-	if (layer >= 0 && (mapid < 0 || mapid > MAXMAPS2*MAPSCRS)) return 0;
+	if (layer >= 0 && (mapid < 0 || mapid > MAXMAPS*MAPSCRS)) return 0;
 	
-	mapscr scr = ((mapid < 0 || mapid > MAXMAPS2*MAPSCRS) ? *m : TheMaps[mapid]);
+	mapscr scr = ((mapid < 0 || mapid > MAXMAPS*MAPSCRS) ? *m : TheMaps[mapid]);
     
 	if(scr.valid==0) return 0;
 	

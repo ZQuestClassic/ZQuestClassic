@@ -14382,12 +14382,12 @@ const char *maplist(int32_t index, int32_t *list_size)
 {
     if(index>=0)
     {
-        bound(index,0,MAXMAPS2-1);
+        bound(index,0,MAXMAPS-1);
         sprintf(number_str_buf,"%d",index+1);
         return number_str_buf;
     }
     
-    *list_size=MAXMAPS2;
+    *list_size=MAXMAPS;
     return NULL;
 }
 

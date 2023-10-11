@@ -4769,6 +4769,13 @@ bool LensShows[7];
 bool LensHides[7];
  * Arrays of the layers which the lens shows, and hides, respectively.
 
+int DataSize;
+ * Read-write, the size of the `Data[]` array.
+ * Changes save to the save file.
+untyped Data[];
+ * Resizable array of data for scripts to use.
+ * Changes save to the save file.
+
 /************************************************************************************************************/
 
 /////////////
@@ -7034,6 +7041,13 @@ int MIDI;
 bool LensShows[7];
 bool LensHides[7];
  * Arrays of the layers which the lens shows, and hides, respectively.
+
+int DataSize;
+ * Read-write, the size of the `Data[]` array.
+ * Changes save to the save file.
+untyped Data[];
+ * Resizable array of data for scripts to use.
+ * Changes save to the save file.
 
 int Flags[10];
  * A set of flagsets that contain special data for thiws screen.

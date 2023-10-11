@@ -164,8 +164,11 @@ class zmap
     int32_t currmap,copymap;
     int32_t currscr,copyscr;
     int32_t copyffc;
-    int32_t scrpos[MAXMAPS2+1];
-
+    int32_t scrpos[MAXMAPS+1];
+	
+	uint32_t copyscrdatasz;
+	std::vector<int32_t> copyscrdata;
+	
     mapscr copymapscr;
     mapscr prvscr; //NEW
     mapscr prvlayers[6];

@@ -4991,7 +4991,12 @@ enum ASM_DEFINE
 #define SUBWIDG_DISPW           0x158E
 #define SUBWIDG_DISPH           0x158F
 
-#define NUMVARIABLES            0x1590
+#define SCREENSCRDATASIZE       0x1590
+#define SCREENSCRDATA           0x1591
+#define MAPDATASCRDATASIZE      0x1592
+#define MAPDATASCRDATA          0x1593
+
+#define NUMVARIABLES            0x1594
 
 //} End variables
 

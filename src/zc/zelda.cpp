@@ -595,7 +595,7 @@ byte                midi_flags[MIDIFLAGS_SIZE];
 byte                music_flags[MUSICFLAGS_SIZE];
 int32_t					msg_strings_size=0;
 byte                *quest_file;
-dword               quest_map_pos[MAPSCRS*MAXMAPS2]={0};
+dword               quest_map_pos[MAPSCRS*MAXMAPS]={0};
 
 char     *qstpath=NULL;
 char     *qstdir=NULL;

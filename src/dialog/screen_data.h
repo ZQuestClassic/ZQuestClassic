@@ -15,15 +15,15 @@
 #include <array>
 #include "base/mapscr.h"
 
-void call_screendata_dialog(mapscr* scr = nullptr);
-void call_screendata_dialog(size_t forceTab, mapscr* scr = nullptr);
+void call_screendata_dialog();
+void call_screendata_dialog(size_t forceTab);
 
 class ScreenDataDialog: public GUI::Dialog<ScreenDataDialog>
 {
 public:
 	enum class message { REFR_INFO, OK, CANCEL };
 
-	ScreenDataDialog(mapscr* scr);
+	ScreenDataDialog(int map, int scr);
 
 	std::shared_ptr<GUI::Widget> view() override;
 	bool handleMessage(const GUI::DialogMessage<message>& msg);
@@ -48,8 +48,15 @@ private:
 	std::shared_ptr<GUI::Switcher> leff_switch;
 	std::shared_ptr<GUI::Checkbox> lens_cb[2][7];
 	
+	std::shared_ptr<GUI::Button> databtn;
+	
 	mapscr* thescr;
 	mapscr local_scr;
+	int mapscrnum;
+	
+	std::vector<int32_t> screen_misc_data;
+	uint32_t screen_misc_data_sz;
+	
 	GUI::ListData list_screenscript, list_maps, list_screens, list_sfx, list_screenmidi;
 };
 

@@ -2023,7 +2023,7 @@ int32_t get_screeneflags(mapscr *m, int32_t flagset)
 	return flagval*10000;
 }
 
-int32_t get_mi(int32_t ref)
+int32_t get_mi(int32_t ref = MAPSCR_TEMP0)
 {
 	if(ref >= 0)
 		return ref - (8*(ref / MAPSCRS));
@@ -2035,6 +2035,22 @@ int32_t get_mi(int32_t ref)
 		case MAPSCR_SCROLL0: case MAPSCR_SCROLL1: case MAPSCR_SCROLL2: case MAPSCR_SCROLL3:
 		case MAPSCR_SCROLL4: case MAPSCR_SCROLL5: case MAPSCR_SCROLL6:
 			return (scrolling_map*MAPSCRSNORMAL)+scrolling_scr;
+	}
+	return -1;
+}
+
+int32_t get_total_mi(int32_t ref = MAPSCR_TEMP0)
+{
+	if(ref >= 0)
+		return ref;
+	switch(ref)
+	{
+		case MAPSCR_TEMP0: case MAPSCR_TEMP1: case MAPSCR_TEMP2: case MAPSCR_TEMP3: 
+		case MAPSCR_TEMP4: case MAPSCR_TEMP5: case MAPSCR_TEMP6:
+			return (currmap*MAPSCRS)+currscr;
+		case MAPSCR_SCROLL0: case MAPSCR_SCROLL1: case MAPSCR_SCROLL2: case MAPSCR_SCROLL3:
+		case MAPSCR_SCROLL4: case MAPSCR_SCROLL5: case MAPSCR_SCROLL6:
+			return (scrolling_map*MAPSCRS)+scrolling_scr;
 	}
 	return -1;
 }
@@ -8526,6 +8542,26 @@ int32_t get_register(const int32_t arg)
 			else ret = (tmpscr->lens_hide & (1<<ind)) ? 10000 : 0;
 			break;
 		}
+		case SCREENSCRDATASIZE:
+		{
+			auto mi = get_total_mi();
+			if(mi < 0) break;
+			ret = 10000*game->scriptDataSize(mi);
+			break;
+		}
+		case SCREENSCRDATA:
+		{
+			auto mi = get_total_mi();
+			if(mi < 0) break;
+			size_t indx = ri->d[rINDEX]/10000;
+			if(indx >= game->scriptDataSize(mi))
+			{
+				Z_scripterrlog("Invalid index passed to Screen->Data[]: %d\n", indx);
+				break;
+			}
+			ret = game->screen_data[mi][indx];
+			break;
+		}
 		
 		case DISTANCE: 
 		{
@@ -11059,6 +11095,33 @@ int32_t get_register(const int32_t arg)
 			else if(mapscr *m = GetMapscr(ri->mapsref))
 				ret = (m->lens_hide & (1<<ind)) ? 10000 : 0;
 			else Z_scripterrlog("mapdata->LensHides[] pointer (%d) is either invalid or uninitialised.\n", ri->mapsref);
+			break;
+		}
+		case MAPDATASCRDATASIZE:
+		{
+			ret = -10000;
+			if(mapscr *m = GetMapscr(ri->mapsref))
+			{
+				auto mi = get_total_mi(ri->mapsref);
+				if(mi < 0) break;
+				ret = 10000*game->scriptDataSize(mi);
+			}
+			else Z_scripterrlog("mapdata->DataSize pointer (%d) is either invalid or uninitialised.\n", ri->mapsref);
+			break;
+		}
+		case MAPDATASCRDATA:
+		{
+			ret = -10000;
+			if(mapscr *m = GetMapscr(ri->mapsref))
+			{
+				auto mi = get_total_mi(ri->mapsref);
+				if(mi < 0) break;
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= game->scriptDataSize(mi))
+					Z_scripterrlog("Invalid index passed to mapdata->Data[]: %d\n", indx);
+				else ret = game->screen_data[mi][indx];
+			}
+			else Z_scripterrlog("mapdata->Data[] pointer (%d) is either invalid or uninitialised.\n", ri->mapsref);
 			break;
 		}
 		case MAPDATASCREENFLAGSD:
@@ -21152,6 +21215,26 @@ void set_register(int32_t arg, int32_t value)
 			}
 			break;
 		}
+		case SCREENSCRDATASIZE:
+		{
+			auto mi = get_total_mi();
+			if(mi < 0) break;
+			game->scriptDataResize(mi, value/10000);
+			break;
+		}
+		case SCREENSCRDATA:
+		{
+			auto mi = get_total_mi();
+			if(mi < 0) break;
+			size_t indx = ri->d[rINDEX]/10000;
+			if(indx >= game->scriptDataSize(mi))
+			{
+				Z_scripterrlog("Invalid index passed to Screen->Data[]: %d\n", indx);
+				break;
+			}
+			game->screen_data[mi][indx] = value;
+			break;
+		}
 		
 		case SCREENSTATEDD:
 		{
@@ -23693,6 +23776,31 @@ void set_register(int32_t arg, int32_t value)
 				if(value) m->lens_show &= ~(1<<ind);
 			}
 			else Z_scripterrlog("mapdata->LensHides[] pointer (%d) is either invalid or uninitialised.\n", ri->mapsref);
+			break;
+		}
+		case MAPDATASCRDATASIZE:
+		{
+			if(mapscr *m = GetMapscr(ri->mapsref))
+			{
+				auto mi = get_total_mi(ri->mapsref);
+				if(mi < 0) break;
+				game->scriptDataResize(mi, value/10000);
+			}
+			else Z_scripterrlog("mapdata->DataSize pointer (%d) is either invalid or uninitialised.\n", ri->mapsref);
+			break;
+		}
+		case MAPDATASCRDATA:
+		{
+			if(mapscr *m = GetMapscr(ri->mapsref))
+			{
+				auto mi = get_total_mi(ri->mapsref);
+				if(mi < 0) break;
+				size_t indx = ri->d[rINDEX]/10000;
+				if(indx >= game->scriptDataSize(mi))
+					Z_scripterrlog("Invalid index passed to mapdata->Data[]: %d\n", indx);
+				else game->screen_data[mi][indx] = value;
+			}
+			else Z_scripterrlog("mapdata->Data[] pointer (%d) is either invalid or uninitialised.\n", ri->mapsref);
 			break;
 		}
 		
@@ -48004,6 +48112,11 @@ script_variable ZASMVars[]=
 	{ "SUBWIDG_DISPW", SUBWIDG_DISPW, 0, 0 },
 	{ "SUBWIDG_DISPH", SUBWIDG_DISPH, 0, 0 },
 
+	{ "SCREENSCRDATASIZE", SCREENSCRDATASIZE, 0, 0 },
+	{ "SCREENSCRDATA", SCREENSCRDATA, 0, 0 },
+	{ "MAPDATASCRDATASIZE", MAPDATASCRDATASIZE, 0, 0 },
+	{ "MAPDATASCRDATA", MAPDATASCRDATA, 0, 0 },
+
 	{ " ", -1, 0, 0 }
 };
 
@@ -51651,7 +51764,7 @@ void FFScript::read_items(PACKFILE *f, int32_t vers_id)
 	
 void FFScript::write_mapscreens(PACKFILE *f,int32_t vers_id)
 {
-	for(int32_t i=0; i<map_count && i<MAXMAPS2; i++)
+	for(int32_t i=0; i<map_count && i<MAXMAPS; i++)
 		{
 		for(int32_t j=0; j<MAPSCRS; j++)
 		{
@@ -52257,7 +52370,7 @@ void FFScript::write_mapscreens(PACKFILE *f,int32_t vers_id)
 }
 void FFScript::read_mapscreens(PACKFILE *f,int32_t vers_id)
 {
-	for(int32_t i=0; i<map_count && i<MAXMAPS2; i++)
+	for(int32_t i=0; i<map_count && i<MAXMAPS; i++)
 		{
 		for(int32_t j=0; j<MAPSCRS; j++)
 		{
@@ -52870,7 +52983,7 @@ void FFScript::read_mapscreens(PACKFILE *f,int32_t vers_id)
 /*
 void FFScript::write_maps(PACKFILE *f, int32_t vers_id)
 {
-		for(int32_t i=0; i<map_count && i<MAXMAPS2; i++)
+		for(int32_t i=0; i<map_count && i<MAXMAPS; i++)
 		{
 		for(int32_t j=0; j<MAPSCRS; j++)
 		{
@@ -52884,7 +52997,7 @@ void FFScript::write_maps(PACKFILE *f, int32_t vers_id)
 
 void FFScript::read_maps(PACKFILE *f, int32_t vers_id)
 {
-		for(int32_t i=0; i<map_count && i<MAXMAPS2; i++)
+		for(int32_t i=0; i<map_count && i<MAXMAPS; i++)
 		{
 		for(int32_t j=0; j<MAPSCRS; j++)
 		{

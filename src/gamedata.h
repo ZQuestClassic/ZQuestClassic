@@ -119,9 +119,9 @@ struct gamedata
 	word  _continue_dmap;
 	int32_t _generic[genMAX];	// Generic gamedata. See enum above this struct for indexes.
 	byte  visited[MAXDMAPS];
-	byte  bmaps[MAXDMAPS*128];                                 // the dungeon progress maps
-	word  maps[MAXMAPS2*MAPSCRSNORMAL];                       // info on map changes, items taken, etc.
-	byte  guys[MAXMAPS2*MAPSCRSNORMAL];                       // guy counts (though dungeon guys are reset on entry)
+	byte  bmaps[MAXDMAPS*MAPSCRSNORMAL];                      // the dungeon progress maps
+	word  maps[MAXMAPS*MAPSCRSNORMAL];                       // info on map changes, items taken, etc.
+	byte  guys[MAXMAPS*MAPSCRSNORMAL];                       // guy counts (though dungeon guys are reset on entry)
 	bool item_messages_played[MAXITEMS];  //Each field is set when an item pickup message plays the first time per session
 	int32_t  screen_d[MAX_MI][8];                // script-controlled screen variables
 	int32_t  global_d[MAX_SCRIPT_REGISTERS];                                      // script-controlled global variables
@@ -146,7 +146,7 @@ struct gamedata
 	std::vector<int32_t> gen_data[NUMSCRIPTSGENERIC];
 	uint32_t gen_eventstate[NUMSCRIPTSGENERIC];
 	
-	uint32_t xstates[MAXMAPS2*MAPSCRSNORMAL];
+	uint32_t xstates[MAXMAPS*MAPSCRSNORMAL];
 	
 	int32_t gswitch_timers[NUM_GSWITCHES];
 	int16_t OverrideItems[itype_max] = {-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,-2,
@@ -174,6 +174,24 @@ struct gamedata
 
 	std::vector<saved_user_object> user_objects;
 	std::vector<savedportal> user_portals;
+	
+	std::vector<int32_t> screen_data[MAXMAPS*MAPSCRS];
+	
+	size_t scriptDataSize(int32_t indx) const
+	{
+		if(unsigned(indx) >= MAXMAPS*MAPSCRS)
+			return 0;
+		return screen_data[indx].size();
+	}
+	void scriptDataResize(int32_t indx, int32_t sz)
+	{
+		if(unsigned(indx) >= MAXMAPS*MAPSCRS)
+			return;
+		sz = vbound(sz, 0, 214748);
+		if(screen_data[indx].size() == size_t(sz))
+			return;
+		screen_data[indx].resize(sz, 0);
+	}
 	
 	void Clear();
 	void Copy(const gamedata& g);

@@ -2432,6 +2432,11 @@ string ZScript::VarToString(int32_t ID)
 		case SUBWIDG_DISPW: return "SUBWIDG_DISPW";
 		case SUBWIDG_DISPH: return "SUBWIDG_DISPH";
 		
+		case SCREENSCRDATASIZE: return "SCREENSCRDATASIZE";
+		case SCREENSCRDATA: return "SCREENSCRDATA";
+		case MAPDATASCRDATASIZE: return "MAPDATASCRDATASIZE";
+		case MAPDATASCRDATA: return "MAPDATASCRDATA";
+		
 		default:
 		{
 			sprintf(temp, "d%d", ID);

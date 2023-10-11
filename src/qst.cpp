@@ -17240,7 +17240,7 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header)
 		temp_map_count=map_count;
 	}
 
-	if (!(temp_map_count >= 0 && temp_map_count <= MAXMAPS2))
+	if (!(temp_map_count >= 0 && temp_map_count <= MAXMAPS))
 	{
 		return qe_invalid;
 	}
@@ -17257,7 +17257,7 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header)
 	
 	temp_mapscr.zero_memory();
 	
-	for(int32_t i=0; i<temp_map_count && i<MAXMAPS2; i++)
+	for(int32_t i=0; i<temp_map_count && i<MAXMAPS; i++)
 	{
 		byte valid=1;
 		if(version > 22)
@@ -20782,6 +20782,20 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 			return qe_invalid;
 		if(!p_getc(&temp_zinit.hero_swim_div,f))
 			return qe_invalid;
+	}
+	if(s_version > 34)
+	{
+		uint32_t num_used_mapscr_data;
+		if(!p_igetl(&num_used_mapscr_data,f))
+			return qe_invalid;
+		for(uint32_t q = 0; q < num_used_mapscr_data; ++q)
+		{
+			if(!p_igetl(&temp_zinit.vecs.screen_dataSize[q],f))
+				return qe_invalid;
+			if(temp_zinit.vecs.screen_dataSize[q])
+				if(!p_getlvec(&temp_zinit.vecs.screen_data[q],f))
+					return qe_invalid;
+		}
 	}
 	
 	if(loading_tileset_flags & TILESET_CLEARMAPS)
