@@ -9,6 +9,8 @@
 #include <assert.h>
 #include <time.h>
 #include <vector>
+#include <filesystem>
+
 #include "dialog/info_lister.h"
 #ifdef __APPLE__
 // malloc.h is deprecated, but malloc also lives in stdlib
@@ -104,6 +106,9 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "zq/zq_files.h"
 
 extern CConsoleLoggerEx parser_console;
+
+namespace fs = std::filesystem;
+
 //Windows mmemory tools
 #ifdef _WIN32
 #include <windows.h>
@@ -27544,10 +27549,20 @@ static void do_unencrypt_qst_command(const char* input_filename, const char* out
 // This will remove the PACKFILE compression. Incidentally, it also removes the top encoding layer.
 static void do_uncompress_qst_command(const char* input_filename, const char* output_filename)
 {
-	// If the file is already an uncompressed file, there's nothing to do.
-	PACKFILE* pf_check = pack_fopen_password(input_filename, F_READ_PACKED, "");
-	pack_fclose(pf_check);
-	if (!pf_check) return;
+	auto unencrypted_result = try_open_maybe_legacy_encoded_file(input_filename, ENC_STR, nullptr, QH_NEWIDSTR, QH_IDSTR);
+	if (unencrypted_result.not_found)
+	{
+		printf("qst not found\n");
+		exit(1);
+	}
+	if (!unencrypted_result.compressed && !unencrypted_result.encrypted)
+	{
+		// If the file is already an uncompressed file, there's nothing to do but copy it.
+		fs::copy(input_filename, output_filename);
+		return;
+	}
+
+	pack_fclose(unencrypted_result.decoded_pf);
 
 	int32_t error;
 	PACKFILE* pf = open_quest_file(&error, input_filename, false);
