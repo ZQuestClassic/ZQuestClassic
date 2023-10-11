@@ -27541,6 +27541,27 @@ static void do_unencrypt_qst_command(const char* input_filename, const char* out
 	clear_quest_tmpfile();
 }
 
+// This will remove the PACKFILE compression. Incidentally, it also removes the top encoding layer.
+static void do_uncompress_qst_command(const char* input_filename, const char* output_filename)
+{
+	// If the file is already an uncompressed file, there's nothing to do.
+	PACKFILE* pf_check = pack_fopen_password(input_filename, F_READ_PACKED, "");
+	pack_fclose(pf_check);
+	if (!pf_check) return;
+
+	int32_t error;
+	PACKFILE* pf = open_quest_file(&error, input_filename, false);
+	PACKFILE* pf2 = pack_fopen_password(output_filename, F_WRITE, "");
+	int c;
+	while ((c = pack_getc(pf)) != EOF)
+	{
+		pack_putc(c, pf2);
+	}
+	pack_fclose(pf);
+	pack_fclose(pf2);
+	clear_quest_tmpfile();
+}
+
 // Copy a quest file by loading and resaving, exactly like if the user did it in the UI.
 // Note there could be changes introduced in the loading or saving functions. These are
 // typically for compatability, but could possibly be a source of bugs.
@@ -27703,6 +27724,22 @@ int32_t main(int32_t argc,char **argv)
 		const char* input_filename = argv[unencrypt_qst_arg + 1];
 		const char* output_filename = argv[unencrypt_qst_arg + 2];
 		do_unencrypt_qst_command(input_filename, output_filename);
+		exit(0);
+	}
+
+	int uncompress_qst_arg = used_switch(argc, argv, "-uncompress-qst");
+	if (uncompress_qst_arg > 0)
+	{
+		if (uncompress_qst_arg + 3 > argc)
+		{
+			printf("%d\n", argc);
+			printf("expected -uncompress-qst <input> <output>\n");
+			exit(1);
+		}
+
+		const char* input_filename = argv[uncompress_qst_arg + 1];
+		const char* output_filename = argv[uncompress_qst_arg + 2];
+		do_uncompress_qst_command(input_filename, output_filename);
 		exit(0);
 	}
 
