@@ -29,6 +29,16 @@ jobs:
       - name: git clone
         uses: actions/checkout@v3
 
+      - name: cache
+        uses: actions/cache@v3
+        with:
+          path: .tmp/releases
+          key: db-cache
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11.4'
+      - run: python scripts/bisect_builds.py --download_release nightly-2023-10-11 --token ${{ secrets.GITHUB_TOKEN }}
+
       - run: npm install
         working-directory: scripts/database
       - run: npm run collect

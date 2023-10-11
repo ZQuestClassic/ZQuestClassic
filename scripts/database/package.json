@@ -10,5 +10,8 @@
         "glob": "^10.3.3",
         "puppeteer": "^20.9.0",
         "ts-node": "^10.9.1"
+    },
+    "devDependencies": {
+        "@types/is-gzip": "^2.0.0"
     }
 }

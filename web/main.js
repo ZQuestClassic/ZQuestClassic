@@ -196,7 +196,6 @@ async function main() {
       if (!file && manifest[id]) {
         openPath = `/${manifest[id].defaultPath}`;
       }
-      console.log({id, file, openPath});
     }
   }
 

@@ -13,6 +13,7 @@ EM_ASYNC_JS(void, em_init_fs_, (), {
 
   function writeFakeFile(path, url) {
     url = url || ZC.dataOrigin + path;
+    if (path.endsWith('.qst')) url += '.gz';
     FS.mkdirTree(PATH.dirname(path));
     FS.writeFile(path, '');
     window.ZC.pathToUrl[path] = url;
@@ -20,7 +21,7 @@ EM_ASYNC_JS(void, em_init_fs_, (), {
 
   for (const [id, quest] of Object.entries(manifest)) {
     if (!id.startsWith('quests')) continue;
-    if (!['auto', true].includes(quest.approval)) continue;
+    if (!['auto', true, 'slow'].includes(quest.approval)) continue;
 
     const questPrefix = '/' + id;
 

@@ -6,6 +6,7 @@ import path from 'path';
 import {fileURLToPath} from 'url';
 import {execFileSync} from 'child_process';
 import crypto from 'crypto';
+import * as zlib from 'zlib';
 import {Readable} from 'stream';
 import {finished} from 'stream/promises';
 import decompress from 'decompress';
@@ -29,6 +30,13 @@ const DB = path.join(TMP, 'database');
 const ARCHIVES = path.join(TMP, 'database_archives');
 fs.mkdirSync(DB, {recursive: true});
 fs.mkdirSync(ARCHIVES, {recursive: true});
+
+interface Author {
+  id?: number;
+  name: string;
+  lastLogin?: Date;
+  sentApprovalMessage?: boolean;
+}
 
 interface QuestManifest {
   id: string;
@@ -109,15 +117,16 @@ function saveQuests() {
   fs.writeFileSync(doNotExistFile, JSON.stringify(doNotExist, null, 2));
 }
 
-let authorsMap = new Map<number, {name: string, lastLogin?: Date}>();
+let authorsMap = new Map<number, Author>();
 function loadAuthors() {
   authorsMap = new Map();
   const file = `${DB}/authors.json`;
   if (fs.existsSync(file)) {
-    const entries: Record<number, {name: string, lastLogin?: Date}> = JSON.parse(fs.readFileSync(file, 'utf-8'));
-    for (const [author, entry] of Object.entries(entries)) {
+    const entries: Record<number, Author> = JSON.parse(fs.readFileSync(file, 'utf-8'));
+    for (const [key, entry] of Object.entries(entries)) {
+      const id = Number(key);
       if (entry.lastLogin) entry.lastLogin = new Date(entry.lastLogin);
-      authorsMap.set(Number(author), entry);
+      authorsMap.set(id, entry);
     }
   }
 }
@@ -252,9 +261,51 @@ async function getLatestPzcId(page: puppeteer.Page) {
   });
 }
 
+async function uncompressQstAndGzip(qstPath: string) {
+  const gzPath = qstPath + '.gz';
+  if (fs.existsSync(gzPath)) {
+    // Already done.
+    return;
+  }
+
+  // First release with -uncompress-qst
+  const releasePath = `${TMP}/releases/nightly-2023-10-11-2`;
+  if (!fs.existsSync(releasePath)) {
+    console.error(`not found: ${releasePath}`);
+    process.exit(1);
+  }
+
+  const zeditorPath = releasePath + '/' + glob.sync('**/zeditor', {cwd: releasePath})[0];
+  if (!fs.existsSync(zeditorPath)) {
+    console.error(`not found: ${zeditorPath}`);
+    process.exit(1);
+  }
+
+  const out = `${TMP}/out.qst`;
+  if (fs.existsSync(out)) fs.unlinkSync(out);
+  execFileSync(zeditorPath, [
+    '-uncompress-qst',
+    qstPath,
+    out,
+  ], {stdio: 'inherit', cwd: path.dirname(zeditorPath)});
+
+  await new Promise((resolve, reject) => {
+    fs.createReadStream(out)
+      .pipe(zlib.createGzip())
+      .pipe(fs.createWriteStream(gzPath))
+      .on('error', reject)
+      .on('finish', resolve);
+  });
+  if (fs.existsSync(out)) fs.unlinkSync(out);
+}
+
 async function processId(page: puppeteer.Page, pzcId: number) {
   if ([81, 178, 400, 401].includes(pzcId)) {
     // Zip is busted - or maybe I'm using a bad library.
+    return;
+  }
+  if ([73, 793].includes(pzcId)) {
+    // qst doesn't open
     return;
   }
 
@@ -395,8 +446,10 @@ async function processId(page: puppeteer.Page, pzcId: number) {
   const archivePath = `${ARCHIVES}/quests/purezc/${pzcId}.zip`;
   fs.mkdirSync(`${ARCHIVES}/quests/purezc`, {recursive: true});
   // TODO: if this download has etag or last modified or w/e, could avoid re-downloaded when nothing changed.
-  fs.rmSync(archivePath, {force: true});
-  await download(`https://www.purezc.net/index.php?page=download&section=Quests&id=${pzcId}`, archivePath);
+  if (!FORCE) {
+    fs.rmSync(archivePath, {force: true});
+    await download(`https://www.purezc.net/index.php?page=download&section=Quests&id=${pzcId}`, archivePath);
+  }
   const contentHash = await getFileHash(archivePath);
 
   let thisRelease;
@@ -426,7 +479,7 @@ async function processId(page: puppeteer.Page, pzcId: number) {
   let hasUnzippedResources = false;
   const resourcesDir = `${questDir}/${thisRelease.name}`;
   fs.mkdirSync(resourcesDir, {recursive: true});
-  if (isNew || contentHashUpdated) {
+  if (isNew || contentHashUpdated || FORCE) {
     await decompress(archivePath, resourcesDir, {map(f) {
       return f;
     }});
@@ -479,8 +532,14 @@ async function processId(page: puppeteer.Page, pzcId: number) {
       }
     }
 
-    thisRelease.resources = glob.sync('**/*', {cwd: resourcesDir, nodir: true}).sort();
+    thisRelease.resources = glob.sync('**/*', {cwd: resourcesDir, nodir: true}).sort().filter(r => !r.endsWith('.gz'));
     getFirstQstFile(thisRelease);
+    for (const qst of thisRelease.resources.filter(r => r.endsWith('.qst'))) {
+      const path = `${DB}/${id}/${thisRelease.name}/${qst}`;
+      // Uncompress the contents of the qst file, so that loading code is a bit faster.
+      // Should still compress for the network, so let's gzip it. Gzip is actually way better than a4 PACKFILE (Yuurand.qst was 43M -> 27M).
+      await uncompressQstAndGzip(path);
+    }
   }
 
   const qsts = thisRelease.resources.filter(r => r.endsWith('.qst'));
@@ -538,15 +597,18 @@ async function waitUntilDownload(page: puppeteer.Page) {
 
 function groupByAuthor() {
   // For object equality goodness.
-  const authorCache: Record<any, {name: string, id?: number}> = {};
+  const authorCache: Record<string, Author> = {};
   function getAuthor(name: string, id: number|undefined) {
-    const key = id ? id : name;
-    if (authorCache[key]) return authorCache[key];
-
-    return authorCache[key] = {name, id};
+    if (id) {
+      const author = authorsMap.get(id);
+      if (!author) throw new Error(`unknown author: ${name} ${id}`);
+      return author;
+    }
+    if (authorCache[name]) return authorCache[name];
+    return authorCache[name] = {name};
   }
 
-  const questsByAuthor = new Map<{name: string, id?: number}, QuestManifest[]>();
+  const questsByAuthor = new Map<Author, QuestManifest[]>();
   for (const quest of questsMap.values()) {
     for (const rawAuthor of quest.authors) {
       const author = getAuthor(rawAuthor.name, rawAuthor.id);
@@ -577,6 +639,16 @@ async function main() {
   loadQuests();
   loadAuthors();
 
+  // for (const quest of questsMap.values()) {
+  //   for (const release of quest.releases) {
+  //     for (const qst of release.resources.filter(r => r.endsWith('.qst'))) {
+  //       const path = `${DB}/${quest.id}/${release.name}/${qst}`;
+  //       await uncompressQstAndGzip(path);
+  //     }
+  //   }
+  // }
+  // process.exit(0);
+
   const browser = await puppeteer.launch({headless: 'new'});
   const page = await browser.newPage();
 
@@ -590,6 +662,84 @@ async function main() {
     await page.type('#ips_password', PZC_PW);
     await page.evaluate(() => document.querySelector('#login').submit());
     await page.waitForNetworkIdle();
+  }
+
+  if (process.env.DM) {
+    for (const [author, quests] of groupByAuthor().entries()) {
+      if (!author.id) continue;
+      if (author.sentApprovalMessage) continue;
+      if (author.id !== 293775) continue;
+      continue;
+      console.log('ok');
+      console.log('DM', author);
+
+      const relevantQuests = quests.filter(q => q.approval === 'auto' || q.approval === 'pending');
+      if (relevantQuests.length === 0) continue;
+
+      function getQstOpenLink(quest: QuestManifest) {
+        const qsts = quest.releases[0].resources.filter(r => r.endsWith('.qst'));
+
+        let href;
+        if (qsts.length === 1) href = `https://web.zquestclassic.com/play/?open=${quest.id}`;
+        else href = `https://web.zquestclassic.com/play/?open=${quest.defaultPath}`;
+
+        const url = new URL(href);
+        url.searchParams.set('name', quest.name.replace(/['!?]/g, '').replace(/[\s:&]+/g, '-').replace(/[-]+/g, '-'));
+        url.search = decodeURIComponent(url.search);
+        return url.toString();
+      }
+
+      const title = 'Requesting approval to publish your quest on web.zquestclassic.com';
+      const message = `
+(FYI: This message was sent with the help of an automated script)
+
+TLDR: Would you like the developers of ZC to make your quest available on the Web version of ZC at [url=https://web.zquestclassic.com]https://web.zquestclassic.com[/url]?
+
+In April 2022 I ported ZC to the Web. My goal was to make quests easier than ever to play and share with others. I hosted this Web version of ZC on my personal website, and included a mirror of every quest from the PureZC database. I never asked the quest authors permission to host their quests on my website, and I'd like to rectify that mistake now that we are launching a new website for ZQuest Classic: [url=https://zquestclassic.com]https://zquestclassic.com[/url]
+
+Please respond to this PM indicating if you'd like (or would not like) your quest(s) to be available on the ZC website:
+
+[LIST]
+${relevantQuests.map(q => `[*]${q.name} (by ${q.authors.map(a => a.name).join(', ')}): [url=${q.projectUrl}]purezc.net[/url] | [url=${getQstOpenLink(q)}]web.zquestclassic.com[/url][/*]`).join('\n')}
+[/LIST]
+
+Some Q/As I've anticipated:
+
+Q: How can I share my quest if hosted on the Web version of ZC?
+A: By just sharing a link, for example: [url=https://web.zquestclassic.com/play/?open=quests/purezc/773]https://web.zquestclassic.com/play/?open=quests/purezc/773[/url], you can find your quest in the "Quest List" of the Web version, click on "Play", then just share that URL. See the links above that would be used for your quest (NOTE: may not work until you give your approval).
+
+Q: What about enhanced music?
+A: External links to music zips listed in a quest project page are automatically extracted and hosted on the ZC Web version. When needed by the engine, the Web version will download music files one at a time on the browser client. You may continue to utilize external file sharing services to host external music - if for some reason you'd like us to host a music zip directly just reach out.
+
+Q: Can I change my answer later?
+A: Yes! Just message me. In the future, I / PZC admin will add a field to the quest project page to streamline the approval process. But until then, a PM is fine.
+
+Q: What if I update my quest on PureZC?
+A: The Web version will automatically grab the newer version, and new save files will use that. Currently existing save files in the Web version will stick to the previous version, but I'm working on a way to easily update which qst a save slot points to. If your quest would have breaking changes such that this would break a player's playthrough, please utilize the version fields found in the Header dialog in the ZC quest editor to indicate that.
+
+Q: Why is the web version laggy?
+A: It's still in an experimental phase. I've found quests to be very playable, as long as it isn't one of the more demanding scripted ones and your machine is somewhat powerful. A goal over the next year is to improve the performance of the engine and the Web version so that all quests run smoothly on most hardware, including mobile devices.
+
+Q: Will the developers ever make money off my quest being available on the Web version of ZC?
+A: No.
+      `.trim();
+
+      await page.goto(`https://www.purezc.net/forums/index.php?showuser=${author.id}`);
+      await page.click('.pm_button');
+      await page.waitForSelector('input.input_submit[name="send_msg"]', {visible: true});
+      await page.type('input[name="msg_title"]', title);
+      await page.$eval('textarea[name="Post"]', (el, text) => el.value = text, message);
+
+      await Promise.all([
+        page.click('input.input_submit[name="send_msg"]'),
+        page.waitForNavigation(),
+      ]);
+      author.sentApprovalMessage = true;
+      saveAuthors();
+      break;
+    }
+
+    process.exit(0);
   }
 
   if (process.env['APPROVALS']) {
@@ -663,7 +813,8 @@ async function main() {
         if (!author.id || authorsMap.has(author.id)) continue;
   
         let lastLogin;
-        await page.goto(`https://www.purezc.net/forums/index.php?showuser=${author.id}`);
+        const id = author.id;
+        await page.goto(`https://www.purezc.net/forums/index.php?showuser=${id}`);
         const lastLoginRaw = await page.evaluate(() => {
           const el = document.querySelector('#user_info_cell .desc');
           if (!el?.textContent) throw new Error();
@@ -673,24 +824,32 @@ async function main() {
         if (lastLoginRaw.includes('Today') || lastLoginRaw.includes('Yesterday')) lastLogin = new Date();
         else if (lastLoginRaw.match(/(minute|hour)s? ago/)) lastLogin = new Date();
         else if (!lastLoginRaw.includes('Private')) lastLogin = new Date(lastLoginRaw);
-  
-        console.log(author.id, {name: author.name, lastLogin});
-        authorsMap.set(author.id, {name: author.name, lastLogin});
+
+        console.log(id, {id, name: author.name, lastLogin});
+        authorsMap.set(id, {id, name: author.name, lastLogin});
         saveAuthors();
       }
     }
   }
 
-  console.log('\nexiting');
+  console.log('\nshutting down');
   saveQuests();
   await browser.close();
-  if (OFFICIAL) execFileSync('s3cmd', [
-    'sync',
-    '--no-preserve',
-    '--acl-public',
-    `${DB}/`,
-    's3://zc-data/',
-  ], {stdio: 'inherit'});
+  if (OFFICIAL) {
+      console.log('\nsyncing s3');
+      execFileSync('s3cmd', [
+        'sync',
+        '--no-preserve',
+        '--acl-public',
+        `${DB}/`,
+        's3://zc-data/',
+      ], {stdio: 'inherit'});
+      execFileSync('s3cmd', [
+        'modify',
+        '--add-header=Content-Encoding:gzip',
+        's3://zc-data/**/*.qst.gz',
+      ], {stdio: 'inherit'});
+  }
 }
 
 main();
