@@ -22239,7 +22239,12 @@ int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc,
 	// So to avoid a more-recently updated .qst file from hitting the "last saved in a newer version" prompt, we disable in CI.
 	if (!is_ci())
 		loadquest_report = report;
+
+	auto start = std::chrono::steady_clock::now();
 	int32_t ret = _lq_int(filename, Header, Misc, tunes, show_progress, skip_flags, printmetadata);
+	int32_t load_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count();
+	zprint2("Time to load qst: %d ms\n", load_ms);
+
 	load_tmp_zi = NULL;
 	loading_qst_name = NULL;
 	loadquest_report = false;
