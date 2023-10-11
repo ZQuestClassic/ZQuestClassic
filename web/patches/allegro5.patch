@@ -38,6 +38,19 @@ index a08e0e4c6..48654b5e4 100644
 -mark_as_advanced(VORBIS_LIBRARY VORBISFILE_LIBRARY)
 +mark_as_advanced(VORBIS_LIBRARY VORBIS_LIBRARY)
  
+diff --git a/src/sdl/sdl_display.c b/src/sdl/sdl_display.c
+index 12fc8f14d..afbe4703d 100644
+--- a/src/sdl/sdl_display.c
++++ b/src/sdl/sdl_display.c
+@@ -321,7 +321,7 @@ static void sdl_flip_display(ALLEGRO_DISPLAY *d)
+    SDL_GL_SwapWindow(sdl->window);
+ 
+    // SDL loses texture contents, for example on resize.
+-   al_backup_dirty_bitmaps(d);
++   // al_backup_dirty_bitmaps(d);
+ }
+ 
+ static void sdl_update_display_region(ALLEGRO_DISPLAY *d, int x, int y,
 diff --git a/src/sdl/sdl_system.c b/src/sdl/sdl_system.c
 index ee7034488..f859e9177 100644
 --- a/src/sdl/sdl_system.c
