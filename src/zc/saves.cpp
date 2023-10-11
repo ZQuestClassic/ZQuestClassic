@@ -1574,7 +1574,7 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 		if(!p_iputw(game.OverrideItems[q],f))
 			return 109;
 	uint32_t num_used_mapscr_data = 0;
-	for(uint32_t q = map_count*MAPSCRS; q >= 0; --q)
+	for(int32_t q = map_count*MAPSCRS-1; q >= 0; --q)
 		if(game.screen_data[q].size())
 		{
 			num_used_mapscr_data = q+1;
