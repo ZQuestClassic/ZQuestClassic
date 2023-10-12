@@ -13,7 +13,6 @@ EM_ASYNC_JS(void, em_init_fs_, (), {
 
   function writeFakeFile(path, url) {
     url = url || ZC.dataOrigin + path;
-    if (path.endsWith('.qst')) url += '.gz';
     FS.mkdirTree(PATH.dirname(path));
     FS.writeFile(path, '');
     window.ZC.pathToUrl[path] = url;
@@ -32,7 +31,10 @@ EM_ASYNC_JS(void, em_init_fs_, (), {
     for (const release of quest.releases) {
         const releasePrefix = questPrefix + '/' + release.name;
         for (const resource of release.resources) {
-            writeFakeFile(releasePrefix + '/' + resource);
+			const path = releasePrefix + '/' + resource;
+			let url = ZC.dataOrigin + path;
+			if (resource.endsWith('.qst')) url += '.gz';
+            writeFakeFile(path, url);
         }
         for (const music of quest.music) {
             writeFakeFile(releasePrefix + '/music/' + music, ZC.dataOrigin + questPrefix + '/music/' + music);

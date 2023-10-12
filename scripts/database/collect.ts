@@ -138,6 +138,23 @@ function saveAuthors() {
   fs.writeFileSync(file, JSON.stringify(obj, null, 2));
 }
 
+let cache: any;
+function loadCache() {
+  cache = {};
+  const file = `${DB}/cache.json`;
+  if (fs.existsSync(file)) {
+    cache = JSON.parse(fs.readFileSync(file, 'utf-8'));
+  }
+
+  cache.sizeHeaders = cache.sizeHeaders || {};
+  cache.encodingHeaders = cache.encodingHeaders || {};
+}
+
+function saveCache() {
+  const file = `${DB}/cache.json`;
+  fs.writeFileSync(file, JSON.stringify(cache, null, 2));
+}
+
 function download(url: string, outputPath: string) {
   return new Promise(async (resolve, reject) => {
       const res = await fetch(url);
@@ -620,6 +637,17 @@ function groupByAuthor() {
   return new Map([...questsByAuthor].sort((a, b) => b[1].length - a[1].length));
 }
 
+async function forEveryQst(cb: (args: {quest: QuestManifest, release: QuestManifest['releases'][0], qst: string, path: string}) => Promise<void>|void) {
+  for (const quest of questsMap.values()) {
+    for (const release of quest.releases) {
+      for (const qst of release.resources.filter(r => r.endsWith('.qst'))) {
+        const path = `${quest.id}/${release.name}/${qst}`;
+        await cb({quest, release, qst, path});
+      }
+    }
+  }
+}
+
 async function main() {
   if (OFFICIAL_SYNC) {
     execFileSync('s3cmd', ['sync', 's3://zc-data/', '--no-preserve', `${DB}/`], {stdio: 'inherit'});
@@ -628,6 +656,7 @@ async function main() {
     // We do not sync everything in CI because we don't need a full copy to run this script.
     const files = [
       'authors.json',
+      'cache.json',
       'manifest.json',
       'quest_db_donotexist.json',
     ];
@@ -638,6 +667,7 @@ async function main() {
 
   loadQuests();
   loadAuthors();
+  loadCache();
 
   // for (const quest of questsMap.values()) {
   //   for (const release of quest.releases) {
@@ -834,21 +864,62 @@ A: No.
 
   console.log('\nshutting down');
   saveQuests();
+
   await browser.close();
   if (OFFICIAL) {
-      console.log('\nsyncing s3');
-      execFileSync('s3cmd', [
-        'sync',
-        '--no-preserve',
-        '--acl-public',
-        `${DB}/`,
-        's3://zc-data/',
-      ], {stdio: 'inherit'});
+    console.log('\nsyncing s3');
+    execFileSync('s3cmd', [
+      'sync',
+      '--no-preserve',
+      '--acl-public',
+      `${DB}/`,
+      's3://zc-data/',
+    ], {stdio: 'inherit'});
+
+    console.log('\nadding encoding headers');
+    await forEveryQst(({path}) => {
+      if (cache.encodingHeaders[path]) return;
+      const diskPath = `${DB}/${path}.gz`;
+      if (!fs.existsSync(diskPath)) return;
+
       execFileSync('s3cmd', [
         'modify',
         '--add-header=Content-Encoding:gzip',
-        's3://zc-data/**/*.qst.gz',
+        `s3://zc-data/${path}.gz`,
       ], {stdio: 'inherit'});
+      cache.encodingHeaders[path] = true;
+    });
+
+    console.log('\nadding size headers');
+    await forEveryQst(({path}) => {
+    if (cache.sizeHeaders[path]) return;
+
+      const diskPath = `${DB}/${path}.gz`;
+      if (!fs.existsSync(diskPath)) return;
+
+      const gzipText = execFileSync('gzip', [
+        '-l', diskPath,
+      ], {encoding: 'utf-8'});
+      const size = Number(gzipText.trim().split('\n')[1].trim().split(/\s+/)[1]);
+      console.log('uncompressed size', `${path}.gz`, size);
+      if (!Number.isFinite(size) || size <= 0) return;
+
+      execFileSync('s3cmd', [
+        'modify',
+        `--add-header=X-Amz-Meta-Inflated-Content-Size:${size}`,
+        `s3://zc-data/${path}.gz`,
+      ], {stdio: 'inherit'});
+      cache.sizeHeaders[path] = true;
+    });
+  }
+
+  saveCache();
+  if (OFFICIAL) {
+    execFileSync('s3cmd', [
+      'put',
+      `${DB}/cache.json`,
+      's3://zc-data/cache.json',
+    ], {stdio: 'inherit'});
   }
 }
 

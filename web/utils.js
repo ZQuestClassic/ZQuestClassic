@@ -1,12 +1,27 @@
 export async function fetchWithProgress(url, opts, progressCb) {
   const response = await fetch(url, opts);
 
-  let received = 0;
-  let contentLength = Number(response.headers.get('Content-Length')) || 0;
+  // Fetch API cannot tell how much of a compressed request's bytes have been downloaded.
+  // We only get the response, post-uncompression.
+  // But let's still display the progress in terms of transfer size, so it does not seem
+  // like more is being downloaded than in reality.
+  // This progress bar won't be totally accurate (compression ratios vary for a given response),
+  // but it should be good enough.
+
+  const contentLength = Number(response.headers.get('Content-Length'));
+  const inflatedContentLength = response.headers.has('Content-Encoding') ?
+    Number(response.headers.get('X-Amz-Meta-Inflated-Content-Size')) :
+    null;
+
+  let transferSize = null;
   if (!Number.isInteger(contentLength) || !Number.isFinite(contentLength) || contentLength <= 0) {
-    contentLength = null;
+    transferSize = contentLength;
   }
 
+  const compressionRatio =
+    inflatedContentLength && transferSize ? inflatedContentLength / transferSize : 1;
+
+  let responseBytesRecieved = 0;
   return new Response(new ReadableStream({
     async start(controller) {
       const reader = response.body.getReader();
@@ -14,12 +29,12 @@ export async function fetchWithProgress(url, opts, progressCb) {
         const { done, value } = await reader.read();
 
         if (done) {
-          progressCb(received, contentLength, true);
+          progressCb(responseBytesRecieved * compressionRatio, transferSize, true);
           break;
         }
 
-        received += value.byteLength;
-        progressCb(received, contentLength, false);
+        responseBytesRecieved += value.byteLength;
+        progressCb(responseBytesRecieved * compressionRatio, transferSize, false);
         controller.enqueue(value);
       }
       controller.close();
