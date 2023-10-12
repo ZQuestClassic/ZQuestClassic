@@ -196,6 +196,20 @@ jobs:
           generate_release_notes: false
           body_path: new_changelog.md
 
+      - name: Setup Sentry CLI
+        if: inputs.sentry
+        uses: mathieu-bour/setup-sentry-cli@v1.3.0
+        with:
+          version: '2.20.6'
+          token: ${{ secrets.SENTRY_TOKEN }}
+          organization: zeldaclassic
+          project: zelda-classic
+      - name: Finalize sentry
+        if: inputs.sentry
+        run: |
+          sentry-cli --log-level=DEBUG releases set-commits 'zelda-classic@${{ needs.create-tag.outputs.release-tag }}' --auto --ignore-missing
+          sentry-cli --log-level=DEBUG releases finalize 'zelda-classic@${{ needs.create-tag.outputs.release-tag }}'
+
       - uses: actions/github-script@v6
         with:
           github-token: ${{ secrets.WEBSITE_REPO_TOKEN }}
@@ -212,17 +226,3 @@ jobs:
               workflow_id: 'deploy.yml',
               ref: 'main',
             })
-
-      - name: Setup Sentry CLI
-        if: inputs.sentry
-        uses: mathieu-bour/setup-sentry-cli@v1.3.0
-        with:
-          version: '2.20.6'
-          token: ${{ secrets.SENTRY_TOKEN }}
-          organization: zeldaclassic
-          project: zelda-classic
-      - name: Finalize sentry
-        if: inputs.sentry
-        run: |
-          sentry-cli --log-level=DEBUG releases set-commits 'zelda-classic@${{ needs.create-tag.outputs.release-tag }}' --auto --ignore-missing
-          sentry-cli --log-level=DEBUG releases finalize 'zelda-classic@${{ needs.create-tag.outputs.release-tag }}'
