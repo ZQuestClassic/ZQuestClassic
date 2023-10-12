@@ -1721,7 +1721,12 @@
 #define SUBWIDG_DISPW           1624
 #define SUBWIDG_DISPH           1625
 
-#define LAST_BYTECODE           1626
+#define SCREENSCRDATASIZE       1626
+#define SCREENSCRDATA           1627
+#define MAPDATASCRDATASIZE      1628
+#define MAPDATASCRDATA          1629
+
+#define LAST_BYTECODE           1630
 
 //} END OF BYTECODE
 

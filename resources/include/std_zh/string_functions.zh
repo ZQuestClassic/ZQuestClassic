@@ -263,6 +263,10 @@ void memcpy(untyped dest, untyped src, int n)
 {
 	memcpy(dest, 0, src, 0, n);
 }
+void memcpy(untyped dest, untyped src)
+{
+	memcpy(dest, 0, src, 0, Max(SizeOfArray(dest), SizeOfArray(src)));
+}
 
 //Memory Move
 //As memcpy, but uses a buffer so memory space can overlap

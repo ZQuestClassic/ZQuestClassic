@@ -18,7 +18,8 @@ void zinitdata::clear_genscript()
 }
 void zinitdata::clear()
 {
-	*this = zinitdata();
+	static zinitdata zinitdata_default = {};
+	*this = zinitdata_default;
 }
 
 void zinitdata::copy(zinitdata const& other)

@@ -7,6 +7,8 @@
 #include "zc_list_data.h"
 #include <fmt/format.h>
 #include <sstream>
+#include "base/initdata.h"
+#include "vectorpick.h"
 
 extern word map_count;
 extern script_data *screenscripts[NUMSCRIPTSCREEN];
@@ -14,20 +16,18 @@ extern char *guy_string[eMAXGUYS];
 extern const char *screen_midi_string[MAXCUSTOMMIDIS_ZQ+1];
 
 static size_t screendata_tab = 0;
-void call_screendata_dialog(mapscr* scr)
+void call_screendata_dialog()
 {
-	if(!scr)
-		scr = Map.CurrScr();
-	ScreenDataDialog(scr).show();
+	ScreenDataDialog(Map.getCurrMap(), Map.getCurrScr()).show();
 }
-void call_screendata_dialog(size_t forceTab, mapscr* scr)
+void call_screendata_dialog(size_t forceTab)
 {
 	screendata_tab = forceTab;
 	call_screendata_dialog();
 }
 
-ScreenDataDialog::ScreenDataDialog(mapscr* scr) :
-	thescr(scr), local_scr(*scr),
+ScreenDataDialog::ScreenDataDialog(int map, int scr) :
+	mapscrnum(map*MAPSCRS+scr),
 	list_screenscript(GUI::ZCListData::screen_script()),
 	list_maps(GUI::ListData::numbers(true, 1, map_count)),
 	list_screens(GUI::ListData::numbers(false, 0, 0x80, [](int v)
@@ -38,7 +38,13 @@ ScreenDataDialog::ScreenDataDialog(mapscr* scr) :
 	list_screenmidi(MAXCUSTOMMIDIS_ZQ+1,
 		[](size_t ind){return screen_midi_string[ind];},
 		[](size_t ind){return int32_t(ind)-1;})
-{}
+{
+	mapscr* thescreen = Map.AbsoluteScr(map,scr);
+	thescr = thescreen;
+	local_scr = *thescreen;
+	screen_misc_data = zinit.vecs.screen_data[mapscrnum];
+	screen_misc_data_sz = zinit.vecs.screen_dataSize[mapscrnum];
+}
 
 std::shared_ptr<GUI::Widget> ScreenDataDialog::SCREEN_INITD(int index)
 {
@@ -617,30 +623,58 @@ std::shared_ptr<GUI::Widget> ScreenDataDialog::view()
 					SCR_CB(flags4,fDISABLETIME,2,"Secrets Disable Timed Warp", "If secrets are triggered, the timed warp will no longer occur."),
 					SCR_CB(flags5,fRANDOMTIMEDWARP,2,"Timed Warp Is Random Side", "Instead of being Sidewarp A, the timed warp will choose a random sidewarp from A,B,C,D.")
 				)),
-				TabRef(name = "Script", Row(
-					Column(
-						SCREEN_INITD(0),
-						SCREEN_INITD(1),
-						SCREEN_INITD(2),
-						SCREEN_INITD(3),
-						SCREEN_INITD(4),
-						SCREEN_INITD(5),
-						SCREEN_INITD(6),
-						SCREEN_INITD(7)
-					),
-					Column(
-						padding = 0_px, fitParent = true,
-						Rows<2>(vAlign = 0.0,
-							SCRIPT_LIST_PROC("Action Script:", list_screenscript, local_scr.script, refreshScript)
-						),
-						Checkbox(
-							hAlign = 0.0,
-							checked = local_scr.preloadscript,
-							text = "Run On Screen Init",
-							onToggleFunc = [&](bool state)
+				TabRef(name = "Script", Column(
+					Row(
+						Label(text = "Data Size:"),
+						TextField(
+							type = GUI::TextField::type::SWAP_ZSINT_NO_DEC,
+							low = 0, high = 2147480000,
+							val = screen_misc_data_sz*10000,
+							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
-								local_scr.preloadscript = state ? 1 : 0;
-							}
+								val /= 10000;
+								screen_misc_data_sz = val;
+								databtn->setDisabled(!val);
+							}),
+						INFOBTN("The starting size of the screen's 'Data' array."),
+						//
+						databtn = Button(colSpan = 3, fitParent = true,
+							text = "Edit Starting Data",
+							disabled = !screen_misc_data_sz,
+							onPressFunc = [&]()
+							{
+								if(screen_misc_data_sz)
+								{
+									call_edit_vector(screen_misc_data, true, 0,
+										screen_misc_data_sz);
+								}
+							})
+					),
+					Row(
+						Column(
+							SCREEN_INITD(0),
+							SCREEN_INITD(1),
+							SCREEN_INITD(2),
+							SCREEN_INITD(3),
+							SCREEN_INITD(4),
+							SCREEN_INITD(5),
+							SCREEN_INITD(6),
+							SCREEN_INITD(7)
+						),
+						Column(
+							padding = 0_px, fitParent = true,
+							Rows<2>(vAlign = 0.0,
+								SCRIPT_LIST_PROC("Action Script:", list_screenscript, local_scr.script, refreshScript)
+							),
+							Checkbox(
+								hAlign = 0.0,
+								checked = local_scr.preloadscript,
+								text = "Run On Screen Init",
+								onToggleFunc = [&](bool state)
+								{
+									local_scr.preloadscript = state ? 1 : 0;
+								}
+							)
 						)
 					)
 				))
@@ -676,6 +710,8 @@ bool ScreenDataDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			break;
 		case message::OK:
 			*thescr = local_scr;
+			zinit.vecs.screen_data[mapscrnum] = screen_misc_data;
+			zinit.vecs.screen_dataSize[mapscrnum] = screen_misc_data_sz;
 			saved = false;
 			[[fallthrough]];
 		case message::CANCEL:

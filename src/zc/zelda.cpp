@@ -608,7 +608,7 @@ byte                midi_flags[MIDIFLAGS_SIZE];
 byte                music_flags[MUSICFLAGS_SIZE];
 int32_t					msg_strings_size=0;
 byte                *quest_file;
-dword               quest_map_pos[MAPSCRS*MAXMAPS2]={0};
+dword               quest_map_pos[MAPSCRS*MAXMAPS]={0};
 
 char     *qstpath=NULL;
 char     *qstdir=NULL;
@@ -5467,15 +5467,13 @@ int main(int argc, char **argv)
 
 	saves_init();
 
-#ifdef __EMSCRIPTEN__
-	QueryParams params = get_query_params();
-
 	// This will either quick load the first save file for this quest,
 	// or if that doesn't exist prompt the player for a save file name
 	// and then load the quest.
-	if (!params.open.empty())
+	int web_open_arg = used_switch(argc, argv, "-web-open");
+	if (web_open_arg)
 	{
-		std::string qstpath_to_load = (fs::current_path() / params.open).string();
+		std::string qstpath_to_load = (fs::current_path() / argv[web_open_arg + 1]).string();
 
 		std::string rel_qstpath = qstpath_to_load;
 		char temppath[2048];
@@ -5521,7 +5519,6 @@ int main(int argc, char **argv)
 		}
 		fast_start = true;
 	}
-#endif
 
 	set_display_switch_callback(SWITCH_IN,switch_in_callback);
 	set_display_switch_callback(SWITCH_OUT,switch_out_callback);

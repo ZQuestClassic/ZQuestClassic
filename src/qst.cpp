@@ -3069,7 +3069,7 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_WRONG_BRANG_TRAIL_DIR,1);
 	}
 	
-	if(tempheader.zelda_version == 0x192 && tempheader.build == 163)
+	if((tempheader.zelda_version == 0x192 && tempheader.build <= 163) || tempheader.zelda_version < 0x192)
 	{
 		set_qr(qr_192b163_WARP,1);
 	}
@@ -5185,8 +5185,7 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 		}
 		else
 			tempDMap.intro_string_id = 0;
-		
-		// TODO z3 !! rm
+
 		if(s_version >= 21 || global_z3_hacky_load)
 		{
 			for(int32_t j=0; j<8; j++)
@@ -5200,7 +5199,7 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 				}
 			}
 		}
-		
+
 		if (!should_skip)
 		{
 			if(loading_tileset_flags & TILESET_CLEARMAPS)
@@ -17239,7 +17238,7 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header)
 		temp_map_count=map_count;
 	}
 
-	if (!(temp_map_count >= 0 && temp_map_count <= MAXMAPS2))
+	if (!(temp_map_count >= 0 && temp_map_count <= MAXMAPS))
 	{
 		return qe_invalid;
 	}
@@ -17256,7 +17255,7 @@ int32_t readmaps(PACKFILE *f, zquestheader *Header)
 	
 	temp_mapscr.zero_memory();
 	
-	for(int32_t i=0; i<temp_map_count && i<MAXMAPS2; i++)
+	for(int32_t i=0; i<temp_map_count && i<MAXMAPS; i++)
 	{
 		byte valid=1;
 		if(version > 22)
@@ -20782,6 +20781,20 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 		if(!p_getc(&temp_zinit.hero_swim_div,f))
 			return qe_invalid;
 	}
+	if(s_version > 34)
+	{
+		uint32_t num_used_mapscr_data;
+		if(!p_igetl(&num_used_mapscr_data,f))
+			return qe_invalid;
+		for(uint32_t q = 0; q < num_used_mapscr_data; ++q)
+		{
+			if(!p_igetl(&temp_zinit.vecs.screen_dataSize[q],f))
+				return qe_invalid;
+			if(temp_zinit.vecs.screen_dataSize[q])
+				if(!p_getlvec(&temp_zinit.vecs.screen_data[q],f))
+					return qe_invalid;
+		}
+	}
 	
 	if(loading_tileset_flags & TILESET_CLEARMAPS)
 	{
@@ -22238,7 +22251,12 @@ int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc,
 	// So to avoid a more-recently updated .qst file from hitting the "last saved in a newer version" prompt, we disable in CI.
 	if (!is_ci())
 		loadquest_report = report;
+
+	auto start = std::chrono::steady_clock::now();
 	int32_t ret = _lq_int(filename, Header, Misc, tunes, show_progress, skip_flags, printmetadata);
+	int32_t load_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count();
+	zprint2("Time to load qst: %d ms\n", load_ms);
+
 	load_tmp_zi = NULL;
 	loading_qst_name = NULL;
 	loadquest_report = false;

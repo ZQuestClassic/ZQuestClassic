@@ -2321,9 +2321,9 @@ int32_t zmap::MAPCOMBO3(int32_t map, int32_t screen, int32_t layer, int32_t pos)
 	
 	int32_t mapid = (layer < 0 ? -1 : ((m->layermap[layer] - 1) * MAPSCRS + m->layerscreen[layer]));
 	
-	if (layer >= 0 && (mapid < 0 || mapid > MAXMAPS2*MAPSCRS)) return 0;
+	if (layer >= 0 && (mapid < 0 || mapid > MAXMAPS*MAPSCRS)) return 0;
 	
-	mapscr const* scr = ((mapid < 0 || mapid > MAXMAPS2*MAPSCRS) ? m : &TheMaps[mapid]);
+	mapscr const* scr = ((mapid < 0 || mapid > MAXMAPS*MAPSCRS) ? m : &TheMaps[mapid]);
     
 	if(scr->valid==0) return 0;
 		
@@ -2419,9 +2419,9 @@ int32_t zmap::MAPFLAG3(int32_t map, int32_t screen, int32_t layer, int32_t pos)
 	
 	int32_t mapid = (layer < 0 ? -1 : ((m->layermap[layer] - 1) * MAPSCRS + m->layerscreen[layer]));
 	
-	if (layer >= 0 && (mapid < 0 || mapid > MAXMAPS2*MAPSCRS)) return 0;
+	if (layer >= 0 && (mapid < 0 || mapid > MAXMAPS*MAPSCRS)) return 0;
 	
-	mapscr const* scr = ((mapid < 0 || mapid > MAXMAPS2*MAPSCRS) ? m : &TheMaps[mapid]);
+	mapscr const* scr = ((mapid < 0 || mapid > MAXMAPS*MAPSCRS) ? m : &TheMaps[mapid]);
     
 	if(scr->valid==0) return 0;
 		
@@ -2636,7 +2636,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 	layers[0] = _zmap_get_lyr_checked(0,basescr);
 	for(int lyr = 1; lyr < 7; ++lyr)
 	{
-		layers[lyr] = prv_mode ? &prvlayers[lyr-1]
+		layers[lyr] = prv_mode ? ((&prvlayers[lyr-1])->valid ? &prvlayers[lyr - 1] : nullptr)
 			: _zmap_get_lyr_checked(lyr,basescr);
 	}
 	
@@ -4651,6 +4651,8 @@ void zmap::Copy()
         can_paste=true;
         copymap=currmap;
         copyscr=currscr;
+		copyscrdata = zinit.vecs.screen_data[currmap*MAPSCRS+currscr];
+		copyscrdatasz = zinit.vecs.screen_dataSize[currmap*MAPSCRS+currscr];
         copyffc = -1;
     }
 }
@@ -4918,6 +4920,8 @@ void zmap::PasteAll(const mapscr& copymapscr)
     {
         int32_t oldcolor=getcolor();
         copy_mapscr(&screens[currscr], &copymapscr);
+		zinit.vecs.screen_data[currmap*MAPSCRS+currscr] = copyscrdata;
+		zinit.vecs.screen_dataSize[currmap*MAPSCRS+currscr] = copyscrdatasz;
         //screens[currscr]=copymapscr;
         int32_t newcolor=getcolor();
         loadlvlpal(newcolor);
@@ -4987,6 +4991,8 @@ void zmap::PasteAllToAll(const mapscr& copymapscr)
         for(int32_t x=0; x<128; x++)
         {
             copy_mapscr(&screens[x], &copymapscr);
+			zinit.vecs.screen_data[currmap*MAPSCRS+x] = copyscrdata;
+			zinit.vecs.screen_dataSize[currmap*MAPSCRS+x] = copyscrdatasz;
             //screens[x]=copymapscr;
         }
         
@@ -6328,7 +6334,7 @@ bool setMapCount2(int32_t c)
     int32_t oldmapcount=map_count;
     int32_t currmap=Map.getCurrMap();
     
-    bound(c,1,MAXMAPS2);
+    bound(c,1,MAXMAPS);
     map_count=c;
     
     try
@@ -9566,7 +9572,7 @@ int32_t writemaps(PACKFILE *f, zquestheader *)
 			new_return(5);
 		}
 		map_autolayers.resize(map_count*6);
-		for(int32_t i=0; i<map_count && i<MAXMAPS2; i++)
+		for(int32_t i=0; i<map_count && i<MAXMAPS; i++)
 		{
 			byte valid = 0;
 			for(int32_t j=0; j<MAPSCRS; j++)
@@ -13702,6 +13708,23 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *Header)
         {
             new_return(103);
         }
+		uint32_t num_used_mapscr_data = 0;
+		for(int32_t q = map_count*MAPSCRS-1; q >= 0; --q)
+			if(zinit.vecs.screen_dataSize[q])
+			{
+				num_used_mapscr_data = q+1;
+				break;
+			}
+		if(!p_iputl(num_used_mapscr_data,f))
+			new_return(104);
+		for(uint32_t q = 0; q < num_used_mapscr_data; ++q)
+		{
+			if(!p_iputl(zinit.vecs.screen_dataSize[q],f))
+				new_return(105);
+			if(zinit.vecs.screen_dataSize[q])
+				if(!p_putlvec(zinit.vecs.screen_data[q],f))
+					new_return(106);
+		}
 		
 		if(writecycle==0)
 		{

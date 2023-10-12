@@ -5,16 +5,58 @@ import { handleFileLaunch } from "./file_launch.js";
 window.ZC = {
   dataOrigin: 'https://data.zquestclassic.com',
   pathToUrl: {},
+  setStatus: function (text, percentProgress = null) {
+    // `.data.js` emscripten generated script passes progress like this:
+    //   Downloading data... (x/y)
+    // And there's no way to configure that, so just parse it.
+    if (text.startsWith('Downloading data... (')) {
+      const [, x, y] = text.match(/(\d+)\/(\d+)/);
+      text = `Downloading data... (${formatBytes(x, y, 'MB')})`;
+      percentProgress = x / y;
+    }
+
+    if (!text || text === 'Running...') return;
+    if (!ZC.setStatus.last) ZC.setStatus.last = { time: Date.now(), text: '' };
+
+    const statusElement = document.getElementById('status');
+    const progressElement = document.getElementById('progress');
+
+    if (text === 'Ready') {
+      progressElement.value = null;
+      progressElement.max = null;
+      progressElement.hidden = true;
+      statusElement.hidden = true;
+      return;
+    }
+
+    statusElement.hidden = false;
+
+    if (text === ZC.setStatus.last.text) return;
+    const now = Date.now();
+    if (percentProgress && now - ZC.setStatus.last.time < 30) return; // if this is a progress update, skip it if too soon
+    ZC.setStatus.last.time = now;
+    ZC.setStatus.last.text = text;
+    if (percentProgress !== null && percentProgress > 0) {
+      progressElement.value = percentProgress;
+      progressElement.max = 1;
+      progressElement.hidden = false;
+    } else {
+      progressElement.value = null;
+      progressElement.max = null;
+      progressElement.hidden = true;
+    }
+    statusElement.innerHTML = text;
+  },
   async fetch(url, opts) {
     const response = await fetchWithProgress(url, opts, (received, total, done) => {
       if (done) {
-        Module.setStatus('Ready');
+        ZC.setStatus('Ready');
       } else if (received && total) {
-        Module.setStatus(`Fetching file (${formatBytes(received, total)})`, received / total);
+        ZC.setStatus(`Fetching file (${formatBytes(received, total)})`, received / total);
       } else if (received) {
-        Module.setStatus(`Fetching file (${formatBytes(received)})`);
+        ZC.setStatus(`Fetching file (${formatBytes(received)})`);
       } else {
-        Module.setStatus('Fetching file');
+        ZC.setStatus('Fetching file');
       }
     });
 
@@ -92,165 +134,144 @@ window.ZC = {
 };
 
 async function main() {
-  const params = new URLSearchParams(location.search);
-  const args = [];
+  window.Module = window.Module || {};
+  Module.noInitialRun = true;
 
-  try {
-    const statusElement = document.getElementById('status');
-    const progressElement = document.getElementById('progress');
+  let readyToRunPromiseResolve;
+  const readyToRunPromise = new Promise(resolve => readyToRunPromiseResolve = resolve);
 
-    const openPath = params.get('open');
-    if (TARGET === 'zeditor' && openPath) {
-      args.push(openPath.startsWith('/') ? openPath : `/${openPath}`);
-    }
-
-    if (TARGET === 'zplayer') {
-      const testPath = params.get('test');
-      const screen = params.get('screen');
-      const dmap = params.get('dmap');
-      const retsquare = params.get('retsquare');
-      if (testPath && screen && dmap) {
-        args.push('-test', testPath, dmap, screen);
-        if (retsquare) args.push(retsquare);
-        document.querySelector('.button--testmode').classList.remove('hidden');
+  // window.Module = await initModule({
+  window.Module = Object.assign(Module, {
+    arguments: [],
+    canvas: document.querySelector('canvas'),
+    instantiateWasm,
+    onRuntimeInitialized: () => {
+      if (TARGET === 'zplayer') setupTouchControls();
+      else {
+        // TODO: better way to hide touch controls (just don't render them?)
+        for (const el of [...document.querySelectorAll('.touch-inputs')]) {
+          el.classList.toggle('hidden', true);
+        }
       }
-    }
+      setupCopyUrl();
+      setupSettingsPanel();
+      if (TARGET === 'zeditor') setupOpenTestMode();
+      readyToRunPromiseResolve();
+    },
+    setStatus: function (text, percentProgress = null) {
+      ZC.setStatus(text, percentProgress);
+    },
+    expectedDataFileDownloads: 0,
+    totalDependencies: 0,
+    monitorRunDependencies: function (left) {
+      Module.totalDependencies = Math.max(Module.totalDependencies, left);
+      if (Module.totalDependencies === 1) return;
 
-    for (const [key, value] of params.entries()) {
-      if (['test', 'screen', 'dmap', 'retsquare', 'open'].includes(key)) {
-        continue;
-      }
-
-      const cliSwitch = '-' + key.replace(/[A-Z]/g, (match, offset) => (offset > 0 ? '-' : '') + match.toLowerCase());
-      args.push(cliSwitch);
-      if (value !== '') args.push(value);
-    }
-
-    // window.Module = await initModule({
-    window.Module = {
-      arguments: args,
-      canvas: document.querySelector('canvas'),
-      instantiateWasm,
-      onRuntimeInitialized: () => {
-        if (TARGET === 'zplayer') setupTouchControls();
-        else {
-          // TODO: better way to hide touch controls (just don't render them?)
-          for (const el of [...document.querySelectorAll('.touch-inputs')]) {
-            el.classList.toggle('hidden', true);
-          }
-        }
-        setupCopyUrl();
-        setupSettingsPanel();
-        if (TARGET === 'zeditor') setupOpenTestMode();
-      },
-      setStatus: function (text, percentProgress = null) {
-        // `.data.js` emscripten generated script passes progress like this:
-        //   Downloading data... (x/y)
-        // And there's no way to configure that, so just parse it.
-        if (text.startsWith('Downloading data... (')) {
-          const [, x, y] = text.match(/(\d+)\/(\d+)/);
-          text = `Downloading data... (${formatBytes(x, y, 'MB')})`;
-          percentProgress = x / y;
-        }
-
-        if (!text || text === 'Running...') return;
-        if (!Module.setStatus.last) Module.setStatus.last = { time: Date.now(), text: '' };
-
-        if (text === 'Ready') {
-          progressElement.value = null;
-          progressElement.max = null;
-          progressElement.hidden = true;
-          statusElement.hidden = true;
-          return;
-        }
-
-        statusElement.hidden = false;
-
-        if (text === Module.setStatus.last.text) return;
-        const now = Date.now();
-        if (percentProgress && now - Module.setStatus.last.time < 30) return; // if this is a progress update, skip it if too soon
-        Module.setStatus.last.time = now;
-        Module.setStatus.last.text = text;
-        if (percentProgress !== null && percentProgress > 0) {
-          progressElement.value = percentProgress;
-          progressElement.max = 1;
-          progressElement.hidden = false;
-        } else {
-          progressElement.value = null;
-          progressElement.max = null;
-          progressElement.hidden = true;
-        }
-        statusElement.innerHTML = text;
-      },
-      expectedDataFileDownloads: 0,
-      totalDependencies: 0,
-      monitorRunDependencies: function (left) {
-        Module.totalDependencies = Math.max(Module.totalDependencies, left);
-        if (Module.totalDependencies === 1) return;
-
-        const progress = (Module.totalDependencies - left) / (Module.totalDependencies);
-        Module.setStatus(left ? `Preparing... (${Module.totalDependencies - left}/${Module.totalDependencies})` : '', progress);
-      },
-      onExit: function (code) {
-        const msg = `exit with code: ${code}`;
-        if (code === 0) {
-          console.log(msg);
-        } else {
-          console.error(msg);
-        }
-      },
-      preRun: [() => {
-        if (IS_CI) ENV.CI = '1';
-      }],
-    };
-
-    window.addEventListener('resize', resize);
-    resize();
-
-    const requestPersist = () => {
-      navigator.storage.persist();
-      canvas.removeEventListener('click', requestPersist);
-    }
-    canvas.addEventListener('click', requestPersist);
-
-    for (const el of [...document.querySelectorAll('.panel-button[data-panel]')]) {
-      el.addEventListener('click', async () => {
-        for (const buttonEl of document.querySelectorAll('.panel-button')) {
-          const panelEl = document.querySelector(buttonEl.getAttribute('data-panel'));
-          if (el === buttonEl) {
-            buttonEl.classList.toggle('active');
-            if (panelEl) panelEl.classList.toggle('hidden');
-            if (panelEl && buttonEl.getAttribute('data-panel') === '.settings') await renderSettingsPanel();
-          } else {
-            buttonEl.classList.remove('active');
-            if (panelEl) panelEl.classList.add('hidden');
-          }
-        }
-
-        const canvasFocus = !document.querySelector('.panel-button.active');
-        document.body.classList.toggle('canvas-focus', canvasFocus);
-        document.querySelector('.content').classList.toggle('hidden', !canvasFocus);
-        if (canvasFocus) {
-          resize();
-          document.body.scrollIntoView();
-        }
-      });
-    }
-    document.body.classList.toggle('canvas-focus', true);
-
-    await renderQuestList();
-
-    if (params.has('launch')) {
-      const result = await handleFileLaunch();
-      if (result.openInEditor) {
-        window.location.href = createUrlString(ZC_Constants.zquestUrl, { open: result.quest });
+      const progress = (Module.totalDependencies - left) / (Module.totalDependencies);
+      ZC.setStatus(left ? `Preparing... (${Module.totalDependencies - left}/${Module.totalDependencies})` : '', progress);
+    },
+    onExit: function (code) {
+      const msg = `exit with code: ${code}`;
+      if (code === 0) {
+        console.log(msg);
       } else {
-        window.location.href = createUrlString(ZC_Constants.zeldaUrl, { open: result.quest });
+        console.error(msg);
+      }
+    },
+    preRun: [() => {
+      if (IS_CI) ENV.CI = '1';
+    }],
+  });
+
+  const params = new URLSearchParams(location.search);
+  const args = Module.arguments;
+
+  let openPath = params.get('open');
+  if (openPath) {
+    const manifest = await ZC.getQuestManifest();
+    openPath = openPath.startsWith('/') ? openPath : `/${openPath}`;
+    const m = openPath.startsWith('/quests/') && openPath.match(/\/([^/]*\/[^/]*\/[^/]*)\/?(.*)?/);
+    if (m) {
+      const [, id, file] = m;
+      if (!file && manifest[id]) {
+        openPath = `/${manifest[id].defaultPath}`;
       }
     }
-  } catch (err) {
-    console.error(err);
-    document.querySelector('.content').textContent = err.toString();
+  }
+
+  if (openPath) {
+    if (TARGET === 'zeditor') args.push(openPath);
+    else if (TARGET === 'zplayer') args.push('-web-open', openPath);
+  }
+
+  if (TARGET === 'zplayer') {
+    const testPath = params.get('test');
+    const screen = params.get('screen');
+    const dmap = params.get('dmap');
+    const retsquare = params.get('retsquare');
+    if (testPath && screen && dmap) {
+      args.push('-test', testPath, dmap, screen);
+      if (retsquare) args.push(retsquare);
+      document.querySelector('.button--testmode').classList.remove('hidden');
+    }
+  }
+
+  for (const [key, value] of params.entries()) {
+    if (['test', 'screen', 'dmap', 'retsquare', 'open'].includes(key)) {
+      continue;
+    }
+
+    const cliSwitch = '-' + key.replace(/[A-Z]/g, (match, offset) => (offset > 0 ? '-' : '') + match.toLowerCase());
+    args.push(cliSwitch);
+    if (value !== '') args.push(value);
+  }
+
+  window.addEventListener('resize', resize);
+  resize();
+
+  const requestPersist = () => {
+    navigator.storage.persist();
+    canvas.removeEventListener('click', requestPersist);
+  }
+  canvas.addEventListener('click', requestPersist);
+
+  for (const el of [...document.querySelectorAll('.panel-button[data-panel]')]) {
+    el.addEventListener('click', async () => {
+      for (const buttonEl of document.querySelectorAll('.panel-button')) {
+        const panelEl = document.querySelector(buttonEl.getAttribute('data-panel'));
+        if (el === buttonEl) {
+          buttonEl.classList.toggle('active');
+          if (panelEl) panelEl.classList.toggle('hidden');
+          if (panelEl && buttonEl.getAttribute('data-panel') === '.settings') await renderSettingsPanel();
+        } else {
+          buttonEl.classList.remove('active');
+          if (panelEl) panelEl.classList.add('hidden');
+        }
+      }
+
+      const canvasFocus = !document.querySelector('.panel-button.active');
+      document.body.classList.toggle('canvas-focus', canvasFocus);
+      document.querySelector('.content').classList.toggle('hidden', !canvasFocus);
+      if (canvasFocus) {
+        resize();
+        document.body.scrollIntoView();
+      }
+    });
+  }
+  document.body.classList.toggle('canvas-focus', true);
+
+  await readyToRunPromise;
+  callMain(Module.arguments);
+
+  await renderQuestList();
+
+  if (params.has('launch')) {
+    const result = await handleFileLaunch();
+    if (result.openInEditor) {
+      window.location.href = createUrlString(ZC_Constants.zquestUrl, { open: result.quest });
+    } else {
+      window.location.href = createUrlString(ZC_Constants.zeldaUrl, { open: result.quest });
+    }
   }
 }
 
@@ -406,15 +427,25 @@ async function renderQuestList() {
     if (quest.images.length > 0) setCurImage(quest.images[0]);
 
     const release = quest.releases[0];
-    for (const resource of release.resources.filter(r => r.endsWith('.qst'))) {
-      const openParamValue = `${quest.id}/${release.name}/${resource}`;
+    const qsts = release.resources.filter(r => r.endsWith('.qst'));
+    for (const resource of qsts) {
+      // Only set `name` query param, which doesn't do anything, when making a link for
+      // a quest that only has a single qst file. Otherwise, to disambiguate use the entire
+      // file path (which likely makes obvious the name of the quest).
+      const openParamValue = qsts.length > 1 ?
+        `${quest.id}/${release.name}/${resource}` :
+        quest.id;
+      const args = {open: openParamValue};
+      if (qsts.length === 1) {
+        args.name = quest.name.replace(/['!?]/g, '').replace(/[\s:&]+/g, '-').replace(/[-]+/g, '-');
+      }
 
       const playEl = createElement('a', 'play-link');
-      playEl.href = createUrlString(ZC_Constants.zeldaUrl, { open: openParamValue });
+      playEl.href = createUrlString(ZC_Constants.zeldaUrl, args);
       playEl.textContent = 'Play!';
 
       const editEl = createElement('a');
-      editEl.href = createUrlString(ZC_Constants.zquestUrl, { open: openParamValue });
+      editEl.href = createUrlString(ZC_Constants.zquestUrl, args);
       editEl.textContent = 'Open in Editor';
 
       const el = createElement('div', 'link-group');
@@ -595,7 +626,10 @@ function goFullscreen() {
   document.querySelector('main').requestFullscreen();
 }
 
-main();
+main().catch(err => {
+  console.error(err);
+  document.querySelector('.content').textContent = err.toString();
+});
 checkForGamepads();
 window.addEventListener('gamepadconnected', checkForGamepads);
 window.addEventListener('gamepaddisconnected', checkForGamepads);

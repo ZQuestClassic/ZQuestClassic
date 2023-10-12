@@ -209,6 +209,12 @@ jobs:
               workflow_id: 'deploy.yml',
               ref: 'main',
             })
+            await github.rest.actions.createWorkflowDispatch({
+              owner: 'ZQuestClassic',
+              repo: 'web.zquestclassic.com',
+              workflow_id: 'deploy.yml',
+              ref: 'main',
+            })
 
       - name: Setup Sentry CLI
         if: inputs.sentry

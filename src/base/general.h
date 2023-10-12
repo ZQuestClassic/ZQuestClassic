@@ -118,7 +118,7 @@ int wrap(int x,int low,int high);
 #define MAXMUSIC                   256 // uses bit string for music flags, so 32 bytes
 #define MUSICFLAGS_SIZE            (MAXMUSIC>>3)
 
-#define MAXMAPS2                   255 // 4 times the old number
+#define MAXMAPS                    255 // 4 times the old number
 #define MAPSCRSNORMAL              128
 #define MAPSCRS192b136             132
 #define MAPSCRS                    136

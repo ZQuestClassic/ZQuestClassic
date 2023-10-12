@@ -9,6 +9,8 @@
 #include <assert.h>
 #include <time.h>
 #include <vector>
+#include <filesystem>
+
 #include "dialog/info_lister.h"
 #ifdef __APPLE__
 // malloc.h is deprecated, but malloc also lives in stdlib
@@ -105,6 +107,9 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "zq/zq_files.h"
 
 extern CConsoleLoggerEx parser_console;
+
+namespace fs = std::filesystem;
+
 //Windows mmemory tools
 #ifdef _WIN32
 #include <windows.h>
@@ -14378,12 +14383,12 @@ const char *maplist(int32_t index, int32_t *list_size)
 {
     if(index>=0)
     {
-        bound(index,0,MAXMAPS2-1);
+        bound(index,0,MAXMAPS-1);
         sprintf(number_str_buf,"%d",index+1);
         return number_str_buf;
     }
     
-    *list_size=MAXMAPS2;
+    *list_size=MAXMAPS;
     return NULL;
 }
 
@@ -27540,6 +27545,37 @@ static void do_unencrypt_qst_command(const char* input_filename, const char* out
 	clear_quest_tmpfile();
 }
 
+// This will remove the PACKFILE compression. Incidentally, it also removes the top encoding layer.
+static void do_uncompress_qst_command(const char* input_filename, const char* output_filename)
+{
+	auto unencrypted_result = try_open_maybe_legacy_encoded_file(input_filename, ENC_STR, nullptr, QH_NEWIDSTR, QH_IDSTR);
+	if (unencrypted_result.not_found)
+	{
+		printf("qst not found\n");
+		exit(1);
+	}
+	if (!unencrypted_result.compressed && !unencrypted_result.encrypted)
+	{
+		// If the file is already an uncompressed file, there's nothing to do but copy it.
+		fs::copy(input_filename, output_filename);
+		return;
+	}
+
+	pack_fclose(unencrypted_result.decoded_pf);
+
+	int32_t error;
+	PACKFILE* pf = open_quest_file(&error, input_filename, false);
+	PACKFILE* pf2 = pack_fopen_password(output_filename, F_WRITE, "");
+	int c;
+	while ((c = pack_getc(pf)) != EOF)
+	{
+		pack_putc(c, pf2);
+	}
+	pack_fclose(pf);
+	pack_fclose(pf2);
+	clear_quest_tmpfile();
+}
+
 // Copy a quest file by loading and resaving, exactly like if the user did it in the UI.
 // Note there could be changes introduced in the loading or saving functions. These are
 // typically for compatability, but could possibly be a source of bugs.
@@ -27705,6 +27741,22 @@ int32_t main(int32_t argc,char **argv)
 		const char* input_filename = argv[unencrypt_qst_arg + 1];
 		const char* output_filename = argv[unencrypt_qst_arg + 2];
 		do_unencrypt_qst_command(input_filename, output_filename);
+		exit(0);
+	}
+
+	int uncompress_qst_arg = used_switch(argc, argv, "-uncompress-qst");
+	if (uncompress_qst_arg > 0)
+	{
+		if (uncompress_qst_arg + 3 > argc)
+		{
+			printf("%d\n", argc);
+			printf("expected -uncompress-qst <input> <output>\n");
+			exit(1);
+		}
+
+		const char* input_filename = argv[uncompress_qst_arg + 1];
+		const char* output_filename = argv[uncompress_qst_arg + 2];
+		do_uncompress_qst_command(input_filename, output_filename);
 		exit(0);
 	}
 

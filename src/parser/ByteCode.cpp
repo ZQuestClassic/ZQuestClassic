@@ -2443,6 +2443,11 @@ string ZScript::VarToString(int32_t ID)
 		case SUBWIDG_DISPW: return "SUBWIDG_DISPW";
 		case SUBWIDG_DISPH: return "SUBWIDG_DISPH";
 		
+		case SCREENSCRDATASIZE: return "SCREENSCRDATASIZE";
+		case SCREENSCRDATA: return "SCREENSCRDATA";
+		case MAPDATASCRDATASIZE: return "MAPDATASCRDATASIZE";
+		case MAPDATASCRDATA: return "MAPDATASCRDATA";
+		
 		default:
 		{
 			sprintf(temp, "d%d", ID);
@@ -6855,19 +6860,19 @@ string OSubscrPgDelete::toString() const
 }
 string OGetSubWidgSelTxtOverride::toString() const
 {
-	return "SUBWIDG_GET_SELTEXT_OVERRIDE";
+	return "SUBWIDG_GET_SELTEXT_OVERRIDE " + getArgument()->toString();
 }
 string OSetSubWidgSelTxtOverride::toString() const
 {
-	return "SUBWIDG_SET_SELTEXT_OVERRIDE";
+	return "SUBWIDG_SET_SELTEXT_OVERRIDE " + getArgument()->toString();
 }
 string OSubWidgTy_GetText::toString() const
 {
-	return "SUBWIDG_TY_GETTEXT";
+	return "SUBWIDG_TY_GETTEXT " + getArgument()->toString();
 }
 string OSubWidgTy_SetText::toString() const
 {
-	return "SUBWIDG_TY_SETTEXT";
+	return "SUBWIDG_TY_SETTEXT " + getArgument()->toString();
 }
 
 

@@ -14265,7 +14265,7 @@ void do_movecombo(combo_move_data const& cmd)
 		}
 	}
 	int32_t diff = cmd.tile - cmd.copy1;
-	for(int32_t i=0; i<map_count && i<MAXMAPS2; i++)
+	for(int32_t i=0; i<map_count && i<MAXMAPS; i++)
 	{
 		for(int32_t j=0; j<MAPSCRS; j++)
 		{

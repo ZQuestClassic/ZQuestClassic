@@ -1182,10 +1182,10 @@ static int32_t MAPCOMBO3_impl(int32_t map, int32_t screen, int32_t layer, int32_
 	
 	int32_t mapid = (layer < 0 ? -1 : ((m->layermap[layer] - 1) * MAPSCRS + m->layerscreen[layer]));
 	
-	if (layer >= 0 && (mapid < 0 || mapid > MAXMAPS2*MAPSCRS)) return 0;
+	if (layer >= 0 && (mapid < 0 || mapid > MAXMAPS*MAPSCRS)) return 0;
 	
 	// TODO z3 super expensive...
-	mapscr scr = ((mapid < 0 || mapid > MAXMAPS2*MAPSCRS) ? *m : TheMaps[mapid]);
+	mapscr scr = ((mapid < 0 || mapid > MAXMAPS*MAPSCRS) ? *m : TheMaps[mapid]);
 	if (scr.valid==0) return 0;
 	
 	// TODO z3 can this not be called all the time?
@@ -4745,7 +4745,9 @@ void draw_screen(bool showhero, bool runGeneric)
 	if(!get_qr(qr_SUBSCREENOVERSPRITES))
 	{
 		set_clip_rect(framebuf,draw_screen_clip_rect_x1,draw_screen_clip_rect_y1,draw_screen_clip_rect_x2,draw_screen_clip_rect_y2);
-		put_passive_subscr(framebuf, 0, passive_subscreen_offset, false, sspUP);
+		bool dotime = false;
+		if (replay_version_check(22) || !replay_is_active()) dotime = game->should_show_time();
+		put_passive_subscr(framebuf, 0, passive_subscreen_offset, dotime, sspUP);
 	}
 	
 	
@@ -4852,7 +4854,8 @@ void draw_screen(bool showhero, bool runGeneric)
 		for_every_nearby_screen([&](std::array<screen_handle_t, 7> screen_handles, int screen_index, int offx, int offy) {
 			calc_darkroom_combos(screen_index, offx, offy + playing_field_offset, darkscr_bmp_z3);
 		});
-		Hero.calc_darkroom_hero(0, -playing_field_offset, darkscr_bmp_z3);
+		if(showhero)
+			Hero.calc_darkroom_hero(0, -playing_field_offset, darkscr_bmp_z3);
 	}
 	
 	//Darkroom if under the subscreen
@@ -5513,7 +5516,7 @@ void load_a_screen_and_layers(int dmap, int map, int screen_index, int ldir)
 	// TODO z3 ! make this a compat QR. for now am lazy and using "region mode" as stand-in. Or.... don't bother?
 	int mi = currmap*MAPSCRSNORMAL + screen_index;
 	bool check_for_state_things_0x80_qr = !is_z3_scrolling_mode();
-	bool should_check_for_state_things = (check_for_state_things_0x80_qr || screen_index < 0x80) && mi < MAXMAPS2*MAPSCRSNORMAL;
+	bool should_check_for_state_things = (check_for_state_things_0x80_qr || screen_index < 0x80) && mi < MAXMAPS*MAPSCRSNORMAL;
 
 	if (should_check_for_state_things)
 	{

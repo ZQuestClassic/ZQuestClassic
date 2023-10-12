@@ -260,6 +260,11 @@ static AccessorTable MapDataTable[] =
 	{ "getLensHides[]",             0,          ZTID_BOOL,   MAPDATALENSHIDES,                 0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
 	{ "setLensHides[]",             0,          ZTID_VOID,   MAPDATALENSHIDES,                 0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_BOOL },{} },
 	
+	{ "getDataSize",                0,         ZTID_FLOAT,   MAPDATASCRDATASIZE,               0,  { ZTID_MAPDATA },{} },
+	{ "setDataSize",                0,          ZTID_VOID,   MAPDATASCRDATASIZE,               0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "getData[]",                  0,       ZTID_UNTYPED,   MAPDATASCRDATA,                   0,  { ZTID_MAPDATA, ZTID_FLOAT },{} },
+	{ "setData[]",                  0,          ZTID_VOID,   MAPDATASCRDATA,                   0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_UNTYPED },{} },
+	
 	//Undocumented intentionally
 	{ "GetFFCInitA",                0,         ZTID_FLOAT,   -1,                          FL_INL,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "SetFFCInitA",                0,         ZTID_FLOAT,   -1,                               0,  { ZTID_MAPDATA, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },

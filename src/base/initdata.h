@@ -5,6 +5,14 @@
 #include "base/ints.h"
 #include <vector>
 
+struct zinit_vectors
+{
+	std::vector<uint32_t> screen_dataSize;
+	std::vector<std::vector<int32_t>> screen_data;
+	zinit_vectors() :
+		screen_dataSize(MAXMAPS*MAPSCRS), screen_data(MAXMAPS*MAPSCRS)
+	{}
+};
 struct zinitdata
 {
 	bool items[256];
@@ -73,9 +81,11 @@ struct zinitdata
 	word gen_exitState[NUMSCRIPTSGENERIC];
 	word gen_reloadState[NUMSCRIPTSGENERIC];
 	int32_t gen_initd[NUMSCRIPTSGENERIC][8];
-	int32_t gen_dataSize[NUMSCRIPTSGENERIC];
+	uint32_t gen_dataSize[NUMSCRIPTSGENERIC];
 	std::vector<int32_t> gen_data[NUMSCRIPTSGENERIC];
 	uint32_t gen_eventstate[NUMSCRIPTSGENERIC];
+	
+	zinit_vectors vecs;
 	
 	void clear_genscript();
 	

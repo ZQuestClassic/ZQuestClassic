@@ -297,6 +297,11 @@ static AccessorTable ScreenTable[] =
 	{ "getLensHides[]",             0,          ZTID_BOOL,   SCREENLENSHIDES,                   0,  { ZTID_SCREEN, ZTID_FLOAT },{} },
 	{ "setLensHides[]",             0,          ZTID_VOID,   SCREENLENSHIDES,                   0,  { ZTID_SCREEN, ZTID_FLOAT, ZTID_BOOL },{} },
 	
+	{ "getDataSize",                0,         ZTID_FLOAT,   SCREENSCRDATASIZE,                 0,  { ZTID_SCREEN },{} },
+	{ "setDataSize",                0,          ZTID_VOID,   SCREENSCRDATASIZE,                 0,  { ZTID_SCREEN, ZTID_FLOAT },{} },
+	{ "getData[]",                  0,       ZTID_UNTYPED,   SCREENSCRDATA,                     0,  { ZTID_SCREEN, ZTID_FLOAT },{} },
+	{ "setData[]",                  0,          ZTID_VOID,   SCREENSCRDATA,                     0,  { ZTID_SCREEN, ZTID_FLOAT, ZTID_UNTYPED },{} },
+	
 	//Undocumented intentionally
 	//Renamed to AmbientSFX
 	{ "getOceanSFX",                0,         ZTID_FLOAT,   SCREENDATAOCEANSFX,                0,  { ZTID_SCREEN },{} },

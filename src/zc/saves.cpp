@@ -10,6 +10,7 @@
 #include "base/zapp.h"
 #include "base/zdefs.h"
 #include "base/zsys.h"
+#include "base/mapscr.h"
 #include "zc/zelda.h"
 #include "zc/ffscript.h"
 #include "zc/replay.h"
@@ -541,7 +542,7 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 			}
 		}
 		
-		for(int32_t j=0; j<MAXMAPS2*MAPSCRSNORMAL; j++)
+		for(int32_t j=0; j<MAXMAPS*MAPSCRSNORMAL; j++)
 		{
 			if(!p_igetw(&game.maps[j],f))
 			{
@@ -549,7 +550,7 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 			}
 		}
 		
-		for(int32_t j=0; j<MAXMAPS2*MAPSCRSNORMAL; ++j)
+		for(int32_t j=0; j<MAXMAPS*MAPSCRSNORMAL; ++j)
 		{
 			if(!p_getc(&(game.guys[j]),f))
 			{
@@ -971,7 +972,7 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 		
 		if(section_version >= 26)
 		{
-			for(int32_t j=0; j<MAXMAPS2*MAPSCRSNORMAL; j++)
+			for(int32_t j=0; j<MAXMAPS*MAPSCRSNORMAL; j++)
 			{
 				if(!p_igetl(&(game.xstates[j]),f))
 				{
@@ -981,7 +982,7 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 		}
 		else
 		{
-			std::fill(game.xstates, game.xstates+(MAXMAPS2*MAPSCRSNORMAL), 0);
+			std::fill(game.xstates, game.xstates+(MAXMAPS*MAPSCRSNORMAL), 0);
 		}
 		
 		std::fill(game.gen_eventstate, game.gen_eventstate+NUMSCRIPTSGENERIC, 0);
@@ -1114,6 +1115,15 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 			for(int q = 0; q < itype_max; ++q)
 				if(!p_igetw(&game.OverrideItems[q],f))
 					return 113;
+		if(section_version >= 36)
+		{
+			uint32_t num_used_mapscr_data;
+			if(!p_igetl(&num_used_mapscr_data,f))
+				return 114;
+			for(size_t q = 0; q < num_used_mapscr_data; ++q)
+				if(!p_getlvec(&game.screen_data[q],f))
+					return 115;
+		}
 	}
 	
 	return 0;
@@ -1237,7 +1247,7 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 		return 35;
 	}
 	
-	for(int32_t j=0; j<MAXMAPS2*MAPSCRSNORMAL; j++)
+	for(int32_t j=0; j<MAXMAPS*MAPSCRSNORMAL; j++)
 	{
 		if(!p_iputw(game.maps[j],f))
 		{
@@ -1245,7 +1255,7 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 		}
 	}
 	
-	if(!pfwrite(game.guys,MAXMAPS2*MAPSCRSNORMAL,f))
+	if(!pfwrite(game.guys,MAXMAPS*MAPSCRSNORMAL,f))
 	{
 		return 37;
 	}
@@ -1459,7 +1469,7 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 				return 77;
 	}
 	
-	for(int32_t j=0; j<MAXMAPS2*MAPSCRSNORMAL; j++)
+	for(int32_t j=0; j<MAXMAPS*MAPSCRSNORMAL; j++)
 	{
 		if(!p_iputl(game.xstates[j],f))
 		{
@@ -1563,6 +1573,18 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 	for(int q = 0; q < itype_max; ++q)
 		if(!p_iputw(game.OverrideItems[q],f))
 			return 109;
+	uint32_t num_used_mapscr_data = 0;
+	for(int32_t q = map_count*MAPSCRS-1; q >= 0; --q)
+		if(game.screen_data[q].size())
+		{
+			num_used_mapscr_data = q+1;
+			break;
+		}
+	if(!p_iputl(num_used_mapscr_data,f))
+		return 114;
+	for(size_t q = 0; q < num_used_mapscr_data; ++q)
+		if(!p_putlvec(game.screen_data[q],f))
+			return 115;
 	return 0;
 }
 

@@ -4769,6 +4769,13 @@ bool LensShows[7];
 bool LensHides[7];
  * Arrays of the layers which the lens shows, and hides, respectively.
 
+int DataSize;
+ * Read-write, the size of the `Data[]` array.
+ * Changes save to the save file.
+untyped Data[];
+ * Resizable array of data for scripts to use.
+ * Changes save to the save file.
+
 /************************************************************************************************************/
 
 /////////////
@@ -7035,6 +7042,13 @@ bool LensShows[7];
 bool LensHides[7];
  * Arrays of the layers which the lens shows, and hides, respectively.
 
+int DataSize;
+ * Read-write, the size of the `Data[]` array.
+ * Changes save to the save file.
+untyped Data[];
+ * Resizable array of data for scripts to use.
+ * Changes save to the save file.
+
 int Flags[10];
  * A set of flagsets that contain special data for thiws screen.
  * These represent S.Flags1 and S.Flags2 flags.
@@ -8973,14 +8987,16 @@ int Tile[];
  * The widget's tile(s).
  * For SUBWIDG_MINITILE, can use the 'SUB_SPTILE_' constant values.
  * VALID WIDGETS:
- *  SUBWIDG_FRAME[1], SUBWIDG_MCGUFF[1], SUBWIDG_TILEBLOCK[1], SUBWIDG_MINITILE[1]
+ *  SUBWIDG_FRAME[1], SUBWIDG_MCGUFF[1], SUBWIDG_TILEBLOCK[1], SUBWIDG_MINITILE[1],
+ *  SUBWIDG_MISCGAUGE[4], SUBWIDG_LGAUGE[4], SUBWIDG_MGAUGE[4]
 
 int CSet[];
  * The widget's cset(s).
  * For SUBWIDG_FRAME,SUBWIDG_MCGUFF,SUBWIDG_TILEBLOCK,SUBWIDG_MINITILE,
  *     can use the 'SUB_CS_' constants.
  * VALID WIDGETS:
- *  SUBWIDG_FRAME[1], SUBWIDG_MCGUFF[1], SUBWIDG_TILEBLOCK[1], SUBWIDG_MINITILE[1]
+ *  SUBWIDG_FRAME[1], SUBWIDG_MCGUFF[1], SUBWIDG_TILEBLOCK[1], SUBWIDG_MINITILE[1],
+ *  SUBWIDG_MISCGAUGE[4], SUBWIDG_LGAUGE[4], SUBWIDG_MGAUGE[4]
 
 int Flip;
  * The widget's flip value.
@@ -8990,20 +9006,20 @@ int Flip;
 int Font;
  * The widget's Font, use the 'FONT_' constants.
  * VALID WIDGETS:
- *  SUBWIDG_TEXT, SUBWIDG_TIME, SUBWIDG_COUNTER, SUBWIDG_OLDCTR,
- *  SUBWIDG_BTNCOUNTER, SUBWIDG_MMAPTITLE
+ *  SUBWIDG_TEXT, SUBWIDG_TEXTBOX, SUBWIDG_TIME, SUBWIDG_COUNTER, SUBWIDG_OLDCTR,
+ *  SUBWIDG_BTNCOUNTER, SUBWIDG_MMAPTITLE, SUBWIDG_SELECTEDTEXT
 
 int Align;
  * The widget's Alignment, use the 'TF_' constants.
  * VALID WIDGETS:
- *  SUBWIDG_TEXT, SUBWIDG_TIME, SUBWIDG_COUNTER, SUBWIDG_BTNCOUNTER,
- *  SUBWIDG_MMAPTITLE
+ *  SUBWIDG_TEXT, SUBWIDG_TEXTBOX, SUBWIDG_TIME, SUBWIDG_COUNTER,
+ *  SUBWIDG_BTNCOUNTER, SUBWIDG_MMAPTITLE, SUBWIDG_SELECTEDTEXT
 
 int ShadowType;
  * The widget's Shadow Type, use the 'SHD_' constants.
  * VALID WIDGETS:
- *  SUBWIDG_TEXT, SUBWIDG_TIME, SUBWIDG_COUNTER, SUBWIDG_OLDCTR,
- *  SUBWIDG_BTNCOUNTER, SUBWIDG_MMAPTITLE
+ *  SUBWIDG_TEXT, SUBWIDG_TEXTBOX, SUBWIDG_TIME, SUBWIDG_COUNTER, SUBWIDG_OLDCTR,
+ *  SUBWIDG_BTNCOUNTER, SUBWIDG_MMAPTITLE, SUBWIDG_SELECTEDTEXT
 
 void GetText(char32[] buf);
 void SetText(char32[] str);
@@ -9011,25 +9027,25 @@ void SetText(char32[] str);
  * If the buffer provided for GetText() is too small,
  *     it will *automatically be resized to fit*.
  * VALID WIDGETS:
- *  SUBWIDG_TEXT
+ *  SUBWIDG_TEXT, SUBWIDG_TEXTBOX
 
 int ColorText;
  * The widget's color index used for Text
  * VALID WIDGETS:
- *  SUBWIDG_TEXT, SUBWIDG_TIME, SUBWIDG_COUNTER, SUBWIDG_OLDCTR,
- *  SUBWIDG_BTNCOUNTER, SUBWIDG_MMAPTITLE, SUBWIDG_MCGUFF_FRAME
+ *  SUBWIDG_TEXT, SUBWIDG_TEXTBOX, SUBWIDG_TIME, SUBWIDG_COUNTER, SUBWIDG_OLDCTR,
+ *  SUBWIDG_BTNCOUNTER, SUBWIDG_MMAPTITLE, SUBWIDG_SELECTEDTEXT, SUBWIDG_MCGUFF_FRAME
 
 int ColorShadow;
  * The widget's color index used for Shadows
  * VALID WIDGETS:
- *  SUBWIDG_TEXT, SUBWIDG_TIME, SUBWIDG_COUNTER, SUBWIDG_OLDCTR,
- *  SUBWIDG_BTNCOUNTER, SUBWIDG_MMAPTITLE
+ *  SUBWIDG_TEXT, SUBWIDG_TEXTBOX, SUBWIDG_TIME, SUBWIDG_COUNTER, SUBWIDG_OLDCTR,
+ *  SUBWIDG_BTNCOUNTER, SUBWIDG_MMAPTITLE, SUBWIDG_SELECTEDTEXT
 
 int ColorBG;
  * The widget's color index used for background
  * VALID WIDGETS:
- *  SUBWIDG_TEXT, SUBWIDG_TIME, SUBWIDG_COUNTER, SUBWIDG_OLDCTR,
- *  SUBWIDG_BTNCOUNTER, SUBWIDG_MMAPTITLE, SUBWIDG_BGCOLOR
+ *  SUBWIDG_TEXT, SUBWIDG_TEXTBOX, SUBWIDG_TIME, SUBWIDG_COUNTER, SUBWIDG_OLDCTR,
+ *  SUBWIDG_BTNCOUNTER, SUBWIDG_MMAPTITLE, SUBWIDG_SELECTEDTEXT, SUBWIDG_BGCOLOR
 
 int ColorOutline;
  * The widget's color index used for outline
@@ -9175,6 +9191,11 @@ int AnimVal;
  * The widget's animation value
  * VALID WIDGETS:
  *  SUBWIDG_LGAUGE, SUBWIDG_MGAUGE, SUBWIDG_MISCGAUGE
+
+int TabSize;
+ * The widget's tabsize value
+ * VALID WIDGETS:
+ *  SUBWIDG_TEXT, SUBWIDG_TEXTBOX
 
 ////////////////////////////////////
 ////////////////////////////////////

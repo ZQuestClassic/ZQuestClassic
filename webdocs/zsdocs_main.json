@@ -2289,6 +2289,10 @@
                             "val": "<h3>bool LensShows[7];\nbool LensHides[7];</h3>\nArrays of the 7 layer show/hide values for the lens of truth.\nIf a `LensShows[]` index is true, the layer will only be visible while using the lens.\nIf a `LensHides[]` index is true, the layer only be visible when NOT using the lens.\nWriting an index true in one array, forces it false in the other."
                         },
                         {
+                            "name": "Misc Data Array ;; Screen::Data[] / Screen::DataSize / mapdata::Data[] / mapdata::DataSize",
+                            "val": "<h3>int DataSize;</h3>\nRead-write, the size of the `Data[]` array.\n\n<h3>untyped Data[];</h3>\nResizable array of data for scripts to use. All changes are saved to the save file."
+                        },
+                        {
                             "name": "&lt;&lt;-- Start",
                             "val": "$-1$1"
                         },

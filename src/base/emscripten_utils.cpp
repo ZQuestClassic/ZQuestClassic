@@ -20,7 +20,7 @@ EM_ASYNC_JS(void, em_init_fs_, (), {
 
   for (const [id, quest] of Object.entries(manifest)) {
     if (!id.startsWith('quests')) continue;
-    if (!['auto', true].includes(quest.approval)) continue;
+    if (!['auto', true, 'slow'].includes(quest.approval)) continue;
 
     const questPrefix = '/' + id;
 
@@ -31,7 +31,10 @@ EM_ASYNC_JS(void, em_init_fs_, (), {
     for (const release of quest.releases) {
         const releasePrefix = questPrefix + '/' + release.name;
         for (const resource of release.resources) {
-            writeFakeFile(releasePrefix + '/' + resource);
+			const path = releasePrefix + '/' + resource;
+			let url = ZC.dataOrigin + path;
+			if (resource.endsWith('.qst')) url += '.gz';
+            writeFakeFile(path, url);
         }
         for (const music of quest.music) {
             writeFakeFile(releasePrefix + '/music/' + music, ZC.dataOrigin + questPrefix + '/music/' + music);
@@ -106,28 +109,15 @@ std::string get_initial_file_dialog_folder() {
   return "/local/";
 }
 
-EM_ASYNC_JS(emscripten::EM_VAL, get_query_params_, (), {
-  const params = new URLSearchParams(location.search);
-  return Emval.toHandle({
-    open: params.get('open') || '',
-  });
-});
-QueryParams get_query_params() {
-  auto val = emscripten::val::take_ownership(get_query_params_());
-  QueryParams result;
-  result.open = val["open"].as<std::string>();
-  return result;
-}
-
 void em_mark_initializing_status() {
 	EM_ASM({
-		Module.setStatus('Initializing Runtime ...');
+		ZC.setStatus('Initializing Runtime ...');
 	});
 }
 
 void em_mark_ready_status() {
 	EM_ASM({
-		Module.setStatus('Ready');
+		ZC.setStatus('Ready');
 	});
 }
 

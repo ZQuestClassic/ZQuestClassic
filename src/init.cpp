@@ -1076,9 +1076,15 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool freshquest)
 		memcpy(game2->gen_reloadState, zinit2->gen_reloadState, sizeof(game2->gen_reloadState));
 		memcpy(game2->gen_initd, zinit2->gen_initd, sizeof(game2->gen_initd));
 		memcpy(game2->gen_dataSize, zinit2->gen_dataSize, sizeof(game2->gen_dataSize));
-		for(auto q = 0; q < NUMSCRIPTSGENERIC; ++q)
+		for(uint32_t q = 0; q < NUMSCRIPTSGENERIC; ++q)
 			game2->gen_data[q] = zinit2->gen_data[q];
 		memcpy(game2->gen_eventstate, zinit2->gen_eventstate, sizeof(game2->gen_eventstate));
+		
+		for(uint32_t q = 0; q < MAXMAPS*MAPSCRS; ++q)
+		{
+			game2->screen_data[q] = zinit2->vecs.screen_data[q];
+			game2->scriptDataResize(q,zinit2->vecs.screen_dataSize[q]);
+		}
 	}
 	
 	game2->swim_mult = zinit2->hero_swim_mult;
