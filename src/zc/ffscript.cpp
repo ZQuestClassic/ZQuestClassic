@@ -14177,7 +14177,7 @@ int32_t get_register(const int32_t arg)
 				if(sub != new_subscreen_active)
 					Z_scripterrlog("'subscreendata->TransClock' is only"
 						" valid for the current active subscreen!\n");
-				else if(subscreen_open)
+				else if(subscreen_open && subscr_pg_animating)
 					ret = subscr_pg_clk*10000;
 			}
 			break;
