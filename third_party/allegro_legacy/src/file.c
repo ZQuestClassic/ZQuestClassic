@@ -2755,14 +2755,30 @@ static long normal_fread(void *p, long n, void *_f)
 {
    PACKFILE *f = _f;
    unsigned char *cp = (unsigned char *)p;
-   long i;
+   long i = 0;
    int c;
 
-   for (i=0; i<n; i++) {
-      if ((c = normal_getc(f)) == EOF)
-	 break;
+   // local edit
+   // Copy the entire buffer as needed.
+   while (i < n)
+   {
+      // Check if buffer ran out. A call to the normal read byte function will refresh it.
+      if (f->normal.buf_size <= 0)
+      {
+         if ((c = normal_getc(f)) == EOF)
+            break;
+         *(cp++) = c;
+         i++;
+         if (f->normal.buf_size <= 0)
+            break;
+      }
 
-      *(cp++) = c;
+      long quick_read = MIN(f->normal.buf_size, n-i);
+      memcpy(cp, f->normal.buf_pos, quick_read);
+      cp += quick_read;
+      f->normal.buf_pos += quick_read;
+      i += quick_read;
+      f->normal.buf_size -= quick_read;
    }
 
    return i;
