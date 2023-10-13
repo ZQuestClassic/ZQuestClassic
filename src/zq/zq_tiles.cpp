@@ -4,6 +4,7 @@
 #include "base/qrs.h"
 #include "base/dmap.h"
 #include "base/cpool.h"
+#include "base/autocombo.h"
 #include "base/packfile.h"
 #include "base/gui.h"
 #include "base/combo.h"
@@ -14399,6 +14400,27 @@ void do_movecombo(combo_move_data const& cmd)
 			{
 				cp.cid += diff;
 			}
+		}
+	}
+	for (auto q = 0; q < MAXAUTOCOMBOS; ++q)
+	{
+		combo_auto& cauto = combo_autos[q];
+		for (autocombo_entry& ac : cauto.combos)
+		{
+			if (ac.cid && (ac.cid >= cmd.copy1) && (ac.cid < cmd.copy1 + cmd.copycnt))
+			{
+				ac.cid += diff;
+			}
+		}
+		int32_t ec = cauto.getEraseCombo();
+		if (ec > 0 && (ec >= cmd.copy1) && (ec < cmd.copy1 + cmd.copycnt))
+		{
+			cauto.setEraseCombo(ec + diff);
+		}
+		int32_t dc = cauto.getIconDisplay();
+		if (dc > 0 && (dc >= cmd.copy1) && (dc < cmd.copy1 + cmd.copycnt))
+		{
+			cauto.setDisplay(dc + diff);
 		}
 	}
 	
