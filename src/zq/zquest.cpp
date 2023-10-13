@@ -1810,6 +1810,14 @@ int onScreenLPal(int lpal)
 	return D_O_K;
 }
 
+int32_t onPressEsc()
+{
+	if(zoomed_minimap)
+		zoomed_minimap = false;
+	else return onExit();
+	return D_O_K;
+}
+
 static DIALOG dialogs[] =
 {
 	/* (dialog proc)     (x)   (y)   (w)   (h)   (fg)  (bg)  (key)    (flags)  (d1)         (d2)     (dp) */
@@ -1817,7 +1825,7 @@ static DIALOG dialogs[] =
 	{ d_zq_hotkey_proc,  0,    0,    0,    0,     0,    0,    0,       0,       0,            0, NULL, NULL, NULL },
 	
 	{ d_keyboard_proc,   0,    0,    0,    0,     0,    0,    0,       0,       KEY_F1,       0, (void *) onHelp, NULL, NULL },
-	{ d_keyboard_proc,   0,    0,    0,    0,     0,    0,    0,       0,       KEY_ESC,      0, (void *) onExit, NULL, NULL },
+	{ d_keyboard_proc,   0,    0,    0,    0,     0,    0,    0,       0,       KEY_ESC,      0, (void *) onPressEsc, NULL, NULL },
 	{ d_keyboard_proc,   0,    0,    0,    0,     0,    0,    39,      0,       0,            0, (void *) onUsedCombos, NULL, NULL },
 	{ NULL,              0,    0,    0,    0,     0,    0,    0,       0,       0,            0,       NULL, NULL, NULL }
 };
