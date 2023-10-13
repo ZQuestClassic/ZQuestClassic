@@ -148,17 +148,30 @@ EMCC_AND_LINKER_FLAGS=(
   # em++: error: '/Users/connorclark/tools/emsdk/upstream/bin/wasm-opt --post-emscripten -O3 --low-memory-unused --asyncify --pass-arg=asyncify-asserts --pass-arg=asyncify-imports@env.invoke_*,env.__call_main,env.emscripten_sleep,env.emscripten_wget,env.emscripten_wget_data,env.emscripten_idb_load,env.emscripten_idb_store,env.emscripten_idb_delete,env.emscripten_idb_exists,env.emscripten_idb_load_blob,env.emscripten_idb_store_blob,env.SDL_Delay,env.emscripten_scan_registers,env.emscripten_lazy_load_code,env.emscripten_fiber_swap,wasi_snapshot_preview1.fd_sync,env.__wasi_fd_sync,env._emval_await,env._dlopen_js,env.__asyncjs__* --zero-filled-memory --strip-producers zquest.wasm -o zquest.wasm -g --mvp-features --enable-threads --enable-mutable-globals --enable-bulk-memory --enable-sign-ext --enable-exception-handling' failed (received SIGABRT (-6)
   # -fwasm-exceptions
   -fexceptions
+  -profiling-funcs
 )
 
 CONFIG=""
 if [[ "$DEBUG" ]]; then
   EMCC_FLAGS+=(
+    # Any lower and get "Compiling function failed: local count too large"
     -O2
-    -g
     -DEMSCRIPTEN_DEBUG
   )
   LINKER_FLAGS+=(
     -s ASSERTIONS=1
+  )
+
+  # Separate debug info.
+  # Debug doesn't work great because of -O2 above, but can't get lower yet.
+  # One time, I saw this crash in DevTools ("extension accessed memory out of bounds"). That never seemed to happen when
+  # debug info was not separated. Shrug.
+  EMCC_AND_LINKER_FLAGS+=(
+    # Can't do DWARF 5 because ASYNCIFY (binaryren does not support: https://github.com/emscripten-core/emscripten/issues/17814#issuecomment-1256818854)
+    # -gdwarf-5
+    # -g -gsplit-dwarf -gpubnames
+    -gseparate-dwarf
+    # -gsplit-dwarf
   )
 
   # Makes linking faster, but can't actually run the result because ASYNCIFY is disabled.
