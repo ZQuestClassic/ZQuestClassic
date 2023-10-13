@@ -48380,6 +48380,14 @@ void FFScript::ZASMPrintVarGet(const int32_t arg, int32_t argval)
 
 void FFScript::do_trace(bool v)
 {
+	bool should_replay_trace = replay_is_active() && replay_get_meta_bool("script_trace");
+	// For now, only prevent tracing to allegro log for Web version. Some quests may expect players to
+	// look in the logs for spoiler/secret stuff.
+#ifdef __EMSCRIPTEN__
+	bool should_trace = zscript_debugger || should_replay_trace;
+	if (!should_trace) return;
+#endif
+
 	int32_t temp = SH::get_arg(sarg1, v);
 	
 	char tmp[100];
@@ -48388,7 +48396,7 @@ void FFScript::do_trace(bool v)
 	s2 = s2.substr(0, s2.size() - 4) + "." + s2.substr(s2.size() - 4, 4) + "\n";
 	TraceScriptIDs();
 	al_trace("%s", s2.c_str());
-	if (replay_is_active() && replay_get_meta_bool("script_trace"))
+	if (should_replay_trace)
 		replay_step_comment("trace: " + s2);
 	
 	if ( zscript_debugger ) 
