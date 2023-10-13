@@ -7,8 +7,9 @@
   <meta name="viewport" content="width=device-width, user-scalable=no">
   <link rel="preload" href="https://data.zquestclassic.com/manifest.json" fetchpriority="high" as="fetch" type="application/json" crossorigin="anonymous">
   <link rel="preconnect" href="https://data.zquestclassic.com">
-  <link rel="preload" href="__TARGET__.wasm" as="fetch" crossorigin="anonymous">
+  <link rel="preload" href="../__TARGET__.wasm" as="fetch" crossorigin="anonymous">
   <title>ZQuest Classic</title>
+  <meta name="description" content="Play one of hundreds of quests in ZQuest Classic, or create your own! ZQuest Classic is a game engine where you can make your classic adventure game">
   <style>
     /*__INLINECSS__*/
   </style>
@@ -16,13 +17,92 @@
     var TARGET = "__TARGET__";
     var IS_CI = __IS_CI__;
 
+    var rootUrl = new URL('..', location.href).href;
     window.ZC_Constants = {
-      zeldaUrl: 'zelda.html',
-      zquestUrl: 'zquest.html',
-      patsUrl: 'timidity',
+      zeldaUrl: rootUrl + 'play',
+      zquestUrl: rootUrl + 'create',
+      patsUrl: rootUrl + 'timidity',
       files: [],
     };
   </script>
+
+  <!-- <link rel="apple-touch-icon" href="/iconx/apple-touch-icon.png"/> -->
+  <link rel="icon" type="image/x-icon" href="../favicon.ico">
+
+  <script>
+    const el = document.createElement('link');
+    el.rel = 'manifest';
+    el.href = '../manifest.json';
+    document.head.append(el);
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('../sw.js');
+      });
+    };
+
+    // <button class="panel-button" data-panel=".install-prompt">Install as App</button>
+    const installEl = document.createElement('button');
+    installEl.textContent = 'Install as App';
+    installEl.classList.add('panel-button');
+    installEl.addEventListener('click', async () => {
+      if (!deferredPrompt) return;
+
+      const { outcome } = await deferredPrompt.prompt();
+      if (outcome === 'accepted') {
+        deferredPrompt = undefined;
+        installEl.textContent = 'Installed! Open from home screen for better experience';
+        setTimeout(() => installEl.remove(), 1000 * 5);
+      }
+    });
+    window.addEventListener('appinstalled', () => {
+      deferredPrompt = undefined;
+      installEl.textContent = 'Installed! Open from home screen for better experience';
+      setTimeout(() => installEl.remove(), 1000 * 5);
+    });
+
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+
+      document.querySelector('.panel-buttons').append(installEl);
+    });
+
+    // Does this ever change in a page???
+    // answer: yes, on desktop chrome. no for android chrome ...
+    window.matchMedia('(display-mode: fullscreen)').addEventListener('change', (e) => {
+      if (document.fullscreen) return;
+
+      console.log('display-mode', e.matches);
+      if (e.matches) installEl.remove();
+    });
+
+    if (window.launchQueue && 'files' in LaunchParams.prototype) {
+      launchQueue.setConsumer((launchParams) => {
+        if (!launchParams.files.length) {
+          return;
+        }
+
+        const file = launchParams.files[0];
+        window.ZC_handleLaunchedFile = async (dirHandle) => {
+          const relativePaths = dirHandle && await dirHandle.resolve(file);
+          if (!relativePaths) {
+            alert("Sorry, you can only open .qst files that way if you've attached that folder. See Settings");
+            return;
+          }
+
+          const relativePath = relativePaths.join('/');
+          const quest = `local/${relativePath}`;
+          const params = { quest };
+          const openInEditor = confirm('Press OK to open in editor, cancel to play quest instead');
+          const url = ZC.createUrlString(openInEditor ? ZC_Constants.zquestUrl : ZC_Constants.zeldaUrl, params);
+          window.location.href = url;
+        };
+      });
+    }
+  </script>
+
 </head>
 
 <body>
@@ -254,9 +334,17 @@
     </div>
   </template>
 
-  <script src="main.js"></script>
+  <script src="../main.js"></script>
   __DATA__
   __SCRIPT__
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-36Y8HGSBRW"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'G-36Y8HGSBRW');
+  </script>
 </body>
 
 </html>

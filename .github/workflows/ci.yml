@@ -176,6 +176,7 @@ jobs:
         env:
           ZC_EMCC_CMAKE_EXTRA_FLAGS: -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
           ZC_PACKAGE_REPLAYS: 1
+          SW: 1
       - run: ccache -s
 
       - run: sudo apt-get update && sudo apt-get install libopengl0 libglu1

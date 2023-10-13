@@ -181,6 +181,9 @@ async function main() {
     preRun: [() => {
       if (IS_CI) ENV.CI = '1';
     }],
+    locateFile: function (file, base) {
+      return new URL(file, base || rootUrl).href;
+    },
   });
 
   const params = new URLSearchParams(location.search);

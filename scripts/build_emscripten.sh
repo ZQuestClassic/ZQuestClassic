@@ -188,7 +188,6 @@ function build_js {
     )
   fi
   npx esbuild --bundle ../../web/main.js --outfile=main.js --sourcemap ${ESBUILD_ARGS[@]}
-  cp ../../web/styles.css .
 }
 
 # cd $CONFIG && build_js && exit 0
@@ -289,50 +288,50 @@ function insert_css {
   mv tmp.html "$1"
 }
 
+mkdir -p create play
+
 if [[ "${TARGETS[*]}" =~ "zplayer" ]]; then
-  cp ../../web/index.html zelda.html
-  sed -i -e 's/__TARGET__/zplayer/' zelda.html
+  cp ../../web/index.html play/index.html
+  sed -i -e 's/__TARGET__/zplayer/' play/index.html
   if [[ "$ZC_PACKAGE_REPLAYS" ]]; then
-    sed -i -e 's|__DATA__|<script src="zc.data.js"></script><script src="zc_replays.data.js"></script>|' zelda.html
+    sed -i -e 's|__DATA__|<script src="../zc.data.js"></script><script src="../zc_replays.data.js"></script>|' play/index.html
   else
-    sed -i -e 's|__DATA__|<script src="zc.data.js"></script>|' zelda.html
+    sed -i -e 's|__DATA__|<script src="../zc.data.js"></script>|' play/index.html
   fi
-  sed -i -e 's|__SCRIPT__|<script async src="zelda.js"></script>|' zelda.html
-  set_files zelda.html
-  insert_css zelda.html
-  mv zplayer.js zelda.js
-  sed -i -e 's|if(SDL2.audio.scriptProcessorNode|if(SDL2.audio?.scriptProcessorNode|' zelda.js
+  sed -i -e 's|__SCRIPT__|<script async src="../zplayer.js"></script>|' play/index.html
+  set_files play/index.html
+  insert_css play/index.html
   if [[ "$ZC_PACKAGE_REPLAYS" ]]; then
-    sed -i -e 's/__IS_CI__/true/' zelda.html
+    sed -i -e 's/__IS_CI__/true/' play/index.html
   else
-    sed -i -e 's/__IS_CI__/false/' zelda.html
+    sed -i -e 's/__IS_CI__/false/' play/index.html
   fi
 fi
 if [[ "${TARGETS[*]}" =~ "zeditor" ]]; then
-  cp ../../web/index.html zquest.html
-  sed -i -e 's/__TARGET__/zeditor/' zquest.html
-  sed -i -e 's|__DATA__|<script src="zc.data.js"></script><script src="zq.data.js"></script>|' zquest.html
-  sed -i -e 's|__SCRIPT__|<script async src="zquest.js"></script>|' zquest.html
-  set_files zquest.html
-  insert_css zquest.html
-  mv zeditor.js zquest.js
+  cp ../../web/index.html create/index.html
+  sed -i -e 's/__TARGET__/zeditor/' create/index.html
+  sed -i -e 's|__DATA__|<script src="../zc.data.js"></script><script src="../zq.data.js"></script>|' create/index.html
+  sed -i -e 's|__SCRIPT__|<script async src="../zeditor.js"></script>|' create/index.html
+  set_files create/index.html
+  insert_css create/index.html
   if [[ "$ZC_PACKAGE_REPLAYS" ]]; then
-    sed -i -e 's/__IS_CI__/true/' zquest.html
+    sed -i -e 's/__IS_CI__/true/' create/index.html
   else
-    sed -i -e 's/__IS_CI__/false/' zquest.html
+    sed -i -e 's/__IS_CI__/false/' create/index.html
   fi
 fi
-
-cp -r ../../timidity .
 
 rm -rf files
 mv "$packages_dir/zc" files
 
 build_js
 
+python "$ROOT"/scripts/package_web.py --build_folder "$ROOT/build_emscripten/$CONFIG"
+
 echo "done configuring emscripten build."
 echo ""
 echo "run the ninja build rule (ex: ninja -f build-$CONFIG.ninja $CONFIG/zplayer.js) to rebuild a target"
+echo "then, run: python scripts/package_web.py --build_folder build_emscripten/$CONFIG"
 echo "you only need to re-run build_emscripten.sh if something in this file is changed"
 echo ""
 echo "be sure to start a local webserver in the build_emscripten folder:"

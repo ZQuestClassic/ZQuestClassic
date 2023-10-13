@@ -688,7 +688,7 @@ class WebPlayerInterface:
 
         replay_path = replay_path.relative_to(root_dir / 'tests/replays')
 
-        url = f'zelda.html?{mode}=test_replays/{replay_path}&replayExitWhenDone&showFps'
+        url = f'play/?{mode}=test_replays/{replay_path}&replayExitWhenDone&showFps'
 
         if args.headless:
             url += f'&headless'

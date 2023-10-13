@@ -46,7 +46,7 @@ EM_ASYNC_JS(void, em_init_fs_, (), {
   // so are excluded from the main data file.
   for (const file of window.ZC_Constants.files) {
     FS.mkdirTree(PATH.dirname(file));
-    writeFakeFile(file, 'files' + file);
+    writeFakeFile(file, '../files' + file);
   }
 
   await ZC.configureMount();
