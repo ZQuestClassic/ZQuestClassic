@@ -85,9 +85,19 @@ static inline bool on_sideview_slope(int32_t x, int32_t y, int32_t oldx, int32_t
 
 static inline bool platform_fallthrough(bool doslopecheck = true)
 {
-	return (doslopecheck && !on_sideview_slope(Hero.x, Hero.y,Hero.old_x,Hero.old_y) && (on_sideview_slope(Hero.x,Hero.y+1,Hero.old_x,Hero.old_y) || on_sideview_slope(Hero.x, Hero.y + 2, Hero.old_x, Hero.old_y)) && getInput(btnDown, false, get_qr(qr_SIDEVIEW_FALLTHROUGH_USES_DRUNK)!=0))
-		|| (getInput(btnDown, false, get_qr(qr_SIDEVIEW_FALLTHROUGH_USES_DRUNK)!=0) && get_qr(qr_DOWN_FALL_THROUGH_SIDEVIEW_PLATFORMS))
-		|| (Hero.jumping < 0 && getInput(btnDown, false, get_qr(qr_SIDEVIEW_FALLTHROUGH_USES_DRUNK)!=0) && get_qr(qr_DOWNJUMP_FALL_THROUGH_SIDEVIEW_PLATFORMS));
+	if (!getInput(btnDown, false, get_qr(qr_SIDEVIEW_FALLTHROUGH_USES_DRUNK)!=0))
+		return false;
+
+	if (get_qr(qr_DOWN_FALL_THROUGH_SIDEVIEW_PLATFORMS))
+		return true;
+
+	if (Hero.jumping < 0 && get_qr(qr_DOWNJUMP_FALL_THROUGH_SIDEVIEW_PLATFORMS))
+		return true;
+
+	if (doslopecheck && !on_sideview_slope(Hero.x, Hero.y,Hero.old_x,Hero.old_y) && (on_sideview_slope(Hero.x,Hero.y+1,Hero.old_x,Hero.old_y) || on_sideview_slope(Hero.x, Hero.y + 2, Hero.old_x, Hero.old_y)))
+		return true;
+
+	return false;
 }
 
 static inline bool on_sideview_solid(int32_t x, int32_t y, bool ignoreFallthrough = false, int32_t slopesmisc = 0)
