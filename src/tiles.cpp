@@ -487,10 +487,11 @@ bool copy_tile(tiledata *buf, int32_t src, int32_t dest, bool swap)
     
     int32_t tempformat=buf[dest].format;
     byte *temptiledata=(byte *)malloc(tilesize(tempformat));
+    int32_t tsize = tilesize(tempformat);
     
     if(swap)
     {
-        for(int32_t j=0; j<tilesize(tempformat); j++)
+        for(int32_t j=0; j<tsize; j++)
         {
             temptiledata[j]=buf[dest].data[j];
         }
@@ -507,7 +508,7 @@ bool copy_tile(tiledata *buf, int32_t src, int32_t dest, bool swap)
     {
         reset_tile(buf, src, tempformat);
         
-        for(int32_t j=0; j<tilesize(tempformat); j++)
+        for(int32_t j=0; j<tsize; j++)
         {
             buf[src].data[j]=temptiledata[j];
         }
@@ -2644,9 +2645,7 @@ int32_t tilesize(byte format)
 		case tf4Bit:
 			return (64<<format);
 	}
-	
-	al_trace("Invalid tile format encountered.\n");
-	
+
 	// BUG: This is triggered by the 'grab' option, and certainly others as well.
 	// if at any point a selected tile is 'blank' (newtilebuf[0] for example), then we have might a problem.
 	// These should probably be dealt with where they really occur, however simply returning a
