@@ -11486,6 +11486,10 @@ int32_t get_register(const int32_t arg)
 		{
 			ret = (DMaps[ri->dmapsref].tmusic_xfade_out * 10000); break;
 		}
+		case DMAPDATAINTROSTRINGID:
+		{
+			ret = (DMaps[ri->dmapsref].intro_string_id * 10000); break;
+		}
 		case MUSICUPDATECOND:
 		{
 			ret = ((byte)FFCore.music_update_cond) * 10000; break;
@@ -24158,6 +24162,11 @@ void set_register(int32_t arg, int32_t value)
 			}
 			break;
 		}
+		case DMAPDATAINTROSTRINGID:
+		{
+			DMaps[ri->dmapsref].intro_string_id = (value / 10000);
+			break;
+		}
 		case MUSICUPDATECOND:
 		{
 			FFCore.music_update_cond = vbound(value / 10000, 0, 255);
@@ -32281,11 +32290,16 @@ void FFScript::do_getDMapData_dmaptitle(const bool v)
 	int32_t ID = ri->dmapsref;
 	int32_t arrayptr = get_register(sarg1) / 10000;
 	
-	if(BC::checkDMapID(ID, "dmapdata->GetIntro()") != SH::_NoError)
+	if(BC::checkDMapID(ID, "dmapdata->GetTitle()") != SH::_NoError)
 		return;
 		
+	if (!get_qr(qr_OLD_DMAP_INTRO_STRINGS))
+	{
+		ArrayManager am(arrayptr);
+		am.resize(DMaps[ID].title.size() + 1);
+	}
 	if(ArrayH::setArray(arrayptr, string(DMaps[ID].title)) == SH::_Overflow)
-		Z_scripterrlog("Array supplied to 'dmapdata->GetIntro()' not large enough\n");
+		Z_scripterrlog("Array supplied to 'dmapdata->GetTitle()' not large enough\n");
 }
 
 void FFScript::do_setDMapData_dmaptitle(const bool v)
@@ -34849,6 +34863,11 @@ void do_getdmaptitle(const bool v)
 	if(BC::checkDMapID(ID, "Game->GetDMapTitle") != SH::_NoError)
 		return;
 		
+	if (!get_qr(qr_OLD_DMAP_INTRO_STRINGS))
+	{
+		ArrayManager am(arrayptr);
+		am.resize(DMaps[ID].title.size() + 1);
+	}
 	if(ArrayH::setArray(arrayptr, string(DMaps[ID].title)) == SH::_Overflow)
 		Z_scripterrlog("Array supplied to 'Game->GetDMapTitle' not large enough\n");
 }
@@ -47873,7 +47892,7 @@ script_variable ZASMVars[]=
 	{ "DMAPDATAXFADEOUT", DMAPDATAXFADEOUT, 0, 0 },
 	{ "MUSICUPDATECOND", MUSICUPDATECOND, 0, 0 },
 	{ "MUSICUPDATEFLAGS", MUSICUPDATEFLAGS, 0, 0 },
-	{ "RESRVD_VAR_MOOSH07", RESRVD_VAR_MOOSH07, 0, 0 },
+	{ "DMAPDATAINTROSTRINGID", DMAPDATAINTROSTRINGID, 0, 0 },
 	{ "RESRVD_VAR_MOOSH08", RESRVD_VAR_MOOSH08, 0, 0 },
 	{ "RESRVD_VAR_MOOSH09", RESRVD_VAR_MOOSH09, 0, 0 },
 	{ "RESRVD_VAR_MOOSH10", RESRVD_VAR_MOOSH10, 0, 0 },

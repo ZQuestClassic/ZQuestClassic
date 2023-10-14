@@ -94,6 +94,9 @@ static AccessorTable DMapDataTable[] =
 	{ "getMusicCrossfadeOut",                 0,         ZTID_FLOAT,   DMAPDATAXFADEOUT,         0,  { ZTID_DMAPDATA },{} },
 	{ "setMusicCrossfadeOut",                 0,          ZTID_VOID,   DMAPDATAXFADEOUT,         0,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },
 
+	{ "getIntroStringID",             0,          ZTID_FLOAT,   DMAPDATAINTROSTRINGID,          0,  { ZTID_DMAPDATA },{} },
+	{ "setIntroStringID",             0,          ZTID_VOID,   DMAPDATAINTROSTRINGID,          0,  { ZTID_DMAPDATA, ZTID_FLOAT },{} },
+
 	{ "",                           0,          ZTID_VOID,   -1,                        0,  {},{} }
 };
 
