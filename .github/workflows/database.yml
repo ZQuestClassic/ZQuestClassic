@@ -37,6 +37,7 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: '3.11.4'
+      - run: pip install requests PyGithub==1.58.2 requests
       - run: python scripts/bisect_builds.py --download_release nightly-2023-10-11 --token ${{ secrets.GITHUB_TOKEN }}
 
       - run: npm install
