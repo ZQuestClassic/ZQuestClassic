@@ -148,10 +148,10 @@ jobs:
       - run: |
           git config --global user.email "you@example.com"
           git config --global user.name "Your Name"
-      - run: bash scripts/build_emscripten.sh
+      - run: bash scripts/configure_emscripten.sh
         env:
           ZC_EMCC_CMAKE_EXTRA_FLAGS: -DRELEASE_TAG=${{ needs.create-tag.outputs.release-tag }} -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
-          SW: 1
+      - run: cmake --build build_emscripten --config Release -t web
       - run: ccache -s
 
       - run: npm install

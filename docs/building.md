@@ -97,6 +97,28 @@ Change 64 to 32 if you want to build 32bit.
 One reason to use Ninja is to use clang instead of MSVC (just skip the environment configuration above);
 or to use `ccache` for faster builds.
 
+# Building the Web version
+
+First setup the `build_emscripten` cmake folder:
+
+```sh
+bash scripts/configure_emscripten.sh
+```
+
+Now, build with cmake as normal. Note the output of the above script:
+
+> to build the web version:
+>   cmake --build build_emscripten --config Release -t web
+> 
+> to build just a single app:
+>   cmake --build build_emscripten --config Release -t web_zplayer
+>   cmake --build build_emscripten --config Release -t web_zeditor
+> 
+> you only need to re-run configure_emscripten.sh if something in this file is changed
+> 
+> be sure to start a local webserver in the web package folder:
+>   cd build_emscripten/Release/packages/web && npx statikk --port 8000 --coi
+
 # ccache
 
 `ccache` can be used to cache build results, making switching between branches and re-building

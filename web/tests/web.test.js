@@ -49,7 +49,7 @@ before(async () => {
   });
   server = statikk({
     coi: true,
-    root: '../build_emscripten/Release',
+    root: '../build_emscripten/Release/packages/web',
   });
   await new Promise(resolve => server.server.once('listening', resolve));
   url = server.url;

@@ -1,5 +1,3 @@
-import fs from 'fs';
-import * as url from 'url';
 import puppeteer from 'puppeteer';
 import statikk from 'statikk';
 import { setupConsoleListener } from './utils.js';

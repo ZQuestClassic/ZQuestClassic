@@ -32,8 +32,13 @@ args = parser.parse_args()
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent
 resources_dir = root_dir / 'resources'
-build_dir = Path.cwd() / args.build_folder
+build_dir: Path = Path.cwd() / args.build_folder
 packages_dir = build_dir / 'packages'
+
+extras = [
+    resources_dir / 'Addons',
+    resources_dir / 'utilities',
+]
 
 
 def binary_file(path: Path):
@@ -48,6 +53,23 @@ def glob_files(base_dir: Path, pattern: str):
     if not files:
         raise Exception(f'nothing matched pattern: {pattern}')
     return files
+
+
+def glob_files_2(base_dir: Path, pattern: str):
+    files = list(base_dir.rglob(pattern))
+    if not files:
+        raise Exception(f'nothing matched pattern: {pattern}')
+    return [f for f in files if f.is_file()]
+
+
+def files(base_dir: Path, files: List[str]):
+    new_files = []
+    for f in files:
+        path = base_dir / f
+        if not path.exists():
+            raise Exception(f'file missing: {f}')
+        new_files.append(path)
+    return new_files
 
 
 def system_to_cfg_os(system: str):
@@ -99,18 +121,23 @@ def copy_files_to_package(files: List[Path], dest_dir: Path):
         if not file:
             continue
 
+        if type(file) is tuple:
+            path, dir = file
+            files_flat.append((path, dir))
+            continue
+
         if file.is_dir():
             for dir_path, dirs, dir_files in os.walk(file):
                 for dir_file in dir_files:
                     path = Path(os.path.join(dir_path, dir_file))
                     if path.is_file():
-                        files_flat.append((path, file))
+                        files_flat.append((path, file.parent))
         else:
             files_flat.append((file, None))
 
     for src, folder in files_flat:
         if folder:
-            dest = dest_dir / src.relative_to(folder.parent)
+            dest = dest_dir / src.relative_to(folder)
         else:
             dest = dest_dir / src.name
 
@@ -191,10 +218,109 @@ def do_packaging(package_dir: Path, files, include_licenses=False):
         archive_package(package_dir)
 
 
-extras = [
-    resources_dir / 'Addons',
-    resources_dir / 'utilities',
-]
+def do_web_packaging():
+    # An emscripten `.data` file (one for zplayer and zeditor) contains data that will be mapped to
+    # the runtimes virtual filesystem before the application starts. Only the most important files
+    # go into this, as having it be too big make startup time slow.
+    # For everything else, they are downloaded as needed: they will end up in a `./files` folder and
+    # via ZC.pathToUrl will be mapped to a URL (see emscripten_utils.cpp `em_init_fs`)
+    # zplayer will use zplayer.data, but zeditor will use both zplayer.data and zquest.data
+
+    all_files = glob_files_2(resources_dir, '*')
+    ignore_files = [
+        *files(resources_dir, [
+            'docs/ghost',
+            'docs/tango',
+            'docs/ZScript_Additions.txt',
+        ]),
+        *glob_files_2(resources_dir, '**/*.pdf'),
+    ]
+    for e in extras:
+        ignore_files.extend(glob_files_2(e, '*'))
+    all_files = list(set(all_files) - set(ignore_files))
+
+    zplayer_data_files = files(resources_dir, [
+        'ag.cfg',
+        'allegro5.cfg',
+        'assets/cursor.bmp',
+        'assets/dungeon.mid',
+        'assets/ending.mid',
+        'assets/gameover.mid',
+        'assets/gui_pal.bmp',
+        'assets/level9.mid',
+        'assets/overworld.mid',
+        'assets/title.mid',
+        'assets/triforce.mid',
+        'base_config/zc.cfg',
+        'base_config/zcl.cfg',
+        'base_config/zquest.cfg',
+        'base_config/zscript.cfg',
+        'Classic.nsf',
+        'modules/classic.zmod',
+        'modules/classic/classic_fonts.dat',
+        'modules/classic/default.qst',
+        'modules/classic/title_gfx.dat',
+        'modules/classic/zelda.nsf',
+        'sfx.dat',
+        'zc_web.cfg',
+        'zc.png',
+        'zquest_web.cfg',
+    ])
+    zeditor_data_files = files(resources_dir, [
+        'docs/zquest.txt',
+        'docs/zstrings.txt',
+        'modules/classic/classic_zquest.dat',
+    ])
+    lazy_files = list(set(all_files) - set(zplayer_data_files) - set(zeditor_data_files))
+
+    zplayer_data_files = [(f, resources_dir) for f in zplayer_data_files]
+    zeditor_data_files = [(f, resources_dir) for f in zeditor_data_files]
+    lazy_files = [(f, resources_dir) for f in lazy_files]
+
+    for pkg in ['web_zplayer_data', 'web_zeditor_data', 'web_lazy_files']:
+        f = packages_dir / pkg
+        if f.exists():
+            shutil.rmtree(f)
+
+    copy_files_to_package(zplayer_data_files, packages_dir / 'web_zplayer_data')
+    copy_files_to_package(zeditor_data_files, packages_dir / 'web_zeditor_data')
+    copy_files_to_package(lazy_files, packages_dir / 'web_lazy_files')
+
+    emcc_dir = Path(shutil.which('emcc')).parent
+    subprocess.check_call([
+        'python',
+        emcc_dir / 'tools/file_packager.py',
+        build_dir / 'zplayer.data',
+        '--no-node',
+        '--preload', f'{packages_dir}/web_zplayer_data@/',
+        '--preload', f'{root_dir}/timidity/zc.cfg@/etc/zc.cfg',
+        '--preload', f'{root_dir}/timidity/ultra.cfg@/etc/ultra.cfg',
+        '--preload', f'{root_dir}/timidity/ppl160.cfg@/etc/ppl160.cfg',
+        '--preload', f'{root_dir}/timidity/freepats.cfg@/etc/freepats.cfg',
+        '--preload', f'{root_dir}/timidity/soundfont-pats/oot.cfg@/etc/oot.cfg',
+        '--preload', f'{root_dir}/timidity/soundfont-pats/2MGM.cfg@/etc/2MGM.cfg',
+        '--use-preload-cache',
+        f'--js-output={build_dir / "zplayer.data.js"}',
+    ])
+    subprocess.check_call([
+        'python',
+        emcc_dir / 'tools/file_packager.py',
+        build_dir / 'zeditor.data',
+        '--no-node',
+        '--preload', f'{packages_dir}/web_zeditor_data@/',
+        '--use-preload-cache',
+        f'--js-output={build_dir / "zeditor.data.js"}',
+    ])
+    if 'ZC_PACKAGE_REPLAYS' in os.environ:
+        subprocess.check_call([
+            'python',
+            emcc_dir / 'tools/file_packager.py',
+            build_dir / 'replays.data',
+            '--no-node',
+            '--preload', f'{root_dir}/tests/replays@/test_replays',
+            '--use-preload-cache',
+            f'--js-output={build_dir / "replays.data.js"}',
+        ])
 
 if 'TEST' in os.environ:
     import unittest
@@ -210,6 +336,8 @@ if 'TEST' in os.environ:
     tc.assertEqual(preprocess_base_config('ignore_monitor_scale = no #? windows = yes', 'windows'), 'ignore_monitor_scale = yes')
 elif args.extras:
     do_packaging(packages_dir / 'extras', extras)
+elif args.cfg_os == 'web':
+    do_web_packaging()
 else:
     # Generate changelog for changes since last stable release.
     try:
