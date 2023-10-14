@@ -416,7 +416,7 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			_SET(misc[5], "Lift Height", "The Z height above the player's head to lift the weapon.");
 			_SET(misc[6], "Boom Radius", "If 0, uses a classic boxy hitbox- otherwise uses a circular radius of this many pixels." + QRHINT({qr_OLD_BOMB_HITBOXES}));
 			inf->flag[1] = "Explosion Hurts Player";
-			_SET(flag[2], "Stops Movement on Landing", "If the weapon lands due to gravity, it's step will be set to 0.");
+			_SET(flag[2], "Stops Movement on Landing", "If the weapon lands due to gravity, its step will be set to 0.");
 			_SET(flag[3], "Auto-Lift", "If the player owns a Lift Glove, place the bomb directly in the player's hands.");
 			inf->wpn[0] = "Bomb Sprite:";
 			inf->wpn[1] = "Explosion Sprite:";
@@ -435,9 +435,9 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 			_SET(misc[6], "Boom Radius", "If 0, uses a classic boxy hitbox- otherwise uses a circular radius of this many pixels." + QRHINT({qr_OLD_BOMB_HITBOXES}));
 			inf->flag[0] = "Use 1.92 Timing";
 			inf->flag[1] = "Explosion Hurts Player";
-			_SET(flag[2], "Stops Movement on Landing", "If the weapon lands due to gravity, it's step will be set to 0.");
+			_SET(flag[2], "Stops Movement on Landing", "If the weapon lands due to gravity, its step will be set to 0.");
 			_SET(flag[3], "Auto-Lift", "If the player owns a Lift Glove, place the bomb directly in the player's hands.");
-			_SET(flag[4], "Stops Movement on Solid", "If the weapon collides with a solid while moving, it's step will be set to 0.");
+			_SET(flag[4], "Stops Movement on Solid", "If the weapon collides with a solid while moving, its step will be set to 0.");
 			inf->wpn[0] = "Bomb Sprite:";
 			inf->wpn[1] = "Explosion Sprite:";
 			inf->actionsnd[0] = "Explosion Sound:";

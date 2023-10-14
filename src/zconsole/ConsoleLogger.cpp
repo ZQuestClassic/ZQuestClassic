@@ -91,7 +91,7 @@ int32_t CConsoleLogger::Create(const char	*lpszWindowTitle/*=NULL*/,
 	}
 	_CONSOLE_DEBUG("Created pipe!\nCreating process...\n");
 	
-	// Extra console : create another process , it's role is to display the pipe's output
+	// Extra console : create another process , its role is to display the pipe's output
 	STARTUPINFO si;
 	PROCESS_INFORMATION pi;
 	GetStartupInfo(&si);
@@ -266,7 +266,7 @@ int32_t CConsoleLogger::SetAsDefaultOutput(void)
 }
 
 ///////////////////////////////////////////////////////////////////////////
-// Reset the CRT printf() to it's default
+// Reset the CRT printf() to its default
 //////////////////////////////////////////////////////////////////////////
 int32_t CConsoleLogger::ResetDefaultOutput(void)
 {
@@ -613,7 +613,7 @@ int32_t CConsoleLogger::SetAsDefaultOutput(void)
 }
 
 ///////////////////////////////////////////////////////////////////////////
-// Reset the CRT printf() to it's default
+// Reset the CRT printf() to its default
 //////////////////////////////////////////////////////////////////////////
 int32_t CConsoleLogger::ResetDefaultOutput(void)
 {

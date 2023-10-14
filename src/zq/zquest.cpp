@@ -10408,7 +10408,7 @@ std::string get_command_infostr(int cmd)
 			infostr = "Switches to Relational drawing mode";
 			break;
 		case cmdRevert:
-			infostr = "Reverts changes made to the quest file, re-loading it's last save";
+			infostr = "Reverts changes made to the quest file, re-loading its last save";
 			break;
 		case cmdRType:
 			infostr = "Edit the screen's Room Data";

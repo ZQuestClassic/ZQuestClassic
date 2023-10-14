@@ -122,7 +122,7 @@ const char *itemclass_help_string_defaults[itype_max] =
 	"Emanates light passively from the player in dark rooms.", //Lantern
 	"Prevents the player from becoming a Bunny on certain dmaps.", //Pearls
 	"Can be filled with bottle contents, and trigger their effects.\n"
-		"The drawn tile of the bottle's animation is offset by it's AFrames (min 1)"
+		"The drawn tile of the bottle's animation is offset by its AFrames (min 1)"
 		" times the value of its' contents (empty = 0, so no offset).", //Bottle
 	"Fills the first empty bottle you have with a particular content", //Bottlefill
 	//270

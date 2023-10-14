@@ -151,7 +151,7 @@ protected:
 //                   but with COLORS and more functionality (cls,gotoxy,...)
 //
 // the drawback - we first send the "command" and than the data,
-//                so it's little bit slower . (i don't believe that anyone 
+//                so it's a little bit slower . (i don't believe that anyone 
 //                is going to notice the differences , it's not measurable)
 //
 //////////////////////////////////////////////////////////////////////////

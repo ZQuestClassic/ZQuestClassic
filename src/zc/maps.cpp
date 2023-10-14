@@ -6014,7 +6014,7 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt, mapscr* m, mapscr* s1, mapscr* s
 	return (cwalkflag&b) ? !dried : false;
 }
 
-//Only check the given mapscr*, not it's layer 1&2
+//Only check the given mapscr*, not its layer 1&2
 bool _walkflag_layer(int32_t x,int32_t y,int32_t cnt, mapscr* m)
 {
 	//  walkflagx=x; walkflagy=y;

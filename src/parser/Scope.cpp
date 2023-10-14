@@ -1119,7 +1119,7 @@ Function* BasicScope::addFunction(
 			{
 				//Remove the unneeded prototype function
 				removeFunction(foundFunc);
-				//Disable the node which defined the prototype function, and nullify it's pointer to the Function
+				//Disable the node which defined the prototype function, and nullify its pointer to the Function
 				foundFunc->node->func = NULL;
 				foundFunc->node->disable();
 				//Delete the Function* to free memory
@@ -1657,7 +1657,7 @@ void RootScope::removeFunction(Function* function)
 {
 	if(!function) return;
 	BasicScope::removeFunction(function); //Remove from basic scope maps
-	//Make sure it is removed from it's parent file!
+	//Make sure it is removed from its parent file!
 	function->internalScope->getFile()->removeLocalFunction(function);
 
 	FunctionSignature signature(function->name, function->paramTypes);
@@ -1880,7 +1880,7 @@ Function* ClassScope::addFunction(
 			{
 				//Remove the unneeded prototype function
 				removeFunction(foundFunc);
-				//Disable the node which defined the prototype function, and nullify it's pointer to the Function
+				//Disable the node which defined the prototype function, and nullify its pointer to the Function
 				foundFunc->node->func = NULL;
 				foundFunc->node->disable();
 				//Delete the Function* to free memory

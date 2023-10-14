@@ -1656,7 +1656,7 @@ void BuildOpcodes::caseExprCall(ASTExprCall& host, void* param)
 		if(parsing_user_class == puc_construct && func.getFlag(FUNCFLAG_CONSTRUCTOR)
 			&& !host.isConstructor())
 		{
-			//A constructor calling another constructor to inherit it's code
+			//A constructor calling another constructor to inherit its code
 			//Use the alt label of the constructor, which is after the constructy bits
 			addOpcode(new OSetRegister(new VarArgument(CLASS_THISKEY2), new VarArgument(CLASS_THISKEY)));
 			addOpcode(new OGotoImmediate(new LabelArgument(func.getAltLabel())));

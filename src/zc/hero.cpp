@@ -1360,7 +1360,7 @@ void HeroClass::setAction(actiontype new_action) // Used by ZScript
 	case falling:
 		if(!fallclk)
 		{
-			//If there is a pit under Hero, use it's combo.
+			//If there is a pit under Hero, use its combo.
 			if(int32_t c = getpitfall(x+8,y+(bigHitbox?8:12))) fallCombo = c;
 			else if(int32_t c = getpitfall(x,y+(bigHitbox?0:8))) fallCombo = c;
 			else if(int32_t c = getpitfall(x+15,y+(bigHitbox?0:8))) fallCombo = c;
@@ -7671,7 +7671,7 @@ heroanimate_skip_liftwpn:;
 	if(cheats_execute_light)
 	{
 		naturaldark = !naturaldark;
-		lighting(false, false, pal_litOVERRIDE);//Forcibly set permLit, overriding it's current setting
+		lighting(false, false, pal_litOVERRIDE);//Forcibly set permLit, overriding its current setting
 		cheats_execute_light = false;
 	}
 	
@@ -29814,7 +29814,7 @@ void HeroClass::checkitems(int32_t index)
 			
 			/*
 			// WARNING - Item pickups are very volatile due to crazy compatability hacks, eg., supporting
-			// broken behavior from early ZC versions. If you change things here please comment on it's purpose.
+			// broken behavior from early ZC versions. If you change things here please comment on its purpose.
 
 			// some old quests need picking up a screen item to also disable the BELOW flag (for hunger rooms, etc)
 			// What is etc?! We need to check for every valid state here. ~Gleeok

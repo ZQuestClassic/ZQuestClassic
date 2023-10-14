@@ -219,7 +219,7 @@ static GUI::ListData comboRulesList
 	{ "Smart Screen Scrolling", qr_SMARTSCREENSCROLL, 
 		"Before scrolling the screen, checks the destination screen"
 		" and position to see if it's solid. If so, scrolling is cancelled."
-		" This rule is incredibly buggy on it's own, and is nigh unusable"
+		" This rule is incredibly buggy on its own, and is nigh unusable"
 		" without 'Fixed Smart Scrolling' enabled."},
 	{ "Fixed Smart Scrolling", qr_SMARTER_SMART_SCROLL, 
 		"Fixes the many, many bugs with Smart Scrolling. Solidity on"
@@ -496,8 +496,8 @@ static GUI::ListData compatRulesList
 		" occupy the Open Door space."},
 	{ "Old Hookshot Grab Checking", qr_OLDHOOKSHOTGRAB, 
 		"If this is enabled, the check for if a hookshot has grabbed a"
-		" combo going left or right will check it's Y value plus 7."
-		" If disabled, it will check it's Y value plus 13. Note that"
+		" combo going left or right will check its Y value plus 7."
+		" If disabled, it will check its Y value plus 13. Note that"
 		" the hookshot's Y position is 3 pixels more than the Player's when"
 		" facing left/right, and note that this rule does not affect"
 		" the hookshot when travelling up or down."},
@@ -554,7 +554,7 @@ static GUI::ListData compatRulesList
 		" cause unintended effects."},
 	{ "Enemies Clip Through Top-Half Walkable Combos", qr_ENEMY_BROKEN_TOP_HALF_SOLIDITY, 
 		"If enabled, enemies will only check the bottom half of a"
-		" combo for it's solidity when choosing where it can walk."
+		" combo for its solidity when choosing where it can walk."
 		" If disabled, enemies can't walk into a combo if any part"
 		" of it is solid."},
 	{ "Old Sideview Ceiling Collision", qr_OLD_SIDEVIEW_CEILING_COLLISON, 
@@ -571,7 +571,7 @@ static GUI::ListData compatRulesList
 	{ "Old Enemy Knockback Collision", qr_OLD_ENEMY_KNOCKBACK_COLLISION, 
 		"If enabled, you are unable to knockback an enemy if it can't"
 		" move 12 pixels in the direction it would be knocked back into."
-		" If disabled, it will check it's knockback speed (which defaults"
+		" If disabled, it will check its knockback speed (which defaults"
 		" to 4), see if it can move 1 frame of knockback speed in that"
 		" direction, and if it can't, won't be knocked back."},
 	{ "Check Clip for Custom / Script Type Weapons on Screen Edge", qr_CHECKSCRIPTWEAPONOFFSCREENCLIP, 
@@ -645,8 +645,8 @@ static GUI::ListData compatRulesList
 	{ "Broken Horizontal Weapon Animation", qr_BROKEN_HORIZONTAL_WEAPON_ANIM, 
 		"In older versions, weapon types with different left/right facing tiles,"
 		" such as Arrows or the Sword, had a bug where if their sprite was animated,"
-		" it would only use the default tile and it's animation, instead of using"
-		" the left/right tile and it's intended animation. Enabling this rule brings"
+		" it would only use the default tile and its animation, instead of using"
+		" the left/right tile and its intended animation. Enabling this rule brings"
 		" back this bug."},
 	{ "Enemies->Secret only affects flags 16-31", qr_ENEMIES_SECRET_ONLY_16_31,
 		"If this rule is enabled, Enemies->Secret will only trigger Secret Flags 16"
@@ -849,7 +849,7 @@ static GUI::ListData compatRulesList
 	{ "Engine warps restart DMap Script", qr_WARPS_RESTART_DMAPSCRIPT,
 		"If enabled, engine warps will restart or clear the currently running dmap script, even if you warp to the same dmap you were just on." },
 	{ "DMap 0 hardcoded continue", qr_DMAP_0_CONTINUE_BUG,
-		"If enabled, entering DMap 0 will set your continue point to it's continue screen, even if it shouldn't." },
+		"If enabled, entering DMap 0 will set your continue point to its continue screen, even if it shouldn't." },
 	{ "Old Scripted Knockback", qr_OLD_SCRIPTED_KNOCKBACK,
 		"If enabled, npc->Knockback will use older logic, which had a tendency to clip enemies into walls." },
 	{ "Old Keese Z Axis Behavior", qr_OLD_KEESE_Z_AXIS,
@@ -880,7 +880,7 @@ static GUI::ListData compatRulesList
 		"If enabled, FFCs will lack certain functionality, such as hookshotability, switch_hookability,"
 		" and ffc triggers, among other misc changes."},
 	{ "Old Shallow Water SFX Attribute", qr_OLD_SHALLOW_SFX,
-		"If enabled, Shallow Water will use attribytes[0] instead of attribytes[5] for it's splash sound." },
+		"If enabled, Shallow Water will use attribytes[0] instead of attribytes[5] for its splash sound." },
 	{ "Weapon Sparkles Inherit Properties", qr_SPARKLES_INHERIT_PROPERTIES,
 		"If enabled, sparkle weapons inherit properties such as script, type, and default defense"
 		" from the parent item." },
@@ -979,7 +979,7 @@ static GUI::ListData enemiesRulesList
 		" If disabled, they will only return depending on their position as"
 		" determined by 'Line-of-Sight Traps Can Move Across Entire Screen'."
 		" This rule also determines if the directions a trap can move in are"
-		" hardcoded based on it's position. If this rule is enabled, they are"
+		" hardcoded based on its position. If this rule is enabled, they are"
 		" not hardcoded. If this rule is disabled, traps will be unable to"
 		" travel in certain directions if placed in specific positions."},
 	{ "Line-of-Sight Traps Can Move Across Entire Screen", qr_MEANPLACEDTRAPS, 
@@ -1077,7 +1077,7 @@ static GUI::ListData itemRulesList
 		" that behavior."},
 	{ "Reroll Drops If Capacity is Full", qr_SMARTER_DROPS,
 		"If enabled, drops are rerolled if the item tries to increase a counter"
-		" by 1 or more, but that counter is already at or above it's max capacity."
+		" by 1 or more, but that counter is already at or above its max capacity."
 		" This would, for example, prevent arrows from dropping if you already have"
 		" max arrows, potentially rerolling it with a more useful item."},
 	{ "Items Ignore Sideview Platforms", qr_ITEMS_IGNORE_SIDEVIEW_PLATFORMS,
@@ -1094,7 +1094,7 @@ static GUI::ListData itemRulesList
 	{ "Bottles can't be used with any maxed counter", qr_NO_BOTTLE_IF_ANY_COUNTER_FULL,
 		"If enabled, bottled items cannot be used if ANY of the 3 (non-None) counters it fills "
 		" are already at maximum capacity.\n"
-		"Otherwise, bottled items can be used if AT LEAST ONE of it's counters is not full."},
+		"Otherwise, bottled items can be used if AT LEAST ONE of its counters is not full."},
 	{ "Whistle triggers can be permanent", qr_PERMANENT_WHISTLE_SECRETS,
 		"If enabled, whistle triggers are allowed to be permanent. This means that whistle triggers"
 		" will set the secret screen state, unless 'Screen->Secrets are Temporary' is checked for the"
@@ -1198,7 +1198,7 @@ static GUI::ListData miscRulesList
 		"\n- Any warps that happen, including what type of warp it is and where the warp took you;"
 		"\n- Any items you pick up, including both the ID and the Item Name;"
 		"\n- Any time the continue point is set, including what it's been set to;"
-		"\n- Any time a script creates an object, including the object's name and it's UID (not to be confused with ID);"
+		"\n- Any time a script creates an object, including the object's name and its UID (not to be confused with ID);"
 		"\n- and lastly, any time a script tries to reference a nonexistent object."},
 	{ "Log Script Errors To Allegro.log And Console", qr_SCRIPTERRLOG,
 		"If enabled, various script errors are logged to Allegro.log and the ZScript Debug Console."

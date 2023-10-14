@@ -523,7 +523,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 								INFOBTN_EX("Magic costs are multiplied by this amount. Every time you use a"
 									" 'Learn Half Magic' room, this value is halved (rounded down)."
 									"\nWhen the 'Show' value on a 'Magic Gauge Piece' subscreen object is"
-									" >-1, that piece will only show up when it's 'Show' value is equal to"
+									" >-1, that piece will only show up when its 'Show' value is equal to"
 									" this value (usable for '1/2', '1/4', '1/8' magic icons; as long as"
 									" your starting value is high enough, you can allow stacking several"
 									" levels of lowered magic cost)", bottomPadding = 0_px, forceFitH = true)
