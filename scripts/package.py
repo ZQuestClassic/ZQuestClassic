@@ -35,42 +35,37 @@ resources_dir = root_dir / 'resources'
 build_dir: Path = Path.cwd() / args.build_folder
 packages_dir = build_dir / 'packages'
 
-extras = [
-    resources_dir / 'Addons',
-    resources_dir / 'utilities',
-]
 
-
-def binary_file(path: Path):
+def binary_file(base_dir: Path, path: str):
+    as_path = base_dir / path
     if system == 'Windows':
-        return path.with_suffix('.exe')
+        return (base_dir, as_path.with_suffix('.exe'))
     else:
-        return path
+        return (base_dir, as_path)
 
 
-def glob_files(base_dir: Path, pattern: str):
+def glob(base_dir: Path, pattern: str):
     files = list(base_dir.glob(pattern))
     if not files:
         raise Exception(f'nothing matched pattern: {pattern}')
-    return files
+    return [(base_dir, f) for f in files if f.is_file()]
 
 
-def glob_files_2(base_dir: Path, pattern: str):
-    files = list(base_dir.rglob(pattern))
-    if not files:
-        raise Exception(f'nothing matched pattern: {pattern}')
-    return [f for f in files if f.is_file()]
+def files(base_dir: Path, files: List[str] = None):
+    if files == None:
+        return glob(base_dir, '**/*')
 
-
-def files(base_dir: Path, files: List[str]):
-    new_files = []
+    new_files: List[Tuple[Path, Path]] = []
     for f in files:
         path = base_dir / f
-        if not path.exists():
-            raise Exception(f'file missing: {f}')
-        new_files.append(path)
+        new_files.append((base_dir, path))
     return new_files
 
+
+extras = [
+    *glob(resources_dir, 'Addons/**/*'),
+    *glob(resources_dir, 'utilities/**/*'),
+]
 
 def system_to_cfg_os(system: str):
     if system == 'Windows':
@@ -114,41 +109,33 @@ def preprocess_base_config(config_text: str, cfg_os: str):
     return '\n'.join(new_config_lines)
 
 
-def copy_files_to_package(files: List[Path], dest_dir: Path):
+def copy_files_to_package(files: List[Tuple[Path, Path]], dest_dir: Path, exclude_files: List[Tuple[Path, Path]] = None):
+    if exclude_files:
+        files = list(set(files) - set(exclude_files))
+
     cfg_os = args.cfg_os or system_to_cfg_os(system)
-    files_flat: List[Tuple[Path, Path]] = []
-    for file in files:
-        if not file:
-            continue
 
-        if type(file) is tuple:
-            path, dir = file
-            files_flat.append((path, dir))
-            continue
+    for folder, path in files:
+        if not path.is_absolute():
+            raise Exception(f'expected absolute path, got: {path}')
+        if not folder.is_dir():
+            raise Exception(f'expected {folder} to be a directory')
+        if not path.is_file():
+            raise Exception(f'expected {path} to be a file')
 
-        if file.is_dir():
-            for dir_path, dirs, dir_files in os.walk(file):
-                for dir_file in dir_files:
-                    path = Path(os.path.join(dir_path, dir_file))
-                    if path.is_file():
-                        files_flat.append((path, file.parent))
-        else:
-            files_flat.append((file, None))
-
-    for src, folder in files_flat:
         if folder:
-            dest = dest_dir / src.relative_to(folder)
+            dest = dest_dir / path.relative_to(folder)
         else:
-            dest = dest_dir / src.name
+            dest = dest_dir / path.name
 
         if args.keep_existing_files and dest.exists():
             continue
 
         dest.parent.mkdir(parents=True, exist_ok=True)
-        if src.parent.name == 'base_config' or src.name == 'allegro5.cfg':
-            dest.write_text(preprocess_base_config(src.read_text(), cfg_os))
+        if path.parent.name == 'base_config' or path.name == 'allegro5.cfg':
+            dest.write_text(preprocess_base_config(path.read_text(), cfg_os))
         else:
-            shutil.copy2(src, dest, follow_symlinks=False)
+            shutil.copy2(path, dest, follow_symlinks=False)
 
 
 def prepare_package(package_dir: Path):
@@ -208,9 +195,9 @@ def collect_licenses(package_dir: Path):
 
 
 
-def do_packaging(package_dir: Path, files, include_licenses=False):
+def do_packaging(package_dir: Path, files: List[Tuple[Path, Path]], exclude_files: List[Tuple[Path, Path]] = None, include_licenses=False):
     prepare_package(package_dir)
-    copy_files_to_package(files, package_dir)
+    copy_files_to_package(files, package_dir, exclude_files=exclude_files)
     if include_licenses:
         collect_licenses(package_dir)
     print(f'packaged {package_dir}')
@@ -226,18 +213,16 @@ def do_web_packaging():
     # via ZC.pathToUrl will be mapped to a URL (see emscripten_utils.cpp `em_init_fs`)
     # zplayer will use zplayer.data, but zeditor will use both zplayer.data and zquest.data
 
-    all_files = glob_files_2(resources_dir, '*')
+    all_files = glob(resources_dir, '**/*')
     ignore_files = [
+        *extras,
         *files(resources_dir, [
             'docs/ghost',
             'docs/tango',
             'docs/ZScript_Additions.txt',
         ]),
-        *glob_files_2(resources_dir, '**/*.pdf'),
+        *glob(resources_dir, '**/*.pdf'),
     ]
-    for e in extras:
-        ignore_files.extend(glob_files_2(e, '*'))
-    all_files = list(set(all_files) - set(ignore_files))
 
     zplayer_data_files = files(resources_dir, [
         'ag.cfg',
@@ -273,10 +258,6 @@ def do_web_packaging():
     ])
     lazy_files = list(set(all_files) - set(zplayer_data_files) - set(zeditor_data_files))
 
-    zplayer_data_files = [(f, resources_dir) for f in zplayer_data_files]
-    zeditor_data_files = [(f, resources_dir) for f in zeditor_data_files]
-    lazy_files = [(f, resources_dir) for f in lazy_files]
-
     for pkg in ['web_zplayer_data', 'web_zeditor_data', 'web_lazy_files']:
         f = packages_dir / pkg
         if f.exists():
@@ -284,7 +265,7 @@ def do_web_packaging():
 
     copy_files_to_package(zplayer_data_files, packages_dir / 'web_zplayer_data')
     copy_files_to_package(zeditor_data_files, packages_dir / 'web_zeditor_data')
-    copy_files_to_package(lazy_files, packages_dir / 'web_lazy_files')
+    copy_files_to_package(lazy_files, packages_dir / 'web_lazy_files', exclude_files=ignore_files)
 
     emcc_dir = Path(shutil.which('emcc')).parent
     subprocess.check_call([
@@ -358,35 +339,36 @@ else:
     elif nightly_changelog_path.exists():
         nightly_changelog_path.unlink()
 
-    files = [
-        *glob_files(resources_dir, '*'),
-        root_dir / 'changelogs',
+    zc_files = [
+        *glob(resources_dir, '**/*'),
+        *glob(root_dir, 'changelogs/**/*'),
     ]
-    files = list(set(files) - set(extras))
 
     if args.copy_to_build_folder:
-        copy_files_to_package(files, build_dir)
+        copy_files_to_package(zc_files, build_dir, exclude_files=extras)
         exit(0)
 
     if not args.skip_binaries:
-        files.extend([
-            binary_file(build_dir / 'zplayer'),
-            binary_file(build_dir / 'zeditor'),
-            binary_file(build_dir / 'zscript'),
-            binary_file(build_dir / 'zlauncher'),
-            binary_file(build_dir / 'zconsole') if system == 'Windows' else None,
-            binary_file(build_dir / 'zstandalone') if system == 'Windows' else None,
-            binary_file(build_dir / 'zupdater'),
-            *(glob_files(build_dir, '*.dll') if system == 'Windows' else []),
-            *(glob_files(build_dir, '*.so*') if system == 'Linux' else []),
-            *(glob_files(build_dir, '*.dylib') if system == 'Darwin' else []),
+        zc_files.extend([
+            binary_file(build_dir, 'zplayer'),
+            binary_file(build_dir, 'zeditor'),
+            binary_file(build_dir, 'zscript'),
+            binary_file(build_dir, 'zlauncher'),
+            binary_file(build_dir, 'zupdater'),
+            *(glob(build_dir, '*.dll') if system == 'Windows' else []),
+            *(glob(build_dir, '*.so*') if system == 'Linux' else []),
+            *(glob(build_dir, '*.dylib') if system == 'Darwin' else []),
         ])
 
-        crashpad_binary = binary_file(build_dir / 'crashpad_handler')
-        if crashpad_binary.exists():
-            files.append(crashpad_binary)
+        if system == 'Windows':
+            zc_files.append(binary_file(build_dir, 'zconsole'))
+            zc_files.append(binary_file(build_dir, 'zstandalone'))
+
+        crashpad_binary = binary_file(build_dir, 'crashpad_handler')
+        if crashpad_binary[1].exists():
+            zc_files.append(crashpad_binary)
 
         if system == 'Linux' and 'PACKAGE_DEBUG_INFO' in os.environ:
-            files += glob_files(build_dir, '*.debug')
+            zc_files += glob(build_dir, '*.debug')
 
-    do_packaging(packages_dir / 'zc', files, include_licenses=True)
+    do_packaging(packages_dir / 'zc', zc_files, exclude_files=extras, include_licenses=True)
