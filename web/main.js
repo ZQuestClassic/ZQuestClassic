@@ -338,6 +338,7 @@ async function renderQuestList() {
   const quests = Object.values(manifest);
 
   for (const quest of quests) {
+    if (quest.type !== 'quests') continue;
     if (!['auto', true].includes(quest.approval)) continue;
 
     const el = document.createElement('div');

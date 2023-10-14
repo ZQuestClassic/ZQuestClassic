@@ -17,6 +17,7 @@ const OFFICIAL = Boolean(process.env.OFFICIAL);
 const OFFICIAL_SYNC = Boolean(process.env.OFFICIAL_SYNC);
 const ONLY_NEW = Boolean(process.env.ONLY_NEW);
 const ONE_SHOT = Number(process.env.ONE_SHOT);
+const TYPE = (process.env.TYPE || 'quests') as EntryType;
 const START = Number(process.env.START);
 const MAX = Number(process.env.MAX);
 const FORCE = Boolean(process.env.FORCE_UPDATE);
@@ -38,9 +39,12 @@ interface Author {
   sentApprovalMessage?: boolean;
 }
 
+type EntryType = 'quests' | 'tilesets';
+
 interface QuestManifest {
   id: string;
   index: number;
+  type: EntryType;
   name: string;
   projectUrl: string;
   dateAdded: string;
@@ -80,6 +84,10 @@ interface QuestManifest {
   };
 }
 
+function capitalize(str: string) {
+  return str[0].toUpperCase() + str.substring(1);
+}
+
 const outputFile = `${DB}/manifest.json`;
 const doNotExistFile = `${DB}/quest_db_donotexist.json`;
 
@@ -109,9 +117,13 @@ function getFirstQstFile(release: QuestManifest['releases'][number]) {
   return qst;
 }
 
-function saveQuests() {
+function saveManifest() {
   const entries = [...questsMap.entries()]
-    .sort((a, b) => a[1].index - b[1].index);
+    .sort((a, b) => {
+      const c = a[1].type.localeCompare(b[1].type);
+      if (c !== 0) return c;
+      return a[1].index - b[1].index;
+    });
   const obj = Object.fromEntries(entries);
   fs.writeFileSync(outputFile, JSON.stringify(obj, null, 2));
   fs.writeFileSync(doNotExistFile, JSON.stringify(doNotExist, null, 2));
@@ -270,8 +282,8 @@ async function fetchExternalMusic(page: puppeteer.Page, quest: QuestManifest, re
   await decompress(destZip, resourcesDir, {strip: 1});
 }
 
-async function getLatestPzcId(page: puppeteer.Page) {
-  await page.goto('https://www.purezc.net/index.php?page=quests&sort=added', { waitUntil: 'networkidle2' });
+async function getLatestPzcId(page: puppeteer.Page, type: EntryType) {
+  await page.goto(`https://www.purezc.net/index.php?page=${type}&sort=added`, { waitUntil: 'networkidle2' });
   return await page.evaluate(() => {
     // @ts-expect-error
     return Number(new URL(document.querySelector('tbody td a').href).searchParams.get('id'));
@@ -316,17 +328,28 @@ async function uncompressQstAndGzip(qstPath: string) {
   if (fs.existsSync(out)) fs.unlinkSync(out);
 }
 
-async function processId(page: puppeteer.Page, pzcId: number) {
-  if ([81, 178, 400, 401].includes(pzcId)) {
-    // Zip is busted - or maybe I'm using a bad library.
+async function processId(page: puppeteer.Page, type: EntryType, index: number) {
+  if (type === 'quests') {
+    if ([81, 178, 400, 401].includes(index)) {
+      // Zip is busted - or maybe I'm using a bad library.
+      return;
+    }
+    if ([73, 793].includes(index)) {
+      // qst doesn't open
+      return;
+    }
+  } else if (type === 'tilesets') {
+    if (index !== 106) return;
+  }
+
+  const id = `${type}/purezc/${index}`;
+  if (ONLY_NEW && questsMap.has(id)) {
     return;
   }
-  if ([73, 793].includes(pzcId)) {
-    // qst doesn't open
+  if (doNotExist.includes(id)) {
     return;
   }
 
-  const id = `quests/purezc/${pzcId}`;
   const questDir = `${DB}/${id}`;
 
   const allImgResponses: Record<string, puppeteer.HTTPResponse> = {};
@@ -336,7 +359,7 @@ async function processId(page: puppeteer.Page, pzcId: number) {
     }
   });
 
-  const projectUrl = `https://www.purezc.net/index.php?page=quests&id=${pzcId}`;
+  const projectUrl = `https://www.purezc.net/index.php?page=${type}&id=${index}`;
   const response = await page.goto(projectUrl, { waitUntil: 'networkidle2' });
   if (!response || response.status() !== 200) {
     console.log(`[${id}] bad response`);
@@ -443,10 +466,20 @@ async function processId(page: puppeteer.Page, pzcId: number) {
     authors.push({name: author});
   }
 
-  if (!dateAdded || !authors.length || !genre || !zcVersion) {
-    console.log({dateAdded, authors, genre, zcVersion});
-    throw new Error();
+  let required = {};
+  if (type === 'quests') {
+    required = {dateAdded, authors, genre, zcVersion};
+  } else if (type === 'tilesets') {
+    required = {dateAdded, authors, zcVersion};
   }
+  for (const value of Object.values(required)) {
+    if (!value) {
+      console.error(required);
+      throw new Error('missing required data');
+    }
+  }
+  // for typechecking.
+  if (!dateAdded || !authors || !zcVersion) throw new Error();
 
   const existingManifestEntry = questsMap.get(id);
   const isNew = !existingManifestEntry;
@@ -460,12 +493,12 @@ async function processId(page: puppeteer.Page, pzcId: number) {
     console.log(`[${id}] previously updated at: ${existingManifestEntry.dateUpdated}. Found new update from: ${dateUpdated}`);
   }
 
-  const archivePath = `${ARCHIVES}/quests/purezc/${pzcId}.zip`;
-  fs.mkdirSync(`${ARCHIVES}/quests/purezc`, {recursive: true});
+  const archivePath = `${ARCHIVES}/${id}.zip`;
+  fs.mkdirSync(`${ARCHIVES}/${type}/purezc`, {recursive: true});
   // TODO: if this download has etag or last modified or w/e, could avoid re-downloaded when nothing changed.
   if (!FORCE) {
     fs.rmSync(archivePath, {force: true});
-    await download(`https://www.purezc.net/index.php?page=download&section=Quests&id=${pzcId}`, archivePath);
+    await download(`https://www.purezc.net/index.php?page=download&section=${capitalize(type)}&id=${index}`, archivePath);
   }
   const contentHash = await getFileHash(archivePath);
 
@@ -476,7 +509,7 @@ async function processId(page: puppeteer.Page, pzcId: number) {
 
   if (isNew || contentHashUpdated) {
     if (contentHashUpdated) console.log(`[${id}] content has updated`);
-    else console.log(`[${id}] downloading new quest`);
+    else console.log(`[${id}] downloading new entry`);
 
     const r = releases.length + 1;
     thisRelease = {
@@ -505,9 +538,17 @@ async function processId(page: puppeteer.Page, pzcId: number) {
 
   let informationHtml: string|undefined = trim(html.entryInfo);
   const descriptionHtml = trim(html.tableRows[1]);
-  const storyHtml = trim(html.tableRows[3]);
-  const tipsAndCheatsHtml = trim(html.tableRows[5]);
-  const creditsHtml = trim(html.tableRows[7]);
+
+  let storyHtml, tipsAndCheatsHtml, creditsHtml;
+  if (type === 'quests') {
+    storyHtml = trim(html.tableRows[3]);
+    tipsAndCheatsHtml = trim(html.tableRows[5]);
+    creditsHtml = trim(html.tableRows[7]);
+  } else if (type === 'tilesets') {
+    creditsHtml = trim(html.tableRows[3]);
+  }
+
+  console.log(creditsHtml);
 
   if (informationHtml.includes('View Full Description') || informationHtml === descriptionHtml) {
     informationHtml = undefined;
@@ -566,7 +607,8 @@ async function processId(page: puppeteer.Page, pzcId: number) {
 
   const quest: QuestManifest = {
     id,
-    index: pzcId,
+    index,
+    type,
     name,
     projectUrl,
     dateAdded,
@@ -811,29 +853,24 @@ A: No.
       }
     }
   } else if (ONE_SHOT) {
-    await processId(page, ONE_SHOT);
+    await processId(page, TYPE, ONE_SHOT);
   } else {
+    const type = TYPE;
     const start = START || 1;
-    const max = MAX || await getLatestPzcId(page);
-    console.log(`processing ${max - start + 1} quests`);
+    const max = MAX || await getLatestPzcId(page, type);
+    console.log(`processing ${max - start + 1} ${type}`);
     for (let i = start; i <= max; i++) {
-      const id = `quests/purezc/${i}`;
-      if (ONLY_NEW && questsMap.has(id)) {
-        continue;
-      }
-      if (doNotExist.includes(id)) {
-        continue;
-      }
-  
+      const id = `${type}/purezc/${i}`;
+
       try {
         console.log(`[${id}]`);
-        await processId(page, i);
+        await processId(page, type, i);
       } catch (e) {
         console.error(`[${id}]`, e);
         console.error(`[${id}]`, 'will try again next run');
       }
   
-      if (i % 10 === 0) saveQuests();
+      if (i % 10 === 0) saveManifest();
     }
   }
 
@@ -863,7 +900,7 @@ A: No.
   }
 
   console.log('\nshutting down');
-  saveQuests();
+  saveManifest();
 
   await browser.close();
   if (OFFICIAL) {
