@@ -259,11 +259,11 @@ void start_info_bmp()
 {
 	al_store_state(&infobmp_old_state, ALLEGRO_STATE_TARGET_BITMAP);
 	al_set_target_bitmap(rti_infolayer.bitmap);
-	al_set_clipping_rectangle(0, playing_field_offset, al_get_bitmap_width(rti_infolayer.bitmap)-1, al_get_bitmap_height(rti_infolayer.bitmap)-1-playing_field_offset);
+	al_set_clipping_rectangle(0, playing_field_offset, al_get_bitmap_width(rti_infolayer.bitmap), al_get_bitmap_height(rti_infolayer.bitmap)-playing_field_offset);
 }
 void end_info_bmp()
 {
-	al_set_clipping_rectangle(0, 0, al_get_bitmap_width(rti_infolayer.bitmap)-1, al_get_bitmap_height(rti_infolayer.bitmap)-1);
+	al_set_clipping_rectangle(0, 0, al_get_bitmap_width(rti_infolayer.bitmap), al_get_bitmap_height(rti_infolayer.bitmap));
 	al_restore_state(&infobmp_old_state);
 }
 
