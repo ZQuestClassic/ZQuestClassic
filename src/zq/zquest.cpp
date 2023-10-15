@@ -733,6 +733,7 @@ zctune              *customtunes;
 ZCHEATS             zcheats;
 byte                use_cheats;
 byte                use_tiles;
+// Note: may not be null-terminated (must refactor writecolordata to fix).
 char                palnames[MAXLEVELS][17];
 quest_template      QuestTemplates[MAXQTS];
 char                fontsdat_sig[52];

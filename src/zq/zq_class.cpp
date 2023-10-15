@@ -7646,8 +7646,7 @@ int32_t writedmaps(PACKFILE *f, word version, word build, word start_dmap, word 
                 }
             }
             
-            //16
-            if(!pfwrite(&DMaps[i].name,sizeof(DMaps[0].name),f))
+            if(!pfwrite(&DMaps[i].name,sizeof(DMaps[0].name)-1,f))
             {
                 new_return(15);
             }
@@ -7657,7 +7656,7 @@ int32_t writedmaps(PACKFILE *f, word version, word build, word start_dmap, word 
                 new_return(16);
             }
             
-            if(!pfwrite(&DMaps[i].intro,sizeof(DMaps[0].intro),f))
+            if(!pfwrite(&DMaps[i].intro,sizeof(DMaps[0].intro)-1,f))
             {
                 new_return(17);
             }
@@ -7702,7 +7701,7 @@ int32_t writedmaps(PACKFILE *f, word version, word build, word start_dmap, word 
                 new_return(25);
             }
             
-            if(!pfwrite(&DMaps[i].tmusic,sizeof(DMaps[0].tmusic),f))
+            if(!pfwrite(&DMaps[i].tmusic,sizeof(DMaps[0].tmusic)-1,f))
             {
                 new_return(26);
             }
@@ -8185,7 +8184,7 @@ int32_t writemisc(PACKFILE *f, zquestheader *Header)
 		
 		for(int32_t i=0; i<shops; i++)
 		{
-			if(!pfwrite(QMisc.shop[i].name,sizeof(QMisc.shop[i].name),f))
+			if(!pfwrite(QMisc.shop[i].name,sizeof(QMisc.shop[i].name)-1,f))
 			{
 				new_return(6);
 			}
@@ -8223,7 +8222,7 @@ int32_t writemisc(PACKFILE *f, zquestheader *Header)
 		
 		for(int32_t i=0; i<infos; i++)
 		{
-			if(!pfwrite(QMisc.info[i].name,sizeof(QMisc.info[i].name),f))
+			if(!pfwrite(QMisc.info[i].name,sizeof(QMisc.info[i].name)-1,f))
 			{
 				new_return(11);
 			}
@@ -10850,7 +10849,7 @@ int32_t writemidis(PACKFILE *f)
         {
             if(get_bit(midi_flags,i))
             {
-                if(!pfwrite(&customtunes[i].title,sizeof(customtunes[0].title),f))
+                if(!pfwrite(&customtunes[i].title,sizeof(customtunes[0].title)-1,f))
                 {
                     new_return(6);
                 }
@@ -13804,7 +13803,7 @@ int32_t writeitemdropsets(PACKFILE *f, zquestheader *Header)
         
         for(int32_t i=0; i<num_item_drop_sets; i++)
         {
-            if(!pfwrite(item_drop_sets[i].name, sizeof(item_drop_sets[i].name), f))
+            if(!pfwrite(item_drop_sets[i].name, sizeof(item_drop_sets[i].name)-1, f))
             {
                 new_return(6);
             }

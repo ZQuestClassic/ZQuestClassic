@@ -4601,7 +4601,7 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 	word s_version=0, s_cversion=0;
 	byte padding;
 
-	char legacy_title[21];
+	char legacy_title[22];
 	
 	if (!should_skip)
 	for(int32_t i=0; i<max_dmaps; i++)
@@ -4769,14 +4769,14 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 		}
 		else
 		{
-			if(!pfread(&tempDMap.name,sizeof(DMaps[0].name),f))
+			if(!p_getcstr(tempDMap.name,sizeof(DMaps[0].name) - 1,f))
 			{
 				return qe_invalid;
 			}
 			
 			if(s_version<20)
 			{
-				if (!pfread(&legacy_title, sizeof(legacy_title), f))
+				if (!p_getcstr(legacy_title, sizeof(legacy_title) - 1, f))
 				{
 					return qe_invalid;
 				}
@@ -4793,7 +4793,7 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 				tempDMap.title = tmptitle;
 			}
 			
-			if(!pfread(&tempDMap.intro,sizeof(DMaps[0].intro),f))
+			if(!p_getcstr(tempDMap.intro,sizeof(DMaps[0].intro)-1,f))
 			{
 				return qe_invalid;
 			}
@@ -4916,7 +4916,7 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 				return qe_invalid;
 			}
 			
-			if(!pfread(&tempDMap.tmusic,sizeof(DMaps[0].tmusic),f))
+			if(!p_getcstr(tempDMap.tmusic,sizeof(DMaps[0].tmusic)-1,f))
 			{
 				return qe_invalid;
 			}
@@ -5582,7 +5582,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 	{
 		if(s_version > 6)
 		{
-			if(!pfread(temp_misc.shop[i].name,sizeof(temp_misc.shop[i].name),f))
+			if(!p_getcstr(temp_misc.shop[i].name,sizeof(temp_misc.shop[i].name)-1,f))
 			{
 				return qe_invalid;
 			}
@@ -5679,7 +5679,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 	{
 		if(s_version > 6)
 		{
-			if(!pfread(temp_misc.info[i].name,sizeof(temp_misc.info[i].name),f))
+			if(!p_getcstr(temp_misc.info[i].name,sizeof(temp_misc.info[i].name)-1,f))
 			{
 				return qe_invalid;
 			}
@@ -6254,7 +6254,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 		for(size_t q = 0; q < 64; ++q)
 		{
 			bottletype* bt = &(temp_misc.bottle_types[q]);
-            if (!pfread(bt->name, 32, f))
+            if (!p_getcstr(bt->name, sizeof(bt->name)-1, f))
                 return qe_invalid;
 			for(size_t j = 0; j < 3; ++j)
 			{
@@ -6271,7 +6271,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 		for(size_t q = 0; q < 256; ++q)
 		{
 			bottleshoptype* bst = &(temp_misc.bottle_shop_types[q]);
-            if (!pfread(bst->name, 32, f))
+            if (!pfread(bst->name, sizeof(bst->name)-1, f))
                 return qe_invalid;
 			for(size_t j = 0; j < 3; ++j)
 			{
@@ -18589,7 +18589,7 @@ int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, wo
 	memcpy(&temp_misc, Misc, sizeof(temp_misc));
 	
 	byte temp_colordata[48];
-	char temp_palname[PALNAMESIZE];
+	char temp_palname[PALNAMESIZE+1];
 	
 	int32_t dummy;
 	word palcycles;
@@ -18805,9 +18805,7 @@ int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, wo
 			
 		for(int32_t i=0; i<palnamestoread; ++i)
 		{
-			memset(temp_palname, 0, PALNAMESIZE);
-			
-			if(!pfread(temp_palname,PALNAMESIZE,f))
+			if(!p_getcstr(temp_palname,PALNAMESIZE,f))
 			{
 				return qe_invalid;
 			}
@@ -19211,14 +19209,14 @@ int32_t readtunes(PACKFILE *f, zquestheader *Header, zctune *tunes /*zcmidi_ *mi
         {
             if(section_version < 4)
             {
-                if(!pfread(&temp.title,sizeof(char)*20,f))
+                if(!p_getcstr(temp.title,20,f))
                 {
                     return qe_invalid;
                 }
             }
             else
             {
-                if(!pfread(&temp.title,sizeof(temp.title),f))
+                if(!p_getcstr(temp.title,sizeof(temp.title)-1,f))
                 {
                     return qe_invalid;
                 }
@@ -20940,7 +20938,7 @@ int32_t readitemdropsets(PACKFILE *f, int32_t version, word build)
     {
         for(int32_t i=0; i<item_drop_sets_to_read; i++)
         {
-            if(!pfread(tempitemdrop.name,sizeof(tempitemdrop.name),f))
+            if(!p_getcstr(tempitemdrop.name,sizeof(tempitemdrop.name)-1,f))
             {
                 return qe_invalid;
             }

@@ -1359,7 +1359,7 @@ struct quest_template
 
 struct item_drop_object
 {
-    char name[64];
+    char name[65];
     word item[10];
     word chance[11]; //0=none
 };
@@ -2262,7 +2262,7 @@ class zctune
 
 public:
 
-    char title[36];
+    char title[37];
     //20
     int32_t start;
     int32_t loop_start;

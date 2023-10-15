@@ -502,6 +502,19 @@ INLINE bool p_getstr(std::string *str, size_t sz, PACKFILE *f)
 	return true;
 }
 
+// Reads `sz` bytes from `f` into `str`.
+// `str` should be `sz + 1` bytes long.
+// `str` will always be a null-terminated string.
+INLINE bool p_getcstr(char *str, size_t sz, PACKFILE *f)
+{
+	size_t read = pack_fread(str, sz, f);
+	bool success = read == sz;
+	str[read] = '\0';
+	if (success)
+		readsize += read;
+	return success;
+}
+
 INLINE bool p_getcstr(std::string *str, PACKFILE *f)
 {
 	byte sz = 0;

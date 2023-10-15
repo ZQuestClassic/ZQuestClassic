@@ -155,7 +155,7 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 	}
 	FFCore.skip_ending_credits = 0;
 	word count=0;
-	char name[9]={0};
+	char name[10];
 	byte tempbyte = 0;
 	int16_t tempshort = 0;
 	word tempword = 0;
@@ -216,7 +216,7 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 		save.header = &save.game->header;
 		gamedata& game = *save.game;
 
-		if(!pfread(name,9,f))
+		if(!p_getcstr(name,9,f))
 		{
 			return 6;
 		}
@@ -324,7 +324,7 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 		}
 		
 		size_t versz = section_version<31 ? 9 : 16;
-		if(!pfread(game.version,versz,f))
+		if(!p_getcstr(game.version,versz,f))
 		{
 			return 20;
 		}

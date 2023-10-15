@@ -43,7 +43,7 @@ struct DoorComboSet
 
 struct shoptype
 {
-	char name[32];
+	char name[33];
 	byte item[3];
 	byte hasitem[3];
 	word price[3];
@@ -53,7 +53,7 @@ struct shoptype
 
 struct bottleshoptype
 {
-	char name[32];
+	char name[33];
 	byte fill[3];
 	word comb[3];
 	byte cset[3];
@@ -72,7 +72,7 @@ struct bottleshoptype
 
 struct bottletype
 {
-	char name[32];
+	char name[33];
 	char counter[3];
 	word amount[3];
 	byte flags;
@@ -103,25 +103,20 @@ struct pondtype
 	byte aspeed;
 	word msg[15];
 	byte foo[32];
-	//72
 };
 
 struct infotype
 {
-	char name[32];
+	char name[33];
 	word str[3];
-	//byte padding;
 	word price[3];
-	//14
 };
 
 struct warpring
 {
-	char name[32];
 	word dmap[9];
 	byte scr[9];
 	byte size;
-	//18
 };
 
 struct zcolors
