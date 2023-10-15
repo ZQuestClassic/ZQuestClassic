@@ -27616,7 +27616,7 @@ int32_t Awpn=-1, Bwpn=-1, Xwpn = -1, Ywpn = -1;
 sprite_list  guys, items, Ewpns, Lwpns, chainlinks, decorations, portals;
 int32_t exittimer = 10000, exittimer2 = 100;
 
-static bool partial_load_test()
+static bool partial_load_test(const char* test_dir)
 {
 	int ret = load_quest("quests/Z1 Recreations/classic_1st.qst", false);
 	if (ret)
@@ -27635,7 +27635,8 @@ static bool partial_load_test()
 	set_bit(skip_flags,skip_header,0);
 	zquestheader tempheader;
 	memset(&tempheader, 0, sizeof(zquestheader));
-	ret = loadquest("../../tests/quests/PTUX.qst", &tempheader, &QMisc, customtunes, false, skip_flags);
+	auto ptux_path = fs::path(test_dir) / "quests/PTUX.qst";
+	ret = loadquest(ptux_path.string().c_str(), &tempheader, &QMisc, customtunes, false, skip_flags);
 
 	if (ret)
 	{
@@ -27772,8 +27773,18 @@ int32_t main(int32_t argc,char **argv)
 		Z_error_fatal("Failed Init!");
 	}
 
-	if (used_switch(argc, argv, "-test-zc"))
+	int test_zc_arg = used_switch(argc, argv, "-test-zc");
+	if (test_zc_arg > 0)
 	{
+		if (test_zc_arg + 1 > argc)
+		{
+			printf("%d\n", argc);
+			printf("expected -test-zc <path to test dir>\n");
+			exit(1);
+		}
+
+		const char* test_dir = argv[test_zc_arg + 1];
+
 		// We need to init some stuff before loading a quest file will work.
 		int fake_errno = 0;
 		allegro_errno = &fake_errno;
@@ -27785,7 +27796,7 @@ int32_t main(int32_t argc,char **argv)
 		}
 
 		bool success = true;
-		if (!partial_load_test())
+		if (!partial_load_test(test_dir))
 		{
 			success = false;
 			printf("partial_load_test failed\n");

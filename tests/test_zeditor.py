@@ -28,7 +28,7 @@ class TestZEditor(unittest.TestCase):
 
     def test_zeditor(self):
         run_target.check_run('zeditor', [
-            '-test-zc',
+            '-test-zc', root_dir / 'tests',
         ])
 
     def quick_assign(self, qst_path):
