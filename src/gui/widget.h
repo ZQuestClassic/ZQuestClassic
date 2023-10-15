@@ -269,11 +269,11 @@ public:
 		return flags&f_FRAMED;
 	}
 	
-	/* If this is true, the widget will expand to fill it's parent
+	/* If this is true, the widget will expand to fill its parent
 	 */
 	void setFitParent(bool fit) noexcept;
 
-	/* Returns true if this widget should expand to fill it's parent. */
+	/* Returns true if this widget should expand to fill its parent. */
 	inline bool getFitParent() const noexcept
 	{
 		return flags&f_FIT_PARENT;
@@ -285,7 +285,7 @@ public:
 	void setForceFitWid(bool fit) noexcept;
 	void setForceFitHei(bool fit) noexcept;
 
-	/* Returns true if this widget should forcibly fit it's parent. */
+	/* Returns true if this widget should forcibly fit its parent. */
 	inline bool getForceFitWid() const noexcept
 	{
 		return flags&f_FORCE_FIT_W;

@@ -26,6 +26,11 @@ class TestZEditor(unittest.TestCase):
     def setUp(self):
         self.maxDiff = None
 
+    def test_zeditor(self):
+        run_target.check_run('zeditor', [
+            '-test-zc', root_dir / 'tests',
+        ])
+
     def quick_assign(self, qst_path):
         args = [
             '-headless',

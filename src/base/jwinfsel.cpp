@@ -1206,7 +1206,7 @@ void get_root_path(char* path, int32_t size)
 }
 
 /* relativize_path:
-  *  Takes a path, and returns it's relative path from the root directory.
+  *  Takes a path, and returns its relative path from the root directory.
   */
 void relativize_path(char* dest, char const* src_path)
 {
@@ -1216,7 +1216,7 @@ void relativize_path(char* dest, char const* src_path)
 }
 
 /* relativize_path:
-  *  Takes a path, and returns it's relative path from the root directory.
+  *  Takes a path, and returns its relative path from the root directory.
   */
 std::string relativize_path(std::string src_path)
 {

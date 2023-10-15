@@ -1,5 +1,3 @@
-import fs from 'fs';
-import * as url from 'url';
 import puppeteer from 'puppeteer';
 import statikk from 'statikk';
 import { setupConsoleListener } from './utils.js';
@@ -10,7 +8,7 @@ const args = process.argv.slice(4);
 
 const server = statikk({
   coi: true,
-  root: buildFolder,
+  root: `${buildFolder}/packages/web`,
 });
 await new Promise(resolve => server.server.once('listening', resolve));
 

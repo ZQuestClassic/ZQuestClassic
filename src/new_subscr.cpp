@@ -4777,7 +4777,7 @@ void SW_SelectedText::draw(BITMAP* dest, int32_t xofs, int32_t yofs, SubscrPage&
 		int32_t itemid=widg->getDisplayItem();
 		if(itemid > -1)
 		{
-			// If it's a combined bow and arrow, the item ID will have 0xF000 added.
+			// If its a combined bow and arrow, the item ID will have 0xF000 added.
 			bool bowarrow = itemid&0xF000;
 			if(bowarrow)
 				itemid&=~0xF000;

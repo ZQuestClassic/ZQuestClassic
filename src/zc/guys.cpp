@@ -9052,7 +9052,7 @@ bool eLeever::animate(int32_t index)
 				if(active<((dmisc1==2)?1:2))
 				{
 					misc=0; //activate this one
-					clk3=1; //This needs to be set so that it knows that it's being emerged of it's own will and not because it got stunned.
+					clk3=1; //This needs to be set so that it knows that it's being emerged of its own will and not because it got stunned.
 				}
 			}
 			break;
@@ -16565,7 +16565,7 @@ esPatra::esPatra(zfix X,zfix Y,int32_t Id,int32_t Clk, sprite * prnt) : enemy(X,
 	extend = 0;
 	txsz = 1;
 	tysz = 1;
-	/* //These need to be separate enemy editor fields. This enemy class also it's draw altered to correctly support big stuff.
+	/* //These need to be separate enemy editor fields. This enemy class also its draw altered to correctly support big stuff.
 		enemy *prntenemy = (enemy *) guys.getByUID(parent->getUID());
 		int32_t prntSIZEflags = prntenemy->SIZEflags;
 		if ( ((SIZEflags&guyflagOVERRIDE_TILE_WIDTH) != 0) && txsz > 0 ) { txsz = prntenemy->txsz; if ( txsz > 1 ) extend = 3; } //! Don;t forget to set extend if the tilesize is > 1. 

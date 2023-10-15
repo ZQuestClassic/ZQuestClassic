@@ -3282,7 +3282,7 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 							INFOBTN("When triggered, toggles the global switch state specified as 'GlobalState'."
 								"\nIf 'GlobalState Timer' is >0, resets the timer of the state to the specified value instead of toggling it."),
 							TRIGFLAG(99, "->GlobalState"),
-							INFOBTN("This combo contributes to it's Trigger Group."),
+							INFOBTN("This combo contributes to its Trigger Group."),
 							TRIGFLAG(109, "Contributes To TrigGroup",3),
 							INFOBTN("When the number of combos that contribute to this combo's Trigger Group is LESS than the Trigger Group Val, trigger this combo."),
 							TRIGFLAG(110, "TrigGroup Less->"),

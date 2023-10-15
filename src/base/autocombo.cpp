@@ -5,7 +5,7 @@
 #include <zq/zquest.h>
 #include <base/combo.h>
 
-combo_auto combo_autos[MAXCOMBOPOOLS];
+combo_auto combo_autos[MAXAUTOCOMBOS];
 
 int16_t autocombo_entry::base_engrave_offset(byte type)
 {

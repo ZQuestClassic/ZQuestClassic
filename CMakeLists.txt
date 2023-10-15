@@ -950,7 +950,7 @@ add_custom_command(
 add_custom_target(package_no_archive DEPENDS package_no_archive.stamp)
 set_source_files_properties(package_no_archive.stamp PROPERTIES SYMBOLIC 1)
 
-if(COPY_RESOURCES)
+if(COPY_RESOURCES AND NOT EMSCRIPTEN)
 	foreach(target IN LISTS zc_targets)
 		add_dependencies(${target} copy_resources_if_not_exist)
 	endforeach()
@@ -1036,4 +1036,8 @@ if(CMAKE_GENERATOR MATCHES "Visual Studio")
 
 	# The sound system has a known memory issue, so for now set the default debugging args to disable sound.
 	set_property(TARGET ${zc_targets} PROPERTY VS_DEBUGGER_COMMAND_ARGUMENTS "$<$<CONFIG:ASAN>:-s>")
+endif()
+
+if(EMSCRIPTEN)
+	add_subdirectory(web)
 endif()

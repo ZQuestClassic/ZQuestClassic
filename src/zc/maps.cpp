@@ -6615,7 +6615,7 @@ bool _walkflag_layer(int32_t x, int32_t y, int32_t layer, int32_t cnt)
 	return _walkflag_layer(x, y, cnt, m);
 }
 
-//Only check the given mapscr*, not it's layer 1&2
+//Only check the given mapscr*, not its layer 1&2
 bool _walkflag_layer(int32_t x,int32_t y,int32_t cnt, mapscr* m)
 {
 	int max_x = world_w;

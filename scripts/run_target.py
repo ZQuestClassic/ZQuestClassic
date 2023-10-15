@@ -103,12 +103,11 @@ def _run(target_name: str, args: List, build_folder: Optional[str] = None):
 
     if 'emscripten' in str(build_folder):
         script = root_dir / 'web/tests/run_web_version.js'
-        # TODO rename these.
         if target_name == 'zeditor':
-            target_name = 'zquest'
+            target_name = 'create'
         elif target_name == 'zplayer':
-            target_name = 'zelda'
-        args = ['node', script, build_folder, f'{target_name}.html'] + args
+            target_name = 'play'
+        args = ['node', script, build_folder, target_name] + args
         p = subprocess.Popen(args, encoding='utf-8', stdout=sys.stdout, stderr=sys.stderr)
         p.wait()
         return p

@@ -93,9 +93,19 @@ static inline bool on_sideview_slope(int32_t x, int32_t y, int32_t oldx, int32_t
 
 static inline bool platform_fallthrough(bool doslopecheck = true)
 {
-	return (doslopecheck && !on_sideview_slope(Hero.x, Hero.y,Hero.old_x,Hero.old_y) && (on_sideview_slope(Hero.x,Hero.y+1,Hero.old_x,Hero.old_y) || on_sideview_slope(Hero.x, Hero.y + 2, Hero.old_x, Hero.old_y)) && getInput(btnDown, false, get_qr(qr_SIDEVIEW_FALLTHROUGH_USES_DRUNK)!=0))
-		|| (getInput(btnDown, false, get_qr(qr_SIDEVIEW_FALLTHROUGH_USES_DRUNK)!=0) && get_qr(qr_DOWN_FALL_THROUGH_SIDEVIEW_PLATFORMS))
-		|| (Hero.jumping < 0 && getInput(btnDown, false, get_qr(qr_SIDEVIEW_FALLTHROUGH_USES_DRUNK)!=0) && get_qr(qr_DOWNJUMP_FALL_THROUGH_SIDEVIEW_PLATFORMS));
+	if (!getInput(btnDown, false, get_qr(qr_SIDEVIEW_FALLTHROUGH_USES_DRUNK)!=0))
+		return false;
+
+	if (get_qr(qr_DOWN_FALL_THROUGH_SIDEVIEW_PLATFORMS))
+		return true;
+
+	if (Hero.jumping < 0 && get_qr(qr_DOWNJUMP_FALL_THROUGH_SIDEVIEW_PLATFORMS))
+		return true;
+
+	if (doslopecheck && !on_sideview_slope(Hero.x, Hero.y,Hero.old_x,Hero.old_y) && (on_sideview_slope(Hero.x,Hero.y+1,Hero.old_x,Hero.old_y) || on_sideview_slope(Hero.x, Hero.y + 2, Hero.old_x, Hero.old_y)))
+		return true;
+
+	return false;
 }
 
 static inline bool on_sideview_solid(int32_t x, int32_t y, bool ignoreFallthrough = false, int32_t slopesmisc = 0)
@@ -1370,7 +1380,7 @@ void HeroClass::setAction(actiontype new_action) // Used by ZScript
 	case falling:
 		if(!fallclk)
 		{
-			//If there is a pit under Hero, use it's combo.
+			//If there is a pit under Hero, use its combo.
 			if(int32_t c = getpitfall(x+8,y+(bigHitbox?8:12))) fallCombo = c;
 			else if(int32_t c = getpitfall(x,y+(bigHitbox?0:8))) fallCombo = c;
 			else if(int32_t c = getpitfall(x+15,y+(bigHitbox?0:8))) fallCombo = c;
@@ -7652,7 +7662,7 @@ heroanimate_skip_liftwpn:;
 	if(cheats_execute_light)
 	{
 		naturaldark = !naturaldark;
-		lighting(false, false, pal_litOVERRIDE);//Forcibly set permLit, overriding it's current setting
+		lighting(false, false, pal_litOVERRIDE);//Forcibly set permLit, overriding its current setting
 		cheats_execute_light = false;
 	}
 	
@@ -30510,7 +30520,7 @@ void HeroClass::checkitems(int32_t index)
 			
 			/*
 			// WARNING - Item pickups are very volatile due to crazy compatability hacks, eg., supporting
-			// broken behavior from early ZC versions. If you change things here please comment on it's purpose.
+			// broken behavior from early ZC versions. If you change things here please comment on its purpose.
 
 			// some old quests need picking up a screen item to also disable the BELOW flag (for hunger rooms, etc)
 			// What is etc?! We need to check for every valid state here. ~Gleeok

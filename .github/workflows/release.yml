@@ -23,6 +23,10 @@ on:
         type: boolean
         description: Full Version (i.e. NOT a nightly)
         default: false
+      build_web_even_for_nightly:
+        type: boolean
+        description: Build web even for nightly. If false, web only builds w/ full release
+        default: false
       sentry:
         type: boolean
         description: Perform a sentry release
@@ -106,7 +110,7 @@ jobs:
 
   build-web:
     runs-on: ubuntu-22.04
-    if: inputs.full_release
+    if: inputs.full_release || inputs.build_web_even_for_nightly
     needs: create-tag
 
     steps:
@@ -122,9 +126,6 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18.x
-      # puppeteer caches Chrome in ~/.ccache/puppeteer, but only on npm install. Which means
-      # restored caches from actions/setup-node will never install Chrome.
-      - run: npm rm puppeteer && npm add puppeteer@21.1.1
 
       - run: sudo apt-get update && sudo apt-get install ccache ninja-build flex bison
 
@@ -148,16 +149,15 @@ jobs:
       - run: |
           git config --global user.email "you@example.com"
           git config --global user.name "Your Name"
-      - run: bash scripts/build_emscripten.sh
+      - run: bash scripts/configure_emscripten.sh
         env:
           ZC_EMCC_CMAKE_EXTRA_FLAGS: -DRELEASE_TAG=${{ needs.create-tag.outputs.release-tag }} -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+      - run: cmake --build build_emscripten --config Release -t web
       - run: ccache -s
 
-      - run: sudo apt-get update && sudo apt-get install libopengl0 libglu1
       - run: npm install
         working-directory: web
-      - run: python3 web/deploy/deploy.py --prepare --build_folder build_emscripten/Release
-      - run: zip -r ${{ needs.create-tag.outputs.release-tag }}-web.zip web/deploy/dist
+      - run: zip -r ${{ needs.create-tag.outputs.release-tag }}-web.zip build_emscripten/Release/packages/web
 
       - uses: actions/upload-artifact@v3
         with:
@@ -199,6 +199,20 @@ jobs:
           generate_release_notes: false
           body_path: new_changelog.md
 
+      - name: Setup Sentry CLI
+        if: inputs.sentry
+        uses: mathieu-bour/setup-sentry-cli@v1.3.0
+        with:
+          version: '2.20.6'
+          token: ${{ secrets.SENTRY_TOKEN }}
+          organization: zeldaclassic
+          project: zelda-classic
+      - name: Finalize sentry
+        if: inputs.sentry
+        run: |
+          sentry-cli --log-level=DEBUG releases set-commits 'zelda-classic@${{ needs.create-tag.outputs.release-tag }}' --auto --ignore-missing
+          sentry-cli --log-level=DEBUG releases finalize 'zelda-classic@${{ needs.create-tag.outputs.release-tag }}'
+
       - uses: actions/github-script@v6
         with:
           github-token: ${{ secrets.WEBSITE_REPO_TOKEN }}
@@ -215,17 +229,3 @@ jobs:
               workflow_id: 'deploy.yml',
               ref: 'main',
             })
-
-      - name: Setup Sentry CLI
-        if: inputs.sentry
-        uses: mathieu-bour/setup-sentry-cli@v1.3.0
-        with:
-          version: '2.20.6'
-          token: ${{ secrets.SENTRY_TOKEN }}
-          organization: zeldaclassic
-          project: zelda-classic
-      - name: Finalize sentry
-        if: inputs.sentry
-        run: |
-          sentry-cli --log-level=DEBUG releases set-commits 'zelda-classic@${{ needs.create-tag.outputs.release-tag }}' --auto --ignore-missing
-          sentry-cli --log-level=DEBUG releases finalize 'zelda-classic@${{ needs.create-tag.outputs.release-tag }}'
