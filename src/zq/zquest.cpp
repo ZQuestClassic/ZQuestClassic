@@ -27616,6 +27616,44 @@ int32_t Awpn=-1, Bwpn=-1, Xwpn = -1, Ywpn = -1;
 sprite_list  guys, items, Ewpns, Lwpns, chainlinks, decorations, portals;
 int32_t exittimer = 10000, exittimer2 = 100;
 
+static bool partial_load_test()
+{
+	int ret = load_quest("quests/Z1 Recreations/classic_1st.qst", false);
+	if (ret)
+	{
+		printf("failed to load classic_1st.qst: ret == %d\n", ret);
+		return false;
+	}
+
+	int cont = DMaps[0].cont;
+
+	// Skip same stuff as used in zq_tiles.cpp for grabbing tiles from a qst.
+	byte skip_flags[4];
+	for (int i=0; i<skip_max; ++i)
+		set_bit(skip_flags,i,1);
+	set_bit(skip_flags,skip_tiles,0);
+	set_bit(skip_flags,skip_header,0);
+	zquestheader tempheader;
+	memset(&tempheader, 0, sizeof(zquestheader));
+	ret = loadquest("../../tests/quests/PTUX.qst", &tempheader, &QMisc, customtunes, false, skip_flags);
+
+	if (ret)
+	{
+		printf("failed to load PTUX.qst: ret == %d\n", ret);
+		return false;
+	}
+
+	if (DMaps[0].cont != cont)
+	{
+		printf("unexpected modification: DMaps[0].cont == %d, should be %d\n", DMaps[0].cont, cont);
+		return false;
+	}
+
+	// TODO should run replay. Currently, resaving classic_1st.qst fails its replay (see test_save in test_zeditor.py)
+
+	return true;
+}
+
 template <typename ...Params>
 [[noreturn]] void FatalConsole(const char *format, Params&&... params)
 {
@@ -27732,6 +27770,29 @@ int32_t main(int32_t argc,char **argv)
 	if(allegro_init() != 0)
 	{
 		Z_error_fatal("Failed Init!");
+	}
+
+	if (used_switch(argc, argv, "-test-zc"))
+	{
+		// We need to init some stuff before loading a quest file will work.
+		int fake_errno = 0;
+		allegro_errno = &fake_errno;
+		get_qst_buffers();
+		allocate_crap();
+		if ((sfxdata=load_datafile("sfx.dat"))==NULL)
+		{
+			Z_error_fatal("failed to load sfx_dat");
+		}
+
+		bool success = true;
+		if (!partial_load_test())
+		{
+			success = false;
+			printf("partial_load_test failed\n");
+		}
+		if (success)
+			printf("all tests passed\n");
+		exit(success ? 0 : 1);
 	}
 
 	int unencrypt_qst_arg = used_switch(argc, argv, "-unencrypt-qst");

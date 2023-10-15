@@ -2928,6 +2928,10 @@ int32_t readheader(PACKFILE *f, zquestheader *Header, byte printmetadata)
 
 int32_t readrules(PACKFILE *f, zquestheader *Header)
 {
+	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_rules);
+	if (should_skip)
+		return 0;
+
 	int32_t dummy;
 	zquestheader tempheader;
 	word s_version=0;
@@ -2983,7 +2987,7 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 			
 		}
 	}
-	
+
 	//al_trace("Rules version %d\n", s_version);
 	//{ bunch of compat stuff
 	memcpy(deprecated_rules, quest_rules, QUESTRULES_NEW_SIZE);
@@ -3770,7 +3774,7 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header)
 			
 			strings_to_read=temp_msg_count;
 			
-			if(temp_msg_count >= msg_strings_size)
+			if (!should_skip && temp_msg_count >= msg_strings_size)
 			{
 				Z_message("Reallocating string buffer...\n");
 				
@@ -4110,7 +4114,8 @@ int32_t readstrings(PACKFILE *f, zquestheader *Header)
 		}
 	}
 	
-	msg_count=temp_msg_count;
+	if (!should_skip)
+		msg_count=temp_msg_count;
 	
 	return 0;
 }
@@ -4132,6 +4137,7 @@ int32_t readdoorcombosets(PACKFILE *f, zquestheader *Header)
     byte padding;
     int32_t s_version = 0;
     
+	if (!should_skip)
 	for(int32_t i=0; i<MAXDOORCOMBOSETS; i++)
 	{
 		memset(DoorComboSets+i, 0, sizeof(DoorComboSet));
@@ -4404,7 +4410,8 @@ int32_t readdoorcombosets(PACKFILE *f, zquestheader *Header)
             memcpy(&DoorComboSets[i], &tempDoorComboSet, sizeof(tempDoorComboSet));
     }
     
-	door_combo_set_count=temp_door_combo_set_count;
+	if (!should_skip)
+		door_combo_set_count=temp_door_combo_set_count;
     
     return 0;
 }
@@ -4596,6 +4603,7 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 
 	char legacy_title[21];
 	
+	if (!should_skip)
 	for(int32_t i=0; i<max_dmaps; i++)
 	{
 		DMaps[start_dmap + i].clear();
@@ -6465,6 +6473,9 @@ int32_t readitems(PACKFILE *f, word version, word build)
             
             if((version < 0x192)||((version == 0x192)&&(build<186)))
             {
+				if (should_skip)
+					continue;
+
                 switch(i)
                 {
                 case iShield:
@@ -9966,6 +9977,9 @@ int32_t init_combo_classes()
 
 int32_t readherosprites2(PACKFILE *f, int32_t v_herosprites, int32_t cv_herosprites)
 {
+    bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_herosprites);
+    if (should_skip) return 0;
+
 	assert(v_herosprites < 6);
 	//these are here to bypass compiler warnings about unused arguments
 	cv_herosprites=cv_herosprites;
@@ -13379,6 +13393,9 @@ extern const char *old_guy_string[OLDMAXGUYS];
 
 int32_t readguys(PACKFILE *f, zquestheader *Header)
 {
+    bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_guys);
+    if (should_skip) return 0;
+
     dword dummy;
     word guy_cversion;
     word guyversion=0;
@@ -18865,6 +18882,8 @@ int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, wo
 
 int32_t readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version, word build, word start_tile, int32_t max_tiles, bool from_init)
 {
+    bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_tiles);
+
     int32_t tiles_used=0;
 	word section_version = 0;
 	word section_cversion = 0;
@@ -18995,7 +19014,10 @@ int32_t readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version
                 delete[] temp_tile;
                 return qe_invalid;
             }
-            
+
+			if (should_skip)
+				continue;
+
 			buf[start_tile+i].format=format;
 			
 			if(buf[start_tile+i].data)
@@ -19008,6 +19030,9 @@ int32_t readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version
 			memcpy(buf[start_tile+i].data,temp_tile,tilesize(buf[start_tile+i].format));
         }
     }
+
+	if (should_skip)
+		return 0;
     
 	if ( section_version < 2 ) //write blank tile data --check s_version with this again instead?
 	{
@@ -19107,7 +19132,11 @@ int32_t readtiles(PACKFILE *f, tiledata *buf, zquestheader *Header, word version
 
 int32_t readtunes(PACKFILE *f, zquestheader *Header, zctune *tunes /*zcmidi_ *midis*/)
 {
-    byte *mf=midi_flags;
+	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_midis);
+
+	static byte fake_midi_flags[32];
+
+    byte *mf=should_skip ? fake_midi_flags : midi_flags;
     int32_t dummy;
     word dummy2;
     // zcmidi_ temp_midi;
@@ -19136,7 +19165,8 @@ int32_t readtunes(PACKFILE *f, zquestheader *Header, zctune *tunes /*zcmidi_ *mi
             return qe_invalid;
         }
 	
-	FFCore.quest_format[vMIDIs] = section_version;
+		if (!should_skip)
+			FFCore.quest_format[vMIDIs] = section_version;
         
         //al_trace("Tunes version %d\n", section_version);
         if(!p_igetw(&dummy2,f))
@@ -19167,13 +19197,15 @@ int32_t readtunes(PACKFILE *f, zquestheader *Header, zctune *tunes /*zcmidi_ *mi
         }
     }
     
-	reset_tunes(tunes); //reset_midis(midis);
+	if (!should_skip)
+		reset_tunes(tunes); //reset_midis(midis);
     
     for(int32_t i=0; i<tunes_to_read; i++)
     {
         temp.clear(); //memset(&temp_midi,0,sizeof(zcmidi_));
         
-		tunes[i].reset(); // reset_midi(midis+i);
+		if (!should_skip)
+			tunes[i].reset(); // reset_midi(midis+i);
         
         if(get_bit(mf,i))
         {
@@ -19233,10 +19265,21 @@ int32_t readtunes(PACKFILE *f, zquestheader *Header, zctune *tunes /*zcmidi_ *mi
                 }
             }
             
-			tunes[i].copyfrom(temp); // memcpy(&midis[i], &temp_midi, sizeof(zcmidi_));
+			if (!should_skip)
+				tunes[i].copyfrom(temp); // memcpy(&midis[i], &temp_midi, sizeof(zcmidi_));
             
             if(section_version < 2) //= 1 || (Header->zelda_version < 0x211) || (Header->zelda_version == 0x211 && Header->build < 18))
             {
+				if (should_skip)
+				{
+					if (read_midi(f)==NULL)
+					{
+						return qe_invalid;
+					}
+
+					continue;
+				}
+
                 // old format - a midi is a midi
                 if((tunes[i].data=read_midi(f))==NULL)
                 {
@@ -19279,6 +19322,8 @@ int32_t readtunes(PACKFILE *f, zquestheader *Header, zctune *tunes /*zcmidi_ *mi
 
 int32_t readcheatcodes(PACKFILE *f, zquestheader *Header)
 {
+	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_cheats);
+
     int32_t dummy;
     ZCHEATS tempzcheats;
     char temp_use_cheats=1;
@@ -19326,6 +19371,9 @@ int32_t readcheatcodes(PACKFILE *f, zquestheader *Header)
         }
     }
     
+	if (should_skip)
+		return 0;
+
 	memcpy(&zcheats, &tempzcheats, sizeof(tempzcheats));
 	Header->data_flags[ZQ_CHEATS2]=temp_use_cheats;
     
@@ -19334,6 +19382,8 @@ int32_t readcheatcodes(PACKFILE *f, zquestheader *Header)
 
 int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 {
+	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_initdata);
+
 	int32_t dummy;
 	word s_version=0, s_cversion=0;
 	byte padding;
@@ -20797,7 +20847,10 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 					return qe_invalid;
 		}
 	}
-	
+
+	if (should_skip)
+		return 0;
+
 	if(loading_tileset_flags & TILESET_CLEARMAPS)
 	{
 		temp_zinit.last_map = 0;
@@ -20829,12 +20882,15 @@ void setupitemdropsets()
 
 int32_t readitemdropsets(PACKFILE *f, int32_t version, word build)
 {
+	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_itemdropsets);
+
     build=build; // here to prevent compiler warnings
     dword dummy_dword;
     word item_drop_sets_to_read=0;
     item_drop_object tempitemdrop;
     word s_version=0, s_cversion=0;
     
+	if (!should_skip)
 	for(int32_t i=0; i<MAXITEMDROPSETS; i++)
 	{
 		memset(&item_drop_sets[i], 0, sizeof(item_drop_object));
@@ -20935,8 +20991,9 @@ int32_t readitemdropsets(PACKFILE *f, int32_t version, word build)
                         tempitemdrop.chance[j+1]=0;
                     }
                 }
-                
-			memcpy(&item_drop_sets[i], &tempitemdrop, sizeof(item_drop_object));
+            
+			if (!should_skip)
+				memcpy(&item_drop_sets[i], &tempitemdrop, sizeof(item_drop_object));
         }
     }
     
@@ -20945,6 +21002,8 @@ int32_t readitemdropsets(PACKFILE *f, int32_t version, word build)
 
 int32_t readfavorites(PACKFILE *f, int32_t, word)
 {
+	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_favorites);
+
 	int32_t temp_num;
 	dword dummy_dword;
 	word num_favorite_combos;
@@ -20957,7 +21016,8 @@ int32_t readfavorites(PACKFILE *f, int32_t, word)
 		return qe_invalid;
 	}
 	
-	FFCore.quest_format[vFavourites] = s_version;
+	if (!should_skip)
+		FFCore.quest_format[vFavourites] = s_version;
 	
 	if(!p_igetw(&s_cversion,f))
 	{
@@ -20988,6 +21048,7 @@ int32_t readfavorites(PACKFILE *f, int32_t, word)
 	if(s_version < 3 && num_favorite_combos == 100)
 		per_row = 13;
 
+	if (!should_skip)
 	for(int q = 0; q < MAXFAVORITECOMBOS; ++q)
 		favorite_combos[q] = -1;
 	byte favtype = 0;
@@ -21006,6 +21067,9 @@ int32_t readfavorites(PACKFILE *f, int32_t, word)
 		{
 			return qe_invalid;
 		}
+
+		if (should_skip)
+			continue;
 		
 		if(per_row == FAVORITECOMBO_PER_ROW)
 		{
@@ -21075,6 +21139,9 @@ int32_t readfavorites(PACKFILE *f, int32_t, word)
 			}
 		}
 	}
+
+	if (should_skip)
+		return 0;
 
 	for(int q = max_combo_cols; q < MAX_COMBO_COLS; ++q)
 	{
@@ -22059,7 +22126,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
         }
     }
     
-    if(get_qr(qr_CONTFULL_DEP))
+    if(get_qr(qr_CONTFULL_DEP) && !get_bit(skip_flags, skip_rules) && !get_bit(skip_flags, skip_initdata))
     {
         set_qr(qr_CONTFULL_DEP, 0);
         set_bit(zinit.misc, idM_CONTPERCENT, 1);
