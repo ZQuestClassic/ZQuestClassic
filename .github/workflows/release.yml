@@ -109,7 +109,7 @@ jobs:
 
   build-web:
     runs-on: ubuntu-22.04
-    if: inputs.full_release || input.build_web_even_for_nightly
+    if: inputs.full_release || inputs.build_web_even_for_nightly
     needs: create-tag
 
     steps:
