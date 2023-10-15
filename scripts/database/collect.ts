@@ -150,6 +150,26 @@ function saveAuthors() {
   fs.writeFileSync(file, JSON.stringify(obj, null, 2));
 }
 
+type Rating = {name: string, userId?: number, rating: number};
+let ratingsMap = new Map<string, Rating[]>();
+function loadRatings() {
+  ratingsMap = new Map();
+  const file = `${DB}/ratings.json`;
+  if (fs.existsSync(file)) {
+    const entries: Record<string, Rating[]> = JSON.parse(fs.readFileSync(file, 'utf-8'));
+    for (const [key, entry] of Object.entries(entries)) {
+      ratingsMap.set(key, entry);
+    }
+  }
+}
+
+function saveRatings() {
+  const file = `${DB}/ratings.json`;
+  const entries = [...ratingsMap.entries()];
+  const obj = Object.fromEntries(entries);
+  fs.writeFileSync(file, JSON.stringify(obj, null, 2));
+}
+
 let cache: any;
 function loadCache() {
   cache = {};
@@ -699,6 +719,7 @@ async function main() {
     const files = [
       'authors.json',
       'cache.json',
+      'ratings.json',
       'manifest.json',
       'quest_db_donotexist.json',
     ];
@@ -709,6 +730,7 @@ async function main() {
 
   loadQuests();
   loadAuthors();
+  loadRatings();
   loadCache();
 
   // for (const quest of questsMap.values()) {
@@ -896,6 +918,44 @@ A: No.
         authorsMap.set(id, {id, name: author.name, lastLogin});
         saveAuthors();
       }
+    }
+
+    for (const quest of questsMap.values()) {
+      if (ratingsMap.has(quest.id)) continue;
+
+      const ratings: Rating[] = [];
+      await page.goto(`https://www.purezc.net/index.php?page=ratings&section=${quest.type}&id=${quest.index}`);
+      while (true) {
+        const result = await page.evaluate(() => {
+          const els = document.querySelectorAll('.ipsLayout_content tr');
+
+          return [...els].map(el => {
+            const tdEls = el.querySelectorAll('td');
+            const userId = tdEls[0].querySelector('a')?.getAttribute('hovercard-id');
+            const name = userId ? tdEls[0].querySelector('span')?.textContent : tdEls[0].textContent?.trim();
+            const alt = tdEls[2].querySelector('img')?.alt || '';
+            const rating = alt.match(/Rating: (\d)\/5/)?.[1];
+            return {
+              name: name || '',
+              userId: Number(userId),
+              rating: Number(rating),
+            };
+          })
+        });
+        ratings.push(...result);
+
+        if (await page.$('.next')) {
+          await Promise.all([
+            page.click('.next'),
+            page.waitForNavigation(),
+          ]);
+        } else {
+          break;
+        }
+      }
+
+      ratingsMap.set(quest.id, ratings);
+      saveRatings();
     }
   }
 
