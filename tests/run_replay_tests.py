@@ -1098,7 +1098,6 @@ def prompt_to_create_compare_report():
             gh, repo = prompt_for_gh_auth()
             build_dir = download_release(gh, repo, channel, tag)
         if channel == 'mac':
-            # TODO z3 !!! upstream
             zc_app_path = next(build_dir.glob('*.app'))
             build_dir = zc_app_path / 'Contents/Resources'
 
