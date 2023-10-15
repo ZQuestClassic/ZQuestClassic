@@ -13,13 +13,13 @@ export async function fetchWithProgress(url, opts, progressCb) {
     Number(response.headers.get('X-Amz-Meta-Inflated-Content-Size')) :
     null;
 
-  let transferSize = null;
+  let transferSize = contentLength;
   if (!Number.isInteger(contentLength) || !Number.isFinite(contentLength) || contentLength <= 0) {
-    transferSize = contentLength;
+    transferSize = null;
   }
 
   const compressionRatio =
-    inflatedContentLength && transferSize ? inflatedContentLength / transferSize : 1;
+    inflatedContentLength && transferSize ? transferSize / inflatedContentLength : 1;
 
   let responseBytesRecieved = 0;
   return new Response(new ReadableStream({
@@ -115,7 +115,7 @@ export const getFsHandles = async (dirHandle) => {
 };
 
 export function formatBytes(bytes1, bytes2, unit) {
-  const b = (bytes1 || bytes2);
+  const b = (bytes2 || bytes1);
   let scale = 1;
   let fixedUnits = 0;
 

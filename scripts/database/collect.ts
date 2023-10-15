@@ -1010,6 +1010,24 @@ A: No.
     });
   }
 
+  // Only needed to do this once.
+  // const corsAccess = `<?xml version="1.0" encoding="UTF-8"?>
+  //   <CORSConfiguration xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
+  //       <CORSRule>
+  //           <AllowedOrigin>*</AllowedOrigin>
+  //           <AllowedMethod>GET</AllowedMethod>
+  //           <MaxAgeSeconds>7200</MaxAgeSeconds>
+  //           <ExposeHeader>X-Amz-Meta-Inflated-Content-Size</ExposeHeader>
+  //           <ExposeHeader>Content-Encoding</ExposeHeader>
+  //           <AllowedHeader>*</AllowedHeader>
+  //       </CORSRule>
+  //   </CORSConfiguration>'`;
+  // fs.writeFileSync(`${TMP}/cors.xml`, corsAccess);
+  // execFileSync('s3cmd', [
+  //   'setcors', `${TMP}/cors.xml`,
+  //   `s3://zc-data`,
+  // ], {stdio: 'inherit'});
+
   saveCache();
   if (OFFICIAL) {
     execFileSync('s3cmd', [
