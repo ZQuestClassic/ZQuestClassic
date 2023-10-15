@@ -27664,7 +27664,7 @@ template <typename ...Params>
 int32_t main(int32_t argc,char **argv)
 {
 	int hacky_arg = used_switch(argc, argv, "-z3");
-	if (hacky_arg != -1)
+	if (hacky_arg > 0)
 		global_z3_hacky_load = atoi(argv[hacky_arg + 1]);
 	common_main_setup(App::zquest, argc, argv);
 	set_should_zprint_cb([]() {
