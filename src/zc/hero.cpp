@@ -17616,9 +17616,9 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 				zfix tx = (dx < 0 ? (x-1) : (x+16));
 				auto mdir = GET_XDIR(dx);
 				int v1=bigHitbox?0:8;
-				int v2=bigHitbox?8:12;
 				bool hit_top = scr_walkflag(tx,y+v1,mdir,false);
-				bool hit_mid = scr_walkflag(tx,y+v2,mdir,false);
+				bool hit_mid = scr_walkflag(tx,y+v1+4,mdir,false)
+					|| scr_walkflag(tx,y+15-4,mdir,false);
 				bool hit_bottom = scr_walkflag(tx,y+15,mdir,false);
 				if(!hit_mid && (hit_top!=hit_bottom))
 				{
@@ -17677,7 +17677,8 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 				zfix ty = (dy < 0 ? (y+(bigHitbox?0:8)-1) : (y+16));
 				auto mdir = GET_YDIR(dy);
 				bool hit_left = scr_walkflag(x,ty,mdir,false);
-				bool hit_mid = scr_walkflag(x+8,ty,mdir,false);
+				bool hit_mid = scr_walkflag(x+4,ty,mdir,false)
+					|| scr_walkflag(x+15-4,ty,mdir,false);
 				bool hit_right = scr_walkflag(x+15,ty,mdir,false);
 				if(!hit_mid && (hit_left!=hit_right))
 				{
