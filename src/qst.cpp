@@ -1997,7 +1997,7 @@ bool devpwd()
 	#ifdef _DEBUG
 	return true;
 	#endif
-	return !strcmp(zc_get_config("dev","pwd","",App::zquest), (char*)clavio);
+	return !strcmp(zc_get_config("dev","pwd","",App::zquest), (char*)clavio) || is_ci();
 }
 bool check_questpwd(zquestheader *Header, char *pwd)
 {

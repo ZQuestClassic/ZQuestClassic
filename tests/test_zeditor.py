@@ -75,26 +75,42 @@ class TestZEditor(unittest.TestCase):
             '-q',
         ])
 
-    # Resave classic_1st.qst and assert classic_1st.zplay, to make sure the loading/saving code is not introducing bugs.
+    # Resave some quests and assert their replays still pass, to make sure the loading/saving code is not introducing bugs.
     def test_save(self):
+        if 'emscripten' in str(run_target.get_build_folder()):
+            return
+
         # TODO: Bad exit code 0xFFFF under windows.
         if platform.system() == 'Windows':
             return
 
-        qst_path = tmp_dir / 'tmp.qst'
-        run_target.check_run('zeditor', [
-            '-headless',
-            '-s',
-            '-copy-qst', 'quests/Z1 Recreations/classic_1st.qst', qst_path,
-        ])
+        test_cases = [
+            ('classic_1st.zplay', 'quests/Z1 Recreations/classic_1st.qst'),
+            # TODO: fails
+            # ('freedom_in_chains.zplay', 'freedom_in_chains.qst'),
+            ('ss_jenny.zplay', 'ss_jenny.qst'),
+        ]
 
-        replay_content = (root_dir / 'tests/replays/classic_1st.zplay').read_text('utf-8')
-        replay_content = replay_content.replace('quests/Z1 Recreations/classic_1st.qst', 'tmp.qst')
-        replay_path = tmp_dir / 'tmp.zplay'
-        replay_path.write_text(replay_content)
+        for zplay_path, qst_path in test_cases:
+            with self.subTest(msg=zplay_path):
+                load_qst_path = qst_path if qst_path.startswith('quests/') else root_dir / 'tests/replays' / qst_path
+                tmp_qst_dir = tmp_dir / f'resave-{zplay_path}'
+                tmp_qst_dir.mkdir(exist_ok=True)
+                tmp_qst_path = tmp_qst_dir / 'tmp.qst'
 
-        output_dir = tmp_dir / 'output' / replay_path.name
-        self.run_replay(output_dir, [replay_path])
+                run_target.check_run('zeditor', [
+                    '-headless',
+                    '-s',
+                    '-copy-qst', load_qst_path, tmp_qst_path,
+                ])
+
+                replay_content = (root_dir / 'tests/replays' / zplay_path).read_text('utf-8')
+                replay_content = replay_content.replace(qst_path, 'tmp.qst')
+                replay_path = tmp_qst_dir / 'tmp.zplay'
+                replay_path.write_text(replay_content)
+
+                output_dir = tmp_dir / 'output' / replay_path.name
+                self.run_replay(output_dir, [replay_path])
 
     def test_compile_and_quick_assign(self):
         if 'emscripten' in str(run_target.get_build_folder()):
