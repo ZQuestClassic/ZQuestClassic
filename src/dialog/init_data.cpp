@@ -6,6 +6,7 @@
 #include "zc_list_data.h"
 #include "zc/ffscript.h"
 #include "vectorpick.h"
+#include "ditherpick.h"
 #include "items.h"
 #include "zinfo.h"
 
@@ -557,7 +558,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 					)
 				)),
 				TabRef(name = "Vars", TabPanel(ptr = &vartab,
-					TabRef(name = "1", Row(
+					TabRef(name = "Misc 1", Row(
 						Column(vAlign = 0.0,
 							Rows<3>(
 								margins = 0_px,
@@ -577,22 +578,8 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 							Rows<3>(
 								margins = 0_px,
 								padding = 0_px,
-								VAL_FIELD(byte,"Light Dither Type:",0,255,dither_type,false), INFOBTN("Determines the design of dither used by dark rooms." + QRHINT({qr_NEW_DARKROOM})),
-								VAL_FIELD(byte,"Light Dither Arg:",0,255,dither_arg,false), INFOBTN("Affects the design of dither used by dark rooms." + QRHINT({qr_NEW_DARKROOM})),
-								VAL_FIELD(byte,"Light Dither Percentage:",0,255,dither_percent,false), INFOBTN("This percentage of each light in dark rooms is added as 'dithered'" + QRHINT({qr_NEW_DARKROOM})),
-								VAL_FIELD(byte,"Light Radius:",0,255,def_lightrad,false), INFOBTN("Default light radius, ex. for fire weapons" + QRHINT({qr_NEW_DARKROOM})),
-								VAL_FIELD(byte,"Light Transp. Percentage:",0,255,transdark_percent,false), INFOBTN("This percentage of each light in dark rooms is added as 'transparent'" + QRHINT({qr_NEW_DARKROOM})),
-								COLOR_FIELD("Darkness Color:", darkcol,false), INFOBTN("The color of darkness" + QRHINT({qr_NEW_DARKROOM})),
 								VAL_FIELD(int32_t,"Bunny Tile Mod:",-214748,214748,bunny_ltm,false), INFOBTN("The 'Player Tile Modifier' added when they are a bunny."),
-								VAL_FIELD(byte,"SwitchHook Style:",0,255,switchhookstyle,false), INFOBTN("The switch hook effect's default animation style")
-							)
-						)
-					)),
-					TabRef(name = "2", Row(
-						Column(vAlign = 0.0,
-							Rows<3>(
-								margins = 0_px,
-								padding = 0_px,
+								VAL_FIELD(byte,"SwitchHook Style:",0,255,switchhookstyle,false), INFOBTN("The switch hook effect's default animation style"),
 								DEC_VAL_FIELD("Water Gravity:",-99990000,99990000,4,swimgravity,false), INFOBTN("The gravity value used in sideview water"),
 								VAL_FIELD(word, "Sideswim Up Step:",0,9999,heroSideswimUpStep,false), INFOBTN("The player's movement speed in sideview water, upwards"),
 								VAL_FIELD(word, "Sideswim Side Step:",0,9999,heroSideswimSideStep,false), INFOBTN("The player's movement speed in sideview water, sideways"),
@@ -600,6 +587,29 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 								DEC_VAL_FIELD("Sideswim Leaving Jump:",-2550000,2550000,4,exitWaterJump,false), INFOBTN("Jump value used when moving out the top of sideview water"),
 								VAL_FIELD(byte, "Hero Swim Step Multiplier:",0,255,hero_swim_mult,false), INFOBTN("Multiplier applied to movement speed in water, requires 'Newer Player Movement'" + QRHINT({qr_NEW_HERO_MOVEMENT2})),
 								VAL_FIELD(byte, "Hero Swim Step Divisor:",0,255,hero_swim_div,false), INFOBTN("Divisor applied to movement speed in water, requires 'Newer Player Movement'" + QRHINT({qr_NEW_HERO_MOVEMENT2}))
+							)
+						)
+					)),
+					TabRef(name = "Dark Room", Row(
+						Column(vAlign = 0.0,
+							Rows<3>(
+								margins = 0_px,
+								padding = 0_px,
+								//
+								Button(text = "Edit Light Dither Style",
+									height = 1.5_em, fitParent = true,
+									colSpan = 2,
+									onPressFunc = [&]()
+									{
+										call_edit_dither(local_zinit.dither_type, local_zinit.dither_arg, local_zinit.darkcol, false);
+										refresh_dlg();
+									}),
+								INFOBTN("Determines the design of dither used by dark rooms." + QRHINT({qr_NEW_DARKROOM})),
+								//
+								VAL_FIELD(byte,"Light Dither Percentage:",0,255,dither_percent,false), INFOBTN("This percentage of each light in dark rooms is added as 'dithered'" + QRHINT({qr_NEW_DARKROOM})),
+								VAL_FIELD(byte,"Light Radius:",0,255,def_lightrad,false), INFOBTN("Default light radius, ex. for fire weapons" + QRHINT({qr_NEW_DARKROOM})),
+								VAL_FIELD(byte,"Light Transp. Percentage:",0,255,transdark_percent,false), INFOBTN("This percentage of each light in dark rooms is added as 'transparent'" + QRHINT({qr_NEW_DARKROOM})),
+								COLOR_FIELD("Darkness Color:", darkcol,false), INFOBTN("The color of darkness" + QRHINT({qr_NEW_DARKROOM}))
 							)
 						)
 					))

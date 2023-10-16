@@ -8,6 +8,7 @@ extern int32_t zq_screen_w, zq_screen_h;
 #include "gui/checkbox_qr.h"
 #include "gui/colorsel.h"
 #include "gui/common.h"
+#include "gui/ditherprev.h"
 #include "gui/drop_down_list.h"
 #include "gui/frame.h"
 #include "gui/grid.h"
@@ -125,6 +126,11 @@ inline std::shared_ptr<ColorSel> makeColorSel()
 inline std::shared_ptr<Slider> makeSlider()
 {
 	return std::make_shared<Slider>();
+}
+
+inline std::shared_ptr<DitherPreview> makeDitherPreview()
+{
+	return std::make_shared<DitherPreview>();
 }
 
 // Containers
@@ -466,6 +472,14 @@ ZCGUI_BUILDER_START(Slider)
 	ZCGUI_ACCEPT_PROP(onValChangedFunc, setOnValChanged, std::function<void(int32_t)>)
 ZCGUI_BUILDER_END()
 ZCGUI_BUILDER_FUNCTION(Slider, Slider, makeSlider)
+
+ZCGUI_BUILDER_START(DitherPreview)
+	ZCGUI_ACCEPT_PROP(dither_type, setDitherType, byte)
+	ZCGUI_ACCEPT_PROP(dither_arg, setDitherArg, byte)
+	ZCGUI_ACCEPT_PROP(dither_color, setDitherColor, byte)
+	ZCGUI_ACCEPT_PROP(preview_scale, setPreviewScale, byte)
+ZCGUI_BUILDER_END()
+ZCGUI_BUILDER_FUNCTION(DitherPreview, DitherPreview, makeDitherPreview)
 
 ZCGUI_BUILDER_START(Window)
 	ZCGUI_ACCEPT_PROP(title, setTitle, std::string)
