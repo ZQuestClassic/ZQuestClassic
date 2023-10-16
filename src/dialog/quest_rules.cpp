@@ -61,6 +61,7 @@ std::string tagNames[rules_tagcount + 1] =
 	"Misc",
 	"NESFix",
 	"Player",
+	"Subscreen",
 	"Weapon",
 	"ZS: Script",
 	"ZS: Instruction",
