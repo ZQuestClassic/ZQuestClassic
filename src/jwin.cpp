@@ -6759,9 +6759,19 @@ getout:
   */
 int32_t jwin_do_menu(MENU *menu, int32_t x, int32_t y)
 {
-	popup_zqdialog_start();
+	auto* dlg_lyr = add_dlg_layer();
+	if(!dlg_lyr)
+	{
+		popup_zqdialog_start();
+		pause_dlg_tint(true);
+	}
     int32_t ret = _jwin_do_menu(menu, NULL, FALSE, x, y, TRUE, NULL, 0, 0);
-	popup_zqdialog_end();
+	if(dlg_lyr) remove_dlg_layer(dlg_lyr);
+	else
+	{
+		pause_dlg_tint(false);
+		popup_zqdialog_end();
+	}
     
     do
     {
