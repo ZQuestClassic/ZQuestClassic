@@ -17189,9 +17189,10 @@ LEFTRIGHT_OLDMOVE:
 	}
 }
 
-bool HeroClass::scr_walkflag(int dx,int dy,int d2,bool kb)
+bool HeroClass::scr_walkflag(zfix zdx,zfix zdy,int d2,bool kb)
 {
 	if(toogam) return false;
+	int dx = zdx.getFloor(), dy = zdy.getFloor();
 	
 	if(blockpath && dy<80) //Blocked top parts of rooms
 		return true;
@@ -17205,7 +17206,7 @@ bool HeroClass::scr_walkflag(int dx,int dy,int d2,bool kb)
 		&& !get_qr(qr_FREEFORM))
 		return true; //Old NES dungeon stuff
 	
-	bool solid = _walkflag(dx,dy,1,SWITCHBLOCK_STATE);
+	bool solid = _walkflag(zdx,zdy,1,SWITCHBLOCK_STATE);
 	
 	if(isdungeon() && currscr<128 && !get_qr(qr_FREEFORM))
 	{
@@ -17297,7 +17298,7 @@ bool HeroClass::scr_walkflag(int dx,int dy,int d2,bool kb)
 	else if(solid || isSideViewHero() || get_qr(qr_DROWN))
 	{
 		// see if it's a good spot for the ladder or for swimming
-		bool unwalkablex  = _walkflag(dx,dy,1,SWITCHBLOCK_STATE); //will be used later for the ladder -DD
+		bool unwalkablex  = _walkflag(zdx,zdy,1,SWITCHBLOCK_STATE); //will be used later for the ladder -DD
 		
 		if(get_qr(qr_DROWN))
 		{
@@ -17347,7 +17348,7 @@ bool HeroClass::scr_walkflag(int dx,int dy,int d2,bool kb)
 			{
 				if(isSideViewHero())
 				{
-					wtrx  = !_walkflag(dx, dy+8, 1,SWITCHBLOCK_STATE) && !_walkflag(dx, dy, 1,SWITCHBLOCK_STATE) && dir!=down;
+					wtrx  = !_walkflag(zdx, zdy+8, 1,SWITCHBLOCK_STATE) && !_walkflag(dx, dy, 1,SWITCHBLOCK_STATE) && dir!=down;
 				}
 				// * walk on half-water using the ladder instead of using flippers.
 				// * otherwise, walk on ladder(+hookshot) combos.
@@ -17564,6 +17565,39 @@ zfix handle_movestate_zfix(std::function<zfix()> proc)
 	
 	return ret;
 }
+
+optional<zfix> HeroClass::get_solid_coord(zfix tx, zfix ty, byte dir, byte mdir, bool kb, zfix earlyterm)
+{
+	zfix dx, dy;
+	switch(dir)
+	{
+		default:
+		case up: dy = zfix(0,-1); break;
+		case down: dy = zfix(0,1); break;
+		case left: dx = zfix(0,-1); break;
+		case right: dx = zfix(0,1); break;
+	}
+	for(int ctr = 0; ctr < 40000; ++ctr)
+	{
+		tx += dx;
+		ty += dy;
+		if((dx ? tx : ty) == earlyterm)
+			break;
+		if(!scr_walkflag(tx,ty,mdir,kb))
+		{
+			switch(dir)
+			{
+				default:
+				case up: return ty-dy-16;
+				case down: return ty-(bigHitbox?0:8);
+				case left: return tx-dx-16;
+				case right: return tx;
+			}
+		}
+	}
+	return std::nullopt;
+}
+
 bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool earlyret)
 {
 	bool ret = true;
@@ -17615,22 +17649,34 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 			{
 				zfix tx = (dx < 0 ? (x-1) : (x+16));
 				auto mdir = GET_XDIR(dx);
-				int v1=bigHitbox?0:8;
-				bool hit_top = scr_walkflag(tx,y+v1,mdir,false);
-				bool hit_mid = scr_walkflag(tx,y+v1+4,mdir,false)
-					|| scr_walkflag(tx,y+15-4,mdir,false);
-				bool hit_bottom = scr_walkflag(tx,y+15,mdir,false);
+				int v=bigHitbox?0:8;
+				bool hit_top = scr_walkflag(tx,y+v,mdir,false);
+				bool hit_mid = scr_walkflag(tx,y+v+4,mdir,false)
+					|| scr_walkflag(tx,y+zfix(15,9999)-4,mdir,false);
+				bool hit_bottom = scr_walkflag(tx,y+zfix(15,9999),mdir,false);
 				if(!hit_mid && (hit_top!=hit_bottom))
 				{
 					if(hit_bottom) //shove up
 					{
-						if(skipdmg || !checkdamagecombos(tx,get_qr(qr_SENSITIVE_SOLID_DAMAGE)?int32_t(y+15):(v1+bigHitbox?11:4)))
-							movexy(0, -1, kb, true, false, false);
+						if(skipdmg || !checkdamagecombos(tx,get_qr(qr_SENSITIVE_SOLID_DAMAGE)?int32_t(y+15):(v+bigHitbox?11:4)))
+						{
+							zfix dy = -1;
+							if(!scr_walkflag(tx,y+14,mdir,false)) //Shove past the corner
+								if(optional<zfix> ty = get_solid_coord(tx,y+zfix(15,9999),up,mdir,false,y+14))
+									dy = *ty-y;
+							movexy(0, dy, kb, true, false, false);
+						}
 					}
 					else //shove down
 					{
-						if(skipdmg || !checkdamagecombos(tx,v1+(get_qr(qr_SENSITIVE_SOLID_DAMAGE)?0:4)))
-							movexy(0, 1, kb, true, false, false);
+						if(skipdmg || !checkdamagecombos(tx,v+(get_qr(qr_SENSITIVE_SOLID_DAMAGE)?0:4)))
+						{
+							zfix dy = 1;
+							if(!scr_walkflag(tx,y+v+1,mdir,false)) //Shove past the corner
+								if(optional<zfix> ty = get_solid_coord(tx,y+v,down,mdir,false,y+v+1))
+									dy = *ty-y;
+							movexy(0, dy, kb, true, false, false);
+						}
 					}
 					
 					if(scr_canmove(dx, 0, kb, ign_sv))
@@ -17678,19 +17724,31 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 				auto mdir = GET_YDIR(dy);
 				bool hit_left = scr_walkflag(x,ty,mdir,false);
 				bool hit_mid = scr_walkflag(x+4,ty,mdir,false)
-					|| scr_walkflag(x+15-4,ty,mdir,false);
-				bool hit_right = scr_walkflag(x+15,ty,mdir,false);
+					|| scr_walkflag(x+zfix(15,9999)-4,ty,mdir,false);
+				bool hit_right = scr_walkflag(x+zfix(15,9999),ty,mdir,false);
 				if(!hit_mid && (hit_left!=hit_right))
 				{
 					if(hit_right) //shove left
 					{
 						if(skipdmg || !checkdamagecombos(x+(get_qr(qr_SENSITIVE_SOLID_DAMAGE)?15:11),ty))
-							movexy(-1, 0, kb, true, false, false);
+						{
+							zfix dx = -1;
+							if(!scr_walkflag(x+14,ty,mdir,false)) //Shove past the corner
+								if(optional<zfix> tx = get_solid_coord(x+zfix(15,9999),ty,left,mdir,false,x+14))
+									dx = *tx-x;
+							movexy(dx, 0, kb, true, false, false);
+						}
 					}
 					else //shove right
 					{
 						if(skipdmg || !checkdamagecombos(x+(get_qr(qr_SENSITIVE_SOLID_DAMAGE)?0:4),ty))
-							movexy(1, 0, kb, true, false, false);
+						{
+							zfix dx = 1;
+							if(!scr_walkflag(x+1,ty,mdir,false)) //Shove past the corner
+								if(optional<zfix> tx = get_solid_coord(x,ty,right,mdir,false,x+1))
+									dx = *tx-x;
+							movexy(dx, 0, kb, true, false, false);
+						}
 					}
 					
 					if(scr_canmove(0, dy, kb, ign_sv))

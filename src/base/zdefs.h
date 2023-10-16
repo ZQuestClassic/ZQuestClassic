@@ -101,6 +101,7 @@
 #include <math.h>
 #include <cstring>
 #include <vector>
+#include <optional>
 #include <set>
 #include <assert.h>
 #include <string>
@@ -120,6 +121,7 @@ struct mapscr;
 class solid_object;
 class ffcdata;
 struct cpos_info;
+using std::optional;
 
 
 
