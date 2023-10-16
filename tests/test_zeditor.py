@@ -80,8 +80,6 @@ class TestZEditor(unittest.TestCase):
         # TODO: Bad exit code 0xFFFF under windows.
         if platform.system() == 'Windows':
             return
-        # TODO: disabled b/c of recent subscreen changes, must find where regression is
-        return
 
         qst_path = tmp_dir / 'tmp.qst'
         run_target.check_run('zeditor', [

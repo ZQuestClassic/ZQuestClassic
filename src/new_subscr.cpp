@@ -1139,8 +1139,11 @@ int32_t SubscrWidget::read(PACKFILE *f, word s_version)
 		return qe_invalid;
 	if(!p_igetl(&flags,f))
 		return qe_invalid;
-	if(s_version > 8)
+	if(s_version >= 9)
 		if(!p_getwstr(&label,f))
+			return qe_invalid;
+	if(s_version >= 11)
+		if(!p_getc(&compat_flags,f))
 			return qe_invalid;
 	if(genflags & SUBSCRFLAG_SELECTABLE)
 	{
@@ -1211,6 +1214,8 @@ int32_t SubscrWidget::write(PACKFILE *f) const
 	if(!p_iputl(flags,f))
 		new_return(1);
 	if(!p_putwstr(label,f))
+		new_return(1);
+	if(!p_putc(compat_flags,f))
 		new_return(1);
 	if(genflags & SUBSCRFLAG_SELECTABLE)
 	{

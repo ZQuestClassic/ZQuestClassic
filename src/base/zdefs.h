@@ -227,7 +227,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_SAVEGAME        36
 #define V_COMBOALIASES     5
 #define V_HEROSPRITES      16
-#define V_SUBSCREEN        10
+#define V_SUBSCREEN        11
 #define V_ITEMDROPSETS     2
 #define V_FFSCRIPT         22
 #define V_SFX              8
