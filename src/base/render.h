@@ -97,7 +97,7 @@ public:
 	BITMAP* a4_bitmap = nullptr;
 	bool freeze_a4_bitmap_render = false;
 	ALLEGRO_COLOR* tint = nullptr;
-	bool owned = false;
+	bool owned = false, owned_tint = false;
 
 	RenderTreeItem(std::string name, RenderTreeItem* parent = nullptr);
 	~RenderTreeItem();
@@ -105,7 +105,8 @@ public:
 	void add_child(RenderTreeItem* child);
 	void add_child_before(RenderTreeItem* child, RenderTreeItem* before_child);
 	void remove_child(RenderTreeItem* child);
-	const std::vector<RenderTreeItem*>& get_children() const;
+	std::vector<RenderTreeItem*>& get_children();
+	std::vector<RenderTreeItem*> const& get_children() const;
 	bool has_children() const;
 	void handle_dirty();
 	void mark_dirty();
@@ -167,11 +168,16 @@ void zc_set_palette_range(PALETTE pal, int start, int end, bool=false);
 void render_a4_a5(BITMAP* src,int sx,int sy,int dx,int dy,int w,int h,int maskind = 0,uint32_t* backpal = nullptr);
 
 extern BITMAP* zqdialog_bg_bmp;
+extern ALLEGRO_COLOR* override_dlg_tint;
 void popup_zqdialog_start(int x = 0, int y = 0, int w = -1, int h = -1, int transp = 0xFF);
 void popup_zqdialog_end();
 void popup_zqdialog_start_a5();
 void popup_zqdialog_end_a5();
 RenderTreeItem* add_dlg_layer(int x = 0, int y = 0, int w = -1, int h = -1);
 void remove_dlg_layer(RenderTreeItem* rti);
+void reload_dialog_tints();
+ALLEGRO_COLOR& get_dlg_tint();
+void pause_dlg_tint(bool pause);
+bool dlg_tint_paused();
 
 #endif

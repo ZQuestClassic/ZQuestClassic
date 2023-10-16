@@ -575,6 +575,7 @@ static void configure_render_tree()
 		});
 		rti_dialogs.visible = true;
 	}
+	reload_dialog_tints();
 }
 
 static void render_launcher()

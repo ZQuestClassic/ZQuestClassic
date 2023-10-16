@@ -14805,6 +14805,7 @@ int32_t onScreenPalette()
 	
 	large_dialog(screen_pal_dlg);
 	auto old_valid = Map.CurrScr()->valid;
+	pause_dlg_tint(true);
 	while(true)
 	{
 		auto ret = do_zqdialog(screen_pal_dlg,2);
@@ -14830,6 +14831,7 @@ int32_t onScreenPalette()
 			break;
 		}
 	}
+	pause_dlg_tint(false);
 	
 	rebuild_trans_table();
 	

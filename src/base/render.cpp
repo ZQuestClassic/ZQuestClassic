@@ -30,7 +30,11 @@ void RenderTreeItem::remove_child(RenderTreeItem* child)
 		child->parent = nullptr;
 	}
 }
-const std::vector<RenderTreeItem*>& RenderTreeItem::get_children() const
+std::vector<RenderTreeItem*> const& RenderTreeItem::get_children() const
+{
+	return children;
+}
+std::vector<RenderTreeItem*>& RenderTreeItem::get_children()
 {
 	return children;
 }
@@ -162,6 +166,9 @@ RenderTreeItem::~RenderTreeItem()
 			al_destroy_bitmap(bitmap);
 		if(a4_bitmap)
 			destroy_bitmap(a4_bitmap);
+	}
+	if(owned_tint)
+	{
 		if(tint)
 			delete tint;
 	}
@@ -347,6 +354,7 @@ static void render_tree_draw_item(RenderTreeItem* rti)
 		int th = y1 - y0;
 		if (rti->tint)
 		{
+			al_draw_scaled_bitmap(rti->bitmap, 0, 0, w, h, x0, y0, tw, th, 0);
 			al_draw_tinted_scaled_bitmap(rti->bitmap, *rti->tint, 0, 0, w, h, x0, y0, tw, th, 0);
 		}
 		else
@@ -643,3 +651,35 @@ void remove_dlg_layer(RenderTreeItem* rti)
 	}
 	delete rti;
 }
+
+ALLEGRO_COLOR dialog_tint = al_premul_rgba(0, 0, 0, 64);
+ALLEGRO_COLOR* override_dlg_tint = nullptr;
+static size_t dlg_tint_pause = 0;
+void reload_dialog_tints()
+{
+	std::vector<RenderTreeItem*>& children = rti_dialogs.get_children();
+	if(children.empty()) return;
+	for(size_t q = 0; q < children.size()-1; ++q)
+	{
+		children[q]->tint = dlg_tint_pause ? nullptr :
+			(override_dlg_tint ? override_dlg_tint : &dialog_tint);
+	}
+	children.back()->tint = nullptr;
+}
+ALLEGRO_COLOR& get_dlg_tint()
+{
+	return override_dlg_tint ? *override_dlg_tint : dialog_tint;
+}
+void pause_dlg_tint(bool pause)
+{
+	if(pause)
+		++dlg_tint_pause;
+	else if(dlg_tint_pause)
+		--dlg_tint_pause;
+}
+bool dlg_tint_paused()
+{
+	return dlg_tint_pause;
+}
+
+

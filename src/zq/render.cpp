@@ -9,6 +9,7 @@ static RenderTreeItem rti_root("root");
 static RenderTreeItem rti_screen("screen");
 static RenderTreeItem rti_mmap("mmap");
 static RenderTreeItem rti_tooltip("tooltip");
+static RenderTreeItem rti_tint("tint");
 
 static int zc_gui_mouse_x()
 {
@@ -44,6 +45,9 @@ static void init_render_tree()
 	rti_tooltip.transparency_index = 0;
 	clear_bitmap(rti_tooltip.a4_bitmap);
 	
+	rti_tint.bitmap = create_a5_bitmap(screen->w, screen->h);
+	rti_tint.visible = false;
+	
 	set_bitmap_create_flags(true);
 	rti_mmap.bitmap = create_a5_bitmap(screen->w, screen->h);
 	
@@ -51,6 +55,7 @@ static void init_render_tree()
 	
 	rti_root.add_child(&rti_screen);
 	rti_root.add_child(&rti_tooltip);
+	rti_root.add_child(&rti_tint);
 	rti_root.add_child(&rti_dialogs);
 
 	gui_mouse_x = zc_gui_mouse_x;
@@ -64,7 +69,7 @@ static void init_render_tree()
 static void configure_render_tree()
 {
 	static bool scaling_force_integer = zc_get_config("zquest", "scaling_force_integer", 0) != 0;
-
+	
 	int resx = al_get_display_width(all_get_display());
 	int resy = al_get_display_height(all_get_display());
 
@@ -107,9 +112,38 @@ static void configure_render_tree()
 			.xscale = xscale,
 			.yscale = yscale,
 		});
+		rti_tint.set_transform({
+			.x = (int)(resx - w*xscale) / 2,
+			.y = (int)(resy - h*yscale) / 2,
+			.xscale = xscale,
+			.yscale = yscale,
+		});
 	}
-
+	
 	rti_dialogs.visible = rti_dialogs.has_children();
+	rti_tint.visible = rti_dialogs.visible && !dlg_tint_paused();
+	
+	if(rti_dialogs.visible)
+	{
+		auto& tint = get_dlg_tint();
+		if(!override_dlg_tint)
+		{
+			tint = al_premul_rgba(
+				zc_get_config("ZQ_GUI","dlg_tint_r",0),
+				zc_get_config("ZQ_GUI","dlg_tint_g",0),
+				zc_get_config("ZQ_GUI","dlg_tint_b",0),
+				zc_get_config("ZQ_GUI","dlg_tint_a",128)
+			);
+		}
+		
+		ALLEGRO_STATE oldstate;
+		al_store_state(&oldstate, ALLEGRO_STATE_TARGET_BITMAP);
+		al_set_target_bitmap(rti_tint.bitmap);
+		al_clear_to_color(tint);
+		al_restore_state(&oldstate);
+	}
+	
+	reload_dialog_tints();
 }
 
 ALLEGRO_BITMAP* get_overlay_bmp()
