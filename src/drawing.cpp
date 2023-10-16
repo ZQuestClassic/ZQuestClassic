@@ -222,7 +222,24 @@ static inline bool dithercheck(byte type, byte arg, int32_t x, int32_t y, int32_
 		case dithStatic3: //changes centering of the formula
 			ret = dither_staticcheck(x+(wid/2),y+(hei/2),(arg/255.0));
 			break;
-		
+		case dithDots2:
+		{
+			auto a2 = (arg+1)*2;
+			ret = !(x%a2 || y%a2) || ((x%a2==arg+1) && (y%a2==arg+1));
+			break;
+		}
+		case dithDots3:
+		{
+			auto a2 = (arg+1)*2;
+			ret = !(x%a2 || y%2) || ((x%a2==arg+1) && (y%2==1));
+			break;
+		}
+		case dithDots4:
+		{
+			auto a2 = (arg+1)*2;
+			ret = !(x%2 || y%a2) || ((x%2==1) && (y%a2==arg+1));
+			break;
+		}
 		default:
 			//don't dither if invalid type found,
 			//just draw every pixel -Em

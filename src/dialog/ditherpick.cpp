@@ -29,6 +29,9 @@ static GUI::ListData list_dithertype
 	{ "Static 1", dithStatic },
 	{ "Static 2", dithStatic2 },
 	{ "Static 3", dithStatic3 },
+	{ "Dots 2", dithDots2 },
+	{ "Dots 3", dithDots3 },
+	{ "Dots 4", dithDots4 },
 };
 
 std::shared_ptr<GUI::Widget> DitherPickDialog::view()

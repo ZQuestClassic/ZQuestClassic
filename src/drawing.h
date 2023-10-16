@@ -25,6 +25,9 @@ enum dithType
 	dithStatic, dithStaticInv,
 	dithStatic2, dithStatic2Inv,
 	dithStatic3, dithStatic3Inv,
+	dithDots2, dithDots2Inv,
+	dithDots3, dithDots3Inv,
+	dithDots4, dithDots4Inv,
 	dithMax
 };
 bool dither_staticcheck(int x, int y, double percentage);
