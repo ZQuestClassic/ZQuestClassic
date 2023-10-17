@@ -4,6 +4,9 @@
 #include "base/fonts.h"
 #include "fmt/core.h"
 #include "jwin_a5.h"
+#include <atomic>
+
+using namespace std::chrono_literals;
 
 void RenderTreeItem::add_child(RenderTreeItem* child)
 {
@@ -683,3 +686,72 @@ bool dlg_tint_paused()
 }
 
 
+static std::atomic<bool> throttle_counter;
+void update_throttle_counter()
+{
+	throttle_counter.store(true, std::memory_order_relaxed);
+}
+END_OF_FUNCTION(update_throttle_counter)
+
+// https://blat-blatnik.github.io/computerBear/making-accurate-sleep-function/
+static void preciseThrottle(double seconds)
+{
+	static double estimate = 5e-3;
+	static double mean = 5e-3;
+	static double m2 = 0;
+	static int64_t count = 1;
+
+	while (seconds > estimate) {
+		auto start = std::chrono::high_resolution_clock::now();
+		rest(1);
+		auto end = std::chrono::high_resolution_clock::now();
+
+		double observed = (end - start).count() / 1e9;
+		seconds -= observed;
+
+		++count;
+		double delta = observed - mean;
+		mean += delta / count;
+		m2   += delta * (observed - mean);
+		double stddev = sqrt(m2 / (count - 1));
+		estimate = mean + stddev;
+	}
+
+	// spin lock
+#ifdef __EMSCRIPTEN__
+	while (!throttle_counter.load(std::memory_order_relaxed))
+	{
+		volatile int i = 0;
+		while (i < 10000000)
+		{
+			if (throttle_counter.load(std::memory_order_relaxed)) return;
+			i += 1;
+		}
+
+		rest(1);
+	}
+#else
+	while(!throttle_counter.load(std::memory_order_relaxed));
+#endif
+}
+
+void throttleFPS(bool throttle)
+{
+	static auto last_time = std::chrono::high_resolution_clock::now();
+
+	if( throttle )
+	{
+		if (!throttle_counter.load(std::memory_order_relaxed))
+		{
+			int freq = 60;
+			double target = 1.0 / freq;
+			auto now_time = std::chrono::high_resolution_clock::now();
+			double delta = (now_time - last_time).count() / 1e9;
+			if (delta < target)
+				preciseThrottle(target - delta);
+		}
+	}
+
+	throttle_counter.store(false, std::memory_order_relaxed);
+	last_time = std::chrono::high_resolution_clock::now();
+}

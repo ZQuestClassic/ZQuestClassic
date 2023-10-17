@@ -27223,7 +27223,6 @@ void anim_hw_screen(bool force)
 {
 	if(force || myvsync)
 	{
-		++framecnt;
 		++cpoolbrush_index;
 		
 		if(prv_mode)
@@ -27251,13 +27250,12 @@ void anim_hw_screen(bool force)
 		update_hw_screen(true);
 	}
 }
+
 void custom_vsync()
 {
-    while(!myvsync) rest(1);
-    
+	throttleFPS(true);
 	anim_hw_screen(true);
-    
-    myvsync=0;
+	myvsync=0;
 }
 
 void switch_out()
@@ -28141,6 +28139,12 @@ int32_t main(int32_t argc,char **argv)
 	{
 		RequestedFPS = vbound(RequestedFPS,12,60);
 		zc_set_config("zquest","fps",RequestedFPS);
+	}
+
+	LOCK_FUNCTION(update_throttle_counter);
+	if (install_int_ex(update_throttle_counter, BPS_TO_TIMER(60)) < 0)
+	{
+		Z_error_fatal("Could not install timer.\n");
 	}
 	
 	LOCK_VARIABLE(myvsync);
@@ -30018,7 +30022,6 @@ int32_t d_nbmenu_proc(int32_t msg,DIALOG *d,int32_t c)
 		clear_tooltip();
 	}
 	
-	rest(4);
 	ret = jwin_menu_proc(msg,d,c);
 	
 	return ret;
@@ -31411,6 +31414,7 @@ void update_hw_screen(bool force)
 		if (force || myvsync)
 			render_zq();
 		myvsync=0;
+		++framecnt;
 	}
 }
 

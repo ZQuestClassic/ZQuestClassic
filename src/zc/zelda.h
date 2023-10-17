@@ -359,8 +359,6 @@ extern int32_t swordhearts[4], currcset, currspal6, currspal14, gfc, gfc2, pitx,
 extern int32_t heart_beep_timer, new_enemy_tile_start, nets, magicitem, div_prot_item;
 extern int32_t magiccastclk, castx, casty, quakeclk, wavy, df_x, df_y, nl1_x, nl1_y, nl2_x, nl2_y, magicdrainclk, conveyclk, memrequested;
 extern byte newconveyorclk;
-extern dword fps_secs;
-extern float avgfps;
 
 extern bool cheats_execute_goto, cheats_execute_light;
 extern bool Throttlefps, MenuOpen, ClickToFreeze, Paused, Saving, Advance, ShowFPS, Showpal,
@@ -452,7 +450,7 @@ extern char header_version_nul_term[17];
 
 extern volatile int32_t lastfps;
 extern volatile int32_t framecnt;
-extern void throttleFPS();
+extern void zc_throttle_fps();
 
 // quest file data
 extern zquestheader QHeader;

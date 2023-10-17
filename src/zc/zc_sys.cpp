@@ -575,11 +575,6 @@ void save_game_configs()
 void fps_callback()
 {
 	lastfps=framecnt;
-	dword tempsecs = fps_secs;
-	++tempsecs;
-	//avgfps=((long double)avgfps*fps_secs+lastfps)/(++fps_secs); // DJGPP doesn't like this
-	avgfps=((long double)avgfps*fps_secs+lastfps)/(tempsecs);
-	++fps_secs;
 	framecnt=0;
 }
 
@@ -4627,7 +4622,7 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 		{
 			FFCore.runF6Engine();
 		}
-		throttleFPS();
+		zc_throttle_fps();
 		
 #ifdef _WIN32
 		
@@ -4705,7 +4700,7 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 	if (Quit)
 		replay_step_quit(Quit);
 	// Someday... maybe install a Turbo button here?
-	throttleFPS();
+	zc_throttle_fps();
 	
 #ifdef _WIN32
 	

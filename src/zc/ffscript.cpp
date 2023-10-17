@@ -145,7 +145,7 @@ void FFScript::Waitframe(bool allowwavy, bool sfxcleanup)
 		syskeys();
 		// to keep fps constant
 		updatescr(allowwavy);
-		throttleFPS();
+		zc_throttle_fps();
 		
 #ifdef _WIN32
 		
@@ -178,7 +178,7 @@ void FFScript::Waitframe(bool allowwavy, bool sfxcleanup)
 	syskeys();
 	// Someday... maybe install a Turbo button here?
 	updatescr(allowwavy);
-	throttleFPS();
+	zc_throttle_fps();
 	
 #ifdef _WIN32
 	

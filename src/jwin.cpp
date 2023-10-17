@@ -6798,8 +6798,6 @@ int32_t jwin_menu_proc(int32_t msg, DIALOG *d, int32_t c)
     int32_t ret = D_O_K;
     int32_t x;
     
-    rest(1);
-    
 	FONT* oldfont = font;
 	if(d->dp2)
 	{

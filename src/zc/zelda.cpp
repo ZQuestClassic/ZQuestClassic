@@ -185,13 +185,6 @@ bool trip=false;
 extern byte midi_suspended;
 extern int32_t paused_midi_pos;
 
-static std::atomic<bool> logic_counter;
-void update_logic_counter()
-{
-	logic_counter.store(true, std::memory_order_relaxed);
-}
-END_OF_FUNCTION(update_logic_counter)
-
 bool doThrottle()
 {
 #ifdef ALLEGRO_MACOSX
@@ -203,74 +196,9 @@ bool doThrottle()
 		|| (get_qr(qr_NOFASTMODE) && !replay_is_replaying());
 }
 
-// https://blat-blatnik.github.io/computerBear/making-accurate-sleep-function/
-static void preciseThrottle(double seconds)
+void zc_throttle_fps()
 {
-	static double estimate = 5e-3;
-	static double mean = 5e-3;
-	static double m2 = 0;
-	static int64_t count = 1;
-
-	while (seconds > estimate) {
-		auto start = std::chrono::high_resolution_clock::now();
-		rest(1);
-		auto end = std::chrono::high_resolution_clock::now();
-
-		double observed = (end - start).count() / 1e9;
-		seconds -= observed;
-
-		++count;
-		double delta = observed - mean;
-		mean += delta / count;
-		m2   += delta * (observed - mean);
-		double stddev = sqrt(m2 / (count - 1));
-		estimate = mean + stddev;
-	}
-
-	// spin lock
-#ifdef __EMSCRIPTEN__
-	while (!logic_counter.load(std::memory_order_relaxed))
-	{
-		volatile int i = 0;
-		while (i < 10000000)
-		{
-			if (logic_counter.load(std::memory_order_relaxed)) return;
-			i += 1;
-		}
-
-		rest(1);
-	}
-#else
-	while(!logic_counter.load(std::memory_order_relaxed));
-#endif
-}
-
-void throttleFPS()
-{
-    static auto last_time = std::chrono::high_resolution_clock::now();
-
-    if( doThrottle() || Paused)
-    {
-        if(zc_vsync == FALSE)
-        {
-            if (!logic_counter.load(std::memory_order_relaxed))
-            {
-                int freq = 60;
-                double target = 1.0 / freq;
-                auto now_time = std::chrono::high_resolution_clock::now();
-                double delta = (now_time - last_time).count() / 1e9;
-                if (delta < target)
-                    preciseThrottle(target - delta);
-            }
-        }
-        else
-        {
-            vsync();
-        }
-    }
-
-    logic_counter.store(false, std::memory_order_relaxed);
-    last_time = std::chrono::high_resolution_clock::now();
+	throttleFPS(doThrottle() || Paused);
 }
 
 int32_t onHelp()
@@ -402,8 +330,6 @@ int32_t gfc = 0, gfc2 = 0, pitx = 0, pity = 0, refill_what = 0, refill_why = 0, 
 int32_t nets=1580, magicitem=-1,div_prot_item=-1, magiccastclk = 0, quakeclk=0, wavy=0, castx = 0, casty = 0, df_x = 0, df_y = 0, nl1_x = 0, nl1_y = 0, nl2_x = 0, nl2_y = 0;
 int32_t magicdrainclk=0, conveyclk=3, memrequested=0;
 byte newconveyorclk = 0;
-float avgfps=0;
-dword fps_secs=0;
 bool cheats_execute_goto=false, cheats_execute_light=false;
 int32_t checkx = 0, checky = 0;
 int32_t loadlast=0;
@@ -4632,9 +4558,8 @@ int main(int argc, char **argv)
 	
 	//set_keyboard_rate(1000,160);
 
-	LOCK_VARIABLE(logic_counter);
-	LOCK_FUNCTION(update_logic_counter);
-	if (install_int_ex(update_logic_counter, BPS_TO_TIMER(60)) < 0)
+	LOCK_FUNCTION(update_throttle_counter);
+	if (install_int_ex(update_throttle_counter, BPS_TO_TIMER(60)) < 0)
 	{
 		Z_error_fatal("Could not install timer.\n");
 	}
@@ -5682,7 +5607,7 @@ END_OF_MAIN()
 void remove_installed_timers()
 {
     al_trace("Removing timers. \n");
-    remove_int(update_logic_counter);
+    remove_int(update_throttle_counter);
     Z_remove_timers();
 }
 
