@@ -30862,10 +30862,16 @@ void draw_ttip2(BITMAP* dest)
 }
 void draw_ttips()
 {
-	BITMAP* ttbmp = get_tooltip_bmp();
-	clear_bitmap(ttbmp);
-	draw_ttip(ttbmp);
-	draw_ttip2(ttbmp);
+	extern RenderTreeItem rti_dialogs;
+
+	RenderTreeItem* tt_rti = get_tooltip_rti();
+	tt_rti->visible = !rti_dialogs.has_children() && ((tooltip_box.x >= 0 && tooltip_box.y >= 0) || (tooltip_box2.x >= 0 && tooltip_box2.y >= 0));
+	if (!tt_rti->visible)
+		return;
+
+	clear_bitmap(tt_rti->a4_bitmap);
+	draw_ttip(tt_rti->a4_bitmap);
+	draw_ttip2(tt_rti->a4_bitmap);
 }
 
 void draw_box(BITMAP* destbmp, size_and_pos* pos, char const* tipmsg, double txscale = 1)

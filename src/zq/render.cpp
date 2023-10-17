@@ -104,7 +104,6 @@ static void configure_render_tree()
 			.xscale = xscale,
 			.yscale = yscale,
 		});
-		rti_tooltip.visible = !rti_dialogs.has_children();
 		
 		rti_dialogs.set_transform({
 			.x = (int)(resx - w*xscale) / 2,
@@ -151,9 +150,9 @@ ALLEGRO_BITMAP* get_overlay_bmp()
 	return rti_mmap.bitmap;
 }
 
-BITMAP* get_tooltip_bmp()
+RenderTreeItem* get_tooltip_rti()
 {
-	return rti_tooltip.a4_bitmap;
+	return &rti_tooltip;
 }
 
 void zq_hide_screen(bool hidden)
