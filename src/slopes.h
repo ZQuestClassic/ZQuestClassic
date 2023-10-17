@@ -1,7 +1,7 @@
 #ifndef _SLOPES_H_
 #define _SLOPES_H_
 
-#include "zfix.h"
+#include "base/zfix.h"
 #include "ffc.h"
 #include <map>
 

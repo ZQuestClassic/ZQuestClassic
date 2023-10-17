@@ -39,6 +39,7 @@ zinitdata *copyIntoZinit(gamedata *gdata)
     zinit2->terminalv=zinit.terminalv;
     zinit2->jump_hero_layer_threshold=zinit.jump_hero_layer_threshold;
     zinit2->heroStep=zinit.heroStep;
+    zinit2->shove_offset=zinit.shove_offset;
     zinit2->subscrSpeed=zinit.subscrSpeed;
     zinit2->hc = gdata->get_maxlife()/gdata->get_hp_per_heart();
     zinit2->bombs = gdata->get_bombs();

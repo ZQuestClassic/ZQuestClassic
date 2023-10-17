@@ -5540,13 +5540,13 @@ static inline bool onSwitch(newcombo const& cmb, zfix const& switchblockstate)
 {
 	return (switchblockstate < 0 || (cmb.attributes[2]>0 && (zslongToFix(cmb.attributes[2]) - zslongToFix(zc_max(cmb.attributes[3], 0))) <=switchblockstate));
 }
-bool _walkflag(zfix x,zfix y,int32_t cnt)
+bool _walkflag(zfix_round zx,zfix_round zy,int32_t cnt)
 {
-	return _walkflag(x,y,cnt,zfix(0));
+	return _walkflag(zx,zy,cnt,0_zf);
 }
-bool _walkflag(zfix zx,zfix zy,int32_t cnt,zfix const& switchblockstate)
+bool _walkflag(zfix_round zx,zfix_round zy,int32_t cnt,zfix const& switchblockstate)
 {
-	int x = zx.getFloor(), y = zy.getFloor();
+	int x = zx.getRound(), y = zy.getRound();
 	//  walkflagx=x; walkflagy=y;
 	if(get_qr(qr_LTTPWALK))
 	{
@@ -5628,8 +5628,8 @@ bool _walkflag(zfix zx,zfix zy,int32_t cnt,zfix const& switchblockstate)
 		return true;
 	
 	if(cnt == 1)
-		return collide_object(zx,zy,zfix(0,1),zfix(0,1));
-	else if(collide_object(zx, zy, zfix(8,1), zfix(0,1))) return true;
+		return collide_object(zx,zy,0.0001_zf, 0.0001_zf);
+	else if(collide_object(zx, zy, 8.0001_zf, 0.0001_zf)) return true;
 	
 	++bx;
 	
@@ -5785,9 +5785,9 @@ bool _effectflag(int32_t x,int32_t y,int32_t cnt, int32_t layer, bool notLink)
 }
 
 //used by mapdata->isSolid(x,y) in ZScript:
-bool _walkflag(zfix zx,zfix zy,int32_t cnt, mapscr* m)
+bool _walkflag(zfix_round zx,zfix_round zy,int32_t cnt, mapscr* m)
 {
-	int x = zx.getFloor(), y = zy.getFloor();
+	int x = zx.getRound(), y = zy.getRound();
 	//  walkflagx=x; walkflagy=y;
 	if(get_qr(qr_LTTPWALK))
 	{
@@ -5907,9 +5907,9 @@ bool _walkflag(zfix zx,zfix zy,int32_t cnt, mapscr* m)
 	return (cwalkflag&b) ? !dried : false;
 }
 
-bool _walkflag(zfix zx,zfix zy,int32_t cnt, mapscr* m, mapscr* s1, mapscr* s2)
+bool _walkflag(zfix_round zx,zfix_round zy,int32_t cnt, mapscr* m, mapscr* s1, mapscr* s2)
 {
-	int x = zx.getFloor(), y = zy.getFloor();
+	int x = zx.getRound(), y = zy.getRound();
 	//  walkflagx=x; walkflagy=y;
 	if(get_qr(qr_LTTPWALK))
 	{
@@ -6019,9 +6019,9 @@ bool _walkflag(zfix zx,zfix zy,int32_t cnt, mapscr* m, mapscr* s1, mapscr* s2)
 }
 
 //Only check the given mapscr*, not its layer 1&2
-bool _walkflag_layer(zfix zx,zfix zy,int32_t cnt, mapscr* m)
+bool _walkflag_layer(zfix_round zx,zfix_round zy,int32_t cnt, mapscr* m)
 {
-	int x = zx.getFloor(), y = zy.getFloor();
+	int x = zx.getRound(), y = zy.getRound();
 	//  walkflagx=x; walkflagy=y;
 	if(get_qr(qr_LTTPWALK))
 	{

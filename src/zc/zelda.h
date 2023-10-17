@@ -18,7 +18,7 @@
 #include "gamedata.h"
 #include "base/zsys.h"
 #include "zc/script_drawing.h"
-#include "zfix.h"
+#include "base/zfix.h"
 #include "base/util.h"
 #include "base/fonts.h"
 #include "zc/replay.h"

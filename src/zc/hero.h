@@ -19,7 +19,7 @@
 #include "sprite.h"
 #include "zc/zc_custom.h"
 #include "subscr.h"
-#include "zfix.h"
+#include "base/zfix.h"
 #include <vector>
 
 extern movingblock mblock2;                                 //mblock[4]?
@@ -276,6 +276,7 @@ public:
 	int32_t swimuprate;
 	int32_t swimsiderate;
 	int32_t swimdownrate;
+	zfix shove_offset;
 	byte defence[wMax];
 	int32_t subscr_speed;
 	bool is_warping;
@@ -340,7 +341,7 @@ public:
 	void moveheroOld();
 	void mod_steps(std::vector<zfix*>& v);
 	void get_move(int movedir, zfix& dx, zfix& dy, int32_t& facedir);
-	bool scr_walkflag(zfix dx,zfix dy,int dir,bool kb);
+	bool scr_walkflag(zfix_round dx,zfix_round dy,int dir,bool kb);
 	optional<zfix> get_solid_coord(zfix tx, zfix ty, byte dir, byte mdir, bool kb, zfix earlyterm);
 	bool scr_canmove(zfix dx, zfix dy, bool kb, bool ign_sv);
 	bool movexy(zfix dx, zfix dy, bool kb = false, bool ign_sv = false, bool shove = false, bool earlyret = false);

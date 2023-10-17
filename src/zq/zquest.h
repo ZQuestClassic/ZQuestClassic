@@ -12,7 +12,7 @@
 #include "sprite.h"
 #include "gamedata.h"
 #include "parser/parserDefs.h"
-#include "zfix.h"
+#include "base/zfix.h"
 #include "base/fonts.h"
 #include "base/cpool.h"
 

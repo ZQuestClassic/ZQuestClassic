@@ -87,6 +87,8 @@ struct zinitdata
 	
 	zinit_vectors vecs;
 	
+	zfix shove_offset = 6.5_zf;
+	
 	void clear_genscript();
 	
 	void clear();

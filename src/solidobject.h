@@ -1,7 +1,7 @@
 #ifndef _SOLIDOBJECT_H_
 #define _SOLIDOBJECT_H_
 
-#include "zfix.h"
+#include "base/zfix.h"
 #include "base/zc_alleg.h"
 
 class solid_object;

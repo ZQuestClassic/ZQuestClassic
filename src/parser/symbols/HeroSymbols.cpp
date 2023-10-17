@@ -45,6 +45,8 @@ static AccessorTable HeroSTable[] =
 	{ "setSteps[]",                 0,          ZTID_VOID,   HEROSTEPS,                 0,  { ZTID_PLAYER, ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "getStep",                    0,         ZTID_FLOAT,   HEROSTEPRATE,              0,  { ZTID_PLAYER },{} },
 	{ "setStep",                    0,          ZTID_VOID,   HEROSTEPRATE,              0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
+	{ "getShoveOffset",             0,         ZTID_FLOAT,   HEROSHOVEOFFSET,           0,  { ZTID_PLAYER },{} },
+	{ "setShoveOffset",             0,          ZTID_VOID,   HEROSHOVEOFFSET,           0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
 	{ "getDrunk",                   0,         ZTID_FLOAT,   LINKDRUNK,                 0,  { ZTID_PLAYER },{} },
 	{ "setDrunk",                   0,          ZTID_VOID,   LINKDRUNK,                 0,  { ZTID_PLAYER, ZTID_FLOAT },{} },
 	{ "getHealthBeep",              0,         ZTID_FLOAT,   HEROHEALTHBEEP,            0,  { ZTID_PLAYER },{} },

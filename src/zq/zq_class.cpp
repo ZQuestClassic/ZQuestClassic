@@ -13737,6 +13737,8 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *Header)
 				if(!p_putlvec(zinit.vecs.screen_data[q],f))
 					new_return(106);
 		}
+		if(!p_iputzf(zinit.shove_offset,f))
+			return qe_invalid;
 		
 		if(writecycle==0)
 		{

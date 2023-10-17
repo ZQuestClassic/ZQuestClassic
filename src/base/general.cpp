@@ -38,23 +38,25 @@ int32_t get_bitl(int32_t bitstr,int32_t bit)
     return bitstr&(1<<bit); //intel u32
 }
 
-int32_t vbound(int32_t val, int32_t low, int32_t high)
+int vbound(int val, int low, int high)
 {
-	assert(low <= high);
-	if(val <= low)
-		return low;
-	if(val >= high)
-		return high;
+	if(low > high) zc_swap(low,high);
+	if(val < low) return low;
+	if(val > high) return high;
 	return val;
 }
-
 double vbound(double val, double low, double high)
 {
-	assert(low <= high);
-	if(val <= low)
-		return low;
-	if(val >= high)
-		return high;
+	if(low > high) zc_swap(low,high);
+	if(val < low) return low;
+	if(val > high) return high;
+	return val;
+}
+zfix vbound(zfix val, zfix low, zfix high)
+{
+	if(low > high) zc_swap(low,high);
+	if(val < low) return low;
+	if(val > high) return high;
 	return val;
 }
 

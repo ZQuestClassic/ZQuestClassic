@@ -1124,6 +1124,7 @@ constexpr std::size_t countof(T(&)[N]) { return N; }
 	PROP(heroSideswimSideStep) \
 	PROP(heroSideswimUpStep) \
 	PROP(heroStep) \
+	ZFIXPROP(shove_offset) \
 	PROP(hp_per_heart) \
 	PROP(jump_hero_layer_threshold) \
 	PROP(keys) \
@@ -1190,7 +1191,10 @@ std::string serialize_init_data_delta(zinitdata *base, zinitdata *changed)
 	
 	#define PROP(name) if (base->name != changed->name) \
 		tokens.push_back(fmt::format("{}={}", #name, (int)changed->name));
+	#define ZFIXPROP(name) if(base->name != changed->name) \
+		tokens.push_back(fmt::format("{}={}", #name, (int)changed->name.getZLong()));
 	LIST_PROPS;
+	#undef ZFIXPROP
 	#undef PROP
 
 	#define ARRAY_PROP(name) \
@@ -1254,10 +1258,13 @@ zinitdata *apply_init_data_delta(zinitdata *base, std::string delta, std::string
 
 		#define PROP(name) if (kv[0] == #name) \
 			result->name = as_int; else
+		#define ZFIXPROP(name) if (kv[0] == #name) \
+			result->name = zslongToFix(as_int); else
 		LIST_PROPS
 		{
 			FAIL_IF(true, fmt::format("invalid token '{}': unknown property", token));
 		}
+		#undef ZFIXPROP
 		#undef PROP
 	}
 

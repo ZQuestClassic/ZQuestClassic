@@ -119,7 +119,7 @@ slope_object::slope_object(word* cid, ffcdata* ff, int32_t id, word cpos)
 }
 
 zfix slope_info::slope()        const { return (y2-y1)/(x2-x1); }
-zfix slope_info::slipperiness() const { return cmb ? zslongToFix(cmb->attributes[0]) : zfix(0); }
+zfix slope_info::slipperiness() const { return cmb ? zslongToFix(cmb->attributes[0]) : 0_zf; }
 bool slope_info::stairs()       const { return cmb && (cmb->usrflags & cflag1); }
 bool slope_info::ignorebottom() const { return cmb && (cmb->usrflags & cflag2); }
 bool slope_info::ignoretop()    const { return cmb && (cmb->usrflags & cflag3); }

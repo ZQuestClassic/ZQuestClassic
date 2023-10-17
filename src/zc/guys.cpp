@@ -4563,13 +4563,13 @@ void enemy::fix_coords(bool bound)
 	{
 		if ( ((unsigned)(id&0xFFF)) < MAXGUYS )
 		{
-		x=vbound(x, 0, (( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_WIDTH && !isflier(id) ) ? (256-((txsz-1)*16)) : 240));
-		y=vbound(y, 0,(( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT && !isflier(id) ) ? (176-((txsz-1)*16)) : 160));
+		x=vbound(x, 0_zf, (( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_WIDTH && !isflier(id) ) ? (256_zf -((txsz-1)*16)) : 240_zf));
+		y=vbound(y, 0_zf,(( guysbuf[id].SIZEflags&guyflagOVERRIDE_TILE_HEIGHT && !isflier(id) ) ? (176_zf -((txsz-1)*16)) : 160_zf));
 		}
 		else
 		{
-		   x=vbound(x, 0,240); 
-			y=vbound(y, 0,160);
+		   x=vbound(x, 0_zf,240_zf);
+			y=vbound(y, 0_zf,160_zf);
 		}
 	}
 	
@@ -11979,14 +11979,14 @@ bool eKeese::animate(int32_t index)
 			{
 				fakez=int32_t(step/zslongToFix(dstep*100));
 				// Some variance in keese flight heights when away from Hero
-				fakez+=int32_t(step*zc_max(zfix(0),(distance(x,y,HeroX(),HeroY())-128)/10));
+				fakez+=int32_t(step*zc_max(0_zf,(distance(x,y,HeroX(),HeroY())-128)/10));
 
 			}
 			else
 			{
 				z=int32_t(step/zslongToFix(dstep*100));
 				// Some variance in keese flight heights when away from Hero
-				z+=int32_t(step*zc_max(zfix(0),(distance(x,y,HeroX(),HeroY())-128)/10));
+				z+=int32_t(step*zc_max(0_zf,(distance(x,y,HeroX(),HeroY())-128)/10));
 			}
 		}
 		else
@@ -11995,14 +11995,14 @@ bool eKeese::animate(int32_t index)
 			{
 				fakez=int32_t(step/zslongToFix(dstep*100));
 				// Some variance in keese flight heights when away from Hero
-				fakez+=int32_t(step*zc_max(zfix(0),(distance(x,y,HeroX(),HeroY())-40)/4));
+				fakez+=int32_t(step*zc_max(0_zf,(distance(x,y,HeroX(),HeroY())-40)/4));
 
 			}
 			else
 			{
 				z=int32_t(step/zslongToFix(dstep*100));
 				// Some variance in keese flight heights when away from Hero
-				z+=int32_t(step*zc_max(zfix(0),(distance(x,y,HeroX(),HeroY())-40)/4));
+				z+=int32_t(step*zc_max(0_zf,(distance(x,y,HeroX(),HeroY())-40)/4));
 			}
 		}
 	}
@@ -13246,11 +13246,11 @@ bool eGohma::animate(int32_t index)
 		if (ffcactivated) removearmosffc(ffcactivated-1);
 		else
 		{
-			removearmos(zc_max(x-16, zfix(0)),y);
+			removearmos(zc_max(x-16, 0_zf),y);
 			did_armos = false;
 			removearmos(x,y);
 			did_armos = false;
-			removearmos(zc_min(x+16, zfix(255)),y);
+			removearmos(zc_min(x+16, 255_zf),y);
 		}
 	}
 	
@@ -15088,7 +15088,8 @@ bool eManhandla::animate(int32_t index)
 	else
 	{
 		// Speed starts at 0.5, and increases by 0.5 for each head lost. Max speed is 4.5.
-		step=zc_min(zfix(4.5),(((!dmisc2)?4:8)-int64_t(armcnt))*0.5+zslongToFix(dstep*100));
+		step=((dmisc2 ? 8_zf : 4_zf) - armcnt) * (0.5_zf+(dstep*100));
+		if (step > 4.5_zf) step = 4.5_zf;
 		int32_t dx1=0, dy1=-8, dx2=15, dy2=15;
 		
 		if(!dmisc2)
@@ -17499,7 +17500,7 @@ void addguy(int32_t x,int32_t y,int32_t id,int32_t clk,bool mainguy,mapscr* pare
 
 void additem(int32_t x,int32_t y,int32_t id,int32_t pickup)
 {
-	item *i = new item(zfix(x), zfix(y - get_qr(qr_NOITEMOFFSET)), zfix(0), id, pickup, 0);
+	item *i = new item(zfix(x), zfix(y - get_qr(qr_NOITEMOFFSET)), 0_zf, id, pickup, 0);
 	items.add(i);
 }
 

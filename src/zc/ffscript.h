@@ -4996,7 +4996,9 @@ enum ASM_DEFINE
 #define MAPDATASCRDATASIZE      0x1592
 #define MAPDATASCRDATA          0x1593
 
-#define NUMVARIABLES            0x1594
+#define HEROSHOVEOFFSET         0x1594
+
+#define NUMVARIABLES            0x1595
 
 //} End variables
 

@@ -296,8 +296,8 @@ void HeroClass::set_respawn_point(bool setwarp)
 	zfix oldx = x, oldy = y;
 	if (replay_version_check(17))
 	{
-		x = vbound(x,0,240);
-		y = vbound(y,0,160);
+		x = vbound(x,0_zf,240_zf);
+		y = vbound(y,0_zf,160_zf);
 	}
 	
 	if(setwarp)
@@ -1048,7 +1048,7 @@ void HeroClass::setZfix(zfix new_z)
         }
     }
     
-    z=(new_z>0 ? new_z : zfix(0));
+    z=(new_z>0 ? new_z : 0_zf);
 }
 
 void HeroClass::setFakeZfix(zfix new_z)
@@ -1090,7 +1090,7 @@ void HeroClass::setFakeZfix(zfix new_z)
         }
     }
     
-    fakez=(new_z>0 ? new_z : zfix(0));
+    fakez=(new_z>0 ? new_z : 0_zf);
 }
 
 void HeroClass::setFall(zfix new_fall)
@@ -1496,6 +1496,7 @@ void HeroClass::init()
     warp_sound = 0;
     subscr_speed = zinit.subscrSpeed;
 	steprate = zinit.heroStep;
+	shove_offset = zinit.shove_offset;
 	is_warping = false;
 	coyotetime = 0;
 	
@@ -8558,7 +8559,7 @@ heroanimate_skip_liftwpn:;
 														}
 													}
 													
-													breakable* br = new breakable(x, y, zfix(0),
+													breakable* br = new breakable(x, y, 0_zf,
 														cmb, scr->cset[targpos], it, thedropset, cmb.attribytes[2],
 														cmb.attribytes[1] ? -1 : 0, cmb.attribytes[1], switchhookclk);
 													br->switch_hooked = true;
@@ -8686,7 +8687,7 @@ heroanimate_skip_liftwpn:;
 														: ((cmb.usrflags & cflag1) ? -1
 														: -2))));
 												
-												breakable* br = new breakable(x, y, zfix(0),
+												breakable* br = new breakable(x, y, 0_zf,
 													cmb, breakcs, it, thedropset, breaksfx,
 													decotype, cmb.attribytes[0], switchhookclk);
 												br->switch_hooked = true;
@@ -11396,8 +11397,8 @@ bool HeroClass::startwpn(int32_t itemid)
 				
 				if(((DMaps[currdmap].flags&dmfWHIRLWIND && TriforceCount()) || DMaps[currdmap].flags&dmfWHIRLWINDRET) &&
 						itm.misc2 >= 0 && itm.misc2 <= 8 && !whistleflag)
-					Lwpns.add(new weapon((zfix)(where==left?zfix(240):where==right?zfix(0):x),
-				(zfix)(where==down?zfix(0):where==up?zfix(160):y),
+					Lwpns.add(new weapon((zfix)(where==left?240_zf:where==right?0_zf:x),
+				(zfix)(where==down?0_zf:where==up?160_zf:y),
 				(zfix)0,
 				wWind,
 				0, //type
@@ -14586,8 +14587,8 @@ void HeroClass::moveheroOld()
 							
 							if (ty < 0 && !bigHitbox) //sanity check for up scroll
 							{
-								info = info || walkflag(x, zfix(0), 2, up);
-								info = info || walkflag(x+15, zfix(0), 1, up);
+								info = info || walkflag(x, 0_zf, 2, up);
+								info = info || walkflag(x+15, 0_zf, 1, up);
 							}
 							info = info || walkflagMBlock(x+15, (bigHitbox?0:8) + ty);
 								
@@ -15066,8 +15067,8 @@ void HeroClass::moveheroOld()
 								
 								if (ty < 0 && !bigHitbox) //sanity check for up scroll
 								{
-									info = info || walkflag(x, zfix(0), 2, up);
-									info = info || walkflag(x+15, zfix(0), 1, up);
+									info = info || walkflag(x, 0_zf, 2, up);
+									info = info || walkflag(x+15, 0_zf, 1, up);
 								}
 								info = info || walkflagMBlock(x+15, (bigHitbox?0:8) + ty);
 									
@@ -15097,8 +15098,8 @@ void HeroClass::moveheroOld()
 								
 										if (ty < 0 && !bigHitbox) //sanity check for up scroll
 										{
-											info = info || walkflag(tx, zfix(0), 1, up);
-											info = info || walkflag(tx+15, zfix(0), 1, up);
+											info = info || walkflag(tx, 0_zf, 1, up);
+											info = info || walkflag(tx+15, 0_zf, 1, up);
 										}
 										info = info || walkflagMBlock(tx+15, (bigHitbox?0:8) + ty);
 										
@@ -15300,8 +15301,8 @@ void HeroClass::moveheroOld()
 								
 								if (ty < 0 && !bigHitbox) //sanity check for up scroll
 								{
-									info = info || walkflag(x, zfix(0), 2, up);
-									info = info || walkflag(x+15, zfix(0), 1, up);
+									info = info || walkflag(x, 0_zf, 2, up);
+									info = info || walkflag(x+15, 0_zf, 1, up);
 								}
 								info = info || walkflagMBlock(x+15, (bigHitbox?0:8) + ty);
 								
@@ -15331,8 +15332,8 @@ void HeroClass::moveheroOld()
 								
 										if (ty < 0 && !bigHitbox) //sanity check for up scroll
 										{
-											info = info || walkflag(tx, zfix(0), 1, up);
-											info = info || walkflag(tx+15, zfix(0), 1, up);
+											info = info || walkflag(tx, 0_zf, 1, up);
+											info = info || walkflag(tx+15, 0_zf, 1, up);
 										}
 										info = info || walkflagMBlock(tx+15, (bigHitbox?0:8) + ty);
 										execute(info);
@@ -17189,10 +17190,10 @@ LEFTRIGHT_OLDMOVE:
 	}
 }
 
-bool HeroClass::scr_walkflag(zfix zdx,zfix zdy,int d2,bool kb)
+bool HeroClass::scr_walkflag(zfix_round zdx,zfix_round zdy,int d2,bool kb)
 {
 	if(toogam) return false;
-	int dx = zdx.getFloor(), dy = zdy.getFloor();
+	int dx = zdx.getRound(), dy = zdy.getRound();
 	
 	if(blockpath && dy<80) //Blocked top parts of rooms
 		return true;
@@ -17453,7 +17454,7 @@ bool HeroClass::scr_canmove(zfix dx, zfix dy, bool kb, bool ign_sv)
 	if(toogam) return true;
 	if(!(dx || dy)) return true;
 	zfix bx = x, by = y+(bigHitbox?0:8); //left/top
-	zfix rx = x+15, ry = y+15; //right/bottom
+	zfix rx = x+15.9999_zf, ry = y+15.9999_zf; //right/bottom
 	zfix wid = 16, hei = bigHitbox ? 16 : 8;
 	if(!ign_sv && dy < 0 && sideview_mode() && !getOnSideviewLadder() && action != sideswimming && action != sideswimhit && action != sideswimattacking)
 		return false;
@@ -17464,27 +17465,27 @@ bool HeroClass::scr_canmove(zfix dx, zfix dy, bool kb, bool ign_sv)
 	{
 		if(dx < 0)
 		{
-			int mx = (bx+dx).getFloor();
+			zfix mx = bx+dx;
 			for(zfix ty = 0; by+ty < ry; ty += 8)
 			{
 				if(scr_walkflag(mx, by+ty, left, kb))
 					return false;
 			}
-			if(scr_walkflag(mx, ry, left, kb))
+			if(scr_walkflag(mx.rnd(ROUND_CEIL), ry.rnd(ROUND_CEIL), left, kb))
 				return false;
 			if(nosolid && collide_object(bx+dx,by,-dx,hei,this))
 				return false;
 		}
 		else
 		{
-			int mx = (rx+dx).getCeil();
+			zfix mx = rx+dx;
 			int lx = mx-hit_width+1;
 			for(zfix ty = 0; by+ty < ry; ty += 8)
 			{
 				if(scr_walkflag(mx, by+ty, right, kb))
 					return false;
 			}
-			if(scr_walkflag(mx, ry, right, kb))
+			if(scr_walkflag(mx.rnd(ROUND_CEIL), ry.rnd(ROUND_CEIL), right, kb))
 				return false;
 			if(nosolid && collide_object(bx+wid,by,dx,hei,this))
 				return false;
@@ -17494,27 +17495,27 @@ bool HeroClass::scr_canmove(zfix dx, zfix dy, bool kb, bool ign_sv)
 	{
 		if(dy < 0)
 		{
-			int my = (by+dy).getFloor();
+			zfix my = by+dy;
 			for(zfix tx = 0; bx+tx < rx; tx += 8)
 			{
 				if(scr_walkflag(bx+tx, my, up, kb))
 					return false;
 			}
-			if(scr_walkflag(rx, my, up, kb))
+			if(scr_walkflag(rx.rnd(ROUND_CEIL), my.rnd(ROUND_CEIL), up, kb))
 				return false;
 			if(nosolid && collide_object(bx,by+dy,wid,-dy,this))
 				return false;
 		}
 		else
 		{
-			int my = (ry+dy).getCeil();
+			zfix my = ry+dy;
 			int ly = my-hit_height+1;
 			for(zfix tx = 0; bx+tx < rx; tx += 8)
 			{
 				if(scr_walkflag(bx+tx, my, down, kb))
 					return false;
 			}
-			if(scr_walkflag(rx, my, down, kb))
+			if(scr_walkflag(rx.rnd(ROUND_CEIL), my.rnd(ROUND_CEIL), down, kb))
 				return false;
 			if(nosolid && collide_object(bx,by+hei,wid,dy,this))
 				return false;
@@ -17568,32 +17569,105 @@ zfix handle_movestate_zfix(std::function<zfix()> proc)
 
 optional<zfix> HeroClass::get_solid_coord(zfix tx, zfix ty, byte dir, byte mdir, bool kb, zfix earlyterm)
 {
-	zfix dx, dy;
+	zfix tmp;
 	switch(dir)
 	{
 		default:
-		case up: dy = zfix(0,-1); break;
-		case down: dy = zfix(0,1); break;
-		case left: dx = zfix(0,-1); break;
-		case right: dx = zfix(0,1); break;
-	}
-	for(int ctr = 0; ctr < 40000; ++ctr)
-	{
-		tx += dx;
-		ty += dy;
-		if((dx ? tx : ty) == earlyterm)
+		case up:
+			tmp = binary_search_zfix(ty, earlyterm, [&](zfix ty, zfix& retval)
+				{
+					if(!scr_walkflag(tx,ty,mdir,kb))
+					{
+						retval = ty;
+						return BSEARCH_CONTINUE_UP;
+					}
+					else return BSEARCH_CONTINUE_DOWN;
+				}, -999);
+			if(tmp > -999)
+				tmp -= 15.9999_zf;
 			break;
-		if(!scr_walkflag(tx,ty,mdir,kb))
+		case down:
+			tmp = binary_search_zfix(ty, earlyterm, [&](zfix ty, zfix& retval)
+				{
+					if(!scr_walkflag(tx,ty,mdir,kb))
+					{
+						retval = ty;
+						return BSEARCH_CONTINUE_DOWN;
+					}
+					else return BSEARCH_CONTINUE_UP;
+				}, -999);
+			if(tmp > -999)
+				tmp -= (bigHitbox?0:8);
+			break;
+		case left:
+			tmp = binary_search_zfix(tx, earlyterm, [&](zfix tx, zfix& retval)
+				{
+					if(!scr_walkflag(tx,ty,mdir,kb))
+					{
+						retval = tx;
+						return BSEARCH_CONTINUE_UP;
+					}
+					else return BSEARCH_CONTINUE_DOWN;
+				}, -999);
+			if(tmp > -999)
+				tmp -= 15.9999_zf;
+			break;
+		case right:
+			tmp = binary_search_zfix(tx, earlyterm, [&](zfix tx, zfix& retval)
+				{
+					if(!scr_walkflag(tx,ty,mdir,kb))
+					{
+						retval = tx;
+						return BSEARCH_CONTINUE_DOWN;
+					}
+					else return BSEARCH_CONTINUE_UP;
+				}, -999);
+			break;
+	}
+	if(tmp > -999)
+	{
+		zfix tx2(x), ty2(y);
+		zfix dx, dy;
+		switch(dir)
 		{
-			switch(dir)
-			{
-				default:
-				case up: return ty-dy-16;
-				case down: return ty-(bigHitbox?0:8);
-				case left: return tx-dx-16;
-				case right: return tx;
-			}
+			case left:
+				tx2 = tmp;
+				break;
+			case right:
+				tx2 = tmp;
+				break;
+			default:
+			case up:
+				ty2 = tmp;
+				break;
+			case down:
+				ty2 = tmp;
+				break;
 		}
+		switch(mdir)
+		{
+			case left:
+				dx = -0.0001_zf;
+				break;
+			case right:
+				dx = 0.0001_zf;
+				break;
+			default:
+			case up:
+				dy = -0.0001_zf;
+				break;
+			case down:
+				dy = 0.0001_zf;
+				break;
+		}
+		zfix oldx(x), oldy(y);
+		x = tx2;
+		y = ty2;
+		bool valid = scr_canmove(dx, dy, kb, true);
+		x = oldx;
+		y = oldy;
+		if(valid)
+			return tmp;
 	}
 	return std::nullopt;
 }
@@ -17648,38 +17722,41 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 			if(shove)
 			{
 				zfix tx = (dx < 0 ? (x-1) : (x+16));
-				auto mdir = GET_XDIR(dx);
 				int v=bigHitbox?0:8;
-				bool hit_top = scr_walkflag(tx,y+v,mdir,false);
-				bool hit_mid = scr_walkflag(tx,y+v+4,mdir,false)
-					|| scr_walkflag(tx,y+zfix(15,9999)-4,mdir,false);
-				bool hit_bottom = scr_walkflag(tx,y+zfix(15,9999),mdir,false);
-				if(!hit_mid && (hit_top!=hit_bottom))
+				zfix ly = y+v;
+				zfix ry = y+15.9999_zf;
+				auto mdir = GET_XDIR(dx);
+				bool hit_top = scr_walkflag(tx.rnd(RoundDir(dx)),ly,mdir,false);
+				bool hit_bottom = scr_walkflag(tx.rnd(RoundDir(dx)),ry.rnd(ROUND_CEIL),mdir,false);
+				if(hit_top!=hit_bottom)
 				{
+					bool shoved = false;
 					if(hit_bottom) //shove up
 					{
 						if(skipdmg || !checkdamagecombos(tx,get_qr(qr_SENSITIVE_SOLID_DAMAGE)?int32_t(y+15):(v+bigHitbox?11:4)))
 						{
-							zfix dy = -1;
-							if(!scr_walkflag(tx,y+14,mdir,false)) //Shove past the corner
-								if(optional<zfix> ty = get_solid_coord(tx,y+zfix(15,9999),up,mdir,false,y+14))
-									dy = *ty-y;
-							movexy(0, dy, kb, true, false, false);
+							if(optional<zfix> ty = get_solid_coord(tx,ry,up,mdir,false,ry-shove_offset))
+							{
+								zfix dy = zc_max(-1_zf,*ty-y);
+								if((shoved = dy))
+									movexy(0, dy, kb, true, false, false);
+							}
 						}
 					}
 					else //shove down
 					{
 						if(skipdmg || !checkdamagecombos(tx,v+(get_qr(qr_SENSITIVE_SOLID_DAMAGE)?0:4)))
 						{
-							zfix dy = 1;
-							if(!scr_walkflag(tx,y+v+1,mdir,false)) //Shove past the corner
-								if(optional<zfix> ty = get_solid_coord(tx,y+v,down,mdir,false,y+v+1))
-									dy = *ty-y;
-							movexy(0, dy, kb, true, false, false);
+							if(optional<zfix> ty = get_solid_coord(tx,ly,down,mdir,false,ly+shove_offset))
+							{
+								zfix dy = zc_min(1_zf,*ty-y);
+								if((shoved = dy))
+									movexy(0, dy, kb, true, false, false);
+							}
 						}
 					}
 					
-					if(scr_canmove(dx, 0, kb, ign_sv))
+					if(shoved && scr_canmove(dx, 0, kb, ign_sv))
 					{
 						x += dx;
 						stopped = false;
@@ -17721,37 +17798,40 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 			if(shove)
 			{
 				zfix ty = (dy < 0 ? (y+(bigHitbox?0:8)-1) : (y+16));
+				zfix lx = x;
+				zfix rx = x+15.9999_zf;
 				auto mdir = GET_YDIR(dy);
-				bool hit_left = scr_walkflag(x,ty,mdir,false);
-				bool hit_mid = scr_walkflag(x+4,ty,mdir,false)
-					|| scr_walkflag(x+zfix(15,9999)-4,ty,mdir,false);
-				bool hit_right = scr_walkflag(x+zfix(15,9999),ty,mdir,false);
-				if(!hit_mid && (hit_left!=hit_right))
+				bool hit_left = scr_walkflag(lx,ty.rnd(RoundDir(dy)),mdir,false);
+				bool hit_right = scr_walkflag(rx.rnd(ROUND_CEIL),ty.rnd(RoundDir(dy)),mdir,false);
+				if(hit_left!=hit_right)
 				{
+					bool shoved = false;
 					if(hit_right) //shove left
 					{
 						if(skipdmg || !checkdamagecombos(x+(get_qr(qr_SENSITIVE_SOLID_DAMAGE)?15:11),ty))
 						{
-							zfix dx = -1;
-							if(!scr_walkflag(x+14,ty,mdir,false)) //Shove past the corner
-								if(optional<zfix> tx = get_solid_coord(x+zfix(15,9999),ty,left,mdir,false,x+14))
-									dx = *tx-x;
-							movexy(dx, 0, kb, true, false, false);
+							if(optional<zfix> tx = get_solid_coord(rx,ty,left,mdir,false,rx-shove_offset))
+							{
+								zfix dx = zc_max(-1_zf,*tx-x);
+								if((shoved = dx))
+									movexy(dx, 0, kb, true, false, false);
+							}
 						}
 					}
 					else //shove right
 					{
 						if(skipdmg || !checkdamagecombos(x+(get_qr(qr_SENSITIVE_SOLID_DAMAGE)?0:4),ty))
 						{
-							zfix dx = 1;
-							if(!scr_walkflag(x+1,ty,mdir,false)) //Shove past the corner
-								if(optional<zfix> tx = get_solid_coord(x,ty,right,mdir,false,x+1))
-									dx = *tx-x;
-							movexy(dx, 0, kb, true, false, false);
+							if(optional<zfix> tx = get_solid_coord(lx,ty,right,mdir,false,lx+shove_offset))
+							{
+								zfix dx = zc_min(1_zf,*tx-x);
+								if((shoved = dx))
+									movexy(dx, 0, kb, true, false, false);
+							}
 						}
 					}
 					
-					if(scr_canmove(0, dy, kb, ign_sv))
+					if(shoved && scr_canmove(0, dy, kb, ign_sv))
 					{
 						y += dy;
 						stopped = false;
@@ -19309,7 +19389,7 @@ void HeroClass::moveOld2(int32_t d2, int32_t forceRate)
 			}
 			else
 			{
-				sprite::move(zfix(0), zfix(-1*dy));
+				sprite::move(0_zf, zfix(-1*dy));
 			}
 		}
 	}
@@ -27232,8 +27312,8 @@ int32_t HeroClass::lookahead(int32_t d2)                       // Helper for scr
     // Can use destscr for scrolling warps,
     // but assumes currmap is correct.
     
-	int32_t cx = vbound(x,0,240); //var = vbound(val, n1, n2), not bound(var, n1, n2) -Z
-	int32_t cy = vbound(y + 8,0,160);
+	int32_t cx = vbound(x,0_zf,240_zf); //var = vbound(val, n1, n2), not bound(var, n1, n2) -Z
+	int32_t cy = vbound(y + 8,0_zf,160_zf);
 	//bound(cx, 0, 240); //Fix crash during screen scroll when Hero is moving too quickly through a corner - DarkDragon
 	//bound(cy, 0, 168); //Fix crash during screen scroll when Hero is moving too quickly through a corner - DarkDragon
 	//y+8 could be 168 //Attempt to fix a frash where scrolling through the lower-left corner could crassh ZC as reported by Lut. -Z
@@ -27270,8 +27350,8 @@ int32_t HeroClass::lookaheadflag(int32_t d2)
     // Can use destscr for scrolling warps,
     // but assumes currmap is correct.
     
-    int32_t cx = vbound(x,0,240);
-    int32_t cy = vbound(y + 8,0,160);
+    int32_t cx = vbound(x,0_zf,240_zf);
+    int32_t cy = vbound(y + 8,0_zf,160_zf);
 	
 	//bound(cx, 0, 240); //Fix crash during screen scroll when Hero is moving too quickly through a corner - DarkDragon
 	//bound(cy, 0, 168); //Fix crash during screen scroll when Hero is moving too quickly through a corner - DarkDragon
@@ -27871,12 +27951,12 @@ void HeroClass::scrollscr(int32_t scrolldir, int32_t destscr, int32_t destdmap)
 	// change Hero's state if entering water
 	int32_t ahead = lookahead(scrolldir);
 	int32_t aheadflag = lookaheadflag(scrolldir);
-	int32_t lookaheadx = vbound(x+8,0,240); //var = vbound(val, n1, n2), not bound(var, n1, n2) -Z
-	int32_t lookaheady = vbound(y + (bigHitbox?8:12),0,160);
-	int32_t wateraheadx1 = vbound(x+4,0,240);
-	int32_t wateraheadx2 = vbound(x+11,0,240);;
-	int32_t wateraheady1 = vbound(y+9,0,160);
-	int32_t wateraheady2 = vbound(y+15,0,160);
+	int32_t lookaheadx = vbound(x+8,0_zf,240_zf); //var = vbound(val, n1, n2), not bound(var, n1, n2) -Z
+	int32_t lookaheady = vbound(y + (bigHitbox?8:12),0_zf,160_zf);
+	int32_t wateraheadx1 = vbound(x+4,0_zf,240_zf);
+	int32_t wateraheadx2 = vbound(x+11,0_zf,240_zf);
+	int32_t wateraheady1 = vbound(y+9,0_zf,160_zf);
+	int32_t wateraheady2 = vbound(y+15,0_zf,160_zf);
 		//bound(cx, 0, 240); //Fix crash during screen scroll when Hero is moving too quickly through a corner - DarkDragon
 		//bound(cy, 0, 168); //Fix crash during screen scroll when Hero is moving too quickly through a corner - DarkDragon
 		//y+8 could be 168 //Attempt to fix a frash where scrolling through the lower-left corner could crassh ZC as reported by Lut. -Z

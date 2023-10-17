@@ -20845,6 +20845,9 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 					return qe_invalid;
 		}
 	}
+	if (s_version > 35)
+		if(!p_igetzf(&temp_zinit.shove_offset,f))
+			return qe_invalid;
 
 	if (should_skip)
 		return 0;

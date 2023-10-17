@@ -2,6 +2,7 @@
 #define _GENERAL_H_
 
 #include "base/ints.h"
+#include "base/zfix.h"
 
 int32_t get_bit(byte const* bitstr,int32_t bit);
 void set_bit(byte *bitstr,int32_t bit,byte val);
@@ -9,21 +10,22 @@ bool toggle_bit(byte *bitstr,int32_t bit);
 int32_t get_bitl(int32_t bitstr,int32_t bit);
 void set_bitl(int32_t bitstr,int32_t bit,byte val);
 
-int32_t vbound(int32_t val, int32_t low, int32_t high);
-double vbound(double val, double low, double high);
-
 template <class T>
-static inline T sign(T a)
+static constexpr inline T sign(T a)
 {
     return T(a < 0 ? -1: 1);
 }
 template <class T>
-static inline void zc_swap(T &a,T &b)
+static constexpr inline void zc_swap(T &a,T &b)
 {
     T c = a;
     a = b;
     b = c;
 }
+int vbound(int val, int low, int high);
+double vbound(double val, double low, double high);
+zfix vbound(zfix val, zfix low, zfix high);
+
 #define zc_max(a,b) (((a) < (b)) ? (b) : (a))
 #define zc_min(a,b) (((a) < (b)) ? (a) : (b))
 #define SETFLAG(v, fl, b)	if(b) v |= (fl); else v &= ~(fl)

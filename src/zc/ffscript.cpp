@@ -4042,6 +4042,9 @@ int32_t get_register(const int32_t arg)
 		case HEROSTEPRATE:
 			ret = Hero.getStepRate() * 10000;
 			break;
+		case HEROSHOVEOFFSET:
+			ret = Hero.shove_offset.getZLong();
+			break;
 			
 		case LINKEQUIP:
 			ret = ((Awpn&0xFF)|((Bwpn&0xFF)<<8))*10000;
@@ -16186,6 +16189,13 @@ void set_register(int32_t arg, int32_t value)
 			if(!get_qr(qr_SCRIPT_WRITING_HEROSTEP_DOESNT_CARRY_OVER))
 				zinit.heroStep = Hero.getStepRate();
 			break;
+		case HEROSHOVEOFFSET:
+			if(!get_qr(qr_NEW_HERO_MOVEMENT2))
+				Z_scripterrlog("To use 'Hero->ShoveOffset', you must enable the quest rule 'Newer Player Movement'.");
+			Hero.shove_offset = vbound(zslongToFix(value),16_zf,0_zf);
+			if(!get_qr(qr_SCRIPT_WRITING_HEROSTEP_DOESNT_CARRY_OVER))
+				zinit.shove_offset = Hero.shove_offset;
+			break;
 		
 		case LINKITEMD:
 		{
@@ -16893,14 +16903,14 @@ void set_register(int32_t arg, int32_t value)
 		case HERORESPAWNX:
 		{
 			zfix zx = zslongToFix(value);
-			Hero.respawn_x = vbound(zx, 0, 240);
+			Hero.respawn_x = vbound(zx, 0_zf, 240_zf);
 			break;
 		}
 		
 		case HERORESPAWNY:
 		{
 			zfix zy = zslongToFix(value);
-			Hero.respawn_y = vbound(zy, 0, 160);
+			Hero.respawn_y = vbound(zy, 0_zf, 160_zf);
 			break;
 		}
 		
@@ -18779,7 +18789,7 @@ void set_register(int32_t arg, int32_t value)
 			if(0!=(s=checkLWpn(ri->lwpn,"Z")))
 			{
 				((weapon*)s)->z=get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
-				if(((weapon*)s)->z < 0) ((weapon*)s)->z = zfix(0);
+				if(((weapon*)s)->z < 0) ((weapon*)s)->z = 0_zf;
 			}
 				
 			break;
@@ -19276,7 +19286,7 @@ void set_register(int32_t arg, int32_t value)
 			if(0!=(s=checkLWpn(ri->lwpn,"FakeZ")))
 			{
 				((weapon*)s)->fakez=get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
-				if(((weapon*)s)->fakez < 0) ((weapon*)s)->fakez = zfix(0);
+				if(((weapon*)s)->fakez < 0) ((weapon*)s)->fakez = 0_zf;
 			}
 				
 			break;
@@ -19437,7 +19447,7 @@ void set_register(int32_t arg, int32_t value)
 			if(0!=(s=checkEWpn(ri->ewpn,"Z")))
 			{
 				((weapon*)s)->z=get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
-				if(((weapon*)s)->z < 0) ((weapon*)s)->z = zfix(0);
+				if(((weapon*)s)->z < 0) ((weapon*)s)->z = 0_zf;
 			}
 				
 			break;
@@ -19904,7 +19914,7 @@ void set_register(int32_t arg, int32_t value)
 			if(0!=(s=checkEWpn(ri->ewpn,"FakeZ")))
 			{
 				((weapon*)s)->fakez=get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
-				if(((weapon*)s)->fakez < 0) ((weapon*)s)->fakez = zfix(0);
+				if(((weapon*)s)->fakez < 0) ((weapon*)s)->fakez = 0_zf;
 			}
 				
 			break;
@@ -20127,7 +20137,7 @@ void set_register(int32_t arg, int32_t value)
 				if(!never_in_air(GuyH::getNPC()->id))
 				{
 					if(value < 0)
-						GuyH::getNPC()->z = zfix(0);
+						GuyH::getNPC()->z = 0_zf;
 					else
 						GuyH::getNPC()->z = get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
 						
@@ -20833,7 +20843,7 @@ void set_register(int32_t arg, int32_t value)
 					if(!never_in_air(GuyH::getNPC()->id))
 					{
 						if(value < 0)
-							GuyH::getNPC()->fakez = zfix(0);
+							GuyH::getNPC()->fakez = 0_zf;
 						else
 							GuyH::getNPC()->fakez = get_qr(qr_SPRITEXY_IS_FLOAT) ? zslongToFix(value) : zfix(value/10000);
 							
@@ -48135,6 +48145,8 @@ script_variable ZASMVars[]=
 	{ "SCREENSCRDATA", SCREENSCRDATA, 0, 0 },
 	{ "MAPDATASCRDATASIZE", MAPDATASCRDATASIZE, 0, 0 },
 	{ "MAPDATASCRDATA", MAPDATASCRDATA, 0, 0 },
+
+	{ "HEROSHOVEOFFSET", HEROSHOVEOFFSET, 0, 0 },
 
 	{ " ", -1, 0, 0 }
 };

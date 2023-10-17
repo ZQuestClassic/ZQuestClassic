@@ -467,6 +467,7 @@ set(zcbase_sources
 	src/base/zc_alleg.cpp
 	src/base/zc_math.cpp
 	src/base/zdefs.cpp
+	src/base/zfix.cpp
 	src/base/zsys.cpp
 )
 if (EMSCRIPTEN)

@@ -3,7 +3,7 @@
 
 #include "base/zdefs.h"
 #include "base/cpos_info.h"
-#include "zfix.h"
+#include "base/zfix.h"
 #include "solidobject.h"
 
 //x = ffx
