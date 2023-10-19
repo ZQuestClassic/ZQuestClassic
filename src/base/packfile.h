@@ -503,6 +503,191 @@ INLINE bool p_getstr(std::string *str, size_t sz, PACKFILE *f)
 	return true;
 }
 
+INLINE bool p_getcstr(std::string *str, PACKFILE *f);
+INLINE bool p_putcstr(std::string const& str, PACKFILE *f);
+INLINE bool p_getwstr(std::string *str, PACKFILE *f);
+INLINE bool p_putwstr(std::string const& str, PACKFILE *f);
+template<typename T>
+INLINE bool p_getcvec(std::vector<T> *vec, PACKFILE *f);
+template<typename T>
+INLINE bool p_putcvec(std::vector<T> const& vec, PACKFILE *f);
+template<typename T>
+INLINE bool p_getwvec(std::vector<T> *vec, PACKFILE *f);
+template<typename T>
+INLINE bool p_putwvec(std::vector<T> const& vec, PACKFILE *f);
+template<typename T>
+INLINE bool p_getlvec(std::vector<T> *vec, PACKFILE *f);
+template<typename T>
+INLINE bool p_putlvec(std::vector<T> const& vec, PACKFILE *f);
+
+template<typename Sz,typename T>
+INLINE bool p_getbvec(bounded_vec<Sz,T> *cont, PACKFILE *f);
+template<typename Sz,typename T>
+INLINE bool p_putbvec(bounded_vec<Sz,T> const& cont, PACKFILE *f);
+template<typename Sz,typename T>
+INLINE bool p_getbmap(bounded_map<Sz,T> *cont, PACKFILE *f);
+template<typename Sz,typename T>
+INLINE bool p_putbmap(bounded_map<Sz,T> const& cont, PACKFILE *f);
+
+template<typename T>
+INLINE bool p_getvar(T* ptr, PACKFILE *f)
+{
+	switch(auto sz = sizeof(T))
+	{
+		case 1:
+			return p_getc(ptr,f);
+		case 2:
+			return p_igetw(ptr,f);
+		case 4:
+			return p_igetl(ptr,f);
+		default:
+			return pfread((char*)ptr,sz,f);
+	}
+}
+
+template<typename T>
+INLINE bool p_putvar(T const& ptr, PACKFILE *f)
+{
+	switch(auto sz = sizeof(T))
+	{
+		case 1:
+			return p_putc(ptr,f);
+		case 2:
+			return p_iputw(ptr,f);
+		case 4:
+			return p_iputl(ptr,f);
+		default:
+			return pfwrite((char const*)&ptr,sz,f);
+	}
+}
+
+
+template<typename Sz,typename T>
+INLINE bool p_getvar(bounded_vec<Sz,T>* ptr, PACKFILE *f)
+{
+	return p_getbvec(ptr,f);
+}
+template<typename Sz,typename T>
+INLINE bool p_putvar(bounded_vec<Sz,T> const& ptr, PACKFILE *f)
+{
+	return p_putbvec(ptr,f);
+}
+
+template<typename Sz,typename T>
+INLINE bool p_getvar(bounded_map<Sz,T>* ptr, PACKFILE *f)
+{
+	return p_getbmap(ptr,f);
+}
+template<typename Sz,typename T>
+INLINE bool p_putvar(bounded_map<Sz,T> const& ptr, PACKFILE *f)
+{
+	return p_putbmap(ptr,f);
+}
+
+template<typename T>
+INLINE bool p_getvar(std::vector<T>* ptr, PACKFILE *f)
+{
+	return p_getlvec(ptr,f);
+}
+template<typename T>
+INLINE bool p_putvar(std::vector<T> const& ptr, PACKFILE *f)
+{
+	return p_putlvec(ptr,f);
+}
+
+//
+
+template<typename Sz,typename T>
+INLINE bool p_getbvec(bounded_vec<Sz,T> *cont, PACKFILE *f)
+{
+	cont->clear();
+	Sz sz = 0;
+	if(!p_getvar(&sz,f))
+		return false;
+	cont->resize(sz);
+	if(!p_getvar(&sz,f))
+		return false;
+	if(sz) //cont found
+	{
+		T dummy;
+		for(size_t q = 0; q < sz; ++q)
+		{
+			if(!p_getvar(&dummy,f))
+				return false;
+			(*cont)[q] = dummy;
+		}
+	}
+	return true;
+}
+template<typename Sz,typename T>
+INLINE bool p_putbvec(bounded_vec<Sz,T> const& cont, PACKFILE *f)
+{
+	Sz sz = cont.size();
+	if(!p_putvar(sz,f))
+		return false;
+	sz = cont.capacity();
+	if(!p_putvar(sz,f))
+		return false;
+	if(sz)
+	{
+		for(size_t q = 0; q < sz; ++q)
+		{
+			if(!p_putvar(cont.at(q), f))
+				return false;
+		}
+	}
+	return true;
+}
+
+template<typename Sz,typename T>
+INLINE bool p_getbmap(bounded_map<Sz,T> *cont, PACKFILE *f)
+{
+	cont->clear();
+	Sz sz = 0;
+	if(!p_getvar(&sz,f))
+		return false;
+	cont->resize(sz);
+	if(sz) //cont found
+	{
+		Sz k;
+		T v;
+		while(true)
+		{
+			if(!p_getvar(&k,f))
+				return false;
+			if(k >= sz) break;
+			if(!p_getvar(&v,f))
+				return false;
+			cont[k] = v;
+		}
+	}
+	return true;
+}
+template<typename Sz,typename T>
+INLINE bool p_putbmap(bounded_map<Sz,T> const& cont, PACKFILE *f)
+{
+	Sz sz = cont.size();
+	if(!p_putvar(sz,f))
+		return false;
+	if(sz)
+	{
+		T dt;
+		for(auto [k,v] : cont.inner())
+		{
+			if(k >= sz || v == dt) continue;
+			if(!p_putvar(k, f))
+				return false;
+			if(!p_putvar(v, f))
+				return false;
+		}
+		if(!p_putvar(sz, f))
+			return false;
+	}
+	return true;
+}
+
+//
+
 // Reads `sz` bytes from `f` into `str`.
 // `str` should be `sz + 1` bytes long.
 // `str` will always be a null-terminated string.
@@ -597,7 +782,7 @@ INLINE bool p_getcvec(std::vector<T> *vec, PACKFILE *f)
 		T dummy;
 		for(size_t q = 0; q < sz; ++q)
 		{
-			if(!pfread(&dummy,sizeof(T),f))
+			if(!p_getvar(&dummy,f))
 				return false;
 			vec->push_back(dummy);
 		}
@@ -614,7 +799,7 @@ INLINE bool p_putcvec(std::vector<T> const& vec, PACKFILE *f)
 	{
 		for(size_t q = 0; q < sz; ++q)
 		{
-			if(!pfwrite(&(vec.at(q)),sizeof(T),f))
+			if(!p_putvar(vec.at(q), f))
 				return false;
 		}
 	}
@@ -632,7 +817,7 @@ INLINE bool p_getwvec(std::vector<T> *vec, PACKFILE *f)
 		T dummy;
 		for(size_t q = 0; q < sz; ++q)
 		{
-			if(!pfread(&dummy,sizeof(T),f))
+			if(!p_getvar(&dummy,f))
 				return false;
 			vec->push_back(dummy);
 		}
@@ -649,7 +834,7 @@ INLINE bool p_putwvec(std::vector<T> const& vec, PACKFILE *f)
 	{
 		for(size_t q = 0; q < sz; ++q)
 		{
-			if(!pfwrite(&(vec.at(q)),sizeof(T),f))
+			if(!p_putvar(vec.at(q), f))
 				return false;
 		}
 	}
@@ -667,7 +852,7 @@ INLINE bool p_getlvec(std::vector<T> *vec, PACKFILE *f)
 		T dummy;
 		for(size_t q = 0; q < sz; ++q)
 		{
-			if(!pfread(&dummy,sizeof(T),f))
+			if(!p_getvar(&dummy,f))
 				return false;
 			vec->push_back(dummy);
 		}
@@ -684,130 +869,9 @@ INLINE bool p_putlvec(std::vector<T> const& vec, PACKFILE *f)
 	{
 		for(size_t q = 0; q < sz; ++q)
 		{
-			if(!pfwrite((void*)&(vec.at(q)), sizeof(T), f))
+			if(!p_putvar(vec.at(q), f))
 				return false;
 		}
-	}
-	return true;
-}
-
-template<typename T>
-INLINE bool p_getvar(T* ptr, PACKFILE *f)
-{
-	switch(auto sz = sizeof(T))
-	{
-		case 1:
-			return p_getc(ptr,f);
-		case 2:
-			return p_igetw(ptr,f);
-		case 4:
-			return p_igetl(ptr,f);
-		default:
-			return pfread((char const*)ptr,sz,f);
-	}
-}
-
-template<typename T>
-INLINE bool p_putvar(T const& ptr, PACKFILE *f)
-{
-	switch(auto sz = sizeof(T))
-	{
-		case 1:
-			return p_putc(ptr,f);
-		case 2:
-			return p_iputw(ptr,f);
-		case 4:
-			return p_iputl(ptr,f);
-		default:
-			return pfwrite((char const*)&ptr,sz,f);
-	}
-}
-
-template<typename Sz,typename T>
-INLINE bool p_getbvec(bounded_vec<Sz,T> *cont, PACKFILE *f)
-{
-	cont->clear();
-	Sz sz = 0;
-	if(!p_getvar(&sz,f))
-		return false;
-	cont->resize(sz);
-	if(!p_getvar(&sz,f))
-		return false;
-	if(sz) //cont found
-	{
-		T dummy;
-		for(size_t q = 0; q < sz; ++q)
-		{
-			if(!p_getvar(&dummy,f))
-				return false;
-			(*cont)[q] = dummy;
-		}
-	}
-	return true;
-}
-template<typename Sz,typename T>
-INLINE bool p_putbvec(bounded_vec<Sz,T> const& cont, PACKFILE *f)
-{
-	Sz sz = cont.size();
-	if(!p_putvar(sz,f))
-		return false;
-	sz = cont.capacity();
-	if(!p_putvar(sz,f))
-		return false;
-	if(sz)
-	{
-		for(size_t q = 0; q < sz; ++q)
-		{
-			if(!p_putvar(cont.at(q), f))
-				return false;
-		}
-	}
-	return true;
-}
-
-template<typename Sz,typename T>
-INLINE bool p_getbmap(bounded_map<Sz,T> *cont, PACKFILE *f)
-{
-	cont->clear();
-	Sz sz = 0;
-	if(!p_getvar(&sz,f))
-		return false;
-	cont->resize(sz);
-	if(sz) //cont found
-	{
-		Sz k;
-		T v;
-		while(true)
-		{
-			if(!p_getvar(&k,f))
-				return false;
-			if(k >= sz) break;
-			if(!p_getvar(&v,f))
-				return false;
-			cont[k] = v;
-		}
-	}
-	return true;
-}
-template<typename Sz,typename T>
-INLINE bool p_putbmap(bounded_map<Sz,T> const& cont, PACKFILE *f)
-{
-	Sz sz = cont.size();
-	if(!p_putvar(sz,f))
-		return false;
-	if(sz)
-	{
-		T dt;
-		for(auto [k,v] : cont.inner())
-		{
-			if(k >= sz || v == dt) continue;
-			if(!p_putvar(k, f))
-				return false;
-			if(!p_putvar(v, f))
-				return false;
-		}
-		if(!p_putvar(sz, f))
-			return false;
 	}
 	return true;
 }
