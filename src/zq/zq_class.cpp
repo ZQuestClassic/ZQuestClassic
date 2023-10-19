@@ -758,8 +758,6 @@ const char *loaderror[] =
 
 int32_t zmap::load(const char *path)
 {
-	// int32_t size=file_size(path);
-	
 	PACKFILE *f=pack_fopen_password(path,F_READ, "");
 	
 	if(!f)
@@ -790,20 +788,17 @@ int32_t zmap::load(const char *path)
 			al_trace("failed zmap::load\n");
 				goto file_error;
 		}
-		bool copied = false;
 		
 		switch(ImportMapBias)
 		{
 			case 0:
 				*(screens+i) = tmpimportscr;
-				copied = true;
 				break;
 				
 			case 1:
 				if(!(screens[i].valid&mVALID))
 				{
 					*(screens+i) = tmpimportscr;
-					copied = true;
 				}
 				break;
 				
@@ -811,7 +806,6 @@ int32_t zmap::load(const char *path)
 				if(tmpimportscr.valid&mVALID)
 				{
 					*(screens+i) = tmpimportscr;
-					copied = true;
 				}
 				break;
 		}
@@ -819,13 +813,6 @@ int32_t zmap::load(const char *path)
 	
 	
 	pack_fclose(f);
-	
-	if(!(screens[0].valid&mVERSION))
-	{
-		jwin_alert("Confirm Clear All","Clear all?",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-		clearmap(false);
-		return 3;
-	}
 	
 	setCurrScr(0);
 	mmap_mark_dirty();
@@ -843,17 +830,16 @@ int32_t zmap::save(const char *path)
 	
 	if(!f)
 		return 1;
-		
-	int16_t version=ZELDA_VERSION;
-	byte  build=VERSION_BUILD;
 	
-	if(!p_iputw(version,f))
+	if(!p_iputw(V_MAPS,f))
 	{
 		pack_fclose(f);
 		return 3;
 	}
 	
-	if(!p_putc(build,f))
+	// This was the "build number", but that's totally useless here. Keep this junk byte
+	// so as not to totally break exports between ZC versions.
+	if(!p_putc(0,f))
 	{
 		pack_fclose(f);
 		return 3;
