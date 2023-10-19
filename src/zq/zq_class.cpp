@@ -511,6 +511,7 @@ void zmap::setCurrMap(int32_t index)
     loadlvlpal(getcolor());
     
     reset_combo_animations2();
+    mmap_mark_dirty();
 }
 
 int32_t  zmap::getCurrScr()
@@ -546,6 +547,7 @@ void zmap::setCurrScr(int32_t scr)
     
     reset_combo_animations2();
     setlayertarget();
+    mmap_mark_dirty();
 }
 
 void zmap::setlayertarget()
@@ -589,6 +591,8 @@ void zmap::setcolor(int32_t c)
 		Color = c;
 		loadlvlpal(c);
 	}
+
+	mmap_mark_dirty();
 }
 
 int32_t zmap::getcolor()
@@ -741,6 +745,7 @@ void zmap::clearscr(int32_t scr)
 		screens[scr].layermap[q] = layer;
 		screens[scr].layerscreen[q] = layer ? scr : 0;
 	}
+	mmap_mark_dirty();
 }
 
 const char *loaderror[] =
@@ -823,6 +828,7 @@ int32_t zmap::load(const char *path)
 	}
 	
 	setCurrScr(0);
+	mmap_mark_dirty();
 	return 0;
 	
 file_error:

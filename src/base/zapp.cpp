@@ -112,6 +112,15 @@ App get_app_id()
     return app_id;
 }
 
+bool is_web()
+{
+#ifdef __EMSCRIPTEN__
+	return true;
+#else
+	return false;
+#endif
+}
+
 bool is_ci()
 {
 	// Cache the result, so it is not possible to ever change the result of "is_ci()".
