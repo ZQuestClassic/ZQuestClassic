@@ -8,8 +8,8 @@
 
 struct zinit_vectors
 {
-	bounded_vec<uint32_t> screen_dataSize;
-	bounded_vec<std::vector<int32_t>> screen_data;
+	bounded_vec<uint32_t,uint32_t> screen_dataSize;
+	bounded_vec<uint32_t,std::vector<int32_t>> screen_data;
 	zinit_vectors() :
 		screen_dataSize(MAXMAPS*MAPSCRS), screen_data(MAXMAPS*MAPSCRS)
 	{}
