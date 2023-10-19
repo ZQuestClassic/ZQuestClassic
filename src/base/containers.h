@@ -110,14 +110,14 @@ public:
 	obj_type& at(size_type ind)
 	{
 		if(ind < true_sz)
-			return cont.at(ind);
+			return cont[ind];
 		throw std::out_of_range("Bad bounded_map access");
 	}
 
 	obj_type const& at(size_type ind) const
 	{
 		if(cont.contains(ind))
-			return cont.at(ind);
+			return cont[ind];
 		if(ind < true_sz)
 			return default_t;
 		throw std::out_of_range("Bad bounded_map access");
