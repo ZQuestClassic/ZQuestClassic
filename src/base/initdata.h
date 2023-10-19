@@ -3,12 +3,13 @@
 
 #include "base/general.h"
 #include "base/ints.h"
+#include "base/containers.h"
 #include <vector>
 
 struct zinit_vectors
 {
-	std::vector<uint32_t> screen_dataSize;
-	std::vector<std::vector<int32_t>> screen_data;
+	bounded_vec<uint32_t> screen_dataSize;
+	bounded_vec<std::vector<int32_t>> screen_data;
 	zinit_vectors() :
 		screen_dataSize(MAXMAPS*MAPSCRS), screen_data(MAXMAPS*MAPSCRS)
 	{}

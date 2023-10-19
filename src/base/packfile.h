@@ -690,5 +690,47 @@ INLINE bool p_putlvec(std::vector<T> const& vec, PACKFILE *f)
 	return true;
 }
 
+template<typename T>
+INLINE bool p_getbvec(bounded_vec<T> *vec, PACKFILE *f)
+{
+	vec->clear();
+	dword sz = 0;
+	if(!p_igetl(&sz,f))
+		return false;
+	vec->resize(sz);
+	if(!p_igetl(&sz,f))
+		return false;
+	if(sz) //vec found
+	{
+		T dummy;
+		for(size_t q = 0; q < sz; ++q)
+		{
+			if(!pfread(&dummy,sizeof(T),f))
+				return false;
+			(*vec)[q] = dummy;
+		}
+	}
+	return true;
+}
+template<typename T>
+INLINE bool p_putbvec(bounded_vec<T> const& vec, PACKFILE *f)
+{
+	dword sz = vec.size();
+	if(!p_iputl(sz,f))
+		return false;
+	sz = vec.capacity();
+	if(!p_iputl(sz,f))
+		return false;
+	if(sz)
+	{
+		for(size_t q = 0; q < sz; ++q)
+		{
+			if(!pfwrite((void*)&(vec.at(q)), sizeof(T), f))
+				return false;
+		}
+	}
+	return true;
+}
+
 #endif
 
