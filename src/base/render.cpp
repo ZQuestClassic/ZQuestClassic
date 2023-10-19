@@ -334,6 +334,24 @@ void render_text_lines(ALLEGRO_FONT* font, std::vector<std::string> lines, TextJ
 	}
 }
 
+static void render_tree_draw_item_prepare(RenderTreeItem* rti)
+{
+	if (!rti->visible)
+		return;
+
+	if (rti->bitmap && rti->a4_bitmap && (!rti->a4_bitmap_rendered_once || !rti->freeze))
+	{
+		all_set_transparent_palette_index(rti->transparency_index);
+		all_render_a5_bitmap(rti->a4_bitmap, rti->bitmap);
+		rti->a4_bitmap_rendered_once = true;
+	}
+
+	for (auto rti_child : rti->get_children())
+	{
+		render_tree_draw_item_prepare(rti_child);
+	}
+}
+
 static void render_tree_draw_item(RenderTreeItem* rti)
 {
 	if (!rti->visible)
@@ -344,13 +362,6 @@ static void render_tree_draw_item(RenderTreeItem* rti)
 
 	if (rti->bitmap)
 	{
-		if (rti->bitmap && rti->a4_bitmap && (!rti->a4_bitmap_rendered_once || !rti->freeze))
-		{
-			all_set_transparent_palette_index(rti->transparency_index);
-			all_render_a5_bitmap(rti->a4_bitmap, rti->bitmap);
-			rti->a4_bitmap_rendered_once = true;
-		}
-
 		int w = al_get_bitmap_width(rti->bitmap);
 		int h = al_get_bitmap_height(rti->bitmap);
 
@@ -407,6 +418,8 @@ static void render_tree_draw_item_debug(RenderTreeItem* rti, int depth, std::vec
 
 void render_tree_draw(RenderTreeItem* rti)
 {
+	// Draw all a4 bitmaps to an a5 bitmap first. This might help a little in reducing GL context switches.
+	render_tree_draw_item_prepare(rti);
 	render_tree_draw_item(rti);
 }
 
