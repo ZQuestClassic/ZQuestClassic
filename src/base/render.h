@@ -4,6 +4,7 @@
 #include "base/zc_alleg.h"
 #include <vector>
 #include <string>
+#include <functional>
 
 extern unsigned char info_opacity;
 
@@ -84,6 +85,30 @@ struct Matrix
 		r.d[2][2] = (d[0][0] * d[1][1] - d[1][0] * d[0][1]) * invdet;
 		return r;
 	}
+
+	ALLEGRO_TRANSFORM to_allegro_transform()
+	{
+		// Our transform is different from Allegro's.
+		// Transpose it, and add a third spatial dimension.
+		ALLEGRO_TRANSFORM t;
+
+		for (int i = 0; i < 3; i++) {
+			for (int j = 0; j < 3; j++) {
+				t.m[i][j] = d[j][i];
+			}
+		}
+
+		t.m[3][0] = t.m[2][0];
+		t.m[3][1] = t.m[2][1];
+		t.m[3][2] = 0;
+		t.m[3][3] = t.m[2][2];
+		t.m[2][0] = 0;
+		t.m[2][1] = 0;
+		t.m[2][2] = 1;
+		t.m[2][3] = 0;
+
+		return t;
+	}
 };
 
 class RenderTreeItem
@@ -95,9 +120,12 @@ public:
 	int transparency_index = -1;
 	ALLEGRO_BITMAP* bitmap = nullptr;
 	BITMAP* a4_bitmap = nullptr;
-	bool freeze_a4_bitmap_render = false;
+	bool a4_bitmap_rendered_once = false;
 	ALLEGRO_COLOR* tint = nullptr;
 	bool owned = false, owned_tint = false;
+	// When true, a4_bitmap -> bitmap will not happen, and neither will `cb` be called.
+	// `bitmap` will still be rendered.
+	bool freeze = false;
 
 	RenderTreeItem(std::string name, RenderTreeItem* parent = nullptr);
 	~RenderTreeItem();
@@ -126,6 +154,11 @@ private:
 	bool transform_inverse_dirty = true;
 	RenderTreeItem* parent = nullptr;
 	std::vector<RenderTreeItem*> children;
+
+public:
+	std::function<void()> cb;
+	// TODO: currently only used for cb
+	int width, height;
 };
 
 enum class TextJustify {

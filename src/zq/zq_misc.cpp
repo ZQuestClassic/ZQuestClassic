@@ -1050,7 +1050,7 @@ int32_t onPreviewMode()
 	{
 		Map.set_prvscr(Map.getCurrMap(),Map.getCurrScr());
 		
-		zoomed_minimap = false;
+		set_mmap_zoom(false);
 		
 		bool tempcb=ComboBrush!=0;
 		ComboBrush=0;

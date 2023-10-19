@@ -1814,7 +1814,7 @@ int onScreenLPal(int lpal)
 int32_t onPressEsc()
 {
 	if(zoomed_minimap)
-		zoomed_minimap = false;
+		set_mmap_zoom(false);
 	else return onExit();
 	return D_O_K;
 }
@@ -5439,6 +5439,84 @@ void put_autocombo_engravings(BITMAP* dest, combo_auto const& ca, bool selected,
 	}
 }
 
+void set_mmap_zoom(bool zoomed)
+{
+	zoomed_minimap = zoomed;
+	size_and_pos *real_mini_sqr = zoomed_minimap ? &real_minimap_zoomed : &real_minimap;
+	auto rti_mmap = get_mmap_rti();
+	rti_mmap->set_transform({
+		.x = real_mini_sqr->x,
+		.y = real_mini_sqr->y,
+		.xscale = 1,
+		.yscale = 1,
+	});
+	rti_mmap->width = real_mini_sqr->w * real_mini_sqr->xscale;
+	rti_mmap->height = real_mini_sqr->h * real_mini_sqr->yscale;
+}
+
+void draw_scrmap()
+{
+	if (!Map.Scr(0))
+		return;
+
+	size_and_pos *real_mini_sqr = &real_minimap;
+	
+	if(zoomed_minimap)
+	{
+		real_mini_sqr = &real_minimap_zoomed;
+	}
+
+	int offx = get_mmap_rti()->get_transform().x;
+	int offy = get_mmap_rti()->get_transform().y;
+
+	if(Map.getCurrMap()<Map.getMapCount())
+	{
+		for(int32_t i=0; i<MAPSCRS; i++)
+		{
+			auto& sqr = real_mini_sqr->subsquare(i);
+			
+			if(Map.Scr(i)->valid&mVALID)
+			{
+				al_draw_filled_rectangle(sqr.x-offx, sqr.y-offy, sqr.x+sqr.w-offx, sqr.y+sqr.h-offy,
+					real_lc1(Map.Scr(i)->color));
+				
+				int scl = 2;
+				int woffs = (sqr.w-(sqr.w/scl))/2;
+				int hoffs = (sqr.h-(sqr.h/scl))/2;
+				al_draw_filled_rectangle(sqr.x+woffs-offx, sqr.y+hoffs-offy, sqr.x+sqr.w-woffs-offx, sqr.y+sqr.h-hoffs-offy,
+					real_lc2(Map.Scr(i)->color));
+			}
+			else
+			{
+				// Handled by draw_screenunit.
+			}
+		}
+		
+		int32_t s=Map.getCurrScr();
+		// The white marker rect
+		int32_t cursor_color = 0;
+		static int blink_count = 0;
+		switch(MMapCursorStyle)
+		{
+			case 0:
+				cursor_color = vc(15);
+				break;
+			case 1:
+				cursor_color = (blink_count++%(BlinkSpeed*2))>=BlinkSpeed ? vc(0) : vc(15);
+				break;
+			case 2:
+				cursor_color = (blink_count++%(BlinkSpeed*2))>=BlinkSpeed ? vc(12) : vc(9);
+				break;
+		}
+		if(cursor_color)
+		{
+			auto& sqr = real_mini_sqr->subsquare(s);
+			al_draw_rectangle(sqr.x-offx, sqr.y-offy, sqr.x+sqr.w-offx, sqr.y+sqr.h-offy,
+				a5color(cursor_color), 2);
+		}
+	}
+}
+
 void draw_screenunit(int32_t unit, int32_t flags)
 {
 	FONT* tfont = font;
@@ -5471,21 +5549,12 @@ void draw_screenunit(int32_t unit, int32_t flags)
 					
 					if(Map.Scr(i)->valid&mVALID)
 					{
-						al_draw_filled_rectangle(sqr.x, sqr.y, sqr.x+sqr.w, sqr.y+sqr.h,
-							real_lc1(Map.Scr(i)->color));
-						
-						int scl = 2;
-						int woffs = (sqr.w-(sqr.w/scl))/2;
-						int hoffs = (sqr.h-(sqr.h/scl))/2;
-						al_draw_filled_rectangle(sqr.x+woffs, sqr.y+hoffs, sqr.x+sqr.w-woffs, sqr.y+sqr.h-hoffs,
-							real_lc2(Map.Scr(i)->color));
+						// Handled by draw_scrmap.
 					}
 					else
 					{
 						if (InvalidBG == 2)
 						{
-
-							int32_t offs = 2 * (sqr.w / 9);
 							draw_checkerboard(menu1, sqr.x, sqr.y, sqr.w / 2, sqr.w / 2, sqr.w);
 						}
 						else if (InvalidBG == 1)
@@ -5507,26 +5576,6 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				}
 				
 				int32_t s=Map.getCurrScr();
-				// The white marker rect
-				int32_t cursor_color = 0;
-				switch(MMapCursorStyle)
-				{
-					case 0:
-						cursor_color = vc(15);
-						break;
-					case 1:
-						cursor_color = (framecnt%(BlinkSpeed*2))>=BlinkSpeed ? vc(0) : vc(15);
-						break;
-					case 2:
-						cursor_color = (framecnt%(BlinkSpeed*2))>=BlinkSpeed ? vc(12) : vc(9);
-						break;
-				}
-				if(cursor_color)
-				{
-					auto& sqr = real_mini_sqr->subsquare(s);
-					al_draw_rectangle(sqr.x, sqr.y, sqr.x+sqr.w, sqr.y+sqr.h,
-						a5color(cursor_color), 2);
-				}
 				
 				BITMAP* txtbmp = create_bitmap_ex(8,256,64);
 				clear_bitmap(txtbmp);
@@ -6711,21 +6760,12 @@ void refresh(int32_t flags, bool update)
 	if(zoom_delay)
 		flags &= ~rSCRMAP;
 	
-	ALLEGRO_STATE old_state;
-	al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP);
-	
-	ALLEGRO_BITMAP* overlay_bmp = get_overlay_bmp();
-	al_set_target_bitmap(overlay_bmp);
-	
 	if(flags&rCLEAR)
 	{
 		//magic pink = 0xED
 		//system black = vc(0)
 		//Clear a4 menu
 		clear_to_color(menu1,jwin_pal[jcBOX]);
-		
-		//Clear A5 overlay
-		al_clear_to_color(al_map_rgba(0, 0, 0, 0));
 		
 		//Clears should refresh everything!
 		flags |= rALL;
@@ -7258,8 +7298,6 @@ void refresh(int32_t flags, bool update)
 	draw_ttips();
 	
 	
-	//Restore A5 state
-	al_restore_state(&old_state);
 	if(flags&rCLEAR)
 	{
 		//Draw the whole gui
@@ -11139,7 +11177,7 @@ void domouse()
 		if((lclick||rclick) && !minimap_zoomed.rect(x,y))
 		{
 			// 'Clicked off'
-			zoomed_minimap = false;
+			set_mmap_zoom(false);
 			goto domouse_doneclick;
 		}
 	}
@@ -11158,7 +11196,7 @@ void domouse()
 				select_scr();
 			else if(rclick && !(mouse_down&2))
 			{
-				zoomed_minimap = !zoomed_minimap;
+				set_mmap_zoom(!zoomed_minimap);
 			}
 			goto domouse_doneclick;
 		}
@@ -28943,7 +28981,7 @@ void load_size_poses()
 		
 		minimap.x=3;
 		minimap.y=layer_panel.y+layer_panel.h+4;
-		
+
 		real_minimap.x = minimap.x+3;
 		real_minimap.y = minimap.y+5;
 		real_minimap.w = 16;
@@ -29495,6 +29533,26 @@ void load_size_poses()
 	center_zquest_dialogs();
 	
 	aspect_ratio = zq_screen_h / double(zq_screen_w);
+
+	get_mmap_rti()->cb = []() {
+		auto rti_mmap = get_mmap_rti();
+		if (rti_mmap->bitmap && (al_get_bitmap_width(rti_mmap->bitmap) != rti_mmap->width || al_get_bitmap_height(rti_mmap->bitmap) != rti_mmap->height))
+		{
+			al_destroy_bitmap(rti_mmap->bitmap);
+			rti_mmap->bitmap = nullptr;
+		}
+		if (!rti_mmap->bitmap)
+		{
+			ASSERT(rti_mmap->width > 0 && rti_mmap->height > 0);
+			set_bitmap_create_flags(true);
+			rti_mmap->bitmap = create_a5_bitmap(rti_mmap->width, rti_mmap->height);
+		}
+		al_set_target_bitmap(rti_mmap->bitmap);
+		al_clear_to_color(al_map_rgba(0, 0, 0, 0));
+		draw_scrmap();
+		al_set_target_backbuffer(all_get_display());
+	};
+	set_mmap_zoom(false);
 }
 
 void remove_locked_params_on_exit()

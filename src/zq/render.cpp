@@ -48,9 +48,6 @@ static void init_render_tree()
 	rti_tint.bitmap = create_a5_bitmap(screen->w, screen->h);
 	rti_tint.visible = false;
 	
-	set_bitmap_create_flags(true);
-	rti_mmap.bitmap = create_a5_bitmap(screen->w, screen->h);
-	
 	rti_screen.add_child(&rti_mmap);
 	
 	rti_root.add_child(&rti_screen);
@@ -141,13 +138,23 @@ static void configure_render_tree()
 		al_clear_to_color(tint);
 		al_restore_state(&oldstate);
 	}
+
+	// Freeze dialogs that won't be changing.
+	rti_screen.freeze = rti_dialogs.visible;
+	rti_mmap.freeze = rti_dialogs.visible;
+	int i = 0;
+	while (i < rti_dialogs.get_children().size())
+	{
+		rti_dialogs.get_children()[i]->freeze = i != rti_dialogs.get_children().size() - 1;
+		i++;
+	}
 	
 	reload_dialog_tints();
 }
 
-ALLEGRO_BITMAP* get_overlay_bmp()
+RenderTreeItem* get_mmap_rti()
 {
-	return rti_mmap.bitmap;
+	return &rti_mmap;
 }
 
 RenderTreeItem* get_tooltip_rti()

@@ -1189,6 +1189,8 @@ void ctype_help(int32_t id);
 void questrev_help();
 void questminrev_help();
 
+void set_mmap_zoom(bool zoomed);
+
 //throw together midi_strict hack
 #ifdef ALLEGRO_LINUX_GP2X
 extern int32_t midi_strict;
