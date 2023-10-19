@@ -193,7 +193,7 @@ async function main() {
   if (openPath) {
     const manifest = await ZC.getQuestManifest();
     openPath = openPath.startsWith('/') ? openPath : `/${openPath}`;
-    const m = openPath.startsWith('/quests/') && openPath.match(/\/([^/]*\/[^/]*\/[^/]*)\/?(.*)?/);
+    const m = (openPath.startsWith('/quests/') || openPath.startsWith('/tilesets/')) && openPath.match(/\/([^/]*\/[^/]*\/[^/]*)\/?(.*)?/);
     if (m) {
       const [, id, file] = m;
       if (!file && manifest[id]) {
