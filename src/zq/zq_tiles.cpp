@@ -3270,7 +3270,7 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 			custom_vsync();
 			draw_edit_scr(tile,flip,cs,oldtile, false);
 			
-			draw_ttip(screen);
+			draw_ttip(screen, 0, 0);
 		}
 		else
 		{

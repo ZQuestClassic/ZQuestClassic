@@ -30949,7 +30949,7 @@ void highlight(BITMAP* dest, size_and_pos& hl)
 	}
 	else highlight_sqr(dest, hl.data[1], hl, hl.data[0]);
 }
-void draw_ttip(BITMAP* dest)
+void draw_ttip(BITMAP* dest, int xoff, int yoff)
 {
 	if(tooltip_timer < tooltip_maxtimer)
 		return;
@@ -30959,10 +30959,10 @@ void draw_ttip(BITMAP* dest)
 	}
 	if(tooltip_box.x>=0&&tooltip_box.y>=0)
 	{
-		masked_blit(tooltipbmp, dest, 0, 0, tooltip_box.x, tooltip_box.y, tooltip_box.w, tooltip_box.h);
+		masked_blit(tooltipbmp, dest, 0, 0, tooltip_box.x-xoff, tooltip_box.y-yoff, tooltip_box.w, tooltip_box.h);
 	}
 }
-void draw_ttip2(BITMAP* dest)
+void draw_ttip2(BITMAP* dest, int xoff, int yoff)
 {
 	if(tooltip_highlight2.x >= 0)
 	{
@@ -30970,21 +30970,60 @@ void draw_ttip2(BITMAP* dest)
 	}
 	if(tooltip_box2.x>=0&&tooltip_box2.y>=0)
 	{
-		masked_blit(tooltipbmp2, dest, 0, 0, tooltip_box2.x, tooltip_box2.y, tooltip_box2.w, tooltip_box2.h);
+		masked_blit(tooltipbmp2, dest, 0, 0, tooltip_box2.x-xoff, tooltip_box2.y-yoff, tooltip_box2.w, tooltip_box2.h);
 	}
 }
 void draw_ttips()
 {
 	extern RenderTreeItem rti_dialogs;
 
-	RenderTreeItem* tt_rti = get_tooltip_rti();
-	tt_rti->visible = !rti_dialogs.has_children() && ((tooltip_box.x >= 0 && tooltip_box.y >= 0) || (tooltip_box2.x >= 0 && tooltip_box2.y >= 0));
-	if (!tt_rti->visible)
+	RenderTreeItem* rti_tooltip = get_tooltip_rti();
+	bool tb1_valid = tooltip_box.x >= 0 && tooltip_box.y >= 0;
+	bool tb2_valid = tooltip_box2.x >= 0 && tooltip_box2.y >= 0;
+	bool visible = !rti_dialogs.has_children() && (tb1_valid || tb2_valid);
+	rti_tooltip->visible = visible;
+	if (!visible)
 		return;
 
-	clear_bitmap(tt_rti->a4_bitmap);
-	draw_ttip(tt_rti->a4_bitmap);
-	draw_ttip2(tt_rti->a4_bitmap);
+	int x, y, w, h;
+	if (tb1_valid && tb2_valid)
+	{
+		x = std::min(tooltip_box.x, tooltip_box2.x);
+		y = std::min(tooltip_box.y, tooltip_box2.y);
+		w = std::max(tooltip_box.x + tooltip_box.w, tooltip_box2.x + tooltip_box2.w) - x;
+		h = std::max(tooltip_box.y + tooltip_box.h, tooltip_box2.y + tooltip_box2.h) - x;
+	}
+	else if (tb1_valid)
+	{
+		x = tooltip_box.x;
+		y = tooltip_box.y;
+		w = tooltip_box.w;
+		h = tooltip_box.h;
+	}
+	else
+	{
+		x = tooltip_box2.x;
+		y = tooltip_box2.y;
+		w = tooltip_box2.w;
+		h = tooltip_box2.h;
+	}
+
+	if (!rti_tooltip->a4_bitmap || rti_tooltip->a4_bitmap->w != w || rti_tooltip->a4_bitmap->h != h)
+	{
+		if (rti_tooltip->a4_bitmap) destroy_bitmap(rti_tooltip->a4_bitmap);
+		rti_tooltip->a4_bitmap = create_bitmap_ex(8, w, h);
+		if (rti_tooltip->bitmap) al_destroy_bitmap(rti_tooltip->bitmap);
+		rti_tooltip->bitmap = create_a5_bitmap(w, h);
+	}
+
+	auto t = rti_tooltip->get_transform();
+	t.x = x;
+	t.y = y;
+	rti_tooltip->set_transform(t);
+
+	clear_bitmap(rti_tooltip->a4_bitmap);
+	draw_ttip(rti_tooltip->a4_bitmap, x, y);
+	draw_ttip2(rti_tooltip->a4_bitmap, x, y);
 }
 
 void draw_box(BITMAP* destbmp, size_and_pos* pos, char const* tipmsg, double txscale = 1)

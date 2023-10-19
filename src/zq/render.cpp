@@ -40,18 +40,15 @@ static void init_render_tree()
 	rti_screen.a4_bitmap = screen;
 	rti_screen.visible = true;
 	
-	rti_tooltip.bitmap = create_a5_bitmap(screen->w, screen->h);
-	rti_tooltip.a4_bitmap = create_bitmap_ex(8, screen->w, screen->h);
 	rti_tooltip.transparency_index = 0;
-	clear_bitmap(rti_tooltip.a4_bitmap);
 	
 	rti_tint.bitmap = create_a5_bitmap(screen->w, screen->h);
 	rti_tint.visible = false;
 	
 	rti_screen.add_child(&rti_mmap);
+	rti_screen.add_child(&rti_tooltip);
 	
 	rti_root.add_child(&rti_screen);
-	rti_root.add_child(&rti_tooltip);
 	rti_root.add_child(&rti_tint);
 	rti_root.add_child(&rti_dialogs);
 
@@ -94,13 +91,6 @@ static void configure_render_tree()
 		});
 		// TODO: don't recreate screen bitmap when alternating fullscreen mode.
 		rti_screen.a4_bitmap = zqdialog_bg_bmp ? zqdialog_bg_bmp : screen;
-		
-		rti_tooltip.set_transform({
-			.x = (int)(resx - w*xscale) / 2,
-			.y = (int)(resy - h*yscale) / 2,
-			.xscale = xscale,
-			.yscale = yscale,
-		});
 		
 		rti_dialogs.set_transform({
 			.x = (int)(resx - w*xscale) / 2,
