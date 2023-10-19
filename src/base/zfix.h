@@ -393,7 +393,7 @@ public:
 	virtual zfix& doRound();
 };
 
-inline int32_t atozfix(char const* val)
+inline zfix atozfix(char const* val)
 {
 	int ipart = 0;
 	int dpart = 0;

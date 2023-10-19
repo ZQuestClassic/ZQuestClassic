@@ -15088,7 +15088,7 @@ bool eManhandla::animate(int32_t index)
 	else
 	{
 		// Speed starts at 0.5, and increases by 0.5 for each head lost. Max speed is 4.5.
-		step=((dmisc2 ? 8_zf : 4_zf) - armcnt) * (0.5_zf+(dstep*100));
+		step = ((dmisc2 ? 8_zf : 4_zf) - armcnt) * 0.5 + (dstep / 100);
 		if (step > 4.5_zf) step = 4.5_zf;
 		int32_t dx1=0, dy1=-8, dx2=15, dy2=15;
 		
