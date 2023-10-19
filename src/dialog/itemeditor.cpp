@@ -1178,11 +1178,6 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
-
-	// Too many locals error in low-optimization mode for emscripten.
-#ifdef EMSCRIPTEN_DEBUG
-	return std::shared_ptr<GUI::Widget>(nullptr);
-#endif
 	
 	char titlebuf[256];
 	sprintf(titlebuf, "Item Editor (%d): %s", index, itemname.c_str());

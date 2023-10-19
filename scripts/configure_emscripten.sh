@@ -106,7 +106,6 @@ CMAKE_EXE_LINKER_FLAGS_DEBUG="${CMAKE_EXE_LINKER_FLAGS}"
 CMAKE_CXX_FLAGS_DEBUG+=(
   # Any lower and get "Compiling function failed: local count too large"
   -O2
-  -DEMSCRIPTEN_DEBUG
 )
 CMAKE_EXE_LINKER_FLAGS_DEBUG+=(
   -s ASSERTIONS=1

@@ -246,11 +246,6 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
-
-	// Too many locals error in low-optimization mode for emscripten.
-#ifdef EMSCRIPTEN_DEBUG
-	return std::shared_ptr<GUI::Widget>(nullptr);
-#endif
 	
 	map<int32_t, map<int32_t, vector<int32_t> > > families;
 	icswitcher = Switcher(fitParent = true, hAlign = 0.0, vAlign = 0.0);
