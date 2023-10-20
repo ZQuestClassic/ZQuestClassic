@@ -246,8 +246,8 @@ std::shared_ptr<GUI::Widget> MapPickDialog<Sz>::view()
 	size_t onpg = 0, skipcnt = 0;
 	for(auto pair : local_map.inner())
 	{
-		auto const& k = pair.first;
-		auto const& v = pair.second;
+		auto k = pair.first;
+		auto v = pair.second;
 		if(onpg > pg) break;
 		bool skip = onpg != pg;
 		if(++skipcnt == pglimit)
