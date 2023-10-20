@@ -9,6 +9,7 @@
 #include "base/zsys.h"
 #include "zq/zq_class.h"
 #include "zq/package.h"
+#include "zq/render_minimap.h"
 #include "dialog/info.h"
 #include "dialog/about.h"
 #include "dialog/alertfunc.h"

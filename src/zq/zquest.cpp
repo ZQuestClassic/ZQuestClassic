@@ -35,6 +35,7 @@
 #include "zq/autocombo/pattern_dormtn.h"
 #include "zq/autocombo/pattern_tiling.h"
 #include "zq/autocombo/pattern_replace.h"
+#include "zq/render_minimap.h"
 #include "base/misctypes.h"
 #include "parser/Compiler.h"
 #include "base/zc_alleg.h"
@@ -470,7 +471,6 @@ bool large_zoomed_fav = false;
 bool compact_zoomed_fav = true;
 bool large_zoomed_cmd = false;
 bool compact_zoomed_cmd = true;
-bool zoomed_minimap = false;
 
 bool compact_square_panels = false;
 int compact_active_panel = 0;
@@ -572,12 +572,11 @@ int32_t  Flags=0,Flag=0,menutype=(m_block);
 int32_t MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, GridColor = 15,
 	CmbCursorCol = 15, TilePgCursorCol = 15, CmbPgCursorCol = 15, TTipHLCol = 13,
 	TileProtection = 0, NoScreenPreview = 0, MMapCursorStyle = 0,
-	LayerDitherBG = -1, LayerDitherSz = 2, BlinkSpeed = 20, RulesetDialog = 0,
+	LayerDitherBG = -1, LayerDitherSz = 2, RulesetDialog = 0,
 	EnableTooltips = 0, TooltipsHighlight = 0, ShowFFScripts = 0, ShowSquares = 0,
 	ShowFFCs = 0, ShowInfo = 0, skipLayerWarning = 0, WarnOnInitChanged = 0,
 	DisableLPalShortcuts = 1, DisableCompileConsole = 0, numericalFlags = 0,
 	ActiveLayerHighlight = 0;
-static int mmap_blink_count = 0;
 uint8_t InvalidBG = 0;
 bool NoHighlightLayer0 = false;
 int32_t FlashWarpSquare = -1, FlashWarpClk = 0; // flash the destination warp return when ShowSquares is active
@@ -5440,95 +5439,6 @@ void put_autocombo_engravings(BITMAP* dest, combo_auto const& ca, bool selected,
 	}
 }
 
-static bool mmap_dirty = true;
-void mmap_mark_dirty()
-{
-	mmap_dirty = true;
-}
-
-void mmap_mark_dirty_delayed()
-{
-	mmap_dirty = true;
-	remove_int(mmap_mark_dirty_delayed);
-}
-
-void mmap_set_zoom(bool zoomed)
-{
-	zoomed_minimap = zoomed;
-	size_and_pos *real_mini_sqr = zoomed_minimap ? &real_minimap_zoomed : &real_minimap;
-	auto rti_mmap = get_mmap_rti();
-	rti_mmap->set_transform({
-		.x = real_mini_sqr->x,
-		.y = real_mini_sqr->y,
-		.xscale = 1,
-		.yscale = 1,
-	});
-	rti_mmap->width = real_mini_sqr->w * real_mini_sqr->xscale;
-	rti_mmap->height = real_mini_sqr->h * real_mini_sqr->yscale;
-}
-
-void draw_scrmap()
-{
-	if (!Map.Scr(0))
-		return;
-
-	size_and_pos *real_mini_sqr = &real_minimap;
-	
-	if(zoomed_minimap)
-	{
-		real_mini_sqr = &real_minimap_zoomed;
-	}
-
-	int offx = get_mmap_rti()->get_transform().x;
-	int offy = get_mmap_rti()->get_transform().y;
-
-	if(Map.getCurrMap()<Map.getMapCount())
-	{
-		for(int32_t i=0; i<MAPSCRS; i++)
-		{
-			auto& sqr = real_mini_sqr->subsquare(i);
-			
-			if(Map.Scr(i)->valid&mVALID)
-			{
-				al_draw_filled_rectangle(sqr.x-offx, sqr.y-offy, sqr.x+sqr.w-offx, sqr.y+sqr.h-offy,
-					real_lc1(Map.Scr(i)->color));
-				
-				int scl = 2;
-				int woffs = (sqr.w-(sqr.w/scl))/2;
-				int hoffs = (sqr.h-(sqr.h/scl))/2;
-				al_draw_filled_rectangle(sqr.x+woffs-offx, sqr.y+hoffs-offy, sqr.x+sqr.w-woffs-offx, sqr.y+sqr.h-hoffs-offy,
-					real_lc2(Map.Scr(i)->color));
-			}
-			else
-			{
-				// Handled by draw_screenunit.
-			}
-		}
-		
-		int32_t s=Map.getCurrScr();
-		// The white marker rect
-		int32_t cursor_color = 0;
-		switch(MMapCursorStyle)
-		{
-			case 0:
-				cursor_color = vc(15);
-				break;
-			case 1:
-				cursor_color = (mmap_blink_count%(BlinkSpeed*2))>=BlinkSpeed ? vc(0) : vc(15);
-				break;
-			case 2:
-				cursor_color = (mmap_blink_count%(BlinkSpeed*2))>=BlinkSpeed ? vc(12) : vc(9);
-				break;
-		}
-		if(cursor_color)
-		{
-			auto& sqr = real_mini_sqr->subsquare(s);
-			al_draw_rectangle(sqr.x-offx, sqr.y-offy, sqr.x+sqr.w-offx, sqr.y+sqr.h-offy,
-				a5color(cursor_color), 2);
-		}
-	}
-}
-
 void draw_screenunit(int32_t unit, int32_t flags)
 {
 	FONT* tfont = font;
@@ -5561,7 +5471,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 					
 					if(Map.Scr(i)->valid&mVALID)
 					{
-						// Handled by draw_scrmap.
+						// Handled by mmap_draw.
 					}
 					else
 					{
@@ -29546,65 +29456,7 @@ void load_size_poses()
 	
 	aspect_ratio = zq_screen_h / double(zq_screen_w);
 
-	get_mmap_rti()->cb = [&]() {
-		// Redraw everything anytime the cursor changes.
-		// TODO: just redraw the cursor, yo. Maybe make the cursor its own RenderTreeItem.
-		static int prev_cursor_color;
-		// TODO: for web, changing the target bitmap is really expensive.
-		// Seems like a bug. https://discord.com/channels/993415281244393504/1163652238011551816
-		// So for now, disable the cursor blinking so we only redraw when the something actually changes.
-		// if (!is_web()) mmap_blink_count++;
-		int32_t cursor_color = 0;
-		switch(MMapCursorStyle)
-		{
-			case 0:
-				cursor_color = vc(15);
-				break;
-			case 1:
-				cursor_color = (mmap_blink_count%(BlinkSpeed*2))>=BlinkSpeed ? vc(0) : vc(15);
-				break;
-			case 2:
-				cursor_color = (mmap_blink_count%(BlinkSpeed*2))>=BlinkSpeed ? vc(12) : vc(9);
-				break;
-		}
-		if (prev_cursor_color != cursor_color)
-		{
-			prev_cursor_color = cursor_color;
-			mmap_mark_dirty();
-		}
-
-		auto rti_mmap = get_mmap_rti();
-
-		bool size_changed = false;
-		if (rti_mmap->bitmap && (al_get_bitmap_width(rti_mmap->bitmap) != rti_mmap->width || al_get_bitmap_height(rti_mmap->bitmap) != rti_mmap->height))
-		{
-			al_destroy_bitmap(rti_mmap->bitmap);
-			rti_mmap->bitmap = nullptr;
-			size_changed = true;
-		}
-		if (!rti_mmap->bitmap)
-		{
-			ASSERT(rti_mmap->width > 0 && rti_mmap->height > 0);
-			set_bitmap_create_flags(true);
-			rti_mmap->bitmap = create_a5_bitmap(rti_mmap->width, rti_mmap->height);
-			mmap_mark_dirty();
-		}
-
-		if (!mmap_dirty) return;
-		mmap_dirty = false;
-
-		al_set_target_bitmap(rti_mmap->bitmap);
-		al_clear_to_color(al_map_rgba(0, 0, 0, 0));
-		draw_scrmap();
-		al_set_target_backbuffer(all_get_display());
-
-		// For some reason only on the Web version the bitmap will remain black when changing size.
-		// Simply marking dirty to draw one more time is no good, but setting a timer seems to work.
-		// TODO: why is this happening?
-		if (size_changed && is_web())
-			install_int(mmap_mark_dirty_delayed, 1);
-	};
-	mmap_set_zoom(false);
+	mmap_init();
 }
 
 void remove_locked_params_on_exit()

@@ -35,6 +35,7 @@
 #include "slopes.h"
 #include "drawing.h"
 #include "zinfo.h"
+#include "zq/render_minimap.h"
 #include "base/mapscr.h"
 #include <fmt/format.h>
 #include <filesystem>
