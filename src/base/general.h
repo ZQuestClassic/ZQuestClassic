@@ -5,10 +5,10 @@
 #include "base/zfix.h"
 
 int32_t get_bit(byte const* bitstr,int32_t bit);
-void set_bit(byte *bitstr,int32_t bit,byte val);
+void set_bit(byte *bitstr,int32_t bit,bool val);
 bool toggle_bit(byte *bitstr,int32_t bit);
 int32_t get_bitl(int32_t bitstr,int32_t bit);
-void set_bitl(int32_t bitstr,int32_t bit,byte val);
+void set_bitl(int32_t bitstr,int32_t bit,bool val);
 
 template <class T>
 static constexpr inline T sign(T a)

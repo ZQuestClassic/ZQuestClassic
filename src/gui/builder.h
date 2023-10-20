@@ -288,6 +288,7 @@ ZCGUI_BUILDER_START(Button)
 	ZCGUI_ACCEPT_PROP(kb_ptr, setBoundKB, int*)
 	ZCGUI_ACCEPT_PROP(hotkey_ptr, setBoundHotkey, Hotkey*)
 	ZCGUI_ACCEPT_PROP(hotkey_indx, setHotkeyIndx, size_t)
+	ZCGUI_ACCEPT_PROP(icon, setIcon, int)
 
 	ZCGUI_SUGGEST_PROP(title, text)
 	ZCGUI_SUGGEST_PROP(onEnter, onClick)

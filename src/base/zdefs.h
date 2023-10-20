@@ -100,18 +100,14 @@
 #include <cstdio>
 #include <math.h>
 #include <cstring>
-#include <vector>
-#include <optional>
 #include <set>
 #include <assert.h>
-#include <string>
 #include <algorithm>
-#include "base/ints.h"
 
+#include "base/headers.h"
 #include "metadata/metadata.h"
 #include "base/about.h"
 #include "base/zc_alleg.h"
-#include "base/general.h"
 #include "gamedata.h"
 #include "base/random.h"
 #include "base/util.h"
@@ -121,7 +117,6 @@ struct mapscr;
 class solid_object;
 class ffcdata;
 struct cpos_info;
-using std::optional;
 
 
 

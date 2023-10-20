@@ -1,7 +1,7 @@
 #include "general.h"
 #include <assert.h>
 
-void set_bit(byte *bitstr,int32_t bit,byte val)
+void set_bit(byte *bitstr,int32_t bit,bool val)
 {
     bitstr += bit>>3;
     byte mask = 1 << (bit&7);
@@ -26,7 +26,7 @@ bool toggle_bit(byte *bitstr,int32_t bit)
 	return *bitstr&mask;
 }
 
-void set_bitl(int32_t bitstr,int32_t bit,byte val)
+void set_bitl(int32_t bitstr,int32_t bit,bool val)
 {
 	if (val)
 		bitstr |= (1<<bit);

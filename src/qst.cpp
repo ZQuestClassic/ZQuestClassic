@@ -20816,10 +20816,14 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 			for(auto p = 0; p < 8; ++p)
 				if(!p_igetl(&temp_zinit.gen_initd[q][p],f))
 					return qe_invalid;
-			if(!p_igetl(&temp_zinit.gen_dataSize[q],f))
+			dword sz;
+			if(!p_igetl(&sz,f))
 				return qe_invalid;
-			if(!p_getlvec<int32_t>(&temp_zinit.gen_data[q],f))
+			temp_zinit.gen_data[q].resize(sz);
+			std::vector<int32_t> dummy;
+			if(!p_getlvec(&dummy,f))
 				return qe_invalid;
+			temp_zinit.gen_data[q] = dummy;
 			if(!p_igetl(&temp_zinit.gen_eventstate[q],f))
 				return qe_invalid;
 		}
@@ -20838,11 +20842,17 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 			return qe_invalid;
 		for(uint32_t q = 0; q < num_used_mapscr_data; ++q)
 		{
-			if(!p_igetl(&temp_zinit.vecs.screen_dataSize[q],f))
+			uint32_t sz;
+			if(!p_igetl(&sz,f))
 				return qe_invalid;
-			if(temp_zinit.vecs.screen_dataSize[q])
-				if(!p_getlvec(&temp_zinit.vecs.screen_data[q],f))
+			temp_zinit.screen_data[q].resize(sz);
+			if(sz)
+			{
+				std::vector<int32_t> dummy;
+				if(!p_getlvec(&dummy,f))
 					return qe_invalid;
+				temp_zinit.screen_data[q] = dummy;
+			}
 		}
 	}
 	if (s_version > 35)
