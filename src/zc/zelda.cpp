@@ -3212,7 +3212,9 @@ void game_loop()
 		// or if a message is being prepared && qr_MSGDISAPPEAR is on.
 		bool freezemsg = ((msg_active || (intropos && intropos<72) || (linkedmsgclk && get_qr(qr_MSGDISAPPEAR)))
 			&& (get_qr(qr_MSGFREEZE)));
-		if(!freezemsg)
+		if (!get_qr(qr_SCRIPTDRAWSFROZENMSG))
+			FFCore.skipscriptdraws = freezemsg;
+		if(!freezemsg || get_qr(qr_SCRIPTDRAWSFROZENMSG))
 		{
 			if ( !FFCore.system_suspend[susptSCRIPDRAWCLEAR] ) script_drawing_commands.Clear();
 		}

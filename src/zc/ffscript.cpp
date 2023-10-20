@@ -32818,6 +32818,8 @@ INLINE void set_user_bitmap_command_args(const int32_t j, const word numargs)
 
 void do_drawing_command(const int32_t script_command)
 {
+	if (FFCore.skipscriptdraws)
+		return;
 	int32_t j = script_drawing_commands.GetNext();
 	
 	if(j == -1)  //out of drawing command space
@@ -42651,6 +42653,7 @@ void FFScript::init()
 	can_neg_array = !get_qr(qr_ZS_NO_NEG_ARRAY);
 	
 	numscriptdraws = 0;
+	skipscriptdraws = false;
 	max_ff_rules = qr_MAX;
 	coreflags = 0;
 	skip_ending_credits = 0;

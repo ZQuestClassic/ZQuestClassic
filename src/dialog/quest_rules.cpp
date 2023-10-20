@@ -1629,7 +1629,11 @@ GUI::ListData objectRulesList
 GUI::ListData drawingRulesList
 {
 	{ "Scripts Draw When Stepping Forward In Dungeons", qr_SCRIPTSRUNINHEROSTEPFORWARD },
-	{ "Scripts Draw During Warps", qr_SCRIPTDRAWSINWARPS }
+	{ "Scripts Draw During Warps", qr_SCRIPTDRAWSINWARPS },
+	{ "Scripts Draw During Frozen Messages", qr_SCRIPTDRAWSFROZENMSG,
+		"If checked, script draws will continue to clear during frozen messages. "
+		"Otherwise, they will not clear until the message has closed and all draws during "
+		"the message will be ignored." + QRHINT({qr_MSGFREEZE})}
 };
 
 GUI::ListData bugfixRulesList

@@ -540,6 +540,7 @@ qr_BROKEN_SWORD_SPIN_TRIGGERS,	/*<<	Compatibility (>>>) Broken Sword Triggers (s
 //480
 qr_OLD_SCRIPT_VOLUME = 70 * 8,	/*<<	Compatibility (>>>) Old (Buggy) ZScript Volume Access */
 qr_OLD_DMAP_INTRO_STRINGS,	/*<<	Compatibility (>>>) Old DMap Titles and Intros */
+qr_SCRIPTDRAWSFROZENMSG,	/*<<	ZScript (>>>) Scripts Draw During Frozen Messages */
 
 //640
 qr_PARSER_250DIVISION = 80*8, 		/*<<	ZScript (>>>) 2.50 Division Truncation */
