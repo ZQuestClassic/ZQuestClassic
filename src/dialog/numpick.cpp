@@ -238,10 +238,8 @@ std::shared_ptr<GUI::Widget> MapPickDialog<Sz>::view()
 	);
 	
 	size_t onpg = 0, skipcnt = 0;
-	for(auto pair : local_map.inner())
+	for(auto [k,v] : local_map.inner())
 	{
-		auto k = pair.first;
-		auto v = pair.second;
 		if(onpg > pg) break;
 		bool skip = onpg != pg;
 		if(++skipcnt == pglimit)
@@ -259,7 +257,7 @@ std::shared_ptr<GUI::Widget> MapPickDialog<Sz>::view()
 				maxwidth = 8_em, hPadding = 0_px,
 				type = GUI::TextField::type::SWAP_ZSINT2,
 				val = local_map[k],
-				onValChangedFunc = [&, k](GUI::TextField::type,std::string_view,int32_t val)
+				onValChangedFunc = [&, k=k](GUI::TextField::type,std::string_view,int32_t val)
 				{
 					local_map[k] = val;
 				}));
@@ -270,7 +268,7 @@ std::shared_ptr<GUI::Widget> MapPickDialog<Sz>::view()
 				maxwidth = 8_em, hPadding = 0_px,
 				type = GUI::TextField::type::SWAP_ZSINT_NO_DEC,
 				val = local_map[k]*10000,
-				onValChangedFunc = [&, k](GUI::TextField::type,std::string_view,int32_t val)
+				onValChangedFunc = [&, k=k](GUI::TextField::type,std::string_view,int32_t val)
 				{
 					local_map[k] = val/10000;
 				}));
@@ -279,7 +277,7 @@ std::shared_ptr<GUI::Widget> MapPickDialog<Sz>::view()
 				text = "-", forceFitH = true,
 				hPadding = 0_px,
 				onClick = message::RELOAD,
-				onPressFunc = [&,k]()
+				onPressFunc = [&, k=k]()
 				{
 					local_map.erase(k);
 				}
