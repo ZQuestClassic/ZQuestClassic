@@ -14,6 +14,7 @@ public:
 	bounded_container() : true_sz(0), default_val() {}
 	bounded_container(size_type const& sz) : true_sz(sz), default_val() {}
 	bounded_container(size_type const& sz, obj_type const& dv) : true_sz(sz), default_val(dv) {}
+	virtual ~bounded_container() = default;
 	
 	virtual obj_type& at(size_type ind) = 0;
 	virtual obj_type const& at(size_type ind) const = 0;
@@ -44,6 +45,7 @@ public:
 	bounded_vec() : bounded_container<Sz,T>(0) {}
 	bounded_vec(size_type tsz) : bounded_container<Sz,T>(tsz) {}
 	bounded_vec(size_type tsz, obj_type dv) : bounded_container<Sz,T>(tsz,dv) {}
+	virtual ~bounded_vec() = default;
 	
 	obj_type& at(size_type ind)
 	{
@@ -141,6 +143,7 @@ public:
 	bounded_map() : bounded_container<Sz,T>(0) {}
 	bounded_map(size_type tsz) : bounded_container<Sz,T>(tsz) {}
 	bounded_map(size_type tsz, obj_type dv) : bounded_container<Sz,T>(tsz,dv) {}
+	virtual ~bounded_map() = default;
 	
 	obj_type& at(size_type ind)
 	{

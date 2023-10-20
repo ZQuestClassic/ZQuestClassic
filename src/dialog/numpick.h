@@ -33,6 +33,9 @@ private:
 extern template class VectorPickDialog<byte>;
 extern template class VectorPickDialog<word>;
 extern template class VectorPickDialog<dword>;
+std::shared_ptr<GUI::Widget> VectorPickDialog<byte>::view();
+std::shared_ptr<GUI::Widget> VectorPickDialog<word>::view();
+std::shared_ptr<GUI::Widget> VectorPickDialog<dword>::view();
 
 template<typename Sz>
 class MapPickDialog: public GUI::Dialog<MapPickDialog<Sz>>
@@ -59,6 +62,9 @@ private:
 extern template class MapPickDialog<byte>;
 extern template class MapPickDialog<word>;
 extern template class MapPickDialog<dword>;
+std::shared_ptr<GUI::Widget> MapPickDialog<byte>::view();
+std::shared_ptr<GUI::Widget> MapPickDialog<word>::view();
+std::shared_ptr<GUI::Widget> MapPickDialog<dword>::view();
 
 class NumPickDialog: public GUI::Dialog<NumPickDialog>
 {
@@ -76,24 +82,27 @@ public:
 
 private:
 	std::string const& labeltext;
-	int32_t local_val;
-	int32_t min,max;
-	bool zsint;
 	optional<int32_t>& retv;
+	int32_t local_val;
+	bool zsint;
+	int32_t max,min;
 	
 	std::shared_ptr<GUI::Window> window;
 };
 
 template<typename Sz>
-inline void call_edit_vector(bounded_vec<Sz,int32_t>& vec, bool zsint)
-{
-	VectorPickDialog<Sz>(vec, zsint).show();
-}
+void call_edit_vector(bounded_vec<Sz,int32_t>& vec, bool zsint);
+template void call_edit_vector(bounded_vec<byte,int32_t>& vec, bool zsint);
+template void call_edit_vector(bounded_vec<word,int32_t>& vec, bool zsint);
+template void call_edit_vector(bounded_vec<dword,int32_t>& vec, bool zsint);
+
 template<typename Sz>
-inline void call_edit_map(bounded_map<Sz,int32_t>& mp, bool zsint)
-{
-	MapPickDialog<Sz>(mp, zsint).show();
-}
+void call_edit_map(bounded_map<Sz,int32_t>& mp, bool zsint);
+template void call_edit_map(bounded_map<byte,int32_t>& mp, bool zsint);
+template void call_edit_map(bounded_map<word,int32_t>& mp, bool zsint);
+template void call_edit_map(bounded_map<dword,int32_t>& mp, bool zsint);
+
 optional<int32_t> call_get_num(std::string const& lbl, int32_t dv, int32_t max = 0, int32_t min = 0);
 optional<zfix> call_get_zfix(std::string const& lbl, zfix dv, zfix max = 0_zf, zfix min = 0_zf);
 #endif
+
