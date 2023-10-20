@@ -457,4 +457,10 @@ template class VectorPickDialog<dword>;
 template class MapPickDialog<byte>;
 template class MapPickDialog<word>;
 template class MapPickDialog<dword>;
+template std::shared_ptr<GUI::Widget> MapPickDialog<byte>::view();
+template std::shared_ptr<GUI::Widget> MapPickDialog<word>::view();
+template std::shared_ptr<GUI::Widget> MapPickDialog<dword>::view();
+template std::shared_ptr<GUI::Widget> VectorPickDialog<byte>::view();
+template std::shared_ptr<GUI::Widget> VectorPickDialog<word>::view();
+template std::shared_ptr<GUI::Widget> VectorPickDialog<dword>::view();
 

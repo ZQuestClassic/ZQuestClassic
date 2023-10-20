@@ -30,9 +30,6 @@ private:
 	
 	std::shared_ptr<GUI::Window> window;
 };
-template<> std::shared_ptr<GUI::Widget> VectorPickDialog<byte>::view();
-template<> std::shared_ptr<GUI::Widget> VectorPickDialog<word>::view();
-template<> std::shared_ptr<GUI::Widget> VectorPickDialog<dword>::view();
 extern template class VectorPickDialog<byte>;
 extern template class VectorPickDialog<word>;
 extern template class VectorPickDialog<dword>;
@@ -59,9 +56,6 @@ private:
 	
 	std::shared_ptr<GUI::Window> window;
 };
-template<> std::shared_ptr<GUI::Widget> MapPickDialog<byte>::view();
-template<> std::shared_ptr<GUI::Widget> MapPickDialog<word>::view();
-template<> std::shared_ptr<GUI::Widget> MapPickDialog<dword>::view();
 extern template class MapPickDialog<byte>;
 extern template class MapPickDialog<word>;
 extern template class MapPickDialog<dword>;
