@@ -30,12 +30,12 @@ private:
 	
 	std::shared_ptr<GUI::Window> window;
 };
-extern template class VectorPickDialog<byte>;
-extern template class VectorPickDialog<word>;
-extern template class VectorPickDialog<dword>;
 std::shared_ptr<GUI::Widget> VectorPickDialog<byte>::view();
 std::shared_ptr<GUI::Widget> VectorPickDialog<word>::view();
 std::shared_ptr<GUI::Widget> VectorPickDialog<dword>::view();
+extern template class VectorPickDialog<byte>;
+extern template class VectorPickDialog<word>;
+extern template class VectorPickDialog<dword>;
 
 template<typename Sz>
 class MapPickDialog: public GUI::Dialog<MapPickDialog<Sz>>
@@ -59,12 +59,12 @@ private:
 	
 	std::shared_ptr<GUI::Window> window;
 };
-extern template class MapPickDialog<byte>;
-extern template class MapPickDialog<word>;
-extern template class MapPickDialog<dword>;
 std::shared_ptr<GUI::Widget> MapPickDialog<byte>::view();
 std::shared_ptr<GUI::Widget> MapPickDialog<word>::view();
 std::shared_ptr<GUI::Widget> MapPickDialog<dword>::view();
+extern template class MapPickDialog<byte>;
+extern template class MapPickDialog<word>;
+extern template class MapPickDialog<dword>;
 
 class NumPickDialog: public GUI::Dialog<NumPickDialog>
 {
@@ -91,13 +91,19 @@ private:
 };
 
 template<typename Sz>
-void call_edit_vector(bounded_vec<Sz,int32_t>& vec, bool zsint);
+void call_edit_vector(bounded_vec<Sz,int32_t>& vec, bool zsint)
+{
+	VectorPickDialog<Sz>(vec, zsint).show();
+}
 template void call_edit_vector(bounded_vec<byte,int32_t>& vec, bool zsint);
 template void call_edit_vector(bounded_vec<word,int32_t>& vec, bool zsint);
 template void call_edit_vector(bounded_vec<dword,int32_t>& vec, bool zsint);
 
 template<typename Sz>
-void call_edit_map(bounded_map<Sz,int32_t>& mp, bool zsint);
+void call_edit_map(bounded_map<Sz,int32_t>& mp, bool zsint)
+{
+	MapPickDialog<Sz>(mp, zsint).show();
+}
 template void call_edit_map(bounded_map<byte,int32_t>& mp, bool zsint);
 template void call_edit_map(bounded_map<word,int32_t>& mp, bool zsint);
 template void call_edit_map(bounded_map<dword,int32_t>& mp, bool zsint);

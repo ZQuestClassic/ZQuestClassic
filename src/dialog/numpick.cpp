@@ -6,12 +6,6 @@
 #include <fmt/format.h>
 
 static const size_t pglimit = 50;
-template class VectorPickDialog<byte>;
-template class VectorPickDialog<word>;
-template class VectorPickDialog<dword>;
-template class MapPickDialog<byte>;
-template class MapPickDialog<word>;
-template class MapPickDialog<dword>;
 
 template<typename Sz>
 VectorPickDialog<Sz>::VectorPickDialog(bounded_vec<Sz,int32_t>& vec, bool zsint)
@@ -456,14 +450,11 @@ optional<zfix> call_get_zfix(std::string const& lbl, zfix dv, zfix max, zfix min
 		return zslongToFix(*ret);
 	return ret;
 }
-template<typename Sz>
-void call_edit_vector(bounded_vec<Sz,int32_t>& vec, bool zsint)
-{
-	VectorPickDialog<Sz>(vec, zsint).show();
-}
-template<typename Sz>
-void call_edit_map(bounded_map<Sz,int32_t>& mp, bool zsint)
-{
-	MapPickDialog<Sz>(mp, zsint).show();
-}
+
+template class VectorPickDialog<byte>;
+template class VectorPickDialog<word>;
+template class VectorPickDialog<dword>;
+template class MapPickDialog<byte>;
+template class MapPickDialog<word>;
+template class MapPickDialog<dword>;
 
