@@ -117,7 +117,7 @@ void mmap_init()
 		// TODO: for web, changing the target bitmap is really expensive.
 		// Seems like a bug. https://discord.com/channels/993415281244393504/1163652238011551816
 		// So for now, disable the cursor blinking so we only redraw when the something actually changes.
-		// if (!is_web()) mmap_blink_count++;
+		if (!is_web()) mmap_blink_count++;
 		int32_t cursor_color = get_cursor_color();
 		if (prev_cursor_color != cursor_color)
 		{
