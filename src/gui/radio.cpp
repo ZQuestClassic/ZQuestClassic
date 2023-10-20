@@ -10,8 +10,8 @@
 namespace GUI
 {
 
-Radio::Radio(): checked(false), text(),
-	alDialog(), message(-1), procset(0)
+Radio::Radio(): message(-1), checked(false),
+	text(), procset(0), alDialog()
 {
 	setPreferredHeight(14_px);
 }

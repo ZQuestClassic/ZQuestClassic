@@ -103,7 +103,7 @@ void slope_object::updateslope()
 }
 
 slope_object::slope_object(word* cid, ffcdata* ff, int32_t id, word cpos)
-	: cmbid(cid), ffc(ff), id(id)
+	: ffc(ff), cmbid(cid), id(id)
 {
 	if(ffc)
 	{

@@ -228,8 +228,8 @@ namespace ZScript
 		// Used as a parameter to signal that both lval and rval are needed.
 		static void* const paramReadWrite;
 		
-		RecursiveVisitor() : failure(false), failure_halt(false),
-			failure_temp(false), breakNode(NULL) {}
+		RecursiveVisitor() : breakNode(NULL), failure(false),
+			failure_temp(false), failure_halt(false) {}
 	
 		// Mark as having failed.
 		void fail() {failure = true;}

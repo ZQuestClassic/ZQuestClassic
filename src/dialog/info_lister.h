@@ -19,11 +19,11 @@ public:
 	enum class message { REFR_INFO, OK, EDIT, EXIT, COPY, PASTE, SAVE, LOAD, CONFIRM };
 	
 	BasicListerDialog(std::string title, int start_val = 0, bool selecting = false) :
-		titleTxt(title), start_val(start_val), selected_val(start_val), selecting(selecting),
+		titleTxt(title), selected_val(start_val), start_val(start_val), selecting(selecting),
 		use_preview(false), editable(true){};
 	BasicListerDialog(std::string title, GUI::ListData lister, int start_val = 0, bool selecting = false) :
-		titleTxt(title), start_val(start_val), selected_val(start_val), selecting(selecting),
-		use_preview(false), editable(true), lister(lister){};
+		titleTxt(title), lister(lister), selected_val(start_val), start_val(start_val),
+		selecting(selecting), use_preview(false), editable(true){};
 	
 	std::shared_ptr<GUI::Widget> view() override;
 	virtual bool handleMessage(const GUI::DialogMessage<message>& msg);

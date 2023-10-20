@@ -34,10 +34,10 @@ void call_init_dlg(zinitdata& sourcezinit, bool zc)
 }
 
 InitDataDialog::InitDataDialog(zinitdata const& start, bool zc, std::function<void(zinitdata const&)> setVals):
-	local_zinit(start), setVals(setVals), levelsOffset(0), isZC(zc),
-	list_dmaps(GUI::ZCListData::dmaps(true)),
-	list_items(GUI::ZCListData::itemclass(false)),
-	list_genscr(GUI::ZCListData::generic_script())
+	local_zinit(start), levelsOffset(0), list_dmaps(GUI::ZCListData::dmaps(true)), list_items(GUI::ZCListData::itemclass(false)),
+	list_genscr(GUI::ZCListData::generic_script()),
+	isZC(zc),
+	setVals(setVals)
 {}
 
 void InitDataDialog::setOfs(size_t ofs)

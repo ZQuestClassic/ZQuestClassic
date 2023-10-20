@@ -8,11 +8,11 @@ namespace AutoPattern
     // autopattern_container
 
 	autopattern_container::autopattern_container(int32_t ntype, int32_t nlayer, int32_t nbasescreen, int32_t nbasepos, combo_auto* nsource) :
-		type(ntype), layer(nlayer), basescreen(nbasescreen), basepos(nbasepos), source(nsource), 
-		nocrossedge(!(nsource->flags&ACF_CROSSSCREENS)), connectedge(nsource->flags&ACF_CONNECTEDGE),
+		source(nsource), type(ntype), layer(nlayer), basescreen(nbasescreen), basepos(nbasepos), 
 		basescreen_x((basescreen % 16) * 16), basescreen_y((basescreen / 16) * 11),
 		base_x(basescreen_x + (basepos % 16)), base_y(basescreen_y + (basepos / 16)),
-		screenboundary_x(0), screenboundary_y(0)
+		screenboundary_x(0), screenboundary_y(0),
+		nocrossedge(!(nsource->flags&ACF_CROSSSCREENS)), connectedge(nsource->flags&ACF_CONNECTEDGE)
 	{
 		erase_cid = source->getEraseCombo();
 		init_pattern();
@@ -289,14 +289,14 @@ namespace AutoPattern
 	// apcombo
 
 	apcombo::apcombo(byte nlayer, int32_t nscreenpos) :
-		screenpos(nscreenpos), screen(nscreenpos / 176), pos(nscreenpos % 176)
+		screen(nscreenpos / 176), pos(nscreenpos % 176), screenpos(nscreenpos)
 	{
 		x = (pos % 16) + (screen % 16) * 16;
 		y = (pos / 16) + (screen / 16) * 11;
 		read(nlayer);
 	}
 	apcombo::apcombo(byte nlayer, int32_t nscreen, int32_t npos) :
-		screenpos(nscreen * 176 + npos), screen(nscreen), pos(npos)
+		screen(nscreen), pos(npos), screenpos(nscreen * 176 + npos)
 	{
 		x = (pos % 16) + (screen % 16) * 16;
 		y = (pos / 16) + (screen / 16) * 11;

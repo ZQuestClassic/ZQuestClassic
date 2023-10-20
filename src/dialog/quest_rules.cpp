@@ -1762,7 +1762,7 @@ void QRDialog::reloadQRs()
 	memcpy(local_qrs, realqrs, QR_SZ);
 }
 QRDialog::QRDialog(byte const* qrs, size_t qrs_per_tab, std::function<void(byte*)> setQRs):
-	setQRs(setQRs), qrs_per_tab(qrs_per_tab), realqrs(qrs), searchmode(false)
+	searchmode(false), setQRs(setQRs), realqrs(qrs), qrs_per_tab(qrs_per_tab)
 {
 	reloadQRs();
 }

@@ -16,12 +16,12 @@ Widget::Widget() noexcept:
 	leftPadding(DEFAULT_PADDING_INT), rightPadding(DEFAULT_PADDING_INT),
 	topPadding(DEFAULT_PADDING_INT), bottomPadding(DEFAULT_PADDING_INT),
 	hAlign(0.5), vAlign(0.5),
+	frameText(""), widgFont(GUI_DEF_FONT),
 	width(0), height(0),
 	maxwidth(-1), maxheight(-1),
 	minwidth(-1), minheight(-1),
-	flags(0), hideCount(0),
-	frameText(""), widgFont(GUI_DEF_FONT),
-	owner(NULL), rowSpan(1), colSpan(1)
+	rowSpan(1), colSpan(1),
+	owner(NULL), flags(0), hideCount(0)
 {}
 
 void Widget::overrideWidth(Size newWidth) noexcept

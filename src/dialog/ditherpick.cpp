@@ -10,10 +10,10 @@ void call_edit_dither(byte& ditherTy, byte& ditherArg, byte& ditherCol, bool edi
 }
 
 DitherPickDialog::DitherPickDialog(byte& ditherTy, byte& ditherArg, byte& ditherCol, bool editcol)
-	: dest_dtype(ditherTy), dtype(ditherTy),
-	dest_darg(ditherArg), darg(ditherArg),
-	dest_dcol(ditherCol), dcol(ditherCol),
-	edit_color(editcol)
+	: dest_dtype(ditherTy), dest_darg(ditherArg),
+	dest_dcol(ditherCol), edit_color(editcol),
+	dtype(ditherTy), darg(ditherArg),
+	dcol(ditherCol)
 {}
 
 static GUI::ListData list_dithertype

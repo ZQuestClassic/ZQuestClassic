@@ -2956,7 +2956,7 @@ public:
 	}
 };
 
-ArrayManager::ArrayManager(int32_t ptr, bool neg) : ptr(ptr), negAccess(neg)
+ArrayManager::ArrayManager(int32_t ptr, bool neg) : negAccess(neg), ptr(ptr)
 {
 	_invalid = false;
 	if(ptr >= INTARR_OFFS)

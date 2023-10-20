@@ -4,7 +4,7 @@
 #include "zq/zquest.h"
 
 ScaleTileDialog::ScaleTileDialog(int32_t *w, int32_t *h):
-	swid(*w), shei(*h), twid(w), thei(h), tw(*w), th(*h)
+	swid(*w), shei(*h), tw(*w), th(*h), twid(w), thei(h)
 {}
 
 std::shared_ptr<GUI::Widget> ScaleTileDialog::view()

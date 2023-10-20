@@ -135,7 +135,7 @@ struct process_manager : public io_manager, public process_killer
 	int write_handle;
 	int read_handle;
 	
-	process_manager() : process_killer(), io_manager(),
+	process_manager() : io_manager(), process_killer(),
 		kill_on_destructor(true)
 	{}
 	

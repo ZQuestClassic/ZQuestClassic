@@ -720,24 +720,24 @@ vector<Function*> ZScript::getFunctionsInBranch(Scope const& scope)
 // Basic Scope
 
 BasicScope::BasicScope(Scope* parent, FileScope* parentFile)
-	: Scope(parent->getTypeStore()), parent_(parent), parentFile_(parentFile),
-	  stackDepth_(parent->getLocalStackDepth()),
+	: Scope(parent->getTypeStore()), stackDepth_(parent->getLocalStackDepth()), parent_(parent),
+	  parentFile_(parentFile),
 	  defaultOption_(CompileOptionSetting::Inherit)
 {}
 
 BasicScope::BasicScope(Scope* parent, FileScope* parentFile, string const& name)
-	: Scope(parent->getTypeStore(), name), parent_(parent), parentFile_(parentFile),
-	  stackDepth_(parent->getLocalStackDepth()),
+	: Scope(parent->getTypeStore(), name), stackDepth_(parent->getLocalStackDepth()), parent_(parent),
+	  parentFile_(parentFile),
 	  defaultOption_(CompileOptionSetting::Inherit)
 {}
 
 BasicScope::BasicScope(TypeStore& typeStore)
-	: Scope(typeStore), parent_(NULL), stackDepth_(0),
+	: Scope(typeStore), stackDepth_(0), parent_(NULL),
 	  defaultOption_(CompileOptionSetting::Inherit)
 {}
 
 BasicScope::BasicScope(TypeStore& typeStore, string const& name)
-	: Scope(typeStore, name), parent_(NULL), stackDepth_(0),
+	: Scope(typeStore, name), stackDepth_(0), parent_(NULL),
 	  defaultOption_(CompileOptionSetting::Inherit)
 {}
 

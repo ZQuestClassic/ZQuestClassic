@@ -16,9 +16,9 @@ std::string const& getLongestTagName();
 namespace GUI
 {
 
-QRPanel::QRPanel(): TabPanel(), message(-1), info_message(-1),
-	init_qrs(NULL), qrCount(16), scrolling(false), indexed(false),
-	scrollWidth(0_px), scrollHeight(0_px), showTags(false)
+QRPanel::QRPanel(): TabPanel(), scrolling(false), showTags(false),
+	indexed(false), scrollWidth(0_px), scrollHeight(0_px), message(-1),
+	info_message(-1), init_qrs(NULL), qrCount(16)
 {}
 
 void QRPanel::loadQRs(byte const* qrs)

@@ -18,7 +18,7 @@ void call_subscrtransition_dlg(SubscrTransition& tr, std::string title)
 }
 
 SubscrTransitionDialog::SubscrTransitionDialog(SubscrTransition& src, std::string const& title) :
-	src_transition(&src), local_trans(src), windowTitle(title),
+	local_trans(src), src_transition(&src), windowTitle(title),
 	list_sfx(GUI::ZCListData::sfxnames(true))
 {
 	memset(args,0,sizeof(args));

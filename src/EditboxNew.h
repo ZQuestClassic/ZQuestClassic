@@ -172,9 +172,9 @@ class EditboxModel
 {
 public:
 	EditboxModel(string &Buffer, EditboxView *View, bool ReadOnly = false, char *hf = NULL)
-		: helpfile(hf), lines(), buffer(Buffer), view(View),
-		readonly(ReadOnly), cursor(*this), clipboard(""), s(),
-		undobuf(""), has_undo_point(false), undoindx(0)
+		: helpfile(hf), lines(), buffer(Buffer), undobuf(""),
+		undoindx(0), has_undo_point(false), view(View), readonly(ReadOnly),
+		cursor(*this), clipboard(""), s()
 	{}
 	TextSelection &getSelection()
 	{

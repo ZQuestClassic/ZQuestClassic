@@ -10,8 +10,8 @@
 namespace GUI
 {
 
-Checkbox::Checkbox(): checked(false), text(),
-	placement(boxPlacement::LEFT), alDialog(), message(-1)
+Checkbox::Checkbox(): message(-1), checked(false),
+	text(), placement(boxPlacement::LEFT), alDialog()
 {
 	setPreferredHeight(14_px);
 }

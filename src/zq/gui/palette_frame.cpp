@@ -13,7 +13,7 @@
 namespace GUI
 {
 
-PaletteFrame::PaletteFrame(): alDialog(), bmp(NULL), plt(NULL), ColorData(NULL), count(14),
+PaletteFrame::PaletteFrame(): bmp(NULL), ColorData(NULL), plt(NULL), count(14), alDialog(),
 	onUpdate(NULL)
 {
 	setPreferredWidth(192_px);

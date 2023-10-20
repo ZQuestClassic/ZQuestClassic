@@ -20,7 +20,7 @@ using std::shared_ptr;
 // ZScript::Program
 
 Program::Program(ASTFile& root, CompileErrorHandler* errorHandler)
-	: root_(root), rootScope_(new RootScope(typeStore_))
+	: rootScope_(new RootScope(typeStore_)), root_(root)
 {
 	// Create the ~Init script.
 	if (Script* initScript =
@@ -165,7 +165,7 @@ vector<Function*> ZScript::getFunctions(Program const& program)
 // ZScript::UserClass
 
 UserClass::UserClass(Program& program, ASTClass& user_class)
-	: program(program), node(user_class), classType(nullptr)
+	: classType(nullptr), program(program), node(user_class)
 {
 	members.push_back(0);
 }
@@ -199,7 +199,7 @@ UserClass* ZScript::createClass(
 // ZScript::Script
 
 Script::Script(Program& program)
-	: program(program), runFunc(NULL)
+	: runFunc(NULL), program(program)
 {}
 
 Script::~Script()
@@ -418,8 +418,8 @@ UserClassVar* UserClassVar::create(
 }
 UserClassVar::UserClassVar(
 		Scope& scope, ASTDataDecl& node, DataType const& type)
-	: Datum(scope, type), _index(0),
-	  node(node), is_arr(false)
+	: Datum(scope, type), is_arr(false),
+	  _index(0), node(node)
 {
 	node.manager = this;
 }
@@ -488,11 +488,11 @@ BuiltinConstant::BuiltinConstant(
 
 FunctionSignature::FunctionSignature(
 		string const& name, vector<DataType const*> const& parameterTypes)
-	: name(name), parameterTypes(parameterTypes), prefix(false)
+	: name(name), prefix(false), parameterTypes(parameterTypes)
 {}
 
 FunctionSignature::FunctionSignature(Function const& function)
-	: name(function.name), parameterTypes(function.paramTypes), prefix(function.hasPrefixType)
+	: name(function.name), prefix(function.hasPrefixType), parameterTypes(function.paramTypes)
 {}
 		
 int32_t FunctionSignature::compare(FunctionSignature const& other) const
@@ -549,10 +549,10 @@ string FunctionSignature::asString() const
 Function::Function(DataType const* returnType, string const& name,
 				   vector<DataType const*> paramTypes, vector<string const*> paramNames, int32_t id,
 				   int32_t flags, int32_t internal_flags, bool prototype, ASTExprConst* defaultReturn)
-	: node(NULL), internalScope(NULL), thisVar(NULL),
-	  returnType(returnType), name(name), paramTypes(paramTypes), paramNames(paramNames), opt_vals(),
-	  id(id), label(std::nullopt), flags(flags), internal_flags(internal_flags), hasPrefixType(false),
-	  prototype(prototype), defaultReturn(defaultReturn), extra_vargs(0), shown_depr(false)
+	: returnType(returnType), name(name), hasPrefixType(false),
+	  extra_vargs(0), paramTypes(paramTypes), paramNames(paramNames), opt_vals(), id(id),
+	  node(NULL), internalScope(NULL), thisVar(NULL), internal_flags(internal_flags), prototype(prototype),
+	  defaultReturn(defaultReturn), label(std::nullopt), flags(flags), shown_depr(false)
 {}
 
 Function::~Function()

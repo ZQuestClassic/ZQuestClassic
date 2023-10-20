@@ -12,7 +12,7 @@ using namespace GUI;
 namespace GUI
 {
 	Slider::Slider() :
-		offset(0), max_offset(0), message(-1)
+		message(-1), offset(0), max_offset(0)
 	{
 		
 	}

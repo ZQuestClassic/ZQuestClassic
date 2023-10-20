@@ -178,10 +178,10 @@ int32_t d_legacy_edit_proc(int32_t msg, DIALOG* d, int32_t c)
 namespace GUI
 {
 
-TextField::TextField(): buffer(nullptr), tfType(type::TEXT), maxLength(0),
-	onEnterMsg(-1), onValueChangedMsg(-1), startVal(0), lbound(0), ubound(-1),
-	fixedPlaces(4), valSet(false), forced_length(false), swap_type_start(0),
-	last_applied_vis(true), last_applied_dis(false)
+TextField::TextField(): buffer(nullptr), startVal(0), fixedPlaces(4),
+	lbound(0), ubound(-1), tfType(type::TEXT), swap_type_start(0), maxLength(0),
+	forced_length(false), last_applied_vis(true), last_applied_dis(false), onEnterMsg(-1),
+	onValueChangedMsg(-1), valSet(false)
 {
 	setPreferredWidth(1_em);
 	setPreferredHeight(24_px);

@@ -25,7 +25,7 @@ bool call_subscrprop_dialog(SubscrWidget* widg, int32_t obj_ind)
 
 static const int btn_flags[4] = {INT_BTN_A,INT_BTN_B,INT_BTN_X,INT_BTN_Y};
 SubscrPropDialog::SubscrPropDialog(SubscrWidget* widg, int32_t obj_ind) :
-	local_subref(widg->clone()), subref(widg), index(obj_ind),
+	subref(widg), local_subref(widg->clone()), index(obj_ind),
 	list_font(GUI::ZCListData::fonts(false,true,true)),
 	list_shadtype(GUI::ZCListData::shadow_types()),
 	list_aligns(GUI::ZCListData::alignments()),

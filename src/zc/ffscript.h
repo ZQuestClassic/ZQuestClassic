@@ -362,7 +362,7 @@ struct user_file : public user_abstract_obj
 	bool reserved;
 	
 	user_file() : user_abstract_obj(),
-		file(NULL), reserved(false), filepath("")
+		file(NULL), filepath(""), reserved(false)
 	{}
 	
 	void close()
@@ -406,7 +406,7 @@ struct user_dir : public user_abstract_obj
 	bool reserved;
 	
 	user_dir() : user_abstract_obj(),
-		list(NULL), reserved(false), filepath("")
+		list(NULL), filepath(""), reserved(false)
 	{}
 	
 	void setPath(const char* buf);

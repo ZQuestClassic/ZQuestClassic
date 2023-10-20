@@ -13,8 +13,8 @@
 namespace GUI
 {
 
-DDPanel::DDPanel(): TabPanel(), message(-1), theVals(NULL), ddCount(16),
-	dataList(NULL)
+DDPanel::DDPanel(): TabPanel(), message(-1), theVals(NULL), dataList(NULL),
+	ddCount(16)
 {}
 
 void DDPanel::linkVals(int32_t* vals)

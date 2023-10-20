@@ -795,6 +795,7 @@ set(zc_clang_errors
 	-Werror=inconsistent-missing-override
 	-Werror=return-type
 	-Werror=unreachable-code
+	# -Werror=reorder
 	# -Werror=unused
 	-Wno-write-strings
 	-Wno-switch
@@ -812,6 +813,9 @@ set(zc_gcc_errors
 	-Wno-switch
 	# TODO
 	# -Wunused-result
+)
+set(zc_msvc_errors
+	# /we5038
 )
 
 if(WANT_SENTRY)
@@ -885,10 +889,10 @@ if(USE_PCH)
 endif()
 
 foreach(target IN LISTS zc_targets)
-	if(WIN32)
+	if(MSVC)
 		target_compile_definitions(${target} PRIVATE __STDC_LIMIT_MACROS)
 		# TODO: set /W2 higher.
-		target_compile_options(${target} PRIVATE /W2 /WX)
+		target_compile_options(${target} PRIVATE /W2 /WX ${zc_msvc_errors})
 	endif()
 
 	if(CMAKE_C_COMPILER_ID MATCHES "Clang" AND NOT EMSCRIPTEN)

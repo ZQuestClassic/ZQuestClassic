@@ -25,7 +25,7 @@ void call_foo_dlg()
 #endif
 
 FooDialog::FooDialog(int32_t v, std::function<void(int32_t,bool)> setVal):
-	v(v), setVal(setVal)
+	setVal(setVal), v(v)
 {}
 
 std::shared_ptr<GUI::Widget> FooDialog::view()

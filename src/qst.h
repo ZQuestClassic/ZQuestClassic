@@ -17,7 +17,7 @@ struct script_slot_data
 	byte format;
 	std::string output;
 	
-	script_slot_data() : slotname(""), scriptname(""), output(""), format(SCRIPT_FORMAT_DEFAULT) {}
+	script_slot_data() : slotname(""), scriptname(""), format(SCRIPT_FORMAT_DEFAULT), output("") {}
 	void update()
 	{
 		char const* formatstr = getFormatStr()->c_str();

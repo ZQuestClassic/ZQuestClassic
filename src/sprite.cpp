@@ -171,16 +171,14 @@ sprite::sprite(): solid_object()
 sprite::sprite(sprite const & other):
 	solid_object(other),
     z(other.z),
-    fakez(other.fakez),
     fall(other.fall),
+    fakez(other.fakez),
     tile(other.tile),
     shadowtile(other.shadowtile),
     cs(other.cs),
     flip(other.flip),
     c_clk(other.c_clk),
     clk(other.clk),
-    slopeid(other.slopeid),
-    onplatid(other.onplatid),
     misc(other.misc),
     xofs(other.xofs),
     yofs(other.yofs),
@@ -189,6 +187,8 @@ sprite::sprite(sprite const & other):
     txsz(other.txsz),
     tysz(other.tysz),
     id(other.id),
+    slopeid(other.slopeid),
+    onplatid(other.onplatid),
     angular(other.angular),
     canfreeze(other.canfreeze),
     angle(other.angle),
@@ -197,34 +197,24 @@ sprite::sprite(sprite const & other):
     drawstyle(other.drawstyle),
     extend(other.extend),
     wpnsprite(other.wpnsprite),
-//ffcref(other.ffcref),
-//itemref(other.itemref),
-//guyref(other.guyref),
-//lwpnref(other.lwpnref),
-//ewpnref(other.ewpnref),
-//sp(other.sp),
-//pc(other.pc),
 scriptflag(other.scriptflag),
 doscript(other.doscript),
 waitdraw(other.waitdraw),
-//itemclass(other.itemclass),
-//guyclass(other.guyclass),
-//lwpnclass(other.lwpnclass),
-//ewpnclass(other.ewpnclass),
 script(other.script),
 weaponscript(other.weaponscript),
 scripttile(other.scripttile),
 scriptflip(other.scriptflip),
+do_animation(other.do_animation),
 rotation(other.rotation),
+scale(other.scale),
 moveflags(other.moveflags),
 drawflags(other.drawflags),
 knockbackflags(other.knockbackflags),
+screenedge(other.screenedge),
+scriptshadowtile(other.scriptshadowtile),
 knockbackSpeed(other.knockbackSpeed),
 script_knockback_clk(other.script_knockback_clk),
 script_knockback_speed(other.script_knockback_speed),
-scale(other.scale),
-screenedge(other.screenedge),
-scriptshadowtile(other.scriptshadowtile),
 pit_pulldir(other.pit_pulldir),
 pit_pullclk(other.pit_pullclk),
 fallclk(other.fallclk),
@@ -232,18 +222,17 @@ fallCombo(other.fallCombo),
 old_cset(other.old_cset),
 drownclk(other.drownclk),
 drownCombo(other.drownCombo),
-do_animation(other.do_animation),
-glowRad(other.glowRad),
-glowShape(other.glowShape),
-ignore_delete(other.ignore_delete),
+can_flicker(other.can_flicker),
 spr_shadow(other.spr_shadow),
 spr_death(other.spr_death),
 spr_spawn(other.spr_spawn),
 spr_death_anim_clk(other.spr_death_anim_clk),
-spr_death_anim_frm(other.spr_death_anim_frm),
 spr_spawn_anim_clk(other.spr_spawn_anim_clk),
+spr_death_anim_frm(other.spr_death_anim_frm),
 spr_spawn_anim_frm(other.spr_spawn_anim_frm),
-can_flicker(other.can_flicker)
+glowRad(other.glowRad),
+glowShape(other.glowShape),
+ignore_delete(other.ignore_delete)
 
 {
     uid = getNextUID();
@@ -2790,8 +2779,8 @@ void portal::clear()
 //BreakableCombo
 
 breakable::breakable(zfix X, zfix Y, zfix Z, newcombo const& cmb, int32_t cset)
-	: cmb(cmb), dropitem(-1), fromdropset(-1), breaksfx(0), breaksprtype(0),
-	breakspr(0), breaktimer(0)
+	: cmb(cmb), dropitem(-1), breaktimer(0), fromdropset(-1), breaksprtype(0),
+	breaksfx(0), breakspr(0)
 {
 	x = X; y = Y; z = Z;
 	o_tile = cmb.o_tile;
@@ -2806,8 +2795,8 @@ breakable::breakable(zfix X, zfix Y, zfix Z, newcombo const& cmb, int32_t cset)
 
 breakable::breakable(zfix X, zfix Y, zfix Z, newcombo const& cmb, int32_t cset, int32_t dropitem, int32_t fromdropset,
 	byte breaksfx, int8_t breaksprtype, byte breakspr, int32_t breaktimer)
-	: cmb(cmb), dropitem(dropitem), fromdropset(fromdropset), breaksfx(breaksfx), breaksprtype(breaksprtype),
-	breakspr(breakspr), breaktimer(breaktimer)
+	: cmb(cmb), dropitem(dropitem), breaktimer(breaktimer), fromdropset(fromdropset), breaksprtype(breaksprtype),
+	breaksfx(breaksfx), breakspr(breakspr)
 {
 	x = X; y = Y; z = Z;
 	o_tile = cmb.o_tile;

@@ -24,7 +24,7 @@ namespace AutoPattern
 	{
 	public:
 		explicit autopattern_dormtn(int32_t ntype, int32_t nlayer, int32_t nbasescreen, int32_t nbasepos, combo_auto* nsource, byte nheight = 1) :
-			autopattern_container(ntype, nlayer, nbasescreen, nbasepos, nsource), height(nheight), tops(), sides(), side_faces()
+			autopattern_container(ntype, nlayer, nbasescreen, nbasepos, nsource), tops(), sides(), side_faces(), height(nheight)
 		{
 			screenboundary_x = 16;
 			screenboundary_y = 11;
