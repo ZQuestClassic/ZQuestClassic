@@ -1352,13 +1352,6 @@ struct wpndata
 #define WF_VFLIP      0x08
 #define WF_BEHIND     0x10 //Weapon renders behind other sprites
 
-struct quest_template
-{
-    char name[31];
-    char path[2048];
-    //311 bytes
-};
-
 struct item_drop_object
 {
     char name[65];

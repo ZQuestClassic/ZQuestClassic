@@ -6388,7 +6388,7 @@ bool setMapCount2(int32_t c)
 extern BITMAP *bmap;
 
 static bool loading_file_new = false;
-int32_t init_quest(const char *)
+int32_t init_quest()
 {
 	char qstdat_string[2048];
 	strcpy(qstdat_string, "modules/classic/default.qst");
@@ -6724,7 +6724,7 @@ int32_t load_quest(const char *filename, bool show_progress)
 
 	if(ret!=qe_OK)
 	{
-		init_quest(NULL);
+		init_quest();
 	}
 	else
 	{
@@ -6732,7 +6732,7 @@ int32_t load_quest(const char *filename, bool show_progress)
 		
 		if(accessret != 1)
 		{
-			init_quest(NULL);
+			init_quest();
 			
 			if(accessret == 0)
 				ret=qe_pwd;
@@ -6782,14 +6782,14 @@ int32_t load_tileset(const char *filename, dword tsetflags)
 	int32_t ret=loadquest(filename,&header,&QMisc,customtunes,true,skip_flags,1,true,0,tsetflags);
 
 	if(ret!=qe_OK)
-		init_quest(NULL);
+		init_quest();
 	else
 	{
 		int32_t accessret = quest_access(filename, &header);
 		
 		if(accessret != 1)
 		{
-			init_quest(NULL);
+			init_quest();
 			
 			if(accessret == 0)
 				ret=qe_pwd;

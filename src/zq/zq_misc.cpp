@@ -683,7 +683,6 @@ int32_t onOpen2();
 int32_t onRevert();
 int32_t onSave();
 int32_t onSaveAs();
-int32_t onQuestTemplates();
 
 int32_t onUndo();
 int32_t onCopy();
@@ -750,7 +749,6 @@ int32_t onWarpRings();
 int32_t onWhistle();
 int32_t onMiscColors();
 int32_t onMapStyles();
-int32_t onTemplates();
 int32_t onDoorCombos();
 int32_t onTriPieces();
 int32_t onIcons();

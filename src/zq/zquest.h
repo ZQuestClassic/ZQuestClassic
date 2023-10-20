@@ -189,7 +189,7 @@ extern int32_t OnlyCheckNewTilesForDuplicates;
   , HorizontalDuplicateAction;
   int32_t VerticalDuplicateAction, BothDuplicateAction;
   */
-extern word msg_count, qt_count;
+extern word msg_count;
 extern word door_combo_set_count;
 extern int32_t LeechUpdate;
 extern int32_t LeechUpdateTiles;
@@ -237,7 +237,6 @@ extern ZCHEATS             zcheats;
 extern byte                use_cheats;
 extern byte                use_tiles;
 extern char                palnames[MAXLEVELS][17];
-extern quest_template      QuestTemplates[MAXQTS];
 //extern byte              *undotilebuf;
 
 extern char   fontsdat_sig[52];
@@ -260,7 +259,6 @@ int32_t d_nbmenu_proc(int32_t msg,DIALOG *d,int32_t c);
 int32_t getnumber(const char *prompt,int32_t initialval);
 int32_t gettilepagenumber(const char *prompt, int32_t initialval);
 
-void about_module(const char *prompt,int32_t initialval);
 void savesometiles(const char *prompt,int32_t initialval);
 void writesometiles_to(const char *prompt,int32_t initialval);
 
@@ -377,8 +375,6 @@ int32_t stopMusic();
 
 int32_t onQMiscValues();
 
-int32_t onTemplates();
-
 //  +----------+
 //  |          |
 //  | View Pic |
@@ -494,7 +490,6 @@ int32_t d_comboalist_proc(int32_t msg,DIALOG *d,int32_t c);
 int32_t onSecretF();
 int32_t onSecretCombo();
 int32_t onUnderCombo();
-int32_t load_zmod_module_file();
 int32_t onImportFFScript();
 int32_t onImportItemScript();
 int32_t onImportNPCScript();
@@ -672,7 +667,7 @@ enum
     cmdPath,
     cmdPlayMusic,
     cmdX,
-    cmdQuestTemplates,
+    cmdQuestTemplates, // UNUSED
     cmdReTemplate,
     cmdDrawingModeRelational,
     cmdRevert,

@@ -625,7 +625,7 @@ int32_t DMapEditorLastMaptileUsed = 0;
   , HorizontalDuplicateAction;
   int32_t VerticalDuplicateAction, BothDuplicateAction;
   */
-word msg_count = 0, qt_count = 0;
+word msg_count = 0;
 int32_t LeechUpdate = 0;
 int32_t LeechUpdateTiles = 0;
 int32_t SnapshotFormat = 0;
@@ -735,7 +735,6 @@ byte                use_cheats;
 byte                use_tiles;
 // Note: may not be null-terminated (must refactor writecolordata to fix).
 char                palnames[MAXLEVELS][17];
-quest_template      QuestTemplates[MAXQTS];
 char                fontsdat_sig[52];
 char                zquestdat_sig[52];
 char                sfxdat_sig[52];
@@ -1515,18 +1514,6 @@ static MENU tunes_menu[] =
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
-//New Modules Menu for 2.55+
-static MENU module_menu[] =
-{
-    { (char *)"&Load Module...",        load_zmod_module_file,           NULL,                     0,            NULL   },
-    { (char *)"&About Module",        onAbout_Module,           NULL,                     0,            NULL   },
-    //divider
-    { (char *)"",                               NULL,                      NULL,                     0,            NULL   },
-    { (char *)"&Template",                  onTemplates,               NULL,                     0,            NULL   },
-
-    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
-};
-
 static MENU media_menu[] =
 {
 	{ (char *)"Ambient Music  ",            NULL,                      tunes_menu,               0,            NULL   },
@@ -1554,9 +1541,6 @@ static MENU etc_menu[] =
 	{ (char *)"Clear Quest Filepath",       onClearQuestFilepath,      NULL,                     0,            NULL   },
 	{ (char *)"&Take ZQ Snapshot",          onSnapshot,                NULL,                     0,            NULL   },
 	{ (char *)"Take &Screen Snapshot",      onMapscrSnapshot,          NULL,                     0,            NULL   },
-	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-	// 15
-	{ (char *)"&Modules",                   NULL,                      module_menu,              0,            NULL   },
 	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
@@ -1972,98 +1956,6 @@ void savesometiles(const char *prompt,int32_t initialval)
 		}
 	}
 }
-
-static DIALOG module_info_dlg[] =
-{
-    // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
-
-
-    { jwin_win_proc,      0,   0,   200,  200,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "About Current Module", NULL, NULL },
-    //1
-    {  jwin_text_proc,        10,    20,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"Module:",               NULL,   NULL  },
-    //2
-    {  jwin_text_proc,        50,    20,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"",               NULL,   NULL  },
-   {  jwin_text_proc,        10,    30,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"Author:",               NULL,   NULL  },
-    //4
-    {  jwin_text_proc,        50,    30,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"",               NULL,   NULL  },
-    {  jwin_text_proc,        10,    40,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"",               NULL,   NULL  },
-    {  jwin_text_proc,        10,    50,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"Information:",               NULL,   NULL  },
-    //7
-    
-    {  jwin_text_proc,        10,    60,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"",               NULL,   NULL  },
-    {  jwin_text_proc,        10,    70,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"",               NULL,   NULL  },
-    {  jwin_text_proc,        10,    80,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"",               NULL,   NULL  },
-    {  jwin_text_proc,        10,    90,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"",               NULL,   NULL  },
-    {  jwin_text_proc,        10,    100,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"",               NULL,   NULL  },
-    {  jwin_text_proc,        10,    120,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"",               NULL,   NULL  },
-    {  jwin_text_proc,        10,    130,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"",               NULL,   NULL  },
-    {  jwin_text_proc,        10,    140,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"",               NULL,   NULL  },
-    {  jwin_text_proc,        10,    150,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"",               NULL,   NULL  },
-   
-    { jwin_button_proc,   40,   160,  50,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-    { jwin_button_proc,   200-40-50,  160,  50,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
-
-
-void about_module(const char *prompt,int32_t initialval)
-{	
-	
-	module_info_dlg[0].dp2 = get_zc_font(font_lfont);
-	if ( moduledata.moduletitle[0] != 0 )
-		module_info_dlg[2].dp = (char*)moduledata.moduletitle;
-	
-	if ( moduledata.moduleauthor[0] != 0 )
-		module_info_dlg[4].dp = (char*)moduledata.moduleauthor;
-	
-	if ( moduledata.moduleinfo0[0] != 0 )
-		module_info_dlg[7].dp = (char*)moduledata.moduleinfo0;
-	if ( moduledata.moduleinfo1[0] != 0 )
-		module_info_dlg[8].dp = (char*)moduledata.moduleinfo1;
-	if ( moduledata.moduleinfo2[0] != 0 )
-		module_info_dlg[9].dp = (char*)moduledata.moduleinfo2;
-	if ( moduledata.moduleinfo3[0] != 0 )
-		module_info_dlg[10].dp = (char*)moduledata.moduleinfo3;
-	if ( moduledata.moduleinfo4[0] != 0 )
-		module_info_dlg[11].dp = (char*)moduledata.moduleinfo4;
-	
-	char module_date[255];
-	memset(module_date, 0, sizeof(module_date));
-	sprintf(module_date,"Build Date: %s %s, %d at @ %d:%d %s", dayextension(moduledata.modday).c_str(), 
-			(char*)months[moduledata.modmonth], moduledata.modyear, moduledata.modhour, moduledata.modminute, moduledata.moduletimezone);
-	
-	
-	
-	char module_vers[255];
-	memset(module_vers, 0, sizeof(module_vers));
-	sprintf(module_vers, "Version: %d.%d.%d.%d", moduledata.modver_1, moduledata.modver_2, moduledata.modver_3, moduledata.modver_4);
-	
-	
-	//sprintf(tilecount,"%d",1);
-	
-	char module_build[255];
-	memset(module_build, 0, sizeof(module_build));
-	if ( moduledata.modbeta )
-		sprintf(module_build,"Module Build: %d, %s: %d", moduledata.modbuild, (moduledata.modbeta<0) ? "Alpha" : "Beta", moduledata.modbeta );
-	else
-		sprintf(module_build,"Module Build: %d", moduledata.modbuild);
-	
-	module_info_dlg[12].dp = (char*)module_date;
-	module_info_dlg[13].dp = (char*)module_vers;
-	module_info_dlg[14].dp = (char*)module_build;
-	
-	large_dialog(module_info_dlg);
-	
-	int32_t ret = do_zqdialog(module_info_dlg,-1);
-	jwin_center_dialog(module_info_dlg);
-	
-	
-}
-
-
-
-
 
 static DIALOG read_tiles_dlg[] =
 {
@@ -4464,13 +4356,6 @@ int32_t onQMiscValues()
 {
     EditGameMiscArray();
     saved=false;
-    return D_O_K;
-}
-
-
-int32_t onTemplates()
-{
-    edit_qt();
     return D_O_K;
 }
 
@@ -10360,7 +10245,7 @@ std::string get_command_infostr(int cmd)
 			infostr = "Enable Preview Mode";
 			break;
 		case cmdQuestTemplates:
-			infostr = "Select a Quest Template";
+			infostr = "<UNUSED>";
 			break;
 		case cmdReTemplate:
 			infostr = "??"; //!TODO Check this command out
@@ -25625,34 +25510,6 @@ void center_zscript_dialogs()
     jwin_center_dialog(clearslots_dlg);
 }
 
-//The Dialogue that loads a ZMOD Module File
-int32_t load_zmod_module_file()
-{
-	
-    if(!getname("Load Module (.zmod)","zmod",NULL,datapath,false))
-        return D_O_K;
-    
-    FILE *tempmodule = fopen(temppath,"r");
-            
-            if(tempmodule == NULL)
-            {
-                jwin_alert("Error","Cannot open specified file!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-                return -1;
-            }
-	    
-	    
-	    //Set the module path:
-	    memset(moduledata.module_name, 0, sizeof(moduledata.module_name));
-	    strcpy(moduledata.module_name, temppath);
-	    al_trace("New Module Path is: %s \n", moduledata.module_name);
-	    zc_set_config("ZCMODULE","current_module",moduledata.module_name);
-	    zcm.init(true); //Load the module values.
-	    build_bief_list();
-	    build_biea_list(); 
-	    build_biew_list();
-	    return D_O_K;
-}
-
 static DIALOG sfxlist_dlg[] =
 {
     // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
@@ -27993,9 +27850,6 @@ int32_t main(int32_t argc,char **argv)
 	
 	// loading data files...
 	
-	
-	init_qts();
-	
 	filepath[0]=temppath[0]=0;
 	
 	const char *default_path="";
@@ -28188,23 +28042,6 @@ int32_t main(int32_t argc,char **argv)
 	if(used_switch(argc,argv,"-d"))
 	{
 		set_debug(!strcmp(zquestpwd,zc_get_config("zquest","debug_this","")));
-	}
-	
-	char qtnametitle[20];
-	char qtpathtitle[20];
-	
-	for(int32_t x=1; x<MAXQTS; ++x)
-	{
-		sprintf(qtnametitle, "%s%d", qtname_name, x);
-		sprintf(qtpathtitle, "%s%d", qtpath_name, x);
-		strcpy(QuestTemplates[x].name,zc_get_config("zquest",qtnametitle,""));
-		strcpy(QuestTemplates[x].path,zc_get_config("zquest",qtpathtitle,""));
-		
-		if(QuestTemplates[x].name[0]==0)
-		{
-			qt_count=x;
-			break;
-		}
 	}
 	
 	Z_message("Initializing sound driver... ");
@@ -28519,7 +28356,7 @@ int32_t main(int32_t argc,char **argv)
 		}
 		else
 		{
-			init_quest(NULL);
+			init_quest();
 			
 			if(RulesetDialog)
 			{
@@ -30240,22 +30077,6 @@ int32_t save_config_file()
     
     zc_set_config("zquest","layer_mask",b);
     
-    for(int32_t x=1; x<qt_count+1; x++)
-    {
-        sprintf(qtnametitle, qtname_name, x);
-        sprintf(qtpathtitle, qtpath_name, x);
-        
-        if(QuestTemplates[x].path[0]!=0)
-        {
-            zc_set_config("zquest",qtnametitle,QuestTemplates[x].name);
-            zc_set_config("zquest",qtpathtitle,QuestTemplates[x].path);
-        }
-        else
-        {
-            break;
-        }
-    }
-    
     //save the beta warning confirmation info
 	char *uniquestr = getBetaControlString();
 	zc_set_config("zquest", "beta_warning", uniquestr);
@@ -30527,7 +30348,7 @@ command_pair commands[cmdMAX]=
     { "Take ZQ Snapshot",                   0, (intF) onSnapshot },
     { "Ambient Music",                      0, (intF) playTune1 },
     { "NES Dungeon Template",               0, (intF) onTemplate },
-    { "Edit Templates",                     0, (intF) onTemplates },
+    { "<UNUSED>",                           0, (intF) NULL },
     { "Tile Warp",                          0, (intF) onTileWarp },
     { "Default Tiles",                      0, (intF) onDefault_Tiles },
     { "Tiles",                              0, (intF) onTiles },

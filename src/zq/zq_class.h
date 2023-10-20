@@ -368,7 +368,7 @@ void delete_mapscr(mapscr *dest);
 //const char zqsheader[30];
 
 bool setMapCount2(int32_t c);
-int32_t init_quest(const char *templatefile);
+int32_t init_quest();
 void set_questpwd(std::string_view pwd, bool use_keyfile);
 int32_t quest_access(const char *filename, zquestheader *hdr);
 bool write_midi(MIDI *m,PACKFILE *f);

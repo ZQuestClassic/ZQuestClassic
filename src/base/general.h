@@ -121,7 +121,6 @@ int wrap(int x,int low,int high);
 #define TEMPLATE                   131
 #define TEMPLATE2                  132
 
-#define MAXQTS                     256
 #define MAXMSGS                    65535
 #define MAXDOORCOMBOSETS           256
 #define MAXDMAPS                   512 //this and
