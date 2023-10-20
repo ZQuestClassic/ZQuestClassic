@@ -5696,7 +5696,7 @@ void draw_tiles(BITMAP* dest,int32_t first,int32_t cs, int32_t f, bool large, bo
 			{
 				if (InvalidBG == 2)
 				{
-					draw_checkerboard(dest, x, y, l / 2 + 1, l / 2 + 1, l + 2);
+					draw_checkerboard(dest, x, y, 0, 0, l + 2);
 				}
 				else if(InvalidBG == 1)
 				{
