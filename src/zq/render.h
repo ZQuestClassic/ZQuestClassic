@@ -3,8 +3,8 @@
 
 #include "base/render.h"
 
-RenderTreeItem* get_mmap_rti();
-RenderTreeItem* get_tooltip_rti();
+RenderTreeItem* get_screen_rti();
+LegacyBitmapRTI* get_tooltip_rti();
 void zq_hide_screen(bool hidden);
 void render_zq();
 

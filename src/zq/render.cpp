@@ -1,15 +1,15 @@
 #include "zq/render.h"
+#include "base/render.h"
 #include "zconfig.h"
 #include "base/gui.h"
 
 extern int32_t prv_mode;
 extern bool DragAspect;
 
-static RenderTreeItem rti_root("root");
-static RenderTreeItem rti_screen("screen");
-static RenderTreeItem rti_mmap("mmap");
-static RenderTreeItem rti_tooltip("tooltip");
-static RenderTreeItem rti_tint("tint");
+static auto rti_root = RenderTreeItem("root");
+static auto rti_screen = LegacyBitmapRTI("screen");
+static auto rti_tooltip = LegacyBitmapRTI("tooltip");
+static auto rti_tint = RenderTreeItem("tint");
 
 static int zc_gui_mouse_x()
 {
@@ -34,20 +34,20 @@ static void init_render_tree()
 {
 	if (rti_root.has_children())
 		return;
-	
+
 	set_bitmap_create_flags(false);
+	rti_screen.set_size(screen->w, screen->h);
 	rti_screen.bitmap = create_a5_bitmap(screen->w, screen->h);
 	rti_screen.a4_bitmap = screen;
 	rti_screen.visible = true;
-	
+
 	rti_tooltip.transparency_index = 0;
-	
-	rti_tint.bitmap = create_a5_bitmap(screen->w, screen->h);
+
+	rti_tint.set_size(screen->w, screen->h);
 	rti_tint.visible = false;
-	
-	rti_screen.add_child(&rti_mmap);
+
 	rti_screen.add_child(&rti_tooltip);
-	
+
 	rti_root.add_child(&rti_screen);
 	rti_root.add_child(&rti_tint);
 	rti_root.add_child(&rti_dialogs);
@@ -56,7 +56,7 @@ static void init_render_tree()
 	gui_mouse_y = zc_gui_mouse_y;
 
 	al_set_new_bitmap_flags(0);
-	
+
 	_init_render(al_get_bitmap_format(rti_screen.bitmap));
 }
 
@@ -69,11 +69,9 @@ static void configure_render_tree()
 
 	rti_root.visible = true;
 	
-	rti_mmap.visible = !prv_mode;
-	
 	{
-		int w = al_get_bitmap_width(rti_screen.bitmap);
-		int h = al_get_bitmap_height(rti_screen.bitmap);
+		int w = rti_screen.width;
+		int h = rti_screen.height;
 		float xscale = (float)resx/w;
 		float yscale = (float)resy/h;
 		if (scaling_force_integer)
@@ -109,7 +107,7 @@ static void configure_render_tree()
 	rti_dialogs.visible = rti_dialogs.has_children();
 	rti_tint.visible = rti_dialogs.visible && !dlg_tint_paused();
 	
-	if(rti_dialogs.visible)
+	if(rti_dialogs.visible && rti_tint.bitmap)
 	{
 		auto& tint = get_dlg_tint();
 		if(!override_dlg_tint)
@@ -131,7 +129,6 @@ static void configure_render_tree()
 
 	// Freeze dialogs that won't be changing.
 	rti_screen.freeze = rti_dialogs.visible;
-	rti_mmap.freeze = rti_dialogs.visible;
 	int i = 0;
 	while (i < rti_dialogs.get_children().size())
 	{
@@ -142,12 +139,12 @@ static void configure_render_tree()
 	reload_dialog_tints();
 }
 
-RenderTreeItem* get_mmap_rti()
+RenderTreeItem* get_screen_rti()
 {
-	return &rti_mmap;
+	return &rti_screen;
 }
 
-RenderTreeItem* get_tooltip_rti()
+LegacyBitmapRTI* get_tooltip_rti()
 {
 	return &rti_tooltip;
 }

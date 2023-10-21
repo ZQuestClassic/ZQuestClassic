@@ -30650,7 +30650,7 @@ void draw_ttips()
 {
 	extern RenderTreeItem rti_dialogs;
 
-	RenderTreeItem* rti_tooltip = get_tooltip_rti();
+	LegacyBitmapRTI* rti_tooltip = get_tooltip_rti();
 	bool tb1_valid = tooltip_box.x >= 0 && tooltip_box.y >= 0;
 	bool tb2_valid = tooltip_box2.x >= 0 && tooltip_box2.y >= 0;
 	bool visible = !rti_dialogs.has_children() && (tb1_valid || tb2_valid);
@@ -30683,10 +30683,10 @@ void draw_ttips()
 
 	if (!rti_tooltip->a4_bitmap || rti_tooltip->a4_bitmap->w != w || rti_tooltip->a4_bitmap->h != h)
 	{
+		rti_tooltip->width = w;
+		rti_tooltip->height = h;
 		if (rti_tooltip->a4_bitmap) destroy_bitmap(rti_tooltip->a4_bitmap);
 		rti_tooltip->a4_bitmap = create_bitmap_ex(8, w, h);
-		if (rti_tooltip->bitmap) al_destroy_bitmap(rti_tooltip->bitmap);
-		rti_tooltip->bitmap = create_a5_bitmap(w, h);
 	}
 
 	auto t = rti_tooltip->get_transform();

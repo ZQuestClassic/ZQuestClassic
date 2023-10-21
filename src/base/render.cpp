@@ -45,7 +45,12 @@ bool RenderTreeItem::has_children() const
 {
 	return !children.empty();
 }
-void RenderTreeItem::handle_dirty()
+void RenderTreeItem::set_size(int width, int height)
+{
+	this->width = width;
+	this->height = height;
+}
+void RenderTreeItem::handle_dirty_transform()
 {
 	if (!transform_dirty) return;
 
@@ -54,10 +59,10 @@ void RenderTreeItem::handle_dirty()
 	transform_matrix = parent_transform.mul(transform_matrix);
 	transform_dirty = false;
 }
-void RenderTreeItem::mark_dirty()
+void RenderTreeItem::mark_transform_dirty()
 {
 	transform_dirty = transform_inverse_dirty = true;
-	for (auto child : children) child->mark_dirty();
+	for (auto child : children) child->mark_transform_dirty();
 }
 void RenderTreeItem::set_transform(Transform new_transform)
 {
@@ -65,7 +70,7 @@ void RenderTreeItem::set_transform(Transform new_transform)
 		return;
 
 	transform = new_transform;
-	mark_dirty();
+	mark_transform_dirty();
 }
 const Transform& RenderTreeItem::get_transform() const
 {
@@ -73,12 +78,12 @@ const Transform& RenderTreeItem::get_transform() const
 }
 const Matrix& RenderTreeItem::get_transform_matrix()
 {
-	handle_dirty();
+	handle_dirty_transform();
 	return transform_matrix;
 }
 std::pair<int, int> RenderTreeItem::world_to_local(int x, int y)
 {
-	handle_dirty();
+	handle_dirty_transform();
 	if (transform_inverse_dirty)
 	{
 		transform_matrix_inverse = transform_matrix.inverse();
@@ -88,7 +93,7 @@ std::pair<int, int> RenderTreeItem::world_to_local(int x, int y)
 }
 std::pair<int, int> RenderTreeItem::local_to_world(int x, int y)
 {
-	handle_dirty();
+	handle_dirty_transform();
 	return transform_matrix.apply(x, y);
 }
 std::pair<int, int> RenderTreeItem::pos()
@@ -167,8 +172,6 @@ RenderTreeItem::~RenderTreeItem()
 	{
 		if(bitmap)
 			al_destroy_bitmap(bitmap);
-		if(a4_bitmap)
-			destroy_bitmap(a4_bitmap);
 	}
 	if(owned_tint)
 	{
@@ -336,15 +339,9 @@ void render_text_lines(ALLEGRO_FONT* font, std::vector<std::string> lines, TextJ
 
 static void render_tree_draw_item_prepare(RenderTreeItem* rti)
 {
+	rti->prepare();
 	if (!rti->visible)
 		return;
-
-	if (rti->bitmap && rti->a4_bitmap && (!rti->a4_bitmap_rendered_once || !rti->freeze))
-	{
-		all_set_transparent_palette_index(rti->transparency_index);
-		all_render_a5_bitmap(rti->a4_bitmap, rti->bitmap);
-		rti->a4_bitmap_rendered_once = true;
-	}
 
 	for (auto rti_child : rti->get_children())
 	{
@@ -352,15 +349,59 @@ static void render_tree_draw_item_prepare(RenderTreeItem* rti)
 	}
 }
 
-static void render_tree_draw_item(RenderTreeItem* rti)
+static void render_tree_draw_item(RenderTreeItem* rti, bool do_a4_only)
 {
 	if (!rti->visible)
 		return;
 
-	if (rti->cb && !rti->freeze)
-		rti->cb();
+	// When rendering just a4 bitmaps in bulk, we only draw to the a5 bitmap. The next pass
+	// will actually draw to the screen.
+	bool skip = false;
+	if (do_a4_only && dynamic_cast<LegacyBitmapRTI*>(rti) == nullptr)
+		skip = true;
+	if (!do_a4_only && dynamic_cast<LegacyBitmapRTI*>(rti) != nullptr)
+		skip = true;
 
-	if (rti->bitmap)
+	if (!skip && !rti->freeze)
+	{
+		bool size_changed = false;
+		int flags = -1;
+		if (rti->bitmap && (al_get_bitmap_width(rti->bitmap) != rti->width || al_get_bitmap_height(rti->bitmap) != rti->height))
+		{
+			flags = al_get_bitmap_flags(rti->bitmap);
+			al_destroy_bitmap(rti->bitmap);
+			rti->bitmap = nullptr;
+			size_changed = true;
+		}
+		if (!rti->bitmap && rti->width > 0 && rti->height > 0)
+		{
+			if (flags != -1) al_set_new_bitmap_flags(flags);
+			else set_bitmap_create_flags(true);
+			rti->bitmap = create_a5_bitmap(rti->width, rti->height);
+			rti->dirty = true;
+		}
+
+		if (rti->dirty && rti->bitmap)
+		{
+			rti->dirty = false;
+			if (do_a4_only)
+			{
+				// Special case, we don't need to change the target bitmap or clear it to
+				// convert from a4 to a5 bitmaps.
+				rti->render(size_changed);
+			}
+			else
+			{
+				al_set_target_bitmap(rti->bitmap);
+				al_clear_to_color(al_map_rgba(0, 0, 0, 0));
+				rti->render(size_changed);
+				al_set_target_backbuffer(all_get_display());
+			}
+		}
+	}
+
+	skip = do_a4_only;
+	if (!skip && rti->bitmap)
 	{
 		int w = al_get_bitmap_width(rti->bitmap);
 		int h = al_get_bitmap_height(rti->bitmap);
@@ -383,7 +424,7 @@ static void render_tree_draw_item(RenderTreeItem* rti)
 
 	for (auto rti_child : rti->get_children())
 	{
-		render_tree_draw_item(rti_child);
+		render_tree_draw_item(rti_child, do_a4_only);
 	}
 }
 
@@ -396,9 +437,7 @@ static void render_tree_draw_item_debug(RenderTreeItem* rti, int depth, std::vec
 		line += "[HIDDEN] ";
 	if (rti->bitmap)
 	{
-		int w = al_get_bitmap_width(rti->bitmap);
-		int h = al_get_bitmap_height(rti->bitmap);
-		line += fmt::format("[BITMAP {}x{}] ", w, h);
+		line += fmt::format("[{}x{}] ", rti->width, rti->height);
 		if (rti->freeze)
 			line += "[FROZEN] ";
 		if (rti->tint)
@@ -418,9 +457,11 @@ static void render_tree_draw_item_debug(RenderTreeItem* rti, int depth, std::vec
 
 void render_tree_draw(RenderTreeItem* rti)
 {
-	// Draw all a4 bitmaps to an a5 bitmap first. This might help a little in reducing GL context switches.
 	render_tree_draw_item_prepare(rti);
-	render_tree_draw_item(rti);
+	// Draw all a4 bitmaps to an a5 bitmap first.
+	// This might help a little in reducing GL context switches.
+	render_tree_draw_item(rti, true);
+	render_tree_draw_item(rti, false);
 }
 
 void render_tree_draw_debug(RenderTreeItem* rti)
@@ -440,6 +481,30 @@ void render_set_debug(bool debug)
 bool render_get_debug()
 {
 	return render_debug;
+}
+
+void RenderTreeItem::prepare() {}
+void RenderTreeItem::render(bool) {}
+
+LegacyBitmapRTI::~LegacyBitmapRTI()
+{
+	if (owned && a4_bitmap)
+		destroy_bitmap(a4_bitmap);
+}
+
+void LegacyBitmapRTI::prepare()
+{
+	dirty = true;
+}
+
+void LegacyBitmapRTI::render(bool)
+{
+	if (bitmap && a4_bitmap && (!a4_bitmap_rendered_once || !freeze))
+	{
+		all_set_transparent_palette_index(transparency_index);
+		all_render_a5_bitmap(a4_bitmap, bitmap);
+		a4_bitmap_rendered_once = true;
+	}
 }
 
 namespace MouseSprite
@@ -559,18 +624,18 @@ void popup_zqdialog_start(int x, int y, int w, int h, int transp)
 		else clear_bitmap(tmp_bmp);
 		screen = tmp_bmp;
 		
-		RenderTreeItem* rti = new RenderTreeItem("zqdialog");
+		LegacyBitmapRTI* rti = new LegacyBitmapRTI("zqdialog");
+		rti->set_size(w, h);
 		set_bitmap_create_flags(false);
 		rti->bitmap = create_a5_bitmap(w, h);
+		al_set_new_bitmap_flags(0);
 		rti->a4_bitmap = tmp_bmp;
 		rti->transparency_index = transp;
-		rti->set_transform({.x = x, .y = y});
-		rti->visible = true;
+		rti->set_transform({x, y});
 		rti->owned = true;
 		rti_dialogs.add_child(rti);
 		rti_dialogs.visible = true;
 		active_dlg_rti = rti;
-		al_set_new_bitmap_flags(0);
 	}
 	else
 	{
@@ -587,7 +652,8 @@ void popup_zqdialog_end()
 		if(rti_dialogs.has_children())
 		{
 			active_dlg_rti = rti_dialogs.get_children().back();
-			screen = active_dlg_rti->a4_bitmap;
+			auto rti = dynamic_cast<LegacyBitmapRTI*>(active_dlg_rti);
+			screen = rti ? rti->a4_bitmap : nullptr;
 		}
 		else
 		{
@@ -606,15 +672,15 @@ void popup_zqdialog_start_a5()
 	if(!zqdialog_bg_bmp)
 		zqdialog_bg_bmp = screen;
 	
-	RenderTreeItem* rti = new RenderTreeItem("zqdialog_a5");
+	auto rti = new RenderTreeItem("zqdialog_a5");
+	rti->set_size(zq_screen_w, zq_screen_h);
 	set_bitmap_create_flags(true);
 	rti->bitmap = create_a5_bitmap(zq_screen_w, zq_screen_h);
-	rti->visible = true;
+	al_set_new_bitmap_flags(0);
 	rti->owned = true;
 	rti_dialogs.add_child(rti);
 	rti_dialogs.visible = true;
 	active_dlg_rti = rti;
-	al_set_new_bitmap_flags(0);
 	
 	old_a5_states.emplace_back();
 	ALLEGRO_STATE& oldstate = old_a5_states.back();
@@ -651,7 +717,7 @@ RenderTreeItem* add_dlg_layer(int x, int y, int w, int h)
 	if(h<0) h = screen->h-y;
 	set_bitmap_create_flags(true);
 	
-	RenderTreeItem* rti = new RenderTreeItem("dlg");
+	LegacyBitmapRTI* rti = new LegacyBitmapRTI("dlg");
 	rti->bitmap = al_create_bitmap(w,h);
 	clear_a5_bmp(rti->bitmap);
 	rti->set_transform({.x = x, .y = y});

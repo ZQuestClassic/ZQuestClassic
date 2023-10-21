@@ -1,5 +1,6 @@
 #include "base/ints.h"
 #include "base/fonts.h"
+#include "base/render.h"
 #include "zc/matrix.h"
 #include "zc/render.h"
 FONT* get_zc_font(int index);
@@ -24,7 +25,7 @@ typedef struct zcMatrixCOLUMN
     int16_t speed, cnt;
 } zcMatrixCOLUMN;
 
-static RenderTreeItem rti_matrix("matrix");
+static LegacyBitmapRTI rti_matrix("matrix");
 static BITMAP *target_bitmap = NULL;
 static BITMAP *linebmp = NULL;
 static zcMatrixTRACER tracer[MAX_TRACERS];
@@ -53,11 +54,8 @@ void Matrix(int32_t speed, int32_t density, int32_t mousedelay)
     int h = al_get_bitmap_height(rti_game.bitmap);
     target_bitmap = create_bitmap_ex(8, w, h);
     clear_bitmap(target_bitmap);
-    
-    if (rti_matrix.bitmap)
-        al_destroy_bitmap(rti_matrix.bitmap);
-    rti_matrix.bitmap = al_create_bitmap(w, h);
     rti_matrix.a4_bitmap = target_bitmap;
+	rti_matrix.set_size(w, h);
 
     // speed 0-6, density 0-6
     _density = zc_max(zc_min(density, 6), 0);

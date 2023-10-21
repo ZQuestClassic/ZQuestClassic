@@ -119,16 +119,15 @@ public:
 	// -1 for no transparency.
 	int transparency_index = -1;
 	ALLEGRO_BITMAP* bitmap = nullptr;
-	BITMAP* a4_bitmap = nullptr;
-	bool a4_bitmap_rendered_once = false;
 	ALLEGRO_COLOR* tint = nullptr;
 	bool owned = false, owned_tint = false;
 	// When true, a4_bitmap -> bitmap will not happen, and neither will `cb` be called.
 	// `bitmap` will still be rendered.
 	bool freeze = false;
+	bool dirty = true;
 
 	RenderTreeItem(std::string name, RenderTreeItem* parent = nullptr);
-	~RenderTreeItem();
+	virtual ~RenderTreeItem();
 
 	void add_child(RenderTreeItem* child);
 	void add_child_before(RenderTreeItem* child, RenderTreeItem* before_child);
@@ -136,8 +135,7 @@ public:
 	std::vector<RenderTreeItem*>& get_children();
 	std::vector<RenderTreeItem*> const& get_children() const;
 	bool has_children() const;
-	void handle_dirty();
-	void mark_dirty();
+	void set_size(int width, int height);
 	void set_transform(Transform new_transform);
 	const Transform& get_transform() const;
 	const Matrix& get_transform_matrix();
@@ -145,6 +143,18 @@ public:
 	std::pair<int, int> local_to_world(int x, int y);
 	std::pair<int, int> pos();
 	std::pair<int, int> rel_mouse();
+
+	// Every frame, each visible render item will call prepare on itself and all its direct children.
+	// This function should be used to update any properties of this render item (including visibility).
+	virtual void prepare();
+	// Every frame, each visible render item w/ `freeze` false and `dirty` on will call this function.
+	// The `bitmap` will be created (or recreated) to match the `width` and `height`. It will be set as
+	// the target bitmap and cleared before `render` is called, so all draw calls made within `render` will
+	// draw to `bitmap`.
+	virtual void render(bool bitmap_resized);
+
+	int width = 0;
+	int height = 0;
 
 private:
 	Transform transform;
@@ -155,10 +165,22 @@ private:
 	RenderTreeItem* parent = nullptr;
 	std::vector<RenderTreeItem*> children;
 
+	void handle_dirty_transform();
+	void mark_transform_dirty();
+};
+
+class LegacyBitmapRTI : public RenderTreeItem
+{
 public:
-	std::function<void()> cb;
-	// TODO: currently only used for cb
-	int width, height;
+	LegacyBitmapRTI(std::string name, RenderTreeItem* parent = nullptr) : RenderTreeItem(name, parent) {}
+	~LegacyBitmapRTI();
+
+	BITMAP* a4_bitmap = nullptr;
+	bool a4_bitmap_rendered_once = false;
+
+private:
+	void prepare();
+	void render(bool);
 };
 
 enum class TextJustify {
