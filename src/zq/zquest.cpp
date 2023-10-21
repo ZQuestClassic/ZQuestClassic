@@ -24864,7 +24864,7 @@ auto_do_slots:
 	doslot_scripts = &scripts;
 	//OK
 	{
-		clock_t start_assign_time = clock();
+		auto start_assign_time = std::chrono::steady_clock::now();
 		if(!handle_slot_map(ffcmap, 1, ffscripts))
 			goto exit_do_slots;
 		if(!handle_slot_map(globalmap, 0, globalscripts))
@@ -24892,11 +24892,12 @@ auto_do_slots:
 		if(!handle_slot_map(subscreenmap, 1, subscreenscripts))
 			goto exit_do_slots;
 
-		clock_t end_assign_time = clock();
-		al_trace("Assign Slots took %lf seconds (%ld cycles)\n", (end_assign_time-start_assign_time)/(double)CLOCKS_PER_SEC,(long)end_assign_time-start_assign_time);
+		auto end_assign_time = std::chrono::steady_clock::now();
+		int compile_time_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end_assign_time - start_assign_time).count();
+		al_trace("Assign Slots took %d ms\n", compile_time_ms);
 		char buf[256] = {0};
 		sprintf(buf, "ZScripts successfully loaded into script slots"
-			"\nAssign Slots took %lf seconds (%ld cycles)", (end_assign_time-start_assign_time)/(double)CLOCKS_PER_SEC,(long)end_assign_time-start_assign_time);
+			"\nAssign Slots took %d ms", compile_time_ms);
 		//al_trace("Module SFX datafile is %s \n",moduledata.datafiles[sfx_dat]);
 		compile_finish_sample = vbound(zc_get_config("Compiler","compile_finish_sample",20),0,255);
 		compile_audio_volume = vbound(zc_get_config("Compiler","compile_audio_volume",200),0,255);

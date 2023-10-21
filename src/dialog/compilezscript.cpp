@@ -11,6 +11,7 @@
 #include "info.h"
 #include <fmt/format.h>
 #include "base/misctypes.h"
+#include <chrono>
 using std::string;
 
 #ifdef __EMSCRIPTEN__
@@ -126,7 +127,7 @@ bool do_compile_and_slots(int assign_mode, bool delay)
 	map<string, disassembled_script_data> scripts;
 	
 	std::string quest_rules_hex = get_qr_hexstr();
-	clock_t start_compile_time = clock();
+	auto start_compile_time = std::chrono::steady_clock::now();
 	bool hasWarnErr = false;
 #ifdef __EMSCRIPTEN__
 	int32_t code = em_compile_zscript(tmpfilename, consolefilename, quest_rules_hex.c_str());
@@ -247,20 +248,14 @@ bool do_compile_and_slots(int assign_mode, bool delay)
 	delete pm;
 	if(console) fclose(console);
 #endif
-	clock_t end_compile_time = clock();
+	auto end_compile_time = std::chrono::steady_clock::now();
+	int compile_time_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end_compile_time - start_compile_time).count();
 	
-	char tmp[128] = {0};
-	sprintf(tmp,"%lf",(end_compile_time - start_compile_time)/((double)CLOCKS_PER_SEC));
-	for(size_t ind = strlen(tmp)-1; ind > 0; --ind)
-	{
-		if (tmp[ind] == '0' && tmp[ind - 1] != '.') tmp[ind] = 0;
-		else break;
-	}
 	char buf[1024] = {0};
 	sprintf(buf, "ZScript compilation: Returned code '%d' (%s)\n"
-		"Compile took %s seconds (%ld cycles)%s",
+		"Compile took %d ms%s",
 		code, code ? "failure" : "success",
-		tmp, (long)end_compile_time - start_compile_time,
+		compile_time_ms,
 		code ? (!DisableCompileConsole?"\nCompilation failed. See console for details.":"\nCompilation failed.") : "");
 	
 	if(!code)
@@ -274,7 +269,7 @@ bool do_compile_and_slots(int assign_mode, bool delay)
 	else if (DisableCompileConsole)
 	{
 		char buf3[256] = {0};
-		sprintf(buf3, "Compile took %lf seconds (%ld cycles)", (end_compile_time - start_compile_time)/((double)CLOCKS_PER_SEC),(long)end_compile_time - start_compile_time);
+		sprintf(buf3, "Compile took %d ms", compile_time_ms);
 		box_out(buf3);
 		box_eol();
 		box_out("Compilation failed.");
