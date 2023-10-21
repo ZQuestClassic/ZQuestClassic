@@ -255,22 +255,17 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 		int32_t family = itemsbuf[q].family;
 		
 		if(family == 0x200 || family == itype_triforcepiece || !(itemsbuf[q].flags & ITEM_GAMEDATA))
-		{
 			continue;
-		}
 		
-        if(families.find(family) == families.end())
-        {
-            families[family] = map<int32_t, vector<int32_t> >();
-        }
+		if(families.find(family) == families.end())
+			families[family] = map<int32_t, vector<int32_t> >();
+		
 		int32_t level = zc_max(1, itemsbuf[q].fam_type);
 		
 		if(families[family].find(level) == families[family].end())
-		{
 			families[family][level] = vector<int32_t>();
-		}
-        
-        families[family][level].push_back(q);
+		
+		families[family][level].push_back(q);
 	}
 	
 	int32_t fam_ind = 0;
@@ -283,16 +278,15 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 			continue;
 		}
 		switchids[q] = fam_ind++;
-		std::shared_ptr<GUI::TabPanel> tbpnl = TabPanel();
 		size_t count_in_tab = 0, tabcnt = 0;
-		std::shared_ptr<GUI::Grid> grid;
-		grid = Columns<15>(fitParent = true,hAlign=0.0,vAlign=0.0);
+		std::shared_ptr<GUI::Grid> grid = Column(fitParent = true,hAlign=0.0,vAlign=0.0);
+		
 		for(auto levelit = (*it).second.begin(); levelit != (*it).second.end(); ++levelit)
 		{
 			for(auto itid = (*levelit).second.begin(); itid != (*levelit).second.end(); ++itid)
 			{
 				int32_t id = *itid;
-				std::shared_ptr<GUI::Checkbox> cb = Checkbox(
+				grid->add(Checkbox(
 					hAlign=0.0,vAlign=0.0,
 					checked = local_zinit.items[id],
 					text = item_name(id),
@@ -300,29 +294,10 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 					{
 						local_zinit.items[id] = state;
 					}
-				);
-				grid->add(cb);
-				if(++count_in_tab >= unsigned(15*2))
-				{
-					count_in_tab = 0;
-					tbpnl->add(
-						TabRef(
-							name = std::to_string(++tabcnt),
-							grid
-						));
-					grid = Columns<15>(fitParent = true,hAlign=0.0,vAlign=0.0);
-				}
+				));
 			}
 		}
-		if(count_in_tab)
-		{
-			tbpnl->add(
-				TabRef(
-					name = std::to_string(++tabcnt),
-					grid
-				));
-		}
-		icswitcher->add(tbpnl);
+		icswitcher->add(ScrollingPane(fitParent = true, grid));
 	}
 	
 	std::shared_ptr<GUI::Widget> ilist_panel;
