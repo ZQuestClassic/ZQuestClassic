@@ -119,6 +119,7 @@ public:
 	// -1 for no transparency.
 	int transparency_index = -1;
 	ALLEGRO_BITMAP* bitmap = nullptr;
+	int bitmap_flags = -1;
 	ALLEGRO_COLOR* tint = nullptr;
 	bool owned = false, owned_tint = false;
 	// When true, a4_bitmap -> bitmap will not happen, and neither will `cb` be called.
@@ -173,7 +174,7 @@ private:
 class LegacyBitmapRTI : public RenderTreeItem
 {
 public:
-	LegacyBitmapRTI(std::string name, RenderTreeItem* parent = nullptr) : RenderTreeItem(name, parent) {}
+	LegacyBitmapRTI(std::string name, RenderTreeItem* parent = nullptr);
 	~LegacyBitmapRTI();
 
 	BITMAP* a4_bitmap = nullptr;
@@ -206,6 +207,7 @@ extern RenderTreeItem rti_dialogs;
 extern ALLEGRO_COLOR AL5_INVIS,AL5_BLACK,AL5_WHITE,AL5_YELLOW,
 	AL5_PINK,AL5_DGRAY,AL5_LGRAY,AL5_BLUE,AL5_LRED,AL5_DRED,
 	AL5_LGREEN,AL5_LAQUA;
+int get_bitmap_create_flags(bool preserve_texture);
 void set_bitmap_create_flags(bool preserve_texture);
 void clear_a5_bmp(ALLEGRO_BITMAP* bmp = nullptr);
 void clear_a5_bmp(ALLEGRO_COLOR col, ALLEGRO_BITMAP* bmp = nullptr);

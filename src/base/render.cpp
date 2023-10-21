@@ -128,14 +128,20 @@ ALLEGRO_COLOR AL5_INVIS = al_map_rgba(0,0,0,0),
 	AL5_DRED = al_map_rgb(178,36,36),
 	AL5_LGREEN = al_map_rgb(85,255,85),
 	AL5_LAQUA = al_map_rgb(85,255,255);
-void set_bitmap_create_flags(bool preserve_texture)
+
+int get_bitmap_create_flags(bool preserve_texture)
 {
 	int flags = ALLEGRO_CONVERT_BITMAP;
 	if(!preserve_texture)
 		flags |= ALLEGRO_NO_PRESERVE_TEXTURE;
 	if (use_linear_bitmaps())
 		flags |= ALLEGRO_MAG_LINEAR | ALLEGRO_MIN_LINEAR;
-	al_set_new_bitmap_flags(flags);
+	return flags;
+}
+
+void set_bitmap_create_flags(bool preserve_texture)
+{
+	al_set_new_bitmap_flags(get_bitmap_create_flags(preserve_texture));
 }
 
 void clear_a5_bmp(ALLEGRO_COLOR col, ALLEGRO_BITMAP* bmp)
@@ -371,7 +377,7 @@ static void render_tree_draw_item(RenderTreeItem* rti, bool do_a4_only)
 	if (!skip && !rti->freeze)
 	{
 		bool size_changed = false;
-		int flags = -1;
+		int flags = rti->bitmap_flags;
 		if (rti->bitmap && (al_get_bitmap_width(rti->bitmap) != rti->width || al_get_bitmap_height(rti->bitmap) != rti->height))
 		{
 			flags = al_get_bitmap_flags(rti->bitmap);
@@ -381,8 +387,9 @@ static void render_tree_draw_item(RenderTreeItem* rti, bool do_a4_only)
 		}
 		if (!rti->bitmap && rti->width > 0 && rti->height > 0)
 		{
-			if (flags != -1) al_set_new_bitmap_flags(flags);
-			else set_bitmap_create_flags(true);
+			if (flags == -1)
+				flags = get_bitmap_create_flags(true);
+			al_set_new_bitmap_flags(flags);
 			rti->bitmap = create_a5_bitmap(rti->width, rti->height);
 			rti->dirty = true;
 		}
@@ -492,6 +499,8 @@ bool render_get_debug()
 void RenderTreeItem::prepare() {}
 void RenderTreeItem::render(bool) {}
 
+LegacyBitmapRTI::LegacyBitmapRTI(std::string name, RenderTreeItem* parent) : RenderTreeItem(name, parent) {}
+
 LegacyBitmapRTI::~LegacyBitmapRTI()
 {
 	if (owned && a4_bitmap)
@@ -500,7 +509,11 @@ LegacyBitmapRTI::~LegacyBitmapRTI()
 
 void LegacyBitmapRTI::prepare()
 {
+	// We convert from a4->a5 every frame, but freeze these render items to prevent doing unnecessary work.
 	dirty = true;
+	// Ideally this is set in the constructor, but `LegacyBitmapRTI` is used as static global variables and this
+	// function requires the config to be loaded already.
+	bitmap_flags = get_bitmap_create_flags(true);
 }
 
 void LegacyBitmapRTI::render(bool)
