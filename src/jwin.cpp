@@ -9907,13 +9907,15 @@ int32_t d_vsync_proc(int32_t msg,DIALOG *d,int32_t c)
     switch(msg)
     {
 		case MSG_START:
-			tics = std::chrono::steady_clock::now() + std::chrono::milliseconds(1000/60);
+			tics = std::chrono::steady_clock::now();
 			break;
 			
 		case MSG_IDLE:
-			if(now>tics)
+		{
+			int num_vsyncs = 0;
+			while (now - tics >= std::chrono::milliseconds(1000/60))
 			{
-				tics = std::chrono::steady_clock::now() + std::chrono::milliseconds(1000/60);
+				tics += std::chrono::milliseconds(1000/60);
 				broadcast_dialog_message(MSG_VSYNC, c);
 				if(d->dp)
 				{
@@ -9939,8 +9941,11 @@ int32_t d_vsync_proc(int32_t msg,DIALOG *d,int32_t c)
 							return D_REDRAW;
 					}
 				}
+
+				if (++num_vsyncs == 3) break;
 			}
 			break;
+		}
     }
     
     return D_O_K;
