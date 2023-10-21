@@ -605,7 +605,8 @@ std::string getMapFlagHelpText(int32_t id)
 		case mfALLFAIRY:
 		{
 			static const char* name[]{"life","magic","life and magic"};
-			flaghelp = fmt::format("Makes a heart circle appear on screen when the Player steps on it, and refills their {}.",name[id-mfFAIRY])
+			int ind = (id == mfFAIRY ? 0 : (id == mfMAGICFAIRY ? 1 : 2));
+			flaghelp = fmt::format("Makes a heart circle appear on screen when the Player steps on it, and refills their {}.",name[ind])
 				+ QRHINT({qr_HEARTRINGFIX,qr_NOHEARTRING});
 			break;
 		}
