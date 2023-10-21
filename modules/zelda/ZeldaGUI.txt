@@ -26,7 +26,7 @@ src/dialog/cheatkeys.cpp
 src/dialog/info.cpp
 src/dialog/alert.cpp
 src/dialog/vidmode.cpp
-src/dialog/vectorpick.cpp
+src/dialog/numpick.cpp
 src/dialog/ditherpick.cpp
 
 ## End of Zelda GUI module

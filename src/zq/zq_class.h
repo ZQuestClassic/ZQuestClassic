@@ -3,6 +3,7 @@
 
 #include "base/zdefs.h"
 #include "base/mapscr.h"
+#include "base/containers.h"
 #include <stdio.h>
 #include <string_view>
 #include <deque>
@@ -166,8 +167,7 @@ class zmap
     int32_t copyffc;
     int32_t scrpos[MAXMAPS+1];
 	
-	uint32_t copyscrdatasz;
-	std::vector<int32_t> copyscrdata;
+	bounded_vec<uint32_t,int32_t> copyscrdata;
 	
     mapscr copymapscr;
     mapscr prvscr; //NEW

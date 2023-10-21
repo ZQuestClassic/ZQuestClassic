@@ -609,6 +609,7 @@ INLINE bool p_getbvec(bounded_vec<Sz,T> *cont, PACKFILE *f)
 		return false;
 	if(sz) //cont found
 	{
+		cont->reserve(sz);
 		T dummy;
 		for(size_t q = 0; q < sz; ++q)
 		{
@@ -616,6 +617,7 @@ INLINE bool p_getbvec(bounded_vec<Sz,T> *cont, PACKFILE *f)
 				return false;
 			(*cont)[q] = dummy;
 		}
+		cont->normalize();
 	}
 	return true;
 }
@@ -649,17 +651,35 @@ INLINE bool p_getbmap(bounded_map<Sz,T> *cont, PACKFILE *f)
 	cont->resize(sz);
 	if(sz) //cont found
 	{
+		Sz count;
+		byte pairs;
+		if(!p_getc(&pairs,f))
+			return false;
+		if(!p_getvar(&count,f))
+			return false;
 		Sz k;
 		T v;
-		while(true)
+		if(pairs)
 		{
-			if(!p_getvar(&k,f))
-				return false;
-			if(k >= sz) break;
-			if(!p_getvar(&v,f))
-				return false;
-			cont[k] = v;
+			while(count--)
+			{
+				if(!p_getvar(&k,f))
+					return false;
+				if(!p_getvar(&v,f))
+					return false;
+				cont[k] = v;
+			}
 		}
+		else
+		{
+			for(k = 0; k < count; ++k)
+			{
+				if(!p_getvar(&v,f))
+					return false;
+				cont[k] = v;
+			}
+		}
+		cont->normalize();
 	}
 	return true;
 }
@@ -672,16 +692,34 @@ INLINE bool p_putbmap(bounded_map<Sz,T> const& cont, PACKFILE *f)
 	if(sz)
 	{
 		T dt;
+		auto lkey = cont.lastKey();
+		Sz writecnt = lkey ? *lkey+1 : 0;
+		Sz cap = 0;
 		for(auto [k,v] : cont.inner())
-		{
-			if(k >= sz || v == dt) continue;
-			if(!p_putvar(k, f))
-				return false;
-			if(!p_putvar(v, f))
-				return false;
-		}
-		if(!p_putvar(sz, f))
+			if(k < sz && v != dt)
+				++cap;
+		bool pairs = (cap * (sizeof(T)+sizeof(Sz))) <= writecnt * sizeof(T);
+		if(!p_putc(pairs ? 1 : 0, f))
 			return false;
+		if(!p_putvar(pairs ? cap : writecnt, f))
+			return false;
+		if(pairs)
+		{
+			for(auto [k,v] : cont.inner())
+			{
+				if(k >= sz || v == dt) continue;
+				if(!p_putvar(k, f))
+					return false;
+				if(!p_putvar(v, f))
+					return false;
+			}
+		}
+		else
+		{
+			for(Sz q = 0; q < writecnt; ++q)
+				if(!p_putvar(cont[q], f))
+					return false;
+		}
 	}
 	return true;
 }
@@ -712,6 +750,7 @@ INLINE bool p_getcstr(std::string *str, PACKFILE *f)
 
 	if(sz) //string found
 	{
+		str->reserve(sz);
 		char dummy;
 		for(size_t q = 0; q < sz; ++q)
 		{
@@ -746,6 +785,7 @@ INLINE bool p_getwstr(std::string *str, PACKFILE *f)
 		return false;
 	if(sz)
 	{
+		str->reserve(sz);
 		auto buf = std::make_unique<char[]>(sz + 1);
 		buf[sz] = '\0';
 		if (!pfread(buf.get(), sz, f))
@@ -779,6 +819,7 @@ INLINE bool p_getcvec(std::vector<T> *vec, PACKFILE *f)
 		return false;
 	if(sz) //vec found
 	{
+		vec->reserve(sz);
 		T dummy;
 		for(size_t q = 0; q < sz; ++q)
 		{
@@ -814,6 +855,7 @@ INLINE bool p_getwvec(std::vector<T> *vec, PACKFILE *f)
 		return false;
 	if(sz) //vec found
 	{
+		vec->reserve(sz);
 		T dummy;
 		for(size_t q = 0; q < sz; ++q)
 		{
@@ -849,6 +891,7 @@ INLINE bool p_getlvec(std::vector<T> *vec, PACKFILE *f)
 		return false;
 	if(sz) //vec found
 	{
+		vec->reserve(sz);
 		T dummy;
 		for(size_t q = 0; q < sz; ++q)
 		{

@@ -5,7 +5,7 @@
 #include "base/zsys.h"
 #include "zc_list_data.h"
 #include "zc/ffscript.h"
-#include "vectorpick.h"
+#include "numpick.h"
 #include "ditherpick.h"
 #include "items.h"
 #include "zinfo.h"
@@ -873,25 +873,22 @@ std::shared_ptr<GUI::Widget> InitGenscriptWizard::view()
 					TextField(
 						type = GUI::TextField::type::SWAP_ZSINT_NO_DEC,
 						low = 0, high = 2147480000,
-						val = local_zinit.gen_dataSize[index]*10000,
+						val = local_zinit.gen_data[index].size()*10000,
 						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 						{
 							val /= 10000;
-							local_zinit.gen_dataSize[index] = val;
+							local_zinit.gen_data[index].resize(val);
 							databtn->setDisabled(!val);
 						}),
 					INFOBTN("The starting size of the script's 'Data' array."),
 					//
 					databtn = Button(colSpan = 3, fitParent = true,
 						text = "Edit Starting Data",
-						disabled = !local_zinit.gen_dataSize[index],
+						disabled = local_zinit.gen_data[index].empty(),
 						onPressFunc = [&]()
 						{
-							if(local_zinit.gen_dataSize[index])
-							{
-								call_edit_vector(local_zinit.gen_data[index], true, 0,
-									local_zinit.gen_dataSize[index]);
-							}
+							if(local_zinit.gen_data[index].size())
+								call_edit_vector(local_zinit.gen_data[index], true);
 						})
 				)
 			)
@@ -1092,7 +1089,6 @@ bool InitGenscriptWizard::handleMessage(const GUI::DialogMessage<message>& msg)
 			dest_zinit.gen_exitState[index] = local_zinit.gen_exitState[index];
 			dest_zinit.gen_reloadState[index] = local_zinit.gen_reloadState[index];
 			memcpy(dest_zinit.gen_initd[index], local_zinit.gen_initd[index], sizeof(int32_t)*8);
-			dest_zinit.gen_dataSize[index] = local_zinit.gen_dataSize[index];
 			dest_zinit.gen_data[index] = local_zinit.gen_data[index];
 			dest_zinit.gen_eventstate[index] = local_zinit.gen_eventstate[index];
 		}

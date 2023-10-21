@@ -1131,8 +1131,8 @@ void load_genscript(const zinitdata& zd)
 		gen.eventstate = zd.gen_eventstate[q];
 		memcpy(gen.initd, zd.gen_initd[q], sizeof(gen.initd));
 		gen.dataResize(zd.gen_data[q].size());
-		gen.data = zd.gen_data[q];
-		gen.dataResize(zd.gen_dataSize[q]);
+		gen.data = zd.gen_data[q].inner();
+		gen.dataResize(zd.gen_data[q].size());
 	}
 }
 

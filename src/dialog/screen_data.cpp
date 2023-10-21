@@ -8,7 +8,7 @@
 #include <fmt/format.h>
 #include <sstream>
 #include "base/initdata.h"
-#include "vectorpick.h"
+#include "numpick.h"
 
 extern word map_count;
 extern script_data *screenscripts[NUMSCRIPTSCREEN];
@@ -42,8 +42,7 @@ ScreenDataDialog::ScreenDataDialog(int map, int scr) :
 	mapscr* thescreen = Map.AbsoluteScr(map,scr);
 	thescr = thescreen;
 	local_scr = *thescreen;
-	screen_misc_data = zinit.vecs.screen_data[mapscrnum];
-	screen_misc_data_sz = zinit.vecs.screen_dataSize[mapscrnum];
+	screen_misc_data = zinit.screen_data[mapscrnum];
 }
 
 std::shared_ptr<GUI::Widget> ScreenDataDialog::SCREEN_INITD(int index)
@@ -629,24 +628,23 @@ std::shared_ptr<GUI::Widget> ScreenDataDialog::view()
 						TextField(
 							type = GUI::TextField::type::SWAP_ZSINT_NO_DEC,
 							low = 0, high = 2147480000,
-							val = screen_misc_data_sz*10000,
+							val = screen_misc_data.size()*10000,
 							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 							{
 								val /= 10000;
-								screen_misc_data_sz = val;
+								screen_misc_data.resize(val);
 								databtn->setDisabled(!val);
 							}),
 						INFOBTN("The starting size of the screen's 'Data' array."),
 						//
 						databtn = Button(colSpan = 3, fitParent = true,
 							text = "Edit Starting Data",
-							disabled = !screen_misc_data_sz,
+							disabled = screen_misc_data.empty(),
 							onPressFunc = [&]()
 							{
-								if(screen_misc_data_sz)
+								if(screen_misc_data.size())
 								{
-									call_edit_vector(screen_misc_data, true, 0,
-										screen_misc_data_sz);
+									call_edit_vector(screen_misc_data, true);
 								}
 							})
 					),
@@ -710,8 +708,7 @@ bool ScreenDataDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			break;
 		case message::OK:
 			*thescr = local_scr;
-			zinit.vecs.screen_data[mapscrnum] = screen_misc_data;
-			zinit.vecs.screen_dataSize[mapscrnum] = screen_misc_data_sz;
+			zinit.screen_data[mapscrnum] = screen_misc_data;
 			saved = false;
 			[[fallthrough]];
 		case message::CANCEL:

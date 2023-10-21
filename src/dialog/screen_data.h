@@ -14,6 +14,7 @@
 #include <string_view>
 #include <array>
 #include "base/mapscr.h"
+#include "base/containers.h"
 
 void call_screendata_dialog();
 void call_screendata_dialog(size_t forceTab);
@@ -54,8 +55,7 @@ private:
 	mapscr local_scr;
 	int mapscrnum;
 	
-	std::vector<int32_t> screen_misc_data;
-	uint32_t screen_misc_data_sz;
+	bounded_vec<uint32_t,int32_t> screen_misc_data;
 	
 	GUI::ListData list_screenscript, list_maps, list_screens, list_sfx, list_screenmidi;
 };

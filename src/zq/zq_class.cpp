@@ -4651,8 +4651,7 @@ void zmap::Copy()
         can_paste=true;
         copymap=currmap;
         copyscr=currscr;
-		copyscrdata = zinit.vecs.screen_data[currmap*MAPSCRS+currscr];
-		copyscrdatasz = zinit.vecs.screen_dataSize[currmap*MAPSCRS+currscr];
+		copyscrdata = zinit.screen_data[currmap*MAPSCRS+currscr];
         copyffc = -1;
     }
 }
@@ -4920,8 +4919,7 @@ void zmap::PasteAll(const mapscr& copymapscr)
     {
         int32_t oldcolor=getcolor();
         copy_mapscr(&screens[currscr], &copymapscr);
-		zinit.vecs.screen_data[currmap*MAPSCRS+currscr] = copyscrdata;
-		zinit.vecs.screen_dataSize[currmap*MAPSCRS+currscr] = copyscrdatasz;
+		zinit.screen_data[currmap*MAPSCRS+currscr] = copyscrdata;
         //screens[currscr]=copymapscr;
         int32_t newcolor=getcolor();
         loadlvlpal(newcolor);
@@ -4991,8 +4989,7 @@ void zmap::PasteAllToAll(const mapscr& copymapscr)
         for(int32_t x=0; x<128; x++)
         {
             copy_mapscr(&screens[x], &copymapscr);
-			zinit.vecs.screen_data[currmap*MAPSCRS+x] = copyscrdata;
-			zinit.vecs.screen_dataSize[currmap*MAPSCRS+x] = copyscrdatasz;
+			zinit.screen_data[currmap*MAPSCRS+x] = copyscrdata;
             //screens[x]=copymapscr;
         }
         
@@ -13297,7 +13294,7 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *Header)
             || zinit.gen_initd[ind][1] || zinit.gen_initd[ind][2]
             || zinit.gen_initd[ind][3] || zinit.gen_initd[ind][4]
             || zinit.gen_initd[ind][5] || zinit.gen_initd[ind][6]
-            || zinit.gen_initd[ind][7] || zinit.gen_dataSize[ind]
+            || zinit.gen_initd[ind][7] || zinit.gen_data[ind].size()
             || zinit.gen_data[ind].size() || zinit.gen_eventstate[ind];
         if (valid)
         {
@@ -13698,9 +13695,9 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *Header)
 			for(auto p = 0; p < 8; ++p)
 				if(!p_iputl(zinit.gen_initd[q][p],f))
 					new_return(98);
-			if(!p_iputl(zinit.gen_dataSize[q],f))
+			if(!p_iputl(zinit.gen_data[q].size(),f))
 				new_return(99);
-			if(!p_putlvec<int32_t>(zinit.gen_data[q],f))
+			if(!p_putlvec<int32_t>(zinit.gen_data[q].inner(),f))
 				new_return(100);
 			if(!p_iputl(zinit.gen_eventstate[q],f))
 				new_return(101);
@@ -13715,7 +13712,7 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *Header)
         }
 		uint32_t num_used_mapscr_data = 0;
 		for(int32_t q = map_count*MAPSCRS-1; q >= 0; --q)
-			if(zinit.vecs.screen_dataSize[q])
+			if(zinit.screen_data[q].size())
 			{
 				num_used_mapscr_data = q+1;
 				break;
@@ -13724,10 +13721,10 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *Header)
 			new_return(104);
 		for(uint32_t q = 0; q < num_used_mapscr_data; ++q)
 		{
-			if(!p_iputl(zinit.vecs.screen_dataSize[q],f))
+			if(!p_iputl(zinit.screen_data[q].size(),f))
 				new_return(105);
-			if(zinit.vecs.screen_dataSize[q])
-				if(!p_putlvec(zinit.vecs.screen_data[q],f))
+			if(zinit.screen_data[q].size())
+				if(!p_putlvec(zinit.screen_data[q].inner(),f))
 					new_return(106);
 		}
 		if(!p_iputzf(zinit.shove_offset,f))

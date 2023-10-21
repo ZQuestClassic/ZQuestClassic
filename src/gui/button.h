@@ -14,7 +14,7 @@ class Button: public Widget
 public:
 	enum class type
 	{
-		BASIC, BIND_KB, BIND_HOTKEY, BIND_KB_CLEAR
+		BASIC, ICON, BIND_KB, BIND_HOTKEY, BIND_KB_CLEAR
 	};
 	
 	Button();
@@ -23,7 +23,8 @@ public:
 	void setBoundKB(int* kb_ptr);
 	void setBoundHotkey(Hotkey* hotkey_ptr);
 	void setHotkeyIndx(size_t indx);
-
+	void setIcon(int icon);
+	
 	/* Sets the text to appear on the button. */
 	void setText(std::string newText);
 	
@@ -51,10 +52,13 @@ private:
 	int32_t message;
 	std::function<void()> onPress;
 	type btnType;
+	
 	int* bound_kb;
 	Hotkey* bound_hotkey;
 	size_t hotkeyindx;
-
+	
+	int icontype;
+	
 	void applyVisibility(bool visible) override;
 	void applyDisabled(bool dis) override;
 	void realize(DialogRunner& runner) override;
