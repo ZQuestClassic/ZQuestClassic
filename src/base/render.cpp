@@ -426,7 +426,6 @@ static void render_tree_draw_item(RenderTreeItem* rti, bool do_a4_only)
 		int th = y1 - y0;
 		if (rti->tint)
 		{
-			// al_draw_scaled_bitmap(rti->bitmap, 0, 0, w, h, x0, y0, tw, th, 0);
 			al_draw_tinted_scaled_bitmap(rti->bitmap, *rti->tint, 0, 0, w, h, x0, y0, tw, th, 0);
 		}
 		else
@@ -498,6 +497,12 @@ bool render_get_debug()
 
 void RenderTreeItem::prepare() {}
 void RenderTreeItem::render(bool) {}
+
+// void CustomRTI::render(bool bitmap_resized)
+// {
+	
+// }
+
 
 LegacyBitmapRTI::LegacyBitmapRTI(std::string name, RenderTreeItem* parent) : RenderTreeItem(name, parent) {}
 

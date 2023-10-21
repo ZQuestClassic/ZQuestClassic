@@ -36,6 +36,7 @@
 #include "zq/autocombo/pattern_tiling.h"
 #include "zq/autocombo/pattern_replace.h"
 #include "zq/render_minimap.h"
+#include "zq/render_tooltip.h"
 #include "base/misctypes.h"
 #include "parser/Compiler.h"
 #include "base/zc_alleg.h"
@@ -310,11 +311,7 @@ size_and_pos commands_infobtn;
 size_and_pos commands_zoombtn;
 size_and_pos commands_txt;
 
-size_and_pos tooltip_box;
-size_and_pos tooltip_box2;
 size_and_pos tooltip_trigger;
-size_and_pos tooltip_highlight;
-size_and_pos tooltip_highlight2;
 
 size_and_pos squarepanel_swap_btn;
 size_and_pos squarepanel_up_btn;
@@ -449,7 +446,7 @@ DATAFILE *zcdata=NULL, *fontsdata=NULL, *sfxdata=NULL;
 size_t fontsdat_cnt = 0;
 MIDI *song=NULL;
 BITMAP *menu1, *menu3, *mapscreenbmp, *tmp_scr, *screen2, *mouse_bmp[MOUSE_BMP_MAX][4], *mouse_bmp_1x[MOUSE_BMP_MAX][4], *icon_bmp[ICON_BMP_MAX][4], *flag_bmp[16][4], *select_bmp[2], *dmapbmp_small, *dmapbmp_large;
-BITMAP *arrow_bmp[MAXARROWS],*brushbmp, *brushscreen, *tooltipbmp, *tooltipbmp2; //*brushshadowbmp;
+BITMAP *arrow_bmp[MAXARROWS],*brushbmp, *brushscreen; //*brushshadowbmp;
 byte *colordata=NULL, *trashbuf=NULL;
 itemdata *itemsbuf;
 wpndata  *wpnsbuf;
@@ -7102,8 +7099,6 @@ void refresh(int32_t flags, bool update)
 	if(zoom_delay)
 		draw_screenunit(rSCRMAP,flags);
 	
-	draw_ttips();
-	
 	
 	if(flags&rCLEAR)
 	{
@@ -7173,8 +7168,8 @@ void select_scr()
 			char buf[80];
 			sprintf(buf,"0x%02X (%d)", ind, ind);
 			clear_tooltip();
-			update_tooltip2(real_mini.x+real_mini.tw(), real_mini.y-16, real_mini.subsquare(ind), buf, zoomed_minimap ? 3 : 1);
-			tooltip_highlight2.data[0] = zoomed_minimap ? 2 : 1;
+			update_tooltip(real_mini.x+real_mini.tw(), real_mini.y-16, real_mini.subsquare(ind), buf, zoomed_minimap ? 3 : 1);
+			ttip_set_highlight_thickness(zoomed_minimap ? 2 : 1);
 		}
 		
 		if(ind>=MAPSCRS)
@@ -10714,7 +10709,6 @@ void domouse()
 //-------------
 //tooltip stuff
 //-------------
-	clear_tooltip2(); //always clear
 	if(isinRect(x,y,startxint,startyint,startxint+(256*mapscreensize)-1,startyint+(176*mapscreensize)-1))
 	{
 		bool did_ffttip = false;
@@ -10770,7 +10764,7 @@ void domouse()
 			}
 			
 			mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
-			if(unsigned(c) < 176 && draw_mapscr)
+			if(unsigned(c) < 176 && draw_mapscr && !gui_mouse_b())
 			{
 				tooltip_current_combo = c;
 				int cid = draw_mapscr->data[c];
@@ -10788,6 +10782,7 @@ void domouse()
 				if(cmb.label[0])
 					oss << "\nLabel: " << cmb.label;
 				update_tooltip(x, y, startxint+(cx*16*mapscreensize), startyint+(cy*16*mapscreensize), 16*mapscreensize, 16*mapscreensize, oss.str().c_str());
+				// tool_tip_reset_timer_on_clear();
 			}
 		}
 	}
@@ -10966,9 +10961,9 @@ void domouse()
 	{
 		char buf[80];
 		sprintf(buf,"0x%02X (%d)", ind, ind);
-		clear_tooltip();
-		update_tooltip2(real_mini.x+real_mini.tw(), real_mini.y-16, real_mini.subsquare(ind), buf, zoomed_minimap ? 3 : 1);
-		tooltip_highlight2.data[0] = zoomed_minimap ? 2 : 1;
+		update_tooltip(real_mini.x+real_mini.tw(), real_mini.y-16, real_mini.subsquare(ind), buf, zoomed_minimap ? 3 : 1);
+		ttip_set_highlight_thickness(zoomed_minimap ? 2 : 1);
+		ttip_clear_timer();
 	}
 	
 	// Mouse clicking stuff
@@ -28012,8 +28007,6 @@ int32_t main(int32_t argc,char **argv)
 	tmp_scr = nullptr;
 	menu1 = nullptr;
 	menu3 = nullptr;
-	tooltipbmp = nullptr;
-	tooltipbmp2 = nullptr;
 	
 	for(int32_t i=0; i<MAXFAVORITECOMBOS; ++i)
 	{
@@ -28608,11 +28601,7 @@ void init_bitmap(BITMAP** bmp, int32_t w, int32_t h)
 }
 void load_size_poses()
 {
-	tooltip_box.set(-1,-1,0,0);
-	tooltip_box2.set(-1,-1,0,0);
-	tooltip_trigger.set(-1,-1,0,0);
-	tooltip_highlight.clear();
-	tooltip_highlight2.clear();
+	ttip_remove();
 	
 	FONT* favcmdfont = get_custom_font(CFONT_FAVCMD);
 	FONT* guifont = get_custom_font(CFONT_GUI);
@@ -29282,8 +29271,6 @@ void load_size_poses()
 	init_bitmap(&tmp_scr,zq_screen_w,zq_screen_h);
 	init_bitmap(&menu1,zq_screen_w,zq_screen_h);
 	init_bitmap(&menu3,zq_screen_w,zq_screen_h);
-	init_bitmap(&tooltipbmp,zq_screen_w,zq_screen_h); //Decrease size at your own risk.
-	init_bitmap(&tooltipbmp2,zq_screen_w,zq_screen_h); //Decrease size at your own risk.
 	
 	center_zq_class_dialogs();
 	center_zq_custom_dialogs();
@@ -29330,8 +29317,6 @@ void destroy_bitmaps_on_exit()
     destroy_bitmap(dmapbmp_large);
     destroy_bitmap(brushbmp);
     destroy_bitmap(brushscreen);
-    destroy_bitmap(tooltipbmp);
-    destroy_bitmap(tooltipbmp2);
     al_trace("...");
     
     for(int32_t i=0; i<MOUSE_BMP_MAX*4; i++)
@@ -30623,84 +30608,35 @@ void highlight(BITMAP* dest, size_and_pos& hl)
 	}
 	else highlight_sqr(dest, hl.data[1], hl, hl.data[0]);
 }
-void draw_ttip(BITMAP* dest, int xoff, int yoff)
+
+std::pair<int, int> get_box_text_size(char const* tipmsg, double txscale)
 {
-	if(tooltip_timer < tooltip_maxtimer)
-		return;
-	if(TooltipsHighlight && tooltip_highlight.x >= 0)
-	{
-		highlight(dest,tooltip_highlight);
-	}
-	if(tooltip_box.x>=0&&tooltip_box.y>=0)
-	{
-		masked_blit(tooltipbmp, dest, 0, 0, tooltip_box.x-xoff, tooltip_box.y-yoff, tooltip_box.w, tooltip_box.h);
-	}
-}
-void draw_ttip2(BITMAP* dest, int xoff, int yoff)
-{
-	if(tooltip_highlight2.x >= 0)
-	{
-		highlight(dest,tooltip_highlight2);
-	}
-	if(tooltip_box2.x>=0&&tooltip_box2.y>=0)
-	{
-		masked_blit(tooltipbmp2, dest, 0, 0, tooltip_box2.x-xoff, tooltip_box2.y-yoff, tooltip_box2.w, tooltip_box2.h);
-	}
-}
-void draw_ttips()
-{
-	extern RenderTreeItem rti_dialogs;
-
-	LegacyBitmapRTI* rti_tooltip = get_tooltip_rti();
-	bool tb1_valid = tooltip_box.x >= 0 && tooltip_box.y >= 0;
-	bool tb2_valid = tooltip_box2.x >= 0 && tooltip_box2.y >= 0;
-	bool visible = !rti_dialogs.has_children() && (tb1_valid || tb2_valid);
-	rti_tooltip->visible = visible;
-	if (!visible)
-		return;
-
-	int x, y, w, h;
-	if (tb1_valid && tb2_valid)
-	{
-		x = std::min(tooltip_box.x, tooltip_box2.x);
-		y = std::min(tooltip_box.y, tooltip_box2.y);
-		w = std::max(tooltip_box.x + tooltip_box.w, tooltip_box2.x + tooltip_box2.w) - x;
-		h = std::max(tooltip_box.y + tooltip_box.h, tooltip_box2.y + tooltip_box2.h) - x;
-	}
-	else if (tb1_valid)
-	{
-		x = tooltip_box.x;
-		y = tooltip_box.y;
-		w = tooltip_box.w;
-		h = tooltip_box.h;
-	}
-	else
-	{
-		x = tooltip_box2.x;
-		y = tooltip_box2.y;
-		w = tooltip_box2.w;
-		h = tooltip_box2.h;
-	}
-
-	if (!rti_tooltip->a4_bitmap || rti_tooltip->a4_bitmap->w != w || rti_tooltip->a4_bitmap->h != h)
-	{
-		rti_tooltip->width = w;
-		rti_tooltip->height = h;
-		if (rti_tooltip->a4_bitmap) destroy_bitmap(rti_tooltip->a4_bitmap);
-		rti_tooltip->a4_bitmap = create_bitmap_ex(8, w, h);
-	}
-
-	auto t = rti_tooltip->get_transform();
-	t.x = x;
-	t.y = y;
-	rti_tooltip->set_transform(t);
-
-	clear_bitmap(rti_tooltip->a4_bitmap);
-	draw_ttip(rti_tooltip->a4_bitmap, x, y);
-	draw_ttip2(rti_tooltip->a4_bitmap, x, y);
+	if(txscale < 1) txscale = 1;
+	char* kill = (char*)malloc(strlen(tipmsg)+1);
+	char *tmpstr = kill;
+	strcpy(tmpstr,tipmsg);
+	
+	while(tmpstr[0] == '\n')
+		++tmpstr;
+	int len = strlen(tmpstr);
+	while(tmpstr[len-1] == '\n')
+		tmpstr[--len] = 0;
+	
+	int32_t lines = count_lines(tmpstr);
+	int txlen = get_longest_line_length(font, tmpstr);
+	int txhei = lines*text_height(font);
+	int tx_sclen = (txlen * txscale);
+	int tx_schei = (txhei * txscale);
+	int w = tx_sclen + 8 + 1;
+	int h = tx_schei + 8 + 1;
+	if (w > zq_screen_w)
+		w = zq_screen_w;
+	if (h > zq_screen_h)
+		h = zq_screen_h;
+	return {w, h};
 }
 
-void draw_box(BITMAP* destbmp, size_and_pos* pos, char const* tipmsg, double txscale = 1)
+void draw_box(BITMAP* destbmp, size_and_pos* pos, char const* tipmsg, double txscale)
 {
 	if(txscale < 1) txscale = 1;
 	char* kill = (char*)malloc(strlen(tipmsg)+1);
@@ -30805,94 +30741,20 @@ void update_tooltip(int32_t x, int32_t y, int32_t tx, int32_t ty, int32_t tw, in
 	
 	if(x<0||y<0) //if we want to clear the tooltip
 	{
-		tooltip_box.x=x;
-		tooltip_box.y=y;
-		tooltip_box.w=0;
-		tooltip_box.h=0;
-		tooltip_timer=0;
-		tooltip_highlight.clear();
+		ttip_remove();
 		return; //cancel
 	}
-	tooltip_highlight.set(tx, ty, tw, th);
-	tooltip_highlight.fw = fw;
-	tooltip_highlight.fh = fh;
-	tooltip_highlight.data[0] = 2;
-	tooltip_highlight.data[1] = vc(TTipHLCol);
-	FONT* oldfont = font;
-	font = get_custom_font(CFONT_TTIP);
 	
 	y+=16;
-	
-	if(tooltip_timer<=tooltip_maxtimer)
-	{
-		++tooltip_timer;
-	}
-	
-	if(tooltip_timer==tooltip_maxtimer)
-	{
-		if(!tipmsg || !tipmsg[0])
-		{
-			tooltip_box.clear();
-			clear_bitmap(tooltipbmp);
-		}
-		else
-		{
-			tooltip_box.x = x;
-			tooltip_box.y = y;
-			draw_box(tooltipbmp, &tooltip_box, tipmsg, scale);
-		}
-	}
-	font = oldfont;
-}
 
-void update_tooltip2(int32_t x, int32_t y, size_and_pos const& sqr, char const* tipmsg, double scale)
-{
-	update_tooltip2(x,y,sqr.x,sqr.y,sqr.w*sqr.xscale,sqr.h*sqr.yscale,tipmsg,sqr.fw,sqr.fh,scale);
-}
-void update_tooltip2(int32_t x, int32_t y, int32_t tx, int32_t ty, int32_t tw, int32_t th, char const* tipmsg, int fw, int fh, double scale)
-{
-	if(x<0||y<0) //if we want to clear the tooltip
-	{
-		tooltip_box2.x=x;
-		tooltip_box2.y=y;
-		tooltip_box2.w=0;
-		tooltip_box2.h=0;
-		tooltip_highlight2.clear();
-		return; //cancel
-	}
-	tooltip_highlight2.set(tx, ty, tw, th);
-	tooltip_highlight2.fw = fw;
-	tooltip_highlight2.fh = fh;
-	tooltip_highlight2.data[0] = 2;
-	tooltip_highlight2.data[1] = vc(TTipHLCol);
-	
-	FONT* oldfont = font;
-	font = get_custom_font(CFONT_TTIP);
-	
-	y+=16;
-	
-	if(!tipmsg || !tipmsg[0])
-	{
-		tooltip_box2.clear();
-		clear_bitmap(tooltipbmp2);
-	}
-	else
-	{
-		tooltip_box2.x = x;
-		tooltip_box2.y = y;
-		draw_box(tooltipbmp2, &tooltip_box2, tipmsg, scale);
-	}
-	
-	font = oldfont;
+	ttip_add(tipmsg, x, y, scale);
+	if (TooltipsHighlight && tw > 0 && th > 0)
+		ttip_add_highlight(tx, ty, tw, th, fw, fh);
 }
 
 void clear_tooltip()
 {
-	update_tooltip(-1, -1, -1, -1, 0, 0, NULL);
-}
-void clear_tooltip2()
-{
-	update_tooltip2(-1, -1, -1, -1, 0, 0, NULL);
+	ttip_remove();
 }
 
 void ZQ_ClearQuestPath()

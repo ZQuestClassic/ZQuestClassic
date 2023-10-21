@@ -1248,6 +1248,8 @@ enum { tfInvalid=0, tf4Bit, tf8Bit, tf16Bit, tf24Bit, tf32Bit, tfMax };
 
 struct size_and_pos
 {
+	bool operator==(const size_and_pos&) const = default;
+
 	int x = -1, y = -1;
 	int w = -1, h = -1;
 	int xscale = 1, yscale = 1;

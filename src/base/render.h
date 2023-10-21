@@ -171,6 +171,21 @@ private:
 	void mark_transform_dirty();
 };
 
+class CustomRTI : public RenderTreeItem
+{
+public:
+	CustomRTI(std::string name) : RenderTreeItem(name) {}
+	CustomRTI(std::string name, std::function<void()> prepare_cb, std::function<void()> render_cb);
+	~CustomRTI();
+
+	std::function<void()> prepare_cb;
+	std::function<void()> render_cb;
+
+protected:
+	void prepare();
+	void render(bool);
+};
+
 class LegacyBitmapRTI : public RenderTreeItem
 {
 public:
@@ -180,7 +195,7 @@ public:
 	BITMAP* a4_bitmap = nullptr;
 	bool a4_bitmap_rendered_once = false;
 
-private:
+protected:
 	void prepare();
 	void render(bool);
 };

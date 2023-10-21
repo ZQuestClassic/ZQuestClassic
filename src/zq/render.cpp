@@ -8,7 +8,6 @@ extern bool DragAspect;
 
 static auto rti_root = RenderTreeItem("root");
 static auto rti_screen = LegacyBitmapRTI("screen");
-static auto rti_tooltip = LegacyBitmapRTI("tooltip");
 
 static int zc_gui_mouse_x()
 {
@@ -40,10 +39,6 @@ static void init_render_tree()
 	rti_screen.a4_bitmap = screen;
 	rti_screen.visible = true;
 
-	rti_tooltip.transparency_index = 0;
-
-	rti_screen.add_child(&rti_tooltip);
-
 	rti_root.add_child(&rti_screen);
 	rti_root.add_child(&rti_dialogs);
 
@@ -74,21 +69,15 @@ static void configure_render_tree()
 		}
 		if(DragAspect)
 			xscale = yscale = std::min(xscale,yscale);
-		rti_screen.set_transform({
+		rti_root.set_transform({
 			.x = (int)(resx - w*xscale) / 2,
 			.y = (int)(resy - h*yscale) / 2,
 			.xscale = xscale,
 			.yscale = yscale,
 		});
+
 		// TODO: don't recreate screen bitmap when alternating fullscreen mode.
 		rti_screen.a4_bitmap = zqdialog_bg_bmp ? zqdialog_bg_bmp : screen;
-		
-		rti_dialogs.set_transform({
-			.x = (int)(resx - w*xscale) / 2,
-			.y = (int)(resy - h*yscale) / 2,
-			.xscale = xscale,
-			.yscale = yscale,
-		});
 	}
 
 	// Not necessary, but a few things use `rti_dialogs.visible` for convenience.
@@ -106,14 +95,14 @@ static void configure_render_tree()
 	reload_dialog_tint();
 }
 
+RenderTreeItem* get_root_rti()
+{
+	return &rti_root;
+}
+
 RenderTreeItem* get_screen_rti()
 {
 	return &rti_screen;
-}
-
-LegacyBitmapRTI* get_tooltip_rti()
-{
-	return &rti_tooltip;
 }
 
 void zq_hide_screen(bool hidden)

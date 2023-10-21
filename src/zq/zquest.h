@@ -117,7 +117,6 @@ extern size_and_pos commands_window;
 extern size_and_pos commands_list;
 extern size_and_pos dummy_panel;
 
-extern size_and_pos tooltip_box;
 extern size_and_pos tooltip_trigger;
 
 extern int32_t mapscreen_x, mapscreen_y, mapscreensize, showedges, showallpanels;
@@ -138,7 +137,7 @@ extern DATAFILE *zcdata, *fontsdata;
 extern size_t fontsdat_cnt;
 extern MIDI *song;
 extern BITMAP *menu1,*menu3, *mapscreenbmp, *tmp_scr, *screen2, *mouse_bmp[MOUSE_BMP_MAX][4], *mouse_bmp_1x[MOUSE_BMP_MAX][4], *icon_bmp[ICON_BMP_MAX][4], *flag_bmp[16][4], *panel_button_icon_bmp[m_menucount][4], *select_bmp[2],*dmapbmp_small, *dmapbmp_large;
-extern BITMAP *arrow_bmp[MAXARROWS],*brushbmp, *brushscreen, *tooltipbmp, *tooltipbmp2; //, *brushshadowbmp;
+extern BITMAP *arrow_bmp[MAXARROWS],*brushbmp, *brushscreen; //, *brushshadowbmp;
 extern byte *colordata, *trashbuf;
 //extern byte *tilebuf;
 extern comboclass *combo_class_buf;
@@ -1169,15 +1168,12 @@ void highlight_sqr(BITMAP* dest, int color, int x, int y, int w, int h, int thic
 void highlight_sqr(BITMAP* dest, int color, size_and_pos const& rec, int thick = 2);
 void highlight_frag(BITMAP* dest, int color, int x1, int y1, int w, int h, int fw, int fh, int thick = 2);
 void highlight_frag(BITMAP* dest, int color, size_and_pos const& rec, int thick = 2);
-void draw_ttip(BITMAP* dest, int xoff, int yoff);
-void draw_ttip2(BITMAP* dest, int xoff, int yoff);
-void draw_ttips();
+void highlight(BITMAP* dest, size_and_pos& hl);
+std::pair<int, int> get_box_text_size(char const* tipmsg, double txscale);
+void draw_box(BITMAP* destbmp, size_and_pos* pos, char const* tipmsg, double txscale = 1);
 void update_tooltip(int32_t x, int32_t y, size_and_pos const& sqr, char const* tipmsg, double scale = 1);
 void update_tooltip(int32_t x, int32_t y, int32_t trigger_x, int32_t trigger_y, int32_t trigger_w, int32_t trigger_h, char const* tipmsg, int fw = -1, int fh = -1, double scale = 1);
-void update_tooltip2(int32_t x, int32_t y, size_and_pos const& sqr, char const* tipmsg, double scale = 1);
-void update_tooltip2(int32_t x, int32_t y, int32_t trigger_x, int32_t trigger_y, int32_t trigger_w, int32_t trigger_h, char const* tipmsg, int fw = -1, int fh = -1, double scale = 1);
 void clear_tooltip();
-void clear_tooltip2();
 void ZQ_ClearQuestPath();
 void cflag_help(int32_t id);
 void ctype_help(int32_t id);

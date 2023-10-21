@@ -1055,7 +1055,6 @@ int32_t onPreviewMode()
 		ComboBrush=0;
 		restore_mouse();
 		clear_tooltip();
-		clear_tooltip2();
 		dopreview();
 		ComboBrush=tempcb;
 	}

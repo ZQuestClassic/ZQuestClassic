@@ -6,6 +6,7 @@
 #include "base/fonts.h"
 #include "jwin.h"
 #include "sfx.h"
+#include "zq/render_tooltip.h"
 
 #define MAXSCREENS 128
 #define MAXROOMTYPES   rMAX
@@ -41,6 +42,7 @@
 
 INLINE int32_t popup_menu(MENU *menu,int32_t x,int32_t y)
 {
+    ttip_remove();
     while(gui_mouse_b())
     {
         rest(1);
