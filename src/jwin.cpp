@@ -9901,18 +9901,19 @@ void draw_checkerboard(BITMAP* dest, int32_t x, int32_t y, int32_t offx, int32_t
 
 int32_t d_vsync_proc(int32_t msg,DIALOG *d,int32_t c)
 {
-    static clock_t tics;
-    
+	static std::chrono::steady_clock::time_point tics;
+	auto now = std::chrono::steady_clock::now();
+
     switch(msg)
     {
 		case MSG_START:
-			tics=clock()+(CLOCKS_PER_SEC/60);
+			tics = std::chrono::steady_clock::now() + std::chrono::milliseconds(1000/60);
 			break;
 			
 		case MSG_IDLE:
-			if(clock()>tics)
+			if(now>tics)
 			{
-				tics=clock()+(CLOCKS_PER_SEC/60);
+				tics = std::chrono::steady_clock::now() + std::chrono::milliseconds(1000/60);
 				broadcast_dialog_message(MSG_VSYNC, c);
 				if(d->dp)
 				{
