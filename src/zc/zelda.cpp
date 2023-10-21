@@ -2068,20 +2068,24 @@ int32_t init_game()
 	
 	if(firstplay)
 	{
-		game->set_life(zinit.start_heart*game->get_hp_per_heart());
+		game->set_life(zinit.counter[crLIFE]);
 	}
 	else
 	{
 		if(game->get_cont_percent())
 		{
 			if(game->get_maxlife()%game->get_hp_per_heart()==0)
-				game->set_life(((game->get_maxlife()*game->get_cont_hearts()/100)/game->get_hp_per_heart())*game->get_hp_per_heart());
+			{
+				auto life = (game->get_maxlife()*game->get_cont_hearts()/100);
+				life -= life % game->get_hp_per_heart();
+				game->set_life(life);
+			}
 			else
 				game->set_life(game->get_maxlife()*game->get_cont_hearts()/100);
 		}
 		else
 		{
-			game->set_life(game->get_cont_hearts()*game->get_hp_per_heart());
+			game->set_life(game->get_cont_hearts());
 		}
 	}
 	
@@ -2409,13 +2413,17 @@ int32_t cont_game()
 	if(game->get_cont_percent())
 	{
 		if(game->get_maxlife()%game->get_hp_per_heart()==0)
-			game->set_life(((game->get_maxlife()*game->get_cont_hearts()/100)/game->get_hp_per_heart())*game->get_hp_per_heart());
+		{
+			auto life = (game->get_maxlife()*game->get_cont_hearts()/100);
+			life -= life % game->get_hp_per_heart();
+			game->set_life(life);
+		}
 		else
 			game->set_life(game->get_maxlife()*game->get_cont_hearts()/100);
 	}
 	else
 	{
-		game->set_life(game->get_cont_hearts()*game->get_hp_per_heart());
+		game->set_life(game->get_cont_hearts());
 	}
 	
 	initZScriptGlobalScript(GLOBAL_SCRIPT_ONCONTGAME);

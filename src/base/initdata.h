@@ -5,33 +5,38 @@
 #include "base/containers.h"
 #include <vector>
 
-#define MAXSCRS (MAXMAPS*MAPSCRS)
 struct zinitdata
 {
-	bool items[256];
+	byte items[MAXITEMS/8];
 	
-	byte hc;
-	word start_heart, cont_heart;
-	byte hcp, hcp_per_hc = 4, keys;
-	word rupies;
-	byte triforce; // bit flags
-	byte map[64];
-	byte compass[64];
-	byte boss_key[64];
+	byte map[MAXLEVELS/8];
+	byte compass[MAXLEVELS/8];
+	byte boss_key[MAXLEVELS/8];
+	byte mcguffin[MAXLEVELS/8];
+	byte level_keys[MAXLEVELS];
+	
+	bool get_item(size_t ind) const {return get_bit(items,ind);}
+	void set_item(size_t ind, bool st) {set_bit(items,ind,st);}
+	
+	word counter[MAX_COUNTERS];
+	word mcounter[MAX_COUNTERS];
+	
+	byte bomb_ratio = 4; // ratio of super bombs to bombs
+	byte hcp, hcp_per_hc = 4;
+	word cont_heart; // continue health
+	
+public:
+	
 	byte misc[16];
 	
 	byte last_map; //last map worked on
 	
 	byte last_screen; //last screen worked on
-	word max_magic;
-	word magic;
-	byte bomb_ratio = 4; // ratio of super bombs to bombs
 	byte msg_more_x, msg_more_y, msg_more_is_offset;
 	byte subscreen;
 	word start_dmap;
 	byte heroAnimationStyle;
 	
-	byte level_keys[MAXLEVELS];
 	int32_t ss_grid_x = 8;
 	int32_t ss_grid_y = 8;
 	int32_t ss_grid_xofs;
@@ -42,7 +47,6 @@ struct zinitdata
 	int32_t ss_flags;
 	byte subscreen_style;
 	byte usecustomsfx;
-	word max_rupees = 255, max_keys = 255;
 	byte gravity = 16; //Deprecated!
 	int32_t gravity2 = 1600; //Bumping this up to an int32_t.
 	word terminalv = 320;
@@ -51,13 +55,11 @@ struct zinitdata
 	byte jump_hero_layer_threshold = 255; // Hero is drawn above layer 3 if z > this.
 	byte hero_swim_speed;
 	
-	word bombs, super_bombs, max_bombs, max_sbombs, arrows, max_arrows, heroStep, subscrSpeed = 1, heroSideswimUpStep, heroSideswimSideStep, heroSideswimDownStep;
+	word heroStep, subscrSpeed = 1, heroSideswimUpStep, heroSideswimSideStep, heroSideswimDownStep;
 	
 	int32_t exitWaterJump;
 
 	byte hp_per_heart, magic_per_block, hero_damage_multiplier, ene_damage_multiplier;
-	
-	word scrcnt[25], scrmaxcnt[25]; //Script counter start/max -Em
 	
 	int32_t swimgravity;
 	

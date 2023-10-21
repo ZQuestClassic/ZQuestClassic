@@ -68,18 +68,8 @@ zinitdata *copyIntoZinit(gamedata *gdata)
     zinit2->heroStep=zinit.heroStep;
     zinit2->shove_offset=zinit.shove_offset;
     zinit2->subscrSpeed=zinit.subscrSpeed;
-    zinit2->hc = gdata->get_maxlife()/gdata->get_hp_per_heart();
-    zinit2->bombs = gdata->get_bombs();
-    zinit2->keys = gdata->get_keys();
-    zinit2->max_bombs = gdata->get_maxbombs();
-    zinit2->super_bombs = gdata->get_sbombs();
-    zinit2->max_sbombs = gdata->get_sbombs();
     zinit2->bomb_ratio = zinit.bomb_ratio;
     zinit2->hcp = gdata->get_HCpieces();
-    zinit2->rupies = gdata->get_rupies();
-    zinit2->max_bombs = gdata->get_maxbombs();
-    zinit2->arrows = gdata->get_arrows();
-    zinit2->max_arrows = gdata->get_maxarrows();
 	
 	zinit2->hp_per_heart = gdata->get_hp_per_heart();
 	zinit2->magic_per_block = gdata->get_mp_per_block();
@@ -99,10 +89,10 @@ zinitdata *copyIntoZinit(gamedata *gdata)
 	zinit2->bunny_ltm = gdata->get_bunny_ltm();
 	zinit2->switchhookstyle = gdata->get_switchhookstyle();
 	
-	for(int32_t q = 0; q < 25; ++q)
+	for(int32_t q = 0; q < MAX_COUNTERS; ++q)
 	{
-		zinit2->scrcnt[q] = gdata->get_counter(q+7);
-		zinit2->scrmaxcnt[q] = gdata->get_maxcounter(q+7);
+		zinit2->counter[q] = gdata->get_counter(q);
+		zinit2->mcounter[q] = gdata->get_maxcounter(q);
 	}
     
     for(int32_t i=0; i<MAXLEVELS; i++)
@@ -110,27 +100,13 @@ zinitdata *copyIntoZinit(gamedata *gdata)
         set_bit(zinit2->map, i, (gdata->lvlitems[i] & liMAP) ? 1 : 0);
         set_bit(zinit2->compass, i, (gdata->lvlitems[i] & liCOMPASS) ? 1 : 0);
         set_bit(zinit2->boss_key, i, (gdata->lvlitems[i] & liBOSSKEY) ? 1 : 0);
+        set_bit(zinit2->mcguffin, i, (gdata->lvlitems[i] & liTRIFORCE) ? 1 : 0);
         zinit2->level_keys[i] = gdata->lvlkeys[i];
     }
-    
-    for(int32_t i=0; i<8; i++)
-    {
-        set_bit(&zinit2->triforce,i,(gdata->lvlitems[i+1]&liTRIFORCE) ? 1 : 0);
-    }
-    
-    zinit2->max_magic = gdata->get_maxmagic();
-    zinit2->magic = gdata->get_magic();
     
 	zinit2->magicdrainrate = vbound(gdata->get_magicdrainrate(), 0, 255);
     set_bit(zinit2->misc, idM_CANSLASH, gdata->get_canslash());
     
-    zinit2->arrows = gdata->get_arrows();
-    zinit2->max_arrows = gdata->get_maxarrows();
-    
-    zinit2->max_rupees = gdata->get_maxcounter(1);
-    zinit2->max_keys = gdata->get_maxcounter(5);
-    
-    zinit2->start_heart = gdata->get_life()/gdata->get_hp_per_heart();
     zinit2->cont_heart = gdata->get_cont_hearts();
     zinit2->hcp_per_hc = gdata->get_hcp_per_hc();
     set_bit(zinit2->misc,idM_CONTPERCENT,gdata->get_cont_percent() ? 1 : 0);
@@ -138,7 +114,7 @@ zinitdata *copyIntoZinit(gamedata *gdata)
     //now set up the items!
     for(int32_t i=0; i<MAXITEMS; i++)
     {
-        zinit2->items[i] = gdata->get_item(i);
+        zinit2->set_item(i, gdata->get_item(i));
     }
 	
 	zinit2->hero_swim_mult = gdata->swim_mult;

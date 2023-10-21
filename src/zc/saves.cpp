@@ -2304,8 +2304,8 @@ int saves_do_first_time_stuff(int index)
 
 		load_quest(save->game);
 		
-		save->game->set_maxlife(zinit.hc*zinit.hp_per_heart);
-		save->game->set_life(zinit.hc*zinit.hp_per_heart);
+		save->game->set_maxlife(zinit.mcounter[crLIFE]);
+		save->game->set_life(zinit.mcounter[crLIFE]);
 		save->game->set_hp_per_heart(zinit.hp_per_heart);
 		save->game->header.life = save->game->get_life();
 		save->game->header.maxlife = save->game->get_maxlife();

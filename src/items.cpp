@@ -702,7 +702,7 @@ void removeItemsOfFamily(zinitdata *z, itemdata *items, int32_t family)
 	{
 		if(items[i].family == family)
 		{
-			z->items[i]=false;
+			z->set_item(i,false);
 			if ( game->forced_bwpn == i ) 
 			{
 				game->forced_bwpn = -1;
@@ -730,7 +730,7 @@ int32_t getHighestLevelOfFamily(zinitdata *source, itemdata *items, int32_t fami
 	
 	for(int32_t i=0; i<MAXITEMS; i++)
 	{
-		if(items[i].family == family && source->items[i])
+		if(items[i].family == family && source->get_item(i))
 		{
 			if(items[i].fam_type >= highestlevel)
 			{
@@ -834,7 +834,7 @@ void addOldStyleFamily(zinitdata *dest, itemdata *items, int32_t family, char le
 			int32_t id = getItemID(items, family, i+1);
 			
 			if(id != -1)
-				dest->items[id]=true;
+				dest->set_item(id,true);
 		}
 	}
 }

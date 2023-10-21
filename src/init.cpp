@@ -969,19 +969,19 @@ int32_t doInit(zinitdata *local_zinit, bool isZC)
 // I don't like this solution one bit, but can't come up with anything better -DD
 void resetItems(gamedata *game2, zinitdata *zinit2, bool freshquest)
 {
-    game2->set_life(zc_max(1,zinit2->start_heart)*zinit2->hp_per_heart);
-    game2->set_maxlife(zinit2->hc*zinit2->hp_per_heart);
-    game2->set_maxbombs(zinit2->max_bombs);
-    game2->set_maxcounter(zinit2->max_bombs/zc_max(1,zinit2->bomb_ratio), 6);
-    game2->set_maxmagic(zinit2->max_magic);
-    game2->set_maxarrows(zinit2->max_arrows);
-    game2->set_maxcounter(zinit2->max_rupees, 1);
-    game2->set_maxcounter(zinit2->max_keys, 5);
+    game2->set_life(zc_max(1,zinit2->counter[crLIFE]) * zinit2->hp_per_heart);
+    game2->set_maxlife(zinit2->mcounter[crLIFE]*zinit2->hp_per_heart);
+    game2->set_maxbombs(zinit2->mcounter[crBOMBS]);
+    game2->set_maxcounter(zinit2->mcounter[crBOMBS]/zc_max(1,zinit2->bomb_ratio), 6);
+    game2->set_maxmagic(zinit2->mcounter[crMAGIC]);
+    game2->set_maxarrows(zinit2->mcounter[crARROWS]);
+    game2->set_maxcounter(zinit2->mcounter[crMONEY], 1);
+    game2->set_maxcounter(zinit2->mcounter[crKEYS], 5);
     
     //set up the items
     for(int32_t i=0; i<MAXITEMS; i++)
     {
-        if(zinit2->items[i] && (itemsbuf[i].flags & ITEM_GAMEDATA))
+        if(zinit2->get_item(i) && (itemsbuf[i].flags & ITEM_GAMEDATA))
         {
 #ifndef IS_EDITOR
             if (!game2->get_item(i))
@@ -1004,17 +1004,17 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool freshquest)
     flushItemCache();
     
     //Then set up the counters
-    game2->set_bombs(zinit2->bombs);
+    game2->set_bombs(zinit2->counter[crBOMBS]);
     
-    if(zinit2->bombs > 0 && zinit2->max_bombs > 0) game2->set_item(iBombs, true);
+    if(zinit2->counter[crBOMBS] > 0 && zinit2->mcounter[crBOMBS] > 0) game2->set_item(iBombs, true);
     
-    game2->set_keys(zinit2->keys);
-    game2->set_sbombs(zinit2->super_bombs);
+    game2->set_keys(zinit2->counter[crKEYS]);
+    game2->set_sbombs(zinit2->counter[crSBOMBS]);
     
-    if(zinit2->super_bombs > 0 && (zinit2->max_bombs/zc_max(1,zinit2->bomb_ratio)) > 0) game2->set_item(iSBomb, true);
+    if(zinit2->counter[crSBOMBS] > 0 && (zinit2->mcounter[crBOMBS] /zc_max(1,zinit2->bomb_ratio)) > 0) game2->set_item(iSBomb, true);
     
     game2->set_HCpieces(zinit2->hcp);
-    game2->set_rupies(zinit2->rupies);
+    game2->set_rupies(zinit2->counter[crMONEY]);
     game2->set_hcp_per_hc(zinit2->hcp_per_hc);
     game2->set_cont_hearts(zinit2->cont_heart);
     game2->set_cont_percent(get_bit(zinit2->misc, idM_CONTPERCENT) != 0);
@@ -1048,25 +1048,21 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool freshquest)
         game2->lvlitems[i]|=get_bit(zinit2->map,i)?liMAP:0;
         game2->lvlitems[i]|=get_bit(zinit2->compass,i)?liCOMPASS:0;
         game2->lvlitems[i]|=get_bit(zinit2->boss_key,i)?liBOSSKEY:0;
+        game2->lvlitems[i]|=get_bit(zinit2->mcguffin,i)?liTRIFORCE:0;
         game2->lvlkeys[i]=zinit2->level_keys[i];
     }
     
-    for(int32_t i=0; i<8; i++)
-    {
-        game2->lvlitems[i+1]|=get_bit(&zinit2->triforce,i)?liTRIFORCE:0;
-    }
-    
-    game2->set_magic(zc_min(zinit2->magic,zinit2->max_magic));
+    game2->set_magic(zc_min(zinit2->counter[crMAGIC],zinit2->mcounter[crMAGIC]));
     game2->set_magicdrainrate(zinit2->magicdrainrate);
 	//zprint2("gd2: %d, zi2: %d\n", game2->get_magicdrainrate(), zinit2->magicdrainrate);
     game2->set_canslash(get_bit(zinit2->misc,idM_CANSLASH)?1:0);
     
-    game2->set_arrows(zinit2->arrows);
+    game2->set_arrows(zinit2->counter[crARROWS]);
     
-	for(int32_t q = 0; q < 25; ++q)
+	for(int32_t q = 0; q < 100; ++q)
 	{
-		game2->set_counter(zinit2->scrcnt[q], q+7);
-		game2->set_maxcounter(zinit2->scrmaxcnt[q], q+7);
+		game2->set_counter(zinit2->counter[q+crCUSTOM1], q+ crCUSTOM1);
+		game2->set_maxcounter(zinit2->mcounter[q+crCUSTOM1], q+crCUSTOM1);
 	}
 	
 	if(freshquest)
@@ -1101,9 +1097,7 @@ template<std::size_t N, class T>
 constexpr std::size_t countof(T(&)[N]) { return N; }
 
 #define LIST_PROPS \
-	PROP(arrows) \
 	PROP(bomb_ratio) \
-	PROP(bombs) \
 	PROP(bunny_ltm) \
 	PROP(cont_heart) \
 	PROP(darkcol) \
@@ -1115,7 +1109,6 @@ constexpr std::size_t countof(T(&)[N]) { return N; }
 	PROP(exitWaterJump) \
 	PROP(gravity) \
 	PROP(gravity2) \
-	PROP(hc) \
 	PROP(hcp) \
 	PROP(hcp_per_hc) \
 	PROP(hero_damage_multiplier) \
@@ -1130,23 +1123,14 @@ constexpr std::size_t countof(T(&)[N]) { return N; }
 	ZFIXPROP(shove_offset) \
 	PROP(hp_per_heart) \
 	PROP(jump_hero_layer_threshold) \
-	PROP(keys) \
 	PROP(last_map) \
 	PROP(last_screen) \
-	PROP(magic) \
 	PROP(magic_per_block) \
 	PROP(magicdrainrate) \
-	PROP(max_arrows) \
-	PROP(max_bombs) \
-	PROP(max_keys) \
-	PROP(max_magic) \
-	PROP(max_rupees) \
-	PROP(max_sbombs) \
 	PROP(msg_more_is_offset) \
 	PROP(msg_more_x) \
 	PROP(msg_more_y) \
 	PROP(msg_speed) \
-	PROP(rupies) \
 	PROP(ss_bbox_1_color) \
 	PROP(ss_bbox_2_color) \
 	PROP(ss_flags) \
@@ -1156,22 +1140,37 @@ constexpr std::size_t countof(T(&)[N]) { return N; }
 	PROP(ss_grid_y) \
 	PROP(ss_grid_yofs) \
 	PROP(start_dmap) \
-	PROP(start_heart) \
 	PROP(subscreen) \
 	PROP(subscreen_style) \
 	PROP(subscrSpeed) \
-	PROP(super_bombs) \
 	PROP(swimgravity) \
 	PROP(switchhookstyle) \
 	PROP(terminalv) \
 	PROP(transdark_percent) \
 	PROP(transition_type) \
-	PROP(triforce) \
 	PROP(usecustomsfx)
+
+#define LIST_DEPR_PROPS \
+	DEPRPROP(super_bombs,counter[crSBOMBS]) \
+	DEPRPROP_OFFS(start_heart,counter[crLIFE],*,result->hp_per_heart) \
+	DEPRPROP_BIT_IOFFS(triforce,mcguffin,8,1) \
+	DEPRPROP(rupies,counter[crMONEY]) \
+	DEPRPROP(keys,counter[crKEYS]) \
+	DEPRPROP(arrows,counter[crARROWS]) \
+	DEPRPROP(bombs,counter[crBOMBS]) \
+	DEPRPROP_OFFS(hc,counter[crLIFE],*,result->hp_per_heart) \
+	DEPRPROP(magic,counter[crMAGIC]) \
+	DEPRPROP(max_arrows,mcounter[crARROWS]) \
+	DEPRPROP(max_bombs,mcounter[crBOMBS]) \
+	DEPRPROP(max_keys,mcounter[crKEYS]) \
+	DEPRPROP(max_magic,mcounter[crMAGIC]) \
+	DEPRPROP(max_rupees,mcounter[crMONEY]) \
+	DEPRPROP(max_sbombs,mcounter[crSBOMBS])
 
 #define LIST_ARRAY_PROPS \
 	ARRAY_PROP(boss_key) \
 	ARRAY_PROP(compass) \
+	ARRAY_PROP(counter) \
 	ARRAY_PROP(gen_doscript) \
 	ARRAY_PROP(gen_eventstate) \
 	ARRAY_PROP(gen_exitState) \
@@ -1179,9 +1178,13 @@ constexpr std::size_t countof(T(&)[N]) { return N; }
 	ARRAY_PROP(items) \
 	ARRAY_PROP(level_keys) \
 	ARRAY_PROP(map) \
-	ARRAY_PROP(misc) \
-	ARRAY_PROP(scrcnt) \
-	ARRAY_PROP(scrmaxcnt)
+	ARRAY_PROP(mcguffin) \
+	ARRAY_PROP(mcounter) \
+	ARRAY_PROP(misc)
+
+#define LIST_ARRAY_DEPR_PROPS \
+	ARRAY_DEPRPROP_IOFS(scrcnt,counter,crCUSTOM1) \
+	ARRAY_DEPRPROP_IOFS(scrmaxcnt,mcounter,crCUSTOM1)
 
 // TODO gen_data[i][j]
 // ARRAY_PROP(gen_data)
@@ -1249,7 +1252,13 @@ zinitdata *apply_init_data_delta(zinitdata *base, std::string delta, std::string
 				FAIL_IF(index >= countof(result->name), fmt::format("invalid token '{}': integer too big", token)); \
 				result->name[index] = as_int; \
 			} else
+			#define ARRAY_DEPRPROP_IOFS(old,new,indoffs) if (name_index[0] == #old) \
+			{ \
+				FAIL_IF(index+indoffs >= countof(result->new), fmt::format("invalid token '{}': integer too big", token)); \
+				result->new[index+indoffs] = as_int; \
+			} else
 			LIST_ARRAY_PROPS
+			LIST_ARRAY_DEPR_PROPS
 			{
 				FAIL_IF(true, fmt::format("invalid token '{}': unknown property", token));
 			}
@@ -1262,7 +1271,17 @@ zinitdata *apply_init_data_delta(zinitdata *base, std::string delta, std::string
 			result->name = as_int; else
 		#define ZFIXPROP(name) if (kv[0] == #name) \
 			result->name = zslongToFix(as_int); else
+		#define DEPRPROP(old,new) if(kv[0] == #old) \
+			result->new = as_int; else
+		#define DEPRPROP_OFFS(old,new,op,offs) if(kv[0] == #old) \
+			result->new = as_int op offs; else
+		#define DEPRPROP_BIT_IOFFS(old,new,bits,offs) if(kv[0] == #old) \
+		{ \
+			for(int q = 0; q < bits; ++q) \
+				result->new[q+offs] = get_bitl(as_int,q); \
+		} else
 		LIST_PROPS
+		LIST_DEPR_PROPS
 		{
 			FAIL_IF(true, fmt::format("invalid token '{}': unknown property", token));
 		}

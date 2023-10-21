@@ -19378,13 +19378,12 @@ int32_t readcheatcodes(PACKFILE *f, zquestheader *Header)
     return 0;
 }
 
-int32_t readinitdata(PACKFILE *f, zquestheader *Header)
+int32_t readinitdata_old(PACKFILE *f, zquestheader *Header, word s_version, word s_cversion)
 {
 	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_initdata);
 
 	int32_t dummy;
-	word s_version=0, s_cversion=0;
-	byte padding;
+	byte padding, tempbyte;
 	
 	zinitdata temp_zinit = {};
 	
@@ -19416,29 +19415,6 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 	
 	temp_zinit.subscreen_style=get_qr(qr_COOLSCROLL)?1:0;
 	
-	if(Header->zelda_version > 0x192)
-	{
-		//section version info
-		if(!p_igetw(&s_version,f))
-		{
-			return qe_invalid;
-		}
-		
-		FFCore.quest_format[vInitData] = s_version;
-		
-		//al_trace("Init data version %d\n", s_version);
-		if(!p_igetw(&s_cversion,f))
-		{
-			return qe_invalid;
-		}
-		
-		//section size
-		if(!p_igetl(&dummy,f))
-		{
-			return qe_invalid;
-		}
-	}
-	
 	/* HIGHLY UNORTHODOX UPDATING THING, by L
 	 * This fixes quests made before revision 277 (such as the 'Lost Isle Build'),
 	 * where the speed of Pols Voice changed. It also coincided with V_INITDATA
@@ -19462,7 +19438,7 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 			if(!p_getc(&temp,f))
 				return qe_invalid;
 				
-			temp_zinit.items[j] = (temp != 0);
+			temp_zinit.set_item(j, temp != 0);
 		}
 	}
 	
@@ -19483,42 +19459,42 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 					return qe_invalid;
 				}
 				
-				temp_zinit.items[iRaft]=(temp != 0);
+				temp_zinit.set_item(iRaft, temp != 0);
 				
 				if(!p_getc(&temp,f))
 				{
 					return qe_invalid;
 				}
 				
-				temp_zinit.items[iLadder]=(temp != 0);
+				temp_zinit.set_item(iLadder, temp != 0);
 				
 				if(!p_getc(&temp,f))
 				{
 					return qe_invalid;
 				}
 				
-				temp_zinit.items[iBook]=(temp != 0);
+				temp_zinit.set_item(iBook, temp != 0);
 				
 				if(!p_getc(&temp,f))
 				{
 					return qe_invalid;
 				}
 				
-				temp_zinit.items[iMKey]=(temp!=0);
+				temp_zinit.set_item(iMKey, temp != 0);
 				
 				if(!p_getc(&temp,f))
 				{
 					return qe_invalid;
 				}
 				
-				temp_zinit.items[iFlippers]=(temp != 0);
+				temp_zinit.set_item(iFlippers, temp != 0);
 				
 				if(!p_getc(&temp,f))
 				{
 					return qe_invalid;
 				}
 				
-				temp_zinit.items[iBoots]=(temp!=0);
+				temp_zinit.set_item(iBoots, temp != 0);
 			}
 		}
 		
@@ -19650,11 +19626,11 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 			//to jab out my eye...
 			if(!p_getc(&padding,f))
 				return qe_invalid;
-			temp_zinit.bombs = padding;
+			temp_zinit.counter[crBOMBS] = padding;
 			
 			if(!p_getc(&padding,f))
 				return qe_invalid;
-			temp_zinit.super_bombs = padding;
+			temp_zinit.counter[crSBOMBS] = padding;
 		}
 		
 		//Back to more OLD item code
@@ -19755,12 +19731,12 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 				return qe_invalid;
 			}
 			
-			temp_zinit.items[iRaft]=(get_bit(&equipment, idE_RAFT)!=0);
-			temp_zinit.items[iLadder]=(get_bit(&equipment, idE_LADDER)!=0);
-			temp_zinit.items[iBook]=(get_bit(&equipment, idE_BOOK)!=0);
-			temp_zinit.items[iMKey]=(get_bit(&equipment, idE_KEY)!=0);
-			temp_zinit.items[iFlippers]=(get_bit(&equipment, idE_FLIPPERS)!=0);
-			temp_zinit.items[iBoots]=(get_bit(&equipment, idE_BOOTS)!=0);
+			temp_zinit.set_item(iRaft, get_bit(&equipment, idE_RAFT)!=0);
+			temp_zinit.set_item(iLadder, get_bit(&equipment, idE_LADDER)!=0);
+			temp_zinit.set_item(iBook, get_bit(&equipment, idE_BOOK)!=0);
+			temp_zinit.set_item(iMKey, get_bit(&equipment, idE_KEY)!=0);
+			temp_zinit.set_item(iFlippers, get_bit(&equipment, idE_FLIPPERS)!=0);
+			temp_zinit.set_item(iBoots, get_bit(&equipment, idE_BOOTS)!=0);
 			
 			
 			if(!p_getc(&items,f))
@@ -19768,18 +19744,18 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 				return qe_invalid;
 			}
 			
-			temp_zinit.items[iWand]=(get_bit(&items, idI_WAND)!=0);
-			temp_zinit.items[iLetter]=(get_bit(&items, idI_LETTER)!=0);
-			temp_zinit.items[iLens]=(get_bit(&items, idI_LENS)!=0);
-			temp_zinit.items[iHookshot]=(get_bit(&items, idI_HOOKSHOT)!=0);
-			temp_zinit.items[iBait]=(get_bit(&items, idI_BAIT)!=0);
-			temp_zinit.items[iHammer]=(get_bit(&items, idI_HAMMER)!=0);
+			temp_zinit.set_item(iWand, get_bit(&items, idI_WAND)!=0);
+			temp_zinit.set_item(iLetter, get_bit(&items, idI_LETTER)!=0);
+			temp_zinit.set_item(iLens, get_bit(&items, idI_LENS)!=0);
+			temp_zinit.set_item(iHookshot, get_bit(&items, idI_HOOKSHOT)!=0);
+			temp_zinit.set_item(iBait, get_bit(&items, idI_BAIT)!=0);
+			temp_zinit.set_item(iHammer, get_bit(&items, idI_HAMMER)!=0);
 		}
 		
-		if(!p_getc(&temp_zinit.hc,f))
-		{
+		if(!p_getc(&tempbyte,f))
 			return qe_invalid;
-		}
+		temp_zinit.mcounter[crLIFE] = tempbyte;
+		
 		
 		if(s_version < 14)
 		{
@@ -19790,7 +19766,7 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 				return qe_invalid;
 			}
 			
-			temp_zinit.start_heart=temphp;
+			temp_zinit.counter[crLIFE]=temphp;
 			
 			if(!p_getc(&temphp,f))
 			{
@@ -19801,7 +19777,7 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 		}
 		else
 		{
-			if(!p_igetw(&temp_zinit.start_heart,f))
+			if(!p_igetw(&temp_zinit.counter[crLIFE],f))
 			{
 				return qe_invalid;
 			}
@@ -19838,23 +19814,23 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 		{
 			if(!p_getc(&padding,f))
 				return qe_invalid;
-			temp_zinit.max_bombs = padding;
+			temp_zinit.mcounter[crBOMBS] = padding;
 		}
 		
-		if(!p_getc(&temp_zinit.keys,f))
+		if(!p_getc(&temp_zinit.counter[crKEYS],f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_igetw(&temp_zinit.rupies,f))
+		if(!p_igetw(&temp_zinit.counter[crMONEY],f))
 		{
 			return qe_invalid;
 		}
 		
-		if(!p_getc(&temp_zinit.triforce,f))
-		{
+		if(!p_getc(&tempbyte,f))
 			return qe_invalid;
-		}
+		for(int q = 0; q < 8; ++q)
+			set_bit(temp_zinit.mcguffin, q+1, get_bitl(tempbyte, q));
 		
 		if(s_version>12 || (Header->zelda_version == 0x211 && Header->build == 18))
 		{
@@ -19954,23 +19930,23 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 				return qe_invalid;
 			}
 			
-			temp_zinit.max_magic=tempmp;
+			temp_zinit.mcounter[crMAGIC]=tempmp;
 			
 			if(!p_getc(&tempmp,f))
 			{
 				return qe_invalid;
 			}
 			
-			temp_zinit.magic=tempmp;
+			temp_zinit.counter[crMAGIC]=tempmp;
 		}
 		else
 		{
-			if(!p_igetw(&temp_zinit.max_magic,f))
+			if(!p_igetw(&temp_zinit.mcounter[crMAGIC],f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_igetw(&temp_zinit.magic,f))
+			if(!p_igetw(&temp_zinit.counter[crMAGIC],f))
 			{
 				return qe_invalid;
 			}
@@ -19980,8 +19956,8 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 		{
 			if(s_version < 12)
 			{
-				temp_zinit.max_magic*=32;
-				temp_zinit.magic*=32;
+				temp_zinit.mcounter[crMAGIC]*=32;
+				temp_zinit.counter[crMAGIC]*=32;
 			}
 			
 			for(int32_t i=0; i<4; i++)
@@ -20074,8 +20050,6 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 		{
 			if(s_version <= 10)
 			{
-				byte tempbyte;
-				
 				if(!p_getc(&tempbyte,f))
 				{
 					return qe_invalid;
@@ -20101,11 +20075,11 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 		{
 			if(!p_getc(&padding,f))
 				return qe_invalid;
-			temp_zinit.arrows = padding;
+			temp_zinit.counter[crARROWS] = padding;
 			
 			if(!p_getc(&padding,f))
 				return qe_invalid;
-			temp_zinit.max_arrows = padding;
+			temp_zinit.mcounter[crARROWS] = padding;
 		}
 		
 		if(s_version>2)
@@ -20292,12 +20266,12 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 		
 		if(s_version>8)
 		{
-			if(!p_igetw(&temp_zinit.max_rupees,f))
+			if(!p_igetw(&temp_zinit.mcounter[crMONEY],f))
 			{
 				return qe_invalid;
 			}
 			
-			if(!p_igetw(&temp_zinit.max_keys,f))
+			if(!p_igetw(&temp_zinit.mcounter[crKEYS],f))
 			{
 				return qe_invalid;
 			}
@@ -20344,27 +20318,27 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 		//expaned init data for larger values in 2.55
 		if ( s_version >= 19 ) //expand init data bombs, sbombs, and arrows to 0xFFFF
 		{
-			if(!p_igetw(&temp_zinit.bombs,f))
+			if(!p_igetw(&temp_zinit.counter[crBOMBS],f))
 			{
 				return qe_invalid;
 			}
-			if(!p_igetw(&temp_zinit.super_bombs,f))
+			if(!p_igetw(&temp_zinit.counter[crSBOMBS],f))
 			{
 				return qe_invalid;
 			}
-			if(!p_igetw(&temp_zinit.max_bombs,f))
+			if(!p_igetw(&temp_zinit.mcounter[crBOMBS],f))
 			{
 				return qe_invalid;
 			}
-			if(!p_igetw(&temp_zinit.max_sbombs,f))
+			if(!p_igetw(&temp_zinit.mcounter[crSBOMBS],f))
 			{
 				return qe_invalid;
 			}
-			if(!p_igetw(&temp_zinit.arrows,f))
+			if(!p_igetw(&temp_zinit.counter[crARROWS],f))
 			{
 				return qe_invalid;
 			}
-			if(!p_igetw(&temp_zinit.max_arrows,f))
+			if(!p_igetw(&temp_zinit.mcounter[crARROWS],f))
 			{
 				return qe_invalid;
 			}
@@ -20402,9 +20376,9 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 				return qe_invalid;
 			}
 			
-			temp_zinit.items[iDivineFire]=(get_bit(&items2, idI_DFIRE)!=0);
-			temp_zinit.items[iDivineEscape]=(get_bit(&items2, idI_FWIND)!=0);
-			temp_zinit.items[iDivineProtection]=(get_bit(&items2, idI_NLOVE)!=0);
+			temp_zinit.set_item(iDivineFire, get_bit(&items2, idI_DFIRE)!=0);
+			temp_zinit.set_item(iDivineEscape, get_bit(&items2, idI_FWIND)!=0);
+			temp_zinit.set_item(iDivineProtection, get_bit(&items2, idI_NLOVE)!=0);
 		}
 		
 		if(Header->zelda_version < 0x193)
@@ -20439,15 +20413,15 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 		int32_t sshieldid = getItemID(itemsbuf, itype_shield, i_smallshield);
 		
 		if(sshieldid != -1)
-			temp_zinit.items[sshieldid] = true;
+			temp_zinit.set_item(sshieldid, true);
 	}
 	
 	if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<27)))
 	{
-		temp_zinit.hc=3;
-		temp_zinit.start_heart=3;
+		temp_zinit.mcounter[crLIFE]=3;
+		temp_zinit.counter[crLIFE]=3;
 		temp_zinit.cont_heart=3;
-		temp_zinit.max_bombs=8;
+		temp_zinit.mcounter[crBOMBS]=8;
 	}
 	
 	if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<50)))
@@ -20466,8 +20440,8 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 	
 	if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<68)))
 	{
-		temp_zinit.max_magic=0;
-		temp_zinit.magic=0;
+		temp_zinit.mcounter[crMAGIC]=0;
+		temp_zinit.counter[crMAGIC]=0;
 		set_bit(temp_zinit.misc,idM_DOUBLEMAGIC,0);
 	}
 	
@@ -20593,19 +20567,19 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 	if(s_version < 16 && get_bit(deprecated_rules, qr_COOLSCROLL+1))
 	{
 		//addOldStyleFamily(&temp_zinit, itemsbuf, itype_wallet, 4);   //is this needed?
-		temp_zinit.max_rupees=999;
-		//temp_zinit.rupies=999; //This rule only gave you an invisible max wallet; it did not give you max rupies.
+		temp_zinit.mcounter[crMONEY]=999;
+		//temp_zinit.counter[crMONEY]=999; //This rule only gave you an invisible max wallet; it did not give you max rupies.
 	}
 	if(Header->zelda_version < 0x190) //1.84 bugfix. -Z
 	{
 		//temp_zinit.items[iBombBag] = true; //No, this is 30 max bombs!
-		temp_zinit.max_bombs = 8;
+		temp_zinit.mcounter[crBOMBS] = 8;
 	}
 	// al_trace("About to copy over new init data values for quest made in: %x\n", Header->zelda_version);
 	//time to ensure that we port all new values properly:
 	if(Header->zelda_version < 0x250)
 	{
-		temp_zinit.max_sbombs = temp_zinit.bomb_ratio > 0 ? ( temp_zinit.max_bombs/temp_zinit.bomb_ratio ) : (temp_zinit.max_bombs/4);
+		temp_zinit.mcounter[crSBOMBS] = temp_zinit.bomb_ratio > 0 ? ( temp_zinit.mcounter[crBOMBS]/temp_zinit.bomb_ratio ) : (temp_zinit.mcounter[crBOMBS]/4);
 	}
 	
 	if(s_version > 21)
@@ -20634,31 +20608,18 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 		temp_zinit.hero_damage_multiplier = 2; //DAMAGE_MULTIPLIER, previously hardcoded
 		temp_zinit.ene_damage_multiplier = 4; //(HP_PER_HEART/4), previously hardcoded
 	}
+	temp_zinit.counter[crLIFE] *= temp_zinit.hp_per_heart;
+	temp_zinit.mcounter[crLIFE] *= temp_zinit.hp_per_heart;
+	temp_zinit.cont_heart *= temp_zinit.hp_per_heart;
 	
 	if(s_version > 22)
 	{
-		for(int32_t q = 0; q < 25; ++q)
-		{
-			if(!p_igetw(&temp_zinit.scrcnt[q],f))
-			{
+		for(int32_t q = crCUSTOM1; q <= crCUSTOM25; ++q)
+			if(!p_igetw(&temp_zinit.counter[q],f))
 				return qe_invalid;
-			}
-		}
-		for(int32_t q = 0; q < 25; ++q)
-		{
-			if(!p_igetw(&temp_zinit.scrmaxcnt[q],f))
-			{
+		for(int32_t q = crCUSTOM1; q <= crCUSTOM25; ++q)
+			if(!p_igetw(&temp_zinit.mcounter[q],f))
 				return qe_invalid;
-			}
-		}
-	}
-	else
-	{
-		for(int32_t q = 0; q < 25; ++q)
-		{
-			temp_zinit.scrcnt[q] = 0;
-			temp_zinit.scrmaxcnt[q] = 0;
-		}
 	}
 	
 	
@@ -20878,6 +20839,68 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 		hero_animation_speed=1;
 	}
 	
+	return 0;
+}
+int32_t readinitdata(PACKFILE *f, zquestheader *Header)
+{
+	if(Header->zelda_version <= 0x192)
+		return readinitdata_old(f,Header,0,0);
+	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_initdata);
+	
+	int32_t dummy;
+	word s_version=0, s_cversion=0;
+	byte padding;
+	
+	zinitdata temp_zinit = {};
+	
+	if(!p_igetw(&s_version,f))
+		return qe_invalid;
+	FFCore.quest_format[vInitData] = s_version;
+	
+	if(!p_igetw(&s_cversion,f))
+		return qe_invalid;
+	
+	//section size
+	if(!p_igetl(&dummy,f))
+		return qe_invalid;
+	
+	if(s_version < 37)
+		return readinitdata_old(f,Header,s_version,s_cversion);
+	
+	for(int q = 0; q < MAXITEMS/8; ++q)
+		if(!p_getc(&temp_zinit.items[q], f))
+			return qe_invalid;
+	for(int q = 0; q < MAXLEVELS/8; ++q)
+	{
+		if(!p_getc(&temp_zinit.map[q], f))
+			return qe_invalid;
+		if(!p_getc(&temp_zinit.compass[q], f))
+			return qe_invalid;
+		if(!p_getc(&temp_zinit.boss_key[q], f))
+			return qe_invalid;
+		if(!p_getc(&temp_zinit.mcguffin[q], f))
+			return qe_invalid;
+	}
+	for(int q = 0; q < MAXLEVELS/8; ++q)
+		if(!p_getc(&temp_zinit.level_keys[q], f))
+			return qe_invalid;
+	byte num_counters;
+	if(!p_getc(&num_counters,f))
+		return qe_invalid;
+	for(int q = 0; q < num_counters; ++q)
+		if(!p_igetw(&temp_zinit.counter[q],f))
+			return qe_invalid;
+	for(int q = 0; q < num_counters; ++q)
+		if(!p_igetw(&temp_zinit.mcounter[q],f))
+			return qe_invalid;
+	if(!p_getc(&temp_zinit.bomb_ratio,f))
+			return qe_invalid;
+	if(!p_getc(&temp_zinit.hcp,f))
+			return qe_invalid;
+	if(!p_getc(&temp_zinit.hcp_per_hc,f))
+			return qe_invalid;
+	if(!p_igetw(&temp_zinit.cont_heart,f))
+			return qe_invalid;
 	return 0;
 }
 
@@ -22142,7 +22165,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
         set_qr(qr_CONTFULL_DEP, 0);
         set_bit(zinit.misc, idM_CONTPERCENT, 1);
         zinit.cont_heart=100;
-        zinit.start_heart=zinit.hc;
+        zinit.counter[crLIFE]=zinit.mcounter[crLIFE];
     }
     
     box_out("Done.");

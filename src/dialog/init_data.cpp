@@ -58,7 +58,7 @@ void InitDataDialog::setOfs(size_t ofs)
 }
 
 //{ Macros
-#define SBOMB_RATIO (local_zinit.max_bombs / (local_zinit.bomb_ratio > 0 ? local_zinit.bomb_ratio : 4))
+#define SBOMB_RATIO (local_zinit.mcounter[crBOMBS] / (local_zinit.bomb_ratio > 0 ? local_zinit.bomb_ratio : 4))
 
 #define BYTE_FIELD(member) \
 TextField(maxLength = 3, type = GUI::TextField::type::INT_DECIMAL, \
@@ -121,17 +121,17 @@ std::shared_ptr<GUI::Widget> InitDataDialog::WORD_FIELD(word* member)
 	);
 }
 
-std::shared_ptr<GUI::Widget> InitDataDialog::COUNTER_FRAME(const char* name, std::shared_ptr<GUI::Widget> field1, std::shared_ptr<GUI::Widget> field2)
+std::shared_ptr<GUI::Widget> InitDataDialog::COUNTER_FRAME(int ctr)
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
 
 	return Rows<2>(
-		framed = true, frameText = name, hAlign = 0.0,
+		framed = true, frameText = ZI.getCtrName(ctr), hAlign = 0.0,
 		Label(hAlign = 0.0, bottomPadding = 0_px, text = "Start"),
 		Label(hAlign = 1.0, bottomPadding = 0_px, text = "Max"),
-		field1,
-		field2
+		WORD_FIELD(&local_zinit.counter[ctr]),
+		WORD_FIELD(&local_zinit.mcounter[ctr])
 	);
 }
 
@@ -175,6 +175,11 @@ std::shared_ptr<GUI::Widget> InitDataDialog::LEVEL_FIELD(int ind)
 			{
 				set_bit(local_zinit.boss_key, ind+levelsOffset, state);
 			}),
+		l_mcguff[ind] = Checkbox(checked = get_bit(local_zinit.mcguffin,ind+levelsOffset),
+			onToggleFunc = [&, ind](bool state)
+			{
+				set_bit(local_zinit.mcguffin, ind+levelsOffset, state);
+			}),
 		l_keys[ind] = TextField(maxLength = 3, type = GUI::TextField::type::INT_DECIMAL,
 			val = local_zinit.level_keys[ind+levelsOffset], high = 255,
 			onValChangedFunc = [&, ind](GUI::TextField::type,std::string_view,int32_t val)
@@ -212,21 +217,6 @@ std::shared_ptr<GUI::Widget> InitDataDialog::BTN_10(int val)
 		text = str, onClick = message::LEVEL, onPressFunc = [&, val]()
 		{
 			setOfs(((levelsOffset/100)*100) + val);
-		}
-	);
-}
-
-std::shared_ptr<GUI::Widget> InitDataDialog::TRICHECK(int ind)
-{
-	using namespace GUI::Builder;
-	using namespace GUI::Props;
-
-	return Checkbox(
-		checked = get_bit(&(local_zinit.triforce),ind),
-		text = std::to_string(ind+1),
-		onToggleFunc = [&, ind](bool state)
-		{
-			set_bit(&local_zinit.triforce,ind,state);
 		}
 	);
 }
@@ -324,6 +314,56 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 		ilist_panel = Label(text = "No 'Equipment Item's to display!");
 	}
 	
+	
+	std::shared_ptr<GUI::Grid> scr_ctr_grid = Rows<3>();
+	for(int q = crCUSTOM1; q <= crCUSTOM100; ++q)
+		scr_ctr_grid->add(COUNTER_FRAME(q));
+	std::shared_ptr<GUI::Widget> counter_panel = TabPanel(
+			TabRef(name = "Engine", Rows<3>(hAlign = 0.0, vAlign = 0.0,
+				COUNTER_FRAME(crLIFE),
+				COUNTER_FRAME(crMAGIC),
+				COUNTER_FRAME(crMONEY),
+				COUNTER_FRAME(crARROWS),
+				Rows<2>(
+					framed = true, frameText = ZI.getCtrName(crBOMBS), hAlign = 0.0,
+					Label(hAlign = 0.0, bottomPadding = 0_px, text = "Start"),
+					Label(hAlign = 1.0, bottomPadding = 0_px, text = "Max"),
+					WORD_FIELD(&local_zinit.counter[crBOMBS]),
+					TextField(maxLength = 5, type = GUI::TextField::type::INT_DECIMAL,
+						high = 65535, val = local_zinit.mcounter[crBOMBS],
+						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+						{
+							local_zinit.mcounter[crBOMBS] = val;
+							sBombMax->setVal(SBOMB_RATIO);
+						})
+				),
+				Rows<3>(
+					framed = true, frameText = ZI.getCtrName(crSBOMBS), hAlign = 0.0,
+					Label(hAlign = 0.0, bottomPadding = 0_px, text = "Start"),
+					Label(hAlign = 1.0, bottomPadding = 0_px, text = "Max"),
+					Label(hAlign = 1.0, bottomPadding = 0_px, text = "Ratio"),
+					WORD_FIELD(&local_zinit.counter[crSBOMBS]),
+					sBombMax = TextField(
+						maxLength = 5,
+						type = GUI::TextField::type::INT_DECIMAL,
+						val = SBOMB_RATIO,
+						read_only = true
+					),
+					TextField(maxLength = 5, type = GUI::TextField::type::INT_DECIMAL,
+						high = 255, val = local_zinit.bomb_ratio, disabled = isZC,
+						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+						{
+							local_zinit.bomb_ratio = val;
+							sBombMax->setVal(SBOMB_RATIO);
+						})
+				),
+				COUNTER_FRAME(crKEYS)
+			)),
+			TabRef(name = "Custom", Columns<5>(margins = 1_px,
+				ScrollingPane(fitParent = true, targHeight = 300_px, scr_ctr_grid)
+			))
+		);
+	
 	std::shared_ptr<GUI::TabPanel> tabs;
 	
 	window = Window(
@@ -335,75 +375,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 			tabs = TabPanel(ptr = &maintab,
 				padding = 3_px,
 				TabRef(name = "Equipment", ilist_panel),
-				TabRef(name = "Counters", TabPanel(
-					TabRef(name = "Engine", Rows<2>(hAlign = 0.0, vAlign = 0.0,
-						Rows<2>(
-							framed = true, frameText = ZI.getCtrName(crBOMBS), hAlign = 0.0,
-							Label(hAlign = 0.0, bottomPadding = 0_px, text = "Start"),
-							Label(hAlign = 1.0, bottomPadding = 0_px, text = "Max"),
-							WORD_FIELD(&local_zinit.bombs),
-							TextField(maxLength = 5, type = GUI::TextField::type::INT_DECIMAL,
-								high = 65535, val = local_zinit.max_bombs,
-								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-								{
-									local_zinit.max_bombs = val;
-									sBombMax->setVal(SBOMB_RATIO);
-								})
-						),
-						Rows<3>(
-							framed = true, frameText = ZI.getCtrName(crSBOMBS), hAlign = 0.0,
-							Label(hAlign = 0.0, bottomPadding = 0_px, text = "Start"),
-							Label(hAlign = 1.0, bottomPadding = 0_px, text = "Max"),
-							Label(hAlign = 1.0, bottomPadding = 0_px, text = "Ratio"),
-							WORD_FIELD(&local_zinit.super_bombs),
-							sBombMax = TextField(
-								maxLength = 5,
-								type = GUI::TextField::type::INT_DECIMAL,
-								val = SBOMB_RATIO,
-								disabled = true
-							),
-							TextField(maxLength = 5, type = GUI::TextField::type::INT_DECIMAL,
-								high = 255, val = local_zinit.bomb_ratio, disabled = isZC,
-								onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-								{
-									local_zinit.bomb_ratio = val;
-									sBombMax->setVal(SBOMB_RATIO);
-								})
-						),
-						COUNTER_FRAME(ZI.getCtrName(crARROWS), WORD_FIELD(&local_zinit.arrows), WORD_FIELD(&local_zinit.max_arrows)),
-						COUNTER_FRAME(ZI.getCtrName(crMONEY), WORD_FIELD(&local_zinit.rupies), WORD_FIELD(&local_zinit.max_rupees)),
-						COUNTER_FRAME(ZI.getCtrName(crKEYS), BYTE_FIELD(keys), WORD_FIELD(&local_zinit.max_keys))
-					)),
-					TabRef(name = "Custom 1", Columns<5>(margins = 1_px,
-						COUNTER_FRAME(ZI.getCtrName(crCUSTOM1), WORD_FIELD(&local_zinit.scrcnt[0]), WORD_FIELD(&local_zinit.scrmaxcnt[0])),
-						COUNTER_FRAME(ZI.getCtrName(crCUSTOM2), WORD_FIELD(&local_zinit.scrcnt[1]), WORD_FIELD(&local_zinit.scrmaxcnt[1])),
-						COUNTER_FRAME(ZI.getCtrName(crCUSTOM3), WORD_FIELD(&local_zinit.scrcnt[2]), WORD_FIELD(&local_zinit.scrmaxcnt[2])),
-						COUNTER_FRAME(ZI.getCtrName(crCUSTOM4), WORD_FIELD(&local_zinit.scrcnt[3]), WORD_FIELD(&local_zinit.scrmaxcnt[3])),
-						COUNTER_FRAME(ZI.getCtrName(crCUSTOM5), WORD_FIELD(&local_zinit.scrcnt[4]), WORD_FIELD(&local_zinit.scrmaxcnt[4])),
-						COUNTER_FRAME(ZI.getCtrName(crCUSTOM6), WORD_FIELD(&local_zinit.scrcnt[5]), WORD_FIELD(&local_zinit.scrmaxcnt[5])),
-						COUNTER_FRAME(ZI.getCtrName(crCUSTOM7), WORD_FIELD(&local_zinit.scrcnt[6]), WORD_FIELD(&local_zinit.scrmaxcnt[6])),
-						COUNTER_FRAME(ZI.getCtrName(crCUSTOM8), WORD_FIELD(&local_zinit.scrcnt[7]), WORD_FIELD(&local_zinit.scrmaxcnt[7])),
-						COUNTER_FRAME(ZI.getCtrName(crCUSTOM9), WORD_FIELD(&local_zinit.scrcnt[8]), WORD_FIELD(&local_zinit.scrmaxcnt[8])),
-						COUNTER_FRAME(ZI.getCtrName(crCUSTOM10), WORD_FIELD(&local_zinit.scrcnt[9]), WORD_FIELD(&local_zinit.scrmaxcnt[9])),
-						COUNTER_FRAME(ZI.getCtrName(crCUSTOM11), WORD_FIELD(&local_zinit.scrcnt[10]), WORD_FIELD(&local_zinit.scrmaxcnt[10])),
-						COUNTER_FRAME(ZI.getCtrName(crCUSTOM12), WORD_FIELD(&local_zinit.scrcnt[11]), WORD_FIELD(&local_zinit.scrmaxcnt[11])),
-						COUNTER_FRAME(ZI.getCtrName(crCUSTOM13), WORD_FIELD(&local_zinit.scrcnt[12]), WORD_FIELD(&local_zinit.scrmaxcnt[12])),
-						COUNTER_FRAME(ZI.getCtrName(crCUSTOM14), WORD_FIELD(&local_zinit.scrcnt[13]), WORD_FIELD(&local_zinit.scrmaxcnt[13])),
-						COUNTER_FRAME(ZI.getCtrName(crCUSTOM15), WORD_FIELD(&local_zinit.scrcnt[14]), WORD_FIELD(&local_zinit.scrmaxcnt[14]))
-					)),
-					TabRef(name = "Custom 2", Columns<5>(margins = 1_px,
-						COUNTER_FRAME(ZI.getCtrName(crCUSTOM16), WORD_FIELD(&local_zinit.scrcnt[15]), WORD_FIELD(&local_zinit.scrmaxcnt[15])),
-						COUNTER_FRAME(ZI.getCtrName(crCUSTOM17), WORD_FIELD(&local_zinit.scrcnt[16]), WORD_FIELD(&local_zinit.scrmaxcnt[16])),
-						COUNTER_FRAME(ZI.getCtrName(crCUSTOM18), WORD_FIELD(&local_zinit.scrcnt[17]), WORD_FIELD(&local_zinit.scrmaxcnt[17])),
-						COUNTER_FRAME(ZI.getCtrName(crCUSTOM19), WORD_FIELD(&local_zinit.scrcnt[18]), WORD_FIELD(&local_zinit.scrmaxcnt[18])),
-						COUNTER_FRAME(ZI.getCtrName(crCUSTOM20), WORD_FIELD(&local_zinit.scrcnt[19]), WORD_FIELD(&local_zinit.scrmaxcnt[19])),
-						COUNTER_FRAME(ZI.getCtrName(crCUSTOM21), WORD_FIELD(&local_zinit.scrcnt[20]), WORD_FIELD(&local_zinit.scrmaxcnt[20])),
-						COUNTER_FRAME(ZI.getCtrName(crCUSTOM22), WORD_FIELD(&local_zinit.scrcnt[21]), WORD_FIELD(&local_zinit.scrmaxcnt[21])),
-						COUNTER_FRAME(ZI.getCtrName(crCUSTOM23), WORD_FIELD(&local_zinit.scrcnt[22]), WORD_FIELD(&local_zinit.scrmaxcnt[22])),
-						COUNTER_FRAME(ZI.getCtrName(crCUSTOM24), WORD_FIELD(&local_zinit.scrcnt[23]), WORD_FIELD(&local_zinit.scrmaxcnt[23])),
-						COUNTER_FRAME(ZI.getCtrName(crCUSTOM25), WORD_FIELD(&local_zinit.scrcnt[24]), WORD_FIELD(&local_zinit.scrmaxcnt[24]))
-					))
-				)),
+				TabRef(name = "Counters", counter_panel),
 				TabRef(name = "LItems", Column(
 					Row(
 						BTN_100(000),
@@ -431,6 +403,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 							Label(text = "M", textAlign = 0, width = 14_px+12_px),
 							Label(text = "C", textAlign = 0, width = 14_px+12_px),
 							Label(text = "B", textAlign = 0, width = 14_px+12_px),
+							Label(text = "T", textAlign = 0, width = 14_px+12_px),
 							Label(text = "Key", textAlign = 1, width = 2.5_em)
 						),
 						LEVEL_FIELD(0),
@@ -443,6 +416,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 							Label(text = "M", textAlign = 0, width = 14_px+12_px),
 							Label(text = "C", textAlign = 0, width = 14_px+12_px),
 							Label(text = "B", textAlign = 0, width = 14_px+12_px),
+							Label(text = "T", textAlign = 0, width = 14_px+12_px),
 							Label(text = "Key", textAlign = 1, width = 2.5_em)
 						),
 						LEVEL_FIELD(5),
@@ -464,11 +438,11 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 							}
 						)
 					),
-					Row(nopad = true,
+					Rows<2>(nopad = true,
 						Row(
 							framed = true,
 							Label(text = "Continue HP:"),
-							BYTE_FIELD(cont_heart),
+							WORD_FIELD(&local_zinit.cont_heart),
 							Checkbox(checked = get_bit(local_zinit.misc,idM_CONTPERCENT),
 								text = "%",
 								onToggleFunc = [&](bool state)
@@ -484,47 +458,21 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 						),
 						Row(
 							framed = true,
+							Label(text = "Magic Drain Rate:"),
+							BYTE_FIELD(magicdrainrate),
+							INFOBTN_EX("Magic costs are multiplied by this amount. Every time you use a"
+								" 'Learn Half Magic' room, this value is halved (rounded down)."
+								"\nWhen the 'Show' value on a 'Magic Gauge Piece' subscreen object is"
+								" >-1, that piece will only show up when its 'Show' value is equal to"
+								" this value (usable for '1/2', '1/4', '1/8' magic icons; as long as"
+								" your starting value is high enough, you can allow stacking several"
+								" levels of lowered magic cost)", bottomPadding = 0_px, forceFitH = true)
+						),
+						Row(
+							framed = true,
 							Label(text = "Per HC:"),
 							BYTE_FIELD(hcp_per_hc)
 						)
-					),
-					Row(
-						Rows<2>(
-							framed = true, frameText = "Hearts ("+std::string(ZI.getCtrName(crLIFE))+")",
-							Label(hAlign = 0.0, bottomPadding = 0_px, text = "Start"),
-							Label(hAlign = 1.0, bottomPadding = 0_px, text = "Max"),
-							BYTE_FIELD(start_heart),
-							BYTE_FIELD(hc)
-						),
-						Rows<3>(
-							framed = true, frameText = ZI.getCtrName(crMAGIC),
-							Label(hAlign = 0.0, bottomPadding = 0_px, text = "Start"),
-							Label(hAlign = 1.0, bottomPadding = 0_px, text = "Max"),
-							Row(padding = 0_px,
-								Label(hAlign = 1.0, bottomPadding = 0_px, text = "Drain Rate"),
-								INFOBTN_EX("Magic costs are multiplied by this amount. Every time you use a"
-									" 'Learn Half Magic' room, this value is halved (rounded down)."
-									"\nWhen the 'Show' value on a 'Magic Gauge Piece' subscreen object is"
-									" >-1, that piece will only show up when its 'Show' value is equal to"
-									" this value (usable for '1/2', '1/4', '1/8' magic icons; as long as"
-									" your starting value is high enough, you can allow stacking several"
-									" levels of lowered magic cost)", bottomPadding = 0_px, forceFitH = true)
-							),
-							WORD_FIELD(&local_zinit.magic),
-							WORD_FIELD(&local_zinit.max_magic),
-							BYTE_FIELD(magicdrainrate)
-						)
-					),
-					Columns<2>(
-						framed = true, frameText = "Triforce",
-						TRICHECK(0),
-						TRICHECK(1),
-						TRICHECK(2),
-						TRICHECK(3),
-						TRICHECK(4),
-						TRICHECK(5),
-						TRICHECK(6),
-						TRICHECK(7)
 					),
 					Row(
 						framed = true,
@@ -656,7 +604,7 @@ bool InitDataDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		return false;
 		case message::OK:
 		{
-			local_zinit.cont_heart = std::min(local_zinit.cont_heart, word(get_bit(local_zinit.misc,idM_CONTPERCENT)?100:local_zinit.hc));
+			local_zinit.cont_heart = std::min(local_zinit.cont_heart, word(get_bit(local_zinit.misc,idM_CONTPERCENT)?100:local_zinit.mcounter[crLIFE]));
 			local_zinit.hcp = std::min(local_zinit.hcp, byte(local_zinit.hcp_per_hc-1));
 			setVals(local_zinit);
 		}

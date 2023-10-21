@@ -34,6 +34,7 @@ private:
 	std::shared_ptr<GUI::Checkbox> l_maps[10];
 	std::shared_ptr<GUI::Checkbox> l_comp[10];
 	std::shared_ptr<GUI::Checkbox> l_bkey[10];
+	std::shared_ptr<GUI::Checkbox> l_mcguff[10];
 	std::shared_ptr<GUI::TextField> l_keys[10];
 	std::shared_ptr<GUI::Switcher> icswitcher;
 	std::shared_ptr<GUI::Button> genscr_btn;
@@ -49,11 +50,10 @@ private:
 	std::shared_ptr<GUI::Widget> WORD_FIELD(word* member);
 	template <typename T>
 	std::shared_ptr<GUI::Widget> VAL_FIELD_IMPL(T minval, T maxval, T* member, bool dis);
-	std::shared_ptr<GUI::Widget> COUNTER_FRAME(const char* name, std::shared_ptr<GUI::Widget> field1, std::shared_ptr<GUI::Widget> field2);
+	std::shared_ptr<GUI::Widget> COUNTER_FRAME(int ctr);
 	std::shared_ptr<GUI::Widget> LEVEL_FIELD(int ind);
 	std::shared_ptr<GUI::Widget> BTN_100(int val);
 	std::shared_ptr<GUI::Widget> BTN_10(int val);
-	std::shared_ptr<GUI::Widget> TRICHECK(int ind);
 };
 
 class InitGenscriptWizard : public GUI::Dialog<InitGenscriptWizard>

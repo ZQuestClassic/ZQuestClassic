@@ -136,14 +136,14 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 		case itype_triforcepiece:
 		{
 			_SET(misc[0], "Cutscene MIDI:", "If non-zero, overrides the cutscene midi");
-			_SET(misc[1], "Cutscene Type (0-1):", "If >0, uses the 'big triforce' cutscene style");
+			_SET(misc[1], "Cutscene Type (0-1):", "If >0, uses the 'big mcguffin' cutscene style");
 			_SET(misc[2], "Second Collect Sound:", "A second sound to play on pickup, played only if flag 'Play Second SFX' is checked.");
 			_SET(misc[3], "Custom Cutscene Duration", "If nonzero, overrides the duration of the cutscene, in frames");
-			_SET(misc[4], "Custom Refill Frame", "If non-zero, changes the timing of the triforce's life refill.");
+			_SET(misc[4], "Custom Refill Frame", "If non-zero, changes the timing of the mcguffin's life refill.");
 			_SET(flag[0], "Side Warp Out", "Warp out using sidewarp A upon completion");
 			_SET(flag[2], "Removes Sword Jinxes", "Heal sword jinxes on pickup");
 			_SET(flag[3], "Removes Item Jinxes", "Heal item jinxes on pickup");
-			_SET(flag[7], "Ownable", "Can be owned; this is normally handled by 'Equipment Item', but not for triforce piece items.");
+			_SET(flag[7], "Ownable", "Can be owned; this is normally handled by 'Equipment Item', but not for mcguffin piece items.");
 			_SET(flag[8], "Don't Dismiss Messages", "If not checked, the cutscene clears screen strings");
 			_SET(flag[9], "Cutscene Interrupts Action Script", "The action script, if running on collection, is paused for the duration of the cutscene.");
 			_SET(flag[10], "Don't Affect Music", "If not checked, music is stopped for the cutscene");
