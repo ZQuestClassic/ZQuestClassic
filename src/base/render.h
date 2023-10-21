@@ -129,6 +129,7 @@ public:
 	RenderTreeItem(std::string name, RenderTreeItem* parent = nullptr);
 	virtual ~RenderTreeItem();
 
+	void remove();
 	void add_child(RenderTreeItem* child);
 	void add_child_before(RenderTreeItem* child, RenderTreeItem* before_child);
 	void remove_child(RenderTreeItem* child);
@@ -230,7 +231,7 @@ void popup_zqdialog_start_a5();
 void popup_zqdialog_end_a5();
 RenderTreeItem* add_dlg_layer(int x = 0, int y = 0, int w = -1, int h = -1);
 void remove_dlg_layer(RenderTreeItem* rti);
-void reload_dialog_tints();
+void reload_dialog_tint();
 ALLEGRO_COLOR& get_dlg_tint();
 void pause_dlg_tint(bool pause);
 bool dlg_tint_paused();

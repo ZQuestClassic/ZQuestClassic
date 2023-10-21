@@ -257,7 +257,7 @@ static void configure_render_tree()
 		rti_game.tint = nullptr;
 		rti_infolayer.tint = nullptr;
 	}
-	reload_dialog_tints();
+	reload_dialog_tint();
 }
 
 static ALLEGRO_STATE infobmp_old_state;

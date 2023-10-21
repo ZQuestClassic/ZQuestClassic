@@ -8,6 +8,11 @@
 
 using namespace std::chrono_literals;
 
+void RenderTreeItem::remove()
+{
+	if (parent)
+		parent->remove_child(this);
+}
 void RenderTreeItem::add_child(RenderTreeItem* child)
 {
 	if (child->parent)
@@ -106,6 +111,7 @@ std::pair<int, int> RenderTreeItem::rel_mouse()
 }
 
 RenderTreeItem rti_dialogs("dialogs");
+static auto rti_tint = RenderTreeItem("tint");
 
 extern int32_t zq_screen_w, zq_screen_h;
 unsigned char info_opacity = 255;
@@ -413,7 +419,7 @@ static void render_tree_draw_item(RenderTreeItem* rti, bool do_a4_only)
 		int th = y1 - y0;
 		if (rti->tint)
 		{
-			al_draw_scaled_bitmap(rti->bitmap, 0, 0, w, h, x0, y0, tw, th, 0);
+			// al_draw_scaled_bitmap(rti->bitmap, 0, 0, w, h, x0, y0, tw, th, 0);
 			al_draw_tinted_scaled_bitmap(rti->bitmap, *rti->tint, 0, 0, w, h, x0, y0, tw, th, 0);
 		}
 		else
@@ -643,21 +649,31 @@ void popup_zqdialog_start(int x, int y, int w, int h, int transp)
 	}
 }
 
+static RenderTreeItem* get_active_dialog()
+{
+	auto& children = rti_dialogs.get_children();
+	for (auto it = children.rbegin(); it != children.rend(); it++)
+	{
+		auto child = *it;
+		if (child->name != "tint") return child;
+	}
+	return nullptr;
+}
+
 void popup_zqdialog_end()
 {
 	if (active_dlg_rti)
 	{
 		RenderTreeItem* to_del = active_dlg_rti;
 		rti_dialogs.remove_child(to_del);
-		if(rti_dialogs.has_children())
+		active_dlg_rti = get_active_dialog();
+		if (active_dlg_rti)
 		{
-			active_dlg_rti = rti_dialogs.get_children().back();
 			auto rti = dynamic_cast<LegacyBitmapRTI*>(active_dlg_rti);
 			screen = rti ? rti->a4_bitmap : nullptr;
 		}
 		else
 		{
-			active_dlg_rti = nullptr;
 			screen = zqdialog_bg_bmp;
 			zqdialog_bg_bmp = nullptr;
 		}
@@ -694,11 +710,9 @@ void popup_zqdialog_end_a5()
 	{
 		RenderTreeItem* to_del = active_dlg_rti;
 		rti_dialogs.remove_child(to_del);
-		if(rti_dialogs.has_children())
-			active_dlg_rti = rti_dialogs.get_children().back();
-		else
+		active_dlg_rti = get_active_dialog();
+		if (!active_dlg_rti)
 		{
-			active_dlg_rti = nullptr;
 			zqdialog_bg_bmp = nullptr;
 		}
 		ALLEGRO_STATE& oldstate = old_a5_states.back();
@@ -741,16 +755,45 @@ void remove_dlg_layer(RenderTreeItem* rti)
 ALLEGRO_COLOR dialog_tint = al_premul_rgba(0, 0, 0, 64);
 ALLEGRO_COLOR* override_dlg_tint = nullptr;
 static size_t dlg_tint_pause = 0;
-void reload_dialog_tints()
+
+// Place a tinted bitmap before the active dialog render item.
+void reload_dialog_tint()
 {
-	std::vector<RenderTreeItem*>& children = rti_dialogs.get_children();
-	if(children.empty()) return;
-	for(size_t q = 0; q < children.size()-1; ++q)
+	auto& children = rti_dialogs.get_children();
+	if (children.empty())
+		return;
+
+	auto& tint = get_dlg_tint();
+	if (!override_dlg_tint)
 	{
-		children[q]->tint = dlg_tint_pause ? nullptr :
-			(override_dlg_tint ? override_dlg_tint : &dialog_tint);
+		tint = al_premul_rgba(
+			zc_get_config("ZQ_GUI","dlg_tint_r",0),
+			zc_get_config("ZQ_GUI","dlg_tint_g",0),
+			zc_get_config("ZQ_GUI","dlg_tint_b",0),
+			zc_get_config("ZQ_GUI","dlg_tint_a",128)
+		);
 	}
-	children.back()->tint = nullptr;
+	rti_tint.tint = &tint;
+	if (!rti_tint.bitmap)
+	{
+		rti_tint.set_size(screen->w, screen->h);
+		rti_tint.bitmap = create_a5_bitmap(screen->w, screen->h);
+		ALLEGRO_STATE oldstate;
+		al_store_state(&oldstate, ALLEGRO_STATE_TARGET_BITMAP);
+		al_set_target_bitmap(rti_tint.bitmap);
+		al_clear_to_color(al_map_rgb(0, 0, 0));
+		al_restore_state(&oldstate);
+		rti_tint.freeze = true;
+		rti_tint.dirty = false;
+	}
+
+	auto next_dialog_rti = get_active_dialog();
+	if (next_dialog_rti)
+		rti_dialogs.add_child_before(&rti_tint, next_dialog_rti);
+	else
+		rti_tint.remove();
+
+	rti_tint.visible = !dlg_tint_paused();
 }
 ALLEGRO_COLOR& get_dlg_tint()
 {

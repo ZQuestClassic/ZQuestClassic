@@ -9,7 +9,6 @@ extern bool DragAspect;
 static auto rti_root = RenderTreeItem("root");
 static auto rti_screen = LegacyBitmapRTI("screen");
 static auto rti_tooltip = LegacyBitmapRTI("tooltip");
-static auto rti_tint = RenderTreeItem("tint");
 
 static int zc_gui_mouse_x()
 {
@@ -43,13 +42,9 @@ static void init_render_tree()
 
 	rti_tooltip.transparency_index = 0;
 
-	rti_tint.set_size(screen->w, screen->h);
-	rti_tint.visible = false;
-
 	rti_screen.add_child(&rti_tooltip);
 
 	rti_root.add_child(&rti_screen);
-	rti_root.add_child(&rti_tint);
 	rti_root.add_child(&rti_dialogs);
 
 	gui_mouse_x = zc_gui_mouse_x;
@@ -63,12 +58,10 @@ static void init_render_tree()
 static void configure_render_tree()
 {
 	static bool scaling_force_integer = zc_get_config("zquest", "scaling_force_integer", 0) != 0;
-	
+
 	int resx = al_get_display_width(all_get_display());
 	int resy = al_get_display_height(all_get_display());
 
-	rti_root.visible = true;
-	
 	{
 		int w = rti_screen.width;
 		int h = rti_screen.height;
@@ -96,47 +89,21 @@ static void configure_render_tree()
 			.xscale = xscale,
 			.yscale = yscale,
 		});
-		rti_tint.set_transform({
-			.x = (int)(resx - w*xscale) / 2,
-			.y = (int)(resy - h*yscale) / 2,
-			.xscale = xscale,
-			.yscale = yscale,
-		});
-	}
-	
-	rti_dialogs.visible = rti_dialogs.has_children();
-	rti_tint.visible = rti_dialogs.visible && !dlg_tint_paused();
-	
-	if(rti_dialogs.visible && rti_tint.bitmap)
-	{
-		auto& tint = get_dlg_tint();
-		if(!override_dlg_tint)
-		{
-			tint = al_premul_rgba(
-				zc_get_config("ZQ_GUI","dlg_tint_r",0),
-				zc_get_config("ZQ_GUI","dlg_tint_g",0),
-				zc_get_config("ZQ_GUI","dlg_tint_b",0),
-				zc_get_config("ZQ_GUI","dlg_tint_a",128)
-			);
-		}
-		
-		ALLEGRO_STATE oldstate;
-		al_store_state(&oldstate, ALLEGRO_STATE_TARGET_BITMAP);
-		al_set_target_bitmap(rti_tint.bitmap);
-		al_clear_to_color(tint);
-		al_restore_state(&oldstate);
 	}
 
+	// Not necessary, but a few things use `rti_dialogs.visible` for convenience.
+	rti_dialogs.visible = rti_dialogs.has_children();
+
 	// Freeze dialogs that won't be changing.
-	rti_screen.freeze = rti_dialogs.visible;
+	rti_screen.freeze = rti_dialogs.has_children();
 	int i = 0;
 	while (i < rti_dialogs.get_children().size())
 	{
 		rti_dialogs.get_children()[i]->freeze = i != rti_dialogs.get_children().size() - 1;
 		i++;
 	}
-	
-	reload_dialog_tints();
+
+	reload_dialog_tint();
 }
 
 RenderTreeItem* get_screen_rti()
