@@ -21,7 +21,8 @@ int32_t d_editbox_proc(int32_t msg, DIALOG *d, int32_t c)
 	EditboxModel *model= (EditboxModel *)d->dp;
 	int32_t ret = D_O_K;
 	
-	static clock_t ticks;
+	static std::chrono::steady_clock::time_point ticks;
+	auto now = std::chrono::steady_clock::now();
 	bool dontredraw=false;
 	
 	switch(msg)
@@ -35,10 +36,10 @@ int32_t d_editbox_proc(int32_t msg, DIALOG *d, int32_t c)
 	
 	case MSG_IDLE:
 	{
-		if((d->flags & D_GOTFOCUS)&&(clock()>ticks))
+		if((d->flags & D_GOTFOCUS)&&(now>ticks))
 		{
 			d->flags |= D_DIRTY;
-			ticks=clock()+(CLOCKS_PER_SEC/2);
+			ticks = now + std::chrono::milliseconds(500);
 			model->getCursor().invertVisibility();
 		}
 		
@@ -322,7 +323,7 @@ int32_t d_editbox_proc(int32_t msg, DIALOG *d, int32_t c)
 		if(!model->getCursor().isVisible())
 			model->getCursor().invertVisibility();
 			
-		ticks=clock()+(CLOCKS_PER_SEC/2);
+		ticks = now + std::chrono::milliseconds(500);
 		model->getView()->ensureCursorOnScreen();
 		d->flags |= D_DIRTY;
 	}
