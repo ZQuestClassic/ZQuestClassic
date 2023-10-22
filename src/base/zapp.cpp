@@ -34,7 +34,7 @@ static App app_id = App::undefined;
 bool is_in_osx_application_bundle()
 {
 #ifdef __APPLE__
-    return std::filesystem::current_path().string().find("/ZQuest Classic.app/") != std::string::npos;
+    return std::filesystem::current_path().string().find(".app/") != std::string::npos;
 #else
     return false;
 #endif
