@@ -473,7 +473,7 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 						return 35;
 					}
 				}
-				std::fill(game.bmaps, game.bmaps + MAXDMAPS*128, 0);
+				game.bmaps.clear();
 				for(int32_t dm = 0; dm < OLDMAXDMAPS; ++dm)
 				{
 					for(int32_t scr = 0; scr < 128; ++scr)
@@ -506,13 +506,9 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 			{
 				byte tempBMaps[MAXDMAPS*64] = {0};
 				for(int32_t j=0; j<MAXDMAPS*64; ++j)
-				{
 					if(!p_getc(&(tempBMaps[j]),f))
-					{
 						return 35;
-					}
-				}
-				std::fill(game.bmaps, game.bmaps + MAXDMAPS*128, 0);
+				game.bmaps.clear();
 				for(int32_t dm = 0; dm < MAXDMAPS; ++dm)
 				{
 					for(int32_t scr = 0; scr < 128; ++scr)
@@ -530,33 +526,33 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 					}
 				}
 			}
-			else
+			else if(section_version < 37)
 			{
 				for(int32_t j=0; j<MAXDMAPS*128; ++j)
-				{
 					if(!p_getc(&(game.bmaps[j]),f))
-					{
 						return 35;
-					}
-				}
 			}
 		}
 		
-		for(int32_t j=0; j<MAXMAPS*MAPSCRSNORMAL; j++)
+		if(section_version < 37)
 		{
-			if(!p_igetw(&game.maps[j],f))
-			{
+			for(int32_t j=0; j<MAXMAPS*MAPSCRSNORMAL; j++)
+				if(!p_igetw(&game.maps[j],f))
+					return 36;
+			for(int32_t j=0; j<MAXMAPS*MAPSCRSNORMAL; ++j)
+				if(!p_getc(&(game.guys[j]),f))
+					return 37;
+		}
+		else
+		{
+			if(!p_getbvec(&game.bmaps, f))
+				return 35;
+			if(!p_getbvec(&game.maps, f))
 				return 36;
-			}
+			if(!p_getbvec(&game.guys, f))
+				return 37;
 		}
 		
-		for(int32_t j=0; j<MAXMAPS*MAPSCRSNORMAL; ++j)
-		{
-			if(!p_getc(&(game.guys[j]),f))
-			{
-				return 37;
-			}
-		}
 
 		if (!p_getwstr(&game.header.qstpath, f))
 			return 38;
@@ -588,25 +584,17 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 			return 41;
 		}
 
-		if(section_version <= 5)
+		if(section_version < 37)
 		{
-			for(int32_t j=0; j<OLDMAXLEVELS; ++j)
-			{
-				if(!p_getc(&(game.lvlkeys[j]),f))
-				{
+			const int max = section_version <= 5 ? OLDMAXLEVELS : MAXLEVELS;
+			for(int q = 0; q < max; ++q)
+				if(!p_getc(&(game.lvlkeys[q]),f))
 					return 42;
-				}
-			}
 		}
 		else
 		{
-			for(int32_t j=0; j<MAXLEVELS; ++j)
-			{
-				if(!p_getc(&(game.lvlkeys[j]),f))
-				{
-					return 42;
-				}
-			}
+			if(!p_getbvec(&game.lvlkeys, f))
+				return 42;
 		}
 		
 		if(section_version>1)
@@ -1242,23 +1230,12 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 		return 34;
 	}
 	
-	if(!pfwrite(game.bmaps,MAXDMAPS*128,f))
-	{
+	if(!p_putbvec(game.bmaps,f))
 		return 35;
-	}
-	
-	for(int32_t j=0; j<MAXMAPS*MAPSCRSNORMAL; j++)
-	{
-		if(!p_iputw(game.maps[j],f))
-		{
-			return 36;
-		}
-	}
-	
-	if(!pfwrite(game.guys,MAXMAPS*MAPSCRSNORMAL,f))
-	{
+	if(!p_putbvec(game.maps,f))
+		return 36;
+	if(!p_putbvec(game.guys,f))
 		return 37;
-	}
 	
 	if(!p_iputw(qstpath_len,f))
 	{
@@ -1279,11 +1256,9 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 	{
 		return 41;
 	}
-
-	if(!pfwrite(game.lvlkeys,MAXLEVELS,f))
-	{
+	
+	if(!p_putbvec(game.lvlkeys,f))
 		return 42;
-	}
 	
 	for(int32_t j=0; j<MAX_MI; j++)
 	{
@@ -2489,10 +2464,10 @@ bool saves_test()
 	SAVE_TEST_FIELD(get_continue_scrn());
 	SAVE_TEST_FIELD(get_continue_dmap());
 	SAVE_TEST_ARRAY(visited);
-	SAVE_TEST_ARRAY(bmaps);
-	SAVE_TEST_ARRAY(maps);
-	SAVE_TEST_ARRAY(guys);
-	SAVE_TEST_ARRAY(lvlkeys);
+	SAVE_TEST_VECTOR(bmaps);
+	SAVE_TEST_VECTOR(maps);
+	SAVE_TEST_VECTOR(guys);
+	SAVE_TEST_VECTOR(lvlkeys);
 	SAVE_TEST_ARRAY_2D(screen_d);
 	SAVE_TEST_ARRAY(global_d);
 	SAVE_TEST_ARRAY(_counter);

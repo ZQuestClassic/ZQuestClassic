@@ -13,10 +13,7 @@ struct zinitdata
 	byte compass[MAXLEVELS/8];
 	byte boss_key[MAXLEVELS/8];
 	byte mcguffin[MAXLEVELS/8];
-	byte level_keys[MAXLEVELS];
-	
-	bool get_item(size_t ind) const {return get_bit(items,ind);}
-	void set_item(size_t ind, bool st) {set_bit(items,ind,st);}
+	bounded_vec<word,byte> level_keys {MAXLEVELS};
 	
 	word counter[MAX_COUNTERS];
 	word mcounter[MAX_COUNTERS];
@@ -24,7 +21,17 @@ struct zinitdata
 	byte bomb_ratio = 4; // ratio of super bombs to bombs
 	byte hcp, hcp_per_hc = 4;
 	word cont_heart; // continue health
+
+	byte hp_per_heart, magic_per_block, hero_damage_multiplier, ene_damage_multiplier;
+	byte dither_type, dither_arg, dither_percent, def_lightrad, transdark_percent, darkcol;
 	
+	bool get_item(size_t ind) const {return get_bit(items,ind);}
+	void set_item(size_t ind, bool st) {set_bit(items,ind,st);}
+	
+	void normalize()
+	{
+		level_keys.normalize();
+	}
 public:
 	
 	byte misc[16];
@@ -58,12 +65,9 @@ public:
 	word heroStep, subscrSpeed = 1, heroSideswimUpStep, heroSideswimSideStep, heroSideswimDownStep;
 	
 	int32_t exitWaterJump;
-
-	byte hp_per_heart, magic_per_block, hero_damage_multiplier, ene_damage_multiplier;
 	
 	int32_t swimgravity;
 	
-	byte dither_type, dither_arg, dither_percent, def_lightrad, transdark_percent, darkcol;
 	
 	int32_t bunny_ltm;
 	byte switchhookstyle;

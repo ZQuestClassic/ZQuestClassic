@@ -4,6 +4,7 @@
 #include "base/general.h"
 #include "base/ints.h"
 #include "base/zc_array.h"
+#include "base/containers.h"
 #include "user_object.h"
 
 #define DIDCHEAT_BIT 0x80
@@ -76,15 +77,15 @@ struct gamedata
 	
 	char  version[17];
 	byte  lvlitems[MAXLEVELS];
-	byte  lvlkeys[MAXLEVELS];
+	bounded_vec<word,byte> lvlkeys {MAXLEVELS};
 	dword lvlswitches[MAXLEVELS];
 	byte  _continue_scrn;
 	word  _continue_dmap;
 	int32_t _generic[genMAX];	// Generic gamedata. See enum above this struct for indexes.
 	byte  visited[MAXDMAPS];
-	byte  bmaps[MAXDMAPS*MAPSCRSNORMAL];                      // the dungeon progress maps
-	word  maps[MAXMAPS*MAPSCRSNORMAL];                       // info on map changes, items taken, etc.
-	byte  guys[MAXMAPS*MAPSCRSNORMAL];                       // guy counts (though dungeon guys are reset on entry)
+	bounded_vec<dword,byte>  bmaps {MAXDMAPS*MAPSCRSNORMAL}; // the dungeon progress maps
+	bounded_vec<dword,word>  maps {MAXMAPS*MAPSCRSNORMAL}; // info on map changes, items taken, etc.
+	bounded_vec<dword,byte>  guys {MAXMAPS*MAPSCRSNORMAL}; // guy counts (enemy kill progress)
 	bool item_messages_played[MAXITEMS];  //Each field is set when an item pickup message plays the first time per session
 	int32_t  screen_d[MAX_MI][8];                // script-controlled screen variables
 	int32_t  global_d[MAX_SCRIPT_REGISTERS];                                      // script-controlled global variables
@@ -378,6 +379,14 @@ struct gamedata
 	savedportal* getSavedPortal(int32_t uid);
 
 	bool should_show_time();
+	
+	void normalize()
+	{
+		lvlkeys.normalize();
+		bmaps.normalize();
+		maps.normalize();
+		guys.normalize();
+	}
 };
 
 extern gamedata *game;

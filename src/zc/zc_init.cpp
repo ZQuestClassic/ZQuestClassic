@@ -59,17 +59,17 @@ void onInitOK()
 // copyIntoZinit: worst kludge in all of ZC history? I've seen worse. ;) -Gleeok
 zinitdata *copyIntoZinit(gamedata *gdata)
 {
-    zinitdata *zinit2 = new zinitdata;
-    //populate it
-    zinit2->gravity=zinit.gravity;
-    zinit2->gravity2=zinit.gravity2;
-    zinit2->terminalv=zinit.terminalv;
-    zinit2->jump_hero_layer_threshold=zinit.jump_hero_layer_threshold;
-    zinit2->heroStep=zinit.heroStep;
-    zinit2->shove_offset=zinit.shove_offset;
-    zinit2->subscrSpeed=zinit.subscrSpeed;
-    zinit2->bomb_ratio = zinit.bomb_ratio;
-    zinit2->hcp = gdata->get_HCpieces();
+	zinitdata *zinit2 = new zinitdata;
+	//populate it
+	zinit2->gravity=zinit.gravity;
+	zinit2->gravity2=zinit.gravity2;
+	zinit2->terminalv=zinit.terminalv;
+	zinit2->jump_hero_layer_threshold=zinit.jump_hero_layer_threshold;
+	zinit2->heroStep=zinit.heroStep;
+	zinit2->shove_offset=zinit.shove_offset;
+	zinit2->subscrSpeed=zinit.subscrSpeed;
+	zinit2->bomb_ratio = zinit.bomb_ratio;
+	zinit2->hcp = gdata->get_HCpieces();
 	
 	zinit2->hp_per_heart = gdata->get_hp_per_heart();
 	zinit2->magic_per_block = gdata->get_mp_per_block();
@@ -94,31 +94,32 @@ zinitdata *copyIntoZinit(gamedata *gdata)
 		zinit2->counter[q] = gdata->get_counter(q);
 		zinit2->mcounter[q] = gdata->get_maxcounter(q);
 	}
-    
-    for(int32_t i=0; i<MAXLEVELS; i++)
-    {
-        set_bit(zinit2->map, i, (gdata->lvlitems[i] & liMAP) ? 1 : 0);
-        set_bit(zinit2->compass, i, (gdata->lvlitems[i] & liCOMPASS) ? 1 : 0);
-        set_bit(zinit2->boss_key, i, (gdata->lvlitems[i] & liBOSSKEY) ? 1 : 0);
-        set_bit(zinit2->mcguffin, i, (gdata->lvlitems[i] & liTRIFORCE) ? 1 : 0);
-        zinit2->level_keys[i] = gdata->lvlkeys[i];
-    }
-    
+	
+	for(int32_t i=0; i<MAXLEVELS; i++)
+	{
+		set_bit(zinit2->map, i, (gdata->lvlitems[i] & liMAP) ? 1 : 0);
+		set_bit(zinit2->compass, i, (gdata->lvlitems[i] & liCOMPASS) ? 1 : 0);
+		set_bit(zinit2->boss_key, i, (gdata->lvlitems[i] & liBOSSKEY) ? 1 : 0);
+		set_bit(zinit2->mcguffin, i, (gdata->lvlitems[i] & liTRIFORCE) ? 1 : 0);
+	}
+	zinit2->level_keys = gdata->lvlkeys;
+	
 	zinit2->magicdrainrate = vbound(gdata->get_magicdrainrate(), 0, 255);
-    set_bit(zinit2->misc, idM_CANSLASH, gdata->get_canslash());
-    
-    zinit2->cont_heart = gdata->get_cont_hearts();
-    zinit2->hcp_per_hc = gdata->get_hcp_per_hc();
-    set_bit(zinit2->misc,idM_CONTPERCENT,gdata->get_cont_percent() ? 1 : 0);
-    
-    //now set up the items!
-    for(int32_t i=0; i<MAXITEMS; i++)
-    {
-        zinit2->set_item(i, gdata->get_item(i));
-    }
+	set_bit(zinit2->misc, idM_CANSLASH, gdata->get_canslash());
+	
+	zinit2->cont_heart = gdata->get_cont_hearts();
+	zinit2->hcp_per_hc = gdata->get_hcp_per_hc();
+	set_bit(zinit2->misc,idM_CONTPERCENT,gdata->get_cont_percent() ? 1 : 0);
+	
+	//now set up the items!
+	for(int32_t i=0; i<MAXITEMS; i++)
+	{
+		zinit2->set_item(i, gdata->get_item(i));
+	}
 	
 	zinit2->hero_swim_mult = gdata->swim_mult;
 	zinit2->hero_swim_div = gdata->swim_div;
-    
-    return zinit2;
+	
+	zinit2->normalize();
+	return zinit2;
 }

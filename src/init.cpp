@@ -969,55 +969,55 @@ int32_t doInit(zinitdata *local_zinit, bool isZC)
 // I don't like this solution one bit, but can't come up with anything better -DD
 void resetItems(gamedata *game2, zinitdata *zinit2, bool freshquest)
 {
-    game2->set_life(zc_max(1,zinit2->counter[crLIFE]) * zinit2->hp_per_heart);
-    game2->set_maxlife(zinit2->mcounter[crLIFE]*zinit2->hp_per_heart);
-    game2->set_maxbombs(zinit2->mcounter[crBOMBS]);
-    game2->set_maxcounter(zinit2->mcounter[crBOMBS]/zc_max(1,zinit2->bomb_ratio), 6);
-    game2->set_maxmagic(zinit2->mcounter[crMAGIC]);
-    game2->set_maxarrows(zinit2->mcounter[crARROWS]);
-    game2->set_maxcounter(zinit2->mcounter[crMONEY], 1);
-    game2->set_maxcounter(zinit2->mcounter[crKEYS], 5);
-    
-    //set up the items
-    for(int32_t i=0; i<MAXITEMS; i++)
-    {
-        if(zinit2->get_item(i) && (itemsbuf[i].flags & ITEM_GAMEDATA))
-        {
+	game2->set_maxlife(zinit2->mcounter[crLIFE]);
+	game2->set_maxbombs(zinit2->mcounter[crBOMBS]);
+	game2->set_maxcounter(zinit2->mcounter[crBOMBS]/zc_max(1,zinit2->bomb_ratio), 6);
+	game2->set_maxmagic(zinit2->mcounter[crMAGIC]);
+	game2->set_maxarrows(zinit2->mcounter[crARROWS]);
+	game2->set_maxcounter(zinit2->mcounter[crMONEY], 1);
+	game2->set_maxcounter(zinit2->mcounter[crKEYS], 5);
+	
+	//set up the items
+	for(int32_t i=0; i<MAXITEMS; i++)
+	{
+		if(zinit2->get_item(i) && (itemsbuf[i].flags & ITEM_GAMEDATA))
+		{
 #ifndef IS_EDITOR
-            if (!game2->get_item(i))
-                getitem(i,true,false);
+			if (!game2->get_item(i))
+				getitem(i,true,false);
 #else
-            game2->set_item_no_flush(i, true);
+			game2->set_item_no_flush(i, true);
 #endif
-        }
-        else
-            game2->set_item_no_flush(i,false);
-            
-        game2->items_off[i] = 0;
-        
-        // Fix them DMap items
-        // Since resetItems() gets called before AND after init_dmap()...
-        if(get_currdmap() > -1)
-            game2->items_off[i] |= DMaps[get_currdmap()].disableditems[i];
-    }
-    
-    flushItemCache();
-    
-    //Then set up the counters
-    game2->set_bombs(zinit2->counter[crBOMBS]);
-    
-    if(zinit2->counter[crBOMBS] > 0 && zinit2->mcounter[crBOMBS] > 0) game2->set_item(iBombs, true);
-    
-    game2->set_keys(zinit2->counter[crKEYS]);
-    game2->set_sbombs(zinit2->counter[crSBOMBS]);
-    
-    if(zinit2->counter[crSBOMBS] > 0 && (zinit2->mcounter[crBOMBS] /zc_max(1,zinit2->bomb_ratio)) > 0) game2->set_item(iSBomb, true);
-    
-    game2->set_HCpieces(zinit2->hcp);
-    game2->set_rupies(zinit2->counter[crMONEY]);
-    game2->set_hcp_per_hc(zinit2->hcp_per_hc);
-    game2->set_cont_hearts(zinit2->cont_heart);
-    game2->set_cont_percent(get_bit(zinit2->misc, idM_CONTPERCENT) != 0);
+		}
+		else
+			game2->set_item_no_flush(i,false);
+			
+		game2->items_off[i] = 0;
+		
+		// Fix them DMap items
+		// Since resetItems() gets called before AND after init_dmap()...
+		if(get_currdmap() > -1)
+			game2->items_off[i] |= DMaps[get_currdmap()].disableditems[i];
+	}
+	
+	flushItemCache();
+	
+	//Then set up the counters
+	game2->set_life(zc_max(1,zinit2->counter[crLIFE]));
+	game2->set_bombs(zinit2->counter[crBOMBS]);
+	
+	if(zinit2->counter[crBOMBS] > 0 && zinit2->mcounter[crBOMBS] > 0) game2->set_item(iBombs, true);
+	
+	game2->set_keys(zinit2->counter[crKEYS]);
+	game2->set_sbombs(zinit2->counter[crSBOMBS]);
+	
+	if(zinit2->counter[crSBOMBS] > 0 && (zinit2->mcounter[crBOMBS] /zc_max(1,zinit2->bomb_ratio)) > 0) game2->set_item(iSBomb, true);
+	
+	game2->set_HCpieces(zinit2->hcp);
+	game2->set_rupies(zinit2->counter[crMONEY]);
+	game2->set_hcp_per_hc(zinit2->hcp_per_hc);
+	game2->set_cont_hearts(zinit2->cont_heart);
+	game2->set_cont_percent(get_bit(zinit2->misc, idM_CONTPERCENT) != 0);
 	game2->set_hp_per_heart(zinit2->hp_per_heart);
 	game2->set_mp_per_block(zinit2->magic_per_block);
 	game2->set_hero_dmgmult(zinit2->hero_damage_multiplier);
@@ -1035,30 +1035,30 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool freshquest)
 	game2->set_sideswim_jump(zinit2->exitWaterJump);
 	game2->set_bunny_ltm(zinit2->bunny_ltm);
 	game2->set_switchhookstyle(zinit2->switchhookstyle);
-    
-    for(int32_t i=0; i<MAXLEVELS; i++)
-    {
-        // Kludge to prevent two bits (liTRIFORCE and liBOSS) which aren't
-        // completely stored in Init Data, from being erased when this is run in-game.
-        if(freshquest)
-            game2->lvlitems[i]=0;
-        else
-            game2->lvlitems[i]&=~(liMAP|liCOMPASS|liBOSSKEY| (i>0 && i<=8 ? liTRIFORCE : 0));
-            
-        game2->lvlitems[i]|=get_bit(zinit2->map,i)?liMAP:0;
-        game2->lvlitems[i]|=get_bit(zinit2->compass,i)?liCOMPASS:0;
-        game2->lvlitems[i]|=get_bit(zinit2->boss_key,i)?liBOSSKEY:0;
-        game2->lvlitems[i]|=get_bit(zinit2->mcguffin,i)?liTRIFORCE:0;
-        game2->lvlkeys[i]=zinit2->level_keys[i];
-    }
-    
-    game2->set_magic(zc_min(zinit2->counter[crMAGIC],zinit2->mcounter[crMAGIC]));
-    game2->set_magicdrainrate(zinit2->magicdrainrate);
+	
+	for(int32_t i=0; i<MAXLEVELS; i++)
+	{
+		// Kludge to prevent two bits (liTRIFORCE and liBOSS) which aren't
+		// completely stored in Init Data, from being erased when this is run in-game.
+		if(freshquest)
+			game2->lvlitems[i]=0;
+		else
+			game2->lvlitems[i]&=~(liMAP|liCOMPASS|liBOSSKEY| (i>0 && i<=8 ? liTRIFORCE : 0));
+			
+		game2->lvlitems[i]|=get_bit(zinit2->map,i)?liMAP:0;
+		game2->lvlitems[i]|=get_bit(zinit2->compass,i)?liCOMPASS:0;
+		game2->lvlitems[i]|=get_bit(zinit2->boss_key,i)?liBOSSKEY:0;
+		game2->lvlitems[i]|=get_bit(zinit2->mcguffin,i)?liTRIFORCE:0;
+	}
+	game2->lvlkeys = zinit2->level_keys;
+	
+	game2->set_magic(zc_min(zinit2->counter[crMAGIC],zinit2->mcounter[crMAGIC]));
+	game2->set_magicdrainrate(zinit2->magicdrainrate);
 	//zprint2("gd2: %d, zi2: %d\n", game2->get_magicdrainrate(), zinit2->magicdrainrate);
-    game2->set_canslash(get_bit(zinit2->misc,idM_CANSLASH)?1:0);
-    
-    game2->set_arrows(zinit2->counter[crARROWS]);
-    
+	game2->set_canslash(get_bit(zinit2->misc,idM_CANSLASH)?1:0);
+	
+	game2->set_arrows(zinit2->counter[crARROWS]);
+	
 	for(int32_t q = 0; q < 100; ++q)
 	{
 		game2->set_counter(zinit2->counter[q+crCUSTOM1], q+ crCUSTOM1);
@@ -1088,9 +1088,9 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool freshquest)
 	
 	game2->swim_mult = zinit2->hero_swim_mult;
 	game2->swim_div = zinit2->hero_swim_div;
-	
-    //flush the cache again (in case bombs became illegal to use by setting bombs to 0)
-    flushItemCache();
+	game2->normalize();
+	//flush the cache again (in case bombs became illegal to use by setting bombs to 0)
+	flushItemCache();
 }
 
 template<std::size_t N, class T>
@@ -1175,8 +1175,7 @@ constexpr std::size_t countof(T(&)[N]) { return N; }
 	ARRAY_PROP(gen_eventstate) \
 	ARRAY_PROP(gen_exitState) \
 	ARRAY_PROP(gen_reloadState) \
-	ARRAY_PROP(items) \
-	ARRAY_PROP(level_keys) \
+	VEC_PROP(level_keys) \
 	ARRAY_PROP(map) \
 	ARRAY_PROP(mcguffin) \
 	ARRAY_PROP(mcounter) \
@@ -1190,9 +1189,9 @@ constexpr std::size_t countof(T(&)[N]) { return N; }
 // ARRAY_PROP(gen_data)
 // ARRAY_PROP(gen_initd)
 
-std::string serialize_init_data_delta(zinitdata *base, zinitdata *changed)
+string serialize_init_data_delta(zinitdata *base, zinitdata *changed)
 {
-	std::vector<std::string> tokens;
+	vector<string> tokens;
 	
 	#define PROP(name) if (base->name != changed->name) \
 		tokens.push_back(fmt::format("{}={}", #name, (int)changed->name));
@@ -1201,25 +1200,30 @@ std::string serialize_init_data_delta(zinitdata *base, zinitdata *changed)
 	LIST_PROPS;
 	#undef ZFIXPROP
 	#undef PROP
-
+	
 	#define ARRAY_PROP(name) \
 		for (int i = 0; i < countof(base->name); i++) \
 			if (base->name[i] != changed->name[i]) \
 				tokens.push_back(fmt::format("{}[{}]={}", #name, i, (int)changed->name[i]));
+	#define VEC_PROP(name) \
+		for (int i = 0; i < base->name.size(); i++) \
+			if (base->name[i] != changed->name[i]) \
+				tokens.push_back(fmt::format("{}[{}]={}", #name, i, (int)changed->name[i]));
 	LIST_ARRAY_PROPS;
+	#undef VEC_PROP
 	#undef ARRAY_PROP
-
+	
 	return fmt::format("{}", fmt::join(tokens, " "));
 }
 
 // TODO use out param instead of allocating new zinitdata
-zinitdata *apply_init_data_delta(zinitdata *base, std::string delta, std::string& out_error)
+zinitdata *apply_init_data_delta(zinitdata *base, string delta, string& out_error)
 {
 	zinitdata *result = new zinitdata(*base);
 	if (delta.empty())
 		return result;
 
-	std::vector<std::string> tokens;
+	vector<string> tokens;
 	util::split(delta, tokens, ' ');
 	
 	#define FAIL_IF(x, y) if (x) { \
@@ -1228,9 +1232,9 @@ zinitdata *apply_init_data_delta(zinitdata *base, std::string delta, std::string
 		return nullptr; \
 	}
 
-	for (std::string token : tokens)
+	for (string token : tokens)
 	{
-		std::vector<std::string> kv;
+		vector<string> kv;
 		util::split(token, kv, '=');
 		FAIL_IF(kv.size() != 2, fmt::format("invalid token '{}': expected one =", token));
 
@@ -1240,22 +1244,43 @@ zinitdata *apply_init_data_delta(zinitdata *base, std::string delta, std::string
 
 		if (kv[0].find('[') != kv[0].npos)
 		{
-			std::vector<std::string> name_index;
+			vector<string> name_index;
 			util::split(kv[0], name_index, '[');
 
 			errno = 0;
-			int index = std::strtol(name_index[1].data(), nullptr, 10);
+			vector<int> index;
+			for(int q = 1; q < name_index.size(); ++q)
+				index.push_back(std::strtol(name_index[q].data(), nullptr, 10));
+			
 			FAIL_IF(errno, fmt::format("invalid token '{}': expected integer", token));
-
+			
+			if (name_index[0] == "items")
+			{
+				if(replay_version_check(24))
+				{
+					FAIL_IF(index[0] >= countof(result->items), fmt::format("invalid token '{}': integer too big", token));
+					result->items[index[0]] = as_int;
+				}
+				else
+				{
+					FAIL_IF(index[0] >= 256, fmt::format("invalid token '{}': integer too big", token));
+					result->set_item(index[0], as_int);
+				}
+			} else
 			#define ARRAY_PROP(name) if (name_index[0] == #name) \
 			{ \
-				FAIL_IF(index >= countof(result->name), fmt::format("invalid token '{}': integer too big", token)); \
-				result->name[index] = as_int; \
+				FAIL_IF(index[0] >= countof(result->name), fmt::format("invalid token '{}': integer too big", token)); \
+				result->name[index[0]] = as_int; \
+			} else
+			#define VEC_PROP(name) if (name_index[0] == #name) \
+			{ \
+				FAIL_IF(index[0] >= result->name.size(), fmt::format("invalid token '{}': integer too big", token)); \
+				result->name[index[0]] = as_int; \
 			} else
 			#define ARRAY_DEPRPROP_IOFS(old,new,indoffs) if (name_index[0] == #old) \
 			{ \
-				FAIL_IF(index+indoffs >= countof(result->new), fmt::format("invalid token '{}': integer too big", token)); \
-				result->new[index+indoffs] = as_int; \
+				FAIL_IF(index[0]+indoffs >= countof(result->new), fmt::format("invalid token '{}': integer too big", token)); \
+				result->new[index[0]+indoffs] = as_int; \
 			} else
 			LIST_ARRAY_PROPS
 			LIST_ARRAY_DEPR_PROPS

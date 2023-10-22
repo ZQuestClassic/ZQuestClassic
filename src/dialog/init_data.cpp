@@ -9,6 +9,7 @@
 #include "ditherpick.h"
 #include "items.h"
 #include "zinfo.h"
+#include <fmt/format.h>
 
 using std::map;
 using std::vector;
@@ -19,25 +20,29 @@ extern zcmodule moduledata;
 extern char *item_string[];
 extern script_data *genericscripts[NUMSCRIPTSGENERIC];
 
+static bool life_in_hearts;
 void call_geninit_wzrd(zinitdata& start, size_t index)
 {
 	InitGenscriptWizard(start,index).show();
 }
 void call_init_dlg(zinitdata& sourcezinit, bool zc)
 {
-    InitDataDialog(sourcezinit, zc,
-        [&sourcezinit](zinitdata const& other)
+	life_in_hearts = zc_get_config("misc","init_data_life_in_hearts",1);
+	bool tmpb = life_in_hearts;
+	InitDataDialog(sourcezinit, zc,
+		[&sourcezinit](zinitdata const& other)
 		{
 			saved = false;
 			sourcezinit = other;
 		}).show();
+	if(tmpb != life_in_hearts)
+		zc_set_config("misc","init_data_life_in_hearts",life_in_hearts?1:0);
 }
 
 InitDataDialog::InitDataDialog(zinitdata const& start, bool zc, std::function<void(zinitdata const&)> setVals):
 	local_zinit(start), levelsOffset(0), list_dmaps(GUI::ZCListData::dmaps(true)), list_items(GUI::ZCListData::itemclass(false)),
 	list_genscr(GUI::ZCListData::generic_script()),
-	isZC(zc),
-	setVals(setVals)
+	isZC(zc), setVals(setVals)
 {}
 
 void InitDataDialog::setOfs(size_t ofs)
@@ -58,7 +63,7 @@ void InitDataDialog::setOfs(size_t ofs)
 }
 
 //{ Macros
-#define SBOMB_RATIO (local_zinit.mcounter[crBOMBS] / (local_zinit.bomb_ratio > 0 ? local_zinit.bomb_ratio : 4))
+#define SBOMB_RATIO (local_zinit.bomb_ratio > 0 ? (local_zinit.mcounter[crBOMBS] / local_zinit.bomb_ratio) : local_zinit.mcounter[crSBOMBS])
 
 #define BYTE_FIELD(member) \
 TextField(maxLength = 3, type = GUI::TextField::type::INT_DECIMAL, \
@@ -231,6 +236,10 @@ std::string item_name(int id)
 	return "";
 }
 
+#define CONT_PERC (get_bit(local_zinit.misc,idM_CONTPERCENT))
+#define HP_P_H (local_zinit.hp_per_heart)
+#define HEART_FACTOR (life_in_hearts ? HP_P_H : 1)
+#define HEART_FACTOR2 ((life_in_hearts && !CONT_PERC) ? HP_P_H : 1)
 static size_t genscr_index = 0, maintab = 0, vartab = 0;
 std::shared_ptr<GUI::Widget> InitDataDialog::view()
 {
@@ -319,45 +328,126 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 	for(int q = crCUSTOM1; q <= crCUSTOM100; ++q)
 		scr_ctr_grid->add(COUNTER_FRAME(q));
 	std::shared_ptr<GUI::Widget> counter_panel = TabPanel(
-			TabRef(name = "Engine", Rows<3>(hAlign = 0.0, vAlign = 0.0,
-				COUNTER_FRAME(crLIFE),
-				COUNTER_FRAME(crMAGIC),
-				COUNTER_FRAME(crMONEY),
-				COUNTER_FRAME(crARROWS),
-				Rows<2>(
-					framed = true, frameText = ZI.getCtrName(crBOMBS), hAlign = 0.0,
-					Label(hAlign = 0.0, bottomPadding = 0_px, text = "Start"),
-					Label(hAlign = 1.0, bottomPadding = 0_px, text = "Max"),
-					WORD_FIELD(&local_zinit.counter[crBOMBS]),
-					TextField(maxLength = 5, type = GUI::TextField::type::INT_DECIMAL,
-						high = 65535, val = local_zinit.mcounter[crBOMBS],
-						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-						{
-							local_zinit.mcounter[crBOMBS] = val;
-							sBombMax->setVal(SBOMB_RATIO);
-						})
-				),
-				Rows<3>(
-					framed = true, frameText = ZI.getCtrName(crSBOMBS), hAlign = 0.0,
-					Label(hAlign = 0.0, bottomPadding = 0_px, text = "Start"),
-					Label(hAlign = 1.0, bottomPadding = 0_px, text = "Max"),
-					Label(hAlign = 1.0, bottomPadding = 0_px, text = "Ratio"),
-					WORD_FIELD(&local_zinit.counter[crSBOMBS]),
-					sBombMax = TextField(
-						maxLength = 5,
-						type = GUI::TextField::type::INT_DECIMAL,
-						val = SBOMB_RATIO,
-						read_only = true
+			TabRef(name = "Engine", Column(
+				Checkbox(hAlign = 0.0,
+					checked = life_in_hearts,
+					text = fmt::format("{} in Hearts",ZI.getCtrName(crLIFE)),
+					onToggleFunc = [&](bool state)
+					{
+						life_in_hearts = state;
+						refresh_dlg();
+					}),
+				Rows<3>(hAlign = 0.0, vAlign = 0.0,
+					Rows<3>(
+						framed = true, frameText = ZI.getCtrName(crLIFE), hAlign = 0.0,
+						Label(hAlign = 0.0, bottomPadding = 0_px, text = "Start"),
+						Label(hAlign = 0.5, bottomPadding = 0_px, text = "Max"),
+						Label(hAlign = 1.0, bottomPadding = 0_px, text = "On Continue"),
+						TextField(maxLength = 5, type = GUI::TextField::type::INT_DECIMAL,
+							high = 65535, val = local_zinit.counter[crLIFE] / HEART_FACTOR,
+							fitParent = true,
+							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+							{
+								local_zinit.counter[crLIFE] = val*HEART_FACTOR;
+							}
+						),
+						TextField(maxLength = 5, type = GUI::TextField::type::INT_DECIMAL,
+							high = 65535, val = local_zinit.mcounter[crLIFE] / HEART_FACTOR,
+							fitParent = true,
+							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+							{
+								local_zinit.mcounter[crLIFE] = val*HEART_FACTOR;
+							}
+						),
+						TextField(maxLength = 5, type = GUI::TextField::type::INT_DECIMAL,
+							high = 65535, val = local_zinit.cont_heart / HEART_FACTOR2,
+							fitParent = true,
+							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+							{
+								local_zinit.cont_heart = val*HEART_FACTOR2;
+							}
+						),
+						Button(text = "HP Per Heart", colSpan = 2, maxheight = 1.5_em, fitParent = true,
+							onPressFunc = [&](){
+								if(auto v = call_get_num("HP Per Heart", HP_P_H, 255, 1))
+								{
+									auto newhpph = *v;
+									if(life_in_hearts)
+									{
+										local_zinit.counter[crLIFE] = (local_zinit.counter[crLIFE]/HP_P_H) * newhpph;
+										local_zinit.mcounter[crLIFE] = (local_zinit.mcounter[crLIFE]/HP_P_H) * newhpph;
+										if(!CONT_PERC)
+											local_zinit.cont_heart = (local_zinit.cont_heart/HP_P_H) * newhpph;
+										refresh_dlg();
+									}
+									local_zinit.hp_per_heart = newhpph;
+								}
+							}),
+						Checkbox(checked = get_bit(local_zinit.misc,idM_CONTPERCENT),
+							text = "%",
+							onToggleFunc = [&](bool state)
+							{
+								set_bit(local_zinit.misc,idM_CONTPERCENT,state);
+								if(life_in_hearts)
+								{
+									if(state)
+										local_zinit.cont_heart /= HP_P_H;
+									else local_zinit.cont_heart *= HP_P_H;
+									refresh_dlg();
+								}
+							}
+						)
 					),
-					TextField(maxLength = 5, type = GUI::TextField::type::INT_DECIMAL,
-						high = 255, val = local_zinit.bomb_ratio, disabled = isZC,
-						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
-						{
-							local_zinit.bomb_ratio = val;
-							sBombMax->setVal(SBOMB_RATIO);
-						})
-				),
-				COUNTER_FRAME(crKEYS)
+					Rows<2>(
+						framed = true, frameText = ZI.getCtrName(crMAGIC), hAlign = 0.0,
+						Label(hAlign = 0.0, bottomPadding = 0_px, text = "Start"),
+						Label(hAlign = 1.0, bottomPadding = 0_px, text = "Max"),
+						WORD_FIELD(&local_zinit.counter[crMAGIC]),
+						WORD_FIELD(&local_zinit.mcounter[crMAGIC]),
+						Button(text = "MP Per Block", colSpan = 2, maxheight = 1.5_em, fitParent = true,
+							onPressFunc = [&](){
+								if(auto v = call_get_num("MP Per Block", local_zinit.magic_per_block, 255, 1))
+									local_zinit.magic_per_block = *v;
+							})
+					),
+					COUNTER_FRAME(crMONEY),
+					Rows<3>(
+						framed = true, frameText = ZI.getCtrName(crSBOMBS), hAlign = 0.0,
+						Label(hAlign = 0.0, bottomPadding = 0_px, text = "Start"),
+						Label(hAlign = 1.0, bottomPadding = 0_px, text = "Max"),
+						Label(hAlign = 1.0, bottomPadding = 0_px, text = "Ratio"),
+						WORD_FIELD(&local_zinit.counter[crSBOMBS]),
+						sBombMax = TextField(
+							maxLength = 5,
+							type = GUI::TextField::type::INT_DECIMAL,
+							val = SBOMB_RATIO,
+							read_only = local_zinit.bomb_ratio
+						),
+						TextField(maxLength = 5, type = GUI::TextField::type::INT_DECIMAL,
+							high = 255, val = local_zinit.bomb_ratio, disabled = isZC,
+							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+							{
+								local_zinit.bomb_ratio = val;
+								sBombMax->setReadOnly(val);
+								sBombMax->setVal(SBOMB_RATIO);
+							})
+					),
+					Rows<2>(
+						framed = true, frameText = ZI.getCtrName(crBOMBS), hAlign = 0.0,
+						Label(hAlign = 0.0, bottomPadding = 0_px, text = "Start"),
+						Label(hAlign = 1.0, bottomPadding = 0_px, text = "Max"),
+						WORD_FIELD(&local_zinit.counter[crBOMBS]),
+						TextField(maxLength = 5, type = GUI::TextField::type::INT_DECIMAL,
+							high = 65535, val = local_zinit.mcounter[crBOMBS],
+							onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
+							{
+								local_zinit.mcounter[crBOMBS] = val;
+								sBombMax->setVal(SBOMB_RATIO);
+							})
+					),
+					COUNTER_FRAME(crARROWS),
+					COUNTER_FRAME(crKEYS)
+				)
 			)),
 			TabRef(name = "Custom", Columns<5>(margins = 1_px,
 				ScrollingPane(fitParent = true, targHeight = 300_px, scr_ctr_grid)
@@ -426,68 +516,38 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 						LEVEL_FIELD(9)
 					)
 				)),
-				TabRef(name = "Misc", Column(
-					Row(
-						framed = true,
-						Label(text = "Start DMap:"),
-						DropDownList(disabled = isZC, data = list_dmaps,
-							selectedValue = local_zinit.start_dmap,
-							onSelectFunc = [&](int32_t val)
-							{
-								local_zinit.start_dmap = val;
-							}
-						)
-					),
-					Rows<2>(nopad = true,
-						Row(
-							framed = true,
-							Label(text = "Continue HP:"),
-							WORD_FIELD(&local_zinit.cont_heart),
-							Checkbox(checked = get_bit(local_zinit.misc,idM_CONTPERCENT),
-								text = "%",
-								onToggleFunc = [&](bool state)
-								{
-									set_bit(local_zinit.misc,idM_CONTPERCENT,state);
-								}
-							)
-						),
-						Row(
-							framed = true,
-							Label(text = "Pieces:"),
-							BYTE_FIELD(hcp)
-						),
-						Row(
-							framed = true,
-							Label(text = "Magic Drain Rate:"),
-							BYTE_FIELD(magicdrainrate),
-							INFOBTN_EX("Magic costs are multiplied by this amount. Every time you use a"
-								" 'Learn Half Magic' room, this value is halved (rounded down)."
-								"\nWhen the 'Show' value on a 'Magic Gauge Piece' subscreen object is"
-								" >-1, that piece will only show up when its 'Show' value is equal to"
-								" this value (usable for '1/2', '1/4', '1/8' magic icons; as long as"
-								" your starting value is high enough, you can allow stacking several"
-								" levels of lowered magic cost)", bottomPadding = 0_px, forceFitH = true)
-						),
-						Row(
-							framed = true,
-							Label(text = "Per HC:"),
-							BYTE_FIELD(hcp_per_hc)
-						)
-					),
-					Row(
-						framed = true,
-						Checkbox(
-							checked = get_bit(local_zinit.misc,idM_CANSLASH),
-							text = "Can Slash",
-							onToggleFunc = [&](bool state)
-							{
-								set_bit(local_zinit.misc,idM_CANSLASH,state);
-							}
-						)
-					)
-				)),
 				TabRef(name = "Vars", TabPanel(ptr = &vartab,
 					TabRef(name = "Misc 1", Row(
+						Column(vAlign = 0.0,
+							Rows<3>(
+								margins = 0_px,
+								padding = 0_px,
+								Label(text = "Start DMap:"),
+								DropDownList(disabled = isZC, data = list_dmaps,
+									selectedValue = local_zinit.start_dmap,
+									onSelectFunc = [&](int32_t val)
+									{
+										local_zinit.start_dmap = val;
+									}
+								),
+								INFOBTN("You will spawn on the 'Continue' screen for the specified dmap when starting a new game")
+							),
+							Rows<2>(
+								margins = 0_px,
+								padding = 0_px,
+								INFOBTN("Required to slash with swords. The 'Learn Slash' room type can grant this ability."),
+								Checkbox(
+									checked = get_bit(local_zinit.misc,idM_CANSLASH),
+									text = "Can Sword Slash",
+									onToggleFunc = [&](bool state)
+									{
+										set_bit(local_zinit.misc,idM_CANSLASH,state);
+									}
+								)
+							)
+						)
+					)),
+					TabRef(name = "Misc 2", Row(
 						Column(vAlign = 0.0,
 							Rows<3>(
 								margins = 0_px,
@@ -498,26 +558,36 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 								VAL_FIELD(word,"Player Step:",0,65535,heroStep,isZC), INFOBTN("The player's movement speed, in 100ths px/frame. Only applies if 'New Player Movement' is enabled." + QRHINT({qr_NEW_HERO_MOVEMENT,qr_NEW_HERO_MOVEMENT2})),
 								ZFIX_VAL_FIELD("Player Shove:",0,160000,shove_offset,isZC), INFOBTN("The player's 'corner shove' leniency, in pixels. Only applies if 'Newer Player Movement' is enabled." + QRHINT({qr_NEW_HERO_MOVEMENT2})),
 								VAL_FIELD(word,"Subscreen Fall Mult:",1,85,subscrSpeed,isZC), INFOBTN("Multiplier of the subscreen's fall speed"),
-								VAL_FIELD(byte,"HP Per Heart:",1,255,hp_per_heart,false), INFOBTN("How many HP points each 'heart' has"),
-								VAL_FIELD(byte,"MP Per Block:",1,255,magic_per_block,false), INFOBTN("How many MP points each 'block' has"),
 								VAL_FIELD(byte,"Player Damage Mult:",1,255,hero_damage_multiplier,false), INFOBTN("This multiplies most damage dealt by the player."),
-								VAL_FIELD(byte,"Enemy Damage Mult:",1,255,ene_damage_multiplier,false), INFOBTN("This multiplies most damage dealt by enemies.")
+								VAL_FIELD(byte,"Enemy Damage Mult:",1,255,ene_damage_multiplier,false), INFOBTN("This multiplies most damage dealt by enemies."),
+								VAL_FIELD(int32_t,"Bunny Tile Mod:",-214748,214748,bunny_ltm,false), INFOBTN("The 'Player Tile Modifier' added when they are a bunny."),
+								VAL_FIELD(byte,"SwitchHook Style:",0,255,switchhookstyle,false), INFOBTN("The switch hook effect's default animation style")
 							)
 						),
 						Column(vAlign = 0.0,
 							Rows<3>(
 								margins = 0_px,
 								padding = 0_px,
-								VAL_FIELD(int32_t,"Bunny Tile Mod:",-214748,214748,bunny_ltm,false), INFOBTN("The 'Player Tile Modifier' added when they are a bunny."),
-								VAL_FIELD(byte,"SwitchHook Style:",0,255,switchhookstyle,false), INFOBTN("The switch hook effect's default animation style"),
 								DEC_VAL_FIELD("Water Gravity:",-99990000,99990000,4,swimgravity,false), INFOBTN("The gravity value used in sideview water"),
 								VAL_FIELD(word, "Sideswim Up Step:",0,9999,heroSideswimUpStep,false), INFOBTN("The player's movement speed in sideview water, upwards"),
 								VAL_FIELD(word, "Sideswim Side Step:",0,9999,heroSideswimSideStep,false), INFOBTN("The player's movement speed in sideview water, sideways"),
 								VAL_FIELD(word, "Sideswim Down Step:",0,9999,heroSideswimDownStep,false), INFOBTN("The player's movement speed in sideview water, downwards"),
 								DEC_VAL_FIELD("Sideswim Leaving Jump:",-2550000,2550000,4,exitWaterJump,false), INFOBTN("Jump value used when moving out the top of sideview water"),
 								VAL_FIELD(byte, "Hero Swim Step Multiplier:",0,255,hero_swim_mult,false), INFOBTN("Multiplier applied to movement speed in water, requires 'Newer Player Movement'" + QRHINT({qr_NEW_HERO_MOVEMENT2})),
-								VAL_FIELD(byte, "Hero Swim Step Divisor:",0,255,hero_swim_div,false), INFOBTN("Divisor applied to movement speed in water, requires 'Newer Player Movement'" + QRHINT({qr_NEW_HERO_MOVEMENT2}))
-							)
+								VAL_FIELD(byte, "Hero Swim Step Divisor:",0,255,hero_swim_div,false), INFOBTN("Divisor applied to movement speed in water, requires 'Newer Player Movement'" + QRHINT({qr_NEW_HERO_MOVEMENT2})),
+								VAL_FIELD(byte, "Heart Pieces:", 0, 255, hcp, false), INFOBTN("Number of Heart Pieces the player starts with"),
+								VAL_FIELD(byte, "HP Per HC:", 1, 255, hcp_per_hc, false), INFOBTN("Number of Heart Pieces to create a new Heart Container"),
+								//
+								VAL_FIELD(byte, "Magic Drain Rate:", 0, 255, magicdrainrate, false),
+								INFOBTN_EX("Magic costs are multiplied by this amount. Every time you use a"
+									" 'Learn Half Magic' room, this value is halved (rounded down)."
+									"\nWhen the 'Show' value on a 'Magic Gauge Piece' subscreen object is"
+									" >-1, that piece will only show up when its 'Show' value is equal to"
+									" this value (usable for '1/2', '1/4', '1/8' magic icons; as long as"
+									" your starting value is high enough, you can allow stacking several"
+									" levels of lowered magic cost)", bottomPadding = 0_px, forceFitH = true)
+									)
+								//
 						)
 					)),
 					TabRef(name = "Dark Room", Row(

@@ -13307,9 +13307,8 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *)
 			if(!p_putc(zinit.mcguffin[q], f))
 				new_return(9);
 		}
-		for(int q = 0; q < MAXLEVELS/8; ++q)
-			if(!p_putc(zinit.level_keys[q], f))
-				new_return(10);
+		if(!p_putbvec(zinit.level_keys, f))
+			new_return(10);
 		if(!p_putc(MAX_COUNTERS,f))
 			new_return(11);
 		for(int q = 0; q < MAX_COUNTERS; ++q)
@@ -13326,6 +13325,26 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *)
 			new_return(16);
 		if(!p_iputw(zinit.cont_heart,f))
 			new_return(17);
+		if(!p_putc(zinit.hp_per_heart,f))
+			new_return(18);
+		if(!p_putc(zinit.magic_per_block,f))
+			new_return(19);
+		if(!p_putc(zinit.hero_damage_multiplier,f))
+			new_return(20);
+		if(!p_putc(zinit.ene_damage_multiplier,f))
+			new_return(21);
+		if(!p_putc(zinit.dither_type,f))
+			new_return(22);
+		if(!p_putc(zinit.dither_arg,f))
+			new_return(23);
+		if(!p_putc(zinit.dither_percent,f))
+			new_return(24);
+		if(!p_putc(zinit.def_lightrad,f))
+			new_return(25);
+		if(!p_putc(zinit.transdark_percent,f))
+			new_return(26);
+		if(!p_putc(zinit.darkcol,f))
+			new_return(27);
 		/*
 		for(int32_t i=0; i<16; i++)
 			if(!p_putc(zinit.misc[i],f))
@@ -13380,26 +13399,6 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *)
 			new_return(73);
 		if(!p_iputw(zinit.subscrSpeed,f))
 			new_return(74);
-		if(!p_putc(zinit.hp_per_heart,f))
-			new_return(75);
-		if(!p_putc(zinit.magic_per_block,f))
-			new_return(76);
-		if(!p_putc(zinit.hero_damage_multiplier,f))
-			new_return(77);
-		if(!p_putc(zinit.ene_damage_multiplier,f))
-			new_return(78);
-		if(!p_putc(zinit.dither_type,f))
-			new_return(81);
-		if(!p_putc(zinit.dither_arg,f))
-			new_return(82);
-		if(!p_putc(zinit.dither_percent,f))
-			new_return(83);
-		if(!p_putc(zinit.def_lightrad,f))
-			new_return(84);
-		if(!p_putc(zinit.transdark_percent,f))
-			new_return(85);
-		if(!p_putc(zinit.darkcol,f))
-			new_return(86);
 		if(!p_iputl(zinit.gravity2,f))
 			new_return(86);
 		if(!p_iputl(zinit.swimgravity,f))
