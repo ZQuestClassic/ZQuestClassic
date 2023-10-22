@@ -751,6 +751,7 @@ RenderTreeItem* add_dlg_layer(int x, int y, int w, int h)
 	
 	LegacyBitmapRTI* rti = new LegacyBitmapRTI("dlg");
 	rti->bitmap = al_create_bitmap(w,h);
+	rti->set_size(w, h);
 	clear_a5_bmp(rti->bitmap);
 	rti->set_transform({.x = x, .y = y});
 	rti->a4_bitmap = nullptr;
