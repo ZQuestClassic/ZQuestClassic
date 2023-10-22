@@ -27,6 +27,9 @@ class TestZEditor(unittest.TestCase):
         self.maxDiff = None
 
     def test_zeditor(self):
+        if 'emscripten' in str(run_target.get_build_folder()):
+            return
+
         run_target.check_run('zeditor', [
             '-test-zc', root_dir / 'tests',
         ])
