@@ -102,17 +102,14 @@
 #include <stdint.h>
 #include <math.h>
 #include <cstring>
-#include <vector>
 #include <set>
 #include <assert.h>
-#include <string>
 #include <algorithm>
-#include "base/ints.h"
 
+#include "base/headers.h"
 #include "metadata/metadata.h"
 #include "base/about.h"
 #include "base/zc_alleg.h"
-#include "base/general.h"
 #include "gamedata.h"
 #include "base/random.h"
 #include "base/util.h"
@@ -229,14 +226,14 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_COLORS           4 //Misc Colours
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
-#define V_INITDATA        35
+#define V_INITDATA        36
 #define V_GUYS            47
 #define V_MIDIS            4
 #define V_CHEATS           1
 #define V_SAVEGAME        36
 #define V_COMBOALIASES     5
 #define V_HEROSPRITES      16
-#define V_SUBSCREEN        10
+#define V_SUBSCREEN        11
 #define V_ITEMDROPSETS     2
 #define V_FFSCRIPT         22
 #define V_SFX              8
@@ -1257,6 +1254,8 @@ enum { tfInvalid=0, tf4Bit, tf8Bit, tf16Bit, tf24Bit, tf32Bit, tfMax };
 
 struct size_and_pos
 {
+	bool operator==(const size_and_pos&) const = default;
+
 	int x = -1, y = -1;
 	int w = -1, h = -1;
 	int xscale = 1, yscale = 1;
@@ -1356,16 +1355,9 @@ struct wpndata
 #define WF_VFLIP      0x08
 #define WF_BEHIND     0x10 //Weapon renders behind other sprites
 
-struct quest_template
-{
-    char name[31];
-    char path[2048];
-    //311 bytes
-};
-
 struct item_drop_object
 {
-    char name[64];
+    char name[65];
     word item[10];
     word chance[11]; //0=none
 };
@@ -2270,7 +2262,7 @@ class zctune
 
 public:
 
-    char title[36];
+    char title[37];
     //20
     int32_t start;
     int32_t loop_start;
@@ -2293,7 +2285,7 @@ public:
     }
     
     zctune(char _title[36], int32_t _start, int32_t _loop_start, int32_t _loop_end, int16_t _loop,int16_t _volume, void *_data, byte _format)
-        : start(_start), loop_start(_loop_start), loop_end(_loop_end), loop(_loop), volume(_volume), data(_data), format(_format), flags(0)
+        : start(_start), loop_start(_loop_start), loop_end(_loop_end), loop(_loop), volume(_volume), flags(0), data(_data), format(_format)
     {
         //memcpy(title, _title, 20); //NOT SAFE for int16_t strings
         strncpy(title, _title, 36);

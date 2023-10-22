@@ -23,7 +23,7 @@ static const GUI::ListData miscSFXList
 };
 
 MiscSFXDialog::MiscSFXDialog(byte* vals, size_t vals_per_tab, std::function<void(int32_t*)> setVals):
-	setVals(setVals), vals_per_tab(vals_per_tab), sfx_list(GUI::ZCListData::sfxnames())
+	sfx_list(GUI::ZCListData::sfxnames()), setVals(setVals), vals_per_tab(vals_per_tab)
 {
 	for(auto q = 0; q < sfxMAX; ++q)
 	{

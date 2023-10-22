@@ -61,6 +61,7 @@ std::string tagNames[rules_tagcount + 1] =
 	"Misc",
 	"NESFix",
 	"Player",
+	"Subscreen",
 	"Weapon",
 	"ZS: Script",
 	"ZS: Instruction",
@@ -1628,7 +1629,11 @@ GUI::ListData objectRulesList
 GUI::ListData drawingRulesList
 {
 	{ "Scripts Draw When Stepping Forward In Dungeons", qr_SCRIPTSRUNINHEROSTEPFORWARD },
-	{ "Scripts Draw During Warps", qr_SCRIPTDRAWSINWARPS }
+	{ "Scripts Draw During Warps", qr_SCRIPTDRAWSINWARPS },
+	{ "Scripts Draw During Frozen Messages", qr_SCRIPTDRAWSFROZENMSG,
+		"If checked, script draws will continue to clear during frozen messages. "
+		"Otherwise, they will not clear until the message has closed and all draws during "
+		"the message will be ignored." + QRHINT({qr_MSGFREEZE})}
 };
 
 GUI::ListData bugfixRulesList
@@ -1757,7 +1762,7 @@ void QRDialog::reloadQRs()
 	memcpy(local_qrs, realqrs, QR_SZ);
 }
 QRDialog::QRDialog(byte const* qrs, size_t qrs_per_tab, std::function<void(byte*)> setQRs):
-	setQRs(setQRs), qrs_per_tab(qrs_per_tab), realqrs(qrs), searchmode(false)
+	searchmode(false), setQRs(setQRs), realqrs(qrs), qrs_per_tab(qrs_per_tab)
 {
 	reloadQRs();
 }

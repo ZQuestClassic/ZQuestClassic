@@ -442,6 +442,7 @@ set(zcbase_sources
 	src/base/autocombo.cpp
 	src/base/colors.cpp
 	src/base/combo.cpp
+	src/base/containers.cpp
 	src/base/cpos_info.cpp
 	src/base/cpool.cpp
 	src/base/dmap.cpp
@@ -468,6 +469,7 @@ set(zcbase_sources
 	src/base/zc_alleg.cpp
 	src/base/zc_math.cpp
 	src/base/zdefs.cpp
+	src/base/zfix.cpp
 	src/base/zsys.cpp
 )
 if (EMSCRIPTEN)
@@ -515,6 +517,7 @@ add_library(zcgui STATIC
 	src/gui/widget.cpp
 	src/gui/window.cpp
 	src/gui/slider.cpp
+	src/gui/ditherprev.cpp
 )
 target_link_libraries(zcgui PUBLIC zcbase allegro_with_legacy)
 target_include_directories(zcgui PRIVATE src)
@@ -792,6 +795,7 @@ set(zc_clang_errors
 	-Werror=inconsistent-missing-override
 	-Werror=return-type
 	# -Werror=unreachable-code
+	# -Werror=reorder
 	# -Werror=unused
 	-Wno-write-strings
 	-Wno-switch
@@ -809,6 +813,9 @@ set(zc_gcc_errors
 	-Wno-switch
 	# TODO
 	# -Wunused-result
+)
+set(zc_msvc_errors
+	# /we5038
 )
 
 foreach(target IN LISTS zc_targets)
@@ -887,10 +894,10 @@ if(USE_PCH)
 endif()
 
 foreach(target IN LISTS zc_targets)
-	if(WIN32)
+	if(MSVC)
 		target_compile_definitions(${target} PRIVATE __STDC_LIMIT_MACROS)
 		# TODO: set /W2 higher.
-		target_compile_options(${target} PRIVATE /W2 /WX)
+		target_compile_options(${target} PRIVATE /W2 /WX ${zc_msvc_errors})
 	endif()
 
 	if(CMAKE_C_COMPILER_ID MATCHES "Clang" AND NOT EMSCRIPTEN)

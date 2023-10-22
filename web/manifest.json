@@ -3,7 +3,7 @@
   "id": "zquest-classic-pwa",
   "description": "Play and create classic adventure games in ZQuest Classic!",
   "display": "fullscreen",
-  "orientation": "landscape-primary",
+  "orientation": "landscape",
   "scope": "https://web.zquestclassic.com",
   "start_url": "play?utm_source=homescreen",
   "icons": [

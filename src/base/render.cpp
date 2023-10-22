@@ -4,7 +4,15 @@
 #include "base/fonts.h"
 #include "fmt/core.h"
 #include "jwin_a5.h"
+#include <atomic>
 
+using namespace std::chrono_literals;
+
+void RenderTreeItem::remove()
+{
+	if (parent)
+		parent->remove_child(this);
+}
 void RenderTreeItem::add_child(RenderTreeItem* child)
 {
 	if (child->parent)
@@ -30,7 +38,11 @@ void RenderTreeItem::remove_child(RenderTreeItem* child)
 		child->parent = nullptr;
 	}
 }
-const std::vector<RenderTreeItem*>& RenderTreeItem::get_children() const
+std::vector<RenderTreeItem*> const& RenderTreeItem::get_children() const
+{
+	return children;
+}
+std::vector<RenderTreeItem*>& RenderTreeItem::get_children()
 {
 	return children;
 }
@@ -38,7 +50,12 @@ bool RenderTreeItem::has_children() const
 {
 	return !children.empty();
 }
-void RenderTreeItem::handle_dirty()
+void RenderTreeItem::set_size(int width, int height)
+{
+	this->width = width;
+	this->height = height;
+}
+void RenderTreeItem::handle_dirty_transform()
 {
 	if (!transform_dirty) return;
 
@@ -47,10 +64,10 @@ void RenderTreeItem::handle_dirty()
 	transform_matrix = parent_transform.mul(transform_matrix);
 	transform_dirty = false;
 }
-void RenderTreeItem::mark_dirty()
+void RenderTreeItem::mark_transform_dirty()
 {
 	transform_dirty = transform_inverse_dirty = true;
-	for (auto child : children) child->mark_dirty();
+	for (auto child : children) child->mark_transform_dirty();
 }
 void RenderTreeItem::set_transform(Transform new_transform)
 {
@@ -58,7 +75,7 @@ void RenderTreeItem::set_transform(Transform new_transform)
 		return;
 
 	transform = new_transform;
-	mark_dirty();
+	mark_transform_dirty();
 }
 const Transform& RenderTreeItem::get_transform() const
 {
@@ -66,12 +83,12 @@ const Transform& RenderTreeItem::get_transform() const
 }
 const Matrix& RenderTreeItem::get_transform_matrix()
 {
-	handle_dirty();
+	handle_dirty_transform();
 	return transform_matrix;
 }
 std::pair<int, int> RenderTreeItem::world_to_local(int x, int y)
 {
-	handle_dirty();
+	handle_dirty_transform();
 	if (transform_inverse_dirty)
 	{
 		transform_matrix_inverse = transform_matrix.inverse();
@@ -81,7 +98,7 @@ std::pair<int, int> RenderTreeItem::world_to_local(int x, int y)
 }
 std::pair<int, int> RenderTreeItem::local_to_world(int x, int y)
 {
-	handle_dirty();
+	handle_dirty_transform();
 	return transform_matrix.apply(x, y);
 }
 std::pair<int, int> RenderTreeItem::pos()
@@ -94,6 +111,7 @@ std::pair<int, int> RenderTreeItem::rel_mouse()
 }
 
 RenderTreeItem rti_dialogs("dialogs");
+static auto rti_tint = RenderTreeItem("tint");
 
 extern int32_t zq_screen_w, zq_screen_h;
 unsigned char info_opacity = 255;
@@ -110,14 +128,20 @@ ALLEGRO_COLOR AL5_INVIS = al_map_rgba(0,0,0,0),
 	AL5_DRED = al_map_rgb(178,36,36),
 	AL5_LGREEN = al_map_rgb(85,255,85),
 	AL5_LAQUA = al_map_rgb(85,255,255);
-void set_bitmap_create_flags(bool preserve_texture)
+
+int get_bitmap_create_flags(bool preserve_texture)
 {
 	int flags = ALLEGRO_CONVERT_BITMAP;
 	if(!preserve_texture)
 		flags |= ALLEGRO_NO_PRESERVE_TEXTURE;
 	if (use_linear_bitmaps())
 		flags |= ALLEGRO_MAG_LINEAR | ALLEGRO_MIN_LINEAR;
-	al_set_new_bitmap_flags(flags);
+	return flags;
+}
+
+void set_bitmap_create_flags(bool preserve_texture)
+{
+	al_set_new_bitmap_flags(get_bitmap_create_flags(preserve_texture));
 }
 
 void clear_a5_bmp(ALLEGRO_COLOR col, ALLEGRO_BITMAP* bmp)
@@ -160,8 +184,9 @@ RenderTreeItem::~RenderTreeItem()
 	{
 		if(bitmap)
 			al_destroy_bitmap(bitmap);
-		if(a4_bitmap)
-			destroy_bitmap(a4_bitmap);
+	}
+	if(owned_tint)
+	{
 		if(tint)
 			delete tint;
 	}
@@ -324,19 +349,73 @@ void render_text_lines(ALLEGRO_FONT* font, std::vector<std::string> lines, TextJ
 	}
 }
 
-static void render_tree_draw_item(RenderTreeItem* rti)
+static void render_tree_draw_item_prepare(RenderTreeItem* rti)
+{
+	rti->prepare();
+	if (!rti->visible)
+		return;
+
+	for (auto rti_child : rti->get_children())
+	{
+		render_tree_draw_item_prepare(rti_child);
+	}
+}
+
+static void render_tree_draw_item(RenderTreeItem* rti, bool do_a4_only)
 {
 	if (!rti->visible)
 		return;
 
-	if (rti->bitmap)
+	// When rendering just a4 bitmaps in bulk, we only draw to the a5 bitmap. The next pass
+	// will actually draw to the screen.
+	bool skip = false;
+	if (do_a4_only && dynamic_cast<LegacyBitmapRTI*>(rti) == nullptr)
+		skip = true;
+	if (!do_a4_only && dynamic_cast<LegacyBitmapRTI*>(rti) != nullptr)
+		skip = true;
+
+	if (!skip && !rti->freeze)
 	{
-		if (rti->a4_bitmap && !rti->freeze_a4_bitmap_render)
+		bool size_changed = false;
+		int flags = rti->bitmap_flags;
+		if (rti->bitmap && (al_get_bitmap_width(rti->bitmap) != rti->width || al_get_bitmap_height(rti->bitmap) != rti->height))
 		{
-			all_set_transparent_palette_index(rti->transparency_index);
-			all_render_a5_bitmap(rti->a4_bitmap, rti->bitmap);
+			flags = al_get_bitmap_flags(rti->bitmap);
+			al_destroy_bitmap(rti->bitmap);
+			rti->bitmap = nullptr;
+			size_changed = true;
+		}
+		if (!rti->bitmap && rti->width > 0 && rti->height > 0)
+		{
+			if (flags == -1)
+				flags = get_bitmap_create_flags(true);
+			al_set_new_bitmap_flags(flags);
+			rti->bitmap = create_a5_bitmap(rti->width, rti->height);
+			rti->dirty = true;
 		}
 
+		if (rti->dirty && rti->bitmap)
+		{
+			rti->dirty = false;
+			if (do_a4_only)
+			{
+				// Special case, we don't need to change the target bitmap or clear it to
+				// convert from a4 to a5 bitmaps.
+				rti->render(size_changed);
+			}
+			else
+			{
+				al_set_target_bitmap(rti->bitmap);
+				al_clear_to_color(al_map_rgba(0, 0, 0, 0));
+				rti->render(size_changed);
+				al_set_target_backbuffer(all_get_display());
+			}
+		}
+	}
+
+	skip = do_a4_only;
+	if (!skip && rti->bitmap)
+	{
 		int w = al_get_bitmap_width(rti->bitmap);
 		int h = al_get_bitmap_height(rti->bitmap);
 
@@ -357,7 +436,7 @@ static void render_tree_draw_item(RenderTreeItem* rti)
 
 	for (auto rti_child : rti->get_children())
 	{
-		render_tree_draw_item(rti_child);
+		render_tree_draw_item(rti_child, do_a4_only);
 	}
 }
 
@@ -370,10 +449,8 @@ static void render_tree_draw_item_debug(RenderTreeItem* rti, int depth, std::vec
 		line += "[HIDDEN] ";
 	if (rti->bitmap)
 	{
-		int w = al_get_bitmap_width(rti->bitmap);
-		int h = al_get_bitmap_height(rti->bitmap);
-		line += fmt::format("[BITMAP {}x{}] ", w, h);
-		if (rti->freeze_a4_bitmap_render)
+		line += fmt::format("[{}x{}] ", rti->width, rti->height);
+		if (rti->freeze)
 			line += "[FROZEN] ";
 		if (rti->tint)
 		{
@@ -392,7 +469,11 @@ static void render_tree_draw_item_debug(RenderTreeItem* rti, int depth, std::vec
 
 void render_tree_draw(RenderTreeItem* rti)
 {
-	render_tree_draw_item(rti);
+	render_tree_draw_item_prepare(rti);
+	// Draw all a4 bitmaps to an a5 bitmap first.
+	// This might help a little in reducing GL context switches.
+	render_tree_draw_item(rti, true);
+	render_tree_draw_item(rti, false);
 }
 
 void render_tree_draw_debug(RenderTreeItem* rti)
@@ -412,6 +493,42 @@ void render_set_debug(bool debug)
 bool render_get_debug()
 {
 	return render_debug;
+}
+
+void RenderTreeItem::prepare() {}
+void RenderTreeItem::render(bool) {}
+
+// void CustomRTI::render(bool bitmap_resized)
+// {
+	
+// }
+
+
+LegacyBitmapRTI::LegacyBitmapRTI(std::string name, RenderTreeItem* parent) : RenderTreeItem(name, parent) {}
+
+LegacyBitmapRTI::~LegacyBitmapRTI()
+{
+	if (owned && a4_bitmap)
+		destroy_bitmap(a4_bitmap);
+}
+
+void LegacyBitmapRTI::prepare()
+{
+	// We convert from a4->a5 every frame, but freeze these render items to prevent doing unnecessary work.
+	dirty = true;
+	// Ideally this is set in the constructor, but `LegacyBitmapRTI` is used as static global variables and this
+	// function requires the config to be loaded already.
+	bitmap_flags = get_bitmap_create_flags(true);
+}
+
+void LegacyBitmapRTI::render(bool)
+{
+	if (bitmap && a4_bitmap && (!a4_bitmap_rendered_once || !freeze))
+	{
+		all_set_transparent_palette_index(transparency_index);
+		all_render_a5_bitmap(a4_bitmap, bitmap);
+		a4_bitmap_rendered_once = true;
+	}
 }
 
 namespace MouseSprite
@@ -531,23 +648,34 @@ void popup_zqdialog_start(int x, int y, int w, int h, int transp)
 		else clear_bitmap(tmp_bmp);
 		screen = tmp_bmp;
 		
-		RenderTreeItem* rti = new RenderTreeItem("zqdialog");
+		LegacyBitmapRTI* rti = new LegacyBitmapRTI("zqdialog");
+		rti->set_size(w, h);
 		set_bitmap_create_flags(false);
 		rti->bitmap = create_a5_bitmap(w, h);
+		al_set_new_bitmap_flags(0);
 		rti->a4_bitmap = tmp_bmp;
 		rti->transparency_index = transp;
-		rti->set_transform({.x = x, .y = y});
-		rti->visible = true;
+		rti->set_transform({x, y});
 		rti->owned = true;
 		rti_dialogs.add_child(rti);
 		rti_dialogs.visible = true;
 		active_dlg_rti = rti;
-		al_set_new_bitmap_flags(0);
 	}
 	else
 	{
 		*allegro_errno = ENOMEM;
 	}
+}
+
+static RenderTreeItem* get_active_dialog()
+{
+	auto& children = rti_dialogs.get_children();
+	for (auto it = children.rbegin(); it != children.rend(); it++)
+	{
+		auto child = *it;
+		if (child->name != "tint") return child;
+	}
+	return nullptr;
 }
 
 void popup_zqdialog_end()
@@ -556,14 +684,14 @@ void popup_zqdialog_end()
 	{
 		RenderTreeItem* to_del = active_dlg_rti;
 		rti_dialogs.remove_child(to_del);
-		if(rti_dialogs.has_children())
+		active_dlg_rti = get_active_dialog();
+		if (active_dlg_rti)
 		{
-			active_dlg_rti = rti_dialogs.get_children().back();
-			screen = active_dlg_rti->a4_bitmap;
+			auto rti = dynamic_cast<LegacyBitmapRTI*>(active_dlg_rti);
+			screen = rti ? rti->a4_bitmap : nullptr;
 		}
 		else
 		{
-			active_dlg_rti = nullptr;
 			screen = zqdialog_bg_bmp;
 			zqdialog_bg_bmp = nullptr;
 		}
@@ -578,15 +706,15 @@ void popup_zqdialog_start_a5()
 	if(!zqdialog_bg_bmp)
 		zqdialog_bg_bmp = screen;
 	
-	RenderTreeItem* rti = new RenderTreeItem("zqdialog_a5");
+	auto rti = new RenderTreeItem("zqdialog_a5");
+	rti->set_size(zq_screen_w, zq_screen_h);
 	set_bitmap_create_flags(true);
 	rti->bitmap = create_a5_bitmap(zq_screen_w, zq_screen_h);
-	rti->visible = true;
+	al_set_new_bitmap_flags(0);
 	rti->owned = true;
 	rti_dialogs.add_child(rti);
 	rti_dialogs.visible = true;
 	active_dlg_rti = rti;
-	al_set_new_bitmap_flags(0);
 	
 	old_a5_states.emplace_back();
 	ALLEGRO_STATE& oldstate = old_a5_states.back();
@@ -600,11 +728,9 @@ void popup_zqdialog_end_a5()
 	{
 		RenderTreeItem* to_del = active_dlg_rti;
 		rti_dialogs.remove_child(to_del);
-		if(rti_dialogs.has_children())
-			active_dlg_rti = rti_dialogs.get_children().back();
-		else
+		active_dlg_rti = get_active_dialog();
+		if (!active_dlg_rti)
 		{
-			active_dlg_rti = nullptr;
 			zqdialog_bg_bmp = nullptr;
 		}
 		ALLEGRO_STATE& oldstate = old_a5_states.back();
@@ -623,7 +749,7 @@ RenderTreeItem* add_dlg_layer(int x, int y, int w, int h)
 	if(h<0) h = screen->h-y;
 	set_bitmap_create_flags(true);
 	
-	RenderTreeItem* rti = new RenderTreeItem("dlg");
+	LegacyBitmapRTI* rti = new LegacyBitmapRTI("dlg");
 	rti->bitmap = al_create_bitmap(w,h);
 	clear_a5_bmp(rti->bitmap);
 	rti->set_transform({.x = x, .y = y});
@@ -642,4 +768,152 @@ void remove_dlg_layer(RenderTreeItem* rti)
 		active_dlg_rti->remove_child(rti);
 	}
 	delete rti;
+}
+
+ALLEGRO_COLOR dialog_tint = al_premul_rgba(0, 0, 0, 64);
+ALLEGRO_COLOR* override_dlg_tint = nullptr;
+static size_t dlg_tint_pause = 0;
+
+// Place a tinted bitmap before the active dialog render item.
+void reload_dialog_tint()
+{
+	auto& children = rti_dialogs.get_children();
+	if (children.empty())
+		return;
+
+	auto& tint = get_dlg_tint();
+	if (!override_dlg_tint)
+	{
+		tint = al_premul_rgba(
+			zc_get_config("ZQ_GUI","dlg_tint_r",0),
+			zc_get_config("ZQ_GUI","dlg_tint_g",0),
+			zc_get_config("ZQ_GUI","dlg_tint_b",0),
+			zc_get_config("ZQ_GUI","dlg_tint_a",128)
+		);
+	}
+	rti_tint.tint = &tint;
+	if (!rti_tint.bitmap)
+	{
+		rti_tint.set_size(screen->w, screen->h);
+		rti_tint.bitmap = create_a5_bitmap(screen->w, screen->h);
+		ALLEGRO_STATE oldstate;
+		al_store_state(&oldstate, ALLEGRO_STATE_TARGET_BITMAP);
+		al_set_target_bitmap(rti_tint.bitmap);
+		al_clear_to_color(al_map_rgb(0, 0, 0));
+		al_restore_state(&oldstate);
+		rti_tint.freeze = true;
+		rti_tint.dirty = false;
+	}
+
+	auto next_dialog_rti = get_active_dialog();
+	if (next_dialog_rti)
+		rti_dialogs.add_child_before(&rti_tint, next_dialog_rti);
+	else
+		rti_tint.remove();
+
+	rti_tint.visible = !dlg_tint_paused();
+}
+ALLEGRO_COLOR& get_dlg_tint()
+{
+	return override_dlg_tint ? *override_dlg_tint : dialog_tint;
+}
+void pause_dlg_tint(bool pause)
+{
+	if(pause)
+		++dlg_tint_pause;
+	else if(dlg_tint_pause)
+		--dlg_tint_pause;
+}
+bool dlg_tint_paused()
+{
+	return dlg_tint_pause;
+}
+
+
+static std::atomic<bool> throttle_counter;
+void update_throttle_counter()
+{
+	throttle_counter.store(true, std::memory_order_relaxed);
+}
+END_OF_FUNCTION(update_throttle_counter)
+
+// https://blat-blatnik.github.io/computerBear/making-accurate-sleep-function/
+static void preciseThrottle(double seconds)
+{
+	static double estimate = 5e-3;
+	static double mean = 5e-3;
+	static double m2 = 0;
+	static int64_t count = 1;
+
+	while (seconds > estimate) {
+		auto start = std::chrono::high_resolution_clock::now();
+		rest(1);
+		auto end = std::chrono::high_resolution_clock::now();
+
+		double observed = (end - start).count() / 1e9;
+		seconds -= observed;
+
+		++count;
+		double delta = observed - mean;
+		mean += delta / count;
+		m2   += delta * (observed - mean);
+		double stddev = sqrt(m2 / (count - 1));
+		estimate = mean + stddev;
+	}
+
+	// spin lock
+#ifdef __EMSCRIPTEN__
+	while (!throttle_counter.load(std::memory_order_relaxed))
+	{
+		volatile int i = 0;
+		while (i < 10000000)
+		{
+			if (throttle_counter.load(std::memory_order_relaxed)) return;
+			i += 1;
+		}
+
+		rest(1);
+	}
+#else
+	while(!throttle_counter.load(std::memory_order_relaxed));
+#endif
+}
+
+void throttleFPS(int32_t cap)
+{
+	static auto last_time = std::chrono::high_resolution_clock::now();
+	static uint32_t framescaptured = 0;
+
+	if( cap )
+	{
+		bool dothrottle = false;
+		if (cap == 60)
+			dothrottle = true;
+		// Goofy hack for limiting FPS for speed up:
+		// Rather than doing more precise time calculations, throttle at 60 FPS
+		// but only for every 60th of the target FPS.
+		else if (framescaptured >= (cap * 10000 / 60))
+		{
+			dothrottle = true;
+			framescaptured -= (cap * 10000 / 60);
+		}
+		if (dothrottle)
+		{
+			if (!throttle_counter.load(std::memory_order_relaxed))
+			{
+				int freq = 60;
+				double target = 1.0 / freq;
+				auto now_time = std::chrono::high_resolution_clock::now();
+				double delta = (now_time - last_time).count() / 1e9;
+				if (delta < target)
+					preciseThrottle(target - delta);
+			}
+			last_time = std::chrono::high_resolution_clock::now();
+		}
+
+		if(cap != 60)
+			framescaptured += 10000;
+	}
+
+	throttle_counter.store(false, std::memory_order_relaxed);
 }

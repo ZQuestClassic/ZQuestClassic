@@ -35,6 +35,7 @@
 #include "slopes.h"
 #include "drawing.h"
 #include "zinfo.h"
+#include "zq/render_minimap.h"
 #include "base/mapscr.h"
 #include "iter.h"
 #include <fmt/format.h>
@@ -504,6 +505,7 @@ void zmap::setCurrMap(int32_t index)
     loadlvlpal(getcolor());
     
     reset_combo_animations2();
+    mmap_mark_dirty();
 }
 
 int32_t  zmap::getCurrScr()
@@ -539,6 +541,7 @@ void zmap::setCurrScr(int32_t scr)
     
     reset_combo_animations2();
     setlayertarget();
+    mmap_mark_dirty();
 }
 
 void zmap::setlayertarget()
@@ -582,6 +585,8 @@ void zmap::setcolor(int32_t c)
 		Color = c;
 		loadlvlpal(c);
 	}
+
+	mmap_mark_dirty();
 }
 
 int32_t zmap::getcolor()
@@ -734,6 +739,7 @@ void zmap::clearscr(int32_t scr)
 		screens[scr].layermap[q] = layer;
 		screens[scr].layerscreen[q] = layer ? scr : 0;
 	}
+	mmap_mark_dirty();
 }
 
 const char *loaderror[] =
@@ -746,8 +752,6 @@ const char *loaderror[] =
 
 int32_t zmap::load(const char *path)
 {
-	// int32_t size=file_size(path);
-	
 	PACKFILE *f=pack_fopen_password(path,F_READ, "");
 	
 	if(!f)
@@ -778,20 +782,17 @@ int32_t zmap::load(const char *path)
 			al_trace("failed zmap::load\n");
 				goto file_error;
 		}
-		bool copied = false;
 		
 		switch(ImportMapBias)
 		{
 			case 0:
 				*(screens+i) = tmpimportscr;
-				copied = true;
 				break;
 				
 			case 1:
 				if(!(screens[i].valid&mVALID))
 				{
 					*(screens+i) = tmpimportscr;
-					copied = true;
 				}
 				break;
 				
@@ -799,7 +800,6 @@ int32_t zmap::load(const char *path)
 				if(tmpimportscr.valid&mVALID)
 				{
 					*(screens+i) = tmpimportscr;
-					copied = true;
 				}
 				break;
 		}
@@ -808,14 +808,8 @@ int32_t zmap::load(const char *path)
 	
 	pack_fclose(f);
 	
-	if(!(screens[0].valid&mVERSION))
-	{
-		jwin_alert("Confirm Clear All","Clear all?",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-		clearmap(false);
-		return 3;
-	}
-	
 	setCurrScr(0);
+	mmap_mark_dirty();
 	return 0;
 	
 file_error:
@@ -830,17 +824,16 @@ int32_t zmap::save(const char *path)
 	
 	if(!f)
 		return 1;
-		
-	int16_t version=ZELDA_VERSION;
-	byte  build=VERSION_BUILD;
 	
-	if(!p_iputw(version,f))
+	if(!p_iputw(V_MAPS,f))
 	{
 		pack_fclose(f);
 		return 3;
 	}
 	
-	if(!p_putc(build,f))
+	// This was the "build number", but that's totally useless here. Keep this junk byte
+	// so as not to totally break exports between ZC versions.
+	if(!p_putc(0,f))
 	{
 		pack_fclose(f);
 		return 3;
@@ -4651,8 +4644,7 @@ void zmap::Copy()
         can_paste=true;
         copymap=currmap;
         copyscr=currscr;
-		copyscrdata = zinit.vecs.screen_data[currmap*MAPSCRS+currscr];
-		copyscrdatasz = zinit.vecs.screen_dataSize[currmap*MAPSCRS+currscr];
+		copyscrdata = zinit.screen_data[currmap*MAPSCRS+currscr];
         copyffc = -1;
     }
 }
@@ -4920,8 +4912,7 @@ void zmap::PasteAll(const mapscr& copymapscr)
     {
         int32_t oldcolor=getcolor();
         copy_mapscr(&screens[currscr], &copymapscr);
-		zinit.vecs.screen_data[currmap*MAPSCRS+currscr] = copyscrdata;
-		zinit.vecs.screen_dataSize[currmap*MAPSCRS+currscr] = copyscrdatasz;
+		zinit.screen_data[currmap*MAPSCRS+currscr] = copyscrdata;
         //screens[currscr]=copymapscr;
         int32_t newcolor=getcolor();
         loadlvlpal(newcolor);
@@ -4991,8 +4982,7 @@ void zmap::PasteAllToAll(const mapscr& copymapscr)
         for(int32_t x=0; x<128; x++)
         {
             copy_mapscr(&screens[x], &copymapscr);
-			zinit.vecs.screen_data[currmap*MAPSCRS+x] = copyscrdata;
-			zinit.vecs.screen_dataSize[currmap*MAPSCRS+x] = copyscrdatasz;
+			zinit.screen_data[currmap*MAPSCRS+x] = copyscrdata;
             //screens[x]=copymapscr;
         }
         
@@ -6382,7 +6372,7 @@ bool setMapCount2(int32_t c)
 extern BITMAP *bmap;
 
 static bool loading_file_new = false;
-int32_t init_quest(const char *)
+int32_t init_quest()
 {
 	char qstdat_string[2048];
 	strcpy(qstdat_string, "modules/classic/default.qst");
@@ -6719,7 +6709,7 @@ int32_t load_quest(const char *filename, bool show_progress)
 
 	if(ret!=qe_OK)
 	{
-		init_quest(NULL);
+		init_quest();
 	}
 	else
 	{
@@ -6727,7 +6717,7 @@ int32_t load_quest(const char *filename, bool show_progress)
 		
 		if(accessret != 1)
 		{
-			init_quest(NULL);
+			init_quest();
 			
 			if(accessret == 0)
 				ret=qe_pwd;
@@ -6777,14 +6767,14 @@ int32_t load_tileset(const char *filename, dword tsetflags)
 	int32_t ret=loadquest(filename,&header,&QMisc,customtunes,true,skip_flags,1,true,0,tsetflags);
 
 	if(ret!=qe_OK)
-		init_quest(NULL);
+		init_quest();
 	else
 	{
 		int32_t accessret = quest_access(filename, &header);
 		
 		if(accessret != 1)
 		{
-			init_quest(NULL);
+			init_quest();
 			
 			if(accessret == 0)
 				ret=qe_pwd;
@@ -7634,8 +7624,7 @@ int32_t writedmaps(PACKFILE *f, word version, word build, word start_dmap, word 
                 }
             }
             
-            //16
-            if(!pfwrite(&DMaps[i].name,sizeof(DMaps[0].name),f))
+            if(!pfwrite(&DMaps[i].name,sizeof(DMaps[0].name)-1,f))
             {
                 new_return(15);
             }
@@ -7645,7 +7634,7 @@ int32_t writedmaps(PACKFILE *f, word version, word build, word start_dmap, word 
                 new_return(16);
             }
             
-            if(!pfwrite(&DMaps[i].intro,sizeof(DMaps[0].intro),f))
+            if(!pfwrite(&DMaps[i].intro,sizeof(DMaps[0].intro)-1,f))
             {
                 new_return(17);
             }
@@ -7690,7 +7679,7 @@ int32_t writedmaps(PACKFILE *f, word version, word build, word start_dmap, word 
                 new_return(25);
             }
             
-            if(!pfwrite(&DMaps[i].tmusic,sizeof(DMaps[0].tmusic),f))
+            if(!pfwrite(&DMaps[i].tmusic,sizeof(DMaps[0].tmusic)-1,f))
             {
                 new_return(26);
             }
@@ -8172,7 +8161,7 @@ int32_t writemisc(PACKFILE *f, zquestheader *Header)
 		
 		for(int32_t i=0; i<shops; i++)
 		{
-			if(!pfwrite(QMisc.shop[i].name,sizeof(QMisc.shop[i].name),f))
+			if(!pfwrite(QMisc.shop[i].name,sizeof(QMisc.shop[i].name)-1,f))
 			{
 				new_return(6);
 			}
@@ -8210,7 +8199,7 @@ int32_t writemisc(PACKFILE *f, zquestheader *Header)
 		
 		for(int32_t i=0; i<infos; i++)
 		{
-			if(!pfwrite(QMisc.info[i].name,sizeof(QMisc.info[i].name),f))
+			if(!pfwrite(QMisc.info[i].name,sizeof(QMisc.info[i].name)-1,f))
 			{
 				new_return(11);
 			}
@@ -10837,7 +10826,7 @@ int32_t writemidis(PACKFILE *f)
         {
             if(get_bit(midi_flags,i))
             {
-                if(!pfwrite(&customtunes[i].title,sizeof(customtunes[0].title),f))
+                if(!pfwrite(&customtunes[i].title,sizeof(customtunes[0].title)-1,f))
                 {
                     new_return(6);
                 }
@@ -13292,7 +13281,7 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *Header)
             || zinit.gen_initd[ind][1] || zinit.gen_initd[ind][2]
             || zinit.gen_initd[ind][3] || zinit.gen_initd[ind][4]
             || zinit.gen_initd[ind][5] || zinit.gen_initd[ind][6]
-            || zinit.gen_initd[ind][7] || zinit.gen_dataSize[ind]
+            || zinit.gen_initd[ind][7] || zinit.gen_data[ind].size()
             || zinit.gen_data[ind].size() || zinit.gen_eventstate[ind];
         if (valid)
         {
@@ -13693,9 +13682,9 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *Header)
 			for(auto p = 0; p < 8; ++p)
 				if(!p_iputl(zinit.gen_initd[q][p],f))
 					new_return(98);
-			if(!p_iputl(zinit.gen_dataSize[q],f))
+			if(!p_iputl(zinit.gen_data[q].size(),f))
 				new_return(99);
-			if(!p_putlvec<int32_t>(zinit.gen_data[q],f))
+			if(!p_putlvec<int32_t>(zinit.gen_data[q].inner(),f))
 				new_return(100);
 			if(!p_iputl(zinit.gen_eventstate[q],f))
 				new_return(101);
@@ -13710,7 +13699,7 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *Header)
         }
 		uint32_t num_used_mapscr_data = 0;
 		for(int32_t q = map_count*MAPSCRS-1; q >= 0; --q)
-			if(zinit.vecs.screen_dataSize[q])
+			if(zinit.screen_data[q].size())
 			{
 				num_used_mapscr_data = q+1;
 				break;
@@ -13719,12 +13708,14 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *Header)
 			new_return(104);
 		for(uint32_t q = 0; q < num_used_mapscr_data; ++q)
 		{
-			if(!p_iputl(zinit.vecs.screen_dataSize[q],f))
+			if(!p_iputl(zinit.screen_data[q].size(),f))
 				new_return(105);
-			if(zinit.vecs.screen_dataSize[q])
-				if(!p_putlvec(zinit.vecs.screen_data[q],f))
+			if(zinit.screen_data[q].size())
+				if(!p_putlvec(zinit.screen_data[q].inner(),f))
 					new_return(106);
 		}
+		if(!p_iputzf(zinit.shove_offset,f))
+			return qe_invalid;
 		
 		if(writecycle==0)
 		{
@@ -13791,7 +13782,7 @@ int32_t writeitemdropsets(PACKFILE *f, zquestheader *Header)
         
         for(int32_t i=0; i<num_item_drop_sets; i++)
         {
-            if(!pfwrite(item_drop_sets[i].name, sizeof(item_drop_sets[i].name), f))
+            if(!pfwrite(item_drop_sets[i].name, sizeof(item_drop_sets[i].name)-1, f))
             {
                 new_return(6);
             }

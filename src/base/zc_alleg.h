@@ -6,7 +6,7 @@
 #include <allegro.h>
 #include <allegro/internal/aintern.h>
 #include <a5alleg.h>
-#include "zfix.h"
+#include "base/zfix.h"
 
 #ifdef ALLEGRO_WINDOWS
 #include <winalleg.h>

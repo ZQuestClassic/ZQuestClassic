@@ -10,8 +10,8 @@ extern int32_t zq_screen_w, zq_screen_h;
 namespace GUI
 {
 
-Label::Label(): text(), text_fit(), maxLines(0), nohline(false),
-	contX(0), contY(0), contW(0), contH(0), textAlign(0)
+Label::Label(): text(), text_fit(), maxLines(0), contX(0),
+	contY(0), contW(0), contH(0), textAlign(0), nohline(false)
 {
 	setPreferredHeight(Size::pixels(text_height(widgFont)));
 }

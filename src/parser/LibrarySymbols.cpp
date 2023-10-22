@@ -7,8 +7,8 @@ AccessorTable::AccessorTable(std::string const& name, byte tag, int32_t rettype,
 	vector<int32_t>const& params, vector<int32_t> const& optparams,
 	byte extra_vargs, string const& info)
 	: name(name), tag(tag), rettype(rettype), var(var),
-	funcFlags(flags), extra_vargs(extra_vargs),
-	params(params), optparams(optparams), info(info)
+	funcFlags(flags), params(params),
+	optparams(optparams), extra_vargs(extra_vargs), info(info)
 {}
 
 LibrarySymbols LibrarySymbols::nilsymbols = LibrarySymbols();

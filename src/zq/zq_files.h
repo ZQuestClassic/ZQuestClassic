@@ -5,13 +5,6 @@
 
 extern char qtbuf[31];
 
-void reset_qt(int32_t index);
-void init_qts();
-void edit_qt();                                             //this is used to set the quest template for the current quest
-void edit_qt(int32_t index);
-const char *qtlist(int32_t index, int32_t *list_size);
-int32_t qtlist_del();
-int32_t onQuestTemplates();
 int32_t NewQuestFile(int32_t template_slot);
 int32_t onNew();
 void applyRuleset(int32_t ruleset, byte* qrptr = nullptr);
@@ -43,7 +36,6 @@ int32_t onImport_Tiles();
 int32_t onExport_Tiles();
 int32_t onImport_ZGP();
 int32_t onExport_ZGP();
-int32_t onAbout_Module();
 int32_t onExport_Tilepack();
 int32_t onImport_Tilepack();
 int32_t onImport_Tilepack_To();

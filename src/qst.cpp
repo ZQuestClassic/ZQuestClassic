@@ -1999,7 +1999,7 @@ bool devpwd()
 	#ifdef _DEBUG
 	return true;
 	#endif
-	return !strcmp(zc_get_config("dev","pwd","",App::zquest), (char*)clavio);
+	return !strcmp(zc_get_config("dev","pwd","",App::zquest), (char*)clavio) || is_ci();
 }
 bool check_questpwd(zquestheader *Header, char *pwd)
 {
@@ -4603,7 +4603,7 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 	word s_version=0, s_cversion=0;
 	byte padding;
 
-	char legacy_title[21];
+	char legacy_title[22];
 	
 	if (!should_skip)
 	for(int32_t i=0; i<max_dmaps; i++)
@@ -4775,14 +4775,14 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 		}
 		else
 		{
-			if(!pfread(&tempDMap.name,sizeof(DMaps[0].name),f))
+			if(!p_getcstr(tempDMap.name,sizeof(DMaps[0].name) - 1,f))
 			{
 				return qe_invalid;
 			}
 			
 			if(s_version<20)
 			{
-				if (!pfread(&legacy_title, sizeof(legacy_title), f))
+				if (!p_getcstr(legacy_title, sizeof(legacy_title) - 1, f))
 				{
 					return qe_invalid;
 				}
@@ -4799,7 +4799,7 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 				tempDMap.title = tmptitle;
 			}
 			
-			if(!pfread(&tempDMap.intro,sizeof(DMaps[0].intro),f))
+			if(!p_getcstr(tempDMap.intro,sizeof(DMaps[0].intro)-1,f))
 			{
 				return qe_invalid;
 			}
@@ -4922,7 +4922,7 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 				return qe_invalid;
 			}
 			
-			if(!pfread(&tempDMap.tmusic,sizeof(DMaps[0].tmusic),f))
+			if(!p_getcstr(tempDMap.tmusic,sizeof(DMaps[0].tmusic)-1,f))
 			{
 				return qe_invalid;
 			}
@@ -5581,7 +5581,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 	{
 		if(s_version > 6)
 		{
-			if(!pfread(temp_misc.shop[i].name,sizeof(temp_misc.shop[i].name),f))
+			if(!p_getcstr(temp_misc.shop[i].name,sizeof(temp_misc.shop[i].name)-1,f))
 			{
 				return qe_invalid;
 			}
@@ -5678,7 +5678,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 	{
 		if(s_version > 6)
 		{
-			if(!pfread(temp_misc.info[i].name,sizeof(temp_misc.info[i].name),f))
+			if(!p_getcstr(temp_misc.info[i].name,sizeof(temp_misc.info[i].name)-1,f))
 			{
 				return qe_invalid;
 			}
@@ -6253,7 +6253,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 		for(size_t q = 0; q < 64; ++q)
 		{
 			bottletype* bt = &(temp_misc.bottle_types[q]);
-            if (!pfread(bt->name, 32, f))
+            if (!p_getcstr(bt->name, sizeof(bt->name)-1, f))
                 return qe_invalid;
 			for(size_t j = 0; j < 3; ++j)
 			{
@@ -6270,7 +6270,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 		for(size_t q = 0; q < 256; ++q)
 		{
 			bottleshoptype* bst = &(temp_misc.bottle_shop_types[q]);
-            if (!pfread(bst->name, 32, f))
+            if (!pfread(bst->name, sizeof(bst->name)-1, f))
                 return qe_invalid;
 			for(size_t j = 0; j < 3; ++j)
 			{
@@ -18587,7 +18587,7 @@ int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, wo
 	memcpy(&temp_misc, Misc, sizeof(temp_misc));
 	
 	byte temp_colordata[48];
-	char temp_palname[PALNAMESIZE];
+	char temp_palname[PALNAMESIZE+1];
 	
 	int32_t dummy;
 	word palcycles;
@@ -18803,9 +18803,7 @@ int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, wo
 			
 		for(int32_t i=0; i<palnamestoread; ++i)
 		{
-			memset(temp_palname, 0, PALNAMESIZE);
-			
-			if(!pfread(temp_palname,PALNAMESIZE,f))
+			if(!p_getcstr(temp_palname,PALNAMESIZE,f))
 			{
 				return qe_invalid;
 			}
@@ -19209,14 +19207,14 @@ int32_t readtunes(PACKFILE *f, zquestheader *Header, zctune *tunes /*zcmidi_ *mi
         {
             if(section_version < 4)
             {
-                if(!pfread(&temp.title,sizeof(char)*20,f))
+                if(!p_getcstr(temp.title,20,f))
                 {
                     return qe_invalid;
                 }
             }
             else
             {
-                if(!pfread(&temp.title,sizeof(temp.title),f))
+                if(!p_getcstr(temp.title,sizeof(temp.title)-1,f))
                 {
                     return qe_invalid;
                 }
@@ -20816,10 +20814,14 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 			for(auto p = 0; p < 8; ++p)
 				if(!p_igetl(&temp_zinit.gen_initd[q][p],f))
 					return qe_invalid;
-			if(!p_igetl(&temp_zinit.gen_dataSize[q],f))
+			dword sz;
+			if(!p_igetl(&sz,f))
 				return qe_invalid;
-			if(!p_getlvec<int32_t>(&temp_zinit.gen_data[q],f))
+			temp_zinit.gen_data[q].resize(sz);
+			std::vector<int32_t> dummy;
+			if(!p_getlvec(&dummy,f))
 				return qe_invalid;
+			temp_zinit.gen_data[q] = dummy;
 			if(!p_igetl(&temp_zinit.gen_eventstate[q],f))
 				return qe_invalid;
 		}
@@ -20838,13 +20840,22 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 			return qe_invalid;
 		for(uint32_t q = 0; q < num_used_mapscr_data; ++q)
 		{
-			if(!p_igetl(&temp_zinit.vecs.screen_dataSize[q],f))
+			uint32_t sz;
+			if(!p_igetl(&sz,f))
 				return qe_invalid;
-			if(temp_zinit.vecs.screen_dataSize[q])
-				if(!p_getlvec(&temp_zinit.vecs.screen_data[q],f))
+			temp_zinit.screen_data[q].resize(sz);
+			if(sz)
+			{
+				std::vector<int32_t> dummy;
+				if(!p_getlvec(&dummy,f))
 					return qe_invalid;
+				temp_zinit.screen_data[q] = dummy;
+			}
 		}
 	}
+	if (s_version > 35)
+		if(!p_igetzf(&temp_zinit.shove_offset,f))
+			return qe_invalid;
 
 	if (should_skip)
 		return 0;
@@ -20938,7 +20949,7 @@ int32_t readitemdropsets(PACKFILE *f, int32_t version, word build)
     {
         for(int32_t i=0; i<item_drop_sets_to_read; i++)
         {
-            if(!pfread(tempitemdrop.name,sizeof(tempitemdrop.name),f))
+            if(!p_getcstr(tempitemdrop.name,sizeof(tempitemdrop.name)-1,f))
             {
                 return qe_invalid;
             }
@@ -22303,6 +22314,13 @@ invalid:
     
 }
 
+static bool _is_loading_quest;
+
+bool is_loading_quest()
+{
+	return _is_loading_quest;
+}
+
 int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc,
 	zctune *tunes, bool show_progress, byte *skip_flags, byte printmetadata,
 	bool report, byte qst_num, dword tilesetflags)
@@ -22319,10 +22337,12 @@ int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc,
 	if (!is_ci())
 		loadquest_report = report;
 
+	_is_loading_quest = true;
 	auto start = std::chrono::steady_clock::now();
 	int32_t ret = _lq_int(filename, Header, Misc, tunes, show_progress, skip_flags, printmetadata);
 	int32_t load_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count();
 	zprint2("Time to load qst: %d ms\n", load_ms);
+	_is_loading_quest = false;
 
 	load_tmp_zi = NULL;
 	loading_qst_name = NULL;

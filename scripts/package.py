@@ -225,7 +225,6 @@ def do_web_packaging():
     ]
 
     zplayer_data_files = files(resources_dir, [
-        'ag.cfg',
         'allegro5.cfg',
         'assets/cursor.bmp',
         'assets/dungeon.mid',

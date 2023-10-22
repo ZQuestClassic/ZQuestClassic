@@ -186,13 +186,6 @@ bool trip=false;
 extern byte midi_suspended;
 extern int32_t paused_midi_pos;
 
-static std::atomic<bool> logic_counter;
-void update_logic_counter()
-{
-	logic_counter.store(true, std::memory_order_relaxed);
-}
-END_OF_FUNCTION(update_logic_counter)
-
 bool doThrottle()
 {
 #ifdef ALLEGRO_MACOSX
@@ -204,74 +197,12 @@ bool doThrottle()
 		|| (get_qr(qr_NOFASTMODE) && !replay_is_replaying());
 }
 
-// https://blat-blatnik.github.io/computerBear/making-accurate-sleep-function/
-static void preciseThrottle(double seconds)
+void zc_throttle_fps()
 {
-	static double estimate = 5e-3;
-	static double mean = 5e-3;
-	static double m2 = 0;
-	static int64_t count = 1;
-
-	while (seconds > estimate) {
-		auto start = std::chrono::high_resolution_clock::now();
-		rest(1);
-		auto end = std::chrono::high_resolution_clock::now();
-
-		double observed = (end - start).count() / 1e9;
-		seconds -= observed;
-
-		++count;
-		double delta = observed - mean;
-		mean += delta / count;
-		m2   += delta * (observed - mean);
-		double stddev = sqrt(m2 / (count - 1));
-		estimate = mean + stddev;
-	}
-
-	// spin lock
-#ifdef __EMSCRIPTEN__
-	while (!logic_counter.load(std::memory_order_relaxed))
-	{
-		volatile int i = 0;
-		while (i < 10000000)
-		{
-			if (logic_counter.load(std::memory_order_relaxed)) return;
-			i += 1;
-		}
-
-		rest(1);
-	}
-#else
-	while(!logic_counter.load(std::memory_order_relaxed));
-#endif
-}
-
-void throttleFPS()
-{
-    static auto last_time = std::chrono::high_resolution_clock::now();
-
-    if( doThrottle() || Paused)
-    {
-        if(zc_vsync == FALSE)
-        {
-            if (!logic_counter.load(std::memory_order_relaxed))
-            {
-                int freq = 60;
-                double target = 1.0 / freq;
-                auto now_time = std::chrono::high_resolution_clock::now();
-                double delta = (now_time - last_time).count() / 1e9;
-                if (delta < target)
-                    preciseThrottle(target - delta);
-            }
-        }
-        else
-        {
-            vsync();
-        }
-    }
-
-    logic_counter.store(false, std::memory_order_relaxed);
-    last_time = std::chrono::high_resolution_clock::now();
+	int32_t target = Maxfps;
+	if (doThrottle() || Paused)
+		target = 60;
+	throttleFPS(target);
 }
 
 int32_t onHelp()
@@ -411,8 +342,6 @@ int32_t gfc = 0, gfc2 = 0, pitx = 0, pity = 0, refill_what = 0, refill_why = 0, 
 int32_t nets=1580, magicitem=-1,div_prot_item=-1, magiccastclk = 0, quakeclk=0, wavy=0, castx = 0, casty = 0, df_x = 0, df_y = 0, nl1_x = 0, nl1_y = 0, nl2_x = 0, nl2_y = 0;
 int32_t magicdrainclk=0, conveyclk=3, memrequested=0;
 byte newconveyorclk = 0;
-float avgfps=0;
-dword fps_secs=0;
 bool cheats_execute_goto=false, cheats_execute_light=false;
 int32_t checkx = 0, checky = 0;
 int32_t loadlast=0;
@@ -429,6 +358,7 @@ bool show_layer_0=true, show_layer_1=true, show_layer_2=true, show_layer_3=true,
 bool Throttlefps = true, MenuOpen = false, ClickToFreeze=false, Paused=false, Saving=false,
 	Advance=false, ShowFPS = true, Showpal=false, disableClickToFreeze=false, SaveDragResize=false,
 	DragAspect=false, SaveWinPos=false, scaleForceInteger=false, stretchGame=false;
+int32_t Maxfps = 0;
 double aspect_ratio = 0.75;
 int window_min_width = 320, window_min_height = 240;
 bool Playing, FrameSkip=false, TransLayers = true,clearConsoleOnLoad = true,clearConsoleOnReload = true;
@@ -1697,27 +1627,30 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 {
 	chop_path(qstpath);
 	int32_t ret = 0;
+	int32_t qst_num = g->get_quest();
 
-	// Only automatically set the qst for the 1st->2nd advancement.
-	byte qst_num = byte(g->get_quest()-1);
-	if(!g->get_qstpath()[0])
+	if (g->header.qstpath.empty() && !qst_num)
 	{
-		if(qst_num==1)
-		{
-			char* cwd = al_get_current_directory();
-			auto path = fs::path(cwd) / "quests/Z1 Recreations/classic_2nd.qst";
-			al_free(cwd);
-			sprintf(qstpath, "%s", path.string().c_str());
-			g->header.qstpath = qstpath;
-		}
-		else
-		{
-			// We will open the file select dialog to show the quest directory.
-			return 0;
-		}
+		// We will open the file select dialog to show the quest directory.
+		return 0;
 	}
 
-	if(g->get_qstpath()[0])
+	if (g->header.qstpath.empty() && qst_num)
+	{
+		char* cwd = al_get_current_directory();
+		fs::path path;
+		if      (qst_num == 1) path = fs::path(cwd) / "quests/Z1 Recreations/classic_1st.qst";
+		else if (qst_num == 2) path = fs::path(cwd) / "quests/Z1 Recreations/classic_2nd.qst";
+		else if (qst_num == 3) path = fs::path(cwd) / "quests/Old Contest Winners/classic_3rd.qst";
+		else if (qst_num == 4) path = fs::path(cwd) / "quests/Z1 Recreations/classic_4th.qst";
+		else if (qst_num == 5) path = fs::path(cwd) / "quests/Old Contest Winners/classic_5th.qst";
+		else return qe_no_qst;
+		al_free(cwd);
+		sprintf(qstpath, "%s", path.string().c_str());
+		g->header.qstpath = qstpath;
+	}
+
+	if (!g->header.qstpath.empty())
 	{
 		if(is_relative_filename(g->get_qstpath()))
 		{
@@ -1802,7 +1735,6 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 			}
 		}//end hack
 	}
-	else ret = qe_no_qst;
 
 	if (replay_is_active() && !testingqst_name.empty())
 	{
@@ -3523,7 +3455,9 @@ void game_loop()
 		// or if a message is being prepared && qr_MSGDISAPPEAR is on.
 		bool freezemsg = ((msg_active || (intropos && intropos<72) || (linkedmsgclk && get_qr(qr_MSGDISAPPEAR)))
 			&& (get_qr(qr_MSGFREEZE)));
-		if(!freezemsg)
+		if (!get_qr(qr_SCRIPTDRAWSFROZENMSG))
+			FFCore.skipscriptdraws = freezemsg;
+		if(!freezemsg || get_qr(qr_SCRIPTDRAWSFROZENMSG))
 		{
 			if ( !FFCore.system_suspend[susptSCRIPDRAWCLEAR] ) script_drawing_commands.Clear();
 		}
@@ -4865,9 +4799,8 @@ int main(int argc, char **argv)
 	
 	//set_keyboard_rate(1000,160);
 
-	LOCK_VARIABLE(logic_counter);
-	LOCK_FUNCTION(update_logic_counter);
-	if (install_int_ex(update_logic_counter, BPS_TO_TIMER(60)) < 0)
+	LOCK_FUNCTION(update_throttle_counter);
+	if (install_int_ex(update_throttle_counter, BPS_TO_TIMER(60)) < 0)
 	{
 		Z_error_fatal("Could not install timer.\n");
 	}
@@ -5182,7 +5115,7 @@ int main(int argc, char **argv)
 		//  if(useCD)
 		//    cd_exit();
 		quit_game();
-		Z_message("ZQuest Classic web site: http://www.zeldaclassic.com\n");
+		Z_message("ZQuest Classic web site: https://zquestclassic.com.com\n");
 		Z_message("ZQuest Classic old wiki: https://web.archive.org/web/20210910193102/https://zeldaclassic.com/wiki\n");
 		Z_message("ZQuest Classic new wiki: https://github.com/ZQuestClassic/ZQuestClassic/wiki\n");
 		
@@ -5900,7 +5833,7 @@ reload_for_replay_file:
 	//  if(useCD)
 	//    cd_exit();
 	quit_game();
-	Z_message("ZQuest Classic web site: http://www.zeldaclassic.com\n");
+	Z_message("ZQuest Classic web site: https://zquestclassic.com\n");
 	Z_message("ZQuest Classic old wiki: https://web.archive.org/web/20210910193102/https://zeldaclassic.com/wiki\n");
 	Z_message("ZQuest Classic new wiki: https://github.com/ZQuestClassic/ZQuestClassic/wiki\n");
 	
@@ -5919,7 +5852,7 @@ END_OF_MAIN()
 void remove_installed_timers()
 {
     al_trace("Removing timers. \n");
-    remove_int(update_logic_counter);
+    remove_int(update_throttle_counter);
     Z_remove_timers();
 }
 

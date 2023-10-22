@@ -2,7 +2,7 @@
 #define _COMBO_H_
 
 #include "base/ints.h"
-#include "zfix.h"
+#include "base/zfix.h"
 #include <string>
 #include <vector>
 #include <functional>

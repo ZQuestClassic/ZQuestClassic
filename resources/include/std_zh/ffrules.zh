@@ -2,8 +2,8 @@
 /// FFRules[] --- Array Indices ///
 ///     and Details of Each     ///
 ///  -------------------------- ///
-///    Document Revision 1.6    ///
-///       11th July, 2020       ///
+///    Document Revision 1.7    ///
+///       16th October, 2023    ///
 ///////////////////////////////////
 
 /*<< Enumerated list for Game->FFRules[] and Quest Rules get_bit. */
@@ -334,162 +334,213 @@ qr_NONHEAVY_BLOCKTRIGGER_PERM,	/*<<	Combos (>>>) Block Triggers Are Perm For Non
 qr_SET_YBUTTON_ITEMS,	/*<<	Other (>>>) Allow Setting Y Button Items */
 qr_CORRECTED_EW_BRANG_ANIM,	/*<<	Weapons (>>>) Boomerang EWeapons Corrected Animation */
 qr_SCRIPT_WRITING_HEROSTEP_DOESNT_CARRY_OVER,	/*<<	ZScript (>>>) Script writes to Hero->Step don't carry over */
-qr_OVERHEAD_COMBOS_L1_L2,
+qr_OVERHEAD_COMBOS_L1_L2,	/*<<	Combos (>>>) Overhead Combos work on Layers 1 and 2 */
 //230
-qr_ALLOW_EDITING_COMBO_0,
-qr_OLD_CHEST_COLLISION,
-qr_AUTOCOMBO_LAYER_1,
-qr_AUTOCOMBO_LAYER_2,
-qr_TRUEFIXEDBOMBSHIELD,
+qr_ALLOW_EDITING_COMBO_0,	/*<<	Compatibility (>>>) Allow Editing Combo 0 */
+qr_OLD_CHEST_COLLISION,	/*<<	Compatibility (>>>) Old Chest Collision */
+qr_AUTOCOMBO_LAYER_1,	/*<<	Combos (>>>) Auto Combos Work On Layer 1 */
+qr_AUTOCOMBO_LAYER_2,	/*<<	Combos (>>>) Auto Combos Work On Layer 2 */
+qr_TRUEFIXEDBOMBSHIELD,	/*<<	NES (>>>) Blocked Bombs Don't Trigger Shielded Enemies' I-Frames */
 //235
-qr_BOMBSPIERCESHIELD,
-qr_BROKEN_HORIZONTAL_WEAPON_ANIM,
-qr_NEW_DARKROOM,
-qr_NEWDARK_L6,
-qr_ENEMIES_SECRET_ONLY_16_31,
+qr_BOMBSPIERCESHIELD,	/*<<	Weapons (>>>) Bombs Pierce Enemy Shields */
+qr_BROKEN_HORIZONTAL_WEAPON_ANIM,	/*<<	Compatibility (>>>) Broken Horizontal Weapon Animation */
+qr_NEW_DARKROOM,	/*<<	Misc (>>>) New Dark Rooms */
+qr_NEWDARK_L6,	/*<<	Misc (>>>) New Darkness Draws Under Layer 7 */
+qr_ENEMIES_SECRET_ONLY_16_31,	/*<<	Compatibility (>>>) Enemies->Secret only affects flags 16-31 */
 //240
-qr_SCREEN80_OWN_MUSIC,
-qr_OLDCS2,
-qr_HARDCODED_ENEMY_ANIMS,
-qr_OLD_ITEMDATA_SCRIPT_TIMING,
-qr_SIDESWIM,
+qr_SCREEN80_OWN_MUSIC,	/*<<	Misc (>>>) Item Cellars/Passageways/Caves use own music */
+qr_OLDCS2,	/*<<	Compatibility (>>>) Old CSet2 Handling */
+qr_HARDCODED_ENEMY_ANIMS,	/*<<	Compatibility (>>>) Hardcoded Shadow/Spawn/Death anim frames */
+qr_OLD_ITEMDATA_SCRIPT_TIMING,	/*<<	Compatibility (>>>) Old Itemdata Script timing */
+qr_SIDESWIM,	/*<<	Combos (>>>) Sideview Swimming */
 //245
-qr_SIDESWIMDIR,
-qr_PUSHBLOCK_LAYER_1_2,
-qr_NEWDARK_SCROLLEDGE,
-qr_STEPTEMP_SECRET_ONLY_16_31,
-qr_ALLTRIG_PERMSEC_NO_TEMP,
+qr_SIDESWIMDIR,	/*<<	Combos (>>>) Player Faces Left/Right While Sieview Swimming */
+qr_PUSHBLOCK_LAYER_1_2,	/*<<	Combos (>>>) Pushblocks Work On Layer 1 and 2 */
+qr_NEWDARK_SCROLLEDGE,	/*<<	Misc (>>>) New Darkroom Lanterns Cross Screen Boundary */
+qr_STEPTEMP_SECRET_ONLY_16_31,	/*<<	Compatibility (>>>) Step->Secrets (Temp) only affects flags 16-31 */
+qr_ALLTRIG_PERMSEC_NO_TEMP,	/*<<	Compatibility (>>>) 'Hit All Triggers->Perm Secret' doesn't trigger temp secrets */
 //250
-qr_HARDCODED_LITEM_LTMS,
-qr_NO_BOTTLE_IF_ANY_COUNTER_FULL,
-qr_LIGHTBEAM_TRANSPARENT,
-qr_CANDLES_SHARED_LIMIT,
-qr_OLD_RESPAWN_POINTS,
+qr_HARDCODED_LITEM_LTMS,	/*<<	Compatibility (>>>) Hardcoded LItem/Bomb/Clock/Magic Tile Mods */
+qr_NO_BOTTLE_IF_ANY_COUNTER_FULL,	/*<<	Items (>>>) Bottles can't be used with any maxed counter */
+qr_LIGHTBEAM_TRANSPARENT,	/*<<	Combos (>>>) Light beams draw Transparently */
+qr_CANDLES_SHARED_LIMIT,	/*<<	Compatibility (>>>) Candle use limit is shared */
+qr_OLD_RESPAWN_POINTS,	/*<<	Combos (>>>) Classic Respawn Points */
 //255
-qr_HOOKSHOTALLLAYER,
-qr_ANONE_NOANIM,
-qr_BLOCKHOLE_SAME_ONLY,
-qr_SWITCHOBJ_RUN_SCRIPT,
-qr_ITEMCOMBINE_NEW_PSTR,
+qr_HOOKSHOTALLLAYER,	/*<<	Combos (>>>) Hookshot/SwitchHook Combos Work On All Layers */
+qr_ANONE_NOANIM,	/*<<	Compatibility (>>>) Enemies with 'None' animation don't obey OriginalTile changes */
+qr_BLOCKHOLE_SAME_ONLY,	/*<<	Combos (>>>) Block holes / triggers only trigger on same layer as block */
+qr_SWITCHOBJ_RUN_SCRIPT,	/*<<	Items (>>>) Switchhooked Objects Run Scripts */
+qr_ITEMCOMBINE_NEW_PSTR,	/*<<	Items (>>>) 'Upgraded' items play upgraded pickup string */
 //260
-qr_ITEMCOMBINE_CONTINUOUS,
-qr_SCC_ITEM_COMBINES_ITEMS,
-qr_SCROLLING_KILLS_CHARGE,
-qr_CUSTOMWEAPON_IGNORE_COST,
-qr_BLOCKS_DONT_LOCK_OTHER_LAYERS,
+qr_ITEMCOMBINE_CONTINUOUS,	/*<<	Compatibility (>>>) Enemies->Secret only affects flags 16-31 */
+qr_SCC_ITEM_COMBINES_ITEMS,	/*<<	Items (>>>) SCC/Bundle Item handles 'Upgraded' Items */
+qr_SCROLLING_KILLS_CHARGE,	/*<<	Compatibility (>>>) Scrolling Cancels Charge */
+qr_CUSTOMWEAPON_IGNORE_COST,	/*<<	Compatibility (>>>) Enemies->Secret only affects flags 16-31 */
+qr_BLOCKS_DONT_LOCK_OTHER_LAYERS,	/*<<	Compatibility (>>>) Custom Weapon / Ice Rod Bugged Cost */
 //265
-qr_SCC_GOTO_RESPECTS_CONTFLAG,
-qr_BROKEN_KEEPOLD_FLAG,
-qr_KEEPOLD_APPLIES_RETROACTIVELY,
-qr_PASSIVE_ITEM_SCRIPT_ONLY_HIGHEST,
-qr_OLD_HALF_MAGIC,
+qr_SCC_GOTO_RESPECTS_CONTFLAG,	/*<<	Misc (>>>) Goto SCCs respect 'continuation' flag */
+qr_BROKEN_KEEPOLD_FLAG,	/*<<	Compatibility (>>>) Broken 'Keep Lower Level Items' */
+qr_KEEPOLD_APPLIES_RETROACTIVELY,	/*<<	Items (>>>) 'Keep Lower Level Items' applies retroactively */
+qr_PASSIVE_ITEM_SCRIPT_ONLY_HIGHEST,	/*<<	Items (>>>) Only highest level item passive script runs */
+qr_OLD_HALF_MAGIC,	/*<<	Compatibility (>>>) Old Half Magic */
 //270
-qr_LEVEL_RESTART_CONT_POINT,
-qr_SUBSCR_OLD_SELECTOR,
-qr_OLD_FAIRY_LIMIT,
-qr_FAIRYDIR,
-qr_ARROWCLIP,
+qr_LEVEL_RESTART_CONT_POINT,	/*<<	Misc (>>>) Restarting Level always goes to DMap continue point */
+qr_SUBSCR_OLD_SELECTOR,	/*<<	Subscreen (>>>) Old Subscreen Selector */
+qr_OLD_FAIRY_LIMIT,	/*<<	Compatibility (>>>) Old fairy spawn limit */
+qr_FAIRYDIR,	/*<<	Items (>>>) Fairies spawn with random direction */
+qr_ARROWCLIP,	/*<<	Compatibility (>>>) Arrows clip farther into dungeon walls */
 //275
-qr_CONT_SWORD_TRIGGERS,
-qr_OLD_210_WATER,
-qr_8WAY_SHOT_SFX,
-qr_COPIED_SWIM_SPRITES,
-qr_WRONG_BRANG_TRAIL_DIR,
+qr_CONT_SWORD_TRIGGERS,	/*<<	Compatibility (>>>) All sword triggers are continuous */
+qr_OLD_210_WATER,	/*<<	Compatibility (>>>) Ladder takes precedence over North and South water */
+qr_8WAY_SHOT_SFX,	/*<<	Compatibility (>>>) All 8 way-shot enemies use SFX_FIRE for firing SFX */
+qr_COPIED_SWIM_SPRITES,	/*<<	Compatibility (>>>) BS Zelda uses walking sprites for swimming */
+qr_WRONG_BRANG_TRAIL_DIR,	/*<<	Compatibility (>>>) Fire boomerang sparkles always face up */
 //280
-qr_192b163_WARP,
-qr_210_WARPRETURN,
-qr_LESS_AWFUL_SIDESPIKES,
-qr_OLD_LADDER_ITEM_SIDEVIEW,
-qr_OLD_SECRETMONEY,
+qr_192b163_WARP,	/*<<	Compatibility (>>>) Wavy and Cancel warps are swapped */
+qr_210_WARPRETURN,	/*<<	Compatibility (>>>) Old Warping Onto Warp Protection */
+qr_LESS_AWFUL_SIDESPIKES,	/*<<	Combos (>>>) Better Sideview Damage Combo Detection */
+qr_OLD_LADDER_ITEM_SIDEVIEW,	/*<<	Compatibility (>>>) Jittering In Sideview With Ladder Item */
+qr_OLD_SECRETMONEY,	/*<<	Compatibility (>>>) Renewable Secret Money Rooms Outside Caves */
 //285
-qr_OLD_DOORREPAIR,
-qr_OLD_POTION_OR_HC,
-qr_NO_LANMOLA_RINGLEADER,
-qr_HARDCODED_BS_PATRA,
-qr_PATRAS_USE_HARDCODED_OFFSETS,
+qr_OLD_DOORREPAIR,	/*<<	Compatibility (>>>) Renewable Door Repair Rooms Outside Caves */
+qr_OLD_POTION_OR_HC,	/*<<	Compatibility (>>>) Renewable Potion Or Heart Container Rooms Outside Caves */
+qr_NO_LANMOLA_RINGLEADER,	/*<<	Compatibility (>>>) Lanmolas can't be ringleaders */
+qr_HARDCODED_BS_PATRA,	/*<<	Compatibility (>>>) Hardcoded BS Patras */
+qr_PATRAS_USE_HARDCODED_OFFSETS,	/*<<	Compatibility (>>>) Hardcoded Patra Inner Eye offsets */
 //290
-qr_BROKEN_BIG_ENEMY_ANIMATION,
-qr_BROKEN_ATTRIBUTE_31_32,
-qr_CAN_PLACE_GANON,
-qr_CAN_PLACE_TRAPS,
-qr_FIND_CLOSEST_BAIT,
+qr_BROKEN_BIG_ENEMY_ANIMATION,	/*<<	Compatibility (>>>) Broken 'Big enemy' animation style */
+qr_BROKEN_ATTRIBUTE_31_32,	/*<<	Compatibility (>>>) Broken Attribute 31/32 */
+qr_CAN_PLACE_GANON,	/*<<	Enemies (>>>) Allow Placing Ganon as Screen Enemy */
+qr_CAN_PLACE_TRAPS,	/*<<	Enemies (>>>) Allow Placing Traps as Screen Enemies */
+qr_FIND_CLOSEST_BAIT,	/*<<	Enemies (>>>) Enemies check closest bait */
 //295
-qr_OLD_FLAMETRAIL_DURATION,
-qr_PERMANENT_WHISTLE_SECRETS,
-qr_SMARTER_DROPS,
-qr_WAVY_NO_EPILEPSY,
-qr_WAVY_NO_EPILEPSY_2,
+qr_OLD_FLAMETRAIL_DURATION,	/*<<	Compatibility (>>>) Old fire trail duration */
+qr_PERMANENT_WHISTLE_SECRETS,	/*<<	Items (>>>) Whistle triggers can be permanent */
+qr_SMARTER_DROPS,	/*<<	Items (>>>) Reroll Drops If Capacity is Full */
+qr_WAVY_NO_EPILEPSY,	/*<<	Misc (>>>) Screen->Wavy Intensity is not affected by Epilepsy Protection */
+qr_WAVY_NO_EPILEPSY_2,	/*<<	Misc (>>>) Screen->Wavy Speed is not affected by Epilepsy Protection */
 //300
-qr_DYING_ENEMIES_IGNORE_STUN,
-qr_SHOP_ITEMS_VANISH,
-qr_ANGULAR_REFLECT_BROKEN,
-qr_CSET1_LEVEL,
-qr_CSET5_LEVEL,
+qr_DYING_ENEMIES_IGNORE_STUN,	/*<<	NES (>>>) Killing Stunned Enemy With Melee Weapons Won't Hurt Player */
+qr_SHOP_ITEMS_VANISH,	/*<<	NES (>>>) Shop Items Disappear on Pickup */
+qr_ANGULAR_REFLECT_BROKEN,	/*<<	Compatibility (>>>) 'Prisms Reflect Angular Weapons' Uses Broken Logic */
+qr_CSET1_LEVEL,	/*<<	Animaton (>>>) CSet 1 is level-specific */
+qr_CSET5_LEVEL,	/*<<	Animaton (>>>) CSet 5 is level-specific */
 //305
-qr_CSET7_LEVEL,
-qr_CSET8_LEVEL,
-qr_FADECS1,
-qr_FADECS7,
-qr_FADECS8,
+qr_CSET7_LEVEL,	/*<<	Animaton (>>>) CSet 7 is level-specific */
+qr_CSET8_LEVEL,	/*<<	Animaton (>>>) CSet 8 is level-specific */
+qr_FADECS1,	/*<<	Animaton (>>>) Fade CSet 1 */
+qr_FADECS7,	/*<<	Animaton (>>>) Fade CSet 7 */
+qr_FADECS8,	/*<<	Animaton (>>>) Fade CSet 8 */
 //310
-qr_FADECS9,
-qr_UNBEATABLES_DONT_KEEP_DEAD,
-qr_NO_LEAVE_ONE_ENEMY_ALIVE_TRICK,
-qr_OLD_BRIDGE_COMBOS,
-qr_BROKEN_Z3_ANIMATION,
+qr_FADECS9,	/*<<	Animaton (>>>) Fade CSet 9 */
+qr_UNBEATABLES_DONT_KEEP_DEAD,	/*<<	Enemies (>>>) Unbeatable enemies don't prevent enemies from respawning */
+qr_NO_LEAVE_ONE_ENEMY_ALIVE_TRICK,	/*<<	Enemies (>>>) No 'Leave one enemy alive' trick */
+qr_OLD_BRIDGE_COMBOS,	/*<<	Compatibility (>>>) Old Bridge Combo Behavior */
+qr_BROKEN_Z3_ANIMATION,	/*<<	Compatibility (>>>) Broken Z3 Animation */
 //315
-qr_OLD_TILE_INITIALIZATION,
-qr_FLUCTUATING_ENEMY_JUMP,
-qr_SPRITE_JUMP_IS_TRUNCATED,
-qr_BUGGY_BUGGY_SLASH_TRIGGERS,
-qr_OLD_DRAWOFFSET,
+qr_OLD_TILE_INITIALIZATION,	/*<<	Compatibility (>>>) Old Enemy Tile Behavior with Animation (None) Enemies */
+qr_FLUCTUATING_ENEMY_JUMP,	/*<<	Compatibility (>>>) Enemy->Jump Fluctuates When on Ground */
+qr_SPRITE_JUMP_IS_TRUNCATED,	/*<<	Compatibility (>>>) Script Sprite->Jump is Truncated */
+qr_BUGGY_BUGGY_SLASH_TRIGGERS,	/*<<	Compatibility (>>>) ->Next Combos Ignore Trigger Flags */
+qr_OLD_DRAWOFFSET,	/*<<	Compatibility (>>>) Old Quake/DrawYOffset Behavior */
 //320
-qr_BROKEN_DRAWSCREEN_FUNCTIONS,
-qr_ENEMY_DROPS_USE_HITOFFSETS,
-qr_BROKEN_ITEM_CARRYING,
-qr_LEEVERS_DONT_OBEY_STUN,
-qr_QUAKE_STUNS_LEEVERS,
+qr_BROKEN_DRAWSCREEN_FUNCTIONS,	/*<<	Compatibility (>>>) Broken DrawScreen Derivative Functions */
+qr_ENEMY_DROPS_USE_HITOFFSETS,	/*<<	Enemies (>>>) Enemy Drops use Hitbox for Position */
+qr_BROKEN_ITEM_CARRYING,	/*<<	Compatibility (>>>) Broken Enemy Item Carrying */
+qr_LEEVERS_DONT_OBEY_STUN,	/*<<	Compatibility (>>>) Leever's Still Submerge If Stunned */
+qr_QUAKE_STUNS_LEEVERS,	/*<<	Enemies (>>>) Quake Hammer Stuns Leevers */
 //325
-qr_GANON_CANT_SPAWN_ON_CONTINUE,
-qr_WIZZROBES_DONT_OBEY_STUN,
-qr_OLD_BUG_NET,
-qr_MANHANDLA_BLOCK_SFX,
-qr_GRASS_SENSITIVE,
+qr_GANON_CANT_SPAWN_ON_CONTINUE,	/*<<	Compatibility (>>>) Ganon-Type Rooms Don't Work On Continuing */
+qr_WIZZROBES_DONT_OBEY_STUN,	/*<<	Compatibility (>>>) Wizzrobes Still Teleport If Stunned */
+qr_OLD_BUG_NET,	/*<<	Compatibility (>>>) Old Bug Net Animation */
+qr_MANHANDLA_BLOCK_SFX,	/*<<	Compatibility (>>>) Manhandla Uses Hit Sound For Center Body */
+qr_GRASS_SENSITIVE,	/*<<	Combos (>>>) New Tall Grass Detection */
 //330
-qr_BETTER_RAFT,
-qr_BETTER_RAFT_2,
-qr_RAFT_SOUND,
-qr_WARPS_RESTART_DMAPSCRIPT,
-qr_DMAP_0_CONTINUE_BUG,
+qr_BETTER_RAFT,	/*<<	Combos (>>>) Less Arbitrary Dock Combos */
+qr_BETTER_RAFT_2,	/*<<	Combos (>>>) More Senistive Dock Combos */
+qr_RAFT_SOUND,	/*<<	Combos (>>>) Docks use Raft Item's sound */
+qr_WARPS_RESTART_DMAPSCRIPT,	/*<<	Compatibility (>>>) Engine warps restart DMap Script */
+qr_DMAP_0_CONTINUE_BUG,	/*<<	Compatibility (>>>) DMap 0 hardcoded continue */
 //335
-qr_SCRIPT_WARPS_DMAP_SCRIPT_TOGGLE,
-qr_OLD_SCRIPTED_KNOCKBACK,
-qr_OLD_KEESE_Z_AXIS,
-qr_POLVIRE_NO_SHADOW,
-qr_CONVEYORS_L1_L2,
+qr_SCRIPT_WARPS_DMAP_SCRIPT_TOGGLE,	/*<<	Misc (>>>) Flip 'don't restart dmap script' script warp flag */
+qr_OLD_SCRIPTED_KNOCKBACK,	/*<<	Compatibility (>>>) Old Scripted Knockback */
+qr_OLD_KEESE_Z_AXIS,	/*<<	Compatibility (>>>) Old Keese Z Axis Behavior */
+qr_POLVIRE_NO_SHADOW,	/*<<	Compatibility (>>>) No Pols Voice/Vire Shadows with Z axis */
+qr_CONVEYORS_L1_L2,	/*<<	Combos (>>>) Conveyors work on layers 1 and 2 */
 //340
-qr_CUSTOMCOMBOS_EVERY_LAYER,
-qr_SUBSCR_BACKWARDS_ID_ORDER,
-qr_FASTCOUNTERDRAIN,
-qr_OLD_LOCKBLOCK_COLLISION,
+qr_CUSTOMCOMBOS_EVERY_LAYER,	/*<<	Combos (>>>) Custom Combos Work On All Layers */
+qr_SUBSCR_BACKWARDS_ID_ORDER,	/*<<	Compatibility (>>>) Old Subscreen Item ID order */
+qr_FASTCOUNTERDRAIN,	/*<<	Items (>>>) Fast Counter Drain */
+qr_OLD_LOCKBLOCK_COLLISION,	/*<<	Compatibility (>>>) Old Lockblock Collision */
 qr_DECO_2_YOFFSET,
 //345
-qr_SCREENSTATE_80s_BUG,
-qr_AUTOCOMBO_ANY_LAYER,
-qr_GOHMA_UNDAMAGED_BUG,
-qr_FFCPRELOAD_BUGGED_LOAD,
-qr_SWITCHES_AFFECT_MOVINGBLOCKS,
+qr_SCREENSTATE_80s_BUG,	/*<<	Compatibility (>>>) Screen->State[] 0x80 bug */
+qr_AUTOCOMBO_ANY_LAYER,	/*<<	Combos (>>>) Auto Combos Work On All Layers */
+qr_GOHMA_UNDAMAGED_BUG,	/*<<	Compatibility (>>>) Undamaged Gohma can be hit on any side */
+qr_FFCPRELOAD_BUGGED_LOAD,	/*<<	Compatibility (>>>) Preload FFCs don't work on init screen */
+qr_SWITCHES_AFFECT_MOVINGBLOCKS,	/*<<	Items (>>>) Moving pushblock switch blocks obey switch toggle */
 //350
-qr_BROKEN_GETPIXEL_VALUE,
-qr_NO_LIFT_SPRITE,
-qr_OLD_SIDEVIEW_LANDING_CODE,
-qr_OLD_FFC_SPEED_CAP,
-qr_OLD_WIZZROBE_SUBMERGING,
+qr_BROKEN_GETPIXEL_VALUE,	/*<<	ZScript (>>>) GetPixel returns color / 10000 */
+qr_NO_LIFT_SPRITE,	/*<<	Compatibility (>>>) No lifting sprite */
+qr_OLD_SIDEVIEW_LANDING_CODE,	/*<<	Compatibility (>>>) Old Sideview Landing */
+qr_OLD_FFC_SPEED_CAP,	/*<<	Compatibility (>>>) FFC 128 speed cap */
+qr_OLD_WIZZROBE_SUBMERGING,	/*<<	Compatibility (>>>) Wizzrobes use old submerge code */
 //355
+qr_SPARKLES_INHERIT_PROPERTIES,	/*<<	Compatibility (>>>) Weapon Sparkles Inherit Properties */
+qr_BROKENHITBY,	/*<<	Compatibility (>>>) Broken ->HitBy UIDs */
+qr_ENEMIES_DONT_SCRIPT_FIRST_FRAME,	/*<<	Compatibility (>>>) Scripted enemies don't run script on first frame of screen entry */
+qr_OLD_CONVEYOR_COLLISION,	/*<<	DEPRECATED*/
+qr_SENSITIVE_SOLID_DAMAGE,	/*<<	Combos (>>>) Sensitive Solid Damage Combos */
+//360
+qr_LENIENT_SOLID_DAMAGE,	/*<<	Combos (>>>) Lenient Solid Damage Combos */
+qr_NO_SIDEVIEW_SOLID_DAMAGE,	/*<<	Combos (>>>) No Sideview Solid Damage */
 
 //400
-qr_OLD_FFC_FUNCTIONALITY = 50*8,
-qr_OLD_SHALLOW_SFX,
+qr_OLD_FFC_FUNCTIONALITY = 50*8,	/*<<	Compatibility (>>>) Old FFC Functionality */
+qr_OLD_SHALLOW_SFX,	/*<<	Compatibility (>>>) Old Shallow Water SFX Attribute */
+qr_BUGGED_LAYERED_FLAGS,	/*<<	Compatibility (>>>) Bugged Layered Flags */
+qr_HARDCODED_FFC_BUSH_DROPS,	/*<<	Compatibility (>>>) Old FFC Bush Drops */
+qr_POUNDLAYERS1AND2,	/*<<	Combos (>>>) Pound Combos Work On Layers 1 and 2 */
+
+//405
+qr_MOVINGBLOCK_FAKE_SOLID,	/*<<	Compatibility (>>>) Fake-solid Pushblocks */
+qr_NEW_HERO_MOVEMENT2,	/*<<	Player (>>>) Newer Player Movement */
+qr_CARRYABLE_NO_ACROSS_SCREEN,	/*<<	Misc (>>>) Carryables Can't Leave Screen */
+qr_NO_SCROLL_WHILE_CARRYING,	/*<<	Misc (>>>) No Scrolling Screen While Carrying */
+qr_HELD_BOMBS_EXPLODE,	/*<<	Weapons (>>>) Lifted Bombs Explode In Hand */
+
+//410
+qr_BROKEN_MOVING_BOMBS,	/*<<	Compatibility (>>>) Broken Moving & Air Bombs */
+qr_OLD_BOMB_HITBOXES,	/*<<	Compatibility (>>>) Old Bomb Hitboxes */
+qr_SCROLLWARP_NO_RESET_FRAME,	/*<<	Compatibility (>>>) Broken scroll/warp frame issue */
+qr_BROKEN_RAFT_SCROLL,	/*<<	Compatibility (>>>) Broken Scrolling Onto Raft Flags */
+qr_BROKEN_INPUT_DOWN_STATE,	/*<<	Compatibility (>>>) Broken Input Down State */
+
+//415
+qr_OLD_GUY_HANDLING,	/*<<	Compatibility (>>>) Old Guy Handling */
+qr_FREEFORM_SUBSCREEN_CURSOR,	/*<<	Subscreen (>>>) Freeform Subscreen Cursor */
+qr_SUBSCR_PRESS_TO_EQUIP,	/*<<	Subscreen (>>>) Always Press To Equip */
+qr_FAIRY_FLAG_COMPAT,	/*<<	Compatibility (>>>) Inconsistent Fairy Flags */
+qr_MIRROR_PRISM_LAYERS,	/*<<	Combos (>>>) Mirror/Prism Combos Work On All Layers */
+
+//420
+qr_OLD_LENS_LAYEREFFECT,	/*<<	Compatibility (>>>) Old Lens Layer Effects */
+qr_PUSHBLOCK_SPRITE_LAYER,	/*<<	Combos (>>>) Pushable Block Sprite Layer */
+qr_OLD_SUBSCR,	/*<<	Compatibility (>>>) Old Engine Subscreen Quirks */
+qr_ITM_0_INVIS_ON_BTNS,	/*<<	Subscreen (>>>) Item 0 is invisible on buttons */
+qr_NO_BUTTON_VERIFY,	/*<<	Subscreen (>>>) No Button Verification */
+
+//425
+qr_OLD_GAUGE_TILE_LAYOUT,	/*<<	Subscreen (>>>) Old Gauge Tile Layout */
+qr_WALKTHROUGHWALL_NO_DOORSTATE,	/*<<	Compatibility (>>>) 'Walk Through Walls' don't set door state */
+qr_SPOTLIGHT_IGNR_SOLIDOBJ,	/*<<	Compatibility (>>>) Light Beams Ignore Solid Objects */
+qr_BROKEN_LIGHTBEAM_HITBOX,	/*<<	Compatibility (>>>) Broken light beam hitbox */
+qr_BROKEN_SWORD_SPIN_TRIGGERS,	/*<<	Compatibility (>>>) Broken Sword Triggers (spin-related) */
+
+//480
+qr_OLD_SCRIPT_VOLUME = 70 * 8,	/*<<	Compatibility (>>>) Old (Buggy) ZScript Volume Access */
+qr_OLD_DMAP_INTRO_STRINGS,	/*<<	Compatibility (>>>) Old DMap Titles and Intros */
+qr_SCRIPTDRAWSFROZENMSG,	/*<<	ZScript (>>>) Scripts Draw During Frozen Messages */
 
 //640
 qr_PARSER_250DIVISION = 80*8, 		/*<<	ZScript (>>>) 2.50 Division Truncation */
@@ -558,6 +609,8 @@ qr_PASSIVE_SUBSCRIPT_RUNS_WHEN_GAME_IS_FROZEN,	/*<<	ZScript (>>>) Passive Subscr
 qr_WRITE_ENTRYPOINTS_AFFECTS_HEROCLASS,	/*<<	ZScript (>>>) Writing Screen->EntryX, EntryY Resets Spawn Points */
 qr_LOG_INVALID_UID_LOAD,	/*<<	ZScript (>>>) Log on Loading Invalid UID */
 qr_COMBODATA_INITD_MULT_TENK,	/*<<	ZScript (>>>) Broken Combodata->InitD[] */
+qr_ZS_NO_NEG_ARRAY,	/*<<	ZScript (>>>) Disable accessing negative array indices */
+qr_PRINTF_NO_0FILL,	/*<<	ZScript (>>>) No prinft() 0-fill */
 
 qr_MAX
 };

@@ -31,8 +31,8 @@
 
 //ZScript string handling functions, akin to those found in C
 //#include "string.zh"
-#include "std_zh/string_constants.zh" //Now #includeed from here. This prevents conflicts for those people
-#include "std_zh/string_functions.zh" //who would #include string.zh from a secondary source, as that file is now 
+#include "std_zh/string/string_constants.zh" //Now #includeed from here. This prevents conflicts for those people
+#include "std_zh/string/string_functions.zh" //who would #include string.zh from a secondary source, as that file is now 
 			     //empty, and the string.zh components load from here. 
 
 //Keyboard handling for 2.54 and above

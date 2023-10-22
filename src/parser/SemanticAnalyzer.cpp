@@ -16,7 +16,7 @@ using namespace ZScript;
 // SemanticAnalyzer
 
 SemanticAnalyzer::SemanticAnalyzer(Program& program)
-	: deprecateGlobals(false), program(program), returnType(NULL)
+	: program(program), returnType(NULL), deprecateGlobals(false)
 {
 	scope = &program.getScope();
 	caseFile(program.getRoot());

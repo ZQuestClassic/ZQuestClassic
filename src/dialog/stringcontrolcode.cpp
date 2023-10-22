@@ -152,8 +152,6 @@ GUI::ListData createShadowTypesListData();
 SCCDialog::SCCDialog() :
 	list_sccs(SCCListData()),
 	list_shtype(createShadowTypesListData()),
-	list_font(GUI::ZCListData::fonts(false,true,true)),
-	list_font_order(GUI::ZCListData::fonts(false,true,false)),
 	list_items(GUI::ZCListData::items(true)),
 	list_counters(GUI::ZCListData::counters(true, true)),
 	list_dmaps(dmap_list),
@@ -161,6 +159,8 @@ SCCDialog::SCCDialog() :
 	list_sfx(GUI::ZCListData::sfxnames(true)),
 	list_midi(GUI::ZCListData::midinames(true)),
 	list_screenstate(GUI::ZCListData::screenstate()),
+	list_font(GUI::ZCListData::fonts(false,true,true)),
+	list_font_order(GUI::ZCListData::fonts(false,true,false)),
 	list_genscr(GUI::ZCListData::generic_script())
 {
 	memset(args, 0, sizeof(args));

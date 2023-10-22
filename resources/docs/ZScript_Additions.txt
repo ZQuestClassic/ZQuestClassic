@@ -5726,7 +5726,12 @@ int Step;
  * a step rate of '100' means that you move '1 pixel per frame'. The default step rate is
  * '150', moving at '1.5 pixels per frame'.
  * NOTE: This affects BOTH 4-way and 8-way movement, but ONLY
- *       if the quest rule "New Hero Movement" is enabled.
+ *       if the quest rule "New Player Movement" is enabled.
+
+int ShoveOffset;
+ * The offset from corners that the player's movement will 'shove' them around.
+ * Only applies if "Newer Player Movement" Quest Rule is enabled.
+ * Ranges from 0-16
 
 bool MoveXY(float dx, float dy, bool is_knockback = false,
 	bool ignore_sideview = false, bool corner_shove = true);
@@ -6573,11 +6578,6 @@ int Compass;
 int Palette;
  * The level palette used by the dmap. 
  * Equivalent to Game->DMapPalette[this->ID].
-
-int IntroStringID;
- * The ID in the string editor for the dmap's intro string.
- * If the quest rule 'Old DMap Titles and Intros' is on, 
- * this is unused.
  
 int MIDI;
  * The MIDI ID used by the DMap.
@@ -6744,19 +6744,13 @@ void SetTitle(char32 buffer[]);
  
 void GetTitle(char32 buffer[]);
  * Copies the title of the DMap into a client string 'buffer'.
- * If the quest rule 'Old DMap Titles and Intros' is on, 
- * will resize the buffer to the length of the title string.
  
 void SetIntro(char32 buffer[]);
  * Copies the contents of the client array 'buffer' over the original 
  * DMap intro text. 
- * If the quest rule 'Old DMap Titles and Intros' is off,
- * this is unused.
  
 void GetIntro(char32 buffer[]);
  * Copies the intro text of the DMap into a client string 'buffer'.
- * If the quest rule 'Old DMap Titles and Intros' is off, 
- * this is unused.
 
 void SetMusic(char32 "filename"); 
  * Sets the enhanced music used by the DMap to a specified filename.

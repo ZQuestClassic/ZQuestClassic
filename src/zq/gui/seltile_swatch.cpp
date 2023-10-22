@@ -140,11 +140,11 @@ int32_t newg_seltile_proc(int32_t msg,DIALOG *d,int32_t)
 namespace GUI
 {
 
-SelTileSwatch::SelTileSwatch(): tile(0), cset(0), flip(0),
-	tw(1), th(1), isMini(false), mini_crn(0),
-	showFlip(false), showsVals(true),
-	alDialog(), message(-1), showT0(false),
-	minionly(false), deftile(0), defcs(0)
+SelTileSwatch::SelTileSwatch(): message(-1), tile(0), cset(0),
+	flip(0), tw(1), th(1), mini_crn(0),
+	deftile(0), defcs(0),
+	showFlip(false), showsVals(true), showT0(false),
+	isMini(false), minionly(false), alDialog()
 {
 	sel_color = jwin_pal[jcTITLER];
 	Size s = 32_px+4_px;

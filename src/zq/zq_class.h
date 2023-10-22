@@ -3,6 +3,7 @@
 
 #include "base/zdefs.h"
 #include "base/mapscr.h"
+#include "base/containers.h"
 #include <stdio.h>
 #include <string_view>
 #include <deque>
@@ -166,8 +167,7 @@ class zmap
     int32_t copyffc;
     int32_t scrpos[MAXMAPS+1];
 	
-	uint32_t copyscrdatasz;
-	std::vector<int32_t> copyscrdata;
+	bounded_vec<uint32_t,int32_t> copyscrdata;
 	
     mapscr copymapscr;
     mapscr prvscr; //NEW
@@ -369,7 +369,7 @@ void delete_mapscr(mapscr *dest);
 //const char zqsheader[30];
 
 bool setMapCount2(int32_t c);
-int32_t init_quest(const char *templatefile);
+int32_t init_quest();
 void set_questpwd(std::string_view pwd, bool use_keyfile);
 int32_t quest_access(const char *filename, zquestheader *hdr);
 bool write_midi(MIDI *m,PACKFILE *f);

@@ -46,12 +46,12 @@ GUI::ListData createShadowTypesListData()
 }
 
 StringEditorDialog::StringEditorDialog(size_t ind, int32_t templateID, int32_t addAfter)
-	: strIndex(ind), tmpMsgStr(MsgStrings[ind]),
+	: strIndex(ind), addAfter(addAfter),
+	tmpMsgStr(MsgStrings[ind]),
+	list_nextstr(GUI::ZCListData::strings(false)),
 	list_font(GUI::ZCListData::fonts(false,true,true)),
 	list_font_order(GUI::ZCListData::fonts(false,true,false)),
-	list_shtype(createShadowTypesListData()),
-	list_nextstr(GUI::ZCListData::strings(false)),
-	addAfter(addAfter)
+	list_shtype(createShadowTypesListData())
 {
 	if(ind == msg_count) //new str
 	{

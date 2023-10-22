@@ -707,7 +707,7 @@ namespace ZScript
 	{
 	public:
 		DataTypeCustom(std::string name, DataType* constType, UserClass* usrclass = nullptr, int32_t id = getUniqueCustomId())
-			: DataType(constType), name(name), id(id), user_class(usrclass)
+			: DataType(constType), id(id), name(name), user_class(usrclass)
 		{}
 		DataTypeCustom* clone() const {return new DataTypeCustom(*this);}
 		

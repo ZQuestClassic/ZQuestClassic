@@ -374,7 +374,7 @@ struct user_file : public user_abstract_obj
 	bool reserved;
 	
 	user_file() : user_abstract_obj(),
-		file(NULL), reserved(false), filepath("")
+		file(NULL), filepath(""), reserved(false)
 	{}
 	
 	void close()
@@ -418,7 +418,7 @@ struct user_dir : public user_abstract_obj
 	bool reserved;
 	
 	user_dir() : user_abstract_obj(),
-		list(NULL), reserved(false), filepath("")
+		list(NULL), filepath(""), reserved(false)
 	{}
 	
 	void setPath(const char* buf);
@@ -1152,6 +1152,7 @@ int32_t FF_screenbounds[4]; //edges of the screen, left, right, top, bottom used
 int32_t FF_screen_dimensions[4]; //height, width, displaywidth, displayheight
 int32_t FF_subscreen_dimensions[4];
 int32_t numscriptdraws;
+bool skipscriptdraws;
 int32_t FF_eweapon_removal_bounds[4]; //left, right, top, bottom coordinates for automatic eweapon removal. 
 int32_t FF_lweapon_removal_bounds[4]; //left, right, top, bottom coordinates for automatic lweapon removal. 
 
@@ -5005,7 +5006,9 @@ enum ASM_DEFINE
 #define MAPDATASCRDATASIZE      0x1592
 #define MAPDATASCRDATA          0x1593
 
-#define NUMVARIABLES            0x1594
+#define HEROSHOVEOFFSET         0x1594
+
+#define NUMVARIABLES            0x1595
 
 //} End variables
 

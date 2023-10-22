@@ -395,6 +395,7 @@ void load_game_configs()
 	volkeys = zc_get_config(sfx_sect,"volkeys",0)!=0;
 	zc_vsync = zc_get_config(cfg_sect,"vsync",0);
 	Throttlefps = zc_get_config(cfg_sect,"throttlefps",1)!=0;
+	Maxfps = zc_get_config(cfg_sect,"maxfps",0);
 	TransLayers = zc_get_config(cfg_sect,"translayers",1)!=0;
 	SnapshotFormat = zc_get_config(cfg_sect,"snapshot_format",3);
 	NameEntryMode = zc_get_config(cfg_sect,"name_entry_mode",0);
@@ -448,7 +449,7 @@ void load_game_configs()
 	ss_after = vbound(zc_get_config(cfg_sect,"ss_after",14), 0, 14);
 	ss_speed = vbound(zc_get_config(cfg_sect,"ss_speed",2), 0, 6);
 	ss_density = vbound(zc_get_config(cfg_sect,"ss_density",3), 0, 6);
-	heart_beep = zc_get_config(cfg_sect,"heart_beep",1)!=0;
+	heart_beep = zc_get_config(cfg_sect,"heart_beep",0)!=0;
 	//gui_colorset = zc_get_config(cfg_sect,"gui_colorset",0);
 	sfxdat = zc_get_config(cfg_sect,"use_sfx_dat",1);
 	fullscreen = zc_get_config(cfg_sect,"fullscreen",0);
@@ -575,11 +576,6 @@ void save_game_configs()
 void fps_callback()
 {
 	lastfps=framecnt;
-	dword tempsecs = fps_secs;
-	++tempsecs;
-	//avgfps=((long double)avgfps*fps_secs+lastfps)/(++fps_secs); // DJGPP doesn't like this
-	avgfps=((long double)avgfps*fps_secs+lastfps)/(tempsecs);
-	++fps_secs;
 	framecnt=0;
 }
 
@@ -4624,7 +4620,7 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 		{
 			FFCore.runF6Engine();
 		}
-		throttleFPS();
+		zc_throttle_fps();
 		
 #ifdef _WIN32
 		
@@ -4702,7 +4698,7 @@ void advanceframe(bool allowwavy, bool sfxcleanup, bool allowF6Script)
 	if (Quit)
 		replay_step_quit(Quit);
 	// Someday... maybe install a Turbo button here?
-	throttleFPS();
+	zc_throttle_fps();
 	
 #ifdef _WIN32
 	
@@ -7097,53 +7093,7 @@ int32_t onEpilepsy()
 	return D_O_K;
 }
 
-int32_t onTriforce()
-{
-	for(int32_t i=0; i<MAXINITTABS; ++i)
-	{
-		init_tabs[i].flags&=~D_SELECTED;
-	}
-	
-	init_tabs[3].flags=D_SELECTED;
-	return onCheatConsole();
-	/*triforce_dlg[0].dp2=get_zc_font(font_lfont);
-	for(int32_t i=1; i<=8; i++)
-	  triforce_dlg[i].flags = (game->lvlitems[i] & liTRIFORCE) ? D_SELECTED : 0;
-	
-	if(do_zqdialog (triforce_dlg,-1)==9)
-	{
-	  for(int32_t i=1; i<=8; i++)
-	  {
-		game->lvlitems[i] &= ~liTRIFORCE;
-		game->lvlitems[i] |= (triforce_dlg[i].flags & D_SELECTED) ? liTRIFORCE : 0;
-	  }
-	}
-	return D_O_K;*/
-}
-
 bool rc = false;
-/*
-int32_t onEquipment()
-{
-  for (int32_t i=0; i<MAXINITTABS; ++i)
-  {
-	init_tabs[i].flags&=~D_SELECTED;
-  }
-  init_tabs[0].flags=D_SELECTED;
-  return onCheatConsole();
-}
-*/
-
-int32_t onItems()
-{
-	for(int32_t i=0; i<MAXINITTABS; ++i)
-	{
-		init_tabs[i].flags&=~D_SELECTED;
-	}
-	
-	init_tabs[1].flags=D_SELECTED;
-	return onCheatConsole();
-}
 
 static DIALOG getnum_dlg[] =
 {
@@ -8030,7 +7980,8 @@ void System()
 	
 	rc=false;
 	clear_keybuf();
-	//  text_mode(0);
+
+	zc_init_apply_cheat_delta();
 }
 
 void fix_dialogs()

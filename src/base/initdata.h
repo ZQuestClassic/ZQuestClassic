@@ -1,18 +1,11 @@
 #ifndef _INITDATA_H_
 #define _INITDATA_H_
 
-#include "base/general.h"
-#include "base/ints.h"
+#include "base/headers.h"
+#include "base/containers.h"
 #include <vector>
 
-struct zinit_vectors
-{
-	std::vector<uint32_t> screen_dataSize;
-	std::vector<std::vector<int32_t>> screen_data;
-	zinit_vectors() :
-		screen_dataSize(MAXMAPS*MAPSCRS), screen_data(MAXMAPS*MAPSCRS)
-	{}
-};
+#define MAXSCRS (MAXMAPS*MAPSCRS)
 struct zinitdata
 {
 	bool items[256];
@@ -81,11 +74,12 @@ struct zinitdata
 	word gen_exitState[NUMSCRIPTSGENERIC];
 	word gen_reloadState[NUMSCRIPTSGENERIC];
 	int32_t gen_initd[NUMSCRIPTSGENERIC][8];
-	uint32_t gen_dataSize[NUMSCRIPTSGENERIC];
-	std::vector<int32_t> gen_data[NUMSCRIPTSGENERIC];
 	uint32_t gen_eventstate[NUMSCRIPTSGENERIC];
 	
-	zinit_vectors vecs;
+	bounded_vec<word,bounded_vec<uint32_t,int32_t>> gen_data {NUMSCRIPTSGENERIC, {0}};
+	bounded_vec<uint32_t,bounded_vec<uint32_t,int32_t>> screen_data {MAXSCRS, {0}};
+	
+	zfix shove_offset = 6.5_zf;
 	
 	void clear_genscript();
 	

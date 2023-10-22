@@ -1,8 +1,8 @@
-# Tests ZQuest.
+# Tests the editor.
 #
 # To run:
 #
-#   python tests/test_zquest.py
+#   python tests/test_zeditor.py
 
 import sys
 import os
@@ -16,7 +16,7 @@ from common import ReplayTestResults
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent
-tmp_dir = root_dir / '.tmp/test_editor'
+tmp_dir = root_dir / '.tmp/test_zeditor'
 tmp_dir.mkdir(exist_ok=True, parents=True)
 
 sys.path.append(str((root_dir / 'scripts').absolute()))
@@ -27,6 +27,9 @@ class TestZEditor(unittest.TestCase):
         self.maxDiff = None
 
     def test_zeditor(self):
+        if 'emscripten' in str(run_target.get_build_folder()):
+            return
+
         run_target.check_run('zeditor', [
             '-test-zc', root_dir / 'tests',
         ])
@@ -75,28 +78,42 @@ class TestZEditor(unittest.TestCase):
             '-q',
         ])
 
-    # Resave classic_1st.qst and assert classic_1st.zplay, to make sure the loading/saving code is not introducing bugs.
+    # Resave some quests and assert their replays still pass, to make sure the loading/saving code is not introducing bugs.
     def test_save(self):
+        if 'emscripten' in str(run_target.get_build_folder()):
+            return
+
         # TODO: Bad exit code 0xFFFF under windows.
         if platform.system() == 'Windows':
             return
-        # TODO: disabled b/c of recent subscreen changes, must find where regression is
-        return
 
-        qst_path = tmp_dir / 'tmp.qst'
-        run_target.check_run('zeditor', [
-            '-headless',
-            '-s',
-            '-copy-qst', 'quests/Z1 Recreations/classic_1st.qst', qst_path,
-        ])
+        test_cases = [
+            ('classic_1st.zplay', 'quests/Z1 Recreations/classic_1st.qst'),
+            # TODO: fails
+            # ('freedom_in_chains.zplay', 'freedom_in_chains.qst'),
+            ('ss_jenny.zplay', 'ss_jenny.qst'),
+        ]
 
-        replay_content = (root_dir / 'tests/replays/classic_1st.zplay').read_text('utf-8')
-        replay_content = replay_content.replace('quests/Z1 Recreations/classic_1st.qst', 'tmp.qst')
-        replay_path = tmp_dir / 'tmp.zplay'
-        replay_path.write_text(replay_content)
+        for zplay_path, qst_path in test_cases:
+            with self.subTest(msg=zplay_path):
+                load_qst_path = qst_path if qst_path.startswith('quests/') else root_dir / 'tests/replays' / qst_path
+                tmp_qst_dir = tmp_dir / f'resave-{zplay_path}'
+                tmp_qst_dir.mkdir(exist_ok=True)
+                tmp_qst_path = tmp_qst_dir / 'tmp.qst'
 
-        output_dir = tmp_dir / 'output' / replay_path.name
-        self.run_replay(output_dir, [replay_path])
+                run_target.check_run('zeditor', [
+                    '-headless',
+                    '-s',
+                    '-copy-qst', load_qst_path, tmp_qst_path,
+                ])
+
+                replay_content = (root_dir / 'tests/replays' / zplay_path).read_text('utf-8')
+                replay_content = replay_content.replace(qst_path, 'tmp.qst')
+                replay_path = tmp_qst_dir / 'tmp.zplay'
+                replay_path.write_text(replay_content)
+
+                output_dir = tmp_dir / 'output' / replay_path.name
+                self.run_replay(output_dir, [replay_path])
 
     def test_compile_and_quick_assign(self):
         if 'emscripten' in str(run_target.get_build_folder()):
@@ -126,6 +143,21 @@ class TestZEditor(unittest.TestCase):
                 output_dir = tmp_dir / 'output' / original_replay_path.name
                 output_dir.mkdir(exist_ok=True, parents=True)
                 self.run_replay(output_dir, [replay_path])
+
+    def test_package_export(self):
+        if 'emscripten' in str(run_target.get_build_folder()) or platform.system() != 'Windows':
+            raise unittest.SkipTest('unsupported platform')
+
+        run_target.check_run('zeditor', [
+            '-package', 'quests/Z1 Recreations/classic_1st.qst', 'package-test',
+        ])
+
+        package_dir = run_target.get_build_folder() / 'packages/package-test'
+        args_path: Path = package_dir / 'data/zc_args.txt'
+        args_path.write_text(args_path.read_text() + ' -q')
+        run_target.check_run('zplayer', [
+            '-package',
+        ], package_dir / 'data')
 
 if __name__ == '__main__':
     unittest.main()

@@ -157,7 +157,8 @@ jobs:
 
       - run: npm install
         working-directory: web
-      - run: zip -r ${{ needs.create-tag.outputs.release-tag }}-web.zip build_emscripten/Release/packages/web
+      - run: zip -r ${{ needs.create-tag.outputs.release-tag }}-web.zip .
+        working-directory: build_emscripten/Release/packages/web
 
       - uses: actions/upload-artifact@v3
         with:

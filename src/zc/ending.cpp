@@ -90,7 +90,7 @@ namespace
 		{ "\2731986 NINTENDO",         72,  912, blue  }
 	};
 	
-	const int32_t numCustomQuestEndLines = 6;
+	const int32_t numCustomQuestEndLines = 4;
 	const EndingTextLine customQuestEnd[]=
 	{
 		{ "Congratulations!", 64, 768, white },
@@ -98,9 +98,7 @@ namespace
 		/* time */
 		{ "You finished a",   72, 816, white },
 		{ "custom quest.",    76, 832, white },
-		{ "ZELDA CLASSIC",    76, 880, white },
-		{ "\2741999-2019",    88, 896, white },
-		{ "Armageddon Games", 64, 912, blue }
+		{ "ZQUEST CLASSIC",   76, 880, white }
 	};
 }
 

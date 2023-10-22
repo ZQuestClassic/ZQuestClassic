@@ -79,8 +79,8 @@ int32_t newg_cornersel_proc(int32_t msg,DIALOG *d,int32_t)
 namespace GUI
 {
 
-CornerSwatch::CornerSwatch(): val(0),
-	alDialog(), message(-1)
+CornerSwatch::CornerSwatch(): message(-1),
+	val(0), alDialog()
 {
 	Size s = 32_px+4_px;
 	setPreferredWidth(s);

@@ -34,7 +34,7 @@ static App app_id = App::undefined;
 bool is_in_osx_application_bundle()
 {
 #ifdef __APPLE__
-    return std::filesystem::current_path().string().find("/ZQuest Classic.app/") != std::string::npos;
+    return std::filesystem::current_path().string().find(".app/") != std::string::npos;
 #else
     return false;
 #endif
@@ -110,6 +110,15 @@ void common_main_setup(App id, int argc, char **argv)
 App get_app_id()
 {
     return app_id;
+}
+
+bool is_web()
+{
+#ifdef __EMSCRIPTEN__
+	return true;
+#else
+	return false;
+#endif
 }
 
 bool is_ci()

@@ -101,8 +101,8 @@ int32_t newg_selcombo_proc(int32_t msg,DIALOG *d,int32_t)
 namespace GUI
 {
 
-SelComboSwatch::SelComboSwatch(): combo(0), cset(0),
-	alDialog(), message(-1), showsVals(true)
+SelComboSwatch::SelComboSwatch(): message(-1), combo(0),
+	cset(0), showsVals(true), alDialog()
 {
 	Size s = 32_px+4_px;
 	setPreferredWidth(s);

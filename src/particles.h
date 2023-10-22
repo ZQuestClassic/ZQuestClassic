@@ -2,7 +2,7 @@
 #define _PARTICLES_H_
 
 #include "base/zdefs.h"
-#include "zfix.h"
+#include "base/zfix.h"
 #include <map>
 
 using std::map;

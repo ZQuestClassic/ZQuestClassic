@@ -2,6 +2,7 @@
 #include "base/util.h"
 #include "base/zc_alleg.h"
 #include <allegro5/allegro.h>
+#include <fmt/format.h>
 #include <filesystem>
 #include <fstream>
 #include <sstream>
@@ -141,8 +142,7 @@ void package_create(std::string quest_path_, std::string package_name)
 	al_close_directory(entry);
 
 	std::ofstream out(data_dir / "zc_args.txt", std::ios::binary);
-	out << "-only " << '"' << quest_path.filename().string() << '"';
-	out << "-window-title " << '"' << package_name << '"';
+	out << fmt::format("-only {} -window-title {}", quest_path.string(), package_name);
 	out.close();
 
 	if (fs::exists(extra_dir))

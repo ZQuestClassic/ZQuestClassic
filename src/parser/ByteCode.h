@@ -1726,7 +1726,9 @@
 #define MAPDATASCRDATASIZE      1628
 #define MAPDATASCRDATA          1629
 
-#define LAST_BYTECODE           1630
+#define HEROSHOVEOFFSET         1630
+
+#define LAST_BYTECODE           1631
 
 //} END OF BYTECODE
 

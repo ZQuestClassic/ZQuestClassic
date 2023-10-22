@@ -1075,15 +1075,18 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool freshquest)
 		memcpy(game2->gen_exitState, zinit2->gen_exitState, sizeof(game2->gen_exitState));
 		memcpy(game2->gen_reloadState, zinit2->gen_reloadState, sizeof(game2->gen_reloadState));
 		memcpy(game2->gen_initd, zinit2->gen_initd, sizeof(game2->gen_initd));
-		memcpy(game2->gen_dataSize, zinit2->gen_dataSize, sizeof(game2->gen_dataSize));
+		
 		for(uint32_t q = 0; q < NUMSCRIPTSGENERIC; ++q)
-			game2->gen_data[q] = zinit2->gen_data[q];
+		{
+			game2->gen_dataSize[q] = zinit2->gen_data[q].size();
+			game2->gen_data[q] = zinit2->gen_data[q].inner();
+		}
 		memcpy(game2->gen_eventstate, zinit2->gen_eventstate, sizeof(game2->gen_eventstate));
 		
 		for(uint32_t q = 0; q < MAXMAPS*MAPSCRS; ++q)
 		{
-			game2->screen_data[q] = zinit2->vecs.screen_data[q];
-			game2->scriptDataResize(q,zinit2->vecs.screen_dataSize[q]);
+			game2->screen_data[q] = zinit2->screen_data[q].inner();
+			game2->scriptDataResize(q,zinit2->screen_data[q].size());
 		}
 	}
 	
@@ -1124,6 +1127,7 @@ constexpr std::size_t countof(T(&)[N]) { return N; }
 	PROP(heroSideswimSideStep) \
 	PROP(heroSideswimUpStep) \
 	PROP(heroStep) \
+	ZFIXPROP(shove_offset) \
 	PROP(hp_per_heart) \
 	PROP(jump_hero_layer_threshold) \
 	PROP(keys) \
@@ -1168,7 +1172,6 @@ constexpr std::size_t countof(T(&)[N]) { return N; }
 #define LIST_ARRAY_PROPS \
 	ARRAY_PROP(boss_key) \
 	ARRAY_PROP(compass) \
-	ARRAY_PROP(gen_dataSize) \
 	ARRAY_PROP(gen_doscript) \
 	ARRAY_PROP(gen_eventstate) \
 	ARRAY_PROP(gen_exitState) \
@@ -1190,7 +1193,10 @@ std::string serialize_init_data_delta(zinitdata *base, zinitdata *changed)
 	
 	#define PROP(name) if (base->name != changed->name) \
 		tokens.push_back(fmt::format("{}={}", #name, (int)changed->name));
+	#define ZFIXPROP(name) if(base->name != changed->name) \
+		tokens.push_back(fmt::format("{}={}", #name, (int)changed->name.getZLong()));
 	LIST_PROPS;
+	#undef ZFIXPROP
 	#undef PROP
 
 	#define ARRAY_PROP(name) \
@@ -1254,10 +1260,13 @@ zinitdata *apply_init_data_delta(zinitdata *base, std::string delta, std::string
 
 		#define PROP(name) if (kv[0] == #name) \
 			result->name = as_int; else
+		#define ZFIXPROP(name) if (kv[0] == #name) \
+			result->name = zslongToFix(as_int); else
 		LIST_PROPS
 		{
 			FAIL_IF(true, fmt::format("invalid token '{}': unknown property", token));
 		}
+		#undef ZFIXPROP
 		#undef PROP
 	}
 

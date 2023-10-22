@@ -1,4 +1,5 @@
 #include "zc/render.h"
+#include "base/render.h"
 #include "zc/zelda.h"
 #include "zc/maps.h"
 #include "sprite.h"
@@ -15,11 +16,11 @@ extern double aspect_ratio;
 extern byte use_save_indicator;
 
 RenderTreeItem rti_root("root");
-RenderTreeItem rti_game("game");
+LegacyBitmapRTI rti_game("game");
 RenderTreeItem rti_infolayer("info");
-RenderTreeItem rti_menu("menu");
-RenderTreeItem rti_gui("gui");
-RenderTreeItem rti_screen("screen");
+LegacyBitmapRTI rti_menu("menu");
+LegacyBitmapRTI rti_gui("gui");
+LegacyBitmapRTI rti_screen("screen");
 
 bool use_linear_bitmaps()
 {
@@ -72,11 +73,13 @@ static void init_render_tree()
 	// backed up.
 	al_set_new_bitmap_flags(base_flags_preserve_texture);
 	rti_game.bitmap = create_a5_bitmap(framebuf->w, framebuf->h);
+	rti_game.set_size(framebuf->w, framebuf->h);
 	rti_game.a4_bitmap = framebuf;
 	rti_infolayer.bitmap = create_a5_bitmap(framebuf->w, framebuf->h);
 
 	al_set_new_bitmap_flags(base_flags);
 	rti_menu.bitmap = create_a5_bitmap(menu_bmp->w, menu_bmp->h);
+	rti_menu.set_size(menu_bmp->w, menu_bmp->h);
 	rti_menu.a4_bitmap = menu_bmp;
 	rti_menu.transparency_index = 0;
 
@@ -85,11 +88,13 @@ static void init_render_tree()
 	zc_set_gui_bmp(gui_bmp);
 	al_set_new_bitmap_flags(base_flags);
 	rti_gui.bitmap = create_a5_bitmap(gui_bmp->w, gui_bmp->h);
+	rti_gui.set_size(gui_bmp->w, gui_bmp->h);
 	rti_gui.a4_bitmap = gui_bmp;
 	rti_gui.transparency_index = 0;
 
 	al_set_new_bitmap_flags(base_flags);
 	rti_screen.bitmap = create_a5_bitmap(screen->w, screen->h);
+	rti_screen.set_size(screen->w, screen->h);
 	rti_screen.a4_bitmap = zqdialog_bg_bmp ? zqdialog_bg_bmp : screen;
 	rti_screen.transparency_index = 0;
 	
@@ -120,8 +125,8 @@ static void configure_render_tree()
 	
 	if(stretchGame)
 	{
-		int w = al_get_bitmap_width(rti_game.bitmap);
-		int h = al_get_bitmap_height(rti_game.bitmap);
+		int w = rti_game.width;
+		int h = rti_game.height;
 		float xscale = (float)resx/w;
 		float yscale = (float)resy/h;
 		if (scaleForceInteger)
@@ -148,8 +153,8 @@ static void configure_render_tree()
 	}
 	else
 	{
-		int w = al_get_bitmap_width(rti_game.bitmap);
-		int h = al_get_bitmap_height(rti_game.bitmap);
+		int w = rti_game.width;
+		int h = rti_game.height;
 		float txscale = (float)resx/w;
 		float tyscale = (float)resy/(h+12);
 		float yscale = intscale(tyscale), xscale = intscale(yscale/game_aspect);
@@ -179,8 +184,8 @@ static void configure_render_tree()
 	rti_menu.visible = MenuOpen;
 	if (rti_menu.visible)
 	{
-		int w = al_get_bitmap_width(rti_menu.bitmap);
-		int h = al_get_bitmap_height(rti_menu.bitmap);
+		int w = rti_menu.width;
+		int h = rti_menu.height;
 		float xscale = (float)resx/w;
 		float yscale = (float)resy/h;
 		xscale = intscale(xscale);
@@ -198,8 +203,8 @@ static void configure_render_tree()
 	
 	if (rti_dialogs.visible || rti_gui.visible)
 	{
-		int w = al_get_bitmap_width(rti_gui.bitmap);
-		int h = al_get_bitmap_height(rti_gui.bitmap);
+		int w = rti_gui.width;
+		int h = rti_gui.height;
 		float xscale = (float)resx/w;
 		float yscale = (float)resy/h;
 		rti_gui.set_transform({
@@ -221,8 +226,8 @@ static void configure_render_tree()
 
 	if (rti_screen.visible)
 	{
-		int w = al_get_bitmap_width(rti_screen.bitmap);
-		int h = al_get_bitmap_height(rti_screen.bitmap);
+		int w = rti_screen.width;
+		int h = rti_screen.height;
 		float xscale = (float)resx/w;
 		float yscale = (float)resy/h;
 		if (scaleForceInteger)
@@ -241,8 +246,8 @@ static void configure_render_tree()
 		rti_screen.a4_bitmap = zqdialog_bg_bmp ? zqdialog_bg_bmp : screen;
 	}
 
-	rti_game.freeze_a4_bitmap_render = rti_menu.visible || rti_gui.visible || rti_dialogs.visible || is_sys_pal;
-	if (rti_game.freeze_a4_bitmap_render)
+	rti_game.freeze = rti_menu.visible || rti_gui.visible || rti_dialogs.visible || is_sys_pal;
+	if (rti_game.freeze)
 	{
 		static ALLEGRO_COLOR tint = al_premul_rgba_f(0.4, 0.4, 0.8, 0.8);
 		rti_game.tint = &tint;
@@ -253,6 +258,7 @@ static void configure_render_tree()
 		rti_game.tint = nullptr;
 		rti_infolayer.tint = nullptr;
 	}
+	reload_dialog_tint();
 }
 
 static ALLEGRO_STATE infobmp_old_state;
@@ -260,11 +266,11 @@ void start_info_bmp()
 {
 	al_store_state(&infobmp_old_state, ALLEGRO_STATE_TARGET_BITMAP);
 	al_set_target_bitmap(rti_infolayer.bitmap);
-	al_set_clipping_rectangle(0, playing_field_offset, al_get_bitmap_width(rti_infolayer.bitmap)-1, al_get_bitmap_height(rti_infolayer.bitmap)-1-playing_field_offset);
+	al_set_clipping_rectangle(0, playing_field_offset, al_get_bitmap_width(rti_infolayer.bitmap), al_get_bitmap_height(rti_infolayer.bitmap)-playing_field_offset);
 }
 void end_info_bmp()
 {
-	al_set_clipping_rectangle(0, 0, al_get_bitmap_width(rti_infolayer.bitmap)-1, al_get_bitmap_height(rti_infolayer.bitmap)-1);
+	al_set_clipping_rectangle(0, 0, al_get_bitmap_width(rti_infolayer.bitmap), al_get_bitmap_height(rti_infolayer.bitmap));
 	al_restore_state(&infobmp_old_state);
 }
 

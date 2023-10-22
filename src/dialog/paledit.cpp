@@ -30,7 +30,7 @@ bool call_paledit_dlg(char* namebuf, byte* cdata, PALETTE *pal, int32_t offset, 
 }
 
 PalEditDialog::PalEditDialog(BITMAP* bmp, byte* cdata, PALETTE* pal, char* namebuf, int32_t offset, int32_t index) : bmp(bmp),
-	namebuf(namebuf), coldata(cdata), palt(pal), offset(offset), index(index)
+	coldata(cdata), palt(pal), namebuf(namebuf), offset(offset), index(index)
 {
 	for(auto i = 0; i < pdLEVEL; ++i)
 	{

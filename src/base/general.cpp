@@ -1,7 +1,7 @@
 #include "general.h"
 #include <assert.h>
 
-void set_bit(byte *bitstr,int32_t bit,byte val)
+void set_bit(byte *bitstr,int32_t bit,bool val)
 {
     bitstr += bit>>3;
     byte mask = 1 << (bit&7);
@@ -26,7 +26,7 @@ bool toggle_bit(byte *bitstr,int32_t bit)
 	return *bitstr&mask;
 }
 
-void set_bitl(int32_t bitstr,int32_t bit,byte val)
+void set_bitl(int32_t bitstr,int32_t bit,bool val)
 {
 	if (val)
 		bitstr |= (1<<bit);
@@ -38,23 +38,46 @@ int32_t get_bitl(int32_t bitstr,int32_t bit)
     return bitstr&(1<<bit); //intel u32
 }
 
-int32_t vbound(int32_t val, int32_t low, int32_t high)
+int vbound(int val, int low, int high)
 {
-	assert(low <= high);
-	if(val <= low)
-		return low;
-	if(val >= high)
-		return high;
+	if(low > high) zc_swap(low,high);
+	if(val < low) return low;
+	if(val > high) return high;
 	return val;
 }
-
 double vbound(double val, double low, double high)
 {
-	assert(low <= high);
-	if(val <= low)
-		return low;
-	if(val >= high)
-		return high;
+	if(low > high) zc_swap(low,high);
+	if(val < low) return low;
+	if(val > high) return high;
+	return val;
+}
+zfix vbound(zfix val, zfix low, zfix high)
+{
+	if(low > high) zc_swap(low,high);
+	if(val < low) return low;
+	if(val > high) return high;
+	return val;
+}
+zfix vbound(zfix val, int low, zfix high)
+{
+	if(low > high) zc_swap(low,high);
+	if(val < low) return low;
+	if(val > high) return high;
+	return val;
+}
+zfix vbound(zfix val, zfix low, int high)
+{
+	if(low > high) zc_swap(low,high);
+	if(val < low) return low;
+	if(val > high) return high;
+	return val;
+}
+zfix vbound(zfix val, int low, int high)
+{
+	if(low > high) zc_swap(low,high);
+	if(val < low) return low;
+	if(val > high) return high;
 	return val;
 }
 

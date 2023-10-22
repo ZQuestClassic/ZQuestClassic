@@ -124,22 +124,22 @@ bool ASTFile::hasDeclarations() const
 // ASTFloat
 
 ASTFloat::ASTFloat(char* val, Type type, LocationData const& location)
-	: AST(location), type(type), negative(false),
-	value(static_cast<string>(val))
+	: AST(location), type(type), value(static_cast<string>(val)),
+	negative(false)
 {
 	initNeg();
 }
     
 ASTFloat::ASTFloat(char const* val, Type type, LocationData const& location)
-	: AST(location), type(type), negative(false),
-	value(static_cast<string>(val))
+	: AST(location), type(type), value(static_cast<string>(val)),
+	negative(false)
 {
 	initNeg();
 }
     
 ASTFloat::ASTFloat(
 		string const& val, Type type, LocationData const& location)
-	: AST(location), type(type), negative(false), value(val)
+	: AST(location), type(type), value(val), negative(false)
 {
 	initNeg();
 }
@@ -803,9 +803,9 @@ void ASTStmtFor::execute(ASTVisitor& visitor, void* param)
 ASTStmtForEach::ASTStmtForEach(
 	std::string const& identifier, ASTExpr* expr, ASTStmt* body,
 	ASTStmt* elseBlock, LocationData const& location)
-	: ASTStmt(location), iden(identifier), arrExpr(expr), body(body),
-		elseBlock(elseBlock), decl(nullptr), arrdecl(nullptr),
-		indxdecl(nullptr), scope(nullptr)
+	: ASTStmt(location), iden(identifier), indxdecl(nullptr), arrdecl(nullptr),
+		decl(nullptr), arrExpr(expr), body(body),
+		elseBlock(elseBlock), scope(nullptr)
 {}
 
 void ASTStmtForEach::execute(ASTVisitor& visitor, void* param)
@@ -1033,8 +1033,8 @@ void ASTNamespace::execute(ASTVisitor& visitor, void* param)
 
 ASTImportDecl::ASTImportDecl(
 		string const& filename, LocationData const& location, bool isInclude)
-	: ASTDecl(location), filename_(filename), include_(isInclude), checked(false),
-	validated(false)
+	: ASTDecl(location), filename_(filename), checked(false), validated(false),
+	include_(isInclude)
 {}
 
 void ASTImportDecl::execute(ASTVisitor& visitor, void* param)
@@ -1068,8 +1068,8 @@ void ASTImportCondDecl::execute(ASTVisitor& visitor, void* param)
 // ASTFuncDecl
 
 ASTFuncDecl::ASTFuncDecl(LocationData const& location)
-	: ASTDecl(location), returnType(NULL), block(NULL), flags(0), invalidMsg(""), func(NULL), prototype(false), defaultReturn(NULL),
-	  iden(NULL), parentScope(NULL)
+	: ASTDecl(location), returnType(NULL), iden(NULL), block(NULL), invalidMsg(""), func(NULL), parentScope(NULL), prototype(false),
+	  defaultReturn(NULL), flags(0)
 {}
 
 void ASTFuncDecl::execute(ASTVisitor& visitor, void* param)
@@ -1341,7 +1341,7 @@ void ASTScriptTypeDef::execute(ASTVisitor& visitor, void* param)
 // ASTUsingDecl
 
 ASTUsingDecl::ASTUsingDecl(ASTExprIdentifier* iden, LocationData const& location, bool always)
-	: ASTDecl(location), identifier(iden), always(always)
+	: ASTDecl(location), always(always), identifier(iden)
 {}
 
 void ASTUsingDecl::execute(ASTVisitor& visitor, void* param)
@@ -1433,7 +1433,7 @@ std::optional<int32_t> ASTExprAssign::getCompileTimeValue(
 
 ASTExprIdentifier::ASTExprIdentifier(string const& name,
 									 LocationData const& location)
-	: ASTExpr(location), binding(NULL), constant_(false), noUsing(false)
+	: ASTExpr(location), binding(NULL), noUsing(false), constant_(false)
 {
 	if (name != "") components.push_back(name);
 }
@@ -1479,7 +1479,7 @@ DataType const* ASTExprIdentifier::getWriteType(Scope* scope, CompileErrorHandle
 ASTExprArrow::ASTExprArrow(ASTExpr* left, string const& right,
 						   LocationData const& location)
 	: ASTExpr(location), left(left), right(right), index(NULL),
-	  arrayFunction(NULL), readFunction(NULL), writeFunction(NULL), leftClass(NULL),
+	  leftClass(NULL), arrayFunction(NULL), readFunction(NULL), writeFunction(NULL),
 	  rtype(NULL), wtype(NULL), u_datum(NULL), iscall(false)
 {}
 
@@ -1552,7 +1552,7 @@ DataType const* ASTExprIndex::getWriteType(Scope* scope, CompileErrorHandler* er
 // ASTExprCall
 
 ASTExprCall::ASTExprCall(LocationData const& location)
-	: ASTExpr(location), binding(NULL), _constructor(false)
+	: ASTExpr(location), _constructor(false), binding(NULL)
 {}
 
 void ASTExprCall::execute(ASTVisitor& visitor, void* param)
@@ -2475,25 +2475,25 @@ void ASTBoolLiteral::execute(ASTVisitor& visitor, void* param)
 // ASTStringLiteral
 
 ASTStringLiteral::ASTStringLiteral(char const* str, LocationData const& location)
-	: ASTLiteral(location), value(str), declaration(NULL)
+	: ASTLiteral(location), declaration(NULL), value(str)
 {}
 
 ASTStringLiteral::ASTStringLiteral(
 		string const& str, LocationData const& location)
-	: ASTLiteral(location), value(str), declaration(NULL)
+	: ASTLiteral(location), declaration(NULL), value(str)
 {}
 
 ASTStringLiteral::ASTStringLiteral(ASTString const& raw)
 	: ASTLiteral(raw.location),
-	  value(raw.getValue()),
-	  declaration(NULL)
+	  declaration(NULL),
+	  value(raw.getValue())
 {}
 
 ASTStringLiteral::ASTStringLiteral(ASTStringLiteral const& base)
-	: ASTLiteral(base), value(base.value),
+	: ASTLiteral(base), declaration(NULL),
 	  // declaration field is managed by the declaration itself, so it stays
 	  // NULL regardless.
-	  declaration(NULL)
+	  value(base.value)
 {}
 
 ASTStringLiteral& ASTStringLiteral::operator=(ASTStringLiteral const& rhs)
@@ -2518,7 +2518,7 @@ DataTypeArray const* ASTStringLiteral::getReadType(Scope* scope, CompileErrorHan
 // ASTArrayLiteral
 
 ASTArrayLiteral::ASTArrayLiteral(LocationData const& location)
-	: ASTLiteral(location), type(NULL), size(NULL), declaration(NULL),
+	: ASTLiteral(location), declaration(NULL), type(NULL), size(NULL),
 	  readType_(NULL)
 {}
 
@@ -2629,13 +2629,13 @@ ParserScriptType ZScript::resolveScriptType(ASTScriptType const& node,
 // ASTDataType
 
 ASTDataType::ASTDataType(DataType* type, LocationData const& location)
-	: AST(location), type(type->clone()), constant_(0), wasResolved_(false),
-	becomeArray(false)
+	: AST(location), type(type->clone()), constant_(0), becomeArray(false),
+	wasResolved_(false)
 {}
 
 ASTDataType::ASTDataType(DataType const& type, LocationData const& location)
-	: AST(location), type(type.clone()), constant_(0), wasResolved_(false),
-	becomeArray(false)
+	: AST(location), type(type.clone()), constant_(0), becomeArray(false),
+	wasResolved_(false)
 {}
 
 void ASTDataType::execute(ASTVisitor& visitor, void* param)

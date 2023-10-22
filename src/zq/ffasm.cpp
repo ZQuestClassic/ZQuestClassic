@@ -2851,6 +2851,8 @@ script_variable variable_list[]=
 	{ "MAPDATASCRDATASIZE", MAPDATASCRDATASIZE, 0, 0 },
 	{ "MAPDATASCRDATA", MAPDATASCRDATA, 0, 0 },
 
+	{ "HEROSHOVEOFFSET", HEROSHOVEOFFSET, 0, 0 },
+
 	{ " ", -1, 0, 0 }
 };
 

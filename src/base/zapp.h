@@ -12,6 +12,7 @@ enum App {
 
 void common_main_setup(App id, int argc, char **argv);
 App get_app_id();
+bool is_web();
 bool is_ci();
 void set_headless_mode();
 bool is_headless();

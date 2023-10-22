@@ -4,11 +4,11 @@
 #include "base/render.h"
 
 extern RenderTreeItem rti_root;
-extern RenderTreeItem rti_game;
+extern LegacyBitmapRTI rti_game;
 extern RenderTreeItem rti_infolayer;
-extern RenderTreeItem rti_menu;
-extern RenderTreeItem rti_gui;
-extern RenderTreeItem rti_screen;
+extern LegacyBitmapRTI rti_menu;
+extern LegacyBitmapRTI rti_gui;
+extern LegacyBitmapRTI rti_screen;
 
 void start_info_bmp();
 void end_info_bmp();

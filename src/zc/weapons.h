@@ -3,7 +3,7 @@
 
 #include "base/zdefs.h"
 #include "sprite.h"
-#include "zfix.h"
+#include "base/zfix.h"
 #include <set>
 
 /**************************************/

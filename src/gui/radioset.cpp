@@ -11,7 +11,7 @@
 namespace GUI
 {
 
-RadioSet::RadioSet(): Widget(), message(-1), procset(0), checked(0)
+RadioSet::RadioSet(): Widget(), message(-1), checked(0), procset(0)
 {}
 
 void RadioSet::setChecked(size_t value)

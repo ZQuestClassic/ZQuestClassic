@@ -978,7 +978,7 @@ char const* get_ic_help(size_t q)
 }
 
 ItemEditorDialog::ItemEditorDialog(itemdata const& ref, char const* str, int32_t index):
-	local_itemref(ref), itemname(str), index(index),
+	itemname(str), index(index), local_itemref(ref),
 	list_items(GUI::ZCListData::itemclass(true)),
 	list_counters(GUI::ZCListData::counters(true)),
 	list_sprites(GUI::ZCListData::miscsprites()),
@@ -988,8 +988,8 @@ ItemEditorDialog::ItemEditorDialog(itemdata const& ref, char const* str, int32_t
 	list_weaptype(GUI::ZCListData::lweaptypes()),
 	list_deftypes(GUI::ZCListData::deftypes()),
 	list_bottletypes(GUI::ZCListData::bottletype()),
-	list_strings(GUI::ZCListData::strings()),
-	list_sfx(GUI::ZCListData::sfxnames(true))
+	list_sfx(GUI::ZCListData::sfxnames(true)),
+	list_strings(GUI::ZCListData::strings())
 {}
 
 ItemEditorDialog::ItemEditorDialog(int32_t index):
@@ -1178,11 +1178,6 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
-
-	// Too many locals error in low-optimization mode for emscripten.
-#ifdef EMSCRIPTEN_DEBUG
-	return std::shared_ptr<GUI::Widget>(nullptr);
-#endif
 	
 	char titlebuf[256];
 	sprintf(titlebuf, "Item Editor (%d): %s", index, itemname.c_str());

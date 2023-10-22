@@ -37,14 +37,14 @@ static const GUI::ListData ScriptDataList
 };
 
 EditDMapDialog::EditDMapDialog(int32_t slot) :
-	thedmap(&DMaps[slot]), local_dmap(DMaps[slot]), dmapslot(slot),
+	dmapslot(slot), thedmap(&DMaps[slot]), local_dmap(DMaps[slot]),
 	list_maps(GUI::ListData::numbers(false, 1, map_count)),
 	list_types(GUI::ZCListData::dmaptypes()),
-	list_lpals(GUI::ZCListData::lpals()),
-	list_strings(GUI::ZCListData::strings()),
 	list_activesub(GUI::ZCListData::subscreens(sstACTIVE, true)),
 	list_passivesub(GUI::ZCListData::subscreens(sstPASSIVE, true)),
 	list_overlaysub(GUI::ZCListData::subscreens(sstOVERLAY, true)),
+	list_strings(GUI::ZCListData::strings()),
+	list_lpals(GUI::ZCListData::lpals()),
 	list_midis(GUI::ZCListData::midinames(false, true)),
 	list_tracks(GUI::ListData::numbers(false, 1, 1)),
 	list_disableditems(GUI::ZCListData::disableditems(local_dmap.disableditems)),

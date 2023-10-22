@@ -9,6 +9,7 @@
 #include "base/zsys.h"
 #include "zq/zq_class.h"
 #include "zq/package.h"
+#include "zq/render_minimap.h"
 #include "dialog/info.h"
 #include "dialog/about.h"
 #include "dialog/alertfunc.h"
@@ -682,7 +683,6 @@ int32_t onOpen2();
 int32_t onRevert();
 int32_t onSave();
 int32_t onSaveAs();
-int32_t onQuestTemplates();
 
 int32_t onUndo();
 int32_t onCopy();
@@ -749,7 +749,6 @@ int32_t onWarpRings();
 int32_t onWhistle();
 int32_t onMiscColors();
 int32_t onMapStyles();
-int32_t onTemplates();
 int32_t onDoorCombos();
 int32_t onTriPieces();
 int32_t onIcons();
@@ -1050,13 +1049,12 @@ int32_t onPreviewMode()
 	{
 		Map.set_prvscr(Map.getCurrMap(),Map.getCurrScr());
 		
-		zoomed_minimap = false;
+		mmap_set_zoom(false);
 		
 		bool tempcb=ComboBrush!=0;
 		ComboBrush=0;
 		restore_mouse();
 		clear_tooltip();
-		clear_tooltip2();
 		dopreview();
 		ComboBrush=tempcb;
 	}

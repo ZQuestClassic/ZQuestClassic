@@ -74,15 +74,15 @@ void call_combo_wizard(ComboEditorDialog& dlg)
 	ComboWizardDialog(dlg).show();
 }
 
-ComboWizardDialog::ComboWizardDialog(ComboEditorDialog& parent) : parent(parent),
-	local_ref(parent.local_comboref), dest_ref(parent.local_comboref),
-	src_ref(parent.local_comboref), flags(0),
-	list_sprites(GUI::ZCListData::miscsprites()),
+ComboWizardDialog::ComboWizardDialog(ComboEditorDialog& parent) : local_ref(parent.local_comboref),
+	dest_ref(parent.local_comboref), src_ref(parent.local_comboref),
+	parent(parent), flags(0),
 	list_lwscript(GUI::ZCListData::lweapon_script()),
 	list_ewscript(GUI::ZCListData::eweapon_script()),
+	list_sprites(GUI::ZCListData::miscsprites()),
+	list_dropsets(GUI::ZCListData::dropsets(true)),
 	list_items(GUI::ZCListData::items(true)),
 	list_sfx(GUI::ZCListData::sfxnames(true)),
-	list_dropsets(GUI::ZCListData::dropsets(true)),
 	list_counters(GUI::ZCListData::counters(true,true))
 {
 	memset(rs_sz, 0, sizeof(rs_sz));

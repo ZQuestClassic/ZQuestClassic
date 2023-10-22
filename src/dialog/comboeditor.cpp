@@ -78,25 +78,17 @@ bool call_combo_editor(int32_t index)
 }
 
 ComboEditorDialog::ComboEditorDialog(newcombo const& ref, int32_t index):
-	local_comboref(ref), index(index),
+	index(index), local_comboref(ref),
 	list_ctype(GUI::ZCListData::combotype(true)),
 	list_flag(GUI::ZCListData::mapflag(numericalFlags, true)),
 	list_combscript(GUI::ZCListData::combodata_script()),
+	list_sfx(GUI::ZCListData::sfxnames(true)),
 	list_genscr(GUI::ZCListData::generic_script()),
 	list_counters_nn(GUI::ZCListData::counters(true, true)),
 	list_sprites(GUI::ZCListData::miscsprites()),
 	list_sprites_spec(GUI::ZCListData::miscsprites(false,true)),
-	list_sprites_0none(GUI::ZCListData::miscsprites(false).filter(
-		[&](GUI::ListItem& itm)
-		{
-			if(itm.value == 0) //Remove item 0
-				return false;
-			if(itm.value == -1) //Change the none value to 0
-				itm.value = 0;
-			return true;
-		})),
 	list_weaptype(GUI::ZCListData::weaptypes(true)),
-	list_sfx(GUI::ZCListData::sfxnames(true)),
+	list_deftypes(GUI::ZCListData::deftypes()),
 	list_lift_parent_items(GUI::ZCListData::items(true).filter(
 		[&](GUI::ListItem& itm)
 		{
@@ -116,7 +108,15 @@ ComboEditorDialog::ComboEditorDialog(newcombo const& ref, int32_t index):
 			}
 			return true;
 		})),
-	list_deftypes(GUI::ZCListData::deftypes())
+	list_sprites_0none(GUI::ZCListData::miscsprites(false).filter(
+		[&](GUI::ListItem& itm)
+		{
+			if(itm.value == 0) //Remove item 0
+				return false;
+			if(itm.value == -1) //Change the none value to 0
+				itm.value = 0;
+			return true;
+		}))
 {}
 
 ComboEditorDialog::ComboEditorDialog(int32_t index):
@@ -2291,11 +2291,6 @@ std::shared_ptr<GUI::Widget> ComboEditorDialog::view()
 	using namespace GUI::Props;
 	using namespace GUI::Key;
 
-	// Too many locals error in low-optimization mode for emscripten.
-#ifdef EMSCRIPTEN_DEBUG
-	return std::shared_ptr<GUI::Widget>(nullptr);
-#endif
- 	
 	char titlebuf[256];
 	sprintf(titlebuf, "Combo Editor (%d)", index);
 	

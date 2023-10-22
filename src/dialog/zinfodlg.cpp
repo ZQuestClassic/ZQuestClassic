@@ -17,8 +17,8 @@ void call_zinf_dlg()
 ZInfoDialog::ZInfoDialog() : lzinfo(),
 	list_itemclass(GUI::ZCListData::itemclass(true)),
 	list_combotype(GUI::ZCListData::combotype(true, true)),
-	list_counters(GUI::ZCListData::counters(true, true)),
 	list_mapflag(GUI::ZCListData::mapflag(numericalFlags, true, true)),
+	list_counters(GUI::ZCListData::counters(true, true)),
 	list_weapon(GUI::ZCListData::weaptypes(true))
 {}
 

@@ -501,7 +501,7 @@ void myvsync_callback()
 END_OF_FUNCTION(myvsync_callback)
 
 static RenderTreeItem rti_root("root");
-static RenderTreeItem rti_screen("screen");
+static LegacyBitmapRTI rti_screen("screen");
 
 static int zc_gui_mouse_x()
 {
@@ -528,6 +528,7 @@ static void init_render_tree()
 		al_set_new_bitmap_flags(ALLEGRO_NO_PRESERVE_TEXTURE);
 	rti_screen.bitmap = al_create_bitmap(screen->w, screen->h);
 	rti_screen.a4_bitmap = screen;
+	rti_screen.set_size(screen->w, screen->h);
 
 	rti_root.add_child(&rti_screen);
 	rti_root.add_child(&rti_dialogs);
@@ -575,6 +576,7 @@ static void configure_render_tree()
 		});
 		rti_dialogs.visible = true;
 	}
+	reload_dialog_tint();
 }
 
 static void render_launcher()

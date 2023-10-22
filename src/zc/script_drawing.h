@@ -292,7 +292,7 @@ public:
     // Unlikely people will be using all 1000 commands.
     const static int32_t DefaultCapacity = 256; //176 + some extra
     
-    CScriptDrawingCommands() : commands(), count(0) {}
+    CScriptDrawingCommands() : count(0), commands() {}
     ~CScriptDrawingCommands() {}
     int32_t GetCount();
     void Dispose()

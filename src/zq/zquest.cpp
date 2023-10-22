@@ -35,6 +35,8 @@
 #include "zq/autocombo/pattern_dormtn.h"
 #include "zq/autocombo/pattern_tiling.h"
 #include "zq/autocombo/pattern_replace.h"
+#include "zq/render_minimap.h"
+#include "zq/render_tooltip.h"
 #include "base/misctypes.h"
 #include "parser/Compiler.h"
 #include "base/zc_alleg.h"
@@ -310,11 +312,7 @@ size_and_pos commands_infobtn;
 size_and_pos commands_zoombtn;
 size_and_pos commands_txt;
 
-size_and_pos tooltip_box;
-size_and_pos tooltip_box2;
 size_and_pos tooltip_trigger;
-size_and_pos tooltip_highlight;
-size_and_pos tooltip_highlight2;
 
 size_and_pos squarepanel_swap_btn;
 size_and_pos squarepanel_up_btn;
@@ -449,7 +447,7 @@ DATAFILE *zcdata=NULL, *fontsdata=NULL, *sfxdata=NULL;
 size_t fontsdat_cnt = 0;
 MIDI *song=NULL;
 BITMAP *menu1, *menu3, *mapscreenbmp, *tmp_scr, *screen2, *mouse_bmp[MOUSE_BMP_MAX][4], *mouse_bmp_1x[MOUSE_BMP_MAX][4], *icon_bmp[ICON_BMP_MAX][4], *flag_bmp[16][4], *select_bmp[2], *dmapbmp_small, *dmapbmp_large;
-BITMAP *arrow_bmp[MAXARROWS],*brushbmp, *brushscreen, *tooltipbmp, *tooltipbmp2; //*brushshadowbmp;
+BITMAP *arrow_bmp[MAXARROWS],*brushbmp, *brushscreen; //*brushshadowbmp;
 byte *colordata=NULL, *trashbuf=NULL;
 itemdata *itemsbuf;
 wpndata  *wpnsbuf;
@@ -471,7 +469,6 @@ bool large_zoomed_fav = false;
 bool compact_zoomed_fav = true;
 bool large_zoomed_cmd = false;
 bool compact_zoomed_cmd = true;
-bool zoomed_minimap = false;
 
 bool compact_square_panels = false;
 int compact_active_panel = 0;
@@ -573,7 +570,7 @@ int32_t  Flags=0,Flag=0,menutype=(m_block);
 int32_t MouseScroll = 0, SavePaths = 0, CycleOn = 0, ShowGrid = 0, GridColor = 15,
 	CmbCursorCol = 15, TilePgCursorCol = 15, CmbPgCursorCol = 15, TTipHLCol = 13,
 	TileProtection = 0, NoScreenPreview = 0, MMapCursorStyle = 0,
-	LayerDitherBG = -1, LayerDitherSz = 2, BlinkSpeed = 20, RulesetDialog = 0,
+	LayerDitherBG = -1, LayerDitherSz = 2, RulesetDialog = 0,
 	EnableTooltips = 0, TooltipsHighlight = 0, ShowFFScripts = 0, ShowSquares = 0,
 	ShowFFCs = 0, ShowInfo = 0, skipLayerWarning = 0, WarnOnInitChanged = 0,
 	DisableLPalShortcuts = 1, DisableCompileConsole = 0, numericalFlags = 0,
@@ -626,7 +623,7 @@ int32_t DMapEditorLastMaptileUsed = 0;
   , HorizontalDuplicateAction;
   int32_t VerticalDuplicateAction, BothDuplicateAction;
   */
-word msg_count = 0, qt_count = 0;
+word msg_count = 0;
 int32_t LeechUpdate = 0;
 int32_t LeechUpdateTiles = 0;
 int32_t SnapshotFormat = 0;
@@ -734,8 +731,8 @@ zctune              *customtunes;
 ZCHEATS             zcheats;
 byte                use_cheats;
 byte                use_tiles;
+// Note: may not be null-terminated (must refactor writecolordata to fix).
 char                palnames[MAXLEVELS][17];
-quest_template      QuestTemplates[MAXQTS];
 char                fontsdat_sig[52];
 char                zquestdat_sig[52];
 char                sfxdat_sig[52];
@@ -1515,18 +1512,6 @@ static MENU tunes_menu[] =
     {  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
-//New Modules Menu for 2.55+
-static MENU module_menu[] =
-{
-    { (char *)"&Load Module...",        load_zmod_module_file,           NULL,                     0,            NULL   },
-    { (char *)"&About Module",        onAbout_Module,           NULL,                     0,            NULL   },
-    //divider
-    { (char *)"",                               NULL,                      NULL,                     0,            NULL   },
-    { (char *)"&Template",                  onTemplates,               NULL,                     0,            NULL   },
-
-    {  NULL,                                NULL,                      NULL,                     0,            NULL   }
-};
-
 static MENU media_menu[] =
 {
 	{ (char *)"Ambient Music  ",            NULL,                      tunes_menu,               0,            NULL   },
@@ -1554,9 +1539,6 @@ static MENU etc_menu[] =
 	{ (char *)"Clear Quest Filepath",       onClearQuestFilepath,      NULL,                     0,            NULL   },
 	{ (char *)"&Take ZQ Snapshot",          onSnapshot,                NULL,                     0,            NULL   },
 	{ (char *)"Take &Screen Snapshot",      onMapscrSnapshot,          NULL,                     0,            NULL   },
-	{ (char *)"",                           NULL,                      NULL,                     0,            NULL   },
-	// 15
-	{ (char *)"&Modules",                   NULL,                      module_menu,              0,            NULL   },
 	{  NULL,                                NULL,                      NULL,                     0,            NULL   }
 };
 
@@ -1814,7 +1796,7 @@ int onScreenLPal(int lpal)
 int32_t onPressEsc()
 {
 	if(zoomed_minimap)
-		zoomed_minimap = false;
+		mmap_set_zoom(false);
 	else return onExit();
 	return D_O_K;
 }
@@ -1972,98 +1954,6 @@ void savesometiles(const char *prompt,int32_t initialval)
 		}
 	}
 }
-
-static DIALOG module_info_dlg[] =
-{
-    // (dialog proc)     (x)   (y)   (w)   (h)   (fg)     (bg)    (key)    (flags)     (d1)           (d2)     (dp)
-
-
-    { jwin_win_proc,      0,   0,   200,  200,  vc(14),  vc(1),  0,       D_EXIT,          0,             0, (void *) "About Current Module", NULL, NULL },
-    //1
-    {  jwin_text_proc,        10,    20,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"Module:",               NULL,   NULL  },
-    //2
-    {  jwin_text_proc,        50,    20,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"",               NULL,   NULL  },
-   {  jwin_text_proc,        10,    30,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"Author:",               NULL,   NULL  },
-    //4
-    {  jwin_text_proc,        50,    30,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"",               NULL,   NULL  },
-    {  jwin_text_proc,        10,    40,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"",               NULL,   NULL  },
-    {  jwin_text_proc,        10,    50,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"Information:",               NULL,   NULL  },
-    //7
-    
-    {  jwin_text_proc,        10,    60,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"",               NULL,   NULL  },
-    {  jwin_text_proc,        10,    70,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"",               NULL,   NULL  },
-    {  jwin_text_proc,        10,    80,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"",               NULL,   NULL  },
-    {  jwin_text_proc,        10,    90,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"",               NULL,   NULL  },
-    {  jwin_text_proc,        10,    100,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"",               NULL,   NULL  },
-    {  jwin_text_proc,        10,    120,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"",               NULL,   NULL  },
-    {  jwin_text_proc,        10,    130,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"",               NULL,   NULL  },
-    {  jwin_text_proc,        10,    140,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"",               NULL,   NULL  },
-    {  jwin_text_proc,        10,    150,     20,      8,    vc(11),     vc(1),      0,    0,          0,    0, (void*)"",               NULL,   NULL  },
-   
-    { jwin_button_proc,   40,   160,  50,   21,   vc(14),  vc(1),  13,      D_EXIT,     0,             0, (void *) "OK", NULL, NULL },
-    { jwin_button_proc,   200-40-50,  160,  50,   21,   vc(14),  vc(1),  27,      D_EXIT,     0,             0, (void *) "Cancel", NULL, NULL },
-    { NULL,                 0,    0,    0,    0,   0,       0,       0,       0,          0,             0,       NULL,                           NULL,  NULL }
-};
-
-
-
-void about_module(const char *prompt,int32_t initialval)
-{	
-	
-	module_info_dlg[0].dp2 = get_zc_font(font_lfont);
-	if ( moduledata.moduletitle[0] != 0 )
-		module_info_dlg[2].dp = (char*)moduledata.moduletitle;
-	
-	if ( moduledata.moduleauthor[0] != 0 )
-		module_info_dlg[4].dp = (char*)moduledata.moduleauthor;
-	
-	if ( moduledata.moduleinfo0[0] != 0 )
-		module_info_dlg[7].dp = (char*)moduledata.moduleinfo0;
-	if ( moduledata.moduleinfo1[0] != 0 )
-		module_info_dlg[8].dp = (char*)moduledata.moduleinfo1;
-	if ( moduledata.moduleinfo2[0] != 0 )
-		module_info_dlg[9].dp = (char*)moduledata.moduleinfo2;
-	if ( moduledata.moduleinfo3[0] != 0 )
-		module_info_dlg[10].dp = (char*)moduledata.moduleinfo3;
-	if ( moduledata.moduleinfo4[0] != 0 )
-		module_info_dlg[11].dp = (char*)moduledata.moduleinfo4;
-	
-	char module_date[255];
-	memset(module_date, 0, sizeof(module_date));
-	sprintf(module_date,"Build Date: %s %s, %d at @ %d:%d %s", dayextension(moduledata.modday).c_str(), 
-			(char*)months[moduledata.modmonth], moduledata.modyear, moduledata.modhour, moduledata.modminute, moduledata.moduletimezone);
-	
-	
-	
-	char module_vers[255];
-	memset(module_vers, 0, sizeof(module_vers));
-	sprintf(module_vers, "Version: %d.%d.%d.%d", moduledata.modver_1, moduledata.modver_2, moduledata.modver_3, moduledata.modver_4);
-	
-	
-	//sprintf(tilecount,"%d",1);
-	
-	char module_build[255];
-	memset(module_build, 0, sizeof(module_build));
-	if ( moduledata.modbeta )
-		sprintf(module_build,"Module Build: %d, %s: %d", moduledata.modbuild, (moduledata.modbeta<0) ? "Alpha" : "Beta", moduledata.modbeta );
-	else
-		sprintf(module_build,"Module Build: %d", moduledata.modbuild);
-	
-	module_info_dlg[12].dp = (char*)module_date;
-	module_info_dlg[13].dp = (char*)module_vers;
-	module_info_dlg[14].dp = (char*)module_build;
-	
-	large_dialog(module_info_dlg);
-	
-	int32_t ret = do_zqdialog(module_info_dlg,-1);
-	jwin_center_dialog(module_info_dlg);
-	
-	
-}
-
-
-
-
 
 static DIALOG read_tiles_dlg[] =
 {
@@ -4467,13 +4357,6 @@ int32_t onQMiscValues()
     return D_O_K;
 }
 
-
-int32_t onTemplates()
-{
-    edit_qt();
-    return D_O_K;
-}
-
 //  +----------+
 //  |          |
 //  | View Pic |
@@ -5471,21 +5354,12 @@ void draw_screenunit(int32_t unit, int32_t flags)
 					
 					if(Map.Scr(i)->valid&mVALID)
 					{
-						al_draw_filled_rectangle(sqr.x, sqr.y, sqr.x+sqr.w, sqr.y+sqr.h,
-							real_lc1(Map.Scr(i)->color));
-						
-						int scl = 2;
-						int woffs = (sqr.w-(sqr.w/scl))/2;
-						int hoffs = (sqr.h-(sqr.h/scl))/2;
-						al_draw_filled_rectangle(sqr.x+woffs, sqr.y+hoffs, sqr.x+sqr.w-woffs, sqr.y+sqr.h-hoffs,
-							real_lc2(Map.Scr(i)->color));
+						// Handled by mmap_draw.
 					}
 					else
 					{
 						if (InvalidBG == 2)
 						{
-
-							int32_t offs = 2 * (sqr.w / 9);
 							draw_checkerboard(menu1, sqr.x, sqr.y, sqr.w / 2, sqr.w / 2, sqr.w);
 						}
 						else if (InvalidBG == 1)
@@ -5507,26 +5381,6 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				}
 				
 				int32_t s=Map.getCurrScr();
-				// The white marker rect
-				int32_t cursor_color = 0;
-				switch(MMapCursorStyle)
-				{
-					case 0:
-						cursor_color = vc(15);
-						break;
-					case 1:
-						cursor_color = (framecnt%(BlinkSpeed*2))>=BlinkSpeed ? vc(0) : vc(15);
-						break;
-					case 2:
-						cursor_color = (framecnt%(BlinkSpeed*2))>=BlinkSpeed ? vc(12) : vc(9);
-						break;
-				}
-				if(cursor_color)
-				{
-					auto& sqr = real_mini_sqr->subsquare(s);
-					al_draw_rectangle(sqr.x, sqr.y, sqr.x+sqr.w, sqr.y+sqr.h,
-						a5color(cursor_color), 2);
-				}
 				
 				BITMAP* txtbmp = create_bitmap_ex(8,256,64);
 				clear_bitmap(txtbmp);
@@ -6711,21 +6565,12 @@ void refresh(int32_t flags, bool update)
 	if(zoom_delay)
 		flags &= ~rSCRMAP;
 	
-	ALLEGRO_STATE old_state;
-	al_store_state(&old_state, ALLEGRO_STATE_TARGET_BITMAP);
-	
-	ALLEGRO_BITMAP* overlay_bmp = get_overlay_bmp();
-	al_set_target_bitmap(overlay_bmp);
-	
 	if(flags&rCLEAR)
 	{
 		//magic pink = 0xED
 		//system black = vc(0)
 		//Clear a4 menu
 		clear_to_color(menu1,jwin_pal[jcBOX]);
-		
-		//Clear A5 overlay
-		al_clear_to_color(al_map_rgba(0, 0, 0, 0));
 		
 		//Clears should refresh everything!
 		flags |= rALL;
@@ -7255,11 +7100,7 @@ void refresh(int32_t flags, bool update)
 	if(zoom_delay)
 		draw_screenunit(rSCRMAP,flags);
 	
-	draw_ttips();
 	
-	
-	//Restore A5 state
-	al_restore_state(&old_state);
 	if(flags&rCLEAR)
 	{
 		//Draw the whole gui
@@ -7328,8 +7169,8 @@ void select_scr()
 			char buf[80];
 			sprintf(buf,"0x%02X (%d)", ind, ind);
 			clear_tooltip();
-			update_tooltip2(real_mini.x+real_mini.tw(), real_mini.y-16, real_mini.subsquare(ind), buf, zoomed_minimap ? 3 : 1);
-			tooltip_highlight2.data[0] = zoomed_minimap ? 2 : 1;
+			update_tooltip(real_mini.x+real_mini.tw(), real_mini.y-16, real_mini.subsquare(ind), buf, zoomed_minimap ? 3 : 1);
+			ttip_set_highlight_thickness(zoomed_minimap ? 2 : 1);
 		}
 		
 		if(ind>=MAPSCRS)
@@ -10400,7 +10241,7 @@ std::string get_command_infostr(int cmd)
 			infostr = "Enable Preview Mode";
 			break;
 		case cmdQuestTemplates:
-			infostr = "Select a Quest Template";
+			infostr = "<UNUSED>";
 			break;
 		case cmdReTemplate:
 			infostr = "??"; //!TODO Check this command out
@@ -10869,7 +10710,6 @@ void domouse()
 //-------------
 //tooltip stuff
 //-------------
-	clear_tooltip2(); //always clear
 	if(isinRect(x,y,startxint,startyint,startxint+(256*mapscreensize)-1,startyint+(176*mapscreensize)-1))
 	{
 		bool did_ffttip = false;
@@ -10925,7 +10765,7 @@ void domouse()
 			}
 			
 			mapscr* draw_mapscr = Map.AbsoluteScr(drawmap, drawscr);
-			if(unsigned(c) < 176 && draw_mapscr)
+			if(unsigned(c) < 176 && draw_mapscr && !gui_mouse_b())
 			{
 				tooltip_current_combo = c;
 				int cid = draw_mapscr->data[c];
@@ -10943,6 +10783,7 @@ void domouse()
 				if(cmb.label[0])
 					oss << "\nLabel: " << cmb.label;
 				update_tooltip(x, y, startxint+(cx*16*mapscreensize), startyint+(cy*16*mapscreensize), 16*mapscreensize, 16*mapscreensize, oss.str().c_str());
+				// tool_tip_reset_timer_on_clear();
 			}
 		}
 	}
@@ -11121,9 +10962,9 @@ void domouse()
 	{
 		char buf[80];
 		sprintf(buf,"0x%02X (%d)", ind, ind);
-		clear_tooltip();
-		update_tooltip2(real_mini.x+real_mini.tw(), real_mini.y-16, real_mini.subsquare(ind), buf, zoomed_minimap ? 3 : 1);
-		tooltip_highlight2.data[0] = zoomed_minimap ? 2 : 1;
+		update_tooltip(real_mini.x+real_mini.tw(), real_mini.y-16, real_mini.subsquare(ind), buf, zoomed_minimap ? 3 : 1);
+		ttip_set_highlight_thickness(zoomed_minimap ? 2 : 1);
+		ttip_clear_timer();
 	}
 	
 	// Mouse clicking stuff
@@ -11139,7 +10980,7 @@ void domouse()
 		if((lclick||rclick) && !minimap_zoomed.rect(x,y))
 		{
 			// 'Clicked off'
-			zoomed_minimap = false;
+			mmap_set_zoom(false);
 			goto domouse_doneclick;
 		}
 	}
@@ -11158,7 +10999,7 @@ void domouse()
 				select_scr();
 			else if(rclick && !(mouse_down&2))
 			{
-				zoomed_minimap = !zoomed_minimap;
+				mmap_set_zoom(!zoomed_minimap);
 			}
 			goto domouse_doneclick;
 		}
@@ -14806,6 +14647,7 @@ int32_t onScreenPalette()
 	
 	large_dialog(screen_pal_dlg);
 	auto old_valid = Map.CurrScr()->valid;
+	pause_dlg_tint(true);
 	while(true)
 	{
 		auto ret = do_zqdialog(screen_pal_dlg,2);
@@ -14831,6 +14673,7 @@ int32_t onScreenPalette()
 			break;
 		}
 	}
+	pause_dlg_tint(false);
 	
 	rebuild_trans_table();
 	
@@ -25015,7 +24858,7 @@ auto_do_slots:
 	doslot_scripts = &scripts;
 	//OK
 	{
-		clock_t start_assign_time = clock();
+		auto start_assign_time = std::chrono::steady_clock::now();
 		if(!handle_slot_map(ffcmap, 1, ffscripts))
 			goto exit_do_slots;
 		if(!handle_slot_map(globalmap, 0, globalscripts))
@@ -25043,11 +24886,12 @@ auto_do_slots:
 		if(!handle_slot_map(subscreenmap, 1, subscreenscripts))
 			goto exit_do_slots;
 
-		clock_t end_assign_time = clock();
-		al_trace("Assign Slots took %lf seconds (%ld cycles)\n", (end_assign_time-start_assign_time)/(double)CLOCKS_PER_SEC,(long)end_assign_time-start_assign_time);
+		auto end_assign_time = std::chrono::steady_clock::now();
+		int compile_time_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end_assign_time - start_assign_time).count();
+		al_trace("Assign Slots took %d ms\n", compile_time_ms);
 		char buf[256] = {0};
 		sprintf(buf, "ZScripts successfully loaded into script slots"
-			"\nAssign Slots took %lf seconds (%ld cycles)", (end_assign_time-start_assign_time)/(double)CLOCKS_PER_SEC,(long)end_assign_time-start_assign_time);
+			"\nAssign Slots took %d ms", compile_time_ms);
 		//al_trace("Module SFX datafile is %s \n",moduledata.datafiles[sfx_dat]);
 		compile_finish_sample = vbound(zc_get_config("Compiler","compile_finish_sample",20),0,255);
 		compile_audio_volume = vbound(zc_get_config("Compiler","compile_audio_volume",200),0,255);
@@ -25659,34 +25503,6 @@ void center_zscript_dialogs()
     jwin_center_dialog(exportzasm_dlg);
     jwin_center_dialog(importzasm_dlg);
     jwin_center_dialog(clearslots_dlg);
-}
-
-//The Dialogue that loads a ZMOD Module File
-int32_t load_zmod_module_file()
-{
-	
-    if(!getname("Load Module (.zmod)","zmod",NULL,datapath,false))
-        return D_O_K;
-    
-    FILE *tempmodule = fopen(temppath,"r");
-            
-            if(tempmodule == NULL)
-            {
-                jwin_alert("Error","Cannot open specified file!",NULL,NULL,"O&K",NULL,'k',0,get_zc_font(font_lfont));
-                return -1;
-            }
-	    
-	    
-	    //Set the module path:
-	    memset(moduledata.module_name, 0, sizeof(moduledata.module_name));
-	    strcpy(moduledata.module_name, temppath);
-	    al_trace("New Module Path is: %s \n", moduledata.module_name);
-	    zc_set_config("ZCMODULE","current_module",moduledata.module_name);
-	    zcm.init(true); //Load the module values.
-	    build_bief_list();
-	    build_biea_list(); 
-	    build_biew_list();
-	    return D_O_K;
 }
 
 static DIALOG sfxlist_dlg[] =
@@ -27219,7 +27035,6 @@ void anim_hw_screen(bool force)
 {
 	if(force || myvsync)
 	{
-		++framecnt;
 		++cpoolbrush_index;
 		
 		if(prv_mode)
@@ -27247,13 +27062,12 @@ void anim_hw_screen(bool force)
 		update_hw_screen(true);
 	}
 }
+
 void custom_vsync()
 {
-    while(!myvsync) rest(1);
-    
+	throttleFPS(60);
 	anim_hw_screen(true);
-    
-    myvsync=0;
+	myvsync=0;
 }
 
 void switch_out()
@@ -28034,9 +27848,6 @@ int32_t main(int32_t argc,char **argv)
 	
 	// loading data files...
 	
-	
-	init_qts();
-	
 	filepath[0]=temppath[0]=0;
 	
 	const char *default_path="";
@@ -28141,6 +27952,12 @@ int32_t main(int32_t argc,char **argv)
 		RequestedFPS = vbound(RequestedFPS,12,60);
 		zc_set_config("zquest","fps",RequestedFPS);
 	}
+
+	LOCK_FUNCTION(update_throttle_counter);
+	if (install_int_ex(update_throttle_counter, BPS_TO_TIMER(60)) < 0)
+	{
+		Z_error_fatal("Could not install timer.\n");
+	}
 	
 	LOCK_VARIABLE(myvsync);
 	LOCK_FUNCTION(myvsync_callback);
@@ -28192,8 +28009,6 @@ int32_t main(int32_t argc,char **argv)
 	tmp_scr = nullptr;
 	menu1 = nullptr;
 	menu3 = nullptr;
-	tooltipbmp = nullptr;
-	tooltipbmp2 = nullptr;
 	
 	for(int32_t i=0; i<MAXFAVORITECOMBOS; ++i)
 	{
@@ -28223,23 +28038,6 @@ int32_t main(int32_t argc,char **argv)
 	if(used_switch(argc,argv,"-d"))
 	{
 		set_debug(!strcmp(zquestpwd,zc_get_config("zquest","debug_this","")));
-	}
-	
-	char qtnametitle[20];
-	char qtpathtitle[20];
-	
-	for(int32_t x=1; x<MAXQTS; ++x)
-	{
-		sprintf(qtnametitle, "%s%d", qtname_name, x);
-		sprintf(qtpathtitle, "%s%d", qtpath_name, x);
-		strcpy(QuestTemplates[x].name,zc_get_config("zquest",qtnametitle,""));
-		strcpy(QuestTemplates[x].path,zc_get_config("zquest",qtpathtitle,""));
-		
-		if(QuestTemplates[x].name[0]==0)
-		{
-			qt_count=x;
-			break;
-		}
 	}
 	
 	Z_message("Initializing sound driver... ");
@@ -28554,7 +28352,7 @@ int32_t main(int32_t argc,char **argv)
 		}
 		else
 		{
-			init_quest(NULL);
+			init_quest();
 			
 			if(RulesetDialog)
 			{
@@ -28805,11 +28603,7 @@ void init_bitmap(BITMAP** bmp, int32_t w, int32_t h)
 }
 void load_size_poses()
 {
-	tooltip_box.set(-1,-1,0,0);
-	tooltip_box2.set(-1,-1,0,0);
-	tooltip_trigger.set(-1,-1,0,0);
-	tooltip_highlight.clear();
-	tooltip_highlight2.clear();
+	ttip_remove();
 	
 	FONT* favcmdfont = get_custom_font(CFONT_FAVCMD);
 	FONT* guifont = get_custom_font(CFONT_GUI);
@@ -28938,7 +28732,7 @@ void load_size_poses()
 		
 		minimap.x=3;
 		minimap.y=layer_panel.y+layer_panel.h+4;
-		
+
 		real_minimap.x = minimap.x+3;
 		real_minimap.y = minimap.y+5;
 		real_minimap.w = 16;
@@ -29479,8 +29273,6 @@ void load_size_poses()
 	init_bitmap(&tmp_scr,zq_screen_w,zq_screen_h);
 	init_bitmap(&menu1,zq_screen_w,zq_screen_h);
 	init_bitmap(&menu3,zq_screen_w,zq_screen_h);
-	init_bitmap(&tooltipbmp,zq_screen_w,zq_screen_h); //Decrease size at your own risk.
-	init_bitmap(&tooltipbmp2,zq_screen_w,zq_screen_h); //Decrease size at your own risk.
 	
 	center_zq_class_dialogs();
 	center_zq_custom_dialogs();
@@ -29490,6 +29282,8 @@ void load_size_poses()
 	center_zquest_dialogs();
 	
 	aspect_ratio = zq_screen_h / double(zq_screen_w);
+
+	mmap_init();
 }
 
 void remove_locked_params_on_exit()
@@ -29525,8 +29319,6 @@ void destroy_bitmaps_on_exit()
     destroy_bitmap(dmapbmp_large);
     destroy_bitmap(brushbmp);
     destroy_bitmap(brushscreen);
-    destroy_bitmap(tooltipbmp);
-    destroy_bitmap(tooltipbmp2);
     al_trace("...");
     
     for(int32_t i=0; i<MOUSE_BMP_MAX*4; i++)
@@ -30017,7 +29809,6 @@ int32_t d_nbmenu_proc(int32_t msg,DIALOG *d,int32_t c)
 		clear_tooltip();
 	}
 	
-	rest(4);
 	ret = jwin_menu_proc(msg,d,c);
 	
 	return ret;
@@ -30273,22 +30064,6 @@ int32_t save_config_file()
     }
     
     zc_set_config("zquest","layer_mask",b);
-    
-    for(int32_t x=1; x<qt_count+1; x++)
-    {
-        sprintf(qtnametitle, qtname_name, x);
-        sprintf(qtpathtitle, qtpath_name, x);
-        
-        if(QuestTemplates[x].path[0]!=0)
-        {
-            zc_set_config("zquest",qtnametitle,QuestTemplates[x].name);
-            zc_set_config("zquest",qtpathtitle,QuestTemplates[x].path);
-        }
-        else
-        {
-            break;
-        }
-    }
     
     //save the beta warning confirmation info
 	char *uniquestr = getBetaControlString();
@@ -30561,7 +30336,7 @@ command_pair commands[cmdMAX]=
     { "Take ZQ Snapshot",                   0, (intF) onSnapshot },
     { "Ambient Music",                      0, (intF) playTune1 },
     { "NES Dungeon Template",               0, (intF) onTemplate },
-    { "Edit Templates",                     0, (intF) onTemplates },
+    { "<UNUSED>",                           0, (intF) NULL },
     { "Tile Warp",                          0, (intF) onTileWarp },
     { "Default Tiles",                      0, (intF) onDefault_Tiles },
     { "Tiles",                              0, (intF) onTiles },
@@ -30835,39 +30610,35 @@ void highlight(BITMAP* dest, size_and_pos& hl)
 	}
 	else highlight_sqr(dest, hl.data[1], hl, hl.data[0]);
 }
-void draw_ttip(BITMAP* dest)
+
+std::pair<int, int> get_box_text_size(char const* tipmsg, double txscale)
 {
-	if(tooltip_timer < tooltip_maxtimer)
-		return;
-	if(TooltipsHighlight && tooltip_highlight.x >= 0)
-	{
-		highlight(dest,tooltip_highlight);
-	}
-	if(tooltip_box.x>=0&&tooltip_box.y>=0)
-	{
-		masked_blit(tooltipbmp, dest, 0, 0, tooltip_box.x, tooltip_box.y, tooltip_box.w, tooltip_box.h);
-	}
-}
-void draw_ttip2(BITMAP* dest)
-{
-	if(tooltip_highlight2.x >= 0)
-	{
-		highlight(dest,tooltip_highlight2);
-	}
-	if(tooltip_box2.x>=0&&tooltip_box2.y>=0)
-	{
-		masked_blit(tooltipbmp2, dest, 0, 0, tooltip_box2.x, tooltip_box2.y, tooltip_box2.w, tooltip_box2.h);
-	}
-}
-void draw_ttips()
-{
-	BITMAP* ttbmp = get_tooltip_bmp();
-	clear_bitmap(ttbmp);
-	draw_ttip(ttbmp);
-	draw_ttip2(ttbmp);
+	if(txscale < 1) txscale = 1;
+	char* kill = (char*)malloc(strlen(tipmsg)+1);
+	char *tmpstr = kill;
+	strcpy(tmpstr,tipmsg);
+	
+	while(tmpstr[0] == '\n')
+		++tmpstr;
+	int len = strlen(tmpstr);
+	while(tmpstr[len-1] == '\n')
+		tmpstr[--len] = 0;
+	
+	int32_t lines = count_lines(tmpstr);
+	int txlen = get_longest_line_length(font, tmpstr);
+	int txhei = lines*text_height(font);
+	int tx_sclen = (txlen * txscale);
+	int tx_schei = (txhei * txscale);
+	int w = tx_sclen + 8 + 1;
+	int h = tx_schei + 8 + 1;
+	if (w > zq_screen_w)
+		w = zq_screen_w;
+	if (h > zq_screen_h)
+		h = zq_screen_h;
+	return {w, h};
 }
 
-void draw_box(BITMAP* destbmp, size_and_pos* pos, char const* tipmsg, double txscale = 1)
+void draw_box(BITMAP* destbmp, size_and_pos* pos, char const* tipmsg, double txscale)
 {
 	if(txscale < 1) txscale = 1;
 	char* kill = (char*)malloc(strlen(tipmsg)+1);
@@ -30972,94 +30743,20 @@ void update_tooltip(int32_t x, int32_t y, int32_t tx, int32_t ty, int32_t tw, in
 	
 	if(x<0||y<0) //if we want to clear the tooltip
 	{
-		tooltip_box.x=x;
-		tooltip_box.y=y;
-		tooltip_box.w=0;
-		tooltip_box.h=0;
-		tooltip_timer=0;
-		tooltip_highlight.clear();
+		ttip_remove();
 		return; //cancel
 	}
-	tooltip_highlight.set(tx, ty, tw, th);
-	tooltip_highlight.fw = fw;
-	tooltip_highlight.fh = fh;
-	tooltip_highlight.data[0] = 2;
-	tooltip_highlight.data[1] = vc(TTipHLCol);
-	FONT* oldfont = font;
-	font = get_custom_font(CFONT_TTIP);
 	
 	y+=16;
-	
-	if(tooltip_timer<=tooltip_maxtimer)
-	{
-		++tooltip_timer;
-	}
-	
-	if(tooltip_timer==tooltip_maxtimer)
-	{
-		if(!tipmsg || !tipmsg[0])
-		{
-			tooltip_box.clear();
-			clear_bitmap(tooltipbmp);
-		}
-		else
-		{
-			tooltip_box.x = x;
-			tooltip_box.y = y;
-			draw_box(tooltipbmp, &tooltip_box, tipmsg, scale);
-		}
-	}
-	font = oldfont;
-}
 
-void update_tooltip2(int32_t x, int32_t y, size_and_pos const& sqr, char const* tipmsg, double scale)
-{
-	update_tooltip2(x,y,sqr.x,sqr.y,sqr.w*sqr.xscale,sqr.h*sqr.yscale,tipmsg,sqr.fw,sqr.fh,scale);
-}
-void update_tooltip2(int32_t x, int32_t y, int32_t tx, int32_t ty, int32_t tw, int32_t th, char const* tipmsg, int fw, int fh, double scale)
-{
-	if(x<0||y<0) //if we want to clear the tooltip
-	{
-		tooltip_box2.x=x;
-		tooltip_box2.y=y;
-		tooltip_box2.w=0;
-		tooltip_box2.h=0;
-		tooltip_highlight2.clear();
-		return; //cancel
-	}
-	tooltip_highlight2.set(tx, ty, tw, th);
-	tooltip_highlight2.fw = fw;
-	tooltip_highlight2.fh = fh;
-	tooltip_highlight2.data[0] = 2;
-	tooltip_highlight2.data[1] = vc(TTipHLCol);
-	
-	FONT* oldfont = font;
-	font = get_custom_font(CFONT_TTIP);
-	
-	y+=16;
-	
-	if(!tipmsg || !tipmsg[0])
-	{
-		tooltip_box2.clear();
-		clear_bitmap(tooltipbmp2);
-	}
-	else
-	{
-		tooltip_box2.x = x;
-		tooltip_box2.y = y;
-		draw_box(tooltipbmp2, &tooltip_box2, tipmsg, scale);
-	}
-	
-	font = oldfont;
+	ttip_add(tipmsg, x, y, scale);
+	if (TooltipsHighlight && tw > 0 && th > 0)
+		ttip_add_highlight(tx, ty, tw, th, fw, fh);
 }
 
 void clear_tooltip()
 {
-	update_tooltip(-1, -1, -1, -1, 0, 0, NULL);
-}
-void clear_tooltip2()
-{
-	update_tooltip2(-1, -1, -1, -1, 0, 0, NULL);
+	ttip_remove();
 }
 
 void ZQ_ClearQuestPath()
@@ -31404,6 +31101,7 @@ void update_hw_screen(bool force)
 		if (force || myvsync)
 			render_zq();
 		myvsync=0;
+		++framecnt;
 	}
 }
 

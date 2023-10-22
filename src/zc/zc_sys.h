@@ -22,7 +22,6 @@ void Z_init_sound();
 
 void load_game_configs();
 void save_game_configs();
-int32_t zc_load_zmod_module_file();
 bool zc_getname(const char *prompt,const char *ext,EXT_LIST *list,const char *def,bool usefilename);
 bool zc_getname_nogo(const char *prompt,const char *ext,EXT_LIST *list,const char *def,bool usefilename);
 

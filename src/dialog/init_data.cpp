@@ -5,7 +5,8 @@
 #include "base/zsys.h"
 #include "zc_list_data.h"
 #include "zc/ffscript.h"
-#include "vectorpick.h"
+#include "numpick.h"
+#include "ditherpick.h"
 #include "items.h"
 #include "zinfo.h"
 
@@ -33,10 +34,10 @@ void call_init_dlg(zinitdata& sourcezinit, bool zc)
 }
 
 InitDataDialog::InitDataDialog(zinitdata const& start, bool zc, std::function<void(zinitdata const&)> setVals):
-	local_zinit(start), setVals(setVals), levelsOffset(0), isZC(zc),
-	list_dmaps(GUI::ZCListData::dmaps(true)),
-	list_items(GUI::ZCListData::itemclass(false)),
-	list_genscr(GUI::ZCListData::generic_script())
+	local_zinit(start), levelsOffset(0), list_dmaps(GUI::ZCListData::dmaps(true)), list_items(GUI::ZCListData::itemclass(false)),
+	list_genscr(GUI::ZCListData::generic_script()),
+	isZC(zc),
+	setVals(setVals)
 {}
 
 void InitDataDialog::setOfs(size_t ofs)
@@ -81,6 +82,17 @@ TextField(disabled = dis, maxLength = 11, type = GUI::TextField::type::FIXED_DEC
 	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
 	{ \
 		local_zinit.member = val; \
+	})
+
+#define ZFIX_VAL_FIELD(name, minval, maxval, member, dis) \
+Label(text = name, hAlign = 0.0), \
+TextField(disabled = dis, maxLength = 11, type = GUI::TextField::type::FIXED_DECIMAL, \
+	hAlign = 1.0, low = minval, high = maxval, val = local_zinit.member.getZLong(), \
+	width = 4.5_em, places = 4, \
+	fitParent = true, \
+	onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val) \
+	{ \
+		local_zinit.member = zslongToFix(val); \
 	})
 
 #define COLOR_FIELD(name, member, dis) \
@@ -234,11 +246,6 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 {
 	using namespace GUI::Builder;
 	using namespace GUI::Props;
-
-	// Too many locals error in low-optimization mode for emscripten.
-#ifdef EMSCRIPTEN_DEBUG
-	return std::shared_ptr<GUI::Widget>(nullptr);
-#endif
 	
 	map<int32_t, map<int32_t, vector<int32_t> > > families;
 	icswitcher = Switcher(fitParent = true, hAlign = 0.0, vAlign = 0.0);
@@ -248,22 +255,17 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 		int32_t family = itemsbuf[q].family;
 		
 		if(family == 0x200 || family == itype_triforcepiece || !(itemsbuf[q].flags & ITEM_GAMEDATA))
-		{
 			continue;
-		}
 		
-        if(families.find(family) == families.end())
-        {
-            families[family] = map<int32_t, vector<int32_t> >();
-        }
+		if(families.find(family) == families.end())
+			families[family] = map<int32_t, vector<int32_t> >();
+		
 		int32_t level = zc_max(1, itemsbuf[q].fam_type);
 		
 		if(families[family].find(level) == families[family].end())
-		{
 			families[family][level] = vector<int32_t>();
-		}
-        
-        families[family][level].push_back(q);
+		
+		families[family][level].push_back(q);
 	}
 	
 	int32_t fam_ind = 0;
@@ -276,16 +278,15 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 			continue;
 		}
 		switchids[q] = fam_ind++;
-		std::shared_ptr<GUI::TabPanel> tbpnl = TabPanel();
 		size_t count_in_tab = 0, tabcnt = 0;
-		std::shared_ptr<GUI::Grid> grid;
-		grid = Columns<15>(fitParent = true,hAlign=0.0,vAlign=0.0);
+		std::shared_ptr<GUI::Grid> grid = Column(fitParent = true,hAlign=0.0,vAlign=0.0);
+		
 		for(auto levelit = (*it).second.begin(); levelit != (*it).second.end(); ++levelit)
 		{
 			for(auto itid = (*levelit).second.begin(); itid != (*levelit).second.end(); ++itid)
 			{
 				int32_t id = *itid;
-				std::shared_ptr<GUI::Checkbox> cb = Checkbox(
+				grid->add(Checkbox(
 					hAlign=0.0,vAlign=0.0,
 					checked = local_zinit.items[id],
 					text = item_name(id),
@@ -293,29 +294,10 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 					{
 						local_zinit.items[id] = state;
 					}
-				);
-				grid->add(cb);
-				if(++count_in_tab >= unsigned(15*2))
-				{
-					count_in_tab = 0;
-					tbpnl->add(
-						TabRef(
-							name = std::to_string(++tabcnt),
-							grid
-						));
-					grid = Columns<15>(fitParent = true,hAlign=0.0,vAlign=0.0);
-				}
+				));
 			}
 		}
-		if(count_in_tab)
-		{
-			tbpnl->add(
-				TabRef(
-					name = std::to_string(++tabcnt),
-					grid
-				));
-		}
-		icswitcher->add(tbpnl);
+		icswitcher->add(ScrollingPane(fitParent = true, grid));
 	}
 	
 	std::shared_ptr<GUI::Widget> ilist_panel;
@@ -557,7 +539,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 					)
 				)),
 				TabRef(name = "Vars", TabPanel(ptr = &vartab,
-					TabRef(name = "1", Row(
+					TabRef(name = "Misc 1", Row(
 						Column(vAlign = 0.0,
 							Rows<3>(
 								margins = 0_px,
@@ -566,6 +548,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 								DEC_VAL_FIELD("Terminal Vel:",1,999900,2,terminalv,isZC), INFOBTN("The terminal velocity, in px/frame"),
 								VAL_FIELD(byte,"Jump Layer Height:",0,255,jump_hero_layer_threshold,isZC), INFOBTN("Some objects draw higher-layer when their Z is greater than this value"),
 								VAL_FIELD(word,"Player Step:",0,65535,heroStep,isZC), INFOBTN("The player's movement speed, in 100ths px/frame. Only applies if 'New Player Movement' is enabled." + QRHINT({qr_NEW_HERO_MOVEMENT,qr_NEW_HERO_MOVEMENT2})),
+								ZFIX_VAL_FIELD("Player Shove:",0,160000,shove_offset,isZC), INFOBTN("The player's 'corner shove' leniency, in pixels. Only applies if 'Newer Player Movement' is enabled." + QRHINT({qr_NEW_HERO_MOVEMENT2})),
 								VAL_FIELD(word,"Subscreen Fall Mult:",1,85,subscrSpeed,isZC), INFOBTN("Multiplier of the subscreen's fall speed"),
 								VAL_FIELD(byte,"HP Per Heart:",1,255,hp_per_heart,false), INFOBTN("How many HP points each 'heart' has"),
 								VAL_FIELD(byte,"MP Per Block:",1,255,magic_per_block,false), INFOBTN("How many MP points each 'block' has"),
@@ -577,22 +560,8 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 							Rows<3>(
 								margins = 0_px,
 								padding = 0_px,
-								VAL_FIELD(byte,"Light Dither Type:",0,255,dither_type,false), INFOBTN("Determines the design of dither used by dark rooms." + QRHINT({qr_NEW_DARKROOM})),
-								VAL_FIELD(byte,"Light Dither Arg:",0,255,dither_arg,false), INFOBTN("Affects the design of dither used by dark rooms." + QRHINT({qr_NEW_DARKROOM})),
-								VAL_FIELD(byte,"Light Dither Percentage:",0,255,dither_percent,false), INFOBTN("This percentage of each light in dark rooms is added as 'dithered'" + QRHINT({qr_NEW_DARKROOM})),
-								VAL_FIELD(byte,"Light Radius:",0,255,def_lightrad,false), INFOBTN("Default light radius, ex. for fire weapons" + QRHINT({qr_NEW_DARKROOM})),
-								VAL_FIELD(byte,"Light Transp. Percentage:",0,255,transdark_percent,false), INFOBTN("This percentage of each light in dark rooms is added as 'transparent'" + QRHINT({qr_NEW_DARKROOM})),
-								COLOR_FIELD("Darkness Color:", darkcol,false), INFOBTN("The color of darkness" + QRHINT({qr_NEW_DARKROOM})),
 								VAL_FIELD(int32_t,"Bunny Tile Mod:",-214748,214748,bunny_ltm,false), INFOBTN("The 'Player Tile Modifier' added when they are a bunny."),
-								VAL_FIELD(byte,"SwitchHook Style:",0,255,switchhookstyle,false), INFOBTN("The switch hook effect's default animation style")
-							)
-						)
-					)),
-					TabRef(name = "2", Row(
-						Column(vAlign = 0.0,
-							Rows<3>(
-								margins = 0_px,
-								padding = 0_px,
+								VAL_FIELD(byte,"SwitchHook Style:",0,255,switchhookstyle,false), INFOBTN("The switch hook effect's default animation style"),
 								DEC_VAL_FIELD("Water Gravity:",-99990000,99990000,4,swimgravity,false), INFOBTN("The gravity value used in sideview water"),
 								VAL_FIELD(word, "Sideswim Up Step:",0,9999,heroSideswimUpStep,false), INFOBTN("The player's movement speed in sideview water, upwards"),
 								VAL_FIELD(word, "Sideswim Side Step:",0,9999,heroSideswimSideStep,false), INFOBTN("The player's movement speed in sideview water, sideways"),
@@ -600,6 +569,29 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 								DEC_VAL_FIELD("Sideswim Leaving Jump:",-2550000,2550000,4,exitWaterJump,false), INFOBTN("Jump value used when moving out the top of sideview water"),
 								VAL_FIELD(byte, "Hero Swim Step Multiplier:",0,255,hero_swim_mult,false), INFOBTN("Multiplier applied to movement speed in water, requires 'Newer Player Movement'" + QRHINT({qr_NEW_HERO_MOVEMENT2})),
 								VAL_FIELD(byte, "Hero Swim Step Divisor:",0,255,hero_swim_div,false), INFOBTN("Divisor applied to movement speed in water, requires 'Newer Player Movement'" + QRHINT({qr_NEW_HERO_MOVEMENT2}))
+							)
+						)
+					)),
+					TabRef(name = "Dark Room", Row(
+						Column(vAlign = 0.0,
+							Rows<3>(
+								margins = 0_px,
+								padding = 0_px,
+								//
+								Button(text = "Edit Light Dither Style",
+									height = 1.5_em, fitParent = true,
+									colSpan = 2,
+									onPressFunc = [&]()
+									{
+										call_edit_dither(local_zinit.dither_type, local_zinit.dither_arg, local_zinit.darkcol, false);
+										refresh_dlg();
+									}),
+								INFOBTN("Determines the design of dither used by dark rooms." + QRHINT({qr_NEW_DARKROOM})),
+								//
+								VAL_FIELD(byte,"Light Dither Percentage:",0,255,dither_percent,false), INFOBTN("This percentage of each light in dark rooms is added as 'dithered'" + QRHINT({qr_NEW_DARKROOM})),
+								VAL_FIELD(byte,"Light Radius:",0,255,def_lightrad,false), INFOBTN("Default light radius, ex. for fire weapons" + QRHINT({qr_NEW_DARKROOM})),
+								VAL_FIELD(byte,"Light Transp. Percentage:",0,255,transdark_percent,false), INFOBTN("This percentage of each light in dark rooms is added as 'transparent'" + QRHINT({qr_NEW_DARKROOM})),
+								COLOR_FIELD("Darkness Color:", darkcol,false), INFOBTN("The color of darkness" + QRHINT({qr_NEW_DARKROOM}))
 							)
 						)
 					))
@@ -856,25 +848,22 @@ std::shared_ptr<GUI::Widget> InitGenscriptWizard::view()
 					TextField(
 						type = GUI::TextField::type::SWAP_ZSINT_NO_DEC,
 						low = 0, high = 2147480000,
-						val = local_zinit.gen_dataSize[index]*10000,
+						val = local_zinit.gen_data[index].size()*10000,
 						onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 						{
 							val /= 10000;
-							local_zinit.gen_dataSize[index] = val;
+							local_zinit.gen_data[index].resize(val);
 							databtn->setDisabled(!val);
 						}),
 					INFOBTN("The starting size of the script's 'Data' array."),
 					//
 					databtn = Button(colSpan = 3, fitParent = true,
 						text = "Edit Starting Data",
-						disabled = !local_zinit.gen_dataSize[index],
+						disabled = local_zinit.gen_data[index].empty(),
 						onPressFunc = [&]()
 						{
-							if(local_zinit.gen_dataSize[index])
-							{
-								call_edit_vector(local_zinit.gen_data[index], true, 0,
-									local_zinit.gen_dataSize[index]);
-							}
+							if(local_zinit.gen_data[index].size())
+								call_edit_vector(local_zinit.gen_data[index], true);
 						})
 				)
 			)
@@ -1075,7 +1064,6 @@ bool InitGenscriptWizard::handleMessage(const GUI::DialogMessage<message>& msg)
 			dest_zinit.gen_exitState[index] = local_zinit.gen_exitState[index];
 			dest_zinit.gen_reloadState[index] = local_zinit.gen_reloadState[index];
 			memcpy(dest_zinit.gen_initd[index], local_zinit.gen_initd[index], sizeof(int32_t)*8);
-			dest_zinit.gen_dataSize[index] = local_zinit.gen_dataSize[index];
 			dest_zinit.gen_data[index] = local_zinit.gen_data[index];
 			dest_zinit.gen_eventstate[index] = local_zinit.gen_eventstate[index];
 		}

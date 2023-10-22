@@ -49,8 +49,8 @@ public:
     virtual ~LibrarySymbols();
 
 protected:
-	LibrarySymbols() : refVar(0), hasPrefixType(true),
-		table(nullptr)
+	LibrarySymbols() : table(nullptr), refVar(0),
+		hasPrefixType(true)
 	{}
     AccessorTable *table;
     int32_t refVar;

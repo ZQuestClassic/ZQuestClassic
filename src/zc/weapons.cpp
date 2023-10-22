@@ -653,14 +653,18 @@ weapon::weapon(weapon const & other):
     o_type(other.o_type),		//int32_t		The weapon ID (type)
     frames(other.frames),		//int32_t		Frames of the anim cycle
     o_flip(other.o_flip),		//int32_t		The original flip/orientationn
+    ref_o_tile(other.ref_o_tile),	//int32_t
+	script_wrote_otile(other.script_wrote_otile),
     temp1(other.temp1),			//int32_t		Misc var.
     behind(other.behind),		//bool		Should it be drawn behind Hero, NPC, and other sprites?
+	autorotate(other.autorotate),
+    linked_parent(other.linked_parent),	//int32_t		A flagset that determines of the weapon can collect an item.
+	unblockable(other.unblockable),
+	misc_wflags(other.misc_wflags),
     minX(other.minX),			//int32_t		How close can the weapon get tot he edge of the screen
     maxX(other.maxX),			//int32_t		...before being deleted or bouncing
     minY(other.minY),			//int32_t		...
     maxY(other.maxY),			//int32_t		...
-    ref_o_tile(other.ref_o_tile),	//int32_t
-	autorotate(other.autorotate),
 	
     //! dimi Wand
     /*
@@ -686,7 +690,6 @@ weapon::weapon(weapon const & other):
     flags(other.flags),			//word		A misc flagset. 
     collectflags(other.collectflags),	//int32_t		A flagset that determines of the weapon can collect an item.
     duplicates(other.duplicates),	//int32_t		A flagset that determines of the weapon can collect an item.
-    linked_parent(other.linked_parent),	//int32_t		A flagset that determines of the weapon can collect an item.
     quantity_iterator(other.quantity_iterator),	//int32_t		A flagset that determines of the weapon can collect an item.
     script_UID(FFCore.GetScriptObjectUID(UID_TYPE_WEAPON)),
 //Enemy Editor Weapon Sprite
@@ -699,20 +702,19 @@ weapon::weapon(weapon const & other):
 	parent_script_UID(other.parent_script_UID), //Theoretical: Should the parent remain the same, or change to the weapon that spawned the copy?
 	//script_UID(other.script_UID), //Should never be identical. Should get a new script_UID if needed.
 	//If the cloned weapon is not getting an incremented UID for ZASM, then it needs one below.
-	script_wrote_otile(other.script_wrote_otile),
 	weapon_dying_frame(other.weapon_dying_frame),
 	weap_timeout(other.weap_timeout),
-	unblockable(other.unblockable),
-	misc_wflags(other.misc_wflags),
+	
+	
 	death_spawnitem(other.death_spawnitem),
 	death_spawndropset(other.death_spawndropset),
 	death_item_pflags(other.death_item_pflags),
 	death_sprite(other.death_sprite),
 	death_sfx(other.death_sfx),
+	has_shadow(other.has_shadow),
 	lift_level(other.lift_level),
 	lift_time(other.lift_time),
-	lift_height(other.lift_height),
-	has_shadow(other.has_shadow)
+	lift_height(other.lift_height)
     
 	
 	//End Weapon editor non-arrays. 

@@ -7,7 +7,7 @@
 namespace GUI
 {
 
-TabPanel::TabPanel(): visibleChild(0), indexptr(NULL), onSwitch(NULL)
+TabPanel::TabPanel(): indexptr(NULL), visibleChild(0), onSwitch(NULL)
 {
 	setFitParent(true);
 }

@@ -736,7 +736,7 @@ static bool register_name()
 	
 	if(done)
 	{
-		int32_t quest=1;
+		int32_t quest=0;
 		char buf[9];
 		strcpy(buf,name);
 		strupr(buf);
@@ -765,9 +765,8 @@ static bool register_name()
 		*/
 		new_game->set_quest(quest);
 		game->header.qstpath.clear();
-		byte qst_num = byte(quest-1);
 		
-		int32_t ret = (qst_num < moduledata.max_quest_files) ? load_quest(new_game) : qe_no_qst;
+		int32_t ret = load_quest(new_game);
 		
 		if(ret==qe_OK)
 		{

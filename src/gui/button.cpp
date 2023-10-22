@@ -174,14 +174,15 @@ namespace GUI
 {
 
 Button::Button(): text(), message(-1), btnType(type::BASIC), bound_kb(nullptr),
-	bound_hotkey(nullptr), hotkeyindx(0)
+	bound_hotkey(nullptr), hotkeyindx(0), icontype(BTNICON_ARROW_UP)
 {
 	setPreferredHeight(3_em);
 }
 
 void Button::setType(type newType)
 {
-	btnType = newType;
+	if(!alDialog)
+		btnType = newType;
 }
 void Button::setBoundKB(int* kb_ptr)
 {
@@ -200,6 +201,12 @@ void Button::setHotkeyIndx(size_t indx)
 	hotkeyindx = indx;
 	if(alDialog && btnType == type::BIND_HOTKEY)
 		alDialog->d1 = hotkeyindx;
+}
+void Button::setIcon(int icon)
+{
+	icontype = icon;
+	if(alDialog && btnType == type::ICON)
+		alDialog->d1 = icon;
 }
 void Button::setText(std::string newText)
 {
@@ -228,13 +235,15 @@ void Button::applyDisabled(bool dis)
 
 void Button::calculateSize()
 {
-	setPreferredWidth(16_px+Size::pixels(gui_text_width(widgFont, text.c_str())));
+	if(btnType == type::ICON)
+		setPreferredWidth(3_em);
+	else setPreferredWidth(16_px+Size::pixels(gui_text_width(widgFont, text.c_str())));
 	Widget::calculateSize();
 }
 
 void Button::applyFont(FONT* newFont)
 {
-	if(alDialog)
+	if(alDialog && btnType != type::ICON)
 	{
 		alDialog->dp2 = newFont;
 	}
@@ -255,6 +264,17 @@ void Button::realize(DialogRunner& runner)
 				getFlags(),
 				0, 0, // d1, d2
 				text.data(), widgFont, nullptr // dp, dp2, dp3
+			});
+			break;
+		case type::ICON:
+			alDialog = runner.push(shared_from_this(), DIALOG {
+				newGUIProc<jwin_iconbutton_proc>,
+				x, y, getWidth(), getHeight(),
+				fgColor, bgColor,
+				0,
+				getFlags(),
+				icontype, 0, // d1, d2
+				nullptr, nullptr, nullptr // dp, dp2, dp3
 			});
 			break;
 		case type::BIND_KB:

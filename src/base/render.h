@@ -4,6 +4,7 @@
 #include "base/zc_alleg.h"
 #include <vector>
 #include <string>
+#include <functional>
 
 extern unsigned char info_opacity;
 
@@ -84,6 +85,30 @@ struct Matrix
 		r.d[2][2] = (d[0][0] * d[1][1] - d[1][0] * d[0][1]) * invdet;
 		return r;
 	}
+
+	ALLEGRO_TRANSFORM to_allegro_transform()
+	{
+		// Our transform is different from Allegro's.
+		// Transpose it, and add a third spatial dimension.
+		ALLEGRO_TRANSFORM t;
+
+		for (int i = 0; i < 3; i++) {
+			for (int j = 0; j < 3; j++) {
+				t.m[i][j] = d[j][i];
+			}
+		}
+
+		t.m[3][0] = t.m[2][0];
+		t.m[3][1] = t.m[2][1];
+		t.m[3][2] = 0;
+		t.m[3][3] = t.m[2][2];
+		t.m[2][0] = 0;
+		t.m[2][1] = 0;
+		t.m[2][2] = 1;
+		t.m[2][3] = 0;
+
+		return t;
+	}
 };
 
 class RenderTreeItem
@@ -94,21 +119,25 @@ public:
 	// -1 for no transparency.
 	int transparency_index = -1;
 	ALLEGRO_BITMAP* bitmap = nullptr;
-	BITMAP* a4_bitmap = nullptr;
-	bool freeze_a4_bitmap_render = false;
+	int bitmap_flags = -1;
 	ALLEGRO_COLOR* tint = nullptr;
-	bool owned = false;
+	bool owned = false, owned_tint = false;
+	// When true, a4_bitmap -> bitmap will not happen, and neither will `cb` be called.
+	// `bitmap` will still be rendered.
+	bool freeze = false;
+	bool dirty = true;
 
 	RenderTreeItem(std::string name, RenderTreeItem* parent = nullptr);
-	~RenderTreeItem();
+	virtual ~RenderTreeItem();
 
+	void remove();
 	void add_child(RenderTreeItem* child);
 	void add_child_before(RenderTreeItem* child, RenderTreeItem* before_child);
 	void remove_child(RenderTreeItem* child);
-	const std::vector<RenderTreeItem*>& get_children() const;
+	std::vector<RenderTreeItem*>& get_children();
+	std::vector<RenderTreeItem*> const& get_children() const;
 	bool has_children() const;
-	void handle_dirty();
-	void mark_dirty();
+	void set_size(int width, int height);
 	void set_transform(Transform new_transform);
 	const Transform& get_transform() const;
 	const Matrix& get_transform_matrix();
@@ -116,6 +145,18 @@ public:
 	std::pair<int, int> local_to_world(int x, int y);
 	std::pair<int, int> pos();
 	std::pair<int, int> rel_mouse();
+
+	// Every frame, each visible render item will call prepare on itself and all its direct children.
+	// This function should be used to update any properties of this render item (including visibility).
+	virtual void prepare();
+	// Every frame, each visible render item w/ `freeze` false and `dirty` on will call this function.
+	// The `bitmap` will be created (or recreated) to match the `width` and `height`. It will be set as
+	// the target bitmap and cleared before `render` is called, so all draw calls made within `render` will
+	// draw to `bitmap`.
+	virtual void render(bool bitmap_resized);
+
+	int width = 0;
+	int height = 0;
 
 private:
 	Transform transform;
@@ -125,6 +166,38 @@ private:
 	bool transform_inverse_dirty = true;
 	RenderTreeItem* parent = nullptr;
 	std::vector<RenderTreeItem*> children;
+
+	void handle_dirty_transform();
+	void mark_transform_dirty();
+};
+
+class CustomRTI : public RenderTreeItem
+{
+public:
+	CustomRTI(std::string name) : RenderTreeItem(name) {}
+	CustomRTI(std::string name, std::function<void()> prepare_cb, std::function<void()> render_cb);
+	~CustomRTI();
+
+	std::function<void()> prepare_cb;
+	std::function<void()> render_cb;
+
+protected:
+	void prepare();
+	void render(bool);
+};
+
+class LegacyBitmapRTI : public RenderTreeItem
+{
+public:
+	LegacyBitmapRTI(std::string name, RenderTreeItem* parent = nullptr);
+	~LegacyBitmapRTI();
+
+	BITMAP* a4_bitmap = nullptr;
+	bool a4_bitmap_rendered_once = false;
+
+protected:
+	void prepare();
+	void render(bool);
 };
 
 enum class TextJustify {
@@ -149,6 +222,7 @@ extern RenderTreeItem rti_dialogs;
 extern ALLEGRO_COLOR AL5_INVIS,AL5_BLACK,AL5_WHITE,AL5_YELLOW,
 	AL5_PINK,AL5_DGRAY,AL5_LGRAY,AL5_BLUE,AL5_LRED,AL5_DRED,
 	AL5_LGREEN,AL5_LAQUA;
+int get_bitmap_create_flags(bool preserve_texture);
 void set_bitmap_create_flags(bool preserve_texture);
 void clear_a5_bmp(ALLEGRO_BITMAP* bmp = nullptr);
 void clear_a5_bmp(ALLEGRO_COLOR col, ALLEGRO_BITMAP* bmp = nullptr);
@@ -167,11 +241,19 @@ void zc_set_palette_range(PALETTE pal, int start, int end, bool=false);
 void render_a4_a5(BITMAP* src,int sx,int sy,int dx,int dy,int w,int h,int maskind = 0,uint32_t* backpal = nullptr);
 
 extern BITMAP* zqdialog_bg_bmp;
+extern ALLEGRO_COLOR* override_dlg_tint;
 void popup_zqdialog_start(int x = 0, int y = 0, int w = -1, int h = -1, int transp = 0xFF);
 void popup_zqdialog_end();
 void popup_zqdialog_start_a5();
 void popup_zqdialog_end_a5();
 RenderTreeItem* add_dlg_layer(int x = 0, int y = 0, int w = -1, int h = -1);
 void remove_dlg_layer(RenderTreeItem* rti);
+void reload_dialog_tint();
+ALLEGRO_COLOR& get_dlg_tint();
+void pause_dlg_tint(bool pause);
+bool dlg_tint_paused();
+
+void update_throttle_counter();
+void throttleFPS(int32_t cap);
 
 #endif

@@ -15,11 +15,11 @@ namespace GUI
 struct ListItem
 {
 	ListItem(std::string text, int32_t value, int32_t tag = -1) noexcept:
-		text(std::move(text)), value(value), info(""), tag(tag)
+		text(std::move(text)), info(""), value(value), tag(tag)
 	{}
 	
 	ListItem(std::string text, int32_t value, std::string info, int32_t tag = -1) noexcept:
-		text(std::move(text)), value(value), info(std::move(info)), tag(tag)
+		text(std::move(text)), info(std::move(info)), value(value), tag(tag)
 	{}
 	
 	ListItem() : value(-1), tag(-1){}
@@ -47,10 +47,10 @@ public:
 	ListData() : _invalid(false) {}
 	ListData(const ListData& other) = default;
 	ListData(ListData&& other) = default;
-	ListData(std::initializer_list<ListItem> listItems) : _invalid(false), listItems(listItems)
+	ListData(std::initializer_list<ListItem> listItems) : listItems(listItems), _invalid(false)
 	{}
 
-	ListData(std::vector<ListItem> listItems) : _invalid(false), listItems(std::move(listItems))
+	ListData(std::vector<ListItem> listItems) : listItems(std::move(listItems)), _invalid(false)
 	{}
 	ListData(std::vector<std::string> strings) : _invalid(false)
 	{

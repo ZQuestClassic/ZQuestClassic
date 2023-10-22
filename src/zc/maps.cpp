@@ -6324,13 +6324,14 @@ static inline bool onSwitch(newcombo const& cmb, zfix const& switchblockstate)
 {
 	return (switchblockstate < 0 || (cmb.attributes[2]>0 && (zslongToFix(cmb.attributes[2]) - zslongToFix(zc_max(cmb.attributes[3], 0))) <=switchblockstate));
 }
-bool _walkflag(int32_t x,int32_t y,int32_t cnt)
+bool _walkflag(zfix_round zx,zfix_round zy,int32_t cnt)
 {
-	return _walkflag(x,y,cnt,zfix(0));
+	return _walkflag(zx,zy,cnt,0_zf);
 }
 
-static bool _walkflag_new(const mapscr* s0, const mapscr* s1, const mapscr* s2, int32_t x, int32_t y, zfix const& switchblockstate, bool is_temp_screens)
+static bool _walkflag_new(const mapscr* s0, const mapscr* s1, const mapscr* s2, zfix_round zx, zfix_round zy, zfix const& switchblockstate, bool is_temp_screens)
 {
+	int x = zx.getRound(), y = zy.getRound();
 	int32_t bx = COMBOPOS(x % 256, y % 176);
 	newcombo c = combobuf[s0->data[bx]];
 	newcombo c1 = combobuf[s1->data[bx]];
@@ -6388,7 +6389,7 @@ static bool _walkflag_new(const mapscr* s0, const mapscr* s1, const mapscr* s2, 
 }
 
 // Returns true if the combo at viewport position x,y is solid. Looks at a combo's quadrant walkablity flags.
-static bool _walkflag_new(int32_t x, int32_t y, zfix const& switchblockstate)
+static bool _walkflag_new(zfix_round x, zfix_round y, zfix const& switchblockstate)
 {
 	mapscr* s0 = get_screen_layer_for_xy_offset(x, y, 0);
 	mapscr* s1 = get_screen_layer_for_xy_offset(x, y, 1);
@@ -6398,7 +6399,7 @@ static bool _walkflag_new(int32_t x, int32_t y, zfix const& switchblockstate)
 	return _walkflag_new(s0, s1, s2, x, y, switchblockstate, true);
 }
 
-bool _walkflag(int32_t x,int32_t y,int32_t cnt,zfix const& switchblockstate)
+bool _walkflag(zfix_round x,zfix_round y,int32_t cnt,zfix const& switchblockstate)
 {
 	int max_x = world_w;
 	int max_y = world_h;
@@ -6471,8 +6472,9 @@ bool _effectflag(int32_t x,int32_t y,int32_t cnt, int32_t layer, bool notLink)
 // TODO z3 !!! bound to single screen. re-use main walkflag code?
 //used by mapdata->isSolid(x,y) in ZScript:
 // Note: secrets are not applied, unlike MAPCOMBO3.
-bool _walkflag(int32_t x,int32_t y,int32_t cnt, mapscr* m)
+bool _walkflag(zfix_round zx,zfix_round zy,int32_t cnt, mapscr* m)
 {
+	int x = zx.getRound(), y = zy.getRound();
 	{
 		int max_x = 256;
 		int max_y = 176;
@@ -6506,8 +6508,9 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt, mapscr* m)
 }
 
 // TODO z3 !!! script
-bool _walkflag(int32_t x,int32_t y,int32_t cnt, mapscr* m, mapscr* s1, mapscr* s2)
+bool _walkflag(zfix_round zx,zfix_round zy,int32_t cnt, mapscr* m, mapscr* s1, mapscr* s2)
 {
+	int x = zx.getRound(), y = zy.getRound();
 	{
 		int max_x = world_w;
 		int max_y = world_h;
@@ -6608,7 +6611,7 @@ bool _walkflag(int32_t x,int32_t y,int32_t cnt, mapscr* m, mapscr* s1, mapscr* s
 	return (cwalkflag&b) ? !dried : false;
 }
 
-bool _walkflag_layer(int32_t x, int32_t y, int32_t layer, int32_t cnt)
+bool _walkflag_layer(zfix_round x, zfix_round y, int32_t layer, int32_t cnt)
 {
 	mapscr* m = get_layer_scr_for_xy(x, y, layer);
 	if (m->valid == 0) return false;
@@ -6616,8 +6619,10 @@ bool _walkflag_layer(int32_t x, int32_t y, int32_t layer, int32_t cnt)
 }
 
 //Only check the given mapscr*, not its layer 1&2
-bool _walkflag_layer(int32_t x,int32_t y,int32_t cnt, mapscr* m)
+bool _walkflag_layer(zfix_round zx,zfix_round zy,int32_t cnt, mapscr* m)
 {
+	int x = zx.getRound(), y = zy.getRound();
+
 	int max_x = world_w;
 	int max_y = world_h;
 	if (!get_qr(qr_LTTPWALK))

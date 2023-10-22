@@ -4,7 +4,7 @@
 #include <list>
 #include "sprite.h"
 #include "zc/weapons.h"
-#include "zfix.h"
+#include "base/zfix.h"
 
 class item;
 

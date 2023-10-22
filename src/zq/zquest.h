@@ -12,7 +12,7 @@
 #include "sprite.h"
 #include "gamedata.h"
 #include "parser/parserDefs.h"
-#include "zfix.h"
+#include "base/zfix.h"
 #include "base/fonts.h"
 #include "base/cpool.h"
 
@@ -117,7 +117,6 @@ extern size_and_pos commands_window;
 extern size_and_pos commands_list;
 extern size_and_pos dummy_panel;
 
-extern size_and_pos tooltip_box;
 extern size_and_pos tooltip_trigger;
 
 extern int32_t mapscreen_x, mapscreen_y, mapscreensize, showedges, showallpanels;
@@ -138,7 +137,7 @@ extern DATAFILE *zcdata, *fontsdata;
 extern size_t fontsdat_cnt;
 extern MIDI *song;
 extern BITMAP *menu1,*menu3, *mapscreenbmp, *tmp_scr, *screen2, *mouse_bmp[MOUSE_BMP_MAX][4], *mouse_bmp_1x[MOUSE_BMP_MAX][4], *icon_bmp[ICON_BMP_MAX][4], *flag_bmp[16][4], *panel_button_icon_bmp[m_menucount][4], *select_bmp[2],*dmapbmp_small, *dmapbmp_large;
-extern BITMAP *arrow_bmp[MAXARROWS],*brushbmp, *brushscreen, *tooltipbmp, *tooltipbmp2; //, *brushshadowbmp;
+extern BITMAP *arrow_bmp[MAXARROWS],*brushbmp, *brushscreen; //, *brushshadowbmp;
 extern byte *colordata, *trashbuf;
 //extern byte *tilebuf;
 extern comboclass *combo_class_buf;
@@ -190,7 +189,7 @@ extern int32_t OnlyCheckNewTilesForDuplicates;
   , HorizontalDuplicateAction;
   int32_t VerticalDuplicateAction, BothDuplicateAction;
   */
-extern word msg_count, qt_count;
+extern word msg_count;
 extern word door_combo_set_count;
 extern int32_t LeechUpdate;
 extern int32_t LeechUpdateTiles;
@@ -238,7 +237,6 @@ extern ZCHEATS             zcheats;
 extern byte                use_cheats;
 extern byte                use_tiles;
 extern char                palnames[MAXLEVELS][17];
-extern quest_template      QuestTemplates[MAXQTS];
 //extern byte              *undotilebuf;
 
 extern char   fontsdat_sig[52];
@@ -261,7 +259,6 @@ int32_t d_nbmenu_proc(int32_t msg,DIALOG *d,int32_t c);
 int32_t getnumber(const char *prompt,int32_t initialval);
 int32_t gettilepagenumber(const char *prompt, int32_t initialval);
 
-void about_module(const char *prompt,int32_t initialval);
 void savesometiles(const char *prompt,int32_t initialval);
 void writesometiles_to(const char *prompt,int32_t initialval);
 
@@ -378,8 +375,6 @@ int32_t stopMusic();
 
 int32_t onQMiscValues();
 
-int32_t onTemplates();
-
 //  +----------+
 //  |          |
 //  | View Pic |
@@ -495,7 +490,6 @@ int32_t d_comboalist_proc(int32_t msg,DIALOG *d,int32_t c);
 int32_t onSecretF();
 int32_t onSecretCombo();
 int32_t onUnderCombo();
-int32_t load_zmod_module_file();
 int32_t onImportFFScript();
 int32_t onImportItemScript();
 int32_t onImportNPCScript();
@@ -673,7 +667,7 @@ enum
     cmdPath,
     cmdPlayMusic,
     cmdX,
-    cmdQuestTemplates,
+    cmdQuestTemplates, // UNUSED
     cmdReTemplate,
     cmdDrawingModeRelational,
     cmdRevert,
@@ -1175,15 +1169,12 @@ void highlight_sqr(BITMAP* dest, int color, int x, int y, int w, int h, int thic
 void highlight_sqr(BITMAP* dest, int color, size_and_pos const& rec, int thick = 2);
 void highlight_frag(BITMAP* dest, int color, int x1, int y1, int w, int h, int fw, int fh, int thick = 2);
 void highlight_frag(BITMAP* dest, int color, size_and_pos const& rec, int thick = 2);
-void draw_ttip(BITMAP* dest);
-void draw_ttip2(BITMAP* dest);
-void draw_ttips();
+void highlight(BITMAP* dest, size_and_pos& hl);
+std::pair<int, int> get_box_text_size(char const* tipmsg, double txscale);
+void draw_box(BITMAP* destbmp, size_and_pos* pos, char const* tipmsg, double txscale = 1);
 void update_tooltip(int32_t x, int32_t y, size_and_pos const& sqr, char const* tipmsg, double scale = 1);
 void update_tooltip(int32_t x, int32_t y, int32_t trigger_x, int32_t trigger_y, int32_t trigger_w, int32_t trigger_h, char const* tipmsg, int fw = -1, int fh = -1, double scale = 1);
-void update_tooltip2(int32_t x, int32_t y, size_and_pos const& sqr, char const* tipmsg, double scale = 1);
-void update_tooltip2(int32_t x, int32_t y, int32_t trigger_x, int32_t trigger_y, int32_t trigger_w, int32_t trigger_h, char const* tipmsg, int fw = -1, int fh = -1, double scale = 1);
 void clear_tooltip();
-void clear_tooltip2();
 void ZQ_ClearQuestPath();
 void cflag_help(int32_t id);
 void ctype_help(int32_t id);

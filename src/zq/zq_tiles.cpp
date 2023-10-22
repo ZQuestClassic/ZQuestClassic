@@ -3269,8 +3269,6 @@ void edit_tile(int32_t tile,int32_t flip,int32_t &cs)
 		{
 			custom_vsync();
 			draw_edit_scr(tile,flip,cs,oldtile, false);
-			
-			draw_ttip(screen);
 		}
 		else
 		{
@@ -5696,7 +5694,7 @@ void draw_tiles(BITMAP* dest,int32_t first,int32_t cs, int32_t f, bool large, bo
 			{
 				if (InvalidBG == 2)
 				{
-					draw_checkerboard(dest, x, y, l / 2 + 1, l / 2 + 1, l + 2);
+					draw_checkerboard(dest, x, y, 0, 0, l + 2);
 				}
 				else if(InvalidBG == 1)
 				{

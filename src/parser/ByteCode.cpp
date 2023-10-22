@@ -2448,6 +2448,8 @@ string ZScript::VarToString(int32_t ID)
 		case MAPDATASCRDATASIZE: return "MAPDATASCRDATASIZE";
 		case MAPDATASCRDATA: return "MAPDATASCRDATA";
 		
+		case HEROSHOVEOFFSET: return "HEROSHOVEOFFSET";
+		
 		default:
 		{
 			sprintf(temp, "d%d", ID);

@@ -80,7 +80,8 @@ src/dialog/combopool.cpp
 src/dialog/edit_autocombo.cpp
 src/dialog/compilezscript.cpp
 src/dialog/compilesetting.cpp
-src/dialog/vectorpick.cpp
+src/dialog/numpick.cpp
+src/dialog/ditherpick.cpp
 src/dialog/zqhotkeys.cpp
 src/dialog/edit_dmap.cpp
 src/dialog/tilesetwizard.cpp

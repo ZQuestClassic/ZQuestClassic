@@ -38,8 +38,8 @@ while(false)
 // BuildOpcodes
 
 BuildOpcodes::BuildOpcodes(Scope* curScope)
-	: returnlabelid(-1), continuelabelids(), breaklabelids(), 
-	  returnRefCount(0), continueRefCounts(), breakRefCounts()
+	: returnlabelid(-1), returnRefCount(0), continuelabelids(), 
+	  continueRefCounts(), breaklabelids(), breakRefCounts()
 {
 	opcodeTargets.push_back(&result);
 	scope = curScope;

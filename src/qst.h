@@ -17,7 +17,7 @@ struct script_slot_data
 	byte format;
 	std::string output;
 	
-	script_slot_data() : slotname(""), scriptname(""), output(""), format(SCRIPT_FORMAT_DEFAULT) {}
+	script_slot_data() : slotname(""), scriptname(""), format(SCRIPT_FORMAT_DEFAULT), output("") {}
 	void update()
 	{
 		char const* formatstr = getFormatStr()->c_str();
@@ -203,6 +203,7 @@ void port250QuestRules();
 void portCandleRules();
 void portBombRules();
 
+bool is_loading_quest();
 int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc,
 	zctune *tunes, bool show_progress, byte *skip_flags, byte printmetadata = 1,
 	bool report = true, byte qst_num = 0, dword tileset_flags = 0);

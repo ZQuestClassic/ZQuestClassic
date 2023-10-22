@@ -22,11 +22,11 @@ void info_dsa(std::string const& title, std::string const& text, std::string con
 }
 
 AlertDialog::AlertDialog(std::string title, std::string text, std::function<void(bool,bool)> onEnd, std::string truebtn, std::string falsebtn, uint32_t timeout, bool default_ret, bool dontshow):
-	InfoDialog(title,text), onEnd(onEnd), timer(0), timeout(timeout), default_ret(default_ret), truebtn(truebtn), falsebtn(falsebtn), dontshowagain(dontshow)
+	InfoDialog(title,text), truebtn(truebtn), falsebtn(falsebtn), timer(0), timeout(timeout), default_ret(default_ret), dontshowagain(dontshow), onEnd(onEnd)
 {}
 
 AlertDialog::AlertDialog(std::string title, std::vector<std::string_view> lines, std::function<void(bool,bool)> onEnd, std::string truebtn, std::string falsebtn, uint32_t timeout, bool default_ret, bool dontshow):
-	InfoDialog(title,lines), onEnd(onEnd), timer(0), timeout(timeout), default_ret(default_ret), truebtn(truebtn), falsebtn(falsebtn), dontshowagain(dontshow)
+	InfoDialog(title,lines), truebtn(truebtn), falsebtn(falsebtn), timer(0), timeout(timeout), default_ret(default_ret), dontshowagain(dontshow), onEnd(onEnd)
 {}
 
 int32_t AlertDialog::alert_on_tick()

@@ -24,10 +24,9 @@ struct dmap
     // Currently, scrolling regions MUST be rectangles and have no holes.
     // Indexes can be repeated - they currently don't hold any special meaning.
     byte region_indices[8][8];
-	char name[21];
+	char name[22];
 	std::string title;
-	//char title[21];
-	char intro[73];
+	char intro[74];
 	int32_t minimap_1_tile;                                      //before getting map
 	byte minimap_1_cset;                                      //cset for minimap 1
 	int32_t minimap_2_tile;                                      //after getting map
@@ -36,7 +35,7 @@ struct dmap
 	byte largemap_1_cset;                                     //cset for large
 	int32_t largemap_2_tile;                                     //large map
 	byte largemap_2_cset;                                     //cset for large
-	char tmusic[56];
+	char tmusic[57];
 	byte tmusictrack;
 	byte active_subscreen;
 	byte passive_subscreen;

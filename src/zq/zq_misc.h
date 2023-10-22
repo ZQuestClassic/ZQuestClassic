@@ -6,6 +6,7 @@
 #include "base/fonts.h"
 #include "jwin.h"
 #include "sfx.h"
+#include "zq/render_tooltip.h"
 
 #define MAXSCREENS 128
 #define MAXROOMTYPES   rMAX
@@ -41,6 +42,7 @@
 
 INLINE int32_t popup_menu(MENU *menu,int32_t x,int32_t y)
 {
+    ttip_remove();
     while(gui_mouse_b())
     {
         rest(1);
@@ -125,7 +127,6 @@ int32_t onOpen2();
 int32_t onRevert();
 int32_t onSave();
 int32_t onSaveAs();
-int32_t onQuestTemplates();
 
 int32_t onUndo();
 int32_t onCopy();
@@ -206,7 +207,6 @@ int32_t onWarpRings();
 int32_t onWhistle();
 int32_t onMiscColors();
 int32_t onMapStyles();
-int32_t onTemplates();
 int32_t onDoorCombos();
 int32_t onTriPieces();
 int32_t onIcons();
@@ -236,7 +236,6 @@ int32_t onExport_Tiles();
 int32_t onExport_Guys();
 int32_t onExport_Pals();
 int32_t onExport_ZGP();
-int32_t onAbout_Module();
 int32_t onExport_Tilepack();
 int32_t onImport_Tilepack();
 int32_t onImport_Tilepack_To();
