@@ -22316,6 +22316,13 @@ invalid:
     
 }
 
+static bool _is_loading_quest;
+
+bool is_loading_quest()
+{
+	return _is_loading_quest;
+}
+
 int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc,
 	zctune *tunes, bool show_progress, byte *skip_flags, byte printmetadata,
 	bool report, byte qst_num, dword tilesetflags)
@@ -22332,10 +22339,12 @@ int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc,
 	if (!is_ci())
 		loadquest_report = report;
 
+	_is_loading_quest = true;
 	auto start = std::chrono::steady_clock::now();
 	int32_t ret = _lq_int(filename, Header, Misc, tunes, show_progress, skip_flags, printmetadata);
 	int32_t load_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count();
 	zprint2("Time to load qst: %d ms\n", load_ms);
+	_is_loading_quest = false;
 
 	load_tmp_zi = NULL;
 	loading_qst_name = NULL;

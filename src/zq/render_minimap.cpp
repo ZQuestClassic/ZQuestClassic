@@ -4,6 +4,7 @@
 #include "base/zc_alleg.h"
 #include "base/zdefs.h"
 #include "jwin_a5.h"
+#include "qst.h"
 #include "zq/render.h"
 #include "zq/zq_class.h"
 #include "zq/zq_misc.h"
@@ -35,9 +36,6 @@ static int get_cursor_color()
 
 static void mmap_draw(int offx, int offy)
 {
-	if (!Map.Scr(0))
-		return;
-
 	size_and_pos *real_mini_sqr = &real_minimap;
 	
 	if(zoomed_minimap)
@@ -101,7 +99,7 @@ void MiniMapRTI::prepare()
 	}
 
 	visible = !prv_mode;
-	freeze = rti_dialogs.visible;
+	freeze = rti_dialogs.visible || is_loading_quest() || !Map.Scr(0);
 }
 
 void MiniMapRTI::render(bool bitmap_resized)
