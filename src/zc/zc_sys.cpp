@@ -7098,53 +7098,7 @@ int32_t onEpilepsy()
 	return D_O_K;
 }
 
-int32_t onTriforce()
-{
-	for(int32_t i=0; i<MAXINITTABS; ++i)
-	{
-		init_tabs[i].flags&=~D_SELECTED;
-	}
-	
-	init_tabs[3].flags=D_SELECTED;
-	return onCheatConsole();
-	/*triforce_dlg[0].dp2=get_zc_font(font_lfont);
-	for(int32_t i=1; i<=8; i++)
-	  triforce_dlg[i].flags = (game->lvlitems[i] & liTRIFORCE) ? D_SELECTED : 0;
-	
-	if(do_zqdialog (triforce_dlg,-1)==9)
-	{
-	  for(int32_t i=1; i<=8; i++)
-	  {
-		game->lvlitems[i] &= ~liTRIFORCE;
-		game->lvlitems[i] |= (triforce_dlg[i].flags & D_SELECTED) ? liTRIFORCE : 0;
-	  }
-	}
-	return D_O_K;*/
-}
-
 bool rc = false;
-/*
-int32_t onEquipment()
-{
-  for (int32_t i=0; i<MAXINITTABS; ++i)
-  {
-	init_tabs[i].flags&=~D_SELECTED;
-  }
-  init_tabs[0].flags=D_SELECTED;
-  return onCheatConsole();
-}
-*/
-
-int32_t onItems()
-{
-	for(int32_t i=0; i<MAXINITTABS; ++i)
-	{
-		init_tabs[i].flags&=~D_SELECTED;
-	}
-	
-	init_tabs[1].flags=D_SELECTED;
-	return onCheatConsole();
-}
 
 static DIALOG getnum_dlg[] =
 {
@@ -8031,7 +7985,8 @@ void System()
 	
 	rc=false;
 	clear_keybuf();
-	//  text_mode(0);
+
+	zc_init_apply_cheat_delta();
 }
 
 void fix_dialogs()

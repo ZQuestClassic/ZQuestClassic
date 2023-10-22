@@ -7,21 +7,48 @@
 #include "jwin.h"
 #include "base/zsys.h"
 #include "gamedata.h"
+#include "dialog/info.h"
 #include "zc/hero.h"
 #include "zc/zc_init.h"
 #include "zc/cheats.h"
 
+static std::string cheat_delta;
+
+void zc_init_apply_cheat_delta()
+{
+	if (cheat_delta.size())
+	{
+		cheats_enqueue(Cheat::PlayerData, -1, -1, cheat_delta);
+		cheat_delta.clear();
+	}
+}
+
 int32_t onCheatConsole()
 {
-    zinitdata *zinit2 = copyIntoZinit(game);
-	zinitdata base = *zinit2;
+	zinitdata *base = copyIntoZinit(game);
+	zinitdata *zinit2;
+
+	if (cheat_delta.size())
+	{
+		std::string error;
+		zinit2 = apply_init_data_delta(base, cheat_delta, error);
+		if (!zinit2)
+			InfoDialog("Error applying init data delta", error).show();
+	}
+	else
+	{
+		zinit2 = new zinitdata;
+		*zinit2 = *base;
+	}
+
     int32_t rval = doInit(zinit2, true);
-	std::string delta = serialize_init_data_delta(&base, zinit2);
+	std::string delta = serialize_init_data_delta(base, zinit2);
 	if (delta.size())
-		cheats_enqueue(Cheat::PlayerData, -1, -1, delta);
-    // resetItems(game, zinit2, false);
-    delete zinit2;
-    // ringcolor(false);
+		cheat_delta = delta;
+
+	delete base;
+	delete zinit2;
+
     return rval;
 }
 

@@ -510,6 +510,7 @@ void cheats_hit_bind(Cheat cheat)
 			enter_sys_pal();
 			onCheatConsole();
 			exit_sys_pal();
+			zc_init_apply_cheat_delta();
 			break;
 		default:
 			cheats_enqueue(cheat);
