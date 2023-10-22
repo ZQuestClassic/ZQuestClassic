@@ -33,7 +33,7 @@ static void init_render_tree()
 	if (rti_root.has_children())
 		return;
 
-	set_bitmap_create_flags(false);
+	set_bitmap_create_flags(true);
 	rti_screen.set_size(screen->w, screen->h);
 	rti_screen.bitmap = create_a5_bitmap(screen->w, screen->h);
 	rti_screen.a4_bitmap = screen;
