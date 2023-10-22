@@ -1,8 +1,8 @@
-# Tests ZQuest.
+# Tests the editor.
 #
 # To run:
 #
-#   python tests/test_zquest.py
+#   python tests/test_zeditor.py
 
 import sys
 import os
@@ -16,7 +16,7 @@ from common import ReplayTestResults
 
 script_dir = Path(os.path.dirname(os.path.realpath(__file__)))
 root_dir = script_dir.parent
-tmp_dir = root_dir / '.tmp/test_editor'
+tmp_dir = root_dir / '.tmp/test_zeditor'
 tmp_dir.mkdir(exist_ok=True, parents=True)
 
 sys.path.append(str((root_dir / 'scripts').absolute()))
@@ -143,6 +143,21 @@ class TestZEditor(unittest.TestCase):
                 output_dir = tmp_dir / 'output' / original_replay_path.name
                 output_dir.mkdir(exist_ok=True, parents=True)
                 self.run_replay(output_dir, [replay_path])
+
+    def test_package_export(self):
+        if 'emscripten' in str(run_target.get_build_folder()) or platform.system() != 'Windows':
+            raise unittest.SkipTest('unsupported platform')
+
+        run_target.check_run('zeditor', [
+            '-package', 'quests/Z1 Recreations/classic_1st.qst', 'package-test',
+        ])
+
+        package_dir = run_target.get_build_folder() / 'packages/package-test'
+        args_path: Path = package_dir / 'data/zc_args.txt'
+        args_path.write_text(args_path.read_text() + ' -q')
+        run_target.check_run('zplayer', [
+            '-package',
+        ], package_dir / 'data')
 
 if __name__ == '__main__':
     unittest.main()

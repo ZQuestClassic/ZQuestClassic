@@ -13,7 +13,7 @@ int APIENTRY WinMain(HINSTANCE, HINSTANCE, PSTR, int)
 
 	TCHAR cmdArgs[] = "zplayer.exe -package";
 
-    CreateProcessA(
+    bool success = CreateProcessA(
         "data/zplayer.exe",
         cmdArgs,
         NULL,
@@ -28,5 +28,5 @@ int APIENTRY WinMain(HINSTANCE, HINSTANCE, PSTR, int)
 	CloseHandle(pi.hProcess);
 	CloseHandle(pi.hThread);
 
-	return 0;
+	return success ? 0 : 1;
 }
