@@ -1394,27 +1394,30 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 {
 	chop_path(qstpath);
 	int32_t ret = 0;
+	int32_t qst_num = g->get_quest();
 
-	// Only automatically set the qst for the 1st->2nd advancement.
-	byte qst_num = byte(g->get_quest()-1);
-	if(!g->get_qstpath()[0])
+	if (g->header.qstpath.empty() && !qst_num)
 	{
-		if(qst_num==1)
-		{
-			char* cwd = al_get_current_directory();
-			auto path = fs::path(cwd) / "quests/Z1 Recreations/classic_2nd.qst";
-			al_free(cwd);
-			sprintf(qstpath, "%s", path.string().c_str());
-			g->header.qstpath = qstpath;
-		}
-		else
-		{
-			// We will open the file select dialog to show the quest directory.
-			return 0;
-		}
+		// We will open the file select dialog to show the quest directory.
+		return 0;
 	}
 
-	if(g->get_qstpath()[0])
+	if (g->header.qstpath.empty() && qst_num)
+	{
+		char* cwd = al_get_current_directory();
+		fs::path path;
+		if      (qst_num == 1) path = fs::path(cwd) / "quests/Z1 Recreations/classic_1st.qst";
+		else if (qst_num == 2) path = fs::path(cwd) / "quests/Z1 Recreations/classic_2nd.qst";
+		else if (qst_num == 3) path = fs::path(cwd) / "quests/Old Contest Winners/classic_3rd.qst";
+		else if (qst_num == 4) path = fs::path(cwd) / "quests/Z1 Recreations/classic_4th.qst";
+		else if (qst_num == 5) path = fs::path(cwd) / "quests/Old Contest Winners/classic_5th.qst";
+		else return qe_no_qst;
+		al_free(cwd);
+		sprintf(qstpath, "%s", path.string().c_str());
+		g->header.qstpath = qstpath;
+	}
+
+	if (!g->header.qstpath.empty())
 	{
 		if(is_relative_filename(g->get_qstpath()))
 		{
@@ -1499,7 +1502,6 @@ int32_t load_quest(gamedata *g, bool report, byte printmetadata)
 			}
 		}//end hack
 	}
-	else ret = qe_no_qst;
 
 	if (replay_is_active() && !testingqst_name.empty())
 	{
