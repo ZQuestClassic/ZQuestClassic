@@ -879,23 +879,41 @@ static void preciseThrottle(double seconds)
 #endif
 }
 
-void throttleFPS(bool throttle)
+void throttleFPS(int32_t cap)
 {
 	static auto last_time = std::chrono::high_resolution_clock::now();
+	static uint32_t framescaptured = 0;
 
-	if( throttle )
+	if( cap )
 	{
-		if (!throttle_counter.load(std::memory_order_relaxed))
+		bool dothrottle = false;
+		if (cap == 60)
+			dothrottle = true;
+		// Goofy hack for limiting FPS for speed up:
+		// Rather than doing more precise time calculations, throttle at 60 FPS
+		// but only for every 60th of the target FPS.
+		else if (framescaptured >= (cap * 10000 / 60))
 		{
-			int freq = 60;
-			double target = 1.0 / freq;
-			auto now_time = std::chrono::high_resolution_clock::now();
-			double delta = (now_time - last_time).count() / 1e9;
-			if (delta < target)
-				preciseThrottle(target - delta);
+			dothrottle = true;
+			framescaptured -= (cap * 10000 / 60);
 		}
+		if (dothrottle)
+		{
+			if (!throttle_counter.load(std::memory_order_relaxed))
+			{
+				int freq = 60;
+				double target = 1.0 / freq;
+				auto now_time = std::chrono::high_resolution_clock::now();
+				double delta = (now_time - last_time).count() / 1e9;
+				if (delta < target)
+					preciseThrottle(target - delta);
+			}
+			last_time = std::chrono::high_resolution_clock::now();
+		}
+
+		if(cap != 60)
+			framescaptured += 10000;
 	}
 
 	throttle_counter.store(false, std::memory_order_relaxed);
-	last_time = std::chrono::high_resolution_clock::now();
 }

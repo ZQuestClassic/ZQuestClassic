@@ -27066,7 +27066,7 @@ void anim_hw_screen(bool force)
 
 void custom_vsync()
 {
-	throttleFPS(true);
+	throttleFPS(60);
 	anim_hw_screen(true);
 	myvsync=0;
 }

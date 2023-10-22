@@ -254,6 +254,6 @@ void pause_dlg_tint(bool pause);
 bool dlg_tint_paused();
 
 void update_throttle_counter();
-void throttleFPS(bool throttle);
+void throttleFPS(int32_t cap);
 
 #endif

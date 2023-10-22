@@ -395,6 +395,7 @@ void load_game_configs()
 	volkeys = zc_get_config(sfx_sect,"volkeys",0)!=0;
 	zc_vsync = zc_get_config(cfg_sect,"vsync",0);
 	Throttlefps = zc_get_config(cfg_sect,"throttlefps",1)!=0;
+	Maxfps = zc_get_config(cfg_sect,"maxfps",0);
 	TransLayers = zc_get_config(cfg_sect,"translayers",1)!=0;
 	SnapshotFormat = zc_get_config(cfg_sect,"snapshot_format",3);
 	NameEntryMode = zc_get_config(cfg_sect,"name_entry_mode",0);

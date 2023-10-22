@@ -198,7 +198,10 @@ bool doThrottle()
 
 void zc_throttle_fps()
 {
-	throttleFPS(doThrottle() || Paused);
+	int32_t target = Maxfps;
+	if (doThrottle() || Paused)
+		target = 60;
+	throttleFPS(target);
 }
 
 int32_t onHelp()
@@ -346,6 +349,7 @@ bool show_layer_0=true, show_layer_1=true, show_layer_2=true, show_layer_3=true,
 bool Throttlefps = true, MenuOpen = false, ClickToFreeze=false, Paused=false, Saving=false,
 	Advance=false, ShowFPS = true, Showpal=false, disableClickToFreeze=false, SaveDragResize=false,
 	DragAspect=false, SaveWinPos=false, scaleForceInteger=false, stretchGame=false;
+int32_t Maxfps = 0;
 double aspect_ratio = 0.75;
 int window_min_width = 320, window_min_height = 240;
 bool Playing, FrameSkip=false, TransLayers = true,clearConsoleOnLoad = true,clearConsoleOnReload = true;

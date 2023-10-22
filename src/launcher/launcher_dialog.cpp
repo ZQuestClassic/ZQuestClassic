@@ -591,7 +591,8 @@ std::shared_ptr<GUI::Widget> LauncherDialog::view()
 						),
 						DummyWidget(),
 						//
-						CONFIG_DROPDOWN_I("Quickload Slot:", App::zelda,"zeldadx","quickload_slot",0,quickSlotList,"Unless 'disabled', this save slot will be immediately loaded upon launching.")
+						CONFIG_DROPDOWN_I("Quickload Slot:", App::zelda,"zeldadx","quickload_slot",0,quickSlotList,"Unless 'disabled', this save slot will be immediately loaded upon launching."),
+						CONFIG_TEXTFIELD_I("Fastforward FPS Cap:", App::zelda, "zeldadx", "maxfps", 0, 0, 6000, "If >0 and 'Cap FPS' is off, FPS will not go above this value. This allows fast forwarding while still keeping a consistent and playable speed. Does not work for values < 60.")
 					)
 				)),
 				TabRef(name = "ZC Editor", Row(framed = true,
