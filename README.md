@@ -8,7 +8,7 @@ Website: [zquestclassic.com](https://zquestclassic.com)
 
 [Our Discord](https://discord.gg/ddk2dk4guq)
 
-We support Windows, OSX, and Linux. There is also an experimental [web version](https://zquestclassic.com/play/) that can also be played on mobile devices.
+We support Windows (Win7+), OSX (12+), and Linux. There is also an experimental [web version](https://zquestclassic.com/play/) that can also be played on mobile devices.
 
 ## Development
 
