@@ -17471,7 +17471,7 @@ bool HeroClass::scr_canmove(zfix dx, zfix dy, bool kb, bool ign_sv)
 				if(scr_walkflag(mx, by+ty, left, kb))
 					return false;
 			}
-			if(scr_walkflag(mx.rnd(ROUND_CEIL), ry.rnd(ROUND_CEIL), left, kb))
+			if(scr_walkflag(mx, ry, left, kb))
 				return false;
 			if(nosolid && collide_object(bx+dx,by,-dx,hei,this))
 				return false;
@@ -17485,7 +17485,7 @@ bool HeroClass::scr_canmove(zfix dx, zfix dy, bool kb, bool ign_sv)
 				if(scr_walkflag(mx, by+ty, right, kb))
 					return false;
 			}
-			if(scr_walkflag(mx.rnd(ROUND_CEIL), ry.rnd(ROUND_CEIL), right, kb))
+			if(scr_walkflag(mx, ry, right, kb))
 				return false;
 			if(nosolid && collide_object(bx+wid,by,dx,hei,this))
 				return false;
@@ -17501,7 +17501,7 @@ bool HeroClass::scr_canmove(zfix dx, zfix dy, bool kb, bool ign_sv)
 				if(scr_walkflag(bx+tx, my, up, kb))
 					return false;
 			}
-			if(scr_walkflag(rx.rnd(ROUND_CEIL), my.rnd(ROUND_CEIL), up, kb))
+			if(scr_walkflag(rx, my, up, kb))
 				return false;
 			if(nosolid && collide_object(bx,by+dy,wid,-dy,this))
 				return false;
@@ -17515,7 +17515,7 @@ bool HeroClass::scr_canmove(zfix dx, zfix dy, bool kb, bool ign_sv)
 				if(scr_walkflag(bx+tx, my, down, kb))
 					return false;
 			}
-			if(scr_walkflag(rx.rnd(ROUND_CEIL), my.rnd(ROUND_CEIL), down, kb))
+			if(scr_walkflag(rx, my, down, kb))
 				return false;
 			if(nosolid && collide_object(bx,by+hei,wid,dy,this))
 				return false;
@@ -17726,8 +17726,8 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 				zfix ly = y+v;
 				zfix ry = y+15.9999_zf;
 				auto mdir = GET_XDIR(dx);
-				bool hit_top = scr_walkflag(tx.rnd(RoundDir(dx)),ly,mdir,false);
-				bool hit_bottom = scr_walkflag(tx.rnd(RoundDir(dx)),ry.rnd(ROUND_CEIL),mdir,false);
+				bool hit_top = scr_walkflag(tx,ly,mdir,false);
+				bool hit_bottom = scr_walkflag(tx,ry,mdir,false);
 				if(hit_top!=hit_bottom)
 				{
 					bool shoved = false;
@@ -17801,8 +17801,8 @@ bool HeroClass::movexy(zfix dx, zfix dy, bool kb, bool ign_sv, bool shove, bool 
 				zfix lx = x;
 				zfix rx = x+15.9999_zf;
 				auto mdir = GET_YDIR(dy);
-				bool hit_left = scr_walkflag(lx,ty.rnd(RoundDir(dy)),mdir,false);
-				bool hit_right = scr_walkflag(rx.rnd(ROUND_CEIL),ty.rnd(RoundDir(dy)),mdir,false);
+				bool hit_left = scr_walkflag(lx,ty,mdir,false);
+				bool hit_right = scr_walkflag(rx,ty,mdir,false);
 				if(hit_left!=hit_right)
 				{
 					bool shoved = false;
