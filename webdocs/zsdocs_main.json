@@ -2651,7 +2651,7 @@
                         },
                         {
                             "name": "SetTilePixel ;; Graphics::SetTilePixel",
-                            "val": "<h3>int SetTilePixel(int tile, int x, int y, int color);</h3>\n\nSets the color index an an x,y coordinate of a tile.\nIf writing an 8-bit color to a 4-bit tile, the cset bits will be discarded."
+                            "val": "<h3>int SetTilePixel(int tile, int x, int y, int color);</h3>\n\nSets the color index an an x,y coordinate of a tile.\nIf writing an 8-bit color to a 4-bit tile, the cset bits will be discarded.\nThis is not considered a draw command and is not affected by deferred draw timing. It will run instantly, before any draws for the frame."
                         },
                         {
                             "name": "Greyscale ;; Graphics::Greyscale / Graphics::Grayscale",

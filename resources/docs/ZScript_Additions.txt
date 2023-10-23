@@ -7885,6 +7885,8 @@ int GetTilePixel(int tile, int x, int y, int cset = 0);
 void SetTilePixel(int tile, int x, int y, int color);
  * Sets the color index an an x,y coordinate of a tile.
  * If writing an 8-bit color to a 4-bit tile, the cset bits will be discarded.
+ * This is not considered a draw command and is not affected by deferred draw timing.
+ * It will run instantly, before any draws for the frame.
 
 paldata CreatePalData();
  * Creates a new empty paldata.
