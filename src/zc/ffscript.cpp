@@ -13239,6 +13239,7 @@ int32_t get_register(const int32_t arg)
 			break;
 		
 		case ISBLANKTILE: ret = (FFCore.IsBlankTile(ri->d[rINDEX]/10000) * 10000); break;
+		case IS8BITTILE: ret = (FFCore.Is8BitTile(ri->d[rINDEX] / 10000) * 10000); break;
 
 		case BITMAPWIDTH:
 		{
@@ -35062,6 +35063,17 @@ int32_t FFScript::IsBlankTile(int32_t i)
 	return 1;
 }
 
+int32_t FFScript::Is8BitTile(int32_t i)
+{
+	if (((unsigned)i) > NEWMAXTILES)
+	{
+		Z_scripterrlog("Invalid tile ID (%d) passed to Graphics->Is8BitTile[]\n");
+		return -1;
+	}
+
+	return newtilebuf[i].format == tf8Bit ? 1 : 0;
+}
+
 void do_swaptile(const bool v, const bool v2)
 {
 	int32_t tile = SH::get_arg(sarg1, v) / 10000;
@@ -35095,24 +35107,40 @@ void do_fliprotatetile(const bool v, const bool v2)
 	//fliprotatetile
 }
 
-void do_settilepixel(const bool v)
+void do_settilepixel()
 {
-	int32_t tile = SH::get_arg(sarg1, v) / 10000;
+	int32_t tile = SH::read_stack(ri->sp + 3) / 10000;
+	int32_t x = SH::read_stack(ri->sp + 2) / 10000;
+	int32_t y = SH::read_stack(ri->sp + 1) / 10000;
+	int32_t val = SH::read_stack(ri->sp + 0) / 10000;
 	
 	if(BC::checkTile(tile, "SetTilePixel") != SH::_NoError)
 		return;
 		
-	//settilepixel
+	x = vbound(x, 0, 15);
+	y = vbound(y, 0, 15);
+	unpack_tile(newtilebuf, tile, 0, false);
+	if (newtilebuf[tile].format == tf4Bit)
+		val &= 0xF;
+	unpackbuf[y * 16 + x] = val;
+	pack_tile(newtilebuf, unpackbuf, tile);
 }
 
-void do_gettilepixel(const bool v)
+void do_gettilepixel()
 {
-	int32_t tile = SH::get_arg(sarg1, v) / 10000;
-	
+	int32_t tile = SH::read_stack(ri->sp + 3) / 10000;
+	int32_t x = SH::read_stack(ri->sp + 2) / 10000;
+	int32_t y = SH::read_stack(ri->sp + 1) / 10000;
+	int32_t cs = SH::read_stack(ri->sp + 0) / 10000;
+
 	if(BC::checkTile(tile, "GetTilePixel") != SH::_NoError)
 		return;
 		
-	//gettilepixel
+	x = vbound(x, 0, 15);
+	y = vbound(y, 0, 15);
+	unpack_tile(newtilebuf, tile, 0, false);
+	int32_t csoffs = newtilebuf[tile].format == tf8Bit ? 0 : cs * 16;
+	ri->d[rEXP1] = 10000 * (unpackbuf[y * 16 + x] + csoffs);
 }
 
 void do_shifttile(const bool v, const bool v2)
@@ -38218,20 +38246,12 @@ j_command:
 				do_fliprotatetile(false, false);
 				break;
 				
-			case GETTILEPIXELV:
-				do_gettilepixel(true);
+			case GETTILEPIXEL:
+				do_gettilepixel();
 				break;
 				
-			case GETTILEPIXELR:
-				do_gettilepixel(false);
-				break;
-				
-			case SETTILEPIXELV:
-				do_settilepixel(true);
-				break;
-				
-			case SETTILEPIXELR:
-				do_settilepixel(false);
+			case SETTILEPIXEL:
+				do_settilepixel();
 				break;
 				
 			case SHIFTTILEVV:
@@ -45467,10 +45487,10 @@ script_command ZASMcommands[NUMCOMMANDS+1]=
 	{ "FLIPROTTILEVR",       2,   1,   0,   0},
 	{ "FLIPROTTILERV",       2,   0,   1,   0},
 	{ "FLIPROTTILERR",       2,   0,   0,   0},
-	{ "GETTILEPIXELV",       1,   1,   0,   0},
-	{ "GETTILEPIXELR",       1,   0,   0,   0},
-	{ "SETTILEPIXELV",       1,   1,   0,   0},
-	{ "SETTILEPIXELR",       1,   0,   0,   0},
+	{ "GETTILEPIXEL",       0,   0,   0,   0},
+	{ "RESRVD_OP_MOOSH_EX_01",       1,   0,   0,   0},
+	{ "SETTILEPIXEL",       0,   0,   0,   0},
+	{ "RESRVD_OP_MOOSH_EX_02",       1,   0,   0,   0},
 	{ "SHIFTTILEVV",         2,   1,   1,   0},
 	{ "SHIFTTILEVR",         2,   1,   0,   0},
 	{ "SHIFTTILERV",         2,   0,   1,   0},
@@ -47906,7 +47926,7 @@ script_variable ZASMVars[]=
 	{ "MUSICUPDATECOND", MUSICUPDATECOND, 0, 0 },
 	{ "MUSICUPDATEFLAGS", MUSICUPDATEFLAGS, 0, 0 },
 	{ "DMAPDATAINTROSTRINGID", DMAPDATAINTROSTRINGID, 0, 0 },
-	{ "RESRVD_VAR_MOOSH08", RESRVD_VAR_MOOSH08, 0, 0 },
+	{ "IS8BITTILE", IS8BITTILE, 0, 0 },
 	{ "RESRVD_VAR_MOOSH09", RESRVD_VAR_MOOSH09, 0, 0 },
 	{ "RESRVD_VAR_MOOSH10", RESRVD_VAR_MOOSH10, 0, 0 },
 	{ "RESRVD_VAR_MOOSH11", RESRVD_VAR_MOOSH11, 0, 0 },

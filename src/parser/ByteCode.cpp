@@ -2264,7 +2264,7 @@ string ZScript::VarToString(int32_t ID)
 		case MUSICUPDATECOND: return "MUSICUPDATECOND";
 		case MUSICUPDATEFLAGS: return "MUSICUPDATEFLAGS";
 		case DMAPDATAINTROSTRINGID: return "DMAPDATAINTROSTRINGID";
-		case RESRVD_VAR_MOOSH08: return "RESRVD_VAR_MOOSH08";
+		case IS8BITTILE: return "IS8BITTILE";
 		case RESRVD_VAR_MOOSH09: return "RESRVD_VAR_MOOSH09";
 		case RESRVD_VAR_MOOSH10: return "RESRVD_VAR_MOOSH10";
 		case RESRVD_VAR_MOOSH11: return "RESRVD_VAR_MOOSH11";
@@ -3557,6 +3557,14 @@ string OConvertFromRGB::toString() const
 string OConvertToRGB::toString() const
 {
 	return "CONVERTTORGB";
+}
+string OGetTilePixel::toString() const
+{
+	return "GETTILEPIXEL";
+}
+string OSetTilePixel::toString() const
+{
+	return "SETTILEPIXEL";
 }
 string OLoadLevelPalette::toString() const
 {

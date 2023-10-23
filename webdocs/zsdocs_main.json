@@ -2642,6 +2642,18 @@
                             "val": "<h3>bool IsBlankTile[214500];</h3>\n\nRead-only. True if the given tile is entirely blank (all color 0)."
                         },
                         {
+                            "name": "Is8BitTile ;; Graphics::Is8BitTile",
+                            "val": "<h3>bool Is8BitTile[214500];</h3>\n\nRead-only. True if the given tile uses 8-bit color."
+                        },
+                        {
+                            "name": "GetTilePixel ;; Graphics::GetTilePixel",
+                            "val": "<h3>int GetTilePixel(int tile, int x, int y, int cset = 0);</h3>\n\nReturns the color index at an x,y coordinate of a tile.\nIf the tile isn't 8-bit, will return a color in the cset specified."
+                        },
+                        {
+                            "name": "SetTilePixel ;; Graphics::SetTilePixel",
+                            "val": "<h3>int SetTilePixel(int tile, int x, int y, int color);</h3>\n\nSets the color index an an x,y coordinate of a tile.\nIf writing an 8-bit color to a 4-bit tile, the cset bits will be discarded."
+                        },
+                        {
                             "name": "Greyscale ;; Graphics::Greyscale / Graphics::Grayscale",
                             "val": "<h3>void Greyscale(bool enable);</h3>\n\nEnables or disables 'greyscale' mode. ${Graphics::MonochromeHue|MonochromeHue()} works similarly, but with more options."
                         },

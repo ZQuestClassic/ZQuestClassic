@@ -23,6 +23,9 @@ static AccessorTable GraphicsTable[] =
 	{ "CreateRGB",                  1,       ZTID_RGBDATA,   -1,                   FL_INL,  { ZTID_GRAPHICS, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "ConvertFromRGB",             0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_GRAPHICS, ZTID_FLOAT, ZTID_RGBDATA, ZTID_FLOAT },{} },
 	{ "ConvertToRGB",               0,       ZTID_RGBDATA,   -1,                   FL_INL,  { ZTID_GRAPHICS, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "GetTilePixel",               0,         ZTID_FLOAT,   -1,                   FL_INL,  { ZTID_GRAPHICS, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{ 0 } },
+	{ "SetTilePixel",               0,          ZTID_VOID,   -1,                   FL_INL,  { ZTID_GRAPHICS, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT, ZTID_FLOAT },{} },
+	{ "getIs8BitTile[]",           0,         ZTID_FLOAT,   IS8BITTILE,               0,  { ZTID_GRAPHICS, ZTID_FLOAT },{} },
 
 	{ "",                           0,          ZTID_VOID,   -1,                        0,  {},{} }
 };
@@ -242,6 +245,34 @@ void GraphicsSymbols::generateCode()
 		addOpcode2(code, new OConvertToRGB());
 		LABELBACK(label);
 		POP_ARGS(2, NUL);
+		//pop pointer, and ignore it
+		POPREF();
+		RETURN();
+		function->giveCode(code);
+	}
+	//void GetTilePixel(graphics, float, float, float, float)
+	{
+		Function* function = getFunction("GetTilePixel");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2(code, new OGetTilePixel());
+		LABELBACK(label);
+		POP_ARGS(4, NUL);
+		//pop pointer, and ignore it
+		POPREF();
+		RETURN();
+		function->giveCode(code);
+	}
+	//void SetTilePixel(graphics, float, float, float, float)
+	{
+		Function* function = getFunction("SetTilePixel");
+		int32_t label = function->getLabel();
+		vector<shared_ptr<Opcode>> code;
+		//pop off the param
+		addOpcode2(code, new OSetTilePixel());
+		LABELBACK(label);
+		POP_ARGS(4, NUL);
 		//pop pointer, and ignore it
 		POPREF();
 		RETURN();
