@@ -125,6 +125,23 @@ public:
 		return key < this->true_sz && cont.contains(key);
 	}
 	
+	bool operator==(bound_t const& other) const
+	{
+		if(other.size() != this->size())
+			return false;
+		if(other.default_val != this->default_val)
+			return false;
+		map<size_type,bool> keys;
+		for(auto [k,v] : cont)
+			keys[k] = true;
+		for(auto [k,v] : other.cont)
+			keys[k] = true;
+		for(auto [k,b] : keys)
+			if(other[k] != (*this)[k])
+				return false;
+		return true;
+	}
+	
 	optional<size_type> firstKey() const
 	{
 		for(auto it = cont.begin(); it != cont.end(); ++it)
@@ -233,13 +250,17 @@ public:
 	
 	bool inner_empty() const {return cont.empty();}
 	
-	bool operator==(bound_t const& other)
+	bool operator==(bound_t const& other) const
 	{
-		return other.size() == this->size() && other.cont == this->cont;
-	}
-	bool operator!=(bound_t const& other)
-	{
-		return !(other == *this);
+		if(other.size() != this->size())
+			return false;
+		if(other.default_val != this->default_val)
+			return false;
+		size_t cap = std::max(other.capacity(), this->capacity());
+		for(size_t q = 0; q < cap; ++q)
+			if(other[q] != (*this)[q])
+				return false;
+		return true;
 	}
 	
 	bounded_map<size_type,obj_type> as_bmap() const
@@ -269,6 +290,7 @@ public:
 	void normalize() {cont.normalize();}
 	bounded_vec<word,byte>& inner() {return cont;}
 	bounded_vec<word,byte> const& inner() const {return cont;}
+	bool operator==(bitstring const& other) const = default;
 private:
 	bounded_vec<word,byte> cont {65535};
 };
