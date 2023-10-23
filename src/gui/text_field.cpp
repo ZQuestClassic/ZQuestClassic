@@ -794,6 +794,24 @@ size_t TextField::get_str_pos()
 	return alDialog->d2;
 }
 
+int32_t TextField::get_str_selected_pos()
+{
+	size_t len = strlen((char const*)alDialog->dp);
+	int32_t cursor_start = alDialog->d2 & 0x0000FFFF;
+	if (cursor_start == 0xFFFF)
+		cursor_start = -1;
+	return cursor_start;
+}
+
+int32_t TextField::get_str_selected_endpos()
+{
+	size_t len = strlen((char const*)alDialog->dp);
+	int32_t cursor_end = int32_t((alDialog->d2 & 0xFFFF0000) >> 16);
+	if (cursor_end == 0xFFFF)
+		cursor_end = -1;
+	return cursor_end;
+}
+
 void TextField::refresh_cb_swap()
 {
 	if(swap_cb)

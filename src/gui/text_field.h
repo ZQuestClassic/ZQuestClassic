@@ -100,6 +100,8 @@ public:
 	int32_t getSwapType();
 	
 	size_t get_str_pos();
+	int32_t get_str_selected_pos();
+	int32_t get_str_selected_endpos();
 	void refresh_cb_swap();
 private:
 	std::unique_ptr<char[]> buffer;

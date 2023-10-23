@@ -171,8 +171,14 @@ std::shared_ptr<GUI::Widget> StringEditorDialog::view()
 							return;
 						std::string fullstr;
 						fullstr.assign(str_field->getText());
-						size_t pos = str_field->get_str_pos();
-						std::string outstr = fullstr.substr(0,pos) + scc + fullstr.substr(pos);
+						int32_t pos = str_field->get_str_selected_pos();
+						int32_t endpos = str_field->get_str_selected_endpos();
+						size_t strlen = str_field->get_str_pos();
+						std::string outstr;
+						if(endpos>-1)
+							outstr = fullstr.substr(0, pos) + scc + fullstr.substr(zc_min(strlen, endpos+1));
+						else
+							outstr = fullstr.substr(0, pos) + scc + fullstr.substr(pos);
 						str_field->setText(outstr);
 						preview->setText(outstr);
 						tmpMsgStr.s = parse_msg_str(outstr);
