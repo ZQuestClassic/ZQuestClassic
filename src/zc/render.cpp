@@ -75,6 +75,7 @@ static void init_render_tree()
 	rti_game.set_size(framebuf->w, framebuf->h);
 	rti_game.a4_bitmap = framebuf;
 	rti_infolayer.bitmap = create_a5_bitmap(framebuf->w, framebuf->h);
+	rti_infolayer.set_size(framebuf->w, framebuf->h);
 
 	al_set_new_bitmap_flags(base_flags);
 	rti_menu.bitmap = create_a5_bitmap(menu_bmp->w, menu_bmp->h);
