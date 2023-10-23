@@ -236,7 +236,7 @@ std::string item_name(int id)
 	return "";
 }
 
-#define CONT_PERC (get_bit(local_zinit.misc,idM_CONTPERCENT))
+#define CONT_PERC (local_zinit.flags.get(INIT_FL_CONTPERCENT))
 #define HP_P_H (local_zinit.hp_per_heart)
 #define HEART_FACTOR (life_in_hearts ? HP_P_H : 1)
 #define HEART_FACTOR2 ((life_in_hearts && !CONT_PERC) ? HP_P_H : 1)
@@ -383,11 +383,11 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 									local_zinit.hp_per_heart = newhpph;
 								}
 							}),
-						Checkbox(checked = get_bit(local_zinit.misc,idM_CONTPERCENT),
+						Checkbox(checked = local_zinit.flags.get(INIT_FL_CONTPERCENT),
 							text = "%",
 							onToggleFunc = [&](bool state)
 							{
-								set_bit(local_zinit.misc,idM_CONTPERCENT,state);
+								local_zinit.flags.set(INIT_FL_CONTPERCENT,state);
 								if(life_in_hearts)
 								{
 									if(state)
@@ -537,11 +537,11 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 								padding = 0_px,
 								INFOBTN("Required to slash with swords. The 'Learn Slash' room type can grant this ability."),
 								Checkbox(
-									checked = get_bit(local_zinit.misc,idM_CANSLASH),
+									checked = local_zinit.flags.get(INIT_FL_CANSLASH),
 									text = "Can Sword Slash",
 									onToggleFunc = [&](bool state)
 									{
-										set_bit(local_zinit.misc,idM_CANSLASH,state);
+										local_zinit.flags.set(INIT_FL_CANSLASH,state);
 									}
 								)
 							)
@@ -674,7 +674,7 @@ bool InitDataDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		return false;
 		case message::OK:
 		{
-			local_zinit.cont_heart = std::min(local_zinit.cont_heart, word(get_bit(local_zinit.misc,idM_CONTPERCENT)?100:local_zinit.mcounter[crLIFE]));
+			local_zinit.cont_heart = std::min(local_zinit.cont_heart, word(CONT_PERC?100:local_zinit.mcounter[crLIFE]));
 			local_zinit.hcp = std::min(local_zinit.hcp, byte(local_zinit.hcp_per_hc-1));
 			setVals(local_zinit);
 		}

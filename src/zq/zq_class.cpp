@@ -13345,18 +13345,33 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *)
 			new_return(26);
 		if(!p_putc(zinit.darkcol,f))
 			new_return(27);
-		/*
-		for(int32_t i=0; i<16; i++)
-			if(!p_putc(zinit.misc[i],f))
-				new_return(37);
+		if(!p_iputl(zinit.ss_grid_x,f))
+			new_return(28);
+		if(!p_iputl(zinit.ss_grid_y,f))
+			new_return(29);
+		if(!p_iputl(zinit.ss_grid_xofs,f))
+			new_return(30);
+		if(!p_iputl(zinit.ss_grid_yofs,f))
+			new_return(31);
+		if(!p_iputl(zinit.ss_grid_color,f))
+			new_return(32);
+		if(!p_iputl(zinit.ss_bbox_1_color,f))
+			new_return(33);
+		if(!p_iputl(zinit.ss_bbox_2_color,f))
+			new_return(34);
+		if(!p_iputl(zinit.ss_flags,f))
+			new_return(35);
 		if(!p_putc(zinit.last_map,f))
-			new_return(38);
+			new_return(36);
 		if(!p_putc(zinit.last_screen,f))
-			new_return(39);
+			new_return(37);
 		if(!p_putc(zinit.msg_more_x,f))
-			new_return(42);
+			new_return(38);
 		if(!p_putc(zinit.msg_more_y,f))
-			new_return(43);
+			new_return(39);
+		if(!p_putc(zinit.msg_more_is_offset,f))
+			new_return(40);
+		/*
 		if(!p_putc(zinit.subscreen,f))
 			new_return(44);
 		if(!p_iputw(zinit.start_dmap,f))
@@ -13393,8 +13408,6 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *)
 			new_return(65);
 		if(!p_putc(zinit.jump_hero_layer_threshold,f))
 			new_return(66);
-		if(!p_putc(zinit.msg_more_is_offset,f))
-			new_return(67);
 		if(!p_iputw(zinit.heroStep,f))
 			new_return(73);
 		if(!p_iputw(zinit.subscrSpeed,f))

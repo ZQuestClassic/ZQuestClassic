@@ -5,6 +5,12 @@
 #include "base/containers.h"
 #include <vector>
 
+enum
+{
+	INIT_FL_CONTPERCENT,
+	INIT_FL_CANSLASH,
+	INIT_FL_MAX
+};
 struct zinitdata
 {
 	byte items[MAXITEMS/8];
@@ -25,25 +31,6 @@ struct zinitdata
 	byte hp_per_heart, magic_per_block, hero_damage_multiplier, ene_damage_multiplier;
 	byte dither_type, dither_arg, dither_percent, def_lightrad, transdark_percent, darkcol;
 	
-	bool get_item(size_t ind) const {return get_bit(items,ind);}
-	void set_item(size_t ind, bool st) {set_bit(items,ind,st);}
-	
-	void normalize()
-	{
-		level_keys.normalize();
-	}
-public:
-	
-	byte misc[16];
-	
-	byte last_map; //last map worked on
-	
-	byte last_screen; //last screen worked on
-	byte msg_more_x, msg_more_y, msg_more_is_offset;
-	byte subscreen;
-	word start_dmap;
-	byte heroAnimationStyle;
-	
 	int32_t ss_grid_x = 8;
 	int32_t ss_grid_y = 8;
 	int32_t ss_grid_xofs;
@@ -52,6 +39,29 @@ public:
 	int32_t ss_bbox_1_color = 15;
 	int32_t ss_bbox_2_color = 7;
 	int32_t ss_flags;
+	
+	bitstring flags;
+	
+	byte last_map, last_screen; //last editor map/screen
+	byte msg_more_x, msg_more_y, msg_more_is_offset;
+	
+	bool get_item(size_t ind) const {return get_bit(items,ind);}
+	void set_item(size_t ind, bool st) {set_bit(items,ind,st);}
+	
+	void normalize()
+	{
+		level_keys.normalize();
+		flags.normalize();
+	}
+private:
+public:
+	
+	
+	
+	byte subscreen;
+	word start_dmap;
+	byte heroAnimationStyle;
+	
 	byte subscreen_style;
 	byte usecustomsfx;
 	byte gravity = 16; //Deprecated!

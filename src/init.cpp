@@ -1017,7 +1017,7 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool freshquest)
 	game2->set_rupies(zinit2->counter[crMONEY]);
 	game2->set_hcp_per_hc(zinit2->hcp_per_hc);
 	game2->set_cont_hearts(zinit2->cont_heart);
-	game2->set_cont_percent(get_bit(zinit2->misc, idM_CONTPERCENT) != 0);
+	game2->set_cont_percent(zinit2->flags.get(INIT_FL_CONTPERCENT));
 	game2->set_hp_per_heart(zinit2->hp_per_heart);
 	game2->set_mp_per_block(zinit2->magic_per_block);
 	game2->set_hero_dmgmult(zinit2->hero_damage_multiplier);
@@ -1055,7 +1055,7 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool freshquest)
 	game2->set_magic(zc_min(zinit2->counter[crMAGIC],zinit2->mcounter[crMAGIC]));
 	game2->set_magicdrainrate(zinit2->magicdrainrate);
 	//zprint2("gd2: %d, zi2: %d\n", game2->get_magicdrainrate(), zinit2->magicdrainrate);
-	game2->set_canslash(get_bit(zinit2->misc,idM_CANSLASH)?1:0);
+	game2->set_canslash(zinit2->flags.get(INIT_FL_CANSLASH)?1:0);
 	
 	game2->set_arrows(zinit2->counter[crARROWS]);
 	
@@ -1150,6 +1150,20 @@ constexpr std::size_t countof(T(&)[N]) { return N; }
 	PROP(transition_type) \
 	PROP(usecustomsfx)
 
+#define LIST_ARRAY_PROPS \
+	ARRAY_PROP(boss_key) \
+	ARRAY_PROP(compass) \
+	ARRAY_PROP(counter) \
+	ARRAY_PROP(gen_doscript) \
+	ARRAY_PROP(gen_eventstate) \
+	ARRAY_PROP(gen_exitState) \
+	ARRAY_PROP(gen_reloadState) \
+	VEC_PROP(level_keys) \
+	ARRAY_PROP(map) \
+	ARRAY_PROP(mcguffin) \
+	ARRAY_PROP(mcounter) \
+	BITSTR_PROP(flags)
+
 #define LIST_DEPR_PROPS \
 	DEPRPROP(super_bombs,counter[crSBOMBS]) \
 	DEPRPROP_OFFS(start_heart,counter[crLIFE],*,result->hp_per_heart) \
@@ -1166,20 +1180,6 @@ constexpr std::size_t countof(T(&)[N]) { return N; }
 	DEPRPROP(max_magic,mcounter[crMAGIC]) \
 	DEPRPROP(max_rupees,mcounter[crMONEY]) \
 	DEPRPROP(max_sbombs,mcounter[crSBOMBS])
-
-#define LIST_ARRAY_PROPS \
-	ARRAY_PROP(boss_key) \
-	ARRAY_PROP(compass) \
-	ARRAY_PROP(counter) \
-	ARRAY_PROP(gen_doscript) \
-	ARRAY_PROP(gen_eventstate) \
-	ARRAY_PROP(gen_exitState) \
-	ARRAY_PROP(gen_reloadState) \
-	VEC_PROP(level_keys) \
-	ARRAY_PROP(map) \
-	ARRAY_PROP(mcguffin) \
-	ARRAY_PROP(mcounter) \
-	ARRAY_PROP(misc)
 
 #define LIST_ARRAY_DEPR_PROPS \
 	ARRAY_DEPRPROP_IOFS(scrcnt,counter,crCUSTOM1) \
@@ -1209,7 +1209,17 @@ string serialize_init_data_delta(zinitdata *base, zinitdata *changed)
 		for (int i = 0; i < base->name.size(); i++) \
 			if (base->name[i] != changed->name[i]) \
 				tokens.push_back(fmt::format("{}[{}]={}", #name, i, (int)changed->name[i]));
+	#define BITSTR_PROP(name) \
+	{ \
+		auto& bvec = base->name.inner(); \
+		auto& cvec = changed->name.inner(); \
+		auto sz = zc_max(bvec.capacity(), cvec.capacity()); \
+		for (int i = 0; i < sz; ++i) \
+			if(bvec[i] != cvec[i]) \
+				tokens.push_back(fmt::format("{}[{}]={}", #name, i, (int)cvec[i])); \
+	}
 	LIST_ARRAY_PROPS;
+	#undef BITSTR_PROP
 	#undef VEC_PROP
 	#undef ARRAY_PROP
 	
@@ -1267,6 +1277,13 @@ zinitdata *apply_init_data_delta(zinitdata *base, string delta, string& out_erro
 					result->set_item(index[0], as_int);
 				}
 			} else
+			if (name_index[0] == "misc")
+			{
+				if(index[0] == 0)
+					result->flags.set(INIT_FL_CONTPERCENT,as_int);
+				else if(index[0] == 2)
+					result->flags.set(INIT_FL_CANSLASH,as_int);
+			} else
 			#define ARRAY_PROP(name) if (name_index[0] == #name) \
 			{ \
 				FAIL_IF(index[0] >= countof(result->name), fmt::format("invalid token '{}': integer too big", token)); \
@@ -1282,12 +1299,20 @@ zinitdata *apply_init_data_delta(zinitdata *base, string delta, string& out_erro
 				FAIL_IF(index[0]+indoffs >= countof(result->new), fmt::format("invalid token '{}': integer too big", token)); \
 				result->new[index[0]+indoffs] = as_int; \
 			} else
+			#define BITSTR_PROP(name) if (name_index[0] == #name) \
+			{ \
+				FAIL_IF(index[0] >= 65536, fmt::format("invalid token '{}': integer too big", token)); \
+				result->name.inner()[index[0]] = as_int; \
+			} else
 			LIST_ARRAY_PROPS
 			LIST_ARRAY_DEPR_PROPS
 			{
 				FAIL_IF(true, fmt::format("invalid token '{}': unknown property", token));
 			}
-			#undef LIST_ARRAY_PROPS
+			#undef BITSTR_PROP
+			#undef ARRAY_DEPRPROP_IOFS
+			#undef VEC_PROP
+			#undef ARRAY_PROP
 
 			continue;
 		}
@@ -1310,6 +1335,9 @@ zinitdata *apply_init_data_delta(zinitdata *base, string delta, string& out_erro
 		{
 			FAIL_IF(true, fmt::format("invalid token '{}': unknown property", token));
 		}
+		#undef DEPRPROP_BIT_IOFFS
+		#undef DEPRPROP_OFFS
+		#undef DEPRPROP
 		#undef ZFIXPROP
 		#undef PROP
 	}

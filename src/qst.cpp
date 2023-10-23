@@ -19897,21 +19897,17 @@ int32_t readinitdata_old(PACKFILE *f, zquestheader *Header, word s_version, word
 			}
 		}
 		
+		byte tmpmisc[16];
 		for(int32_t i=0; i<16; i++)
-		{
-			if(!p_getc(&temp_zinit.misc[i],f))
-			{
+			if(!p_getc(&tmpmisc[i],f))
 				return qe_invalid;
-			}
-		}
+		temp_zinit.flags.set(INIT_FL_CONTPERCENT,tmpmisc[0]);
+		temp_zinit.magicdrainrate = tmpmisc[1] ? 1 : 2; //Double Magic flag
+		temp_zinit.flags.set(INIT_FL_CANSLASH,tmpmisc[2]);
 		
 		if(s_version < 15) for(int32_t i=0; i<4; i++)
-			{
-				if(!p_getc(&sword_hearts[i],f))
-				{
-					return qe_invalid;
-				}
-			}
+			if(!p_getc(&sword_hearts[i],f))
+				return qe_invalid;
 			
 		if(!p_getc(&temp_zinit.last_map,f))
 		{
@@ -20446,7 +20442,7 @@ int32_t readinitdata_old(PACKFILE *f, zquestheader *Header, word s_version, word
 	{
 		temp_zinit.mcounter[crMAGIC]=0;
 		temp_zinit.counter[crMAGIC]=0;
-		set_bit(temp_zinit.misc,idM_DOUBLEMAGIC,0);
+		temp_zinit.magicdrainrate = 2;
 	}
 	
 	if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<129)))
@@ -20750,11 +20746,6 @@ int32_t readinitdata_old(PACKFILE *f, zquestheader *Header, word s_version, word
 			return qe_invalid;
 		}
 	}
-	else
-	{
-		temp_zinit.magicdrainrate = (get_bit(temp_zinit.misc,idM_DOUBLEMAGIC) ? 1 : 2);
-		set_bit(temp_zinit.misc,idM_DOUBLEMAGIC,0);
-	}
 	
 	temp_zinit.clear_genscript();
 	if(s_version > 32)
@@ -20823,7 +20814,7 @@ int32_t readinitdata_old(PACKFILE *f, zquestheader *Header, word s_version, word
 	
 	temp_zinit.counter[crLIFE] *= temp_zinit.hp_per_heart;
 	temp_zinit.mcounter[crLIFE] *= temp_zinit.hp_per_heart;
-	if(!get_bit(temp_zinit.misc,idM_CONTPERCENT))
+	if(!temp_zinit.flags.get(INIT_FL_CONTPERCENT))
 		temp_zinit.cont_heart *= temp_zinit.hp_per_heart;
 	
 	return 0;
@@ -20910,6 +20901,32 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 		if(!p_getc(&temp_zinit.transdark_percent,f))
 			return qe_invalid;
 		if(!p_getc(&temp_zinit.darkcol,f))
+			return qe_invalid;
+		if(!p_igetl(&temp_zinit.ss_grid_x,f))
+			return qe_invalid;
+		if(!p_igetl(&temp_zinit.ss_grid_y,f))
+			return qe_invalid;
+		if(!p_igetl(&temp_zinit.ss_grid_xofs,f))
+			return qe_invalid;
+		if(!p_igetl(&temp_zinit.ss_grid_yofs,f))
+			return qe_invalid;
+		if(!p_igetl(&temp_zinit.ss_grid_color,f))
+			return qe_invalid;
+		if(!p_igetl(&temp_zinit.ss_bbox_1_color,f))
+			return qe_invalid;
+		if(!p_igetl(&temp_zinit.ss_bbox_2_color,f))
+			return qe_invalid;
+		if(!p_igetl(&temp_zinit.ss_flags,f))
+			return qe_invalid;
+		if(!p_getc(&temp_zinit.last_map,f))
+			return qe_invalid;
+		if(!p_getc(&temp_zinit.last_screen,f))
+			return qe_invalid;
+		if(!p_getc(&temp_zinit.msg_more_x,f))
+			return qe_invalid;
+		if(!p_getc(&temp_zinit.msg_more_y,f))
+			return qe_invalid;
+		if(!p_getc(&temp_zinit.msg_more_is_offset,f))
 			return qe_invalid;
 	}
 	if (should_skip)
@@ -22195,7 +22212,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
     if(get_qr(qr_CONTFULL_DEP) && !get_bit(skip_flags, skip_rules) && !get_bit(skip_flags, skip_initdata))
     {
         set_qr(qr_CONTFULL_DEP, 0);
-        set_bit(zinit.misc, idM_CONTPERCENT, 1);
+        zinit.flags.set(INIT_FL_CONTPERCENT,true);
         zinit.cont_heart=100;
         zinit.counter[crLIFE]=zinit.mcounter[crLIFE];
     }

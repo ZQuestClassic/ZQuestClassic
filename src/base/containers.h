@@ -4,7 +4,7 @@
 #include "base/headers.h"
 #include <stdexcept>
 
-template<class Sz,typename T>
+template<typename Sz,typename T>
 class bounded_container
 {
 public:
@@ -33,7 +33,7 @@ protected:
 	obj_type default_val;
 };
 
-template<class Sz,class T>
+template<typename Sz,typename T>
 class bounded_map : public bounded_container<Sz,T>
 {
 public:
@@ -147,7 +147,7 @@ private:
 	cont_t cont;
 };
 
-template<class Sz,class T>
+template<typename Sz,typename T>
 class bounded_vec : public bounded_container<Sz,T>
 {
 public:
@@ -252,20 +252,47 @@ private:
 	cont_t cont;
 };
 
-template<class T>
+class bitstring
+{
+public:
+	bool get(size_t ind)
+	{
+		return cont[ind/8] & (1 << ind%8);
+	}
+	void set(size_t ind, bool state)
+	{
+		if(state)
+			cont[ind/8] |= (1 << ind%8);
+		else if(get(ind))
+			cont[ind/8] &= ~(1 << ind%8);
+	}
+	void normalize() {cont.normalize();}
+	bounded_vec<word,byte>& inner() {return cont;}
+	bounded_vec<word,byte> const& inner() const {return cont;}
+private:
+	bounded_vec<word,byte> cont {65535};
+};
+
+template<typename T>
 void _do_normalize(T& v){}
-template<class Sz,class T>
+template<>
+inline void _do_normalize<bitstring>(bitstring& v)
+{
+	v.normalize();
+}
+template<typename Sz,typename T>
 void _do_normalize(bounded_vec<Sz,T>& v)
 {
 	v.normalize();
 }
-template<class Sz,class T>
+template<typename Sz,typename T>
 void _do_normalize(bounded_map<Sz,T>& v)
 {
 	v.normalize();
 }
 
-template<class Sz,class T>
+
+template<typename Sz,typename T>
 void bounded_vec<Sz,T>::normalize()
 {
 	if(cont.size() > this->true_sz)
@@ -276,7 +303,7 @@ void bounded_vec<Sz,T>::normalize()
 	for(auto& v : cont)
 		_do_normalize(v);
 }
-template<class Sz,class T>
+template<typename Sz,typename T>
 void bounded_map<Sz,T>::normalize()
 {
 	for(auto it = cont.begin(); it != cont.end();)

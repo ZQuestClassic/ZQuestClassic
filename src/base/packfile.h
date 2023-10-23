@@ -18,7 +18,7 @@ extern bool fake_pack_writing;
 
 bool pfwrite(const char *p,int32_t n,PACKFILE *f);
 
-INLINE bool pfwrite(const void *p,int32_t n,PACKFILE *f)
+inline bool pfwrite(const void *p,int32_t n,PACKFILE *f)
 {
 	bool success=true;
 	
@@ -35,7 +35,7 @@ INLINE bool pfwrite(const void *p,int32_t n,PACKFILE *f)
 	return success;
 }
 
-INLINE bool pfread(void *p,int32_t n,PACKFILE *f)
+inline bool pfread(void *p,int32_t n,PACKFILE *f)
 {
 	bool success;
 	
@@ -49,7 +49,7 @@ INLINE bool pfread(void *p,int32_t n,PACKFILE *f)
 	return success;
 }
 
-INLINE bool p_getc(void *p,PACKFILE *f)
+inline bool p_getc(void *p,PACKFILE *f)
 {
 	uint8_t *cp = (uint8_t *)p;
 	int32_t c;
@@ -84,7 +84,7 @@ INLINE bool p_getc(void *p,PACKFILE *f)
 	return true;
 }
 
-INLINE bool p_putc(int32_t c,PACKFILE *f)
+inline bool p_putc(int32_t c,PACKFILE *f)
 {
 	bool success=true;
 	
@@ -114,7 +114,7 @@ INLINE bool p_putc(int32_t c,PACKFILE *f)
 	return success;
 }
 
-INLINE bool p_igetw(void *p,PACKFILE *f)
+inline bool p_igetw(void *p,PACKFILE *f)
 {
 	int16_t *cp = (int16_t *)p;
 	int32_t c;
@@ -149,7 +149,7 @@ INLINE bool p_igetw(void *p,PACKFILE *f)
 	return true;
 }
 
-INLINE bool p_iputw(int32_t c,PACKFILE *f)
+inline bool p_iputw(int32_t c,PACKFILE *f)
 {
 	bool success=true;
 	
@@ -179,7 +179,7 @@ INLINE bool p_iputw(int32_t c,PACKFILE *f)
 	return success;
 }
 
-INLINE bool p_igetl(void *p,PACKFILE *f)
+inline bool p_igetl(void *p,PACKFILE *f)
 {
 	dword *cp = (dword *)p;
 	int32_t c;
@@ -214,7 +214,7 @@ INLINE bool p_igetl(void *p,PACKFILE *f)
 	return true;
 }
 
-INLINE bool p_igetzf(void *p,PACKFILE *f)
+inline bool p_igetzf(void *p,PACKFILE *f)
 {
 	zfix *cp = (zfix *)p;
 	int32_t c;
@@ -249,7 +249,7 @@ INLINE bool p_igetzf(void *p,PACKFILE *f)
 	return true;
 }
 
-INLINE bool p_igetd(void *p, PACKFILE *f)
+inline bool p_igetd(void *p, PACKFILE *f)
 {
 	int32_t temp;
 	bool result = p_igetl(&temp,f);
@@ -258,7 +258,7 @@ INLINE bool p_igetd(void *p, PACKFILE *f)
 }
 
 // Floats are not serializable, do not use!
-INLINE bool p_igetf_DO_NOT_USE(void *p,PACKFILE *f)
+inline bool p_igetf_DO_NOT_USE(void *p,PACKFILE *f)
 {
 	if(!f) return false;
 	
@@ -303,7 +303,7 @@ INLINE bool p_igetf_DO_NOT_USE(void *p,PACKFILE *f)
 	return true;
 }
 
-INLINE bool p_iputl(int32_t c,PACKFILE *f)
+inline bool p_iputl(int32_t c,PACKFILE *f)
 {
 	bool success=true;
 	
@@ -333,7 +333,7 @@ INLINE bool p_iputl(int32_t c,PACKFILE *f)
 	return success;
 }
 
-INLINE bool p_iputzf(zfix const& c,PACKFILE *f)
+inline bool p_iputzf(zfix const& c,PACKFILE *f)
 {
 	bool success=true;
 	
@@ -363,7 +363,7 @@ INLINE bool p_iputzf(zfix const& c,PACKFILE *f)
 	return success;
 }
 
-INLINE bool p_mgetw(void *p,PACKFILE *f)
+inline bool p_mgetw(void *p,PACKFILE *f)
 {
 	int16_t *cp = (int16_t *)p;
 	int32_t c;
@@ -398,7 +398,7 @@ INLINE bool p_mgetw(void *p,PACKFILE *f)
 	return true;
 }
 
-INLINE bool p_mputw(int32_t c,PACKFILE *f)
+inline bool p_mputw(int32_t c,PACKFILE *f)
 {
 	bool success=true;
 	
@@ -428,7 +428,7 @@ INLINE bool p_mputw(int32_t c,PACKFILE *f)
 	return success;
 }
 
-INLINE bool p_mgetl(void *p,PACKFILE *f)
+inline bool p_mgetl(void *p,PACKFILE *f)
 {
 	dword *cp = (dword *)p;
 	int32_t c;
@@ -463,7 +463,7 @@ INLINE bool p_mgetl(void *p,PACKFILE *f)
 	return true;
 }
 
-INLINE bool p_mputl(int32_t c,PACKFILE *f)
+inline bool p_mputl(int32_t c,PACKFILE *f)
 {
 	bool success=true;
 	
@@ -493,7 +493,7 @@ INLINE bool p_mputl(int32_t c,PACKFILE *f)
 	return success;
 }
 
-INLINE bool p_getstr(std::string *str, size_t sz, PACKFILE *f)
+inline bool p_getstr(string *str, size_t sz, PACKFILE *f)
 {
 	auto buf = std::make_unique<char[]>(sz + 1);
 	buf[sz] = '\0';
@@ -503,34 +503,37 @@ INLINE bool p_getstr(std::string *str, size_t sz, PACKFILE *f)
 	return true;
 }
 
-INLINE bool p_getcstr(std::string *str, PACKFILE *f);
-INLINE bool p_putcstr(std::string const& str, PACKFILE *f);
-INLINE bool p_getwstr(std::string *str, PACKFILE *f);
-INLINE bool p_putwstr(std::string const& str, PACKFILE *f);
+inline bool p_getcstr(string *str, PACKFILE *f);
+inline bool p_putcstr(string const& str, PACKFILE *f);
+inline bool p_getwstr(string *str, PACKFILE *f);
+inline bool p_putwstr(string const& str, PACKFILE *f);
 template<typename T>
-INLINE bool p_getcvec(std::vector<T> *vec, PACKFILE *f);
+inline bool p_getcvec(vector<T> *vec, PACKFILE *f);
 template<typename T>
-INLINE bool p_putcvec(std::vector<T> const& vec, PACKFILE *f);
+inline bool p_putcvec(vector<T> const& vec, PACKFILE *f);
 template<typename T>
-INLINE bool p_getwvec(std::vector<T> *vec, PACKFILE *f);
+inline bool p_getwvec(vector<T> *vec, PACKFILE *f);
 template<typename T>
-INLINE bool p_putwvec(std::vector<T> const& vec, PACKFILE *f);
+inline bool p_putwvec(vector<T> const& vec, PACKFILE *f);
 template<typename T>
-INLINE bool p_getlvec(std::vector<T> *vec, PACKFILE *f);
+inline bool p_getlvec(vector<T> *vec, PACKFILE *f);
 template<typename T>
-INLINE bool p_putlvec(std::vector<T> const& vec, PACKFILE *f);
+inline bool p_putlvec(vector<T> const& vec, PACKFILE *f);
 
 template<typename Sz,typename T>
-INLINE bool p_getbvec(bounded_vec<Sz,T> *cont, PACKFILE *f);
+inline bool p_getbvec(bounded_vec<Sz,T> *cont, PACKFILE *f);
 template<typename Sz,typename T>
-INLINE bool p_putbvec(bounded_vec<Sz,T> const& cont, PACKFILE *f);
+inline bool p_putbvec(bounded_vec<Sz,T> const& cont, PACKFILE *f);
 template<typename Sz,typename T>
-INLINE bool p_getbmap(bounded_map<Sz,T> *cont, PACKFILE *f);
+inline bool p_getbmap(bounded_map<Sz,T> *cont, PACKFILE *f);
 template<typename Sz,typename T>
-INLINE bool p_putbmap(bounded_map<Sz,T> const& cont, PACKFILE *f);
+inline bool p_putbmap(bounded_map<Sz,T> const& cont, PACKFILE *f);
+
+bool p_getbitstr(bitstring* ptr, PACKFILE *f);
+bool p_putbitstr(bitstring const& ptr, PACKFILE *f);
 
 template<typename T>
-INLINE bool p_getvar(T* ptr, PACKFILE *f)
+inline bool p_getvar(T* ptr, PACKFILE *f)
 {
 	switch(auto sz = sizeof(T))
 	{
@@ -546,7 +549,7 @@ INLINE bool p_getvar(T* ptr, PACKFILE *f)
 }
 
 template<typename T>
-INLINE bool p_putvar(T const& ptr, PACKFILE *f)
+inline bool p_putvar(T const& ptr, PACKFILE *f)
 {
 	switch(auto sz = sizeof(T))
 	{
@@ -563,42 +566,53 @@ INLINE bool p_putvar(T const& ptr, PACKFILE *f)
 
 
 template<typename Sz,typename T>
-INLINE bool p_getvar(bounded_vec<Sz,T>* ptr, PACKFILE *f)
+inline bool p_getvar(bounded_vec<Sz,T>* ptr, PACKFILE *f)
 {
 	return p_getbvec(ptr,f);
 }
 template<typename Sz,typename T>
-INLINE bool p_putvar(bounded_vec<Sz,T> const& ptr, PACKFILE *f)
+inline bool p_putvar(bounded_vec<Sz,T> const& ptr, PACKFILE *f)
 {
 	return p_putbvec(ptr,f);
 }
 
 template<typename Sz,typename T>
-INLINE bool p_getvar(bounded_map<Sz,T>* ptr, PACKFILE *f)
+inline bool p_getvar(bounded_map<Sz,T>* ptr, PACKFILE *f)
 {
 	return p_getbmap(ptr,f);
 }
 template<typename Sz,typename T>
-INLINE bool p_putvar(bounded_map<Sz,T> const& ptr, PACKFILE *f)
+inline bool p_putvar(bounded_map<Sz,T> const& ptr, PACKFILE *f)
 {
 	return p_putbmap(ptr,f);
 }
 
 template<typename T>
-INLINE bool p_getvar(std::vector<T>* ptr, PACKFILE *f)
+inline bool p_getvar(vector<T>* ptr, PACKFILE *f)
 {
 	return p_getlvec(ptr,f);
 }
 template<typename T>
-INLINE bool p_putvar(std::vector<T> const& ptr, PACKFILE *f)
+inline bool p_putvar(vector<T> const& ptr, PACKFILE *f)
 {
 	return p_putlvec(ptr,f);
+}
+
+template<typename T>
+inline bool p_getvar(bitstring* ptr, PACKFILE *f)
+{
+	return p_getbitstr(ptr,f);
+}
+template<typename T>
+inline bool p_putvar(bitstring const& ptr, PACKFILE *f)
+{
+	return p_putbitstr(ptr,f);
 }
 
 //
 
 template<typename Sz,typename T>
-INLINE bool p_getbvec(bounded_vec<Sz,T> *cont, PACKFILE *f)
+inline bool p_getbvec(bounded_vec<Sz,T> *cont, PACKFILE *f)
 {
 	cont->clear();
 	Sz sz = 0;
@@ -622,7 +636,7 @@ INLINE bool p_getbvec(bounded_vec<Sz,T> *cont, PACKFILE *f)
 	return true;
 }
 template<typename Sz,typename T>
-INLINE bool p_putbvec(bounded_vec<Sz,T> const& cont, PACKFILE *f)
+inline bool p_putbvec(bounded_vec<Sz,T> const& cont, PACKFILE *f)
 {
 	Sz sz = cont.size();
 	if(!p_putvar(sz,f))
@@ -642,7 +656,7 @@ INLINE bool p_putbvec(bounded_vec<Sz,T> const& cont, PACKFILE *f)
 }
 
 template<typename Sz,typename T>
-INLINE bool p_getbmap(bounded_map<Sz,T> *cont, PACKFILE *f)
+inline bool p_getbmap(bounded_map<Sz,T> *cont, PACKFILE *f)
 {
 	cont->clear();
 	Sz sz = 0;
@@ -684,7 +698,7 @@ INLINE bool p_getbmap(bounded_map<Sz,T> *cont, PACKFILE *f)
 	return true;
 }
 template<typename Sz,typename T>
-INLINE bool p_putbmap(bounded_map<Sz,T> const& cont, PACKFILE *f)
+inline bool p_putbmap(bounded_map<Sz,T> const& cont, PACKFILE *f)
 {
 	Sz sz = cont.size();
 	if(!p_putvar(sz,f))
@@ -724,12 +738,21 @@ INLINE bool p_putbmap(bounded_map<Sz,T> const& cont, PACKFILE *f)
 	return true;
 }
 
+inline bool p_getbitstr(bitstring* ptr, PACKFILE *f)
+{
+	return p_getbvec(&ptr->inner(),f);
+}
+inline bool p_putbitstr(bitstring const& ptr, PACKFILE *f)
+{
+	return p_putbvec(ptr.inner(),f);
+}
+
 //
 
 // Reads `sz` bytes from `f` into `str`.
 // `str` should be `sz + 1` bytes long.
 // `str` will always be a null-terminated string.
-INLINE bool p_getcstr(char *str, size_t sz, PACKFILE *f)
+inline bool p_getcstr(char *str, size_t sz, PACKFILE *f)
 {
 	size_t read = pack_fread(str, sz, f);
 	bool success = read == sz;
@@ -739,7 +762,7 @@ INLINE bool p_getcstr(char *str, size_t sz, PACKFILE *f)
 	return success;
 }
 
-INLINE bool p_getcstr(std::string *str, PACKFILE *f)
+inline bool p_getcstr(string *str, PACKFILE *f)
 {
 	byte sz = 0;
 	if(!p_getc(&sz,f))
@@ -762,7 +785,7 @@ INLINE bool p_getcstr(std::string *str, PACKFILE *f)
 
 	return true;
 }
-INLINE bool p_putcstr(std::string const& str, PACKFILE *f)
+inline bool p_putcstr(string const& str, PACKFILE *f)
 {
 	byte sz = byte(zc_min(255,str.size()));
 	if(!p_putc(sz,f))
@@ -777,7 +800,7 @@ INLINE bool p_putcstr(std::string const& str, PACKFILE *f)
 	}
 	return true;
 }
-INLINE bool p_getwstr(std::string *str, PACKFILE *f)
+inline bool p_getwstr(string *str, PACKFILE *f)
 {
 	str->clear();
 	word sz = 0;
@@ -794,7 +817,7 @@ INLINE bool p_getwstr(std::string *str, PACKFILE *f)
 	}
 	return true;
 }
-INLINE bool p_putwstr(std::string const& str, PACKFILE *f)
+inline bool p_putwstr(string const& str, PACKFILE *f)
 {
 	word sz = word(zc_min(65535,str.size()));
 	if(!p_iputw(sz,f))
@@ -811,7 +834,7 @@ INLINE bool p_putwstr(std::string const& str, PACKFILE *f)
 }
 
 template<typename T>
-INLINE bool p_getcvec(std::vector<T> *vec, PACKFILE *f)
+inline bool p_getcvec(vector<T> *vec, PACKFILE *f)
 {
 	vec->clear();
 	byte sz = 0;
@@ -831,7 +854,7 @@ INLINE bool p_getcvec(std::vector<T> *vec, PACKFILE *f)
 	return true;
 }
 template<typename T>
-INLINE bool p_putcvec(std::vector<T> const& vec, PACKFILE *f)
+inline bool p_putcvec(vector<T> const& vec, PACKFILE *f)
 {
 	byte sz = byte(zc_min(255,vec.size()));
 	if(!p_putc(sz,f))
@@ -847,7 +870,7 @@ INLINE bool p_putcvec(std::vector<T> const& vec, PACKFILE *f)
 	return true;
 }
 template<typename T>
-INLINE bool p_getwvec(std::vector<T> *vec, PACKFILE *f)
+inline bool p_getwvec(vector<T> *vec, PACKFILE *f)
 {
 	vec->clear();
 	word sz = 0;
@@ -867,7 +890,7 @@ INLINE bool p_getwvec(std::vector<T> *vec, PACKFILE *f)
 	return true;
 }
 template<typename T>
-INLINE bool p_putwvec(std::vector<T> const& vec, PACKFILE *f)
+inline bool p_putwvec(vector<T> const& vec, PACKFILE *f)
 {
 	word sz = word(zc_min(65535,vec.size()));
 	if(!p_iputw(sz,f))
@@ -883,7 +906,7 @@ INLINE bool p_putwvec(std::vector<T> const& vec, PACKFILE *f)
 	return true;
 }
 template<typename T>
-INLINE bool p_getlvec(std::vector<T> *vec, PACKFILE *f)
+inline bool p_getlvec(vector<T> *vec, PACKFILE *f)
 {
 	vec->clear();
 	dword sz = 0;
@@ -903,7 +926,7 @@ INLINE bool p_getlvec(std::vector<T> *vec, PACKFILE *f)
 	return true;
 }
 template<typename T>
-INLINE bool p_putlvec(std::vector<T> const& vec, PACKFILE *f)
+inline bool p_putlvec(vector<T> const& vec, PACKFILE *f)
 {
 	dword sz = vec.size();
 	if(!p_iputl(sz,f))

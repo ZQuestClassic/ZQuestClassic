@@ -2424,7 +2424,6 @@ enum
     idI_BAIT, idI_HAMMER, idI_CBYRNA, idI_ROCS, idI_MAX
 };
 enum { idI_DFIRE, idI_FWIND, idI_NLOVE, idI_MAX2 };
-enum { idM_CONTPERCENT, idM_DOUBLEMAGIC, idM_CANSLASH, idM_MAX };
 enum
 {
     idBP_WOODENPERCENT, idBP_WHITEPERCENT,

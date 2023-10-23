@@ -105,11 +105,11 @@ zinitdata *copyIntoZinit(gamedata *gdata)
 	zinit2->level_keys = gdata->lvlkeys;
 	
 	zinit2->magicdrainrate = vbound(gdata->get_magicdrainrate(), 0, 255);
-	set_bit(zinit2->misc, idM_CANSLASH, gdata->get_canslash());
+	zinit2->flags.set(INIT_FL_CANSLASH,gdata->get_canslash());
 	
 	zinit2->cont_heart = gdata->get_cont_hearts();
 	zinit2->hcp_per_hc = gdata->get_hcp_per_hc();
-	set_bit(zinit2->misc,idM_CONTPERCENT,gdata->get_cont_percent() ? 1 : 0);
+	zinit2->flags.set(INIT_FL_CONTPERCENT,gdata->get_cont_percent());
 	
 	//now set up the items!
 	for(int32_t i=0; i<MAXITEMS; i++)

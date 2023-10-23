@@ -2409,7 +2409,6 @@ int32_t cont_game()
 	
 	wavy=quakeclk=0;
 	
-	//if(get_bit(zinit.misc,idM_CONTPERCENT))
 	if(game->get_cont_percent())
 	{
 		if(game->get_maxlife()%game->get_hp_per_heart()==0)
