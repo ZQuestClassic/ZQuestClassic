@@ -1458,9 +1458,6 @@ void set_rules(byte* newrules)
 	// For 2.50.0 and 2.50.1
 	if(get_qr(qr_VERYFASTSCROLLING))
 		set_qr(qr_FASTDNGN, 1);
-	
-	//this is only here until the subscreen style is selectable by itself
-	zinit.subscreen_style=get_qr(qr_COOLSCROLL)?1:0;
 }
 
 int32_t onSelectFFCombo();

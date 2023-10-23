@@ -55,6 +55,7 @@ static bool read_ext_zinfo = false, read_zinfo = false;
 static bool loadquest_report = false;
 static char const* loading_qst_name = NULL;
 static byte loading_qst_num = 0;
+static byte subscr_mode = ssdtMAX;
 dword loading_tileset_flags = 0;
 
 int32_t First[MAX_COMBO_COLS]={0},combo_alistpos[MAX_COMBO_COLS]={0},combo_pool_listpos[MAX_COMBO_COLS]={0},combo_auto_listpos[MAX_COMBO_COLS]={0};
@@ -11894,7 +11895,7 @@ int32_t setupsubscreens()
 		subscreens_active.emplace_back();
 		subscreens_passive.emplace_back();
 	}
-    int32_t tempsubscreen=zinit.subscreen;
+    int32_t tempsubscreen=subscr_mode;
     
     if(tempsubscreen>=ssdtMAX)
         tempsubscreen=0;
@@ -11937,7 +11938,7 @@ int32_t setupsubscreens()
 			break;
 		}
     }
-    
+    subscr_mode = ssdtMAX;
     return 0;
 }
 
@@ -19415,7 +19416,7 @@ int32_t readinitdata_old(PACKFILE *f, zquestheader *Header, word s_version, word
 	
 	byte bomb_ratio = 4;
 	
-	temp_zinit.subscreen_style=get_qr(qr_COOLSCROLL)?1:0;
+	subscr_mode = 0;
 	
 	/* HIGHLY UNORTHODOX UPDATING THING, by L
 	 * This fixes quests made before revision 277 (such as the 'Lost Isle Build'),
@@ -20029,10 +20030,8 @@ int32_t readinitdata_old(PACKFILE *f, zquestheader *Header, word s_version, word
 			return qe_invalid;
 		}
 		
-		if(!p_getc(&temp_zinit.subscreen,f))
-		{
+		if(!p_getc(&subscr_mode,f))
 			return qe_invalid;
-		}
 		
 		//old only
 		if((Header->zelda_version == 0x192)&&(Header->build<174))
@@ -20249,12 +20248,8 @@ int32_t readinitdata_old(PACKFILE *f, zquestheader *Header, word s_version, word
 		}
 		
 		if(s_version>6)
-		{
-			if(!p_getc(&temp_zinit.subscreen_style,f))
-			{
+			if(!p_getc(&padding,f))
 				return qe_invalid;
-			}
-		}
 		
 		if(s_version>7)
 		{
@@ -20550,7 +20545,7 @@ int32_t readinitdata_old(PACKFILE *f, zquestheader *Header, word s_version, word
 	if((Header->zelda_version < 0x192)||((Header->zelda_version == 0x192)&&(Header->build<168)))
 	{
 		//was new subscreen rule
-		temp_zinit.subscreen=get_qr(qr_FREEFORM)?1:0;
+		subscr_mode=get_qr(qr_FREEFORM)?1:0;
 		set_qr(qr_FREEFORM,0);
 	}
 	
@@ -20849,6 +20844,7 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 	}
 	else
 	{
+		subscr_mode = ssdtMAX;
 		for(int q = 0; q < MAXITEMS/8; ++q)
 			if(!p_getc(&temp_zinit.items[q], f))
 				return qe_invalid;
@@ -21865,7 +21861,7 @@ int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zct
                 
                 if(!get_bit(skip_flags, skip_subscreens))
                 {
-                    if(zinit.subscreen!=ssdtMAX)  //not using custom subscreens
+                    if(subscr_mode!=ssdtMAX)  //not using custom subscreens
                     {
                         setupsubscreens();
                         

@@ -13372,30 +13372,10 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *)
 		if(!p_putc(zinit.msg_more_is_offset,f))
 			new_return(40);
 		/*
-		if(!p_putc(zinit.subscreen,f))
-			new_return(44);
 		if(!p_iputw(zinit.start_dmap,f))
 			new_return(45);
 		if(!p_putc(zinit.heroAnimationStyle,f))
 			new_return(46);
-		if(!p_iputw(zinit.ss_grid_x,f))
-			new_return(50);
-		if(!p_iputw(zinit.ss_grid_y,f))
-			new_return(51);
-		if(!p_iputw(zinit.ss_grid_xofs,f))
-			new_return(52);
-		if(!p_iputw(zinit.ss_grid_yofs,f))
-			new_return(53);
-		if(!p_iputw(zinit.ss_grid_color,f))
-			new_return(54);
-		if(!p_iputw(zinit.ss_bbox_1_color,f))
-			new_return(55);
-		if(!p_iputw(zinit.ss_bbox_2_color,f))
-			new_return(56);
-		if(!p_iputw(zinit.ss_flags,f))
-			new_return(57);
-		if(!p_putc(zinit.subscreen_style,f))
-			new_return(58);
 		if(!p_putc(zinit.usecustomsfx,f))
 			new_return(59);
 		if(!p_putc(zinit.gravity,f))

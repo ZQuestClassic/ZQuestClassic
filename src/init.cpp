@@ -1140,8 +1140,6 @@ constexpr std::size_t countof(T(&)[N]) { return N; }
 	PROP(ss_grid_y) \
 	PROP(ss_grid_yofs) \
 	PROP(start_dmap) \
-	PROP(subscreen) \
-	PROP(subscreen_style) \
 	PROP(subscrSpeed) \
 	PROP(swimgravity) \
 	PROP(switchhookstyle) \

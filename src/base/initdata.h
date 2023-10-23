@@ -56,13 +56,9 @@ struct zinitdata
 private:
 public:
 	
-	
-	
-	byte subscreen;
 	word start_dmap;
 	byte heroAnimationStyle;
 	
-	byte subscreen_style;
 	byte usecustomsfx;
 	byte gravity = 16; //Deprecated!
 	int32_t gravity2 = 1600; //Bumping this up to an int32_t.
