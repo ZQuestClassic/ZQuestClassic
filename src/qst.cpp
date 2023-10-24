@@ -19379,14 +19379,12 @@ int32_t readcheatcodes(PACKFILE *f, zquestheader *Header)
     return 0;
 }
 
-int32_t readinitdata_old(PACKFILE *f, zquestheader *Header, word s_version, word s_cversion)
+int32_t readinitdata_old(PACKFILE *f, zquestheader *Header, word s_version, word s_cversion, zinitdata& temp_zinit)
 {
 	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_initdata);
 
 	int32_t dummy;
 	byte padding, tempbyte;
-	
-	zinitdata temp_zinit = {};
 	
 	// Legacy item properties (now integrated into itemdata)
 	byte sword_hearts[4];
@@ -20812,30 +20810,31 @@ int32_t readinitdata_old(PACKFILE *f, zquestheader *Header, word s_version, word
 }
 int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 {
-	if(Header->zelda_version <= 0x192)
-		return readinitdata_old(f,Header,0,0);
+	zinitdata temp_zinit = {};
+	
 	bool should_skip = legacy_skip_flags && get_bit(legacy_skip_flags, skip_initdata);
 	
 	int32_t dummy;
 	word s_version=0, s_cversion=0;
 	byte padding;
 	
-	zinitdata temp_zinit = {};
-	
-	if(!p_igetw(&s_version,f))
-		return qe_invalid;
-	FFCore.quest_format[vInitData] = s_version;
-	
-	if(!p_igetw(&s_cversion,f))
-		return qe_invalid;
-	
-	//section size
-	if(!p_igetl(&dummy,f))
-		return qe_invalid;
+	if(Header->zelda_version > 0x192)
+	{
+		if(!p_igetw(&s_version,f))
+			return qe_invalid;
+		FFCore.quest_format[vInitData] = s_version;
+		
+		if(!p_igetw(&s_cversion,f))
+			return qe_invalid;
+		
+		//section size
+		if(!p_igetl(&dummy,f))
+			return qe_invalid;
+	}
 	
 	if(s_version < 37)
 	{
-		if(auto ret = readinitdata_old(f,Header,s_version,s_cversion))
+		if(auto ret = readinitdata_old(f,Header,s_version,s_cversion,temp_zinit))
 			return ret;
 	}
 	else
