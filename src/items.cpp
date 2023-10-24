@@ -119,14 +119,14 @@ bool item::animate(int32_t)
 						fakez = 0;
 						fakefall = -fakefall/2;
 					}
-					else if(fakez <= 1 && abs(fakefall) < (int32_t)(zinit.gravity2 / 100))
+					else if(fakez <= 1 && abs(fakefall) < (int32_t)(zinit.gravity / 100))
 					{
 						fakez=0;
 						fakefall=0;
 					}
 					else if(fakefall <= (int32_t)zinit.terminalv)
 					{
-						fakefall += (zinit.gravity2 / 100);
+						fakefall += (zinit.gravity / 100);
 					}
 				}
 				if (!(moveflags & FLAG_NO_REAL_Z))
@@ -138,14 +138,14 @@ bool item::animate(int32_t)
 						z = 0;
 						fall = -fall/2;
 					}
-					else if(z <= 1 && abs(fall) < (int32_t)(zinit.gravity2 / 100))
+					else if(z <= 1 && abs(fall) < (int32_t)(zinit.gravity / 100))
 					{
 						z=0;
 						fall=0;
 					}
 					else if(fall <= (int32_t)zinit.terminalv)
 					{
-						fall += (zinit.gravity2 / 100);
+						fall += (zinit.gravity / 100);
 					}
 				}
 			}

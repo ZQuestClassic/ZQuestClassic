@@ -552,7 +552,7 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 							Rows<3>(
 								margins = 0_px,
 								padding = 0_px,
-								DEC_VAL_FIELD("Gravity:",1,99990000,4,gravity2,isZC), INFOBTN("The rate of gravity, in px/frame^2"),
+								DEC_VAL_FIELD("Gravity:",1,99990000,4,gravity,isZC), INFOBTN("The rate of gravity, in px/frame^2"),
 								DEC_VAL_FIELD("Terminal Vel:",1,999900,2,terminalv,isZC), INFOBTN("The terminal velocity, in px/frame"),
 								VAL_FIELD(byte,"Jump Layer Height:",0,255,jump_hero_layer_threshold,isZC), INFOBTN("Some objects draw higher-layer when their Z is greater than this value"),
 								VAL_FIELD(word,"Player Step:",0,65535,heroStep,isZC), INFOBTN("The player's movement speed, in 100ths px/frame. Only applies if 'New Player Movement' is enabled." + QRHINT({qr_NEW_HERO_MOVEMENT,qr_NEW_HERO_MOVEMENT2})),

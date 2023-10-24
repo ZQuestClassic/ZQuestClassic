@@ -1108,7 +1108,6 @@ constexpr std::size_t countof(T(&)[N]) { return N; }
 	PROP(ene_damage_multiplier) \
 	PROP(exitWaterJump) \
 	PROP(gravity) \
-	PROP(gravity2) \
 	PROP(hcp) \
 	PROP(hcp_per_hc) \
 	PROP(hero_damage_multiplier) \
@@ -1145,7 +1144,6 @@ constexpr std::size_t countof(T(&)[N]) { return N; }
 	PROP(switchhookstyle) \
 	PROP(terminalv) \
 	PROP(transdark_percent) \
-	PROP(transition_type) \
 	PROP(usecustomsfx)
 
 #define LIST_ARRAY_PROPS \
@@ -1177,7 +1175,8 @@ constexpr std::size_t countof(T(&)[N]) { return N; }
 	DEPRPROP(max_keys,mcounter[crKEYS]) \
 	DEPRPROP(max_magic,mcounter[crMAGIC]) \
 	DEPRPROP(max_rupees,mcounter[crMONEY]) \
-	DEPRPROP(max_sbombs,mcounter[crSBOMBS])
+	DEPRPROP(max_sbombs,mcounter[crSBOMBS]) \
+	DEPRPROP(gravity2,gravity)
 
 #define LIST_ARRAY_DEPR_PROPS \
 	ARRAY_DEPRPROP_IOFS(scrcnt,counter,crCUSTOM1) \

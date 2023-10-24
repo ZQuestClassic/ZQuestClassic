@@ -2530,7 +2530,7 @@ void HeroClass::draw(BITMAP* dest)
 			// Keep this consistent with checkspecial2, line 7800-ish...
 			bool inwater = iswaterex(MAPCOMBO(x+4,y+9), currmap, currscr, -1, x+4, y+9, true, false)  && iswaterex(MAPCOMBO(x+4,y+15), currmap, currscr, -1, x+4, y+15, true, false) &&  iswaterex(MAPCOMBO(x+11,y+9), currmap, currscr, -1, x+11, y+9, true, false) && iswaterex(MAPCOMBO(x+11,y+15), currmap, currscr, -1, x+11, y+15, true, false);
 			
-			int32_t jumping2 = int32_t(jumping*((zinit.gravity2 / 100)/16.0));
+			int32_t jumping2 = int32_t(jumping*((zinit.gravity / 100)/16.0));
 			bool noliftspr = get_qr(qr_NO_LIFT_SPRITE);
 			//if (jumping!=0) al_trace("%d %d %f %d\n",jumping,zinit.gravity,zinit.gravity/16.0,jumping2);
 			switch(zinit.heroAnimationStyle)
@@ -7956,7 +7956,7 @@ heroanimate_skip_liftwpn:;
 		}
 	}
 	bool platformfell2 = false;
-	int32_t gravity3 = (zinit.gravity2/100);
+	int32_t gravity3 = (zinit.gravity/100);
 	int32_t termv = (zinit.terminalv);
 	int32_t rocs = getRocsPressed();
 	if (rocs != -1)
@@ -8352,7 +8352,7 @@ heroanimate_skip_liftwpn:;
 					hoverflags |= HOV_OUT | HOV_PITFALL_OUT;
 				}
 			}
-			else if(((fall+(int32_t)(zinit.gravity2 / 100) > 0 && fall<=0 && !(moveflags & FLAG_NO_REAL_Z) && z > 0) || (fakefall+gravity3 > 0 && fakefall<=0 && !(moveflags & FLAG_NO_FAKE_Z) && fakez > 0)) && can_use_item(itype_hoverboots,i_hoverboots) && !(hoverflags & HOV_OUT))
+			else if(((fall+(int32_t)(zinit.gravity / 100) > 0 && fall<=0 && !(moveflags & FLAG_NO_REAL_Z) && z > 0) || (fakefall+gravity3 > 0 && fakefall<=0 && !(moveflags & FLAG_NO_FAKE_Z) && fakez > 0)) && can_use_item(itype_hoverboots,i_hoverboots) && !(hoverflags & HOV_OUT))
 			{
 				if(hoverclk < 0)
 					hoverclk = -hoverclk;

@@ -43,7 +43,12 @@ struct zinitdata
 	bitstring flags;
 	
 	byte last_map, last_screen; //last editor map/screen
-	byte msg_more_x, msg_more_y, msg_more_is_offset;
+	byte msg_more_x, msg_more_y, msg_more_is_offset, msg_speed = 5;
+	
+	int32_t gravity = 1600, swimgravity = 5;
+	word terminalv = 320;
+	byte hero_swim_speed; //old movement still needs
+	byte hero_swim_mult = 2, hero_swim_div = 3; //new movement
 	
 	bool get_item(size_t ind) const {return get_bit(items,ind);}
 	void set_item(size_t ind, bool st) {set_bit(items,ind,st);}
@@ -60,19 +65,13 @@ public:
 	byte heroAnimationStyle;
 	
 	byte usecustomsfx;
-	byte gravity = 16; //Deprecated!
-	int32_t gravity2 = 1600; //Bumping this up to an int32_t.
-	word terminalv = 320;
-	byte msg_speed = 5;
-	byte transition_type; // Can't edit, yet.
 	byte jump_hero_layer_threshold = 255; // Hero is drawn above layer 3 if z > this.
-	byte hero_swim_speed;
+	
 	
 	word heroStep, subscrSpeed = 1, heroSideswimUpStep, heroSideswimSideStep, heroSideswimDownStep;
 	
 	int32_t exitWaterJump;
 	
-	int32_t swimgravity;
 	
 	
 	int32_t bunny_ltm;
@@ -80,7 +79,6 @@ public:
 	
 	byte magicdrainrate;
 	
-	byte hero_swim_mult = 2, hero_swim_div = 3;
 	
 	bool gen_doscript[NUMSCRIPTSGENERIC];
 	word gen_exitState[NUMSCRIPTSGENERIC];

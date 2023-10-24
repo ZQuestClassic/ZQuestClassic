@@ -20274,11 +20274,11 @@ int32_t readinitdata_old(PACKFILE *f, zquestheader *Header, word s_version, word
 		
 		if(s_version>16)
 		{
-			if(!p_getc(&temp_zinit.gravity,f))
+			if(!p_getc(&tempbyte,f))
 			{
 				return qe_invalid;
 			}
-			
+			temp_zinit.gravity = tempbyte*100;
 			if(!p_igetw(&temp_zinit.terminalv,f))
 			{
 				return qe_invalid;
@@ -20289,7 +20289,7 @@ int32_t readinitdata_old(PACKFILE *f, zquestheader *Header, word s_version, word
 				return qe_invalid;
 			}
 			
-			if(!p_getc(&temp_zinit.transition_type,f))
+			if(!p_getc(&padding,f))
 			{
 				return qe_invalid;
 			}
@@ -20661,7 +20661,7 @@ int32_t readinitdata_old(PACKFILE *f, zquestheader *Header, word s_version, word
 	
 	if(s_version > 25)
 	{
-		if(!p_igetl(&temp_zinit.gravity2,f))
+		if(!p_igetl(&temp_zinit.gravity,f))
 		{
 			return qe_invalid;
 		}
@@ -20670,11 +20670,7 @@ int32_t readinitdata_old(PACKFILE *f, zquestheader *Header, word s_version, word
 			return qe_invalid;
 		}
 	}
-	else
-	{
-		temp_zinit.gravity2 = temp_zinit.gravity*100;
-		temp_zinit.swimgravity = 5;
-	}
+	
 	
 	if(s_version > 26)
 	{
@@ -20923,6 +20919,20 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 		if(!p_getc(&temp_zinit.msg_more_y,f))
 			return qe_invalid;
 		if(!p_getc(&temp_zinit.msg_more_is_offset,f))
+			return qe_invalid;
+		if(!p_getc(&temp_zinit.msg_speed,f))
+			return qe_invalid;
+		if(!p_igetl(&temp_zinit.gravity,f))
+			return qe_invalid;
+		if(!p_igetl(&temp_zinit.swimgravity,f))
+			return qe_invalid;
+		if(!p_igetw(&temp_zinit.terminalv,f))
+			return qe_invalid;
+		if(!p_getc(&temp_zinit.hero_swim_speed,f))
+			return qe_invalid;
+		if(!p_getc(&temp_zinit.hero_swim_mult,f))
+			return qe_invalid;
+		if(!p_getc(&temp_zinit.hero_swim_div,f))
 			return qe_invalid;
 	}
 	if (should_skip)

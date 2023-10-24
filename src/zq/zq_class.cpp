@@ -13371,6 +13371,20 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *)
 			new_return(39);
 		if(!p_putc(zinit.msg_more_is_offset,f))
 			new_return(40);
+		if(!p_putc(zinit.msg_speed,f))
+			new_return(41);
+		if(!p_iputl(zinit.gravity,f))
+			new_return(42);
+		if(!p_iputl(zinit.swimgravity,f))
+			new_return(43);
+		if(!p_iputw(zinit.terminalv,f))
+			new_return(44);
+		if(!p_putc(zinit.hero_swim_speed,f))
+			new_return(45);
+		if(!p_putc(zinit.hero_swim_mult,f))
+			new_return(46);
+		if(!p_putc(zinit.hero_swim_div,f))
+			new_return(47);
 		/*
 		if(!p_iputw(zinit.start_dmap,f))
 			new_return(45);
@@ -13378,24 +13392,12 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *)
 			new_return(46);
 		if(!p_putc(zinit.usecustomsfx,f))
 			new_return(59);
-		if(!p_putc(zinit.gravity,f))
-			new_return(62);
-		if(!p_iputw(zinit.terminalv,f))
-			new_return(63);
-		if(!p_putc(zinit.msg_speed,f))
-			new_return(64);
-		if(!p_putc(zinit.transition_type,f))
-			new_return(65);
 		if(!p_putc(zinit.jump_hero_layer_threshold,f))
 			new_return(66);
 		if(!p_iputw(zinit.heroStep,f))
 			new_return(73);
 		if(!p_iputw(zinit.subscrSpeed,f))
 			new_return(74);
-		if(!p_iputl(zinit.gravity2,f))
-			new_return(86);
-		if(!p_iputl(zinit.swimgravity,f))
-			new_return(87);
 		if(!p_iputw(zinit.heroSideswimUpStep,f))
 			new_return(88);
 		if(!p_iputw(zinit.heroSideswimSideStep,f))
