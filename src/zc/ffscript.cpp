@@ -1109,13 +1109,12 @@ void load_genscript(const gamedata& gd)
 		user_genscript& gen = user_scripts[q];
 		gen.clear();
 		gen.indx = q;
-		gen.doscript = gd.gen_doscript[q];
+		gen.doscript = gd.gen_doscript.get(q);
 		gen.exitState = gd.gen_exitState[q];
 		gen.reloadState = gd.gen_reloadState[q];
 		gen.eventstate = gd.gen_eventstate[q];
-		memcpy(gen.initd, gd.gen_initd[q], sizeof(gen.initd));
+		gen.initd = gd.gen_initd[q];
 		gen.data = gd.gen_data[q];
-		gen.dataResize(gd.gen_dataSize[q]);
 	}
 }
 void load_genscript(const zinitdata& zd)
@@ -1125,14 +1124,12 @@ void load_genscript(const zinitdata& zd)
 		user_genscript& gen = user_scripts[q];
 		gen.clear();
 		gen.indx = q;
-		gen.doscript = zd.gen_doscript[q];
+		gen.doscript = zd.gen_doscript.get(q);
 		gen.exitState = zd.gen_exitState[q];
 		gen.reloadState = zd.gen_reloadState[q];
 		gen.eventstate = zd.gen_eventstate[q];
-		memcpy(gen.initd, zd.gen_initd[q], sizeof(gen.initd));
-		gen.dataResize(zd.gen_data[q].size());
-		gen.data = zd.gen_data[q].inner();
-		gen.dataResize(zd.gen_data[q].size());
+		gen.initd = zd.gen_initd[q];
+		gen.data = zd.gen_data[q];
 	}
 }
 
@@ -1141,12 +1138,11 @@ void save_genscript(gamedata& gd)
 	for(size_t q = 0; q < NUMSCRIPTSGENERIC; ++q)
 	{
 		user_genscript const& gen = user_scripts[q];
-		gd.gen_doscript[q] = gen.doscript;
+		gd.gen_doscript.set(q, gen.doscript);
 		gd.gen_exitState[q] = gen.exitState;
 		gd.gen_reloadState[q] = gen.reloadState;
 		gd.gen_eventstate[q] = gen.eventstate;
-		memcpy(gd.gen_initd[q], gen.initd, sizeof(gen.initd));
-		gd.gen_dataSize[q] = gen.dataSize();
+		gd.gen_initd[q] = gen.initd;
 		gd.gen_data[q] = gen.data;
 	}
 }
@@ -35477,7 +35473,8 @@ int32_t run_script(ScriptType type, const word script, const int32_t i)
 			{
 				got_initialized = true;
 				scr.initialized = true;
-				memcpy(ri->d, scr.initd, 8 * sizeof(int32_t));
+				for (int q = 0; q < 8; ++q)
+					ri->d[q] = scr.initd[q];
 			}
 		}
 		break;
@@ -35492,7 +35489,8 @@ int32_t run_script(ScriptType type, const word script, const int32_t i)
 			{
 				got_initialized = true;
 				gen_active_initialized = true;
-				memcpy(ri->d, user_scripts[script].initd, 8 * sizeof(int32_t));
+				for (int q = 0; q < 8; ++q)
+					ri->d[q] = user_scripts[script].initd[q];
 			}
 		}
 		break;

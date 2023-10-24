@@ -67,17 +67,12 @@ void gamedata::load_user_objects()
 
 void gamedata::clear_genscript()
 {
-	memset(gen_doscript, 0, sizeof(gen_doscript));
-	memset(gen_exitState, 0, sizeof(gen_exitState));
-	memset(gen_reloadState, 0, sizeof(gen_reloadState));
-	memset(gen_eventstate, 0, sizeof(gen_eventstate));
-	memset(gen_initd, 0, sizeof(gen_initd));
-	memset(gen_dataSize, 0, sizeof(gen_dataSize));
-	for(size_t q = 0; q < NUMSCRIPTSGENERIC; ++q)
-	{
-		gen_data[q].clear();
-		gen_data[q].resize(0);
-	}
+	gen_doscript.clear();
+	gen_exitState.clear();
+	gen_reloadState.clear();
+	gen_eventstate.clear();
+	gen_initd.clear();
+	gen_data.clear();
 }
 
 const char *gamedata::get_qstpath() const

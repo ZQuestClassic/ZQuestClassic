@@ -681,7 +681,7 @@ inline bool p_getbmap(bounded_map<Sz,T> *cont, PACKFILE *f)
 					return false;
 				if(!p_getvar(&v,f))
 					return false;
-				cont[k] = v;
+				(*cont)[k] = v;
 			}
 		}
 		else
@@ -690,7 +690,7 @@ inline bool p_getbmap(bounded_map<Sz,T> *cont, PACKFILE *f)
 			{
 				if(!p_getvar(&v,f))
 					return false;
-				cont[k] = v;
+				(*cont)[k] = v;
 			}
 		}
 		cont->normalize();
@@ -705,7 +705,7 @@ inline bool p_putbmap(bounded_map<Sz,T> const& cont, PACKFILE *f)
 		return false;
 	if(sz)
 	{
-		T dt;
+		T dt = T();
 		auto lkey = cont.lastKey();
 		Sz writecnt = lkey ? *lkey+1 : 0;
 		Sz cap = 0;

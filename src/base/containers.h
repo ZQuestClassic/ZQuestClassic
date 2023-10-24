@@ -276,7 +276,7 @@ private:
 class bitstring
 {
 public:
-	bool get(size_t ind)
+	bool get(size_t ind) const
 	{
 		return cont[ind/8] & (1 << ind%8);
 	}
@@ -288,6 +288,7 @@ public:
 			cont[ind/8] &= ~(1 << ind%8);
 	}
 	void normalize() {cont.normalize();}
+	void clear() {cont.clear();}
 	bounded_vec<word,byte>& inner() {return cont;}
 	bounded_vec<word,byte> const& inner() const {return cont;}
 	bool operator==(bitstring const& other) const = default;

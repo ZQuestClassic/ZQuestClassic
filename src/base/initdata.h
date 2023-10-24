@@ -50,6 +50,28 @@ struct zinitdata
 	byte hero_swim_speed; //old movement still needs
 	byte hero_swim_mult = 2, hero_swim_div = 3; //new movement
 	
+	word heroSideswimUpStep, heroSideswimSideStep, heroSideswimDownStep;
+	int32_t exitWaterJump;
+	
+	word heroStep;
+	byte heroAnimationStyle;
+	byte jump_hero_layer_threshold = 255; // Hero is drawn above layer 3 if z > this.
+	int32_t bunny_ltm;
+	
+	word start_dmap;
+	word subscrSpeed = 1;
+	byte switchhookstyle, magicdrainrate;
+	
+	zfix shove_offset = 6.5_zf;
+	
+	bitstring gen_doscript;
+	bounded_map<word,word> gen_exitState {NUMSCRIPTSGENERIC};
+	bounded_map<word,word> gen_reloadState {NUMSCRIPTSGENERIC};
+	bounded_map<word,bounded_vec<byte,int32_t>> gen_initd {NUMSCRIPTSGENERIC, {8}};
+	bounded_map<word,uint32_t> gen_eventstate {NUMSCRIPTSGENERIC};
+	bounded_map<word,bounded_map<dword,int32_t>> gen_data {NUMSCRIPTSGENERIC, {0}};
+	bounded_map<dword,bounded_map<dword,int32_t>> screen_data {MAXSCRS, {0}};
+	
 	bool get_item(size_t ind) const {return get_bit(items,ind);}
 	void set_item(size_t ind, bool st) {set_bit(items,ind,st);}
 	
@@ -57,39 +79,14 @@ struct zinitdata
 	{
 		level_keys.normalize();
 		flags.normalize();
+		gen_doscript.normalize();
+		gen_exitState.normalize();
+		gen_reloadState.normalize();
+		gen_initd.normalize();
+		gen_eventstate.normalize();
+		gen_data.normalize();
+		screen_data.normalize();
 	}
-private:
-public:
-	
-	word start_dmap;
-	byte heroAnimationStyle;
-	
-	byte usecustomsfx;
-	byte jump_hero_layer_threshold = 255; // Hero is drawn above layer 3 if z > this.
-	
-	
-	word heroStep, subscrSpeed = 1, heroSideswimUpStep, heroSideswimSideStep, heroSideswimDownStep;
-	
-	int32_t exitWaterJump;
-	
-	
-	
-	int32_t bunny_ltm;
-	byte switchhookstyle;
-	
-	byte magicdrainrate;
-	
-	
-	bool gen_doscript[NUMSCRIPTSGENERIC];
-	word gen_exitState[NUMSCRIPTSGENERIC];
-	word gen_reloadState[NUMSCRIPTSGENERIC];
-	int32_t gen_initd[NUMSCRIPTSGENERIC][8];
-	uint32_t gen_eventstate[NUMSCRIPTSGENERIC];
-	
-	bounded_vec<word,bounded_vec<uint32_t,int32_t>> gen_data {NUMSCRIPTSGENERIC, {0}};
-	bounded_vec<uint32_t,bounded_vec<uint32_t,int32_t>> screen_data {MAXSCRS, {0}};
-	
-	zfix shove_offset = 6.5_zf;
 	
 	void clear_genscript();
 	

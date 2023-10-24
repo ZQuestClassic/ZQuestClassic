@@ -58,6 +58,7 @@ void InitDataDialog::setOfs(size_t ofs)
 		l_maps[q]->setVisible(vis);
 		l_comp[q]->setVisible(vis);
 		l_bkey[q]->setVisible(vis);
+		l_mcguff[q]->setVisible(vis);
 		l_keys[q]->setVisible(vis);
 	}
 }
@@ -287,11 +288,11 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 				int32_t id = *itid;
 				grid->add(Checkbox(
 					hAlign=0.0,vAlign=0.0,
-					checked = local_zinit.items[id],
+					checked = local_zinit.get_item(id),
 					text = item_name(id),
 					onToggleFunc = [&,id](bool state)
 					{
-						local_zinit.items[id] = state;
+						local_zinit.set_item(id, state);
 					}
 				));
 			}
@@ -668,6 +669,7 @@ bool InitDataDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 				l_maps[q]->setChecked(get_bit(local_zinit.map,q+levelsOffset));
 				l_comp[q]->setChecked(get_bit(local_zinit.compass,q+levelsOffset));
 				l_bkey[q]->setChecked(get_bit(local_zinit.boss_key,q+levelsOffset));
+				l_mcguff[q]->setChecked(get_bit(local_zinit.boss_key,q+levelsOffset));
 				l_keys[q]->setVal(local_zinit.level_keys[q+levelsOffset]);
 			}
 		}
@@ -676,6 +678,7 @@ bool InitDataDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 		{
 			local_zinit.cont_heart = std::min(local_zinit.cont_heart, word(CONT_PERC?100:local_zinit.mcounter[crLIFE]));
 			local_zinit.hcp = std::min(local_zinit.hcp, byte(local_zinit.hcp_per_hc-1));
+			local_zinit.normalize();
 			setVals(local_zinit);
 		}
 		return true;
@@ -853,12 +856,12 @@ std::shared_ptr<GUI::Widget> InitGenscriptWizard::view()
 				),
 				Rows<3>(vAlign = 0.0,
 					Checkbox(
-						checked = local_zinit.gen_doscript[index],
+						checked = local_zinit.gen_doscript.get(index),
 						text = "Run from Start",
 						colSpan = 2,
 						onToggleFunc = [&](bool state)
 						{
-							local_zinit.gen_doscript[index] = state;
+							local_zinit.gen_doscript.set(index, state);
 						}),
 					INFOBTN("Script will run when starting a new save"),
 					//
@@ -880,8 +883,8 @@ std::shared_ptr<GUI::Widget> InitGenscriptWizard::view()
 						disabled = local_zinit.gen_data[index].empty(),
 						onPressFunc = [&]()
 						{
-							if(local_zinit.gen_data[index].size())
-								call_edit_vector(local_zinit.gen_data[index], true);
+							if(!local_zinit.gen_data[index].empty())
+								call_edit_map(local_zinit.gen_data[index], true);
 						})
 				)
 			)
@@ -1078,10 +1081,10 @@ bool InitGenscriptWizard::handleMessage(const GUI::DialogMessage<message>& msg)
 	{
 		case message::OK:
 		{
-			dest_zinit.gen_doscript[index] = local_zinit.gen_doscript[index];
+			dest_zinit.gen_doscript.set(index, local_zinit.gen_doscript.get(index));
 			dest_zinit.gen_exitState[index] = local_zinit.gen_exitState[index];
 			dest_zinit.gen_reloadState[index] = local_zinit.gen_reloadState[index];
-			memcpy(dest_zinit.gen_initd[index], local_zinit.gen_initd[index], sizeof(int32_t)*8);
+			dest_zinit.gen_initd[index] = local_zinit.gen_initd[index];
 			dest_zinit.gen_data[index] = local_zinit.gen_data[index];
 			dest_zinit.gen_eventstate[index] = local_zinit.gen_eventstate[index];
 		}

@@ -930,31 +930,46 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 		word num_gen_scripts;
 		if(section_version >= 25)
 		{
-			byte dummybyte;
-			if(!p_igetw(&num_gen_scripts, f))
+			if(section_version < 37)
 			{
-				return 73;
+				byte dummybyte;
+				if(!p_igetw(&num_gen_scripts, f))
+					return 73;
+				for(size_t q=0; q<num_gen_scripts; q++)
+				{
+					if(!p_getc(&dummybyte,f))
+						return 74;
+					game.gen_doscript.set(q, dummybyte!=0);
+					if(!p_igetw(&(game.gen_exitState[q]),f))
+						return 75;
+					if(!p_igetw(&(game.gen_reloadState[q]),f))
+						return 76;
+					for(size_t ind = 0; ind < 8; ++ind)
+						if(!p_igetl(&(game.gen_initd[q][ind]),f))
+							return 77;
+					int32_t sz;
+					if(!p_igetl(&sz,f))
+						return 78;
+					game.gen_data[q].resize(sz);
+					for(auto ind = 0; ind < sz; ++ind)
+						if(!p_igetl(&(game.gen_data[q][ind]),f))
+							return 79;
+				}
 			}
-			for(size_t q=0; q<num_gen_scripts; q++)
+			else
 			{
-				if(!p_getc(&dummybyte,f))
-					return 74;
-				game.gen_doscript[q] = dummybyte!=0;
-				if(!p_igetw(&(game.gen_exitState[q]),f))
-					return 75;
-				if(!p_igetw(&(game.gen_reloadState[q]),f))
-					return 76;
-				for(size_t ind = 0; ind < 8; ++ind)
-					if(!p_igetl(&(game.gen_initd[q][ind]),f))
-						return 77;
-				int32_t sz;
-				if(!p_igetl(&sz,f))
-					return 78;
-				game.gen_dataSize[q] = sz;
-				game.gen_data[q].resize(sz, 0);
-				for(auto ind = 0; ind < sz; ++ind)
-					if(!p_igetl(&(game.gen_data[q][ind]),f))
-						return 79;
+				if(!p_getbitstr(&game.gen_doscript, f))
+					return 73;
+				if(!p_getbmap(&game.gen_exitState, f))
+					return 73;
+				if(!p_getbmap(&game.gen_reloadState, f))
+					return 73;
+				if(!p_getbmap(&game.gen_initd, f))
+					return 73;
+				if(!p_getbmap(&game.gen_eventstate, f))
+					return 73;
+				if(!p_getbmap(&game.gen_data, f))
+					return 73;
 			}
 		}
 		
@@ -973,8 +988,7 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 			std::fill(game.xstates, game.xstates+(MAXMAPS*MAPSCRSNORMAL), 0);
 		}
 		
-		std::fill(game.gen_eventstate, game.gen_eventstate+NUMSCRIPTSGENERIC, 0);
-		if(section_version >= 27)
+		if(section_version >= 27 && section_version < 37)
 		{
 			for(size_t q=0; q<num_gen_scripts; q++)
 			{
@@ -1103,15 +1117,22 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 			for(int q = 0; q < itype_max; ++q)
 				if(!p_igetw(&game.OverrideItems[q],f))
 					return 113;
-		if(section_version >= 36)
+		if(section_version == 36)
 		{
 			uint32_t num_used_mapscr_data;
 			if(!p_igetl(&num_used_mapscr_data,f))
 				return 114;
+			vector<int32_t> tmpvec;
 			for(size_t q = 0; q < num_used_mapscr_data; ++q)
-				if(!p_getlvec(&game.screen_data[q],f))
+			{
+				if(!p_getlvec(&tmpvec,f))
 					return 115;
+				game.screen_data[q] = tmpvec;
+			}
 		}
+		else if(section_version > 36)
+			if(!p_getbmap(&game.screen_data, f))
+				return 115;
 	}
 	
 	return 0;
@@ -1125,6 +1146,7 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 	int32_t section_version=V_SAVEGAME;
 	int32_t section_cversion=CV_SAVEGAME;
 	int32_t section_size=0;
+	game.normalize();
 	
 	//section id
 	if(!p_mputl(section_id,f))
@@ -1420,29 +1442,20 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 		return 70;
 	}
 	
-	if(!p_iputw(NUMSCRIPTSGENERIC,f))
-	{
-		new_return(71);
-	}
 	save_genscript(game); //read the values into the save object
-	for(size_t q=0; q<NUMSCRIPTSGENERIC; q++)
-	{
-		if(!p_putc(game.gen_doscript[q] ? 1 : 0,f))
-			return 72;
-		if(!p_iputw(game.gen_exitState[q],f))
-			return 73;
-		if(!p_iputw(game.gen_reloadState[q],f))
-			return 74;
-		for(size_t ind = 0; ind < 8; ++ind)
-			if(!p_iputl(game.gen_initd[q][ind],f))
-				return 75;
-		int32_t sz = game.gen_dataSize[q];
-		if(!p_iputl(sz,f))
-			return 76;
-		for(auto ind = 0; ind < sz; ++ind)
-			if(!p_iputl(game.gen_data[q][ind],f))
-				return 77;
-	}
+	if(!p_putbitstr(game.gen_doscript, f))
+		return 72;
+	if(!p_putbmap(game.gen_exitState, f))
+		return 73;
+	if(!p_putbmap(game.gen_reloadState, f))
+		return 74;
+	if(!p_putbmap(game.gen_initd, f))
+		return 75;
+	if(!p_putbmap(game.gen_eventstate, f))
+		return 76;
+	if(!p_putbmap(game.gen_data, f))
+		return 77;
+	
 	
 	for(int32_t j=0; j<MAXMAPS*MAPSCRSNORMAL; j++)
 	{
@@ -1452,13 +1465,6 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 		}
 	}
 	
-	for(auto q = 0; q < NUMSCRIPTSGENERIC; ++q)
-	{
-		if(!p_iputl(game.gen_eventstate[q],f))
-		{
-			return 79;
-		}
-	}
 	if(!pfwrite(game.gswitch_timers,NUM_GSWITCHES*sizeof(int32_t),f))
 	{
 		return 80;
@@ -1548,18 +1554,8 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 	for(int q = 0; q < itype_max; ++q)
 		if(!p_iputw(game.OverrideItems[q],f))
 			return 109;
-	uint32_t num_used_mapscr_data = 0;
-	for(int32_t q = map_count*MAPSCRS-1; q >= 0; --q)
-		if(game.screen_data[q].size())
-		{
-			num_used_mapscr_data = q+1;
-			break;
-		}
-	if(!p_iputl(num_used_mapscr_data,f))
-		return 114;
-	for(size_t q = 0; q < num_used_mapscr_data; ++q)
-		if(!p_putlvec(game.screen_data[q],f))
-			return 115;
+	if(!p_putbmap(game.screen_data,f))
+		return 115;
 	return 0;
 }
 
@@ -2261,7 +2257,7 @@ int saves_do_first_time_stuff(int index)
 
 	if (!save->game->get_hasplayed())
 	{
-		save->game->set_quest(save->game->header.qstpath.ends_with("classic_1st.qst") ? 1 : 0xFF);
+		save->game->set_quest(0xFF);
 
 		// Try to make relative to qstdir.
 		// TODO: this is a weird place to do this.
@@ -2411,6 +2407,20 @@ bool saves_test()
 			return false;\
 		}\
 	}
+	
+	#define SAVE_TEST_VECTOR_2D(field) for (int i = 0; i < game->field.size(); ++i) {\
+		for(int j = 0; j < game->field[i].size(); ++j) {\
+			if (!gd_compare(game->field[i][j], save.game->field[i][j])) {\
+				printf("game->%s[%d][%d] != save.game->%s[%d][%d]\n", #field, i, j, #field, i, j);\
+				printf("%s\n", fmt::format("{} != {}", game->field[i][j], save.game->field[i][j]).c_str());\
+				delete game;\
+				return false;\
+			}\
+		}\
+	}
+	
+	#define SAVE_TEST_BITSTRING(field) \
+		SAVE_TEST_VECTOR(field.inner())
 
 	#define SAVE_TEST_ARRAY(field) for (int i = 0; i < countof(game->field); i++) {\
 		if (!gd_compare(game->field[i], save.game->field[i])) {\
@@ -2496,15 +2506,14 @@ bool saves_test()
 		return false;
 	}
 
-	SAVE_TEST_ARRAY(gen_doscript);
-	SAVE_TEST_ARRAY(gen_exitState);
-	SAVE_TEST_ARRAY(gen_reloadState);
-	SAVE_TEST_ARRAY_2D(gen_initd);
-	SAVE_TEST_ARRAY(gen_dataSize);
-	for (int i = 0; i < NUMSCRIPTSGENERIC; i++)
-		SAVE_TEST_VECTOR(gen_data[i]);
+	SAVE_TEST_BITSTRING(gen_doscript);
+	SAVE_TEST_VECTOR(gen_exitState);
+	SAVE_TEST_VECTOR(gen_reloadState);
+	SAVE_TEST_VECTOR_2D(gen_initd);
+	SAVE_TEST_VECTOR_2D(gen_data);
+	SAVE_TEST_VECTOR_2D(screen_data);
 	SAVE_TEST_ARRAY(xstates);
-	SAVE_TEST_ARRAY(gen_eventstate);
+	SAVE_TEST_VECTOR(gen_eventstate);
 	SAVE_TEST_ARRAY(gswitch_timers);
 	SAVE_TEST_VECTOR_NOFMT(user_objects);
 	SAVE_TEST_VECTOR_NOFMT(user_portals);
@@ -2531,3 +2540,4 @@ bool saves_test()
 	delete game;
 	return true;
 }
+

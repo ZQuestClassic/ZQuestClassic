@@ -19725,7 +19725,7 @@ int32_t readinitdata_old(PACKFILE *f, zquestheader *Header, word s_version, word
 		//old only
 		if((Header->zelda_version == 0x192)&&(Header->build<174))
 		{
-			byte equipment, items;                                //bit flags
+			byte equipment, tmpitm;                                //bit flags
 			
 			if(!p_getc(&equipment,f))
 			{
@@ -19740,17 +19740,17 @@ int32_t readinitdata_old(PACKFILE *f, zquestheader *Header, word s_version, word
 			temp_zinit.set_item(iBoots, get_bit(&equipment, idE_BOOTS)!=0);
 			
 			
-			if(!p_getc(&items,f))
+			if(!p_getc(&tmpitm,f))
 			{
 				return qe_invalid;
 			}
 			
-			temp_zinit.set_item(iWand, get_bit(&items, idI_WAND)!=0);
-			temp_zinit.set_item(iLetter, get_bit(&items, idI_LETTER)!=0);
-			temp_zinit.set_item(iLens, get_bit(&items, idI_LENS)!=0);
-			temp_zinit.set_item(iHookshot, get_bit(&items, idI_HOOKSHOT)!=0);
-			temp_zinit.set_item(iBait, get_bit(&items, idI_BAIT)!=0);
-			temp_zinit.set_item(iHammer, get_bit(&items, idI_HAMMER)!=0);
+			temp_zinit.set_item(iWand, get_bit(&tmpitm, idI_WAND)!=0);
+			temp_zinit.set_item(iLetter, get_bit(&tmpitm, idI_LETTER)!=0);
+			temp_zinit.set_item(iLens, get_bit(&tmpitm, idI_LENS)!=0);
+			temp_zinit.set_item(iHookshot, get_bit(&tmpitm, idI_HOOKSHOT)!=0);
+			temp_zinit.set_item(iBait, get_bit(&tmpitm, idI_BAIT)!=0);
+			temp_zinit.set_item(iHammer, get_bit(&tmpitm, idI_HAMMER)!=0);
 		}
 		
 		if(!p_getc(&tempbyte,f))
@@ -20251,7 +20251,7 @@ int32_t readinitdata_old(PACKFILE *f, zquestheader *Header, word s_version, word
 		
 		if(s_version>7)
 		{
-			if(!p_getc(&temp_zinit.usecustomsfx,f))
+			if(!p_getc(&padding,f))
 			{
 				return qe_invalid;
 			}
@@ -20746,11 +20746,11 @@ int32_t readinitdata_old(PACKFILE *f, zquestheader *Header, word s_version, word
 			return qe_invalid;
 		for(auto q = 1; q < numgenscript; ++q)
 		{
-			if(!p_getc(&padding,f))
+			if(!p_getc(&tempbyte,f))
 				return qe_invalid;
-			if(!(padding&2))
+			if(!(tempbyte&2))
 				continue;
-			temp_zinit.gen_doscript[q] = padding&1;
+			temp_zinit.gen_doscript.set(q, tempbyte&1);
 			if(!p_igetw(&temp_zinit.gen_exitState[q],f))
 				return qe_invalid;
 			if(!p_igetw(&temp_zinit.gen_reloadState[q],f))
@@ -20909,6 +20909,8 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 			return qe_invalid;
 		if(!p_igetl(&temp_zinit.ss_flags,f))
 			return qe_invalid;
+		if(!p_getbitstr(&temp_zinit.flags,f))
+			return qe_invalid;
 		if(!p_getc(&temp_zinit.last_map,f))
 			return qe_invalid;
 		if(!p_getc(&temp_zinit.last_screen,f))
@@ -20932,6 +20934,46 @@ int32_t readinitdata(PACKFILE *f, zquestheader *Header)
 		if(!p_getc(&temp_zinit.hero_swim_mult,f))
 			return qe_invalid;
 		if(!p_getc(&temp_zinit.hero_swim_div,f))
+			return qe_invalid;
+		if(!p_igetw(&temp_zinit.heroSideswimUpStep,f))
+			return qe_invalid;
+		if(!p_igetw(&temp_zinit.heroSideswimSideStep,f))
+			return qe_invalid;
+		if(!p_igetw(&temp_zinit.heroSideswimDownStep,f))
+			return qe_invalid;
+		if(!p_igetl(&temp_zinit.exitWaterJump,f))
+			return qe_invalid;
+		if(!p_igetw(&temp_zinit.heroStep,f))
+			return qe_invalid;
+		if(!p_getc(&temp_zinit.heroAnimationStyle,f))
+			return qe_invalid;
+		if(!p_getc(&temp_zinit.jump_hero_layer_threshold,f))
+			return qe_invalid;
+		if(!p_igetl(&temp_zinit.bunny_ltm,f))
+			return qe_invalid;
+		if(!p_igetw(&temp_zinit.start_dmap,f))
+			return qe_invalid;
+		if(!p_igetw(&temp_zinit.subscrSpeed,f))
+			return qe_invalid;
+		if(!p_getc(&temp_zinit.switchhookstyle,f))
+			return qe_invalid;
+		if(!p_getc(&temp_zinit.magicdrainrate,f))
+			return qe_invalid;
+		if(!p_igetzf(&temp_zinit.shove_offset,f))
+			return qe_invalid;
+		if(!p_getbitstr(&temp_zinit.gen_doscript, f))
+			return qe_invalid;
+		if(!p_getbmap(&temp_zinit.gen_exitState, f))
+			return qe_invalid;
+		if(!p_getbmap(&temp_zinit.gen_reloadState, f))
+			return qe_invalid;
+		if(!p_getbmap(&temp_zinit.gen_initd, f))
+			return qe_invalid;
+		if(!p_getbmap(&temp_zinit.gen_eventstate, f))
+			return qe_invalid;
+		if(!p_getbmap(&temp_zinit.gen_data, f))
+			return qe_invalid;
+		if(!p_getbmap(&temp_zinit.screen_data, f))
 			return qe_invalid;
 	}
 	if (should_skip)

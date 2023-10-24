@@ -1067,23 +1067,13 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool freshquest)
 	
 	if(freshquest)
 	{
-		memcpy(game2->gen_doscript, zinit2->gen_doscript, sizeof(game2->gen_doscript));
-		memcpy(game2->gen_exitState, zinit2->gen_exitState, sizeof(game2->gen_exitState));
-		memcpy(game2->gen_reloadState, zinit2->gen_reloadState, sizeof(game2->gen_reloadState));
-		memcpy(game2->gen_initd, zinit2->gen_initd, sizeof(game2->gen_initd));
-		
-		for(uint32_t q = 0; q < NUMSCRIPTSGENERIC; ++q)
-		{
-			game2->gen_dataSize[q] = zinit2->gen_data[q].size();
-			game2->gen_data[q] = zinit2->gen_data[q].inner();
-		}
-		memcpy(game2->gen_eventstate, zinit2->gen_eventstate, sizeof(game2->gen_eventstate));
-		
-		for(uint32_t q = 0; q < MAXMAPS*MAPSCRS; ++q)
-		{
-			game2->screen_data[q] = zinit2->screen_data[q].inner();
-			game2->scriptDataResize(q,zinit2->screen_data[q].size());
-		}
+		game2->gen_doscript = zinit2->gen_doscript;
+		game2->gen_exitState = zinit2->gen_exitState;
+		game2->gen_reloadState = zinit2->gen_reloadState;
+		game2->gen_initd = zinit2->gen_initd;
+		game2->gen_data = zinit2->gen_data;
+		game2->gen_eventstate = zinit2->gen_eventstate;
+		game2->screen_data = zinit2->screen_data;
 	}
 	
 	game2->swim_mult = zinit2->hero_swim_mult;
@@ -1143,17 +1133,19 @@ constexpr std::size_t countof(T(&)[N]) { return N; }
 	PROP(swimgravity) \
 	PROP(switchhookstyle) \
 	PROP(terminalv) \
-	PROP(transdark_percent) \
-	PROP(usecustomsfx)
+	PROP(transdark_percent)
 
 #define LIST_ARRAY_PROPS \
 	ARRAY_PROP(boss_key) \
 	ARRAY_PROP(compass) \
 	ARRAY_PROP(counter) \
-	ARRAY_PROP(gen_doscript) \
-	ARRAY_PROP(gen_eventstate) \
-	ARRAY_PROP(gen_exitState) \
-	ARRAY_PROP(gen_reloadState) \
+	BITSTR_PROP(gen_doscript) \
+	VEC_PROP(gen_eventstate) \
+	VEC_PROP(gen_exitState) \
+	VEC_PROP(gen_reloadState) \
+	VEC_PROP_2D(gen_initd) \
+	VEC_PROP_2D(gen_data) \
+	ARRAY_PROP(items) \
 	VEC_PROP(level_keys) \
 	ARRAY_PROP(map) \
 	ARRAY_PROP(mcguffin) \
@@ -1182,10 +1174,6 @@ constexpr std::size_t countof(T(&)[N]) { return N; }
 	ARRAY_DEPRPROP_IOFS(scrcnt,counter,crCUSTOM1) \
 	ARRAY_DEPRPROP_IOFS(scrmaxcnt,mcounter,crCUSTOM1)
 
-// TODO gen_data[i][j]
-// ARRAY_PROP(gen_data)
-// ARRAY_PROP(gen_initd)
-
 string serialize_init_data_delta(zinitdata *base, zinitdata *changed)
 {
 	vector<string> tokens;
@@ -1206,6 +1194,11 @@ string serialize_init_data_delta(zinitdata *base, zinitdata *changed)
 		for (int i = 0; i < base->name.size(); i++) \
 			if (base->name[i] != changed->name[i]) \
 				tokens.push_back(fmt::format("{}[{}]={}", #name, i, (int)changed->name[i]));
+	#define VEC_PROP_2D(name) \
+		for (int i = 0; i < base->name.size(); i++) \
+			for (int j = 0; j < base->name[i].size(); j++) \
+				if (base->name[i][j] != changed->name[i][j]) \
+					tokens.push_back(fmt::format("{}[{}][{}]={}", #name, i, j, int(changed->name[i][j])));
 	#define BITSTR_PROP(name) \
 	{ \
 		auto& bvec = base->name.inner(); \
@@ -1217,6 +1210,7 @@ string serialize_init_data_delta(zinitdata *base, zinitdata *changed)
 	}
 	LIST_ARRAY_PROPS;
 	#undef BITSTR_PROP
+	#undef VEC_PROP_2D
 	#undef VEC_PROP
 	#undef ARRAY_PROP
 	
@@ -1261,26 +1255,30 @@ zinitdata *apply_init_data_delta(zinitdata *base, string delta, string& out_erro
 			
 			FAIL_IF(errno, fmt::format("invalid token '{}': expected integer", token));
 			
-			if (name_index[0] == "items")
+			if(replay_version_check(0,24)) //hardcoded deprecated prop porting
 			{
-				if(replay_version_check(24))
-				{
-					FAIL_IF(index[0] >= countof(result->items), fmt::format("invalid token '{}': integer too big", token));
-					result->items[index[0]] = as_int;
-				}
-				else
+				bool cont = false;
+				if (name_index[0] == "items")
 				{
 					FAIL_IF(index[0] >= 256, fmt::format("invalid token '{}': integer too big", token));
 					result->set_item(index[0], as_int);
 				}
-			} else
-			if (name_index[0] == "misc")
-			{
-				if(index[0] == 0)
-					result->flags.set(INIT_FL_CONTPERCENT,as_int);
-				else if(index[0] == 2)
-					result->flags.set(INIT_FL_CANSLASH,as_int);
-			} else
+				else if (name_index[0] == "misc")
+				{
+					if(index[0] == 0)
+						result->flags.set(INIT_FL_CONTPERCENT,as_int);
+					else if(index[0] == 2)
+						result->flags.set(INIT_FL_CANSLASH,as_int);
+				}
+				else if (name_index[0] == "gen_doscript")
+				{
+					FAIL_IF(index[0] >= countof(result->items), fmt::format("invalid token '{}': integer too big", token));
+					result->gen_doscript.set(index[0], as_int);
+				}
+				else cont = false;
+				if(cont) continue;
+			}
+			
 			#define ARRAY_PROP(name) if (name_index[0] == #name) \
 			{ \
 				FAIL_IF(index[0] >= countof(result->name), fmt::format("invalid token '{}': integer too big", token)); \
@@ -1290,6 +1288,13 @@ zinitdata *apply_init_data_delta(zinitdata *base, string delta, string& out_erro
 			{ \
 				FAIL_IF(index[0] >= result->name.size(), fmt::format("invalid token '{}': integer too big", token)); \
 				result->name[index[0]] = as_int; \
+			} else
+			#define VEC_PROP_2D(name) if (name_index[0] == #name) \
+			{ \
+				FAIL_IF(index.size() < 2, fmt::format("invalid token '{}': expected 2 indeces, got {}", token, index.size())); \
+				FAIL_IF(index[0] >= result->name.size() \
+					|| index[1] >= result->name[index[0]].size(), fmt::format("invalid token '{}': integer too big", token)); \
+				result->name[index[0]][index[1]] = as_int; \
 			} else
 			#define ARRAY_DEPRPROP_IOFS(old,new,indoffs) if (name_index[0] == #old) \
 			{ \
@@ -1308,6 +1313,7 @@ zinitdata *apply_init_data_delta(zinitdata *base, string delta, string& out_erro
 			}
 			#undef BITSTR_PROP
 			#undef ARRAY_DEPRPROP_IOFS
+			#undef VEC_PROP_2D
 			#undef VEC_PROP
 			#undef ARRAY_PROP
 

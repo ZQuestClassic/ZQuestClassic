@@ -102,13 +102,12 @@ struct gamedata
 	
 	byte swim_mult = 1, swim_div = 1;
 	
-	bool gen_doscript[NUMSCRIPTSGENERIC];
-	word gen_exitState[NUMSCRIPTSGENERIC];
-	word gen_reloadState[NUMSCRIPTSGENERIC];
-	int32_t gen_initd[NUMSCRIPTSGENERIC][8];
-	int32_t gen_dataSize[NUMSCRIPTSGENERIC];
-	std::vector<int32_t> gen_data[NUMSCRIPTSGENERIC];
-	uint32_t gen_eventstate[NUMSCRIPTSGENERIC];
+	bitstring gen_doscript;
+	bounded_map<word,word> gen_exitState {NUMSCRIPTSGENERIC};
+	bounded_map<word,word> gen_reloadState {NUMSCRIPTSGENERIC};
+	bounded_map<word,bounded_vec<byte,int32_t>> gen_initd {NUMSCRIPTSGENERIC, {8}};
+	bounded_map<word,uint32_t> gen_eventstate {NUMSCRIPTSGENERIC};
+	bounded_map<word,bounded_map<dword,int32_t>> gen_data {NUMSCRIPTSGENERIC, {0}};
 	
 	uint32_t xstates[MAXMAPS*MAPSCRSNORMAL];
 	
@@ -139,7 +138,7 @@ struct gamedata
 	std::vector<saved_user_object> user_objects;
 	std::vector<savedportal> user_portals;
 	
-	std::vector<int32_t> screen_data[MAXMAPS*MAPSCRS];
+	bounded_map<dword,bounded_map<dword,int32_t>> screen_data {MAXSCRS, {0}};
 	
 	size_t scriptDataSize(int32_t indx) const
 	{
@@ -152,9 +151,7 @@ struct gamedata
 		if(unsigned(indx) >= MAXMAPS*MAPSCRS)
 			return;
 		sz = vbound(sz, 0, 214748);
-		if(screen_data[indx].size() == size_t(sz))
-			return;
-		screen_data[indx].resize(sz, 0);
+		screen_data[indx].resize(sz);
 	}
 	
 	void Clear();
@@ -386,6 +383,13 @@ struct gamedata
 		bmaps.normalize();
 		maps.normalize();
 		guys.normalize();
+		gen_doscript.normalize();
+		gen_exitState.normalize();
+		gen_reloadState.normalize();
+		gen_initd.normalize();
+		gen_eventstate.normalize();
+		gen_data.normalize();
+		screen_data.normalize();
 	}
 };
 

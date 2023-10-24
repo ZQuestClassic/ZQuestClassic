@@ -13262,7 +13262,7 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *)
 	
 	zinit.last_map=Map.getCurrMap();
 	zinit.last_screen=Map.getCurrScr();
-	zinit.usecustomsfx=1;
+	zinit.normalize();
 	
 	//section id
 	if(!p_mputl(section_id,f))
@@ -13361,106 +13361,72 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *)
 			new_return(34);
 		if(!p_iputl(zinit.ss_flags,f))
 			new_return(35);
-		if(!p_putc(zinit.last_map,f))
+		if(!p_putbitstr(zinit.flags,f))
 			new_return(36);
-		if(!p_putc(zinit.last_screen,f))
+		if(!p_putc(zinit.last_map,f))
 			new_return(37);
-		if(!p_putc(zinit.msg_more_x,f))
+		if(!p_putc(zinit.last_screen,f))
 			new_return(38);
-		if(!p_putc(zinit.msg_more_y,f))
+		if(!p_putc(zinit.msg_more_x,f))
 			new_return(39);
-		if(!p_putc(zinit.msg_more_is_offset,f))
+		if(!p_putc(zinit.msg_more_y,f))
 			new_return(40);
-		if(!p_putc(zinit.msg_speed,f))
+		if(!p_putc(zinit.msg_more_is_offset,f))
 			new_return(41);
-		if(!p_iputl(zinit.gravity,f))
+		if(!p_putc(zinit.msg_speed,f))
 			new_return(42);
-		if(!p_iputl(zinit.swimgravity,f))
+		if(!p_iputl(zinit.gravity,f))
 			new_return(43);
-		if(!p_iputw(zinit.terminalv,f))
+		if(!p_iputl(zinit.swimgravity,f))
 			new_return(44);
+		if(!p_iputw(zinit.terminalv,f))
+			new_return(45);
 		if(!p_putc(zinit.hero_swim_speed,f))
-			new_return(45);
+			new_return(46);
 		if(!p_putc(zinit.hero_swim_mult,f))
-			new_return(46);
-		if(!p_putc(zinit.hero_swim_div,f))
 			new_return(47);
-		/*
-		if(!p_iputw(zinit.start_dmap,f))
-			new_return(45);
-		if(!p_putc(zinit.heroAnimationStyle,f))
-			new_return(46);
-		if(!p_putc(zinit.usecustomsfx,f))
-			new_return(59);
-		if(!p_putc(zinit.jump_hero_layer_threshold,f))
-			new_return(66);
-		if(!p_iputw(zinit.heroStep,f))
-			new_return(73);
-		if(!p_iputw(zinit.subscrSpeed,f))
-			new_return(74);
+		if(!p_putc(zinit.hero_swim_div,f))
+			new_return(48);
 		if(!p_iputw(zinit.heroSideswimUpStep,f))
-			new_return(88);
+			new_return(49);
 		if(!p_iputw(zinit.heroSideswimSideStep,f))
-			new_return(88);
+			new_return(50);
 		if(!p_iputw(zinit.heroSideswimDownStep,f))
-			new_return(88);
+			new_return(51);
 		if(!p_iputl(zinit.exitWaterJump,f))
-			new_return(89);
+			new_return(52);
+		if(!p_iputw(zinit.heroStep,f))
+			new_return(53);
+		if(!p_putc(zinit.heroAnimationStyle,f))
+			new_return(54);
+		if(!p_putc(zinit.jump_hero_layer_threshold,f))
+			new_return(55);
 		if(!p_iputl(zinit.bunny_ltm,f))
-			new_return(90);
+			new_return(56);
+		if(!p_iputw(zinit.start_dmap,f))
+			new_return(57);
+		if(!p_iputw(zinit.subscrSpeed,f))
+			new_return(58);
 		if(!p_putc(zinit.switchhookstyle,f))
-			new_return(91);
+			new_return(59);
 		if(!p_putc(zinit.magicdrainrate,f))
-			new_return(92);
-		if(!p_iputw(numgenscript,f))
-			new_return(93);
-		for(auto q = 1; q < numgenscript; ++q)
-		{
-			if(!valid_inds[q])
-			{
-				if(!p_putc(0,f))
-					new_return(94);
-                continue;
-			}
-			else if(!p_putc(2|(zinit.gen_doscript[q]?1:0),f))
-				new_return(95);
-			if(!p_iputw(zinit.gen_exitState[q],f))
-				new_return(96);
-			if(!p_iputw(zinit.gen_reloadState[q],f))
-				new_return(97);
-			for(auto p = 0; p < 8; ++p)
-				if(!p_iputl(zinit.gen_initd[q][p],f))
-					new_return(98);
-			if(!p_iputl(zinit.gen_data[q].size(),f))
-				new_return(99);
-			if(!p_putlvec<int32_t>(zinit.gen_data[q].inner(),f))
-				new_return(100);
-			if(!p_iputl(zinit.gen_eventstate[q],f))
-				new_return(101);
-		}
-        if(!p_putc(zinit.hero_swim_mult,f))
-            new_return(102);
-        if(!p_putc(zinit.hero_swim_div,f))
-            new_return(103);
-		uint32_t num_used_mapscr_data = 0;
-		for(int32_t q = map_count*MAPSCRS-1; q >= 0; --q)
-		{
-			if(zinit.screen_data[q].size())
-				num_used_mapscr_data = q+1;
-				break;
-		}
-		if(!p_iputl(num_used_mapscr_data,f))
-			new_return(104);
-		for(uint32_t q = 0; q < num_used_mapscr_data; ++q)
-		{
-			if(!p_iputl(zinit.screen_data[q].size(),f))
-				new_return(105);
-			if(zinit.screen_data[q].size())
-				if(!p_putlvec(zinit.screen_data[q].inner(),f))
-					new_return(106);
-		}
+			new_return(60);
 		if(!p_iputzf(zinit.shove_offset,f))
-			return qe_invalid;*/
+			new_return(61);
+		if(!p_putbitstr(zinit.gen_doscript, f))
+			new_return(62);
+		if(!p_putbmap(zinit.gen_exitState, f))
+			new_return(63);
+		if(!p_putbmap(zinit.gen_reloadState, f))
+			new_return(64);
+		if(!p_putbmap(zinit.gen_initd, f))
+			new_return(65);
+		if(!p_putbmap(zinit.gen_eventstate, f))
+			new_return(66);
+		if(!p_putbmap(zinit.gen_data, f))
+			new_return(67);
+		if(!p_putbmap(zinit.screen_data, f))
+			new_return(68);
 		
 		if(writecycle==0)
 		{
