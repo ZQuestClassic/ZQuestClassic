@@ -203,7 +203,8 @@ std::shared_ptr<GUI::Widget> SubscrSettingsDialog::view()
 	for(auto& ref : tabs)
 		tpan->add(TabRef(name = ref.first, ref.second)); 
 	refr_info();
-	refr_script();
+	if(ty==sstACTIVE)
+		refr_script();
 	refr_selector();
 	return window;
 }
