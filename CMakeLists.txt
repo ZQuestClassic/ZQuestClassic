@@ -573,9 +573,9 @@ if(MSVC AND (MSVC_VERSION GREATER 1600))
 	set(ZCSOUNDLIBSEXTRA legacy_stdio_definitions)
 endif()
 set(ZCSOUNDSOURCES
-	src/zcmusic.cpp
-	src/zcmusicd.cpp
-	src/zcmixer.cpp
+	src/sound/zcmusic.cpp
+	src/sound/zcmusicd.cpp
+	src/sound/zcmixer.cpp
 )
 add_library(zcsound SHARED ${ZCSOUNDSOURCES})
 target_link_libraries(zcsound PUBLIC allegro_with_legacy zcbase ${SOUNDLIBS} ${ZCSOUNDLIBSEXTRA} allegro_audio allegro_acodec)

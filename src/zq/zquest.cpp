@@ -82,7 +82,7 @@ void setZScriptVersion(int32_t) { } //bleh...
 #include "base/zsys.h"
 #include "base/zapp.h"
 #include "play_midi.h"
-#include "zcmusic.h"
+#include "sound/zcmusic.h"
 
 #include "midi.h"
 #include "sprite.h"

@@ -1,4 +1,4 @@
-#include "zcmixer.h"
+#include "sound/zcmixer.h"
 #include <allegro5/allegro_audio.h>
 #include <algorithm>
 

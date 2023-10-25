@@ -19,7 +19,7 @@
 
 #include "base/zsys.h"
 #include "base/util.h"
-#include "zcmusic.h"
+#include "sound/zcmusic.h"
 #include <filesystem>
 #include <stdlib.h>
 #include <allegro5/allegro_audio.h>

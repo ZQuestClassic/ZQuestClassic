@@ -3,7 +3,7 @@
 #include "base/zapp.h"
 #include "dialog/info.h"
 #include <sstream>
-#include "zcmusic.h"
+#include "sound/zcmusic.h"
 #include <fmt/format.h>
 #include "base/qrs.h"
 

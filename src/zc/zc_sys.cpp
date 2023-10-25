@@ -43,7 +43,7 @@
 #include "zc/hero.h"
 #include "zc/title.h"
 #include "particles.h"
-#include "zcmusic.h"
+#include "sound/zcmusic.h"
 #include "zconsole.h"
 #include "zc/ffscript.h"
 #include "dialog/info.h"

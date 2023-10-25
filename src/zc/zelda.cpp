@@ -24,7 +24,7 @@
 #include <loadpng.h>
 
 #include "zscriptversion.h"
-#include "zcmusic.h"
+#include "sound/zcmusic.h"
 #include "base/zdefs.h"
 #include "zc/zelda.h"
 #include "tiles.h"
