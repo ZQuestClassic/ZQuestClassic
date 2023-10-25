@@ -574,7 +574,6 @@ if(MSVC AND (MSVC_VERSION GREATER 1600))
 endif()
 set(ZCSOUNDSOURCES
 	src/sound/zcmusic.cpp
-	src/sound/zcmusicd.cpp
 	src/sound/zcmixer.cpp
 )
 add_library(zcsound SHARED ${ZCSOUNDSOURCES})
