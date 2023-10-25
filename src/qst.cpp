@@ -29,7 +29,6 @@
 #include "qst.h"
 #include "defdata.h"
 #include "subscr.h"
-#include "font.h"
 #include "zc/replay.h"
 #include "zc/zc_custom.h"
 #include "sfx.h"
