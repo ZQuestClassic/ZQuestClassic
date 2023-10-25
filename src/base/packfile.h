@@ -624,7 +624,7 @@ inline bool p_getbvec(bounded_vec<Sz,T> *cont, PACKFILE *f)
 	if(sz) //cont found
 	{
 		cont->reserve(sz);
-		T dummy;
+		T dummy = T();
 		for(size_t q = 0; q < sz; ++q)
 		{
 			if(!p_getvar(&dummy,f))
@@ -672,7 +672,7 @@ inline bool p_getbmap(bounded_map<Sz,T> *cont, PACKFILE *f)
 		if(!p_getvar(&count,f))
 			return false;
 		Sz k;
-		T v;
+		T v = T();
 		if(pairs)
 		{
 			while(count--)
@@ -843,7 +843,7 @@ inline bool p_getcvec(vector<T> *vec, PACKFILE *f)
 	if(sz) //vec found
 	{
 		vec->reserve(sz);
-		T dummy;
+		T dummy = T();
 		for(size_t q = 0; q < sz; ++q)
 		{
 			if(!p_getvar(&dummy,f))
@@ -879,7 +879,7 @@ inline bool p_getwvec(vector<T> *vec, PACKFILE *f)
 	if(sz) //vec found
 	{
 		vec->reserve(sz);
-		T dummy;
+		T dummy = T();
 		for(size_t q = 0; q < sz; ++q)
 		{
 			if(!p_getvar(&dummy,f))
@@ -915,7 +915,7 @@ inline bool p_getlvec(vector<T> *vec, PACKFILE *f)
 	if(sz) //vec found
 	{
 		vec->reserve(sz);
-		T dummy;
+		T dummy = T();
 		for(size_t q = 0; q < sz; ++q)
 		{
 			if(!p_getvar(&dummy,f))
