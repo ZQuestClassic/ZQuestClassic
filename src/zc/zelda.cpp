@@ -3250,9 +3250,9 @@ void game_loop()
 		word c = tmpscr->numFFC();
 		for(word i=0; i<c; i++)
 		{
-			if(combobuf[tmpscr->ffcs[i].getData()].type==cSCREENFREEZE) freeze=true;
+			if(combobuf[tmpscr->ffcs[i].data].type==cSCREENFREEZE) freeze=true;
 			
-			if(combobuf[tmpscr->ffcs[i].getData()].type==cSCREENFREEZEFF) freezeff=true;
+			if(combobuf[tmpscr->ffcs[i].data].type==cSCREENFREEZEFF) freezeff=true;
 		}
 		
 		for(int32_t i=0; i<176; i++)

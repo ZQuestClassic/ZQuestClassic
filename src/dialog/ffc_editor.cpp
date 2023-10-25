@@ -59,7 +59,7 @@ void ffdata::load(mapscr const* scr, int32_t ind)
 	dy = scr->ffcs[ind].vy.getZLong();
 	ax = scr->ffcs[ind].ax.getZLong();
 	ay = scr->ffcs[ind].ay.getZLong();
-	data = scr->ffcs[ind].getData();
+	data = scr->ffcs[ind].data;
 	cset = scr->ffcs[ind].cset;
 	delay = scr->ffcs[ind].delay;
 	flags = scr->ffcs[ind].flags;

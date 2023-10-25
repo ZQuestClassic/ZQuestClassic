@@ -2,6 +2,7 @@
 
 #include "zc/weapons.h"
 #include "zc/guys.h"
+#include "zc/zc_ffc.h"
 #include "zc/zelda.h"
 #include "base/zsys.h"
 #include "zc/maps.h"
@@ -558,7 +559,7 @@ void do_generic_combo_ffc(weapon *w, int32_t pos, int32_t cid, int32_t ft)
 		if ( combobuf[cid].usrflags&cflag7 )
 		{
 			screen_ffc_modify_preroutine(pos);
-			ffc.setData(tmpscr->secretcombo[ft]);
+			zc_ffc_set(ffc, tmpscr->secretcombo[ft]);
 			ffc.cset = tmpscr->secretcset[ft];
 			// newflag = s->secretflag[ft];
 			screen_ffc_modify_postroutine(pos);
@@ -576,17 +577,17 @@ void do_generic_combo_ffc(weapon *w, int32_t pos, int32_t cid, int32_t ft)
 				//undercombo or next?
 				if((combobuf[cid].usrflags&cflag12))
 				{
-					ffc.setData(tmpscr->undercombo);
+					zc_ffc_set(ffc, tmpscr->undercombo);
 					ffc.cset = tmpscr->undercset;	
 				}
 				else
-					ffc.setData(vbound(ffc.getData()+1,0,MAXCOMBOS));
+					zc_ffc_set(ffc, vbound(ffc.data+1,0,MAXCOMBOS));
 				
 				screen_ffc_modify_postroutine(pos);
 				
 				if (combobuf[cid].usrflags&cflag8) w->dead = 1;
 				if (combobuf[cid].usrflags&cflag12) break; //No continuous for undercombo
-				if (combobuf[cid].usrflags&cflag5) cid = ffc.getData(); //cid needs to be set to data so continuous combos work
+				if (combobuf[cid].usrflags&cflag5) cid = ffc.data; //cid needs to be set to data so continuous combos work
 				
 			} while((combobuf[cid].usrflags&cflag5) && (combobuf[cid].type == cTRIGGERGENERIC) && (cid < (MAXCOMBOS-1)));
 			if ( (combobuf[cid].attribytes[2]) > 0 )
@@ -622,7 +623,7 @@ static void MatchComboTrigger2(weapon *w, int32_t bx, int32_t by, newcombo *cbuf
 				if (ffcIsAt(i, bx, by))
 				{
 					ffcdata& ffc = tmpscr->ffcs[i];
-					if(!MatchComboTrigger(w, cbuf, ffc.getData())) continue;
+					if(!MatchComboTrigger(w, cbuf, ffc.data)) continue;
 					do_trigger_combo_ffc(i, 0, w);
 				}
 			}

@@ -2539,7 +2539,7 @@ void zmap::draw_darkness(BITMAP* dest, BITMAP* transdest)
 	word maxffc = basescr->numFFC();
 	for(auto q = 0; q < maxffc; ++q)
 	{
-		newcombo const& cmb = combobuf[basescr->ffcs[q].getData()];
+		newcombo const& cmb = combobuf[basescr->ffcs[q].data];
 		if(cmb.type == cTORCH)
 			do_torch_combo(cmb, (basescr->ffcs[q].x.getInt())+(basescr->ffEffectWidth(q)/2), (basescr->ffcs[q].y.getInt())+(basescr->ffEffectHeight(q)/2), dest, transdest);
 	}
@@ -2685,7 +2685,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 	
 	for(int32_t i=MAXFFCS-1; i>=0; i--)
 	{
-		if(basescr->ffcs[i].getData())
+		if(basescr->ffcs[i].data)
 		{
 			if(!(basescr->ffcs[i].flags&ffCHANGER))
 			{
@@ -2696,12 +2696,12 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 					
 					if(basescr->ffcs[i].flags&ffTRANS)
 					{
-						overcomboblocktranslucent(dest, tx, ty, basescr->ffcs[i].getData(), basescr->ffcs[i].cset,basescr->ffTileWidth(i), basescr->ffTileHeight(i),128);
+						overcomboblocktranslucent(dest, tx, ty, basescr->ffcs[i].data, basescr->ffcs[i].cset,basescr->ffTileWidth(i), basescr->ffTileHeight(i),128);
 						//overtiletranslucent16(dest, combo_tile(basescr->ffcs[i].data,tx,ty)+(j*20)+(l), tx, ty, basescr->ffcs[i].cset, combobuf[basescr->ffcs[i].data].flip, 128);
 					}
 					else
 					{
-						overcomboblock(dest, tx, ty, basescr->ffcs[i].getData(), basescr->ffcs[i].cset, basescr->ffTileWidth(i), basescr->ffTileHeight(i));
+						overcomboblock(dest, tx, ty, basescr->ffcs[i].data, basescr->ffcs[i].cset, basescr->ffTileWidth(i), basescr->ffTileHeight(i));
 						//overtile16(dest, combo_tile(basescr->ffcs[i].data,tx,ty)+(j*20)+(l), tx, ty, basescr->ffcs[i].cset, combobuf[basescr->ffcs[i].data].flip);
 					}
 				}
@@ -2884,7 +2884,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 	
 	for(int32_t i=MAXFFCS-1; i>=0; i--)
 	{
-		if(basescr->ffcs[i].getData())
+		if(basescr->ffcs[i].data)
 		{
 			if(!(basescr->ffcs[i].flags&ffCHANGER))
 			{
@@ -2896,12 +2896,12 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 					if(basescr->ffcs[i].flags&ffTRANS)
 					{
 						//overtiletranslucent16(dest, combo_tile(basescr->ffcs[i].data,tx,ty)+(j*20)+(l), tx, ty, basescr->ffcs[i].cset, combobuf[basescr->ffcs[i].data].flip, 128);
-						overcomboblocktranslucent(dest,tx,ty,basescr->ffcs[i].getData(), basescr->ffcs[i].cset, basescr->ffTileWidth(i), basescr->ffTileHeight(i),128);
+						overcomboblocktranslucent(dest,tx,ty,basescr->ffcs[i].data, basescr->ffcs[i].cset, basescr->ffTileWidth(i), basescr->ffTileHeight(i),128);
 					}
 					else
 					{
 						//overtile16(dest, combo_tile(basescr->ffcs[i].data,tx,ty)+(j*20)+(l), tx, ty, basescr->ffcs[i].cset, combobuf[basescr->ffcs[i].data].flip);
-						overcomboblock(dest, tx, ty, basescr->ffcs[i].getData(), basescr->ffcs[i].cset, basescr->ffTileWidth(i), basescr->ffTileHeight(i));
+						overcomboblock(dest, tx, ty, basescr->ffcs[i].data, basescr->ffcs[i].cset, basescr->ffTileWidth(i), basescr->ffTileHeight(i));
 					}
 				}
 			}
@@ -2911,7 +2911,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 	_zmap_drawlayer(dest, x, y, layers[6], antiflags, basescr->layeropacity[6-1]!=255, true, HL_LAYER(6));
 	
 	for(int32_t i=MAXFFCS-1; i>=0; i--)
-		if(basescr->ffcs[i].getData())
+		if(basescr->ffcs[i].data)
 			if(basescr->ffcs[i].flags&ffCHANGER)
 				putpixel(dest,(basescr->ffcs[i].x.getInt())+x,(basescr->ffcs[i].y.getInt())+y,vc(zc_oldrand()%16));
 	
@@ -2943,7 +2943,7 @@ void zmap::draw(BITMAP* dest,int32_t x,int32_t y,int32_t flags,int32_t map,int32
 		}
 		for(int32_t i=MAXFFCS-1; i>=0; i--)
 		{
-			if(auto data = basescr->ffcs[i].getData())
+			if(auto data = basescr->ffcs[i].data)
 			{
 				if(!(basescr->ffcs[i].flags&ffCHANGER))
 				{
@@ -4194,7 +4194,7 @@ set_ffc_command::data_t set_ffc_command::create_data(const ffcdata& ffc)
 		.vy = ffc.vy,
 		.ax = ffc.ax,
 		.ay = ffc.ay,
-		.data = ffc.getData(),
+		.data = ffc.data,
 		.cset = ffc.cset,
 		.delay = ffc.delay,
 		.link = ffc.link,
@@ -4220,7 +4220,7 @@ void set_ffc_command::execute()
 	mapscr_ptr->ffcs[i].vy = data.vy;
 	mapscr_ptr->ffcs[i].ax = data.ax;
 	mapscr_ptr->ffcs[i].ay = data.ay;
-	mapscr_ptr->ffcs[i].setData(data.data);
+	mapscr_ptr->ffcs[i].data = data.data;
 	mapscr_ptr->ffcs[i].cset = data.cset;
 	mapscr_ptr->ffcs[i].delay = data.delay;
 	mapscr_ptr->ffcs[i].link = data.link;
@@ -4247,7 +4247,7 @@ void set_ffc_command::undo()
 	mapscr_ptr->ffcs[i].vy = prev_data.vy;
 	mapscr_ptr->ffcs[i].ax = prev_data.ax;
 	mapscr_ptr->ffcs[i].ay = prev_data.ay;
-	mapscr_ptr->ffcs[i].setData(prev_data.data);
+	mapscr_ptr->ffcs[i].data = prev_data.data;
 	mapscr_ptr->ffcs[i].cset = prev_data.cset;
 	mapscr_ptr->ffcs[i].delay = prev_data.delay;
 	mapscr_ptr->ffcs[i].link = prev_data.link;
@@ -5094,22 +5094,22 @@ void zmap::update_combo_cycling()
     for(word i=0; i<maxffc; i++)
     {
 		ffcdata& ffc = prvscr.ffcs[i];
-        newcombo const& cmb = combobuf[ffc.getData()];
+        newcombo const& cmb = combobuf[ffc.data];
         
         //time to restart
         if((cmb.aclk>=cmb.speed) &&
                 (cmb.tile-cmb.frames>=cmb.o_tile-1) &&
                 (cmb.nextcombo!=0))
         {
-            ffc.setData(cmb.nextcombo);
+            ffc.data = cmb.nextcombo;
             if(!(cmb.animflags & AF_CYCLENOCSET))
 				ffc.cset=cmb.nextcset;
             
-            if(combobuf[ffc.getData()].animflags & AF_CYCLE)
+            if(combobuf[ffc.data].animflags & AF_CYCLE)
             {
-                restartanim[ffc.getData()]=true;
+                restartanim[ffc.data]=true;
             }
-			prvscr.ffcs[i].setData(ffc.getData());
+			prvscr.ffcs[i].data = ffc.data;
 			prvscr.ffcs[i].cset=ffc.cset;
         }
     }
@@ -5196,16 +5196,17 @@ void zmap::update_freeform_combos()
         return;
     }
     
+	// TODO: this changer code is a duplicated here and for zplayer. Should fix that.
 	word maxffc = prvscr.numFFC();
     for(int32_t i=0; i<maxffc; i++)
     {
-        if(!(prvscr.ffcs[i].flags&ffCHANGER) && prvscr.ffcs[i].getData()!=0 && !(prvscr.ffcs[i].flags&ffSTATIONARY))
+        if(!(prvscr.ffcs[i].flags&ffCHANGER) && prvscr.ffcs[i].data!=0 && !(prvscr.ffcs[i].flags&ffSTATIONARY))
         {
             for(int32_t j=0; j<maxffc; j++)
             {
                 if(i!=j)
                 {
-                    if(prvscr.ffcs[j].flags&ffCHANGER && prvscr.ffcs[j].getData() != 0)
+                    if(prvscr.ffcs[j].flags&ffCHANGER && prvscr.ffcs[j].data != 0)
                     {
                         if((((prvscr.ffcs[j].x.getInt())!=ffposx[i])||((prvscr.ffcs[j].y.getInt())!=ffposy[i]))&&(prvscr.ffcs[i].link==0))
                         {
@@ -5216,15 +5217,15 @@ void zmap::update_freeform_combos()
                                 //prvscr.ffcs[i].cset=prvscr.ffcs[j].cset;
                                 if(prvscr.ffcs[j].flags&ffCHANGETHIS)
                                 {
-                                    prvscr.ffcs[i].setData(prvscr.ffcs[j].getData());
+                                    prvscr.ffcs[i].data = prvscr.ffcs[j].data;
                                     prvscr.ffcs[i].cset = prvscr.ffcs[j].cset;
                                 }
                                 
                                 if(prvscr.ffcs[j].flags&ffCHANGENEXT)
-                                    prvscr.ffcs[i].incData(1);
+                                    prvscr.ffcs[i].data += 1;
                                     
                                 if(prvscr.ffcs[j].flags&ffCHANGEPREV)
-                                    prvscr.ffcs[i].incData(-1);
+                                    prvscr.ffcs[i].data -= 1;
                                     
                                 prvscr.ffcs[i].delay=prvscr.ffcs[j].delay;
                                 prvscr.ffcs[i].x=prvscr.ffcs[j].x;
@@ -5249,9 +5250,9 @@ void zmap::update_freeform_combos()
                                 ffposx[i]=(prvscr.ffcs[j].x.getInt());
                                 ffposy[i]=(prvscr.ffcs[j].y.getInt());
                                 
-                                if(combobuf[prvscr.ffcs[j].getData()].flag>15 && combobuf[prvscr.ffcs[j].getData()].flag<32)
+                                if(combobuf[prvscr.ffcs[j].data].flag>15 && combobuf[prvscr.ffcs[j].data].flag<32)
                                 {
-                                    prvscr.ffcs[j].setData(prvscr.secretcombo[combobuf[prvscr.ffcs[j].getData()].flag - 16 + 4]);
+                                    prvscr.ffcs[j].data = prvscr.secretcombo[combobuf[prvscr.ffcs[j].data].flag - 16 + 4];
                                 }
                                 
                                 if((prvscr.ffcs[j].flags&ffSWAPNEXT)||(prvscr.ffcs[j].flags&ffSWAPPREV))
@@ -5326,7 +5327,7 @@ void zmap::update_freeform_combos()
                 }
                 else
                 {
-                    prvscr.ffcs[i].setData(0);
+                    prvscr.ffcs[i].data = 0;
                     prvscr.ffcs[i].flags&=~ffCARRYOVER;
                 }
             }
@@ -5340,7 +5341,7 @@ void zmap::update_freeform_combos()
                 }
                 else
                 {
-                    prvscr.ffcs[i].setData(0);
+                    prvscr.ffcs[i].data = 0;
                     prvscr.ffcs[i].flags&=~ffCARRYOVER;
                 }
             }
@@ -5354,7 +5355,7 @@ void zmap::update_freeform_combos()
                 }
                 else
                 {
-                    prvscr.ffcs[i].setData(0);
+                    prvscr.ffcs[i].data = 0;
                     prvscr.ffcs[i].flags&=~ffCARRYOVER;
                 }
             }
@@ -5368,7 +5369,7 @@ void zmap::update_freeform_combos()
                 }
                 else
                 {
-                    prvscr.ffcs[i].setData(0);
+                    prvscr.ffcs[i].data = 0;
                     prvscr.ffcs[i].flags&=~ffCARRYOVER;
                 }
             }
@@ -9466,10 +9467,10 @@ int32_t writemapscreen(PACKFILE *f, int32_t i, int32_t j)
 	{
 		ffcdata const& tempffc = screen.ffcs[k];
 		
-		if(!p_iputw(tempffc.getData(),f))
+		if(!p_iputw(tempffc.data,f))
 			return qe_invalid;
 		
-		if(!tempffc.getData()) //don't save the rest of the ffc
+		if(!tempffc.data) //don't save the rest of the ffc
 			continue;
 		
 		if(!p_putc(tempffc.cset,f))
@@ -14305,7 +14306,7 @@ void zmap::prv_secrets(bool high16only)
             for(int32_t iter=0; iter<1; ++iter)
             {
                 putit=true;
-                int32_t checkflag=combobuf[s->ffcs[i].getData()].flag;
+                int32_t checkflag=combobuf[s->ffcs[i].data].flag;
                 
                 if(iter==1)
                 {
@@ -14429,7 +14430,7 @@ void zmap::prv_secrets(bool high16only)
                 
                 if(putit)
                 {
-                    s->ffcs[i].setData(s->secretcombo[ft]);
+                    s->ffcs[i].data = s->secretcombo[ft];
                     s->ffcs[i].cset = s->secretcset[ft];
                 }
             }
@@ -14439,7 +14440,7 @@ void zmap::prv_secrets(bool high16only)
         {
             for(int32_t iter=0; iter<1; ++iter)
             {
-                int32_t checkflag=combobuf[s->ffcs[i].getData()].flag;
+                int32_t checkflag=combobuf[s->ffcs[i].data].flag;
                 
                 if(iter==1)
                 {
@@ -14448,7 +14449,7 @@ void zmap::prv_secrets(bool high16only)
                 
                 if((checkflag > 15)&&(checkflag < 32))
                 {
-                    s->ffcs[i].setData(s->secretcombo[checkflag - 16 + 4]);
+                    s->ffcs[i].data = s->secretcombo[checkflag - 16 + 4];
                     s->ffcs[i].cset = s->secretcset[checkflag-16+4];
                     //        putit = true;
                 }

@@ -7,6 +7,7 @@
 #include "zc/hero.h"
 #include "zc/guys.h"
 #include "subscr.h"
+#include "zc/zc_ffc.h"
 #include "zc/zc_subscr.h"
 #include "zc/decorations.h"
 #include "gamedata.h"
@@ -4065,11 +4066,11 @@ void HeroClass::check_slash_block(int32_t bx, int32_t by)
 	{
 		if(isCuttableNextType(type2))
 		{
-			s->ffcs[current_ffcombo].incData(1);
+			zc_ffc_modify(s->ffcs[current_ffcombo], 1);
 		}
 		else
 		{
-			s->ffcs[current_ffcombo].setData(s->undercombo);
+			zc_ffc_set(s->ffcs[current_ffcombo], s->undercombo);
 			s->ffcs[current_ffcombo].cset = s->undercset;
 		}
 	}
@@ -4531,7 +4532,7 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
     {
         ignoreffc = true;
     }
-    else if(combobuf[tmpscr->ffcs[current_ffcombo].getData()].triggerflags[0] & combotriggerONLYGENTRIG)
+    else if(combobuf[tmpscr->ffcs[current_ffcombo].data].triggerflags[0] & combotriggerONLYGENTRIG)
 		type2 = cNONE;
     if(!isCuttableType(type) &&
             (flag<mfSWORD || flag>mfXSWORD) &&  flag!=mfSTRIKE && (flag2<mfSWORD || flag2>mfXSWORD) && flag2!=mfSTRIKE)
@@ -4646,11 +4647,11 @@ void HeroClass::check_slash_block2(int32_t bx, int32_t by, weapon *w)
     {
         if(isCuttableNextType(type2))
         {
-            s->ffcs[current_ffcombo].incData(1);
+            zc_ffc_modify(s->ffcs[current_ffcombo], 1);
         }
         else
         {
-            s->ffcs[current_ffcombo].setData(s->undercombo);
+            zc_ffc_set(s->ffcs[current_ffcombo], s->undercombo);
             s->ffcs[current_ffcombo].cset = s->undercset;
         }
     }
@@ -4953,7 +4954,7 @@ void HeroClass::check_slash_block(weapon *w)
     {
         ignoreffc = true;
     }
-    else if(combobuf[tmpscr->ffcs[current_ffcombo].getData()].triggerflags[0] & combotriggerONLYGENTRIG)
+    else if(combobuf[tmpscr->ffcs[current_ffcombo].data].triggerflags[0] & combotriggerONLYGENTRIG)
 		type2 = cNONE;
     if(!isCuttableType(type) &&
             (flag<mfSWORD || flag>mfXSWORD) &&  flag!=mfSTRIKE && (flag2<mfSWORD || flag2>mfXSWORD) && flag2!=mfSTRIKE)
@@ -5047,11 +5048,11 @@ void HeroClass::check_slash_block(weapon *w)
     {
         if(isCuttableNextType(type2))
         {
-            s->ffcs[current_ffcombo].incData(1);
+            zc_ffc_modify(s->ffcs[current_ffcombo], 1);
         }
         else
         {
-            s->ffcs[current_ffcombo].setData(s->undercombo);
+            zc_ffc_set(s->ffcs[current_ffcombo], s->undercombo);
             s->ffcs[current_ffcombo].cset = s->undercset;
         }
     }
@@ -5366,7 +5367,7 @@ void HeroClass::check_pound_block(int bx, int by, weapon* w)
         }
         else
         {
-            s->ffcs[current_ffcombo].incData(1);
+            zc_ffc_modify(s->ffcs[current_ffcombo], 1);
         }
     }
     
@@ -7069,7 +7070,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 	
 	{
 		poses[4] = getFFCAt(dx1,dy1);
-		cid[4] = poses[4] > -1 ?  tmpscr->ffcs[poses[4]].getData() : 0;
+		cid[4] = poses[4] > -1 ?  tmpscr->ffcs[poses[4]].data : 0;
 		newcombo& cmb = combobuf[cid[4]];
 		if ( !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && combo_class_buf[cmb.type].modify_hp_amount)
 		{
@@ -7083,7 +7084,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 	}
 	{
 		poses[5] = getFFCAt(dx1,dy2);
-		cid[5] = poses[5] > -1 ?  tmpscr->ffcs[poses[5]].getData() : 0;
+		cid[5] = poses[5] > -1 ?  tmpscr->ffcs[poses[5]].data : 0;
 		newcombo& cmb = combobuf[cid[5]];
 		if ( !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && combo_class_buf[cmb.type].modify_hp_amount)
 		{
@@ -7097,7 +7098,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 	}
 	{
 		poses[6] = getFFCAt(dx2,dy1);
-		cid[6] = poses[6] > -1 ?  tmpscr->ffcs[poses[6]].getData() : 0;
+		cid[6] = poses[6] > -1 ?  tmpscr->ffcs[poses[6]].data : 0;
 		newcombo& cmb = combobuf[cid[6]];
 		if ( !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && combo_class_buf[cmb.type].modify_hp_amount)
 		{
@@ -7111,7 +7112,7 @@ bool HeroClass::checkdamagecombos(int32_t dx1, int32_t dx2, int32_t dy1, int32_t
 	}
 	{
 		poses[7] = getFFCAt(dx2,dy2);
-		cid[7] = poses[7] > -1 ?  tmpscr->ffcs[poses[7]].getData() : 0;
+		cid[7] = poses[7] > -1 ?  tmpscr->ffcs[poses[7]].data : 0;
 		newcombo& cmb = combobuf[cid[7]];
 		if ( !(cmb.triggerflags[0] & combotriggerONLYGENTRIG) && combo_class_buf[cmb.type].modify_hp_amount)
 		{
@@ -7851,7 +7852,7 @@ heroanimate_skip_liftwpn:;
 					int combopos = ffpos < 0 ? COMBOPOS(watercheck_x,watercheck_y) : -1;
 					if(watercheck_x < 0 || watercheck_x > 255 || watercheck_y < 0 || watercheck_y > 175)
 						combopos = -1;
-					int waterid = ffpos > -1 ? tmpscr->ffcs[ffpos].getData() : (combopos > -1 ? tmpscr->data[combopos] : 0);
+					int waterid = ffpos > -1 ? tmpscr->ffcs[ffpos].data : (combopos > -1 ? tmpscr->data[combopos] : 0);
 					if(waterid)
 						waterid = iswaterex(waterid, currmap, currscr, -1, watercheck_x,watercheck_y, false, false, true, true);
 					if(waterid)
@@ -9860,7 +9861,7 @@ heroanimate_skip_liftwpn:;
 	{
 		int32_t ind=0;
 		
-		newcombo const& cmb = combobuf[tmpscr->ffcs[i].getData()];
+		newcombo const& cmb = combobuf[tmpscr->ffcs[i].data];
 		
 		if (cmb.triggerflags[1]&combotriggerAUTOMATIC)
 		{
@@ -12629,7 +12630,7 @@ bool HeroClass::doattack()
 					for(int ff = 0; ff < c; ++ff)
 					{
 						ffcdata& ffc = tmpscr->ffcs[ff];
-						newcombo const& cmb = combobuf[ffc.getData()];
+						newcombo const& cmb = combobuf[ffc.data];
 						if(distance(x,y,ffc.x,ffc.y) > rad) continue;
 						if(cmb.triggerflags[2] & ((super?combotriggerSQUAKESTUN:0)|combotriggerQUAKESTUN))
 						{
@@ -12773,7 +12774,7 @@ void handle_lens_triggers(int32_t l_id)
 		for(word i=0; i<c; i++)
 		{
 			ffcdata& ffc = tmpscr->ffcs[i];
-			newcombo const& cmb = combobuf[ffc.getData()];
+			newcombo const& cmb = combobuf[ffc.data];
 			if(enabled ? (cmb.triggerflags[1] & combotriggerLENSON)
 				: (cmb.triggerflags[1] & combotriggerLENSOFF))
 			{
@@ -21288,7 +21289,7 @@ void HeroClass::checkgenpush()
 			if (ffcIsAt(i, bx, by) || ffcIsAt(i, bx2, by2))
 			{
 				ffcdata& ffc = tmpscr->ffcs[i];
-				newcombo const& cmb3 = combobuf[ffc.getData()];
+				newcombo const& cmb3 = combobuf[ffc.data];
 				if(cmb3.triggerflags[1] & combotriggerPUSH)
 				{
 					do_trigger_combo_ffc(i);
@@ -21392,7 +21393,7 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 			if (ffcIsAt(i, bx, by) || ffcIsAt(i, bx2, by2))
 			{
 				ffcdata& ffc = tmpscr->ffcs[i];
-				tmp_cmb = &combobuf[ffc.getData()];
+				tmp_cmb = &combobuf[ffc.data];
 				if(((tmp_cmb->type==cSIGNPOST && !(tmp_cmb->triggerflags[0] & combotriggerONLYGENTRIG))
 				|| tmp_cmb->triggerbtn) && true) //!TODO: FFC effect flag?
 				{
@@ -21452,7 +21453,7 @@ void HeroClass::checksigns() //Also checks for generic trigger buttons
 	}
 	
 	if(found<0&&foundffc<0) return;
-	newcombo const& cmb = (foundffc<0?combobuf[found]:combobuf[tmpscr->ffcs[foundffc].getData()]);
+	newcombo const& cmb = (foundffc<0?combobuf[found]:combobuf[tmpscr->ffcs[foundffc].data]);
 	
 	byte signInput = 0;
 	bool didsign = false, didprompt = false;
@@ -22617,7 +22618,7 @@ static bool launch_lightbeam(newcombo const& cmb, int32_t pos,
 static bool launch_fflightbeam(ffcdata const& ffc,
 	std::map<int32_t, std::map<dword,spot_t>>& ffmaps, bool refl, bool block)
 {
-	newcombo const& cmb = combobuf[ffc.getData()];
+	newcombo const& cmb = combobuf[ffc.data];
 	//Positive ID is a tile, negative is a color trio. 0 is nil in either case.
 	int32_t id = (cmb.usrflags&cflag1)
 		? std::max(0,cmb.attributes[0]/10000)|(cmb.attribytes[1]%12)<<24
@@ -22908,7 +22909,7 @@ void HeroClass::handleSpotlights()
 	for(word i=0; i<c; i++)
 	{
 		ffcdata& ffc = tmpscr->ffcs[i];
-		newcombo const& cmb = combobuf[ffc.getData()];
+		newcombo const& cmb = combobuf[ffc.data];
 		if(cmb.type == cSPOTLIGHT && (cmb.usrflags&cflag2))
 			launch_fflightbeam(ffc,ffmaps,refl,block);
 	}
@@ -22992,7 +22993,7 @@ void HeroClass::handleSpotlights()
 	for(word i=0; i<c; i++)
 	{
 		ffcdata& ffc = tmpscr->ffcs[i];
-		newcombo const* cmb = &combobuf[ffc.getData()];
+		newcombo const* cmb = &combobuf[ffc.data];
 		size_t pos = get_qr(qr_BROKEN_LIGHTBEAM_HITBOX)
 			? COMBOPOS(ffc.x+8, ffc.y+8)
 			: COMBOPOS(ffc.x+(ffc.hit_width/2), ffc.y+(ffc.hit_height/2));
@@ -23007,14 +23008,14 @@ void HeroClass::handleSpotlights()
 			{
 				if(!(alltrig || trigged)) //Revert
 				{
-					ffc.incData(-1);
+					zc_ffc_modify(ffc, -1);
 					istrigged = false;
 				}
 			}
 			else //Unsolved version
 			{
 				if(alltrig || trigged) //Light
-					ffc.incData(1);
+					zc_ffc_modify(ffc, 1);
 				else istrigged = false;
 			}
 		}
@@ -23294,7 +23295,7 @@ void HeroClass::checkspecial()
 		for(word i=0; i<c; i++)
 		{
 			ffcdata& ffc = tmpscr->ffcs[i];
-			newcombo const& cmb = combobuf[ffc.getData()];
+			newcombo const& cmb = combobuf[ffc.data];
 			if(cmb.triggerflags[2] & combotriggerENEMIESKILLED)
 			{
 				do_trigger_combo_ffc(i);
@@ -23975,7 +23976,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 			if (found)
 			{
 				ffcdata& ffc = tmpscr->ffcs[i];
-				newcombo const* cmb = &combobuf[ffc.getData()];
+				newcombo const* cmb = &combobuf[ffc.data];
 				if (cmb->triggerflags[0] & (combotriggerSTEP|combotriggerSTEPSENS))
 				{
 					do_trigger_combo_ffc(i);
@@ -24014,7 +24015,7 @@ void HeroClass::checkspecial2(int32_t *ls)
 		for(word i=0; i<c; i++)
 		{
 			ffcdata& ffc = tmpscr->ffcs[i];
-			newcombo const& cmb = combobuf[ffc.getData()];
+			newcombo const& cmb = combobuf[ffc.data];
 			if ((cmb.triggerflags[3] & combotriggerDIVETRIG) && ffcIsAt(i, x+8, y+8))
 			{
 				do_trigger_combo_ffc(i);

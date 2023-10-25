@@ -5,6 +5,7 @@
 #include "sprite.h"
 #include "base/qrs.h"
 #include "base/combo.h"
+#include "zc/zc_ffc.h"
 
 extern sprite_list Lwpns;
 
@@ -14,119 +15,13 @@ extern sprite_list Lwpns;
 #include "zc/hero.h"
 #include "base/mapscr.h"
 
-extern mapscr tmpscr[2];
 extern int16_t lensclk;
 extern HeroClass Hero;
-void screen_ffc_modify_postroutine(word index);
 #endif
-
-ffcdata::ffcdata(ffcdata const& other)
-{
-	*this = other;
-	setData(data);
-	updateSolid();
-}
 
 void ffcdata::clear()
 {
 	*this = ffcdata();
-	setData(0);
-	updateSolid();
-}
-
-void ffcdata::changerCopy(ffcdata& other, int32_t i, int32_t j)
-{
-	// TODO: could use `*this = other;` to replace most of this.
-#ifdef IS_PLAYER
-	if(other.flags&ffCHANGETHIS)
-	{
-		setData(other.data);
-		cset = other.cset;
-	}
-	
-	if(other.flags&ffCHANGENEXT)
-		incData(1);
-	
-	if(other.flags&ffCHANGEPREV)
-		incData(-1);
-	
-	delay=other.delay;
-	x=other.x;
-	y=other.y;
-	vx=other.vx;
-	vy=other.vy;
-	ax=other.ax;
-	ay=other.ay;
-	link=other.link;
-	hit_width=other.hit_width;
-	hit_height=other.hit_height;
-	txsz=other.txsz;
-	tysz=other.tysz;
-	
-	if(flags&ffCARRYOVER)
-		flags=other.flags|ffCARRYOVER;
-	else
-		flags=other.flags;
-	
-	flags&=~ffCHANGER;
-	
-	if(combobuf[other.data].flag>15 && combobuf[other.data].flag<32)
-		other.setData(tmpscr->secretcombo[combobuf[other.data].flag-16+4]);
-	
-	if(i > -1 && j > -1)
-	{
-		ffposx[i]=(other.x.getInt());
-		ffposy[i]=(other.y.getInt());
-		if((other.flags&ffSWAPNEXT)||(other.flags&ffSWAPPREV))
-		{
-			int32_t k=0;
-			
-			if(other.flags&ffSWAPNEXT)
-				k=j<(MAXFFCS-1)?j+1:0;
-				
-			if(other.flags&ffSWAPPREV)
-				k=j>0?j-1:(MAXFFCS-1);
-			ffcdata& ffck = tmpscr->ffcs[k];
-			auto w = ffck.data;
-			ffck.setData(other.data);
-			other.setData(w);
-			zc_swap(other.cset,ffck.cset);
-			zc_swap(other.delay,ffck.delay);
-			zc_swap(other.vx,ffck.vx);
-			zc_swap(other.vy,ffck.vy);
-			zc_swap(other.ax,ffck.ax);
-			zc_swap(other.ay,ffck.ay);
-			zc_swap(other.link,ffck.link);
-			zc_swap(other.hit_width,ffck.hit_width);
-			zc_swap(other.hit_height,ffck.hit_height);
-			zc_swap(other.txsz,ffck.txsz);
-			zc_swap(other.tysz,ffck.tysz);
-			zc_swap(other.flags,ffck.flags);
-		}
-	}
-	updateSolid();
-	solid_update(false);
-#endif
-}
-
-void ffcdata::setData(word newdata)
-{
-	data = newdata;
-
-#if IS_PLAYER
-	for (word i = 0; i < MAXFFCS; i++)
-	{
-		if (this == &tmpscr->ffcs[i])
-		{
-			screen_ffc_modify_postroutine(i);
-			break;
-		}
-	}
-#endif
-}
-void ffcdata::incData(int32_t inc)
-{
-	setData(data+inc);
 }
 
 void ffcdata::draw(BITMAP* dest, int32_t xofs, int32_t yofs, bool overlay)

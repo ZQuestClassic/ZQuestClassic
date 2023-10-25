@@ -59,7 +59,7 @@ word mapscr::numFFC()
 	int lastffc = 0;
 	for (int w = MAXFFCS - 1; w >= 0; --w)
 	{
-		if (ffcs[w].getData())
+		if (ffcs[w].data)
 		{
 			lastffc = w;
 			break;

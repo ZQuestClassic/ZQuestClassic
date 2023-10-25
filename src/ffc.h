@@ -32,16 +32,13 @@ public:
 	int32_t inita[INITIAL_A];
 	bool hooked;
 	cpos_info info;
+	word data;
 	
 	ffcdata() = default;
-	ffcdata(ffcdata const& other);
 	virtual void solid_update(bool push = true) override;
-	void changerCopy(ffcdata& other, int32_t i = -1, int32_t j = -1);
+	// Note: If you use this to clear a ffc during gameplay, you must also call zc_ffc_set(ffc, 0)
 	void clear();
 	
-	void setData(word newdata);
-	void incData(int32_t inc);
-	word const& getData() const {return data;}
 	void draw(BITMAP* dest, int32_t xofs, int32_t yofs, bool overlay);
 	
 	virtual bool setSolid(bool set) override;
@@ -52,7 +49,6 @@ public:
 	//Overload to do damage to Hero on pushing them
 	virtual void doContactDamage(int32_t hdir) override;
 private:
-	word data;
 	bool loaded;
 };
 

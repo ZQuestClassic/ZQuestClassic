@@ -3,6 +3,7 @@
 #include "base/zc_alleg.h"
 #include "zc/guys.h"
 #include "zc/replay.h"
+#include "zc/zc_ffc.h"
 #include "zc/zelda.h"
 #include "base/zsys.h"
 #include "base/msgstr.h"
@@ -8359,7 +8360,7 @@ void enemy::removearmosffc(int32_t pos)
 	
 	did_armos=true;
 	ffcdata& ffc = tmpscr->ffcs[pos];
-	newcombo const& cmb = combobuf[ffc.getData()];
+	newcombo const& cmb = combobuf[ffc.data];
 	int32_t f2 = cmb.flag;
 	
 	if(cmb.type!=cARMOS)
@@ -8367,12 +8368,12 @@ void enemy::removearmosffc(int32_t pos)
 		return;
 	}
 	
-	ffc.setData(tmpscr->undercombo);
+	zc_ffc_set(ffc, tmpscr->undercombo);
 	ffc.cset = tmpscr->undercset;
 	
 	if(f2 == mfARMOS_SECRET)
 	{
-		ffc.setData(tmpscr->secretcombo[sSTAIRS]);
+		zc_ffc_set(ffc, tmpscr->secretcombo[sSTAIRS]);
 		ffc.cset = tmpscr->secretcset[sSTAIRS];
 		sfx(tmpscr->secretsfx);
 	}
@@ -8386,7 +8387,7 @@ void enemy::removearmosffc(int32_t pos)
 		}
 	}
 	
-	putcombo(scrollbuf,ffc.x,ffc.y,ffc.getData(),ffc.cset);
+	putcombo(scrollbuf,ffc.x,ffc.y,ffc.data,ffc.cset);
 }
 
 
@@ -19336,7 +19337,7 @@ void screen_combo_modify_postroutine(mapscr *s, int32_t pos)
 void screen_ffc_modify_postroutine(word index)
 {
 	ffcdata& ff = tmpscr->ffcs[index];
-	newcombo const& cmb = combobuf[ff.getData()];
+	newcombo const& cmb = combobuf[ff.data];
 	
 	auto id = (176*7)+int32_t(index);
 	auto it = slopes.find(id);
@@ -19384,7 +19385,7 @@ void screen_combo_modify_post(int32_t cid)
 	}
 	for(word ind = 0; ind < MAXFFCS; ++ind)
 	{
-		if(tmpscr->ffcs[ind].getData() == cid)
+		if(tmpscr->ffcs[ind].data == cid)
 			screen_ffc_modify_postroutine(ind);
 	}
 }

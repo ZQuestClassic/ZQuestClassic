@@ -989,7 +989,7 @@ void integrityCheckSaveCombo()
             for(word c=0; c< maxffc; c++)
             {
                 // Checks both combos and secret combos.
-                if(integrityBoolSaveCombo(ts,combobuf[ts->ffcs[c].getData()].type))
+                if(integrityBoolSaveCombo(ts,combobuf[ts->ffcs[c].data].type))
                     case_found = true;
             }
             
@@ -2181,7 +2181,7 @@ void scriptLocationReport()
             {
                 int32_t script = ts->ffcs[i].script;
                 
-                if(!script || !ts->ffcs[i].getData()) continue;
+                if(!script || !ts->ffcs[i].data) continue;
                 
                 tempnode=&(script_location_grid[script]);
                 
@@ -2310,7 +2310,7 @@ void ComboLocationReport()
             {
 				if(c < 128 && ts->secretcombo[c] == Combo) secretuses++;
 				if(c < 176 && ts->data[c] == Combo) uses++;
-				if(c < maxffc && ts->ffcs[c].getData() == Combo && Combo > 0) ffuses++;
+				if(c < maxffc && ts->ffcs[c].data == Combo && Combo > 0) ffuses++;
             }
 			if(ts->undercombo == Combo) undercombouses = true;
             
@@ -2489,7 +2489,7 @@ void ComboTypeLocationReport()
                     }
                     else if(c<336)
                     {
-                        if(combobuf[ts->ffcs[c-304].getData()].type == Type) ffuses++;
+                        if(combobuf[ts->ffcs[c-304].data].type == Type) ffuses++;
                     }
                     else if(combobuf[ts->undercombo].type == Type) undercombouses = true;
                 }

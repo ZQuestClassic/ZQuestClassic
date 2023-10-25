@@ -5560,7 +5560,7 @@ void draw_screenunit(int32_t unit, int32_t flags)
 				for(int32_t i=MAXFFCS-1; i>=0; i--)
 				{
 					ffcdata& ff = ffscr->ffcs[i];
-					if(ff.getData() !=0 && (CurrentLayer<2 || (ff.flags&ffOVERLAY)))
+					if(ff.data !=0 && (CurrentLayer<2 || (ff.flags&ffOVERLAY)))
 					{
 						auto x = ff.x+(showedges?16:0);
 						auto y = ff.y+(showedges?16:0);
@@ -6661,7 +6661,7 @@ void refresh(int32_t flags, bool update)
 			{
 				if(ypos+showfont_h-1 > map_page_bar[0].y)
 					break;
-				if(Map.CurrScr()->ffcs[i].script && Map.CurrScr()->ffcs[i].getData())
+				if(Map.CurrScr()->ffcs[i].script && Map.CurrScr()->ffcs[i].data)
 				{
 					textout_shadowed_ex(menu1, showfont, ffcmap[Map.CurrScr()->ffcs[i].script-1].scriptname.substr(0,300).c_str(),0,ypos,vc(showxypos_ffc==i ? 14 : 15),vc(0),infobg?vc(0):-1);
 					ypos+=showfont_h+1;
@@ -6931,7 +6931,7 @@ void refresh(int32_t flags, bool update)
 			//Fixme:
 			int32_t ctype =
 				combobuf[vbound(
-					(c>=305 ? Map.CurrScr()->ffcs[c-305].getData() :
+					(c>=305 ? Map.CurrScr()->ffcs[c-305].data :
 					 c>=304 ? Map.CurrScr()->undercombo :
 					 c>=176 ? Map.CurrScr()->secretcombo[c-176] :
 					 !Map.CurrScr()->valid ? 0 : // Sanity check: does room combo data exist?
@@ -10712,7 +10712,7 @@ void domouse()
 	{
 		bool did_ffttip = false;
 		for(int32_t i=MAXFFCS-1; i>=0; i--)
-			if(Map.CurrScr()->ffcs[i].getData() !=0 && (CurrentLayer<2 || (Map.CurrScr()->ffcs[i].flags&ffOVERLAY)))
+			if(Map.CurrScr()->ffcs[i].data !=0 && (CurrentLayer<2 || (Map.CurrScr()->ffcs[i].flags&ffOVERLAY)))
 			{
 				int32_t ffx = Map.CurrScr()->ffcs[i].x.getFloor();
 				int32_t ffy = Map.CurrScr()->ffcs[i].y.getFloor();
@@ -10733,8 +10733,8 @@ void domouse()
 					char msg[1024] = {0};
 					auto& ff = Map.CurrScr()->ffcs[i];
 					sprintf(msg,"FFC: %d Combo: %d\nCSet: %d Type: %s\nScript: %s",
-							i+1, ff.getData(),ff.getData(),
-							combo_class_buf[combobuf[ff.getData()].type].name,
+							i+1, ff.data,ff.data,
+							combo_class_buf[combobuf[ff.data].type].name,
 							(ff.script<=0 ? "(None)" : ffcmap[ff.script-1].scriptname.substr(0,400).c_str()));
 					update_tooltip(x, y, startxint+(ffx*mapscreensize), startyint+(ffy*mapscreensize), ffw*mapscreensize, ffh*mapscreensize, msg);
 					did_ffttip = true;
@@ -11288,7 +11288,7 @@ void domouse()
 				
 				// Move FFCs
 				for(int32_t i=MAXFFCS-1; i>=0; i--)
-					if(Map.CurrScr()->ffcs[i].getData() !=0 && (CurrentLayer<2 || (Map.CurrScr()->ffcs[i].flags&ffOVERLAY)))
+					if(Map.CurrScr()->ffcs[i].data !=0 && (CurrentLayer<2 || (Map.CurrScr()->ffcs[i].flags&ffOVERLAY)))
 					{
 						int32_t ffx = Map.CurrScr()->ffcs[i].x.getFloor();
 						int32_t ffy = Map.CurrScr()->ffcs[i].y.getFloor();
@@ -11369,7 +11369,7 @@ void domouse()
 				// This loop also serves to find the free ffc with the smallest slot number.
 				for(int32_t i=MAXFFCS-1; i>=0; i--)
 				{
-					auto data = Map.CurrScr()->ffcs[i].getData();
+					auto data = Map.CurrScr()->ffcs[i].data;
 					if(data==0)
 					{
 						if(i < earliestfreeffc)
@@ -21252,7 +21252,7 @@ int32_t d_ffcombolist_proc(int32_t msg,DIALOG *d,int32_t c)
         if(buf)
         {
             clear_bitmap(buf);
-            putcombo(buf,0,0,Map.CurrScr()->ffcs[d1].getData(),Map.CurrScr()->ffcs[d1].cset);
+            putcombo(buf,0,0,Map.CurrScr()->ffcs[d1].data,Map.CurrScr()->ffcs[d1].cset);
             stretch_blit(buf, ffcur, 0,0, 16, 16, 0, 0, ffcur->w, ffcur->h);
             destroy_bitmap(buf);
         }
@@ -21266,7 +21266,7 @@ int32_t d_ffcombolist_proc(int32_t msg,DIALOG *d,int32_t c)
         rectfill(screen,xd,y2,xd+x2+100,y2+yd*14,jwin_pal[jcBOX]);
         
         textprintf_ex(screen,tempfont,xd,y2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"Combo #:");
-        textprintf_ex(screen,tempfont,xd+x2,y2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",Map.CurrScr()->ffcs[d1].getData());
+        textprintf_ex(screen,tempfont,xd+x2,y2,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",Map.CurrScr()->ffcs[d1].data);
         
         textprintf_ex(screen,tempfont,xd,y2+yd,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"CSet #:");
         textprintf_ex(screen,tempfont,xd+x2,y2+yd,jwin_pal[jcTEXTFG],jwin_pal[jcBOX],"%d",Map.CurrScr()->ffcs[d1].cset);
@@ -21320,7 +21320,7 @@ int32_t onSelectFFCombo()
     
     if(!ffcur) return D_O_K;
     
-    putcombo(ffcur,0,0,Map.CurrScr()->ffcs[ff_combo].getData(),Map.CurrScr()->ffcs[ff_combo].cset);
+    putcombo(ffcur,0,0,Map.CurrScr()->ffcs[ff_combo].data,Map.CurrScr()->ffcs[ff_combo].cset);
     ffcombo_sel_dlg[5].dp = ffcur;
     
 	bool resize = !(ffcombo_sel_dlg[0].d1);

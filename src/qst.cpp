@@ -16422,7 +16422,7 @@ int32_t readmapscreen_old(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr
 				{
 					return qe_invalid;
 				}
-				tempffc.setData(tempw);
+				tempffc.data = tempw;
 				
 				if(!p_getc(&(tempffc.cset),f))
 				{
@@ -17129,7 +17129,7 @@ int32_t readmapscreen(PACKFILE *f, zquestheader *Header, mapscr *temp_mapscr, wo
 				return qe_invalid;
 			if(!old_ff && !tempw) //empty ffc, nothing more to load
 				continue;
-			tempffc.setData(tempw);
+			tempffc.data = tempw;
 			
 			if(!p_getc(&(tempffc.cset),f))
 				return qe_invalid;
@@ -22252,7 +22252,7 @@ static int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Mi
             {
                 for(int32_t m=0; m<32; m++)
                 {
-                    if(combobuf[TheMaps[(i*MAPSCRS)+j].ffcs[m].getData()].type == cCHANGE)
+                    if(combobuf[TheMaps[(i*MAPSCRS)+j].ffcs[m].data].type == cCHANGE)
                         TheMaps[(i*MAPSCRS)+j].ffcs[m].flags|=ffCHANGER;
                 }
             }

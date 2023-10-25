@@ -1,5 +1,6 @@
 #include "base/qrs.h"
 #include "base/dmap.h"
+#include "zc/zc_ffc.h"
 #include "zc/zelda.h"
 #include "sprite.h"
 #include "zc/decorations.h"
@@ -288,7 +289,7 @@ void do_generic_combo_ffc2(int32_t pos, int32_t cid, int32_t ft)
 		if ( combobuf[cid].usrflags&cflag7 )
 		{
 			screen_ffc_modify_preroutine(pos);
-			ffc.setData(tmpscr->secretcombo[ft]);
+			zc_ffc_set(ffc, tmpscr->secretcombo[ft]);
 			ffc.cset = tmpscr->secretcset[ft];
 			// newflag = s->secretflag[ft];
 			screen_ffc_modify_postroutine(pos);
@@ -305,17 +306,17 @@ void do_generic_combo_ffc2(int32_t pos, int32_t cid, int32_t ft)
 				//undercombo or next?
 				if((combobuf[cid].usrflags&cflag12))
 				{
-					ffc.setData(tmpscr->undercombo);
+					zc_ffc_set(ffc, tmpscr->undercombo);
 					ffc.cset = tmpscr->undercset;
 				}
 				else
 				{
-					ffc.setData(vbound(ffc.getData()+1,0,MAXCOMBOS));
+					zc_ffc_set(ffc, vbound(ffc.data+1,0,MAXCOMBOS));
 				}
 				screen_ffc_modify_postroutine(pos);
 				
 				if((combobuf[cid].usrflags&cflag12)) break; //No continuous for undercombo
-				if ( (combobuf[cid].usrflags&cflag5) ) cid = ffc.getData();
+				if ( (combobuf[cid].usrflags&cflag5) ) cid = ffc.data;
 				
 			} while((combobuf[cid].usrflags&cflag5) && (combobuf[cid].type == cTRIGGERGENERIC) && (cid < (MAXCOMBOS-1)));
 			if ( (combobuf[cid].attribytes[2]) > 0 )
@@ -424,10 +425,10 @@ void trigger_cswitch_block(int32_t layer, int32_t pos)
 			if(ffcIsAt(i, COMBOX(pos)+8, COMBOY(pos)+8))
 			{
 				ffcdata& ffc2 = tmpscr->ffcs[i];
-				newcombo const& cmb_2 = combobuf[ffc2.getData()];
-				ffc2.setData(BOUND_COMBO(ffc2.getData() + cmbofs));
+				newcombo const& cmb_2 = combobuf[ffc2.data];
+				zc_ffc_set(ffc2, BOUND_COMBO(ffc2.data + cmbofs));
 				ffc2.cset = (ffc2.cset + csofs) & 15;
-				int32_t newcid2 = ffc2.getData();
+				int32_t newcid2 = ffc2.data;
 				if(combobuf[newcid2].animflags & AF_CYCLE)
 				{
 					combobuf[newcid2].tile = combobuf[newcid2].o_tile;
@@ -443,15 +444,15 @@ void trigger_cswitch_block_ffc(int32_t pos)
 {
 	if(unsigned(pos) >= MAXFFCS) return;
 	ffcdata& ffc = tmpscr->ffcs[pos];
-	auto cid = ffc.getData();
+	auto cid = ffc.data;
 	newcombo const& cmb = combobuf[cid];
 	if(cmb.type != cCSWITCHBLOCK) return;
 	
 	int32_t cmbofs = (cmb.attributes[0]/10000L);
 	int32_t csofs = (cmb.attributes[1]/10000L);
-	ffc.setData(BOUND_COMBO(cid + cmbofs));
+	zc_ffc_set(ffc, BOUND_COMBO(cid + cmbofs));
 	ffc.cset = (ffc.cset + csofs) & 15;
-	auto newcid = ffc.getData();
+	auto newcid = ffc.data;
 	if(combobuf[newcid].animflags & AF_CYCLE)
 	{
 		combobuf[newcid].tile = combobuf[newcid].o_tile;
@@ -485,10 +486,10 @@ void trigger_cswitch_block_ffc(int32_t pos)
 			if(ffcIsAt(i, ffc.x+8, ffc.y+8))
 			{
 				ffcdata& ffc2 = tmpscr->ffcs[i];
-				newcombo const& cmb_2 = combobuf[ffc2.getData()];
-				ffc2.setData(BOUND_COMBO(ffc2.getData() + cmbofs));
+				newcombo const& cmb_2 = combobuf[ffc2.data];
+				zc_ffc_set(ffc2, BOUND_COMBO(ffc2.data + cmbofs));
 				ffc2.cset = (ffc2.cset + csofs) & 15;
-				int32_t newcid2 = ffc2.getData();
+				int32_t newcid2 = ffc2.data;
 				if(combobuf[newcid2].animflags & AF_CYCLE)
 				{
 					combobuf[newcid2].tile = combobuf[newcid2].o_tile;
@@ -658,7 +659,7 @@ void trigger_cuttable_ffc(int32_t pos)
 {
 	if(unsigned(pos) > MAXFFCS) return;
 	ffcdata& ffc = tmpscr->ffcs[pos];
-	newcombo const& cmb = combobuf[ffc.getData()];
+	newcombo const& cmb = combobuf[ffc.data];
 	auto type = cmb.type;
 	if (!isCuttableType(type)) return;
 	auto flag2 = cmb.flag;
@@ -671,12 +672,12 @@ void trigger_cuttable_ffc(int32_t pos)
 		done = true;
 		if(flag2 >= 16 && flag2 <= 31)
 		{ 
-			ffc.setData(tmpscr->secretcombo[(tmpscr->sflag[pos])-16+4]);
+			zc_ffc_set(ffc, tmpscr->secretcombo[(tmpscr->sflag[pos])-16+4]);
 			ffc.cset = tmpscr->secretcset[(tmpscr->sflag[pos])-16+4];
 		}
 		else if(flag2 == mfARMOS_SECRET)
 		{
-			ffc.setData(tmpscr->secretcombo[sSTAIRS]);
+			zc_ffc_set(ffc, tmpscr->secretcombo[sSTAIRS]);
 			ffc.cset = tmpscr->secretcset[sSTAIRS];
 			sfx(tmpscr->secretsfx);
 		}
@@ -695,11 +696,11 @@ void trigger_cuttable_ffc(int32_t pos)
 	{
 		if(isCuttableNextType(type))
 		{
-			ffc.incData(1);
+			zc_ffc_modify(ffc, 1);
 		}
 		else
 		{
-			ffc.setData(tmpscr->undercombo);
+			zc_ffc_set(ffc, tmpscr->undercombo);
 			ffc.cset = tmpscr->undercset;
 		}
 	}
@@ -787,9 +788,9 @@ bool trigger_step(int32_t lyr, int32_t pos)
 				for(word i=0; i<c; i++)
 				{
 					ffcdata& ffc2 = tmpscr->ffcs[i];
-					if (ffc2.getData() == id)
+					if (ffc2.data == id)
 					{
-						ffc2.incData(1);
+						zc_ffc_modify(ffc2, 1);
 					}
 				}
 			}
@@ -811,9 +812,9 @@ bool trigger_step(int32_t lyr, int32_t pos)
 				for(word i=0; i<c; i++)
 				{
 					ffcdata& ffc2 = tmpscr->ffcs[i];
-					if (isStepType(combobuf[ffc2.getData()].type))
+					if (isStepType(combobuf[ffc2.data].type))
 					{
-						ffc2.incData(1);
+						zc_ffc_modify(ffc2, 1);
 					}
 				}
 			}
@@ -828,7 +829,7 @@ bool trigger_step_ffc(int32_t pos)
 {
 	if(unsigned(pos) >= MAXFFCS) return false;
 	ffcdata& ffc = tmpscr->ffcs[pos];
-	newcombo const& cmb = combobuf[ffc.getData()];
+	newcombo const& cmb = combobuf[ffc.data];
 	if(!isStepType(cmb.type) || cmb.type == cSTEPCOPY) return false;
 	if(cmb.attribytes[1] && !game->item[cmb.attribytes[1]])
 		return false; //lacking required item
@@ -840,12 +841,12 @@ bool trigger_step_ffc(int32_t pos)
 	{
 		case cSTEP:
 		{
-			ffc.incData(1); 
+			zc_ffc_modify(ffc, 1); 
 			break;
 		}
 		case cSTEPSAME:
 		{
-			int32_t id = ffc.getData();
+			int32_t id = ffc.data;
 			for(auto q = 0; q < 176; ++q)
 			{
 				if(tmpscr->data[q] == id)
@@ -859,13 +860,13 @@ bool trigger_step_ffc(int32_t pos)
 				for(word i=0; i<c; i++)
 				{
 					ffcdata& ffc2 = tmpscr->ffcs[i];
-					if (ffc2.getData() == id && i != pos)
+					if (ffc2.data == id && i != pos)
 					{
-						ffc2.incData(1);
+						zc_ffc_modify(ffc2, 1);
 					}
 				}
 			}
-			ffc.incData(1);
+			zc_ffc_modify(ffc, 1);
 			break;
 		}
 		case cSTEPALL:
@@ -883,13 +884,13 @@ bool trigger_step_ffc(int32_t pos)
 				for(word i=0; i<c; i++)
 				{
 					ffcdata& ffc2 = tmpscr->ffcs[i];
-					if (isStepType(combobuf[ffc2.getData()].type) && i != pos)
+					if (isStepType(combobuf[ffc2.data].type) && i != pos)
 					{
-						ffc2.incData(1);
+						zc_ffc_modify(ffc2, 1);
 					}
 				}
 			}
-			ffc.incData(1);
+			zc_ffc_modify(ffc, 1);
 			break;
 		}
 	}
@@ -1164,8 +1165,8 @@ bool trigger_chest_ffc(int32_t pos)
 {
 	if(unsigned(pos) >= MAXFFCS) return false;
 	ffcdata& ffc = tmpscr->ffcs[pos];
-	newcombo const& cmb = combobuf[ffc.getData()];
-	int32_t cid = ffc.getData();
+	newcombo const& cmb = combobuf[ffc.data];
+	int32_t cid = ffc.data;
 	switch(cmb.type)
 	{
 		case cLOCKEDCHEST: //Special flags!
@@ -1334,7 +1335,7 @@ bool trigger_lockblock_ffc(int32_t pos)
 {
 	if(unsigned(pos) >= MAXFFCS) return false;
 	ffcdata& ffc = tmpscr->ffcs[pos];
-	newcombo const& cmb = combobuf[ffc.getData()];
+	newcombo const& cmb = combobuf[ffc.data];
 	switch(cmb.type)
 	{
 		case cLOCKBLOCK: //Special flags!
@@ -1659,7 +1660,7 @@ bool trigger_armos_grave_ffc(int32_t pos, int32_t trigdir)
 	if(gc > 10) return false; //Don't do it if there's already 10 enemies onscreen
 	//!TODO: Maybe allow a custom limit?
 	ffcdata& ffc = tmpscr->ffcs[pos];
-	newcombo const& cmb = combobuf[ffc.getData()];
+	newcombo const& cmb = combobuf[ffc.data];
 	int32_t eclk = -14;
 	int32_t id2 = 0;
 	int32_t tx = ffc.x, ty = ffc.y;
@@ -1716,7 +1717,7 @@ bool trigger_armos_grave_ffc(int32_t pos, int32_t trigdir)
 				}
 			}
 			if(nextcmb)
-				ffc.incData(1);
+				zc_ffc_modify(ffc, 1);
 			break;
 		}
 		default: return false;
@@ -1998,7 +1999,7 @@ bool trigger_stepfx_ffc(int32_t pos, bool stepped)
 {
 	if(unsigned(pos) >= MAXFFCS) return false;
 	ffcdata& ffc = tmpscr->ffcs[pos];
-	newcombo const& cmb = combobuf[ffc.getData()];
+	newcombo const& cmb = combobuf[ffc.data];
 	int32_t tx = ffc.x, ty = ffc.y;
 	int32_t thesfx = cmb.attribytes[0];
 	sfx_no_repeat(thesfx, pan(ffc.x));
@@ -2176,7 +2177,7 @@ bool trigger_stepfx_ffc(int32_t pos, bool stepped)
 		}
 		if (!(cmb.usrflags&cflag3)) //Don't Advance
 		{
-			ffc.incData(1);
+			zc_ffc_modify(ffc, 1);
 		}
 	}
 	return true;
@@ -2416,7 +2417,7 @@ bool do_copycat_trigger_ffc(int32_t pos)
 	if(!copycat_id) return false;
 	if(unsigned(pos) >= MAXFFCS) return false;
 	ffcdata& ffc = tmpscr->ffcs[pos];
-	int32_t cid = ffc.getData();
+	int32_t cid = ffc.data;
 	newcombo const& cmb = combobuf[cid];
 	if(cmb.trigcopycat == copycat_id)
 	{
@@ -2482,12 +2483,12 @@ void do_ex_trigger_ffc(int32_t pos)
 {
 	if(unsigned(pos) >= MAXFFCS) return;
 	ffcdata& ffc = tmpscr->ffcs[pos];
-	int32_t cid = ffc.getData();
+	int32_t cid = ffc.data;
 	int32_t ocs = ffc.cset;
 	newcombo const& cmb = combobuf[cid];	
 	if(cmb.trigchange)
 	{
-		ffc.setData(cid+cmb.trigchange);
+		zc_ffc_set(ffc, cid+cmb.trigchange);
 	}
 	if(cmb.trigcschange)
 	{
@@ -2495,7 +2496,7 @@ void do_ex_trigger_ffc(int32_t pos)
 	}
 	if(cmb.triggerflags[0] & combotriggerRESETANIM)
 	{
-		newcombo& rcmb = combobuf[ffc.getData()];
+		newcombo& rcmb = combobuf[ffc.data];
 		rcmb.tile = rcmb.o_tile;
 		rcmb.cur_frame=0;
 		rcmb.aclk = 0;
@@ -2505,7 +2506,7 @@ void do_ex_trigger_ffc(int32_t pos)
 	{
 		if(!copycat_id) //not already in a copycat
 		{
-			bool skipself = ffc.getData() == cid;
+			bool skipself = ffc.data == cid;
 			copycat_id = cmb.trigcopycat;
 			for(auto cclayer = 0; cclayer < 7; ++cclayer)
 			{
@@ -2549,7 +2550,7 @@ bool force_ex_trigger_ffc(int32_t pos, char xstate)
 {
 	if(unsigned(pos) >= MAXFFCS) return false;
 	ffcdata& ffc = tmpscr->ffcs[pos];
-	newcombo const& cmb = combobuf[ffc.getData()];	
+	newcombo const& cmb = combobuf[ffc.data];	
 	if(cmb.exstate > -1 && (xstate < 0 || xstate == cmb.exstate))
 	{
 		if(xstate >= 0 || getxmapflag(1<<cmb.exstate))
@@ -2985,7 +2986,7 @@ bool do_trigger_combo_ffc(int32_t pos, int32_t special, weapon* w)
 	if (ffc.flags & ffCHANGER)
 		return false; //Changers can't trigger!
 	cpos_info& timer = tmpscr->ffcs[pos].info;
-	int32_t cid = ffc.getData();
+	int32_t cid = ffc.data;
 	int32_t ocs = ffc.cset;
 	int32_t cx = ffc.x;
 	int32_t cy = ffc.y;
@@ -3226,7 +3227,7 @@ bool do_trigger_combo_ffc(int32_t pos, int32_t special, weapon* w)
 			if(cmb.trigchange)
 			{
 				used_bit = true;
-				ffc.setData(cid+cmb.trigchange);
+				zc_ffc_set(ffc, cid+cmb.trigchange);
 			}
 			if(cmb.trigcschange)
 			{
@@ -3236,7 +3237,7 @@ bool do_trigger_combo_ffc(int32_t pos, int32_t special, weapon* w)
 			
 			if(cmb.triggerflags[0] & combotriggerRESETANIM)
 			{
-				newcombo& rcmb = combobuf[ffc.getData()];
+				newcombo& rcmb = combobuf[ffc.data];
 				rcmb.tile = rcmb.o_tile;
 				rcmb.cur_frame=0;
 				rcmb.aclk = 0;
@@ -3331,7 +3332,7 @@ bool do_trigger_combo_ffc(int32_t pos, int32_t special, weapon* w)
 			{
 				if(!copycat_id) //not already in a copycat
 				{
-					bool skipself = ffc.getData() == cid;
+					bool skipself = ffc.data == cid;
 					copycat_id = cmb.trigcopycat;
 					for(auto cclayer = 0; cclayer < 7; ++cclayer)
 					{
@@ -3354,8 +3355,8 @@ bool do_trigger_combo_ffc(int32_t pos, int32_t special, weapon* w)
 				}
 			}
 			
-			update_trig_group(timer.data,tmpscr->ffcs[pos].getData());
-			timer.updateData(tmpscr->ffcs[pos].getData());
+			update_trig_group(timer.data,tmpscr->ffcs[pos].data);
+			timer.updateData(tmpscr->ffcs[pos].data);
 			if(cmb.trigcooldown)
 				timer.trig_cd = cmb.trigcooldown;
 		}
@@ -3563,7 +3564,7 @@ void calculate_trig_groups()
 		if (f.flags & ffCHANGER)
 			continue; //changers don't contribute
 		cpos_info& timer = f.info;
-		int cid = f.getData();
+		int cid = f.data;
 		timer.updateData(cid);
 		newcombo const& cmb = combobuf[cid];
 		if(cmb.triggerflags[3] & combotriggerTGROUP_CONTRIB)
@@ -3610,7 +3611,7 @@ void trig_trigger_groups()
 		if (f.flags & ffCHANGER)
 			continue; //changers don't contribute
 		cpos_info& timer = f.info;
-		int cid = f.getData();
+		int cid = f.data;
 		newcombo const& cmb = combobuf[cid];
 		
 		if(
@@ -3621,7 +3622,7 @@ void trig_trigger_groups()
 			)
 		{
 			do_trigger_combo_ffc(ffc);
-			int cid2 = f.getData();
+			int cid2 = f.data;
 			bool recheck = timer.data != cid2;
 			update_trig_group(timer.data,cid2);
 			timer.updateData(cid2);
@@ -3695,7 +3696,7 @@ void update_combo_timers()
 		if (f.flags & ffCHANGER)
 			continue; //changers don't contribute
 		cpos_info& timer = f.info;
-		int cid = f.getData();
+		int cid = f.data;
 		update_trig_group(timer.data,cid);
 		timer.updateData(cid);
 		zfix wx = f.x;
@@ -3727,7 +3728,7 @@ void update_combo_timers()
 			{
 				timer.clk = 0;
 				do_trigger_combo_ffc(ffc);
-				cid = f.getData();
+				cid = f.data;
 				update_trig_group(timer.data,cid);
 				timer.updateData(cid);
 			}
