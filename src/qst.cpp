@@ -3671,6 +3671,8 @@ int32_t readrules(PACKFILE *f, zquestheader *Header)
 		set_qr(qr_BROKEN_SWORD_SPIN_TRIGGERS,1);
 	if(compatrule_version < 58)
 		set_qr(qr_OLD_DMAP_INTRO_STRINGS,1);
+	if(compatrule_version < 59)
+		set_qr(qr_SCRIPT_CONTHP_IS_HEARTS,1);
 	
 	set_qr(qr_ANIMATECUSTOMWEAPONS,0);
 	if (s_version < 16)
@@ -4770,14 +4772,14 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 		}
 		else
 		{
-			if(!p_getcstr(tempDMap.name,sizeof(DMaps[0].name) - 1,f))
+			if(!p_getstr(tempDMap.name,sizeof(DMaps[0].name) - 1,f))
 			{
 				return qe_invalid;
 			}
 			
 			if(s_version<20)
 			{
-				if (!p_getcstr(legacy_title, sizeof(legacy_title) - 1, f))
+				if (!p_getstr(legacy_title, sizeof(legacy_title) - 1, f))
 				{
 					return qe_invalid;
 				}
@@ -4794,7 +4796,7 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 				tempDMap.title = tmptitle;
 			}
 			
-			if(!p_getcstr(tempDMap.intro,sizeof(DMaps[0].intro)-1,f))
+			if(!p_getstr(tempDMap.intro,sizeof(DMaps[0].intro)-1,f))
 			{
 				return qe_invalid;
 			}
@@ -4917,7 +4919,7 @@ int32_t readdmaps(PACKFILE *f, zquestheader *Header, word, word, word start_dmap
 				return qe_invalid;
 			}
 			
-			if(!p_getcstr(tempDMap.tmusic,sizeof(DMaps[0].tmusic)-1,f))
+			if(!p_getstr(tempDMap.tmusic,sizeof(DMaps[0].tmusic)-1,f))
 			{
 				return qe_invalid;
 			}
@@ -5583,7 +5585,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 	{
 		if(s_version > 6)
 		{
-			if(!p_getcstr(temp_misc.shop[i].name,sizeof(temp_misc.shop[i].name)-1,f))
+			if(!p_getstr(temp_misc.shop[i].name,sizeof(temp_misc.shop[i].name)-1,f))
 			{
 				return qe_invalid;
 			}
@@ -5680,7 +5682,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 	{
 		if(s_version > 6)
 		{
-			if(!p_getcstr(temp_misc.info[i].name,sizeof(temp_misc.info[i].name)-1,f))
+			if(!p_getstr(temp_misc.info[i].name,sizeof(temp_misc.info[i].name)-1,f))
 			{
 				return qe_invalid;
 			}
@@ -6255,7 +6257,7 @@ int32_t readmisc(PACKFILE *f, zquestheader *Header, miscQdata *Misc)
 		for(size_t q = 0; q < 64; ++q)
 		{
 			bottletype* bt = &(temp_misc.bottle_types[q]);
-            if (!p_getcstr(bt->name, sizeof(bt->name)-1, f))
+            if (!p_getstr(bt->name, sizeof(bt->name)-1, f))
                 return qe_invalid;
 			for(size_t j = 0; j < 3; ++j)
 			{
@@ -18806,7 +18808,7 @@ int32_t readcolordata(PACKFILE *f, miscQdata *Misc, word version, word build, wo
 			
 		for(int32_t i=0; i<palnamestoread; ++i)
 		{
-			if(!p_getcstr(temp_palname,PALNAMESIZE,f))
+			if(!p_getstr(temp_palname,PALNAMESIZE,f))
 			{
 				return qe_invalid;
 			}
@@ -19210,14 +19212,14 @@ int32_t readtunes(PACKFILE *f, zquestheader *Header, zctune *tunes /*zcmidi_ *mi
         {
             if(section_version < 4)
             {
-                if(!p_getcstr(temp.title,20,f))
+                if(!p_getstr(temp.title,20,f))
                 {
                     return qe_invalid;
                 }
             }
             else
             {
-                if(!p_getcstr(temp.title,sizeof(temp.title)-1,f))
+                if(!p_getstr(temp.title,sizeof(temp.title)-1,f))
                 {
                     return qe_invalid;
                 }
@@ -21070,7 +21072,7 @@ int32_t readitemdropsets(PACKFILE *f, int32_t version, word build)
     {
         for(int32_t i=0; i<item_drop_sets_to_read; i++)
         {
-            if(!p_getcstr(tempitemdrop.name,sizeof(tempitemdrop.name)-1,f))
+            if(!p_getstr(tempitemdrop.name,sizeof(tempitemdrop.name)-1,f))
             {
                 return qe_invalid;
             }

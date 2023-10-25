@@ -8298,8 +8298,24 @@ int32_t get_register(const int32_t arg)
 			break;
 			
 		case GAMEGENERICD:
-			ret=game->get_generic((ri->d[rINDEX])/10000)*10000;
+		{
+			auto indx = ri->d[rINDEX] / 10000;
+			switch(indx)
+			{
+				case genCONTHP:
+				{
+					if(!get_qr(qr_SCRIPT_CONTHP_IS_HEARTS) || game->get_cont_percent())
+						ret = game->get_generic(indx)*10000;
+					else
+						ret = (game->get_generic(indx)/game->get_hp_per_heart())*10000;
+					break;
+				}
+				default:
+					ret = game->get_generic(indx)*10000;
+					break;
+			}
 			break;
+		}
 		
 		case GAMEMISC:
 		{
@@ -20993,8 +21009,25 @@ void set_register(int32_t arg, int32_t value)
 			break;
 			
 		case GAMEGENERICD:
-			game->set_generic(value/10000, (ri->d[rINDEX])/10000);
+		{
+			auto indx = ri->d[rINDEX] / 10000;
+			auto val = value/10000;
+			switch(indx)
+			{
+				case genCONTHP:
+				{
+					if(!get_qr(qr_SCRIPT_CONTHP_IS_HEARTS) || game->get_cont_percent())
+						game->set_generic(val, indx);
+					else
+						game->set_generic(val*game->get_hp_per_heart(), indx);
+					break;
+				}
+				default:
+					game->set_generic(val, indx);
+					break;
+			}
 			break;
+		}
 		case GAMEMISC:
 		{
 			int32_t indx = ri->d[rINDEX]/10000;

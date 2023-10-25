@@ -216,7 +216,7 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 		save.header = &save.game->header;
 		gamedata& game = *save.game;
 
-		if(!p_getcstr(name,9,f))
+		if(!p_getstr(name,9,f))
 		{
 			return 6;
 		}
@@ -324,7 +324,7 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 		}
 		
 		size_t versz = section_version<31 ? 9 : 16;
-		if(!p_getcstr(game.version,versz,f))
+		if(!p_getstr(game.version,versz,f))
 		{
 			return 20;
 		}
@@ -726,6 +726,11 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 				
 				game.set_generic(tempbyte, j);
 			}
+		}
+		if(section_version < 37)
+		{
+			if(!game.get_cont_percent())
+				game.set_cont_hearts(game.get_cont_hearts()*game.get_hp_per_heart());
 		}
 
 		game.header.life = game.get_life();
@@ -1188,7 +1193,7 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 
 	qstpath_len=game.header.qstpath.length();
 	
-	if(!pfwrite(game.get_name(),9,f))
+	if(!p_putstr(game.get_name(),9,f))
 	{
 		return 6;
 	}
@@ -1472,14 +1477,13 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 		}
 	}
 	
-	if(!pfwrite(game.gswitch_timers,NUM_GSWITCHES*sizeof(int32_t),f))
+	for(size_t q = 0; q < NUM_GSWITCHES; ++q)
 	{
-		return 80;
+		if(!p_iputl(game.gswitch_timers[q],f))
+			return 79;
 	}
-	if (!p_iputw(game.header.replay_file.length(), f))
+	if (!p_putwstr(game.header.replay_file, f))
 		return 81;
-	if (!pfwrite((void*)game.header.replay_file.c_str(), game.header.replay_file.length(), f))
-		return 82;
 	uint32_t sz = game.user_objects.size();
 	if(!p_iputl(sz,f))
 		return 83;
@@ -1558,7 +1562,7 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 		if(!p_iputw(p.spr, f))
 			return 108;
 	}
-	if(!p_putbmap(game.screen_data,f))
+	if(!p_putbmap(game.OverrideItems,f))
 		return 109;
 	if(!p_putbmap(game.screen_data,f))
 		return 110;
@@ -1708,7 +1712,7 @@ cantopen:
 		jwin_alert("Can't Open Saved Game File",
 				   buf,
 				   error,
-				   "",
+				   to_string(ret).c_str(),
 				   "OK",NULL,'o',0,get_zc_font(font_lfont));
 		exit_sys_pal();
 	}

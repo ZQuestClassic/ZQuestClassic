@@ -493,6 +493,15 @@ inline bool p_mputl(int32_t c,PACKFILE *f)
 	return success;
 }
 
+inline bool p_getstr(char *str, size_t sz, PACKFILE *f)
+{
+	size_t read = pack_fread(str, sz, f);
+	bool success = read == sz;
+	str[read] = '\0';
+	if (success)
+		readsize += read;
+	return success;
+}
 inline bool p_getstr(string *str, size_t sz, PACKFILE *f)
 {
 	auto buf = std::make_unique<char[]>(sz + 1);
@@ -501,6 +510,23 @@ inline bool p_getstr(string *str, size_t sz, PACKFILE *f)
 		return false;
 	*str = buf.get();
 	return true;
+}
+inline bool p_putstr(char const* str, size_t sz, PACKFILE *f)
+{
+	return pfwrite(str,sz,f);
+}
+inline bool p_putstr(string const& str, size_t sz, PACKFILE *f)
+{
+	if(str.size() < sz)
+	{
+		if(!pfwrite(str.data(),str.size(),f))
+			return false;
+		for(int q = str.size(); q < sz; ++q)
+			if(!p_putc(0,f))
+				return false;
+		return true;
+	}
+	return pfwrite(str.data(),sz,f);
 }
 
 inline bool p_getcstr(string *str, PACKFILE *f);
@@ -748,19 +774,6 @@ inline bool p_putbitstr(bitstring const& ptr, PACKFILE *f)
 }
 
 //
-
-// Reads `sz` bytes from `f` into `str`.
-// `str` should be `sz + 1` bytes long.
-// `str` will always be a null-terminated string.
-inline bool p_getcstr(char *str, size_t sz, PACKFILE *f)
-{
-	size_t read = pack_fread(str, sz, f);
-	bool success = read == sz;
-	str[read] = '\0';
-	if (success)
-		readsize += read;
-	return success;
-}
 
 inline bool p_getcstr(string *str, PACKFILE *f)
 {

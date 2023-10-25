@@ -1615,7 +1615,10 @@ GUI::ListData instructionRulesList
 	{ "Disable accessing negative array indexes", qr_ZS_NO_NEG_ARRAY, "If enabled,"
 		" the new feature allowing accessing negative indexes of an array to backwards-index them"
 		" (i.e. 'arr[-1]' is the LAST element in the array) will be DISABLED if this is on."
-		"\nUseful for debugging if you're using this feature *by mistake*." }
+		"\nUseful for debugging if you're using this feature *by mistake*." },
+	{ "Game->Generic[GEN_CONTINUEHEARTS] is in 'Hearts'", qr_SCRIPT_CONTHP_IS_HEARTS,
+		"If checked, read/write to 'Game->Generic[GEN_CONTINUEHEARTS]' is in 'Hearts'. Otherwise,"
+		" it will be in 'HP'. (Has no effect if 'Game->Generic[GEN_CONTINUEISPERCENT]' is true)"}
 };
 
 GUI::ListData objectRulesList
@@ -1723,7 +1726,7 @@ void applyRuleTemplate(int32_t ruleTemplate, byte* qrptr)
 				qr_BROKENCHARINTDRAWING, qr_NO_OVERWRITING_HOPPING,
 				qr_OLD_PRINTF_ARGS, qr_COMBODATA_INITD_MULT_TENK,
 				qr_OLDQUESTMISC, qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS,
-				qr_BROKEN_GETPIXEL_VALUE, qr_ZS_NO_NEG_ARRAY,
+				qr_BROKEN_GETPIXEL_VALUE, qr_ZS_NO_NEG_ARRAY, qr_SCRIPT_CONTHP_IS_HEARTS,
 			};
 			for(int qr : zsOnRules)
 				set_qr(qr, 1, qrptr);
