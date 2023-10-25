@@ -1114,9 +1114,16 @@ static int32_t read_saves(ReadMode read_mode, PACKFILE* f, std::vector<save_t>& 
 			}
 		}
 		if(section_version >= 35)
-			for(int q = 0; q < itype_max; ++q)
-				if(!p_igetw(&game.OverrideItems[q],f))
-					return 113;
+		{
+			if(section_version < 37)
+			{
+				for(int q = 0; q < itype_max; ++q)
+					if(!p_igetw(&game.OverrideItems[q],f))
+						return 113;
+			}
+			else if(!p_getbmap(&game.OverrideItems,f))
+				return 113;
+		}
 		if(section_version == 36)
 		{
 			uint32_t num_used_mapscr_data;
@@ -1551,11 +1558,10 @@ static int32_t write_save(PACKFILE* f, save_t* save)
 		if(!p_iputw(p.spr, f))
 			return 108;
 	}
-	for(int q = 0; q < itype_max; ++q)
-		if(!p_iputw(game.OverrideItems[q],f))
-			return 109;
 	if(!p_putbmap(game.screen_data,f))
-		return 115;
+		return 109;
+	if(!p_putbmap(game.screen_data,f))
+		return 110;
 	return 0;
 }
 
@@ -2517,7 +2523,7 @@ bool saves_test()
 	SAVE_TEST_ARRAY(gswitch_timers);
 	SAVE_TEST_VECTOR_NOFMT(user_objects);
 	SAVE_TEST_VECTOR_NOFMT(user_portals);
-	SAVE_TEST_ARRAY(OverrideItems);
+	SAVE_TEST_VECTOR(OverrideItems);
 
 	// Now do the header.
 	if (game->header != save.game->header)
