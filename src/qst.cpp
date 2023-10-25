@@ -19900,9 +19900,9 @@ int32_t readinitdata_old(PACKFILE *f, zquestheader *Header, word s_version, word
 		for(int32_t i=0; i<16; i++)
 			if(!p_getc(&tmpmisc[i],f))
 				return qe_invalid;
-		temp_zinit.flags.set(INIT_FL_CONTPERCENT,tmpmisc[0]);
-		temp_zinit.magicdrainrate = tmpmisc[1] ? 1 : 2; //Double Magic flag
-		temp_zinit.flags.set(INIT_FL_CANSLASH,tmpmisc[2]);
+		temp_zinit.flags.set(INIT_FL_CONTPERCENT,get_bit(tmpmisc,0));
+		temp_zinit.magicdrainrate = get_bit(tmpmisc,1) ? 1 : 2; //Double Magic flag
+		temp_zinit.flags.set(INIT_FL_CANSLASH,get_bit(tmpmisc,2));
 		
 		if(s_version < 15) for(int32_t i=0; i<4; i++)
 			if(!p_getc(&sword_hearts[i],f))
