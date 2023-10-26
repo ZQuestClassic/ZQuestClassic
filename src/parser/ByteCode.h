@@ -1484,7 +1484,7 @@
 #define MUSICUPDATECOND         1397
 #define MUSICUPDATEFLAGS        1398
 #define DMAPDATAINTROSTRINGID   1399
-#define RESRVD_VAR_MOOSH08      1400
+#define IS8BITTILE              1400
 #define RESRVD_VAR_MOOSH09      1401
 #define RESRVD_VAR_MOOSH10      1402
 #define RESRVD_VAR_MOOSH11      1403
@@ -4316,6 +4316,28 @@ namespace ZScript
 		Opcode* clone() const
 		{
 			return new OConvertToRGB();
+		}
+	};
+
+	class OGetTilePixel : public Opcode
+	{
+	public:
+		OGetTilePixel() : Opcode() {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OGetTilePixel();
+		}
+	};
+
+	class OSetTilePixel : public Opcode
+	{
+	public:
+		OSetTilePixel() : Opcode() {}
+		std::string toString() const;
+		Opcode* clone() const
+		{
+			return new OSetTilePixel();
 		}
 	};
 	

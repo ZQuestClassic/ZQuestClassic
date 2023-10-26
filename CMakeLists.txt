@@ -120,14 +120,6 @@ endfunction(enable_unity_build)
 #############################################################
 
 if(NOT EMSCRIPTEN)
-	# TODO: can't use prebuilt zlib on Ubuntu, else get linker errors.
-	# Error from building gme:
-	#   /usr/bin/ld: _deps/zlib-build/Release/libz.a(trees.c.o): relocation R_X86_64_PC32 against
-	#   symbol `_length_code' can not be used when making a shared object; recompile with -fPIC
-	if(LINUX)
-		set(FETCHCONTENT_TRY_FIND_PACKAGE_MODE NEVER)
-	endif()
-
 	FetchContent_Declare(
 		zlib
 		GIT_REPOSITORY
@@ -136,10 +128,8 @@ if(NOT EMSCRIPTEN)
 			19d7d6b32ee3af4ed4bdec415f42f518c93b5025
 		FIND_PACKAGE_ARGS NAMES ZLIB
 	)
+	set(BUILD_SHARED_LIBS ON)
 	FetchContent_MakeAvailable(zlib)
-	if(LINUX)
-		set(FETCHCONTENT_TRY_FIND_PACKAGE_MODE OPT_IN)
-	endif()
 
 	if(NOT ZLIB_LIBRARIES)
 		set(ZLIB_INCLUDE_DIR ${zlib_SOURCE_DIR} ${zlib_BINARY_DIR})

@@ -121,8 +121,8 @@ static AccessorTable NPCDataTable[] =
 	{ "getDeathSprite",             0,         ZTID_FLOAT,   NPCDDEATHSPR,              0,  { ZTID_NPCDATA },{} },
 	{ "setDeathSprite",             0,          ZTID_VOID,   NPCDDEATHSPR,              0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
 	
-	{ "GetInitDLabel",              0,          ZTID_VOID,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
-	{ "MatchInitDLabel",            0,          ZTID_BOOL,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+//	{ "GetInitDLabel",              0,          ZTID_VOID,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
+//	{ "MatchInitDLabel",            0,          ZTID_BOOL,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT, ZTID_FLOAT },{} },
 	{ "GetName",                    0,          ZTID_VOID,   -1,                        0,  { ZTID_NPCDATA, ZTID_FLOAT },{} },
 	
 //{	Functions
@@ -265,7 +265,7 @@ void NPCDataSymbols::generateCode()
 		function->giveCode(code);
 	}
 	//void GetInitDLabel(npc, int32_t buffer[], int32_t d)
-	{
+	/* {
 		Function* function = getFunction("GetInitDLabel");
 		int32_t label = function->getLabel();
 		vector<shared_ptr<Opcode>> code;
@@ -293,7 +293,7 @@ void NPCDataSymbols::generateCode()
 		addOpcode2 (code, new OSetRegister(new VarArgument(EXP1), new VarArgument(NPCMATCHINITDLABEL)));
 		RETURN();
 		function->giveCode(code);
-	}
+	}*/
 	
 	//GetEHeight(NPCData, int32_t)
 	{

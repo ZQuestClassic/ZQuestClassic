@@ -925,6 +925,7 @@ int32_t getHeroOTile(int32_t index1, int32_t index2);
 int32_t getHeroOFlip(int32_t index1, int32_t index2);
 
 int32_t IsBlankTile(int32_t i);
+int32_t Is8BitTile(int32_t i);
 
 defWpnSprite getDefWeaponSprite(int32_t wpnid);
 //defWpnSprite getDefWeaponSprite(weapon *wp);
@@ -2156,10 +2157,10 @@ enum ASM_DEFINE
 	FLIPROTTILEVR,         //0x0084
 	FLIPROTTILERV,         //0x0085
 	FLIPROTTILERR,         //0x0086
-	GETTILEPIXELV,         //0x0087
-	GETTILEPIXELR,         //0x0088
-	SETTILEPIXELV,         //0x0089
-	SETTILEPIXELR,         //0x008A
+	GETTILEPIXEL,         //0x0087
+	RESRVD_OP_MOOSH_EX_01,         //0x0088
+	SETTILEPIXEL,         //0x0089
+	RESRVD_OP_MOOSH_EX_02,         //0x008A
 	SHIFTTILEVV,           //0x008B
 	SHIFTTILEVR,           //0x008C
 	SHIFTTILERV,           //0x008D
@@ -4747,7 +4748,7 @@ enum ASM_DEFINE
 #define MUSICUPDATECOND         0x14AB
 #define MUSICUPDATEFLAGS        0x14AC
 #define DMAPDATAINTROSTRINGID   0x14AD
-#define RESRVD_VAR_MOOSH08      0x14AE
+#define IS8BITTILE              0x14AE
 #define RESRVD_VAR_MOOSH09      0x14AF
 #define RESRVD_VAR_MOOSH10      0x14B0
 #define RESRVD_VAR_MOOSH11      0x14B1

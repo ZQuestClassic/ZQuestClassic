@@ -7498,14 +7498,6 @@ nd->HP = 32;
 void GetName(int ptr[]);
  * Puts the text of the Enemy Name field into string 'ptr'.
 
-void GetInitDLabel(int ptr[], int d_index);
- * Puts the text of the InitD label 'd_index' into string 'ptr'.
-
-bool MatchInitDLabel("label", int d_index);
- * Compares string 'label' to the text of the InitD label field 'd_index'.
- * Returns true if they match.
- * Should be slightly faster than strcmp().
-
 int Family;
 int Type;
  * The Family (Enemy Class) of the npc.
@@ -7871,6 +7863,22 @@ void Greyscale(bool enable);
 int IsBlankTile[214500];
  * Returns 1 is the tile supplied as an index is blank, 0 is it is not blank.
  * Returns -1 if the user passed an invalid tile ID to the index.
+ * READ-ONLY
+
+int Is8BitTile[214500];
+ * Returns 1 is the tile supplied as an index is 8-bit, 0 is it is 4-bit.
+ * Returns -1 if the user passed an invalid tile ID to the index.
+ * READ-ONLY
+
+int GetTilePixel(int tile, int x, int y, int cset = 0);
+ * Returns the color index at an x,y coordinate of a tile.
+ * If the tile isn't 8-bit, will return a color in the cset specified.
+
+void SetTilePixel(int tile, int x, int y, int color);
+ * Sets the color index an an x,y coordinate of a tile.
+ * If writing an 8-bit color to a 4-bit tile, the cset bits will be discarded.
+ * This is not considered a draw command and is not affected by deferred draw timing.
+ * It will run instantly, before any draws for the frame.
 
 paldata CreatePalData();
  * Creates a new empty paldata.
