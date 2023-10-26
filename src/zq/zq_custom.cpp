@@ -4619,8 +4619,8 @@ void setEnemyScriptLabels(const guydata& test, char (&npc_initd_labels)[8][65], 
 {
 	for (int32_t q = 0; q < 8; ++q)
 	{
-		sprintf_s(npc_initd_labels[q], 64, "InitD[%d]", q);
-		sprintf_s(weapon_initd_labels[q], 64, "InitD[%d]", q);
+		sprintf(npc_initd_labels[q], "InitD[%d]", q);
+		sprintf(weapon_initd_labels[q], "InitD[%d]", q);
 		enedata_dlg[345 + q].d1 &= ~0xF;
 		enedata_dlg[345 + q].d1 |= nswapDEC;
 		enedata_dlg[361 + q].d1 &= ~0xF;
