@@ -7498,14 +7498,6 @@ nd->HP = 32;
 void GetName(int ptr[]);
  * Puts the text of the Enemy Name field into string 'ptr'.
 
-void GetInitDLabel(int ptr[], int d_index);
- * Puts the text of the InitD label 'd_index' into string 'ptr'.
-
-bool MatchInitDLabel("label", int d_index);
- * Compares string 'label' to the text of the InitD label field 'd_index'.
- * Returns true if they match.
- * Should be slightly faster than strcmp().
-
 int Family;
 int Type;
  * The Family (Enemy Class) of the npc.

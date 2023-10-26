@@ -1677,6 +1677,7 @@ static int32_t enemy_scripts_list[] =
 	
 	334,335,336,337,338,339,340,341,342,343,344,345,346,347,348,349,350,351,352,
 	377,378,379,380,381,382,383,384,
+	426,427,428,429,430,431,432,433,
 	-1
 };
 
@@ -1686,6 +1687,7 @@ static int32_t enemy_weapon_scripts_list[] =
 	361,362,363,364,365,366,367,368,
 	369,370,
 	385,386,387,388,389,390,391,392,
+	434,435,436,437,438,439,440,441,
 	-1
 };
 static int32_t enemy_moveflag_list[] =
@@ -4163,7 +4165,7 @@ static DIALOG enedata_dlg[] =
 //334
 	{ d_dummy_proc,           112+10,  47+38+10 + 18,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "Action Script:",                      NULL,   NULL                  },
 	
-	{ jwin_droplist_proc,      182,  66,     130,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &npcscript_list,                   NULL,   NULL 				   },
+	{ jwin_droplist_proc,      182,  66,     130,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       D_EXIT,           1,    0, (void *) &npcscript_list,                   NULL,   NULL 				   },
 	{ jwin_text_proc,           182,   58,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "NPC Action Script:",                      NULL,   NULL                  },
 	//337
 	//npc Script InitD Labels (not editable)
@@ -4178,14 +4180,14 @@ static DIALOG enedata_dlg[] =
 	
 	//editable npc script InitD fields
 	//337
-	{  jwin_edit_proc,         6+10,     10+29+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
-	{  jwin_edit_proc,         6+10,     10+47+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
-	{  jwin_edit_proc,         6+10,     10+65+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
-	{  jwin_edit_proc,         6+10,     10+83+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
-	{  jwin_edit_proc,         6+10,     10+101+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
-	{  jwin_edit_proc,         6+10,     10+119+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
-	{  jwin_edit_proc,         6+10,     10+137+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
-	{  jwin_edit_proc,         6+10,     10+155+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+	{ jwin_rtext_proc,         90,     13+29+20,    90,     16,    vc(14),                 vc(1),                   0,    0,          63,    0,  (void*) "InitD[0]",                                                           NULL,   NULL},
+	{ jwin_rtext_proc,         90,     13+47+20,    90,     16,    vc(14),                 vc(1),                   0,    0,          63,    0,  (void*)"InitD[1]",                                                           NULL,   NULL                 },
+	{ jwin_rtext_proc,         90,     13+65+20,    90,     16,    vc(14),                 vc(1),                   0,    0,          63,    0,  (void*)"InitD[2]",                                                           NULL,   NULL                 },
+	{ jwin_rtext_proc,         90,     13+83+20,    90,     16,    vc(14),                 vc(1),                   0,    0,          63,    0,  (void*)"InitD[3]",                                                           NULL,   NULL                 },
+	{ jwin_rtext_proc,         90,     13+101+20,    90,     16,    vc(14),                 vc(1),                   0,    0,          63,    0,  (void*)"InitD[4]",                                                           NULL,   NULL                 },
+	{ jwin_rtext_proc,         90,     13+119+20,    90,     16,    vc(14),                 vc(1),                   0,    0,          63,    0,  (void*)"InitD[5]",                                                           NULL,   NULL                 },
+	{ jwin_rtext_proc,         90,     13+137+20,    90,     16,    vc(14),                 vc(1),                   0,    0,          63,    0,  (void*)"InitD[6]",                                                           NULL,   NULL                 },
+	{ jwin_rtext_proc,         90,     13+155+20,    90,     16,    vc(14),                 vc(1),                   0,    0,          63,    0,  (void*)"InitD[7]",                                                           NULL,   NULL                 },
 	
 	// { jwin_edit_proc,       6+10,   10+29+20,   90,    16,   0,        0,       0,       0,          0,             0, 64, NULL, NULL },
 	// { jwin_edit_proc,       6+10,   10+47+20,   90,    16,   0,        0,       0,       0,          0,             0, 64, NULL, NULL },
@@ -4207,14 +4209,14 @@ static DIALOG enedata_dlg[] =
 	{ jwin_numedit_swap_zsint_proc,      (90-24)+34+10,  10+137+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
 	{ jwin_numedit_swap_zsint_proc,      (90-24)+34+10,  10+155+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
 	//353
-	{  jwin_edit_proc,         6+10,     10+29+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
-	{  jwin_edit_proc,         6+10,     10+47+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
-	{  jwin_edit_proc,         6+10,     10+65+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
-	{  jwin_edit_proc,         6+10,     10+83+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
-	{  jwin_edit_proc,         6+10,     10+101+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
-	{  jwin_edit_proc,         6+10,     10+119+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
-	{  jwin_edit_proc,         6+10,     10+137+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
-	{  jwin_edit_proc,         6+10,     10+155+20,    90,     16,    vc(12),                 vc(1),                   0,    0,          63,    0,  NULL,                                                           NULL,   NULL                 },
+	{ jwin_rtext_proc,         90,     13+29+20,    90,     16,    vc(14),                 vc(1),                   0,    0,          63,    0,  (void*)"InitD[0]",                                                           NULL,   NULL                 },
+	{ jwin_rtext_proc,         90,     13+47+20,    90,     16,    vc(14),                 vc(1),                   0,    0,          63,    0,  (void*)"InitD[1]",                                                           NULL,   NULL                 },
+	{ jwin_rtext_proc,         90,     13+65+20,    90,     16,    vc(14),                 vc(1),                   0,    0,          63,    0,  (void*)"InitD[2]",                                                           NULL,   NULL                 },
+	{ jwin_rtext_proc,         90,     13+83+20,    90,     16,    vc(14),                 vc(1),                   0,    0,          63,    0,  (void*)"InitD[3]",                                                           NULL,   NULL                 },
+	{ jwin_rtext_proc,         90,     13+101+20,    90,     16,    vc(14),                 vc(1),                   0,    0,          63,    0,  (void*)"InitD[4]",                                                           NULL,   NULL                 },
+	{ jwin_rtext_proc,         90,     13+119+20,    90,     16,    vc(14),                 vc(1),                   0,    0,          63,    0,  (void*)"InitD[5]",                                                           NULL,   NULL                 },
+	{ jwin_rtext_proc,         90,     13+137+20,    90,     16,    vc(14),                 vc(1),                   0,    0,          63,    0,  (void*)"InitD[6]",                                                           NULL,   NULL                 },
+	{ jwin_rtext_proc,         90,     13+155+20,    90,     16,    vc(14),                 vc(1),                   0,    0,          63,    0,  (void*)"InitD[7]",                                                           NULL,   NULL                 },
 	//361
 	{ jwin_numedit_swap_zsint_proc,      (90-24)+34+10,   10+29+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
 	{ jwin_numedit_swap_zsint_proc,      (90-24)+34+10,   10+47+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
@@ -4226,7 +4228,7 @@ static DIALOG enedata_dlg[] =
 	{ jwin_numedit_swap_zsint_proc,      (90-24)+34+10,  10+155+20,   72-16,    16,   vc(12),   vc(1),   0,       0,          12,             0,       NULL, NULL, NULL },
 	//369
 	{ jwin_text_proc,           182,  58,     35,      8,    vc(14),                 vc(1),                   0,       0,           0,    0, (void *) "EWeapon Script:",                      NULL,   NULL                  },
-	{ jwin_droplist_proc,       182,  66,     130,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       0,           1,    0, (void *) &eweaponscript_list,                   NULL,   NULL 				   },
+	{ jwin_droplist_proc,       182,  66,     130,      16, jwin_pal[jcTEXTFG],  jwin_pal[jcTEXTBG],           0,       D_EXIT,           1,    0, (void *) &eweaponscript_list,                   NULL,   NULL 				   },
 	//371
 	{  jwin_check_proc,          6,     50,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Obeys Gravity",                          NULL,   NULL                 },
 	{  jwin_check_proc,          6,     60,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Can Fall Into Pitfalls",                          NULL,   NULL                 },
@@ -4308,6 +4310,26 @@ static DIALOG enedata_dlg[] =
 	{  jwin_check_proc,          6,    100,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Use 'scripted movement' for engine movement",           NULL,   NULL                 },
 	{  jwin_check_proc,          6,    110,    280,      9,    vc(14),                 vc(1),                   0,    0,           1,    0, (void *) "Cannot be pushed by moving solid objects",              NULL,   NULL                 },
 	{  jwin_text_proc,           6,    120,    280,      8,    vc(14),                 vc(1),                   0,    0,           0,    0, (void *) "Below flags only affect scripted movement functions",   NULL,   NULL                 },
+	//NPC Script Help buttons
+	//426
+	{ jwin_button_proc,         92,   10 + 29 + 20,   16,    16,    vc(14),                 vc(1),                  13,    D_EXIT,      0,    0, (void*)"?",                          NULL,   NULL                 },
+	{ jwin_button_proc,         92,   10 + 47 + 20,   16,    16,    vc(14),                 vc(1),                  13,    D_EXIT,      0,    0, (void*)"?",                          NULL,   NULL },
+	{ jwin_button_proc,         92,   10 + 65 + 20,   16,    16,    vc(14),                 vc(1),                  13,    D_EXIT,      0,    0, (void*)"?",                          NULL,   NULL },
+	{ jwin_button_proc,         92,   10 + 83 + 20,   16,    16,    vc(14),                 vc(1),                  13,    D_EXIT,      0,    0, (void*)"?",                          NULL,   NULL },
+	{ jwin_button_proc,         92,   10 + 101 + 20,   16,    16,    vc(14),                 vc(1),                  13,    D_EXIT,      0,    0, (void*)"?",                          NULL,   NULL },
+	{ jwin_button_proc,         92,   10 + 119 + 20,   16,    16,    vc(14),                 vc(1),                  13,    D_EXIT,      0,    0, (void*)"?",                          NULL,   NULL },
+	{ jwin_button_proc,         92,   10 + 137 + 20,   16,    16,    vc(14),                 vc(1),                  13,    D_EXIT,      0,    0, (void*)"?",                          NULL,   NULL },
+	{ jwin_button_proc,         92,   10 + 155 + 20,   16,    16,    vc(14),                 vc(1),                  13,    D_EXIT,      0,    0, (void*)"?",                          NULL,   NULL },
+	//434
+	{ jwin_button_proc,         92,   10 + 29 + 20,   16,    16,    vc(14),                 vc(1),                  13,    D_EXIT,      0,    0, (void*)"?",                          NULL,   NULL },
+	{ jwin_button_proc,         92,   10 + 47 + 20,   16,    16,    vc(14),                 vc(1),                  13,    D_EXIT,      0,    0, (void*)"?",                          NULL,   NULL },
+	{ jwin_button_proc,         92,   10 + 65 + 20,   16,    16,    vc(14),                 vc(1),                  13,    D_EXIT,      0,    0, (void*)"?",                          NULL,   NULL },
+	{ jwin_button_proc,         92,   10 + 83 + 20,   16,    16,    vc(14),                 vc(1),                  13,    D_EXIT,      0,    0, (void*)"?",                          NULL,   NULL },
+	{ jwin_button_proc,         92,   10 + 101 + 20,   16,    16,    vc(14),                 vc(1),                  13,    D_EXIT,      0,    0, (void*)"?",                          NULL,   NULL },
+	{ jwin_button_proc,         92,   10 + 119 + 20,   16,    16,    vc(14),                 vc(1),                  13,    D_EXIT,      0,    0, (void*)"?",                          NULL,   NULL },
+	{ jwin_button_proc,         92,   10 + 137 + 20,   16,    16,    vc(14),                 vc(1),                  13,    D_EXIT,      0,    0, (void*)"?",                          NULL,   NULL },
+	{ jwin_button_proc,         92,   10 + 155 + 20,   16,    16,    vc(14),                 vc(1),                  13,    D_EXIT,      0,    0, (void*)"?",                          NULL,   NULL },
+
 	{  NULL,                     0,      0,      0,      0,    0,                      0,                       0,    0,           0,    0,  NULL,                                                            NULL,   NULL                 }
 };
 
@@ -4593,6 +4615,80 @@ int32_t d_ecstile_proc(int32_t msg,DIALOG *d,int32_t c)
 	return D_O_K;
 }
 
+void setEnemyScriptLabels(const guydata& test, char (&npc_initd_labels)[8][65], char (&weapon_initd_labels)[8][65])
+{
+	for (int32_t q = 0; q < 8; ++q)
+	{
+		sprintf_s(npc_initd_labels[q], 64, "InitD[%d]", q);
+		sprintf_s(weapon_initd_labels[q], 64, "InitD[%d]", q);
+		enedata_dlg[345 + q].d1 &= ~0xF;
+		enedata_dlg[345 + q].d1 |= nswapDEC;
+		enedata_dlg[361 + q].d1 &= ~0xF;
+		enedata_dlg[361 + q].d1 |= nswapDEC;
+		enedata_dlg[426 + q].flags |= D_DISABLED;
+		enedata_dlg[434 + q].flags |= D_DISABLED;
+	}
+
+	if (test.script)
+	{
+		zasm_meta const& meta = guyscripts[test.script]->meta;
+		for (int32_t q = 0; q < 8; ++q)
+		{
+			if (!meta.initd[q].empty())
+				snprintf(npc_initd_labels[q], 64, "%s", meta.initd[q].c_str());
+			if(!meta.initd_help[q].empty())
+				enedata_dlg[426 + q].flags &= ~D_DISABLED;
+			DIALOG* swapbtn = (DIALOG*)enedata_dlg[345 + q].dp3;
+			if(meta.initd_type[q]>-1)
+			{
+				swapbtn->d1 &= ~0xF;
+				swapbtn->d1 |= meta.initd_type[q] & 0x3;
+			}
+		}
+	}
+
+	if (test.weaponscript)
+	{
+		zasm_meta const& meta = ewpnscripts[test.weaponscript]->meta;
+		for (int32_t q = 0; q < 8; ++q)
+		{
+			if(!meta.initd[q].empty())
+				snprintf(weapon_initd_labels[q], 64, "%s", meta.initd[q].c_str());
+			if (!meta.initd_help[q].empty())
+				enedata_dlg[434 + q].flags &= ~D_DISABLED;
+			DIALOG* swapbtn = (DIALOG*)enedata_dlg[361 + q].dp3;
+			if (meta.initd_type[q] > -1)
+			{
+				swapbtn->d1 &= ~0xF;
+				swapbtn->d1 |= meta.initd_type[q] & 0x3;
+			}
+		}
+	}
+}
+
+void showEnemyScriptMetaHelp(const guydata& test, int32_t i)
+{
+	if (i < 8)
+	{
+		if (test.script)
+		{
+			zasm_meta const& meta = guyscripts[test.script]->meta;
+			if(!meta.initd_help[i].empty())
+				InfoDialog("Info", meta.initd_help[i].c_str()).show();
+		}
+	}
+	else
+	{
+		i -= 8;
+		if (test.weaponscript)
+		{
+			zasm_meta const& meta = ewpnscripts[test.weaponscript]->meta;
+			if (!meta.initd_help[i].empty())
+				InfoDialog("Info", meta.initd_help[i].c_str()).show();
+		}
+	}
+}
+
 void edit_enemydata(int32_t index)
 {
 	//guysbuf[index].script = 1;
@@ -4640,15 +4736,10 @@ void edit_enemydata(int32_t index)
 		enedata_dlg[361+q].fg = guysbuf[index].weap_initiald[q];
 		enedata_dlg[345+q].dp3 = &(enedata_dlg[377+q]);
 		enedata_dlg[361+q].dp3 = &(enedata_dlg[385+q]);
-		
+
 		//InitD Labels
-		strcpy(npc_initd_labels[q], guysbuf[index].initD_label[q]);
-		if ( npc_initd_labels[q][0] == 0 ) sprintf(npc_initd_labels[q],"InitD[%d]",q);
-		enedata_dlg[337+q].dp = npc_initd_labels[q];
-		
-		strcpy(weapon_initd_labels[q], guysbuf[index].weapon_initD_label[q]);
-		if ( weapon_initd_labels[q][0] == 0 ) sprintf(weapon_initd_labels[q],"InitD[%d]",q);
-		enedata_dlg[353+q].dp = weapon_initd_labels[q];
+		enedata_dlg[337 + q].dp = npc_initd_labels[q];
+		enedata_dlg[353 + q].dp = weapon_initd_labels[q];
 	}
 
 	//end npc script
@@ -4963,6 +5054,7 @@ void edit_enemydata(int32_t index)
 	large_dialog(enedata_dlg);
 	
 	setEnemyLabels(guysbuf[index].family);
+	setEnemyScriptLabels(guysbuf[index], npc_initd_labels, weapon_initd_labels);
 	
 	popup_zqdialog_start();
 	do
@@ -5267,9 +5359,6 @@ void edit_enemydata(int32_t index)
 		{
 			test.initD[q] = enedata_dlg[345+q].fg;
 			test.weap_initiald[q] = enedata_dlg[361+q].fg;
-			
-			strcpy(test.initD_label[q], npc_initd_labels[q]);
-			strcpy(test.weapon_initD_label[q], weapon_initd_labels[q]);
 		}
 		//eweapon script
 		test.weaponscript = bieweapons[enedata_dlg[370].d1].second + 1; 
@@ -5333,6 +5422,14 @@ void edit_enemydata(int32_t index)
 			enedata_dlg[210].d1 = enedata_dlg[161].d1;
 			enedata_dlg[211].d1 = enedata_dlg[161].d1;
 			enedata_dlg[212].d1 = enedata_dlg[161].d1;
+		}
+		else if (ret == 335 || ret == 370) // Script dropdowns
+		{
+			setEnemyScriptLabels(test, npc_initd_labels, weapon_initd_labels);
+		}
+		else if (ret >= 426 && ret <= 441) // InitD help buttons
+		{
+			showEnemyScriptMetaHelp(test, ret - 426);
 		}
 	}
 	//252 == 	OK button, 253 == Cancel Button
