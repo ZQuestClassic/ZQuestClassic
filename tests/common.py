@@ -6,7 +6,7 @@ import subprocess
 import shutil
 import tarfile
 from time import sleep
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import dataclasses
 from typing import List, Literal, Tuple, Optional, Any
 import requests
@@ -25,15 +25,18 @@ class RunResult:
     name: str
     directory: str
     success: bool = False
+    stopped: bool = False
     exit_code: int = None
     duration: float = None
     fps: int = None
     frame: int = None
+    num_frames: int = None
     failing_frame: int = None
     unexpected_gfx_frames: List[int] = None
     unexpected_gfx_segments: List[Tuple[int, int]] = None
     unexpected_gfx_segments_limited: List[Tuple[int, int]] = None
     diff: str = None
+    exceptions: List[str] = field(default_factory=list) 
     # Only for compare report.
     snapshots: List[Any] = None
 
