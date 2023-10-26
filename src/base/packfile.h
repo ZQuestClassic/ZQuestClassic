@@ -645,17 +645,35 @@ inline bool p_getbvec(bounded_vec<Sz,T> *cont, PACKFILE *f)
 	if(!p_getvar(&sz,f))
 		return false;
 	cont->resize(sz);
-	if(!p_getvar(&sz,f))
-		return false;
 	if(sz) //cont found
 	{
-		cont->reserve(sz);
+		Sz count;
+		byte pairs;
+		if(!p_getc(&pairs,f))
+			return false;
+		if(!p_getvar(&count,f))
+			return false;
+		Sz k;
 		T v = cont->defval();
-		for(size_t q = 0; q < sz; ++q)
+		if(pairs)
 		{
-			if(!p_getvar(&v,f))
-				return false;
-			(*cont)[q] = v;
+			while(count--)
+			{
+				if(!p_getvar(&k,f))
+					return false;
+				if(!p_getvar(&v,f))
+					return false;
+				(*cont)[k] = v;
+			}
+		}
+		else
+		{
+			for(k = 0; k < count; ++k)
+			{
+				if(!p_getvar(&v,f))
+					return false;
+				(*cont)[k] = v;
+			}
 		}
 		cont->normalize();
 	}
@@ -667,15 +685,35 @@ inline bool p_putbvec(bounded_vec<Sz,T> const& cont, PACKFILE *f)
 	Sz sz = cont.size();
 	if(!p_putvar(sz,f))
 		return false;
-	sz = cont.capacity();
-	if(!p_putvar(sz,f))
-		return false;
 	if(sz)
 	{
-		for(size_t q = 0; q < sz; ++q)
+		T dt = cont.defval();
+		Sz writecnt_v = cont.capacity();
+		Sz writecnt_m = 0;
+		for(Sz q = 0; q < writecnt_v; ++q)
+			if(cont[q] != dt)
+				++writecnt_m;
+		bool pairs = (writecnt_m * (sizeof(T)+sizeof(Sz))) <= writecnt_v * sizeof(T);
+		if(!p_putc(pairs ? 1 : 0, f))
+			return false;
+		if(!p_putvar(pairs ? writecnt_m : writecnt_v, f))
+			return false;
+		if(pairs)
 		{
-			if(!p_putvar(cont.at(q), f))
-				return false;
+			for(Sz q = 0; q < writecnt_v; ++q)
+			{
+				if(cont[q] == dt) continue;
+				if(!p_putvar(q, f))
+					return false;
+				if(!p_putvar(cont[q], f))
+					return false;
+			}
+		}
+		else
+		{
+			for(Sz q = 0; q < writecnt_v; ++q)
+				if(!p_putvar(cont[q], f))
+					return false;
 		}
 	}
 	return true;
@@ -733,15 +771,15 @@ inline bool p_putbmap(bounded_map<Sz,T> const& cont, PACKFILE *f)
 	{
 		T dt = cont.defval();
 		auto lkey = cont.lastKey();
-		Sz writecnt = lkey ? *lkey+1 : 0;
-		Sz cap = 0;
+		Sz writecnt_v = lkey ? *lkey+1 : 0;
+		Sz writecnt_m = 0;
 		for(auto [k,v] : cont.inner())
 			if(k < sz && v != dt)
-				++cap;
-		bool pairs = (cap * (sizeof(T)+sizeof(Sz))) <= writecnt * sizeof(T);
+				++writecnt_m;
+		bool pairs = (writecnt_m * (sizeof(T)+sizeof(Sz))) <= writecnt_v * sizeof(T);
 		if(!p_putc(pairs ? 1 : 0, f))
 			return false;
-		if(!p_putvar(pairs ? cap : writecnt, f))
+		if(!p_putvar(pairs ? writecnt_m : writecnt_v, f))
 			return false;
 		if(pairs)
 		{
@@ -756,7 +794,7 @@ inline bool p_putbmap(bounded_map<Sz,T> const& cont, PACKFILE *f)
 		}
 		else
 		{
-			for(Sz q = 0; q < writecnt; ++q)
+			for(Sz q = 0; q < writecnt_v; ++q)
 				if(!p_putvar(cont[q], f))
 					return false;
 		}

@@ -68,34 +68,33 @@ struct gamedata
 	bool operator==(const gamedata&) const = default;
 
 	gamedata_header header;
-	byte  /*_wlevel,*/_cheat;
-	bool  item[MAXITEMS];
-	byte  items_off[MAXITEMS];
-	word _maxcounter[MAX_COUNTERS];	// 0 - life, 1 - rupees, 2 - bombs, 3 - arrows, 4 - magic, 5 - keys, 6-super bombs
+	byte _cheat;
+	bool item[MAXITEMS];
+	byte items_off[MAXITEMS];
+	word _maxcounter[MAX_COUNTERS];
 	word _counter[MAX_COUNTERS];
 	int16_t _dcounter[MAX_COUNTERS];
 	
-	char  version[17];
-	byte  lvlitems[MAXLEVELS];
-	bounded_vec<word,byte> lvlkeys {MAXLEVELS};
-	dword lvlswitches[MAXLEVELS];
-	byte  _continue_scrn;
-	word  _continue_dmap;
-	int32_t _generic[genMAX];	// Generic gamedata. See enum above this struct for indexes.
-	byte  visited[MAXDMAPS];
-	bounded_vec<dword,byte>  bmaps {MAXDMAPS*MAPSCRSNORMAL}; // the dungeon progress maps
-	bounded_vec<dword,word>  maps {MAXMAPS*MAPSCRSNORMAL}; // info on map changes, items taken, etc.
-	bounded_vec<dword,byte>  guys {MAXMAPS*MAPSCRSNORMAL}; // guy counts (enemy kill progress)
-	bool item_messages_played[MAXITEMS];  //Each field is set when an item pickup message plays the first time per session
-	int32_t  screen_d[MAX_MI][8];                // script-controlled screen variables
-	int32_t  global_d[MAX_SCRIPT_REGISTERS];                                      // script-controlled global variables
-	std::vector< ZCArray <int32_t> > globalRAM;
+	char version[17];
+	bounded_vec<word,byte> lvlitems {MAXLEVELS, 0};
+	bounded_vec<word,byte> lvlkeys {MAXLEVELS, 0};
+	bounded_vec<word,dword> lvlswitches {MAXLEVELS, 0};
+	byte _continue_scrn;
+	word _continue_dmap;
+	bounded_vec<word,int32_t> _generic {genMAX, 0}; // Generic gamedata. See enum above this struct for indexes.
+	byte visited[MAXDMAPS];
+	bounded_vec<dword,byte> bmaps {MAX_MI, 0}; // the dungeon progress maps
+	bounded_vec<dword,word> maps {MAXSCRSNORMAL, 0}; // info on map changes, items taken, etc.
+	bounded_vec<dword,byte> guys {MAXSCRSNORMAL, 0}; // guy counts (enemy kill progress)
+	bool item_messages_played[MAXITEMS]; //Each field is set when an item pickup message plays the first time per session
+	bounded_map<dword,bounded_vec<byte,int32_t>> screen_d {MAX_MI, {8, 0}}; // script-controlled screen variables
+	int32_t global_d[MAX_SCRIPT_REGISTERS]; // script-controlled global variables
+	std::vector<ZCArray<int32_t>> globalRAM;
 	
 	word awpn = 255, bwpn = 255, xwpn = 255, ywpn = 255;
 	int16_t abtn_itm = -1, bbtn_itm = -1, xbtn_itm = -1, ybtn_itm = -1;
 	int16_t forced_awpn = -1, forced_bwpn = -1, forced_xwpn = -1, forced_ywpn = -1;
-	bool isclearing; // The gamedata is being cleared
-	//115456 (260)
+	
 	byte bottleSlots[256];
 	
 	savedportal saved_mirror_portal;
@@ -103,21 +102,21 @@ struct gamedata
 	byte swim_mult = 1, swim_div = 1;
 	
 	bitstring gen_doscript;
-	bounded_map<word,word> gen_exitState {NUMSCRIPTSGENERIC};
-	bounded_map<word,word> gen_reloadState {NUMSCRIPTSGENERIC};
-	bounded_map<word,bounded_vec<byte,int32_t>> gen_initd {NUMSCRIPTSGENERIC, {8}};
-	bounded_map<word,uint32_t> gen_eventstate {NUMSCRIPTSGENERIC};
-	bounded_map<word,bounded_map<dword,int32_t>> gen_data {NUMSCRIPTSGENERIC, {0}};
+	bounded_map<word,word> gen_exitState {NUMSCRIPTSGENERIC, 0};
+	bounded_map<word,word> gen_reloadState {NUMSCRIPTSGENERIC, 0};
+	bounded_map<word,bounded_vec<byte,int32_t>> gen_initd {NUMSCRIPTSGENERIC, {8, 0}};
+	bounded_map<word,uint32_t> gen_eventstate {NUMSCRIPTSGENERIC, 0};
+	bounded_map<word,bounded_map<dword,int32_t>> gen_data {NUMSCRIPTSGENERIC, {0, 0}};
 	
-	uint32_t xstates[MAXMAPS*MAPSCRSNORMAL];
+	bounded_map<dword,uint32_t> xstates {MAXSCRSNORMAL, 0};
 	
-	int32_t gswitch_timers[NUM_GSWITCHES];
+	bounded_map<word,int32_t> gswitch_timers {NUM_GSWITCHES, 0};
 	bounded_map<word,int16_t> OverrideItems {itype_max, -2};
 
 	std::vector<saved_user_object> user_objects;
 	std::vector<savedportal> user_portals;
 	
-	bounded_map<dword,bounded_map<dword,int32_t>> screen_data {MAXSCRS, {0}};
+	bounded_map<dword,bounded_map<dword,int32_t>> screen_data {MAXSCRS, {0, 0}};
 	
 	size_t scriptDataSize(int32_t indx) const
 	{
@@ -358,16 +357,23 @@ struct gamedata
 	
 	void normalize()
 	{
+		lvlitems.normalize();
 		lvlkeys.normalize();
+		lvlswitches.normalize();
+		_generic.normalize();
 		bmaps.normalize();
 		maps.normalize();
 		guys.normalize();
+		screen_d.normalize();
 		gen_doscript.normalize();
 		gen_exitState.normalize();
 		gen_reloadState.normalize();
 		gen_initd.normalize();
 		gen_eventstate.normalize();
 		gen_data.normalize();
+		xstates.normalize();
+		gswitch_timers.normalize();
+		OverrideItems.normalize();
 		screen_data.normalize();
 	}
 };

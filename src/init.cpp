@@ -1038,12 +1038,12 @@ void resetItems(gamedata *game2, zinitdata *zinit2, bool freshquest)
 	
 	for(int32_t i=0; i<MAXLEVELS; i++)
 	{
-		// Kludge to prevent two bits (liTRIFORCE and liBOSS) which aren't
+		// Kludge to prevent one bit (liBOSS) which isn't
 		// completely stored in Init Data, from being erased when this is run in-game.
 		if(freshquest)
 			game2->lvlitems[i]=0;
 		else
-			game2->lvlitems[i]&=~(liMAP|liCOMPASS|liBOSSKEY| (i>0 && i<=8 ? liTRIFORCE : 0));
+			game2->lvlitems[i]&=~(liMAP|liCOMPASS|liBOSSKEY|liTRIFORCE);
 			
 		game2->lvlitems[i]|=get_bit(zinit2->map,i)?liMAP:0;
 		game2->lvlitems[i]|=get_bit(zinit2->compass,i)?liCOMPASS:0;
@@ -1331,7 +1331,7 @@ zinitdata *apply_init_data_delta(zinitdata *base, string delta, string& out_erro
 		#define DEPRPROP_BIT_IOFFS(old,new,bits,offs) if(kv[0] == #old) \
 		{ \
 			for(int q = 0; q < bits; ++q) \
-				result->new[q+offs] = get_bitl(as_int,q); \
+				set_bit(result->new, q+offs, get_bitl(as_int,q)!=0); \
 		} else
 		LIST_PROPS
 		LIST_DEPR_PROPS

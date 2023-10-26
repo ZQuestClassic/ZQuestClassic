@@ -558,14 +558,14 @@ byte gamedata::get_continue_scrn() const
 }
 void gamedata::set_continue_scrn(byte s)
 {
-    if(!isclearing && _continue_scrn != s) Z_eventlog("Continue screen set to %x\n", s);
+    if(_continue_scrn != s) Z_eventlog("Continue screen set to %x\n", s);
     
     _continue_scrn=s;
     return;
 }
 void gamedata::change_continue_scrn(int16_t s)
 {
-    if(!isclearing && s!=0) Z_eventlog("Continue screen set to %x\n", _continue_scrn+s);
+    if(s!=0) Z_eventlog("Continue screen set to %x\n", _continue_scrn+s);
     
     _continue_scrn+=s;
     return;
@@ -577,14 +577,14 @@ word gamedata::get_continue_dmap() const
 }
 void gamedata::set_continue_dmap(word d)
 {
-    if(!isclearing && _continue_dmap!=d) Z_eventlog("Continue DMap set to %d\n", d);
+    if(_continue_dmap!=d) Z_eventlog("Continue DMap set to %d\n", d);
     
     _continue_dmap=d;
     return;
 }
 void gamedata::change_continue_dmap(int16_t d)
 {
-    if(!isclearing && d!=0) Z_eventlog("Continue DMap set to %d\n", _continue_dmap+d);
+    if(d!=0) Z_eventlog("Continue DMap set to %d\n", _continue_dmap+d);
     
     _continue_dmap+=d;
     return;
@@ -670,11 +670,6 @@ byte gamedata::get_lkeys()
 {
     return lvlkeys[dlevel];
 }
-
-/*bool gamedata::get_item(int32_t id)
-{
-return item[id];
-}*/
 
 byte gamedata::get_hcp_per_hc()
 {
@@ -871,7 +866,7 @@ void gamedata::set_item(int32_t id, bool value)
 
 void gamedata::set_item_no_flush(int32_t id, bool value)
 {
-    if(!isclearing && !(value == item[id]))
+    if(value != item[id])
         Z_eventlog("%sed item %i: %s\n", value ? "Gain" : "Remov", id, item_string[id]); //Gain + ed, Remov + ed. %s + ed.
         
     item[id]=value;
