@@ -22,7 +22,7 @@ struct zinitdata
 	bounded_vec<word,byte> level_keys {MAXLEVELS};
 	
 	word counter[MAX_COUNTERS];
-	word mcounter[MAX_COUNTERS];
+	word mcounter[MAX_COUNTERS] = {0, 255, 0, 0, 0, 255}; // crMONEY/crKEYS = 255
 	
 	byte bomb_ratio = 4; // ratio of super bombs to bombs
 	byte hcp, hcp_per_hc = 4;
