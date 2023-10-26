@@ -1257,7 +1257,7 @@ zinitdata *apply_init_data_delta(zinitdata *base, string delta, string& out_erro
 			
 			if(replay_version_check(0,24)) //hardcoded deprecated prop porting
 			{
-				bool cont = false;
+				bool cont = true;
 				if (name_index[0] == "items")
 				{
 					FAIL_IF(index[0] >= 256, fmt::format("invalid token '{}': integer too big", token));
