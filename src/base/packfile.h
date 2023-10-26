@@ -650,12 +650,12 @@ inline bool p_getbvec(bounded_vec<Sz,T> *cont, PACKFILE *f)
 	if(sz) //cont found
 	{
 		cont->reserve(sz);
-		T dummy = T();
+		T v = cont->defval();
 		for(size_t q = 0; q < sz; ++q)
 		{
-			if(!p_getvar(&dummy,f))
+			if(!p_getvar(&v,f))
 				return false;
-			(*cont)[q] = dummy;
+			(*cont)[q] = v;
 		}
 		cont->normalize();
 	}
@@ -698,7 +698,7 @@ inline bool p_getbmap(bounded_map<Sz,T> *cont, PACKFILE *f)
 		if(!p_getvar(&count,f))
 			return false;
 		Sz k;
-		T v = T();
+		T v = cont->defval();
 		if(pairs)
 		{
 			while(count--)
@@ -731,7 +731,7 @@ inline bool p_putbmap(bounded_map<Sz,T> const& cont, PACKFILE *f)
 		return false;
 	if(sz)
 	{
-		T dt = T();
+		T dt = cont.defval();
 		auto lkey = cont.lastKey();
 		Sz writecnt = lkey ? *lkey+1 : 0;
 		Sz cap = 0;
