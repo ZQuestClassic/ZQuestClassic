@@ -650,7 +650,7 @@ void popup_zqdialog_start(int x, int y, int w, int h, int transp)
 		
 		LegacyBitmapRTI* rti = new LegacyBitmapRTI("zqdialog");
 		rti->set_size(w, h);
-		set_bitmap_create_flags(false);
+		set_bitmap_create_flags(true);
 		rti->bitmap = create_a5_bitmap(w, h);
 		al_set_new_bitmap_flags(0);
 		rti->a4_bitmap = tmp_bmp;
