@@ -33,10 +33,11 @@ void jit_printf(const char *format, ...)
 	if (!jit_log_enabled)
 		return;
 
-	va_list arglist;
-	va_start(arglist, format);
-	vprintf(format, arglist);
-	va_end(arglist);
+	char buffer[1024];
+	va_list argList;
+	va_start(argList, format);
+	int ret = vsnprintf(buffer, sizeof(buffer) - 1, format, argList);
+	al_trace("%s", buffer);
 }
 
 #ifdef ZC_JIT
