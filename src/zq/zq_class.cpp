@@ -13629,7 +13629,7 @@ int32_t writefavorites(PACKFILE *f, zquestheader*)
 	new_return(0);
 }
 
-int32_t save_unencoded_quest(const char *filename, bool compressed, const char *afname)
+static int32_t _save_unencoded_quest_int(const char *filename, bool compressed, const char *afname)
 {
 	if(!afname) afname = filename;
 	reset_combo_animations();
@@ -13666,17 +13666,12 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	PACKFILE *f = pack_fopen_password(tmp_filename.c_str(),compressed?F_WRITE_PACKED:F_WRITE, "");
 	
 	if(!f)
-	{
-		fake_pack_writing = false;
 		return 1;
-	}
 	
 	box_out("Writing Header...");
 	
 	if(writeheader(f,&header)!=0)
-	{
-		new_return(2);
-	}
+		return 2;
 	
 	box_out("okay.");
 	box_eol();
@@ -13690,9 +13685,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 		if(inf)
 		{
 			if(writezinfo(inf,ZI)!=0)
-			{
-				new_return(2);
-			}
+				return 2;
 			
 			pack_fclose(inf);
 			box_out("okay.");
@@ -13704,9 +13697,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	{
 		box_out("Writing ZInfo...");
 		if(writezinfo(f,ZI)!=0)
-		{
-			new_return(2);
-		}
+			return 2;
 		box_out("okay.");
 		box_eol();
 	}
@@ -13715,9 +13706,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_out("Writing Rules...");
 	
 	if(writerules(f,&header)!=0)
-	{
-		new_return(3);
-	}
+		return 3;
 	
 	box_out("okay.");
 	box_eol();
@@ -13725,9 +13714,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_out("Writing Strings...");
 	
 	if(writestrings(f, ZELDA_VERSION, VERSION_BUILD, 0, MAXMSGS)!=0)
-	{
-		new_return(4);
-	}
+		return 4;
 	
 	box_out("okay.");
 	box_eol();
@@ -13735,9 +13722,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_out("Writing Doors...");
 	
 	if(writedoorcombosets(f,&header)!=0)
-	{
-		new_return(5);
-	}
+		return 5;
 	
 	box_out("okay.");
 	box_eol();
@@ -13745,9 +13730,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_out("Writing DMaps...");
 	
 	if(writedmaps(f,header.zelda_version,header.build,0,MAXDMAPS)!=0)
-	{
-		new_return(6);
-	}
+		return 6;
 	
 	box_out("okay.");
 	box_eol();
@@ -13755,9 +13738,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_out("Writing &QMisc. Data...");
 	
 	if(writemisc(f,&header)!=0)
-	{
-		new_return(7);
-	}
+		return 7;
 	
 	box_out("okay.");
 	box_eol();
@@ -13765,9 +13746,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_out("Writing &QMisc. Colors...");
 	
 	if(writemisccolors(f,&header)!=0)
-	{
-		new_return(8);
-	}
+		return 8;
 	
 	box_out("okay.");
 	box_eol();
@@ -13775,9 +13754,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_out("Writing Game Icons...");
 	
 	if(writegameicons(f,&header)!=0)
-	{
-		new_return(9);
-	}
+		return 9;
 	
 	box_out("okay.");
 	box_eol();
@@ -13785,9 +13762,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_out("Writing Items...");
 	
 	if(writeitems(f,&header)!=0)
-	{
-		new_return(10);
-	}
+		return 10;
 	
 	box_out("okay.");
 	box_eol();
@@ -13795,9 +13770,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_out("Writing Weapons...");
 	
 	if(writeweapons(f,&header)!=0)
-	{
-		new_return(11);
-	}
+		return 11;
 	
 	box_out("okay.");
 	box_eol();
@@ -13805,9 +13778,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_out("Writing Maps...");
 	
 	if(writemaps(f,&header)!=0)
-	{
-		new_return(12);
-	}
+		return 12;
 	
 	box_out("okay.");
 	box_eol();
@@ -13815,9 +13786,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_out("Writing Combos...");
 	
 	if(writecombos(f,header.zelda_version,header.build,0,MAXCOMBOS)!=0)
-	{
-		new_return(13);
-	}
+		return 13;
 	
 	box_out("okay.");
 	box_eol();
@@ -13825,9 +13794,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_out("Writing Combo Aliases...");
 	
 	if(writecomboaliases(f,header.zelda_version,header.build)!=0)
-	{
-		new_return(14);
-	}
+		return 14;
 	
 	box_out("okay.");
 	box_eol();
@@ -13835,9 +13802,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_out("Writing Color Data...");
 	
 	if(writecolordata(f,header.zelda_version,header.build,0,newerpdTOTAL)!=0)
-	{
-		new_return(15);
-	}
+		return 15;
 	
 	box_out("okay.");
 	box_eol();
@@ -13845,9 +13810,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_out("Writing Tiles...");
 	
 	if(writetiles(f,header.zelda_version,header.build,0,NEWMAXTILES)!=0)
-	{
-		new_return(16);
-	}
+		return 16;
 	
 	box_out("okay.");
 	box_eol();
@@ -13855,9 +13818,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_out("Writing MIDIs...");
 	
 	if(writemidis(f)!=0)
-	{
-		new_return(17);
-	}
+		return 17;
 	
 	box_out("okay.");
 	box_eol();
@@ -13865,9 +13826,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_out("Writing Cheat Codes...");
 	
 	if(writecheats(f,&header)!=0)
-	{
-		new_return(18);
-	}
+		return 18;
 	
 	box_out("okay.");
 	box_eol();
@@ -13875,9 +13834,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_out("Writing Init. Data...");
 	
 	if(writeinitdata(f,&header)!=0)
-	{
-		new_return(19);
-	}
+		return 19;
 	
 	box_out("okay.");
 	box_eol();
@@ -13885,9 +13842,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_out("Writing Custom Guy Data...");
 	
 	if(writeguys(f,&header)!=0)
-	{
-		new_return(20);
-	}
+		return 20;
 	
 	box_out("okay.");
 	box_eol();
@@ -13895,9 +13850,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_out("Writing Custom Player Sprite Data...");
 	
 	if(writeherosprites(f,&header)!=0)
-	{
-		new_return(21);
-	}
+		return 21;
 	
 	box_out("okay.");
 	box_eol();
@@ -13905,9 +13858,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_out("Writing Custom Subscreen Data...");
 	
 	if(writesubscreens(f,&header)!=0)
-	{
-		new_return(22);
-	}
+		return 22;
 	
 	box_out("okay.");
 	box_eol();
@@ -13915,9 +13866,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_out("Writing FF Script Data...");
 	
 	if(writeffscript(f,&header)!=0)
-	{
-		new_return(23);
-	}
+		return 23;
 	
 	box_out("okay.");
 	box_eol();
@@ -13925,9 +13874,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_out("Writing SFX Data...");
 	
 	if(writesfx(f,&header)!=0)
-	{
-		new_return(24);
-	}
+		return 24;
 	
 	box_out("okay.");
 	box_eol();
@@ -13935,9 +13882,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_out("Writing Item Drop Sets...");
 	
 	if(writeitemdropsets(f, &header)!=0)
-	{
-		new_return(25);
-	}
+		return 25;
 	
 	box_out("okay.");
 	box_eol();
@@ -13945,9 +13890,7 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	box_out("Writing Favorite Combos...");
 	
 	if(writefavorites(f, &header)!=0)
-	{
-		new_return(26);
-	}
+		return 26;
 	
 	box_out("okay.");
 	box_eol();
@@ -14040,14 +13983,26 @@ int32_t save_unencoded_quest(const char *filename, bool compressed, const char *
 	if (ec)
 	{
 		al_trace("Error saving: %s\n", std::strerror(ec.value()));
-		new_return(ec.value());
+		return ec.value();
 	}
 
 #ifdef __EMSCRIPTEN__
 	em_sync_fs();
 #endif
 
-	new_return(0);
+	return 0;
+}
+int32_t save_unencoded_quest(const char *filename, bool compressed, const char *afname)
+{
+	auto ret = _save_unencoded_quest_int(filename,compressed,afname);
+	fake_pack_writing = false;
+	if(ret)
+	{
+		box_out("-- Error saving quest file! --");
+		box_end(true);
+	}
+	else box_end(false);
+	return ret;
 }
 
 int32_t save_quest(const char *filename, bool timed_save)

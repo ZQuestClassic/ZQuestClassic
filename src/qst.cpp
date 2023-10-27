@@ -21451,7 +21451,7 @@ static int maybe_skip_section(PACKFILE* f, dword& section_id, const byte* skip_f
 }
 
 //Internal function for loadquest wrapper
-int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zctune *tunes, bool show_progress, byte *skip_flags, byte printmetadata)
+static int32_t _lq_int(const char *filename, zquestheader *Header, miscQdata *Misc, zctune *tunes, bool show_progress, byte *skip_flags, byte printmetadata)
 {
     DMapEditorLastMaptileUsed = 0;
     combosread=false;
@@ -22466,6 +22466,16 @@ int32_t loadquest(const char *filename, zquestheader *Header, miscQdata *Misc,
 	int32_t load_ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count();
 	zprint2("Time to load qst: %d ms\n", load_ms);
 	_is_loading_quest = false;
+	
+	if(show_progress)
+	{
+		if(ret)
+		{
+			box_out("-- Error loading quest file! --");
+			box_end(true);
+		}
+		else box_end(false);
+	}
 
 	load_tmp_zi = NULL;
 	loading_qst_name = NULL;

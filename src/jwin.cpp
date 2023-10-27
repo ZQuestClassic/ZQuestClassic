@@ -9972,14 +9972,7 @@ static bool box_log=true;
 static char box_log_msg[480];
 static int32_t box_msg_pos=0;
 static int32_t box_store_pos=0;
-static BITMAP* box_bg=NULL;
-/*
-  static int32_t jwin_pal[jcMAX] =
-  {
-  vc(11),vc(15),vc(4),vc(7),vc(6),vc(0),
-  192,223,vc(14),vc(15),vc(0),vc(1),vc(14)
-  };
-  */
+
 int32_t onSnapshot2()
 {
     char buf[20];
@@ -10056,12 +10049,8 @@ void box_start(int32_t style, const char *title, FONT *title_font, FONT *message
     box_msg_pos=0;
     box_store_pos=0;
     
-    if(box_bg)
-    {
-        destroy_bitmap(box_bg);
-    }
-    box_bg = create_bitmap_ex(8, box_w, box_h);
-    blit(screen, box_bg, box_l, box_t, 0, 0, box_w, box_h);
+	if(!box_active)
+		popup_zqdialog_start();
     jwin_draw_win(screen, box_l, box_t, box_r-box_l, box_b-box_t, FR_WIN);
     
     if(title!=NULL)
@@ -10211,41 +10200,12 @@ void box_end(bool pause)
     {
         if(pause)
         {
-	    //zc_set_volume(255,-1);
-	    // kill_sfx();
-	    // sfx(20,128, false,true);
-	
             box_eol();
-            box_out("-- press a key --");
-            
-            do
-            {
-                rest(1);
-            }
-            while(gui_mouse_b());
-            
-            do
-            {
-                rest(1);
-            }
-            while((!keypressed()) && (!gui_mouse_b()));
-            
-            do
-            {
-                rest(1);
-            }
-            while(gui_mouse_b());
-            
-            clear_keybuf();
+            box_pause();
         }
         
         box_active = false;
-        if(box_bg)
-        {
-            blit(box_bg, screen, 0, 0, box_l, box_t-box_titlebar_height, box_w, box_h+box_titlebar_height);
-            destroy_bitmap(box_bg);
-            box_bg = NULL;
-        }
+		popup_zqdialog_end();
     }
 }
 
@@ -10257,23 +10217,9 @@ void box_pause()
         box_save_x();
         box_out("-- press a key --");
         
-        do
-        {
-            //        poll_mouse();
-        }
-        while(gui_mouse_b());
-        
-        do
-        {
-            //        poll_mouse();
-        }
-        while((!keypressed()) && (!gui_mouse_b()));
-        
-        do
-        {
-            //        poll_mouse();
-        }
-        while(gui_mouse_b());
+        while(gui_mouse_b()) rest(1);
+        while(!(keypressed() || gui_mouse_b())) rest(1);
+        while(gui_mouse_b()) rest(1);
         
         clear_keybuf();
         box_load_x();
