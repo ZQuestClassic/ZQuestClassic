@@ -561,8 +561,13 @@ std::shared_ptr<GUI::Widget> InitDataDialog::view()
 								VAL_FIELD(word,"Subscreen Fall Mult:",1,85,subscrSpeed,isZC), INFOBTN("Multiplier of the subscreen's fall speed"),
 								VAL_FIELD(byte,"Player Damage Mult:",1,255,hero_damage_multiplier,false), INFOBTN("This multiplies most damage dealt by the player."),
 								VAL_FIELD(byte,"Enemy Damage Mult:",1,255,ene_damage_multiplier,false), INFOBTN("This multiplies most damage dealt by enemies."),
-								VAL_FIELD(int32_t,"Bunny Tile Mod:",-214748,214748,bunny_ltm,false), INFOBTN("The 'Player Tile Modifier' added when they are a bunny."),
-								VAL_FIELD(byte,"SwitchHook Style:",0,255,switchhookstyle,false), INFOBTN("The switch hook effect's default animation style")
+								VAL_FIELD(int32_t,"Bunny Tile Mod:",-214748,214748,bunny_ltm,false), INFOBTN("The 'Player Tile Modifier' added when the player is a bunny."),
+								//
+								VAL_FIELD(byte,"SwitchHook Style:",0,255,switchhookstyle,false),
+								INFOBTN("The switch hook effect's default animation style."
+									"\n0 = Poof, 1 = Flicker, 2 = Rise/Fall"
+									"\nThis applies when a switch effect is triggered by means other than"
+									" a SwitchHook item- such as enemy defenses, or SwitchHook Block combo triggers.")
 							)
 						),
 						Column(vAlign = 0.0,

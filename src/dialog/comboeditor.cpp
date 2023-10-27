@@ -1448,9 +1448,9 @@ void ComboEditorDialog::loadComboType()
 			if(FL(cflag2)) //Variable rate
 			{
 				l_attrishort[0] = "Lower Fire Rate:";
-				h_attrishort[0] = "If lower than the 'Upper Fire Rate', the combo will fire between the two rates.";
+				h_attrishort[0] = "If lower than the 'Upper Fire Rate', the combo will fire between the two rates. (in frames)";
 				l_attrishort[1] = "Upper Fire Rate:";
-				h_attrishort[1] = "If higher than the 'Lower Fire Rate', the combo will fire between the two rates.";
+				h_attrishort[1] = "If higher than the 'Lower Fire Rate', the combo will fire between the two rates. (in frames)";
 			}
 			else
 			{

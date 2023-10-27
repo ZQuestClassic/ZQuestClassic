@@ -657,13 +657,15 @@ void loadinfo(ItemNameInfo * inf, itemdata const& ref)
 		case itype_ring:
 		{
 			_SET(misc[0], "Player Sprite Pal:", "The Sprite Palette row to load into CSet 6");
-			inf->flag[0] = "Affects Damage Combos";
-			inf->flag[1] = "Percentage Multiplier";
+			_SET(flag[0], "Affects Damage Combos", "Whether or not the ring reduces damage from damage combos.");
+			_SET(flag[1], "Percentage Multiplier", "Changes the 'Damage Divisor' to a 'Damage % Mult'"
+				", allowing more precise control over the defense granted.");
 			if(FLAG(2))
 				_SET(power, "Damage % Mult:", "The percentage to multiply the damage by. A negative value"
 					" will deal that amount *more* damage; i.e. '-100' is the same as '200'.");
 			else
-				inf->power = "Damage Divisor:";
+				_SET(power, "Damage Divisor:", "The number to divide the damage by. A divisor of 0"
+					" makes the player take no damage at all.");
 			break;
 		}
 		case itype_wand: //!TODO Help Text
@@ -1232,16 +1234,17 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 								get_ic_help(local_itemref.family)).show();
 						})
 				),
-				Column(vAlign = 0.0, hAlign = 0.0, padding = 0_px,
+				Row(vAlign = 0.0, hAlign = 0.0, padding = 0_px,
 					Checkbox(
-						hAlign = 0.0,
 						checked = (local_itemref.flags & ITEM_GAMEDATA),
-						text = "Equipment Item",
+						text = "Equipment Item", _EX_RBOX,
 						onToggleFunc = [&](bool state)
 						{
 							SETFLAG(local_itemref.flags,ITEM_GAMEDATA,state);
 						}
-					)
+					),
+					INFOBTN("Only 'Equipment Item's can be 'owned' by the player,"
+						" and appear in Init Data.")
 				)
 			),
 			TabPanel(
@@ -1314,7 +1317,9 @@ std::shared_ptr<GUI::Widget> ItemEditorDialog::view()
 									SETFLAG(local_itemref.flags,ITEM_SIDESWIM_DISABLED,state);
 								}
 							),
-							DINFOBTN(),
+							INFOBTN("If checked, this item can be used even while the player"
+								" has been turned into a 'bunny', and will still apply its"
+								" Player Tile Modifier."),
 							Checkbox(
 								width = FLAGS_WID,
 								checked = (local_itemref.flags & ITEM_BUNNY_ENABLED),
