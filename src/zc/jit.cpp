@@ -182,9 +182,9 @@ static void * compile_script_proc(ALLEGRO_THREAD *thread, void *arg)
 	return nullptr;
 }
 
-static void create_compile_tasks(script_data *scripts[], size_t len, ScriptType type)
+static void create_compile_tasks(script_data *scripts[], size_t start, size_t max, ScriptType type)
 {
-	for (size_t i = 0; i < len; i++)
+	for (size_t i = start; i < max; i++)
 	{
 		auto script = scripts[i];
 		if (script && script->valid())
@@ -194,6 +194,11 @@ static void create_compile_tasks(script_data *scripts[], size_t len, ScriptType 
 			pending_scripts.push_back(script);
 		}
 	}
+}
+
+static void create_compile_tasks(script_data *scripts[], size_t len, ScriptType type)
+{
+	create_compile_tasks(scripts, 0, len, type);
 }
 
 static bool set_compilation_thread_pool_size(int target_size)
@@ -276,13 +281,15 @@ static void create_compile_tasks()
 	create_compile_tasks(comboscripts, NUMSCRIPTSCOMBODATA, ScriptType::Combo);
 	create_compile_tasks(genericscripts, NUMSCRIPTSGENERIC, ScriptType::Generic);
 	create_compile_tasks(subscreenscripts, NUMSCRIPTSSUBSCREEN, ScriptType::EngineSubscreen);
+	create_compile_tasks(globalscripts, GLOBAL_SCRIPT_GAME+1, NUMSCRIPTGLOBAL, ScriptType::Global);
 	// Sort by # of commands, so that biggest scripts get compiled first.
 	std::sort(pending_scripts.begin(), pending_scripts.end(), [](script_data* a, script_data* b) {
 		return a->size < b->size;
 	});
-	// Make sure player and global scripts are compiled first.
+	// Make sure player and global scripts (just the INIT and GAME ones) are compiled first, as they
+	// are needed on frame 1.
 	create_compile_tasks(playerscripts, NUMSCRIPTPLAYER, ScriptType::Player);
-	create_compile_tasks(globalscripts, NUMSCRIPTGLOBAL, ScriptType::Global);
+	create_compile_tasks(globalscripts, GLOBAL_SCRIPT_GAME, NUMSCRIPTGLOBAL, ScriptType::Global);
 	if (jit_log_enabled)
 	{
 		for (auto a : pending_scripts) 
