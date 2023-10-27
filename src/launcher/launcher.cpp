@@ -650,4 +650,8 @@ bool getname(const char *prompt,const char *ext,EXT_LIST *list,const char *def,b
     return ret != 0;
 }
 
+void clear_tooltip()
+{
+	
+}
 

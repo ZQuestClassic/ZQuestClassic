@@ -30749,11 +30749,6 @@ void update_tooltip(int32_t x, int32_t y, int32_t tx, int32_t ty, int32_t tw, in
 		ttip_add_highlight(tx, ty, tw, th, fw, fh);
 }
 
-void clear_tooltip()
-{
-	ttip_remove();
-}
-
 void ZQ_ClearQuestPath()
 {
 	zc_set_config("zquest","win_last_quest",(char const*)nullptr);

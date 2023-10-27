@@ -660,6 +660,8 @@ void popup_zqdialog_start(int x, int y, int w, int h, int transp)
 		rti_dialogs.add_child(rti);
 		rti_dialogs.visible = true;
 		active_dlg_rti = rti;
+		
+		clear_tooltip();
 	}
 	else
 	{
@@ -698,6 +700,7 @@ void popup_zqdialog_end()
 		delete to_del;
 	}
 	position_mouse_z(0);
+	clear_tooltip();
 }
 
 static std::vector<ALLEGRO_STATE> old_a5_states;
@@ -715,6 +718,8 @@ void popup_zqdialog_start_a5()
 	rti_dialogs.add_child(rti);
 	rti_dialogs.visible = true;
 	active_dlg_rti = rti;
+	
+	clear_tooltip();
 	
 	old_a5_states.emplace_back();
 	ALLEGRO_STATE& oldstate = old_a5_states.back();
@@ -740,6 +745,7 @@ void popup_zqdialog_end_a5()
 		delete to_del;
 	}
 	position_mouse_z(0);
+	clear_tooltip();
 }
 
 RenderTreeItem* add_dlg_layer(int x, int y, int w, int h)

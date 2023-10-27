@@ -256,4 +256,8 @@ bool dlg_tint_paused();
 void update_throttle_counter();
 void throttleFPS(int32_t cap);
 
+//
+
+void clear_tooltip();
+
 #endif

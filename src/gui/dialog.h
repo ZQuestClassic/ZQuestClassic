@@ -40,6 +40,7 @@ public:
 			while(gui_mouse_b()); //wait for mouseup
 			rerun_dlg = false;
 			runner.clear();
+			clear_tooltip();
 			runner.run(*static_cast<T*>(this));
 		}
 		popup_zqdialog_end();

@@ -335,3 +335,9 @@ void render_zc()
 	screen = tmp;
 	al_restore_state(&oldstate);
 }
+
+void clear_tooltip()
+{
+	
+}
+
