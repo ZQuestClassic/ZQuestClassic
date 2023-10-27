@@ -6727,7 +6727,7 @@ void register_used_tiles()
 		}
 	}
 	
-	bool BSZ2=get_qr(qr_BSZELDA)!=0;
+	bool BSZ2=get_qr(qr_BSZELDA);
 	
 	for(int32_t u=0; u<wLast; u++)
 	{
@@ -6839,7 +6839,7 @@ void register_used_tiles()
 		}
 	}
 	
-	BSZ2=(zinit.subscreen>2);
+	BSZ2 = get_qr(qr_BSZELDA);
 	map_styles_items[0].tile=QMisc.colors.blueframe_tile;
 	map_styles_items[1].tile=QMisc.colors.HCpieces_tile;
 	map_styles_items[1].width=zinit.hcp_per_hc;
@@ -6871,7 +6871,7 @@ void register_used_tiles()
 		}
 	}
 	
-	BSZ2=(zinit.subscreen>2);
+	BSZ2 = get_qr(qr_BSZELDA);
 	
 	for(int32_t d=0; d<MAXDMAPS; d++)
 	{
@@ -7927,7 +7927,7 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 				tile_move_list_text[0]=0;
 				found=false;
 				flood=false;
-				bool BSZ2=(zinit.subscreen>2);
+				bool BSZ2 = get_qr(qr_BSZELDA);
 				map_styles_items[0].tile=QMisc.colors.blueframe_tile;
 				map_styles_items[1].tile=QMisc.colors.HCpieces_tile;
 				map_styles_items[1].width=zinit.hcp_per_hc;
@@ -8142,7 +8142,7 @@ bool overlay_tiles_united(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t &co
 				tile_move_list_text[0]=0;
 				found=false;
 				flood=false;
-				bool BSZ2=(zinit.subscreen>2);
+				bool BSZ2 = get_qr(qr_BSZELDA);
 				
 				for(int32_t t=0; t<MAXDMAPS; t++)
 				{
@@ -9463,7 +9463,7 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 				tile_move_list_text[0]=0;
 				found=false;
 				flood=false;
-				bool BSZ2=(zinit.subscreen>2);
+				bool BSZ2 = get_qr(qr_BSZELDA);
 				map_styles_items[0].tile=QMisc.colors.blueframe_tile;
 				map_styles_items[1].tile=QMisc.colors.HCpieces_tile;
 				map_styles_items[1].width=zinit.hcp_per_hc;
@@ -9678,7 +9678,7 @@ bool overlay_tile_united_mass(int32_t &tile,int32_t &tile2,int32_t &copy,int32_t
 				tile_move_list_text[0]=0;
 				found=false;
 				flood=false;
-				bool BSZ2=(zinit.subscreen>2);
+				bool BSZ2 = get_qr(qr_BSZELDA);
 				
 				for(int32_t t=0; t<MAXDMAPS; t++)
 				{
@@ -10829,7 +10829,7 @@ bool do_movetile_united(tile_move_data const& tmd)
 				tile_move_list_text[0]=0;
 				found=false;
 				flood=false;
-				bool BSZ2=(zinit.subscreen>2);
+				bool BSZ2 = get_qr(qr_BSZELDA);
 				map_styles_items[0].tile=QMisc.colors.blueframe_tile;
 				map_styles_items[1].tile=QMisc.colors.HCpieces_tile;
 				map_styles_items[1].width=zinit.hcp_per_hc;
@@ -11046,7 +11046,7 @@ bool do_movetile_united(tile_move_data const& tmd)
 				tile_move_list_text[0]=0;
 				found=false;
 				flood=false;
-				bool BSZ2=(zinit.subscreen>2);
+				bool BSZ2 = get_qr(qr_BSZELDA);
 				
 				for(int32_t t=0; t<MAXDMAPS; t++)
 				{
@@ -12495,7 +12495,7 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 				tile_move_list_text[0]=0;
 				found=false;
 				flood=false;
-				bool BSZ2=(zinit.subscreen>2);
+				bool BSZ2 = get_qr(qr_BSZELDA);
 				map_styles_items[0].tile=QMisc.colors.blueframe_tile;
 				map_styles_items[1].tile=QMisc.colors.HCpieces_tile;
 				map_styles_items[1].width=zinit.hcp_per_hc;
@@ -12710,7 +12710,7 @@ bool copy_tiles_united_floodfill(int32_t &tile,int32_t &tile2,int32_t &copy,int3
 				tile_move_list_text[0]=0;
 				found=false;
 				flood=false;
-				bool BSZ2=(zinit.subscreen>2);
+				bool BSZ2 = get_qr(qr_BSZELDA);
 				
 				for(int32_t t=0; t<MAXDMAPS; t++)
 				{
@@ -13672,7 +13672,7 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 		tile_move_list_text[0]=0;
 		found=false;
 		flood=false;
-		bool BSZ2=(zinit.subscreen>2);
+		bool BSZ2 = get_qr(qr_BSZELDA);
 		map_styles_items[0].tile=QMisc.colors.blueframe_tile;
 		map_styles_items[1].tile=QMisc.colors.HCpieces_tile;
 		map_styles_items[1].width=zinit.hcp_per_hc;
@@ -13830,7 +13830,7 @@ bool scale_tiles(int32_t &tile, int32_t &tile2, int32_t &cs)
 		tile_move_list_text[0]=0;
 		found=false;
 		flood=false;
-		bool BSZ2=(zinit.subscreen>2);
+		bool BSZ2 = get_qr(qr_BSZELDA);
 		
 		for(int32_t t=0; t<MAXDMAPS; t++)
 		{

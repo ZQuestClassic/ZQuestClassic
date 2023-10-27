@@ -2543,7 +2543,6 @@ bool edit_subscreen()
 	{
 		subscr_edit.name = subscr_namebuf;
 		saved=false;
-		zinit.subscreen=ssdtMAX;
 	}
 	
 	delete game;

@@ -752,14 +752,12 @@ struct user_genscript
 {
 	//Saved vars
 	bool doscript;
-	std::vector<int32_t> data;
+	bounded_map<dword,int32_t> data;
 	word exitState;
 	word reloadState;
 	uint32_t eventstate;
-	int32_t initd[8];
-private:
-	size_t _dataSize;
-public:
+	bounded_vec<byte,int32_t> initd;
+	
 	//Temp Vars
 	bool initialized;
 	bool wait_atleast;
@@ -783,10 +781,8 @@ public:
 		indx = -1;
 		ri.Clear();
 		memset(stack, 0, sizeof(stack));
-		memset(initd, 0, sizeof(initd));
-		_dataSize = 0;
+		initd.clear();
 		data.clear();
-		data.shrink_to_fit();
 	}
 	void launch()
 	{
@@ -802,14 +798,11 @@ public:
 	void quit();
 	size_t dataSize() const
 	{
-		return _dataSize;
+		return data.size();
 	}
 	void dataResize(int32_t sz)
 	{
-		sz = vbound(sz, 0, 214748);
-		if(_dataSize == size_t(sz)) return;
-		_dataSize = sz;
-		data.resize(_dataSize, 0);
+		data.resize(vbound(sz, 0, 214748));
 	}
 	void timeExit(byte exState)
 	{

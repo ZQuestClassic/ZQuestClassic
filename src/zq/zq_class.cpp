@@ -13253,11 +13253,8 @@ int32_t writesfx(PACKFILE *f, zquestheader *Header)
     new_return(0);
 }
 
-int32_t writeinitdata(PACKFILE *f, zquestheader *Header)
+int32_t writeinitdata(PACKFILE *f, zquestheader *)
 {
-	//these are here to bypass compiler warnings about unused arguments
-	Header=Header;
-	
 	dword section_id=ID_INITDATA;
 	dword section_version=V_INITDATA;
 	dword section_cversion=CV_INITDATA;
@@ -13265,7 +13262,7 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *Header)
 	
 	zinit.last_map=Map.getCurrMap();
 	zinit.last_screen=Map.getCurrScr();
-	zinit.usecustomsfx=1;
+	zinit.normalize();
 	
 	//section id
 	if(!p_mputl(section_id,f))
@@ -13284,28 +13281,7 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *Header)
 		new_return(3);
 	}
 	
-	word numgenscript = 0;
-	word ind = 1;
-	bool valid_inds[NUMSCRIPTSGENERIC] = {0};
-	for(auto it = genericmap.begin(); it != genericmap.end(); it++)
-	{
-        bool valid = zinit.gen_doscript[ind] || zinit.gen_exitState[ind]
-            || zinit.gen_reloadState[ind] || zinit.gen_initd[ind][0]
-            || zinit.gen_initd[ind][1] || zinit.gen_initd[ind][2]
-            || zinit.gen_initd[ind][3] || zinit.gen_initd[ind][4]
-            || zinit.gen_initd[ind][5] || zinit.gen_initd[ind][6]
-            || zinit.gen_initd[ind][7] || zinit.gen_data[ind].size()
-            || zinit.gen_data[ind].size() || zinit.gen_eventstate[ind];
-        if (valid)
-        {
-            valid_inds[ind] = true;
-            if (it->second.hasScriptData())
-            {
-                numgenscript = ind + 1;
-            }
-        }
-		++ind;
-	}
+	//TODO
 	
 	for(int32_t writecycle=0; writecycle<2; ++writecycle)
 	{
@@ -13313,422 +13289,144 @@ int32_t writeinitdata(PACKFILE *f, zquestheader *Header)
 		
 		//section size
 		if(!p_iputl(section_size,f))
-		{
 			new_return(4);
-		}
 		
 		writesize=0;
 		
-		//finally...  section data
-		//write the new items
-		for(int32_t i=0; i<MAXITEMS; i++)
-		{
-			if(!p_putc(zinit.items[i] ? 1 : 0, f))
-			{
+		for(int q = 0; q < MAXITEMS/8; ++q)
+			if(!p_putc(zinit.items[q], f))
 				new_return(5);
-			}
-		}
-		
-		if(!p_putc(zinit.hc,f))
+		for(int q = 0; q < MAXLEVELS/8; ++q)
 		{
-			new_return(25);
+			if(!p_putc(zinit.map[q], f))
+				new_return(6);
+			if(!p_putc(zinit.compass[q], f))
+				new_return(7);
+			if(!p_putc(zinit.boss_key[q], f))
+				new_return(8);
+			if(!p_putc(zinit.mcguffin[q], f))
+				new_return(9);
 		}
-		
-		if(!p_iputw(zinit.start_heart,f))
-		{
-			new_return(26);
-		}
-		
-		if(!p_iputw(zinit.cont_heart,f))
-		{
-			new_return(27);
-		}
-		
-		if(!p_putc(zinit.hcp,f))
-		{
-			new_return(28);
-		}
-		
-		if(!p_putc(zinit.hcp_per_hc,f))
-		{
-			new_return(29);
-		}
-		
-		if(!p_putc(zinit.keys,f))
-		{
-			new_return(31);
-		}
-		
-		if(!p_iputw(zinit.rupies,f))
-		{
-			new_return(32);
-		}
-		
-		if(!p_putc(zinit.triforce,f))
-		{
-			new_return(33);
-		}
-		
-		for(int32_t i=0; i<64; i++)
-		{
-			if(!p_putc(zinit.map[i],f))
-			{
-				new_return(34);
-			}
-		}
-		
-		for(int32_t i=0; i<64; i++)
-		{
-			if(!p_putc(zinit.compass[i],f))
-			{
-				new_return(35);
-			}
-		}
-		
-		for(int32_t i=0; i<64; i++)
-		{
-			if(!p_putc(zinit.boss_key[i],f))
-			{
-				new_return(36);
-			}
-		}
-		
-		for(int32_t i=0; i<16; i++)
-		{
-			if(!p_putc(zinit.misc[i],f))
-			{
-				new_return(37);
-			}
-		}
-		
-		if(!p_putc(zinit.last_map,f))
-		{
-			new_return(38);
-		}
-		
-		if(!p_putc(zinit.last_screen,f))
-		{
-			new_return(39);
-		}
-		
-		if(!p_iputw(zinit.max_magic,f))
-		{
-			new_return(40);
-		}
-		
-		if(!p_iputw(zinit.magic,f))
-		{
-			new_return(41);
-		}
-		
+		if(!p_putbvec(zinit.level_keys, f))
+			new_return(10);
+		if(!p_putc(MAX_COUNTERS,f))
+			new_return(11);
+		for(int q = 0; q < MAX_COUNTERS; ++q)
+			if(!p_iputw(zinit.counter[q],f))
+				new_return(12);
+		for(int q = 0; q < MAX_COUNTERS; ++q)
+			if(!p_iputw(zinit.mcounter[q],f))
+				new_return(13);
 		if(!p_putc(zinit.bomb_ratio,f))
-		{
-			new_return(41);
-		}
-		
-		if(!p_putc(zinit.msg_more_x,f))
-		{
-			new_return(42);
-		}
-		
-		if(!p_putc(zinit.msg_more_y,f))
-		{
-			new_return(43);
-		}
-		
-		if(!p_putc(zinit.subscreen,f))
-		{
-			new_return(44);
-		}
-		
-		if(!p_iputw(zinit.start_dmap,f))
-		{
-			new_return(45);
-		}
-		
-		if(!p_putc(zinit.heroAnimationStyle,f))
-		{
-			new_return(46);
-		}
-		
-		for(int32_t i=0; i<MAXLEVELS; i++)
-		{
-			if(!p_putc(zinit.level_keys[i],f))
-			{
-				new_return(49);
-			}
-		}
-		
-		if(!p_iputw(zinit.ss_grid_x,f))
-		{
-			new_return(50);
-		}
-		
-		if(!p_iputw(zinit.ss_grid_y,f))
-		{
-			new_return(51);
-		}
-		
-		if(!p_iputw(zinit.ss_grid_xofs,f))
-		{
-			new_return(52);
-		}
-		
-		if(!p_iputw(zinit.ss_grid_yofs,f))
-		{
-			new_return(53);
-		}
-		
-		if(!p_iputw(zinit.ss_grid_color,f))
-		{
-			new_return(54);
-		}
-		
-		if(!p_iputw(zinit.ss_bbox_1_color,f))
-		{
-			new_return(55);
-		}
-		
-		if(!p_iputw(zinit.ss_bbox_2_color,f))
-		{
-			new_return(56);
-		}
-		
-		if(!p_iputw(zinit.ss_flags,f))
-		{
-			new_return(57);
-		}
-		
-		if(!p_putc(zinit.subscreen_style,f))
-		{
-			new_return(58);
-		}
-		
-		if(!p_putc(zinit.usecustomsfx,f))
-		{
-			new_return(59);
-		}
-		
-		if(!p_iputw(zinit.max_rupees,f))
-		{
-			new_return(60);
-		}
-		
-		if(!p_iputw(zinit.max_keys,f))
-		{
-			new_return(61);
-		}
-		
-		if(!p_putc(zinit.gravity,f))
-		{
-			new_return(62);
-		}
-		
-		if(!p_iputw(zinit.terminalv,f))
-		{
-			new_return(63);
-		}
-		
-		if(!p_putc(zinit.msg_speed,f))
-		{
-			new_return(64);
-		}
-		
-		if(!p_putc(zinit.transition_type,f))
-		{
-			new_return(65);
-		}
-		
-		if(!p_putc(zinit.jump_hero_layer_threshold,f))
-		{
-			new_return(66);
-		}
-		
-		if(!p_putc(zinit.msg_more_is_offset,f))
-		{
-			new_return(67);
-		}
-	
-		if(!p_iputw(zinit.bombs,f))
-		{
-			new_return(68);
-		}
-		if(!p_iputw(zinit.super_bombs,f))
-		{
-			new_return(69);
-		}
-		if(!p_iputw(zinit.max_bombs,f))
-		{
-			new_return(70);
-		}
-		if(!p_iputw(zinit.max_sbombs,f))
-		{
-			new_return(71);
-		}
-		if(!p_iputw(zinit.arrows,f))
-		{
-			new_return(72);
-		}
-		if(!p_iputw(zinit.max_arrows,f))
-		{
-			new_return(73);
-		}
-		if(!p_iputw(zinit.heroStep,f))
-		{
-			new_return(73);
-		}
-		if(!p_iputw(zinit.subscrSpeed,f))
-		{
-			new_return(74);
-		}
-
+			new_return(14);
+		if(!p_putc(zinit.hcp,f))
+			new_return(15);
+		if(!p_putc(zinit.hcp_per_hc,f))
+			new_return(16);
+		if(!p_iputw(zinit.cont_heart,f))
+			new_return(17);
 		if(!p_putc(zinit.hp_per_heart,f))
-		{
-			new_return(75);
-		}
+			new_return(18);
 		if(!p_putc(zinit.magic_per_block,f))
-		{
-			new_return(76);
-		}
+			new_return(19);
 		if(!p_putc(zinit.hero_damage_multiplier,f))
-		{
-			new_return(77);
-		}
+			new_return(20);
 		if(!p_putc(zinit.ene_damage_multiplier,f))
-		{
-			new_return(78);
-		}
-		for(int32_t q = 0; q < 25; ++q)
-		{
-			if(!p_iputw(zinit.scrcnt[q],f))
-			{
-				new_return(79);
-			}
-		}
-		for(int32_t q = 0; q < 25; ++q)
-		{
-			if(!p_iputw(zinit.scrmaxcnt[q],f))
-			{
-				new_return(80);
-			}
-		}
+			new_return(21);
 		if(!p_putc(zinit.dither_type,f))
-		{
-			new_return(81);
-		}
+			new_return(22);
 		if(!p_putc(zinit.dither_arg,f))
-		{
-			new_return(82);
-		}
+			new_return(23);
 		if(!p_putc(zinit.dither_percent,f))
-		{
-			new_return(83);
-		}
+			new_return(24);
 		if(!p_putc(zinit.def_lightrad,f))
-		{
-			new_return(84);
-		}
+			new_return(25);
 		if(!p_putc(zinit.transdark_percent,f))
-		{
-			new_return(85);
-		}
-		
+			new_return(26);
 		if(!p_putc(zinit.darkcol,f))
-		{
-			new_return(86);
-		}
-		
-		if(!p_iputl(zinit.gravity2,f))
-		{
-			new_return(86);
-		}
+			new_return(27);
+		if(!p_iputl(zinit.ss_grid_x,f))
+			new_return(28);
+		if(!p_iputl(zinit.ss_grid_y,f))
+			new_return(29);
+		if(!p_iputl(zinit.ss_grid_xofs,f))
+			new_return(30);
+		if(!p_iputl(zinit.ss_grid_yofs,f))
+			new_return(31);
+		if(!p_iputl(zinit.ss_grid_color,f))
+			new_return(32);
+		if(!p_iputl(zinit.ss_bbox_1_color,f))
+			new_return(33);
+		if(!p_iputl(zinit.ss_bbox_2_color,f))
+			new_return(34);
+		if(!p_iputl(zinit.ss_flags,f))
+			new_return(35);
+		if(!p_putbitstr(zinit.flags,f))
+			new_return(36);
+		if(!p_putc(zinit.last_map,f))
+			new_return(37);
+		if(!p_putc(zinit.last_screen,f))
+			new_return(38);
+		if(!p_putc(zinit.msg_more_x,f))
+			new_return(39);
+		if(!p_putc(zinit.msg_more_y,f))
+			new_return(40);
+		if(!p_putc(zinit.msg_more_is_offset,f))
+			new_return(41);
+		if(!p_putc(zinit.msg_speed,f))
+			new_return(42);
+		if(!p_iputl(zinit.gravity,f))
+			new_return(43);
 		if(!p_iputl(zinit.swimgravity,f))
-		{
-			new_return(87);
-		}
+			new_return(44);
+		if(!p_iputw(zinit.terminalv,f))
+			new_return(45);
+		if(!p_putc(zinit.hero_swim_speed,f))
+			new_return(46);
+		if(!p_putc(zinit.hero_swim_mult,f))
+			new_return(47);
+		if(!p_putc(zinit.hero_swim_div,f))
+			new_return(48);
 		if(!p_iputw(zinit.heroSideswimUpStep,f))
-		{
-			new_return(88);
-		}
+			new_return(49);
 		if(!p_iputw(zinit.heroSideswimSideStep,f))
-		{
-			new_return(88);
-		}
+			new_return(50);
 		if(!p_iputw(zinit.heroSideswimDownStep,f))
-		{
-			new_return(88);
-		}
+			new_return(51);
 		if(!p_iputl(zinit.exitWaterJump,f))
-		{
-			new_return(89);
-		}
+			new_return(52);
+		if(!p_iputw(zinit.heroStep,f))
+			new_return(53);
+		if(!p_putc(zinit.heroAnimationStyle,f))
+			new_return(54);
+		if(!p_putc(zinit.jump_hero_layer_threshold,f))
+			new_return(55);
 		if(!p_iputl(zinit.bunny_ltm,f))
-		{
-			new_return(90);
-		}
+			new_return(56);
+		if(!p_iputw(zinit.start_dmap,f))
+			new_return(57);
+		if(!p_iputw(zinit.subscrSpeed,f))
+			new_return(58);
 		if(!p_putc(zinit.switchhookstyle,f))
-		{
-			new_return(91);
-		}
+			new_return(59);
 		if(!p_putc(zinit.magicdrainrate,f))
-		{
-			new_return(92);
-		}
-		
-		if(!p_iputw(numgenscript,f))
-			new_return(93);
-		for(auto q = 1; q < numgenscript; ++q)
-		{
-			if(!valid_inds[q])
-			{
-				if(!p_putc(0,f))
-					new_return(94);
-                continue;
-			}
-			else if(!p_putc(2|(zinit.gen_doscript[q]?1:0),f))
-				new_return(95);
-			
-			if(!p_iputw(zinit.gen_exitState[q],f))
-				new_return(96);
-			if(!p_iputw(zinit.gen_reloadState[q],f))
-				new_return(97);
-			for(auto p = 0; p < 8; ++p)
-				if(!p_iputl(zinit.gen_initd[q][p],f))
-					new_return(98);
-			if(!p_iputl(zinit.gen_data[q].size(),f))
-				new_return(99);
-			if(!p_putlvec<int32_t>(zinit.gen_data[q].inner(),f))
-				new_return(100);
-			if(!p_iputl(zinit.gen_eventstate[q],f))
-				new_return(101);
-		}
-        if(!p_putc(zinit.hero_swim_mult,f))
-        {
-            new_return(102);
-        }
-        if(!p_putc(zinit.hero_swim_div,f))
-        {
-            new_return(103);
-        }
-		uint32_t num_used_mapscr_data = 0;
-		for(int32_t q = map_count*MAPSCRS-1; q >= 0; --q)
-			if(zinit.screen_data[q].size())
-			{
-				num_used_mapscr_data = q+1;
-				break;
-			}
-		if(!p_iputl(num_used_mapscr_data,f))
-			new_return(104);
-		for(uint32_t q = 0; q < num_used_mapscr_data; ++q)
-		{
-			if(!p_iputl(zinit.screen_data[q].size(),f))
-				new_return(105);
-			if(zinit.screen_data[q].size())
-				if(!p_putlvec(zinit.screen_data[q].inner(),f))
-					new_return(106);
-		}
+			new_return(60);
 		if(!p_iputzf(zinit.shove_offset,f))
-			return qe_invalid;
+			new_return(61);
+		if(!p_putbitstr(zinit.gen_doscript, f))
+			new_return(62);
+		if(!p_putbmap(zinit.gen_exitState, f))
+			new_return(63);
+		if(!p_putbmap(zinit.gen_reloadState, f))
+			new_return(64);
+		if(!p_putbmap(zinit.gen_initd, f))
+			new_return(65);
+		if(!p_putbmap(zinit.gen_eventstate, f))
+			new_return(66);
+		if(!p_putbmap(zinit.gen_data, f))
+			new_return(67);
+		if(!p_putbmap(zinit.screen_data, f))
+			new_return(68);
 		
 		if(writecycle==0)
 		{

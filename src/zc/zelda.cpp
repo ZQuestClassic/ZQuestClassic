@@ -2036,7 +2036,7 @@ int32_t init_game()
 	
 	if(firstplay) //Move up here, so that arrays are initialised before we run Hero's Init script.
 	{
-		memset(game->screen_d, 0, MAXDMAPS * 64 * 8 * sizeof(int32_t));
+		game->screen_d.clear();
 		if(!get_qr(qr_OLD_INIT_SCRIPT_TIMING))
 		{
 			ZScriptVersion::RunScript(ScriptType::Global, GLOBAL_SCRIPT_INIT, GLOBAL_SCRIPT_INIT);
@@ -2068,20 +2068,24 @@ int32_t init_game()
 	
 	if(firstplay)
 	{
-		game->set_life(zinit.start_heart*game->get_hp_per_heart());
+		game->set_life(zinit.counter[crLIFE]);
 	}
 	else
 	{
 		if(game->get_cont_percent())
 		{
 			if(game->get_maxlife()%game->get_hp_per_heart()==0)
-				game->set_life(((game->get_maxlife()*game->get_cont_hearts()/100)/game->get_hp_per_heart())*game->get_hp_per_heart());
+			{
+				auto life = (game->get_maxlife()*game->get_cont_hearts()/100);
+				life -= life % game->get_hp_per_heart();
+				game->set_life(life);
+			}
 			else
 				game->set_life(game->get_maxlife()*game->get_cont_hearts()/100);
 		}
 		else
 		{
-			game->set_life(game->get_cont_hearts()*game->get_hp_per_heart());
+			game->set_life(game->get_cont_hearts());
 		}
 	}
 	
@@ -2279,7 +2283,7 @@ int32_t init_game()
 	{
 		if(firstplay)
 		{
-			memset(game->screen_d, 0, MAXDMAPS * 64 * 8 * sizeof(int32_t));
+			game->screen_d.clear();
 			ZScriptVersion::RunScript(ScriptType::Global, GLOBAL_SCRIPT_INIT, GLOBAL_SCRIPT_INIT);
 			if(!get_qr(qr_DO_NOT_DEALLOCATE_INIT_AND_SAVELOAD_ARRAYS) ) FFCore.deallocateAllScriptOwned(ScriptType::Global, GLOBAL_SCRIPT_INIT); //Deallocate LOCAL arrays declared in the init script. This function does NOT deallocate global arrays.
 		}
@@ -2405,17 +2409,20 @@ int32_t cont_game()
 	
 	wavy=quakeclk=0;
 	
-	//if(get_bit(zinit.misc,idM_CONTPERCENT))
 	if(game->get_cont_percent())
 	{
 		if(game->get_maxlife()%game->get_hp_per_heart()==0)
-			game->set_life(((game->get_maxlife()*game->get_cont_hearts()/100)/game->get_hp_per_heart())*game->get_hp_per_heart());
+		{
+			auto life = (game->get_maxlife()*game->get_cont_hearts()/100);
+			life -= life % game->get_hp_per_heart();
+			game->set_life(life);
+		}
 		else
 			game->set_life(game->get_maxlife()*game->get_cont_hearts()/100);
 	}
 	else
 	{
-		game->set_life(game->get_cont_hearts()*game->get_hp_per_heart());
+		game->set_life(game->get_cont_hearts());
 	}
 	
 	initZScriptGlobalScript(GLOBAL_SCRIPT_ONCONTGAME);

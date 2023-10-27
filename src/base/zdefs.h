@@ -217,11 +217,11 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_COLORS           4 //Misc Colours
 #define V_ICONS            10 //Game Icons
 #define V_GRAPHICSPACK     1
-#define V_INITDATA        36
+#define V_INITDATA        37
 #define V_GUYS            47
 #define V_MIDIS            4
 #define V_CHEATS           1
-#define V_SAVEGAME        36
+#define V_SAVEGAME        37
 #define V_COMBOALIASES     5
 #define V_HEROSPRITES      16
 #define V_SUBSCREEN        11
@@ -230,7 +230,7 @@ enum {ENC_METHOD_192B104=0, ENC_METHOD_192B105, ENC_METHOD_192B185, ENC_METHOD_2
 #define V_SFX              8
 #define V_FAVORITES        4
 
-#define V_COMPATRULE       58
+#define V_COMPATRULE       59
 #define V_ZINFO            3
 
 //= V_SHOPS is under V_MISC
@@ -2424,7 +2424,6 @@ enum
     idI_BAIT, idI_HAMMER, idI_CBYRNA, idI_ROCS, idI_MAX
 };
 enum { idI_DFIRE, idI_FWIND, idI_NLOVE, idI_MAX2 };
-enum { idM_CONTPERCENT, idM_DOUBLEMAGIC, idM_CANSLASH, idM_MAX };
 enum
 {
     idBP_WOODENPERCENT, idBP_WHITEPERCENT,

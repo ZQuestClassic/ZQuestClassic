@@ -5,33 +5,32 @@
 #include "base/containers.h"
 #include <vector>
 
-#define MAXSCRS (MAXMAPS*MAPSCRS)
+enum
+{
+	INIT_FL_CONTPERCENT,
+	INIT_FL_CANSLASH,
+	INIT_FL_MAX
+};
 struct zinitdata
 {
-	bool items[256];
+	byte items[MAXITEMS/8];
 	
-	byte hc;
-	word start_heart, cont_heart;
-	byte hcp, hcp_per_hc = 4, keys;
-	word rupies;
-	byte triforce; // bit flags
-	byte map[64];
-	byte compass[64];
-	byte boss_key[64];
-	byte misc[16];
+	byte map[MAXLEVELS/8];
+	byte compass[MAXLEVELS/8];
+	byte boss_key[MAXLEVELS/8];
+	byte mcguffin[MAXLEVELS/8];
+	bounded_vec<word,byte> level_keys {MAXLEVELS};
 	
-	byte last_map; //last map worked on
+	word counter[MAX_COUNTERS];
+	word mcounter[MAX_COUNTERS] = {0, 255, 0, 0, 0, 255}; // crMONEY/crKEYS = 255
 	
-	byte last_screen; //last screen worked on
-	word max_magic;
-	word magic;
 	byte bomb_ratio = 4; // ratio of super bombs to bombs
-	byte msg_more_x, msg_more_y, msg_more_is_offset;
-	byte subscreen;
-	word start_dmap;
-	byte heroAnimationStyle;
+	byte hcp, hcp_per_hc = 4;
+	word cont_heart; // continue health
+
+	byte hp_per_heart, magic_per_block, hero_damage_multiplier, ene_damage_multiplier;
+	byte dither_type, dither_arg, dither_percent, def_lightrad, transdark_percent, darkcol;
 	
-	byte level_keys[MAXLEVELS];
 	int32_t ss_grid_x = 8;
 	int32_t ss_grid_y = 8;
 	int32_t ss_grid_xofs;
@@ -40,46 +39,54 @@ struct zinitdata
 	int32_t ss_bbox_1_color = 15;
 	int32_t ss_bbox_2_color = 7;
 	int32_t ss_flags;
-	byte subscreen_style;
-	byte usecustomsfx;
-	word max_rupees = 255, max_keys = 255;
-	byte gravity = 16; //Deprecated!
-	int32_t gravity2 = 1600; //Bumping this up to an int32_t.
+	
+	bitstring flags;
+	
+	byte last_map, last_screen; //last editor map/screen
+	byte msg_more_x, msg_more_y, msg_more_is_offset, msg_speed = 5;
+	
+	int32_t gravity = 1600, swimgravity = 5;
 	word terminalv = 320;
-	byte msg_speed = 5;
-	byte transition_type; // Can't edit, yet.
-	byte jump_hero_layer_threshold = 255; // Hero is drawn above layer 3 if z > this.
-	byte hero_swim_speed;
+	byte hero_swim_speed; //old movement still needs
+	byte hero_swim_mult = 2, hero_swim_div = 3; //new movement
 	
-	word bombs, super_bombs, max_bombs, max_sbombs, arrows, max_arrows, heroStep, subscrSpeed = 1, heroSideswimUpStep, heroSideswimSideStep, heroSideswimDownStep;
-	
+	word heroSideswimUpStep, heroSideswimSideStep, heroSideswimDownStep;
 	int32_t exitWaterJump;
-
-	byte hp_per_heart, magic_per_block, hero_damage_multiplier, ene_damage_multiplier;
 	
-	word scrcnt[25], scrmaxcnt[25]; //Script counter start/max -Em
-	
-	int32_t swimgravity;
-	
-	byte dither_type, dither_arg, dither_percent, def_lightrad, transdark_percent, darkcol;
-	
+	word heroStep;
+	byte heroAnimationStyle;
+	byte jump_hero_layer_threshold = 255; // Hero is drawn above layer 3 if z > this.
 	int32_t bunny_ltm;
-	byte switchhookstyle;
 	
-	byte magicdrainrate;
-	
-	byte hero_swim_mult = 2, hero_swim_div = 3;
-	
-	bool gen_doscript[NUMSCRIPTSGENERIC];
-	word gen_exitState[NUMSCRIPTSGENERIC];
-	word gen_reloadState[NUMSCRIPTSGENERIC];
-	int32_t gen_initd[NUMSCRIPTSGENERIC][8];
-	uint32_t gen_eventstate[NUMSCRIPTSGENERIC];
-	
-	bounded_vec<word,bounded_vec<uint32_t,int32_t>> gen_data {NUMSCRIPTSGENERIC, {0}};
-	bounded_vec<uint32_t,bounded_vec<uint32_t,int32_t>> screen_data {MAXSCRS, {0}};
+	word start_dmap;
+	word subscrSpeed = 1;
+	byte switchhookstyle, magicdrainrate;
 	
 	zfix shove_offset = 6.5_zf;
+	
+	bitstring gen_doscript;
+	bounded_map<word,word> gen_exitState {NUMSCRIPTSGENERIC};
+	bounded_map<word,word> gen_reloadState {NUMSCRIPTSGENERIC};
+	bounded_map<word,bounded_vec<byte,int32_t>> gen_initd {NUMSCRIPTSGENERIC, {8}};
+	bounded_map<word,uint32_t> gen_eventstate {NUMSCRIPTSGENERIC};
+	bounded_map<word,bounded_map<dword,int32_t>> gen_data {NUMSCRIPTSGENERIC, {0}};
+	bounded_map<dword,bounded_map<dword,int32_t>> screen_data {MAXSCRS, {0}};
+	
+	bool get_item(size_t ind) const {return get_bit(items,ind);}
+	void set_item(size_t ind, bool st) {set_bit(items,ind,st);}
+	
+	void normalize()
+	{
+		level_keys.normalize();
+		flags.normalize();
+		gen_doscript.normalize();
+		gen_exitState.normalize();
+		gen_reloadState.normalize();
+		gen_initd.normalize();
+		gen_eventstate.normalize();
+		gen_data.normalize();
+		screen_data.normalize();
+	}
 	
 	void clear_genscript();
 	
