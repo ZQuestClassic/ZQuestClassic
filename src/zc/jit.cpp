@@ -95,7 +95,7 @@ static JittedFunction compile_if_needed(script_data *script)
 	auto it = compiled_functions.find(script->id);
 	if (it != compiled_functions.end())
 	{
-		fn = compiled_functions.at(script->id);
+		fn = it->second;
 		al_unlock_mutex(tasks_mutex);
 		return fn;
 	}
@@ -105,7 +105,7 @@ static JittedFunction compile_if_needed(script_data *script)
 	{
 		// Wait for task to finish.
 		jit_printf("jit: [*] waiting for thread to compile script type: %s index: %d name: %s\n", ScriptTypeToString(script->id.type), script->id.index, script->meta.script_name.c_str());
-		while (compiled_functions.find(script->id) == compiled_functions.end())
+		while (!compiled_functions.contains(script->id))
 		{
 			al_wait_cond(task_finish_cond, tasks_mutex);
 		}
@@ -956,12 +956,12 @@ static JittedFunction compile_script(script_data *script)
 		int arg1 = script->zasm[i].arg1;
 		int arg2 = script->zasm[i].arg2;
 
-		if (goto_labels.find(i) != goto_labels.end())
+		if (goto_labels.contains(i))
 		{
 			cc.bind(goto_labels.at(i));
 		}
 
-		if (DEBUG_JIT_PRINT_ASM && start_pc_to_function.find(i) != start_pc_to_function.end())
+		if (DEBUG_JIT_PRINT_ASM && start_pc_to_function.contains(i))
 		{
 			cc.setInlineComment((comment = fmt::format("function {}", start_pc_to_function.at(i))).c_str());
 			cc.nop();
@@ -1028,9 +1028,9 @@ static JittedFunction compile_script(script_data *script)
 			{
 				if (command_is_compiled(script->zasm[j].command))
 					break;
-				if (goto_labels.find(j) != goto_labels.end())
+				if (goto_labels.contains(j))
 					break;
-				if (start_pc_to_function.find(j) != start_pc_to_function.end())
+				if (start_pc_to_function.contains(j))
 					break;
 
 				if (DEBUG_JIT_PRINT_ASM && script->zasm[j].command != 0xFFFF)
@@ -1067,7 +1067,7 @@ static JittedFunction compile_script(script_data *script)
 		break;
 		case GOTO:
 		{
-			if (function_calls.find(i) != function_calls.end())
+			if (function_calls.contains(i))
 			{
 				// https://github.com/asmjit/asmjit/issues/286
 				x86::Gp address = cc.newIntPtr();
