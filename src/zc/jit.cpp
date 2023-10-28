@@ -723,13 +723,23 @@ static void error(ScriptDebugHandle* debug_handle, script_data *script, std::str
 static JittedFunction compile_script(script_data *script)
 {
 	CompilationState state;
-
-	al_trace("compiling script type: %s id: %d name: %s\n", ScriptTypeToString(script->meta.script_type), script->debug_id, script->meta.script_name.c_str());
-
 	state.size = script->size;
 	size_t size = state.size;
+
+	al_trace("[jit] compiling script type: %s id: %d size: %zu name: %s\n", ScriptTypeToString(script->meta.script_type), script->debug_id, size, script->meta.script_name.c_str());
+
 	if (size <= 1)
 		return nullptr;
+
+	// Check if script is like, really big.
+	// Anything over 20,000 takes ~5s, which is an unacceptable delay. Until scripts can be compiled w/o pausing execution of the engine,
+	// or a way to speed up compilation is found, set a hard limit on script size.
+	size_t limit = 20000;
+	if (!is_ci() && size >= limit)
+	{
+		al_trace("[jit] script id %d too large to compile quickly, skipping\n", script->debug_id);
+		return nullptr;
+	}
 
 	std::optional<ScriptDebugHandle> debug_handle_ = std::nullopt;
 	if (DEBUG_JIT_PRINT_ASM)
@@ -1538,20 +1548,17 @@ static JittedFunction compile_script(script_data *script)
 	start_time = end_time;
 
 	cc.finalize();
+	rt.add(&fn, &code);
 
 	end_time = std::chrono::steady_clock::now();
 	int32_t compile_ms = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - start_time).count();
 
 	if (debug_handle)
 	{
-		debug_handle->print(
-			CConsoleLoggerEx::COLOR_WHITE | CConsoleLoggerEx::COLOR_INTENSITY |
-				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
-			"\nasmjit log / assembly:\n\n");
-		debug_handle->print(
-			CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY |
-				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
-			logger.data());
+		debug_handle->printf("time to preprocess: %d ms\n", preprocess_ms);
+		debug_handle->printf("time to compile:    %d ms\n", compile_ms);
+		debug_handle->printf("ZASM instructions:  %zu\n", size);
+		debug_handle->printf("Code size:          %d kb\n", code.codeSize() / 1024);
 		debug_handle->print("\n");
 
 		if (!uncompiled_command_counts.empty())
@@ -1564,11 +1571,17 @@ static JittedFunction compile_script(script_data *script)
 			debug_handle->print("\n");
 		}
 
-		debug_handle->printf("time to preprocess: %d ms\n", preprocess_ms);
-		debug_handle->printf("time to compile:    %d ms\n\n", compile_ms);
+		debug_handle->print(
+			CConsoleLoggerEx::COLOR_WHITE | CConsoleLoggerEx::COLOR_INTENSITY |
+				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
+			"\nasmjit log / assembly:\n\n");
+		debug_handle->print(
+			CConsoleLoggerEx::COLOR_BLUE | CConsoleLoggerEx::COLOR_INTENSITY |
+				CConsoleLoggerEx::COLOR_BACKGROUND_BLACK,
+			logger.data());
 	}
 
-	rt.add(&fn, &code);
+	al_trace("[jit] finished script %d. time: %d ms\n", script->debug_id, preprocess_ms + compile_ms);
 
 	if (fn)
 	{
