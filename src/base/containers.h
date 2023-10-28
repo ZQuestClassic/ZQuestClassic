@@ -87,6 +87,7 @@ public:
 	{
 		cont = other.cont;
 		this->true_sz = other.true_sz;
+		this->default_val = other.default_val;
 		normalize();
 		return *this;
 	}
@@ -219,6 +220,7 @@ public:
 	{
 		cont = other.cont;
 		this->true_sz = other.true_sz;
+		this->default_val = other.default_val;
 		normalize();
 		return *this;
 	}

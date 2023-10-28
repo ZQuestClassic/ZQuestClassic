@@ -177,6 +177,8 @@ std::shared_ptr<GUI::Widget> MapPickDialog<Sz>::view()
 	using namespace GUI::Key;
 	using namespace GUI::Props;
 	
+	if(local_map.empty()) return nullptr;
+	
 	std::shared_ptr<GUI::Grid> wingrid, sgrid, cmdrow;
 	
 	sgrid = GUI::Internal::makeRows(4);
@@ -187,7 +189,7 @@ std::shared_ptr<GUI::Widget> MapPickDialog<Sz>::view()
 		info = "Select a set of numbers.",
 		onClose = message::CANCEL,
 		Column(
-			wingrid = Column(padding=0_px),
+			wingrid = Column(padding = 0_px),
 			Row(
 				vAlign = 1.0,
 				spacing = 2_em,
@@ -201,7 +203,7 @@ std::shared_ptr<GUI::Widget> MapPickDialog<Sz>::view()
 					}),
 				Button(
 					text = "Fill",
-					disabled = local_map.capacity() == local_map.size(), 
+					disabled = local_map.capacity() == local_map.size(),
 					onPressFunc = [&]()
 					{
 						for(Sz q = 0; q < local_map.size(); ++q)
@@ -215,7 +217,7 @@ std::shared_ptr<GUI::Widget> MapPickDialog<Sz>::view()
 						{
 							if(!local_map.contains(q))
 							{
-								if(auto v = call_get_num("Add at what index?",q,local_map.size()))
+								if(auto v = call_get_num("Add at what index?", q, local_map.size()-1, 0))
 								{
 									local_map[*v] = local_map.defval();
 									this->refresh_dlg();
@@ -284,6 +286,9 @@ std::shared_ptr<GUI::Widget> MapPickDialog<Sz>::view()
 			));
 		sgrid->add(row);
 	}
+	if (local_map.inner_empty()) sgrid->add(DummyWidget()); //prevent crash on empty map
+	auto curpg_start = pg*pglimit;
+	auto curpg_end = zc_min(local_map.size()-1,((pg+1)*pglimit)-1);
 	wingrid->add(Row(
 			Button(type = GUI::Button::type::ICON, icon = BTNICON_ARROW_LEFT2,
 				disabled = !pg,
@@ -305,7 +310,7 @@ std::shared_ptr<GUI::Widget> MapPickDialog<Sz>::view()
 						this->refresh_dlg();
 					}
 				}),
-			Label(text = fmt::format("Page {} ({}-{})",pg,pg*pglimit,((pg+1)*pglimit)-1),
+			Label(text = fmt::format("Page {} ({}-{})",pg,curpg_start,curpg_end),
 				minwidth = 8_em, textAlign = 1),
 			Button(type = GUI::Button::type::ICON, icon = BTNICON_ARROW_RIGHT,
 				disabled = (local_map.capacity() <= (pg+1)*pglimit),
@@ -372,7 +377,7 @@ std::shared_ptr<GUI::Widget> NumPickDialog::view()
 	if(zsint)
 	{
 		tf = TextField(
-			maxwidth = 8_em, hPadding = 0_px,
+			width = 8_em, hPadding = 0_px,
 			type = GUI::TextField::type::SWAP_ZSINT2,
 			val = local_val, low = min, high = max,
 			onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
@@ -383,14 +388,18 @@ std::shared_ptr<GUI::Widget> NumPickDialog::view()
 	else
 	{
 		tf = TextField(
-			maxwidth = 8_em, hPadding = 0_px,
+			width = 8_em, hPadding = 0_px,
 			type = GUI::TextField::type::SWAP_ZSINT_NO_DEC,
-			val = local_val*10000, low = min, high = max,
+			val = local_val*10000, low = min*10000, high = max*10000,
 			onValChangedFunc = [&](GUI::TextField::type,std::string_view,int32_t val)
 			{
 				local_val = val/10000;
 			});
 	}
+	std::shared_ptr<GUI::Widget> w;
+	if(max < min)
+		w = DummyWidget(padding = 0_px);
+	else w = Label(text = fmt::format("({} <= x <= {})",min,max));
 	window = Window(
 		title = "Number Picker",
 		minwidth = 30_em,
@@ -398,7 +407,7 @@ std::shared_ptr<GUI::Widget> NumPickDialog::view()
 		onClose = message::CANCEL,
 		Column(
 			Label(text = labeltext),
-			tf,
+			w, tf,
 			Row(
 				vAlign = 1.0,
 				spacing = 2_em,
@@ -426,6 +435,8 @@ bool NumPickDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 			rerun_dlg = true;
 			return true;
 		case message::OK:
+			if(max > min)
+				local_val = vbound(local_val,max,min);
 			retv = local_val;
 			return true;
 		case message::CANCEL:
@@ -437,13 +448,13 @@ bool NumPickDialog::handleMessage(const GUI::DialogMessage<message>& msg)
 optional<int32_t> call_get_num(std::string const& lbl, int32_t dv, int32_t max, int32_t min)
 {
 	optional<int32_t> ret = nullopt;
-	NumPickDialog(lbl,ret,dv,false,min,max).show();
+	NumPickDialog(lbl,ret,dv,false,max,min).show();
 	return ret;
 }
 optional<zfix> call_get_zfix(std::string const& lbl, zfix dv, zfix max, zfix min)
 {
 	optional<int32_t> ret = nullopt;
-	NumPickDialog(lbl,ret,dv.getZLong(),true,min.getZLong(),max.getZLong()).show();
+	NumPickDialog(lbl,ret,dv.getZLong(),true,max.getZLong(),min.getZLong()).show();
 	if(ret)
 		return zslongToFix(*ret);
 	return ret;
