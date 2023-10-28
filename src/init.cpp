@@ -1152,31 +1152,11 @@ constexpr std::size_t countof(T(&)[N]) { return N; }
 	ARRAY_PROP(mcounter) \
 	BITSTR_PROP(flags)
 
-#define LIST_DEPR_PROPS \
-	DEPRPROP(super_bombs,counter[crSBOMBS]) \
-	DEPRPROP_OFFS(start_heart,counter[crLIFE],*,result->hp_per_heart) \
-	DEPRPROP_BIT_IOFFS(triforce,mcguffin,8,1) \
-	DEPRPROP(rupies,counter[crMONEY]) \
-	DEPRPROP(keys,counter[crKEYS]) \
-	DEPRPROP(arrows,counter[crARROWS]) \
-	DEPRPROP(bombs,counter[crBOMBS]) \
-	DEPRPROP_OFFS(hc,counter[crLIFE],*,result->hp_per_heart) \
-	DEPRPROP(magic,counter[crMAGIC]) \
-	DEPRPROP(max_arrows,mcounter[crARROWS]) \
-	DEPRPROP(max_bombs,mcounter[crBOMBS]) \
-	DEPRPROP(max_keys,mcounter[crKEYS]) \
-	DEPRPROP(max_magic,mcounter[crMAGIC]) \
-	DEPRPROP(max_rupees,mcounter[crMONEY]) \
-	DEPRPROP(max_sbombs,mcounter[crSBOMBS]) \
-	DEPRPROP(gravity2,gravity)
-
-#define LIST_ARRAY_DEPR_PROPS \
-	ARRAY_DEPRPROP_IOFS(scrcnt,counter,crCUSTOM1) \
-	ARRAY_DEPRPROP_IOFS(scrmaxcnt,mcounter,crCUSTOM1)
-
+static int DELTA_VERSION = 1;
 string serialize_init_data_delta(zinitdata *base, zinitdata *changed)
 {
 	vector<string> tokens;
+	tokens.push_back(fmt::format("VERSION={}",DELTA_VERSION));
 	
 	#define PROP(name) if (base->name != changed->name) \
 		tokens.push_back(fmt::format("{}={}", #name, (int)changed->name));
@@ -1232,7 +1212,9 @@ zinitdata *apply_init_data_delta(zinitdata *base, string delta, string& out_erro
 		delete result; \
 		return nullptr; \
 	}
-
+	
+	dword delta_version = 0;
+	
 	for (string token : tokens)
 	{
 		vector<string> kv;
@@ -1242,108 +1224,167 @@ zinitdata *apply_init_data_delta(zinitdata *base, string delta, string& out_erro
 		errno = 0;
 		int as_int = std::strtol(kv[1].data(), nullptr, 10);
 		FAIL_IF(errno, fmt::format("invalid token '{}': expected integer", token));
-
-		if (kv[0].find('[') != kv[0].npos)
+		
+		if(kv[0] == "VERSION")
+		{
+			delta_version = as_int;
+			continue;
+		}
+		bool is_array = kv[0].find('[') != string::npos;
+		string key = kv[0];
+		vector<int> index;
+		if(is_array)
 		{
 			vector<string> name_index;
 			util::split(kv[0], name_index, '[');
 
 			errno = 0;
-			vector<int> index;
 			for(int q = 1; q < name_index.size(); ++q)
 				index.push_back(std::strtol(name_index[q].data(), nullptr, 10));
 			
 			FAIL_IF(errno, fmt::format("invalid token '{}': expected integer", token));
-			
-			if(replay_version_check(0,24)) //hardcoded deprecated prop porting
-			{
-				bool cont = true;
-				if (name_index[0] == "items")
-				{
-					FAIL_IF(index[0] >= 256, fmt::format("invalid token '{}': integer too big", token));
-					result->set_item(index[0], as_int);
-				}
-				else if (name_index[0] == "misc")
-				{
-					if(index[0] == 0)
-						result->flags.set(INIT_FL_CONTPERCENT,as_int);
-					else if(index[0] == 2)
-						result->flags.set(INIT_FL_CANSLASH,as_int);
-				}
-				else if (name_index[0] == "gen_doscript")
-				{
-					FAIL_IF(index[0] >= countof(result->items), fmt::format("invalid token '{}': integer too big", token));
-					result->gen_doscript.set(index[0], as_int);
-				}
-				else cont = false;
-				if(cont) continue;
+			key = name_index[0];
+		}
+		
+		if(delta_version < DELTA_VERSION) //compat
+		{
+			#define DEPRPROP_IGNORE(name) if(key == #name) \
+				continue;
+			#define ARRAY_DEPRPROP_IOFS(old,new,indoffs) if (key == #old) \
+			{ \
+				FAIL_IF(index[0]+indoffs >= countof(result->new), fmt::format("invalid token '{}': integer too big", token)); \
+				result->new[index[0]+indoffs] = as_int; \
+				continue; \
 			}
-			
-			#define ARRAY_PROP(name) if (name_index[0] == #name) \
+			#define DEPRPROP(old,new) if(key == #old) \
+			{ \
+				result->new = as_int; \
+				continue; \
+			}
+			#define DEPRPROP_OFFS(old,new,op,offs) if(key == #old) \
+			{ \
+				result->new = as_int op offs; \
+				continue; \
+			}
+			#define DEPRPROP_BIT_IOFFS(old,new,bits,offs) if(key == #old) \
+			{ \
+				for(int q = 0; q < bits; ++q) \
+					set_bit(result->new, q+offs, get_bitl(as_int,q)!=0); \
+				continue; \
+			}
+			if(delta_version < 1)
+			{
+				if(is_array)
+				{
+					if (key == "items")
+					{
+						FAIL_IF(index[0] >= 256, fmt::format("invalid token '{}': integer too big", token));
+						result->set_item(index[0], as_int);
+						continue;
+					}
+					if (key == "misc")
+					{
+						if(index[0] == 0)
+							result->flags.set(INIT_FL_CONTPERCENT,as_int);
+						else if(index[0] == 2)
+							result->flags.set(INIT_FL_CANSLASH,as_int);
+						continue;
+					}
+					if (key == "gen_doscript")
+					{
+						FAIL_IF(index[0] >= countof(result->items), fmt::format("invalid token '{}': integer too big", token));
+						result->gen_doscript.set(index[0], as_int);
+						continue;
+					}
+					ARRAY_DEPRPROP_IOFS(scrcnt,counter,crCUSTOM1);
+					ARRAY_DEPRPROP_IOFS(scrmaxcnt,mcounter,crCUSTOM1);
+				}
+				else
+				{
+					DEPRPROP(super_bombs,counter[crSBOMBS]);
+					DEPRPROP_OFFS(start_heart,counter[crLIFE],*,result->hp_per_heart);
+					DEPRPROP_BIT_IOFFS(triforce,mcguffin,8,1);
+					DEPRPROP(rupies,counter[crMONEY]);
+					DEPRPROP(keys,counter[crKEYS]);
+					DEPRPROP(arrows,counter[crARROWS]);
+					DEPRPROP(bombs,counter[crBOMBS]);
+					DEPRPROP_OFFS(hc,counter[crLIFE],*,result->hp_per_heart);
+					DEPRPROP(magic,counter[crMAGIC]);
+					DEPRPROP(max_arrows,mcounter[crARROWS]);
+					DEPRPROP(max_bombs,mcounter[crBOMBS]);
+					DEPRPROP(max_keys,mcounter[crKEYS]);
+					DEPRPROP(max_magic,mcounter[crMAGIC]);
+					DEPRPROP(max_rupees,mcounter[crMONEY]);
+					DEPRPROP(max_sbombs,mcounter[crSBOMBS]);
+					DEPRPROP(gravity2,gravity);
+					
+					DEPRPROP_IGNORE(subscreen);
+					DEPRPROP_IGNORE(subscreen_style);
+					DEPRPROP_IGNORE(usecustomsfx);
+				}
+			}
+			#undef DEPRPROP_BIT_IOFFS
+			#undef DEPRPROP_OFFS
+			#undef DEPRPROP
+			#undef ARRAY_DEPRPROP_IOFS
+			#undef DEPRPROP_IGNORE
+		}
+		
+		// Current
+		if(is_array)
+		{
+			#define ARRAY_PROP(name) if (key == #name) \
 			{ \
 				FAIL_IF(index[0] >= countof(result->name), fmt::format("invalid token '{}': integer too big", token)); \
 				result->name[index[0]] = as_int; \
-			} else
-			#define VEC_PROP(name) if (name_index[0] == #name) \
+				continue; \
+			}
+			#define VEC_PROP(name) if (key == #name) \
 			{ \
 				FAIL_IF(index[0] >= result->name.size(), fmt::format("invalid token '{}': integer too big", token)); \
 				result->name[index[0]] = as_int; \
-			} else
-			#define VEC_PROP_2D(name) if (name_index[0] == #name) \
+				continue; \
+			}
+			#define VEC_PROP_2D(name) if (key == #name) \
 			{ \
 				FAIL_IF(index.size() < 2, fmt::format("invalid token '{}': expected 2 indeces, got {}", token, index.size())); \
 				FAIL_IF(index[0] >= result->name.size() \
 					|| index[1] >= result->name[index[0]].size(), fmt::format("invalid token '{}': integer too big", token)); \
 				result->name[index[0]][index[1]] = as_int; \
-			} else
-			#define ARRAY_DEPRPROP_IOFS(old,new,indoffs) if (name_index[0] == #old) \
-			{ \
-				FAIL_IF(index[0]+indoffs >= countof(result->new), fmt::format("invalid token '{}': integer too big", token)); \
-				result->new[index[0]+indoffs] = as_int; \
-			} else
-			#define BITSTR_PROP(name) if (name_index[0] == #name) \
+				continue; \
+			}
+			#define BITSTR_PROP(name) if (key == #name) \
 			{ \
 				FAIL_IF(index[0] >= 65536, fmt::format("invalid token '{}': integer too big", token)); \
 				result->name.inner()[index[0]] = as_int; \
-			} else
-			LIST_ARRAY_PROPS
-			LIST_ARRAY_DEPR_PROPS
-			{
-				FAIL_IF(true, fmt::format("invalid token '{}': unknown property", token));
+				continue; \
 			}
+			LIST_ARRAY_PROPS
 			#undef BITSTR_PROP
-			#undef ARRAY_DEPRPROP_IOFS
 			#undef VEC_PROP_2D
 			#undef VEC_PROP
 			#undef ARRAY_PROP
-
-			continue;
 		}
-
-		#define PROP(name) if (kv[0] == #name) \
-			result->name = as_int; else
-		#define ZFIXPROP(name) if (kv[0] == #name) \
-			result->name = zslongToFix(as_int); else
-		#define DEPRPROP(old,new) if(kv[0] == #old) \
-			result->new = as_int; else
-		#define DEPRPROP_OFFS(old,new,op,offs) if(kv[0] == #old) \
-			result->new = as_int op offs; else
-		#define DEPRPROP_BIT_IOFFS(old,new,bits,offs) if(kv[0] == #old) \
-		{ \
-			for(int q = 0; q < bits; ++q) \
-				set_bit(result->new, q+offs, get_bitl(as_int,q)!=0); \
-		} else
-		LIST_PROPS
-		LIST_DEPR_PROPS
+		else
 		{
-			FAIL_IF(true, fmt::format("invalid token '{}': unknown property", token));
+			#define PROP(name) if (key == #name) \
+			{ \
+				result->name = as_int; \
+				continue; \
+			}
+			#define ZFIXPROP(name) if (key == #name) \
+			{ \
+				result->name = zslongToFix(as_int); \
+				continue; \
+			}
+			LIST_PROPS
+			#undef ZFIXPROP
+			#undef PROP
 		}
-		#undef DEPRPROP_BIT_IOFFS
-		#undef DEPRPROP_OFFS
-		#undef DEPRPROP
-		#undef ZFIXPROP
-		#undef PROP
+		
+		FAIL_IF(true, fmt::format("invalid token '{}': unknown property", token));
 	}
 
 	return result;
 }
+
